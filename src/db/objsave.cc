@@ -190,9 +190,9 @@ calc_daily_rent(Creature *ch, int factor, char *currency_str, char *display)
 		cur_obj = GET_EQ(ch, pos);
 		if (cur_obj)
 			total_cost += tally_obj_rent(cur_obj, currency_str, display);
-		cur_obj = GET_IMPLANT(ch, pos);
-		if (cur_obj)
-			total_cost += tally_obj_rent(cur_obj, currency_str, display);
+//		cur_obj = GET_IMPLANT(ch, pos);
+//		if (cur_obj)
+//			total_cost += tally_obj_rent(cur_obj, currency_str, display);
 	}
 
 	if (ch->carrying)
