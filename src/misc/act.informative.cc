@@ -525,136 +525,102 @@ diag_conditions(struct Creature *ch)
 char *
 desc_char_trailers(Creature *ch, Creature *i)
 {
-	char *desc = "";
+	acc_string_clear();
 
 	if (affected_by_spell(i, SPELL_QUAD_DAMAGE))
-		desc = tmp_strcat(desc, "...", HSSH(i),
+		acc_strcat("...", HSSH(i),
 			" is glowing with a bright blue light!\r\n", NULL);
 
 	if (IS_AFFECTED_2(i, AFF2_ABLAZE))
-		desc = tmp_strcat(desc, "...", HSHR(i),
+		acc_strcat("...", HSHR(i),
 			" body is blazing like a bonfire!\r\n", NULL);
 	if (IS_AFFECTED(i, AFF_BLIND))
-		desc = tmp_strcat(desc, "...", HSSH(i),
+		acc_strcat("...", HSSH(i),
 			" is groping around blindly!\r\n", NULL);
 
 	if (IS_AFFECTED(i, AFF_SANCTUARY)) {
 		if (IS_EVIL(i))
-			desc = tmp_strcat(desc, "...", HSSH(i),
+			acc_strcat("...", HSSH(i),
 				" is surrounded by darkness!\r\n", NULL);
 		else
-			desc = tmp_strcat(desc, "...", HSSH(i),
+			acc_strcat("...", HSSH(i),
 				" glows with a bright light!\r\n", NULL);
 	}
 	
-	if (IS_AFFECTED(i, AFF_GLOWLIGHT)) {
-		desc = tmp_strcat(desc, "...", HSSH(i),
-			" is followed by a ghostly light.\r\n", NULL);
-	} else if (IS_AFFECTED_2(i, AFF2_DIVINE_ILLUMINATION)) {
-		if (IS_EVIL(i))
-			desc = tmp_strcat(desc, "...", HSSH(i),
-				" is followed by an unholy light.\r\n", NULL);
-		else if (IS_GOOD(i))
-			desc = tmp_strcat(desc, "...", HSSH(i),
-				" is followed by a holy light.\r\n", NULL);
-		else
-			desc = tmp_strcat(desc, "...", HSSH(i),
-				" is followed by a sickly light.\r\n", NULL);
-	} else if (IS_AFFECTED_2(i, AFF2_FLUORESCENT))
-		desc = tmp_strcat(desc, "...", HSSH(i),
-			" is followed by a humming light.\r\n", NULL);
-
 	if (IS_AFFECTED(i, AFF_CONFUSION))
-		desc = tmp_strcat(desc, "...", HSSH(i),
+		acc_strcat("...", HSSH(i),
 			" is looking around in confusion!\r\n", NULL);
 	if (IS_AFFECTED_3(i, AFF3_SYMBOL_OF_PAIN))
-		desc = tmp_strcat(desc, "...a symbol of pain burns bright on ",
+		acc_strcat("...a symbol of pain burns bright on ",
 			HSHR(i), " forehead!\r\n", NULL);
 	if (IS_AFFECTED(i, AFF_BLUR))
-		desc = tmp_strcat(desc, "...", HSHR(i),
+		acc_strcat("...", HSHR(i),
 			" form appears to be blurry and shifting.\r\n", NULL);
 	if (IS_AFFECTED_2(i, AFF2_FIRE_SHIELD))
-		desc = tmp_strcat(desc, "...a blazing sheet of fire floats before ",
+		acc_strcat("...a blazing sheet of fire floats before ",
 			HSHR(i), " body!\r\n", NULL);
 	if (IS_AFFECTED_2(i, AFF2_BLADE_BARRIER))
-		desc = tmp_strcat(desc, "...", HSSH(i),
+		acc_strcat("...", HSSH(i),
 			" is surrounded by whirling blades!\r\n", NULL);
 	if (IS_AFFECTED_2(i, AFF2_ENERGY_FIELD))
-		desc = tmp_strcat(desc, "...", HSSH(i),
+		acc_strcat("...", HSSH(i),
 			" is covered by a crackling field of energy!\r\n", NULL);
 
 	if (IS_SOULLESS(i))
-		desc = tmp_strcat(desc, "...a deep red pentagram has been burned into ",
+		acc_strcat("...a deep red pentagram has been burned into ",
 			HSHR(i), " forehead!\r\n", NULL);
 	else if (IS_AFFECTED_3(i, AFF3_TAINTED))
-		desc = tmp_strcat(desc, "...the mark of the tainted has been burned into ",
+		acc_strcat("...the mark of the tainted has been burned into ",
 			HSHR(i), " forehead!\r\n", NULL);
 
 	if (IS_AFFECTED_3(i, AFF3_PRISMATIC_SPHERE))
-		desc = tmp_strcat(desc, "...", HSSH(i),
+		acc_strcat("...", HSSH(i),
 			" is surrounded by a prismatic sphere of light!\r\n", NULL);
-
-	if (affected_by_spell(i, SPELL_ELECTROSTATIC_FIELD))
-		desc = tmp_strcat(desc, "...", HSSH(i),
-			" is surrounded by a swarming sea of electrons!\r\n", NULL);
 
 	if (affected_by_spell(i, SPELL_SKUNK_STENCH) ||
 			affected_by_spell(i, SPELL_TROG_STENCH))
-		desc = tmp_strcat(desc, "...", HSSH(i),
+		acc_strcat("...", HSSH(i),
 			" is followed by a malodorous stench...\r\n", NULL);
 
 	if (IS_AFFECTED_2(i, AFF2_PETRIFIED))
-		desc = tmp_strcat(desc, "...", HSSH(i),
+		acc_strcat("...", HSSH(i),
 			" is petrified into solid stone.\r\n", NULL);
 
 	if (affected_by_spell(i, SPELL_ENTANGLE)) {
 		if (i->in_room->sector_type == SECT_CITY
 			|| i->in_room->sector_type == SECT_CRACKED_ROAD)
-			desc = tmp_strcat(desc, "...", HSSH(i),
+			acc_strcat("...", HSSH(i),
 				" is hopelessly tangled in the weeds and sparse vegetation.\r\n", NULL);
 		else
-			desc = tmp_strcat(desc, "...", HSSH(i),
+			acc_strcat("...", HSSH(i),
 				" is hopelessly tangled in the undergrowth.\r\n", NULL);
 	}
 
-	if (IS_AFFECTED_3(i, AFF3_GRAVITY_WELL))
-		desc = tmp_strcat(desc, "...spacetime bends around ", HMHR(i),
-			" in a powerful gravity well!\r\n", NULL);
-
 	if (IS_AFFECTED_2(i, AFF2_DISPLACEMENT) &&
 			IS_AFFECTED_2(ch, AFF2_TRUE_SEEING))
-		desc = tmp_strcat(desc, "...the image of ", HSHR(i),
+		acc_strcat("...the image of ", HSHR(i),
 			" body is strangely displaced.\r\n", NULL);
 
 	if (IS_AFFECTED(i, AFF_INVISIBLE))
-		desc = tmp_strcat(desc, "...", HSSH(i),
+		acc_strcat("...", HSSH(i),
 			" is invisible to the unaided eye.\r\n", NULL);
 
 	if (IS_AFFECTED_2(i, AFF2_TRANSPARENT))
-		desc = tmp_strcat(desc, "...", HSHR(i),
+		acc_strcat("...", HSHR(i),
 			" body is completely transparent.\r\n", NULL);
 
 	if (affected_by_spell(i, SKILL_KATA) &&
 			i->getLevelBonus(SKILL_KATA) >= 50)
-		desc = tmp_strcat(desc, "...", HSHR(i),
+		acc_strcat("...", HSHR(i),
 			" hands are glowing eerily.\r\n", NULL);
 
-    if (affected_by_spell(i, SPELL_REPULSION_FIELD))
-        desc = tmp_strcat(desc, "...", HSSH(i), " is surrounded by a ",
-                          "repulsive field.\r\n", NULL); 
-    if (affected_by_spell(i, SPELL_VACUUM_SHROUD))
-        desc = tmp_strcat(desc, "...", HSSH(i), " is existing in a total ",
-                          "vacuum.\r\n", NULL);
-    if (affected_by_spell(i, SPELL_ALBEDO_SHIELD))
-        desc = tmp_strcat(desc, "...", HSHR(i), " body is surrounded by a ",
-                          "reflective shield.\r\n", NULL);
     if (affected_by_spell(i, SPELL_GAUSS_SHIELD))
-        desc = tmp_strcat(desc, "...", HSSH(i), " is protected by a swirling ",
+        acc_strcat("...", HSSH(i), " is protected by a swirling ",
                           "shield of energy.\r\n", NULL);
     if (affected_by_spell(i, SPELL_THORN_SKIN))
-        desc = tmp_strcat(desc, "...", HSSH(i), " has thorns protruding from ",
+        acc_strcat("... thorns protrude painfully from ",
                           HSHR(i), " skin.\r\n", NULL);
-	return desc;
+	return acc_get_string();
 }
 
 void
