@@ -46,7 +46,7 @@ int corpse_state = 0;
 /* The Fight related routines */
 obj_data * get_random_uncovered_implant ( char_data *ch, int type = -1 );
 int calculate_weapon_probability( struct char_data *ch, int prob, struct obj_data *weap);
-
+int do_combat_fire(struct char_data *ch, struct char_data *vict, int weap_pos);
 
 /* start one char fighting another ( yes, it is horrible, I know... )  */
 void 
@@ -1813,9 +1813,9 @@ damage( struct char_data * ch, struct char_data * victim, int dam,
 
     if ( victim->getPosition() == POS_DEAD ) {
         if ( ch ) {
-//            if(attacktype != SKILL_SNIPE) { 
-//              gain_kill_exp( ch, victim );
-//            }
+            if(attacktype != SKILL_SNIPE) {
+              gain_kill_exp( ch, victim );
+            }
 
             if ( !IS_NPC( victim ) ) {
                 if ( victim != ch ) {
@@ -2261,6 +2261,7 @@ int hit( struct char_data * ch, struct char_data * victim, int type ) {
 void perform_violence( void ) {
 
     register struct char_data *ch;
+    struct obj_data *weap = NULL;
     int prob, i, die_roll;
 
     for ( ch = combat_list; ch; ch = next_combat_list ) {
@@ -2321,6 +2322,10 @@ void perform_violence( void ) {
         if ( CHECK_SKILL(ch, SKILL_MELEE_COMBAT_TAC) &&
              affected_by_spell(ch, SKILL_MELEE_COMBAT_TAC))
             prob += (int) ( CHECK_SKILL(ch, SKILL_MELEE_COMBAT_TAC) * 0.10);
+        if ( IS_MERC(ch) && ((((weap = GET_EQ(ch, WEAR_WIELD)) && IS_GUN(weap)) ||
+                               ((weap = GET_EQ(ch, WEAR_WIELD_2)) && IS_GUN(weap))) &&
+                                CHECK_SKILL(ch, SKILL_SHOOT) > 50))
+            prob += (int) (CHECK_SKILL(ch, SKILL_SHOOT) * 0.18);
         if ( IS_AFFECTED( ch, AFF_ADRENALINE ) )
             prob = ( int ) ( prob * 1.10 );
         if ( IS_AFFECTED_2( ch, AFF2_HASTE ) )
@@ -2364,6 +2369,17 @@ void perform_violence( void ) {
         if ( MIN( 100, prob+15 ) >= die_roll ) {
 
             bool stop = false;
+            
+/*            if(IS_MERC(ch)) {
+              if(do_combat_fire(ch, FIGHTING(ch), WEAR_WIELD)) {
+                stop = true;
+              }
+              if(do_combat_fire(ch, FIGHTING(ch), WEAR_WIELD_2)) {
+                stop = true;
+              }
+              if(stop)
+                break;
+            } */
 
             for ( i = 0; i < 4; i++ ) {
                 if ( !FIGHTING( ch ) || GET_LEVEL( ch ) < ( i << 3 ) )
@@ -2498,7 +2514,4 @@ void perform_violence( void ) {
         }
     }
 }
-
-
-#undef __fight_c__
 #undef __combat_code__
