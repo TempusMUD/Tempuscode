@@ -215,7 +215,7 @@ list_residents_to_char(struct Creature *ch, int town)
         for (d = descriptor_list; d; d = d->next) {
             if (!d->creature || !can_see_creature(ch, d->creature))
                 continue;
-            acc_sprintf("%s%s%-20s%s -- %s%-30s%s\r\n",
+            acc_sprintf("%s%-20s%s -- %s%-30s%s\r\n",
                 GET_LEVEL(d->creature) >= LVL_AMBASSADOR ? CCYEL(ch,
                     C_NRM) : "", GET_NAME(d->creature),
                 GET_LEVEL(d->creature) >= LVL_AMBASSADOR ? CCNRM(ch,
@@ -228,7 +228,7 @@ list_residents_to_char(struct Creature *ch, int town)
             if (!d->creature || !can_see_creature(ch, d->creature))
                 continue;
             if (GET_HOME(d->creature) == town) {
-                acc_sprintf("%s%s%-20s%s\r\n",
+                acc_sprintf("%s%-20s%s\r\n",
                     GET_LEVEL(d->creature) >= LVL_AMBASSADOR ? CCYEL(ch,
                         C_NRM) : "", GET_NAME(d->creature),
                     GET_LEVEL(d->creature) >= LVL_AMBASSADOR ? CCNRM(ch,
