@@ -3687,7 +3687,7 @@ ACMD(do_empty)
 
     if ( *arg2 && obj ) {
 
-        if ( ! ( bits2 = generic_find( arg2, FIND_OBJ_INV | FIND_OBJ_ROOM, ch, &dummy, &container ) ) ) {
+        if ( ! ( bits2 = generic_find( arg2, FIND_OBJ_EQUIP | FIND_OBJ_INV | FIND_OBJ_ROOM, ch, &dummy, &container ) ) ) {
             sprintf( buf, "Empty %s into what?\r\n", obj->short_description );
             send_to_char( buf, ch );
             return;
