@@ -115,7 +115,7 @@ tarrasque_swallow(Creature *tarr, Creature *vict)
 	send_to_char(vict, "The last thing you hear is the bloody crunch of your body.\r\n");
 	death_cry(vict);
 	mudlog( GET_INVIS_LVL(vict), NRM, true,
-		    "%s swallowed by %s at %s ( %d )", 
+		    "%s swallowed by %s at %s (%d)", 
 		    GET_NAME(vict), GET_NAME(tarr), 
 		    tarr->in_room->name, tarr->in_room->number );
 	char_from_room(vict, false);

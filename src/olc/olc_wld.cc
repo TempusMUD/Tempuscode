@@ -888,7 +888,7 @@ do_olc_rset(struct Creature *ch, char *argument)
 			if (!FLOW_SPEED(ch->in_room))
 				strcat(buf, " None.\r\n");
 			else {
-				send_to_char(ch, "Direction: %s, Speed: %d, Type: %s ( %d ).\r\n",
+				send_to_char(ch, "Direction: %s, Speed: %d, Type: %s (%d).\r\n",
 					dirs[(int)FLOW_DIR(ch->in_room)], FLOW_SPEED(ch->in_room),
 					flow_types[(int)FLOW_TYPE(ch->in_room)],
 					(int)FLOW_TYPE(ch->in_room));

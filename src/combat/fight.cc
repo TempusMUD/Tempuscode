@@ -420,7 +420,7 @@ perform_gain_kill_exp(struct Creature *ch, struct Creature *victim,
 	if (IS_NPC(victim) && !IS_NPC(ch) 
 	&& (GET_EXP(victim) < 0 || exp > 5000000)) 
 	{
-		slog("%s Killed %s( %d ) for exp: %d.", GET_NAME(ch),
+		slog("%s Killed %s(%d) for exp: %d.", GET_NAME(ch),
 			GET_NAME(victim), GET_EXP(victim), exp);
 	}
 	if (exp > ((exp_scale[GET_LEVEL(ch) + 1] - GET_EXP(ch)) / 10)) {
@@ -1806,7 +1806,7 @@ damage(struct Creature *ch, struct Creature *victim, int dam,
 				}
 				// Killed someone else
 				if (victim != ch) {
-					sprintf(buf2, "%s %skilled by %s at %s ( %d )%s",
+					sprintf(buf2, "%s %skilled by %s at %s (%d)%s",
 						GET_NAME(victim), !IS_NPC(ch) ? "p" : "", GET_NAME(ch),
 						victim->in_room->name, victim->in_room->number,
 						affected_by_spell(ch, SPELL_QUAD_DAMAGE) ? "QUAD":"");
@@ -1816,7 +1816,7 @@ damage(struct Creature *ch, struct Creature *victim, int dam,
 						GET_PKILLS(ch) += 1;
 					}
 				} else {
-					sprintf(buf2, "%s died%s%s at %s ( %d )", GET_NAME(ch),
+					sprintf(buf2, "%s died%s%s at %s (%d)", GET_NAME(ch),
 						(attacktype <= TOP_NPC_SPELL) ? " by " : "",
 						(attacktype <=
 							TOP_NPC_SPELL) ? spell_to_str(attacktype) : "",
