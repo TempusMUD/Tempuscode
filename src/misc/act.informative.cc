@@ -2645,83 +2645,70 @@ ACMD(do_score)
 
 	switch (ch->getPosition()) {
 	case POS_DEAD:
-		acc_strcat(CCRED(ch, C_NRM),
-			"You are DEAD!\r\n", CCNRM(ch, C_NRM), NULL);
+		acc_strcat(CCRED(ch, C_NRM), "You are DEAD!", CCNRM(ch, C_NRM),
+			"\r\n", NULL);
 		break;
 	case POS_MORTALLYW:
 		acc_strcat(CCRED(ch, C_NRM),
-			"You are mortally wounded!  You should seek help!\r\n",
-			CCNRM(ch, C_NRM), NULL);
+			"You are mortally wounded!  You should seek help!",
+			CCNRM(ch, C_NRM), "\r\n", NULL);
 		break;
 	case POS_INCAP:
-		acc_strcat(CCRED(ch, C_NRM),
-			"You are incapacitated, slowly fading away...\r\n",
-			CCNRM(ch, C_NRM), NULL);
+		acc_strcat(CCRED(ch, C_NRM), "You are incapacitated, slowly fading away...",
+			CCNRM(ch, C_NRM), "\r\n", NULL);
 		break;
 	case POS_STUNNED:
-		acc_strcat(CCRED(ch, C_NRM),
-			"You are stunned!  You can't move!\r\n",
-			CCNRM(ch, C_NRM), NULL);
+		acc_strcat(CCRED(ch, C_NRM), "You are stunned!  You can't move!",
+			CCNRM(ch, C_NRM), "\r\n", NULL);
 		break;
 	case POS_SLEEPING:
 		if (AFF3_FLAGGED(ch, AFF3_STASIS))
-			acc_strcat(CCGRN(ch, C_NRM),
-				"You are inactive in a static state.\r\n",
-				CCNRM(ch, C_NRM), NULL);
+			acc_strcat(CCGRN(ch, C_NRM), "You are inactive in a static state.",
+				CCNRM(ch, C_NRM), "\r\n", NULL);
 		else
-			acc_strcat(CCGRN(ch, C_NRM),
-				"You are sleeping.\r\n",
-				CCNRM(ch, C_NRM), NULL);
+			acc_strcat(CCGRN(ch, C_NRM), "You are sleeping.",
+				CCNRM(ch, C_NRM), "\r\n", NULL);
 		break;
 	case POS_RESTING:
-		acc_strcat(CCGRN(ch, C_NRM),
-			"You are resting.\r\n",
-			CCNRM(ch, C_NRM), NULL);
+		acc_strcat(CCGRN(ch, C_NRM), "You are resting.",
+			CCNRM(ch, C_NRM), "\r\n", NULL);
 		break;
 	case POS_SITTING:
 		if (IS_AFFECTED_2(ch, AFF2_MEDITATE))
-			acc_strcat(CCGRN(ch, C_NRM),
-				"You are meditating.\r\n",
-				CCNRM(ch, C_NRM), NULL);
+			acc_strcat(CCGRN(ch, C_NRM), "You are meditating.",
+				CCNRM(ch, C_NRM), "\r\n", NULL);
 		else
-			acc_strcat(CCGRN(ch, C_NRM),
-				"You are sitting.\r\n",
-				CCNRM(ch, C_NRM), NULL);
+			acc_strcat(CCGRN(ch, C_NRM), "You are sitting.",
+				CCNRM(ch, C_NRM), "\r\n", NULL);
 		break;
 	case POS_FIGHTING:
 		if ((ch->isFighting()))
 			acc_strcat(CCYEL(ch, C_NRM),
-				"You are fighting ", PERS(ch->getFighting(), ch), ".\r\n",
-				CCNRM(ch, C_NRM), NULL);
+				"You are fighting ", PERS(ch->getFighting(), ch), ".",
+				CCNRM(ch, C_NRM), "\r\n", NULL);
 		else
 			acc_strcat(CCYEL(ch, C_NRM),
-				"You are fighting thin air.\r\n",
-				CCNRM(ch, C_NRM), NULL);
+				"You are fighting thin air.", CCNRM(ch, C_NRM), "\r\n", NULL);
 		break;
 	case POS_MOUNTED:
 		if (MOUNTED(ch))
-			acc_strcat(CCGRN(ch, C_NRM),
-				"You are mounted on ", PERS(MOUNTED(ch), ch), ".\r\n",
-				CCNRM(ch, C_NRM), NULL);
+			acc_strcat(CCGRN(ch, C_NRM), "You are mounted on ",
+				PERS(MOUNTED(ch), ch), ".", CCNRM(ch, C_NRM), "\r\n", NULL);
 		else
-			acc_strcat(CCGRN(ch, C_NRM),
-				"You are mounted on the thin air!?\r\n",
-				CCNRM(ch, C_NRM), NULL);
+			acc_strcat(CCGRN(ch, C_NRM), "You are mounted on the thin air!?",
+				CCNRM(ch, C_NRM), "\r\n", NULL);
 		break;
 	case POS_STANDING:
-		acc_strcat(CCGRN(ch, C_NRM),
-			"You are standing\r\n",
-			CCNRM(ch, C_NRM), NULL);
+		acc_strcat(CCGRN(ch, C_NRM), "You are standing",
+			CCNRM(ch, C_NRM), "\r\n", NULL);
 		break;
 	case POS_FLYING:
-		acc_strcat(CCGRN(ch, C_NRM),
-			"You are hovering in midair\r\n",
-			CCNRM(ch, C_NRM), NULL);
+		acc_strcat(CCGRN(ch, C_NRM), "You are hovering in midair",
+			CCNRM(ch, C_NRM), "\r\n", NULL);
 		break;
 	default:
-		acc_strcat(CCGRN(ch, C_NRM),
-			"You are floating.\r\n",
-			CCNRM(ch, C_NRM), NULL);
+		acc_strcat(CCGRN(ch, C_NRM), "You are floating.",
+			CCNRM(ch, C_NRM), "\r\n", NULL);
 		break;
 	}
 
