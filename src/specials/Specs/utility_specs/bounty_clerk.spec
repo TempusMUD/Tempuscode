@@ -15,7 +15,7 @@ load_bounty_data(void)
 	PGresult *res;
 	int idx, count;
 
-	res = sql_query("select idnum, hunted from bounty_hunters");
+	res = sql_query("select idnum, victim from bounty_hunters");
 	count = PQntuples(res);
 	if (count < 1)
 		return;
