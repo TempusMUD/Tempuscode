@@ -1319,7 +1319,7 @@ make_corpse(struct Creature *ch, struct Creature *killer, int attacktype)
 		head->short_description = str_dup(buf2);
 		GET_OBJ_TYPE(head) = ITEM_DRINKCON;
 		GET_OBJ_WEAR(head) = ITEM_WEAR_TAKE;
-		GET_OBJ_EXTRA(head) = ITEM_NODONATE;
+		GET_OBJ_EXTRA(head) = ITEM_NODONATE | ITEM_NOSELL;
 		GET_OBJ_EXTRA2(head) = ITEM2_BODY_PART;
 		GET_OBJ_VAL(head, 0) = 5;	/* Head full of blood */
 		GET_OBJ_VAL(head, 1) = 5;
