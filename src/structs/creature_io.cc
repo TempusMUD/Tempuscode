@@ -585,7 +585,7 @@ Creature::saveToXML()
 		fprintf(ouf, "<title>%s</title>\n", xmlEncodeTmp(GET_TITLE(ch)) );
 	}
 
-	if (GET_LEVEL(ch) >= LVL_IMMORT) {
+	if (GET_LEVEL(ch) >= 50) {
 		fprintf(ouf, "<immort badge=\"%s\" qlog=\"%d\" invis=\"%d\"/>\n",
 			xmlEncodeTmp(BADGE(ch)), GET_QLOG_LEVEL(ch),
 			GET_INVIS_LVL(ch));
