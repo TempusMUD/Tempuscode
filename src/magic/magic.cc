@@ -961,8 +961,8 @@ mag_affects(int level, struct char_data * ch, struct char_data * victim,
     break;
 
     case SPELL_BARKSKIN:
-    if(affected_by_spell(ch,SPELL_STONESKIN)) {
-        affect_from_char(ch,SPELL_STONESKIN);
+    if(affected_by_spell(victim,SPELL_STONESKIN)) {
+        affect_from_char(victim,SPELL_STONESKIN);
         if( *spell_wear_off_msg[ SPELL_STONESKIN ] ) {
              send_to_char( spell_wear_off_msg[ SPELL_STONESKIN ], victim );
              send_to_char( "\r\n", victim) ;
@@ -976,8 +976,8 @@ mag_affects(int level, struct char_data * ch, struct char_data * victim,
     to_vict = "Your skin tightens up and hardens.";
     break;
     case SPELL_STONESKIN:
-    if(affected_by_spell(ch,SPELL_BARKSKIN)) {
-        affect_from_char(ch,SPELL_BARKSKIN);
+    if(affected_by_spell(victim,SPELL_BARKSKIN)) {
+        affect_from_char(victim,SPELL_BARKSKIN);
         if( *spell_wear_off_msg[ SPELL_BARKSKIN] ) {
              send_to_char( spell_wear_off_msg[ SPELL_BARKSKIN ], victim );
              send_to_char( "\r\n", victim) ;
