@@ -604,7 +604,7 @@ HouseControl::load()
 	dirent *file;
 	char *dirname;
 
-	for( int i = 1; i <= 9; i++ ) {
+	for( int i = 0; i <= 9; i++ ) {
 		// If we don't have
 		dirname = tmp_sprintf("housing/%d", i);
 		dir = opendir(dirname);
