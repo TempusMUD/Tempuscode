@@ -4,7 +4,7 @@ using namespace std;
 #include "tokenizer.h"
 #include <signal.h>
 
-bool CAN_EDIT_ZONE(CHAR * ch, struct zone_data *zone);
+bool CAN_EDIT_ZONE(Creature* ch, struct zone_data *zone);
 //FOO
 ACMD(do_map)
 {
