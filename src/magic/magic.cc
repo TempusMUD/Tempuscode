@@ -2549,34 +2549,26 @@ mag_areas(byte level, struct Creature *ch, int spellnum, int savetype)
 		return 0;
 	}
 	// check for players if caster is not a pkiller
-	if (!IS_NPC(ch) && !PRF2_FLAGGED(ch, PRF2_PKILLER)) {
+	if (!IS_NPC(ch) && !ROOM_FLAGGED(ch->in_room, ROOM_ARENA)) {
 		CreatureList::iterator it = ch->in_room->people.begin();
 		for (; it != ch->in_room->people.end(); ++it) {
 			if (ch == *it)
 				continue;
-			if (!ok_to_damage(ch, *it)) {
-				act("You cannot do this, because this action might cause harm to $N,\r\n" 
+			if (IS_PC(*it) && !PRF2_FLAGGED(ch, PRF2_PKILLER)) {
+				act("You cannot do this, because this action might cause harm to $N," 
 					"and you have chosen not to be a PKILLER.\r\n" 
 					"You can toggle this behavior with the command 'pkiller'.", 
+					 FALSE, ch, 0, (*it), TO_CHAR);
+				return 0;
+			}
+			if ((PLR_FLAGGED(*it, PLR_NOPK) || (*it)->isNewbie())) {
+				act("You cannot do this, because this action might cause harm to $N.",
 					 FALSE, ch, 0, (*it), TO_CHAR);
 				return 0;
 			}
 		}
 	}
 	
-	// Check for newbies etc.
-	if( !ROOM_FLAGGED(ch->in_room, ROOM_ARENA) ) {
-		CreatureList::iterator it = ch->in_room->people.begin();
-		for (; it != ch->in_room->people.end(); ++it) {
-			Creature *vict = *it;
-			if( ch == vict )
-				continue;
-			if( IS_PC(vict) && ( PLR_FLAGGED(vict, PLR_NOPK) || vict->isNewbie() ) ) {
-				act("You cannot do this, because this action might cause harm to $N,\r\n",
-					 FALSE, ch, 0, vict, TO_CHAR);
-			}
-		}
-	}
 	
 	CreatureList::iterator it = ch->in_room->people.begin();
 	for (; it != ch->in_room->people.end(); ++it) {
