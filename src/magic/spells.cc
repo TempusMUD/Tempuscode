@@ -809,9 +809,7 @@ ASPELL(spell_locate_object)
 		rm = where_obj(i);
 
 		if (!rm) {
-			mudlog(LVL_CREATOR, BRF, true,
-				"SYSERR: %s is nowhere? Moving to The Void.",
-				i->name);
+			errlog("%s is nowhere? Moving to The Void.", i->name);
 			rm = real_room(0);
 			SET_BIT(GET_OBJ_EXTRA2(i), ITEM2_BROKEN);
 			SET_BIT(GET_OBJ_EXTRA3(i), ITEM3_HUNTED);

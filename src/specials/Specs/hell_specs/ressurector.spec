@@ -30,10 +30,8 @@ SPECIAL(hell_ressurector)
 		vict = real_mobile_proto(-CORPSE_IDNUM(corpse));
 
 		if (!vict) {
-			sprintf(buf,
-				"SYSERR: hell resurrector unable to real_mobile_proto(%d).",
+			errlog("hell resurrector unable to real_mobile_proto(%d).",
 				-CORPSE_IDNUM(corpse));
-			slog(buf);
 			continue;
 		}
 		//

@@ -161,8 +161,7 @@ general_search(struct Creature *ch, struct special_search_data *srch,
 			return 0;
 		}
 		if ((targ_room = real_room(srch->arg[1])) == NULL) {
-			slog(
-				"SYSERR: search in room %d, targ room %d nonexistant.",
+			errlog("search in room %d, targ room %d nonexistant.",
 				rm->number, srch->arg[1]);
 			return 0;
 		}
@@ -571,8 +570,7 @@ general_search(struct Creature *ch, struct special_search_data *srch,
 		}
 
 		if (srch->arg[2] <= 0 || srch->arg[2] >= TOP_NPC_SPELL) {
-			slog(
-				"SYSERR: search in room %d, damage number %d invalid.",
+			errlog("search in room %d, damage number %d invalid.",
 				rm->number, srch->arg[2]);
 			return 0;
 		}

@@ -2674,24 +2674,10 @@ autosave_zones(int SAVE_TYPE)
 	struct zone_data *zone;
 
 	for (zone = zone_table; zone; zone = zone->next)
-		if (!ZONE_FLAGGED(zone, ZONE_LOCKED) &&
-			ZONE_FLAGGED(zone, SAVE_TYPE & ZONE_ZONE_MODIFIED))
-			if (save_zone(NULL, zone) == 0) {
-				mudlog(LVL_IMMORT, NRM, true,
-					"SYSERR: Could not save zone : %s\n", zone->name);
-			}
-/*
-  if (ZONE_FLAGGED(zone, SAVE_TYPE&ZONE_ROOMS_MODIFIED))
-  if (save_wld(NULL, zone) == 0) {
-  sprintf(buf, "SYSERR: Could not save world for zone : %s\n", zone->name);
-  mudlog(buf, NRM, LVL_IMMORT, TRUE);
-  }
-  if (ZONE_FLAGGED(zone, SAVE_TYPE&ZONE_OBJS_MODIFIED))
-  if (save_objs(NULL, zone) == 0) {
-  sprintf(buf, "SYSERR: Cound not save objs for zone : %s\n", zone->name);
-  mudlog(buf, NRM, LVL_IMMORT, TRUE);
-  }
-*/
+		if (!ZONE_FLAGGED(zone, ZONE_LOCKED)
+				&& ZONE_FLAGGED(zone, SAVE_TYPE & ZONE_ZONE_MODIFIED))
+			if (save_zone(NULL, zone) == 0)
+				errlog("Could not save zone : %s\n", zone->name);
 }
 
 

@@ -559,27 +559,27 @@ Load_paths(void)
 		case 0:
 			break;
 		case 1:
-			sprintf(buf, "SYSERR: Path %d in vnum position.", line);
+			sprintf(buf, "Path %d in vnum position.", line);
 			fail = 1;
 			break;
 		case 2:
-			sprintf(buf, "SYSERR: Path %d in title position.", line);
+			sprintf(buf, "Path %d in title position.", line);
 			fail = 1;
 			break;
 		case 3:
-			sprintf(buf, "SYSERR: Path %d in owner position.", line);
+			sprintf(buf, "Path %d in owner position.", line);
 			fail = 1;
 			break;
 		case 4:
-			sprintf(buf, "SYSERR: Path %d in wait time position.", line);
+			sprintf(buf, "Path %d in wait time position.", line);
 			fail = 1;
 			break;
 		case 5:
-			sprintf(buf, "SYSERR: Path %d in length position.", line);
+			sprintf(buf, "Path %d in length position.", line);
 			fail = 1;
 			break;
 		default:
-			sprintf(buf, "SYSERR: Path %d in path position %d.", line,
+			sprintf(buf, "Path %d in path position %d.", line,
 				ret - 5);
 			fail = 1;
 		}
@@ -588,7 +588,7 @@ Load_paths(void)
 			fprintf(stderr, "paths error:%s\n", buf);
 			safe_exit(0);
 		} else if (fail) {
-			mudlog(LVL_CREATOR, NRM, false, "%s", buf);
+			errlog("%s", buf);
 		}
 	}
 

@@ -489,8 +489,7 @@ obj_data::removeAffect(struct tmp_obj_affect *af)
     }
 
     if (!found) {
-        mudlog(LVL_AMBASSADOR, BRF, true, "SYSERR: Could not find matching "
-               "temporary object affect to remove.");
+		errlog("Could not find matching temporary object affect to remove.");
     }
 }
 
@@ -556,8 +555,8 @@ obj_data::affectModify(struct tmp_obj_affect *af, bool add)
             oextra = &this->obj_flags.extra3_flags;
         }
         else {
-            mudlog(LVL_AMBASSADOR, BRF, true, "SYSERR: Invalid extra index (%d) "
-                   "in obj_data::affectModify().", af->extra_index);
+			errlog("Invalid extra index (%d) in obj_data::affectModify().",
+				af->extra_index);
             return;
         }
 
@@ -617,8 +616,7 @@ obj_data::affectModify(struct tmp_obj_affect *af, bool add)
             }
 
             if (!found)
-                mudlog(LVL_AMBASSADOR, BRF, true, "SYSERR: Unable to alter "
-                       "temporary object affect.  No free affect locations.");
+				errlog("Unable to alter temporary object affect.  No free affect locations.");
         }
     }
 }
@@ -681,9 +679,7 @@ obj_data::affectJoin(struct tmp_obj_affect *af, int dur_mode, int val_mode,
                     }
 
                     if (j == MAX_OBJ_AFFECT) {
-                        mudlog(LVL_AMBASSADOR, BRF, true, 
-                               "SYSERR: Could not find free "
-                               "affect position in affectJoin().");
+                        errlog("Could not find free affect position in affectJoin().");
                     }
                 }
             }

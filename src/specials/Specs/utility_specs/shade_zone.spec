@@ -36,12 +36,12 @@ connect_rooms(int link_room, int dest_room, int dir)
 	room_data *link = real_room(link_room);
 	room_data *dest = real_room(dest_room);
 	if (link == NULL) {
-		sprintf(buf, "SYSERR: shade_spec cannot find link room [%d]",
+		errlog("shade_spec cannot find link room [%d]",
 			link_room);
 		return;
 	}
 	if (dest == NULL) {
-		sprintf(buf, "SYSERR: shade_spec cannot find destination room [%d]",
+		errlog("shade_spec cannot find destination room [%d]",
 			dest_room);
 		return;
 	}

@@ -1253,14 +1253,6 @@ ACMD(do_gen_tog)
 			ONOFF(log_cmds));
 		mudlog(MAX(LVL_LOGALL, GET_INVIS_LVL(ch)), BRF, true, "%s", buf);
 		send_to_char(ch, strcat(buf, "\r\n"));
-		/*
-		   if (log_cmds && !cmd_log_fl && 
-		   (!(cmd_log_fl = fopen(CMD_LOG_FILE, "w"))))
-		   mudlog("SYSERR:  Unable to open CMD_LOG_FILE", 
-		   BRF, MAX(LVL_LOGALL, GET_INVIS_LVL(ch)), TRUE);
-		   else if (!log_cmds && cmd_log_fl)
-		   fclose(cmd_log_fl);
-		 */
 		return;
 	case SCMD_JET_STREAM:
 		TOGGLE_BIT(jet_stream_state, 1);

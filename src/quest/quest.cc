@@ -209,8 +209,10 @@ void
 QuestControl::save()
 {
 	std::ofstream out(filename);
-	if(! out ) {
-		fprintf(stderr,"ERROR: Cannot open quest file: %s\r\n",filename);
+
+	if(!out) {
+		errlog("Cannot open quest file: %s",filename);
+		return;
 	}
 	out << "<Quests>" << endl;
 	for( unsigned int i = 0; i < quests.size(); i++ ) {

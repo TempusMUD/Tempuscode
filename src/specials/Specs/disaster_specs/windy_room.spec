@@ -106,8 +106,7 @@ boot_windy_rooms()
 				newdata[j] = windy_list[i];
 				j++;
 				if (j >= tot_good) {
-					sprintf(buf,
-						"SYSERR: major error in sanity checking booted windy list.");
+					errlog("major error in sanity checking booted windy list.");
 					free(newdata);
 					free(windy_list);
 					windy_list = NULL;

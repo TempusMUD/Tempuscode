@@ -1943,8 +1943,7 @@ search_block(const char *arg, const char **list, bool exact)
 			if (strncasecmp(arg, list[i], len) == 0)
 				return i;
 			if (i > 1000) {
-				mudlog(LVL_AMBASSADOR, BRF, true,
-					"SYSERR: search_block in unterminated list. arg = %s [0] = '%s'.",
+				errlog("search_block in unterminated list. arg = %s [0] = '%s'.",
 				arg,list[0]);
 				return -1;
 			}

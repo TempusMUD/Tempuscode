@@ -215,12 +215,6 @@ main(int argc, char **argv)
 		case 'l':
 			log_cmds = TRUE;
 			slog("Enabling log_cmds.");
-			/*
-			   if (!(cmd_log_fl = fopen(CMD_LOG_FILE, "w"))) {
-			   log("SYSERR:  Unable to open CMD_LOG_FILE for write.");
-			   log_cmds = FALSE;
-			   }
-			 */
 			break;
 		case 'p':
 			production_mode = true;
@@ -1933,10 +1927,7 @@ perform_act(const char *orig, struct Creature *ch, struct obj_data *obj,
 				i = "$";
 				break;
 			default:
-				errlog("Illegal $-code to act():");
-				strcpy(buf1, "SYSERR: ");
-				strcat(buf1, s);
-				slog(buf1);
+				errlog("Illegal $-code to act(): %s", s);
 				i = "---";
 				break;
 			}

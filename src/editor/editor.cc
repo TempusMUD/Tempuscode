@@ -42,16 +42,14 @@ start_text_editor(struct descriptor_data *d, char **dest, bool sendmessage, int 
 	 */
 	// There MUST be a destination!
 	if (!dest) {
-		mudlog(LVL_IMMORT, BRF, true,
-			"SYSERR: NULL destination pointer passed into start_text_editor!!");
+		errlog("NULL destination pointer passed into start_text_editor!!");
 		send_to_char(d->creature, "This command seems to be broken. Bug this.\r\n");
 		REMOVE_BIT(PLR_FLAGS(d->creature),
 			PLR_WRITING | PLR_OLC | PLR_MAILING);
 		return;
 	}
 	if (d->text_editor) {
-		mudlog(LVL_IMMORT, BRF, true,
-			"SYSERR: Text editor object not null in start_text_editor.");
+		errlog("Text editor object not null in start_text_editor.");
 		REMOVE_BIT(PLR_FLAGS(d->creature),
 			PLR_WRITING | PLR_OLC | PLR_MAILING);
 		return;
@@ -70,16 +68,14 @@ void
 start_script_editor(struct descriptor_data *d, list <string> dest)
 {
 	if (&dest == NULL) {
-		mudlog(LVL_IMMORT, BRF, true,
-			"SYSERR: NULL destination pointer passed into start_text_editor!!");
+		errlog("NULL destination pointer passed into start_text_editor!!");
 		send_to_char(d->creature, "This command seems to be broken. Bug this.\r\n");
 		REMOVE_BIT(PLR_FLAGS(d->creature),
 			PLR_WRITING | PLR_OLC | PLR_MAILING);
 		return;
 	}
 	if (d->text_editor) {
-		mudlog(LVL_IMMORT, BRF, true,
-			"SYSERR: Text editor object not null in start_text_editor.");
+		errlog("Text editor object not null in start_text_editor.");
 		REMOVE_BIT(PLR_FLAGS(d->creature),
 			PLR_WRITING | PLR_OLC | PLR_MAILING);
 		return;

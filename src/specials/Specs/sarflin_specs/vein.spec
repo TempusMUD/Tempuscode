@@ -41,8 +41,7 @@ SPECIAL(vein)
 			ch, pick, 0, TO_CHAR);
 		act("$n's pick goes awry and $e nearly hit $mself!", true,
 			ch, pick, 0, TO_ROOM);
-		mudlog(GET_LEVEL(ch), CMP, true,
-			"SYSERR: vein #%d has invalid ovnum #%d",
+		errlog("vein #%d has invalid ovnum #%d",
 			GET_OBJ_VNUM(self), GET_OBJ_VAL(self, 0));
 		return true;
 	}

@@ -1082,10 +1082,10 @@ char_from_room( Creature *ch, bool check_specials)
 			find(tmp_room->people.begin(),tmp_room->people.end(), ch);
 		if( it == tmp_room->people.end() ) {
 			if( spec_rc == 1 ) {
-				errlog("SRCH: Creature died in search room(0x%lx)[%d]",
+				slog("Creature died leaving search room(0x%lx)[%d]",
 					 (long)tmp_room, tmp_room->number);
 			} else {
-				errlog("ERROR: CFRMRM: Creature died in spec(0x%lx) room(0x%lx)[%d]",
+				slog("Creature died leaving spec(0x%lx) room(0x%lx)[%d]",
 						spec_rc,(long)tmp_room, tmp_room->number);
 			}
 			return false;
@@ -1174,10 +1174,10 @@ char_to_room(Creature *ch, room_data *room, bool check_specials)
 			find(room->people.begin(),room->people.end(), ch);
 		if( it == room->people.end() ) {
 			if( spec_rc == 1 ) {
-				errlog("SRCH: Creature died in search room(0x%lx)[%d]",
+				slog("Creature died entering search room (0x%lx)[%d]",
 					 (long)room, room->number);
 			} else {
-				errlog("ERROR: C2RM: Creature died in spec(0x%lx) room(0x%lx)[%d]",
+				slog("Creature died entering spec(0x%lx) room(0x%lx)[%d]",
 						spec_rc,(long)room, room->number);
 			}
 

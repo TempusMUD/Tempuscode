@@ -27,8 +27,7 @@ SPECIAL(wagon_room)
 	}
 
 	if (i->in_room < 0) {
-		mudlog(LVL_DEMI, BRF, true,
-			"ERROR: Wagon_obj(10)->in_room < 0!!!  Aww shit!");
+		errlog("Wagon_obj(10)->in_room < 0!!!  Aww shit!");
 		act("You suddenly realize that reality is not what it seems to be...",
 			FALSE, ch, 0, 0, TO_CHAR);
 		return 1;
