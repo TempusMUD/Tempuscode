@@ -49,7 +49,7 @@ namespace Security {
     /* sets this group's description */
     void Group::setDescription(const char *desc) {
         if( _description != NULL )
-            delete _description;
+            free(_description);
         _description = strdup(desc);
     }
 
@@ -69,8 +69,8 @@ namespace Security {
 
     /* sets the name of the group that can admin this group. */
     void Group::setAdminGroup(const char *group) {
-        if( _adminGroup != NULL )
-            delete _adminGroup;
+		if (_adminGroup != NULL)
+			free(_adminGroup);
         _adminGroup = strdup(group);
     }
 
@@ -262,8 +262,7 @@ namespace Security {
     Group::Group( const char *name ) : commands(), members() {
         _name = strdup(name);
 
-        _description = new char[40];
-        strcpy(_description, "No Description");
+        _description = strdup("No description");
         _adminGroup = NULL;
     }
 
@@ -328,11 +327,11 @@ namespace Security {
     Group &Group::operator=( const Group &g ) {
         // Clean out old data
         if( _name != NULL )
-            delete _name;
+            free(_name);
         if( _description != NULL )
-            delete _description;
+            free(_description);
         if( _adminGroup != NULL )
-            delete _adminGroup;
+            free(_adminGroup);
         // Copy in new data
         _name = strdup(g._name);
         if( g._description != NULL )
@@ -393,15 +392,15 @@ namespace Security {
         members.erase( members.begin(), members.end() );
 
         if( _description != NULL ) 
-            delete _description;
+            free(_description);
         _description = NULL;
 
         if( _name != NULL ) 
-            delete _name;
+            free(_name);
         _name = NULL;
 
         if( _adminGroup != NULL ) 
-            delete _adminGroup;
+            free(_adminGroup);
         _adminGroup = NULL;
     }
 }

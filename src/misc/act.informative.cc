@@ -1172,6 +1172,7 @@ ACMD(do_exits)
 		return;
 	}
 	if (ROOM_FLAGGED(ch->in_room, ROOM_SMOKE_FILLED) &&
+		AFF3_FLAGGED(ch, AFF3_SONIC_IMAGERY) && 
 		!PRF_FLAGGED(ch, PRF_HOLYLIGHT)) {
 		send_to_char(ch, "The thick smoke is too disorienting to tell.\r\n");
 		return;
@@ -2625,7 +2626,7 @@ ACMD(do_score)
 	case POS_FIGHTING:
 		if ((ch->isFighting()))
 			msg = tmp_strcat(msg, CCYEL(ch, C_NRM),
-				"You are fighting", PERS(ch->getFighting(), ch), ".\r\n",
+				"You are fighting ", PERS(ch->getFighting(), ch), ".\r\n",
 				CCNRM(ch, C_NRM), NULL);
 		else
 			msg = tmp_strcat(msg, CCYEL(ch, C_NRM),

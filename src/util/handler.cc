@@ -35,6 +35,7 @@
 #include "help.h"
 #include "fight.h"
 #include "security.h"
+#include "tmpstr.h"
 
 /* external vars */
 extern struct descriptor_data *descriptor_list;
@@ -1423,18 +1424,16 @@ check_eq_align(char_data *ch)
 	return 0;
 }
 
+// Given a designation '3.object', returns 3 and sets argument to 'object'
 int
 get_number(char **name)
 {
 	int i;
-	char *ppos;
-	char number[MAX_INPUT_LENGTH];
-
-	*number = '\0';
+	char *ppos, *number;
 
 	if ((ppos = strchr(*name, '.'))) {
 		*ppos++ = '\0';
-		strcpy(number, *name);
+		number = tmp_strdup(*name);
 		strcpy(*name, ppos);
 
 		for (i = 0; *(number + i); i++)
@@ -1483,10 +1482,8 @@ struct char_data *
 get_char_room(char *name, struct room_data *room)
 {
 	int j = 0, number;
-	char tmpname[MAX_INPUT_LENGTH];
-	char *tmp = tmpname;
+	char *tmp = tmp_strdup(name);
 
-	strcpy(tmp, name);
 	if (!(number = get_number(&tmp)))
 		return NULL;
 
@@ -1890,15 +1887,14 @@ struct char_data *
 get_player_vis(struct char_data *ch, char *name, int inroom)
 {
 	struct char_data *i, *match;
-	char tmpname[MAX_INPUT_LENGTH];
 	CharacterList::iterator cit;
-	char *write_pt;
+	char *tmpname, *write_pt;
 
 	// remove leading spaces
 	while (*name && (isspace(*name) || '.' == *name))
 		name++;
 
-	write_pt = tmpname;
+	write_pt = tmpname = tmp_strdup(name);
 	while (*name && !isspace(*name))
 		*write_pt++ = *name++;
 

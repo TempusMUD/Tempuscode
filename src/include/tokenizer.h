@@ -30,7 +30,7 @@ class Tokenizer {
          * Frees the copy of the given input.
          */
         ~Tokenizer() {
-            delete data;
+            delete [] data;
             data = NULL;
         }
         /**

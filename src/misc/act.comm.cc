@@ -277,7 +277,7 @@ perform_tell(struct char_data *ch, struct char_data *vict, char *arg)
 	delete_doubledollar(arg);
 
 	if (!IS_NPC(vict)) {
-		str = strcat(PERS(ch, vict), NULL);
+		str = tmp_strdup(PERS(ch, vict));
 		str[0] = toupper(str[0]);
 		send_to_char(vict, "%s%s tells you,%s '%s'\r\n",
 			CCRED(vict, C_NRM),

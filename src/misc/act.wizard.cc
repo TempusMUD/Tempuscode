@@ -3157,7 +3157,7 @@ ACMD(do_last)
 		ctime(&chdata.last_logon));
 	if (GET_LEVEL(ch) >= chdata.level &&
 		has_mail(chdata.char_specials_saved.idnum))
-		strcat(buf, "Player has unread mail.\r\n");
+		send_to_char(ch, "Player has unread mail.\r\n");
 }
 
 

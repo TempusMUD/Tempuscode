@@ -88,8 +88,8 @@ void
 nanny(struct descriptor_data * d, char *arg)
 {
     char buf[MAX_STRING_LENGTH];
+	char tmp_name[MAX_INPUT_LENGTH];
     int player_i, load_result=0;
-    char tmp_name[MAX_INPUT_LENGTH];
     struct char_file_u tmp_store;
     struct char_data *tmp_ch;
     struct descriptor_data *k, *next;
@@ -130,8 +130,8 @@ nanny(struct descriptor_data * d, char *arg)
 			// port olc name
 			//
 
-			else if (strlen(tmp_name) > 7 && !strncasecmp(tmp_name,"polc-",5)) {
-				strcpy(tmp_name,tmp_name+5);
+			else if (strlen(arg) > 7 && !strncasecmp(arg,"polc-",5)) {
+				strcpy(tmp_name,arg+5);
 				if ((player_i = load_char(tmp_name, &tmp_store)) == -1) {
 					SEND_TO_Q("Invalid Port OLC name, please try another.\r\nName:  ", d);
 					return;

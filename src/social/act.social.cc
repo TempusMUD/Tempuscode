@@ -274,7 +274,8 @@ void
 boot_social_messages(void)
 {
 	FILE *fl;
-	int nr, i, hide, min_pos, curr_soc = -1;
+	int nr, i, hide, min_pos, idx;
+	int social_count = 0;
 	char next_soc[100];
 	struct social_messg temp;
 	struct social_messg tmp_soc_mess_list[MAX_SOCIALS];
@@ -304,36 +305,39 @@ boot_social_messages(void)
 				next_soc);
 			safe_exit(1);
 		}
-		/* read the stuff */
-		curr_soc++;
-		if (curr_soc >= MAX_SOCIALS) {
-			slog("Too many socials.  Increase MAX_SOCIALS in act.social.c");
-			safe_exit(1);
-		}
-		tmp_soc_mess_list[curr_soc].act_nr = nr;
-		tmp_soc_mess_list[curr_soc].hide = hide;
-		tmp_soc_mess_list[curr_soc].min_victim_position = min_pos;
 
-		tmp_soc_mess_list[curr_soc].char_no_arg = fread_action(fl, nr);
-		tmp_soc_mess_list[curr_soc].others_no_arg = fread_action(fl, nr);
-		tmp_soc_mess_list[curr_soc].char_found = fread_action(fl, nr);
+		/* read the stuff */
+		tmp_soc_mess_list[social_count].act_nr = nr;
+		tmp_soc_mess_list[social_count].hide = hide;
+		tmp_soc_mess_list[social_count].min_victim_position = min_pos;
+
+		tmp_soc_mess_list[social_count].char_no_arg = fread_action(fl, nr);
+		tmp_soc_mess_list[social_count].others_no_arg = fread_action(fl, nr);
+		tmp_soc_mess_list[social_count].char_found = fread_action(fl, nr);
 
 		/* if no char_found, the rest is to be ignored */
-		if (!tmp_soc_mess_list[curr_soc].char_found) {
-			tmp_soc_mess_list[curr_soc].others_found = NULL;
-			tmp_soc_mess_list[curr_soc].vict_found = NULL;
-			tmp_soc_mess_list[curr_soc].not_found = NULL;
-			tmp_soc_mess_list[curr_soc].others_auto = NULL;
+		if (!tmp_soc_mess_list[social_count].char_found) {
+			tmp_soc_mess_list[social_count].others_found = NULL;
+			tmp_soc_mess_list[social_count].vict_found = NULL;
+			tmp_soc_mess_list[social_count].not_found = NULL;
+			tmp_soc_mess_list[social_count].others_auto = NULL;
+			social_count++;
 			continue;
 		}
 
-		tmp_soc_mess_list[curr_soc].others_found = fread_action(fl, nr);
-		tmp_soc_mess_list[curr_soc].vict_found = fread_action(fl, nr);
-		tmp_soc_mess_list[curr_soc].not_found = fread_action(fl, nr);
-		if ((tmp_soc_mess_list[curr_soc].char_auto = fread_action(fl, nr)))
-			tmp_soc_mess_list[curr_soc].others_auto = fread_action(fl, nr);
+		tmp_soc_mess_list[social_count].others_found = fread_action(fl, nr);
+		tmp_soc_mess_list[social_count].vict_found = fread_action(fl, nr);
+		tmp_soc_mess_list[social_count].not_found = fread_action(fl, nr);
+		if ((tmp_soc_mess_list[social_count].char_auto = fread_action(fl, nr)))
+			tmp_soc_mess_list[social_count].others_auto = fread_action(fl, nr);
 		else
-			tmp_soc_mess_list[curr_soc].others_auto = NULL;
+			tmp_soc_mess_list[social_count].others_auto = NULL;
+		social_count++;
+
+		if (social_count >= MAX_SOCIALS) {
+			slog("Too many socials.  Increase MAX_SOCIALS in act.social.c");
+			safe_exit(1);
+		}
 	}
 
 	/* close file & set top */
@@ -341,22 +345,22 @@ boot_social_messages(void)
 
 	CREATE(soc_mess_list, struct social_messg, list_top + 1);
 
-	for (curr_soc = 0, i = 0; curr_soc < MAX_SOCIALS && i < list_top;
-		curr_soc++)
-		if (tmp_soc_mess_list[curr_soc].act_nr >= 0) {
-			soc_mess_list[i] = tmp_soc_mess_list[curr_soc];
+	for (idx = 0, i = 0; idx <= social_count && i < list_top;
+		idx++)
+		if (tmp_soc_mess_list[idx].act_nr >= 0) {
+			soc_mess_list[i] = tmp_soc_mess_list[idx];
 			i++;
 		}
 
 	/* now, sort 'em */
-	for (curr_soc = 0; curr_soc < list_top; curr_soc++) {
-		min_pos = curr_soc;
-		for (i = curr_soc + 1; i <= list_top; i++)
+	for (idx = 0; idx < list_top; idx++) {
+		min_pos = idx;
+		for (i = idx + 1; i <= list_top; i++)
 			if (soc_mess_list[i].act_nr < soc_mess_list[min_pos].act_nr)
 				min_pos = i;
-		if (curr_soc != min_pos) {
-			temp = soc_mess_list[curr_soc];
-			soc_mess_list[curr_soc] = soc_mess_list[min_pos];
+		if (idx != min_pos) {
+			temp = soc_mess_list[idx];
+			soc_mess_list[idx] = soc_mess_list[min_pos];
 			soc_mess_list[min_pos] = temp;
 		}
 	}
