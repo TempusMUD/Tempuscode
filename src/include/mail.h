@@ -28,6 +28,7 @@
 #define MAX_MAIL_SIZE 4096
 
 // How long to let mail sit in the file before purging it out.
+// (Not actually used atm)
 #define MAX_MAIL_AGE 15552000 // should be 6 months.
 
 // Prototypes for postmaster specs
@@ -47,14 +48,6 @@ int has_mail(char_data *ch);
 int store_mail(long to_id,long from_id,char *txt, time_t *cur_time = NULL);
 int recieve_mail(char_data *ch);
 
-// Struct used to store the list of recipients while the player
-// is sending mail.
-/*
-struct mail_recipient_data {
-    long idnum;                // Idnum of char to recieve mail 
-    struct mail_recipient_data *next; //pointer to next in recpt list.
-};
-*/
 
 // The actual mail file entry struct.
 struct mail_data {
