@@ -2313,7 +2313,8 @@ void perform_violence( void ) {
             prob += ( GET_LEVEL( ch ) + ( GET_REMORT_GEN( ch ) << 2 ) ) >> 1;
         if ( IS_MONK( ch ) )
             prob += GET_LEVEL( ch ) >> 2;
-
+        if (IS_AFFECTED_3(ch, AFF3_DIVINE_POWER))
+            prob += (ch->getLevelBonus(SPELL_DIVINE_POWER) / 3);
         if ( ch->desc )
             prob -= ( ( MAX( 0, ch->desc->wait >> 1 ) ) * prob ) / 100;
         else

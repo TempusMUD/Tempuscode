@@ -875,6 +875,7 @@ mag_affects(int level, struct char_data * ch, struct char_data * victim,
 {
 
     struct affected_type af, af2, *afp;
+    struct affected_type aff_array[8];
     int is_mage = FALSE;
     int is_cleric = FALSE;
     int is_psychic = FALSE;
@@ -884,6 +885,8 @@ mag_affects(int level, struct char_data * ch, struct char_data * victim,
     char *to_vict = NULL;
     char *to_room = NULL;
 
+    bzero(aff_array, sizeof(aff_array));
+    
     af.is_instant = af2.is_instant = 0;
     if (victim == NULL || ch == NULL)
     return;
@@ -2080,6 +2083,38 @@ Fireball: like harder bones, skin, organ membranecs
         af.modifier = !IS_NPC(ch) ? GET_IDNUM(ch) : -MOB_IDNUM(ch);
         to_vict = "You shriek in terror as $N drains your energy!";
     break;    
+    case SPELL_DIVINE_POWER:
+        // Set duration of all affects
+        af.duration = 8 + (ch->getLevelBonus(SPELL_DIVINE_POWER) / 10);
+        af2.duration = 8 + (ch->getLevelBonus(SPELL_DIVINE_POWER) / 10);
+        aff_array[0].duration = 8 + (ch->getLevelBonus(SPELL_DIVINE_POWER) / 10);
+        aff_array[1].duration = 8 + (ch->getLevelBonus(SPELL_DIVINE_POWER) / 10);
+
+        // Set type of all affects
+        af.type = SPELL_DIVINE_POWER;
+        af2.type = SPELL_DIVINE_POWER;
+        aff_array[0].type = SPELL_DIVINE_POWER;
+        aff_array[1].type = SPELL_DIVINE_POWER;
+
+        // Should only need to set the bitvector with one of the affects
+        af.bitvector = AFF3_DIVINE_POWER;
+        af.aff_index = 3;
+
+        // The location of each affect
+        af.location = APPLY_STR;
+        af2.location = APPLY_HIT;
+        aff_array[0].location = APPLY_HIT;
+        aff_array[1].location = APPLY_HIT;
+        
+        // The amoune of modification to each affect
+        af.modifier = (ch->getLevelBonus(SPELL_DIVINE_POWER) / 15);
+        af2.modifier = ch->getLevelBonus(SPELL_DIVINE_POWER);
+        aff_array[0].modifier = ch->getLevelBonus(SPELL_DIVINE_POWER);
+        aff_array[1].modifier = ch->getLevelBonus(SPELL_DIVINE_POWER);
+        
+        if (!IS_AFFECTED_3(ch, AFF3_DIVINE_POWER))
+            accum_affect = 1;
+    break;
     default:
     sprintf(buf, "SYSERR: unknown spell %d in mag_affects.", spellnum);
     slog(buf);
@@ -2130,11 +2165,20 @@ Fireball: like harder bones, skin, organ membranecs
     affect_join(victim, &af, accum_duration, FALSE, accum_affect, FALSE);
     if (af2.bitvector || af2.location)
     affect_join(victim, &af2, accum_duration, FALSE, accum_affect, FALSE);
- 
+    
+    int x = 0;
+    for (; x < 8; x++) {
+        if (aff_array[x].bitvector || aff_array[x].location)
+            affect_join(victim, &aff_array[x], accum_duration, FALSE, 
+                        accum_affect, FALSE);
+    }
     if (to_vict != NULL)
     act(to_vict, FALSE, victim, 0, ch, TO_CHAR);
     if (to_room != NULL)
     act(to_room, TRUE, victim, 0, ch, TO_ROOM);
+
+    if (spellnum == SPELL_DIVINE_POWER && accum_affect) 
+            GET_HIT(ch) += (ch->getLevelBonus(SPELL_DIVINE_POWER) * 3);
 
     if (spellnum == SPELL_FEAR && !mag_savingthrow(victim, level, SAVING_PSI) &&
     victim->getPosition() > POS_SITTING)

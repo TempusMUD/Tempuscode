@@ -1084,6 +1084,7 @@ extern const char *affected3_bits[]=
   "SNIPED",
   "TAINTED",
   "INFIL",
+  "DivPwR"
   "\n"
 };  
 
@@ -1117,6 +1118,7 @@ extern const char *affected3_bits_desc[] = {
   "Sniped",
   "Tainted",
   "Infiltrating",
+  "Divine Power"
   "\n"
 };
 

@@ -463,7 +463,8 @@
 #define AFF3_SNIPED             (1 << 26)
 #define AFF3_TAINTED            (1 << 27)    // Knight spell, "taint"
 #define AFF3_INFILTRATE         (1 << 28)    // Merc skill infiltrate
-#define NUM_AFF3_FLAGS                29
+#define AFF3_DIVINE_POWER       (1 << 29)
+#define NUM_AFF3_FLAGS                30
 
 #define ARRAY_AFF_1       1
 #define ARRAY_AFF_2       2

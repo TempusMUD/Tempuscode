@@ -2202,6 +2202,8 @@ print_affs_to_string(struct char_data *ch, char *str, byte mode)
         strcat(str, "You have been charmed!\r\n");
     if (affected_by_spell(ch, SPELL_ARMOR))
         strcat(str, "You feel protected.\r\n");
+    if (affected_by_spell(ch, SPELL_DIVINE_POWER))
+        strcat(str, "You feel the power of your diety coursing through your veins.\r\n");
     if (affected_by_spell(ch, SPELL_BARKSKIN))
         strcat(str, "Your skin is thick and tough like tree bark.\r\n");
     if (affected_by_spell(ch, SPELL_STONESKIN))
