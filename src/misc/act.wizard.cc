@@ -7431,7 +7431,7 @@ static const char* ACCOUNT_USAGE =
                     "Commands: \r\n"
                     "      disable <id>\r\n"
 					"      enable <id>\r\n"
-					"      movechar <Char ID> <from ID> <to ID>\r\n"
+					"      movechar <Char ID> <to ID>\r\n"
 					"      exhume <account ID> <Character ID>\r\n"
                     ;
 ACMD(do_account)
@@ -7439,6 +7439,10 @@ ACMD(do_account)
 	
     Tokenizer tokens(argument);
     char token[MAX_INPUT_LENGTH];
+	int account_id = 0;
+	long vict_id = 0;
+	Account *account = NULL;
+	Creature *vict;
     
     if(!tokens.next(token)) {
         send_to_char( ch, ACCOUNT_USAGE );
@@ -7450,11 +7454,33 @@ ACMD(do_account)
 	} else if (strcmp(token, "enable") == 0) {
 		send_to_char(ch, "Not Implemented.\r\n");
 	} else if (strcmp(token, "movechar") == 0) {
-		send_to_char(ch, "Not Implemented.\r\n");
+		Account *dst_account;
+
+		if (!tokens.next(token)) {
+			send_to_char(ch, "Specify a character id.\r\n");
+			return;
+		}
+		vict_id = atol(token);
+		if (!playerIndex.exists(vict_id)) {
+			send_to_char(ch, "That player does not exist.\r\n");
+			return;
+		}
+		if (!tokens.next(token)) {
+			send_to_char(ch, "Specify an account id.\r\n");
+			return;
+		}
+			
+		account_id = playerIndex.getAccountID(vict_id);
+		account = accountIndex.find_account(account_id);
+		account_id = atoi(token);
+		dst_account = accountIndex.find_account(account_id);
+		account->move_char(vict_id, dst_account);
+
+		// Update descriptor
+		vict = get_char_in_world_by_idnum(vict_id);
+		if (vict && vict->desc)
+			vict->desc->account = account;
 	} else if (strcmp(token, "exhume") == 0) {
-		int account_id = 0;
-		long char_id = 0;
-		Account *account = NULL;
 		if(!tokens.next(token) ) {
 			send_to_char(ch, "Specify an account id.\r\n");
 			return;
@@ -7465,13 +7491,13 @@ ACMD(do_account)
 			send_to_char(ch, "Specify a character id.\r\n");
 			return;
 		}
-		char_id = atol(token);
+		vict_id = atol(token);
 		account = accountIndex.find_account(account_id);
 		if( account == NULL ) {
 			send_to_char(ch, "No such account: %d\r\n",account_id);
 			return;
 		}
-		account->exhume_char( ch, char_id );
+		account->exhume_char(ch, vict_id);
 	} else {
 		send_to_char(ch, ACCOUNT_USAGE);
 	}
