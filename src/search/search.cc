@@ -60,7 +60,8 @@ search_trans_character(Creature * ch,
 	char_from_room(ch);
 	char_to_room(ch, targ_room);
 	ch->in_room->zone->enter_count++;
-	look_at_room(ch, ch->in_room, 0);
+    if (!SRCH_FLAGGED(srch, SRCH_NO_LOOK))
+	    look_at_room(ch, ch->in_room, 0);
 
 	if (ch->followers) {
 		struct follow_type *k, *next;
@@ -288,7 +289,8 @@ general_search(struct Creature *ch, struct special_search_data *srch,
 			char_from_room(ch);
 			char_to_room(ch, targ_room);
 			ch->in_room->zone->enter_count++;
-			look_at_room(ch, ch->in_room, 0);
+            if (!SRCH_FLAGGED(srch, SRCH_NO_LOOK))
+			    look_at_room(ch, ch->in_room, 0);
 					
 			if (srch->to_remote)
 				act(srch->to_remote, FALSE, ch, obj, mob, TO_ROOM);
