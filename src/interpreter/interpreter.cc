@@ -595,6 +595,7 @@ struct command_info cmd_info[] = {
 	{"cower", POS_RESTING, do_action, 0, 0, 0},
 	{"crack", POS_RESTING, do_action, 0, 0, 0},
 	{"cramp", POS_RESTING, do_action, 0, 0, 0},
+	{"crawl", POS_RESTING, do_move, 0, SCMD_CRAWL, 0},
 	{"cranekick", POS_FIGHTING, do_offensive_skill, 0, SKILL_CRANE_KICK, 0},
 	{"crank", POS_RESTING, do_action, 0, 0, 0},
 	{"credits", POS_DEAD, do_gen_ps, 0, SCMD_CREDITS, 0},

@@ -428,6 +428,8 @@ do_simple_move(struct Creature *ch, int dir, int mode,
 		need_movement >>= 1;
 	else if (IS_DWARF(ch))
 		need_movement = (int)(need_movement * 1.5);
+	if (mode == MOVE_CRAWL)
+		need_movement = 0;
 	if (affected_by_spell(ch, ZEN_MOTION))
 		need_movement >>= 1;
 	if (affected_by_spell(ch, SKILL_SNEAK))
@@ -475,6 +477,8 @@ do_simple_move(struct Creature *ch, int dir, int mode,
 		sneak_prob += GET_LEVEL(ch) >> 1;
 	if (IS_ELF(ch))
 		sneak_prob += 10;
+	if (mode == MOVE_CRAWL)
+		sneak_prob += 10;
 	sneak_prob -=
 		((IS_CARRYING_W(ch) + IS_WEARING_W(ch)) << 4) / CAN_CARRY_W(ch);
 
@@ -505,6 +509,8 @@ do_simple_move(struct Creature *ch, int dir, int mode,
 			sprintf(buf, "$n flees %sward.", dirs[dir]);
 		} else if (mode == MOVE_RETREAT) {
 			sprintf(buf, "$n retreats %sward.", dirs[dir]);
+		} else if (mode == MOVE_CRAWL) {
+			sprintf(buf, "$n crawls slowly %sward", dirs[dir]);
 		} else if (ch->getPosition() == POS_FLYING || ch->in_room->isOpenAir()
 			|| EXIT(ch, dir)->to_room->isOpenAir()) {
 			sprintf(buf, "$n flies %s.", to_dirs[dir]);
@@ -692,6 +698,9 @@ do_simple_move(struct Creature *ch, int dir, int mode,
 
 	if (mode == MOVE_RETREAT)	// retreating takes a little longer
 		wait_state += 10 + ((120 - (CHECK_SKILL(ch, SKILL_RETREAT))) / 5);
+	
+	if (mode == MOVE_CRAWL)
+		wait_state += 3 RL_SEC;
 
 	WAIT_STATE(ch, wait_state);
 
@@ -724,6 +733,8 @@ do_simple_move(struct Creature *ch, int dir, int mode,
 			sprintf(buf, "$n runs in from %s.", from_dirs[dir]);
 		} else if (mode == MOVE_DRAG) {
 			sprintf(buf, "$n is dragged in from %s.", from_dirs[dir]);
+		} else if (mode == MOVE_CRAWL) {
+			sprintf(buf, "$n crawls slowly in from %s", from_dirs[dir]);
 		} else if (ch->getPosition() == POS_FLYING || ch->in_room->isOpenAir()) {
 			if (!IS_AFFECTED_2(ch, AFF2_ABLAZE))
 				sprintf(buf, "$n flies in from %s.", from_dirs[dir]);
@@ -1079,12 +1090,16 @@ perform_move(struct Creature *ch, int dir, int mode, int need_specials_check)
 	if (ch == NULL || dir < 0 || dir >= NUM_OF_DIRS || ch->in_room == NULL)
 		return 1;
 
-	if ((IS_AFFECTED_2(ch, AFF2_VERTIGO) && GET_LEVEL(ch) < LVL_AMBASSADOR &&
-			number(0, 60) > (GET_LEVEL(ch) + GET_DEX(ch)) &&
-			ch->getPosition() >= POS_FIGHTING) || ((GET_COND(ch, DRUNK) > 5) &&
-			(number(1, 35) > GET_DEX(ch)))) {
+	if (mode != MOVE_CRAWL &&
+			((IS_AFFECTED_2(ch, AFF2_VERTIGO) &&
+				GET_LEVEL(ch) < LVL_AMBASSADOR &&
+				number(0, 60) > (GET_LEVEL(ch) + GET_DEX(ch)) &&
+				ch->getPosition() >= POS_FIGHTING)
+			||
+				((GET_COND(ch, DRUNK) > 5) &&
+				(number(1, 35) > GET_DEX(ch))))) {
 		if (ch->getPosition() == POS_MOUNTED && MOUNTED(ch) &&
-			CHECK_SKILL(ch, SKILL_RIDING) < number(50, 150)) {
+				CHECK_SKILL(ch, SKILL_RIDING) < number(50, 150)) {
 			act("$n sways and falls from the back of $N!",
 				TRUE, ch, 0, MOUNTED(ch), TO_ROOM);
 			act("You sway and fall from the back of $N!",
@@ -1210,7 +1225,7 @@ ACMD(do_move)
 	int dir = -1;
 	char arg1[MAX_INPUT_LENGTH];
 
-	if (subcmd == SCMD_MOVE || subcmd == SCMD_JUMP) {
+	if (subcmd == SCMD_MOVE || subcmd == SCMD_JUMP || subcmd == SCMD_CRAWL) {
 		/*      subcmd == SCMD_BURGLE) { */
 		argument = one_argument(argument, arg1);
 		if (!*arg1) {
@@ -1221,10 +1236,12 @@ ACMD(do_move)
 			send_to_char(ch, "'%s' is not a valid direction.\r\n", arg1);
 			return;
 		}
-		if (subcmd == SCMD_MOVE) {
+		if (subcmd == SCMD_MOVE)
 			perform_move(ch, dir, MOVE_NORM, 1);
-		} else if (subcmd == SCMD_JUMP)
+		else if (subcmd == SCMD_JUMP)
 			perform_move(ch, dir, MOVE_JUMP, 1);
+		else if (subcmd == SCMD_CRAWL)
+			perform_move(ch, dir, MOVE_CRAWL, 1);
 		else {
 			send_to_char(ch, "This motion is not implenented.\r\n");
 			return;

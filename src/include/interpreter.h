@@ -132,6 +132,7 @@ struct set_struct {
 #define SCMD_PAST       8
 #define SCMD_MOVE       9
 #define SCMD_JUMP       10
+#define SCMD_CRAWL      11
 
 /* do_gen_ps */
 #define SCMD_INFO       0
@@ -374,14 +375,15 @@ struct set_struct {
 #define SCMD_LOAD       0
 #define SCMD_UNLOAD     1
 
-#define MOVE_NORM   0
-#define MOVE_JUMP   1
-#define MOVE_BURGLE 2
-#define MOVE_XXX    3
-#define MOVE_RUSH   4
-#define MOVE_FLEE   5
+#define MOVE_NORM    0
+#define MOVE_JUMP    1
+#define MOVE_BURGLE  2
+#define MOVE_XXX     3
+#define MOVE_RUSH    4
+#define MOVE_FLEE    5
 #define MOVE_RETREAT 6
-#define MOVE_DRAG   7
+#define MOVE_DRAG    7
+#define MOVE_CRAWL   8
 
 /* do_return */
 #define SCMD_RETURN 0
