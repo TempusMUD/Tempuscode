@@ -1743,7 +1743,7 @@ list_inactive_quests(Creature *ch, char *outbuf)
 	char *msg = tmp_sprintf( "Finished Quests:\r\n"
 		"-Vnum--Owner-------Type------Name----------------------Age------Players\r\n");
 
-	for (unsigned int i = 0; i < quests.size(); i++) {
+	for (unsigned int i = quests.size() - 1; i >= 0; --i) {
 		Quest *quest = &(quests[i]);
 		if (!quest->getEnded())
 			continue;
