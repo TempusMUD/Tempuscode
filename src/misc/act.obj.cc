@@ -2542,6 +2542,12 @@ perform_wear(struct char_data * ch, struct obj_data * obj, int where)
             }
         }
     }
+    // If the shield's too heavy, they cant make good use of it.
+    if( where == WEAR_SHIELD 
+        && obj->getWeight() > 1.5 * str_app[STRENGTH_APPLY_INDEX(ch)].wield_w) {
+        send_to_char("It's too damn heavy.\r\n", ch);
+        return 0;
+    }
     if (!OBJ_APPROVED(obj) && GET_LEVEL(ch) < LVL_AMBASSADOR && 
         !PLR_FLAGGED(ch, PLR_TESTER)) {
         act("$p has not been approved for mortal use.",

@@ -2947,7 +2947,7 @@ ASPELL(spell_sun_ray)
             next_vict = vict->next_in_room;
             if ( ch == vict )
             continue;
-            if ( !IS_NPC( vict ) ) {
+            if ( !IS_NPC( vict )  && IS_UNDEAD( vict) ) {
             act( "You cannot do this, because this action might cause harm to $N,\r\n"
                  "and you have not chosen to be a Pkiller.\r\n"
                  "You can toggle this with the command 'pkiller'.", FALSE, ch, 0, vict, TO_CHAR );
