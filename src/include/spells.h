@@ -271,6 +271,7 @@ static const int SPELL_DEATH_KNELL = 150;	// Evil cleric remort skill.
 static const int SPELL_TELEPATHY = 151;
 static const int SPELL_DAMN = 152;
 static const int SPELL_CALM = 153;
+static const int SPELL_THORN_SKIN = 154;
 
   /************************** Psionic Triggers ***************/
 static const int SPELL_POWER = 201;	/* Strength                */

@@ -210,7 +210,10 @@ const char *spells[] = {
 	"divine power",
 	"death knell",	/* 150 */
 	"telepathy",
-	"damn", "calm", "!UNUSED!", "!UNUSED!",	/* 155 */
+	"damn", 
+    "calm", 
+    "thorn skin", 
+    "!UNUSED!",	/* 155 */
 	"!UNUSED!", "!UNUSED!", "!UNUSED!", "!UNUSED!", "!UNUSED!",	/* 160 */
 	"!UNUSED!", "!UNUSED!", "!UNUSED!", "!UNUSED!", "!UNUSED!",	/* 165 */
 	"!UNUSED!", "!UNUSED!", "!UNUSED!", "!UNUSED!", "!UNUSED!",	/* 170 */
@@ -3636,6 +3639,10 @@ mag_assign_spells(void)
 	remort_spello(SPELL_LOCUST_REGENERATION, CLASS_MAGE, 34, 5,
 		125, 60, 5, POS_FIGHTING, TAR_CHAR_ROOM | TAR_FIGHT_VICT
 		| TAR_NOT_SELF, TRUE, MAG_MAGIC | MAG_AFFECTS);
+
+    remort_spello(SPELL_THORN_SKIN, CLASS_RANGER, 38, 4, 110, 80, 1, 
+                  POS_STANDING, TAR_CHAR_ROOM | TAR_SELF_ONLY, false,
+                  MAG_MAGIC | MAG_AFFECTS);
 /*	--- Add this back in when we want trail-based tracking
 	remort_spello(SPELL_SPIRIT_TRACK, CLASS_RANGER, 38, 2,
 		120, 60, 10, POS_FIGHTING, TAR_CHAR_ROOM | TAR_SELF_ONLY,

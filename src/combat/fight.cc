@@ -43,6 +43,7 @@
 #include "security.h"
 #include "quest.h"
 #include "vendor.h"
+#include "utils.h"
 
 #include <iostream>
 #include <algorithm>
@@ -1240,6 +1241,58 @@ damage(struct Creature *ch, struct Creature *victim, int dam,
 					DAM_RETURN(retval);
 				}
 			}
+
+            if ((af = affected_by_spell(victim, SPELL_THORN_SKIN))) {
+                if (!mag_savingthrow(ch, af->level, SAVING_BREATH) &&
+                    !random_fractional_5()) {
+                    if (af->duration > 1) {
+                        af->duration--;
+                    }
+                    int retval = damage_attacker(victim, ch, dice(3, af->level),
+                                                 SPELL_THORN_SKIN, -1);
+                    
+                    if (!IS_SET(retval, DAM_VICT_KILLED)) {
+                        gain_skill_prof(victim, SPELL_THORN_SKIN);
+                    }
+                    
+                    if (!IS_SET(retval, DAM_ATTACKER_KILLED)) {
+                        if (!mag_savingthrow(ch, af->level, SAVING_BREATH) &&
+                            !IS_POISONED(ch) && random_fractional_4()) {
+                            struct affected_type af;
+                            int level_bonus = ch->getLevelBonus(SPELL_THORN_SKIN);
+                            af.type = SPELL_POISON;
+                            af.location = APPLY_STR;
+                            af.duration = MAX(1, level_bonus / 10);
+                            af.modifier = -(number(1, level_bonus / 20));
+                            
+                            if (level_bonus > 85 + number(0, 30)) {
+                                af.bitvector = AFF3_POISON_3;
+                                af.aff_index = 3;
+                            }
+                            else if (level_bonus > 75 + number(0, 30)) {
+                                af.bitvector = AFF3_POISON_2;
+                                af.aff_index = 3;
+                            }
+                            else {
+                                af.bitvector = AFF_POISON;
+                                af.aff_index = 1;
+                            }
+                            affect_join(ch, &af, false, false, false, false);
+                            act("$N begins to look sick as the poison from "
+                                "your thorns invades $E body.", false, victim,
+                                NULL, ch, TO_CHAR);
+                            act("You begin to feel sick as the poison from "
+                                "$n's thorns invades your body.", false, victim,
+                                NULL, ch, TO_VICT);
+                            act("$N begins to look sick as the poison from "
+                                "$n's thorns invades $E body.", false, victim,
+                                NULL, ch, TO_NOTVICT);
+                        }
+                    }
+                    SET_BIT(retval, DAM_ATTACK_FAILED);
+                    DAM_RETURN(retval);
+                }
+            }
 			//
 			// attack type is a nonweapon melee type
 			//
@@ -1517,7 +1570,7 @@ damage(struct Creature *ch, struct Creature *victim, int dam,
 	// rangers' critical hit
 	if (ch && IS_RANGER(ch) && dam > 10 &&
 		IS_WEAPON(attacktype) && 
-        number(0, 550) <= ch->getLevelBonus(GET_CLASS(ch) == CLASS_RANGER)) {
+        number(0, 650) <= ch->getLevelBonus(GET_CLASS(ch) == CLASS_RANGER)) {
 		send_to_char(ch, "CRITICAL HIT!\r\n");
 		act("$n has scored a CRITICAL HIT!", FALSE, ch, 0, victim,
 			TO_VICT);

@@ -651,6 +651,9 @@ desc_char_trailers(Creature *ch, Creature *i)
     if (affected_by_spell(i, SPELL_GAUSS_SHIELD))
         desc = tmp_strcat(desc, "...", HSSH(i), " is protected by a swirling ",
                           "shield of energy.\r\n", NULL);
+    if (affected_by_spell(i, SPELL_THORN_SKIN))
+        desc = tmp_strcat(desc, "...", HSSH(i), " has thorns protruding from ",
+                          HSHR(i), " skin.\r\n", NULL);
 	return desc;
 }
 
@@ -2506,6 +2509,8 @@ acc_append_affects(struct Creature *ch, byte mode)
 		acc_strcat("Your telepathic abilities are greatly enhanced.\r\n", NULL);
 	if (affected_by_spell(ch, SPELL_ANIMAL_KIN))
 		acc_strcat("You are feeling a strong bond with animals.\r\n", NULL);
+    if (affected_by_spell(ch, SPELL_THORN_SKIN))
+        acc_strcat("There are thorns protruding from your skin.\r\n", NULL);
 }
 
 ACMD(do_affects)
