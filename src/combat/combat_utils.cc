@@ -567,7 +567,7 @@ calculate_thaco(struct char_data *ch, struct char_data *victim,
 		!IS_AFFECTED_2(ch, AFF2_TRUE_SEEING))
 		calc_thaco += 2;
 	if (IS_AFFECTED_2(victim, AFF2_EVADE))
-		calc_thaco += (GET_LEVEL(victim) / 6) + 1;
+		calc_thaco +=  victim->getLevelBonus(SKILL_EVASION) / 6;
 
 	if (SECT_TYPE(ch->in_room) == SECT_UNDERWATER && !IS_MOB(ch))
 		calc_thaco += 4;
