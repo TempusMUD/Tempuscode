@@ -339,7 +339,7 @@ ACMD(do_put)
     struct obj_data *obj, *next_obj, *cont, *save_obj = NULL;
     struct char_data *tmp_char;
     int obj_dotmode, cont_dotmode, found = 0, counter = 0;
-  
+    bool bomb = false; 
 
     two_arguments(argument, arg1, arg2);
     obj_dotmode = find_all_dots(arg1);
@@ -375,19 +375,28 @@ ACMD(do_put)
                 else if (GET_OBJ_TYPE(cont) == ITEM_PIPE && 
                          GET_OBJ_TYPE(obj) != ITEM_TOBACCO)
                     act("You can't pack $p with $P!", FALSE, ch, cont, obj, TO_CHAR);
+                else if (IS_BOMB(obj) && obj->contains && IS_FUSE(obj->contains) && 
+                         FUSE_STATE(obj->contains))
+                    send_to_char("It would really be best if you didn't do that.\r\n", ch);
                 else
                     perform_put(ch, obj, cont, TRUE);
             } else {
                 for (obj = ch->carrying; obj; obj = next_obj) {
                     next_obj = obj->next_content;
                     if (obj != cont && INVIS_OK_OBJ(ch, obj) &&
-                        (obj_dotmode == FIND_ALL || isname(arg1, obj->name))) {
+                       (obj_dotmode == FIND_ALL || isname(arg1, obj->name))) {
+                        if((IS_BOMB(obj) && obj->contains && IS_FUSE(obj->contains) && FUSE_STATE(obj->contains))) {
+                            act("It would really be best if you didn't put $p in $P.", FALSE, ch, obj, cont, TO_CHAR);
+                            bomb = true;
+                            continue;
+                        }
                         if (save_obj != NULL && str_cmp(save_obj->short_description, obj->short_description) != 0) {
                             if (counter == 1)
                                 sprintf(cntbuf, "You put $p in $P.");
                             else
                                 sprintf(cntbuf, "You put $p in $P. (x%d)", counter);
                             act(cntbuf, FALSE, ch, save_obj, cont, TO_CHAR);
+                            
                             if (counter == 1)
                                 sprintf(cntbuf, "$n puts $p in $P.");
                             else
@@ -413,7 +422,7 @@ ACMD(do_put)
                         sprintf(cntbuf, "$n puts $p in $P. (x%d)", counter);
                     act(cntbuf, TRUE, ch, save_obj, cont, TO_ROOM);
                 }
-                if (!found) {
+                if (!found && !bomb) {
                     if (obj_dotmode == FIND_ALL)
                         send_to_char("You don't seem to have anything to put in it.\r\n", ch);
                     else {
