@@ -1010,7 +1010,7 @@ char_from_room( Creature *ch, bool check_specials = true )
 				    "ERROR: CFRMRM: Creature died in spec(0x%lx) room(0x%lx)",
 					spec_rc,(long)tmp_room);
 			mudlog( LVL_CREATOR, NRM, true,
-					"       Trace: (0x%lx)->(0x%lx)->(0x%lx)->(0x%lx)\n",
+					"        Trace: (0x%lx)->(0x%lx)->(0x%lx)->(0x%lx)",
 					(long)__builtin_return_address(2),
 					(long)__builtin_return_address(1),
 					(long)__builtin_return_address(0), spec_rc);
@@ -1102,7 +1102,7 @@ char_to_room(Creature *ch, room_data *room, bool check_specials = true )
 				    "ERROR: C2RM: Creature died in spec(0x%lx) room(0x%lx)",
 					spec_rc,(long)room);
 			mudlog( LVL_CREATOR, NRM, true,
-					"       Trace: (0x%lx)->(0x%lx)->(0x%lx)->(0x%lx)\n",
+					"      Trace: (0x%lx)->(0x%lx)->(0x%lx)->(0x%lx)",
 					(long)__builtin_return_address(2),
 					(long)__builtin_return_address(1),
 					(long)__builtin_return_address(0), spec_rc);
