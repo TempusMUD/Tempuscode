@@ -12,12 +12,12 @@ char *tmp_strcat(const char *src, ...);
  * Parses an integer from a named property in the given node
  **/
 static inline long
-xmlGetLongProp(xmlNodePtr n, const char *name)
+xmlGetLongProp(xmlNodePtr n, const char *name, long defValue = 0 )
 {
 	long prop = 0;
 	xmlChar *c = xmlGetProp(n, (const xmlChar *)name);
 	if (c == NULL)
-		return 0;
+		return defValue;
 	prop = atol((const char *)c);
 	free(c);
 	return prop;
