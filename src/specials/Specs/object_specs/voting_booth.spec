@@ -269,7 +269,7 @@ voting_booth_list(char_data *ch, struct obj_data *obj) {
 		poll = poll->next;
 	}
 
-	send_to_char("This is a voting booth.  Usage: READ/REMOVE <poll #>, VOTE <poll #> <answer>\r\n", ch);
+	send_to_char("This is a voting booth.  Usage: READ <poll #>, VOTE <poll #> <answer>\r\n", ch);
 	send_to_char("You can look at polls after voting to see current poll results.\r\n", ch);
 
 	poll = voting_poll_list;
