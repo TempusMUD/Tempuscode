@@ -3423,7 +3423,7 @@ char_to_store(struct Creature *ch, struct char_file_u *st)
 	sh_int hit = GET_HIT(ch), mana = GET_MANA(ch), move = GET_MOVE(ch);
 	int dead = 0;
 
-	memset(st, 0xFF, sizeof(struct char_file_u));
+	memset(st, 0x00, sizeof(struct char_file_u));
 
 	/* Unaffect everything a character can be affected by */
 

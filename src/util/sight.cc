@@ -67,13 +67,9 @@ ROOM_OK(Creature *sub)
 bool
 MORT_CAN_SEE(Creature *sub, Creature *obj)
 {
-	return (LIGHT_OK(sub) && ROOM_OK(sub) && 
-		INVIS_OK(sub, obj) &&     
-		(GET_LEVEL(sub) > LVL_IMMORT  || 
-		!MOB_UNAPPROVED(obj)) && 
-		(!obj->isTester()  || 
-		sub->isTester() || 
-		IS_NPC(sub)));
+	return (LIGHT_OK(sub) && ROOM_OK(sub) && INVIS_OK(sub, obj) &&     
+		(GET_LEVEL(sub) > LVL_IMMORT || sub->isTester() || !MOB_UNAPPROVED(obj)) && 
+		(!obj->isTester()  || sub->isTester() || IS_NPC(sub)));
 }
 
 /* End of CAN_SEE */
