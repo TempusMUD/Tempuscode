@@ -485,7 +485,6 @@ SECT(room_data * room)
 #define GET_SEX(ch)        ((ch)->player.sex)
 #define IS_MALE(ch)     ((ch)->player.sex == SEX_MALE)
 #define IS_FEMALE(ch)   ((ch)->player.sex == SEX_FEMALE)
-#define IS_REMORT(ch)   ((ch) && (GET_REMORT_GEN(ch) > 0))
 #define IS_IMMORT(ch)	((ch) && (GET_LEVEL(ch) >= LVL_AMBASSADOR))
 #define IS_MORT(ch)		((ch) && !IS_REMORT(ch) && !IS_IMMORT(ch))
 
@@ -564,6 +563,18 @@ char *CURRENCY(Creature * ch);
 #define GET_HOLD_HOME(ch)        ((ch)->player_specials->saved.hold_home)
 #define GET_HOLD_LOADROOM(ch)        ((ch)->player_specials->saved.hold_load_room)
 #define GET_REMORT_GEN(ch)     ((ch)->player_specials->saved.remort_generation)
+//#define IS_REMORT(ch)   ((ch) && (GET_REMORT_GEN(ch) > 0))
+static inline bool IS_REMORT( const Creature *ch ) 
+{
+	if( ch == NULL )
+		return false;
+	if( GET_REMORT_CLASS(ch) == CLASS_UNDEFINED ) {
+		return false;
+	}
+	if( IS_PC(ch) && GET_REMORT_GEN(ch) <= 0 )
+		return false;
+	return true;
+}
 #define GET_QUEST_POINTS(ch)    ((ch)->player_specials->saved.quest_points)
 #define GET_QUEST_ALLOWANCE(ch) ((ch)->player_specials->saved.qp_allowance)
 #define GET_QLOG_LEVEL(ch)     ((ch)->player_specials->saved.qlog_level)
