@@ -1131,6 +1131,8 @@ damage( struct char_data * ch, struct char_data * victim, int dam,
 	 ( af = affected_by_spell( victim, SPELL_DERMAL_HARDENING ) ) )
 		dam -= ( dam * af->level ) / 200;
 
+    else if (( af = affected_by_spell( victim, SPELL_LATTICE_HARDENING)))
+		dam -= ( dam * af->level ) / 200;
 
     if ( IS_AFFECTED_2( victim, AFF2_PETRIFIED ) )
 		dam = ( int ) ( dam * 0.2 );

@@ -2266,6 +2266,8 @@ print_affs_to_string(struct char_data *ch, char *str, byte mode)
 	strcat(str, "You feel very confident.\r\n");
     if (affected_by_spell(ch, SPELL_DERMAL_HARDENING))
 	strcat(str, "Your dermal surfaces are hardened.\r\n");
+    if (affected_by_spell(ch, SPELL_LATTICE_HARDENING))
+	strcat(str, "Your molecular lattice has been strengthened.\r\n");
     if (AFF3_FLAGGED(ch, AFF3_NOBREATHE))
 	strcat(str, "You are not breathing.\r\n");
     if (AFF3_FLAGGED(ch, AFF3_PSISHIELD))

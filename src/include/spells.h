@@ -311,7 +311,7 @@ extern const char *spells[];
 #define SPELL_CAPACITANCE_BOOST    324  // increase maxmv
 #define SPELL_ELECTRIC_ARC         325  // lightning bolt
 #define SPELL_SONIC_BOOM           326  // area damage + wait state
-#define SPELL_LATICE_HARDENING     327  // dermal hard or increase obj maxdam
+#define SPELL_LATTICE_HARDENING     327  // dermal hard or increase obj maxdam
 #define SPELL_NULLIFY              328  // like dispel magic
 #define SPELL_FORCE_WALL           329  // sets up an exit blocker
 #define SPELL_UNUSED_330           330

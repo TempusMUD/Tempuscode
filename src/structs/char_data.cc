@@ -29,6 +29,8 @@ bool char_data::setPosition( int new_pos, int mode=0 ){
         return false;
     if(new_pos < BOTTOM_POS || new_pos > TOP_POS)
         return false;
+    if(IS_AFFECTED_2(this,AFF2_PETRIFIED) && new_pos > char_specials.getPosition())
+        return false;
         /*
     // If they're standing up in update_pos, printf the name and the wait.
     if(mode == 1) {

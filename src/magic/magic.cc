@@ -1865,6 +1865,23 @@ mag_affects(int level, struct char_data * ch, struct char_data * victim,
 	
 	break;
 
+    case SPELL_LATTICE_HARDENING:
+/*
+Fireball: for instance, carbon or silicon have really nice lattices
+Forget: so would it harden your entire structure, or just your shell?
+Fireball: probably most of your solid structure, a little bit
+Fireball: like harder bones, skin, organ membranecs
+
+*/
+    if(ch != victim) {
+        send_to_char("There seems to be no affect.\r\n",ch);
+    } else {
+        af.duration = 1 + ( level >> 1 );
+        af.level = level;
+        accum_affect = FALSE;
+        to_vict = "Your molecular bonds seem strengthened.";
+    }
+    break;
     case SPELL_REFRACTION:
 	af.duration = 1 + ( level >> 1 );
 	af.location = APPLY_AC;
@@ -2935,6 +2952,26 @@ mag_alter_objs(int level, struct char_data * ch, struct obj_data * obj,
     case SPELL_DENSIFY:
 	obj->modifyWeight( level + GET_INT( ch ) );
 	to_char = "$p becomes denser.";
+	break;
+
+    case SPELL_LATTICE_HARDENING:
+    if(IS_OBJ_STAT3(obj, ITEM3_LATTICE_HARDENED)) {
+        act("$p's molecular lattice has already been strengthened.",
+            TRUE,ch,obj,0,TO_CHAR);
+        return;
+    }
+    int increase;
+    if(GET_CLASS(ch) == CLASS_PHYSIC)
+        increase = 
+            obj->obj_flags.max_dam * (GET_LEVEL(ch) + (GET_REMORT_GEN(ch)*2))/200;
+    else
+        increase = 
+            obj->obj_flags.max_dam * (GET_LEVEL(ch) + (GET_REMORT_GEN(ch)*2))/240;
+    obj->obj_flags.max_dam += increase;
+    obj->obj_flags.damage = 
+        MIN(obj->obj_flags.damage + increase, obj->obj_flags.max_dam);
+    SET_BIT(obj->obj_flags.extra3_flags, ITEM3_LATTICE_HARDENED);
+	to_char = "$p's molecular lattice strengthens.";
 	break;
 
     case SPELL_WARDING_SIGIL:

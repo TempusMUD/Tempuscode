@@ -107,8 +107,8 @@ update_pos( struct char_data * victim )
             if ( victim->getPosition() < POS_FIGHTING) {
                 if(!IS_AFFECTED_3(victim,AFF3_GRAVITY_WELL) ||
                     number(1,20) < GET_STR(victim)) {
-                    act( "$n scrambles to $s feet!", TRUE, victim, 0, 0, TO_ROOM );
-                    victim->setPosition( POS_FIGHTING, 1 );
+                    if(victim->setPosition( POS_FIGHTING, 1 ))
+                        act( "$n scrambles to $s feet!", TRUE, victim, 0, 0, TO_ROOM );
                 }
                 WAIT_STATE( victim, PULSE_VIOLENCE );
             } else {
@@ -124,13 +124,13 @@ update_pos( struct char_data * victim )
                 victim->setPosition( POS_FLYING, 1 );
             else if(!IS_AFFECTED_3(victim,AFF3_GRAVITY_WELL) 
             && victim->getPosition() < POS_FIGHTING ) {
-                victim->setPosition( POS_STANDING, 1 );
-                act( "$n scrambles to $s feet!", TRUE, victim, 0, 0, TO_ROOM );
+                if(victim->setPosition( POS_STANDING, 1 ))
+                    act( "$n scrambles to $s feet!", TRUE, victim, 0, 0, TO_ROOM );
                 WAIT_STATE( victim, PULSE_VIOLENCE );
             } else if ( number(1,20) < GET_STR(victim)
             && victim->getPosition() < POS_FIGHTING ) {
-                victim->setPosition( POS_STANDING, 1 );
-                act( "$n scrambles to $s feet!", TRUE, victim, 0, 0, TO_ROOM );
+                if(victim->setPosition( POS_STANDING, 1 ))
+                    act( "$n scrambles to $s feet!", TRUE, victim, 0, 0, TO_ROOM );
                 WAIT_STATE( victim, PULSE_VIOLENCE );
             }
     }

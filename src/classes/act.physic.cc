@@ -91,7 +91,7 @@
   #define SPELL_SONIC_BOOM           326  // area damage + wait state
   incomplete
 
-  #define SPELL_LATICE_HARDENING     327  // dermal hard or increase obj maxdam
+  #define SPELL_LATTICE_HARDENING     327  // dermal hard or increase obj maxdam
   incomplete
 
   #define SPELL_NULLIFY              328  // like dispel magic

@@ -1555,7 +1555,7 @@ extern const char *extra3_bits[] = {
     "SPR1",
     "SPR2",
     "SPR3",
-    ""
+    "HARD"
     "\n"
 };
 extern const char *extra3_names[] = {
@@ -1576,7 +1576,7 @@ extern const char *extra3_names[] = {
     "spare1",
     "spare2",
     "spare3",
-    ""
+    "hardened"
     "\n"
 };
 /* APPLY_x */
@@ -2215,7 +2215,9 @@ extern const char *spell_wear_off_msg[] = {
   "!UNUSED!",
   "The gravity well around you fades.",
   "!UNUSED!","!UNUSED!",   /* 325 */
-  "!UNUSED!","!UNUSED!","!UNUSED!","!UNUSED!","!UNUSED!",   /* 330 */
+  "!UNUSED!",
+  "Your molecular structure weakens.",
+  "!UNUSED!","!UNUSED!","!UNUSED!",   /* 330 */
   "!UNUSED!","!UNUSED!","!UNUSED!","!UNUSED!","!UNUSED!",   /* 335 */
   "!UNUSED!",
   "!UNUSED!",

@@ -287,7 +287,8 @@ const char *spells[] =
     "gravity well",
     "capacitance boost", 
     "!UNUSED!",	/* 325 */
-    "!UNUSED!", "!UNUSED!",
+    "!UNUSED!", 
+    "lattice hardening",
     "nullify",
     "!UNUSED!", "!UNUSED!",	/* 330 */
     "!UNUSED!", "!UNUSED!", "!UNUSED!", "!UNUSED!", "!UNUSED!",	/* 335 */
@@ -1027,8 +1028,6 @@ call_magic(struct char_data * caster, struct char_data * cvict,
 		if (mag_damage(level, caster, cvict, spellnum, savetype)) {
 			if (casttype == CAST_SPELL && !same_vict) {
 				WAIT_STATE(caster, 2 RL_SEC);
-			if(spellnum == SPELL_SYMBOL_OF_PAIN)
-				WAIT_STATE(caster, 1 RL_SEC);
 			mana = mag_manacost(caster, spellnum);
 			if (mana > 0)
 				GET_MANA(caster) = 
@@ -2948,6 +2947,10 @@ mag_assign_spells(void)
 
     spello(SPELL_DENSIFY, X, X, X, X, X, X, 26, X, X, X, X, X, X,X,X,X,X, 
 	   80, 20, 8, POS_SITTING, TAR_CHAR_ROOM | TAR_OBJ_EQUIP | TAR_OBJ_ROOM | TAR_OBJ_INV,
+	   FALSE, MAG_PHYSICS | MAG_AFFECTS | MAG_ALTER_OBJS );
+
+    spello(SPELL_LATTICE_HARDENING, X, X, X, X, X, X, 26, X, X, X, X, X, X,X,X,X,X, 
+	   200, 100, 9, POS_SITTING, TAR_CHAR_ROOM | TAR_OBJ_ROOM | TAR_OBJ_INV,
 	   FALSE, MAG_PHYSICS | MAG_AFFECTS | MAG_ALTER_OBJS );
 
     spello(SPELL_CHEMICAL_STABILITY, X, X, X, X, X, X, 9, X, X, X, X, X, X,X,X,X,X, 
