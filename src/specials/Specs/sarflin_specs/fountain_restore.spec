@@ -6,9 +6,12 @@
 
 ACMD(do_drink);
 
+int fill_word(char *arg);
+
 SPECIAL(fountain_restore)
 {
 	struct obj_data *fountain = (struct obj_data *)me;
+    char *tmp;
 
 	if (spec_mode != SPECIAL_CMD || !CMD_IS("drink"))
 		return 0;
@@ -26,6 +29,12 @@ SPECIAL(fountain_restore)
 
 	if (!isname(arg, fountain->aliases))
 		return 0;
+    else {
+        if (fill_word(arg)) {
+            tmp = fname(fountain->aliases);
+            arg = tmp_strdup(tmp);
+        }
+    }
 	
 	if( GET_OBJ_VAL(fountain,1) == 0 ) {
 		send_to_char(ch, "It's empty.\r\n");

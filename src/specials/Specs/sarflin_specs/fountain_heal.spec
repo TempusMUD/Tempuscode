@@ -26,6 +26,12 @@ SPECIAL(fountain_heal)
 
 	if (!isname(argument, fountain->aliases))
 		return 0;
+    else {
+        if (fill_word(arg)) {
+            tmp = fname(fountain->aliases);
+            arg = tmp_strdup(tmp);
+        }
+    }
 
 	do_drink(ch, argument, 0, SCMD_DRINK, 0);
 	if (GET_HIT(ch) < GET_MAX_HIT(ch)) {
