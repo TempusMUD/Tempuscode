@@ -1113,6 +1113,8 @@ ACMD(do_gen_tog)
 			"Your world writing ability is now activated.\r\n" },
 		{"Deaths will not be logged.\r\n",
 			"All deaths will now be logged.\r\n"},
+		{"You can now hear the rumors within your guild.\r\n",
+			"You are now deaf to the rumors of your guild members.\r\n"},
 		{"\n", "\n"}
 	};
 
@@ -1330,7 +1332,9 @@ ACMD(do_gen_tog)
 		slog("%s has toggled jet_stream_state %s.", GET_NAME(ch), 
 				ONOFF(LOG_DEATHS));
 		break;
-
+	case SCMD_NOGUILDSAY:
+		result = PRF2_TOG_CHK(ch, PRF2_NOGUILDSAY);
+		break;
 	default:
 		slog("SYSERR: Unknown subcmd in do_gen_toggle");
 		return;

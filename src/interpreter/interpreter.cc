@@ -915,6 +915,7 @@ struct command_info cmd_info[] = {
 	{"nogecho", POS_DEAD, do_gen_tog, LVL_DEMI, SCMD_NOGECHO, 0},
 	{"nogossip", POS_DEAD, do_gen_tog, 0, SCMD_NOGOSSIP, 0},
 	{"nograts", POS_DEAD, do_gen_tog, 0, SCMD_NOGRATZ, 0},
+	{"noguildsay", POS_DEAD, do_gen_tog, 0, SCMD_NOGUILDSAY, 0},
 	{"nohassle", POS_DEAD, do_gen_tog, LVL_AMBASSADOR, SCMD_NOHASSLE, 0},
 	{"noholler", POS_DEAD, do_gen_tog, LVL_IMMORT, SCMD_NOHOLLER, 0},
 	{"noimmchat", POS_DEAD, do_gen_tog, LVL_AMBASSADOR, SCMD_NOIMMCHAT, 0},
