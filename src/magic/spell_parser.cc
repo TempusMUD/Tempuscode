@@ -2216,13 +2216,7 @@ ACMD(do_trigger)
 	}
 	if (IS_WEARING_W(ch) > (CAN_CARRY_W(ch) * 0.80)) {
 		send_to_char(ch, 
-			"Your equipment is too heavy and bulky to affect anyone's mind!\r\n");
-		return;
-	}
-	if (GET_EQ(ch, WEAR_WIELD) &&
-		IS_OBJ_STAT2(GET_EQ(ch, WEAR_WIELD), ITEM2_TWO_HANDED)) {
-		send_to_char(ch, 
-			"You can't trigger while wielding a two handed weapon!\r\n");
+			"Your equipment is too heavy and bulky for you to concentrate!\r\n");
 		return;
 	}
 
