@@ -89,6 +89,37 @@ call_for_help(Creature *ch, Creature *attacker)
 	summon_cityguards(ch->in_room);
 }
 
+void
+breakup_fight(Creature *ch, Creature *vict1, Creature *vict2)
+{
+	CreatureList::iterator it;
+	Creature *tch;
+
+	for (it = ch->in_room->people.begin();it != ch->in_room->people.end();it++) {
+		tch = *it;
+		if (tch == ch)
+			send_to_char(tch,
+				"You break up the fight between %s and %s.\r\n",
+				PERS(vict1, tch), PERS(vict2, tch));
+		else if (tch == vict1)
+			send_to_char(tch,
+				"%s gets between you and %s, ending the fight!\r\n",
+				PERS(ch, tch), PERS(vict2, tch));
+		else if (tch == vict2)
+			send_to_char(tch,
+				"%s gets between you and %s, ending the fight!\r\n",
+				PERS(ch, tch), PERS(vict1, tch));
+		else
+			send_to_char(tch,
+				"%s gets between %s and %s, ending the fight!\r\n",
+				PERS(ch, tch), PERS(vict1, tch), PERS(vict2, tch));
+			
+	}
+
+	stop_fighting(vict1);
+	stop_fighting(vict2);
+}
+
 int
 throw_char_in_jail(struct Creature *ch, struct Creature *vict)
 {
@@ -452,11 +483,7 @@ SPECIAL(cityguard)
 		case 2:
 			do_say(self, "Here now, here now!  Stop that!", 0, SCMD_BELLOW, 0); break;
 		}
-		act("You shove $n to the ground.", false, self, 0, target, TO_CHAR);
-		act("$n shoves you to the ground.", false, self, 0, target, TO_VICT);
-		act("$n shoves $N to the ground.", false, self, 0, target, TO_NOTVICT);
-		stop_fighting(FIGHTING(target));
-		stop_fighting(target);
+		breakup_fight(self, target, FIGHTING(target));
 		break;
 	case 3:
 		// attack criminal
