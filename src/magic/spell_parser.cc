@@ -919,7 +919,8 @@ call_magic(struct Creature *caster, struct Creature *cvict,
 
     if (ovict) {
         if (IS_SET(ovict->obj_flags.extra3_flags, ITEM3_NOMAG)) {
-            if  (SPELL_IS_MAGIC(spellnum) || SPELL_IS_DIVINE(spellnum)) {
+            if  ((SPELL_IS_MAGIC(spellnum) || SPELL_IS_DIVINE(spellnum)) && 
+                 spellnum != SPELL_IDENTIFY) {
                 act("$p hums and shakes for a moment "
                     "then rejects your spell!", TRUE, caster, ovict, 0, TO_CHAR);
                 act("$p hums and shakes for a moment "
