@@ -577,4 +577,16 @@ affect_from_room(struct room_data *room, struct room_affect_data *aff)
 	free(aff);
 }
 
+bool
+room_affected_by(struct room_data *room, int type)
+{
+    struct room_affect_data *aff;
+
+    for (aff = room->affects; aff; aff = aff->next) {
+        if (aff->type == type)
+            return true;
+    }
+
+    return false;
+}
 #undef __flow_room_c__
