@@ -6775,7 +6775,6 @@ ACMD(do_rlist)
 {
     struct room_data *room;
     struct zone_data *zone;
-    char out_list[MAX_STRING_LENGTH];
     bool stop = FALSE;
 
     int first, last, found = 0;
@@ -6802,33 +6801,32 @@ ACMD(do_rlist)
         send_to_char(ch, "Second value must be greater than first.\r\n");
         return;
     }
-    strcpy(out_list, "");
+	acc_string_clear();
     for (zone = zone_table; zone && !stop; zone = zone->next)
         for (room = zone->world; room; room = room->next) {
             if (room->number > last) {
                 stop = TRUE;
                 break;
             }
-            if (room->number >= first) {
-                sprintf(buf, "%5d. %s[%s%5d%s]%s %s%-30s%s %s \r\n", ++found,
-                    CCGRN(ch, C_NRM), CCNRM(ch, C_NRM), room->number,
-                    CCGRN(ch, C_NRM), CCNRM(ch, C_NRM),
-                    CCCYN(ch, C_NRM), room->name, CCNRM(ch, C_NRM),
-                    room->description ? "" : "(nodesc)");
-                if ((strlen(out_list) + strlen(buf)) < MAX_STRING_LENGTH - 20)
-                    strcat(out_list, buf);
-                else if (strlen(out_list) < (MAX_STRING_LENGTH - 20)) {
-                    strcat(out_list, "**OVERFLOW**\r\n");
-                    stop = TRUE;
-                    break;
-                }
-            }
+            if (room->number >= first)
+                acc_sprintf("%5d. %s[%s%5d%s]%s %s%-30s%s %s%s\r\n",
+							++found,
+							CCGRN(ch, C_NRM),
+							CCNRM(ch, C_NRM),
+							room->number,
+							CCGRN(ch, C_NRM),
+							CCNRM(ch, C_NRM),
+							CCCYN(ch, C_NRM),
+							room->name,
+							CCNRM(ch, C_NRM),
+							room->description ? "" : "(nodesc)",
+							room->prog ? "(prog)" : "");
         }
 
     if (!found)
         send_to_char(ch, "No rooms were found in those parameters.\r\n");
     else
-        page_string(ch->desc, out_list);
+	  page_string(ch->desc, acc_get_string());
 }
 
 
@@ -6922,8 +6920,6 @@ ACMD(do_xlist)
 
 ACMD(do_mlist)
 {
-    char out_list[MAX_STRING_LENGTH];
-
     int first, last, found = 0;
     two_arguments(argument, buf, buf2);
 
@@ -6948,33 +6944,33 @@ ACMD(do_mlist)
         return;
     }
 
-    strcpy(out_list, "");
+	acc_string_clear();
     MobileMap::iterator mit = mobilePrototypes.begin();
     Creature *mob;
     for (;
         mit != mobilePrototypes.end()
         && ((mit->second)->mob_specials.shared->vnum <= last); ++mit) {
         mob = mit->second;
-        if (mob->mob_specials.shared->vnum >= first) {
-            sprintf(buf, "%5d. %s[%s%5d%s]%s %-40s%s  [%2d] <%3d> %s\r\n",
-                ++found, CCGRN(ch, C_NRM), CCNRM(ch, C_NRM),
-                mob->mob_specials.shared->vnum, CCGRN(ch, C_NRM), CCYEL(ch,
-                    C_NRM), mob->player.short_descr, CCNRM(ch, C_NRM),
-                mob->player.level, MOB_SHARED(mob)->number,
-                MOB2_FLAGGED((mob), MOB2_UNAPPROVED) ? "(!ap)" : "");
-            if ((strlen(out_list) + strlen(buf)) < MAX_STRING_LENGTH - 20)
-                strcat(out_list, buf);
-            else if (strlen(out_list) < (MAX_STRING_LENGTH - 20)) {
-                strcat(out_list, "**OVERFLOW**\r\n");
-                break;
-            }
-        }
+        if (mob->mob_specials.shared->vnum >= first)
+		  acc_sprintf("%5d. %s[%s%5d%s]%s %-40s%s  [%2d] <%3d> %s%s\r\n",
+					  ++found,
+					  CCGRN(ch, C_NRM),
+					  CCNRM(ch, C_NRM),
+					  mob->mob_specials.shared->vnum,
+					  CCGRN(ch, C_NRM),
+					  CCYEL(ch, C_NRM),
+					  mob->player.short_descr,
+					  CCNRM(ch, C_NRM),
+					  mob->player.level,
+					  MOB_SHARED(mob)->number,
+					  MOB2_FLAGGED((mob), MOB2_UNAPPROVED) ? "(!ap)" : "",
+					  GET_MOB_PROG(mob) ? "(prog)" : "");
     }
 
     if (!found)
         send_to_char(ch, "No mobiles were found in those parameters.\r\n");
     else
-        page_string(ch->desc, out_list);
+	  page_string(ch->desc, acc_get_string());
 }
 
 
