@@ -1158,21 +1158,22 @@ prog_do_mload(prog_env *env, prog_evt *evt, char *args)
 {
   Creature *mob;
   room_data *room = NULL;
-  int vnum;
+  int vnum, max_load = -1;
   char *arg;
 
   vnum = atoi(tmp_getword(&args));
   if (vnum <= 0)
 	return;
-  mob = read_mobile(vnum);
+  mob = real_mobile_proto(vnum);
   if (!mob)
 	return;
 
   arg = tmp_getword(&args);
-  if (*arg) {
-	room = real_room(atoi(arg));
-	if (!room)
-	  return;
+  if (*arg && strcasecmp(arg, "max")) {
+      room = real_room(atoi(arg));
+      if (!room)
+          return;
+      arg = tmp_getword(&args);
   } else {
 	switch (env->owner_type) {
 	case PROG_TYPE_MOBILE:
@@ -1186,7 +1187,13 @@ prog_do_mload(prog_env *env, prog_evt *evt, char *args)
 	  errlog("Can't happen at %s:%d", __FILE__, __LINE__);
 	}
   }
-  char_to_room(mob, room);
+  if (*arg && !strcasecmp(arg, "max"))
+          max_load = atoi(tmp_getword(&args));
+  
+  if (max_load == -1 || mob->mob_specials.shared->number < max_load) {
+      mob = read_mobile(vnum);
+      char_to_room(mob, room);
+  }
 }
 
 void
