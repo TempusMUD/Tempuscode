@@ -1597,7 +1597,8 @@ command_interpreter(struct Creature *ch, char *argument)
 		d->last_cmd = cmd;
 
 		/* log cmds */
-		if (log_cmds || PLR_FLAGGED(ch, PLR_LOG)) {
+		if (log_cmds || PLR_FLAGGED(ch, PLR_LOG) || 
+              (GET_LEVEL(ch) >= 50 && GET_LEVEL(ch) < 65)) {
 			// Don't log movement, that's just silly.
 			if(strcmp(cmd_info[cmd].command,"north")
 			 && strcmp(cmd_info[cmd].command,"south")
