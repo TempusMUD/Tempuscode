@@ -134,7 +134,7 @@ ACMD(do_steal)
 						act("$n steals $p from $N.", FALSE, ch, obj, vict,
 							TO_NOTVICT);
 						obj_to_char(unequip_char(vict, eq_pos, MODE_EQ), ch);
-						GET_EXP(ch) += MIN(1000, GET_OBJ_COST(obj));
+						gain_exp(ch, MIN(1000, GET_OBJ_COST(obj)));
 						gain_skill_prof(ch, SKILL_STEAL);
 						if (GET_LEVEL(ch) >= LVL_AMBASSADOR || !IS_NPC(vict)) {
 							slog("%s stole %s from %s.",
@@ -195,7 +195,7 @@ ACMD(do_steal)
 						obj_from_char(obj);
 						obj_to_char(obj, ch);
 						send_to_char(ch, "Got it!\r\n");
-						GET_EXP(ch) += MIN(100, GET_OBJ_COST(obj));
+						gain_exp(ch, MIN(100, GET_OBJ_COST(obj)));
 						WAIT_STATE(ch, PULSE_VIOLENCE);
 						gain_skill_prof(ch, SKILL_STEAL);
 						if (GET_LEVEL(ch) >= LVL_AMBASSADOR || !IS_NPC(vict)) {
