@@ -2732,7 +2732,7 @@ ACMD(do_inventory)
 
 ACMD(do_equipment)
 {
-	int i, found = 0, pos = -1;
+	int i, found = 0;
 	struct obj_data *obj = NULL;
 	char outbuf[MAX_STRING_LENGTH];
 	char active_buf[2][28];
@@ -2792,62 +2792,21 @@ ACMD(do_equipment)
 	}
 
 	if (subcmd == SCMD_IMPLANTS) {
-		if (*argument) {
-			argument = one_argument(argument, buf);
-			if (*buf && is_abbrev(buf, "status")) {
-				two_arguments(argument, buf, buf2);
-				if (!*buf) {
-					strcpy(outbuf, "Implant status:\r\n");
-					for (i = 0; i < NUM_WEARS; i++) {
-						if (!(obj = GET_IMPLANT(ch, i)))
-							continue;
-						found = 1;
-						sprintf(outbuf, "%s-%s- is in %s condition.\r\n",
-							outbuf, obj->short_description, obj_cond_color(obj,
-								ch));
-					}
-					if (!found)
-						page_string(ch->desc, outbuf);
-					else
-						send_to_char(ch, "You don't have any implants.\r\n");
-					return;
-				}
-				if (*buf2) {
-					if ((pos = search_block(buf, wear_implantpos, 0)) < 0) {
-						send_to_char(ch,
-							"'%s' is an invalid implant position.\r\n", buf2);
-						return;
-					}
-					if (!(obj = GET_IMPLANT(ch, pos))) {
-						send_to_char(ch,
-							"You are not implanted at position '%s'.\r\n",
-							wear_implantpos[pos]);
-						return;
-					}
-					if (!isname(buf, obj->name)) {
-						sprintf(buf2,
-							"You are implanted with %s at %s.\r\n"
-							"Not '%s'.\r\n", obj->short_description,
-							wear_implantpos[pos], buf);
-						send_to_char(ch, "%s", buf);
-						return;
-					}
-				} else if (!(obj =
-						get_object_in_equip_vis(ch, buf, ch->implants, &i))) {
-					send_to_char(ch, "You are equipped with no such implant.\r\n");
-				} else {
-					if (IS_DEVICE(obj)) {
-						send_to_char(ch,
-							"-%s- is %sactive with energy (%d/%d).\r\n",
-							obj->short_description,
-							ENGINE_STATE(obj) ? "" : "in", CUR_ENERGY(obj),
-							MAX_ENERGY(obj));
-					}
-					send_to_char(ch, "%s is in %s condition.\r\n",
-						obj->short_description, obj_cond_color(obj, ch));
-				}
-				return;
+		if (*argument && is_abbrev(argument, "status")) {
+			strcpy(outbuf, "Implant status:\r\n");
+			for (i = 0; i < NUM_WEARS; i++) {
+				if (!(obj = GET_IMPLANT(ch, i)))
+					continue;
+				found = 1;
+				sprintf(outbuf, "%s-%s- is in %s condition.\r\n",
+					outbuf, obj->short_description, obj_cond_color(obj,
+						ch));
 			}
+			if (found)
+				page_string(ch->desc, outbuf);
+			else
+				send_to_char(ch, "You don't have any implants.\r\n");
+			return;
 		}
 
 		for (i = 0; i < NUM_WEARS; i++) {
