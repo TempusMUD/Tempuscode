@@ -566,9 +566,10 @@ choose_random_limb( CHAR *victim )
 // since this is called before any attack/damage/etc... its a good place to check the flag  
 int peaceful_room_ok( struct char_data *ch, struct char_data *vict, bool mssg )
 {
-    
     if ( vict && IS_SET( ROOM_FLAGS( ch->in_room ), ROOM_PEACEFUL ) && 
-	 !PLR_FLAGGED( vict, PLR_KILLER ) && GET_LEVEL( ch ) < LVL_GRGOD ) {
+	 !PLR_FLAGGED( vict, PLR_KILLER ) && GET_LEVEL( ch ) < LVL_GRGOD && 
+     !( PLR_FLAGGED(ch, PLR_KILLER) && FIGHTING(vict) == ch)
+     ) {
 	send_to_char( "The universal forces of order prevent violence here!\r\n",
 		      ch );
 	if ( mssg ) {

@@ -653,6 +653,7 @@ damage( struct char_data * ch, struct char_data * victim, int dam,
     /* NV */
     if ( ch && ch != victim && !PLR_FLAGGED( victim, PLR_KILLER | PLR_THIEF ) &&
 	 GET_LEVEL( ch ) < LVL_VIOLENCE &&
+     !( PLR_FLAGGED(ch, PLR_KILLER) && FIGHTING(victim) == ch) &&
 	 ( ROOM_FLAGGED( victim->in_room, ROOM_PEACEFUL ) ||
 	   ROOM_FLAGGED( ch->in_room, ROOM_PEACEFUL ) ) )
         dam = 0;
@@ -1651,6 +1652,7 @@ hit( struct char_data * ch, struct char_data * victim, int type )
     }
 
     if ( ROOM_FLAGGED( ch->in_room, ROOM_PEACEFUL ) && 
+     !( PLR_FLAGGED(ch, PLR_KILLER) && FIGHTING(victim) == ch) &&
 	 !PLR_FLAGGED( victim, PLR_KILLER ) && GET_LEVEL( ch ) < LVL_CREATOR ) {
 	send_to_char( "This room just has such a peaceful, easy feeling...\r\n",ch );
 	return 0;
