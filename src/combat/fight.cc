@@ -96,25 +96,27 @@ set_fighting(struct char_data *ch, struct char_data *vict, int aggr)
 						check_killer(ch->master, vict, "charmie");
 			}
 		} else {				/*if ( !IS_NPC( ch ) ) { */
-			if (PLR_FLAGGED(ch, PLR_NOPK)) {
-				send_to_char
-					("A small dark shape flies in from the future and sticks to your tongue.\r\n",
-					ch);
-				return;
+			bool isArena = ROOM_FLAGGED(ch->in_room, ROOM_ARENA) && 
+						   ROOM_FLAGGED(vict->in_room, ROOM_ARENA);
+			if( !isArena ) {
+				if (PLR_FLAGGED(ch, PLR_NOPK)) {
+					send_to_char("A small dark shape flies in from the future and sticks to your tongue.\r\n", ch);
+					return;
+				}
+				if (PLR_FLAGGED(vict, PLR_NOPK)) {
+					send_to_char
+						("A small dark shape flies in from the future and sticks to your eye.\r\n", ch);
+					return;
+				}
+				if (ch->isNewbie() && !PLR_FLAGGED(ch, PLR_TOUGHGUY) &&
+					!ROOM_FLAGGED(ch->in_room, ROOM_ARENA)) 
+				{
+					send_to_char("You are currently under new player protection, which expires at level 41.\r\n", ch);
+					send_to_char("You cannot attack other players while under this protection.\r\n", ch);
+					return;
+				}
 			}
-			if (PLR_FLAGGED(vict, PLR_NOPK)) {
-				send_to_char
-					("A small dark shape flies in from the future and sticks to your eye.\r\n",
-					ch);
-				return;
-			}
-			if (ch->isNewbie() && !PLR_FLAGGED(ch, PLR_TOUGHGUY) &&
-				!ROOM_FLAGGED(ch->in_room, ROOM_ARENA)) {
-				send_to_char
-					("You are currently under new player protection, which expires at level 41.\r\nYou cannot attack other players while under this protection.\r\n",
-					ch);
-				return;
-			}
+			
 
 			if (!PLR_FLAGGED(ch, PLR_TOUGHGUY) ||
 				!PLR_FLAGGED(ch, PLR_REMORT_TOUGHGUY))
@@ -826,18 +828,19 @@ damage(struct char_data *ch, struct char_data *victim, int dam,
 	}
 
 	/* newbie protection and PLR_NOPK check */
-	if (ch && ch != victim && !IS_NPC(ch) && !IS_NPC(victim)) {
-		if (PLR_FLAGGED(ch, PLR_NOPK)) {
-			send_to_char
-				("A small dark shape flies in from the future and sticks to your eyebrow.\r\n",
-				ch);
-			DAM_RETURN(DAM_ATTACK_FAILED);
-		}
-		if (PLR_FLAGGED(victim, PLR_NOPK)) {
-			send_to_char
-				("A small dark shape flies in from the future and sticks to your nose.\r\n",
-				ch);
-			DAM_RETURN(DAM_ATTACK_FAILED);
+	if (ch && ch != victim && !IS_NPC(ch) && !IS_NPC(victim)) 
+	{
+		bool isArena = ROOM_FLAGGED(ch->in_room, ROOM_ARENA) && 
+					   ROOM_FLAGGED(victim->in_room, ROOM_ARENA);
+		if(! isArena ) {
+			if (PLR_FLAGGED(ch, PLR_NOPK)) {
+				send_to_char("A small dark shape flies in from the future and sticks to your eyebrow.\r\n", ch);
+				DAM_RETURN(DAM_ATTACK_FAILED);
+			}
+			if (PLR_FLAGGED(victim, PLR_NOPK)) {
+				send_to_char("A small dark shape flies in from the future and sticks to your nose.\r\n", ch);
+				DAM_RETURN(DAM_ATTACK_FAILED);
+			}
 		}
 
 		if (victim->isNewbie() &&
