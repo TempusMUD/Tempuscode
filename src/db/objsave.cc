@@ -172,39 +172,6 @@ Obj_from_store(FILE * fl, bool allow_inroom)
 	return obj;
 }
 
-/**
- * Deletes the objects or implants file for the given character.
- *
- * First complains if it doesnt have r/w access, then unlinks.
- */
-int
-Crash_delete_file(char *name, int mode)
-{
-	char filename[50];
-	FILE *fl;
-
-	if (!get_filename(name, filename, mode))	/* 0-rent 1-text 2-implant */
-		return 0;
-
-	if (!(fl = fopen(filename, "rb"))) {
-		if (errno != ENOENT) {	/* if it fails but NOT because of no file */
-			sprintf(buf1, "SYSERR: deleting %s file %s ( 1 )",
-				mode ? "implant" : "crash", filename);
-			perror(buf1);
-		}
-		return 0;
-	}
-	fclose(fl);
-
-	if (unlink(filename) < 0) {
-		if (errno != ENOENT) {	/* if it fails, NOT because of no file */
-			sprintf(buf1, "SYSERR: deleting %s file %s ( 2 )",
-				mode ? "implant" : "crash", filename);
-			perror(buf1);
-		}
-	}
-	return (1);
-}
 
 
 /**
@@ -303,33 +270,6 @@ Crash_calculate_rent(struct obj_data *obj, int *cost)
 		Crash_calculate_rent(obj->contains, cost);
 		Crash_calculate_rent(obj->next_content, cost);
 	}
-}
-
-/*
- * Stores implants into the player's IMPLANT_FILE and extracts them.
- * if extract is true, extract implants after saving them.
- */
-void
-Crash_save_implants(struct Creature *ch, bool extract = true)
-{
-
-	FILE *fp = 0;
-
-	if (!get_filename(GET_NAME(ch), buf, IMPLANT_FILE))
-		return;
-	if (!(fp = fopen(buf, "w")))
-		return;
-	for (int j = 0; j < NUM_WEARS; j++)
-		if (GET_IMPLANT(ch, j)) {
-			if (store_obj_list(GET_IMPLANT(ch, j), fp)) {
-				if (extract)
-					extract_object_list(GET_IMPLANT(ch, j));
-			} else {
-				fclose(fp);
-				return;
-			}
-		}
-	fclose(fp);
 }
 
 
