@@ -257,6 +257,9 @@ is_arena_combat(struct Creature *ch, struct Creature *vict)
 bool
 ok_to_damage(struct Creature *ch, struct Creature *vict)
 {
+	// Boom.  no killers.
+	return true;
+
 	// NPCs don't get killers
 	if (IS_NPC(ch) || IS_NPC(vict))
 		return true;
