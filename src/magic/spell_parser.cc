@@ -3640,7 +3640,7 @@ mag_assign_spells(void)
 		125, 60, 5, POS_FIGHTING, TAR_CHAR_ROOM | TAR_FIGHT_VICT
 		| TAR_NOT_SELF, TRUE, MAG_MAGIC | MAG_AFFECTS);
 
-    remort_spello(SPELL_THORN_SKIN, CLASS_RANGER, 38, 4, 110, 80, 1, 
+    remort_spello(SPELL_THORN_SKIN, CLASS_RANGER, 38, 6, 110, 80, 1, 
                   POS_STANDING, TAR_CHAR_ROOM | TAR_SELF_ONLY, false,
                   MAG_MAGIC | MAG_AFFECTS);
 /*	--- Add this back in when we want trail-based tracking
