@@ -1369,9 +1369,11 @@ advance_level(struct Creature *ch, byte keep_internal)
 			MIN(10, number(1, GET_INT(ch) >> 1)));
 
 	ch->saveToXML();
-
+    int rid = -1;
+    if( ch->in_room != NULL )
+        rid = ch->in_room->number;
 	msg = tmp_sprintf("%s advanced to level %d in room %d%s",
-		GET_NAME(ch), GET_LEVEL(ch), ch->in_room->number,
+		GET_NAME(ch), GET_LEVEL(ch), rid,
 		ch->isTester() ? " <TESTER>" : "");
 	if (keep_internal)
 		slog(msg);
@@ -2946,7 +2948,7 @@ extern const char *evil_knight_titles[LVL_GRIMP + 1] = {
 	"da GRIMP"
 };
 
-void
+long
 import_old_character(descriptor_data *d)
 {
     long id = GET_IDNUM(d->original);
@@ -3018,8 +3020,29 @@ import_old_character(descriptor_data *d)
     calculate_height_weight( d->creature );
 
     d->creature->saveToXML();
-    delete d->original;
+    d->account->save_to_xml();
+    id = GET_IDNUM(d->creature);
+    d->creature->desc = NULL;
+    delete d->creature;
+    d->creature = NULL;
+
+    Creature *ch = d->original;
     d->original = NULL;
+    // destroy all that equipment
+	for (int i = 0; i < NUM_WEARS; i++) {
+		if (GET_EQ(ch, i))
+			extract_obj(unequip_char(ch, i, MODE_EQ, true));
+		if (GET_IMPLANT(ch, i))
+			extract_obj(unequip_char(ch, i, MODE_IMPLANT, true));
+	}
+	// transfer inventory to room, if any
+	while (ch->carrying) {
+		obj_data *obj = ch->carrying;
+		obj_from_char(obj);
+		extract_obj(obj);
+	}
+    delete ch;
+    return id;
 }
 
 

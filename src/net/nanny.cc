@@ -70,7 +70,7 @@ void roll_real_abils(struct Creature * ch);
 void print_attributes_to_buf(struct Creature *ch, char *buff);
 void polc_input(struct descriptor_data * d, char *str);
 void show_character_detail(descriptor_data *d);
-void import_old_character(descriptor_data *d);
+long import_old_character(descriptor_data *d);
 
 int isbanned(char *hostname, char *blocking_hostname);
 int Valid_Name(char *newname);
@@ -724,7 +724,7 @@ handle_input(struct descriptor_data *d, char *arg)
 			return;
 		}
 
-        if( strcmp( GET_PASSWD(d->original), crypt(arg, GET_PASSWD(d->original)) ) ) {
+        if( strncmp( GET_PASSWD(d->original), crypt(arg, GET_PASSWD(d->original)),10 ) ) {
             delete d->original;
             d->original = NULL;
             send_to_desc(d, "\r\nIncorrect password.\r\n\r\n");
@@ -732,12 +732,13 @@ handle_input(struct descriptor_data *d, char *arg)
             return;
         }
 
-        import_old_character(d);
+        long id = import_old_character(d);
+        const char *name = playerIndex.getName(id);
         mudlog(LVL_GOD, NRM, true,
                 "%s[%d] has imported old character %s[%ld]",
                 d->account->get_name(), d->account->get_idnum(),
-                GET_NAME(d->creature), GET_IDNUM(d->creature) );
-        send_to_desc(d, "\r\nCharacter %s imported.\r\n\r\n", GET_NAME(d->creature) );
+                name, id );
+        send_to_desc(d, "\r\nCharacter %s imported.\r\n\r\n", name );
         set_desc_state(CXN_WAIT_MENU, d);
         break;
 	}
