@@ -819,7 +819,7 @@ struct command_info cmd_info[] = {
 	{"insane", POS_RESTING, do_action, 0, 0, 0, 0},
 	{"insert", POS_RESTING, do_insert, 5, 0, 0, 0},
 	{"insult", POS_RESTING, do_insult, 0, 0, 0, 0},
-	{"invis", POS_DEAD, do_invis, 0, 0, 0, 0},
+	{"invis", POS_DEAD, do_invis, LVL_AMBASSADOR, 0, 0, 0},
 	{"irritate", POS_RESTING, do_action, 0, 0, 0, 0},
 
 	{"jab", POS_FIGHTING, do_offensive_skill, 0, SKILL_JAB, 0, 0},
