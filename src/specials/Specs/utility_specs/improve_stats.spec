@@ -48,55 +48,26 @@ do_gen_improve(struct Creature *ch, int cmd, int mode, char *argument)
 	skip_spaces(&argument);
 
 	switch (mode) {
-	case MODE_STR:
-		max_stat = MIN(GET_REMORT_GEN(ch) + 18 +
-			((IS_NPC(ch) || GET_LEVEL(ch) >= LVL_AMBASSADOR) ? 8 : 0) +
-			(IS_MINOTAUR(ch) ? 2 : 0) +
-			(IS_DWARF(ch) ? 1 : 0) +
-			(IS_HALF_ORC(ch) ? 2 : 0) + (IS_ORC(ch) ? 1 : 0), 25);
-		break;
-	case MODE_DEX:
-		max_stat = (IS_NPC(ch) ? 25 :
-			MIN(25,
-				18 + (IS_REMORT(ch) ? GET_REMORT_GEN(ch) : 0) +
-				(IS_TABAXI(ch) ? 2 : 0) +
-				((IS_ELF(ch) || IS_DROW(ch)) ? 1 : 0)));
-		break;
-	case MODE_INT:
-		max_stat = (IS_NPC(ch) ? 25 :
-			MIN(25,
-				18 + (IS_REMORT(ch) ? GET_REMORT_GEN(ch) : 0) +
-				((IS_ELF(ch) || IS_DROW(ch)) ? 1 : 0) +
-				(IS_MINOTAUR(ch) ? -2 : 0) +
-				(IS_TABAXI(ch) ? -1 : 0) +
-				(IS_ORC(ch) ? -1 : 0) + (IS_HALF_ORC(ch) ? -1 : 0)));
-		break;
-	case MODE_CON:
-		max_stat = (IS_NPC(ch) ? 25 :
-			MIN(25,
-				18 + (IS_REMORT(ch) ? GET_REMORT_GEN(ch) : 0) +
-				((IS_MINOTAUR(ch) || IS_DWARF(ch)) ? 1 : 0) +
-				(IS_TABAXI(ch) ? 1 : 0) +
-				(IS_HALF_ORC(ch) ? 1 : 0) +
-				(IS_ORC(ch) ? 2 : 0) +
-				((IS_ELF(ch) || IS_DROW(ch)) ? -1 : 0)));
-		break;
-	case MODE_CHA:
-		max_stat = (IS_NPC(ch) ? 25 :
-			MIN(25,
-				18 + (IS_REMORT(ch) ? GET_REMORT_GEN(ch) : 0) +
-				(IS_HALF_ORC(ch) ? -3 : 0) +
-				(IS_ORC(ch) ? -3 : 0) +
-				(IS_DWARF(ch) ? -1 : 0) + (IS_TABAXI(ch) ? -2 : 0)));
-		break;
-	case MODE_WIS:
-		max_stat = (IS_NPC(ch) ? 25 :
-			MIN(25, (18 + GET_REMORT_GEN(ch)) +
-				(IS_MINOTAUR(ch) ? -2 : 0) + (IS_HALF_ORC(ch) ? -2 : 0) +
-				(IS_TABAXI(ch) ? -2 : 0)));
-		break;
-	default:
-		return FALSE;
+        case MODE_STR:
+            max_stat = get_max_str(ch);
+            break;
+        case MODE_DEX:
+            max_stat = get_max_dex(ch);
+            break;
+        case MODE_INT:
+            max_stat = get_max_int(ch);
+            break;
+        case MODE_CON:
+            max_stat = get_max_con(ch);
+            break;
+        case MODE_CHA:
+            max_stat = get_max_cha(ch);
+            break;
+        case MODE_WIS:
+            max_stat = get_max_wis(ch);
+            break;
+        default:
+            return FALSE;
 	}
 
 	if (!*argument) {
@@ -108,19 +79,7 @@ do_gen_improve(struct Creature *ch, int cmd, int mode, char *argument)
 				CCCYN(ch, C_NRM), improve_modes[mode], CCNRM(ch, C_NRM));
 			return TRUE;
 		}
-/*
-  if (!*argument) {
-    if ((mode != MODE_STR &&
-	 REAL_STAT >= MIN(18 + GET_REMORT_GEN(ch), 22)) ||
-	(mode == MODE_STR &&
-	 ((IS_REMORT(ch) && REAL_STAT >= MIN(18 + GET_REMORT_GEN(ch), 22)) ||
-	  (!IS_REMORT(ch) && 
-	   (REAL_STAT > 18 || ch->real_abils.str_add >= 100))))) {
-      send_to_char(ch, "%sYour %s cannot be improved further.%s\r\n",
-	      CCCYN(ch, C_NRM), improve_modes[mode], CCNRM(ch, C_NRM));
-      return TRUE;
-    }
-*/
+
 		send_to_char(ch,
 			"It will cost you %d coins and %d life points to improve your %s.\r\n",
 			gold, life_cost, improve_modes[mode]);
