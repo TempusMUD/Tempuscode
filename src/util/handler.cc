@@ -1475,16 +1475,15 @@ check_eq_align(Creature *ch)
 			(IS_OBJ_STAT(obj, ITEM_EVIL_BLESS) && IS_GOOD(ch))) {
 			int skill;
 
-			act("You are burned by $p!", FALSE, ch, obj, 0, TO_CHAR);
-			act("$n screams in agony as $p burns $m!", FALSE, ch, obj, 0,
+			act("You are burned by $p and frantically take it off!", FALSE, ch, obj, 0, TO_CHAR);
+			act("$n frantically takes off $p as $e screams in agony!", FALSE, ch, obj, 0,
 				TO_ROOM);
 			skill = MAX(GET_ALIGNMENT(ch), -GET_ALIGNMENT(ch));
 			skill >>= 5;
 			skill = MAX(1, skill);
 			obj_to_char(unequip_char(ch, pos, false), ch);
 			
-			if (damage(ch, ch, dice(skill, 2), TOP_SPELL_DEFINE, pos))
-				return 1;
+			return damage(ch, ch, dice(skill, 2), TOP_SPELL_DEFINE, pos);
 		}
 
 		if ((IS_OBJ_STAT(obj, ITEM_ANTI_EVIL) && IS_EVIL(ch)) ||
