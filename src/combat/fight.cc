@@ -230,10 +230,7 @@ die(struct Creature *ch, struct Creature *killer, int attacktype,
 			return;
 		}
 	} 
-	if (killer && IS_PC(killer) && GET_QUEST(killer) && IS_NPC(ch)) {
-		sprintf(buf, "killed %s", GET_NAME(ch));
-		qlog(killer, buf, QLOG_BRIEF, MAX(GET_INVIS_LVL(ch), LVL_IMMORT), true);
-	}
+
 	if( LOG_DEATHS ) {
 		if( IS_NPC(ch) ) {
 			slog("DEATH: %s killed by %s. attacktype: %d SPEC[%p]",
