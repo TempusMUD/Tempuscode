@@ -368,6 +368,8 @@ ACMD(do_combo)
         retval = damage(ch, vict, dam, SKILL_THROAT_STRIKE,WEAR_NECK_1);
 
         if ( retval ) {
+            if ( !IS_SET( retval, DAM_ATTACKER_KILLED ) )
+                WAIT_STATE(ch, (1 + count) RL_SEC);
             ACMD_set_return_flags( retval );
             return;
         }
@@ -380,6 +382,8 @@ ACMD(do_combo)
             if (GET_LEVEL(ch) + CHECK_SKILL(ch, SKILL_COMBO) > number(100, 120 + (count << 3))) {
                     retval = damage(ch, vict, dam + (count << 3), which_attack[number(0, HOW_MANY -1)], -1);
                     if ( retval ) {
+                        if ( !IS_SET( retval, DAM_ATTACKER_KILLED ) )
+                            WAIT_STATE(ch, (1 + count) RL_SEC);
                         ACMD_set_return_flags( retval );
                         return;
                     }
