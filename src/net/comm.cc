@@ -707,6 +707,9 @@ game_loop(int mother_desc)
 		    send_to_all("Rebooting now, we will be back online in a few minutes.\r\n");
 		    touch("../.fastboot");
 		}
+
+                send_to_all( "Please visit our website at http://tempusmud.com\r\n" );
+                
 		sprintf(buf, "(GC) %s called by %s EXECUTING.", 
 			(shutdown_mode == SHUTDOWN_DIE || shutdown_mode == SHUTDOWN_DIE) ?
 			"Shutdown" : "Reboot", get_name_by_id(shutdown_idnum));
