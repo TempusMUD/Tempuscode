@@ -3618,67 +3618,55 @@ ACMD(do_empty)
     two_arguments(argument, arg1, arg2 );
 
     if ( ! *arg1 ) {
-	send_to_char( "What do you want to empty?\r\n", ch );
-	return;
+		send_to_char( "What do you want to empty?\r\n", ch );
+		return;
     }
-
-
 
     if ( ! ( bits = generic_find( arg1, FIND_OBJ_INV, ch, &dummy, &obj ) ) ) {
-	sprintf( buf, "You can't find any %s to empty\r\n.", arg1 );
-	send_to_char( buf, ch );
-	return;
+		sprintf( buf, "You can't find any %s to empty\r\n.", arg1 );
+		send_to_char( buf, ch );
+		return;
     }
 
-	    
-
-
     if ( GET_OBJ_TYPE( obj ) != ITEM_CONTAINER ) {
-	send_to_char( "You can't empty that.\r\n", ch );
-	return;
+		send_to_char( "You can't empty that.\r\n", ch );
+		return;
     }
 
     if ( *arg2 && obj ) {
 
-	if ( ! ( bits2 = generic_find( arg2, FIND_OBJ_INV | FIND_OBJ_ROOM, ch, &dummy, &container ) ) ) {
-	    sprintf( buf, "Empty %s into what?\r\n", obj->short_description );
-	    send_to_char( buf, ch );
-	    return;
-	}
-
-	else {
-	    empty_to_obj( obj, container, ch );
-	    return;
-	}
+		if ( ! ( bits2 = generic_find( arg2, FIND_OBJ_INV | FIND_OBJ_ROOM, ch, &dummy, &container ) ) ) {
+			sprintf( buf, "Empty %s into what?\r\n", obj->short_description );
+			send_to_char( buf, ch );
+			return;
+		} else {
+			empty_to_obj( obj, container, ch );
+			return;
+		}
     }
 
 
     if( obj->contains ) {
-	for ( next_obj = obj->contains; next_obj; next_obj = o ){   
-    
-	   if ( next_obj->in_obj && next_obj ) {
+		for ( next_obj = obj->contains; next_obj; next_obj = o ){   
+		
+		
+			if ( next_obj->in_obj ) {
+				o = next_obj->next_content;
+				if( ! ( IS_OBJ_STAT( next_obj, ITEM_NODROP ) ) ) { 
+					obj_from_obj( next_obj );
+					obj_to_room( next_obj, ch->in_room );
+				}
+		   } else {
+				o = NULL;
+		   }
+		}
 
-               o = next_obj->next_content;
-	
-	       if( ! ( IS_OBJ_STAT( next_obj, ITEM_NODROP ) ) ) { 
-		   obj_from_obj( next_obj );
-		   obj_to_room( next_obj, ch->in_room );
-	       }
-	  
-	   }
-	
-	}
-
-	act( "$n empties the contents of $p.", FALSE, ch, obj, 0, TO_ROOM );
-	act( "You carefully empty the contents of $p.", FALSE, ch, obj, 0, TO_CHAR );
-
-   
-    }
-
-    else {
-	sprintf( buf, "%s is already empty idiot!\r\n", obj->short_description );
-	send_to_char( buf, ch );
-	return;
+		act( "$n empties the contents of $p.", FALSE, ch, obj, 0, TO_ROOM );
+		act( "You carefully empty the contents of $p.", FALSE, ch, obj, 0, TO_CHAR );
+    } else {
+		sprintf( buf, "%s is already empty idiot!\r\n", obj->short_description );
+		send_to_char( buf, ch );
+		return;
     }
 }
 
