@@ -1887,8 +1887,13 @@ ACMD(do_enter)
 			obj_from_char(car);
 
 		extract_obj(car);
-	} else if (GET_OBJ_VAL(car, 3) > 0)
+	} else if (GET_OBJ_VAL(car, 3) > 0) {
+        if( GET_OBJ_VAL(car, 3) < 5 ) {
+            act("$p flickers as you step through.",
+                FALSE, ch, car, 0, TO_CHAR);
+        }
 		GET_OBJ_VAL(car, 3) -= 1;
+    }
 
 	WAIT_STATE(ch, 2 RL_SEC);
 
