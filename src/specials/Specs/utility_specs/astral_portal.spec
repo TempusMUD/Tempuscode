@@ -7,7 +7,6 @@
 SPECIAL(astral_portal)
 {
 	struct obj_data *portal = (struct obj_data *)me;
-	skip_spaces(&argument);
 
 	if (spec_mode != SPECIAL_CMD)
 		return 0;
@@ -19,6 +18,7 @@ SPECIAL(astral_portal)
 		send_to_char(ch, "Enter what?\r\n");
 		return 1;
 	}
+	skip_spaces(&argument);
 	if (isname(argument, portal->name)) {
 		act("$n steps into $p.", FALSE, ch, portal, 0, TO_ROOM);
 		act("You step into $p.", FALSE, ch, portal, 0, TO_CHAR);

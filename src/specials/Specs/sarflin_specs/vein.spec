@@ -6,45 +6,55 @@
 
 SPECIAL(vein)
 {
-	struct obj_data *me2 = (struct obj_data *)me;
+	struct obj_data *self = (struct obj_data *)me;
 	struct obj_data *new_obj = NULL;
-	struct obj_data *obj_hand = GET_EQ(ch, WEAR_HOLD);
-	int pick = 0;
+	struct obj_data *pick;
 
-	if (!CMD_IS("hit"))
-		return (0);
+	if (spec_mode != SPECIAL_CMD || !CMD_IS("hit"))
+		return false;
 
-	if (obj_hand && isname("pick", obj_hand->name))
-		pick = 1;
+	pick = GET_EQ(ch, WEAR_HOLD);
+	if (pick && !isname("pick", pick->name))
+		pick = NULL;
 
-	if (!pick && (obj_hand = GET_EQ(ch, WEAR_WIELD)) &&
-		isname("pick", obj_hand->name))
-		pick = 1;
+	if (!pick) {
+		pick = GET_EQ(ch, WEAR_WIELD);
+		if (pick && !isname("pick", pick->name))
+			pick = NULL;
+	}
 
 	if (!pick) {
 		act("You don't have a pick! how do you think to mine with out one?",
 			TRUE, ch, 0, 0, TO_CHAR);
-		return (1);
+		return true;
 	}
 
-	if (number(0, GET_OBJ_VAL(me2, 1))) {
-		act("$n hits the vein with $p.", TRUE, ch, obj_hand, 0, TO_ROOM);
+	if (number(0, GET_OBJ_VAL(self, 1))) {
+		act("$n hits the vein with $p.", TRUE, ch, pick, 0, TO_ROOM);
 		act("You hit the vein knocking some rock lose.", TRUE, ch, 0, 0,
 			TO_CHAR);
 		return (1);
 	}
-
-	if (!(new_obj = read_object(GET_OBJ_VAL(me2, 0))))
-		return 1;
+	new_obj = read_object(GET_OBJ_VAL(self, 0));
+	if (!new_obj) {
+		act("Your pick goes awry and you nearly hit yourself!", true,
+			ch, pick, 0, TO_CHAR);
+		act("$n's pick goes awry and $e nearly hit $mself!", true,
+			ch, pick, 0, TO_ROOM);
+		mudlog(GET_LEVEL(ch), CMP, true,
+			"SYSERR: vein #%d has invalid ovnum #%d",
+			GET_OBJ_VNUM(self), GET_OBJ_VAL(self, 0));
+		return true;
+	}
 
 	act("$n hits the vein with $p, and breaks off $P.",
-		TRUE, ch, obj_hand, new_obj, TO_ROOM);
-	act("You knock $P off $p.", TRUE, ch, me2, new_obj, TO_CHAR);
+		TRUE, ch, pick, new_obj, TO_ROOM);
+	act("You knock $P off $p.", TRUE, ch, self, new_obj, TO_CHAR);
 
-	if (me2->in_room)
-		obj_to_room(new_obj, me2->in_room);
-	else if (me2->carried_by)
-		obj_to_room(new_obj, me2->carried_by->in_room);
+	if (self->in_room)
+		obj_to_room(new_obj, self->in_room);
+	else if (self->carried_by)
+		obj_to_room(new_obj, self->carried_by->in_room);
 	else
 		extract_obj(new_obj);
 

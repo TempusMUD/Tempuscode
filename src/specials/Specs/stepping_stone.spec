@@ -37,7 +37,6 @@ SPECIAL(stepping_stone)
 SPECIAL(portal_out)
 {
 	struct obj_data *portal = (struct obj_data *)me;
-	skip_spaces(&argument);
 
 	if (spec_mode != SPECIAL_CMD)
 		return false;
@@ -49,6 +48,8 @@ SPECIAL(portal_out)
 			"Enter what?  Enter the portal to leave the arena.\r\n");
 		return true;
 	}
+
+	skip_spaces(&argument);
 	if (isname(argument, portal->name)) {
 		send_to_room("A loud buzzing sound fills the room.\r\n", ch->in_room);
 		if (GET_HOME(ch) == HOME_ARENA)
