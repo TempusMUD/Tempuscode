@@ -4,6 +4,7 @@
 #include "creature.h"
 #include "utils.h"
 #include "spells.h"
+#include "handler.h"
 
 // Returns true if the room is too dark to see, false if the room has enough
 // light to see
@@ -116,7 +117,8 @@ check_sight_object(Creature *self, obj_data *obj)
 
 	if (IS_OBJ_STAT(obj, ITEM_TRANSPARENT) &&
 			!(IS_AFFECTED_3(self, AFF3_SONIC_IMAGERY) ||
-				IS_AFFECTED(self, AFF_RETINA)))
+				IS_AFFECTED(self, AFF_RETINA) ||
+				affected_by_spell(self, ZEN_AWARENESS)))
 		return false;
 
 	if (IS_AFFECTED(self, AFF_DETECT_INVIS) ||
@@ -159,7 +161,8 @@ check_sight_vict(Creature *self, Creature *vict)
 	// Sonic imagery and retina detects transparent creatures
 	if (IS_AFFECTED_2(vict, AFF2_TRANSPARENT) &&
 			!(IS_AFFECTED_3(self, AFF3_SONIC_IMAGERY) ||
-				IS_AFFECTED(self, AFF_RETINA)))
+				IS_AFFECTED(self, AFF_RETINA) ||
+				affected_by_spell(self, ZEN_AWARENESS)))
 		return false;
 
 	// True seeing and detect invisibility counteract all magical invis
