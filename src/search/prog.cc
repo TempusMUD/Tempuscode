@@ -288,6 +288,7 @@ prog_var_equal(prog_state_data *state, char *key, char *arg)
 bool
 prog_eval_condition(prog_env *env, prog_evt *evt, char *args)
 {
+  extern const char *pc_char_class_types[];
   obj_data *obj = NULL;
   int vnum;
   char *arg, *str;
@@ -397,6 +398,43 @@ prog_eval_condition(prog_env *env, prog_evt *evt, char *args)
 	  result = vnum == MOON_WAX_GIBBOUS
 		|| vnum == MOON_WAX_CRESCENT
 		|| vnum == MOON_FIRST_QUARTER;
+  } else if (!strcasecmp(arg, "target")) {
+      arg = tmp_getword(&args);
+      if (!strcasecmp(arg, "class")) {
+          result = (env->target && (strstr(tmp_tolower(args), tmp_tolower(pc_char_class_types[GET_CLASS(env->target)])) ||
+              (IS_REMORT(env->target) && strstr(tmp_tolower(args), tmp_tolower(pc_char_class_types[GET_REMORT_CLASS(env->target)])))));
+      } else if (!strcasecmp(arg, "player")) {
+          result = env->target && IS_PC(env->target);
+      } else if (!strcasecmp(arg, "vnum")) {
+          if (env->target && IS_NPC(env->target)) {
+              arg = tmp_getword(&args);
+              while (*arg) {
+                  if (is_number(arg) && atoi(arg) == GET_MOB_VNUM(env->target)) {
+                      result = true;
+                      break;
+                  }
+                  arg = tmp_getword(&args);
+              }
+          }
+      } else if (!strcasecmp(arg, "level")) {
+          arg = tmp_getword(&args);
+          if (!strcasecmp(arg, "greater")) {
+              arg = tmp_getword(&args);
+              result = is_number(arg) && env->target && GET_LEVEL(env->target) > atoi(arg);
+          } else if (!strcasecmp(arg, "less")) {
+              arg = tmp_getword(&args);
+              result = is_number(arg) && env->target && GET_LEVEL(env->target) < atoi(arg);
+          }
+      } else if (!strcasecmp(arg, "gen")) {
+          arg = tmp_getword(&args);
+          if (!strcasecmp(arg, "greater")) {
+              arg = tmp_getword(&args);
+              result = is_number(arg) && env->target && GET_REMORT_GEN(env->target) > atoi(arg);
+          } else if (!strcasecmp(arg, "less")) {
+              arg = tmp_getword(&args);
+              result = is_number(arg) && env->target && GET_REMORT_GEN(env->target) < atoi(arg);
+          }
+      }
   }
 
   return (not_flag) ? (!result):result;
