@@ -1263,7 +1263,8 @@ send_menu(descriptor_data *d)
 void
 set_desc_state(cxn_state state,struct descriptor_data *d)
 	{
-	free(d->mode_data);
+	if (d->mode_data)
+		free(d->mode_data);
 	d->mode_data = NULL;
 	if (d->input_mode == CXN_ACCOUNT_PW ||
 			d->input_mode == CXN_PW_PROMPT ||
