@@ -924,7 +924,7 @@ ASPELL(spell_locate_object)
     if (ch) {
         int extracost;
 
-        if (term_count > (ch->getLevelBonus(SPELL_LOCATE_OBJECT) / 25)) {
+        if (term_count > MIN(1, (ch->getLevelBonus(SPELL_LOCATE_OBJECT) / 25))) {
             send_to_char("You are not powerful enough to be so precise.\r\n", ch);
             return;
         }
