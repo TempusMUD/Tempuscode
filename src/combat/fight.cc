@@ -1813,7 +1813,9 @@ damage( struct char_data * ch, struct char_data * victim, int dam,
 
     if ( victim->getPosition() == POS_DEAD ) {
         if ( ch ) {
-            gain_kill_exp( ch, victim );
+            if(attacktype != SKILL_SNIPE) { 
+              gain_kill_exp( ch, victim );
+            }
 
             if ( !IS_NPC( victim ) ) {
                 if ( victim != ch ) {
