@@ -398,7 +398,7 @@ const char *spells[] = {
 	"claw",
 	"rabbitpunch",
 	"impale",					/* 555 */
-	"Pele kick",
+	"pele kick",
 	"lunge punch",
 	"tornado kick",
 	"circle",

@@ -408,6 +408,9 @@ boot_db(void)
 	}
 	slog("   Spells.");
 	mag_assign_spells();
+	while (spells[max_spell_num][0] != '\n')
+		max_spell_num++;
+
 
 	slog("Sorting command list and spells.");
 	sort_commands();
@@ -465,9 +468,6 @@ boot_db(void)
 	boot_combat();
 
 	boot_time = time(0);
-
-	while (spells[max_spell_num][0] != '\n')
-		max_spell_num++;
 
 	slog("Boot db -- DONE.");
 }
