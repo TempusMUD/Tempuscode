@@ -1700,6 +1700,8 @@ do_stat_character(struct Creature *ch, struct Creature *k)
 		strcat(buf, buf2);
 		sprintf(buf2, ", Idle [%d]\r\n", k->char_specials.timer);
 		strcat(outbuf, strcat(buf, buf2));
+	} else {
+		strcat( outbuf, "\r\n" );
 	}
 
 	if (k->getPosition() == POS_MOUNTED && MOUNTED(k)) {
