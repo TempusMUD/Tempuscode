@@ -53,20 +53,6 @@ typedef struct {
 	PHead *phead;
 } PObject;
 
-#define PATH_MOVE(o) if ( (o->pos + o->step) >= o->phead->length)  {    \
-                       if (IS_SET(o->phead->flags, PATH_REVERSIBLE)) {  \
-                         o->pos--;                                      \
-                         o->step = 0 - o->step;                         \
-                       } else {                                         \
-                         o->pos = 0;                                    \
-                       }                                                \
-		     } else if (o->pos < 0) {                           \
-		       o->pos = 0;                                      \
-		       o->step = 0 - o->step;                           \
-                     } else {                                           \
-		       o->pos += o->step;                               \
-                     };
-
 PHead *real_path(char *str);
 void show_path(struct Creature *ch, char *arg);
 void show_pathobjs(struct Creature *ch);

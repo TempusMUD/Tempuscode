@@ -27,6 +27,25 @@ Link *path_command_list = NULL;
 int path_command_length = 0;
 int path_locked = 1;
 
+inline void
+PATH_MOVE(PObject *o)
+{
+	o->pos += o->step;
+
+	if (o->pos >= o->phead->length) {
+		if (IS_SET(o->phead->flags, PATH_REVERSIBLE)) {
+			o->pos--;
+			o->step = -1;
+		} else
+			o->pos = 0;
+	}
+
+	if (o->pos < 0) {
+		o->pos = 0;
+		o->step = 1;
+	}
+}
+
 PHead *
 real_path(char *str)
 {
