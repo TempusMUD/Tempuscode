@@ -1597,9 +1597,8 @@ cast_spell(struct char_data *ch, struct char_data *tch,
 		case POS_FIGHTING:
 			send_to_char(ch, "Impossible!  You can't concentrate enough!\r\n");
 			if (IS_MOB(ch)) {
-				sprintf(buf, "SYSERR: %s tried to cast spell %d in battle.",
+				slog("SYSERR: %s tried to cast spell %d in battle.",
 					GET_NAME(ch), spellnum);
-				slog(buf);
 			}
 			break;
 		default:
@@ -3606,7 +3605,7 @@ mag_assign_spells(void)
 		0, 0, 0, 0, 0, 0, 0);
 
 	spello(SKILL_STUN, X, X, 35, X, X, X, X, X, X, X, X, X, X, X, X, X, X,
-		0, 0, 0, 0, 0, 0, 0);
+		0, 0, 0, 0, 0, 0, MAG_BIOLOGIC);
 
 	spello(SKILL_FEIGN, X, X, 25, X, X, X, X, X, X, X, X, X, X, X, X, X, X,
 		0, 0, 0, 0, 0, 0, 0);
@@ -3656,7 +3655,7 @@ mag_assign_spells(void)
 		0, 0, 0, 0, 0, 0, 0);
 
 	spello(SKILL_BESERK, X, X, X, 1, 22, X, X, X, X, X, X, X, X, X, X, X, X,
-		0, 0, 0, 0, 0, 0, 0);
+		0, 0, 0, 0, 0, 0, MAG_BIOLOGIC);
 
 	spello(SKILL_BATTLE_CRY, X, X, X, 1, 33, X, X, X, X, X, X, X, X, X, X, X,
 		X, 0, 0, 0, 0, 0, 0, 0);
@@ -4002,26 +4001,26 @@ mag_assign_spells(void)
 		X, 0, 0, 0, 0, 0, 0, 0);
 
 	spello(SKILL_PINCH_ALPHA, X, X, X, X, X, X, X, X, X, X, X, 6, X, X, X, X,
-		X, 0, 0, 0, 0, 0, 0, 0);
+		X, 0, 0, 0, 0, 0, 0, MAG_BIOLOGIC);
 	spello(SKILL_PINCH_BETA, X, X, X, X, X, X, X, X, X, X, X, 12, X, X, X, X,
-		X, 0, 0, 0, 0, 0, 0, 0);
+		X, 0, 0, 0, 0, 0, 0, MAG_BIOLOGIC);
 	spello(SKILL_PINCH_GAMMA, X, X, X, X, X, X, X, X, X, X, X, 35, X, X, X, X,
-		X, 0, 0, 0, 0, 0, 0, 0);
+		X, 0, 0, 0, 0, 0, 0, MAG_BIOLOGIC);
 	spello(SKILL_PINCH_DELTA, X, X, X, X, X, X, X, X, X, X, X, 19, X, X, X, X,
-		X, 0, 0, 0, 0, 0, 0, 0);
+		X, 0, 0, 0, 0, 0, 0, MAG_BIOLOGIC);
 	spello(SKILL_PINCH_EPSILON, X, X, X, X, X, X, X, X, X, X, X, 26, X, X, X,
-		X, X, 0, 0, 0, 0, 0, 0, 0);
+		X, X, 0, 0, 0, 0, 0, 0, MAG_BIOLOGIC);
 	spello(SKILL_PINCH_OMEGA, X, X, X, X, X, X, X, X, X, X, X, 39, X, X, X, X,
-		X, 0, 0, 0, 0, 0, 0, 0);
+		X, 0, 0, 0, 0, 0, 0, MAG_BIOLOGIC);
 	spello(SKILL_PINCH_ZETA, X, X, X, X, X, X, X, X, X, X, X, 32, X, X, X, X,
-		X, 0, 0, 0, 0, 0, 0, 0);
+		X, 0, 0, 0, 0, 0, 0, MAG_BIOLOGIC);
 
 	spello(SKILL_MEDITATE, X, X, X, X, X, X, X, X, X, X, X, 9, X, X, X, X, X,
 		0, 0, 0, 0, 0, 0, 0);
 	spello(SKILL_KATA, X, X, X, X, X, X, X, X, X, X, X, 5, X, X, X, X, X,
 		0, 0, 0, 0, 0, 0, 0);
 	spello(SKILL_EVASION, X, X, X, X, X, X, X, X, X, X, X, 22, X, X, X, X, X,
-		0, 0, 0, 0, 0, 0, 0);
+		0, 0, 0, 0, 0, 0, MAG_BIOLOGIC);
 
 	spello(SKILL_PROF_POUND, X, X, X, X, X, X, X, X, X, X, X, 3, X, X, X, X, X,
 		0, 0, 0, 0, 0, 0, 0);

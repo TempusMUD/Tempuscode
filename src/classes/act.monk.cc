@@ -418,6 +418,7 @@ ACMD(do_pinch)
 	int prob, percent, which_pinch, i;
 	char arg1[MAX_INPUT_LENGTH], arg2[MAX_INPUT_LENGTH];
 	char *to_vict = NULL, *to_room = NULL;
+	bool happened;
 
 	ACMD_set_return_flags(0);
 
@@ -584,13 +585,38 @@ ACMD(do_pinch)
 		to_room = "$n suddenly becomes confused and stumbles around.";
 		break;
 	case SKILL_PINCH_ZETA:
+		happened = false;
+		af.type = 0;
+		if (vict->affected) {
+			struct affected_type *doomed_aff, *next_aff;
+			int level;
+			
+			level = GET_LEVEL(ch) + (GET_REMORT_GEN(ch) << 1);
+			for (doomed_aff = vict->affected;doomed_aff;doomed_aff = next_aff) {
+				next_aff = doomed_aff->next;
+				if (SPELL_IS_BIO(doomed_aff->type)) {
+					if (doomed_aff->level < number(level >> 1, level << 1)) {
+						affect_remove(vict, doomed_aff);
+						happened = true;
+					}
+				}
+			}
+		}
+		if (happened) {
+			to_vict = "You feel hidden tensions fade.";
+			to_room = "$n looks noticably more relaxed.";
+		}
+
 		if (vict->getPosition() == POS_STUNNED
 			|| vict->getPosition() == POS_SLEEPING) {
 			REMOVE_BIT(AFF_FLAGS(vict), AFF_SLEEP);
 			vict->setPosition(POS_RESTING);
 			to_vict = "You feel a strange sensation as $N wakes you.";
 			to_room = "$n is revived.";
-		} else {
+			happened = true;
+		}
+
+		if (!happened) {
 			to_room = NOEFFECT;
 			to_vict = NOEFFECT;
 		}
