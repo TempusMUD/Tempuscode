@@ -278,20 +278,27 @@ update_iaffects(Creature * ch)
 void
 obj_affect_update(void)
 {
+    Creature *ch;
     extern struct obj_data *object_list;
     struct obj_data *obj;
     struct tmp_obj_affect *af;
+    int last = 0;
 
     for (obj = object_list; obj != NULL; obj = obj->next) {
         if (obj->tmp_affects != NULL) {
             for (af = obj->tmp_affects; af != NULL; af = af->next) {
                 af->duration--;
-                if (af->duration == -1) {
-                    if (*item_wear_off_msg[af->type] && 
-                        obj->carried_by  &&
-                        !PLR_FLAGGED(obj->carried_by, PLR_OLC)) {
-                        act(item_wear_off_msg[af->type], FALSE,
-                            obj->carried_by, obj, NULL, TO_CHAR);
+                if (*item_wear_off_msg[af->type] && (af->duration == -1)) {
+                    if (af->type != last) {
+                        last = af->type;
+                        if (obj->worn_by || obj->carried_by) {
+                            ch = (obj->carried_by ? obj->carried_by : 
+                                  obj->worn_by);
+                            if (PLR_FLAGGED(ch, PLR_OLC))
+                                continue;
+                            act(item_wear_off_msg[af->type], FALSE, ch, obj, 
+                                NULL, TO_CHAR);
+                        }
                     }
                     obj->removeAffect(af);
                 }
@@ -3104,6 +3111,12 @@ mag_alter_objs(int level, struct Creature *ch, struct obj_data *obj,
 	char *to_char = NULL;
 	char *to_room = NULL;
 	int i = 0, j = 0;
+    struct tmp_obj_affect oaf[5];
+    int dur_mode, val_mode, aff_mode;
+
+    dur_mode = val_mode = aff_mode = AFF_NOOP;
+
+    memset(&oaf, 0x0, sizeof(oaf));
 
 	if (obj == NULL)
 		return;
@@ -3294,6 +3307,30 @@ mag_alter_objs(int level, struct Creature *ch, struct obj_data *obj,
         }
         break;
 
+    case SPELL_ENVENOMATE:
+        if (!(GET_OBJ_TYPE(obj) == ITEM_WEAPON)) {
+            to_char = "You can only envenomate weapons.";
+            break;
+        }
+
+        if (obj->affectedBySpell(SPELL_ENVENOMATE)) {
+            to_char = "That weapon is already envenomated!";
+            break;
+        }
+        oaf[0].level = ch->getLevelBonus(SPELL_ENVENOMATE);
+        oaf[0].type = SPELL_ENVENOMATE;
+//        oaf[0].duration = ch->getLevelBonus(SPELL_ENVENOMATE) / 20;
+        oaf[0].duration = 1;
+        oaf[0].val_mod[0] = SPELL_POISON - GET_OBJ_VAL(obj, 0);
+        oaf[0].extra_mod = ITEM3_REQ_RANGER;
+        oaf[0].extra_index = 3;
+        oaf[1].level = oaf[0].level;
+        oaf[1].type = oaf[0].type;
+        oaf[1].duration = oaf[0].duration;
+        oaf[1].extra_mod = ITEM2_CAST_WEAPON;
+        oaf[1].extra_index = 2;
+        to_char = "$p begins to drip poison.";
+        break;
     default:
         slog("SYSERR: Unknown spellnum in mag_alter_objs.");
         break;
@@ -3306,6 +3343,12 @@ mag_alter_objs(int level, struct Creature *ch, struct obj_data *obj,
 
 	if (to_room != NULL)
 		act(to_room, TRUE, ch, obj, 0, TO_ROOM);
+
+    
+    for (int i = 0; i < 5; i++)
+        if (oaf[i].type != 0)
+            obj->affectJoin(&oaf[i], dur_mode, val_mode, aff_mode);
+
 	/*  else if (to_char != NULL)
 	   act(to_char, TRUE, ch, obj, 0, TO_ROOM);
 	 */

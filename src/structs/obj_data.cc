@@ -551,8 +551,9 @@ obj_data::affectJoin(struct tmp_obj_affect *af, int dur_mode, int val_mode,
     struct tmp_obj_affect *cur_aff = this->tmp_affects;
     struct tmp_obj_affect tmp_aff;
 
-    for (; cur_aff != NULL; cur_aff = tmp_aff.next) {
-        if (cur_aff->type == af->type) {
+    for (; cur_aff != NULL; cur_aff = cur_aff->next) {
+        if (cur_aff->type == af->type && 
+            cur_aff->extra_index == af->extra_index) {
             memcpy(&tmp_aff, cur_aff, sizeof(struct tmp_obj_affect));
             if (dur_mode == AFF_ADD)
                 tmp_aff.duration = MIN(666, af->duration + tmp_aff.duration);
@@ -590,4 +591,16 @@ obj_data::affectJoin(struct tmp_obj_affect *af, int dur_mode, int val_mode,
     this->addAffect(af);
 }
 
+bool
+obj_data::affectedBySpell(int spellnum)
+{
+    struct tmp_obj_affect *cur_aff = this->tmp_affects;
+
+    for (; cur_aff != NULL; cur_aff = cur_aff->next) {
+        if (cur_aff->type == spellnum)
+            return true;
+    }
+ 
+    return false;
+}
 #undef __obj_data_cc__
