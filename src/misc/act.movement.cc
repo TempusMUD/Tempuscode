@@ -328,6 +328,9 @@ check_sneak(Creature *ch, Creature *vict, bool departing, bool msgs)
 			sneak_prob -= ch->equipment[idx]->getWeight();
 
 	sneak_roll = number(0, vict->getLevelBonus(true));
+	if (affected_by_spell(vict, ZEN_AWARENESS))
+		sneak_roll += vict->getLevelBonus(ZEN_AWARENESS) / 4;
+
 	if (PRF2_FLAGGED(ch, PRF2_DEBUG))
 		send_to_char(ch, "%s[SNEAK] vict:%s   prob:%d   roll:%d%s\r\n",
 			CCCYN(ch, C_NRM), GET_NAME(vict), sneak_prob, sneak_roll,
