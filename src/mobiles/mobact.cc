@@ -126,7 +126,9 @@ burn_update(void)
 
 	// char is flying but unable to continue
 	if (GET_POS(ch) == POS_FLYING && !AFF_FLAGGED(ch, AFF_INFLIGHT) &&
-	    GET_LEVEL(ch) < LVL_AMBASSADOR) {
+	    GET_LEVEL(ch) < LVL_AMBASSADOR && 
+		(CHECK_SKILL(ch, SKILL_FLYING) > 30)
+		) {
 	    send_to_char("You can no longer fly!\r\n", ch);
 	    GET_POS(ch) = POS_STANDING;
 	}
