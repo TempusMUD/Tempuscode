@@ -37,9 +37,10 @@ using namespace std;
 #include "login.h"
 #include "house.h"
 #include "fight.h"
+#include "player_table.h"
 
-struct killer_rec {
-	killer_rec *next;
+struct criminal_rec {
+	criminal_rec *next;
 	int idnum;
 	int gen;
 	int demons;
@@ -48,7 +49,7 @@ struct killer_rec {
 #define DEMONIC_BASE 1530
 #define KILLER_GRACE	5
 
-killer_rec *killer_list = NULL;
+criminal_rec *criminal_list = NULL;
 /*   external vars  */
 bool
 perform_get_from_room(struct Creature * ch,
@@ -58,9 +59,9 @@ extern struct descriptor_data *descriptor_list;
 
 // If devils can form hunting parties, demons are gonna just go after them
 
-// Pick a random killer to go after
+// Pick a random criminal to go after
 Creature *
-pick_random_killer(void)
+pick_random_criminal(void)
 {
 	descriptor_data *cur_desc;
 	Creature *result = NULL;
@@ -71,7 +72,7 @@ pick_random_killer(void)
 			continue;
 		if (IS_IMMORT(cur_desc->creature))
 			continue;
-		if (!PLR_FLAGGED(cur_desc->creature, PLR_KILLER))
+		if (GET_REPUTATION(cur_desc->creature) < 700)
 			continue;
 		total_count++;
 		if (number(1,total_count) == 1)
@@ -81,66 +82,31 @@ pick_random_killer(void)
 	return result;
 }
 
-void
-forget_non_killers(void)
-{
-	killer_rec *prev_rec, *cur_rec, *next_rec;
-	descriptor_data *cur_desc;
-	if (!killer_list)
-		return;
-
-	prev_rec = NULL;
-	for (cur_rec = killer_list;cur_rec;cur_rec = next_rec) {
-		next_rec = cur_rec->next;
-		for (cur_desc = descriptor_list;cur_desc;cur_desc = cur_desc->next) {
-			if (!cur_desc->creature || !IS_PLAYING(cur_desc))
-				continue;
-			if (GET_IDNUM(cur_desc->creature) != cur_rec->idnum)
-				continue;
-			// Is player still a killer?
-			if (PLR_FLAGGED(cur_desc->creature, PLR_KILLER))
-				break;
-			// player is no longer considered a killer - remove from list
-			// demons will dissipate by themselves
-			if (!prev_rec)
-				killer_list = cur_rec->next;
-			else
-				prev_rec->next = cur_rec->next;
-			free(cur_rec);
-		}
-		prev_rec = cur_rec;
-	}
-
-}
-
 SPECIAL(demonic_overmind)
 {
 	Creature *vict, *mob;
-	killer_rec *cur_rec;
+	criminal_rec *cur_rec;
 	obj_data *brain;
 
 	if (spec_mode != SPECIAL_CMD && spec_mode != SPECIAL_TICK)
 		return false;
 	
 	if (spec_mode == SPECIAL_TICK) {
-		// Eliminate chars who are non-killers
-		forget_non_killers();
-		
-		vict = pick_random_killer();
+		vict = pick_random_criminal();
 		if (!vict)
 			return false;
 
-		for (cur_rec = killer_list;cur_rec;cur_rec = cur_rec->next)
+		for (cur_rec = criminal_list;cur_rec;cur_rec = cur_rec->next)
 			if (cur_rec->idnum == GET_IDNUM(vict))
 				break;
 		if (!cur_rec) {
-			cur_rec = new killer_rec;
+			cur_rec = new criminal_rec;
 			cur_rec->idnum = GET_IDNUM(vict);
 			cur_rec->gen = GET_REMORT_GEN(vict);
 			cur_rec->demons = 0;
-			cur_rec->grace = KILLER_GRACE;
-			cur_rec->next = killer_list;
-			killer_list = cur_rec;
+			cur_rec->grace = 150 + (1000 - GET_REPUTATION(vict)) * 12 / 10;
+			cur_rec->next = criminal_list;
+			criminal_list = cur_rec;
 		}
 
 		// They get a small grace period before the demons come hunting
@@ -177,6 +143,20 @@ SPECIAL(demonic_overmind)
 		return true;
 	}
 
+	if (spec_mode == SPECIAL_CMD && CMD_IS("status")) {
+		send_to_char(ch, "Demonic overmind status:\r\n");
+		send_to_char(ch, " Player                    Gen  Demons  Grace\r\n"
+			"-------------------------  ---  ------  -----\r\n");
+		for (cur_rec = criminal_list;cur_rec;cur_rec = cur_rec->next)
+			send_to_char(ch, "%-25s  %3d  %4d    %4d\r\n",
+				playerIndex.getName(cur_rec->idnum),
+				cur_rec->gen,
+				cur_rec->demons,
+				cur_rec->grace);
+
+		return true;
+	}
+
 	return false;
 }
 
@@ -185,7 +165,7 @@ SPECIAL(demonic_guard)
 	Creature *self = (Creature *)me;
 	obj_data *brain;
 //	obj_data *obj;
-	killer_rec *cur_rec;
+	criminal_rec *cur_rec;
 	int vict_id;
 
 	if (spec_mode != SPECIAL_TICK && spec_mode != SPECIAL_DEATH)
@@ -196,7 +176,7 @@ SPECIAL(demonic_guard)
 		return false;
 	vict_id = GET_OBJ_VAL(brain, 3);
 
-	for (cur_rec = killer_list;cur_rec;cur_rec = cur_rec->next)
+	for (cur_rec = criminal_list;cur_rec;cur_rec = cur_rec->next)
 		if (cur_rec->idnum == vict_id)
 			break;
 	if (spec_mode == SPECIAL_DEATH) {
@@ -206,19 +186,6 @@ SPECIAL(demonic_guard)
 		extract_obj(brain);
 		return false;
 	}
-
-/// Harsh since the victim often has his own victim's corpse in his inventory
-//  --jr
-//	// Check to see if the victim's corpse is here
-//	for (obj = self->in_room->contents; obj; obj = obj->next_content) {
-//		if (IS_CORPSE(obj) && CORPSE_IDNUM(obj) == vict_id) {
-//			act("You get $p.", true, self, obj, 0, TO_CHAR);
-//			act("$n gets $p.", true, self, obj, 0, TO_ROOM);
-//			obj_from_room(obj);
-//			obj_to_char(obj, self);
-//			return true;
-//		}
-//	}
 
 	if (!HUNTING(self) || !PLR_FLAGGED(HUNTING(self), PLR_KILLER)) {
 		act("$n vanishes into the mouth of an interplanar conduit.",
