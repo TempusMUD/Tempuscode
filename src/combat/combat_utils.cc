@@ -1115,6 +1115,7 @@ make_corpse( struct char_data *ch,struct char_data *killer,int attacktype )
 	obj_to_room( head, ch->in_room );
 	if ( !ROOM_FLAGGED( ch->in_room, ROOM_ARENA ) && 
 	     GET_LEVEL( ch ) <= LVL_AMBASSADOR ) {
+         obj_data *o;
 	    /* transfer character's head EQ to room, if applicable */
 	    if ( GET_EQ( ch, WEAR_HEAD ) )
 		obj_to_room( unequip_char( ch, WEAR_HEAD, MODE_EQ ), ch->in_room );
@@ -1127,25 +1128,25 @@ make_corpse( struct char_data *ch,struct char_data *killer,int attacktype )
 	    if ( GET_EQ( ch, WEAR_EYES ) )
 		obj_to_room( unequip_char( ch, WEAR_EYES, MODE_EQ ), ch->in_room );
 	    /** transfer implants to head **/
-	    if ( GET_IMPLANT( ch, WEAR_HEAD ) ) {
+	    if ( ( o = GET_IMPLANT( ch, WEAR_HEAD ) ) ) {
 		obj_to_obj( unequip_char( ch, WEAR_HEAD, MODE_IMPLANT ), head );
-		REMOVE_BIT( GET_OBJ_WEAR( head ), ITEM_WEAR_TAKE );
+		REMOVE_BIT( GET_OBJ_WEAR( o ), ITEM_WEAR_TAKE );
 	    }
-	    if ( GET_IMPLANT( ch, WEAR_FACE ) ) {
+	    if ( ( o = GET_IMPLANT( ch, WEAR_FACE ) ) ) {
 		obj_to_obj( unequip_char( ch, WEAR_FACE, MODE_IMPLANT ), head );
-		REMOVE_BIT( GET_OBJ_WEAR( head ), ITEM_WEAR_TAKE );
+		REMOVE_BIT( GET_OBJ_WEAR( o ), ITEM_WEAR_TAKE );
 	    }
-	    if ( GET_IMPLANT( ch, WEAR_EAR_L ) ) {
+	    if ( ( o = GET_IMPLANT( ch, WEAR_EAR_L ) ) ) {
 		obj_to_obj( unequip_char( ch, WEAR_EAR_L, MODE_IMPLANT ), head );
-		REMOVE_BIT( GET_OBJ_WEAR( head ), ITEM_WEAR_TAKE );
+		REMOVE_BIT( GET_OBJ_WEAR( o ), ITEM_WEAR_TAKE );
 	    }
-	    if ( GET_IMPLANT( ch, WEAR_EAR_R ) ) {
+	    if ( ( o = GET_IMPLANT( ch, WEAR_EAR_R ) ) ) {
 		obj_to_obj( unequip_char( ch, WEAR_EAR_R, MODE_IMPLANT ), head );
-		REMOVE_BIT( GET_OBJ_WEAR( head ), ITEM_WEAR_TAKE );
+		REMOVE_BIT( GET_OBJ_WEAR( o ), ITEM_WEAR_TAKE );
 	    }
-	    if ( GET_IMPLANT( ch, WEAR_EYES ) ) {
+	    if ( (o = GET_IMPLANT( ch, WEAR_EYES ) ) ) {
 		obj_to_obj( unequip_char( ch, WEAR_EYES, MODE_IMPLANT ), head );
-		REMOVE_BIT( GET_OBJ_WEAR( head ), ITEM_WEAR_TAKE );
+		REMOVE_BIT( GET_OBJ_WEAR( o ), ITEM_WEAR_TAKE );
 	    }
 	} // end if !arena room
 	break;
