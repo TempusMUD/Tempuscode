@@ -501,12 +501,14 @@ do_simple_move(struct Creature *ch, int dir, int mode,
 		}
 	}
 	/* if this room or the one we're going to needs wings, check for one */
-	if (ch->in_room->isOpenAir() && ch->getPosition() != POS_FLYING) {
+	if (ch->in_room->isOpenAir() && ch->getPosition() != POS_FLYING &&
+			(!MOUNTED(ch) || MOUNTED(ch)->getPosition() != POS_FLYING)) {
 		send_to_char(ch, "You scramble wildly for a grasp of thin air.\r\n");
 		return 1;
 	}
 	if (EXIT(ch, dir)->to_room->isOpenAir() && !NOGRAV_ZONE(ch->in_room->zone)
-		&& ch->getPosition() != POS_FLYING && mode != MOVE_JUMP) {
+		&& ch->getPosition() != POS_FLYING && mode != MOVE_JUMP &&
+		(!MOUNTED(ch) || MOUNTED(ch)->getPosition() != POS_FLYING)) {
 		send_to_char(ch, "You need to be flying to go there.\r\n"
 			"You can 'jump' in that direction however...\r\n");
 		return 1;
