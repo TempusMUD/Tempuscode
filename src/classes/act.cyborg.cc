@@ -2342,6 +2342,38 @@ ACMD(do_analyze)
 		GET_MOVE(ch) -= 10;
 		return;
 	}
+	if (vict) {
+
+		sprintf(buf, "       %s***************************************\r\n",
+			CCGRN(ch, C_NRM));
+		sprintf(buf, "%s       %s>>>     ENTITY ANALYSIS RESULTS:    <<<\r\n",
+			buf, CCCYN(ch, C_NRM));
+		sprintf(buf,
+			"%s       %s***************************************%s\r\n", buf,
+			CCGRN(ch, C_NRM), CCNRM(ch, C_NRM));
+		sprintf(buf, "%sName:                  %s%s%s\r\n", buf, CCCYN(ch,
+				C_NRM), GET_NAME(vict), CCNRM(ch, C_NRM));
+		sprintf(buf, "%sRacial Classification: %s%s%s\r\n", buf, CCCYN(ch,
+				C_NRM), player_race[(int)GET_RACE(vict)], CCNRM(ch, C_NRM));
+		if (GET_CLASS(vict) < NUM_CLASSES) {
+			sprintf(buf, "%sPrimary Occupation:    %s%s%s\r\n", buf, CCCYN(ch,
+					C_NRM), pc_char_class_types[(int)GET_CLASS(vict)],
+				CCNRM(ch, C_NRM));
+		} else {
+			sprintf(buf, "%sPrimary Type:          %s%s%s\r\n", buf, CCCYN(ch,
+					C_NRM), pc_char_class_types[(int)GET_CLASS(vict)],
+				CCNRM(ch, C_NRM));
+		}
+		if (GET_REMORT_CLASS(vict) != CLASS_UNDEFINED)
+			sprintf(buf, "%sSecondary Occupation:  %s%s%s\r\n", buf,
+				CCCYN(ch, C_NRM),
+				pc_char_class_types[(int)GET_REMORT_CLASS(vict)], CCNRM(ch,
+					C_NRM));
+
+		GET_MOVE(ch) -= 10;
+		page_string(ch->desc, buf);
+		return;
+	}
 
 	send_to_char(ch, "Error.\r\n");
 
