@@ -373,6 +373,21 @@ same_obj(struct obj_data *obj1, struct obj_data *obj2)
 
 
 int
+shop_inventory(struct Creature *ch, struct obj_data *obj)
+{
+	int count = 0;
+	struct obj_data *o;
+
+	for (o = ch->carrying; o; o = o->next_content) {
+		if (same_obj(obj, o)) {
+			count++;
+		}
+	}
+
+	return count;
+}
+
+int
 shop_producing(struct obj_data *item, struct shop_data *shop)
 {
 	int counter;
@@ -503,16 +518,30 @@ get_purchase_obj(struct Creature *ch, char *arg,
 	return (obj);
 }
 
-
+/**
+ * This function calculates the price for a character to buy an item from
+ * a shop.
+ *
+**/
 int
-buy_price(struct obj_data *obj, struct shop_data *shop)
+buy_price(struct obj_data *obj, struct shop_data *shop, Creature *keeper)
 {
-	int price;
+	int price, amt;
+    
 	price = ((int)(GET_OBJ_COST(obj) * SHOP_BUYPROFIT(shop)));
+    
 	if (OBJ_REINFORCED(obj))
 		price += (price >> 3);
 	if (OBJ_ENHANCED(obj))
 		price += (price >> 3);
+    //adjust price according to how many obj's are already in the shop
+    //approx .5 of original price at the max 5
+    if(!shop_producing(obj, shop)) {
+        sort_keeper_objs(keeper, shop);
+        amt = shop_inventory(keeper, obj);
+
+        price = (int)( (1 - ((amt-1) * .1)) * (float)price);
+    }
 	return (price);
 }
 
@@ -542,7 +571,7 @@ shopping_buy(char *arg, struct Creature *ch,
 	if (!(obj = get_purchase_obj(ch, arg, keeper, shop, TRUE)))
 		return;
 
-	if ((buy_price(obj, shop) > GET_MONEY(ch, shop)) && !IS_GOD(ch)) {
+	if ((buy_price(obj, shop, keeper) > GET_MONEY(ch, shop)) && !IS_GOD(ch)) {
 		strcpy(buf, shop->missing_cash2);
 		perform_tell(keeper, ch, buf);
 
@@ -587,7 +616,7 @@ shopping_buy(char *arg, struct Creature *ch,
 				fname(obj->name));
 		return;
 	}
-	while ((obj) && ((GET_MONEY(ch, shop) >= buy_price(obj, shop)) ||
+	while ((obj) && ((GET_MONEY(ch, shop) >= buy_price(obj, shop, keeper)) ||
 			IS_GOD(ch))
 		&& (IS_CARRYING_N(ch) < CAN_CARRY_N(ch)) && (bought < buynum)
 		&& (IS_CARRYING_W(ch) + obj->getWeight() <= CAN_CARRY_W(ch))) {
@@ -601,12 +630,12 @@ shopping_buy(char *arg, struct Creature *ch,
 		}
 		obj_to_char(obj, ch);
 
-		goldamt += buy_price(obj, shop);
+		goldamt += buy_price(obj, shop, keeper);
 		if (!IS_GOD(ch)) {
 			if (SHOP_CURRENCY(shop) == 1)
-				GET_CASH(ch) -= buy_price(obj, shop);
+				GET_CASH(ch) -= buy_price(obj, shop, keeper);
 			else
-				GET_GOLD(ch) -= buy_price(obj, shop);
+				GET_GOLD(ch) -= buy_price(obj, shop, keeper);
 		}
 
 		last_obj = obj;
@@ -618,7 +647,7 @@ shopping_buy(char *arg, struct Creature *ch,
 	if (bought < buynum) {
 		if (!obj || !same_obj(last_obj, obj))
 			sprintf(buf, "I only have %d to sell you.", bought);
-		else if (GET_MONEY(ch, shop) < buy_price(obj, shop))
+		else if (GET_MONEY(ch, shop) < buy_price(obj, shop, keeper))
 			sprintf(buf, "You can only afford %d.", bought);
 		else if (IS_CARRYING_N(ch) >= CAN_CARRY_N(ch))
 			sprintf(buf, "You can only hold %d.", bought);
@@ -697,34 +726,34 @@ get_selling_obj(struct Creature *ch, char *name,
 }
 
 
+/**
+ * This function calculates the price for a character to sell an item to
+ * a shop.
+ *
+**/
 int
-sell_price(struct Creature *ch, struct obj_data *obj, struct shop_data *shop)
+sell_price(Creature *ch, obj_data *obj, shop_data *shop, Creature *keeper)
 {
-	int price;
+	int price, amt;
 
 	price = ((int)(GET_OBJ_COST(obj) * SHOP_SELLPROFIT(shop)));
+
 	if (OBJ_REINFORCED(obj))
 		price += (price >> 2);
 	if (OBJ_ENHANCED(obj))
-		price += (price >> 2);
-	return (price);
+    	price += (price >> 2);
+    //adjust price according to how many obj's are already in the shop
+    //.6 of original price at the max 5
+    if (!shop_producing(obj, shop)) {
+        sort_keeper_objs(keeper, shop);
+        amt = shop_inventory(keeper, obj);
+        
+        price = (int)( (1 - (amt * .08)) * (float)price);
+    }
+    return (price);
 
 }
 
-int
-shop_inventory(struct Creature *ch, struct obj_data *obj)
-{
-	int count = 0;
-	struct obj_data *o;
-
-	for (o = ch->carrying; o; o = o->next_content) {
-		if (same_obj(obj, o)) {
-			count++;
-		}
-	}
-
-	return count;
-}
 
 //
 // slide_obj can extract the obj !!  do not use it after callig slide_obj!!
@@ -817,7 +846,7 @@ shopping_sell(char *arg, struct Creature *ch,
 	if (!(obj = get_selling_obj(ch, name, keeper, shop, TRUE)))
 		return;
 
-	if (GET_MONEY(keeper, shop) + SHOP_BANK(shop) < sell_price(ch, obj, shop)) {
+	if (GET_MONEY(keeper, shop) + SHOP_BANK(shop) < sell_price(ch, obj, shop,keeper)) {
 		strcpy(buf, shop->missing_cash1);
 		perform_tell(keeper, ch, buf);
 		return;
@@ -835,7 +864,7 @@ shopping_sell(char *arg, struct Creature *ch,
 	int obj_selling_price = 0;
 
 	while ((obj) && (GET_MONEY(keeper, shop) + SHOP_BANK(shop) >=
-			(obj_selling_price = sell_price(ch, obj, shop)))
+			(obj_selling_price = sell_price(ch, obj, shop,keeper)))
 		&& (sold < sellnum)) {
 		sold++;
 
@@ -856,7 +885,7 @@ shopping_sell(char *arg, struct Creature *ch,
 		if (!obj)
 			sprintf(buf, "You only have %d of those.", sold);
 		else if (GET_MONEY(keeper, shop) + SHOP_BANK(shop) <
-			sell_price(ch, obj, shop))
+			sell_price(ch, obj, shop,keeper))
 			sprintf(buf, "I can only afford to buy %d of those.", sold);
 		else
 			sprintf(buf, "Something really screwy made me buy %d.", sold);
@@ -909,7 +938,7 @@ shopping_value(char *arg, struct Creature *ch,
 	if (!(obj = get_selling_obj(ch, name, keeper, shop, TRUE)))
 		return;
 
-	sprintf(buf, "I'll give you %d %s for that!", sell_price(ch, obj, shop),
+	sprintf(buf, "I'll give you %d %s for that!", sell_price(ch, obj, shop, keeper),
 		(SHOP_CURRENCY(shop) == CURRENCY_CREDITS) ? "credits" : "gold coins");
 	perform_tell(keeper, ch, buf);
 
@@ -918,8 +947,8 @@ shopping_value(char *arg, struct Creature *ch,
 
 
 char *
-list_object(struct obj_data *obj, struct Creature *ch, int cnt,
-	int index, struct shop_data *shop)
+list_object(obj_data *obj, Creature *ch, int cnt,
+	int index, shop_data *shop, Creature *keeper)
 {
 	static char buf[256];
 	char buf2[300], buf3[200];
@@ -969,7 +998,7 @@ list_object(struct obj_data *obj, struct Creature *ch, int cnt,
 	}
 
 
-	sprintf(buf2, "%-48s %6d\r\n", buf3, buy_price(obj, shop));
+	sprintf(buf2, "%-48s %6d\r\n", buf3, buy_price(obj, shop, keeper));
 	strcat(buf, CAP(buf2));
 	return (buf);
 }
@@ -1006,8 +1035,7 @@ shopping_list(char *arg, struct Creature *ch,
 				else {
 					index++;
 					if (!(*name) || isname(name, last_obj->name))
-						strcat(buf, list_object(last_obj, ch, cnt, index,
-								shop));
+						strcat(buf, list_object(last_obj, ch, cnt, index, shop, keeper));
 					cnt = 1;
 					last_obj = obj;
 				}
@@ -1019,7 +1047,7 @@ shopping_list(char *arg, struct Creature *ch,
 		else
 			strcpy(buf, "Currently, there is nothing for sale.\r\n");
 	else if (!(*name) || isname(name, last_obj->name))
-		strcat(buf, list_object(last_obj, ch, cnt, index, shop));
+		strcat(buf, list_object(last_obj, ch, cnt, index, shop, keeper));
 
 	page_string(ch->desc, buf);
 }
