@@ -652,11 +652,11 @@ House::load( const char* filename )
 			loadRoom( node );
 		} else if (xmlMatches(node->name, "guest")) {
 			int id = xmlGetIntProp( node, "id", -1 );
-			if( playerIndex.exists(id) ) {
+//			if( playerIndex.exists(id) ) {
 				addGuest( id );
-			} else {
-				errlog("House %d had invalid guest: %d.", getID(), id);
-			}
+//			} else {
+//				errlog("House %d had invalid guest: %d.", getID(), id);
+//			}
 		} else if( xmlMatches(node->name, "reposession")) {
 			char* note = xmlGetProp( node, "note" );
 			repoNotes.push_back( note );
