@@ -2742,8 +2742,11 @@ mobile_battle_activity(struct Creature *ch, struct Creature *precious_vict)
 
 	if (GET_HIT(ch) < GET_MAX_HIT(ch) >> 7 && !IS_ANIMAL(ch)
 		&& random_fractional_20()) {
-		do_say(ch,
-			tmp_sprintf("%s you bastard!", PERS(FIGHTING(ch), ch)), 0, 0, 0);
+		if (can_see_creature(FIGHTING(ch), ch))
+			do_say(ch,
+				tmp_sprintf("%s you bastard!", PERS(FIGHTING(ch), ch)), 0, 0, 0);
+		else
+			do_say(ch, "Show yourself, you coward!", 0, 0, 0);
 		return 0;
 	}
 
