@@ -2679,8 +2679,7 @@ zone_update(void)
 			!update_u->zone_to_reset->num_players) {
 			/*        is_empty(update_u->zone_to_reset)) { */
 			reset_zone(update_u->zone_to_reset);
-			mudlog(LVL_GOD, CMP, false,
-				"Auto zone reset: %s", update_u->zone_to_reset->name);
+			slog("Auto zone reset: %s", update_u->zone_to_reset->name);
 			/* dequeue */
 			if (update_u == reset_q.head)
 				reset_q.head = reset_q.head->next;
