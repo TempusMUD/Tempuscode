@@ -1057,11 +1057,6 @@ ACMD(do_gen_comm)
 				GET_NAME(ch),
 				argument);
 
-		// The emits are passed directly as the format string to
-		// send_to_char, so the argument must have its percent signs
-		// doubled
-		argument = tmp_gsub(argument, "%", "%%");
-
 		plain_emit = tmp_sprintf("%%s %s\r\n", argument);
 		color_emit = tmp_sprintf("%s%%s %s%s%s%s\r\n", chan->desc_color,
 			KNRM, chan->text_color, argument, KNRM);
@@ -1076,7 +1071,7 @@ ACMD(do_gen_comm)
                                    (language_idx == LANGUAGE_COMMON) ?
                                    "common" : language_names[language_idx]);
         
-        if (!strcmp(chan->name, "newbie"))
+        if (subcmd == SCMD_NEWBIE)
             language_str = "";
 		mood_str = GET_MOOD(ch) ? GET_MOOD(ch):"";
 		if (COLOR_LEV(ch) >= C_NRM)
@@ -1097,7 +1092,7 @@ ACMD(do_gen_comm)
 		// The emits are passed directly as the format string to
 		// send_to_char, so the argument must have its percent signs
 		// doubled
-		argument = tmp_gsub(argument, "%", "%%");
+//		argument = tmp_gsub(argument, "%", "%%");
 
 		plain_emit = tmp_sprintf("%%s%s %ss%%s, '%%s'\r\n", mood_str, chan->name);
 		color_emit = tmp_sprintf("%s%%s%s %ss%%s,%s%s '%%s'%s\r\n",
@@ -1143,10 +1138,10 @@ ACMD(do_gen_comm)
                                        language_names[language_idx]);
         }
 
-        if (!strcmp(chan->name, "newbie"))
+        if (subcmd == SCMD_NEWBIE)
             language_str = "";
         if ((!can_speak_language(i->creature, GET_LANGUAGE(ch))) 
-				&& strcmp(chan->name, "newbie"))
+				&& subcmd != SCMD_NEWBIE)
                 buf4 = translated;
 		else if (!PRF_FLAGGED(i->creature, PRF_NASTY))
             buf4 = filtered_msg;
