@@ -738,12 +738,16 @@ get_from_room(struct char_data * ch, char *arg)
 	    }
 	    return;
 	}
-
+	char money_desc[512];
+	money_desc[0] = '\0';
 	counter = 1;
 	while (obj) {
 	    next_obj = get_obj_in_list_vis(ch, arg, obj->next_content);
 
 	    sigil_trip = 0;
+        if (IS_OBJ_TYPE(obj, ITEM_MONEY)) {
+		sprintf(money_desc,"%s",obj->short_description);
+		}
 
 	    if (!perform_get_from_room(ch, obj, FALSE)) {
 		counter = 1;
@@ -763,12 +767,22 @@ get_from_room(struct char_data * ch, char *arg)
 		counter++;
 	    else {
 		if (counter == 1) {
-		    strcpy(buf, "You get $p.");
-		    strcpy(buf2, "$n gets $p.");
+			if(money_found == 0) {
+				strcpy(buf, "you get $p.");
+				strcpy(buf2, "$n gets $p.");
+			} else {
+				sprintf(buf, "you get %s.",money_desc);
+				sprintf(buf2, "$n gets %s.",money_desc);
+			}
 		}
 		else {
-		    sprintf(buf, "You get $p. (x%d)", counter);
-		    sprintf(buf2, "$n gets $p. (x%d)", counter);
+			if(money_found == 0) {
+				sprintf(buf, "you get $p. (x%d)", counter);
+				sprintf(buf2, "$n gets $p. (x%d)", counter);
+			} else {
+				sprintf(buf, "you get %s. (x%d)", money_desc, counter);
+				sprintf(buf2, "$n gets %s. (x%d)", money_desc, counter);
+			}
 		}
 		act(buf, FALSE, ch, obj, 0, TO_CHAR);
 		act(buf2, TRUE, ch, obj, 0, TO_ROOM);

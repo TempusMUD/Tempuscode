@@ -11,7 +11,7 @@ const char *tester_util_cmds[] = {
   "stat",
   "goto",
   "restore",          /* 5 */
-  "char_class",
+  "class",
   "race",
   "remort",
   "maxhit",
@@ -32,7 +32,7 @@ const char *tester_util_cmds[] = {
 "stat\r\n"              \
 "goto\r\n"              \
 "restore\r\n"           \
-"char_class <char_class>\r\n"     \
+"class <char_class>\r\n"     \
 "race <race>\r\n"       \
 "remort <char_class>\r\n"    \
 "maxhit <value>\r\n"    \

@@ -239,6 +239,12 @@ ACMD(do_lecture)
 	act("$E is not in a state which is receptive to the finer points of lecturing.", FALSE, ch, 0, vict, TO_CHAR);
 	return;
     }
+	if(CHECK_SKILL(ch,SKILL_LECTURE) < 30) {
+		act("$n explains the finer points of gravity, by tossing $mself to the ground!",FALSE,ch,0,0,TO_ROOM);
+		act("Your flying leap seems to have convinced $N.",FALSE,ch,0,vict,TO_CHAR);
+		GET_POS(ch) = POS_RESTING;
+		return;
+	}
 
     if ( FIGHTING( vict ) ) {
 	act( "$E is busy fighting right now!", FALSE, ch, 0, vict, TO_CHAR );
@@ -584,6 +590,9 @@ room_tele_ok(CHAR *ch, struct room_data *room)
     if (ROOM_FLAGGED(room, ROOM_GODROOM) && GET_LEVEL(ch) < LVL_GRGOD)
 	return 0;
 
+	if (!IS_APPR(room->zone))
+	return 0;
+
     return 1;
 }
 
@@ -754,6 +763,7 @@ ACMD( do_econvert ) {
     char arg1[ MAX_INPUT_LENGTH ], arg2[ MAX_INPUT_LENGTH ];
     int num_points = 0;
     int i;
+	int wait;
 
     if ( CHECK_SKILL( ch, SKILL_ENERGY_CONVERSION ) < 40 ) {
 	send_to_char( "You have not been trained in the science of matter conversion.\r\n", ch );
@@ -834,6 +844,10 @@ ACMD( do_econvert ) {
 
     sprintf( buf, "You have increased your mana level by %d to %d.\r\n", num_points, GET_MANA( ch ) );
     send_to_char( buf, ch );
+
+	// Wait state.  1 + number of points / skill
+	wait = (1 + ( num_points / CHECK_SKILL( ch, SKILL_ENERGY_CONVERSION ) )) RL_SEC;
+	WAIT_STATE(ch, wait);
 
     if ( num_points > number( 50, 300 ) )
 	gain_skill_prof( ch, SKILL_ENERGY_CONVERSION );

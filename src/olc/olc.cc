@@ -109,7 +109,7 @@
 "Usage: olc zset [zone] command <cmd num> [if|max|prob] <value>\r\n"
 
 #define OLC_ZCMD_USAGE "Usage:\r\n"                                      \
-"olc zcmd [zone] list [obj|mob|eq|give|door|etc...]\r\n" \
+"olc zcmd [zone] list [range # #] [obj|mob|eq|give|door|etc...]\r\n" \
 "olc zcmd [zone] cmdremove <number>\r\n" \
 "olc zcmd [zone] cmdrenumber\r\n" \
 "olc zcmd move   <original num> <target num>\r\n" \

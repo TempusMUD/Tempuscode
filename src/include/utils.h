@@ -611,6 +611,7 @@ void WAIT_STATE(struct char_data *ch, int cycle);
 #define CAN_WEAR(obj, part) (IS_SET((obj)->obj_flags.wear_flags, (part)))
 
 #define IS_TWO_HAND(obj) (IS_OBJ_STAT2(obj, ITEM2_TWO_HANDED))
+#define IS_NODROP(obj)   (IS_OBJ_STAT(obj, ITEM_NODROP))
 #define IS_THROWN(obj)   (IS_OBJ_STAT2(obj, ITEM2_THROWN_WEAPON))
 
 #define STAB_WEAPON(obj) (IS_OBJ_TYPE(obj, ITEM_WEAPON) && \

@@ -8,6 +8,12 @@
 #ifndef __zone_data_h__
 #define __zone_data_h__
 
+#define IS_APPR(zone)       (  !ZONE_FLAGGED(zone, ZONE_MOBS_APPROVED)\
+							&& !ZONE_FLAGGED(zone, ZONE_ROOMS_APPROVED)\
+							&& !ZONE_FLAGGED(zone, ZONE_OBJS_APPROVED) \
+							&& !ZONE_FLAGGED(zone, ZONE_SEARCH_APPROVED)\
+							&& !ZONE_FLAGGED(zone, ZONE_ZCMDS_APPROVED)\
+							&& !ZONE_FLAGGED(zone, ZONE_SHOPS_APPROVED))
 
   /* Zone flags */
 #define ZONE_AUTOSAVE           (1 << 0)

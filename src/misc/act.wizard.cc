@@ -868,9 +868,10 @@ do_stat_trails(struct char_data *ch)
 }
 
 void 
-do_stat_room(struct char_data * ch)
+do_stat_room(struct char_data * ch,char *roomstr)
 {
-    struct extra_descr_data *desc;
+    int tmp;
+	struct extra_descr_data *desc;
     struct room_data *rm = ch->in_room;
     struct room_affect_data *aff = NULL;
     struct special_search_data *cur_search = NULL;
@@ -878,7 +879,18 @@ do_stat_room(struct char_data * ch)
     int i, found = 0;
     struct obj_data *j = 0;
     struct char_data *k = 0;
-
+    if ( roomstr && *roomstr ) {
+		if ( isdigit ( *roomstr ) && !strchr ( roomstr, '.' ) ) {
+			tmp = atoi(roomstr);
+			if (!(rm = real_room(tmp))) {
+				send_to_char("No room exists with that number.\r\n", ch);
+				return;
+			}
+		} else {
+			send_to_char("No room exists with that number.\r\n",ch);
+			return;
+		}
+	}
     sprintf(out_buf, "Room name: %s%s%s\r\n", CCCYN(ch, C_NRM), rm->name,
 	    CCNRM(ch, C_NRM));
 
@@ -1822,7 +1834,7 @@ ACMD(do_stat)
 	send_to_char("Stats on who or what?\r\n", ch);
 	return;
     } else if (is_abbrev(buf1, "room")) {
-	do_stat_room(ch);
+	do_stat_room(ch,buf2);
     } else if (!strncmp(buf1, "trails", 6)) {
 	do_stat_trails(ch);
     } else if (is_abbrev(buf1, "ticl")) {
@@ -3548,7 +3560,7 @@ show_player(CHAR *ch, char * value)
 {
     struct char_file_u vbuf;
     char birth[80];
-
+	char remort_desc[80];
     if (!*value) {
 	send_to_char("A name would help.\r\n", ch);
 	return;
@@ -3562,9 +3574,14 @@ show_player(CHAR *ch, char * value)
 	send_to_char("There is no such player.\r\n", ch);
 	return;
     }
-    sprintf(buf, "Player: %-12s (%s) [%2d %s %s]\r\n", vbuf.name,
+	if (vbuf.player_specials_saved.remort_generation <= 0) {
+	strcpy(remort_desc,"");
+	} else {
+	sprintf(remort_desc,"/%s",char_class_abbrevs[(int) vbuf.remort_char_class]);
+	}
+    sprintf(buf, "Player: %-12s (%s) [%2d %s %s%s]  Gen: %d\r\n", vbuf.name,
 	    genders[(int) vbuf.sex], vbuf.level, player_race[(int)vbuf.race],
-	    char_class_abbrevs[(int) vbuf.char_class]);
+	    char_class_abbrevs[(int) vbuf.char_class],remort_desc,vbuf.player_specials_saved.remort_generation);
     sprintf(buf,
 	    "%sAu: %-8d  Bal: %-8d  Exp: %-8d  Align: %-5d  Lessons: %-3d\r\n",
 	    buf, vbuf.points.gold, vbuf.points.bank_gold, vbuf.points.exp,
@@ -5144,6 +5161,8 @@ ACMD(do_set)
 	break;
     case 39:
 	if ((i = parse_char_class(val_arg)) == CLASS_UNDEFINED) {
+		send_to_char(val_arg,ch);
+		send_to_char("\r\n",ch);
 	    send_to_char("That is not a char_class.\r\n", ch);
 	    return;
 	}
@@ -5569,6 +5588,94 @@ ACMD(do_rlist)
 }
 
 
+ACMD(do_xlist)
+{
+    struct special_search_data *srch = NULL;
+    struct room_data *room = NULL;
+    struct zone_data *zone = NULL, *zn = NULL;
+    int count = 0, srch_type = -1;
+    char outbuf[MAX_STRING_LENGTH], arg1[MAX_INPUT_LENGTH];
+    bool overflow = 0, found = 0;
+
+//    strcpy( argument, strcat( value, argument ) );
+    argument = one_argument( argument, arg1 );
+    while ( ( *arg1 ) ) {
+		if ( is_abbrev( arg1, "zone" ) ) {
+			argument = one_argument( argument, arg1 );
+			if ( !*arg1 ) {
+				send_to_char( "No zone specified.\r\n", ch );
+				return;
+			}
+			if ( !( zn = real_zone( atoi( arg1 ) ) ) ) {
+				sprintf( buf, "No such zone ( %s ).\r\n", arg1 );
+				send_to_char( buf, ch );
+				return;
+			}
+		}
+		if ( is_abbrev( arg1, "type" ) ) {
+			argument = one_argument( argument, arg1 );
+			if ( !*arg1 ) {
+				send_to_char( "No type specified.\r\n", ch );
+				return;
+			}
+			if ( ( srch_type = search_block( arg1, search_commands, FALSE ) ) < 0 ) {
+				sprintf( buf, "No such search type ( %s ).\r\n", arg1 );
+				send_to_char( buf, ch );
+				return;
+			}
+		}
+		if ( is_abbrev(arg1, "help") ) {
+			send_to_char("Usage: xlist [type <type>] [zone <zone>]\r\n",ch);
+		}
+		argument = one_argument( argument, arg1 );
+    }
+
+	// If there's no zone argument, set it to the current zone.
+	if ( !zn ) {
+		zone = ch->in_room->zone;
+	} else {
+		zone = zn;
+	}
+    // can this person actually look at this zones searches?
+	if ( !OLCIMP(ch) 
+		&& !(zone->owner_idnum == GET_IDNUM(ch))
+		&& !OLCGOD(ch) 
+		&& (GET_LEVEL(ch) < LVL_FORCE) ) {
+		send_to_char("You aren't godly enough to do that here.\r\n",ch);
+		return;
+	}
+ 
+    strcpy( outbuf, "Searches:\r\n" );
+	
+
+	for ( room = zone->world, found = FALSE; room && !overflow; 
+		  found = FALSE, room = room->next ) {
+
+		for ( srch = room->search, count = 0; srch && !overflow; 
+		  srch = srch->next, count++ ) {
+
+		if ( srch_type >= 0 && srch_type != srch->command )
+			continue;
+
+		if ( !found ) {
+			sprintf( buf, "Room [%s%5d%s]:\n", CCCYN( ch, C_NRM ),
+				 room->number, CCNRM( ch, C_NRM ) );
+			strcat( outbuf, buf );
+			found = TRUE;
+		}
+
+		print_search_data_to_buf( ch, room, srch, buf );
+
+		if ( strlen( outbuf ) + strlen( buf ) > MAX_STRING_LENGTH - 128 ) {
+			overflow = 1;
+			strcat( outbuf, "**OVERFLOW**\r\n" );
+			break;
+		}
+		strcat( outbuf, buf );
+		}
+	}
+    page_string( ch->desc, outbuf, 1 );
+}
 ACMD(do_mlist)
 {
     struct char_data *mob = NULL;

@@ -110,8 +110,13 @@ void do_qcontrol_maxlev  (CHAR *ch, char *argument, int com);
 void do_qcontrol_mute    (CHAR *ch, char *argument, int com);
 void do_qcontrol_unmute  (CHAR *ch, char *argument, int com);
 void do_qcontrol_award   (CHAR *ch, char *argument, int com);
+void do_qcontrol_penalize (CHAR *ch, char *argument, int com);
+void do_qcontrol_save    (CHAR *ch, char *argument, int com);
+void do_qcontrol_load    (CHAR *ch, char *argument, int com);//Load mobile.
+void do_qcontrol_purge   (CHAR *ch, char *argument, int com);//Purge mobile.
 
 // utility functions
+void do_qcontrol_usage(CHAR *ch, int com);
 quest_data *create_quest (CHAR *ch, int type, char *name);
 quest_data *find_quest   (CHAR *ch, char *argument);
 void list_active_quests  (CHAR *ch, char *outbuf);

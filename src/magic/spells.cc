@@ -119,81 +119,16 @@ ASPELL(spell_recall)
     extern struct room_data * r_zul_dane_start_room;
     extern struct room_data * r_zul_dane_newbie_start_room;
 
-    struct room_data *load_room = NULL, *was_in = NULL, *targ_room = NULL;
-
+    struct room_data *load_room = NULL, *targ_room = NULL;
+	//Vstone No Affect Code
     if (obj) {
-	if (!IS_OBJ_TYPE(obj, ITEM_VSTONE) || !GET_OBJ_VAL(obj, 2)) {
-	    send_to_char(NOEFFECT, ch);
-	    return;
+		if (!IS_OBJ_TYPE(obj, ITEM_VSTONE) || !GET_OBJ_VAL(obj, 2)) 
+			send_to_char(NOEFFECT, ch);
+		if (IS_OBJ_TYPE(obj, ITEM_VSTONE))
+	    	act("Your devine magic has no effect on $p.", FALSE, ch, obj, 0, TO_CHAR);
+		return;
 	}
-
-	if (GET_OBJ_VAL(obj, 1) > 0 &&
-	    GET_OBJ_VAL(obj, 1) != GET_IDNUM(ch)) {
-	    act("$p hums loudly and zaps you!", FALSE, ch, obj, 0, TO_CHAR);
-	    act("$p hums loudly and zaps $n!", FALSE, ch, obj, 0, TO_ROOM);
-	    return;
-	}
- 
-	if (GET_OBJ_VAL(obj, 0) == 0 ||
-	    (load_room = real_room(GET_OBJ_VAL(obj, 0))) == NULL) {
-	    act("$p is not linked with a real location.",
-		FALSE, ch, obj, 0, TO_CHAR);
-	    return;
-	}
-    
-	if (load_room->zone != ch->in_room->zone &&
-	    (ZONE_FLAGGED(load_room->zone, ZONE_ISOLATED) ||
-	     ZONE_FLAGGED(ch->in_room->zone, ZONE_ISOLATED))) {
-	    send_to_char("You cannot get to there from here.\r\n", ch);
-	    return;
-	}
-
-	send_to_char("You flowly fade into nothingness.\r\n", ch);
-	act("$p glows brightly as $n fades from view.", FALSE, ch,obj,0,TO_ROOM);
-    
-	was_in = ch->in_room;
-	char_from_room(ch);
-	char_to_room(ch, load_room);
-	load_room->zone->enter_count++;
-
-	act("$n slowly fades into view, $p brightly glowing.",
-	    TRUE, ch, obj, 0, TO_ROOM);
-
-	if (GET_OBJ_VAL(obj, 2) > 0)
-	    GET_OBJ_VAL(obj, 2)--;
-
-	if (!House_can_enter(ch, ch->in_room->number) || 
-	    (ROOM_FLAGGED(ch->in_room, ROOM_GODROOM) && 
-	     GET_LEVEL(ch) < LVL_CREATOR) ||
-	    ROOM_FLAGGED(ch->in_room, 
-			 ROOM_DEATH | ROOM_NOTEL | ROOM_NOMAGIC | ROOM_NORECALL) ||
-	    (ZONE_FLAGGED(was_in->zone, ZONE_ISOLATED) && 
-	     was_in->zone != load_room->zone)) {
-	    send_to_char("Your gut wrenches as your are slung violently through spacetime.\r\n", ch);
-	    act("$n is jerked violently back into the void!",
-		FALSE, ch, 0, 0, TO_ROOM);
-	    char_from_room(ch);
-	    char_to_room(ch, was_in);
-      
-	    act("$n reappears, clenching $s gut in pain.",
-		FALSE, ch, 0, 0, TO_ROOM);
-	    GET_MOVE(ch) = MAX(0, GET_MOVE(ch) - 30);
-	    GET_MANA(ch) = MAX(0, GET_MANA(ch) - 30);
-	    return;
-	}
-
-	look_at_room(ch, ch->in_room, 0);
-
-	if (!GET_OBJ_VAL(obj, 2)) {
-	    act("$p becomes dim, ceases to glow, and vanishes.", 
-		FALSE, ch, obj, 0, TO_CHAR);
-	    extract_obj(obj);
-	}
-
-	return;
-
-    }         /***** end of vestigial stone section ******/
-
+	// End Vstone No Affect Code
 
     if (victim == NULL || IS_NPC(victim))
 	return;
@@ -345,7 +280,6 @@ ASPELL(spell_local_teleport)
 {
     struct room_data * to_room = NULL;
     int count = 0;
-
     if (victim == NULL) {
 	return;
     }
@@ -441,6 +375,83 @@ ASPELL(spell_teleport)
     int count = 0;
     struct zone_data *zone = NULL;
 
+// Start V-Stone code
+	struct room_data *load_room = NULL, *was_in = NULL;
+    if (obj) {
+	if (!IS_OBJ_TYPE(obj, ITEM_VSTONE) || !GET_OBJ_VAL(obj, 2)) {
+	    send_to_char(NOEFFECT, ch);
+	    return;
+	}
+
+	if (GET_OBJ_VAL(obj, 1) > 0 &&
+	    GET_OBJ_VAL(obj, 1) != GET_IDNUM(ch)) {
+	    act("$p hums loudly and zaps you!", FALSE, ch, obj, 0, TO_CHAR);
+	    act("$p hums loudly and zaps $n!", FALSE, ch, obj, 0, TO_ROOM);
+	    return;
+	}
+ 
+	if (GET_OBJ_VAL(obj, 0) == 0 ||
+	    (load_room = real_room(GET_OBJ_VAL(obj, 0))) == NULL) {
+	    act("$p is not linked with a real location.",
+		FALSE, ch, obj, 0, TO_CHAR);
+	    return;
+	}
+    
+	if (load_room->zone != ch->in_room->zone &&
+	    (ZONE_FLAGGED(load_room->zone, ZONE_ISOLATED) ||
+	     ZONE_FLAGGED(ch->in_room->zone, ZONE_ISOLATED))) {
+	    send_to_char("You cannot get to there from here.\r\n", ch);
+	    return;
+	}
+
+	send_to_char("You flowly fade into nothingness.\r\n", ch);
+	act("$p glows brightly as $n fades from view.", FALSE, ch,obj,0,TO_ROOM);
+    
+	was_in = ch->in_room;
+	char_from_room(ch);
+	char_to_room(ch, load_room);
+	load_room->zone->enter_count++;
+
+	act("$n slowly fades into view, $p brightly glowing.",
+	    TRUE, ch, obj, 0, TO_ROOM);
+
+	if (GET_OBJ_VAL(obj, 2) > 0)
+	    GET_OBJ_VAL(obj, 2)--;
+
+	if (!House_can_enter(ch, ch->in_room->number) || 
+	    (ROOM_FLAGGED(ch->in_room, ROOM_GODROOM) && 
+	     GET_LEVEL(ch) < LVL_CREATOR) ||
+	    ROOM_FLAGGED(ch->in_room, 
+			 ROOM_DEATH | ROOM_NOTEL | ROOM_NOMAGIC | ROOM_NORECALL) ||
+	    (ZONE_FLAGGED(was_in->zone, ZONE_ISOLATED) && 
+	     was_in->zone != load_room->zone)) {
+	    send_to_char("Your gut wrenches as your are slung violently through spacetime.\r\n", ch);
+	    act("$n is jerked violently back into the void!",
+		FALSE, ch, 0, 0, TO_ROOM);
+	    char_from_room(ch);
+	    char_to_room(ch, was_in);
+      
+	    act("$n reappears, clenching $s gut in pain.",
+		FALSE, ch, 0, 0, TO_ROOM);
+	    GET_MOVE(ch) = MAX(0, GET_MOVE(ch) - 30);
+	    GET_MANA(ch) = MAX(0, GET_MANA(ch) - 30);
+	    return;
+	}
+
+	look_at_room(ch, ch->in_room, 0);
+
+	if (!GET_OBJ_VAL(obj, 2)) {
+	    act("$p becomes dim, ceases to glow, and vanishes.", 
+		FALSE, ch, obj, 0, TO_CHAR);
+	    extract_obj(obj);
+	}
+
+	return;
+
+    }
+
+//End V-Stone code
+
     if (victim == NULL) {
 	return;
     }
@@ -519,6 +530,7 @@ ASPELL(spell_teleport)
     } while (count < 1000 && 
 	     (!zone || zone->plane != ch->in_room->zone->plane ||
 	      zone->time_frame != ch->in_room->zone->time_frame ||
+		  !IS_APPR(zone) ||
 	      ZONE_FLAGGED(zone, ZONE_ISOLATED)));
 
     count = 0;
@@ -2404,7 +2416,7 @@ ASPELL(spell_summon_legion)
   
     af.type = SPELL_CHARM;
   
-    af.duration = level * 10 / GET_INT(devil);
+    af.duration = level * 10 / (GET_INT(devil) - GET_REMORT_GEN(ch));
   
     af.modifier = 0;
     af.location = 0;
@@ -2554,14 +2566,13 @@ ASPELL(spell_animate_dead)
     //
     // points, hit mana move
     //
-    
-    GET_MAX_HIT(zombie)  = (short) MIN(10000, GET_MAX_HIT(zombie) * mult);
+    GET_MAX_HIT(zombie)  = (short) MIN(10000, GET_MAX_HIT(orig_char) * mult);
     GET_HIT(zombie)      = (short) GET_MAX_HIT(zombie);
     
-    GET_MAX_MANA(zombie) = (short) MIN(10000, GET_MAX_MANA(zombie) * mult);
+    GET_MAX_MANA(zombie) = (short) MIN(10000, GET_MAX_MANA(orig_char) * mult);
     GET_MANA(zombie)     = (short) GET_MAX_MANA(zombie);
     
-    GET_MAX_MOVE(zombie) = (short) MIN(10000, GET_MAX_MOVE(zombie) * mult);
+    GET_MAX_MOVE(zombie) = (short) MIN(10000, GET_MAX_MOVE(orig_char) * mult);
     GET_MOVE(zombie)     = (short) GET_MAX_MOVE(zombie);
     
     //

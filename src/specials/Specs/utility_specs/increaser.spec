@@ -13,7 +13,9 @@ SPECIAL(increaser)
 
   struct char_data *increaser = (struct char_data *) me;
   char arg1[MAX_INPUT_LENGTH], arg2[MAX_INPUT_LENGTH];
+  char status_desc[64];
   int gold, life_cost, incr;
+  int amount=0;
   byte mode, status = 0;
 
   if ((!CMD_IS("increase")) || IS_NPC(ch))
@@ -29,11 +31,31 @@ SPECIAL(increaser)
 
   if (GET_MOB_VNUM(increaser) == 30100)
     status = MODE_HITP;
+  if (GET_MOB_VNUM(increaser) == 37022)
+    status = MODE_MANA;
+  if (GET_MOB_VNUM(increaser) == 5430)
+    status = MODE_MOVE;
+
+  switch(status){
+  case MODE_MOVE:
+  	strcpy(status_desc,"move");
+	amount = 4;
+	break;
+  case MODE_HITP:
+  	strcpy(status_desc,"hit");
+	amount = 2;
+	break;
+  case MODE_MANA:
+  	strcpy(status_desc,"mana");
+	amount = 2;
+	break;
+  }
 
   if (!*arg1) {
-    send_to_char("Increase what?\r\n"
-                 "Type 'increase <hit/mana/move> <amount>.\r\n"
-		 "The cost is 1 lp / 2 points for hit and mana, 4 points for move.\r\n", ch);
+    sprintf(buf,"Increase what?\r\n"
+                 "Type 'increase %s <amount>.\r\n"
+		 "The cost is 1 lp / %d points of %s.\r\n",status_desc,amount,status_desc);
+	send_to_char(buf,ch);
     return 1;
   }
   if (!str_cmp(arg1, "hit")) {
@@ -43,8 +65,9 @@ SPECIAL(increaser)
   } else if (!str_cmp(arg1, "move")) {
     mode = MODE_MOVE;
   } else {
-    sprintf(buf, "Unrecognized argument: '%s.'"
-                 "Valid arguments are hit, mana, and move.\r\n", arg1);
+    sprintf(buf,"Increase what?\r\n"
+                 "Type 'increase %s <amount>.\r\n"
+		 "The cost is 1 lp / %d points of %s.\r\n",status_desc,amount,status_desc);
     send_to_char(buf, ch);
     return 1;
   }

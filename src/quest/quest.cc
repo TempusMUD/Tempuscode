@@ -60,9 +60,9 @@ const struct qcontrol_option {
     { "minlev",   "<vnum> <minlev>",                            LVL_IMMORT }, // 15
     { "maxlev",   "<vnum> <maxlev>",                            LVL_IMMORT },
     { "award",    "<player> <vnum> <pts> [comments]",           LVL_IMMORT },
-    { "penalize", "<player> <vnum> <pts> <reason>",             LVL_DEMI   },
-    { "load",     "<mobile vnum>",                              LVL_IMMORT },
-    { "purge",    "<mobile name>",                              LVL_IMMORT }, // 20
+    { "penalize", "<player> <vnum> <pts> <reason>",             LVL_POWER  },
+    { "load",     "<mobile vnum>",                              LVL_POWER   },
+    { "purge",    "<mobile name>",                              LVL_POWER   }, // 20
     { "save",     "",                                           LVL_GRGOD  },
     { "help",     "<topic>",                                    LVL_IMMORT },
     { NULL, NULL, 0 }		// list terminator
@@ -185,8 +185,17 @@ ACMD(do_qcontrol)
 	do_qcontrol_maxlev(ch, argument, com);
 	break;
     case 16:                    // award
-        do_qcontrol_award( ch, argument, com);
-        break;
+	do_qcontrol_award( ch, argument, com);
+	break;
+	case 17:			// penalize
+	do_qcontrol_penalize( ch, argument, com);
+	break;
+	case 18:			// Load Mobile
+	do_qcontrol_load( ch, argument, com);
+	break;
+	case 19:			// Purge Mobile
+	do_qcontrol_purge( ch, argument, com);
+	break;
     case 21:			// help
 	do_qcontrol_help(ch, argument);
 	break;
@@ -233,6 +242,71 @@ do_qcontrol_help(struct char_data *ch, char *argument)
     }
     
     send_to_char("No help on that topic.\r\n", ch);
+}
+
+void //Load mobile.
+do_qcontrol_load    (CHAR *ch, char *argument, int com) {
+    struct char_data *mob;
+    int number;
+
+    one_argument(argument, buf);
+
+    if (!*buf || !isdigit(*buf)) {
+	do_qcontrol_usage(ch, com);
+	return;
+    }
+    if ((number = atoi(buf)) < 0) {
+	send_to_char("A NEGATIVE number??\r\n", ch);
+	return;
+    }
+    if (!real_mobile_proto(number)) {
+	send_to_char("There is no mobile thang with that number.\r\n", ch);
+	return;
+    }
+    mob = read_mobile(number);
+    char_to_room(mob, ch->in_room);
+	act("$n makes a quaint, magical gesture with one hand.", TRUE, ch,
+	0, 0, TO_ROOM);
+    act("$n has created $N!", FALSE, ch, 0, mob, TO_ROOM);
+    act("You create $N.", FALSE, ch, 0, mob, TO_CHAR);
+
+    sprintf(buf, "loaded %s at %d.", GET_NAME(mob), ch->in_room->number);
+	qlog(ch,buf, QLOG_BRIEF, LVL_DEMI, TRUE);
+
+}
+
+void //Purge mobile.
+do_qcontrol_purge   (CHAR *ch, char *argument, int com) {
+
+    struct char_data *vict;
+
+    one_argument(argument, buf);
+
+	if (!*buf) {
+		send_to_char("Purge what?\r\n",ch);
+		return;
+	}
+	
+	if ((vict = get_char_room_vis(ch, argument))) {
+        if (!IS_NPC(vict)) {
+			send_to_char("You don't need a quest to purge them!\r\n", ch);
+			return;
+        }
+        act("$n disintegrates $N.", FALSE, ch, 0, vict, TO_NOTVICT);
+		sprintf(buf, "has purged %s at %d.",
+		GET_NAME(vict), vict->in_room->number);
+		qlog(ch,buf, QLOG_BRIEF, LVL_DEMI, TRUE);
+		if (vict->desc) {
+			close_socket(vict->desc);
+			vict->desc = NULL;
+		}
+		extract_char(vict, TRUE);
+		send_to_char(OK, ch);
+	} else {
+		send_to_char("Purge what?\r\n",ch);
+		return;
+	}
+
 }
 
 
@@ -2295,6 +2369,78 @@ do_qcontrol_award( CHAR *ch, char *argument, int com)
 	    sprintf( buf, "'s Award Comments: %s", argument);
 	    qlog( ch, buf, QLOG_COMP, 0, TRUE);
 	}
+    }    
+
+}   
+void
+do_qcontrol_penalize( CHAR *ch, char *argument, int com)
+{
+    quest_data *quest = NULL;
+    CHAR       *vict  = NULL;
+    char       arg3[MAX_INPUT_LENGTH]; // Penalized points
+    int        penalty;
+    int        idnum;
+        
+     
+    argument = two_arguments( argument, arg1, arg2);
+    argument = one_argument( argument, arg3);
+    penalty = atoi( arg3 );
+   
+    if (!*arg1 || !*arg2){
+	do_qcontrol_usage( ch, com);
+	return;
+    }
+    
+    if ( !(quest = find_quest( ch, arg2) ) ){
+	return;
+    }
+
+    if ( !quest_edit_ok( ch, quest) ){
+	return;
+    }
+
+    if( ( idnum = get_id_by_name( arg1 ) ) < 0){
+	sprintf( buf, "There is no character named '%s'.\r\n", arg1);
+	send_to_char( buf, ch);
+	return;
+    }
+  
+    if( quest->ended ){
+	send_to_char( "That quest has already ended, you psychopath!\r\n", ch);
+	return;
+    }
+   
+    if ( (vict = get_char_in_world_by_idnum( idnum ) ) ) {
+	if( !idnum_in_quest( idnum, quest) ){
+	    send_to_char( "No such player in the quest.\r\n", ch);
+	    return;
+	}
+    }
+
+    if(!(vict)){
+	send_to_char( "No such player in the quest.\r\n", ch);
+        return;
+    }
+
+    if( ( penalty <= 0 ) ){
+	send_to_char( "The penalty must be greater than zero.\r\n", ch);
+	return;
+    }
+       
+    if( ( penalty > GET_QUEST_POINTS( vict ) ) ){
+	send_to_char( "They do not have the required quest points.\r\n", ch);
+	return;
+    }
+     
+    if ( (ch) && (vict)){
+		GET_QUEST_POINTS( vict ) -= penalty;
+		save_char( vict, NULL );
+		sprintf( buf, "penalized player %s %d qpoints.",GET_NAME( vict ), penalty);
+		qlog( ch, buf, QLOG_BRIEF, 0, TRUE);
+		if ( *argument ) {
+			sprintf( buf, "'s Penalty Comments: %s", argument);
+			qlog( ch, buf, QLOG_COMP, 0, TRUE);
+		}
     }    
 
 }   

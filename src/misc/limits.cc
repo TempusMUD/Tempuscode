@@ -594,7 +594,7 @@ point_update(void)
 		default:
 		    act("$n begins an extended session of tossing $s cookies.", 
 			FALSE, i, 0, 0, TO_ROOM);
-		    send_to_char("You begin an extended session of tossing your cookies.", i); 
+		    send_to_char("You begin an extended session of tossing your cookies.\r\n", i); 
 		    break;
 		}
 	    }

@@ -197,6 +197,7 @@ ACMD(do_grab);
 ACMD(do_group);
 ACMD(do_gsay);
 ACMD(do_gunset);
+ACMD(do_hamstring);
 ACMD(do_hcontrol);
 ACMD(do_hedit);
 ACMD(do_headbutt);
@@ -370,6 +371,7 @@ ACMD(do_zonepurge);
 ACMD(do_rlist);
 ACMD(do_olist);
 ACMD(do_mlist);
+ACMD(do_xlist);
 
 
 /* This is the Master Command List(tm).
@@ -716,6 +718,7 @@ extern const struct command_info cmd_info[] = {
     { "hide"     , POS_RESTING , do_hide     , 1, 0 },
     { "hit"      , POS_FIGHTING, do_hit      , 0, SCMD_HIT },
     { "hiptoss"  , POS_FIGHTING, do_offensive_skill , 0, SKILL_HIP_TOSS },
+    { "hamstring", POS_FIGHTING, do_hamstring, 0, SKILL_HAMSTRING },
     { "hmmm"     , POS_RESTING , do_action   , 0, 0 },
     { "hold"     , POS_RESTING , do_grab     , 1, 0 },
     { "holler"   , POS_RESTING , do_gen_comm , 1, SCMD_HOLLER },
@@ -828,7 +831,7 @@ extern const struct command_info cmd_info[] = {
     { "moo"      , POS_RESTING , do_action   , 0, 0 },
     { "moon"     , POS_SITTING , do_action   , 0, 0 },
     { "mortalize", POS_SLEEPING, do_gen_tog  , LVL_AMBASSADOR, SCMD_MORTALIZE },
-    { "move"     , POS_RESTING , do_move     , 0, SCMD_MOVE },
+    { "move"     , POS_STANDING, do_move     , 0, SCMD_MOVE },
     { "mshield"  , POS_DEAD    , do_mshield  , 0, 0 },
     { "mudinfo"  , POS_DEAD    , do_mudinfo  , LVL_AMBASSADOR, 0 },
     { "mudlist"  , POS_DEAD    , do_mudlist  , LVL_AMBASSADOR, 0 },
@@ -1256,6 +1259,7 @@ extern const struct command_info cmd_info[] = {
     { "rlist"    , POS_DEAD    , do_rlist    , LVL_IMMORT, 0 },
     { "olist"    , POS_DEAD    , do_olist    , LVL_IMMORT, 0 },
     { "mlist"    , POS_DEAD    , do_mlist    , LVL_IMMORT, 0 },
+    { "xlist"    , POS_DEAD    , do_xlist    , LVL_IMMORT, 0 },
 
     { "\n", 0, 0, 0, 0 }
 };	/* this must be last */

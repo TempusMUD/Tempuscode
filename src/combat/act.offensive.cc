@@ -92,8 +92,6 @@ inline int RAW_EQ_DAM( struct char_data *ch, int pos, int *var ) {
     
 #define ADD_EQ_DAM(ch, pos)     RAW_EQ_DAM(ch, pos, dam)
 
-#define SLASHING(weap) (GET_OBJ_VAL(weap, 3) == (TYPE_SLASH-TYPE_HIT))
-
 #define NOBEHEAD_EQ(obj) \
 IS_SET(obj->obj_flags.bitvector[1], AFF2_NECK_PROTECTED)
   

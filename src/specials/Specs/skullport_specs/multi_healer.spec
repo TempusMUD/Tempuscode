@@ -32,7 +32,7 @@ SPECIAL(multi_healer)
       cast_spell(ch, vict, 0, SPELL_REMOVE_POISON);
     else if (IS_SICK(vict))
       cast_spell(ch, vict, 0, SPELL_REMOVE_SICKNESS);
-    else if (GET_HIT(vict) >= GET_MAX_HIT(vict)) {
+    else if (GET_HIT(vict) < GET_MAX_HIT(vict)) {
       cast_spell(ch, vict, 0,
 		 GET_LEVEL(vict) <= 10 ? SPELL_CURE_LIGHT :
 		 GET_LEVEL(vict) <= 20 ? SPELL_CURE_CRITIC :

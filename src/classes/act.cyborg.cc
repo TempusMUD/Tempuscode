@@ -115,7 +115,7 @@ perform_recharge(struct char_data *ch, struct obj_data *battery,
 		 struct char_data *vict, struct obj_data *engine,
 		 int amount)
 {
-
+	int wait = 0;
     if (battery) {
 	if (!amount)
 	    amount = RECH_RATE(battery);
@@ -123,13 +123,13 @@ perform_recharge(struct char_data *ch, struct obj_data *battery,
 	if ((CUR_ENERGY(battery) - amount) < 0)
 	    amount = CUR_ENERGY(battery);
 
-	if (COST_UNIT(battery) * amount > GET_CASH(ch)) {
+	if (GET_OBJ_TYPE(battery) == ITEM_BATTERY && COST_UNIT(battery) * amount > GET_CASH(ch)) {
 	    amount = GET_CASH(ch) / COST_UNIT(battery);
       
 	    if (!amount) {
-		send_to_char("You do not have the cash to pay for the energy.\r\n",
-			     ch);
-		return;
+			send_to_char("You do not have the cash to pay for the energy.\r\n",
+					 ch);
+			return;
 	    }
 	}
     } else {
@@ -180,9 +180,8 @@ perform_recharge(struct char_data *ch, struct obj_data *battery,
 	    QCYN, amount, QNRM,
 	    QCYN, vict ? GET_MOVE(vict) : CUR_ENERGY(engine), QNRM,
 	    QCYN, battery ? CUR_ENERGY(battery) : GET_MOVE(ch), QNRM);
-
     if (battery) {
-	if (COST_UNIT(battery)) {
+	if (GET_OBJ_TYPE(battery) == ITEM_BATTERY && COST_UNIT(battery)) {
 	    sprintf(buf, "%sYour cost: %d credits.\r\n", 
 		    buf, amount * COST_UNIT(battery));
 	    GET_CASH(ch) -= amount * COST_UNIT(battery);
@@ -198,7 +197,12 @@ perform_recharge(struct char_data *ch, struct obj_data *battery,
 		buf, QRED, QNRM);
   
     send_to_char(buf, ch);
-    WAIT_STATE(ch, (10 + MIN((amount / 5), 90)));
+	wait = 10 + MIN((amount / 5), 90);
+	
+    if (CHECK_SKILL(ch, SKILL_OVERDRAIN) > 50) {
+		wait -= CHECK_SKILL(ch, SKILL_OVERDRAIN)/200 * wait;
+	}
+    WAIT_STATE(ch,wait);
 
     if (vict && vict != ch) {
 	if (battery) {
@@ -225,12 +229,19 @@ perform_recharge(struct char_data *ch, struct obj_data *battery,
 	    act("$n recharges $p from $s internal supply", 
 		TRUE, ch, engine, vict, TO_ROOM);
     }
-
-    if (battery && amount > RECH_RATE(battery)) {
-	amount -= (amount * CHECK_SKILL(ch, SKILL_OVERDRAIN)) / 150;
+	if (GET_OBJ_TYPE(battery) == ITEM_BATTERY)
+		amount -= RECH_RATE(battery);
+	if (amount < 0) {amount = 0;}
+	amount -= amount * CHECK_SKILL(ch,SKILL_OVERDRAIN) / 125;
+	if (amount < 0) {amount = 0;}
+    
+	if ((battery && amount) && 
+		( GET_OBJ_TYPE(battery) == ITEM_BATTERY 
+		 || GET_OBJ_TYPE(battery) == ITEM_DEVICE) ) {
+	sprintf(buf,"%sERROR: %s damaged during transfer!\r\n",QRED,battery->short_description);
+    send_to_char(buf, ch);
 	damage_eq(ch, battery, amount);
     }
-
 }
  
 
@@ -303,6 +314,12 @@ ACMD(do_recharge)
 	    if (CUR_ENERGY(battery) <= 0) {
 		act("$p is depleted of energy.", FALSE, ch, battery, 0, TO_CHAR);
 		return;
+
+		if (IS_IMPLANT(battery) 
+			&& battery != get_object_in_equip_vis(ch, arg2, ch->implants, &i)) {
+		act ("ERROR: $p not installed properly.", FALSE,ch,battery,0,TO_CHAR);
+		return;
+		}
 	    }
 	} else {
 	    if (!IS_CYBORG(ch)) {
@@ -342,6 +359,7 @@ ACMD(do_recharge)
 	    act("$p is already fully energized.", FALSE, ch, target, 0, TO_CHAR);
 	    return;
 	}
+
 
 	perform_recharge(ch, battery, NULL, target, 0);
 	return;
@@ -1689,7 +1707,8 @@ ACMD(do_repair)
 	    else {
 		dam = (GET_LEVEL(ch) >> 1) + 
 		    ((CHECK_SKILL(ch, SKILL_SELFREPAIR) + TOOL_MOD(tool)) >> 2) +
-		    number(0, GET_LEVEL(ch));
+		    number(0, GET_LEVEL(ch)) +
+			dice(GET_REMORT_GEN(ch),10);
 		dam = MIN(GET_MAX_HIT(ch) - GET_HIT(ch), dam);
 		cost = dam >> 1;
 		if ((GET_MANA(ch) + GET_MOVE(ch)) < cost)
@@ -2276,6 +2295,11 @@ ACMD(do_extract)
 	return;
     }
 
+    if (CHECK_SKILL(ch, SKILL_CYBO_SURGERY) < 30) {
+	send_to_char("You are unskilled in the art of cybosurgery.\r\n", ch);
+	return;
+    }
+
     if ((!(tool = GET_EQ(ch, WEAR_HOLD)) &&
 	 !(tool = GET_IMPLANT(ch, WEAR_HOLD))) ||
 	!IS_TOOL(tool) ||
@@ -2842,39 +2866,86 @@ ACMD(do_transmit)
 	send_to_char("Okay, message transmitted.\r\n", ch);
   
 }
-  
+
+
 ACMD(do_overdrain)
 {
-  
-    struct obj_data *battery = NULL;
 
-    if (!IS_CYBORG(ch) || CHECK_SKILL(ch, SKILL_OVERDRAIN) < 50) {
-	send_to_char("You don't know how.\r\n", ch);
-	return;
+    struct obj_data *source= NULL;
+
+    int i;
+	int amount = 0;
+    char arg1[MAX_INPUT_LENGTH], arg2[MAX_INPUT_LENGTH];
+
+	//Make sure they know how to overdrain
+    if (CHECK_SKILL(ch, SKILL_OVERDRAIN) < 50) {
+		send_to_char("You don't know how.\r\n", ch);
+		return;
     }
 
-    if (!(battery = GET_EQ(ch, WEAR_HOLD))) {
-	send_to_char("You are not holding a battery.\r\n", ch);
-	return;
+    skip_spaces(&argument);
+    argument = one_argument(argument, arg1);
+
+    if (!*arg1) {
+		send_to_char("Usage:  overdrain [internal] <battery/device>\r\n", ch);
+		return;
     }
-    if (!IS_BATTERY(battery)) {
-	act("$p is not a battery.", FALSE, ch, battery, 0, TO_CHAR);
-	return;
+
+	// Find the object to drain from
+    if (!strncmp(arg1, "internal", 8)) {
+   
+    argument = one_argument(argument, arg2);
+
+    if (!*arg2) {
+        send_to_char("Drain energy from which implant?\r\n", ch);
+        return;
     }
-    if (CUR_ENERGY(battery) <= 0) {
-	act("$p is depleted of energy.", FALSE, ch, battery, 0, TO_CHAR);
-	return;
+   
+    if (!(source = get_object_in_equip_vis(ch, arg2, ch->implants, &i))) {
+        sprintf(buf, "You are not implanted with %s '%s'.\r\n",AN(arg2),arg2);
+        send_to_char(buf, ch);
+        return;
     }
-    if (COST_UNIT(battery)) {
-	act("$p is equipped with a power regulator.",FALSE,ch,battery,0,TO_CHAR);
-	return;
+   
+    } else if (!(source = get_obj_in_list_vis(ch, arg1, ch->carrying))     &&
+           !(source=get_object_in_equip_all(ch,arg1,ch->equipment,&i))  &&
+           !(source=get_obj_in_list_vis(ch, arg1,ch->in_room->contents))) {
+    sprintf(buf, "You can't seem to find %s '%s'.\r\n",AN(arg1),arg1);
+    send_to_char(buf, ch);
+    return;
+    }
+	if (IS_IMPLANT(source) 
+		&& source != get_object_in_equip_vis(ch, arg2, ch->implants, &i)) {
+		act ("ERROR: $p not installed properly.", FALSE,ch,source,0,TO_CHAR);
+		return;
+	}
+	
+    if (!IS_BATTERY(source) && !IS_DEVICE(source)) {
+		act("You cannot draw energy from $p.", FALSE, ch, source, 0, TO_CHAR);
+		return;
+    }
+
+    if (MAX_ENERGY(source) <= 0) {
+		act("$p has no energy to drain.", FALSE, ch, source, 0, TO_CHAR);
+		return;
+    }
+
+    if (CUR_ENERGY(source) <= 0) {
+		act("$p is depleted of energy.", FALSE, ch, source, 0, TO_CHAR);
+		return;
+    }
+    if (IS_BATTERY(source) && COST_UNIT(source)) {
+		act("$p is equipped with a power regulator.",FALSE,ch,source,0,TO_CHAR);
+		return;
     }
     gain_skill_prof(ch, SKILL_OVERDRAIN);
-    perform_recharge(ch, battery, ch, 0, 
-		     GET_LEVEL(ch) + (GET_REMORT_GEN(ch) << 2));
+	amount = number(0 , GET_LEVEL(ch)) 
+		+ GET_LEVEL(ch) 
+		+ (GET_REMORT_GEN(ch) << 2);
+    perform_recharge(ch, source, ch, 0, amount);
     return;
+}
 
-}  
 
 ACMD(do_de_energize)
 {
@@ -2901,9 +2972,8 @@ ACMD(do_de_energize)
     check_killer(ch, vict);
 
     // missed attempt
-    if (AWAKE(vict) &&
-	CHECK_SKILL(ch, SKILL_DE_ENERGIZE) < 
-	(number(0, 90) + GET_DEX(vict))) {
+    if (AWAKE(vict) && 
+	    CHECK_SKILL(ch, SKILL_DE_ENERGIZE) < (number(0, 80) + GET_DEX(vict))) {
 	act("You avoid $n's attempt to de-energize you!",
 	    FALSE, ch, 0, vict, TO_VICT);
 	act("$N avoid $n's attempt to de-energize $M!",

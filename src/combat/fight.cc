@@ -462,7 +462,7 @@ void
 make_corpse( struct char_data *ch,struct char_data *killer,int attacktype )
 {
     struct obj_data *corpse = NULL, *head = NULL, *heart = NULL, 
-	*spine = NULL, *o = NULL, *next_o = NULL;
+	*spine = NULL, *o = NULL, *next_o = NULL, *leg = NULL;
     struct obj_data *money = NULL;
     int i;
     int rentcost = 0;
@@ -565,7 +565,67 @@ make_corpse( struct char_data *ch,struct char_data *killer,int attacktype )
 	strcpy( adj, "chopped up" );
 	break;
 
-    case TYPE_BITE:
+    case SKILL_HAMSTRING:
+    sprintf( buf2, "The legless %s of %s %s lying here.",
+         typebuf,GET_NAME( ch ), isare );
+    corpse->description = str_dup( buf2 );
+    strcpy( adj, "legless" );
+
+    if ( IS_RACE( ch, RACE_BEHOLDER ) )
+        break;
+
+    leg = create_obj(  );
+    leg->shared = null_obj_shared;
+    leg->in_room = NULL;
+    if ( IS_AFFECTED_2( ch, AFF2_PETRIFIED ) )
+        leg->name = str_dup( "blood leg stone" );
+    else
+        leg->name = str_dup( "blood leg" );
+  
+    sprintf( buf2, "The amputated %sleg of %s %s lying here.",
+         IS_AFFECTED_2( ch, AFF2_PETRIFIED ) ? "stone " : "",GET_NAME( ch ), isare );
+    leg->description = str_dup( buf2 );
+    sprintf( buf2, "the amputated %sleg of %s",
+         IS_AFFECTED_2( ch, AFF2_PETRIFIED ) ? "stone " : "",GET_NAME( ch ) );
+    leg->short_description = str_dup( buf2 );
+    GET_OBJ_TYPE( leg ) = ITEM_DRINKCON;
+    GET_OBJ_WEAR( leg ) = ITEM_WEAR_TAKE;
+    GET_OBJ_EXTRA( leg ) = ITEM_NODONATE;
+    GET_OBJ_EXTRA2( leg ) = ITEM2_BODY_PART;
+    GET_OBJ_VAL( leg, 0 ) = 5;  /* Head full of blood */
+    GET_OBJ_VAL( leg, 1 ) = 5;
+    GET_OBJ_VAL( leg, 2 ) = 13;
+    leg->setWeight( 10 );
+    leg->worn_on = -1;
+    if ( IS_NPC( ch ) )
+        GET_OBJ_TIMER( leg ) = max_npc_corpse_time;
+    else {
+        GET_OBJ_TIMER( leg ) = max_pc_corpse_time;
+    }   
+    obj_to_room( leg, ch->in_room );
+    if ( !ROOM_FLAGGED( ch->in_room, ROOM_ARENA ) &&
+         GET_LEVEL( ch ) <= LVL_AMBASSADOR ) {                                          /* transfer character's leg EQ to room, if applicable */
+        if ( GET_EQ( ch, WEAR_LEGS) )
+        obj_to_room( unequip_char( ch, WEAR_LEGS, MODE_EQ ), ch->in_room );
+        if ( GET_EQ( ch, WEAR_FEET) )
+        obj_to_room( unequip_char( ch, WEAR_FEET, MODE_EQ ), ch->in_room );
+        
+        /** transfer implants to leg **/
+        if ( GET_IMPLANT( ch, WEAR_LEGS) ) {
+        obj_to_obj( unequip_char( ch, WEAR_LEGS, MODE_IMPLANT ), leg );
+        REMOVE_BIT( GET_OBJ_WEAR( leg ), ITEM_WEAR_TAKE );
+        }
+        if ( GET_IMPLANT( ch, WEAR_FEET) ) {
+        obj_to_obj( unequip_char( ch, WEAR_FACE, MODE_IMPLANT ), leg );
+        REMOVE_BIT( GET_OBJ_WEAR( leg ), ITEM_WEAR_TAKE );
+        }
+    } // end if !arena room
+    break;
+
+  
+ 
+	case SKILL_BITE:
+	case TYPE_BITE:
 	sprintf( buf2, "The chewed up looking %s of %s %s lying here.", 
 		 typebuf,GET_NAME( ch ), isare );
 	corpse->description = str_dup( buf2 );
@@ -1104,8 +1164,11 @@ make_corpse( struct char_data *ch,struct char_data *killer,int attacktype )
 	    if ( OBJ_TYPE( o, ITEM_SCRIPT ) )
 		extract_obj( o );
 	}
-    }
-    else { // arena kills do not drop EQ
+	// Save the char to prevent duping of eq.
+	save_char(ch, NULL);
+	Crash_crashsave(ch);
+
+    } else { // arena kills do not drop EQ
 	rentcost = Crash_rentcost( ch, FALSE, 1 );
 	if ( rentcost < 0 )
 	    rentcost = -rentcost;
@@ -3074,6 +3137,8 @@ damage( struct char_data * ch, struct char_data * victim, int dam,
 				     SKILL_ENERGY_FIELD, -1 ) ) {
 			    DAM_RETURN( FALSE );
 			}
+			GET_POS(ch) = POS_SITTING;
+			WAIT_STATE(ch, 2 RL_SEC);
 		    }
 		}
 	    }
@@ -3730,7 +3795,7 @@ hit( struct char_data * ch, struct char_data * victim, int type )
 	if ( damage( ch, victim, dam, w_type, limb ) )
 	    return 1;
 
-	if ( weap && IS_NPC( victim ) && GET_MOB_SPEC( victim ) == rust_monster ) {
+	if ( weap && IS_FERROUS(weap) && IS_NPC( victim ) && GET_MOB_SPEC( victim ) == rust_monster ) {
 
 	    if ( ( !IS_OBJ_STAT( weap, ITEM_MAGIC ) || 
 		   mag_savingthrow( ch, GET_LEVEL( victim ), SAVING_ROD ) ) &&
@@ -3738,7 +3803,7 @@ hit( struct char_data * ch, struct char_data * victim, int type )
 		   mag_savingthrow( ch, GET_LEVEL( victim ), SAVING_ROD ) ) ) {
 	  
 		act( "$p spontaneously oxidizes and crumbles into a pile of rust!",
-		     FALSE, ch, weap, 0, TO_ROOM );
+		     FALSE, ch, weap, 0, TO_CHAR);
 		act( "$p crumbles into rust on contact with $N!",
 		     FALSE, ch, weap, victim, TO_ROOM );
 	  

@@ -1392,7 +1392,9 @@ mobile_activity(void)
 	    if (ch->carrying && !number(0, 3)) {
 		for (obj = ch->carrying; obj; obj = best_obj) {
 		    best_obj = obj->next_content;
-		    if (ANTI_ALIGN_OBJ(ch, obj) && number(6, 21) < GET_INT(ch)) {
+		    if (ANTI_ALIGN_OBJ(ch, obj) 
+				&& number(6, 21) < GET_INT(ch)
+				&& !IS_NODROP(obj)) {
 			act("$n junks $p.",TRUE,ch,obj,0,TO_ROOM);
 			extract_obj(obj);
 			break;

@@ -494,7 +494,7 @@ const char *spells[] =
     "!UNUSED!", 
     "!UNUSED!",	/* 660 */
     "!UNUSED!", "!UNUSED!", "!UNUSED!", "!UNUSED!", "!UNUSED!",	/* 665 */
-    "!UNUSED!", "!UNUSED!", "!UNUSED!", "!UNUSED!", "!UNUSED!",	/* 670 */
+    "hamstring", "!UNUSED!", "!UNUSED!", "!UNUSED!", "!UNUSED!",	/* 670 */
     "!UNUSED!", "!UNUSED!", "!UNUSED!", "!UNUSED!", "!UNUSED!",	/* 675 */
     "!UNUSED!", "!UNUSED!", "!UNUSED!",
     "energy conversion",
@@ -2115,8 +2115,8 @@ mag_assign_spells(void)
 	   MAG_MAGIC | MAG_MANUAL | MAG_EVIL | MAG_DIVINE);
 
     spello(SPELL_TELEPORT, 33, X, X, X, X, X, X, X, X, X, X, X, X, X,X,X,X,
-	   75, 50, 3, POS_FIGHTING, TAR_CHAR_ROOM, FALSE, 
-	   MAG_MAGIC | MAG_MANUAL);
+	   75, 50, 3, POS_FIGHTING, TAR_CHAR_ROOM | TAR_OBJ_ROOM | TAR_OBJ_INV
+	   ,FALSE, MAG_MAGIC | MAG_MANUAL);
 
     spello(SPELL_LOCAL_TELEPORT, 18, X, X, X, X, X, X, X, X, X, X,X,X,X,X,X,X,
 	   45, 30, 3, POS_FIGHTING, TAR_CHAR_ROOM, FALSE, 
@@ -2225,7 +2225,7 @@ mag_assign_spells(void)
 	   POS_STANDING, TAR_CHAR_ROOM | TAR_OBJ_INV | TAR_OBJ_ROOM, TRUE, 
 	   MAG_MAGIC | MAG_AFFECTS | MAG_ALTER_OBJS);
 
-    spello(SPELL_DETECT_ALIGN, 47, 8, X, X, X, X, X, X, 11, 13, X, X, X,X,X,X,X,
+    spello(SPELL_DETECT_ALIGN, 24, 8, X, X, X, X, X, X, 11, 13, X, X, X,X,X,X,X,
 	   20,10,2,
 	   POS_STANDING, TAR_CHAR_ROOM | TAR_SELF_ONLY, FALSE, 
 	   MAG_DIVINE | MAG_AFFECTS);
@@ -3052,7 +3052,9 @@ mag_assign_spells(void)
  * 0's.
  */
 
-    /* Ma Cl  Th Wa  Br Syk Ph Cyb Kni Rn Hd Mnk vm mr 1 2 3*/
+         /* Ma Cl  Th Wa  Br Syk Ph Cyb Kni Rn Hd Mnk vm mr 1 2 3*/
+    spello(SKILL_HAMSTRING, X, X, X, X, X, X, X, X, X,  X, X, X, X,X,X,X,X,
+	   0, 0, 0, 0, 0, 0, 0);
     spello(SKILL_ARCHERY, X, X, 14, 5, 24, X, X,  X,  X,  9, X, X, X, 10,X,X, X,
 	   0, 0, 0, 0, 0, 0, 0);
 
@@ -3075,7 +3077,8 @@ mag_assign_spells(void)
     spello(SKILL_HIDE, X, X, 3, X, X, X, X, X, X, 15, X, X, X,X,X,X,X,
 	   0, 0, 0, 0, 0, 0, 0);
 
-    spello(SKILL_KICK, X, X, X, 1, 2, X, X, 3, X, 3, X, X, X,1,X,X,X,
+                   /* Ma Cl Th Wa Br Syk Ph Cyb Kni Rn Hd Mnk vm mr 1 2 3*/
+    spello(SKILL_KICK, X, X, X, 1, 2,  X, X, 3,  X, 3, X, X, X,1,X,X,X,
 	   0, 0, 0, 0, 0, 0, 0);
 
     spello(SKILL_BASH, X, X, X, 1, 10, X, X, X, 9, 14, X, X, X,1, X,X,X,
@@ -3250,8 +3253,8 @@ mag_assign_spells(void)
 
     spello(SKILL_DISARM, X, X, 13, 1, 32, X, X,  X, 20, 20, X, 31, X,25, X,X,X,
 	   0, 0, 0, 0, 0, 0, 0);
-    /* Ma Cl Th Wa Ba Sy Ph Cy Kn  Rn Hd Mk Vm Mr 1 2 3 */
-    spello(SKILL_DEMOLITIONS,X, X, X, 1, X, X, X, X, X, X, 20, X, X,X, X,X,X,
+    
+	spello(SKILL_DEMOLITIONS,X, X, X, 1, X, X, X, X, X, X, 20, X, X,X, X,X,X,
 	   0, 0, 0, 0, 0, 0, 0);
 
     spello(SKILL_SPINKICK, X, X, X, 1, 17, X, X, X, X, X, X, X, X, 20,X,X,X,
@@ -3281,7 +3284,8 @@ mag_assign_spells(void)
     spello(SKILL_UPPERCUT, X, X, X, 1, 11, X, X,  X, 15, 13, X, X, X,20, X,X,X,
 	   0, 0, 0, 0, 0, 0, 0);
 
-    spello(SKILL_GROINKICK, X, X, 12, 1, X, X, X,  X, X, X, X, X, X,X,X,X,X,
+                         /* Ma Cl Th Wa Ba Sy Ph Cy Kn  Rn Hd Mk Vm Mr 1 2 3 */
+    spello(SKILL_GROINKICK, X, X, 12, 1, X, X, X,  X, X, X, 7, X, X,X,X,X,X,
 	   0, 0, 0, 0, 0, 0, 0);
 
     spello(SKILL_CLAW, X, X, X, 1, X, X, X,  X, X, 32, X, X, X,X,X,X,X,
@@ -3314,7 +3318,7 @@ mag_assign_spells(void)
     spello(SKILL_RIDING, 1, 1, 1, 1, 1, X, X, X, 1, 1, X, X, X,X,X,X,X,
 	   0, 0, 0, 0, 0, 0, 0);
 
-    spello(SKILL_PIPEMAKING,   40, X, X, 1, X, X, X, X, X, 15, X, X, X,X,X,X,X,
+    spello(SKILL_PIPEMAKING,40, X, X, 1, X, X, X, X, X, 15, 13, X, X,X,X,X,X,
 	   0, 0, 0, 0, 0, 0, 0);
 
     spello(SKILL_SECOND_WEAPON, X, X, X, X, X, X, X, X, X, 14, X, X, X,25,X,X,X,
@@ -3403,8 +3407,10 @@ mag_assign_spells(void)
     spello(SKILL_HYPERSCAN, X, X, X, X, X, X, X, 25, X, X, X, X, X,X,X,X,X,
 	   0, 0, 0, 0, 0, 0, CYB_ACTIVATE);
 
+// spellnum, levels (MCTW), maxmana, minmana, manachng, minpos, targets,
+// violent?, routines.
     spello(SKILL_OVERDRAIN, X, X, X, X, X, X, X, 8, X, X, X, X, X,X,X,X,X,
-	   0, 0, 0, 0, 0, 0, 0);
+	   0, 0, 0, 0, TAR_OBJ_INV | TAR_OBJ_EQUIP | TAR_OBJ_ROOM, FALSE, 0);
 
     spello(SKILL_ENERGY_WEAPONS, X, X, X, X, X, X, X, 20, X, X,30,X, X,10,X,X,X,
 	   0, 0, 0, 0, 0, 0, 0);
@@ -3497,7 +3503,7 @@ mag_assign_spells(void)
 	   0, 0, 0, 0, 0, 0, 0);
 
     // physic skills
-    /*     M  C  T  W  B  P Ph Cy Kn Rn Hd Mn Bm Mr 1 2 3 */
+                   /*     M  C  T  W  B  P Ph Cy Kn Rn Hd Mn Bm Mr 1 2 3 */
     spello(SKILL_LECTURE, X, X, X, X, X, X,30, X, X, X, X, X, X, X,X,X,X,
 	   0, 0, 0, 0, 0, 0, 0);
 

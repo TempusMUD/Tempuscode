@@ -235,6 +235,13 @@ SPECIAL(remorter)
 
     if (count > (level * 6) || count > top_of_remort_quiz || loop < 0) {
 	send_to_char("The test is over.\r\n", ch);
+	// Now that the "test is over" remove all those pesky affects.
+	if(affected_by_spell(ch,SKILL_EMPOWER)) {
+		sprintf(buf,"(RTEST) %s empowered during remort test. Possible abuse.",GET_NAME(ch));
+	    mudlog(buf, NRM, LVL_DEMI, TRUE);
+	}
+	while (ch->affected)
+	    affect_remove(ch, ch->affected);
 	value = correct * 100;
 	value /= count;
 

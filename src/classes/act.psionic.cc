@@ -68,6 +68,10 @@ ACMD(do_psidrain) {
 	return;
     }
 
+    if (ROOM_FLAGGED(vict->in_room,ROOM_PEACEFUL)&&GET_LEVEL(ch) < LVL_GOD) {
+	act("Your psychic powers cannot hurt $m there!",FALSE,ch,0,vict,TO_CHAR);
+	return;
+    }
     if (ROOM_FLAGGED(vict->in_room,ROOM_NOPSIONICS)&&GET_LEVEL(ch) < LVL_GOD) {
 	act("Psychic powers are useless where $E is!",FALSE,ch,0,vict,TO_CHAR);
 	return;

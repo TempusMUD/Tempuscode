@@ -493,6 +493,8 @@ extern const char *spells[];
 #define SKILL_CONTROL_UNDEAD        657
 #define SKILL_TERRORIZE             658
 
+  /***************  Hood Skill... yeah. Just one ********/
+#define SKILL_HAMSTRING				666
 
 #define SKILL_ENERGY_CONVERSION     679 // physic's energy conversion
 

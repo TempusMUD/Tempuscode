@@ -15,6 +15,7 @@
 			 type == SKILL_ARCHERY        || \
 			 type == SKILL_PROJ_WEAPONS)
 
+#define SLASHING(weap) (GET_OBJ_VAL(weap, 3) == (TYPE_SLASH-TYPE_HIT))
 
 #define BLOODLET_FACTOR(i) \
 (i == SPELL_SPIRIT_HAMMER ? 2 :  i == SKILL_BACKSTAB ? 3 :   \
