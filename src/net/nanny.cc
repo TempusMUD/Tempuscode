@@ -235,7 +235,7 @@ handle_input(struct descriptor_data *d)
 		case 'l':
 		case '0':
 			send_to_desc(d, "Goodbye.  Return soon!\r\n");
-			d->account->logout(d, false);
+			set_desc_state(CXN_DISCONNECT, d);
 			break;
 		case 'c':
 			set_desc_state(CXN_NAME_PROMPT, d); break;
@@ -328,7 +328,7 @@ handle_input(struct descriptor_data *d)
 					set_desc_state(CXN_DISCONNECT, d->creature->desc);
 					d->creature->desc->creature = NULL;
 					d->creature->desc = d;
-					send_to_desc(d, "You take over your own body, already in use!\r\n");
+					send_to_desc(d, "\r\n\r\nYou take over your own body, already in use!\r\n");
 					mlog(Security::ADMINBASIC, GET_INVIS_LVL(d->creature),
 						NRM, true,
 						"%s has reconnected", GET_NAME(d->creature));
@@ -338,7 +338,7 @@ handle_input(struct descriptor_data *d)
 						NRM, true,
 						"%s has reconnected from linkless",
 						GET_NAME(d->creature));
-					send_to_desc(d, "You take over your own body!\r\n");
+					send_to_desc(d, "\r\n\r\nYou take over your own body!\r\n");
 				}
 
 				set_desc_state(CXN_PLAYING, d);
