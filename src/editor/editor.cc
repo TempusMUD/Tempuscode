@@ -213,6 +213,7 @@ CTextEditor::SaveText(char *inStr)
 	if (STATE(desc) == CXN_EDIT_DESC) {
 		send_to_desc(desc, "\033[H\033[J");
 		set_desc_state(CXN_MENU, desc);
+		return;
 	}
 	// Remove the "using the editor" bits.
 	if (IS_PLAYING(desc) && desc->creature && !IS_NPC(desc->creature)) {
@@ -994,8 +995,8 @@ CTextEditor::ProcessCommand(char *inStr)
 		return FindReplace(inStr);
 		break;
 	case 's':					// Save and Exit
-		SaveText(inStr);
 		REMOVE_BIT(PRF2_FLAGS(desc->creature), PRF2_NOWRAP);
+		SaveText(inStr);
 		desc->text_editor = NULL;
 		delete this;
 		return true;
