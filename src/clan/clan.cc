@@ -780,22 +780,33 @@ ACMD(do_cedit)
 	    send_to_char("ERROR in clan save.\r\n", ch);
 	break;
     
-    case 1:             /*** create ***/
-	if (!*arg1)
-	    send_to_char("Create clan with what vnum?\r\n", ch);
-	if (!is_number(arg1))
-	    send_to_char("You must specify the clan numerically.", ch);
-	else if (real_clan(atoi(arg1)))
-	    send_to_char("A clan already exists with that vnum.\r\n", ch);
-	else if ((clan = create_clan(atoi(arg1)))) {
-	    send_to_char("Clan created.\r\n", ch);
-	    sprintf(buf, "(cedit) %s created clan %d.", GET_NAME(ch), clan->number);
-	    slog(buf);
-	}
-	else
-	    send_to_char("There was an error creating the clan.\r\n", ch);
-	break;
-
+    case 1:             /*** create ***/ 
+    {
+        int clan_number = 0;
+        if (!*arg1) {
+            send_to_char("Create clan with what vnum?\r\n", ch);
+            break;
+        }
+        if (!is_number(arg1)) {
+            send_to_char("You must specify the clan numerically.", ch);
+            break;
+        }
+        clan_number = atoi(arg1);
+        if(clan_number <= 0) {
+            send_to_char("You must specify the clan numerically.", ch);
+            break;
+        } else if (real_clan(atoi(arg1))) {
+            send_to_char("A clan already exists with that vnum.\r\n", ch);
+            break;
+        } else if ((clan = create_clan(atoi(arg1)))) {
+            send_to_char("Clan created.\r\n", ch);
+            sprintf(buf, "(cedit) %s created clan %d.", GET_NAME(ch), clan->number);
+            slog(buf);
+        } else {
+            send_to_char("There was an error creating the clan.\r\n", ch);
+        }
+        break;
+    }
     case 2:               /*** delete ***/
 	if (!clan) {
 	    if (!*arg1)
