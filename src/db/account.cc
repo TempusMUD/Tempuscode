@@ -249,7 +249,7 @@ bool
 AccountIndex::add(Account *acct)
 {
 	if (find_account(acct->get_idnum())) {
-		slog("SYSERR: Attempt to add account with conflicting idnum");
+		slog("SYSERR: Attempt to add account with conflicting idnum %d", acct->get_idnum() );
 		return false;
 	}
 
@@ -441,7 +441,7 @@ Account::authenticate(const char *pw)
 void
 Account::login(descriptor_data *d)
 {
-	slog("login: %s from %s", _name, d->host);
+	slog("login: %s[%d] from %s", _name, get_idnum(), d->host);
 	set_desc_state(CXN_MENU, d);
 /*	if (_active_cxn) {
 		slog("login: %s from %s, disconnecting %s",
@@ -486,8 +486,8 @@ Account::logout(descriptor_data *d, bool forced)
 		_login_addr = strdup(d->host);
 
 		save_to_xml();
-		slog("%slogout: %s from %s", (forced) ? "forced ":"",
-			_name, _login_addr);
+		slog("%slogout: %s[%d] from %s", (forced) ? "forced ":"", 
+             _name, get_idnum(), _login_addr);
 	} else {
 		slog("%slogout: unfinished account from %s", (forced) ? "forced ":"",
 			_login_addr);
@@ -501,7 +501,7 @@ Account::initialize(const char *name, descriptor_data *d, int idnum)
 {
 	_id = idnum;
 	_name = strdup(name);
-	slog("new account: #%d (%s) from %s", idnum, _name, d->host);
+	slog("new account: %s[%d] from %s", _name, idnum, d->host);
 }
 
 void
@@ -537,25 +537,25 @@ Account::set_password(const char *pw)
 void
 Account::deposit_past_bank(long long amt)
 {
-	// STUB
+    _bank_past += amt;
 }
 
 void
 Account::deposit_future_bank(long long amt)
 {
-	// STUB
+	_bank_future += amt;
 }
 
 void
 Account::withdraw_past_bank(long long amt)
 {
-	// STUB
+	_bank_past -= amt;
 }
 
 void
 Account::withdraw_future_bank(long long amt)
 {
-	// STUB
+	_bank_future -= amt;
 }
 
 void
