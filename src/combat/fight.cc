@@ -706,7 +706,9 @@ damage(struct Creature *ch, struct Creature *victim, int dam,
 	struct affected_type *af = NULL;
 	bool deflected = false;
     bool mshield_hit = false;
+	Creature *original_ch;
 
+	original_ch = ch;
 
 	if (victim->getPosition() <= POS_DEAD) {
 		errlog("Attempt to damage a corpse--ch=%s,vict=%s,type=%d.",
@@ -1715,7 +1717,14 @@ damage(struct Creature *ch, struct Creature *victim, int dam,
 				}
 			}
 		}
+	} else if (original_ch != ch) {
+		slog("ch was changed in the middle of damage()! original=%p (%s), ch=%p (%s)",
+			original_ch,
+			(original_ch) ? GET_NAME(original_ch):"NULL",
+			ch,
+			(ch) ? GET_NAME(ch):"NULL");
 	}
+
 	// Use send_to_char -- act(  ) doesn't send message if you are DEAD.
 	switch (victim->getPosition()) {
 
