@@ -1570,7 +1570,7 @@ mag_affects(int level, struct Creature *ch, struct Creature *victim,
 		if (MOB_FLAGGED(victim, MOB_NOSLEEP) || IS_UNDEAD(victim))
 			return;
 
-		af.duration = 4 + (level >> 2);
+		af.duration = 4 + level / 10;
 		af.bitvector = AFF_SLEEP;
 
 		if (victim->getPosition() > POS_SLEEPING) {
