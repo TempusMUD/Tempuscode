@@ -6453,9 +6453,9 @@ ACMD(do_set)
            }
 
            if (mode == 0)
-               KNOWN_LANGUAGES(vict) |= ((long long)1 << idx);
+               learn_language(vict, idx);
            else
-               KNOWN_LANGUAGES(vict) &= ~((long long)1 << idx);
+               forget_language(vict, idx);
 
             arg2 = tmp_getword(&argument);
         }

@@ -1010,7 +1010,7 @@ do_mob_mset(struct Creature *ch, char *argument)
                 GET_LANGUAGE(mob_p) = idx;
 
                 if (idx > LANGUAGE_COMMON)
-                    KNOWN_LANGUAGES(mob_p) |= ((long long)1 << idx);
+                    learn_language(mob_p, idx);
 			}
 			break;
 		}
