@@ -574,3 +574,43 @@ tmp_printbits(int val, const char *bit_descs[])
 
 	return result;		
 }
+
+char *
+tmp_substr(const char *str, int start_pos, int end_pos)
+{
+	const char *read_pt;
+	char *result, *write_pt;
+	int len;
+
+	// First do some bounds checking
+	len = strlen(str);
+	if (end_pos < 0)
+		end_pos = strlen(str) + end_pos;
+	if (end_pos < 0)
+		end_pos = 0;
+	if (end_pos > len)
+		end_pos = len;
+	if (start_pos < 0)
+		start_pos = 0;
+	if (start_pos > len)
+		start_pos = len;
+	
+	len = end_pos - start_pos;
+
+	// If we don't have the space, we allocate another pool
+	if (len > tmp_list_tail->space - tmp_list_tail->used)
+		cur_buf = tmp_alloc_pool(len);
+	else
+		cur_buf = tmp_list_tail;
+
+	result = cur_buf->data + cur_buf->used;
+	cur_buf->used += len;
+	write_pt = result;
+	
+	read_pt = str + start_pos;
+	while (len--)
+		*write_pt++ = *read_pt++;	
+	*write_pt = '\0';
+
+	return result;
+}

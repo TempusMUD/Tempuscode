@@ -66,6 +66,9 @@ char *tmp_ctime(time_t val);
 // description whose index corresponds to a set bit in the value
 char *tmp_printbits(int val, const char *bit_descs[]);
 
+// returns a string from the start_pos to the end_pos
+char *tmp_substr(const char *str, int start_pos, int end_pos = -1);
+
 // Initializes the structures used for the temporary string mechanism
 void tmp_string_init(void);
 
