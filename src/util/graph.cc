@@ -530,12 +530,12 @@ ACMD(do_psilocate)
 int
 smart_mobile_move(struct Creature *ch, int dir)
 {
-
+    
 	char doorbuf[128];
-
+    
 	if (dir < 0)
 		return 0;
-
+    
 	if (EXIT(ch, dir) && EXIT(ch, dir)->to_room != NULL) {
 		if (IS_SET(EXIT(ch, dir)->exit_info, EX_CLOSED)) {
 			if (IS_SET(EXIT(ch, dir)->exit_info, EX_SPECIAL))	// can't open here
@@ -544,25 +544,25 @@ smart_mobile_move(struct Creature *ch, int dir)
 				strcpy(doorbuf, fname(EXIT(ch, dir)->keyword));
 			else
 				sprintf(doorbuf, "door %s", dirs[dir]);
-
+            
 			if (IS_SET(EXIT(ch, dir)->exit_info, EX_LOCKED)) {
 				if (has_key(ch, EXIT(ch, dir)->key))
 					do_gen_door(ch, doorbuf, 0, SCMD_UNLOCK, 0);
 				else if ((IS_THIEF(ch) || IS_BARD(ch)) &&
 					CHECK_SKILL(ch, SKILL_PICK_LOCK) > 30)
-					do_gen_door(ch, doorbuf, 0, SCMD_PICK, 0);
+                do_gen_door(ch, doorbuf, 0, SCMD_PICK, 0);
 				else if (IS_MAGE(ch) && CHECK_SKILL(ch, SPELL_KNOCK) &&
-					GET_MANA(ch) > (GET_MAX_MANA(ch) >> 1)) {
+                GET_MANA(ch) > (GET_MAX_MANA(ch) >> 1)) {
 					sprintf(doorbuf, "'knock' %s", doorbuf);
 					do_cast(ch, doorbuf, 0, 0, 0);
 				} else if (CHECK_SKILL(ch, SKILL_BREAK_DOOR) > 30 &&
-					GET_HIT(ch) > (GET_MAX_HIT(ch) >> 1))
-					do_bash(ch, doorbuf, 0, 0, 0);
+                GET_HIT(ch) > (GET_MAX_HIT(ch) >> 1))
+                do_bash(ch, doorbuf, 0, 0, 0);
 			} else
-				do_gen_door(ch, doorbuf, 0, SCMD_OPEN, 0);
-
+            do_gen_door(ch, doorbuf, 0, SCMD_OPEN, 0);
+            
 		} else if (EXIT(ch, dir)->to_room->isOpenAir() &&
-			ch->getPosition() != POS_FLYING) {
+        ch->getPosition() != POS_FLYING) {
 			if (can_travel_sector(ch, SECT_TYPE(EXIT(ch, dir)->to_room), 0))
 				do_fly(ch, "", 0, 0, 0);
 			else if (IS_MAGE(ch) && GET_LEVEL(ch) >= 33)
@@ -576,19 +576,22 @@ smart_mobile_move(struct Creature *ch, int dir)
 				return 0;
 			}
 		} else if (SECT_TYPE(EXIT(ch, dir)->to_room) == SECT_WATER_NOSWIM &&
-			ch->getPosition() != POS_FLYING &&
-			can_travel_sector(ch, SECT_TYPE(EXIT(ch, dir)->to_room), 0)) {
+        ch->getPosition() != POS_FLYING &&
+        can_travel_sector(ch, SECT_TYPE(EXIT(ch, dir)->to_room), 0)) {
 			if (IS_AFFECTED(ch, AFF_INFLIGHT))
 				do_fly(ch, "", 0, 0, 0);
 			else if (IS_MAGE(ch) && GET_LEVEL(ch) >= 32)
 				cast_spell(ch, ch, 0, NULL, SPELL_WATERWALK);
 			else if (!number(0, 10)) {
 				do_say(ch, "Damn this water!  Can anybody help me cross?", 0,
-					0, 0);
+                0, 0);
 				return 0;
 			}
-		} else
-			perform_move(ch, dir, MOVE_NORM, 1);
+		} else if (perform_move(ch, dir, MOVE_NORM, 1) == 2) { 
+            //critical failure - possible death
+            return -1;
+        }
+        
 	}
 	return 0;
 }
