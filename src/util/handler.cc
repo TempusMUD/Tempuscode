@@ -199,7 +199,7 @@ namelist_match(const char *sub_list, const char *super_list)
 	while (*word_pt) {
 		if (!isname(word_pt, super_list))
 			return false;
-		while (isalnum(*word_pt))
+		while (isgraph(*word_pt))
 			word_pt++;
 		while (isspace(*word_pt))
 			word_pt++;
