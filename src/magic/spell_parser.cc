@@ -3863,11 +3863,7 @@ mag_assign_spells(void)
            X, X, X, 75, 50, 2, POS_STANDING, TAR_CHAR_ROOM | TAR_SELF_ONLY, FALSE, 
            MAG_BARD | MAG_AFFECTS);
 
-	spello(SONG_MIRROR_IMAGE_MELODY, X, X, X, X, X, X, X, X, X, X, 46, X, X, X,
-           X, X, X, 75, 50, 2, POS_STANDING, TAR_CHAR_ROOM | TAR_SELF_ONLY, FALSE, 
-           MAG_BARD | MAG_AFFECTS);
-           
-    spello(SONG_HYMN_OF_PEACE, X, X, X, X, X, X, X, X, X, X, 33, X, X, X,
+	spello(SONG_HYMN_OF_PEACE, X, X, X, X, X, X, X, X, X, X, 33, X, X, X,
            X, X, X, 75, 50, 3, POS_STANDING, TAR_IGNORE, FALSE, MAG_BARD | 
            MAG_MANUAL | MAG_UNAFFECTS);
 
@@ -3913,6 +3909,10 @@ mag_assign_spells(void)
             300, 200, 25, POS_FIGHTING, TAR_IGNORE, TRUE,
             MAG_BARD | MAG_AREAS);
         
+    remort_spello(SONG_MIRROR_IMAGE_MELODY, CLASS_BARD, 46, 6,
+            75, 50, 10, POS_STANDING, TAR_CHAR_ROOM | TAR_SELF_ONLY, FALSE,
+            MAG_BARD | MAG_AFFECTS);
+           
     remort_spello(SPELL_FIRE_BREATHING, 
             CLASS_MAGE, 35, 1, 
             280, 180, 10, POS_STANDING, TAR_CHAR_ROOM | TAR_SELF_ONLY,
