@@ -67,6 +67,10 @@ ACMD(do_steal)
         mudlog(buf, CMP, GET_LEVEL(ch), TRUE);
         return;
     }
+    if (!IS_MOB(vict) && GET_LEVEL(ch) < 10) {
+        send_to_char("You cannot steal from players until you reach level 10.\r\n", ch);
+        return;
+    }
     if ((GET_LEVEL(vict) + 5) < GET_LEVEL(ch) && !IS_MOB(vict) &&
         !PLR_FLAGGED(vict, PLR_THIEF) && !PLR_FLAGGED(vict, PLR_KILLER) &&
         !PLR_FLAGGED(vict, PLR_TOUGHGUY) && 
