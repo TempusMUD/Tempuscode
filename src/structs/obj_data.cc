@@ -89,18 +89,48 @@ void obj_data::clear()
 
 
 void
-obj_data::saveToXML(xmlNodePtr parent)
+obj_data::saveToXML(FILE *ouf)
 {
-	//<NAME>bloody corpse evangeline</NAME>
+	static string indent = "";
 	//<SHORT_DESC>the bloody corpse of Evangeline</SHORT_DESC>
+	fprintf( ouf, "%s<SHORT_DESC>%s</SHORT_DESC>",indent.c_str(), short_description );
+	//<NAME>bloody corpse evangeline</NAME>
+	fprintf( ouf, "%s<NAME>%s</NAME>",indent.c_str(), name );
 	//<LONG_DESC>There is a corpse lying in the middle of the floor.</LONG_DESC>
+	fprintf( ouf, "%s<LONG_DESC>%s</LONG_DESC>",indent.c_str(), description );
 	//<ACTION_DESC></ACTION_DESC>
+	fprintf( ouf, "%s<ACTION_DESC>%s</ACTION_DESC>",indent.c_str(), description );
 	//<POINTS TYPE="1" SOILAGE="0" WEIGHT="150" MATERIAL="1" TIMER="0" />
+	fprintf( ouf, "%s<POINTS TYPE=\"%d\" SOILAGE=\"%d\" WEIGHT=\"%d\" MATERIAL=\"%d\" TIMER=\"%d\"/>",
+			 indent.c_str(), obj_flags.type_flag, soilage, obj_flags.getWeight(), 
+			 obj_flags.material, obj_flags.timer );
 	//<DAMAGE CURRENT="100" MAX="100" SIGIL_ID="24999" SIGIL_LEVEL="72"/>
+	fprintf( ouf, "%s<DAMAGE CURRENT=\"%d\" MAX=\"%d\" SIGIL_ID=\"%d\" SIGIL_LEVEL=\"%d\" />",
+			indent.c_str(), obj_flags.damage, obj_flags.max_dam, obj_flags.sigil_idnum, obj_flags.sigil_level );
 	//<FLAGS WEAR="0x0" EXTRA="0x0" EXTRA2="0x0" EXTRA3="0x0"/>
+	fprintf( ouf, "%s<FLAGS WEAR=\"%x\" EXTRA=\"%x\" EXTRA2=\"%x\" EXTRA3=\"%x\" />",
+			indent.c_str(), obj_flags.wear_flags, obj_flags.extra_flags, 
+			obj_flags.extra2_flags, obj_flags.extra3_flags );
 	//<VALUES V0="0" V1="0" V2="0" V3="0"/>
+	fprintf( ouf, "%s<VALUES V0=\"%d\" V1=\"%d\" V2=\"%d\" V3=\"%d\" />",
+			indent.c_str(), obj_flags.value[0],obj_flags.value[1],obj_flags.value[2],obj_flags.value[3] );
+
 	//<AFFECTBITS AFF1="0x0" AFF2="0x0" AFF3="0x0"/>
+	fprintf( ouf, "%s<AFFECTBITS AFF1=\"%lx\" AFF2=\"%lx\" AFF3=\"%lx\" />",
+			indent.c_str(), obj_flags.bitvector[0], obj_flags.bitvector[1], obj_flags.bitvector[2] );
 	//<AFFECT LOCATION="18" MODIFIER="1"/>
+	for( int i = 0; i < MAX_OBJ_AFFECT; i++ ) {
+		if( affected[i].location > 0 && affected[i].modifier > 0 ) {
+			fprintf( ouf, "%s<AFFECT MODIFIER=\"%d\" LOCATION=\"%d\" />",
+					 indent.c_str(), affected[i].modifier, affected[i].location );
+		}
+	}
+	// Contained objects
+	indent += '\t';
+	for( obj_data *obj = contains; obj != NULL; obj = obj->next_content ) {
+		obj->saveToXML(ouf);
+	}
+	indent.erase( indent.size() - 1 );
 	return;
 }
 
