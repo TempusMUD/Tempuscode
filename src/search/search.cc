@@ -459,7 +459,7 @@ general_search( struct char_data *ch, struct special_search_data *srch,int mode 
 				     dice( srch->arg[0], srch->arg[0] ), srch->arg[2],
 				     WEAR_RANDOM );
 		else 
-		    killed = damage( NULL, mob, 
+		    damage( NULL, mob, 
 			    dice( srch->arg[0], srch->arg[0] ), srch->arg[2],
 			    WEAR_RANDOM );
 	
