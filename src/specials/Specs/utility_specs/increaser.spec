@@ -31,7 +31,7 @@ SPECIAL(increaser)
 
 	if (GET_MOB_VNUM(increaser) == 30100)
 		status = MODE_HITP;
-	if (GET_MOB_VNUM(increaser) == 37022 || GET_MOB_VNUM(increaser) == 31702)
+	if (GET_MOB_VNUM(increaser) == 37022 || GET_MOB_VNUM(increaser) == 31712)
 		status = MODE_MANA;
 	if (GET_MOB_VNUM(increaser) == 5430)
 		status = MODE_MOVE;
