@@ -29,6 +29,7 @@ const char *tester_util_cmds[] = {
 	"dex",
 	"cha",
 	"maxstat",
+	"stradd",
 	"\n"
 };
 
@@ -51,7 +52,7 @@ const char *tester_util_cmds[] = {
 "align\r\n"             \
 "generation\r\n"        \
 "debug\r\n"                \
-"str|con|int|wis|dex|cha <val>\r\n"
+"str|stradd|con|int|wis|dex|cha <val>\r\n"
 
 SPECIAL(tester_util)
 {
@@ -190,6 +191,10 @@ SPECIAL(tester_util)
 		do_set(ch, "me con 25", 0, 0, 0);
 		do_set(ch, "me dex 25", 0, 0, 0);
 		do_set(ch, "me cha 25", 0, 0, 0);
+		break;
+	case 24:
+		sprintf(buf, "me %s %s", arg1, arg2);
+		do_set(ch, buf, 0, 0, 0);
 		break;
 	default:
 		sprintf(buf, "$p: Invalid command '%s'.", arg1);
