@@ -65,7 +65,7 @@ SPECIAL(implanter)
 	    page_string(ch->desc, buf, 1);
 	    return 1;
 	}
-	if (implant->getWeight() > GET_STR(ch)/2) {
+	if (implant->getWeight() > GET_STR(ch)) {
 		sprintf(buf,"That thing is too heavy to implant!");
 	    perform_tell(implanter, ch, buf);
 		return 1;
