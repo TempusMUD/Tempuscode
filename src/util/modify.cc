@@ -257,14 +257,12 @@ show_file(struct Creature *ch, char *fname, int lines)
 		int tot, i;
 		int x = MAX_RAW_INPUT_LENGTH + 1;
 		tot = i = 0;
-		strcpy(buf, "");
 
 		logbuf = new char[(lines + 1) * x];
 		if (!logbuf) {
 			slog("Memory not allocated in show_file.");
 			return;
 		}
-
 
 		for (i = 0; i < lines; i++)
 			strcpy((logbuf + (i * x)), "");
@@ -275,19 +273,18 @@ show_file(struct Creature *ch, char *fname, int lines)
 			tot++;
 			i == lines ? i = 0 : i++;
 		}
+
+		acc_string_clear();
 		if (tot < lines) {
 			for (i = 0; i < tot; i++) {
-				strcat(buf, (logbuf + (i * x)));
-				strcat(buf, "\r\n");
+				acc_strcat( (logbuf + (i * x)), "\r\n", NULL );
 			}
 		} else {
 			for (tot = lines; tot; i == lines ? i = 0 : i++) {
-				strcat(buf, (logbuf + (i * x)));
-				strcat(buf, "\r\n");
+				acc_strcat( (logbuf + (i * x)), "\r\n", NULL );
 				tot--;
 			}
 		}
-		delete[]logbuf;
 	} else {
 		file.seekg(0, ios::end);
 		size = (int)file.tellg() + 1;
@@ -298,8 +295,8 @@ show_file(struct Creature *ch, char *fname, int lines)
 			file.getline(logbuf, MAX_RAW_INPUT_LENGTH, '\n');
 			acc_strcat(logbuf, "\r\n", NULL);
 		}
-		delete [] logbuf;
 	}
+    delete [] logbuf;
 	file.close();
 	page_string(ch->desc, acc_get_string());
 }
