@@ -80,6 +80,7 @@ Account::Account(void)
     _bank_future = 0;
 	_reputation = 0;
 	_quest_points = 0;
+	_quest_banned = false;
 	_term_height = DEFAULT_TERM_HEIGHT;
 	_term_width = DEFAULT_TERM_WIDTH;
 }
