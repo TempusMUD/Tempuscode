@@ -332,7 +332,7 @@ HelpItem::Save()
 		send_to_char(editor, "Error, could not open help file for write.\r\n");
 		return false;
 	}
-	file.seekp(0);
+	//file.seekp(0);
 	file << idnum << " " << (text ? strlen(text) : 0)
 		<< endl << name << endl;
 	if (text) {
@@ -360,7 +360,7 @@ HelpItem::LoadText()
 		sprintf(buf, "Unable to open help file (%s).", fname);
 		return false;
 	}
-	help_file.seekp(0);
+	//help_file.seekp(0);
 	text = new char[MAX_HELP_TEXT_LENGTH];
 	strcpy(text, "");
 

@@ -388,7 +388,7 @@ HelpCollection::SaveIndex(Creature * ch)
 	sprintf(fname, "%s/%s", Help_Directory, "index");
 
 	index_file.open(fname, ios::out | ios::trunc);
-	index_file.seekp(0);
+	//index_file.seekp(0, ios::beg);
 	if (!index_file) {
 		slog("SYSERR: Cannot open help index.");
 		return false;
@@ -424,7 +424,7 @@ HelpCollection::LoadIndex()
 		slog("SYSERR: Cannot open help index.");
 		return false;
 	}
-	index_file.seekp(0);
+	//index_file.seekp(0, ios::beg);
 	index_file >> top_id;
 	s = buf;
 	for (int i = 1; i <= top_id; i++) {

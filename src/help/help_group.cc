@@ -196,7 +196,7 @@ HelpGroup::Save()
 		slog("SYSERR: Error opening help groups data file.");
 		return;
 	}
-	file.seekp(0);
+	//file.seekp(0);
 
 	// Write the groups.
 	// <gid> <number of members> [members] \r\n
