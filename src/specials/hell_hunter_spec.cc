@@ -204,6 +204,8 @@ SPECIAL(hell_hunter_brain)
 		if (vict && (IS_NPC(vict) || PRF_FLAGGED(vict, PRF_NOHASSLE) ||
 				// some rooms are safe
 				ROOM_FLAGGED(vict->in_room, SAFE_ROOM_BITS) ||
+				// no players in quest
+				GET_QUEST(vict) ||
 				// can't go to isolated zones
 				ZONE_FLAGGED(vict->in_room->zone, ZONE_ISOLATED) ||
 				// ignore shopkeepers
