@@ -1757,8 +1757,6 @@ obj_to_obj(struct obj_data *obj, struct obj_data *obj_to)
 		SET_BIT(ROOM_FLAGS(obj_to->in_room), ROOM_HOUSE_CRASH);
 
 	if (IS_INTERFACE(obj_to)) {
-		INTERFACE_CUR(obj_to)++;
-
 		if ((vict = obj_to->worn_by) &&
 			(obj_to != GET_EQ(vict, obj_to->worn_on) ||
 				obj_to->worn_on != WEAR_BELT ||
@@ -1806,7 +1804,6 @@ obj_from_obj(struct obj_data *obj)
 	REMOVE_FROM_LIST(obj, obj_from->contains, next_content);
 
 	if (IS_INTERFACE(obj_from)) {
-		INTERFACE_CUR(obj_from)--;
 		if ((vict = obj_from->worn_by) &&
 			(obj_from != GET_EQ(vict, obj_from->worn_on) ||
 				obj_from->worn_on != WEAR_BELT ||
