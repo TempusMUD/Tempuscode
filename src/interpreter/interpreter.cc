@@ -1482,6 +1482,7 @@ struct command_info cmd_info[] = {
 	{"wishfully", POS_DEAD, do_mood, 0, 0, 0, 0},
 	{"wistfully", POS_DEAD, do_mood, 0, 0, 0, 0},
 	{"valiantly", POS_DEAD, do_mood, 0, 0, 0, 0},
+	{"vehemently", POS_DEAD, do_mood, 0, 0, 0, 0},
 	{"\n", 0, 0, 0, 0, 0, 0}
 };								/* this must be last */
 
