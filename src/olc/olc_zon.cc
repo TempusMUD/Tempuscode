@@ -1981,6 +1981,10 @@ do_zset_command(struct char_data *ch, char *argument)
         return; 
         break; 
     case 2:  /*  top   */
+        if( GET_LEVEL(ch) < LVL_CREATOR ) {
+            send_to_char("You cannot alter zones in this way.\r\n", ch); 
+            return; 
+        }
         i = atoi(argument); 
         if ((zone->next && zone->next->number * 100 <= i) || 
             i < zone->number * 100) { 
