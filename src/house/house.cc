@@ -581,9 +581,9 @@ House::load( const char* filename )
 	int axs = access(filename, W_OK);
 
 	if( axs != 0 ) {
-		if( axs != ENOENT ) {
+		if( errno != ENOENT ) {
 			slog("SYSERR: Unable to open xml house file '%s': %s", 
-				 filename, strerror(axs) );
+				 filename, strerror(errno) );
 			return false;
 		} else {
 			return false; // normal no eq file
