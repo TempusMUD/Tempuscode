@@ -49,7 +49,7 @@ calculate_weapon_probability( struct char_data *ch, int prob, struct obj_data *w
     i = weap_weight = 0;
 
     if(!ch || !weap)
-        return 0;
+        return prob;
         
     if ( GET_OBJ_VNUM(weap) > 0 ) {
         for ( i = 0; i < MAX_WEAPON_SPEC; i++ ) {
@@ -58,7 +58,7 @@ calculate_weapon_probability( struct char_data *ch, int prob, struct obj_data *w
                 break;
             }   
         }   
-    }   
+    }  
     if(weap->worn_on == WEAR_WIELD || weap->worn_on == WEAR_WIELD_2) {
         for ( i = 0, weap_weight = 0; i < MAX_OBJ_AFFECT; i++ ) {
             if ( weap->affected[i].location == APPLY_WEAPONSPEED ) {
@@ -68,10 +68,18 @@ calculate_weapon_probability( struct char_data *ch, int prob, struct obj_data *w
         }   
         weap_weight += weap->getWeight();
         weap_weight = MAX( ( weap->getWeight() >> 2 ), weap_weight );
-        
-        prob -=  ( prob * weap_weight ) / ( str_app[STRENGTH_APPLY_INDEX( ch )].wield_w >> 1 );
-        if(weap->worn_on == WEAR_WIELD_2)
+
+        if(weap->worn_on == WEAR_WIELD_2) {
+			prob -= ( prob * weap_weight ) / 
+					( str_app[STRENGTH_APPLY_INDEX( ch )].wield_w >> 1 );
             prob += CHECK_SKILL( ch, SKILL_SECOND_WEAPON ) - 60;
+		} else if (weap->worn_on == WEAR_WIELD ) {
+			prob -= ( prob * weap_weight ) / 
+					( str_app[STRENGTH_APPLY_INDEX( ch )].wield_w << 1 );
+			if(IS_MONK( ch ) )
+				prob += ( LEARNED( ch ) - weapon_prof( ch, weap) ) >> 3;
+		}
+
     }
     return prob;
 }
