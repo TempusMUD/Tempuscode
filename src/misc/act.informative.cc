@@ -50,6 +50,7 @@ using namespace std;
 #include "player_table.h"
 
 /* extern variables */
+extern int mini_mud;
 extern struct room_data *world;
 extern struct descriptor_data *descriptor_list;
 extern CreatureList characterList;
@@ -2563,7 +2564,7 @@ ACMD(do_score)
 	msg = tmp_sprintf("%sMove Points: %11s           Experience: %s%d%s\r\n",
 		msg, msg2, CCGRN(ch, C_NRM), GET_EXP(ch), CCNRM(ch, C_NRM));
 	msg = tmp_sprintf(
-		"%s                                   %sKills%s: %d, %sPKills%s: %d, %sAKills%s: %d\r\n",
+		"%s                                   %sKills%s: %d, %sPKills%s: %d, %sArena%s: %d\r\n",
 		msg, CCYEL(ch, C_NRM), CCNRM(ch, C_NRM),
 		(GET_MOBKILLS(ch) + GET_PKILLS(ch) + GET_ARENAKILLS(ch)),
 		CCRED(ch, C_NRM), CCNRM(ch, C_NRM), GET_PKILLS(ch),
@@ -3980,12 +3981,14 @@ print_attributes_to_buf(struct Creature *ch, char *buff)
 	dex = GET_DEX(ch);
 	con = GET_CON(ch);
 	cha = GET_CHA(ch);
-	sprintf(buf2, " %s%s(augmented)%s\r\n",
+	sprintf(buf2, " %s%s(augmented)%s",
 		CCBLD(ch, C_SPR), CCYEL(ch, C_NRM), CCNRM(ch, C_NRM));
 
 	sprintf(buff, "      %s%sStrength:%s ",
 		CCYEL(ch, C_NRM), CCBLD(ch, C_CMP), CCNRM(ch, C_NRM));
 
+	if (mini_mud)
+		strcat(buff, tmp_sprintf(" [%d/%d]", str, stradd));
 	if (str <= 3)
 		strcat(buff, "You can barely stand up under your own weight.");
 	else if (str <= 4)
@@ -4037,12 +4040,13 @@ print_attributes_to_buf(struct Creature *ch, char *buff)
 
 	if (str != ch->real_abils.str || stradd != ch->real_abils.str_add)
 		strcat(buff, buf2);
-	else
-		strcat(buff, "\r\n");
+	strcat(buff, "\r\n");
 
 	sprintf(buff, "%s  %s%sIntelligence:%s ", buff,
 		CCYEL(ch, C_NRM), CCBLD(ch, C_CMP), CCNRM(ch, C_NRM));
 
+	if (mini_mud)
+		strcat(buff, tmp_sprintf(" [%d]", intel));
 	if (intel <= 5)
 		strcat(buff, "You lose arguments with inanimate objects.");
 	else if (intel <= 8)
@@ -4070,12 +4074,13 @@ print_attributes_to_buf(struct Creature *ch, char *buff)
 			"You solve nonlinear higher dimensional systems in your sleep.");
 	if (intel != ch->real_abils.intel)
 		strcat(buff, buf2);
-	else
-		strcat(buff, "\r\n");
+	strcat(buff, "\r\n");
 
 	sprintf(buff, "%s        %s%sWisdom:%s ", buff,
 		CCYEL(ch, C_NRM), CCBLD(ch, C_CMP), CCNRM(ch, C_NRM));
 
+	if (mini_mud)
+		strcat(buff, tmp_sprintf(" [%d]", wis));
 	if (wis <= 5)
 		strcat(buff, "Yoda you are not.");
 	else if (wis <= 8)
@@ -4095,18 +4100,19 @@ print_attributes_to_buf(struct Creature *ch, char *buff)
 
 	if (wis != ch->real_abils.wis)
 		strcat(buff, buf2);
-	else
-		strcat(buff, "\r\n");
+	strcat(buff, "\r\n");
 
 	sprintf(buff, "%s     %s%sDexterity:%s ", buff,
 		CCYEL(ch, C_NRM), CCBLD(ch, C_CMP), CCNRM(ch, C_NRM));
 
+	if (mini_mud)
+		strcat(buff, tmp_sprintf(" [%d]", dex));
 	if (dex <= 5)
 		strcat(buff, "I wouldnt walk too fast if I were you.");
 	else if (dex <= 8)
-		strcat(buff, "Your pretty clumsy.");
+		strcat(buff, "You're pretty clumsy.");
 	else if (dex <= 10)
-		strcat(buff, "Your agility is average.");
+		strcat(buff, "Your agility is pretty average.");
 	else if (dex <= 12)
 		strcat(buff, "You are fairly agile.");
 	else if (dex <= 15)
@@ -4117,12 +4123,13 @@ print_attributes_to_buf(struct Creature *ch, char *buff)
 		strcat(buff, "You have the agility of a god!");
 	if (dex != ch->real_abils.dex)
 		strcat(buff, buf2);
-	else
-		strcat(buff, "\r\n");
+	strcat(buff, "\r\n");
 
 	sprintf(buff, "%s  %s%sConstitution:%s ", buff,
 		CCYEL(ch, C_NRM), CCBLD(ch, C_CMP), CCNRM(ch, C_NRM));
 
+	if (mini_mud)
+		strcat(buff, tmp_sprintf(" [%d] ", con));
 	if (con <= 3)
 		strcat(buff, "You are dead, but haven't realized it yet.");
 	else if (con <= 5)
@@ -4130,7 +4137,7 @@ print_attributes_to_buf(struct Creature *ch, char *buff)
 	else if (con <= 7)
 		strcat(buff, "A child poked you once, and you have the scars to prove it.");
 	else if (con <= 8)
-		strcat(buff, "Your pretty skinny and sick looking.");
+		strcat(buff, "You're pretty skinny and sick looking.");
 	else if (con <= 10)
 		strcat(buff, "Your health is average.");
 	else if (con <= 12)
@@ -4146,15 +4153,14 @@ print_attributes_to_buf(struct Creature *ch, char *buff)
 
 	if (con != ch->real_abils.con)
 		strcat(buff, buf2);
-	else
-		strcat(buff, "\r\n");
+	strcat(buff, "\r\n");
 
 	sprintf(buff, "%s      %s%sCharisma:%s ", buff,
 		CCYEL(ch, C_NRM), CCBLD(ch, C_CMP), CCNRM(ch, C_NRM));
 
-	if (cha <= 2)
-		strcat(buff, "People go blind when they gaze upon your face.");
-	else if (cha <= 5)
+	if (mini_mud)
+		strcat(buff, tmp_sprintf(" [%d] ", cha));
+	if (cha <= 5)
 		strcat(buff, "U-G-L-Y");
 	else if (cha <= 6)
 		strcat(buff, "Your face could turn a family of elephants to stone.");
@@ -4178,16 +4184,12 @@ print_attributes_to_buf(struct Creature *ch, char *buff)
 		strcat(buff, "Your image should be chiseled in marble!");
 	else if (cha <= 22)
 		strcat(buff, "Others eat from the palm of your hand.  Literally.");
-	else if (cha <= 25)
-		strcat(buff, "People go blind when they gaze upon your face.");
 	else
 		strcat(buff,
 			"If the gods made better they'd have kept it for themselves.");
 	if (cha != ch->real_abils.cha)
 		strcat(buff, buf2);
-	else
-		strcat(buff, "\r\n");
-
+	strcat(buff, "\r\n");
 }
 
 
