@@ -92,6 +92,7 @@ void char_to_game(descriptor_data *d);
 void notify_cleric_moon(struct Creature *ch);
 void send_menu(descriptor_data *d);
 
+int check_newbie_ban(struct descriptor_data *desc);
 void
 handle_input(struct descriptor_data *d)
 {
@@ -180,7 +181,7 @@ handle_input(struct descriptor_data *d)
 	case CXN_ACCOUNT_VERIFY:
 		switch (tolower(arg[0])) {
 		case 'y':
-			d->account = Account::create(d->mode_data, d);
+    		d->account = Account::create(d->mode_data, d);
 			set_desc_state(CXN_ANSI_PROMPT, d);
 			break;
 		case 'n':
@@ -957,6 +958,10 @@ send_menu(descriptor_data *d)
 		send_to_desc(d, "    In order to protect your character against intrusion, you must\r\nchoose a password to use on this system.\r\n\r\n");
 		break;
 	case CXN_ACCOUNT_PROMPT:
+        if (check_newbie_ban(d)) {
+			set_desc_state(CXN_DISCONNECT, d);
+            break;
+        }
 		send_to_desc(d, "\e[H\e[J");
 		send_to_desc(d,"&n\r\n                                ACCOUNT CREATION\r\n*******************************************************************************&n\r\n");
 		send_to_desc(d, "\r\n\r\n    On TempusMUD, you have an account, which is a handy way of keeping\r\ntrack of all your characters here.  All your characters share a bank\r\naccount, and you can see at a single glance which of your character have\r\nreceived mail.  Quest points are also shared by all your characters.\r\n\r\n");
@@ -1796,4 +1801,29 @@ show_account_chars(descriptor_data *d, Account *acct, bool immort, bool brief)
 	delete tmp_ch;
 }
 
+int check_newbie_ban(struct descriptor_data *desc)
+{
+    int bantype = isbanned(desc->host, buf2);
+    if (bantype == BAN_NEW) {
+        send_to_desc(desc, "**************************************************"
+                           "******************************\r\n");
+        send_to_desc(desc, "                               T E M P U S  M U D\r\n");
+        send_to_desc(desc, "**************************************************"
+                           "******************************\r\n");
+        send_to_desc(desc, "\t\tWe're sorry, we have been forced to ban your "
+                           "IP address.\r\n\tIf you have never played here "
+                           "before, or you feel we have made\r\n\ta mistake, or "
+                           "perhaps you just got caught in the wake of\r\n\tsomeone "
+                           "elses trouble making, please mail "
+                           "unban@tempusmud.com.\r\n\tPlease include your account "
+                           "name and your character name(s)\r\n\tso we can siteok "
+                           "your IP.  We apologize for the inconvenience,\r\n\tand "
+                           "we hope to see you soon!");
+        mlog(Security::ADMINBASIC, LVL_GOD, CMP, true,
+             "Account creation denied from [%s]", desc->host);
+        return BAN_NEW;
+    }
+
+    return 0;
+}
 #undef __interpreter_c__
