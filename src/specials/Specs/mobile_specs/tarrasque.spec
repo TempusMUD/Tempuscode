@@ -182,9 +182,15 @@ tarrasque_digest(Creature *tarr)
 }
 
 int
-tarrasque_die(Creature *tarr)
+tarrasque_die(Creature *tarr, Creature *killer)
 {
 	obj_data *obj, *next_obj;
+
+	// Log death so we can get some stats
+	slog("DEATH: %s killed by %s",
+		GET_NAME(tarr),
+		killer ? GET_NAME(killer):"(NULL)");
+
 	// When the tarrasque dies, everything in its belly must be put in its
 	// corpse.  Acidified, of course.
 	for (obj = belly_rm->contents;obj;obj = next_obj) {
@@ -260,7 +266,7 @@ tarrasque_fight(struct Creature *tarr)
 	// the character whole, no matter how powerful.  If they make their saving
 	// throw, they just get hurt.  The player being fought is most likely to
 	// get swallowed.
-	if (FIGHTING(tarr) && number(0,3)) {
+	if (FIGHTING(tarr)) {
 		if (GET_DEX(FIGHTING(tarr)) < number(5, 23) &&
 			!mag_savingthrow(FIGHTING(tarr), 50, SAVING_ROD)) {
 			tarrasque_swallow(tarr, FIGHTING(tarr));
@@ -362,7 +368,7 @@ SPECIAL(tarrasque)
 	}
 	
 	if (spec_mode == SPECIAL_DEATH)
-		return tarrasque_die(tarr);
+		return tarrasque_die(tarr, ch);
 
 	if (spec_mode != SPECIAL_TICK)
 		return 0;
@@ -401,7 +407,8 @@ SPECIAL(tarrasque)
 
 			mode = T_ACTIVE;
 			dinurnal_timer = 0;
-		} else if (tarr->in_room->number == LAIR_RM && AWAKE(tarr)) {
+		} else if (tarr->in_room->number == LAIR_RM && AWAKE(tarr) &&
+			tarr->in_room->people.size() < 2) {
 			act("$n goes to sleep.", FALSE, tarr, 0, 0, TO_ROOM);
 			tarr->setPosition(POS_SLEEPING);
 		}
