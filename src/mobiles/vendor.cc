@@ -188,7 +188,7 @@ vendor_resolve_name(Creature *self, char *obj_str)
 	obj_data *cur_obj;
 
 	for (cur_obj = self->carrying;cur_obj;cur_obj = cur_obj->next_content)
-		if (isname(obj_str, cur_obj->name))
+		if (namelist_match(obj_str, cur_obj->name))
 			return cur_obj;
 
 	return NULL;
@@ -203,7 +203,7 @@ vendor_sell(Creature *ch, char *arg, Creature *self, ShopData *shop)
 	unsigned long cost, amt_carried;
 
 	if (!*arg) {
-		send_to_char(ch, "What do you wish to sell?\r\n");
+		send_to_char(ch, "What do you wish to buy?\r\n");
 		return;
 	}
 
@@ -550,7 +550,6 @@ vendor_list(Creature *ch, char *arg, Creature *self, ShopData *shop)
 		return;
 	}
 
-	name = tmp_getword(&arg);
 	switch (shop->currency) {
 	case 0:
 		msg = "        Gold"; break;
@@ -577,7 +576,7 @@ vendor_list(Creature *ch, char *arg, Creature *self, ShopData *shop)
 		} else {
 			if (vendor_is_produced(last_obj, shop))
 				cnt = -1;
-			if (!*name || isname(name, last_obj->name)) 
+			if (!*arg || namelist_match(arg, last_obj->name)) 
 				msg = tmp_strcat(msg, vendor_list_obj(ch, last_obj, cnt, idx,
 					vendor_get_value(last_obj, shop->markup)));
 			cnt = 1;
@@ -588,7 +587,7 @@ vendor_list(Creature *ch, char *arg, Creature *self, ShopData *shop)
 	if (last_obj) {
 		if (vendor_is_produced(last_obj, shop))
 			cnt = -1;
-		if (!*name || isname(name, last_obj->name)) 
+		if (!*arg || namelist_match(arg, last_obj->name)) 
 			msg = tmp_strcat(msg, vendor_list_obj(ch, last_obj, cnt, idx,
 				vendor_get_value(last_obj, shop->markup)));
 	}
