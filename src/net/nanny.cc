@@ -739,6 +739,8 @@ handle_input(struct descriptor_data *d, char *arg)
                 d->account->get_name(), d->account->get_idnum(),
                 name, id );
         send_to_desc(d, "\r\nCharacter %s imported.\r\n\r\n", name );
+		delete d->creature;
+		d->creature = NULL;
         set_desc_state(CXN_WAIT_MENU, d);
         break;
 	}
