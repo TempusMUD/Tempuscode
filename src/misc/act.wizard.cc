@@ -97,6 +97,7 @@ void perform_oset(struct Creature *ch, struct obj_data *obj_p,
 void do_show_objects(struct Creature *ch, char *value, char *arg);
 void do_show_mobiles(struct Creature *ch, char *value, char *arg);
 void show_searches(struct Creature *ch, char *value, char *arg);
+void show_rooms(struct Creature *ch, char *value, char *arg);
 void do_zone_cmdlist(struct Creature *ch, struct zone_data *zone, char *arg);
 const char *stristr(const char *haystack, const char *needle);
 
@@ -4065,6 +4066,372 @@ show_mobkills(Creature *ch, char *value, char *arg)
     page_string(ch->desc, buf);
 }
 
+const char *show_room_flags[] = {
+    "rflags",
+    "searches",
+    "title",
+    "rexdescs",
+    "noindent",
+    "sounds",
+    "occupancy",
+    "noexits",
+    "mobcount",
+    "mobload",
+    "deathcount",
+    "sector",
+    "desc_length",
+    "orphan_words",
+    "period_space",
+    "\n"
+};
+
+void show_rooms(Creature *ch, char *value, char *arg)
+{
+    bool world = false, zone = false;
+    static const char *usage = "Usage: show rooms <world | zone> <flag> [options]";
+
+    if (strncasecmp(value, "zone", 4) == 0) {
+        zone = true;
+    }
+    else if (strncasecmp(value, "world", 5) == 0) {
+        world = true;
+    }
+    else {
+        send_to_char(ch, "%s\n", usage);
+        return;
+    }
+    
+    Tokenizer tokens(arg);
+    
+    int pos = 0;
+    if ((tokens.next(value)) && ((pos = search_block(value, show_room_flags, 0)) >= 0)) {
+        list <zone_data *>zone_list;
+        struct room_data *room;
+ 
+        // Make a list of the zones we want
+        if (world)
+            for (zone_data *zone = zone_table; zone; zone = zone->next)
+                zone_list.push_front(zone);
+        else 
+            zone_list.push_front(ch->in_room->zone);
+        
+        list <zone_data *>::iterator it = zone_list.begin();
+
+        // What key are we asking for?
+        switch(pos) {
+            case 0:  { //rflags
+                int rflags = 0, tmp_flag = 0;
+                
+                strcpy(buf, "Rooms with matching rflags\r\n--------------------------\r\n");
+                
+                if (!tokens.hasNext()) {
+                    send_to_char(ch, "Usage: show rooms <world | zone> rflags [flag & flag ...]\n");
+                    return;
+                }
+
+                while (tokens.next(value)) {
+                    if ((tmp_flag = search_block(value, roomflag_names, 0)) == -1) {
+                        send_to_char(ch, "Invalid flag %s, skipping...\n", value);
+                    }
+                    else {
+                        rflags |= (1 << tmp_flag);
+                    }
+                }
+
+                for (; it != zone_list.end(); it++) {
+                    for (room = (*it)->world; room; room = room->next) {
+                        if ((room->room_flags & rflags) == rflags) {
+                            sprintf(buf, "%s%s%30s %s[%03d]%s :: %s[%05d]%s %s%s\r\n", buf, 
+                                    CCCYN(ch, C_NRM), room->zone->name, CCRED(ch, C_NRM), 
+                                    room->zone->number, CCCYN(ch, C_NRM), CCRED(ch, C_NRM), 
+                                    room->number, CCCYN(ch, C_NRM), room->name, CCNRM(ch, C_NRM));
+                        }
+                    }
+                }
+            }
+            break;
+
+            case 1: { //searches
+                int sflags = 0, tmp_flag = 0;
+                special_search_data *asearch = NULL;
+                
+                strcpy(buf, "Rooms with matching searches\r\n--------------------------\r\n");
+
+                if (!tokens.hasNext()) {
+                    send_to_char(ch, "Usage: show rooms <world | zone> searches [flag & flag ...]\n");
+                    return;
+                }
+                
+                while (tokens.next(value)) {
+                    if ((tmp_flag = search_block(value, search_bits, 0)) == -1) {
+                        send_to_char(ch, "Invalid flag %s, skipping...\n", value);
+                    }
+                    else {
+                        sflags |= (1 << tmp_flag);
+                    }
+                }
+                
+                // Ick...many braces...
+                for (; it != zone_list.end(); it++) {
+                    for (room = (*it)->world; room; room = room->next) {
+                        for (asearch = room->search; asearch != NULL; asearch = asearch->next) {
+                            if ((asearch->flags & sflags) == sflags) {
+                                sprintf(buf, "%s%s%30s %s[%03d]%s :: %s[%05d]%s %s%s\r\n", buf, 
+                                        CCCYN(ch, C_NRM), room->zone->name, CCRED(ch, C_NRM), 
+                                        room->zone->number, CCCYN(ch, C_NRM), CCRED(ch, C_NRM), 
+                                        room->number, CCCYN(ch, C_NRM), room->name, CCNRM(ch, C_NRM));
+                            }
+                        }
+                    }
+                }
+            } 
+            break;
+
+            case 2: { //title
+                list<string> wordlist;
+                bool match;
+
+                strcpy(buf, "Rooms with matching titles\r\n--------------------------\r\n");
+
+                if (!tokens.hasNext()) {
+                    send_to_char(ch, "Usage: show rooms <world | zone> title [keyword & keyword ...]\n");
+                    return;
+                }
+
+                while (tokens.next(value))
+                    wordlist.push_back(value);
+
+                list<string>::iterator lit;
+
+                for (; it != zone_list.end(); it++) {
+                    for (room = (*it)->world; room; room = room->next) {
+                        match = true;
+                        for (lit = wordlist.begin(); lit != wordlist.end(); lit++) {
+                            if (!strstr(room->name, lit->c_str()))
+                                match = false;
+                        }
+                        
+                        if (match) {
+                            sprintf(buf, "%s%s%30s %s[%03d]%s :: %s[%05d]%s %s%s\r\n", buf, 
+                                    CCCYN(ch, C_NRM), room->zone->name, CCRED(ch, C_NRM), 
+                                    room->zone->number, CCCYN(ch, C_NRM), CCRED(ch, C_NRM), 
+                                    room->number, CCCYN(ch, C_NRM), room->name, CCNRM(ch, C_NRM));
+                        }
+                    }
+                }
+            }
+            break;
+            case 3: { //rexdescs 
+                strcpy(buf, "Rooms with exdescs\r\n--------------------------\r\n");
+
+                for (; it != zone_list.end(); it++) {
+                    for (room = (*it)->world; room; room = room->next) {
+                        if (room->ex_description != NULL) {
+                            sprintf(buf, "%s%s%30s %s[%03d]%s :: %s[%05d]%s %s%s\r\n", buf, 
+                                    CCCYN(ch, C_NRM), room->zone->name, CCRED(ch, C_NRM), 
+                                    room->zone->number, CCCYN(ch, C_NRM), CCRED(ch, C_NRM), 
+                                    room->number, CCCYN(ch, C_NRM), room->name, CCNRM(ch, C_NRM));
+                        }
+                    }
+                }
+            }
+            break;
+            case 4: { //noindent
+                strcpy(buf, "Rooms with no indent\r\n--------------------------\r\n");
+
+                for (; it != zone_list.end(); it++) {
+                    for (room = (*it)->world; room; room = room->next) {
+                        if (!room->description)
+                            continue;
+
+                        if (strncmp(room->description, "   ", 3) != 0) {
+                            sprintf(buf, "%s%s%30s %s[%03d]%s :: %s[%05d]%s %s%s\r\n", buf, 
+                                    CCCYN(ch, C_NRM), room->zone->name, CCRED(ch, C_NRM), 
+                                    room->zone->number, CCCYN(ch, C_NRM), CCRED(ch, C_NRM), 
+                                    room->number, CCCYN(ch, C_NRM), room->name, CCNRM(ch, C_NRM));
+                        }
+                    }
+                }
+            }
+            break;
+            case 5: { //sounds
+                strcpy(buf, "Rooms with sounds\r\n--------------------------\r\n");
+
+                for (; it != zone_list.end(); it++) {
+                    for (room = (*it)->world; room; room = room->next) {
+                        if (room->sounds != NULL) {
+                            sprintf(buf, "%s%s%30s %s[%03d]%s :: %s[%05d]%s %s%s\r\n", buf, 
+                                    CCCYN(ch, C_NRM), room->zone->name, CCRED(ch, C_NRM), 
+                                    room->zone->number, CCCYN(ch, C_NRM), CCRED(ch, C_NRM), 
+                                    room->number, CCCYN(ch, C_NRM), room->name, CCNRM(ch, C_NRM));
+                        }
+                    }
+                }
+            }
+            break;
+            case 6: { //occupancy
+                bool gt = false, lt = false;
+                short occupancy;
+
+                strcpy(buf, "Rooms with matching occupancy\r\n--------------------------\r\n");
+                
+
+                if (!tokens.hasNext()) {
+                    send_to_char(ch, "Usage: show rooms <world | zone> occupancy < < | >  # > \n");
+                    return;
+                }
+                
+                tokens.next(value);
+
+                if (strncmp(value, "<", 1) == 0) {
+                    lt = true;
+                }
+                else if (strncmp(value, ">", 1) == 0) {
+                    gt = true;
+                }
+                else {
+                    send_to_char(ch, "Usage: show rooms <world | zone> occupancy < < | >  # > \n");
+                    return;
+                }
+                
+                if (tokens.next(value)) {
+                    occupancy = atoi(value);
+                    if (occupancy == 0) {
+                        send_to_char(ch, "Usage: show rooms <world | zone> occupancy < < | >  # > \n");
+                    }
+                }
+                else {
+                    send_to_char(ch, "Usage: show rooms <world | zone> occupancy < < | >  # > \n");
+                }
+                
+                
+                for (; it != zone_list.end(); it++) {
+                    for (room = (*it)->world; room; room = room->next) {
+                        if (gt && (room->max_occupancy > occupancy)) {
+                            sprintf(buf, "%s%s%30s %s[%03d]%s :: %s[%05d]%s %s%s (%03d)%s\r\n", buf, 
+                                    CCCYN(ch, C_NRM), room->zone->name, CCRED(ch, C_NRM), 
+                                    room->zone->number, CCCYN(ch, C_NRM), CCRED(ch, C_NRM), 
+                                    room->number, CCCYN(ch, C_NRM), room->name, CCBLU(ch, C_NRM), 
+                                    room->max_occupancy, CCNRM(ch, C_NRM));
+                        }
+                        else if (lt && (room->max_occupancy < occupancy)) {
+                            sprintf(buf, "%s%s%30s %s[%03d]%s :: %s[%05d]%s %s%s (%03d)%s\r\n", buf, 
+                                    CCCYN(ch, C_NRM), room->zone->name, CCRED(ch, C_NRM), 
+                                    room->zone->number, CCCYN(ch, C_NRM), CCRED(ch, C_NRM), 
+                                    room->number, CCCYN(ch, C_NRM), room->name, CCBLU(ch, C_NRM), 
+                                    room->max_occupancy, CCNRM(ch, C_NRM));
+                        }
+                    }
+                }
+            }
+            break;
+            case 7: { //noexits
+                strcpy(buf, "Rooms with no exits\r\n--------------------------\r\n");
+
+                for (; it != zone_list.end(); it++) {
+                    for (room = (*it)->world; room; room = room->next) {
+                        if (!room->countExits()) {
+                            sprintf(buf, "%s%s%30s %s[%03d]%s :: %s[%05d]%s %s%s\r\n", buf, 
+                                    CCCYN(ch, C_NRM), room->zone->name, CCRED(ch, C_NRM), 
+                                    room->zone->number, CCCYN(ch, C_NRM), CCRED(ch, C_NRM), 
+                                    room->number, CCCYN(ch, C_NRM), room->name, CCNRM(ch, C_NRM));
+                        }
+                    }
+                }
+            }
+            break;
+            case 8: { //mobcount
+                unsigned short num_mobs = 0;
+                CreatureList::iterator cit;
+                list<string> mob_names;
+                list<string>::iterator sit;
+
+                if (world) {
+                    send_to_char(ch, "No way!  Are you losing it?\n");
+                    return;
+                }
+
+                if (tokens.next(value)) {
+                    num_mobs = atoi(value);
+                    if (num_mobs == 0) {
+                        send_to_char(ch, "Usage: show rooms <world | zone> mobcount [mobcount]\n");
+                        return;
+                    }
+                }
+                else {
+                    send_to_char(ch, "Usage: show rooms <world | zone> mobcount [mobcount]\n");
+                    return;
+                }
+
+                strcpy(buf, "Rooms with mobs\r\n--------------------------\r\n");
+                
+                for (; it != zone_list.end(); it++) {
+                    for (room = (*it)->world; room; room = room->next) {
+                        mob_names.clear();
+                        for (cit = room->people.begin(); cit != room->people.end(); cit++) {
+                            if ((*cit)->desc != NULL)
+                                continue;
+
+                            mob_names.push_front((*cit)->player.name);
+                        }
+
+                        if (mob_names.size() >= num_mobs) {
+                            sprintf(buf, "%s%s[%05d]%s %s%s:\r\n", buf, CCRED(ch, C_NRM),
+                                    room->number, CCCYN(ch, C_NRM), room->name,
+                                    CCNRM(ch, C_NRM));
+
+                            for (sit = mob_names.begin(); sit != mob_names.end(); sit++)
+                                sprintf(buf, "%s\t%s%s%s\r\n", buf, CCYEL(ch, C_NRM),
+                                        sit->c_str(), CCNRM(ch, C_NRM));
+                        }
+                    }
+                }
+            }
+            break;
+            case 9: { //mobload
+                send_to_char(ch, "disabled.\n");
+            }
+            break ;
+            case 10: { //deathcount
+                send_to_char(ch, "disabled.\n");
+            }
+            break;
+            case 11: { //sector
+            }
+            break;
+            case 12: { //desc_length
+            } 
+            break;
+            case 13: { //orphan_words
+            }
+            break;
+            case 14: { //period_space
+            }
+            break;
+            default:
+                send_to_char(ch, "Something bad just happened.  Please report this\n");
+            break;
+        }
+    }
+    else {
+        int i = 0;
+        string usage_string;
+        
+        usage_string += "Valid flags are:\n";
+
+        while (*show_room_flags[i] != '\n') {
+            usage_string += show_room_flags[i++];
+            usage_string += '\n';
+        }
+        send_to_char(ch, "%s", usage_string.c_str());
+
+        return;
+    }
+
+    page_string(ch->desc, buf);
+    return;
+}
+
 #define MLEVELS_USAGE "Usage: show mlevels <real | proto> [remort] [expand]\r\n"
 
 void
@@ -4251,6 +4618,7 @@ struct show_struct fields[] = {
     {"multi", LVL_IMMORT, "AdminBasic"},
     {"nohelps", LVL_IMMORT, "Help"},
     {"account", LVL_IMMORT, "AdminBasic"},
+    {"rooms", LVL_IMMORT, "OLCApproval"}, // 60
     {"\n", 0, ""}
 };
 
@@ -5119,9 +5487,14 @@ ACMD(do_show)
         show_multi(ch, value);
         break;
     case 58:
-        show_file(ch, "log/help.log", 0); break;
+        show_file(ch, "log/help.log", 0); 
+        break;
     case 59:
-        show_account( ch, value ); break;
+        show_account( ch, value ); 
+        break;
+    case 60: // rooms
+        show_rooms(ch, value, arg);
+        break;
     default:
         send_to_char(ch, "Sorry, I don't understand that.\r\n");
         break;
