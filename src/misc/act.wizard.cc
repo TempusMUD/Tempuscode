@@ -3664,7 +3664,7 @@ show_player(CHAR *ch, char * value)
     sprintf(buf, "Player: %-12s (%s) [%2d %s %s%s]  Gen: %d", vbuf.name,
 	    genders[(int) vbuf.sex], vbuf.level, player_race[(int)vbuf.race],
 	    char_class_abbrevs[(int) vbuf.char_class],remort_desc,vbuf.player_specials_saved.remort_generation);
-	sprintf( buf, "%s  Rent: %s%s\r\n", buf, rent_type, CCNRM( ch, C_NRM ) );
+    sprintf( buf, "%s  Rent: %s%s\r\n", buf, rent_type, CCNRM( ch, C_NRM ) );
     sprintf(buf,
 	    "%sAu: %-8d  Bal: %-8d  Exp: %-8d  Align: %-5d  Lessons: %-3d\r\n",
 	    buf, vbuf.points.gold, vbuf.points.bank_gold, vbuf.points.exp,
@@ -6102,7 +6102,7 @@ ACMD(do_menu)
     if ((vict = get_char_vis(ch, argument))) {
 	if (vict->desc) {
 	    SEND_TO_Q("\033[H\033[J", vict->desc);
-	    show_menu(vict->desc, MODE_SHOW_MENU);
+	    show_menu(vict->desc);
 	    send_to_char("Okay.  Menu sent.\r\n", ch);
 	} else
 	    send_to_char("There is no link from this character to a player.\r\n", ch);

@@ -206,7 +206,7 @@ void string_add(struct descriptor_data *d, char *str)
 	}
 	if (d->connected == CON_EXDESC) {
 	    SEND_TO_Q("\033[H\033[J", d);
-	    show_menu(d, MODE_SHOW_MENU);
+	    show_menu(d);
 	    d->connected = CON_MENU;
 	}
 	if (!d->connected && d->character && !IS_NPC(d->character))

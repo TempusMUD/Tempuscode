@@ -5,7 +5,7 @@
 //
 
 
-void show_menu(struct descriptor_data *d, int mode);
+void show_menu(struct descriptor_data *d);
 void show_race_menu_past(struct descriptor_data *d);
 void show_race_menu_future(struct descriptor_data *d);
 void show_race_restrict_past(struct descriptor_data *d);

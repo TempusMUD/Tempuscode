@@ -18,52 +18,15 @@
 //
 
 void 
-show_menu(struct descriptor_data *d, int mode)
+show_menu(struct descriptor_data *d)
 {
-    FILE *fl;
-    char fname[ MAX_INPUT_LENGTH ];
-    char buf1[ MAX_INPUT_LENGTH ];
-    struct rent_info rent;
-    bool cryo = false;
-
-
-
 
     if ( ! ( d->character ) ) {
 	return;
     }
     
+  
 
-
-    if ( mode == MODE_RENT_MENU ) {
-	
-	if ( ! get_filename( GET_NAME( d->character ), fname, CRASH_FILE ) ) {
-	    sprintf( buf1, "%s sent a NULL menu: failed get_filename\r\n", GET_NAME( d->character ) ); 
-	    slog( buf1 );
-	}
-	
-	if ( ! ( fl = fopen( fname, "rb" ) ) ) {
-	    sprintf( buf1, "%s has no rent file!\r\n", GET_NAME( d->character ) );
-	    slog( buf1 );
-	}
-	
-	
-	if( fl != NULL ) {
-	    if ( ! feof( fl ) ) {
-		fread( &rent, sizeof( struct rent_info ), 1, fl );
-	    }
-	    
-	    if ( &rent != NULL ) {
-		
-		if ( rent.rentcode == RENT_CRYO ) {
-		    cryo = true;
-		}
-	    }
-	    
-	    fclose( fl );
-	}
-    }
-    
 
     SEND_TO_Q("\r\n\r\n", d);
 
@@ -91,7 +54,7 @@ show_menu(struct descriptor_data *d, int mode)
 	    CCGRN(d->character, C_NRM), CCNRM(d->character, C_NRM));
 
       
-    if ( cryo == true ) {
+    if ( PLR_FLAGGED( d->character, PLR_CRYO ) ) {
 	sprintf(buf, "%s\r\n                      %sYou are currently cryo rented.%s\r\n", buf,
 		CCCYN( d->character, C_NRM ), CCNRM( d->character, C_NRM ) );
     }
