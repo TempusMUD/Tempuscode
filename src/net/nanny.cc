@@ -1484,7 +1484,7 @@ make_prompt(struct descriptor_data * d)
 			SEND_TO_Q( "          Is your terminal compatible to receive colors (Y/N)? ",d );
 			break;
 		case CON_QSEX:				// Sex?
-			sprintf( buf,"%s          What gender are you %s(M/F)%s?%s ",
+			sprintf( buf,"%s          What do you choose as your sex %s(M/F)%s?%s ",
 				CCCYN(d->character, C_NRM), CCGRN(d->character, C_NRM),
 				CCCYN(d->character, C_NRM), CCNRM(d->character, C_NRM));
 			SEND_TO_Q( buf,d );
@@ -1551,7 +1551,6 @@ make_prompt(struct descriptor_data * d)
 			SEND_TO_Q("Would you like to REROLL or KEEP these attributes? ",d);
 			break;
 		case CON_RMOTD:				// PRESS RETURN after MOTD
-			//SEND_TO_Q( clr(d->character,C_NRM) ? ansi_motd:motd,d );
 			SEND_TO_Q("\r\n*** PRESS RETURN: ", d);
 			break;
 		case CON_MENU:				// Your choice: (main menu)
