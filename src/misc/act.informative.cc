@@ -2159,8 +2159,8 @@ print_affs_to_string(struct char_data *ch, char *str, byte mode)
 	strcat(str, "You are empowered.\r\n");
     if (IS_AFFECTED_2(ch, AFF2_TELEKINESIS))
 	strcat(str,"You are feeling telekinetic.\r\n");
-    if (affected_by_spell(ch, SKILL_OVERDRIVE))
-	strcat(str, "You are operating in overdrive mode.\r\n");
+    if (affected_by_spell(ch, SKILL_REFLEX_BOOST))
+	strcat(str, "Your Reflex Boosters are active.\r\n");
     else if (IS_AFFECTED_2(ch, AFF2_HASTE))
 	strcat(str, "You are moving very fast.\r\n");
     if (AFF2_FLAGGED(ch, AFF2_SLOW))

@@ -507,18 +507,14 @@ void perform_cyborg_activate(CHAR *ch, int mode, int subcmd)
 	    to_room[0] = "$n's energy field dissipates.";
 
 	    break;
-	case SKILL_OVERDRIVE:
+	case SKILL_REFLEX_BOOST:
 	    af[0].bitvector = AFF2_HASTE;
 	    af[0].aff_index = 2;
 	    af[0].location = APPLY_MOVE;
 	    af[0].modifier = -40;
       
-	    to_char[1] = "Switching into overdrive mode.\r\n";
-	    to_room[1] = "$n shifts into overdrive with a piercing whine.";
-      
-	    to_char[0] = "Switching into normal operation mode.\r\n";
-	    to_room[0] = "$n switches out of overdrive.";
-
+	    to_char[1] = "Activating Reflex Boosters.\r\n";
+	    to_char[0] = "Deactivating Reflex Boosters.\r\n";
 	    break;
 	case SKILL_POWER_BOOST:
 	    af[0].bitvector = 0;
@@ -1523,8 +1519,8 @@ ACMD(do_status)
 		strcat(buf, "Your motion sensors are active.\r\n");
 	    if (affected_by_spell(ch, SKILL_ENERGY_FIELD))
 		strcat(buf, "Energy fields are activated.\r\n");
-	    if (affected_by_spell(ch, SKILL_OVERDRIVE))
-		strcat(buf, "You are operating in Overdrive.\r\n");
+	    if (affected_by_spell(ch, SKILL_REFLEX_BOOST))
+		strcat(buf, "Your Reflex Boosters are activated.\r\n");
 	    if (affected_by_spell(ch, SKILL_POWER_BOOST))
 		strcat(buf, "Power levels are boosted.\r\n");
 	    if (AFF_FLAGGED(ch, AFF_INFRAVISION))

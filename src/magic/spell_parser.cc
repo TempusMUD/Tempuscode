@@ -454,7 +454,7 @@ const char *spells[] =
     "motion sensor",	/* 615 */
     "stasis", 
     "energy field", 
-    "overdrive", 
+    "reflex boost", 
     "power boost", 
     "!UNUSED!",	/* 620 */
     "fastboot script", 
@@ -3389,7 +3389,7 @@ mag_assign_spells(void)
     spello(SKILL_ENERGY_FIELD,  X, X, X, X, X, X, X, 32, X, X, X, X, X,X,X,X,X,
 	   0, 0, 0, 0, 0, 0, CYB_ACTIVATE);
 
-    spello(SKILL_OVERDRIVE,     X, X, X, X, X, X, X, 18, X, X, X, X, X,X,X,X,X,
+    spello(SKILL_REFLEX_BOOST,  X, X, X, X, X, X, X, 18, X, X, X, X, X,X,X,X,X,
 	   0, 0, 0, 0, 0, 0, CYB_ACTIVATE);
 
     spello(SKILL_POWER_BOOST,   X, X, X, X, X, X, X, 18, X, X, X, X, X,X,X,X,X,

@@ -450,32 +450,32 @@ extern const char *spells[];
 
 
   /*****************  CYBORG SKILLS  ********************/
-#define SKILL_RECONFIGURE           613 /* Re-allocate stats */
-#define SKILL_REBOOT                614 /* Start over from scratch */
-#define SKILL_MOTION_SENSOR         615 /* Detect Entries into room */
-#define SKILL_STASIS                616 /* State of rapid healing */
-#define SKILL_ENERGY_FIELD          617 /* Protective field */
-#define SKILL_OVERDRIVE             618 /* Speeds up processes */
-#define SKILL_POWER_BOOST           619 /* Increases Strength */
-#define SKILL_UNUSED_1              620 /**/
-#define SKILL_FASTBOOT              621 /* Reboots are faster */
-#define SKILL_SELF_DESTRUCT         622 /* Effective self destructs */
-#define SKILL_UNUSED_2              623 /**/
-#define SKILL_BIOSCAN               624 /* Sense Life scan */
-#define SKILL_DISCHARGE             625 /* Discharge attack */
-#define SKILL_SELFREPAIR            626 /* Repair hit points */
-#define SKILL_CYBOREPAIR            627 /* Repair other borgs */
-#define SKILL_OVERHAUL              628 /* Overhaul other borgs */
-#define SKILL_DAMAGE_CONTROL        629 /* Damage Control System */
-#define SKILL_ELECTRONICS           630 /* Operation of Electronics */
-#define SKILL_HACKING               631 /* hack electronic systems */
-#define SKILL_CYBERSCAN             632 /* scan others for implants */
-#define SKILL_CYBO_SURGERY          633 /* implant objects */
-#define SKILL_ENERGY_WEAPONS        634 /* energy weapon use */
-#define SKILL_PROJ_WEAPONS          635 /* projectile weapon use */
-#define SKILL_SPEED_LOADING         636 /* speed load weapons */
-#define SKILL_HYPERSCAN             637 /* aware of hidden objs and traps */
-#define SKILL_OVERDRAIN             638 /* overdrain batteries */
+#define SKILL_RECONFIGURE           613 // Re-allocate stats
+#define SKILL_REBOOT                614 // Start over from scratch
+#define SKILL_MOTION_SENSOR         615 // Detect Entries into room
+#define SKILL_STASIS                616 // State of rapid healing
+#define SKILL_ENERGY_FIELD          617 // Protective field
+#define SKILL_REFLEX_BOOST			618 // Speeds up processes
+#define SKILL_POWER_BOOST           619 // Increases Strength
+#define SKILL_UNUSED_1              620 //  
+#define SKILL_FASTBOOT              621 // Reboots are faster
+#define SKILL_SELF_DESTRUCT         622 // Effective self destructs
+#define SKILL_UNUSED_2              623 //  
+#define SKILL_BIOSCAN               624 // Sense Life scan
+#define SKILL_DISCHARGE             625 // Discharge attack
+#define SKILL_SELFREPAIR            626 // Repair hit points
+#define SKILL_CYBOREPAIR            627 // Repair other borgs
+#define SKILL_OVERHAUL              628 // Overhaul other borgs
+#define SKILL_DAMAGE_CONTROL        629 // Damage Control System
+#define SKILL_ELECTRONICS           630 // Operation of Electronics
+#define SKILL_HACKING               631 // hack electronic systems 
+#define SKILL_CYBERSCAN             632 // scan others for implants
+#define SKILL_CYBO_SURGERY          633 // implant objects
+#define SKILL_ENERGY_WEAPONS        634 // energy weapon use
+#define SKILL_PROJ_WEAPONS          635 // projectile weapon use
+#define SKILL_SPEED_LOADING         636 // speed load weapons
+#define SKILL_HYPERSCAN             637 // aware of hidden objs and traps
+#define SKILL_OVERDRAIN             638 // overdrain batteries
 #define SKILL_DE_ENERGIZE           639 // drain energy from chars
 #define SKILL_ASSIMILATE            640 // assimilate objects
 #define SKILL_RADIONEGATION         641 // immunity to radiation
@@ -484,7 +484,7 @@ extern const char *spells[];
 
 #define SKILL_RETREAT               648 // controlled flee
 #define SKILL_DISGUISE              649 // look like a mob
-#define SKILL_AMBUSH                650 /* surprise victim */
+#define SKILL_AMBUSH                650 // surprise victim
 
   /****************** VAMPIRE SKILLS  *******************/
 #define SKILL_FLYING		    	651
