@@ -3867,8 +3867,10 @@ reset_char(struct char_data * ch)
 {
     int i;
 
-    for (i = 0; i < NUM_WEARS; i++)
+    for (i = 0; i < NUM_WEARS; i++) {
         ch->equipment[i] = NULL;
+		ch->implants[i] = NULL;
+	}
 
     ch->followers = NULL;
     ch->master = NULL;
