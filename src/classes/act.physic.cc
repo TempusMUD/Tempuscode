@@ -651,6 +651,9 @@ room_tele_ok(CHAR *ch, struct room_data *room)
     if (ROOM_FLAGGED(room, ROOM_GODROOM) && GET_LEVEL(ch) < LVL_GRGOD)
 	return 0;
 
+    if(ROOM_FLAGGED(room, ROOM_DEATH)) 
+        return 0;
+
 	if (!IS_APPR(room->zone))
 	return 0;
 
