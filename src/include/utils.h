@@ -554,6 +554,7 @@ char *CURRENCY(Creature * ch);
 #define GET_ARENAKILLS(ch)		((ch)->player_specials->saved.akills)
 #define GET_PC_DEATHS(ch)       ((ch)->player_specials->saved.deaths)
 #define GET_REPUTATION(ch)      ((ch)->player_specials->saved.reputation)
+#define GET_SEVERITY(ch)		((ch)->player_specials->saved.killer_severity)
 
 inline int
 GET_REPUTATION_RANK(Creature *ch)
