@@ -1586,7 +1586,7 @@ extern const char *extra3_bits[] = {
     "SPR1",
     "SPR2",
     "SPR3",
-    "HARD"
+    "HARD",
     "\n"
 };
 extern const char *extra3_names[] = {
