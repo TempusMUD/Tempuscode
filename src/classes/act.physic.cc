@@ -877,6 +877,11 @@ ACMD( do_econvert ) {
     num_points = ( num_points * CHECK_SKILL( ch, SKILL_ENERGY_CONVERSION ) ) / 100;
     // adjust it for exceptional intelligence ( int x 2 )
     num_points += (GET_INT( ch ) - 18) << 1;
+    // adjust it for secondary phys
+    if(GET_CLASS(ch) != CLASS_PHYSIC)
+        num_points /= 2;
+        
+    
     // adjust it for remort gen ( gen x 2 )
     // num_points += GET_REMORT_GEN( ch ) << 1;
 
