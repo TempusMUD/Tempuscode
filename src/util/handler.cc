@@ -41,7 +41,7 @@
 extern struct descriptor_data *descriptor_list;
 
 /* external functions */
-int special(struct Creature *ch, int cmd, int subcmd, char *arg, special_mode spec_mode);
+long special(struct Creature *ch, int cmd, int subcmd, char *arg, special_mode spec_mode);
 void stop_fighting(CreatureList::iterator & cit);
 void remove_follower(struct Creature *ch);
 void path_remove_object(void *object);
@@ -946,8 +946,17 @@ update_trail(struct Creature *ch, struct room_data *room, int dir, int mode)
 	}
 }
 
-/* move a player out of a room */
-void
+/* 
+ * move a creature out of a room;
+ * 
+ *
+ * @param ch the Creature to remove from the room
+ * @param check_specials if true, special procedures will be 
+ * 		searched for and run.
+ *
+ * @return true on success, false if the Creature may have died.
+ */
+bool
 char_from_room( Creature *ch, bool check_specials = true )
 {
 
@@ -986,26 +995,44 @@ char_from_room( Creature *ch, bool check_specials = true )
     // Some specials improperly deal with SPECIAL_LEAVE mode
     // by returning a true value.  This should take care of that.
     room_data *tmp_room = ch->in_room;
-    if( check_specials && special(ch, 0, 0, "", SPECIAL_LEAVE) ) 
-    {
-        CreatureList::iterator it = 
-                find(tmp_room->people.begin(),tmp_room->people.end(), ch);
+	long spec_rc = 0;
+    if( check_specials ) {
+		spec_rc = special(ch, 0, 0, "", SPECIAL_LEAVE);
+	}
 
-        if( it != tmp_room->people.end() ) {
-            tmp_room->people.remove(ch);
-            // This really shouldn't be here but it
-            // isn't likely to cause a crash.
-            ch->in_room = NULL;
-        }
-    } else {
-		ch->in_room->people.remove(ch);
-		ch->in_room = NULL;
-    }
+	if( spec_rc != 0 ) {
+		CreatureList::iterator it = 
+			find(tmp_room->people.begin(),tmp_room->people.end(), ch);
+		if( it == tmp_room->people.end() ) {
+			mudlog( LVL_CREATOR, NRM, true, 
+				    "ERROR: CFRMRM: Creature died in spec(0x%lx) room(0x%lx)",
+					spec_rc,(long)tmp_room);
+			mudlog( LVL_CREATOR, NRM, true,
+					"       Trace: (0x%lx)->(0x%lx)->(0x%lx)->(0x%lx)\n",
+					(long)__builtin_return_address(2),
+					(long)__builtin_return_address(1),
+					(long)__builtin_return_address(0), spec_rc);
+			return false;
+		} 
+	}
+
+	tmp_room->people.remove(ch);
+	ch->in_room = NULL;
+	return true;
 }
 
 
-// place a character in a room
-void
+/* 
+ * place a character in a room
+ *
+ * @param ch the Creature to move to the room
+ * @param room the room to move the Creature into
+ * @param check_specials if true, special procedures will be 
+ * 		searched for and run.
+ *
+ * @return true on success, false if the Creature may have died.
+ */
+bool
 char_to_room(Creature *ch, room_data *room, bool check_specials = true )
 {
 	struct affected_type *aff = NULL, *next_aff = NULL;
@@ -1013,7 +1040,7 @@ char_to_room(Creature *ch, room_data *room, bool check_specials = true )
 	if (!ch || room == NULL) {
 		slog("SYSERR: Illegal value(s) passed to char_to_room");
 		raise(SIGSEGV);
-		return;
+		return false;
 	}
 
 	room->people.add(ch);
@@ -1060,8 +1087,28 @@ char_to_room(Creature *ch, room_data *room, bool check_specials = true )
 		SET_BIT(AFF2_FLAGS(ch), AFF2_ABLAZE);
 	}
 
-	if(check_specials)
-		special(ch, 0, 0, "", SPECIAL_ENTER);
+	long spec_rc = 0;
+    if( check_specials ) {
+		spec_rc = special(ch, 0, 0, "", SPECIAL_ENTER);
+	}
+
+	if( spec_rc != 0 ) {
+		CreatureList::iterator it = 
+			find(room->people.begin(),room->people.end(), ch);
+		if( it == room->people.end() ) {
+			mudlog( LVL_CREATOR, NRM, true, 
+				    "ERROR: C2RM: Creature died in spec(0x%lx) room(0x%lx)",
+					spec_rc,(long)room);
+			mudlog( LVL_CREATOR, NRM, true,
+					"       Trace: (0x%lx)->(0x%lx)->(0x%lx)->(0x%lx)\n",
+					(long)__builtin_return_address(2),
+					(long)__builtin_return_address(1),
+					(long)__builtin_return_address(0), spec_rc);
+
+			return false;
+		} 
+	}
+	return true;
 }
 
 /* give an object to a char   */

@@ -54,7 +54,7 @@ extern int log_cmds;
 
 int general_search(struct Creature *ch, struct special_search_data *srch,
 	int mode);
-int special(struct Creature *ch, int cmd, int subcmd, char *arg, special_mode spec_mode);
+long special(struct Creature *ch, int cmd, int subcmd, char *arg, special_mode spec_mode);
 
 
 /* writes a string to the command log */
@@ -2021,7 +2021,7 @@ find_command(char *command)
 }
 
 
-int
+long
 special(struct Creature *ch, int cmd, int subcmd, char *arg, special_mode spec_mode)
 {
 	struct obj_data *i;
@@ -2029,9 +2029,11 @@ special(struct Creature *ch, int cmd, int subcmd, char *arg, special_mode spec_m
 	char tmp_arg[MAX_INPUT_LENGTH];
 	int j, tmp_cmd = 0;
 	int found = 0, result = 0;
+	long specAddress = 0;
 
 	/* special in room? */
 	if (GET_ROOM_SPEC(ch->in_room) != NULL) {
+		specAddress = (long)GET_ROOM_SPEC(ch->in_room);
 		if (GET_ROOM_SPEC(ch->in_room) (ch, ch->in_room, cmd, arg, spec_mode)) {
             //if( spec_mode == SPECIAL_LEAVE )
             //    raise(SIGINT);
@@ -2065,10 +2067,11 @@ special(struct Creature *ch, int cmd, int subcmd, char *arg, special_mode spec_m
 	/* special in equipment list? */
 	for (j = 0; j < NUM_WEARS; j++) {
 		if ((i = GET_EQ(ch, j))) {
+			specAddress = (long)GET_OBJ_SPEC(i);
 			if (GET_OBJ_SPEC(i) && (GET_OBJ_SPEC(i) (ch, i, cmd, arg, spec_mode))) {
                 //if( spec_mode == SPECIAL_LEAVE )
                 //    raise(SIGINT);
-				return 1;
+				return specAddress;
             }
 			if (IS_BOMB(i) && i->contains && IS_FUSE(i->contains) &&
 				(FUSE_IS_MOTION(i->contains) || FUSE_IS_CONTACT(i->contains))
@@ -2084,10 +2087,11 @@ special(struct Creature *ch, int cmd, int subcmd, char *arg, special_mode spec_m
 
 	/* special in inventory? */
 	for (i = ch->carrying; i; i = i->next_content) {
+		specAddress = (long)GET_OBJ_SPEC(i);
 		if (GET_OBJ_SPEC(i) && (GET_OBJ_SPEC(i) (ch, i, cmd, arg, spec_mode))) {
             //if( spec_mode == SPECIAL_LEAVE )
             //    raise(SIGINT);
-			return 1;
+			return specAddress;
         }
 		if (IS_BOMB(i) && i->contains && IS_FUSE(i->contains) &&
 			(FUSE_IS_MOTION(i->contains) || FUSE_IS_CONTACT(i->contains)) &&
@@ -2105,20 +2109,22 @@ special(struct Creature *ch, int cmd, int subcmd, char *arg, special_mode spec_m
 	CreatureList::iterator it = theRoom->people.begin();
 	for (; it != theRoom->people.end(); ++it)
 		if (GET_MOB_SPEC((*it)) != NULL) {
+			specAddress = (long)GET_MOB_SPEC((*it));
 			if (GET_MOB_SPEC((*it)) (ch, (*it), cmd, arg, spec_mode)) {
                 //if( spec_mode == SPECIAL_LEAVE )
                 //    raise(SIGINT);
-				return 1;
+				return specAddress;
 			}
 		}
 
 	/* special in object present? */
 	for (i = ch->in_room->contents; i; i = i->next_content) {
 		if (GET_OBJ_SPEC(i) != NULL)
+			specAddress = (long)GET_OBJ_SPEC(i);
 			if (GET_OBJ_SPEC(i) (ch, i, cmd, arg, spec_mode)) {
                 //if( spec_mode == SPECIAL_LEAVE )
                 //    raise(SIGINT);
-				return 1;
+				return specAddress;
             }
 		if (IS_BOMB(i) && i->contains && IS_FUSE(i->contains) &&
 			FUSE_IS_MOTION(i->contains) && FUSE_STATE(i->contains)) {

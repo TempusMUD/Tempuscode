@@ -68,8 +68,8 @@ struct Creature *get_char_num(int nr);
 struct Creature *get_char(char *name);
 struct Creature *get_char_in_world_by_idnum(int nr);
 
-void char_from_room( Creature *ch, bool check_specials = true );
-void char_to_room( Creature *ch, room_data *room, bool check_specials = true );
+bool char_from_room( Creature *ch, bool check_specials = true );
+bool char_to_room( Creature *ch, room_data *room, bool check_specials = true );
 
 /* find if character can see */
 struct Creature *get_char_room_vis(struct Creature *ch, char *name);

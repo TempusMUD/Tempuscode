@@ -48,7 +48,7 @@ extern const byte movement_loss[];
 extern struct obj_data *object_list;
 
 /* external functs */
-int special(struct Creature *ch, int cmd, int subcmd, char *arg, special_mode spec_mode);
+long special(struct Creature *ch, int cmd, int subcmd, char *arg, special_mode spec_mode);
 int find_eq_pos(struct Creature *ch, struct obj_data *obj, char *arg);
 int clan_house_can_enter(struct Creature *ch, struct room_data *room);
 int general_search(struct Creature *ch, struct special_search_data *srch,
@@ -674,14 +674,18 @@ do_simple_move(struct Creature *ch, int dir, int mode,
 			"boiling pitch");
 	}
 
-	char_from_room(ch);
+	if(! char_from_room(ch) ) {
+		return 2;
+	}
 	update_trail(ch, was_in, dir, TRAIL_EXIT);
 
 	if (mode == MOVE_RETREAT) {
 		send_to_char(ch, "You beat a hasty retreat %s.\r\n", to_dirs[dir]);
 	}
 
-	char_to_room(ch, was_in->dir_option[dir]->to_room);
+	if(! char_to_room(ch, was_in->dir_option[dir]->to_room) ) {
+		return 2;
+	}
 	update_trail(ch, ch->in_room, rev_dir[dir], TRAIL_ENTER);
 
 	wait_state = 2 + (affected_by_spell(ch, SKILL_SNEAK) ? 1 : 0) +
@@ -703,8 +707,8 @@ do_simple_move(struct Creature *ch, int dir, int mode,
 			sprintf(buf, "$n has arrived from %s.", from_dirs[dir]);
 			act(buf, TRUE, ch, 0, 0, TO_ROOM);
 		} else {
-			char_from_room(mount);
-			char_to_room(mount, ch->in_room);
+			if(! char_to_room(mount, ch->in_room) )
+				return 2;
 			if (!IS_AFFECTED(mount, AFF_SNEAK)) {
 				sprintf(buf, "$n has arrived from %s, riding $N.",
 					from_dirs[dir]);
@@ -1671,8 +1675,8 @@ ACMD(do_enter)
 
 		act("$n climbs into $p.", TRUE, ch, car, 0, TO_ROOM);
 		act("You climb into $p.", TRUE, ch, car, 0, TO_CHAR);
-		char_from_room(ch);
-		char_to_room(ch, room);
+		if( !char_from_room(ch) || !char_to_room(ch, room) )
+			return;
 		look_at_room(ch, ch->in_room, 0);
 		act("$n has climbed into $p.", FALSE, ch, car, 0, TO_ROOM);
 		return;
@@ -1742,8 +1746,8 @@ ACMD(do_enter)
 		room->zone->enter_count++;
 
 	was_in = ch->in_room;
-	char_from_room(ch);
-	char_to_room(ch, room);
+	if( !char_from_room(ch) || !char_to_room(ch, room) )
+		return;
 	look_at_room(ch, ch->in_room, 0);
 	if (GET_OBJ_VNUM(car) == 42504)	// astral mansion
 		act("$n has entered the mansion.", FALSE, ch, car,
@@ -2524,8 +2528,8 @@ ACMD(do_translocate)
 		ch->extract(false, true, CON_AFTERLIFE);
 		return;
 	} else {
-		char_from_room(ch);
-		char_to_room(ch, rm);
+		if( !char_from_room(ch) || !char_to_room(ch, rm) )
+			return;
 		act(TL_APPEAR, TRUE, ch, 0, 0, TO_ROOM);
 		gain_skill_prof(ch, subcmd);
 		look_at_room(ch, ch->in_room, FALSE);
@@ -2719,8 +2723,8 @@ drag_object(CHAR * ch, struct obj_data *obj, char *argument)
 	act(buf, FALSE, ch, obj, 0, TO_CHAR);
 	sprintf(buf, "$n drags $p %s.", to_dirs[dir]);
 	act(buf, FALSE, ch, obj, 0, TO_ROOM);
-	char_from_room(ch);
-	char_to_room(ch, theroom);
+	if( !char_from_room(ch) || !char_to_room(ch, theroom) )
+		return 2;
 	obj_from_room(obj);
 	obj_to_room(obj, theroom);
 	look_at_room(ch, ch->in_room, 0);
