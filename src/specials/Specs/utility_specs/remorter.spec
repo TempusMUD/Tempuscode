@@ -7,7 +7,19 @@
 #define MODE_REMORT   (1 << 0)
 #define MODE_IMMORT   (1 << 1)
 #define MODE_DONE     (1 << 2)
-
+const char* print_status(byte status) {
+    if( IS_SET(status,MODE_REMORT) ) {
+        return "remort";
+    } else if( IS_SET(status,MODE_IMMORT) ) {
+        return "immort";
+    } else if( IS_SET(status,MODE_DONE) ) {
+        return "done";
+    } else if( status == 0 ) {
+        return "idle";
+    } else {
+        return "invalid";
+    }
+}
 int parse_char_class(char *arg);
 void do_start(struct char_data *ch, int mode); 
 extern struct remort_question_data *remort_quiz[];
@@ -19,6 +31,7 @@ SPECIAL(remorter)
     sh_int loop;
     static byte status = 0, level = 0, count = 0;
     static int idnum = 0, index = -1, correct = 0, value = 0;
+    static int incorrect = 0;
     struct obj_data *obj = NULL, *next_obj = NULL;
     char arg1[MAX_INPUT_LENGTH];
 
@@ -26,8 +39,59 @@ SPECIAL(remorter)
         return 0;
 
     if (CMD_IS("help")) {
-                show_char_class_menu(ch->desc);
-                return 1;
+        if(GET_LEVEL(ch) < LVL_IMMORT ) {
+            show_char_class_menu(ch->desc);
+        } else {
+            send_to_char("Valid Commands:\r\n",ch);
+            send_to_char("Status - Shows current test state.\r\n",ch);
+            send_to_char("Reload - Resets test to waiting state.\r\n",ch);
+        }
+        return 1;
+        
+    }
+    if( GET_LEVEL(ch) >= LVL_IMMORT && CMD_IS("status") ) {
+        sprintf(buf,"Currently Testing: %s (%d)\r\n", 
+               idnum > 0 ? get_name_by_id(idnum) : "NONE", idnum);
+        send_to_char(buf,ch);
+        sprintf(buf,"Status [%s]\r\n  Test Level [%d]  Question Count [%d]\r\n",
+                    print_status(status),level,count);
+        send_to_char(buf,ch);
+        sprintf(buf,"  Points Earned[%d]  Points Lost[%d]\r\n",
+                    correct,incorrect);
+        send_to_char(buf,ch);
+        sprintf(buf,"  Current Score [%d]\r\n",
+            correct > 0 ? (correct + incorrect)/correct : 100 );
+        send_to_char(buf,ch);
+        return 1;
+    }
+    if( CMD_IS("reload") && GET_LEVEL(ch) >= LVL_IMMORT ) {
+        char_data *vict = get_char_in_world_by_idnum(idnum);
+
+        sprintf(buf,"REMORT: Remort test status reset by %s.",GET_NAME(ch));
+        mudlog(buf,BRF, LVL_IMMORT, TRUE);
+        sprintf(buf,"REMORT: testing player: %s (%d)", 
+               idnum > 0 ? get_name_by_id(idnum) : "NONE", idnum);
+        slog(buf);
+        sprintf(buf,"REMORT: status[%s] level[%d] count[%d] correct[%d] incorrect[%d]",
+                    print_status(status),level,count,correct,incorrect);
+        slog(buf);
+        act("$n looks confused for a moment.", TRUE, (char_data*)me, 0, 0, TO_ROOM);
+
+        if( vict != NULL ) {
+            send_to_char("WARNING: Your remort test has been cancelled.\r\n",vict);
+        }
+
+        status = 0;
+        level = 0;
+        count = 0;
+        idnum = 0;
+        index = -1;
+        correct = 0;
+        incorrect = 0;
+        value = 0;
+        
+        send_to_char("Remort test reset.\r\n",ch);
+        return 1;
     }
 
     if (!CMD_IS("say") && !CMD_IS("'") && GET_LEVEL(ch) < LVL_IMMORT) {
@@ -35,6 +99,7 @@ SPECIAL(remorter)
         return 1;
     }
 
+    
     if (IS_NPC(ch) || (idnum && GET_IDNUM(ch) != idnum) ||
         GET_LEVEL(ch) >= LVL_IMMORT)
                 return 0;
@@ -240,6 +305,7 @@ SPECIAL(remorter)
             remort_quiz[i]->asked = 0;
         count =   0;
         correct = 0;
+        incorrect = 0;
         value =   0;
         index =   number(0, 20);
         send_to_char(remort_quiz[index]->question, ch);
@@ -250,9 +316,11 @@ SPECIAL(remorter)
     argument = one_argument(argument, arg1);
     if ( isname_exact( arg1, remort_quiz[index]->answer ) ) {
         send_to_char("That is correct.\r\n", ch);
-        correct++;
-    } else
+        correct += remort_quiz[index]->points;
+    } else {
         send_to_char("That is incorrect.\r\n", ch);
+        incorrect += remort_quiz[index]->points;
+    }
 
     remort_quiz[index]->asked = 1;
     count++;
@@ -276,8 +344,12 @@ SPECIAL(remorter)
         }
         while (ch->affected)
             affect_remove(ch, ch->affected);
+        /*
         value = correct * 100;
         value /= count;
+        */
+        // Total points / Points earned
+        value = (correct + incorrect) / correct;
 
         if (value < (50 + (level << 2))) {
             sprintf(buf, "Your answers were only %d percent correct.\r\n"
