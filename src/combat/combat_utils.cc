@@ -265,6 +265,7 @@ ok_to_damage(struct Creature *ch, struct Creature *vict)
 void
 count_pkill(Creature *killer, Creature *victim)
 {
+	bool award_bounty(Creature *, Creature *);
 	Creature *perp;
 	int gain;
 
@@ -276,7 +277,7 @@ count_pkill(Creature *killer, Creature *victim)
 	GET_PKILLS(perp)++;
 
 	if (PRF2_FLAGGED(perp, PRF2_PKILLER) &&
-			!PLR_FLAGGED(victim, PLR_KILLER | PLR_THIEF)) {
+			!award_bounty(perp, victim)) {
 
 		// Basic level/gen adjustment
         if (perp != victim) {

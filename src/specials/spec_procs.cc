@@ -1546,6 +1546,7 @@ SPECIAL(cave_bear)
 #include "Specs/utility_specs/magic_books.spec"
 #include "Specs/utility_specs/communicator.spec"
 #include "Specs/utility_specs/shade_zone.spec"
+#include "Specs/utility_specs/bounty_clerk.spec"
 
 /* SPECS BY SARFLIN */
 #include "Specs/sarflin_specs/maze_cleaner.spec"

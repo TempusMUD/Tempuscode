@@ -203,6 +203,7 @@ void add_alias(struct Creature *ch, struct alias_data *a);
 void boot_clans(void);
 void add_follower(struct Creature *ch, struct Creature *leader);
 void xml_reload( Creature *ch );
+void load_bounty_data(void);
 extern int no_specials;
 extern int scheck;
 
@@ -353,6 +354,7 @@ boot_db(void)
 	slog("Top unique object id = %ld", top_unique_id);
 
 	Account::boot();
+	load_bounty_data();
 	slog("Reading credits, bground, info & motds.");
 	file_to_string_alloc(CREDITS_FILE, &credits);
 	file_to_string_alloc(MOTD_FILE, &motd);
