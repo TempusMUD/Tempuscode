@@ -533,36 +533,47 @@ reset_zone_weather(void)
 void
 build_player_table() 
 {
-	char dirname[256];
-	char filename[256];
-	char line[131072];
+	DIR* dir;
+	dirent *file;
+	char *dirname;
+	char inbuf[131072];
+
 	for( int i = 0; i <= 9; i++ ) {
-		sprintf(dirname, "players/%d",i);
-		DIR* dir = opendir(dirname);
-		dirent *file;
+		// If we don't have
+		dirname = tmp_sprintf("players/%d", i);
+		dir = opendir(dirname);
+		if (!dir) {
+			mkdir(dirname, 0644);
+			dir = opendir(dirname);
+			if (!dir) {
+				slog("SYSERR: Couldn't open or create directory %s", dirname);
+				exit(-1);
+			}
+		}
 		while ((file = readdir(dir)) != NULL) {
+			// Check for correct filename (*.dat)
 			if (!rindex(file->d_name, '.'))
 				continue;
 			if (strcmp(rindex(file->d_name, '.'), ".dat"))
 				continue;
-			sprintf( filename, "%s/%s", dirname, file->d_name );
-			ifstream in( filename );
-			while( !in.eof() && in.getline( line, 131000, '\n' ) ) {
-				char *name = strstr( line, "name=" );
-				char *idnum = strstr( line, "idnum=" );
-				if( name == NULL || idnum == NULL )
-					continue;
-				name += 6;
-				char *n = strstr(name, "\"");
-				if( n ) *n = '\0';
-				
-				idnum += 7;
-				char *s = strstr(name, "\"");
-				if( s ) *s = '\0';
 
-				long id = atol( idnum );
-				playerIndex.add( id, name, false );
-			}
+			// Open up the file and scan through it, looking for name and idnum
+			// parameters
+			ifstream in(tmp_sprintf("%s/%s", dirname, file->d_name));
+			in.read(inbuf, sizeof(inbuf));
+			char *name = strstr(inbuf, "name=" );
+			char *idnum = strstr(inbuf, "idnum=" );
+
+			if(!name || !idnum)
+				continue;
+
+			name += 5;
+			name = tmp_getquoted(&name);
+			idnum += 6;
+			idnum = tmp_getquoted(&idnum);
+
+			long id = atol( idnum );
+			playerIndex.add( id, name, false );
 		}
 		closedir(dir);
 	}
