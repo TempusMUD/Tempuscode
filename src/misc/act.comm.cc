@@ -918,7 +918,7 @@ ACMD(do_gen_comm)
 	} else if (subcmd == SCMD_CLANSAY || subcmd == SCMD_CLANEMOTE) {
 		clan = real_clan(eff_clan);
 
-		if (eff_clan >= 0 && eff_clan < TOP_CLASS)
+		if (clan)
 			str = tmp_tolower(clan->name);
 		else
 			str = tmp_sprintf("#%d", eff_clan);
