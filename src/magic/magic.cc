@@ -3110,7 +3110,6 @@ mag_alter_objs(int level, struct Creature *ch, struct obj_data *obj,
 {
 	char *to_char = NULL;
 	char *to_room = NULL;
-	int i = 0, j = 0;
     struct tmp_obj_affect oaf[5];
     int dur_mode, val_mode, aff_mode;
 
@@ -3171,63 +3170,66 @@ mag_alter_objs(int level, struct Creature *ch, struct obj_data *obj,
 
 
     case SPELL_ATTRACTION_FIELD: {
-        int levelBonus = ch->getLevelBonus(SPELL_ATTRACTION_FIELD);
-        int hitroll = dice( 3, 2 );
-        int armor = (level / 8) + number(1,2);
-
-        if( levelBonus > 50 && random_binary() ) {
-            hitroll += 1;
-        }
-        if( levelBonus > 75 && random_binary() ) {
-            hitroll += 1;
-        }
-        if( levelBonus > 95 && random_binary() ) {
-            hitroll += 1;
+        if (obj->affectedBySpell(SPELL_ITEM_ATTRACTION_FIELD)) {
+            to_char = "$p already has an attraction field!";
+            break;
         }
 
-        if (IS_OBJ_TYPE(obj, ITEM_WEAPON)) {
-            for (i = 0, j = -1; i < MAX_OBJ_AFFECT; i++) {
-                if (!obj->affected[i].location && j < 0)
-                    j = i;
-                if (obj->affected[i].location == APPLY_HITROLL) {
-                    obj->affected[i].modifier = MAX(obj->affected[i].modifier, hitroll );
-                    break;
-                }
-            }
-            if (i >= MAX_OBJ_AFFECT) {
-                if (j < 0)
-                    j = 0;
-                obj->affected[j].location = APPLY_HITROLL;
-                obj->affected[j].modifier = MAX(obj->affected[j].modifier, hitroll);
-            }
-            if (GET_LEVEL(ch) >= LVL_AMBASSADOR && !isname("imm", obj->aliases)) {
-                sprintf(buf, " imm %sattract", GET_NAME(ch));
-                strcpy(buf2, obj->aliases);
-                strcat(buf2, buf);
-                obj->aliases = str_dup(buf2);
-                mudlog(GET_LEVEL(ch), CMP, true,
-                    "ENCHANT: %s attraction fielded by %s.",
-                    obj->name, GET_NAME(ch));
-            }
+        oaf[0].level = ch->getLevelBonus(SPELL_ATTRACTION_FIELD);
+        oaf[0].type = SPELL_ITEM_ATTRACTION_FIELD;
+        oaf[0].duration = ch->getLevelBonus(SPELL_ATTRACTION_FIELD) / 2;
+
+        if (GET_OBJ_TYPE(obj) == ITEM_WEAPON) {
+			int levelBonus = ch->getLevelBonus(SPELL_ATTRACTION_FIELD);
+			int hitroll = dice( 3, 2 );
+
+			if( levelBonus > 50 && random_binary() )
+				hitroll += 1;
+			if( levelBonus > 75 && random_binary() )
+				hitroll += 1;
+			if( levelBonus > 95 && random_binary() )
+				hitroll += 1;
+
+			oaf[0].affect_loc[0] = APPLY_HITROLL;
+			oaf[0].affect_mod[0] = hitroll;
         } else {
-            for (i = 0, j = -1; i < MAX_OBJ_AFFECT; i++) {
-                if (!obj->affected[i].location && j < 0)
-                    j = i;
-                if (obj->affected[i].location == APPLY_AC) {
-                    obj->affected[i].modifier = MAX(obj->affected[i].modifier, armor );
-                    break;
-                }
-            }
-            if (i >= MAX_OBJ_AFFECT) {
-                if (j < 0)
-                    j = 0;
-                obj->affected[j].location = APPLY_AC;
-                obj->affected[j].modifier = MAX(obj->affected[j].modifier, armor );
-            }
-        }
+			oaf[0].affect_loc[0] = APPLY_AC;
+			oaf[0].affect_mod[0] = (level / 8) + number(1, 2);
+		}
+
         to_char = "$p begins to emit an attraction field.";
         break;
     }
+    case SPELL_REPULSION_FIELD:
+        if (obj->affectedBySpell(SPELL_ITEM_REPULSION_FIELD)) {
+            to_char = "$p already has an repulsion field!";
+            break;
+        }
+
+        oaf[0].level = ch->getLevelBonus(SPELL_REPULSION_FIELD);
+        oaf[0].type = SPELL_ITEM_REPULSION_FIELD;
+        oaf[0].duration = ch->getLevelBonus(SPELL_REPULSION_FIELD) / 2;
+
+        if (GET_OBJ_TYPE(obj) == ITEM_WEAPON) {
+			int levelBonus = ch->getLevelBonus(SPELL_REPULSION_FIELD);
+			int hitroll = dice( 3, 2 );
+
+			if( levelBonus > 50 && random_binary() )
+				hitroll += 1;
+			if( levelBonus > 75 && random_binary() )
+				hitroll += 1;
+			if( levelBonus > 95 && random_binary() )
+				hitroll += 1;
+
+			oaf[0].affect_loc[0] = APPLY_HITROLL;
+			oaf[0].affect_mod[0] = -hitroll;
+        } else {
+			oaf[0].affect_loc[0] = APPLY_AC;
+			oaf[0].affect_mod[0] = -((level / 8) + number(1, 2));
+		}
+
+        to_char = "$p begins to emit an repulsion field.";
+        break;
     case SPELL_TRANSMITTANCE:
         if (!IS_OBJ_STAT(obj,
                 ITEM_NOINVIS | ITEM_INVISIBLE | ITEM_TRANSPARENT)) {
@@ -3306,7 +3308,6 @@ mag_alter_objs(int level, struct Creature *ch, struct obj_data *obj,
             to_room = "A glowing sigil appears upon $p, then fades.";
         }
         break;
-
     case SPELL_ENVENOM:
         if (!(GET_OBJ_TYPE(obj) == ITEM_WEAPON)) {
             to_char = "You can only envenomate weapons.";

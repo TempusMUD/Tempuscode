@@ -368,6 +368,8 @@ static const int SPELL_EMP_PULSE = 342;	// Shuts off devices, communicators
 										// deactivats all cyborg programs
 										// blocked by emp shield
 static const int SPELL_QUANTUM_RIFT = 343;	// Shuts off devices, communicators
+static const int SPELL_ITEM_REPULSION_FIELD = 344;
+static const int SPELL_ITEM_ATTRACTION_FIELD = 345;
   /*********************  MONK ZENS  *******************/
 static const int ZEN_HEALING = 401;
 static const int ZEN_AWARENESS = 402;

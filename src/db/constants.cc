@@ -2481,7 +2481,9 @@ extern const char *spell_wear_off_msg[] = {
 	"!UNUSED!",
 	"!UNUSED!",					/* 340 */
 	"Your electrostatic field dissipates.",
-	"!UNUSED!", "!UNUSED!", "!UNUSED!", "!UNUSED!",	/* 345 */
+	"!UNUSED!", "!UNUSED!",
+	"The repulsion field of $p fades away.",
+	"The attraction field of $p fades away.",	/* 345 */
 	"!UNUSED!", "!UNUSED!", "!UNUSED!", "!UNUSED!", "!UNUSED!",	/* 350 */
 	"!UNUSED!", "!UNUSED!", "!UNUSED!", "!UNUSED!", "!UNUSED!",	/* 355 */
 	"!UNUSED!", "!UNUSED!", "!UNUSED!", "!UNUSED!", "!UNUSED!",	/* 360 */

@@ -322,7 +322,8 @@ const char *spells[] = {
 	"electrostatic field",
 	"electromagnetic pulse",
 	"quantum rift",
-	"!UNUSED!", "!UNUSED!",		/* 345 */
+	"repulsion field (obj)",
+	"attraction field (obj)",		/* 345 */
 	"!UNUSED!", "!UNUSED!", "!UNUSED!", "!UNUSED!", "!UNUSED!",	/* 350 */
 	"!UNUSED!", "!UNUSED!", "!UNUSED!", "!UNUSED!", "!UNUSED!",	/* 355 */
 	"!UNUSED!", "!UNUSED!", "!UNUSED!", "!UNUSED!", "!UNUSED!",	/* 360 */
@@ -3438,8 +3439,9 @@ mag_assign_spells(void)
 		MAG_PHYSICS | MAG_MANUAL);
 
 	spello(SPELL_REPULSION_FIELD, X, X, X, X, X, X, 16, X, X, X, X, X, X, X, X,
-		X, X, 30, 20, 1, POS_SITTING, TAR_CHAR_ROOM, FALSE,
-		MAG_PHYSICS | MAG_AFFECTS);
+		X, X, 30, 20, 1, POS_SITTING,
+			TAR_CHAR_ROOM | TAR_OBJ_ROOM | TAR_OBJ_EQUIP | TAR_OBJ_INV, false,
+			MAG_PHYSICS | MAG_AFFECTS | MAG_ALTER_OBJS);
 
 	spello(SPELL_VACUUM_SHROUD, X, X, X, X, X, X, 31, X, X, X, X, X, X, X, X,
 		X, X, 60, 40, 1, POS_SITTING, TAR_CHAR_ROOM, FALSE,
