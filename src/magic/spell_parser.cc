@@ -3565,7 +3565,7 @@ mag_assign_spells(void)
 	remort_spello(SKILL_DISCIPLINE_OF_STEEL, CLASS_BARB, 10, 1,
 		0, 0, 0, 0, 0, 0, 0);
 
-	remort_spello(SKILL_GREAT_CLEAVE, CLASS_BARB, 2, 40, 0, 0, 0, 0, 0, 0, 0);
+	remort_spello(SKILL_GREAT_LEAVE, CLASS_BARB, 40, 2, 0, 0, 0, 0, 0, 0, 0);
 
 	remort_spello(SPELL_LOCUST_REGENERATION, CLASS_MAGE, 34, 5,
 		150, 75, 5, POS_FIGHTING, TAR_CHAR_ROOM | TAR_FIGHT_VICT
