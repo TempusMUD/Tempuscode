@@ -2250,7 +2250,14 @@ stop_snooping(struct Creature *ch)
         send_to_char(ch, "You aren't snooping anyone.\r\n");
     else {
         send_to_char(ch, "You stop snooping.\r\n");
-        ch->desc->snooping->snoop_by = NULL;
+//        ch->desc->snooping->snoop_by = NULL;
+        vector<descriptor_data *>::iterator vi = ch->desc->snooping->snoop_by.begin();
+        for (; vi != ch->desc->snooping->snoop_by.end(); ++vi) {
+            if (*vi == ch->desc) {
+                ch->desc->snooping->snoop_by.erase(vi);
+                break;
+            }
+        }
         ch->desc->snooping = NULL;
     }
 }
@@ -2275,14 +2282,20 @@ ACMD(do_snoop)
         stop_snooping(ch);
     else if (PRF_FLAGGED(victim, PRF_NOSNOOP) && GET_LEVEL(ch) < LVL_ENTITY)
         send_to_char(ch, "The gods say I don't think so!\r\n");
-    else if (victim->desc->snoop_by)
-        if (ch == victim->desc->snoop_by->creature)
-            act("You're already snooping $M.", FALSE, ch, 0, victim, TO_CHAR);
-        else if (GET_LEVEL(ch) > GET_LEVEL(victim->desc->snoop_by->creature)) {
-            send_to_char(ch, "Busy already. (%s)\r\n",
-                GET_NAME(victim->desc->snoop_by->creature));
-        } else
-            send_to_char(ch, "Busy already. \r\n");
+    else if (victim->desc->snoop_by.size())
+        for (unsigned x = 0; x < victim->desc->snoop_by.size(); x++) {
+            if (victim->desc->snoop_by[x] == ch->desc) {
+                act("You're already snooping $M.", FALSE, ch, 0, victim, TO_CHAR);
+                return;
+            }
+        }
+//        if (ch == victim->desc->snoop_by->creature)
+//            act("You're already snooping $M.", FALSE, ch, 0, victim, TO_CHAR);
+//        else if (GET_LEVEL(ch) > GET_LEVEL(victim->desc->snoop_by->creature)) {
+//            send_to_char(ch, "Busy already. (%s)\r\n",
+//                GET_NAME(victim->desc->snoop_by->creature));
+//        } else
+//            send_to_char(ch, "Busy already. \r\n");
     else if (victim->desc->snooping == ch->desc)
         send_to_char(ch, "Don't be stupid.\r\n");
     else if (ROOM_FLAGGED(victim->in_room, ROOM_GODROOM)
@@ -2300,14 +2313,23 @@ ACMD(do_snoop)
         }
         send_to_char(ch, OK);
 
-        if (ch->desc->snooping)
-            ch->desc->snooping->snoop_by = NULL;
+        if (ch->desc->snooping) {
+            vector<descriptor_data *>::iterator vi = ch->desc->snooping->snoop_by.begin();
+            for (; vi != ch->desc->snooping->snoop_by.end(); ++vi) {
+                if (*vi == ch->desc) {
+                    ch->desc->snooping->snoop_by.erase(vi);
+                    break;
+                }
+            }
+            //ch->desc->snooping->snoop_by = NULL;
+        }
 
         slog("(GC) %s has begun to snoop %s.", 
 			 GET_NAME(ch), GET_NAME(victim) );
 
         ch->desc->snooping = victim->desc;
-        victim->desc->snoop_by = ch->desc;
+ //       victim->desc->snoop_by = ch->desc;
+        victim->desc->snoop_by.push_back(ch->desc);
     }
 }
 
@@ -6286,9 +6308,11 @@ ACMD(do_set)
         break;
     case 52:
         SET_OR_REMOVE(PRF_FLAGS(vict), PRF_NOSNOOP);
-        if (!is_file && vict->desc->snoop_by) {
-            send_to_char(vict->desc->snoop_by->creature, "Your snooping session has ended.\r\n");
-            stop_snooping(vict->desc->snoop_by->creature);
+        if (!is_file && vict->desc->snoop_by.size()) {
+            for (unsigned x = 0; x < vict->desc->snoop_by.size(); x++) {
+                send_to_char(vict->desc->snoop_by[x]->creature, "Your snooping session has ended.\r\n");
+                stop_snooping(vict->desc->snoop_by[x]->creature);
+            }
         }
         break;
     case 53: {

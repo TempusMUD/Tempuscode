@@ -413,13 +413,15 @@ SPECIAL(guardian_angel)
 void
 angel_to_char(Creature *ch) 
 {
-    static const int ANGEL_VNUM = 3038;
-    static const int DEMON_VNUM = 3039;
+/*    static const int ANGEL_VNUM = 3038;
+    static const int DEMON_VNUM = 3039; */
 
-/*    static const int ANGEL_VNUM = 70603;
-    static const int DEMON_VNUM = 70604;*/
+    static const int ANGEL_VNUM = 70603;
+    static const int DEMON_VNUM = 70604;
     Creature *angel;
     angel_data *data;
+    int vnum;
+    char *msg;
 
     list<angel_data *>::iterator li = angels.begin();
 
@@ -429,10 +431,20 @@ angel_to_char(Creature *ch)
             return;
     }
 
-    if (!IS_EVIL(ch))
-        angel = read_mobile(ANGEL_VNUM);
-    else
-        angel = read_mobile(DEMON_VNUM);
+    if (!IS_EVIL(ch)) {
+        vnum = ANGEL_VNUM;
+        msg = tmp_strdup("A guardian angel has been sent to protect you!\r\n");
+    }
+    else {
+        vnum = DEMON_VNUM;
+        msg = tmp_strdup("A guardian demon has been sent to protect you!\r\n");
+    }
+
+    if (!(angel = read_mobile(vnum))) {
+        slog("ANGEL:  read_mobile() failed for vnum [%d]", vnum);
+        return;
+    }
+    send_to_char(ch, msg);
 
 	CREATE(data, angel_data, 1);
     angel->mob_specials.func_data = data;
@@ -443,10 +455,6 @@ angel_to_char(Creature *ch)
 
     char_to_room(angel, ch->in_room, false);
 
-    if (!IS_EVIL(ch))
-        send_to_char(ch, "A guardian angel has been sent to protect you!\r\n");
-    else
-        send_to_char(ch, "A guardian demon has been sent to protect you!\r\n");
     do_follow(angel, GET_NAME(ch), 0, 0, 0);
 
     angels.push_back(data);

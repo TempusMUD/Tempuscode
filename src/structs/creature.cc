@@ -610,14 +610,22 @@ Creature::extract(cxn_state con_state)
 	// Forget snooping, if applicable
 	if (desc) {
 		if (desc->snooping) {
-			desc->snooping->snoop_by = NULL;
+            vector<descriptor_data *>::iterator vi = desc->snooping->snoop_by.begin();
+            for (; vi != desc->snooping->snoop_by.end(); ++vi) {
+                if ((*vi) == desc) {
+                    desc->snooping->snoop_by.erase(vi);
+                    break;
+                }
+            }
 			desc->snooping = NULL;
 		}
-		if (desc->snoop_by) {
-			SEND_TO_Q("Your victim is no longer among us.\r\n",
-				desc->snoop_by);
-			desc->snoop_by->snooping = NULL;
-			desc->snoop_by = NULL;
+		if (desc->snoop_by.size()) {
+            for (unsigned x = 0; x < desc->snoop_by.size(); x++) {
+			    SEND_TO_Q("Your victim is no longer among us.\r\n",
+				          desc->snoop_by[x]);
+			    desc->snoop_by[x]->snooping = NULL;
+            }
+			desc->snoop_by.clear();
 		}
 	}
 	// destroy all that equipment

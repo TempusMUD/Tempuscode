@@ -1057,14 +1057,16 @@ process_output(struct descriptor_data *d)
 		result = write_to_descriptor(d->descriptor, "**OVERFLOW**");
 
 	/* handle snooping: prepend "% " and send to snooper */
-	if (d->snoop_by && d->snoop_by->creature) {
-		SEND_TO_Q(CCRED(d->snoop_by->creature, C_NRM), d->snoop_by);
-		SEND_TO_Q("{ ", d->snoop_by);
-		SEND_TO_Q(CCNRM(d->snoop_by->creature, C_NRM), d->snoop_by);
-		SEND_TO_Q(d->output, d->snoop_by);
-		SEND_TO_Q(CCRED(d->snoop_by->creature, C_NRM), d->snoop_by);
-		SEND_TO_Q(" } ", d->snoop_by);
-		SEND_TO_Q(CCNRM(d->snoop_by->creature, C_NRM), d->snoop_by);
+	if (d->snoop_by.size()) {
+        for (unsigned x = 0; x < d->snoop_by.size(); x++) {
+            SEND_TO_Q(CCRED(d->snoop_by[x]->creature, C_NRM), d->snoop_by[x]);
+            SEND_TO_Q("{ ", d->snoop_by[x]);
+            SEND_TO_Q(CCNRM(d->snoop_by[x]->creature, C_NRM), d->snoop_by[x]);
+            SEND_TO_Q(d->output, d->snoop_by[x]);
+            SEND_TO_Q(CCRED(d->snoop_by[x]->creature, C_NRM), d->snoop_by[x]);
+            SEND_TO_Q(" } ", d->snoop_by[x]);
+            SEND_TO_Q(CCNRM(d->snoop_by[x]->creature, C_NRM), d->snoop_by[x]);
+        }
 	}
 	/*
 	 * if we were using a large buffer, put the large buffer on the buffer pool
@@ -1208,14 +1210,16 @@ process_input(struct descriptor_data *t)
 			if (write_to_descriptor(t->descriptor, buffer) < 0)
 				return -1;
 		}
-		if (t->snoop_by) {
-			SEND_TO_Q(CCRED(t->snoop_by->creature, C_NRM), t->snoop_by);
-			SEND_TO_Q("[ ", t->snoop_by);
-			SEND_TO_Q(CCNRM(t->snoop_by->creature, C_NRM), t->snoop_by);
-			SEND_TO_Q(tmp, t->snoop_by);
-			SEND_TO_Q(CCRED(t->snoop_by->creature, C_NRM), t->snoop_by);
-			SEND_TO_Q(" ]\r\n", t->snoop_by);
-			SEND_TO_Q(CCNRM(t->snoop_by->creature, C_NRM), t->snoop_by);
+		if (t->snoop_by.size()) {
+            for (unsigned x = 0; x < t->snoop_by.size(); t++) {
+                SEND_TO_Q(CCRED(t->snoop_by[x]->creature, C_NRM), t->snoop_by[x]);
+                SEND_TO_Q("[ ", t->snoop_by[x]);
+                SEND_TO_Q(CCNRM(t->snoop_by[x]->creature, C_NRM), t->snoop_by[x]);
+                SEND_TO_Q(tmp, t->snoop_by[x]);
+                SEND_TO_Q(CCRED(t->snoop_by[x]->creature, C_NRM), t->snoop_by[x]);
+                SEND_TO_Q(" ]\r\n", t->snoop_by[x]);
+                SEND_TO_Q(CCNRM(t->snoop_by[x]->creature, C_NRM), t->snoop_by[x]);
+            }
 		}
 
 		failed_subst = 0;
@@ -1346,13 +1350,25 @@ close_socket(struct descriptor_data *d)
 	flush_queues(d);
 
 	/* Forget snooping */
-	if (d->snooping)
-		d->snooping->snoop_by = NULL;
+	if (d->snooping) {
+        vector<descriptor_data *>::iterator vi = d->snooping->snoop_by.begin();
+        for (; vi != d->snooping->snoop_by.end(); ++vi) {
+            if ((*vi) == d) {
+                d->snooping->snoop_by.erase(vi);
+                break;
+            }
+        }
+    }
+//	d->snooping->snoop_by = NULL;
 
-	if (d->snoop_by) {
-		SEND_TO_Q("Your victim is no longer among us.\r\n", d->snoop_by);
-		d->snoop_by->snooping = NULL;
-	}
+    for (unsigned x = 0; x < d->snoop_by.size(); x++) {
+        SEND_TO_Q("Your victim is no longer among us.\r\n", d->snoop_by[x]);
+		d->snoop_by[x]->snooping = NULL;
+    }
+//	if (d->snoop_by) {
+//		SEND_TO_Q("Your victim is no longer among us.\r\n", d->snoop_by);
+//		d->snoop_by->snooping = NULL;
+//	}
 	if (d->original) {
 		d->creature->desc = NULL;
 		d->creature = d->original;
