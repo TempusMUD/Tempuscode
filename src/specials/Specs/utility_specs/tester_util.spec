@@ -67,7 +67,7 @@ SPECIAL(tester_util)
   byte tcmd;
   int i;
 
-  if (!cmd || !PLR_FLAGGED(ch, PLR_TESTER) || !CMD_IS("activate"))
+  if (!cmd || !PLR_FLAGGED(ch, PLR_TESTER) || !CMD_IS("tester"))
     return 0;
 
   two_arguments(argument, arg1, arg2);

@@ -492,6 +492,7 @@ void perform_cyborg_activate(CHAR *ch, int mode, int subcmd)
     struct affected_type af[3];
     CHAR *vict = NULL, *nvict = NULL;
     char *to_room[2], *to_char[2];
+    int opposite_mode = 0;
 
     if (!CHECK_SKILL(ch, mode))
         send_to_char("You do not have this program in memory.\r\n", ch);
@@ -686,8 +687,7 @@ void perform_cyborg_activate(CHAR *ch, int mode, int subcmd)
       
             to_char[1] = "Offensive Posturing enabled.\r\n";
             to_char[0] = "Offensive Posturing disabled.\r\n";
-            if(affected_by_spell(ch, SKILL_DEFENSIVE_POS))
-                mode = SKILL_DEFENSIVE_POS;
+            opposite_mode = SKILL_DEFENSIVE_POS;
             break;
         case SKILL_DEFENSIVE_POS:// Defensive Posturing
             af[0].bitvector = 0;
@@ -709,8 +709,7 @@ void perform_cyborg_activate(CHAR *ch, int mode, int subcmd)
       
             to_char[1] = "Defensive Posturing enabled.\r\n";
             to_char[0] = "Defensive Posturing disabled.\r\n";
-            if(affected_by_spell(ch, SKILL_OFFENSIVE_POS))
-                mode = SKILL_OFFENSIVE_POS;
+            opposite_mode = SKILL_OFFENSIVE_POS;
             break;
         default:
             send_to_char("ERROR: Unknown mode occured in switch.\r\n", ch);
@@ -719,7 +718,10 @@ void perform_cyborg_activate(CHAR *ch, int mode, int subcmd)
         }
 
         if ((subcmd && affected_by_spell(ch, mode)) ||
+            (subcmd && affected_by_spell(ch, opposite_mode)) ||
             (!subcmd && !affected_by_spell(ch, mode))) {
+            if(affected_by_spell(ch, opposite_mode))
+                mode = opposite_mode;
             sprintf(buf, "%sERROR:%s %s %s %s activated.\r\n", CCCYN(ch, C_NRM),
                     CCNRM(ch, C_NRM), spells[mode], ISARE(spells[mode]),
                     subcmd ? "already" : "not currently");

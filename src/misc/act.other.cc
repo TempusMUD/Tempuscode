@@ -1264,6 +1264,9 @@ ACMD(do_gen_tog)
 	case SCMD_AUTOWRAP:
 	result = PRF2_TOG_CHK( ch, PRF2_NOWRAP );
 	break;
+    case SCMD_TESTER:
+        return;
+    break;
 
     default:
 	slog("SYSERR: Unknown subcmd in do_gen_toggle");

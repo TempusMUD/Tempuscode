@@ -1166,6 +1166,7 @@ extern const struct command_info cmd_info[] = {
     //    { "tempus"   , POS_DEAD    , do_help     , 0, 0 },
     { "tempus"   , POS_DEAD    , do_hcollect_help     , 0, 0 },
     { "terrorize", POS_FIGHTING, do_intimidate, 5, SKILL_TERRORIZE },
+    { "tester"   , POS_FIGHTING, do_gen_tog  , 1, SCMD_TESTER },
     { "tackle"   , POS_RESTING , do_action   , 0, 0 },
     { "take"     , POS_RESTING , do_get      , 0, 0 },
     { "talk"     , POS_RESTING , do_say      , 0, 0 },
@@ -1403,6 +1404,8 @@ command_interpreter(struct char_data * ch, char *argument)
             send_to_char("You're talking nonsense to me.\r\n", ch);
             break;
         case 7:
+            send_to_char("What are you doing, Dave?\r\n", ch);
+            break;
         case 8:
         case 9:
             sprintf(buf, "Hmm, I don't understand the command '%s'.\r\n", arg);
