@@ -185,6 +185,7 @@ const struct spec_func_data spec_list[] = {
 	{"morkoth", morkoth, SPEC_MOB | SPEC_RES},
 	{"boulder_thrower", boulder_thrower, SPEC_MOB},
 	{"unholy_stalker", unholy_stalker, SPEC_MOB | SPEC_RES},
+	{"oedit_reloader", oedit_reloader, SPEC_MOB | SPEC_RES},
 	{"hell_regulator", hell_regulator, SPEC_MOB | SPEC_RES},
 	{"hell_ressurector", hell_ressurector, SPEC_MOB | SPEC_RES},
 	{"unspecializer", unspecializer, SPEC_MOB | SPEC_RES},
