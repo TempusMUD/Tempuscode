@@ -9,6 +9,7 @@
 #include "db.h"
 
 const size_t DEFAULT_ACCUM_SIZE = 65536;	// 64k to start with
+const size_t MAX_STR_ALLOC = 20 * 1024 * 1024;	// 20MB hard maximum
 
 static size_t acc_str_space = 0;
 static size_t acc_str_len = 0;
@@ -36,6 +37,9 @@ acc_string_adjust(size_t wanted)
 {
 	if (acc_str_space > wanted)
 		return;
+
+	if (acc_str_space > MAX_STR_ALLOC)
+		raise(SIGSEGV);
 
 	// if they want more than we've got, chances are they'll want
 	// even more, so we increase it in chunks
@@ -89,15 +93,12 @@ acc_strcat(const char *str, ...)
 	va_list args;
 
 	// Figure out how much space we'll need
-	len = acc_str_len + strlen(str);
+	len = strlen(str);
 
 	va_start(args, str);
 	while ((read_pt = va_arg(args, const char *)) != NULL)
 		len += strlen(read_pt);
 	va_end(args);
-
-	len += 1;
-
 
 	// If we don't have the space, we allocate another pool
 	if (len > acc_str_space - acc_str_len)
