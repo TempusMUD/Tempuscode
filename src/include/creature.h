@@ -883,6 +883,7 @@ struct mob_shared_data {
 	struct Creature *proto;	/* pointer to prototype */
 	 SPECIAL(*func);
 	char *func_param;			/* mobile's special parameter str */
+	char *load_param;			/* mobile's on_load script */
 };
 
 

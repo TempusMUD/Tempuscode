@@ -630,6 +630,7 @@ static inline bool IS_REMORT( const Creature *ch )
 
 #define GET_MOB_SPEC(ch) (IS_MOB(ch) ? (ch->mob_specials.shared->func) : NULL)
 #define GET_MOB_PARAM(ch) (IS_MOB(ch) ? (ch->mob_specials.shared->func_param) : NULL)
+#define GET_LOAD_PARAM(ch) (IS_MOB(ch) ? (ch->mob_specials.shared->load_param) : NULL)
 #define GET_MOB_VNUM(mob)        (IS_MOB(mob) ? \
                                       mob->mob_specials.shared->vnum : -1)
 

@@ -1764,8 +1764,12 @@ do_stat_character(struct Creature *ch, struct Creature *k)
             sprintf(outbuf, "%sMove_buf: %s\r\n", outbuf,
                 MOB_SHARED(k)->move_buf);
         if (GET_MOB_PARAM(k))
-            sprintf(outbuf, "%sSpec_param: %s\r\n", outbuf,
+            sprintf(outbuf, "%sSpec_param: \r\n%s\r\n", outbuf,
                 GET_MOB_PARAM(k));
+		if( GET_LOAD_PARAM(k) ) {
+            sprintf(outbuf, "%sLoad_param: \r\n%s\r\n", outbuf,
+                GET_LOAD_PARAM(k));
+		}
         if (k->mob_specials.mug) {
             sprintf(buf,
                 "MUGGING:  victim idnum: %d, obj vnum: %d, timer: %d\r\n",

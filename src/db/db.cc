@@ -1759,6 +1759,8 @@ parse_enhanced_mob(FILE * mob_f, struct Creature *mobile, int nr)
 	while (get_line(mob_f, line)) {
 		if (!strcmp(line, "SpecParam:")) { /* multi-line specparam */
 			MOB_SHARED(mobile)->func_param = fread_string(mob_f, buf2);
+		} else if (!strcmp(line, "LoadParam:")) { /* multi-line specparam */
+			MOB_SHARED(mobile)->load_param = fread_string(mob_f, buf2);
 		} else if (!strcmp(line, "E"))	/* end of the ehanced section */
 			return;
 		else if (*line == '#') {	/* we've hit the next mob, maybe? */
@@ -2353,6 +2355,145 @@ read_mobile(int vnum)
 	return mob;
 }
 
+int on_load_equip( Creature *ch, int vnum, char* position, int maxload, int percent );
+
+// Processes the given mobile's load_parameter, executing the commands in it.
+// returns true if the creature dies
+bool 
+process_load_param( Creature *ch )
+{
+	char* str = GET_LOAD_PARAM(ch);
+	int mob_id = ch->mob_specials.shared->vnum;
+	int lineno = 0;
+	int last_cmd = 0;
+	if( str == NULL )
+		return false;
+
+	for( char* line = tmp_getline(&str); line; line = tmp_getline(&str) ) {
+		++lineno;
+		char *param_key = tmp_getword(&line);
+		if( strcasecmp(param_key, "LOAD") == 0 ) {
+			char* vnum = tmp_getword(&line); // vnum
+			char* pos = tmp_getword(&line); // position
+			char* max = tmp_getword(&line); //max loaded
+			char* p = tmp_getword(&line); // percent
+			int if_flag = atoi( tmp_getword(&line) ); // if flag
+			// if_flag 
+			// 1 == "Do if previous succeded"
+			if( if_flag == 1 && last_cmd == 1 )
+				continue;
+			//-1 == "Do if previous failed" by percentage
+			if( if_flag == -1 && last_cmd != 1 )
+				continue;
+			// 0 == "Do regardless of previous"
+
+			if( *vnum && *pos && *max && *p ) {
+				last_cmd = on_load_equip(ch, atoi(vnum), pos, atoi(max), atoi(p));
+				if( last_cmd == 100 ) {
+					slog("Mob number %d killed during load param processing line %d.\r\n",
+							mob_id, lineno );
+					return true;
+				}
+			} else {
+				char* msg = tmp_sprintf("Line %d of my load param has the wrong format!",lineno);
+				do_say(ch, msg, 0, SCMD_YELL, 0);
+			}
+		}
+//		else {
+//			char* command = line;
+//          command_interpreter(ch, tmp_gsub(desc, "\r\n", " "));
+//		}
+	}
+    return true;
+ }
+
+
+// returns:
+// 0, Success
+// 1, Not loaded, percentage failure.
+// 2, Not loaded, already equipped.
+// 3, No such object
+// 4, Invalid position
+// 5, read_obj failed
+// 6, Not loaded, maxload failure
+// 100, Creature died in equip process
+int 
+on_load_equip( Creature *ch, int vnum, char* position, int maxload, int percent )
+{
+    obj_data *obj = real_object_proto(vnum);
+    if( obj == NULL ) {
+        slog("SYSERR: Mob num %d: equip object %d nonexistant.",
+			ch->mob_specials.shared->vnum, vnum );
+		if( MOB2_FLAGGED(ch, MOB2_UNAPPROVED) ) {
+			char* msg = tmp_sprintf("Object %d doesn't exist!",vnum);
+			do_say(ch, msg, 0, SCMD_YELL, 0);
+		}
+        return 3;
+    }
+    if( obj->shared->number - obj->shared->house_count >= maxload) {
+        return 6;
+	}
+
+    if( random_percentage() > percent ){
+        return 1;
+    }
+	int pos = -1;
+	if( strcasecmp( position, "take" ) == 0 ) {
+		pos = ITEM_WEAR_TAKE;
+	} else if( IS_OBJ_STAT2(obj, ITEM2_IMPLANT) ) {
+		pos = search_block(position, wear_implantpos, FALSE);
+	} else {
+		pos = search_block(position, wear_eqpos, FALSE);
+	}
+
+    if (pos < 0 || pos >= NUM_WEARS) {
+		if( MOB2_FLAGGED(ch, MOB2_UNAPPROVED) ) {
+			char* msg = tmp_sprintf("%s is not a valid position!",position);
+			do_say(ch, msg, 0, SCMD_YELL, 0);
+		}
+        slog("SYSERR: Mob num %d trying to equip obj %d to badpos: '%s'",
+			ch->mob_specials.shared->vnum, obj->shared->vnum, position);
+        return 4;
+    }
+	obj = read_object(vnum);
+    if( obj == NULL ) {
+        slog("SYSERR: Mob num %d cannot load equip object #%d.",
+            ch->mob_specials.shared->vnum, vnum);
+		if( MOB2_FLAGGED(ch, MOB2_UNAPPROVED) ) {
+			char* msg = tmp_sprintf("Loading object %d failed!", vnum );
+			do_say(ch, msg, 0, SCMD_YELL, 0);
+		}
+        return 5;
+    }
+
+	// Unapproved mobs should load unapproved eq.
+	if( MOB2_FLAGGED(ch, MOB2_UNAPPROVED) ) {
+	    SET_BIT(GET_OBJ_EXTRA2(obj), ITEM2_UNAPPROVED);
+	}
+	if( pos == ITEM_WEAR_TAKE ) {
+		obj_to_char( obj, ch, true );
+	} else {
+		int mode = MODE_EQ;
+		if( IS_OBJ_STAT2(obj, ITEM2_IMPLANT) ) {
+			mode = MODE_IMPLANT;
+			if( ch->implants[pos] ) {
+				extract_obj(obj);
+				return 2;
+			}
+		} else {
+			if( ch->equipment[pos] ) {
+				extract_obj(obj);
+				return 2;
+			}
+		}
+
+		if( equip_char(ch, obj, pos, mode ) ) {
+			return 100;
+		}
+	}
+    return 0;
+}
+
 
 /* create an object, and add it to the object list */
 struct obj_data *
@@ -2652,7 +2793,11 @@ reset_zone(struct zone_data *zone)
 								}
 							}
 						}
-						last_cmd = 1;
+						if( process_load_param( mob ) ) { // true on death
+							last_cmd = 0; 
+						} else {
+							last_cmd = 1;
+						}
 					} else {
 						last_cmd = 0;
 					}

@@ -41,6 +41,7 @@ int general_search(struct Creature *ch, struct special_search_data *srch,
 	int mode);
 int clan_house_can_enter(struct Creature *ch, struct room_data *room);
 int room_tele_ok(Creature *ch, struct room_data *room);
+bool process_load_param( Creature *ch );
 
 int
 search_trans_character(Creature * ch,
@@ -196,8 +197,13 @@ general_search(struct Creature *ch, struct special_search_data *srch,
 			return 0;
 		}
 		char_to_room(mob, targ_room,false);
-		if (srch->to_remote)
-			act(srch->to_remote, FALSE, targ_room->people, obj, mob, TO_ROOM);
+		if( process_load_param( mob ) ) {
+			// Mobile Died in load_param
+		} else {
+			if (srch->to_remote)
+				act(srch->to_remote, FALSE, targ_room->people, obj, mob, TO_ROOM);
+		}
+
 
 		//    SRCH_LOG( ch, srch );
 		break;

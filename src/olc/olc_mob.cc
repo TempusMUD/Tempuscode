@@ -102,6 +102,7 @@ const char *olc_mset_keys[] = {
 	"leader",
 	"specparam",
     "generation",
+	"loadparam",
 	"\n"
 };
 
@@ -387,7 +388,8 @@ do_mob_mset(struct Creature *ch, char *argument)
 		return;
 	}
 	// Check for desc and specparam setting, both of which use tedii
-	if (mset_command != 3 && mset_command != 47 && !*arg2) {
+	if (mset_command != 3 && mset_command != 47 
+	&& mset_command != 49 && !*arg2) {
 		send_to_char(ch, "Set %s to what??\r\n", olc_mset_keys[mset_command]);
 		return;
 	}
@@ -1232,6 +1234,11 @@ do_mob_mset(struct Creature *ch, char *argument)
 			break;
 
 		}
+	case 49:
+		start_text_editor(ch->desc, &MOB_SHARED(mob_p)->load_param, true);
+		SET_BIT(PLR_FLAGS(ch), PLR_OLC);
+		act("$n begins to write a mobile load param.", TRUE, ch, 0, 0, TO_ROOM);
+		break;
 	default:{
 			break;
 		}
@@ -1484,6 +1491,12 @@ save_mobs(struct Creature *ch, struct zone_data *zone)
 				str = tmp_gsub(MOB_SHARED(mob)->func_param, "\r", "");
 				str = tmp_gsub(str, "~", "!");
 				fprintf(file, "SpecParam:\n%s~\n", str);
+			}
+			if (MOB_SHARED(mob)->load_param) {
+				char *str;
+				str = tmp_gsub(MOB_SHARED(mob)->load_param, "\r", "");
+				str = tmp_gsub(str, "~", "!");
+				fprintf(file, "LoadParam:\n%s~\n", str);
 			}
             if( GET_REMORT_GEN(mob) > 0 && GET_REMORT_GEN(mob) <= 10 ) {
                 fprintf(file, "Generation: %d\n", GET_REMORT_GEN(mob) );
