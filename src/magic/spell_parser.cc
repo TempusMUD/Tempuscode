@@ -3839,6 +3839,9 @@ mag_assign_spells(void)
 		X, X, 100, 60, 5, POS_FIGHTING, TAR_IGNORE, TRUE,
 		MAG_BARD | MAG_AREAS);
 
+	spello(SONG_DIRGE, X, X, X, X, X, X, X, X, X, X, 6, X, X, X, X,
+		X, X, 100, 50, 5, POS_FIGHTING, TAR_IGNORE, TRUE,
+		MAG_BARD | MAG_AREAS);
 
 	/* C L A S S E S      M A N A   */
 

@@ -846,7 +846,11 @@ mag_damage(int level, struct Creature *ch, struct Creature *victim,
 	case SONG_SONIC_DISRUPTION:
 		dam = dice((level >> 1), 8) + (3*level);
 		break;
-
+	
+	case SONG_DIRGE:
+		dam = dice((level >> 2), (level >> 2)) + (level << 2);
+		break;
+		
 	}							/* switch(spellnum) */
 
 	
@@ -3006,7 +3010,11 @@ mag_areas(byte level, struct Creature *ch, int spellnum, int savetype)
 	case SONG_SONIC_DISRUPTION:
 		to_char = "Sonic shockwaves pulse out in time with your powerful rhythm!";
 		to_room = "$n plays a powerful rhythm creating pulsing sonic shockwaves!";
-		to_next_room = "You hear a loud rhythm being played in the next room.";
+		to_next_room = "You hear a loud rhythm being played nearby.";
+	case SONG_DIRGE:
+		to_char = "You begin to play a mournful dirge.";
+		to_room = "$n plays a dirge of great mourning and lament.";
+		to_next_room = "Chilling music can be heard in the distance.";
 	}
 
 	if (to_char != NULL)
@@ -3053,7 +3061,9 @@ mag_areas(byte level, struct Creature *ch, int spellnum, int savetype)
 		//          nohassle-flagged players (imms)
 		//          charmed mobs
 		//          flying chars if spell is earthquake
-
+		//			undead chars if spell is sonic disruption
+		//			non-undead chars if spell is dirge
+		
 		if ((*it) == ch)
 			continue;
 		if (!IS_NPC((*it)) && PRF_FLAGGED((*it), PRF_NOHASSLE))
@@ -3063,6 +3073,9 @@ mag_areas(byte level, struct Creature *ch, int spellnum, int savetype)
 		if (spellnum == SPELL_EARTHQUAKE && (*it)->getPosition() == POS_FLYING)
 			continue;
 		if (spellnum == SONG_SONIC_DISRUPTION && IS_UNDEAD(*it)) {
+			continue;
+		}
+		if (spellnum == SONG_DIRGE && !IS_UNDEAD(*it)) {
 			continue;
 		}
 
