@@ -174,80 +174,6 @@ struct obj_data *Obj_from_store( FILE * fl, bool allow_inroom ) {
 
     return obj;
 }
-/*
-int 
-Obj_to_store( struct obj_data * obj, FILE * fl )
-{
-    int j, i;
-    struct obj_data * tmpo;
-    struct obj_file_elem object;
-
-    object.item_number = GET_OBJ_VNUM( obj );
-  
-    object.short_desc[0] = 0;
-    object.name[0] = 0;
-  
-    if ( obj->shared->proto ) {
-        if ( obj->name != obj->shared->proto->name )
-            strncpy( object.name, obj->name, EXDSCR_LENGTH-1 );
-        if ( obj->short_description != obj->shared->proto->short_description )
-            strncpy( object.short_desc, obj->short_description, EXDSCR_LENGTH-1 );
-    }
-
-    object.in_room_vnum = obj->in_room ? obj->in_room->number : -1;
-    object.wear_flags   = obj->obj_flags.wear_flags;
-    object.type         = GET_OBJ_TYPE( obj );
-    object.damage       = GET_OBJ_DAM( obj );
-    object.max_dam      = obj->obj_flags.max_dam;
-    object.material     = obj->obj_flags.material;
-    object.plrtext_len  = obj->plrtext_len;
-    object.sparebyte1   = 0;
-    object.sigil_level  = GET_OBJ_SIGIL_LEVEL( obj );
-    object.soilage      = obj->soilage;
-    object.sigil_idnum  = GET_OBJ_SIGIL_IDNUM( obj );
-    object.spareint4    = 0;
-    object.value[0]     = GET_OBJ_VAL( obj, 0 );
-    object.value[1]     = GET_OBJ_VAL( obj, 1 );
-    object.value[2]     = GET_OBJ_VAL( obj, 2 );
-    object.value[3]     = GET_OBJ_VAL( obj, 3 );
-    object.bitvector[0] = obj->obj_flags.bitvector[0];
-    object.bitvector[1] = obj->obj_flags.bitvector[1];
-    object.bitvector[2] = obj->obj_flags.bitvector[2];
-    object.extra_flags  = GET_OBJ_EXTRA( obj );
-    object.extra2_flags = GET_OBJ_EXTRA2( obj );
-    object.extra3_flags = GET_OBJ_EXTRA3( obj );
-    object.weight       = obj->getWeight();
-    object.timer        = GET_OBJ_TIMER( obj );
-    object.worn_on_position = obj->worn_on;
-
-    if ( no_plrtext )
-        object.plrtext_len = 0;
-
-    for ( j = 0; j < 3; j++ )
-        object.bitvector[j] = obj->obj_flags.bitvector[j];
-    
-    for ( j = 0; j < MAX_OBJ_AFFECT; j++ )
-        object.affected[j] = obj->affected[j];
-
-    for ( tmpo=obj->contains,i=0;tmpo;tmpo=tmpo->next_content,i++ );
-    object.contains = i;
-    
-    if ( fwrite( &object, sizeof( struct obj_file_elem ), 1, fl ) < 1 ) {
-        perror( "Error writing object in Obj_to_store" );
-        return 0;
-    }
-
-    if ( object.plrtext_len && !write_plrtext( obj, fl ) ) {
-        perror( "Error writing player text in obj file." );
-        return 0;
-    }
-
-    for ( tmpo=obj->contains;tmpo;tmpo=tmpo->next_content )
-        Obj_to_store( tmpo, fl );
-  
-    return 1;
-}
-*/
 /**
  * Deletes the objects or implants file for the given character.
  *
@@ -834,8 +760,13 @@ Crash_crashsave( struct char_data * ch )
 }
 
 
-void 
-Crash_rentsave( struct char_data * ch, int cost, int rentcode )
+/** 
+ * Extracts unrentables.
+ * Saves and extracts all eq & implants
+ * sets cost per day to cost
+ * Sets rent code.
+**/
+void Crash_rentsave( struct char_data * ch, int cost, int rentcode )
 {
     char buf[MAX_INPUT_LENGTH];
     struct rent_info rent;

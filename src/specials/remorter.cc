@@ -161,6 +161,12 @@ SPECIAL(remorter)
             REMOVE_BIT(ch->in_room->room_flags, ROOM_NORECALL);
             quiz.reset();
 
+            // Save the char and its implants but not its eq
+            // save_char(ch, NULL);
+            // Crash_save_implants( ch );
+            // Crash_delete_crashfile(ch);
+            // ch->extract( false, false, CON_MENU);
+
             ch->extract(true, true, CON_MENU);
         }  
         return 1;
