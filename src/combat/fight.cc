@@ -338,7 +338,7 @@ group_gain(struct char_data *ch, struct char_data *victim)
 		if (AFF_FLAGGED((*it), AFF_GROUP) && ((*it) == leader
 		|| leader == (*it)->master)) 
 		{
-			total_levs = GET_LEVEL((*it));
+			total_levs += GET_LEVEL((*it));
 			if( IS_PC(*it) ) {
 				total_levs += GET_REMORT_GEN((*it)) << 3;
 				total_pc_mems++;
