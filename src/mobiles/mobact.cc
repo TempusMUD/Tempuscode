@@ -2740,33 +2740,43 @@ mobile_battle_activity(struct Creature *ch, struct Creature *precious_vict)
 		return 0;
 	}
 
-	if (GET_HIT(ch) < GET_MAX_HIT(ch) >> 7 && !IS_ANIMAL(ch)
-		&& random_fractional_20()) {
-		if (can_see_creature(FIGHTING(ch), ch))
-			do_say(ch,
-				tmp_sprintf("%s you bastard!", PERS(FIGHTING(ch), ch)), 0, 0, 0);
-		else
-			do_say(ch, "Show yourself, you coward!", 0, 0, 0);
-		return 0;
-	}
+	if (!IS_ANIMAL(ch)) {
+		// Speaking mobiles
+		if (GET_HIT(ch) < GET_MAX_HIT(ch) >> 7 && random_fractional_20()) {
+			int pct = random_percentage_zero_low();
 
-	if (!IS_ANIMAL(ch) &&
-		GET_HIT(FIGHTING(ch)) < GET_MAX_HIT(FIGHTING(ch)) >> 7 &&
-		GET_HIT(ch) > GET_MAX_HIT(ch) >> 4 && random_fractional_20()) {
+			if (pct < 20) {
+				act("$n grits $s teeth as $e begins to weaken.", false,
+					ch, 0, 0, TO_ROOM);
+			} else {
+				if (can_see_creature(FIGHTING(ch), ch))
+					do_say(ch,
+						tmp_sprintf("%s you bastard!", PERS(FIGHTING(ch), ch)),
+						0, 0, 0);
+				else
+					do_say(ch, "You stinking bastard!", 0, 0, 0);
+			}
 
-		int pct = random_percentage_zero_low();
+			return 0;
+		}
 
-		if (pct < 20) {
-			do_say(ch, "Let this be a lesson to you!", 0, 0, 0);
-			return 0;
-		} else if (pct < 50) {
-			do_say(ch, "Oh, you thought you were a toughguy, eh?", 0, 0, 0);
-			return 0;
-		} else if (pct < 60) {
-			do_say(ch,
-				tmp_sprintf("Kiss my ass, %s!", PERS(ch, FIGHTING(ch))),
-				0, 0, 0);
-			return 0;
+		if (GET_HIT(FIGHTING(ch)) < GET_MAX_HIT(FIGHTING(ch)) >> 7 &&
+			GET_HIT(ch) > GET_MAX_HIT(ch) >> 4 && random_fractional_20()) {
+
+			int pct = random_percentage_zero_low();
+
+			if (pct < 20) {
+				do_say(ch, "Let this be a lesson to you!", 0, 0, 0);
+				return 0;
+			} else if (pct < 50) {
+				do_say(ch, "So you thought you were tough, eh?", 0, 0, 0);
+				return 0;
+			} else if (pct < 60) {
+				do_say(ch,
+					tmp_sprintf("Kiss my ass, %s!", PERS(ch, FIGHTING(ch))),
+					0, 0, 0);
+				return 0;
+			}
 		}
 	}
 
