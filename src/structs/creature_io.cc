@@ -460,7 +460,7 @@ Creature::saveToXML()
 		GET_LEVEL(ch), genders[GET_SEX(ch)], player_race[GET_RACE(ch)],
 		GET_HEIGHT(ch), GET_WEIGHT(ch), GET_ALIGNMENT(ch));
 	
-    fprintf(ouf, "<languages known=\"%lld\" current=\"%lld\"/>\n",
+    fprintf(ouf, "<languages known=\"%lld\" current=\"%d\"/>\n",
             KNOWN_LANGUAGES(ch), GET_LANGUAGE(ch));
 	fprintf(ouf, "<class name=\"%s\"", pc_char_class_types[GET_CLASS(ch)]);
 	if( IS_REMORT(ch) ) {
