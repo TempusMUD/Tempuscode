@@ -1,66 +1,26 @@
-* High priority - needed for wizlock/very soon
-? Low priority - Wizlock if time and motivation is available
-0 Wished for
-X Finished
-M Mostly or Almost Finished
-1 Started 
+High Priority
+-------------------------------------------------------------------------------
+* Implement house repossession
+* Containers currently gain the weight of their contents each time they
+  are rented
+* Crash bug in cleave
+* Mobs with no ldesc still leave crlf
+* Strike needs a more obvious message
 
-Short Term Coding
-------------------------------------------------------------------------
+Low Priority
+-------------------------------------------------------------------------------
+* Remove second wield from mercs or make it pistols only
+* Add 'The Zen of <Centering/Dispassion/Detachment?>'
+    - resists ambience
+    - ticks toward neutral on ticks while meditating
+* Guns changes from containers to batteries
 
-X Exporter for house desc,extradesc,sound,etc to a web page.[lenon]
-X Mobile Recalculation
-    - Same code as 'olc mset level <current level>'
-X Mobile Generation
-    - Default to gen 1 for mobiles with remort class
-    - Memory location, OLC, mob file reader/writer
-? Standardize dying
-? Quest related obj_data changes
-    ? Add player id ( and only that player can wear/wield/use )
-    ? Add '(protected)' flag or use player id to show '(protected)'
-    ? Add insurance company in E.C. that will both insure objects, and
-      load a character's insured eq
-? House rewrite
-    * Implement reposesion
-* Loadroom Bugfix
-
-ADMINISTRATION CHANGES
-----------------------------------------------------------------------
-X Add player account system
-    X Multi-character support for accounts
-    M Account option that recreates character from old database
-        - bonus to stat roll in place of reroll screen
-        - old database includes:
-            - alias file to copy in
-            - old level (remaking imms)
-            - creation date, perf bits
-            - name, password, Race, Sex, Class, Description
-            ( to give the illusion of not recreating the character )
-
-
-GAMEPLAY CHANGES
-----------------------------------------------------------------------
-? Remove 'up ass'/'rectum' wear positions
-* Remove Hoodlum from menus
-* Lower each and every "Power Attack<TM>".
-0 Merc
-    X Move clothesline from barb
-    X Move hamstring from hood
-    ? Move snatch from hood
-    * Remove second wield or make it pistols only
 0 Barb skill revamp
-    X Remove piledrive
-    1 Cleave(30): 
+    X Cleave(30): 
         - do_hit up to 4XDAM and blows through to first FIGHTING(ch) 
             in room ( 5 move + 5 for blow through )
     1 Great Cleave(40<2>):
         - Cleave with blow through up to gen or gen/2 times.
-    X Strike(17):
-        - Low level 2X damage strike with weapon.
-    X Move monk weapon specializations to barb
-? Add 'The Zen of <Centering/Dispassion/Detachment?>'
-    - resists ambience
-    - ticks toward neutral on ticks while meditating
 * New remorter system
     X Remove Test
     X Labyrinth portal repels those with equip, or if someone is already
@@ -78,20 +38,42 @@ GAMEPLAY CHANGES
     ? death ensues
     X select remortalization class
 
-TO THINK ABOUT
------------------------------------------------------------------
-0 Keep track of mob vnums killed - adjust exp based on killing same mob
-0 Bounty Hunter
+Under discussion
+-------------------------------------------------------------------------------
+* New combat system
+	- Melee combat takes time to start if not sneaking or invis: can make
+	  messages amusingly dependant on state
+	  	"$n attacks you!" - normal
+		"$n rushes in to attack you!" - hasted
+		"$n slowly advances upon you!" - slowed
+	- Time affected by haste, speed, slow
+	- Maximum number of melee combantants to each single creature, dependant
+	  on relative height
+	- Chance to flee approaches 0 as number of combatants approaches maximum
+	- Skills (rescue, retreat, charge) and spells (teleport, word of recall)
+	  may bypass being surrounded
+	- Ranged weapons/spells require no time to start combat
+	- Ranged weapons at a disadvantage in close quarters
+	- No maximum number of ranged combatants on one creature
+	- Huge penalty for hitting non visible with ranged (zen archery for monks?)
+	- Chance for ranged weapon to hit melee targets accidentally
+* Support for accidentally hitting player without incurring penalties
+* Quest related obj_data changes
+    - Add player id ( and only that player can wear/wield/use )
+    - Add '(protected)' flag or use player id to show '(protected)'
+    - Add insurance company in E.C. that will both insure objects, and
+      load a character's insured eq
+* Keep track of mob vnums killed - adjust exp based on killing same mob
+* Bounty Hunter
     - Kiosk in Skullport that sells 'bountys' on any player
     - Any player that kills the given player outside NVZ can
       return to the kiosk to accept the reward
     - On death, the special is notified who and where killed
       the target.
-0 Guns changes from containers to batteries
-0 Remove stradd
-0 AC changed to positive
-0 Race description file
-0 Class description file
+* Remove stradd
+* AC changed to positive
+* Race description file
+* Class description file
 
 FINISHED
 -----------------------------------------------------------------
@@ -117,3 +99,21 @@ X Immortal 'where'
         - Unlimited parameters
         - Add '+/-house' to not list house eq.
 X Automatic thawing after freezing
+X Exporter for house desc,extradesc,sound,etc to a web page.[lenon]
+X Mobile Recalculation
+    - Same code as 'olc mset level <current level>'
+X Mobile Generation
+    - Default to gen 1 for mobiles with remort class
+    - Memory location, OLC, mob file reader/writer
+X Standardize dying
+X House rewrite
+X Add player account system
+    - Multi-character support for accounts
+    - Account option that recreates character from old database
+X Remove Hoodlum from menus
+X Lower each and every "Power Attack<TM>".
+X Move clothesline from barb to merc
+X Move hamstring from hood to merc
+X Remove piledrive from barb
+X Barb skill Strike(17) - Low level 2X damage strike with weapon.
+X Move monk weapon specializations to barb
