@@ -733,7 +733,6 @@ room_data *Creature::getLoadroom() {
 void
 Creature::clear(void)
 {
-	int i;
 	struct Creature *tmp_mob;
 	struct alias_data *a;
 
@@ -770,8 +769,7 @@ Creature::clear(void)
 	// free mob strings:
 	// free strings only if the string is not pointing at proto
 	//
-
-	if ((i = GET_MOB_VNUM(this)) > -1) {
+	if (GET_MOB_VNUM(this) > -1) {
 
 		tmp_mob = real_mobile_proto(GET_MOB_VNUM(this));
 
