@@ -584,39 +584,50 @@ do_destroy_room(struct Creature *ch, int vnum)
 void
 do_clear_room(struct Creature *ch)
 {
+	struct room_data *room;
 	struct extra_descr_data *desc = NULL;
 	struct special_search_data *srch = NULL;
 	struct room_affect_data *aff = NULL;
+	int dir;
 
+	room = ch->in_room;
 
-	if (ch->in_room->name)
-		free(ch->in_room->name);
+	if (room->name)
+		free(room->name);
 
-	ch->in_room->name = strdup("A Blank Room");
+	room->name = strdup("A Blank Room");
 
-	if (ch->in_room->description)
-		free(ch->in_room->description);
-	ch->in_room->description = NULL;
+	if (room->description)
+		free(room->description);
+	room->description = NULL;
 
-	if (ch->in_room->sounds)
-		free(ch->in_room->sounds);
-	ch->in_room->sounds = NULL;
+	if (room->sounds)
+		free(room->sounds);
+	room->sounds = NULL;
 
-	ch->in_room->room_flags = 0;
-	ch->in_room->sector_type = SECT_INSIDE;
+	for (dir = 0;dir < NUM_DIRS;dir++)
+		if (room->dir_option[dir] &&
+				room->dir_option[dir]->general_description) {
+			free(room->dir_option[dir]->general_description);
+			room->dir_option[dir]->general_description = NULL;
+		}
+			
 
-	while ((desc = ch->in_room->ex_description)) {
-		ch->in_room->ex_description = desc->next;
+	room->room_flags = 0;
+	room->sector_type = SECT_INSIDE;
+
+	while ((desc = room->ex_description)) {
+		room->ex_description = desc->next;
 		if (desc->keyword)
 			free(desc->keyword);
 		if (desc->description)
 			free(desc->description);
 		free(desc);
 	}
-	ch->in_room->ex_description = NULL;
+	room->ex_description = NULL;
 
-	while ((srch = ch->in_room->search)) {
-		ch->in_room->search = srch->next;
+	while ((srch = room->search)) {
+		room->search = srch->next;
 		if (srch->command_keys)
 			free(srch->command_keys);
 		if (srch->keywords)
@@ -627,21 +638,21 @@ do_clear_room(struct Creature *ch)
 			free(srch->to_vict);
 		free(srch);
 	}
-	ch->in_room->search = NULL;
+	room->search = NULL;
 
-	while ((aff = ch->in_room->affects)) {
-		ch->in_room->affects = aff->next;
+	while ((aff = room->affects)) {
+		room->affects = aff->next;
 		if (aff->description)
 			free(aff->description);
 		free(aff);
 	}
-	ch->in_room->affects = NULL;
+	room->affects = NULL;
 
-	ch->in_room->light = 0;
-	ch->in_room->flow_dir = 0;
-	ch->in_room->flow_speed = 0;
-	ch->in_room->flow_type = 0;
-	ch->in_room->max_occupancy = 256;
+	room->light = 0;
+	room->flow_dir = 0;
+	room->flow_speed = 0;
+	room->flow_type = 0;
+	room->max_occupancy = 256;
 
 	send_to_char(ch, "Room fully cleared..\r\n");
 }

@@ -978,6 +978,8 @@ ACMD(do_olc)
 		obj_p->setWeight(tmp_obj->getWeight());
 		obj_p->shared->cost = tmp_obj->shared->cost;
 		obj_p->shared->cost_per_day = tmp_obj->shared->cost_per_day;
+		obj_p->shared->func = NULL;
+		obj_p->shared->func_param = NULL;
 
 		if (!OLCIMP(ch)) {
 			SET_BIT(obj_p->obj_flags.extra2_flags, ITEM2_UNAPPROVED);
