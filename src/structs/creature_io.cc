@@ -16,6 +16,9 @@
 #include "creature.h"
 #include "char_class.h"
 
+
+void add_alias(struct Creature *ch, struct alias_data *a);
+
 void
 Creature::saveToXML() {
 	// Save vital statistics
@@ -75,8 +78,10 @@ Creature::saveToXML() {
 		ch->player.time.death,
 		ch->player.time.played);
 
+	char *host = xmlEncodeEntities(ch->desc->host);
 	fprintf(ouf, "<LASTLOGIN TIME=\"%ld\" HOST=\"%s\"/>\n",
-		(long int)ch->player.time.logon, ch->desc->host);
+		(long int)ch->player.time.logon, host);
+	free(host);
 
 	fprintf(ouf, "<CARNAGE PKILLS=\"%d\" MKILLS=\"%d\" DEATHS=\"%d\"/>\n",
 		GET_PKILLS(ch), GET_MOBKILLS(ch), GET_PC_DEATHS(ch));
@@ -106,7 +111,7 @@ Creature::saveToXML() {
 
 	fprintf(ouf, "<QUEST");
 	if (GET_QUEST(ch))
-		fprintf(ouf, " JOINED=\"%d\"", GET_QUEST(ch));
+		fprintf(ouf, " CURRENT=\"%d\"", GET_QUEST(ch));
 	if (GET_LEVEL(ch) >= LVL_IMMORT)
 		fprintf(ouf, " ALLOWANCE=\"%d\"", GET_QUEST_ALLOWANCE(ch));
     if( GET_QUEST_POINTS(ch) != 0 )
@@ -126,7 +131,7 @@ Creature::saveToXML() {
 		ch->player_specials->saved.load_room,
 		ch->player_specials->saved.page_length);
 
-	fprintf(ouf, "<TERMINAL PAGE_LENGTH=\"%d\" COLUMNS=\"%d\"/>\n",
+	fprintf(ouf, "<TERMINAL ROWS=\"%d\" COLUMNS=\"%d\"/>\n",
 		GET_PAGE_LENGTH(ch), GET_COLS(ch));
 
 	fprintf(ouf, "<AFFECTS FLAG1=\"%ld\" FLAG2=\"%ld\" FLAG3=\"%ld\"/>\n",
@@ -141,8 +146,11 @@ Creature::saveToXML() {
 				ch->player_specials->saved.weap_spec[idx].level);
 	}
 
-	if (GET_TITLE(ch) && *GET_TITLE(ch))
-		fprintf(ouf, "<TITLE>%s</TITLE>\n", GET_TITLE(ch));
+	if (GET_TITLE(ch) && *GET_TITLE(ch)) {
+		char* title = xmlEncodeEntities(GET_TITLE(ch));
+		fprintf(ouf, "<TITLE>%s</TITLE>\n", title );
+		free(title);
+	}
 
 	if (GET_LEVEL(ch) >= LVL_IMMORT) {
 		fprintf(ouf, "<IMMORT BADGE=\"%d\"/>\n",
@@ -152,8 +160,11 @@ Creature::saveToXML() {
 		if (POOFOUT(ch) && *POOFOUT(ch))
 			fprintf(ouf, "<POOFOUT>%s</POOFOUT>\n", POOFOUT(ch));
 	}
-	if (ch->player.description && *ch->player.description)
-		fprintf(ouf, "<DESCRIPTION>%s</DESCRIPTION>\n", ch->player.description);
+	if (ch->player.description && *ch->player.description) {
+		char *desc = xmlEncodeEntities(ch->player.description);
+		fprintf(ouf, "<DESCRIPTION>%s</DESCRIPTION>\n",  desc );
+		free(desc);
+	}
 	for (cur_alias = ch->player_specials->aliases; cur_alias; cur_alias = cur_alias->next)
 		fprintf(ouf, "<ALIAS TYPE=\"%d\" ALIAS=\"%s\" REPLACE=\"%s\"/>\n",
 			cur_alias->type, cur_alias->alias, cur_alias->replacement);
@@ -238,7 +249,6 @@ Creature::loadFromXML( long id )
             player.time.birth = xmlGetLongProp(node, "BIRTH");
             player.time.death = xmlGetLongProp(node, "DEATH");
             player.time.played = xmlGetIntProp(node, "PLAYED");
-        } else if ( xmlMatches(node->name, "LASTLOGIN") ) {
             player.time.logon = xmlGetLongProp(node, "TIME");
             char *h = xmlGetProp(node, "HOST");
             strcpy( desc->host, h );
@@ -256,86 +266,88 @@ Creature::loadFromXML( long id )
             real_abils.con = xmlGetIntProp(node, "CON");
             real_abils.cha = xmlGetIntProp(node, "CHA");
         } else if ( xmlMatches(node->name, "CONDITION") ) {
-        } else if ( xmlMatches(node->name, "PLAYER") ) {
+			GET_COND(this, THIRST) = xmlGetIntProp(node, "THIRST");
+			GET_COND(this, FULL) = xmlGetIntProp(node, "HUNGER");
+			GET_COND(this, DRUNK) = xmlGetIntProp(node, "DRUNK");
+       	} else if ( xmlMatches(node->name, "PLAYER") ) {
+			GET_WIMP_LEV(this) = xmlGetIntProp(node, "WIMPY");
+			GET_PRACTICES(this) = xmlGetIntProp(node, "WIMPY");
+			GET_LIFE_POINTS(this) = xmlGetIntProp(node, "LP");
+			GET_INVIS_LVL(this) = xmlGetIntProp(node, "INVIS");
+			GET_CLAN(this) = xmlGetIntProp(node, "CLAN");
         } else if ( xmlMatches(node->name, "HOME") ) {
+			GET_HOME(this) = xmlGetIntProp(node, "TOWN");
+			GET_HOLD_HOME(this) = xmlGetIntProp(node, "HELD_TOWN");
+			GET_LOADROOM(this) = xmlGetIntProp(node, "LOADROOM");
+			GET_HOLD_LOADROOM(this) = xmlGetIntProp(node, "HELD_LOADROOM");
         } else if ( xmlMatches(node->name, "QUEST") ) {
+			GET_QUEST(this) = xmlGetIntProp(node, "CURRENT");
+			GET_QUEST_POINTS(this) = xmlGetIntProp(node, "POINTS");
+			GET_QUEST_ALLOWANCE(this) = xmlGetIntProp(node, "ALLOWANCE");
         } else if ( xmlMatches(node->name, "ACCOUNT") ) {
+			// <ACCOUNT FLAG1="3434624" FLAG2="0" PASSWORD="FoVpL4BbMR" BAD_PWS="0"/>
         } else if ( xmlMatches(node->name, "PREFS") ) {
+			// <PREFS FLAG1="677867907" FLAG2="133663" LOADROOM="92700" PAGE_LEN="30"/
         } else if ( xmlMatches(node->name, "TERMINAL") ) {
+			GET_PAGE_LENGTH(this) = xmlGetIntProp( node, "ROWS" );
+			//GET_PAGE_WIDTH(this) = xmlGetIntProp( node, "COLUMNS" );
         } else if ( xmlMatches(node->name, "WEAPONSPEC") ) {
+			// <WEAPONSPEC VNUM="48137" LEVEL="5"/>
+			int vnum = xmlGetIntProp( node, "VNUM" );
+			int level = xmlGetIntProp( node, "LEVEL" );
+			if( vnum > 0 && level > 0 ) {
+				for( int i = 0; i < MAX_WEAPON_SPEC; i++ ) {
+					if( player_specials->saved.weap_spec[i].vnum == 0 ) {
+						player_specials->saved.weap_spec[i].vnum = vnum;
+						player_specials->saved.weap_spec[i].level = level;
+						break;
+					}
+				}
+			}
         } else if ( xmlMatches(node->name, "TITLE") ) {
+			GET_TITLE(this) = (char*)xmlNodeGetContent( node );
         } else if ( xmlMatches(node->name, "AFFECT") ) {
+			// <AFFECT TYPE="619" DURATION="-1" MODIFIER="5" 
+			// LOCATION="1" LEVEL="72" INSTANT="no" AFFBITS="0"/>
         } else if ( xmlMatches(node->name, "AFFECTS") ) {
+			// <AFFECTS FLAG1="557056" FLAG2="256" FLAG3="0"/>
         } else if ( xmlMatches(node->name, "SKILL") ) {
-        } else if ( xmlMatches(node->name, "aliases") ) {
+			int index = str_to_spell( xmlGetProp( node, "NAME" ) );
+			if( index >= 0 ) {
+				GET_SKILL( this, index ) = xmlGetIntProp( node, "LEVEL" );
+			}
+        } else if ( xmlMatches(node->name, "ALIAS") ) {
+			alias_data *alias;
+			CREATE(alias, struct alias_data, 1);
+			alias->type = xmlGetIntProp(node, "TYPE");
+			alias->alias = xmlGetProp(node, "ALIAS");
+			alias->replacement = xmlGetProp(node, "REPLACE");
+			if( alias->alias == NULL || alias->replacement == NULL ) {
+				free(alias);
+			} else {
+				add_alias(this,alias);
+			}
+        } else if ( xmlMatches(node->name, "POOFIN") ) {
+			POOFIN(this) = (char*)xmlNodeGetContent( node );
+        } else if ( xmlMatches(node->name, "POOFOUT") ) {
+			POOFOUT(this) = (char*)xmlNodeGetContent( node );
+        } else if ( xmlMatches(node->name, "IMMORT") ) {
+			player_specials->saved.occupation = xmlGetIntProp(node,"BADGE");
         }
 
     }
 
-
     xmlFreeDoc(doc);
 
-
-
 	/*
-	GET_SEX(ch) = st->sex;
-	GET_CLASS(ch) = st->char_class;
-	GET_REMORT_CLASS(ch) = st->remort_char_class;
-	GET_RACE(ch) = st->race;
-	GET_LEVEL(ch) = st->level;
-
 	ch->player.short_descr = NULL;
 	ch->player.long_descr = NULL;
 	set_title(ch, st->title);
 	ch->player.description = str_dup(st->description);
 	ch->player.hometown = st->hometown;
-	ch->player.time.birth = st->birth;
-	ch->player.time.death = st->death;
-	ch->player.time.played = st->played;
-	ch->player.time.logon = time(0);
-
-	ch->player.weight = st->weight;
-	ch->player.height = st->height;
-
-	ch->real_abils = st->abilities;
-	ch->aff_abils = st->abilities;
-	ch->points = st->points;
-	ch->char_specials.saved = st->char_specials_saved;
-
-	
-
-	ch->player_specials->saved = st->player_specials_saved;
-
-	if (ch->points.max_mana < 100)
-		ch->points.max_mana = 100;
-
-	ch->char_specials.carry_weight = 0;
-	ch->char_specials.carry_items = 0;
-	ch->char_specials.worn_weight = 0;
-	ch->points.armor = 100;
-	ch->points.hitroll = 0;
-	ch->points.damroll = 0;
-	ch->setSpeed(0);
-
 
 	st->pwd[MAX_PWD_LENGTH] = '\0';
 	strcpy(ch->player.passwd, st->pwd);
-
-	if (*st->poofin) {
-		CREATE(POOFIN(ch), char, strlen(st->poofin) + 1);
-		strcpy(POOFIN(ch), st->poofin);
-	} else
-		POOFIN(ch) = NULL;
-
-	if (*st->poofout) {
-		CREATE(POOFOUT(ch), char, strlen(st->poofout) + 1);
-		strcpy(POOFOUT(ch), st->poofout);
-	} else
-		POOFOUT(ch) = NULL;
-
-	// reset all imprint rooms
-	for (i = 0; i < MAX_IMPRINT_ROOMS; i++)
-		GET_IMPRINT_ROOM(ch, i) = -1;
 
 	// Add all spell effects 
 	for (i = 0; i < MAX_AFFECT; i++) {
@@ -344,20 +356,35 @@ Creature::loadFromXML( long id )
 	}
     */
 
+	if (points.max_mana < 100)
+		points.max_mana = 100;
+
+	char_specials.carry_weight = 0;
+	char_specials.carry_items = 0;
+	char_specials.worn_weight = 0;
+	points.armor = 100;
+	points.hitroll = 0;
+	points.damroll = 0;
+	setSpeed(0);
+
+	// reset all imprint rooms
+	for( int i = 0; i < MAX_IMPRINT_ROOMS; i++ )
+		GET_IMPRINT_ROOM(this, i) = -1;
+
     // Make sure the NPC flag isn't set
-    if (IS_SET(char_specials.saved.act, MOB_ISNPC)) {
+    if( IS_SET(char_specials.saved.act, MOB_ISNPC) ) {
 		REMOVE_BIT(char_specials.saved.act, MOB_ISNPC);
 		slog("SYSERR: loadFromXML %s loaded with MOB_ISNPC bit set!",
 			GET_NAME(this));
 	}
 
 	// If you're not poisioned and you've been away for more than an hour,
-	/* we'll set your HMV back to full
-	if (!IS_POISONED(this) && (((long)(time(0) - st->last_logon)) >= SECS_PER_REAL_HOUR)) {
+	// we'll set your HMV back to full
+	if (!IS_POISONED(this) && (((long)(time(0) - player.time.logon)) >= SECS_PER_REAL_HOUR)) {
 		GET_HIT(this) = GET_MAX_HIT(this);
 		GET_MOVE(this) = GET_MAX_MOVE(this);
 		GET_MANA(this) = GET_MAX_MANA(this);
-	}*/
+	}
 
 	//read_alias(ch);
     return true;
