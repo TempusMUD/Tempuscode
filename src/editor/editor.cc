@@ -168,8 +168,10 @@ void CTextEditor::ExportMail( void ) {
 
     char   *cc_list = NULL;
     int    stored_mail=0; 
+    int    cc_len = 0;
     struct descriptor_data *r_d;
     struct mail_recipient_data *mail_rcpt = NULL;
+
 
     // If they're trying to send a blank message
     if(!*target || !strlen(*target)) {
@@ -185,7 +187,11 @@ void CTextEditor::ExportMail( void ) {
     }
 
     if(desc->mail_to->next) {
-        cc_list = new char[MAX_INPUT_LENGTH * 3 + 7];
+        // Check the length we need, just to be sure.
+        for(mail_rcpt = desc->mail_to; mail_rcpt;mail_rcpt = mail_rcpt->next)
+            cc_len++;
+        cc_list = new char[(cc_len * MAX_NAME_LENGTH) + 3];
+
         strcpy(cc_list,"  CC: ");
         for(mail_rcpt = desc->mail_to; mail_rcpt; mail_rcpt = mail_rcpt->next){
             strcat(cc_list, get_name_by_id(mail_rcpt->recpt_idnum));
@@ -811,8 +817,12 @@ bool CTextEditor::ProcessCommand(char *inStr) {
 void CTextEditor::ListRecipients( void ) {
     char   *cc_list = NULL;
     struct mail_recipient_data *mail_rcpt = NULL;
+    int cc_len = 0;
 
-    cc_list = new char[MAX_INPUT_LENGTH * 3 + 7];
+	for(mail_rcpt = desc->mail_to; mail_rcpt;mail_rcpt = mail_rcpt->next)
+        cc_len++;
+
+    cc_list = new char[(cc_len * MAX_NAME_LENGTH) + 3];
     
 	sprintf(cc_list, "%sTo%s:%s ", 
 		CCYEL(desc->character, C_NRM), 
