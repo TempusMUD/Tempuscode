@@ -343,14 +343,16 @@ count_pkill(Creature *killer, Creature *victim)
 			!PLR_FLAGGED(victim, PLR_KILLER | PLR_THIEF)) {
 
 		// Basic level/gen adjustment
-		GET_REPUTATION(perp) +=
-			(GET_LEVEL(victim) + GET_REMORT_GEN(victim)) /
-			3;
+        if (perp != victim) {
+		    GET_REPUTATION(perp) +=
+			    (GET_LEVEL(victim) + GET_REMORT_GEN(victim)) /
+			    3;
 
-		// Additional adjustment for killing a lower gen
-		if (GET_REMORT_GEN(perp) > GET_REMORT_GEN(victim))
-			GET_REPUTATION(perp) += (GET_REMORT_GEN(perp) -
-				GET_REMORT_GEN(victim));
+            // Additional adjustment for killing a lower gen
+            if (GET_REMORT_GEN(perp) > GET_REMORT_GEN(victim))
+                GET_REPUTATION(perp) += (GET_REMORT_GEN(perp) -
+                    GET_REMORT_GEN(victim));
+        }
 	}
 }
 
