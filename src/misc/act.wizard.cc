@@ -4378,15 +4378,35 @@ ACMD(do_show)
         }
         break;
     case 12:
-        if (!*value)
+        if (!*value) {
             send_to_char("View who's skills?\r\n", ch);
-        else if (!(vict = get_char_vis(ch, value)))
-            send_to_char("No one by that name is playing.\r\n", ch);
-        else if (IS_MOB(vict))
+        } else if (!(vict = get_player_vis(ch, value, 0))) {
+            if(! Security::isMember( ch, "AdminBasic" ) ) {
+                send_to_char("Getting that data from file requires basic administrative rights.\r\n", 
+                        ch);
+            } else {
+                struct char_file_u tmp_store;
+                CREATE(vict, struct char_data, 1);
+                clear_char(vict);
+                if (load_char(value, &tmp_store) > -1) {
+                    store_to_char(&tmp_store, vict);
+                    if (GET_LEVEL(vict) > GET_LEVEL(ch) && GET_IDNUM(ch) != 1)
+                        send_to_char("Sorry, you can't do that.\r\n", ch);
+                    else
+                        list_skills_to_char(ch, vict);
+                    free_char(vict);
+                } else {
+                    send_to_char("There is no such player.\r\n", ch);
+                    free(vict);
+                }
+                vict = NULL;
+            }
+        } else if (IS_MOB(vict)) {
             send_to_char("Mobs don't have skills.  All mobs are assumed to\r\n"
                          "have a (50 + level)% skill proficiency.\r\n", ch);
-        else 
+        } else  {
             list_skills_to_char(ch, vict);
+        }
         break;
     case 13:  /* spells */
         break;
