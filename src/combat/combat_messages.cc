@@ -895,7 +895,7 @@ dam_message(int dam, struct Creature *ch, struct Creature *victim,
 	w_type -= TYPE_HIT;
 
 	/* damage message to onlookers */
-    if (location < 0) // Mana shield hit
+    if (location == WEAR_MSHIELD) // Mana shield hit
         buf = replace_string(dam_mana_shield[msgnum].to_room,
                              attack_hit_text[w_type].singular,
                              attack_hit_text[w_type].plural, NULL);

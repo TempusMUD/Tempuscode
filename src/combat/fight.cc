@@ -1311,8 +1311,7 @@ damage(struct Creature *ch, struct Creature *victim, int dam,
             if (attacktype < TYPE_HIT)
                 skill_message(mana_loss, ch, victim, attacktype);
             else
-                dam_message(mana_loss, ch, victim, attacktype, 
-                            -(GET_IDNUM(victim)));
+                dam_message(mana_loss, ch, victim, attacktype, WEAR_MSHIELD);
         }
 	}
 

@@ -531,6 +531,7 @@ static const int WEAR_WIELD_2 = 25;
 static const int WEAR_ASS = 26;
 static const int NUM_WEARS = 27;	/* This must be the # of eq positions!! */
 static const int WEAR_RANDOM = 28;
+static const int WEAR_MSHIELD = 29; /* This is for mana shield messages just increase it if new wear positions are added */
 
 
 /* Modifier constants used with obj affects ('A' fields) */
