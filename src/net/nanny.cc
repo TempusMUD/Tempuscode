@@ -612,20 +612,20 @@ handle_input(struct descriptor_data *d)
 		}
 
 		send_to_desc(d, "Wrong password!  Delete cancelled.\r\n");
-		if (!d->creature->in_room) {
+		if (!d->creature->in_room)
 			delete d->creature;
-			d->creature = NULL;
-		}
+
+		d->creature = NULL;
 		set_desc_state(CXN_WAIT_MENU, d);
 		break;
 	case CXN_DELETE_VERIFY:
 		if (strcmp(arg, "yes")) {
 			send_to_desc(d, "\r\nDelete cancelled.  %s will not be deleted.\r\n\r\n",
 				GET_NAME(d->creature));
-			if (!d->creature->in_room) {
+			if (!d->creature->in_room)
 				delete d->creature;
-				d->creature = NULL;
-			}
+			
+			d->creature = NULL;
 			set_desc_state(CXN_WAIT_MENU, d);
 			break;
 		}
