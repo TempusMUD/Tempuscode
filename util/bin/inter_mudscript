@@ -1,0 +1,10 @@
+#!/bin/csh -f
+#
+
+set PORT=2121
+
+
+bin/intermud $PORT >>& interlog
+
+
+

@@ -1050,7 +1050,7 @@ typedef signed char		sbyte;
 typedef unsigned char		ubyte;
 typedef signed short int	sh_int;
 typedef unsigned short int	ush_int;
-typedef char			bool;
+//typedef char			bool;
 typedef char			byte;
 
 typedef int	room_num;
@@ -1272,7 +1272,7 @@ struct char_player_data {
    char	*long_descr;   /* for 'look'			       */
    char	*description;  /* Extra descriptions                   */
    char	*title;        /* PC / NPC's title                     */
-   sh_int class;       /* PC / NPC's class		       */
+   sh_int char_class;       /* PC / NPC's class		       */
    sh_int remort_class; /* PC / NPC REMORT CLASS (-1 for none) */
    sh_int weight;      /* PC / NPC's weight                    */
    sh_int height;      /* PC / NPC's height                    */
@@ -1431,7 +1431,7 @@ struct player_special_data {
 };
 
 struct obj_shared_data {
-  int virtual;
+  int vnum;
   int number;
   int house_count;
   struct obj_data *proto;     /* pointer to prototype */
@@ -1440,7 +1440,7 @@ struct obj_shared_data {
 };
 
 struct mob_shared_data {
-  int virtual;
+  int vnum;
   int number;
   int  attack_type;           /* The Attack Type integer for NPC's     */
   byte default_pos;           /* Default position for NPC              */
@@ -1523,7 +1523,7 @@ struct char_file_u {
    char	title[MAX_TITLE_LENGTH+1];
    char poofin[MAX_POOF_LENGTH];
    char poofout[MAX_POOF_LENGTH];
-   sh_int class;
+   sh_int char_chass;
    sh_int remort_class;
    sh_int weight;
    sh_int height;

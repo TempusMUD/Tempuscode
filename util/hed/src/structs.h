@@ -444,6 +444,7 @@
 #define PLR_REMORT_TOUGHGUY (1 << 25) /* open to pk by remortz          */
 #define PLR_COUNCIL     (1 << 26)
 #define PLR_NOPOST      (1 << 27)
+#define PLR_LOG         (1 << 28)  /* log all cmds */
 
 /* Mobile flags: used by char_data.char_specials.act */
 #define MOB_SPEC         (1 << 0)  /* Mob has a callable spec-proc	*/
@@ -483,6 +484,7 @@
 #define MOB2_UNAPPROVED (1 << 12) /* Mobile not approved for game play */
 #define MOB2_RENAMED    (1 << 13) /* Mobile renamed */
 #define MOB2_NOAGGRO_RACE (1 << 14) /* wont attack members of own race */
+#define MOB2_MUGGER     (1 << 15)
 #define NUM_MOB2_FLAGS  15
 
 /* Preference flags: used by char_data.player_specials.pref */
@@ -579,7 +581,7 @@
 #define AFF2_BESERK		(1 << 6)
 #define AFF2_INTIMIDATED	(1 << 7)
 #define AFF2_TRUE_SEEING        (1 << 8)
-#define AFF2_HOLY_LIGHT		(1 << 9)
+#define AFF2_DIVINE_ILLUMINATION		(1 << 9)
 #define AFF2_PROTECT_UNDEAD	(1 << 10)
 #define AFF2_INVIS_TO_UNDEAD	(1 << 11)
 #define AFF2_INVIS_TO_ANIMALS   (1 << 12)
@@ -944,7 +946,8 @@
 #define LIQ_CHAMPAGNE  33
 #define LIQ_CAPPUCINO  34
 #define LIQ_RUM        35
-#define NUM_LIQUID_TYPES 36
+#define LIQ_SAKE       36
+#define NUM_LIQUID_TYPES 37
 
 
 /* other miscellaneous defines *******************************************/
@@ -985,10 +988,11 @@
 #define LVL_LUCIFER    70
 #define LVL_IMPL       69
 #define LVL_ENTITY     68
+#define LVL_ANCIENT    LVL_ENTITY
 #define LVL_CREATOR    67
 #define LVL_GRGOD      66
 #define LVL_TIMEGOD    65
-#define LVL_DIETY      64
+#define LVL_DEITY      64
 #define LVL_GOD	       63	/* Lesser God */
 #define LVL_ENERGY     62
 #define LVL_FORCE      61
@@ -1007,6 +1011,7 @@
 #define LVL_FREEZE	LVL_GOD
 #define LVL_CAN_BAN     LVL_GOD
 #define LVL_VIOLENCE    LVL_POWER
+#define LVL_LOGALL      LVL_ENTITY
 
 #define NUM_OF_DIRS	NUM_DIRS
 
@@ -1050,7 +1055,7 @@ typedef signed char		sbyte;
 typedef unsigned char		ubyte;
 typedef signed short int	sh_int;
 typedef unsigned short int	ush_int;
-typedef char			bool;
+//typedef char			bool;
 typedef char			byte;
 
 typedef int	room_num;
@@ -1123,6 +1128,7 @@ struct obj_data {
    char	*description;		  /* When in room                     */
    char	*short_description;       /* when worn/carry/in cont.         */
    char	*action_description;      /* What to write when used          */
+   unsigned int plrtext_len;       /* If contains savable plrtext      */
    struct extra_descr_data *ex_description; /* extra descriptions     */
    struct char_data *carried_by;  /* Carried by :NULL in room/conta   */
    struct char_data *worn_by;	  /* Worn by?			      */
@@ -1158,10 +1164,15 @@ struct obj_file_elem {
   int   damage;
   int   max_dam;
   int   material;
+  unsigned int plrtext_len;
   byte  worn_on_position;
   byte  type;
   byte  sparebyte1;
   byte  sparebyte2;
+  int   spareint1;
+  int   spareint2;
+  int   spareint3;
+  int   spareint4;
   struct obj_affected_type affected[MAX_OBJ_AFFECT];
 };
 
@@ -1272,7 +1283,7 @@ struct char_player_data {
    char	*long_descr;   /* for 'look'			       */
    char	*description;  /* Extra descriptions                   */
    char	*title;        /* PC / NPC's title                     */
-   sh_int class;       /* PC / NPC's class		       */
+   sh_int char_class;       /* PC / NPC's class		       */
    sh_int remort_class; /* PC / NPC REMORT CLASS (-1 for none) */
    sh_int weight;      /* PC / NPC's weight                    */
    sh_int height;      /* PC / NPC's height                    */
@@ -1431,7 +1442,7 @@ struct player_special_data {
 };
 
 struct obj_shared_data {
-  int virtual;
+  int vnum;
   int number;
   int house_count;
   struct obj_data *proto;     /* pointer to prototype */
@@ -1440,7 +1451,7 @@ struct obj_shared_data {
 };
 
 struct mob_shared_data {
-  int virtual;
+  int vnum;
   int number;
   int  attack_type;           /* The Attack Type integer for NPC's     */
   byte default_pos;           /* Default position for NPC              */
@@ -1453,14 +1464,20 @@ struct mob_shared_data {
 };
 
 
+struct mob_mugger_data {
+  int idnum;   /* idnum of player on shit list */
+  int  vnum;    /* vnum of object desired */
+  byte timer;   /* how long has the mob been waiting */
+};
+
 /* Specials used by NPCs, not PCs */
 struct mob_special_data {
    memory_rec *memory;	    /* List of attackers to remember	       */
    struct extra_descr_data *response;  /* for response processing */
+   struct mob_mugger_data *mug;
    struct mob_shared_data *shared;
    int wait_state;	    /* Wait state for bashed mobs	       */
    byte last_direction;     /* The last direction the monster went     */
-
 };
 
 
@@ -1523,7 +1540,7 @@ struct char_file_u {
    char	title[MAX_TITLE_LENGTH+1];
    char poofin[MAX_POOF_LENGTH];
    char poofout[MAX_POOF_LENGTH];
-   sh_int class;
+   sh_int char_class;
    sh_int remort_class;
    sh_int weight;
    sh_int height;

@@ -1,0 +1,13 @@
+#!/bin/sh
+
+for file in $*; do \
+	echo "Processing ${file}";\
+	echo "//" > tmpfile;\
+	echo "// File: ${file}                     -- Part of TempusMUD" >> tmpfile;\
+	echo "//" >> tmpfile;\
+	echo "// Copyright 1998 by John Watson, all rights reserved." >> tmpfile;\
+	echo "//" >> tmpfile;\
+	echo >> tmpfile;\
+	cat ${file} >> tmpfile;\
+	mv tmpfile ${file};\
+done
