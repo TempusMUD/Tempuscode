@@ -30,7 +30,6 @@ using namespace std;
 #include "structs.h"
 #include "utils.h"
 #include "comm.h"
-#include "interpreter.h"
 #include "handler.h"
 #include "db.h"
 #include "spells.h"
@@ -49,6 +48,7 @@ using namespace std;
 #include "accstr.h"
 #include "tokenizer.h"
 #include "player_table.h"
+#include "language.h"
 
 /* extern variables */
 extern int mini_mud;
@@ -2601,6 +2601,10 @@ ACMD(do_score)
 		acc_strcat("You have a reputation of being -",
 			reputation_msg[GET_REPUTATION_RANK(ch)], "-\r\n", NULL);
 	}
+	acc_sprintf("You are currently speaking %s.\r\n",
+				 ((GET_LANGUAGE(ch) > LANGUAGE_COMMON) ? 
+				  language_names[(int)GET_LANGUAGE(ch)] :
+				  "common"));
 	acc_sprintf(
 		"You carry %s%d%s gold coins.  You have %s%d%s cash credits.\r\n",
 		CCCYN(ch, C_NRM), GET_GOLD(ch), CCNRM(ch, C_NRM), CCCYN(ch,
