@@ -1022,7 +1022,7 @@ check_infiltrate(struct Creature *ch, struct Creature *vict)
 		char_in_memory(ch, vict))
 		return 0;
 
-	if (!IS_AFFECTED_3(ch, AFF3_INFILTRATE))
+	if (!IS_AFFECTED_3(ch, AFF3_INFILTRATE) && !IS_AFFECTED(ch, AFF_HIDE))
 		return 0;
 
 	if (affected_by_spell(vict, ZEN_AWARENESS) ||

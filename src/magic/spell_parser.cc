@@ -3372,7 +3372,9 @@ mag_assign_spells(void)
 		X, X, 150, 70, 10, POS_FIGHTING, TAR_IGNORE, TRUE,
 		MAG_PHYSICS | MAG_AREAS);
 
-
+//	spello(SKILL_AMBUSH, X, X, X, X, X, X, X, X, X, 29, 12, X, X, 39, X, X, X,
+	spello(SKILL_AMBUSH, X, X, X, X, X, X, X, X, X, X, X, X, X, X, X, X, X,
+		0, 0, 0, POS_STANDING, TAR_IGNORE, true, MAG_MANUAL);
 
 	spello(ZEN_HEALING, X, X, X, X, X, X, X, X, X, X, X, 36, X, X, X, X, X, 30,
 		9, 2, 0, 0, 0, MAG_ZEN);
@@ -3581,7 +3583,7 @@ mag_assign_spells(void)
 	spello(SKILL_CIRCLE, X, X, 33, X, X, X, X, X, X, X, X, X, X, X, X, X, X,
 		0, 0, 0, 0, 0, 0, 0);
 
-	spello(SKILL_HIDE, X, X, 3, X, X, X, X, X, X, 15, X, X, X, 30, X, X, X,
+	spello(SKILL_HIDE, X, X, 3, X, X, X, X, X, X, 15, 7, X, X, 30, X, X, X,
 		0, 0, 0, 0, 0, 0, 0);
 
 	/* Ma Cl Th Wa Br Syk Ph Cyb Kni Rn Hd Mnk vm mr 1 2 3 */

@@ -454,6 +454,7 @@ ACMD(do_hide)
 
 	SET_BIT(AFF_FLAGS(ch), AFF_HIDE);
 	gain_skill_prof(ch, SKILL_HIDE);
+	WAIT_STATE(ch, 1 RL_SEC);
 }
 
 ACMD(do_disguise)

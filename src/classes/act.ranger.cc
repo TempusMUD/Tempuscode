@@ -23,6 +23,7 @@
 #include "flow_room.h"
 #include "house.h"
 #include "char_class.h"
+#include "fight.h"
 
 ACMD(do_bandage)
 {
@@ -246,6 +247,59 @@ ACMD(do_autopsy)
 		}
 		gain_skill_prof(ch, SKILL_AUTOPSY);
 	}
+}
+
+ACMD(do_ambush)
+{
+	char *vict_name;
+	Creature *vict;
+
+	vict_name = tmp_getword(&argument);
+	vict = get_char_room_vis(ch, vict_name);
+	if (!vict) {
+		send_to_char(ch, "Ambush who?\r\n");
+		return;
+	}
+
+	if (!peaceful_room_ok(ch, vict, true))
+		return;
+
+	if (!AFF_FLAGGED(ch, AFF_HIDE)) {
+		send_to_char(ch, "You must first be hidden to ambush.\r\n");
+		return;
+	}
+
+	if (GET_MOVE(ch) < 48) {
+		send_to_char(ch, "You're too tired... better wait awhile.\r\n");
+		return;
+	}
+
+	GET_MOVE(ch) -= 48;
+
+	if (CANNOT_DAMAGE(ch, vict, 0, SKILL_AMBUSH) ||
+			number(30, 120) > CHECK_SKILL(ch, SKILL_AMBUSH)) {
+		act("You spring out in front of $N, surprising nobody.",
+			true, ch, 0, vict, TO_CHAR);
+		act("$n springs out in front of you, but you were ready for $m",
+			true, ch, 0, vict, TO_VICT);
+		act("$n springs out from hiding, but $N is ready to fight!",
+			true, ch, 0, vict, TO_NOTVICT);
+		WAIT_STATE(ch, 2 RL_SEC);
+		if (IS_NPC(vict))
+			hit(vict, ch, TYPE_UNDEFINED);
+		return;
+	}
+
+	act("You catch $N completely by surprise with your ambush!",
+		true, ch, 0, vict, TO_CHAR);
+	act("$n appears out of nowhere, catching you completely by surprise!",
+		true, ch, 0, vict, TO_VICT);
+	act("$n catches $N completely by surprise with his ambush!",
+		true, ch, 0, vict, TO_NOTVICT);
+	WAIT_STATE(vict, (CHECK_SKILL(ch, SKILL_AMBUSH) / 30 + 3) RL_SEC);
+	gain_skill_prof(ch, SKILL_AMBUSH);
+	REMOVE_BIT(AFF_FLAGS(ch), AFF_HIDE);
+	hit(ch, vict, TYPE_UNDEFINED);
 }
 
 #undef __act_ranger_c__

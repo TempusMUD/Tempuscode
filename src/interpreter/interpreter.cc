@@ -92,6 +92,7 @@ ACMD(do_affects);
 ACMD(do_alias);
 ACMD(do_alignment);
 ACMD(do_alter);
+ACMD(do_ambush);
 ACMD(do_analyze);
 ACMD(do_approve);
 ACMD(do_arm);
@@ -455,6 +456,7 @@ struct command_info cmd_info[] = {
 	{"adjust", POS_RESTING, do_action, 0, 0, 0},
 	{"afw", POS_RESTING, do_action, 0, 0, 0},
 	{"agree", POS_RESTING, do_action, 0, 0, 0},
+//	{"ambush", POS_STANDING, do_ambush, 0, 0, 0},
 	{"analyze", POS_SITTING, do_analyze, 0, 0, 0},
 	{"anonymous", POS_DEAD, do_gen_tog, 1, SCMD_ANON, 0},
 	{"anticipate", POS_RESTING, do_action, 0, 0, 0},
@@ -1514,8 +1516,7 @@ command_interpreter(struct Creature *ch, char *argument)
 			break;
 	} else if (no_specials ||
 			!special(ch, cmd, cmd_info[cmd].subcmd, line, SPECIAL_CMD)) {
-		((*cmd_info[cmd].command_pointer) (ch, line, cmd,
-				cmd_info[cmd].subcmd, 0));
+		cmd_info[cmd].command_pointer(ch, line, cmd, cmd_info[cmd].subcmd, 0);
 	}
 
 }

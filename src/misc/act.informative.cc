@@ -2591,7 +2591,7 @@ ACMD(do_score)
 	switch (ch->getPosition()) {
 	case POS_DEAD:
 		msg = tmp_strcat(msg, CCRED(ch, C_NRM),
-			"You are DEAD!\r\n", CCNRM(ch, C_NRM));
+			"You are DEAD!\r\n", CCNRM(ch, C_NRM), NULL);
 		break;
 	case POS_MORTALLYW:
 		msg = tmp_strcat(msg, CCRED(ch, C_NRM),

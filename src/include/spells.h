@@ -577,7 +577,6 @@ static const int SKILL_USE_WANDS = 691;
 
 /* New skills may be added here up to MAX_SKILLS (700) */
 static const int SKILL_DISCIPLINE_OF_STEEL = 692;
-
 /*
  *  NON-PLAYER AND OBJECT SPELLS AND SKILLS
  *  The practice levels for the spells and skills below are _not_ recorded
