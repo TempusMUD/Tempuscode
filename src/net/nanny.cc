@@ -209,6 +209,7 @@ handle_input(struct descriptor_data *d)
 
 		d->account->set_compact_level(i);
 		set_desc_state(CXN_EMAIL_PROMPT, d);
+		break;
 	case CXN_EMAIL_PROMPT:
 		d->account->set_email_addr(arg);
 		set_desc_state(CXN_PW_PROMPT, d);
