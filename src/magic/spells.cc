@@ -2648,6 +2648,13 @@ ASPELL(spell_summon_legion)
 
 	// pets too scared to help.
 	REMOVE_BIT(MOB_FLAGS(devil), MOB_HELPER);
+	REMOVE_BIT(MOB_FLAGS(devil), MOB_AGGRESSIVE);
+	// pets shouldn't snatch shit.
+	REMOVE_BIT(MOB_FLAGS(devil), MOB_SCAVENGER);
+	REMOVE_BIT(MOB2_FLAGS(devil), MOB2_LOOTER);
+	// They shouldn't bother to stay put either.
+	REMOVE_BIT(MOB_FLAGS(devil), MOB_STAY_ZONE);
+	REMOVE_BIT(MOB2_FLAGS(devil), MOB2_STAY_SECT);
 
 	add_follower(devil, ch);
 
