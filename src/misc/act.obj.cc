@@ -1768,6 +1768,10 @@ ACMD(do_give)
 		return;
 	}
 
+	vict = give_find_vict(ch, arg2);
+	if (!vict)
+		return;
+
 	if (is_number(arg1)) {
 		amount = atoi(arg1);
 
@@ -1783,9 +1787,6 @@ ACMD(do_give)
 		return;
 	}
 
-	vict = give_find_vict(ch, arg2);
-	if (!vict)
-		return;
 
 	dotmode = find_all_dots(arg1);
 
