@@ -335,7 +335,7 @@ ACMD(do_title)
 	send_to_char(buf, ch);
     } else {
 	set_title(ch, argument);
-	sprintf(buf, "Okay, you're now %s %s.\r\n", GET_NAME(ch), GET_TITLE(ch));
+	sprintf(buf, "Okay, you're now %s%s.\r\n", GET_NAME(ch), GET_TITLE(ch));
 	send_to_char(buf, ch);
     }
 }

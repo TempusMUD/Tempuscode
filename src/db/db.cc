@@ -3267,7 +3267,8 @@ store_to_char(struct char_file_u * st, struct char_data * ch)
 
     ch->player.short_descr  = NULL;
     ch->player.long_descr   = NULL;
-    ch->player.title        = str_dup(st->title);
+	set_title( ch,st->title );
+/*    ch->player.title        = str_dup(st->title); */
     ch->player.description  = str_dup(st->description);
     ch->player.hometown     = st->hometown;
     ch->player.time.birth   = st->birth;

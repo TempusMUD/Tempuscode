@@ -820,7 +820,7 @@ list_one_char(struct char_data * i, struct char_data * ch, byte is_group)
         CAP(buf2);
         sprintf(buf, "%s%s", buf, buf2);
     } else
-        sprintf(buf, "%s%s %s", buf, i->player.name, GET_TITLE(i));
+        sprintf(buf, "%s%s%s", buf, i->player.name, GET_TITLE(i));
   
     if (is_group)
         strcat(buf, CCNRM(ch, C_CMP));
@@ -2478,7 +2478,7 @@ ACMD(do_score)
         sprintf(buf, "%sYou have existed here for %d days and %d hours.\r\n",
                 buf, playing_time.day, playing_time.hours);
     
-        sprintf(buf, "%sYou are known as %s%s %s.%s\r\n", buf,
+        sprintf(buf, "%sYou are known as %s%s%s.%s\r\n", buf,
                 CCYEL(ch, C_NRM), GET_NAME(ch), GET_TITLE(ch), CCNRM(ch, C_NRM));
     }
     sprintf(buf, "%sYou carry %s%d%s gold coins.  You have %s%d%s cash credits.\r\n",
@@ -3142,7 +3142,7 @@ ACMD(do_who)
         } else {
             num_can_see++;
             if (GET_LEVEL(tch) >= LVL_AMBASSADOR) {
-                sprintf(buf2, "%s%s%s[%s%s%s]%s %s%s%s %s%s", buf2,
+                sprintf(buf2, "%s%s%s[%s%s%s]%s %s%s%s%s%s", buf2,
                         CCGRN(ch, C_SPR), CCYEL_BLD(ch, C_NRM), CCNRM_GRN(ch, C_NRM),
                         (PLR_FLAGGED(tch, PLR_QUESTOR)          ? "QUESTOR" :
                          !strncmp(GET_NAME(tch), "Fishbone", 8) ? "BONEMAN" : 
@@ -3234,14 +3234,14 @@ ACMD(do_who)
                 }
                 if (PRF2_FLAGGED(tch, PRF2_ANONYMOUS) && 
                     !PRF_FLAGGED(ch, PRF_HOLYLIGHT))
-                    sprintf(buf2, "%s%s[%s-- ----%s]%s %s%s %s%s", buf2,
+                    sprintf(buf2, "%s%s[%s-- ----%s]%s %s%s%s%s", buf2,
                             CCGRN(ch, C_NRM), CCCYN(ch, C_NRM),
                             CCGRN(ch, C_NRM), 
                             CCNRM(ch, C_NRM), PLR_FLAGGED(tch, PLR_TESTER) ?
                             tester_buf : PRF2_FLAGGED(tch, PRF2_NOWHO) ? nowho_buf :"",  
                             GET_NAME(tch), GET_TITLE(tch), CCNRM(ch, C_NRM));
                 else
-                    sprintf(buf2, "%s%s[%s%2d%s%s%s%s%s]%s %s%s %s%s", buf2,
+                    sprintf(buf2, "%s%s[%s%2d%s%s%s%s%s]%s %s%s%s%s", buf2,
                             CCGRN(ch, C_NRM), 
                             (PRF2_FLAGGED(tch, PRF2_ANONYMOUS) && 
                              PRF_FLAGGED(ch, PRF_HOLYLIGHT)) ? CCRED(ch, C_NRM) :
