@@ -1,6 +1,7 @@
-UTILS=hcontrol-view showplay economic_stats demographic_stats scan_rent purgeplay newdyncontrol clanview
+UTILS=hcontrol-view showplay economic_stats demographic_stats scan_rent purgeplay \
+                    newdyncontrol clanview playerutil
 INCLUDE=-I../../src/include
-CXX=g++ -Wall -O3 $(INCLUDE)
+CXX=g++ -lcrypt -lxml2 -Wall -O3 $(INCLUDE)
 
 all: $(UTILS)
 
@@ -30,3 +31,6 @@ newdyncontrol: newdyncontrol.cc
 
 clanview: clanview.cc
 	$(CXX) clanview.cc -o $@
+
+playerutil: playerutil.cc
+	$(CXX) playerutil.cc -o $@
