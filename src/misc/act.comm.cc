@@ -176,7 +176,7 @@ ACMD(do_say)
 					strcpy(buf3, PERS(vict, (*it)));
 				send_to_char(*it, "%s%s%s%s%s says to %s,%s %s'%s'%s\r\n",
 					recurs_say ? "(remote) " : "", CCBLD((*it), C_NRM),
-					CCBLU((*it), C_SPR), buf2, buf3, cur_mood,
+					CCBLU((*it), C_SPR), buf2, cur_mood, buf3,
 					CCNRM((*it), C_SPR), CCCYN((*it), C_NRM), argument,
 					CCNRM((*it), C_NRM));
 			}
