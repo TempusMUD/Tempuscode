@@ -1007,7 +1007,7 @@ do_emp_pulse_char( char_data *ch, char_data *vict ) {
 // blocked by emp shield
 ASPELL(spell_emp_pulse) {
     char_data *vict;
-    bool can_continue;
+    bool can_continue=true;
 
     if( ch->in_room == NULL)
         return;
@@ -1016,7 +1016,7 @@ ASPELL(spell_emp_pulse) {
         return;
     }
     // Make sure non-pkillers dont get killer flags.
-    for(vict = ch->in_room->people; vict ; vict=vict->next_in_room) {
+    for(vict = ch->in_room->people; can_continue && vict ; vict=vict->next_in_room) {
         if(vict != ch) {
             can_continue = peaceful_room_ok(ch,vict,true);
         }
