@@ -1297,8 +1297,8 @@ extern const char *item_value_types[][4] = {
 	{"UNDEFINED", "UNDEFINED", "UNDEFINED", "UNDEFINED"},
 	{"Color", "Type", "Hours", "UNDEFINED"},	/* Light      */
 	{"Level", "Spell1", "Spell2", "Spell3"},	/* Scroll     */
-	{"Level", "Max Charg", "Curr Chrg", "Spell"},	/* wand       */
-	{"Level", "Max Charg", "Curr Chrg", "Spell"},	/* staff      */
+	{"Level", "Max Charg", "Cur Chrg", "Spell"},	/* wand       */
+	{"Level", "Max Charg", "Cur Chrg", "Spell"},	/* staff      */
 	{"Spell", "Dam dice1", "Dam dice ", "Atck type"},	/* weapon     */
 	{"UNDEFINED", "UNDEFINED", "UNDEFINED", "UNDEFINED"},	/* fireweapon */
 	{"UNDEFINED", "UNDEFINED", "UNDEFINED", "UNDEFINED"},	/* missile    */
@@ -1311,18 +1311,18 @@ extern const char *item_value_types[][4] = {
 	{"UNDEFINED", "UNDEFINED", "UNDEFINED", "UNDEFINED"},	/* trap       */
 	{"Max Capac", "Flags", "Keynum", "DONT SET"},	/* container  */
 	{"UNDEFINED", "UNDEFINED", "UNDEFINED", "UNDEFINED"},	/* note       */
-	{"Max units", "Curr Unit", "Liq.type", "Poison"},	/* liq cont   */
+	{"Max units", "Cur Unit", "Liq.type", "Poison"},	/* liq cont   */
 	{"Keytype", "Rentflag", "UNDEFINED", "UNDEFINED"},	/* key        */
 	{"Hours", "Spell lev", "Spellnum", "Poison"},	/* food       */
 	{"Num Coins", "Type", "UNDEFINED", "UNDEFINED"},	/* money      */
 	{"UNDEFINED", "UNDEFINED", "UNDEFINED", "UNDEFINED"},	/* pen        */
 	{"UNDEFINED", "UNDEFINED", "UNDEFINED", "UNDEFINED"},	/* boat       */
-	{"Max units", "Curr Units", "Liq.type", "Poison"},	/* fountain   */
+	{"Max units", "Cur Units", "Liq.type", "Poison"},	/* fountain   */
 	{"UNDEFINED", "UNDEFINED", "UNDEFINED", "UNDEFINED"},	/* wings      */
 	{"Startroom", "Cost", "Max Lev.", "Hometown"},	/* vr interface */
 	{"State", "UNDEFINED", "UNDEFINED", "UNDEFINED"},	/* scuba      */
 	{"Max energ", "Cur Energ", "State", "Rate     "},	/* device     */
-	{"Type", "v1", "Max", "Cur"},	/* interface  */
+	{"Type", "UNDEFINED", "Max", "UNDEFINED"},	/* interface  */
 	{"Align", "Class", "Min level", "Max level"},	/* holy symb  */
 	{"Room/KeyNum", "Doorstate", "Flags", "Special"},	/* vehicle */
 	{"Max energ", "Cur Energ", "Enginstat", "Rate     "},	/* engine     */
@@ -1338,7 +1338,7 @@ extern const char *item_value_types[][4] = {
 	{"Max Energy", "Cur Energ", "To-room", "tunable?"},	/* transporter */
 	{"Level", "Spell1", "Spell2", "Spell3"},	/* Syringe     */
 	{"Credits  ", "UNDEFINED", "UNDEFINED", "UNDEFINED"},	/* chit */
-	{"Max Units", "Curr Unit", "UNDEFINED", "UNDEFINED"},	/* scuba tank   */
+	{"Max Units", "Cur Unit", "UNDEFINED", "UNDEFINED"},	/* scuba tank   */
 	{"UNDEFINED", "UNDEFINED", "UNDEFINED", "UNDEFINED"},
 	{"skillnum", "modifier", "UNDEFINED", "UNDEFINED"},	/* tool * */
 	{"Type", "Power", "UND", "Idnum"},	/* bomb * */
@@ -1354,7 +1354,7 @@ extern const char *item_value_types[][4] = {
 	{"UNDEFINED", "UNDEFINED", "Dam Mod", "Gun Type"},	/* bullet */
 	{"UNDEFINED", "UNDEFINED", "Max Load", "Gun Type"},	/* clip */
 	{"Type", "Data", "Max", "UNDEFINED"},	/* chip */
-	{"Max Charge", "Curr Charge", "State", "Channel"},	/* Communicator  */
+	{"Max Charge", "Cur Charge", "State", "Channel"},	/* Communicator  */
 	{"Top Message", "Mode", "Wait Time", "Counter"},	/* Script  */
 	{"UNDEFINED", "UNDEFINED", "UNDEFINED", "UNDEFINED"}
 };
