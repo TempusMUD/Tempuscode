@@ -27,7 +27,6 @@ static char gHelpbuf[MAX_STRING_LENGTH];
 static char linebuf[MAX_STRING_LENGTH];
 static fstream help_file;
 static fstream index_file;
-static fstream help_log;
 extern const char *pc_char_class_types[];
 
 char *one_word(char *argument, char *first_arg);
@@ -190,6 +189,8 @@ HelpCollection::GetTopic(Creature * ch,
 	}
 	cur = FindItems(args, show_no_app, thegroup, searchmode);
 	if (!cur) {
+		fstream help_log;
+
 		help_log.open("log/help.log", ios::out | ios::app);
 		if (help_log.good()) {
 			time_t ct;
@@ -199,10 +200,9 @@ HelpCollection::GetTopic(Creature * ch,
 			tmstr = asctime(localtime(&ct));
 			*(tmstr + strlen(tmstr) - 1) = '\0';
 			help_log << tmp_sprintf("%-8s (%6.6s) [%5d] %s", GET_NAME(ch),
-				tmstr + 4, ch->in_room->number, args) << endl;
-			help_log.flush();
+				tmstr + 4, (ch->in_room) ? ch->in_room->number:0, args) << endl;
+			help_log.close();
 		}
-		help_log.close();
 
 		send_to_char(ch, "No items were found matching your search criteria.\r\n");
 		return;
