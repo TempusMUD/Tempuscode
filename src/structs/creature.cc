@@ -475,7 +475,6 @@ Creature::extractUnrentables()
 	Crash_extract_norents(carrying);
 }
 
-
 /**
  * Extract a ch completely from the world, and destroy his stuff
  * @param con_state the connection state to change the descriptor to, if one exists
@@ -958,6 +957,27 @@ Creature::idle(void)
 bool
 Creature::die(void)
 {
+	obj_data *obj, *next_obj;
+	int pos;
+
+	// If their stuff hasn't been moved out, they dt'd, so we need to dump
+	// their stuff to the room
+	for (pos = 0;pos < NUM_WEARS;pos++) {
+		if (GET_EQ(this, pos)) {
+			obj = unequip_char(this, pos, MODE_EQ);
+			obj_to_room(obj, in_room);
+		}
+		if (GET_IMPLANT(this, pos)) {
+			obj = unequip_char(this, pos, MODE_IMPLANT);
+			obj_to_room(obj, in_room);
+		}
+	}
+	for (obj = carrying;obj;obj = next_obj) {
+		next_obj = obj->next_content;
+		obj_from_char(obj);
+		obj_to_room(obj, in_room);
+	}
+	
 	if (!IS_NPC(this)) {
 		player_specials->rentcode = RENT_QUIT;
 		player_specials->rent_per_day = 0;
