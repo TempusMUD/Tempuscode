@@ -1171,8 +1171,8 @@ Creature::get_reputation(void)
 	if (IS_NPC(this))
 		return 0;
 	if (account)
-		return player_specials->saved.reputation
-			+ (account->get_reputation() * 5 / 100);
+		return MAX(0, MIN(1000, (player_specials->saved.reputation * 95 / 100)
+			+ (account->get_reputation() * 5 / 100)));
 	return player_specials->saved.reputation;
 }
 
