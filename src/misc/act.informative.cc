@@ -43,6 +43,7 @@ using namespace std;
 #include "fight.h"
 #include "specs.h"
 #include "events.h"
+#include "security.h"
 
 /* extern variables */
 extern struct room_data *world;
@@ -3665,18 +3666,19 @@ ACMD(do_gen_ps)
 	case SCMD_INFO:
 		page_string(ch->desc, info, 0);
 		break;
+    /*
 	case SCMD_WIZLIST:
 		if (clr(ch, C_NRM))
 			page_string(ch->desc, ansi_wizlist, 0);
 		else
 			page_string(ch->desc, wizlist, 0);
-		break;
 	case SCMD_IMMLIST:
 		if (clr(ch, C_NRM))
 			page_string(ch->desc, ansi_immlist, 0);
 		else
 			page_string(ch->desc, immlist, 0);
 		break;
+    */
 	case SCMD_MOTD:
 		if (clr(ch, C_NRM))
 			page_string(ch->desc, ansi_motd, 0);
@@ -4771,3 +4773,60 @@ ACMD(do_alignment)
 	send_to_char(buf, ch);
 
 }
+
+
+void send_wizlist_section_splitter( char_data *ch )
+{
+    sprintf(buf, 
+            "    %so~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~%s\r\n",
+            CCCYN(ch,C_NRM), CCNRM(ch,C_NRM) );
+    send_to_char( buf, ch );
+}
+
+void send_wizlist_section_title( char* name, char_data *ch )
+{
+    sprintf(buf,
+            "\r\n\r\n        %s%s%s\r\n", 
+            CCYEL(ch,C_NRM), name, CCNRM(ch,C_NRM) );
+    send_to_char(buf,ch);
+    send_wizlist_section_splitter(ch);
+}
+
+ACMD(do_wizlist)
+{
+    using namespace Security;
+    sprintf( buf, 
+            "\r\n                %sThe Immortals of TempusMUD\r\n",
+             CCBLU(ch,C_NRM) );
+    send_to_char(buf,ch);
+    sprintf( buf,     "                %s--------------------------\r\n", 
+             CCBLU_BLD(ch,C_NRM) );
+    send_to_char(buf,ch);
+    sprintf(buf,"        %sGRIMP%s\r\n", 
+                CCYEL_BLD(ch,C_NRM),CCNRM(ch,C_NRM) );
+    send_to_char( buf, ch );
+    send_wizlist_section_splitter(ch);
+
+    getGroup("Wizlist_Grimps").sendPublicMemberList(ch);
+    send_wizlist_section_title("Administrators",ch);
+    getGroup("Wizlist_Admins").sendPublicMemberList(ch);
+    send_wizlist_section_title("Architects",ch);
+    getGroup("Wizlist_Arch_P").sendPublicMemberList(ch);
+    send_to_char( " - Past Era\r\n",ch );
+    getGroup("Wizlist_ArchEC").sendPublicMemberList(ch);
+    send_to_char( " - Future Era\r\n",ch );
+    getGroup("Wizlist_ArchOP").sendPublicMemberList(ch);
+    send_to_char( " - Outer Planes",ch );
+    send_wizlist_section_title("Builders",ch);
+    getGroup("Wizlist_Blders").sendPublicMemberList(ch);
+    send_wizlist_section_title("Coders",ch);
+    getGroup("Wizlist_Coders").sendPublicMemberList(ch);
+    send_wizlist_section_title("Questors",ch);
+    getGroup("Wizlist_Quests").sendPublicMemberList(ch);
+    send_wizlist_section_title("Elder Gods",ch);
+    getGroup("Wizlist_Elders").sendPublicMemberList(ch);
+    send_to_char( "\r\n",ch);
+}
+
+
+
