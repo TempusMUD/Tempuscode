@@ -2734,7 +2734,8 @@ ASPELL(spell_animate_dead)
 
 	if (IS_UNDEAD(orig_char)) {
 		act("You cannot re-animate $p.", FALSE, ch, obj, 0, TO_CHAR);
-		delete orig_char;
+		if (IS_PC(orig_char))
+			delete orig_char;
 		return;
 	}
 
@@ -2742,14 +2743,16 @@ ASPELL(spell_animate_dead)
 		&& GET_LEVEL(orig_char) > GET_LEVEL(ch)) {
 		send_to_char(ch, 
 			"You find yourself unable to perform this necromantic deed.\r\n");
-		delete orig_char;
+		if (IS_PC(orig_char))
+			delete orig_char;
 		return;
 	}
 
 	if (!(zombie = read_mobile(ZOMBIE_VNUM))) {
 		send_to_char(ch, "The dark powers are not with you, tonight.\r\n");
 		slog("SYSERR: unable to load ZOMBIE_VNUM in spell_animate_dead.");
-		delete orig_char;
+		if (IS_PC(orig_char))
+			delete orig_char;
 		return;
 	}
 
