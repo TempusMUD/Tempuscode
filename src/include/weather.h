@@ -49,6 +49,8 @@ struct weather_data {
 	byte humid;					/* humidity */
 };
 
+void set_local_time(struct zone_data *zone, struct time_info_data *local_time);
+
 inline int
 get_lunar_phase(int day)
 {
