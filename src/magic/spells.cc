@@ -771,7 +771,7 @@ ASPELL(spell_summon)
 			}
 
 			if (!IS_REMORT(victim) && !IS_NPC(victim)) {
-				sprintf(buf, "%s astral-summoned %s to %d.\n", GET_NAME(ch),
+				sprintf(buf, "%s astral-summoned %s to %d.", GET_NAME(ch),
 					GET_NAME(victim), ch->in_room->number);
 				slog(buf);
 			}
