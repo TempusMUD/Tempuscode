@@ -1,4 +1,5 @@
-/* ************************************************************************
+
+/************************************************************************
  *   File: char_class.c                                       Part of CircleMUD *
  *  Usage: Source file for char_class-specific code                             *
  *                                                                         *
@@ -336,7 +337,10 @@ extern const char *char_class_abbrevs[] = {
 	"Movn",
 	"ILL", "ILL", "ILL", "ILL", "ILL", "ILL", "ILL", "ILL", "ILL", "ILL",	// 162
 	"ILL", "ILL", "ILL", "ILL", "ILL", "ILL", "ILL", "ILL", "ILL", "ILL",	// 172
-	"ILL", "ILL", "ILL", "ILL", "ILL", "ILL", "ILL", "ILL", "ILL", "ILL",	// 182
+	"ILL", "ILL", "ILL", "ILL", "ILL",
+    "Gdlg",                   // 178  Godling and Demigods extra planes
+    "Diet",
+    "ILL", "ILL", "ILL",	// 182
 	"\n"
 };
 
@@ -432,6 +436,8 @@ extern const char *pc_char_class_types[] = {
 	"Ultro",
 	"Yagno",
 	"Pyro",						// 177
+    "Godling",                  // 178 - For Extra Planes
+    "Deity",
 	"\n"
 };
 
@@ -572,6 +578,9 @@ extern const char *player_race[] = {
     "Griffin",
     "Rotarian",
     "Half Elf",
+    "Celesital",
+    "Elysian",
+    "Olympian",
 	"\n"
 };
 
