@@ -1138,7 +1138,7 @@ ACMD( do_hedit )
     }
     if ( ( GET_IDNUM( ch ) != h->owner1 ) && 
 	 ( GET_IDNUM( ch ) != h->owner2 ) &&
-	 GET_LEVEL( ch ) < LVL_IMPL ) {
+	 GET_LEVEL( ch ) < LVL_GRGOD) {
 	send_to_char( "Only the owner can edit the house.\r\n", ch );
 	return;
     }
@@ -1187,6 +1187,8 @@ ACMD( do_hedit )
 	WAIT_STATE( ch, 8 RL_SEC );
 	break;
     case 5:   /* show */
+    char tmpbuf[1024];
+    tmpbuf[0] = '\0';
 	argument = one_argument( argument, arg );
 	skip_spaces( &argument );
 	if ( ( *arg && is_abbrev( arg, "brief" ) ) || 
@@ -1200,23 +1202,31 @@ ACMD( do_hedit )
 	if ( brief ) {
 	    strcpy( buf, "-- House Room --------------------- Items ------- Cost\r\n" );
 	    for ( j = 0; j < h->num_of_rooms; j++, num = 0, cost = 0 ) {
-		if ( local && h->house_rooms[j] != ch->in_room->number )
-		    continue;
-		if ( !( rm = real_room( h->house_rooms[j] ) ) ) {
-		    slog( "SYSERR:  house room does not exist!" );
-		    continue;
-		}
-	
-		for ( o = rm->contents; o; o = o->next_content ) {
-		    num += recurs_obj_contents( o, NULL );
-		    cost += recurs_obj_cost( o, false, NULL );
-		}
-		tot_cost += cost;
-		tot_num += num;
-		sprintf( buf, "%s%s%-30s%s       %s%3d%s        %5d\r\n", buf, 
-			 CCCYN( ch, C_NRM ), rm->name, CCNRM( ch, C_NRM ), 
-			 ( num > MAX_HOUSE_ITEMS ) ? CCRED( ch, C_NRM ) : "", 
-			 num, CCNRM( ch, C_NRM ), cost );
+            if ( local && h->house_rooms[j] != ch->in_room->number )
+                continue;
+            if ( !( rm = real_room( h->house_rooms[j] ) ) ) {
+                slog( "SYSERR:  house room does not exist!" );
+                continue;
+            }
+        
+            for ( o = rm->contents; o; o = o->next_content ) {
+                num += recurs_obj_contents( o, NULL );
+                cost += recurs_obj_cost( o, false, NULL );
+            }
+            tot_cost += cost;
+            tot_num += num;
+            sprintf( tmpbuf, "%s%-30s%s       %s%3d%s        %5d\r\n", 
+                 CCCYN( ch, C_NRM ), rm->name, CCNRM( ch, C_NRM ), 
+                 ( num > MAX_HOUSE_ITEMS ) ? CCRED( ch, C_NRM ) : "", 
+                 num, CCNRM( ch, C_NRM ), cost );
+
+             if(strlen(buf) + strlen(tmpbuf) > MAX_STRING_LENGTH - 256) {
+                sprintf(tmpbuf,"%sOVERFLOW\r\n%s",CCRED(ch,C_NRM),CCNRM(ch,C_NRM));
+                strcat(buf,tmpbuf);
+                break;
+             } else {
+                strcat(buf, tmpbuf);
+             }
 	    }
 	    if ( !local )
 		sprintf( buf, 
