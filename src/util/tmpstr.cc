@@ -59,6 +59,7 @@ tmp_gc_strings(void)
 		
 		if (tmp_max_used > tmp_list_head->space) {
 			free(tmp_list_head);
+			tmp_list_tail = NULL;
 			tmp_list_head = tmp_alloc_pool(tmp_max_used);
 			slog("NOTICE: tmpstr pool allocated increased to %d bytes", 
 				tmp_max_used);
