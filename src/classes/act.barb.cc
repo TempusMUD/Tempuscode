@@ -33,6 +33,10 @@ ACMD(do_charge)
     // Check for beserk.
     // 
 
+    if (CHECK_SKILL(ch, SKILL_CHARGE) < 50) {
+        send_to_char("Do you really think you know what you're doing?",ch);
+        return;
+    }
     // find out who we're whackin.
     vict = get_char_in_remote_room_vis(ch, buf, ch->in_room);
     if(vict == ch) {
