@@ -1620,6 +1620,13 @@ SPECIAL(bank)
 	    send_to_char("How much do you want to withdraw?\r\n", ch);
 	    return 1;
 	}
+        
+        if (IS_AFFECTED(ch, AFF_CHARM)) {
+           send_to_char("You can't do that while charmed!\r\n", ch);
+           sprintf(buf, "You can't force %s to do that, even while charmed!\r\n", ch->player.name);
+           send_to_char(buf, ch->master);
+           return 1;
+        }
     
 	if (*arg2 && !str_cmp(arg2, "clan")) {
 	    if (!member || !PLR_FLAGGED(ch, PLR_CLAN_LEADER))
