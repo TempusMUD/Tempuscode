@@ -5661,8 +5661,8 @@ ACMD(do_set)
         {"soulless", LVL_IMMORT, BOTH, BINARY, "WizardFull"},
         {"buried", LVL_IMMORT, PC, BINARY, "AdminFull"},
         {"speed", LVL_IMMORT, PC, NUMBER, "Coder"},
-        {"badge", LVL_ENTITY, PC, MISC, "AdminFull"},
-        {"skill", LVL_ENTITY, PC, MISC, "WizardFull"},
+        {"badge", LVL_IMMORT, PC, MISC, "AdminFull"},
+        {"skill", LVL_IMMORT, PC, MISC, "WizardFull"},
         {"reputation", LVL_IMMORT, PC, NUMBER, "AdminFull"},
         {"\n", 0, BOTH, MISC, ""}
     };
