@@ -398,11 +398,15 @@ do_mob_mset(struct Creature *ch, char *argument)
 
 	switch (mset_command) {
 	case 0:{				 /** Alias **/
-			if (mob_p->player.name)
-				free(mob_p->player.name);
-			mob_p->player.name = strdup(arg2);
-			UPDATE_MOBLIST(mob_p, tmp_mob,->player.name);
-			send_to_char(ch, "Mobile aliases set.\r\n");
+			if (strchr(arg2, '~')) {
+				send_to_char(ch, "Tildes don't belong in aliases.\r\n");
+			} else {
+				if (mob_p->player.name)
+					free(mob_p->player.name);
+				mob_p->player.name = strdup(arg2);
+				UPDATE_MOBLIST(mob_p, tmp_mob,->player.name);
+				send_to_char(ch, "Mobile aliases set.\r\n");
+			}
 			break;
 		}
 	case 1:{				   /** Name **/
