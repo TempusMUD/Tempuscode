@@ -544,7 +544,7 @@ point_update(void)
             !ROOM_FLAGGED(i->in_room, ROOM_HOUSE) &&
             !PLR_FLAGGED(i, PLR_AFK) &&
             GET_REPUTATION(i) > 1 &&
-            number(0, 99) < MAX(GET_REPUTATION(i)/100, 1))
+            number(0, 153) == 0)
                 i->gain_reputation(-1);
         
         
