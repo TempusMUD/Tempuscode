@@ -54,6 +54,7 @@ void trigger_prog_fight(Creature *ch, Creature *self);
 prog_env *prog_start(int owner_type, void *owner, Creature *target, char *prog, prog_evt *evt);
 void prog_free(struct prog_env *prog);
 void prog_update(void);
+void prog_update_pending(void);
 int prog_count(void);
 
 #endif

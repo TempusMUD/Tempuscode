@@ -147,9 +147,15 @@ prog_trigger_handler(prog_env *env, prog_evt *evt, int phase, char *args)
 	arg = tmp_getword(&args);
 	if (!strcmp("command", arg)) {
 		arg = tmp_getword(&args);
-		matched = (evt->kind == PROG_EVT_COMMAND)
-			&& evt->cmd >= 0
-			&& !strcasecmp(cmd_info[evt->cmd].command, arg);
+		while (*arg) {
+			if (evt->kind == PROG_EVT_COMMAND
+					&& evt->cmd >= 0
+					&& !strcasecmp(cmd_info[evt->cmd].command, arg)) {
+				matched = true;
+				break;
+			}
+			arg = tmp_getword(&args);
+		}
 	} else if (!strcmp("idle", arg)) {
 		matched = (evt->kind == PROG_EVT_IDLE);
 	} else if (!strcmp("fight", arg)) {
@@ -181,7 +187,7 @@ prog_do_after(prog_env *env, prog_evt *evt, char *args)
 bool
 prog_eval_condition(prog_env *env, prog_evt *evt, char *args)
 {
-	char *arg;
+	char *arg, *str;
 	bool result = false, not_flag = false;
 
 	arg = tmp_getword(&args);
@@ -193,7 +199,17 @@ prog_eval_condition(prog_env *env, prog_evt *evt, char *args)
 	if (!strcmp(arg, "argument")) {
 		result = (evt->args && !strcasecmp(args, evt->args));
 	} else if (!strcmp(arg, "keyword")) {
-		result = (evt->args && isname(evt->args, args));
+		if (evt->args) {
+			str = evt->args;
+			arg = tmp_getword(&str);
+			while (*arg) {
+				if (isname(arg, args)) {
+					result = true;
+					break;
+				}
+				arg = tmp_getword(&str);
+			}
+		}
 	} else if (!strcmp(arg, "fighting")) {
 		result = (env->owner_type == PROG_TYPE_MOBILE
 				&& ((Creature *)env->owner)->isFighting());
@@ -452,15 +468,6 @@ prog_start(int owner_type, void *owner, Creature *target, char *prog, prog_evt *
 {
 	prog_env *new_prog;
 
-	// We don't want an infinite loop with mobs triggering progs that
-	// trigger a prog, etc.
-	if (loop_fence >= 20) {
-		mudlog(LVL_IMMORT, NRM, true, "Infinite prog loop halted.");
-		return NULL;
-	}
-	
-	loop_fence++;
-
 	CREATE(new_prog, struct prog_env, 1);
 	new_prog->next = prog_list;
 	prog_list = new_prog;
@@ -475,9 +482,6 @@ prog_start(int owner_type, void *owner, Creature *target, char *prog, prog_evt *
 	new_prog->evt = *evt;
 
 	prog_next_handler(new_prog);
-	prog_execute(new_prog);
-
-	loop_fence -= 1;
 
 	return new_prog;
 }
@@ -523,13 +527,22 @@ destroy_attached_progs(void *owner)
 bool
 trigger_prog_cmd(Creature *owner, Creature *ch, int cmd, char *argument)
 {
-	prog_env *env;
+	prog_env *env, *handler_env;
 	prog_evt evt;
 	bool handled = false;
 
 	if (!GET_MOB_PROG(owner) || ch == owner)
 		return false;
 	
+	// We don't want an infinite loop with mobs triggering progs that
+	// trigger a prog, etc.
+	if (loop_fence >= 20) {
+		mudlog(LVL_IMMORT, NRM, true, "Infinite prog loop halted.");
+		return false;
+	}
+	
+	loop_fence++;
+
 	evt.phase = PROG_EVT_BEGIN;
 	evt.kind = PROG_EVT_COMMAND;
 	evt.cmd = cmd;
@@ -538,38 +551,21 @@ trigger_prog_cmd(Creature *owner, Creature *ch, int cmd, char *argument)
 	evt.object_type = PROG_TYPE_NONE;
 	evt.args = strdup(argument);
 	env = prog_start(PROG_TYPE_MOBILE, owner, ch, GET_MOB_PROG(owner), &evt);
+	prog_execute(env);
 	
 	evt.phase = PROG_EVT_HANDLE;
+	handler_env = prog_start(PROG_TYPE_MOBILE, owner, ch, GET_MOB_PROG(owner), &evt);
+	prog_execute(handler_env);
+
+	evt.phase = PROG_EVT_AFTER;
 	env = prog_start(PROG_TYPE_MOBILE, owner, ch, GET_MOB_PROG(owner), &evt);
-	if (env && env->executed)
+
+	loop_fence -= 1;
+
+	if (handler_env && handler_env->executed)
 		return true;
 
 	return handled;
-}
-
-void
-trigger_progs_after(Creature *ch, int cmd, char *argument)
-{
-	prog_env *env;
-	prog_evt evt;
-
-	if (!ch || !ch->in_room)
-		return;
-	skip_spaces(&argument);
-	evt.phase = PROG_EVT_AFTER;
-	evt.kind = PROG_EVT_COMMAND;
-	evt.cmd = cmd;
-	evt.subject = ch;
-	evt.object = NULL;
-	evt.object_type = PROG_TYPE_NONE;
-	evt.args = strdup(argument);
-
-	CreatureList::iterator cit = ch->in_room->people.begin();
-	while (cit != ch->in_room->people.end()) {
-		if (ch && ch->in_room && ch != (*cit) && GET_MOB_PROG((*cit)))
-			env = prog_start(PROG_TYPE_MOBILE, *cit, ch, GET_MOB_PROG((*cit)), &evt);
-		cit++;
-	}
 }
 
 void
@@ -632,6 +628,19 @@ prog_update(void)
 		if (cur_prog->exec_pt < 0)
 			prog_free(cur_prog);
 	}
+}
+
+void
+prog_update_pending(void)
+{
+	struct prog_env *cur_prog;
+
+	if (!prog_list)
+		return;
+	
+	for (cur_prog = prog_list;cur_prog;cur_prog = cur_prog->next)
+		if (cur_prog->exec_pt == 0 && cur_prog->executed == 0)
+			prog_execute(cur_prog);
 }
 
 int
