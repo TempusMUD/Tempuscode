@@ -980,6 +980,16 @@ parse_room(FILE * fl, int vnum_nr)
 
 			room->next = NULL;
 
+			// Eliminate duplicates
+			// FIXME: This leaks all the memory the room takes up.  Doing it
+			// this way because a) it shouldn't ever happen b) if it does
+			// happen, it'll get fixed the next time the zone is saved and
+			// c) rooms don't take up that much space anyway
+			if (real_room(vnum_nr)) {
+			  errlog("Duplicate room %d detected.  Ignoring second instance.", vnum_nr);
+			  return;
+			}
+
 			if (zone->world) {
 				for (tmp_room = zone->world; tmp_room;
 					tmp_room = tmp_room->next)
