@@ -40,8 +40,7 @@ SPECIAL(credit_exchange)
 		"$E presses a button and the gold slowly disappears.",
 		FALSE, ch, 0, teller, TO_NOTVICT);
 
-	sprintf(buf2, "You recieve %d cash credits.", amount);
-	perform_tell(teller, ch, buf2);
+	send_to_char(ch, "You receive %d creds.\r\n", amount);
 
 	GET_GOLD(ch) -= amount;
 	GET_CASH(ch) += amount;
@@ -77,13 +76,10 @@ SPECIAL(gold_exchange)
 		return 1;
 	}
 
-	act("$N takes your money and gives you some gold coins.",
+	act("$N takes your money and gives you %d gold coins.",
 		FALSE, ch, 0, teller, TO_CHAR);
 	act("$N takes some cash from $n and gives $m some gold coins.",
 		FALSE, ch, 0, teller, TO_NOTVICT);
-
-	sprintf(buf2, "You recieve %d gold coins.", amount);
-	perform_tell(teller, ch, buf2);
 
 	GET_CASH(ch) -= amount;
 	GET_GOLD(ch) += amount;
