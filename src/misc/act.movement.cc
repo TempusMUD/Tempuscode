@@ -860,7 +860,8 @@ do_simple_move(struct char_data * ch, int dir, int mode, int need_specials_check
     if (ch->desc)
 	look_at_room(ch, ch->in_room, 0);
 	if ( IS_AFFECTED_3(ch, AFF3_HAMSTRUNG) && GET_POS(ch) == POS_STANDING ) {
-		damage(ch,ch,dice(5,9),TYPE_BLEED,0);
+		if(damage(ch,ch,dice(5,9),TYPE_BLEED,0))
+			return 0;
 	}
     if (ch->in_room->sector_type == SECT_UNDERWATER) {
 	if (was_in->sector_type != SECT_UNDERWATER &&
