@@ -1959,7 +1959,6 @@ SPECIAL(cave_bear)
 #include "Specs/mobile_specs/asp.spec"
 #include "Specs/mobile_specs/juju_zombie.spec"
 #include "Specs/mobile_specs/phantasmic_sword.spec"
-#include "Specs/mobile_specs/guard_north.spec"
 #include "Specs/mobile_specs/spinal.spec"
 #include "Specs/mobile_specs/fates.spec"
 #include "Specs/mobile_specs/astral_deva.spec"

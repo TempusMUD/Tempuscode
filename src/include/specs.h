@@ -88,7 +88,6 @@ SPECIAL(nohunger_dude);
 SPECIAL(dwarven_hermit);
 SPECIAL(gunnery_device);
 SPECIAL(aziz_canon);
-SPECIAL(guard_north);
 SPECIAL(safiir);
 SPECIAL(spinal);
 SPECIAL(fate);
