@@ -463,6 +463,8 @@ prog_eval_condition(prog_env *env, prog_evt *evt, char *args)
                       result = true;
               }
           }
+      } else if (!strcasecmp(arg, "self")) {
+          result = (env->owner == env->target);
       }
   }
 
