@@ -91,7 +91,26 @@ pop_free_list(void)
 	return file_end_pos;
 }
 
-
+void
+show_mail_stats(char_data *ch)
+{
+	long num_free_positions = 0;
+	long num_used_positions = 0;
+	mail_index_type *cur_index = NULL;
+	position_list_type *cur_pos = NULL;
+	for ( cur_pos  = free_list; cur_pos; cur_pos = cur_pos->next ) {
+		num_free_positions++;
+	}
+	for ( cur_index = mail_index; cur_index; cur_index = cur_index->next ) {
+		for ( cur_pos = cur_index->list_start;cur_pos;cur_pos = cur_pos->next ) {
+			num_used_positions++;
+		}
+	}
+	sprintf(buf,"Unused Blocks: %ld  Total Unused Space: %ld bytes.\r\n",num_free_positions, num_free_positions * BLOCK_SIZE);
+	send_to_char(buf,ch);
+	sprintf(buf,"Letters currently in file: %ld.\r\n",num_used_positions);
+	send_to_char(buf,ch);
+}
 
 mail_index_type *
 find_char_in_index(long searchee)
