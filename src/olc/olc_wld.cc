@@ -1181,6 +1181,10 @@ ACMD( do_hedit )
 
     switch ( command ) {
     case 0:   /* title */
+    if(strlen(argument) > 80) {
+        send_to_char("That's a bit long. Dont you think?\r\n",ch);
+        return;
+    }
 	sprintf( buf, "title %s", argument );
 	do_olc_rset( ch, buf );    
 	break;
