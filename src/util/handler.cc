@@ -981,6 +981,13 @@ char_from_room(struct char_data *ch)
 	affect_from_char(ch, SPELL_ENTANGLE);	// remove entanglement (summon etc)
 
 	//REMOVE_FROM_LIST(ch, ch->in_room->people, next_in_room);
+	special(ch, 0, 0, "", SPECIAL_LEAVE);
+
+	ch->in_room->people.remove(ch);
+	ch->in_room = NULL;
+	//ch->next_in_room = NULL;
+	if (GET_OLC_SRCH(ch))
+		GET_OLC_SRCH(ch) = NULL;
 	if(! special(ch, 0, 0, "", SPECIAL_LEAVE) ) {
 		ch->in_room->people.remove(ch);
 		ch->in_room = NULL;
@@ -988,7 +995,6 @@ char_from_room(struct char_data *ch)
 		if (GET_OLC_SRCH(ch))
 			GET_OLC_SRCH(ch) = NULL;
 	}
-
 }
 
 
@@ -1295,7 +1301,7 @@ equip_char(struct char_data *ch, struct obj_data *obj, int pos, int internal)
 }
 
 struct obj_data *
-unequip_char(struct char_data *ch, int pos, int internal)
+unequip_char(struct char_data *ch, int pos, int internal, bool disable_checks = false)
 {
 	int j;
 	struct obj_data *obj = NULL;
@@ -1368,7 +1374,7 @@ unequip_char(struct char_data *ch, int pos, int internal)
 	}
 	affect_total(ch);
 
-	if (!internal) {
+	if (!disable_checks && !internal) {
 		if (pos == WEAR_WAIST && GET_EQ(ch, WEAR_BELT))
 			obj_to_char(unequip_char(ch, WEAR_BELT, false), ch);
 		if (pos == WEAR_WIELD && GET_EQ(ch, WEAR_WIELD_2)) {

@@ -503,7 +503,6 @@ ACMD(do_ungroup)
 			send_to_char(ch, "But you lead no group!\r\n");
 			return;
 		}
-		send_to_char(f->follower, "%s has disbanded the group.\r\n", GET_NAME(ch));
 		for (f = ch->followers; f; f = next_fol) {
 			next_fol = f->next;
 			if (IS_AFFECTED(f->follower, AFF_GROUP)) {
@@ -511,6 +510,7 @@ ACMD(do_ungroup)
 				if (!IS_AFFECTED(f->follower, AFF_CHARM))
 					stop_follower(f->follower);
 			}
+			send_to_char(f->follower, "%s has disbanded the group.\r\n", PERS(ch, f->follower));
 		}
 
 		REMOVE_BIT(AFF_FLAGS(ch), AFF_GROUP);

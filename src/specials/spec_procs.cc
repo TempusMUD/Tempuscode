@@ -1641,16 +1641,16 @@ SPECIAL(bank)
 				strcpy(buf, "You can't do that.\r\n");
 			else {
 				if (clan->bank_account > 0)
-					sprintf(buf, "The current clan balance is %d %s%s.\r\n",
+					send_to_char(ch, "The current clan balance is %d %s%s.\r\n",
 						clan->bank_account, CURRENCY(ch),
 						PLURAL(clan->bank_account));
 				else
-					sprintf(buf,
+					send_to_char(ch,
 						"The clan currently has no money deposited.\r\n");
 			}
 		} else {
 			if (BANK_MONEY(ch) > 0)
-				sprintf(buf, "Your current balance is %d %s%s.\r\n",
+				send_to_char(ch, "Your current balance is %d %s%s.\r\n",
 					BANK_MONEY(ch), CURRENCY(ch), PLURAL(BANK_MONEY(ch)));
 			else
 				send_to_char(ch, "You currently have no money deposited.\r\n");
@@ -1675,7 +1675,7 @@ SPECIAL(bank)
 
 				CASH_MONEY(ch) -= amount;
 				clan->bank_account += amount;
-				sprintf(buf, "You deposit %d %s%s in the clan account.\r\n",
+				send_to_char(ch, "You deposit %d %s%s in the clan account.\r\n",
 					amount, CURRENCY(ch), PLURAL(amount));
 				save_clans();
 				sprintf(buf, "CLAN: %s clandep (%s) %d.", GET_NAME(ch),
@@ -1704,25 +1704,23 @@ SPECIAL(bank)
 
 		if (IS_AFFECTED(ch, AFF_CHARM)) {
 			send_to_char(ch, "You can't do that while charmed!\r\n");
-			sprintf(buf,
+			send_to_char(ch->master,
 				"You can't force %s to do that, even while charmed!\r\n",
 				ch->player.name);
-			send_to_char(ch->master, "%s", buf);
 			return 1;
 		}
 
 		if (*arg2 && !str_cmp(arg2, "clan")) {
 			if (!member || !PLR_FLAGGED(ch, PLR_CLAN_LEADER))
-				strcpy(buf, "You can't do that.\r\n");
+				send_to_char(ch, "You can't do that.\r\n");
 			else {
-
 				if (clan->bank_account < amount)
-					strcpy(buf,
-						"The clan does'nt have that much deposited.\r\n");
+					send_to_char(ch,
+						"The clan doesn't have that much deposited.\r\n");
 				else {
 					clan->bank_account -= amount;
 					CASH_MONEY(ch) += amount;
-					sprintf(buf, "You withdraw %d %s%s.\r\n", amount,
+					send_to_char(ch, "You withdraw %d %s%s.\r\n", amount,
 						CURRENCY(ch), PLURAL(amount));
 					save_clans();
 				}

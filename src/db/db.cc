@@ -3341,12 +3341,12 @@ char_to_store(struct char_data *ch, struct char_file_u *st)
 
 	for (i = 0; i < NUM_WEARS; i++) {
 		if (ch->equipment[i])
-			char_eq[i] = unequip_char(ch, i, MODE_EQ);
+			char_eq[i] = unequip_char(ch, i, MODE_EQ, true);
 		else
 			char_eq[i] = NULL;
 
 		if (ch->implants[i])
-			char_implants[i] = unequip_char(ch, i, MODE_IMPLANT);
+			char_implants[i] = unequip_char(ch, i, MODE_IMPLANT, true);
 		else
 			char_implants[i] = NULL;
 	}
