@@ -44,12 +44,17 @@ template <class T> class SafeList:protected list <T> {
 		}
 		/**
 		 *  Creates a fresh new iterator pointing to the beginning of
-		 *  this list.
+		 *  this list if begin is true, the end of this list if begin
+         *  is false.
 		 *  l - The list to register this iterator with.
 		**/
-	    iterator(SafeList <T> *l):list <T>::iterator() {
+	    iterator(SafeList <T> *l, bool begin=true):list <T>::iterator() {
 			_saved = false;
-			list <T>::iterator::operator = (((list <T> *)l)->begin());
+			if (begin) {
+                list <T>::iterator::operator = (((list <T> *)l)->begin());
+            } else {
+                list <T>::iterator::operator = (((list <T> *)l)->end());
+            }
 			_list = l;
 			if (_list != NULL)
 				_list->addIterator(this);
@@ -123,8 +128,6 @@ template <class T> class SafeList:protected list <T> {
 	};							// End SafeList::iterator
   public:
   SafeList(bool prepend = false):list <T> (), _iterators() {
-		_end = list <T>::end();
-		_end._list = this;
 		_prepend = prepend;
 	}
 	// Upgrades from list<T>
@@ -134,8 +137,8 @@ template <class T> class SafeList:protected list <T> {
 	iterator begin() {
 		return iterator(this);
 	}
-	iterator & end() {
-		return _end;
+	iterator end() {
+		return iterator(this, false);
 	}
 	/**
      * Adds a node to the SafeList either by prepending or appending.
@@ -156,7 +159,7 @@ template <class T> class SafeList:protected list <T> {
 
 	void remove(T c) {
 		iterator it = find(begin(), end(), c);
-		if (it != _end) {
+		if (it != end()) {
 			//Save iterators from being orphaned by a node removal.
 			removeUpdate(it);
 			list <T>::erase(it);
@@ -173,7 +176,10 @@ template <class T> class SafeList:protected list <T> {
 		_iterators.push_front(it);
 	}
 	void removeIterator(iterator * it) {
-		_iterators.remove(it);
+		//confirm that the iterator is there before removing it
+        if (find(_iterators.begin(), _iterators.end(), it) != _iterators.end()) {
+            _iterators.remove(it);
+        }
 	}
 
   protected:
@@ -197,7 +203,7 @@ template <class T> class SafeList:protected list <T> {
 		}
 	}
 	list <iterator *>_iterators;
-	iterator _end;
+	
 };
 
 #endif
