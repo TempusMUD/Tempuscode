@@ -1687,10 +1687,11 @@ ACMD(do_repair)
     }
 
     if (vict) {
-	if ((!(tool = GET_EQ(ch, WEAR_HOLD)) &&
+	if (!IS_NPC(ch) && (
+		(!(tool = GET_EQ(ch, WEAR_HOLD)) &&
 	     !(tool = GET_IMPLANT(ch, WEAR_HOLD))) ||
 	    !IS_TOOL(tool) || 
-	    TOOL_SKILL(tool) != SKILL_CYBOREPAIR) {
+	    TOOL_SKILL(tool) != SKILL_CYBOREPAIR)) {
 	    send_to_char("You must be holding a cyber repair tool to do this.\r\n",ch);
 	    return;
 	}
