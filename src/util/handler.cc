@@ -2535,7 +2535,9 @@ find_all_dots(char *arg)
 // The byte code is:
 //    bit 4-7
 //       0 == deny
-//       1 == accept
+//       1 == allow
+//       2 == deny (not)
+//       3 == allow (not)
 //    bit 0 - 3
 //       0 == terminate search
 //       1 == all
@@ -2566,8 +2568,13 @@ Reaction::add_reaction(decision_t action, char *arg)
 	if (action != ALLOW && action != DENY)
 		return false;
 
-	condition = tmp_getword(&arg);
 	new_reaction[0] = (action == ALLOW) ? 0x10:0x00;
+
+	condition = tmp_getword(&arg);
+	if (!strcmp(condition, "not")) {
+		condition = tmp_getword(&arg);
+		new_reaction[0] |= 0x20;
+	}
 	new_reaction[1] = new_reaction[2] = '\0';
 	if (is_abbrev(condition, "all"))
 		new_reaction[0] |= 0x01;
@@ -2577,18 +2584,18 @@ Reaction::add_reaction(decision_t action, char *arg)
 		new_reaction[0] |= 0x03;
 	else if (is_abbrev(condition, "neutral"))
 		new_reaction[0] |= 0x04;
-	else if (is_abbrev(condition, "killer"))
-		new_reaction[0] |= 0x05;
-	else if (is_abbrev(condition, "thief"))
-		new_reaction[0] |= 0x06;
 	else if ((new_reaction[1] = parse_char_class(condition) + 1) != 0)
-		new_reaction[0] |= 0x07;
+		new_reaction[0] |= 0x05;
 	else if ((new_reaction[1] = parse_race(condition) + 1) != 0)
-		new_reaction[0] |= 0x08;
+		new_reaction[0] |= 0x06;
 	else if ((clan = clan_by_name(condition)) != NULL) {
-		new_reaction[0] |= 0x09;
+		new_reaction[0] |= 0x07;
 		new_reaction[1] = clan->number + 1;
-	} else if (is_abbrev(condition, "lvl<")) {
+	} else if (is_abbrev(condition, "killerflag"))
+		new_reaction[0] |= 0x08;
+	else if (is_abbrev(condition, "thiefflag"))
+		new_reaction[0] |= 0x09;
+	else if (is_abbrev(condition, "lvl<")) {
 		new_reaction[0] |= 0x0a;
 		new_reaction[1] = atoi(arg);
 		if (new_reaction[1] < 1 || new_reaction[1] > 49)
@@ -2633,45 +2640,51 @@ decision_t
 Reaction::react(Creature *ch)
 {
 	char *read_pt;
+	bool match, wantmatch;
 	decision_t action;
 
 	if (!_reaction)
 		return UNDECIDED;
 
 	for (read_pt = _reaction;*read_pt;read_pt++) {
-		action = ((*read_pt) >> 4) ? ALLOW:DENY;
+		match = false;
+		action = ((*read_pt) & 0x10) ? ALLOW:DENY;
+		wantmatch = ((*read_pt) & 0x20) ? false:true;
 		switch (*read_pt & 0xF) {
 		case 0:	// terminate
 			return UNDECIDED;
 		case 1: // all
 			return action;
 		case 2:	// good
-			if (IS_GOOD(ch)) return action; break;
+			if (IS_GOOD(ch)) match = true; break;
 		case 3:	// evil
-			if (IS_EVIL(ch)) return action; break;
+			if (IS_EVIL(ch)) match = true; break;
 		case 4:	// neutral
-			if (IS_NEUTRAL(ch)) return action; break;
+			if (IS_NEUTRAL(ch)) match = true; break;
 		case 5:
-			if (PLR_FLAGGED(ch, PLR_KILLER)) return action; break;
-		case 6:
-			if (PLR_FLAGGED(ch, PLR_THIEF)) return action; break;
-		case 7:
 			read_pt++;
-			if (GET_CLASS(ch) + 1 == *read_pt) return action;
-			if (GET_REMORT_CLASS(ch) + 1 == *read_pt) return action;
+			if (GET_CLASS(ch) + 1 == *read_pt) match = true;
+			else if (GET_REMORT_CLASS(ch) + 1 == *read_pt) match = true;
 			break;
+		case 6:
+			if (GET_RACE(ch) + 1 == *(++read_pt)) match = true; break;
+		case 7:
+			if (GET_CLAN(ch) + 1 == *(++read_pt)) match = true; break;
 		case 8:
-			if (GET_RACE(ch) + 1 == *(++read_pt)) return action; break;
+			if (PLR_FLAGGED(ch, PLR_KILLER)) match = true; break;
 		case 9:
-			if (GET_CLAN(ch) + 1 == *(++read_pt)) return action; break;
+			if (PLR_FLAGGED(ch, PLR_THIEF)) match = true; break;
 		case 10:
-			if (GET_LEVEL(ch) < *(++read_pt)) return action; break;
+			if (GET_LEVEL(ch) < *(++read_pt)) match = true; break;
 		case 11:
-			if (GET_LEVEL(ch) > *(++read_pt)) return action; break;
+			if (GET_LEVEL(ch) > *(++read_pt)) match = true; break;
 		default:
 			slog("SYSERR: Invalid reaction code %x", *read_pt);
 			return UNDECIDED;
 		}
+
+		if (match == wantmatch)
+			return action;
 	}
 	return UNDECIDED;
 }
