@@ -861,7 +861,17 @@ mag_damage(int level, struct Creature *ch, struct Creature *victim,
 			victim->setPosition(POS_SITTING);
 			WAIT_STATE(victim, 2 RL_SEC);
 		}
+	} else if (spellnum == SPELL_CONE_COLD || spellnum == SPELL_HAILSTORM ||
+			spellnum == SPELL_HELL_FROST) {
+		if (IS_AFFECTED_2(victim, AFF2_ABLAZE)) {
+			REMOVE_BIT(AFF2_FLAGS(victim), AFF2_ABLAZE);
+			act("The flames on your body sizzle out and die.",
+				true, victim, 0, 0, TO_CHAR);
+			act("The flames on $n's body sizzle out and die.",
+				true, victim, 0, 0, TO_ROOM);
+		}
 	}
+		
 	return 0;
 }
 
@@ -2326,7 +2336,7 @@ mag_masses(byte level, struct Creature *ch, int spellnum, int savetype)
 		if ((*it) == ch || ch != FIGHTING((*it)))
 			continue;
 		found = TRUE;
-		mag_damage(level, ch, (*it), spellnum, 1);
+		mag_damage(level, ch, (*it), spellnum, savetype);
 	}
 	if (!found)
 		send_to_char(ch, 
