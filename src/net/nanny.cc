@@ -1507,7 +1507,10 @@ show_account_chars(descriptor_data *d, Account *acct, bool immort)
 			continue;
 		}
 
-		if(PLR_FLAGGED(tmp_ch, PLR_DELETED)) {
+		// Deleted and buried characters don't show on player menus
+		if(!immort && (PLR_FLAGGED(tmp_ch, PLR_DELETED) ||
+				PLR2_FLAGGED(tmp_ch, PLR2_BURIED))) {
+			idx++;
 			continue;
 		}
 
