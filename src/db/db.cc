@@ -2573,14 +2573,14 @@ read_object(int vnum)
 				found = 1;
 				break;
 			} else {
-				sprintf(buf, "Object (V) %d does not exist in database.",
+				slog("Object (V) %d does not exist in database.",
 					vnum);
 				return NULL;
 			}
 		}
 	}
 	if (!found) {
-		sprintf(buf, "Object (V) %d does not exist in database.", vnum);
+		slog("Object (V) %d does not exist in database.", vnum);
 		return NULL;
 	}
 #ifdef TRACK_OBJS
