@@ -2130,10 +2130,9 @@ hit(struct char_data *ch, struct char_data *victim, int type)
 						break;
 					}
 			}
-			if (IS_TWO_HAND(cur_weap) &&
-				IS_BARB(ch) &&
-				(cur_weap->worn_on == WEAR_WIELD
-					|| cur_weap->worn_on == WEAR_WIELD_2)) {
+			if (IS_TWO_HAND(cur_weap) && IS_BARB(ch) && 
+                cur_weap->worn_on == WEAR_WIELD) 
+            {
 				int dam_add;
 				dam_add = cur_weap->getWeight() / 2;
 				if (CHECK_SKILL(ch, SKILL_DISCIPLINE_OF_STEEL) > 30) {
