@@ -224,7 +224,6 @@ SPECIAL(remorter)
 
 		// Save the char and its implants but not its eq
 		save_char(ch, NULL);
-		Crash_save_implants(ch);
 
 		if (!quiz.isPassing()) {
 			send_to_char("The test is over.\r\n", ch);
@@ -238,10 +237,19 @@ SPECIAL(remorter)
 			quiz.log(buf);
 			quiz.logScore();
 			REMOVE_BIT(ch->in_room->room_flags, ROOM_NORECALL);
-
-			ch->extract(false, false, CON_MENU);
-			//ch->extract(true, true, CON_MENU);
 			quiz.reset();
+
+            room_data *load_room = ch->getLoadroom();
+            if( load_room == NULL )
+                load_room = real_room(3061);//modrian dumps
+
+            send_to_char("You have been banished from the chamber!\r\n", ch);
+            act("$n is banished from the chamber!", FALSE, ch, 0, 0, TO_ROOM);
+            ch->setPosition(POS_RESTING);
+            char_from_room(ch);
+            char_to_room(ch, load_room);
+			//ch->extract(false, false, CON_MENU);
+			//ch->extract(true, true, CON_MENU);
 			return 1;
 		} else {
 			// Wipe thier skills
