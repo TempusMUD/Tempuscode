@@ -1344,6 +1344,7 @@ Creature::addCombat(Creature *ch, bool initiated)
         return;
 
     Creature *def;
+    bool defend = false;
     if ((def = hasDefender(ch))) {
         if (findCombat(def))
             return;
@@ -1354,7 +1355,33 @@ Creature::addCombat(Creature *ch, bool initiated)
                      PERS(def, ch), PERS(this, ch));
         act("$n comes to $N's defense!", false,
             def, 0, ch, TO_NOTVICT);
-        ch = def;
+        defend = true;
+        //ch = def;
+    }
+    
+    
+    //defender updates
+    if (defend) {
+        if (def->isDefending() == this)
+            def->stopDefending();
+        
+        // If we're already in combat with the victim, move him
+        // to the front of the list
+        CombatDataList::iterator li = getCombatList()->begin();
+        for (; li != getCombatList()->end(); ++li) {
+            if (li->getOpponent() == ch) {
+                bool ini = li->getInitiated();
+                getCombatList()->remove(li);
+                getCombatList()->add_front(CharCombat(def, ini)); 
+                return;
+            }
+        }
+        
+        getCombatList()->add_back(CharCombat(def, initiated));
+        
+        update_pos(this);
+        trigger_prog_fight(this, def);
+        
     }
     
     if (ch->isDefending() == this)
@@ -1379,6 +1406,7 @@ Creature::addCombat(Creature *ch, bool initiated)
 
     if (numCombatants() == 1)
         combatList.add(this);
+    
 }
 
 void
