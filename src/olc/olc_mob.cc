@@ -1751,8 +1751,10 @@ do_destroy_mobile(struct Creature *ch, int vnum)
 	if (mob->mob_specials.shared->move_buf) {
 		free(mob->mob_specials.shared->move_buf);
 	}
-	if (mob->mob_specials.func_data)
+	if (mob->mob_specials.func_data) {
 		free(mob->mob_specials.func_data);
+		mob->mob_specials.func_data = NULL;
+	}
 	while ((mem_r = mob->mob_specials.memory)) {
 		mob->mob_specials.memory = mem_r->next;
 		free(mem_r);
