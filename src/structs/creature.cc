@@ -18,7 +18,7 @@
 #include "fight.h"
 #include "player_table.h"
 #include "prog.h"
-#include "damage_object.h"
+#include "executable_object.h"
 #include "fight.h"
 #include "materials.h"
 #include "guns.h"
@@ -1552,9 +1552,9 @@ Creature::generateAttacks()
                 break;
             }
             if (prob >= number((i << 4) + (i << 3), (i << 5) + (i << 3))) {
-                DamageObject damage;
-                damage.setAttacker(this);
-                damage.setVictim(victim);
+                DamageObject *damage = new DamageObject();
+                damage->setChar(this);
+                damage->setVictim(victim);
                 
                 int w_type = 0, victim_ac, calc_thaco, dam, tmp_dam, diceroll;
                 int i, metal_wt;
@@ -1601,8 +1601,8 @@ Creature::generateAttacks()
                     && AWAKE(victim)
                     && ((diceroll == 1) || ((calc_thaco - diceroll)) > victim_ac)) 
                 {
-                    damage.setDamageType(w_type - TYPE_HIT);
-                    damage.setDamage(0);
+                    damage->setDamageType(w_type - TYPE_HIT);
+                    damage->setDamage(0);
                     // LWK: Nathan, don't set the location to -1 here.  -1 is
                     // a manashield hit :P  Location can be left alone.  I
                     // default it in the constructor and since this is a 
@@ -1682,13 +1682,13 @@ Creature::generateAttacks()
                     }
                 }
                 
-                damage.setDamage(dam);
-                damage.setDamageType(w_type - TYPE_HIT);
-                damage.setDamageLocation(limb);
+                damage->setDamage(dam);
+                damage->setDamageType(w_type - TYPE_HIT);
+                damage->setDamageLocation(limb);
                 if (weap)
-                    damage.setWeapon(weap);
+                    damage->setWeapon(weap);
                 else
-                    damage.setWeapon(NULL);
+                    damage->setWeapon(NULL);
                 
                 // ignite the victim if applicable
                 if( ablaze_level > 0 && !IS_AFFECTED_2(victim, AFF2_ABLAZE) ) {
@@ -1794,6 +1794,7 @@ Creature::attack()
         (*combatRound)[x].getVictim()->defend(); */
 
     combatRound->execute();
+    delete combatRound;
 }
 
 void
