@@ -17,7 +17,9 @@ SPECIAL(newbie_tower_rm)
         !strncasecmp(arg, "at plate", 8) ||
         !strncasecmp(arg, "map", 3) ||
         !strncasecmp(arg, "at map", 6)) {
-      do_hcollect_help(ch, "modrian", 0, 0);
+        sprintf(buf,"modrian");
+      do_hcollect_help(ch, buf, 0, 0);
+
       /*
       send_to_char("This map may be viewed at any time by typing 'help modrian'.\r\n", ch);
       send_to_char("You may also look out the windows of the tower by using the\r\n"
