@@ -7335,10 +7335,7 @@ static const char* CODER_UTIL_USAGE =
 					"      recalc - recalculates all mobs and saves.\r\n"
 					"    cmdusage - shows commands and usage counts.\r\n"
 					"  unusedcmds - shows unused commands.\r\n"
-					"    familiar - sets divisor of familiar power\r\n"
                     ;
-int familiar_div = 2;
-
 ACMD(do_coderutil)
 {
     Tokenizer tokens(argument);
@@ -7387,10 +7384,6 @@ ACMD(do_coderutil)
 		}
 		strcpy(buf + len, "\r\n");
 		page_string(ch->desc, buf);
-	} else if (strcmp(token, "familiar") == 0) {
-		tokens.next(token);
-		familiar_div = atoi(token);
-		send_to_char(ch, "Familiar divisor set to %d\r\n", familiar_div);
 	} else
         send_to_char(ch, CODER_UTIL_USAGE);
 }

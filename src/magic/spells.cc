@@ -3620,8 +3620,6 @@ load_familiar(Creature *ch, int sect_type, int type)
 bool
 perform_call_familiar(Creature *ch, int level, int type)
 {
-	extern int familiar_div;
-
 	struct affected_type af;
 	struct Creature *pet = NULL;
 	struct follow_type *cur_fol;
@@ -3631,12 +3629,14 @@ perform_call_familiar(Creature *ch, int level, int type)
 	for (cur_fol = ch->followers;cur_fol;cur_fol = cur_fol->next) {
 		if (MOB2_FLAGGED(cur_fol->follower, MOB2_FAMILIAR)) {
 			send_to_char(ch, NOEFFECT);
-			act("$N looks up at you mournfully.", true,
-				ch, 0, cur_fol->follower, TO_CHAR);
-			act("You look up at $n mournfully.", true,
-				ch, 0, cur_fol->follower, TO_VICT);
-			act("$N looks up at $n mournfully.", true,
-				ch, 0, cur_fol->follower, TO_NOTVICT);
+			if (ch->in_room == cur_fol->follower->in_room) {
+				act("$N looks up at you mournfully.", true,
+					ch, 0, cur_fol->follower, TO_CHAR);
+				act("You look up at $n mournfully.", true,
+					ch, 0, cur_fol->follower, TO_VICT);
+				act("$N looks up at $n mournfully.", true,
+					ch, 0, cur_fol->follower, TO_NOTVICT);
+			}
 			return false;
 		}
 	}
@@ -3651,8 +3651,8 @@ perform_call_familiar(Creature *ch, int level, int type)
 	SET_BIT(MOB2_FLAGS(pet), MOB2_FAMILIAR);
 
 	// Scale the pet to the caster's level
-	GET_LEVEL(pet) = GET_LEVEL(ch) / 2 + 1;
-	mult = GET_LEVEL(pet) / familiar_div;
+	GET_LEVEL(pet) = (GET_LEVEL(ch) + 1) * 3 / 4;
+	mult = GET_LEVEL(pet);
 	GET_EXP(pet) = 0;
 	GET_MAX_HIT(pet) *= mult;
 	GET_HIT(pet) = GET_MAX_HIT(pet);
