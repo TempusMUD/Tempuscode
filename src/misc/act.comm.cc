@@ -908,6 +908,18 @@ ACMD(do_gen_comm)
 				"I don't think everyone wants to hear that.  SPEW it!\r\n");
 			break;
 		}
+		if (GET_INT(ch) > 3) {
+			switch (number(0, 1)) {
+			case 0:
+				send_to_char(ch, "You no longer feel quite so smart...\r\n");
+				break;
+			case 1:
+				send_to_char(ch, "You feel a little more stupid...\r\n");
+				break;
+			}
+			ch->real_abils.intel--;
+			ch->saveToXML();
+		}
 		slog("%s warned for nasty public communication.", GET_NAME(ch));
 	}
 
