@@ -483,12 +483,12 @@ ASPELL(song_instant_audience)
             return;
         }
 
-        int mult = (int)(ch->getLevelBonus(SONG_INSTANT_AUDIENCE) * 1.5 / 100);
+        float mult = (float)((ch->getLevelBonus(SONG_INSTANT_AUDIENCE) * 2)) / 100;
         
         // tweak them out
-        GET_HITROLL(member) = MIN(GET_HITROLL(member) * mult, 60);
-        GET_DAMROLL(member) = MIN(GET_DAMROLL(member) * mult, 75);
-        GET_MAX_HIT(member) = MIN(GET_MAX_HIT(member) * mult, 30000);
+        GET_HITROLL(member) = MIN((int)(GET_HITROLL(member) * (mult * 1.5)), 60);
+        GET_DAMROLL(member) = MIN((int)(GET_DAMROLL(member) * (mult * 2)), 75);
+        GET_MAX_HIT(member) = MIN((int)(GET_MAX_HIT(member) * (mult * 2)), 30000);
         GET_HIT(member) = GET_MAX_HIT(member);
 
         char_to_room(member, ch->in_room);
