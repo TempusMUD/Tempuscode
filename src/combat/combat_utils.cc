@@ -231,7 +231,7 @@ check_killer( struct char_data * ch, struct char_data * vict, const char *debug_
     if( GET_LEVEL(ch) >= LVL_POWER )
 		return;
     // Lawless... Not wrong to pk in lawless zones.
-    if ( ZONE_FLAGGED( ch->in_room->zone, ZONE_NOLAW ) )
+    if ( vict->in_room && ZONE_FLAGGED( vict->in_room->zone, ZONE_NOLAW ) )
         return;
 
 	SET_BIT( PLR_FLAGS( ch ), PLR_KILLER );
