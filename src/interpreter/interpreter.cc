@@ -429,7 +429,7 @@ struct command_info cmd_info[] = {
 
 	/* now, the main list */
 	{"areas", POS_DEAD, do_areas, 0, 0, 0, 0},
-	{"at", POS_DEAD, do_at, LVL_IMMORT, 0, 0, 0},
+	{"at", POS_DEAD, do_at, LVL_AMBASSADOR, 0, 0, 0},
 	{"attributes", POS_SLEEPING, do_attributes, 0, 0, 0, 0},
 	{"attack", POS_RESTING, do_kill, 0, 0, 0, 0},
 	{"attach", POS_RESTING, do_attach, 0, SCMD_ATTACH, 0, 0},
@@ -933,8 +933,8 @@ struct command_info cmd_info[] = {
 	{"order", POS_RESTING, do_order, 1, 0, 0, 0},
 	{"oif", POS_RESTING, do_action, 0, 0, 0, 0},
 	{"ogg", POS_RESTING, do_action, 0, 0, 0, 0},
-	{"olc", POS_DEAD, do_olc, LVL_IMMORT, 0, 0, 0},
-	{"olchelp", POS_DEAD, do_olchelp, LVL_IMMORT, 0, 0, 0},
+	{"olc", POS_DEAD, do_olc, LVL_AMBASSADOR, 0, 0, 0},
+	{"olchelp", POS_DEAD, do_olchelp, LVL_AMBASSADOR, 0, 0, 0},
 	{"oload", POS_SLEEPING, do_oload, LVL_IMMORT, 0, 0, 0},
 	{"offer", POS_STANDING, do_not_here, 1, 0, 0, 0},
 	{"open", POS_SITTING, do_gen_door, 0, SCMD_OPEN, 0, 0},
