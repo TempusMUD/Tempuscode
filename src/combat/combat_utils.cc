@@ -616,26 +616,38 @@ apply_soil_to_char(struct Creature *ch, struct obj_data *obj, int type,
 	int pos)
 {
 
-	int count = 0;
+	int cnt, idx;
 
 	if (pos == WEAR_RANDOM) {
-		while (count < 100 &&
-			((!GET_EQ(ch, pos) && (ILLEGAL_SOILPOS(pos) ||
-						CHAR_SOILED(ch, pos, type))) || (GET_EQ(ch, pos)
-					&& OBJ_SOILED(GET_EQ(ch, pos), type)))) {
-			pos = number(0, NUM_WEARS - 2);
-			count++;
+		cnt = 0;
+		for (idx = 0;idx < NUM_WEARS;idx++) {
+			if (ILLEGAL_SOILPOS(idx))
+				continue;
+			if (!GET_EQ(ch, idx) && CHAR_SOILED(ch, pos, type))
+				continue;
+			if (GET_EQ(ch, idx) && (OBJ_SOILED(GET_EQ(ch, pos), type) ||
+					IS_OBJ_STAT2(GET_EQ(ch, idx), ITEM2_NOSOIL)))
+				continue;
+			if (!number(0, cnt))
+				pos = idx;
+			cnt++;
 		}
+		
+		// A position will only be unchosen if there are no valid positions
+		// with which to soil.
+		if (!cnt)
+			return 0;
 	}
-	if (count >= 100)			/* didnt find pos.  rare, but possible */
-		return 0;
 
+	if (ILLEGAL_SOILPOS(pos))
+		return 0;
 	if (GET_EQ(ch, pos) && (GET_EQ(ch, pos) == obj || !obj)) {
-		if (OBJ_SOILED(GET_EQ(ch, pos), type))
+		if (IS_OBJ_STAT2(GET_EQ(ch, pos), ITEM2_NOSOIL) ||
+				OBJ_SOILED(GET_EQ(ch, pos), type))
 			return 0;
 
 		SET_BIT(OBJ_SOILAGE(GET_EQ(ch, pos)), type);
-	} else if (ILLEGAL_SOILPOS(pos) || CHAR_SOILED(ch, pos, type)) {
+	} else if (CHAR_SOILED(ch, pos, type)) {
 		return 0;
 	} else {
 		SET_BIT(CHAR_SOILAGE(ch, pos), type);
