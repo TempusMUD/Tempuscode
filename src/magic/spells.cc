@@ -167,8 +167,8 @@ ASPELL(spell_recall)
 	load_room = r_frozen_start_room;
     else if (PLR_FLAGGED(victim, PLR_LOADROOM)) {
 	if ((load_room = real_room(GET_LOADROOM(victim))) &&
-	    (!House_can_enter(ch, load_room->number) ||
-	     !clan_house_can_enter(ch, load_room)))
+	    (!House_can_enter(victim, load_room->number) ||
+	     !clan_house_can_enter(victim, load_room)))
 	    load_room = NULL;
     }
     if (load_room == NULL)  {
