@@ -2843,6 +2843,11 @@ ACMD(do_load)
                 send_to_char("Attachment of that chip is redundant.\r\n", ch);
                 return;
             }
+            if(obj1->getWeight() > 5) {
+                act("You can't fit something that big into $P!",
+                    FALSE, ch, obj1, obj2, TO_CHAR);
+                return;
+            }
         }
         else {
             act("You can't load $p into $P.", FALSE, ch, obj1, obj2, TO_CHAR);
