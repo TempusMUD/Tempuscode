@@ -8,6 +8,7 @@ list<long> implanter_sessions; // ids of players with implant sessions
 
 void implanter_implant(Creature *me, Creature *ch, char *args);
 void implanter_extract(Creature *me, Creature *ch, char *args);
+void implanter_repair(Creature *me, Creature *ch, char *args);
 void implanter_redeem(Creature *me, Creature *ch, char *args);
 bool implanter_in_session(Creature *ch);
 void implanter_end_sess(Creature *me, Creature *ch);
@@ -27,15 +28,18 @@ SPECIAL(implanter)
 
 	if (spec_mode == SPECIAL_CMD) {
 		if (CMD_IS("buy")) {
-			skip_spaces(&argument);
-			argument = two_arguments(argument, buf, buf2);
+			char *buy_str;
 
-			if (!*buf || !*buf2)
+			buy_str = tmp_getword(&argument);
+
+			if (!*buy_str)
 				implanter_show_args(self, ch);
-			else if (!strcasecmp(buf, "implant"))
+			else if (!strcasecmp(buy_str, "implant"))
 				implanter_implant(self, ch, argument);
-			else if (!strcasecmp(buf, "extract"))
+			else if (!strcasecmp(buy_str, "extract"))
 				implanter_extract(self, ch, argument);
+			else if (!strcasecmp(buy_str, "repair"))
+				implanter_repair(self, ch, argument);
 			else
 				implanter_show_args(self, ch);
 			return 1;
@@ -59,51 +63,50 @@ implanter_implant(Creature *me, Creature *ch, char *args)
 {
 	extern const int wear_bitvectors[];
 	struct obj_data *implant = NULL;
+	char *obj_str, *pos_str, *msg;
 	int cost = 0, i, pos = 0;
 	bool in_session;
 
 	in_session = implanter_in_session(ch);
 
-	if (!(implant = get_obj_in_list_vis(ch, buf2, ch->carrying))) {
-		sprintf(buf1, "You don't seem to be carrying any '%s'.", buf2);
-		perform_tell(me, ch, buf1);
+	obj_str = tmp_getword(&args);
+	pos_str = tmp_getword(&args);
+
+	if (!(implant = get_obj_in_list_vis(ch, obj_str, ch->carrying))) {
+		msg = tmp_sprintf("You don't seem to be carrying any '%s'.", obj_str);
+		perform_tell(me, ch, msg);
 		return;
 	}
 	if (!IS_IMPLANT(implant)) {
-		sprintf(buf1, "%s cannot be implanted.  Get a clue.",
+		msg = tmp_sprintf("%s cannot be implanted.  Get a clue.",
 			implant->short_description);
-		perform_tell(me, ch, buf1);
+		perform_tell(me, ch, msg);
 		return;
 	}
-	if (*args)
-		args = one_argument(args, buf2);
-	else
-		*buf2 = '\0';
 
-	if (!*buf2) {
+	if (!*pos_str) {
 		perform_tell(me, ch, "Have it implanted in what position?");
 		implanter_show_pos(me, ch, implant);
 		return;
 	}
 
-	if ((pos = search_block(buf2, wear_implantpos, 0)) < 0 ||
+	if ((pos = search_block(pos_str, wear_implantpos, 0)) < 0 ||
 		(ILLEGAL_IMPLANTPOS(pos) && !IS_OBJ_TYPE(implant, ITEM_TOOL))) {
-		sprintf(buf, "'%s' isn't a valid position.", buf2);
-		perform_tell(me, ch, buf);
+		msg = tmp_sprintf("'%s' isn't a valid position.", pos_str);
+		perform_tell(me, ch, msg);
 		implanter_show_pos(me, ch, implant);
 		return;
 	}
 	if (implant->getWeight() > GET_STR(ch)) {
-		sprintf(buf, "That thing is too heavy to implant!");
-		perform_tell(me, ch, buf);
+		perform_tell(me, ch, "That thing is too heavy to implant!");
 		return;
 	}
 
 
 	if (!CAN_WEAR(implant, wear_bitvectors[pos])) {
-		sprintf(buf, "%s cannot be implanted there.",
+		msg = tmp_sprintf("%s cannot be implanted there.",
 			implant->short_description);
-		perform_tell(me, ch, buf);
+		perform_tell(me, ch, msg);
 		implanter_show_pos(me, ch, implant);
 		return;
 	}
@@ -117,17 +120,16 @@ implanter_implant(Creature *me, Creature *ch, char *args)
 	}
 
 	if (IS_OBJ_STAT2(implant, ITEM2_BROKEN)) {
-		sprintf(buf1, "%s is broken -- are you some kind of moron?",
+		msg = tmp_sprintf("%s is broken -- are you some kind of moron?",
 			implant->short_description);
-		perform_tell(me, ch, buf1);
+		perform_tell(me, ch, msg);
 		return;
 	}
 
 	if (GET_IMPLANT(ch, pos)) {
-		sprintf(buf1,
-			"You are already implanted with %s in that position.",
+		msg = tmp_sprintf("You are already implanted with %s in that position.",
 			GET_IMPLANT(ch, pos)->short_description);
-		perform_tell(me, ch, buf1);
+		perform_tell(me, ch, msg);
 		return;
 	}
 
@@ -151,10 +153,10 @@ implanter_implant(Creature *me, Creature *ch, char *args)
 			if (GET_IMPLANT(ch, i) != NULL &&
 				GET_OBJ_VNUM(GET_IMPLANT(ch, i)) == GET_OBJ_VNUM(implant))
 			{
-				sprintf(buf1,
+				msg = tmp_sprintf(
 					"You'll have to get %s removed if you want that put in.",
 					GET_IMPLANT(ch, i)->short_description);
-				perform_tell(me, ch, buf1);
+				perform_tell(me, ch, msg);
 				return;
 			}
 		}
@@ -165,9 +167,9 @@ implanter_implant(Creature *me, Creature *ch, char *args)
 		cost <<= 1;
 
 	if (!in_session && GET_CASH(ch) < cost) {
-		sprintf(buf1, "The cost for implanting will be %d credits...  "
+		msg = tmp_sprintf("The cost for implanting will be %d credits...  "
 			"Which you obviously do not have.", cost);
-		perform_tell(me, ch, buf1);
+		perform_tell(me, ch, msg);
 		perform_tell(me, ch, "Take a hike, luser.");
 		return;
 	}
@@ -182,8 +184,8 @@ implanter_implant(Creature *me, Creature *ch, char *args)
 	obj_from_char(implant);
 	equip_char(ch, implant, pos, MODE_IMPLANT);
 
-	sprintf(buf, "$n implants $p in your %s.", wear_implantpos[pos]);
-	act(buf, FALSE, me, implant, ch, TO_VICT);
+	msg = tmp_sprintf("$n implants $p in your %s.", wear_implantpos[pos]);
+	act(msg, FALSE, me, implant, ch, TO_VICT);
 	act("$n implants $p in $N.", FALSE, me, implant, ch,
 		TO_NOTVICT);
 
@@ -204,69 +206,66 @@ void
 implanter_extract(Creature *me, Creature *ch, char *args)
 {
 	struct obj_data *implant = NULL, *obj = NULL;
+	char *targ_str, *obj_str, *pos_str, *msg;
 	int cost = 0, pos = 0;
 	bool in_session;
 
 	in_session = implanter_in_session(ch);
 
-	if (strncmp(buf2, "me", 2) &&
-		!(obj = get_obj_in_list_vis(ch, buf2, ch->carrying))) {
-		sprintf(buf1, "You don't seem to be carrying any '%s'.", buf2);
-		perform_tell(me, ch, buf1);
+	targ_str = tmp_getword(&args);
+	obj_str = tmp_getword(&args);
+	pos_str = tmp_getword(&args);
+
+	if (strncmp(targ_str, "me", 2) &&
+		!(obj = get_obj_in_list_vis(ch, targ_str, ch->carrying))) {
+		msg = tmp_sprintf("You don't seem to be carrying any '%s'.", targ_str);
+		perform_tell(me, ch, msg);
 		return;
 	}
 
 	if (obj && !IS_CORPSE(obj) && !OBJ_TYPE(obj, ITEM_DRINKCON) &&
 		!IS_BODY_PART(obj) && !isname("head", obj->name)) {
-		sprintf(buf1, "I cannot extract anything from %s.",
+		msg = tmp_sprintf("I cannot extract anything from %s.",
 			obj->short_description);
-		perform_tell(me, ch, buf1);
+		perform_tell(me, ch, msg);
 		return;
 	}
 
-	if (*args)
-		args= two_arguments(args, buf, buf2);
-	else {
-		*buf = '\0';
-		*buf2 = '\0';
-	}
-
-	if (!*buf) {
-		sprintf(buf1, "Extract what implant from %s?", obj ?
+	if (!*obj_str) {
+		msg = tmp_sprintf("Extract what implant from %s?", obj ?
 			obj->short_description : "your body");
-		perform_tell(me, ch, buf1);
+		perform_tell(me, ch, msg);
 		return;
 	}
 
-	if (obj && !(implant = get_obj_in_list_vis(ch, buf, obj->contains))) {
-		sprintf(buf2, "There is no '%s' in %s.", buf,
+	if (obj && !(implant = get_obj_in_list_vis(ch, obj_str, obj->contains))) {
+		msg = tmp_sprintf("There is no '%s' in %s.", obj_str,
 			obj->short_description);
-		perform_tell(me, ch, buf2);
+		perform_tell(me, ch, msg);
 		return;
 	}
 
 	if (!obj) {
-		if (!*buf2) {
+		if (!*pos_str) {
 			perform_tell(me, ch,
 				"Extract an implant from what position?");
 			return;
 		}
-		if ((pos = search_block(buf2, wear_implantpos, 0)) < 0) {
-			sprintf(buf1, "'%s' is not a valid implant position.",
-				buf2);
-			perform_tell(me, ch, buf1);
+		if ((pos = search_block(pos_str, wear_implantpos, 0)) < 0) {
+			msg = tmp_sprintf("'%s' is not a valid implant position.", pos_str);
+			perform_tell(me, ch, msg);
 			return;
 		}
 		if (!(implant = GET_IMPLANT(ch, pos))) {
-			sprintf(buf1, "You are not implanted with anything at %s.",
+			msg = tmp_sprintf("You are not implanted with anything at %s.",
 				wear_implantpos[pos]);
-			perform_tell(me, ch, buf1);
+			perform_tell(me, ch, msg);
 			return;
 		}
-		if (!isname(buf, implant->name)) {
-			sprintf(buf2, "%s is implanted at %s... not '%s'.",
-				implant->short_description, wear_implantpos[pos], buf);
-			perform_tell(me, ch, buf2);
+		if (!isname(obj_str, implant->name)) {
+			msg = tmp_sprintf("%s is implanted at %s... not '%s'.",
+				implant->short_description, wear_implantpos[pos], pos_str);
+			perform_tell(me, ch, msg);
 			return;
 		}
 	}
@@ -278,9 +277,9 @@ implanter_extract(Creature *me, Creature *ch, char *args)
 		cost >>= 2;
 
 	if (!in_session && GET_CASH(ch) < cost) {
-		sprintf(buf1, "The cost for extraction will be %d credits...  "
+		msg = tmp_sprintf("The cost for extraction will be %d credits...  "
 			"Which you obviously do not have.", cost);
-		perform_tell(me, ch, buf1);
+		perform_tell(me, ch, msg);
 		perform_tell(me, ch, "Take a hike, luser.");
 		return;
 	}
@@ -289,8 +288,8 @@ implanter_extract(Creature *me, Creature *ch, char *args)
 		GET_CASH(ch) -= cost;
 
 	if (!obj) {
-		sprintf(buf, "$n extracts $p from your %s.", wear_implantpos[pos]);
-		act(buf, FALSE, me, implant, ch, TO_VICT);
+		msg = tmp_sprintf("$n extracts $p from your %s.", wear_implantpos[pos]);
+		act(msg, FALSE, me, implant, ch, TO_VICT);
 		act("$n extracts $p from $N.", FALSE, me, implant, ch,
 			TO_NOTVICT);
 
@@ -312,6 +311,98 @@ implanter_extract(Creature *me, Creature *ch, char *args)
 	return;
 }
 
+void
+implanter_repair(Creature *me, Creature *ch, char *args)
+{
+	struct obj_data *implant = NULL, *proto_implant = NULL;
+	char *obj_str, *pos_str, *msg;
+	int cost = 0, pos = 0;
+	bool in_session;
+
+	in_session = implanter_in_session(ch);
+	obj_str = tmp_getword(&args);
+	pos_str = tmp_getword(&args);
+
+	if (!*obj_str) {
+		perform_tell(me, ch, "Repair which implant from your body?");
+		return;
+	}
+
+	if (!*pos_str) {
+		perform_tell(me, ch,
+			"Repair an implant in what position?");
+		return;
+	}
+	if ((pos = search_block(pos_str, wear_implantpos, 0)) < 0) {
+		msg = tmp_sprintf("'%s' is not a valid implant position.",
+			pos_str);
+		perform_tell(me, ch, msg);
+		return;
+	}
+	if (!(implant = GET_IMPLANT(ch, pos))) {
+		msg = tmp_sprintf("You are not implanted with anything at %s.",
+			wear_implantpos[pos]);
+		perform_tell(me, ch, msg);
+		return;
+	}
+	if (!isname(obj_str, implant->name)) {
+		msg = tmp_sprintf("%s is implanted at %s... not '%s'.",
+			implant->short_description, wear_implantpos[pos], pos_str);
+		perform_tell(me, ch, msg);
+		return;
+	}
+
+	if (!(proto_implant = real_object_proto(implant->shared->vnum))) {
+		perform_tell(me, ch, "No way am I going to repair that.");
+		return;
+	}
+
+	if (GET_OBJ_DAM(implant) == GET_OBJ_MAX_DAM(implant)) {
+		perform_tell(me, ch, "Don't waste my time! It's in perfectly good condition.");
+		return;
+	}
+
+	if (GET_OBJ_MAX_DAM(implant) == 0 ||
+		GET_OBJ_MAX_DAM(implant) <= (GET_OBJ_MAX_DAM(proto_implant) >> 4)) {
+		msg = tmp_sprintf("Sorry, %s is damaged beyond repair.",
+			implant->short_description);
+		perform_tell(me, ch, msg);
+		return;
+	}
+
+	// implant repairs cost 1.5 the amount of insertion/extraction
+	cost = GET_OBJ_COST(implant) + GET_OBJ_COST(implant) >> 1;
+	if (!IS_CYBORG(ch))
+		cost <<= 1;
+
+	if (!in_session && GET_CASH(ch) < cost) {
+		msg = tmp_sprintf("The cost for repair will be %d credits...  "
+			"Which you obviously do not have.", cost);
+		perform_tell(me, ch, msg);
+		perform_tell(me, ch, "Take a hike, luser.");
+		return;
+	}
+
+	if (!in_session)
+		GET_CASH(ch) -= cost;
+
+	act("$n repairs $p.", FALSE, me, implant, ch, TO_VICT);
+	act("$n repairs $p inside $N.", FALSE, me, implant, ch,
+		TO_NOTVICT);
+	
+	if (IS_OBJ_STAT2(implant, ITEM2_BROKEN)) {
+		GET_OBJ_MAX_DAM(implant) -= ((GET_OBJ_MAX_DAM(implant) * 15) / 100) + 1;
+		REMOVE_BIT(GET_OBJ_EXTRA2(implant), ITEM2_BROKEN);
+	}
+	GET_OBJ_DAM(implant) = GET_OBJ_MAX_DAM(implant);
+
+	GET_HIT(ch) = 1;
+	GET_MOVE(ch) = 1;
+	WAIT_STATE(ch, 10 RL_SEC);
+	save_char(ch, NULL);
+
+	return;
+}
 void implanter_redeem(Creature *me, Creature *ch, char *args)
 {
 	if (implanter_in_session(ch)) {
@@ -379,7 +470,9 @@ implanter_show_args(Creature *me, Creature *ch)
 {
 	perform_tell(me, ch, "buy implant <implant> <position> or");
 	perform_tell(me, ch,
-		"buy extract <'me' | object> <implant> [pos]");
+		"buy extract <'me' | object> <implant> [pos] or");
+	perform_tell(me, ch,
+		"buy repair <implant> [pos] or");
 	perform_tell(me, ch,
 		"redeem < ticket | qpoint >");
 	return;

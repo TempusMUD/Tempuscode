@@ -33,6 +33,7 @@
 #include "fight.h"
 #include "security.h"
 #include "char_class.h"
+#include "tmpstr.h"
 
 /* external vars  */
 extern struct Creature *character_list;
@@ -1616,148 +1617,170 @@ ACMD(do_enter)
 	struct obj_data *car = NULL;
 	struct room_data *room = NULL, *was_in = NULL;
 	struct follow_type *k, *next;
+	char *arg;
 
-	one_argument(argument, buf);
+	arg = tmp_getword(&argument);
 
-	if (*buf) {					/* an argument was supplied, search for door
-								   * keyword */
-		for (door = 0; door < NUM_OF_DIRS; door++)
-			if (EXIT(ch, door))
-				if (EXIT(ch, door)->keyword)
-					if (!str_cmp(EXIT(ch, door)->keyword, buf)) {
-						perform_move(ch, door, MOVE_NORM, 1);
-						return;
-					}
-		if ((car = get_obj_in_list_vis(ch, buf, ch->in_room->contents))) {
-			if (GET_OBJ_TYPE(car) == ITEM_VEHICLE) {
-				if (!CAR_CLOSED(car)) {
-					if ((room = real_room(ROOM_NUMBER(car))) != NULL) {
-//if (room_count(ch, room) < MAX_OCCUPANTS(room)) {
-						if (room->people.size() <
-							(unsigned)MAX_OCCUPANTS(room)) {
-							act("$n climbs into $p.", TRUE, ch, car, 0, TO_ROOM);
-							act("You climb into $p.", TRUE, ch, car, 0, TO_CHAR);
-							char_from_room(ch);
-							char_to_room(ch, room);
-							look_at_room(ch, ch->in_room, 0);
-							act("$n has climbed into $p.", FALSE, ch, car, 0, TO_ROOM);
-							return;
-						} else
-							act("$p is already full of people.", FALSE, ch,
-								car, 0, TO_CHAR);
-					} else
-						act("$p seems to be malfunctioning right now.",
-							FALSE, ch, 0, 0, TO_ROOM);
-				} else
-					act("The door of $p seems to be closed now.", FALSE, ch,
-						car, 0, TO_CHAR);
-			}
-		}
-		if (!car && !(car = get_obj_in_list_all(ch, buf, ch->carrying))) {
-			send_to_char(ch, "There is no %s here.\r\n", buf);
-			return;
-		}
-		if (GET_OBJ_TYPE(car) == ITEM_PORTAL) {
-			if ((room = real_room(ROOM_NUMBER(car))) != NULL) {
-				if (!CAR_CLOSED(car)) {
-					if ((ROOM_FLAGGED(room, ROOM_GODROOM)
-							&& !Security::isMember(ch, "WizardFull"))
-						|| (ROOM_FLAGGED(ch->in_room, ROOM_NORECALL)
-							&& (!car->in_room
-								|| CAN_WEAR(car, ITEM_WEAR_TAKE)))
-						|| (ROOM_FLAGGED(room, ROOM_HOUSE)
-							&& !House_can_enter(ch, room->number))
-						|| (ROOM_FLAGGED(room, ROOM_CLAN_HOUSE)
-							&& !clan_house_can_enter(ch, room))) {
-						act("$p repulses you.", FALSE, ch, car, 0, TO_CHAR);
-						act("$n is repulsed by $p as he tries to enter it.",
-							TRUE, ch, car, 0, TO_ROOM);
-					} else if (room->people.size() <
-						(unsigned)MAX_OCCUPANTS(room)) {
-						// charmed check
-						if (AFF_FLAGGED(ch, AFF_CHARM) && ch->master &&
-							ch->master->in_room == ch->in_room) {
-							act("You fear that if you enter $p, you will be separated from $N!", 
-								FALSE, ch, car, ch->master, TO_CHAR);
-							return;
-						}
-
-						if (car->action_description) {
-							act(car->action_description, TRUE, ch, car, 0, TO_ROOM);
-						} else {
-							act("$n steps into $p.", TRUE, ch, car, 0, TO_ROOM);
-						}
-						act("You step into $p.\r\n", TRUE, ch, car, 0, TO_CHAR);
-
-						if (!IS_NPC(ch) && ch->in_room->zone != room->zone)
-							room->zone->enter_count++;
-
-						was_in = ch->in_room;
-						char_from_room(ch);
-						char_to_room(ch, room);
-						look_at_room(ch, ch->in_room, 0);
-						if (GET_OBJ_VNUM(car) == 42504)	// astral mansion
-							act("$n has entered the mansion.", FALSE, ch, car,
-								0, TO_ROOM);
-						else
-							act("$n steps out of $p.", FALSE, ch, car, 0,
-								TO_ROOM);
-						if (GET_OBJ_VAL(car, 3) == 1) {
-							act("$p disintegrates as you step through.",
-								FALSE, ch, car, 0, TO_CHAR);
-
-							if (car->in_room) {
-								act("$p disintegrates as $n steps through.",
-									FALSE, ch, car, 0, TO_ROOM);
-								obj_from_room(car);
-							} else
-								obj_from_char(car);
-
-							extract_obj(car);
-						} else if (GET_OBJ_VAL(car, 3) > 0)
-							GET_OBJ_VAL(car, 3) -= 1;
-
-						WAIT_STATE(ch, 2 RL_SEC);
-
-						// Imms should be able to follow
-						for (k = ch->followers; k; k = next) {
-							next = k->next;
-							if (was_in == k->follower->in_room &&
-									GET_LEVEL(k->follower) >= LVL_AMBASSADOR &&
-									!PLR_FLAGGED(k->follower, PLR_OLC | PLR_WRITING | PLR_MAILING) &&
-									CAN_SEE(k->follower, ch)) {
-								act("You follow $N.\r\n", FALSE, k->follower, 0, ch, TO_CHAR);
-								perform_goto(k->follower, room, true);
-							}
-						}
-
-						return;
-					} else
-						act("You are unable to enter $p!", FALSE, ch, car, 0,
-							TO_CHAR);
-				} else
-					act("$p is currently closed.", FALSE, ch, car, 0, TO_CHAR);
-			} else
-				send_to_char(ch, 
-					"This portal has become twisted.  Please notify someone.\r\n");
-		} else
-			send_to_char(ch, "You can't enter that!\r\n");
-		return;
-	} else if (IS_SET(ROOM_FLAGS(ch->in_room), ROOM_INDOORS))
-		send_to_char(ch, "You are already indoors.\r\n");
-	else {
-		/* try to locate an entrance */
-		for (door = 0; door < NUM_OF_DIRS; door++)
-			if (EXIT(ch, door))
-				if (EXIT(ch, door)->to_room != NULL)
+	if (!*arg) {
+		// Enter without argument
+		if (IS_SET(ROOM_FLAGS(ch->in_room), ROOM_INDOORS))
+			send_to_char(ch, "You are already indoors.\r\n");
+		else {
+			// try to locate an entrance
+			for (door = 0; door < NUM_OF_DIRS; door++)
+				if (EXIT(ch, door) && EXIT(ch, door)->to_room)
 					if (!IS_SET(EXIT(ch, door)->exit_info, EX_CLOSED) &&
 						IS_SET(ROOM_FLAGS(EXIT(ch, door)->to_room),
 							ROOM_INDOORS)) {
 						perform_move(ch, door, MOVE_NORM, 1);
 						return;
 					}
-		send_to_char(ch, "You can't seem to find anything to enter.\r\n");
+			send_to_char(ch, "You can't seem to find anything to enter.\r\n");
+		}
+		return;
 	}
+
+	// Handle entering doorways
+	for (door = 0; door < NUM_OF_DIRS; door++)
+		if (EXIT(ch, door) && EXIT(ch, door)->keyword)
+				if (!str_cmp(EXIT(ch, door)->keyword, arg)) {
+					perform_move(ch, door, MOVE_NORM, 1);
+					return;
+				}
+
+	// We must be entering an object
+	car = get_obj_in_list_vis(ch, arg, ch->in_room->contents);
+	if (car && GET_OBJ_TYPE(car) == ITEM_VEHICLE) {
+		if (!CAR_CLOSED(car)) {
+			act("The door of $p seems to be closed now.", FALSE, ch,
+				car, 0, TO_CHAR);
+			return;
+		}
+
+		room = real_room(ROOM_NUMBER(car));
+		if (!room) {
+			act("The damn door is stuck!", FALSE, ch, 0, 0, TO_ROOM);
+			return;
+		}
+
+		if (room->people.size() < (unsigned)MAX_OCCUPANTS(room)) {
+			act("$p is already full of people.", FALSE, ch,
+				car, 0, TO_CHAR);
+			return;
+		}
+
+		act("$n climbs into $p.", TRUE, ch, car, 0, TO_ROOM);
+		act("You climb into $p.", TRUE, ch, car, 0, TO_CHAR);
+		char_from_room(ch);
+		char_to_room(ch, room);
+		look_at_room(ch, ch->in_room, 0);
+		act("$n has climbed into $p.", FALSE, ch, car, 0, TO_ROOM);
+		return;
+	}
+
+	if (!car) {
+		car = get_obj_in_list_all(ch, arg, ch->carrying);
+		if (!car) {
+			send_to_char(ch, "There is no %s here.\r\n", arg);
+			return;
+		}
+	}
+
+	if (GET_OBJ_TYPE(car) != ITEM_PORTAL) {
+		send_to_char(ch, "You can't enter that!\r\n");
+		return;
+	}
+
+	room = real_room(ROOM_NUMBER(car));
+	if (!room) {
+		send_to_char(ch, 
+			"This portal has become twisted.  Please notify someone.\r\n");
+		return;
+	}
+
+	if (!CAR_CLOSED(car)) {
+		act("$p is currently closed.", FALSE, ch, car, 0, TO_CHAR);
+		return;
+	}
+
+	if ((ROOM_FLAGGED(room, ROOM_GODROOM)
+			&& !Security::isMember(ch, "WizardFull"))
+		|| (ROOM_FLAGGED(ch->in_room, ROOM_NORECALL)
+			&& (!car->in_room
+				|| CAN_WEAR(car, ITEM_WEAR_TAKE)))
+		|| (ROOM_FLAGGED(room, ROOM_HOUSE)
+			&& !House_can_enter(ch, room->number))
+		|| (ROOM_FLAGGED(room, ROOM_CLAN_HOUSE)
+			&& !clan_house_can_enter(ch, room))) {
+		act("$p repulses you.", FALSE, ch, car, 0, TO_CHAR);
+		act("$n is repulsed by $p as he tries to enter it.",
+			TRUE, ch, car, 0, TO_ROOM);
+		return;
+	}
+	
+	if (room->people.size() >= (unsigned)MAX_OCCUPANTS(room)) {
+		act("You are unable to enter $p!", FALSE, ch, car, 0, TO_CHAR);
+		return;
+	}
+
+	// charmed check
+	if (AFF_FLAGGED(ch, AFF_CHARM) && ch->master &&
+		ch->master->in_room == ch->in_room) {
+		act("You fear that if you enter $p, you will be separated from $N!", 
+			FALSE, ch, car, ch->master, TO_CHAR);
+		return;
+	}
+
+	if (car->action_description) {
+		act(car->action_description, TRUE, ch, car, 0, TO_ROOM);
+	} else {
+		act("$n steps into $p.", TRUE, ch, car, 0, TO_ROOM);
+	}
+	act("You step into $p.\r\n", TRUE, ch, car, 0, TO_CHAR);
+
+	if (!IS_NPC(ch) && ch->in_room->zone != room->zone)
+		room->zone->enter_count++;
+
+	was_in = ch->in_room;
+	char_from_room(ch);
+	char_to_room(ch, room);
+	look_at_room(ch, ch->in_room, 0);
+	if (GET_OBJ_VNUM(car) == 42504)	// astral mansion
+		act("$n has entered the mansion.", FALSE, ch, car,
+			0, TO_ROOM);
+	else
+		act("$n steps out of $p.", FALSE, ch, car, 0,
+			TO_ROOM);
+	if (GET_OBJ_VAL(car, 3) == 1) {
+		act("$p disintegrates as you step through.",
+			FALSE, ch, car, 0, TO_CHAR);
+
+		if (car->in_room) {
+			act("$p disintegrates as $n steps through.",
+				FALSE, ch, car, 0, TO_ROOM);
+			obj_from_room(car);
+		} else
+			obj_from_char(car);
+
+		extract_obj(car);
+	} else if (GET_OBJ_VAL(car, 3) > 0)
+		GET_OBJ_VAL(car, 3) -= 1;
+
+	WAIT_STATE(ch, 2 RL_SEC);
+
+	// Imms should be able to follow
+	for (k = ch->followers; k; k = next) {
+		next = k->next;
+		if (was_in == k->follower->in_room &&
+				GET_LEVEL(k->follower) >= LVL_AMBASSADOR &&
+				!PLR_FLAGGED(k->follower, PLR_OLC | PLR_WRITING | PLR_MAILING) &&
+				CAN_SEE(k->follower, ch)) {
+			act("You follow $N.\r\n", FALSE, k->follower, 0, ch, TO_CHAR);
+			perform_goto(k->follower, room, true);
+		}
+	}
+
+	return;
 }
 
 

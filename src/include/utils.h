@@ -1023,11 +1023,11 @@ CAN_SEE(Creature *sub, Creature *obj)
 		return true;
 
 	// Blindness independant of object
-	if (CHAR_CAN_SEE(sub))
+	if (!CHAR_CAN_SEE(sub))
 		return false;
 
 	// Object-dependant blindness/invisibility
-	if (INVIS_OK(sub, obj))
+	if (!INVIS_OK(sub, obj))
 		return false;
 
 	return true;

@@ -1361,7 +1361,7 @@ command_interpreter(struct Creature *ch, char *argument)
 
 	REMOVE_BIT(AFF_FLAGS(ch), AFF_HIDE);
 	if (IS_AFFECTED_2(ch, AFF2_MEDITATE)) {
-		send_to_char(ch, "You stop meditating.");
+		send_to_char(ch, "You stop meditating.\r\n");
 		REMOVE_BIT(AFF2_FLAGS(ch), AFF2_MEDITATE);
 	}
 	REMOVE_BIT(AFF2_FLAGS(ch), AFF2_EVADE);
