@@ -35,6 +35,7 @@
 #include "mail.h"
 #include "boards.h"
 #include "login.h"
+#include "screen.h"
 
 /* External Variables */
 
@@ -386,18 +387,19 @@ show_string(struct descriptor_data *d)
 			for (chk = d->showstr_point; isspace(*chk); chk++);
 			if (!*chk) {
 				if (d->showstr_head) {
-#ifdef DMALLOC
-					dmalloc_verify(0);
-#endif
 					free(d->showstr_head);
-#ifdef DMALLOC
-					dmalloc_verify(0);
-#endif
 					d->showstr_head = 0;
 				}
 				d->showstr_point = 0;
 			} else {
-				SEND_TO_Q("Use the 'more' command to view more.\r\n", d);
+				if( d->character != NULL ) {
+					send_to_char(d->character,
+						"%s**** %sUse the 'more' command to view more. %s****%s\r\n",
+						CCRED(d->character, C_NRM), CCNRM(d->character, C_NRM),
+						CCRED(d->character, C_NRM), CCNRM(d->character, C_NRM));
+				} else {
+					SEND_TO_Q("**** Use the 'more' command to view more. ****\r\n", d);
+				}
 			}
 			return;
 		}
