@@ -248,11 +248,10 @@ void
 CTextEditor::ExportMail(void)
 {
 
-	char *cc_list = NULL;
 	int stored_mail = 0;
-	int cc_len = 0;
 	struct descriptor_data *r_d;
 	struct mail_recipient_data *mail_rcpt = NULL;
+    list<string> cc_list;
 
 	// If they're trying to send a blank message
 	if (!*target || !strlen(*target)) {
@@ -268,44 +267,30 @@ CTextEditor::ExportMail(void)
 	}
 
 	if (desc->mail_to->next) {
-		// Check the length we need, just to be sure.
-		for (mail_rcpt = desc->mail_to; mail_rcpt; mail_rcpt = mail_rcpt->next)
-			cc_len++;
-		cc_list = (char*) malloc( sizeof(char) * (cc_len * MAX_NAME_LENGTH + 32));
-		//cc_list = new char[(cc_len * MAX_NAME_LENGTH) + 32];
-
-		strcpy(cc_list, "  CC: ");
 		for (mail_rcpt = desc->mail_to; mail_rcpt; mail_rcpt = mail_rcpt->next) {
-			strcat(cc_list, playerIndex.getName(mail_rcpt->recpt_idnum));
-			if (mail_rcpt->next)
-				strcat(cc_list, ", ");
-			else
-				strcat(cc_list, "\r\n");
+            cc_list.push_back(playerIndex.getName(mail_rcpt->recpt_idnum));
 		}
 	}
-	mail_rcpt = desc->mail_to;
-	while (mail_rcpt) {
-		stored_mail =
-			store_mail(mail_rcpt->recpt_idnum, GET_IDNUM(desc->creature),
-			*target, cc_list);
-		if (stored_mail == 1) {
-			for (r_d = descriptor_list; r_d; r_d = r_d->next) {
-				if (IS_PLAYING(r_d) && r_d->creature
-					&& r_d->creature != desc->creature
-					&& GET_IDNUM(r_d->creature) == desc->mail_to->recpt_idnum
-					&& !PLR_FLAGGED(r_d->creature,
-						PLR_WRITING | PLR_MAILING | PLR_OLC)) {
-					send_to_char(r_d->creature, 
-						"A strange voice in your head says, 'You have new mail.'\r\n");
-				}
-			}
-		}
-		mail_rcpt = mail_rcpt->next;
-		free(desc->mail_to);
-		desc->mail_to = mail_rcpt;
-	}
-	if (cc_list)
-		free(cc_list);
+
+    cc_list.sort();
+    cc_list.unique();
+    list<string>::iterator si;
+    for (si = cc_list.begin(); si != cc_list.end(); si++) {
+        stored_mail = store_mail(playerIndex.getID(si->c_str()), 
+                                 GET_IDNUM(desc->creature), *target,  cc_list);
+        if (stored_mail == 1) {
+            for (r_d = descriptor_list; r_d; r_d = r_d->next) {
+                if (IS_PLAYING(r_d) && r_d->creature &&
+                    (r_d->creature != desc->creature) &&
+                    (GET_IDNUM(r_d->creature) == desc->mail_to->recpt_idnum) &&
+                    (!PLR_FLAGGED(r_d->creature, PLR_WRITING | PLR_MAILING | PLR_OLC))) {
+                    send_to_char(r_d->creature, "A strange voice in your head says, "
+                                                "'You have new mail.'\r\n");
+                }
+            }
+        }
+    }
+
 	if (stored_mail)
 		SendMessage("Message sent!\r\n");
 }

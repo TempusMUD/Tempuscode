@@ -116,7 +116,7 @@ mail_box_status(long id)
 // Like it says, store the mail.  
 // Returns 0 if mail not stored.
 int
-store_mail(long to_id, long from_id, char *txt, char *cc_list,
+store_mail(long to_id, long from_id, char *txt, list<string> cc_list,
     time_t *cur_time)
 {
     int buf_size = 0;
@@ -168,16 +168,31 @@ store_mail(long to_id, long from_id, char *txt, char *cc_list,
             playerIndex.getName(from_id));
 
     buf_size = strlen(txt) + strlen(buf);
-    if (cc_list)
-        buf_size += strlen(cc_list);
+
+    list<string>::iterator si;
+    for (si = cc_list.begin(); si != cc_list.end(); si++)
+        buf_size += si->length() + 1; // for the commas
         
+    buf_size += 6; // for "  CC: "
+    
     obj->action_description = (char*)malloc(sizeof(char) * buf_size + 2); // for the extra /n
     
     strcpy(obj->action_description, buf);
-    if (cc_list)
-        strcat(obj->action_description, cc_list);
-    strcat(obj->action_description, "\n");
+
+    if (!cc_list.empty())
+        strcat(obj->action_description, "  CC: ");
+
+    unsigned count = 1;
+    for (si = cc_list.begin(); si != cc_list.end(); si++) {
+        count++;
+        strcat(obj->action_description, si->c_str());
+        if (count <= cc_list.size())
+        strcat(obj->action_description, ", ");
+    }
+
+    strcat(obj->action_description, "\n\n");
     strcat(obj->action_description, txt);
+
     obj->plrtext_len = strlen(obj->action_description) + 1;
     mailBag.push_back(obj);
     

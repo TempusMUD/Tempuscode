@@ -1,6 +1,10 @@
 #ifndef _MAIL_H_
 #define _MAIL_H_
 
+using namespace std;
+
+#include <list>
+
 /* ************************************************************************
 *   File: mail.h                                        Part of CircleMUD *
 *  Usage: header file for mail system                                     *
@@ -51,7 +55,7 @@ void string_add(struct descriptor_data *d, char *str);
 // Mail system internal functions.
 int has_mail(long recipient);
 int has_mail(Creature * ch);
-int store_mail(long to_id, long from_id, char *txt, char *cc_list,
+int store_mail(long to_id, long from_id, char *txt, list<string> cc_list,
 	time_t * cur_time = NULL);
 int recieve_mail(Creature * ch);
 int purge_mail(long idnum);
