@@ -139,7 +139,6 @@ void mem_cleanup(void);
 void retire_trails(void);
 void qp_reload( int sig = 0 );
 void process_queue(void); // In events.cc
-void set_desc_state(int state,struct descriptor_data *d );
 
 /* *********************************************************************
 *  main game loop and related stuff                                    *
@@ -586,7 +585,7 @@ game_loop(int mother_desc)
                     d->text_editor->Process(comm);
                 else if (d->showstr_point)        /* reading something w/ pager        */
                     show_string(d, comm);
-                else if (STATE(d) != CON_PLAYING)        /* in menus, etc.        */
+                else if (d->connected != CON_PLAYING)        /* in menus, etc.        */
                     nanny(d, comm);
                 else {                                /* else: we're playing normally */
                     if (aliased) /* to prevent recursive aliases */
@@ -989,25 +988,21 @@ new_descriptor(int s)
     }
 
     /* determine if the site is banned */
-    int bantype = isbanned(newd->host, buf2);
-    if( bantype == BAN_ALL) {
+    if (isbanned(newd->host, buf2) == BAN_ALL) {
         close(desc);
         sprintf(buf2, "Connection attempt denied from [%s]", newd->host);
         mudlog(buf2, CMP, LVL_GOD, TRUE);
         free(newd);
         return 0;
-    } 
+    }
 
     /* Log new connections - probably unnecessary, but you may want it */
-    sprintf(buf2, "New connection from [%s]%s%s", 
-            newd->host, 
-            (bantype == BAN_SELECT) ? "(SELECT BAN)" : "", 
-            (bantype == BAN_NEW) ? "(NEWBIE BAN)" : "");
+    sprintf(buf2, "New connection from [%s]", newd->host);
     slog(buf2);
 
     /* initialize descriptor data */
     newd->descriptor = desc;
-    STATE(newd) = CON_GET_NAME;
+    newd->connected = CON_GET_NAME;
     newd->wait = 1;
     newd->output = newd->small_outbuf;
     newd->bufspace = SMALL_BUFSIZE - 1;
@@ -1055,7 +1050,7 @@ process_output(struct descriptor_data * d)
         SEND_TO_Q(CCNRM(d->snoop_by->character, C_NRM), d->snoop_by);
         SEND_TO_Q(d->output, d->snoop_by);
         SEND_TO_Q(CCRED(d->snoop_by->character, C_NRM), d->snoop_by);
-        SEND_TO_Q(" } ", d->snoop_by);
+        SEND_TO_Q("}\r\n", d->snoop_by);
         SEND_TO_Q(CCNRM(d->snoop_by->character, C_NRM), d->snoop_by);
     }
     /*
@@ -1344,7 +1339,7 @@ close_socket(struct descriptor_data * d)
     }
     if (d->character) {
         target_idnum = GET_IDNUM(d->character);
-        if (d->connected == CON_PLAYING || d->connected == CON_NETWORK) {
+        if (d->connected == CON_PLAYING || d->connected > CON_NET_MENU1) {
             save_char(d->character, NULL);
             act("$n has lost $s link.", TRUE, d->character, 0, 0, TO_ROOM);
             sprintf(buf, "Closing link to: %s. [%s] ", GET_NAME(d->character),d->host);
@@ -2079,10 +2074,10 @@ descriptor_update(void)
     
         d->idle++;
 
-        if (d->idle >= 10 && STATE(d) != CON_PLAYING && STATE(d) != CON_NETWORK) {
+        if (d->idle >= 30 || (d->connected < CON_NET_MENU1 && d->idle >= 10)) {
             mudlog("Descriptor idling out after 10 minutes.", CMP, LVL_IMMORT, TRUE);
             SEND_TO_Q("Idle time limit reached, disconnecting.\r\n", d);
-			set_desc_state(CON_CLOSE, d);
+            d->connected = CON_CLOSE;
         }
     }
 }
