@@ -7405,6 +7405,7 @@ static const char* ACCOUNT_USAGE =
 					"      enable <id>\r\n"
 					"      movechar <Char ID> <to ID>\r\n"
 					"      exhume <account ID> <Character ID>\r\n"
+					"      password <account ID> <new password>\r\n"
                     ;
 ACMD(do_account)
 {
@@ -7475,6 +7476,28 @@ ACMD(do_account)
 			return;
 		}
 		account->exhume_char(ch, vict_id);
+	} else if (strcmp(token, "password") == 0) {
+		if(!tokens.next(token) ) {
+			send_to_char(ch, "Specify an account id.\r\n");
+			return;
+		}
+		account_id = atoi(token);
+
+		if (!tokens.next(token)) {
+			send_to_char(ch, "Specify a new password.\r\n");
+			return;
+		}
+
+		account = accountIndex.find_account(account_id);
+		if( account == NULL ) {
+			send_to_char(ch, "No such account: %d\r\n",account_id);
+			return;
+		}
+		
+		account->set_password(token);
+		send_to_char(ch, "Password for account %s[%d] has been set.\r\n",
+			account->get_name(), account_id);
+		account->save_to_xml();
 	} else {
 		send_to_char(ch, ACCOUNT_USAGE);
 	}
