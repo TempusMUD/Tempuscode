@@ -12,12 +12,12 @@ const char *GUARD_HELP =
 "\r\n" 
 "    The directives are listed here:\r\n"
 "\r\n"
-"                allow <class>|<align>|<race>|<clan>|all\r\n"
-"                deny <class>|<align>|<race>|<clan>|all\r\n"
+"                allow [not] <class>|<align>|<race>|<clan>|all\r\n"
+"                deny [not] <class>|<align>|<race>|<clan>|all\r\n"
 "                tovict <message sent to blocked creature>\r\n"
 "                toroom <message sent to everyone else>\r\n"
 "                attack yes|no\r\n"
-"                dir <direction to block>\r\n"
+"                dir <direction to block> [<more directions>...]\r\n"
 "\r\n"
 "Example:\r\n"
 "    For a guard that allows all mages, but\r\n"
@@ -30,12 +30,13 @@ const char *GUARD_HELP =
 SPECIAL(guard)
 {
 	struct Creature *self = (struct Creature *)me;
-	int cmd_idx, lineno;
+	int cmd_idx, lineno, dir = -1;
 	Reaction reaction;
 	char *to_vict = "You are blocked by $n.";
 	char *to_room = "$N is blocked by $n.";
-	char *str, *line, *param_key;
-	bool attack = false;
+	char *dir_str, *str, *line, *param_key;
+	bool got_dir = false, attack = false;
+	char *err = NULL;
 
 
 	if (spec_mode == SPECIAL_HELP) {
@@ -43,10 +44,7 @@ SPECIAL(guard)
 		return 1;
 	}
 	
-	if (spec_mode != SPECIAL_CMD)
-		return 0;
-
-	if (!GET_MOB_PARAM(self))
+	if (spec_mode != SPECIAL_CMD || !IS_MOVE(cmd) || !GET_MOB_PARAM(self))
 		return 0;
 
 	str = GET_MOB_PARAM(self);
@@ -58,14 +56,18 @@ SPECIAL(guard)
 
 		param_key = tmp_getword(&line);
 		if (!strcmp(param_key, "dir")) {
-			cmd_idx = find_command(tmp_getword(&line));
-			if (cmd_idx == -1 || !IS_MOVE(cmd_idx)) {
-				mudlog(LVL_IMMORT, NRM, true, "ERR: bad direction in guard [%d]\r\n",
-					self->in_room->number);
-				return false;
+			dir_str = tmp_getword(&line);
+			while (dir == -1 && *dir_str) {
+				cmd_idx = find_command(dir_str, true);
+				if (cmd_idx == -1 || !IS_MOVE(cmd_idx)) {
+					err = "a bad direction";
+					break;
+				}
+				got_dir = true;
+				if (cmd_idx == cmd)
+					dir = cmd_idx;
+				dir_str = tmp_getword(&line);
 			}
-			if (cmd_idx != cmd)
-				return false;
 		} else if (!strcmp(param_key, "tovict")) {
 			to_vict = line;
 		} else if (!strcmp(param_key, "toroom")) {
@@ -74,19 +76,37 @@ SPECIAL(guard)
 			attack = (is_abbrev(line, "yes") || is_abbrev(line, "on") ||
 				is_abbrev(line, "1") || is_abbrev(line, "true"));
 		} else {
-			mudlog(LVL_IMMORT, NRM, true, "ERR: Invalid directive in guard specparam [%d]",
-				self->in_room->number);
-			return false;
+			err = "an invalid directive";
+			break;
 		}
 	}
+	if (!got_dir)
+		err = "no direction";
+	else if (dir == -1)
+		return false;
 
-	if (IS_IMMORT(ch) || ALLOW == reaction.react(ch))
+	if (err) {
+		// Specparam error
+		if (IS_PC(ch)) {
+			if (IS_IMMORT(ch))
+				perform_tell(self, ch, tmp_sprintf(
+					"I have %s in line %d of my specparam", err, lineno));
+			else {
+				mudlog(LVL_IMMORT, NRM, true,
+					"ERR: Mobile %d has %s in line %d of specparam",
+					GET_MOB_VNUM(self), err, lineno);
+				do_say(self, tmp_sprintf(
+					"%s Sorry.  I'm broken, but a god has already been notified.",
+					GET_NAME(ch)), 0, SCMD_SAY_TO, NULL);
+			}
+		}
+	} else if (IS_IMMORT(ch) || ALLOW == reaction.react(ch))
 		return false;
 
 	// Set to deny if undecided
 	act(to_vict, FALSE, self, 0, ch, TO_VICT);
 	act(to_room, FALSE, self, 0, ch, TO_NOTVICT);
-	if (attack && IS_PC(ch) && !PRF_FLAGGED(ch, PRF_NOHASSLE))
+	if (!err && attack && IS_PC(ch) && !PRF_FLAGGED(ch, PRF_NOHASSLE))
 		set_fighting(ch, self, true);
 	return true;
 }
