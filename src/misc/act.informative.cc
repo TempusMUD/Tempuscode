@@ -4876,7 +4876,7 @@ ACMD(do_areas)
     else {
         send_to_char(ch, "Bug the immortals about adding zones appropriate for your level!\r\n");
 		mudlog(GET_INVIS_LVL(ch), NRM, true,
-			"%s (%d:%d) didn't have any appropriate areas listed.\r\n",
+			"%s (%d:%d) didn't have any appropriate areas listed.",
 			GET_NAME(ch), GET_LEVEL(ch), GET_REMORT_GEN(ch));
 	}
 }
