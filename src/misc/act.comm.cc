@@ -703,7 +703,7 @@ static const channel_info_t channels[] = {
 		"You aren't listening to the words of your clan.",
 		"The immortals have muted you.  You may not clan emote." },
 	{ "petition", 1, PRF_NOPETITION, CURSE_OK, INTERPLANAR, NOT_EMOTE,
-		KMAG, KMAG,
+		KMAG, KCYN,
 		"You aren't listening to petitions at this time.",
 		"The immortals have turned a deaf ear to your petitions." },
 };
