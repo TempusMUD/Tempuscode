@@ -139,6 +139,7 @@ void mem_cleanup(void);
 void retire_trails(void);
 void qp_reload( int sig = 0 );
 void process_queue(void); // In events.cc
+void set_desc_state(int state,struct descriptor_data *d );
 
 /* *********************************************************************
 *  main game loop and related stuff                                    *
@@ -585,7 +586,7 @@ game_loop(int mother_desc)
                     d->text_editor->Process(comm);
                 else if (d->showstr_point)        /* reading something w/ pager        */
                     show_string(d, comm);
-                else if (d->connected != CON_PLAYING)        /* in menus, etc.        */
+                else if (STATE(d) != CON_PLAYING)        /* in menus, etc.        */
                     nanny(d, comm);
                 else {                                /* else: we're playing normally */
                     if (aliased) /* to prevent recursive aliases */
@@ -1006,7 +1007,7 @@ new_descriptor(int s)
 
     /* initialize descriptor data */
     newd->descriptor = desc;
-    newd->connected = CON_GET_NAME;
+    STATE(newd) = CON_GET_NAME;
     newd->wait = 1;
     newd->output = newd->small_outbuf;
     newd->bufspace = SMALL_BUFSIZE - 1;
@@ -1343,7 +1344,7 @@ close_socket(struct descriptor_data * d)
     }
     if (d->character) {
         target_idnum = GET_IDNUM(d->character);
-        if (d->connected == CON_PLAYING || d->connected == CON_NETWORK) {
+        if (IS_PLAYING(d)) {
             save_char(d->character, NULL);
             act("$n has lost $s link.", TRUE, d->character, 0, 0, TO_ROOM);
             sprintf(buf, "Closing link to: %s. [%s] ", GET_NAME(d->character),d->host);
@@ -2078,10 +2079,10 @@ descriptor_update(void)
     
         d->idle++;
 
-        if (d->idle >= 30 || (d->connected != CON_NETWORK && d->idle >= 10)) {
+        if (d->idle >= 10 && STATE(d) != CON_PLAYING && STATE(d) != CON_NETWORK) {
             mudlog("Descriptor idling out after 10 minutes.", CMP, LVL_IMMORT, TRUE);
             SEND_TO_Q("Idle time limit reached, disconnecting.\r\n", d);
-            d->connected = CON_CLOSE;
+			set_desc_state(CON_CLOSE, d);
         }
     }
 }

@@ -557,6 +557,7 @@ extern const char *player_race[] = {
     "Umber Hulk",
     "Wemic",
     "Rakshasa",
+	"Spider",
     "\n"
 };
 

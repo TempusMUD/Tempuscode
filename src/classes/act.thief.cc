@@ -68,7 +68,7 @@ ACMD(do_steal)
     }
     if (!IS_MOB(vict) && !vict->desc && GET_LEVEL(ch) < LVL_ELEMENT) {
         send_to_char("You cannot steal from linkless players!!!\r\n", ch);
-        sprintf(buf, "%s attemted to steal from linkless %s.", GET_NAME(ch),
+        sprintf(buf, "%s attempted to steal from linkless %s.", GET_NAME(ch),
                 GET_NAME(vict));
         mudlog(buf, CMP, GET_LEVEL(ch), TRUE);
         return;
