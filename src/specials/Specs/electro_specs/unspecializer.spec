@@ -30,12 +30,10 @@ SPECIAL(unspecializer)
 
     if ( ! *arg || strcasecmp( arg, "unspecialization" ) ) {
 	sprintf( buf, "You must type '%s unspecialization <weapon name>'\r\n", _u_mode_buy_ ? "buy" : "offer" );
-	send_to_char( buf, ch );
 	return 1;
     }
 
     if ( ! *argument ) {
-	send_to_char( "Which weapon specialization?\r\n", ch );
 	return 1;
     }
 
@@ -49,7 +47,6 @@ SPECIAL(unspecializer)
     }
     
     if ( i >= MAX_WEAPON_SPEC ) {
-	send_to_char( "You are not specialized in that weapon.\r\n", ch );
 	return 1;
     }
 
@@ -60,15 +57,12 @@ SPECIAL(unspecializer)
 	     "The service of complete neural erasure of the weapon specialization of\r\n"
 	     "'%s' will cost you %d pracs and %d credits....\r\n", 
 	     o_proto->short_description, prac_cost, cash_cost );
-    send_to_char( buf, ch );
 
     if ( GET_PRACTICES( ch ) < prac_cost ) {
-	send_to_char( "You do not have enough practice points to endure the procedure.\r\n", ch );
 	return 1;
     }
 
     if ( GET_CASH( ch ) < cash_cost ) {
-	send_to_char( "You do not have enough cash on hand.\r\n", ch );
 	return 1;
     }
 

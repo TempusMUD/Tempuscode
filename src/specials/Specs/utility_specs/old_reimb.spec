@@ -113,7 +113,7 @@ SPECIAL(old_reimb)
   for (i=0; i<90; i++) {
     if (!strncasecmp(data[i].name, GET_NAME(ch), strlen(data[i].name))) {
       if (GET_LEVEL(ch) < 3)
-        send_to_char("You'd better train your stats up and get to level 3 first.\r\n", ch);
+        send_to_char(ch, "You'd better train your stats up and get to level 3 first.\r\n");
       else if (GET_LEVEL(ch) >= data[i].level)
         act("$n says, 'Piss off, $N.", FALSE, reimber, 0, ch, TO_ROOM);
       else {
@@ -131,8 +131,8 @@ SPECIAL(old_reimb)
       return 1;
     }
   }
-  send_to_char("You are not in the file.  All players with level less than 20\r\n"
-               "are lost.  Sorry.\r\n", ch);
+  send_to_char(ch, "You are not in the file.  All players with level less than 20\r\n"
+               "are lost.  Sorry.\r\n");
   return 1;
 }
 

@@ -58,9 +58,9 @@ SPECIAL(remorter)
 		return 0;
 
 	if (CMD_IS("help") && GET_LEVEL(ch) >= LVL_IMMORT) {
-		send_to_char("Valid Commands:\r\n", ch);
-		send_to_char("Status - Shows current test state.\r\n", ch);
-		send_to_char("Reload - Resets test to waiting state.\r\n", ch);
+		send_to_char(ch, "Valid Commands:\r\n");
+		send_to_char(ch, "Status - Shows current test state.\r\n");
+		send_to_char(ch, "Reload - Resets test to waiting state.\r\n");
 		return 1;
 	}
 	if (CMD_IS("status") && GET_LEVEL(ch) >= LVL_IMMORT) {
@@ -71,12 +71,12 @@ SPECIAL(remorter)
 		act("$n conjures a new remort test from thin air!", TRUE,
 			(char_data *) me, 0, 0, TO_ROOM);
 		quiz.reset();
-		send_to_char("Remort test reset.\r\n", ch);
+		send_to_char(ch, "Remort test reset.\r\n");
 		return 1;
 	}
 
 	if (!CMD_IS("say") && !CMD_IS("'") && GET_LEVEL(ch) < LVL_IMMORT) {
-		send_to_char("Use the 'say' command to take the test.\r\n", ch);
+		send_to_char(ch, "Use the 'say' command to take the test.\r\n");
 		return 1;
 	}
 
@@ -88,7 +88,7 @@ SPECIAL(remorter)
 
 	if (GET_EXP(ch) < exp_scale[LVL_AMBASSADOR] ||
 		GET_LEVEL(ch) < (LVL_AMBASSADOR - 1)) {
-		send_to_char("Piss off.  Come back when you are bigger.\r\n", ch);
+		send_to_char(ch, "Piss off.  Come back when you are bigger.\r\n");
 		return 1;
 	}
 
@@ -97,17 +97,15 @@ SPECIAL(remorter)
 	if (!*argument) {
 		if (quiz.inProgress()) {
 			if (quiz.isStudent(ch)) {
-				send_to_char("Please speak clearly.\r\n", ch);
+				send_to_char(ch, "Please speak clearly.\r\n");
 				quiz.sendQuestion(ch);
 			} else {
-				send_to_char
-					("Can it scumbag. Someone is trying to concentrate.\r\n",ch);
-                send_to_char
-					("If you want to leave, just say 'goodbye'.\r\n",ch);
+				send_to_char(ch,
+					"Can it scumbag. Someone is trying to concentrate.\r\n"
+                	"If you want to leave, just say 'goodbye'.\r\n");
 			}
 		} else {
-			send_to_char
-				("You must say 'remort' to begin or 'goodbye' to leave.\r\n",ch);
+			send_to_char(ch, "You must say 'remort' to begin or 'goodbye' to leave.\r\n");
 		}
 		return 1;
 	}
@@ -117,10 +115,10 @@ SPECIAL(remorter)
             room = real_room(3061);// modrian dump
 
 		if (room == NULL) {
-			send_to_char("There is nowhere to send you.\r\n", ch);
+			send_to_char(ch, "There is nowhere to send you.\r\n");
 			return 1;
 		} else {
-			send_to_char("Very well, coward.\r\n", ch);
+			send_to_char(ch, "Very well, coward.\r\n");
 			act("$n disappears in a mushroom cloud.", FALSE, ch, 0, 0,TO_ROOM);
 			char_from_room(ch);
 			char_to_room(ch, room);
@@ -131,13 +129,13 @@ SPECIAL(remorter)
 		}
 	} else if (isname_exact(argument, "remort")) {
 		if (quiz.inProgress()) {
-			send_to_char("This test is already in progress.\r\n", ch);
+			send_to_char(ch, "This test is already in progress.\r\n");
 			quiz.sendQuestion(ch);
 			return 1;
 		}
 	} else if (!quiz.inProgress()) {
-		send_to_char
-			("You must say 'remort' to begin or 'goodbye' to leave.\r\n", ch);
+		send_to_char(ch, 
+			"You must say 'remort' to begin or 'goodbye' to leave.\r\n");
 		return 1;
 	}
 
@@ -148,13 +146,13 @@ SPECIAL(remorter)
 		level = MIN(10, 3 + GET_REMORT_GEN(ch));
 
 		if (value < level * 5000000) {
-			send_to_char
-				("You do not have sufficient sacrifice to do this.\r\n", ch);
+			send_to_char(ch, 
+				"You do not have sufficient sacrifice to do this.\r\n");
 			sprintf(buf,
 				"The required sacrifice must be worth %d coins.\r\n"
 				"You have only brought a %d coin value.\r\n", level * 5000000,
 				value);
-			send_to_char(buf, ch);
+			send_to_char(ch, "%s", buf);
 			return 1;
 		}
 
@@ -186,12 +184,11 @@ SPECIAL(remorter)
 			GET_COND(ch, THIRST) = 24;
 
 		SET_BIT(ch->in_room->room_flags, ROOM_NORECALL);
-		send_to_char("Your sacrifice has been accepted.\r\n"
+		send_to_char(ch, "Your sacrifice has been accepted.\r\n"
 			"You must now answer as many questions as possible.\r\n"
 			"The first word of your answer is the one that counts.\r\n"
 			"Answer me by using say <answer>\r\n"
-			"If you forget the question, type say, without an answer.\r\n",
-			ch);
+			"If you forget the question, type say, without an answer.\r\n");
 		quiz.reset(ch);
 		quiz.sendQuestion(ch);
 		return 1;
@@ -202,10 +199,9 @@ SPECIAL(remorter)
 		sprintf(buf, "%s%sThat is correct.%s\r\n", CCBLD(ch, C_NRM), CCBLU(ch,
 				C_NRM), CCNRM(ch, C_NRM));
 	} else {
-		sprintf(buf, "%sThat is incorrect.%s\r\n", CCRED(ch, C_NRM), CCNRM(ch,
+		send_to_char(ch, "%sThat is incorrect.%s\r\n", CCRED(ch, C_NRM), CCNRM(ch,
 				C_NRM));
 	}
-	send_to_char(buf, ch);
 
 	if (!quiz.isComplete()) {
 		quiz.nextQuestion();
@@ -227,11 +223,10 @@ SPECIAL(remorter)
 		save_char(ch, NULL);
 
 		if (!quiz.isPassing()) {
-			send_to_char("The test is over.\r\n", ch);
-			sprintf(buf, "Your answers were only %d percent correct.\r\n"
+			send_to_char(ch, "The test is over.\r\n");
+			send_to_char(ch, "Your answers were only %d percent correct.\r\n"
 				//"You must be able to answer %d percent correctly.\r\n"
 				"You are unable to remort at this time.\r\n", quiz.getScore());
-			send_to_char(buf, ch);
 			sprintf(buf, "%s has failed remort test at gen %d.", GET_NAME(ch),
 				GET_REMORT_GEN(ch));
 			mudlog(buf, NRM, LVL_ELEMENT, FALSE);
@@ -244,7 +239,7 @@ SPECIAL(remorter)
             if( load_room == NULL )
                 load_room = real_room(3061);//modrian dumps
 
-            send_to_char("You have been banished from the chamber!\r\n", ch);
+            send_to_char(ch, "You have been banished from the chamber!\r\n");
             act("$n is banished from the chamber!", FALSE, ch, 0, 0, TO_ROOM);
             ch->setPosition(POS_RESTING);
             char_from_room(ch);

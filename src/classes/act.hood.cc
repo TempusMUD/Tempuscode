@@ -29,7 +29,7 @@ int clan_house_can_enter(struct char_data *ch, struct room_data *room);
 
 ACMD(do_taunt)
 {
-	send_to_char("You taunt them mercilessly!\r\n", ch);
+	send_to_char(ch, "You taunt them mercilessly!\r\n");
 }
 
 ACMD(do_hamstring)
@@ -43,8 +43,7 @@ ACMD(do_hamstring)
 
 	one_argument(argument, arg);
 	if (CHECK_SKILL(ch, SKILL_HAMSTRING) < 50) {
-		send_to_char("Even if you knew what that was, you wouldn't do it.\r\n",
-			ch);
+		send_to_char(ch, "Even if you knew what that was, you wouldn't do it.\r\n");
 		return;
 	}
 	// If there's noone in the room that matches your alias
@@ -58,7 +57,7 @@ ACMD(do_hamstring)
 					ovict, 0, TO_CHAR);
 				return;
 			} else {
-				send_to_char("Hamstring who?\r\n", ch);
+				send_to_char(ch, "Hamstring who?\r\n");
 				return;
 			}
 		}
@@ -69,7 +68,7 @@ ACMD(do_hamstring)
 			((weap = GET_IMPLANT(ch, WEAR_HANDS)) && SLASHING(weap)) ||
 			((weap = GET_IMPLANT(ch, WEAR_ARMS)) && SLASHING(weap)))
 		) {
-		send_to_char("You need to be using a slashing weapon.\r\n", ch);
+		send_to_char(ch, "You need to be using a slashing weapon.\r\n");
 		return;
 	}
 	if (vict == ch) {
@@ -78,19 +77,19 @@ ACMD(do_hamstring)
 				FALSE, ch, 0, ch->master, TO_CHAR);
 			return;
 		}
-		send_to_char
-			("Cutting off your own leg just doesn't sound like fun.\r\n", ch);
+		send_to_char(ch, 
+			"Cutting off your own leg just doesn't sound like fun.\r\n");
 		return;
 	}
 	if (!peaceful_room_ok(ch, vict, true))
 		return;
 
 	if (vict->getPosition() == POS_SITTING) {
-		send_to_char("How can you cut it when they're sitting on it!\r\n", ch);
+		send_to_char(ch, "How can you cut it when they're sitting on it!\r\n");
 		return;
 	}
 	if (vict->getPosition() == POS_RESTING) {
-		send_to_char("How can you cut it when they're laying on it!\r\n", ch);
+		send_to_char(ch, "How can you cut it when they're laying on it!\r\n");
 		return;
 	}
 	prob = CHECK_SKILL(ch, SKILL_HAMSTRING) + GET_REMORT_GEN(ch);
@@ -190,18 +189,18 @@ ACMD(do_drag_char)
 	two_arguments(argument, arg, arg2);
 
 	if (!(vict = get_char_room_vis(ch, arg))) {
-		send_to_char("Who do you want to drag?\r\n", ch);
+		send_to_char(ch, "Who do you want to drag?\r\n");
 		WAIT_STATE(ch, 3);
 		return;
 	}
 
 	if (vict == ch) {
-		send_to_char("You can't drag yourself!\r\n", ch);
+		send_to_char(ch, "You can't drag yourself!\r\n");
 		return;
 	}
 
 	if (!*arg2) {
-		send_to_char("Which direction do you wish to drag them?\r\n", ch);
+		send_to_char(ch, "Which direction do you wish to drag them?\r\n");
 		WAIT_STATE(ch, 3);
 		return;
 	}
@@ -217,7 +216,7 @@ ACMD(do_drag_char)
 		}
 	}
 	if (!found) {
-		send_to_char("Sorry, that's not a valid direction.\r\n", ch);
+		send_to_char(ch, "Sorry, that's not a valid direction.\r\n");
 		return;
 	}
 
@@ -235,7 +234,7 @@ ACMD(do_drag_char)
 	if (!CAN_GO(ch, dir) ||
 		!can_travel_sector(ch, SECT_TYPE(EXIT(ch, dir)->to_room), 0) ||
 		!CAN_GO(vict, dir)) {
-		send_to_char("Sorry you can't go in that direction.\r\n", ch);
+		send_to_char(ch, "Sorry you can't go in that direction.\r\n");
 		return;
 	}
 	percent = ((GET_LEVEL(vict)) + number(1, 101));
@@ -319,37 +318,35 @@ ACMD(do_snatch)
 	one_argument(argument, vict_name);
 
 	if (!(vict = get_char_room_vis(ch, vict_name))) {
-		send_to_char("Snatch something away from who?\r\n", ch);
+		send_to_char(ch, "Snatch something away from who?\r\n");
 		return;
 	} else if (vict == ch) {
-		send_to_char("Come on now, that's rather stupid!\r\n", ch);
+		send_to_char(ch, "Come on now, that's rather stupid!\r\n");
 		return;
 	}
 
 	if (CHECK_SKILL(ch, SKILL_SNATCH) < 50) {
-		send_to_char("I don't think they are going to let you do that.\r\n",
-			ch);
+		send_to_char(ch, "I don't think they are going to let you do that.\r\n");
 		return;
 	}
 
 	if (IS_SET(ROOM_FLAGS(ch->in_room), ROOM_PEACEFUL) &&
 		!PLR_FLAGGED(vict, PLR_THIEF) && GET_LEVEL(ch) < LVL_AMBASSADOR) {
-		send_to_char("You can't do that here!\r\n", ch);
+		send_to_char(ch, "You can't do that here!\r\n");
 		act("$n looks really aggrivated.", FALSE, ch, 0, vict, TO_ROOM);
 		return;
 	}
 	if (vict->isNewbie() && GET_LEVEL(ch) < LVL_IMMORT) {
-		send_to_char("You cannot snatch from newbies!\r\n", ch);
+		send_to_char(ch, "You cannot snatch from newbies!\r\n");
 		return;
 	}
 	if (!IS_MOB(vict) && ch->isNewbie()) {
-		send_to_char("You can't snatch from players. You're a newbie!\r\n",
-			ch);
+		send_to_char(ch, "You can't snatch from players. You're a newbie!\r\n");
 		return;
 	}
 
 	if (!IS_MOB(vict) && !vict->desc && GET_LEVEL(ch) < LVL_ELEMENT) {
-		send_to_char("You cannot snatch from linkless players!!!\r\n", ch);
+		send_to_char(ch, "You cannot snatch from linkless players!!!\r\n");
 		sprintf(buf, "%s attemted to snatch from linkless %s.", GET_NAME(ch),
 			GET_NAME(vict));
 		mudlog(buf, CMP, GET_LEVEL(ch), TRUE);
@@ -361,7 +358,7 @@ ACMD(do_snatch)
 		!PLR_FLAGGED(vict, PLR_TOUGHGUY) &&
 		!ZONE_FLAGGED(ch->in_room->zone, ZONE_NOLAW) &&
 		!PLR_FLAGGED(ch, PLR_THIEF) && GET_LEVEL(ch) < LVL_AMBASSADOR) {
-		send_to_char("Okay... You will now be a THIEF!\r\n", ch);
+		send_to_char(ch, "Okay... You will now be a THIEF!\r\n");
 		SET_BIT(PLR_FLAGS(ch), PLR_THIEF);
 		sprintf(buf, "PC THIEF bit set on %s for trying to snatch from %s.",
 			GET_NAME(ch), GET_NAME(vict));
@@ -502,8 +499,7 @@ ACMD(do_snatch)
 			percent += CHECK_SKILL(ch, SKILL_SNATCH) - 100;
 		prob = number(1, 100);
 		if (PRF2_FLAGGED(ch, PRF2_FIGHT_DEBUG)) {
-			sprintf(buf, "Roll: %d, Chance: %d\r\n", prob, percent);
-			send_to_char(buf, ch);
+			send_to_char(ch, "Roll: %d, Chance: %d\r\n", prob, percent);
 		}
 		//failure. hand on it and failed to take away.
 		if (prob > percent) {

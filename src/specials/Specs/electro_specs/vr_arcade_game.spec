@@ -34,7 +34,7 @@ SPECIAL(vr_arcade_game)
     return 0;
 
   if (r_lckr_rm == NULL) {
-    send_to_char("Sorry, all games are out of order right now.\r\n", ch);
+    send_to_char(ch, "Sorry, all games are out of order right now.\r\n");
     return 1;
   }
 
@@ -44,25 +44,24 @@ SPECIAL(vr_arcade_game)
   }
   
   if (!lckr) {
-    send_to_char("Sorry, all the lockers are filled right now."
-		 "  Try again later.\r\n", ch);
+    send_to_char(ch, "Sorry, all the lockers are filled right now."
+		 "  Try again later.\r\n");
     return 1;
   }
 
   if ((r_startroom = real_room(GET_OBJ_VAL(game, 0))) == NULL) {
-    send_to_char("This game is currently out of order.\r\n", ch);
+    send_to_char(ch, "This game is currently out of order.\r\n");
     return 1;
   }
 
   if (GET_GOLD(ch) < GET_OBJ_VAL(game, 1)) {
-    sprintf(buf, "You don't have the %d coins required to play.\r\n",
+    send_to_char(ch, "You don't have the %d coins required to play.\r\n",
 	    GET_OBJ_VAL(game, 1));
-    send_to_char(buf, ch);
     return 1;
   }
 
   if (GET_LEVEL(ch) > GET_OBJ_VAL(game, 2)) {
-    send_to_char("Go play somewhere else.  Trix are for kids.\r\n", ch);
+    send_to_char(ch, "Go play somewhere else.  Trix are for kids.\r\n");
     return 1;
   }
 
@@ -82,12 +81,11 @@ SPECIAL(vr_arcade_game)
   House_crashsave(lckr->in_room->number);
   save_char(ch, NULL);
 
-  sprintf(buf, "You insert %d coins in %s.\r\n", GET_OBJ_VAL(game, 1),
+  send_to_char(ch, "You insert %d coins in %s.\r\n", GET_OBJ_VAL(game, 1),
 	  game->short_description);
-  send_to_char(buf, ch);
 
-  send_to_char("You step into the interface... You are blinded by a bright"
-	       " light!!\r\n", ch);
+  send_to_char(ch, "You step into the interface... You are blinded by a bright"
+	       " light!!\r\n");
   act("$n steps into $p's interface and disappears in a flash!", FALSE,
       ch, game, 0, TO_ROOM);
   

@@ -268,7 +268,7 @@ ACMD(do_reboot)
 		boot_timewarp_data();
 	else if (!str_cmp(arg, "elevators")) {
 		if (!load_elevators())
-			send_to_char("There was an error.\r\n", ch);
+			send_to_char(ch, "There was an error.\r\n");
 /*  } else if (!str_cmp(arg, "xhelp")) {
         if (help_fl)
             fclose(help_fl);
@@ -287,10 +287,10 @@ ACMD(do_reboot)
             help_index = build_help_index(help_fl, &top_of_helpt);
         }*/
 	} else {
-		send_to_char("Unknown reboot option.\r\n", ch);
+		send_to_char(ch, "Unknown reboot option.\r\n");
 		return;
 	}
-	send_to_char(OK, ch);
+	send_to_char(ch, OK);
 	sprintf(buf, "%s has reloaded %s text file.", GET_NAME(ch), arg);
 	mudlog(CAP(buf), NRM, GET_INVIS_LEV(ch), FALSE);
 }
@@ -4197,8 +4197,7 @@ purge_trails(struct char_data *ch)
 			}
 		}
 	}
-	sprintf(buf, "%d trails removed from the world.\r\n", i);
-	send_to_char(buf, ch);
+	send_to_char(ch, "%d trails removed from the world.\r\n", i);
 }
 
 int

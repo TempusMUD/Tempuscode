@@ -1572,12 +1572,22 @@ signal_setup(void)
 *******************************************************************/
 
 void
-send_to_char(const char *messg, struct char_data *ch)
+send_to_char(struct char_data *ch, const char *str, ...)
 {
-	if (ch->desc && messg)
-		SEND_TO_Q(messg, ch->desc);
-}
+	static char msg_buf[MAX_STRING_LENGTH];
+	va_list args;
 
+	if (!ch->desc || !str || !*str)
+		return;
+
+	va_start(args, str);
+	vsnprintf(msg_buf, MAX_STRING_LENGTH, str, args);
+	va_end(args);
+
+	// Everything gets capitalized
+	msg_buf[0] = toupper(msg_buf[0]);
+	SEND_TO_Q(msg_buf, ch->desc);
+}
 
 void
 send_to_all(char *messg)
@@ -1661,18 +1671,16 @@ send_to_comm_channel(struct char_data *ch, char *buf, int chan, int mode,
 			if (obj->carried_by && (!mode || obj->carried_by != ch) &&
 				(!hide_invis || CAN_SEE(obj->carried_by, ch))) {
 				if (COMM_UNIT_SEND_OK(ch, obj->carried_by)) {
-					sprintf(buf2, "%s::%s::%s ", CCYEL(obj->carried_by, C_NRM),
+					send_to_char(obj->carried_by, "%s::%s::%s ", CCYEL(obj->carried_by, C_NRM),
 						OBJS(obj, obj->carried_by), CCNRM(obj->carried_by,
 							C_NRM));
-					send_to_char(buf2, obj->carried_by);
 					act(buf, TRUE, ch, obj, obj->carried_by, TO_VICT);
 				}
 			} else if (obj->worn_by && (!mode || obj->worn_by != ch) &&
 				(!hide_invis || CAN_SEE(obj->worn_by, ch))) {
 				if (COMM_UNIT_SEND_OK(ch, obj->worn_by)) {
-					sprintf(buf2, "%s::%s::%s ", CCYEL(obj->worn_by, C_NRM),
+					send_to_char(obj->worn_by, "%s::%s::%s ", CCYEL(obj->worn_by, C_NRM),
 						OBJS(obj, obj->worn_by), CCNRM(obj->worn_by, C_NRM));
-					send_to_char(buf2, obj->worn_by);
 					act(buf, TRUE, ch, obj, obj->worn_by, TO_VICT);
 				}
 			} else if (obj->in_room) {

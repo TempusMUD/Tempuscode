@@ -14,7 +14,6 @@ SPECIAL(astral_deva)
       !GET_MOB_WAIT(ch) && GET_MANA(ch) > 50) {
     act("$n stares at $N and utters a strange incantation.", FALSE, ch, 0, FIGHTING(ch), TO_NOTVICT);
     act("$n stares at you and utters a strange incantation.", FALSE, ch, 0, FIGHTING(ch), TO_VICT);
-    send_to_char("You feel yourself exposed...\r\n", FIGHTING(ch));
     affect_from_char(FIGHTING(ch), SPELL_GREATER_INVIS);
     GET_MANA(ch) -= 50;
     return 1;

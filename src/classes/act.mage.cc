@@ -27,15 +27,14 @@ ACMD(do_mshield)
 	int i = 0;
 
 	if (!affected_by_spell(ch, SPELL_MANA_SHIELD)) {
-		send_to_char("You are not under the affects of a mana shield.\r\n",
-			ch);
+		send_to_char(ch, "You are not under the affects of a mana shield.\r\n");
 		return;
 	}
 
 	argument = two_arguments(argument, arg1, arg2);
 
 	if (!*arg1 || !*arg2) {
-		send_to_char(MSHIELD_USAGE, ch);
+		send_to_char(ch, MSHIELD_USAGE);
 		return;
 	}
 
@@ -44,8 +43,8 @@ ACMD(do_mshield)
 	if (is_abbrev(arg1, "low")) {
 		i = atoi(arg2);
 		if (i < 0 || i > GET_MANA(ch)) {
-			send_to_char
-				("The low must be between 0 and your current mana.\r\n", ch);
+			send_to_char(ch, 
+				"The low must be between 0 and your current mana.\r\n");
 			return;
 		}
 		GET_MSHIELD_LOW(ch) = i;
@@ -53,19 +52,18 @@ ACMD(do_mshield)
 	} else if (is_abbrev(arg1, "percent")) {
 		i = atoi(arg2);
 		if (i < 1 || i > 100) {
-			send_to_char("The percent must be between 1 and 100.\r\n", ch);
+			send_to_char(ch, "The percent must be between 1 and 100.\r\n");
 			return;
 		}
 		if (GET_CLASS(ch) != CLASS_MAGE && i > 50) {
-			send_to_char("You cannot set the percent higher than 50.\r\n", ch);
+			send_to_char(ch, "You cannot set the percent higher than 50.\r\n");
 			return;
 		}
 		GET_MSHIELD_PCT(ch) = i;
 		strcat(buf, "percent ");
 	}
 
-	sprintf(buf, "%sset to [%d].\r\n", buf, i);
-	send_to_char(buf, ch);
+	send_to_char(ch, "%sset to [%d].\r\n", buf, i);
 }
 
 ACMD(do_empower)
@@ -74,12 +72,11 @@ ACMD(do_empower)
 	int val1, val2, old_mana, old_maxmana;
 
 	if (!IS_MAGE(ch) || CHECK_SKILL(ch, SKILL_EMPOWER) < number(50, 101)) {
-		send_to_char("You fail to empower yourself.\r\n", ch);
+		send_to_char(ch, "You fail to empower yourself.\r\n");
 		return;
 	}
 	if (GET_HIT(ch) < 15 || GET_MOVE(ch) < 15) {
-		send_to_char("You are unable to call upon any resources of power!\r\n",
-			ch);
+		send_to_char(ch, "You are unable to call upon any resources of power!\r\n");
 		return;
 	}
 	old_maxmana = GET_MAX_MANA(ch);
@@ -108,20 +105,19 @@ ACMD(do_empower)
 
 	if (GET_MAX_MANA(ch) > old_maxmana) {	// Success!
 		GET_MANA(ch) = MIN((old_mana + val2 + val1), GET_MAX_MANA(ch));
-		send_to_char("You redirect your energies!\r\n", ch);
+		send_to_char(ch, "You redirect your energies!\r\n");
 		affect_join(ch, &af2, 0, 0, 1, 0);
 		affect_join(ch, &af3, 0, 0, 1, 0);
 
 		if ((GET_MAX_HIT(ch) >> 1) < GET_WIMP_LEV(ch)) {
-			sprintf(buf,
+			send_to_char(ch,
 				"Your wimpy level has been changed from %d to %d ... wimp!\r\n",
 				GET_WIMP_LEV(ch), GET_MAX_HIT(ch) >> 1);
-			send_to_char(buf, ch);
 			GET_WIMP_LEV(ch) = GET_MAX_HIT(ch) >> 1;
 		}
 	} else {					// hrm. OOps.. Ran outta gas.
 		GET_MANA(ch) = old_mana;
-		send_to_char("You are already fully empowered.\r\n", ch);
+		send_to_char(ch, "You are already fully empowered.\r\n");
 	}
 	act("$n concentrates deeply.", TRUE, ch, 0, 0, TO_ROOM);
 	if (GET_LEVEL(ch) < LVL_GRGOD)

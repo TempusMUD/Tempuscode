@@ -35,8 +35,8 @@ do_gen_improve(struct char_data *ch, int cmd, int mode, char *argument)
     return FALSE;
 
   if (GET_LEVEL(ch) < 10) {
-    send_to_char("You are not yet ready to improve this way.\r\n", ch);
-    send_to_char("Come back when you are level 10 or above.\r\n", ch);
+    send_to_char(ch, "You are not yet ready to improve this way.\r\n");
+    send_to_char(ch, "Come back when you are level 10 or above.\r\n");
     return TRUE;
   }
 
@@ -108,9 +108,8 @@ do_gen_improve(struct char_data *ch, int cmd, int mode, char *argument)
 			// And make sure they cant up thier stradd
 			(!(mode == MODE_STR && REAL_STAT == 18 
 				&& ch->real_abils.str_add < 100))) {
-			sprintf(buf, "%sYour %s cannot be improved further.%s\r\n",
+			send_to_char(ch, "%sYour %s cannot be improved further.%s\r\n",
 			  CCCYN(ch, C_NRM), improve_modes[mode], CCNRM(ch, C_NRM));
-			send_to_char(buf, ch);
 			return TRUE;
 		}
 /*
@@ -121,31 +120,28 @@ do_gen_improve(struct char_data *ch, int cmd, int mode, char *argument)
 	 ((IS_REMORT(ch) && REAL_STAT >= MIN(18 + GET_REMORT_GEN(ch), 22)) ||
 	  (!IS_REMORT(ch) && 
 	   (REAL_STAT > 18 || ch->real_abils.str_add >= 100))))) {
-      sprintf(buf, "%sYour %s cannot be improved further.%s\r\n",
+      send_to_char(ch, "%sYour %s cannot be improved further.%s\r\n",
 	      CCCYN(ch, C_NRM), improve_modes[mode], CCNRM(ch, C_NRM));
-      send_to_char(buf, ch);
       return TRUE;
     }
 */
-    sprintf(buf, 
+    send_to_char(ch, 
 	    "It will cost you %d coins and %d life points to improve your %s.\r\n", gold, life_cost, improve_modes[mode]);
-    send_to_char(buf, ch);
     sprintf(buf,
 	    "$n considers the implications of improving $s %s.",
 	    improve_modes[mode]);
     act(buf, TRUE, ch, 0, 0, TO_ROOM);
     if (GET_GOLD(ch) < gold)
-      send_to_char("But you do not have enough gold on you for that.\r\n", ch);
+      send_to_char(ch, "But you do not have enough gold on you for that.\r\n");
     else if (GET_LIFE_POINTS(ch) < life_cost)
-      send_to_char("But you do not have enough life points for that.\r\n", ch);
+      send_to_char(ch, "But you do not have enough life points for that.\r\n");
    
     return TRUE;
   }
    
   if (!is_abbrev(argument, improve_modes[mode])) {
-    sprintf(buf, "The only thing you can improve here is %s.\r\n",
+    send_to_char(ch, "The only thing you can improve here is %s.\r\n",
 	    improve_modes[mode]);
-    send_to_char(buf, ch);
     return TRUE;
   }
 
@@ -153,22 +149,20 @@ do_gen_improve(struct char_data *ch, int cmd, int mode, char *argument)
 		// And make sure they cant up thier stradd
 		(!(mode == MODE_STR && REAL_STAT == 18 
 			&& ch->real_abils.str_add < 100))) {
-		sprintf(buf, "%sYour %s cannot be improved further.%s\r\n",
+		send_to_char(ch, "%sYour %s cannot be improved further.%s\r\n",
 		  CCCYN(ch, C_NRM), improve_modes[mode], CCNRM(ch, C_NRM));
-		send_to_char(buf, ch);
 		return TRUE;
 	}
 
   if (GET_GOLD(ch) < gold) {
-    sprintf(buf, "You cannot afford it.  The cost is %d coins.\r\n", gold);
-    send_to_char(buf, ch);
+    send_to_char(ch, "You cannot afford it.  The cost is %d coins.\r\n", gold);
     return 1;
   }
   if (GET_LIFE_POINTS(ch) < life_cost) {
     sprintf(buf,
 	    "You have not gained sufficient life points to do this.\r\n"
 	    "It requires %d.\r\n", life_cost);
-    send_to_char(buf, ch);
+    send_to_char(ch, "%s", buf);
     return 1;
   }
 
@@ -208,7 +202,7 @@ do_gen_improve(struct char_data *ch, int cmd, int mode, char *argument)
           ch->in_room->number);
   slog(buf);
 
-  send_to_char("You begin your training.\r\n", ch);
+  send_to_char(ch, "You begin your training.\r\n");
   act("$n begins to train.", FALSE, ch, 0, 0, TO_ROOM);
   WAIT_STATE(ch, REAL_STAT RL_SEC);
   save_char(ch, NULL);

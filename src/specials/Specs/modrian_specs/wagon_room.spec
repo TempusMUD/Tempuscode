@@ -34,13 +34,13 @@ SPECIAL(wagon_room)
       return 0;
     if (strncasecmp(argument, "out", 3))
       return 0;
-    send_to_char("You look off the side of the wagon...\r\n\r\n", ch);
+    send_to_char(ch, "You look off the side of the wagon...\r\n\r\n");
     look_at_room(ch, i->in_room, 1);
     return TRUE;
   }
   
   if (CMD_IS("disembark") || CMD_IS("leave")) {
-    send_to_char("You leap off the side of the wagon.\r\n\r\n", ch);
+    send_to_char(ch, "You leap off the side of the wagon.\r\n\r\n");
     act("$n leaps off the side of the wagon.", TRUE, ch, 0, 0, TO_ROOM);
 
     char_from_room(ch);

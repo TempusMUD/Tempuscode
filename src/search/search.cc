@@ -116,13 +116,12 @@ general_search(struct char_data *ch, struct special_search_data *srch,
 
 	if (SRCH_FLAGGED(srch, SRCH_NEWBIE_ONLY) &&
 		GET_LEVEL(ch) > 6 && !NOHASS(ch)) {
-		send_to_char
-			("This can only be done here by players less than level 7.\r\n",
-			ch);
+		send_to_char(ch, 
+			"This can only be done here by players less than level 7.\r\n");
 		return 1;
 	}
 	if (SRCH_FLAGGED(srch, SRCH_REMORT_ONLY) && !IS_REMORT(ch) && !NOHASS(ch)) {
-		send_to_char("This can only be done here by remorts.\r\n", ch);
+		send_to_char(ch, "This can only be done here by remorts.\r\n");
 		return 1;
 	}
 
@@ -268,7 +267,7 @@ general_search(struct char_data *ch, struct special_search_data *srch,
 			if (srch->to_vict)
 				act(srch->to_vict, FALSE, ch, obj, mob, TO_CHAR);
 			else
-				send_to_char("Okay.\r\n", ch);
+				send_to_char(ch, "Okay.\r\n");
 
 			SRCH_LOG(ch, srch);	// don't log trans searches for now
 
@@ -311,7 +310,7 @@ general_search(struct char_data *ch, struct special_search_data *srch,
 			if (srch->to_vict)
 				act(srch->to_vict, FALSE, ch, obj, mob, TO_CHAR);
 			else
-				send_to_char("Okay.\r\n", ch);
+				send_to_char(ch, "Okay.\r\n");
 
 			if (srch->to_remote && targ_room->people) {
 				act(srch->to_remote, FALSE, targ_room->people, obj, mob,
@@ -396,7 +395,7 @@ general_search(struct char_data *ch, struct special_search_data *srch,
 			}
 			if (!found) {
 				if (!SRCH_FLAGGED(srch, SRCH_TRIG_ENTER | SRCH_TRIG_FALL))
-					send_to_char("You can't do that right now.\r\n", ch);
+					send_to_char(ch, "You can't do that right now.\r\n");
 				return 1;
 			}
 			SET_BIT(targ_room->dir_option[srch->arg[1]]->exit_info, bits);
@@ -414,7 +413,7 @@ general_search(struct char_data *ch, struct special_search_data *srch,
 			}
 			if (!found) {
 				if (!SRCH_FLAGGED(srch, SRCH_TRIG_ENTER | SRCH_TRIG_FALL))
-					send_to_char("You can't do that right now.\r\n", ch);
+					send_to_char(ch, "You can't do that right now.\r\n");
 				return 1;
 			}
 
@@ -461,7 +460,7 @@ general_search(struct char_data *ch, struct special_search_data *srch,
 		if (srch->to_vict)
 			act(srch->to_vict, FALSE, ch, obj, mob, TO_CHAR);
 		else
-			send_to_char("Okay.\r\n", ch);
+			send_to_char(ch, "Okay.\r\n");
 
 		if (GET_LEVEL(ch) < LVL_ETERNAL
 			&& !SRCH_FLAGGED(srch, SRCH_REPEATABLE))
@@ -553,7 +552,7 @@ general_search(struct char_data *ch, struct special_search_data *srch,
 		if (srch->to_vict)
 			act(srch->to_vict, FALSE, ch, obj, mob, TO_CHAR);
 		else
-			send_to_char("Okay.\r\n", ch);
+			send_to_char(ch, "Okay.\r\n");
 
 		if (GET_LEVEL(ch) < LVL_ETERNAL
 			&& !SRCH_FLAGGED(srch, SRCH_REPEATABLE))
@@ -625,7 +624,7 @@ general_search(struct char_data *ch, struct special_search_data *srch,
 			if (srch->to_vict)
 				act(srch->to_vict, FALSE, ch, obj, mob, TO_CHAR);
 			else if (!SRCH_FLAGGED(srch, SRCH_TRIG_ENTER | SRCH_TRIG_FALL))
-				send_to_char("Okay.\r\n", ch);
+				send_to_char(ch, "Okay.\r\n");
 
 			if (GET_LEVEL(ch) < LVL_ETERNAL
 				&& !SRCH_FLAGGED(srch, SRCH_REPEATABLE))
@@ -697,7 +696,7 @@ general_search(struct char_data *ch, struct special_search_data *srch,
 	if (srch->to_vict)
 		act(srch->to_vict, FALSE, ch, obj, mob, TO_CHAR);
 	else
-		send_to_char("Okay.\r\n", ch);
+		send_to_char(ch, "Okay.\r\n");
 
 	if (GET_LEVEL(ch) < LVL_ETERNAL && !SRCH_FLAGGED(srch, SRCH_REPEATABLE))
 		SET_BIT(srch->flags, SRCH_TRIPPED);
@@ -725,24 +724,22 @@ show_searches(struct char_data *ch, char *value, char *argument)
 		if (is_abbrev(arg1, "zone")) {
 			argument = one_argument(argument, arg1);
 			if (!*arg1) {
-				send_to_char("No zone specified.\r\n", ch);
+				send_to_char(ch, "No zone specified.\r\n");
 				return;
 			}
 			if (!(zn = real_zone(atoi(arg1)))) {
-				sprintf(buf, "No such zone ( %s ).\r\n", arg1);
-				send_to_char(buf, ch);
+				send_to_char(ch, "No such zone ( %s ).\r\n", arg1);
 				return;
 			}
 		}
 		if (is_abbrev(arg1, "type")) {
 			argument = one_argument(argument, arg1);
 			if (!*arg1) {
-				send_to_char("No type specified.\r\n", ch);
+				send_to_char(ch, "No type specified.\r\n");
 				return;
 			}
 			if ((srch_type = search_block(arg1, search_commands, FALSE)) < 0) {
-				sprintf(buf, "No such search type ( %s ).\r\n", arg1);
-				send_to_char(buf, ch);
+				send_to_char(ch, "No such search type ( %s ).\r\n", arg1);
 				return;
 			}
 		}

@@ -24,8 +24,6 @@ SPECIAL(weaponsmaster)
 	skip_spaces(&argument);
 	
 	if (!*argument) {
-		send_to_char("To see how much specialization will cost, type 'offer <weapon name>'.\r\n",ch);
-		send_to_char("To specialize in a weapon, type 'train <weapon name>'.\r\n",ch);
 		return 1;
 	}
 	for (pos = 0;pos < NUM_WEARS && !weap;pos++) {
@@ -43,16 +41,15 @@ SPECIAL(weaponsmaster)
 	}
 
     if(!weap) {
-        send_to_char("You must be wielding or wearing the weapon you want to specialize in.\r\n", ch);
+        send_to_char(ch, "You must be wielding or wearing the weapon you want to specialize in.\r\n");
         return 1;
     }
 
     if( weap->worn_on == WEAR_HANDS && GET_CLASS(ch) != CLASS_MONK) {
-        send_to_char("Only monks can train a weapon of this type.\r\n",ch);
         return 1;
     }
 	if (GET_OBJ_VNUM(weap) < 0 || invalid_char_class(ch, weap)) {
-		send_to_char("You can't specialize with that.\r\n", ch);
+		send_to_char(ch, "You can't specialize with that.\r\n");
 		return 1;
 	}
 	for (i = 0; i < MAX_WEAPON_SPEC; i++) {
@@ -70,23 +67,21 @@ SPECIAL(weaponsmaster)
 	}
 	
 	if (i >= weap_spec_char_class[char_class].max) {
-		sprintf(buf, "The %s char_class can only specialize in %d weapons.\r\n", 
+		send_to_char(ch, "The %s char_class can only specialize in %d weapons.\r\n", 
 			pc_char_class_types[char_class], weap_spec_char_class[char_class].max);
-		send_to_char(buf, ch);
 		return 1;
 	}
 
 	if (weap_spec.level >= 5) {
-		send_to_char("You have maxed out specialization in this weapon.\r\n", ch);
+		send_to_char(ch, "You have maxed out specialization in this weapon.\r\n");
 		return 1;
 	}
 		 
 	cost = (int) ( weap_spec_char_class[char_class].multiplier * (weap_spec.level + 1) );
 	
-	sprintf(buf, "It will cost you %d practice%s to train your specialization with %s to level %d.\r\n%s", cost, cost == 1 ? "" : "s", 
+	send_to_char(ch, "It will cost you %d practice%s to train your specialization with %s to level %d.\r\n%s", cost, cost == 1 ? "" : "s", 
 		weap->short_description, weap_spec.level+1,
 		cost > GET_PRACTICES(ch) ? "Which you don't have.\r\n" : "");
-	send_to_char(buf, ch);
 	
 	if (check_only || cost > GET_PRACTICES(ch))
 		return 1;

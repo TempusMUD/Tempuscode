@@ -212,9 +212,8 @@ SPECIAL(tarrasque)
   if( spec_mode != SPECIAL_CMD && spec_mode != SPECIAL_TICK ) return 0;
   if (cmd) {
     if (CMD_IS("status") && GET_LEVEL(ch) >= LVL_IMMORT) {
-      sprintf(buf, "Tarrasque status: mode (%d), timer (%d), tframe (%d)\r\n",
+      send_to_char(ch, "Tarrasque status: mode (%d), timer (%d), tframe (%d)\r\n",
               mode, timer, tframe);
-      send_to_char(buf, ch);
       return 1;
     }
     if (CMD_IS("reload") && GET_LEVEL(ch) > LVL_DEMI) {
@@ -224,7 +223,7 @@ SPECIAL(tarrasque)
         char_from_room(tarr);
         char_to_room(tarr, rm);
       }
-      send_to_char("Tarrasque reset.\r\n", ch);
+      send_to_char(ch, "Tarrasque reset.\r\n");
       return 1;
     }
     if (mode == T_SLEEP && !AWAKE(tarr))

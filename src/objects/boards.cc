@@ -313,7 +313,7 @@ Board_write_message(int board_type, struct char_data *ch, struct obj_data *obj,
 	struct mail_recipient_data *n_mail_to;
 
 	if (PLR_FLAGGED(ch, PLR_NOPOST)) {
-		send_to_char("You cannot post.\r\n", ch);
+		send_to_char(ch, "You cannot post.\r\n");
 		return;
 	}
 
@@ -324,21 +324,20 @@ Board_write_message(int board_type, struct char_data *ch, struct obj_data *obj,
 	}
 
 	if (!Security::canAccess(ch, board_info[board_type])) {
-		send_to_char("You do not have the power to write on this board.\r\n",
-			ch);
+		send_to_char(ch, "You do not have the power to write on this board.\r\n");
 		return;
 	}
 
 	if (GET_LEVEL(ch) < WRITE_LVL(board_type)) {
-		send_to_char("You cannot write on this board yet.\r\n", ch);
+		send_to_char(ch, "You cannot write on this board yet.\r\n");
 		return;
 	}
 	if (num_of_msgs[board_type] >= MAX_BOARD_MESSAGES) {
-		send_to_char("The board is full.\r\n", ch);
+		send_to_char(ch, "The board is full.\r\n");
 		return;
 	}
 	if ((NEW_MSG_INDEX(board_type).slot_num = find_slot()) == -1) {
-		send_to_char("The board is malfunctioning - sorry.\r\n", ch);
+		send_to_char(ch, "The board is malfunctioning - sorry.\r\n");
 		slog("SYSERR: Board: failed to find empty slot on write.");
 		return;
 	}
@@ -350,7 +349,7 @@ Board_write_message(int board_type, struct char_data *ch, struct obj_data *obj,
 	arg[81] = '\0';
 
 	if (!*arg) {
-		send_to_char("We must have a headline!\r\n", ch);
+		send_to_char(ch, "We must have a headline!\r\n");
 		return;
 	}
 	ct = time(0);
@@ -365,7 +364,7 @@ Board_write_message(int board_type, struct char_data *ch, struct obj_data *obj,
 #endif
 	if (!(NEW_MSG_INDEX(board_type).heading =
 			(char *)malloc(sizeof(char) * len))) {
-		send_to_char("The board is malfunctioning - sorry.\r\n", ch);
+		send_to_char(ch, "The board is malfunctioning - sorry.\r\n");
 		return;
 	}
 #ifdef DMALLOC
@@ -413,7 +412,7 @@ Board_show_board(int board_type, struct char_data *ch, struct obj_data *obj,
 	}
 
 	if (GET_LEVEL(ch) < READ_LVL(board_type)) {
-		send_to_char("You try but fail to understand the words.\r\n", ch);
+		send_to_char(ch, "You try but fail to understand the words.\r\n");
 		return 1;
 	}
 	act("$n studies the board.", TRUE, ch, 0, 0, TO_ROOM);
@@ -436,7 +435,7 @@ Board_show_board(int board_type, struct char_data *ch, struct obj_data *obj,
 					MSG_HEADING(board_type, i));
 			else {
 				slog("SYSERR: The board is fubar'd.");
-				send_to_char("Sorry, the board isn't working.\r\n", ch);
+				send_to_char(ch, "Sorry, the board isn't working.\r\n");
 				return 1;
 			}
 		}
@@ -469,30 +468,30 @@ Board_display_msg(int board_type, struct char_data *ch, struct obj_data *obj,
 	}
 
 	if (GET_LEVEL(ch) < READ_LVL(board_type)) {
-		send_to_char("You try but fail to understand the words.\r\n", ch);
+		send_to_char(ch, "You try but fail to understand the words.\r\n");
 		return 1;
 	}
 	if (!num_of_msgs[board_type]) {
-		send_to_char("The board is empty!\r\n", ch);
+		send_to_char(ch, "The board is empty!\r\n");
 		return (1);
 	}
 	if (msg < 1 || msg > num_of_msgs[board_type]) {
-		send_to_char("That message exists only in your imagination.\r\n", ch);
+		send_to_char(ch, "That message exists only in your imagination.\r\n");
 		return (1);
 	}
 	ind = msg - 1;
 	if (MSG_SLOTNUM(board_type, ind) < 0 ||
 		MSG_SLOTNUM(board_type, ind) >= INDEX_SIZE) {
-		send_to_char("Sorry, the board is not working.\r\n", ch);
+		send_to_char(ch, "Sorry, the board is not working.\r\n");
 		slog("SYSERR: Board is screwed up.");
 		return 1;
 	}
 	if (!(MSG_HEADING(board_type, ind))) {
-		send_to_char("That message appears to be screwed up.\r\n", ch);
+		send_to_char(ch, "That message appears to be screwed up.\r\n");
 		return 1;
 	}
 	if (!(msg_storage[MSG_SLOTNUM(board_type, ind)])) {
-		send_to_char("That message seems to be empty.\r\n", ch);
+		send_to_char(ch, "That message seems to be empty.\r\n");
 		return 1;
 	}
 	sprintf(buffer, "%sMessage %d : %s%s\r\n\r\n%s\r\n", CCBLD(ch, C_CMP), msg,
@@ -527,50 +526,47 @@ Board_remove_msg(int board_type, struct char_data *ch, struct obj_data *obj,
 	}
 
 	if (!num_of_msgs[board_type]) {
-		send_to_char("The board is empty!\r\n", ch);
+		send_to_char(ch, "The board is empty!\r\n");
 		return 1;
 	}
 	if (msg < 1 || msg > num_of_msgs[board_type]) {
-		send_to_char("That message exists only in your imagination.\r\n", ch);
+		send_to_char(ch, "That message exists only in your imagination.\r\n");
 		return 1;
 	}
 	ind = msg - 1;
 	if (!MSG_HEADING(board_type, ind)) {
-		send_to_char("That message appears to be screwed up.\r\n", ch);
+		send_to_char(ch, "That message appears to be screwed up.\r\n");
 		return 1;
 	}
 	sprintf(buf, "(%s)", GET_NAME(ch));
 	if (GET_LEVEL(ch) < REMOVE_LVL(board_type) &&
 		!(strstr(MSG_HEADING(board_type, ind), buf))) {
-		send_to_char
-			("You are not holy enough to remove other people's messages.\r\n",
-			ch);
+		send_to_char(ch, 
+			"You are not holy enough to remove other people's messages.\r\n");
 		return 1;
 	}
 	if (GET_LEVEL(ch) < LVL_LUCIFER &&
 		!(strstr(MSG_HEADING(board_type, ind), buf)) &&
 		GET_LEVEL(ch) < MSG_LEVEL(board_type, ind)) {
-		send_to_char("You can't remove a message holier than yourself.\r\n",
-			ch);
+		send_to_char(ch, "You can't remove a message holier than yourself.\r\n");
 		return 1;
 	}
 
 	if (!Security::canAccess(ch, board_info[board_type])) {
-		send_to_char("You do not have the power to alter this board.\r\n", ch);
+		send_to_char(ch, "You do not have the power to alter this board.\r\n");
 		return 1;
 	}
 
 	slot_num = MSG_SLOTNUM(board_type, ind);
 	if (slot_num < 0 || slot_num >= INDEX_SIZE) {
 		slog("SYSERR: The board is seriously screwed up.");
-		send_to_char("That message is majorly screwed up.\r\n", ch);
+		send_to_char(ch, "That message is majorly screwed up.\r\n");
 		return 1;
 	}
 	for (d = descriptor_list; d; d = d->next)
 		if (IS_PLAYING(d) && d->str == &(msg_storage[slot_num])) {
-			send_to_char
-				("At least wait until the author is finished before removing it!\r\n",
-				ch);
+			send_to_char(ch, 
+				"At least wait until the author is finished before removing it!\r\n");
 			return 1;
 		}
 	if (msg_storage[slot_num]) {
@@ -600,7 +596,7 @@ Board_remove_msg(int board_type, struct char_data *ch, struct obj_data *obj,
 		MSG_LEVEL(board_type, ind) = MSG_LEVEL(board_type, ind + 1);
 	}
 	num_of_msgs[board_type]--;
-	send_to_char("Message removed.\r\n", ch);
+	send_to_char(ch, "Message removed.\r\n");
 	sprintf(buf, "$n just removed message %d.", msg);
 	act(buf, TRUE, ch, 0, 0, TO_ROOM);
 	Board_save_board(board_type);

@@ -30,7 +30,7 @@ SPECIAL(maze_cleaner)
 	   sprintf(buf,"my stats is : %d,%d,%d,%d\r\n",
 		   GET_OBJ_VAL(od,0),GET_OBJ_VAL(od,1),
 		   GET_OBJ_VAL(od,2),GET_OBJ_VAL(od,3));
-	   send_to_char(buf, ch);
+	   send_to_char(ch, "%s", buf);
 	 }
      }
    if (cmd) return 0;

@@ -23,7 +23,7 @@ SPECIAL(repairer)
   skip_spaces(&argument);
 
   if (!*argument) {
-    send_to_char("You can BUY or VALUE repairs <item>.\r\n", ch);
+    send_to_char(ch, "You can BUY or VALUE repairs <item>.\r\n");
     return 1;
   }
 

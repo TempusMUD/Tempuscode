@@ -16,8 +16,9 @@ SPECIAL(head_shrinker)
 
     if( spec_mode != SPECIAL_CMD && spec_mode != SPECIAL_TICK ) return 0;
 	if (CMD_IS("list")) {
-		send_to_char("Type 'buy talisman <corpse>' to have a talisman made from it's head.\r\n"
-					 "Better empty the corpse out first if you want the contents.\r\n",ch);
+		send_to_char(ch,
+			"Better empty the corpse out first if you want the contents.\r\n"
+			"Type 'buy talisman <corpse>' to have a talisman made from it's head.\r\n");
 		return 1;
 	}
 	
@@ -32,35 +33,32 @@ SPECIAL(head_shrinker)
 	argument = one_argument(argument, arg);
 
 	if (!*arg) {
-		send_to_char("Buy head shrinking of what corpse?\r\n", ch);
+		send_to_char(ch, "Buy head shrinking of what corpse?\r\n");
 		return 1;
 	}
 
 	if (!(corpse = get_obj_in_list_vis(ch, arg, ch->carrying))) {
-	 sprintf(buf, "You don't have %s '%s'.\r\n", AN(arg), arg);
-		send_to_char(buf, ch);
+	 send_to_char(ch, "You don't have %s '%s'.\r\n", AN(arg), arg);
 		return 1;
 	}
 
 	if (!IS_FLESH_TYPE(corpse)) {
-		send_to_char("I only shrink flesh heads. What's wrong with you?\r\n", ch);
+		send_to_char(ch, "I only shrink flesh heads. What's wrong with you?\r\n");
 		return 1;
 	}
 	if (IS_MAT(corpse, MAT_MEAT_COOKED)) {
-		send_to_char("That's a cooked corpse, crazy man.\r\n", ch);
+		send_to_char(ch, "That's a cooked corpse, crazy man.\r\n");
 		return 1;
 	}
 	if (!strncmp(corpse->short_description,"the headless",12)) {
-		send_to_char("That thang ain't got a head buddy!\r\n",ch);
 		return 1;
 	}
 	if (GET_GOLD(ch) < 150) {
-		send_to_char("It costs 150 gold coins to shrink a head, buddy.\r\n", ch);
+		send_to_char(ch, "It costs 150 gold coins to shrink a head, buddy.\r\n");
 		return 1;
 	}
 	
 	if (!(head = read_object(PROTOHEAD))) {
-		send_to_char("The head shrinker seems unable to shrink heads today.\r\n",ch);
 		sprintf(buf,"Error: Head Shrinker cannot find proto head vnum %d.\r\n",PROTOHEAD);
 		mudlog(buf,BRF,LVL_POWER,TRUE);
 		return 1;
@@ -73,7 +71,6 @@ SPECIAL(head_shrinker)
 	} else if ( (s = strstr(corpse->short_description,"corpse of")) ) {
 		s += 9;
 		if(!*s) {
-			send_to_char("What kind of head does this fool thing have?\r\n",ch);
 			return 1;
 		}
 		skip_spaces(&s);

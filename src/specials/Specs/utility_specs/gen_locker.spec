@@ -61,7 +61,7 @@ SPECIAL(gen_locker)
     }
 
     if (!locker_room || !real_object_proto(locker_vnum)) {
-      send_to_char("Sorry, the locker room is out of service right now.\r\n", ch);
+      send_to_char(ch, "Sorry, the locker room is out of service right now.\r\n");
       slog("SYSERR: locker room with no storage room or locker.");
       return 1;
     }
@@ -109,14 +109,13 @@ SPECIAL(gen_locker)
 
     rent = (rent * cost_factor) / 100;
 
-    sprintf(buf, 
+    send_to_char(ch, 
 	    "The down payment will be %d %s.\r\n"
 	    "I will store your stuff for %d %s per day.\r\n",
 	    cost_factor * 10, 
 	    ch->in_room->zone->time_frame==TIME_ELECTRO ? "credits" : "coins",
 	    rent,
 	    ch->in_room->zone->time_frame==TIME_ELECTRO ? "credits" : "coins");
-    send_to_char(buf, ch);
     return 1;
   }
 
@@ -142,22 +141,20 @@ SPECIAL(gen_locker)
     }
 
     if (!locker_room || !real_object_proto(locker_vnum)) {
-      send_to_char("Sorry, the locker room is out of service right now.\r\n", ch);
+      send_to_char(ch, "Sorry, the locker room is out of service right now.\r\n");
       slog("SYSERR: locker room with no storage room or locker.");
       return 1;
     }
 
     if (ch->in_room->zone->time_frame == TIME_ELECTRO) {
       if (GET_CASH(ch) < cost_factor * 10) {
-	sprintf(buf, "You don't have the %d credit down payment required.\r\n",
+	send_to_char(ch, "You don't have the %d credit down payment required.\r\n",
 		cost_factor * 10);
-	send_to_char(buf, ch);
 	return 1;
       }
     } else if (GET_GOLD(ch) < cost_factor * 10) {
-      sprintf(buf, "You don't have the %d coin down payment required.\r\n",
+      send_to_char(ch, "You don't have the %d coin down payment required.\r\n",
 	      cost_factor * 10);
-      send_to_char(buf, ch);
       return 1;
     }
 
@@ -222,10 +219,9 @@ SPECIAL(gen_locker)
     act("$n takes all $N's things and locks them in a locker.", FALSE, atten, 0, ch, TO_NOTVICT);
 
     if (GET_OBJ_VAL(locker, 1)) {
-      sprintf(buf, "It will cost %d %s per day to keep the locker.\r\n",
+      send_to_char(ch, "It will cost %d %s per day to keep the locker.\r\n",
 	      GET_OBJ_VAL(locker, 1), ch->in_room->zone->time_frame ==
 	      TIME_ELECTRO ? "credits" : "coins");
-      send_to_char(buf, ch);
       return 1;
     }
     return 1;
@@ -246,7 +242,7 @@ SPECIAL(gen_locker)
     }
 
     if (!locker_room || !real_object_proto(locker_vnum)) {
-      send_to_char("Sorry, the locker room is out of service right now.\r\n", ch);
+      send_to_char(ch, "Sorry, the locker room is out of service right now.\r\n");
       slog("SYSERR: locker room with no storage room or locker.");
       return 1;
     }
@@ -272,23 +268,20 @@ SPECIAL(gen_locker)
 
       if (ch->in_room->zone->time_frame == TIME_ELECTRO) {
 	if (GET_CASH(ch) < rent) {
-	  sprintf(buf, 
+	  send_to_char(ch, 
 		  "You don't have the %d credits required.\r\n", rent);
-	  send_to_char(buf, ch);
 	  return 1;
 	} else
 	  GET_CASH(ch) -= rent;
       } else if (GET_GOLD(ch) < rent) {
-	sprintf(buf, "You don't have the %d coins required.\r\n", rent);
-	send_to_char(buf, ch);
+	send_to_char(ch, "You don't have the %d coins required.\r\n", rent);
 	return 1;
       } else 
 	GET_GOLD(ch) -= rent;
 
-      sprintf(buf, "The cost will be %d %s.\r\n", rent,
+      send_to_char(ch, "The cost will be %d %s.\r\n", rent,
 	      ch->in_room->zone->time_frame == TIME_ELECTRO ?
 	      "credits" : "coins");
-      send_to_char(buf, ch);
 
     }
 

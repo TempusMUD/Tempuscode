@@ -1357,7 +1357,7 @@ command_interpreter(struct char_data *ch, char *argument)
 
 	REMOVE_BIT(AFF_FLAGS(ch), AFF_HIDE);
 	if (IS_AFFECTED_2(ch, AFF2_MEDITATE)) {
-		send_to_char("You stop meditating.", ch);
+		send_to_char(ch, "You stop meditating.");
 		REMOVE_BIT(AFF2_FLAGS(ch), AFF2_MEDITATE);
 	}
 	REMOVE_BIT(AFF2_FLAGS(ch), AFF2_EVADE);
@@ -1398,36 +1398,34 @@ command_interpreter(struct char_data *ch, char *argument)
 	if (*cmd_info[cmd].command == '\n') {
 		switch (number(0, 10)) {
 		case 0:
-			send_to_char("Huh?!?\r\n", ch);
+			send_to_char(ch, "Huh?!?\r\n");
 			break;
 		case 1:
-			send_to_char("What's that?\r\n", ch);
+			send_to_char(ch, "What's that?\r\n");
 			break;
 		case 2:
-			sprintf(buf, "%cQue?!?\r\n", 191);
-			send_to_char(buf, ch);
+			send_to_char(ch, "%cQue?!?\r\n", 191);
 			break;
 		case 3:
-			send_to_char
-				("You'll have to speak in a language I understand...\r\n", ch);
+			send_to_char(ch, 
+				"You'll have to speak in a language I understand...\r\n");
 			break;
 		case 4:
-			send_to_char("I don't understand that.\r\n", ch);
+			send_to_char(ch, "I don't understand that.\r\n");
 			break;
 		case 5:
-			send_to_char("Wie bitte?\r\n", ch);
+			send_to_char(ch, "Wie bitte?\r\n");
 			break;
 		case 6:
-			send_to_char("You're talking nonsense to me.\r\n", ch);
+			send_to_char(ch, "You're talking nonsense to me.\r\n");
 			break;
 		case 7:
 		case 8:
 		case 9:
-			sprintf(buf, "Hmm, I don't understand the command '%s'.\r\n", arg);
-			send_to_char(buf, ch);
+			send_to_char(ch, "Hmm, I don't understand the command '%s'.\r\n", arg);
 			break;
 		default:
-			send_to_char("Come again?\r\n", ch);
+			send_to_char(ch, "Come again?\r\n");
 			break;
 		}
 		return;
@@ -1451,56 +1449,48 @@ command_interpreter(struct char_data *ch, char *argument)
 	}
 
 	if (PLR_FLAGGED(ch, PLR_FROZEN) && GET_LEVEL(ch) < LVL_GRIMP)
-		send_to_char("You try, but the mind-numbing cold prevents you...\r\n",
-			ch);
+		send_to_char(ch, "You try, but the mind-numbing cold prevents you...\r\n");
 	else if (IS_AFFECTED_2(ch, AFF2_PETRIFIED) && GET_LEVEL(ch) < LVL_ELEMENT
 		&& (!ch->desc || !ch->desc->original)) {
 		if (!number(0, 3))
-			send_to_char("You have been turned to stone!\r\n", ch);
+			send_to_char(ch, "You have been turned to stone!\r\n");
 		else if (!number(0, 2))
-			send_to_char("You are petrified!  You cannot move an inch!\r\n",
-				ch);
+			send_to_char(ch, "You are petrified!  You cannot move an inch!\r\n");
 		else if (!number(0, 1))
-			send_to_char("WTF?!!  Your body has been turned to solid stone!",
-				ch);
+			send_to_char(ch, "WTF?!!  Your body has been turned to solid stone!");
 		else
-			send_to_char("You have been turned to stone, and cannot move.\r\n",
-				ch);
+			send_to_char(ch, "You have been turned to stone, and cannot move.\r\n");
 	} else if (cmd_info[cmd].command_pointer == NULL)
-		send_to_char("Sorry, that command hasn't been implemented yet.\r\n",
-			ch);
+		send_to_char(ch, "Sorry, that command hasn't been implemented yet.\r\n");
 	else if (IS_NPC(ch) && cmd_info[cmd].minimum_level >= LVL_IMMORT)
-		send_to_char("You can't use immortal commands while switched.\r\n",
-			ch);
+		send_to_char(ch, "You can't use immortal commands while switched.\r\n");
 	else if (ch->getPosition() < cmd_info[cmd].minimum_position
 		&& GET_LEVEL(ch) < LVL_AMBASSADOR)
 		switch (ch->getPosition()) {
 		case POS_DEAD:
-			send_to_char("Lie still; you are DEAD!!! :-(\r\n", ch);
+			send_to_char(ch, "Lie still; you are DEAD!!! :-(\r\n");
 			break;
 		case POS_INCAP:
 		case POS_MORTALLYW:
-			send_to_char
-				("You are in a pretty bad shape, unable to do anything!\r\n",
-				ch);
+			send_to_char(ch, 
+				"You are in a pretty bad shape, unable to do anything!\r\n");
 			break;
 		case POS_STUNNED:
-			send_to_char
-				("All you can do right now is think about the stars!\r\n", ch);
+			send_to_char(ch, 
+				"All you can do right now is think about the stars!\r\n");
 			break;
 		case POS_SLEEPING:
-			send_to_char("In your dreams, or what?\r\n", ch);
+			send_to_char(ch, "In your dreams, or what?\r\n");
 			break;
 		case POS_RESTING:
-			send_to_char
-				("Nah... You're resting.  Why don't you sit up first?\r\n",
-				ch);
+			send_to_char(ch, 
+				"Nah... You're resting.  Why don't you sit up first?\r\n");
 			break;
 		case POS_SITTING:
-			send_to_char("Maybe you should get on your feet first?\r\n", ch);
+			send_to_char(ch, "Maybe you should get on your feet first?\r\n");
 			break;
 		case POS_FIGHTING:
-			send_to_char("No way!  You're fighting for your life!\r\n", ch);
+			send_to_char(ch, "No way!  You're fighting for your life!\r\n");
 			if (!FIGHTING(ch))
 				slog("SYSERR: Char !FIGHTING(ch) while pos fighting.");
 			break;
@@ -1592,15 +1582,14 @@ ACMD(do_alias)
 	} else {					/* otherwise, add or display aliases */
 		if (!*repl) {
 			if ((a = find_alias(GET_ALIASES(ch), arg)) == NULL) {
-				send_to_char("No such alias.\r\n", ch);
+				send_to_char(ch, "No such alias.\r\n");
 			} else {
-				sprintf(buf, "%s%-15s%s %s\r\n", CCCYN(ch, C_NRM), a->alias,
+				send_to_char(ch, "%s%-15s%s %s\r\n", CCCYN(ch, C_NRM), a->alias,
 					CCNRM(ch, C_NRM), a->replacement);
-				send_to_char(buf, ch);
 			}
 		} else {				/* otherwise, either add or redefine an alias */
 			if (!str_cmp(arg, "alias")) {
-				send_to_char("You can't alias 'alias'.\r\n", ch);
+				send_to_char(ch, "You can't alias 'alias'.\r\n");
 				return;
 			}
 
@@ -1625,7 +1614,7 @@ ACMD(do_alias)
 			else
 				a->type = ALIAS_SIMPLE;
 			add_alias(ch, a);
-			send_to_char("Alias added.\r\n", ch);
+			send_to_char(ch, "Alias added.\r\n");
 		}
 	}
 }
@@ -1642,7 +1631,7 @@ ACMD(do_unalias)
 	repl = any_one_arg(argument, arg);	/* vintage */
 
 	if (!*arg) {				/* no argument specified -- what a dumbass */
-		send_to_char("Unalias what?\r\n", ch);
+		send_to_char(ch, "Unalias what?\r\n");
 		return;
 	} else {
 		if ((a = find_alias(GET_ALIASES(ch), arg)) != NULL) {
@@ -1654,9 +1643,9 @@ ACMD(do_unalias)
 #ifdef DMALLOC
 			dmalloc_verify(0);
 #endif
-			send_to_char("Alias removed.\r\n", ch);
+			send_to_char(ch, "Alias removed.\r\n");
 		} else {
-			send_to_char("No such alias Mr. Tard.\r\n", ch);
+			send_to_char(ch, "No such alias Mr. Tard.\r\n");
 		}
 	}
 }

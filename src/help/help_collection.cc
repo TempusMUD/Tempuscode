@@ -180,13 +180,12 @@ HelpCollection::GetTopic(char_data * ch,
 	linebuf[0] = '\0';
 	int space_left = sizeof(gHelpbuf) - 480;
 	if (!args || !*args) {
-		send_to_char("You must enter search criteria.\r\n", ch);
+		send_to_char(ch, "You must enter search criteria.\r\n");
 		return;
 	}
 	cur = FindItems(args, show_no_app, thegroup, searchmode);
 	if (!cur) {
-		send_to_char("No items were found matching your search criteria.\r\n",
-			ch);
+		send_to_char(ch, "No items were found matching your search criteria.\r\n");
 		return;
 	}
 	// Normal plain old help. One item at a time.
@@ -258,8 +257,7 @@ HelpCollection::CreateItem(char_data * ch)
 	n = new HelpItem;
 	n->idnum = ++top_id;
 	Push(n);
-	sprintf(buf, "Item #%d created.\r\n", n->idnum);
-	send_to_char(buf, ch);
+	send_to_char(ch, "Item #%d created.\r\n", n->idnum);
 	n->Save();
 	SaveIndex(ch);
 	n->Edit(ch);
@@ -280,7 +278,7 @@ HelpCollection::EditItem(char_data * ch, int idnum)
 		cur->Edit(ch);
 		return true;
 	}
-	send_to_char("No such item.\r\n", ch);
+	send_to_char(ch, "No such item.\r\n");
 	return false;
 }
 
@@ -289,7 +287,7 @@ bool
 HelpCollection::ClearItem(char_data * ch)
 {
 	if (!GET_OLC_HELP(ch)) {
-		send_to_char("You must be editing an item to clear it.\r\n", ch);
+		send_to_char(ch, "You must be editing an item to clear it.\r\n");
 		return false;
 	}
 	GET_OLC_HELP(ch)->Clear();
@@ -301,7 +299,7 @@ bool
 HelpCollection::SaveItem(char_data * ch)
 {
 	if (!GET_OLC_HELP(ch)) {
-		send_to_char("You must be editing an item to save it.\r\n", ch);
+		send_to_char(ch, "You must be editing an item to save it.\r\n");
 		return false;
 	}
 	GET_OLC_HELP(ch)->Save();
@@ -358,7 +356,7 @@ HelpCollection::SaveAll(char_data * ch)
 		if (IS_SET(cur->flags, HFLAG_MODIFIED))
 			cur->Save();
 	}
-	send_to_char("Saved.\r\n", ch);
+	send_to_char(ch, "Saved.\r\n");
 	sprintf(buf, "%s has saved the help system.", GET_NAME(ch));
 	slog(buf);
 	return true;
@@ -446,13 +444,12 @@ HelpCollection::Set(char_data * ch, char *argument)
 {
 	char arg1[256];
 	if (!GET_OLC_HELP(ch)) {
-		send_to_char("You have to be editing an item to set it.\r\n", ch);
+		send_to_char(ch, "You have to be editing an item to set it.\r\n");
 		return false;
 	}
 	if (!argument || !*argument) {
-		send_to_char
-			("hcollect set <groups[+/-]|flags[+/-]|name|keywords|description> [args]\r\n",
-			ch);
+		send_to_char(ch, 
+			"hcollect set <groups[+/-]|flags[+/-]|name|keywords|description> [args]\r\n");
 		return false;
 	}
 	argument = one_argument(argument, arg1);
@@ -501,17 +498,16 @@ HelpCollection::ApproveItem(char_data * ch, char *argument)
 	if (isdigit(arg1[0]))
 		idnum = atoi(arg1);
 	if (idnum > top_id || idnum < 1) {
-		send_to_char("Approve which item?\r\n", ch);
+		send_to_char(ch, "Approve which item?\r\n");
 		return;
 	}
 	for (cur = items; cur && cur->idnum != idnum; cur = cur->Next());
 	if (cur) {
 		REMOVE_BIT(cur->flags, HFLAG_UNAPPROVED);
 		SET_BIT(cur->flags, HFLAG_MODIFIED);
-		sprintf(buf, "Item #%d approved.\r\n", cur->idnum);
-		send_to_char(buf, ch);
+		send_to_char(ch, "Item #%d approved.\r\n", cur->idnum);
 	} else {
-		send_to_char("Unable to find item.\r\n", ch);
+		send_to_char(ch, "Unable to find item.\r\n");
 	}
 	return;
 }
@@ -528,17 +524,16 @@ HelpCollection::UnApproveItem(char_data * ch, char *argument)
 	if (isdigit(arg1[0]))
 		idnum = atoi(arg1);
 	if (idnum > top_id || idnum < 1) {
-		send_to_char("UnApprove which item?\r\n", ch);
+		send_to_char(ch, "UnApprove which item?\r\n");
 		return;
 	}
 	for (cur = items; cur && cur->idnum != idnum; cur = cur->Next());
 	if (cur) {
 		SET_BIT(cur->flags, HFLAG_MODIFIED);
 		SET_BIT(cur->flags, HFLAG_UNAPPROVED);
-		sprintf(buf, "Item #%d unapproved.\r\n", cur->idnum);
-		send_to_char(buf, ch);
+		send_to_char(ch, "Item #%d unapproved.\r\n", cur->idnum);
 	} else {
-		send_to_char("Unable to find item.\r\n", ch);
+		send_to_char(ch, "Unable to find item.\r\n");
 	}
 	return;
 }
@@ -567,7 +562,7 @@ HelpCollection::Show(char_data * ch)
 		if (cur->groups == 0)
 			num_no_group++;
 	}
-	sprintf(buf, "%sTopics [%s%d%s] %sUnapproved [%s%d%s] %sModified [%s%d%s] "
+	send_to_char(ch, "%sTopics [%s%d%s] %sUnapproved [%s%d%s] %sModified [%s%d%s] "
 		"%sEditing [%s%d%s] %sGroupless [%s%d%s]%s\r\n",
 		CCCYN(ch, C_NRM), CCNRM(ch, C_NRM), num_items, CCCYN(ch, C_NRM),
 		CCYEL(ch, C_NRM), CCNRM(ch, C_NRM), num_unapproved, CCYEL(ch, C_NRM),
@@ -575,7 +570,6 @@ HelpCollection::Show(char_data * ch)
 		CCCYN(ch, C_NRM), CCNRM(ch, C_NRM), num_editing, CCCYN(ch, C_NRM),
 		CCRED(ch, C_NRM), CCNRM(ch, C_NRM), num_no_group, CCRED(ch, C_NRM),
 		CCNRM(ch, C_NRM));
-	send_to_char(buf, ch);
 	Groups.Show(ch);
 }
 
@@ -600,9 +594,8 @@ do_hcollect_usage(CHAR * ch, int com)
 	if (com < 0) {
 		do_hcollect_cmds(ch);
 	} else {
-		sprintf(buf, "Usage: hcollect %s %s\r\n",
+		send_to_char(ch, "Usage: hcollect %s %s\r\n",
 			hc_cmds[com].keyword, hc_cmds[com].usage);
-		send_to_char(buf, ch);
 	}
 }
 
@@ -626,9 +619,8 @@ do_group_usage(CHAR * ch, int com)
 	if (com < 0) {
 		do_group_cmds(ch);
 	} else {
-		sprintf(buf, "Usage: hcollect group %s %s\r\n",
+		send_to_char(ch, "Usage: hcollect group %s %s\r\n",
 			grp_cmds[com].keyword, grp_cmds[com].usage);
-		send_to_char(buf, ch);
 	}
 }
 HelpItem *
@@ -653,15 +645,14 @@ do_group_command(char_data * ch, char *argument)
 	}
 	for (com = 0;; com++) {
 		if (!grp_cmds[com].keyword) {
-			sprintf(buf, "Unknown group command, '%s'.\r\n", linebuf);
-			send_to_char(buf, ch);
+			send_to_char(ch, "Unknown group command, '%s'.\r\n", linebuf);
 			return;
 		}
 		if (is_abbrev(linebuf, grp_cmds[com].keyword))
 			break;
 	}
 	if (grp_cmds[com].level > GET_LEVEL(ch)) {
-		send_to_char("You are not godly enough to do this!\r\n", ch);
+		send_to_char(ch, "You are not godly enough to do this!\r\n");
 		return;
 	}
 	switch (com) {
@@ -670,7 +661,7 @@ do_group_command(char_data * ch, char *argument)
 		break;
 	case 1:					// create
 		//Help->Groups.Create(ch, argument);
-		send_to_char("Unimplimented.\r\n", ch);
+		send_to_char(ch, "Unimplimented.\r\n");
 		break;
 	case 2:					// list
 		Help->Groups.Show(ch);
@@ -721,7 +712,7 @@ ACMD(do_hcollect_help)
 		sprintf(buf,
 			"Type 'Help %s' to see the skills available to your char_class.\r\n",
 			pc_char_class_types[(int)GET_CLASS(ch)]);
-		send_to_char(buf, ch);
+		send_to_char(ch, "%s", buf);
 	} else if (subcmd == SCMD_POLICIES) {
 		cur = Help->find_item_by_id(667);
 	} else if (subcmd == SCMD_HANDBOOK) {
@@ -772,15 +763,14 @@ ACMD(do_help_collection_command)
 	}
 	for (com = 0;; com++) {
 		if (!hc_cmds[com].keyword) {
-			sprintf(buf, "Unknown hcollect command, '%s'.\r\n", linebuf);
-			send_to_char(buf, ch);
+			send_to_char(ch, "Unknown hcollect command, '%s'.\r\n", linebuf);
 			return;
 		}
 		if (is_abbrev(linebuf, hc_cmds[com].keyword))
 			break;
 	}
 	if (hc_cmds[com].level > GET_LEVEL(ch)) {
-		send_to_char("You are not godly enough to do this!\r\n", ch);
+		send_to_char(ch, "You are not godly enough to do this!\r\n");
 		return;
 	}
 	switch (com) {
@@ -797,14 +787,14 @@ ACMD(do_help_collection_command)
 			Help->EditItem(ch, id);
 		} else if (!strncmp("exit", linebuf, strlen(linebuf))) {
 			if (!GET_OLC_HELP(ch)) {
-				send_to_char("You're not editing a help topic.\r\n", ch);
+				send_to_char(ch, "You're not editing a help topic.\r\n");
 			} else {
 				GET_OLC_HELP(ch)->editor = NULL;
 				GET_OLC_HELP(ch) = NULL;
-				send_to_char("Help topic editor exited.\r\n", ch);
+				send_to_char(ch, "Help topic editor exited.\r\n");
 			}
 		} else {
-			send_to_char("hcollect edit <#|exit>\r\n", ch);
+			send_to_char(ch, "hcollect edit <#|exit>\r\n");
 		}
 		break;
 	case 3:					// Group
@@ -827,7 +817,7 @@ ACMD(do_help_collection_command)
 		if (*linebuf && isdigit(linebuf[0])) {
 			id = atoi(linebuf);
 			if (id < 0 || id > Help->GetTop()) {
-				send_to_char("There is no such item #.\r\n", ch);
+				send_to_char(ch, "There is no such item #.\r\n");
 				break;
 			}
 			for (cur = Help->items; cur && cur->idnum != id;
@@ -837,8 +827,7 @@ ACMD(do_help_collection_command)
 				page_string(ch->desc, gHelpbuf, 1);
 				break;
 			} else {
-				sprintf(buf, "There is no item: %d.\r\n", id);
-				send_to_char(buf, ch);
+				send_to_char(ch, "There is no item: %d.\r\n", id);
 				break;
 			}
 		}
@@ -846,12 +835,12 @@ ACMD(do_help_collection_command)
 			GET_OLC_HELP(ch)->Show(ch, gHelpbuf, 3);
 			page_string(ch->desc, gHelpbuf, 1);
 		} else {
-			send_to_char("Stat what item?\r\n", ch);
+			send_to_char(ch, "Stat what item?\r\n");
 		}
 		break;
 	case 9:					// Sync
 		Help->Sync();
-		send_to_char("Okay.\r\n", ch);
+		send_to_char(ch, "Okay.\r\n");
 		break;
 	case 10:					// Search (mode==3 is "stat" rather than "show") show_no_app "true"
 		// searchmode=true is find all items matching.
@@ -883,22 +872,22 @@ ACMD(do_help_collection_command)
 
 			if (idA == idB || idA < 0 || idA > Help->GetTop() || idB < 0
 				|| idB > Help->GetTop()) {
-				send_to_char("Invalid item numbers.\r\n", ch);
+				send_to_char(ch, "Invalid item numbers.\r\n");
 				break;
 			}
 			if (idB < idA) {
-				send_to_char("Please put the lower # first.\r\n", ch);
+				send_to_char(ch, "Please put the lower # first.\r\n");
 				break;
 			}
 			for (A = Help->items; A && A->idnum != idA; Ap = A, A = A->Next());
 			for (B = Help->items; B && B->idnum != idB; Bp = B, B = B->Next());
 			if (!A || !B || !Bp) {
-				send_to_char("Invalid item numbers.\r\n", ch);
+				send_to_char(ch, "Invalid item numbers.\r\n");
 				break;
 			}
 			SwapItems(A, Ap, B, Bp);
-			send_to_char("Okay.\r\n", ch);
-			send_to_char(buf, ch);
+			send_to_char(ch, "Okay.\r\n");
+			send_to_char(ch, "%s", buf);
 			break;
 		}						// case 14
 	default:

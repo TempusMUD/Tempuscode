@@ -75,25 +75,25 @@ SPECIAL(tester_util)
   
   if (!*arg1) {
     act("$p: ERROR: Activate what?", FALSE, ch, obj, 0, TO_CHAR);
-    send_to_char(TESTER_UTIL_USAGE, ch);
+    send_to_char(ch, TESTER_UTIL_USAGE);
     return 1;
   }
   
   if ((tcmd = search_block(arg1, tester_util_cmds, FALSE)) < 0) {
     sprintf(buf, "$p: Invalid command '%s'.", arg1);
     act(buf, FALSE, ch, obj, 0, TO_CHAR);
-    send_to_char(TESTER_UTIL_USAGE, ch);
+    send_to_char(ch, TESTER_UTIL_USAGE);
     return 1;
   }
 
 	switch (tcmd) {
 		case 0:                    /* advance */
 			if (!*arg2)
-				send_to_char("Advance to what level?\r\n", ch);
+				send_to_char(ch, "Advance to what level?\r\n");
 			else if (!is_number(arg2))
-				send_to_char("The argument must be a number.\r\n", ch);
+				send_to_char(ch, "The argument must be a number.\r\n");
 			else if ((i = atoi(arg2)) <= 0)
-				send_to_char("That's not a level!\r\n", ch);
+				send_to_char(ch, "That's not a level!\r\n");
 			else if (i >= LVL_AMBASSADOR)
 				act("$p: Advance: I DON'T THINK SO!", FALSE, ch, obj, 0, TO_CHAR);
 			else {
@@ -135,7 +135,7 @@ SPECIAL(tester_util)
 			GET_HIT(ch) = GET_MAX_HIT(ch);
 			GET_MANA(ch) = GET_MAX_MANA(ch);
 			GET_MOVE(ch) = GET_MAX_MOVE(ch);
-			send_to_char("You are fully healed!\r\n", ch);
+			send_to_char(ch, "You are fully healed!\r\n");
 			break;
 		case 6:                    /* char_class  */
 		case 7:                    /* race   */
@@ -154,20 +154,18 @@ SPECIAL(tester_util)
 			break;
 		case 14:
 			if (!*arg2)
-			  send_to_char("Set align to what?\r\n", ch);
+			  send_to_char(ch, "Set align to what?\r\n");
 			else {
 			  GET_ALIGNMENT(ch) = atoi(arg2);
-			  sprintf(buf, "Align set to %d.\r\n", GET_ALIGNMENT(ch));
-			  send_to_char(buf, ch);
+			  send_to_char(ch, "Align set to %d.\r\n", GET_ALIGNMENT(ch));
 			}
 			break;
 		case 15:
 			if (!*arg2)
-			  send_to_char("Set gen to what?\r\n", ch);
+			  send_to_char(ch, "Set gen to what?\r\n");
 			else {
 			  GET_REMORT_GEN(ch) = atoi(arg2);
-			  sprintf(buf, "gen set to %d.\r\n", GET_REMORT_GEN(ch));
-			  send_to_char(buf, ch);
+			  send_to_char(ch, "gen set to %d.\r\n", GET_REMORT_GEN(ch));
 			}
 			break;
 		case 16:
@@ -189,11 +187,10 @@ SPECIAL(tester_util)
 			do_set(ch, "me con 25", 0, 0);
 			do_set(ch, "me dex 25", 0, 0);
 			do_set(ch, "me cha 25", 0, 0);
-			send_to_char("Stat's Maxed.\r\n",ch);
 			break;
 		default:
 			sprintf(buf, "$p: Invalid command '%s'.", arg1);
-			send_to_char(TESTER_UTIL_USAGE, ch);
+			send_to_char(ch, TESTER_UTIL_USAGE);
 			break;
     }
 	return 1;

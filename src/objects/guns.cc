@@ -129,7 +129,7 @@ show_gun_status(struct char_data *ch, struct obj_data *gun)
 				"%sThe Rate of Fire is set to:        %s[%d/%d]%s.\r\n", buf,
 				QGRN, CUR_R_O_F(gun), MAX_R_O_F(gun), QNRM);
 
-		send_to_char(buf, ch);
+		send_to_char(ch, "%s", buf);
 	}
 
 	else if (IS_GUN(gun)) {
@@ -154,12 +154,11 @@ show_gun_status(struct char_data *ch, struct obj_data *gun)
 		}
 		act(buf, FALSE, ch, gun, gun->contains, TO_CHAR);
 		if (MAX_R_O_F(gun) > 1) {
-			sprintf(buf, "The Rate of Fire is set to:        %s[%d/%d]%s.\r\n",
+			send_to_char(ch, "The Rate of Fire is set to:        %s[%d/%d]%s.\r\n",
 				QGRN, CUR_R_O_F(gun), MAX_R_O_F(gun), QNRM);
-			send_to_char(buf, ch);
 		}
 	} else
-		send_to_char("Unsupported gun type.\r\n", ch);
+		send_to_char(ch, "Unsupported gun type.\r\n");
 }
 
 
@@ -177,7 +176,7 @@ ACMD(do_gunset)
 	argument = one_argument(argument, arg1);
 
 	if (!*arg1) {
-		send_to_char("Usage: gunset [internal] <gun> <rate> <value>\r\n", ch);
+		send_to_char(ch, "Usage: gunset [internal] <gun> <rate> <value>\r\n");
 		return;
 	}
 
@@ -186,21 +185,19 @@ ACMD(do_gunset)
 		argument = one_argument(argument, arg1);
 
 		if (!*arg1) {
-			send_to_char("Gunset which implant?\r\n", ch);
+			send_to_char(ch, "Gunset which implant?\r\n");
 			return;
 		}
 
 		if (!(gun = get_object_in_equip_vis(ch, arg1, ch->implants, &i))) {
-			sprintf(buf, "You are not implanted with %s '%s'.\r\n", AN(arg1),
+			send_to_char(ch, "You are not implanted with %s '%s'.\r\n", AN(arg1),
 				arg1);
-			send_to_char(buf, ch);
 			return;
 		}
 
 	} else if ((!(gun = GET_EQ(ch, WEAR_WIELD)) || !isname(arg1, gun->name)) &&
 		(!(gun = GET_EQ(ch, WEAR_WIELD_2)) || !isname(arg1, gun->name))) {
-		sprintf(buf, "You are not wielding %s '%s'.\r\n", AN(arg1), arg1);
-		send_to_char(buf, ch);
+		send_to_char(ch, "You are not wielding %s '%s'.\r\n", AN(arg1), arg1);
 		return;
 	}
 
@@ -219,40 +216,36 @@ ACMD(do_gunset)
 	if (is_abbrev(arg1, "rate") || is_abbrev(arg1, "rof"))
 		mode = GUNSET_RATE;
 	else {
-		send_to_char("usage: gunset <rate> <value>\r\n", ch);
+		send_to_char(ch, "usage: gunset <rate> <value>\r\n");
 		return;
 	}
 
 	if (!*arg2) {
-		send_to_char("Set the rate of fire to what?\r\n", ch);
+		send_to_char(ch, "Set the rate of fire to what?\r\n");
 		return;
 	}
 	if (!is_number(arg2)) {
-		send_to_char("The value must be numeric.\r\n", ch);
+		send_to_char(ch, "The value must be numeric.\r\n");
 		return;
 	}
 	if ((number = atoi(arg2)) < 0) {
-		send_to_char("A NEGATIVE value?  Consider the implications...\r\n",
-			ch);
+		send_to_char(ch, "A NEGATIVE value?  Consider the implications...\r\n");
 		return;
 	}
 
 	if (mode == GUNSET_RATE) {
 		if (number > MAX_R_O_F(gun)) {
-			sprintf(buf, "The maximum rate of fire of %s is %d.\r\n",
+			send_to_char(ch, "The maximum rate of fire of %s is %d.\r\n",
 				gun->short_description, MAX_R_O_F(gun));
-			send_to_char(buf, ch);
 		} else if (!number) {
-			send_to_char("A zero rate of fire doesnt make much sense.\r\n",
-				ch);
+			send_to_char(ch, "A zero rate of fire doesnt make much sense.\r\n");
 		} else {
 			act("$n adjusts the configuration of $p.", TRUE, ch, gun, 0,
 				TO_ROOM);
 			CUR_R_O_F(gun) = number;
 
-			sprintf(buf, "The rate of fire of %s set to %d/%d.\r\n",
+			send_to_char(ch, "The rate of fire of %s set to %d/%d.\r\n",
 				gun->short_description, CUR_R_O_F(gun), MAX_R_O_F(gun));
-			send_to_char(buf, ch);
 		}
 		return;
 	}

@@ -125,9 +125,8 @@ perform_recharge(struct char_data *ch, struct obj_data *battery,
 			amount = GET_CASH(ch) / COST_UNIT(battery);
 
 			if (!amount) {
-				send_to_char
-					("You do not have the cash to pay for the energy.\r\n",
-					ch);
+				send_to_char(ch, 
+					"You do not have the cash to pay for the energy.\r\n");
 				return;
 			}
 		}
@@ -168,7 +167,7 @@ perform_recharge(struct char_data *ch, struct obj_data *battery,
 			GET_MOVE(ch) -= amount;
 	}
 
-	sprintf(buf,
+	send_to_char(ch,
 		"%s>>>        ENERGY TRANSFER         <<<%s\r\n"
 		"From:  %s%20s%s\r\n"
 		"To:    %s%20s%s\r\n\r\n"
@@ -183,21 +182,20 @@ perform_recharge(struct char_data *ch, struct obj_data *battery,
 		QCYN, battery ? CUR_ENERGY(battery) : GET_MOVE(ch), QNRM);
 	if (battery) {
 		if (GET_OBJ_TYPE(battery) == ITEM_BATTERY && COST_UNIT(battery)) {
-			sprintf(buf, "%sYour cost: %d credits.\r\n",
-				buf, amount * COST_UNIT(battery));
+			send_to_char(ch, "Your cost: %d credits.\r\n",
+				amount * COST_UNIT(battery));
 			GET_CASH(ch) -= amount * COST_UNIT(battery);
 		}
 	}
 	if ((battery && CUR_ENERGY(battery) <= 0) ||
 		(!battery && GET_MOVE(ch) <= 0))
-		sprintf(buf, "%sSTATUS: %sSOURCE DEPLETED%s\r\n", buf, QRED, QNRM);
+		send_to_char(ch, "STATUS: %sSOURCE DEPLETED%s\r\n", QRED, QNRM);
 
 	if ((vict && GET_MOVE(vict) == GET_MAX_MOVE(vict)) ||
 		(engine && CUR_ENERGY(engine) == MAX_ENERGY(engine)))
-		sprintf(buf, "%sSTATUS: %sTARGET NOW FULLY ENERGIZED%s\r\n",
-			buf, QRED, QNRM);
+		send_to_char(ch, "STATUS: %sTARGET NOW FULLY ENERGIZED%s\r\n",
+			QRED, QNRM);
 
-	send_to_char(buf, ch);
 	wait = 10 + MIN((amount / 5), 90);
 
 	if (CHECK_SKILL(ch, SKILL_OVERDRAIN) > 50) {
@@ -245,9 +243,8 @@ perform_recharge(struct char_data *ch, struct obj_data *battery,
 	if ((battery && amount) &&
 		(GET_OBJ_TYPE(battery) == ITEM_BATTERY
 			|| GET_OBJ_TYPE(battery) == ITEM_DEVICE)) {
-		sprintf(buf, "%sERROR: %s damaged during transfer!\r\n", QRED,
+		send_to_char(ch, "%sERROR: %s damaged during transfer!\r\n", QRED,
 			battery->short_description);
-		send_to_char(buf, ch);
 		damage_eq(ch, battery, amount);
 	}
 }
@@ -255,7 +252,7 @@ perform_recharge(struct char_data *ch, struct obj_data *battery,
 
 ACMD(do_hotwire)
 {
-	send_to_char("Hotwire what?\r\n", ch);
+	send_to_char(ch, "Hotwire what?\r\n");
 	return;
 }
 
@@ -283,7 +280,7 @@ ACMD(do_recharge)
 				get_object_in_equip_vis(ch, arg2, ch->equipment, &i))
 			&& !(battery =
 				get_obj_in_list_vis(ch, arg2, ch->in_room->contents))) {
-			send_to_char("You need a battery to do that.\r\n", ch);
+			send_to_char(ch, "You need a battery to do that.\r\n");
 			return;
 		}
 		if (!IS_BATTERY(battery)) {
@@ -301,8 +298,7 @@ ACMD(do_recharge)
 			return;
 		}
 		if (GET_MOVE(ch) == GET_MAX_MOVE(ch)) {
-			send_to_char("You are already operating at maximum energy.\r\n",
-				ch);
+			send_to_char(ch, "You are already operating at maximum energy.\r\n");
 			return;
 		}
 		perform_recharge(ch, battery, ch, NULL, 0);
@@ -311,27 +307,24 @@ ACMD(do_recharge)
 
 	if (*arg1 && !str_cmp(arg1, "internal")) {
 		if (!*arg2 || !*arg3) {
-			send_to_char
-				("USAGE:  Recharge internal <component> energy_source\r\n",
-				ch);
+			send_to_char(ch, 
+				"USAGE:  Recharge internal <component> energy_source\r\n");
 			return;
 		}
 
 		if (!(target = get_object_in_equip_vis(ch, arg2, ch->implants, &i))) {
-			sprintf(buf, "You are not implanted with %s '%s'.\r\n", AN(arg2),
+			send_to_char(ch, "You are not implanted with %s '%s'.\r\n", AN(arg2),
 				arg2);
-			send_to_char(buf, ch);
 			return;
 		}
 		if (*arg3 && !strcmp(arg3, "internal")) {
 			if (!*arg4) {
-				send_to_char("Recharge from an internal what?\r\n", ch);
+				send_to_char(ch, "Recharge from an internal what?\r\n");
 				return;
 			} else if (!(battery =
 					get_object_in_equip_vis(ch, arg4, ch->implants, &i))) {
-				sprintf(buf, "You are not implanted with %s '%s'.\r\n",
+				send_to_char(ch, "You are not implanted with %s '%s'.\r\n",
 					AN(arg4), arg4);
-				send_to_char(buf, ch);
 				return;
 			}
 		} else if (strncmp(arg3, "self", 4) &&
@@ -340,9 +333,8 @@ ACMD(do_recharge)
 			!(battery = get_object_in_equip_vis(ch, arg3, ch->equipment, &i))
 			&& !(battery =
 				get_obj_in_list_vis(ch, arg3, ch->in_room->contents))) {
-			sprintf(buf, "You can't find any '%s' to recharge from.\r\n",
+			send_to_char(ch, "You can't find any '%s' to recharge from.\r\n",
 				arg3);
-			send_to_char(buf, ch);
 			return;
 		}
 
@@ -367,13 +359,11 @@ ACMD(do_recharge)
 			}
 		} else {
 			if (!IS_CYBORG(ch)) {
-				send_to_char("You cannot recharge things from yourself.\r\n",
-					ch);
+				send_to_char(ch, "You cannot recharge things from yourself.\r\n");
 				return;
 			}
 			if (GET_MOVE(ch) <= 0) {
-				send_to_char("You do not have any energy to transfer.\r\n",
-					ch);
+				send_to_char(ch, "You do not have any energy to transfer.\r\n");
 				return;
 			}
 		}
@@ -387,19 +377,18 @@ ACMD(do_recharge)
 					break;
 
 			if (i >= NUM_WEARS) {
-				send_to_char
-					("You are not using an appropriate power interface.\r\n",
-					ch);
+				send_to_char(ch, 
+					"You are not using an appropriate power interface.\r\n");
 				return;
 			}
 		}
 
 		if (IS_ENERGY_GUN(target)) {
-			send_to_char("You can only restore the energy gun cells.\r\n", ch);
+			send_to_char(ch, "You can only restore the energy gun cells.\r\n");
 			return;
 		}
 		if (!RECHARGABLE(target)) {
-			send_to_char("You can't recharge that!\r\n", ch);
+			send_to_char(ch, "You can't recharge that!\r\n");
 			return;
 		}
 		if (CUR_ENERGY(target) >= MAX_ENERGY(target)) {
@@ -414,7 +403,7 @@ ACMD(do_recharge)
 	}
 
 	if (!*arg1 || !*arg2) {
-		send_to_char("USAGE:  Recharge <component> energy_source\r\n", ch);
+		send_to_char(ch, "USAGE:  Recharge <component> energy_source\r\n");
 		return;
 	}
 
@@ -422,21 +411,19 @@ ACMD(do_recharge)
 		!(target = get_object_in_equip_vis(ch, arg1, ch->equipment, &i)) &&
 		!(target = get_obj_in_list_vis(ch, arg1, ch->in_room->contents)) &&
 		!(vict = get_char_room_vis(ch, arg1))) {
-		sprintf(buf, "You can't find %s '%s' here to recharge.\r\n", AN(arg1),
+		send_to_char(ch, "You can't find %s '%s' here to recharge.\r\n", AN(arg1),
 			arg1);
-		send_to_char(buf, ch);
 		return;
 	}
 
 	if (*arg2 && !strcmp(arg2, "internal")) {
 		if (!*arg3) {
-			send_to_char("Recharge from an internal what?\r\n", ch);
+			send_to_char(ch, "Recharge from an internal what?\r\n");
 			return;
 		} else if (!(battery =
 				get_object_in_equip_vis(ch, arg3, ch->implants, &i))) {
-			sprintf(buf, "You are not implanted with %s '%s'.\r\n", AN(arg3),
+			send_to_char(ch, "You are not implanted with %s '%s'.\r\n", AN(arg3),
 				arg3);
-			send_to_char(buf, ch);
 			return;
 		}
 	} else if (strncmp(arg2, "self", 4) &&
@@ -444,9 +431,8 @@ ACMD(do_recharge)
 		!(battery = get_obj_in_list_vis(ch, arg2, ch->carrying)) &&
 		!(battery = get_object_in_equip_vis(ch, arg2, ch->equipment, &i)) &&
 		!(battery = get_obj_in_list_vis(ch, arg2, ch->in_room->contents))) {
-		sprintf(buf, "You can't find %s '%s' here to recharge from.\r\n",
+		send_to_char(ch, "You can't find %s '%s' here to recharge from.\r\n",
 			AN(arg2), arg2);
-		send_to_char(buf, ch);
 		return;
 	}
 
@@ -462,11 +448,11 @@ ACMD(do_recharge)
 		}
 	} else {
 		if (!IS_CYBORG(ch)) {
-			send_to_char("You cannot recharge things from yourself.\r\n", ch);
+			send_to_char(ch, "You cannot recharge things from yourself.\r\n");
 			return;
 		}
 		if (GET_MOVE(ch) <= 0) {
-			send_to_char("You do not have any energy to transfer.\r\n", ch);
+			send_to_char(ch, "You do not have any energy to transfer.\r\n");
 			return;
 		}
 	}
@@ -497,11 +483,11 @@ ACMD(do_recharge)
 	}
 
 	if (IS_ENERGY_GUN(target)) {
-		send_to_char("You can only restore the energy gun cells.\r\n", ch);
+		send_to_char(ch, "You can only restore the energy gun cells.\r\n");
 		return;
 	}
 	if (!RECHARGABLE(target)) {
-		send_to_char("You can't recharge that!\r\n", ch);
+		send_to_char(ch, "You can't recharge that!\r\n");
 		return;
 	}
 
@@ -527,10 +513,9 @@ perform_cyborg_activate(CHAR * ch, int mode, int subcmd)
 	int opposite_mode = 0;
 
 	if (!CHECK_SKILL(ch, mode))
-		send_to_char("You do not have this program in memory.\r\n", ch);
+		send_to_char(ch, "You do not have this program in memory.\r\n");
 	else if (CHECK_SKILL(ch, mode) < 40)
-		send_to_char("Partial installation insufficient for operation.\r\n",
-			ch);
+		send_to_char(ch, "Partial installation insufficient for operation.\r\n");
 	else {
 
 		to_room[0] = NULL;
@@ -667,19 +652,18 @@ perform_cyborg_activate(CHAR * ch, int mode, int subcmd)
 		case SKILL_STASIS:
 			if (subcmd) {			/************ activate ****************/
 				if (ch->getPosition() >= POS_FLYING)
-					send_to_char("Go into stasis while flying?!?!?\r\n", ch);
+					send_to_char(ch, "Go into stasis while flying?!?!?\r\n");
 				else {
 					TOGGLE_BIT(AFF3_FLAGS(ch), AFF3_STASIS);
 					ch->setPosition(POS_SLEEPING);
 					WAIT_STATE(ch, PULSE_VIOLENCE * 5);
-					send_to_char
-						("Entering static state.  Halting system processes.\r\n",
-						ch);
+					send_to_char(ch, 
+						"Entering static state.  Halting system processes.\r\n");
 					act("$n lies down and enters a static state.", FALSE, ch,
 						0, 0, TO_ROOM);
 				}
 			} else {		   /************ deactivate ****************/
-				send_to_char("An error has occured.\r\n", ch);
+				send_to_char(ch, "An error has occured.\r\n");
 			}
 			return;
 			break;
@@ -749,7 +733,7 @@ perform_cyborg_activate(CHAR * ch, int mode, int subcmd)
 			opposite_mode = SKILL_OFFENSIVE_POS;
 			break;
 		default:
-			send_to_char("ERROR: Unknown mode occured in switch.\r\n", ch);
+			send_to_char(ch, "ERROR: Unknown mode occured in switch.\r\n");
 			return;
 			break;
 		}
@@ -759,10 +743,9 @@ perform_cyborg_activate(CHAR * ch, int mode, int subcmd)
 			(!subcmd && !affected_by_spell(ch, mode))) {
 			if (affected_by_spell(ch, opposite_mode))
 				mode = opposite_mode;
-			sprintf(buf, "%sERROR:%s %s %s %s activated.\r\n", CCCYN(ch,
+			send_to_char(ch, "%sERROR:%s %s %s %s activated.\r\n", CCCYN(ch,
 					C_NRM), CCNRM(ch, C_NRM), spell_to_str(mode),
 				ISARE(spell_to_str(mode)), subcmd ? "already" : "not currently");
-			send_to_char(buf, ch);
 			return;
 		}
 
@@ -772,10 +755,9 @@ perform_cyborg_activate(CHAR * ch, int mode, int subcmd)
 					&& (GET_MOVE(ch) + af[0].modifier) < 0)
 				|| (af[1].location == APPLY_MOVE
 					&& (GET_MOVE(ch) + af[1].modifier) < 0)) {
-				sprintf(buf,
+				send_to_char(ch,
 					"%sERROR:%s Energy levels too low to activate %s.\r\n",
 					CCCYN(ch, C_NRM), CCNRM(ch, C_NRM), spell_to_str(mode));
-				send_to_char(buf, ch);
 				return;
 			}
 
@@ -787,7 +769,7 @@ perform_cyborg_activate(CHAR * ch, int mode, int subcmd)
 				affect_join(ch, &af[2], 0, FALSE, 1, FALSE);
 
 			if (to_char[1])
-				send_to_char(to_char[1], ch);
+				send_to_char(ch, to_char[1]);
 			if (to_room[1])
 				act(to_room[1], FALSE, ch, 0, 0, TO_ROOM);
 
@@ -801,9 +783,8 @@ perform_cyborg_activate(CHAR * ch, int mode, int subcmd)
 						damage(ch, *it, dice(4, GET_LEVEL(ch)),
 							SKILL_ENERGY_FIELD, -1);
 				}
-				send_to_char
-					("ERROR: Dangerous short!!  Energy fields shutting down.\r\n",
-					ch);
+				send_to_char(ch, 
+					"ERROR: Dangerous short!!  Energy fields shutting down.\r\n");
 				affect_from_char(ch, mode);
 
 			}
@@ -811,7 +792,7 @@ perform_cyborg_activate(CHAR * ch, int mode, int subcmd)
 		} else {
 			affect_from_char(ch, mode);
 			if (to_char[0])
-				send_to_char(to_char[0], ch);
+				send_to_char(ch, to_char[0]);
 			if (to_room[0])
 				act(to_room[0], FALSE, ch, 0, 0, TO_ROOM);
 
@@ -836,8 +817,7 @@ ACMD(do_activate)
 	skip_spaces(&argument);
 
 	if (!*argument) {
-		sprintf(buf, "%s what?\r\n", CMD_NAME);
-		send_to_char(CAP(buf), ch);
+		send_to_char(ch, "%s what?\r\n", CMD_NAME);
 		return;
 	}
 	if (IS_CYBORG(ch)) {
@@ -852,26 +832,24 @@ ACMD(do_activate)
 	if (!mode) {		  /*** not a skill activation ***/
 		argument = two_arguments(argument, buf, buf2);
 		if (!*buf) {
-			send_to_char("Activate what?\r\n", ch);
+			send_to_char(ch, "Activate what?\r\n");
 			return;
 		}
 		if (!strncmp(buf, "internal", 7)) {
 			internal = true;
 			if (!*buf2) {
-				send_to_char("Which implant?\r\n", ch);
+				send_to_char(ch, "Which implant?\r\n");
 				return;
 			}
 			if (!(obj = get_object_in_equip_all(ch, buf2, ch->implants, &i))) {
-				sprintf(buf, "You are not implanted with %s '%s'.\r\n",
+				send_to_char(ch, "You are not implanted with %s '%s'.\r\n",
 					AN(buf2), buf2);
-				send_to_char(buf, ch);
 				return;
 			}
 		} else if (!(obj = get_object_in_equip_vis(ch, buf, ch->equipment, &i))
 			&& !(obj = get_obj_in_list_vis(ch, buf, ch->carrying))
 			&& !(obj = get_obj_in_list_vis(ch, buf, ch->in_room->contents))) {
-			sprintf(buf2, "You don't seem to have %s '%s'.\r\n", AN(buf), buf);
-			send_to_char(buf2, ch);
+			send_to_char(ch, "You don't seem to have %s '%s'.\r\n", AN(buf), buf);
 			return;
 		}
 
@@ -943,20 +921,19 @@ ACMD(do_activate)
 
 		case ITEM_TRANSPORTER:
 			if (CHECK_SKILL(ch, SKILL_ELECTRONICS) < number(30, 100)) {
-				send_to_char("You cannot figure out how.\r\n", ch);
+				send_to_char(ch, "You cannot figure out how.\r\n");
 				return;
 			}
 			if (!subcmd) {
-				send_to_char("You cannot deactivate it.\r\n", ch);
+				send_to_char(ch, "You cannot deactivate it.\r\n");
 				return;
 			}
 
 			/* charmed? */
 			if (IS_AFFECTED(ch, AFF_CHARM) && ch->master &&
 				ch->in_room == ch->master->in_room) {
-				send_to_char
-					("The thought of leaving your master makes you weep.\r\n",
-					ch);
+				send_to_char(ch, 
+					"The thought of leaving your master makes you weep.\r\n");
 				if (IS_UNDEAD(ch))
 					act("$n makes a hollow moaning sound.", FALSE, ch, 0, 0,
 						TO_ROOM);
@@ -976,17 +953,15 @@ ACMD(do_activate)
 				act("$p is not tuned to a real spacetime location.",
 					FALSE, ch, obj, 0, TO_CHAR);
 			else if (ROOM_FLAGGED(targ_room, ROOM_DEATH))
-				send_to_char("A warning indicator blinks on:\r\n"
-					"Transporter is tuned to a deadly area.\r\n", ch);
+				send_to_char(ch, "A warning indicator blinks on:\r\n"
+					"Transporter is tuned to a deadly area.\r\n");
 			else if ((ROOM_FLAGGED(targ_room, ROOM_GODROOM | ROOM_NORECALL |
 						ROOM_NOTEL |
 						ROOM_NOMAGIC) && GET_LEVEL(ch) < LVL_GRGOD))
-				send_to_char("Transporter ERROR: Unable to transport.\r\n",
-					ch);
+				send_to_char(ch, "Transporter ERROR: Unable to transport.\r\n");
 			else if (targ_room->zone->plane != ch->in_room->zone->plane)
-				send_to_char("An indicator flashes on:\r\n"
-					"Transporter destination plane does not intersect current spacial field.\r\n",
-					ch);
+				send_to_char(ch, "An indicator flashes on:\r\n"
+					"Transporter destination plane does not intersect current spacial field.\r\n");
 			else if ((ROOM_FLAGGED(ch->in_room, ROOM_NORECALL)
 					|| (targ_room->zone != ch->in_room->zone
 						&& (ZONE_FLAGGED(targ_room->zone, ZONE_ISOLATED)
@@ -1002,16 +977,15 @@ ACMD(do_activate)
 			} else {
 				CUR_ENERGY(obj) -= mass;
 
-				send_to_char("You flip a switch and disappear.\r\n", ch);
+				send_to_char(ch, "You flip a switch and disappear.\r\n");
 				act("$n flips a switch on $p and fades out of existance.",
 					TRUE, ch, obj, 0, TO_ROOM);
 
 				char_from_room(ch);
 				char_to_room(ch, targ_room);
 
-				send_to_char
-					("A buzzing fills your ears as you materialize...\r\n",
-					ch);
+				send_to_char(ch, 
+					"A buzzing fills your ears as you materialize...\r\n");
 				act("You hear a buzzing sound as $n fades into existance.",
 					FALSE, ch, 0, 0, TO_ROOM);
 				look_at_room(ch, ch->in_room, 0);
@@ -1022,9 +996,9 @@ ACMD(do_activate)
 							!IS_CLERIC(ch) && !IS_KNIGHT(ch)
 							&& !IS_RANGER(ch)))) {
 					if (ch->affected) {
-						send_to_char
-							("You are dazed by a blinding flash inside your"
-							" brain!\r\nYou feel different...\r\n", ch);
+						send_to_char(ch, 
+							"You are dazed by a blinding flash inside your"
+							" brain!\r\nYou feel different...\r\n");
 						act("Light flashes from behind $n's eyes.", FALSE, ch,
 							0, 0, TO_ROOM);
 						while (ch->affected)
@@ -1102,10 +1076,9 @@ ACMD(do_activate)
 				act("$p is not tuned to any explosives.", FALSE, ch, obj, 0,
 					TO_CHAR);
 			else if (!IS_BOMB(obj->aux_obj))
-				send_to_char("Activate detonator error.  Please report.\r\n",
-					ch);
+				send_to_char(ch, "Activate detonator error.  Please report.\r\n");
 			else if (obj != obj->aux_obj->aux_obj)
-				send_to_char("Bomb error.  Please report\r\n", ch);
+				send_to_char(ch, "Bomb error.  Please report\r\n");
 			else if (!obj->aux_obj->contains ||
 				!IS_FUSE(obj->aux_obj->contains) ||
 				!FUSE_IS_REMOTE(obj->aux_obj->contains))
@@ -1121,7 +1094,7 @@ ACMD(do_activate)
 				}
 			} else {
 				act("$n deactivates $p.", FALSE, ch, obj, 0, TO_CHAR);
-				send_to_char("ok.\r\n", ch);
+				send_to_char(ch, "ok.\r\n");
 				obj->aux_obj->aux_obj = NULL;
 				obj->aux_obj = NULL;
 			}
@@ -1160,7 +1133,7 @@ ACMD(do_activate)
 			}
 			break;
 		default:
-			send_to_char("You cannot figure out how.\r\n", ch);
+			send_to_char(ch, "You cannot figure out how.\r\n");
 			break;
 		}
 		return;
@@ -1175,16 +1148,15 @@ ACMD(do_cyborg_reboot)
 {
 
 	if (!IS_CYBORG(ch)) {
-		send_to_char("Uh, sure...\r\n", ch);
+		send_to_char(ch, "Uh, sure...\r\n");
 		return;
 	}
-	send_to_char("Systems shutting down...\r\n"
+	send_to_char(ch, "Systems shutting down...\r\n"
 		"Sending all processes the TERM signal.\r\n"
-		"Unmounting filesystems.... done.\r\n" "Reboot successful.\r\n", ch);
+		"Unmounting filesystems.... done.\r\n" "Reboot successful.\r\n");
 	if (CHECK_SKILL(ch, SKILL_FASTBOOT) > 10) {
-		sprintf(buf, "Fastboot script enabled... %d %% efficiency.\r\n",
+		send_to_char(ch, "Fastboot script enabled... %d %% efficiency.\r\n",
 			CHECK_SKILL(ch, SKILL_FASTBOOT));
-		send_to_char(buf, ch);
 	}
 
 	act("$n begins a reboot sequence and shuts down.", FALSE, ch, 0, 0,
@@ -1213,7 +1185,7 @@ ACMD(do_cyborg_reboot)
 		WAIT_STATE(ch, PULSE_VIOLENCE * 10);
 
 	if (ch->affected)
-		send_to_char("Purging system....\r\n", ch);
+		send_to_char(ch, "Purging system....\r\n");
 
 	while (ch->affected && GET_MANA(ch)) {
 		affect_remove(ch, ch->affected);
@@ -1234,43 +1206,40 @@ ACMD(do_self_destruct)
 	skip_spaces(&argument);
 
 	if (!IS_CYBORG(ch) || GET_SKILL(ch, SKILL_SELF_DESTRUCT) < 50) {
-		send_to_char("You explode.\r\n", ch);
+		send_to_char(ch, "You explode.\r\n");
 		act("$n self destructs, spraying you with an awful mess!",
 			FALSE, ch, 0, 0, TO_ROOM);
 	} else if (!*argument) {
-		send_to_char
-			("You must provide a countdown time, in 3-second pulses.\r\n", ch);
+		send_to_char(ch, 
+			"You must provide a countdown time, in 3-second pulses.\r\n");
 	} else if (!is_number(argument)) {
 		if (!str_cmp(argument, "abort")) {
 			if (!AFF3_FLAGGED(ch, AFF3_SELF_DESTRUCT)) {
-				send_to_char
-					("Self-destruct sequence not currently initiated.\r\n",
-					ch);
+				send_to_char(ch, 
+					"Self-destruct sequence not currently initiated.\r\n");
 			} else {
 				REMOVE_BIT(AFF3_FLAGS(ch), AFF3_SELF_DESTRUCT);
-				sprintf(buf, "Sending process the KILL Signal.\r\n"
+				send_to_char(ch, "Sending process the KILL Signal.\r\n"
 					"Self-destruct sequence terminated with %d pulses remaining.\r\n",
 					MEDITATE_TIMER(ch));
-				send_to_char(buf, ch);
 				MEDITATE_TIMER(ch) = 0;
 			}
 		} else
-			send_to_char("Self destruct what??\r\n", ch);
+			send_to_char(ch, "Self destruct what??\r\n");
 	} else if ((countdown = atoi(argument)) < 0 || countdown > 100) {
-		send_to_char("Selfdestruct countdown argument out of range.\r\n", ch);
+		send_to_char(ch, "Selfdestruct countdown argument out of range.\r\n");
 	} else {
 		if (AFF3_FLAGGED(ch, AFF3_SELF_DESTRUCT)) {
-			send_to_char("Self-destruct sequence currently underway.\r\n"
-				"Use 'selfdestruct abort' to abort process!\r\n", ch);
+			send_to_char(ch, "Self-destruct sequence currently underway.\r\n"
+				"Use 'selfdestruct abort' to abort process!\r\n");
 		} else if (AFF_FLAGGED(ch, AFF_CHARM) && ch->master) {
 			act("You fear that your death will grieve $N.",
 				FALSE, ch, 0, ch->master, TO_CHAR);
 			return;
 		} else {
-			sprintf(buf,
+			send_to_char(ch,
 				"Self-destruct sequence initiated at countdown level %d.\r\n",
 				countdown);
-			send_to_char(buf, ch);
 			SET_BIT(AFF3_FLAGS(ch), AFF3_SELF_DESTRUCT);
 			MEDITATE_TIMER(ch) = countdown;
 			if (!countdown)
@@ -1285,7 +1254,7 @@ ACMD(do_bioscan)
 	int count = 0;
 
 	if (!IS_CYBORG(ch)) {
-		send_to_char("You are not equipped with bio-scanners.\r\n", ch);
+		send_to_char(ch, "You are not equipped with bio-scanners.\r\n");
 		return;
 	}
 	CharacterList::iterator it = ch->in_room->people.begin();
@@ -1297,9 +1266,8 @@ ACMD(do_bioscan)
 			count++;
 	}
 
-	sprintf(buf, "%sBIOSCAN:%s %d life form%s detected in room.\r\n",
+	send_to_char(ch, "%sBIOSCAN:%s %d life form%s detected in room.\r\n",
 		CCGRN(ch, C_NRM), CCNRM(ch, C_NRM), count, count > 1 ? "s" : "");
-	send_to_char(buf, ch);
 	act("$n scans the room for lifeforms.", FALSE, ch, 0, 0, TO_ROOM);
 
 	if (count > number(3, 5))
@@ -1322,13 +1290,13 @@ ACMD(do_discharge)
 	half_chop(argument, arg1, arg2);
 
 	if (!IS_CYBORG(ch) && GET_LEVEL(ch) < LVL_DEMI) {
-		send_to_char("You discharge some smelly gas.\r\n", ch);
+		send_to_char(ch, "You discharge some smelly gas.\r\n");
 		act("$n discharges some smelly gas.", FALSE, ch, 0, 0, TO_ROOM);
 		return;
 	}
 
 	if (CHECK_SKILL(ch, SKILL_DISCHARGE) < 20) {
-		send_to_char("You are unable to discharge.\r\n", ch);
+		send_to_char(ch, "You are unable to discharge.\r\n");
 		return;
 	}
 
@@ -1336,15 +1304,13 @@ ACMD(do_discharge)
 			SECT_TYPE(ch->in_room) == SECT_WATER_SWIM ||
 			SECT_TYPE(ch->in_room) == SECT_WATER_NOSWIM ||
 			SECT_TYPE(ch->in_room) == SECT_ELEMENTAL_WATER)) {
-		send_to_char
-			("ERROR: Systems halted a process that would have caused a short circuit.\r\n",
-			ch);
+		send_to_char(ch, 
+			"ERROR: Systems halted a process that would have caused a short circuit.\r\n");
 		return;
 	}
 
 	if (!*arg1) {
-		send_to_char("Usage: discharge <energy discharge amount> <victim>\r\n",
-			ch);
+		send_to_char(ch, "Usage: discharge <energy discharge amount> <victim>\r\n");
 		return;
 	}
 
@@ -1353,25 +1319,25 @@ ACMD(do_discharge)
 		if (ch->isFighting()) {
 			vict = ch->getFighting();
 		} else {
-			send_to_char("Discharge into who?\r\n", ch);
+			send_to_char(ch, "Discharge into who?\r\n");
 			return;
 		}
 	}
 
 	if (!is_number(arg1)) {
-		send_to_char("The discharge amount must be a number.\r\n", ch);
+		send_to_char(ch, "The discharge amount must be a number.\r\n");
 		return;
 	}
 	amount = atoi(arg1);
 
 	if (amount > GET_MOVE(ch)) {
-		send_to_char
-			("ERROR: Energy levels too low for requested discharge.\r\n", ch);
+		send_to_char(ch, 
+			"ERROR: Energy levels too low for requested discharge.\r\n");
 		return;
 	}
 
 	if (amount < 0) {
-		send_to_char("Discharge into who?\r\n", ch);
+		send_to_char(ch, "Discharge into who?\r\n");
 		sprintf(buf, "%s neg-discharge %d %s at %d", GET_NAME(ch),
 			amount, vict ? GET_NAME(vict) : ovict->short_description,
 			ch->in_room->number);
@@ -1379,7 +1345,7 @@ ACMD(do_discharge)
 		return;
 	}
 	if (vict == ch) {
-		send_to_char("Let's not try that shall we...\r\n", ch);
+		send_to_char(ch, "Let's not try that shall we...\r\n");
 		return;
 	}
 
@@ -1394,39 +1360,34 @@ ACMD(do_discharge)
 
 	if (amount > tolerance) {
 		if (amount > (tolerance * 2)) {
-			send_to_char
-				("ERROR: Discharge amount far exceeds acceptable parameters. Aborted.\r\n.",
-				ch);
+			send_to_char(ch, 
+				"ERROR: Discharge amount far exceeds acceptable parameters. Aborted.\r\n.");
 			return;
 		}
 		// Give them some idea of how much they went overboard by.
-		sprintf(buf, "WARNING: Voltage tolerance exceeded by %d%%.\r\n",
+		send_to_char(ch, "WARNING: Voltage tolerance exceeded by %d%%.\r\n",
 			((amount * 100) - (tolerance * 100)) / tolerance);
-		send_to_char(buf, ch);
 		// Amount of component damage delt to cyborg.
 		feedback = dice(amount - tolerance, 4);
 		feedback *= max_component_dam(ch) / 100;
 
 		// Random debug messages.
 		if (PRF2_FLAGGED(ch, PRF2_FIGHT_DEBUG)) {
-			sprintf(buf, "Tolerance: %d, Amount: %d, Feedback: %d\r\n",
+			send_to_char(ch, "Tolerance: %d, Amount: %d, Feedback: %d\r\n",
 				tolerance, amount, feedback);
-			send_to_char(buf, ch);
 		}
 		if (GET_TOT_DAM(ch) + feedback >= max_component_dam(ch))
 			GET_TOT_DAM(ch) = max_component_dam(ch);
 		else
 			GET_TOT_DAM(ch) += feedback;
-		send_to_char("WARNING: System components damaged by discharge!\r\n",
-			ch);
+		send_to_char(ch, "WARNING: System components damaged by discharge!\r\n");
 
 		if (damage(ch, ch, dice(amount - tolerance, 10), TYPE_OVERLOAD, -1)) {
 			return;
 		}
 
 		if (GET_TOT_DAM(ch) == 0 || GET_TOT_DAM(ch) == max_component_dam(ch)) {
-			send_to_char("ERROR: Component failure. Discharge failed.\r\n",
-				ch);
+			send_to_char(ch, "ERROR: Component failure. Discharge failed.\r\n");
 			return;
 		}
 
@@ -1480,7 +1441,7 @@ ACMD(do_tune)
 	skip_spaces(&argument);
 
 	if (!*argument) {
-		send_to_char("Tune what?\r\n", ch);
+		send_to_char(ch, "Tune what?\r\n");
 		return;
 	}
 
@@ -1490,8 +1451,7 @@ ACMD(do_tune)
 		internal = true;
 		strcpy(arg1, arg2);
 		if (!(obj = get_object_in_equip_vis(ch, arg1, ch->implants, &i))) {
-			sprintf(buf, "You are not implanted with '%s'.\r\n", arg1);
-			send_to_char(buf, ch);
+			send_to_char(ch, "You are not implanted with '%s'.\r\n", arg1);
 			return;
 		}
 		one_argument(argument, arg2);
@@ -1501,9 +1461,8 @@ ACMD(do_tune)
 		if (!(obj = get_object_in_equip_vis(ch, arg1, ch->equipment, &i)) &&
 			!(obj = get_obj_in_list_vis(ch, arg1, ch->carrying)) &&
 			!(obj = get_obj_in_list_vis(ch, arg1, ch->in_room->contents))) {
-			sprintf(buf, "You cannot find %s '%s' to tune.\r\n", AN(arg1),
+			send_to_char(ch, "You cannot find %s '%s' to tune.\r\n", AN(arg1),
 				arg1);
-			send_to_char(buf, ch);
 			return;
 		}
 	}
@@ -1511,7 +1470,7 @@ ACMD(do_tune)
 	switch (GET_OBJ_TYPE(obj)) {
 	case ITEM_TRANSPORTER:
 		if (CHECK_SKILL(ch, SKILL_ELECTRONICS) < number(10, 50))
-			send_to_char("You can't figure it out.\r\n", ch);
+			send_to_char(ch, "You can't figure it out.\r\n");
 		else if (!GET_OBJ_VAL(obj, 3))
 			act("$p is not tunable.", FALSE, ch, obj, 0, TO_CHAR);
 		else if (!CUR_ENERGY(obj))
@@ -1550,21 +1509,19 @@ ACMD(do_tune)
 	case ITEM_DETONATOR:
 		if (CHECK_SKILL(ch, SKILL_ELECTRONICS) < number(10, 50) ||
 			CHECK_SKILL(ch, SKILL_DEMOLITIONS) < number(10, 50))
-			send_to_char("You can't figure it out.\r\n", ch);
+			send_to_char(ch, "You can't figure it out.\r\n");
 		else if (!*arg2)
 			act("Tune $p to what bomb?", FALSE, ch, obj, 0, TO_CHAR);
 		else {
 			if (!(obj2 = get_obj_in_list_vis(ch, arg2, ch->carrying)) &&
 				!(obj2 =
 					get_obj_in_list_vis(ch, arg2, ch->in_room->contents))) {
-				sprintf(buf, "You don't see %s '%s' here.\r\n", AN(arg2),
+				send_to_char(ch, "You don't see %s '%s' here.\r\n", AN(arg2),
 					arg2);
-				send_to_char(buf, ch);
 				return;
 			}
 			if (!IS_BOMB(obj2))
-				send_to_char("You can only tune detonators to explosives.\r\n",
-					ch);
+				send_to_char(ch, "You can only tune detonators to explosives.\r\n");
 			if (!obj2->contains || !IS_FUSE(obj2->contains)
 				|| !FUSE_IS_REMOTE(obj2->contains))
 				act("$P is not fused with a remote activator.", FALSE, ch, obj,
@@ -1588,7 +1545,7 @@ ACMD(do_tune)
 		break;
 	case ITEM_COMMUNICATOR:
 		if (!*arg2)
-			send_to_char("Tune to what channel?\r\n", ch);
+			send_to_char(ch, "Tune to what channel?\r\n");
 		else {
 			i = atoi(arg2);
 			if (i == COMM_CHANNEL(obj)) {
@@ -1600,15 +1557,14 @@ ACMD(do_tune)
 			send_to_comm_channel(ch, buf, COMM_CHANNEL(obj), TRUE, TRUE);
 
 			COMM_CHANNEL(obj) = i;
-			sprintf(buf, "%s comm-channel set to [%d].\n",
+			send_to_char(ch, "%s comm-channel set to [%d].\n",
 				obj->short_description, COMM_CHANNEL(obj));
-			send_to_char(buf, ch);
 			sprintf(buf, "$n has joined channel [%d].", COMM_CHANNEL(obj));
 			send_to_comm_channel(ch, buf, COMM_CHANNEL(obj), TRUE, TRUE);
 		}
 		break;
 	default:
-		send_to_char("You cannot tune that!\r\n", ch);
+		send_to_char(ch, "You cannot tune that!\r\n");
 		break;
 	}
 }
@@ -1631,7 +1587,7 @@ ACMD(do_status)
 
 	if (!*arg1) {
 		if (!IS_CYBORG(ch))
-			send_to_char("Status of what?\r\n", ch);
+			send_to_char(ch, "Status of what?\r\n");
 		else {
 			sprintf(buf,
 				"%s+++++>>>---    SYSTEM STATUS REPORT   ---<<<+++++%s\r\n",
@@ -1724,39 +1680,35 @@ ACMD(do_status)
 	if (!strncmp(arg1, "internal", 8)) {
 
 		if (!*arg2) {
-			send_to_char("Status of which implant?\r\n", ch);
+			send_to_char(ch, "Status of which implant?\r\n");
 			return;
 		}
 
 		if (!(obj = get_object_in_equip_vis(ch, arg2, ch->implants, &i))) {
-			sprintf(buf, "You are not implanted with %s '%s'.\r\n", AN(arg2),
+			send_to_char(ch, "You are not implanted with %s '%s'.\r\n", AN(arg2),
 				arg2);
-			send_to_char(buf, ch);
 			return;
 		}
 
 	} else if (!(obj = get_obj_in_list_vis(ch, arg1, ch->carrying)) &&
 		!(obj = get_object_in_equip_all(ch, arg1, ch->equipment, &i)) &&
 		!(obj = get_obj_in_list_vis(ch, arg1, ch->in_room->contents))) {
-		sprintf(buf, "You can't seem to find %s '%s'.\r\n", AN(arg1), arg1);
-		send_to_char(buf, ch);
+		send_to_char(ch, "You can't seem to find %s '%s'.\r\n", AN(arg1), arg1);
 		return;
 	}
 
 	switch (GET_OBJ_TYPE(obj)) {
 	case ITEM_TRANSPORTER:
-		sprintf(buf, "Energy Levels: %d / %d.\r\n", CUR_ENERGY(obj),
+		send_to_char(ch, "Energy Levels: %d / %d.\r\n", CUR_ENERGY(obj),
 			MAX_ENERGY(obj));
-		send_to_char(buf, ch);
 		if (real_room(TRANS_TO_ROOM(obj)) == NULL)
 			act("$p is currently untuned.", FALSE, ch, obj, 0, TO_CHAR);
 		else {
-			sprintf(buf, "Tuned location: %s%s%s\r\n",
+			send_to_char(ch, "Tuned location: %s%s%s\r\n",
 				CCCYN(ch, C_NRM), (CHECK_SKILL(ch, SKILL_ELECTRONICS) +
 					GET_INT(ch)) > number(20, 90) ?
 				(real_room(TRANS_TO_ROOM(obj)))->name : "UNKNOWN",
 				CCNRM(ch, C_NRM));
-			send_to_char(buf, ch);
 		}
 		break;
 
@@ -1788,7 +1740,7 @@ ACMD(do_status)
 
 	case ITEM_DETONATOR:
 		if (CHECK_SKILL(ch, SKILL_DEMOLITIONS) < 50)
-			send_to_char("You have no idea how.\r\n", ch);
+			send_to_char(ch, "You have no idea how.\r\n");
 		else if (obj->aux_obj)
 			act("$p is currently tuned to $P.", FALSE, ch, obj, obj->aux_obj,
 				TO_CHAR);
@@ -1799,7 +1751,7 @@ ACMD(do_status)
 
 	case ITEM_BOMB:
 		if (CHECK_SKILL(ch, SKILL_DEMOLITIONS) < 50)
-			send_to_char("You have no idea how.\r\n", ch);
+			send_to_char(ch, "You have no idea how.\r\n");
 		else {
 			sprintf(buf, "$p is %sfused and %sactive.",
 				(obj->contains && IS_FUSE(obj->contains)) ? "" : "un",
@@ -1809,9 +1761,8 @@ ACMD(do_status)
 		break;
 	case ITEM_ENERGY_CELL:
 	case ITEM_BATTERY:
-		sprintf(buf, "Energy Levels: %d / %d.\r\n", CUR_ENERGY(obj),
+		send_to_char(ch, "Energy Levels: %d / %d.\r\n", CUR_ENERGY(obj),
 			MAX_ENERGY(obj));
-		send_to_char(buf, ch);
 		break;
 
 	case ITEM_GUN:
@@ -1825,7 +1776,7 @@ ACMD(do_status)
 
 		sprintf(buf, "%s contains %d/%d cartridge%s.\r\n",
 			obj->short_description, i, MAX_LOAD(obj), i == 1 ? "" : "s");
-		send_to_char(CAP(buf), ch);
+		send_to_char(ch, "%s", buf);
 		break;
 
 	case ITEM_INTERFACE:
@@ -1834,8 +1785,7 @@ ACMD(do_status)
 			sprintf(buf, "%s [%d slots] is loaded with:\r\n",
 				obj->short_description, INTERFACE_MAX(obj));
 			for (bul = obj->contains, i = 0; bul; i++, bul = bul->next_content)
-				sprintf(buf, "%s%2d. %s\r\n", buf, i, bul->short_description);
-			send_to_char(buf, ch);
+				send_to_char(ch, "%s%2d. %s\r\n", buf, i, bul->short_description);
 			break;
 		}
 		break;
@@ -1877,7 +1827,7 @@ ACMD(do_status)
 
 	sprintf(buf, "%s is in %s condition.\r\n", obj->short_description,
 		obj_cond_color(obj, ch));
-	send_to_char(CAP(buf), ch);
+	send_to_char(ch, "%s", buf);
 
 }
 
@@ -1896,7 +1846,7 @@ ACMD(do_repair)
 	else if (!(vict = get_char_room_vis(ch, argument)) &&
 		!(obj = get_obj_in_list_vis(ch, argument, ch->carrying)) &&
 		!(obj = get_obj_in_list_vis(ch, argument, ch->in_room->contents))) {
-		send_to_char("Repair who or what?\r\n", ch);
+		send_to_char(ch, "Repair who or what?\r\n");
 		return;
 	}
 
@@ -1905,23 +1855,21 @@ ACMD(do_repair)
 				(!(tool = GET_IMPLANT(ch, WEAR_HOLD)) &&
 					!(tool = GET_EQ(ch, WEAR_HOLD))) ||
 				!IS_TOOL(tool) || TOOL_SKILL(tool) != SKILL_CYBOREPAIR)) {
-			send_to_char
-				("You must be holding a cyber repair tool to do this.\r\n",
-				ch);
+			send_to_char(ch, 
+				"You must be holding a cyber repair tool to do this.\r\n");
 			return;
 		}
 
 		if (vict == ch) {
 			if (CHECK_SKILL(ch, SKILL_SELFREPAIR) < 10 || !IS_CYBORG(ch))
-				send_to_char("You have no idea how to repair yourself.\r\n",
-					ch);
+				send_to_char(ch, "You have no idea how to repair yourself.\r\n");
 			else if (GET_HIT(ch) == GET_MAX_HIT(ch))
-				send_to_char("You are not damaged, no repair needed.\r\n", ch);
+				send_to_char(ch, "You are not damaged, no repair needed.\r\n");
 			else if (!IS_NPC(ch)
 				&& number(12, 150) > CHECK_SKILL(ch,
 					SKILL_SELFREPAIR) + TOOL_MOD(tool) + (CHECK_SKILL(ch,
 						SKILL_ELECTRONICS) >> 1) + GET_INT(ch))
-				send_to_char("You fail to repair yourself.\r\n", ch);
+				send_to_char(ch, "You fail to repair yourself.\r\n");
 			else {
 				if (IS_NPC(ch)) {
 					dam = 2 * GET_LEVEL(ch);
@@ -1938,20 +1886,18 @@ ACMD(do_repair)
 				dam = MIN(GET_MAX_HIT(ch) - GET_HIT(ch), dam);
 				cost = dam >> 1;
 				if ((GET_MANA(ch) + GET_MOVE(ch)) < cost)
-					send_to_char
-						("You lack the energy required to perform this operation.\r\n",
-						ch);
+					send_to_char(ch, 
+						"You lack the energy required to perform this operation.\r\n");
 				else {
 					GET_HIT(ch) += dam;
 					GET_MOVE(ch) -= cost;
 					if (GET_MOVE(ch) < 0) {
-						send_to_char
-							("WARNING: Auto-accessing reserve energy.\r\n",
-							ch);
+						send_to_char(ch, 
+							"WARNING: Auto-accessing reserve energy.\r\n");
 						GET_MANA(ch) += GET_MOVE(ch);
 						GET_MOVE(ch) = 0;
 					}
-					send_to_char("You skillfully repair yourself.\r\n", ch);
+					send_to_char(ch, "You skillfully repair yourself.\r\n");
 					act("$n repairs $mself.", TRUE, ch, 0, 0, TO_ROOM);
 					gain_skill_prof(ch, SKILL_SELFREPAIR);
 					WAIT_STATE(ch, PULSE_VIOLENCE * (1 + (dam >> 7)));
@@ -1959,16 +1905,14 @@ ACMD(do_repair)
 			}
 		} else {
 			if (CHECK_SKILL(ch, SKILL_CYBOREPAIR) < 10)
-				send_to_char
-					("You have no repair skills for repairing others.\r\n",
-					ch);
+				send_to_char(ch, 
+					"You have no repair skills for repairing others.\r\n");
 			else if (!IS_CYBORG(vict))
 				act("You cannot repair $M.  You can only repair other borgs.",
 					FALSE, ch, 0, vict, TO_CHAR);
 			else if (ch->isFighting())
-				send_to_char
-					("You cannot perform repairs on fighting patients.\r\n",
-					ch);
+				send_to_char(ch, 
+					"You cannot perform repairs on fighting patients.\r\n");
 			else if (GET_HIT(vict) == GET_MAX_HIT(vict))
 				act("$N's systems are not currently damaged.", FALSE, ch, 0,
 					vict, TO_CHAR);
@@ -1989,16 +1933,14 @@ ACMD(do_repair)
 					dam = MIN(GET_MAX_HIT(vict) - GET_HIT(vict), dam);
 					cost = dam >> 1;
 					if ((GET_MANA(ch) + GET_MOVE(ch)) < cost)
-						send_to_char
-							("You lack the energy required to perform this operation.\r\n",
-							ch);
+						send_to_char(ch, 
+							"You lack the energy required to perform this operation.\r\n");
 					else {
 						GET_HIT(vict) += dam;
 						GET_MOVE(ch) -= cost;
 						if (GET_MOVE(ch) < 0) {
-							send_to_char
-								("WARNING: Auto-accessing reserve energy.\r\n",
-								ch);
+							send_to_char(ch, 
+								"WARNING: Auto-accessing reserve energy.\r\n");
 							GET_MANA(ch) += GET_MOVE(ch);
 							GET_MOVE(ch) = 0;
 						}
@@ -2041,14 +1983,13 @@ ACMD(do_repair)
 		skill = SKILL_BOW_FLETCH;
 
 	if (!skill) {
-		send_to_char("You can't repair that.\r\n", ch);
+		send_to_char(ch, "You can't repair that.\r\n");
 		return;
 	}
 
 	if (CHECK_SKILL(ch, skill) < 20) {
-		sprintf(buf, "You are not skilled in the art of %s.\r\n",
+		send_to_char(ch, "You are not skilled in the art of %s.\r\n",
 			spell_to_str(skill));
-		send_to_char(buf, ch);
 		return;
 	}
 
@@ -2064,9 +2005,8 @@ ACMD(do_repair)
 	if ((!(tool = GET_EQ(ch, WEAR_HOLD)) &&
 			!(tool = GET_IMPLANT(ch, WEAR_HOLD))) ||
 		!IS_TOOL(tool) || TOOL_SKILL(tool) != skill) {
-		sprintf(buf, "You must be holding a %s tool to do this.\r\n",
+		send_to_char(ch, "You must be holding a %s tool to do this.\r\n",
 			spell_to_str(skill));
-		send_to_char(buf, ch);
 		return;
 	}
 
@@ -2091,29 +2031,26 @@ ACMD(do_overhaul)
 	skip_spaces(&argument);
 
 	if (!(vict = get_char_room_vis(ch, argument))) {
-		send_to_char("Overhaul who?\r\n", ch);
+		send_to_char(ch, "Overhaul who?\r\n");
 	} else if (!IS_CYBORG(vict)) {
-		send_to_char("You can only repair other borgs.\r\n", ch);
+		send_to_char(ch, "You can only repair other borgs.\r\n");
 	} else if ((!(tool = GET_EQ(ch, WEAR_HOLD)) &&
 			!(tool = GET_IMPLANT(ch, WEAR_HOLD))) ||
 		!IS_TOOL(tool) || TOOL_SKILL(tool) != SKILL_CYBOREPAIR) {
-		send_to_char("You must be holding a cyber repair tool to do this.\r\n",
-			ch);
+		send_to_char(ch, "You must be holding a cyber repair tool to do this.\r\n");
 	} else if (GET_TOT_DAM(vict) < (max_component_dam(vict) / 3)) {
 		act("You cannot make any significant improvements to $S systems.",
 			FALSE, ch, 0, vict, TO_CHAR);
 	} else if (vict->getPosition() > POS_SITTING) {
-		send_to_char("Your subject must be sitting, at least.\r\n", ch);
+		send_to_char(ch, "Your subject must be sitting, at least.\r\n");
 	} else if (CHECK_SKILL(ch, SKILL_OVERHAUL) < 10) {
-		send_to_char("You have no idea how to perform an overhaul.\r\n", ch);
+		send_to_char(ch, "You have no idea how to perform an overhaul.\r\n");
 	} else if (!vict->master || vict->master != ch) {
-		send_to_char
-			("Subjects must be following and grouped for you to perform an overhaul.\r\n",
-			ch);
+		send_to_char(ch, 
+			"Subjects must be following and grouped for you to perform an overhaul.\r\n");
 	} else if (!AFF3_FLAGGED(vict, AFF3_STASIS)) {
-		send_to_char
-			("Error: Overhauling an active subject could lead to severe data loss.\r\n",
-			ch);
+		send_to_char(ch, 
+			"Error: Overhauling an active subject could lead to severe data loss.\r\n");
 	} else {
 		int repair = GET_TOT_DAM(vict) - (max_component_dam(vict) / 3);
 		repair = MIN(repair, GET_LEVEL(ch) * 800);
@@ -2137,13 +2074,12 @@ ACMD(do_overhaul)
 		WAIT_STATE(ch, PULSE_VIOLENCE * 6);
 		gain_skill_prof(ch, SKILL_OVERHAUL);
 
-		send_to_char("Overhaul complete:  System improved.\r\n", ch);
+		send_to_char(ch, "Overhaul complete:  System improved.\r\n");
 		if (GET_BROKE(vict)) {
-			sprintf(buf,
+			send_to_char(ch,
 				"%sWarning%s:  subject in need of replacement %s.\r\n",
 				CCRED(ch, C_NRM), CCNRM(ch, C_NRM),
 				component_names[(int)GET_BROKE(vict)][GET_OLD_CLASS(vict)]);
-			send_to_char(buf, ch);
 		}
 	}
 }
@@ -2241,23 +2177,22 @@ ACMD(do_analyze)
 			!(obj = get_obj_in_list_vis(ch, argument, ch->carrying)) &&
 			!(obj =
 				get_obj_in_list_vis(ch, argument, ch->in_room->contents)))) {
-		send_to_char("Analyze what?\r\n", ch);
+		send_to_char(ch, "Analyze what?\r\n");
 		return;
 	}
 
 	if (CHECK_SKILL(ch, SKILL_ANALYZE) < 10) {
-		send_to_char("You are not trained in the methods of analysis.\r\n",
-			ch);
+		send_to_char(ch, "You are not trained in the methods of analysis.\r\n");
 		return;
 	}
 	if (CHECK_SKILL(ch, SKILL_ANALYZE) < number(0, 100)) {
-		send_to_char("You fail miserably.\r\n", ch);
+		send_to_char(ch, "You fail miserably.\r\n");
 		WAIT_STATE(ch, 2 RL_SEC);
 		return;
 	}
 	if (GET_MOVE(ch) < 10) {
-		send_to_char
-			("You lack the energy necessary to perform the analysis.\r\n", ch);
+		send_to_char(ch, 
+			"You lack the energy necessary to perform the analysis.\r\n");
 		return;
 	}
 
@@ -2436,7 +2371,7 @@ ACMD(do_analyze)
 		return;
 	}
 
-	send_to_char("Error.\r\n", ch);
+	send_to_char(ch, "Error.\r\n");
 
 }
 
@@ -2450,12 +2385,12 @@ ACMD(do_insert)
 	skip_spaces(&argument);
 
 	if (!*argument || !*(argument = two_arguments(argument, buf, buf2))) {
-		send_to_char("Insert <object> <victim> <position>\r\n", ch);
+		send_to_char(ch, "Insert <object> <victim> <position>\r\n");
 		return;
 	}
 
 	if (!(obj = get_obj_in_list_vis(ch, buf, ch->carrying))) {
-		send_to_char("You do not carry that implant.\r\n", ch);
+		send_to_char(ch, "You do not carry that implant.\r\n");
 		return;
 	}
 	if (!(vict = get_char_room_vis(ch, buf2))) {
@@ -2464,26 +2399,25 @@ ACMD(do_insert)
 	}
 
 	if (CHECK_SKILL(ch, SKILL_CYBO_SURGERY) < 30) {
-		send_to_char("You are unskilled in the art of cybosurgery.\r\n", ch);
+		send_to_char(ch, "You are unskilled in the art of cybosurgery.\r\n");
 		return;
 	}
 
 	if (!ROOM_FLAGGED(ch->in_room, ROOM_PEACEFUL)
 		&& GET_LEVEL(ch) < LVL_IMMORT) {
-		send_to_char("You can only perform surgery in a safe room.\r\n", ch);
+		send_to_char(ch, "You can only perform surgery in a safe room.\r\n");
 		return;
 	}
 
 	if ((!(tool = GET_EQ(ch, WEAR_HOLD)) &&
 			!(tool = GET_IMPLANT(ch, WEAR_HOLD))) ||
 		!IS_TOOL(tool) || TOOL_SKILL(tool) != SKILL_CYBO_SURGERY) {
-		send_to_char
-			("You must be holding a cyber surgery tool to do this.\r\n", ch);
+		send_to_char(ch, 
+			"You must be holding a cyber surgery tool to do this.\r\n");
 		return;
 	}
 	if (!IS_CYBORG(vict) && GET_LEVEL(ch) < LVL_IMMORT) {
-		send_to_char("Your subject is not prepared for such enhancement.\r\n",
-			ch);
+		send_to_char(ch, "Your subject is not prepared for such enhancement.\r\n");
 		return;
 	}
 
@@ -2491,7 +2425,7 @@ ACMD(do_insert)
 
 	if ((pos = search_block(buf, wear_implantpos, 0)) < 0 ||
 		(ILLEGAL_IMPLANTPOS(pos) && !IS_OBJ_TYPE(obj, ITEM_TOOL))) {
-		send_to_char("Invalid implant position.\r\n", ch);
+		send_to_char(ch, "Invalid implant position.\r\n");
 		return;
 	}
 
@@ -2552,12 +2486,12 @@ ACMD(do_insert)
 
 	if (!IS_WEAR_EXTREMITY(pos)) {
 		if (GET_LEVEL(ch) < LVL_IMMORT && vict == ch) {
-			send_to_char
-				("You can only perform surgery on your extremities!\r\n", ch);
+			send_to_char(ch, 
+				"You can only perform surgery on your extremities!\r\n");
 			return;
 		}
 		if (GET_LEVEL(ch) < LVL_IMMORT && AWAKE(vict) && ch != vict) {
-			send_to_char("Your subject is not properly sedated.\r\n", ch);
+			send_to_char(ch, "Your subject is not properly sedated.\r\n");
 			return;
 		}
 	}
@@ -2578,7 +2512,7 @@ ACMD(do_insert)
 
 	if (CHECK_SKILL(ch, SKILL_CYBO_SURGERY) + TOOL_MOD(tool) +
 		(GET_DEX(ch) << 2) < number(50, 100)) {
-		send_to_char("You fail.\r\n", ch);
+		send_to_char(ch, "You fail.\r\n");
 		return;
 	}
 
@@ -2640,35 +2574,35 @@ ACMD(do_extract)
 	skip_spaces(&argument);
 
 	if (!*argument) {
-		send_to_char("Extract <object> <victim> <position>        ...or...\r\n"
-			"Extract <object> <corpse>\r\n", ch);
+		send_to_char(ch, "Extract <object> <victim> <position>        ...or...\r\n"
+			"Extract <object> <corpse>\r\n");
 		return;
 	}
 
 	argument = two_arguments(argument, buf, buf2);
 
 	if (!*buf || !*buf2) {
-		send_to_char("Extract <object> <victim> <position>        ...or...\r\n"
-			"Extract <object> <corpse>\r\n", ch);
+		send_to_char(ch, "Extract <object> <victim> <position>        ...or...\r\n"
+			"Extract <object> <corpse>\r\n");
 		return;
 	}
 
 	if (CHECK_SKILL(ch, SKILL_CYBO_SURGERY) < 30) {
-		send_to_char("You are unskilled in the art of cybosurgery.\r\n", ch);
+		send_to_char(ch, "You are unskilled in the art of cybosurgery.\r\n");
 		return;
 	}
 
 	if ((!(tool = GET_EQ(ch, WEAR_HOLD)) &&
 			!(tool = GET_IMPLANT(ch, WEAR_HOLD))) ||
 		!IS_TOOL(tool) || TOOL_SKILL(tool) != SKILL_CYBO_SURGERY) {
-		send_to_char
-			("You must be holding a cyber surgery tool to do this.\r\n", ch);
+		send_to_char(ch, 
+			"You must be holding a cyber surgery tool to do this.\r\n");
 		return;
 	}
 
 	if (!(vict = get_char_room_vis(ch, buf2))) {
 		if (!(corpse = get_obj_in_list_vis(ch, buf2, ch->in_room->contents))) {
-			send_to_char("Extract from who?\r\n", ch);
+			send_to_char(ch, "Extract from who?\r\n");
 			return;
 		}
 
@@ -2685,14 +2619,14 @@ ACMD(do_extract)
 			}
 		} else if (!IS_BODY_PART(corpse) || !isname("head", corpse->name) ||
 			!OBJ_TYPE(corpse, ITEM_DRINKCON)) {
-			send_to_char("You cannot extract from that.\r\n", ch);
+			send_to_char(ch, "You cannot extract from that.\r\n");
 			return;
 		}
 
 		if (((CHECK_SKILL(ch, SKILL_CYBO_SURGERY) + TOOL_MOD(tool) +
 					(GET_DEX(ch) << 2)) < number(50, 100)) ||
 			(IS_OBJ_TYPE(obj, ITEM_SCRIPT) && GET_LEVEL(ch) < 50)) {
-			send_to_char("You fail.\r\n", ch);
+			send_to_char(ch, "You fail.\r\n");
 			return;
 		}
 
@@ -2718,35 +2652,35 @@ ACMD(do_extract)
 
 	if (GET_LEVEL(ch) < LVL_IMMORT
 		&& !ROOM_FLAGGED(ch->in_room, ROOM_PEACEFUL)) {
-		send_to_char("You can only perform surgery in a safe room.\r\n", ch);
+		send_to_char(ch, "You can only perform surgery in a safe room.\r\n");
 		return;
 	}
 
 	if (!(obj = get_object_in_equip_vis(ch, buf, vict->implants, &pos))) {
-		send_to_char("Invalid object.  Type 'extract' for usage.\r\n", ch);
+		send_to_char(ch, "Invalid object.  Type 'extract' for usage.\r\n");
 		return;
 	}
 
 	if (!*argument) {
-		send_to_char("Extract the implant from what position.\r\n", ch);
+		send_to_char(ch, "Extract the implant from what position.\r\n");
 		return;
 	}
 
 	one_argument(argument, buf);
 
 	if ((pos = search_block(buf, wear_implantpos, 0)) < 0) {
-		send_to_char("Invalid implant position.\r\n", ch);
+		send_to_char(ch, "Invalid implant position.\r\n");
 		return;
 	}
 	if (!IS_WEAR_EXTREMITY(pos)) {
 		if (GET_LEVEL(ch) < LVL_IMMORT && vict == ch) {
-			send_to_char
-				("You can only perform surgery on your extrimities!\r\n", ch);
+			send_to_char(ch, 
+				"You can only perform surgery on your extrimities!\r\n");
 			return;
 		}
 
 		if (GET_LEVEL(ch) < LVL_IMMORT && AWAKE(vict) && ch != vict) {
-			send_to_char("Your subject is not properly sedated.\r\n", ch);
+			send_to_char(ch, "Your subject is not properly sedated.\r\n");
 			return;
 		}
 	}
@@ -2773,7 +2707,7 @@ ACMD(do_extract)
 	if ((CHECK_SKILL(ch, SKILL_CYBO_SURGERY) + TOOL_MOD(tool) +
 			(GET_DEX(ch) << 2) < number(50, 100)) ||
 		(IS_OBJ_TYPE(obj, ITEM_SCRIPT) && GET_LEVEL(ch) < 50)) {
-		send_to_char("You fail.\r\n", ch);
+		send_to_char(ch, "You fail.\r\n");
 		return;
 	}
 
@@ -2847,7 +2781,7 @@ ACMD(do_cyberscan)
 				act("No implants detected in $p.", FALSE, ch, obj, 0, TO_CHAR);
 			act("$n scans $p.", TRUE, ch, obj, 0, TO_ROOM);
 		} else
-			send_to_char("Cyberscan who?\r\n", ch);
+			send_to_char(ch, "Cyberscan who?\r\n");
 		return;
 	}
 
@@ -2856,22 +2790,21 @@ ACMD(do_cyberscan)
 		act("$n scans you.", FALSE, ch, 0, vict, TO_VICT);
 	}
 
-	send_to_char("CYBERSCAN RESULTS:\r\n", ch);
+	send_to_char(ch, "CYBERSCAN RESULTS:\r\n");
 	for (i = 0; i < NUM_WEARS; i++) {
 		if ((obj = GET_IMPLANT(vict, i)) && CAN_SEE_OBJ(ch, obj) &&
 			((CHECK_SKILL(ch, SKILL_CYBERSCAN) +
 					(AFF3_FLAGGED(ch, AFF3_SONIC_IMAGERY) ? 50 : 0) >
 					number(50, 120)) || PRF_FLAGGED(ch, PRF_HOLYLIGHT))) {
 
-			sprintf(buf, "[%12s] - %s -\r\n", wear_implantpos[i],
+			send_to_char(ch, "[%12s] - %s -\r\n", wear_implantpos[i],
 				obj->short_description);
-			send_to_char(buf, ch);
 			++found;
 		}
 	}
 
 	if (!found)
-		send_to_char("Negative.\r\n", ch);
+		send_to_char(ch, "Negative.\r\n");
 	else if (ch != vict)
 		gain_skill_prof(ch, SKILL_CYBERSCAN);
 }
@@ -2900,15 +2833,14 @@ ACMD(do_load)
 
 	if (!*arg1) {
 		sprintf(buf, "%s what?\r\n", CMD_NAME);
-		send_to_char(CAP(buf), ch);
+		send_to_char(ch, "%s", buf);
 		return;
 	}
 
 	if (subcmd == SCMD_LOAD) {
 
 		if (!(obj1 = get_obj_in_list_vis(ch, arg1, ch->carrying))) {
-			sprintf(buf, "You can't find any '%s' to load.\r\n", arg1);
-			send_to_char(buf, ch);
+			send_to_char(ch, "You can't find any '%s' to load.\r\n", arg1);
 			return;
 		}
 		if (!*arg2) {
@@ -2921,14 +2853,13 @@ ACMD(do_load)
 			argument = one_argument(argument, arg1);
 
 			if (!*arg1) {
-				send_to_char("Load which implant?\r\n", ch);
+				send_to_char(ch, "Load which implant?\r\n");
 				return;
 			}
 
 			if (!(obj2 = get_object_in_equip_vis(ch, arg1, ch->implants, &i))) {
-				sprintf(buf, "You are not implanted with %s '%s'.\r\n",
+				send_to_char(ch, "You are not implanted with %s '%s'.\r\n",
 					AN(arg1), arg1);
-				send_to_char(buf, ch);
 				return;
 			}
 
@@ -2942,7 +2873,7 @@ ACMD(do_load)
 			return;
 		}
 		if (obj2 == obj1) {
-			send_to_char("Real funny.\r\n", ch);
+			send_to_char(ch, "Real funny.\r\n");
 			return;
 		}
 		if (IS_OBJ_STAT(obj1, ITEM2_BROKEN)) {
@@ -3025,7 +2956,7 @@ ACMD(do_load)
 				return;
 			}
 			if (redundant_skillchip(obj1, obj2)) {
-				send_to_char("Attachment of that chip is redundant.\r\n", ch);
+				send_to_char(ch, "Attachment of that chip is redundant.\r\n");
 				return;
 			}
 			if (obj1->getWeight() > 5) {
@@ -3063,14 +2994,13 @@ ACMD(do_load)
 
 			internal = true;
 			if (!*arg2) {
-				send_to_char("Unload which implant?\r\n", ch);
+				send_to_char(ch, "Unload which implant?\r\n");
 				return;
 			}
 
 			if (!(obj2 = get_object_in_equip_vis(ch, arg2, ch->implants, &i))) {
-				sprintf(buf, "You are not implanted with %s '%s'.\r\n",
+				send_to_char(ch, "You are not implanted with %s '%s'.\r\n",
 					AN(arg2), arg2);
-				send_to_char(buf, ch);
 				return;
 			}
 
@@ -3096,7 +3026,7 @@ ACMD(do_load)
 				return;
 			}
 		} else {
-			send_to_char("You cannot unload anything from that.\r\n", ch);
+			send_to_char(ch, "You cannot unload anything from that.\r\n");
 			return;
 		}
 
@@ -3144,22 +3074,20 @@ ACMD(do_refill)
 	argument = two_arguments(argument, arg1, arg2);
 
 	if (!*arg1)
-		send_to_char("Refill what from what?\r\n", ch);
+		send_to_char(ch, "Refill what from what?\r\n");
 	else if (!*arg2)
-		send_to_char("Usage: refill <to obj> <from obj>\r\n", ch);
+		send_to_char(ch, "Usage: refill <to obj> <from obj>\r\n");
 	else if (!(syr = get_obj_in_list_vis(ch, arg1, ch->carrying)) &&
 		!(syr = get_object_in_equip_vis(ch, arg1, ch->equipment, &i))) {
-		sprintf(buf, "You don't seem to have %s '%s' to refill.\r\n",
+		send_to_char(ch, "You don't seem to have %s '%s' to refill.\r\n",
 			AN(arg1), arg1);
-		send_to_char(buf, ch);
 	} else if (!IS_SYRINGE(syr))
-		send_to_char("You can only refill syringes.\r\n", ch);
+		send_to_char(ch, "You can only refill syringes.\r\n");
 	else if (GET_OBJ_VAL(syr, 0))
 		act("$p is already full.", FALSE, ch, syr, 0, TO_CHAR);
 	else if (!(vial = get_obj_in_list_vis(ch, arg2, ch->carrying))) {
-		sprintf(buf, "You can't find %s '%s' to refill from.\r\n", AN(arg2),
+		send_to_char(ch, "You can't find %s '%s' to refill from.\r\n", AN(arg2),
 			arg2);
-		send_to_char(buf, ch);
 	} else if (!GET_OBJ_VAL(vial, 0))
 		act("$p is empty.", FALSE, ch, vial, 0, TO_CHAR);
 	else {
@@ -3217,7 +3145,7 @@ ACMD(do_transmit)
 	argument = one_argument(argument, arg1);
 
 	if (!*arg1) {
-		send_to_char("Usage:  transmit [internal] <device> <message>\r\n", ch);
+		send_to_char(ch, "Usage:  transmit [internal] <device> <message>\r\n");
 		return;
 	}
 
@@ -3226,22 +3154,20 @@ ACMD(do_transmit)
 		argument = one_argument(argument, arg2);
 
 		if (!*arg2) {
-			send_to_char("Transmit with which implant?\r\n", ch);
+			send_to_char(ch, "Transmit with which implant?\r\n");
 			return;
 		}
 
 		if (!(obj = get_object_in_equip_vis(ch, arg2, ch->implants, &i))) {
-			sprintf(buf, "You are not implanted with %s '%s'.\r\n", AN(arg2),
+			send_to_char(ch, "You are not implanted with %s '%s'.\r\n", AN(arg2),
 				arg2);
-			send_to_char(buf, ch);
 			return;
 		}
 
 	} else if (!(obj = get_obj_in_list_vis(ch, arg1, ch->carrying)) &&
 		!(obj = get_object_in_equip_all(ch, arg1, ch->equipment, &i)) &&
 		!(obj = get_obj_in_list_vis(ch, arg1, ch->in_room->contents))) {
-		sprintf(buf, "You can't seem to find %s '%s'.\r\n", AN(arg1), arg1);
-		send_to_char(buf, ch);
+		send_to_char(ch, "You can't seem to find %s '%s'.\r\n", AN(arg1), arg1);
 		return;
 	}
 
@@ -3255,7 +3181,7 @@ ACMD(do_transmit)
 	}
 
 	if (!*argument) {
-		send_to_char("Usage:  transmit [internal] <device> <message>\r\n", ch);
+		send_to_char(ch, "Usage:  transmit [internal] <device> <message>\r\n");
 		return;
 	}
 
@@ -3268,7 +3194,7 @@ ACMD(do_transmit)
 	send_to_comm_channel(ch, buf, COMM_CHANNEL(obj),
 		PRF_FLAGGED(ch, PRF_NOREPEAT) ? TRUE : FALSE, FALSE);
 	if (PRF_FLAGGED(ch, PRF_NOREPEAT))
-		send_to_char("Okay, message transmitted.\r\n", ch);
+		send_to_char(ch, "Okay, message transmitted.\r\n");
 
 }
 
@@ -3284,7 +3210,7 @@ ACMD(do_overdrain)
 
 	//Make sure they know how to overdrain
 	if (CHECK_SKILL(ch, SKILL_OVERDRAIN) < 50) {
-		send_to_char("You don't know how.\r\n", ch);
+		send_to_char(ch, "You don't know how.\r\n");
 		return;
 	}
 
@@ -3292,7 +3218,7 @@ ACMD(do_overdrain)
 	argument = one_argument(argument, arg1);
 
 	if (!*arg1) {
-		send_to_char("Usage:  overdrain [internal] <battery/device>\r\n", ch);
+		send_to_char(ch, "Usage:  overdrain [internal] <battery/device>\r\n");
 		return;
 	}
 	// Find the object to drain from
@@ -3301,22 +3227,20 @@ ACMD(do_overdrain)
 		argument = one_argument(argument, arg2);
 
 		if (!*arg2) {
-			send_to_char("Drain energy from which implant?\r\n", ch);
+			send_to_char(ch, "Drain energy from which implant?\r\n");
 			return;
 		}
 
 		if (!(source = get_object_in_equip_vis(ch, arg2, ch->implants, &i))) {
-			sprintf(buf, "You are not implanted with %s '%s'.\r\n", AN(arg2),
+			send_to_char(ch, "You are not implanted with %s '%s'.\r\n", AN(arg2),
 				arg2);
-			send_to_char(buf, ch);
 			return;
 		}
 
 	} else if (!(source = get_obj_in_list_vis(ch, arg1, ch->carrying)) &&
 		!(source = get_object_in_equip_all(ch, arg1, ch->equipment, &i)) &&
 		!(source = get_obj_in_list_vis(ch, arg1, ch->in_room->contents))) {
-		sprintf(buf, "You can't seem to find %s '%s'.\r\n", AN(arg1), arg1);
-		send_to_char(buf, ch);
+		send_to_char(ch, "You can't seem to find %s '%s'.\r\n", AN(arg1), arg1);
 		return;
 	}
 	if (IS_IMPLANT(source)
@@ -3365,13 +3289,13 @@ ACMD(do_de_energize)
 		if (ch->isFighting()) {
 			vict = ch->getFighting();
 		} else {
-			send_to_char("De-energize who??\r\n", ch);
+			send_to_char(ch, "De-energize who??\r\n");
 			return;
 		}
 	}
 
 	if (vict == ch) {
-		send_to_char("Let's not try that shall we...\r\n", ch);
+		send_to_char(ch, "Let's not try that shall we...\r\n");
 		return;
 	}
 
@@ -3451,33 +3375,32 @@ ACMD(do_assimilate)
 	int damd = 0;
 
 	if (!IS_CYBORG(ch)) {
-		send_to_char("Only the Borg may assimilate.\r\n", ch);
+		send_to_char(ch, "Only the Borg may assimilate.\r\n");
 		return;
 	}
 
 	if (CHECK_SKILL(ch, SKILL_ASSIMILATE) < 60) {
-		send_to_char
-			("You do not have sufficient programming to assimilate.\r\n", ch);
+		send_to_char(ch, 
+			"You do not have sufficient programming to assimilate.\r\n");
 		return;
 	}
 
 	skip_spaces(&argument);
 
 	if (!*argument) {
-		send_to_char("Assimilate what?\r\n", ch);
+		send_to_char(ch, "Assimilate what?\r\n");
 		return;
 	}
 
 	if (!(obj = get_obj_in_list_vis(ch, argument, ch->carrying))) {
-		sprintf(buf, "You can't find any '%s'.\r\n", argument);
-		send_to_char(buf, ch);
+		send_to_char(ch, "You can't find any '%s'.\r\n", argument);
 		return;
 	}
 
 	manacost = MIN(10, obj->getWeight());
 
 	if (GET_MANA(ch) < manacost) {
-		send_to_char("You lack the mana required to assimilate this.\r\n", ch);
+		send_to_char(ch, "You lack the mana required to assimilate this.\r\n");
 		return;
 	}
 
@@ -3621,7 +3544,7 @@ ACMD(do_assimilate)
 	}
 
 	if (num_newaffs) {
-		send_to_char("You feel... different.\r\n", ch);
+		send_to_char(ch, "You feel... different.\r\n");
 		gain_skill_prof(ch, SKILL_ASSIMILATE);
 		free(oldaffs);
 	}
@@ -3633,29 +3556,27 @@ ACMD(do_deassimilate)
 {
 
 	if (!IS_CYBORG(ch)) {
-		send_to_char("Resistance is Futile.\r\n", ch);
+		send_to_char(ch, "Resistance is Futile.\r\n");
 		return;
 	}
 
 	if (CHECK_SKILL(ch, SKILL_ASSIMILATE) < 60) {
-		send_to_char("Your programming is insufficient to deassimilate.\r\n",
-			ch);
+		send_to_char(ch, "Your programming is insufficient to deassimilate.\r\n");
 		return;
 	}
 
 	if (!affected_by_spell(ch, SKILL_ASSIMILATE)) {
-		send_to_char("You currently have no active assimilations.\r\n", ch);
+		send_to_char(ch, "You currently have no active assimilations.\r\n");
 		return;
 	}
 
 	if (GET_MANA(ch) < 10) {
-		send_to_char("Your BioEnergy level is too low to deassimilate.\r\n",
-			ch);
+		send_to_char(ch, "Your BioEnergy level is too low to deassimilate.\r\n");
 		return;
 	}
 
 	affect_from_char(ch, SKILL_ASSIMILATE);
 	GET_MANA(ch) -= 10;
-	send_to_char("Deassimilation complete.\r\n", ch);
+	send_to_char(ch, "Deassimilation complete.\r\n");
 
 }

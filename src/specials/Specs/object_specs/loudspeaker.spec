@@ -21,7 +21,6 @@ SPECIAL(loud_speaker)
         return 0;
 
     if(!*argument) {
-        send_to_char("Yell what?\r\n",ch);
         return 0;
     }
     act("$n yells into $p.", TRUE, ch, speaker, 0, TO_ROOM);

@@ -481,7 +481,7 @@ SPECIAL(training_master)
 					FALSE, pupil1, 0, pupil2, TO_VICT);
 				break;
 			case 2:
-				send_to_char("You command your pupils to bow\r\n.", ch);
+				send_to_char(ch, "You command your pupils to bow\r\n.");
 				act("$n commands his pupils to bow.", FALSE, ch, 0, 0,
 					TO_ROOM);
 				act("$n bows before $N.", FALSE, pupil1, 0, pupil2,
@@ -500,7 +500,7 @@ SPECIAL(training_master)
 					TO_ROOM);
 				act("$N yells at you, as you fumble, losing your weapon.",
 					FALSE, pupil1, 0, ch, TO_CHAR);
-				send_to_char("You quickly pick up your weapon again.", pupil1);
+				send_to_char(pupil1, "You quickly pick up your weapon again.");
 				act("You yell at $n, as he fumbles, losing his weapon.",
 					FALSE, pupil1, 0, ch, TO_VICT);
 				break;
@@ -529,8 +529,7 @@ SPECIAL(training_master)
 					FALSE, pupil1, 0, pupil2, TO_VICT);
 				break;
 			default:
-				send_to_char("You show your pupils an advanced technique.",
-					ch);
+				send_to_char(ch, "You show your pupils an advanced technique.");
 				act("$n shows his pupils an advanced technique.", FALSE, ch, 0,
 					0, TO_ROOM);
 				break;
@@ -710,40 +709,40 @@ SPECIAL(lounge_soldier)
 	case 0:
 		act("$n grabs a dirty magazine and starts flipping through the pages.",
 			TRUE, ch, 0, 0, TO_ROOM);
-		send_to_char("You grab a dirty mag.\r\n", ch);
+		send_to_char(ch, "You grab a dirty mag.\r\n");
 		break;
 	case 1:
 		act("$n counts up this month's pay and scowls.", TRUE, ch, 0, 0,
 			TO_ROOM);
-		send_to_char("You count your pay and scowl.\r\n", ch);
+		send_to_char(ch, "You count your pay and scowl.\r\n");
 		break;
 	case 2:
 		act("$n wonders when $s next leave will be.", TRUE, ch, 0, 0, TO_ROOM);
-		send_to_char("You wonder about leave.\r\n", ch);
+		send_to_char(ch, "You wonder about leave.\r\n");
 		break;
 	case 3:
 		act("$n starts biting $s fingernails.", TRUE, ch, 0, 0, TO_ROOM);
-		send_to_char("You bite your fingernails.\r\n", ch);
+		send_to_char(ch, "You bite your fingernails.\r\n");
 		break;
 	case 4:
 		act("$n starts biting $s toenails.", TRUE, ch, 0, 0, TO_ROOM);
-		send_to_char("You bite your toenails.\r\n", ch);
+		send_to_char(ch, "You bite your toenails.\r\n");
 		break;
 	case 5:
 		act("$n flexes $s muscles.", TRUE, ch, 0, 0, TO_ROOM);
-		send_to_char("You flex.\r\n", ch);
+		send_to_char(ch, "You flex.\r\n");
 		break;
 	case 6:
 		act("$n rolls up a blunt.", TRUE, ch, 0, 0, TO_ROOM);
-		send_to_char("You roll a blunt.\r\n", ch);
+		send_to_char(ch, "You roll a blunt.\r\n");
 		break;
 	case 7:
 		act("$n starts shadowboxing.", FALSE, ch, 0, 0, TO_ROOM);
-		send_to_char("You shadowbox.\r\n", ch);
+		send_to_char(ch, "You shadowbox.\r\n");
 		break;
 	case 8:
 		act("$n scratches $s butt.", TRUE, ch, 0, 0, TO_ROOM);
-		send_to_char("You scratch your butt.\r\n", ch);
+		send_to_char(ch, "You scratch your butt.\r\n");
 		break;
 	}
 	return (banzaii(ch));
@@ -997,17 +996,17 @@ SPECIAL(dukes_chamber)
 		return 0;
 
 	if (CMD_IS("open") && !strncasecmp(argument, "book", 4)) {
-		send_to_char("It's securely lodged in the bookshelf.\r\n", ch);
+		send_to_char(ch, "It's securely lodged in the bookshelf.\r\n");
 		return 1;
 	}
 	if ((other_room = EXIT(ch, WEST)->to_room) != NULL)
 		if ((back = other_room->dir_option[rev_dir[WEST]]))
 			if (back->to_room != ch->in_room) {
 				back = 0;
-				send_to_char(" back= 0", ch);
+				send_to_char(ch, " back= 0");
 			}
 
-	send_to_char("You pull firmly on the protruding book...\r\n", ch);
+	send_to_char(ch, "You pull firmly on the protruding book...\r\n");
 	act("$n pulls on a book in the bookshelf.", TRUE, ch, 0, 0, TO_ROOM);
 
 	if (IS_SET(EXIT(ch, WEST)->exit_info, EX_CLOSED)) {
@@ -1061,10 +1060,10 @@ SPECIAL(wiz_library)
 			strncasecmp(argument, "scrolls", 7) &&
 			strncasecmp(argument, "tablets", 7))
 			return 0;
-		send_to_char
-			("The bookshelf is filled with books, but one particular book near the\r\n"
+		send_to_char(ch, 
+			"The bookshelf is filled with books, but one particular book near the\r\n"
 			"top shelf catches your eye.  It is odd, because the book is bound in\r\n"
-			"black leather, but it seems to glow faintly...\r\n", ch);
+			"black leather, but it seems to glow faintly...\r\n");
 		act("$n examines the bookshelf.", TRUE, ch, 0, 0, TO_ROOM);
 		return 1;
 	}
@@ -1101,13 +1100,13 @@ SPECIAL(book_int)
 		strncasecmp(argument, "cognizance", 10))
 		return 0;
 
-	send_to_char("You study the pages of the ancient book.\r\n", ch);
+	send_to_char(ch, "You study the pages of the ancient book.\r\n");
 	act("$n reads $p.", TRUE, ch, book, 0, TO_ROOM);
 
 	if (ch->real_abils.intel >= 19)
-		send_to_char("You do not feel enlightened.\r\n", ch);
+		send_to_char(ch, "You do not feel enlightened.\r\n");
 	else {
-		send_to_char("A wave of enlightenment passes over you.\r\n", ch);
+		send_to_char(ch, "A wave of enlightenment passes over you.\r\n");
 		act("A bright light appears above the head of $n", FALSE, ch, 0, 0,
 			TO_ROOM);
 		ch->real_abils.intel++;

@@ -25,7 +25,7 @@ SPECIAL(wagon_obj)
   if (strncasecmp(argument, "wagon", 5))
     return 0;
 
-  send_to_char("You deftly leap aboard the wagon.\r\n\r\n", ch);
+  send_to_char(ch, "You deftly leap aboard the wagon.\r\n\r\n");
   act("$n deftly leaps aboard the wagon.", TRUE, ch, 0, 0, TO_ROOM);
 
   char_from_room(ch);

@@ -52,24 +52,24 @@ appear(struct char_data *ch, struct char_data *vict)
 	if (!AFF_FLAGGED(vict, AFF_DETECT_INVIS)) {
 		if (affected_by_spell(ch, SPELL_INVISIBLE)) {
 			affect_from_char(ch, SPELL_INVISIBLE);
-			send_to_char("Your invisibility spell has expired.\r\n", ch);
+			send_to_char(ch, "Your invisibility spell has expired.\r\n");
 			found = 1;
 		}
 		if (affected_by_spell(ch, SPELL_TRANSMITTANCE)) {
 			affect_from_char(ch, SPELL_TRANSMITTANCE);
-			send_to_char("Your transparency has expired.\r\n", ch);
+			send_to_char(ch, "Your transparency has expired.\r\n");
 			found = 1;
 		}
 	}
 
 	if (IS_ANIMAL(vict) && affected_by_spell(ch, SPELL_INVIS_TO_ANIMALS)) {
 		affect_from_char(ch, SPELL_INVIS_TO_ANIMALS);
-		send_to_char("Your animal invisibility has expired.\r\n", ch);
+		send_to_char(ch, "Your animal invisibility has expired.\r\n");
 		found = 1;
 	}
 	if (IS_UNDEAD(vict) && affected_by_spell(ch, SPELL_INVIS_TO_UNDEAD)) {
 		affect_from_char(ch, SPELL_INVIS_TO_UNDEAD);
-		send_to_char("Your invisibility to undead has expired.\r\n", ch);
+		send_to_char(ch, "Your invisibility to undead has expired.\r\n");
 		found = 1;
 	}
 
@@ -82,7 +82,7 @@ appear(struct char_data *ch, struct char_data *vict)
 		GET_REMORT_GEN(ch) > GET_REMORT_GEN(vict) &&
 		GET_REMORT_INVIS(ch) > GET_LEVEL(vict)) {
 		GET_REMORT_INVIS(ch) = GET_LEVEL(vict);
-		send_to_char("You feel a bit more visible.\n", ch);
+		send_to_char(ch, "You feel a bit more visible.\n");
 		found = 1;
 	}
 
@@ -91,9 +91,9 @@ appear(struct char_data *ch, struct char_data *vict)
 			act("$n suddenly appears, seemingly from nowhere.",
 				TRUE, ch, 0, 0, TO_ROOM);
 			if (to_char)
-				send_to_char(to_char, ch);
+				send_to_char(ch, to_char);
 			else
-				send_to_char("You fade into visibility.\r\n", ch);
+				send_to_char(ch, "You fade into visibility.\r\n");
 		} else
 			act("You feel a strange presence as $n appears, seemingly from nowhere.", FALSE, ch, 0, 0, TO_ROOM);
 	}
@@ -215,7 +215,6 @@ death_cry(struct char_data *ch)
 			!PLR_FLAGGED((*it), PLR_OLC | PLR_WRITING) &&
 			!AFF_FLAGGED((*it), AFF_SLEEP)) {
 			(*it)->setPosition(POS_RESTING);
-			send_to_char("You are awakened by a loud scream.\r\n", (*it));
 		}
 	}
 
@@ -330,23 +329,22 @@ blood_spray(struct char_data *ch, struct char_data *victim,
 		to_char,
 		attacktype >= TYPE_HIT ?
 		attack_hit_text[attacktype - TYPE_HIT].singular : spell_to_str(attacktype));
-	send_to_char(CCRED(ch, C_NRM), ch);
+	send_to_char(ch, CCRED(ch, C_NRM));
 	act(buf, FALSE, ch, 0, victim, TO_CHAR);
-	send_to_char(CCNRM(ch, C_NRM), ch);
+	send_to_char(ch, CCNRM(ch, C_NRM));
 
 	sprintf(buf,
 		to_vict,
 		attacktype >= TYPE_HIT ?
 		attack_hit_text[attacktype - TYPE_HIT].singular : spell_to_str(attacktype));
-	send_to_char(CCRED(victim, C_NRM), victim);
+	send_to_char(victim, CCRED(victim, C_NRM));
 	act(buf, FALSE, ch, 0, victim, TO_VICT);
-	send_to_char(CCNRM(victim, C_NRM), victim);
+	send_to_char(victim, CCNRM(victim, C_NRM));
 
 	CharacterList::iterator it = ch->in_room->people.begin();
 	for (; it != ch->in_room->people.end(); ++it) {
 		if ((*it) == ch || (*it) == victim || !(*it)->desc || !AWAKE((*it)))
 			continue;
-		send_to_char(CCRED(ch, C_NRM), (*it));
 	}
 
 	sprintf(buf,
@@ -359,7 +357,6 @@ blood_spray(struct char_data *ch, struct char_data *victim,
 	for (; it != ch->in_room->people.end(); ++it) {
 		if ((*it) == ch || (*it) == victim || !(*it)->desc || !AWAKE((*it)))
 			continue;
-		send_to_char(CCNRM(ch, C_NRM), (*it));
 	}
 
 	//
@@ -820,9 +817,9 @@ dam_message(int dam, struct char_data *ch, struct char_data *victim,
 			buf = replace_string(dam_weapons[msgnum].to_char,
 				attack_hit_text[w_type].singular,
 				attack_hit_text[w_type].plural, NULL);
-		send_to_char(CCYEL(ch, C_NRM), ch);
+		send_to_char(ch, CCYEL(ch, C_NRM));
 		act(buf, FALSE, ch, weap, victim, TO_CHAR | TO_SLEEP);
-		send_to_char(CCNRM(ch, C_NRM), ch);
+		send_to_char(ch, CCNRM(ch, C_NRM));
 	}
 	/* damage message to damagee */
 	if ((msgnum || !PRF_FLAGGED(victim, PRF_GAGMISS)) && victim->desc) {
@@ -846,9 +843,9 @@ dam_message(int dam, struct char_data *ch, struct char_data *victim,
 			buf = replace_string(dam_weapons[msgnum].to_victim,
 				attack_hit_text[w_type].singular,
 				attack_hit_text[w_type].plural, NULL);
-		send_to_char(CCRED(victim, C_NRM), victim);
+		send_to_char(victim, CCRED(victim, C_NRM));
 		act(buf, FALSE, ch, weap, victim, TO_VICT | TO_SLEEP);
-		send_to_char(CCNRM(victim, C_NRM), victim);
+		send_to_char(victim, CCNRM(victim, C_NRM));
 	}
 
 	if (CHAR_HAS_BLOOD(victim) && BLOODLET(victim, dam, w_type + TYPE_HIT))
@@ -878,7 +875,6 @@ skill_message(int dam, struct char_data *ch, struct char_data *vict,
 
 			/*      if ( attacktype == TYPE_SLASH ) {
 			   sprintf( buf, "slash [%d]\r\n", nr );
-			   send_to_char( buf, ch );
 			   } */
 			if (attacktype == TYPE_SLASH && nr == 1
 				&& !isname("headless", vict->player.name))
@@ -897,53 +893,53 @@ skill_message(int dam, struct char_data *ch, struct char_data *vict,
 						act(msg->die_msg.room_msg, FALSE, ch, weap, vict,
 							TO_NOTVICT);
 						if (ch != vict) {
-							send_to_char(CCYEL(ch, C_NRM), ch);
+							send_to_char(ch, CCYEL(ch, C_NRM));
 							act(msg->die_msg.attacker_msg, FALSE, ch, weap,
 								vict, TO_CHAR);
-							send_to_char(CCNRM(ch, C_NRM), ch);
+							send_to_char(ch, CCNRM(ch, C_NRM));
 						}
 
 					}
 
-					send_to_char(CCRED(vict, C_NRM), vict);
+					send_to_char(vict, CCRED(vict, C_NRM));
 					act(msg->die_msg.victim_msg, FALSE, ch, weap, vict,
 						TO_VICT | TO_SLEEP);
-					send_to_char(CCNRM(vict, C_NRM), vict);
+					send_to_char(vict, CCNRM(vict, C_NRM));
 
 				} else {
 					if (ch) {
 						act(msg->hit_msg.room_msg, FALSE, ch, weap, vict,
 							TO_NOTVICT);
 						if (ch != vict) {
-							send_to_char(CCYEL(ch, C_NRM), ch);
+							send_to_char(ch, CCYEL(ch, C_NRM));
 							act(msg->hit_msg.attacker_msg, FALSE, ch, weap,
 								vict, TO_CHAR);
-							send_to_char(CCNRM(ch, C_NRM), ch);
+							send_to_char(ch, CCNRM(ch, C_NRM));
 						}
 					}
 
-					send_to_char(CCRED(vict, C_NRM), vict);
+					send_to_char(vict, CCRED(vict, C_NRM));
 					act(msg->hit_msg.victim_msg, FALSE, ch, weap, vict,
 						TO_VICT | TO_SLEEP);
-					send_to_char(CCNRM(vict, C_NRM), vict);
+					send_to_char(vict, CCNRM(vict, C_NRM));
 
 				}
 			} else if (ch != vict) {	/* Dam == 0 */
 				if (ch && !PRF_FLAGGED(ch, PRF_GAGMISS)) {
-					send_to_char(CCYEL(ch, C_NRM), ch);
+					send_to_char(ch, CCYEL(ch, C_NRM));
 					act(msg->miss_msg.attacker_msg, FALSE, ch, weap, vict,
 						TO_CHAR);
-					send_to_char(CCNRM(ch, C_NRM), ch);
+					send_to_char(ch, CCNRM(ch, C_NRM));
 
 					act(msg->miss_msg.room_msg, FALSE, ch, weap, vict,
 						TO_NOTVICT);
 				}
 
 				if (!PRF_FLAGGED(vict, PRF_GAGMISS)) {
-					send_to_char(CCRED(vict, C_NRM), vict);
+					send_to_char(vict, CCRED(vict, C_NRM));
 					act(msg->miss_msg.victim_msg, FALSE, ch, weap, vict,
 						TO_VICT | TO_SLEEP);
-					send_to_char(CCNRM(vict, C_NRM), vict);
+					send_to_char(vict, CCNRM(vict, C_NRM));
 				}
 			}
 			if (BLOODLET(vict, dam, attacktype))

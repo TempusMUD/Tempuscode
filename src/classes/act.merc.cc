@@ -42,14 +42,14 @@ ACMD(do_pistolwhip)
 			act("You pistolwhip $p!", FALSE, ch, ovict, 0, TO_CHAR);
 			return;
 		} else {
-			send_to_char("Pistolwhip who?\r\n", ch);
+			send_to_char(ch, "Pistolwhip who?\r\n");
 			return;
 		}
 	}
 	if (!(((weap = GET_EQ(ch, WEAR_WIELD)) && PISTOL(weap)) ||
 			((weap = GET_EQ(ch, WEAR_WIELD_2)) && PISTOL(weap)) ||
 			((weap = GET_EQ(ch, WEAR_HANDS)) && PISTOL(weap)))) {
-		send_to_char("You need to be using a pistol.\r\n", ch);
+		send_to_char(ch, "You need to be using a pistol.\r\n");
 		return;
 	}
 	if (vict == ch) {
@@ -106,13 +106,13 @@ ACMD(do_crossface)
 			act("You fiercely crossface $p!", FALSE, ch, ovict, 0, TO_CHAR);
 			return;
 		} else {
-			send_to_char("Crossface who?\r\n", ch);
+			send_to_char(ch, "Crossface who?\r\n");
 			return;
 		}
 	}
 
 	if (!((weap = GET_EQ(ch, WEAR_WIELD)) && LARGE_GUN(weap))) {
-		send_to_char("You need to be using a two handed gun.\r\n", ch);
+		send_to_char(ch, "You need to be using a two handed gun.\r\n");
 		return;
 	}
 
@@ -148,8 +148,7 @@ ACMD(do_crossface)
 		+ (str_mod * (GET_STR(ch) - GET_STR(vict)));
 	percent = number(1, 100);
 	if (PRF2_FLAGGED(ch, PRF2_FIGHT_DEBUG)) {
-		sprintf(buf, "Roll: %d, Chance: %d\r\n", prob, percent);
-		send_to_char(buf, ch);
+		send_to_char(ch, "Roll: %d, Chance: %d\r\n", prob, percent);
 	}
 	// You can't crossface pudding you fool!
 	if (IS_PUDDING(vict) || IS_SLIME(vict))
@@ -270,13 +269,13 @@ ACMD(do_snipe)
 
 	// ch is blind?
 	if (IS_AFFECTED(ch, AFF_BLIND) && !AFF3_FLAGGED(ch, AFF3_SONIC_IMAGERY)) {
-		send_to_char("You can't snipe anyone! you're blind!\r\n", ch);
+		send_to_char(ch, "You can't snipe anyone! you're blind!\r\n");
 		return;
 	}
 	//ch in smoky room?
 	if (ROOM_FLAGGED(ch->in_room, ROOM_SMOKE_FILLED) &&
 		GET_LEVEL(ch) < LVL_AMBASSADOR) {
-		send_to_char("The room is too smoky to see very far.\r\n", ch);
+		send_to_char(ch, "The room is too smoky to see very far.\r\n");
 		return;
 	}
 	// ch wielding a rifle?
@@ -284,32 +283,32 @@ ACMD(do_snipe)
 		if (!IS_RIFLE(gun)) {
 			if ((gun = GET_EQ(ch, WEAR_WIELD_2))) {
 				if (!IS_RIFLE(gun)) {
-					send_to_char("But you aren't wielding a rifle!\r\n", ch);
+					send_to_char(ch, "But you aren't wielding a rifle!\r\n");
 					return;
 				}
 			} else {
-				send_to_char("But you aren't wielding a rifle!\r\n", ch);
+				send_to_char(ch, "But you aren't wielding a rifle!\r\n");
 				return;
 			}
 		}
 	} else {
-		send_to_char("You aren't wielding anything fool!\r\n", ch);
+		send_to_char(ch, "You aren't wielding anything fool!\r\n");
 		return;
 	}
 	// does ch have snipe leared at all?
 	// I don't know if a skill can be less than 0
 	// but I don't think it can hurt to check for it
 	if (CHECK_SKILL(ch, SKILL_SNIPE) <= 0) {
-		send_to_char("You have no idea how!", ch);
+		send_to_char(ch, "You have no idea how!");
 	}
 	// is ch's gun loaded?
 	if (!GUN_LOADED(gun)) {
-		send_to_char("But your gun isn't loaded!\r\n", ch);
+		send_to_char(ch, "But your gun isn't loaded!\r\n");
 		return;
 	}
 	//in what direction is ch attempting to snipe?
 	if ((snipe_dir = search_block(arg2, dirs, FALSE)) < 0) {
-		send_to_char("Snipe in which direction?!\r\n", ch);
+		send_to_char(ch, "Snipe in which direction?!\r\n");
 		return;
 	}
 	// is the victim in sight in that direction?
@@ -343,37 +342,34 @@ ACMD(do_snipe)
 						if (!(vict =
 								get_char_in_remote_room_vis(ch, arg1,
 									_3RD_EXIT(ch, snipe_dir)->to_room))) {
-							send_to_char
-								("Your target is not in sight in that direction!\r\n",
-								ch);
+							send_to_char(ch, 
+								"Your target is not in sight in that direction!\r\n");
 							return;
 						}
 					} else {
-						send_to_char
-							("Your target is not in sight in that direction!\r\n",
-							ch);
+						send_to_char(ch, 
+							"Your target is not in sight in that direction!\r\n");
 						return;
 					}
 				}
 			} else {
-				send_to_char
-					("Your target is not in sight in that direction!\r\n", ch);
+				send_to_char(ch, 
+					"Your target is not in sight in that direction!\r\n");
 				return;
 			}
 		}
 	} else {
-		send_to_char("You can't snipe in that direction!\r\n", ch);
+		send_to_char(ch, "You can't snipe in that direction!\r\n");
 		return;
 	}
 	// is vict an imm?
 	if ((GET_LEVEL(vict) >= LVL_AMBASSADOR)) {
-		send_to_char("Are you crazy man!?!  You'll piss off superfly!!\r\n",
-			ch);
+		send_to_char(ch, "Are you crazy man!?!  You'll piss off superfly!!\r\n");
 		return;
 	}
 	//is the player trying to snipe himself?
 	if (vict == ch) {
-		send_to_char("Yeah...real funny.\r\n", ch);
+		send_to_char(ch, "Yeah...real funny.\r\n");
 		return;
 	}
 	// if vict is fighting someone you have a 50% chance of hitting the person
@@ -400,7 +396,7 @@ ACMD(do_snipe)
 		//Ok, last check...is some asshole trying to damage a shop keeper
 		if (!ok_damage_shopkeeper(ch, vict) && GET_LEVEL(ch) < LVL_ELEMENT) {
 			WAIT_STATE(ch, PULSE_VIOLENCE * 3);
-			send_to_char("NO! The gods will DESTROY you for that!\r\n", ch);
+			send_to_char(ch, "NO! The gods will DESTROY you for that!\r\n");
 			return;
 		}
 		// Ok, the victim is in sight, ch is not blind or in a smoky room
@@ -459,7 +455,7 @@ ACMD(do_snipe)
 			// the same room...
 			stop_fighting(ch);
 			stop_fighting(vict);
-			send_to_char("Damn!  You missed!\r\n", ch);
+			send_to_char(ch, "Damn!  You missed!\r\n");
 			act("$n tries to snipe $N, but misses!", TRUE, ch, NULL, vict,
 				TO_ROOM);
 			sprintf(buf, "A bullet screams past your head from the %s!",
@@ -516,9 +512,9 @@ ACMD(do_snipe)
 				damage_eq(vict, GET_EQ(vict, damage_loc), dam >> 1);
 			}
 			if (damage_loc == WEAR_HEAD) {
-				send_to_char("HEAD SHOT!!\r\n", ch);
+				send_to_char(ch, "HEAD SHOT!!\r\n");
 			} else if (damage_loc == WEAR_NECK_1 || damage_loc == WEAR_NECK_2) {
-				send_to_char("NECK SHOT!!\r\n", ch);
+				send_to_char(ch, "NECK SHOT!!\r\n");
 			}
 			if (GET_LEVEL(vict) > 6) {
 				act("You smirk with satisfaction as your bullet rips into $N.",
@@ -602,21 +598,20 @@ ACMD(do_wrench)
 			act("You fiercly wrench $p!", FALSE, ch, ovict, 0, TO_CHAR);
 			return;
 		} else {
-			send_to_char("Wrench who?\r\n", ch);
+			send_to_char(ch, "Wrench who?\r\n");
 			return;
 		}
 	}
 
 	if (GET_EQ(ch, WEAR_WIELD) && IS_TWO_HAND(GET_EQ(ch, WEAR_WIELD))) {
-		send_to_char
-			("You are using both hands to wield your weapon right now!\r\n",
-			ch);
+		send_to_char(ch, 
+			"You are using both hands to wield your weapon right now!\r\n");
 		return;
 	}
 
 	if (GET_EQ(ch, WEAR_WIELD) && (GET_EQ(ch, WEAR_WIELD_2) ||
 			GET_EQ(ch, WEAR_HOLD) || GET_EQ(ch, WEAR_SHIELD))) {
-		send_to_char("You need a hand free to do that!\r\n", ch);
+		send_to_char(ch, "You need a hand free to do that!\r\n");
 		return;
 	}
 
@@ -687,20 +682,18 @@ ACMD(do_infiltrate)
 	struct affected_type af;
 
 	if (IS_AFFECTED_3(ch, AFF3_INFILTRATE)) {
-		send_to_char("Okay, you are no longer attempting to infiltrate.\r\n",
-			ch);
+		send_to_char(ch, "Okay, you are no longer attempting to infiltrate.\r\n");
 		affect_from_char(ch, SKILL_INFILTRATE);
 		affect_from_char(ch, SKILL_SNEAK);
 		return;
 	}
 
 	if (CHECK_SKILL(ch, SKILL_INFILTRATE) < number(20, 70)) {
-		send_to_char("You don't feel particularly sneaky...\n", ch);
+		send_to_char(ch, "You don't feel particularly sneaky...\n");
 		return;
 	}
 
-	send_to_char("Okay, you'll try to infiltrate until further notice.\r\n",
-		ch);
+	send_to_char(ch, "Okay, you'll try to infiltrate until further notice.\r\n");
 
 	af.type = SKILL_SNEAK;
 	af.is_instant = 0;

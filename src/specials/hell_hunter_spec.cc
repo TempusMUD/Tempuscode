@@ -151,26 +151,23 @@ SPECIAL(hell_hunter_brain)
 		if (CMD_IS("reload")) {
 			if (!load_hunter_data()) {
 				data_loaded = false;
-				send_to_char
-					("Hell Hunter Brain failed to load hunter data.\r\n", ch);
+				send_to_char(ch, 
+					"Hell Hunter Brain failed to load hunter data.\r\n");
 			} else {
 				data_loaded = true;
-				send_to_char
-					("Hell Hunter Brain data successfully reloaded.\r\n", ch);
+				send_to_char(ch, 
+					"Hell Hunter Brain data successfully reloaded.\r\n");
 			}
 			return 1;
 		} else if (CMD_IS("status")) {
-			sprintf(buf, "Counter is at %d, freq %d.\r\n", counter, freq);
-			send_to_char(buf, ch);
+			send_to_char(ch, "Counter is at %d, freq %d.\r\n", counter, freq);
             sprintf( buf, "     [vnum] %30s exist/housed\r\n","Object Name");
-            send_to_char(buf,ch);
 			for (i = 0; i < targets.size(); i++) {
 				if (!(obj = real_object_proto(targets[i].o_vnum)))
 					continue;
-				sprintf(buf, "%3d. [%5d] %30s %3d/%3d\r\n",
+				send_to_char(ch, "%3d. [%5d] %30s %3d/%3d\r\n",
 					i, targets[i].o_vnum, obj->short_description,
 					obj->shared->number, obj->shared->house_count);
-				send_to_char(buf, ch);
 			}
             //TODO: Add blind spots to status
 			return 1;
@@ -179,9 +176,8 @@ SPECIAL(hell_hunter_brain)
 
 			if (*argument && isdigit(*argument)) {
 				freq = atoi(argument);
-				sprintf(buf, "Frequency set to %d.\n", freq);
+				send_to_char(ch, "Frequency set to %d.\n", freq);
 				counter = freq;
-				send_to_char(buf, ch);
 				return 1;
 			} else if( *argument && strcmp(argument,"now") == 1 ){
 				sprintf(buf, "Counter set to 1.\r\n");
@@ -222,8 +218,7 @@ SPECIAL(hell_hunter_brain)
 			continue;
 		}
 		if (vict && IS_SOULLESS(vict)) {
-			send_to_char("You feel the eyes of hell look down upon you.\r\n",
-				ch);
+			send_to_char(ch, "You feel the eyes of hell look down upon you.\r\n");
 			continue;
 		}
 
@@ -322,7 +317,7 @@ SPECIAL(hell_hunter_brain)
 	}
 
 	if (cmd) {
-		send_to_char("Falling through, no match.\r\n", ch);
+		send_to_char(ch, "Falling through, no match.\r\n");
 	} else {
 
 		// we fell through, lets check again sooner than freq

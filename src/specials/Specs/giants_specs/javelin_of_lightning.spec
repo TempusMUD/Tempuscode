@@ -18,17 +18,17 @@ SPECIAL(javelin_of_lightning)
     return 0;
 
   if (!*arg1)
-    send_to_char("Throw what where?\r\n", ch);
+    send_to_char(ch, "Throw what where?\r\n");
   else if (!isname(arg1, jav->name))
     return 0;
   else if (jav != GET_EQ(ch, WEAR_WIELD))
-    send_to_char("You need to wield it first.\r\n", ch);
+    send_to_char(ch, "You need to wield it first.\r\n");
   else if (!(*arg2) && !(vict = FIGHTING(ch)))
-    send_to_char("Who would you like to throw it at?\r\n", ch);
+    send_to_char(ch, "Who would you like to throw it at?\r\n");
   else if (!vict && !(vict = get_char_room_vis(ch, arg2)))
-    send_to_char("Throw it at who?\r\n", ch);
+    send_to_char(ch, "Throw it at who?\r\n");
   else if (GET_LEVEL(vict) > LVL_IMMORT)
-    send_to_char("Ummm, thats probably not such a hot idea.\r\n", ch);
+    send_to_char(ch, "Ummm, thats probably not such a hot idea.\r\n");
   else {
     act("You hurl $p at $N!!", FALSE, ch, jav, vict, TO_CHAR);
     act("$n hurls $p at you!!", FALSE, ch, jav, vict, TO_VICT);

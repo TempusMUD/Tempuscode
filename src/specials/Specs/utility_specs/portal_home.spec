@@ -15,7 +15,7 @@ SPECIAL(portal_home)
                      (portal->carried_by && portal->carried_by != ch))
     return 0;
   if (!*argument)  {
-    send_to_char("Enter what?\r\n", ch);
+    send_to_char(ch, "Enter what?\r\n");
     return 1;
   }
   if (!(room = portal->in_room))

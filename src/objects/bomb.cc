@@ -354,9 +354,8 @@ bomb_damage_room(char *bomb_name, int bomb_type, int bomb_power,
 		}
 
 		if (GET_STR(vict) < number(3, power)) {
-			send_to_char
-				("You are blown to the ground by the explosive blast!\r\n",
-				vict);
+			send_to_char(vict, 
+				"You are blown to the ground by the explosive blast!\r\n");
 			vict->setPosition(POS_SITTING);
 		}
 
@@ -372,8 +371,8 @@ bomb_damage_room(char *bomb_name, int bomb_type, int bomb_power,
 				&& (power << 5) > number(0,
 					GET_WEIGHT(vict) + IS_CARRYING_W(vict) +
 					IS_WEARING_W(vict) + CAN_CARRY_W(vict))) {
-				send_to_char
-					("You are blown out of the room by the blast!!\r\n", vict);
+				send_to_char(vict, 
+					"You are blown out of the room by the blast!!\r\n");
 				char_from_room(vict);
 				char_to_room(vict, room->dir_option[rev_dir[dir]]->to_room);
 				look_at_room(vict, vict->in_room, 0);
@@ -382,8 +381,7 @@ bomb_damage_room(char *bomb_name, int bomb_type, int bomb_power,
 				act(buf, FALSE, vict, 0, 0, TO_ROOM);
 			} else if (vict->getPosition() > POS_SITTING && (power << 5) >
 				GET_WEIGHT(vict) + CAN_CARRY_W(vict)) {
-				send_to_char("You are blown to the ground by the blast!!\r\n",
-					vict);
+				send_to_char(vict, "You are blown to the ground by the blast!!\r\n");
 				vict->setPosition(POS_RESTING);
 			}
 
@@ -546,8 +544,8 @@ engage_self_destruct(struct char_data *ch)
 	struct room_data *room = NULL;
 	struct bomb_radius_list *rad_elem = NULL, *next_elem = NULL;
 
-	send_to_char
-		("Self-destruct point reached.  Stand by for termination...\r\n", ch);
+	send_to_char(ch, 
+		"Self-destruct point reached.  Stand by for termination...\r\n");
 
 	level = (GET_LEVEL(ch) >> 3) + GET_REMORT_GEN(ch) + (GET_HIT(ch) >> 8);
 	room = ch->in_room;
@@ -622,7 +620,7 @@ ACMD(do_bomb)
 	skip_spaces(&argument);
 
 	if (atoi(argument) > (GET_LEVEL(ch) - 49) * 80) {
-		send_to_char("Not so big... causes lag.\r\n", ch);
+		send_to_char(ch, "Not so big... causes lag.\r\n");
 		return;
 	}
 	bomb_rooms = NULL;
@@ -690,11 +688,11 @@ ACMD(do_defuse)
 
 	if (!(bomb = get_obj_in_list_vis(ch, argument, ch->carrying)) &&
 		!(bomb = get_obj_in_list_vis(ch, argument, ch->in_room->contents)))
-		send_to_char("Defuse what?\r\n", ch);
+		send_to_char(ch, "Defuse what?\r\n");
 	else if (!IS_BOMB(bomb))
 		act("$p is not a bomb.", FALSE, ch, bomb, 0, TO_CHAR);
 	else if (CHECK_SKILL(ch, SKILL_DEMOLITIONS) < 20)
-		send_to_char("You have no idea how.\r\n", ch);
+		send_to_char(ch, "You have no idea how.\r\n");
 	else if (!(fuse = bomb->contains) || !IS_FUSE(fuse))
 		act("$p is not fused.", FALSE, ch, bomb, 0, TO_CHAR);
 	else {
@@ -704,7 +702,7 @@ ACMD(do_defuse)
 					(FUSE_IS_CONTACT(fuse) ? 45 : FUSE_IS_MOTION(fuse) ? 35 :
 						25)
 					: 20) + (IS_CONFUSED(ch) ? 30 : 0))) {
-			send_to_char("You set it off!!\r\n", ch);
+			send_to_char(ch, "You set it off!!\r\n");
 			detonate_bomb(bomb);
 			return;
 		}

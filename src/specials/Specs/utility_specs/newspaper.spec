@@ -23,7 +23,7 @@ SPECIAL(newspaper)
     do_dyntext_show(ch, "", 0, SCMD_DYNTEXT_NEWS);
     break;
   default:
-    send_to_char("$p is completely blank!  Looks like someone forgot to print it.\r\n", ch);
+    send_to_char(ch, "$p is completely blank!  Looks like someone forgot to print it.\r\n");
     break;
   }
   return 1;

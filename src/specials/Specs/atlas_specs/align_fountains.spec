@@ -31,7 +31,7 @@ SPECIAL(fountain_evil)
     return 0;
   
   if (GET_ALIGNMENT(ch) <= -1000) {
-    send_to_char("You are already burning with evil.\r\n", ch);
+    send_to_char(ch, "You are already burning with evil.\r\n");
     return 0;
   }
   

@@ -38,14 +38,14 @@ SPECIAL(typo_util)
     argument = one_argument(argument, arg1);
     
     if (!*arg1) {
-        send_to_char(TYPO_UTIL_USAGE, ch);
+        send_to_char(ch, TYPO_UTIL_USAGE);
         return 1;
     }
     
     if ((tcmd = search_block(arg1, typo_util_cmds, FALSE)) < 0) {
         sprintf(buf, "$p: Invalid command '%s'.", arg1);
         act(buf, FALSE, ch, obj, 0, TO_CHAR);
-        send_to_char(TYPO_UTIL_USAGE, ch);
+        send_to_char(ch, TYPO_UTIL_USAGE);
         return 1;
     }
 
@@ -64,12 +64,11 @@ SPECIAL(typo_util)
             break;
         case 3: // Save
             if(save_wld(ch) == 0) {
-                send_to_char("World file saved.\r\n",ch);
             }
             break;
         default:
             sprintf(buf, "$p: Invalid command '%s'.", arg1);
-            send_to_char(TYPO_UTIL_USAGE, ch);
+            send_to_char(ch, TYPO_UTIL_USAGE);
             break;
     }
     return 1;

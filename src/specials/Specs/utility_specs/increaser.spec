@@ -24,8 +24,8 @@ SPECIAL(increaser)
   two_arguments(argument, arg1, arg2);
 
   if (GET_LEVEL(ch) < 20) {
-    send_to_char("You are not yet ready to increase.\r\n", ch);
-    send_to_char("Come back when you are level 20 or above.\r\n", ch);
+    send_to_char(ch, "You are not yet ready to increase.\r\n");
+    send_to_char(ch, "Come back when you are level 20 or above.\r\n");
     return TRUE;
   }
 
@@ -55,7 +55,6 @@ SPECIAL(increaser)
     sprintf(buf,"Increase what?\r\n"
                  "Type 'increase %s <amount>.\r\n"
 		 "The cost is 1 lp / %d points of %s.\r\n",status_desc,amount,status_desc);
-	send_to_char(buf,ch);
     return 1;
   }
   if (!str_cmp(arg1, "hit")) {
@@ -68,27 +67,25 @@ SPECIAL(increaser)
     sprintf(buf,"Increase what?\r\n"
                  "Type 'increase %s <amount>.\r\n"
 		 "The cost is 1 lp / %d points of %s.\r\n",status_desc,amount,status_desc);
-    send_to_char(buf, ch);
+    send_to_char(ch, "%s", buf);
     return 1;
   }
 
   if (!IS_SET(status, mode)) {
-    send_to_char("You cannot increase that here.\r\n", ch);
+    send_to_char(ch, "You cannot increase that here.\r\n");
     return 1;
   }
   
   if (!*arg2) {
-    sprintf(buf, "Increase your %s by how much?\r\n", arg1);
-    send_to_char(buf, ch);
+    send_to_char(ch, "Increase your %s by how much?\r\n", arg1);
     return 1;
   }
   if (!is_number(arg2) || (incr = atoi(arg2)) < 0) {
-    send_to_char("The second argument must be a positive number.\r\n", ch);
+    send_to_char(ch, "The second argument must be a positive number.\r\n");
     return 1;
   }
 
   if (incr > 100) {
-    send_to_char("You cannot increase more than 100 points at a time.\r\n",ch);
     return 1;
   }
 
@@ -98,18 +95,17 @@ SPECIAL(increaser)
     life_cost = ((incr+1) >> 1); /* 2 pts/ life point */
   gold = 10000*life_cost;
   
-  sprintf(buf, "It will cost you %d %s and %d life points to increase your %s by %d.\r\n", gold, CURRENCY(ch), life_cost, arg1, incr);
-  send_to_char(buf, ch);
+  send_to_char(ch, "It will cost you %d %s and %d life points to increase your %s by %d.\r\n", gold, CURRENCY(ch), life_cost, arg1, incr);
 
   sprintf(buf, "$n considers the implications of increasing $s %s.", arg1);
 
   if (CASH_MONEY(ch) < gold) {
-    send_to_char("But you do not have enough money on you for that.\r\n", ch);
+    send_to_char(ch, "But you do not have enough money on you for that.\r\n");
     act(buf, TRUE, ch, 0, 0, TO_ROOM);
     return 1;
   }
   if (GET_LIFE_POINTS(ch) < life_cost) {
-    send_to_char("But you do not have enough life points for that.\r\n", ch);
+    send_to_char(ch, "But you do not have enough life points for that.\r\n");
     act(buf, TRUE, ch, 0, 0, TO_ROOM);
     return TRUE;
   }
@@ -133,7 +129,7 @@ SPECIAL(increaser)
 	  GET_NAME(ch), arg1, incr, ch->in_room->number);
   slog(buf);
 
-  send_to_char("You begin your improvement.\r\n", ch);
+  send_to_char(ch, "You begin your improvement.\r\n");
   act("$n begins to improve.", FALSE, ch, 0, 0, TO_ROOM);
   if (GET_COND(ch, FULL) != -1) GET_COND(ch, FULL) = 1;
   if (GET_COND(ch, THIRST) != -1) GET_COND(ch, THIRST) = 1;

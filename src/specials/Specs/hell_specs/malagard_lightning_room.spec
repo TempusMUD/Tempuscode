@@ -15,16 +15,12 @@ SPECIAL( malagard_lightning_room )
         vict = ch;
     
     if ( mag_savingthrow( vict, 50, SAVING_ROD ) ) {
-        send_to_char( CCRED( vict, C_NRM), vict );
         act( "A bolt of lightning strikes nearby!", FALSE, vict, 0, 0, TO_CHAR );
         act( "A bolt of lightning strikes nearby!",  FALSE, vict,  0,  0,  TO_ROOM );
-        send_to_char( CCNRM( vict, C_NRM), vict );
     }
     else {
-        send_to_char( CCRED( vict, C_NRM), vict );
         act( "A bolt of lightning blasts down from above and hits you!", FALSE, vict, 0, 0, TO_CHAR );
         act( "A bolt of lightning blasts down from above and hits $n!",  FALSE, vict,  0,  0,  TO_ROOM );
-        send_to_char( CCNRM( vict, C_NRM), vict );
         retval = damage( NULL, vict, dice( 20, 20 ), SPELL_LIGHTNING_BOLT, WEAR_HEAD );
         return ( ch == vict ? retval : 0 );
     }

@@ -141,7 +141,7 @@ burn_update(void)
 		if (ch->getPosition() == POS_FLYING && !AFF_FLAGGED(ch, AFF_INFLIGHT)
 			&& GET_LEVEL(ch) < LVL_AMBASSADOR
 			&& (CHECK_SKILL(ch, SKILL_FLYING) < 30)) {
-			send_to_char("You can no longer fly!\r\n", ch);
+			send_to_char(ch, "You can no longer fly!\r\n");
 			ch->setPosition(POS_STANDING);
 		}
 
@@ -151,9 +151,8 @@ burn_update(void)
 				|| !ch->in_room->isOpenAir()
 				|| IS_SET(ch->in_room->dir_option[DOWN]->exit_info, EX_CLOSED))
 			&& !NOGRAV_ZONE(ch->in_room->zone)) {
-			send_to_char
-				("You are slammed to the ground by the inexhorable force of gravity!\r\n",
-				ch);
+			send_to_char(ch, 
+				"You are slammed to the ground by the inexhorable force of gravity!\r\n");
 			act("$n is slammed to the ground by the inexhorable force of gravity!\r\n", TRUE, ch, 0, 0, TO_ROOM);
 			ch->setPosition(POS_RESTING);
 			if (damage(NULL, ch, dice(6, 5), TYPE_FALLING, WEAR_RANDOM))
@@ -171,9 +170,8 @@ burn_update(void)
 
 			if (AFF_FLAGGED(ch, AFF_INFLIGHT) && AWAKE(ch)
 				&& !IS_AFFECTED_3(ch, AFF3_GRAVITY_WELL)) {
-				send_to_char
-					("You realize you are about to fall and resume your flight!\r\n",
-					ch);
+				send_to_char(ch, 
+					"You realize you are about to fall and resume your flight!\r\n");
 				ch->setPosition(POS_FLYING);
 			} else {
 
@@ -266,9 +264,8 @@ burn_update(void)
 		// Signed the Unholy Compact - Soulless
 		if (PLR2_FLAGGED(ch, PLR2_SOULLESS) &&
 			ch->getPosition() == POS_SLEEPING && !random_fractional_5()) {
-			send_to_char
-				("The torturous cries of hell wake you from your dreams.\r\n",
-				ch);
+			send_to_char(ch, 
+				"The torturous cries of hell wake you from your dreams.\r\n");
 			act("$n bolts upright, screaming in agony!", TRUE, ch, 0, 0,
 				TO_ROOM);
 			ch->setPosition(POS_SITTING);
@@ -276,7 +273,7 @@ burn_update(void)
 		// affected by sleep spell
 		if (AFF_FLAGGED(ch, AFF_SLEEP) && ch->getPosition() > POS_SLEEPING
 			&& GET_LEVEL(ch) < LVL_AMBASSADOR) {
-			send_to_char("You suddenly fall into a deep sleep.\r\n", ch);
+			send_to_char(ch, "You suddenly fall into a deep sleep.\r\n");
 			act("$n suddenly falls asleep where $e stands.", TRUE, ch, 0, 0,
 				TO_ROOM);
 			ch->setPosition(POS_SLEEPING);
@@ -284,9 +281,8 @@ burn_update(void)
 		// self destruct
 		if (AFF3_FLAGGED(ch, AFF3_SELF_DESTRUCT)) {
 			if (MEDITATE_TIMER(ch)) {
-				sprintf(buf, "Self-destruct T-minus %d and counting.\r\n",
+				send_to_char(ch, "Self-destruct T-minus %d and counting.\r\n",
 					MEDITATE_TIMER(ch));
-				send_to_char(buf, ch);
 				MEDITATE_TIMER(ch)--;
 			} else {
 				if (!IS_CYBORG(ch)) {
@@ -349,9 +345,8 @@ burn_update(void)
 					obj = obj->next_content;
 				}
 				if (obj) {
-					send_to_char
-						("Your muscles are seized in an uncontrollable spasm!\r\n",
-						ch);
+					send_to_char(ch, 
+						"Your muscles are seized in an uncontrollable spasm!\r\n");
 					act("$n begins spasming uncontrollably.", TRUE, ch, 0, 0,
 						TO_ROOM);
 					do_drop(ch, fname(obj->name), 0, SCMD_DROP);
@@ -360,9 +355,9 @@ burn_update(void)
 			if (!obj
 				&& random_number_zero_low(12 + (af->level >> 2)) > GET_DEX(ch)
 				&& ch->getPosition() > POS_SITTING) {
-				send_to_char
-					("Your muscles are seized in an uncontrollable spasm!\r\n"
-					"You fall to the ground in agony!\r\n", ch);
+				send_to_char(ch, 
+					"Your muscles are seized in an uncontrollable spasm!\r\n"
+					"You fall to the ground in agony!\r\n");
 				act("$n begins spasming uncontrollably and falls to the ground.", TRUE, ch, 0, 0, TO_ROOM);
 				ch->setPosition(POS_RESTING);
 			}
@@ -371,7 +366,7 @@ burn_update(void)
 		// hyperscanning increment
 		if ((af = affected_by_spell(ch, SKILL_HYPERSCAN))) {
 			if (GET_MOVE(ch) < 10) {
-				send_to_char("Hyperscanning device shutting down.\r\n", ch);
+				send_to_char(ch, "Hyperscanning device shutting down.\r\n");
 				affect_remove(ch, af);
 			} else
 				GET_MOVE(ch) -= 1;
@@ -390,9 +385,8 @@ burn_update(void)
 			if (SECT_TYPE(ch->in_room) == SECT_UNDERWATER ||
 				SECT_TYPE(ch->in_room) == SECT_WATER_SWIM ||
 				SECT_TYPE(ch->in_room) == SECT_WATER_NOSWIM) {
-				send_to_char
-					("The flames on your body sizzle out and die, leaving you in a cloud of steam.\r\n",
-					ch);
+				send_to_char(ch, 
+					"The flames on your body sizzle out and die, leaving you in a cloud of steam.\r\n");
 				act("The flames on $n sizzle and die, leaving a cloud of steam.", FALSE, ch, 0, 0, TO_ROOM);
 				REMOVE_BIT(AFF2_FLAGS(ch), AFF2_ABLAZE);
 			}
@@ -402,9 +396,8 @@ burn_update(void)
 
 			if (				// SECT_TYPE( ch->in_room ) == SECT_ELEMENTAL_EARTH || 
 				SECT_TYPE(ch->in_room) == SECT_FREESPACE) {
-				send_to_char
-					("The flames on your body die in the absence of oxygen.\r\n",
-					ch);
+				send_to_char(ch, 
+					"The flames on your body die in the absence of oxygen.\r\n");
 				act("The flames on $n die in the absence of oxygen.", FALSE,
 					ch, 0, 0, TO_ROOM);
 				REMOVE_BIT(AFF2_FLAGS(ch), AFF2_ABLAZE);
@@ -426,7 +419,7 @@ burn_update(void)
 			(IS_VAMPIRE(ch) && OUTSIDE(ch) &&
 				ch->in_room->zone->weather->sunlight == SUN_LIGHT &&
 				GET_PLANE(ch->in_room) < PLANE_ASTRAL)) {
-			send_to_char("Your body suddenly bursts into flames!\r\n", ch);
+			send_to_char(ch, "Your body suddenly bursts into flames!\r\n");
 			act("$n suddenly bursts into flames!", FALSE, ch, 0, 0, TO_ROOM);
 			GET_MANA(ch) = 0;
 			SET_BIT(AFF2_FLAGS(ch), AFF2_ABLAZE);
@@ -525,19 +518,18 @@ burn_update(void)
 		if (ROOM_FLAGGED(ch->in_room, ROOM_SLEEP_GAS) &&
 			ch->getPosition() > POS_SLEEPING
 			&& !PRF_FLAGGED(ch, PRF_NOHASSLE)) {
-			send_to_char("You feel very sleepy...\r\n", ch);
+			send_to_char(ch, "You feel very sleepy...\r\n");
 			if (!AFF_FLAGGED(ch, AFF_ADRENALINE)) {
 				if (!mag_savingthrow(ch, 50, SAVING_CHEM)) {
-					send_to_char
-						("You suddenly feel very sleepy and collapse where you stood.\r\n",
-						ch);
+					send_to_char(ch, 
+						"You suddenly feel very sleepy and collapse where you stood.\r\n");
 					act("$n suddenly falls asleep and collapses!", TRUE, ch, 0,
 						0, TO_ROOM);
 					ch->setPosition(POS_SLEEPING);
 					WAIT_STATE(ch, 4 RL_SEC);
 					continue;
 				} else
-					send_to_char("You fight off the effects.\r\n", ch);
+					send_to_char(ch, "You fight off the effects.\r\n");
 			}
 		}
 		// poison gas
@@ -546,8 +538,8 @@ burn_update(void)
 			!AFF3_FLAGGED(ch, AFF3_NOBREATHE)) {
 
 			if (!HAS_POISON_3(ch)) {
-				send_to_char
-					("Your lungs burn as you inhale a poisonous gas!\r\n", ch);
+				send_to_char(ch, 
+					"Your lungs burn as you inhale a poisonous gas!\r\n");
 				act("$n begins choking and sputtering!", FALSE, ch, 0, 0,
 					TO_ROOM);
 			}
@@ -1028,7 +1020,6 @@ check_infiltrate(struct char_data *ch, struct char_data *vict)
 
 	int prob = ch->getLevelBonus(SKILL_INFILTRATE);
 	int percent = number(1, 115);
-	char buf1[128];
 
 	if (IS_NPC(vict) && MOB_FLAGGED(vict, MOB_SPIRIT_TRACKER) &&
 		char_in_memory(ch, vict))
@@ -1057,16 +1048,14 @@ check_infiltrate(struct char_data *ch, struct char_data *vict)
 
 	if (prob > percent) {
 		if (ch && PRF2_FLAGGED(ch, PRF2_FIGHT_DEBUG)) {
-			sprintf(buf1, "Infiltrate Success: Chance: [%4d] Roll: [%4d]\r\n",
+			send_to_char(ch, "Infiltrate Success: Chance: [%4d] Roll: [%4d]\r\n",
 				prob, percent);
-			send_to_char(buf1, ch);
 		}
 		return 1;
 	} else {
 		if (ch && PRF2_FLAGGED(ch, PRF2_FIGHT_DEBUG)) {
-			sprintf(buf1, "Infiltrate Failure: Chance: [%4d] Roll: [%4d]\r\n",
+			send_to_char(ch, "Infiltrate Failure: Chance: [%4d] Roll: [%4d]\r\n",
 				prob, percent);
-			send_to_char(buf1, ch);
 		}
 		return 0;
 	}
@@ -1558,12 +1547,12 @@ mobile_activity(void)
 		if (GET_COND(ch, DRUNK) > 8 && random_fractional_10()) {
 			found = FALSE;
 			act("$n burps loudly.", FALSE, ch, 0, 0, TO_ROOM);
-			send_to_char("You burp loudly.\r\n", ch);
+			send_to_char(ch, "You burp loudly.\r\n");
 			found = TRUE;
 		} else if (GET_COND(ch, DRUNK) > 4 && random_fractional_10()) {
 			found = FALSE;
 			act("$n hiccups.", FALSE, ch, 0, 0, TO_ROOM);
-			send_to_char("You hiccup.\r\n", ch);
+			send_to_char(ch, "You hiccup.\r\n");
 			found = TRUE;
 		}
 		//

@@ -45,7 +45,7 @@ SPECIAL(newbie_healer)
     if (GET_OBJ_TYPE(p) == ITEM_WORN)
       cast_spell(ch, 0, p, SPELL_MAGICAL_VESTMENT);
     else
-      send_to_char("No WEAR.\r\n", ch);
+      send_to_char(ch, "No WEAR.\r\n");
     do_drop(ch, fname(p->name), 0, 0);
     return 1;
   }

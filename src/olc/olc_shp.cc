@@ -88,7 +88,7 @@ do_create_shop(struct char_data *ch, int vnum)
 		}
 
 	if (found == 1) {
-		send_to_char("ERROR: Shop already exists.\r\n", ch);
+		send_to_char(ch, "ERROR: Shop already exists.\r\n");
 		return (NULL);
 	}
 
@@ -97,13 +97,12 @@ do_create_shop(struct char_data *ch, int vnum)
 			break;
 
 	if (!zone) {
-		send_to_char("ERROR: A zone must be defined for the shop first.\r\n",
-			ch);
+		send_to_char(ch, "ERROR: A zone must be defined for the shop first.\r\n");
 		return NULL;
 	}
 
 	if (!CAN_EDIT_ZONE(ch, zone)) {
-		send_to_char("Try creating shops in your own zone, luser.\r\n", ch);
+		send_to_char(ch, "Try creating shops in your own zone, luser.\r\n");
 		sprintf(buf, "OLC: %s failed attempt to CREATE shop %d.",
 			GET_NAME(ch), vnum);
 		mudlog(buf, BRF, GET_INVIS_LEV(ch), TRUE);
@@ -111,7 +110,7 @@ do_create_shop(struct char_data *ch, int vnum)
 	}
 
 	if (!OLC_EDIT_OK(ch, zone, ZONE_SHOPS_APPROVED)) {
-		send_to_char("Shop OLC is not approved for this zone.\r\n", ch);
+		send_to_char(ch, "Shop OLC is not approved for this zone.\r\n");
 		return NULL;
 	}
 
@@ -186,20 +185,19 @@ do_shop_sedit(struct char_data *ch, char *argument)
 
 	if (!*argument) {
 		if (!shop)
-			send_to_char("You are not currently editing a shop.\r\n", ch);
+			send_to_char(ch, "You are not currently editing a shop.\r\n");
 		else {
-			sprintf(buf, "Current olc shop: [%5d]\r\n", SHOP_NUM(shop));
-			send_to_char(buf, ch);
+			send_to_char(ch, "Current olc shop: [%5d]\r\n", SHOP_NUM(shop));
 		}
 		return;
 	}
 	if (!is_number(argument)) {
 		if (is_abbrev(argument, "exit")) {
-			send_to_char("Exiting shop editor.\r\n", ch);
+			send_to_char(ch, "Exiting shop editor.\r\n");
 			GET_OLC_SHOP(ch) = NULL;
 			return;
 		}
-		send_to_char("The argument must be a number.\r\n", ch);
+		send_to_char(ch, "The argument must be a number.\r\n");
 		return;
 	} else {
 		j = atoi(argument);
@@ -216,26 +214,24 @@ do_shop_sedit(struct char_data *ch, char *argument)
 		while (tmp_shop && found != 1);
 
 		if (found == 0)
-			send_to_char("There is no such shop.\r\n", ch);
+			send_to_char(ch, "There is no such shop.\r\n");
 		else {
 			for (zone = zone_table; zone; zone = zone->next)
 				if (j < zone->top)
 					break;
 			if (!zone) {
-				send_to_char("That shop does not belong to any zone!!\r\n",
-					ch);
+				send_to_char(ch, "That shop does not belong to any zone!!\r\n");
 				slog("SYSERR: shop not in any zone.");
 				return;
 			}
 
 			if (!CAN_EDIT_ZONE(ch, zone)) {
-				send_to_char
-					("You do not have permission to edit this shop.\r\n", ch);
+				send_to_char(ch, 
+					"You do not have permission to edit this shop.\r\n");
 				return;
 			}
 			if (!OLC_EDIT_OK(ch, zone, ZONE_SHOPS_APPROVED)) {
-				send_to_char("Shop OLC is not approved for this zone.\r\n",
-					ch);
+				send_to_char(ch, "Shop OLC is not approved for this zone.\r\n");
 				return;
 			}
 
@@ -248,8 +244,7 @@ do_shop_sedit(struct char_data *ch, char *argument)
 			}
 
 			GET_OLC_SHOP(ch) = tmp_shop;
-			sprintf(buf, "Now editing shop [%d]\r\n", SHOP_NUM(tmp_shop));
-			send_to_char(buf, ch);
+			send_to_char(ch, "Now editing shop [%d]\r\n", SHOP_NUM(tmp_shop));
 		}
 	}
 }
@@ -262,7 +257,7 @@ do_shop_sstat(struct char_data *ch)
 	shop = GET_OLC_SHOP(ch);
 
 	if (!shop)
-		send_to_char("You are not currently editing a shop.\r\n", ch);
+		send_to_char(ch, "You are not currently editing a shop.\r\n");
 	else
 		list_detailed_shop(ch, shop);
 }
@@ -282,7 +277,7 @@ do_shop_sset(struct char_data *ch, char *argument)
 	float profit;
 
 	if (!shop_p) {
-		send_to_char("You are not currently editing a shop.\r\n", ch);
+		send_to_char(ch, "You are not currently editing a shop.\r\n");
 		return;
 	}
 
@@ -304,14 +299,12 @@ do_shop_sset(struct char_data *ch, char *argument)
 	skip_spaces(&argument);
 
 	if ((sset_command = search_block(arg1, olc_sset_keys, FALSE)) < 0) {
-		sprintf(buf, "Invalid sset command '%s'.\r\n", arg1);
-		send_to_char(buf, ch);
+		send_to_char(ch, "Invalid sset command '%s'.\r\n", arg1);
 		return;
 	}
 
 	if (!*arg2) {
-		sprintf(buf, "Set %s to what??\r\n", olc_sset_keys[sset_command]);
-		send_to_char(buf, ch);
+		send_to_char(ch, "Set %s to what??\r\n", olc_sset_keys[sset_command]);
 		return;
 	}
 
@@ -322,7 +315,7 @@ do_shop_sset(struct char_data *ch, char *argument)
 			obj = real_object_proto(i);
 
 			if (!obj) {
-				send_to_char("That object does not exist, buttmunch.\r\n", ch);
+				send_to_char(ch, "That object does not exist, buttmunch.\r\n");
 				return;
 			}
 
@@ -345,9 +338,9 @@ do_shop_sset(struct char_data *ch, char *argument)
 			free(shop_p->producing);
 			shop_p->producing = new_products;
 
-			send_to_char("Product added to shopping list.\r\n", ch);
+			send_to_char(ch, "Product added to shopping list.\r\n");
 		} else
-			send_to_char("Usage: olc sset addproduct <obj vnum>\r\n", ch);
+			send_to_char(ch, "Usage: olc sset addproduct <obj vnum>\r\n");
 		break;
 	case 1:					/* delproduct */
 		if (is_number(arg2)) {
@@ -376,37 +369,33 @@ do_shop_sset(struct char_data *ch, char *argument)
 
 				free(shop_p->producing);
 				shop_p->producing = new_products;
-				send_to_char("Product deleted from shopping list.\r\n", ch);
+				send_to_char(ch, "Product deleted from shopping list.\r\n");
 			} else
-				send_to_char("Could not find product on this shop's list.\r\n",
-					ch);
+				send_to_char(ch, "Could not find product on this shop's list.\r\n");
 		} else
-			send_to_char("Usage: olc sset delproduct <obj vnum>\r\n", ch);
+			send_to_char(ch, "Usage: olc sset delproduct <obj vnum>\r\n");
 		break;
 	case 2:					/* buyprofit */
 		profit = atof(arg2);
 		if (profit < (float)0.00 || profit > (float)5.00)
-			send_to_char("Buying profit must be between 0.00 and 5.00.\r\n",
-				ch);
+			send_to_char(ch, "Buying profit must be between 0.00 and 5.00.\r\n");
 		else {
 			SHOP_BUYPROFIT(shop_p) = profit;
-			send_to_char("Shop buying profit set.\r\n", ch);
+			send_to_char(ch, "Shop buying profit set.\r\n");
 		}
 		break;
 	case 3:					/* sellprofit */
 		profit = atof(arg2);
 		if (profit < (float)0.00 || profit > (float)5.00)
-			send_to_char("Selling profit must be between 0.00 and 5.00.\r\n",
-				ch);
+			send_to_char(ch, "Selling profit must be between 0.00 and 5.00.\r\n");
 		else {
 			SHOP_SELLPROFIT(shop_p) = profit;
-			send_to_char("Shop selling profit set.\r\n", ch);
+			send_to_char(ch, "Shop selling profit set.\r\n");
 		}
 		break;
 	case 4:					/* addtype */
 		if ((type = search_block(arg2, item_types, FALSE)) < 0) {
-			sprintf(buf, "Invalid product type '%s'.\r\n", arg2);
-			send_to_char(buf, ch);
+			send_to_char(ch, "Invalid product type '%s'.\r\n", arg2);
 			return;
 		}
 
@@ -430,12 +419,11 @@ do_shop_sset(struct char_data *ch, char *argument)
 		free(shop_p->type);
 		shop_p->type = new_types;
 
-		send_to_char("Product type added to list.\r\n", ch);
+		send_to_char(ch, "Product type added to list.\r\n");
 		break;
 	case 5:					/* deltype */
 		if ((type = search_block(arg2, item_types, FALSE)) < 0) {
-			sprintf(buf, "Invalid product type '%s'.\r\n", arg2);
-			send_to_char(buf, ch);
+			send_to_char(ch, "Invalid product type '%s'.\r\n", arg2);
 			return;
 		}
 
@@ -462,75 +450,73 @@ do_shop_sset(struct char_data *ch, char *argument)
 
 			free(shop_p->type);
 			shop_p->type = new_types;
-			send_to_char("Product type deleted from list.\r\n", ch);
+			send_to_char(ch, "Product type deleted from list.\r\n");
 		} else
-			send_to_char("Could not find product type on this list.\r\n", ch);
+			send_to_char(ch, "Could not find product type on this list.\r\n");
 		break;
 	case 6:					/* msg_no_item1 */
 		if (shop_p->no_such_item1)
 			free(shop_p->no_such_item1);
 		shop_p->no_such_item1 = strdup(arg2);
-		send_to_char("Shop message no such item1 set.\r\n", ch);
+		send_to_char(ch, "Shop message no such item1 set.\r\n");
 		break;
 	case 7:					/* msg_no_item2 */
 		if (shop_p->no_such_item2)
 			free(shop_p->no_such_item2);
 		shop_p->no_such_item2 = strdup(arg2);
-		send_to_char("Shop message no such item2 set.\r\n", ch);
+		send_to_char(ch, "Shop message no such item2 set.\r\n");
 		break;
 	case 8:					/* msg_no_buy */
 		if (shop_p->do_not_buy)
 			free(shop_p->do_not_buy);
 		shop_p->do_not_buy = strdup(arg2);
-		send_to_char("Shop message do not buy set.\r\n", ch);
+		send_to_char(ch, "Shop message do not buy set.\r\n");
 		break;
 	case 9:					/* msg_miss_cash1 */
 		if (shop_p->missing_cash1)
 			free(shop_p->missing_cash1);
 		shop_p->missing_cash1 = strdup(arg2);
-		send_to_char("Shop message missing cash1 set.\r\n", ch);
+		send_to_char(ch, "Shop message missing cash1 set.\r\n");
 		break;
 	case 10:					/* msg_miss_cash2 */
 		if (shop_p->missing_cash2)
 			free(shop_p->missing_cash2);
 		shop_p->missing_cash2 = strdup(arg2);
-		send_to_char("Shop message missing cash2 set.\r\n", ch);
+		send_to_char(ch, "Shop message missing cash2 set.\r\n");
 		break;
 	case 11:					/* msg_buy */
 
 		if (!shop_check_message_format(arg2)) {
-			send_to_char
-				("Shop message format invalid.  Must contain one and only one %d.\r\n",
-				ch);
+			send_to_char(ch, 
+				"Shop message format invalid.  Must contain one and only one %d.\r\n");
 			return;
 		}
 
 		if (shop_p->message_buy)
 			free(shop_p->message_buy);
 		shop_p->message_buy = strdup(arg2);
-		send_to_char("Shop message buy set.\r\n", ch);
+		send_to_char(ch, "Shop message buy set.\r\n");
 		break;
 	case 12:					/* msg_sell */
 
 		if (!shop_check_message_format(arg2)) {
-			send_to_char
-				("Shop message format invalid.  Must contain one and only one %d.\r\n",
-				ch);
+			send_to_char(ch, 
+				"Shop message format invalid.  Must contain one and only one %d.\r\n");
 			return;
 		}
 
 		if (shop_p->message_sell)
 			free(shop_p->message_sell);
 		shop_p->message_sell = strdup(arg2);
-		send_to_char("Shop message sell set.\r\n", ch);
+		send_to_char(ch, "Shop message sell set.\r\n");
 		break;
 	case 13:					/* temper */
 		i = atoi(arg2);
 		if (i < 0 || i > 5)
-			send_to_char("Temper must be between 0 and 5.\r\n", ch);
+			send_to_char(ch, "Temper must be between 0 and 5.\r\n");
 		else {
 			SHOP_BROKE_TEMPER(shop_p) = i;
-			send_to_char("Temper set.\r\n", ch);
+			send_to_char(ch, "Temper set.\r\n");
 		}
 		break;
 	case 14:					/* flags */
@@ -547,8 +533,7 @@ do_shop_sset(struct char_data *ch, char *argument)
 		else if (*arg1 == '-')
 			state = 2;
 		else {
-			send_to_char("Usage: olc sset flags [+/-] [FLAG, FLAG, ...]\r\n",
-				ch);
+			send_to_char(ch, "Usage: olc sset flags [+/-] [FLAG, FLAG, ...]\r\n");
 			return;
 		}
 
@@ -558,8 +543,7 @@ do_shop_sset(struct char_data *ch, char *argument)
 
 		while (*arg1) {
 			if ((flag = search_block(arg1, shop_bits, FALSE)) == -1) {
-				sprintf(buf, "Invalid flag %s, skipping...\r\n", arg1);
-				send_to_char(buf, ch);
+				send_to_char(ch, "Invalid flag %s, skipping...\r\n", arg1);
 			} else
 				tmp_flags = tmp_flags | (1 << flag);
 
@@ -576,18 +560,18 @@ do_shop_sset(struct char_data *ch, char *argument)
 		SHOP_BITVECTOR(shop_p) = cur_flags;
 
 		if (tmp_flags == 0 && cur_flags == 0) {
-			send_to_char("Shop flags set\r\n", ch);
+			send_to_char(ch, "Shop flags set\r\n");
 		} else if (tmp_flags == 0)
-			send_to_char("Shop flags not altered.\r\n", ch);
+			send_to_char(ch, "Shop flags not altered.\r\n");
 		else {
-			send_to_char("Shop flags set.\r\n", ch);
+			send_to_char(ch, "Shop flags set.\r\n");
 		}
 		break;
 	case 15:					/* keeper */
 		i = atoi(arg2);
 		mob = real_mobile_proto(i);
 		if (!mob)
-			send_to_char("Could not find a mobile with that number.\r\n", ch);
+			send_to_char(ch, "Could not find a mobile with that number.\r\n");
 		else {
 			if ((mob2 = real_mobile_proto(SHOP_KEEPER(shop_p)))) {
 				mob2->mob_specials.shared->func = SHOP_FUNC(shop_p);
@@ -599,7 +583,7 @@ do_shop_sset(struct char_data *ch, char *argument)
 			else
 				SHOP_FUNC(shop_p) = NULL;
 			mob->mob_specials.shared->func = shop_keeper;
-			send_to_char("Shop keeper set.\r\n", ch);
+			send_to_char(ch, "Shop keeper set.\r\n");
 		}
 		break;
 	case 16:					/* tradewith */
@@ -616,8 +600,7 @@ do_shop_sset(struct char_data *ch, char *argument)
 		else if (*arg1 == '-')
 			state = 1;
 		else {
-			send_to_char("Usage: olc sset tradewith [+/-] [WHO, WHO, ...]\r\n",
-				ch);
+			send_to_char(ch, "Usage: olc sset tradewith [+/-] [WHO, WHO, ...]\r\n");
 			return;
 		}
 
@@ -627,8 +610,7 @@ do_shop_sset(struct char_data *ch, char *argument)
 
 		while (*arg1) {
 			if ((flag = search_block(arg1, trade_letters, FALSE)) == -1) {
-				sprintf(buf, "Invalid type %s, skipping...\r\n", arg1);
-				send_to_char(buf, ch);
+				send_to_char(ch, "Invalid type %s, skipping...\r\n", arg1);
 			} else
 				tmp_flags = tmp_flags | (1 << flag);
 
@@ -645,11 +627,11 @@ do_shop_sset(struct char_data *ch, char *argument)
 		SHOP_TRADE_WITH(shop_p) = cur_flags;
 
 		if (tmp_flags == 0 && cur_flags == 0) {
-			send_to_char("Shop tradewith set\r\n", ch);
+			send_to_char(ch, "Shop tradewith set\r\n");
 		} else if (tmp_flags == 0)
-			send_to_char("Shop tradewith not altered.\r\n", ch);
+			send_to_char(ch, "Shop tradewith not altered.\r\n");
 		else {
-			send_to_char("Shop tradewith set.\r\n", ch);
+			send_to_char(ch, "Shop tradewith set.\r\n");
 		}
 		break;
 	case 17:					/* addroom */
@@ -658,7 +640,7 @@ do_shop_sset(struct char_data *ch, char *argument)
 			room = real_room(i);
 
 			if (!room) {
-				send_to_char("That room does not exist, buttmunch.\r\n", ch);
+				send_to_char(ch, "That room does not exist, buttmunch.\r\n");
 				return;
 			}
 
@@ -682,9 +664,9 @@ do_shop_sset(struct char_data *ch, char *argument)
 			free(shop_p->in_room);
 			shop_p->in_room = new_rooms;
 
-			send_to_char("Room added to room list.\r\n", ch);
+			send_to_char(ch, "Room added to room list.\r\n");
 		} else
-			send_to_char("Usage: olc sset addroom <room vnum>\r\n", ch);
+			send_to_char(ch, "Usage: olc sset addroom <room vnum>\r\n");
 		break;
 	case 18:					/* delroom */
 		if (is_number(arg2)) {
@@ -713,20 +695,19 @@ do_shop_sset(struct char_data *ch, char *argument)
 
 				free(shop_p->in_room);
 				shop_p->in_room = new_rooms;
-				send_to_char("Room deleted from room list.\r\n", ch);
+				send_to_char(ch, "Room deleted from room list.\r\n");
 			} else
-				send_to_char("Could not find room in this shop's list.\r\n",
-					ch);
+				send_to_char(ch, "Could not find room in this shop's list.\r\n");
 		} else
-			send_to_char("Usage: olc sset delroom <room vnum>\r\n", ch);
+			send_to_char(ch, "Usage: olc sset delroom <room vnum>\r\n");
 		break;
 	case 19:					/* open1 */
 		i = atoi(arg2);
 		if (i < 0 || i > 28)
-			send_to_char("Shop open hours must be between 0 and 28.\r\n", ch);
+			send_to_char(ch, "Shop open hours must be between 0 and 28.\r\n");
 		else {
 			SHOP_OPEN1(shop_p) = i;
-			send_to_char("Shop open1 hour set.\r\n", ch);
+			send_to_char(ch, "Shop open1 hour set.\r\n");
 		}
 		break;
 
@@ -734,31 +715,29 @@ do_shop_sset(struct char_data *ch, char *argument)
 	case 20:					/* closed1 */
 		i = atoi(arg2);
 		if (i < 0 || i > 28)
-			send_to_char("Shop closed hours must be between 0 and 28.\r\n",
-				ch);
+			send_to_char(ch, "Shop closed hours must be between 0 and 28.\r\n");
 		else {
 			SHOP_CLOSE1(shop_p) = i;
-			send_to_char("Shop closed1 hour set.\r\n", ch);
+			send_to_char(ch, "Shop closed1 hour set.\r\n");
 		}
 		break;
 	case 21:					/* open2 */
 		i = atoi(arg2);
 		if (i < 0 || i > 28)
-			send_to_char("Shop open hours must be between 0 and 28.\r\n", ch);
+			send_to_char(ch, "Shop open hours must be between 0 and 28.\r\n");
 		else {
 			SHOP_OPEN2(shop_p) = i;
-			send_to_char("Shop open2 hour set.\r\n", ch);
+			send_to_char(ch, "Shop open2 hour set.\r\n");
 		}
 		break;
 
 	case 22:					/* closed2 */
 		i = atoi(arg2);
 		if (i < 0 || i > 28)
-			send_to_char("Shop closed hours must be between 0 and 28.\r\n",
-				ch);
+			send_to_char(ch, "Shop closed hours must be between 0 and 28.\r\n");
 		else {
 			SHOP_CLOSE2(shop_p) = i;
-			send_to_char("Shop closed2 hour set.\r\n", ch);
+			send_to_char(ch, "Shop closed2 hour set.\r\n");
 		}
 		break;
 	case 23:					/* currency */
@@ -767,18 +746,18 @@ do_shop_sset(struct char_data *ch, char *argument)
 		else if (is_abbrev(arg2, "credits"))
 			SHOP_CURRENCY(shop_p) = CURRENCY_CREDITS;
 		else {
-			send_to_char("Argument must be 'gold' or 'credits'.\r\n", ch);
+			send_to_char(ch, "Argument must be 'gold' or 'credits'.\r\n");
 			break;
 		}
-		send_to_char("Shop currency set.\r\n", ch);
+		send_to_char(ch, "Shop currency set.\r\n");
 		break;
 	case 24:					// revenue
 		i = atoi(arg2);
 		if (i < 0) {
-			send_to_char("This value cannot be a negative number.\r\n", ch);
+			send_to_char(ch, "This value cannot be a negative number.\r\n");
 		} else {
 			SHOP_REVENUE(shop_p) = i;
-			send_to_char("Shop revenue set.\r\n", ch);
+			send_to_char(ch, "Shop revenue set.\r\n");
 		}
 	}
 }
@@ -828,7 +807,7 @@ write_shp_index(struct char_data *ch, struct zone_data *zone)
 
 	sprintf(fname, "world/shp/index");
 	if (!(index = fopen(fname, "w"))) {
-		send_to_char("Could not open index file, shop save aborted.\r\n", ch);
+		send_to_char(ch, "Could not open index file, shop save aborted.\r\n");
 		return (0);
 	}
 
@@ -837,7 +816,7 @@ write_shp_index(struct char_data *ch, struct zone_data *zone)
 
 	fprintf(index, "$\n");
 
-	send_to_char("Shop index file re-written.\r\n", ch);
+	send_to_char(ch, "Shop index file re-written.\r\n");
 
 	fclose(index);
 
@@ -868,7 +847,7 @@ save_shops(struct char_data *ch)
 				break;
 		if (!zone) {
 			slog("OLC: ERROR finding zone for shop %d.", s_vnum);
-			send_to_char("Unable to match shop with zone error..\r\n", ch);
+			send_to_char(ch, "Unable to match shop with zone error..\r\n");
 			return 1;
 		}
 	} else
@@ -895,11 +874,11 @@ save_shops(struct char_data *ch)
 
 	sprintf(fname, "world/shp/olc/%d.shp", zone->number);
 	if (!(file = fopen(fname, "w+"))) {
-		send_to_char("Unable to open shop file.\r\n", ch);
+		send_to_char(ch, "Unable to open shop file.\r\n");
 		return 1;
 	}
 	if ((write_shp_index(ch, zone)) != 1) {
-		send_to_char("write_shop_index() failed.\r\n", ch);
+		send_to_char(ch, "write_shop_index() failed.\r\n");
 		return (1);
 	}
 
@@ -969,9 +948,9 @@ save_shops(struct char_data *ch)
 		sprintf(fname, "world/shp/olc/%d.shp", zone->number);
 		if (!(file = fopen(fname, "r"))) {
 			slog("SYSERR: Failure to reopen olc shop file.");
-			send_to_char
-				("OLC Error: Failure to duplicate shop file in main dir."
-				"\r\n", ch);
+			send_to_char(ch, 
+				"OLC Error: Failure to duplicate shop file in main dir."
+				"\r\n");
 			fclose(realfile);
 			return 0;
 		}
@@ -979,9 +958,9 @@ save_shops(struct char_data *ch)
 			tmp = fread(buf, 1, 512, file);
 			if (fwrite(buf, 1, tmp, realfile) != tmp) {
 				slog("SYSERR: Failure to duplicate olc shop file in the main wld dir.");
-				send_to_char
-					("OLC Error: Failure to duplicate shop file in main dir."
-					"\r\n", ch);
+				send_to_char(ch, 
+					"OLC Error: Failure to duplicate shop file in main dir."
+					"\r\n");
 				fclose(realfile);
 				fclose(file);
 				return 0;
@@ -1019,7 +998,7 @@ do_destroy_shop(struct char_data *ch, int vnum)
 	while (shop && found != 1);
 
 	if (found == 0) {
-		send_to_char("ERROR: That shop does not exist.\r\n", ch);
+		send_to_char(ch, "ERROR: That shop does not exist.\r\n");
 		return 1;
 	}
 
@@ -1028,13 +1007,13 @@ do_destroy_shop(struct char_data *ch, int vnum)
 			break;
 
 	if (!zone) {
-		send_to_char("That shop does not belong to any zone!!\r\n", ch);
+		send_to_char(ch, "That shop does not belong to any zone!!\r\n");
 		slog("SYSERR: shop not in any zone.");
 		return 1;
 	}
 
 	if (GET_IDNUM(ch) != zone->owner_idnum && GET_LEVEL(ch) < LVL_LUCIFER) {
-		send_to_char("Oh, no you dont!!!\r\n", ch);
+		send_to_char(ch, "Oh, no you dont!!!\r\n");
 		sprintf(buf, "OLC: %s failed attempt to DESTROY shop %d.",
 			GET_NAME(ch), SHOP_NUM(shop));
 		mudlog(buf, BRF, GET_INVIS_LEV(ch), TRUE);
@@ -1058,8 +1037,7 @@ do_destroy_shop(struct char_data *ch, int vnum)
 	for (d = descriptor_list; d; d = d->next)
 		if (d->character && GET_OLC_SHOP(d->character) == shop) {
 			GET_OLC_SHOP(d->character) = NULL;
-			send_to_char("The shop you were editing has been destroyed!\r\n",
-				d->character);
+			send_to_char(d->character, "The shop you were editing has been destroyed!\r\n");
 			break;
 		}
 

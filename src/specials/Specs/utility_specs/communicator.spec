@@ -24,7 +24,7 @@ SPECIAL(master_communicator)
   two_arguments(argument, arg1, arg2);
   
   if (!*arg1 || !*arg2) {
-    send_to_char(MASTER_COMM_USAGE, ch);
+    send_to_char(ch, MASTER_COMM_USAGE);
     return 1;
   }
   
@@ -73,7 +73,7 @@ SPECIAL(master_communicator)
     page_string(ch->desc, buf, 1);
   }
   
-  send_to_char(MASTER_COMM_USAGE, ch);
+  send_to_char(ch, MASTER_COMM_USAGE);
   return 1;
 }
 

@@ -558,9 +558,8 @@ calc_skill_prob(struct char_data *ch, struct char_data *vict, int skillnum,
 		if ((!weap || !SLASHING(weap)) &&
 			(!(weap = GET_EQ(ch, WEAR_HANDS)) ||
 				!IS_OBJ_TYPE(weap, ITEM_WEAPON) || !SLASHING(weap))) {
-			send_to_char
-				("You need to wield a good slashing weapon to do this.\r\n",
-				ch);
+			send_to_char(ch, 
+				"You need to wield a good slashing weapon to do this.\r\n");
 			return -1;
 		}
 
@@ -762,30 +761,29 @@ calc_skill_prob(struct char_data *ch, struct char_data *vict, int skillnum,
 			"SYSERR: Illegal skillnum <%d> passed to calc_skill_prob().",
 			skillnum);
 		slog(buf);
-		send_to_char("There was an error.\r\n", ch);
+		send_to_char(ch, "There was an error.\r\n");
 		return -1;
 	}
 
 	if (need_hand) {
 		if (GET_EQ(ch, WEAR_WIELD) && IS_TWO_HAND(GET_EQ(ch, WEAR_WIELD))) {
-			send_to_char
-				("You are using both hands to wield your weapon right now!\r\n",
-				ch);
+			send_to_char(ch, 
+				"You are using both hands to wield your weapon right now!\r\n");
 			return -1;
 		}
 		if (GET_EQ(ch, WEAR_WIELD) && (GET_EQ(ch, WEAR_WIELD_2) ||
 				GET_EQ(ch, WEAR_HOLD) || GET_EQ(ch, WEAR_SHIELD))) {
-			send_to_char("You need a hand free to do that!\r\n", ch);
+			send_to_char(ch, "You need a hand free to do that!\r\n");
 			return -1;
 		}
 	}
 
 	if (*move && GET_MOVE(ch) < *move) {
-		send_to_char("You are too exhausted!\r\n", ch);
+		send_to_char(ch, "You are too exhausted!\r\n");
 		return -1;
 	}
 	if (*mana && GET_MANA(ch) < *mana) {
-		send_to_char("You lack the spiritual energies needed!\r\n", ch);
+		send_to_char(ch, "You lack the spiritual energies needed!\r\n");
 		return -1;
 	}
 
@@ -834,14 +832,13 @@ ACCMD(do_offensive_skill)
 			act(buf, FALSE, ch, ovict, 0, TO_ROOM);
 			return;
 		} else {
-			sprintf(buf, "%s who?\r\n", CMD_NAME);
-			send_to_char(CAP(buf), ch);
+			send_to_char(ch, "%s who?\r\n", CMD_NAME);
 			WAIT_STATE(ch, 4);
 			return;
 		}
 	}
 	if (vict == ch) {
-		send_to_char("Aren't we funny today...\r\n", ch);
+		send_to_char(ch, "Aren't we funny today...\r\n");
 		return;
 	}
 	if (!peaceful_room_ok(ch, vict, true))
@@ -849,7 +846,7 @@ ACCMD(do_offensive_skill)
 
 	if (SPELL_IS_PSIONIC(subcmd) && ROOM_FLAGGED(ch->in_room, ROOM_NOPSIONICS)
 		&& GET_LEVEL(ch) < LVL_GOD) {
-		send_to_char("Psychic powers are useless here!\r\n", ch);
+		send_to_char(ch, "Psychic powers are useless here!\r\n");
 		return;
 	}
 	if ((subcmd == SKILL_SWEEPKICK || subcmd == SKILL_TRIP) &&
@@ -945,20 +942,19 @@ ACMD(do_assist)
 	struct char_data *helpee;
 
 	if (FIGHTING(ch)) {
-		send_to_char
-			("You're already fighting!  How can you assist someone else?\r\n",
-			ch);
+		send_to_char(ch, 
+			"You're already fighting!  How can you assist someone else?\r\n");
 		return;
 	}
 	one_argument(argument, arg);
 
 	if (!*arg)
-		send_to_char("Whom do you wish to assist?\r\n", ch);
+		send_to_char(ch, "Whom do you wish to assist?\r\n");
 	else if (!(helpee = get_char_room_vis(ch, arg))) {
-		send_to_char(NOPERSON, ch);
+		send_to_char(ch, NOPERSON);
 		WAIT_STATE(ch, 4);
 	} else if (helpee == ch) {
-		send_to_char("You can't help yourself any more than this!\r\n", ch);
+		send_to_char(ch, "You can't help yourself any more than this!\r\n");
 	} else {
 		CharacterList::iterator opponent = ch->in_room->people.begin();
 		for (;
@@ -975,7 +971,7 @@ ACMD(do_assist)
 			act("That rescue would entail attacking $N, but you are flagged NO PK.", FALSE, ch, 0, (*opponent), TO_CHAR);
 			return;
 		} else {
-			send_to_char("You join the fight!\r\n", ch);
+			send_to_char(ch, "You join the fight!\r\n");
 			act("$N assists you!", 0, helpee, 0, ch, TO_CHAR);
 			act("$n assists $N.", FALSE, ch, 0, helpee, TO_NOTVICT);
 			hit(ch, (*opponent), TYPE_UNDEFINED);
@@ -992,15 +988,15 @@ ACMD(do_hit)
 	one_argument(argument, arg);
 
 	if (!*arg)
-		send_to_char("Hit who?\r\n", ch);
+		send_to_char(ch, "Hit who?\r\n");
 	else if (!(vict = get_char_room_vis(ch, arg))) {
-		send_to_char("They don't seem to be here.\r\n", ch);
+		send_to_char(ch, "They don't seem to be here.\r\n");
 		WAIT_STATE(ch, 4);
 	} else if (vict == ch) {
-		send_to_char("You hit yourself...OUCH!.\r\n", ch);
+		send_to_char(ch, "You hit yourself...OUCH!.\r\n");
 		act("$n hits $mself, and says OUCH!", FALSE, ch, 0, vict, TO_ROOM);
 	} else if (FIGHTING(ch) && FIGHTING(ch) == vict)
-		send_to_char("You do the best you can!\r\n", ch);
+		send_to_char(ch, "You do the best you can!\r\n");
 	else if (IS_AFFECTED(ch, AFF_CHARM) && (ch->master == vict))
 		act("$N is just such a good friend, you simply can't hit $M.", FALSE,
 			ch, 0, vict, TO_CHAR);
@@ -1035,13 +1031,13 @@ ACMD(do_kill)
 	one_argument(argument, arg);
 
 	if (!*arg) {
-		send_to_char("Kill who?\r\n", ch);
+		send_to_char(ch, "Kill who?\r\n");
 	} else {
 		if (!(vict = get_char_room_vis(ch, arg))) {
-			send_to_char("They aren't here.\r\n", ch);
+			send_to_char(ch, "They aren't here.\r\n");
 			WAIT_STATE(ch, 4);
 		} else if (ch == vict)
-			send_to_char("Your mother would be so sad.. :(\r\n", ch);
+			send_to_char(ch, "Your mother would be so sad.. :(\r\n");
 		else if (GET_LEVEL(vict) >= GET_LEVEL(ch)) {
 			act("That's a really bad idea.", FALSE, ch, 0, 0, TO_CHAR);
 		} else {
@@ -1072,31 +1068,29 @@ ACMD(do_order)
 	half_chop(argument, name, message);
 
 	if (!*name || !*message)
-		send_to_char("Order who to do what?\r\n", ch);
+		send_to_char(ch, "Order who to do what?\r\n");
 	else if (!(vict = get_char_room_vis(ch, name)) &&
 		!is_abbrev(name, "followers"))
-		send_to_char("That person isn't here.\r\n", ch);
+		send_to_char(ch, "That person isn't here.\r\n");
 	else if (ch == vict)
-		send_to_char("You obviously suffer from schizophrenia.\r\n", ch);
+		send_to_char(ch, "You obviously suffer from schizophrenia.\r\n");
 	else {
 		if (IS_AFFECTED(ch, AFF_CHARM)) {
-			send_to_char
-				("Your superior would not aprove of you giving orders.\r\n",
-				ch);
+			send_to_char(ch, 
+				"Your superior would not aprove of you giving orders.\r\n");
 			return;
 		}
 		if (vict) {
-			send_to_char(CCBLD(vict, C_SPR), vict);
-			send_to_char(CCRED(vict, C_NRM), vict);
+			send_to_char(vict, CCBLD(vict, C_SPR));
+			send_to_char(vict, CCRED(vict, C_NRM));
 			sprintf(buf, "$N orders you to '%s'", message);
 			act(buf, FALSE, vict, 0, ch, TO_CHAR);
-			send_to_char(CCNRM(vict, C_SPR), vict);
+			send_to_char(vict, CCNRM(vict, C_SPR));
 			act("$n gives $N an order.", FALSE, ch, 0, vict, TO_NOTVICT);
-			send_to_char(CCBLD(ch, C_SPR), ch);
-			send_to_char(CCRED(ch, C_NRM), ch);
-			sprintf(buf, "You order %s to '%s'.\r\n", PERS(vict, ch), message);
-			send_to_char(buf, ch);
-			send_to_char(CCNRM(ch, C_SPR), ch);
+			send_to_char(ch, CCBLD(ch, C_SPR));
+			send_to_char(ch, CCRED(ch, C_NRM));
+			send_to_char(ch, "You order %s to '%s'.\r\n", PERS(vict, ch), message);
+			send_to_char(ch, CCNRM(ch, C_SPR));
 
 			if (((vict->master != ch) || !IS_AFFECTED(vict, AFF_CHARM) ||
 					GET_CHA(ch) < number(0, GET_INT(vict))) &&
@@ -1125,11 +1119,10 @@ ACMD(do_order)
 			sprintf(buf, "$n issues the order '%s'.", message);
 			act(buf, FALSE, ch, 0, vict, TO_ROOM);
 
-			send_to_char(CCBLD(ch, C_SPR), ch);
-			send_to_char(CCRED(ch, C_NRM), ch);
-			sprintf(buf, "You order your followers to '%s'.\r\n", message);
-			send_to_char(buf, ch);
-			send_to_char(CCNRM(ch, C_SPR), ch);
+			send_to_char(ch, CCBLD(ch, C_SPR));
+			send_to_char(ch, CCRED(ch, C_NRM));
+			send_to_char(ch, "You order your followers to '%s'.\r\n", message);
+			send_to_char(ch, CCNRM(ch, C_SPR));
 
 			org_room = ch->in_room;
 
@@ -1154,8 +1147,7 @@ ACMD(do_order)
 			order_next_k = NULL;
 
 			if (!found)
-				send_to_char("Nobody here is a loyal subject of yours!\r\n",
-					ch);
+				send_to_char(ch, "Nobody here is a loyal subject of yours!\r\n");
 		}
 	}
 }
@@ -1173,16 +1165,16 @@ ACMD(do_flee)
 	ACMD_set_return_flags(0);
 
 	if (IS_AFFECTED_2(ch, AFF2_PETRIFIED)) {
-		send_to_char("You are solid stone!\r\n", ch);
+		send_to_char(ch, "You are solid stone!\r\n");
 		return;
 	}
 	if (IS_AFFECTED_2(ch, AFF2_BESERK) && FIGHTING(ch) &&
 		!number(0, 1 + (GET_INT(ch) >> 2))) {
-		send_to_char("You are too enraged to flee!\r\n", ch);
+		send_to_char(ch, "You are too enraged to flee!\r\n");
 		return;
 	}
 	if (ch->getPosition() < POS_FIGHTING) {
-		send_to_char("You can't flee until you get on your feet!\r\n", ch);
+		send_to_char(ch, "You can't flee until you get on your feet!\r\n");
 		return;
 	}
 	if (!IS_NPC(ch) && fighting) {
@@ -1221,7 +1213,7 @@ ACMD(do_flee)
 				ACMD_set_return_flags(DAM_ATTACKER_KILLED);
 
 			if (move_result == 0) {
-				send_to_char("You flee head over heels.\r\n", ch);
+				send_to_char(ch, "You flee head over heels.\r\n");
 				if (loss && fighting) {
 					gain_exp(ch, -loss);
 					gain_exp(fighting, (loss >> 5));
@@ -1239,7 +1231,7 @@ ACMD(do_flee)
 			return;
 		}
 	}
-	send_to_char("PANIC!  You couldn't escape!\r\n", ch);
+	send_to_char(ch, "PANIC!  You couldn't escape!\r\n");
 }
 
 static inline int
@@ -1268,16 +1260,15 @@ ACMD(do_retreat)
 
 	skip_spaces(&argument);
 	if (GET_MOVE(ch) < 10) {
-		send_to_char("You are too exhausted to make an effective retreat.\r\n",
-			ch);
+		send_to_char(ch, "You are too exhausted to make an effective retreat.\r\n");
 		return;
 	}
 	if (!*argument) {
-		send_to_char("Retreat in which direction?\r\n", ch);
+		send_to_char(ch, "Retreat in which direction?\r\n");
 		return;
 	}
 	if ((dir = search_block(argument, dirs, 0)) < 0) {
-		send_to_char("No such direction, fool.\r\n", ch);
+		send_to_char(ch, "No such direction, fool.\r\n");
 		return;
 	}
 
@@ -1285,7 +1276,7 @@ ACMD(do_retreat)
 		fighting = 1;
 		if (CHECK_SKILL(ch, SKILL_RETREAT) + GET_LEVEL(ch) <
 			number(60, 70 + GET_LEVEL(FIGHTING(ch)))) {
-			send_to_char("You panic!\r\n", ch);
+			send_to_char(ch, "You panic!\r\n");
 			do_flee(ch, "", 0, 0);
 			return;
 		}
@@ -1365,11 +1356,11 @@ ACMD(do_bash)
 			return;
 		} else if ((door = find_door(ch, arg, arg2, "bash")) >= 0) {
 			if (!IS_SET(EXIT(ch, door)->exit_info, EX_ISDOOR))
-				send_to_char("You cannot bash that!\r\n", ch);
+				send_to_char(ch, "You cannot bash that!\r\n");
 			else if (!IS_SET(EXIT(ch, door)->exit_info, EX_CLOSED))
-				send_to_char("It's already open!\r\n", ch);
+				send_to_char(ch, "It's already open!\r\n");
 			else if (GET_MOVE(ch) < 20)
-				send_to_char("You are to exhausted.\r\n", ch);
+				send_to_char(ch, "You are to exhausted.\r\n");
 			else {
 				percent = CHECK_SKILL(ch, SKILL_BREAK_DOOR) +
 					(str_app[STRENGTH_APPLY_INDEX(ch)].todam << 3) +
@@ -1403,11 +1394,10 @@ ACMD(do_bash)
 							EXIT(ch, door)->keyword ?
 							fname(EXIT(ch, door)->keyword) : "door");
 						act(buf, FALSE, ch, 0, 0, TO_ROOM);
-						sprintf(buf,
+						send_to_char(ch,
 							"You kill yourself as you hurl yourself against the %s!\r\n",
 							EXIT(ch, door)->keyword ?
 							fname(EXIT(ch, door)->keyword) : "door");
-						send_to_char(buf, ch);
 						if (!IS_NPC(ch)) {
 							sprintf(buf, "%s killed self bashing door at %d.",
 								GET_NAME(ch), ch->in_room->number);
@@ -1421,15 +1411,14 @@ ACMD(do_bash)
 							EXIT(ch, door)->keyword ?
 							fname(EXIT(ch, door)->keyword) : "door");
 						act(buf, FALSE, ch, 0, 0, TO_ROOM);
-						sprintf(buf,
+						send_to_char(ch,
 							"You slam yourself against the %s in a futile effort.\r\n",
 							EXIT(ch, door)->keyword ?
 							fname(EXIT(ch, door)->keyword) : "door");
-						send_to_char(buf, ch);
 						update_pos(ch);
 					}
 				} else {
-					sprintf(buf, "$n bashes the %s open with a powerful blow!",
+					send_to_char(ch, "$n bashes the %s open with a powerful blow!",
 						EXIT(ch, door)->keyword ?
 						fname(EXIT(ch, door)->keyword) : "door");
 					act(buf, FALSE, ch, 0, 0, TO_ROOM);
@@ -1439,7 +1428,6 @@ ACMD(do_bash)
 								door)->keyword) : "door");
 					REMOVE_BIT(EXIT(ch, door)->exit_info, EX_CLOSED);
 					REMOVE_BIT(EXIT(ch, door)->exit_info, EX_LOCKED);
-					send_to_char(buf, ch);
 					GET_HIT(ch) -= prob;
 
 					if (number(0, 20) > GET_DEX(ch)) {
@@ -1487,7 +1475,7 @@ ACMD(do_bash)
 			}
 			return;
 		} else {
-			send_to_char("Bash who?\r\n", ch);
+			send_to_char(ch, "Bash who?\r\n");
 			WAIT_STATE(ch, 4);
 			return;
 		}
@@ -1505,34 +1493,34 @@ ACMD(do_stun)
 	one_argument(argument, arg);
 
 	if (CHECK_SKILL(ch, SKILL_STUN) < 20) {
-		send_to_char("You are not particularly stunning.\r\n", ch);
+		send_to_char(ch, "You are not particularly stunning.\r\n");
 		return;
 	}
 	if (!(vict = get_char_room_vis(ch, arg))) {
 		if (FIGHTING(ch)) {
 			vict = FIGHTING(ch);
 		} else {
-			send_to_char("Who would you like to stun?\r\n", ch);
+			send_to_char(ch, "Who would you like to stun?\r\n");
 			WAIT_STATE(ch, 4);
 			return;
 		}
 	}
 	if (vict == ch) {
-		send_to_char("Aren't we stunningly funny today...\r\n", ch);
+		send_to_char(ch, "Aren't we stunningly funny today...\r\n");
 		return;
 	}
 	if (FIGHTING(ch)) {
-		send_to_char("You're pretty busy right now!\r\n", ch);
+		send_to_char(ch, "You're pretty busy right now!\r\n");
 		return;
 	}
 	if ((GET_EQ(ch, WEAR_WIELD) && (GET_EQ(ch, WEAR_HOLD) ||
 				GET_EQ(ch, WEAR_WIELD_2))) ||
 		(GET_EQ(ch, WEAR_WIELD) && IS_TWO_HAND(GET_EQ(ch, WEAR_WIELD)))) {
-		send_to_char("You need at least one hand free to do that!\r\n", ch);
+		send_to_char(ch, "You need at least one hand free to do that!\r\n");
 		return;
 	}
 	if (FIGHTING(vict)) {
-		send_to_char("You aren't able to get the right grip!\r\n", ch);
+		send_to_char(ch, "You aren't able to get the right grip!\r\n");
 		return;
 	}
 	if (!peaceful_room_ok(ch, vict, true))
@@ -1574,7 +1562,7 @@ ACMD(do_stun)
 	if ((prob < percent || MOB2_FLAGGED(vict, MOB2_NOSTUN)) &&
 		(GET_LEVEL(ch) < LVL_AMBASSADOR || GET_LEVEL(ch) < GET_LEVEL(vict))) {
 		act("$N tried to stun you!", FALSE, vict, 0, ch, TO_CHAR);
-		send_to_char("Uh-oh!  You failed.\r\n", ch);
+		send_to_char(ch, "Uh-oh!  You failed.\r\n");
 		set_fighting(ch, vict, TRUE);
 		set_fighting(vict, ch, FALSE);
 		WAIT_STATE(ch, PULSE_VIOLENCE);
@@ -1584,7 +1572,7 @@ ACMD(do_stun)
 	act("$N grabs a nerve center in your neck!  You are stunned!",
 		FALSE, vict, 0, ch, TO_CHAR);
 	act("$n stuns $N with a swift blow!", FALSE, ch, 0, vict, TO_NOTVICT);
-	send_to_char("You succeed!\r\n", ch);
+	send_to_char(ch, "You succeed!\r\n");
 	if FIGHTING
 		(vict) {
 		stop_fighting(vict);
@@ -1614,7 +1602,7 @@ ACMD(do_feign)
 	prob = CHECK_SKILL(ch, SKILL_FEIGN);
 
 	if (prob < percent) {
-		send_to_char("You fall over dead!\r\n", ch);
+		send_to_char(ch, "You fall over dead!\r\n");
 		act("$n staggers and falls to the ground!", TRUE, ch, 0, 0, TO_ROOM);
 	} else {
 		if ((foe = FIGHTING(ch))) {
@@ -1627,7 +1615,7 @@ ACMD(do_feign)
 				stop_fighting(foe);
 
 		}
-		send_to_char("You fall over dead!\r\n", ch);
+		send_to_char(ch, "You fall over dead!\r\n");
 		act("Your blood freezes as you hear $n's death cry.", FALSE, ch, 0, 0,
 			TO_ROOM);
 	}
@@ -1644,19 +1632,19 @@ ACMD(do_tag)
 	one_argument(argument, arg);
 
 	if (!(vict = get_char_room_vis(ch, arg))) {
-		send_to_char("Who do you want to tag in?\r\n", ch);
+		send_to_char(ch, "Who do you want to tag in?\r\n");
 		return;
 	}
 	if (!FIGHTING(ch)) {
-		send_to_char("There is no need.  You aren't fighting!\r\n", ch);
+		send_to_char(ch, "There is no need.  You aren't fighting!\r\n");
 		return;
 	}
 	if (vict == ch) {
-		send_to_char("Okay! You tag yourself in!...dummy.\r\n", ch);
+		send_to_char(ch, "Okay! You tag yourself in!...dummy.\r\n");
 		return;
 	}
 	if (FIGHTING(ch) == vict) {
-		send_to_char("They snatch their hand back, refusing the tag!\r\n", ch);
+		send_to_char(ch, "They snatch their hand back, refusing the tag!\r\n");
 		return;
 	}
 
@@ -1680,7 +1668,7 @@ ACMD(do_tag)
 		prob = CHECK_SKILL(ch, SKILL_TAG);
 
 		if (percent > prob) {
-			send_to_char("You fail the tag!\r\n", ch);
+			send_to_char(ch, "You fail the tag!\r\n");
 			act("$n tries to tag you into the fight, but fails.", FALSE, vict,
 				0, ch, TO_CHAR);
 			return;
@@ -1720,16 +1708,15 @@ ACMD(do_rescue)
 	one_argument(argument, arg);
 
 	if (!(vict = get_char_room_vis(ch, arg))) {
-		send_to_char("Who do you want to rescue?\r\n", ch);
+		send_to_char(ch, "Who do you want to rescue?\r\n");
 		return;
 	}
 	if (vict == ch) {
-		send_to_char("What about fleeing instead?\r\n", ch);
+		send_to_char(ch, "What about fleeing instead?\r\n");
 		return;
 	}
 	if (FIGHTING(ch) == vict) {
-		send_to_char("How can you rescue someone you are trying to kill?\r\n",
-			ch);
+		send_to_char(ch, "How can you rescue someone you are trying to kill?\r\n");
 		return;
 	}
 	tmp_ch = NULL;
@@ -1752,16 +1739,16 @@ ACMD(do_rescue)
 
 	if (GET_CLASS(ch) == CLASS_MAGIC_USER && (GET_REMORT_CLASS(ch) < 0
 			|| GET_REMORT_CLASS(ch) == CLASS_MAGIC_USER))
-		send_to_char("But only true warriors can do this!", ch);
+		send_to_char(ch, "But only true warriors can do this!");
 	else {
 		percent = number(1, 101);	/* 101% is a complete failure */
 		prob = CHECK_SKILL(ch, SKILL_RESCUE);
 
 		if (percent > prob) {
-			send_to_char("You fail the rescue!\r\n", ch);
+			send_to_char(ch, "You fail the rescue!\r\n");
 			return;
 		}
-		send_to_char("Banzai!  To the rescue...\r\n", ch);
+		send_to_char(ch, "Banzai!  To the rescue...\r\n");
 		act("You are rescued by $N, you are confused!", FALSE, vict, 0, ch,
 			TO_CHAR);
 		act("$n heroically rescues $N!", FALSE, ch, 0, vict, TO_NOTVICT);
@@ -1802,21 +1789,20 @@ ACMD(do_tornado_kick)
 				TO_ROOM);
 			return;
 		} else {
-			send_to_char
-				("Upon who would you like to inflict your tornado kick?\r\n",
-				ch);
+			send_to_char(ch, 
+				"Upon who would you like to inflict your tornado kick?\r\n");
 			WAIT_STATE(ch, 4);
 			return;
 		}
 	}
 	if (vict == ch) {
-		send_to_char("Aren't we funny today...\r\n", ch);
+		send_to_char(ch, "Aren't we funny today...\r\n");
 		return;
 	}
 	if (!peaceful_room_ok(ch, vict, true))
 		return;
 	if (GET_MOVE(ch) < 30) {
-		send_to_char("You are too exhausted!\r\n", ch);
+		send_to_char(ch, "You are too exhausted!\r\n");
 		return;
 	}
 
@@ -1892,19 +1878,18 @@ ACMD(do_sleeper)
 				TO_ROOM);
 			return;
 		} else {
-			send_to_char("Who do you want to put to sleep?\r\n", ch);
+			send_to_char(ch, "Who do you want to put to sleep?\r\n");
 			WAIT_STATE(ch, 4);
 			return;
 		}
 	}
 	if (vict == ch) {
-		send_to_char("Aren't we funny today...\r\n", ch);
+		send_to_char(ch, "Aren't we funny today...\r\n");
 		return;
 	}
 	if (GET_EQ(ch, WEAR_WIELD) && IS_TWO_HAND(GET_EQ(ch, WEAR_WIELD))) {
-		send_to_char
-			("You are using both hands to wield your weapon right now!\r\n",
-			ch);
+		send_to_char(ch, 
+			"You are using both hands to wield your weapon right now!\r\n");
 		return;
 	}
 	if (IS_NPC(vict) && IS_UNDEAD(vict)) {
@@ -1913,7 +1898,7 @@ ACMD(do_sleeper)
 		return;
 	}
 	if (vict->getPosition() <= POS_SLEEPING) {
-		send_to_char("Yeah.  Right.\r\n", ch);
+		send_to_char(ch, "Yeah.  Right.\r\n");
 		return;
 	}
 	if (!peaceful_room_ok(ch, vict, true))
@@ -1982,7 +1967,7 @@ ACMD(do_turn)
 		GET_REMORT_CLASS(ch) != CLASS_CLERIC
 		&& GET_REMORT_CLASS(ch) != CLASS_KNIGHT
 		&& GET_LEVEL(ch) < LVL_AMBASSADOR) {
-		send_to_char("Heathens are not able to turn the undead!\r\n", ch);
+		send_to_char(ch, "Heathens are not able to turn the undead!\r\n");
 		return;
 	}
 	one_argument(argument, arg);
@@ -1996,21 +1981,21 @@ ACMD(do_turn)
 			act("$n turns $p!", FALSE, ch, ovict, 0, TO_ROOM);
 			return;
 		} else {
-			send_to_char("Turn who?\r\n", ch);
+			send_to_char(ch, "Turn who?\r\n");
 			WAIT_STATE(ch, 4);
 			return;
 		}
 	}
 	if (vict == ch) {
-		send_to_char("You try to flee from yourself, to no avail.\r\n", ch);
+		send_to_char(ch, "You try to flee from yourself, to no avail.\r\n");
 		return;
 	}
 	if (!IS_NPC(vict)) {
-		send_to_char("You cannot turn other players!\r\n", ch);
+		send_to_char(ch, "You cannot turn other players!\r\n");
 		return;
 	}
 	if (!IS_UNDEAD(vict)) {
-		send_to_char("You can only turn away the undead.\r\n", ch);
+		send_to_char(ch, "You can only turn away the undead.\r\n");
 		return;
 	}
 
@@ -2072,7 +2057,7 @@ ACMD(do_shoot)
 	argument = one_argument(argument, arg);
 
 	if (!*arg) {
-		send_to_char("Shoot what at who?\r\n", ch);
+		send_to_char(ch, "Shoot what at who?\r\n");
 		return;
 	}
 
@@ -2081,21 +2066,19 @@ ACMD(do_shoot)
 		argument = one_argument(argument, arg);
 
 		if (!*arg) {
-			send_to_char("Discharge which implant at who?\r\n", ch);
+			send_to_char(ch, "Discharge which implant at who?\r\n");
 			return;
 		}
 
 		if (!(gun = get_object_in_equip_vis(ch, arg, ch->implants, &i))) {
-			sprintf(buf, "You are not implanted with %s '%s'.\r\n", AN(arg),
+			send_to_char(ch, "You are not implanted with %s '%s'.\r\n", AN(arg),
 				arg);
-			send_to_char(buf, ch);
 			return;
 		}
 
 	} else if ((!(gun = GET_EQ(ch, WEAR_WIELD)) || !isname(arg, gun->name)) &&
 		(!(gun = GET_EQ(ch, WEAR_WIELD_2)) || !isname(arg, gun->name))) {
-		sprintf(buf, "You are not wielding %s '%s'.\r\n", AN(arg), arg);
-		send_to_char(buf, ch);
+		send_to_char(ch, "You are not wielding %s '%s'.\r\n", AN(arg), arg);
 		return;
 	}
 
@@ -2106,7 +2089,7 @@ ACMD(do_shoot)
 
 	if (FIGHTING(ch) && ch == FIGHTING(FIGHTING(ch)) && !number(0, 3) &&
 		(!IS_MERC(ch)) && (GET_LEVEL(ch) < LVL_GRGOD)) {
-		send_to_char("You are in too close to get off a shot!\r\n", ch);
+		send_to_char(ch, "You are in too close to get off a shot!\r\n");
 		return;
 	}
 
@@ -2139,15 +2122,14 @@ ACMD(do_shoot)
 		}
 	} else if (!(vict = get_char_room_vis(ch, argument)) &&
 		!(target = get_obj_in_list_vis(ch, argument, ch->in_room->contents))) {
-		sprintf(buf, "You don't see %s '%s' here.\r\n", AN(argument),
+		send_to_char(ch, "You don't see %s '%s' here.\r\n", AN(argument),
 			argument);
-		send_to_char(buf, ch);
 		WAIT_STATE(ch, 4);
 		return;
 	}
 	if (vict) {
 		if (vict == ch) {
-			send_to_char("Aren't we funny today...\r\n", ch);
+			send_to_char(ch, "Aren't we funny today...\r\n");
 			return;
 		}
 		if (!peaceful_room_ok(ch, vict, true))
@@ -2553,11 +2535,10 @@ ACMD(do_ceasefire)
 		}
 	}
 	if (!FIGHTING(ch))
-		send_to_char("You aren't fighting anyone.\r\n", ch);
+		send_to_char(ch, "You aren't fighting anyone.\r\n");
 	else if ((FIGHTING(ch) == FIGHTING(FIGHTING(ch))))
-		send_to_char
-			("You can't ceasefire while your enemy is actively attacking you.\r\n",
-			ch);
+		send_to_char(ch, 
+			"You can't ceasefire while your enemy is actively attacking you.\r\n");
 	else {
 		act("You stop attacking $N.", FALSE, ch, 0, FIGHTING(ch), TO_CHAR);
 		act("$n stops attacking $N.", FALSE, ch, 0, FIGHTING(ch), TO_NOTVICT);
@@ -2588,13 +2569,13 @@ ACCMD(do_disarm)
 		if (FIGHTING(ch)) {
 			vict = FIGHTING(ch);
 		} else {
-			send_to_char("Who do you want to disarm?\r\n", ch);
+			send_to_char(ch, "Who do you want to disarm?\r\n");
 			WAIT_STATE(ch, 4);
 			return;
 		}
 	}
 	if (vict == ch) {
-		send_to_char("Use remove.\r\n", ch);
+		send_to_char(ch, "Use remove.\r\n");
 		return;
 	}
 
@@ -2602,7 +2583,7 @@ ACCMD(do_disarm)
 		return;
 
 	if (!(weap = GET_EQ(vict, WEAR_WIELD))) {
-		send_to_char("They aren't wielding anything, fool.\r\n", ch);
+		send_to_char(ch, "They aren't wielding anything, fool.\r\n");
 		return;
 	}
 
@@ -2648,7 +2629,7 @@ ACCMD(do_disarm)
 
 		return;
 	} else {
-		send_to_char("You fail the disarm!\r\n", ch);
+		send_to_char(ch, "You fail the disarm!\r\n");
 		act("$n tries to disarm you!", FALSE, ch, 0, vict, TO_VICT);
 		if (IS_NPC(vict))
 			hit(vict, ch, TYPE_UNDEFINED);
@@ -2674,14 +2655,14 @@ ACMD(do_impale)
 			act("You try to impale $p!", FALSE, ch, ovict, 0, TO_CHAR);
 			return;
 		} else {
-			send_to_char("Impale who?\r\n", ch);
+			send_to_char(ch, "Impale who?\r\n");
 			return;
 		}
 	}
 	if (!(((weap = GET_EQ(ch, WEAR_WIELD)) && STAB_WEAPON(weap)) ||
 			((weap = GET_EQ(ch, WEAR_WIELD_2)) && STAB_WEAPON(weap)) ||
 			((weap = GET_EQ(ch, WEAR_HANDS)) && STAB_WEAPON(weap)))) {
-		send_to_char("You need to be using a stabbing weapon.\r\n", ch);
+		send_to_char(ch, "You need to be using a stabbing weapon.\r\n");
 		return;
 	}
 	if (vict == ch) {
@@ -2703,7 +2684,7 @@ ACMD(do_impale)
 				raw_kill(ch, ch, SKILL_IMPALE);	// Impaling yourself
 				return;
 			} else {
-				send_to_char("Suicide is not the answer...\r\n", ch);
+				send_to_char(ch, "Suicide is not the answer...\r\n");
 				return;
 			}
 		} else {
@@ -2780,9 +2761,8 @@ ACMD(do_intimidate)
 			}
 			return;
 		} else {
-			sprintf(buf, "%s who?\r\n",
+			send_to_char(ch, "%s who?\r\n",
 				subcmd == SKILL_TERRORIZE ? "Terrorize" : "Intimidate");
-			send_to_char(buf, ch);
 			WAIT_STATE(ch, 4);
 			return;
 		}
@@ -2794,12 +2774,12 @@ ACMD(do_intimidate)
 	}
 	if (vict == ch) {
 		if (subcmd == SKILL_TERRORIZE) {
-			send_to_char("You cannot succeed at this.\r\n", ch);
+			send_to_char(ch, "You cannot succeed at this.\r\n");
 			return;
 		}
 
-		send_to_char("You attempt to intimidate yourself.\r\n"
-			"You feel intimidated!\r\n", ch);
+		send_to_char(ch, "You attempt to intimidate yourself.\r\n"
+			"You feel intimidated!\r\n");
 		act("$n intimidates $mself!", TRUE, ch, 0, 0, TO_ROOM);
 		if (affected_by_spell(ch, SKILL_INTIMIDATE))
 			return;
@@ -2833,12 +2813,12 @@ ACMD(do_intimidate)
 		if (affected_by_spell(vict, SKILL_TERRORIZE)) {
 			act("$n PANICS and attempt to escape!", FALSE, vict, 0, 0,
 				TO_ROOM);
-			send_to_char("You PANIC and attempt to escape!\r\n", vict);
+			send_to_char(vict, "You PANIC and attempt to escape!\r\n");
 			if (!MOB_FLAGGED(vict, MOB_SENTINEL))
 				do_flee(vict, "", 0, 0);
 
 			act("$n cowers in fear!", TRUE, vict, 0, 0, TO_ROOM);
-			send_to_char("You cower in paralyzing fear!\r\n", vict);
+			send_to_char(vict, "You cower in paralyzing fear!\r\n");
 		} else if ((affected_by_spell(vict, SPELL_FEAR) ||
 				GET_LEVEL(ch) + CHECK_SKILL(ch, SKILL_TERRORIZE) > prob) &&
 			!IS_UNDEAD(vict)) {
@@ -2853,7 +2833,7 @@ ACMD(do_intimidate)
 			act("$N glarse at $n with contempt.", TRUE, ch, 0, vict,
 				TO_NOTVICT);
 			act("$N glares at you with contempt!", TRUE, ch, 0, vict, TO_CHAR);
-			send_to_char("You glare back with contempt!\r\n", vict);
+			send_to_char(vict, "You glare back with contempt!\r\n");
 			if (IS_NPC(vict))
 				hit(vict, ch, TYPE_UNDEFINED);
 		}
@@ -2867,12 +2847,12 @@ ACMD(do_intimidate)
 
 		if (affected_by_spell(vict, SKILL_INTIMIDATE)) {
 			act("$n cringes in terror!", FALSE, vict, 0, 0, TO_ROOM);
-			send_to_char("You cringe in terror!\r\n", vict);
+			send_to_char(vict, "You cringe in terror!\r\n");
 		} else if ((affected_by_spell(vict, SPELL_FEAR) ||
 				GET_LEVEL(ch) + CHECK_SKILL(ch, SKILL_INTIMIDATE) > prob) &&
 			!IS_UNDEAD(vict)) {
 			act("$n looks intimidated!", TRUE, vict, 0, 0, TO_ROOM);
-			send_to_char("You feel intimidated!\r\n", vict);
+			send_to_char(vict, "You feel intimidated!\r\n");
 
 			af.type = SKILL_INTIMIDATE;
 			af.duration = 2 + 2 * (GET_LEVEL(ch) > 40);
@@ -2884,7 +2864,7 @@ ACMD(do_intimidate)
 		} else {
 			act("$N snickers at $n", TRUE, ch, 0, vict, TO_NOTVICT);
 			act("$N snickers at you!", TRUE, ch, 0, vict, TO_CHAR);
-			send_to_char("You snicker!\r\n", vict);
+			send_to_char(vict, "You snicker!\r\n");
 			if (IS_NPC(vict))
 				hit(vict, ch, TYPE_UNDEFINED);
 		}
@@ -2908,27 +2888,26 @@ ACMD(do_drain)
 			vict = FIGHTING(ch);
 		} else if ((ovict =
 				get_obj_in_list_vis(ch, arg, ch->in_room->contents))) {
-			send_to_char("You can't drain objects!\r\n", ch);
+			send_to_char(ch, "You can't drain objects!\r\n");
 			return;
 		} else {
-			send_to_char("Drain whos life force?\r\n", ch);
+			send_to_char(ch, "Drain whos life force?\r\n");
 			WAIT_STATE(ch, 4);
 			return;
 		}
 	}
 	if (vict == ch) {
-		send_to_char("Aren't we funny today...\r\n", ch);
+		send_to_char(ch, "Aren't we funny today...\r\n");
 		return;
 	}
 	if (GET_EQ(ch, WEAR_WIELD) && IS_TWO_HAND(GET_EQ(ch, WEAR_WIELD))) {
-		send_to_char
-			("You are using both hands to wield your weapon right now!\r\n",
-			ch);
+		send_to_char(ch, 
+			"You are using both hands to wield your weapon right now!\r\n");
 		return;
 	}
 	if (GET_EQ(ch, WEAR_WIELD) && (GET_EQ(ch, WEAR_WIELD_2) ||
 			GET_EQ(ch, WEAR_HOLD) || GET_EQ(ch, WEAR_SHIELD))) {
-		send_to_char("You need a hand free to do that!\r\n", ch);
+		send_to_char(ch, "You need a hand free to do that!\r\n");
 		return;
 	}
 
@@ -2966,12 +2945,12 @@ ACMD(do_beguile)
 	skip_spaces(&argument);
 
 	if (!(vict = get_char_room_vis(ch, argument))) {
-		send_to_char("Beguile who??\r\n", ch);
+		send_to_char(ch, "Beguile who??\r\n");
 		WAIT_STATE(ch, 4);
 		return;
 	}
 	if (vict == ch) {
-		send_to_char("You find yourself amazingly beguiling.\r\n", ch);
+		send_to_char(ch, "You find yourself amazingly beguiling.\r\n");
 		return;
 	}
 	act("$n looks deeply into your eyes with an enigmatic look.",
@@ -2995,7 +2974,7 @@ ACMD(do_beguile)
 		(number(0, 50) + GET_LEVEL(vict) + GET_INT(vict)))
 		spell_charm(GET_LEVEL(ch), ch, vict, NULL);
 	else
-		send_to_char("There appears to be no effect.\r\n", ch);
+		send_to_char(ch, "There appears to be no effect.\r\n");
 
 	WAIT_STATE(ch, 2 RL_SEC);
 
@@ -3032,7 +3011,7 @@ do_combat_fire(struct char_data *ch, struct char_data *vict, int weap_pos)
 	}
 
 	if (ch->getPosition() < POS_FIGHTING) {
-		send_to_char("You can't fight while sitting!\r\n", ch);
+		send_to_char(ch, "You can't fight while sitting!\r\n");
 		return 1;
 	}
 	// And since ch and vict should already be fighting this should never happen either

@@ -186,8 +186,7 @@ check_char_room_vis(CHAR * ch, char *argument)
 	CHAR *vict = NULL;
 
 	if (!(vict = get_char_room_vis(ch, argument))) {
-		sprintf(buf, "There's no one named '%s' here.\r\n", argument);
-		send_to_char(buf, ch);
+		send_to_char(ch, "There's no one named '%s' here.\r\n", argument);
 	}
 	return (vict);
 }
@@ -225,7 +224,7 @@ ACMD(do_lecture)
 	skip_spaces(&argument);
 
 	if (!*argument) {
-		send_to_char("Lecture who?\r\n", ch);
+		send_to_char(ch, "Lecture who?\r\n");
 		return;
 	}
 
@@ -233,7 +232,7 @@ ACMD(do_lecture)
 		return;
 
 	if (vict == ch) {
-		send_to_char("You can't lecture yourself.\r\n", ch);
+		send_to_char(ch, "You can't lecture yourself.\r\n");
 		return;
 	}
 
@@ -300,12 +299,12 @@ ACMD(do_lecture)
 	if (IS_PHYSIC(vict)) {
 		act("$n appears to be fascinated, and nods in agreement.", TRUE, vict,
 			0, 0, TO_ROOM);
-		send_to_char("Fascinating!\r\n", vict);
+		send_to_char(vict, "Fascinating!\r\n");
 	}
 	// victim falls asleep
 	else if (percent < prob) {
 		act("$n immediately dozes off to sleep.", TRUE, vict, 0, 0, TO_ROOM);
-		send_to_char("You start to feel very sleepy...\r\n", vict);
+		send_to_char(vict, "You start to feel very sleepy...\r\n");
 		vict->setPosition(POS_SLEEPING);
 		wait = 2 RL_SEC + ((prob - percent) >> 1);
 		WAIT_STATE(vict, wait);
@@ -314,7 +313,7 @@ ACMD(do_lecture)
 	// resist
 	else {
 		act("$n starts to doze off, but resists.", TRUE, vict, 0, 0, TO_ROOM);
-		send_to_char("You start to doze off, but resist.\r\n", vict);
+		send_to_char(vict, "You start to doze off, but resist.\r\n");
 	}
 
 	WAIT_STATE(ch, 2 RL_SEC);
@@ -328,14 +327,14 @@ ACMD(do_evaluate)
 	int delta, cost;
 
 	if (CHECK_SKILL(ch, SKILL_EVALUATE) < 30) {
-		send_to_char("Your evaluation abilities are too weak.\r\n", ch);
+		send_to_char(ch, "Your evaluation abilities are too weak.\r\n");
 		return;
 	}
 
 	skip_spaces(&argument);
 
 	if (!*argument) {
-		send_to_char("Evaluate who?\r\n", ch);
+		send_to_char(ch, "Evaluate who?\r\n");
 		return;
 	}
 
@@ -346,8 +345,7 @@ ACMD(do_evaluate)
 	cost = (GET_LEVEL(vict) >> 2) + GET_REMORT_GEN(vict);
 
 	if (GET_MOVE(ch) < cost) {
-		sprintf(buf, "You don't have the %d move points needed.\r\n", cost);
-		send_to_char(buf, ch);
+		send_to_char(ch, "You don't have the %d move points needed.\r\n", cost);
 		return;
 	}
 
@@ -356,9 +354,8 @@ ACMD(do_evaluate)
 	delta = (cost + 126 - CHECK_SKILL(ch, SKILL_EVALUATE) - GET_INT(ch));
 	delta = MAX(5, delta);
 
-	sprintf(buf, "%s appears to have about %d hitpoints.\r\n",
+	send_to_char(ch, "%s appears to have about %d hitpoints.\r\n",
 		GET_NAME(vict), GET_HIT(vict) + number(-delta, delta));
-	send_to_char(buf, ch);
 
 	if (delta < 100)
 		gain_skill_prof(ch, SKILL_EVALUATE);
@@ -398,7 +395,7 @@ ASPELL(spell_nuclear_wasteland)
 	struct room_affect_data rm_aff;
 
 	if (ROOM_FLAGGED(ch->in_room, ROOM_RADIOACTIVE)) {
-		send_to_char("This room is already radioactive.\r\n", ch);
+		send_to_char(ch, "This room is already radioactive.\r\n");
 		return;
 	}
 
@@ -459,8 +456,7 @@ show_imprint_rooms(CHAR * ch)
 {
 	int i;
 	for (i = 0; i < MAX_IMPRINT_ROOMS; i++) {
-		sprintf(buf, "%2d. [%5d]\r\n", i, GET_IMPRINT_ROOM(ch, i));
-		send_to_char(buf, ch);
+		send_to_char(ch, "%2d. [%5d]\r\n", i, GET_IMPRINT_ROOM(ch, i));
 	}
 }
 
@@ -470,15 +466,14 @@ ASPELL(spell_spacetime_imprint)
 	int max = MIN(MAX_IMPRINT_ROOMS, (GET_LEVEL(ch) / 10));
 
 	if (ROOM_FLAGGED(ch->in_room, ROOM_NORECALL | ROOM_NOPHYSIC | ROOM_NOTEL)) {
-		send_to_char("You cannot make a spacetime imprint in this place.\r\n",
-			ch);
+		send_to_char(ch, "You cannot make a spacetime imprint in this place.\r\n");
 		return;
 	}
 
 	push_imprint(ch, max);
 	act("You feel a strange sensation, which quickly passes.", FALSE, ch, 0, 0,
 		TO_ROOM);
-	send_to_char("A spacetime imprint has been made of this place.\r\n", ch);
+	send_to_char(ch, "A spacetime imprint has been made of this place.\r\n");
 	//  show_imprint_rooms(ch);
 }
 
@@ -495,22 +490,19 @@ ASPELL(spell_quantum_rift)
 	if (rnum < 0) {
 		// Change this to open a REALLY random portal.
 		// Include DT's in this room list.
-		send_to_char
-			("You do not have any outstanding spacetime imprints in effect.\r\n",
-			ch);
+		send_to_char(ch, 
+			"You do not have any outstanding spacetime imprints in effect.\r\n");
 		return;
 	}
 
 	if (!(room = real_room(rnum))) {
-		send_to_char
-			("The imprinted location you have requested no longer exists!\r\n",
-			ch);
+		send_to_char(ch, 
+			"The imprinted location you have requested no longer exists!\r\n");
 		return;
 	}
 
 	if (ROOM_FLAGGED(room, ROOM_NORECALL | ROOM_NOPHYSIC | ROOM_NOTEL)) {
-		send_to_char("You are unable to open the rift into that place.\r\n",
-			ch);
+		send_to_char(ch, "You are unable to open the rift into that place.\r\n");
 		return;
 	}
 	for (o = object_list; o; o = o->next) {
@@ -539,9 +531,8 @@ ASPELL(spell_quantum_rift)
 		act("You shred the fabric of space and time creating $p!",
 			TRUE, ch, rift, 0, TO_CHAR);
 	} else {
-		send_to_char
-			("The rift has failed to form.  Something is terribly wrong.\r\n",
-			ch);
+		send_to_char(ch, 
+			"The rift has failed to form.  Something is terribly wrong.\r\n");
 		return;
 	}
 	WAIT_STATE(ch, 2 RL_SEC);
@@ -557,33 +548,31 @@ ASPELL(spell_spacetime_recall)
 	//  show_imprint_rooms(ch);
 
 	if (rnum < 0) {
-		send_to_char
-			("You do not have any outstanding spacetime imprints in effect.\r\n",
-			ch);
+		send_to_char(ch, 
+			"You do not have any outstanding spacetime imprints in effect.\r\n");
 		return;
 	}
 
 	if (!(room = real_room(rnum))) {
-		send_to_char
-			("The imprinted location you have requested no longer exists!\r\n",
-			ch);
+		send_to_char(ch, 
+			"The imprinted location you have requested no longer exists!\r\n");
 		return;
 	}
 
 	if (ROOM_FLAGGED(room, ROOM_NORECALL | ROOM_NOPHYSIC | ROOM_NOTEL)) {
-		send_to_char
-			("You are unable to make the transition into that place.\r\n", ch);
+		send_to_char(ch, 
+			"You are unable to make the transition into that place.\r\n");
 		return;
 	}
 
 	if (ROOM_FLAGGED(room, ROOM_HOUSE) && !House_can_enter(ch, room->number)) {
-		send_to_char("You are unable to enter that place.\r\n", ch);
+		send_to_char(ch, "You are unable to enter that place.\r\n");
 		return;
 	}
 
 	act("$n fades from view and disappears.", TRUE, ch, 0, 0, TO_ROOM);
 	char_from_room(ch);
-	send_to_char("You shift through space and time:\r\n", ch);
+	send_to_char(ch, "You shift through space and time:\r\n");
 	char_to_room(ch, room);
 	look_at_room(ch, room, 0);
 	act("$n fades into view from some other place and time.", TRUE, ch, 0, 0,
@@ -787,8 +776,7 @@ ASPELL(spell_time_warp)
 
 		// we still couldnt find a suitable room, abort
 		if (!to_room) {
-			send_to_char("You were unable to link to a cross-time room.\r\n",
-				ch);
+			send_to_char(ch, "You were unable to link to a cross-time room.\r\n");
 			return;
 		}
 
@@ -800,11 +788,10 @@ ASPELL(spell_time_warp)
 
 	act(buf, TRUE, ch, 0, 0, TO_ROOM);
 
-	sprintf(buf, "You fade silently into the %s:\r\n",
+	send_to_char(ch, "You fade silently into the %s:\r\n",
 		zone->time_frame == TIME_ELECTRO ? "future" :
 		zone->time_frame == TIME_MODRIAN ? "past" : "unknown");
 
-	send_to_char(buf, ch);
 
 	char_from_room(ch);
 
@@ -872,23 +859,21 @@ ACMD(do_econvert)
 	int wait;
 
 	if (CHECK_SKILL(ch, SKILL_ENERGY_CONVERSION) < 40) {
-		send_to_char
-			("You have not been trained in the science of matter conversion.\r\n",
-			ch);
+		send_to_char(ch, 
+			"You have not been trained in the science of matter conversion.\r\n");
 		return;
 	}
 
 	argument = two_arguments(argument, arg1, arg2);
 
 	if (!*arg1) {
-		send_to_char("Usage: econvert <object> [battery]\r\n", ch);
+		send_to_char(ch, "Usage: econvert <object> [battery]\r\n");
 		return;
 	}
 
 	if (!(obj = get_obj_in_list_vis(ch, arg1, ch->carrying))) {
-		sprintf(buf2, "You don't seem to have %s '%s' to convert.\r\n",
+		send_to_char(ch, "You don't seem to have %s '%s' to convert.\r\n",
 			AN(arg1), arg1);
-		send_to_char(buf2, ch);
 		return;
 	}
 	// check for a battery to store in
@@ -903,10 +888,9 @@ ACMD(do_econvert)
 			|| (battery = get_obj_in_list_vis(ch, arg2, ch->carrying))) {
 
 		} else {
-			sprintf(buf2,
+			send_to_char(ch,
 				"You don't seem to have %s '%s' to store the energy in.\r\n",
 				AN(arg2), arg2);
-			send_to_char(buf2, ch);
 			return;
 		}
 
@@ -965,9 +949,8 @@ ACMD(do_econvert)
 	num_points = MIN(num_points, GET_MAX_MANA(ch) - GET_MANA(ch));
 	GET_MANA(ch) += num_points;
 
-	sprintf(buf, "You have increased your mana level by %d to %d.\r\n",
+	send_to_char(ch, "You have increased your mana level by %d to %d.\r\n",
 		num_points, GET_MANA(ch));
-	send_to_char(buf, ch);
 
 	// Wait state.  1 + number of points / skill
 	wait =
@@ -1040,7 +1023,7 @@ do_emp_pulse_char(char_data * ch, char_data * vict)
 	int removed = 0;
 
 	if (IS_AFFECTED_3(vict, AFF3_EMP_SHIELD) && !random_fractional_5()) {
-		send_to_char("Your emp shielding stops the pulse!\r\n", vict);
+		send_to_char(vict, "Your emp shielding stops the pulse!\r\n");
 		return;
 	}
 	// Put a saving throw in here!!!
@@ -1054,9 +1037,8 @@ do_emp_pulse_char(char_data * ch, char_data * vict)
 			}
 		}
 		if (removed > 0) {
-			send_to_char
-				("ERROR: Excessive electromagnetic interference! Some systems failing!\r\n",
-				vict);
+			send_to_char(vict, 
+				"ERROR: Excessive electromagnetic interference! Some systems failing!\r\n");
 			act("$N twitches and begins to smoke.", FALSE, ch, NULL, vict,
 				TO_NOTVICT);
 		}
@@ -1076,9 +1058,8 @@ ASPELL(spell_emp_pulse)
 	if (ch->in_room == NULL)
 		return;
 	if (ROOM_FLAGGED(ch->in_room, ROOM_NOPHYSIC)) {
-		send_to_char
-			("You are unable to alter physical reality in this space.\r\n",
-			ch);
+		send_to_char(ch, 
+			"You are unable to alter physical reality in this space.\r\n");
 		return;
 	}
 	// Make sure non-pkillers dont get killer flags.
@@ -1114,9 +1095,8 @@ ASPELL(spell_area_stasis)
 	struct obj_data *o;
 
 	if (ROOM_FLAGGED(ch->in_room, ROOM_NOPHYSIC)) {
-		send_to_char
-			("The surrounding construct of spacetime is already stable.\r\n",
-			ch);
+		send_to_char(ch, 
+			"The surrounding construct of spacetime is already stable.\r\n");
 		return;
 	}
 

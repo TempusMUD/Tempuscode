@@ -1026,9 +1026,9 @@ char_to_room(struct char_data *ch, struct room_data *room)
 	if (ROOM_FLAGGED(ch->in_room, ROOM_NULL_MAGIC) &&
 		!PRF_FLAGGED(ch, PRF_NOHASSLE)) {
 		if (ch->affected) {
-			send_to_char
-				("You are dazed by a blinding flash inside your brain!\r\n"
-				"You feel different...\r\n", ch);
+			send_to_char(ch, 
+				"You are dazed by a blinding flash inside your brain!\r\n"
+				"You feel different...\r\n");
 			act("Light flashes from behind $n's eyes.", FALSE, ch, 0, 0,
 				TO_ROOM);
 			for (aff = ch->affected; aff; aff = next_aff) {

@@ -14,9 +14,9 @@ SPECIAL(ancient_artifact)
 	if ((number(0,1) || GET_LEVEL(ch) >= LVL_AMBASSADOR)) {
 		// mega-blast makes mob lose 10% of current hp
 		strcpy(buf, "A bright blue beam erupts from $p with a screaming roar!");
-		send_to_char(CCCYN(ch, C_NRM), ch);
+		send_to_char(ch, CCCYN(ch, C_NRM));
 		act(buf, FALSE, ch, obj, 0, TO_CHAR);
-		send_to_char(CCNRM(ch, C_NRM), ch);
+		send_to_char(ch, CCNRM(ch, C_NRM));
 		act(buf, TRUE, ch, obj, 0, TO_ROOM);
 		strcpy(buf, "$N screams silently as $E briefly fades from existence!");
 		act(buf, FALSE, ch, obj, FIGHTING(ch), TO_CHAR);
@@ -24,9 +24,9 @@ SPECIAL(ancient_artifact)
 		GET_HIT(FIGHTING(ch)) -= GET_HIT(FIGHTING(ch)) / 10;
 	} else if (number(0, 99)) {
 		strcpy(buf, "$p rumbles disquietingly in your hands.");
-		send_to_char(CCCYN(ch, C_NRM), ch);
+		send_to_char(ch, CCCYN(ch, C_NRM));
 		act(buf, FALSE, ch, obj, 0, TO_CHAR);
-		send_to_char(CCNRM(ch, C_NRM), ch);
+		send_to_char(ch, CCNRM(ch, C_NRM));
 		strcpy(buf, "$p rumbles disquietingly in $n's hands.");
 		act(buf, TRUE, ch, obj, 0, TO_ROOM);
 	} else {

@@ -37,6 +37,6 @@ SPECIAL(thieves_guard_west)
     damage(guard, ch, 4, SKILL_PUNCH, -1);
     return 1;
   }
-  send_to_char("You get a prickly feeling on the back of your neck.\r\n", ch);
+  send_to_char(ch, "You get a prickly feeling on the back of your neck.\r\n");
   return FALSE;
 }

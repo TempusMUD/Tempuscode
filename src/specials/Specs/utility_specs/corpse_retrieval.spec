@@ -52,7 +52,7 @@ SPECIAL(corpse_retrieval)
 	      (corpse->in_room->zone != ch->in_room->zone &&
 	       (ZONE_FLAGGED(corpse->in_room->zone, ZONE_ISOLATED) ||
 		ZONE_FLAGGED(ch->in_room->zone, ZONE_ISOLATED)))) {
-	    send_to_char("Your corpse cannot be located!\r\n", ch);
+	    send_to_char(ch, "Your corpse cannot be located!\r\n");
 	    return 1;
 	  }
           act("$p disappears with a flash!", TRUE, 0, corpse, 0, TO_ROOM);

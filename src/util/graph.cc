@@ -242,26 +242,26 @@ ACMD(do_track)
 	byte count = 0;
 
 	if (!GET_SKILL(ch, SKILL_TRACK)) {
-		send_to_char("You have no idea how.\r\n", ch);
+		send_to_char(ch, "You have no idea how.\r\n");
 		return;
 	}
 	one_argument(argument, arg);
 	if (!*arg) {
-		send_to_char("Whom are you trying to track?\r\n", ch);
+		send_to_char(ch, "Whom are you trying to track?\r\n");
 		return;
 	}
 	if ((vict = get_char_vis(ch, arg))) {
 		if (!(CAN_SEE(ch, vict) && (GET_LEVEL(vict) < LVL_AMBASSADOR ||
 					GET_LEVEL(ch) > GET_LEVEL(vict)))) {
-			send_to_char("No-one around by that name.\r\n", ch);
+			send_to_char(ch, "No-one around by that name.\r\n");
 			return;
 		}
 	} else {
-		send_to_char("No-one around by that name.\r\n", ch);
+		send_to_char(ch, "No-one around by that name.\r\n");
 		return;
 	}
 	if (vict->in_room == ch->in_room) {
-		send_to_char("You're already in the same room!\r\n", ch);
+		send_to_char(ch, "You're already in the same room!\r\n");
 		return;
 	}
 	if (IS_AFFECTED(vict, AFF_NOTRACK)
@@ -270,20 +270,19 @@ ACMD(do_track)
 			&& number(0, CHECK_SKILL(ch, SKILL_TRACK)) > (number(0,
 					CHECK_SKILL(vict, SKILL_ELUSION)) + (IS_RANGER(vict)
 					&& SECT_TYPE(vict->in_room) == SECT_FOREST) ? 20 : 0))) {
-		send_to_char("You sense no trail.\r\n", ch);
+		send_to_char(ch, "You sense no trail.\r\n");
 		if (GET_LEVEL(ch) < LVL_IMPL)
 			return;
 	}
 	if (GET_LEVEL(ch) < LVL_AMBASSADOR && ch->in_room->isOpenAir()) {
-		send_to_char("Track through the open air?\r\n", ch);
+		send_to_char(ch, "Track through the open air?\r\n");
 		return;
 	}
 	if (GET_LEVEL(ch) < LVL_AMBASSADOR
 		&& (SECT_TYPE(ch->in_room) == SECT_UNDERWATER
 			|| SECT_TYPE(ch->in_room) == SECT_WATER_NOSWIM)) {
-		send_to_char
-			("You find it difficult to follow the ripples of the water.\r\n",
-			ch);
+		send_to_char(ch, 
+			"You find it difficult to follow the ripples of the water.\r\n");
 		return;
 	}
 	dir = find_first_step(ch->in_room, vict->in_room,
@@ -291,15 +290,14 @@ ACMD(do_track)
 
 	switch (dir) {
 	case BFS_ERROR:
-		send_to_char("Hmm.. something seems to be wrong.\r\n", ch);
+		send_to_char(ch, "Hmm.. something seems to be wrong.\r\n");
 		break;
 	case BFS_ALREADY_THERE:
-		send_to_char("You're already in the same room!!\r\n", ch);
+		send_to_char(ch, "You're already in the same room!!\r\n");
 		break;
 	case BFS_NO_PATH:
-		sprintf(buf, "You can't sense a trail to %s from here.\r\n",
+		send_to_char(ch, "You can't sense a trail to %s from here.\r\n",
 			HMHR(vict));
-		send_to_char(buf, ch);
 		break;
 	default:
 		num = number(0, 101);	/* 101% is a complete failure */
@@ -328,8 +326,7 @@ ACMD(do_track)
 				count < 30);
 		else if (GET_LEVEL(vict) > GET_LEVEL(ch) + number(0, 10))
 			gain_skill_prof(ch, SKILL_TRACK);
-		sprintf(buf, "You sense a trail %s from here!\r\n", dirs[dir]);
-		send_to_char(buf, ch);
+		send_to_char(ch, "You sense a trail %s from here!\r\n", dirs[dir]);
 		WAIT_STATE(ch, 6);
 		break;
 	}
@@ -345,20 +342,19 @@ ACMD(do_psilocate)
 	skip_spaces(&argument);
 
 	if (CHECK_SKILL(ch, SKILL_PSILOCATE) < 10) {
-		send_to_char("You have no idea how.\r\n", ch);
+		send_to_char(ch, "You have no idea how.\r\n");
 		return;
 	}
 	if (!*argument) {
-		send_to_char("Locate who's psyche?\r\n", ch);
+		send_to_char(ch, "Locate who's psyche?\r\n");
 		return;
 	}
 	if (!(vict = get_char_vis(ch, argument))) {
-		sprintf(buf, "You cannot locate %s '%s'.\r\n", AN(argument), argument);
-		send_to_char(buf, ch);
+		send_to_char(ch, "You cannot locate %s '%s'.\r\n", AN(argument), argument);
 		return;
 	}
 	if (ROOM_FLAGGED(ch->in_room, ROOM_NOPSIONICS) && GET_LEVEL(ch) < LVL_GOD) {
-		send_to_char("Psychic powers are useless here!\r\n", ch);
+		send_to_char(ch, "Psychic powers are useless here!\r\n");
 		return;
 	}
 	if (ROOM_FLAGGED(vict->in_room, ROOM_NOPSIONICS)
@@ -374,7 +370,7 @@ ACMD(do_psilocate)
 		return;
 	}
 	if (GET_MANA(ch) < mag_manacost(ch, SKILL_PSILOCATE)) {
-		send_to_char("You are too psychically exhausted.\r\n", ch);
+		send_to_char(ch, "You are too psychically exhausted.\r\n");
 		return;
 	}
 
@@ -399,7 +395,7 @@ ACMD(do_psilocate)
 
 	if ((dir = find_first_step(ch->in_room, vict->in_room, PSI_TRACK)) ==
 		BFS_ALREADY_THERE) {
-		send_to_char("You are in the same room!\r\n", ch);
+		send_to_char(ch, "You are in the same room!\r\n");
 		return;
 	}
 	if (dir < 0) {
@@ -412,9 +408,8 @@ ACMD(do_psilocate)
 		act("You feel $n's psyche connect with your mind briefly.",
 			FALSE, ch, 0, vict, TO_VICT);
 	else if (GET_INT(vict) > number(0, GET_INT(ch) << 1))
-		send_to_char
-			("You feel a strange sensation on the periphery of your psyche.\r\n",
-			vict);
+		send_to_char(vict, 
+			"You feel a strange sensation on the periphery of your psyche.\r\n");
 
 	if (number(0, 121) + (AFF_FLAGGED(vict, AFF_HIDE) ? 10 : 0) >
 		CHECK_SKILL(ch, SKILL_PSILOCATE) + GET_INT(ch))

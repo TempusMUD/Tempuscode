@@ -77,19 +77,10 @@ SPECIAL(library)
   }
   if (!strncasecmp(buf, "help", 4) && GET_OBJ_VAL(me2,1))  {
     
-    send_to_char("I am a bookstand. I respond to spoken commands\n",ch);
-    send_to_char("I respond to the following commands:\n\n",ch);
-    send_to_char("catalog                 -- list of books avalable.\n",ch);
-    send_to_char("bring <catalog number>  -- bring a book to the stand.\n",ch);
-    send_to_char("index                   -- turn the book to the index.\n",ch);
-    send_to_char("read <page number>      -- turn the book to the page number you want.\n",ch);
     return 1;
   }
   
   if (!strncasecmp(buf, "help", 4) && !GET_OBJ_VAL(me2,1))  {
-    send_to_char("I am a book.  I respond to spoken commands\n",ch);
-    send_to_char("index                --  turn the book to the index.\n",ch);
-    send_to_char("read <page number>   --  turn the book to the page number you want.\n",ch);
     return 1;
   }
   
@@ -97,11 +88,10 @@ SPECIAL(library)
     
     sprintf(cat_name,"%stome-%d.tdx",dir_name,atoi(buf2));
     if (access(cat_name,0) == 0) {
-      send_to_char("I have retrived that book for you.\n",ch);
       GET_OBJ_VAL(me2,0) = atoi(buf2); 
     } else { 
-      send_to_char("I am sorry that book must be on loan.\r\n"
-		   "Say 'catalog' to see what we have.\r\n", ch);
+      send_to_char(ch, "I am sorry that book must be on loan.\r\n"
+		   "Say 'catalog' to see what we have.\r\n");
     }
     return 1;
   }
@@ -122,7 +112,6 @@ SPECIAL(library)
     sprintf(buf,"Looking at book cataloged as:%d\n flags are %d %d %d %d\n",
 	    GET_OBJ_VAL(me2,0),GET_OBJ_VAL(me2,0),
 	    GET_OBJ_VAL(me2,1),GET_OBJ_VAL(me2,2),GET_OBJ_VAL(me2,3));
-    send_to_char (buf,ch);
     return 1;
   }
   
@@ -132,8 +121,9 @@ SPECIAL(library)
     if ((book = fopen (cat_name,"rt"))!=NULL)  {
       num = atoi(buf2);
       if (num == 0)  {
-	send_to_char("I am sorry that is not a page in the book.\r\n"
-		     "Type index to view the contents.\r\n",ch);  
+	send_to_char(ch,
+		"Type index to view the contents.\r\n"
+		"I am sorry that is not a page in the book.\r\n");
       } else {
 	
 	read_page(book,num,ch);

@@ -86,7 +86,7 @@ write_wld_index(struct char_data *ch, struct zone_data *zone)
 
 	sprintf(fname, "world/wld/index");
 	if (!(index = fopen(fname, "w"))) {
-		send_to_char("Could not open index file, world save aborted.\r\n", ch);
+		send_to_char(ch, "Could not open index file, world save aborted.\r\n");
 		return (0);
 	}
 
@@ -95,7 +95,7 @@ write_wld_index(struct char_data *ch, struct zone_data *zone)
 
 	fprintf(index, "$\n");
 
-	send_to_char("World index file re-written.\r\n", ch);
+	send_to_char(ch, "World index file re-written.\r\n");
 
 	fclose(index);
 
@@ -226,9 +226,8 @@ save_room(struct char_data *ch, struct room_data *room, FILE * file)
 		if (!desc->keyword || !desc->description) {
 			slog("OLCERROR: ExDesc with null %s, room #%d.",
 				!desc->keyword ? "keyword" : "desc", room->number);
-			sprintf(buf, "I didn't save your bogus extra desc in room %d.\r\n",
+			send_to_char(ch, "I didn't save your bogus extra desc in room %d.\r\n",
 				room->number);
-			send_to_char(buf, ch);
 			desc = desc->next;
 			continue;
 		}
@@ -287,21 +286,18 @@ save_room(struct char_data *ch, struct room_data *room, FILE * file)
 	}
 	if (FLOW_SPEED(room)) {
 		if (FLOW_DIR(room) < 0 || FLOW_DIR(room) >= NUM_DIRS) {
-			sprintf(buf, "OLCERROR: Bunk flow direction in room %d.\r\n",
+			send_to_char(ch, "OLCERROR: Bunk flow direction in room %d.\r\n",
 				room->number);
-			send_to_char(buf, ch);
 		} else if (FLOW_SPEED(room) < 0) {
-			sprintf(buf, "OLCERROR: Negative flow speed in room %d.\r\n",
+			send_to_char(ch, "OLCERROR: Negative flow speed in room %d.\r\n",
 				room->number);
-			send_to_char(buf, ch);
 		} else {
 			fprintf(file, "F\n");
 			fprintf(file, "%d %d %d\n", FLOW_DIR(room), FLOW_SPEED(room),
 				FLOW_TYPE(room));
 			if (FLOW_TYPE(room) < 0 || FLOW_TYPE(room) >= NUM_FLOW_TYPES) {
-				sprintf(buf, "Error in flow type, room #%d.\r\n",
+				send_to_char(ch, "Error in flow type, room #%d.\r\n",
 					room->number);
-				send_to_char(buf, ch);
 			}
 		}
 	}
@@ -343,8 +339,7 @@ save_wld(struct char_data *ch)
 	for (struct room_data * room = zone->world; room; room = room->next) {
 
 		if (save_room(ch, room, file)) {
-			sprintf(buf, "Error saving room #%d.\r\n", room->number);
-			send_to_char(buf, ch);
+			send_to_char(ch, "Error saving room #%d.\r\n", room->number);
 			return 1;
 		}
 	}
@@ -355,9 +350,9 @@ save_wld(struct char_data *ch)
 	if (rename(temp_fname, real_fname)) {
 		slog("SYSERR: Error copying %s -> %s in save_wld: %s.",
 			temp_fname, real_fname, strerror(errno));
-		send_to_char
-			("There was an error copying the temporary .wld file during the save.\r\n"
-			"World Save Failed.\r\n", ch);
+		send_to_char(ch, 
+			"There was an error copying the temporary .wld file during the save.\r\n"
+			"World Save Failed.\r\n");
 		return 1;
 	}
 
@@ -376,7 +371,7 @@ do_create_room(struct char_data *ch, int vnum)
 	//int i;
 
 	if ((rm = real_room(vnum))) {
-		send_to_char("ERROR: Room already exists.\r\n", ch);
+		send_to_char(ch, "ERROR: Room already exists.\r\n");
 		return NULL;
 	}
 
@@ -385,13 +380,12 @@ do_create_room(struct char_data *ch, int vnum)
 			break;
 
 	if (!zone) {
-		send_to_char("ERROR: A zone must be defined for the room first.\r\n",
-			ch);
+		send_to_char(ch, "ERROR: A zone must be defined for the room first.\r\n");
 		return NULL;
 	}
 
 	if (!CAN_EDIT_ZONE(ch, zone)) {
-		send_to_char("Try creating rooms in your own zone, luser.\r\n", ch);
+		send_to_char(ch, "Try creating rooms in your own zone, luser.\r\n");
 		sprintf(buf, "OLC: %s failed attempt to CREATE room %d.",
 			GET_NAME(ch), vnum);
 		mudlog(buf, BRF, GET_INVIS_LEV(ch), TRUE);
@@ -399,7 +393,7 @@ do_create_room(struct char_data *ch, int vnum)
 	}
 
 	if (!OLC_EDIT_OK(ch, zone, ZONE_ROOMS_APPROVED)) {
-		send_to_char("World OLC is not approved for this zone.\r\n", ch);
+		send_to_char(ch, "World OLC is not approved for this zone.\r\n");
 		return NULL;
 	}
 
@@ -466,17 +460,17 @@ do_destroy_room(struct char_data *ch, int vnum)
 		struct clan_data *clan);
 
 	if (!(rm = real_room(vnum))) {
-		send_to_char("ERROR: That room does not exist.\r\n", ch);
+		send_to_char(ch, "ERROR: That room does not exist.\r\n");
 		return 1;
 	}
 
 	if (!(zone = rm->zone)) {
-		send_to_char("ERROR: ( very bad ) This room has NULL zone!!\r\n", ch);
+		send_to_char(ch, "ERROR: ( very bad ) This room has NULL zone!!\r\n");
 		return 1;
 	}
 
 	if (GET_IDNUM(ch) != zone->owner_idnum && GET_LEVEL(ch) < LVL_LUCIFER) {
-		send_to_char("Oh, no you dont!!!\r\n", ch);
+		send_to_char(ch, "Oh, no you dont!!!\r\n");
 		sprintf(buf, "OLC: %s failed attempt to DESTROY room %d.",
 			GET_NAME(ch), rm->number);
 		mudlog(buf, BRF, GET_INVIS_LEV(ch), TRUE);
@@ -493,7 +487,7 @@ do_destroy_room(struct char_data *ch, int vnum)
 				break;
 			}
 			if (!t_rm->next) {
-				send_to_char("!( t_rm->next ) error.\r\n", ch);
+				send_to_char(ch, "!( t_rm->next ) error.\r\n");
 				return 1;
 			}
 		}
@@ -501,9 +495,8 @@ do_destroy_room(struct char_data *ch, int vnum)
 	CharacterList::iterator it = rm->people.begin();
 	for (; it != rm->people.end(); ++it) {
 		vict = *it;
-		send_to_char
-			("The room in which you exist is suddenly removed from reality!\r\n",
-			vict);
+		send_to_char(vict, 
+			"The room in which you exist is suddenly removed from reality!\r\n");
 		char_from_room(vict);
 		if (rm->next) {
 			char_to_room(vict, rm->next);
@@ -647,7 +640,7 @@ do_clear_room(struct char_data *ch)
 	ch->in_room->flow_type = 0;
 	ch->in_room->max_occupancy = 256;
 
-	send_to_char("Room fully cleared..\r\n", ch);
+	send_to_char(ch, "Room fully cleared..\r\n");
 }
 
 void
@@ -677,8 +670,7 @@ olc_mimic_room(struct char_data *ch, struct room_data *rnum, char *argument)
 			else if (is_abbrev(arg1, "title"))
 				mode_title = 1;
 			else {
-				sprintf(buf, "'%s' is not a valid argument.\r\n", arg1);
-				send_to_char(buf, ch);
+				send_to_char(ch, "'%s' is not a valid argument.\r\n", arg1);
 			}
 			argument = one_argument(argument, arg1);
 		}
@@ -736,7 +728,7 @@ olc_mimic_room(struct char_data *ch, struct room_data *rnum, char *argument)
 	ch->in_room->flow_speed = rnum->flow_speed;
 	ch->in_room->max_occupancy = rnum->max_occupancy;
 
-	send_to_char("Okay, done mimicing.\r\n", ch);
+	send_to_char(ch, "Okay, done mimicing.\r\n");
 }
 
 static const char *olc_rset_keys[] = {
@@ -772,21 +764,20 @@ do_olc_rset(struct char_data *ch, char *argument)
 	skip_spaces(&argument);
 
 	if ((rset_command = search_block(arg1, olc_rset_keys, FALSE)) < 0) {
-		sprintf(buf, "Invalid rset command '%s'.\r\n", arg1);
-		send_to_char(buf, ch);
+		send_to_char(ch, "Invalid rset command '%s'.\r\n", arg1);
 		return;
 	}
 
 	switch (rset_command) {
 	case 0:					/* rtitle */
 		if (!*arg2) {
-			send_to_char("You have to set it to something moron!\r\n", ch);
+			send_to_char(ch, "You have to set it to something moron!\r\n");
 			return;
 		}
 		if (ch->in_room->name)
 			free(ch->in_room->name);
 		ch->in_room->name = strdup(arg2);
-		send_to_char("Okay, room title changed.\r\n", ch);
+		send_to_char(ch, "Okay, room title changed.\r\n");
 		break;
 
 	case 1:					/* rdescription */
@@ -803,22 +794,20 @@ do_olc_rset(struct char_data *ch, char *argument)
 
 	case 2:					/* rsector */
 		if (!*arg2) {
-			send_to_char("Set sector to what?\r\n", ch);
+			send_to_char(ch, "Set sector to what?\r\n");
 			return;
 		}
 		if (!is_number(arg2)) {
 			if ((i = search_block(arg2, sector_types, 0)) < 0) {
-				send_to_char("No such sector type.  Type olc h rsect.\r\n",
-					ch);
+				send_to_char(ch, "No such sector type.  Type olc h rsect.\r\n");
 				return;
 			} else
 				ch->in_room->sector_type = i;
 		} else
 			ch->in_room->sector_type = atoi(arg2);
 
-		sprintf(buf, "Room sector type set to: %s.\r\n",
+		send_to_char(ch, "Room sector type set to: %s.\r\n",
 			sector_types[(int)ch->in_room->sector_type]);
-		send_to_char(buf, ch);
 		break;
 
 	case 3:					/* rflags */
@@ -830,8 +819,7 @@ do_olc_rset(struct char_data *ch, char *argument)
 		else if (*arg1 == '-')
 			state = 2;
 		else {
-			send_to_char("Usage: olc rset flags [+/-] [FLAG, FLAG, ...]\r\n",
-				ch);
+			send_to_char(ch, "Usage: olc rset flags [+/-] [FLAG, FLAG, ...]\r\n");
 			return;
 		}
 
@@ -841,8 +829,7 @@ do_olc_rset(struct char_data *ch, char *argument)
 
 		while (*arg1) {
 			if ((flag = search_block(arg1, roomflag_names, FALSE)) == -1) {
-				sprintf(buf, "Invalid flag %s, skipping...\r\n", arg1);
-				send_to_char(buf, ch);
+				send_to_char(ch, "Invalid flag %s, skipping...\r\n", arg1);
 			} else
 				tmp_flags = tmp_flags | (1 << flag);
 
@@ -859,11 +846,11 @@ do_olc_rset(struct char_data *ch, char *argument)
 		ROOM_FLAGS(ch->in_room) = cur_flags;
 
 		if (tmp_flags == 0 && cur_flags == 0) {
-			send_to_char("Room flags set\r\n", ch);
+			send_to_char(ch, "Room flags set\r\n");
 		} else if (tmp_flags == 0)
-			send_to_char("Room flags not altered.\r\n", ch);
+			send_to_char(ch, "Room flags not altered.\r\n");
 		else {
-			send_to_char("Room flags set.\r\n", ch);
+			send_to_char(ch, "Room flags set.\r\n");
 			if (IS_SET(tmp_flags, ROOM_INDOORS) &&
 				MAX_OCCUPANTS(ch->in_room) == 256)
 				MAX_OCCUPANTS(ch->in_room) = 50;
@@ -876,7 +863,7 @@ do_olc_rset(struct char_data *ch, char *argument)
 				free(ch->in_room->sounds);
 				ch->in_room->sounds = NULL;
 			}
-			send_to_char("Sounds removed from room.\r\n", ch);
+			send_to_char(ch, "Sounds removed from room.\r\n");
 			break;
 		}
 
@@ -894,13 +881,12 @@ do_olc_rset(struct char_data *ch, char *argument)
 			if (!FLOW_SPEED(ch->in_room))
 				strcat(buf, " None.\r\n");
 			else {
-				sprintf(buf, "Direction: %s, Speed: %d, Type: %s ( %d ).\r\n",
+				send_to_char(ch, "Direction: %s, Speed: %d, Type: %s ( %d ).\r\n",
 					dirs[(int)FLOW_DIR(ch->in_room)], FLOW_SPEED(ch->in_room),
 					flow_types[(int)FLOW_TYPE(ch->in_room)],
 					(int)FLOW_TYPE(ch->in_room));
-				send_to_char(buf, ch);
 			}
-			send_to_char("Usage: olc rset flow <dir> <speed> <type>\r\n", ch);
+			send_to_char(ch, "Usage: olc rset flow <dir> <speed> <type>\r\n");
 			return;
 		}
 		half_chop(arg2, arg1, arg2);	/* sneaky trix */
@@ -909,25 +895,23 @@ do_olc_rset(struct char_data *ch, char *argument)
 		if (!*arg2) {
 			if (*arg1 && arg1 && is_abbrev(arg1, "remove")) {
 				FLOW_SPEED(ch->in_room) = 0;
-				send_to_char("Flow removed from room.\r\n", ch);
+				send_to_char(ch, "Flow removed from room.\r\n");
 				return;
 			} else
-				send_to_char
-					("You must specify the flow speed as the second argument.\r\n",
-					ch);
+				send_to_char(ch, 
+					"You must specify the flow speed as the second argument.\r\n");
 		} else if (!*arg1)
-			send_to_char("Usage: olc rset flow <dir> <speed> <type>\r\n", ch);
+			send_to_char(ch, "Usage: olc rset flow <dir> <speed> <type>\r\n");
 		else if (!is_number(arg2) || ((j = atoi(arg2)) < 0))
-			send_to_char("The second argument must be a positive number.\r\n",
-				ch);
+			send_to_char(ch, "The second argument must be a positive number.\r\n");
 		else if ((edir = search_block(arg1, dirs, FALSE)) < 0)
-			send_to_char("What direction to flow in??\r\n", ch);
+			send_to_char(ch, "What direction to flow in??\r\n");
 		else {
 			if (*arg3) {
 				if (!is_number(arg3)) {
 					if ((i = search_block(arg3, flow_types, 0)) < 0) {
-						send_to_char
-							("Invalid flow type... type olc h rflow.\r\n", ch);
+						send_to_char(ch, 
+							"Invalid flow type... type olc h rflow.\r\n");
 						return;
 					}
 				} else
@@ -936,54 +920,52 @@ do_olc_rset(struct char_data *ch, char *argument)
 				FLOW_TYPE(ch->in_room) = i;
 				if (FLOW_TYPE(ch->in_room) >= NUM_FLOW_TYPES ||
 					FLOW_TYPE(ch->in_room) < 0) {
-					send_to_char("Illegal flow type.\r\n", ch);
+					send_to_char(ch, "Illegal flow type.\r\n");
 					FLOW_TYPE(ch->in_room) = F_TYPE_NONE;
 					return;
 				}
 			} else {
-				send_to_char("Usage: olc rset flow <dir> <speed> <type>\r\n",
-					ch);
+				send_to_char(ch, "Usage: olc rset flow <dir> <speed> <type>\r\n");
 				return;
 			}
 
 			FLOW_DIR(ch->in_room) = edir;
 			FLOW_SPEED(ch->in_room) = j;
-			send_to_char("Flow state set.  HA!\r\n", ch);
+			send_to_char(ch, "Flow state set.  HA!\r\n");
 		}
 		break;
 	case 6:	/** occupancy **/
 		if (!is_number(arg2)) {
-			send_to_char("The argument should be a number.\r\n", ch);
+			send_to_char(ch, "The argument should be a number.\r\n");
 			return;
 		}
 		if ((i = atoi(arg2)) < 0) {
-			send_to_char("Haha hahaHOoHOhah hah.  Funny.\r\n", ch);
+			send_to_char(ch, "Haha hahaHOoHOhah hah.  Funny.\r\n");
 			return;
 		}
 		ch->in_room->max_occupancy = i;
-		send_to_char("Occupancy set!  Watch yourself.\r\n", ch);
+		send_to_char(ch, "Occupancy set!  Watch yourself.\r\n");
 		break;
 
 	case 7:  /** special **/
 		if (!*arg2 || (i = find_spec_index_arg(arg2)) < 0)
-			send_to_char("That is not a valid special.\r\n"
-				"Type show special room to view a list.\r\n", ch);
+			send_to_char(ch, "That is not a valid special.\r\n"
+				"Type show special room to view a list.\r\n");
 		else if (!IS_SET(spec_list[i].flags, SPEC_RM))
-			send_to_char("This special is not for rooms.\r\n", ch);
+			send_to_char(ch, "This special is not for rooms.\r\n");
 		else if (IS_SET(spec_list[i].flags, SPEC_RES) && !OLCIMP(ch))
-			send_to_char("This special is reserved.\r\n", ch);
+			send_to_char(ch, "This special is reserved.\r\n");
 		else {
 			ch->in_room->func = spec_list[i].func;
 			do_specassign_save(ch, SPEC_RM);
-			send_to_char("Room special set.\r\n", ch);
+			send_to_char(ch, "Room special set.\r\n");
 		}
 
 		break;
 
 	default:
-		send_to_char
-			("Sorry, you have attempted to access an unimplemented command.\r\nUnfortunately, you will now be killed.\r\n",
-			ch);
+		send_to_char(ch, 
+			"Sorry, you have attempted to access an unimplemented command.\r\nUnfortunately, you will now be killed.\r\n");
 		return;
 	}
 }
@@ -999,18 +981,16 @@ do_olc_rexdesc(struct char_data *ch, char *argument, bool is_hedit)
 	cmd = (is_hedit) ? "hedit extradesc":"olc rexdesc";
 
 	if (!*argument) {
-		sprintf(buf, "Usage: %s <create | remove | edit | addkey> <keyword> [new keywords]\r\n", cmd);
-		send_to_char(buf, ch);
+		send_to_char(ch, "Usage: %s <create | remove | edit | addkey> <keyword> [new keywords]\r\n", cmd);
 		return;
 	}
 
 	half_chop(argument, buf, argument);
 	if (!*argument)
-		send_to_char
-			("Which extra description would you like to deal with?\r\n", ch);
+		send_to_char(ch, 
+			"Which extra description would you like to deal with?\r\n");
 	else if (!*buf)
-		send_to_char("Valid commands are: create, remove, edit, addkey.\r\n",
-			ch);
+		send_to_char(ch, "Valid commands are: create, remove, edit, addkey.\r\n");
 	else if (is_abbrev(buf, "remove")) {
 		if ((desc = locate_exdesc(argument, ch->in_room->ex_description))) {
 			REMOVE_FROM_LIST(desc, ch->in_room->ex_description, next);
@@ -1025,17 +1005,16 @@ do_olc_rexdesc(struct char_data *ch, char *argument, bool is_hedit)
 				slog("WTF?? !desc->description??");
 
 			free(desc);
-			send_to_char("Description removed.\r\n", ch);
+			send_to_char(ch, "Description removed.\r\n");
 		} else
-			send_to_char("No such extra description.\r\n", ch);
+			send_to_char(ch, "No such extra description.\r\n");
 
 		return;
 	} else if (is_abbrev(buf, "create")) {
 		if (find_exdesc(argument, ch->in_room->ex_description)) {
-			sprintf(buf, "An extra description already exists with that keyword.\r\n"
+			send_to_char(ch, "An extra description already exists with that keyword.\r\n"
 				"Use the '%s remove' command to remove it, or the\r\n"
 				"'%s edit' command to change it, punk.\r\n", cmd, cmd);
-			send_to_char(buf, ch);
 			return;
 		}
 		CREATE(ndesc, struct extra_descr_data, 1);
@@ -1057,18 +1036,16 @@ do_olc_rexdesc(struct char_data *ch, char *argument, bool is_hedit)
 			act("$n begins to write an extra description.", TRUE, ch, 0, 0,
 				TO_ROOM);
 		} else
-			send_to_char
-				("No such description.  Use 'create' to make a new one.\r\n",
-				ch);
+			send_to_char(ch, 
+				"No such description.  Use 'create' to make a new one.\r\n");
 
 		return;
 	} else if (is_abbrev(buf, "addkeyword")) {
 		half_chop(argument, arg1, arg2);
 		if ((desc = locate_exdesc(arg1, ch->in_room->ex_description))) {
 			if (!*arg2) {
-				send_to_char
-					("What??  How about giving me some keywords to add...\r\n",
-					ch);
+				send_to_char(ch, 
+					"What??  How about giving me some keywords to add...\r\n");
 				return;
 			} else {
 				strcpy(buf, desc->keyword);
@@ -1076,13 +1053,13 @@ do_olc_rexdesc(struct char_data *ch, char *argument, bool is_hedit)
 				strcat(buf, arg2);
 				free(desc->keyword);
 				desc->keyword = str_dup(buf);
-				send_to_char("Keywords added.\r\n", ch);
+				send_to_char(ch, "Keywords added.\r\n");
 				return;
 			}
 		} else
-			send_to_char("There is no such description in this room.\r\n", ch);
+			send_to_char(ch, "There is no such description in this room.\r\n");
 	} else
-		send_to_char(OLC_EXDESC_USAGE, ch);
+		send_to_char(ch, OLC_EXDESC_USAGE);
 
 }
 
@@ -1124,28 +1101,28 @@ ACMD(do_hedit)
 				"\007\007\007\007%sWARNING.%s  Overriding olc %s lock.\r\n",
 				CCRED_BLD(ch, C_NRM), CCNRM(ch, C_NRM),
 				olc_lock ? "global" : "discrete zone");
-			send_to_char(buf, ch);
+			send_to_char(ch, "%s", buf);
 		} else {
-			send_to_char("OLC is currently locked.  Try again later.\r\n", ch);
+			send_to_char(ch, "OLC is currently locked.  Try again later.\r\n");
 			return;
 		}
 	}
 
 	if (!IS_SET(ROOM_FLAGS(ch->in_room), ROOM_HOUSE)) {
-		send_to_char("You have to be in your house to edit it.\r\n", ch);
+		send_to_char(ch, "You have to be in your house to edit it.\r\n");
 		return;
 	}
 	if (!(h = real_house(ch->in_room->number))) {
-		send_to_char("Um.. this house seems to be screwed up.\r\n", ch);
+		send_to_char(ch, "Um.. this house seems to be screwed up.\r\n");
 		return;
 	}
 	if ((GET_IDNUM(ch) != h->owner1) &&
 		(GET_IDNUM(ch) != h->owner2) && GET_LEVEL(ch) < LVL_GRGOD) {
-		send_to_char("Only the owner can edit the house.\r\n", ch);
+		send_to_char(ch, "Only the owner can edit the house.\r\n");
 		return;
 	}
 	if (h->mode == HOUSE_RENTAL) {
-		send_to_char("You cannot edit rental houses.\r\n", ch);
+		send_to_char(ch, "You cannot edit rental houses.\r\n");
 		return;
 	}
 
@@ -1153,14 +1130,14 @@ ACMD(do_hedit)
 	skip_spaces(&argument);
 
 	if ((command = search_block(arg, hedit_options, 0)) < 0) {
-		send_to_char(HEDIT_USAGE, ch);
+		send_to_char(ch, HEDIT_USAGE);
 		return;
 	}
 
 	switch (command) {
 	case 0:					/* title */
 		if (strlen(argument) > 80) {
-			send_to_char("That's a bit long. Dont you think?\r\n", ch);
+			send_to_char(ch, "That's a bit long. Dont you think?\r\n");
 			return;
 		}
 		sprintf(buf, "title %s", argument);
@@ -1179,9 +1156,9 @@ ACMD(do_hedit)
 		break;
 	case 4:					/* save  */
 		if (!save_wld(ch))
-			send_to_char("World file saved.\r\n", ch);
+			send_to_char(ch, "World file saved.\r\n");
 		else {
-			send_to_char("An error occured while saving.\r\n", ch);
+			send_to_char(ch, "An error occured while saving.\r\n");
 			slog("SYSERR: Error hedit save in house room %d.",
 				ch->in_room->number);
 		}
@@ -1257,40 +1234,37 @@ ACMD(do_hedit)
 			idnum = get_id_by_name(arg);
 
 			if (GET_IDNUM(ch) != h->owner1) {
-				send_to_char("Sorry, only the primary owner can do this.\r\n",
-					ch);
+				send_to_char(ch, "Sorry, only the primary owner can do this.\r\n");
 				return;
 			}
 			if (idnum <= 0) {
-				sprintf(buf, "There is no player named '%s'.\r\n", arg);
-				send_to_char(buf, ch);
+				send_to_char(ch, "There is no player named '%s'.\r\n", arg);
 				return;
 			}
 
 			if (GET_IDNUM(ch) == idnum) {
-				send_to_char("You cannot Co-own with yourself.\r\n", ch);
+				send_to_char(ch, "You cannot Co-own with yourself.\r\n");
 				return;
 			}
 
 			if (h->owner2 == idnum) {
 				h->owner2 = 0;
 				House_save_control();
-				send_to_char("Co-owner removed.\r\n", ch);
+				send_to_char(ch, "Co-owner removed.\r\n");
 				WAIT_STATE(ch, 2 RL_SEC);
 				return;
 			}
 
 			h->owner2 = idnum;
 			House_save_control();
-			send_to_char("Co-owner added.\r\n", ch);
+			send_to_char(ch, "Co-owner added.\r\n");
 			WAIT_STATE(ch, 2 RL_SEC);
 			return;
 			break;
 		}
 
 	default:
-		send_to_char("Error code <69> -- fatal allocation in do_hedit.\r\n",
-			ch);
+		send_to_char(ch, "Error code <69> -- fatal allocation in do_hedit.\r\n");
 		break;
 	}
 }

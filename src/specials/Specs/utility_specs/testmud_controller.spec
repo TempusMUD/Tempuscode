@@ -39,7 +39,7 @@ SPECIAL(testmud_controller)
     do_trans(ch, argument, 0, 0);
   } else if (CMD_IS("shutdown")) {
     if (GET_LEVEL(ch) < LVL_IMMORT) {
-      send_to_char("You'd better let an immortal do that.\r\n", ch);
+      send_to_char(ch, "You'd better let an immortal do that.\r\n");
     } else { 
       act("$n twiddles some controls on $p.", TRUE, ch, obj, 0, TO_ROOM);
       do_shutdown(ch, argument, 0, SCMD_SHUTDOWN);
@@ -52,14 +52,14 @@ SPECIAL(testmud_controller)
     do_purge(ch, argument, 0, 0);
   } else if (CMD_IS("advance")) {
     if (GET_LEVEL(ch) < LVL_IMMORT) {
-      send_to_char("You'd better let an immortal do that.\r\n", ch);
+      send_to_char(ch, "You'd better let an immortal do that.\r\n");
     } else {
       act("$n twiddles some controls on $p.", TRUE, ch, obj, 0, TO_ROOM);
       do_advance(ch, argument, 0, 0);
     }
   } else if (CMD_IS("restore")) {
     if (GET_LEVEL(ch) < LVL_IMMORT) {
-      send_to_char("You'd better let an immortal do that.\r\n", ch);
+      send_to_char(ch, "You'd better let an immortal do that.\r\n");
     } else {
       act("$n twiddles some controls on $p.", TRUE, ch, obj, 0, TO_ROOM);
       do_restore(ch, argument, 0, 0);
@@ -69,7 +69,7 @@ SPECIAL(testmud_controller)
     do_force(ch, argument, 0, 0);
   } else if (CMD_IS("wizlock")) {  
     if (GET_LEVEL(ch) < LVL_IMMORT) {
-      send_to_char("You'd better let an immortal do that.\r\n", ch);
+      send_to_char(ch, "You'd better let an immortal do that.\r\n");
     } else {
       act("$n twiddles some controls on $p.", TRUE, ch, obj, 0, TO_ROOM);
       do_wizlock(ch, argument, 0, 0);
@@ -85,7 +85,7 @@ SPECIAL(testmud_controller)
     do_vnum(ch, argument, 0, 0);
   } else if (CMD_IS("reroll")) {  
     if (GET_LEVEL(ch) < LVL_IMMORT) {
-      send_to_char("You'd better let an immortal do that.\r\n", ch);
+      send_to_char(ch, "You'd better let an immortal do that.\r\n");
     } else {
       act("$n twiddles some controls on $p.", TRUE, ch, obj, 0, TO_ROOM);
       do_wizutil(ch, argument, 0, SCMD_REROLL);

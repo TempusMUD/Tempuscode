@@ -33,7 +33,7 @@ SPECIAL(improve_stat_book)
     return 0;
 
   if (obj->in_room) {
-    send_to_char("You must take it first.\r\n", ch);
+    send_to_char(ch, "You must take it first.\r\n");
     return 1;
   }
 
@@ -50,21 +50,20 @@ SPECIAL(improve_stat_book)
   if ((IS_OBJ_STAT(obj, ITEM_ANTI_EVIL) && IS_EVIL(ch)) ||
       (IS_OBJ_STAT(obj, ITEM_ANTI_GOOD) && IS_GOOD(ch)) ||
       (IS_OBJ_STAT(obj, ITEM_ANTI_NEUTRAL) && IS_NEUTRAL(ch))) {
-    send_to_char("You feel terrible.\r\n", ch);
+    send_to_char(ch, "You feel terrible.\r\n");
     GET_HIT(ch) = 1;
     GET_MANA(ch) = 1;
     GET_MOVE(ch) = 1;
     GET_LIFE_POINTS(ch) = MAX(0, GET_LIFE_POINTS(ch) - 1);
   } else if (REAL_STAT >= 18 ||	invalid_char_class(ch, obj)) {
-    send_to_char("You feel no different than before.\r\n", ch);
+    send_to_char(ch, "You feel no different than before.\r\n");
   } else {
-    sprintf(buf, "You feel that your %s has increased!\r\n",
+    send_to_char(ch, "You feel that your %s has increased!\r\n",
 	    WHICH_STAT == MODE_STR ? "strength" :
 	    WHICH_STAT == MODE_INT ? "intellegence" :
 	    WHICH_STAT == MODE_WIS ? "wisdom" :
 	    WHICH_STAT == MODE_DEX ? "dex" :
 	    WHICH_STAT == MODE_CON ? "constitution" : "charisma");
-    send_to_char(buf, ch);
     REAL_STAT++;
   }
   extract_obj(obj);
@@ -95,7 +94,7 @@ SPECIAL(improve_prac_book)
     return 0;
 
   if (obj->in_room) {
-    send_to_char("You must take it first.\r\n", ch);
+    send_to_char(ch, "You must take it first.\r\n");
     return 1;
   }
 
@@ -112,15 +111,15 @@ SPECIAL(improve_prac_book)
   if ((IS_OBJ_STAT(obj, ITEM_ANTI_EVIL) && IS_EVIL(ch)) ||
       (IS_OBJ_STAT(obj, ITEM_ANTI_GOOD) && IS_GOOD(ch)) ||
       (IS_OBJ_STAT(obj, ITEM_ANTI_NEUTRAL) && IS_NEUTRAL(ch))) {
-    send_to_char("You feel terrible.\r\n", ch);
+    send_to_char(ch, "You feel terrible.\r\n");
     GET_HIT(ch) = 1;
     GET_MANA(ch) = 1;
     GET_MOVE(ch) = 1;
     GET_PRACTICES(ch) = MAX(0, GET_PRACTICES(ch) - 1);
   } else if (invalid_char_class(ch, obj)) {
-    send_to_char("You feel no different than before.\r\n", ch);
+    send_to_char(ch, "You feel no different than before.\r\n");
   } else {
-    send_to_char("You feel an increased ability to learn new skills.\r\n", ch);
+    send_to_char(ch, "You feel an increased ability to learn new skills.\r\n");
     GET_PRACTICES(ch) += MIN(10, GET_OBJ_VAL(obj, 0));
   }
   extract_obj(obj);

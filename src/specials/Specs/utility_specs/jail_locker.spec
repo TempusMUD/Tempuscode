@@ -19,7 +19,7 @@ SPECIAL(jail_locker)
   else if (ch->in_room->number == 1214)
     v_locker = 1589;
   else {
-    send_to_char("There is an error here.\r\n", ch);
+    send_to_char(ch, "There is an error here.\r\n");
     return 0;
   }
 

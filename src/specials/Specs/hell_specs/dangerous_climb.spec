@@ -15,8 +15,8 @@ SPECIAL(dangerous_climb)
       EXIT(ch, DOWN) && (toroom = EXIT(ch, DOWN)->to_room)) {
     act("A rock shifts and $n goes crashing down the steep path!",
 	FALSE, ch, 0, 0, TO_ROOM);
-    send_to_char("A rock shifts under your feet sending you tumbling down the path!\r\n"
-		 "Your body crashes painfully against the rocks below!!\r\n", ch);
+    send_to_char(ch, "A rock shifts under your feet sending you tumbling down the path!\r\n"
+		 "Your body crashes painfully against the rocks below!!\r\n");
     dam = dice(5, 8) + (GET_WEIGHT(ch) >> 4);
     dam -= (dam * (100 - GET_AC(ch))) / 400;
     if (damage(ch, ch, dam, TYPE_FALLING, -1))

@@ -63,11 +63,11 @@ SPECIAL(underworld_goddess)
     switch (number(0, 7)) {
     case 0:
       sprintf(buf,"The goddess tells you, 'You are a fool to fight me %s.'\r\n", GET_NAME(vict));
-      send_to_char(buf, vict);
+      send_to_char(vict, "%s", buf);
       break;
     case 1:
       sprintf(buf,"The goddess tells you, 'Fool!  Now watch yourself perish!'\r\n");
-      send_to_char(buf, vict);
+      send_to_char(vict, "%s", buf);
       break;
     }
     return 1;
@@ -77,7 +77,6 @@ SPECIAL(underworld_goddess)
   if (!cmd && styx && ((GET_MAX_HIT(styx) - GET_HIT(styx)) > 0))  {
     switch (number(0, 1)) {
       case 0:
-        send_to_char("The goddess tell you, 'My Love, you are hurt!  Let me heal you.'\r\n",styx);
         cast_spell(ch, styx, NULL, SPELL_GREAT_HEAL);
         break;
      }
@@ -86,15 +85,15 @@ SPECIAL(underworld_goddess)
      if ((vict = FIGHTING(styx)))
        switch (number(0, 4)) {
         case 0:
-          send_to_char("The Goddess shouts, 'Chew on this worm face!'\r\n", vict);
+          send_to_char(vict, "The Goddess shouts, 'Chew on this worm face!'\r\n");
           cast_spell(ch, vict, NULL, SPELL_FIREBALL);
           break;
         case 1:
-          send_to_char("The Goddess shouts, 'You FIEND!  Take this!'\r\n", vict);
+          send_to_char(vict, "The Goddess shouts, 'You FIEND!  Take this!'\r\n");
           cast_spell(ch, vict, NULL, SPELL_FLAME_STRIKE);
           break;
         case 2:
-          send_to_char("The Goddess shouts, 'Have a LIGHT sewer breath!'\r\n", vict);
+          send_to_char(vict, "The Goddess shouts, 'Have a LIGHT sewer breath!'\r\n");
           cast_spell(ch, vict, NULL, SPELL_LIGHTNING_BOLT);
           break;
         case 3:
@@ -109,7 +108,6 @@ SPECIAL(underworld_goddess)
     switch (number(0, 20)) {
       case 0:
         act("The Goddess of the Underworld kisses $n.", FALSE, styx, 0, 0, TO_ROOM);
-        send_to_char("The goddess kisses you very gently.\r\n",styx);
         break;
     }
     return 1;
@@ -139,7 +137,6 @@ SPECIAL(underworld_goddess)
 
         if (vict)  {
           act("The young priestess starts kissing $n all over his body!", FALSE, styx, 0, 0, TO_ROOM);
-          send_to_char("The young priestess starts kissing you in some very sensitive areas!.\r\n",styx);
           return TRUE;
         }
      }
@@ -149,7 +146,6 @@ SPECIAL(underworld_goddess)
 
   if (CMD_IS("say") && !strncasecmp(argument," styx sent me",13)) {
       act("The Goddess of the Underworld starts stroking $n's inner thigh.",FALSE, ch, 0, 0, TO_ROOM);
-      send_to_char("The Goddess of the Underworld gently strokes your inner thigh with feathery touches.\r\n",ch);
       return TRUE;
   }
       

@@ -66,13 +66,13 @@ do_create_ticl(struct char_data *ch, int vnum)
 			break;
 
 	if (!zone) {
-		send_to_char
-			("ERROR: A zone must be defined for the TICL proc first.\r\n", ch);
+		send_to_char(ch, 
+			"ERROR: A zone must be defined for the TICL proc first.\r\n");
 		return (NULL);
 	}
 
 	if (!CAN_EDIT_ZONE(ch, zone)) {
-		send_to_char("You can't touch this zone, buttmunch.\r\n", ch);
+		send_to_char(ch, "You can't touch this zone, buttmunch.\r\n");
 		sprintf(buf, "OLC: %s failed attempt to CREATE TICL %d.", GET_NAME(ch),
 			vnum);
 		mudlog(buf, BRF, GET_INVIS_LEV(ch), TRUE);
@@ -80,13 +80,13 @@ do_create_ticl(struct char_data *ch, int vnum)
 	}
 
 	if (!ZONE_FLAGGED(zone, ZONE_TICL_APPROVED)) {
-		send_to_char("TICL OLC is not approved for this zone.\r\n", ch);
+		send_to_char(ch, "TICL OLC is not approved for this zone.\r\n");
 		return (NULL);
 	}
 
 	for (ticl = zone->ticl_list; ticl; ticl = ticl->next)
 		if (ticl->vnum == vnum) {
-			send_to_char("A TICL proc already exists with that vnum.\r\n", ch);
+			send_to_char(ch, "A TICL proc already exists with that vnum.\r\n");
 			return (NULL);
 		}
 
@@ -131,21 +131,20 @@ do_ticl_tedit(struct char_data *ch, char *argument)
 
 	if (!*argument) {
 		if (!ticl)
-			send_to_char("You are not currently editing a TICL proc.\r\n", ch);
+			send_to_char(ch, "You are not currently editing a TICL proc.\r\n");
 		else {
-			sprintf(buf, "Current olc TICL proc: [%5d] %s\r\n",
+			send_to_char(ch, "Current olc TICL proc: [%5d] %s\r\n",
 				ticl->vnum, ticl->title);
-			send_to_char(buf, ch);
 		}
 		return;
 	}
 	if (!is_number(argument)) {
 		if (is_abbrev(argument, "exit")) {
-			send_to_char("Exiting TICL editor.\r\n", ch);
+			send_to_char(ch, "Exiting TICL editor.\r\n");
 			GET_OLC_TICL(ch) = NULL;
 			return;
 		}
-		send_to_char("The argument must be a number.\r\n", ch);
+		send_to_char(ch, "The argument must be a number.\r\n");
 		return;
 	} else {
 		j = atoi(argument);
@@ -155,7 +154,7 @@ do_ticl_tedit(struct char_data *ch, char *argument)
 				break;
 
 		if (!zone) {
-			send_to_char("There is no such TICL proc, buttmunch.\r\n", ch);
+			send_to_char(ch, "There is no such TICL proc, buttmunch.\r\n");
 			return;
 		}
 
@@ -164,28 +163,26 @@ do_ticl_tedit(struct char_data *ch, char *argument)
 				break;
 
 		if (tmp_ticl == NULL)
-			send_to_char("There is no such TICL proc.\r\n", ch);
+			send_to_char(ch, "There is no such TICL proc.\r\n");
 		else {
 			for (zone = zone_table; zone; zone = zone->next)
 				if (j < zone->top)
 					break;
 			if (!zone) {
-				send_to_char
-					("That TICL proc does not belong to any zone!!\r\n", ch);
+				send_to_char(ch, 
+					"That TICL proc does not belong to any zone!!\r\n");
 				slog("SYSERR: mobile not in any zone.");
 				return;
 			}
 
 			if (!CAN_EDIT_ZONE(ch, zone)) {
-				send_to_char
-					("You do not have permission to edit those TICL procs.\r\n",
-					ch);
+				send_to_char(ch, 
+					"You do not have permission to edit those TICL procs.\r\n");
 				return;
 			}
 
 			if (!ZONE_FLAGGED(zone, ZONE_MOBS_APPROVED) && !OLCGOD(ch)) {
-				send_to_char("TICL OLC is not approved for this zone.\r\n",
-					ch);
+				send_to_char(ch, "TICL OLC is not approved for this zone.\r\n");
 				return;
 			}
 
@@ -198,10 +195,9 @@ do_ticl_tedit(struct char_data *ch, char *argument)
 			}
 
 			GET_OLC_TICL(ch) = tmp_ticl;
-			sprintf(buf, "Now editing TICL [%d] %s%s%s\r\n",
+			send_to_char(ch, "Now editing TICL [%d] %s%s%s\r\n",
 				tmp_ticl->vnum,
 				CCGRN(ch, C_NRM), tmp_ticl->title, CCNRM(ch, C_NRM));
-			send_to_char(buf, ch);
 		}
 	}
 }
@@ -215,7 +211,7 @@ do_ticl_tstat(struct char_data *ch)
 	ticl = GET_OLC_TICL(ch);
 
 	if (!ticl)
-		send_to_char("You are not currently editing a TICL proc.\r\n", ch);
+		send_to_char(ch, "You are not currently editing a TICL proc.\r\n");
 	else {
 		strcpy(tim1, (char *)asctime(localtime(&(ticl->date_created))));
 		strcpy(tim2, (char *)asctime(localtime(&(ticl->last_modified))));
@@ -241,7 +237,7 @@ do_ticl_tstat(struct char_data *ch)
 			get_name_by_id(ticl->last_modified_by),
 			CCNRM(ch, C_NRM), CCGRN(ch, C_NRM), tim2, CCNRM(ch, C_NRM));
 
-		send_to_char(buf, ch);
+		send_to_char(ch, "%s", buf);
 
 		if (ticl->code != NULL)
 			page_string(ch->desc, ticl->code, 1);
@@ -259,7 +255,7 @@ do_ticl_tset(struct char_data *ch, char *argument)
 	int i, tset_command;		/* tmp_flags, flag, cur_flags, state; */
 
 	if (!ticl_p) {
-		send_to_char("You are not currently editing a TICL proc.\r\n", ch);
+		send_to_char(ch, "You are not currently editing a TICL proc.\r\n");
 		return;
 	}
 
@@ -281,13 +277,11 @@ do_ticl_tset(struct char_data *ch, char *argument)
 	skip_spaces(&argument);
 
 	if ((tset_command = search_block(arg1, olc_tset_keys, FALSE)) < 0) {
-		sprintf(buf, "Invalid tset command '%s'.\r\n", arg1);
-		send_to_char(buf, ch);
+		send_to_char(ch, "Invalid tset command '%s'.\r\n", arg1);
 		return;
 	}
 	if (tset_command != 1 && !*arg2) {
-		sprintf(buf, "Set %s to what??\r\n", olc_tset_keys[tset_command]);
-		send_to_char(buf, ch);
+		send_to_char(ch, "Set %s to what??\r\n", olc_tset_keys[tset_command]);
 		return;
 	}
 
@@ -299,8 +293,7 @@ do_ticl_tset(struct char_data *ch, char *argument)
 			ticl_p->title = str_dup(argument);
 		} else
 			ticl_p->title = str_dup(argument);
-		sprintf(buf, "The title of this proc is now %s.\r\n", ticl_p->title);
-		send_to_char(buf, ch);
+		send_to_char(ch, "The title of this proc is now %s.\r\n", ticl_p->title);
 		break;
 	case 1:			 /** Code **/
 		if (ticl_p->code == NULL) {
@@ -366,7 +359,7 @@ write_ticl_index(struct char_data *ch, struct zone_data *zone)
 
 	sprintf(fname, "world/ticl/index");
 	if (!(index = fopen(fname, "w"))) {
-		send_to_char("Could not open index file, TICL save aborted.\r\n", ch);
+		send_to_char(ch, "Could not open index file, TICL save aborted.\r\n");
 		return (0);
 	}
 
@@ -375,7 +368,7 @@ write_ticl_index(struct char_data *ch, struct zone_data *zone)
 
 	fprintf(index, "$\n");
 
-	send_to_char("TICL index file re-written.\r\n", ch);
+	send_to_char(ch, "TICL index file re-written.\r\n");
 
 	fclose(index);
 
@@ -401,7 +394,7 @@ save_ticls(struct char_data *ch)
 				break;
 		if (!zone) {
 			slog("OLC: ERROR finding zone for TICL %d.", t_vnum);
-			send_to_char("Unable to match TICL with zone error..\r\n", ch);
+			send_to_char(ch, "Unable to match TICL with zone error..\r\n");
 			return 1;
 		}
 	} else
@@ -442,9 +435,9 @@ save_ticls(struct char_data *ch)
 		sprintf(fname, "world/ticl/olc/%d.ticl", zone->number);
 		if (!(file = fopen(fname, "r"))) {
 			slog("SYSERR: Failure to reopen olc TICL file.");
-			send_to_char
-				("OLC Error: Failure to duplicate TICL file in main dir."
-				"\r\n", ch);
+			send_to_char(ch, 
+				"OLC Error: Failure to duplicate TICL file in main dir."
+				"\r\n");
 			fclose(realfile);
 			return 0;
 		}
@@ -452,9 +445,9 @@ save_ticls(struct char_data *ch)
 			tmp = fread(buf, 1, 512, file);
 			if (fwrite(buf, 1, tmp, realfile) != tmp) {
 				slog("SYSERR: Failure to duplicate olc TICL file in the main wld dir.");
-				send_to_char
-					("OLC Error: Failure to duplicate TICL file in main dir."
-					"\r\n", ch);
+				send_to_char(ch, 
+					"OLC Error: Failure to duplicate TICL file in main dir."
+					"\r\n");
 				fclose(realfile);
 				fclose(file);
 				return 0;

@@ -19,7 +19,7 @@
 
 /* comm.c */
 void send_to_all(char *messg);
-void send_to_char(const char *messg, struct char_data *ch);
+void send_to_char(struct char_data *ch, const char *str, ...);
 void send_to_room(char *messg, struct room_data *room);
 void send_to_clerics(char *messg);
 void send_to_outdoor(char *messg, int isecho = 0);

@@ -379,8 +379,6 @@ gain_exp(struct char_data *ch, int gain)
 {
 	int is_altered = FALSE;
 	int num_levels = 0;
-	char buf[128];
-
 
 	if (ch && ch->in_room && ROOM_FLAGGED(ch->in_room, ROOM_ARENA))
 		return;
@@ -416,10 +414,9 @@ gain_exp(struct char_data *ch, int gain)
 
 		if (is_altered) {
 			if (num_levels == 1)
-				send_to_char("You rise a level!\r\n", ch);
+				send_to_char(ch, "You rise a level!\r\n");
 			else {
-				sprintf(buf, "You rise %d levels!\r\n", num_levels);
-				send_to_char(buf, ch);
+				send_to_char(ch, "You rise %d levels!\r\n", num_levels);
 			}
 			save_char(ch, NULL);
 			set_title(ch, NULL);
@@ -455,10 +452,9 @@ gain_exp_regardless(struct char_data *ch, int gain)
 
 		if (is_altered) {
 			if (num_levels == 1)
-				send_to_char("You rise a level!\r\n", ch);
+				send_to_char(ch, "You rise a level!\r\n");
 			else {
-				sprintf(buf, "You rise %d levels!\r\n", num_levels);
-				send_to_char(buf, ch);
+				send_to_char(ch, "You rise %d levels!\r\n", num_levels);
 			}
 			set_title(ch, NULL);
 			check_autowiz(ch);
@@ -490,23 +486,23 @@ gain_condition(struct char_data *ch, int condition, int value)
 		switch (condition) {
 		case FULL:
 			if (!number(0, 3))
-				send_to_char("You feel quite hungry.\r\n", ch);
+				send_to_char(ch, "You feel quite hungry.\r\n");
 			else if (!number(0, 2))
-				send_to_char("You are famished.\r\n", ch);
+				send_to_char(ch, "You are famished.\r\n");
 			else
-				send_to_char("You are hungry.\r\n", ch);
+				send_to_char(ch, "You are hungry.\r\n");
 			return;
 		case THIRST:
 			if (IS_VAMPIRE(ch))
-				send_to_char("You feel a thirst for blood...\r\n", ch);
+				send_to_char(ch, "You feel a thirst for blood...\r\n");
 			else if (!number(0, 1))
-				send_to_char("Your throat is parched.\r\n", ch);
+				send_to_char(ch, "Your throat is parched.\r\n");
 			else
-				send_to_char("You are thirsty.\r\n", ch);
+				send_to_char(ch, "You are thirsty.\r\n");
 			return;
 		case DRUNK:
 			if (intoxicated)
-				send_to_char("You are now sober.\r\n", ch);
+				send_to_char(ch, "You are now sober.\r\n");
 			return;
 		default:
 			break;
@@ -526,8 +522,7 @@ check_idling(struct char_data *ch)
 
 	if ((ch->char_specials.timer) > 10 && !PLR_FLAGGED(ch, PLR_OLC)) {
 		if (ch->desc && STATE(ch->desc) == CON_NETWORK) {
-			send_to_char("Idle limit reached.  Connection reset by peer.\r\n",
-				ch);
+			send_to_char(ch, "Idle limit reached.  Connection reset by peer.\r\n");
 			set_desc_state(CON_PLAYING, ch->desc);
 		} else if (GET_WAS_IN(ch) == NULL && ch->in_room != NULL) {
 			GET_WAS_IN(ch) = ch->in_room;
@@ -536,8 +531,7 @@ check_idling(struct char_data *ch)
 				stop_fighting(ch);
 			}
 			act("$n disappears into the void.", TRUE, ch, 0, 0, TO_ROOM);
-			send_to_char("You have been idle, and are pulled into a void.\r\n",
-				ch);
+			send_to_char(ch, "You have been idle, and are pulled into a void.\r\n");
 			save_char(ch, NULL);
 			Crash_crashsave(ch);
 			char_from_room(ch);
@@ -611,45 +605,43 @@ point_update(void)
 				case 0:
 					act("$n pukes all over the place.", FALSE, i, 0, 0,
 						TO_ROOM);
-					send_to_char("You puke all over the place.\r\n", i);
+					send_to_char(i, "You puke all over the place.\r\n");
 					break;
 
 				case 1:
 					act("$n vomits uncontrollably.", FALSE, i, 0, 0, TO_ROOM);
-					send_to_char("You vomit uncontrollably.\r\n", i);
+					send_to_char(i, "You vomit uncontrollably.\r\n");
 					break;
 
 				case 2:
 					act("$n begins to regurgitate steaming bile.", FALSE, i, 0,
 						0, TO_ROOM);
-					send_to_char("You begin to regurgitate bile.\r\n", i);
+					send_to_char(i, "You begin to regurgitate bile.\r\n");
 					break;
 
 				case 3:
 					act("$n is violently overcome with a fit of dry heaving.",
 						FALSE, i, 0, 0, TO_ROOM);
-					send_to_char
-						("You are violently overcome with a fit of dry heaving.\r\n",
-						i);
+					send_to_char(i, 
+						"You are violently overcome with a fit of dry heaving.\r\n");
 					break;
 
 				case 4:
 					act("$n begins to retch.", FALSE, i, 0, 0, TO_ROOM);
-					send_to_char("You begin to retch.\r\n", i);
+					send_to_char(i, "You begin to retch.\r\n");
 					break;
 
 				case 5:
 					act("$n violently ejects $s lunch!", FALSE, i, 0, 0,
 						TO_ROOM);
-					send_to_char("You violently eject your lunch!\r\n", i);
+					send_to_char(i, "You violently eject your lunch!\r\n");
 					break;
 
 				default:
 					act("$n begins an extended session of tossing $s cookies.",
 						FALSE, i, 0, 0, TO_ROOM);
-					send_to_char
-						("You begin an extended session of tossing your cookies.\r\n",
-						i);
+					send_to_char(i, 
+						"You begin an extended session of tossing your cookies.\r\n");
 					break;
 				}
 			}

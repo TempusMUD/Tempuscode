@@ -25,7 +25,7 @@ SPECIAL(labyrinth_clock)
 
 	if (CMD_IS("enter")) {
 
-		send_to_char("You step into the clock.\r\n\r\n", ch);
+		send_to_char(ch, "You step into the clock.\r\n\r\n");
 		act("$n steps into the clock.", TRUE, ch, 0, 0, TO_ROOM);
 
 		if (clock_status == 0) {
@@ -67,11 +67,11 @@ SPECIAL(labyrinth_clock)
 		/* check ch is holding key */
 		if (!ch->equipment[WEAR_HOLD] ||
 			(GET_OBJ_VNUM(ch->equipment[WEAR_HOLD]) != 66001)) {
-			send_to_char("You aren't holding the correct key.\r\n", ch);
+			send_to_char(ch, "You aren't holding the correct key.\r\n");
 			return 1;
 		}
 
-		send_to_char("You wind the clock.\r\n", ch);
+		send_to_char(ch, "You wind the clock.\r\n");
 		act("$n winds the clock.", TRUE, ch, 0, 0, TO_ROOM);
 		clock_status++;
 		return 1;
@@ -163,7 +163,7 @@ SPECIAL(drink_me_bottle)
 		return 0;
 
 	if (ch->getPosition() == POS_SLEEPING) {
-		send_to_char("You'll have to wake up first!\r\n", ch);
+		send_to_char(ch, "You'll have to wake up first!\r\n");
 		return 1;
 	}
 
@@ -172,16 +172,15 @@ SPECIAL(drink_me_bottle)
 	if (!isname(argument, bottle->name) || !GET_OBJ_VAL(bottle, 1))
 		return 0;
 
-	sprintf(buf, "You drink %s from %s.  Mmmm, tasty.\r\n",
+	send_to_char(ch, "You drink %s from %s.  Mmmm, tasty.\r\n",
 		fname(bottle->name), bottle->short_description);
-	send_to_char(buf, ch);
 	act("$n drinks from $p.", TRUE, ch, bottle, 0, TO_ROOM);
 
 	/* increment the bottle contents */
 	GET_OBJ_VAL(bottle, 1)--;
 
 	if (affected_by_spell(ch, SPELL_SHRINKING)) {
-		send_to_char("Nothing seems to happen.\r\n", ch);
+		send_to_char(ch, "Nothing seems to happen.\r\n");
 		return 1;
 	}
 
@@ -194,7 +193,7 @@ SPECIAL(drink_me_bottle)
 
 	affect_to_char(ch, &af);
 
-	send_to_char("You feel very strange... you're SHRINKING!\r\n", ch);
+	send_to_char(ch, "You feel very strange... you're SHRINKING!\r\n");
 	act("$n shrinks to the size of a small rabbit!", TRUE, ch, 0, ch, TO_ROOM);
 
 	return 1;
@@ -213,7 +212,7 @@ SPECIAL(rabbit_hole)
 		return (0);
 
 	if (ch->player.height >= 11) {
-		send_to_char("You are way too big to fit in there!\r\n", ch);
+		send_to_char(ch, "You are way too big to fit in there!\r\n");
 		act("$n makes a spectacle of $mself, trying to squeeze into $p.",
 			TRUE, ch, hole, 0, TO_ROOM);
 		return 1;
@@ -226,7 +225,7 @@ SPECIAL(rabbit_hole)
 	if (to_room == NULL)
 		return 0;
 
-	send_to_char("You climb through the hole.\r\n\r\n", ch);
+	send_to_char(ch, "You climb through the hole.\r\n\r\n");
 	act("$n steps into the hole.", TRUE, ch, 0, 0, TO_ROOM);
 	char_from_room(ch);
 	char_to_room(ch, to_room);
@@ -360,9 +359,8 @@ SPECIAL(pendulum_timer_mob)
 				for (; it != theRoom->people.end(); ++it) {
 					vict = *it;
 					if (vict->getPosition() > POS_SITTING) {
-						send_to_char
-							("You are carried north by the pendulum.\r\n",
-							vict);
+						send_to_char(vict, 
+							"You are carried north by the pendulum.\r\n");
 						act("$n is pushed from the room by the pendulum.",
 							TRUE, vict, 0, 0, TO_ROOM);
 						char_from_room(vict);
@@ -409,9 +407,8 @@ SPECIAL(pendulum_timer_mob)
 				for (; it != theRoom->people.end(); ++it) {
 					vict = *it;
 					if (vict->getPosition() > POS_SITTING) {
-						send_to_char
-							("You are carried south by the pendulum.\r\n",
-							vict);
+						send_to_char(vict, 
+							"You are carried south by the pendulum.\r\n");
 						act("$n is pushed from the room by the pendulum.",
 							TRUE, vict, 0, 0, TO_ROOM);
 						char_from_room(vict);
@@ -452,7 +449,7 @@ SPECIAL(pendulum_room)
 			test_obj = test_obj->next_content) {
 			if (GET_OBJ_VNUM(test_obj) == 66007) {
 				act("$n tries to go south but can't get past the pendulum.\r\n", TRUE, ch, 0, 0, TO_ROOM);
-				send_to_char("The pendulum blocks the way!\r\n", ch);
+				send_to_char(ch, "The pendulum blocks the way!\r\n");
 				return 1;
 			}
 		}
@@ -463,7 +460,7 @@ SPECIAL(pendulum_room)
 			test_obj = test_obj->next_content) {
 			if (GET_OBJ_VNUM(test_obj) == 66011) {
 				act("$n tries to go north but can't get past the pendulum.\r\n", TRUE, ch, 0, 0, TO_ROOM);
-				send_to_char("The pendulum blocks the way!\r\n", ch);
+				send_to_char(ch, "The pendulum blocks the way!\r\n");
 				return 1;
 			}
 		}
@@ -533,8 +530,7 @@ SPECIAL(astrolabe)
 	if (CMD_IS("adjust")) {
 		act("$n fiddles with some controls on $p.",
 			TRUE, ch, astrolabe, 0, TO_ROOM);
-		send_to_char("You fiddle with some controls on your astrolabe.\r\n",
-			ch);
+		send_to_char(ch, "You fiddle with some controls on your astrolabe.\r\n");
 		ROOM_NUMBER(astrolabe) = ch->in_room->number;
 		sprintf(buf, "$p is good for %d more use%s.",
 			MAX(1, NUM_USES(astrolabe)), NUM_USES(astrolabe) > 1 ? "s" : "");
@@ -542,12 +538,12 @@ SPECIAL(astrolabe)
 	} else if (CMD_IS("use")) {
 		act("$n lifts $p and peers through it.", TRUE, ch, astrolabe, 0,
 			TO_ROOM);
-		send_to_char("You lift your astrolabe and peer through it.\r\n", ch);
+		send_to_char(ch, "You lift your astrolabe and peer through it.\r\n");
 
 		to_room = real_room(ROOM_NUMBER(astrolabe));
 
 		if (!to_room) {
-			send_to_char("Nothing seems to happen.\r\n", ch);
+			send_to_char(ch, "Nothing seems to happen.\r\n");
 			return 1;
 		}
 
@@ -557,8 +553,8 @@ SPECIAL(astrolabe)
 					ZONE_FLAGGED(ch->in_room->zone, ZONE_ISOLATED))) ||
 			ROOM_FLAGGED(to_room, ROOM_NOTEL | ROOM_NORECALL | ROOM_NOMAGIC) ||
 			ROOM_FLAGGED(ch->in_room, ROOM_NORECALL | ROOM_NOMAGIC)) {
-			send_to_char
-				("You are unable to see your destination from here.\r\n", ch);
+			send_to_char(ch, 
+				"You are unable to see your destination from here.\r\n");
 			return 1;
 		}
 

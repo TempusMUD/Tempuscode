@@ -26,10 +26,10 @@ SPECIAL(newbie_tower_rm)
             page_string(ch->desc,buf,1);
         }
       /*
-      send_to_char("This map may be viewed at any time by typing 'help modrian'.\r\n", ch);
-      send_to_char("You may also look out the windows of the tower by using the\r\n"
+      send_to_char(ch, "This map may be viewed at any time by typing 'help modrian'.\r\n");
+      send_to_char(ch, "You may also look out the windows of the tower by using the\r\n"
                    "look command to look in the cardinal directions.  For example,\r\n"
-                   "'look north'.\r\n", ch);
+                   "'look north'.\r\n");
       */
       return 1;
     }

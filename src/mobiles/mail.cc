@@ -39,7 +39,7 @@ Rewritten by John Rothe (forget@tempusmud.com)
 void
 show_mail_stats(char_data * ch)
 {
-	send_to_char("This has been removed.\r\n", ch);
+	send_to_char(ch, "This has been removed.\r\n");
 	return;
 }
 
@@ -124,22 +124,18 @@ store_mail(long to_id, long from_id, char *txt, char *cc_list,
 	// NO zero length mail!
 	// This should never happen.
 	if (!txt || !strlen(txt)) {
-		sprintf(buf, "Why would you send a blank message?\r\n");
-		send_to_char(buf, get_char_in_world_by_idnum(from_id));
+		send_to_char(get_char_in_world_by_idnum(from_id), "Why would you send a blank message?\r\n");
 		return 0;
 	}
 	if (!can_recieve_mail(to_id)) {
-		sprintf(buf, "%s doesn't seem to be able to recieve mail.\r\n",
+		send_to_char(get_char_in_world_by_idnum(from_id), "%s doesn't seem to be able to recieve mail.\r\n",
 			get_name_by_id(to_id));
-		send_to_char(buf, get_char_in_world_by_idnum(from_id));
 		return 0;
 	}
 	if (strlen(txt) > MAX_MAIL_SIZE) {
-		send_to_char("Something is very wrong.\r\n",
-			get_char_in_world_by_idnum(from_id));
-		send_to_char
-			("Mail Forget a description of exactly what you just did.\r\n",
-			get_char_in_world_by_idnum(from_id));
+		send_to_char(get_char_in_world_by_idnum(from_id), "Something is very wrong.\r\n");
+		send_to_char(get_char_in_world_by_idnum(from_id), 
+			"Mail Forget a description of exactly what you just did.\r\n");
 		sprintf(buf,
 			"SYSERR: Mail size larger than max_mail size. From: %ld To: %ld Length: %d.",
 			from_id, to_id, strlen(txt));
@@ -184,9 +180,8 @@ store_mail(long to_id, long from_id, char *txt, char *cc_list,
 	get_filename(to_name, fname, PLAYER_MAIL_FILE);
 	mail_file.open(fname, ios::out | ios::app | ios::ate);
 	if (!mail_file.is_open()) {
-		sprintf(buf, "Error, mailfile (%s) not opened.", fname);
+		send_to_char(get_char_in_world_by_idnum(from_id), "Error, mailfile (%s) not opened.", fname);
 		slog(buf);
-		send_to_char(buf, get_char_in_world_by_idnum(from_id));
 		delete letter;
 		return 0;
 	}

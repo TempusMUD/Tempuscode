@@ -194,9 +194,9 @@ SPECIAL(reimb)
       if (GET_LEVEL(ch) >= data[i].level)
         act("$n says, 'Piss off, $N.'", FALSE, reimber, 0, ch, TO_ROOM);
       else if (!*arg)
-        send_to_char("Type HELP <old password> for reimburse.\r\n", ch);
+        send_to_char(ch, "Type HELP <old password> for reimburse.\r\n");
       else if (strncmp(CRYPT(arg, data[i].pwd), data[i].pwd, MAX_PWD_LENGTH)) { 
-        send_to_char("Bad password.\r\n", ch);
+        send_to_char(ch, "Bad password.\r\n");
         sprintf(buf, "Bad REIMB pwd attempt for %s from %s.", GET_NAME(ch), ch->desc->host);
         slog(buf);
       } else {
@@ -222,8 +222,8 @@ SPECIAL(reimb)
       return 1;
     }
   }
-  send_to_char("You are not in the file.  All players with level less than 2\r\n"
-               "are lost.  Sorry.\r\n", ch);
+  send_to_char(ch, "You are not in the file.  All players with level less than 2\r\n"
+               "are lost.  Sorry.\r\n");
   return 1;
 }
 

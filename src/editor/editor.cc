@@ -46,8 +46,7 @@ start_text_editor(struct descriptor_data *d, char **dest, bool sendmessage =
 		mudlog
 			("SYSERR: NULL destination pointer passed into start_text_editor!!",
 			BRF, LVL_IMMORT, TRUE);
-		send_to_char("This command seems to be broken. Bug this.\r\n",
-			d->character);
+		send_to_char(d->character, "This command seems to be broken. Bug this.\r\n");
 		REMOVE_BIT(PLR_FLAGS(d->character),
 			PLR_WRITING | PLR_OLC | PLR_MAILING);
 		return;
@@ -60,7 +59,7 @@ start_text_editor(struct descriptor_data *d, char **dest, bool sendmessage =
 		return;
 	}
 	if (*dest && (strlen(*dest) > (unsigned int)max)) {
-		send_to_char("ERROR: Buffer too large for editor.\r\n", d->character);
+		send_to_char(d->character, "ERROR: Buffer too large for editor.\r\n");
 		REMOVE_BIT(PLR_FLAGS(d->character),
 			PLR_WRITING | PLR_OLC | PLR_MAILING);
 		return;
@@ -77,8 +76,7 @@ start_script_editor(struct descriptor_data *d, list <string> dest,
 		mudlog
 			("SYSERR: NULL destination pointer passed into start_text_editor!!",
 			BRF, LVL_IMMORT, TRUE);
-		send_to_char("This command seems to be broken. Bug this.\r\n",
-			d->character);
+		send_to_char(d->character, "This command seems to be broken. Bug this.\r\n");
 		REMOVE_BIT(PLR_FLAGS(d->character),
 			PLR_WRITING | PLR_OLC | PLR_MAILING);
 		return;
@@ -292,9 +290,8 @@ CTextEditor::ExportMail(void)
 					&& GET_IDNUM(r_d->character) == desc->mail_to->recpt_idnum
 					&& !PLR_FLAGGED(r_d->character,
 						PLR_WRITING | PLR_MAILING | PLR_OLC)) {
-					send_to_char
-						("A strange voice in your head says, 'You have new mail.'\r\n",
-						r_d->character);
+					send_to_char(r_d->character, 
+						"A strange voice in your head says, 'You have new mail.'\r\n");
 				}
 			}
 		}
@@ -332,8 +329,7 @@ CTextEditor::SaveFile(void)
 		} else {
 			while ((nread = read(file_to_write, filebuf, sizeof(filebuf))) > 0) {
 				if (write(backup_file, filebuf, nread) != nread) {
-					send_to_char("Could not save backup file!!\r\n",
-						desc->character);
+					send_to_char(desc->character, "Could not save backup file!!\r\n");
 					break;
 				}
 			}
@@ -727,10 +723,10 @@ CTextEditor::SendMessage(const char *message)
 		slog(small_editbuf);
 		output = new char[LARGE_BUFSIZE];
 		strncpy(output, message, LARGE_BUFSIZE - 2);
-		send_to_char(output, desc->character);
+		send_to_char(desc->character, output);
 		delete output;
 	} else {					// If the original message is small enough, just let it through.
-		send_to_char(message, desc->character);
+		send_to_char(desc->character, message);
 	}
 }
 

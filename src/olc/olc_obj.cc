@@ -130,8 +130,7 @@ write_obj_index(struct char_data *ch, struct zone_data *zone)
 
 	sprintf(fname, "world/obj/index");
 	if (!(index = fopen(fname, "w"))) {
-		send_to_char("Could not open index file, object save aborted.\r\n",
-			ch);
+		send_to_char(ch, "Could not open index file, object save aborted.\r\n");
 		return (0);
 	}
 
@@ -140,7 +139,7 @@ write_obj_index(struct char_data *ch, struct zone_data *zone)
 
 	fprintf(index, "$\n");
 
-	send_to_char("Object index file re-written.\r\n", ch);
+	send_to_char(ch, "Object index file re-written.\r\n");
 
 	fclose(index);
 
@@ -172,7 +171,7 @@ save_objs(struct char_data *ch)
 				break;
 		if (!zone) {
 			slog("OLC: ERROR finding zone for object %d.", o_vnum);
-			send_to_char("Unable to match object with zone error..\r\n", ch);
+			send_to_char(ch, "Unable to match object with zone error..\r\n");
 			return 1;
 		}
 	} else
@@ -270,7 +269,7 @@ save_objs(struct char_data *ch)
 				sprintf(buf,
 					"I didn't save your bogus extra desc in obj %d.\r\n",
 					obj->shared->vnum);
-				send_to_char(buf, ch);
+				send_to_char(ch, "%s", buf);
 				desc = desc->next;
 				continue;
 			}
@@ -315,9 +314,9 @@ save_objs(struct char_data *ch)
 		sprintf(fname, "world/obj/olc/%d.obj", zone->number);
 		if (!(file = fopen(fname, "r"))) {
 			slog("SYSERR: Failure to reopen olc obj file.");
-			send_to_char
-				("OLC Error: Failure to duplicate obj file in main dir."
-				"\r\n", ch);
+			send_to_char(ch, 
+				"OLC Error: Failure to duplicate obj file in main dir."
+				"\r\n");
 			fclose(realfile);
 			return 1;
 		}
@@ -325,9 +324,9 @@ save_objs(struct char_data *ch)
 			tmp = fread(buf, 1, 512, file);
 			if (fwrite(buf, 1, tmp, realfile) != tmp) {
 				slog("SYSERR: Failure to duplicate olc obj file in the main wld dir.");
-				send_to_char
-					("OLC Error: Failure to duplicate obj file in main dir."
-					"\r\n", ch);
+				send_to_char(ch, 
+					"OLC Error: Failure to duplicate obj file in main dir."
+					"\r\n");
 				fclose(realfile);
 				fclose(file);
 				return 1;
@@ -352,7 +351,7 @@ do_create_obj(struct char_data *ch, int vnum)
 	int i;
 
 	if ((obj = real_object_proto(vnum))) {
-		send_to_char("ERROR: Object already exists.\r\n", ch);
+		send_to_char(ch, "ERROR: Object already exists.\r\n");
 		return NULL;
 	}
 
@@ -361,13 +360,12 @@ do_create_obj(struct char_data *ch, int vnum)
 			break;
 
 	if (!zone) {
-		send_to_char("ERROR: A zone must be defined for the object first.\r\n",
-			ch);
+		send_to_char(ch, "ERROR: A zone must be defined for the object first.\r\n");
 		return NULL;
 	}
 
 	if (!CAN_EDIT_ZONE(ch, zone)) {
-		send_to_char("Try creating objects in your own zone, luser.\r\n", ch);
+		send_to_char(ch, "Try creating objects in your own zone, luser.\r\n");
 		sprintf(buf, "OLC: %s failed attempt to CREATE obj %d.",
 			GET_NAME(ch), vnum);
 		mudlog(buf, BRF, GET_INVIS_LEV(ch), TRUE);
@@ -375,7 +373,7 @@ do_create_obj(struct char_data *ch, int vnum)
 	}
 
 	if (!OLC_EDIT_OK(ch, zone, ZONE_OBJS_APPROVED)) {
-		send_to_char("Object OLC is not approved for this zone.\r\n", ch);
+		send_to_char(ch, "Object OLC is not approved for this zone.\r\n");
 		return NULL;
 	}
 
@@ -448,7 +446,7 @@ do_destroy_object(struct char_data *ch, int vnum)
 	struct descriptor_data *d = NULL;
 
 	if (!(obj = real_object_proto(vnum))) {
-		send_to_char("ERROR: That object does not exist.\r\n", ch);
+		send_to_char(ch, "ERROR: That object does not exist.\r\n");
 		return 1;
 	}
 
@@ -457,13 +455,13 @@ do_destroy_object(struct char_data *ch, int vnum)
 			break;
 
 	if (!zone) {
-		send_to_char("That object does not belong to any zone!!\r\n", ch);
+		send_to_char(ch, "That object does not belong to any zone!!\r\n");
 		slog("SYSERR: object not in any zone.");
 		return 1;
 	}
 
 	if (GET_IDNUM(ch) != zone->owner_idnum && GET_LEVEL(ch) < LVL_LUCIFER) {
-		send_to_char("Oh, no you dont!!!\r\n", ch);
+		send_to_char(ch, "Oh, no you dont!!!\r\n");
 		sprintf(buf, "OLC: %s failed attempt to DESTROY object %d.",
 			GET_NAME(ch), obj->shared->vnum);
 		mudlog(buf, BRF, GET_INVIS_LEV(ch), TRUE);
@@ -481,8 +479,7 @@ do_destroy_object(struct char_data *ch, int vnum)
 	for (d = descriptor_list; d; d = d->next)
 		if (d->character && GET_OLC_OBJ(d->character) == obj) {
 			GET_OLC_OBJ(d->character) = NULL;
-			send_to_char("The object you were editing has been destroyed!\r\n",
-				d->character);
+			send_to_char(d->character, "The object you were editing has been destroyed!\r\n");
 			break;
 		}
 #ifdef DMALLOC
@@ -554,7 +551,7 @@ perform_oset(struct char_data *ch, struct obj_data *obj_p,
 	if (!zone) {
 		slog("OLC: ERROR finding zone for object %d.",
 			GET_OBJ_VNUM(obj_p));
-		send_to_char("Unable to match object with zone error..\r\n", ch);
+		send_to_char(ch, "Unable to match object with zone error..\r\n");
 		return;
 	}
 
@@ -562,13 +559,11 @@ perform_oset(struct char_data *ch, struct obj_data *obj_p,
 	skip_spaces(&argument);
 
 	if ((oset_command = search_block(arg1, olc_oset_keys, FALSE)) < 0) {
-		sprintf(buf, "Invalid oset command '%s'.\r\n", arg1);
-		send_to_char(buf, ch);
+		send_to_char(ch, "Invalid oset command '%s'.\r\n", arg1);
 		return;
 	}
 	if (oset_command != 3 && !*arg2) {
-		sprintf(buf, "Set %s to what??\r\n", olc_oset_keys[oset_command]);
-		send_to_char(buf, ch);
+		send_to_char(ch, "Set %s to what??\r\n", olc_oset_keys[oset_command]);
 		return;
 	}
 
@@ -587,7 +582,7 @@ perform_oset(struct char_data *ch, struct obj_data *obj_p,
 		obj_p->name = strdup(arg2);
 		if (subcmd == OLC_OSET)
 			UPDATE_OBJLIST_NAMES(obj_p, tmp_obj,->name);
-		send_to_char("Aliases set.\r\n", ch);
+		send_to_char(ch, "Aliases set.\r\n");
 		break;
 	case 1:				/******** name ****************/
 		if ((subcmd == OLC_OSET || !proto ||
@@ -598,7 +593,7 @@ perform_oset(struct char_data *ch, struct obj_data *obj_p,
 		obj_p->short_description = str_dup(arg2);
 		if (subcmd == OLC_OSET)
 			UPDATE_OBJLIST_NAMES(obj_p, tmp_obj,->short_description);
-		send_to_char("Object name set.\r\n", ch);
+		send_to_char(ch, "Object name set.\r\n");
 		break;
 	case 2:					// ldesc
 		if ((subcmd == OLC_OSET || !proto ||
@@ -614,7 +609,7 @@ perform_oset(struct char_data *ch, struct obj_data *obj_p,
 		if (subcmd == OLC_OSET) {
 			UPDATE_OBJLIST(obj_p, tmp_obj,->description);
 		}
-		send_to_char("Object L-desc set.\r\n", ch);
+		send_to_char(ch, "Object L-desc set.\r\n");
 		break;
 	case 3:
 		if (!(desc = locate_exdesc(fname(obj_p->name), obj_p->ex_description))) {
@@ -641,20 +636,19 @@ perform_oset(struct char_data *ch, struct obj_data *obj_p,
 	case 4:		/************* obj type ******************/
 		if (!is_number(arg2)) {
 			if ((i = search_block(arg2, item_types, 0)) < 0) {
-				send_to_char("Type olc help otypes for a valid list.\r\n", ch);
+				send_to_char(ch, "Type olc help otypes for a valid list.\r\n");
 				return;
 			}
 		} else
 			i = atoi(arg2);
 
 		if (i < 0 || i > NUM_ITEM_TYPES) {
-			send_to_char("Object type out of range.\r\n", ch);
+			send_to_char(ch, "Object type out of range.\r\n");
 			return;
 		}
 		obj_p->obj_flags.type_flag = i;
-		sprintf(buf, "Object %d type set to %s.\r\n",
+		send_to_char(ch, "Object %d type set to %s.\r\n",
 			obj_p->shared->vnum, item_types[i]);
-		send_to_char(buf, ch);
 
 		break;
 
@@ -667,8 +661,7 @@ perform_oset(struct char_data *ch, struct obj_data *obj_p,
 		else if (*arg1 == '-')
 			state = 2;
 		else {
-			send_to_char("Usage: olc oset extra1 [+/-] [FLAG, FLAG, ...]\r\n",
-				ch);
+			send_to_char(ch, "Usage: olc oset extra1 [+/-] [FLAG, FLAG, ...]\r\n");
 			return;
 		}
 
@@ -678,8 +671,7 @@ perform_oset(struct char_data *ch, struct obj_data *obj_p,
 
 		while (*arg1) {
 			if ((flag = search_block(arg1, extra_names, FALSE)) == -1) {
-				sprintf(buf, "Invalid flag %s, skipping...\r\n", arg1);
-				send_to_char(buf, ch);
+				send_to_char(ch, "Invalid flag %s, skipping...\r\n", arg1);
 			} else
 				tmp_flags = tmp_flags | (1 << flag);
 
@@ -696,11 +688,11 @@ perform_oset(struct char_data *ch, struct obj_data *obj_p,
 		obj_p->obj_flags.extra_flags = cur_flags;
 
 		if (tmp_flags == 0 && cur_flags == 0) {
-			send_to_char("Extra1 flags set\r\n", ch);
+			send_to_char(ch, "Extra1 flags set\r\n");
 		} else if (tmp_flags == 0)
-			send_to_char("Extra1 flags not altered.\r\n", ch);
+			send_to_char(ch, "Extra1 flags not altered.\r\n");
 		else {
-			send_to_char("Extra1 flags set.\r\n", ch);
+			send_to_char(ch, "Extra1 flags set.\r\n");
 		}
 		break;
 
@@ -713,8 +705,7 @@ perform_oset(struct char_data *ch, struct obj_data *obj_p,
 		else if (*arg1 == '-')
 			state = 2;
 		else {
-			send_to_char("Usage: olc oset extra2 [+/-] [FLAG, FLAG, ...]\r\n",
-				ch);
+			send_to_char(ch, "Usage: olc oset extra2 [+/-] [FLAG, FLAG, ...]\r\n");
 			return;
 		}
 
@@ -724,8 +715,7 @@ perform_oset(struct char_data *ch, struct obj_data *obj_p,
 
 		while (*arg1) {
 			if ((flag = search_block(arg1, extra2_names, FALSE)) == -1) {
-				sprintf(buf, "Invalid flag %s, skipping...\r\n", arg1);
-				send_to_char(buf, ch);
+				send_to_char(ch, "Invalid flag %s, skipping...\r\n", arg1);
 			} else
 				tmp_flags = tmp_flags | (1 << flag);
 
@@ -742,11 +732,11 @@ perform_oset(struct char_data *ch, struct obj_data *obj_p,
 		obj_p->obj_flags.extra2_flags = cur_flags;
 
 		if (tmp_flags == 0 && cur_flags == 0) {
-			send_to_char("Extra2 flags set\r\n", ch);
+			send_to_char(ch, "Extra2 flags set\r\n");
 		} else if (tmp_flags == 0)
-			send_to_char("Extra2 flags not altered.\r\n", ch);
+			send_to_char(ch, "Extra2 flags not altered.\r\n");
 		else {
-			send_to_char("Extra2 flags set.\r\n", ch);
+			send_to_char(ch, "Extra2 flags set.\r\n");
 		}
 		break;
 
@@ -759,8 +749,7 @@ perform_oset(struct char_data *ch, struct obj_data *obj_p,
 		else if (*arg1 == '-')
 			state = 2;
 		else {
-			send_to_char("Usage: olc oset worn [+/-] [FLAG, FLAG, ...]\r\n",
-				ch);
+			send_to_char(ch, "Usage: olc oset worn [+/-] [FLAG, FLAG, ...]\r\n");
 			return;
 		}
 
@@ -770,8 +759,7 @@ perform_oset(struct char_data *ch, struct obj_data *obj_p,
 
 		while (*arg1) {
 			if ((flag = search_block(arg1, wear_bits, FALSE)) == -1) {
-				sprintf(buf, "Invalid flag %s, skipping...\r\n", arg1);
-				send_to_char(buf, ch);
+				send_to_char(ch, "Invalid flag %s, skipping...\r\n", arg1);
 			} else
 				tmp_flags = tmp_flags | (1 << flag);
 
@@ -788,41 +776,38 @@ perform_oset(struct char_data *ch, struct obj_data *obj_p,
 		obj_p->obj_flags.wear_flags = cur_flags;
 
 		if (tmp_flags == 0 && cur_flags == 0) {
-			send_to_char("Wear flags set\r\n", ch);
+			send_to_char(ch, "Wear flags set\r\n");
 		} else if (tmp_flags == 0)
-			send_to_char("Wear flags not altered.\r\n", ch);
+			send_to_char(ch, "Wear flags not altered.\r\n");
 		else {
-			send_to_char("Wear flags set.\r\n", ch);
+			send_to_char(ch, "Wear flags set.\r\n");
 		}
 		break;
 
 	case 8:	  /**************  values 0-3 *************/
 		half_chop(arg2, arg1, arg2);
 		if (!is_number(arg1)) {
-			send_to_char("The argument must be a number.\r\n"
-				"Type olc help values for the lowdown.\r\n", ch);
+			send_to_char(ch, "The argument must be a number.\r\n"
+				"Type olc help values for the lowdown.\r\n");
 			return;
 		} else {
 			i = atoi(arg1);
 			if (i < 0 || i > 3) {
-				send_to_char("Usage: olc oset value [0|1|2|3] <value>.\r\n",
-					ch);
+				send_to_char(ch, "Usage: olc oset value [0|1|2|3] <value>.\r\n");
 				return;
 			} else {
 				if (!*arg2) {
-					send_to_char("Set the value to what??\r\n", ch);
+					send_to_char(ch, "Set the value to what??\r\n");
 					return;
 				} else if (!is_number(arg2)) {
-					send_to_char("The value argument must be a number.\r\n",
-						ch);
+					send_to_char(ch, "The value argument must be a number.\r\n");
 					return;
 				} else {
 					j = atoi(arg2);
 					obj_p->obj_flags.value[i] = j;
-					sprintf(buf, "Value %d (%s) set to %d.\r\n", i,
+					send_to_char(ch, "Value %d (%s) set to %d.\r\n", i,
 						item_value_types[(int)obj_p->obj_flags.type_flag][i],
 						j);
-					send_to_char(buf, ch);
 
 				}
 			}
@@ -830,117 +815,109 @@ perform_oset(struct char_data *ch, struct obj_data *obj_p,
 		break;
 	case 9:	  /******* material composition ********/
 		if (!*arg2) {
-			send_to_char("Set the material to what?\r\n", ch);
+			send_to_char(ch, "Set the material to what?\r\n");
 			return;
 		}
 		if (!is_number(arg2)) {
 			if ((i = search_block(arg2, material_names, 0)) < 0) {
-				send_to_char("Type olc help material for a valid list.\r\n",
-					ch);
+				send_to_char(ch, "Type olc help material for a valid list.\r\n");
 				return;
 			}
 		} else
 			i = atoi(arg2);
 
 		if (i < 0 || i > TOP_MATERIAL) {
-			send_to_char("Object material out of range.\r\n", ch);
+			send_to_char(ch, "Object material out of range.\r\n");
 			return;
 		} else {
 			obj_p->obj_flags.material = i;
-			sprintf(buf, "Object %d material set to %s (%d).\r\n",
+			send_to_char(ch, "Object %d material set to %s (%d).\r\n",
 				obj_p->shared->vnum, material_names[i], i);
-			send_to_char(buf, ch);
 		}
 		break;
 
 	case 10:	  /******* maxdamage *******************/
 		if (!is_number(arg2)) {
-			send_to_char("The argument must be a number.\r\n", ch);
+			send_to_char(ch, "The argument must be a number.\r\n");
 			return;
 		} else {
 			i = atoi(arg2);
 			obj_p->obj_flags.max_dam = i;
-			sprintf(buf, "Object %d maxdamage set to %d.\r\n",
+			send_to_char(ch, "Object %d maxdamage set to %d.\r\n",
 				obj_p->shared->vnum, i);
-			send_to_char(buf, ch);
 		}
 		break;
 
 	case 11:	  /******* damage **********************/
 		if (!is_number(arg2)) {
-			send_to_char("The argument must be a number.\r\n", ch);
+			send_to_char(ch, "The argument must be a number.\r\n");
 			return;
 		} else {
 			i = atoi(arg2);
 			obj_p->obj_flags.damage = i;
-			sprintf(buf, "Object %d damage set to %d.\r\n",
+			send_to_char(ch, "Object %d damage set to %d.\r\n",
 				obj_p->shared->vnum, i);
-			send_to_char(buf, ch);
 		}
 		break;
 
 	case 12:	  /******** weight **********/
 		if (!is_number(arg2)) {
-			send_to_char("The argument must be a number.\r\n", ch);
+			send_to_char(ch, "The argument must be a number.\r\n");
 			return;
 		} else {
 			i = atoi(arg2);
 			if (i < 0) {
-				send_to_char("Object weight out of range.\r\n", ch);
+				send_to_char(ch, "Object weight out of range.\r\n");
 				return;
 			} else {
 				obj_p->setWeight(i);
-				sprintf(buf, "Object %d weight set to %d.\r\n",
+				send_to_char(ch, "Object %d weight set to %d.\r\n",
 					obj_p->shared->vnum, i);
-				send_to_char(buf, ch);
 			}
 		}
 		break;
 	case 13:	  /******** cost **********/
 		if (!is_number(arg2)) {
-			send_to_char("The argument must be a number.\r\n", ch);
+			send_to_char(ch, "The argument must be a number.\r\n");
 			return;
 		} else {
 			i = atoi(arg2);
 			if (i < 0) {
-				send_to_char("Object weight out of range.\r\n", ch);
+				send_to_char(ch, "Object weight out of range.\r\n");
 				return;
 			} else {
 				obj_p->shared->cost = i;
-				sprintf(buf, "Object %5d cost set to %8d.\r\n"
+				send_to_char(ch, "Object %5d cost set to %8d.\r\n"
 					"Recommended cost:         %8d.\r\n",
 					obj_p->shared->vnum, i, prototype_obj_value(obj_p));
-				send_to_char(buf, ch);
 			}
 		}
 		break;
 	case 14:	  /******** rent **********/
 		if (!is_number(arg2)) {
-			send_to_char("The argument must be a number.\r\n", ch);
+			send_to_char(ch, "The argument must be a number.\r\n");
 			return;
 		} else {
 			i = atoi(arg2);
 			if (i < 0) {
-				send_to_char("Object rent out of range.\r\n", ch);
+				send_to_char(ch, "Object rent out of range.\r\n");
 				return;
 			} else {
 				obj_p->shared->cost_per_day = i;
-				sprintf(buf, "Object %d rent set to %d.\r\n",
+				send_to_char(ch, "Object %d rent set to %d.\r\n",
 					obj_p->shared->vnum, i);
-				send_to_char(buf, ch);
 			}
 		}
 		break;
 	case 15:	 /******* apply *************/
 		half_chop(arg2, arg1, arg2);
 		if (!*arg2 || !*arg1) {
-			send_to_char("Usage: olc oset apply <location> <value>.\r\n", ch);
+			send_to_char(ch, "Usage: olc oset apply <location> <value>.\r\n");
 			return;
 		}
 		if (!is_number(arg1)) {
 			if ((i = search_block(arg1, apply_types, 0)) < 0) {
-				send_to_char("Unknown apply type.... type olc h apply.\r\n",
-					ch);
+				send_to_char(ch, "Unknown apply type.... type olc h apply.\r\n");
 				return;
 			}
 		} else
@@ -949,10 +926,10 @@ perform_oset(struct char_data *ch, struct obj_data *obj_p,
 		j = atoi(arg2);
 
 		if (i < 0 || i > NUM_APPLIES) {
-			send_to_char("Location out of range.  Try 'olc h apply'.\r\n", ch);
+			send_to_char(ch, "Location out of range.  Try 'olc h apply'.\r\n");
 			return;
 		} else if (j < -125 || j > 125) {
-			send_to_char("Modifier out of range. [-125, 125].\r\n", ch);
+			send_to_char(ch, "Modifier out of range. [-125, 125].\r\n");
 			return;
 		}
 
@@ -975,37 +952,34 @@ perform_oset(struct char_data *ch, struct obj_data *obj_p,
 
 		if (k >= MAX_OBJ_AFFECT) {
 			if (j)
-				send_to_char
-					("All apply slots are filled.  Set an existing apply mod. to zero to remove.\r\n",
-					ch);
+				send_to_char(ch, 
+					"All apply slots are filled.  Set an existing apply mod. to zero to remove.\r\n");
 			else
-				send_to_char("Unable to find an apply of that type.\r\n", ch);
+				send_to_char(ch, "Unable to find an apply of that type.\r\n");
 			return;
 		} else
-			send_to_char("Done.\r\n", ch);
+			send_to_char(ch, "Done.\r\n");
 
 		break;
 
 	case 16:	 /******* affect ************/
 		half_chop(arg2, arg1, arg2);
 		if (!is_number(arg1) || !*arg2) {
-			send_to_char("Usage: olc oset affect <index> <bit letter>.\r\n",
-				ch);
+			send_to_char(ch, "Usage: olc oset affect <index> <bit letter>.\r\n");
 			return;
 		}
 		i = atoi(arg1);
 		i -= 1;
 
 		if (i < 0 || i > 2) {
-			send_to_char("Index out of range [1, 3].\r\n", ch);
-			send_to_char("Usage: olc oset affect <index> <bit letter>.\r\n",
-				ch);
+			send_to_char(ch, "Index out of range [1, 3].\r\n");
+			send_to_char(ch, "Usage: olc oset affect <index> <bit letter>.\r\n");
 			return;
 		}
 
 		obj_p->obj_flags.bitvector[i] = asciiflag_conv(arg2);
 
-		send_to_char("Bitvector set! Voila!\r\n", ch);
+		send_to_char(ch, "Bitvector set! Voila!\r\n");
 		break;
 
 	case 17:  /***** action_desc *****/
@@ -1020,54 +994,53 @@ perform_oset(struct char_data *ch, struct obj_data *obj_p,
 			obj_p->action_description = str_dup(arg2);
 
 		UPDATE_OBJLIST(obj_p, tmp_obj,->action_description);
-		send_to_char("Object action desc set.\r\n", ch);
+		send_to_char(ch, "Object action desc set.\r\n");
 		break;
 
 	case 18: /** special **/
 		if (subcmd != OLC_OSET) {
-			send_to_char("This can only be set with olc.\r\n", ch);
+			send_to_char(ch, "This can only be set with olc.\r\n");
 			return;
 		}
 		if (!*arg2 || (i = find_spec_index_arg(arg2)) < 0)
-			send_to_char("That is not a valid special.\r\n"
-				"Type show special obj to view a list.\r\n", ch);
+			send_to_char(ch, "That is not a valid special.\r\n"
+				"Type show special obj to view a list.\r\n");
 		else if (!IS_SET(spec_list[i].flags, SPEC_OBJ))
-			send_to_char("This special is not for objects.\r\n", ch);
+			send_to_char(ch, "This special is not for objects.\r\n");
 		else if (IS_SET(spec_list[i].flags, SPEC_RES) && !OLCIMP(ch))
-			send_to_char("This special is reserved.\r\n", ch);
+			send_to_char(ch, "This special is reserved.\r\n");
 		else {
 
 			obj_p->shared->func = spec_list[i].func;
 			do_specassign_save(ch, SPEC_OBJ);
-			send_to_char("Object special set, you trickster you.\r\n", ch);
+			send_to_char(ch, "Object special set, you trickster you.\r\n");
 		}
 		break;
 	case 19:  /***** paths *****/
 		if (subcmd == OLC_OSET) {
-			send_to_char("Cannot set with OLC.\r\n", ch);
+			send_to_char(ch, "Cannot set with OLC.\r\n");
 			return;
 		}
 		if (add_path_to_vehicle(obj_p, arg2)) {
 			sprintf(buf, "%s now follows the path titled: %s.\r\n",
 				obj_p->short_description, arg2);
 		} else
-			sprintf(buf, "Could not assign that path to vehicle.\r\n");
-		send_to_char(buf, ch);
+			send_to_char(ch, "Could not assign that path to vehicle.\r\n");
 		break;
 
 	case 20: /** soilage **/
 		if (subcmd == OLC_OSET) {
-			send_to_char("Cannot set with OLC.\r\n", ch);
+			send_to_char(ch, "Cannot set with OLC.\r\n");
 			return;
 		}
 
 		OBJ_SOILAGE(obj_p) = atoi(arg2);
-		send_to_char("Soilage set.\r\n", ch);
+		send_to_char(ch, "Soilage set.\r\n");
 		break;
 
 	case 21:					// sigil
 		if (subcmd == OLC_OSET) {
-			send_to_char("Cannot set with OLC.\r\n", ch);
+			send_to_char(ch, "Cannot set with OLC.\r\n");
 			return;
 		}
 
@@ -1076,8 +1049,7 @@ perform_oset(struct char_data *ch, struct obj_data *obj_p,
 		skip_spaces(&argument);
 
 		if (!*arg1 || !*argument) {
-			send_to_char("Usage: oset <obj> sigil <idnum|level> <value>\r\n",
-				ch);
+			send_to_char(ch, "Usage: oset <obj> sigil <idnum|level> <value>\r\n");
 			return;
 		}
 
@@ -1089,11 +1061,11 @@ perform_oset(struct char_data *ch, struct obj_data *obj_p,
 			sprintf(buf,
 				"Unknown argument '%s'.  You must set sigil idnum or level.\r\n",
 				arg2);
-			send_to_char(buf, ch);
+			send_to_char(ch, "%s", buf);
 			return;
 		}
 
-		send_to_char("Sigil set.\r\n", ch);
+		send_to_char(ch, "Sigil set.\r\n");
 		break;
 	case 22:		/************* obj extra3 flags ***********/
 		tmp_flags = 0;
@@ -1104,8 +1076,7 @@ perform_oset(struct char_data *ch, struct obj_data *obj_p,
 		else if (*arg1 == '-')
 			state = 2;
 		else {
-			send_to_char("Usage: olc oset extra3 [+/-] [FLAG, FLAG, ...]\r\n",
-				ch);
+			send_to_char(ch, "Usage: olc oset extra3 [+/-] [FLAG, FLAG, ...]\r\n");
 			return;
 		}
 
@@ -1115,8 +1086,7 @@ perform_oset(struct char_data *ch, struct obj_data *obj_p,
 
 		while (*arg1) {
 			if ((flag = search_block(arg1, extra3_names, FALSE)) == -1) {
-				sprintf(buf, "Invalid flag %s, skipping...\r\n", arg1);
-				send_to_char(buf, ch);
+				send_to_char(ch, "Invalid flag %s, skipping...\r\n", arg1);
 			} else
 				tmp_flags = tmp_flags | (1 << flag);
 
@@ -1133,29 +1103,28 @@ perform_oset(struct char_data *ch, struct obj_data *obj_p,
 		obj_p->obj_flags.extra3_flags = cur_flags;
 
 		if (tmp_flags == 0 && cur_flags == 0) {
-			send_to_char("Extra3 flags set\r\n", ch);
+			send_to_char(ch, "Extra3 flags set\r\n");
 		} else if (tmp_flags == 0)
-			send_to_char("Extra3 flags not altered.\r\n", ch);
+			send_to_char(ch, "Extra3 flags not altered.\r\n");
 		else {
-			send_to_char("Extra3 flags set.\r\n", ch);
+			send_to_char(ch, "Extra3 flags set.\r\n");
 		}
 		break;
 
 	case 23:
 		if (!is_number(arg2)) {
-			send_to_char("The argument must be a number.\r\n", ch);
+			send_to_char(ch, "The argument must be a number.\r\n");
 			return;
 		} else {
 			i = atoi(arg2);
 			GET_OBJ_TIMER(obj_p) = i;
-			sprintf(buf, "Object %d timer set to %d.\r\n",
+			send_to_char(ch, "Object %d timer set to %d.\r\n",
 				obj_p->shared->vnum, i);
-			send_to_char(buf, ch);
 		}
 		break;
 
 	default:
-		send_to_char("Unsupported olc oset option.\r\n", ch);
+		send_to_char(ch, "Unsupported olc oset option.\r\n");
 		break;
 	}
 
@@ -1211,7 +1180,7 @@ do_clear_olc_object(struct char_data *ch)
 	int k;
 
 	if (!obj_p) {
-		send_to_char("You are not currently editing an object.\r\n", ch);
+		send_to_char(ch, "You are not currently editing an object.\r\n");
 		return;
 	}
 #ifdef DMALLOC
@@ -1272,6 +1241,5 @@ do_clear_olc_object(struct char_data *ch)
 #endif
 	UPDATE_OBJLIST_FULL(obj_p, tmp_obj);
 
-	sprintf(buf, "Okay, object #%d fully cleared.\r\n", obj_p->shared->vnum);
-	send_to_char(buf, ch);
+	send_to_char(ch, "Okay, object #%d fully cleared.\r\n", obj_p->shared->vnum);
 }

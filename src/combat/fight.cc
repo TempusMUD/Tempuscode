@@ -100,19 +100,19 @@ set_fighting(struct char_data *ch, struct char_data *vict, int aggr)
 						   ROOM_FLAGGED(vict->in_room, ROOM_ARENA);
 			if( !isArena ) {
 				if (PLR_FLAGGED(ch, PLR_NOPK)) {
-					send_to_char("A small dark shape flies in from the future and sticks to your tongue.\r\n", ch);
+					send_to_char(ch, "A small dark shape flies in from the future and sticks to your tongue.\r\n");
 					return;
 				}
 				if (PLR_FLAGGED(vict, PLR_NOPK)) {
-					send_to_char
-						("A small dark shape flies in from the future and sticks to your eye.\r\n", ch);
+					send_to_char(ch, 
+						"A small dark shape flies in from the future and sticks to your eye.\r\n");
 					return;
 				}
 				if (ch->isNewbie() && !PLR_FLAGGED(ch, PLR_TOUGHGUY) &&
 					!ROOM_FLAGGED(ch->in_room, ROOM_ARENA)) 
 				{
-					send_to_char("You are currently under new player protection, which expires at level 41.\r\n", ch);
-					send_to_char("You cannot attack other players while under this protection.\r\n", ch);
+					send_to_char(ch, "You are currently under new player protection, which expires at level 41.\r\n");
+					send_to_char(ch, "You cannot attack other players while under this protection.\r\n");
 					return;
 				}
 			}
@@ -286,14 +286,12 @@ die(struct char_data *ch, struct char_data *killer, int attacktype,
 			if (GET_LIFE_POINTS(ch) <= 0 && GET_MAX_HIT(ch) <= 1) {
 
 				if (IS_EVIL(ch) || IS_NEUTRAL(ch))
-					send_to_char
-						("Your soul screeches in agony as it's torn from the mortal realms... forever.\r\n",
-						ch);
+					send_to_char(ch, 
+						"Your soul screeches in agony as it's torn from the mortal realms... forever.\r\n");
 
 				else if (IS_GOOD(ch))
-					send_to_char
-						("The righteous rejoice as your soul departs the mortal realms... forever.\r\n",
-						ch);
+					send_to_char(ch, 
+						"The righteous rejoice as your soul departs the mortal realms... forever.\r\n");
 
 				SET_BIT(PLR2_FLAGS(ch), PLR2_BURIED);
 				sprintf(buf,
@@ -362,9 +360,8 @@ group_gain(struct char_data *ch, struct char_data *victim)
 			if (total_pc_mems) {
 				mult_mod = 1 - mult;
 				mult_mod *= mult;
-				sprintf(buf, "Your group gain is %d%% + bonus %d%%.\n",
+				send_to_char(*it, "Your group gain is %d%% + bonus %d%%.\n",
 					(int)((float)mult * 100), (int)((float)mult_mod * 100));
-				send_to_char(buf, (*it));
 			}
 
 			perform_gain_kill_exp((*it), victim, mult);
@@ -423,19 +420,16 @@ perform_gain_kill_exp(struct char_data *ch, struct char_data *victim,
 		slog(buf);
 	}
 	if (exp > ((exp_scale[GET_LEVEL(ch) + 1] - GET_EXP(ch)) / 10)) {
-		sprintf(buf2, "%s%sYou have gained much experience.%s\r\n",
+		send_to_char(ch, "%s%sYou have gained much experience.%s\r\n",
 			CCYEL(ch, C_NRM), CCBLD(ch, C_CMP), CCNRM(ch, C_SPR));
-		send_to_char(buf2, ch);
 	} else if (exp > 1) {
-		sprintf(buf2, "%s%sYou have gained experience.%s\r\n",
+		send_to_char(ch, "%s%sYou have gained experience.%s\r\n",
 			CCYEL(ch, C_NRM), CCBLD(ch, C_CMP), CCNRM(ch, C_SPR));
-		send_to_char(buf2, ch);
 	} else if (exp < 0) {
-		sprintf(buf2, "%s%sYou have lost experience.%s\r\n",
+		send_to_char(ch, "%s%sYou have lost experience.%s\r\n",
 			CCYEL(ch, C_NRM), CCBLD(ch, C_CMP), CCNRM(ch, C_SPR));
-		send_to_char(buf2, ch);
 	} else
-		send_to_char("You have gained trivial experience.\r\n", ch);
+		send_to_char(ch, "You have gained trivial experience.\r\n");
 
 	gain_exp(ch, exp);
 	change_alignment(ch, victim);
@@ -775,8 +769,7 @@ damage(struct char_data *ch, struct char_data *victim, int dam,
 		mudlog(buf, BRF, GET_INVIS_LEV(ch), TRUE);
 		stop_fighting(ch);
 		stop_fighting(victim);
-		send_to_char("NO!  Do you want to be ANNIHILATED by the gods?!\r\n",
-			ch);
+		send_to_char(ch, "NO!  Do you want to be ANNIHILATED by the gods?!\r\n");
 		DAM_RETURN(0);
 	}
 
@@ -795,7 +788,7 @@ damage(struct char_data *ch, struct char_data *victim, int dam,
 			if (IS_EVIL(victim) && !IS_SOULLESS(victim))
 				dam += (dam * GET_REMORT_GEN(ch)) / 20;
 			else if (ch != victim && IS_GOOD(victim)) {
-				send_to_char("You have been de-sanctified!\r\n", ch);
+				send_to_char(ch, "You have been de-sanctified!\r\n");
 				affect_remove(ch, af);
 			}
 		}
@@ -835,11 +828,11 @@ damage(struct char_data *ch, struct char_data *victim, int dam,
 					   ROOM_FLAGGED(victim->in_room, ROOM_ARENA);
 		if(! isArena ) {
 			if (PLR_FLAGGED(ch, PLR_NOPK)) {
-				send_to_char("A small dark shape flies in from the future and sticks to your eyebrow.\r\n", ch);
+				send_to_char(ch, "A small dark shape flies in from the future and sticks to your eyebrow.\r\n");
 				DAM_RETURN(DAM_ATTACK_FAILED);
 			}
 			if (PLR_FLAGGED(victim, PLR_NOPK)) {
-				send_to_char("A small dark shape flies in from the future and sticks to your nose.\r\n", ch);
+				send_to_char(ch, "A small dark shape flies in from the future and sticks to your nose.\r\n");
 				DAM_RETURN(DAM_ATTACK_FAILED);
 			}
 		}
@@ -865,10 +858,9 @@ damage(struct char_data *ch, struct char_data *victim, int dam,
 		if (ch->isNewbie() &&
 			!ROOM_FLAGGED(victim->in_room, ROOM_ARENA) &&
 			!PLR_FLAGGED(ch, PLR_TOUGHGUY)) {
-			send_to_char
-				("You are currently under new player protection, which expires at level 41.\r\n"
-				"You cannot attack other players while under this protection.\r\n",
-				ch);
+			send_to_char(ch, 
+				"You are currently under new player protection, which expires at level 41.\r\n"
+				"You cannot attack other players while under this protection.\r\n");
 			DAM_RETURN(0);
 		}
 	}
@@ -1240,7 +1232,7 @@ damage(struct char_data *ch, struct char_data *victim, int dam,
 		GET_MANA(victim) -= mana_loss;
 
 		if (GET_MANA(victim) <= GET_MSHIELD_LOW(victim)) {
-			send_to_char("Your mana shield has expired.\r\n", victim);
+			send_to_char(victim, "Your mana shield has expired.\r\n");
 			affect_from_char(victim, SPELL_MANA_SHIELD);
 		}
 
@@ -1387,7 +1379,7 @@ damage(struct char_data *ch, struct char_data *victim, int dam,
 	// rangers' critical hit
 	if (ch && IS_RANGER(ch) && dam > 10 &&
 		IS_WEAPON(attacktype) && number(0, 74) <= GET_REMORT_GEN(ch)) {
-		send_to_char("CRITICAL HIT!\r\n", ch);
+		send_to_char(ch, "CRITICAL HIT!\r\n");
 		act("$n has scored a CRITICAL HIT!\r\n", FALSE, ch, 0, victim,
 			TO_VICT);
 		dam += (dam * (GET_REMORT_GEN(ch) + 4)) / 14;
@@ -1463,8 +1455,7 @@ damage(struct char_data *ch, struct char_data *victim, int dam,
 		}
 		// remove stasis even on a miss
 		if (AFF3_FLAGGED(victim, AFF3_STASIS)) {
-			send_to_char("Emergency restart of system procesess...\r\n",
-				victim);
+			send_to_char(victim, "Emergency restart of system procesess...\r\n");
 			REMOVE_BIT(AFF3_FLAGS(victim), AFF3_STASIS);
 			WAIT_STATE(victim, (5 - (CHECK_SKILL(victim,
 							SKILL_FASTBOOT) >> 5)) RL_SEC);
@@ -1587,9 +1578,8 @@ damage(struct char_data *ch, struct char_data *victim, int dam,
 	case POS_MORTALLYW:
 		act("$n is mortally wounded, and will die soon, if not aided.",
 			TRUE, victim, 0, 0, TO_ROOM);
-		send_to_char
-			("You are mortally wounded, and will die soon, if not aided.\r\n",
-			victim);
+		send_to_char(victim, 
+			"You are mortally wounded, and will die soon, if not aided.\r\n");
 		if (ch && IS_VAMPIRE(ch) && IS_AFFECTED_3(ch, AFF3_FEEDING)) {
 			stop_fighting(ch);
 		}
@@ -1599,9 +1589,8 @@ damage(struct char_data *ch, struct char_data *victim, int dam,
 	case POS_INCAP:
 		act("$n is incapacitated and will slowly die, if not aided.", TRUE,
 			victim, 0, 0, TO_ROOM);
-		send_to_char
-			("You are incapacitated and will slowly die, if not aided.\r\n",
-			victim);
+		send_to_char(victim, 
+			"You are incapacitated and will slowly die, if not aided.\r\n");
 		if (ch && IS_VAMPIRE(ch) && IS_AFFECTED_3(ch, AFF3_FEEDING)) {
 			stop_fighting(ch);
 		}
@@ -1612,9 +1601,8 @@ damage(struct char_data *ch, struct char_data *victim, int dam,
 	case POS_STUNNED:
 		act("$n is stunned, but will probably regain consciousness again.",
 			TRUE, victim, 0, 0, TO_ROOM);
-		send_to_char
-			("You're stunned, but will probably regain consciousness again.\r\n",
-			victim);
+		send_to_char(victim, 
+			"You're stunned, but will probably regain consciousness again.\r\n");
 		if (ch && IS_VAMPIRE(ch) && IS_AFFECTED_3(ch, AFF3_FEEDING)) {
 			stop_fighting(ch);
 		}
@@ -1623,7 +1611,7 @@ damage(struct char_data *ch, struct char_data *victim, int dam,
 		// Dead
 	case POS_DEAD:
 		act("$n is dead!  R.I.P.", FALSE, victim, 0, 0, TO_ROOM);
-		send_to_char("You are dead!  Sorry...\r\n", victim);
+		send_to_char(victim, "You are dead!  Sorry...\r\n");
 		break;
 
 		// pos >= Sleeping ( Fighting, Standing, Flying, Mounted... )
@@ -1638,7 +1626,7 @@ damage(struct char_data *ch, struct char_data *victim, int dam,
 					"%sYou wish that your wounds would stop %sBLEEDING%s%s so much!%s\r\n",
 					CCRED(victim, C_SPR), CCBLD(victim, C_SPR), CCNRM(victim,
 						C_SPR), CCRED(victim, C_SPR), CCNRM(victim, C_SPR));
-				send_to_char(buf2, victim);
+				send_to_char(victim, "%s", buf2);
 			}
 			//
 			// NPCs fleeing due to MORALE
@@ -1677,7 +1665,7 @@ damage(struct char_data *ch, struct char_data *victim, int dam,
 				GET_TOT_DAM(victim) >= max_component_dam(victim)) {
 				if (GET_BROKE(victim)) {
 					if (!AFF3_FLAGGED(victim, AFF3_SELF_DESTRUCT)) {
-						sprintf(buf, "Your %s has been severely damaged.\r\n"
+						send_to_char(victim, "Your %s has been severely damaged.\r\n"
 							"Systems cannot support excessive damage to this and %s.\r\n"
 							"%sInitiating Self-Destruct Sequence.%s\r\n",
 							component_names[number(1,
@@ -1685,7 +1673,6 @@ damage(struct char_data *ch, struct char_data *victim, int dam,
 							component_names[(int)
 								GET_BROKE(victim)][GET_OLD_CLASS(victim)],
 							CCRED_BLD(victim, C_NRM), CCNRM(victim, C_NRM));
-						send_to_char(buf, victim);
 						act("$n has auto-initiated self destruct sequence!\r\n"
 							"CLEAR THE AREA!!!!", FALSE, victim, 0, 0,
 							TO_ROOM | TO_SLEEP);
@@ -1697,10 +1684,9 @@ damage(struct char_data *ch, struct char_data *victim, int dam,
 					GET_BROKE(victim) = number(1, NUM_COMPS);
 					act("$n staggers and begins to smoke!", FALSE, victim, 0,
 						0, TO_ROOM);
-					sprintf(buf, "Your %s has been damaged!\r\n",
+					send_to_char(victim, "Your %s has been damaged!\r\n",
 						component_names[(int)
 							GET_BROKE(victim)][GET_OLD_CLASS(victim)]);
-					send_to_char(buf, victim);
 					GET_TOT_DAM(victim) = 0;
 				}
 
@@ -1717,8 +1703,7 @@ damage(struct char_data *ch, struct char_data *victim, int dam,
 				if (!IS_NPC(victim) &&
 					GET_HIT(victim) < GET_WIMP_LEV(victim)
 					&& GET_HIT(victim) > 0) {
-					send_to_char("You wimp out, and attempt to flee!\r\n",
-						victim);
+					send_to_char(victim, "You wimp out, and attempt to flee!\r\n");
 					if (KNOCKDOWN_SKILL(attacktype) && dam)
 						victim->setPosition(POS_SITTING);
 
@@ -1811,10 +1796,10 @@ damage(struct char_data *ch, struct char_data *victim, int dam,
 		IS_NPC(victim) ? GET_MOB_WAIT(victim) : victim->desc ? victim->desc->
 		wait : 0, victim->getPosition(), dam_reduction);
 	if (ch && PRF2_FLAGGED(ch, PRF2_FIGHT_DEBUG)) {
-		send_to_char(buf, ch);
+		send_to_char(ch, "%s", buf);
 	}
 	if (victim && PRF2_FLAGGED(victim, PRF2_FIGHT_DEBUG)) {
-		send_to_char(buf, victim);
+		send_to_char(victim, "%s", buf);
 	}
 	//
 	// If victim is asleep, incapacitated, etc.. stop fighting.
@@ -1928,13 +1913,12 @@ hit(struct char_data *ch, struct char_data *victim, int type)
 	if (ROOM_FLAGGED(ch->in_room, ROOM_PEACEFUL) &&
 		!(PLR_FLAGGED(ch, PLR_KILLER) && FIGHTING(victim) == ch) &&
 		!PLR_FLAGGED(victim, PLR_KILLER) && GET_LEVEL(ch) < LVL_CREATOR) {
-		send_to_char("This room just has such a peaceful, easy feeling...\r\n",
-			ch);
+		send_to_char(ch, "This room just has such a peaceful, easy feeling...\r\n");
 		return 0;
 	}
 	if (LVL_AMBASSADOR <= GET_LEVEL(ch) && GET_LEVEL(ch) < LVL_GOD &&
 		IS_NPC(victim) && !mini_mud) {
-		send_to_char("You are not allowed to attack mobiles!\r\n", ch);
+		send_to_char(ch, "You are not allowed to attack mobiles!\r\n");
 		return 0;
 	}
 	if (IS_AFFECTED_2(ch, AFF2_PETRIFIED) && GET_LEVEL(ch) < LVL_ELEMENT) {
@@ -1942,11 +1926,10 @@ hit(struct char_data *ch, struct char_data *victim, int type)
 			act("You want to fight back against $N's attack, but cannot!",
 				FALSE, ch, 0, victim, TO_CHAR | TO_SLEEP);
 		else if (!number(0, 1))
-			send_to_char
-				("You have been turned to stone, and cannot fight!\r\n", ch);
+			send_to_char(ch, 
+				"You have been turned to stone, and cannot fight!\r\n");
 		else
-			send_to_char("You cannot fight back!!  You are petrified!\r\n",
-				ch);
+			send_to_char(ch, "You cannot fight back!!  You are petrified!\r\n");
 
 		return 0;
 	}
@@ -1974,7 +1957,7 @@ hit(struct char_data *ch, struct char_data *victim, int type)
 			REMOVE_BIT(AFF2_FLAGS(MOUNTED(ch)), AFF2_MOUNTED);
 			MOUNTED(ch) = NULL;
 		} else
-			send_to_char("You had better dismount first.\r\n", ch);
+			send_to_char(ch, "You had better dismount first.\r\n");
 		return 0;
 	}
 	if (MOUNTED(victim)) {
@@ -2062,9 +2045,8 @@ hit(struct char_data *ch, struct char_data *victim, int type)
 	diceroll = number(1, 20);
 
 	if (PRF2_FLAGGED(ch, PRF2_FIGHT_DEBUG)) {
-		sprintf(buf, "Thac0: %3d. Die Roll: %3d. AC: %3d\r\n",
+		send_to_char(ch, "Thac0: %3d. Die Roll: %3d. AC: %3d\r\n",
 			calc_thaco, diceroll, victim_ac);
-		send_to_char(buf, ch);
 	}
 
 	/* decide whether this is a hit or a miss */
@@ -2276,9 +2258,9 @@ do_casting_weapon(char_data *ch, obj_data *weap)
 	sprintf(buf2, "$p begins to hum and shake%s!",
 		weap->worn_on == WEAR_WIELD ||
 		weap->worn_on == WEAR_WIELD_2 ? " in $n's hand" : "");
-	send_to_char(CCCYN(ch, C_NRM), ch);
+	send_to_char(ch, CCCYN(ch, C_NRM));
 	act(buf, FALSE, ch, weap, 0, TO_CHAR);
-	send_to_char(CCNRM(ch, C_NRM), ch);
+	send_to_char(ch, CCNRM(ch, C_NRM));
 	act(buf2, TRUE, ch, weap, 0, TO_ROOM);
 	if ((((!IS_DWARF(ch) && !IS_CYBORG(ch)) ||
 				!IS_OBJ_STAT(weap, ITEM_MAGIC) ||
@@ -2436,19 +2418,17 @@ perform_violence(void)
 		die_roll = number(0, 300);
 
 		if (PRF2_FLAGGED(ch, PRF2_FIGHT_DEBUG)) {
-			sprintf(buf, "Attack speed: %d. Die roll: %d. Wait State %d.\r\n",
+			send_to_char(ch, "Attack speed: %d. Die roll: %d. Wait State %d.\r\n",
 				prob, die_roll,
 				IS_NPC(ch) ? GET_MOB_WAIT(ch) : (CHECK_WAIT(ch) ? ch->desc->
 					wait : 0));
-			send_to_char(buf, ch);
 		}
 		if (PRF2_FLAGGED(FIGHTING(ch), PRF2_FIGHT_DEBUG)) {
-			sprintf(buf,
+			send_to_char(FIGHTING(ch),
 				"Enemy: Attack speed: %d. Die roll %d. Wait State: %d.\r\n",
 				prob, die_roll,
 				IS_NPC(ch) ? GET_MOB_WAIT(ch) : (CHECK_WAIT(ch) ? ch->desc->
 					wait : 0));
-			send_to_char(buf, FIGHTING(ch));
 		}
 		//
 		// it's an attack!
@@ -2473,8 +2453,7 @@ perform_violence(void)
 					break;
 				if (ch->getPosition() < POS_FIGHTING) {
 					if (CHECK_WAIT(ch) < 10)
-						send_to_char("You can't fight while sitting!!\r\n",
-							ch);
+						send_to_char(ch, "You can't fight while sitting!!\r\n");
 					break;
 				}
 
@@ -2497,8 +2476,7 @@ perform_violence(void)
 
 				if (ch->getPosition() < POS_FIGHTING) {
 					if (CHECK_WAIT(ch) < 10)
-						send_to_char("You can't fight while sitting!!\r\n",
-							ch);
+						send_to_char(ch, "You can't fight while sitting!!\r\n");
 					continue;
 				}
 

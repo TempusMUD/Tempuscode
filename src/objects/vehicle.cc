@@ -90,26 +90,23 @@ display_status(struct char_data *ch, struct obj_data *car,
 	if (!ch || !engine || !car)
 		return;
 
-	send_to_char("You examine the instrument panel.\r\n", ch);
+	send_to_char(ch, "You examine the instrument panel.\r\n");
 	if (!number(0, 5)) {
 		sprintf(buf,
 			"%sThe %sinstrument %spanel %sblinks %sfor %sa %smoment%s.", QGRN,
 			QBLU, QMAG, QYEL, QCYN, QYEL, QBLU, QNRM);
 		act(buf, FALSE, ch, 0, 0, TO_ROOM);
 	}
-	sprintf(buf, "\r\n%s<<<<<<<<%sSYSTEM STATUS UPDATE (%s)%s>>>>>>>>>%s\r\n",
+	send_to_char(ch, "\r\n%s<<<<<<<<%sSYSTEM STATUS UPDATE (%s)%s>>>>>>>>>%s\r\n",
 		QRED, QNRM, car->short_description, QRED, QNRM);
-	send_to_char(buf, ch);
 	sprintf(buf,
 		"%s*******************************************************%s\r\n",
 		QBLU, QNRM);
-	send_to_char(buf, ch);
+	send_to_char(ch, "%s", buf);
 	sprintbit(ENGINE_STATE(engine), engine_state_bits, buf2);
-	sprintf(buf, "%sEngine State:%s    %s\r\n", QCYN, QNRM, buf2);
-	send_to_char(buf, ch);
+	send_to_char(ch, "%sEngine State:%s    %s\r\n", QCYN, QNRM, buf2);
 	sprintbit(DOOR_STATE(car), container_bits, buf2);
-	sprintf(buf, "%sDoor State:%s      %s\r\n", QCYN, QNRM, buf2);
-	send_to_char(buf, ch);
+	send_to_char(ch, "%sDoor State:%s      %s\r\n", QCYN, QNRM, buf2);
 	sprintf(buf,
 		"%sEnergy Status:%s   [%s%d / %d%s]%s\r\n"
 		"%sHeadlights are:%s  %s\r\n"
@@ -121,19 +118,17 @@ display_status(struct char_data *ch, struct obj_data *car,
 		QCYN, QNRM, driver ? PERS(ch, driver) : "No-one",
 		QCYN, QNRM, car->in_room->name,
 		QCYN, QNRM, outside_weather[(int)car->in_room->zone->weather->sky]);
-	send_to_char(buf, ch);
+	send_to_char(ch, "%s", buf);
 	if (LOW_ENERGY(engine)) {
-		sprintf(buf, "A %sWARNING%s indicator lights up.", QRED, QNRM);
+		send_to_char(ch, "A %sWARNING%s indicator lights up.", QRED, QNRM);
 		act(buf, FALSE, ch, 0, 0, TO_ROOM);
-		sprintf(buf, "%s***%sWARNING%s***%s (Low Energy Level).\r\n", QGRN,
+		send_to_char(ch, "%s***%sWARNING%s***%s (Low Energy Level).\r\n", QGRN,
 			QRED, QGRN, QNRM);
-		send_to_char(buf, ch);
 	}
 
 	sprintf(buf,
 		"%s*******************************************************%s\r\n",
 		QBLU, QNRM);
-	send_to_char(buf, ch);
 }
 
 void
@@ -313,7 +308,7 @@ move_car(struct char_data *ch, struct obj_data *car, int dir)
 			}
 		} else if (CUR_ENERGY(engine) < 20 && ch) {
 			send_to_room("A warning indicator lights up.\r\n", ch->in_room);
-			send_to_char("*WARNING*  Low Energy Level\r\n", ch);
+			send_to_char(ch, "*WARNING*  Low Energy Level\r\n");
 		}
 		return ERR_NONE;
 	}
@@ -330,14 +325,14 @@ ACMD(do_install)
 	two_arguments(argument, arg1, arg2);
 
 	if (!*arg1 || !*arg2) {
-		send_to_char("USAGE: install <engine> <car>\r\n", ch);
+		send_to_char(ch, "USAGE: install <engine> <car>\r\n");
 		return;
 	}
 
 	car = get_obj_in_list_vis(ch, arg2, ch->in_room->contents);
 
 	if (!car) {
-		send_to_char("No such car here.\r\n", ch);
+		send_to_char(ch, "No such car here.\r\n");
 		return;
 	}
 	if (GET_OBJ_TYPE(car) != ITEM_VEHICLE) {
@@ -348,7 +343,7 @@ ACMD(do_install)
 	engine = get_obj_in_list_vis(ch, arg1, ch->carrying);
 
 	if (!engine) {
-		send_to_char("You carry no such engine.\r\n", ch);
+		send_to_char(ch, "You carry no such engine.\r\n");
 		return;
 	}
 	if (GET_OBJ_TYPE(engine) != ITEM_ENGINE) {
@@ -386,14 +381,14 @@ ACMD(do_uninstall)
 	two_arguments(argument, arg1, arg2);
 
 	if (!*arg1 || !*arg2) {
-		send_to_char("USAGE: uninstall <engine> <car>\r\n", ch);
+		send_to_char(ch, "USAGE: uninstall <engine> <car>\r\n");
 		return;
 	}
 
 	car = get_obj_in_list_vis(ch, arg2, ch->in_room->contents);
 
 	if (!car) {
-		send_to_char("No such car here.\r\n", ch);
+		send_to_char(ch, "No such car here.\r\n");
 		return;
 	}
 	if (GET_OBJ_TYPE(car) != ITEM_VEHICLE) {
@@ -450,16 +445,14 @@ SPECIAL(vehicle_door)
 
 		if (ROOM_FLAGGED(vehicle->in_room, ROOM_HOUSE)
 			&& !House_can_enter(ch, vehicle->in_room->number)) {
-			send_to_char("That's private property -- you can't go there.\r\n",
-				ch);
+			send_to_char(ch, "That's private property -- you can't go there.\r\n");
 			return 1;
 		}
 
 		if (ROOM_FLAGGED(vehicle->in_room, ROOM_CLAN_HOUSE) &&
 			!clan_house_can_enter(ch, vehicle->in_room)) {
-			send_to_char
-				("That is clan property -- you aren't allowed to go there.\r\n",
-				ch);
+			send_to_char(ch, 
+				"That is clan property -- you aren't allowed to go there.\r\n");
 			return 1;
 		}
 
@@ -476,7 +469,7 @@ SPECIAL(vehicle_door)
 	if (CMD_IS("open")) {
 
 		if (!CAR_CLOSED(vehicle)) {
-			send_to_char("It's already open.\r\n", ch);
+			send_to_char(ch, "It's already open.\r\n");
 			return 1;
 		}
 		if (CAR_LOCKED(vehicle)) {
@@ -496,15 +489,15 @@ SPECIAL(vehicle_door)
 
 	if (CMD_IS("unlock")) {
 		if (!CAR_CLOSED(vehicle)) {
-			send_to_char("It's already open.\r\n", ch);
+			send_to_char(ch, "It's already open.\r\n");
 			return 1;
 		}
 		if (!CAR_OPENABLE(vehicle)) {
-			send_to_char("This door is not lockable.\r\n", ch);
+			send_to_char(ch, "This door is not lockable.\r\n");
 			return 1;
 		}
 		if (!CAR_LOCKED(vehicle)) {
-			send_to_char("It's already unlocked.\r\n", ch);
+			send_to_char(ch, "It's already unlocked.\r\n");
 			return 1;
 		}
 		REMOVE_BIT(GET_OBJ_VAL(vehicle, 1), CONT_LOCKED);
@@ -514,11 +507,11 @@ SPECIAL(vehicle_door)
 	}
 	if (CMD_IS("lock")) {
 		if (!CAR_OPENABLE(vehicle)) {
-			send_to_char("This car is not lockable.\r\n", ch);
+			send_to_char(ch, "This car is not lockable.\r\n");
 			return 1;
 		}
 		if (CAR_LOCKED(vehicle)) {
-			send_to_char("It's already locked.\r\n", ch);
+			send_to_char(ch, "It's already locked.\r\n");
 			return 1;
 		}
 		if (!CAR_CLOSED(vehicle)) {
@@ -540,11 +533,11 @@ SPECIAL(vehicle_door)
 	}
 	if (CMD_IS("close")) {
 		if (!CAR_OPENABLE(vehicle)) {
-			send_to_char("This car is not closeable.\r\n", ch);
+			send_to_char(ch, "This car is not closeable.\r\n");
 			return 1;
 		}
 		if (CAR_CLOSED(vehicle)) {
-			send_to_char("It's closed already.\r\n", ch);
+			send_to_char(ch, "It's closed already.\r\n");
 			return 1;
 		}
 
@@ -589,9 +582,8 @@ SPECIAL(vehicle_console)
 
 	if (V_CONSOLE_IDNUM(console)) {
 		if (!console->in_room) {
-			send_to_char
-				("You have to put the console IN the vehicle to use it.\r\n",
-				ch);
+			send_to_char(ch, 
+				"You have to put the console IN the vehicle to use it.\r\n");
 			return 1;
 		}
 		CharacterList::iterator it = console->in_room->people.begin();
@@ -613,8 +605,7 @@ SPECIAL(vehicle_console)
 	skip_spaces(&argument);
 
 	if (CMD_IS("exits")) {
-		send_to_char("These are the exits from the room the car is in:\r\n",
-			ch);
+		send_to_char(ch, "These are the exits from the room the car is in:\r\n");
 		ch->in_room = vehicle->in_room;
 		do_exits(ch, "", 0, 0);
 		ch->in_room = console->in_room;
@@ -652,7 +643,7 @@ SPECIAL(vehicle_console)
 	if (CMD_IS("rev")) {
 
 		if (!ENGINE_ON(engine)) {
-			send_to_char("You should probably crank it first.\r\n", ch);
+			send_to_char(ch, "You should probably crank it first.\r\n");
 			return 1;
 		}
 
@@ -665,7 +656,7 @@ SPECIAL(vehicle_console)
 	if (CMD_IS("spinout")) {
 
 		if (!ENGINE_ON(engine)) {
-			send_to_char("The engine's not even running.\r\n", ch);
+			send_to_char(ch, "The engine's not even running.\r\n");
 			return 1;
 		}
 
@@ -679,7 +670,7 @@ SPECIAL(vehicle_console)
 	}
 
 	if (CMD_IS("honk")) {
-		send_to_char("You honk the horn.\r\n", ch);
+		send_to_char(ch, "You honk the horn.\r\n");
 		act("$n honks the horn of $p.", FALSE, ch, vehicle, 0, TO_ROOM);
 		act("There is a loud honking sound from $p.\r\n",
 			FALSE, 0, vehicle, 0, TO_ROOM);
@@ -690,13 +681,13 @@ SPECIAL(vehicle_console)
 
 		if (!*argument) {
 			if (HEADLIGHTS_ON(engine))
-				send_to_char("Headlight status: ON\r\n", ch);
+				send_to_char(ch, "Headlight status: ON\r\n");
 			else
-				send_to_char("Headlight status: OFF\r\n", ch);
+				send_to_char(ch, "Headlight status: OFF\r\n");
 			return 1;
 		} else if (!strncasecmp(argument, "on", 2)) {
 			if (HEADLIGHTS_ON(engine))
-				send_to_char("The headlights are already on.\r\n", ch);
+				send_to_char(ch, "The headlights are already on.\r\n");
 			else {
 				act("You activate the exterior lights of $p.",
 					FALSE, ch, vehicle, 0, TO_CHAR);
@@ -709,7 +700,7 @@ SPECIAL(vehicle_console)
 			return 1;
 		} else if (!strncasecmp(argument, "off", 3)) {
 			if (!HEADLIGHTS_ON(engine))
-				send_to_char("The headlights are already off.\r\n", ch);
+				send_to_char(ch, "The headlights are already off.\r\n");
 			else {
 				act("You turn off the exterior lights of $p.",
 					FALSE, ch, vehicle, 0, TO_CHAR);
@@ -720,25 +711,25 @@ SPECIAL(vehicle_console)
 			}
 			return 1;
 		}
-		send_to_char("end_of_headlights_error\r\n", ch);
+		send_to_char(ch, "end_of_headlights_error\r\n");
 		return 0;
 	}
 
 	if (CMD_IS("drive") || (CMD_IS("fly") && IS_SKYCAR(vehicle))) {
 
 		if (!*argument) {
-			send_to_char("Travel in which direction?\r\n", ch);
+			send_to_char(ch, "Travel in which direction?\r\n");
 			return 1;
 		}
 
 		if (!ENGINE_ON(engine)) {
-			send_to_char("What, without the engine running?\r\n", ch);
+			send_to_char(ch, "What, without the engine running?\r\n");
 			act("$n pretends to be driving $p.", TRUE, ch, vehicle, 0,
 				TO_ROOM);
 			return 1;
 		}
 		if ((dir = search_block(argument, dirs, FALSE)) < 0) {
-			send_to_char("That's not a direction!\r\n", ch);
+			send_to_char(ch, "That's not a direction!\r\n");
 			return 1;
 		}
 
@@ -748,32 +739,30 @@ SPECIAL(vehicle_console)
 				ROOM_DEATH)
 			|| IS_SET(vehicle->in_room->dir_option[dir]->exit_info,
 				EX_CLOSED)) {
-			send_to_char("You can't drive that way.\r\n", ch);
+			send_to_char(ch, "You can't drive that way.\r\n");
 			return 1;
 		}
 		if (IS_SET(ABS_EXIT(vehicle->in_room, dir)->exit_info, EX_ISDOOR) &&
 			ROOM_FLAGGED(vehicle->in_room->dir_option[dir]->to_room,
 				ROOM_INDOORS)) {
-			send_to_char("You can't go through there!\r\n", ch);
+			send_to_char(ch, "You can't go through there!\r\n");
 			return 1;
 		}
 
 		switch (move_car(ch, vehicle, dir)) {
 		case ERR_NULL_DEST:
 		case ERR_CLOSED_EX:
-			send_to_char("Sorry, you can't go that way.\r\n", ch);
+			send_to_char(ch, "Sorry, you can't go that way.\r\n");
 			break;
 		case ERR_NODRIVE:
 			act("You cannot drive $p there.", FALSE, ch, vehicle, 0, TO_CHAR);
 			break;
 		case ERR_HOUSE:
-			send_to_char("That's private property -- you can't go there.\r\n",
-				ch);
+			send_to_char(ch, "That's private property -- you can't go there.\r\n");
 			break;
 		case ERR_CLAN:
-			send_to_char
-				("That is clan property -- you aren't allowed to go there.\r\n",
-				ch);
+			send_to_char(ch, 
+				"That is clan property -- you aren't allowed to go there.\r\n");
 			break;
 		case ERR_NONE:
 		default:
@@ -789,7 +778,7 @@ SPECIAL(vehicle_console)
 	if (CMD_IS("crank") || CMD_IS("activate")) {
 
 		if (KEY_NUMBER(vehicle) != -1 && !has_car_key(ch, KEY_NUMBER(vehicle))) {
-			send_to_char("You need a key for that.\r\n", ch);
+			send_to_char(ch, "You need a key for that.\r\n");
 			return 1;
 		}
 
@@ -804,7 +793,7 @@ SPECIAL(vehicle_console)
 		act("$n attempts to hot-wire $p.", TRUE, ch, vehicle, 0, TO_ROOM);
 
 		if (number(0, 101) > CHECK_SKILL(ch, SKILL_HOTWIRE)) {
-			send_to_char("You fail.\r\n", ch);
+			send_to_char(ch, "You fail.\r\n");
 			return 1;
 		}
 
@@ -815,11 +804,11 @@ SPECIAL(vehicle_console)
 	if (CMD_IS("shutoff") || CMD_IS("deactivate")) {
 
 		if (!ENGINE_ON(engine)) {
-			send_to_char("It's not even running.\r\n", ch);
+			send_to_char(ch, "It's not even running.\r\n");
 			return 1;
 		}
 		if (!IS_PARKED(engine)) {
-			send_to_char("You had better park the sucker first.\r\n", ch);
+			send_to_char(ch, "You had better park the sucker first.\r\n");
 			return 1;
 		}
 
@@ -838,7 +827,7 @@ SPECIAL(vehicle_console)
 		V_CONSOLE_IDNUM(console) = 0;
 
 		if (IS_PARKED(engine)) {
-			send_to_char("It's already parked.\r\n", ch);
+			send_to_char(ch, "It's already parked.\r\n");
 			return 1;
 		}
 		act("You put $p in park.", FALSE, ch, vehicle, 0, TO_CHAR);

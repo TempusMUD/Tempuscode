@@ -100,7 +100,7 @@ ACMD(do_action)
 	/*struct obj_data *weap = GET_EQ(ch, WEAR_WIELD); */
 
 	if ((act_nr = find_action(cmd)) < 0) {
-		send_to_char("That action is not supported.\r\n", ch);
+		send_to_char(ch, "That action is not supported.\r\n");
 		return;
 	}
 	action = &soc_mess_list[act_nr];
@@ -111,8 +111,8 @@ ACMD(do_action)
 		*buf = '\0';
 	}
 	if (!*buf) {
-		send_to_char(action->char_no_arg, ch);
-		send_to_char("\r\n", ch);
+		send_to_char(ch, action->char_no_arg);
+		send_to_char(ch, "\r\n");
 		act(action->others_no_arg, action->hide, ch, 0, 0, TO_ROOM);
 		return;
 	}
@@ -133,8 +133,8 @@ ACMD(do_action)
 		}
 	}
 	if (vict == ch) {
-		send_to_char(action->char_auto, ch);
-		send_to_char("\r\n", ch);
+		send_to_char(ch, action->char_auto);
+		send_to_char(ch, "\r\n");
 		act(action->others_auto, action->hide, ch, 0, 0, TO_ROOM);
 	} else {
 		if (vict->getPosition() < action->min_victim_position)
@@ -159,7 +159,7 @@ ACMD(do_point)
 
 	skip_spaces(&argument);
 	if (!*argument) {
-		send_to_char("You point whereto?\r\n", ch);
+		send_to_char(ch, "You point whereto?\r\n");
 		act("$n points in all directions, seemingly confused.",
 			TRUE, ch, 0, 0, TO_ROOM);
 		return;
@@ -175,7 +175,7 @@ ACMD(do_point)
 
 	if ((vict = get_char_room_vis(ch, argument))) {
 		if (vict == ch) {
-			send_to_char("You point at yourself.\r\n", ch);
+			send_to_char(ch, "You point at yourself.\r\n");
 			act("$n points at $mself.", TRUE, ch, 0, 0, TO_ROOM);
 			return;
 		}
@@ -193,8 +193,7 @@ ACMD(do_point)
 		return;
 	}
 
-	sprintf(buf, "You don't see any '%s' here.\r\n", argument);
-	send_to_char(buf, ch);
+	send_to_char(ch, "You don't see any '%s' here.\r\n", argument);
 
 }
 
@@ -207,11 +206,10 @@ ACMD(do_insult)
 
 	if (*arg) {
 		if (!(victim = get_char_room_vis(ch, arg)))
-			send_to_char("Can't hear you!\r\n", ch);
+			send_to_char(ch, "Can't hear you!\r\n");
 		else {
 			if (victim != ch) {
-				sprintf(buf, "You insult %s.\r\n", GET_NAME(victim));
-				send_to_char(buf, ch);
+				send_to_char(ch, "You insult %s.\r\n", GET_NAME(victim));
 
 				switch (number(0, 2)) {
 				case 0:
@@ -241,12 +239,11 @@ ACMD(do_insult)
 
 				act("$n insults $N.", TRUE, ch, 0, victim, TO_NOTVICT);
 			} else {			/* ch == victim */
-				send_to_char("You feel insulted.\r\n", ch);
+				send_to_char(ch, "You feel insulted.\r\n");
 			}
 		}
 	} else
-		send_to_char("I'm sure you don't want to insult *everybody*...\r\n",
-			ch);
+		send_to_char(ch, "I'm sure you don't want to insult *everybody*...\r\n");
 }
 
 
@@ -373,7 +370,7 @@ show_social_messages(struct char_data *ch, char *arg)
 	struct social_messg *action;
 
 	if (!*arg)
-		send_to_char("What social?\r\n", ch);
+		send_to_char(ch, "What social?\r\n");
 	else {
 		for (l = strlen(arg), i = 0; *cmd_info[i].command != '\n'; i++) {
 			if (!strncmp(cmd_info[i].command, arg, l)) {
@@ -383,9 +380,9 @@ show_social_messages(struct char_data *ch, char *arg)
 			}
 		}
 		if (*cmd_info[i].command == '\n')
-			send_to_char("No such social.\r\n", ch);
+			send_to_char(ch, "No such social.\r\n");
 		else if ((j = find_action(i)) < 0)
-			send_to_char("That action is not supported.\r\n", ch);
+			send_to_char(ch, "That action is not supported.\r\n");
 		else {
 			action = &soc_mess_list[j];
 
@@ -405,11 +402,10 @@ show_social_messages(struct char_data *ch, char *arg)
 					action->not_found);
 				sprintf(buf, "%schar_auto    : %s\r\n", buf,
 					action->char_auto);
-				sprintf(buf, "%sothers_auto  : %s\r\n", buf,
+				send_to_char(ch, "%sothers_auto  : %s\r\n", buf,
 					action->others_auto);
 			}
 
-			send_to_char(buf, ch);
 
 			return;
 		}

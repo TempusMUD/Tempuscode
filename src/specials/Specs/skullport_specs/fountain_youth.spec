@@ -20,7 +20,7 @@ SPECIAL(fountain_youth) {
         return 0;
 
     if(ch->getPosition() == POS_SLEEPING) {
-        send_to_char("You'll have to wake up first!\r\n", ch);
+        send_to_char(ch, "You'll have to wake up first!\r\n");
         return 1;
     }
 
@@ -30,7 +30,6 @@ SPECIAL(fountain_youth) {
         return 0;
 
     if(affected_by_spell(ch, SPELL_YOUTH)) {
-        send_to_char("The cool waters are very refreshing!\r\n",ch);
         act("$n drinks from $p.", TRUE, ch, fountain, 0, TO_ROOM);
         return 1;
     }
@@ -75,7 +74,6 @@ SPECIAL(fountain_youth) {
 	af.is_instant   = FALSE;
     affect_to_char(ch, &af3);
 
-    send_to_char("As you drink the waters, you begin to feel young again!\r\n",ch);
     act("As $n drinks from the pool, $e becomes visibly younger!", TRUE, ch, 0, ch, TO_ROOM);
     return 1;
 }

@@ -12,7 +12,6 @@ SPECIAL(life_point_potion)
 	skip_spaces(&argument);
 	if (!isname(argument, potion->name)) {
 		sprintf(buf,"Argument (%s), Name (%s)\r\n",argument,potion->name);
-		send_to_char(buf,ch);
 		return 0;
 	}
 	//Format : <number of life points> 
@@ -24,10 +23,10 @@ SPECIAL(life_point_potion)
 		(IS_OBJ_STAT(potion, ITEM_ANTI_GOOD) && IS_GOOD(ch)) ||
 		(IS_OBJ_STAT(potion, ITEM_ANTI_NEUTRAL) && IS_NEUTRAL(ch))
         || GET_LEVEL(ch) < 10 ) {
-		send_to_char("\r\nYou feel you have just done something very, very wrong.\r\n", ch);
+		send_to_char(ch, "\r\nYou feel you have just done something very, very wrong.\r\n");
 		ch->setPosition( POS_STUNNED );
 	} else {
-		send_to_char("\r\nThe essence of the gods courses through your veins.\r\n", ch);
+		send_to_char(ch, "\r\nThe essence of the gods courses through your veins.\r\n");
 		GET_LIFE_POINTS(ch) += MIN(10, GET_OBJ_VAL(potion, 0));
 	}
 	obj_from_char(potion);

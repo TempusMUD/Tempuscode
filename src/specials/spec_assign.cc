@@ -443,8 +443,7 @@ do_show_specials(struct char_data *ch, char *arg)
 			else if (is_abbrev(arg1, "all"))
 				mode_all = 1;
 			else {
-				sprintf(buf, "Unknown show special option: '%s'\r\n", arg1);
-				send_to_char(buf, ch);
+				send_to_char(ch, "Unknown show special option: '%s'\r\n", arg1);
 			}
 			arg = one_argument(arg, arg1);
 		}
@@ -491,7 +490,7 @@ ACMD(do_special)
 	skip_spaces(&argument);
 	argument = one_argument(argument, buf);
 	if ((spec_cmd = search_block(buf, special_cmds, 0)) < 0) {
-		send_to_char("Invalid special command: show or save.\r\n", ch);
+		send_to_char(ch, "Invalid special command: show or save.\r\n");
 		return;
 	}
 
@@ -502,9 +501,9 @@ ACMD(do_special)
 
 	case 1:
 		if (do_specassign_save(ch, 0))
-			send_to_char("There was an error saving the file.\r\n", ch);
+			send_to_char(ch, "There was an error saving the file.\r\n");
 		else
-			send_to_char("Special assignments saved.\r\n", ch);
+			send_to_char(ch, "Special assignments saved.\r\n");
 		break;
 	default:
 		slog("SYSERR: Invalid command reached in do_special.");

@@ -115,7 +115,7 @@ do_create_mob(struct char_data *ch, int vnum)
 	int j;
 
 	if ((mob = real_mobile_proto(vnum))) {
-		send_to_char("ERROR: Mobile already exists.\r\n", ch);
+		send_to_char(ch, "ERROR: Mobile already exists.\r\n");
 		return NULL;
 	}
 
@@ -124,13 +124,12 @@ do_create_mob(struct char_data *ch, int vnum)
 			break;
 
 	if (!zone) {
-		send_to_char("ERROR: A zone must be defined for the mobile first.\r\n",
-			ch);
+		send_to_char(ch, "ERROR: A zone must be defined for the mobile first.\r\n");
 		return NULL;
 	}
 
 	if (!CAN_EDIT_ZONE(ch, zone)) {
-		send_to_char("Try creating mobiles in your own zone, luser.\r\n", ch);
+		send_to_char(ch, "Try creating mobiles in your own zone, luser.\r\n");
 		sprintf(buf, "OLC: %s failed attempt to CREATE mob %d.",
 			GET_NAME(ch), vnum);
 		mudlog(buf, BRF, GET_INVIS_LEV(ch), TRUE);
@@ -138,7 +137,7 @@ do_create_mob(struct char_data *ch, int vnum)
 	}
 
 	if (!OLC_EDIT_OK(ch, zone, ZONE_MOBS_APPROVED)) {
-		send_to_char("Mobile OLC is not approved for this zone.\r\n", ch);
+		send_to_char(ch, "Mobile OLC is not approved for this zone.\r\n");
 		return NULL;
 	}
 	CharacterList::iterator mit = mobilePrototypes.begin();
@@ -283,47 +282,43 @@ do_mob_medit(struct char_data *ch, char *argument)
 
 	if (!*argument) {
 		if (!mobile)
-			send_to_char("You are not currently editing a mobile.\r\n", ch);
+			send_to_char(ch, "You are not currently editing a mobile.\r\n");
 		else {
-			sprintf(buf, "Current olc mobile: [%5d] %s\r\n",
+			send_to_char(ch, "Current olc mobile: [%5d] %s\r\n",
 				mobile->mob_specials.shared->vnum, mobile->player.short_descr);
-			send_to_char(buf, ch);
 		}
 		return;
 	}
 	if (!is_number(argument)) {
 		if (is_abbrev(argument, "exit")) {
-			send_to_char("Exiting mobile editor.\r\n", ch);
+			send_to_char(ch, "Exiting mobile editor.\r\n");
 			GET_OLC_MOB(ch) = NULL;
 			return;
 		}
-		send_to_char("The argument must be a number.\r\n", ch);
+		send_to_char(ch, "The argument must be a number.\r\n");
 		return;
 	} else {
 		j = atoi(argument);
 		if ((tmp_mob = real_mobile_proto(j)) == NULL)
-			send_to_char("There is no such mobile.\r\n", ch);
+			send_to_char(ch, "There is no such mobile.\r\n");
 		else {
 			for (zone = zone_table; zone; zone = zone->next)
 				if (j <= zone->top)
 					break;
 			if (!zone) {
-				send_to_char("That mobile does not belong to any zone!!\r\n",
-					ch);
+				send_to_char(ch, "That mobile does not belong to any zone!!\r\n");
 				slog("SYSERR: mobile not in any zone.");
 				return;
 			}
 
 			if (!CAN_EDIT_ZONE(ch, zone)) {
-				send_to_char
-					("You do not have permission to edit those mobiles.\r\n",
-					ch);
+				send_to_char(ch, 
+					"You do not have permission to edit those mobiles.\r\n");
 				return;
 			}
 
 			if (!OLC_EDIT_OK(ch, zone, ZONE_MOBS_APPROVED)) {
-				send_to_char("Mobile OLC is not approved for this zone.\r\n",
-					ch);
+				send_to_char(ch, "Mobile OLC is not approved for this zone.\r\n");
 				return;
 			}
 
@@ -336,11 +331,10 @@ do_mob_medit(struct char_data *ch, char *argument)
 			}
 
 			GET_OLC_MOB(ch) = tmp_mob;
-			sprintf(buf, "Now editing mobile [%d] %s%s%s\r\n",
+			send_to_char(ch, "Now editing mobile [%d] %s%s%s\r\n",
 				tmp_mob->mob_specials.shared->vnum,
 				CCGRN(ch, C_NRM), tmp_mob->player.short_descr,
 				CCNRM(ch, C_NRM));
-			send_to_char(buf, ch);
 		}
 	}
 }
@@ -353,7 +347,7 @@ do_mob_mstat(struct char_data *ch)
 	mob = GET_OLC_MOB(ch);
 
 	if (!mob)
-		send_to_char("You are not currently editing a mobile.\r\n", ch);
+		send_to_char(ch, "You are not currently editing a mobile.\r\n");
 	else
 		do_stat_character(ch, mob);
 }
@@ -371,7 +365,7 @@ do_mob_mset(struct char_data *ch, char *argument)
 	int i, mset_command, tmp_flags, flag, cur_flags, state;
 
 	if (!mob_p) {
-		send_to_char("You are not currently editing a mobile.\r\n", ch);
+		send_to_char(ch, "You are not currently editing a mobile.\r\n");
 		return;
 	}
 
@@ -393,13 +387,11 @@ do_mob_mset(struct char_data *ch, char *argument)
 	skip_spaces(&argument);
 
 	if ((mset_command = search_block(arg1, olc_mset_keys, FALSE)) < 0) {
-		sprintf(buf, "Invalid mset command '%s'.\r\n", arg1);
-		send_to_char(buf, ch);
+		send_to_char(ch, "Invalid mset command '%s'.\r\n", arg1);
 		return;
 	}
 	if (mset_command != 3 && !*arg2) {
-		sprintf(buf, "Set %s to what??\r\n", olc_mset_keys[mset_command]);
-		send_to_char(buf, ch);
+		send_to_char(ch, "Set %s to what??\r\n", olc_mset_keys[mset_command]);
 		return;
 	}
 #ifdef DMALLOC
@@ -412,7 +404,7 @@ do_mob_mset(struct char_data *ch, char *argument)
 				free(mob_p->player.name);
 			mob_p->player.name = strdup(arg2);
 			UPDATE_MOBLIST(mob_p, tmp_mob,->player.name);
-			send_to_char("Mobile aliases set.\r\n", ch);
+			send_to_char(ch, "Mobile aliases set.\r\n");
 			break;
 		}
 	case 1:{				   /** Name **/
@@ -420,7 +412,7 @@ do_mob_mset(struct char_data *ch, char *argument)
 				free(mob_p->player.short_descr);
 			mob_p->player.short_descr = strdup(arg2);
 			UPDATE_MOBLIST_NAMES(mob_p, tmp_mob,->player.short_descr);
-			send_to_char("Mobile name set.\r\n", ch);
+			send_to_char(ch, "Mobile name set.\r\n");
 			break;
 		}
 	case 2:{				   /** ldesc **/
@@ -433,7 +425,7 @@ do_mob_mset(struct char_data *ch, char *argument)
 				strcat(buf, "\n");
 				mob_p->player.long_descr = strdup(buf);
 			}
-			send_to_char("Mobile long description set.\r\n", ch);
+			send_to_char(ch, "Mobile long description set.\r\n");
 			UPDATE_MOBLIST(mob_p, tmp_mob,->player.long_descr);
 			break;
 		}
@@ -467,7 +459,7 @@ do_mob_mset(struct char_data *ch, char *argument)
 
 			if (!zone) {
 				slog("SYSERR:  Error!  mobile not in zone.");
-				send_to_char("ERROR\r\n", ch);
+				send_to_char(ch, "ERROR\r\n");
 				return;
 			}
 
@@ -476,8 +468,8 @@ do_mob_mset(struct char_data *ch, char *argument)
 			else if (*arg1 == '-')
 				state = 2;
 			else {
-				send_to_char
-					("Usage: olc mset flags [+/-] [FLAG, FLAG, ...]\r\n", ch);
+				send_to_char(ch, 
+					"Usage: olc mset flags [+/-] [FLAG, FLAG, ...]\r\n");
 				return;
 			}
 
@@ -487,13 +479,11 @@ do_mob_mset(struct char_data *ch, char *argument)
 
 			while (*arg1) {
 				if ((flag = search_block(arg1, action_bits_desc, FALSE)) == -1) {
-					sprintf(buf, "Invalid flag %s, skipping...\r\n", arg1);
-					send_to_char(buf, ch);
+					send_to_char(ch, "Invalid flag %s, skipping...\r\n", arg1);
 				} else if ((1 << flag) == MOB_SPEC && !GET_MOB_SPEC(mob_p) &&
 					state == 1)
-					send_to_char
-						("Can't set SPEC bit until special is assigned.\r\n",
-						ch);
+					send_to_char(ch, 
+						"Can't set SPEC bit until special is assigned.\r\n");
 				else
 					tmp_flags = tmp_flags | (1 << flag);
 
@@ -512,13 +502,13 @@ do_mob_mset(struct char_data *ch, char *argument)
 			if (tmp_flags == 0 && cur_flags == 0) {
 				SET_BIT(zone->flags, ZONE_MOBS_MODIFIED);
 				SET_BIT(MOB_FLAGS(mob_p), MOB_ISNPC);
-				send_to_char("Mobile flags set to: ISNPC\r\n", ch);
+				send_to_char(ch, "Mobile flags set to: ISNPC\r\n");
 			} else if (tmp_flags == 0)
-				send_to_char("Mobile flags not altered.\r\n", ch);
+				send_to_char(ch, "Mobile flags not altered.\r\n");
 			else {
 				SET_BIT(zone->flags, ZONE_MOBS_MODIFIED);
 				SET_BIT(MOB_FLAGS(mob_p), MOB_ISNPC);
-				send_to_char("Mobile flags set.\r\n", ch);
+				send_to_char(ch, "Mobile flags set.\r\n");
 			}
 			break;
 		}
@@ -536,8 +526,8 @@ do_mob_mset(struct char_data *ch, char *argument)
 			else if (*arg1 == '-')
 				state = 2;
 			else {
-				send_to_char
-					("Usage: olc mset flags2 [+/-] [FLAG, FLAG, ...]\r\n", ch);
+				send_to_char(ch, 
+					"Usage: olc mset flags2 [+/-] [FLAG, FLAG, ...]\r\n");
 				return;
 			}
 
@@ -548,8 +538,7 @@ do_mob_mset(struct char_data *ch, char *argument)
 			while (*arg1) {
 				if ((flag =
 						search_block(arg1, action2_bits_desc, FALSE)) == -1) {
-					sprintf(buf, "Invalid flag %s, skipping...\r\n", arg1);
-					send_to_char(buf, ch);
+					send_to_char(ch, "Invalid flag %s, skipping...\r\n", arg1);
 				} else
 					tmp_flags = tmp_flags | (1 << flag);
 
@@ -567,12 +556,12 @@ do_mob_mset(struct char_data *ch, char *argument)
 
 			if (tmp_flags == 0 && cur_flags == 0) {
 				SET_BIT(zone->flags, ZONE_MOBS_MODIFIED);
-				send_to_char("Mobile flags2 set to: none\r\n", ch);
+				send_to_char(ch, "Mobile flags2 set to: none\r\n");
 			} else if (tmp_flags == 0)
-				send_to_char("Mobile flags2 not altered.\r\n", ch);
+				send_to_char(ch, "Mobile flags2 not altered.\r\n");
 			else {
 				SET_BIT(zone->flags, ZONE_MOBS_MODIFIED);
-				send_to_char("Mobile flags2 set.\r\n", ch);
+				send_to_char(ch, "Mobile flags2 set.\r\n");
 				REMOVE_BIT(MOB2_FLAGS(mob_p), MOB2_RENAMED);
 			}
 			break;
@@ -591,8 +580,7 @@ do_mob_mset(struct char_data *ch, char *argument)
 			else if (*arg1 == '-')
 				state = 2;
 			else {
-				send_to_char("Usage: olc mset aff [+/-] [FLAG, FLAG, ...]\r\n",
-					ch);
+				send_to_char(ch, "Usage: olc mset aff [+/-] [FLAG, FLAG, ...]\r\n");
 				return;
 			}
 
@@ -603,8 +591,7 @@ do_mob_mset(struct char_data *ch, char *argument)
 			while (*arg1) {
 				if ((flag =
 						search_block(arg1, affected_bits_desc, FALSE)) == -1) {
-					sprintf(buf, "Invalid flag %s, skipping...\r\n", arg1);
-					send_to_char(buf, ch);
+					send_to_char(ch, "Invalid flag %s, skipping...\r\n", arg1);
 				} else
 					tmp_flags = tmp_flags | (1 << flag);
 
@@ -622,12 +609,12 @@ do_mob_mset(struct char_data *ch, char *argument)
 
 			if (tmp_flags == 0 && cur_flags == 0) {
 				SET_BIT(zone->flags, ZONE_MOBS_MODIFIED);
-				send_to_char("Mobile affected flags set to: none\r\n", ch);
+				send_to_char(ch, "Mobile affected flags set to: none\r\n");
 			} else if (tmp_flags == 0)
-				send_to_char("Mobile affected flags not altered.\r\n", ch);
+				send_to_char(ch, "Mobile affected flags not altered.\r\n");
 			else {
 				SET_BIT(zone->flags, ZONE_MOBS_MODIFIED);
-				send_to_char("Mobile affected flags set.\r\n", ch);
+				send_to_char(ch, "Mobile affected flags set.\r\n");
 			}
 			break;
 		}
@@ -645,8 +632,8 @@ do_mob_mset(struct char_data *ch, char *argument)
 			else if (*arg1 == '-')
 				state = 2;
 			else {
-				send_to_char
-					("Usage: olc mset aff2 [+/-] [FLAG, FLAG, ...]\r\n", ch);
+				send_to_char(ch, 
+					"Usage: olc mset aff2 [+/-] [FLAG, FLAG, ...]\r\n");
 				return;
 			}
 
@@ -658,8 +645,7 @@ do_mob_mset(struct char_data *ch, char *argument)
 				if ((flag =
 						search_block(arg1, affected2_bits_desc,
 							FALSE)) == -1) {
-					sprintf(buf, "Invalid flag %s, skipping...\r\n", arg1);
-					send_to_char(buf, ch);
+					send_to_char(ch, "Invalid flag %s, skipping...\r\n", arg1);
 				} else
 					tmp_flags = tmp_flags | (1 << flag);
 
@@ -677,12 +663,12 @@ do_mob_mset(struct char_data *ch, char *argument)
 
 			if (tmp_flags == 0 && cur_flags == 0) {
 				SET_BIT(zone->flags, ZONE_MOBS_MODIFIED);
-				send_to_char("Mobile affected2 flags set to: none\r\n", ch);
+				send_to_char(ch, "Mobile affected2 flags set to: none\r\n");
 			} else if (tmp_flags == 0)
-				send_to_char("Mobile affected2 flags not altered.\r\n", ch);
+				send_to_char(ch, "Mobile affected2 flags not altered.\r\n");
 			else {
 				SET_BIT(zone->flags, ZONE_MOBS_MODIFIED);
-				send_to_char("Mobile affected2 flags set.\r\n", ch);
+				send_to_char(ch, "Mobile affected2 flags set.\r\n");
 			}
 			break;
 		}
@@ -700,8 +686,8 @@ do_mob_mset(struct char_data *ch, char *argument)
 			else if (*arg1 == '-')
 				state = 2;
 			else {
-				send_to_char
-					("Usage: olc mset aff3 [+/-] [FLAG, FLAG, ...]\r\n", ch);
+				send_to_char(ch, 
+					"Usage: olc mset aff3 [+/-] [FLAG, FLAG, ...]\r\n");
 				return;
 			}
 
@@ -713,8 +699,7 @@ do_mob_mset(struct char_data *ch, char *argument)
 				if ((flag =
 						search_block(arg1, affected3_bits_desc,
 							FALSE)) == -1) {
-					sprintf(buf, "Invalid flag %s, skipping...\r\n", arg1);
-					send_to_char(buf, ch);
+					send_to_char(ch, "Invalid flag %s, skipping...\r\n", arg1);
 				} else
 					tmp_flags = tmp_flags | (1 << flag);
 
@@ -732,93 +717,92 @@ do_mob_mset(struct char_data *ch, char *argument)
 
 			if (tmp_flags == 0 && cur_flags == 0) {
 				SET_BIT(zone->flags, ZONE_MOBS_MODIFIED);
-				send_to_char("Mobile affected3 flags set to: none\r\n", ch);
+				send_to_char(ch, "Mobile affected3 flags set to: none\r\n");
 			} else if (tmp_flags == 0)
-				send_to_char("Mobile affected3 flags not altered.\r\n", ch);
+				send_to_char(ch, "Mobile affected3 flags not altered.\r\n");
 			else {
 				SET_BIT(zone->flags, ZONE_MOBS_MODIFIED);
-				send_to_char("Mobile affected3 flags set.\r\n", ch);
+				send_to_char(ch, "Mobile affected3 flags set.\r\n");
 			}
 			break;
 		}
 	case 9:{				 /** align **/
 			i = atoi(arg2);
 			if (i < -1000 || i > 1000)
-				send_to_char("Alignment must be between -1000 and 1000.\r\n",
-					ch);
+				send_to_char(ch, "Alignment must be between -1000 and 1000.\r\n");
 			else {
 				GET_ALIGNMENT(mob_p) = i;
-				send_to_char("Mobile alignment set.\r\n", ch);
+				send_to_char(ch, "Mobile alignment set.\r\n");
 			}
 			break;
 		}
 	case 10:{				 /** str **/
 			i = atoi(arg2);
 			if (i < 3 || i > 25)
-				send_to_char("Strength must be between 3 and 25.\r\n", ch);
+				send_to_char(ch, "Strength must be between 3 and 25.\r\n");
 			else {
 				mob_p->aff_abils.str = mob_p->real_abils.str = i;
-				send_to_char("Mobile strength set.\r\n", ch);
+				send_to_char(ch, "Mobile strength set.\r\n");
 			}
 			break;
 		}
 	case 11:{				 /** intel **/
 			i = atoi(arg2);
 			if (i < 3 || i > 25)
-				send_to_char("Intelligence must be between 3 and 25.\r\n", ch);
+				send_to_char(ch, "Intelligence must be between 3 and 25.\r\n");
 			else {
 				mob_p->aff_abils.intel = mob_p->real_abils.intel = i;
-				send_to_char("Mobile intelligence set.\r\n", ch);
+				send_to_char(ch, "Mobile intelligence set.\r\n");
 			}
 			break;
 		}
 	case 12:{				/** wis **/
 			i = atoi(arg2);
 			if (i < 3 || i > 25)
-				send_to_char("Wisdom must be between 3 and 25.\r\n", ch);
+				send_to_char(ch, "Wisdom must be between 3 and 25.\r\n");
 			else {
 				mob_p->aff_abils.wis = mob_p->real_abils.wis = i;
-				send_to_char("Mobile wisdom set.\r\n", ch);
+				send_to_char(ch, "Mobile wisdom set.\r\n");
 			}
 			break;
 		}
 	case 13:{				/** dex **/
 			i = atoi(arg2);
 			if (i < 3 || i > 25)
-				send_to_char("Dexterity must be between 3 and 25.\r\n", ch);
+				send_to_char(ch, "Dexterity must be between 3 and 25.\r\n");
 			else {
 				mob_p->aff_abils.dex = mob_p->real_abils.dex = i;
-				send_to_char("Mobile dexterity set.\r\n", ch);
+				send_to_char(ch, "Mobile dexterity set.\r\n");
 			}
 			break;
 		}
 	case 14:{				 /** con **/
 			i = atoi(arg2);
 			if (i < 3 || i > 25)
-				send_to_char("Constitution must be between 3 and 25.\r\n", ch);
+				send_to_char(ch, "Constitution must be between 3 and 25.\r\n");
 			else {
 				mob_p->aff_abils.con = mob_p->real_abils.con = i;
-				send_to_char("Mobile constitution set.\r\n", ch);
+				send_to_char(ch, "Mobile constitution set.\r\n");
 			}
 			break;
 		}
 	case 15:{				/** cha **/
 			i = atoi(arg2);
 			if (i < 3 || i > 25)
-				send_to_char("Charisma must be between 3 and 25.\r\n", ch);
+				send_to_char(ch, "Charisma must be between 3 and 25.\r\n");
 			else {
 				mob_p->aff_abils.cha = mob_p->real_abils.cha = i;
-				send_to_char("Mobile charisma set.\r\n", ch);
+				send_to_char(ch, "Mobile charisma set.\r\n");
 			}
 			break;
 		}
 	case 16:{			   /** level **/
 			i = atoi(arg2);
 			if (i < 1 || i > 50)
-				send_to_char("Level must be between 1 and 50.\r\n", ch);
+				send_to_char(ch, "Level must be between 1 and 50.\r\n");
 			else {
 				GET_LEVEL(mob_p) = i;
-				send_to_char("Mobile level set.\r\n", ch);
+				send_to_char(ch, "Mobile level set.\r\n");
 
 				set_physical_attribs(mob_p);
 				GET_HIT(mob_p) = MOB_D1(i);
@@ -835,35 +819,33 @@ do_mob_mset(struct char_data *ch, char *argument)
 	case 17:{			   /** hitp_mod **/
 			i = atoi(arg2);
 			if (i < 0 || i > 32767)
-				send_to_char
-					("Hit point modifier must be between 1 and 32767.\r\n",
-					ch);
+				send_to_char(ch, 
+					"Hit point modifier must be between 1 and 32767.\r\n");
 			else {
 				GET_MOVE(mob_p) = i;
-				send_to_char("Mobile hit point mod set.\r\n", ch);
+				send_to_char(ch, "Mobile hit point mod set.\r\n");
 			}
 			break;
 		}
 	case 18:{				/** hitd_num **/
 			i = atoi(arg2);
 			if (i < 0 || i > 200)
-				send_to_char
-					("Hit point dice number must be between 1 and 200.\r\n",
-					ch);
+				send_to_char(ch, 
+					"Hit point dice number must be between 1 and 200.\r\n");
 			else {
 				GET_HIT(mob_p) = i;
-				send_to_char("Mobile hit point dice number set.\r\n", ch);
+				send_to_char(ch, "Mobile hit point dice number set.\r\n");
 			}
 			break;
 		}
 	case 19:{			   /** hitd_size **/
 			i = atoi(arg2);
 			if (i < 0 || i > 200)
-				send_to_char
-					("Hit point dice size must be between 1 and 200.\r\n", ch);
+				send_to_char(ch, 
+					"Hit point dice size must be between 1 and 200.\r\n");
 			else {
 				GET_MANA(mob_p) = i;
-				send_to_char("Mobile hit point dice size set.\r\n", ch);
+				send_to_char(ch, "Mobile hit point dice size set.\r\n");
 			}
 			break;
 
@@ -871,94 +853,89 @@ do_mob_mset(struct char_data *ch, char *argument)
 	case 20:{			   /** mana **/
 			i = atoi(arg2);
 			if (i < 0 || i > 32767)
-				send_to_char("Mana must be bewteen 1 and 32767.\r\n", ch);
+				send_to_char(ch, "Mana must be bewteen 1 and 32767.\r\n");
 			else {
 				GET_MAX_MANA(mob_p) = i;
-				send_to_char("Mobile mana set.\r\n", ch);
+				send_to_char(ch, "Mobile mana set.\r\n");
 			}
 			break;
 		}
 	case 21:{			   /** move **/
 			i = atoi(arg2);
 			if (i < 0 || i > 32767)
-				send_to_char("Movement must be between 1 and 32767.\r\n", ch);
+				send_to_char(ch, "Movement must be between 1 and 32767.\r\n");
 			else {
 				GET_MAX_MOVE(mob_p) = i;
-				send_to_char("Mobile movement set.\r\n", ch);
+				send_to_char(ch, "Mobile movement set.\r\n");
 			}
 			break;
 		}
 	case 22:{			   /** baredam **/
 			i = atoi(arg2);
 			if (i < 1 || i > 125)
-				send_to_char("Bare hand damage must be between 1 and 125.\r\n",
-					ch);
+				send_to_char(ch, "Bare hand damage must be between 1 and 125.\r\n");
 			else {
 				mob_p->mob_specials.shared->damnodice = i;
-				send_to_char("Mobile bare handed damage set.\r\n", ch);
+				send_to_char(ch, "Mobile bare handed damage set.\r\n");
 			}
 			break;
 		}
 	case 23:{			   /** baredsize **/
 			i = atoi(arg2);
 			if (i < 1 || i > 125)
-				send_to_char
-					("Bare handed damage dice size must be between 1 and 125.\r\n",
-					ch);
+				send_to_char(ch, 
+					"Bare handed damage dice size must be between 1 and 125.\r\n");
 			else {
 				mob_p->mob_specials.shared->damsizedice = i;
-				send_to_char("Mobile damage dice size set.\r\n", ch);
+				send_to_char(ch, "Mobile damage dice size set.\r\n");
 			}
 			break;
 		}
 	case 24:{			   /** gold **/
 			i = atoi(arg2);
 			if (i < 0 || i > 10000000)
-				send_to_char("Gold must be between 0 and 10,000,000.\r\n", ch);
+				send_to_char(ch, "Gold must be between 0 and 10,000,000.\r\n");
 			else {
 				GET_GOLD(mob_p) = i;
-				send_to_char("Mobile gold set.\r\n", ch);
+				send_to_char(ch, "Mobile gold set.\r\n");
 			}
 			break;
 		}
 	case 25:{			   /** exp **/
 			i = atoi(arg2);
 			if (i < 0 || i > 200000000)
-				send_to_char
-					("Experience must be between 0 and 200,000,000.\r\n", ch);
+				send_to_char(ch, 
+					"Experience must be between 0 and 200,000,000.\r\n");
 			else {
 				GET_EXP(mob_p) = i;
-				send_to_char("Mobile experience set.\r\n", ch);
+				send_to_char(ch, "Mobile experience set.\r\n");
 			}
 			break;
 		}
 	case 26:{			   /** attack **/
 			if ((i = search_block(arg2, attack_type, FALSE)) < 0) {
-				sprintf(buf, "Invalid attack type, '%s'.\r\n", arg2);
-				send_to_char(buf, ch);
+				send_to_char(ch, "Invalid attack type, '%s'.\r\n", arg2);
 			} else {
 				mob_p->mob_specials.shared->attack_type = i;
-				send_to_char("Mobile attack type set.\r\n", ch);
+				send_to_char(ch, "Mobile attack type set.\r\n");
 			}
 			break;
 		}
 	case 27:{			  /** position **/
 			if ((i = search_block(arg2, position_types, FALSE)) < 0) {
-				sprintf(buf, "Invalid position, '%s'.\r\n", arg2);
-				send_to_char(buf, ch);
+				send_to_char(ch, "Invalid position, '%s'.\r\n", arg2);
 			} else {
 				mob_p->setPosition(i);
-				send_to_char("Mobile position set.\r\n", ch);
+				send_to_char(ch, "Mobile position set.\r\n");
 			}
 			break;
 		}
 	case 28:{			   /** sex **/
 			if ((i = search_block(arg2, genders, FALSE)) < 0) {
-				sprintf(buf, "Invalid gender, '%s'.\r\n", arg2);
-				send_to_char(buf, ch);
+				send_to_char(ch, "Invalid gender, '%s'.\r\n", arg2);
 			} else {
 				mob_p->player.sex = i;
-				send_to_char("Mobile gender set.\r\n", ch);
+				send_to_char(ch, "Mobile gender set.\r\n");
 			}
 			break;
 		}
@@ -966,135 +943,127 @@ do_mob_mset(struct char_data *ch, char *argument)
 			if (!strncmp(arg2, "none", 4))
 				i = -1;
 			else if ((i = search_block(arg2, pc_char_class_types, FALSE)) < 0) {
-				sprintf(buf, "Invalid char_class type, '%s'.\r\n", arg2);
-				send_to_char(buf, ch);
+				send_to_char(ch, "Invalid char_class type, '%s'.\r\n", arg2);
 				break;
 			}
 			mob_p->player.remort_char_class = i;
-			send_to_char("Mobile Remort Class set.\r\n", ch);
+			send_to_char(ch, "Mobile Remort Class set.\r\n");
 			break;
 		}
 	case 30:{			   /** cash **/
 			i = atoi(arg2);
 			if (i < 0 || i > 1000000)
-				send_to_char("Cash must be between 0 and 1,000,000.\r\n", ch);
+				send_to_char(ch, "Cash must be between 0 and 1,000,000.\r\n");
 			else {
 				GET_CASH(mob_p) = i;
-				send_to_char("Mobile cash credits set.\r\n", ch);
+				send_to_char(ch, "Mobile cash credits set.\r\n");
 			}
 			break;
 		}
 	case 31:{			   /** hitroll **/
 			i = atoi(arg2);
 			if (i < -125 || i > 125)
-				send_to_char("Hitroll must be between -125 and 125.\r\n", ch);
+				send_to_char(ch, "Hitroll must be between -125 and 125.\r\n");
 			else {
 				GET_HITROLL(mob_p) = i;
-				send_to_char("Mobile hitroll set.\r\n", ch);
+				send_to_char(ch, "Mobile hitroll set.\r\n");
 			}
 			break;
 		}
 	case 32:{			   /** damroll **/
 			i = atoi(arg2);
 			if (i < -125 || i > 125)
-				send_to_char("Damroll must be between -125 and 125.\r\n", ch);
+				send_to_char(ch, "Damroll must be between -125 and 125.\r\n");
 			else {
 				GET_DAMROLL(mob_p) = i;
-				send_to_char("Mobile damroll set.\r\n", ch);
+				send_to_char(ch, "Mobile damroll set.\r\n");
 			}
 			break;
 		}
 	case 33:{			   /** ac **/
 			i = atoi(arg2);
 			if (i < -500 || i > 100)
-				send_to_char("Armor Class must be between -500 and 100.\r\n",
-					ch);
+				send_to_char(ch, "Armor Class must be between -500 and 100.\r\n");
 			else {
 				GET_AC(mob_p) = i;
-				send_to_char("Mobile Armor Class set.\r\n", ch);
+				send_to_char(ch, "Mobile Armor Class set.\r\n");
 			}
 			break;
 		}
 	case 34:{			   /** char_class **/
 			if ((i = search_block(arg2, pc_char_class_types, FALSE)) < 0) {
-				sprintf(buf, "Invalid char_class type, '%s'.\r\n", arg2);
-				send_to_char(buf, ch);
+				send_to_char(ch, "Invalid char_class type, '%s'.\r\n", arg2);
 			} else {
 				GET_CLASS(mob_p) = i;
 				set_physical_attribs(mob_p);
-				send_to_char("Mobile Class set.\r\n", ch);
+				send_to_char(ch, "Mobile Class set.\r\n");
 			}
 			break;
 		}
 	case 35:{			   /** race **/
 			if ((i = search_block(arg2, player_race, FALSE)) < 0) {
-				sprintf(buf, "Invalid race, '%s'.\r\n", arg2);
-				send_to_char(buf, ch);
+				send_to_char(ch, "Invalid race, '%s'.\r\n", arg2);
 			} else {
 				GET_RACE(mob_p) = i;
 				set_physical_attribs(mob_p);
-				send_to_char("Mobile Race set.\r\n", ch);
+				send_to_char(ch, "Mobile Race set.\r\n");
 
 			}
 			break;
 		}
 	case 36:{			   /** dpos **/
 			if ((i = search_block(arg2, position_types, FALSE)) < 0) {
-				sprintf(buf, "Invalid default position, '%s'.\r\n", arg2);
-				send_to_char(buf, ch);
+				send_to_char(ch, "Invalid default position, '%s'.\r\n", arg2);
 			} else {
 				GET_DEFAULT_POS(mob_p) = i;
-				send_to_char("Mobile default position set.\r\n", ch);
+				send_to_char(ch, "Mobile default position set.\r\n");
 			}
 			break;
 		}
 	case 37:{			   /** stradd **/
 			i = atoi(arg2);
 			if (i < 0 || i > 100)
-				send_to_char("StrAdd must be between 0 and 100.\r\n", ch);
+				send_to_char(ch, "StrAdd must be between 0 and 100.\r\n");
 			else {
 				GET_ADD(mob_p) = i;
-				send_to_char("Mobile StrAdd set.\r\n", ch);
+				send_to_char(ch, "Mobile StrAdd set.\r\n");
 			}
 			break;
 		}
 	case 38:{			   /** height **/
 			i = atoi(arg2);
 			if (i < 1 || i > 10000)
-				send_to_char("Height must be between 1 and 10000.\r\n", ch);
+				send_to_char(ch, "Height must be between 1 and 10000.\r\n");
 			else {
 				GET_HEIGHT(mob_p) = i;
-				send_to_char("Mobile height set.\r\n", ch);
+				send_to_char(ch, "Mobile height set.\r\n");
 			}
 			break;
 		}
 	case 39:{			   /** weight **/
 			i = atoi(arg2);
 			if (i < 1 || i > 50000)
-				send_to_char("Weight must be between 1 and 50000.\r\n", ch);
+				send_to_char(ch, "Weight must be between 1 and 50000.\r\n");
 			else {
 				GET_WEIGHT(mob_p) = i;
-				send_to_char("Mobile weight set.\r\n", ch);
+				send_to_char(ch, "Mobile weight set.\r\n");
 			}
 			break;
 		}
 	case 40:{					/* reply */
 			if (!*argument) {
-				send_to_char(OLC_REPLY_USAGE, ch);
+				send_to_char(ch, OLC_REPLY_USAGE);
 				return;
 			}
 			half_chop(arg2, buf, argument);
 			if (!mob_p)
-				send_to_char
-					("Hey punk, you need an mobile in your editor first!!!\r\n",
-					ch);
+				send_to_char(ch, 
+					"Hey punk, you need an mobile in your editor first!!!\r\n");
 			else if (!*argument)
-				send_to_char("Which reply would you like to deal with?\r\n",
-					ch);
+				send_to_char(ch, "Which reply would you like to deal with?\r\n");
 			else if (!*buf)
-				send_to_char
-					("Valid commands are: create, remove, edit, addkey.\r\n",
-					ch);
+				send_to_char(ch, 
+					"Valid commands are: create, remove, edit, addkey.\r\n");
 			else if (is_abbrev(buf, "remove")) {
 				if ((reply =
 						locate_exdesc(argument,
@@ -1113,19 +1082,18 @@ do_mob_mset(struct char_data *ch, char *argument)
 
 					free(reply);
 
-					send_to_char("Response removed.\r\n", ch);
+					send_to_char(ch, "Response removed.\r\n");
 					UPDATE_MOBLIST(mob_p, tmp_mob,->mob_specials.response);
 				} else
-					send_to_char("No response.\r\n", ch);
+					send_to_char(ch, "No response.\r\n");
 
 				return;
 			} else if (is_abbrev(buf, "create")) {
 				if (find_exdesc(argument, mob_p->mob_specials.response)) {
-					send_to_char
-						("A response already exists with that keyword.\r\n"
+					send_to_char(ch, 
+						"A response already exists with that keyword.\r\n"
 						"Use the 'olc mset reply remove' command to remove it, or the\r\n"
-						"'olc mset reply edit' command to change it, punk.\r\n",
-						ch);
+						"'olc mset reply edit' command to change it, punk.\r\n");
 					return;
 				}
 				CREATE(nreply, struct extra_descr_data, 1);
@@ -1147,9 +1115,8 @@ do_mob_mset(struct char_data *ch, char *argument)
 					act("$n begins to edit a mobile response.", TRUE, ch, 0, 0,
 						TO_ROOM);
 				} else
-					send_to_char
-						("No such response.  Use 'create' to make a new one.\r\n",
-						ch);
+					send_to_char(ch, 
+						"No such response.  Use 'create' to make a new one.\r\n");
 
 				return;
 			} else if (is_abbrev(buf, "addkeyword")) {
@@ -1157,9 +1124,8 @@ do_mob_mset(struct char_data *ch, char *argument)
 				if ((reply =
 						locate_exdesc(arg1, mob_p->mob_specials.response))) {
 					if (!*arg2) {
-						send_to_char
-							("What??  How about giving me some keywords to add...\r\n",
-							ch);
+						send_to_char(ch, 
+							"What??  How about giving me some keywords to add...\r\n");
 						return;
 					} else {
 						strcpy(buf, reply->keyword);
@@ -1168,29 +1134,29 @@ do_mob_mset(struct char_data *ch, char *argument)
 						free(reply->keyword);
 						reply->keyword = str_dup(buf);
 						UPDATE_MOBLIST(mob_p, tmp_mob,->mob_specials.response);
-						send_to_char("Keywords added.\r\n", ch);
+						send_to_char(ch, "Keywords added.\r\n");
 						return;
 					}
 				} else
-					send_to_char
-						("There is no such response for this mobile.\r\n", ch);
+					send_to_char(ch, 
+						"There is no such response for this mobile.\r\n");
 			} else
-				send_to_char(OLC_REPLY_USAGE, ch);
+				send_to_char(ch, OLC_REPLY_USAGE);
 			break;
 		}
 	case 41:{
 			if (!*arg2 || (i = find_spec_index_arg(arg2)) < 0)
-				send_to_char("That is not a valid special.\r\n"
-					"Type show special mob to view a list.\r\n", ch);
+				send_to_char(ch, "That is not a valid special.\r\n"
+					"Type show special mob to view a list.\r\n");
 			else if (!IS_SET(spec_list[i].flags, SPEC_MOB))
-				send_to_char("This special is not for mobiles.\r\n", ch);
+				send_to_char(ch, "This special is not for mobiles.\r\n");
 			else if (IS_SET(spec_list[i].flags, SPEC_RES) && !OLCIMP(ch))
-				send_to_char("This special is reserved.\r\n", ch);
+				send_to_char(ch, "This special is reserved.\r\n");
 			else {
 
 				mob_p->mob_specials.shared->func = spec_list[i].func;
 				do_specassign_save(ch, SPEC_MOB);
-				send_to_char("Mobile special set.\r\n", ch);
+				send_to_char(ch, "Mobile special set.\r\n");
 			}
 			break;
 
@@ -1198,10 +1164,10 @@ do_mob_mset(struct char_data *ch, char *argument)
 	case 42:{			  /*** morale ***/
 			i = atoi(arg2);
 			if (i < 0 || i > 125)
-				send_to_char("Morale must be between 1 and 125.\r\n", ch);
+				send_to_char(ch, "Morale must be between 1 and 125.\r\n");
 			else {
 				mob_p->mob_specials.shared->morale = i;
-				send_to_char("Mobile morale set.\r\n", ch);
+				send_to_char(ch, "Mobile morale set.\r\n");
 			}
 			break;
 
@@ -1209,15 +1175,14 @@ do_mob_mset(struct char_data *ch, char *argument)
 	case 43:{				 /** str_app **/
 			i = atoi(arg2);
 			if (mob_p->real_abils.str != 18) {
-				send_to_char("The mob must have an 18 strength.\r\n", ch);
+				send_to_char(ch, "The mob must have an 18 strength.\r\n");
 				return;
 			}
 			if (i < 0 || i > 100)
-				send_to_char("Strength apply must be between 0 and 100.\r\n",
-					ch);
+				send_to_char(ch, "Strength apply must be between 0 and 100.\r\n");
 			else {
 				mob_p->aff_abils.str_add = mob_p->real_abils.str_add = i;
-				send_to_char("Mobile strength apply set.\r\n", ch);
+				send_to_char(ch, "Mobile strength apply set.\r\n");
 			}
 			break;
 
@@ -1226,28 +1191,28 @@ do_mob_mset(struct char_data *ch, char *argument)
 			if (MOB_SHARED(mob_p)->move_buf)
 				free(MOB_SHARED(mob_p)->move_buf);
 			MOB_SHARED(mob_p)->move_buf = strdup(arg2);
-			send_to_char("Mobile move_buf set.\r\n", ch);
+			send_to_char(ch, "Mobile move_buf set.\r\n");
 			break;
 
 		}
 	case 45:{		  /** lair **/
 			i = atoi(arg2);
 			mob_p->mob_specials.shared->lair = i;
-			send_to_char("Mobile lair set.\r\n", ch);
+			send_to_char(ch, "Mobile lair set.\r\n");
 			break;
 
 		}
 	case 46:{		  /** leader **/
 			i = atoi(arg2);
 			mob_p->mob_specials.shared->leader = i;
-			send_to_char("Mobile leader set.\r\n", ch);
+			send_to_char(ch, "Mobile leader set.\r\n");
 			break;
 
 		}
 	case 47:{
 			i = atoi(arg2);
 			mob_p->mob_specials.shared->svnum = i;
-			send_to_char("Mobile iscript set.\r\n", ch);
+			send_to_char(ch, "Mobile iscript set.\r\n");
 			break;
 		}
 	default:{
@@ -1317,8 +1282,7 @@ write_mob_index(struct char_data *ch, struct zone_data *zone)
 
 	sprintf(fname, "world/mob/index");
 	if (!(index = fopen(fname, "w"))) {
-		send_to_char("Could not open index file, mobile save aborted.\r\n",
-			ch);
+		send_to_char(ch, "Could not open index file, mobile save aborted.\r\n");
 		return (0);
 	}
 
@@ -1327,7 +1291,7 @@ write_mob_index(struct char_data *ch, struct zone_data *zone)
 
 	fprintf(index, "$\n");
 
-	send_to_char("Mobile index file re-written.\r\n", ch);
+	send_to_char(ch, "Mobile index file re-written.\r\n");
 
 	fclose(index);
 
@@ -1359,7 +1323,7 @@ save_mobs(struct char_data *ch)
 
 		if (!zone) {
 			slog("OLC: ERROR finding zone for mobile %d.", m_vnum);
-			send_to_char("Unable to match mobile with zone error..\r\n", ch);
+			send_to_char(ch, "Unable to match mobile with zone error..\r\n");
 			return 1;
 		}
 	} else
@@ -1518,7 +1482,7 @@ save_mobs(struct char_data *ch)
 				sprintf(buf,
 					"I didn't save your bogus response for mob %d.\r\n",
 					mob->mob_specials.shared->vnum);
-				send_to_char(buf, ch);
+				send_to_char(ch, "%s", buf);
 				reply = reply->next;
 				continue;
 			}
@@ -1544,9 +1508,9 @@ save_mobs(struct char_data *ch)
 		sprintf(fname, "world/mob/olc/%d.mob", zone->number);
 		if (!(file = fopen(fname, "r"))) {
 			slog("SYSERR: Failure to reopen olc mob file.");
-			send_to_char
-				("OLC Error: Failure to duplicate mob file in main dir."
-				"\r\n", ch);
+			send_to_char(ch, 
+				"OLC Error: Failure to duplicate mob file in main dir."
+				"\r\n");
 			fclose(realfile);
 			return 1;
 		}
@@ -1554,9 +1518,9 @@ save_mobs(struct char_data *ch)
 			tmp = fread(buf, 1, 512, file);
 			if (fwrite(buf, 1, tmp, realfile) != tmp) {
 				slog("SYSERR: Failure to duplicate olc mob file in the main wld dir.");
-				send_to_char
-					("OLC Error: Failure to duplicate mob file in main dir."
-					"\r\n", ch);
+				send_to_char(ch, 
+					"OLC Error: Failure to duplicate mob file in main dir."
+					"\r\n");
 				fclose(realfile);
 				fclose(file);
 				return 1;
@@ -1583,7 +1547,7 @@ do_destroy_mobile(struct char_data *ch, int vnum)
 	struct memory_rec_struct *mem_r = NULL;
 
 	if (!(mob = real_mobile_proto(vnum))) {
-		send_to_char("ERROR: That mobile does not exist.\r\n", ch);
+		send_to_char(ch, "ERROR: That mobile does not exist.\r\n");
 		return 1;
 	}
 
@@ -1592,13 +1556,13 @@ do_destroy_mobile(struct char_data *ch, int vnum)
 			break;
 
 	if (!zone) {
-		send_to_char("That mobile does not belong to any zone!!\r\n", ch);
+		send_to_char(ch, "That mobile does not belong to any zone!!\r\n");
 		slog("SYSERR: mobile not in any zone.");
 		return 1;
 	}
 
 	if (GET_IDNUM(ch) != zone->owner_idnum && GET_LEVEL(ch) < LVL_LUCIFER) {
-		send_to_char("Oh, no you dont!!!\r\n", ch);
+		send_to_char(ch, "Oh, no you dont!!!\r\n");
 		sprintf(buf, "OLC: %s failed attempt to DESTROY mobile %d.",
 			GET_NAME(ch), GET_MOB_VNUM(mob));
 		mudlog(buf, BRF, GET_INVIS_LEV(ch), TRUE);
@@ -1614,8 +1578,7 @@ do_destroy_mobile(struct char_data *ch, int vnum)
 	for (d = descriptor_list; d; d = d->next) {
 		if (d->character && GET_OLC_MOB(d->character) == mob) {
 			GET_OLC_MOB(d->character) = NULL;
-			send_to_char("The mobile you were editing has been destroyed!\r\n",
-				d->character);
+			send_to_char(d->character, "The mobile you were editing has been destroyed!\r\n");
 			break;
 		}
 	}

@@ -254,7 +254,7 @@ check_killer(struct char_data *ch, struct char_data *vict,
 			GET_NAME(ch), GET_NAME(vict), vict->in_room->number,
 			PRF2_FLAGGED(ch, PRF2_PKILLER) ? "PK(ON)" : "PK(OFF)");
 		mudlog(buf, BRF, LVL_AMBASSADOR, TRUE);
-		send_to_char("If you want to be a PLAYER KILLER, so be it...\r\n", ch);
+		send_to_char(ch, "If you want to be a PLAYER KILLER, so be it...\r\n");
 
 		sprintf(buf, "KILLER set from: %s", debug_msg ? debug_msg : "unknown");
 		slog(buf);
@@ -715,8 +715,8 @@ peaceful_room_ok(struct char_data *ch, struct char_data *vict, bool mssg)
 		!PLR_FLAGGED(vict, PLR_KILLER) && GET_LEVEL(ch) < LVL_GRGOD &&
 		!(PLR_FLAGGED(ch, PLR_KILLER) && FIGHTING(vict) == ch)
 		) {
-		send_to_char
-			("The universal forces of order prevent violence here!\r\n", ch);
+		send_to_char(ch, 
+			"The universal forces of order prevent violence here!\r\n");
 		if (mssg) {
 			if (!number(0, 1))
 				act("$n seems to be violently disturbed.", FALSE, ch, 0, 0,

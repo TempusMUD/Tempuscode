@@ -117,7 +117,7 @@ ACMD(do_ccontrol)
 
 
 	if (!combat_on && (GET_LEVEL(ch) < LVL_GOD)) {
-		send_to_char("Sorry combat is currently wizlocked.\r\n", ch);
+		send_to_char(ch, "Sorry combat is currently wizlocked.\r\n");
 		return;
 	}
 
@@ -135,9 +135,8 @@ ACMD(do_ccontrol)
 	}
 
 	if ((IN_ROOM(ch)->number != starting_room) && (cc_options[com].in_room)) {
-		send_to_char
-			("You have to be in the battle starting room to use that command.\r\n",
-			ch);
+		send_to_char(ch, 
+			"You have to be in the battle starting room to use that command.\r\n");
 		return;
 	}
 
@@ -189,7 +188,7 @@ ACMD(do_ccontrol)
 		break;
 	case 6:
 	default:
-		send_to_char("Combat option not implemented.\r\n", ch);
+		send_to_char(ch, "Combat option not implemented.\r\n");
 		break;
 	}
 }
@@ -243,15 +242,13 @@ do_ccontrol_wizoptions(CHAR * ch, char *argument)
 	argument = one_argument(argument, arg1);
 
 	if (GET_LEVEL(ch) < LVL_GOD) {
-		sprintf(buf, "Unknown combat option, '%s'.\r\n", arg1);
-		send_to_char(buf, ch);
+		send_to_char(ch, "Unknown combat option, '%s'.\r\n", arg1);
 		return;
 	}
 
 	for (com = 0;; com++) {
 		if (!cc_wizoptions[com].keyword) {
-			sprintf(buf, "Unknown combat option, '%s'.\r\n", arg1);
-			send_to_char(buf, ch);
+			send_to_char(ch, "Unknown combat option, '%s'.\r\n", arg1);
 			return;
 		}
 		if (is_abbrev(arg1, cc_wizoptions[com].keyword))
@@ -267,8 +264,7 @@ do_ccontrol_wizoptions(CHAR * ch, char *argument)
 		break;
 	case 2:
 		num_arenas = build_arena_list();
-		sprintf(buf, "%d arenas reloaded.\r\n", num_arenas);
-		send_to_char(buf, ch);
+		send_to_char(ch, "%d arenas reloaded.\r\n", num_arenas);
 		break;
 	case 3:
 		do_ccontrol_stats(ch);
@@ -277,7 +273,7 @@ do_ccontrol_wizoptions(CHAR * ch, char *argument)
 		clear_booty_rooms();
 		break;
 	default:
-		send_to_char("That wiz combat option is not implemented.\r\n", ch);
+		send_to_char(ch, "That wiz combat option is not implemented.\r\n");
 		break;
 	}
 
@@ -290,10 +286,9 @@ do_ccontrol_usage(CHAR * ch, int com)
 	if (com < 0)
 		do_ccontrol_options(ch);
 	else {
-		sprintf(buf, "Usage: combat %s%s %s%s%s\r\n",
+		send_to_char(ch, "Usage: combat %s%s %s%s%s\r\n",
 			CCCYN(ch, C_NRM), cc_options[com].keyword, CCYEL(ch, C_NRM),
 			(cc_options[com].usage), CCNRM(ch, C_NRM));
-		send_to_char(buf, ch);
 	}
 }
 
@@ -312,7 +307,7 @@ do_ccontrol_create(CHAR * ch, char *argument, int com)
 	}
 
 	if (IN_COMBAT(ch)) {
-		send_to_char("You are already in a combat jerky.\r\n", ch);
+		send_to_char(ch, "You are already in a combat jerky.\r\n");
 		return;
 	}
 
@@ -323,25 +318,22 @@ do_ccontrol_create(CHAR * ch, char *argument, int com)
 
 
 	if ((type = find_combat_type(arg1)) < 0) {
-		sprintf(buf,
+		send_to_char(ch,
 			"Invalid combat type '%s'.\r\n"
 			"Use 'combat help types'.\r\n", arg1);
-		send_to_char(buf, ch);
 		return;
 	}
 
 	if (GET_GOLD(ch) < ctypes[type].fee) {
-		sprintf(buf, "You don't have the required fee to start a %s\r\n",
+		send_to_char(ch, "You don't have the required fee to start a %s\r\n",
 			ctypes[type].combattype);
-		send_to_char(buf, ch);
 		return;
 	}
 
 
 	if (strlen(argument) >= MAX_COMBAT_NAME) {
-		sprintf(buf, "Battle name too long.  Max length %d characters.\r\n",
+		send_to_char(ch, "Battle name too long.  Max length %d characters.\r\n",
 			MAX_COMBAT_NAME - 1);
-		send_to_char(buf, ch);
 		return;
 	}
 
@@ -354,8 +346,7 @@ do_ccontrol_create(CHAR * ch, char *argument, int com)
 	battles = combat;
 
 
-	sprintf(buf, "Combat '%s' created.\r\n", combat->name);
-	send_to_char(buf, ch);
+	send_to_char(ch, "Combat '%s' created.\r\n", combat->name);
 	sprintf(buf, "%d", combat->vnum);	// Cheesy
 	do_ccontrol_join(ch, buf);
 	num_combats++;
@@ -377,7 +368,7 @@ do_ccontrol_show(CHAR * ch, char *argument)
 	combat = battles;
 
 	if (combat == NULL) {
-		send_to_char("No battles are currently active.\r\n", ch);
+		send_to_char(ch, "No battles are currently active.\r\n");
 		return;
 	}
 
@@ -404,7 +395,7 @@ do_ccontrol_show(CHAR * ch, char *argument)
 
 		timediff = time(0) - combat->started;
 		sprintf(timestr_a, "%02d:%02d", timediff / 3600, (timediff / 60) % 60);
-		send_to_char("------------------------\r\n", ch);
+		send_to_char(ch, "------------------------\r\n");
 		sprintf(buf,
 			"%s%-10s%10s%s\r\n"
 			"%sCreator:%s %-30s%s\r\n"
@@ -435,7 +426,7 @@ do_ccontrol_show(CHAR * ch, char *argument)
 		strcat(buf, "\r\n");
 		page_string(ch->desc, buf, 1);
 
-		send_to_char("------------------------\r\n", ch);
+		send_to_char(ch, "------------------------\r\n");
 
 		combat = combat->next;
 	}
@@ -454,13 +445,13 @@ do_ccontrol_join(CHAR * ch, char *argument)
 
 
 	if (IN_COMBAT(ch)) {
-		send_to_char("You are already in a combat.\r\n", ch);
+		send_to_char(ch, "You are already in a combat.\r\n");
 		return;
 	}
 
 
 	if (battles == NULL) {
-		send_to_char("There is not a battle to join.\r\n", ch);
+		send_to_char(ch, "There is not a battle to join.\r\n");
 		return;
 	}
 
@@ -479,40 +470,35 @@ do_ccontrol_join(CHAR * ch, char *argument)
 	}
 
 	if (!the_combat) {
-		sprintf(buf, "Cannot join combat #%d.\r\n", battle_number);
-		send_to_char(buf, ch);
+		send_to_char(ch, "Cannot join combat #%d.\r\n", battle_number);
 		return;
 	}
 
 
 	if (COMBAT_FLAGGED(the_combat, COMBAT_STARTED)) {
-		sprintf(buf, "Battle '%s' has already started.\r\n", the_combat->name);
-		send_to_char(buf, ch);
+		send_to_char(ch, "Battle '%s' has already started.\r\n", the_combat->name);
 		return;
 	}
 
 	if (the_combat->type == CTYPE_ONE_ONE
 		&& !idnum_in_combat(GET_IDNUM(ch), the_combat)) {
 		if (the_combat->num_players >= 2) {
-			sprintf(buf,
+			send_to_char(ch,
 				"Battle '%s' is a one-on-one battle and is currently full.\r\n",
 				the_combat->name);
-			send_to_char(buf, ch);
 			return;
 		}
 	}
 
 	if (COMBAT_FLAGGED(the_combat, COMBAT_INVITE)
 		&& GET_IDNUM(ch) != the_combat->creator) {
-		sprintf(buf, "Battle '%s' is an invite only battle.\r\n",
+		send_to_char(ch, "Battle '%s' is an invite only battle.\r\n",
 			the_combat->name);
-		send_to_char(buf, ch);
 		return;
 	}
 
 	if (GET_GOLD(ch) < the_combat->fee) {
-		send_to_char("You do not have enough gold to enter the battle.\r\n",
-			ch);
+		send_to_char(ch, "You do not have enough gold to enter the battle.\r\n");
 		return;
 	}
 
@@ -520,8 +506,7 @@ do_ccontrol_join(CHAR * ch, char *argument)
 	if (COMBAT_FLAGGED(the_combat, COMBAT_OPEN)
 		|| GET_IDNUM(ch) == the_combat->creator) {
 		if (!(idnum_in_combat(GET_IDNUM(ch), the_combat))) {
-			sprintf(buf, "You have joined combat '%s'\r\n", the_combat->name);
-			send_to_char(buf, ch);
+			send_to_char(ch, "You have joined combat '%s'\r\n", the_combat->name);
 			sprintf(buf, "%s has joined the combat!", GET_NAME(ch));
 			send_to_combat(buf, the_combat);
 			add_idnum_to_combat(GET_IDNUM(ch), the_combat);
@@ -530,7 +515,7 @@ do_ccontrol_join(CHAR * ch, char *argument)
 			return;
 
 		} else {
-			send_to_char("You are already in a battle.\r\n", ch);
+			send_to_char(ch, "You are already in a battle.\r\n");
 			return;
 		}
 	}
@@ -550,20 +535,19 @@ do_ccontrol_open(CHAR * ch)
 	combat = combat_by_vnum(num);
 
 	if (!combat) {
-		send_to_char("You aren't even in a combat.\r\n", ch);
+		send_to_char(ch, "You aren't even in a combat.\r\n");
 		return;
 	}
 
 	if (GET_IDNUM(ch) != combat->creator) {
-		send_to_char
-			("Only the battle creator can open a battle to the public.\r\n",
-			ch);
+		send_to_char(ch, 
+			"Only the battle creator can open a battle to the public.\r\n");
 		return;
 	}
 
 	REMOVE_BIT(combat->flags, COMBAT_INVITE);
 	SET_BIT(combat->flags, COMBAT_OPEN);
-	send_to_char("The battle is now open to the general public.\r\n", ch);
+	send_to_char(ch, "The battle is now open to the general public.\r\n");
 
 
 	return;
@@ -580,18 +564,18 @@ do_ccontrol_close(CHAR * ch)
 
 
 	if (!combat) {
-		send_to_char("You aren't even in a combat.\r\n", ch);
+		send_to_char(ch, "You aren't even in a combat.\r\n");
 		return;
 	}
 
 	if (GET_IDNUM(ch) != combat->creator) {
-		send_to_char("Only the battle creator can close a battle.\r\n", ch);
+		send_to_char(ch, "Only the battle creator can close a battle.\r\n");
 		return;
 	}
 
 	REMOVE_BIT(combat->flags, COMBAT_OPEN);
 	SET_BIT(combat->flags, COMBAT_INVITE);
-	send_to_char("The battle is now closed.\r\n", ch);
+	send_to_char(ch, "The battle is now closed.\r\n");
 
 
 	return;
@@ -617,13 +601,13 @@ do_ccontrol_start(CHAR * ch)
 	}
 
 	if (GET_IDNUM(ch) != combat->creator) {
-		send_to_char("Only the battle creator can start a battle.\r\n", ch);
+		send_to_char(ch, "Only the battle creator can start a battle.\r\n");
 		return;
 	}
 
 	if (combat->arena->zone == 0) {
-		send_to_char
-			("You have to choose an arena before you start genius.\r\n", ch);
+		send_to_char(ch, 
+			"You have to choose an arena before you start genius.\r\n");
 		return;
 	}
 
@@ -632,9 +616,8 @@ do_ccontrol_start(CHAR * ch)
 		if (!combat->players[i].approved) {
 			unapproved = get_char_in_world_by_idnum(combat->players[i].idnum);
 			if (unapproved) {
-				sprintf(buf, "%s has not submitted approval.\r\n",
+				send_to_char(ch, "%s has not submitted approval.\r\n",
 					GET_NAME(unapproved));
-				send_to_char(buf, ch);
 				return;
 			}
 			continue;
@@ -645,16 +628,15 @@ do_ccontrol_start(CHAR * ch)
 
 	case CTYPE_ONE_ONE:
 		if (combat->num_players != 2) {
-			send_to_char
-				("You need two combatants for a one on one battle.\r\n", ch);
+			send_to_char(ch, 
+				"You need two combatants for a one on one battle.\r\n");
 			return;
 		}
 		break;
 	case CTYPE_FREE_FOR_ALL:
 		if (combat->num_players < 2) {
-			send_to_char
-				("You need at least two combatants for a free for all.\r\n",
-				ch);
+			send_to_char(ch, 
+				"You need at least two combatants for a free for all.\r\n");
 			return;
 		}
 		break;
@@ -663,9 +645,8 @@ do_ccontrol_start(CHAR * ch)
 	}
 
 	if (COMBAT_FLAGGED(combat, COMBAT_STARTED)) {
-		send_to_char
-			("The battle is already started...better check yourself before you wreck yourself.\r\n",
-			ch);
+		send_to_char(ch, 
+			"The battle is already started...better check yourself before you wreck yourself.\r\n");
 		return;
 	} else {
 		REMOVE_BIT(combat->flags, COMBAT_OPEN);
@@ -696,19 +677,19 @@ do_ccontrol_sacrifice(CHAR * ch, char *argument)
 
 
 	if (!combat) {
-		send_to_char("You aren't even in combat.\r\n", ch);
+		send_to_char(ch, "You aren't even in combat.\r\n");
 		return;
 	}
 
 	rm = real_room(combat->arena->booty_room);
 	if (!rm) {
 		slog("Error with booty room.");
-		send_to_char("Error with booty room....please report.\r\n", ch);
+		send_to_char(ch, "Error with booty room....please report.\r\n");
 		return;
 	}
 
 	if (!idnum_in_combat(GET_IDNUM(ch), combat)) {
-		send_to_char("You have to be in the combat to sacrifice.r\n", ch);
+		send_to_char(ch, "You have to be in the combat to sacrifice.r\n");
 		return;
 	}
 
@@ -723,12 +704,12 @@ do_ccontrol_sacrifice(CHAR * ch, char *argument)
 	}
 
 	if (combat->arena->zone == 0) {
-		send_to_char("Choose an arena first.\r\n", ch);
+		send_to_char(ch, "Choose an arena first.\r\n");
 		return;
 	}
 
 	if (COMBAT_FLAGGED(combat, COMBAT_STARTED)) {
-		send_to_char("It's too late to sacrifice.\r\n", ch);
+		send_to_char(ch, "It's too late to sacrifice.\r\n");
 		return;
 	}
 
@@ -736,19 +717,19 @@ do_ccontrol_sacrifice(CHAR * ch, char *argument)
 // Take an object from a character's inventory and send it to the booty room
 	obj = get_obj_in_list_vis(ch, argument, ch->carrying);
 	if (!obj) {
-		send_to_char("You can't find that to sacrifice.\r\n", ch);
+		send_to_char(ch, "You can't find that to sacrifice.\r\n");
 		return;
 	}
 
 	if (GET_OBJ_TYPE(obj) == ITEM_CONTAINER) {
 		if (GET_OBJ_VAL(obj, 3)) {
-			send_to_char("Hey, no sacrificing CORPSES!!!!\r\n", ch);
+			send_to_char(ch, "Hey, no sacrificing CORPSES!!!!\r\n");
 			return;
 		}
 	}
 
 	if (IS_BOMB(obj)) {
-		send_to_char("No sacrificing bombs!!!!\r\n", ch);
+		send_to_char(ch, "No sacrificing bombs!!!!\r\n");
 		return;
 	}
 
@@ -782,12 +763,12 @@ do_ccontrol_arena(CHAR * ch, char *argument)
 	combat = combat_by_vnum(num);
 
 	if (!combat) {
-		send_to_char("You aren't even in combat.\r\n", ch);
+		send_to_char(ch, "You aren't even in combat.\r\n");
 		return;
 	}
 
 	if (GET_IDNUM(ch) != combat->creator) {
-		send_to_char("Only the battle creator can choose the arena.\r\n", ch);
+		send_to_char(ch, "Only the battle creator can choose the arena.\r\n");
 		return;
 	}
 
@@ -804,8 +785,7 @@ do_ccontrol_arena(CHAR * ch, char *argument)
 			}
 		}
 
-		sprintf(buf, "Ok using %s as the arena.\r\n", arena_name);
-		send_to_char(buf, ch);
+		send_to_char(ch, "Ok using %s as the arena.\r\n", arena_name);
 
 		return;
 	}
@@ -814,12 +794,12 @@ do_ccontrol_arena(CHAR * ch, char *argument)
 
 	the_arena = arena_by_num(arena_num);
 	if (!the_arena) {
-		send_to_char("No such arena.\r\n", ch);
+		send_to_char(ch, "No such arena.\r\n");
 		return;
 	}
 
 	if (the_arena->used) {
-		send_to_char("That arena is already in use.\r\n", ch);
+		send_to_char(ch, "That arena is already in use.\r\n");
 		return;
 	}
 
@@ -849,8 +829,7 @@ do_ccontrol_arena(CHAR * ch, char *argument)
 
 	}
 
-	sprintf(buf, "Ok using %s as the arena.\r\n", arena_name);
-	send_to_char(buf, ch);
+	send_to_char(ch, "Ok using %s as the arena.\r\n", arena_name);
 
 	the_arena->used = 1;
 
@@ -886,20 +865,18 @@ do_ccontrol_describe(CHAR * ch)
 	combat = combat_by_vnum(num);
 
 	if (!combat) {
-		send_to_char("You need to be in a combat to describe it.\r\n", ch);
+		send_to_char(ch, "You need to be in a combat to describe it.\r\n");
 		return;
 	}
 
 	if (combat->creator != GET_IDNUM(ch)) {
-		send_to_char("Only the combat creator can write the description.\r\n",
-			ch);
+		send_to_char(ch, "Only the combat creator can write the description.\r\n");
 		return;
 	}
 
 	if (COMBAT_FLAGGED(combat, COMBAT_STARTED)) {
-		send_to_char
-			("The combat has already started...no need to describe it now.\r\n",
-			ch);
+		send_to_char(ch, 
+			"The combat has already started...no need to describe it now.\r\n");
 		return;
 	}
 
@@ -932,7 +909,7 @@ do_ccontrol_end(CHAR * ch)
 	if (num >= 1) {
 		combat = combat_by_vnum(num);
 	} else {
-		send_to_char("You need to be in the combat to end it.\r\n", ch);
+		send_to_char(ch, "You need to be in the combat to end it.\r\n");
 		return;
 	}
 
@@ -941,12 +918,12 @@ do_ccontrol_end(CHAR * ch)
 	}
 
 	if (combat->creator != GET_IDNUM(ch)) {
-		send_to_char("Only the combat creator can end a combat.\r\n", ch);
+		send_to_char(ch, "Only the combat creator can end a combat.\r\n");
 		return;
 	}
 
 	if (COMBAT_FLAGGED(combat, COMBAT_STARTED)) {
-		send_to_char("The combat has already started it must be WON!\r\n", ch);
+		send_to_char(ch, "The combat has already started it must be WON!\r\n");
 		return;
 	}
 
@@ -985,14 +962,13 @@ do_ccontrol_leave(CHAR * ch)
 	}
 
 	if (!IN_COMBAT(ch) || (!combat)) {
-		send_to_char("You aren't in a combat.\r\n", ch);
+		send_to_char(ch, "You aren't in a combat.\r\n");
 		return;
 	}
 
 	if (COMBAT_FLAGGED(combat, COMBAT_STARTED)) {
-		send_to_char
-			("The battle has already begun....it's too late to chicken out now.\r\n",
-			ch);
+		send_to_char(ch, 
+			"The battle has already begun....it's too late to chicken out now.\r\n");
 		return;
 	}
 
@@ -1016,7 +992,7 @@ do_ccontrol_leave(CHAR * ch)
 	remove_player(ch);
 	sprintf(buf, "%s has left the combat.", GET_NAME(ch));
 	send_to_combat(buf, combat);
-	send_to_char("You have left the combat.\r\n", ch);
+	send_to_char(ch, "You have left the combat.\r\n");
 
 	if (combat->num_players < 1) {
 
@@ -1040,7 +1016,7 @@ do_ccontrol_reimburse(CHAR * ch)
 	struct obj_data *next_o = NULL;
 	int items = 0;
 
-	send_to_char("Searching for reimbursements.\r\n", ch);
+	send_to_char(ch, "Searching for reimbursements.\r\n");
 
 	for (combat = battles; combat; combat = combat->next) {
 		combat_reimburse(ch, combat);
@@ -1062,10 +1038,9 @@ do_ccontrol_reimburse(CHAR * ch)
 		}
 
 		if (items > 0) {
-			sprintf(buf, "%d items have been reimbursed.\r\n", items);
-			send_to_char(buf, ch);
+			send_to_char(ch, "%d items have been reimbursed.\r\n", items);
 		} else {
-			send_to_char("No reimbursements found", ch);
+			send_to_char(ch, "No reimbursements found");
 		}
 
 	}
@@ -1086,8 +1061,7 @@ do_ccontrol_destroy(CHAR * ch, char *argument)
 
 
 	if (!combat) {
-		sprintf(buf, "Combat %d does not exist, check combat show.\r\n", num);
-		send_to_char(buf, ch);
+		send_to_char(ch, "Combat %d does not exist, check combat show.\r\n", num);
 		return;
 	}
 
@@ -1095,8 +1069,7 @@ do_ccontrol_destroy(CHAR * ch, char *argument)
 	slog(buf);
 	send_to_combat("Combat destroyed!", combat);
 
-	sprintf(buf, "Ok combat idnum %d has been destroyed.\r\n", num);
-	send_to_char(buf, ch);
+	send_to_char(ch, "Ok combat idnum %d has been destroyed.\r\n", num);
 
 	if (combat->sacrificed) {
 		return_sacrifices(combat);
@@ -1130,8 +1103,7 @@ do_ccontrol_lock(CHAR * ch)
 		GET_NAME(ch));
 	slog(buf);
 
-	sprintf(buf, "Combat is now %s.\r\n", buf2);
-	send_to_char(buf, ch);
+	send_to_char(ch, "Combat is now %s.\r\n", buf2);
 
 	if (!combat_on) {
 		for (the_combat = battles;;) {
@@ -1166,12 +1138,12 @@ do_ccontrol_approve(struct char_data *ch)
 
 
 	if (!IN_COMBAT(ch)) {
-		send_to_char("You aren't in a combat dork.\r\n", ch);
+		send_to_char(ch, "You aren't in a combat dork.\r\n");
 		return;
 	}
 
 	if (COMBAT_FLAGGED(combat, COMBAT_STARTED)) {
-		send_to_char("The combat has already started LOSER!.\r\n", ch);
+		send_to_char(ch, "The combat has already started LOSER!.\r\n");
 		return;
 	}
 
@@ -1188,12 +1160,11 @@ do_ccontrol_approve(struct char_data *ch)
 
 
 	if (cplayer->approved == 0) {
-		send_to_char("You have given your approval.\r\n", ch);
+		send_to_char(ch, "You have given your approval.\r\n");
 		cplayer->approved = 1;
 		return;
 	} else {
-		send_to_char("You have withdrawn your approval of the combat.\r\n",
-			ch);
+		send_to_char(ch, "You have withdrawn your approval of the combat.\r\n");
 		cplayer->approved = 0;
 		return;
 	}
@@ -1213,24 +1184,23 @@ do_ccontrol_fee(struct char_data *ch, char *arg)
 	combat = combat_by_vnum(num);
 
 	if (!arg) {
-		send_to_char("What do you want to set the fee to?", ch);
+		send_to_char(ch, "What do you want to set the fee to?");
 		return;
 	}
 
 	if (!IN_COMBAT(ch) || !combat) {
-		send_to_char("You aren't in a combat dork.\r\n", ch);
+		send_to_char(ch, "You aren't in a combat dork.\r\n");
 		return;
 	}
 
 	if (!COMBAT_CREATOR(ch, combat)) {
-		send_to_char("Only the combat creator can set the fee.", ch);
+		send_to_char(ch, "Only the combat creator can set the fee.");
 		return;
 	}
 
 	if (combat->num_players > 1) {
-		send_to_char
-			("The combat must have only one combatant to set the fee.\r\n",
-			ch);
+		send_to_char(ch, 
+			"The combat must have only one combatant to set the fee.\r\n");
 		return;
 	}
 
@@ -1247,11 +1217,10 @@ do_ccontrol_fee(struct char_data *ch, char *arg)
 void
 do_ccontrol_stats(CHAR * ch)
 {
-	sprintf(buf, "Combat Starting Room: %ld \r\n"
+	send_to_char(ch, "Combat Starting Room: %ld \r\n"
 		"Combat Holding  Room: %ld \r\n"
 		"Number of Combats: %d \r\n",
 		starting_room, holding_room, num_combats);
-	send_to_char(buf, ch);
 }
 
 int
@@ -1324,7 +1293,7 @@ comlog(CHAR * ch, char *str, int file, int to_char)
 				CCYEL_BLD((*vict), C_NRM), CCNRM_GRN((*vict), C_NRM),
 				ch ? PERS(ch, (*vict)) : "",
 				str, CCYEL_BLD((*vict), C_NRM), CCNRM((*vict), C_NRM));
-			send_to_char(buf, *vict);
+			send_to_char(*vict, "%s", buf);
 
 		}
 	}
@@ -1585,7 +1554,7 @@ end_battle(combat_data * combat)
 			sprintf(buf, "%s%s is the victor!%s", KNRM_BLD, GET_NAME(ch),
 				KNRM);
 			send_to_combat(buf, combat);
-			send_to_char("There can be only one!\r\n", ch);
+			send_to_char(ch, "There can be only one!\r\n");
 			char_from_room(ch);
 			char_to_room(ch, real_room(combat->arena->booty_room));
 			look_at_room(ch, ch->in_room, 0);
@@ -1735,18 +1704,16 @@ say_to_combat(char *argument, CHAR * ch, combat_data * combat)
 		return;
 	}
 
-	sprintf(buf, "%sYou grunt,%s '%s'%s\r\n'", KCYN_BLD, KNRM_BLD, argument,
+	send_to_char(ch, "%sYou grunt,%s '%s'%s\r\n'", KCYN_BLD, KNRM_BLD, argument,
 		KNRM);
-	send_to_char(buf, ch);
 
-	sprintf(buf2, "%s%s grunts,%s '%s'%s\r\n", KCYN_BLD, GET_NAME(ch),
+	send_to_char(ch2, "%s%s grunts,%s '%s'%s\r\n", KCYN_BLD, GET_NAME(ch),
 		KNRM_BLD, argument, KNRM);
 
 	for (i = 0; i < combat->num_players; i++) {
 
 		if ((ch2 = get_char_in_world_by_idnum(combat->players[i].idnum))
 			&& !(ch2 == ch)) {
-			send_to_char(buf2, ch2);
 		}
 	}
 }
@@ -1759,19 +1726,17 @@ send_to_combat(char *argument, combat_data * combat)
 {
 	int i = 0;
 	struct char_data *ch2 = NULL;
-	char buf[MAX_INPUT_LENGTH];
 
 	if (!argument) {
 		return;
 	}
 
 
-	sprintf(buf, "%s%s%s\r\n", KNRM_BLD, argument, KNRM);
+	send_to_char(ch2, "%s%s%s\r\n", KNRM_BLD, argument, KNRM);
 
 	for (i = 0; i < combat->num_players; i++) {
 
 		if ((ch2 = get_char_in_world_by_idnum(combat->players[i].idnum))) {
-			send_to_char(buf, ch2);
 		}
 	}
 }
@@ -1946,7 +1911,7 @@ combat_reimburse(CHAR * ch, combat_data * combat)
 
 	if (!combat->booty_room) {
 		slog("Error with combat booty room.");
-		send_to_char("You shouldn't see this...please report.\r\n", ch);
+		send_to_char(ch, "You shouldn't see this...please report.\r\n");
 		return;
 	}
 
@@ -1964,7 +1929,7 @@ combat_reimburse(CHAR * ch, combat_data * combat)
 	}
 
 	if (returned) {
-		send_to_char("Your equipment has been returned.\r\n", ch);
+		send_to_char(ch, "Your equipment has been returned.\r\n");
 		return;
 	}
 
@@ -2025,7 +1990,7 @@ return_sacrifice(CHAR * ch)
 	int returned = 0;
 
 	if (!IN_COMBAT(ch)) {
-		send_to_char("You aren't even in a combat.\r\n", ch);
+		send_to_char(ch, "You aren't even in a combat.\r\n");
 		return;
 	}
 
@@ -2034,7 +1999,7 @@ return_sacrifice(CHAR * ch)
 
 	if (!combat->booty_room) {
 		slog("Error with combat booty room.");
-		send_to_char("You shouldn't see this...please report.\r\n", ch);
+		send_to_char(ch, "You shouldn't see this...please report.\r\n");
 		return;
 	}
 
@@ -2060,7 +2025,7 @@ return_sacrifice(CHAR * ch)
 	}
 
 	if (returned) {
-		send_to_char("Your sacrifice has been returned.\r\n", ch);
+		send_to_char(ch, "Your sacrifice has been returned.\r\n");
 	}
 
 
@@ -2138,17 +2103,16 @@ show_arenas(CHAR * ch)
 	struct zone_data *zn = NULL;
 	int i = 1;
 
-	send_to_char("Current arenas are:\r\n", ch);
+	send_to_char(ch, "Current arenas are:\r\n");
 
 	for (the_arena = the_arenas; the_arena; the_arena = the_arena->next) {
 		if (the_arena) {
 			for (zn = zone_table; zn; zn = zn->next) {
 				if (zn->number == the_arena->zone) {
-					sprintf(buf, "%s%4d) %s%30s      %20s%s\r\n", KCYN, i,
+					send_to_char(ch, "%s%4d) %s%30s      %20s%s\r\n", KCYN, i,
 						KYEL, zn->name,
 						(the_arena->used ? "(unavailable)" : "(available)"),
 						KNRM);
-					send_to_char(buf, ch);
 				}
 			}
 		}

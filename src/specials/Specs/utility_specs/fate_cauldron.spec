@@ -44,11 +44,9 @@ SPECIAL(fate_cauldron)
 
 	// Couldn't find her
 	if(!fate || !fate->in_room) {
-		send_to_char("Something important seems to be missing.\r\n",ch);
 		return 1;
 	}
 	// Yay. Finally found her!
-	send_to_char("You recieve a vision of another place.\r\n",ch);
 	look_at_room(ch,fate->in_room,1);
 	WAIT_STATE(ch,3);
 	return 1;

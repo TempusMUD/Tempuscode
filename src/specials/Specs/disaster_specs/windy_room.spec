@@ -196,10 +196,7 @@ add_windy_data(int vnum, int min, int max)
 void
 show_windy(windy_room_data *windy, CHAR *ch)
 {
-    char buf[MAX_STRING_LENGTH];
-  
-    sprintf(buf, "Room [%5d]: min-max range: (%d-%d)\r\n", windy->vnum, windy->min, windy->max);
-    send_to_char(buf, ch);
+    send_to_char(ch, "Room [%5d]: min-max range: (%d-%d)\r\n", windy->vnum, windy->min, windy->max);
 }
 
 #define WINDY_USAGE "Usage: status [show|list|min|max|load|save|reset|help]\r\n"
@@ -213,8 +210,8 @@ immort_windy_command(CHAR *ch, windy_room_data *windy, char *argument)
 
 
     if (!CAN_EDIT_ZONE(ch, ch->in_room->zone)) {
-	send_to_char("You cannot edit this zone.\r\n"
-		     "Goto an editable zone to list windy data.\r\n", ch);
+	send_to_char(ch, "You cannot edit this zone.\r\n"
+		     "Goto an editable zone to list windy data.\r\n");
 	return 1;
     }
 
@@ -222,38 +219,38 @@ immort_windy_command(CHAR *ch, windy_room_data *windy, char *argument)
 
 
     if (!*arg1) {
-	send_to_char(WINDY_USAGE, ch);
+	send_to_char(ch, WINDY_USAGE);
 	return 1;
     }
       
     if (!strcmp(arg1, "show")) {
-	send_to_char("Windy data for this room:\r\n", ch);
+	send_to_char(ch, "Windy data for this room:\r\n");
 	show_windy(windy, ch);
     }
     else if (!strcmp(arg1, "list")) {
-	send_to_char("Windy room data:\r\n", ch);
+	send_to_char(ch, "Windy room data:\r\n");
 	for (i = 0; i < num_windy_rooms; i++)
 	    show_windy(windy_list+i, ch);
     }
     else if (!strcmp(arg1, "min")) {
 	if (!*arg2) {
-	    send_to_char("Set minimum random range to what?\r\n", ch);
+	    send_to_char(ch, "Set minimum random range to what?\r\n");
 	}
 	else {
 	    min = atoi(arg2);
 	    add_windy_data(windy->vnum, min, windy->max);
-	    send_to_char("Minimum random range set.\r\n", ch);
+	    send_to_char(ch, "Minimum random range set.\r\n");
 	    show_windy(windy, ch);
 	}
     }
     else if (!strcmp(arg1, "max")) {
 	if (!*arg2) {
-	    send_to_char("Set maximum random range to what?\r\n", ch);
+	    send_to_char(ch, "Set maximum random range to what?\r\n");
 	}
 	else {
 	    max = atoi(arg2);
 	    add_windy_data(windy->vnum, windy->min, max);
-	    send_to_char("Maximum random range set.\r\n", ch);
+	    send_to_char(ch, "Maximum random range set.\r\n");
 	    show_windy(windy, ch);
 	}
     }
@@ -262,22 +259,22 @@ immort_windy_command(CHAR *ch, windy_room_data *windy, char *argument)
 	    sprintf(buf, " === disabling spec in room %d.", ch->in_room->number);
 	    slog(buf);
 	    ch->in_room->func = NULL;             // disable in this room only
-	    send_to_char("An error occured.  Disabling spec in this room.\r\n", ch);
+	    send_to_char(ch, "An error occured.  Disabling spec in this room.\r\n");
 	} 
 	else
-	    send_to_char("Windy rooms loaded successfully.\r\n", ch);
+	    send_to_char(ch, "Windy rooms loaded successfully.\r\n");
     }
     else if (!strcmp(arg1, "save")) {
 	if (!save_windy_rooms())
-	    send_to_char("An error occured while saving.\r\n", ch);
+	    send_to_char(ch, "An error occured while saving.\r\n");
 	else
-	    send_to_char("Windy room data save successful.\r\n", ch);
+	    send_to_char(ch, "Windy room data save successful.\r\n");
     }
     else if (!strcmp(arg1, "reset")) {
-	send_to_char("Sorry, you cannot perform this horrible deed.\r\n", ch);
+	send_to_char(ch, "Sorry, you cannot perform this horrible deed.\r\n");
     }
     else if (!strcmp(arg1, "help")) {
-	send_to_char("The min/max values of a windy room represent the range of a random\r\n"
+	send_to_char(ch, "The min/max values of a windy room represent the range of a random\r\n"
 		     "number generation.  If the random number is greater than the player's\r\n"
 		     "raw strength, the player will be blown in a random direction.\r\n"
 		     "The special is triggered every time a player enters a command in the\r\n"
@@ -288,11 +285,10 @@ immort_windy_command(CHAR *ch, windy_room_data *windy, char *argument)
 		     "If the random number, with modifiers (reverse the signs) is greater than\r\n"
 		     "or equal to 10, a message will be given to the player regarding the wind\r\n"
 		     "even if he is not actually blown out of the room.  Random numbers (with mods)\r\n"
-		     "less than 10 are not announced to the player.\r\n", ch);
+		     "less than 10 are not announced to the player.\r\n");
     }
     else {
-	sprintf(buf, "Unknown argument, '%s'.\r\n%s", arg1, WINDY_USAGE);
-	send_to_char(buf, ch);
+	send_to_char(ch, "Unknown argument, '%s'.\r\n%s", arg1, WINDY_USAGE);
     }
     return 1;
 }
@@ -354,7 +350,7 @@ SPECIAL(windy_room)
 	    }
 	}
 	if (!num) {
-	    send_to_char("no valid exits\r\n", ch);
+	    send_to_char(ch, "no valid exits\r\n");
 	    return 0;
 	}
 
@@ -366,7 +362,7 @@ SPECIAL(windy_room)
 	    return 1;
 	}
 
-	send_to_char("An icy gust of wind sends you flying through the air!\r\n", ch);
+	send_to_char(ch, "An icy gust of wind sends you flying through the air!\r\n");
 	sprintf(buf, 
 		"An icy gust of wind sends $n flying %sward through the air!",
 		dirs[dir]);
@@ -387,11 +383,10 @@ SPECIAL(windy_room)
     }
 
     if (prob > 10) {
-	sprintf(buf, "A %s arctic wind buffets you, but you stand your ground.\r\n",
+	send_to_char(ch, "A %s arctic wind buffets you, but you stand your ground.\r\n",
 		prob > 22 ? "hurricane force" :
 		prob > 19 ? "gale force" :
 		prob > 15 ? "powerful" : "strong");
-	send_to_char(buf, ch);
     }
     return 0;
 }

@@ -93,7 +93,7 @@ do_zcmd(struct char_data *ch, char *argument)
 			}
 
 		if (found != 1) {
-			send_to_char("Invalid zone number.\r\n", ch);
+			send_to_char(ch, "Invalid zone number.\r\n");
 			return;
 		}
 		argument = one_argument(argument, arg2);
@@ -111,20 +111,19 @@ do_zcmd(struct char_data *ch, char *argument)
 	if (is_abbrev(arg2, "cmdrenumber")) {
 		for (i = 0, zonecmd = zone->cmd; zonecmd; i++, zonecmd = zonecmd->next)
 			zonecmd->line = i;
-		send_to_char("Zonecmds renumbered.\r\n", ch);
+		send_to_char(ch, "Zonecmds renumbered.\r\n");
 		return;
 	}
 
 
 	if (!CAN_EDIT_ZONE(ch, zone)) {
-		send_to_char
-			("You looking to getting a BEAT-DOWN?!  Permission denied.\r\n",
-			ch);
+		send_to_char(ch, 
+			"You looking to getting a BEAT-DOWN?!  Permission denied.\r\n");
 		return;
 	}
 
 	if (!OLC_EDIT_OK(ch, zone, ZONE_ZCMDS_APPROVED)) {
-		send_to_char("Zone commands are not approved for this zone.\r\n", ch);
+		send_to_char(ch, "Zone commands are not approved for this zone.\r\n");
 		return;
 	}
 
@@ -133,7 +132,7 @@ do_zcmd(struct char_data *ch, char *argument)
 	if (is_abbrev(arg2, "cmdremove")) {
 		skip_spaces(&argument);
 		if (!*argument || !is_number(argument)) {
-			send_to_char("Usage: olc zcmd cmdrem <NUMBER>\r\n", ch);
+			send_to_char(ch, "Usage: olc zcmd cmdrem <NUMBER>\r\n");
 			return;
 		}
 		i = atoi(argument);
@@ -150,76 +149,72 @@ do_zcmd(struct char_data *ch, char *argument)
 			argument = two_arguments(argument, arg1, arg2);
 
 			if (!*arg1 || !*arg2) {
-				send_to_char(ZCMD_M_USAGE, ch);
+				send_to_char(ch, ZCMD_M_USAGE);
 				return;
 			}
 
 			if (is_number(arg1) && is_number(arg2)) {
 				if_flag = atoi(arg1);
 				if (if_flag != 0 && if_flag != 1 && if_flag != -1) {
-					send_to_char
-						("if_flag dependancy flag must be 0, 1 or -1\r\n", ch);
+					send_to_char(ch, 
+						"if_flag dependancy flag must be 0, 1 or -1\r\n");
 					return;
 				}
 				int_arg1 = atoi(arg2);
 				if (!real_mobile_proto(int_arg1)) {
-					sprintf(buf, "Mobile (V) %d does not exist.\r\n",
+					send_to_char(ch, "Mobile (V) %d does not exist.\r\n",
 						int_arg1);
-					send_to_char(buf, ch);
 					return;
 				}
 			} else {
-				send_to_char(ZCMD_M_USAGE, ch);
+				send_to_char(ch, ZCMD_M_USAGE);
 				return;
 			}
 
 			argument = two_arguments(argument, arg1, arg2);
 
 			if (!*arg1 || !*arg2) {
-				send_to_char(ZCMD_M_USAGE, ch);
+				send_to_char(ch, ZCMD_M_USAGE);
 				return;
 			}
 
 			if (is_number(arg1) && is_number(arg2)) {
 				int_arg2 = atoi(arg1);
 				if (int_arg2 < 1 || int_arg2 > 1000) {
-					send_to_char
-						("Number loaded must be between 1 and 1000.\r\n", ch);
+					send_to_char(ch, 
+						"Number loaded must be between 1 and 1000.\r\n");
 					return;
 				}
 				int_arg3 = atoi(arg2);
 				if ((room = real_room(int_arg3)) == NULL) {
-					sprintf(buf, "Room (V) %d does not exist, buttmunch.\r\n",
+					send_to_char(ch, "Room (V) %d does not exist, buttmunch.\r\n",
 						int_arg3);
-					send_to_char(buf, ch);
 					return;
 				}
 				if (!CAN_EDIT_ZONE(ch, room->zone)) {
-					send_to_char
-						("Let's not load mobs in other ppl's zones, shall we?\r\n",
-						ch);
+					send_to_char(ch, 
+						"Let's not load mobs in other ppl's zones, shall we?\r\n");
 					return;
 				}
 			} else {
-				send_to_char(ZCMD_M_USAGE, ch);
+				send_to_char(ch, ZCMD_M_USAGE);
 				return;
 			}
 			// Probability
 			argument = one_argument(argument, arg1);
 			if (!*arg1) {
-				send_to_char(ZCMD_M_USAGE, ch);
+				send_to_char(ch, ZCMD_M_USAGE);
 				return;
 			}
 			if (is_number(arg1)) {
 				i = atoi(arg1);
 				if (i > 100 || i < 0) {
-					sprintf(buf, "Invalid probability: %d\r\n", i);
-					send_to_char(buf, ch);
+					send_to_char(ch, "Invalid probability: %d\r\n", i);
 					return;
 				}
 				int_arg4 = i;
 			} else {
-				send_to_char(ZCMD_M_USAGE, ch);
+				send_to_char(ch, ZCMD_M_USAGE);
 				return;
 			}
 
@@ -248,7 +243,7 @@ do_zcmd(struct char_data *ch, char *argument)
 			}
 
 			SET_BIT(zone->flags, ZONE_ZONE_MODIFIED);
-			send_to_char("Command completed ok.\r\n", ch);
+			send_to_char(ch, "Command completed ok.\r\n");
 
 			break;
 		case 'o':
@@ -257,76 +252,72 @@ do_zcmd(struct char_data *ch, char *argument)
 
 #define ZCMD_O_USAGE "Usage: olc zcmd [zone] O <if_flag> <obj vnum> <max loaded> <room vnum> <prob>\r\n"
 			if (!*arg1 || !*arg2) {
-				send_to_char(ZCMD_O_USAGE, ch);
+				send_to_char(ch, ZCMD_O_USAGE);
 				return;
 			}
 
 			if (is_number(arg1) && is_number(arg2)) {
 				if_flag = atoi(arg1);
 				if (if_flag != 0 && if_flag != 1 && if_flag != -1) {
-					send_to_char
-						("if_flag dependancy flag must be 0, 1 or -1\r\n", ch);
+					send_to_char(ch, 
+						"if_flag dependancy flag must be 0, 1 or -1\r\n");
 					return;
 				}
 				int_arg1 = atoi(arg2);
 				if (!real_object_proto(int_arg1)) {
-					sprintf(buf, "Object (V) %d does not exist.\r\n",
+					send_to_char(ch, "Object (V) %d does not exist.\r\n",
 						int_arg1);
-					send_to_char(buf, ch);
 					return;
 				}
 			} else {
-				send_to_char(ZCMD_O_USAGE, ch);
+				send_to_char(ch, ZCMD_O_USAGE);
 				return;
 			}
 
 			argument = two_arguments(argument, arg1, arg2);
 
 			if (!*arg1 || !*arg2) {
-				send_to_char(ZCMD_O_USAGE, ch);
+				send_to_char(ch, ZCMD_O_USAGE);
 				return;
 			}
 
 			if (is_number(arg1) && is_number(arg2)) {
 				int_arg2 = atoi(arg1);
 				if (int_arg2 < 1 || int_arg2 > 1000) {
-					send_to_char
-						("Number loaded must be between 1 and 1000.\r\n", ch);
+					send_to_char(ch, 
+						"Number loaded must be between 1 and 1000.\r\n");
 					return;
 				}
 				int_arg3 = atoi(arg2);
 				if ((room = real_room(int_arg3)) == NULL) {
-					sprintf(buf, "Room (V) %d does not exist, buttmunch.\r\n",
+					send_to_char(ch, "Room (V) %d does not exist, buttmunch.\r\n",
 						int_arg3);
-					send_to_char(buf, ch);
 					return;
 				}
 				if (!CAN_EDIT_ZONE(ch, room->zone)) {
-					send_to_char
-						("Let's not load objs in other ppl's zones, shall we?\r\n",
-						ch);
+					send_to_char(ch, 
+						"Let's not load objs in other ppl's zones, shall we?\r\n");
 					return;
 				}
 			} else {
-				send_to_char(ZCMD_O_USAGE, ch);
+				send_to_char(ch, ZCMD_O_USAGE);
 				return;
 			}
 			// Probability
 			argument = one_argument(argument, arg1);
 			if (!*arg1) {
-				send_to_char(ZCMD_O_USAGE, ch);
+				send_to_char(ch, ZCMD_O_USAGE);
 				return;
 			}
 			if (is_number(arg1)) {
 				i = atoi(arg1);
 				if (i > 100 || i < 0) {
-					sprintf(buf, "Invalid probability: %d\r\n", i);
-					send_to_char(buf, ch);
+					send_to_char(ch, "Invalid probability: %d\r\n", i);
 					return;
 				}
 				int_arg4 = i;
 			} else {
-				send_to_char(ZCMD_O_USAGE, ch);
+				send_to_char(ch, ZCMD_O_USAGE);
 				return;
 			}
 
@@ -356,7 +347,7 @@ do_zcmd(struct char_data *ch, char *argument)
 			}
 
 			SET_BIT(zone->flags, ZONE_ZONE_MODIFIED);
-			send_to_char("Command completed ok.\r\n", ch);
+			send_to_char(ch, "Command completed ok.\r\n");
 
 			break;
 		case 'p':
@@ -365,41 +356,40 @@ do_zcmd(struct char_data *ch, char *argument)
 
 #define ZCMD_P_USAGE "Usage: olc zcmd [zone] P <if_flag> <obj vnum> <max loaded> <obj vnum> <prob>\r\n"
 			if (!*arg1 || !*arg2) {
-				send_to_char(ZCMD_P_USAGE, ch);
+				send_to_char(ch, ZCMD_P_USAGE);
 				return;
 			}
 
 			if (is_number(arg1) && is_number(arg2)) {
 				if_flag = atoi(arg1);
 				if (if_flag != 0 && if_flag != 1 && if_flag != -1) {
-					send_to_char
-						("if_flag dependancy flag must be 0, 1 or -1\r\n", ch);
+					send_to_char(ch, 
+						"if_flag dependancy flag must be 0, 1 or -1\r\n");
 					return;
 				}
 				int_arg1 = atoi(arg2);
 				if (!real_object_proto(int_arg1)) {
-					sprintf(buf, "Object (V) %d does not exist.\r\n",
+					send_to_char(ch, "Object (V) %d does not exist.\r\n",
 						int_arg1);
-					send_to_char(buf, ch);
 					return;
 				}
 			} else {
-				send_to_char(ZCMD_P_USAGE, ch);
+				send_to_char(ch, ZCMD_P_USAGE);
 				return;
 			}
 
 			argument = two_arguments(argument, arg1, arg2);
 
 			if (!*arg1 || !*arg2) {
-				send_to_char(ZCMD_P_USAGE, ch);
+				send_to_char(ch, ZCMD_P_USAGE);
 				return;
 			}
 
 			if (is_number(arg1) && is_number(arg2)) {
 				int_arg2 = atoi(arg1);
 				if (int_arg2 < 1 || int_arg2 > 1000) {
-					send_to_char
-						("Number loaded must be between 1 and 1000.\r\n", ch);
+					send_to_char(ch, 
+						"Number loaded must be between 1 and 1000.\r\n");
 					return;
 				}
 				int_arg3 = atoi(arg2);
@@ -407,29 +397,28 @@ do_zcmd(struct char_data *ch, char *argument)
 					sprintf(buf,
 						"Object (V) %d does not exist, buttmunch.\r\n",
 						int_arg3);
-					send_to_char(buf, ch);
+					send_to_char(ch, "%s", buf);
 					return;
 				}
 			} else {
-				send_to_char(ZCMD_P_USAGE, ch);
+				send_to_char(ch, ZCMD_P_USAGE);
 				return;
 			}
 			// Probability
 			argument = one_argument(argument, arg1);
 			if (!*arg1) {
-				send_to_char(ZCMD_P_USAGE, ch);
+				send_to_char(ch, ZCMD_P_USAGE);
 				return;
 			}
 			if (is_number(arg1)) {
 				i = atoi(arg1);
 				if (i > 100 || i < 0) {
-					sprintf(buf, "Invalid probability: %d\r\n", i);
-					send_to_char(buf, ch);
+					send_to_char(ch, "Invalid probability: %d\r\n", i);
 					return;
 				}
 				int_arg4 = i;
 			} else {
-				send_to_char(ZCMD_P_USAGE, ch);
+				send_to_char(ch, ZCMD_P_USAGE);
 				return;
 			}
 
@@ -458,7 +447,7 @@ do_zcmd(struct char_data *ch, char *argument)
 			}
 
 			SET_BIT(zone->flags, ZONE_ZONE_MODIFIED);
-			send_to_char("Command completed ok.\r\n", ch);
+			send_to_char(ch, "Command completed ok.\r\n");
 
 			break;
 		case 'g':
@@ -467,41 +456,40 @@ do_zcmd(struct char_data *ch, char *argument)
 
 #define ZCMD_G_USAGE "Usage: olc zcmd [zone] G <if_flag> <obj vnum> <max loaded> <mob vnum> <prob>\r\n"
 			if (!*arg1 || !*arg2) {
-				send_to_char(ZCMD_G_USAGE, ch);
+				send_to_char(ch, ZCMD_G_USAGE);
 				return;
 			}
 
 			if (is_number(arg1) && is_number(arg2)) {
 				if_flag = atoi(arg1);
 				if (if_flag != 0 && if_flag != 1 && if_flag != -1) {
-					send_to_char
-						("if_flag dependancy flag must be 0, 1 or -1\r\n", ch);
+					send_to_char(ch, 
+						"if_flag dependancy flag must be 0, 1 or -1\r\n");
 					return;
 				}
 				int_arg1 = atoi(arg2);
 				if (!real_object_proto(int_arg1)) {
-					sprintf(buf, "Object (V) %d does not exist.\r\n",
+					send_to_char(ch, "Object (V) %d does not exist.\r\n",
 						int_arg1);
-					send_to_char(buf, ch);
 					return;
 				}
 			} else {
-				send_to_char(ZCMD_G_USAGE, ch);
+				send_to_char(ch, ZCMD_G_USAGE);
 				return;
 			}
 
 			argument = two_arguments(argument, arg1, arg2);
 
 			if (!*arg1 || !*arg2) {
-				send_to_char(ZCMD_G_USAGE, ch);
+				send_to_char(ch, ZCMD_G_USAGE);
 				return;
 			}
 
 			if (is_number(arg1) && is_number(arg2)) {
 				int_arg2 = atoi(arg1);
 				if (int_arg2 < 1 || int_arg2 > 1000) {
-					send_to_char
-						("Number loaded must be between 1 and 1000.\r\n", ch);
+					send_to_char(ch, 
+						"Number loaded must be between 1 and 1000.\r\n");
 					return;
 				}
 				int_arg3 = atoi(arg2);
@@ -509,29 +497,28 @@ do_zcmd(struct char_data *ch, char *argument)
 					sprintf(buf,
 						"Mobile (V) %d does not exist, buttmunch.\r\n",
 						int_arg3);
-					send_to_char(buf, ch);
+					send_to_char(ch, "%s", buf);
 					return;
 				}
 			} else {
-				send_to_char(ZCMD_G_USAGE, ch);
+				send_to_char(ch, ZCMD_G_USAGE);
 				return;
 			}
 			// Probability
 			argument = one_argument(argument, arg1);
 			if (!*arg1) {
-				send_to_char(ZCMD_G_USAGE, ch);
+				send_to_char(ch, ZCMD_G_USAGE);
 				return;
 			}
 			if (is_number(arg1)) {
 				i = atoi(arg1);
 				if (i > 100 || i < 0) {
-					sprintf(buf, "Invalid probability: %d\r\n", i);
-					send_to_char(buf, ch);
+					send_to_char(ch, "Invalid probability: %d\r\n", i);
 					return;
 				}
 				int_arg4 = i;
 			} else {
-				send_to_char(ZCMD_G_USAGE, ch);
+				send_to_char(ch, ZCMD_G_USAGE);
 				return;
 			}
 
@@ -561,7 +548,7 @@ do_zcmd(struct char_data *ch, char *argument)
 			}
 
 			SET_BIT(zone->flags, ZONE_ZONE_MODIFIED);
-			send_to_char("Command completed ok.\r\n", ch);
+			send_to_char(ch, "Command completed ok.\r\n");
 
 			break;
 		case 'e':
@@ -570,86 +557,82 @@ do_zcmd(struct char_data *ch, char *argument)
 			argument = two_arguments(argument, arg1, arg2);
 
 			if (!*arg1 || !*arg2) {
-				send_to_char(ZCMD_E_USAGE, ch);
+				send_to_char(ch, ZCMD_E_USAGE);
 				return;
 			}
 
 			if (is_number(arg1) && is_number(arg2)) {
 				if_flag = atoi(arg1);
 				if (if_flag != 0 && if_flag != 1 && if_flag != -1) {
-					send_to_char
-						("if_flag dependancy flag must be 0, 1 or -1\r\n", ch);
+					send_to_char(ch, 
+						"if_flag dependancy flag must be 0, 1 or -1\r\n");
 					return;
 				}
 				int_arg1 = atoi(arg2);
 				if (!real_object_proto(int_arg1)) {
-					sprintf(buf, "Object (V) %d does not exist.\r\n",
+					send_to_char(ch, "Object (V) %d does not exist.\r\n",
 						int_arg1);
-					send_to_char(buf, ch);
 					return;
 				}
 			} else {
-				send_to_char(ZCMD_E_USAGE, ch);
+				send_to_char(ch, ZCMD_E_USAGE);
 				return;
 			}
 			// Maxload and Wear Position 
 			argument = two_arguments(argument, arg1, arg2);
 			if (!*arg1 || !*arg2) {
-				send_to_char(ZCMD_E_USAGE, ch);
+				send_to_char(ch, ZCMD_E_USAGE);
 				return;
 			}
 			if (is_number(arg1) && is_number(arg2)) {
 				int_arg2 = atoi(arg1);
 				if (int_arg2 < 1 || int_arg2 > 1000) {
-					send_to_char
-						("Number loaded must be between 1 and 1000.\r\n", ch);
+					send_to_char(ch, 
+						"Number loaded must be between 1 and 1000.\r\n");
 					return;
 				}
 				int_arg3 = atoi(arg2);
 				if (int_arg3 < 0 || int_arg3 > NUM_WEARS) {
-					sprintf(buf, "Invalid wear position, %d, must be 0-27\r\n",
+					send_to_char(ch, "Invalid wear position, %d, must be 0-27\r\n",
 						int_arg3);
-					send_to_char(buf, ch);
 					return;
 				}
 			} else {
-				send_to_char(ZCMD_E_USAGE, ch);
+				send_to_char(ch, ZCMD_E_USAGE);
 				return;
 			}
 
 			// Target Mobile
 			argument = one_argument(argument, arg1);
 			if (!*arg1) {
-				send_to_char(ZCMD_E_USAGE, ch);
+				send_to_char(ch, ZCMD_E_USAGE);
 				return;
 			}
 			if (is_number(arg1)) {
 				i = atoi(arg1);
 				if (!real_mobile_proto(i)) {
-					sprintf(buf, "Mobile (V) %d does not exist.\r\n", i);
-					send_to_char(buf, ch);
+					send_to_char(ch, "Mobile (V) %d does not exist.\r\n", i);
 					return;
 				}
 			} else {
-				send_to_char(ZCMD_E_USAGE, ch);
+				send_to_char(ch, ZCMD_E_USAGE);
 				return;
 			}
 			// Probability
 			argument = one_argument(argument, arg1);
 			if (!*arg1) {
-				send_to_char(ZCMD_E_USAGE, ch);
+				send_to_char(ch, ZCMD_E_USAGE);
 				return;
 			}
 			if (is_number(arg1)) {
 				i = atoi(arg1);
 				if (i > 100 || i < 0) {
-					sprintf(buf, "Invalid probability: %d\r\n", i);
-					send_to_char(buf, ch);
+					send_to_char(ch, "Invalid probability: %d\r\n", i);
 					return;
 				}
 				int_arg4 = i;
 			} else {
-				send_to_char(ZCMD_E_USAGE, ch);
+				send_to_char(ch, ZCMD_E_USAGE);
 				return;
 			}
 			CREATE(zonecmd, struct reset_com, 1);
@@ -678,7 +661,7 @@ do_zcmd(struct char_data *ch, char *argument)
 			}
 
 			SET_BIT(zone->flags, ZONE_ZONE_MODIFIED);
-			send_to_char("Command completed ok.\r\n", ch);
+			send_to_char(ch, "Command completed ok.\r\n");
 
 			break;
 		case 'i':
@@ -687,41 +670,40 @@ do_zcmd(struct char_data *ch, char *argument)
 
 #define ZCMD_I_USAGE "Usage: olc zcmd [zone] I <if_flag> <obj vnum> <max loaded> <implant pos> <mob vnum><prob>\r\n"
 			if (!*arg1 || !*arg2) {
-				send_to_char(ZCMD_I_USAGE, ch);
+				send_to_char(ch, ZCMD_I_USAGE);
 				return;
 			}
 
 			if (is_number(arg1) && is_number(arg2)) {
 				if_flag = atoi(arg1);
 				if (if_flag != 0 && if_flag != 1 && if_flag != -1) {
-					send_to_char
-						("if_flag dependancy flag must be 0, 1 or 1\r\n", ch);
+					send_to_char(ch, 
+						"if_flag dependancy flag must be 0, 1 or 1\r\n");
 					return;
 				}
 				int_arg1 = atoi(arg2);
 				if (!real_object_proto(int_arg1)) {
-					sprintf(buf, "Object (V) %d does not exist.\r\n",
+					send_to_char(ch, "Object (V) %d does not exist.\r\n",
 						int_arg1);
-					send_to_char(buf, ch);
 					return;
 				}
 			} else {
-				send_to_char(ZCMD_I_USAGE, ch);
+				send_to_char(ch, ZCMD_I_USAGE);
 				return;
 			}
 
 			argument = two_arguments(argument, arg1, arg2);
 
 			if (!*arg1 || !*arg2) {
-				send_to_char(ZCMD_I_USAGE, ch);
+				send_to_char(ch, ZCMD_I_USAGE);
 				return;
 			}
 
 			if (is_number(arg1) && is_number(arg2)) {
 				int_arg2 = atoi(arg1);
 				if (int_arg2 < 1 || int_arg2 > 1000) {
-					send_to_char
-						("Number loaded must be between 1 and 1000.\r\n", ch);
+					send_to_char(ch, 
+						"Number loaded must be between 1 and 1000.\r\n");
 					return;
 				}
 				int_arg3 = atoi(arg2);
@@ -729,49 +711,47 @@ do_zcmd(struct char_data *ch, char *argument)
 					sprintf(buf,
 						"Invalid implant position, %d, must be 0-27\r\n",
 						int_arg3);
-					send_to_char(buf, ch);
+					send_to_char(ch, "%s", buf);
 					return;
 				}
 			} else {
-				send_to_char(ZCMD_I_USAGE, ch);
+				send_to_char(ch, ZCMD_I_USAGE);
 				return;
 			}
 
 			argument = one_argument(argument, arg1);
 
 			if (!*arg1) {
-				send_to_char(ZCMD_I_USAGE, ch);
+				send_to_char(ch, ZCMD_I_USAGE);
 				return;
 			}
 
 			if (is_number(arg1)) {
 				i = atoi(arg1);
 				if (!real_mobile_proto(i)) {
-					sprintf(buf, "Mobile (V) %d does not exist.\r\n", i);
-					send_to_char(buf, ch);
+					send_to_char(ch, "Mobile (V) %d does not exist.\r\n", i);
 					return;
 				}
 
 			} else {
-				send_to_char(ZCMD_I_USAGE, ch);
+				send_to_char(ch, ZCMD_I_USAGE);
 				return;
 			}
 			// Probability
 			argument = one_argument(argument, arg1);
 			if (!*arg1) {
-				send_to_char(ZCMD_I_USAGE, ch);
+				send_to_char(ch, ZCMD_I_USAGE);
 				return;
 			}
 			if (is_number(arg1)) {
 				i = atoi(arg1);
 				if (i > 100 || i < 0) {
-					sprintf(buf, "Invalid probability: %d\r\n", i);
-					send_to_char(buf, ch);
+					send_to_char(ch, "Invalid probability: %d\r\n", i);
 					return;
 				}
 				int_arg4 = i;
 			} else {
-				send_to_char(ZCMD_I_USAGE, ch);
+				send_to_char(ch, ZCMD_I_USAGE);
 				return;
 			}
 
@@ -801,7 +781,7 @@ do_zcmd(struct char_data *ch, char *argument)
 			}
 
 			SET_BIT(zone->flags, ZONE_ZONE_MODIFIED);
-			send_to_char("Command completed ok.\r\n", ch);
+			send_to_char(ch, "Command completed ok.\r\n");
 
 			break;
 		case 'r':
@@ -810,52 +790,49 @@ do_zcmd(struct char_data *ch, char *argument)
 
 #define ZCMD_R_USAGE "Usage: olc zcmd [zone] R <if_flag> <obj vnum> <room vnum>\r\n"
 			if (!*arg1 || !*arg2) {
-				send_to_char(ZCMD_R_USAGE, ch);
+				send_to_char(ch, ZCMD_R_USAGE);
 				return;
 			}
 
 			if (is_number(arg1) && is_number(arg2)) {
 				if_flag = atoi(arg1);
 				if (if_flag != 0 && if_flag != 1 && if_flag != -1) {
-					send_to_char
-						("if_flag dependancy flag must be 0, 1 or -1\r\n", ch);
+					send_to_char(ch, 
+						"if_flag dependancy flag must be 0, 1 or -1\r\n");
 					return;
 				}
 				int_arg1 = atoi(arg2);
 				if (!real_object_proto(int_arg1)) {
-					sprintf(buf, "Object (V) %d does not exist.\r\n",
+					send_to_char(ch, "Object (V) %d does not exist.\r\n",
 						int_arg1);
-					send_to_char(buf, ch);
 					return;
 				}
 			} else {
-				send_to_char(ZCMD_R_USAGE, ch);
+				send_to_char(ch, ZCMD_R_USAGE);
 				return;
 			}
 
 			argument = one_argument(argument, arg1);
 
 			if (!*arg1) {
-				send_to_char(ZCMD_R_USAGE, ch);
+				send_to_char(ch, ZCMD_R_USAGE);
 				return;
 			}
 
 			if (is_number(arg1)) {
 				int_arg2 = atoi(arg1);
 				if ((room = real_room(int_arg1)) == NULL) {
-					sprintf(buf, "Room (V) %d does not exist, buttmunch.\r\n",
+					send_to_char(ch, "Room (V) %d does not exist, buttmunch.\r\n",
 						int_arg1);
-					send_to_char(buf, ch);
 					return;
 				}
 				if (!CAN_EDIT_ZONE(ch, room->zone)) {
-					send_to_char
-						("Let's not remove objs from other ppl's zones, asshole.\r\n",
-						ch);
+					send_to_char(ch, 
+						"Let's not remove objs from other ppl's zones, asshole.\r\n");
 					return;
 				}
 			} else {
-				send_to_char(ZCMD_R_USAGE, ch);
+				send_to_char(ch, ZCMD_R_USAGE);
 				return;
 			}
 
@@ -884,7 +861,7 @@ do_zcmd(struct char_data *ch, char *argument)
 			}
 
 			SET_BIT(zone->flags, ZONE_ZONE_MODIFIED);
-			send_to_char("Command completed ok.\r\n", ch);
+			send_to_char(ch, "Command completed ok.\r\n");
 
 			break;
 		case 'd':
@@ -892,57 +869,51 @@ do_zcmd(struct char_data *ch, char *argument)
 			argument = two_arguments(argument, arg1, arg2);
 
 			if (!*arg1 || !*arg2) {
-				send_to_char
-					("Usage: olc zcmd [zone] D <if_flag> <room vnum> <direction> [+/-] <FLAG FLAG ...>\r\n",
-					ch);
+				send_to_char(ch, 
+					"Usage: olc zcmd [zone] D <if_flag> <room vnum> <direction> [+/-] <FLAG FLAG ...>\r\n");
 				return;
 			}
 
 			if (is_number(arg1) && is_number(arg2)) {
 				if_flag = atoi(arg1);
 				if (if_flag != 0 && if_flag != 1 && if_flag != -1) {
-					send_to_char
-						("if_flag dependancy flag must be 0, 1 or -1\r\n", ch);
+					send_to_char(ch, 
+						"if_flag dependancy flag must be 0, 1 or -1\r\n");
 					return;
 				}
 				int_arg1 = atoi(arg2);
 				if ((room = real_room(int_arg1)) == NULL) {
-					sprintf(buf, "Room (V) %d does not exist.\r\n", int_arg1);
-					send_to_char(buf, ch);
+					send_to_char(ch, "Room (V) %d does not exist.\r\n", int_arg1);
 					return;
 				}
 				if (!CAN_EDIT_ZONE(ch, room->zone)) {
-					send_to_char
-						("Let's not close doors in other ppl's zones, shall we?\r\n",
-						ch);
+					send_to_char(ch, 
+						"Let's not close doors in other ppl's zones, shall we?\r\n");
 					return;
 				}
 			} else {
-				send_to_char
-					("Usage: olc zcmd [zone] D <if_flag> <room vnum> <direction> <FLAG FLAG ...>\r\n",
-					ch);
+				send_to_char(ch, 
+					"Usage: olc zcmd [zone] D <if_flag> <room vnum> <direction> <FLAG FLAG ...>\r\n");
 				return;
 			}
 
 			argument = two_arguments(argument, arg1, arg2);
 
 			if (!*arg1 || !*arg2) {
-				send_to_char
-					("Usage: olc zcmd [zone] D <if_flag> <room vnum> <direction> <FLAG FLAG ...>\r\n",
-					ch);
+				send_to_char(ch, 
+					"Usage: olc zcmd [zone] D <if_flag> <room vnum> <direction> <FLAG FLAG ...>\r\n");
 				return;
 			}
 
 			if ((int_arg2 = search_block(arg1, dirs, FALSE)) < 0) {
-				send_to_char
-					("You must supply a valid direction of the door.\r\n", ch);
+				send_to_char(ch, 
+					"You must supply a valid direction of the door.\r\n");
 				return;
 			}
 
 			if (room->dir_option[int_arg2] == NULL) {
-				sprintf(buf, "Room #%d does not have a door leading %s\r\n",
+				send_to_char(ch, "Room #%d does not have a door leading %s\r\n",
 					int_arg1, arg1);
-				send_to_char(buf, ch);
 				return;
 			}
 
@@ -950,8 +921,7 @@ do_zcmd(struct char_data *ch, char *argument)
 
 			while (*arg2) {
 				if ((tmp_flag = search_block(arg2, door_flags, FALSE)) == -1) {
-					sprintf(buf, "Invalid flag %s, skipping...\r\n", arg2);
-					send_to_char(buf, ch);
+					send_to_char(ch, "Invalid flag %s, skipping...\r\n", arg2);
 				} else
 					tmp_door_flags = tmp_door_flags | (1 << tmp_flag);
 
@@ -998,12 +968,11 @@ do_zcmd(struct char_data *ch, char *argument)
 				zcmd->arg3 = cur_door_flags;
 
 			SET_BIT(zone->flags, ZONE_ZONE_MODIFIED);
-			send_to_char("Door flags set.\r\n", ch);
+			send_to_char(ch, "Door flags set.\r\n");
 			break;
 
 		default:
-			sprintf(buf, "Invalid zone command %s.\r\n", arg2);
-			send_to_char(buf, ch);
+			send_to_char(ch, "Invalid zone command %s.\r\n", arg2);
 			return;
 		}
 }
@@ -1022,27 +991,25 @@ do_zone_cmdmove(struct char_data *ch, struct zone_data *zone, char *argument)
 		where = atoi(arg2);
 
 		if (!zone->cmd) {
-			send_to_char
-				("Why not get some zcmds before trying to move them... SHEESH!!\r\n",
-				ch);
+			send_to_char(ch, 
+				"Why not get some zcmds before trying to move them... SHEESH!!\r\n");
 			return;
 		}
 
 		if (num == where) {
-			send_to_char("You're pretty funny.\r\n", ch);
+			send_to_char(ch, "You're pretty funny.\r\n");
 			return;
 		}
 
 		if (where == num + 1) {
-			send_to_char
-				("Moving the command one down will have no effect.\r\n", ch);
+			send_to_char(ch, 
+				"Moving the command one down will have no effect.\r\n");
 			return;
 		}
 
 		if (!zone->cmd->next) {
-			send_to_char
-				("WHAT??  You've only got one command, and its number is ZERO.\r\n",
-				ch);
+			send_to_char(ch, 
+				"WHAT??  You've only got one command, and its number is ZERO.\r\n");
 			return;
 		}
 
@@ -1052,9 +1019,8 @@ do_zone_cmdmove(struct char_data *ch, struct zone_data *zone, char *argument)
 				break;
 
 		if (!first) {
-			sprintf(buf, "There is no command number %d in zone %d, fool.\r\n",
+			send_to_char(ch, "There is no command number %d in zone %d, fool.\r\n",
 				num, zone->number);
-			send_to_char(buf, ch);
 			return;
 		}
 
@@ -1066,12 +1032,12 @@ do_zone_cmdmove(struct char_data *ch, struct zone_data *zone, char *argument)
 
 		if (!tmp_zonecmd) {
 			if (i == where)
-				send_to_char("Moving command to the end of the list.\r\n", ch);
+				send_to_char(ch, "Moving command to the end of the list.\r\n");
 			else {
 				sprintf(buf,
 					"There is no command number %d in zone %d.  Moving cmd %d to pos %d.\r\n",
 					where, zone->number, num, i);
-				send_to_char(buf, ch);
+				send_to_char(ch, "%s", buf);
 				where = i;
 			}
 		}
@@ -1092,11 +1058,10 @@ do_zone_cmdmove(struct char_data *ch, struct zone_data *zone, char *argument)
 			i++, tmp_zonecmd = tmp_zonecmd->next)
 			tmp_zonecmd->line = i;
 
-		sprintf(buf, "Move completed, zone command %d to position %d\r\n", num,
+		send_to_char(ch, "Move completed, zone command %d to position %d\r\n", num,
 			where);
-		send_to_char(buf, ch);
 	} else {
-		send_to_char("Usage olc zcmd move <zone cmd> <position>\r\n", ch);
+		send_to_char(ch, "Usage olc zcmd move <zone cmd> <position>\r\n");
 		return;
 	}
 }
@@ -1114,30 +1079,29 @@ do_zmob_cmd(struct char_data *ch, char *argument)
 	argument = two_arguments(argument, arg1, arg2);
 
 	if (!*arg1 || !*arg2) {
-		send_to_char(ZMOB_USAGE, ch);
+		send_to_char(ch, ZMOB_USAGE);
 		return;
 	}
 
 	if (!OLC_EDIT_OK(ch, ch->in_room->zone, ZONE_ZCMDS_APPROVED)) {
-		send_to_char(ZMOB_USAGE, ch);
+		send_to_char(ch, ZMOB_USAGE);
 		return;
 	}
 
 	if (is_number(arg1) && is_number(arg2)) {
 		int_arg1 = atoi(arg1);
 		if (!real_mobile_proto(int_arg1)) {
-			sprintf(buf, "Mobile (V) %d does not exist, buttmunch.\r\n",
+			send_to_char(ch, "Mobile (V) %d does not exist, buttmunch.\r\n",
 				int_arg1);
-			send_to_char(buf, ch);
 			return;
 		}
 		int_arg2 = atoi(arg2);
 		if (int_arg2 < 1 || int_arg2 > 1000) {
-			send_to_char("Number loaded must be between 1 and 1000.\r\n", ch);
+			send_to_char(ch, "Number loaded must be between 1 and 1000.\r\n");
 			return;
 		}
 	} else {
-		send_to_char(ZMOB_USAGE, ch);
+		send_to_char(ch, ZMOB_USAGE);
 		return;
 	}
 
@@ -1174,7 +1138,7 @@ do_zmob_cmd(struct char_data *ch, char *argument)
 	}
 
 	SET_BIT(zone->flags, ZONE_ZONE_MODIFIED);
-	send_to_char("Command completed ok.\r\n", ch);
+	send_to_char(ch, "Command completed ok.\r\n");
 	mob = read_mobile(int_arg1);
 	char_to_room(mob, ch->in_room);
 
@@ -1193,20 +1157,20 @@ do_zput_cmd(struct char_data *ch, char *argument)
 	argument = two_arguments(argument, arg1, arg2);
 
 	if (!*arg1 || !*arg2) {
-		send_to_char(ZPUT_USAGE, ch);
+		send_to_char(ch, ZPUT_USAGE);
 		return;
 	}
 
 	zone = ch->in_room->zone;
 
 	if (!OLC_EDIT_OK(ch, zone, ZONE_ZCMDS_APPROVED)) {
-		send_to_char("Zone commands are not approved for this zone.\r\n", ch);
+		send_to_char(ch, "Zone commands are not approved for this zone.\r\n");
 		return;
 	}
 
 	if ((to_obj =
 			get_obj_in_list_vis(ch, arg1, ch->in_room->contents)) == NULL) {
-		send_to_char("Cannot find that object in this room.\r\n", ch);
+		send_to_char(ch, "Cannot find that object in this room.\r\n");
 		return;
 	}
 
@@ -1215,30 +1179,29 @@ do_zput_cmd(struct char_data *ch, char *argument)
 	if (is_number(arg2)) {
 		int_arg1 = atoi(arg2);
 		if (!(obj = real_object_proto(int_arg3))) {
-			sprintf(buf, "Object (V) %d does not exist.\r\n", int_arg3);
-			send_to_char(buf, ch);
+			send_to_char(ch, "Object (V) %d does not exist.\r\n", int_arg3);
 			return;
 		}
 	} else {
-		send_to_char(ZPUT_USAGE, ch);
+		send_to_char(ch, ZPUT_USAGE);
 		return;
 	}
 
 	argument = one_argument(argument, arg1);
 
 	if (!*arg1) {
-		send_to_char(ZPUT_USAGE, ch);
+		send_to_char(ch, ZPUT_USAGE);
 		return;
 	}
 
 	if (is_number(arg1)) {
 		int_arg2 = atoi(arg1);
 		if (int_arg2 < 1 || int_arg2 > 1000) {
-			send_to_char("Number loaded must be between 1 and 1000.\r\n", ch);
+			send_to_char(ch, "Number loaded must be between 1 and 1000.\r\n");
 			return;
 		}
 	} else {
-		send_to_char(ZPUT_USAGE, ch);
+		send_to_char(ch, ZPUT_USAGE);
 		return;
 	}
 
@@ -1278,7 +1241,7 @@ do_zput_cmd(struct char_data *ch, char *argument)
 			sprintf(buf,
 				"Zone command O required for %d before this can be set.\r\n",
 				int_arg3);
-			send_to_char(buf, ch);
+			send_to_char(ch, "%s", buf);
 			free(zonecmd);
 #ifdef DMALLOC
 			dmalloc_verify(0);
@@ -1289,7 +1252,7 @@ do_zput_cmd(struct char_data *ch, char *argument)
 		sprintf(buf,
 			"Zone command O required for %d before this can be set.\r\n",
 			int_arg3);
-		send_to_char(buf, ch);
+		send_to_char(ch, "%s", buf);
 		free(zonecmd);
 #ifdef DMALLOC
 		dmalloc_verify(0);
@@ -1306,7 +1269,7 @@ do_zput_cmd(struct char_data *ch, char *argument)
 		} else
 			slog("SYSERR: Freaky-ass error in zput!");
 	}
-	send_to_char("Command completed ok.\r\n", ch);
+	send_to_char(ch, "Command completed ok.\r\n");
 }
 
 #define ZGIVE_USAGE "Usage: olc zgive <mob name> <obj vnum> <max loaded> [prob]\r\n"
@@ -1323,24 +1286,24 @@ do_zgive_cmd(struct char_data *ch, char *argument)
 	argument = two_arguments(argument, arg1, arg2);
 
 	if (!*arg1 || !*arg2) {
-		send_to_char(ZGIVE_USAGE, ch);
+		send_to_char(ch, ZGIVE_USAGE);
 		return;
 	}
 
 	zone = ch->in_room->zone;
 
 	if (!OLC_EDIT_OK(ch, zone, ZONE_ZCMDS_APPROVED)) {
-		send_to_char("Zone commands are not approved for this zone.\r\n", ch);
+		send_to_char(ch, "Zone commands are not approved for this zone.\r\n");
 		return;
 	}
 
 	if ((mob = get_char_room_vis(ch, arg1)) == NULL) {
-		send_to_char("Cannot find that mobile in this room.\r\n", ch);
+		send_to_char(ch, "Cannot find that mobile in this room.\r\n");
 		return;
 	}
 
 	if (mob == ch || !IS_NPC(mob)) {
-		send_to_char("You're pretty funny.\r\n", ch);
+		send_to_char(ch, "You're pretty funny.\r\n");
 		return;
 	}
 
@@ -1349,30 +1312,29 @@ do_zgive_cmd(struct char_data *ch, char *argument)
 	if (is_number(arg2)) {
 		int_arg1 = atoi(arg2);
 		if (!(obj = real_object_proto(int_arg1))) {
-			sprintf(buf, "Object (V) %d does not exist.\r\n", int_arg1);
-			send_to_char(buf, ch);
+			send_to_char(ch, "Object (V) %d does not exist.\r\n", int_arg1);
 			return;
 		}
 	} else {
-		send_to_char(ZGIVE_USAGE, ch);
+		send_to_char(ch, ZGIVE_USAGE);
 		return;
 	}
 
 	argument = one_argument(argument, arg1);
 
 	if (!*arg1) {
-		send_to_char(ZGIVE_USAGE, ch);
+		send_to_char(ch, ZGIVE_USAGE);
 		return;
 	}
 
 	if (is_number(arg1)) {
 		int_arg2 = atoi(arg1);
 		if (int_arg2 < 1 || int_arg2 > 1000) {
-			send_to_char("Number loaded must be between 1 and 1000.\r\n", ch);
+			send_to_char(ch, "Number loaded must be between 1 and 1000.\r\n");
 			return;
 		}
 	} else {
-		send_to_char(ZGIVE_USAGE, ch);
+		send_to_char(ch, ZGIVE_USAGE);
 		return;
 	}
 
@@ -1410,7 +1372,7 @@ do_zgive_cmd(struct char_data *ch, char *argument)
 			sprintf(buf,
 				"Zone command M required for %d before this can be set.\r\n",
 				int_arg3);
-			send_to_char(buf, ch);
+			send_to_char(ch, "%s", buf);
 			free(zonecmd);
 #ifdef DMALLOC
 			dmalloc_verify(0);
@@ -1421,7 +1383,7 @@ do_zgive_cmd(struct char_data *ch, char *argument)
 		sprintf(buf,
 			"Zone command M required for %d before this can be set.\r\n",
 			int_arg3);
-		send_to_char(buf, ch);
+		send_to_char(ch, "%s", buf);
 		free(zonecmd);
 #ifdef DMALLOC
 		dmalloc_verify(0);
@@ -1436,7 +1398,7 @@ do_zgive_cmd(struct char_data *ch, char *argument)
 			SET_BIT(GET_OBJ_EXTRA2(obj), ITEM2_UNAPPROVED);
 		obj_to_char(obj, mob);
 	}
-	send_to_char("Command completed ok.\r\n", ch);
+	send_to_char(ch, "Command completed ok.\r\n");
 }
 
 
@@ -1455,59 +1417,58 @@ do_zimplant_cmd(struct char_data *ch, char *argument)
 	argument = two_arguments(argument, arg1, arg2);
 
 	if (!*arg1 || !*arg2) {
-		send_to_char(ZIMPLANT_USAGE, ch);
+		send_to_char(ch, ZIMPLANT_USAGE);
 		return;
 	}
 
 	zone = ch->in_room->zone;
 
 	if (!OLC_EDIT_OK(ch, zone, ZONE_ZCMDS_APPROVED)) {
-		send_to_char("Zone commands are not approved for this zone.\r\n", ch);
+		send_to_char(ch, "Zone commands are not approved for this zone.\r\n");
 		return;
 	}
 
 	if ((mob = get_char_room_vis(ch, arg1)) == NULL) {
-		send_to_char("Cannot find that mobile in this room.\r\n", ch);
+		send_to_char(ch, "Cannot find that mobile in this room.\r\n");
 		return;
 	}
 
 	if (mob == ch || !IS_NPC(mob)) {
-		send_to_char("You're pretty funny.\r\n", ch);
+		send_to_char(ch, "You're pretty funny.\r\n");
 		return;
 	}
 
 	if (is_number(arg2)) {
 		int_arg1 = atoi(arg2);
 		if (!(obj = real_object_proto(int_arg1))) {
-			sprintf(buf, "Object (V) %d does not exist.\r\n", int_arg1);
-			send_to_char(buf, ch);
+			send_to_char(ch, "Object (V) %d does not exist.\r\n", int_arg1);
 			return;
 		}
 	} else {
-		send_to_char(ZIMPLANT_USAGE, ch);
+		send_to_char(ch, ZIMPLANT_USAGE);
 		return;
 	}
 
 	argument = two_arguments(argument, arg1, arg2);
 
 	if (!*arg1 || !*arg2) {
-		send_to_char(ZIMPLANT_USAGE, ch);
+		send_to_char(ch, ZIMPLANT_USAGE);
 		return;
 	}
 
 	if (is_number(arg1)) {
 		int_arg2 = atoi(arg1);
 		if (int_arg2 < 1 || int_arg2 > 1000) {
-			send_to_char("Number loaded must be between 1 and 1000.\r\n", ch);
+			send_to_char(ch, "Number loaded must be between 1 and 1000.\r\n");
 			return;
 		}
 	} else {
-		send_to_char(ZIMPLANT_USAGE, ch);
+		send_to_char(ch, ZIMPLANT_USAGE);
 		return;
 	}
 
 	if ((int_arg3 = search_block(arg2, wear_implantpos, FALSE)) < 0) {
-		send_to_char("You must supply a valid implant position.\r\n", ch);
+		send_to_char(ch, "You must supply a valid implant position.\r\n");
 		return;
 	}
 
@@ -1545,7 +1506,7 @@ do_zimplant_cmd(struct char_data *ch, char *argument)
 			sprintf(buf,
 				"zmob command required for mobile (V) %d before this can be set.\r\n",
 				mob->mob_specials.shared->vnum);
-			send_to_char(buf, ch);
+			send_to_char(ch, "%s", buf);
 			free(zonecmd);
 #ifdef DMALLOC
 			dmalloc_verify(0);
@@ -1556,7 +1517,7 @@ do_zimplant_cmd(struct char_data *ch, char *argument)
 		sprintf(buf,
 			"zmob command required for mobile (V) %d before this can be set.\r\n",
 			mob->mob_specials.shared->vnum);
-		send_to_char(buf, ch);
+		send_to_char(ch, "%s", buf);
 		free(zonecmd);
 #ifdef DMALLOC
 		dmalloc_verify(0);
@@ -1570,7 +1531,7 @@ do_zimplant_cmd(struct char_data *ch, char *argument)
 		obj = read_object(int_arg1);
 		equip_char(mob, obj, zonecmd->arg3, MODE_IMPLANT);
 	}
-	send_to_char("Command completed ok.\r\n", ch);
+	send_to_char(ch, "Command completed ok.\r\n");
 }
 
 
@@ -1589,59 +1550,58 @@ do_zequip_cmd(struct char_data *ch, char *argument)
 	argument = two_arguments(argument, arg1, arg2);
 
 	if (!*arg1 || !*arg2) {
-		send_to_char(ZEQUIP_USAGE, ch);
+		send_to_char(ch, ZEQUIP_USAGE);
 		return;
 	}
 
 	zone = ch->in_room->zone;
 
 	if (!OLC_EDIT_OK(ch, zone, ZONE_ZCMDS_APPROVED)) {
-		send_to_char("Zone commands are not approved for this zone.\r\n", ch);
+		send_to_char(ch, "Zone commands are not approved for this zone.\r\n");
 		return;
 	}
 
 	if ((mob = get_char_room_vis(ch, arg1)) == NULL) {
-		send_to_char("Cannot find that mobile in this room.\r\n", ch);
+		send_to_char(ch, "Cannot find that mobile in this room.\r\n");
 		return;
 	}
 
 	if (mob == ch || !IS_NPC(mob)) {
-		send_to_char("You're pretty funny.\r\n", ch);
+		send_to_char(ch, "You're pretty funny.\r\n");
 		return;
 	}
 
 	if (is_number(arg2)) {
 		int_arg1 = atoi(arg2);
 		if (!(obj = real_object_proto(int_arg1))) {
-			sprintf(buf, "Object (V) %d does not exist.\r\n", int_arg1);
-			send_to_char(buf, ch);
+			send_to_char(ch, "Object (V) %d does not exist.\r\n", int_arg1);
 			return;
 		}
 	} else {
-		send_to_char(ZEQUIP_USAGE, ch);
+		send_to_char(ch, ZEQUIP_USAGE);
 		return;
 	}
 
 	argument = two_arguments(argument, arg1, arg2);
 
 	if (!*arg1 || !*arg2) {
-		send_to_char(ZEQUIP_USAGE, ch);
+		send_to_char(ch, ZEQUIP_USAGE);
 		return;
 	}
 
 	if (is_number(arg1)) {
 		int_arg2 = atoi(arg1);
 		if (int_arg2 < 1 || int_arg2 > 1000) {
-			send_to_char("Number loaded must be between 1 and 1000.\r\n", ch);
+			send_to_char(ch, "Number loaded must be between 1 and 1000.\r\n");
 			return;
 		}
 	} else {
-		send_to_char(ZEQUIP_USAGE, ch);
+		send_to_char(ch, ZEQUIP_USAGE);
 		return;
 	}
 
 	if ((int_arg3 = search_block(arg2, wear_eqpos, FALSE)) < 0) {
-		send_to_char("You must supply a valid wear position.\r\n", ch);
+		send_to_char(ch, "You must supply a valid wear position.\r\n");
 		return;
 	}
 
@@ -1679,7 +1639,7 @@ do_zequip_cmd(struct char_data *ch, char *argument)
 			sprintf(buf,
 				"zmob command required for mobile (V) %d before this can be set.\r\n",
 				mob->mob_specials.shared->vnum);
-			send_to_char(buf, ch);
+			send_to_char(ch, "%s", buf);
 			free(zonecmd);
 #ifdef DMALLOC
 			dmalloc_verify(0);
@@ -1690,7 +1650,7 @@ do_zequip_cmd(struct char_data *ch, char *argument)
 		sprintf(buf,
 			"zmob command required for mobile (V) %d before this can be set.\r\n",
 			mob->mob_specials.shared->vnum);
-		send_to_char(buf, ch);
+		send_to_char(ch, "%s", buf);
 		free(zonecmd);
 #ifdef DMALLOC
 		dmalloc_verify(0);
@@ -1704,7 +1664,7 @@ do_zequip_cmd(struct char_data *ch, char *argument)
 		obj = read_object(int_arg1);
 		equip_char(mob, obj, zonecmd->arg3, MODE_EQ);
 	}
-	send_to_char("Command completed ok.\r\n", ch);
+	send_to_char(ch, "Command completed ok.\r\n");
 }
 
 #define ZOBJ_USAGE "Usage: olc zobj <obj vnum> <max loaded> [prob]\r\n"
@@ -1720,32 +1680,31 @@ do_zobj_cmd(struct char_data *ch, char *argument)
 	argument = two_arguments(argument, arg1, arg2);
 
 	if (!*arg1 || !*arg2) {
-		send_to_char(ZOBJ_USAGE, ch);
+		send_to_char(ch, ZOBJ_USAGE);
 		return;
 	}
 
 	zone = ch->in_room->zone;
 
 	if (!OLC_EDIT_OK(ch, zone, ZONE_ZCMDS_APPROVED)) {
-		send_to_char("Zone commands are not approved for this zone.\r\n", ch);
+		send_to_char(ch, "Zone commands are not approved for this zone.\r\n");
 		return;
 	}
 
 	if (is_number(arg1) && is_number(arg2)) {
 		int_arg1 = atoi(arg1);
 		if (!real_object_proto(int_arg1)) {
-			sprintf(buf, "Object (V) %d does not exist, buttmunch.\r\n",
+			send_to_char(ch, "Object (V) %d does not exist, buttmunch.\r\n",
 				int_arg1);
-			send_to_char(buf, ch);
 			return;
 		}
 		int_arg2 = atoi(arg2);
 		if (int_arg2 < 1 || int_arg2 > 1000) {
-			send_to_char("Number loaded must be between 1 and 1000.\r\n", ch);
+			send_to_char(ch, "Number loaded must be between 1 and 1000.\r\n");
 			return;
 		}
 	} else {
-		send_to_char(ZOBJ_USAGE, ch);
+		send_to_char(ch, ZOBJ_USAGE);
 		return;
 	}
 
@@ -1796,7 +1755,7 @@ do_zobj_cmd(struct char_data *ch, char *argument)
 	}
 
 	SET_BIT(zone->flags, ZONE_ZONE_MODIFIED);
-	send_to_char("Command completed ok.\r\n", ch);
+	send_to_char(ch, "Command completed ok.\r\n");
 	obj = read_object(int_arg1);
 	if (ZONE_FLAGGED(zone, ZONE_ZCMDS_APPROVED))
 		SET_BIT(GET_OBJ_EXTRA2(obj), ITEM2_UNAPPROVED);
@@ -1815,30 +1774,29 @@ do_zdoor_cmd(struct char_data *ch, char *argument)
 	argument = two_arguments(argument, arg1, arg2);
 
 	if (!*arg1 || !*arg2) {
-		send_to_char("Usage: olc zdoor <direction> <FLAG FLAG ...>\r\n", ch);
+		send_to_char(ch, "Usage: olc zdoor <direction> <FLAG FLAG ...>\r\n");
 		return;
 	}
 
 	zone = ch->in_room->zone;
 
 	if (!OLC_EDIT_OK(ch, zone, ZONE_ZCMDS_APPROVED)) {
-		send_to_char("Zone commands are not approved for this zone.\r\n", ch);
+		send_to_char(ch, "Zone commands are not approved for this zone.\r\n");
 		return;
 	}
 
 	if ((int_arg2 = search_block(arg1, dirs, FALSE)) < 0) {
-		send_to_char("You must supply a valid direction of the door.\r\n", ch);
+		send_to_char(ch, "You must supply a valid direction of the door.\r\n");
 		return;
 	}
 
 	if (ch->in_room->dir_option[int_arg2] == NULL) {
-		sprintf(buf, "This room does not have a door leading %s.\r\n", arg1);
-		send_to_char(buf, ch);
+		send_to_char(ch, "This room does not have a door leading %s.\r\n", arg1);
 		return;
 	}
 
 	if (!*arg2) {
-		send_to_char("Usage: olc zdoor <direction> <FLAG FLAG ...>\r\n", ch);
+		send_to_char(ch, "Usage: olc zdoor <direction> <FLAG FLAG ...>\r\n");
 		return;
 	}
 
@@ -1854,8 +1812,7 @@ do_zdoor_cmd(struct char_data *ch, char *argument)
 
 	while (*arg2) {
 		if ((tmp_flag = search_block(arg2, door_flags, FALSE)) == -1) {
-			sprintf(buf, "Invalid flag %s, skipping...\r\n", arg2);
-			send_to_char(buf, ch);
+			send_to_char(ch, "Invalid flag %s, skipping...\r\n", arg2);
 		} else
 			tmp_door_flags = tmp_door_flags | (1 << tmp_flag);
 
@@ -1943,7 +1900,7 @@ do_zdoor_cmd(struct char_data *ch, char *argument)
 
 
 	SET_BIT(zone->flags, ZONE_ZONE_MODIFIED);
-	send_to_char("Door flags set.\r\n", ch);
+	send_to_char(ch, "Door flags set.\r\n");
 
 }
 
@@ -1970,7 +1927,7 @@ do_zset_command(struct char_data *ch, char *argument)
 			}
 
 		if (found != 1) {
-			send_to_char("Invalid zone number.\r\n", ch);
+			send_to_char(ch, "Invalid zone number.\r\n");
 			return;
 		}
 		argument = one_argument(argument, arg2);
@@ -1980,26 +1937,23 @@ do_zset_command(struct char_data *ch, char *argument)
 	}
 
 	if (!OLC_EDIT_OK(ch, zone, ZONE_ZCMDS_APPROVED)) {
-		send_to_char("You are currently unable to set flags on this zone.\r\n",
-			ch);
+		send_to_char(ch, "You are currently unable to set flags on this zone.\r\n");
 		return;
 	}
 
 
 	if ((zset_command = search_block(arg2, olc_zset_keys, FALSE)) < 0) {
-		sprintf(buf, "Invalid zset command '%s'.\r\n", arg2);
-		send_to_char(buf, ch);
+		send_to_char(ch, "Invalid zset command '%s'.\r\n", arg2);
 		return;
 	}
 
 	skip_spaces(&argument);
 
 	if (!*argument) {
-		sprintf(buf, "You must supply a value to %s\r\n",
+		send_to_char(ch, "You must supply a value to %s\r\n",
 			olc_zset_keys[zset_command]);
-		send_to_char(buf, ch);
 		if (zset_command == 8)
-			send_to_char(ZSET_COMMAND_USAGE, ch);
+			send_to_char(ch, ZSET_COMMAND_USAGE);
 		return;
 	}
 #ifdef DMALLOC
@@ -2010,94 +1964,84 @@ do_zset_command(struct char_data *ch, char *argument)
 		if (zone->name)
 			free(zone->name);
 		zone->name = strdup(argument);
-		sprintf(buf, "Zone %d name set to: %s\r\n", zone->number, zone->name);
-		send_to_char(buf, ch);
+		send_to_char(ch, "Zone %d name set to: %s\r\n", zone->number, zone->name);
 		SET_BIT(zone->flags, ZONE_ZONE_MODIFIED);
 		return;
 		break;
 	case 1:					/*   life   */
 		i = atoi(argument);
 		zone->lifespan = i;
-		sprintf(buf, "Zone %d lifespan set to: %d\r\n",
+		send_to_char(ch, "Zone %d lifespan set to: %d\r\n",
 			zone->number, zone->lifespan);
-		send_to_char(buf, ch);
 		SET_BIT(zone->flags, ZONE_ZONE_MODIFIED);
 		return;
 		break;
 	case 2:					/*  top   */
 		if (GET_LEVEL(ch) < LVL_CREATOR) {
-			send_to_char("You cannot alter zones in this way.\r\n", ch);
+			send_to_char(ch, "You cannot alter zones in this way.\r\n");
 			return;
 		}
 		i = atoi(argument);
 		if ((zone->next && zone->next->number * 100 <= i) ||
 			i < zone->number * 100) {
-			send_to_char("Invalid value for top of zone.\r\n", ch);
+			send_to_char(ch, "Invalid value for top of zone.\r\n");
 			return;
 		}
 		zone->top = i;
-		sprintf(buf, "Zone %d top of zone set to: %d\r\n",
+		send_to_char(ch, "Zone %d top of zone set to: %d\r\n",
 			zone->number, zone->top);
-		send_to_char(buf, ch);
 		SET_BIT(zone->flags, ZONE_ZONE_MODIFIED);
 		return;
 		break;
 	case 3:					/* reset */
 		i = atoi(argument);
 		if (i < 0 || i > 2 || !is_number(argument)) {
-			send_to_char
-				("Zone reset mode must either be 0, 1, or 2.  Buttmunch.\r\n",
-				ch);
+			send_to_char(ch, 
+				"Zone reset mode must either be 0, 1, or 2.  Buttmunch.\r\n");
 			return;
 		}
 
 		zone->reset_mode = i;
-		sprintf(buf, "Zone %d reset mode set to: %d\r\n",
+		send_to_char(ch, "Zone %d reset mode set to: %d\r\n",
 			zone->number, zone->reset_mode);
-		send_to_char(buf, ch);
 		SET_BIT(zone->flags, ZONE_ZONE_MODIFIED);
 		return;
 		break;
 	case 4:
 		if ((timeframe = search_block(argument, time_frames, FALSE)) < 0) {
-			sprintf(buf, "Invalid time frame '%s'.\r\n", argument);
-			send_to_char(buf, ch);
+			send_to_char(ch, "Invalid time frame '%s'.\r\n", argument);
 			return;
 		}
 
 		zone->time_frame = timeframe;
-		sprintf(buf, "Zone %d timeframe set to: %s\r\n", zone->number,
+		send_to_char(ch, "Zone %d timeframe set to: %s\r\n", zone->number,
 			argument);
-		send_to_char(buf, ch);
 		SET_BIT(zone->flags, ZONE_ZONE_MODIFIED);
 		return;
 		break;
 	case 5:
 		if ((plane = search_block(argument, planes, FALSE)) < 0) {
-			sprintf(buf, "Invalid plane: %s\r\n", argument);
-			send_to_char(buf, ch);
+			send_to_char(ch, "Invalid plane: %s\r\n", argument);
 			return;
 		}
 
 		zone->plane = plane;
-		sprintf(buf, "Zone %d plane set to: %s\r\n", zone->number, argument);
-		send_to_char(buf, ch);
+		send_to_char(ch, "Zone %d plane set to: %s\r\n", zone->number, argument);
 		SET_BIT(zone->flags, ZONE_ZONE_MODIFIED);
 		return;
 		break;
 	case 6:
 		if (strcmp(argument, "none") == 0) {
 			zone->owner_idnum = -1;
-			send_to_char("Zone owner set to: None\r\n", ch);
+			send_to_char(ch, "Zone owner set to: None\r\n");
 			SET_BIT(zone->flags, ZONE_ZONE_MODIFIED);
 		} else {
 			if ((zone->owner_idnum = get_id_by_name(argument)) < 0) {
-				send_to_char("No such player in the file.\r\n", ch);
+				send_to_char(ch, "No such player in the file.\r\n");
 				return;
 			} else {
-				sprintf(buf, "Zone %d owner set to: %s\r\n", zone->number,
+				send_to_char(ch, "Zone %d owner set to: %s\r\n", zone->number,
 					argument);
-				send_to_char(buf, ch);
 				SET_BIT(zone->flags, ZONE_ZONE_MODIFIED);
 			}
 		}
@@ -2110,9 +2054,8 @@ do_zset_command(struct char_data *ch, char *argument)
 		else if (*arg1 == '-')
 			state = 2;
 		else {
-			send_to_char
-				("Usage: olc zset [zone] flags [+/-] [FLAG, FLAG, ...]\r\n",
-				ch);
+			send_to_char(ch, 
+				"Usage: olc zset [zone] flags [+/-] [FLAG, FLAG, ...]\r\n");
 			return;
 		}
 
@@ -2124,8 +2067,7 @@ do_zset_command(struct char_data *ch, char *argument)
 			if ((tmp_flag = search_block(arg1, zone_flags, FALSE)) == -1 ||
 				(tmp_flag >= NUM_ZONE_FLAGS && !OLCIMP(ch)) ||
 				(tmp_flag == ZONE_FULLCONTROL && !OLCIMP(ch))) {
-				sprintf(buf, "Invalid flag %s, skipping...\r\n", arg1);
-				send_to_char(buf, ch);
+				send_to_char(ch, "Invalid flag %s, skipping...\r\n", arg1);
 			} else
 				tmp_zone_flags = tmp_zone_flags | (1 << tmp_flag);
 
@@ -2143,12 +2085,12 @@ do_zset_command(struct char_data *ch, char *argument)
 
 		if (tmp_zone_flags == 0 && cur_zone_flags == 0) {
 			SET_BIT(zone->flags, ZONE_ZONE_MODIFIED);
-			send_to_char("Zone flags set to: None\r\n", ch);
+			send_to_char(ch, "Zone flags set to: None\r\n");
 		} else if (tmp_zone_flags == 0)
-			send_to_char("Zone flags not altered.\r\n", ch);
+			send_to_char(ch, "Zone flags not altered.\r\n");
 		else {
 			SET_BIT(zone->flags, ZONE_ZONE_MODIFIED);
-			send_to_char("Zone flags set.\r\n", ch);
+			send_to_char(ch, "Zone flags set.\r\n");
 		}
 		break;
 	case 8:					/* zset command */
@@ -2156,12 +2098,12 @@ do_zset_command(struct char_data *ch, char *argument)
 		argument = two_arguments(argument, arg1, arg2);
 
 		if (!*arg1 || !*arg2) {
-			send_to_char(ZSET_COMMAND_USAGE, ch);
+			send_to_char(ch, ZSET_COMMAND_USAGE);
 			return;
 		}
 
 		if (!is_number(arg1)) {
-			send_to_char(ZSET_COMMAND_USAGE, ch);
+			send_to_char(ch, ZSET_COMMAND_USAGE);
 			return;
 		}
 
@@ -2169,14 +2111,14 @@ do_zset_command(struct char_data *ch, char *argument)
 
 		if (!str_cmp(arg2, "if") && !str_cmp(arg2, "max") &&
 			!str_cmp(arg2, "prob")) {
-			send_to_char(ZSET_COMMAND_USAGE, ch);
+			send_to_char(ch, ZSET_COMMAND_USAGE);
 			return;
 		}
 
 		one_argument(argument, arg1);
 
 		if (!is_number(arg1)) {
-			send_to_char(ZSET_COMMAND_USAGE, ch);
+			send_to_char(ch, ZSET_COMMAND_USAGE);
 			return;
 		}
 
@@ -2184,8 +2126,7 @@ do_zset_command(struct char_data *ch, char *argument)
 
 		if ((str_cmp(arg2, "if") == 0) && (state != 0 && state != 1
 				&& state != -1)) {
-			send_to_char("Value for if_flag must be either -1, 0 or 1.\r\n",
-				ch);
+			send_to_char(ch, "Value for if_flag must be either -1, 0 or 1.\r\n");
 			return;
 		}
 
@@ -2194,20 +2135,18 @@ do_zset_command(struct char_data *ch, char *argument)
 			if (i == cmd) {
 				if (str_cmp(arg2, "if") == 0) {
 					tmp_zonecmd->if_flag = state;
-					sprintf(buf, "IF flag of command %d set to %d.\r\n", cmd,
+					send_to_char(ch, "IF flag of command %d set to %d.\r\n", cmd,
 						state);
-					send_to_char(buf, ch);
 				} else if (str_cmp(arg2, "prob") == 0) {
 					if (state < 0 || state > 100) {
-						sprintf(buf, "'%d' is a silly probability.\r\n",
+						send_to_char(ch, "'%d' is a silly probability.\r\n",
 							state);
-						send_to_char(buf, ch);
 					} else {
 						tmp_zonecmd->prob = state;
 						sprintf(buf,
 							"Probability of execution of command %d set to %d.\r\n",
 							cmd, state);
-						send_to_char(buf, ch);
+						send_to_char(ch, "%s", buf);
 					}
 				} else if (tmp_zonecmd->command == 'P' ||
 					tmp_zonecmd->command == 'O' ||
@@ -2216,37 +2155,36 @@ do_zset_command(struct char_data *ch, char *argument)
 					tmp_zonecmd->command == 'I' ||
 					tmp_zonecmd->command == 'M') {
 					tmp_zonecmd->arg2 = state;
-					sprintf(buf, "MAX loaded of command %d set to %d.\r\n",
+					send_to_char(ch, "MAX loaded of command %d set to %d.\r\n",
 						cmd, state);
-					send_to_char(buf, ch);
 				} else
-					send_to_char("That command does not use a max.\r\n", ch);
+					send_to_char(ch, "That command does not use a max.\r\n");
 				break;
 			}
 		break;
 	case 9:					/* hours */
 		if (!is_number(argument))
-			send_to_char("You must supply a numerical argument.\r\n", ch);
+			send_to_char(ch, "You must supply a numerical argument.\r\n");
 		else {
 			zone->hour_mod = atoi(argument);
-			send_to_char("Hour modifier (longitude) set.\r\n", ch);
+			send_to_char(ch, "Hour modifier (longitude) set.\r\n");
 		}
 		break;
 	case 10:					/* years */
 		if (!is_number(argument))
-			send_to_char("You must supply a numerical argument.\r\n", ch);
+			send_to_char(ch, "You must supply a numerical argument.\r\n");
 		else {
 			zone->year_mod = atoi(argument);
-			send_to_char("Year modifier set.\r\n", ch);
+			send_to_char(ch, "Year modifier set.\r\n");
 		}
 		break;
 	case 11:
 		{
 			int totexp;
 			if (!is_number(argument))
-				send_to_char("You must supply a numerical argument.\r\n", ch);
+				send_to_char(ch, "You must supply a numerical argument.\r\n");
 			else if ((i = atoi(argument)) < 0 || i > 900)
-				send_to_char("Modifier out of range [0, 900].\r\n", ch);
+				send_to_char(ch, "Modifier out of range [0, 900].\r\n");
 			else {
 				j = zone->number * 100;
 				k = zone->top;
@@ -2262,23 +2200,22 @@ do_zset_command(struct char_data *ch, char *argument)
 
 					GET_EXP(vict) = totexp;
 				}
-				send_to_char
-					("Blanket exp modified.  Don't forget to save.\r\n", ch);
+				send_to_char(ch, 
+					"Blanket exp modified.  Don't forget to save.\r\n");
 			}
 			break;
 	case 12:
 			if (strcmp(argument, "none") == 0) {
 				zone->co_owner_idnum = -1;
-				send_to_char("Zone co-owner set to: None\r\n", ch);
+				send_to_char(ch, "Zone co-owner set to: None\r\n");
 				SET_BIT(zone->flags, ZONE_ZONE_MODIFIED);
 			} else {
 				if ((zone->co_owner_idnum = get_id_by_name(argument)) < 0) {
-					send_to_char("No such player in the file.\r\n", ch);
+					send_to_char(ch, "No such player in the file.\r\n");
 					return;
 				} else {
-					sprintf(buf, "Zone %d c-owner set to: %s\r\n",
+					send_to_char(ch, "Zone %d c-owner set to: %s\r\n",
 						zone->number, argument);
-					send_to_char(buf, ch);
 					SET_BIT(zone->flags, ZONE_ZONE_MODIFIED);
 				}
 			}
@@ -2300,9 +2237,8 @@ do_zset_command(struct char_data *ch, char *argument)
 
 			if (!ZONE_FLAGGED(zone, ZONE_ROOMS_APPROVED)
 				&& !ZONE_FLAGGED(zone, ZONE_FULLCONTROL) && !OLCIMP(ch)) {
-				send_to_char
-					("You do not have the appropriate permissions biznitch.\r\n",
-					ch);
+				send_to_char(ch, 
+					"You do not have the appropriate permissions biznitch.\r\n");
 				return;
 			}
 
@@ -2311,9 +2247,8 @@ do_zset_command(struct char_data *ch, char *argument)
 			else if (*arg1 == '-')
 				add_flags = 0;
 			else {
-				send_to_char
-					("Usage: olc zset [zone] blanket_flags [+/-] [FLAG, FLAG, ...]\r\n",
-					ch);
+				send_to_char(ch, 
+					"Usage: olc zset [zone] blanket_flags [+/-] [FLAG, FLAG, ...]\r\n");
 				return;
 			}
 
@@ -2322,15 +2257,13 @@ do_zset_command(struct char_data *ch, char *argument)
 				if ((tmp_flags =
 						search_block(arg1, roomflag_names, FALSE)) == -1
 					|| (tmp_flags >= NUM_ROOM_FLAGS && !OLCIMP(ch))) {
-					sprintf(buf, "Invalid flag %s, skipping...\r\n", arg1);
-					send_to_char(buf, ch);
+					send_to_char(ch, "Invalid flag %s, skipping...\r\n", arg1);
 				} else
 					tmp_room_flags = tmp_room_flags | (1 << tmp_flags);
 
 				if (tmp_room_flags == 0) {
-					send_to_char
-						("No valid flags specified...hard drive crash imminent.\r\n",
-						ch);
+					send_to_char(ch, 
+						"No valid flags specified...hard drive crash imminent.\r\n");
 					return;
 				}
 				argument = one_argument(argument, arg1);
@@ -2354,13 +2287,13 @@ do_zset_command(struct char_data *ch, char *argument)
 				}
 
 			}
-			send_to_char("Cha-Ching flags set!\r\n", ch);
+			send_to_char(ch, "Cha-Ching flags set!\r\n");
 			break;
 
 		}
 
 	default:
-		send_to_char("Unsupported olc zset command.\r\n", ch);
+		send_to_char(ch, "Unsupported olc zset command.\r\n");
 		break;
 	}
 #ifdef DMALLOC
@@ -2387,11 +2320,11 @@ do_create_zone(struct char_data *ch, int num)
 
 	for (zone = zone_table; zone; zone = zone->next) {
 		if (zone->number == num) {
-			send_to_char("ERROR: Zone already exists.\r\n", ch);
+			send_to_char(ch, "ERROR: Zone already exists.\r\n");
 			return (1);
 		}
 		if (zone->number < num && zone->top > num * 100) {
-			send_to_char("ERROR: Zone overlaps existing zone.\r\n", ch);
+			send_to_char(ch, "ERROR: Zone overlaps existing zone.\r\n");
 			return (1);
 		}
 	}
@@ -2400,8 +2333,7 @@ do_create_zone(struct char_data *ch, int num)
 
 	sprintf(fname, "world/zon/index");
 	if (!(index = fopen(fname, "w"))) {
-		send_to_char("Could not open index file, zone creation aborted.\r\n",
-			ch);
+		send_to_char(ch, "Could not open index file, zone creation aborted.\r\n");
 		return (1);
 	}
 
@@ -2409,8 +2341,7 @@ do_create_zone(struct char_data *ch, int num)
 
 	sprintf(fname, "world/zon/%d.zon", num);
 	if (!(zone_file = fopen(fname, "w"))) {
-		send_to_char("Cound not open %d.zon file, zone creation aborted.\r\n",
-			ch);
+		send_to_char(ch, "Cound not open %d.zon file, zone creation aborted.\r\n");
 		return (1);
 	}
 
@@ -2462,8 +2393,7 @@ do_create_zone(struct char_data *ch, int num)
 
 	top_of_zone_table++;
 
-	sprintf(buf, "Zone %d structure created OK.\r\n", num);
-	send_to_char(buf, ch);
+	send_to_char(ch, "Zone %d structure created OK.\r\n", num);
 
 	/* Write the zone file */
 
@@ -2478,8 +2408,7 @@ do_create_zone(struct char_data *ch, int num)
 
 	fclose(zone_file);
 
-	sprintf(buf, "Zone file, %d.zon, created\r\n", num);
-	send_to_char(buf, ch);
+	send_to_char(ch, "Zone file, %d.zon, created\r\n", num);
 
 	/* Rewrite index file */
 
@@ -2488,7 +2417,7 @@ do_create_zone(struct char_data *ch, int num)
 
 	fprintf(index, "$\n");
 
-	send_to_char("Zone index file re-written.\r\n", ch);
+	send_to_char(ch, "Zone index file re-written.\r\n");
 
 	fclose(index);
 
@@ -2624,9 +2553,9 @@ save_zone(struct char_data *ch, struct zone_data *zone)
 		sprintf(fname, "world/zon/olc/%d.zon", zone->number);
 		if (!(zone_file = fopen(fname, "r"))) {
 			slog("SYSERR: Failure to reopen olc zon file.");
-			send_to_char
-				("OLC Error: Failure to duplicate zon file in main dir."
-				"\r\n", ch);
+			send_to_char(ch, 
+				"OLC Error: Failure to duplicate zon file in main dir."
+				"\r\n");
 			fclose(realfile);
 			return 0;
 		}
@@ -2634,9 +2563,9 @@ save_zone(struct char_data *ch, struct zone_data *zone)
 			tmp = fread(buf, 1, 512, zone_file);
 			if (fwrite(buf, 1, tmp, realfile) != tmp) {
 				slog("SYSERR: Failure to duplicate olc zon file in the main wld dir.");
-				send_to_char
-					("OLC Error: Failure to duplicate zon file in main dir."
-					"\r\n", ch);
+				send_to_char(ch, 
+					"OLC Error: Failure to duplicate zon file in main dir."
+					"\r\n");
 				fclose(realfile);
 				fclose(zone_file);
 				return 0;
@@ -2685,7 +2614,7 @@ do_zone_cmdrem(struct char_data *ch, struct zone_data *zone, int num)
 	int i, found = 0;
 
 	if (!(zcmd = zone->cmd)) {
-		send_to_char("Hmm...\r\n", ch);
+		send_to_char(ch, "Hmm...\r\n");
 		return;
 	}
 	if (!num) {
@@ -2708,13 +2637,11 @@ do_zone_cmdrem(struct char_data *ch, struct zone_data *zone, int num)
 		zcmd->line = i;
 	}
 	if (found == 1) {
-		sprintf(buf, "Removed zone command #%d from zone #%d\r\n",
+		send_to_char(ch, "Removed zone command #%d from zone #%d\r\n",
 			num, zone->number);
-		send_to_char(buf, ch);
 	} else {
-		sprintf(buf, "Could not find zone command #%d in zone #%d\r\n",
+		send_to_char(ch, "Could not find zone command #%d in zone #%d\r\n",
 			num, zone->number);
-		send_to_char(buf, ch);
 	}
 }
 
@@ -2740,7 +2667,7 @@ do_zone_cmdlist(struct char_data *ch, struct zone_data *zone, char *arg)
 
 	if (!zone) {
 		slog("SYSERR: Improper zone passed to do_zone_cmdlist.");
-		send_to_char("Improper zone error.\r\n", ch);
+		send_to_char(ch, "Improper zone error.\r\n");
 		return;
 	}
 	arg1[0] = '\0';
@@ -2779,11 +2706,11 @@ do_zone_cmdlist(struct char_data *ch, struct zone_data *zone, char *arg)
 					startcmd = atoi(arg1);
 					endcmd = atoi(arg2);
 				} else {
-					send_to_char("Invalid zone command segment.\r\n", ch);
+					send_to_char(ch, "Invalid zone command segment.\r\n");
 					return;
 				}
 				if (startcmd > endcmd) {
-					send_to_char("Invalid zone command segment.\r\n", ch);
+					send_to_char(ch, "Invalid zone command segment.\r\n");
 					return;
 				}
 			} else if (is_abbrev(arg1, "errors")
@@ -2791,7 +2718,7 @@ do_zone_cmdlist(struct char_data *ch, struct zone_data *zone, char *arg)
 				mode_error = 1;
 			else {
 				sprintf(out_buf, "'%s' is not a valid argument.\r\n", arg1);
-				send_to_char(out_buf, ch);
+				send_to_char(ch, out_buf);
 			}
 			arg = one_argument(arg, arg1);
 		}
@@ -3029,7 +2956,7 @@ do_zpath_cmd(struct char_data *ch, char *argument)
 	int line = 0;
 
 	if (!CAN_EDIT_ZONE(ch, zone)) {
-		send_to_char("You cannot edit this zone.\r\n", ch);
+		send_to_char(ch, "You cannot edit this zone.\r\n");
 		return;
 	}
 
@@ -3037,14 +2964,14 @@ do_zpath_cmd(struct char_data *ch, char *argument)
 	argument = one_argument(argument, buf);
 
 	if (!*argument || !*buf) {
-		send_to_char(ZPATH_USAGE, ch);
+		send_to_char(ch, ZPATH_USAGE);
 		return;
 	}
 
 	zone = ch->in_room->zone;
 
 	if (!OLC_EDIT_OK(ch, zone, ZONE_ZCMDS_APPROVED)) {
-		send_to_char("Zone commands are not approved for this zone.\r\n", ch);
+		send_to_char(ch, "Zone commands are not approved for this zone.\r\n");
 		return;
 	}
 
@@ -3053,37 +2980,35 @@ do_zpath_cmd(struct char_data *ch, char *argument)
 	else if (is_abbrev(buf, "mobile"))
 		mob_mode = 1;
 	else {
-		send_to_char(ZPATH_USAGE, ch);
+		send_to_char(ch, ZPATH_USAGE);
 		return;
 	}
 
 	two_arguments(argument, buf, buf2);
 
 	if (!*buf2) {
-		send_to_char(ZPATH_USAGE, ch);
+		send_to_char(ch, ZPATH_USAGE);
 		return;
 	}
 
 	if (!(p_head = real_path(buf2))) {
-		sprintf(buf, "There is no path called '%s'.\r\n", buf2);
-		send_to_char(buf, ch);
+		send_to_char(ch, "There is no path called '%s'.\r\n", buf2);
 		return;
 	}
 
 	if (mob_mode) {
 		if (!(mob = get_char_room_vis(ch, buf))) {
-			sprintf(buf2, "You see no mob by the name of '%s' here.\r\n", buf);
-			send_to_char(buf2, ch);
+			send_to_char(ch, "You see no mob by the name of '%s' here.\r\n", buf);
 			return;
 		}
 
 		if (mob == ch || !IS_NPC(mob)) {
-			send_to_char("You're pretty funny.\r\n", ch);
+			send_to_char(ch, "You're pretty funny.\r\n");
 			return;
 		}
 
 		if (!add_path_to_mob(mob, p_head->name)) {
-			send_to_char("Cannot add that path to that mobile.\r\n", ch);
+			send_to_char(ch, "Cannot add that path to that mobile.\r\n");
 			return;
 		}
 		path_remove_object(mob);
@@ -3116,7 +3041,7 @@ do_zpath_cmd(struct char_data *ch, char *argument)
 				sprintf(buf,
 					"zmob command required for mobile (V) %d before this can be set.\r\n",
 					mob->mob_specials.shared->vnum);
-				send_to_char(buf, ch);
+				send_to_char(ch, "%s", buf);
 				free(zonecmd);
 #ifdef DMALLOC
 				dmalloc_verify(0);
@@ -3127,7 +3052,7 @@ do_zpath_cmd(struct char_data *ch, char *argument)
 			sprintf(buf,
 				"zmob command required for mobile (V) %d before this can be set.\r\n",
 				mob->mob_specials.shared->vnum);
-			send_to_char(buf, ch);
+			send_to_char(ch, "%s", buf);
 			free(zonecmd);
 #ifdef DMALLOC
 			dmalloc_verify(0);
@@ -3137,20 +3062,19 @@ do_zpath_cmd(struct char_data *ch, char *argument)
 
 		SET_BIT(zone->flags, ZONE_ZONE_MODIFIED);
 		add_path_to_mob(mob, p_head->name);
-		send_to_char("Command completed ok.\r\n", ch);
+		send_to_char(ch, "Command completed ok.\r\n");
 		return;
 	}
 
 	if (obj_mode) {
 
 		if (!(obj = get_obj_in_list_vis(ch, buf, ch->in_room->contents))) {
-			sprintf(buf2, "You see no mob by the name of '%s' here.\r\n", buf);
-			send_to_char(buf2, ch);
+			send_to_char(ch, "You see no mob by the name of '%s' here.\r\n", buf);
 			return;
 		}
 
 		if (!add_path_to_vehicle(obj, p_head->name)) {
-			send_to_char("Cannot add that path to that object.\r\n", ch);
+			send_to_char(ch, "Cannot add that path to that object.\r\n");
 			return;
 		}
 		path_remove_object(obj);
@@ -3182,7 +3106,7 @@ do_zpath_cmd(struct char_data *ch, char *argument)
 				sprintf(buf,
 					"Zone command O required for %d before this can be set.\r\n",
 					GET_OBJ_VNUM(obj));
-				send_to_char(buf, ch);
+				send_to_char(ch, "%s", buf);
 				free(zonecmd);
 #ifdef DMALLOC
 				dmalloc_verify(0);
@@ -3193,7 +3117,7 @@ do_zpath_cmd(struct char_data *ch, char *argument)
 			sprintf(buf,
 				"Zone command O required for %d before this can be set.\r\n",
 				GET_OBJ_VNUM(obj));
-			send_to_char(buf, ch);
+			send_to_char(ch, "%s", buf);
 			free(zonecmd);
 #ifdef DMALLOC
 			dmalloc_verify(0);
@@ -3203,7 +3127,7 @@ do_zpath_cmd(struct char_data *ch, char *argument)
 
 		SET_BIT(zone->flags, ZONE_ZONE_MODIFIED);
 		add_path_to_vehicle(obj, p_head->name);
-		send_to_char("Command completed ok.\r\n", ch);
+		send_to_char(ch, "Command completed ok.\r\n");
 		return;
 	}
 }

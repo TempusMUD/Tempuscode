@@ -349,8 +349,7 @@ Crash_listrent(struct char_data *ch, char *name)
 	if (!get_filename(buf, fname, (mode ? IMPLANT_FILE : CRASH_FILE)))
 		return;
 	if (!(fl = fopen(fname, "rb"))) {
-		sprintf(buf, "%s has no %s file.\r\n", buf, mode ? "implant" : "rent");
-		send_to_char(buf, ch);
+		send_to_char(ch, "%s has no %s file.\r\n", buf, mode ? "implant" : "rent");
 		return;
 	}
 	sprintf(buf, "%s\r\n", fname);
@@ -486,10 +485,10 @@ Crash_load(struct char_data *ch)
 		if (errno != ENOENT) {	/* if it fails, NOT because of no file */
 			sprintf(buf1, "SYSERR: READING OBJECT FILE %s ( 5 )", fname);
 			perror(buf1);
-			send_to_char
-				("\r\n********************* NOTICE *********************\r\n"
+			send_to_char(ch, 
+				"\r\n********************* NOTICE *********************\r\n"
 				"There was a problem loading your objects from disk.\r\n"
-				"Contact a God for assistance.\r\n", ch);
+				"Contact a God for assistance.\r\n");
 		}
 		sprintf(buf, "%s entering game with no equipment.", GET_NAME(ch));
 		mudlog(buf, NRM, MAX(LVL_AMBASSADOR, GET_INVIS_LEV(ch)), TRUE);
@@ -987,8 +986,7 @@ Crash_rent_deadline(struct char_data *ch, struct char_data *recep, long cost)
 	if (recep)
 		perform_tell(recep, ch, buf2);
 	else {
-		send_to_char(buf2, ch);
-		send_to_char("\r\n", ch);
+		send_to_char(ch, "%s\r\n", buf2);
 	}
 }
 
@@ -1016,7 +1014,7 @@ Crash_report_unrentables(struct char_data *ch, struct char_data *recep,
 			if (recep)
 				perform_tell(recep, ch, buf2);
 			else
-				send_to_char(strcat(buf2, "\r\n"), ch);
+				send_to_char(ch, strcat(buf2, "\r\n"));
 		}
 		has_norents += Crash_report_unrentables(ch, recep, obj->contains);
 		has_norents += Crash_report_unrentables(ch, recep, obj->next_content);
@@ -1047,9 +1045,8 @@ Crash_report_rent(struct char_data *ch, struct char_data *recep,
 						(GET_OBJ_RENT(obj) * factor), curr, OBJS(obj, ch));
 					perform_tell(recep, ch, buf2);
 				} else {
-					sprintf(buf2, "Rent cost: %5d %s for %s.\r\n",
+					send_to_char(ch, "Rent cost: %5d %s for %s.\r\n",
 						(GET_OBJ_RENT(obj) * factor), curr, OBJS(obj, ch));
-					send_to_char(buf2, ch);
 				}
 			}
 		}
@@ -1092,16 +1089,14 @@ Crash_rentcost(struct char_data *ch, int display, int factor)
               "You are carrying %ld.\r\n",
               ( max_obj_save << 1 ) + GET_LEVEL( ch ) + ( GET_REMORT_GEN( ch ) << 3 ),
               numitems );
-      send_to_char( buf2, ch );
       norent++;
   }
 */
 	totalcost = (int)(totalcost * (0.30) * ((10 + GET_LEVEL(ch)) / 10));
 
 	if (!norent) {
-		sprintf(buf, "It will cost you %ld %s per day to rent.\r\n",
+		send_to_char(ch, "It will cost you %ld %s per day to rent.\r\n",
 			totalcost, curr);
-		send_to_char(buf, ch);
 		Crash_rent_deadline(ch, NULL, totalcost);
 	}
 
@@ -1172,7 +1167,7 @@ Crash_offer_rent(struct char_data *ch, struct char_data *receptionist,
 			totalcost, curr, (factor == RENT_FACTOR ? " per day" : ""),
 			CCNRM(ch, C_SPR));
 		strcat(buf, CAP(buf2));
-		send_to_char(buf, ch);
+		send_to_char(ch, "%s", buf);
 
 		if ((receptionist->in_room->zone->time_frame == TIME_ELECTRO &&
 				totalcost > GET_CASH(ch)) ||
@@ -1233,7 +1228,7 @@ gen_receptionist(struct char_data *ch, struct char_data *recep,
 		return 1;
 	}
 	if (PLR_FLAGGED(ch, PLR_QUESTOR)) {
-		send_to_char("Please remove your questor flag first.\r\n", ch);
+		send_to_char(ch, "Please remove your questor flag first.\r\n");
 		return 1;
 	}
 	if (CMD_IS("rent")) {

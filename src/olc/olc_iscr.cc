@@ -115,8 +115,7 @@ write_iscr_index(struct char_data *ch, struct zone_data *zone)
 
 	sprintf(fname, "world/iscr/index");
 	if (!(index = fopen(fname, "w"))) {
-		send_to_char("Could not open index file, iscript save aborted.\r\n",
-			ch);
+		send_to_char(ch, "Could not open index file, iscript save aborted.\r\n");
 		return (0);
 	}
 	for (i = 0; iscr_index[i] != -1; i++)
@@ -124,7 +123,7 @@ write_iscr_index(struct char_data *ch, struct zone_data *zone)
 
 	fprintf(index, "$\n");
 
-	send_to_char("IScript index file re-written.\r\n", ch);
+	send_to_char(ch, "IScript index file re-written.\r\n");
 
 	fclose(index);
 
@@ -150,7 +149,7 @@ do_olc_isave(struct char_data *ch)
 
 		if (!zone) {
 			slog("OLC:  ERROR finding zone for iscript %d.", svnum);
-			send_to_char("Unable to match iscript with zone error.\r\n", ch);
+			send_to_char(ch, "Unable to match iscript with zone error.\r\n");
 			return 1;
 		}
 	} else
@@ -209,9 +208,9 @@ do_olc_isave(struct char_data *ch)
 		ifstream ifile(fname);
 		if (!ifile) {
 			slog("SYSERR: Failure to reopen olc iscript file.");
-			send_to_char
-				("OLC Error:  Failure to duplicate mob file in main dir."
-				"\r\n", ch);
+			send_to_char(ch, 
+				"OLC Error:  Failure to duplicate mob file in main dir."
+				"\r\n");
 			realfile.close();
 			return 1;
 		}
@@ -223,7 +222,7 @@ do_olc_isave(struct char_data *ch)
 		ifile.close();
 	} else {
 		slog("SYSERR: Failure to open main iscript file: %s", fname);
-		send_to_char("OLC Error:  Failure to open main iscript file.\r\n", ch);
+		send_to_char(ch, "OLC Error:  Failure to open main iscript file.\r\n");
 	}
 	return 0;
 }
@@ -236,7 +235,7 @@ do_olc_ihandler(struct char_data *ch, char *arg)
 	bool found = false;
 
 	if (!(script = GET_OLC_ISCR(ch))) {
-		send_to_char("You are not currently editing an iscript.\r\n", ch);
+		send_to_char(ch, "You are not currently editing an iscript.\r\n");
 		return;
 	}
 
@@ -258,14 +257,12 @@ do_olc_ihandler(struct char_data *ch, char *arg)
 	skip_spaces(&arg);
 
 	if ((ihandler_command = search_block(arg1, olc_ihandler_keys, FALSE)) < 0) {
-		sprintf(buf, "Invalid ihandler command '%s'.\r\n", arg1);
-		send_to_char(buf, ch);
+		send_to_char(ch, "Invalid ihandler command '%s'.\r\n", arg1);
 		return;
 	}
 
 	if (!*arg2) {
-		sprintf(buf, "%s what??\r\n", olc_ihandler_keys[ihandler_command]);
-		send_to_char(buf, ch);
+		send_to_char(ch, "%s what??\r\n", olc_ihandler_keys[ihandler_command]);
 		return;
 	}
 
@@ -277,9 +274,9 @@ do_olc_ihandler(struct char_data *ch, char *arg)
 			if (i < NUM_EVENTS)
 				strcpy(arg2, event_types[i]);
 			else {
-				send_to_char
-					("Please check olc help ihandler to get a valid event"
-					" number\r\n", ch);
+				send_to_char(ch, 
+					"Please check olc help ihandler to get a valid event"
+					" number\r\n");
 				return;
 			}
 		} else {
@@ -313,7 +310,7 @@ do_olc_ihandler(struct char_data *ch, char *arg)
 	switch (ihandler_command) {
 	case 0:					// Create
 		if ((*script).handler_exists(arg2) != NULL) {
-			send_to_char("That event already exists.\r\n", ch);
+			send_to_char(ch, "That event already exists.\r\n");
 			return;
 		}
 		if (h != NULL) {
@@ -323,25 +320,24 @@ do_olc_ihandler(struct char_data *ch, char *arg)
 			start_script_editor(ch->desc, h->getTheLines(), true);
 		} else {
 			slog("ERROR: do_olc_ihandler unable to create handler!");
-			send_to_char
-				("ERROR:  do_olc_ihandler unable to create handler!\r\n", ch);
+			send_to_char(ch, 
+				"ERROR:  do_olc_ihandler unable to create handler!\r\n");
 		}
 		break;
 
 	case 1:					// Delete
 		if ((*script).deleteHandler(arg2))
-			send_to_char("Handler successfully deleted.\r\n", ch);
+			send_to_char(ch, "Handler successfully deleted.\r\n");
 		else
-			send_to_char("ERROR:  Could not delete handler.\r\n", ch);
+			send_to_char(ch, "ERROR:  Could not delete handler.\r\n");
 		break;
 
 	case 2:					// Edit 
 		SET_BIT(PLR_FLAGS(ch), PLR_OLC);
 		CHandler *hr = (*script).handler_exists(arg2);
 		if (hr == NULL) {
-			sprintf(buf, "No handler: %s  exists in script: %s.\r\n", arg2,
+			send_to_char(ch, "No handler: %s  exists in script: %s.\r\n", arg2,
 				(*script).getName().c_str());
-			send_to_char(buf, ch);
 			return;
 		}
 		GET_OLC_HANDLER(ch) = hr;
@@ -357,7 +353,7 @@ do_olc_iset(struct char_data *ch, char *arg)
 	int i, iset_command;
 
 	if (!(script = GET_OLC_ISCR(ch))) {
-		send_to_char("You are not currently editing an iscript.\r\n", ch);
+		send_to_char(ch, "You are not currently editing an iscript.\r\n");
 		return;
 	}
 	if (!*arg) {
@@ -378,21 +374,19 @@ do_olc_iset(struct char_data *ch, char *arg)
 	skip_spaces(&arg);
 
 	if ((iset_command = search_block(arg1, olc_iset_keys, FALSE)) < 0) {
-		sprintf(buf, "Invalid iset command '%s'.\r\n", arg1);
-		send_to_char(buf, ch);
+		send_to_char(ch, "Invalid iset command '%s'.\r\n", arg1);
 		return;
 	}
 
 	if (!*arg2) {
-		sprintf(buf, "Set %s to what??\r\n", olc_iset_keys[iset_command]);
-		send_to_char(buf, ch);
+		send_to_char(ch, "Set %s to what??\r\n", olc_iset_keys[iset_command]);
 		return;
 	}
 
 	switch (iset_command) {
 	case 0:					// Name
 		(*script).setName(arg2);
-		send_to_char("IScript name set.\r\n", ch);
+		send_to_char(ch, "IScript name set.\r\n");
 		break;
 
 	default:
@@ -411,31 +405,30 @@ do_olc_idelete(struct char_data *ch, char *argument)
 
 	if (!argument) {
 		if (!script)
-			send_to_char("You are not currently editing an iscript.\r\n", ch);
+			send_to_char(ch, "You are not currently editing an iscript.\r\n");
 	}
 
 	if (!is_number(argument) && !script) {
-		send_to_char("The argument must be a number.\r\n", ch);
+		send_to_char(ch, "The argument must be a number.\r\n");
 		return;
 	}
 
 	i = atoi(argument);
 	if ((script = real_iscript(i)) == NULL)
-		send_to_char("There is no such iscript.\r\n", ch);
+		send_to_char(ch, "There is no such iscript.\r\n");
 	else
 		for (zone = zone_table; zone; zone = zone->next) {
 			if (i <= zone->top)
 				break;
 		}
 	if (!zone) {
-		send_to_char("That iscript doesn't belong to any zone!!\r\n", ch);
+		send_to_char(ch, "That iscript doesn't belong to any zone!!\r\n");
 		slog("SYSERR:  iscript not in any zone.");
 		return;
 	}
 
 	if (!CAN_EDIT_ZONE(ch, zone)) {
-		send_to_char("You do not have permission to delete that iscript.\r\n",
-			ch);
+		send_to_char(ch, "You do not have permission to delete that iscript.\r\n");
 		return;
 	}
 
@@ -457,8 +450,8 @@ do_olc_idelete(struct char_data *ch, char *argument)
 			si++;
 	}
 
-	send_to_char(found ? "IScript successfully deleted.\r\n" :
-		"Could not find that IScript.  Bug this.\r\n", ch);
+	send_to_char(ch, found ? "IScript successfully deleted.\r\n" :
+		"Could not find that IScript.  Bug this.\r\n");
 	if (!found) {
 		sprintf(buf,
 			"OLC: Error in do_olc_idelete.  prototype exists for script "
@@ -479,42 +472,39 @@ do_olc_iedit(struct char_data *ch, char *argument)
 
 	if (!*argument) {
 		if (!script)
-			send_to_char("You are not currently editing an iscript.\r\n", ch);
+			send_to_char(ch, "You are not currently editing an iscript.\r\n");
 		else {
-			sprintf(buf, "Current olc iscript: [%5d] %s\r\n",
+			send_to_char(ch, "Current olc iscript: [%5d] %s\r\n",
 				(*script).getVnum(), (*script).getName().c_str());
-			send_to_char(buf, ch);
 		}
 		return;
 	}
 	if (!is_number(argument)) {
 		if (is_abbrev(argument, "exit")) {
-			send_to_char("Exiting iscript editor.\r\n", ch);
+			send_to_char(ch, "Exiting iscript editor.\r\n");
 			GET_OLC_ISCR(ch) = NULL;
 			return;
 		}
-		send_to_char("The argument must be a number.\r\n", ch);
+		send_to_char(ch, "The argument must be a number.\r\n");
 		return;
 	} else {
 		i = atoi(argument);
 		if ((script = real_iscript(i)) == NULL)
-			send_to_char("There is no such iscript.\r\n", ch);
+			send_to_char(ch, "There is no such iscript.\r\n");
 		else {
 			for (zone = zone_table; zone; zone = zone->next) {
 				if (i <= zone->top)
 					break;
 			}
 			if (!zone) {
-				send_to_char("That iscript doesn't belong to any zone!!\r\n",
-					ch);
+				send_to_char(ch, "That iscript doesn't belong to any zone!!\r\n");
 				slog("SYSERR:  iscript not in any zone.");
 				return;
 			}
 
 			if (!CAN_EDIT_ZONE(ch, zone)) {
-				send_to_char
-					("You do not have permission to edit that iscript.\r\n",
-					ch);
+				send_to_char(ch, 
+					"You do not have permission to edit that iscript.\r\n");
 				return;
 			}
 
@@ -527,10 +517,9 @@ do_olc_iedit(struct char_data *ch, char *argument)
 			}
 
 			GET_OLC_ISCR(ch) = script;
-			sprintf(buf, "Now editing iscript [%5d] %s%s%s\r\n",
+			send_to_char(ch, "Now editing iscript [%5d] %s%s%s\r\n",
 				(*script).getVnum(), CCGRN(ch, C_NRM),
 				(*script).getName().c_str(), CCNRM(ch, C_NRM));
-			send_to_char(buf, ch);
 		}
 	}
 }
@@ -600,7 +589,7 @@ do_create_iscr(struct char_data *ch, int vnum)
 	struct zone_data *zone = NULL;
 
 	if (real_iscript(vnum)) {
-		send_to_char("ERROR:  ISCRIPT already exists\r\n", ch);
+		send_to_char(ch, "ERROR:  ISCRIPT already exists\r\n");
 		return NULL;
 	}
 
@@ -611,13 +600,13 @@ do_create_iscr(struct char_data *ch, int vnum)
 	}
 
 	if (!zone) {
-		send_to_char
-			("ERROR: A zone must be defined for the ISCRIPT first.\r\n", ch);
+		send_to_char(ch, 
+			"ERROR: A zone must be defined for the ISCRIPT first.\r\n");
 		return NULL;
 	}
 
 	if (!CAN_EDIT_ZONE(ch, zone)) {
-		send_to_char("Try again in your own zone, pissant.\r\n", ch);
+		send_to_char(ch, "Try again in your own zone, pissant.\r\n");
 		sprintf(buf, "OLC: %s failed attempt to CREATE iscript %d.",
 			GET_NAME(ch), vnum);
 		mudlog(buf, BRF, GET_INVIS_LEV(ch), TRUE);
@@ -665,18 +654,18 @@ do_olc_istat(struct char_data *ch, char *arg)
 	skip_spaces(&arg);
 
 	if (!(*arg) && !GET_OLC_ISCR(ch)) {
-		send_to_char("Which iscript?\r\n", ch);
+		send_to_char(ch, "Which iscript?\r\n");
 		return;
 	}
 
 	if (!is_number(arg)) {
-		send_to_char("The argument must be a number.\r\n", ch);
+		send_to_char(ch, "The argument must be a number.\r\n");
 		return;
 	}
 
 	if (!(svnum = atoi(arg))) {
 		if (!(svnum = GET_OLC_ISCR(ch)->getVnum())) {
-			send_to_char("Usage:  olc istat [vnum]\r\n", ch);
+			send_to_char(ch, "Usage:  olc istat [vnum]\r\n");
 		}
 	}
 
@@ -684,12 +673,12 @@ do_olc_istat(struct char_data *ch, char *arg)
 		si != scriptList.end() && (svnum != (*si)->getVnum()); si++);
 
 	if (si == scriptList.end()) {
-		send_to_char("There is no such iscript.\r\n", ch);
+		send_to_char(ch, "There is no such iscript.\r\n");
 		return;
 	}
 
 	bzero(buf1, 1024);
-	sprintf(buf, "\r\n"
+	send_to_char(ch, "\r\n"
 		"%sStatus for IScript: [%s%5d%s]\r\n"
 		"              Name: [%s%s%s]\r\n"
 		"---------------------------------------------------%s\r\n\r\n",
@@ -699,10 +688,8 @@ do_olc_istat(struct char_data *ch, char *arg)
 		CCGRN(ch, C_NRM),
 		CCCYN(ch, C_NRM),
 		(*si)->getName().c_str(), CCGRN(ch, C_NRM), CCNRM(ch, C_NRM));
-	send_to_char(buf, ch);
 
-	sprintf(buf, "  %sEvents:\r\n%s", CCYEL(ch, C_NRM), CCNRM(ch, C_NRM));
-	send_to_char(buf, ch);
+	send_to_char(ch, "  %sEvents:\r\n%s", CCYEL(ch, C_NRM), CCNRM(ch, C_NRM));
 	for (hi = (*si)->theScript.begin(); hi != (*si)->theScript.end(); hi++) {
 		counter++;
 		sprintf(buf, "    %s%s%s\r\n",
@@ -710,9 +697,8 @@ do_olc_istat(struct char_data *ch, char *arg)
 		strcat(buf1, buf);
 	}
 	if (counter == -1)
-		send_to_char
-			("    There are no event handlers defined for this iscript.\r\n",
-			ch);
+		send_to_char(ch, 
+			"    There are no event handlers defined for this iscript.\r\n");
 	else
 		page_string(ch->desc, buf1, 1);
 }

@@ -107,14 +107,13 @@ implanter_implant(char_data *me, char_data *ch, char *args)
 
 
 	if (!CAN_WEAR(implant, wear_bitvectors[pos])) {
-		sprintf(buf, "%s cannot be implanted there.",
+		send_to_char(ch, "%s cannot be implanted there.",
 			implant->short_description);
 		perform_tell(me, ch, buf);
-		send_to_char("It can be implanted: ", ch);
+		send_to_char(ch, "It can be implanted: ");
 		sprintbit(implant->obj_flags.wear_flags & ~ITEM_WEAR_TAKE,
 			wear_bits, buf);
 		strcat(buf, "\r\n");
-		send_to_char(buf, ch);
 		return;
 	}
 

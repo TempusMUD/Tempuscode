@@ -15,7 +15,7 @@ SPECIAL(stepping_stone)
       if (GET_HOME(ch) != HOME_ARENA) {
         act("$p flares up suddenly with a bright light!", 
 	    FALSE, ch, ruby, 0, TO_ROOM);
-        send_to_char("You feel a strange sensation...\r\n", ch);
+        send_to_char(ch, "You feel a strange sensation...\r\n");
         sprintf(buf, "A voice BOOMS out, 'Welcome to the Arena, %s!'\r\n",
 		GET_NAME(ch));
         send_to_zone(buf, ch->in_room->zone, 0);
@@ -42,7 +42,7 @@ SPECIAL(portal_out)
   if (!CMD_IS("enter"))
     return 0;
   if (!*argument)  {
-    send_to_char("Enter what?  Enter the portal to leave the arena.\r\n", ch);
+    send_to_char(ch, "Enter what?  Enter the portal to leave the arena.\r\n");
     return 1;
   }
   if (isname(argument, portal->name)) {

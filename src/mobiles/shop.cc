@@ -571,9 +571,8 @@ shopping_buy(char *arg, struct char_data *ch,
 		}
 	}
 	if ((IS_CARRYING_N(ch) + 1 > CAN_CARRY_N(ch))) {
-		sprintf(buf, "%s: You can't carry any more items.\r\n",
+		send_to_char(ch, "%s: You can't carry any more items.\r\n",
 			fname(obj->name));
-		send_to_char(buf, ch);
 		return;
 	}
 	if ((IS_CARRYING_W(ch) + obj->getWeight()) > CAN_CARRY_W(ch)) {
@@ -584,9 +583,8 @@ shopping_buy(char *arg, struct char_data *ch,
 			sprintf(buf, "%s: You can't carry any more weight.\r\n",
 				fname(obj->name));
 		else
-			sprintf(buf, "%s: You can carry no more weight.\r\n",
+			send_to_char(ch, "%s: You can carry no more weight.\r\n",
 				fname(obj->name));
-		send_to_char(buf, ch);
 		return;
 	}
 	while ((obj) && ((GET_MONEY(ch, shop) >= buy_price(obj, shop)) ||
@@ -643,8 +641,7 @@ shopping_buy(char *arg, struct char_data *ch,
 
 	sprintf(buf, shop->message_buy, goldamt);
 	perform_tell(keeper, ch, buf);
-	sprintf(buf, "You now have %s.\r\n", tempstr);
-	send_to_char(buf, ch);
+	send_to_char(ch, "You now have %s.\r\n", tempstr);
 
 	if (SHOP_USES_BANK(shop))
 		if (GET_MONEY(keeper, shop) > MAX_OUTSIDE_BANK) {
@@ -1644,7 +1641,7 @@ handle_detailed_list(char *buf, char *buf1, struct char_data *ch)
 		strcat(buf, buf1);
 	else {
 		strcat(buf, "\r\n");
-		send_to_char(buf, ch);
+		send_to_char(ch, "%s", buf);
 		sprintf(buf, "            %s", buf1);
 	}
 }
@@ -1658,9 +1655,8 @@ list_detailed_shop(struct char_data *ch, struct shop_data *shop)
 	struct room_data *temp;
 	int index;
 
-	sprintf(buf, "Vnum:       [%s%5d%s]\r\n", CCGRN(ch, C_NRM),
+	send_to_char(ch, "Vnum:       [%s%5d%s]\r\n", CCGRN(ch, C_NRM),
 		SHOP_NUM(shop), CCNRM(ch, C_NRM));
-	send_to_char(buf, ch);
 
 	strcpy(buf, "Rooms:      ");
 	for (index = 0; SHOP_ROOM(shop, index) != NOWHERE; index++) {
@@ -1674,10 +1670,10 @@ list_detailed_shop(struct char_data *ch, struct shop_data *shop)
 		handle_detailed_list(buf, buf1, ch);
 	}
 	if (!index)
-		send_to_char("Rooms:      None!\r\n", ch);
+		send_to_char(ch, "Rooms:      None!\r\n");
 	else {
 		strcat(buf, "\r\n");
-		send_to_char(buf, ch);
+		send_to_char(ch, "%s", buf);
 	}
 
 	strcpy(buf, "Shopkeeper: ");
@@ -1685,9 +1681,9 @@ list_detailed_shop(struct char_data *ch, struct shop_data *shop)
 		sprintf(END_OF(buf), "%s%s%s (#%d), Special Function: %s\r\n",
 			CCYEL(ch, C_NRM), GET_NAME(keeper), CCNRM(ch, C_NRM),
 			SHOP_KEEPER(shop), YESNO(SHOP_FUNC(shop)));
-		send_to_char(buf, ch);
+		send_to_char(ch, "%s", buf);
 		if (shop->currency == 1) {
-			sprintf(buf, "Credits     [%9d]\r\n", GET_CASH(keeper));
+			send_to_char(ch, "Credits     [%9d]\r\n", GET_CASH(keeper));
 		} else {
 			sprintf(buf,
 				"Coins:      [%9d], Credits: [%9d], Bank: [%9d] (Total: %d)\r\n",
@@ -1697,12 +1693,10 @@ list_detailed_shop(struct char_data *ch, struct shop_data *shop)
 		}
 	} else
 		strcat(buf, "<NONE>\r\n");
-	send_to_char(buf, ch);
 
 	strcpy(buf1, customer_string(shop, TRUE));
-	sprintf(buf, "Customers:  %s%s%s\r\n",
+	send_to_char(ch, "Customers:  %s%s%s\r\n",
 		CCMAG(ch, C_NRM), (*buf1) ? buf1 : "None", CCNRM(ch, C_NRM));
-	send_to_char(buf, ch);
 
 	strcpy(buf, "Produces:   ");
 	for (index = 0;
@@ -1715,10 +1709,10 @@ list_detailed_shop(struct char_data *ch, struct shop_data *shop)
 		handle_detailed_list(buf, buf1, ch);
 	}
 	if (!index)
-		send_to_char("Produces:   Nothing!\r\n", ch);
+		send_to_char(ch, "Produces:   Nothing!\r\n");
 	else {
 		strcat(buf, "\r\n");
-		send_to_char(buf, ch);
+		send_to_char(ch, "%s", buf);
 	}
 
 	strcpy(buf, "Buys:       ");
@@ -1734,10 +1728,10 @@ list_detailed_shop(struct char_data *ch, struct shop_data *shop)
 		handle_detailed_list(buf, buf1, ch);
 	}
 	if (!index)
-		send_to_char("Buys:       Nothing!\r\n", ch);
+		send_to_char(ch, "Buys:       Nothing!\r\n");
 	else {
 		strcat(buf, "\r\n");
-		send_to_char(buf, ch);
+		send_to_char(ch, "%s", buf);
 	}
 
 	sprintf(buf,
@@ -1748,7 +1742,7 @@ list_detailed_shop(struct char_data *ch, struct shop_data *shop)
 		SHOP_CURRENCY(shop) == CURRENCY_CREDITS ? "CREDITS" : "GOLD", CCNRM(ch,
 			C_NRM));
 
-	send_to_char(buf, ch);
+	send_to_char(ch, "%s", buf);
 
 	sprintbit((long)SHOP_BITVECTOR(shop), shop_bits, buf1);
 	sprintf(buf,
@@ -1756,7 +1750,7 @@ list_detailed_shop(struct char_data *ch, struct shop_data *shop)
 		"Temper:     %d\r\n"
 		"Revenue:    %d\r\n",
 		buf1, SHOP_BROKE_TEMPER(shop), SHOP_REVENUE(shop));
-	send_to_char(buf, ch);
+	send_to_char(ch, "%s", buf);
 
 	sprintf(buf,
 		"Messages:\r\n"
@@ -1773,7 +1767,7 @@ list_detailed_shop(struct char_data *ch, struct shop_data *shop)
 		QRED, QNRM, shop->missing_cash1,
 		QRED, QNRM, shop->missing_cash2,
 		QRED, QNRM, shop->message_buy, QRED, QNRM, shop->message_sell);
-	send_to_char(buf, ch);
+	send_to_char(ch, "%s", buf);
 }
 
 
@@ -1801,7 +1795,7 @@ show_shops(struct char_data *ch, char *arg)
 				}
 
 			if (found != 1)
-				send_to_char("This is not a shop!\r\n", ch);
+				send_to_char(ch, "This is not a shop!\r\n");
 			return;
 		} else if (is_abbrev(part1, "zone")) {
 			if (*part2 && is_number(part2)) {
@@ -1813,17 +1807,16 @@ show_shops(struct char_data *ch, char *arg)
 						break;
 					}
 				if (found == 0)
-					send_to_char("That zone doesn't exist, luser.\r\n", ch);
+					send_to_char(ch, "That zone doesn't exist, luser.\r\n");
 				else
 					return;
 			} else
-				send_to_char
-					("Usage: show shop [.|zone|vnum] [zone number].\r\n", ch);
+				send_to_char(ch, 
+					"Usage: show shop [.|zone|vnum] [zone number].\r\n");
 		} else if (is_number(part1))
 			shop_nr = atoi(part1);
 		else {
-			send_to_char("Usage: show shop [.|zone|vnum] [zone number].\r\n",
-				ch);
+			send_to_char(ch, "Usage: show shop [.|zone|vnum] [zone number].\r\n");
 			return;
 		}
 
@@ -1836,6 +1829,6 @@ show_shops(struct char_data *ch, char *arg)
 		}
 
 		if (found != 1)
-			send_to_char("No such shop!\r\n", ch);
+			send_to_char(ch, "No such shop!\r\n");
 	}
 }

@@ -103,7 +103,7 @@ ACMD(do_mudinfo)
 	skip_spaces(&argument);
 
 	if (!*arg)
-		send_to_char("Which mud do you want information on?\r\n", ch);
+		send_to_char(ch, "Which mud do you want information on?\r\n");
 	else {
 		sprintf(message, "2050|%s|%s|", arg, GET_NAME(ch));
 
@@ -136,18 +136,18 @@ ACMD(do_interpage)
 	skip_spaces(&argument);
 
 	if (!*arg)
-		send_to_char("Who do you want to interpage?\r\n", ch);
+		send_to_char(ch, "Who do you want to interpage?\r\n");
 	else {
 		to = strtok(arg, "@");
 		mud = strtok(NULL, " ");
 		if (to == NULL || mud == NULL) {
-			send_to_char("Must be in User@Mud format.\r\n", ch);
+			send_to_char(ch, "Must be in User@Mud format.\r\n");
 			return;
 		}
 
 		sprintf(message, "\007\007*%s@%s* %s\r\n", to, mud, argument);
 
-		send_to_char(message, ch);
+		send_to_char(ch, message);
 
 		sprintf(message, "2040|%s|%s|%s|%s|%s|", to, mud, GET_NAME(ch),
 			MUDNAME, (argument ? argument : "NONE"));
@@ -164,14 +164,13 @@ ACMD(do_interwho)
 	skip_spaces(&argument);
 
 	if (!*argument)
-		send_to_char("Which mud did you wish to get a who listing from?\r\n",
-			ch);
+		send_to_char(ch, "Which mud did you wish to get a who listing from?\r\n");
 	else {
 		sprintf(message, "2020|%s|%s|%s|", argument, GET_NAME(ch), MUDNAME);
 
 		strcat(message, "\0");
 
-		send_to_char("Request sent, but it might take a minute.\r\n", ch);
+		send_to_char(ch, "Request sent, but it might take a minute.\r\n");
 
 		mud_send_data(intermud_desc, message);
 	}
@@ -185,14 +184,14 @@ ACMD(do_intertel)
 	argument = one_argument(argument, arg);
 
 	if (!*arg)
-		send_to_char("Who do you want to intertell to?\r\n", ch);
+		send_to_char(ch, "Who do you want to intertell to?\r\n");
 	else if (!*argument)
-		send_to_char("And what do you want to tell them?\r\n", ch);
+		send_to_char(ch, "And what do you want to tell them?\r\n");
 	else {
 		to = strtok(arg, "@");
 		mud = strtok(NULL, " ");
 		if (to == NULL || mud == NULL) {
-			send_to_char("Must be in User@Mud format.\r\n", ch);
+			send_to_char(ch, "Must be in User@Mud format.\r\n");
 			return;
 		}
 
@@ -206,9 +205,9 @@ ACMD(do_intertel)
 		mud_send_data(intermud_desc, message);
 
 		sprintf(message, "You tell %s@%s, '%s'\r\n", to, mud, argument);
-		send_to_char(CCRED(ch, C_NRM), ch);
-		send_to_char(message, ch);
-		send_to_char(CCNRM(ch, C_NRM), ch);
+		send_to_char(ch, CCRED(ch, C_NRM));
+		send_to_char(ch, message);
+		send_to_char(ch, CCNRM(ch, C_NRM));
 	}
 }
 
@@ -220,16 +219,15 @@ ACMD(do_interwiz)
 	skip_spaces(&argument);
 
 	if (PRF_FLAGGED(ch, PRF_NOINTWIZ)) {
-		send_to_char("You are currently deaf to interwiz channel!\r\n", ch);
+		send_to_char(ch, "You are currently deaf to interwiz channel!\r\n");
 		return;
 	}
 
 	if (!*argument)
-		send_to_char("What do you want to say to the network?\r\n", ch);
+		send_to_char(ch, "What do you want to say to the network?\r\n");
 	else if (connected_to_intermud == 0)
-		send_to_char
-			("Currently not connected to intermud server, try again later.\r\b",
-			ch);
+		send_to_char(ch, 
+			"Currently not connected to intermud server, try again later.\r\b");
 	else {
 
 		sprintf(message, "3000|%s|%s|%s|", GET_NAME(ch), MUDNAME, argument);
@@ -252,9 +250,9 @@ ACMD(do_interwiz)
 				&& (!PLR_FLAGGED(d->character,
 						PLR_WRITING | PLR_MAILING | PLR_OLC))
 				&& (GET_LEVEL(d->character) >= LVL_AMBASSADOR)) {
-				send_to_char(CCMAG(d->character, C_NRM), d->character);
-				send_to_char(message, d->character);
-				send_to_char(CCNRM(d->character, C_NRM), d->character);
+				send_to_char(d->character, CCMAG(d->character, C_NRM));
+				send_to_char(d->character, message);
+				send_to_char(d->character, CCNRM(d->character, C_NRM));
 			}
 		}
 	}
@@ -269,7 +267,7 @@ ACMD(do_intermud)
 	argument = one_argument(argument, arg);
 
 	if (!*arg) {
-		sprintf(buf, "intermud usage :-\r\n\r\n"
+		send_to_char(ch, "intermud usage :-\r\n\r\n"
 			"    connect    : Will reconnect the mud to the intermud server\r\n"
 			"    disconnect : Will drop the link to the intermud server\r\n"
 			"    purge      : Will force the intermud server to purge it's DNS table\r\n"
@@ -277,11 +275,10 @@ ACMD(do_intermud)
 			"    stats      : Will return some statistics from the intermud server\r\n"
 			"    debug      : Will toggle intermud debug messages on and off\r\n"
 			"    mute <mud> : Will prevent incoming packets from a mud\r\n\r\n");
-		send_to_char(buf, ch);
 	} else {
 		if (str_cmp(arg, "connect") == 0) {
 			if (connected_to_intermud == 1)
-				send_to_char("Already connected to intermud server.\r\n", ch);
+				send_to_char(ch, "Already connected to intermud server.\r\n");
 			else {
 				bzero((char *)&serv_addr, sizeof(serv_addr));
 				serv_addr.sun_family = AF_UNIX;
@@ -308,8 +305,7 @@ ACMD(do_intermud)
 			return;
 		} else if (str_cmp(arg, "disconnect") == 0) {
 			if (connected_to_intermud == 0)
-				send_to_char("Already disconnected from intermud server.\r\n",
-					ch);
+				send_to_char(ch, "Already disconnected from intermud server.\r\n");
 			else {
 				sprintf(buf, "WARNING: %s forced intermud server disconnect.",
 					GET_NAME(ch));
@@ -320,7 +316,7 @@ ACMD(do_intermud)
 			}
 		} else if (str_cmp(arg, "purge") == 0) {
 			if (connected_to_intermud == 0)
-				send_to_char("Not connected to intermud server.\r\n", ch);
+				send_to_char(ch, "Not connected to intermud server.\r\n");
 			else {
 				sprintf(buf, "4000|%s|", GET_NAME(ch));
 				mud_send_data(intermud_desc, buf);
@@ -331,7 +327,7 @@ ACMD(do_intermud)
 			return;
 		} else if (str_cmp(arg, "reget") == 0) {
 			if (connected_to_intermud == 0)
-				send_to_char("Not connected to intermud server.\r\n", ch);
+				send_to_char(ch, "Not connected to intermud server.\r\n");
 			else {
 				sprintf(buf, "4020|%s|", GET_NAME(ch));
 				mud_send_data(intermud_desc, buf);
@@ -343,7 +339,7 @@ ACMD(do_intermud)
 			return;
 		} else if (str_cmp(arg, "stats") == 0) {
 			if (connected_to_intermud == 0)
-				send_to_char("Not connected to intermud server.\r\n", ch);
+				send_to_char(ch, "Not connected to intermud server.\r\n");
 			else {
 				sprintf(buf, "4040|%s|", GET_NAME(ch));
 				mud_send_data(intermud_desc, buf);
@@ -352,12 +348,11 @@ ACMD(do_intermud)
 			return;
 		} else if (str_cmp(arg, "mute") == 0) {
 			if (connected_to_intermud == 0)
-				send_to_char("Not connected to intermud server.\r\n", ch);
+				send_to_char(ch, "Not connected to intermud server.\r\n");
 			else {
 				if (!*argument)
-					send_to_char
-						("You must specifiy a mud name to mute/unmute\r\n",
-						ch);
+					send_to_char(ch, 
+						"You must specifiy a mud name to mute/unmute\r\n");
 				else {
 					skip_spaces(&argument);
 					sprintf(buf, "4060|%s|", argument);
@@ -370,7 +365,7 @@ ACMD(do_intermud)
 			return;
 		} else if (str_cmp(arg, "debug") == 0) {
 			if (connected_to_intermud == 0)
-				send_to_char("Not connected to intermud server.\r\n", ch);
+				send_to_char(ch, "Not connected to intermud server.\r\n");
 			else {
 				sprintf(buf, "4070|%s|", GET_NAME(ch));
 				mud_send_data(intermud_desc, buf);
@@ -466,14 +461,14 @@ serv_recv_mudlistrpy(char *serv_message)
 		"---------------------------------------------------------\r\n\r\n");
 	for (d = descriptor_list; d; d = d->next)
 		if (IS_PLAYING(d) && (str_cmp(To, GET_NAME(d->character)) == 0)) {
-			send_to_char(message2, d->character);
+			send_to_char(d->character, message2);
 			while (Remote_Mud != NULL) {
 				Mud_Port = strtok(NULL, "|");
 				IP_Address = strtok(NULL, "|");
 				Muted = strtok(NULL, "|");
 				sprintf(message2, "%-30s  %-15s  %-4s %s\r\n", Remote_Mud,
 					IP_Address, Mud_Port, Muted);
-				send_to_char(message2, d->character);
+				send_to_char(d->character, message2);
 				Remote_Mud = strtok(NULL, "|");
 			}
 			break;
@@ -506,9 +501,9 @@ serv_recv_intertell(char *serv_message)
 					&& !PRF2_FLAGGED(d->character, PRF2_LIGHT_READ)))
 				player_found = 1;
 			else {
-				send_to_char(CCRED(d->character, C_NRM), d->character);
-				send_to_char(message2, d->character);
-				send_to_char(CCNRM(d->character, C_NRM), d->character);
+				send_to_char(d->character, CCRED(d->character, C_NRM));
+				send_to_char(d->character, message2);
+				send_to_char(d->character, CCNRM(d->character, C_NRM));
 				player_found = 2;
 			}
 			break;
@@ -555,9 +550,9 @@ serv_recv_intertellrpy(char *serv_message)
 					&& !PRF2_FLAGGED(d->character, PRF2_LIGHT_READ)))
 				player_found = 1;
 			else {
-				send_to_char(CCRED(d->character, C_NRM), d->character);
-				send_to_char(message2, d->character);
-				send_to_char(CCNRM(d->character, C_NRM), d->character);
+				send_to_char(d->character, CCRED(d->character, C_NRM));
+				send_to_char(d->character, message2);
+				send_to_char(d->character, CCNRM(d->character, C_NRM));
 				player_found = 2;
 			}
 			break;
@@ -632,12 +627,12 @@ serv_recv_interwhorpy(char *serv_message)
 
 			sprintf(message2, "Players on-line at %s\r\n"
 				"----------------------------------\r\n\r\n", Remote_Mud);
-			send_to_char(message2, d->character);
+			send_to_char(d->character, message2);
 
 			do {
 				player = strtok(NULL, "|");
-				send_to_char(player, d->character);
-				send_to_char("\r\n", d->character);
+				send_to_char(d->character, player);
+				send_to_char(d->character, "\r\n");
 			}
 			while (player != NULL);
 		}
@@ -675,7 +670,7 @@ serv_recv_interpage(char *serv_message)
 			if (PLR_FLAGGED(d->character, PLR_WRITING | PLR_MAILING | PLR_OLC))
 				player_found = 1;
 			else {
-				send_to_char(message2, d->character);
+				send_to_char(d->character, message2);
 				player_found = 2;
 			}
 			break;
@@ -745,7 +740,7 @@ serv_recv_mudinfo(char *serv_message)
 				"Subscribed Boards: Not Implemented\r\n\r\n",
 				Remote_Mud, Intermud_Version, Mud, Mud_Version, Services_Buf);
 
-			send_to_char(message2, d->character);
+			send_to_char(d->character, message2);
 			break;
 		}
 }
@@ -766,7 +761,7 @@ serv_recv_stats(char *serv_message)
 
 	for (d = descriptor_list; d; d = d->next)
 		if (IS_PLAYING(d) && (str_cmp(To, GET_NAME(d->character)) == 0)) {
-			send_to_char(message2, d->character);
+			send_to_char(d->character, message2);
 			while (Remote_Mud != NULL) {
 				KB_in = strtok(NULL, "|");
 				KB_out = strtok(NULL, "|");
@@ -777,7 +772,7 @@ serv_recv_stats(char *serv_message)
 				sprintf(message2,
 					"%-20s%-5s      %-5s         %-5s    %-5s    %s      %s\r\n",
 					Remote_Mud, KB_in, KB_out, MSG_in, MSG_out, TTL, Muted);
-				send_to_char(message2, d->character);
+				send_to_char(d->character, message2);
 				Remote_Mud = strtok(NULL, "|");
 			}
 			break;
@@ -808,9 +803,9 @@ serv_recv_interwiz(char *serv_message)
 		if (IS_PLAYING(d) && (!PRF_FLAGGED(d->character, PRF_NOINTWIZ)) &&
 			(!PLR_FLAGGED(d->character, PLR_WRITING | PLR_MAILING | PLR_OLC))
 			&& (GET_LEVEL(d->character) >= LVL_AMBASSADOR)) {
-			send_to_char(CCMAG(d->character, C_NRM), d->character);
-			send_to_char(message2, d->character);
-			send_to_char(CCNRM(d->character, C_NRM), d->character);
+			send_to_char(d->character, CCMAG(d->character, C_NRM));
+			send_to_char(d->character, message2);
+			send_to_char(d->character, CCNRM(d->character, C_NRM));
 		}
 }
 

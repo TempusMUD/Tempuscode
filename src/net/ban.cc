@@ -140,7 +140,7 @@ ACMD(do_ban)
 
 	if (!*argument || GET_LEVEL(ch) < LVL_CAN_BAN) {
 		if (!ban_list) {
-			send_to_char("No sites are banned.\r\n", ch);
+			send_to_char(ch, "No sites are banned.\r\n");
 			return;
 		}
 		strcpy(format, "%-25.25s  %-8.8s  %-10.10s  %-16.16s\r\n");
@@ -170,26 +170,24 @@ ACMD(do_ban)
 	}
 	two_arguments(argument, flag, site);
 	if (!*site || !*flag) {
-		send_to_char("Usage: ban {all | select | new} site_name\r\n", ch);
+		send_to_char(ch, "Usage: ban {all | select | new} site_name\r\n");
 		return;
 	}
 	if (!(!str_cmp(flag, "select") || !str_cmp(flag, "all")
 			|| !str_cmp(flag, "new"))) {
-		send_to_char("Flag must be ALL, SELECT, or NEW.\r\n", ch);
+		send_to_char(ch, "Flag must be ALL, SELECT, or NEW.\r\n");
 		return;
 	}
 	for (ban_node = ban_list; ban_node; ban_node = ban_node->next) {
 		if (!str_cmp(ban_node->site, site)) {
-			send_to_char
-				("That site has already been banned -- unban it to change the ban type.\r\n",
-				ch);
+			send_to_char(ch, 
+				"That site has already been banned -- unban it to change the ban type.\r\n");
 			return;
 		}
 	}
 
 	if (isbanned(site, buf)) {
-		sprintf(buf2, "That site is already blocked as '%s'.\r\n", buf);
-		send_to_char(buf2, ch);
+		send_to_char(ch, "That site is already blocked as '%s'.\r\n", buf);
 		return;
 	}
 
@@ -212,7 +210,7 @@ ACMD(do_ban)
 	sprintf(buf, "%s has banned %s for %s players.", GET_NAME(ch), site,
 		ban_types[ban_node->type]);
 	mudlog(buf, NRM, MAX(LVL_GOD, GET_INVIS_LEV(ch)), TRUE);
-	send_to_char("Site banned.\r\n", ch);
+	send_to_char(ch, "Site banned.\r\n");
 	write_ban_list();
 }
 
@@ -225,7 +223,7 @@ ACMD(do_unban)
 
 	one_argument(argument, site);
 	if (!*site) {
-		send_to_char("A site to unban might help.\r\n", ch);
+		send_to_char(ch, "A site to unban might help.\r\n");
 		return;
 	}
 	ban_node = ban_list;
@@ -237,11 +235,11 @@ ACMD(do_unban)
 	}
 
 	if (!found) {
-		send_to_char("That site is not currently banned.\r\n", ch);
+		send_to_char(ch, "That site is not currently banned.\r\n");
 		return;
 	}
 	REMOVE_FROM_LIST(ban_node, ban_list, next);
-	send_to_char("Site unbanned.\r\n", ch);
+	send_to_char(ch, "Site unbanned.\r\n");
 	sprintf(buf, "%s removed the %s-player ban on %s.",
 		GET_NAME(ch), ban_types[ban_node->type], ban_node->site);
 	mudlog(buf, NRM, MAX(LVL_GOD, GET_INVIS_LEV(ch)), TRUE);

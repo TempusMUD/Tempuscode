@@ -15,11 +15,11 @@ SPECIAL(falling_tower_dt)
   if (ch->getPosition() == POS_FLYING)
     return 0;
   if (CMD_IS("down")) {
-    send_to_char("As you begin to descend the ladder, a rung breaks, sending you\r\n"
-                 "plummeting downwards to the street!\r\n", ch);
+    send_to_char(ch, "As you begin to descend the ladder, a rung breaks, sending you\r\n"
+                 "plummeting downwards to the street!\r\n");
     char_from_room(ch);
     char_to_room(ch, under_room);
-    send_to_char("You hit the ground hard!!\r\n", ch);
+    send_to_char(ch, "You hit the ground hard!!\r\n");
     act("$n falls out of the tower above, and slams into the street hard!", FALSE, ch, 0, 0, TO_ROOM);
     look_at_room(ch, ch->in_room, 0);
     GET_HIT(ch) = MAX(-8, GET_HIT(ch) - 

@@ -55,9 +55,8 @@ SPECIAL(electronics_school)
     MIN(LEARNED(ch), GET_SKILL(ch, SKILL_ELECTRONICS) + (30 + GET_INT(ch)));
   
   act("$n begins to study electronics.", TRUE, ch, 0, 0, TO_ROOM);
-  sprintf(buf, "You pay %s %d coins and begin to study electronics.\r\n",
+  send_to_char(ch, "You pay %s %d coins and begin to study electronics.\r\n",
 	  PERS(teacher, ch), gold_cost);
-  send_to_char(buf, ch);
 
   WAIT_STATE(ch, PULSE_VIOLENCE * 2);
 

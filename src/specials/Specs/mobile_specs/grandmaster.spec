@@ -15,23 +15,23 @@ SPECIAL(grandmaster)
     switch (number(0, 25)) {
     case 0:
       act("$n performs a spinning jump kick.", TRUE, ch, 0, 0, TO_ROOM);
-      send_to_char("You jump kick.\r\n", ch);
+      send_to_char(ch, "You jump kick.\r\n");
       break;
     case 1:
       act("$n bows to you.", TRUE, ch, 0, 0, TO_ROOM);
-      send_to_char("You bow.\r\n", ch);
+      send_to_char(ch, "You bow.\r\n");
       break;
     case 2:
       act("$n shatters a thick board with $s fist.", FALSE, ch, 0, 0, TO_ROOM);
-      send_to_char("You break  a board.\r\n", ch);
+      send_to_char(ch, "You break  a board.\r\n");
       break;
     case 3:
       act("$n performs a back flip and kicks a punching bag.", FALSE, ch, 0, 0, TO_ROOM);
-      send_to_char("Back flip, punch.\r\n", ch);
+      send_to_char(ch, "Back flip, punch.\r\n");
       break;
     case 4:
       act("$n dusts off an old trophy.", TRUE, ch, 0, 0, TO_ROOM);
-      send_to_char("You dust trophy.\r\n", ch);    
+      send_to_char(ch, "You dust trophy.\r\n");    
       break;
     default:
       return 0;

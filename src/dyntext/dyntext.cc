@@ -323,10 +323,9 @@ show_dynedit_options(CHAR * ch)
 	strcpy(buf, "Dynedit usage:\r\n");
 
 	for (i = 0; dynedit_options[i][0] != NULL; i++)
-		sprintf(buf, "%s%10s   %s\r\n", buf, dynedit_options[i][0],
+		send_to_char(ch, "%s%10s   %s\r\n", buf, dynedit_options[i][0],
 			dynedit_options[i][1]);
 
-	send_to_char(buf, ch);
 }
 
 void
@@ -339,7 +338,7 @@ set_dyntext(CHAR * ch, dynamic_text_file * dyntext, char *argument)
 	argument = two_arguments(argument, arg1, arg2);
 
 	if (!*arg1 || !*arg2) {
-		send_to_char("Dynedit set reuires more arguments.\r\n", ch);
+		send_to_char(ch, "Dynedit set reuires more arguments.\r\n");
 		show_dynedit_options(ch);
 		return;
 	}
@@ -349,23 +348,22 @@ set_dyntext(CHAR * ch, dynamic_text_file * dyntext, char *argument)
 		lev = atoi(arg2);
 
 		if (lev > GET_LEVEL(ch)) {
-			send_to_char
-				("Let's not set it above your own level, shall we?\r\n", ch);
+			send_to_char(ch, 
+				"Let's not set it above your own level, shall we?\r\n");
 			return;
 		}
 
 		dyntext->level = lev;
-		send_to_char("Level set.\r\n", ch);
+		send_to_char(ch, "Level set.\r\n");
 	} else {
-		send_to_char("Dynedit set valid arguments: level.\r\n", ch);
+		send_to_char(ch, "Dynedit set valid arguments: level.\r\n");
 		return;
 	}
 
 	if (save_dyntext_control(dyntext))
-		send_to_char("An error occured while saving the control file.\r\n",
-			ch);
+		send_to_char(ch, "An error occured while saving the control file.\r\n");
 	else
-		send_to_char("Control file saved.\r\n", ch);
+		send_to_char(ch, "Control file saved.\r\n");
 }
 
 void
@@ -376,7 +374,7 @@ show_dyntext(CHAR * ch, dynamic_text_file * dyntext, char *argument)
 	if (dyntext) {
 
 		if (!*argument) {
-			sprintf(buf,
+			send_to_char(ch,
 				"DYNTEXT: filename: '%s'\r\n"
 				"             last: %s (%ld) @ %s\r"
 				"            level: %d\r\n"
@@ -394,50 +392,46 @@ show_dyntext(CHAR * ch, dynamic_text_file * dyntext, char *argument)
 				dyntext->buffer ? strlen(dyntext->buffer) : 0,
 				YESNO(dyntext->tmp_buffer),
 				dyntext->tmp_buffer ? strlen(dyntext->tmp_buffer) : 0);
-			send_to_char(buf, ch);
 			return;
 		}
 		// there was an argument, parse it
 		if (is_abbrev(argument, "old")) {
 			if (!dyntext->buffer) {
-				send_to_char("There is no old text buffer.\r\n", ch);
+				send_to_char(ch, "There is no old text buffer.\r\n");
 			} else {
 				page_string(ch->desc, dyntext->buffer, 1);
 			}
 		} else if (is_abbrev(argument, "new")) {
 			if (!dyntext->tmp_buffer) {
-				send_to_char("There is no new text buffer.\r\n", ch);
+				send_to_char(ch, "There is no new text buffer.\r\n");
 			} else {
 				page_string(ch->desc, dyntext->tmp_buffer, 1);
 			}
 		} else if (is_abbrev(argument, "perms")) {
-			send_to_char("Permissions defined:\r\n", ch);
+			send_to_char(ch, "Permissions defined:\r\n");
 			for (i = 0; i < DYN_TEXT_PERM_SIZE; i++) {
-				sprintf(buf, "%3d.] (%5ld) %s\r\n",
+				send_to_char(ch, "%3d.] (%5ld) %s\r\n",
 					i, dyntext->perms[i], get_name_by_id(dyntext->perms[i]));
-				send_to_char(buf, ch);
 			}
 		} else if (is_abbrev(argument, "last")) {
-			send_to_char("Last edits:\r\n", ch);
+			send_to_char(ch, "Last edits:\r\n");
 			for (i = 0; i < DYN_TEXT_HIST_SIZE; i++) {
-				sprintf(buf, "%3d.] (%5ld) %30s @ %s\r",
+				send_to_char(ch, "%3d.] (%5ld) %30s @ %s\r",
 					i, dyntext->last_edit[i].idnum,
 					get_name_by_id(dyntext->last_edit[i].idnum),
 					ctime(&(dyntext->last_edit[i].tEdit)));
-				send_to_char(buf, ch);
 			}
 
 		} else {
-			send_to_char("Unknown argument for show.\r\n", ch);
+			send_to_char(ch, "Unknown argument for show.\r\n");
 			show_dynedit_options(ch);
 		}
 		return;
 	}
 	strcpy(buf, "DYNTEXT LIST:\r\n");
 	for (dyntext = dyntext_list; dyntext; dyntext = dyntext->next)
-		sprintf(buf, "%s%s\r\n", buf, dyntext->filename);
+		send_to_char(ch, "%s%s\r\n", buf, dyntext->filename);
 
-	send_to_char(buf, ch);
 
 
 }
@@ -463,10 +457,9 @@ dynedit_check_dyntext(CHAR * ch, dynamic_text_file * dyntext, char *arg)
 {
 	if (!dyntext) {
 		if (*arg) {
-			sprintf(buf, "No such filename, '%s'\r\n", arg);
-			send_to_char(buf, ch);
+			send_to_char(ch, "No such filename, '%s'\r\n", arg);
 		} else {
-			send_to_char("Which dynamic text file?\r\n", ch);
+			send_to_char(ch, "Which dynamic text file?\r\n");
 		}
 		return 1;
 	}
@@ -499,7 +492,7 @@ ACMD(do_dynedit)
 			break;
 
 	if (dynedit_options[dyn_com][0] == NULL) {
-		send_to_char("Unknown option.\r\n", ch);
+		send_to_char(ch, "Unknown option.\r\n");
 		show_dynedit_options(ch);
 		return;
 	}
@@ -514,8 +507,7 @@ ACMD(do_dynedit)
 
 	case 0:					// show
 		if (*arg2 && !dyntext) {
-			sprintf(buf, "Unknown dynamic text file, '%s'.\r\n", arg2);
-			send_to_char(buf, ch);
+			send_to_char(ch, "Unknown dynamic text file, '%s'.\r\n", arg2);
 			return;
 		}
 		show_dyntext(ch, dyntext, argument);
@@ -528,31 +520,30 @@ ACMD(do_dynedit)
 			return;
 
 		if (!*argument) {
-			send_to_char("Add who to the permission list?\r\n", ch);
+			send_to_char(ch, "Add who to the permission list?\r\n");
 			return;
 		}
 		if ((idnum = get_id_by_name(argument)) < 0) {
-			send_to_char("There is no such person.\r\n", ch);
+			send_to_char(ch, "There is no such person.\r\n");
 			return;
 		}
 
 		for (i = 0, found = 0; i < DYN_TEXT_PERM_SIZE; i++) {
 			if (!dyntext->perms[i]) {
 				dyntext->perms[i] = idnum;
-				send_to_char("User added.\r\n", ch);
+				send_to_char(ch, "User added.\r\n");
 
 				if (save_dyntext_control(dyntext))
-					send_to_char
-						("An error occured while saving the control file.\r\n",
-						ch);
+					send_to_char(ch, 
+						"An error occured while saving the control file.\r\n");
 				else
-					send_to_char("Control file saved.\r\n", ch);
+					send_to_char(ch, "Control file saved.\r\n");
 
 				return;
 			}
 		}
 
-		send_to_char("The permission list is full.\r\n", ch);
+		send_to_char(ch, "The permission list is full.\r\n");
 		break;
 
 	case 3:					// remove
@@ -560,11 +551,11 @@ ACMD(do_dynedit)
 			return;
 
 		if (!*argument) {
-			send_to_char("Remove who from the permission list?\r\n", ch);
+			send_to_char(ch, "Remove who from the permission list?\r\n");
 			return;
 		}
 		if ((idnum = get_id_by_name(argument)) < 0) {
-			send_to_char("There is no such person.\r\n", ch);
+			send_to_char(ch, "There is no such person.\r\n");
 			return;
 		}
 
@@ -580,17 +571,16 @@ ACMD(do_dynedit)
 			}
 		}
 		if (found) {
-			send_to_char("User removed from the permission list.\r\n", ch);
+			send_to_char(ch, "User removed from the permission list.\r\n");
 
 			if (save_dyntext_control(dyntext))
-				send_to_char
-					("An error occured while saving the control file.\r\n",
-					ch);
+				send_to_char(ch, 
+					"An error occured while saving the control file.\r\n");
 			else
-				send_to_char("Control file saved.\r\n", ch);
+				send_to_char(ch, "Control file saved.\r\n");
 
 		} else {
-			send_to_char("That user is not on the permisison list.\r\n", ch);
+			send_to_char(ch, "That user is not on the permisison list.\r\n");
 		}
 
 		break;
@@ -600,13 +590,12 @@ ACMD(do_dynedit)
 			return;
 
 		if (dyntext->lock && dyntext->lock != GET_IDNUM(ch)) {
-			sprintf(buf, "That file is already locked by %s.\r\n",
+			send_to_char(ch, "That file is already locked by %s.\r\n",
 				get_name_by_id(dyntext->lock));
-			send_to_char(buf, ch);
 			return;
 		}
 		if (!dyntext_edit_ok(ch, dyntext)) {
-			send_to_char("You cannot edit this file.\r\n", ch);
+			send_to_char(ch, "You cannot edit this file.\r\n");
 			return;
 		}
 		dyntext->lock = GET_IDNUM(ch);
@@ -625,13 +614,12 @@ ACMD(do_dynedit)
 
 		if (dyntext->lock && dyntext->lock != GET_IDNUM(ch)
 			&& GET_LEVEL(ch) < LVL_CREATOR) {
-			sprintf(buf, "That file is already locked by %s.\r\n",
+			send_to_char(ch, "That file is already locked by %s.\r\n",
 				get_name_by_id(dyntext->lock));
-			send_to_char(buf, ch);
 			return;
 		}
 		if (!dyntext_edit_ok(ch, dyntext)) {
-			send_to_char("You cannot edit this file.\r\n", ch);
+			send_to_char(ch, "You cannot edit this file.\r\n");
 			return;
 		}
 		dyntext->lock = 0;
@@ -639,7 +627,7 @@ ACMD(do_dynedit)
 			free(dyntext->tmp_buffer);
 			dyntext->tmp_buffer = NULL;
 		}
-		send_to_char("Buffer edit aborted.\r\n", ch);
+		send_to_char(ch, "Buffer edit aborted.\r\n");
 		break;
 
 	case 6:					// update
@@ -649,24 +637,23 @@ ACMD(do_dynedit)
 
 		if (dyntext->lock && dyntext->lock != GET_IDNUM(ch)
 			&& GET_LEVEL(ch) < LVL_CREATOR) {
-			sprintf(buf, "That file is already locked by %s.\r\n",
+			send_to_char(ch, "That file is already locked by %s.\r\n",
 				get_name_by_id(dyntext->lock));
-			send_to_char(buf, ch);
 			return;
 		}
 
 		if (!dyntext_edit_ok(ch, dyntext)) {
-			send_to_char("You cannot update this file.\r\n", ch);
+			send_to_char(ch, "You cannot update this file.\r\n");
 			return;
 		}
 
 		if (!dyntext->tmp_buffer) {
-			send_to_char("There is no need to update this file.\r\n", ch);
+			send_to_char(ch, "There is no need to update this file.\r\n");
 			return;
 		}
 		// make the backup
 		if (create_dyntext_backup(dyntext)) {
-			send_to_char("An error occured while backing up.\r\n", ch);
+			send_to_char(ch, "An error occured while backing up.\r\n");
 			return;
 		}
 
@@ -684,7 +671,7 @@ ACMD(do_dynedit)
 		i = strlen(dyntext->buffer) + strlen(s) + 1;
 
 		if (!(newbuf = (char *)malloc(i))) {
-			send_to_char("Unable to allocate newbuf.\r\n", ch);
+			send_to_char(ch, "Unable to allocate newbuf.\r\n");
 			slog("SYSERR:  error allocating newbuf in dynedit update.");
 			return;
 		}
@@ -700,25 +687,24 @@ ACMD(do_dynedit)
 		// save the new file
 		if (save_dyntext_buffer(dyntext)) {
 
-			send_to_char("An error occured while saving.\r\n", ch);
+			send_to_char(ch, "An error occured while saving.\r\n");
 
 		} else {
 
-			send_to_char("Updated and saved successfully.\r\n", ch);
+			send_to_char(ch, "Updated and saved successfully.\r\n");
 
 		}
 
 
 		if (push_update_to_history(ch, dyntext))
 
-			send_to_char("There was an error updating the history.\r\n", ch);
+			send_to_char(ch, "There was an error updating the history.\r\n");
 
 
 		if (save_dyntext_control(dyntext))
-			send_to_char("An error occured while saving the control file.\r\n",
-				ch);
+			send_to_char(ch, "An error occured while saving the control file.\r\n");
 		else
-			send_to_char("Control file saved.\r\n", ch);
+			send_to_char(ch, "Control file saved.\r\n");
 
 		break;
 
@@ -727,19 +713,17 @@ ACMD(do_dynedit)
 			return;
 
 		if (dyntext->lock && dyntext->lock != GET_IDNUM(ch)) {
-			sprintf(buf, "That file is already locked by %s.\r\n",
+			send_to_char(ch, "That file is already locked by %s.\r\n",
 				get_name_by_id(dyntext->lock));
-			send_to_char(buf, ch);
 			return;
 		}
 		if (!dyntext_edit_ok(ch, dyntext)) {
-			send_to_char("You cannot edit this file.\r\n", ch);
+			send_to_char(ch, "You cannot edit this file.\r\n");
 			return;
 		}
 
 		if (!dyntext->buffer) {
-			send_to_char("There is nothing in the old buffer to prepend.\r\n",
-				ch);
+			send_to_char(ch, "There is nothing in the old buffer to prepend.\r\n");
 		} else {
 
 			if (!dyntext->tmp_buffer) {
@@ -749,18 +733,16 @@ ACMD(do_dynedit)
 			else {
 				if (strlen(dyntext->buffer) + strlen(dyntext->tmp_buffer) >=
 					MAX_STRING_LENGTH) {
-					send_to_char
-						("Resulting string would exceed maximum string length, aborting.\r\n",
-						ch);
+					send_to_char(ch, 
+						"Resulting string would exceed maximum string length, aborting.\r\n");
 					return;
 				}
 				if (!(newbuf =
 						(char *)malloc(strlen(dyntext->buffer) +
 							strlen(dyntext->tmp_buffer) + 1))) {
 					slog("SYSERR: unable to malloc buffer for prepend in do_dynedit.");
-					send_to_char
-						("Unable to allocate memory for the new buffer.\r\n",
-						ch);
+					send_to_char(ch, 
+						"Unable to allocate memory for the new buffer.\r\n");
 					return;
 				}
 				*newbuf = '\0';
@@ -770,7 +752,7 @@ ACMD(do_dynedit)
 				dyntext->tmp_buffer = newbuf;
 			}
 		}
-		send_to_char("Old buffer prepended to new buffer.\r\n", ch);
+		send_to_char(ch, "Old buffer prepended to new buffer.\r\n");
 		break;
 
 	case 8:					// append
@@ -778,19 +760,17 @@ ACMD(do_dynedit)
 			return;
 
 		if (dyntext->lock && dyntext->lock != GET_IDNUM(ch)) {
-			sprintf(buf, "That file is already locked by %s.\r\n",
+			send_to_char(ch, "That file is already locked by %s.\r\n",
 				get_name_by_id(dyntext->lock));
-			send_to_char(buf, ch);
 			return;
 		}
 		if (!dyntext_edit_ok(ch, dyntext)) {
-			send_to_char("You cannot edit this file.\r\n", ch);
+			send_to_char(ch, "You cannot edit this file.\r\n");
 			return;
 		}
 
 		if (!dyntext->buffer) {
-			send_to_char("There is nothing in the old buffer to append.\r\n",
-				ch);
+			send_to_char(ch, "There is nothing in the old buffer to append.\r\n");
 		} else {
 
 			if (!dyntext->tmp_buffer) {
@@ -800,18 +780,16 @@ ACMD(do_dynedit)
 			else {
 				if (strlen(dyntext->buffer) + strlen(dyntext->tmp_buffer) >=
 					MAX_STRING_LENGTH) {
-					send_to_char
-						("Resulting string would exceed maximum string length, aborting.\r\n",
-						ch);
+					send_to_char(ch, 
+						"Resulting string would exceed maximum string length, aborting.\r\n");
 					return;
 				}
 				if (!(newbuf =
 						(char *)malloc(strlen(dyntext->buffer) +
 							strlen(dyntext->tmp_buffer) + 1))) {
 					slog("SYSERR: unable to malloc buffer for append in do_dynedit.");
-					send_to_char
-						("Unable to allocate memory for the new buffer.\r\n",
-						ch);
+					send_to_char(ch, 
+						"Unable to allocate memory for the new buffer.\r\n");
 					return;
 				}
 				*newbuf = '\0';
@@ -821,27 +799,26 @@ ACMD(do_dynedit)
 				dyntext->tmp_buffer = newbuf;
 			}
 		}
-		send_to_char("Old buffer appended to new buffer.\r\n", ch);
+		send_to_char(ch, "Old buffer appended to new buffer.\r\n");
 		break;
 	case 9:{					// reload
 			if (dynedit_check_dyntext(ch, dyntext, arg2))
 				return;
 
 			if (dyntext->lock && dyntext->lock != GET_IDNUM(ch)) {
-				sprintf(buf, "That file is already locked by %s.\r\n",
+				send_to_char(ch, "That file is already locked by %s.\r\n",
 					get_name_by_id(dyntext->lock));
-				send_to_char(buf, ch);
 				return;
 			}
 			if (!dyntext_edit_ok(ch, dyntext)) {
-				send_to_char("You cannot edit this file.\r\n", ch);
+				send_to_char(ch, "You cannot edit this file.\r\n");
 				return;
 			}
 			int rc = reload_dyntext_buffer(dyntext);
 			if (rc == 0) {
-				send_to_char("Buffer reloaded.\r\n", ch);
+				send_to_char(ch, "Buffer reloaded.\r\n");
 			} else {
-				send_to_char("Error reloading buffer.\r\n", ch);
+				send_to_char(ch, "Error reloading buffer.\r\n");
 			}
 			break;
 		}
@@ -867,7 +844,7 @@ ACMD(do_dyntext_show)
 		humanname = "iNEWS";
 		break;
 	default:
-		send_to_char("Unknown dynamic text request.\r\n", ch);
+		send_to_char(ch, "Unknown dynamic text request.\r\n");
 		return;
 	}
 
@@ -876,12 +853,12 @@ ACMD(do_dyntext_show)
 			break;
 
 	if (!dyntext) {
-		send_to_char("Sorry, unable to load that dynamic text.\r\n", ch);
+		send_to_char(ch, "Sorry, unable to load that dynamic text.\r\n");
 		return;
 	}
 
 	if (!dyntext->buffer) {
-		send_to_char("That dynamic text buffer is empty.\r\n", ch);
+		send_to_char(ch, "That dynamic text buffer is empty.\r\n");
 		return;
 	}
 
@@ -933,15 +910,14 @@ check_dyntext_updates(CHAR * ch, int mode)
 				continue;
 
 			if (mode == CHECKDYN_RECONNECT)
-				sprintf(buf,
+				send_to_char(ch,
 					"%s [ The %s file was updated while you were disconnected. ]%s\r\n",
 					CCYEL(ch, C_NRM), dyntext->filename, CCNRM(ch, C_NRM));
 			else
-				sprintf(buf,
+				send_to_char(ch,
 					"%s [ The %s file has been updated since your last visit. ]%s\r\n",
 					CCYEL(ch, C_NRM), dyntext->filename, CCNRM(ch, C_NRM));
 
-			send_to_char(buf, ch);
 		}
 	}
 }

@@ -708,7 +708,7 @@ say_spell(struct char_data *ch, int spellnum, struct char_data *tch,
 			if (tch == ch) {
 				sprintf(buf2,
 					"$n momentarily closes $s eyes and concentrates.");
-				send_to_char("You close your eyes and concentrate.\r\n", ch);
+				send_to_char(ch, "You close your eyes and concentrate.\r\n");
 			} else {
 				sprintf(buf2,
 					"$n closes $s eyes and touches $N with a mental finger.");
@@ -723,16 +723,15 @@ say_spell(struct char_data *ch, int spellnum, struct char_data *tch,
 		} else {
 			sprintf(buf2,
 				"$n closes $s eyes and slips into the psychic world.");
-			send_to_char
-				("You close your eyes and slip into a psychic world.\r\n", ch);
+			send_to_char(ch, 
+				"You close your eyes and slip into a psychic world.\r\n");
 		}
 	} else if (SPELL_IS_PHYSICS(spellnum)) {
 		if (tch != NULL && tch->in_room == ch->in_room) {
 			if (tch == ch) {
 				sprintf(buf2,
 					"$n momentarily closes $s eyes and concentrates.");
-				send_to_char("You close your eyes and make a calculation.\r\n",
-					ch);
+				send_to_char(ch, "You close your eyes and make a calculation.\r\n");
 			} else {
 				sprintf(buf2, "$n looks at $N and makes a calculation.");
 				act("You look at $N and make a calculation.", FALSE, ch, 0,
@@ -745,12 +744,12 @@ say_spell(struct char_data *ch, int spellnum, struct char_data *tch,
 		} else {
 			sprintf(buf2,
 				"$n closes $s eyes and slips into a deep calculation.");
-			send_to_char
-				("You close your eyes and make a deep calculation.\r\n", ch);
+			send_to_char(ch, 
+				"You close your eyes and make a deep calculation.\r\n");
 		}
 	} else if (SPELL_IS_MERCENARY(spellnum)) {
 		sprintf(buf2, "$n searches through his backpack for materials.");
-		send_to_char("You search for the proper materials.\r\n", ch);
+		send_to_char(ch, "You search for the proper materials.\r\n");
 	} else {
 		if (tch != NULL && tch->in_room == ch->in_room) {
 			if (tch == ch) {
@@ -865,29 +864,28 @@ call_magic(struct char_data *caster, struct char_data *cvict,
 	if ((ROOM_FLAGGED(caster->in_room, ROOM_NOMAGIC)) &&
 		GET_LEVEL(caster) < LVL_TIMEGOD && (SPELL_IS_MAGIC(spellnum) ||
 			SPELL_IS_DIVINE(spellnum))) {
-		send_to_char("Your magic fizzles out and dies.\r\n", caster);
+		send_to_char(caster, "Your magic fizzles out and dies.\r\n");
 		act("$n's magic fizzles out and dies.", FALSE, caster, 0, 0, TO_ROOM);
 		return 0;
 	}
 	if ((ROOM_FLAGGED(caster->in_room, ROOM_NOPSIONICS)) &&
 		GET_LEVEL(caster) < LVL_TIMEGOD && SPELL_IS_PSIONIC(spellnum)) {
-		send_to_char("You cannot establish a mental link.\r\n", caster);
+		send_to_char(caster, "You cannot establish a mental link.\r\n");
 		act("$n appears to be psionically challenged.",
 			FALSE, caster, 0, 0, TO_ROOM);
 		return 0;
 	}
 	if ((ROOM_FLAGGED(caster->in_room, ROOM_NOSCIENCE)) &&
 		SPELL_IS_PHYSICS(spellnum)) {
-		send_to_char
-			("You are unable to alter physical reality in this space.\r\n",
-			caster);
+		send_to_char(caster, 
+			"You are unable to alter physical reality in this space.\r\n");
 		act("$n tries to solve an elaborate equation, but fails.", FALSE,
 			caster, 0, 0, TO_ROOM);
 		return 0;
 	}
 	if (SPELL_USES_GRAVITY(spellnum) && NOGRAV_ZONE(caster->in_room->zone) &&
 		SPELL_IS_PHYSICS(spellnum)) {
-		send_to_char("There is no gravity here to alter.\r\n", caster);
+		send_to_char(caster, "There is no gravity here to alter.\r\n");
 		act("$n tries to solve an elaborate equation, but fails.",
 			FALSE, caster, 0, 0, TO_ROOM);
 		return 0;
@@ -899,24 +897,24 @@ call_magic(struct char_data *caster, struct char_data *cvict,
 		if ((SINFO.violent || IS_SET(SINFO.routines, MAG_DAMAGE)) &&
 			!peaceful_room_ok(caster, cvict, false)) {
 			if (SPELL_IS_PSIONIC(spellnum)) {
-				send_to_char("The Universal Psyche descends on your mind and "
-					"renders you powerless!\r\n", caster);
+				send_to_char(caster, "The Universal Psyche descends on your mind and "
+					"renders you powerless!\r\n");
 				act("$n concentrates for an instant, and is suddenly thrown "
 					"into mental shock!\r\n", FALSE, caster, 0, 0, TO_ROOM);
 				return 0;
 			}
 			if (SPELL_IS_PHYSICS(spellnum)) {
-				send_to_char
-					("The Supernatural Reality prevents you from twisting "
-					"nature in that way!\r\n", caster);
+				send_to_char(caster, 
+					"The Supernatural Reality prevents you from twisting "
+					"nature in that way!\r\n");
 				act("$n attemps to violently alter reality, but is restained "
 					"by the whole of the universe.", FALSE, caster, 0, 0,
 					TO_ROOM);
 				return 0;
 			} else {
-				send_to_char
-					("A flash of white light fills the room, dispelling your "
-					"violent magic!\r\n", caster);
+				send_to_char(caster, 
+					"A flash of white light fills the room, dispelling your "
+					"violent magic!\r\n");
 				act("White light from no particular source suddenly fills the room, " "then vanishes.", FALSE, caster, 0, 0, TO_ROOM);
 				return 0;
 			}
@@ -1011,8 +1009,7 @@ call_magic(struct char_data *caster, struct char_data *cvict,
 							GET_MANA(caster) - mana));
 			}
 			if ((af_ptr->duration -= (level >> 2)) <= 0) {
-				sprintf(buf, "Your %s dissolves.\r\n", spell_to_str(af_ptr->type));
-				send_to_char(buf, cvict);
+				send_to_char(cvict, "Your %s dissolves.\r\n", spell_to_str(af_ptr->type));
 				affect_remove(cvict, af_ptr);
 			}
 			return 0;
@@ -1585,20 +1582,20 @@ cast_spell(struct char_data *ch, struct char_data *tch,
 		switch (ch->getPosition()) {
 		case POS_SLEEPING:
 			if (SPELL_IS_PHYSICS(spellnum))
-				send_to_char("You dream about great physical powers.\r\n", ch);
+				send_to_char(ch, "You dream about great physical powers.\r\n");
 			if (SPELL_IS_PSIONIC(spellnum))
-				send_to_char("You dream about great psionic powers.\r\n", ch);
+				send_to_char(ch, "You dream about great psionic powers.\r\n");
 			else
-				send_to_char("You dream about great magical powers.\r\n", ch);
+				send_to_char(ch, "You dream about great magical powers.\r\n");
 			break;
 		case POS_RESTING:
-			send_to_char("You cannot concentrate while resting.\r\n", ch);
+			send_to_char(ch, "You cannot concentrate while resting.\r\n");
 			break;
 		case POS_SITTING:
-			send_to_char("You can't do this sitting!\r\n", ch);
+			send_to_char(ch, "You can't do this sitting!\r\n");
 			break;
 		case POS_FIGHTING:
-			send_to_char("Impossible!  You can't concentrate enough!\r\n", ch);
+			send_to_char(ch, "Impossible!  You can't concentrate enough!\r\n");
 			if (IS_MOB(ch)) {
 				sprintf(buf, "SYSERR: %s tried to cast spell %d in battle.",
 					GET_NAME(ch), spellnum);
@@ -1606,60 +1603,57 @@ cast_spell(struct char_data *ch, struct char_data *tch,
 			}
 			break;
 		default:
-			send_to_char("You can't do much of anything like this!\r\n", ch);
+			send_to_char(ch, "You can't do much of anything like this!\r\n");
 			break;
 		}
 		return 0;
 	}
 	if (IS_AFFECTED(ch, AFF_CHARM) && (ch->master == tch)) {
-		send_to_char("You are afraid you might hurt your master!\r\n", ch);
+		send_to_char(ch, "You are afraid you might hurt your master!\r\n");
 		return 0;
 	}
 	if ((tch != ch) && IS_SET(SINFO.targets, TAR_SELF_ONLY) &&
 		GET_LEVEL(ch) < LVL_CREATOR) {
-		sprintf(buf, "You can only %s yourself!\r\n",
+		send_to_char(ch, "You can only %s yourself!\r\n",
 			SPELL_IS_PHYSICS(spellnum) ? "alter this reality on" :
 			SPELL_IS_PSIONIC(spellnum) ? "trigger this psi on" :
 			SPELL_IS_MERCENARY(spellnum) ? "apply this device to" :
 			"cast this spell upon");
-		send_to_char(buf, ch);
 		return 0;
 	}
 	if ((tch == ch) && IS_SET(SINFO.targets, TAR_NOT_SELF)) {
-		sprintf(buf, "You cannot %s yourself!\r\n",
+		send_to_char(ch, "You cannot %s yourself!\r\n",
 			SPELL_IS_PHYSICS(spellnum) ? "alter this reality on" :
 			SPELL_IS_PSIONIC(spellnum) ? "trigger this psi on" :
 			SPELL_IS_MERCENARY(spellnum) ? "apply this device to" :
 			"cast this spell upon");
-		send_to_char(buf, ch);
 		return 0;
 	}
 	if (IS_CONFUSED(ch) &&
 		CHECK_SKILL(ch, spellnum) + GET_INT(ch) < number(90, 180)) {
-		sprintf(buf, "You are too confused to %s\r\n",
+		send_to_char(ch, "You are too confused to %s\r\n",
 			SPELL_IS_PHYSICS(spellnum) ? "alter any reality!" :
 			SPELL_IS_PSIONIC(spellnum) ? "trigger any psi!" :
 			SPELL_IS_MERCENARY(spellnum) ? "construct any devices!" :
 			"cast any spells!");
-		send_to_char(buf, ch);
 		return 0;
 	}
 	if (IS_SET(SINFO.routines, MAG_GROUPS) && !IS_AFFECTED(ch, AFF_GROUP)) {
-		send_to_char("You can't do this if you're not in a group!\r\n", ch);
+		send_to_char(ch, "You can't do this if you're not in a group!\r\n");
 		return 0;
 	}
 	if (SECT_TYPE(ch->in_room) == SECT_UNDERWATER &&
 		SPELL_FLAGGED(spellnum, MAG_NOWATER)) {
-		send_to_char("This spell does not function underwater.\r\n", ch);
+		send_to_char(ch, "This spell does not function underwater.\r\n");
 		return 0;
 	}
 	if (!OUTSIDE(ch) && SPELL_FLAGGED(spellnum, MAG_OUTDOORS)) {
-		send_to_char("This spell can only be cast outdoors.\r\n", ch);
+		send_to_char(ch, "This spell can only be cast outdoors.\r\n");
 		return 0;
 	}
 	if (SPELL_FLAGGED(spellnum, MAG_NOSUN) && OUTSIDE(ch)
 		&& !IS_DARK(ch->in_room)) {
-		send_to_char("This spell cannot be cast in sunlight.\r\n", ch);
+		send_to_char(ch, "This spell cannot be cast in sunlight.\r\n");
 		return 0;
 	}
 	// Evil Knight remort skill. 'Taint'
@@ -1686,10 +1680,9 @@ cast_spell(struct char_data *ch, struct char_data *tch,
 			weenie = true;
 		}
 		if (PRF2_FLAGGED(ch, PRF2_FIGHT_DEBUG)) {
-			sprintf(buf,
+			send_to_char(ch,
 				"Taint - Attribute[%d] Weenie[%s] Mana Cost[%d] - Damage[%d]\r\n",
 				attribute, weenie ? "true" : "false", mana, dam);
-			send_to_char(buf, ch);
 		}
 		if (af != NULL) {
 			af->duration -= mana;
@@ -1702,7 +1695,7 @@ cast_spell(struct char_data *ch, struct char_data *tch,
 		if (weenie == true) {
 			act("$n screams and clutches at the rune in $s forehead.", TRUE,
 				ch, 0, 0, TO_ROOM);
-			send_to_char("Your concentration fails.\r\n", ch);
+			send_to_char(ch, "Your concentration fails.\r\n");
 			return 0;
 		}
 	}
@@ -1782,20 +1775,17 @@ find_spell_targets(struct char_data *ch, char *argument,
 	s = strtok(NULL, "'");
 	if (s == NULL) {
 		if (CMD_IS("alter"))
-			send_to_char
-				("The alteration name must be enclosed in the symbols: '\r\n",
-				ch);
+			send_to_char(ch, 
+				"The alteration name must be enclosed in the symbols: '\r\n");
 		else if (CMD_IS("trigger"))
-			send_to_char
-				("The psitrigger name must be enclosed in the symbols: '\r\n",
-				ch);
+			send_to_char(ch, 
+				"The psitrigger name must be enclosed in the symbols: '\r\n");
 		else if (CMD_IS("arm"))
-			send_to_char
-				("The device name must be enclosed in the symbols: '\r\n", ch);
+			send_to_char(ch, 
+				"The device name must be enclosed in the symbols: '\r\n");
 		else
-			send_to_char
-				("Spell names must be enclosed in the Holy Magic Symbols: '\r\n",
-				ch);
+			send_to_char(ch, 
+				"Spell names must be enclosed in the Holy Magic Symbols: '\r\n");
 		return 0;
 	}
 	t = strtok(NULL, "\0");
@@ -1812,19 +1802,17 @@ find_spell_targets(struct char_data *ch, char *argument,
 		(!IS_REMORT(ch) ||
 			GET_LEVEL(ch) < SINFO.min_level[(int)GET_REMORT_CLASS(ch)]) &&
 		CHECK_SKILL(ch, spellnum) < 30) {
-		sprintf(buf, "You do not know that %s!\r\n",
+		send_to_char(ch, "You do not know that %s!\r\n",
 			SPELL_IS_PSIONIC(spellnum) ? "trigger" :
 			SPELL_IS_PHYSICS(spellnum) ? "alteration" :
 			SPELL_IS_MERCENARY(spellnum) ? "device" : "spell");
-		send_to_char(buf, ch);
 		return 0;
 	}
 	if (CHECK_SKILL(ch, spellnum) == 0) {
-		sprintf(buf, "You are unfamiliar with that %s.\r\n",
+		send_to_char(ch, "You are unfamiliar with that %s.\r\n",
 			SPELL_IS_PSIONIC(spellnum) ? "trigger" :
 			SPELL_IS_PHYSICS(spellnum) ? "alteration" :
 			SPELL_IS_MERCENARY(spellnum) ? "device" : "spell");
-		send_to_char(buf, ch);
 		return 0;
 	}
 	/* Find the target */
@@ -1899,11 +1887,10 @@ find_spell_targets(struct char_data *ch, char *argument,
 		}
 
 		if (!*target) {
-			sprintf(buf, "Upon %s should the spell be cast?\r\n",
+			send_to_char(ch, "Upon %s should the spell be cast?\r\n",
 				IS_SET(SINFO.targets,
 					TAR_OBJ_ROOM | TAR_OBJ_INV | TAR_OBJ_WORLD) ? "what" :
 				"who");
-			send_to_char(buf, ch);
 			return 0;
 		}
 	}
@@ -1925,21 +1912,19 @@ ACMD(do_cast)
 	if (!IS_MAGE(ch) && !IS_CLERIC(ch) && !IS_KNIGHT(ch) && !IS_RANGER(ch)
 		&& !IS_VAMPIRE(ch) && GET_CLASS(ch) < NUM_CLASSES
 		&& (GET_LEVEL(ch) < LVL_GRGOD)) {
-		send_to_char("You are not learned in the ways of magic.\r\n", ch);
+		send_to_char(ch, "You are not learned in the ways of magic.\r\n");
 		return;
 	}
 	if (GET_LEVEL(ch) < LVL_AMBASSADOR &&
 		IS_WEARING_W(ch) > (CAN_CARRY_W(ch) * 0.90)) {
-		send_to_char
-			("Your equipment is too heavy and bulky to cast anything useful!\r\n",
-			ch);
+		send_to_char(ch, 
+			"Your equipment is too heavy and bulky to cast anything useful!\r\n");
 		return;
 	}
 	if (GET_LEVEL(ch) < LVL_AMBASSADOR && GET_EQ(ch, WEAR_WIELD) &&
 		IS_OBJ_STAT2(GET_EQ(ch, WEAR_WIELD), ITEM2_TWO_HANDED)) {
-		send_to_char
-			("You can't cast spells while wielding a two handed weapon!\r\n",
-			ch);
+		send_to_char(ch, 
+			"You can't cast spells while wielding a two handed weapon!\r\n");
 		return;
 	}
 
@@ -1950,16 +1935,14 @@ ACMD(do_cast)
 	// Drunk bastards don't cast very well, do they... -- Nothing 1/22/2001 
 	if ((GET_COND(ch, DRUNK) > 5) && (temp = number(1, 35)) > GET_INT(ch)) {
 		if (temp < 34) {
-			send_to_char("Your mind is too clouded to cast any spells!\r\n",
-				ch);
+			send_to_char(ch, "Your mind is too clouded to cast any spells!\r\n");
 			return;
 		} else {
-			send_to_char("You feel your concentration slipping!\r\n", ch);
+			send_to_char(ch, "You feel your concentration slipping!\r\n");
 			WAIT_STATE(ch, 2 RL_SEC);
 			spellnum = number(1, MAX_SPELLS);
 			if (!SPELL_IS_MAGIC(spellnum) && !SPELL_IS_DIVINE(spellnum)) {
-				send_to_char("Your concentration slips away entirely.\r\n",
-					ch);
+				send_to_char(ch, "Your concentration slips away entirely.\r\n");
 				return;
 			}
 		}
@@ -1971,7 +1954,7 @@ ACMD(do_cast)
 	}
 
 	if (!target && !IS_SET(SINFO.targets, TAR_DOOR)) {
-		send_to_char("Cannot find the target of your spell!\r\n", ch);
+		send_to_char(ch, "Cannot find the target of your spell!\r\n");
 		return;
 	}
 
@@ -1979,13 +1962,13 @@ ACMD(do_cast)
 
 	if ((mana > 0) && (GET_MANA(ch) < mana) && GET_LEVEL(ch) < LVL_AMBASSADOR
 		&& !PLR_FLAGGED(ch, PLR_MORTALIZED)) {
-		send_to_char("You haven't the energy to cast that spell!\r\n", ch);
+		send_to_char(ch, "You haven't the energy to cast that spell!\r\n");
 		return;
 	}
 
 	if (GET_LEVEL(ch) < LVL_IMMORT && (!IS_EVIL(ch) && SPELL_IS_EVIL(spellnum))
 		|| (!IS_GOOD(ch) && SPELL_IS_GOOD(spellnum))) {
-		send_to_char("You cannot cast that spell.\r\n", ch);
+		send_to_char(ch, "You cannot cast that spell.\r\n");
 		return;
 	}
 
@@ -2009,26 +1992,24 @@ ACMD(do_cast)
 				}
 			}
 			if (!holy_symbol) {
-				send_to_char
-					("You do not even wear the symbol of your faith!\r\n", ch);
+				send_to_char(ch, 
+					"You do not even wear the symbol of your faith!\r\n");
 				return;
 			}
 			if ((IS_GOOD(ch) && (GET_OBJ_VAL(holy_symbol, 0) == 2)) ||
 				(IS_EVIL(ch) && (GET_OBJ_VAL(holy_symbol, 0) == 0))) {
-				send_to_char("You are not aligned with your holy symbol!\r\n",
-					ch);
+				send_to_char(ch, "You are not aligned with your holy symbol!\r\n");
 				return;
 			}
 			if (GET_CLASS(ch) != GET_OBJ_VAL(holy_symbol, 1) &&
 				GET_REMORT_CLASS(ch) != GET_OBJ_VAL(holy_symbol, 1)) {
-				send_to_char
-					("The holy symbol you wear is not of your faith!\r\n", ch);
+				send_to_char(ch, 
+					"The holy symbol you wear is not of your faith!\r\n");
 				return;
 			}
 			if (GET_LEVEL(ch) < GET_OBJ_VAL(holy_symbol, 2)) {
-				send_to_char
-					("You are not powerful enough to utilize your holy symbol!\r\n",
-					ch);
+				send_to_char(ch, 
+					"You are not powerful enough to utilize your holy symbol!\r\n");
 				return;
 			}
 			if (GET_LEVEL(ch) > GET_OBJ_VAL(holy_symbol, 3)) {
@@ -2156,7 +2137,7 @@ ACMD(do_cast)
 					act("$p has caused your spell to backfire!!", FALSE, ch,
 						metal, 0, TO_CHAR);
 				else
-					send_to_char("Your spell has backfired!!\r\n", ch);
+					send_to_char(ch, "Your spell has backfired!!\r\n");
 				cast_spell(ch, ch, tobj, spellnum);
 				if (mana > 0)
 					GET_MANA(ch) = MAX(0, MIN(GET_MAX_MANA(ch), GET_MANA(ch) -
@@ -2171,10 +2152,10 @@ ACMD(do_cast)
 				act("$p has interfered with your spell!",
 					FALSE, ch, metal, 0, TO_CHAR);
 			else
-				send_to_char("You lost your concentration!\r\n", ch);
+				send_to_char(ch, "You lost your concentration!\r\n");
 			ACMD(do_say);
 			if (!skill_message(0, ch, tch, spellnum)) {
-				send_to_char(NOEFFECT, ch);
+				send_to_char(ch, NOEFFECT);
 			}
 
 			if (((IS_SET(SINFO.routines, MAG_DAMAGE) || SINFO.violent)) &&
@@ -2187,7 +2168,7 @@ ACMD(do_cast)
 			act("$p has interfered with your spell!",
 				FALSE, ch, metal, 0, TO_CHAR);
 		else
-			send_to_char("You lost your concentration!\r\n", ch);
+			send_to_char(ch, "You lost your concentration!\r\n");
 
 		if (mana > 0)
 			GET_MANA(ch) =
@@ -2217,19 +2198,18 @@ ACMD(do_trigger)
 		return;
 
 	if (!IS_PSYCHIC(ch) && GET_LEVEL(ch) < LVL_AMBASSADOR) {
-		send_to_char("You are not able to trigger the mind.\r\n", ch);
+		send_to_char(ch, "You are not able to trigger the mind.\r\n");
 		return;
 	}
 	if (IS_WEARING_W(ch) > (CAN_CARRY_W(ch) * 0.80)) {
-		send_to_char
-			("Your equipment is too heavy and bulky to affect anyone's mind!\r\n",
-			ch);
+		send_to_char(ch, 
+			"Your equipment is too heavy and bulky to affect anyone's mind!\r\n");
 		return;
 	}
 	if (GET_EQ(ch, WEAR_WIELD) &&
 		IS_OBJ_STAT2(GET_EQ(ch, WEAR_WIELD), ITEM2_TWO_HANDED)) {
-		send_to_char
-			("You can't trigger while wielding a two handed weapon!\r\n", ch);
+		send_to_char(ch, 
+			"You can't trigger while wielding a two handed weapon!\r\n");
 		return;
 	}
 
@@ -2240,16 +2220,14 @@ ACMD(do_trigger)
 	// Drunk bastards don't trigger very well, do they... -- Nothing 1/22/2001
 	if ((GET_COND(ch, DRUNK) > 5) && (temp = number(1, 35)) > GET_INT(ch)) {
 		if (temp < 34) {
-			send_to_char("Your mind is too clouded to make any triggers!\r\n",
-				ch);
+			send_to_char(ch, "Your mind is too clouded to make any triggers!\r\n");
 			return;
 		} else {
-			send_to_char("You feel your concentration slipping!\r\n", ch);
+			send_to_char(ch, "You feel your concentration slipping!\r\n");
 			WAIT_STATE(ch, 2 RL_SEC);
 			spellnum = number(1, MAX_SPELLS);
 			if (!SPELL_IS_PSIONIC(spellnum)) {
-				send_to_char("Your concentration slips away entirely.\r\n",
-					ch);
+				send_to_char(ch, "Your concentration slips away entirely.\r\n");
 				return;
 			}
 		}
@@ -2260,13 +2238,13 @@ ACMD(do_trigger)
 		return;
 	}
 	if (!target) {
-		send_to_char("Cannot find the target of your trigger!\r\n", ch);
+		send_to_char(ch, "Cannot find the target of your trigger!\r\n");
 		return;
 	}
 	mana = mag_manacost(ch, spellnum);
 	if ((mana > 0) && (GET_MANA(ch) < mana)
 		&& (GET_LEVEL(ch) < LVL_AMBASSADOR)) {
-		send_to_char("You haven't the energy to make that trigger!\r\n", ch);
+		send_to_char(ch, "You haven't the energy to make that trigger!\r\n");
 		return;
 	}
 
@@ -2278,7 +2256,7 @@ ACMD(do_trigger)
 
 	if (SECT_TYPE(ch->in_room) == SECT_UNDERWATER &&
 		SPELL_FLAGGED(spellnum, MAG_NOWATER)) {
-		send_to_char("This trigger will not function underwater.\r\n", ch);
+		send_to_char(ch, "This trigger will not function underwater.\r\n");
 		return;
 	}
 
@@ -2305,7 +2283,7 @@ ACMD(do_trigger)
 		WAIT_STATE(ch, PULSE_VIOLENCE);
 		if (!tch || spellnum == SPELL_ELECTROSTATIC_FIELD
 			|| !skill_message(0, ch, tch, spellnum))
-			send_to_char("Your concentration was disturbed!\r\n", ch);
+			send_to_char(ch, "Your concentration was disturbed!\r\n");
 		if (mana > 0)
 			GET_MANA(ch) =
 				MAX(0, MIN(GET_MAX_MANA(ch), GET_MANA(ch) - (mana >> 1)));
@@ -2332,14 +2310,13 @@ ACMD(do_arm)
 		return;
 
 	if (!IS_MERC(ch) && GET_LEVEL(ch) < LVL_AMBASSADOR) {
-		send_to_char("You are not able arm devices!\r\n", ch);
+		send_to_char(ch, "You are not able arm devices!\r\n");
 		return;
 	}
 
 	if (IS_WEARING_W(ch) > (CAN_CARRY_W(ch) * 0.80)) {
-		send_to_char
-			("Your equipment is too heavy and bulky to arm any devices!\r\n",
-			ch);
+		send_to_char(ch, 
+			"Your equipment is too heavy and bulky to arm any devices!\r\n");
 		return;
 	}
 
@@ -2353,21 +2330,20 @@ ACMD(do_arm)
 	}
 
 	if (!target) {
-		send_to_char("Cannot find the target of your device!\r\n", ch);
+		send_to_char(ch, "Cannot find the target of your device!\r\n");
 		return;
 	}
 
 	mana = mag_manacost(ch, spellnum);
 	if ((mana > 0) && (GET_MANA(ch) < mana)
 		&& (GET_LEVEL(ch) < LVL_AMBASSADOR)) {
-		send_to_char("You haven't the energy to construct that device!\r\n",
-			ch);
+		send_to_char(ch, "You haven't the energy to construct that device!\r\n");
 		return;
 	}
 
 	if (SECT_TYPE(ch->in_room) == SECT_UNDERWATER &&
 		SPELL_FLAGGED(spellnum, MAG_NOWATER)) {
-		send_to_char("This device will not function underwater.\r\n", ch);
+		send_to_char(ch, "This device will not function underwater.\r\n");
 		return;
 	}
 
@@ -2394,7 +2370,7 @@ ACMD(do_arm)
 	if (number(0, 111) > prob) {
 		WAIT_STATE(ch, PULSE_VIOLENCE);
 		if (!tch || !skill_message(0, ch, tch, spellnum))
-			send_to_char("Your concentration was disturbed!\r\n", ch);
+			send_to_char(ch, "Your concentration was disturbed!\r\n");
 
 		if (mana > 0)
 			GET_MANA(ch) =
@@ -2427,20 +2403,17 @@ ACMD(do_alter)
 	if (GET_CLASS(ch) != CLASS_PHYSIC &&
 		GET_REMORT_CLASS(ch) != CLASS_PHYSIC
 		&& GET_LEVEL(ch) < LVL_AMBASSADOR) {
-		send_to_char("You are not able to alter the fabric of reality.\r\n",
-			ch);
+		send_to_char(ch, "You are not able to alter the fabric of reality.\r\n");
 		return;
 	}
 	if (IS_WEARING_W(ch) > (CAN_CARRY_W(ch) * 0.80)) {
-		send_to_char
-			("Your equipment is too heavy and bulky to alter reality!\r\n",
-			ch);
+		send_to_char(ch, 
+			"Your equipment is too heavy and bulky to alter reality!\r\n");
 		return;
 	}
 	if (GET_EQ(ch, WEAR_WIELD) &&
 		IS_OBJ_STAT2(GET_EQ(ch, WEAR_WIELD), ITEM2_TWO_HANDED)) {
-		send_to_char("You can't alter while wielding a two handed weapon!\r\n",
-			ch);
+		send_to_char(ch, "You can't alter while wielding a two handed weapon!\r\n");
 		return;
 	}
 
@@ -2451,17 +2424,15 @@ ACMD(do_alter)
 	// Drunk bastards don't cast very well, do they... -- Nothing 1/22/2001
 	if ((GET_COND(ch, DRUNK) > 5) && (temp = number(1, 35)) > GET_INT(ch)) {
 		if (temp < 34) {
-			send_to_char
-				("Your mind is too clouded to alter the fabric of reality!\r\n",
-				ch);
+			send_to_char(ch, 
+				"Your mind is too clouded to alter the fabric of reality!\r\n");
 			return;
 		} else {
-			send_to_char("You feel your concentration slipping!\r\n", ch);
+			send_to_char(ch, "You feel your concentration slipping!\r\n");
 			WAIT_STATE(ch, 2 RL_SEC);
 			spellnum = number(1, MAX_SPELLS);
 			if (!SPELL_IS_PHYSICS(spellnum)) {
-				send_to_char("Your concentration slips away entirely.\r\n",
-					ch);
+				send_to_char(ch, "Your concentration slips away entirely.\r\n");
 				return;
 			}
 		}
@@ -2473,24 +2444,23 @@ ACMD(do_alter)
 	}
 
 	if (!target) {
-		send_to_char("Cannot find the target of your alteration!\r\n", ch);
+		send_to_char(ch, "Cannot find the target of your alteration!\r\n");
 		return;
 	}
 	mana = mag_manacost(ch, spellnum);
 	if ((mana > 0) && (GET_MANA(ch) < mana)
 		&& (GET_LEVEL(ch) < LVL_AMBASSADOR)) {
-		send_to_char("You haven't the energy to make that alteration!\r\n",
-			ch);
+		send_to_char(ch, "You haven't the energy to make that alteration!\r\n");
 		return;
 	}
 
 	if (SECT_TYPE(ch->in_room) == SECT_UNDERWATER &&
 		SPELL_FLAGGED(spellnum, MAG_NOWATER)) {
-		send_to_char("This alteration will not function underwater.\r\n", ch);
+		send_to_char(ch, "This alteration will not function underwater.\r\n");
 		return;
 	}
 	if (!OUTSIDE(ch) && SPELL_FLAGGED(spellnum, MAG_OUTDOORS)) {
-		send_to_char("This alteration can only be made outdoors.\r\n", ch);
+		send_to_char(ch, "This alteration can only be made outdoors.\r\n");
 		return;
 	}
 
@@ -2498,7 +2468,7 @@ ACMD(do_alter)
 	if (number(0, 101) > GET_SKILL(ch, spellnum)) {
 		WAIT_STATE(ch, PULSE_VIOLENCE);
 		if (!tch || !skill_message(0, ch, tch, spellnum))
-			send_to_char("Your concentration was disturbed!\r\n", ch);
+			send_to_char(ch, "Your concentration was disturbed!\r\n");
 		if (mana > 0)
 			GET_MANA(ch) =
 				MAX(0, MIN(GET_MAX_MANA(ch), GET_MANA(ch) - (mana >> 1)));

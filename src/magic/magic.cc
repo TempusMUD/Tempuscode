@@ -315,13 +315,12 @@ affect_update(void)
 					if ((af->type == SPELL_GLOWLIGHT) ||
 						(af->type == SPELL_DIVINE_ILLUMINATION)
 						|| (af->type == SPELL_FLUORESCE))
-						send_to_char
-							("The light which surrounds you starts to fade.\r\n",
-							i);
+						send_to_char(i, 
+							"The light which surrounds you starts to fade.\r\n");
 					else if (af->type == SPELL_FLY
 						|| af->type == SPELL_TIDAL_SPACEWARP) {
-						send_to_char
-							("You feel your ability to fly fading.\r\n", i);
+						send_to_char(i, 
+							"You feel your ability to fly fading.\r\n");
 						if (IS_MOB(i)) {
 							if (IS_MAGE(i) && GET_LEVEL(i) > 32
 								&& GET_MANA(i) > 50)
@@ -373,8 +372,8 @@ affect_update(void)
 						(af->next->duration > 0)) {
 						if (*spell_wear_off_msg[af->type]
 							&& !PLR_FLAGGED(i, PLR_OLC)) {
-							send_to_char(spell_wear_off_msg[af->type], i);
-							send_to_char("\r\n", i);
+							send_to_char(i, spell_wear_off_msg[af->type]);
+							send_to_char(i, "\r\n");
 						}
 					}
 				}
@@ -394,17 +393,16 @@ affect_update(void)
 		}
 		if (!PLR_FLAGGED(i, PLR_WRITING | PLR_MAILING | PLR_OLC)) {
 			if (assimilate_found) {
-				sprintf(buf, "%d assimilation affect%s worn off.\r\n",
+				send_to_char(i, "%d assimilation affect%s worn off.\r\n",
 					assimilate_found,
 					assimilate_found > 1 ? "s have" : " has");
-				send_to_char(buf, i);
 			}
 			if (beserk_found)
-				send_to_char("You are no longer beserk.\r\n", i);
+				send_to_char(i, "You are no longer beserk.\r\n");
 			if (kata_found)
-				send_to_char("Your kata has worn off.\r\n", i);
+				send_to_char(i, "Your kata has worn off.\r\n");
 			if (hamstring_found)
-				send_to_char("The wound in your leg has closed.\r\n", i);
+				send_to_char(i, "The wound in your leg has closed.\r\n");
 
 		}
 	}
@@ -442,13 +440,13 @@ mag_materials(struct char_data *ch, int item0, int item1, int item2,
 		if (verbose) {
 			switch (number(0, 2)) {
 			case 0:
-				send_to_char("A wart sprouts on your nose.\r\n", ch);
+				send_to_char(ch, "A wart sprouts on your nose.\r\n");
 				break;
 			case 1:
-				send_to_char("Your hair falls out in clumps.\r\n", ch);
+				send_to_char(ch, "Your hair falls out in clumps.\r\n");
 				break;
 			case 2:
-				send_to_char("A huge corn develops on your big toe.\r\n", ch);
+				send_to_char(ch, "A huge corn develops on your big toe.\r\n");
 				break;
 			}
 		}
@@ -469,7 +467,7 @@ mag_materials(struct char_data *ch, int item0, int item1, int item2,
 		}
 	}
 	if (verbose) {
-		send_to_char("A puff of smoke rises from your pack.\r\n", ch);
+		send_to_char(ch, "A puff of smoke rises from your pack.\r\n");
 		act("A puff of smoke rises from $n's pack.", TRUE, ch, NULL, NULL,
 			TO_ROOM);
 	}
@@ -903,9 +901,9 @@ mag_affects(int level, struct char_data *ch, struct char_data *victim,
 
 	if (spell_info[spellnum].violent
 		&& mag_savingthrow(victim, level, savetype)) {
-		send_to_char(NOEFFECT, ch);
+		send_to_char(ch, NOEFFECT);
 		if (ch != victim)
-			send_to_char(NOEFFECT, victim);
+			send_to_char(victim, NOEFFECT);
 		return;
 	}
 
@@ -982,8 +980,8 @@ mag_affects(int level, struct char_data *ch, struct char_data *victim,
 		if (affected_by_spell(victim, SPELL_STONESKIN)) {
 			affect_from_char(victim, SPELL_STONESKIN);
 			if (*spell_wear_off_msg[SPELL_STONESKIN]) {
-				send_to_char(spell_wear_off_msg[SPELL_STONESKIN], victim);
-				send_to_char("\r\n", victim);
+				send_to_char(victim, spell_wear_off_msg[SPELL_STONESKIN]);
+				send_to_char(victim, "\r\n");
 			}
 		}
 
@@ -998,8 +996,8 @@ mag_affects(int level, struct char_data *ch, struct char_data *victim,
 		if (affected_by_spell(victim, SPELL_BARKSKIN)) {
 			affect_from_char(victim, SPELL_BARKSKIN);
 			if (*spell_wear_off_msg[SPELL_BARKSKIN]) {
-				send_to_char(spell_wear_off_msg[SPELL_BARKSKIN], victim);
-				send_to_char("\r\n", victim);
+				send_to_char(victim, spell_wear_off_msg[SPELL_BARKSKIN]);
+				send_to_char(victim, "\r\n");
 			}
 		}
 		af.level = af2.level = ch->getLevelBonus(SPELL_STONESKIN);
@@ -1034,7 +1032,7 @@ mag_affects(int level, struct char_data *ch, struct char_data *victim,
 		break;
 	case SPELL_BLINDNESS:
 		if (MOB_FLAGGED(victim, MOB_NOBLIND)) {
-			send_to_char("You fail.\r\n", ch);
+			send_to_char(ch, "You fail.\r\n");
 			return;
 		}
 		af.location = APPLY_HITROLL;
@@ -1059,7 +1057,7 @@ mag_affects(int level, struct char_data *ch, struct char_data *victim,
 		af.modifier = -1;
 		af.bitvector = 0;
 		if (MOB2_FLAGGED(victim, MOB2_NOSTUN)) {
-			send_to_char("You fail the stun.\r\n", ch);
+			send_to_char(ch, "You fail the stun.\r\n");
 			hit(victim, ch, TYPE_UNDEFINED);
 			return;
 		}
@@ -1116,9 +1114,9 @@ mag_affects(int level, struct char_data *ch, struct char_data *victim,
 	case SPELL_DETECT_POISON:
 		if (victim == ch)
 			if (IS_AFFECTED(victim, AFF_POISON))
-				send_to_char("You can sense poison in your blood.\r\n", ch);
+				send_to_char(ch, "You can sense poison in your blood.\r\n");
 			else
-				send_to_char("You feel healthy.\r\n", ch);
+				send_to_char(ch, "You feel healthy.\r\n");
 		else if (IS_AFFECTED(victim, AFF_POISON))
 			act("You sense that $E is poisoned.", FALSE, ch, 0, victim,
 				TO_CHAR);
@@ -1331,7 +1329,7 @@ mag_affects(int level, struct char_data *ch, struct char_data *victim,
 
 	case SPELL_SLOW:
 		if (mag_savingthrow(victim, level, SAVING_SPELL)) {
-			send_to_char(NOEFFECT, ch);
+			send_to_char(ch, NOEFFECT);
 			return;
 		}
 		af.duration = 1 + (level >> 2);
@@ -1598,7 +1596,7 @@ mag_affects(int level, struct char_data *ch, struct char_data *victim,
 	case SPELL_FEAR:
 		if (IS_UNDEAD(victim) || IS_DRAGON(victim) || IS_DEVIL(victim)) {
 			act("You fail to affect $N!", FALSE, ch, 0, victim, TO_CHAR);
-			send_to_char("You feel a wave of fear pass over you!\r\n", ch);
+			send_to_char(ch, "You feel a wave of fear pass over you!\r\n");
 			return;
 		}
 		af.duration = 1 + (level >> 4);
@@ -1796,17 +1794,16 @@ mag_affects(int level, struct char_data *ch, struct char_data *victim,
 			// see if we have chemical stability
 			if (af_ptr) {
 				act("$n's chemical stability prevents further acidification from occuring!", FALSE, victim, 0, 0, TO_ROOM);
-				send_to_char
-					("You chemical stability prevents further acidification from occuring!\r\n",
-					victim);
+				send_to_char(victim, 
+					"You chemical stability prevents further acidification from occuring!\r\n");
 				af_ptr->duration -= (level >> 3);
 
 				if (af_ptr->duration <= 0) {
 					if (af_ptr->type <= MAX_SPELLS &&
 						af_ptr->type > 0 &&
 						*spell_wear_off_msg[af_ptr->type]) {
-						send_to_char(spell_wear_off_msg[af_ptr->type], victim);
-						send_to_char("\r\n", victim);
+						send_to_char(victim, spell_wear_off_msg[af_ptr->type]);
+						send_to_char(victim, "\r\n");
 					}
 					affect_remove(victim, af_ptr);
 				}
@@ -1872,7 +1869,7 @@ mag_affects(int level, struct char_data *ch, struct char_data *victim,
 		break;
 	case SPELL_TAINT:
 		if (HAS_SYMBOL(victim)) {
-			send_to_char("Your rune of taint fails to form.\r\n", ch);
+			send_to_char(ch, "Your rune of taint fails to form.\r\n");
 			return;
 		} else {
 			af.bitvector = AFF3_TAINTED;
@@ -1888,7 +1885,7 @@ mag_affects(int level, struct char_data *ch, struct char_data *victim,
 		break;
 	case SPELL_SYMBOL_OF_PAIN:
 		if (HAS_SYMBOL(victim)) {
-			send_to_char("Your symbol of pain fails.\r\n", ch);
+			send_to_char(ch, "Your symbol of pain fails.\r\n");
 			act("$N's symbol of pain fails to mark you!",
 				FALSE, victim, 0, ch, TO_CHAR);
 			return;
@@ -1968,7 +1965,7 @@ Fireball: like harder bones, skin, organ membranecs
 
 */
 		if (ch != victim) {
-			send_to_char("There seems to be no affect.\r\n", ch);
+			send_to_char(ch, "There seems to be no affect.\r\n");
 			return;
 		} else {
 			af.duration = 1 + (level >> 1);
@@ -2021,11 +2018,11 @@ Fireball: like harder bones, skin, organ membranecs
 		break;
 	case SPELL_STIGMATA:
 		if (IS_GOOD(victim)) {
-			send_to_char("You cannot stigmatize good characters.\r\n", ch);
+			send_to_char(ch, "You cannot stigmatize good characters.\r\n");
 			return;
 		}
 		if (HAS_SYMBOL(victim)) {
-			send_to_char("Your stigmata fails.\r\n", ch);
+			send_to_char(ch, "Your stigmata fails.\r\n");
 			return;
 		}
 		af.duration = level >> 2;
@@ -2044,8 +2041,7 @@ Fireball: like harder bones, skin, organ membranecs
 			ch->in_room->sector_type != SECT_CATACOMBS &&
 			(ch->in_room->sector_type != SECT_ROAD || !OUTSIDE(ch)) &&
 			ch->in_room->sector_type != SECT_JUNGLE) {
-			send_to_char("There is not enough vegetation here for that.\r\n",
-				ch);
+			send_to_char(ch, "There is not enough vegetation here for that.\r\n");
 			return;
 		}
 		af.location = APPLY_HITROLL;
@@ -2179,19 +2175,19 @@ Fireball: like harder bones, skin, organ membranecs
 			if (afp->aff_index == 0) {
 				if (IS_AFFECTED(victim, afp->bitvector) &&
 					!affected_by_spell(victim, spellnum)) {
-					send_to_char(NOEFFECT, ch);
+					send_to_char(ch, NOEFFECT);
 					return;
 				}
 			} else if (afp->aff_index == 2) {
 				if (IS_AFFECTED_2(victim, afp->bitvector) &&
 					!affected_by_spell(victim, spellnum)) {
-					send_to_char(NOEFFECT, ch);
+					send_to_char(ch, NOEFFECT);
 					return;
 				}
 			} else if (afp->aff_index == 3) {
 				if (IS_AFFECTED_3(victim, afp->bitvector) &&
 					!affected_by_spell(victim, spellnum)) {
-					send_to_char(NOEFFECT, ch);
+					send_to_char(ch, NOEFFECT);
 					return;
 				}
 			}
@@ -2333,8 +2329,8 @@ mag_masses(byte level, struct char_data *ch, int spellnum, int savetype)
 		mag_damage(level, ch, (*it), spellnum, 1);
 	}
 	if (!found)
-		send_to_char
-			("This spell is only useful if someone is fighting you.\r\n", ch);
+		send_to_char(ch, 
+			"This spell is only useful if someone is fighting you.\r\n");
 }
 
 
@@ -2367,9 +2363,8 @@ mag_areas(byte level, struct char_data *ch, int spellnum, int savetype)
 			if ((*it) != ch && CAN_SEE(ch, (*it)))
 				count++;
 		if (!count) {
-			send_to_char
-				("You need some people present to make that effective.\r\n",
-				ch);
+			send_to_char(ch, 
+				"You need some people present to make that effective.\r\n");
 			return 0;
 		}
 	}
@@ -2419,7 +2414,7 @@ mag_areas(byte level, struct char_data *ch, int spellnum, int savetype)
 		return 0;
 
 	if (ROOM_FLAGGED(ch->in_room, ROOM_PEACEFUL) && GET_LEVEL(ch) < LVL_GOD) {
-		send_to_char("This is a non-violence zone!\r\n", ch);
+		send_to_char(ch, "This is a non-violence zone!\r\n");
 		return 0;
 	}
 	// check for players if caster is not a pkiller
@@ -2464,7 +2459,7 @@ mag_areas(byte level, struct char_data *ch, int spellnum, int savetype)
 		return_value |= retval;
 		if (retval == 0) {
 			if (spellnum == SPELL_EARTHQUAKE && number(10, 20) > GET_DEX(ch)) {
-				send_to_char("You stumble and fall to the ground!\r\n", ch);
+				send_to_char(ch, "You stumble and fall to the ground!\r\n");
 				ch->setPosition(POS_SITTING);
 			}
 		}
@@ -2491,8 +2486,7 @@ mag_areas(byte level, struct char_data *ch, int spellnum, int savetype)
 					if (spellnum == SPELL_EARTHQUAKE
 						&& (*it)->getPosition() == POS_STANDING
 						&& number(10, 20) > GET_DEX((*it))) {
-						send_to_char("You stumble and fall to the ground!\r\n",
-							(*it));
+						send_to_char((*it), "You stumble and fall to the ground!\r\n");
 						(*it)->setPosition(POS_SITTING);
 					}
 				}
@@ -2586,11 +2580,11 @@ mag_summons(int level, struct char_data *ch, struct obj_data *obj,
 	}
 
 	if (IS_AFFECTED(ch, AFF_CHARM)) {
-		send_to_char("You are too giddy to have any followers!\r\n", ch);
+		send_to_char(ch, "You are too giddy to have any followers!\r\n");
 		return;
 	}
 	if (number(0, 101) < pfail) {
-		send_to_char(mag_summon_fail_msgs[fmsg], ch);
+		send_to_char(ch, mag_summon_fail_msgs[fmsg]);
 		return;
 	}
 	for (i = 0; i < num; i++) {
@@ -2747,7 +2741,7 @@ mag_points(int level, struct char_data *ch, struct char_data *victim,
 	if (hit && affected_by_spell(victim, SPELL_BLACKMANTLE)) {
 		hit = 0;
 		to_vict = NULL;
-		send_to_char("Your blackmantle absorbs the healing!\r\n", ch);
+		send_to_char(ch, "Your blackmantle absorbs the healing!\r\n");
 	}
 
 	GET_HIT(victim) = MIN(GET_MAX_HIT(victim), GET_HIT(victim) + hit);
@@ -2838,7 +2832,7 @@ mag_unaffects(int level, struct char_data *ch, struct char_data *victim,
 						affect_remove(victim, aff);
 				}
 			}
-			send_to_char("Your suddenly feel your magic fade!\r\n", victim);
+			send_to_char(victim, "Your suddenly feel your magic fade!\r\n");
 			act("The magic of $n flows into the universe.", TRUE, victim, 0, 0,
 				TO_ROOM);
 
@@ -2860,8 +2854,7 @@ mag_unaffects(int level, struct char_data *ch, struct char_data *victim,
 		/* psionic skills */
 	case SPELL_NULLPSI:
 		if (victim->affected) {
-			send_to_char("Your feel the effects of a psychic purge.\r\n",
-				victim);
+			send_to_char(victim, "Your feel the effects of a psychic purge.\r\n");
 			for (aff = victim->affected; aff; aff = next_aff) {
 				next_aff = aff->next;
 				if (SPELL_IS_PSIONIC(aff->type)) {
@@ -2908,9 +2901,8 @@ mag_unaffects(int level, struct char_data *ch, struct char_data *victim,
 						affect_remove(victim, aff);
 				}
 			}
-			send_to_char
-				("Your physical states relax and resume their 'normal' states.\r\n",
-				victim);
+			send_to_char(victim, 
+				"Your physical states relax and resume their 'normal' states.\r\n");
 			act("$n appears more 'physically normal', somehow...", TRUE,
 				victim, 0, 0, TO_ROOM);
 
@@ -2936,7 +2928,7 @@ mag_unaffects(int level, struct char_data *ch, struct char_data *victim,
 		(spell4 != 0 && !affected_by_spell(victim, spell4)) &&
 		(spell3 != 0 && !affected_by_spell(victim, spell3))) {
 		if (!(spell_info[spellnum].routines - MAG_UNAFFECTS))
-			send_to_char(NOEFFECT, ch);
+			send_to_char(ch, NOEFFECT);
 		return;
 	}
 	if (spell && affected_by_spell(victim, spell)) {
@@ -3228,7 +3220,7 @@ mag_alter_objs(int level, struct char_data *ch, struct obj_data *obj,
 
 	}
 	if (to_char == NULL)
-		send_to_char(NOEFFECT, ch);
+		send_to_char(ch, NOEFFECT);
 	else
 		act(to_char, TRUE, ch, obj, 0, TO_CHAR);
 
@@ -3248,7 +3240,7 @@ mag_objects(int level, struct char_data *ch, struct obj_data *obj,
 	switch (spellnum) {
 	case SPELL_CREATE_WATER:
 		if (!obj) {
-			send_to_char("What do you wish to fill?\r\n", ch);
+			send_to_char(ch, "What do you wish to fill?\r\n");
 			break;
 		}
 		if (GET_OBJ_TYPE(obj) != ITEM_DRINKCON) {
@@ -3256,18 +3248,16 @@ mag_objects(int level, struct char_data *ch, struct obj_data *obj,
 			break;
 		}
 		if (GET_OBJ_VAL(obj, 1) != 0) {
-			send_to_char("There is already another liquid in it!\r\n", ch);
+			send_to_char(ch, "There is already another liquid in it!\r\n");
 			break;
 		}
 		if (number(0, 101) > GET_SKILL(ch, SPELL_CREATE_WATER)) {
-			send_to_char("Oops!  I wouldn't drink that if I were you...\r\n",
-				ch);
+			send_to_char(ch, "Oops!  I wouldn't drink that if I were you...\r\n");
 			GET_OBJ_VAL(obj, 1) = GET_OBJ_VAL(obj, 0);
 			GET_OBJ_VAL(obj, 2) = LIQ_SLIME;
 			break;
 		} else {
-			send_to_char("Your deity fills it with crytal clear water.\r\n",
-				ch);
+			send_to_char(ch, "Your deity fills it with crytal clear water.\r\n");
 			GET_OBJ_VAL(obj, 1) = GET_OBJ_VAL(obj, 0);
 			GET_OBJ_VAL(obj, 2) = LIQ_CLEARWATER;
 			break;
@@ -3323,7 +3313,7 @@ mag_objects(int level, struct char_data *ch, struct obj_data *obj,
 				1 + (level > number(10, 40)) + (level > number(40, 60));
 			act("$p is now poisoned.", FALSE, ch, obj, 0, TO_CHAR);
 		} else
-			send_to_char(NOEFFECT, ch);
+			send_to_char(ch, NOEFFECT);
 		break;
 	}
 }
@@ -3354,13 +3344,13 @@ mag_creations(int level, struct char_data *ch, int spellnum)
 		z = 3009;
 		break;
 	default:
-		send_to_char("Spell unimplemented, it would seem.\r\n", ch);
+		send_to_char(ch, "Spell unimplemented, it would seem.\r\n");
 		return;
 		break;
 	}
 
 	if (!(tobj = read_object(z))) {
-		send_to_char("I seem to have goofed.\r\n", ch);
+		send_to_char(ch, "I seem to have goofed.\r\n");
 		sprintf(buf,
 			"SYSERR: spell_creations, spell %d, obj %d: obj not found",
 			spellnum, z);
@@ -3393,7 +3383,7 @@ mag_exits(int level, struct char_data *caster, struct room_data *room,
 			break;
 
 	if (dir >= NUM_DIRS) {
-		send_to_char("Funk.\r\n", caster);
+		send_to_char(caster, "Funk.\r\n");
 		return 0;
 	}
 
@@ -3416,7 +3406,7 @@ mag_exits(int level, struct char_data *caster, struct room_data *room,
 
 		break;
 	default:
-		send_to_char("Nope.\r\n", caster);
+		send_to_char(caster, "Nope.\r\n");
 		break;
 	}
 
@@ -3442,10 +3432,10 @@ notify_cleric_moon(struct char_data *ch)
 		return;
 
 	if (lunar_stage == MOON_FULL) {
-		send_to_char("The moon is full.\r\n", ch);
+		send_to_char(ch, "The moon is full.\r\n");
 	}
 
 	else if (lunar_stage == MOON_NEW) {
-		send_to_char("The moon is new.\r\n", ch);
+		send_to_char(ch, "The moon is new.\r\n");
 	}
 }

@@ -59,7 +59,7 @@ SPECIAL(registry)
     break;
   case 210:
     if (!IS_MONK(ch)) {
-      send_to_char("Only monks can register here.\r\n", ch);
+      send_to_char(ch, "Only monks can register here.\r\n");
       return 1;
     }
     home = HOME_MONK;
@@ -80,8 +80,7 @@ SPECIAL(registry)
       perform_tell(reg, ch, "You are already a resident here.");
       if (IS_EVIL(ch)) {
 	perform_tell(reg, ch, "But you don't need to be, EVIL scum!");
-	send_to_char("You are no longer a resident of the Elven Village.\r\n",
-		     ch);
+	send_to_char(ch, "You are no longer a resident of the Elven Village.\r\n");
 	act("$n just lost $s residence in the village!", 
 	    TRUE, ch, 0, 0, TO_ROOM);
 	population_record[GET_HOME(ch)]--;
@@ -114,9 +113,8 @@ SPECIAL(registry)
   }
 
   if (GET_HOME(ch) == home) {
-    sprintf(buf, "You are already a legal resident of %s!\r\n", 
+    send_to_char(ch, "You are already a legal resident of %s!\r\n", 
                                               home_towns[home]);
-    send_to_char(buf, ch);
     return 1;
   }
 

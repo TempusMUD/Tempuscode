@@ -134,7 +134,7 @@ voting_booth_read(char_data *ch, struct obj_data *obj, char *argument) {
 
 	poll_num = atoi(argument);
 	if (!*argument || !poll_num) {
-		send_to_char("Which poll would you like to read?\r\n", ch);
+		send_to_char(ch, "Which poll would you like to read?\r\n");
 		return;
 	}
 
@@ -144,7 +144,7 @@ voting_booth_read(char_data *ch, struct obj_data *obj, char *argument) {
 		poll = poll->next;
 
 	if (!poll) {
-		send_to_char("That poll does not exist.\r\n", ch);
+		send_to_char(ch, "That poll does not exist.\r\n");
 		return;
 	}
 	
@@ -152,7 +152,6 @@ voting_booth_read(char_data *ch, struct obj_data *obj, char *argument) {
 	while (memory && memory->next && memory->id != GET_IDNUM(ch))
 		memory = memory->next;
 
-	send_to_char(poll->descrip,ch);
 	for (opt = poll->options;opt;opt = opt->next) {
 		if (GET_LEVEL(ch) >= LVL_AMBASSADOR) {
 			if ( opt->count != poll->count)
@@ -174,8 +173,7 @@ voting_booth_read(char_data *ch, struct obj_data *obj, char *argument) {
 				sprintf(buf, "(all) %c) %s",
 					opt->idx,opt->descrip);
 		} else
-			sprintf(buf, "      %c) %s",opt->idx,opt->descrip);
-		send_to_char(buf, ch);
+			send_to_char(ch, "      %c) %s",opt->idx,opt->descrip);
 	}
 }
 
@@ -189,19 +187,19 @@ voting_booth_vote(char_data *ch, struct obj_data *obj, char *argument) {
 	int poll_num,answer;
 
 	if (PLR_FLAGGED(ch, PLR_NOPOST)) {
-		send_to_char("You cannot vote.\r\n", ch);
+		send_to_char(ch, "You cannot vote.\r\n");
 		return;
 	}
 
 	if (GET_LEVEL(ch) < 10) {
-		send_to_char("You cannot vote yet.\r\n", ch);
+		send_to_char(ch, "You cannot vote yet.\r\n");
 		return;
 	}
 
 	two_arguments(argument, poll_str, answer_str);
 
 	if (!*argument || !*poll_str) {
-		send_to_char("Which poll would you like to vote on?\r\n", ch);
+		send_to_char(ch, "Which poll would you like to vote on?\r\n");
 		return;
 	}
 
@@ -212,7 +210,7 @@ voting_booth_vote(char_data *ch, struct obj_data *obj, char *argument) {
 		poll = poll->next;
 
 	if (!poll) {
-		send_to_char("That poll does not exist.\r\n", ch);
+		send_to_char(ch, "That poll does not exist.\r\n");
 		return;
 	}
 	
@@ -221,18 +219,18 @@ voting_booth_vote(char_data *ch, struct obj_data *obj, char *argument) {
 		memory = memory->next;
 
 	if (memory && memory->id == GET_IDNUM(ch)) {
-		send_to_char("You have already voted on that issue!\r\n", ch);
+		send_to_char(ch, "You have already voted on that issue!\r\n");
 		return;
 	}
 
 	if (!*answer_str) {
-		send_to_char("What would you like to answer on that poll?\r\n", ch);
+		send_to_char(ch, "What would you like to answer on that poll?\r\n");
 		return;
 	}
 
 	answer = *answer_str;
 	if (!answer) {
-		send_to_char("Specify your answer with the letter of your choice..\r\n", ch);
+		send_to_char(ch, "Specify your answer with the letter of your choice..\r\n");
 		return;
 	}
 
@@ -241,9 +239,8 @@ voting_booth_vote(char_data *ch, struct obj_data *obj, char *argument) {
 		opt = opt->next;
 
 	if ( !opt ) {
-		sprintf(buf, "Option %s for poll '%s' does not exist.\r\n",answer_str,
+		send_to_char(ch, "Option %s for poll '%s' does not exist.\r\n",answer_str,
 			poll->header);
-		send_to_char(buf, ch);
 		return;
 	}
 
@@ -252,8 +249,7 @@ voting_booth_vote(char_data *ch, struct obj_data *obj, char *argument) {
 	poll->count++;
 	poll->weight += GET_LEVEL(ch) + ((GET_LEVEL(ch) < LVL_AMBASSADOR) ? (GET_REMORT_GEN(ch) * 50):0);
 	
-	sprintf(buf, "You have voted for %c) %s",opt->idx,opt->descrip);
-	send_to_char(buf, ch);
+	send_to_char(ch, "You have voted for %c) %s",opt->idx,opt->descrip);
 	act("$n votes on $P.", TRUE, ch, 0, obj, TO_ROOM);
 
 	CREATE(new_memory, struct memory_rec_struct, 1);
@@ -278,25 +274,22 @@ voting_booth_list(char_data *ch, struct obj_data *obj) {
 		poll = poll->next;
 	}
 
-	send_to_char("This is a voting booth.  Usage: READ <poll #>, VOTE <poll #> <answer>\r\n", ch);
-	send_to_char("You can look at polls after voting to see current poll results.\r\n", ch);
+	send_to_char(ch, "This is a voting booth.  Usage: READ <poll #>, VOTE <poll #> <answer>\r\n");
+	send_to_char(ch, "You can look at polls after voting to see current poll results.\r\n");
 
 	poll = voting_poll_list;
 
 	if (!poll) {
-		sprintf(buf, "%s%sThere are no polls.%s\r\n", CCRED(ch, C_NRM),
+		send_to_char(ch, "%s%sThere are no polls.%s\r\n", CCRED(ch, C_NRM),
 			CCBLD(ch, C_NRM), CCNRM(ch, C_NRM));
-		send_to_char(buf, ch);
 	} else {
-		sprintf(buf, "%sThere are %d issues to vote upon.%s\r\n",
+		send_to_char(ch, "%sThere are %d issues to vote upon.%s\r\n",
 			CCGRN(ch, C_NRM), poll_count, CCNRM(ch, C_NRM));
-		send_to_char(buf, ch);
 		poll_count = 0;
 		while (poll) {
 			strftime(buf2, 2048, "%a %b %d", localtime(&poll->creation_time));
-			sprintf(buf, "%2d : %s (%d responses) :: %s\r\n", ++poll_count,
+			send_to_char(ch, "%2d : %s (%d responses) :: %s\r\n", ++poll_count,
 				buf2, poll->count, poll->header);
-			send_to_char(buf, ch);
 			poll = poll->next;
 		}
 	}
@@ -313,7 +306,7 @@ voting_booth_remove(char_data *ch, struct obj_data *obj, char *argument) {
 
 	poll_num = atoi(argument);
 	if (!*argument || !poll_num) {
-		send_to_char("Which poll would you like to remove?\r\n", ch);
+		send_to_char(ch, "Which poll would you like to remove?\r\n");
 		return;
 	}
 
@@ -328,7 +321,7 @@ voting_booth_remove(char_data *ch, struct obj_data *obj, char *argument) {
 			prev_poll = prev_poll->next;
 
 		if (!prev_poll->next) {
-			send_to_char("That poll does not exist.\r\n", ch);
+			send_to_char(ch, "That poll does not exist.\r\n");
 			return;
 		}
 
@@ -359,7 +352,7 @@ voting_booth_write(char_data *ch, struct obj_data *obj, char *argument) {
 
 	skip_spaces(&argument);
 	if (!*arg) {
-		send_to_char("We must have a headline!\r\n", ch);
+		send_to_char(ch, "We must have a headline!\r\n");
 		return;
 	}
 	

@@ -18,7 +18,7 @@ SPECIAL(safiir)
   skip_spaces(&argument);
 
   if (!*argument) {
-    send_to_char("What wand are you talking about?\r\n", ch);
+    send_to_char(ch, "What wand are you talking about?\r\n");
     return 1;
   } else if (!(wand = get_obj_in_list_vis(ch, argument, ch->carrying))) {
     sprintf(buf3, "You are not carrying any %s.", argument);

@@ -102,8 +102,8 @@ SPECIAL(cyborg_overhaul)
   
   }
 
-  send_to_char("You may 'buy overhaul', 'buy repairs',\r\n"
-	       "'value overhaul', or 'value repairs'.\r\n", ch);
+  send_to_char(ch, "You may 'buy overhaul', 'buy repairs',\r\n"
+	       "'value overhaul', or 'value repairs'.\r\n");
   return 0;
 }
 

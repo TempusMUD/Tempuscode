@@ -34,12 +34,11 @@ SPECIAL(elevator_panel)
 	    car->in_room->number, car->in_room->name);
     
     for (elem = elev->list; elem; elem = elem->next) {
-	sprintf(buf, "%s [%5d ] %s [%8s]\r\n", buf,
+	send_to_char(ch, "%s [%5d ] %s [%8s]\r\n", buf,
 		elem->rm_vnum, 
 		(elem->rm_vnum == car->in_room->number) ? "*" : " ",
 		elem->name);
     }
-    send_to_char(buf, ch);
     return 1;
   }
   if (CMD_IS("press") || CMD_IS("push")) {
@@ -49,7 +48,7 @@ SPECIAL(elevator_panel)
       return 0;
 
     if (!(elem = elevator_elem_by_name(buf2, elev))) {
-      send_to_char("No such operation.\r\n", ch);
+      send_to_char(ch, "No such operation.\r\n");
       return 1;
     }
 
@@ -57,18 +56,17 @@ SPECIAL(elevator_panel)
     act(buf, FALSE, ch, panel, 0, TO_ROOM);
 
     if (!real_room(elem->rm_vnum)) {
-      send_to_char("That function is out of order.\r\n", ch);
+      send_to_char(ch, "That function is out of order.\r\n");
       return 1;
     }
 
     if (elem->rm_vnum == car->in_room->number) {
-      send_to_char("Nothing seems to happen.\r\n", ch);
+      send_to_char(ch, "Nothing seems to happen.\r\n");
       return 1;
     }
 
     if (target_room_on_queue(elem->rm_vnum, elev)) {
       act("The panel beeps with annoyance.", FALSE,ch,0,0,TO_ROOM);
-      send_to_char("The panel beeps with annoyance.\r\n",ch);
       return 1;
     }
     elev_index++;
@@ -76,7 +74,7 @@ SPECIAL(elevator_panel)
     sprintf(buf, "%d elev%d 1 1 1 %d", elev_index, elev_index, elem->rm_vnum);
 
     if (add_path(buf, FALSE)) {
-      send_to_char("Major Error has arrived from the west.\r\n", ch);
+      send_to_char(ch, "Major Error has arrived from the west.\r\n");
       return 1;
     }
     
@@ -84,14 +82,14 @@ SPECIAL(elevator_panel)
       start = TRUE;
 
     if (!(path_to_elevator_queue(elev_index, elev))) {
-      send_to_char("Shitfire.\r\n", ch);
+      send_to_char(ch, "Shitfire.\r\n");
       return 1;
     }
 
     if (start)
       add_path_to_vehicle(car, elev->pQ->phead->name);
 
-    send_to_char("You push it.\r\n", ch);
+    send_to_char(ch, "You push it.\r\n");
     return 1;
   }
   return 0;

@@ -44,12 +44,11 @@ do_olc_xset(struct char_data *ch, char *argument)
 	int state = 0;
 
 	if (!OLC_EDIT_OK(ch, ch->in_room->zone, ZONE_SEARCH_APPROVED)) {
-		send_to_char("This zone has not been approved for search editing.\r\n",
-			ch);
+		send_to_char(ch, "This zone has not been approved for search editing.\r\n");
 		return;
 	}
 	if (!GET_OLC_SRCH(ch)) {
-		send_to_char("You are not currently editing a search.\r\n", ch);
+		send_to_char(ch, "You are not currently editing a search.\r\n");
 		return;
 	}
 
@@ -68,16 +67,14 @@ do_olc_xset(struct char_data *ch, char *argument)
 	}
 
 	if ((command = search_block(arg1, olc_xset_keys, 0)) < 0) {
-		sprintf(buf, "No such xset command '%s'.\r\n", arg1);
-		send_to_char(buf, ch);
+		send_to_char(ch, "No such xset command '%s'.\r\n", arg1);
 		return;
 	}
 
 	two_arguments(argument, arg1, arg2);
 
 	if (!*arg1) {
-		sprintf(buf, "Set search %s to what?\r\n", olc_xset_keys[command]);
-		send_to_char(buf, ch);
+		send_to_char(ch, "Set search %s to what?\r\n", olc_xset_keys[command]);
 		return;
 	}
 #ifdef DMALLOC
@@ -88,7 +85,7 @@ do_olc_xset(struct char_data *ch, char *argument)
 		if (srch_p->command_keys)
 			free(srch_p->command_keys);
 		srch_p->command_keys = strdup(argument);
-		send_to_char("Search command triggers set.\r\n", ch);
+		send_to_char(ch, "Search command triggers set.\r\n");
 		break;
 	case 1:					/* keywords */
 		if (srch_p->keywords)
@@ -97,7 +94,7 @@ do_olc_xset(struct char_data *ch, char *argument)
 			srch_p->keywords = NULL;
 		else
 			srch_p->keywords = strdup(argument);
-		send_to_char("Search argument keywords set.\r\n", ch);
+		send_to_char(ch, "Search argument keywords set.\r\n");
 		break;
 	case 2:					/* to_vict */
 		delete_doubledollar(argument);
@@ -107,7 +104,7 @@ do_olc_xset(struct char_data *ch, char *argument)
 			srch_p->to_vict = NULL;
 		else
 			srch_p->to_vict = strdup(argument);
-		send_to_char("To_vict message set.\r\n", ch);
+		send_to_char(ch, "To_vict message set.\r\n");
 		break;
 	case 3:					/* to_room */
 		delete_doubledollar(argument);
@@ -117,28 +114,27 @@ do_olc_xset(struct char_data *ch, char *argument)
 			srch_p->to_room = NULL;
 		else
 			srch_p->to_room = strdup(argument);
-		send_to_char("To_room message set.\r\n", ch);
+		send_to_char(ch, "To_room message set.\r\n");
 		break;
 	case 4:					/* command */
 		if ((command = search_block(arg1, search_commands, 0)) < 0) {
-			sprintf(buf, "No such search command '%s'.\r\n", arg1);
-			send_to_char(buf, ch);
+			send_to_char(ch, "No such search command '%s'.\r\n", arg1);
 			return;
 		}
 		srch_p->command = command;
-		send_to_char("Search command set.\r\n", ch);
+		send_to_char(ch, "Search command set.\r\n");
 		break;
 	case 5:					/* value */
 		if ((i = atoi(arg1)) < 0 || i > 2) {
-			send_to_char("xset val <0 | 1 | 2> <value>\r\n", ch);
+			send_to_char(ch, "xset val <0 | 1 | 2> <value>\r\n");
 			return;
 		}
 		if (!*arg2) {
-			send_to_char("Set the value to what?\r\n", ch);
+			send_to_char(ch, "Set the value to what?\r\n");
 			return;
 		}
 		srch_p->arg[i] = atoi(arg2);
-		send_to_char("Ok, value set.\r\n", ch);
+		send_to_char(ch, "Ok, value set.\r\n");
 		break;
 	case 6:					/* to_remote */
 		delete_doubledollar(argument);
@@ -148,7 +144,7 @@ do_olc_xset(struct char_data *ch, char *argument)
 			srch_p->to_remote = NULL;
 		else
 			srch_p->to_remote = strdup(argument);
-		send_to_char("To_remote message set.\r\n", ch);
+		send_to_char(ch, "To_remote message set.\r\n");
 		break;
 
 	case 7:					/* flags */
@@ -160,8 +156,7 @@ do_olc_xset(struct char_data *ch, char *argument)
 		else if (*arg1 == '-')
 			state = 2;
 		else {
-			send_to_char("Usage: olc xset flags [+/-] [FLAG, FLAG, ...]\r\n",
-				ch);
+			send_to_char(ch, "Usage: olc xset flags [+/-] [FLAG, FLAG, ...]\r\n");
 			return;
 		}
 
@@ -171,8 +166,7 @@ do_olc_xset(struct char_data *ch, char *argument)
 
 		while (*arg1) {
 			if ((flag = search_block(arg1, search_bits, FALSE)) == -1) {
-				sprintf(buf, "Invalid flag %s, skipping...\r\n", arg1);
-				send_to_char(buf, ch);
+				send_to_char(ch, "Invalid flag %s, skipping...\r\n", arg1);
 			} else
 				tmp_flags = tmp_flags | (1 << flag);
 
@@ -189,16 +183,16 @@ do_olc_xset(struct char_data *ch, char *argument)
 		srch_p->flags = cur_flags;
 
 		if (tmp_flags == 0 && cur_flags == 0) {
-			send_to_char("Search flags set\r\n", ch);
+			send_to_char(ch, "Search flags set\r\n");
 		} else if (tmp_flags == 0)
-			send_to_char("Search flags not altered.\r\n", ch);
+			send_to_char(ch, "Search flags not altered.\r\n");
 		else {
-			send_to_char("Search flags set.\r\n", ch);
+			send_to_char(ch, "Search flags set.\r\n");
 		}
 		break;
 
 	default:
-		send_to_char("This option currently unavailable.\r\n", ch);
+		send_to_char(ch, "This option currently unavailable.\r\n");
 		break;
 	}
 #ifdef DMALLOC
@@ -218,7 +212,7 @@ do_create_search(struct char_data *ch, char *arg)
 	skip_spaces(&arg);
 
 	if (!*triggers) {
-		send_to_char("USAGE: create search <trigger word> <keyword>\r\n", ch);
+		send_to_char(ch, "USAGE: create search <trigger word> <keyword>\r\n");
 		return NULL;
 	}
 
@@ -226,14 +220,13 @@ do_create_search(struct char_data *ch, char *arg)
 		if (isname_exact(triggers, srch->command_keys) &&
 			*keywords && srch->keywords
 			&& isname_exact(keywords, srch->keywords)) {
-			send_to_char("There is already a search here on that trigger.\r\n",
-				ch);
+			send_to_char(ch, "There is already a search here on that trigger.\r\n");
 			return NULL;
 		}
 	}
 
 	if (!OLC_EDIT_OK(ch, ch->in_room->zone, ZONE_ROOMS_APPROVED)) {
-		send_to_char("World olc is not approved for this zone.\r\n", ch);
+		send_to_char(ch, "World olc is not approved for this zone.\r\n");
 		return NULL;
 	}
 
@@ -267,7 +260,7 @@ do_destroy_search(struct char_data *ch, char *arg)
 	arg = two_arguments(arg, triggers, keywords);
 
 	if (!*triggers) {
-		send_to_char("USAGE: destroy search <trigger word> [keyword]\r\n", ch);
+		send_to_char(ch, "USAGE: destroy search <trigger word> [keyword]\r\n");
 		return 0;
 	}
 
@@ -280,12 +273,12 @@ do_destroy_search(struct char_data *ch, char *arg)
 	}
 
 	if (!srch) {
-		send_to_char("There is no such search here.\r\n", ch);
+		send_to_char(ch, "There is no such search here.\r\n");
 		return 0;
 	}
 
 	if (!OLC_EDIT_OK(ch, ch->in_room->zone, ZONE_ROOMS_APPROVED)) {
-		send_to_char("World olc is not approved for this zone.\r\n", ch);
+		send_to_char(ch, "World olc is not approved for this zone.\r\n");
 		return 0;
 	}
 	CharacterList::iterator cit = characterList.begin();
@@ -303,7 +296,7 @@ do_destroy_search(struct char_data *ch, char *arg)
 	if (srch->to_room)
 		free(srch->to_room);
 	free(srch);
-	send_to_char("Search destroyed.\r\n", ch);
+	send_to_char(ch, "Search destroyed.\r\n");
 	return 1;
 }
 
@@ -320,7 +313,7 @@ set_char_xedit(struct char_data *ch, char *argument)
 		return 0;
 
 	if (!*arg2 && is_abbrev(arg1, "exit")) {
-		send_to_char("Exiting search editor.\r\n", ch);
+		send_to_char(ch, "Exiting search editor.\r\n");
 		GET_OLC_SRCH(ch) = srch;
 		return 1;
 	}
@@ -335,10 +328,10 @@ set_char_xedit(struct char_data *ch, char *argument)
 				"%s (%s)\r\n", GET_OLC_SRCH(ch)->command_keys,
 				GET_OLC_SRCH(ch)->keywords ?
 				GET_OLC_SRCH(ch)->keywords : "NULL");
-			send_to_char(buf, ch);
+			send_to_char(ch, "%s", buf);
 			return 1;
 		}
-	send_to_char("No such search in room.\r\n", ch);
+	send_to_char(ch, "No such search in room.\r\n");
 	return 0;
 }
 
@@ -452,10 +445,10 @@ void
 do_olc_xstat(struct char_data *ch)
 {
 	if (!GET_OLC_SRCH(ch)) {
-		send_to_char("You are not currently editing a search.\r\n", ch);
+		send_to_char(ch, "You are not currently editing a search.\r\n");
 		return;
 	}
 	print_search_data_to_buf(ch, ch->in_room, GET_OLC_SRCH(ch), buf);
-	send_to_char(buf, ch);
+	send_to_char(ch, "%s", buf);
 
 }

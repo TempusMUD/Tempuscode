@@ -87,7 +87,7 @@ ACMD(do_skillset)
 	argument = one_argument(argument, name);
 
 	if (!*name) {				/* no arguments. print an informative text */
-		send_to_char("Syntax: skillset <name> '<skill>' <value>\r\n", ch);
+		send_to_char(ch, "Syntax: skillset <name> '<skill>' <value>\r\n");
 		strcpy(help, "Skill being one of the following:\r\n");
 		for (i = 0; *spell_to_str(i) != '\n'; i++) {
 			if (*spell_to_str(i) == '!')
@@ -95,28 +95,28 @@ ACMD(do_skillset)
 			sprintf(help + strlen(help), "%18s", spell_to_str(i));
 			if (i % 4 == 3) {
 				strcat(help, "\r\n");
-				send_to_char(help, ch);
+				send_to_char(ch, help);
 				*help = '\0';
 			}
 		}
 		if (*help)
-			send_to_char(help, ch);
-		send_to_char("\r\n", ch);
+			send_to_char(ch, help);
+		send_to_char(ch, "\r\n");
 		return;
 	}
 	if (!(vict = get_char_vis(ch, name))) {
-		send_to_char(NOPERSON, ch);
+		send_to_char(ch, NOPERSON);
 		return;
 	}
 	skip_spaces(&argument);
 
 	/* If there is no chars in argument */
 	if (!*argument) {
-		send_to_char("Skill name expected.\r\n", ch);
+		send_to_char(ch, "Skill name expected.\r\n");
 		return;
 	}
 	if (*argument != '\'') {
-		send_to_char("Skill must be enclosed in: ''\r\n", ch);
+		send_to_char(ch, "Skill must be enclosed in: ''\r\n");
 		return;
 	}
 	/* Locate the last quote && lowercase the magic words (if any) */
@@ -125,33 +125,33 @@ ACMD(do_skillset)
 		*(argument + qend) = tolower(*(argument + qend));
 
 	if (*(argument + qend) != '\'') {
-		send_to_char("Skill must be enclosed in: ''\r\n", ch);
+		send_to_char(ch, "Skill must be enclosed in: ''\r\n");
 		return;
 	}
 	strcpy(help, (argument + 1));
 	help[qend - 1] = '\0';
 	if ((skill = find_skill_num(help)) <= 0) {
-		send_to_char("Unrecognized skill.\r\n", ch);
+		send_to_char(ch, "Unrecognized skill.\r\n");
 		return;
 	}
 	argument += qend + 1;		/* skip to next parameter */
 	argument = one_argument(argument, buf);
 
 	if (!*buf) {
-		send_to_char("Learned value expected.\r\n", ch);
+		send_to_char(ch, "Learned value expected.\r\n");
 		return;
 	}
 	value = atoi(buf);
 	if (value < 0) {
-		send_to_char("Minimum value for learned is 0.\r\n", ch);
+		send_to_char(ch, "Minimum value for learned is 0.\r\n");
 		return;
 	}
 	if (value > 120) {
-		send_to_char("Max value for learned is 120.\r\n", ch);
+		send_to_char(ch, "Max value for learned is 120.\r\n");
 		return;
 	}
 	if (IS_NPC(vict)) {
-		send_to_char("You can't set NPC skills.\r\n", ch);
+		send_to_char(ch, "You can't set NPC skills.\r\n");
 		return;
 	}
 	sprintf(buf2, "%s changed %s's %s to %d.", GET_NAME(ch), GET_NAME(vict),
@@ -160,9 +160,8 @@ ACMD(do_skillset)
 
 	SET_SKILL(vict, skill, value);
 
-	sprintf(buf2, "You change %s's %s to %d.\r\n", GET_NAME(vict),
+	send_to_char(ch, "You change %s's %s to %d.\r\n", GET_NAME(vict),
 		spell_to_str(skill), value);
-	send_to_char(buf2, ch);
 }
 
 
@@ -271,21 +270,20 @@ show_file(struct char_data *ch, char *fname, int lines)
 
 	file.open(fname, ios::in);
 	if (!file) {
-		send_to_char("It seems to be empty.\r\n", ch);
+		send_to_char(ch, "It seems to be empty.\r\n");
 		return;
 	}
 
 	file.seekg(0, ios::end);
 	if (!file.tellg()) {
-		send_to_char("It seems to be empty.\r\n", ch);
+		send_to_char(ch, "It seems to be empty.\r\n");
 		return;
 	}
 	file.seekg(0, ios::beg);
 	if (lines > 0) {
 		if (lines > 100) {
-			send_to_char
-				("If you want that many lines, you might as well read the whole thing.\r\n",
-				ch);
+			send_to_char(ch, 
+				"If you want that many lines, you might as well read the whole thing.\r\n");
 			return;
 		}
 		int tot, i;

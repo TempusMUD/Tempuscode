@@ -30,7 +30,7 @@ SPECIAL(elven_registry)
     perform_tell(reg, ch, "You are already a resident here.");
     if (IS_EVIL(ch)) {
       perform_tell(reg, ch, "But you don't need to be, EVIL scum!");
-      send_to_char("You are no longer a resident of the Elven Village.\r\n", ch);
+      send_to_char(ch, "You are no longer a resident of the Elven Village.\r\n");
       act("$n just lost $s residence in the village!", TRUE, ch, 0, 0, TO_ROOM);
       GET_HOME(ch) = HOME_MODRIAN;
     }

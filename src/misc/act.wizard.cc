@@ -224,7 +224,7 @@ ACMD(do_echo)
 	skip_spaces(&argument);
 
 	if (!*argument)
-		send_to_char("Yes.. but what?\r\n", ch);
+		send_to_char(ch, "Yes.. but what?\r\n");
 	else {
 		if (subcmd == SCMD_EMOTE)
 			sprintf(buf, "$n %s", argument);
@@ -234,7 +234,7 @@ ACMD(do_echo)
 		}
 		if (subcmd == SCMD_EMOTE) {
 			if (PRF_FLAGGED(ch, PRF_NOREPEAT))
-				send_to_char(OK, ch);
+				send_to_char(ch, OK);
 			else
 				act(buf, FALSE, ch, 0, 0, TO_CHAR);
 			act(buf, FALSE, ch, 0, 0, TO_ROOM);
@@ -258,20 +258,19 @@ ACMD(do_send)
 	half_chop(argument, arg, buf);
 
 	if (!*arg) {
-		send_to_char("Send what to who?\r\n", ch);
+		send_to_char(ch, "Send what to who?\r\n");
 		return;
 	}
 	if (!(vict = get_char_vis(ch, arg))) {
-		send_to_char(NOPERSON, ch);
+		send_to_char(ch, NOPERSON);
 		return;
 	}
-	send_to_char(buf, vict);
-	send_to_char("\r\n", vict);
+	send_to_char(vict, "%s", buf);
+	send_to_char(vict, "\r\n");
 	if (PRF_FLAGGED(ch, PRF_NOREPEAT))
-		send_to_char("Sent.\r\n", ch);
+		send_to_char(ch, "Sent.\r\n");
 	else {
-		sprintf(buf2, "You send '%s' to %s.\r\n", buf, GET_NAME(vict));
-		send_to_char(buf2, ch);
+		send_to_char(ch, "You send '%s' to %s.\r\n", buf, GET_NAME(vict));
 		sprintf(buf, "(GC) %s send %s %s", GET_NAME(ch), GET_NAME(vict), buf);
 		slog(buf);
 	}
@@ -292,19 +291,18 @@ find_target_room(struct char_data *ch, char *rawroomstr)
 	one_argument(rawroomstr, roomstr);
 
 	if (!*roomstr) {
-		send_to_char("You must supply a room number or name.\r\n", ch);
+		send_to_char(ch, "You must supply a room number or name.\r\n");
 		return NULL;
 	}
 	if (isdigit(*roomstr) && !strchr(roomstr, '.')) {
 		tmp = atoi(roomstr);
 		if (!(location = real_room(tmp))) {
-			send_to_char("No room exists with that number.\r\n", ch);
+			send_to_char(ch, "No room exists with that number.\r\n");
 			return NULL;
 		}
 	} else if ((target_mob = get_char_vis(ch, roomstr))) {
 		if (GET_LEVEL(ch) < LVL_SPIRIT && GET_MOB_SPEC(target_mob) == fate) {
-			sprintf(buf, "%s's magic repulses you.\r\n", GET_NAME(target_mob));
-			send_to_char(buf, ch);
+			send_to_char(ch, "%s's magic repulses you.\r\n", GET_NAME(target_mob));
 			return NULL;
 		}
 		location = target_mob->in_room;
@@ -312,27 +310,27 @@ find_target_room(struct char_data *ch, char *rawroomstr)
 		if (target_obj->in_room != NULL) {
 			location = target_obj->in_room;
 		} else {
-			send_to_char("That object is not available.\r\n", ch);
+			send_to_char(ch, "That object is not available.\r\n");
 			return NULL;
 		}
 	} else {
-		send_to_char("No such creature or object around.\r\n", ch);
+		send_to_char(ch, "No such creature or object around.\r\n");
 		return NULL;
 	}
 
 	/* a location has been found -- if you're < GRGOD, check restrictions. */
 	if (!Security::isMember(ch, "WizardFull")) {
 		if (location->zone->number == 12 && GET_LEVEL(ch) < LVL_AMBASSADOR) {
-			send_to_char("You can't go there.\r\n", ch);
+			send_to_char(ch, "You can't go there.\r\n");
 			return NULL;
 		}
 		if (ROOM_FLAGGED(location, ROOM_GODROOM)) {
-			send_to_char("You are not godly enough to use that room!\r\n", ch);
+			send_to_char(ch, "You are not godly enough to use that room!\r\n");
 			return NULL;
 		}
 		if (ROOM_FLAGGED(location, ROOM_HOUSE) &&
 			!House_can_enter(ch, location->number)) {
-			send_to_char("That's private property -- no trespassing!\r\n", ch);
+			send_to_char(ch, "That's private property -- no trespassing!\r\n");
 			return NULL;
 		}
 	}
@@ -348,12 +346,12 @@ ACMD(do_at)
 
 	half_chop(argument, buf, command);
 	if (!*buf) {
-		send_to_char("You must supply a room number or a name.\r\n", ch);
+		send_to_char(ch, "You must supply a room number or a name.\r\n");
 		return;
 	}
 
 	if (!*command) {
-		send_to_char("What do you want to do there?\r\n", ch);
+		send_to_char(ch, "What do you want to do there?\r\n");
 		return;
 	}
 
@@ -387,9 +385,8 @@ ACMD(do_distance)
 		sprintf(buf, "There is no valid path to room %d.\r\n",
 			location->number);
 	else
-		sprintf(buf, "Room %d is %d steps away.\r\n", location->number, steps);
+		send_to_char(ch, "Room %d is %d steps away.\r\n", location->number, steps);
 
-	send_to_char(buf, ch);
 }
 
 
@@ -409,7 +406,7 @@ ACMD(do_goto)
 	if (!House_can_enter(ch, location->number) ||
 		!clan_house_can_enter(ch, location) ||
 		(GET_LEVEL(ch) < LVL_SPIRIT && ROOM_FLAGGED(location, ROOM_DEATH))) {
-		send_to_char("You cannot enter there.\r\n", ch);
+		send_to_char(ch, "You cannot enter there.\r\n");
 		return;
 	}
 
@@ -465,22 +462,21 @@ ACMD(do_trans)
 
 	one_argument(argument, buf);
 	if (!*buf)
-		send_to_char("Whom do you wish to transfer?\r\n", ch);
+		send_to_char(ch, "Whom do you wish to transfer?\r\n");
 	else if (str_cmp("all", buf)) {
 		if (!(victim = get_char_vis(ch, buf))) {
-			send_to_char(NOPERSON, ch);
+			send_to_char(ch, NOPERSON);
 		} else if (victim == ch)
-			send_to_char("That doesn't make much sense, does it?\r\n", ch);
+			send_to_char(ch, "That doesn't make much sense, does it?\r\n");
 		else {
 			if ((GET_LEVEL(ch) < GET_LEVEL(victim)) && !IS_NPC(victim)) {
-				send_to_char("Go transfer someone your own size.\r\n", ch);
+				send_to_char(ch, "Go transfer someone your own size.\r\n");
 				return;
 			}
 			if (ch->in_room->isOpenAir()
 				&& victim->getPosition() != POS_FLYING) {
-				send_to_char
-					("Come now, you are in midair.  Are they flying?  I think not.\r\n",
-					ch);
+				send_to_char(ch, 
+					"Come now, you are in midair.  Are they flying?  I think not.\r\n");
 				return;
 			}
 			act("$n disappears in a mushroom cloud.", FALSE, victim, 0, 0,
@@ -498,7 +494,7 @@ ACMD(do_trans)
 		}
 	} else {					/* Trans All */
 		if (GET_LEVEL(ch) < LVL_GRGOD) {
-			send_to_char("I think not.\r\n", ch);
+			send_to_char(ch, "I think not.\r\n");
 			return;
 		}
 
@@ -516,7 +512,7 @@ ACMD(do_trans)
 				act("$n has transferred you!", FALSE, ch, 0, victim, TO_VICT);
 				look_at_room(victim, victim->in_room, 0);
 			}
-		send_to_char(OK, ch);
+		send_to_char(ch, OK);
 	}
 }
 
@@ -530,17 +526,17 @@ ACMD(do_teleport)
 	two_arguments(argument, buf, buf2);
 
 	if (!*buf)
-		send_to_char("Whom do you wish to teleport?\r\n", ch);
+		send_to_char(ch, "Whom do you wish to teleport?\r\n");
 	else if (!(victim = get_char_vis(ch, buf))) {
-		send_to_char(NOPERSON, ch);
+		send_to_char(ch, NOPERSON);
 	} else if (victim == ch)
-		send_to_char("Use 'goto' to teleport yourself.\r\n", ch);
+		send_to_char(ch, "Use 'goto' to teleport yourself.\r\n");
 	else if (GET_LEVEL(victim) >= GET_LEVEL(ch))
-		send_to_char("Maybe you shouldn't do that.\r\n", ch);
+		send_to_char(ch, "Maybe you shouldn't do that.\r\n");
 	else if (!*buf2)
-		send_to_char("Where do you wish to send this person?\r\n", ch);
+		send_to_char(ch, "Where do you wish to send this person?\r\n");
 	else if ((target = find_target_room(ch, buf2)) != NULL) {
-		send_to_char(OK, ch);
+		send_to_char(ch, OK);
 		act("$n disappears in a puff of smoke.", FALSE, victim, 0, 0, TO_ROOM);
 		char_from_room(victim);
 		char_to_room(victim, target);
@@ -561,16 +557,16 @@ ACMD(do_vnum)
 	two_arguments(argument, buf, buf2);
 
 	if (!*buf || !*buf2 || (!is_abbrev(buf, "mob") && !is_abbrev(buf, "obj"))) {
-		send_to_char("Usage: vnum { obj | mob } <name>\r\n", ch);
+		send_to_char(ch, "Usage: vnum { obj | mob } <name>\r\n");
 		return;
 	}
 	if (is_abbrev(buf, "mob"))
 		if (!vnum_mobile(buf2, ch))
-			send_to_char("No mobiles by that name.\r\n", ch);
+			send_to_char(ch, "No mobiles by that name.\r\n");
 
 	if (is_abbrev(buf, "obj"))
 		if (!vnum_object(buf2, ch))
-			send_to_char("No objects by that name.\r\n", ch);
+			send_to_char(ch, "No objects by that name.\r\n");
 }
 
 #define CHARADD(sum,var) if (var) {sum += strlen(var) +1;}
@@ -765,8 +761,7 @@ do_stat_memory(struct char_data *ch)
 
 
 	sprintf(buf, "%s               ___________\r\n", buf);
-	sprintf(buf, "%s         total   %9d\r\n", buf, total);
-	send_to_char(buf, ch);
+	send_to_char(ch, "%s         total   %9d\r\n", buf, total);
 }
 
 #undef CHARADD
@@ -875,7 +870,7 @@ do_stat_zone(struct char_data *ch, struct zone_data *zone)
 		CCGRN(ch, C_NRM), av_lev,
 		CCNRM(ch, C_NRM), CCGRN(ch, C_NRM), av_lev_proto, CCNRM(ch, C_NRM));
 	strcat(out_buf, buf);
-	send_to_char(out_buf, ch);
+	send_to_char(ch, out_buf);
 }
 
 void
@@ -923,11 +918,11 @@ do_stat_room(struct char_data *ch, char *roomstr)
 		if (isdigit(*roomstr) && !strchr(roomstr, '.')) {
 			tmp = atoi(roomstr);
 			if (!(rm = real_room(tmp))) {
-				send_to_char("No room exists with that number.\r\n", ch);
+				send_to_char(ch, "No room exists with that number.\r\n");
 				return;
 			}
 		} else {
-			send_to_char("No room exists with that number.\r\n", ch);
+			send_to_char(ch, "No room exists with that number.\r\n");
 			return;
 		}
 	}
@@ -1097,19 +1092,18 @@ do_stat_object(struct char_data *ch, struct obj_data *j)
 		if (j->carried_by && GET_LEVEL(j->carried_by) > GET_LEVEL(ch)) {
 			act("$n just tried to stat your mail.",
 				FALSE, ch, 0, j->carried_by, TO_VICT);
-			send_to_char("You're pretty brave, bucko.\r\n", ch);
+			send_to_char(ch, "You're pretty brave, bucko.\r\n");
 			return;
 		}
 		if (GET_LEVEL(ch) < LVL_GOD) {
-			send_to_char("You can't stat mail.\r\n", ch);
+			send_to_char(ch, "You can't stat mail.\r\n");
 			return;
 		}
 	}
 
-	sprintf(buf, "Name: '%s%s%s', Aliases: %s\r\n", CCGRN(ch, C_NRM),
+	send_to_char(ch, "Name: '%s%s%s', Aliases: %s\r\n", CCGRN(ch, C_NRM),
 		((j->short_description) ? j->short_description : "<None>"),
 		CCNRM(ch, C_NRM), j->name);
-	send_to_char(buf, ch);
 	sprinttype(GET_OBJ_TYPE(j), item_types, buf1);
 
 	strcpy(buf2, j->shared->func ?
@@ -1120,14 +1114,12 @@ do_stat_object(struct char_data *ch, struct obj_data *j)
 		"VNum: [%s%5d%s], Exist: [%3d/%3d], Type: %s, SpecProc: %s\r\n",
 		CCGRN(ch, C_NRM), GET_OBJ_VNUM(j), CCNRM(ch, C_NRM), j->shared->number,
 		j->shared->house_count, buf1, buf2);
-	send_to_char(buf, ch);
-	sprintf(buf, "L-Des: %s%s%s\r\n", CCGRN(ch, C_NRM),
+	send_to_char(ch, "%s", buf);
+	send_to_char(ch, "L-Des: %s%s%s\r\n", CCGRN(ch, C_NRM),
 		((j->description) ? j->description : "None"), CCNRM(ch, C_NRM));
-	send_to_char(buf, ch);
 
 	if (j->action_description) {
-		sprintf(buf, "Action desc: %s\r\n", j->action_description);
-		send_to_char(buf, ch);
+		send_to_char(ch, "Action desc: %s\r\n", j->action_description);
 	}
 
 	if (j->ex_description) {
@@ -1138,17 +1130,17 @@ do_stat_object(struct char_data *ch, struct obj_data *j)
 			strcat(buf, ";");
 		}
 		strcat(buf, CCNRM(ch, C_NRM));
-		send_to_char(strcat(buf, "\r\n"), ch);
+		send_to_char(ch, strcat(buf, "\r\n"));
 	}
 
 	if (!j->description) {
-		send_to_char("**This object currently has no description**\r\n", ch);
+		send_to_char(ch, "**This object currently has no description**\r\n");
 	}
 
-	send_to_char("Can be worn on: ", ch);
+	send_to_char(ch, "Can be worn on: ");
 	sprintbit(j->obj_flags.wear_flags, wear_bits, buf);
 	strcat(buf, "\r\n");
-	send_to_char(buf, ch);
+	send_to_char(ch, "%s", buf);
 	strcpy(buf, "Set char bits : ");
 	found = FALSE;
 	if (j->obj_flags.bitvector[0]) {
@@ -1168,32 +1160,30 @@ do_stat_object(struct char_data *ch, struct obj_data *j)
 	}
 	if (found) {
 		strcat(buf, "\r\n");
-		send_to_char(buf, ch);
+		send_to_char(ch, "%s", buf);
 	}
 
-	send_to_char("Extra flags   : ", ch);
+	send_to_char(ch, "Extra flags   : ");
 	sprintbit(GET_OBJ_EXTRA(j), extra_bits, buf);
 	strcat(buf, "\r\n");
-	send_to_char(buf, ch);
+	send_to_char(ch, "%s", buf);
 
-	send_to_char("Extra2 flags   : ", ch);
+	send_to_char(ch, "Extra2 flags   : ");
 	sprintbit(GET_OBJ_EXTRA2(j), extra2_bits, buf);
 	strcat(buf, "\r\n");
-	send_to_char(buf, ch);
+	send_to_char(ch, "%s", buf);
 
-	send_to_char("Extra3 flags   : ", ch);
+	send_to_char(ch, "Extra3 flags   : ");
 	sprintbit(GET_OBJ_EXTRA3(j), extra3_bits, buf);
 	strcat(buf, "\r\n");
-	send_to_char(buf, ch);
+	send_to_char(ch, "%s", buf);
 
-	sprintf(buf, "Weight: %d, Cost: %d (%d), Rent: %d, Timer: %d\r\n",
+	send_to_char(ch, "Weight: %d, Cost: %d (%d), Rent: %d, Timer: %d\r\n",
 		j->getWeight(), GET_OBJ_COST(j),
 		prototype_obj_value(j), GET_OBJ_RENT(j), GET_OBJ_TIMER(j));
-	send_to_char(buf, ch);
 
 	if ((rm = where_obj(j))) {
-		sprintf(buf, "Absolute location: %s (%d)\r\n", rm->name, rm->number);
-		send_to_char(buf, ch);
+		send_to_char(ch, "Absolute location: %s (%d)\r\n", rm->name, rm->number);
 
 		strcpy(buf, "In room: ");
 		strcat(buf, CCCYN(ch, C_NRM));
@@ -1216,18 +1206,17 @@ do_stat_object(struct char_data *ch, struct obj_data *j)
 			((!j->worn_by || j == GET_EQ(j->worn_by, j->worn_on)) ?
 				"" : " (impl)"), CCNRM(ch, C_NRM));
 		strcat(buf, ", Aux: ");
-		sprintf(buf, "%s%s%s%s", buf, CCGRN(ch, C_NRM),
+		send_to_char(ch, "%s%s%s%s", buf, CCGRN(ch, C_NRM),
 			j->aux_obj ? j->aux_obj->short_description : "N", CCNRM(ch,
 				C_NRM));
 		strcat(buf, "\r\n");
-		send_to_char(buf, ch);
 	}
 	sprintf(buf,
 		"Material: [%s%s%s (%d)], Maxdamage: [%d (%d)], Damage: [%d]\r\n",
 		CCYEL(ch, C_NRM), material_names[GET_OBJ_MATERIAL(j)], CCNRM(ch,
 			C_NRM), GET_OBJ_MATERIAL(j), GET_OBJ_MAX_DAM(j), set_maxdamage(j),
 		GET_OBJ_DAM(j));
-	send_to_char(buf, ch);
+	send_to_char(ch, "%s", buf);
 
 	switch (GET_OBJ_TYPE(j)) {
 	case ITEM_LIGHT:
@@ -1390,35 +1379,33 @@ do_stat_object(struct char_data *ch, struct obj_data *j)
 		break;
 
 	default:
-		sprintf(buf, "Values 0-3: %s:[%d] %s:[%d] %s:[%d] %s:[%d]",
+		send_to_char(ch, "Values 0-3: %s:[%d] %s:[%d] %s:[%d] %s:[%d]",
 			item_value_types[(int)GET_OBJ_TYPE(j)][0], GET_OBJ_VAL(j, 0),
 			item_value_types[(int)GET_OBJ_TYPE(j)][1], GET_OBJ_VAL(j, 1),
 			item_value_types[(int)GET_OBJ_TYPE(j)][2], GET_OBJ_VAL(j, 2),
 			item_value_types[(int)GET_OBJ_TYPE(j)][3], GET_OBJ_VAL(j, 3));
 		break;
 	}
-	send_to_char(buf, ch);
 
 	if (j->contains) {
 
-		send_to_char("\r\nContents:\r\n", ch);
+		send_to_char(ch, "\r\nContents:\r\n");
 		list_obj_to_char(j->contains, ch, 2, TRUE);
 
 	} else
-		send_to_char("\r\n", ch);
+		send_to_char(ch, "\r\n");
 	found = 0;
-	send_to_char("Affections:", ch);
+	send_to_char(ch, "Affections:");
 	for (i = 0; i < MAX_OBJ_AFFECT; i++)
 		if (j->affected[i].modifier) {
 			sprinttype(j->affected[i].location, apply_types, buf2);
-			sprintf(buf, "%s %+d to %s", found++ ? "," : "",
+			send_to_char(ch, "%s %+d to %s", found++ ? "," : "",
 				j->affected[i].modifier, buf2);
-			send_to_char(buf, ch);
 		}
 	if (!found)
-		send_to_char(" None", ch);
+		send_to_char(ch, " None");
 
-	send_to_char("\r\n", ch);
+	send_to_char(ch, "\r\n");
 
 	if (OBJ_SOILAGE(j)) {
 		found = FALSE;
@@ -1432,16 +1419,15 @@ do_stat_object(struct char_data *ch, struct obj_data *j)
 				strcat(buf2, soilage_bits[i]);
 			}
 		}
-		send_to_char(buf2, ch);
-		send_to_char("\r\n", ch);
+		send_to_char(ch, "%s", buf2);
+		send_to_char(ch, "\r\n");
 	}
 
 	if (GET_OBJ_SIGIL_IDNUM(j)) {
 
-		sprintf(buf2, "Warding Sigil: %s (%d), level %d.\r\n",
+		send_to_char(ch, "Warding Sigil: %s (%d), level %d.\r\n",
 			get_name_by_id(GET_OBJ_SIGIL_IDNUM(j)), GET_OBJ_SIGIL_IDNUM(j),
 			GET_OBJ_SIGIL_LEVEL(j));
-		send_to_char(buf2, ch);
 	}
 }
 
@@ -1456,7 +1442,7 @@ do_stat_character(struct char_data *ch, struct char_data *k)
 	char outbuf[MAX_STRING_LENGTH];
 
 	if (GET_MOB_SPEC(k) == fate && GET_LEVEL(ch) < LVL_SPIRIT) {
-		send_to_char("You can't stat this mob.\r\n", ch);
+		send_to_char(ch, "You can't stat this mob.\r\n");
 		return;
 	}
 	switch (GET_SEX(k)) {
@@ -1866,7 +1852,7 @@ do_stat_ticl(struct char_data *ch, int vnum)
 			break;
 
 	if (!zone) {
-		send_to_char("Sorry, that TICL proc doesn't exist.\r\n", ch);
+		send_to_char(ch, "Sorry, that TICL proc doesn't exist.\r\n");
 		return;
 	}
 
@@ -1875,7 +1861,7 @@ do_stat_ticl(struct char_data *ch, int vnum)
 			break;
 
 	if (!ticl)
-		send_to_char("Sorry, no TICL proc by that vnum.\r\n", ch);
+		send_to_char(ch, "Sorry, no TICL proc by that vnum.\r\n");
 	else {
 		strcpy(tim1, (char *)asctime(localtime(&(ticl->date_created))));
 		strcpy(tim2, (char *)asctime(localtime(&(ticl->last_modified))));
@@ -1901,7 +1887,7 @@ do_stat_ticl(struct char_data *ch, int vnum)
 			get_name_by_id(ticl->last_modified_by),
 			CCNRM(ch, C_NRM), CCGRN(ch, C_NRM), tim2, CCNRM(ch, C_NRM));
 
-		send_to_char(buf, ch);
+		send_to_char(ch, "%s", buf);
 
 		if (ticl->code != NULL)
 			page_string(ch->desc, ticl->code, 1);
@@ -1919,7 +1905,7 @@ ACMD(do_stat)
 	half_chop(argument, buf1, buf2);
 
 	if (!*buf1) {
-		send_to_char("Stats on who or what?\r\n", ch);
+		send_to_char(ch, "Stats on who or what?\r\n");
 		return;
 	} else if (is_abbrev(buf1, "room")) {
 		do_stat_room(ch, buf2);
@@ -1927,12 +1913,12 @@ ACMD(do_stat)
 		do_stat_trails(ch);
 	} else if (is_abbrev(buf1, "ticl")) {
 		if (!*buf2)
-			send_to_char("Stat which TICL proc?\r\n", ch);
+			send_to_char(ch, "Stat which TICL proc?\r\n");
 		else {
 			if (is_number(buf2))
 				do_stat_ticl(ch, atoi(buf2));
 			else {
-				send_to_char("Usage: stat ticl <vnum>\r\n", ch);
+				send_to_char(ch, "Usage: stat ticl <vnum>\r\n");
 			}
 		}
 	} else if (is_abbrev(buf1, "zone")) {
@@ -1948,60 +1934,60 @@ ACMD(do_stat)
 						found = 1;
 					}
 				if (found != 1)
-					send_to_char("No zone exists with that number.\r\n", ch);
+					send_to_char(ch, "No zone exists with that number.\r\n");
 			} else
-				send_to_char("Invalid zone number.\r\n", ch);
+				send_to_char(ch, "Invalid zone number.\r\n");
 		}
 	} else if (is_abbrev(buf1, "mob")) {
 		if (!*buf2)
-			send_to_char("Stats on which mobile?\r\n", ch);
+			send_to_char(ch, "Stats on which mobile?\r\n");
 		else {
 			if ((victim = get_char_vis(ch, buf2)) &&
 				(IS_NPC(victim) || GET_LEVEL(ch) >= LVL_DEMI))
 				do_stat_character(ch, victim);
 			else
-				send_to_char("No such mobile around.\r\n", ch);
+				send_to_char(ch, "No such mobile around.\r\n");
 		}
 	} else if (is_abbrev(buf1, "player")) {
 		if (!*buf2) {
-			send_to_char("Stats on which player?\r\n", ch);
+			send_to_char(ch, "Stats on which player?\r\n");
 		} else {
 			if ((victim = get_player_vis(ch, buf2, 0)))
 				do_stat_character(ch, victim);
 			else
-				send_to_char("No such player around.\r\n", ch);
+				send_to_char(ch, "No such player around.\r\n");
 		}
 	} else if (is_abbrev(buf1, "file")) {
 		if (GET_LEVEL(ch) < LVL_TIMEGOD && !Security::isMember(ch, "AdminFull")
 			&& !Security::isMember(ch, "WizardFull")) {
-			send_to_char("You cannot peer into the playerfile.\r\n", ch);
+			send_to_char(ch, "You cannot peer into the playerfile.\r\n");
 			return;
 		}
 		if (!*buf2) {
-			send_to_char("Stats on which player?\r\n", ch);
+			send_to_char(ch, "Stats on which player?\r\n");
 		} else {
 			CREATE(victim, struct char_data, 1);
 			clear_char(victim);
 			if (load_char(buf2, &tmp_store) > -1) {
 				store_to_char(&tmp_store, victim);
 				if (GET_LEVEL(victim) > GET_LEVEL(ch) && GET_IDNUM(ch) != 1)
-					send_to_char("Sorry, you can't do that.\r\n", ch);
+					send_to_char(ch, "Sorry, you can't do that.\r\n");
 				else
 					do_stat_character(ch, victim);
 				free_char(victim);
 			} else {
-				send_to_char("There is no such player.\r\n", ch);
+				send_to_char(ch, "There is no such player.\r\n");
 				free(victim);
 			}
 		}
 	} else if (is_abbrev(buf1, "object")) {
 		if (!*buf2)
-			send_to_char("Stats on which object?\r\n", ch);
+			send_to_char(ch, "Stats on which object?\r\n");
 		else {
 			if ((object = get_obj_vis(ch, buf2)))
 				do_stat_object(ch, object);
 			else
-				send_to_char("No such object around.\r\n", ch);
+				send_to_char(ch, "No such object around.\r\n");
 		}
 	} else {
 		if ((object = get_object_in_equip_vis(ch, buf1, ch->equipment, &tmp)))
@@ -2018,7 +2004,7 @@ ACMD(do_stat)
 		else if ((object = get_obj_vis(ch, buf1)))
 			do_stat_object(ch, object);
 		else
-			send_to_char("Nothing around by that name.\r\n", ch);
+			send_to_char(ch, "Nothing around by that name.\r\n");
 	}
 }
 
@@ -2031,26 +2017,26 @@ ACMD(do_shutdown)
 	extern int circle_shutdown, circle_reboot, mini_mud, shutdown_idnum;
 
 	if (subcmd != SCMD_SHUTDOWN) {
-		send_to_char("If you want to shut something down, say so!\r\n", ch);
+		send_to_char(ch, "If you want to shut something down, say so!\r\n");
 		return;
 	}
 	two_arguments(argument, arg, arg2);
 
 	if (*arg2) {
 		if (shutdown_count >= 0) {
-			send_to_char("Shutdown process is already running.\r\n"
-				"Use Shutdown abort first.\r\n", ch);
+			send_to_char(ch, "Shutdown process is already running.\r\n"
+				"Use Shutdown abort first.\r\n");
 			return;
 		}
 		if ((count = atoi(arg2)) < 0) {
-			send_to_char("Real funny shutdown time.\r\n", ch);
+			send_to_char(ch, "Real funny shutdown time.\r\n");
 			return;
 		}
 	}
 
 	if (!*arg) {
 		if (!mini_mud) {
-			send_to_char("Please specify a shutdown mode.\r\n", ch);
+			send_to_char(ch, "Please specify a shutdown mode.\r\n");
 			return;
 		}
 		sprintf(buf, "(GC) Shutdown by %s.", GET_NAME(ch));
@@ -2068,7 +2054,7 @@ ACMD(do_shutdown)
 		circle_shutdown = 1;
 	} else if (!str_cmp(arg, "abort")) {
 		if (shutdown_count < 0)
-			send_to_char("Shutdown process is not currently running.\r\n", ch);
+			send_to_char(ch, "Shutdown process is not currently running.\r\n");
 		else {
 			shutdown_count = -1;
 			shutdown_idnum = -1;
@@ -2140,7 +2126,7 @@ ACMD(do_shutdown)
 		touch("../pause");
 		circle_shutdown = 1;
 	} else
-		send_to_char("Unknown shutdown option.\r\n", ch);
+		send_to_char(ch, "Unknown shutdown option.\r\n");
 }
 
 
@@ -2148,9 +2134,9 @@ void
 stop_snooping(struct char_data *ch)
 {
 	if (!ch->desc->snooping)
-		send_to_char("You aren't snooping anyone.\r\n", ch);
+		send_to_char(ch, "You aren't snooping anyone.\r\n");
 	else {
-		send_to_char("You stop snooping.\r\n", ch);
+		send_to_char(ch, "You stop snooping.\r\n");
 		ch->desc->snooping->snoop_by = NULL;
 		ch->desc->snooping = NULL;
 	}
@@ -2169,27 +2155,26 @@ ACMD(do_snoop)
 	if (!*arg)
 		stop_snooping(ch);
 	else if (!(victim = get_char_vis(ch, arg)))
-		send_to_char("No such person around.\r\n", ch);
+		send_to_char(ch, "No such person around.\r\n");
 	else if (!victim->desc)
-		send_to_char("There's no link.. nothing to snoop.\r\n", ch);
+		send_to_char(ch, "There's no link.. nothing to snoop.\r\n");
 	else if (victim == ch)
 		stop_snooping(ch);
 	else if (PRF_FLAGGED(victim, PRF_NOSNOOP) && GET_LEVEL(ch) < LVL_ENTITY)
-		send_to_char("The gods say I dont think so!\r\n", ch);
+		send_to_char(ch, "The gods say I dont think so!\r\n");
 	else if (victim->desc->snoop_by)
 		if (ch == victim->desc->snoop_by->character)
 			act("You're already snooping $M.", FALSE, ch, 0, victim, TO_CHAR);
 		else if (GET_LEVEL(ch) > GET_LEVEL(victim->desc->snoop_by->character)) {
-			sprintf(buf, "Busy already. (%s)\r\n",
+			send_to_char(ch, "Busy already. (%s)\r\n",
 				GET_NAME(victim->desc->snoop_by->character));
-			send_to_char(buf, ch);
 		} else
-			send_to_char("Busy already. \r\n", ch);
+			send_to_char(ch, "Busy already. \r\n");
 	else if (victim->desc->snooping == ch->desc)
-		send_to_char("Don't be stupid.\r\n", ch);
+		send_to_char(ch, "Don't be stupid.\r\n");
 	else if (ROOM_FLAGGED(victim->in_room, ROOM_GODROOM)
 		&& !Security::isMember(ch, "WizardFull")) {
-		send_to_char("You cannot snoop into that place.\r\n", ch);
+		send_to_char(ch, "You cannot snoop into that place.\r\n");
 	} else {
 		if (victim->desc->original)
 			tch = victim->desc->original;
@@ -2197,10 +2182,10 @@ ACMD(do_snoop)
 			tch = victim;
 
 		if (GET_LEVEL(tch) >= GET_LEVEL(ch)) {
-			send_to_char("You can't.\r\n", ch);
+			send_to_char(ch, "You can't.\r\n");
 			return;
 		}
-		send_to_char(OK, ch);
+		send_to_char(ch, OK);
 
 		if (ch->desc->snooping)
 			ch->desc->snooping->snoop_by = NULL;
@@ -2219,22 +2204,22 @@ ACMD(do_switch)
 	one_argument(argument, arg);
 
 	if (ch->desc->original)
-		send_to_char("You're already switched.\r\n", ch);
+		send_to_char(ch, "You're already switched.\r\n");
 	else if (!*arg)
-		send_to_char("Switch with who?\r\n", ch);
+		send_to_char(ch, "Switch with who?\r\n");
 
 	else if (!(victim = get_char_vis(ch, arg)))
-		send_to_char("No such character.\r\n", ch);
+		send_to_char(ch, "No such character.\r\n");
 	else if (ch == victim)
-		send_to_char("Hee hee... we are jolly funny today, eh?\r\n", ch);
+		send_to_char(ch, "Hee hee... we are jolly funny today, eh?\r\n");
 	else if (victim->desc)
-		send_to_char("You can't do that, the body is already in use!\r\n", ch);
+		send_to_char(ch, "You can't do that, the body is already in use!\r\n");
 	else if ((GET_LEVEL(ch) < LVL_IMPL) && !IS_NPC(victim))
-		send_to_char("You aren't holy enough to use a mortal's body.\r\n", ch);
+		send_to_char(ch, "You aren't holy enough to use a mortal's body.\r\n");
 	else if (GET_LEVEL(ch) <= GET_LEVEL(victim) && GET_IDNUM(ch) != 1)
-		send_to_char("Nope.\r\n", ch);
+		send_to_char(ch, "Nope.\r\n");
 	else {
-		send_to_char(OK, ch);
+		send_to_char(ch, OK);
 
 		ch->desc->character = victim;
 		ch->desc->original = ch;
@@ -2258,30 +2243,30 @@ ACMD(do_rswitch)
 	two_arguments(argument, arg, arg2);
 
 	if (!*arg)
-		send_to_char("Switch with who?\r\n", ch);
+		send_to_char(ch, "Switch with who?\r\n");
 	else if (!*arg2)
-		send_to_char("Switch them with who?\r\n", ch);
+		send_to_char(ch, "Switch them with who?\r\n");
 	else if (!(orig = get_char_vis(ch, arg)))
-		send_to_char("What player do you want to switch around?\r\n", ch);
+		send_to_char(ch, "What player do you want to switch around?\r\n");
 	else if (!orig->desc)
-		send_to_char("No link there, sorry.\r\n", ch);
+		send_to_char(ch, "No link there, sorry.\r\n");
 	else if (orig->desc->original)
-		send_to_char("They're already switched.\r\n", ch);
+		send_to_char(ch, "They're already switched.\r\n");
 	else if (!(victim = get_char_vis(ch, arg2)))
-		send_to_char("No such character.\r\n", ch);
+		send_to_char(ch, "No such character.\r\n");
 	else if (orig == victim || ch == victim)
-		send_to_char("Hee hee... we are jolly funny today, eh?\r\n", ch);
+		send_to_char(ch, "Hee hee... we are jolly funny today, eh?\r\n");
 	else if (victim->desc)
-		send_to_char("You can't do that, the body is already in use!\r\n", ch);
+		send_to_char(ch, "You can't do that, the body is already in use!\r\n");
 	else if ((GET_LEVEL(ch) < LVL_IMPL) && !IS_NPC(victim))
-		send_to_char("You can't use a mortal's body like that!\r\n", ch);
+		send_to_char(ch, "You can't use a mortal's body like that!\r\n");
 	else if ((GET_LEVEL(ch) < LVL_IMPL) && GET_LEVEL(orig) < LVL_AMBASSADOR)
-		send_to_char("You cannot allow that mortal to do that.\r\n", ch);
+		send_to_char(ch, "You cannot allow that mortal to do that.\r\n");
 	else if (GET_LEVEL(ch) < GET_LEVEL(orig))
-		send_to_char("Maybe you should just ask them.\r\n", ch);
+		send_to_char(ch, "Maybe you should just ask them.\r\n");
 	else {
-		send_to_char(OK, ch);
-		send_to_char("The world seems to lurch and shift.\r\n", orig);
+		send_to_char(ch, OK);
+		send_to_char(orig, "The world seems to lurch and shift.\r\n");
 		orig->desc->character = victim;
 		orig->desc->original = orig;
 
@@ -2321,7 +2306,7 @@ ACMD(do_return)
 	if (!IS_NPC(ch) && (CHECK_REMORT_CLASS(ch) < 0)
 		&& (GET_LEVEL(ch) < LVL_IMMORT)) {
 		if (FIGHTING(ch)) {
-			send_to_char("No way!  You're fighting for your life!\r\n", ch);
+			send_to_char(ch, "No way!  You're fighting for your life!\r\n");
 		} else if (GET_LEVEL(ch) <= 10) {
 			act("A whirling globe of multi-colored light appears and whisks you away!", FALSE, ch, NULL, NULL, TO_CHAR);
 			act("A whirling globe of multi-colored light appears and whisks $n away!", FALSE, ch, NULL, NULL, TO_ROOM);
@@ -2330,7 +2315,7 @@ ACMD(do_return)
 			look_at_room(ch, ch->in_room, 0);
 			act("A whirling globe of multi-colored light appears and deposits $n on the floor!", FALSE, ch, NULL, NULL, TO_ROOM);
 		} else
-			send_to_char("There is no need to return.\r\n", ch);
+			send_to_char(ch, "There is no need to return.\r\n");
 		return;
 	}
 
@@ -2339,11 +2324,11 @@ ACMD(do_return)
 		if (IS_MOB(ch) && GET_MOB_VNUM(ch) == 1518) {
 			cloud_found = true;
 			if (subcmd == SCMD_RETURN) {
-				send_to_char("Use recorporealize.\r\n", ch);
+				send_to_char(ch, "Use recorporealize.\r\n");
 				return;
 			}
 		}
-		send_to_char("You return to your original body.\r\n", ch);
+		send_to_char(ch, "You return to your original body.\r\n");
 
 		/* JE 2/22/95 */
 		/* if someone switched into your original body, disconnect them */
@@ -2365,7 +2350,7 @@ ACMD(do_return)
 				ch->extract(true, false, CON_MENU);
 		}
 	} else
-		send_to_char("There is no need to return.\r\n", ch);
+		send_to_char(ch, "There is no need to return.\r\n");
 }
 
 #undef GET_START_ROOM
@@ -2378,15 +2363,15 @@ ACMD(do_mload)
 	one_argument(argument, buf);
 
 	if (!*buf || !isdigit(*buf)) {
-		send_to_char("Usage: mload <mobile vnum number>\r\n", ch);
+		send_to_char(ch, "Usage: mload <mobile vnum number>\r\n");
 		return;
 	}
 	if ((number = atoi(buf)) < 0) {
-		send_to_char("A NEGATIVE number??\r\n", ch);
+		send_to_char(ch, "A NEGATIVE number??\r\n");
 		return;
 	}
 	if (!real_mobile_proto(number)) {
-		send_to_char("There is no mobile thang with that number.\r\n", ch);
+		send_to_char(ch, "There is no mobile thang with that number.\r\n");
 		return;
 	}
 	mob = read_mobile(number);
@@ -2411,15 +2396,15 @@ ACMD(do_oload)
 	one_argument(argument, buf);
 
 	if (!*buf || !isdigit(*buf)) {
-		send_to_char("Usage: oload <object vnum number>\r\n", ch);
+		send_to_char(ch, "Usage: oload <object vnum number>\r\n");
 		return;
 	}
 	if ((number = atoi(buf)) < 0) {
-		send_to_char("A NEGATIVE number??\r\n", ch);
+		send_to_char(ch, "A NEGATIVE number??\r\n");
 		return;
 	}
 	if (!real_object_proto(number)) {
-		send_to_char("There is no object with that number.\r\n", ch);
+		send_to_char(ch, "There is no object with that number.\r\n");
 		return;
 	}
 	obj = read_object(number);
@@ -2443,20 +2428,20 @@ ACMD(do_pload)
 	two_arguments(argument, buf, buf2);
 
 	if (!*buf || !isdigit(*buf)) {
-		send_to_char("Usage: pload <number> {target char}\r\n", ch);
+		send_to_char(ch, "Usage: pload <number> {target char}\r\n");
 		return;
 	}
 	if ((number = atoi(buf)) < 0) {
-		send_to_char("A NEGATIVE number??\r\n", ch);
+		send_to_char(ch, "A NEGATIVE number??\r\n");
 		return;
 	}
 	if (*buf2)
 		if (!(vict = get_char_vis(ch, buf2))) {
-			send_to_char(NOPERSON, ch);
+			send_to_char(ch, NOPERSON);
 			return;
 		}
 	if (!real_object_proto(number)) {
-		send_to_char("There is no object with that number.\r\n", ch);
+		send_to_char(ch, "There is no object with that number.\r\n");
 		return;
 	}
 	obj = read_object(number);
@@ -2489,27 +2474,27 @@ ACMD(do_vstat)
 	two_arguments(argument, buf, buf2);
 
 	if (!*buf || !*buf2 || !isdigit(*buf2)) {
-		send_to_char("Usage: vstat { obj | mob } <number>\r\n", ch);
+		send_to_char(ch, "Usage: vstat { obj | mob } <number>\r\n");
 		return;
 	}
 	if ((number = atoi(buf2)) < 0) {
-		send_to_char("A NEGATIVE number??\r\n", ch);
+		send_to_char(ch, "A NEGATIVE number??\r\n");
 		return;
 	}
 	if (is_abbrev(buf, "mob")) {
 		if (!(mob = real_mobile_proto(number)))
-			send_to_char("There is no monster with that number.\r\n", ch);
+			send_to_char(ch, "There is no monster with that number.\r\n");
 		else
 			do_stat_character(ch, mob);
 
 	} else if (is_abbrev(buf, "obj")) {
 		if (!(obj = real_object_proto(number)))
-			send_to_char("There is no object with that number.\r\n", ch);
+			send_to_char(ch, "There is no object with that number.\r\n");
 		else
 			do_stat_object(ch, obj);
 
 	} else
-		send_to_char("That'll have to be either 'obj' or 'mob'.\r\n", ch);
+		send_to_char(ch, "That'll have to be either 'obj' or 'mob'.\r\n");
 }
 
 ACMD(do_rstat)
@@ -2521,22 +2506,22 @@ ACMD(do_rstat)
 	two_arguments(argument, buf, buf2);
 
 	if (!*buf || !*buf2 || !isdigit(*buf2)) {
-		send_to_char("Usage: rstat { obj | mob } <id number>\r\n", ch);
+		send_to_char(ch, "Usage: rstat { obj | mob } <id number>\r\n");
 		return;
 	}
 	if ((number = atoi(buf2)) < 0) {
-		send_to_char("A NEGATIVE number??\r\n", ch);
+		send_to_char(ch, "A NEGATIVE number??\r\n");
 		return;
 	}
 	if (is_abbrev(buf, "mob")) {
 		if (!(mob = get_char_in_world_by_idnum(-number)))
-			send_to_char("There is no monster with that id number.\r\n", ch);
+			send_to_char(ch, "There is no monster with that id number.\r\n");
 		else
 			do_stat_character(ch, mob);
 	} else if (is_abbrev(buf, "obj")) {
-		send_to_char("Not enabled.\r\n", ch);
+		send_to_char(ch, "Not enabled.\r\n");
 	} else
-		send_to_char("That'll have to be either 'obj' or 'mob'.\r\n", ch);
+		send_to_char(ch, "That'll have to be either 'obj' or 'mob'.\r\n");
 }
 
 
@@ -2563,14 +2548,13 @@ ACMD(do_purge)
 				ch->in_room->trail = trail->next;
 				free(trail);
 			}
-			sprintf(buf, "%d trails purged from room.\r\n", i);
-			send_to_char(buf, ch);
+			send_to_char(ch, "%d trails purged from room.\r\n", i);
 			return;
 		}
 
 		if ((vict = get_char_room_vis(ch, buf))) {
 			if (!IS_NPC(vict) && (GET_LEVEL(ch) <= GET_LEVEL(vict))) {
-				send_to_char("Fuuuuuuuuu!\r\n", ch);
+				send_to_char(ch, "Fuuuuuuuuu!\r\n");
 				return;
 			}
 			act("$n disintegrates $N.", FALSE, ch, 0, vict, TO_NOTVICT);
@@ -2589,11 +2573,11 @@ ACMD(do_purge)
 			extract_obj(obj);
 
 		} else {
-			send_to_char("Nothing here by that name.\r\n", ch);
+			send_to_char(ch, "Nothing here by that name.\r\n");
 			return;
 		}
 
-		send_to_char(OK, ch);
+		send_to_char(ch, OK);
 	} else {					/* no argument. clean out the room */
 		act("$n gestures... You are surrounded by scorching flames!",
 			FALSE, ch, 0, 0, TO_ROOM);
@@ -2633,32 +2617,31 @@ ACMD(do_advance)
 
 	if (*name) {
 		if (!(victim = get_char_vis(ch, name))) {
-			send_to_char("That player is not here.\r\n", ch);
+			send_to_char(ch, "That player is not here.\r\n");
 			return;
 		}
 	} else {
-		send_to_char("Advance who?\r\n", ch);
+		send_to_char(ch, "Advance who?\r\n");
 		return;
 	}
 	if (GET_LEVEL(ch) <= GET_LEVEL(victim)) {
-		send_to_char("Maybe that's not such a great idea.\r\n", ch);
+		send_to_char(ch, "Maybe that's not such a great idea.\r\n");
 		return;
 	}
 	if (IS_NPC(victim)) {
-		send_to_char("NO!  Not on NPC's.\r\n", ch);
+		send_to_char(ch, "NO!  Not on NPC's.\r\n");
 		return;
 	}
 	if (!*level || (newlevel = atoi(level)) <= 0) {
-		send_to_char("That's not a level!\r\n", ch);
+		send_to_char(ch, "That's not a level!\r\n");
 		return;
 	}
 	if (newlevel > LVL_GRIMP) {
-		sprintf(buf, "%d is the highest possible level.\r\n", LVL_GRIMP);
-		send_to_char(buf, ch);
+		send_to_char(ch, "%d is the highest possible level.\r\n", LVL_GRIMP);
 		return;
 	}
 	if (newlevel > GET_LEVEL(ch)) {
-		send_to_char("Yeah, right.\r\n", ch);
+		send_to_char(ch, "Yeah, right.\r\n");
 		return;
 	}
 	if (newlevel < GET_LEVEL(victim)) {
@@ -2679,7 +2662,7 @@ ACMD(do_advance)
 			"You feel slightly different.", FALSE, ch, 0, victim, TO_VICT);
 	}
 
-	send_to_char(OK, ch);
+	send_to_char(ch, OK);
 
 	sprintf(buf, "(GC) %s has advanced %s to level %d (from %d)",
 		GET_NAME(ch), GET_NAME(victim), newlevel, GET_LEVEL(victim));
@@ -2697,7 +2680,7 @@ ACMD(do_restore)
 
 	one_argument(argument, buf);
 	if (!*buf)
-		send_to_char("Whom do you wish to restore?\r\n", ch);
+		send_to_char(ch, "Whom do you wish to restore?\r\n");
 	else if (!str_cmp(buf, "all")) {
 		CharacterList::iterator cit = characterList.begin();
 		for (; cit != characterList.end(); ++cit) {
@@ -2718,11 +2701,11 @@ ACMD(do_restore)
 			act("You have been fully healed by $N!", FALSE, vict, 0, ch,
 				TO_CHAR);
 		}
-		send_to_char(OK, ch);
+		send_to_char(ch, OK);
 		sprintf(buf, "The mud has been restored by %s.", GET_NAME(ch));
 		mudlog(buf, CMP, GET_INVIS_LEV(ch), TRUE);
 	} else if (!(vict = get_char_vis(ch, buf))) {
-		send_to_char(NOPERSON, ch);
+		send_to_char(ch, NOPERSON);
 	} else {
 		GET_HIT(vict) = GET_MAX_HIT(vict);
 		GET_MANA(vict) = GET_MAX_MANA(vict);
@@ -2749,7 +2732,7 @@ ACMD(do_restore)
 			vict->aff_abils = vict->real_abils;
 		}
 		update_pos(vict);
-		send_to_char(OK, ch);
+		send_to_char(ch, OK);
 		act("You have been fully healed by $N!", FALSE, vict, 0, ch, TO_CHAR);
 		sprintf(buf, "%s has been restored by %s.", GET_NAME(vict),
 			GET_NAME(ch));
@@ -2764,14 +2747,14 @@ perform_immort_vis(struct char_data *ch)
 	int old_level = 0;
 
 	if (GET_INVIS_LEV(ch) == 0 && !IS_AFFECTED(ch, AFF_HIDE | AFF_INVISIBLE)) {
-		send_to_char("You are already fully visible.\r\n", ch);
+		send_to_char(ch, "You are already fully visible.\r\n");
 		return;
 	}
 	old_level = GET_INVIS_LEV(ch);
 	GET_INVIS_LEV(ch) = 0;
 	GET_REMORT_INVIS(ch) = 0;
 	//appear(ch);
-	send_to_char("You are now fully visible.\r\n", ch);
+	send_to_char(ch, "You are now fully visible.\r\n");
 	CharacterList::iterator it = ch->in_room->people.begin();
 	for (; it != ch->in_room->people.end(); ++it) {
 		if ((*it) == ch)
@@ -2812,8 +2795,7 @@ perform_immort_invis(struct char_data *ch, int level)
 	if (GET_REMORT_INVIS(ch))
 		GET_REMORT_INVIS(ch) = 0;
 
-	sprintf(buf, "Your invisibility level is %d.\r\n", level);
-	send_to_char(buf, ch);
+	send_to_char(ch, "Your invisibility level is %d.\r\n", level);
 }
 
 void
@@ -2823,7 +2805,7 @@ perform_remort_vis(struct char_data *ch)
 	int level = GET_REMORT_INVIS(ch);
 
 	if (!GET_REMORT_INVIS(ch) && !IS_AFFECTED(ch, AFF_HIDE | AFF_INVISIBLE)) {
-		send_to_char("You are already fully visible.\r\n", ch);
+		send_to_char(ch, "You are already fully visible.\r\n");
 		return;
 	}
 
@@ -2838,7 +2820,7 @@ perform_remort_vis(struct char_data *ch)
 				0, (*it), TO_VICT);
 	}
 
-	send_to_char("You are now fully remort visible.\r\n", ch);
+	send_to_char(ch, "You are now fully remort visible.\r\n");
 }
 
 
@@ -2872,8 +2854,7 @@ perform_remort_invis(struct char_data *ch, int level)
 	}
 
 	GET_REMORT_INVIS(ch) = level;
-	sprintf(buf, "Your invisibility level is %d.\r\n", level);
-	send_to_char(buf, ch);
+	send_to_char(ch, "Your invisibility level is %d.\r\n", level);
 }
 
 
@@ -2882,11 +2863,11 @@ ACMD(do_invis)
 	int level;
 
 	if (IS_NPC(ch)) {
-		send_to_char("You can't do that!\r\n", ch);
+		send_to_char(ch, "You can't do that!\r\n");
 		return;
 	}
 	if (GET_LEVEL(ch) < LVL_AMBASSADOR && !IS_REMORT(ch)) {
-		send_to_char("What's that?\r\n", ch);
+		send_to_char(ch, "What's that?\r\n");
 		return;
 	}
 
@@ -2908,10 +2889,9 @@ ACMD(do_invis)
 	} else {
 		level = atoi(arg);
 		if (level > GET_LEVEL(ch))
-			send_to_char("You can't go invisible above your own level.\r\n",
-				ch);
+			send_to_char(ch, "You can't go invisible above your own level.\r\n");
 		else if (level > LVL_LUCIFER)
-			send_to_char("Why even _try_ to hide from lucifer?\r\n", ch);
+			send_to_char(ch, "Why even _try_ to hide from lucifer?\r\n");
 		else if (IS_REMORT(ch) && GET_LEVEL(ch) < LVL_AMBASSADOR) {
 			if (level < 1) {
 				perform_remort_vis(ch);
@@ -2934,25 +2914,23 @@ ACMD(do_gecho)
 	skip_spaces(&argument);
 
 	if (!*argument)
-		send_to_char("That must be a mistake...\r\n", ch);
+		send_to_char(ch, "That must be a mistake...\r\n");
 	else {
-		sprintf(buf, "%s\r\n", argument);
-		sprintf(buf2, "[%s-g] %s\r\n", GET_NAME(ch), argument);
 		for (pt = descriptor_list; pt; pt = pt->next) {
 			if (!pt->connected && pt->character && pt->character != ch &&
 				!PRF2_FLAGGED(pt->character, PRF2_NOGECHO) &&
 				!PLR_FLAGGED(pt->character, PLR_OLC | PLR_WRITING)) {
 				if (GET_LEVEL(pt->character) >= 50 &&
 					GET_LEVEL(pt->character) > GET_LEVEL(ch))
-					send_to_char(buf2, pt->character);
+					send_to_char(pt->character, "[%s-g] %s\r\n", GET_NAME(ch), argument);
 				else
-					send_to_char(buf, pt->character);
+					send_to_char(pt->character, "%s\r\n", argument);
 			}
 		}
 		if (PRF_FLAGGED(ch, PRF_NOREPEAT))
-			send_to_char(OK, ch);
+			send_to_char(ch, OK);
 		else
-			send_to_char(buf, ch);
+			send_to_char(ch, "%s", buf);
 	}
 }
 
@@ -2963,7 +2941,7 @@ ACMD(do_zecho)
 	// charmed mobs and players < LVL_GOD cant use this
 	if ((!IS_NPC(ch) && !Security::isMember(ch, "WizardBasic"))
 		|| (IS_NPC(ch) && IS_AFFECTED(ch, AFF_CHARM))) {
-		send_to_char("You probably shouldn't be using this.\r\n", ch);
+		send_to_char(ch, "You probably shouldn't be using this.\r\n");
 	}
 	if (ch->in_room && ch->in_room->zone) {
 		here = ch->in_room->zone;
@@ -2974,25 +2952,23 @@ ACMD(do_zecho)
 	skip_spaces(&argument);
 
 	if (!*argument)
-		send_to_char("That must be a mistake...\r\n", ch);
+		send_to_char(ch, "That must be a mistake...\r\n");
 	else {
-		sprintf(buf, "%s\r\n", argument);
-		sprintf(buf2, "[%s-zone] %s\r\n", GET_NAME(ch), argument);
 		for (pt = descriptor_list; pt; pt = pt->next) {
 			if (!pt->connected && pt->character && pt->character != ch &&
 				pt->character->in_room && pt->character->in_room->zone == here
 				&& !PRF2_FLAGGED(pt->character, PRF2_NOGECHO)
 				&& !PLR_FLAGGED(pt->character, PLR_OLC | PLR_WRITING)) {
 				if (GET_LEVEL(pt->character) > GET_LEVEL(ch))
-					send_to_char(buf2, pt->character);
+					send_to_char(pt->character, "[%s-zone] %s\r\n", GET_NAME(ch), argument);
 				else
-					send_to_char(buf, pt->character);
+					send_to_char(pt->character, "%s\r\n", argument);
 			}
 		}
 		if (PRF_FLAGGED(ch, PRF_NOREPEAT))
-			send_to_char(OK, ch);
+			send_to_char(ch, OK);
 		else
-			send_to_char(buf, ch);
+			send_to_char(ch, "%s", buf);
 	}
 }
 
@@ -3002,15 +2978,14 @@ ACMD(do_oecho)
 	skip_spaces(&argument);
 
 	if (!*argument)
-		send_to_char("That must be a mistake...\r\n", ch);
+		send_to_char(ch, "That must be a mistake...\r\n");
 	else {
-		sprintf(buf, "%s\r\n", argument);
-		send_to_outdoor(buf, 1);
+		send_to_char(ch, "%s\r\n", argument);
 
 		if (PRF_FLAGGED(ch, PRF_NOREPEAT))
-			send_to_char(OK, ch);
+			send_to_char(ch, OK);
 		else
-			send_to_char(buf, ch);
+			send_to_outdoor(buf, 1);
 	}
 }
 
@@ -3040,7 +3015,7 @@ ACMD(do_poofset)
 	else {
 		*msg = str_dup(argument);
 	}
-	send_to_char(OK, ch);
+	send_to_char(ch, OK);
 }
 
 
@@ -3052,23 +3027,22 @@ ACMD(do_dc)
 
 	one_argument(argument, arg);
 	if (!(num_to_dc = atoi(arg))) {
-		send_to_char
-			("Usage: DC <connection number> (type USERS for a list)\r\n", ch);
+		send_to_char(ch, 
+			"Usage: DC <connection number> (type USERS for a list)\r\n");
 		return;
 	}
 	for (d = descriptor_list; d && d->desc_num != num_to_dc; d = d->next);
 
 	if (!d) {
-		send_to_char("No such connection.\r\n", ch);
+		send_to_char(ch, "No such connection.\r\n");
 		return;
 	}
 	if (d->character && GET_LEVEL(d->character) >= GET_LEVEL(ch)) {
-		send_to_char("Umm.. maybe that's not such a good idea...\r\n", ch);
+		send_to_char(ch, "Umm.. maybe that's not such a good idea...\r\n");
 		return;
 	}
 	close_socket(d);
-	sprintf(buf, "Connection #%d closed.\r\n", num_to_dc);
-	send_to_char(buf, ch);
+	send_to_char(ch, "Connection #%d closed.\r\n", num_to_dc);
 	sprintf(buf, "(GC) Connection closed by %s.", GET_NAME(ch));
 	slog(buf);
 }
@@ -3085,7 +3059,7 @@ ACMD(do_wizcut)
 		level = atoi(arg);
 
 		if (level <= 0 || level >= LVL_IMMORT) {
-			send_to_char("You can only use wizcut on mortals.\r\n", ch);
+			send_to_char(ch, "You can only use wizcut on mortals.\r\n");
 			return;
 		}
 
@@ -3102,7 +3076,7 @@ ACMD(do_wizcut)
 		sprintf(buf,
 			"All players level %d and below have been disconnected.\r\n",
 			level);
-		send_to_char(buf, ch);
+		send_to_char(ch, "%s", buf);
 		sprintf(buf, "(GC) %s wizcut everyone level %d and below.\r\n",
 			GET_NAME(ch), level);
 		slog(buf);
@@ -3120,7 +3094,7 @@ ACMD(do_wizlock)
 	if (*arg) {
 		value = atoi(arg);
 		if (value < 0 || value > GET_LEVEL(ch)) {
-			send_to_char("Invalid wizlock value.\r\n", ch);
+			send_to_char(ch, "Invalid wizlock value.\r\n");
 			return;
 		}
 		restrict = value;
@@ -3136,11 +3110,10 @@ ACMD(do_wizlock)
 		sprintf(buf, "The game is %s closed to new players.\r\n", when);
 		break;
 	default:
-		sprintf(buf, "Only level %d and above may enter the game %s.\r\n",
+		send_to_char(ch, "Only level %d and above may enter the game %s.\r\n",
 			restrict, when);
 		break;
 	}
-	send_to_char(buf, ch);
 	sprintf(buf, "(GC) %s has set wizlock to %d.", GET_NAME(ch), restrict);
 	mudlog(buf, CMP, MAX(LVL_AMBASSADOR, GET_INVIS_LEV(ch)), FALSE);
 }
@@ -3169,11 +3142,10 @@ ACMD(do_date)
 		h = (mytime / 3600) % 24;
 		m = (mytime / 60) % 60;
 
-		sprintf(buf, "Up since %s: %d day%s, %d:%02d\r\n", tmstr, d,
+		send_to_char(ch, "Up since %s: %d day%s, %d:%02d\r\n", tmstr, d,
 			((d == 1) ? "" : "s"), h, m);
 	}
 
-	send_to_char(buf, ch);
 }
 
 
@@ -3184,18 +3156,18 @@ ACMD(do_last)
 
 	one_argument(argument, arg);
 	if (!*arg) {
-		send_to_char("For whom do you wish to search?\r\n", ch);
+		send_to_char(ch, "For whom do you wish to search?\r\n");
 		return;
 	}
 	if (load_char(arg, &chdata) < 0) {
-		send_to_char("There is no such player.\r\n", ch);
+		send_to_char(ch, "There is no such player.\r\n");
 		return;
 	}
 	if ((chdata.level > GET_LEVEL(ch)) && (GET_LEVEL(ch) < LVL_GRIMP)) {
-		send_to_char("You are not sufficiently godly for that!\r\n", ch);
+		send_to_char(ch, "You are not sufficiently godly for that!\r\n");
 		return;
 	}
-	sprintf(buf, "[%5ld] [%2d %s] %-12s : %-18s : %-20s",
+	send_to_char(ch, "[%5ld] [%2d %s] %-12s : %-18s : %-20s",
 		chdata.char_specials_saved.idnum, (int)chdata.level,
 		char_class_abbrevs[(int)chdata.char_class], chdata.name,
 		GET_LEVEL(ch) > LVL_ETERNAL ? chdata.host : "Unknown",
@@ -3203,7 +3175,6 @@ ACMD(do_last)
 	if (GET_LEVEL(ch) >= chdata.level &&
 		has_mail(chdata.char_specials_saved.idnum))
 		strcat(buf, "Player has unread mail.\r\n");
-	send_to_char(buf, ch);
 }
 
 
@@ -3218,17 +3189,17 @@ ACMD(do_force)
 	sprintf(buf1, "$n has forced you to '%s'.", to_force);
 
 	if (!*arg || !*to_force)
-		send_to_char("Whom do you wish to force do what?\r\n", ch);
+		send_to_char(ch, "Whom do you wish to force do what?\r\n");
 	else if ((GET_LEVEL(ch) < LVL_GRGOD) ||
 		(str_cmp("all", arg) && str_cmp("room", arg))) {
 		if (!(vict = get_char_vis(ch, arg))) {
-			send_to_char(NOPERSON, ch);
+			send_to_char(ch, NOPERSON);
 		} else if (GET_LEVEL(ch) <= GET_LEVEL(vict))
-			send_to_char("No, no, no!\r\n", ch);
+			send_to_char(ch, "No, no, no!\r\n");
 		else if (!IS_NPC(vict) && !Security::isMember(ch, "WizardFull"))
-			send_to_char("You cannot force players to do things.\r\n", ch);
+			send_to_char(ch, "You cannot force players to do things.\r\n");
 		else {
-			send_to_char(OK, ch);
+			send_to_char(ch, OK);
 			act(buf1, TRUE, ch, NULL, vict, TO_VICT);
 			sprintf(buf, "(GC) %s forced %s to %s",
 				GET_NAME(ch), GET_NAME(vict), to_force);
@@ -3236,7 +3207,7 @@ ACMD(do_force)
 			command_interpreter(vict, to_force);
 		}
 	} else if (!str_cmp("room", arg)) {
-		send_to_char(OK, ch);
+		send_to_char(ch, OK);
 		sprintf(buf, "(GC) %s forced room %d to %s",
 			GET_NAME(ch), ch->in_room->number, to_force);
 		mudlog(buf, NRM, GET_LEVEL(ch), TRUE);
@@ -3249,7 +3220,7 @@ ACMD(do_force)
 			command_interpreter((*it), to_force);
 		}
 	} else if (GET_LEVEL(ch) >= LVL_GRGOD) {	/* force all */
-		send_to_char(OK, ch);
+		send_to_char(ch, OK);
 		sprintf(buf, "(GC) %s forced all to %s", GET_NAME(ch), to_force);
 		mudlog(buf, NRM, GET_LEVEL(ch), TRUE);
 
@@ -3263,7 +3234,7 @@ ACMD(do_force)
 			command_interpreter(vict, to_force);
 		}
 	} else
-		send_to_char("Arrrg!  You seem to have strained something!\r\n", ch);
+		send_to_char(ch, "Arrrg!  You seem to have strained something!\r\n");
 }
 
 
@@ -3281,13 +3252,13 @@ ACMD(do_wiznet)
 
 	if (!*argument) {
 		if (subcmd == SCMD_IMMCHAT)
-			send_to_char
-				("Usage: imm <text> | #<level> <text> | *<emotetext> |\r\n "
-				"       imm @<level> *<emotetext> | imm @\r\n", ch);
+			send_to_char(ch, 
+				"Usage: imm <text> | #<level> <text> | *<emotetext> |\r\n "
+				"       imm @<level> *<emotetext> | imm @\r\n");
 		else
-			send_to_char
-				("Usage: wiz <text> | #<level> <text> | *<emotetext> |\r\n "
-				"       wiz @<level> *<emotetext> | wiz @\r\n", ch);
+			send_to_char(ch, 
+				"Usage: wiz <text> | #<level> <text> | *<emotetext> |\r\n "
+				"       wiz @<level> *<emotetext> | wiz @\r\n");
 		return;
 	}
 
@@ -3303,9 +3274,8 @@ ACMD(do_wiznet)
 			half_chop(argument + 1, buf1, argument);
 			level = MAX(atoi(buf1), LVL_AMBASSADOR);
 			if (level > GET_LEVEL(ch)) {
-				sprintf(buf, "You can't %s above your own level.\r\n",
+				send_to_char(ch, "You can't %s above your own level.\r\n",
 					subcmd == SCMD_IMMCHAT ? "immchat" : "wiznet");
-				send_to_char(buf, ch);
 				return;
 			}
 		} else if (emote)
@@ -3355,10 +3325,9 @@ ACMD(do_wiznet)
 					sprintf(buf1, "%sGods offline:\r\n", buf1);
 					any = TRUE;
 				}
-				sprintf(buf1, "%s  %s\r\n", buf1, GET_NAME(d->character));
+				send_to_char(ch, "%s  %s\r\n", buf1, GET_NAME(d->character));
 			}
 		}
-		send_to_char(buf1, ch);
 		return;
 	case '\\':
 		++argument;
@@ -3368,13 +3337,13 @@ ACMD(do_wiznet)
 	}
 	if ((subcmd == SCMD_WIZNET && PRF_FLAGGED(ch, PRF_NOWIZ)) ||
 		(subcmd == SCMD_IMMCHAT && PRF2_FLAGGED(ch, PRF2_NOIMMCHAT))) {
-		send_to_char("You are offline!\r\n", ch);
+		send_to_char(ch, "You are offline!\r\n");
 		return;
 	}
 	skip_spaces(&argument);
 
 	if (!*argument) {
-		send_to_char("Don't bother the gods like that!\r\n", ch);
+		send_to_char(ch, "Don't bother the gods like that!\r\n");
 		return;
 	}
 
@@ -3417,21 +3386,21 @@ ACMD(do_wiznet)
 			&& (d != ch->desc || !(PRF_FLAGGED(d->character, PRF_NOREPEAT)))) {
 
 			if (subcmd == SCMD_IMMCHAT) {
-				send_to_char(CCYEL(d->character, C_SPR), d->character);
+				send_to_char(d->character, CCYEL(d->character, C_SPR));
 			} else {
-				send_to_char(CCCYN(d->character, C_SPR), d->character);
+				send_to_char(d->character, CCCYN(d->character, C_SPR));
 			}
 			if (CAN_SEE(d->character, ch))
-				send_to_char(buf1, d->character);
+				send_to_char(d->character, "%s", buf1);
 			else
-				send_to_char(buf2, d->character);
+				send_to_char(d->character, "%s", buf2);
 
-			send_to_char(CCNRM(d->character, C_SPR), d->character);
+			send_to_char(d->character, CCNRM(d->character, C_SPR));
 		}
 	}
 
 	if (PRF_FLAGGED(ch, PRF_NOREPEAT))
-		send_to_char(OK, ch);
+		send_to_char(ch, OK);
 }
 
 
@@ -3445,14 +3414,14 @@ ACMD(do_zreset)
 
 	one_argument(argument, arg);
 	if (!*arg) {
-		send_to_char("You must specify a zone.\r\n", ch);
+		send_to_char(ch, "You must specify a zone.\r\n");
 		return;
 	}
 	if (*arg == '*') {
 		for (zone = zone_table; zone; zone = zone->next)
 			reset_zone(zone);
 
-		send_to_char("Reset world.\r\n", ch);
+		send_to_char(ch, "Reset world.\r\n");
 		sprintf(buf, "(GC) %s reset entire world.", GET_NAME(ch));
 		mudlog(buf, NRM, MAX(LVL_GRGOD, GET_INVIS_LEV(ch)), TRUE);
 		return;
@@ -3466,15 +3435,14 @@ ACMD(do_zreset)
 	}
 	if (zone) {
 		reset_zone(zone);
-		sprintf(buf, "Reset zone %d : %s.\r\n", zone->number, zone->name);
-		send_to_char(buf, ch);
+		send_to_char(ch, "Reset zone %d : %s.\r\n", zone->number, zone->name);
 		sprintf(buf, "(GC) %s %sreset zone %d (%s)", GET_NAME(ch),
 			subcmd == SCMD_OLC ? "olc-" : "", zone->number, zone->name);
 		mudlog(buf, subcmd == SCMD_OLC ? CMP : NRM,
 			MAX(LVL_GRGOD, GET_INVIS_LEV(ch)), TRUE);
 
 	} else
-		send_to_char("Invalid zone number.\r\n", ch);
+		send_to_char(ch, "Invalid zone number.\r\n");
 }
 
 
@@ -3491,87 +3459,81 @@ ACMD(do_wizutil)
 	one_argument(argument, arg);
 
 	if (!*arg)
-		send_to_char("Yes, but for whom?!?\r\n", ch);
+		send_to_char(ch, "Yes, but for whom?!?\r\n");
 	else if (!(vict = get_char_vis(ch, arg)))
-		send_to_char("There is no such player.\r\n", ch);
+		send_to_char(ch, "There is no such player.\r\n");
 	else if (IS_NPC(vict))
-		send_to_char("You can't do that to a mob!\r\n", ch);
+		send_to_char(ch, "You can't do that to a mob!\r\n");
 	else if (GET_LEVEL(vict) > GET_LEVEL(ch))
-		send_to_char("Hmmm...you'd better not.\r\n", ch);
+		send_to_char(ch, "Hmmm...you'd better not.\r\n");
 	else {
 		switch (subcmd) {
 		case SCMD_REROLL:
-			send_to_char("Rerolled...\r\n", ch);
+			send_to_char(ch, "Rerolled...\r\n");
 			roll_real_abils(vict);
-			sprintf(buf, "(GC) %s has rerolled %s.", GET_NAME(ch),
+			send_to_char(ch, "(GC) %s has rerolled %s.", GET_NAME(ch),
 				GET_NAME(vict));
 			slog(buf);
 			sprintf(buf,
 				"New stats: Str %d/%d, Int %d, Wis %d, Dex %d, Con %d, Cha %d\r\n",
 				GET_STR(vict), GET_ADD(vict), GET_INT(vict), GET_WIS(vict),
 				GET_DEX(vict), GET_CON(vict), GET_CHA(vict));
-			send_to_char(buf, ch);
 			break;
 		case SCMD_PARDON:
 			if (!PLR_FLAGGED(vict, PLR_THIEF | PLR_KILLER)) {
-				send_to_char("Your victim is not flagged.\r\n", ch);
+				send_to_char(ch, "Your victim is not flagged.\r\n");
 				return;
 			}
 			REMOVE_BIT(PLR_FLAGS(vict), PLR_THIEF | PLR_KILLER);
-			send_to_char("Pardoned.\r\n", ch);
-			send_to_char("You have been pardoned by the Gods!\r\n", vict);
+			send_to_char(ch, "Pardoned.\r\n");
+			send_to_char(vict, "You have been pardoned by the Gods!\r\n");
 			sprintf(buf, "(GC) %s pardoned by %s", GET_NAME(vict),
 				GET_NAME(ch));
 			mudlog(buf, BRF, MAX(LVL_GOD, GET_INVIS_LEV(ch)), TRUE);
 			break;
 		case SCMD_NOTITLE:
 			result = PLR_TOG_CHK(vict, PLR_NOTITLE);
-			sprintf(buf, "(GC) Notitle %s for %s by %s.", ONOFF(result),
+			send_to_char(ch, "(GC) Notitle %s for %s by %s.", ONOFF(result),
 				GET_NAME(vict), GET_NAME(ch));
 			mudlog(buf, NRM, MAX(LVL_GOD, GET_INVIS_LEV(ch)), TRUE);
 			strcat(buf, "\r\n");
-			send_to_char(buf, ch);
 			break;
 		case SCMD_NOPOST:
 			result = PLR_TOG_CHK(vict, PLR_NOPOST);
-			sprintf(buf, "(GC) Nopost %s for %s by %s.", ONOFF(result),
+			send_to_char(ch, "(GC) Nopost %s for %s by %s.", ONOFF(result),
 				GET_NAME(vict), GET_NAME(ch));
 			mudlog(buf, NRM, MAX(LVL_GOD, GET_INVIS_LEV(ch)), TRUE);
 			strcat(buf, "\r\n");
-			send_to_char(buf, ch);
 			break;
 		case SCMD_COUNCIL:
 			result = PLR_TOG_CHK(vict, PLR_COUNCIL);
-			sprintf(buf, "(GC) Council %s for %s by %s.", ONOFF(result),
+			send_to_char(ch, "(GC) Council %s for %s by %s.", ONOFF(result),
 				GET_NAME(vict), GET_NAME(ch));
 			mudlog(buf, NRM, MAX(LVL_GOD, GET_INVIS_LEV(ch)), TRUE);
 			strcat(buf, "\r\n");
-			send_to_char(buf, ch);
 			break;
 		case SCMD_SQUELCH:
 			result = PLR_TOG_CHK(vict, PLR_NOSHOUT);
-			sprintf(buf, "(GC) Squelch %s for %s by %s.", ONOFF(result),
+			send_to_char(ch, "(GC) Squelch %s for %s by %s.", ONOFF(result),
 				GET_NAME(vict), GET_NAME(ch));
 			mudlog(buf, BRF, MAX(GET_INVIS_LEV(ch), GET_INVIS_LEV(vict)),
 				TRUE);
 			strcat(buf, "\r\n");
-			send_to_char(buf, ch);
 			break;
 		case SCMD_FREEZE:
 			if (ch == vict) {
-				send_to_char("Oh, yeah, THAT'S real smart...\r\n", ch);
+				send_to_char(ch, "Oh, yeah, THAT'S real smart...\r\n");
 				return;
 			}
 			if (PLR_FLAGGED(vict, PLR_FROZEN)) {
-				send_to_char("Your victim is already pretty cold.\r\n", ch);
+				send_to_char(ch, "Your victim is already pretty cold.\r\n");
 				return;
 			}
 			SET_BIT(PLR_FLAGS(vict), PLR_FROZEN);
 			GET_FREEZE_LEV(vict) = GET_LEVEL(ch);
-			send_to_char
-				("A bitter wind suddenly rises and drains every erg of heat from your body!\r\nYou feel frozen!\r\n",
-				vict);
-			send_to_char("Frozen.\r\n", ch);
+			send_to_char(vict, 
+				"A bitter wind suddenly rises and drains every erg of heat from your body!\r\nYou feel frozen!\r\n");
+			send_to_char(ch, "Frozen.\r\n");
 			act("A sudden cold wind conjured from nowhere freezes $n!", FALSE,
 				vict, 0, 0, TO_ROOM);
 			sprintf(buf, "(GC) %s frozen by %s.", GET_NAME(vict),
@@ -3580,39 +3542,36 @@ ACMD(do_wizutil)
 			break;
 		case SCMD_THAW:
 			if (!PLR_FLAGGED(vict, PLR_FROZEN)) {
-				send_to_char
-					("Sorry, your victim is not morbidly encased in ice at the moment.\r\n",
-					ch);
+				send_to_char(ch, 
+					"Sorry, your victim is not morbidly encased in ice at the moment.\r\n");
 				return;
 			}
 			if (GET_FREEZE_LEV(vict) > GET_LEVEL(ch)) {
 				sprintf(buf,
 					"Sorry, a level %d God froze %s... you can't unfreeze %s.\r\n",
 					GET_FREEZE_LEV(vict), GET_NAME(vict), HMHR(vict));
-				send_to_char(buf, ch);
+				send_to_char(ch, "%s", buf);
 				return;
 			}
 			sprintf(buf, "(GC) %s un-frozen by %s.", GET_NAME(vict),
 				GET_NAME(ch));
 			mudlog(buf, BRF, MAX(LVL_POWER, GET_INVIS_LEV(ch)), TRUE);
 			REMOVE_BIT(PLR_FLAGS(vict), PLR_FROZEN);
-			send_to_char
-				("A fireball suddenly explodes in front of you, melting the ice!\r\nYou feel thawed.\r\n",
-				vict);
-			send_to_char("Thawed.\r\n", ch);
+			send_to_char(vict, 
+				"A fireball suddenly explodes in front of you, melting the ice!\r\nYou feel thawed.\r\n");
+			send_to_char(ch, "Thawed.\r\n");
 			act("A sudden fireball conjured from nowhere thaws $n!", FALSE,
 				vict, 0, 0, TO_ROOM);
 			break;
 		case SCMD_UNAFFECT:
 			if (vict->affected) {
-				send_to_char("There is a brief flash of light!\r\n"
-					"You feel slightly different.\r\n", vict);
-				send_to_char("All spells removed.\r\n", ch);
+				send_to_char(vict, "There is a brief flash of light!\r\n"
+					"You feel slightly different.\r\n");
+				send_to_char(ch, "All spells removed.\r\n");
 				while (vict->affected)
 					affect_remove(vict, vict->affected);
 			} else {
-				send_to_char("Your victim does not have any affections!\r\n",
-					ch);
+				send_to_char(ch, "Your victim does not have any affections!\r\n");
 				return;
 			}
 			break;
@@ -3781,13 +3740,11 @@ do_show_stats(struct char_data *ch)
 	if (quest_status)
 		sprintf(buf, "%s   %sQUEST_STATUS is ON.%s\r\n",
 			buf, CCREV(ch, C_NRM), CCNRM(ch, C_NRM));
-	sprintf(buf, "%s  Trail count: %d\r\n", buf, tr_count);
-	send_to_char(buf, ch);
+	send_to_char(ch, "%s  Trail count: %d\r\n", buf, tr_count);
 
 	if (GET_LEVEL(ch) >= LVL_LOGALL && log_cmds) {
-		sprintf(buf, "  Logging all commands :: file is %s.\r\n",
+		send_to_char(ch, "  Logging all commands :: file is %s.\r\n",
 			1 ? "OPEN" : "NULL");
-		send_to_char(buf, ch);
 	}
 	if (shutdown_count >= 0) {
 		sprintf(buf,
@@ -3795,7 +3752,7 @@ do_show_stats(struct char_data *ch)
 			shutdown_mode == SHUTDOWN_DIE ? "DIE" :
 			shutdown_mode == SHUTDOWN_PAUSE ? "PAUSE" : "REBOOT",
 			shutdown_count);
-		send_to_char(buf, ch);
+		send_to_char(ch, "%s", buf);
 	}
 }
 
@@ -3805,7 +3762,7 @@ show_wizcommands(CHAR * ch)
 	if (IS_PC(ch))
 		Security::sendAvailableCommands(ch, GET_IDNUM(ch));
 	else
-		send_to_char("You are a mobile. Deal with it.\r\n", ch);
+		send_to_char(ch, "You are a mobile. Deal with it.\r\n");
 	/*
 	   char outbuf[MAX_STRING_LENGTH];
 
@@ -3850,7 +3807,7 @@ show_player(CHAR * ch, char *value)
 	long idnum = 0;
 
 	if (!*value) {
-		send_to_char("A name would help.\r\n", ch);
+		send_to_char(ch, "A name would help.\r\n");
 		return;
 	}
 
@@ -3859,7 +3816,7 @@ show_player(CHAR * ch, char *value)
 		strcpy(value, get_name_by_id(atoi(value)));
 	}
 	if (load_char(value, &vbuf) < 0) {
-		send_to_char("There is no such player.\r\n", ch);
+		send_to_char(ch, "There is no such player.\r\n");
 		return;
 	}
 
@@ -3956,9 +3913,8 @@ show_player(CHAR * ch, char *value)
 			vbuf.name, CCNRM(ch, C_NRM));
 
 	if (IS_SET(vbuf.char_specials_saved.act, PLR_DELETED))
-		sprintf(buf, "%s%s%s is DELETED!%s\r\n", buf, CCRED(ch, C_NRM),
+		send_to_char(ch, "%s%s%s is DELETED!%s\r\n", buf, CCRED(ch, C_NRM),
 			vbuf.name, CCNRM(ch, C_NRM));
-	send_to_char(buf, ch);
 }
 
 void
@@ -3970,15 +3926,15 @@ show_multi(CHAR * ch, char *arg)
 	int players_listed = 0;
 
 	if (!*arg) {
-		send_to_char("For whom do you wish to search?\r\n", ch);
+		send_to_char(ch, "For whom do you wish to search?\r\n");
 		return;
 	}
 	if (load_char(arg, &chdata) < 0) {
-		send_to_char("There is no such player.\r\n", ch);
+		send_to_char(ch, "There is no such player.\r\n");
 		return;
 	}
 	if ((chdata.level > GET_LEVEL(ch)) && (GET_LEVEL(ch) < LVL_GRIMP)) {
-		send_to_char("You are not sufficiently godly for that!\r\n", ch);
+		send_to_char(ch, "You are not sufficiently godly for that!\r\n");
 		return;
 	}
 
@@ -3996,7 +3952,7 @@ show_multi(CHAR * ch, char *arg)
 	fseek(player_fl, 0, SEEK_SET);
 	if ((int)fread(whole_file, sizeof(struct char_file_u), pl_idx,
 			player_fl) != pl_idx) {
-		send_to_char("Didn't read the right number of records.\r\n", ch);
+		send_to_char(ch, "Didn't read the right number of records.\r\n");
 		return;
 	}
 	for (cur_pl = whole_file; pl_idx && players_listed < 300;
@@ -4064,7 +4020,7 @@ show_topzones(CHAR * ch, char *value)
 	if (!(topzones =
 			(struct zone_data **)malloc(num_zones *
 				sizeof(struct zone_data *)))) {
-		send_to_char("Allocation error.\r\n", ch);
+		send_to_char(ch, "Allocation error.\r\n");
 		return;
 	}
 
@@ -4107,8 +4063,8 @@ show_mobkills(CHAR * ch, char *value, char *arg)
 	int i = 0;
 
 	if (!*value) {
-		send_to_char("Usage: show mobkills <ratio>\r\n"
-			"<ratio> should be between 0.00 and 1.00\r\n", ch);
+		send_to_char(ch, "Usage: show mobkills <ratio>\r\n"
+			"<ratio> should be between 0.00 and 1.00\r\n");
 		return;
 	}
 
@@ -4154,7 +4110,7 @@ show_mlevels(CHAR * ch, char *value, char *arg)
 	CHAR *mob = NULL;
 	char arg1[MAX_INPUT_LENGTH];
 	if (!*value) {
-		send_to_char(MLEVELS_USAGE, ch);
+		send_to_char(ch, MLEVELS_USAGE);
 		return;
 	}
 
@@ -4169,9 +4125,8 @@ show_mlevels(CHAR * ch, char *value, char *arg)
 			else if (!strcmp(arg1, "expand"))
 				expand = 1;
 			else {
-				sprintf(buf, "Unknown option: '%s'\r\n%s", arg1,
+				send_to_char(ch, "Unknown option: '%s'\r\n%s", arg1,
 					MLEVELS_USAGE);
-				send_to_char(buf, ch);
 			}
 		}
 	}
@@ -4210,9 +4165,8 @@ show_mlevels(CHAR * ch, char *value, char *arg)
 			}
 		}
 	} else {
-		send_to_char("First argument must be either 'real' or 'proto'\r\n",
-			ch);
-		send_to_char(MLEVELS_USAGE, ch);
+		send_to_char(ch, "First argument must be either 'real' or 'proto'\r\n");
+		send_to_char(ch, MLEVELS_USAGE);
 		return;
 	}
 
@@ -4228,7 +4182,7 @@ show_mlevels(CHAR * ch, char *value, char *arg)
 	}
 
 	if (!max) {
-		send_to_char("There are no mobiles?\r\n", ch);
+		send_to_char(ch, "There are no mobiles?\r\n");
 		return;
 	}
 	// print the long, expanded list
@@ -4363,12 +4317,11 @@ ACMD(do_show)
 		}
 		sort(cmdlist.begin(), cmdlist.end());
 		for (j = 0, i = 1; i < (int)(cmdlist.size()); i++) {
-			sprintf(buf, "%s%-15s%s", buf, cmdlist[i].c_str(),
+			send_to_char(ch, "%s%-15s%s", buf, cmdlist[i].c_str(),
 				(!(++j % 5) ? "\r\n" : ""));
 		}
 
 		strcat(buf, "\r\n");
-		send_to_char(buf, ch);
 		return;
 	}
 
@@ -4379,7 +4332,7 @@ ACMD(do_show)
 			break;
 
 	if (!Security::canAccess(ch, fields[l])) {
-		send_to_char("You do not have that power.\r\n", ch);
+		send_to_char(ch, "You do not have that power.\r\n");
 		return;
 	}
 
@@ -4394,7 +4347,7 @@ ACMD(do_show)
 				"Usage: show zone [ . | all | <begin#> <end#> | name <partial name> | fullcontrol | owner | co-owner ]\r\n";
 			Tokenizer tokens(arg);
 			if (value[0] == '\0') {
-				send_to_char(usage, ch);
+				send_to_char(ch, usage);
 				return;
 			} else if (self) {
 				print_zone_to_buf(ch, buf, ch->in_room->zone);
@@ -4410,7 +4363,7 @@ ACMD(do_show)
 					}
 				}
 				if (zone_list.size() <= 0) {
-					send_to_char("That is not a valid zone.\r\n", ch);
+					send_to_char(ch, "That is not a valid zone.\r\n");
 					return;
 				}
 				zone_list.reverse();
@@ -4444,7 +4397,7 @@ ACMD(do_show)
 					if (ZONE_FLAGGED(zone, ZONE_FULLCONTROL))
 						print_zone_to_buf(ch, buf, zone);
 			} else {
-				send_to_char(usage, ch);
+				send_to_char(ch, usage);
 				return;
 			}
 			page_string(ch->desc, buf, 0);
@@ -4468,9 +4421,8 @@ ACMD(do_show)
 				for (j = 0; j < NUM_OF_DIRS; j++)
 					if (room->dir_option[j]
 						&& room->dir_option[j]->to_room == NULL)
-						sprintf(buf, "%s%2d: [%5d] %s\r\n", buf, ++k,
+						send_to_char(ch, "%s%2d: [%5d] %s\r\n", buf, ++k,
 							room->number, room->name);
-		send_to_char(buf, ch);
 		break;
 	case 6:
 		strcpy(buf, "Death Traps\r\n-----------\r\n");
@@ -4494,9 +4446,8 @@ ACMD(do_show)
 			for (room = zone->world; room; room = room->next)
 				if (room->zone->number == GOD_ROOMS_ZONE ||
 					ROOM_FLAGGED(room, ROOM_GODROOM))
-					sprintf(buf, "%s%2d: [%5d] %s\r\n", buf, j++, room->number,
+					send_to_char(ch, "%s%2d: [%5d] %s\r\n", buf, j++, room->number,
 						room->name);
-		send_to_char(buf, ch);
 		break;
 	case 8:
 		show_shops(ch, argument);
@@ -4530,12 +4481,11 @@ ACMD(do_show)
 		break;
 	case 12:
 		if (!*value) {
-			send_to_char("View who's skills?\r\n", ch);
+			send_to_char(ch, "View who's skills?\r\n");
 		} else if (!(vict = get_player_vis(ch, value, 0))) {
 			if (!Security::isMember(ch, "AdminBasic")) {
-				send_to_char
-					("Getting that data from file requires basic administrative rights.\r\n",
-					ch);
+				send_to_char(ch, 
+					"Getting that data from file requires basic administrative rights.\r\n");
 			} else {
 				struct char_file_u tmp_store;
 				CREATE(vict, struct char_data, 1);
@@ -4543,19 +4493,19 @@ ACMD(do_show)
 				if (load_char(value, &tmp_store) > -1) {
 					store_to_char(&tmp_store, vict);
 					if (GET_LEVEL(vict) > GET_LEVEL(ch) && GET_IDNUM(ch) != 1)
-						send_to_char("Sorry, you can't do that.\r\n", ch);
+						send_to_char(ch, "Sorry, you can't do that.\r\n");
 					else
 						list_skills_to_char(ch, vict);
 					free_char(vict);
 				} else {
-					send_to_char("There is no such player.\r\n", ch);
+					send_to_char(ch, "There is no such player.\r\n");
 					free(vict);
 				}
 				vict = NULL;
 			}
 		} else if (IS_MOB(vict)) {
-			send_to_char("Mobs don't have skills.  All mobs are assumed to\r\n"
-				"have a (50 + level)% skill proficiency.\r\n", ch);
+			send_to_char(ch, "Mobs don't have skills.  All mobs are assumed to\r\n"
+				"have a (50 + level)% skill proficiency.\r\n");
 		} else {
 			list_skills_to_char(ch, vict);
 		}
@@ -4580,15 +4530,14 @@ ACMD(do_show)
 			else if (is_abbrev(value, "arena"))
 				list_residents_to_char(ch, HOME_ARENA);
 			else
-				send_to_char("Unrecognized City.\r\n", ch);
+				send_to_char(ch, "Unrecognized City.\r\n");
 		}
 		break;
 	case 15:					// aliases
 		if (!(vict = get_char_vis(ch, value)))
-			send_to_char("You cannot see any such person.\r\n", ch);
+			send_to_char(ch, "You cannot see any such person.\r\n");
 		else if (IS_MOB(vict))
-			send_to_char("Now... what would a mob need with aliases??\r\n",
-				ch);
+			send_to_char(ch, "Now... what would a mob need with aliases??\r\n");
 		else if (GET_LEVEL(vict) > GET_LEVEL(ch)) {
 			act("You cannot determine what $S aliases might be.", FALSE, ch, 0,
 				vict, TO_CHAR);
@@ -4616,7 +4565,7 @@ ACMD(do_show)
 		show_social_messages(ch, value);
 		break;
 	case 18:
-		send_to_char("Command not implemented yet.\r\n", ch);
+		send_to_char(ch, "Command not implemented yet.\r\n");
 		break;
 	case 19:					// questguide
 		page_string(ch->desc, quest_guide, 1);
@@ -4691,7 +4640,7 @@ ACMD(do_show)
 		break;
 
 	case 26:  /** quiz **/
-		send_to_char("Disabled.\r\n", ch);
+		send_to_char(ch, "Disabled.\r\n");
 		break;
 		/*
 		   strcpy(buf2, "REMORT QUIZ QUESTIONS:\r\n");
@@ -4744,7 +4693,7 @@ ACMD(do_show)
 			return;
 		}
 		if (!(vict = get_char_vis(ch, value))) {
-			send_to_char("You cannot see any such person.\r\n", ch);
+			send_to_char(ch, "You cannot see any such person.\r\n");
 			return;
 		}
 
@@ -4795,11 +4744,11 @@ ACMD(do_show)
 
 	case 34:					/* timezones */
 		if (!*value) {
-			send_to_char("What time frame?\r\n", ch);
+			send_to_char(ch, "What time frame?\r\n");
 			return;
 		}
 		if ((i = search_block(value, time_frames, 0)) < 0) {
-			send_to_char("That is not a valid time frame.\r\n", ch);
+			send_to_char(ch, "That is not a valid time frame.\r\n");
 			return;
 		}
 		sprintf(buf, "TIME ZONES for: %s PRIME.\r\n", time_frames[i]);
@@ -4824,15 +4773,15 @@ ACMD(do_show)
 		break;
 	case 35:					/* char_class */
 		if (!*value) {
-			send_to_char("Show which PC char_class?\r\n", ch);
+			send_to_char(ch, "Show which PC char_class?\r\n");
 			return;
 		}
 		if ((con = parse_char_class(value)) == CLASS_UNDEFINED) {
-			send_to_char("That is not a char_class.\r\n", ch);
+			send_to_char(ch, "That is not a char_class.\r\n");
 			return;
 		}
 		if (con >= NUM_CLASSES) {
-			send_to_char("That is not a PC char_class.\r\n", ch);
+			send_to_char(ch, "That is not a PC char_class.\r\n");
 			return;
 		}
 		show_char_class_skills(ch, con, TRUE, 0);
@@ -4858,7 +4807,7 @@ ACMD(do_show)
 
 	case 38:
 		if (!*value) {
-			send_to_char("Show free_create mobs, objs, or rooms?\r\n", ch);
+			send_to_char(ch, "Show free_create mobs, objs, or rooms?\r\n");
 			return;
 		}
 		if (is_abbrev(value, "objs") || is_abbrev(value, "objects"))
@@ -4868,8 +4817,7 @@ ACMD(do_show)
 		else if (is_abbrev(value, "rooms"))
 			sfc_mode = SFC_ROOM;
 		else {
-			send_to_char("You must show free_create obj, mob, or room.\r\n",
-				ch);
+			send_to_char(ch, "You must show free_create obj, mob, or room.\r\n");
 			return;
 		}
 
@@ -4890,21 +4838,19 @@ ACMD(do_show)
 
 	case 39:					/* exp_percent */
 		if (!*arg || !*value) {
-			send_to_char("Usage: show exp <min percent> <max percent>\r\n",
-				ch);
+			send_to_char(ch, "Usage: show exp <min percent> <max percent>\r\n");
 			return;
 		}
 		if ((k = atoi(value)) < 0 || (l = atoi(arg)) < 0) {
-			send_to_char("Try using positive numbers, asshole.\r\n", ch);
+			send_to_char(ch, "Try using positive numbers, asshole.\r\n");
 			return;
 		}
 		if (k >= l) {
-			send_to_char("Second number must be larger than first.\r\n", ch);
+			send_to_char(ch, "Second number must be larger than first.\r\n");
 			return;
 		}
 		if (l - k > 200) {
-			send_to_char("Increment too large.  Stay smaller than 200.\r\n",
-				ch);
+			send_to_char(ch, "Increment too large.  Stay smaller than 200.\r\n");
 			return;
 		}
 		strcpy(buf, "Mobs with exp in given range:\r\n");
@@ -4941,13 +4887,12 @@ ACMD(do_show)
 
 	case 40:					/* demand_items */
 		if (!*value) {
-			send_to_char("What demand level (in total units existing)?\r\n",
-				ch);
+			send_to_char(ch, "What demand level (in total units existing)?\r\n");
 			return;
 		}
 
 		if ((k = atoi(value)) <= 0) {
-			send_to_char("-- You are so far out. -- level > 0 !!\r\n", ch);
+			send_to_char(ch, "-- You are so far out. -- level > 0 !!\r\n");
 			return;
 		}
 
@@ -4969,7 +4914,7 @@ ACMD(do_show)
 		if (i)
 			page_string(ch->desc, buf, 1);
 		else
-			send_to_char("No items.\r\n", ch);
+			send_to_char(ch, "No items.\r\n");
 		break;
 
 	case 42:					/* fighting */
@@ -5099,7 +5044,7 @@ ACMD(do_show)
 
 	case 48:					// specialization
 		if (!(vict = get_char_vis(ch, value))) {
-			send_to_char("You cannot see any such person.\r\n", ch);
+			send_to_char(ch, "You cannot see any such person.\r\n");
 			return;
 		}
 		sprintf(buf, "Weapon specialization for %s:\r\n", GET_NAME(vict));
@@ -5120,9 +5065,8 @@ ACMD(do_show)
 			if (*arg) {
 				k = atoi(arg);
 				if (k < j) {
-					send_to_char
-						("The top value must be greater than the first.\r\n",
-						ch);
+					send_to_char(ch, 
+						"The top value must be greater than the first.\r\n");
 					return;
 				}
 			}
@@ -5146,14 +5090,13 @@ ACMD(do_show)
 	case 50:					// zexits
 
 		if (!*arg || !*value) {
-			send_to_char(ZEXITS_USAGE, ch);
+			send_to_char(ch, ZEXITS_USAGE);
 			return;
 		}
 		k = atoi(arg);
 
 		if (!(zone = real_zone(k))) {
-			sprintf(buf, "Zone %d does not exist.\r\n", k);
-			send_to_char(buf, ch);
+			send_to_char(ch, "Zone %d does not exist.\r\n", k);
 			return;
 		}
 		// check for exits FROM zone k, easy to do
@@ -5211,8 +5154,8 @@ ACMD(do_show)
 			return;
 		}
 
-		send_to_char("First argument must be 'to' or 'from'.\r\n", ch);
-		send_to_char(ZEXITS_USAGE, ch);
+		send_to_char(ch, "First argument must be 'to' or 'from'.\r\n");
+		send_to_char(ch, ZEXITS_USAGE);
 
 		break;
 
@@ -5222,7 +5165,7 @@ ACMD(do_show)
 		break;
 
 	case 52:					// plevels
-		send_to_char("Unimped.\r\n", ch);
+		send_to_char(ch, "Unimped.\r\n");
 		break;
 
 	case 53:					// mobkills
@@ -5245,7 +5188,7 @@ ACMD(do_show)
 		show_multi(ch, value);
 		break;
 	default:
-		send_to_char("Sorry, I don't understand that.\r\n", ch);
+		send_to_char(ch, "Sorry, I don't understand that.\r\n");
 		break;
 	}
 }
@@ -5410,24 +5353,23 @@ ACMD(do_set)
 		sort(cmdlist.begin(), cmdlist.end());
 
 		for (i = 0, l = 1; i < (int)(cmdlist.size()); i++) {
-			sprintf(buf, "%s%12s%s", buf, cmdlist[i].c_str(),
+			send_to_char(ch, "%s%12s%s", buf, cmdlist[i].c_str(),
 				((l++) % 5) ? " " : "\n");
 		}
 
 		if ((l - 1) % 5)
 			strcat(buf, "\r\n");
-		send_to_char(buf, ch);
 		return;
 	}
 	if (!is_file) {
 		if (is_player) {
 			if (!(vict = get_player_vis(ch, name, 0))) {
-				send_to_char("There is no such player.\r\n", ch);
+				send_to_char(ch, "There is no such player.\r\n");
 				return;
 			}
 		} else {
 			if (!(vict = get_char_vis(ch, name))) {
-				send_to_char("There is no such creature.\r\n", ch);
+				send_to_char(ch, "There is no such creature.\r\n");
 				return;
 			}
 		}
@@ -5438,20 +5380,20 @@ ACMD(do_set)
 			store_to_char(&tmp_store, cbuf);
 			if (GET_LEVEL(cbuf) >= GET_LEVEL(ch) && GET_IDNUM(ch) != 1) {
 				free_char(cbuf);
-				send_to_char("Sorry, you can't do that.\r\n", ch);
+				send_to_char(ch, "Sorry, you can't do that.\r\n");
 				return;
 			}
 			vict = cbuf;
 		} else {
 			free(cbuf);
-			send_to_char("There is no such player.\r\n", ch);
+			send_to_char(ch, "There is no such player.\r\n");
 			return;
 		}
 	}
 
 	if (GET_LEVEL(ch) < LVL_LUCIFER) {
 		if (!IS_NPC(vict) && GET_LEVEL(ch) <= GET_LEVEL(vict) && vict != ch) {
-			send_to_char("Maybe that's not such a great idea...\r\n", ch);
+			send_to_char(ch, "Maybe that's not such a great idea...\r\n");
 			return;
 		}
 	}
@@ -5462,21 +5404,21 @@ ACMD(do_set)
 	}
 
 	if (GET_LEVEL(ch) < fields[l].level && subcmd != SCMD_TESTER_SET ) {
-		send_to_char("You are not able to perform this godly deed!\r\n", ch);
+		send_to_char(ch, "You are not able to perform this godly deed!\r\n");
 		return;
 	}
 
 	if (!Security::canAccess(ch, fields[l]) && subcmd != SCMD_TESTER_SET) {
-		send_to_char("You do not have that power.\r\n", ch);
+		send_to_char(ch, "You do not have that power.\r\n");
 		return;
 	}
 
 
 	if (IS_NPC(vict) && !(fields[l].pcnpc & NPC)) {
-		send_to_char("You can't do that to a beast!\r\n", ch);
+		send_to_char(ch, "You can't do that to a beast!\r\n");
 		return;
 	} else if (!IS_NPC(vict) && !(fields[l].pcnpc & PC)) {
-		send_to_char("That can only be done to a beast!\r\n", ch);
+		send_to_char(ch, "That can only be done to a beast!\r\n");
 		return;
 	}
 
@@ -5486,7 +5428,7 @@ ACMD(do_set)
 		else if (!strcmp(val_arg, "off") || !strcmp(val_arg, "no"))
 			off = 1;
 		if (!(on || off)) {
-			send_to_char("Value must be on or off.\r\n", ch);
+			send_to_char(ch, "Value must be on or off.\r\n");
 			return;
 		}
 	} else if (fields[l].type == NUMBER) {
@@ -5553,8 +5495,8 @@ ACMD(do_set)
 		break;
 	case 12:
 		if (vict->real_abils.str != 18) {
-			send_to_char
-				("Stradd is only applicable with 18 str... asshole.\r\n", ch);
+			send_to_char(ch, 
+				"Stradd is only applicable with 18 str... asshole.\r\n");
 			return;
 		}
 		vict->real_abils.str_add = RANGE(0, 100);
@@ -5600,7 +5542,7 @@ ACMD(do_set)
 		else if (!str_cmp(val_arg, "neutral"))
 			vict->player.sex = SEX_NEUTRAL;
 		else {
-			send_to_char("Must be 'male', 'female', or 'neutral'.\r\n", ch);
+			send_to_char(ch, "Must be 'male', 'female', or 'neutral'.\r\n");
 			return;
 		}
 		break;
@@ -5627,7 +5569,7 @@ ACMD(do_set)
 		break;
 	case 24:
 		if (GET_LEVEL(ch) < GET_LEVEL(vict)) {
-			send_to_char("You aren't godly enough for that!\r\n", ch);
+			send_to_char(ch, "You aren't godly enough for that!\r\n");
 			return;
 		}
 		GET_INVIS_LEV(vict) = RANGE(0, GET_LEVEL(vict));
@@ -5636,14 +5578,14 @@ ACMD(do_set)
 		break;
 	case 25:
 		if (GET_LEVEL(ch) < GET_LEVEL(vict)) {
-			send_to_char("You aren't godly enough for that!\r\n", ch);
+			send_to_char(ch, "You aren't godly enough for that!\r\n");
 			return;
 		}
 		SET_OR_REMOVE(PRF_FLAGS(vict), PRF_NOHASSLE);
 		break;
 	case 26:
 		if (ch == vict) {
-			send_to_char("Better not -- could be a long winter!\r\n", ch);
+			send_to_char(ch, "Better not -- could be a long winter!\r\n");
 			return;
 		}
 		sprintf(buf, "(GC) %s set %s %sfrozen.", 
@@ -5670,7 +5612,7 @@ ACMD(do_set)
 			sprintf(buf, "%s's %s set to %d.", GET_NAME(vict), fields[l].cmd,
 				value);
 		} else {
-			send_to_char("Must be 'off' or a value from 0 to 24.\r\n", ch);
+			send_to_char(ch, "Must be 'off' or a value from 0 to 24.\r\n");
 			return;
 		}
 		break;
@@ -5682,14 +5624,14 @@ ACMD(do_set)
 		break;
 	case 34:
 		if ((value > GET_LEVEL(ch) && GET_IDNUM(ch) != 1) || value > LVL_GRIMP) {
-			send_to_char("You can't do that.\r\n", ch);
+			send_to_char(ch, "You can't do that.\r\n");
 			return;
 		}
 
 		RANGE(0, LVL_GRIMP);
 
 		if (value >= 50 && !Security::isMember(ch, "AdminFull")) {
-			send_to_char("That should be done with advance.\r\n", ch);
+			send_to_char(ch, "That should be done with advance.\r\n");
 			return;
 		}
 
@@ -5697,7 +5639,7 @@ ACMD(do_set)
 		break;
 	case 35:
 		if ((room = real_room(value)) == NULL) {
-			send_to_char("No room exists with that number.\r\n", ch);
+			send_to_char(ch, "No room exists with that number.\r\n");
 			return;
 		}
 		char_from_room(vict);
@@ -5722,9 +5664,9 @@ ACMD(do_set)
 		break;
 	case 39:
 		if ((i = parse_char_class(val_arg)) == CLASS_UNDEFINED) {
-			send_to_char(val_arg, ch);
-			send_to_char("\r\n", ch);
-			send_to_char("That is not a char_class.\r\n", ch);
+			send_to_char(ch, val_arg);
+			send_to_char(ch, "\r\n");
+			send_to_char(ch, "That is not a char_class.\r\n");
 			return;
 		}
 		GET_CLASS(vict) = i;
@@ -5760,17 +5702,17 @@ ACMD(do_set)
 		break;
 	case 45:
 		if (!is_file) {
-			send_to_char("You must set password of player in file.\r\n", ch);
+			send_to_char(ch, "You must set password of player in file.\r\n");
 			return;
 		}
 		if (GET_LEVEL(ch) < LVL_LUCIFER || (strcasecmp(GET_NAME(ch), "Lucifer")
 				&& strcasecmp(GET_NAME(ch), "Fireball")
 				&& strcasecmp(GET_NAME(ch), "Fishbone"))) {
-			send_to_char("Please don't use this command, yet.\r\n", ch);
+			send_to_char(ch, "Please don't use this command, yet.\r\n");
 			return;
 		}
 		if (GET_LEVEL(vict) >= GET_LEVEL(ch) && GET_IDNUM(ch) != 1) {
-			send_to_char("You cannot change that.\r\n", ch);
+			send_to_char(ch, "You cannot change that.\r\n");
 			return;
 		}
 		strncpy(tmp_store.pwd, CRYPT(val_arg, tmp_store.name), MAX_PWD_LENGTH);
@@ -5790,31 +5732,30 @@ ACMD(do_set)
 		break;
 	case 48:
 		if (IS_NPC(vict)) {
-			send_to_char("That's what the zone file is for, fool!\r\n", ch);
+			send_to_char(ch, "That's what the zone file is for, fool!\r\n");
 			return;
 		}
 		GET_HOME(vict) = RANGE(0, 11);
-		sprintf(buf, "%s will have home at %s.\r\n", GET_NAME(vict),
+		send_to_char(ch, "%s will have home at %s.\r\n", GET_NAME(vict),
 			home_towns[(int)GET_HOME(vict)]);
-		send_to_char(buf, ch);
 		break;
 	case 49:
 		if ((i = parse_race(val_arg)) == RACE_UNDEFINED) {
-			send_to_char("That is not a race.\r\n", ch);
+			send_to_char(ch, "That is not a race.\r\n");
 			return;
 		}
 		GET_RACE(vict) = i;
 		break;
 	case 50:
 		if ((value > 400) && (GET_LEVEL(ch) < LVL_CREATOR)) {
-			send_to_char("That is too tall.\r\n", ch);
+			send_to_char(ch, "That is too tall.\r\n");
 			return;
 		} else
 			GET_HEIGHT(vict) = value;
 		break;
 	case 51:
 		if ((value > 800) && (GET_LEVEL(ch) < LVL_CREATOR)) {
-			send_to_char("That is too heavy.\r\n", ch);
+			send_to_char(ch, "That is too heavy.\r\n");
 			return;
 		} else
 			GET_WEIGHT(vict) = value;
@@ -5822,17 +5763,16 @@ ACMD(do_set)
 	case 52:
 		SET_OR_REMOVE(PRF_FLAGS(vict), PRF_NOSNOOP);
 		if (!is_file && vict->desc->snoop_by) {
-			send_to_char("Your snooping session has ended.\r\n",
-				vict->desc->snoop_by->character);
+			send_to_char(vict->desc->snoop_by->character, "Your snooping session has ended.\r\n");
 			stop_snooping(vict->desc->snoop_by->character);
 		}
 		break;
 	case 53:
 		if (is_number(val_arg) && !atoi(val_arg)) {
 			GET_CLAN(vict) = 0;
-			send_to_char("Clan set to none.\r\n", ch);
+			send_to_char(ch, "Clan set to none.\r\n");
 		} else if (!clan_by_name(val_arg)) {
-			send_to_char("There is no such clan.\r\n", ch);
+			send_to_char(ch, "There is no such clan.\r\n");
 			return;
 		} else
 			GET_CLAN(vict) = clan_by_name(val_arg)->number;
@@ -5852,28 +5792,26 @@ ACMD(do_set)
 		break;
 	case 59:
 		if ((i = parse_char_class(val_arg)) == CLASS_UNDEFINED) {
-			send_to_char("That is not a char_class.\r\n", ch);
+			send_to_char(ch, "That is not a char_class.\r\n");
 		}
 		GET_REMORT_CLASS(vict) = i;
 		break;
 	case 60:
 		if (!(vict2 = get_char_vis(ch, val_arg))) {
-			send_to_char("No such target character around.\r\n", ch);
+			send_to_char(ch, "No such target character around.\r\n");
 		} else {
 			HUNTING(vict) = vict2;
-			sprintf(buf, "%s now hunts %s.\r\n", GET_NAME(vict),
+			send_to_char(ch, "%s now hunts %s.\r\n", GET_NAME(vict),
 				GET_NAME(vict2));
-			send_to_char(buf, ch);
 		}
 		return;
 	case 61:
 		if (!(vict2 = get_char_vis(ch, val_arg))) {
-			send_to_char("No such target character around.\r\n", ch);
+			send_to_char(ch, "No such target character around.\r\n");
 		} else {
 			vict->setFighting(vict2);
-			sprintf(buf, "%s is now fighting %s.\r\n", GET_NAME(vict),
+			send_to_char(ch, "%s is now fighting %s.\r\n", GET_NAME(vict),
 				GET_NAME(vict2));
-			send_to_char(buf, ch);
 		}
 		return;
 	case 62:
@@ -5905,17 +5843,16 @@ ACMD(do_set)
 		break;
 	case 71:
 		if (((tp = search_block(val_arg, logtypes, FALSE)) == -1)) {
-			send_to_char
-				("Usage: syslog { Off | Brief | Normal | Complete }\r\n", ch);
+			send_to_char(ch, 
+				"Usage: syslog { Off | Brief | Normal | Complete }\r\n");
 			return;
 		}
 		REMOVE_BIT(PRF_FLAGS(vict), PRF_LOG1 | PRF_LOG2);
 		SET_BIT(PRF_FLAGS(vict),
 			(PRF_LOG1 * (tp & 1)) | (PRF_LOG2 * (tp & 2) >> 1));
 
-		sprintf(buf, "%s's syslog is now %s.\r\n", GET_NAME(vict),
+		send_to_char(ch, "%s's syslog is now %s.\r\n", GET_NAME(vict),
 			logtypes[tp]);
-		send_to_char(buf, ch);
 		break;
 	case 72:
 		GET_BROKE(vict) = RANGE(0, NUM_COMPS);
@@ -5926,7 +5863,7 @@ ACMD(do_set)
 	case 74:
 		if (IS_VAMPIRE(vict)) {
 			if ((i = parse_char_class(val_arg)) == CLASS_UNDEFINED) {
-				send_to_char("That is not a char_class.\r\n", ch);
+				send_to_char(ch, "That is not a char_class.\r\n");
 				return;
 			}
 		} else
@@ -5992,11 +5929,11 @@ ACMD(do_set)
 	case 91:
 		two_arguments(val_arg, arg1, arg2);
 		if (!*arg1 || !*arg2) {
-			send_to_char("Usage: set <vict> soilage <pos> <value>\r\n", ch);
+			send_to_char(ch, "Usage: set <vict> soilage <pos> <value>\r\n");
 			return;
 		}
 		if ((i = search_block(arg1, wear_eqpos, FALSE)) < 0) {
-			send_to_char("No such eqpos.\r\n", ch);
+			send_to_char(ch, "No such eqpos.\r\n");
 			return;
 		}
 		CHAR_SOILAGE(vict, i) = atoi(arg2);
@@ -6007,7 +5944,7 @@ ACMD(do_set)
 	case 93:					// specialization
 		two_arguments(val_arg, arg1, arg2);
 		if (!*arg1 || !*arg2) {
-			send_to_char("Usage: set <vict> spec <vnum> <level>\r\n", ch);
+			send_to_char(ch, "Usage: set <vict> spec <vnum> <level>\r\n");
 			return;
 		}
 		value = atoi(arg1);
@@ -6022,11 +5959,10 @@ ACMD(do_set)
 			}
 		}
 		if (!l) {
-			send_to_char("No such spec on this person.\r\n", ch);
+			send_to_char(ch, "No such spec on this person.\r\n");
 			return;
 		}
-		sprintf(buf, "[%d] spec level set to %d.\r\n", value, tp);
-		send_to_char(buf, ch);
+		send_to_char(ch, "[%d] spec level set to %d.\r\n", value, tp);
 		return;
 		// qpoints
 	case 94:
@@ -6046,7 +5982,7 @@ ACMD(do_set)
 		break;
 	case 97:
 		if (IS_NPC(vict)) {
-			send_to_char("Just kill the bugger!\r\n", ch);
+			send_to_char(ch, "Just kill the bugger!\r\n");
 			break;
 		} else {
 			sprintf(buf, "(GC) %s set %s %sburied.", 
@@ -6070,15 +6006,13 @@ ACMD(do_set)
 	}
 
 	if (fields[l].type == BINARY) {
-		sprintf(buf, "%s %s for %s.\r\n", fields[l].cmd, ONOFF(on),
+		send_to_char(ch, "%s %s for %s.\r\n", fields[l].cmd, ONOFF(on),
 			GET_NAME(vict));
-		CAP(buf);
 	} else if (fields[l].type == NUMBER) {
-		sprintf(buf, "%s's %s set to %d.\r\n", GET_NAME(vict),
+		send_to_char(ch, "%s's %s set to %d.\r\n", GET_NAME(vict),
 			fields[l].cmd, value);
 	} else
-		strcat(buf, "\r\n");
-	send_to_char(CAP(buf), ch);
+		send_to_char(ch, CAP(buf));
 
 	if (!is_file && !IS_NPC(vict))
 		save_char(vict, NULL);
@@ -6088,7 +6022,7 @@ ACMD(do_set)
 		fseek(player_fl, (player_i) * sizeof(struct char_file_u), SEEK_SET);
 		fwrite(&tmp_store, sizeof(struct char_file_u), 1, player_fl);
 		free_char(cbuf);
-		send_to_char("Saved in file.\r\n", ch);
+		send_to_char(ch, "Saved in file.\r\n");
 	}
 }
 
@@ -6102,20 +6036,17 @@ ACMD(do_syslog)
 	if (!*arg) {
 		tp = ((PRF_FLAGGED(ch, PRF_LOG1) ? 1 : 0) +
 			(PRF_FLAGGED(ch, PRF_LOG2) ? 2 : 0));
-		sprintf(buf, "Your syslog is currently %s.\r\n", logtypes[tp]);
-		send_to_char(buf, ch);
+		send_to_char(ch, "Your syslog is currently %s.\r\n", logtypes[tp]);
 		return;
 	}
 	if (((tp = search_block(arg, logtypes, FALSE)) == -1)) {
-		send_to_char("Usage: syslog { Off | Brief | Normal | Complete }\r\n",
-			ch);
+		send_to_char(ch, "Usage: syslog { Off | Brief | Normal | Complete }\r\n");
 		return;
 	}
 	REMOVE_BIT(PRF_FLAGS(ch), PRF_LOG1 | PRF_LOG2);
 	SET_BIT(PRF_FLAGS(ch), (PRF_LOG1 * (tp & 1)) | (PRF_LOG2 * (tp & 2) >> 1));
 
-	sprintf(buf, "Your syslog is now %s.\r\n", logtypes[tp]);
-	send_to_char(buf, ch);
+	send_to_char(ch, "Your syslog is now %s.\r\n", logtypes[tp]);
 }
 
 
@@ -6134,7 +6065,7 @@ ACMD(do_rlist)
 		first = ch->in_room->zone->number * 100;
 		last = ch->in_room->zone->top;
 	} else if (!*buf2) {
-		send_to_char("Usage: rlist <begining number> <ending number>\r\n", ch);
+		send_to_char(ch, "Usage: rlist <begining number> <ending number>\r\n");
 		return;
 	} else {
 		first = atoi(buf);
@@ -6142,12 +6073,12 @@ ACMD(do_rlist)
 	}
 
 	if ((first < 0) || (first > 99999) || (last < 0) || (last > 99999)) {
-		send_to_char("Values must be between 0 and 99999.\r\n", ch);
+		send_to_char(ch, "Values must be between 0 and 99999.\r\n");
 		return;
 	}
 
 	if (first >= last) {
-		send_to_char("Second value must be greater than first.\r\n", ch);
+		send_to_char(ch, "Second value must be greater than first.\r\n");
 		return;
 	}
 	strcpy(out_list, "");
@@ -6174,7 +6105,7 @@ ACMD(do_rlist)
 		}
 
 	if (!found)
-		send_to_char("No rooms where found in those parameters.\r\n", ch);
+		send_to_char(ch, "No rooms where found in those parameters.\r\n");
 	else
 		page_string(ch->desc, out_list, 1);
 }
@@ -6195,29 +6126,27 @@ ACMD(do_xlist)
 		if (is_abbrev(arg1, "zone")) {
 			argument = one_argument(argument, arg1);
 			if (!*arg1) {
-				send_to_char("No zone specified.\r\n", ch);
+				send_to_char(ch, "No zone specified.\r\n");
 				return;
 			}
 			if (!(zn = real_zone(atoi(arg1)))) {
-				sprintf(buf, "No such zone ( %s ).\r\n", arg1);
-				send_to_char(buf, ch);
+				send_to_char(ch, "No such zone ( %s ).\r\n", arg1);
 				return;
 			}
 		}
 		if (is_abbrev(arg1, "type")) {
 			argument = one_argument(argument, arg1);
 			if (!*arg1) {
-				send_to_char("No type specified.\r\n", ch);
+				send_to_char(ch, "No type specified.\r\n");
 				return;
 			}
 			if ((srch_type = search_block(arg1, search_commands, FALSE)) < 0) {
-				sprintf(buf, "No such search type ( %s ).\r\n", arg1);
-				send_to_char(buf, ch);
+				send_to_char(ch, "No such search type ( %s ).\r\n", arg1);
 				return;
 			}
 		}
 		if (is_abbrev(arg1, "help")) {
-			send_to_char("Usage: xlist [type <type>] [zone <zone>]\r\n", ch);
+			send_to_char(ch, "Usage: xlist [type <type>] [zone <zone>]\r\n");
 		}
 		argument = one_argument(argument, arg1);
 	}
@@ -6234,7 +6163,7 @@ ACMD(do_xlist)
 		&& !(zone->co_owner_idnum == GET_IDNUM(ch))
 		&& !OLCGOD(ch)
 		&& (GET_LEVEL(ch) < LVL_FORCE)) {
-		send_to_char("You aren't godly enough to do that here.\r\n", ch);
+		send_to_char(ch, "You aren't godly enough to do that here.\r\n");
 		return;
 	}
 
@@ -6281,7 +6210,7 @@ ACMD(do_mlist)
 		first = ch->in_room->zone->number * 100;
 		last = ch->in_room->zone->top;
 	} else if (!*buf2) {
-		send_to_char("Usage: mlist <begining number> <ending number>\r\n", ch);
+		send_to_char(ch, "Usage: mlist <begining number> <ending number>\r\n");
 		return;
 	} else {
 		first = atoi(buf);
@@ -6289,12 +6218,12 @@ ACMD(do_mlist)
 	}
 
 	if ((first < 0) || (first > 99999) || (last < 0) || (last > 99999)) {
-		send_to_char("Values must be between 0 and 99999.\r\n", ch);
+		send_to_char(ch, "Values must be between 0 and 99999.\r\n");
 		return;
 	}
 
 	if (first >= last) {
-		send_to_char("Second value must be greater than first.\r\n", ch);
+		send_to_char(ch, "Second value must be greater than first.\r\n");
 		return;
 	}
 
@@ -6320,7 +6249,7 @@ ACMD(do_mlist)
 	}
 
 	if (!found)
-		send_to_char("No mobiles where found in those parameters.\r\n", ch);
+		send_to_char(ch, "No mobiles where found in those parameters.\r\n");
 	else
 		page_string(ch->desc, out_list, 1);
 }
@@ -6340,7 +6269,7 @@ ACMD(do_olist)
 		first = ch->in_room->zone->number * 100;
 		last = ch->in_room->zone->top;
 	} else if (!*buf2) {
-		send_to_char("Usage: olist <begining number> <ending number>\r\n", ch);
+		send_to_char(ch, "Usage: olist <begining number> <ending number>\r\n");
 		return;
 	} else {
 		first = atoi(buf);
@@ -6348,12 +6277,12 @@ ACMD(do_olist)
 	}
 
 	if ((first < 0) || (first > 99999) || (last < 0) || (last > 99999)) {
-		send_to_char("Values must be between 0 and 99999.\r\n", ch);
+		send_to_char(ch, "Values must be between 0 and 99999.\r\n");
 		return;
 	}
 
 	if (first >= last) {
-		send_to_char("Second value must be greater than first.\r\n", ch);
+		send_to_char(ch, "Second value must be greater than first.\r\n");
 		return;
 	}
 
@@ -6376,7 +6305,7 @@ ACMD(do_olist)
 	}
 
 	if (!found)
-		send_to_char("No objects where found in those parameters.\r\n", ch);
+		send_to_char(ch, "No objects where found in those parameters.\r\n");
 	else
 		page_string(ch->desc, out_list, 1);
 }
@@ -6392,15 +6321,15 @@ ACMD(do_rename)
 	delete_doubledollar(new_desc);
 
 	if (!new_desc) {
-		send_to_char("What do you want to call it?\r\b", ch);
+		send_to_char(ch, "What do you want to call it?\r\b");
 		return;
 	}
 	if (!arg) {
-		send_to_char("Rename usage: rename <target> <string>\r\n", ch);
+		send_to_char(ch, "Rename usage: rename <target> <string>\r\n");
 		return;
 	}
 	if (strlen(new_desc) >= MAX_INPUT_LENGTH) {
-		send_to_char("Desript too long.\r\n", ch);
+		send_to_char(ch, "Desript too long.\r\n");
 		return;
 	}
 
@@ -6408,11 +6337,11 @@ ACMD(do_rename)
 		vict = get_char_room_vis(ch, arg);
 		if (!vict) {
 			if (!(obj = get_obj_in_list_vis(ch, arg, ch->in_room->contents))) {
-				send_to_char("No such object or mobile around.\r\n", ch);
+				send_to_char(ch, "No such object or mobile around.\r\n");
 				return;
 			}
 		} else if (!IS_NPC(vict)) {
-			send_to_char("You can do this only with NPC's.\r\n", ch);
+			send_to_char(ch, "You can do this only with NPC's.\r\n");
 			return;
 		}
 	}
@@ -6435,7 +6364,7 @@ ACMD(do_rename)
 		strcpy(buf, CAP(buf));
 		vict->player.long_descr = str_dup(buf);
 	}
-	send_to_char("Okay, you do it.\r\n", ch);
+	send_to_char(ch, "Okay, you do it.\r\n");
 	mudlog(logbuf, CMP, MAX(LVL_ETERNAL, GET_INVIS_LEV(ch)), TRUE);
 	return;
 }
@@ -6450,15 +6379,15 @@ ACMD(do_addname)
 	delete_doubledollar(new_name);
 
 	if (!new_name) {
-		send_to_char("What name keyword do you want to add?\r\b", ch);
+		send_to_char(ch, "What name keyword do you want to add?\r\b");
 		return;
 	}
 	if (!arg) {
-		send_to_char("Addname usage: addname <target> <string>\r\n", ch);
+		send_to_char(ch, "Addname usage: addname <target> <string>\r\n");
 		return;
 	}
 	if (strlen(new_name) >= MAX_INPUT_LENGTH) {
-		send_to_char("Name too long.\r\n", ch);
+		send_to_char(ch, "Name too long.\r\n");
 		return;
 	}
 
@@ -6466,11 +6395,11 @@ ACMD(do_addname)
 		vict = get_char_room_vis(ch, arg);
 		if (!(vict)) {
 			if (!(obj = get_obj_in_list_vis(ch, arg, ch->in_room->contents))) {
-				send_to_char("No such object or mobile around.\r\n", ch);
+				send_to_char(ch, "No such object or mobile around.\r\n");
 				return;
 			}
 		} else if (!IS_NPC(vict)) {
-			send_to_char("You can do this only with NPC's.\r\n", ch);
+			send_to_char(ch, "You can do this only with NPC's.\r\n");
 			return;
 		}
 	}
@@ -6484,7 +6413,7 @@ ACMD(do_addname)
 		strcat(buf, vict->player.name);
 		vict->player.name = str_dup(buf);
 	}
-	send_to_char("Okay, you do it.\r\n", ch);
+	send_to_char(ch, "Okay, you do it.\r\n");
 	return;
 }
 
@@ -6522,35 +6451,34 @@ ACMD(do_addpos)
 	two_arguments(argument, arg, new_pos);
 
 	if (!*new_pos) {
-		send_to_char("What new position?\r\n", ch);
+		send_to_char(ch, "What new position?\r\n");
 		return;
 	}
 	if (!*arg) {
-		send_to_char("Addpos usage: addpos <target> <new pos>\r\n", ch);
-		send_to_char("Valid positions are:\r\n"
+		send_to_char(ch, "Addpos usage: addpos <target> <new pos>\r\n");
+		send_to_char(ch, "Valid positions are:\r\n"
 			"take finger neck body about legs feet hands arms shield waist ass\r\n"
-			"wrist wield hold crotch eyes back belt face ear\r\n", ch);
+			"wrist wield hold crotch eyes back belt face ear\r\n");
 		return;
 	}
 
 	obj = get_obj_in_list_all(ch, arg, ch->carrying);
 
 	if (!obj) {
-		send_to_char("You carry no such thing.\r\n", ch);
+		send_to_char(ch, "You carry no such thing.\r\n");
 		return;
 	}
 	bit = search_block(new_pos, keywords, FALSE);
 	if (bit < 0) {
-		send_to_char("That is not a valid position!\r\n", ch);
+		send_to_char(ch, "That is not a valid position!\r\n");
 		return;
 	}
 
 	bit = (1 << bit);
 
 	TOGGLE_BIT(obj->obj_flags.wear_flags, bit);
-	sprintf(buf, "Bit %s for %s now %s.\r\n", new_pos, obj->short_description,
+	send_to_char(ch, "Bit %s for %s now %s.\r\n", new_pos, obj->short_description,
 		IS_SET(obj->obj_flags.wear_flags, bit) ? "ON" : "OFF");
-	send_to_char(buf, ch);
 	return;
 }
 
@@ -6561,21 +6489,20 @@ ACMD(do_nolocate)
 	one_argument(argument, arg);
 
 	if (!*arg) {
-		send_to_char("Nolocate usage: nolocate <target>\r\n", ch);
+		send_to_char(ch, "Nolocate usage: nolocate <target>\r\n");
 		return;
 	}
 
 	obj = get_obj_in_list_all(ch, arg, ch->carrying);
 
 	if (!obj) {
-		send_to_char("You carry no such thing.\r\n", ch);
+		send_to_char(ch, "You carry no such thing.\r\n");
 		return;
 	}
 	TOGGLE_BIT(obj->obj_flags.extra2_flags, ITEM2_NOLOCATE);
-	sprintf(buf, "NoLocate is now %s for %s.\r\n",
+	send_to_char(ch, "NoLocate is now %s for %s.\r\n",
 		IS_SET(obj->obj_flags.extra2_flags, ITEM2_NOLOCATE) ? "ON" : "OFF",
 		obj->short_description);
-	send_to_char(buf, ch);
 	return;
 }
 
@@ -6586,20 +6513,19 @@ ACMD(do_menu)
 	skip_spaces(&argument);
 
 	if (!*argument) {
-		send_to_char("Who would you like to send the menu to?\r\n", ch);
+		send_to_char(ch, "Who would you like to send the menu to?\r\n");
 		return;
 	}
 	if ((vict = get_char_vis(ch, argument))) {
 		if (vict->desc) {
 			SEND_TO_Q("\033[H\033[J", vict->desc);
 			show_menu(vict->desc);
-			send_to_char("Okay.  Menu sent.\r\n", ch);
+			send_to_char(ch, "Okay.  Menu sent.\r\n");
 		} else
-			send_to_char
-				("There is no link from this character to a player.\r\n", ch);
+			send_to_char(ch, 
+				"There is no link from this character to a player.\r\n");
 	} else
-		send_to_char("Hmm... No one here seems to be going by that name.\r\n",
-			ch);
+		send_to_char(ch, "Hmm... No one here seems to be going by that name.\r\n");
 }
 
 ACMD(do_mudwipe)
@@ -6627,15 +6553,15 @@ ACMD(do_mudwipe)
 		mode = 4;
 		sprintf(buf, "Mud WIPE trails called by %s.", GET_NAME(ch));
 	} else {
-		send_to_char("Improper syntax.  Options are:\r\n"
-			"objects, mobiles, fullmobs, or clean.\r\n", ch);
+		send_to_char(ch, "Improper syntax.  Options are:\r\n"
+			"objects, mobiles, fullmobs, or clean.\r\n");
 		return;
 	}
 	mudlog(buf, BRF, GET_INVIS_LEV(ch), TRUE);
 
 	if (mode == 4) {
 		retire_trails();
-		send_to_char("Done.  trails retired\r\n", ch);
+		send_to_char(ch, "Done.  trails retired\r\n");
 	}
 	if (mode == 3) {
 		CharacterList::iterator cit = characterList.begin();
@@ -6652,7 +6578,7 @@ ACMD(do_mudwipe)
 				if (GET_EQ(mob, i))
 					extract_obj(GET_EQ(mob, i));
 		}
-		send_to_char("DONE.  Mobiles cleared of objects.\r\n", ch);
+		send_to_char(ch, "DONE.  Mobiles cleared of objects.\r\n");
 	}
 	if (mode == 3 || mode == 2 || mode == 0) {
 		CharacterList::iterator mit = characterList.begin();
@@ -6661,7 +6587,7 @@ ACMD(do_mudwipe)
 				(*mit)->extract(true, false, CON_MENU);
 			}
 		}
-		send_to_char("DONE.  Mud cleaned of all mobiles.\r\n", ch);
+		send_to_char(ch, "DONE.  Mud cleaned of all mobiles.\r\n");
 	}
 	if (mode == 0 || mode == 1) {
 		for (zone = zone_table; zone; zone = zone->next)
@@ -6674,7 +6600,7 @@ ACMD(do_mudwipe)
 					extract_obj(obj);
 				}
 			}
-		send_to_char("DONE.  Mud cleaned of in_room contents.\r\n", ch);
+		send_to_char(ch, "DONE.  Mud cleaned of in_room contents.\r\n");
 	}
 }
 
@@ -6691,8 +6617,7 @@ ACMD(do_zonepurge)
 	else if (*argument == '.')
 		zone = ch->in_room->zone;
 	else if (!is_number(argument)) {
-		send_to_char("You must specify the zone with its vnum number.\r\n",
-			ch);
+		send_to_char(ch, "You must specify the zone with its vnum number.\r\n");
 		return;
 	} else {
 		j = atoi(argument);
@@ -6715,8 +6640,7 @@ ACMD(do_zonepurge)
 					(*it)->extract(true, false, CON_MENU);
 					mob_count++;
 				} else {
-					send_to_char("You feel a rush of heat wash over you!\r\n",
-						*it);
+					send_to_char(*it, "You feel a rush of heat wash over you!\r\n");
 				}
 			}
 
@@ -6728,12 +6652,10 @@ ACMD(do_zonepurge)
 
 		}
 
-		sprintf(buf, "Zone %d cleared of %d mobiles.\r\n", zone->number,
+		send_to_char(ch, "Zone %d cleared of %d mobiles.\r\n", zone->number,
 			mob_count);
-		send_to_char(buf, ch);
-		sprintf(buf, "Zone %d cleared of %d objects.\r\n", zone->number,
+		send_to_char(ch, "Zone %d cleared of %d objects.\r\n", zone->number,
 			obj_count);
-		send_to_char(buf, ch);
 
 		sprintf(buf, "(GC) %s %spurged zone %d (%s)", GET_NAME(ch),
 			subcmd == SCMD_OLC ? "olc-" : "", zone->number, zone->name);
@@ -6742,7 +6664,7 @@ ACMD(do_zonepurge)
 				TRUE);
 
 	} else
-		send_to_char("Invalid zone number.\r\n", ch);
+		send_to_char(ch, "Invalid zone number.\r\n");
 }
 
 
@@ -6757,9 +6679,8 @@ ACMD(do_searchfor)
 		mob = *cit;
 		if (!mob->in_room) {
 			mob_found = TRUE;
-			sprintf(buf, "Char out of room: %s,  Master is: %s.\r\n",
+			send_to_char(ch, "Char out of room: %s,  Master is: %s.\r\n",
 				GET_NAME(mob), mob->master ? GET_NAME(mob->master) : "N");
-			send_to_char(buf, ch);
 		}
 	}
 	for (obj = object_list; obj; obj = obj->next) {
@@ -6771,15 +6692,14 @@ ACMD(do_searchfor)
 				obj->obj_flags.tracker.string,
 				ctime(&obj->obj_flags.tracker.lost_time));
 #else
-			sprintf(buf, "Object: %s\r\n", obj->short_description);
+			send_to_char(ch, "Object: %s\r\n", obj->short_description);
 #endif
-			send_to_char(buf, ch);
 		}
 	}
 	if (!mob_found)
-		send_to_char("No mobs out of room.\r\n", ch);
+		send_to_char(ch, "No mobs out of room.\r\n");
 	if (!obj_found)
-		send_to_char("No objects out of room.\r\n", ch);
+		send_to_char(ch, "No objects out of room.\r\n");
 }
 
 #define OSET_FORMAT "Usage: oset <object> <parameter> <value>.\r\n"
@@ -6793,13 +6713,13 @@ ACMD(do_oset)
 	bool internal = 0;
 
 	if (!*argument) {
-		send_to_char(OSET_FORMAT, ch);
+		send_to_char(ch, OSET_FORMAT);
 		return;
 	}
 	argument = one_argument(argument, arg1);
 
 	if (!(obj = get_obj_vis(ch, arg1))) {
-		send_to_char("No such object around.\r\n", ch);
+		send_to_char(ch, "No such object around.\r\n");
 		return;
 	}
 
@@ -6840,12 +6760,12 @@ do_show_mobiles(struct char_data *ch, char *value, char *arg)
 	char arg1[MAX_INPUT_LENGTH], arg2[MAX_INPUT_LENGTH];
 	CharacterList::iterator mit;
 	if (!*value || (command = search_block(value, show_mob_keys, 0)) < 0) {
-		send_to_char
-			("Show mobiles:  utility to search the mobile prototype list.\r\n"
-			"Usage: show mob <option> <argument>\r\n" "Options:\r\n", ch);
+		send_to_char(ch, 
+			"Show mobiles:  utility to search the mobile prototype list.\r\n"
+			"Usage: show mob <option> <argument>\r\n" "Options:\r\n");
 		for (i = 0; i < NUM_SHOW_MOB; i++) {
-			send_to_char(show_mob_keys[i], ch);
-			send_to_char("\r\n", ch);
+			send_to_char(ch, show_mob_keys[i]);
+			send_to_char(ch, "\r\n");
 		}
 		return;
 	}
@@ -6853,7 +6773,7 @@ do_show_mobiles(struct char_data *ch, char *value, char *arg)
 	switch (command) {
 	case 0:					/* hitroll */
 		if (!*arg) {
-			send_to_char("What hitroll minimum?\r\n", ch);
+			send_to_char(ch, "What hitroll minimum?\r\n");
 			return;
 		}
 		k = atoi(arg);
@@ -6875,7 +6795,7 @@ do_show_mobiles(struct char_data *ch, char *value, char *arg)
 	case 2:					/* gold */
 		arg = two_arguments(arg, arg1, arg2);
 		if (!*arg1) {
-			send_to_char("What gold minimum?\r\n", ch);
+			send_to_char(ch, "What gold minimum?\r\n");
 			return;
 		}
 		k = atoi(arg1);
@@ -6906,7 +6826,7 @@ do_show_mobiles(struct char_data *ch, char *value, char *arg)
 	case 3:					/* flags */
 
 		if (!*arg) {
-			send_to_char("Show mobiles with what flag?\r\n", ch);
+			send_to_char(ch, "Show mobiles with what flag?\r\n");
 			return;
 		}
 
@@ -6914,8 +6834,7 @@ do_show_mobiles(struct char_data *ch, char *value, char *arg)
 
 		if ((!(i = 1) || (j = search_block(arg, action_bits_desc, 0)) < 0) &&
 			(!(i = 2) || (j = search_block(arg, action2_bits_desc, 0)) < 0)) {
-			sprintf(buf, "There is no mobile flag '%s'.\r\n", arg);
-			send_to_char(buf, ch);
+			send_to_char(ch, "There is no mobile flag '%s'.\r\n", arg);
 			return;
 		}
 
@@ -6951,8 +6870,8 @@ do_show_mobiles(struct char_data *ch, char *value, char *arg)
 
 		arg = two_arguments(arg, arg1, arg2);
 		if (!*arg1) {
-			send_to_char
-				("Usage: show mob extreme <gold | cash> [multiplier]\r\n", ch);
+			send_to_char(ch, 
+				"Usage: show mob extreme <gold | cash> [multiplier]\r\n");
 			return;
 		}
 
@@ -6964,7 +6883,7 @@ do_show_mobiles(struct char_data *ch, char *value, char *arg)
 			sprintf(buf,
 				"You must specify gold or cash.  '%s' is not valid.\r\n",
 				arg1);
-			send_to_char(buf, ch);
+			send_to_char(ch, "%s", buf);
 			return;
 		}
 
@@ -7003,14 +6922,14 @@ do_show_mobiles(struct char_data *ch, char *value, char *arg)
 	case 5:					// special
 
 		if (!*arg) {
-			send_to_char("Show mobiles with what special?\r\n", ch);
+			send_to_char(ch, "Show mobiles with what special?\r\n");
 			return;
 		}
 
 		skip_spaces(&arg);
 
 		if ((i = find_spec_index_arg(arg)) < 0) {
-			send_to_char("Type show specials for a valid list.\r\n", ch);
+			send_to_char(ch, "Type show specials for a valid list.\r\n");
 			return;
 		}
 
@@ -7039,7 +6958,7 @@ do_show_mobiles(struct char_data *ch, char *value, char *arg)
 
 		break;
 	default:
-		send_to_char("DOH!!!!\r\n", ch);
+		send_to_char(ch, "DOH!!!!\r\n");
 		break;
 	}
 }
@@ -7073,12 +6992,12 @@ do_show_objects(struct char_data *ch, char *value, char *arg)
 	int spell3 = 0;
 
 	if (!*value || (command = search_block(value, show_obj_keys, 0)) < 0) {
-		send_to_char
-			("Show objects:  utility to search the object prototype list.\r\n"
-			"Usage: show obj <option> <argument>\r\n" "Options:\r\n", ch);
+		send_to_char(ch, 
+			"Show objects:  utility to search the object prototype list.\r\n"
+			"Usage: show obj <option> <argument>\r\n" "Options:\r\n");
 		for (i = 0; i < NUM_SHOW_OBJ; i++) {
-			send_to_char(show_obj_keys[i], ch);
-			send_to_char("\r\n", ch);
+			send_to_char(ch, show_obj_keys[i]);
+			send_to_char(ch, "\r\n");
 		}
 		return;
 	}
@@ -7086,7 +7005,7 @@ do_show_objects(struct char_data *ch, char *value, char *arg)
 	switch (command) {
 	case 0:
 		if (!*arg) {
-			send_to_char("Show objects of what type?\r\n", ch);
+			send_to_char(ch, "Show objects of what type?\r\n");
 			return;
 		}
 
@@ -7095,13 +7014,13 @@ do_show_objects(struct char_data *ch, char *value, char *arg)
 
 		if (!is_number(arg1)) {
 			if ((i = search_block(arg1, item_types, 0)) < 0) {
-				send_to_char("Type olc help otypes for a valid list.\r\n", ch);
+				send_to_char(ch, "Type olc help otypes for a valid list.\r\n");
 				return;
 			}
 		} else
 			i = atoi(arg1);
 		if (i < 0 || i > NUM_ITEM_TYPES) {
-			send_to_char("Object type out of range.\r\n", ch);
+			send_to_char(ch, "Object type out of range.\r\n");
 			return;
 		}
 
@@ -7130,7 +7049,7 @@ do_show_objects(struct char_data *ch, char *value, char *arg)
 	case 1:					/* material */
 
 		if (!*arg) {
-			send_to_char("Show objects of what material?\r\n", ch);
+			send_to_char(ch, "Show objects of what material?\r\n");
 			return;
 		}
 
@@ -7139,14 +7058,13 @@ do_show_objects(struct char_data *ch, char *value, char *arg)
 
 		if (!is_number(arg1)) {
 			if ((i = search_block(arg1, material_names, 0)) < 0) {
-				send_to_char("Type olc help materials for a valid list.\r\n",
-					ch);
+				send_to_char(ch, "Type olc help materials for a valid list.\r\n");
 				return;
 			}
 		} else
 			i = atoi(arg1);
 		if (i < 0 || i > TOP_MATERIAL) {
-			send_to_char("Material type out of range.\r\n", ch);
+			send_to_char(ch, "Material type out of range.\r\n");
 			return;
 		}
 
@@ -7175,7 +7093,7 @@ do_show_objects(struct char_data *ch, char *value, char *arg)
 	case 2:					/* apply */
 
 		if (!*arg) {
-			send_to_char("Show objects with what apply?\r\n", ch);
+			send_to_char(ch, "Show objects with what apply?\r\n");
 			return;
 		}
 
@@ -7184,13 +7102,13 @@ do_show_objects(struct char_data *ch, char *value, char *arg)
 
 		if (!is_number(arg1)) {
 			if ((i = search_block(arg1, apply_types, 0)) < 0) {
-				send_to_char("Type olc help apply for a valid list.\r\n", ch);
+				send_to_char(ch, "Type olc help apply for a valid list.\r\n");
 				return;
 			}
 		} else
 			i = atoi(arg1);
 		if (i < 0 || i > NUM_APPLIES) {
-			send_to_char("Apply type out of range.\r\n", ch);
+			send_to_char(ch, "Apply type out of range.\r\n");
 			return;
 		}
 
@@ -7224,7 +7142,7 @@ do_show_objects(struct char_data *ch, char *value, char *arg)
 	case 3:					/* special */
 
 		if (!*arg) {
-			send_to_char("Show objects with what special?\r\n", ch);
+			send_to_char(ch, "Show objects with what special?\r\n");
 			return;
 		}
 
@@ -7232,7 +7150,7 @@ do_show_objects(struct char_data *ch, char *value, char *arg)
 		skip_spaces(&arg1);
 
 		if ((i = find_spec_index_arg(arg1)) < 0) {
-			send_to_char("Type show specials for a valid list.\r\n", ch);
+			send_to_char(ch, "Type show specials for a valid list.\r\n");
 			return;
 		}
 
@@ -7259,7 +7177,7 @@ do_show_objects(struct char_data *ch, char *value, char *arg)
 	case 4:					/* affect */
 
 		if (!*arg) {
-			send_to_char("Show objects with what affect?\r\n", ch);
+			send_to_char(ch, "Show objects with what affect?\r\n");
 			return;
 		}
 
@@ -7269,8 +7187,7 @@ do_show_objects(struct char_data *ch, char *value, char *arg)
 			(!(i = 2) || (j = search_block(arg, affected2_bits_desc, 0)) < 0)
 			&& (!(i = 3)
 				|| (j = search_block(arg, affected3_bits_desc, 0)) < 0)) {
-			sprintf(buf, "There is no affect '%s'.\r\n", arg);
-			send_to_char(buf, ch);
+			send_to_char(ch, "There is no affect '%s'.\r\n", arg);
 			return;
 		}
 
@@ -7299,7 +7216,7 @@ do_show_objects(struct char_data *ch, char *value, char *arg)
 	case 5:					/* extra */
 
 		if (!*arg) {
-			send_to_char("Show objects with what extra flag?\r\n", ch);
+			send_to_char(ch, "Show objects with what extra flag?\r\n");
 			return;
 		}
 
@@ -7309,8 +7226,7 @@ do_show_objects(struct char_data *ch, char *value, char *arg)
 			(!(i = 2) || (j = search_block(arg, extra2_names, 0)) < 0) &&
 			(!(i = 3) || (j = search_block(arg, extra3_names, 0)) < 0) ) 
 		{
-			sprintf(buf, "There is no extra '%s'.\r\n", arg);
-			send_to_char(buf, ch);
+			send_to_char(ch, "There is no extra '%s'.\r\n", arg);
 			return;
 		} else { 
 			string extraName;
@@ -7347,7 +7263,7 @@ do_show_objects(struct char_data *ch, char *value, char *arg)
 
 	case 6:					/* Worn */
 		if (!*arg) {
-			send_to_char("Show objects worn in what position?\r\n", ch);
+			send_to_char(ch, "Show objects worn in what position?\r\n");
 			return;
 		}
 
@@ -7356,7 +7272,7 @@ do_show_objects(struct char_data *ch, char *value, char *arg)
 
 		if (!is_number(arg1)) {
 			if ((i = search_block(arg1, wear_eqpos, 0)) < 0) {
-				send_to_char("That's not a valid wear position.\r\n", ch);
+				send_to_char(ch, "That's not a valid wear position.\r\n");
 				return;
 			}
 		}
@@ -7366,7 +7282,7 @@ do_show_objects(struct char_data *ch, char *value, char *arg)
 		}
 
 		if (i < 0 || i > NUM_WEAR_FLAGS) {
-			send_to_char("Wear position out of range.\r\n", ch);
+			send_to_char(ch, "Wear position out of range.\r\n");
 			return;
 		}
 
@@ -7399,7 +7315,7 @@ do_show_objects(struct char_data *ch, char *value, char *arg)
 
 	case 7:					/* Cost */
 		if (!*arg) {
-			send_to_char("Show with a cost greater than what?\r\n", ch);
+			send_to_char(ch, "Show with a cost greater than what?\r\n");
 			return;
 		}
 
@@ -7407,14 +7323,14 @@ do_show_objects(struct char_data *ch, char *value, char *arg)
 		skip_spaces(&arg1);
 
 		if (!is_number(arg1)) {
-			send_to_char("Usage: show obj cost <cost>.\r\n", ch);
+			send_to_char(ch, "Usage: show obj cost <cost>.\r\n");
 			return;
 		} else {
 			i = atoi(arg1);
 		}
 
 		if (i < 0) {
-			send_to_char("Cost must be positive.\r\n", ch);
+			send_to_char(ch, "Cost must be positive.\r\n");
 			return;
 		}
 
@@ -7443,7 +7359,7 @@ do_show_objects(struct char_data *ch, char *value, char *arg)
 	case 8:					// spell, you know, like casting and stuff.
 
 		if (!*arg) {
-			send_to_char("Show with what spell?\r\n", ch);
+			send_to_char(ch, "Show with what spell?\r\n");
 			return;
 		}
 
@@ -7451,14 +7367,14 @@ do_show_objects(struct char_data *ch, char *value, char *arg)
 		skip_spaces(&arg1);
 
 		if (!is_number(arg1)) {
-			send_to_char("Usage: show obj spell <spell number>.\r\n", ch);
+			send_to_char(ch, "Usage: show obj spell <spell number>.\r\n");
 			return;
 		} else {
 			i = atoi(arg1);
 		}
 
 		if (i < 0 || i > TOP_SPELL_DEFINE) {
-			send_to_char("What kinda spell is that?\r\n", ch);
+			send_to_char(ch, "What kinda spell is that?\r\n");
 			return;
 		}
 		bool failed;
@@ -7555,9 +7471,8 @@ do_show_objects(struct char_data *ch, char *value, char *arg)
 	case 9:
 		{
 			if (!Security::isMember(ch, "Coder")) {
-				send_to_char
-					("This command dumps to a file that you cannot access.\r\n",
-					ch);
+				send_to_char(ch, 
+					"This command dumps to a file that you cannot access.\r\n");
 				return;
 			}
 			void stat_obj_to_file(struct obj_data *j, ofstream & out);
@@ -7567,13 +7482,12 @@ do_show_objects(struct char_data *ch, char *value, char *arg)
 				count++;
 				stat_obj_to_file(obj, out);
 			}
-			sprintf(buf, "Sent %d objects to file.\r\n", count);
-			send_to_char(buf, ch);
+			send_to_char(ch, "Sent %d objects to file.\r\n", count);
 			out.close();
 			break;
 		}
 	default:
-		send_to_char("Sorry, that is not an option.\r\n", ch);
+		send_to_char(ch, "Sorry, that is not an option.\r\n");
 	}
 }
 
@@ -7586,30 +7500,29 @@ ACMD(do_xlag)
 	argument = two_arguments(argument, buf, buf2);
 
 	if (!*buf || !*buf2) {
-		send_to_char("Usage: xlag <victim> <0.10 seconds>\r\n", ch);
+		send_to_char(ch, "Usage: xlag <victim> <0.10 seconds>\r\n");
 		return;
 	}
 	if (!(vict = get_char_vis(ch, buf))) {
-		send_to_char("No-one by that name here.\r\n", ch);
+		send_to_char(ch, "No-one by that name here.\r\n");
 		return;
 	}
 	if (!vict->desc) {
-		send_to_char("Xlag is pointless on null descriptors.\r\n", ch);
+		send_to_char(ch, "Xlag is pointless on null descriptors.\r\n");
 		return;
 	}
 	if ((raw = atoi(buf2)) <= 0) {
-		send_to_char("Real funny xlag time, buddy.\r\n", ch);
+		send_to_char(ch, "Real funny xlag time, buddy.\r\n");
 		return;
 	}
 	if (ch != vict && GET_LEVEL(vict) >= GET_LEVEL(ch)) {
-		send_to_char("Nice try, sucker.\r\n", ch);
+		send_to_char(ch, "Nice try, sucker.\r\n");
 		ch->desc->wait = raw;
 		return;
 	}
 
 	vict->desc->wait = raw;
-	sprintf(buf2, "%s lagged %d cycles.\r\n", GET_NAME(vict), raw);
-	send_to_char(buf2, ch);
+	send_to_char(ch, "%s lagged %d cycles.\r\n", GET_NAME(vict), raw);
 
 }
 
@@ -7627,9 +7540,9 @@ ACMD(do_peace)
 	}
 
 	if (!found)
-		send_to_char("No-one here is fighting!\r\n", ch);
+		send_to_char(ch, "No-one here is fighting!\r\n");
 	else {
-		send_to_char("You have brought peace to this room.\r\n", ch);
+		send_to_char(ch, "You have brought peace to this room.\r\n");
 		act("A feeling of peacefulness descends on the room.",
 			FALSE, ch, 0, 0, TO_ROOM);
 	}
@@ -7642,21 +7555,20 @@ ACMD(do_severtell)
 	skip_spaces(&argument);
 
 	if (!*argument) {
-		send_to_char("Sever reply of what character?\r\n", ch);
+		send_to_char(ch, "Sever reply of what character?\r\n");
 		return;
 	}
 
 	if (!(vict = get_char_vis(ch, argument))) {
-		send_to_char("Nobody by that name around here.\r\n", ch);
+		send_to_char(ch, "Nobody by that name around here.\r\n");
 		return;
 	}
 
 	if (GET_IDNUM(ch) != GET_LAST_TELL(vict))
-		send_to_char("You are not on that person's reply buffer, pal.\r\n",
-			ch);
+		send_to_char(ch, "You are not on that person's reply buffer, pal.\r\n");
 	else {
 		GET_LAST_TELL(vict) = -1;
-		send_to_char("Reply severed.\r\n", ch);
+		send_to_char(ch, "Reply severed.\r\n");
 	}
 }
 
@@ -7664,7 +7576,7 @@ ACMD(do_qpreload)
 {
 
 	qp_reload();
-	send_to_char("Reloading Quest Points.\r\n", ch);
+	send_to_char(ch, "Reloading Quest Points.\r\n");
 	sprintf(buf, "(GC) %s has reloaded QP.", GET_NAME(ch));
 	mudlog(buf, NRM, LVL_GRGOD, TRUE);
 
@@ -8024,41 +7936,40 @@ ACMD(do_tester)
 	int i;
 
 	if( ! ch->isTester() || GET_LEVEL(ch) >= LVL_AMBASSADOR ) {
-		send_to_char("You are not a tester.\r\n", ch);
+		send_to_char(ch, "You are not a tester.\r\n");
 		return;
 	}
 
 	two_arguments(argument, arg1, arg2);
 
 	if (!*arg1) {
-		send_to_char("Test what?\r\n", ch);
-		send_to_char(TESTER_UTIL_USAGE, ch);
+		send_to_char(ch, "Test what?\r\n");
+		send_to_char(ch, TESTER_UTIL_USAGE);
 		return;
 	}
 
 	if ((tcmd = search_block(arg1, tester_cmds, FALSE)) < 0) {
-		send_to_char("Invalid tester command.\r\n",ch);
-		send_to_char(TESTER_UTIL_USAGE, ch);
+		send_to_char(ch, TESTER_UTIL_USAGE);
 		return;
 	}
 
 	switch (tcmd) {
 		case 0:                    /* advance */
 			if (!*arg2)
-				send_to_char("Advance to what level?\r\n", ch);
+				send_to_char(ch, "Advance to what level?\r\n");
 			else if (!is_number(arg2))
-				send_to_char("The argument must be a number.\r\n", ch);
+				send_to_char(ch, "The argument must be a number.\r\n");
 			else if ((i = atoi(arg2)) <= 0)
-				send_to_char("That's not a level!\r\n", ch);
+				send_to_char(ch, "That's not a level!\r\n");
 			else if (i >= LVL_AMBASSADOR)
-				send_to_char("Advance: I DON'T THINK SO!\r\n", ch);
+				send_to_char(ch, "Advance: I DON'T THINK SO!\r\n");
 			else {
 				if (i < GET_LEVEL(ch)) {
 					do_start(ch, TRUE);
 					GET_LEVEL(ch) = i;
 				  } 
 			  
-				  send_to_char("Your body vibrates for a moment.... you feel different!\r\n", ch);
+				  send_to_char(ch, "Your body vibrates for a moment.... you feel different!\r\n");
 				  gain_exp_regardless(ch, exp_scale[i] - GET_EXP(ch));
 
 				  for (i = 1; i < MAX_SKILLS; i++) {
@@ -8091,7 +8002,7 @@ ACMD(do_tester)
 			GET_HIT(ch) = GET_MAX_HIT(ch);
 			GET_MANA(ch) = GET_MAX_MANA(ch);
 			GET_MOVE(ch) = GET_MAX_MOVE(ch);
-			send_to_char("You are fully healed!\r\n", ch);
+			send_to_char(ch, "You are fully healed!\r\n");
 			break;
 		case 6:                    /* char_class  */
 		case 7:                    /* race   */
@@ -8110,20 +8021,18 @@ ACMD(do_tester)
 			break;
 		case 14:
 			if (!*arg2)
-			  send_to_char("Set align to what?\r\n", ch);
+			  send_to_char(ch, "Set align to what?\r\n");
 			else {
 			  GET_ALIGNMENT(ch) = atoi(arg2);
-			  sprintf(buf, "Align set to %d.\r\n", GET_ALIGNMENT(ch));
-			  send_to_char(buf, ch);
+			  send_to_char(ch, "Align set to %d.\r\n", GET_ALIGNMENT(ch));
 			}
 			break;
 		case 15:
 			if (!*arg2)
-			  send_to_char("Set gen to what?\r\n", ch);
+			  send_to_char(ch, "Set gen to what?\r\n");
 			else {
 			  GET_REMORT_GEN(ch) = atoi(arg2);
-			  sprintf(buf, "gen set to %d.\r\n", GET_REMORT_GEN(ch));
-			  send_to_char(buf, ch);
+			  send_to_char(ch, "gen set to %d.\r\n", GET_REMORT_GEN(ch));
 			}
 			break;
 		case 16:
@@ -8145,11 +8054,10 @@ ACMD(do_tester)
 			do_set(ch, "self con 25", 0, SCMD_TESTER_SET);
 			do_set(ch, "self dex 25", 0, SCMD_TESTER_SET);
 			do_set(ch, "self cha 25", 0, SCMD_TESTER_SET);
-			send_to_char("Stat's Maxed.\r\n",ch);
 			break;
 		default:
 			sprintf(buf, "$p: Invalid command '%s'.", arg1);
-			send_to_char(TESTER_UTIL_USAGE, ch);
+			send_to_char(ch, TESTER_UTIL_USAGE);
 			break;
     }
 	return;

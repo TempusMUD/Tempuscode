@@ -36,18 +36,17 @@ ACMD(do_charge)
 	// 
 
 	if (CHECK_SKILL(ch, SKILL_CHARGE) < 50) {
-		send_to_char("Do you really think you know what you're doing?\r\n",
-			ch);
+		send_to_char(ch, "Do you really think you know what you're doing?\r\n");
 		return;
 	}
 	// find out who we're whackin.
 	vict = get_char_in_remote_room_vis(ch, buf, ch->in_room);
 	if (vict == ch) {
-		send_to_char("You charge in and scare yourself silly!\r\n", ch);
+		send_to_char(ch, "You charge in and scare yourself silly!\r\n");
 		return;
 	}
 	if (!vict) {
-		send_to_char("Charge who?\r\n", ch);
+		send_to_char(ch, "Charge who?\r\n");
 		return;
 	}
 	// Instant affect flag.  AFF3_INST_AFF is checked for
@@ -119,7 +118,7 @@ perform_barb_beserk(struct char_data *ch, struct char_data **who_was_attacked,
 
 ACMD(do_corner)
 {
-	send_to_char("You back into the corner.\r\n", ch);
+	send_to_char(ch, "You back into the corner.\r\n");
 	return;
 }
 
@@ -131,18 +130,18 @@ ACMD(do_beserk)
 
 	if (IS_AFFECTED_2(ch, AFF2_BESERK)) {
 		if (percent > CHECK_SKILL(ch, SKILL_BESERK)) {
-			send_to_char("You cannot calm down!!\r\n", ch);
+			send_to_char(ch, "You cannot calm down!!\r\n");
 			return;
 		} else {
 			affect_from_char(ch, SKILL_BESERK);
-			send_to_char("You are no longer beserk.\r\n", ch);
+			send_to_char(ch, "You are no longer beserk.\r\n");
 			act("$n calms down by taking deep breaths.", TRUE, ch, 0, 0,
 				TO_ROOM);
 		}
 		return;
 	} else if (CHECK_SKILL(ch, SKILL_BESERK) > number(0, 101)) {
 		if (GET_MANA(ch) < 50) {
-			send_to_char("You cannot summon the energy to do so.\r\n", ch);
+			send_to_char(ch, "You cannot summon the energy to do so.\r\n");
 			return;
 		}
 		af.level = af2.level = af3.level = GET_LEVEL(ch) + GET_REMORT_GEN(ch);
@@ -167,7 +166,7 @@ ACMD(do_beserk)
 		affect_to_char(ch, &af2);
 		affect_to_char(ch, &af3);
 
-		send_to_char("You go BESERK!\r\n", ch);
+		send_to_char(ch, "You go BESERK!\r\n");
 		act("$n goes BESERK! Run for cover!", TRUE, ch, 0, ch, TO_ROOM);
 		CharacterList::iterator it = ch->in_room->people.begin();
 		for (; it != ch->in_room->people.end(); ++it) {
@@ -192,7 +191,7 @@ ACMD(do_beserk)
 			}
 		}
 	} else
-		send_to_char("You cannot work up the gumption to do so.\r\n", ch);
+		send_to_char(ch, "You cannot work up the gumption to do so.\r\n");
 }
 
 //
@@ -207,21 +206,19 @@ ACMD(do_battlecry)
 	int did = 0;
 
 	if (ROOM_FLAGGED(ch->in_room, ROOM_PEACEFUL))
-		send_to_char("You just feel too damn peaceful here to do that.\r\n",
-			ch);
+		send_to_char(ch, "You just feel too damn peaceful here to do that.\r\n");
 	else if (CHECK_SKILL(ch, skillnum) < number(50, 110)) {
-		send_to_char("You emit a feeble warbling sound.\r\n", ch);
+		send_to_char(ch, "You emit a feeble warbling sound.\r\n");
 		act("$n makes a feeble warbling sound.", FALSE, ch, 0, 0, TO_ROOM);
 	} else if (GET_MANA(ch) < 5)
-		send_to_char("You cannot work up the energy to do it.\r\n", ch);
+		send_to_char(ch, "You cannot work up the energy to do it.\r\n");
 	else if (skillnum == SKILL_CRY_FROM_BEYOND &&
 		GET_MAX_HIT(ch) == GET_HIT(ch))
-		send_to_char("But you are feeling in perfect health!\r\n", ch);
+		send_to_char(ch, "But you are feeling in perfect health!\r\n");
 	else if (skillnum != SKILL_CRY_FROM_BEYOND &&
 		GET_MOVE(ch) == GET_MAX_MOVE(ch))
-		send_to_char
-			("There is no need to do this when your movement is at maximum.\r\n",
-			ch);
+		send_to_char(ch, 
+			"There is no need to do this when your movement is at maximum.\r\n");
 	else if (subcmd == SCMD_CRY_FROM_BEYOND) {
 
 		GET_HIT(ch) = MIN(GET_MAX_HIT(ch), GET_HIT(ch) + GET_MANA(ch));
@@ -253,16 +250,15 @@ ACMD(do_battlecry)
 		return;
 
 	if (subcmd == SCMD_BATTLE_CRY) {
-		send_to_char("Your fearsome battle cry rings out across the land!\r\n",
-			ch);
+		send_to_char(ch, "Your fearsome battle cry rings out across the land!\r\n");
 		act("$n releases a battle cry that makes your blood run cold!",
 			FALSE, ch, 0, 0, TO_ROOM);
 	} else if (subcmd == SCMD_CRY_FROM_BEYOND) {
-		send_to_char("Your cry from beyond shatters the air!!\r\n", ch);
+		send_to_char(ch, "Your cry from beyond shatters the air!!\r\n");
 		act("$n unleashes a cry from beyond that makes your blood run cold!",
 			FALSE, ch, 0, 0, TO_ROOM);
 	} else {
-		send_to_char("You release an earsplitting 'KIA!'\r\n", ch);
+		send_to_char(ch, "You release an earsplitting 'KIA!'\r\n");
 		act("$n releases an earsplitting 'KIA!'", FALSE, ch, 0, 0, TO_ROOM);
 	}
 

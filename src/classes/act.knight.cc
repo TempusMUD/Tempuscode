@@ -36,15 +36,14 @@ ACMD(do_holytouch)
 	one_argument(argument, vict_name);
 
 	if (CHECK_SKILL(ch, SKILL_HOLY_TOUCH) < 40 || IS_NEUTRAL(ch)) {
-		send_to_char("You are unable to call upon the powers necessary.\r\n",
-			ch);
+		send_to_char(ch, "You are unable to call upon the powers necessary.\r\n");
 		return;
 	}
 
 	if (!*vict_name)
 		vict = ch;
 	else if (!(vict = get_char_room_vis(ch, vict_name))) {
-		send_to_char("Holytouch who?\r\n", ch);
+		send_to_char(ch, "Holytouch who?\r\n");
 		return;
 	}
 
@@ -52,7 +51,7 @@ ACMD(do_holytouch)
 		return;
 
 	if ((NON_CORPOREAL_MOB(vict) || NULL_PSI(vict))) {
-		send_to_char("That is unlikely to work.\r\n", ch);
+		send_to_char(ch, "That is unlikely to work.\r\n");
 		return;
 	}
 
@@ -81,7 +80,7 @@ holytouch_after_effect(char_data * vict, int level)
 	struct affected_type af;
 	int dam = level * 2;
 
-	send_to_char("Visions of pure evil sear through your mind!\r\n", vict);
+	send_to_char(vict, "Visions of pure evil sear through your mind!\r\n");
 	if (vict->getPosition() > POS_SITTING) {
 		act("$n falls to $s knees screaming!", TRUE, vict, 0, 0, TO_ROOM);
 		vict->setPosition(POS_SITTING);
@@ -119,10 +118,9 @@ malovent_holy_touch(char_data * ch, char_data * vict)
 {
 	struct affected_type af;
 	int chance = 0;
-	char buf[256];
 
 	if (GET_LEVEL(vict) > LVL_AMBASSADOR) {
-		send_to_char("Aren't they evil enough already?\r\n", ch);
+		send_to_char(ch, "Aren't they evil enough already?\r\n");
 		return;
 	}
 
@@ -156,8 +154,7 @@ malovent_holy_touch(char_data * ch, char_data * vict)
 	int roll = random_percentage_zero_low();
 
 	if (PRF2_FLAGGED(ch, PRF2_FIGHT_DEBUG)) {
-		sprintf(buf, "HolyTouch: roll[%d] chance[%d]\r\n", roll, chance );
-		send_to_char(buf, ch);
+		send_to_char(ch, "HolyTouch: roll[%d] chance[%d]\r\n", roll, chance );
 	}
 
 	if (roll > chance) {
@@ -194,15 +191,14 @@ healing_holytouch(char_data * ch, char_data * vict)
 	mod = (GET_LEVEL(ch) + (CHECK_SKILL(ch, SKILL_HOLY_TOUCH) >> 4));
 	if (GET_MOVE(ch) > mod) {
 		if (GET_MANA(ch) < 5) {
-			send_to_char("You are too spiritually exhausted.\r\n", ch);
+			send_to_char(ch, "You are too spiritually exhausted.\r\n");
 			return;
 		}
 		GET_HIT(vict) = MIN(GET_MAX_HIT(vict), GET_HIT(vict) + mod);
 		GET_MANA(ch) = MAX(0, GET_MANA(ch) - 5);
 		GET_MOVE(ch) = MAX(GET_MOVE(ch) - mod, 0);
 		if (ch == vict) {
-			send_to_char("You cover your head with your hands and pray.\r\n",
-				ch);
+			send_to_char(ch, "You cover your head with your hands and pray.\r\n");
 			act("$n covers $s head with $s hands and prays.", true, ch, 0, 0,
 				TO_ROOM);
 		} else {
@@ -210,7 +206,7 @@ healing_holytouch(char_data * ch, char_data * vict)
 				ch, TO_CHAR);
 			act("$n places $s hands on the head of $N.", FALSE, ch, 0, vict,
 				TO_NOTVICT);
-			send_to_char("You do it.\r\n", ch);
+			send_to_char(ch, "You do it.\r\n");
 		}
 		if (GET_LEVEL(ch) < LVL_AMBASSADOR)
 			WAIT_STATE(ch, PULSE_VIOLENCE);
@@ -222,7 +218,7 @@ healing_holytouch(char_data * ch, char_data * vict)
 				REMOVE_BIT(AFF3_FLAGS(vict), AFF3_SICKNESS);
 		}
 	} else {
-		send_to_char("You must rest awhile before doing this again.\r\n", ch);
+		send_to_char(ch, "You must rest awhile before doing this again.\r\n");
 	}
 }
 

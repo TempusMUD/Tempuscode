@@ -13,11 +13,11 @@ ACMD(do_map)
 	char buf[256];
 	bool stayzone = false;
 	if (IS_NPC(ch)) {
-		send_to_char("You scribble out a map on the ground.\r\n", ch);
+		send_to_char(ch, "You scribble out a map on the ground.\r\n");
 		return;
 	}
 	if (GET_LEVEL(ch) < LVL_DEMI && !CAN_EDIT_ZONE(ch, ch->in_room->zone)) {
-		send_to_char("You can't map this zone.\r\n", ch);
+		send_to_char(ch, "You can't map this zone.\r\n");
 		return;
 	}
 	// Default map size
@@ -40,11 +40,10 @@ ACMD(do_map)
 	if (theMap.build(stayzone)) {
 		theMap.display(rows, columns);
 		if (theMap.full) {
-			send_to_char
-				("Room mapping limit reached. Some rooms not mapped.\r\n", ch);
+			send_to_char(ch, 
+				"Room mapping limit reached. Some rooms not mapped.\r\n");
 		}
-		sprintf(buf, "%d room's processed.\r\n", theMap.processed);
-		send_to_char(buf, ch);
+		send_to_char(ch, "%d room's processed.\r\n", theMap.processed);
 	}
 	WAIT_STATE(ch, 1 RL_SEC);
 }
@@ -279,7 +278,7 @@ Mapper::display(int bRows, int bCols)
 		}
 		strcpy(buf, line.c_str());
 		strcat(buf, "\r\n");
-		send_to_char(buf, ch);
+		send_to_char(ch, "%s", buf);
 		line.erase();
 	}
 }
@@ -460,9 +459,8 @@ Mapper::build(bool stayzone)
 			break;
 	}
 	if (i >= 4) {				// no exits
-		send_to_char
-			("You glance around and take note of your vast surroundings.\r\n",
-			ch);
+		send_to_char(ch, 
+			"You glance around and take note of your vast surroundings.\r\n");
 		return false;
 	}
 	// Actually start maping

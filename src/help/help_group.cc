@@ -27,14 +27,13 @@ void
 HelpGroup::Show(char_data * ch)
 {
 	char linebuf[256];
-	sprintf(buf,
+	send_to_char(ch,
 		"Group Statistics:    Top Group [%d]\r\n"
 		"%sID: %s%15s %sMembers%s  ID: %s%15s %sMembers%s\r\n",
 		HGROUP_MAX - 1, CCYEL(ch, C_NRM),
 		CCCYN(ch, C_NRM), "Group Name", CCGRN(ch, C_NRM),
 		CCYEL(ch, C_NRM),
 		CCCYN(ch, C_NRM), "Group Name", CCGRN(ch, C_NRM), CCNRM(ch, C_NRM));
-	send_to_char(buf, ch);
 	strcpy(buf, "");
 	for (int i = 0; i < HGROUP_MAX; i++) {
 		sprintf(linebuf, "%s%2d%s. %15s %s%3d%s%s",
@@ -45,7 +44,7 @@ HelpGroup::Show(char_data * ch)
 		strcat(buf, linebuf);
 	}
 	strcat(buf, "\r\n");
-	send_to_char(buf, ch);
+	send_to_char(ch, "%s", buf);
 }
 
 bool
@@ -59,7 +58,7 @@ HelpGroup::AddUser(char_data * ch, char *argument)
 	bool result = true;
 
 	if (!ch || !argument || !*argument) {
-		send_to_char("Add who to what group?\r\n", ch);
+		send_to_char(ch, "Add who to what group?\r\n");
 		return false;
 	}
 	argument = two_arguments(argument, player, group);
@@ -72,36 +71,32 @@ HelpGroup::AddUser(char_data * ch, char *argument)
 		}
 		if (i % 4)
 			strcat(buf, "\r\n");
-		send_to_char(buf, ch);
+		send_to_char(ch, "%s", buf);
 		return false;
 	}
 	if (!(uid = get_id_by_name(player))) {
-		sprintf(buf, "There is no player named '%s'.\r\n", player);
-		send_to_char(buf, ch);
+		send_to_char(ch, "There is no player named '%s'.\r\n", player);
 		return false;
 	}
 	while (*group) {
 		gid = get_gid_by_name(group);
 		if (gid < 0) {
-			sprintf(buf, "There is no group named '%s'.\r\n", group);
-			send_to_char(buf, ch);
+			send_to_char(ch, "There is no group named '%s'.\r\n", group);
 			result = false;
 		} else if (is_member(uid, gid)) {
-			sprintf(buf, "%s is already in group: '%s'\r\n", player,
+			send_to_char(ch, "%s is already in group: '%s'\r\n", player,
 				help_group_names[gid]);
-			send_to_char(buf, ch);
 			result = false;
 		} else if (add_user(uid, gid)) {
-			sprintf(buf, "%s added to group: '%s'\r\n", player,
+			send_to_char(ch, "%s added to group: '%s'\r\n", player,
 				help_group_names[gid]);
-			send_to_char(buf, ch);
 			result = true;
 		}
 		argument = one_argument(argument, group);
 	}
 	if (result)
 		return true;
-	send_to_char("Group add failed.\r\n", ch);
+	send_to_char(ch, "Group add failed.\r\n");
 	return false;
 }
 
@@ -116,13 +111,12 @@ HelpGroup::RemoveUser(char_data * ch, char *argument)
 	bool result = true;
 
 	if (!ch || !argument || !*argument) {
-		send_to_char("Remove who from what group?\r\n", ch);
+		send_to_char(ch, "Remove who from what group?\r\n");
 		return false;
 	}
 	argument = two_arguments(argument, player, group);
 	if (!(uid = get_id_by_name(player))) {
-		sprintf(buf, "There is no player named '%s'.\r\n", player);
-		send_to_char(buf, ch);
+		send_to_char(ch, "There is no player named '%s'.\r\n", player);
 		return false;
 	}
 	if (!*group) {
@@ -138,31 +132,28 @@ HelpGroup::RemoveUser(char_data * ch, char *argument)
 		if (j > 1 && (j % 4))
 			strcat(buf, "\r\n");
 		else if (j == 1)
-			sprintf(buf, "%s isn't in any groups!\r\n", player);
+			send_to_char(ch, "%s isn't in any groups!\r\n", player);
 
-		send_to_char(buf, ch);
 		return false;
 	}
 	while (*group) {
 		gid = get_gid_by_name(group);
 		if (gid < 0) {
-			sprintf(buf, "There is no group named '%s'.\r\n", group);
-			send_to_char(buf, ch);
+			send_to_char(ch, "There is no group named '%s'.\r\n", group);
 			result = false;
 		} else if (!is_member(uid, gid)) {
-			send_to_char("They aren't in that group!\r\n", ch);
+			send_to_char(ch, "They aren't in that group!\r\n");
 			result = false;
 		} else if (remove_user(uid, gid)) {
-			sprintf(buf, "%s removed from group: '%s'\r\n", player,
+			send_to_char(ch, "%s removed from group: '%s'\r\n", player,
 				help_group_names[gid]);
-			send_to_char(buf, ch);
 			result = true;
 		}
 		argument = one_argument(argument, group);
 	}
 	if (result)
 		return true;
-	send_to_char("Command failed.\r\n", ch);
+	send_to_char(ch, "Command failed.\r\n");
 	return false;
 }
 
@@ -187,7 +178,7 @@ HelpGroup::CanEdit(char_data * ch, HelpItem * n)
 			}
 		}
 	}
-	send_to_char("You can't edit that!\r\n", ch);
+	send_to_char(ch, "You can't edit that!\r\n");
 	return false;
 }
 
@@ -281,8 +272,7 @@ HelpGroup::Members(char_data * ch, char *args)
 	int size = 0;
 	args = one_argument(args, gname);
 	if (!*gname) {
-		send_to_char("What group would you like to see the members for?\r\n",
-			ch);
+		send_to_char(ch, "What group would you like to see the members for?\r\n");
 		strcpy(buf, "Valid groups are:\r\n");
 		for (i = 1; i - 1 < HGROUP_MAX; i++) {
 			sprintf(linebuf, "%10s  %s", help_group_names[i - 1],
@@ -291,17 +281,17 @@ HelpGroup::Members(char_data * ch, char *args)
 		}
 		if (i % 4)
 			strcat(buf, "\r\n");
-		send_to_char(buf, ch);
+		send_to_char(ch, "%s", buf);
 		return;
 	}
 	gid = get_gid_by_name(gname);
 	// Particular group
 	if (gid > -1 && gid < HGROUP_MAX) {
 		if (groups[gid].size() == 0) {
-			send_to_char("There's noone in that group!\r\n", ch);
+			send_to_char(ch, "There's noone in that group!\r\n");
 			return;
 		}
-		sprintf(buf, "Members of %s:\r\n", help_group_names[gid]);
+		send_to_char(ch, "Members of %s:\r\n", help_group_names[gid]);
 		size = groups[gid].size();
 		for (i = 0; i < size; i++) {
 			s = get_name_by_id(groups[gid][i]);
@@ -310,9 +300,8 @@ HelpGroup::Members(char_data * ch, char *args)
 			strcat(buf, s);
 			strcat(buf, "\r\n");
 		}
-		send_to_char(buf, ch);
 	} else {
-		send_to_char("Invalid group name.\r\n", ch);
+		send_to_char(ch, "Invalid group name.\r\n");
 	}
 }
 void

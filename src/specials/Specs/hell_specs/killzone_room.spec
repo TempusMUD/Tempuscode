@@ -32,18 +32,14 @@ SPECIAL( killzone_room )
                 act( "$n fires a bolt of lightning down through the murder holes!", FALSE, devil, 0, 0, TO_ROOM );
                     
                 if ( is_miss ) {
-                    send_to_char( CCRED( vict, C_NRM ), vict );
                     act( "A bolt of lightning blasts down from above, barely missing you!",
                          FALSE, vict, 0, 0, TO_ROOM );
                     act( "A bolt of lightning blasts down from above, barely missing you!",
                          FALSE, vict, 0, 0, TO_CHAR );
-                    send_to_char( CCNRM( vict, C_NRM ), vict );
                 }
                 else {
-                    send_to_char( CCRED( vict, C_NRM ), vict );
                     act( "A bolt of lightning blasts down from above and hits you!", FALSE, vict, 0, 0, TO_CHAR );
                     act( "A bolt of lightning blasts down from above and hits $n!",  FALSE, vict,  0,  0,  TO_ROOM );
-                    send_to_char( CCNRM( vict, C_NRM ), vict );
                     retval = damage( NULL, vict, dice( 20, 20 ), SPELL_LIGHTNING_BOLT, WEAR_HEAD );
                         
                     return ( ch == vict ? retval : 0 );
@@ -53,20 +49,16 @@ SPECIAL( killzone_room )
                 act( "$n sends a fireball hurtling downward through a murder hole!", FALSE, devil, 0, 0, TO_ROOM );
                     
                 if ( is_miss ) {
-                    send_to_char( CCRED( vict, C_NRM ), vict );
                     act( "A fireball comes hurtling in from above and explodes on the floor nearby!",
                          FALSE, vict, 0, 0, TO_ROOM );
                     act( "A fireball comes hurtling in from above and explodes on the floor nearby!",
                          FALSE, vict, 0, 0, TO_CHAR );
-                    send_to_char( CCNRM( vict, C_NRM ), vict );
                 }
                 else {
-                    send_to_char( CCRED( vict, C_NRM ), vict );
                     act( "A fireball comes hurtling in from above and slams into $n!",
                          FALSE, vict, 0, 0, TO_ROOM );
                     act( "A fireball comes hurtling in from above, explosively slamming into you!",
                          FALSE, vict, 0, 0, TO_CHAR );
-                    send_to_char( CCNRM( vict, C_NRM ), vict );
                     retval = damage( NULL, vict, dice( 25, 20 ), SPELL_FIREBALL, WEAR_HEAD );
                     return ( ch == vict ? retval : 0 );
                     
@@ -77,20 +69,16 @@ SPECIAL( killzone_room )
                      FALSE, devil, 0, 0, TO_ROOM );
                     
                 if ( is_miss ) {
-                    send_to_char( CCRED( vict, C_NRM ), vict );
                     act( "A rain of burning javelins flies in from above, barely missing you!",
                          FALSE, vict, 0, 0, TO_ROOM );
                     act( "A rain of burning javelins flies in from above, barely missing you!",
                          FALSE, vict, 0, 0, TO_CHAR);
-                    send_to_char( CCNRM( vict, C_NRM ), vict );
                 }
                 else {
-                    send_to_char( CCRED( vict, C_NRM ), vict );
                     act( "A rain of burning javelins flies in from above onto $n!",
                          FALSE, vict, 0, 0, TO_ROOM );
                     act( "A rain of burning javelins flies in from above, puncturing you mercilessly!",
                          FALSE, vict, 0, 0, TO_CHAR );
-                    send_to_char( CCNRM( vict, C_NRM ), vict );
                     retval = damage( NULL, vict, dice( 25, 20 ), TYPE_PIERCE, WEAR_HEAD );
                     return ( ch == vict ? retval : 0 );
 
@@ -102,20 +90,16 @@ SPECIAL( killzone_room )
                      FALSE, devil, 0, 0, TO_ROOM );
                     
                 if ( is_miss ) {
-                    send_to_char( CCRED( vict, C_NRM ), vict );
                     act( "A torrent of boiling pitch comes pouring in from above as you leap aside!",
                          FALSE, vict, 0, 0, TO_ROOM );
                     act( "A torrent of boiling pitch comes pouring in from above as you leap aside!",
                          FALSE, vict, 0, 0, TO_CHAR);
-                    send_to_char( CCNRM( vict, C_NRM ), vict );
                 }
                 else {
-                    send_to_char( CCRED( vict, C_NRM ), vict );
                     act( "A torrent of boiling pitch pours onto $n from above!",
                          FALSE, vict, 0, 0, TO_ROOM );
                     act( "A torrent of boiling pitch pours onto you from above!!",
                          FALSE, vict, 0, 0, TO_CHAR);
-                    send_to_char( CCNRM( vict, C_NRM ), vict );
                     retval = damage( NULL, vict, dice( 25, 20 ), TYPE_BOILING_PITCH, WEAR_HEAD );
                     return ( ch == vict ? retval : 0 );
 

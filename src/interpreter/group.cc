@@ -114,7 +114,6 @@ namespace Security {
                 "%sDescription: %s\r\n",
                 buf, 
                 _description);
-        send_to_char(buf,ch);
         sendCommandList( ch );
         sendMemberList( ch );
     }
@@ -209,7 +208,6 @@ namespace Security {
         }
         //if( pos != 1 )
         //    strcat(buf,"\r\n");
-        send_to_char(buf,ch);
         return true;
     }
 
@@ -237,7 +235,6 @@ namespace Security {
         }
         if( pos != 1 )
             strcat(buf,"\r\n");
-        send_to_char(buf,ch);
         return true;
     }
 
@@ -267,7 +264,6 @@ namespace Security {
         if( pos != 1 )
             strcat(buf,"\r\n");
         strcat(buf,CCNRM(ch,C_NRM));
-        send_to_char(buf,ch);
         return true;
     }
     

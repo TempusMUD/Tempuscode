@@ -20,7 +20,7 @@ SPECIAL(carrion_crawler)
       }
     } else {
       act("$n lashes you with $s sticky tentacles!", FALSE, ch, 0, FIGHTING(ch), TO_VICT);
-      send_to_char("You feel paralyzed!\r\n", ch);
+      send_to_char(ch, "You feel paralyzed!\r\n");
       act("$n paralyzes $N with $s sticky tentacles!", FALSE, ch, 0, FIGHTING(ch), TO_NOTVICT);
       WAIT_STATE(FIGHTING(ch), PULSE_VIOLENCE*2);
     }

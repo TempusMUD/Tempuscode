@@ -17,7 +17,6 @@ SPECIAL(unholy_compact)
     return 0;
   skip_spaces(&argument);
   if (IS_NPC(ch)) {
-          send_to_char("Mobiles have no soul.\r\n",ch);
         return 1;
   }
   life_cost = 25;
@@ -28,14 +27,13 @@ SPECIAL(unholy_compact)
           min_gen = 4;
           
   if (!*argument) {
-    sprintf(buf, "Go sell your crap elsewhere! I only buy souls!\r\n");
-    send_to_char(buf, ch);
+    send_to_char(ch, "Go sell your crap elsewhere! I only buy souls!\r\n");
         return 1;
   } else if ( GET_CLASS(ch) != CLASS_CLERIC && GET_CLASS(ch) != CLASS_KNIGHT ) {
      perform_tell(dude, ch, "You really have no idea, do you.");
          return 1;
   } else if (GET_LEVEL(ch) < LVL_CAN_SELL_SOUL || GET_REMORT_GEN(ch) < min_gen ) {
-    send_to_char("Your soul is worthless to me.\r\n", ch);
+    send_to_char(ch, "Your soul is worthless to me.\r\n");
         return 1;
   } else if ( GET_ALIGNMENT(ch) > 0 ) {
      perform_tell(dude, ch, "Your soul is tainted. It cannot be sold.");
@@ -68,8 +66,7 @@ SPECIAL(unholy_compact)
           SET_BIT(PLR2_FLAGS(ch), PLR2_SOULLESS);
           ch->real_abils.con -= con_cost;
           save_char( ch, NULL );
-      sprintf(buf, "The torturous cries of hell haunt your dreams.\r\n");
-      send_to_char(buf, ch);
+      send_to_char(ch, "The torturous cries of hell haunt your dreams.\r\n");
       sprintf(buf, "%s sign's the unholy compact, joining the soulless masses.", GET_NAME(ch));
       slog(buf);
       return 1;

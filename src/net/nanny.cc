@@ -346,7 +346,7 @@ nanny(struct descriptor_data * d, char *arg)
 							sprintf(buf,
 									"\r\n\007\007:: NOTICE :: Tempus will be rebooting in [%d] second%s ::\r\n",
 									shutdown_count, shutdown_count == 1 ? "" : "s");
-							send_to_char(buf, d->character);
+							send_to_char(d->character, "%s", buf);
 						}
 
 						if (has_mail(GET_IDNUM(d->character)))
@@ -376,7 +376,7 @@ nanny(struct descriptor_data * d, char *arg)
 								sprintf(buf,
 										"\r\n\007\007:: NOTICE :: Tempus will be rebooting in [%d] second%s ::\r\n",
 										shutdown_count, shutdown_count == 1 ? "" : "s");
-								send_to_char(buf, d->character);
+								send_to_char(d->character, "%s", buf);
 							}
 
 							sprintf(buf, "%s [%s] has reconnected.", GET_NAME(d->character),
@@ -417,7 +417,7 @@ nanny(struct descriptor_data * d, char *arg)
 								sprintf(buf,
 										"\r\n\007\007:: NOTICE :: Tempus will be rebooting in [%d] second%s ::\r\n",
 										shutdown_count, shutdown_count == 1 ? "" : "s");
-								send_to_char(buf, d->character);
+								send_to_char(d->character, "%s", buf);
 							}
 
 							if (!polc_char) {
@@ -834,10 +834,10 @@ nanny(struct descriptor_data * d, char *arg)
 				}
 
 				save_char(d->character, NULL);
-				send_to_char(CCRED(d->character, C_NRM), d->character);
-				send_to_char(CCBLD(d->character, C_NRM), d->character);
-				send_to_char(WELC_MESSG, d->character);
-				send_to_char(CCNRM(d->character, C_NRM), d->character);
+				send_to_char(d->character, CCRED(d->character, C_NRM));
+				send_to_char(d->character, CCBLD(d->character, C_NRM));
+				send_to_char(d->character, WELC_MESSG);
+				send_to_char(d->character, CCNRM(d->character, C_NRM));
 				characterList.add(d->character);
 
 				if( d->character->in_room == NULL )
@@ -856,13 +856,13 @@ nanny(struct descriptor_data * d, char *arg)
 					GET_HOLD_LOADROOM(d->character) = NOWHERE;
 				}
 				show_mud_date_to_char(d->character);
-				send_to_char("\r\n", d->character);
+				send_to_char(d->character, "\r\n");
 
 				set_desc_state( CON_PLAYING,d );
 				if( GET_LEVEL(d->character) < LVL_IMMORT )
 					REMOVE_BIT(PRF2_FLAGS(d->character), PRF2_NOWHO);
 				if (!GET_LEVEL(d->character)) {
-					send_to_char(START_MESSG, d->character);
+					send_to_char(d->character, START_MESSG);
 					sprintf(buf,
 							" ***> New adventurer %s has entered the realm. <***\r\n",
 							GET_NAME(d->character));
@@ -881,9 +881,8 @@ nanny(struct descriptor_data * d, char *arg)
 
 				}
 				else if (load_result == 2) {    // rented items lost
-					send_to_char("\r\n\007You could not afford your rent!\r\n"
-								 "Some of your possesions have been repossesed to cover your bill!\r\n",
-								 d->character);
+					send_to_char(d->character, "\r\n\007You could not afford your rent!\r\n"
+								 "Some of your possesions have been repossesed to cover your bill!\r\n");
 				}
 
 				act("$n has entered the game.", TRUE, d->character, 0, 0, TO_ROOM);
@@ -894,7 +893,7 @@ nanny(struct descriptor_data * d, char *arg)
 				REMOVE_BIT( PLR_FLAGS( d->character), PLR_CRYO );
 
 				if (has_mail(GET_IDNUM(d->character)))
-					send_to_char("You have mail waiting.\r\n", d->character);
+					send_to_char(d->character, "You have mail waiting.\r\n");
 
 				notify_cleric_moon(d->character);
 
@@ -905,7 +904,7 @@ nanny(struct descriptor_data * d, char *arg)
 					sprintf(buf,
 							"\r\n\007\007:: NOTICE :: Tempus will be rebooting in [%d] second%s ::\r\n",
 							shutdown_count, shutdown_count == 1 ? "" : "s");
-					send_to_char(buf, d->character);
+					send_to_char(d->character, "%s", buf);
 				}
 				if(GET_LEVEL(d->character) < LVL_GOD) {
 					for (i = 0; i < num_of_houses; i++) {

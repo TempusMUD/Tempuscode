@@ -40,7 +40,6 @@ SPECIAL(beer_tree)
   obj_to_char(obj, ch);
 
   sprintf(buf,"You pick %s from the tree.\r\n",obj->short_description);
-  send_to_char (buf,ch);
 
   return 1;
 }

@@ -103,11 +103,10 @@ enable_vt100(struct char_data *ch)
 	strcat(buf, VT_SVPOS);
 
 /*  
-    sprintf(buf, "%s%s%s%s%s%s%s%s%s%s%s%s%s", VT_CLEAR, VT_GOPOS(0,0), VT_SVPOS, VT_GOPOS(2,1), seperator,
+    send_to_char(ch, "%s%s%s%s%s%s%s%s%s%s%s%s%s", VT_CLEAR, VT_GOPOS(0,0), VT_SVPOS, VT_GOPOS(2,1), seperator,
     VT_RTPOS, VT_SVPOS, VT_GOPOS(rows-1,1), seperator,
     VT_RTPOS, VT_RPPOS(3,rows-2), VT_GOPOS(3,1), VT_SVPOS);
 */
-	send_to_char(buf, ch);
 }
 
 void
@@ -251,7 +250,6 @@ touch(char *path)
 void
 mudlog(char *str, char type, sbyte level, byte file)
 {
-	char buf[MAX_INPUT_LENGTH * 3];
 	extern struct descriptor_data *descriptor_list;
 	struct descriptor_data *i;
 	char *tmp, tp;
@@ -268,8 +266,6 @@ mudlog(char *str, char type, sbyte level, byte file)
 	if (strlen(str) > (MAX_INPUT_LENGTH * 2))
 		str[(MAX_INPUT_LENGTH * 2)] = '\0';
 
-	sprintf(buf, "[ %s ]\r\n", str);
-
 	for (i = descriptor_list; i; i = i->next)
 		if (!i->connected && !PLR_FLAGGED(i->character, PLR_WRITING) &&
 			!PLR_FLAGGED(i->character, PLR_OLC)) {
@@ -277,9 +273,10 @@ mudlog(char *str, char type, sbyte level, byte file)
 				(PRF_FLAGGED(i->character, PRF_LOG2) ? 2 : 0));
 
 			if ((GET_LEVEL(i->character) >= level) && (tp >= type)) {
-				send_to_char(CCGRN(i->character, C_NRM), i->character);
-				send_to_char(buf, i->character);
-				send_to_char(CCNRM(i->character, C_NRM), i->character);
+				send_to_char(i->character, "%s[ %s ]%s\r\n",
+					CCGRN(i->character, C_NRM),
+					str,
+					CCNRM(i->character, C_NRM));
 			}
 		}
 }

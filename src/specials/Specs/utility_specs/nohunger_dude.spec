@@ -20,12 +20,11 @@ SPECIAL(nohunger_dude)
   gold = 10000*GET_LEVEL(ch);
 
   if (!*argument) {
-    sprintf(buf, "Gain what?\r\n"
+    send_to_char(ch, "Gain what?\r\n"
 	    "It will cost you %d life points and %d gold coins to gain\r\n"
 	    "nohunger, nothirst, or nodrunk.\r\n", life_cost, gold);
-    send_to_char(buf, ch);
   } else if (GET_LEVEL(ch) < LVL_CAN_GAIN_NOHUNGER && !IS_REMORT(ch))
-    send_to_char("You are not yet ready to gain this.\r\n", ch);
+    send_to_char(ch, "You are not yet ready to gain this.\r\n");
   else {
     if (!is_abbrev(argument, "nohunger")) {
       if (!is_abbrev(argument, "nothirst")) {
@@ -54,14 +53,13 @@ SPECIAL(nohunger_dude)
       perform_tell(dude, ch, buf);
     } else {
       act("$n outstretches $s arms in supplication to the powers that be.", TRUE, dude, 0, 0, TO_ROOM);
-      send_to_char("You feel a strange sensation pass through your soul.\r\n", ch);
+      send_to_char(ch, "You feel a strange sensation pass through your soul.\r\n");
       act("A strange expression crosses $N's face...", TRUE, dude, 0, ch, TO_NOTVICT);
       GET_LIFE_POINTS(ch) -= life_cost;
       GET_GOLD(ch) -= gold;
       GET_COND(ch, mode) = -1;
-      sprintf(buf, "You will no longer be affected by %s!\r\n", 
+      send_to_char(ch, "You will no longer be affected by %s!\r\n", 
            mode == DRUNK ? "alcohol" : mode == THIRST ? "thirst" : "hunger");
-      send_to_char(buf, ch);
 
       sprintf(buf, "%s has gained %s.", GET_NAME(ch), 
 	      mode == DRUNK ? "nodrunk" : mode == THIRST ? "nothirst" :

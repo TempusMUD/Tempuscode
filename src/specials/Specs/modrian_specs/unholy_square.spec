@@ -151,32 +151,31 @@ SPECIAL(unholy_square)
 
   if (!*arg1) {
 
-    sprintf(buf, "Holy Square is %s.\r\nstatus <begin|end|clear>.\r\n", state ? "UNHOLY" : "HOLY");
+    send_to_char(ch, "Holy Square is %s.\r\nstatus <begin|end|clear>.\r\n", state ? "UNHOLY" : "HOLY");
     if (winner)
       sprintf(buf,
 	      "%sWinner is [%d] %s.\r\n"
 	      "Won at %s.\r\n",  buf, winner, get_name_by_id(winner), ctime(&wintime));
 
-    send_to_char(buf, ch);
     return 1;
   }
 
   if (!strcmp(arg1, "clear")) {
     winner = 0;
     wintime = 0;
-    send_to_char("Winner cleared.\r\n", ch);
+    send_to_char(ch, "Winner cleared.\r\n");
     return 1;
   }
 
   if (ch->in_room->number != 3013) {
-    send_to_char("Begin and end in Holy Square only.\r\n", ch);
+    send_to_char(ch, "Begin and end in Holy Square only.\r\n");
     return 1;
   }
 
   if (!strcmp(arg1, "begin")) {
 
     if (state != STATE_HOLY) {
-      send_to_char("End first.\r\n", ch);
+      send_to_char(ch, "End first.\r\n");
       return 1;
     }
 
@@ -190,7 +189,7 @@ SPECIAL(unholy_square)
 
     perform_defile(ch->in_room, &state, &olddesc, &oldtitle);
 
-    send_to_char("Holy Square defiled.\r\n", ch);
+    send_to_char(ch, "Holy Square defiled.\r\n");
 
     sprintf(buf, "US: %s has defiled Holy Square.", GET_NAME(ch));
     mudlog(buf, BRF, LVL_AMBASSADOR, TRUE);
@@ -201,13 +200,13 @@ SPECIAL(unholy_square)
   if (!strcmp(arg1, "end")) {
     
     if (state != STATE_UNHOLY) {
-      send_to_char("Begin first.\r\n", ch);
+      send_to_char(ch, "Begin first.\r\n");
       return 1;
     }
 
     perform_resanct(ch->in_room, &state, olddesc, oldtitle);
 
-    send_to_char("Holy Square resanctified.\r\n", ch);
+    send_to_char(ch, "Holy Square resanctified.\r\n");
 
     sprintf(buf, "US: %s has ended the defilement of Holy Square.", GET_NAME(ch));
     mudlog(buf, BRF, LVL_AMBASSADOR, TRUE);
@@ -215,8 +214,7 @@ SPECIAL(unholy_square)
     return 1;
   }
 
-  sprintf(buf, "The argument '%s' is not supported.\r\n", arg1);
-  send_to_char(buf, ch);
+  send_to_char(ch, "The argument '%s' is not supported.\r\n", arg1);
   
   return 1;
 }

@@ -22,7 +22,7 @@ SPECIAL(questor_util)
     return 0;
   
   if (!PRF_FLAGGED(ch, PRF_QUEST)) {
-    send_to_char("You aren't even a part of the quest!\r\n", ch);
+    send_to_char(ch, "You aren't even a part of the quest!\r\n");
     return 1;
   }
 
@@ -32,7 +32,7 @@ SPECIAL(questor_util)
           PLR_FLAGGED(ch, PLR_QUESTOR) ? "obtained" : "removed");
   mudlog(buf, NRM, GET_INVIS_LEV(ch), TRUE);
   
-  send_to_char("Questor flag toggled.\r\n", ch);
+  send_to_char(ch, "Questor flag toggled.\r\n");
   act("$n flips some switches on $p.", FALSE, ch, obj, 0, TO_ROOM);
   
     if (!PLR_FLAGGED(ch, PLR_QUESTOR)) {

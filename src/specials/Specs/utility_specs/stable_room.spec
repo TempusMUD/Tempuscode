@@ -12,16 +12,15 @@ SPECIAL(stable_room)
   int price;
 
   if (!(pet_room = ch->in_room->next)) {
-    send_to_char("stable error.\r\n", ch);
+    send_to_char(ch, "stable error.\r\n");
     return 0;
   }
 
   if (CMD_IS("list")) {
-    send_to_char("Available mounts are:\r\n", ch);
+    send_to_char(ch, "Available mounts are:\r\n");
     CharacterList::iterator it = pet_room->people.begin();
     for( ; it != pet_room->people.end(); ++it ) {
-      sprintf(buf, "%8d - %s\r\n", 3 * GET_EXP((*it)), GET_NAME((*it)));
-      send_to_char(buf, ch);
+      send_to_char(ch, "%8d - %s\r\n", 3 * GET_EXP((*it)), GET_NAME((*it)));
     }
     return (TRUE);
   } else if (CMD_IS("buy")) {
@@ -30,11 +29,11 @@ SPECIAL(stable_room)
     argument = one_argument(argument, pet_name);
 
     if (!(pet = get_char_room(buf, pet_room))) {
-      send_to_char("There is no such mount!\r\n", ch);
+      send_to_char(ch, "There is no such mount!\r\n");
       return (TRUE);
     }
     if (GET_GOLD(ch) < (GET_EXP(pet) * 3)) {
-      send_to_char("You don't have enough gold!\r\n", ch);
+      send_to_char(ch, "You don't have enough gold!\r\n");
       return (TRUE);
     }
     GET_GOLD(ch) -= GET_EXP(pet) * 3;
@@ -60,7 +59,7 @@ SPECIAL(stable_room)
     IS_CARRYING_W(pet) = 1000;
     IS_CARRYING_N(pet) = 100;
 
-    send_to_char("May this mount serve you well.\r\n", ch);
+    send_to_char(ch, "May this mount serve you well.\r\n");
     act("$n buys $N as a mount.", FALSE, ch, 0, pet, TO_ROOM);
 
     return 1;
@@ -75,7 +74,7 @@ SPECIAL(stable_room)
       return 1;
     }
     if (!(pet = get_char_room_vis(ch, argument))) {
-      send_to_char("I don't see that mount here.\r\n", ch);
+      send_to_char(ch, "I don't see that mount here.\r\n");
       return 1;
     }
     if (!pet->master || pet->master != ch || !AFF_FLAGGED(pet, AFF_CHARM)) {
@@ -83,7 +82,7 @@ SPECIAL(stable_room)
       return 1;
     }
     if (!IS_NPC(pet) || !MOB2_FLAGGED(pet, MOB2_MOUNT)) {
-      send_to_char("I only buy mounts.\r\n", ch);
+      send_to_char(ch, "I only buy mounts.\r\n");
       return 1;
     }
     price = GET_LEVEL(pet) * 10 + GET_MOVE(pet) * 10 + GET_HIT(pet) * 10;

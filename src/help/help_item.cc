@@ -34,7 +34,7 @@ HelpItem::SetFlags(char *argument)
 	argument = one_argument(argument, arg1);
 	skip_spaces(&argument);
 	if (!*argument) {
-		send_to_char("Invalid flags. \r\n", editor);
+		send_to_char(editor, "Invalid flags. \r\n");
 		return;
 	}
 
@@ -43,7 +43,7 @@ HelpItem::SetFlags(char *argument)
 	} else if (*arg1 == '-') {
 		state = 2;
 	} else {
-		send_to_char("Invalid flags.\r\n", editor);
+		send_to_char(editor, "Invalid flags.\r\n");
 		return;
 	}
 
@@ -51,8 +51,7 @@ HelpItem::SetFlags(char *argument)
 	old_flags = cur_flags = flags;
 	while (*arg1) {
 		if ((flag = search_block(arg1, help_bits, FALSE)) == -1) {
-			sprintf(buf, "Invalid flag %s, skipping...\r\n", arg1);
-			send_to_char(buf, editor);
+			send_to_char(editor, "Invalid flag %s, skipping...\r\n", arg1);
 		} else {
 			tmp_flags = tmp_flags | (1 << flag);
 		}
@@ -71,13 +70,11 @@ HelpItem::SetFlags(char *argument)
 	sprintbit(tmp_flags, help_bits, buf2);
 
 	if (tmp_flags == 0) {
-		sprintf(buf, "Flags for help item %d not altered.\r\n", idnum);
-		send_to_char(buf, editor);
+		send_to_char(editor, "Flags for help item %d not altered.\r\n", idnum);
 	} else {
 		SET_BIT(flags, HFLAG_MODIFIED);
-		sprintf(buf, "[%s] flags %s for help item %d.\r\n", buf2,
+		send_to_char(editor, "[%s] flags %s for help item %d.\r\n", buf2,
 			state == 1 ? "added" : "removed", idnum);
-		send_to_char(buf, editor);
 	}
 }
 
@@ -104,7 +101,7 @@ HelpItem::SetGroups(char *argument)
 	argument = one_argument(argument, arg1);
 	skip_spaces(&argument);
 	if (!*argument) {
-		send_to_char("Invalid group. \r\n", editor);
+		send_to_char(editor, "Invalid group. \r\n");
 		return;
 	}
 
@@ -113,7 +110,7 @@ HelpItem::SetGroups(char *argument)
 	} else if (*arg1 == '-') {
 		state = 2;
 	} else {
-		send_to_char("Invalid Groups.\r\n", editor);
+		send_to_char(editor, "Invalid Groups.\r\n");
 		return;
 	}
 
@@ -121,8 +118,7 @@ HelpItem::SetGroups(char *argument)
 	old_groups = cur_groups = groups;
 	while (*arg1) {
 		if ((flag = search_block(arg1, help_group_names, FALSE)) == -1) {
-			sprintf(buf, "Invalid group: %s, skipping...\r\n", arg1);
-			send_to_char(buf, editor);
+			send_to_char(editor, "Invalid group: %s, skipping...\r\n", arg1);
 		} else {
 			tmp_groups = tmp_groups | (1 << flag);
 		}
@@ -138,12 +134,10 @@ HelpItem::SetGroups(char *argument)
 	tmp_groups = old_groups ^ cur_groups;
 	sprintbit(tmp_groups, help_group_bits, buf2);
 	if (tmp_groups == 0) {
-		sprintf(buf, "Groups for help item %d not altered.\r\n", idnum);
-		send_to_char(buf, editor);
+		send_to_char(editor, "Groups for help item %d not altered.\r\n", idnum);
 	} else {
-		sprintf(buf, "[%s] groups %s for help item %d.\r\n", buf2,
+		send_to_char(editor, "[%s] groups %s for help item %d.\r\n", buf2,
 			state == 1 ? "added" : "removed", idnum);
-		send_to_char(buf, editor);
 	}
 	REMOVE_BIT(groups, HGROUP_HELP_EDIT);
 	SET_BIT(flags, HFLAG_MODIFIED);
@@ -168,7 +162,7 @@ HelpItem::SetName(char *argument)
 	strcpy(name, argument);
 	SET_BIT(flags, HFLAG_MODIFIED);
 	if (editor)
-		send_to_char("Name set!\r\n", editor);
+		send_to_char(editor, "Name set!\r\n");
 }
 
 // Set the...um. keywords and stuff.
@@ -182,7 +176,7 @@ HelpItem::SetKeyWords(char *argument)
 	strcpy(keys, argument);
 	SET_BIT(flags, HFLAG_MODIFIED);
 	if (editor)
-		send_to_char("Keywords set!\r\n", editor);
+		send_to_char(editor, "Keywords set!\r\n");
 }
 
 // Help Item
@@ -303,12 +297,11 @@ HelpItem::Edit(char_data * ch)
 {
 	if (editor) {
 		if (editor != ch) {
-			sprintf(buf, "%s is already editing that item. Tough!\r\n",
+			send_to_char(ch, "%s is already editing that item. Tough!\r\n",
 				GET_NAME(editor));
-			send_to_char(buf, ch);
 		} else {
-			send_to_char
-				("I don't see how editing it _again_ will help any.\r\n", ch);
+			send_to_char(ch, 
+				"I don't see how editing it _again_ will help any.\r\n");
 		}
 		return false;
 	}
@@ -316,8 +309,7 @@ HelpItem::Edit(char_data * ch)
 		GET_OLC_HELP(ch)->editor = NULL;
 	GET_OLC_HELP(ch) = this;
 	editor = ch;
-	sprintf(buf, "You are now editing help item #%d.\r\n", idnum);
-	send_to_char(buf, ch);
+	send_to_char(ch, "You are now editing help item #%d.\r\n", idnum);
 	SET_BIT(flags, HFLAG_MODIFIED);
 	return true;
 }
@@ -337,7 +329,7 @@ HelpItem::Save()
 	remove(fname);
 	file.open(fname, ios::out | ios::trunc);
 	if (!file && editor) {
-		send_to_char("Error, could not open help file for write.\r\n", editor);
+		send_to_char(editor, "Error, could not open help file for write.\r\n");
 		return false;
 	}
 	file.seekp(0);

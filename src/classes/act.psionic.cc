@@ -37,31 +37,30 @@ ACMD(do_psidrain)
 	skip_spaces(&argument);
 
 	if (CHECK_SKILL(ch, SKILL_PSIDRAIN) < 30 || !IS_PSIONIC(ch)) {
-		send_to_char("You have no idea how.\r\n", ch);
+		send_to_char(ch, "You have no idea how.\r\n");
 		return;
 	}
 
 	if (!*argument && !(vict = FIGHTING(ch))) {
-		send_to_char("Psidrain who?\r\n", ch);
+		send_to_char(ch, "Psidrain who?\r\n");
 		return;
 	}
 
 	if (vict == ch) {
-		send_to_char("Ha ha... Funny!\r\n", ch);
+		send_to_char(ch, "Ha ha... Funny!\r\n");
 		return;
 	}
 
 	if (ROOM_FLAGGED(ch->in_room, ROOM_NOPSIONICS) && GET_LEVEL(ch) < LVL_GOD) {
-		send_to_char("Psychic powers are useless here!\r\n", ch);
+		send_to_char(ch, "Psychic powers are useless here!\r\n");
 		return;
 	}
 
 	if (*argument) {
 		if (!(vict = get_char_room_vis(ch, argument)) &&
 			!(vict = get_char_vis(ch, argument))) {
-			sprintf(buf, "You cannot locate %s '%s'.\r\n", AN(argument),
+			send_to_char(ch, "You cannot locate %s '%s'.\r\n", AN(argument),
 				argument);
-			send_to_char(buf, ch);
 			return;
 		}
 	}
@@ -69,8 +68,7 @@ ACMD(do_psidrain)
 		return;
 
 	if (FIGHTING(ch) && vict->in_room != ch->in_room) {
-		send_to_char("You cannot focus outside the room during battle!\r\n",
-			ch);
+		send_to_char(ch, "You cannot focus outside the room during battle!\r\n");
 		return;
 	}
 
@@ -96,7 +94,7 @@ ACMD(do_psidrain)
 		return;
 
 	if (GET_MOVE(ch) < 20) {
-		send_to_char("You are too physically exhausted.\r\n", ch);
+		send_to_char(ch, "You are too physically exhausted.\r\n");
 		return;
 	}
 
@@ -177,7 +175,7 @@ ACMD(do_psidrain)
 	//
 
 	if (number(0, 121) > prob) {
-		send_to_char("You are unable to create the drainage link!\r\n", ch);
+		send_to_char(ch, "You are unable to create the drainage link!\r\n");
 		WAIT_STATE(ch, 2 RL_SEC);
 
 		if (IS_NPC(vict) && !FIGHTING(vict)) {

@@ -332,17 +332,15 @@ Quiz::sendGenDistribution(char_data * ch)
 		if ((*it).getGen() == gen) {
 			count++;
 		} else {
-			sprintf(buf, "[%4d] Questions [%4d] Average [%5.2f]\r\n",
+			send_to_char(ch, "[%4d] Questions [%4d] Average [%5.2f]\r\n",
 				gen, count, getAverage(gen));
-			send_to_char(buf, ch);
 			gen = (*it).getGen();
 			count = 0;
 		}
 	}
 	if (count > 0) {
-		sprintf(buf, "[%4d] Questions [%4d] Average [%5.2f]\r\n",
+		send_to_char(ch, "[%4d] Questions [%4d] Average [%5.2f]\r\n",
 			gen, count, getAverage(gen));
-		send_to_char(buf, ch);
 	}
 }
 
@@ -352,25 +350,22 @@ Quiz::sendQuestion(char_data * ch)
 {
 	Question *q = getQuestion();
 	if (q == NULL) {
-		send_to_char("There is no current question!\r\n", ch);
+		send_to_char(ch, "There is no current question!\r\n");
 		return;
 	}
 	if (GET_LEVEL(ch) >= LVL_IMMORT)
 		sprintf(buf, "%s%s(%d)\r\n", CCGRN(ch, C_NRM), q->getQuestion(),
 			q->getValue());
 	else
-		sprintf(buf, "%s%s\r\n", CCGRN(ch, C_NRM), q->getQuestion());
+		send_to_char(ch, "%s%s\r\n", CCGRN(ch, C_NRM), q->getQuestion());
 
-	send_to_char(buf, ch);
 	for (int i = 0; i < q->getChoiceCount(); i++) {
-		sprintf(buf, "%s\r\n", q->getChoice(i));
-		send_to_char(buf, ch);
+		send_to_char(ch, "%s\r\n", q->getChoice(i));
 	}
-	send_to_char(CCNRM(ch, C_NRM), ch);
+	send_to_char(ch, CCNRM(ch, C_NRM));
 	/*
 	   for( unsigned int i = 0;i < hints.size(); i++ ) {
 	   sprintf(buf,"Hint: %s\r\n",q->getHint(i));
-	   send_to_char(buf,ch);
 	   }
 	 */
 }
@@ -400,20 +395,16 @@ Quiz::makeGuess(char_data * ch, const char *guess)
 void
 Quiz::sendStatus(char_data * ch)
 {
-	sprintf(buf, "Quiz Subject: %s (%d)\r\n",
+	send_to_char(ch, "Quiz Subject: %s (%d)\r\n",
 		studentID > 0 ? get_name_by_id(studentID) : "NONE", studentID);
-	send_to_char(buf, ch);
-	sprintf(buf,
+	send_to_char(ch,
 		"Ready [%s] Complete[%s] In Progress[%s] Number of Questions[%d]\r\n",
 		isReady()? "Yes" : "No", isComplete()? "Yes" : "No",
 		inProgress()? "Yes" : "No", size());
-	send_to_char(buf, ch);
-	sprintf(buf, "Earned[%d] Missed[%d] Needed[%d] Limit[%d] Score(%%%d)\r\n",
+	send_to_char(ch, "Earned[%d] Missed[%d] Needed[%d] Limit[%d] Score(%%%d)\r\n",
 		earnedPoints, lostPoints, neededPoints, maximumPoints, getScore());
-	send_to_char(buf, ch);
-	sprintf(buf, "[ ALL] Questions [%4d] Average [%5.2f]\r\n",
+	send_to_char(ch, "[ ALL] Questions [%4d] Average [%5.2f]\r\n",
 		remortQuestions.size(), getAverage());
-	send_to_char(buf, ch);
 	sendGenDistribution(ch);
 }
 

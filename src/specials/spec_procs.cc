@@ -308,7 +308,7 @@ SPECIAL(guild)
 	}
 
 	if (GET_PRACTICES(ch) <= 0 || IS_NPC(ch)) {
-		send_to_char("You do not seem to be able to practice now.\r\n", ch);
+		send_to_char(ch, "You do not seem to be able to practice now.\r\n");
 		return 1;
 	}
 	/*  Lame upper level trainer thing.
@@ -322,15 +322,14 @@ SPECIAL(guild)
 	skill_num = find_skill_num(argument);
 
 	if (skill_num < 1) {
-		sprintf(buf, "You do not know of that %s.\r\n", SPLSKL(ch));
-		send_to_char(buf, ch);
+		send_to_char(ch, "You do not know of that %s.\r\n", SPLSKL(ch));
 		return 1;
 	}
 	if (!ABLE_TO_LEARN(ch, skill_num)) {
 		if (CHECK_SKILL(ch, skill_num))
-			send_to_char("You cannot improve this further yet.\r\n", ch);
+			send_to_char(ch, "You cannot improve this further yet.\r\n");
 		else
-			send_to_char("You are not ready to practice this.\r\n", ch);
+			send_to_char(ch, "You are not ready to practice this.\r\n");
 		return 1;
 	}
 
@@ -340,37 +339,35 @@ SPECIAL(guild)
 			(!IS_REMORT(master) ||
 				GET_LEVEL(master) <
 				SPELL_LEVEL(skill_num, GET_REMORT_CLASS(master))))) {
-		send_to_char("I am not able to teach you that skill.\r\n", ch);
+		send_to_char(ch, "I am not able to teach you that skill.\r\n");
 		return 1;
 	}
 
 	if (GET_CLASS(master) < NUM_CLASSES &&
 		(SPELL_GEN(skill_num, GET_CLASS(master)) && !IS_REMORT(master))) {
-		send_to_char("You must go elsewhere to learn that remort skill.\r\n",
-			ch);
+		send_to_char(ch, "You must go elsewhere to learn that remort skill.\r\n");
 		return 1;
 	}
 
 	if ((skill_num == SKILL_READ_SCROLLS || skill_num == SKILL_USE_WANDS) &&
 		CHECK_SKILL(ch, skill_num) > 10) {
-		send_to_char
-			("You cannot practice this further, you must improve with experience.\r\n",
-			ch);
+		send_to_char(ch, 
+			"You cannot practice this further, you must improve with experience.\r\n");
 		return 1;
 	}
 
 	if (GET_SKILL(ch, skill_num) >= LEARNED(ch)) {
-		send_to_char("You are already learned in that area.\r\n", ch);
+		send_to_char(ch, "You are already learned in that area.\r\n");
 		return 1;
 	}
 
 	if ((SPELL_IS_GOOD(skill_num) && !IS_GOOD(ch)) ||
 		(SPELL_IS_EVIL(skill_num) && !IS_EVIL(ch))) {
-		send_to_char("You have no business dealing with such magic.\r\n", ch);
+		send_to_char(ch, "You have no business dealing with such magic.\r\n");
 		return 1;
 	}
 
-	send_to_char("You practice for a while...\r\n", ch);
+	send_to_char(ch, "You practice for a while...\r\n");
 	act("$n practices for a while.", TRUE, ch, 0, 0, TO_ROOM);
 	GET_PRACTICES(ch)--;
 	WAIT_STATE(ch, 2 RL_SEC);
@@ -383,7 +380,7 @@ SPECIAL(guild)
 	SET_SKILL(ch, skill_num, percent);
 
 	if (GET_SKILL(ch, skill_num) >= LEARNED(ch))
-		send_to_char("You are now well learned in that area.\r\n", ch);
+		send_to_char(ch, "You are now well learned in that area.\r\n");
 
 	return 1;
 }
@@ -1547,12 +1544,11 @@ SPECIAL(pet_shops)
 	pet_room = real_room(ch->in_room->number + 1);
 
 	if (CMD_IS("list")) {
-		send_to_char("Available pets are:\r\n", ch);
+		send_to_char(ch, "Available pets are:\r\n");
 		CharacterList::iterator it = pet_room->people.begin();
 		for (; it != pet_room->people.end(); ++it) {
 			cost = (IS_NPC((*it)) ? GET_EXP((*it)) * 3 : (GET_EXP(ch) >> 2));
-			sprintf(buf, "%8d - %s\r\n", cost, GET_NAME((*it)));
-			send_to_char(buf, ch);
+			send_to_char(ch, "%8d - %s\r\n", cost, GET_NAME((*it)));
 		}
 		return (TRUE);
 	} else if (CMD_IS("buy")) {
@@ -1561,7 +1557,7 @@ SPECIAL(pet_shops)
 		argument = one_argument(argument, pet_name);
 
 		if (!(pet = get_char_room(buf, pet_room))) {
-			send_to_char("There is no such pet!\r\n", ch);
+			send_to_char(ch, "There is no such pet!\r\n");
 			return (TRUE);
 		}
 
@@ -1571,7 +1567,7 @@ SPECIAL(pet_shops)
 			cost = GET_EXP(pet) >> 4;
 
 		if (GET_GOLD(ch) < cost) {
-			send_to_char("You don't have enough gold!\r\n", ch);
+			send_to_char(ch, "You don't have enough gold!\r\n");
 			return (TRUE);
 		}
 		GET_GOLD(ch) -= cost;
@@ -1606,11 +1602,11 @@ SPECIAL(pet_shops)
 		SET_BIT(AFF_FLAGS(pet), AFF_CHARM);
 		add_follower(pet, ch);
 		if (IS_NPC(pet)) {
-			send_to_char("May you enjoy your pet.\r\n", ch);
+			send_to_char(ch, "May you enjoy your pet.\r\n");
 			act("$n buys $N as a pet.", FALSE, ch, 0, pet, TO_ROOM);
 			SET_BIT(MOB_FLAGS(pet), MOB_PET);
 		} else {
-			send_to_char("May you enjoy your slave.\r\n", ch);
+			send_to_char(ch, "May you enjoy your slave.\r\n");
 			act("$n buys $N as a slave.", FALSE, ch, 0, pet, TO_ROOM);
 		}
 		return 1;
@@ -1657,20 +1653,18 @@ SPECIAL(bank)
 				sprintf(buf, "Your current balance is %d %s%s.\r\n",
 					BANK_MONEY(ch), CURRENCY(ch), PLURAL(BANK_MONEY(ch)));
 			else
-				sprintf(buf, "You currently have no money deposited.\r\n");
+				send_to_char(ch, "You currently have no money deposited.\r\n");
 		}
-		send_to_char(buf, ch);
 		return 1;
 
 	} else if (CMD_IS("deposit")) {
 
 		if (!*arg1 || (amount = atoi(arg1)) <= 0) {
-			send_to_char("How much do you want to deposit?\r\n", ch);
+			send_to_char(ch, "How much do you want to deposit?\r\n");
 			return 1;
 		}
 		if (CASH_MONEY(ch) < amount) {
-			sprintf(buf, "You don't have that many %ss!\r\n", CURRENCY(ch));
-			send_to_char(buf, ch);
+			send_to_char(ch, "You don't have that many %ss!\r\n", CURRENCY(ch));
 			return 1;
 		}
 
@@ -1692,11 +1686,10 @@ SPECIAL(bank)
 
 			CASH_MONEY(ch) -= amount;
 			BANK_MONEY(ch) += amount;
-			sprintf(buf, "You deposit %d %s%s.\r\n", amount, CURRENCY(ch),
+			send_to_char(ch, "You deposit %d %s%s.\r\n", amount, CURRENCY(ch),
 				PLURAL(amount));
 		}
 
-		send_to_char(buf, ch);
 		act("$n makes a bank transaction.", TRUE, ch, 0, FALSE, TO_ROOM);
 		save_char(ch, NULL);
 		return 1;
@@ -1705,16 +1698,16 @@ SPECIAL(bank)
 	} else if (CMD_IS("withdraw")) {
 
 		if ((amount = atoi(arg1)) <= 0) {
-			send_to_char("How much do you want to withdraw?\r\n", ch);
+			send_to_char(ch, "How much do you want to withdraw?\r\n");
 			return 1;
 		}
 
 		if (IS_AFFECTED(ch, AFF_CHARM)) {
-			send_to_char("You can't do that while charmed!\r\n", ch);
+			send_to_char(ch, "You can't do that while charmed!\r\n");
 			sprintf(buf,
 				"You can't force %s to do that, even while charmed!\r\n",
 				ch->player.name);
-			send_to_char(buf, ch->master);
+			send_to_char(ch->master, "%s", buf);
 			return 1;
 		}
 
@@ -1737,18 +1730,16 @@ SPECIAL(bank)
 		} else {
 
 			if (BANK_MONEY(ch) < amount) {
-				sprintf(buf, "You don't have that many %ss deposited!\r\n",
+				send_to_char(ch, "You don't have that many %ss deposited!\r\n",
 					CURRENCY(ch));
-				send_to_char(buf, ch);
 				return 1;
 			}
 			CASH_MONEY(ch) += amount;
 			BANK_MONEY(ch) -= amount;
-			sprintf(buf, "You withdraw %d %s%s.\r\n", amount, CURRENCY(ch),
+			send_to_char(ch, "You withdraw %d %s%s.\r\n", amount, CURRENCY(ch),
 				PLURAL(amount));
 		}
 
-		send_to_char(buf, ch);
 		act("$n makes a bank transaction.", TRUE, ch, 0, FALSE, TO_ROOM);
 		save_char(ch, NULL);
 		return 1;

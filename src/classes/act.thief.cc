@@ -44,39 +44,39 @@ ACMD(do_steal)
 	one_argument(argument, vict_name);
 
 	if (!(vict = get_char_room_vis(ch, vict_name))) {
-		send_to_char("Steal what from who?\r\n", ch);
+		send_to_char(ch, "Steal what from who?\r\n");
 		return;
 	} else if (vict == ch) {
-		send_to_char("Come on now, that's rather stupid!\r\n", ch);
+		send_to_char(ch, "Come on now, that's rather stupid!\r\n");
 		return;
 	}
 	if (GET_LEVEL(ch) < LVL_IMMORT && IS_NPC(vict)
 		&& MOB2_FLAGGED(vict, MOB2_SELLER)) {
-		send_to_char("That's probably a bad idea.\r\n", ch);
+		send_to_char(ch, "That's probably a bad idea.\r\n");
 		return;
 	}
 
 	if (IS_SET(ROOM_FLAGS(ch->in_room), ROOM_PEACEFUL) &&
 		!PLR_FLAGGED(vict, PLR_THIEF) && GET_LEVEL(ch) < LVL_AMBASSADOR) {
-		send_to_char
-			("The universal forces of order prevent those acts here.\r\n", ch);
+		send_to_char(ch, 
+			"The universal forces of order prevent those acts here.\r\n");
 		act("$n looks kinda sketchy for a moment.", FALSE, ch, 0, vict,
 			TO_ROOM);
 		return;
 	}
 	if (vict->isNewbie() && GET_LEVEL(ch) < LVL_IMMORT) {
-		send_to_char("You cannot steal from newbies!\r\n", ch);
+		send_to_char(ch, "You cannot steal from newbies!\r\n");
 		return;
 	}
 	if (!IS_MOB(vict) && !vict->desc && GET_LEVEL(ch) < LVL_ELEMENT) {
-		send_to_char("You cannot steal from linkless players!!!\r\n", ch);
+		send_to_char(ch, "You cannot steal from linkless players!!!\r\n");
 		sprintf(buf, "%s attempted to steal from linkless %s.", GET_NAME(ch),
 			GET_NAME(vict));
 		mudlog(buf, CMP, GET_LEVEL(ch), TRUE);
 		return;
 	}
 	if (!IS_MOB(vict) && ch->isNewbie()) {
-		send_to_char("You can't steal from players. You're a newbie!\r\n", ch);
+		send_to_char(ch, "You can't steal from players. You're a newbie!\r\n");
 		return;
 	}
 	if ((GET_LEVEL(vict) + 5) < GET_LEVEL(ch) && !IS_MOB(vict) &&
@@ -84,7 +84,7 @@ ACMD(do_steal)
 		!PLR_FLAGGED(vict, PLR_TOUGHGUY) &&
 		!ZONE_FLAGGED(ch->in_room->zone, ZONE_NOLAW) &&
 		!PLR_FLAGGED(ch, PLR_THIEF) && GET_LEVEL(ch) < LVL_AMBASSADOR) {
-		send_to_char("Okay... You will now be a THIEF!\r\n", ch);
+		send_to_char(ch, "Okay... You will now be a THIEF!\r\n");
 		SET_BIT(PLR_FLAGS(ch), PLR_THIEF);
 		sprintf(buf, "PC THIEF bit set on %s for robbing %s.", GET_NAME(ch),
 			GET_NAME(vict));
@@ -133,8 +133,7 @@ ACMD(do_steal)
 				percent += obj->getWeight();	/* Make heavy harder */
 
 				if (vict->getPosition() > POS_SLEEPING) {
-					send_to_char("Steal the equipment now?  Impossible!\r\n",
-						ch);
+					send_to_char(ch, "Steal the equipment now?  Impossible!\r\n");
 					return;
 				} else {
 					percent += 20 * (eq_pos == WEAR_WIELD);
@@ -165,9 +164,8 @@ ACMD(do_steal)
 						if (vict->getPosition() == POS_SLEEPING) {
 							act("You wake $N up trying to steal it!",
 								FALSE, ch, 0, vict, TO_CHAR);
-							send_to_char
-								("You are awakened as someone tries to steal your equipment!\r\n",
-								vict);
+							send_to_char(vict, 
+								"You are awakened as someone tries to steal your equipment!\r\n");
 							vict->setPosition(POS_RESTING);
 							ohoh = true;
 						} else if (vict->getPosition() == POS_SITTING &&
@@ -178,7 +176,7 @@ ACMD(do_steal)
 							act("You are disturbed as $n attempts to pilfer your inventory.", FALSE, ch, 0, vict, TO_VICT);
 							REMOVE_BIT(AFF2_FLAGS(vict), AFF2_MEDITATE);
 						} else
-							send_to_char("You fail to get it.\r\n", ch);
+							send_to_char(ch, "You fail to get it.\r\n");
 					}
 					WAIT_STATE(ch, PULSE_VIOLENCE);
 				}
@@ -215,7 +213,7 @@ ACMD(do_steal)
 						CAN_CARRY_W(ch)) {
 						obj_from_char(obj);
 						obj_to_char(obj, ch);
-						send_to_char("Got it!\r\n", ch);
+						send_to_char(ch, "Got it!\r\n");
 						GET_EXP(ch) += MIN(100, GET_OBJ_COST(obj));
 						WAIT_STATE(ch, PULSE_VIOLENCE);
 						gain_skill_prof(ch, SKILL_STEAL);
@@ -226,10 +224,9 @@ ACMD(do_steal)
 							slog(buf);
 						}
 					} else
-						send_to_char("You cannot carry that much weight.\r\n",
-							ch);
+						send_to_char(ch, "You cannot carry that much weight.\r\n");
 				} else
-					send_to_char("You cannot carry that much.\r\n", ch);
+					send_to_char(ch, "You cannot carry that much.\r\n");
 			}
 		}
 
@@ -249,15 +246,14 @@ ACMD(do_steal)
 			if (gold > 0) {
 				GET_GOLD(ch) += gold;
 				GET_GOLD(vict) -= gold;
-				sprintf(buf, "Bingo!  You got %d gold coins.\r\n", gold);
-				send_to_char(buf, ch);
+				send_to_char(ch, "Bingo!  You got %d gold coins.\r\n", gold);
 				if (GET_LEVEL(ch) >= LVL_AMBASSADOR) {
 					sprintf(buf, "%s stole %d coins from %s.", GET_NAME(ch),
 						gold, GET_NAME(vict));
 					slog(buf);
 				}
 			} else {
-				send_to_char("You couldn't get any gold...\r\n", ch);
+				send_to_char(ch, "You couldn't get any gold...\r\n");
 			}
 		}
 	}
@@ -267,7 +263,7 @@ ACMD(do_steal)
 		GET_REMORT_GEN(ch) > GET_REMORT_GEN(vict) &&
 		GET_REMORT_INVIS(ch) > GET_LEVEL(vict)) {
 		GET_REMORT_INVIS(ch) = GET_LEVEL(vict);
-		send_to_char("You feel a bit more visible.\n", ch);
+		send_to_char(ch, "You feel a bit more visible.\n");
 	}
 
 	if (ohoh && IS_NPC(vict) && AWAKE(vict) && check_mob_reaction(ch, vict))
@@ -290,12 +286,12 @@ ACMD(do_backstab)
 	one_argument(argument, buf);
 
 	if (!(vict = get_char_room_vis(ch, buf))) {
-		send_to_char("Backstab who?\r\n", ch);
+		send_to_char(ch, "Backstab who?\r\n");
 		WAIT_STATE(ch, 4);
 		return;
 	}
 	if (vict == ch) {
-		send_to_char("How can you sneak up on yourself?\r\n", ch);
+		send_to_char(ch, "How can you sneak up on yourself?\r\n");
 		return;
 	}
 	if (!peaceful_room_ok(ch, vict, true))
@@ -304,12 +300,11 @@ ACMD(do_backstab)
 	if (!(((weap = GET_EQ(ch, WEAR_WIELD)) && STAB_WEAPON(weap)) ||
 			((weap = GET_EQ(ch, WEAR_WIELD_2)) && STAB_WEAPON(weap)) ||
 			((weap = GET_EQ(ch, WEAR_HANDS)) && STAB_WEAPON(weap)))) {
-		send_to_char("You need to be using a stabbing weapon.\r\n", ch);
+		send_to_char(ch, "You need to be using a stabbing weapon.\r\n");
 		return;
 	}
 	if (FIGHTING(vict)) {
-		send_to_char("Backstab a fighting person? -- they're too alert!\r\n",
-			ch);
+		send_to_char(ch, "Backstab a fighting person? -- they're too alert!\r\n");
 		return;
 	}
 
@@ -345,12 +340,12 @@ ACMD(do_circle)
 	one_argument(argument, buf);
 
 	if (!(vict = get_char_room_vis(ch, buf)) && !(vict = FIGHTING(ch))) {
-		send_to_char("Circle around who?\r\n", ch);
+		send_to_char(ch, "Circle around who?\r\n");
 		WAIT_STATE(ch, 4);
 		return;
 	}
 	if (vict == ch) {
-		send_to_char("How can you sneak up on yourself?\r\n", ch);
+		send_to_char(ch, "How can you sneak up on yourself?\r\n");
 		return;
 	}
 	if (!peaceful_room_ok(ch, vict, true))
@@ -359,12 +354,12 @@ ACMD(do_circle)
 	if (!(((weap = GET_EQ(ch, WEAR_WIELD)) && STAB_WEAPON(weap)) ||
 			((weap = GET_EQ(ch, WEAR_WIELD_2)) && STAB_WEAPON(weap)) ||
 			((weap = GET_EQ(ch, WEAR_HANDS)) && STAB_WEAPON(weap)))) {
-		send_to_char("You need to be using a stabbing weapon.\r\n", ch);
+		send_to_char(ch, "You need to be using a stabbing weapon.\r\n");
 		return;
 	}
 	if (FIGHTING(vict) && FIGHTING(vict) == ch) {
-		send_to_char
-			("You can't circle someone who is actively fighting you!\r\n", ch);
+		send_to_char(ch, 
+			"You can't circle someone who is actively fighting you!\r\n");
 		return;
 	}
 
@@ -407,13 +402,12 @@ ACMD(do_sneak)
 	struct affected_type af;
 
 	if (IS_AFFECTED(ch, AFF_SNEAK)) {
-		send_to_char("Okay, you will now attempt to walk normally.\r\n", ch);
+		send_to_char(ch, "Okay, you will now attempt to walk normally.\r\n");
 		affect_from_char(ch, SKILL_SNEAK);
 		return;
 	}
 
-	send_to_char("Okay, you'll try to move silently until further notice.\r\n",
-		ch);
+	send_to_char(ch, "Okay, you'll try to move silently until further notice.\r\n");
 
 	if (CHECK_SKILL(ch, SKILL_SNEAK) < number(20, 70))
 		return;
@@ -434,7 +428,7 @@ ACMD(do_hide)
 {
 	byte percent;
 
-	send_to_char("You attempt to hide yourself.\r\n", ch);
+	send_to_char(ch, "You attempt to hide yourself.\r\n");
 
 	if (IS_AFFECTED(ch, AFF_HIDE))
 		REMOVE_BIT(AFF_FLAGS(ch), AFF_HIDE);
@@ -442,9 +436,8 @@ ACMD(do_hide)
 	percent = number(1, 101);	/* 101% is a complete failure */
 	if (IS_WEARING_W(ch) > (CAN_CARRY_W(ch) * 0.75)
 		&& GET_LEVEL(ch) < LVL_AMBASSADOR) {
-		send_to_char
-			("...but it sure will be hard with all that heavy equipment.\r\n",
-			ch);
+		send_to_char(ch, 
+			"...but it sure will be hard with all that heavy equipment.\r\n");
 		percent += 30;
 	}
 	if (IS_AFFECTED(ch, AFF_SANCTUARY) || IS_AFFECTED(ch, AFF_GLOWLIGHT) ||
@@ -471,32 +464,30 @@ ACMD(do_disguise)
 	struct affected_type af;
 
 	if (CHECK_SKILL(ch, SKILL_DISGUISE) < 20) {
-		send_to_char("You do not know how.\r\n", ch);
+		send_to_char(ch, "You do not know how.\r\n");
 		return;
 	}
 	if (subcmd) {				// undisguise
 		affect_from_char(ch, SKILL_DISGUISE);
-		send_to_char("You are no longer disguised.\r\n", ch);
+		send_to_char(ch, "You are no longer disguised.\r\n");
 		return;
 	}
 
 	skip_spaces(&argument);
 	if (!*argument) {
-		send_to_char("Disguise yourself as what mob?\r\n", ch);
+		send_to_char(ch, "Disguise yourself as what mob?\r\n");
 		return;
 	}
 	if (!(vict = get_char_room_vis(ch, argument))) {
-		sprintf(buf, "No-one by the name of '%s' here.\r\n", argument);
-		send_to_char(buf, ch);
+		send_to_char(ch, "No-one by the name of '%s' here.\r\n", argument);
 		return;
 	}
 	if (!IS_NPC(vict)) {
-		send_to_char("You can't disguise yourself as other players.\r\n", ch);
+		send_to_char(ch, "You can't disguise yourself as other players.\r\n");
 		return;
 	}
 	if (!HUMANOID_TYPE(vict)) {
-		send_to_char("You can only disguise yourself as other humanoids.\r\n",
-			ch);
+		send_to_char(ch, "You can only disguise yourself as other humanoids.\r\n");
 		return;
 	}
 	if (GET_HEIGHT(vict) > (GET_HEIGHT(ch) * 1.25) ||
@@ -512,7 +503,7 @@ ACMD(do_disguise)
 		return;
 	}
 	if (GET_MOVE(ch) < GET_LEVEL(vict)) {
-		send_to_char("You don't have enough movement.\r\n", ch);
+		send_to_char(ch, "You don't have enough movement.\r\n");
 		return;
 	}
 	affect_from_char(ch, SKILL_DISGUISE);
@@ -520,7 +511,7 @@ ACMD(do_disguise)
 	GET_MOVE(ch) -= GET_LEVEL(vict);
 	WAIT_STATE(ch, 5 RL_SEC);
 	if (number(0, 120) > CHECK_SKILL(ch, SKILL_DISGUISE)) {
-		send_to_char("You fail.\r\n", ch);
+		send_to_char(ch, "You fail.\r\n");
 		return;
 	}
 	af.type = SKILL_DISGUISE;

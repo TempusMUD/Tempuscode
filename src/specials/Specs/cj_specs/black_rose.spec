@@ -20,7 +20,7 @@ SPECIAL(black_rose)
   if (!isname(argument, trash->name))
     return 0;
 
-  send_to_char("You smell the scent of the black rose and feel oddly invigorated!\r\n", ch);
+  send_to_char(ch, "You smell the scent of the black rose and feel oddly invigorated!\r\n");
   act("$n smells $p.", TRUE, ch, trash, 0, TO_ROOM);
 
   num= number(10,30);
