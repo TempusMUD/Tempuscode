@@ -340,9 +340,11 @@ ACMD(do_whirlwind)
 						dam = dice(GET_LEVEL(ch), 5) + GET_DAMROLL(ch);
 					}
 					GET_MOVE(ch) -= 3;
-					if (damage(ch, vict, dam, SKILL_WHIRLWIND, -1)) {
-						break;
-					}
+					int my_return_flags = damage(ch, vict, dam, SKILL_WHIRLWIND, -1);
+                    if (IS_SET(my_return_flags, DAM_VICT_KILLED))
+                        break;
+                    else if (IS_SET(my_return_flags, DAM_ATTACKER_KILLED))
+                        return;
 				}
 			}
 		}
