@@ -663,6 +663,7 @@ Account::move_char(long id, Account *dest)
 
 	// Get the player's name before we delete from player table
 	dest->_chars.push_back(id);
+	sort(dest->_chars.begin(), dest->_chars.end());
 	sql_exec("update players set account=%d where idnum=%ld",
 		dest->_id, id);
 }

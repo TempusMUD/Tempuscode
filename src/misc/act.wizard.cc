@@ -8230,7 +8230,7 @@ ACMD(do_account)
 		// Update descriptor
 		vict = get_char_in_world_by_idnum(vict_id);
 		if (vict && vict->desc)
-			vict->desc->account = account;
+			vict->desc->account = dst_account;
 
 		send_to_char(ch, "%s[%ld] has been moved from account %s[%d] to %s[%d]\r\n",
 			playerIndex.getName(vict_id), vict_id,
