@@ -1846,8 +1846,8 @@ mag_affects(int level, struct char_data * ch, struct char_data * victim,
             af.bitvector = AFF3_TAINTED;
             af.aff_index = 3;
             af.location = af.modifier = 0;
-            af.duration = dice(ch->getLevelBonus(SPELL_TAINT),3);
-            af.level = ch->getLevelBonus(SPELL_TAINT);
+            af.duration = dice(ch->getLevelBonus(SPELL_TAINT),6);
+            af.level = 2 * ( ch->getLevelBonus(SPELL_TAINT) );
             to_vict = "The mark of the tainted begins to burn brightly on your forehead!";
             to_room = "The mark of the tainted begins to burn brightly on $n's forehead!";
         }

@@ -1506,8 +1506,7 @@ cast_spell(struct char_data * ch, struct char_data * tch,
         struct affected_type *af;
         int mana = mag_manacost(ch, spellnum);
         int dam = dice( mana ,10 );
-        bool weenie;
-        //  "The flow of blood obscures your vision as your rune of taint dissolves.",
+        bool weenie = false;
 
         // Grab the affect for affect level
         af = affected_by_spell(ch,SPELL_TAINT);
@@ -1522,9 +1521,7 @@ cast_spell(struct char_data * ch, struct char_data * tch,
 
         // fucking weaklings can't cast while tainted.
         int attribute = MIN( GET_CON(ch),GET_WIS(ch) );
-        if( number( 1 ,attribute + 7 ) > number( 1 ,mana ) ) {
-            weenie = false;
-        } else {
+        if( number( 1, attribute ) < number( mana/2, mana ) ) {
             weenie = true;
         }
         if (PRF2_FLAGGED(ch, PRF2_FIGHT_DEBUG)) {
