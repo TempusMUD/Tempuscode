@@ -512,7 +512,7 @@ SPECIAL(voting_booth) {
 			if ( !isname(argument, obj->name) && !isname(argument,"voting booth") )
 				return 0;
 			voting_booth_list(ch, obj);
-		} else if (VOTING_CMD_REMOVE == cmd) {
+		} else if (VOTING_CMD_REMOVE == cmd && GET_LEVEL(ch) >= LVL_AMBASSADOR) {
 			skip_spaces(&argument);
 			if (!isdigit(*argument))
 				return 0;
