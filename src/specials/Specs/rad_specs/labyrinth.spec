@@ -207,6 +207,9 @@ SPECIAL(rabbit_hole)
 	struct obj_data *hole = (struct obj_data *)me;
 	struct room_data *to_room = NULL;
 
+	if (spec_mode != SPECIAL_CMD)
+		return false;
+
 	skip_spaces(&argument);
 
 	if (!CMD_IS("enter") || !isname(argument, hole->name))
