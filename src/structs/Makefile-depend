@@ -7,13 +7,19 @@ $(OBJ)/creature_io.o : creature_io.cc \
 $(OBJ)/creature_list.o : creature_list.cc \
 	$(INCLUDE)/structs.h $(INCLUDE)/creature_list.h 
 	$(CXX) -c $(CXXFLAGS) creature_list.cc     -o $(OBJ)/creature_list.o
+$(OBJ)/mobile_map.o : mobile_map.cc \
+	$(INCLUDE)/mobile_map.h $(INCLUDE)/utils.h 
+	$(CXX) -c $(CXXFLAGS) mobile_map.cc        -o $(OBJ)/mobile_map.o
 $(OBJ)/obj_data.o : obj_data.cc \
 	$(INCLUDE)/structs.h $(INCLUDE)/utils.h $(INCLUDE)/handler.h $(INCLUDE)/db.h $(INCLUDE)/comm.h 
 	$(CXX) -c $(CXXFLAGS) obj_data.cc          -o $(OBJ)/obj_data.o
+$(OBJ)/object_map.o : object_map.cc \
+	$(INCLUDE)/object_map.h $(INCLUDE)/utils.h 
+	$(CXX) -c $(CXXFLAGS) object_map.cc        -o $(OBJ)/object_map.o
 $(OBJ)/player_table.o : player_table.cc \
 	$(INCLUDE)/player_table.h $(INCLUDE)/utils.h $(INCLUDE)/db.h 
 	$(CXX) -c $(CXXFLAGS) player_table.cc      -o $(OBJ)/player_table.o
 $(OBJ)/room_data.o : room_data.cc \
 	$(INCLUDE)/structs.h $(INCLUDE)/room_data.h 
 	$(CXX) -c $(CXXFLAGS) room_data.cc         -o $(OBJ)/room_data.o
-OBJFILES= $(OBJ)/creature.o $(OBJ)/creature_io.o $(OBJ)/creature_list.o $(OBJ)/obj_data.o $(OBJ)/player_table.o $(OBJ)/room_data.o
+OBJFILES= $(OBJ)/creature.o $(OBJ)/creature_io.o $(OBJ)/creature_list.o $(OBJ)/mobile_map.o $(OBJ)/obj_data.o $(OBJ)/object_map.o $(OBJ)/player_table.o $(OBJ)/room_data.o

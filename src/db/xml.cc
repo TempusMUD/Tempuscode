@@ -166,7 +166,7 @@ xml_reload( Creature *ch = NULL )
 void
 load_xml_object(xmlNodePtr node)
 {
-	struct obj_data *obj, *tmp_obj;
+	struct obj_data *obj;
 
 	CREATE(obj, struct obj_data, 1);
 	obj->clear();

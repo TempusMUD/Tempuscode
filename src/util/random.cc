@@ -218,6 +218,17 @@ random_number_zero_low(unsigned int num)
 }
 
 //
+// returns a random value of val +/- variance not < min or > max
+int
+rand_value(int val, int variance, int min, int max)
+{
+    if (min == -1 || val - variance > min)
+        min = val - variance;
+    if (max == -1 || val + variance < max)
+        max = val + variance;
+    return number(min, max);
+}
+//
 //
 //
 

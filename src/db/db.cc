@@ -120,7 +120,6 @@ struct room_data *r_zul_dane_start_room;
 struct room_data *r_zul_dane_newbie_start_room;
 struct room_data *r_newbie_school_start_room;
 
-
 struct zone_data *default_quad_zone = NULL;
 
 int *obj_index = NULL;			/* object index                  */
@@ -2392,6 +2391,14 @@ read_mobile(int vnum)
 	// unapproved mobs load without money or exp
 	if (MOB2_FLAGGED(mob, MOB2_UNAPPROVED))
 		GET_GOLD(mob) = GET_CASH(mob) = GET_EXP(mob) = 0;
+    else { // randomize mob gold and cash
+        if (GET_GOLD(mob) > 0)
+            GET_GOLD(mob) = rand_value(GET_GOLD(mob), 
+                                       (int)(GET_GOLD(mob) * 0.15), -1, -1);
+        if (GET_CASH(mob) > 0)
+            GET_CASH(mob) = rand_value(GET_CASH(mob), 
+                                       (int)(GET_CASH(mob) * 0.15), -1, -1);
+    }
 
 	return mob;
 }
@@ -2554,16 +2561,6 @@ create_obj(void)
 	object_list = obj;
 
 	return obj;
-}
-
-int
-rand_value(int val, int variance, int min, int max)
-{
-	if (min == -1 || val - variance > min)
-		min = val - variance;
-	if (max == -1 || val + variance < max)
-		max = val + variance;
-	return number(min, max);
 }
 
 void

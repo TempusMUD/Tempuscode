@@ -1095,6 +1095,8 @@ bool random_fractional_100();
 int random_percentage();
 // returns a random value between and including 0-99
 int random_percentage_zero_low();
+// return a random value of val +/- variance not < min or > max
+int rand_value(int val, int variance, int min, int max);
 // return a random value between 0 and num
 int random_number_zero_low(unsigned int num);
 // creates a random number in interval [from;to]'
