@@ -4963,12 +4963,12 @@ ACMD(do_set)
 	{ "ac", 		LVL_CREATOR, 	BOTH, 	NUMBER },
 	{ "gold",		LVL_CREATOR, 	BOTH, 	NUMBER },
 	{ "bank",		LVL_CREATOR, 	PC, 	NUMBER },  /* 20 */
-	{ "exp", 		LVL_IMPL, 	BOTH, 	NUMBER },
+	{ "exp", 		LVL_CREATOR, 	BOTH, 	NUMBER },
 	{ "hitroll", 	LVL_GRGOD, 	BOTH, 	NUMBER },
 	{ "damroll", 	LVL_GRGOD, 	BOTH, 	NUMBER },
 	{ "invis",		LVL_GRGOD, 	PC, 	NUMBER },
 	{ "nohassle", 	LVL_GRGOD, 	PC, 	BINARY },  /* 25 */
-	{ "frozen",		LVL_GRGOD, 	PC, 	BINARY },
+	{ "frozen",		LVL_TIMEGOD, 	PC, 	BINARY },
 	{ "practices", 	LVL_GRGOD, 	PC, 	NUMBER },
 	{ "lessons", 	LVL_GRGOD, 	PC, 	NUMBER },
 	{ "drunk",		LVL_CREATOR, 	BOTH, 	MISC },
@@ -4977,10 +4977,10 @@ ACMD(do_set)
 	{ "killer",		LVL_GRGOD, 	PC, 	BINARY },
 	{ "thief",		LVL_GRGOD, 	PC, 	BINARY },
 	{ "level",		LVL_CREATOR, 	BOTH, 	NUMBER },
-	{ "room",		LVL_ENTITY, 	BOTH, 	NUMBER },  /* 35 */
+	{ "room",		LVL_CREATOR, 	BOTH, 	NUMBER },  /* 35 */
 	{ "roomflag", 	LVL_CREATOR, 	PC, 	BINARY },
 	{ "siteok",		LVL_GRGOD, 	PC, 	BINARY },
-	{ "deleted", 	LVL_ENTITY, 	PC, 	BINARY },
+	{ "deleted", 	LVL_CREATOR, 	PC, 	BINARY },
 	{ "class",		LVL_GRGOD, 	BOTH, 	MISC },
 	{ "nowizlist", 	LVL_CREATOR, 	PC, 	BINARY },  /* 40 */
 	{ "quest",		LVL_GRGOD, 	PC, 	BINARY },
@@ -4990,7 +4990,7 @@ ACMD(do_set)
 	{ "passwd",		LVL_LUCIFER, 	  PC, 	MISC },    /* 45 */
 	{ "nodelete", 	LVL_GRGOD, 	  PC, 	BINARY },
 	{ "cha",		LVL_CREATOR, 	  BOTH, 	NUMBER },
-	{ "hometown",        LVL_GRGOD,        PC,     NUMBER },
+	{ "hometown",   LVL_GRGOD,        PC,     NUMBER },
 	{ "race",		LVL_GRGOD,        BOTH,     MISC },
 	{ "height",          LVL_CREATOR,      BOTH,   NUMBER },   /* 50 */
 	{ "weight",          LVL_GRGOD,        BOTH,   NUMBER },
@@ -5004,10 +5004,10 @@ ACMD(do_set)
 	{ "remort_class",	LVL_GRGOD, 	  BOTH, 	MISC },    
 	{ "hunting",         LVL_CREATOR,      NPC,    MISC },    /* 60 */
 	{ "fighting",        LVL_CREATOR,      BOTH,   MISC },
-	{ "mobkills",        LVL_IMPL,         PC,   NUMBER },
-	{ "pkills",          LVL_IMPL,         PC,   NUMBER },
+	{ "mobkills",        LVL_CREATOR,         PC,   NUMBER },
+	{ "pkills",          LVL_CREATOR,         PC,   NUMBER },
 	{ "newbiehelper",    LVL_ETERNAL,      PC,    BINARY },
-	{ "holylight", 	LVL_CREATOR,      PC, 	BINARY },  /* 65 */
+	{ "holylight",       LVL_CREATOR,      PC, 	BINARY },  /* 65 */
 	{ "notitle",         LVL_GRGOD,        PC,    BINARY },
 	{ "remortinvis",     LVL_IMMORT,       PC,   NUMBER },
 	{ "toughguy",        LVL_GRGOD,        PC,   BINARY },
@@ -5016,8 +5016,8 @@ ACMD(do_set)
 	{ "syslog",          LVL_CREATOR,      PC,   MISC },
 	{ "broken",          LVL_CREATOR,      PC,   NUMBER },
 	{ "totaldamage",     LVL_CREATOR,      PC,   NUMBER },
-	{ "oldchar_class",        LVL_CREATOR,      PC,   MISC },
-	{ "olcgod",          LVL_IMPL,         PC,   BINARY },   /* 75 */
+	{ "oldchar_class",   LVL_CREATOR,      PC,   MISC },
+	{ "olcgod",          LVL_CREATOR,      PC,   BINARY },   /* 75 */
 	{ "tester",          LVL_CREATOR,      PC,   BINARY },
 	{ "mortalized",      LVL_IMPL,         PC,   BINARY },
 	{ "noaffects",       LVL_CREATOR,      PC,   BINARY },
@@ -5039,7 +5039,7 @@ ACMD(do_set)
 	{ "qpoints",         LVL_GRGOD,        PC,   NUMBER },
 	{ "qpallow",         LVL_GRGOD,        PC,   NUMBER},   /*  95 */
 	{ "soulless",        LVL_GRGOD,        BOTH, BINARY }, 
-	{ "buried",			 LVL_CREATOR,	   PC,   BINARY },
+	{ "buried",			 LVL_GRGOD,	   PC,   BINARY },
 	{ "speed",			 LVL_GRGOD, 	   PC,   NUMBER },
 	{ "\n", 0, BOTH, MISC }
     };
