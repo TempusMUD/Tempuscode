@@ -125,9 +125,11 @@ show_char_class_skills(struct Creature *ch, int con, int immort, int bits)
 {
     int lvl, skl;
     bool found;
-    char *msg;
+    char *tmp;
 
-    msg = tmp_strcat("The ",
+	acc_string_clear();
+
+    acc_strcat("The ",
         pc_char_class_types[con],
         " class can learn the following ",
         IS_SET(bits, SPELL_BIT) ? "spells" :
@@ -137,10 +139,9 @@ show_char_class_skills(struct Creature *ch, int con, int immort, int bits)
         ":\r\n", NULL);
 
     if (GET_LEVEL(ch) < LVL_IMMORT)
-        msg = tmp_strcat(msg, "Lvl    Skill\r\n");
+        acc_strcat("Lvl    Skill\r\n", NULL);
     else
-        msg = tmp_strcat(msg,    
-            "Lvl  Number   Skill           Mana: Max  Min  Chn  Flags\r\n");
+        acc_strcat("Lvl  Number   Skill           Mana: Max  Min  Chn  Flags\r\n", NULL);
 
     for (lvl = 1; lvl < LVL_AMBASSADOR; lvl++) {
         found = false;
@@ -156,21 +157,20 @@ show_char_class_skills(struct Creature *ch, int con, int immort, int bits)
                 (immort || GET_REMORT_GEN(ch) >= spell_info[skl].gen[con])) {
 
                 if (!found)
-                    msg = tmp_sprintf("%s %-2d", msg, lvl);
+                    acc_sprintf(" %-2d", lvl);
                 else
-                    msg = tmp_strcat(msg, "   ");
+                    acc_strcat("   ", NULL);
 
                 if (GET_LEVEL(ch) < LVL_IMMORT)
-                    msg = tmp_strcat(msg, "    ");
+                    acc_strcat("    ", NULL);
                 else
-                    msg = tmp_sprintf("%s - %3d. ", msg, skl);
+                    acc_sprintf(" - %3d. ", skl);
 
                 if (spell_info[skl].gen[con]) {
                     // This is wasteful, but it looks a lot better to have
                     // the gen after the spell.  The trick is that we want it
                     // to be yellow, but printf doesn't recognize the existence
                     // of escape codes for purposes of padding.
-                    char *tmp;
                     int len;
 
                     tmp = tmp_sprintf("%s (gen %d)", spell_to_str(skl),
@@ -178,29 +178,29 @@ show_char_class_skills(struct Creature *ch, int con, int immort, int bits)
                     len = strlen(tmp);
                     if (len > 33)
                         len = 33;
-                    msg = tmp_sprintf("%s%s%s %s(gen %d)%s%s", msg,
+                    acc_sprintf("%s%s %s(gen %d)%s%s",
                         CCGRN(ch, C_NRM), spell_to_str(skl), CCYEL(ch, C_NRM),
                         spell_info[skl].gen[con], CCNRM(ch, C_NRM),
                         tmp_pad(' ', 33 - len));
                 } else {
-                    msg = tmp_sprintf("%s%s%-33s%s", msg,
+                    acc_sprintf("%s%-33s%s",
                         CCGRN(ch, C_NRM), spell_to_str(skl), CCNRM(ch, C_NRM));
                 }
 
                 if (GET_LEVEL(ch) >= LVL_IMMORT) {
                     sprintbit(spell_info[skl].routines, spell_bits, buf2);
-                    msg = tmp_sprintf("%s%3d  %3d  %2d   %s%s%s", msg,
+                    acc_sprintf("%3d  %3d  %2d   %s%s%s",
                         spell_info[skl].mana_max,
                         spell_info[skl].mana_min, spell_info[skl].mana_change,
                         CCCYN(ch, C_NRM), buf2, CCNRM(ch, C_NRM));
                 }
                 
-                msg = tmp_strcat(msg, "\r\n");
+                acc_strcat("\r\n", NULL);
                 found = true;
             }
         }
     }
-    page_string(ch->desc, msg);
+    page_string(ch->desc, acc_get_string());
 }
 
 void
@@ -209,12 +209,13 @@ list_residents_to_char(struct Creature *ch, int town)
     struct descriptor_data *d;
     byte found = 0;
 
+	acc_string_clear();
     if (town < 0) {
-        strcpy(buf, "       HOMETOWNS\r\n");
+        acc_strcat("       HOMETOWNS\r\n", NULL);
         for (d = descriptor_list; d; d = d->next) {
             if (!d->creature || !can_see_creature(ch, d->creature))
                 continue;
-            sprintf(buf, "%s%s%-20s%s -- %s%-30s%s\r\n", buf,
+            acc_sprintf("%s%s%-20s%s -- %s%-30s%s\r\n",
                 GET_LEVEL(d->creature) >= LVL_AMBASSADOR ? CCYEL(ch,
                     C_NRM) : "", GET_NAME(d->creature),
                 GET_LEVEL(d->creature) >= LVL_AMBASSADOR ? CCNRM(ch,
@@ -222,12 +223,12 @@ list_residents_to_char(struct Creature *ch, int town)
                 home_towns[(int)GET_HOME(d->creature)], CCNRM(ch, C_NRM));
         }
     } else {
-        sprintf(buf, "On-line residents of %s.\r\n", home_towns[town]);
+        acc_sprintf("On-line residents of %s.\r\n", home_towns[town]);
         for (d = descriptor_list; d; d = d->next) {
             if (!d->creature || !can_see_creature(ch, d->creature))
                 continue;
             if (GET_HOME(d->creature) == town) {
-                sprintf(buf, "%s%s%-20s%s\r\n", buf,
+                acc_sprintf("%s%s%-20s%s\r\n",
                     GET_LEVEL(d->creature) >= LVL_AMBASSADOR ? CCYEL(ch,
                         C_NRM) : "", GET_NAME(d->creature),
                     GET_LEVEL(d->creature) >= LVL_AMBASSADOR ? CCNRM(ch,
@@ -236,9 +237,9 @@ list_residents_to_char(struct Creature *ch, int town)
             }
         }
         if (!found)
-            strcat(buf, "None online.\r\n");
+            acc_strcat("None online.\r\n", NULL);
     }
-    page_string(ch->desc, buf);
+    page_string(ch->desc, acc_get_string());
     return;
 }
 
@@ -922,15 +923,16 @@ do_stat_trails(struct Creature *ch)
     time_t mytime, timediff;
 
     mytime = time(0);
-    sprintf(buf, "Trail data for room [%6d]:\r\n", ch->in_room->number);
+	acc_string_clear();
+    acc_sprintf(buf, "Trail data for room [%6d]:\r\n", ch->in_room->number);
 
     for (i = 0, trail = ch->in_room->trail; trail; trail = trail->next) {
         timediff = mytime - trail->time;
         sprintbit(trail->flags, trail_flags, buf2);
-        sprintf(buf, "%s [%2d] -- Name: '%s', (%s), Idnum: [%5d]\r\n"
+        acc_sprintf(" [%2d] -- Name: '%s', (%s), Idnum: [%5d]\r\n"
             "         Time Passed: %ld minutes, %ld seconds.\r\n"
             "         From dir: %s, To dir: %s, Track: [%2d]\r\n"
-            "         Flags: %s\r\n", buf,
+            "         Flags: %s\r\n",
             ++i, trail->name,
             get_char_in_world_by_idnum(trail->idnum) ? "in world" : "gone",
             trail->idnum, timediff / 60, timediff % 60,
@@ -939,7 +941,7 @@ do_stat_trails(struct Creature *ch)
             trail->track, buf2);
     }
 
-    page_string(ch->desc, buf);
+    page_string(ch->desc, acc_get_string());
 }
 
 void
