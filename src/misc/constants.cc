@@ -893,6 +893,7 @@ extern const char *preference2_bits[] = {
   "AUTOLOOT",
   "PK",
   "NOGECHO",
+  "NOWRAP",
   "\n"
 };
 

@@ -175,6 +175,7 @@ struct alias_data {
 #define SCMD_AUTOLOOT   45
 #define SCMD_PKILLER    46
 #define SCMD_NOGECHO	47
+#define SCMD_AUTOWRAP   48
 
 /* do_wizutil */
 #define SCMD_REROLL	0

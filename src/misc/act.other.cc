@@ -1053,7 +1053,9 @@ ACMD(do_gen_tog)
 	{"Pkiller OFF.\r\n",
 	 "Pkiller ON.\r\n" },
 	{"You open yourself to the echoing thoughts of the gods.\r\n",
-	 "You close your mind to the echoing thoughts of the gods.\r\n",},
+	 "You close your mind to the echoing thoughts of the gods.\r\n"},
+    {"TEDII will now wrap your text at 76 columns.\r\n",
+     "TEDII will not wrap your text at 76 colums next time.\r\n"},
 	{"\n","\n"}
     };
 
@@ -1258,6 +1260,9 @@ ACMD(do_gen_tog)
 
 	case SCMD_NOGECHO:
 	result = PRF2_TOG_CHK( ch, PRF2_NOGECHO );
+	break;
+	case SCMD_AUTOWRAP:
+	result = PRF2_TOG_CHK( ch, PRF2_NOWRAP );
 	break;
 
     default:

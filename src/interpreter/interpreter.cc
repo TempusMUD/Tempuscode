@@ -460,6 +460,7 @@ extern const struct command_info cmd_info[] = {
     { "autoprompt", POS_SLEEPING, do_gen_tog  , 0, SCMD_AUTOPROMPT },
     { "autopsy"  , POS_RESTING , do_autopsy  , 0, 0 },
     { "autosplit"  , POS_DEAD   , do_gen_tog  , 1, SCMD_AUTOSPLIT },
+    { "autowrap"   , POS_DEAD   , do_gen_tog  , LVL_IMMORT, SCMD_AUTOWRAP },
     { "affects"  , POS_SLEEPING, do_affects  , 0, 0 },
     { "afk"      , POS_SLEEPING, do_gen_tog  , 0, SCMD_AFK },
 

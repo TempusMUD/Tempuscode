@@ -354,7 +354,8 @@
 #define PRF2_AUTOLOOT      (1 << 16)
 #define PRF2_PKILLER       (1 << 17) // player can attack other players
 #define PRF2_NOGECHO       (1 << 18) // Silly Gecho things
-#define PRF2_DISPALIGN     (1 << 19 )
+#define PRF2_NOWRAP        (1 << 19) // turns off autowrap temporarily.
+#define PRF2_DISPALIGN     (1 << 20)
 
 
 /* Affect bits: used in char_data.char_specials.saved.affected_by */

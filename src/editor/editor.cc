@@ -70,6 +70,7 @@ void CTextEditor::Process( char *inStr ) {
         return;
     } else if (*inbuf == '@') {// Finish up
         SaveText(inbuf);
+        REMOVE_BIT(PRF2_FLAGS(desc->character),PRF2_NOWRAP);
         desc->text_editor = NULL;
         delete this;
         return;
@@ -445,6 +446,9 @@ bool CTextEditor::Wrap( void ) {
     string tempstr;
     int linebreak;
 
+    if(PRF2_FLAGGED(desc->character,PRF2_NOWRAP)) {
+        return false;
+    }
     for(line = theText.begin();line != theText.end();line++) {
         linebreak = 76;
         tempstr = "";
@@ -721,6 +725,7 @@ bool CTextEditor::ProcessCommand(char *inStr) {
             break;
         case 's':   // Save and Exit
             SaveText(inStr);
+            REMOVE_BIT(PRF2_FLAGS(desc->character),PRF2_NOWRAP);
             desc->text_editor=NULL;
             delete this;
             return true;
