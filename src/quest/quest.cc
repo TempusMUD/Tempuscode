@@ -80,7 +80,7 @@ const struct qcontrol_option {
 	"mload", "<mobile vnum> <vnum>", LVL_IMMORT}, {
 	"purge", "<quest vnum> <mobile name>", LVL_IMMORT},	// 20
 	{
-	"save", "", LVL_GRIMP }, {
+	"save", "", LVL_IMMORT }, {
 	"help", "<topic>", LVL_AMBASSADOR}, {
 	"switch", "<mobile name>", LVL_IMMORT}, {
 	"rename", "<obj name> <new obj name>", LVL_GRIMP}, {
