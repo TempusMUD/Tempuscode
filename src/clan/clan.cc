@@ -241,10 +241,15 @@ ACMD(do_resign)
 	struct clanmember_data *member = NULL;
 	char *msg;
 
+	skip_spaces(&argument);
+
 	if (IS_NPC(ch))
 		send_to_char(ch, "NPC's cannot resign...\r\n");
 	else if (!clan)
 		send_to_char(ch, "You need to be in a clan before you resign from it.\r\n");
+	else if (strcmp(argument, "yes"))
+		send_to_char(ch,
+			"You must type 'resign yes' to leave your clan.\r\n");
 	else {
 		send_to_char(ch, "You have resigned from clan %s.\r\n", clan->name);
 		msg = tmp_sprintf("%s has resigned from clan %s.", GET_NAME(ch),
