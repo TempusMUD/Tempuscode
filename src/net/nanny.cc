@@ -507,7 +507,7 @@ handle_input(struct descriptor_data *d)
 			if (GET_CLASS(d->creature) == CLASS_KNIGHT ||
 				GET_CLASS(d->creature) == CLASS_CLERIC) {
 				SEND_TO_Q(CCGRN(d->creature, C_NRM), d);
-				SEND_TO_Q("Characters of your character class must be either Good, or Evil.\r\n\r\n", d);
+				SEND_TO_Q("Characters of your character class must be either Good or Evil.\r\n\r\n", d);
 				break;
 			}
 			d->creature->char_specials.saved.alignment = 0;
