@@ -545,6 +545,8 @@ Account::initialize(const char *name, descriptor_data *d, int idnum)
 	_term_width = 80;
 	_bank_past = 0;
 	_bank_future = 0;
+	_quest_points = 0;
+	_quest_banned = false;
 
 	slog("new account: %s[%d] from %s", _name, idnum, d->host);
 	sql_exec("insert into accounts (idnum, name, creation_time, creation_addr, login_time, login_addr, ansi_level, compact_level, term_height, term_width, reputation, bank_past, bank_future) values (%d, '%s', now(), '%s', now(), '%s', 0, 0, %d, %d, 0, 0, 0)",
