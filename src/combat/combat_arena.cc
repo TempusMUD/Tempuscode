@@ -36,7 +36,6 @@ const struct ctypes  {
     char *combattype;
     int fee;
 } ctypes[] = {
-    {"Clan WAR!", 0},
     {"One on One", 0},
     {"Free for All",  0},
     {"\n", 0}
@@ -47,6 +46,7 @@ const char *combat_bits[] = {
     "Open",
     "Invite",
     "Draw",
+    "Ladder",
     "\n"
 };
 
@@ -335,6 +335,9 @@ do_ccontrol_create(CHAR *ch, char *argument, int com)
 
     GET_GOLD(ch) -= ctypes[type].fee;
     combat = create_combat(ch, type, argument);
+    if(!combat) {
+        return;
+    }
     combat->next = battles;
     battles = combat;
     
@@ -581,6 +584,7 @@ do_ccontrol_start(CHAR *ch) {
     int num = 0;
     int i = 0;
     struct combat_data *combat = NULL;
+    struct char_data *unapproved = NULL;
 
     num = char_in_combat_vnum(ch);
     combat = combat_by_vnum(num);
@@ -602,19 +606,22 @@ do_ccontrol_start(CHAR *ch) {
     }
 
    
-    for(i = 0; i<= combat->num_players; i++)
+    for(i = 0; i < combat->num_players; i++)
     {
         if(!combat->players[i].approved)
         {
-           send_to_char("Not all players have submitted their approval.\r\n", ch);
-           return;
+            unapproved = get_char_in_world_by_idnum(combat->players[i].idnum);
+                if(unapproved) {
+                    sprintf(buf, "%s has not submitted approval.\r\n", GET_NAME(unapproved));
+                    send_to_char(buf, ch);
+                    return;
+                }
+            continue;
         }
     }
 
     switch(combat->type) {
 
-    case CTYPE_CLANWAR:
-        break;
     case CTYPE_ONE_ONE:
         if(combat->num_players != 2) {
             send_to_char("You need two combatants for a one on one battle.\r\n", ch);
@@ -1244,10 +1251,7 @@ create_combat(CHAR *ch, int type, char *name)
     struct carena_data *dummy_arena = NULL;
 
     combat_data *combat = NULL;
-    if(type == CTYPE_CLANWAR) {
-        send_to_char("Clan War is not yet implemented.\r\n", ch);
-        return NULL;
-    }
+
     dummy_arena = create_arena(0, 0);       
     CREATE(combat, combat_data, 1);
 
@@ -1777,6 +1781,7 @@ remove_players(combat_data *combat)
         
         if ((ch2 = get_char_in_world_by_idnum(combat->players[i].idnum))) {
             REMOVE_BIT(PLR2_FLAGS(ch2), PLR2_COMBAT);
+            remove_player_from_list(combat, combat->players[i].idnum);
         }
     }
 
@@ -1802,6 +1807,7 @@ remove_player(CHAR* ch)
                 
                 if(ch2 == ch) {
                     REMOVE_BIT(PLR2_FLAGS(ch2), PLR2_COMBAT);
+                    remove_player_from_list(combat, combat->players[i].idnum);
                     combat->num_players--;
                 }
                 
@@ -2188,11 +2194,38 @@ clear_booty_rooms(void)
         count++;
     }
 
-}
-            
-            
-            
+}          
 
+// Removes a combat from the "battles" list
+void 
+remove_player_from_list(struct combat_data *combat, long idnum)
+{
+
+    struct cplayer_data *previous_player = NULL;
+    struct cplayer_data *the_player = NULL;
+
+
+    for(the_player = combat->players;;)
+    {
+        if(the_player == NULL) {
+            return;
+        }
+
+        if((the_player->idnum == idnum)) {
+            if(previous_player == NULL) {
+                combat->players = the_player->next;
+            }
+            else {
+                previous_player->next = the_player->next;
+            }
+        }
+        
+        previous_player = the_player;
+        the_player = the_player->next;
+    }
+    
+    return;
+}
 
 
 
