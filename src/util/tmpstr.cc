@@ -68,18 +68,20 @@ tmp_gc_strings(void)
 
 // Allocate a new string pool
 struct tmp_str_pool *
-tmp_alloc_pool(size_t size)
+tmp_alloc_pool(size_t size_req )
 {
 	struct tmp_str_pool *new_buf;
+	size_t size = MAX(size_req,DEFAULT_POOL_SIZE);
+	//if (size < DEFAULT_POOL_SIZE)
+	//	size = DEFAULT_POOL_SIZE;
 
-	fprintf(stderr, "NOTICE: tmpstr pool allocated (%d bytes)\n", size);
+	fprintf(stderr, "NOTICE: tmpstr pool allocated %d bytes for req of %d bytes\n", 
+			size, size_req );
 	fprintf(stderr, "        stack trace: 0x%lx 0x%lx 0x%lx\n",
 		(long)__builtin_return_address(0),
 		(long)__builtin_return_address(1),
 		(long)__builtin_return_address(2));
 
-	if (size < DEFAULT_POOL_SIZE)
-		size = DEFAULT_POOL_SIZE;
 	new_buf = (struct tmp_str_pool *)malloc(sizeof(struct tmp_str_pool) + size);
 	new_buf->next = NULL;
 	tmp_list_tail->next = new_buf;
