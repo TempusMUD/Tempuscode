@@ -686,7 +686,6 @@ ACMD(do_gen_comm)
 	char *imm_plain_emit, *imm_color_emit;
 	const char *str, *sub_channel_desc;
 	int eff_is_neutral, eff_is_good, eff_is_evil, eff_class, eff_clan;
-	bool is_admin;
 
 	chan = &channels[subcmd];
 
@@ -705,8 +704,6 @@ ACMD(do_gen_comm)
 		send_to_char(ch, chan->msg_noton);
 		return;
 	}
-
-	is_admin = Security::isMember(ch, "AdminBasic");
 
 	// These are all restrictions, to which immortals and npcs are uncaring
 	if (!IS_NPC(ch) && !IS_IMMORT(ch)) {
@@ -799,7 +796,7 @@ ACMD(do_gen_comm)
 	eff_class = GET_CLASS(ch);
 	eff_clan = GET_CLAN(ch);
 
-	if (subcmd == SCMD_GUILDSAY && is_admin && *argument == '>') {
+	if (subcmd == SCMD_GUILDSAY && Security::isMember(ch, "AdminBasic") && *argument == '>') {
 		char *class_str, *tmp_arg;
 
 		tmp_arg = argument + 1;
@@ -841,7 +838,7 @@ ACMD(do_gen_comm)
 	}
 
 	if (subcmd == SCMD_CLANSAY || subcmd == SCMD_CLANEMOTE) {
-		if (is_admin && *argument == '>') {
+		if (Security::isMember(ch, "AdminBasic") && *argument == '>') {
 			char *tmp_arg;
 
 			tmp_arg = argument + 1;
@@ -905,46 +902,45 @@ ACMD(do_gen_comm)
 
 	// Construct all the emits ahead of time.
 	if (chan->is_emote) {
+		if (*sub_channel_desc)
+			sub_channel_desc = tmp_strcat(sub_channel_desc, " ");
 		plain_emit = tmp_sprintf("%%s %s\r\n", argument);
 		color_emit = tmp_sprintf("%s%%s %s%s%s%s\r\n", chan->desc_color,
 			KNRM, chan->text_color, argument, KNRM);
-		imm_plain_emit = tmp_sprintf("%s%s%%s %s\r\n", sub_channel_desc,
-			(*sub_channel_desc) ? " ":"", argument);
-		imm_color_emit = tmp_sprintf("%s%s%s%%s%s%s %s%s\r\n",
-			chan->desc_color, sub_channel_desc, (*sub_channel_desc) ? " ":"",
-			KNRM, chan->text_color,
+		imm_plain_emit = tmp_sprintf("%s%%s %s\r\n", sub_channel_desc,
+			argument);
+		imm_color_emit = tmp_sprintf("%s%s%%s%s%s %s%s\r\n",
+			chan->desc_color, sub_channel_desc, KNRM, chan->text_color,
 			argument, KNRM);
 		if (COLOR_LEV(ch) >= C_NRM)
-			send_to_char(ch, "%s%s%s%s%s %s%s%s\r\n", chan->desc_color,
+			send_to_char(ch, "%s%s%s%s %s%s%s\r\n", chan->desc_color,
 				(IS_IMMORT(ch) ? sub_channel_desc:""),
-				(IS_IMMORT(ch) ? " ":""),
 				GET_NAME(ch),
 				KNRM, chan->text_color, argument, KNRM);
 		else
-			send_to_char(ch, "%s%s%s %s\r\n",
+			send_to_char(ch, "%s%s %s\r\n",
 				(IS_IMMORT(ch) ? sub_channel_desc:""),
-				(IS_IMMORT(ch) ? " ":""),
 				GET_NAME(ch),
 				argument);
 	} else {
+		if (*sub_channel_desc)
+			sub_channel_desc = tmp_strcat(" ", sub_channel_desc);
 		plain_emit = tmp_sprintf("%%s %ss, '%s'\r\n", chan->name, argument);
 		color_emit = tmp_sprintf("%s%%s %ss,%s%s '%s'%s\r\n", chan->desc_color,
 			chan->name, KNRM, chan->text_color, argument, KNRM);
-		imm_plain_emit = tmp_sprintf("%%s %ss%s%s, '%s'\r\n", chan->name,
-			(*sub_channel_desc) ? " ":"", sub_channel_desc, argument);
-		imm_color_emit = tmp_sprintf("%s%%s %ss%s%s,%s%s '%s'%s\r\n",
-			chan->desc_color, chan->name, (*sub_channel_desc) ? " ":"",
-			sub_channel_desc, KNRM, chan->text_color, argument, KNRM);
+		imm_plain_emit = tmp_sprintf("%%s %ss%s, '%s'\r\n", chan->name,
+			sub_channel_desc, argument);
+		imm_color_emit = tmp_sprintf("%s%%s %ss%s,%s%s '%s'%s\r\n",
+			chan->desc_color, chan->name, sub_channel_desc, KNRM,
+			chan->text_color, argument, KNRM);
 		if (COLOR_LEV(ch) >= C_NRM)
-			send_to_char(ch, "%sYou %s%s%s,%s%s '%s'%s\r\n", chan->desc_color,
+			send_to_char(ch, "%sYou %s%s,%s%s '%s'%s\r\n", chan->desc_color,
 				chan->name,
-				(IS_IMMORT(ch) ? " ":""),
 				(IS_IMMORT(ch) ? sub_channel_desc:""),
 				KNRM,
 				chan->text_color, argument, KNRM);
 		else
-			send_to_char(ch, "You %s%s%s, '%s'\r\n", chan->name,
-				(IS_IMMORT(ch) ? " ":""),
+			send_to_char(ch, "You %s%s, '%s'\r\n", chan->name,
 				(IS_IMMORT(ch) ? sub_channel_desc:""),
 				argument);
 	}
