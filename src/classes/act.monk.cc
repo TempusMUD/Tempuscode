@@ -386,7 +386,7 @@ ACMD(do_combo)
             }
         }
         if ( !IS_SET( retval, DAM_ATTACKER_KILLED ) )
-            WAIT_STATE(ch, (4 + count) RL_SEC);
+            WAIT_STATE(ch, (1 + count) RL_SEC);
     }
 }
 
