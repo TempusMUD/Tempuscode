@@ -1808,24 +1808,41 @@ damage(struct Creature *ch, struct Creature *victim, int dam,
 				if (ROOM_FLAGGED(victim->in_room, ROOM_ARENA)) {
 					arena = true;
 				}
-				// Killed someone else
+
+				// Log the death
 				if (victim != ch) {
-					sprintf(buf2, "%s %skilled by %s at %s (%d)%s",
-						GET_NAME(victim), !IS_NPC(ch) ? "p" : "", GET_NAME(ch),
-						victim->in_room->name, victim->in_room->number,
-						affected_by_spell(ch, SPELL_QUAD_DAMAGE) ? "QUAD":"");
+					char *room_str;
+
+					if (victim->in_room)
+						room_str = tmp_sprintf("in room #%d (%s)",
+							victim->in_room->number, victim->in_room->name);
+					else
+						room_str = "in NULL room!";
+					if (IS_NPC(ch)) {
+						sprintf(buf2, "%s killed by %s %s%s",
+							GET_NAME(victim), GET_NAME(ch),
+							affected_by_spell(ch, SPELL_QUAD_DAMAGE) ? "(quad)":"",
+							room_str);
+					} else {
+						sprintf(buf2, "%s(%d:%d) pkilled by %s(%d:%d) %s%s",
+							GET_NAME(victim), GET_LEVEL(victim),
+							GET_REMORT_GEN(victim),
+							GET_NAME(ch), GET_LEVEL(ch), GET_REMORT_GEN(ch),
+							affected_by_spell(ch, SPELL_QUAD_DAMAGE) ? "(quad)":"",
+							room_str);
+					}
 
 					// If it's not arena, give em a pkill
-					if (!arena) {
+					if (!arena)
 						GET_PKILLS(ch) += 1;
-					}
+
 				} else {
-					sprintf(buf2, "%s died%s%s at %s (%d)", GET_NAME(ch),
+					sprintf(buf2, "%s died%s%s in room #%d (%s)", GET_NAME(ch),
 						(attacktype <= TOP_NPC_SPELL) ? " by " : "",
-						(attacktype <=
-							TOP_NPC_SPELL) ? spell_to_str(attacktype) : "",
-						ch->in_room->name, ch->in_room->number);
+						(attacktype <= TOP_NPC_SPELL) ? spell_to_str(attacktype) : "",
+						ch->in_room->number, ch->in_room->name);
 				}
+
 				// If it's arena, log it for complete only
 				// and tag it
 				if (arena) {
@@ -1852,13 +1869,13 @@ damage(struct Creature *ch, struct Creature *victim, int dam,
 
 		if (!IS_NPC(victim)) {
 			mudlog(LVL_AMBASSADOR, BRF, true,
-				"%s killed by NULL-char ( type %d ( %s ) ) at %d.",
+				"%s killed by NULL-char (type %d [%s]) in room #%d (%s)",
 				GET_NAME(victim), attacktype,
 				(attacktype > 0 && attacktype < TOP_NPC_SPELL) ?
 				spell_to_str(attacktype) :
 				(attacktype >= TYPE_HIT && attacktype <= TOP_ATTACKTYPE) ?
 				attack_type[attacktype - TYPE_HIT] : "bunk",
-				victim->in_room->number);
+				victim->in_room->number, victim->in_room->name);
 		}
 		die(victim, NULL, attacktype, is_humil);
 		DAM_RETURN(DAM_VICT_KILLED);
