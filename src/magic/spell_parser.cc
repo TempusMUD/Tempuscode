@@ -1512,7 +1512,7 @@ cast_spell(struct char_data * ch, struct char_data * tch,
     if( ch != NULL && GET_LEVEL(ch) < LVL_AMBASSADOR && AFF3_FLAGGED(ch, AFF3_TAINTED) ) { 
         struct affected_type *af;
         int mana = mag_manacost(ch, spellnum);
-        int dam = dice( mana ,10 );
+        int dam = dice( mana ,14 );
         bool weenie = false;
 
         // Grab the affect for affect level
