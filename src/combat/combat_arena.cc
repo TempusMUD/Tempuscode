@@ -1423,7 +1423,7 @@ find_combat_type(char *argument)
 void
 list_combat_players(CHAR *ch, combat_data *combat, char *outbuf)
 {
-    char buf[MAX_INPUT_LENGTH],name[128];
+    char buf[MAX_STRING_LENGTH],name[1024];
     int i, num_online, num_offline;
     CHAR *vict = NULL;
 
@@ -2177,8 +2177,6 @@ clear_booty_rooms(void)
         if(rm && holding) {
             for (obj = rm->contents; obj; obj = next_o) {
                 next_o = obj->next_content;
-                sprintf(buf, "%d", counter);
-                slog(buf);
                 obj_from_room(obj);  
                 obj_to_room(obj, holding);
                 counter++;
