@@ -99,10 +99,17 @@ valid_class_race(Creature *ch, int char_class, bool remort)
 
 	if (char_class == GET_CLASS(ch))
 		return false;
-
-	for (i = 0;i < NUM_PC_RACES;i++)
-		if (race_restr[i][0] == GET_RACE(ch))
-			return (race_restr[i][GET_CLASS(ch) + 1] != 0);
+    
+    // restrict any invalid classes
+    if( char_class > NUM_CLASSES )
+        return false;
+    
+	for (i = 0;i < NUM_PC_RACES;i++) {
+		if (race_restr[i][0] == GET_RACE(ch)) {
+            return ( race_restr[i][char_class + 1] == 2 ) ||
+                   ( race_restr[i][char_class + 1] == 1 && remort );
+        }
+    }
 
 	return false;
 }
@@ -153,7 +160,6 @@ show_char_class_menu(struct descriptor_data *d, bool remort)
 			GET_CLASS(ch) != CLASS_KNIGHT && GET_CLASS(ch) != CLASS_CLERIC)
 		right_col = tmp_strcat(right_col,
 			"&gMonk&n\r\n    Philosophical Warrior\r\n");
-
 	do {
 		left_line = tmp_getline(&left_col);
 		if (!left_line)
