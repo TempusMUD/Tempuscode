@@ -4377,7 +4377,7 @@ show_rooms_in_zone(Creature *ch, zone_data *zone, int pos, int mode, char *args)
 			for (room = zone->world; room; room = room->next) {
 				match = true;
 				for (str_it = str_list.begin(); str_it != str_list.end(); str_it++)
-					if (!isname(str_it->c_str(), room->name))
+					if (room->name && !isname(str_it->c_str(), room->name))
 						match = false;
 				
 				if (match) {
