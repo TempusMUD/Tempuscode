@@ -340,18 +340,26 @@ sprintbit(long vektor, const char *names[], char *result)
 
 
 
-void
-sprinttype(int type, const char *names[], char *result)
+const char *
+strlist_aref(int idx, const char *names[])
 {
 	int nr;
 
-	for (nr = 0; (*names[nr] != '\n'); nr++);
-	if (type < nr && type >= 0)
-		strcpy(result, names[type]);
-	else
-		strcpy(result, "UNDEFINED");
+	if (idx < 0)
+		return "ILLEGAL";
+
+	for (nr = 0;*names[nr] != '\n';nr++)
+		if (idx == nr)
+			return names[idx];
+	
+	return "UNDEFINED";
 }
 
+void
+sprinttype(int type, const char *names[], char *result)
+{
+	strcpy(result, strlist_aref(type, names));
+}
 
 /* Calculate the REAL time passed over the last t2-t1 centuries (secs) */
 struct time_info_data
