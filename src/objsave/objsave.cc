@@ -543,7 +543,7 @@ Crash_load( struct char_data * ch )
 		num_of_days = ( float ) ( time( 0 ) - rent.time ) / SECS_PER_REAL_DAY;
 		cost = ( int ) ( rent.net_cost_per_diem * num_of_days );
         if(rent.rentcode == RENT_FORCED || rent.rentcode == RENT_TIMEDOUT)
-            cost *= 2;
+            cost *= 3;
 
 		// immortals dont have to pay rent
 		if ( GET_LEVEL( ch ) < LVL_IMMORT ) {
@@ -596,7 +596,7 @@ Crash_load( struct char_data * ch )
 	break;
     case RENT_FORCED:
     case RENT_TIMEDOUT:
-        sprintf(buf,"%sWARNING:%s Failure to rent before disconnecting has doubled your rent.\r\n",CCRED(ch,C_NRM),CCNRM(ch,C_NRM));
+        sprintf(buf,"%sWARNING:%s Failure to rent before disconnecting has tripled your rent.\r\n",CCRED(ch,C_NRM),CCNRM(ch,C_NRM));
         sprintf( buf, "%s retrieving force-saved items and entering game.", GET_NAME( ch ) );
 	break;
     default:
