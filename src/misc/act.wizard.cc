@@ -2622,16 +2622,26 @@ ACMD(do_restore)
 void 
 perform_immort_vis(struct char_data *ch)
 {
+    struct char_data *tch;
+	int old_level = 0;
 
     if (GET_INVIS_LEV(ch) == 0 && !IS_AFFECTED(ch, AFF_HIDE | AFF_INVISIBLE)) {
 	send_to_char("You are already fully visible.\r\n", ch);
 	return;
     }
-   
+   	old_level = GET_INVIS_LEV(ch);
     GET_INVIS_LEV(ch) = 0;
     GET_REMORT_INVIS(ch) = 0;
     //appear(ch);
     send_to_char("You are now fully visible.\r\n", ch);
+
+    for (tch = ch->in_room->people; tch; tch = tch->next_in_room) {
+		if (tch == ch)
+			continue;
+		if (GET_LEVEL(tch) < old_level)
+			act("You suddenly realize that $n is standing beside you.", FALSE, ch, 0,
+				tch, TO_VICT);
+	}
 }
 
 
@@ -2639,22 +2649,27 @@ void
 perform_immort_invis(struct char_data *ch, int level)
 {
     struct char_data *tch;
+	int old_level = 0;
 
     if (IS_NPC(ch))
 	return;
+	
+	old_level = GET_INVIS_LEV(ch);
+	if (old_level > level)
+		GET_INVIS_LEV(ch) = level;
 
     for (tch = ch->in_room->people; tch; tch = tch->next_in_room) {
-	if (tch == ch)
-	    continue;
-	if (GET_LEVEL(tch) >= GET_INVIS_LEV(ch) && GET_LEVEL(tch) < level)
-	    act("You blink and suddenly realize that $n is gone.", FALSE, ch, 0,
-		tch, TO_VICT);
-	if (GET_LEVEL(tch) < GET_INVIS_LEV(ch) && GET_LEVEL(tch) >= level)
-	    act("You suddenly realize that $n is standing beside you.", FALSE, ch, 0,
-		tch, TO_VICT);
+		if (tch == ch)
+			continue;
+		if (GET_LEVEL(tch) >= old_level && GET_LEVEL(tch) < level)
+			act("You blink and suddenly realize that $n is gone.", FALSE, ch, 0,
+			tch, TO_VICT);
+		if (GET_LEVEL(tch) < old_level && GET_LEVEL(tch) >= level)
+			act("you suddenly realize that $n is standing beside you.", false, ch, 0,
+			tch, TO_VICT);
     }
-
-    GET_INVIS_LEV(ch) = level;
+	if(old_level <= level)
+		GET_INVIS_LEV(ch) = level;
 
     // check for remort invis
     if (GET_REMORT_INVIS(ch))
