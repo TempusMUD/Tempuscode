@@ -699,7 +699,7 @@ ACMD(do_gen_comm)
 	}
 	/* level_can_shout defined in config.c */
 	if (!IS_NPC(ch) && GET_LEVEL(ch) < level_can_shout
-		&& subcmd != SCMD_NEWBIE) {
+		&& subcmd != SCMD_NEWBIE && GET_REMORT_GEN(ch) <= 0 ) {
 		send_to_char(ch, "You must be at least level %d before you can %s.\r\n",
 			level_can_shout, com_msgs[subcmd][1]);
 		send_to_char(ch, "Try using the newbie channel instead.\r\n");
