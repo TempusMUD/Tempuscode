@@ -3164,6 +3164,13 @@ mag_alter_objs(int level, struct Creature *ch, struct obj_data *obj,
 
 
     case SPELL_ATTRACTION_FIELD: {
+        {
+            tmp_obj_affect *af = obj->affectedBySpell(SPELL_ITEM_REPULSION_FIELD);
+            if( af != NULL ) {
+                act(item_wear_off_msg[af->type], FALSE, ch, obj, NULL, TO_CHAR);
+                obj->removeAffect( af );
+            }
+        } 
         if (obj->affectedBySpell(SPELL_ITEM_ATTRACTION_FIELD)) {
             to_char = "$p already has an attraction field!";
             break;
@@ -3194,7 +3201,14 @@ mag_alter_objs(int level, struct Creature *ch, struct obj_data *obj,
         to_char = "$p begins to emit an attraction field.";
         break;
     }
-    case SPELL_REPULSION_FIELD:
+    case SPELL_REPULSION_FIELD: 
+        {
+            tmp_obj_affect *af = obj->affectedBySpell(SPELL_ITEM_ATTRACTION_FIELD);
+            if( af != NULL ) {
+                act(item_wear_off_msg[af->type], FALSE, ch, obj, NULL, TO_CHAR);
+                obj->removeAffect( af );
+            }
+        } 
         if (obj->affectedBySpell(SPELL_ITEM_REPULSION_FIELD)) {
             to_char = "$p already has an repulsion field!";
             break;
