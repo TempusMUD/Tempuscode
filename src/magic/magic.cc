@@ -136,6 +136,13 @@ mag_savingthrow(struct char_data * ch, int level, int type)
 {
     int save;
 
+    if(GET_LEVEL(ch) > LVL_GOD) {
+        return 1;
+    }
+    // If its > 100 its obviously a search and doesnt need to be saveable.
+    if(level > 100) {
+        return 0;
+    }
     if (type == SAVING_NONE)
 	return 0;
 
