@@ -1000,11 +1000,11 @@ damage(struct Creature *ch, struct Creature *victim, int dam,
         if (!SPELL_IS_PSIONIC(attacktype) &&
             CHECK_SKILL(victim, SKILL_UNCANNY_DODGE) > 20 &&
             victim->getLevelBonus(SKILL_UNCANNY_DODGE) > number(0, 350)) {
-            act("$N smirks as $e easily sidesteps your attack!", true,
+            act("$N smirks as $E easily sidesteps your attack!", true,
                 ch, NULL, victim, TO_CHAR);
             act("You smirk as you easily sidestep $n's attack!", true,
                 ch, NULL, victim, TO_VICT);
-            act("$N smirks as $e easily sidesteps $n's attack!", true,
+            act("$N smirks as $E easily sidesteps $n's attack!", true,
                 ch, NULL, victim, TO_NOTVICT);
             
             return 0;
