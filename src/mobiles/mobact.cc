@@ -3321,9 +3321,11 @@ mobile_battle_activity(struct Creature *ch, struct Creature *precious_vict)
 		if (GET_CLASS(ch) == CLASS_GHOUL) {
 			if (random_fractional_10())
 				act(" $n emits a terrible shriek!!", FALSE, ch, 0, 0, TO_ROOM);
-			else if (random_fractional_5())
+			else if (random_fractional_5()) {
 				call_magic(ch, vict, 0, NULL, SPELL_CHILL_TOUCH, GET_LEVEL(ch),
-					CAST_SPELL);
+					CAST_SPELL, &return_flags);
+                    return return_flags;
+            }
 		}
 	}
 
