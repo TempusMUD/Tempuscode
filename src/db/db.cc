@@ -3485,9 +3485,10 @@ sql_exec(const char *str, ...)
 	}
 	result = PQresultStatus(res) == PGRES_COMMAND_OK;
 	if (!result) {
-		slog("WARNING: sql expression generated error: %s",
+		slog("FATAL: sql command generated error: %s",
 			PQresultErrorMessage(res));
 		slog("FROM SQL: %s", query);
+		raise(SIGSEGV);
 	}
 	PQclear(res);
 	return result;
@@ -3513,6 +3514,11 @@ sql_query(const char *str, ...)
 		safe_exit(1);
 	}
 
+	if (PQresultStatus(res) != PGRES_TUPLES_OK) {
+		slog("WARNING: sql expression generated error: %s",
+			PQresultErrorMessage(res));
+		slog("FROM SQL: %s", query);
+	}
 	return res;
 }
 #undef __db_c__
