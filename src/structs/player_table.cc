@@ -235,7 +235,7 @@ bool NameEntry::operator==(long id) const {
     return second == id; 
 }
 bool NameEntry::operator==(const char *name) const { 
-    return !strcasecmp(first,name) == 0; 
+    return strcasecmp(first,name) == 0; 
 }
 bool NameEntry::operator==(NameEntry &e) const { 
     return first == e.first; 
