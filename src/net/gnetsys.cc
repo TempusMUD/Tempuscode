@@ -252,6 +252,11 @@ handle_network(descriptor_data *d,char *arg) {
 		perform_net_write(d, arg);
 	} else if ( is_abbrev( arg1,"wall" ) ) {
 		perform_net_wall(d, arg);
+	} else if ( is_abbrev( arg1,"more" ) ) {
+		if (d->showstr_head)
+			show_string(d);
+		else
+			SEND_TO_Q("Error: Resource not available", d);
 	} else if ( *arg1 == '@' || is_abbrev( arg1,"exit" ) || is_abbrev(arg1, "logout") ) {
 		sprintf(buf, "User %s disconnecting from net.", GET_NAME(d->character));
 		slog(buf);

@@ -47,6 +47,7 @@
 #include "vehicle.h"
 #include "help.h"
 #include "desc_data.h"
+#include "tmpstr.h"
 
 /* externs */
 extern HelpCollection *Help;
@@ -152,6 +153,8 @@ main(int argc, char **argv)
 
 	port = DFLT_PORT;
 	dir = DFLT_DIR;
+
+	tmp_string_init();
 
 	while ((pos < argc) && (*(argv[pos]) == '-')) {
 		switch (*(argv[pos] + 1)) {
@@ -269,7 +272,6 @@ init_game(int port)
 	void my_srand(unsigned long initial_seed);
 
 	my_srand(time(0));
-
 	boot_db();
 
 	slog("Opening mother connection.");
@@ -742,6 +744,7 @@ game_loop(int mother_desc)
 			}
 		}
 		tics++;					/* tics since last checkpoint signal */
+		tmp_gc_strings();
 	}							/* while (!circle_shutdown) */
 	/*  mem_cleanup(); */
 }
@@ -1561,19 +1564,19 @@ signal_setup(void)
 void
 send_to_char(struct char_data *ch, const char *str, ...)
 {
-	static char msg_buf[MAX_STRING_LENGTH];
+	char *msg_str;
 	va_list args;
 
 	if (!ch->desc || !str || !*str)
 		return;
 
 	va_start(args, str);
-	vsnprintf(msg_buf, MAX_STRING_LENGTH, str, args);
+	msg_str = tmp_vsprintf(str, args);
 	va_end(args);
 
 	// Everything gets capitalized
-	msg_buf[0] = toupper(msg_buf[0]);
-	SEND_TO_Q(msg_buf, ch->desc);
+	msg_str[0] = toupper(msg_str[0]);
+	SEND_TO_Q(msg_str, ch->desc);
 }
 
 void

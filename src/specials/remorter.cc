@@ -148,11 +148,10 @@ SPECIAL(remorter)
 		if (value < level * 5000000) {
 			send_to_char(ch, 
 				"You do not have sufficient sacrifice to do this.\r\n");
-			sprintf(buf,
+			send_to_char(ch,
 				"The required sacrifice must be worth %d coins.\r\n"
 				"You have only brought a %d coin value.\r\n", level * 5000000,
 				value);
-			send_to_char(ch, "%s", buf);
 			return 1;
 		}
 
@@ -196,11 +195,11 @@ SPECIAL(remorter)
 
 	argument = one_argument(argument, arg1);
 	if (quiz.makeGuess(ch, arg1)) {
-		sprintf(buf, "%s%sThat is correct.%s\r\n", CCBLD(ch, C_NRM), CCBLU(ch,
-				C_NRM), CCNRM(ch, C_NRM));
+		send_to_char(ch, "%s%sThat is correct.%s\r\n",
+			CCBLD(ch, C_NRM), CCBLU(ch, C_NRM), CCNRM(ch, C_NRM));
 	} else {
-		send_to_char(ch, "%sThat is incorrect.%s\r\n", CCRED(ch, C_NRM), CCNRM(ch,
-				C_NRM));
+		send_to_char(ch, "%sThat is incorrect.%s\r\n",
+			CCRED(ch, C_NRM), CCNRM(ch, C_NRM));
 	}
 
 	if (!quiz.isComplete()) {

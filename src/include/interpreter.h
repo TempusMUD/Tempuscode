@@ -1,5 +1,7 @@
 #ifndef TEMPUSMUD_INTERPRETER_H
 #define TEMPUSMUD_INTERPRETER_H
+
+#include "defs.h"
 /* ************************************************************************
 *   File: interpreter.h                                 Part of CircleMUD *
 *  Usage: header file: public procs, macro defs, subcommand defines       *

@@ -48,6 +48,7 @@ using namespace std;
 #include "fight.h"
 #include "defs.h"
 #include "tokenizer.h"
+#include "tmpstr.h"
 
 
 /*   external vars  */
@@ -3717,6 +3718,8 @@ do_show_stats(struct char_data *ch)
 	sprintf(buf, "%s  %5d large bufs\r\n", buf, buf_largecount);
 	sprintf(buf, "%s  %5d buf switches     %5d overflows\r\n", buf,
 		buf_switches, buf_overflows);
+	sprintf(buf, "%s  %5d tmp alloc        %5d tmpstr used\r\n", buf,
+		tmp_storage_space(), tmp_storage_used());
 	sprintf(buf, "%s  Lunar stage: %2d, phase: %s (%d)\r\n", buf,
 		lunar_stage, lunar_phases[lunar_phase], lunar_phase);
 	if (quest_status)

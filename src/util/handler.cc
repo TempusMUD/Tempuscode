@@ -1306,10 +1306,8 @@ unequip_char(struct char_data *ch, int pos, int internal, bool disable_checks = 
 	}
 
 	if ((!internal && !GET_EQ(ch, pos)) || (internal && !GET_IMPLANT(ch, pos))) {
-		sprintf(buf,
-			"SYSERR: %s pointer NULL at pos %d in unequip_char.",
+		slog("SYSERR: %s pointer NULL at pos %d in unequip_char.",
 			internal ? "implant" : "eq", pos);
-		slog(buf);
 		return NULL;
 	}
 

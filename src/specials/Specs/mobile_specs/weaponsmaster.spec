@@ -11,7 +11,7 @@ SPECIAL(weaponsmaster)
 	struct obj_data *weap = NULL;
 	int pos, cost, i, char_class, check_only = 0;
 
-    if (spec_mode != SPECIAL_CMD && spec_mode != SPECIAL_TICK) return FALSE;
+    if (spec_mode != SPECIAL_CMD) return FALSE;
 
 	if (IS_NPC(ch))
 		return 0;

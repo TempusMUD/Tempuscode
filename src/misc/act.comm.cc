@@ -31,6 +31,7 @@
 #include "screen.h"
 #include "rpl_resp.h"
 #include "character_list.h"
+#include "tmpstr.h"
 
 /* extern variables */
 extern struct room_data *world;
@@ -263,29 +264,29 @@ ACMD(do_gsay)
 void
 perform_tell(struct char_data *ch, struct char_data *vict, char *arg)
 {
-	char tell_buf[4098];
+	char *str;
 
 	if (PRF_FLAGGED(ch, PRF_NOREPEAT))
 		send_to_char(ch, OK);
 	else {
-		sprintf(tell_buf, "%sYou tell $N,%s '%s'",
+		str = tmp_sprintf("%sYou tell $N,%s '%s'",
 			CCRED(ch, C_NRM), CCNRM(ch, C_NRM), arg);
-		act(tell_buf, FALSE, ch, 0, vict, TO_CHAR | TO_SLEEP);
+		act(str, FALSE, ch, 0, vict, TO_CHAR | TO_SLEEP);
 	}
 
 	delete_doubledollar(arg);
 
 	if (!IS_NPC(vict)) {
-		strcpy(tell_buf, PERS(ch, vict));
-		tell_buf[0] = toupper(tell_buf[0]);
+		str = strcat(PERS(ch, vict), NULL);
+		str[0] = toupper(str[0]);
 		send_to_char(vict, "%s%s tells you,%s '%s'\r\n",
 			CCRED(vict, C_NRM),
-			tell_buf,
+			str,
 			CCNRM(vict, C_NRM),
 			arg);
 	} else {
-		sprintf(tell_buf, "$n tells you, '%s'", arg);
-		act(tell_buf, FALSE, ch, 0, vict, TO_VICT | TO_SLEEP);
+		str = tmp_sprintf("$n tells you, '%s'", arg);
+		act(str, FALSE, ch, 0, vict, TO_VICT | TO_SLEEP);
 	}
 	if (PRF2_FLAGGED(vict, PRF2_AUTOPAGE) && !IS_MOB(ch))
 		send_to_char(vict, "\007\007");

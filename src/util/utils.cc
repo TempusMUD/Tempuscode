@@ -36,6 +36,7 @@
 #include "security.h"
 #include "db.h"
 #include "char_class.h"
+#include "tmpstr.h"
 
 extern struct follow_type *order_next_k;
 char ANSI[20];
@@ -214,16 +215,16 @@ slog(char *str, ...)
 {
 	va_list args;
 	time_t ct;
-	char *tmstr;
-	char buf[1024];
+	char *tm_str;
+	const char *msg_str;
 
 	ct = time(0);
-	tmstr = asctime(localtime(&ct));
-	*(tmstr + strlen(tmstr) - 1) = '\0';
+	tm_str = asctime(localtime(&ct));
+	*(tm_str + strlen(tm_str) - 1) = '\0';
 	va_start(args, str);
-	vsnprintf(buf, 1023, str, args);
+	msg_str = tmp_vsprintf(str, args);
 	va_end(args);
-	fprintf(stderr, "%-19.19s :: %s\n", tmstr, buf);
+	fprintf(stderr, "%-19.19s :: %s\n", tm_str, msg_str);
 }
 
 

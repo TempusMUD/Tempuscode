@@ -10,7 +10,10 @@ $(OBJ)/modify.o : modify.cc \
 $(OBJ)/random.o : random.cc \
 
 	$(CXX) -c $(CXXFLAGS) random.cc            -o $(OBJ)/random.o
+$(OBJ)/tmpstr.o : tmpstr.cc \
+	$(INCLUDE)/interpreter.h 
+	$(CXX) -c $(CXXFLAGS) tmpstr.cc            -o $(OBJ)/tmpstr.o
 $(OBJ)/utils.o : utils.cc \
-	$(INCLUDE)/structs.h $(INCLUDE)/utils.h $(INCLUDE)/comm.h $(INCLUDE)/screen.h $(INCLUDE)/spells.h $(INCLUDE)/handler.h $(INCLUDE)/interpreter.h $(INCLUDE)/security.h $(INCLUDE)/db.h $(INCLUDE)/char_class.h 
+	$(INCLUDE)/structs.h $(INCLUDE)/utils.h $(INCLUDE)/comm.h $(INCLUDE)/screen.h $(INCLUDE)/spells.h $(INCLUDE)/handler.h $(INCLUDE)/interpreter.h $(INCLUDE)/security.h $(INCLUDE)/db.h $(INCLUDE)/char_class.h $(INCLUDE)/tmpstr.h 
 	$(CXX) -c $(CXXFLAGS) utils.cc             -o $(OBJ)/utils.o
-OBJFILES= $(OBJ)/graph.o $(OBJ)/handler.o $(OBJ)/modify.o $(OBJ)/random.o $(OBJ)/utils.o
+OBJFILES= $(OBJ)/graph.o $(OBJ)/handler.o $(OBJ)/modify.o $(OBJ)/random.o $(OBJ)/tmpstr.o $(OBJ)/utils.o

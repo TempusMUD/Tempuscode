@@ -1286,7 +1286,7 @@ gen_receptionist(struct char_data *ch, struct char_data *recep,
 
 SPECIAL(receptionist)
 {
-	if (spec_mode == SPECIAL_DEATH)
+	if (spec_mode != SPECIAL_CMD)
 		return 0;
 	return (gen_receptionist(ch, (struct char_data *)me, cmd, argument,
 			RENT_FACTOR));
@@ -1295,7 +1295,7 @@ SPECIAL(receptionist)
 
 SPECIAL(cryogenicist)
 {
-	if (spec_mode == SPECIAL_DEATH)
+	if (spec_mode != SPECIAL_CMD)
 		return 0;
 	return (gen_receptionist(ch, (struct char_data *)me, cmd, argument,
 			CRYO_FACTOR));

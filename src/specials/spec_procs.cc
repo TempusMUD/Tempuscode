@@ -37,6 +37,7 @@
 #include "elevators.h"
 #include "house.h"
 #include "fight.h"
+#include "tmpstr.h"
 
 
 /*   external vars  */
