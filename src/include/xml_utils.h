@@ -6,6 +6,7 @@
 #include <stdlib.h>
 
 void xml_boot(void);
+char *tmp_strcat(const char *src, ...);
 
 /** 
  * Parses an integer from a named property in the given node
@@ -78,6 +79,19 @@ static inline bool
 xmlMatches(const xmlChar *str_a, const char *str_b)
 {
 	return !strcmp((const char *)str_a, str_b);
+}
+
+/**
+ * Do a global encoding of a string, replacing the predefined entities and 
+ * non ASCII values with their entities and CharRef counterparts. 
+ * Contrary to xmlEncodeEntities, uses the tmpstr utility.
+**/
+static inline char* xmlEncodeTmp( char* text ) 
+{
+	char *encoded = (char*)xmlEncodeEntitiesReentrant(NULL, (xmlChar*)text);
+	char *tmp_encoded = tmp_strcat(encoded,NULL);
+	free(encoded);
+	return tmp_encoded;
 }
 
 /**

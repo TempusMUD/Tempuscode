@@ -92,36 +92,44 @@ void
 obj_data::saveToXML(FILE *ouf)
 {
 	static string indent = "";
-	//<SHORT_DESC>the bloody corpse of Evangeline</SHORT_DESC>
-	fprintf( ouf, "%s<SHORT_DESC>%s</SHORT_DESC>",indent.c_str(), short_description );
-	//<NAME>bloody corpse evangeline</NAME>
-	fprintf( ouf, "%s<NAME>%s</NAME>",indent.c_str(), name );
-	//<LONG_DESC>There is a corpse lying in the middle of the floor.</LONG_DESC>
-	fprintf( ouf, "%s<LONG_DESC>%s</LONG_DESC>",indent.c_str(), description );
-	//<ACTION_DESC></ACTION_DESC>
-	fprintf( ouf, "%s<ACTION_DESC>%s</ACTION_DESC>",indent.c_str(), description );
-	//<POINTS TYPE="1" SOILAGE="0" WEIGHT="150" MATERIAL="1" TIMER="0" />
-	fprintf( ouf, "%s<POINTS TYPE=\"%d\" SOILAGE=\"%d\" WEIGHT=\"%d\" MATERIAL=\"%d\" TIMER=\"%d\"/>",
-			 indent.c_str(), obj_flags.type_flag, soilage, obj_flags.getWeight(), 
-			 obj_flags.material, obj_flags.timer );
-	//<DAMAGE CURRENT="100" MAX="100" SIGIL_ID="24999" SIGIL_LEVEL="72"/>
-	fprintf( ouf, "%s<DAMAGE CURRENT=\"%d\" MAX=\"%d\" SIGIL_ID=\"%d\" SIGIL_LEVEL=\"%d\" />",
-			indent.c_str(), obj_flags.damage, obj_flags.max_dam, obj_flags.sigil_idnum, obj_flags.sigil_level );
-	//<FLAGS WEAR="0x0" EXTRA="0x0" EXTRA2="0x0" EXTRA3="0x0"/>
-	fprintf( ouf, "%s<FLAGS WEAR=\"%x\" EXTRA=\"%x\" EXTRA2=\"%x\" EXTRA3=\"%x\" />",
+	if( strcmp( short_description, shared->proto->short_description ) ) {
+		fprintf( ouf, "%s<short_desc>%s</short_desc>",
+				indent.c_str(), 
+				xmlEncodeTmp(short_description) );
+	}
+	if( strcmp( name, shared->proto->name ) ) {
+		fprintf( ouf, "%s<name>%s</name>",
+				 indent.c_str(), xmlEncodeTmp(name) );
+	}
+	if( strcmp( description, shared->proto->description ) ) {
+		fprintf( ouf, "%s<long_desc>%s</long_desc>",
+				 indent.c_str(), xmlEncodeTmp(description) );
+	}
+	if( strcmp( description, shared->proto->action_description ) ) {
+		fprintf( ouf, "%s<action_desc>%s</action_desc>",
+				 indent.c_str(), xmlEncodeTmp(action_description));
+	}
+
+	fprintf( ouf, "%s<points type=\"%d\" soilage=\"%d\" weight=\"%d\" material=\"%d\" timer=\"%d\"/>",
+			 indent.c_str(), obj_flags.type_flag, soilage, 
+			 obj_flags.getWeight(), obj_flags.material, obj_flags.timer );
+	fprintf( ouf, "%s<damage current=\"%d\" max=\"%d\" sigil_id=\"%d\" sigil_level=\"%d\" />",
+			indent.c_str(), obj_flags.damage, obj_flags.max_dam, 
+			obj_flags.sigil_idnum, obj_flags.sigil_level );
+	fprintf( ouf, "%s<flags wear=\"%x\" extra=\"%x\" extra2=\"%x\" extra3=\"%x\" />",
 			indent.c_str(), obj_flags.wear_flags, obj_flags.extra_flags, 
 			obj_flags.extra2_flags, obj_flags.extra3_flags );
-	//<VALUES V0="0" V1="0" V2="0" V3="0"/>
-	fprintf( ouf, "%s<VALUES V0=\"%d\" V1=\"%d\" V2=\"%d\" V3=\"%d\" />",
-			indent.c_str(), obj_flags.value[0],obj_flags.value[1],obj_flags.value[2],obj_flags.value[3] );
+	fprintf( ouf, "%s<values v0=\"%d\" v1=\"%d\" v2=\"%d\" v3=\"%d\" />",
+			indent.c_str(), obj_flags.value[0],obj_flags.value[1],
+			obj_flags.value[2],obj_flags.value[3] );
 
-	//<AFFECTBITS AFF1="0x0" AFF2="0x0" AFF3="0x0"/>
-	fprintf( ouf, "%s<AFFECTBITS AFF1=\"%lx\" AFF2=\"%lx\" AFF3=\"%lx\" />",
-			indent.c_str(), obj_flags.bitvector[0], obj_flags.bitvector[1], obj_flags.bitvector[2] );
-	//<AFFECT LOCATION="18" MODIFIER="1"/>
+	fprintf( ouf, "%s<affectbits aff1=\"%lx\" aff2=\"%lx\" aff3=\"%lx\" />",
+			indent.c_str(), obj_flags.bitvector[0], 
+			obj_flags.bitvector[1], obj_flags.bitvector[2] );
+
 	for( int i = 0; i < MAX_OBJ_AFFECT; i++ ) {
 		if( affected[i].location > 0 && affected[i].modifier > 0 ) {
-			fprintf( ouf, "%s<AFFECT MODIFIER=\"%d\" LOCATION=\"%d\" />",
+			fprintf( ouf, "%s<affect modifier=\"%d\" location=\"%d\" />",
 					 indent.c_str(), affected[i].modifier, affected[i].location );
 		}
 	}
@@ -146,79 +154,75 @@ obj_data::loadFromXML(xmlNodePtr node)
 		return false;
 	shared = prototype->shared;
 
+	short_description = shared->proto->short_description;
+	name = shared->proto->name;
+	description = shared->proto->description;
+	action_description  = shared->proto->action_description;
+
 	for( xmlNodePtr cur = node->xmlChildrenNode; cur; cur = cur->next) {
-		if( xmlMatches( cur->name, "NAME" ) ) {
-			//<NAME>bloody corpse evangeline</NAME>
-		} else if( xmlMatches( cur->name, "SHORT_DESC" ) ) {
-			//<SHORT_DESC>the bloody corpse of Evangeline</SHORT_DESC>
-		} else if( xmlMatches( cur->name, "LONG_DESC" ) ) {
-			//<LONG_DESC>There is a corpse lying in the middle of the floor.</LONG_DESC>
-		} else if( xmlMatches( cur->name, "ACTION_DESC" ) ) {
-			//<ACTION_DESC></ACTION_DESC>
-		} else if( xmlMatches( cur->name, "POINTS" ) ) {
-			//<POINTS TYPE="1" SOILAGE="0" WEIGHT="150" MATERIAL="1" TIMER="0" />
-		} else if( xmlMatches( cur->name, "DAMAGE" ) ) {
-			//<DAMAGE CURRENT="100" MAX="100" SIGIL_ID="24999" SIGIL_LEVEL="72"/>
-		} else if( xmlMatches( cur->name, "FLAGS" ) ) {
-			// <FLAGS WEAR="0x0" EXTRA="0x0" EXTRA2="0x0" EXTRA3="0x0"/>
-		} else if( xmlMatches( cur->name, "VALUES" ) ) {
-			//<VALUES V0="0" V1="0" V2="0" V3="0"/>
-		} else if( xmlMatches( cur->name, "AFFECTBITS" ) ) {
-			// <AFFECTBITS AFF1="0x0" AFF2="0x0" AFF3="0x0"/>
-		} else if( xmlMatches( cur->name, "AFFECT" ) ) {
-			//<AFFECT LOCATION="18" MODIFIER="1"/>
-		}
-	}
+		if( xmlMatches( cur->name, "name" ) ) {
+			name = (char*)xmlNodeGetContent( cur );
+		} else if( xmlMatches( cur->name, "short_desc" ) ) {
+			short_description = (char*)xmlNodeGetContent( cur );
+		} else if( xmlMatches( cur->name, "long_desc" ) ) {
+			description = (char*)xmlNodeGetContent( cur );
+		} else if( xmlMatches( cur->name, "action_desc" ) ) {
+			action_description = (char*)xmlNodeGetContent( cur );
+		} else if( xmlMatches( cur->name, "points" ) ) {
+			 obj_flags.type_flag = xmlGetIntProp( cur, "type");
+			 soilage = xmlGetIntProp( cur, "soilage");
+			 obj_flags.setWeight(xmlGetIntProp( cur, "weight"));
+			 obj_flags.material = xmlGetIntProp( cur, "material");
+			 obj_flags.timer = xmlGetIntProp( cur, "timer");
+		} else if( xmlMatches( cur->name, "damage" ) ) {
+			obj_flags.damage = xmlGetIntProp( cur, "current");
+			obj_flags.max_dam = xmlGetIntProp( cur, "max");
+			obj_flags.sigil_idnum = xmlGetIntProp( cur, "sigil_id");
+			obj_flags.sigil_level = xmlGetIntProp( cur, "sigil_level");
+		} else if( xmlMatches( cur->name, "flags" ) ) {
+			char* flag = xmlGetProp(cur,"wear");
+			obj_flags.wear_flags = hex2dec(flag);
+			free(flag);
+			flag = xmlGetProp(cur,"extra");
+			obj_flags.extra_flags = hex2dec(flag);
+			free(flag);
+			flag = xmlGetProp(cur,"extra2");
+			obj_flags.extra2_flags = hex2dec(flag);
+			free(flag);
+			flag = xmlGetProp(cur,"extra3");
+			obj_flags.extra3_flags = hex2dec(flag);
+			free(flag);
+		} else if( xmlMatches( cur->name, "values" ) ) {
+			obj_flags.value[0] = xmlGetIntProp( cur, "V0" );
+			obj_flags.value[1] = xmlGetIntProp( cur, "V1" );
+			obj_flags.value[2] = xmlGetIntProp( cur, "V2" );
+			obj_flags.value[3] = xmlGetIntProp( cur, "V3" );
+		} else if( xmlMatches( cur->name, "affectbits" ) ) {
+			char* aff = xmlGetProp(cur,"aff1");
+			obj_flags.bitvector[0] = hex2dec(aff);
+			free(aff);
 
-/*
-	name = xmlGetProp( node, "NAME" );
-	description = xmlGetProp( node, "DESCRIPTION" );
-	short_description = xmlGetProp( node, "SHORT_DESC" );
-	action_description = xmlGetProp( node, "ACTION_DESC" );
-	setWeight(xmlGetIntProp(node, "WEIGHT"));
+			aff = xmlGetProp(cur,"aff2");
+			obj_flags.bitvector[1] = hex2dec(aff);
+			free(aff);
 
-	// OBJ FLAGS
-	obj_flags.value[0] = xmlGetIntProp( node, "VALUE1" );
-	obj_flags.value[1] = xmlGetIntProp( node, "VALUE2" );
-	obj_flags.value[2] = xmlGetIntProp( node, "VALUE3" );
-	obj_flags.value[3] = xmlGetIntProp( node, "VALUE4" );
+			aff = xmlGetProp(cur,"aff3");
+			obj_flags.bitvector[2] = hex2dec(aff);
+			free(aff);
 
-	obj_flags.type_flag = xmlGetEnumProp(node, "TYPE", item_types);
-	obj_flags.material = xmlGetEnumProp(node, "MATERIAL", materials);
-	obj_flags.max_dam = xmlGetIntProp(node, "MAXDAMAGE");
-	obj_flags.damage = xmlGetIntProp(node, "DAMAGE");
-
-
-	for (cur_node = node->xmlChildrenNode; cur_node; cur_node = cur_node->next) {
-		if (!xmlStrcmp(cur_node->name, (const xmlChar *)"aliases"))
-			obj->name = xmlNodeListGetString(doc, cur_node, 1);
-		else if (!xmlStrcmp(cur_node->name, (const xmlChar *)"linedesc"))
-			obj->description = xmlNodeListGetString(doc, cur_node, 1);
-		else if (!xmlStrcmp(cur_node->name, (const xmlChar *)"action"))
-			obj->action_description = xmlNodeListGetString(doc, cur_node, 1);
-		else if (!xmlStrcmp(cur_node->name, (const xmlChar *)"extradesc")) {
-			CREATE(new_desc, struct extra_descr_data, 1);
-			new_desc->keyword = xmlGetProp(cur_node, "keyword");
-			new_desc->description = xmlNodeListGetString(doc, cur_node, 1);
-			new_desc->next = obj->ex_description;
-			obj->ex_description = new_desc;
-		} else if (!xmlStrcmp(cur_node->name, (const xmlChar *)"apply")) {
-			obj->affected[xmlGetEnumProp(cur_node, "attr", applies)] =
-				xmlGetIntProp(cur_node, "value");
-		} else if (!xmlStrcmp(cur_node->name, (const xmlChar *)"value")) {
-			obj->value[xmlGetIntProp(cur_node, "num")] =
-				xmlGetIntProp(cur_node, "value");
-		} else if (!xmlStrcmp(cur_node->name, (const xmlChar *)"objflags")) {
-			obj->obj_flags.extra_flags = xmlGetFlags(cur_node, extra1_enum);
-			obj->obj_flags.extra2_flags = xmlGetFlags(cur_node, extra2_enum);
-			obj->obj_flags.extra3_flags = xmlGetFlags(cur_node, extra3_enum);
-		} else if (!xmlStrcmp(cur_node->name, (const xmlChar *)"wearpos")) {
-			obj->obj_flags.wear_flags = xmlGetFlags(cur_node, wearpos_enum);
+		} else if( xmlMatches( cur->name, "affect" ) ) {
+			for( int i = 0; i < MAX_OBJ_AFFECT; i++ ) {
+				if( affected[i].location == 0 && affected[i].modifier == 0 ) {
+					 affected[i].modifier = xmlGetIntProp( cur, "location");
+					 affected[i].location = xmlGetIntProp( cur, "modifier");
+					 break;
+				}
+			}
 		} else {
-			slog("SYSERR: Invalid xml node in <object>");
+			slog("SYSERR: Invalid xml node in <object>:%s",cur->name);
 		}
 	}
-*/
+
 	return true;
 }
 int

@@ -81,10 +81,12 @@ Creature::saveToXML() {
 		ch->player.time.death,
 		ch->player.time.played);
 
-	char *host = xmlEncodeEntities(ch->desc->host);
+	char *host = "";
+	if( desc != NULL ) {
+		host = xmlEncodeTmp( desc->host );
+	}
 	fprintf(ouf, "<LASTLOGIN TIME=\"%ld\" HOST=\"%s\"/>\n",
-		(long int)ch->player.time.logon, host);
-	free(host);
+		(long int)ch->player.time.logon, host );
 
 	fprintf(ouf, "<CARNAGE PKILLS=\"%d\" MKILLS=\"%d\" DEATHS=\"%d\"/>\n",
 		GET_PKILLS(ch), GET_MOBKILLS(ch), GET_PC_DEATHS(ch));
@@ -148,23 +150,19 @@ Creature::saveToXML() {
 	}
 
 	if (GET_TITLE(ch) && *GET_TITLE(ch)) {
-		char* title = xmlEncodeEntities(GET_TITLE(ch));
-		fprintf(ouf, "<TITLE>%s</TITLE>\n", title );
-		free(title);
+		fprintf(ouf, "<TITLE>%s</TITLE>\n", xmlEncodeTmp(GET_TITLE(ch)) );
 	}
 
 	if (GET_LEVEL(ch) >= LVL_IMMORT) {
 		fprintf(ouf, "<IMMORT BADGE=\"%d\"/>\n",
 			ch->player_specials->saved.occupation);
 		if (POOFIN(ch) && *POOFIN(ch))
-			fprintf(ouf, "<POOFIN>%s</POOFIN>\n", POOFIN(ch));
+			fprintf(ouf, "<POOFIN>%s</POOFIN>\n", xmlEncodeTmp(POOFIN(ch)));
 		if (POOFOUT(ch) && *POOFOUT(ch))
-			fprintf(ouf, "<POOFOUT>%s</POOFOUT>\n", POOFOUT(ch));
+			fprintf(ouf, "<POOFOUT>%s</POOFOUT>\n", xmlEncodeTmp(POOFOUT(ch)));
 	}
 	if (ch->player.description && *ch->player.description) {
-		char *desc = xmlEncodeEntities(ch->player.description);
-		fprintf(ouf, "<DESCRIPTION>%s</DESCRIPTION>\n",  desc );
-		free(desc);
+		fprintf(ouf, "<DESCRIPTION>%s</DESCRIPTION>\n",  xmlEncodeTmp(ch->player.description) );
 	}
 	for (cur_alias = ch->player_specials->aliases; cur_alias; cur_alias = cur_alias->next)
 		fprintf(ouf, "<ALIAS TYPE=\"%d\" ALIAS=\"%s\" REPLACE=\"%s\"/>\n",
@@ -405,6 +403,8 @@ Creature::loadFromXML( long id )
 			} else {
 				add_alias(this,alias);
 			}
+		} else if ( xmlMatches(node->name, "DESCRIPTION" ) ) {
+			player.description = (char*)xmlNodeGetContent( node );
         } else if ( xmlMatches(node->name, "POOFIN") ) {
 			POOFIN(this) = (char*)xmlNodeGetContent( node );
         } else if ( xmlMatches(node->name, "POOFOUT") ) {
