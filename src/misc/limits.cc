@@ -316,7 +316,7 @@ set_title(struct Creature *ch, char *title)
 	struct clan_data *clan = NULL;
 	struct clanmember_data *memb = NULL;
 
-	if (title == NULL) {
+	if( title == NULL && GET_CLASS(ch) >= 0 ) {
 		title = READ_TITLE(ch);
 
 		if (PRF2_FLAGGED(ch, PRF2_CLAN_TITLE) &&
