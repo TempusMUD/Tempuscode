@@ -4329,7 +4329,7 @@ struct show_struct fields[] = {
 	{"wizcommands", LVL_IMMORT, ""},
 	{"timewarps", LVL_IMMORT, ""},	// 55
 	{"zonecommands", LVL_IMMORT, ""},
-	{"multi", LVL_GRGOD, "AdminBasic"},
+	{"multi", LVL_IMMORT, "AdminBasic"},
 	{"\n", 0, ""}
 };
 
