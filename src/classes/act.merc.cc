@@ -84,3 +84,138 @@ ACMD(do_pistolwhip)
     WAIT_STATE(ch, PULSE_VIOLENCE * 3);
 }
 
+#define NOBEHEAD_EQ(obj) \
+IS_SET(obj->obj_flags.bitvector[1], AFF2_NECK_PROTECTED)
+
+ACMD(do_wrench)
+{
+    struct char_data *vict = NULL;
+    struct obj_data *ovict = NULL;
+    struct obj_data *neck = NULL;
+    int two_handed = 0;
+    int prob, percent, dam, genmult;
+
+
+    genmult = GET_REMORT_GEN( ch );
+    genmult = genmult/2;
+
+
+    one_argument( argument, arg );
+
+
+    if ( ! ( vict = get_char_room_vis( ch, arg ) ) ) {
+        
+	if ( FIGHTING( ch ) ) {
+            vict = FIGHTING( ch );
+        } 
+	
+	else if ( ( ovict = get_obj_in_list_vis( ch, arg, ch->in_room->contents ) ) ) {
+	    act( "You fiercly wrench $p!", FALSE, ch, ovict, 0, TO_CHAR );
+            return;
+        }
+	
+	else {
+            send_to_char( "Wrench who?\r\n", ch );
+            return;
+        }
+    }
+
+
+
+
+     if ( GET_EQ( ch, WEAR_WIELD ) && IS_TWO_HAND( GET_EQ( ch, WEAR_WIELD ) ) ) {
+	 send_to_char( "You are using both hands to wield your weapon right now!\r\n", ch );
+	 return;
+     }
+	
+     if ( GET_EQ( ch, WEAR_WIELD ) && ( GET_EQ( ch, WEAR_WIELD_2 ) ||
+					GET_EQ( ch, WEAR_HOLD ) ||
+					GET_EQ( ch, WEAR_SHIELD ) ) ) {
+	 send_to_char( "You need a hand free to do that!\r\n", ch );   
+	 return;
+     }
+
+     // 
+     // give a bonus if both hands are free
+     //
+
+     if( ! GET_EQ( ch, WEAR_WIELD ) && ! ( GET_EQ( ch, WEAR_WIELD_2 ) ||
+					   GET_EQ( ch, WEAR_HOLD ) ||
+					   GET_EQ( ch, WEAR_SHIELD ) ) ) {
+	 
+	 two_handed = 1;
+     }
+
+
+     percent = ( ( 10 - ( GET_AC( vict ) / 50 ) ) << 1) + number( 1, 101 );
+     prob = CHECK_SKILL( ch, SKILL_WRENCH );
+
+     if ( ! CAN_SEE( ch, vict ) ) {
+	 prob += 10;
+     }
+
+
+     dam = dice( 5 + genmult + GET_LEVEL( ch ), dice(2, GET_STR( ch )  ) );
+
+     if ( two_handed ) {
+
+	 dam += dam/2;
+     }
+     
+     if ( ! FIGHTING( ch ) && ! FIGHTING( vict ) ) {
+
+	 dam += dam/3;
+     }
+
+     if ( ( ( neck = GET_IMPLANT( vict, WEAR_NECK_1 ) ) &&
+	  NOBEHEAD_EQ( neck ) ) ||
+	 ( ( neck = GET_IMPLANT( vict, WEAR_NECK_2 ) ) &&
+	  NOBEHEAD_EQ( neck ) ) ) {
+
+	 dam >>= 1;
+	 damage_eq( ch, neck, dam );  
+	 
+     }
+
+
+
+     if ( ( ( neck = GET_EQ( vict, WEAR_NECK_1 ) ) &&
+	  NOBEHEAD_EQ( neck ) ) || 
+	 ( ( neck = GET_EQ( vict, WEAR_NECK_2 ) ) &&
+	  NOBEHEAD_EQ( neck ) ) ) {
+	 act( "$n grabs you around the neck, but you are covered by $p!", FALSE, ch, neck, vict, TO_VICT );
+	 act( "$n grabs $N's neck, but $N is covered by $p!", FALSE, ch, neck, vict, TO_NOTVICT );
+	 act( "You grab $N's neck, but $e is covered by $p!", FALSE, ch, neck, vict, TO_CHAR );
+	 check_toughguy( ch, vict, 0 );
+	 check_killer( ch, vict );
+	 damage_eq( ch, neck, dam );
+	 WAIT_STATE( ch, 2 RL_SEC );
+	 return;
+     }
+
+     if ( prob > percent  && ( CHECK_SKILL(ch, SKILL_WRENCH) >= 30 ) ) {
+	 
+	 WAIT_STATE( ch, PULSE_VIOLENCE * 2 );
+         WAIT_STATE( vict, PULSE_VIOLENCE );
+	 damage( ch, vict, dam, SKILL_WRENCH, WEAR_NECK_1 );
+	 gain_skill_prof( ch, SKILL_WRENCH );
+	 return;
+     }
+
+     else {
+	 WAIT_STATE( ch, PULSE_VIOLENCE * 2 );
+	 damage( ch, vict, 0, SKILL_WRENCH, WEAR_NECK_1 );
+     }
+
+
+
+}
+
+
+
+
+
+
+
+
+
