@@ -1367,8 +1367,8 @@ damage( struct char_data * ch, struct char_data * victim, int dam,
     if ( ( af = affected_by_spell( victim, SPELL_LOCUST_REGENERATION ) ) ) {
         // pc caster
         if ( ch && !IS_NPC( ch ) && GET_IDNUM( ch ) == af->modifier ) {
-            if (vict && (GET_MANA(vict) > 0)) {
-                int manadrain = MIN((int)(dam * 0.75), GET_MANA(vict));
+            if (victi && (GET_MANA(victim) > 0)) {
+                int manadrain = MIN((int)(dam * 0.75), GET_MANA(victim));
                 sprintf(buf, "You drain %d mana from $N!", manadrain);
                 act( buf, FALSE, ch, 0, victim, TO_CHAR );
                 GET_MOVE(ch) = MAX(0, GET_MOVE(ch) - (dam >> 2));
