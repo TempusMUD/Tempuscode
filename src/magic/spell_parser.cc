@@ -1342,8 +1342,9 @@ mag_objectmagic(struct Creature *ch, struct obj_data *obj,
 			level = MIN(level, LVL_AMBASSADOR);
 
 
-			CreatureList::iterator it = ch->in_room->people.begin();
-			for (; it != ch->in_room->people.end(); ++it) {
+			room_data *room = ch->in_room;
+			CreatureList::iterator it = room->people.begin();
+			for (; it != room->people.end(); ++it) {
 				if (ch == *it && spell_info[GET_OBJ_VAL(obj, 3)].violent)
 					continue;
 				if (level)
