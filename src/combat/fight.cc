@@ -216,6 +216,8 @@ stop_defending(struct Creature *ch)
 		act("$n stops defending $N.",
 			false, ch, 0, DEFENDING(ch), TO_NOTVICT);
 	}
+
+    DEFENDING(ch) = NULL;
 }
 
 /* When ch kills victim */
