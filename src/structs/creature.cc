@@ -823,7 +823,7 @@ Creature::rent(void)
 {
 	player_specials->rentcode = RENT_RENTED;
 	player_specials->rent_per_day =
-		(GET_LEVEL(this) < LVL_IMMORT) ? calcDailyRent(1):0;
+		(GET_LEVEL(this) < LVL_IMMORT) ? calc_daily_rent(this, 1, NULL, NULL):0;
 	player_specials->desc_mode = CXN_UNKNOWN;
 	player_specials->rent_currency = in_room->zone->time_frame;
 	GET_LOADROOM(this) = in_room->number;
@@ -911,7 +911,7 @@ Creature::quit(void)
 	}
 
 	player_specials->rentcode = RENT_QUIT;
-	player_specials->rent_per_day = calcDailyRent(3);
+	player_specials->rent_per_day = calc_daily_rent(this, 3, NULL, NULL);
 	player_specials->desc_mode = CXN_UNKNOWN;
 	player_specials->rent_currency = in_room->zone->time_frame;
 	GET_LOADROOM(this) = 0;
@@ -929,7 +929,7 @@ Creature::idle(void)
 	if (IS_NPC(this))
 		return false;
 	player_specials->rentcode = RENT_FORCED;
-	player_specials->rent_per_day = calcDailyRent(3);
+	player_specials->rent_per_day = calc_daily_rent(this, 3, NULL, NULL);
 	player_specials->desc_mode = CXN_UNKNOWN;
 	player_specials->rent_currency = in_room->zone->time_frame;
 	GET_LOADROOM(this) = 0;
@@ -989,7 +989,7 @@ Creature::arena_die(void)
 	if (!IS_NPC(this)) {
 		player_specials->rentcode = RENT_RENTED;
 		player_specials->rent_per_day =
-			(GET_LEVEL(this) < LVL_IMMORT) ? calcDailyRent(1):0;
+			(GET_LEVEL(this) < LVL_IMMORT) ? calc_daily_rent(this, 1, NULL, NULL):0;
 		player_specials->desc_mode = CXN_UNKNOWN;
 		player_specials->rent_currency = in_room->zone->time_frame;
 		GET_LOADROOM(this) = in_room->zone->respawn_pt;
