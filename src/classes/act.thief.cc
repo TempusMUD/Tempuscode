@@ -50,9 +50,6 @@ ACMD(do_steal)
     }
 	if(GET_LEVEL(ch) < LVL_IMMORT && IS_NPC(vict) && MOB2_FLAGGED(vict, MOB2_SELLER)) {
 		send_to_char("That's probably a bad idea.\r\n",ch);
-		sprintf(buf,"%s tried to steal from a shop at %d.\r\n",GET_NAME(ch),ch->in_room->number);
-		mudlog(buf, CMP, GET_LEVEL(ch), TRUE);
-
 		return;
 	}
 
