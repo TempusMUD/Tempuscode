@@ -4203,32 +4203,50 @@ mob_fight_celestial(struct Creature *ch, struct Creature *precious_vict)
 
 void knight_activity(struct Creature *ch){
     if (GET_HIT(ch) < GET_MAX_HIT(ch) * 0.80) {
-        if (GET_LEVEL(ch) > 27 && random_binary())
+        if (GET_LEVEL(ch) > 27 && random_binary() && !ROOM_FLAGGED(ch->in_room, ROOM_NOMAGIC))
             cast_spell(ch, ch, 0, SPELL_HEAL);
-        else if (GET_LEVEL(ch) > 13 && random_binary())
+        else if (GET_LEVEL(ch) > 13 && random_binary() && !ROOM_FLAGGED(ch->in_room, ROOM_NOMAGIC))
             cast_spell(ch, ch, 0, SPELL_CURE_CRITIC);
-        else if (random_binary())
+        else if (random_binary() && !ROOM_FLAGGED(ch->in_room, ROOM_NOMAGIC))
             cast_spell(ch, ch, 0, SPELL_CURE_LIGHT);
-        else
+        else if (IS_GOOD(ch)){
             do_holytouch(ch, "self", 0, 0);
+        }
     } else if (IS_DARK(ch->in_room) &&
-               !CAN_SEE_IN_DARK(ch) && GET_LEVEL(ch) > 6) {
+               !CAN_SEE_IN_DARK(ch) && GET_LEVEL(ch) > 6 &&
+               !ROOM_FLAGGED(ch->in_room, ROOM_NOMAGIC)) {
         cast_spell(ch, ch, 0, SPELL_DIVINE_ILLUMINATION);
     } else if ((affected_by_spell(ch, SPELL_BLINDNESS) ||
                 affected_by_spell(ch, SKILL_GOUGE)) &&
+                !ROOM_FLAGGED(ch->in_room, ROOM_NOMAGIC) &&
                 GET_LEVEL(ch) > 20) {
         cast_spell(ch, ch, 0, SPELL_CURE_BLIND);
-    } else if (IS_AFFECTED(ch, AFF_POISON) && GET_LEVEL(ch) > 18) {
+    } else if (IS_AFFECTED(ch, AFF_POISON) && GET_LEVEL(ch) > 18 &&
+               !ROOM_FLAGGED(ch->in_room, ROOM_NOMAGIC)){
         cast_spell(ch, ch, 0, SPELL_REMOVE_POISON);
-    } else if (IS_AFFECTED(ch, AFF_CURSE) && GET_LEVEL(ch) > 30) {
+    } else if (IS_AFFECTED(ch, AFF_CURSE) && GET_LEVEL(ch) > 30 &&
+               !ROOM_FLAGGED(ch->in_room, ROOM_NOMAGIC)) {
         cast_spell(ch, ch, 0, SPELL_REMOVE_CURSE);
     } else if (IS_GOOD(ch) &&
                !affected_by_spell(ch, SPELL_SANCTIFICATION) &&
                GET_LEVEL(ch) > 32 &&
+               !ROOM_FLAGGED(ch->in_room, ROOM_NOMAGIC) &&
                GET_REMORT_CLASS(ch) != CLASS_UNDEFINED) {
         cast_spell(ch, ch, 0, SPELL_SANCTIFICATION);
+    } else if( !affected_by_spell(ch, SPELL_ARMOR) && 
+               GET_LEVEL(ch) > 4 &&
+               !ROOM_FLAGGED(ch->in_room, ROOM_NOMAGIC)){
+        cast_spell(ch, ch, 0, SPELL_ARMOR);
+    } else if( !affected_by_spell(ch, SPELL_BLESS) && 
+               GET_LEVEL(ch) > 9 &&
+               !ROOM_FLAGGED(ch->in_room, ROOM_NOMAGIC)){
+        cast_spell(ch, ch, 0, SPELL_BLESS);
+    
+    } else if( !affected_by_spell(ch, SPELL_PRAY) && 
+               GET_LEVEL(ch) > 30 &&
+               !ROOM_FLAGGED(ch->in_room, ROOM_NOMAGIC)){
+        cast_spell(ch, ch, 0, SPELL_PRAY);
     }
-
 }
 
 /***********************************************************************************
@@ -4253,41 +4271,50 @@ int knight_battle_activity(struct Creature *ch, struct Creature *precious_vict){
     }
 
     if (GET_LEVEL(ch) > 4 && random_fractional_5() &&
+        !ROOM_FLAGGED(ch->in_room, ROOM_NOMAGIC) &&
         !affected_by_spell(ch, SPELL_ARMOR)) {
         cast_spell(ch, ch, NULL, SPELL_ARMOR);
         return 0;
     } else if ((GET_HIT(ch) / MAX(1,
                 GET_MAX_HIT(ch))) < (GET_MAX_HIT(ch) >> 2)) {
-        if ((GET_LEVEL(ch) < 14) && (number(0, 10) == 0)) {
+        if ((GET_LEVEL(ch) < 14) && (number(0, 10) == 0) &&
+            !ROOM_FLAGGED(ch->in_room, ROOM_NOMAGIC)) {
             cast_spell(ch, ch, NULL, SPELL_CURE_LIGHT);
             return 0;
-        } else if ((GET_LEVEL(ch) < 28) && random_fractional_10()) {
+        } else if ((GET_LEVEL(ch) < 28) && random_fractional_10() &&
+                    !ROOM_FLAGGED(ch->in_room, ROOM_NOMAGIC)) {
             cast_spell(ch, ch, NULL, SPELL_CURE_CRITIC);
             return 0;
-        } else if (random_fractional_5()) {
+        } else if (random_fractional_5() &&
+                   !ROOM_FLAGGED(ch->in_room, ROOM_NOMAGIC)) {
             cast_spell(ch, ch, NULL, SPELL_HEAL);
             return 0;
         }
     } else if (IS_GOOD(ch) && IS_EVIL(FIGHTING(ch)) &&
-        random_fractional_3()
-        && !affected_by_spell(ch, SPELL_PROT_FROM_EVIL)) {
+        random_fractional_3()  &&
+        !ROOM_FLAGGED(ch->in_room, ROOM_NOMAGIC) &&
+        !affected_by_spell(ch, SPELL_PROT_FROM_EVIL)) {
         cast_spell(ch, ch, NULL, SPELL_PROT_FROM_EVIL);
         return 0;
     } else if (IS_EVIL(ch) && IS_GOOD(FIGHTING(ch)) &&
-        random_fractional_3()
+        random_fractional_3() &&
+        !ROOM_FLAGGED(ch->in_room, ROOM_NOMAGIC)
         && !affected_by_spell(ch, SPELL_PROT_FROM_GOOD)) {
         cast_spell(ch, ch, NULL, SPELL_PROT_FROM_GOOD);
         return 0;
     } else if ((GET_LEVEL(ch) > 21) &&
         GET_RACE(vict) == RACE_UNDEAD &&
         random_fractional_10() &&
+        !ROOM_FLAGGED(ch->in_room, ROOM_NOMAGIC) &&
         !affected_by_spell(ch, SPELL_INVIS_TO_UNDEAD)) {
         cast_spell(ch, ch, NULL, SPELL_INVIS_TO_UNDEAD);
         return 0;
-    } else if ((GET_LEVEL(ch) > 15) && random_fractional_5()) {
+    } else if ((GET_LEVEL(ch) > 15) && random_fractional_5()
+               && !ROOM_FLAGGED(ch->in_room, ROOM_NOMAGIC)) {
         cast_spell(ch, vict, NULL, SPELL_SPIRIT_HAMMER);
         return 0;
-    } else if ((GET_LEVEL(ch) > 35) && random_fractional_4()) {
+    } else if ((GET_LEVEL(ch) > 35) && random_fractional_4()
+               && !ROOM_FLAGGED(ch->in_room, ROOM_NOMAGIC)) {
         cast_spell(ch, vict, NULL, SPELL_FLAME_STRIKE);
         return 0;
     } else if ((GET_LEVEL(ch) >= 20) &&
@@ -4308,8 +4335,11 @@ int knight_battle_activity(struct Creature *ch, struct Creature *precious_vict){
         } else if (GET_LEVEL(ch) < 35) {
             do_offensive_skill(ch, GET_NAME(vict), 0, SKILL_LUNGE_PUNCH);
         } else if (GET_EQ(ch, WEAR_WIELD) &&
-            GET_OBJ_VAL(GET_EQ(ch, WEAR_WIELD), 3) == 3) {
+            GET_OBJ_VAL(GET_EQ(ch, WEAR_WIELD), 3) == 3 && 
+            random_binary()) {
             do_offensive_skill(ch, GET_NAME(vict), 0, SKILL_BEHEAD);
+        } else if(IS_EVIL(ch) && IS_GOOD(vict)){
+            do_holytouch(ch, PERS(vict, ch), 0, 0);
         }
         return 0;
     }
