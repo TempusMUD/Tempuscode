@@ -209,7 +209,10 @@ raw_kill(struct Creature *ch, struct Creature *killer, int attacktype)
 	}
 	// Equipment dealt with in make_corpse. 
 	// Do not save it here.
-	ch->die();
+	if (ROOM_FLAGGED(ch->in_room, ROOM_ARENA) || GET_ZONE(ch->in_room) == 400)
+		ch->arena_die();
+	else
+		ch->die();
 }
 
 

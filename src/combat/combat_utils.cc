@@ -1577,13 +1577,7 @@ make_corpse(struct Creature *ch, struct Creature *killer, int attacktype)
 			if (OBJ_TYPE(o, ITEM_SCRIPT))
 				extract_obj(o);
 		}
-		// Save the char to prevent duping of eq.
-		if (!IS_NPC(ch)) {
-			ch->saveToXML();
-		}
-	} else if (!IS_NPC(ch)) {					// arena kills do not drop EQ
-		ch->rent();
-	}
+	} 
 
 	// leave no corpse behind
 	if (NON_CORPOREAL_UNDEAD(ch) || GET_MOB_SPEC(ch) == fate) {
