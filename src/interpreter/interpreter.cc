@@ -133,7 +133,6 @@ ACMD(do_charge);
 ACMD(do_circle);
 ACMD(do_cinfo);
 ACMD(do_cleave);
-ACMD(do_clan_comm);
 ACMD(do_clanpasswd);
 ACMD(do_clanlist);
 ACMD(do_clean);
@@ -539,13 +538,13 @@ struct command_info cmd_info[] = {
 	{"csay", POS_MORTALLYW, do_gen_comm, LVL_CAN_CLAN, SCMD_CLANSAY, 0},
 	{"crossface", POS_FIGHTING, do_crossface, 1, 0, 0},
 	{"clanpasswd", POS_RESTING, do_clanpasswd, LVL_CAN_CLAN, 0, 0},
-	{"clanemote", POS_STUNNED, do_clan_comm, LVL_CAN_CLAN, SCMD_CLAN_ECHO, 0},
+	{"clanemote", POS_STUNNED, do_gen_comm, LVL_CAN_CLAN, SCMD_CLANEMOTE, 0},
 	{"clanhide", POS_STUNNED, do_gen_tog, LVL_CAN_CLAN, SCMD_CLAN_HIDE, 0},
 	{"cleave", POS_FIGHTING, do_cleave, 1, 0, 0},
 	{"clue", POS_RESTING, do_action, 0, 0, 0},
 	{"clueless", POS_RESTING, do_action, 0, 0, 0},
 	{"ceasefire", POS_RESTING, do_ceasefire, 0, 0, 0},
-	{"cemote", POS_STUNNED, do_clan_comm, LVL_CAN_CLAN, SCMD_CLAN_ECHO, 0},
+	{"cemote", POS_STUNNED, do_gen_comm, LVL_CAN_CLAN, SCMD_CLANEMOTE, 0},
 	{"claninfo", POS_SLEEPING, do_cinfo, LVL_CAN_CLAN, 0, 0},
 	{"cinfo", POS_SLEEPING, do_cinfo, LVL_CAN_CLAN, 0, 0},
 	{"cedit", POS_DEAD, do_cedit, LVL_IMMORT, 0, 0},
