@@ -1157,13 +1157,13 @@ do_start(struct Creature *ch, int mode)
 	if (new_player) {
 		newbie_equip(ch);
 		if (PAST_CLASS(GET_CLASS(ch))) {
-			ch->points.bank_gold =
-				8192 + number(256, 2048) + GET_INT(ch) + GET_WIS(ch);
+			ch->desc->account->deposit_past_bank(
+				8192 + number(256, 2048) + GET_INT(ch) + GET_WIS(ch));
 			ch->points.gold =
 				8192 + number(256, 2048) + GET_INT(ch) + GET_WIS(ch);
 		} else if (FUTURE_CLASS(GET_CLASS(ch))) {
-			ch->points.credits =
-				8192 + number(256, 2048) + GET_INT(ch) + GET_WIS(ch);
+			ch->desc->account->deposit_future_bank(
+				8192 + number(256, 2048) + GET_INT(ch) + GET_WIS(ch));
 			ch->points.cash =
 				8192 + number(256, 2048) + GET_INT(ch) + GET_WIS(ch);
 		}
