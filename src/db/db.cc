@@ -529,6 +529,8 @@ build_old_player_index(void)
     char filename[256];
 	char inbuf[131072];
     slog("Building old character index...");
+	ifstream inf;
+
 	for( int i = 0; i <= 9; i++ ) {
 		// If we don't have
 		sprintf(dirname,"oldplayers/%d", i);
@@ -548,11 +550,11 @@ build_old_player_index(void)
 			if (strcmp(rindex(file->d_name, '.'), ".dat"))
 				continue;
 
+			inf.open(filename, ios::in);
 			// Open up the file and scan through it, looking for name and idnum
 			// parameters
-            sprintf(filename,"%s/%s", dirname, file->d_name)
-			ifstream in(filename);
-			in.read(inbuf, sizeof(inbuf));
+            sprintf(filename,"%s/%s", dirname, file->d_name);
+			inf.read(inbuf, sizeof(inbuf));
 			char *name = strstr(inbuf, "name=" );
 			char *idnum = strstr(inbuf, "idnum=" );
 
