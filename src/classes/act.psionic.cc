@@ -45,7 +45,7 @@ ACMD(do_psidrain) {
         return;
     }
 
-    if (!*argument && !(vict = ch)) {
+    if (!*argument && !(vict == ch)) {
         send_to_char("Ha ha... Funny!\r\n", ch);
         return;
     }
