@@ -683,6 +683,8 @@ do_simple_move(struct Creature *ch, int dir, int mode,
 		sprintf(buf, "$n oozes %s.", to_dirs[dir]);
 	} else if (IS_GHOST(ch)) {
 		sprintf(buf, "$n drifts off %s.", to_dirs[dir]);
+	} else if (GET_CLASS(ch) == CLASS_TURTLE) {
+		sprintf(buf, "$n waddles %s.", to_dirs[dir]);
 	} else if (IS_TARRASQUE(ch)) {
 		sprintf(buf, "$n rampages off %sward.", to_dirs[dir]);
 	} else {
@@ -911,6 +913,8 @@ do_simple_move(struct Creature *ch, int dir, int mode,
 		sprintf(buf, "$n oozes in from %s.", from_dirs[dir]);
 	} else if (IS_GHOST(ch)) {
 		sprintf(buf, "$n drifts in from %s.", from_dirs[dir]);
+	} else if (GET_CLASS(ch) == CLASS_TURTLE) {
+		sprintf(buf, "$n waddles in from %s.", to_dirs[dir]);
 	} else if (IS_TARRASQUE(ch)) {
 		sprintf(buf, "$n rampages in from %s.", from_dirs[dir]);
 	} else {
