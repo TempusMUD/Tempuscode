@@ -2468,10 +2468,10 @@ mag_areas(byte level, struct Creature *ch, int spellnum, int savetype)
 		for (; it != ch->in_room->people.end(); ++it) {
 			if (ch == *it)
 				continue;
-			if (!IS_NPC((*it))) {
+			if (!ok_to_damage(ch, *it)) {
 				act("You cannot do this, because this action might cause harm to $N,\r\n" 
-					"and you have not chosen to be a Pkiller.\r\n" 
-					"You can toggle this with the command 'pkiller'.", 
+					"and you have chosen not to be a PKILLER.\r\n" 
+					"You can toggle this behavior with the command 'pkiller'.", 
 					 FALSE, ch, 0, (*it), TO_CHAR);
 				return 0;
 			}
