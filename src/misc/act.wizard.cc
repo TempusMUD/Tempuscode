@@ -6453,10 +6453,11 @@ const char *show_obj_keys[] = {
     "special",
     "affect",
     "extra",
+    "worn",
     "\n"
 };
 
-#define NUM_SHOW_OBJ 6
+#define NUM_SHOW_OBJ 7
 
 void 
 do_show_objects(struct char_data *ch, char *value, char *arg)
@@ -6722,7 +6723,62 @@ do_show_objects(struct char_data *ch, char *value, char *arg)
     
 	page_string(ch->desc, buf, 1);
 	return;
-    
+
+    case 6: /* Worn */
+	if ( ! *arg ){
+            send_to_char( "Show objects worn in what position?\r\n", ch );
+            return;
+        }
+
+        arg1 = arg;
+        skip_spaces( &arg1 );   
+
+        if( ! is_number( arg1 ) ){
+	    if( (i = search_block( arg1, wear_eqpos, 0 ) ) < 0 ){
+                send_to_char( "That's not a valid wear position.\r\n", ch );
+                return;
+            }
+	}
+
+	else{
+	    i = atoi( arg1 );
+	}
+
+	if ( i < 0 || i > NUM_WEAR_FLAGS ){
+            send_to_char( "Wear position out of range.\r\n", ch );
+            return;
+        }
+
+	sprintf( buf, "Objects worn at position:%s\r\n", wear_eqpos[ i ] );
+
+	for ( obj = obj_proto, j = 1; obj; obj = obj->next ){
+	
+	    if( CAN_WEAR( obj, wear_bitvectors[ i ] ) ){
+		sprintf( buf2, "%3d. [%5d] %s%-34s%s  [%s%5d%s][%s%5d%s][%s%5d%s][%s%5d%s]\r\n",
+			j, GET_OBJ_VNUM( obj ), CCGRN( ch, C_NRM ),
+			obj->short_description, CCNRM( ch, C_NRM ),
+			CCCYN( ch, C_NRM ),  GET_OBJ_VAL( obj, 0 ), CCNRM( ch, C_NRM ),
+			CCCYN( ch, C_NRM ), GET_OBJ_VAL( obj, 1 ) , CCNRM( ch, C_NRM ),
+			CCCYN( ch, C_NRM ), GET_OBJ_VAL( obj, 2 ), CCNRM( ch, C_NRM ),
+			CCCYN( ch, C_NRM ), GET_OBJ_VAL( obj, 3 ), CCNRM( ch, C_NRM ) );
+	
+		if ( ( strlen( buf ) + strlen( buf2 ) + 128 ) > MAX_STRING_LENGTH ){
+		    strcat( buf, "**OVERFLOW**\r\n" );
+		    break;
+		}
+		
+		strcat( buf, buf2 );
+		j++;
+	    }
+	     
+	}    
+	page_string(ch->desc, buf, 1);
+	return;
+
+
+
+	
+	
     
     default:
 	send_to_char("Sorry, that is not an option.\r\n", ch);
