@@ -2074,7 +2074,7 @@ ASPELL(spell_death_knell)
 	// Set the duration
 	af.duration = 4 + (ch->getLevelBonus(SPELL_DEATH_KNELL) / 6);
 	af2.duration = 4 + (ch->getLevelBonus(SPELL_DEATH_KNELL) / 6);
-	af3.duration = 4 + (ch->getLevelBonus(SPELL_DEATH_KNELL) / 4);
+	af3.duration = 4 + (ch->getLevelBonus(SPELL_DEATH_KNELL) / 6);
 
 	// Affect locations
 	af.location = APPLY_STR;
