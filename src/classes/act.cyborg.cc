@@ -475,7 +475,7 @@ ACMD(do_recharge)
 
 void perform_cyborg_activate(CHAR *ch, int mode, int subcmd)
 {
-    struct affected_type af[2];
+    struct affected_type af[3];
     CHAR *vict = NULL, *nvict = NULL;
     char *to_room[2], *to_char[2];
 
@@ -506,7 +506,35 @@ void perform_cyborg_activate(CHAR *ch, int mode, int subcmd)
 	af[1].aff_index = 1;
 	af[1].level = GET_LEVEL(ch);
 
+	af[2].type = 0;
+	af[2].bitvector = 0;
+	af[2].duration = -1;
+	af[2].location = APPLY_NONE;
+	af[2].modifier = 0;
+	af[2].aff_index = 1;
+	af[2].level = GET_LEVEL(ch);
+
 	switch (mode) {
+	case SKILL_ADRENAL_MAXIMIZER:
+	    af[0].bitvector = 0;
+		af[0].aff_index = 1;
+	    af[0].location = APPLY_MOVE;
+	    af[0].modifier = -30;
+      
+	    af[1].type = mode;
+	    af[1].bitvector = AFF_ADRENALINE;
+		af[1].aff_index = 1;
+	    af[1].location = APPLY_SPEED;
+	    af[1].modifier = 1 + (GET_LEVEL(ch) >> 3) + (GET_REMORT_GEN(ch) >> 1);
+		
+	    to_char[1] = "Shukutei Adrenal Maximizations enabled.\r\n";
+	    to_char[0] = "Shukutei Adrenal Maximizations disabled.\r\n";
+		break;
+	
+//	case SKILL_OPTIMMUNAL_RESP:
+//
+//		break;
+	
 	case SKILL_ENERGY_FIELD:
 	    af[0].bitvector = AFF2_ENERGY_FIELD;
 	    af[0].aff_index = 2;
@@ -559,7 +587,7 @@ void perform_cyborg_activate(CHAR *ch, int mode, int subcmd)
 	    af[0].bitvector = AFF3_DAMAGE_CONTROL;
 	    af[0].aff_index = 3;
 	    af[0].location = APPLY_MOVE;
-	    af[0].modifier = -(30 + GET_LEVEL(ch));
+	    af[0].modifier = -30;
       
 	    to_char[1] = "Activating damage control systems.\r\n";
 	    to_char[0] = "Terminating damage control process.\r\n";
@@ -631,6 +659,9 @@ void perform_cyborg_activate(CHAR *ch, int mode, int subcmd)
 	    affect_join(ch, &af[0], 0, FALSE, 1, FALSE);
 	    if (af[1].type)
 		affect_join(ch, &af[1], 0, FALSE, 1, FALSE);
+	    
+		if (af[2].type)
+		affect_join(ch, &af[2], 0, FALSE, 1, FALSE);
 
 	    if (to_char[1])
 		send_to_char(to_char[1], ch);
