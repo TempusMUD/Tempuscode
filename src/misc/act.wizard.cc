@@ -6661,6 +6661,7 @@ const char *show_obj_keys[] = {
     "extra",
     "worn",
     "cost",
+    "spell",
     "\n"
 };
 
@@ -6674,6 +6675,9 @@ do_show_objects(struct char_data *ch, char *value, char *arg)
     struct obj_data *obj = NULL;
     char *arg1;
     bool overflow = 0;
+    int spell1=0;
+    int spell2=0;
+    int spell3=0;
 
     if (!*value || (command = search_block(value, show_obj_keys, 0)) < 0) {
 	send_to_char("Show objects:  utility to search the object prototype list.\r\n"
@@ -6984,55 +6988,151 @@ do_show_objects(struct char_data *ch, char *value, char *arg)
 
     case 7: /* Cost */
 	if ( ! *arg ){
-            send_to_char( "Show with a cost greater than what?\r\n", ch );
-            return;
-        }
+        send_to_char( "Show with a cost greater than what?\r\n", ch );
+        return;
+    }
 
-        arg1 = arg;
-        skip_spaces( &arg1 );
+    arg1 = arg;
+    skip_spaces( &arg1 );
 
-        if( ! is_number( arg1 ) ){
-	    send_to_char( "Usage: show obj cost <cost>.\r\n", ch );
-	    return;
-	}
-
-	else{
+    if( ! is_number( arg1 ) ){
+        send_to_char( "Usage: show obj cost <cost>.\r\n", ch );
+        return;
+    } else{
 	    i = atoi( arg1 );
 	}
 
 	if ( i < 0 ){
-            send_to_char( "Cost must be positive.\r\n", ch );
-            return;
-        }
+        send_to_char( "Cost must be positive.\r\n", ch );
+        return;
+    }
 
 	sprintf( buf, "Objects with cost greater than or equal to %d:\r\n", i );
 	
 	for ( obj = obj_proto, j = 1; obj; obj = obj->next ){
 	  
 	    if( GET_OBJ_COST( obj ) >= i  ){
-		sprintf( buf2, "%3d. [%5d] %s%-34s%s  [%s%5d%s]\r\n",
-			 j, GET_OBJ_VNUM( obj ), CCGRN( ch, C_NRM ),
-			 obj->short_description, CCNRM( ch, C_NRM ),
-			 CCCYN( ch, C_NRM ),  GET_OBJ_COST( obj ), CCNRM( ch, C_NRM ) );
-		
-		if ( ( strlen( buf ) + strlen( buf2 ) + 128 ) > MAX_STRING_LENGTH ){
-		    strcat( buf, "**OVERFLOW**\r\n" );
-		    break;
-		}
-		
-		strcat( buf, buf2 );
-		j++;
+            sprintf( buf2, "%3d. [%5d] %s%-34s%s  [%s%5d%s]\r\n",
+                 j, GET_OBJ_VNUM( obj ), CCGRN( ch, C_NRM ),
+                 obj->short_description, CCNRM( ch, C_NRM ),
+                 CCCYN( ch, C_NRM ),  GET_OBJ_COST( obj ), CCNRM( ch, C_NRM ) );
+            
+            if ( ( strlen( buf ) + strlen( buf2 ) + 128 ) > MAX_STRING_LENGTH ){
+                strcat( buf, "**OVERFLOW**\r\n" );
+                break;
+            }
+            
+            strcat( buf, buf2 );
+            j++;
 	    }
 	    
 	}    
 	page_string( ch->desc, buf, 1 );
 	return;
+    case 8: // spell, you know, like casting and stuff.
 
+	if ( ! *arg ){
+        send_to_char( "Show with what spell?\r\n", ch );
+        return;
+    }
 
+    arg1 = arg;
+    skip_spaces( &arg1 );
 
-	
-	
-    
+    if( ! is_number( arg1 ) ){
+        send_to_char( "Usage: show obj spell <spell number>.\r\n", ch );
+        return;
+    } else {
+	    i = atoi( arg1 );
+	}
+
+	if ( i < 0 || i > TOP_SPELL_DEFINE ){
+        send_to_char( "What kinda spell is that?\r\n", ch );
+        return;
+    }
+    bool failed;
+	sprintf( buf, "Objects with spell number %d:\r\n", i );
+	for ( obj = obj_proto, j = 1; obj; obj = obj->next ){
+        // Decide if this object has the desired spell on it.
+        failed = false;
+	    switch ( GET_OBJ_TYPE( obj ) ) {
+            case ITEM_WAND:  // val 3 
+            case ITEM_STAFF:  // val 3
+                if(GET_OBJ_VAL(obj,3) != i)
+                    continue;
+                break;
+            case ITEM_WEAPON:  // val 0
+                if(GET_OBJ_VAL(obj,0) != i)
+                    continue;
+                break;
+            case ITEM_SCROLL:  // val 1,2,3
+            case ITEM_POTION: // val 1,2,3
+                if(GET_OBJ_VAL(obj,1) != i && GET_OBJ_VAL(obj,2) != i 
+                    && GET_OBJ_VAL(obj,3) != i)
+                    continue;
+                break;
+            case ITEM_FOOD: // Val 2 is spell
+                if(GET_OBJ_VAL(obj,2) != i)
+                    continue;
+                break;
+            default:
+                continue;
+        }
+        // The object has the spell, display the obj in some usefull (maybe) format.
+	    switch ( GET_OBJ_TYPE( obj ) ) {
+            case ITEM_WAND:  // val 3 
+            case ITEM_STAFF:  // val 3
+                spell1 = GET_OBJ_VAL(obj,3);
+                if(spell1 > TOP_SPELL_DEFINE || spell1 < 0) spell1 = 0;
+                sprintf( buf2, "%3d. [%5d] %s%-34s%s  [%s%5s%s]\r\n",
+                     j, GET_OBJ_VNUM( obj ), CCGRN( ch, C_NRM ),
+                     obj->short_description, CCNRM( ch, C_NRM ),
+                     CCCYN( ch, C_NRM ),  spells[spell1] , CCNRM( ch, C_NRM ) );
+                break;
+            case ITEM_WEAPON:  // val 0
+                spell1 = GET_OBJ_VAL(obj,0);
+                if(spell1 > TOP_SPELL_DEFINE || spell1 < 0) spell1 = 0;
+                sprintf( buf2, "%3d. [%5d] %s%-34s%s  [%s%5s%s]\r\n",
+                     j, GET_OBJ_VNUM( obj ), CCGRN( ch, C_NRM ),
+                     obj->short_description, CCNRM( ch, C_NRM ),
+                     CCCYN( ch, C_NRM ),  spells[spell1] , CCNRM( ch, C_NRM ) );
+                break;
+            case ITEM_SCROLL:  // val 1,2,3
+            case ITEM_POTION: // val 1,2,3
+                spell1 = GET_OBJ_VAL(obj,1);
+                spell2 = GET_OBJ_VAL(obj,2);
+                spell3 = GET_OBJ_VAL(obj,3);
+                if(spell1 > TOP_SPELL_DEFINE || spell1 < 0) spell1 = 0;
+                if(spell2 > TOP_SPELL_DEFINE || spell2 < 0) spell2 = 0;
+                if(spell3 > TOP_SPELL_DEFINE || spell3 < 0) spell3 = 0;
+                sprintf( buf2, "%3d. [%5d] %s%-34s%s  [%s%s,%s,%s%s]\r\n",
+                     j, GET_OBJ_VNUM( obj ), CCGRN( ch, C_NRM ),
+                     obj->short_description, CCNRM( ch, C_NRM ),
+                     CCCYN( ch, C_NRM ),  spells[spell1],spells[spell2],
+                     spells[spell3],CCNRM( ch, C_NRM ) );
+                break;
+            case ITEM_FOOD: // Val 2 is spell
+                spell1 = GET_OBJ_VAL(obj,2);
+                if(spell1 > TOP_SPELL_DEFINE || spell1 < 0) spell1 = 0;
+                sprintf( buf2, "%3d. [%5d] %s%-34s%s  [%s%5s%s]\r\n",
+                     j, GET_OBJ_VNUM( obj ), CCGRN( ch, C_NRM ),
+                     obj->short_description, CCNRM( ch, C_NRM ),
+                     CCCYN( ch, C_NRM ),  spells[spell1] , CCNRM( ch, C_NRM ) );
+                break;
+            default:
+                break;
+        }
+        if ( ( strlen( buf ) + strlen( buf2 ) + 128 ) > MAX_STRING_LENGTH ){
+            strcat( buf, "**OVERFLOW**\r\n" );
+            break;
+        }
+            
+        strcat( buf, buf2 );
+        j++;
+	} 
+    page_string( ch->desc, buf, 1 );
+
+    break; // end case 8, or was it 9? I forget.
     default:
 	send_to_char("Sorry, that is not an option.\r\n", ch);
     }
