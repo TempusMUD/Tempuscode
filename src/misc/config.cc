@@ -323,7 +323,7 @@ char *WELC_MESSG = "\r\n" "Welcome to the realms of Tempus, adventurer.\r\n";
 char *START_MESSG =
 	"Welcome.  This is your new character in the world of Tempus! \r\n"
 	"You must be strong to survive, but in time you may become powerful\r\n"
-	"beyond your wildest dreams, and even attain immortality...\r\n\r\n";
+	"beyond your wildest dreams...\r\n\r\n";
 
 /****************************************************************************/
 /****************************************************************************/
