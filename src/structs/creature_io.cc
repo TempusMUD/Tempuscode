@@ -31,7 +31,6 @@ bool
 Creature::crashSave()
 {
     rent.rentcode = RENT_CRASH;
-	rent.time = time(0);
 	rent.currency = in_room->zone->time_frame;
 
     if(!saveObjects() ) {
@@ -48,8 +47,6 @@ Creature::rentSave(int cost, int rentcode)//= RENT_RENTED
 {
     rent.net_cost_per_diem = cost;
 	rent.rentcode = rentcode;
-	rent.time = time(0);
-	rent.gold = GET_GOLD(this);
 	rent.currency = in_room->zone->time_frame;
 
     extractUnrentables();
@@ -385,8 +382,6 @@ Creature::cryoSave(int cost)
 		GET_GOLD(this) = MAX(0, GET_GOLD(this) - cost);
 
     rent.rentcode = RENT_CRYO;
-	rent.time = time(0);
-	rent.gold = GET_GOLD(this);
 	rent.net_cost_per_diem = 0;
 	rent.currency = in_room->zone->time_frame;
     extractUnrentables();
@@ -481,7 +476,7 @@ Creature::loadObjects()
 
     xmlFreeDoc(doc);
 
-	if (payRent(rent.time, rent.rentcode, rent.currency))
+	if (payRent(player.time.logon, rent.rentcode, rent.currency))
 		return 2;
 	return 0;
 }
@@ -519,10 +514,8 @@ Creature::saveToXML()
 		ch->points.hit, ch->points.mana, ch->points.move,
 		ch->points.max_hit, ch->points.max_mana, ch->points.max_move);
 
-    fprintf(ouf, "<money gold=\"%d\" bank=\"%d\" cash=\"%d\" credits=\"%d\" xp=\"%d\"/>\n",
-        ch->points.gold, ch->points.bank_gold, 
-		ch->points.cash, ch->points.credits, 
-		ch->points.exp);
+    fprintf(ouf, "<money gold=\"%d\" cash=\"%d\" xp=\"%d\"/>\n",
+        ch->points.gold, ch->points.cash,  ch->points.exp);
 
 	fprintf(ouf, "<stats level=\"%d\" sex=\"%s\" race=\"%s\" height=\"%d\" weight=\"%d\" align=\"%d\"/>\n",
 		GET_LEVEL(ch), genders[GET_SEX(ch)], player_race[GET_RACE(ch)],
@@ -577,16 +570,13 @@ Creature::saveToXML()
 		ch->rent.desc_mode = ch->desc->input_mode;
 	if (ch->rent.rentcode == RENT_CREATING ||
 			ch->rent.rentcode == RENT_REMORTING) {
-		fprintf(ouf, "<rent time=\"%d\" code=\"%d\" perdiem=\"%d\" "
-			"gold=\"%d\" bank=\"%d\" currency=\"%d\" state=\"%s\"/>\n",
-			ch->rent.time, ch->rent.rentcode, ch->rent.net_cost_per_diem,
-			ch->rent.gold, ch->rent.account, ch->rent.currency,
+		fprintf(ouf, "<rent code=\"%d\" perdiem=\"%d\" "
+			"currency=\"%d\" state=\"%s\"/>\n",
+			ch->rent.rentcode, ch->rent.net_cost_per_diem, ch->rent.currency,
 			desc_modes[(int)ch->rent.desc_mode]);
 	} else {
-		fprintf(ouf, "<rent time=\"%d\" code=\"%d\" perdiem=\"%d\" "
-			"gold=\"%d\" bank=\"%d\" currency=\"%d\"/>\n",
-			ch->rent.time, ch->rent.rentcode, ch->rent.net_cost_per_diem,
-			ch->rent.gold, ch->rent.account, ch->rent.currency );
+		fprintf(ouf, "<rent code=\"%d\" perdiem=\"%d\" currency=\"%d\"/>\n",
+			ch->rent.rentcode, ch->rent.net_cost_per_diem, ch->rent.currency);
 	}
 	fprintf(ouf, "<home town=\"%d\" loadroom=\"%d\" held_town=\"%d\" held_loadroom=\"%d\"/>\n",
 		GET_HOME(ch), GET_LOADROOM(ch), GET_HOLD_HOME(ch),
@@ -609,8 +599,6 @@ Creature::saveToXML()
         fprintf(ouf, "<frozen thaw_time=\"%d\" freezer_id=\"%d\"/>\n", 
                 ch->player_specials->thaw_time, ch->player_specials->freezer_id);
     }
-//		fprintf(ouf, " frozen_lvl=\"%d\"", GET_FREEZE_LEV(ch));
-//	fprintf(ouf, "/>\n");
 
 	fprintf(ouf, "<prefs flag1=\"%lx\" flag2=\"%lx\"/>\n",
 		ch->player_specials->saved.pref, ch->player_specials->saved.pref2);
@@ -708,9 +696,7 @@ Creature::loadFromXML( const char *path )
             points.max_move = xmlGetIntProp(node, "maxmove");
         } else if ( xmlMatches(node->name, "money") ) {
             points.gold = xmlGetIntProp(node, "gold");
-            points.bank_gold = xmlGetIntProp(node, "bank");
             points.cash = xmlGetIntProp(node, "cash");
-            points.credits = xmlGetIntProp(node, "credits");
             points.exp = xmlGetIntProp(node, "xp");
         } else if ( xmlMatches(node->name, "stats") ) {
             player.level = xmlGetIntProp(node, "level");
@@ -908,10 +894,8 @@ Creature::loadFromXML( const char *path )
         } else if (xmlMatches(node->name, "rent")) {
 			char *txt;
 
-			rent.time = xmlGetIntProp(node, "time");
 			rent.rentcode = xmlGetIntProp(node, "code");
 			rent.net_cost_per_diem = xmlGetIntProp(node, "perdiem");
-			rent.gold = xmlGetIntProp(node, "gold");
 			rent.currency = xmlGetIntProp(node, "currency");
 			txt = (char *)xmlGetProp(node, "state");
 			if (txt)
