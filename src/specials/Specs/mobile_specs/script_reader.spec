@@ -15,10 +15,24 @@
 #define LAST_SCRIPT_ACTION       ( GET_OBJ_MAX_DAM( obj ) )
 #define SCRIPT_FLAGGED( flag )  ( IS_SET( MESSAGE_MODE, flag ) )
 
+static bool
+script_perform(Creature *ch, obj_data *obj, int num)
+{
+	char *num_str;
+	char *desc = NULL;
+
+	num_str = tmp_sprintf("%d", num);
+	desc = find_exdesc(num_str, obj->ex_description, 1);
+	if (!desc)
+		return false;
+	
+	command_interpreter(ch, tmp_gsub(tmp_getline(&desc), "\r\n", " "));
+	return true;
+}
+
 SPECIAL(mob_read_script)
 {
 	struct obj_data *obj = GET_IMPLANT(ch, WEAR_HOLD);
-	char *desc = NULL;
 	int which = 0;
 	int found = 0;
 
@@ -49,43 +63,27 @@ SPECIAL(mob_read_script)
 	if (TOP_MESSAGE < 0)
 		return false;
 
+	CUR_WAIT = WAIT_TIME;
+
 	if (SCRIPT_FLAGGED(MODE_RANDOM)) {
-
 		which = number(0, TOP_MESSAGE);
-		sprintf(buf, "%d", which);
-
-		CUR_WAIT = WAIT_TIME;
 
 		if (which == LAST_SCRIPT_ACTION)
 			return false;
-
-		if ((desc = find_exdesc(buf, obj->ex_description, 1))) {
-			command_interpreter(ch, tmp_gsub(desc, "\r\n", " "));
+		else
 			LAST_SCRIPT_ACTION = which;
-			return true;
-		}
-		return false;
+
+		return script_perform(ch, obj, which);
 	}
 
-	/* ordered mode */
+	// ordered mode
 
 	if (SCRIPT_COUNTER > TOP_MESSAGE) {
-
 		SCRIPT_COUNTER = 0;
 		CUR_WAIT = WAIT_TIME << 1;
 
 		return false;
 	}
 
-	sprintf(buf, "%d", SCRIPT_COUNTER);
-
-	CUR_WAIT = WAIT_TIME;
-	SCRIPT_COUNTER++;
-
-	if ((desc = find_exdesc(buf, obj->ex_description, 1))) {
-		command_interpreter(ch, tmp_gsub(desc, "\r\n", " "));
-		return true;
-	}
-
-	return false;
+	return script_perform(ch, obj, SCRIPT_COUNTER++);
 }
