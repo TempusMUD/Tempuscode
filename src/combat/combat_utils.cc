@@ -96,14 +96,23 @@ calculate_weapon_probability( struct char_data *ch, int prob, struct obj_data *w
 void 
 update_pos( struct char_data * victim )
 {
+	// Wake them up from thier nap.
     if ( GET_HIT( victim ) > 0 && victim->getPosition() == POS_SLEEPING )
 		victim->setPosition( POS_RESTING,1 );
+	// If everything is normal and they're fighting, set them fighting
+	else if ( GET_HIT( victim ) > 0  &&
+		 ( victim->getPosition() == POS_STANDING
+		   || victim->getPosition() == POS_FLYING ) &&
+		 FIGHTING(victim) )
+			victim->setPosition( POS_FIGHTING, 1 );
+	// If they're alive, not stunned, in a fight, and not pos_fighting
+	// (Making mobs stand when they get popped.
     else if ( ( GET_HIT( victim ) > 0 ) 
         && ( victim->getPosition() > POS_STUNNED ) 
         && victim->getPosition() < POS_FIGHTING &&
 	    FIGHTING( victim ) ) {
-		if ( ( victim->desc && victim->desc->wait <= 0 ) ||
-			 ( IS_NPC( victim ) && GET_MOB_WAIT( victim ) <= 0 ) ) {
+		// If they're an npc, and thier wait is 0.
+		if ( IS_NPC( victim ) && GET_MOB_WAIT( victim ) <= 0 ) {
             if ( victim->getPosition() < POS_FIGHTING) {
                 if(!IS_AFFECTED_3(victim,AFF3_GRAVITY_WELL) ||
                     number(1,20) < GET_STR(victim)) {
@@ -119,6 +128,8 @@ update_pos( struct char_data * victim )
 			return;
         }
     } else if ( GET_HIT( victim ) > 0 ) {
+		if ( IS_NPC( victim ) && GET_MOB_WAIT( victim ) <= 0 ) {
+			// Flying?
             if ( victim->in_room->isOpenAir() 
             && !IS_AFFECTED_3(victim, AFF3_GRAVITY_WELL)
             && victim->getPosition() != POS_FLYING)
@@ -136,6 +147,7 @@ update_pos( struct char_data * victim )
                     WAIT_STATE( victim, PULSE_VIOLENCE );
                 }
             }
+		}
     }
     else if ( GET_HIT( victim ) <= -11 )
         victim->setPosition( POS_DEAD, 1 );
@@ -150,6 +162,8 @@ update_pos( struct char_data * victim )
 void
 check_killer( struct char_data * ch, struct char_data * vict, const char *debug_msg=0 )
 {
+	if(ZONE_FLAGGED(ch->in_room->zone, ZONE_NOLAW))
+		return;
     if ( !PLR_FLAGGED( vict, PLR_KILLER | PLR_THIEF ) &&
 	 !PLR_FLAGGED( ch, PLR_KILLER ) &&
 	 ( !PLR_FLAGGED( vict, PLR_TOUGHGUY ) ||  
