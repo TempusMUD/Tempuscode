@@ -14,7 +14,7 @@ SPECIAL( hell_domed_chamber ) {
     if ( cur_time - last_time < DOMED_CHAMBER_TIME )
 	return 0;
 
-    if ( GET_LEVEL( ch ) < LVL_IMMORTAL )
+    if ( GET_LEVEL( ch ) < LVL_IMMORT )
 	last_time = cur_time;
 
     struct char_data *cloned_char = read_mobile( 17199 );
