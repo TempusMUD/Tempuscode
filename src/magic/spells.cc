@@ -2458,45 +2458,77 @@ const int legion_vnums[5] = {
 ASPELL(spell_summon_legion)
 {
     int i, count;
+    float mult; 
     struct char_data *devil = NULL;
     struct affected_type af;
     struct follow_type *k = NULL;
-
+    /*
     i = number(0, MAX(1, GET_REMORT_GEN(ch)-4));
     i = MAX(((GET_REMORT_GEN(ch) - 4) / 3), i);
     i = MIN(i, 4);
-
+    */
+    
     if (number(0, 120) > CHECK_SKILL(ch, SPELL_SUMMON_LEGION)) {
-	send_to_char("You fail.\r\n", ch);
-	return;
+        send_to_char("You fail.\r\n", ch);
+        return;
     }
+    int pets = 0;
+    for(follow_type *f = ch->followers;f;f = f->next) {
+        if(IS_NPC(f->follower) && IS_PET(f->follower)) {
+            pets++;
+        }
+    }
+    
+    // devil modification based on power level of leige
+    mult = ch->getLevelBonus(SPELL_SUMMON_LEGION) * 1.5 / 100;
+
+    // choose the appropriate minion
+    i = (ch->getLevelBonus(SPELL_SUMMON_LEGION) * 2/3) + number(1,30);
+    i = i / 20; // divide based on number of devils avaliable
+    i = MAX(i, 0);
+    i = MIN(i, 4);
   
     if (!(devil = read_mobile(legion_vnums[i]))) {
-	sprintf(buf, "SYSERR: unable to load legion, i=%d.", i);
-	slog(buf);
-	send_to_char("legion error.\r\n", ch);
-	return;
+        sprintf(buf, "SYSERR: unable to load legion, i=%d.", i);
+        slog(buf);
+        send_to_char("legion error.\r\n", ch);
+        return;
     }
+    // get better at it.
+    gain_skill_prof(ch, SPELL_SUMMON_LEGION);
+    
+    // tweak based on multiplier
+    GET_HITROLL(devil) = (sbyte) MIN(GET_HITROLL(devil) * mult, 60);
+    GET_DAMROLL(devil) = (sbyte) MIN(GET_DAMROLL(devil) * mult, 60);
+    GET_MAX_HIT(devil) = (sh_int) MIN(GET_MAX_HIT(devil) * mult, 30000);
+    GET_HIT(devil)     = GET_MAX_HIT(devil);
+
 	// Make sure noone gets xp fer these buggers.
 	SET_BIT(MOB_FLAGS(devil), MOB_PET);
+    // or gold
+    GET_GOLD(devil) = 0;
+   
 
 
     char_to_room(devil, ch->in_room);
     act("A glowing interplanar rift opens with a crack of thunder!\r\n"
-	"$n steps from the mouth of the conduit, which closes with a roar!",
-	FALSE,devil,0,0,TO_ROOM);
+        "$n steps from the mouth of the conduit, which closes with a roar!",
+        FALSE,devil,0,0,TO_ROOM);
 
     if (number(0, 50+GET_LEVEL(devil)) > 
-	((CHECK_SKILL(ch, SPELL_SUMMON_LEGION) >> 1) + level + GET_CHA(ch))) {
-	hit(devil, ch, TYPE_UNDEFINED);
-	return;
+    ch->getLevelBonus(SPELL_SUMMON_LEGION)) {
+        hit(devil, ch, TYPE_UNDEFINED);
+        return;
     } 
     for (k = ch->followers, count = 0; k; k = k->next)
-	if (IS_NPC(k->follower) && IS_DEVIL(k->follower))
-	    count++;
+        if (IS_NPC(k->follower) && IS_DEVIL(k->follower))
+            count++;
 
-    if (count > number(0, GET_REMORT_GEN(ch)))
-	return;
+    if (count > number(1, GET_REMORT_GEN(ch)))
+        return;
+
+    // pets too scared to help.
+    REMOVE_BIT(MOB_FLAGS(devil),MOB_HELPER);
 
     add_follower(devil, ch);
   
@@ -2511,7 +2543,6 @@ ASPELL(spell_summon_legion)
     af.level = level;
     affect_to_char(devil, &af);
   
-    gain_skill_prof(ch, SPELL_SUMMON_LEGION);
     return;
 }
 

@@ -62,11 +62,11 @@ fname(const char *namelist)
     register char *point;
 
     if (!namelist) {
-	slog("SYSERR: Null namelist passed to fname().");
-	return "";
+        slog("SYSERR: Null namelist passed to fname().");
+        return "";
     }
     for (point = holder; isalnum(*namelist); namelist++, point++)
-	*point = *namelist;
+        *point = *namelist;
   
     *point = '\0';
   
@@ -81,32 +81,32 @@ isname(const char *str, const char *namelist)
     static char tmpnamelist[MAX_STRING_LENGTH];
     static char tmpstr[MAX_STRING_LENGTH];
     if (!*str)
-	return 0;
+        return 0;
 
     strcpy( tmpnamelist, namelist );
     strcpy( tmpstr, str );
     curname = tmpnamelist;
     for (;;) {
-	for (curstr = tmpstr;; curstr++, curname++) {
-	    if (!*curstr) // && !isalnum(*curname))
-		return (1);
+        for (curstr = tmpstr;; curstr++, curname++) {
+            if (!*curstr) // && !isalnum(*curname))
+                return (1);
       
-	    if (!*curname)
-		return (0);
+            if (!*curname)
+                return (0);
       
-	    if (!*curstr || *curname == ' ')
-		break;
+            if (!*curstr || *curname == ' ')
+                break;
       
-	    if (LOWER(*curstr) != LOWER(*curname))
-		break;
-	}
+            if (LOWER(*curstr) != LOWER(*curname))
+                break;
+        }
     
-	/* skip to next name */
+        /* skip to next name */
     
-	for (; isalnum(*curname); curname++);
-	if (!*curname)
-	    return (0);
-	curname++;			/* first char of new name */
+        for (; isalnum(*curname); curname++);
+        if (!*curname)
+            return (0);
+        curname++;                        /* first char of new name */
     }
 }
 
@@ -118,32 +118,32 @@ isname_exact(const char *str, const char *namelist)
     static char tmpstr[MAX_STRING_LENGTH];
 
     if (!*str)
-	return 0;
+        return 0;
 
     strcpy( tmpnamelist, namelist );
     strcpy( tmpstr, str );
     curname = tmpnamelist;
     for (;;) {
-	for (curstr = tmpstr;; curstr++, curname++) {
-	    if (!*curstr && !isalnum(*curname))
-		return (1);
+        for (curstr = tmpstr;; curstr++, curname++) {
+            if (!*curstr && !isalnum(*curname))
+                return (1);
       
-	    if (!*curname)
-		return (0);
+            if (!*curname)
+                return (0);
       
-	    if (!*curstr || *curname == ' ')
-		break;
+            if (!*curstr || *curname == ' ')
+                break;
       
-	    if (LOWER(*curstr) != LOWER(*curname))
-		break;
-	}
+            if (LOWER(*curstr) != LOWER(*curname))
+                break;
+        }
     
-	/* skip to next name */
+        /* skip to next name */
     
-	for (; isalnum(*curname); curname++);
-	if (!*curname)
-	    return (0);
-	curname++;			/* first char of new name */
+        for (; isalnum(*curname); curname++);
+        if (!*curname)
+            return (0);
+        curname++;                        /* first char of new name */
     }
 }
 
@@ -155,15 +155,15 @@ check_interface(struct char_data *ch, struct obj_data *obj, int mode)
     int j;
 
     for (chip = obj->contains; chip; chip = chip->next_content) {
-	if (SKILLCHIP(chip) && CHIP_DATA(chip) > 0 &&
-	    CHIP_DATA(chip) < MAX_SKILLS)
-	    affect_modify(ch, -CHIP_DATA(chip), CHIP_MAX(chip), 0, 0, mode);
-	for (j = 0; j < MAX_OBJ_AFFECT; j++)
-	    affect_modify(ch, chip->affected[j].location,
-			  chip->affected[j].modifier, 0, 0, mode);
-	affect_modify(ch,0,0,chip->obj_flags.bitvector[0], 1, mode);
-	affect_modify(ch,0,0,chip->obj_flags.bitvector[1], 1, mode);
-	affect_modify(ch,0,0,chip->obj_flags.bitvector[2], 1, mode);
+        if (SKILLCHIP(chip) && CHIP_DATA(chip) > 0 &&
+            CHIP_DATA(chip) < MAX_SKILLS)
+            affect_modify(ch, -CHIP_DATA(chip), CHIP_MAX(chip), 0, 0, mode);
+        for (j = 0; j < MAX_OBJ_AFFECT; j++)
+            affect_modify(ch, chip->affected[j].location,
+                          chip->affected[j].modifier, 0, 0, mode);
+        affect_modify(ch,0,0,chip->obj_flags.bitvector[0], 1, mode);
+        affect_modify(ch,0,0,chip->obj_flags.bitvector[1], 1, mode);
+        affect_modify(ch,0,0,chip->obj_flags.bitvector[2], 1, mode);
     }
 }
 
@@ -174,251 +174,251 @@ MIN(GET_SKILL(ch, skill) + mod, 125)
 
     void 
 affect_modify(struct char_data * ch, sh_int loc, sh_int mod, long bitv,
-	      int index,  bool add)
+              int index,  bool add)
 {
   
     if (bitv) {
-	if (add) {
-	    if (index == 2) {
-		if (ch->in_room &&
-		    ((bitv == AFF2_FLUORESCENT) || 
-		     (bitv == AFF2_DIVINE_ILLUMINATION)) &&
-		    !AFF2_FLAGGED(ch, AFF_GLOWLIGHT) &&
-		    !AFF2_FLAGGED(ch, AFF2_FLUORESCENT | AFF2_DIVINE_ILLUMINATION) &&
-		    !affected_by_spell(ch, SPELL_QUAD_DAMAGE))
-		    ch->in_room->light++;
-		SET_BIT(AFF2_FLAGS(ch), bitv);
-	    } else if (index == 3) {
-		SET_BIT(AFF3_FLAGS(ch), bitv);
-	    } else {
-		if (bitv == AFF_GLOWLIGHT &&
-		    ch->in_room &&
-		    !AFF2_FLAGGED(ch, AFF_GLOWLIGHT) &&
-		    !AFF2_FLAGGED(ch, AFF2_FLUORESCENT | AFF2_DIVINE_ILLUMINATION) &&
-		    !affected_by_spell(ch, SPELL_QUAD_DAMAGE))
-		    ch->in_room->light++;
-		SET_BIT(AFF_FLAGS(ch), bitv);
-	    }
+        if (add) {
+            if (index == 2) {
+                if (ch->in_room &&
+                    ((bitv == AFF2_FLUORESCENT) || 
+                     (bitv == AFF2_DIVINE_ILLUMINATION)) &&
+                    !AFF2_FLAGGED(ch, AFF_GLOWLIGHT) &&
+                    !AFF2_FLAGGED(ch, AFF2_FLUORESCENT | AFF2_DIVINE_ILLUMINATION) &&
+                    !affected_by_spell(ch, SPELL_QUAD_DAMAGE))
+                    ch->in_room->light++;
+                SET_BIT(AFF2_FLAGS(ch), bitv);
+            } else if (index == 3) {
+                SET_BIT(AFF3_FLAGS(ch), bitv);
+            } else {
+                if (bitv == AFF_GLOWLIGHT &&
+                    ch->in_room &&
+                    !AFF2_FLAGGED(ch, AFF_GLOWLIGHT) &&
+                    !AFF2_FLAGGED(ch, AFF2_FLUORESCENT | AFF2_DIVINE_ILLUMINATION) &&
+                    !affected_by_spell(ch, SPELL_QUAD_DAMAGE))
+                    ch->in_room->light++;
+                SET_BIT(AFF_FLAGS(ch), bitv);
+            }
       
-	} else {  /* remove aff (!add) */
-	    if (index == 2) {
-		if (ch->in_room &&
-		    ((bitv == AFF2_FLUORESCENT) || 
-		     (bitv == AFF2_DIVINE_ILLUMINATION)) &&
-		    !AFF2_FLAGGED(ch, AFF_GLOWLIGHT) &&
-		    !AFF2_FLAGGED(ch, AFF2_FLUORESCENT | AFF2_DIVINE_ILLUMINATION) &&
-		    !affected_by_spell(ch, SPELL_QUAD_DAMAGE))
-		    ch->in_room->light--;
-		REMOVE_BIT(AFF2_FLAGS(ch), bitv);
-	    }
-	    else if (index == 3)
-		REMOVE_BIT(AFF3_FLAGS(ch), bitv);
-	    else {
-		if (bitv == AFF_GLOWLIGHT &&
-		    ch->in_room &&
-		    !AFF2_FLAGGED(ch, AFF_GLOWLIGHT) &&
-		    !AFF2_FLAGGED(ch, AFF2_FLUORESCENT | AFF2_DIVINE_ILLUMINATION) &&
-		    !affected_by_spell(ch, SPELL_QUAD_DAMAGE))
-		    ch->in_room->light--;
-		REMOVE_BIT(AFF_FLAGS(ch), bitv);
-	
-	    }
-	    mod = -mod;
-	}
+        } else {  /* remove aff (!add) */
+            if (index == 2) {
+                if (ch->in_room &&
+                    ((bitv == AFF2_FLUORESCENT) || 
+                     (bitv == AFF2_DIVINE_ILLUMINATION)) &&
+                    !AFF2_FLAGGED(ch, AFF_GLOWLIGHT) &&
+                    !AFF2_FLAGGED(ch, AFF2_FLUORESCENT | AFF2_DIVINE_ILLUMINATION) &&
+                    !affected_by_spell(ch, SPELL_QUAD_DAMAGE))
+                    ch->in_room->light--;
+                REMOVE_BIT(AFF2_FLAGS(ch), bitv);
+            }
+            else if (index == 3)
+                REMOVE_BIT(AFF3_FLAGS(ch), bitv);
+            else {
+                if (bitv == AFF_GLOWLIGHT &&
+                    ch->in_room &&
+                    !AFF2_FLAGGED(ch, AFF_GLOWLIGHT) &&
+                    !AFF2_FLAGGED(ch, AFF2_FLUORESCENT | AFF2_DIVINE_ILLUMINATION) &&
+                    !affected_by_spell(ch, SPELL_QUAD_DAMAGE))
+                    ch->in_room->light--;
+                REMOVE_BIT(AFF_FLAGS(ch), bitv);
+        
+            }
+            mod = -mod;
+        }
     } else if (!add)
-	mod = -mod;
+        mod = -mod;
 
     if (loc < 0) {
-	loc = -loc;
-	if (loc < MAX_SKILLS && !IS_NPC(ch))
-	    APPLY_SKILL(ch, loc, mod);
-	return;
+        loc = -loc;
+        if (loc < MAX_SKILLS && !IS_NPC(ch))
+            APPLY_SKILL(ch, loc, mod);
+        return;
     }
       
     switch (loc) {
     case APPLY_NONE:
-	break;
+        break;
     case APPLY_STR:
-	/*    if (GET_STR(ch) > 18)
-	      GET_STR(ch) += 10; */
-	GET_STR(ch) += mod;
-	GET_STR(ch) += GET_ADD(ch) / 10;
-	GET_ADD(ch) = 0;
-	break;
+        /*    if (GET_STR(ch) > 18)
+              GET_STR(ch) += 10; */
+        GET_STR(ch) += mod;
+        GET_STR(ch) += GET_ADD(ch) / 10;
+        GET_ADD(ch) = 0;
+        break;
     case APPLY_DEX:
-	GET_DEX(ch) += mod;
-	break;
+        GET_DEX(ch) += mod;
+        break;
     case APPLY_INT:
-	GET_INT(ch) += mod;
-	break;
+        GET_INT(ch) += mod;
+        break;
     case APPLY_WIS:
-	GET_WIS(ch) += mod;
-	break;
+        GET_WIS(ch) += mod;
+        break;
     case APPLY_CON:
-	GET_CON(ch) += mod;
-	break;
+        GET_CON(ch) += mod;
+        break;
     case APPLY_CHA:
-	GET_CHA(ch) += mod;
-	break;
+        GET_CHA(ch) += mod;
+        break;
     case APPLY_CLASS:
-	break;
+        break;
     case APPLY_LEVEL:
-	break;
+        break;
     case APPLY_AGE:
-	ch->player.age_adjust += mod;
-	break;
+        ch->player.age_adjust += mod;
+        break;
     case APPLY_CHAR_WEIGHT:
-	GET_WEIGHT(ch) += mod;
-	break;
+        GET_WEIGHT(ch) += mod;
+        break;
     case APPLY_CHAR_HEIGHT:
-	GET_HEIGHT(ch) += mod;
-	break;
+        GET_HEIGHT(ch) += mod;
+        break;
     case APPLY_MANA:
-	GET_MAX_MANA(ch) += mod;
-	break;
+        GET_MAX_MANA(ch) += mod;
+        break;
     case APPLY_HIT:
-	GET_MAX_HIT(ch) += mod;
-	break;
+        GET_MAX_HIT(ch) += mod;
+        break;
     case APPLY_MOVE:
-	GET_MAX_MOVE(ch) += mod;
-	break;
+        GET_MAX_MOVE(ch) += mod;
+        break;
     case APPLY_GOLD:
-	break;
+        break;
     case APPLY_EXP:
-	break;
+        break;
     case APPLY_AC:
-	GET_AC(ch) += mod;
-	break;
+        GET_AC(ch) += mod;
+        break;
     case APPLY_HITROLL:
-	if(GET_HITROLL(ch) + mod > 125)
-		GET_HITROLL(ch) = MIN(125, GET_HITROLL(ch) + mod);
-	else if(GET_HITROLL(ch) + mod < -125)
-		GET_HITROLL(ch) = MAX(-125, GET_HITROLL(ch) + mod);
+        if(GET_HITROLL(ch) + mod > 125)
+                GET_HITROLL(ch) = MIN(125, GET_HITROLL(ch) + mod);
+        else if(GET_HITROLL(ch) + mod < -125)
+                GET_HITROLL(ch) = MAX(-125, GET_HITROLL(ch) + mod);
     else
         GET_HITROLL(ch) += mod;
-	break;
+        break;
     case APPLY_DAMROLL:
-	if(GET_DAMROLL(ch) + mod > 125)
-		GET_DAMROLL(ch) = MIN(125, GET_DAMROLL(ch) + mod);
-	else if(GET_DAMROLL(ch) + mod < -125)
-		GET_DAMROLL(ch) = MAX(-125, GET_DAMROLL(ch) + mod);
+        if(GET_DAMROLL(ch) + mod > 125)
+                GET_DAMROLL(ch) = MIN(125, GET_DAMROLL(ch) + mod);
+        else if(GET_DAMROLL(ch) + mod < -125)
+                GET_DAMROLL(ch) = MAX(-125, GET_DAMROLL(ch) + mod);
     else
         GET_DAMROLL(ch) += mod;
-	break;
+        break;
     case APPLY_SAVING_PARA:
-	GET_SAVE(ch, SAVING_PARA) += mod;
-	break;
+        GET_SAVE(ch, SAVING_PARA) += mod;
+        break;
     case APPLY_SAVING_ROD:
-	GET_SAVE(ch, SAVING_ROD) += mod;
-	break;
+        GET_SAVE(ch, SAVING_ROD) += mod;
+        break;
     case APPLY_SAVING_PETRI:
-	GET_SAVE(ch, SAVING_PETRI) += mod;
-	break;
+        GET_SAVE(ch, SAVING_PETRI) += mod;
+        break;
     case APPLY_SAVING_BREATH:
-	GET_SAVE(ch, SAVING_BREATH) += mod;
-	break;
+        GET_SAVE(ch, SAVING_BREATH) += mod;
+        break;
     case APPLY_SAVING_SPELL:
-	GET_SAVE(ch, SAVING_SPELL) += mod;
-	break;
+        GET_SAVE(ch, SAVING_SPELL) += mod;
+        break;
     case APPLY_SAVING_CHEM:
-	GET_SAVE(ch, SAVING_CHEM) += mod;
-	break;
+        GET_SAVE(ch, SAVING_CHEM) += mod;
+        break;
     case APPLY_SAVING_PSI:
-	GET_SAVE(ch, SAVING_PSI) += mod;
-	break;
+        GET_SAVE(ch, SAVING_PSI) += mod;
+        break;
     case APPLY_SNEAK:
-	APPLY_SKILL(ch, SKILL_SNEAK, mod);
-	break;
+        APPLY_SKILL(ch, SKILL_SNEAK, mod);
+        break;
     case APPLY_HIDE:
-	APPLY_SKILL(ch, SKILL_HIDE, mod);
-	break;
+        APPLY_SKILL(ch, SKILL_HIDE, mod);
+        break;
     case APPLY_RACE:
-	if (mod >= 0 && mod < NUM_RACES)
-	    GET_RACE(ch) = mod;
-	break;
+        if (mod >= 0 && mod < NUM_RACES)
+            GET_RACE(ch) = mod;
+        break;
     case APPLY_SEX:
-	if (mod == 0 || mod == 1 || mod == 2)
-	    GET_SEX(ch) = mod;
-	break;
+        if (mod == 0 || mod == 1 || mod == 2)
+            GET_SEX(ch) = mod;
+        break;
     case APPLY_BACKSTAB:
-	APPLY_SKILL(ch, SKILL_BACKSTAB, mod);
-	break;
+        APPLY_SKILL(ch, SKILL_BACKSTAB, mod);
+        break;
     case APPLY_PICK_LOCK:
-	APPLY_SKILL(ch, SKILL_PICK_LOCK, mod);
-	break;
+        APPLY_SKILL(ch, SKILL_PICK_LOCK, mod);
+        break;
     case APPLY_PUNCH:
-	APPLY_SKILL(ch, SKILL_PUNCH, mod);
-	break;
+        APPLY_SKILL(ch, SKILL_PUNCH, mod);
+        break;
     case APPLY_SHOOT:
-	APPLY_SKILL(ch, SKILL_SHOOT, mod);
-	break;
+        APPLY_SKILL(ch, SKILL_SHOOT, mod);
+        break;
     case APPLY_KICK:
-	APPLY_SKILL(ch, SKILL_KICK, mod);
-	break;
+        APPLY_SKILL(ch, SKILL_KICK, mod);
+        break;
     case APPLY_TRACK:
-	APPLY_SKILL(ch, SKILL_TRACK, mod);
-	break;
+        APPLY_SKILL(ch, SKILL_TRACK, mod);
+        break;
     case APPLY_IMPALE:
-	APPLY_SKILL(ch, SKILL_IMPALE, mod);
-	break;
+        APPLY_SKILL(ch, SKILL_IMPALE, mod);
+        break;
     case APPLY_BEHEAD:
-	APPLY_SKILL(ch, SKILL_BEHEAD, mod);
-	break;
+        APPLY_SKILL(ch, SKILL_BEHEAD, mod);
+        break;
     case APPLY_THROWING:
-	APPLY_SKILL(ch, SKILL_THROWING, mod);
-	break;
+        APPLY_SKILL(ch, SKILL_THROWING, mod);
+        break;
     case APPLY_RIDING:
-	APPLY_SKILL(ch, SKILL_RIDING, mod);
-	break;
+        APPLY_SKILL(ch, SKILL_RIDING, mod);
+        break;
     case APPLY_TURN:
-	APPLY_SKILL(ch, SKILL_TURN, mod);
-	break;
+        APPLY_SKILL(ch, SKILL_TURN, mod);
+        break;
     case APPLY_ALIGN:
-	GET_ALIGNMENT(ch) = MAX(-1000, MIN(1000, GET_ALIGNMENT(ch) + mod));
-	break;
+        GET_ALIGNMENT(ch) = MAX(-1000, MIN(1000, GET_ALIGNMENT(ch) + mod));
+        break;
     case APPLY_SAVING_PHY:
-	GET_SAVE(ch, SAVING_PHY) += mod;
-	break;
+        GET_SAVE(ch, SAVING_PHY) += mod;
+        break;
     case APPLY_CASTER: // special usage
     case APPLY_WEAPONSPEED: // special usage
     case APPLY_DISGUISE: // special usage
-	break;
+        break;
 
-	// never set items with negative nothirst, nohunger, or nodrunk
+        // never set items with negative nothirst, nohunger, or nodrunk
     case APPLY_NOTHIRST:
-	if (IS_NPC(ch))
-	    break;
-	if (mod > 0)
-	    GET_COND(ch, THIRST) = -1;
-	else
-	    GET_COND(ch, THIRST) = 0;
-	break;
+        if (IS_NPC(ch))
+            break;
+        if (mod > 0)
+            GET_COND(ch, THIRST) = -1;
+        else
+            GET_COND(ch, THIRST) = 0;
+        break;
     case APPLY_NOHUNGER:
-	if (IS_NPC(ch))
-	    break;
-	if (mod > 0)
-	    GET_COND(ch, FULL) = -1;
-	else
-	    GET_COND(ch, FULL) = 0;
-	break;
+        if (IS_NPC(ch))
+            break;
+        if (mod > 0)
+            GET_COND(ch, FULL) = -1;
+        else
+            GET_COND(ch, FULL) = 0;
+        break;
     case APPLY_NODRUNK:
-	if (IS_NPC(ch))
-	    break;
-	if (mod > 0)
-	    GET_COND(ch, DRUNK) = -1;
-	else
-	    GET_COND(ch, DRUNK) = 0;
-	break;
+        if (IS_NPC(ch))
+            break;
+        if (mod > 0)
+            GET_COND(ch, DRUNK) = -1;
+        else
+            GET_COND(ch, DRUNK) = 0;
+        break;
     case APPLY_SPEED:
-	    ch->setSpeed(ch->getSpeed() + mod);
-	break;
+            ch->setSpeed(ch->getSpeed() + mod);
+        break;
 
     default:
-	sprintf( buf, 
+        sprintf( buf, 
                  "SYSERR: Unknown apply adjust attempt on %20s %3d + %3d in affect_modify. add=%d",
                  GET_NAME( ch ), loc, mod, add);
-	slog(buf);
-	break;
+        slog(buf);
+        break;
 
     } /* switch */
 }
@@ -435,58 +435,58 @@ affect_total(struct char_data * ch)
     int max_intel, max_dex, max_wis, max_con, max_cha;
 
     if (GET_STR(ch) > 18)
-	GET_STR(ch) += 10;
+        GET_STR(ch) += 10;
 
     // remove all item-based affects
     for (i = 0; i < NUM_WEARS; i++) {
 
-	// remove equipment affects
-	if (ch->equipment[i] && 
-	    (i != WEAR_BELT || 
-	     (GET_OBJ_TYPE(ch->equipment[i]) != ITEM_WEAPON &&
-	      GET_OBJ_TYPE(ch->equipment[i]) != ITEM_PIPE)) && 
-	    !invalid_char_class(ch, ch->equipment[i]) && !IS_IMPLANT(ch->equipment[i]) &&
-	    (!IS_DEVICE(ch->equipment[i]) || ENGINE_STATE(ch->equipment[i]))) {
+        // remove equipment affects
+        if (ch->equipment[i] && 
+            (i != WEAR_BELT || 
+             (GET_OBJ_TYPE(ch->equipment[i]) != ITEM_WEAPON &&
+              GET_OBJ_TYPE(ch->equipment[i]) != ITEM_PIPE)) && 
+            !invalid_char_class(ch, ch->equipment[i]) && !IS_IMPLANT(ch->equipment[i]) &&
+            (!IS_DEVICE(ch->equipment[i]) || ENGINE_STATE(ch->equipment[i]))) {
       
-	    for (j = 0; j < MAX_OBJ_AFFECT; j++)
-		affect_modify(ch, ch->equipment[i]->affected[j].location,
-			      ch->equipment[i]->affected[j].modifier, 0, 0, FALSE);
-	    affect_modify(ch,0,0,ch->equipment[i]->obj_flags.bitvector[0], 1, FALSE);
-	    affect_modify(ch,0,0,ch->equipment[i]->obj_flags.bitvector[1], 2, FALSE);
-	    affect_modify(ch,0,0,ch->equipment[i]->obj_flags.bitvector[2], 3, FALSE);
+            for (j = 0; j < MAX_OBJ_AFFECT; j++)
+                affect_modify(ch, ch->equipment[i]->affected[j].location,
+                              ch->equipment[i]->affected[j].modifier, 0, 0, FALSE);
+            affect_modify(ch,0,0,ch->equipment[i]->obj_flags.bitvector[0], 1, FALSE);
+            affect_modify(ch,0,0,ch->equipment[i]->obj_flags.bitvector[1], 2, FALSE);
+            affect_modify(ch,0,0,ch->equipment[i]->obj_flags.bitvector[2], 3, FALSE);
 
-	    if (IS_INTERFACE(ch->equipment[i]) && 
-		INTERFACE_TYPE(ch->equipment[i]) == INTERFACE_CHIPS &&
-		ch->equipment[i]->contains)
-		check_interface(ch, ch->equipment[i], FALSE);
+            if (IS_INTERFACE(ch->equipment[i]) && 
+                INTERFACE_TYPE(ch->equipment[i]) == INTERFACE_CHIPS &&
+                ch->equipment[i]->contains)
+                check_interface(ch, ch->equipment[i], FALSE);
       
-	}
+        }
     
-	// remove implant affects
-	if (ch->implants[i] && !invalid_char_class(ch, ch->implants[i]) &&
-	    (!IS_DEVICE(ch->implants[i]) || ENGINE_STATE(ch->implants[i]))) {
+        // remove implant affects
+        if (ch->implants[i] && !invalid_char_class(ch, ch->implants[i]) &&
+            (!IS_DEVICE(ch->implants[i]) || ENGINE_STATE(ch->implants[i]))) {
 
-	    for (j = 0; j < MAX_OBJ_AFFECT; j++)
-		affect_modify(ch, ch->implants[i]->affected[j].location,
-			      ch->implants[i]->affected[j].modifier, 0, 0, FALSE);
-	    affect_modify(ch,0,0,ch->implants[i]->obj_flags.bitvector[0], 1, FALSE);
-	    affect_modify(ch,0,0,ch->implants[i]->obj_flags.bitvector[1], 2, FALSE);
-	    affect_modify(ch,0,0,ch->implants[i]->obj_flags.bitvector[2], 3, FALSE);
+            for (j = 0; j < MAX_OBJ_AFFECT; j++)
+                affect_modify(ch, ch->implants[i]->affected[j].location,
+                              ch->implants[i]->affected[j].modifier, 0, 0, FALSE);
+            affect_modify(ch,0,0,ch->implants[i]->obj_flags.bitvector[0], 1, FALSE);
+            affect_modify(ch,0,0,ch->implants[i]->obj_flags.bitvector[1], 2, FALSE);
+            affect_modify(ch,0,0,ch->implants[i]->obj_flags.bitvector[2], 3, FALSE);
       
-	    if (IS_INTERFACE(ch->implants[i]) && 
-		INTERFACE_TYPE(ch->implants[i]) == INTERFACE_CHIPS &&
-		ch->implants[i]->contains) {
-		check_interface(ch, ch->implants[i], FALSE);
-	
-	    }
-	}
+            if (IS_INTERFACE(ch->implants[i]) && 
+                INTERFACE_TYPE(ch->implants[i]) == INTERFACE_CHIPS &&
+                ch->implants[i]->contains) {
+                check_interface(ch, ch->implants[i], FALSE);
+        
+            }
+        }
     }
   
 
     // remove all spell affects
     for (af = ch->affected; af; af = af->next)
-	affect_modify(ch, af->location, af->modifier, af->bitvector, 
-		      af->aff_index, FALSE);
+        affect_modify(ch, af->location, af->modifier, af->bitvector, 
+                      af->aff_index, FALSE);
 
 
     /************************************************************************
@@ -496,10 +496,10 @@ affect_total(struct char_data * ch)
     ch->aff_abils = ch->real_abils;
   
     if (GET_STR(ch) > 18)
-	GET_STR(ch) += 10;
+        GET_STR(ch) += 10;
 
     for (i = 0; i < 10; i++)
-	GET_SAVE(ch, i) = 0;
+        GET_SAVE(ch, i) = 0;
 
     /************************************************************************
      * Reset affected stats                                                 *
@@ -508,87 +508,87 @@ affect_total(struct char_data * ch)
     // re-apply all item-based affects
     for (i = 0; i < NUM_WEARS; i++) {
     
-	// apply equipment affects
-	if (ch->equipment[i] && (i != WEAR_BELT ||
-				 (GET_OBJ_TYPE(ch->equipment[i]) != ITEM_WEAPON &&
-				  GET_OBJ_TYPE(ch->equipment[i]) != ITEM_PIPE)) &&
-	    !invalid_char_class(ch, ch->equipment[i]) && !IS_IMPLANT(ch->equipment[i]) &&
-	    (!IS_DEVICE(ch->equipment[i]) || ENGINE_STATE(ch->equipment[i]))) {
-	    for (j = 0; j < MAX_OBJ_AFFECT; j++)
-		affect_modify(ch, ch->equipment[i]->affected[j].location,
-			      ch->equipment[i]->affected[j].modifier, 0, 0, TRUE);
-	    affect_modify(ch,0,0, ch->equipment[i]->obj_flags.bitvector[0], 1, TRUE);
-	    affect_modify(ch,0,0, ch->equipment[i]->obj_flags.bitvector[1], 2, TRUE);
-	    affect_modify(ch,0,0,ch->equipment[i]->obj_flags.bitvector[2], 3, TRUE);
+        // apply equipment affects
+        if (ch->equipment[i] && (i != WEAR_BELT ||
+                                 (GET_OBJ_TYPE(ch->equipment[i]) != ITEM_WEAPON &&
+                                  GET_OBJ_TYPE(ch->equipment[i]) != ITEM_PIPE)) &&
+            !invalid_char_class(ch, ch->equipment[i]) && !IS_IMPLANT(ch->equipment[i]) &&
+            (!IS_DEVICE(ch->equipment[i]) || ENGINE_STATE(ch->equipment[i]))) {
+            for (j = 0; j < MAX_OBJ_AFFECT; j++)
+                affect_modify(ch, ch->equipment[i]->affected[j].location,
+                              ch->equipment[i]->affected[j].modifier, 0, 0, TRUE);
+            affect_modify(ch,0,0, ch->equipment[i]->obj_flags.bitvector[0], 1, TRUE);
+            affect_modify(ch,0,0, ch->equipment[i]->obj_flags.bitvector[1], 2, TRUE);
+            affect_modify(ch,0,0,ch->equipment[i]->obj_flags.bitvector[2], 3, TRUE);
 
-	    if (IS_INTERFACE(ch->equipment[i]) && 
-		INTERFACE_TYPE(ch->equipment[i]) == INTERFACE_CHIPS &&
-		ch->equipment[i]->contains)
-		check_interface(ch, ch->equipment[i], TRUE);
-	}
+            if (IS_INTERFACE(ch->equipment[i]) && 
+                INTERFACE_TYPE(ch->equipment[i]) == INTERFACE_CHIPS &&
+                ch->equipment[i]->contains)
+                check_interface(ch, ch->equipment[i], TRUE);
+        }
 
-	// apply implant affects
-	if (ch->implants[i] && !invalid_char_class(ch, ch->implants[i]) &&
-	    (!IS_DEVICE(ch->implants[i]) ||	ENGINE_STATE(ch->implants[i]))) {
+        // apply implant affects
+        if (ch->implants[i] && !invalid_char_class(ch, ch->implants[i]) &&
+            (!IS_DEVICE(ch->implants[i]) ||        ENGINE_STATE(ch->implants[i]))) {
 
-	    for (j = 0; j < MAX_OBJ_AFFECT; j++)
-		affect_modify(ch, ch->implants[i]->affected[j].location,
-			      ch->implants[i]->affected[j].modifier, 0, 0, TRUE);
-	    affect_modify(ch,0,0,ch->implants[i]->obj_flags.bitvector[0], 1, TRUE);
-	    affect_modify(ch,0,0,ch->implants[i]->obj_flags.bitvector[1], 2, TRUE);
-	    affect_modify(ch,0,0,ch->implants[i]->obj_flags.bitvector[2], 3, TRUE);
+            for (j = 0; j < MAX_OBJ_AFFECT; j++)
+                affect_modify(ch, ch->implants[i]->affected[j].location,
+                              ch->implants[i]->affected[j].modifier, 0, 0, TRUE);
+            affect_modify(ch,0,0,ch->implants[i]->obj_flags.bitvector[0], 1, TRUE);
+            affect_modify(ch,0,0,ch->implants[i]->obj_flags.bitvector[1], 2, TRUE);
+            affect_modify(ch,0,0,ch->implants[i]->obj_flags.bitvector[2], 3, TRUE);
       
-	    if (IS_INTERFACE(ch->implants[i]) && 
-		INTERFACE_TYPE(ch->implants[i]) == INTERFACE_CHIPS &&
-		ch->implants[i]->contains) {
-		check_interface(ch, ch->implants[i], TRUE);
-	
-	    }
-	}
+            if (IS_INTERFACE(ch->implants[i]) && 
+                INTERFACE_TYPE(ch->implants[i]) == INTERFACE_CHIPS &&
+                ch->implants[i]->contains) {
+                check_interface(ch, ch->implants[i], TRUE);
+        
+            }
+        }
     }
     for (af = ch->affected; af; af = af->next)
-	affect_modify(ch, af->location, af->modifier, af->bitvector, 
-		      af->aff_index, TRUE);
+        affect_modify(ch, af->location, af->modifier, af->bitvector, 
+                      af->aff_index, TRUE);
   
     /* Make certain values are between 0..25, not < 0 and not > 25! */
   
     i = (IS_NPC(ch) ? 25 : 18);
     max_dex = (IS_NPC(ch) ? 25 : 
-	       MIN(25, 
-		   18 + (IS_REMORT(ch) ? GET_REMORT_GEN(ch) : 0) +
-		   (IS_TABAXI(ch) ? 2 : 0) +
-		   ((IS_ELF(ch) || IS_DROW(ch)) ? 1 : 0)));
+               MIN(25, 
+                   18 + (IS_REMORT(ch) ? GET_REMORT_GEN(ch) : 0) +
+                   (IS_TABAXI(ch) ? 2 : 0) +
+                   ((IS_ELF(ch) || IS_DROW(ch)) ? 1 : 0)));
   
     max_intel = (IS_NPC(ch) ? 25 : 
-		 MIN(25, 
-		     18 + (IS_REMORT(ch) ? GET_REMORT_GEN(ch) : 0) +
-		     ((IS_ELF(ch) || IS_DROW(ch)) ? 1 : 0) + 
-		     (IS_MINOTAUR(ch) ? -2 : 0) +
-		     (IS_TABAXI(ch) ? -1 : 0) +
-		     (IS_ORC(ch) ? -1 : 0) +
-		     (IS_HALF_ORC(ch) ? -1 : 0)));
+                 MIN(25, 
+                     18 + (IS_REMORT(ch) ? GET_REMORT_GEN(ch) : 0) +
+                     ((IS_ELF(ch) || IS_DROW(ch)) ? 1 : 0) + 
+                     (IS_MINOTAUR(ch) ? -2 : 0) +
+                     (IS_TABAXI(ch) ? -1 : 0) +
+                     (IS_ORC(ch) ? -1 : 0) +
+                     (IS_HALF_ORC(ch) ? -1 : 0)));
   
     max_wis   = (IS_NPC(ch) ? 25 : 
-		 MIN(25, (18 + GET_REMORT_GEN(ch)) +
-		     (IS_MINOTAUR(ch) ? -2 : 0) + (IS_HALF_ORC(ch) ? -2 : 0) +
-		     (IS_TABAXI(ch) ? -2 : 0)));
+                 MIN(25, (18 + GET_REMORT_GEN(ch)) +
+                     (IS_MINOTAUR(ch) ? -2 : 0) + (IS_HALF_ORC(ch) ? -2 : 0) +
+                     (IS_TABAXI(ch) ? -2 : 0)));
   
     max_con =  (IS_NPC(ch) ? 25 : 
-		MIN(25, 
-		    18 + (IS_REMORT(ch) ? GET_REMORT_GEN(ch) : 0) +
-		    ((IS_MINOTAUR(ch) || IS_DWARF(ch)) ? 1 : 0) +
-		    (IS_TABAXI(ch) ? 1 : 0) +
-		    (IS_HALF_ORC(ch) ? 1 : 0) +
-		    (IS_ORC(ch) ? 2 : 0) +
-		    ((IS_ELF(ch) || IS_DROW(ch)) ? -1 : 0)));
+                MIN(25, 
+                    18 + (IS_REMORT(ch) ? GET_REMORT_GEN(ch) : 0) +
+                    ((IS_MINOTAUR(ch) || IS_DWARF(ch)) ? 1 : 0) +
+                    (IS_TABAXI(ch) ? 1 : 0) +
+                    (IS_HALF_ORC(ch) ? 1 : 0) +
+                    (IS_ORC(ch) ? 2 : 0) +
+                    ((IS_ELF(ch) || IS_DROW(ch)) ? -1 : 0)));
   
     max_cha = (IS_NPC(ch) ? 25 : 
-	       MIN(25, 
-		   18 + (IS_REMORT(ch) ? GET_REMORT_GEN(ch) : 0) +
-		   (IS_HALF_ORC(ch) ? -3 : 0) +
-		   (IS_ORC(ch) ? -3 : 0) +
-		   (IS_DWARF(ch) ? -1 : 0) +
-		   (IS_TABAXI(ch) ? -2 : 0)));
+               MIN(25, 
+                   18 + (IS_REMORT(ch) ? GET_REMORT_GEN(ch) : 0) +
+                   (IS_HALF_ORC(ch) ? -3 : 0) +
+                   (IS_ORC(ch) ? -3 : 0) +
+                   (IS_DWARF(ch) ? -1 : 0) +
+                   (IS_TABAXI(ch) ? -2 : 0)));
   
     GET_DEX(ch) = MAX(1, MIN(GET_DEX(ch), max_dex));
     GET_INT(ch) = MAX(1, MIN(GET_INT(ch), max_intel));
@@ -606,31 +606,31 @@ affect_total(struct char_data * ch)
     i = GET_STR(ch);
     i += GET_ADD(ch) / 10;
     /*  if (GET_STR(ch) > 18)
-	i += 10; */
+        i += 10; */
     if (i > 28) {
-	if (IS_REMORT(ch) || IS_MINOTAUR(ch) || IS_NPC(ch) || 
-	    IS_HALF_ORC(ch) ||
-	    GET_LEVEL(ch) >= LVL_AMBASSADOR) {
-	    i -= 10;
-	    GET_STR(ch) = MIN(i, 
-			      MIN(GET_REMORT_GEN(ch) + 18 +
-				  ((IS_NPC(ch) || 
-				    GET_LEVEL(ch) >= LVL_AMBASSADOR) ? 8 : 0) +
-				  (IS_MINOTAUR(ch) ? 2 : 0) +
-				  (IS_DWARF(ch) ? 1 : 0) +
-				  (IS_HALF_ORC(ch) ? 2 : 0) +
-				  (IS_ORC(ch) ? 1 : 0),
-				  25));
-	    GET_ADD(ch) = 0;
-	} else {
-	    GET_STR(ch) = 18;
-	    GET_ADD(ch) = 100;
-	}
+        if (IS_REMORT(ch) || IS_MINOTAUR(ch) || IS_NPC(ch) || 
+            IS_HALF_ORC(ch) ||
+            GET_LEVEL(ch) >= LVL_AMBASSADOR) {
+            i -= 10;
+            GET_STR(ch) = MIN(i, 
+                              MIN(GET_REMORT_GEN(ch) + 18 +
+                                  ((IS_NPC(ch) || 
+                                    GET_LEVEL(ch) >= LVL_AMBASSADOR) ? 8 : 0) +
+                                  (IS_MINOTAUR(ch) ? 2 : 0) +
+                                  (IS_DWARF(ch) ? 1 : 0) +
+                                  (IS_HALF_ORC(ch) ? 2 : 0) +
+                                  (IS_ORC(ch) ? 1 : 0),
+                                  25));
+            GET_ADD(ch) = 0;
+        } else {
+            GET_STR(ch) = 18;
+            GET_ADD(ch) = 100;
+        }
     } else if (i > 18) {
-	GET_STR(ch) = 18;
-	GET_ADD(ch) = (i - 18) * 10;
+        GET_STR(ch) = 18;
+        GET_ADD(ch) = (i - 18) * 10;
     } else
-	GET_ADD(ch) = 0;
+        GET_ADD(ch) = 0;
 
 }
   
@@ -650,17 +650,17 @@ affect_to_char(struct char_data * ch, struct affected_type * af)
     ch->affected = affected_alloc;
 
     affect_modify(ch, af->location, af->modifier, 
-		  af->bitvector, af->aff_index, TRUE);
+                  af->bitvector, af->aff_index, TRUE);
     affect_total(ch);
     if (af->type == SPELL_QUAD_DAMAGE && ch->in_room &&
-	!IS_AFFECTED(ch, AFF_GLOWLIGHT) && 
-	!IS_AFFECTED_2(ch, AFF2_FLUORESCENT | AFF2_DIVINE_ILLUMINATION) &&
-	!prev_quad)
-	ch->in_room->light++;
+        !IS_AFFECTED(ch, AFF_GLOWLIGHT) && 
+        !IS_AFFECTED_2(ch, AFF2_FLUORESCENT | AFF2_DIVINE_ILLUMINATION) &&
+        !prev_quad)
+        ch->in_room->light++;
   
     if (IS_SET(af->bitvector, AFF3_SELF_DESTRUCT) &&
-	af->aff_index == 3) {
-	raise( SIGSEGV );
+        af->aff_index == 3) {
+        raise( SIGSEGV );
     }
     
 }
@@ -697,10 +697,10 @@ affect_remove(struct char_data * ch, struct affected_type * af)
         apply_soil_to_char(ch, GET_EQ(ch,WEAR_FACE), SOIL_BLOOD, WEAR_FACE);
         apply_soil_to_char(ch, GET_EQ(ch,WEAR_EYES), SOIL_BLOOD, WEAR_EYES);
     } else if (af->type == SPELL_QUAD_DAMAGE && ch->in_room &&
-	!IS_AFFECTED(ch, AFF_GLOWLIGHT) && 
-	!IS_AFFECTED_2(ch, AFF2_FLUORESCENT) &&
-	!IS_AFFECTED_2(ch, AFF2_DIVINE_ILLUMINATION) &&
-	!affected_by_spell(ch, SPELL_QUAD_DAMAGE))
+        !IS_AFFECTED(ch, AFF_GLOWLIGHT) && 
+        !IS_AFFECTED_2(ch, AFF2_FLUORESCENT) &&
+        !IS_AFFECTED_2(ch, AFF2_DIVINE_ILLUMINATION) &&
+        !affected_by_spell(ch, SPELL_QUAD_DAMAGE))
         ch->in_room->light--;
 
     affect_modify(ch, af->location, af->modifier, af->bitvector, af->aff_index,
@@ -750,8 +750,8 @@ affected_by_spell(struct char_data * ch, sh_int type)
     struct affected_type *hjp = NULL;
 
     for (hjp = ch->affected; hjp; hjp = hjp->next)
-	if (hjp->type == type)
-	    return hjp;
+        if (hjp->type == type)
+            return hjp;
 
     return NULL;
 }
@@ -767,21 +767,21 @@ void affect_join( struct char_data * ch, struct affected_type * af,
 
     for (hjp = ch->affected; hjp; hjp = hjp->next) {
 
-	if ((hjp->type == af->type) && (hjp->location == af->location)) {
-	    if (add_dur)
-		af->duration = MIN(666, af->duration + hjp->duration);
-	    if (avg_dur)
-		af->duration >>= 1;
+        if ((hjp->type == af->type) && (hjp->location == af->location)) {
+            if (add_dur)
+                af->duration = MIN(666, af->duration + hjp->duration);
+            if (avg_dur)
+                af->duration >>= 1;
 
-	    if (add_mod) {
-		af->modifier = MIN(MAX(af->modifier + hjp->modifier, -666), 666);
-	    }
-	    if (avg_mod)
-		af->modifier >>= 1;
-	    affect_remove(ch, hjp);
-	    affect_to_char(ch, af);
+            if (add_mod) {
+                af->modifier = MIN(MAX(af->modifier + hjp->modifier, -666), 666);
+            }
+            if (avg_mod)
+                af->modifier >>= 1;
+            affect_remove(ch, hjp);
+            affect_to_char(ch, af);
             return;
-	}
+        }
     }
 
     //
@@ -804,30 +804,30 @@ retire_trails(void)
     del_time = cur_time - 360; // 6 minute lifetime 1440; // 24 minutes lifetime
 
     for (zn = zone_table; zn; zn = zn->next) {
-	for (rm = zn->world; rm; rm = rm->next) {
-	    for (trail = rm->trail, last_trail = rm->trail; trail; trail = next_trail) {
-		next_trail = trail->next;
-	
-		if (!ZONE_FLAGGED(zn, ZONE_NOWEATHER) &&
-		    zn->weather->sky >= SKY_RAINING) {
-		    trail->track--;
-		}
-		if (trail->track <= 0 || trail->time <= del_time) {  // delete trail
-		    if (trail->name) {
-			free(trail->name);
-			trail->name = NULL;
-		    }
-		    if (trail == rm->trail) {
-			rm->trail = next_trail;
-			last_trail = rm->trail;
-		    } else {
-			last_trail->next = next_trail;
-		    }
-		    free(trail);
-		} else
-		    last_trail = trail;
-	    }
-	}
+        for (rm = zn->world; rm; rm = rm->next) {
+            for (trail = rm->trail, last_trail = rm->trail; trail; trail = next_trail) {
+                next_trail = trail->next;
+        
+                if (!ZONE_FLAGGED(zn, ZONE_NOWEATHER) &&
+                    zn->weather->sky >= SKY_RAINING) {
+                    trail->track--;
+                }
+                if (trail->track <= 0 || trail->time <= del_time) {  // delete trail
+                    if (trail->name) {
+                        free(trail->name);
+                        trail->name = NULL;
+                    }
+                    if (trail == rm->trail) {
+                        rm->trail = next_trail;
+                        last_trail = rm->trail;
+                    } else {
+                        last_trail->next = next_trail;
+                    }
+                    free(trail);
+                } else
+                    last_trail = trail;
+            }
+        }
     }
 }
 void
@@ -839,76 +839,76 @@ update_trail(struct char_data *ch, struct room_data *room, int dir, int mode)
     time_t low_time = time(0);
 
     if (AFF_FLAGGED(ch, AFF_NOTRACK))
-	return;
+        return;
 
     for (trail = room->trail; trail; ++i, trail = trail->next) {
-	if (IS_NPC(ch) && (trail->idnum == (int) - MOB_IDNUM(ch)))
-	    break;
-	if (!IS_NPC(ch) && (trail->idnum == GET_IDNUM(ch)))
-	    break;
+        if (IS_NPC(ch) && (trail->idnum == (int) - MOB_IDNUM(ch)))
+            break;
+        if (!IS_NPC(ch) && (trail->idnum == GET_IDNUM(ch)))
+            break;
     }
 
     if (!trail) {
-	CREATE(trail, struct room_trail_data, 1);
-	trail->next = room->trail;
-	room->trail = trail;
-	if (ch->player.name)
-	    trail->name = str_dup(ch->player.name);
-	else {
-	    room->trail = trail->next;
-	    free(trail);
-	    slog("SYSERR: Char with null ch->player.name in update_trail()");
-	    return;
-	}
-	if (IS_NPC(ch))
-	    trail->idnum = - MOB_IDNUM(ch);
-	else
-	    trail->idnum = GET_IDNUM(ch);
+        CREATE(trail, struct room_trail_data, 1);
+        trail->next = room->trail;
+        room->trail = trail;
+        if (ch->player.name)
+            trail->name = str_dup(ch->player.name);
+        else {
+            room->trail = trail->next;
+            free(trail);
+            slog("SYSERR: Char with null ch->player.name in update_trail()");
+            return;
+        }
+        if (IS_NPC(ch))
+            trail->idnum = - MOB_IDNUM(ch);
+        else
+            trail->idnum = GET_IDNUM(ch);
 
-	trail->from_dir = -1;
-	trail->to_dir = -1;
+        trail->from_dir = -1;
+        trail->to_dir = -1;
     }
 
   
     if (mode == TRAIL_ENTER && (dir >= 0 || trail->from_dir < 0)) {
-	trail->from_dir = dir;
+        trail->from_dir = dir;
     } else if (dir >= 0 || trail->to_dir < 0)
-	trail->to_dir = dir;
+        trail->to_dir = dir;
   
     if (ch->getPosition() < POS_FLYING)
-	trail->track = 10;
+        trail->track = 10;
     else
-	trail->track = 0;
+        trail->track = 0;
   
     if (!IS_UNDEAD(ch)) {
-	if (GET_HIT(ch) < (GET_MAX_HIT(ch) >> 2))
-	    SET_BIT(trail->flags, TRAIL_FLAG_BLOOD_DROPS);
+        if (GET_HIT(ch) < (GET_MAX_HIT(ch) >> 2))
+            SET_BIT(trail->flags, TRAIL_FLAG_BLOOD_DROPS);
     }
 
     if (GET_EQ(ch, WEAR_FEET)) {
-	if (OBJ_SOILED(GET_EQ(ch, WEAR_FEET), SOIL_BLOOD))
-	    SET_BIT(trail->flags, TRAIL_FLAG_BLOODPRINTS);
+        if (OBJ_SOILED(GET_EQ(ch, WEAR_FEET), SOIL_BLOOD))
+            SET_BIT(trail->flags, TRAIL_FLAG_BLOODPRINTS);
     } else {
-	if (CHAR_SOILED(ch, WEAR_FEET, SOIL_BLOOD))
-	    SET_BIT(trail->flags, TRAIL_FLAG_BLOODPRINTS);
+        if (CHAR_SOILED(ch, WEAR_FEET, SOIL_BLOOD))
+            SET_BIT(trail->flags, TRAIL_FLAG_BLOODPRINTS);
     }
 
     trail->time = low_time;
 
     if (i > 5) {
-	for (temp = room->trail; temp; temp = temp->next) {
-	    if (low_time > temp->time && temp != trail) {
-		low_time = temp->time;
-		low_trail = temp;
-	    }
-	}
+        for (temp = room->trail; temp; temp = temp->next) {
+            if (low_time > temp->time && temp != trail) {
+                low_time = temp->time;
+                low_trail = temp;
+            }
+        }
 
-	if (low_trail) {
-	    REMOVE_FROM_LIST(low_trail, room->trail, next);
-	    if (low_trail->name)
-		free(low_trail->name);
-	    free(low_trail);
-	}
+        if (low_trail) {
+            REMOVE_FROM_LIST(low_trail, room->trail, next);
+            if (low_trail->name)
+                free(low_trail->name);
+            free(low_trail);
+        }
     }
 }
 
@@ -919,30 +919,30 @@ char_from_room(struct char_data * ch)
     struct char_data *temp;
 
     if (ch == NULL || ch->in_room == NULL) {
-	slog("SYSERR: NULL or NOWHERE in handler.c, char_from_room");
-	if (ch) 
-	    sprintf(buf, "Char is %s\r\n", GET_NAME(ch));
-	if (ch->in_room != NULL)
-	    sprintf(buf, "Char is in_room %d\r\n", ch->in_room->number);
-	exit(1);
+        slog("SYSERR: NULL or NOWHERE in handler.c, char_from_room");
+        if (ch) 
+            sprintf(buf, "Char is %s\r\n", GET_NAME(ch));
+        if (ch->in_room != NULL)
+            sprintf(buf, "Char is in_room %d\r\n", ch->in_room->number);
+        exit(1);
     }
     if (FIGHTING(ch) != NULL) {
-	if (FIGHTING(FIGHTING(ch)) && FIGHTING(FIGHTING(ch)) == ch)
-	    stop_fighting(FIGHTING(ch));
-	stop_fighting(ch);
+        if (FIGHTING(FIGHTING(ch)) && FIGHTING(FIGHTING(ch)) == ch)
+            stop_fighting(FIGHTING(ch));
+        stop_fighting(ch);
     }
 
     if (ch->equipment[WEAR_LIGHT] != NULL)
-	if (GET_OBJ_TYPE(ch->equipment[WEAR_LIGHT]) == ITEM_LIGHT) 
-	    if (GET_OBJ_VAL(ch->equipment[WEAR_LIGHT], 2))  /* Light is ON */
-		ch->in_room->light--;
+        if (GET_OBJ_TYPE(ch->equipment[WEAR_LIGHT]) == ITEM_LIGHT) 
+            if (GET_OBJ_VAL(ch->equipment[WEAR_LIGHT], 2))  /* Light is ON */
+                ch->in_room->light--;
     if (IS_AFFECTED(ch, AFF_GLOWLIGHT) || IS_AFFECTED_2(ch, AFF2_FLUORESCENT)
-	|| IS_AFFECTED_2(ch, AFF2_DIVINE_ILLUMINATION) || 
-	affected_by_spell(ch, SPELL_QUAD_DAMAGE))
-	ch->in_room->light--;
+        || IS_AFFECTED_2(ch, AFF2_DIVINE_ILLUMINATION) || 
+        affected_by_spell(ch, SPELL_QUAD_DAMAGE))
+        ch->in_room->light--;
 
     if (!IS_NPC(ch))
-	ch->in_room->zone->num_players--;
+        ch->in_room->zone->num_players--;
 
     update_trail(ch, ch->in_room, -1, TRAIL_EXIT);
 
@@ -952,7 +952,7 @@ char_from_room(struct char_data * ch)
     ch->in_room = NULL;
     ch->next_in_room = NULL;
     if (GET_OLC_SRCH(ch))
-	GET_OLC_SRCH(ch) = NULL;
+        GET_OLC_SRCH(ch) = NULL;
 
 }
 
@@ -964,8 +964,8 @@ char_to_room(struct char_data * ch, struct room_data *room)
     struct affected_type *aff = NULL, *next_aff = NULL;
 
     if (!ch || room == NULL) {
-	slog("SYSERR: Illegal value(s) passed to char_to_room");
-	return;
+        slog("SYSERR: Illegal value(s) passed to char_to_room");
+        return;
     }
 
     ch->next_in_room = room->people;
@@ -973,43 +973,43 @@ char_to_room(struct char_data * ch, struct room_data *room)
     ch->in_room = room;
   
     if (GET_EQ(ch, WEAR_LIGHT))
-	if (GET_OBJ_TYPE(GET_EQ(ch, WEAR_LIGHT)) == ITEM_LIGHT)
-	    if (GET_OBJ_VAL(GET_EQ(ch, WEAR_LIGHT), 2))	/* Light ON */
-		room->light++;
+        if (GET_OBJ_TYPE(GET_EQ(ch, WEAR_LIGHT)) == ITEM_LIGHT)
+            if (GET_OBJ_VAL(GET_EQ(ch, WEAR_LIGHT), 2))        /* Light ON */
+                room->light++;
     if (IS_AFFECTED(ch, AFF_GLOWLIGHT) || IS_AFFECTED_2(ch, AFF2_FLUORESCENT)
-	|| IS_AFFECTED_2(ch, AFF2_DIVINE_ILLUMINATION) ||
-	affected_by_spell(ch, SPELL_QUAD_DAMAGE))
-	room->light++;
+        || IS_AFFECTED_2(ch, AFF2_DIVINE_ILLUMINATION) ||
+        affected_by_spell(ch, SPELL_QUAD_DAMAGE))
+        room->light++;
   
     if (!IS_NPC(ch)) {
-	room->zone->num_players++;
-	room->zone->idle_time = 0;
+        room->zone->num_players++;
+        room->zone->idle_time = 0;
     }
 
     update_trail(ch, room, -1, TRAIL_ENTER);
 
     if ( ROOM_FLAGGED(ch->in_room, ROOM_NULL_MAGIC) &&
-	 !PRF_FLAGGED( ch, PRF_NOHASSLE ) ) {
-	if (ch->affected) {
-	    send_to_char("You are dazed by a blinding flash inside your brain!\r\n"
-			 "You feel different...\r\n", ch);
-	    act("Light flashes from behind $n's eyes.",FALSE,ch,0,0,TO_ROOM);
-	    for (aff = ch->affected; aff; aff = next_aff) {
-		next_aff = aff->next;
-		if (SPELL_IS_MAGIC(aff->type) || SPELL_IS_DIVINE(aff->type))
-		    affect_remove(ch, aff);
-	    }
-	    
-	    WAIT_STATE(ch, PULSE_VIOLENCE);
-	}
+         !PRF_FLAGGED( ch, PRF_NOHASSLE ) ) {
+        if (ch->affected) {
+            send_to_char("You are dazed by a blinding flash inside your brain!\r\n"
+                         "You feel different...\r\n", ch);
+            act("Light flashes from behind $n's eyes.",FALSE,ch,0,0,TO_ROOM);
+            for (aff = ch->affected; aff; aff = next_aff) {
+                next_aff = aff->next;
+                if (SPELL_IS_MAGIC(aff->type) || SPELL_IS_DIVINE(aff->type))
+                    affect_remove(ch, aff);
+            }
+            
+            WAIT_STATE(ch, PULSE_VIOLENCE);
+        }
     }
   
     if (ROOM_FLAGGED(ch->in_room, ROOM_FLAME_FILLED) &&
-	!IS_AFFECTED_2(ch, AFF2_ABLAZE) && 
-	!CHAR_WITHSTANDS_FIRE(ch)) {
-	act("$n suddenly bursts into flames!", FALSE, ch, 0, 0, TO_ROOM);
-	act("You suddenly burst into flames!", FALSE, ch, 0, 0, TO_CHAR);
-	SET_BIT(AFF2_FLAGS(ch), AFF2_ABLAZE);
+        !IS_AFFECTED_2(ch, AFF2_ABLAZE) && 
+        !CHAR_WITHSTANDS_FIRE(ch)) {
+        act("$n suddenly bursts into flames!", FALSE, ch, 0, 0, TO_ROOM);
+        act("You suddenly burst into flames!", FALSE, ch, 0, 0, TO_CHAR);
+        SET_BIT(AFF2_FLAGS(ch), AFF2_ABLAZE);
     }
 
 
@@ -1024,39 +1024,39 @@ obj_to_char(struct obj_data * object, struct char_data * ch)
     struct zone_data *zn = NULL;
 
     if (!object || !ch) {
-	slog("SYSERR: NULL obj or char passed to obj_to_char");
-	return;
+        slog("SYSERR: NULL obj or char passed to obj_to_char");
+        return;
     }
     found = 0;
     if (ch->carrying && ch->carrying->shared->vnum == 
-	object->shared->vnum &&
-	((object->shared->proto && 
-	  object->short_description == ch->carrying->short_description) ||
-	 !str_cmp(object->short_description, ch->carrying->short_description)) &&
-	GET_OBJ_EXTRA(ch->carrying) == GET_OBJ_EXTRA(object) &&
-	GET_OBJ_EXTRA2(ch->carrying) == GET_OBJ_EXTRA2(object)) {
-	object->next_content = ch->carrying;
-	ch->carrying = object;
-	found = 1;
+        object->shared->vnum &&
+        ((object->shared->proto && 
+          object->short_description == ch->carrying->short_description) ||
+         !str_cmp(object->short_description, ch->carrying->short_description)) &&
+        GET_OBJ_EXTRA(ch->carrying) == GET_OBJ_EXTRA(object) &&
+        GET_OBJ_EXTRA2(ch->carrying) == GET_OBJ_EXTRA2(object)) {
+        object->next_content = ch->carrying;
+        ch->carrying = object;
+        found = 1;
     }
 
     for (o = ch->carrying; !found && o && o->next_content; o = o->next_content) {
-	if (o->next_content->shared->vnum == 
-	    object->shared->vnum &&
-	    ((object->shared->proto && 
-	      object->short_description == o->next_content->short_description) ||
-	     !str_cmp(object->short_description, o->next_content->short_description)) &&
-	    GET_OBJ_EXTRA(o->next_content) == GET_OBJ_EXTRA(object) &&
-	    GET_OBJ_EXTRA2(o->next_content) == GET_OBJ_EXTRA2(object)) {
-	    object->next_content = o->next_content;
-	    o->next_content = object;
-	    found = 1;
-	    break;
-	}
+        if (o->next_content->shared->vnum == 
+            object->shared->vnum &&
+            ((object->shared->proto && 
+              object->short_description == o->next_content->short_description) ||
+             !str_cmp(object->short_description, o->next_content->short_description)) &&
+            GET_OBJ_EXTRA(o->next_content) == GET_OBJ_EXTRA(object) &&
+            GET_OBJ_EXTRA2(o->next_content) == GET_OBJ_EXTRA2(object)) {
+            object->next_content = o->next_content;
+            o->next_content = object;
+            found = 1;
+            break;
+        }
     }
     if (!found) {
-	object->next_content = ch->carrying;
-	ch->carrying = object;
+        object->next_content = ch->carrying;
+        ch->carrying = object;
     }
     object->carried_by = ch;
     object->in_room = NULL;
@@ -1064,17 +1064,17 @@ obj_to_char(struct obj_data * object, struct char_data * ch)
     IS_CARRYING_N(ch)++;
 
     if (IS_OBJ_TYPE(object, ITEM_KEY) && !GET_OBJ_VAL(object, 1) &&
-	!IS_NPC(ch) && GET_LEVEL(ch) < LVL_IMMORT && 
-	!GET_OBJ_TIMER(object)) {
+        !IS_NPC(ch) && GET_LEVEL(ch) < LVL_IMMORT && 
+        !GET_OBJ_TIMER(object)) {
     
-	if ((zn = real_zone(zone_number(GET_OBJ_VNUM(object)))))
-	    GET_OBJ_TIMER(object) = MAX(2, zn->lifespan >> 1);
-	else
-	    GET_OBJ_TIMER(object) = 15;
+        if ((zn = real_zone(zone_number(GET_OBJ_VNUM(object)))))
+            GET_OBJ_TIMER(object) = MAX(2, zn->lifespan >> 1);
+        else
+            GET_OBJ_TIMER(object) = 15;
     }
     /* set flag for crash-save system */
     if (!IS_NPC(ch))
-	SET_BIT(PLR_FLAGS(ch), PLR_CRASH);
+        SET_BIT(PLR_FLAGS(ch), PLR_CRASH);
 }
 
 /* take an object from a char */
@@ -1084,8 +1084,8 @@ obj_from_char(struct obj_data * object)
     struct obj_data *temp;
 
     if (object == NULL) {
-	slog("SYSERR: NULL object passed to obj_from_char");
-	return;
+        slog("SYSERR: NULL object passed to obj_from_char");
+        return;
     }
 
 
@@ -1099,16 +1099,16 @@ obj_from_char(struct obj_data * object)
 
     /* set flag for crash-save system */
     if (!IS_NPC(object->carried_by))
-	SET_BIT(PLR_FLAGS(object->carried_by), PLR_CRASH);
+        SET_BIT(PLR_FLAGS(object->carried_by), PLR_CRASH);
 
     IS_CARRYING_W(object->carried_by) -= object->getWeight();
     IS_CARRYING_N(object->carried_by)--;
     if (object->aux_obj) {
-	if (GET_OBJ_TYPE(object) == ITEM_SCUBA_MASK ||
-	    GET_OBJ_TYPE(object) == ITEM_SCUBA_TANK) {
-	    object->aux_obj->aux_obj = NULL;
-	    object->aux_obj = NULL;
-	}
+        if (GET_OBJ_TYPE(object) == ITEM_SCUBA_MASK ||
+            GET_OBJ_TYPE(object) == ITEM_SCUBA_TANK) {
+            object->aux_obj->aux_obj = NULL;
+            object->aux_obj = NULL;
+        }
     }
       
     object->carried_by = NULL;
@@ -1124,37 +1124,37 @@ apply_ac(struct char_data * ch, int eq_pos)
     int factor;
 
     if (!GET_EQ(ch, eq_pos)) {
-	slog("SYSERR: !GET_EQ(ch, eq_pos) in apply_ac");
-	return 0;
+        slog("SYSERR: !GET_EQ(ch, eq_pos) in apply_ac");
+        return 0;
     }
     
     if (!(GET_OBJ_TYPE(GET_EQ(ch, eq_pos)) == ITEM_ARMOR))
-	return 0;
+        return 0;
 
     switch (eq_pos) {
 
     case WEAR_BODY:
-	factor = 3;
-	break;			/* 30% */
+        factor = 3;
+        break;                        /* 30% */
     case WEAR_HEAD:
     case WEAR_LEGS:
-	factor = 2;
-	break;			/* 20% */
+        factor = 2;
+        break;                        /* 20% */
     case WEAR_EAR_L:
     case WEAR_EAR_R:
-	factor = 1;		
-	break;			/* 2% */
+        factor = 1;                
+        break;                        /* 2% */
     case WEAR_FINGER_R:
     case WEAR_FINGER_L:
-	factor = 1;		
-	break;			/* 2% */
+        factor = 1;                
+        break;                        /* 2% */
     case WEAR_WRIST_R:
     case WEAR_WRIST_L:
-	factor = 1;		
-	break;			/* 2% */
+        factor = 1;                
+        break;                        /* 2% */
     default:
-	factor = 1;
-	break;			/* all others 10% */
+        factor = 1;
+        break;                        /* all others 10% */
     }
 
     return (factor * GET_OBJ_VAL(GET_EQ(ch, eq_pos), 0));
@@ -1168,18 +1168,18 @@ weapon_prof(struct char_data *ch, struct obj_data *obj)
     int skill = 0;
 
     if (!obj || !IS_OBJ_TYPE(obj, ITEM_WEAPON))
-	return 0;
+        return 0;
 
     if (GET_OBJ_VAL(obj, 3) >= 0 &&
-	GET_OBJ_VAL(obj, 3) < TOP_ATTACKTYPE - TYPE_HIT)
-	skill = weapon_proficiencies[GET_OBJ_VAL(obj, 3)];
+        GET_OBJ_VAL(obj, 3) < TOP_ATTACKTYPE - TYPE_HIT)
+        skill = weapon_proficiencies[GET_OBJ_VAL(obj, 3)];
     else
-	return 0;
+        return 0;
 
     if (skill)
-	return (CHECK_SKILL(ch, skill));
+        return (CHECK_SKILL(ch, skill));
     else
-	return 0;
+        return 0;
 }
 
 /* equip_char returns TRUE if victim is killed by equipment :> */
@@ -1190,74 +1190,74 @@ equip_char(struct char_data *ch, struct obj_data *obj, int pos, int internal)
     int invalid_char_class(struct char_data *ch, struct obj_data *obj);
 
     if (pos < 0 || pos >= NUM_WEARS) {
-	slog("SYSERR: Illegal pos in equip_char.");
-	obj_to_room(obj, zone_table->world);
-	return 0;
+        slog("SYSERR: Illegal pos in equip_char.");
+        obj_to_room(obj, zone_table->world);
+        return 0;
     }
 
     if ((!internal && GET_EQ(ch, pos)) || (internal && GET_IMPLANT(ch, pos))) {
-	sprintf(buf, "SYSERR: Char is already equipped: %s, %s %s", GET_NAME(ch),
-		obj->short_description, internal ? "(impl)" : "");
-	obj_to_room(obj, zone_table->world);
-	slog(buf);
-	return 0;
+        sprintf(buf, "SYSERR: Char is already equipped: %s, %s %s", GET_NAME(ch),
+                obj->short_description, internal ? "(impl)" : "");
+        obj_to_room(obj, zone_table->world);
+        slog(buf);
+        return 0;
     }
     if (obj->carried_by) {
-	slog("SYSERR: EQUIP: Obj is carried_by when equip.");
-	obj_to_room(obj, zone_table->world);
-	return 0;
+        slog("SYSERR: EQUIP: Obj is carried_by when equip.");
+        obj_to_room(obj, zone_table->world);
+        return 0;
     }
     if (obj->in_room != NULL) {
-	slog("SYSERR: EQUIP: Obj is in_room when equip.");
-	return 0;
+        slog("SYSERR: EQUIP: Obj is in_room when equip.");
+        return 0;
     }
     if (!internal) {
-	if (ch->in_room && GET_LEVEL(ch) < LVL_GOD) {
-	    if ((IS_OBJ_STAT(obj, ITEM_BLESS) && IS_EVIL(ch)) ||
-		(IS_OBJ_STAT(obj, ITEM_EVIL_BLESS) && IS_GOOD(ch))) {
-		act("You are burned by $p!",FALSE,ch,obj,0,TO_CHAR);
-		act("$n screams in agony as $p burns $m!",FALSE,ch,obj,0,TO_ROOM);
-		skill = MAX(GET_ALIGNMENT(ch), -GET_ALIGNMENT(ch));
-		skill >>= 5;
-		skill = MAX(1, skill);
-		obj_to_char(obj, ch);
-		if (damage(ch, ch, dice(skill, 2), TOP_SPELL_DEFINE, pos))
-		    return 1;
-		return 0;
-	    }
+        if (ch->in_room && GET_LEVEL(ch) < LVL_GOD) {
+            if ((IS_OBJ_STAT(obj, ITEM_BLESS) && IS_EVIL(ch)) ||
+                (IS_OBJ_STAT(obj, ITEM_EVIL_BLESS) && IS_GOOD(ch))) {
+                act("You are burned by $p!",FALSE,ch,obj,0,TO_CHAR);
+                act("$n screams in agony as $p burns $m!",FALSE,ch,obj,0,TO_ROOM);
+                skill = MAX(GET_ALIGNMENT(ch), -GET_ALIGNMENT(ch));
+                skill >>= 5;
+                skill = MAX(1, skill);
+                obj_to_char(obj, ch);
+                if (damage(ch, ch, dice(skill, 2), TOP_SPELL_DEFINE, pos))
+                    return 1;
+                return 0;
+            }
 
-	    if ((IS_OBJ_STAT(obj, ITEM_ANTI_EVIL) && IS_EVIL(ch)) ||
-		(IS_OBJ_STAT(obj,ITEM_ANTI_GOOD) && IS_GOOD(ch)) ||
-		(IS_OBJ_STAT(obj, ITEM_ANTI_NEUTRAL) && IS_NEUTRAL(ch))) {
-		act("You are zapped by $p and instantly let go of it.",
-		    FALSE, ch, obj, 0, TO_CHAR);
-		act("$n is zapped by $p and instantly lets go of it.", 
-		    FALSE, ch, obj, 0, TO_ROOM);
-		obj_to_char(obj, ch);	/* changed to drop in inventory instead of */
-		if (IS_NPC(ch)) {
-		    obj_from_char(obj);
-		    obj_to_room(obj, ch->in_room);
-		}
-	
-		return 0;
-	    }
-	}
+            if ((IS_OBJ_STAT(obj, ITEM_ANTI_EVIL) && IS_EVIL(ch)) ||
+                (IS_OBJ_STAT(obj,ITEM_ANTI_GOOD) && IS_GOOD(ch)) ||
+                (IS_OBJ_STAT(obj, ITEM_ANTI_NEUTRAL) && IS_NEUTRAL(ch))) {
+                act("You are zapped by $p and instantly let go of it.",
+                    FALSE, ch, obj, 0, TO_CHAR);
+                act("$n is zapped by $p and instantly lets go of it.", 
+                    FALSE, ch, obj, 0, TO_ROOM);
+                obj_to_char(obj, ch);        /* changed to drop in inventory instead of */
+                if (IS_NPC(ch)) {
+                    obj_from_char(obj);
+                    obj_to_room(obj, ch->in_room);
+                }
+        
+                return 0;
+            }
+        }
     
-	GET_EQ(ch, pos) = obj;
-	if (GET_OBJ_TYPE(obj) == ITEM_ARMOR)
-	    GET_AC(ch) -= apply_ac(ch, pos);
+        GET_EQ(ch, pos) = obj;
+        if (GET_OBJ_TYPE(obj) == ITEM_ARMOR)
+            GET_AC(ch) -= apply_ac(ch, pos);
     
-	IS_WEARING_W(ch) += obj->getWeight();
+        IS_WEARING_W(ch) += obj->getWeight();
     
-	if (ch->in_room != NULL) {
-	    if (pos == WEAR_LIGHT && GET_OBJ_TYPE(obj) == ITEM_LIGHT)
-		if (GET_OBJ_VAL(obj, 2))	/* if light is ON */
-		    ch->in_room->light++;
-	}
+        if (ch->in_room != NULL) {
+            if (pos == WEAR_LIGHT && GET_OBJ_TYPE(obj) == ITEM_LIGHT)
+                if (GET_OBJ_VAL(obj, 2))        /* if light is ON */
+                    ch->in_room->light++;
+        }
     } else {          /** implant **/
 
-	GET_IMPLANT(ch, pos) = obj;
-	GET_WEIGHT(ch) += obj->getWeight();
+        GET_IMPLANT(ch, pos) = obj;
+        GET_WEIGHT(ch) += obj->getWeight();
  
     }
 
@@ -1266,22 +1266,22 @@ equip_char(struct char_data *ch, struct obj_data *obj, int pos, int internal)
 
 
     if ((internal || pos != WEAR_BELT || 
-	 (GET_OBJ_TYPE(obj) != ITEM_WEAPON && 
-	  GET_OBJ_TYPE(obj) != ITEM_PIPE)) && 
-	!invalid_char_class(ch, obj) && (internal || !IS_IMPLANT(obj)) &&
-	(!IS_DEVICE(obj) || ENGINE_STATE(obj))) {
+         (GET_OBJ_TYPE(obj) != ITEM_WEAPON && 
+          GET_OBJ_TYPE(obj) != ITEM_PIPE)) && 
+        !invalid_char_class(ch, obj) && (internal || !IS_IMPLANT(obj)) &&
+        (!IS_DEVICE(obj) || ENGINE_STATE(obj))) {
 
-	for (j = 0; j < MAX_OBJ_AFFECT; j++)
-	    affect_modify(ch, obj->affected[j].location,
-			  obj->affected[j].modifier, 0, 0, TRUE);
+        for (j = 0; j < MAX_OBJ_AFFECT; j++)
+            affect_modify(ch, obj->affected[j].location,
+                          obj->affected[j].modifier, 0, 0, TRUE);
     
-	affect_modify(ch, 0, 0, obj->obj_flags.bitvector[0], 1, TRUE);
-	affect_modify(ch, 0, 0, obj->obj_flags.bitvector[1], 2, TRUE);
-	affect_modify(ch, 0, 0, obj->obj_flags.bitvector[2], 3, TRUE);
+        affect_modify(ch, 0, 0, obj->obj_flags.bitvector[0], 1, TRUE);
+        affect_modify(ch, 0, 0, obj->obj_flags.bitvector[1], 2, TRUE);
+        affect_modify(ch, 0, 0, obj->obj_flags.bitvector[2], 3, TRUE);
 
-	if (IS_INTERFACE(obj) && INTERFACE_TYPE(obj) == INTERFACE_CHIPS &&
-	    obj->contains)
-	    check_interface(ch, obj, TRUE);
+        if (IS_INTERFACE(obj) && INTERFACE_TYPE(obj) == INTERFACE_CHIPS &&
+            obj->contains)
+            check_interface(ch, obj, TRUE);
     
     }
 
@@ -1299,39 +1299,39 @@ unequip_char(struct char_data * ch, int pos, int internal)
 
 
     if (pos < 0 || pos >= NUM_WEARS) {
-	slog("SYSERR: Illegal pos in unequip_char.");
-	return NULL;
+        slog("SYSERR: Illegal pos in unequip_char.");
+        return NULL;
     }
 
     if ((!internal && !GET_EQ(ch, pos)) || (internal && !GET_IMPLANT(ch, pos))) {
-	sprintf(buf, 
-		"SYSERR: %s pointer NULL at pos %d in unequip_char.",
-		internal ? "implant" : "eq", pos);
-	slog(buf);
-	return NULL;
+        sprintf(buf, 
+                "SYSERR: %s pointer NULL at pos %d in unequip_char.",
+                internal ? "implant" : "eq", pos);
+        slog(buf);
+        return NULL;
     }
 
     if (!internal) {
-	obj = GET_EQ(ch, pos);
+        obj = GET_EQ(ch, pos);
 
-	if (GET_OBJ_TYPE(obj) == ITEM_ARMOR)
-	    GET_AC(ch) += apply_ac(ch, pos);
+        if (GET_OBJ_TYPE(obj) == ITEM_ARMOR)
+            GET_AC(ch) += apply_ac(ch, pos);
     
-	IS_WEARING_W(ch) -= obj->getWeight();
+        IS_WEARING_W(ch) -= obj->getWeight();
     
-	if (ch->in_room != NULL) {
-	    if (pos == WEAR_LIGHT && GET_OBJ_TYPE(obj) == ITEM_LIGHT)
-		if (GET_OBJ_VAL(obj, 2))	/* if light is ON */
-		    ch->in_room->light--;
-	}
+        if (ch->in_room != NULL) {
+            if (pos == WEAR_LIGHT && GET_OBJ_TYPE(obj) == ITEM_LIGHT)
+                if (GET_OBJ_VAL(obj, 2))        /* if light is ON */
+                    ch->in_room->light--;
+        }
     
-	GET_EQ(ch, pos) = NULL;
+        GET_EQ(ch, pos) = NULL;
     } else {
     
-	obj = GET_IMPLANT(ch, pos);
-	GET_IMPLANT(ch, pos) = NULL;
+        obj = GET_IMPLANT(ch, pos);
+        GET_IMPLANT(ch, pos) = NULL;
 
-	GET_WEIGHT(ch) -= obj->getWeight();
+        GET_WEIGHT(ch) -= obj->getWeight();
     }
 
 #ifdef TRACK_OBJS
@@ -1344,21 +1344,21 @@ unequip_char(struct char_data * ch, int pos, int internal)
     obj->worn_on = -1;
 
     if ((internal || pos != WEAR_BELT || 
-	 (GET_OBJ_TYPE(obj) != ITEM_WEAPON && 
-	  GET_OBJ_TYPE(obj) != ITEM_PIPE)) && 
-	!invalid_char_class(ch, obj) && (internal || !IS_IMPLANT(obj)) &&
-	(!IS_DEVICE(obj) || ENGINE_STATE(obj))) {
+         (GET_OBJ_TYPE(obj) != ITEM_WEAPON && 
+          GET_OBJ_TYPE(obj) != ITEM_PIPE)) && 
+        !invalid_char_class(ch, obj) && (internal || !IS_IMPLANT(obj)) &&
+        (!IS_DEVICE(obj) || ENGINE_STATE(obj))) {
 
-	for (j = 0; j < MAX_OBJ_AFFECT; j++)
-	    affect_modify(ch, obj->affected[j].location,
-			  obj->affected[j].modifier, 0, 0, FALSE);
-	affect_modify(ch, 0, 0, obj->obj_flags.bitvector[0], 1, FALSE);
-	affect_modify(ch, 0, 0, obj->obj_flags.bitvector[1], 2, FALSE);
-	affect_modify(ch, 0, 0, obj->obj_flags.bitvector[2], 3, FALSE);
+        for (j = 0; j < MAX_OBJ_AFFECT; j++)
+            affect_modify(ch, obj->affected[j].location,
+                          obj->affected[j].modifier, 0, 0, FALSE);
+        affect_modify(ch, 0, 0, obj->obj_flags.bitvector[0], 1, FALSE);
+        affect_modify(ch, 0, 0, obj->obj_flags.bitvector[1], 2, FALSE);
+        affect_modify(ch, 0, 0, obj->obj_flags.bitvector[2], 3, FALSE);
 
-	if (IS_INTERFACE(obj) && INTERFACE_TYPE(obj) == INTERFACE_CHIPS &&
-	    obj->contains)
-	    check_interface(ch, obj, FALSE);
+        if (IS_INTERFACE(obj) && INTERFACE_TYPE(obj) == INTERFACE_CHIPS &&
+            obj->contains)
+            check_interface(ch, obj, FALSE);
     
     }
     affect_total(ch);
@@ -1377,15 +1377,15 @@ get_number(char **name)
     *number = '\0';
 
     if ((ppos = strchr(*name, '.'))) {
-	*ppos++ = '\0';
-	strcpy(number, *name);
-	strcpy(*name, ppos);
+        *ppos++ = '\0';
+        strcpy(number, *name);
+        strcpy(*name, ppos);
 
-	for (i = 0; *(number + i); i++)
-	    if (!isdigit(*(number + i)))
-		return 0;
+        for (i = 0; *(number + i); i++)
+            if (!isdigit(*(number + i)))
+                return 0;
 
-	return (atoi(number));
+        return (atoi(number));
     }
     return 1;
 }
@@ -1399,8 +1399,8 @@ get_obj_in_list_num(int num, struct obj_data * list)
     struct obj_data *i;
 
     for (i = list; i; i = i->next_content)
-	if (GET_OBJ_VNUM(i) == num)
-	    return i;
+        if (GET_OBJ_VNUM(i) == num)
+            return i;
 
     return NULL;
 }
@@ -1414,8 +1414,8 @@ get_obj_num(int nr)
     struct obj_data *i;
 
     for (i = object_list; i; i = i->next)
-	if (GET_OBJ_VNUM(i) == nr)
-	    return i;
+        if (GET_OBJ_VNUM(i) == nr)
+            return i;
 
     return NULL;
 }
@@ -1433,12 +1433,12 @@ get_char_room(char *name, struct room_data *room)
 
     strcpy(tmp, name);
     if (!(number = get_number(&tmp)))
-	return NULL;
+        return NULL;
 
     for (i = room->people; i && (j <= number); i = i->next_in_room)
-	if (isname(tmp, i->player.name))
-	    if (++j == number)
-		return i;
+        if (isname(tmp, i->player.name))
+            if (++j == number)
+                return i;
 
     return NULL;
 }
@@ -1452,8 +1452,8 @@ get_char_num(int nr)
     struct char_data *i;
 
     for (i = character_list; i; i = i->next)
-	if (GET_MOB_VNUM(i) == nr)
-	    return i;
+        if (GET_MOB_VNUM(i) == nr)
+            return i;
 
     return NULL;
 }
@@ -1464,12 +1464,12 @@ get_char_in_world_by_idnum(int nr)
     struct char_data *ch;
   
     for (ch = character_list; ch; ch = ch->next) {
-	if (nr > 0 && !IS_NPC(ch) && GET_IDNUM(ch) == nr)
-	    return ch;
-	if (nr < 0 && 
-	    IS_NPC(ch) &&
-	    MOB_IDNUM(ch) == (unsigned int) -nr) // nr must be < 0... -nr will be >= 0
-	    return ch;
+        if (nr > 0 && !IS_NPC(ch) && GET_IDNUM(ch) == nr)
+            return ch;
+        if (nr < 0 && 
+            IS_NPC(ch) &&
+            MOB_IDNUM(ch) == (unsigned int) -nr) // nr must be < 0... -nr will be >= 0
+            return ch;
     }
     return NULL;
 }
@@ -1480,53 +1480,53 @@ obj_to_room(struct obj_data * object, struct room_data *room)
 {
     struct obj_data *o = NULL, *last_o = NULL;
     int found;
-	
+        
     if (!object || !room) {
-	sprintf(buf, "SYSERR: Illegal %s | %s passed to obj_to_room", 
-		object ? "" : "OBJ", room ? "" : "ROOM");
-	slog(buf);
-	raise( SIGSEGV );
-	return;
+        sprintf(buf, "SYSERR: Illegal %s | %s passed to obj_to_room", 
+                object ? "" : "OBJ", room ? "" : "ROOM");
+        slog(buf);
+        raise( SIGSEGV );
+        return;
     }
 
     found=0;
     for (o = room->contents; o; last_o = o, o = o->next_content) {
 
-	if (same_obj(o, object)) {
-	    object->next_content = o;
-	    if (last_o)
-		last_o->next_content = object;
-	    else
-		room->contents = object;
-	    found=1;
-	    break;
-	}
+        if (same_obj(o, object)) {
+            object->next_content = o;
+            if (last_o)
+                last_o->next_content = object;
+            else
+                room->contents = object;
+            found=1;
+            break;
+        }
     }
     /* prettier if new objects go to top of  room */
     if(!found) {
-	object->next_content = room->contents;
-	room->contents = object;
+        object->next_content = room->contents;
+        room->contents = object;
     }
     object->in_room = room;
     object->carried_by = NULL;
     if (ROOM_FLAGGED(room, ROOM_HOUSE))
-	SET_BIT(ROOM_FLAGS(room), ROOM_HOUSE_CRASH);
+        SET_BIT(ROOM_FLAGS(room), ROOM_HOUSE_CRASH);
   
     if (IS_VEHICLE(object) && object->contains && 
-	IS_ENGINE(object->contains) &&
-	HEADLIGHTS_ON(object->contains))
-	object->in_room->light++;
+        IS_ENGINE(object->contains) &&
+        HEADLIGHTS_ON(object->contains))
+        object->in_room->light++;
     REMOVE_BIT(GET_OBJ_EXTRA2(object), ITEM2_HIDDEN);
 
     if (IS_CIGARETTE(object) && SMOKE_LIT(object) &&
-	(SECT(room) == SECT_UNDERWATER ||
-	 SECT(room) == SECT_WATER_SWIM ||
-	 SECT(room) == SECT_WATER_NOSWIM ||
-	 SECT(room) == SECT_SWAMP ||
-	 SECT(room) == SECT_PITCH_PIT ||
-	 SECT(room) == SECT_PITCH_SUB ||
-	 (OUTSIDE(object) && room->zone->weather->sky >= SKY_RAINING)))
-	SMOKE_LIT(object) = 0;
+        (SECT(room) == SECT_UNDERWATER ||
+         SECT(room) == SECT_WATER_SWIM ||
+         SECT(room) == SECT_WATER_NOSWIM ||
+         SECT(room) == SECT_SWAMP ||
+         SECT(room) == SECT_PITCH_PIT ||
+         SECT(room) == SECT_PITCH_SUB ||
+         (OUTSIDE(object) && room->zone->weather->sky >= SKY_RAINING)))
+        SMOKE_LIT(object) = 0;
   
 }
 
@@ -1537,14 +1537,14 @@ obj_from_room(struct obj_data * object)
     struct obj_data *temp;
 
     if (!object) {
-	slog("SYSERR: NULL object passed to obj_from_room");
-	raise( SIGSEGV );
-	return;
+        slog("SYSERR: NULL object passed to obj_from_room");
+        raise( SIGSEGV );
+        return;
     }
     if (!object->in_room) {
-	slog("SYSERR: NULL object->in_room in obj_from_room");
-	raise( SIGSEGV );
-	return;
+        slog("SYSERR: NULL object->in_room in obj_from_room");
+        raise( SIGSEGV );
+        return;
     }
 
 #ifdef TRACK_OBJS
@@ -1553,13 +1553,13 @@ obj_from_room(struct obj_data * object)
 #endif
 
     if (IS_VEHICLE(object) && object->contains && IS_ENGINE(object->contains) &&
-	HEADLIGHTS_ON(object->contains))
-	object->in_room->light--;
+        HEADLIGHTS_ON(object->contains))
+        object->in_room->light--;
 
     REMOVE_FROM_LIST(object, object->in_room->contents, next_content);
 
     if (ROOM_FLAGGED(object->in_room, ROOM_HOUSE))
-	SET_BIT(ROOM_FLAGS(object->in_room), ROOM_HOUSE_CRASH);
+        SET_BIT(ROOM_FLAGS(object->in_room), ROOM_HOUSE_CRASH);
     object->in_room = NULL;
     object->next_content = NULL;
     REMOVE_BIT(GET_OBJ_EXTRA2(object), ITEM2_HIDDEN);
@@ -1575,25 +1575,25 @@ obj_to_obj(struct obj_data * obj, struct obj_data * obj_to)
     int found, j;
 
     if (!obj || !obj_to || obj == obj_to) {
-	slog("SYSERR: NULL object or same src and targ obj passed to obj_to_obj");
-	return;
+        slog("SYSERR: NULL object or same src and targ obj passed to obj_to_obj");
+        return;
     }
     found = 0;
     for (o = obj_to->contains; o && o->next_content; o = o->next_content) {
-	if (o->next_content->shared->vnum == obj->shared->vnum &&
-	    obj->shared->vnum >= 0 &&
-	    GET_OBJ_EXTRA(o->next_content) == GET_OBJ_EXTRA(obj) &&
-	    GET_OBJ_EXTRA2(o->next_content) == GET_OBJ_EXTRA2(obj)) {
-	    obj->next_content = o->next_content;
-	    o->next_content = obj;
+        if (o->next_content->shared->vnum == obj->shared->vnum &&
+            obj->shared->vnum >= 0 &&
+            GET_OBJ_EXTRA(o->next_content) == GET_OBJ_EXTRA(obj) &&
+            GET_OBJ_EXTRA2(o->next_content) == GET_OBJ_EXTRA2(obj)) {
+            obj->next_content = o->next_content;
+            o->next_content = obj;
 
-	    found = 1;
-	    break;
-	}
+            found = 1;
+            break;
+        }
     }
     if (!found) {
-	obj->next_content = obj_to->contains;
-	obj_to->contains = obj;
+        obj->next_content = obj_to->contains;
+        obj_to->contains = obj;
     }
     obj->in_obj = obj_to;
 
@@ -1601,14 +1601,14 @@ obj_to_obj(struct obj_data * obj, struct obj_data * obj_to)
        obsolete
        
     for (tmp_obj = obj->in_obj; tmp_obj->in_obj; tmp_obj = tmp_obj->in_obj) {
-	
-	tmp_obj->modifyWeight( obj->getWeight() );
+        
+        tmp_obj->modifyWeight( obj->getWeight() );
 
-	// if the item is contained within an implant, increase character's weight
-	// if applicable
-	if (tmp_obj->worn_by && tmp_obj == 
-	    GET_IMPLANT(tmp_obj->worn_by, tmp_obj->worn_on))
-	    GET_WEIGHT(tmp_obj->worn_by) += obj->getWeight();
+        // if the item is contained within an implant, increase character's weight
+        // if applicable
+        if (tmp_obj->worn_by && tmp_obj == 
+            GET_IMPLANT(tmp_obj->worn_by, tmp_obj->worn_on))
+            GET_WEIGHT(tmp_obj->worn_by) += obj->getWeight();
     }
     */
 
@@ -1616,29 +1616,29 @@ obj_to_obj(struct obj_data * obj, struct obj_data * obj_to)
     obj_to->modifyWeight( obj->getWeight() );
 
     if ( obj_to->in_room && ROOM_FLAGGED( obj_to->in_room, ROOM_HOUSE)) 
-	SET_BIT(ROOM_FLAGS( obj_to->in_room), ROOM_HOUSE_CRASH);
+        SET_BIT(ROOM_FLAGS( obj_to->in_room), ROOM_HOUSE_CRASH);
 
     if (IS_INTERFACE(obj_to)) {
-	INTERFACE_CUR(obj_to)++;
+        INTERFACE_CUR(obj_to)++;
 
-	if ((vict = obj_to->worn_by) &&
-	    (obj_to != GET_EQ(vict, obj_to->worn_on) || 
-	     obj_to->worn_on != WEAR_BELT || 
-	     (GET_OBJ_TYPE(obj) != ITEM_WEAPON && 
-	      GET_OBJ_TYPE(obj) != ITEM_PIPE)) && 
-	    !invalid_char_class(vict, obj) && 
-	    (obj_to != GET_EQ(vict, obj_to->worn_on) || !IS_IMPLANT(obj))) {
-	    if (SKILLCHIP(obj) && CHIP_DATA(obj) > 0 && 
-		CHIP_DATA(obj) < MAX_SKILLS)
-		affect_modify(vict, -CHIP_DATA(obj), CHIP_MAX(obj), 0, 0, TRUE);
-	    for (j = 0; j < MAX_OBJ_AFFECT; j++)
-		affect_modify(vict, obj->affected[j].location,
-			      obj->affected[j].modifier, 0, 0, TRUE);
-	    affect_modify(vict,0,0,obj->obj_flags.bitvector[0], 1, TRUE);
-	    affect_modify(vict,0,0,obj->obj_flags.bitvector[1], 1, TRUE);
-	    affect_modify(vict,0,0,obj->obj_flags.bitvector[2], 1, TRUE);
-	    affect_total(vict);
-	}
+        if ((vict = obj_to->worn_by) &&
+            (obj_to != GET_EQ(vict, obj_to->worn_on) || 
+             obj_to->worn_on != WEAR_BELT || 
+             (GET_OBJ_TYPE(obj) != ITEM_WEAPON && 
+              GET_OBJ_TYPE(obj) != ITEM_PIPE)) && 
+            !invalid_char_class(vict, obj) && 
+            (obj_to != GET_EQ(vict, obj_to->worn_on) || !IS_IMPLANT(obj))) {
+            if (SKILLCHIP(obj) && CHIP_DATA(obj) > 0 && 
+                CHIP_DATA(obj) < MAX_SKILLS)
+                affect_modify(vict, -CHIP_DATA(obj), CHIP_MAX(obj), 0, 0, TRUE);
+            for (j = 0; j < MAX_OBJ_AFFECT; j++)
+                affect_modify(vict, obj->affected[j].location,
+                              obj->affected[j].modifier, 0, 0, TRUE);
+            affect_modify(vict,0,0,obj->obj_flags.bitvector[0], 1, TRUE);
+            affect_modify(vict,0,0,obj->obj_flags.bitvector[1], 1, TRUE);
+            affect_modify(vict,0,0,obj->obj_flags.bitvector[2], 1, TRUE);
+            affect_total(vict);
+        }
     }
 }
 
@@ -1651,8 +1651,8 @@ obj_from_obj(struct obj_data * obj)
     int j;
 
     if ( obj->in_obj == NULL ) {
-	slog("SYSERR (handler.c): trying to illegally extract obj from obj");
-	raise( SIGSEGV );
+        slog("SYSERR (handler.c): trying to illegally extract obj from obj");
+        raise( SIGSEGV );
     }
 
 #ifdef TRACK_OBJS
@@ -1667,26 +1667,26 @@ obj_from_obj(struct obj_data * obj)
     REMOVE_FROM_LIST(obj, obj_from->contains, next_content);
 
     if (IS_INTERFACE(obj_from)) {
-	INTERFACE_CUR(obj_from)--;
-	if ((vict = obj_from->worn_by) &&
-	    (obj_from != GET_EQ(vict, obj_from->worn_on) || 
-	     obj_from->worn_on != WEAR_BELT || 
-	     (GET_OBJ_TYPE(obj) != ITEM_WEAPON && 
-	      GET_OBJ_TYPE(obj) != ITEM_PIPE)) && 
-	    !invalid_char_class(vict, obj) && 
-	    (obj_from != GET_EQ(vict, obj_from->worn_on) || !IS_IMPLANT(obj))) {
+        INTERFACE_CUR(obj_from)--;
+        if ((vict = obj_from->worn_by) &&
+            (obj_from != GET_EQ(vict, obj_from->worn_on) || 
+             obj_from->worn_on != WEAR_BELT || 
+             (GET_OBJ_TYPE(obj) != ITEM_WEAPON && 
+              GET_OBJ_TYPE(obj) != ITEM_PIPE)) && 
+            !invalid_char_class(vict, obj) && 
+            (obj_from != GET_EQ(vict, obj_from->worn_on) || !IS_IMPLANT(obj))) {
 
-	    if (SKILLCHIP(obj) && CHIP_DATA(obj) > 0 && 
-		CHIP_DATA(obj) < MAX_SKILLS)
-		affect_modify(vict, -CHIP_DATA(obj), CHIP_MAX(obj), 0, 0, FALSE);
-	    for (j = 0; j < MAX_OBJ_AFFECT; j++)
-		affect_modify(vict, obj->affected[j].location,
-			      obj->affected[j].modifier, 0, 0, FALSE);
-	    affect_modify(vict,0,0,obj->obj_flags.bitvector[0], 1, FALSE);
-	    affect_modify(vict,0,0,obj->obj_flags.bitvector[1], 1, FALSE);
-	    affect_modify(vict,0,0,obj->obj_flags.bitvector[2], 1, FALSE);
-	    affect_total(vict);
-	}
+            if (SKILLCHIP(obj) && CHIP_DATA(obj) > 0 && 
+                CHIP_DATA(obj) < MAX_SKILLS)
+                affect_modify(vict, -CHIP_DATA(obj), CHIP_MAX(obj), 0, 0, FALSE);
+            for (j = 0; j < MAX_OBJ_AFFECT; j++)
+                affect_modify(vict, obj->affected[j].location,
+                              obj->affected[j].modifier, 0, 0, FALSE);
+            affect_modify(vict,0,0,obj->obj_flags.bitvector[0], 1, FALSE);
+            affect_modify(vict,0,0,obj->obj_flags.bitvector[1], 1, FALSE);
+            affect_modify(vict,0,0,obj->obj_flags.bitvector[2], 1, FALSE);
+            affect_total(vict);
+        }
     }
 
     /*
@@ -1694,23 +1694,23 @@ obj_from_obj(struct obj_data * obj)
 
     // Subtract weight from containers container
     for (temp = obj->in_obj; temp->in_obj; temp = temp->in_obj)
-	temp->modifyWeight( - obj->getWeight() );
+        temp->modifyWeight( - obj->getWeight() );
     
     // Subtract weight from char that carries the object
     temp->modifyWeight( - obj->getWeight() );
 
     if (temp->carried_by)
-	IS_CARRYING_W(temp->carried_by) -= obj->getWeight();
+        IS_CARRYING_W(temp->carried_by) -= obj->getWeight();
     else if (temp->worn_by) {
-	if (temp == GET_IMPLANT(temp->worn_by, temp->worn_on))
-	    GET_WEIGHT(temp->worn_by) -= obj->getWeight();
-	else
-	    IS_WEARING_W(temp->worn_by) -= obj->getWeight();
+        if (temp == GET_IMPLANT(temp->worn_by, temp->worn_on))
+            GET_WEIGHT(temp->worn_by) -= obj->getWeight();
+        else
+            IS_WEARING_W(temp->worn_by) -= obj->getWeight();
 
     */
 
     if (obj_from->in_room && ROOM_FLAGGED( obj_from->in_room, ROOM_HOUSE)) 
-	SET_BIT(ROOM_FLAGS( obj_from->in_room), ROOM_HOUSE_CRASH);
+        SET_BIT(ROOM_FLAGS( obj_from->in_room), ROOM_HOUSE_CRASH);
 
     obj->in_obj = NULL;
     obj->next_content = NULL;
@@ -1724,9 +1724,9 @@ void
 object_list_new_owner(struct obj_data * list, struct char_data * ch)
 {
     if (list) {
-	object_list_new_owner(list->contains, ch);
-	object_list_new_owner(list->next_content, ch);
-	list->carried_by = ch;
+        object_list_new_owner(list->contains, ch);
+        object_list_new_owner(list->next_content, ch);
+        list->carried_by = ch;
     }
 }
 
@@ -1739,35 +1739,35 @@ extract_obj(struct obj_data * obj)
     struct obj_data *temp = NULL;
 
     if (obj->worn_by != NULL)
-	if (unequip_char(obj->worn_by, obj->worn_on, 
-			 (obj == GET_EQ(obj->worn_by, obj->worn_on) ? 
-			  MODE_EQ : MODE_IMPLANT)) != obj)
-	    slog("SYSERR: Inconsistent worn_by and worn_on pointers!!");
+        if (unequip_char(obj->worn_by, obj->worn_on, 
+                         (obj == GET_EQ(obj->worn_by, obj->worn_on) ? 
+                          MODE_EQ : MODE_IMPLANT)) != obj)
+            slog("SYSERR: Inconsistent worn_by and worn_on pointers!!");
     if (obj->in_room != NULL)
-	obj_from_room(obj);
+        obj_from_room(obj);
     else if (obj->carried_by)
-	obj_from_char(obj);
+        obj_from_char(obj);
     else if (obj->in_obj)
-	obj_from_obj(obj);
+        obj_from_obj(obj);
 
     if (obj->aux_obj) {
-	if (obj->aux_obj->aux_obj && obj->aux_obj->aux_obj == obj)
-	    obj->aux_obj->aux_obj = NULL;
-	obj->aux_obj = NULL;
+        if (obj->aux_obj->aux_obj && obj->aux_obj->aux_obj == obj)
+            obj->aux_obj->aux_obj = NULL;
+        obj->aux_obj = NULL;
     }
 
     /* Get rid of the contents of the object, as well. */
     while (obj->contains)
-	extract_obj(obj->contains);
+        extract_obj(obj->contains);
 
     if (obj->shared->vnum >= 0)
-	obj->shared->number--;
+        obj->shared->number--;
 
     REMOVE_FROM_LIST(obj, object_list, next);
 
     /* remove obj from any paths */
     if (IS_VEHICLE(obj))
-	path_remove_object(obj);
+        path_remove_object(obj);
 #ifdef DMALLOC
     dmalloc_verify(0);
 #endif
@@ -1783,11 +1783,11 @@ void
 update_object(struct obj_data * obj, int use)
 {
     if (GET_OBJ_TIMER(obj) > 0)
-	GET_OBJ_TIMER(obj) -= use;
+        GET_OBJ_TIMER(obj) -= use;
     if (obj->contains)
-	update_object(obj->contains, use);
+        update_object(obj->contains, use);
     if (obj->next_content)
-	update_object(obj->next_content, use);
+        update_object(obj->next_content, use);
 }
 
 
@@ -1797,28 +1797,28 @@ update_char_objects(struct char_data * ch)
     int i;
 
     if (!ch->in_room)
-	return;
+        return;
 
     if (GET_EQ(ch, WEAR_LIGHT) != NULL)
-	if (GET_OBJ_TYPE(GET_EQ(ch, WEAR_LIGHT)) == ITEM_LIGHT)
-	    if (GET_OBJ_VAL(GET_EQ(ch, WEAR_LIGHT), 2) > 0) {
-		i = --GET_OBJ_VAL(GET_EQ(ch, WEAR_LIGHT), 2);
-		if (i == 1) {
-		    act("Your light begins to flicker and fade.", FALSE, ch, 0, 0, TO_CHAR);
-		    act("$n's light begins to flicker and fade.", FALSE, ch, 0, 0, TO_ROOM);
-		} else if (i == 0) {
-		    act("Your light sputters out and dies.", FALSE, ch, 0, 0, TO_CHAR);
-		    act("$n's light sputters out and dies.", FALSE, ch, 0, 0, TO_ROOM);
-		    ch->in_room->light--;
-		}
-	    }
+        if (GET_OBJ_TYPE(GET_EQ(ch, WEAR_LIGHT)) == ITEM_LIGHT)
+            if (GET_OBJ_VAL(GET_EQ(ch, WEAR_LIGHT), 2) > 0) {
+                i = --GET_OBJ_VAL(GET_EQ(ch, WEAR_LIGHT), 2);
+                if (i == 1) {
+                    act("Your light begins to flicker and fade.", FALSE, ch, 0, 0, TO_CHAR);
+                    act("$n's light begins to flicker and fade.", FALSE, ch, 0, 0, TO_ROOM);
+                } else if (i == 0) {
+                    act("Your light sputters out and dies.", FALSE, ch, 0, 0, TO_CHAR);
+                    act("$n's light sputters out and dies.", FALSE, ch, 0, 0, TO_ROOM);
+                    ch->in_room->light--;
+                }
+            }
 
     for (i = 0; i < NUM_WEARS; i++)
-	if (GET_EQ(ch, i))
-	    update_object(GET_EQ(ch, i), 2);
+        if (GET_EQ(ch, i))
+            update_object(GET_EQ(ch, i), 2);
 
     if (ch->carrying)
-	update_object(ch->carrying, 1);
+        update_object(ch->carrying, 1);
 }
 
 
@@ -1840,24 +1840,24 @@ extract_char(struct char_data * ch, byte mode)
     void die_follower(struct char_data * ch);
 
     if (!IS_NPC(ch) && !ch->desc) {
-	for (t_desc = descriptor_list; t_desc; t_desc = t_desc->next)
-	    if (t_desc->original == ch)
-		do_return(t_desc->character, "", 0, SCMD_FORCED);
+        for (t_desc = descriptor_list; t_desc; t_desc = t_desc->next)
+            if (t_desc->original == ch)
+                do_return(t_desc->character, "", 0, SCMD_FORCED);
     }
     if (ch->in_room == NULL) {
-	slog("SYSERR: NOWHERE extracting char. (handler.c, extract_char)");
-	sprintf(buf, "...extract char = %s", GET_NAME(ch));
-	slog(buf);
-	exit(1);
+        slog("SYSERR: NOWHERE extracting char. (handler.c, extract_char)");
+        sprintf(buf, "...extract char = %s", GET_NAME(ch));
+        slog(buf);
+        exit(1);
     }
 
     if (ch->followers || ch->master)
-	die_follower(ch);
+        die_follower(ch);
 
     /* remove hunters */
     for (k = character_list; k; k = k->next)
-	if (ch == HUNTING(k))
-	    HUNTING(k) = NULL;
+        if (ch == HUNTING(k))
+            HUNTING(k) = NULL;
 
     // Make sure they aren't editing a help topic.
     if(GET_OLC_HELP(ch)) {
@@ -1866,68 +1866,68 @@ extract_char(struct char_data * ch, byte mode)
     }
     /* Forget snooping, if applicable */
     if (ch->desc) {
-	if (ch->desc->snooping) {
-	    ch->desc->snooping->snoop_by = NULL;
-	    ch->desc->snooping = NULL;
-	}
-	if (ch->desc->snoop_by) {
-	    SEND_TO_Q("Your victim is no longer among us.\r\n",
-		      ch->desc->snoop_by);
-	    ch->desc->snoop_by->snooping = NULL;
-	    ch->desc->snoop_by = NULL;
-	}
+        if (ch->desc->snooping) {
+            ch->desc->snooping->snoop_by = NULL;
+            ch->desc->snooping = NULL;
+        }
+        if (ch->desc->snoop_by) {
+            SEND_TO_Q("Your victim is no longer among us.\r\n",
+                      ch->desc->snoop_by);
+            ch->desc->snoop_by->snooping = NULL;
+            ch->desc->snoop_by = NULL;
+        }
     }
     /* transfer objects to room, if any */
     while (ch->carrying) {
-	obj = ch->carrying;
-	obj_from_char(obj);
-	obj_to_room(obj, ch->in_room);
+        obj = ch->carrying;
+        obj_from_char(obj);
+        obj_to_room(obj, ch->in_room);
     }
 
     /* transfer equipment to room, if any */
     for (i = 0; i < NUM_WEARS; i++) {
-	if (GET_EQ(ch, i))
-	    obj_to_room(unequip_char(ch, i, MODE_EQ), ch->in_room);
-	if (GET_IMPLANT(ch, i))
-	    extract_obj(GET_IMPLANT(ch, i));
+        if (GET_EQ(ch, i))
+            obj_to_room(unequip_char(ch, i, MODE_EQ), ch->in_room);
+        if (GET_IMPLANT(ch, i))
+            extract_obj(GET_IMPLANT(ch, i));
     }
 
     if (FIGHTING(ch))
-	stop_fighting(ch);
+        stop_fighting(ch);
 
     /* stop all fighting */
     for (k = combat_list; k; k = temp) {
-	temp = k->next_fighting;
-	if (ch == FIGHTING(k))
-	    stop_fighting(k);
+        temp = k->next_fighting;
+        if (ch == FIGHTING(k))
+            stop_fighting(k);
     }
 
     /* temporary bug fix */
     for (k = character_list; k; k = temp) {
-	temp = k->next;
-	if (ch == FIGHTING(k)) {
-	    stop_fighting(k);
-	    sprintf(buf, "SYSERR: %s still fighting %s at %d!!!",
-		    GET_NAME(k), GET_NAME(ch), k->in_room->number);
-	    slog(buf);
-	    if (k->desc)
-		send_to_char("HOLY SHIT!!\r\n"
-			     "A grievous error has just occured with the character\r\n"
-			     "you just killed.  Please make a note of the last few\r\n"
-			     "things that happened in the battle with your victim\r\n"
-			     "and mail Fireball immediately!!  Thanks.\r\n", k);
-    
-	}
+        temp = k->next;
+        if (ch == FIGHTING(k)) {
+            stop_fighting(k);
+            sprintf(buf, "SYSERR: %s still fighting %s at %d!!!",
+                GET_NAME(k), GET_NAME(ch), k->in_room->number);
+            slog(buf);
+            if (k->desc)
+            send_to_char("HOLY SHIT!!\r\n"
+                     "A grievous error has just occured with the character\r\n"
+                     "you just killed.  Please make a note of the last few\r\n"
+                     "things that happened in the battle with your victim\r\n"
+                     "and mail Fireball immediately!!  Thanks.\r\n", k);
+        
+        }
     }
 
     if (MOUNTED(ch)) {
-	REMOVE_BIT(AFF2_FLAGS(MOUNTED(ch)), AFF2_MOUNTED);
-	MOUNTED(ch) = NULL;
+        REMOVE_BIT(AFF2_FLAGS(MOUNTED(ch)), AFF2_MOUNTED);
+        MOUNTED(ch) = NULL;
     }
 
     if (AFF2_FLAGGED(ch, AFF2_MOUNTED)) {
-	for (k = character_list; k; k = k->next)
-	    if (ch == MOUNTED(k)) {
+        for (k = character_list; k; k = k->next)
+            if (ch == MOUNTED(k)) {
             MOUNTED(k) = NULL;
             if (k->getPosition() == POS_MOUNTED) {
                 if (k->in_room->sector_type == SECT_FLYING)
@@ -1935,7 +1935,7 @@ extract_char(struct char_data * ch, byte mode)
                 else 
                     k->setPosition( POS_STANDING );
             }
-	    }
+            }
     }
 
     if (ch->desc && ch->desc->original) {
@@ -1951,31 +1951,31 @@ extract_char(struct char_data * ch, byte mode)
     path_remove_object(ch);
 
     if (!IS_NPC(ch)) {
-	save_char(ch, NULL);
-	Crash_delete_crashfile(ch);
+        save_char(ch, NULL);
+        Crash_delete_crashfile(ch);
     } else {
-	if (GET_MOB_VNUM(ch) > -1)		/* if mobile */
-	    ch->mob_specials.shared->number--;
-	clearMemory(ch);		/* Only NPC's can have memory */
-	free_char(ch);
-	freed = 1;
-	return;
+        if (GET_MOB_VNUM(ch) > -1)                /* if mobile */
+            ch->mob_specials.shared->number--;
+        clearMemory(ch);                /* Only NPC's can have memory */
+        free_char(ch);
+        freed = 1;
+        return;
     }
 
     if (ch->desc) {
-	if (mode) {
-	    STATE(ch->desc) = CON_AFTERLIFE;
-	    SEND_TO_Q("\r\n\r\nPress RETURN to continue into the afterlife.\r\n", 
-		      ch->desc);
-	    ch->desc->wait = 0;
-	} else {
-	    SEND_TO_Q("\r\n\r\n\r\n", ch->desc);
-	    show_menu(ch->desc);
-	    STATE(ch->desc) = CON_MENU;
-	}
+        if (mode) {
+            STATE(ch->desc) = CON_AFTERLIFE;
+            SEND_TO_Q("\r\n\r\nPress RETURN to continue into the afterlife.\r\n", 
+                      ch->desc);
+            ch->desc->wait = 0;
+        } else {
+            SEND_TO_Q("\r\n\r\n\r\n", ch->desc);
+            show_menu(ch->desc);
+            STATE(ch->desc) = CON_MENU;
+        }
     } else {  /* if a player gets purged from within the game */
-	if (!freed)
-	    free_char(ch);
+        if (!freed)
+            free_char(ch);
     }
 }
 
@@ -1999,24 +1999,24 @@ get_player_vis(struct char_data * ch, char *name, int inroom)
 
     // peel off any trailing spaces
     while (len && tmpname[len-1] == ' ')
-	tmpname[--len] = '\0';
+        tmpname[--len] = '\0';
 
     // see if this name should be matched exactly
     if (tmpname[len-1] == '"') {
-	exact = TRUE;
-	tmpname[--len] = '\0';
+        exact = TRUE;
+        tmpname[--len] = '\0';
     }
 
     for (i = character_list; i; i = i->next) {
 
-	if ((!IS_NPC(i) || i->desc) && 
-	    (!inroom || i->in_room == ch->in_room) &&
-	    CAN_SEE(ch, i) &&
-	    ((!exact && !strncasecmp(i->player.name, tmpname, len))  ||
-	     (exact && len == strlen(i->player.name) &&
-	      !strcasecmp(i->player.name, tmpname)))) {
-	    return i;
-	}
+        if ((!IS_NPC(i) || i->desc) && 
+            (!inroom || i->in_room == ch->in_room) &&
+            CAN_SEE(ch, i) &&
+            ((!exact && !strncasecmp(i->player.name, tmpname, len))  ||
+             (exact && len == strlen(i->player.name) &&
+              !strcasecmp(i->player.name, tmpname)))) {
+            return i;
+        }
 
     }
 
@@ -2034,30 +2034,30 @@ get_char_room_vis(struct char_data * ch, char *name)
     struct affected_type *af = NULL;
 
     if (!str_cmp(name, "self") || !str_cmp(name, "me"))
-	return ch;
+        return ch;
 
     /* 0.<name> means PC with name */
     strcpy(tmp, name);
     if (!(number = get_number(&tmp)))
-	return get_player_vis(ch, tmp, 1);
+        return get_player_vis(ch, tmp, 1);
 
     for (i = ch->in_room->people; i && j <= number; i = i->next_in_room) {
-	if ((af = affected_by_spell(i, SKILL_DISGUISE)))
-	    mob = real_mobile_proto(af->modifier);
+        if ((af = affected_by_spell(i, SKILL_DISGUISE)))
+            mob = real_mobile_proto(af->modifier);
 
-	if ((mob && isname(tmp, mob->player.name))
-	    || ((!af || CAN_DETECT_DISGUISE(ch, i, af->duration)) &&
-		isname(tmp, i->player.name)))
-	    if (CAN_SEE(ch, i))
-		if (++j == number)
-		    return i;
+        if ((mob && isname(tmp, mob->player.name))
+            || ((!af || CAN_DETECT_DISGUISE(ch, i, af->duration)) &&
+                isname(tmp, i->player.name)))
+            if (CAN_SEE(ch, i))
+                if (++j == number)
+                    return i;
     }
     return NULL;
 }
 
 struct char_data *
 get_char_in_remote_room_vis(struct char_data * ch, char *name, 
-			    struct room_data *inroom)
+                            struct room_data *inroom)
 {
     struct room_data *was_in = ch->in_room;
     struct char_data *i = NULL;
@@ -2078,17 +2078,17 @@ get_char_vis(struct char_data * ch, char *name)
 
     /* check the room first */
     if ((i = get_char_room_vis(ch, name)) != NULL)
-	return i;
+        return i;
 
     // 0.name means player only
     strcpy(tmp, name);
     if (!(number = get_number(&tmp)))
-	return get_player_vis(ch, tmp, 0);
+        return get_player_vis(ch, tmp, 0);
 
     for (i = character_list; i && (j <= number); i = i->next)
-	if (isname(tmp, i->player.name) && CAN_SEE(ch, i))
-	    if (++j == number)
-		return i;
+        if (isname(tmp, i->player.name) && CAN_SEE(ch, i))
+            if (++j == number)
+                return i;
 
     return NULL;
 }
@@ -2097,7 +2097,7 @@ get_char_vis(struct char_data * ch, char *name)
 
 struct obj_data *
 get_obj_in_list_vis(struct char_data * ch, char *name,
-		    struct obj_data * list)
+                    struct obj_data * list)
 {
     struct obj_data *i;
     int j = 0, number;
@@ -2106,20 +2106,20 @@ get_obj_in_list_vis(struct char_data * ch, char *name,
 
     strcpy(tmp, name);
     if (!(number = get_number(&tmp)))
-	return NULL;
+        return NULL;
 
     for (i = list; i && (j <= number); i = i->next_content)
-	if (isname(tmp, i->name))
-	    if (CAN_SEE_OBJ(ch, i))
-		if (++j == number)
-		    return i;
+        if (isname(tmp, i->name))
+            if (CAN_SEE_OBJ(ch, i))
+                if (++j == number)
+                    return i;
 
     return NULL;
 }
 
 struct obj_data *
 get_obj_in_list_all(struct char_data * ch, char *name,
-		    struct obj_data * list)
+                    struct obj_data * list)
 {
     struct obj_data *i;
     int j = 0, number;
@@ -2128,13 +2128,13 @@ get_obj_in_list_all(struct char_data * ch, char *name,
 
     strcpy(tmp, name);
     if (!(number = get_number(&tmp)))
-	return NULL;
+        return NULL;
 
     for (i = list; i && (j <= number); i = i->next_content)
-	if (isname(tmp, i->name))
-	    if (INVIS_OK_OBJ(ch, i))
-		if (++j == number)
-		    return i;
+        if (isname(tmp, i->name))
+            if (INVIS_OK_OBJ(ch, i))
+                if (++j == number)
+                    return i;
 
     return NULL;
 }
@@ -2152,22 +2152,22 @@ get_obj_vis(struct char_data * ch, char *name)
 
     /* scan items carried */
     if ((i = get_obj_in_list_vis(ch, name, ch->carrying)))
-	return i;
+        return i;
 
     /* scan room */
     if ((i = get_obj_in_list_vis(ch, name, ch->in_room->contents)))
-	return i;
+        return i;
 
     strcpy(tmp, name);
     if (!(number = get_number(&tmp)))
-	return NULL;
+        return NULL;
 
     /* ok.. no luck yet. scan the entire obj list   */
     for (i = object_list; i && (j <= number); i = i->next)
-	if (isname(tmp, i->name))
-	    if (CAN_SEE_OBJ(ch, i))
-		if (++j == number)
-		    return i;
+        if (isname(tmp, i->name))
+            if (CAN_SEE_OBJ(ch, i))
+                if (++j == number)
+                    return i;
 
     return NULL;
 }
@@ -2175,57 +2175,57 @@ get_obj_vis(struct char_data * ch, char *name)
 
 struct obj_data *
 get_object_in_equip_pos(struct char_data * ch, 
-			char *arg, int pos)
+                        char *arg, int pos)
 {
     if (GET_EQ(ch, pos) && isname(arg, GET_EQ(ch, pos)->name) &&
-	CAN_SEE_OBJ(ch, GET_EQ(ch, pos)))
-	return (GET_EQ(ch, pos));
+        CAN_SEE_OBJ(ch, GET_EQ(ch, pos)))
+        return (GET_EQ(ch, pos));
     else
-	return (NULL);
+        return (NULL);
 }
 
 struct obj_data *
 get_object_in_equip_vis(struct char_data * ch,
-			char *arg, struct obj_data * equipment[], int *j)
+                        char *arg, struct obj_data * equipment[], int *j)
 {
-	int x = 0;
-	int number = 0;
-	char tmpname[MAX_INPUT_LENGTH];
-	char *tmp = tmpname;
+        int x = 0;
+        int number = 0;
+        char tmpname[MAX_INPUT_LENGTH];
+        char *tmp = tmpname;
 
     strcpy(tmp, arg);
-	if (!(number = get_number(&tmp)))
-		return NULL;
+        if (!(number = get_number(&tmp)))
+                return NULL;
 
     for ((*j) = 0; (*j) < NUM_WEARS && x <= number; (*j)++)
-		if (equipment[(*j)])
-			if (CAN_SEE_OBJ(ch, equipment[(*j)]))
-				if (isname(tmp, equipment[(*j)]->name))
-					if (++x == number)
-						return (equipment[(*j)]);
+                if (equipment[(*j)])
+                        if (CAN_SEE_OBJ(ch, equipment[(*j)]))
+                                if (isname(tmp, equipment[(*j)]->name))
+                                        if (++x == number)
+                                                return (equipment[(*j)]);
 
     return NULL;
 }
 
 struct obj_data *
 get_object_in_equip_all(struct char_data * ch,
-			char *arg, struct obj_data * equipment[], int *j)
+                        char *arg, struct obj_data * equipment[], int *j)
 {
-	int x = 0;
-	int number = 0;
-	char tmpname[MAX_INPUT_LENGTH];
-	char *tmp = tmpname;
+        int x = 0;
+        int number = 0;
+        char tmpname[MAX_INPUT_LENGTH];
+        char *tmp = tmpname;
 
     strcpy(tmp, arg);
-	if (!(number = get_number(&tmp)))
-		return NULL;
+        if (!(number = get_number(&tmp)))
+                return NULL;
 
     for ((*j) = 0; (*j) < NUM_WEARS && x <= number; (*j)++)
-		if (equipment[(*j)])
-			if (INVIS_OK_OBJ(ch, equipment[(*j)]))
-				if (isname(tmp, equipment[(*j)]->name))
-					if (++x == number)
-						return (equipment[(*j)]);
+                if (equipment[(*j)])
+                        if (INVIS_OK_OBJ(ch, equipment[(*j)]))
+                                if (isname(tmp, equipment[(*j)]->name))
+                                        if (++x == number)
+                                                return (equipment[(*j)]);
     return NULL;
 }
 
@@ -2235,72 +2235,72 @@ money_desc(int amount, int mode)
     static char buf[128];
 
     if (amount <= 0) {
-	slog("SYSERR: Try to create negative or 0 money.");
-	return NULL;
+        slog("SYSERR: Try to create negative or 0 money.");
+        return NULL;
     }
     if (mode == 0) {
-	if (amount == 1)
-	    strcpy(buf, "a gold coin");
-	else if (amount <= 10)
-	    strcpy(buf, "a tiny pile of gold coins");
-	else if (amount <= 20)
-	    strcpy(buf, "a handful of gold coins");
-	else if (amount <= 75)
-	    strcpy(buf, "a little pile of gold coins");
-	else if (amount <= 200)
-	    strcpy(buf, "a small pile of gold coins");
-	else if (amount <= 1000)
-	    strcpy(buf, "a pile of gold coins");
-	else if (amount <= 5000)
-	    strcpy(buf, "a big pile of gold coins");
-	else if (amount <= 10000)
-	    strcpy(buf, "a large heap of gold coins");
-	else if (amount <= 20000)
-	    strcpy(buf, "a huge mound of gold coins");
-	else if (amount <= 75000)
-	    strcpy(buf, "an enormous mound of gold coins");
-	else if (amount <= 150000)
-	    strcpy(buf, "a small mountain of gold coins");
-	else if (amount <= 250000)
-	    strcpy(buf, "a mountain of gold coins");
-	else if (amount <= 500000)
-	    strcpy(buf, "a huge mountain of gold coins");
-	else if (amount <= 1000000)
-	    strcpy(buf, "an enormous mountain of gold coins");
-	else
-	    strcpy(buf, "an absolutely colossal mountain of gold coins");
+        if (amount == 1)
+            strcpy(buf, "a gold coin");
+        else if (amount <= 10)
+            strcpy(buf, "a tiny pile of gold coins");
+        else if (amount <= 20)
+            strcpy(buf, "a handful of gold coins");
+        else if (amount <= 75)
+            strcpy(buf, "a little pile of gold coins");
+        else if (amount <= 200)
+            strcpy(buf, "a small pile of gold coins");
+        else if (amount <= 1000)
+            strcpy(buf, "a pile of gold coins");
+        else if (amount <= 5000)
+            strcpy(buf, "a big pile of gold coins");
+        else if (amount <= 10000)
+            strcpy(buf, "a large heap of gold coins");
+        else if (amount <= 20000)
+            strcpy(buf, "a huge mound of gold coins");
+        else if (amount <= 75000)
+            strcpy(buf, "an enormous mound of gold coins");
+        else if (amount <= 150000)
+            strcpy(buf, "a small mountain of gold coins");
+        else if (amount <= 250000)
+            strcpy(buf, "a mountain of gold coins");
+        else if (amount <= 500000)
+            strcpy(buf, "a huge mountain of gold coins");
+        else if (amount <= 1000000)
+            strcpy(buf, "an enormous mountain of gold coins");
+        else
+            strcpy(buf, "an absolutely colossal mountain of gold coins");
     }
     else { // credits
-	if (amount == 1)
-	    strcpy(buf, "a one-credit note");
-	else if (amount <= 10)
-	    strcpy(buf, "a small wad of cash");
-	else if (amount <= 20)
-	    strcpy(buf, "a handful of cash");
-	else if (amount <= 75)
-	    strcpy(buf, "a large wad of cash");
-	else if (amount <= 200)
-	    strcpy(buf, "a huge wad of cash");
-	else if (amount <= 1000)
-	    strcpy(buf, "a small pile of cash");
-	else if (amount <= 5000)
-	    strcpy(buf, "a big pile of cash");
-	else if (amount <= 10000)
-	    strcpy(buf, "a large heap of cash");
-	else if (amount <= 20000)
-	    strcpy(buf, "a huge mound of cash");
-	else if (amount <= 75000)
-	    strcpy(buf, "an enormous mound of cash");
-	else if (amount <= 150000)
-	    strcpy(buf, "a small mountain of cash money");
-	else if (amount <= 250000)
-	    strcpy(buf, "a mountain of cash money");
-	else if (amount <= 500000)
-	    strcpy(buf, "a huge mountain of cash");
-	else if (amount <= 1000000)
-	    strcpy(buf, "an enormous mountain of cash");
-	else
-	    strcpy(buf, "an absolutely colossal mountain of cash");
+        if (amount == 1)
+            strcpy(buf, "a one-credit note");
+        else if (amount <= 10)
+            strcpy(buf, "a small wad of cash");
+        else if (amount <= 20)
+            strcpy(buf, "a handful of cash");
+        else if (amount <= 75)
+            strcpy(buf, "a large wad of cash");
+        else if (amount <= 200)
+            strcpy(buf, "a huge wad of cash");
+        else if (amount <= 1000)
+            strcpy(buf, "a small pile of cash");
+        else if (amount <= 5000)
+            strcpy(buf, "a big pile of cash");
+        else if (amount <= 10000)
+            strcpy(buf, "a large heap of cash");
+        else if (amount <= 20000)
+            strcpy(buf, "a huge mound of cash");
+        else if (amount <= 75000)
+            strcpy(buf, "an enormous mound of cash");
+        else if (amount <= 150000)
+            strcpy(buf, "a small mountain of cash money");
+        else if (amount <= 250000)
+            strcpy(buf, "a mountain of cash money");
+        else if (amount <= 500000)
+            strcpy(buf, "a huge mountain of cash");
+        else if (amount <= 1000000)
+            strcpy(buf, "an enormous mountain of cash");
+        else
+            strcpy(buf, "an absolutely colossal mountain of cash");
     }
     return buf;
 }
@@ -2314,8 +2314,8 @@ create_money(int amount, int mode)
     char buf[200];
   
     if (amount <= 0) {
-	slog("SYSERR: Try to create negative or 0 money.");
-	return NULL;
+        slog("SYSERR: Try to create negative or 0 money.");
+        return NULL;
     }
     obj = create_obj();
     CREATE(new_descr, struct extra_descr_data, 1);
@@ -2325,48 +2325,48 @@ create_money(int amount, int mode)
     obj->description = str_dup(CAP(buf));
 
     if (mode == 0) {
-	if (amount == 1) {
-	    obj->name = str_dup("coin gold");
-	    obj->short_description = str_dup("a gold coin");
-	    obj->description = str_dup("One miserable gold coin is lying here.");
-	    new_descr->keyword = str_dup("coin gold");
-	    new_descr->description = str_dup("It's just one miserable little gold coin.");
-	} else {
-	    obj->name = str_dup("coins gold");
-	    new_descr->keyword = str_dup("coins gold");
-	}
-	GET_OBJ_MATERIAL(obj) = MAT_GOLD;
+        if (amount == 1) {
+            obj->name = str_dup("coin gold");
+            obj->short_description = str_dup("a gold coin");
+            obj->description = str_dup("One miserable gold coin is lying here.");
+            new_descr->keyword = str_dup("coin gold");
+            new_descr->description = str_dup("It's just one miserable little gold coin.");
+        } else {
+            obj->name = str_dup("coins gold");
+            new_descr->keyword = str_dup("coins gold");
+        }
+        GET_OBJ_MATERIAL(obj) = MAT_GOLD;
     }
     else { // credits
-	if (amount == 1) {
-	    obj->name = str_dup("credit money note one-credit");
-	    obj->short_description = str_dup("a one-credit note");
-	    obj->description = str_dup("A single one-credit none has been dropped here.");
-	    new_descr->keyword = str_dup("credit money note one-credit");
-	    new_descr->description = str_dup("It's one almighty credit!");
-	} else {
-	    obj->name = str_dup("credits money cash");
-	    new_descr->keyword = str_dup("credits money cash");
-	}
-	GET_OBJ_MATERIAL(obj) = MAT_PAPER;
+        if (amount == 1) {
+            obj->name = str_dup("credit money note one-credit");
+            obj->short_description = str_dup("a one-credit note");
+            obj->description = str_dup("A single one-credit none has been dropped here.");
+            new_descr->keyword = str_dup("credit money note one-credit");
+            new_descr->description = str_dup("It's one almighty credit!");
+        } else {
+            obj->name = str_dup("credits money cash");
+            new_descr->keyword = str_dup("credits money cash");
+        }
+        GET_OBJ_MATERIAL(obj) = MAT_PAPER;
     }
 
     if (amount < 10) {
-	sprintf(buf, "There are %d %s.", amount, mode ? "credits" : "coins");
-	new_descr->description = str_dup(buf);
+        sprintf(buf, "There are %d %s.", amount, mode ? "credits" : "coins");
+        new_descr->description = str_dup(buf);
     } else if (amount < 100) {
-	sprintf(buf, "There are about %d %s.", 10 * (amount / 10), mode ? "credits" : "coins");
-	new_descr->description = str_dup(buf);
+        sprintf(buf, "There are about %d %s.", 10 * (amount / 10), mode ? "credits" : "coins");
+        new_descr->description = str_dup(buf);
     } else if (amount < 1000) {
-	sprintf(buf, "It looks to be about %d %s.", 100 * (amount / 100), mode ? "credits" : "coins");
-	new_descr->description = str_dup(buf);
+        sprintf(buf, "It looks to be about %d %s.", 100 * (amount / 100), mode ? "credits" : "coins");
+        new_descr->description = str_dup(buf);
     } else if (amount < 100000) {
-	sprintf(buf, "You guess there are, maybe, %d %s.",
-		1000 * ((amount / 1000) + number(0, (amount / 1000))), mode ? "credits" : "coins");
-	new_descr->description = str_dup(buf);
+        sprintf(buf, "You guess there are, maybe, %d %s.",
+                1000 * ((amount / 1000) + number(0, (amount / 1000))), mode ? "credits" : "coins");
+        new_descr->description = str_dup(buf);
     } else {
-	sprintf(buf, "There are a LOT of %s.", mode ? "credits" : "coins");
-	new_descr->description = str_dup(buf);
+        sprintf(buf, "There are a LOT of %s.", mode ? "credits" : "coins");
+        new_descr->description = str_dup(buf);
     }
     new_descr->next = NULL;
     obj->ex_description = new_descr;
@@ -2401,18 +2401,18 @@ int
 is_wierd(CHAR *ch, struct obj_data *obj, CHAR *vict)
 {
     if (PRF_FLAGGED(ch, PRF_HOLYLIGHT))
-	return 0;
+        return 0;
 
     if (obj) {
-	if (GET_OBJ_VNUM(obj) == BLOOD_VNUM)
-	    return 1;
-	if (!OBJ_APPROVED(obj) && !PLR_FLAGGED(ch, PLR_TESTER))
-	    return 1;
+        if (GET_OBJ_VNUM(obj) == BLOOD_VNUM)
+            return 1;
+        if (!OBJ_APPROVED(obj) && !PLR_FLAGGED(ch, PLR_TESTER))
+            return 1;
     }
 
     if (vict && IS_NPC(vict)) {
-	if (MOB_UNAPPROVED(vict) && !PLR_FLAGGED(ch, PLR_TESTER))
-	    return 1;
+        if (MOB_UNAPPROVED(vict) && !PLR_FLAGGED(ch, PLR_TESTER))
+            return 1;
     }
 
     return 0;
@@ -2420,7 +2420,7 @@ is_wierd(CHAR *ch, struct obj_data *obj, CHAR *vict)
 
 int 
 generic_find(char *arg, int bitvector, struct char_data * ch,
-	     struct char_data ** tar_ch, struct obj_data ** tar_obj)
+             struct char_data ** tar_ch, struct obj_data ** tar_obj)
 {
     int i, found;
     char name[256];
@@ -2428,65 +2428,65 @@ generic_find(char *arg, int bitvector, struct char_data * ch,
     one_argument(arg, name);
 
     if (!*name)
-	return (0);
+        return (0);
 
     *tar_ch = NULL;
     *tar_obj = NULL;
 
-    if (IS_SET(bitvector, FIND_CHAR_ROOM)) {	/* Find person in room */
-	if ((*tar_ch = get_char_room_vis(ch, name))) {
-	    return (FIND_CHAR_ROOM);
-	}
+    if (IS_SET(bitvector, FIND_CHAR_ROOM)) {        /* Find person in room */
+        if ((*tar_ch = get_char_room_vis(ch, name))) {
+            return (FIND_CHAR_ROOM);
+        }
     }
     if (IS_SET(bitvector, FIND_CHAR_WORLD)) {
-	if ((*tar_ch = get_char_vis(ch, name))) {
-	    return (FIND_CHAR_WORLD);
-	}
+        if ((*tar_ch = get_char_vis(ch, name))) {
+            return (FIND_CHAR_WORLD);
+        }
     }
     if (IS_SET(bitvector, FIND_OBJ_EQUIP)) {
-	for (found = FALSE, i = 0; i < NUM_WEARS && !found; i++)
-	    if (GET_EQ(ch, i) && isname(name, GET_EQ(ch, i)->name)) {
-		*tar_obj = GET_EQ(ch, i);
-		found = TRUE;
-	    }
-	if (found) {
-	    return (FIND_OBJ_EQUIP);
-	}
+        for (found = FALSE, i = 0; i < NUM_WEARS && !found; i++)
+            if (GET_EQ(ch, i) && isname(name, GET_EQ(ch, i)->name)) {
+                *tar_obj = GET_EQ(ch, i);
+                found = TRUE;
+            }
+        if (found) {
+            return (FIND_OBJ_EQUIP);
+        }
     }
     if (IS_SET(bitvector, FIND_OBJ_EQUIP_CONT)) {
-	for (found = FALSE, i = 0; i < NUM_WEARS && !found; i++)
-	    if (GET_EQ(ch, i) && isname(name, GET_EQ(ch, i)->name) &&
-		(GET_OBJ_TYPE(GET_EQ(ch, i)) == ITEM_CONTAINER) &&
-		(i != WEAR_BACK)) {
-		*tar_obj = GET_EQ(ch, i);
-		found = TRUE;
-	    }
-	if (found) {
-	    return (FIND_OBJ_EQUIP_CONT);
-	}
+        for (found = FALSE, i = 0; i < NUM_WEARS && !found; i++)
+            if (GET_EQ(ch, i) && isname(name, GET_EQ(ch, i)->name) &&
+                (GET_OBJ_TYPE(GET_EQ(ch, i)) == ITEM_CONTAINER) &&
+                (i != WEAR_BACK)) {
+                *tar_obj = GET_EQ(ch, i);
+                found = TRUE;
+            }
+        if (found) {
+            return (FIND_OBJ_EQUIP_CONT);
+        }
     }
     if (IS_SET(bitvector, FIND_OBJ_INV)) {
-	if ((*tar_obj = get_obj_in_list_vis(ch, name, ch->carrying))) {
-	    return (FIND_OBJ_INV);
-	}
+        if ((*tar_obj = get_obj_in_list_vis(ch, name, ch->carrying))) {
+            return (FIND_OBJ_INV);
+        }
     }
     if (IS_SET(bitvector, FIND_OBJ_ROOM)) {
-	*tar_obj = get_obj_in_list_vis(ch, name, ch->in_room->contents);
-	while (*tar_obj) {
-	    if (IS_SET(bitvector, FIND_IGNORE_WIERD) && is_wierd(ch, *tar_obj, NULL)) {
-		*tar_obj = get_obj_in_list_vis(ch, name, (*tar_obj)->next_content);
-		continue;
-	    }
-	    break;
-	}
-	if (*tar_obj)
-	    return (FIND_OBJ_ROOM);
+        *tar_obj = get_obj_in_list_vis(ch, name, ch->in_room->contents);
+        while (*tar_obj) {
+            if (IS_SET(bitvector, FIND_IGNORE_WIERD) && is_wierd(ch, *tar_obj, NULL)) {
+                *tar_obj = get_obj_in_list_vis(ch, name, (*tar_obj)->next_content);
+                continue;
+            }
+            break;
+        }
+        if (*tar_obj)
+            return (FIND_OBJ_ROOM);
     }
 
     if (IS_SET(bitvector, FIND_OBJ_WORLD)) {
-	if ((*tar_obj = get_obj_vis(ch, name))) {
-	    return (FIND_OBJ_WORLD);
-	}
+        if ((*tar_obj = get_obj_vis(ch, name))) {
+            return (FIND_OBJ_WORLD);
+        }
     }
     return (0);
 }
@@ -2497,10 +2497,10 @@ int
 find_all_dots(char *arg)
 {
     if (!strcmp(arg, "all"))
-	return FIND_ALL;
+        return FIND_ALL;
     else if (!strncmp(arg, "all.", 4)) {
-	strcpy(arg, arg + 4);
-	return FIND_ALLDOT;
+        strcpy(arg, arg + 4);
+        return FIND_ALLDOT;
     } else
-	return FIND_INDIV;
+        return FIND_INDIV;
 }

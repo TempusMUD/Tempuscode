@@ -541,7 +541,7 @@ mag_damage(int level, struct char_data * ch, struct char_data * victim,
         if(HAS_SYMBOL(victim)) {
             return 0;
         } else {
-            dam = dice(7,7) * ch->getLevelBonus(SPELL_TAINT);
+            dam = dice(ch->getLevelBonus(SPELL_TAINT),20);
         }
     break;
     case SPELL_BURNING_HANDS:

@@ -299,7 +299,8 @@ int CHECK_SKILL(struct char_data *ch, int i);
 #define IS_PET(ch)       (MOB_FLAGGED(ch, MOB_PET))
 #define IS_SOULLESS(ch) (MOB_FLAGGED(ch, MOB_SOULLESS) || PLR2_FLAGGED(ch, PLR2_SOULLESS))
 #define HAS_SYMBOL(ch) (IS_SOULLESS(ch) || affected_by_spell(ch, SPELL_STIGMATA) \
-                        || IS_AFFECTED_3(ch, AFF3_SYMBOL_OF_PAIN))
+                        || IS_AFFECTED_3(ch, AFF3_SYMBOL_OF_PAIN) \
+                        || IS_AFFECTED_3(ch, AFF3_TAINTED))
 // IS_AFFECTED for backwards compatibility
 #define IS_AFFECTED(ch, skill) (AFF_FLAGGED((ch), (skill))) 
 #define IS_AFFECTED_2(ch, skill) (AFF2_FLAGGED((ch), (skill))) 

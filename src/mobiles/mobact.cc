@@ -2918,18 +2918,22 @@ int mobile_battle_activity( struct char_data *ch,
 
         switch (GET_CLASS(ch)) {
         case CLASS_SLAAD_BLUE:
-            if ( !random_number_zero_low( 3*num ) && ch->mob_specials.shared->number > 1)
-                new_mob = read_mobile(GET_MOB_VNUM(ch));
-            else if ( !random_number_zero_low( 3*num ))             /* red saad */
-                new_mob = read_mobile (42000);
+            if(!IS_PET(ch)) {
+                if ( !random_number_zero_low( 3*num ) && ch->mob_specials.shared->number > 1)
+                    new_mob = read_mobile(GET_MOB_VNUM(ch));
+                else if ( !random_number_zero_low( 3*num ))             /* red saad */
+                    new_mob = read_mobile (42000);
+            }
             break;
         case CLASS_SLAAD_GREEN:
-            if ( !random_number_zero_low( 4*num) && ch->mob_specials.shared->number > 1)
-                new_mob = read_mobile(GET_MOB_VNUM(ch));
-            else if ( !random_number_zero_low( 3*num ))             /* blue slaad */
-                new_mob = read_mobile (42001);
-            else if ( !random_number_zero_low( 2*num))             /* red slaad */
-                new_mob = read_mobile (42000);
+            if(!IS_PET(ch)) {
+                if ( !random_number_zero_low( 4*num) && ch->mob_specials.shared->number > 1)
+                    new_mob = read_mobile(GET_MOB_VNUM(ch));
+                else if ( !random_number_zero_low( 3*num ))             /* blue slaad */
+                    new_mob = read_mobile (42001);
+                else if ( !random_number_zero_low( 2*num))             /* red slaad */
+                    new_mob = read_mobile (42000);
+            }
             break;
         case CLASS_SLAAD_GREY:
             if (GET_EQ(ch, WEAR_WIELD) && 
@@ -2940,30 +2944,32 @@ int mobile_battle_activity( struct char_data *ch,
                 do_offensive_skill(ch, fname(vict->player.name), 0, SKILL_BEHEAD);
                 return 0;
             }
-            if ( !random_number_zero_low( 4*num) && ch->mob_specials.shared->number > 1)
-                new_mob = read_mobile(GET_MOB_VNUM(ch));
-            else if ( !random_number_zero_low( 4*num ) )             /* green slaad */
-                new_mob = read_mobile (42002);
-            else if ( !random_number_zero_low( 3*num ) )             /* blue slaad */
-                new_mob = read_mobile (42001);
-            else if ( !random_number_zero_low( 2*num ) )             /* red slaad */
-                new_mob = read_mobile (42000);
+            if(!IS_PET(ch)) {
+                if ( !random_number_zero_low( 4*num) && ch->mob_specials.shared->number > 1)
+                    new_mob = read_mobile(GET_MOB_VNUM(ch));
+                else if ( !random_number_zero_low( 4*num ) )             /* green slaad */
+                    new_mob = read_mobile (42002);
+                else if ( !random_number_zero_low( 3*num ) )             /* blue slaad */
+                    new_mob = read_mobile (42001);
+                else if ( !random_number_zero_low( 2*num ) )             /* red slaad */
+                    new_mob = read_mobile (42000);
+            }
             break;     
         case CLASS_SLAAD_DEATH:
         case CLASS_SLAAD_LORD:
-            if ( ! random_number_zero_low( 4*num ) )             /* grey slaad */
-                new_mob = read_mobile (42003);
-            else if ( !random_number_zero_low( 3*num ) )             /* green slaad */
-                new_mob = read_mobile (42002);
-            else if ( !random_number_zero_low( 3*num ) )             /* blue slaad */
-                new_mob = read_mobile (42001);
-            else if ( !random_number_zero_low( 4*num ) )             /* red slaad */
-                new_mob = read_mobile (42000);
+            if(!IS_PET(ch)) {
+                if ( ! random_number_zero_low( 4*num ) )             /* grey slaad */
+                    new_mob = read_mobile (42003);
+                else if ( !random_number_zero_low( 3*num ) )             /* green slaad */
+                    new_mob = read_mobile (42002);
+                else if ( !random_number_zero_low( 3*num ) )             /* blue slaad */
+                    new_mob = read_mobile (42001);
+                else if ( !random_number_zero_low( 4*num ) )             /* red slaad */
+                    new_mob = read_mobile (42000);
+            }
             break;     
         }
         if (new_mob) {
-            if(IS_PET(ch))
-                SET_BIT(MOB_FLAGS(new_mob),MOB_PET);
             WAIT_STATE(ch, 5 RL_SEC);
             GET_MOVE(ch) -= 100;
             char_to_room(new_mob, ch->in_room);
@@ -3737,11 +3743,19 @@ int mob_fight_devil( struct char_data * ch,
     CHAR *next_vict = NULL;
     int return_flags = 0;
 
-    // find a suitable victim
-    if ( ! ( vict = choose_opponent( ch, precious_vict ) ) ) {
-        return 0;
-    }
 
+
+    
+    if(IS_PET(ch)) {// pets should only fight who they're told to
+        vict = FIGHTING(ch);
+    } else  {// find a suitable victim
+        vict = choose_opponent( ch, precious_vict );  
+    }
+    // if you have noone to fight, don't fight
+    // what a waste.
+    if(vict == NULL)
+        return 0;
+        
     // prob determines devil's chance of drawing a bead on his victim for blasting
     prob = 10 + GET_LEVEL(ch) - GET_LEVEL(vict) +  (GET_AC(vict)/10) + GET_HITROLL(ch);
     
@@ -3768,7 +3782,11 @@ int mob_fight_devil( struct char_data * ch,
             return return_flags;
         }
     }
-
+    // pets shouldnt port, ever, not even once. not on a train. not on a plane
+    // not even for green eggs and spam.
+    if(!IS_PET(ch)) {
+        return 0;
+    }
     // 100 move flat rate to gate, removed when the gating actually occurs
     if (GET_MOVE(ch) < 100) {
         return 0;
