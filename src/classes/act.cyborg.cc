@@ -1373,8 +1373,10 @@ ACMD(do_discharge)
 							
     prob = CHECK_SKILL(ch, SKILL_DISCHARGE);
 
-
-	dam = dice(amount * 3, 20 + GET_REMORT_GEN(ch));
+	if(GET_CLASS(ch) == CLASS_CYBORG)
+		dam = dice(amount * 3, 20 + GET_REMORT_GEN(ch));
+	else 
+		dam = dice(amount * 3, 20);
 
     if (percent > prob) {
 		damage(ch, vict, 0, SKILL_DISCHARGE,-1);
