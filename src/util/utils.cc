@@ -373,6 +373,43 @@ errlog(const char *fmt, ...)
 		"TRACE: %s", backtrace_str);
 }
 
+void
+zerrlog(struct zone_data *zone, const char *fmt, ...)
+{
+	struct descriptor_data *d;
+	va_list args;
+	bool display;
+	char *msg;
+
+	// Construct the message
+	va_start(args, fmt);
+	msg = tmp_vsprintf(fmt, args);
+	va_end(args);
+	msg = tmp_sprintf("Zone #%d: %s", zone->number, msg);
+
+	// Log the error to file first
+	slog("ZONEERR: %s", msg);
+
+	for (d = descriptor_list;d;d = d->next) {
+		// Only playing immortals can see zone errors
+		if (!IS_PLAYING(d) || GET_LEVEL(d->creature) < 50)
+			continue;
+
+		// Zone owners get to see them
+		display = GET_IDNUM(d->creature) == zone->owner_idnum;
+
+		// Zone co-owners also get to see them
+		if (!display)
+			display = GET_IDNUM(d->creature) == zone->co_owner_idnum;
+
+		// Immortals within the zone see them
+		if (!display && d->creature->in_room)
+			display = d->creature->in_room->zone == zone;
+
+		if (display)
+			send_to_desc(d, "&y%s&n\r\n", msg);
+	}
+}
 
 void
 sprintbit(long vektor, const char *names[], char *result)
