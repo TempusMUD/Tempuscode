@@ -3047,6 +3047,7 @@ Quest::save(std::ostream &out)
 	
 	str = xmlEncodeEntitiesReentrant( NULL, (xmlChar*)updates);
 	out << indent << "  <Update>" << str << "</Update>" << endl;
+	free(str);
 
 	for( unsigned int i = 0; i < players.size(); i++ ) {
 		out << indent << "  <Player ID=\"" << players[i].idnum 
