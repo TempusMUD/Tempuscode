@@ -2477,7 +2477,7 @@ hit(struct Creature *ch, struct Creature *victim, int type)
 		if (cur_weap && IS_OBJ_TYPE(cur_weap, ITEM_WEAPON) ) {
 			if( GET_OBJ_VAL(cur_weap, 3) >= 0 &&
                 GET_OBJ_VAL(cur_weap, 3) < TOP_ATTACKTYPE - TYPE_HIT &&
-                IS_MONK(ch)) {
+                IS_BARB(ch)) {
                 skill = weapon_proficiencies[GET_OBJ_VAL(cur_weap, 3)];
                 if (skill)
                     gain_skill_prof(ch, skill);
