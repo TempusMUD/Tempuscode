@@ -3739,9 +3739,7 @@ perform_immort_where(struct char_data * ch, char *arg)
                 outList.push_back(main_buf);
             }
         }
-        if (!found) {
-            send_to_char("Couldn't find any such thing.\r\n", ch);
-        } else {
+        if (found) {
             main_buf[0] = '\0';
             list<string>::iterator it = outList.begin(); 
             int space = MAX_STRING_LENGTH - 128;
@@ -3754,6 +3752,8 @@ perform_immort_where(struct char_data * ch, char *arg)
                 strcat( main_buf, (*it).c_str() );
             }
             page_string(ch->desc, main_buf, 1);
+        } else {
+            send_to_char("Couldn't find any such thing.\r\n", ch);
         }
     }
 }
