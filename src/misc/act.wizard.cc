@@ -2012,7 +2012,8 @@ ACMD(do_shutdown)
 		    "and you are overtaken by an intense heat as the particles\r\n"
 		    "of your body are mixed with the rest of the cosmos by the\r\n"
 		    "power of a blinding supernova explosion.\r\n\r\n"
-		    "Shutting down.\r\n");
+		    "Shutting down.\r\n"
+                    "Please visit our website at http://tempusmud.com\r\n");
 	circle_shutdown = 1;
     } else if (!str_cmp(arg, "abort")) {
 	if (shutdown_count < 0)
@@ -2041,7 +2042,8 @@ ACMD(do_shutdown)
 			"crashes to the ground all around you, and you see the hand of the\r\n"
 			"Universal Power rush across the land, destroying all and purging\r\n"
 			"the cosmos, only to begin rebuilding once again.\r\n\r\n"
-			"Rebooting.. come back in a minute or two.\r\n");
+			"Rebooting... come back in five minutes.\r\n"
+                        "Please visit our website at http://tempusmud.com\r\n");
 	    circle_shutdown = circle_reboot = 1;
 	} else {
 	    sprintf(buf, "(GC) Reboot in [%d] seconds by %s.", count, GET_NAME(ch));
@@ -2062,7 +2064,9 @@ ACMD(do_shutdown)
 		    "and you are overtaken by an intense heat as the particles\r\n"
 		    "of your body are mixed with the rest of the cosmos by the\r\n"
 		    "power of a blinding supernova explosion.\r\n\r\n"
-		    "Shutting down for maintenance.\r\n");
+		    "Shutting down for maintenance.\r\n"
+                    "Please visit our website at http://tempusmud.com\r\n");
+
 	touch("../.killscript");
 	circle_shutdown = 1;
     } else if (!str_cmp(arg, "pause")) {
@@ -2075,7 +2079,9 @@ ACMD(do_shutdown)
 		    "and you are overtaken by an intense heat as the particles\r\n"
 		    "of your body are mixed with the rest of the cosmos by the\r\n"
 		    "power of a blinding supernova explosion.\r\n\r\n"
-		    "Shutting down for maintenance.\r\n");
+		    "Shutting down for maintenance.\r\n"
+                    "Please visit our website at http://tempusmud.com\r\n");
+
 	touch("../pause");
 	circle_shutdown = 1;
     } else
