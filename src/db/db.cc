@@ -144,6 +144,7 @@ char *quest_guide = NULL;		/* quest guidelines             */
 struct time_info_data time_info;	/* the infomation about the time    */
 /*struct weather_data weather_info;        the infomation about the weather */
 extern struct player_special_data dummy_mob;	/* dummy spec area for mobs         */
+extern bool production_mode;
 struct reset_q_type reset_q;	/* queue of zones to be reset         */
 PGconn *sql_cxn = NULL;
 
@@ -322,13 +323,16 @@ boot_db(void)
 	reset_time();
 
 	slog("Connecting to postgres.");
-	sql_cxn = PQconnectdb("user=realm dbname=tempus");
+	if (production_mode)
+		sql_cxn = PQconnectdb("user=realm dbname=tempus");
+	else
+		sql_cxn = PQconnectdb("hostaddr=206.41.250.2 user=realm dbname=devtempus password=tarrasque");
 	if (!sql_cxn) {
 		slog("Couldn't allocate postgres connection!");
 		safe_exit(1);
 	}
 	if (PQstatus(sql_cxn) != CONNECTION_OK) {
-		slog("Couldn't connect to postgres!");
+		slog("Couldn't connect to postgres!: %s", PQerrorMessage(sql_cxn));
 		safe_exit(1);
 	}
 

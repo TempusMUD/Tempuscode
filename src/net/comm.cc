@@ -69,6 +69,7 @@ extern struct obj_data *cur_car;
 extern struct zone_data *default_quad_zone;
 extern char help[];
 extern struct obj_data *object_list;
+bool production_mode = false;	// Run in production mode
 
 /* local globals */
 struct descriptor_data *descriptor_list = NULL;	/* master desc list */
@@ -217,6 +218,10 @@ main(int argc, char **argv)
 			   log_cmds = FALSE;
 			   }
 			 */
+			break;
+		case 'p':
+			production_mode = true;
+			slog("Running in production mode");
 			break;
 		default:
 			slog("SYSERR: Unknown option -%c in argument string.",
