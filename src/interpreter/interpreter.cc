@@ -2216,7 +2216,7 @@ special(struct Creature *ch, int cmd, int subcmd, char *arg, special_mode spec_m
 	/* special in mobile present? */
 	room_data *theRoom = ch->in_room;
 	CreatureList::iterator it = theRoom->people.begin();
-	for (; it != theRoom->people.end(); ++it)
+	for (; it != theRoom->people.end(); ++it) {
 		if (GET_MOB_SPEC((*it)) != NULL) {
 			specAddress = (long)GET_MOB_SPEC((*it));
 			if (GET_MOB_SPEC((*it)) (ch, (*it), cmd, arg, spec_mode)) {
@@ -2225,6 +2225,10 @@ special(struct Creature *ch, int cmd, int subcmd, char *arg, special_mode spec_m
 				return specAddress;
 			}
 		}
+		if (GET_MOB_PROG((*it)) != NULL)
+			if (trigger_prog_cmd(ch, *it, cmd, arg))
+				return true;
+	}
 
 	/* special in object present? */
 	for (i = ch->in_room->contents; i; i = i->next_content) {

@@ -887,9 +887,10 @@ struct mob_shared_data {
 	byte morale;
 	char *move_buf;				/* custom move buf */
 	struct Creature *proto;	/* pointer to prototype */
-	 SPECIAL(*func);
+	SPECIAL(*func);
 	char *func_param;			/* mobile's special parameter str */
 	char *load_param;			/* mobile's on_load script */
+	char *prog;
 };
 
 /* Specials used by NPCs, not PCs */
@@ -901,6 +902,9 @@ struct mob_special_data {
 	int wait_state;				/* Wait state for bashed mobs           */
 	byte last_direction;		/* The last direction the monster went     */
 	unsigned int mob_idnum;		/* mobile's unique idnum */
+	int prog_exec;		// current line the prog is executing
+	int prog_wait;		// number of updates to pause execution for
+	Creature *prog_target;
 };
 
 

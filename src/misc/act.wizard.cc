@@ -1821,6 +1821,10 @@ do_stat_character(struct Creature *ch, struct Creature *k)
 				sprintf(outbuf, "%sLoad_param: \r\n%s\r\n", outbuf,
 					GET_LOAD_PARAM(k));
 			}
+			if( GET_MOB_PROG(k) && strlen( GET_MOB_PROG(k) ) > 0 ) {
+				sprintf(outbuf, "%sProg: \r\n%s\r\n", outbuf,
+					GET_MOB_PROG(k));
+			}
 		}
     }
 

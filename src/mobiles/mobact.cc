@@ -603,6 +603,14 @@ burn_update(void)
 				hunt_victim(ch);
 			continue;
 		}
+
+		if (GET_MOB_PROG(ch)) {
+			if (ch->mob_specials.prog_exec)
+				execute_prog(ch);
+			else if (!FIGHTING(ch))
+				trigger_prog_idle(ch);
+		}
+
 	}
 }
 

@@ -103,8 +103,9 @@ const char *olc_mset_keys[] = {
 	"specparam",
     "generation",
 	"loadparam",
-    "knownlanguage",
+    "knownlanguage",	/** 50 **/
     "curlanguage",
+	"prog",
 	"\n"
 };
 
@@ -393,7 +394,7 @@ do_mob_mset(struct Creature *ch, char *argument)
 	}
 	// Check for desc and specparam setting, both of which use tedii
 	if (mset_command != 3 && mset_command != 47 
-	&& mset_command != 49 && !*arg2) {
+	&& mset_command != 49 && mset_command != 50 && !*arg2) {
 		send_to_char(ch, "Set %s to what??\r\n", olc_mset_keys[mset_command]);
 		return;
 	}
@@ -1302,34 +1303,39 @@ do_mob_mset(struct Creature *ch, char *argument)
         break;
     }
     case 51: {// Current language
-        int idx = LANGUAGE_NONE;
+       int idx = LANGUAGE_NONE;
 
-        if (!*arg2) {
-            send_to_char(ch, "Usage: olc mset curlanguage <language>");
-            return;
-        }
-        
-        if (!strncasecmp(arg2, "common", 6)) {
-            idx = LANGUAGE_COMMON;
-        }
-        else {
-            char *argument = tmp_strdup(arg2);
-            idx = find_language_idx_by_name(argument);
-            if (idx == LANGUAGE_NONE) {
-                send_to_char(ch, "That is not a language!\r\n");
-                return;
-            }
-        
-            if (!can_speak_language(mob_p, idx)) {
-                send_to_char(ch, "But that mob doesn't know that language!\r\n");
-                return;
-            }
-        }
+       if (!*arg2) {
+           send_to_char(ch, "Usage: olc mset curlanguage <language>");
+           return;
+       }
+       
+       if (!strncasecmp(arg2, "common", 6)) {
+           idx = LANGUAGE_COMMON;
+       }
+       else {
+           char *argument = tmp_strdup(arg2);
+           idx = find_language_idx_by_name(argument);
+           if (idx == LANGUAGE_NONE) {
+               send_to_char(ch, "That is not a language!\r\n");
+               return;
+           }
+       
+           if (!can_speak_language(mob_p, idx)) {
+               send_to_char(ch, "But that mob doesn't know that language!\r\n");
+               return;
+           }
+       }
 
-        GET_LANGUAGE(mob_p) = idx;
-        send_to_char(ch, "Mobile default language set.\r\n");
-        break;
-   }
+       GET_LANGUAGE(mob_p) = idx;
+       send_to_char(ch, "Mobile default language set.\r\n");
+       break;
+	   }
+	case 52:
+		start_text_editor(ch->desc, &MOB_SHARED(mob_p)->prog, true);
+		SET_BIT(PLR_FLAGS(ch), PLR_OLC);
+		act("$n begins to write a mobile prog.", TRUE, ch, 0, 0, TO_ROOM);
+		break;
 	default:{
 			break;
 		}
@@ -1565,7 +1571,7 @@ save_mobs(struct Creature *ch, struct zone_data *zone)
 			if (GET_HEIGHT(mob) != 198)
 				fprintf(file, "Height: %d\n", GET_HEIGHT(mob));
             if (GET_LANGUAGE(mob) != 0)
-                fprintf(file, "CurLang: %lld\n", GET_LANGUAGE(mob));
+                fprintf(file, "CurLang: %d\n", GET_LANGUAGE(mob));
             if (KNOWN_LANGUAGES(mob) != 0)
                 fprintf(file, "KnownLang: %lld\n", KNOWN_LANGUAGES(mob));
 			if (GET_CASH(mob) != 0)
@@ -1592,6 +1598,12 @@ save_mobs(struct Creature *ch, struct zone_data *zone)
 				str = tmp_gsub(MOB_SHARED(mob)->load_param, "\r", "");
 				str = tmp_gsub(str, "~", "!");
 				fprintf(file, "LoadParam:\n%s~\n", str);
+			}
+			if (MOB_SHARED(mob)->prog) {
+				char *str;
+				str = tmp_gsub(MOB_SHARED(mob)->prog, "\r", "");
+				str = tmp_gsub(str, "~", "!");
+				fprintf(file, "Prog:\n%s~\n", str);
 			}
             if( GET_REMORT_GEN(mob) > 0 && GET_REMORT_GEN(mob) <= 10 ) {
                 fprintf(file, "Generation: %d\n", GET_REMORT_GEN(mob) );

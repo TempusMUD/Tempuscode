@@ -1773,8 +1773,10 @@ parse_enhanced_mob(FILE * mob_f, struct Creature *mobile, int nr)
 	while (get_line(mob_f, line)) {
 		if (!strcmp(line, "SpecParam:")) { /* multi-line specparam */
 			MOB_SHARED(mobile)->func_param = fread_string(mob_f, buf2);
-		} else if (!strcmp(line, "LoadParam:")) { /* multi-line specparam */
+		} else if (!strcmp(line, "LoadParam:")) { /* multi-line load param*/
 			MOB_SHARED(mobile)->load_param = fread_string(mob_f, buf2);
+		} else if (!strcmp(line, "Prog:")) { /* multi-line prog */
+			MOB_SHARED(mobile)->prog = fread_string(mob_f, buf2);
 		} else if (!strcmp(line, "E"))	/* end of the ehanced section */
 			return;
 		else if (*line == '#') {	/* we've hit the next mob, maybe? */
