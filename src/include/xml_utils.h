@@ -80,4 +80,15 @@ xmlMatches(const xmlChar *str_a, const char *str_b)
 	return !strcmp((const char *)str_a, str_b);
 }
 
+/**
+ * Do a global encoding of a string, replacing the predefined entities and 
+ * non ASCII values with their entities and CharRef counterparts. 
+ * Contrary to xmlEncodeEntities, this routine is reentrant, and result 
+ * must be deallocated.
+**/
+static inline char* xmlEncodeEntities( char* text ) 
+{
+	return (char*)xmlEncodeEntitiesReentrant(NULL, (xmlChar*)text);
+}
+
 #endif							// __TEMPUS_XML_UTILS_H
