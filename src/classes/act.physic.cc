@@ -87,7 +87,7 @@
   complete
 
   #define SPELL_ELECTRIC_ARC         325  // lightning bolt
-  incomplete
+  complete
   
   #define SPELL_SONIC_BOOM           326  // area damage + wait state
   incomplete
@@ -109,7 +109,7 @@
   incomplete
 
   #define SPELL_TEMPORAL_COMPRESSION 333  // works like haste
-  incomplete
+  complete
 
   #define SPELL_TEMPORAL_DILATION    334  // works like slow
   incomplete

@@ -1812,6 +1812,7 @@ mag_affects(int level, struct Creature *ch, struct Creature *victim,
 		to_room = "$n appears slightly irradiated.";
 		to_vict = "You feel irradiated... how irritating.";
 		break;
+
 	case SPELL_GRAVITY_WELL:
 		af.duration = (level >> 3);
 		af.location = APPLY_STR;
@@ -1924,6 +1925,15 @@ mag_affects(int level, struct Creature *ch, struct Creature *victim,
 		af2.modifier = -2;
 		to_vict = "You feel positively repulsive to attacks.";
 		break;
+        
+	case SPELL_TEMPORAL_COMPRESSION:
+		af.duration = ch->getLevelBonus(SPELL_TEMPORAL_COMPRESSION) / 2;
+		af.bitvector = AFF2_HASTE;
+		af.aff_index = 2;
+		accum_duration = FALSE;
+		to_vict = "Time seems to slow down around you.";
+		break;
+
 	case SPELL_TAINT:
 		if (HAS_SYMBOL(victim)) {
 			send_to_char(ch, "Your rune of taint fails to form.\r\n");

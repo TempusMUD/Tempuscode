@@ -2471,7 +2471,10 @@ extern const char *spell_wear_off_msg[] = {
 	"!UNUSED!",
 	"Your molecular structure weakens.",
 	"!UNUSED!", "!UNUSED!", "!UNUSED!",	/* 330 */
-	"!UNUSED!", "!UNUSED!", "!UNUSED!", "!UNUSED!", "!UNUSED!",	/* 335 */
+	"!UNUSED!", "!UNUSED!", 
+    "Time speeds back up to normal.",
+    "!UNUSED!", 
+    "!UNUSED!",	/* 335 */
 	"!UNUSED!",
 	"!UNUSED!",
 	"Your radioimmunity has worn off.",
