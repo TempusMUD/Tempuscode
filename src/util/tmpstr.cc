@@ -512,17 +512,17 @@ tmp_ctime(time_t val)
 	char *result;
 	size_t len;
 	
-	len = 17;
+	len = 26;
 	if (len + 1 > tmp_list_tail->space - tmp_list_tail->used)
 		cur_buf = tmp_alloc_pool(len + 1);
 	else
 		cur_buf = tmp_list_tail;
 
 	result = cur_buf->data + cur_buf->used;
-	strcpy(result, ctime(&val));
+	ctime_r(&val, result);
 	cur_buf->used += strlen(result) + 1;
 	// last byte is, sadly, a newline.  we remove it here
-	result[16] = '\0';
+	result[strlen(result) - 1] = '\0';
 
 	return result;
 }
