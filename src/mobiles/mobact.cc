@@ -32,12 +32,12 @@
 #include "char_class.h"
 #include "vehicle.h"
 #include "flow_room.h"
-#include "char_class.h"
 #include "guns.h"
 #include "bomb.h"
 #include "mobact.h"
 #include "fight.h"
 #include "act.cyborg.h"
+#include "char_data.h"
 
 /* external structs */
 extern struct char_data *character_list;
@@ -109,19 +109,21 @@ void update_iaffects(char_data *ch);
 
 void burn_update(void) {
 
-    register struct char_data *ch, *next_ch;
+    register struct char_data *ch;
+    register struct char_data *next_ch;
     struct obj_data *obj = NULL;
     struct room_data *fall_to = NULL;
     struct special_search_data *srch = NULL;
-    int dam = 0, found = 0;
+    int dam = 0;
+    int found = 0;
     struct affected_type *af;
 
     for (ch = character_list; ch; ch = next_ch) {
 
         next_ch = ch->next;
 
-        if (ch->in_room == NULL or ch->getPosition() == POS_DEAD) {
-            slog("Updating a corpse in burn_update\r\n");
+        if (ch->in_room == NULL || ch->getPosition() == POS_DEAD) {
+            slog("SYSERR: Updating a corpse in burn_update.\r\n");
             continue;
         }
 
