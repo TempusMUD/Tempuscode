@@ -151,6 +151,9 @@ do_gen_improve(struct Creature *ch, int cmd, int mode, char *argument)
 	} else {
 		REAL_STAT += 1;
 	}
+	// Must copy the aff abils over
+	ch->aff_abils = ch->real_abils;
+
 	if (mode != MODE_STR)
 		slog("%s improved %s from %d to %d at %d.",
 			GET_NAME(ch), improve_modes[mode], old_stat, REAL_STAT,
