@@ -781,31 +781,26 @@ list_one_char(struct char_data *i, struct char_data *ch, byte is_group)
 		}
 
 		if (IS_AFFECTED(i, AFF_INVISIBLE))
-			strcpy(buf, "*");
+			send_to_char(ch, "*");
 		else if (IS_AFFECTED_2(i, AFF2_TRANSPARENT))
-			strcpy(buf, "/*");
-		else
-			*buf = '\0';
+			send_to_char(ch, "/*");
 
-		strcat(buf, CCYEL(ch, C_NRM));
-		if (is_group)
-			strcat(buf, CCBLD(ch, C_CMP));
-		strcat(buf, i->player.long_descr);
+		send_to_char(ch, "%s%s%s",
+			CCYEL(ch, C_NRM),
+			(is_group) ? CCBLD(ch, C_CMP):"",
+			i->player.long_descr);
 
 		if (IS_AFFECTED(ch, AFF_DETECT_ALIGN) ||
 			IS_AFFECTED_2(ch, AFF2_TRUE_SEEING)) {
-			if (IS_EVIL(i)) {
-				sprintf(buf2, " %s%s(Red Aura)%s",
+			if (IS_EVIL(i))
+				send_to_char(ch, " %s%s(Red Aura)%s",
 					CCBLD(ch, C_CMP), CCRED(ch, C_NRM), CCNRM(ch, C_NRM));
-				strcat(buf, buf2);
-			} else if (IS_GOOD(i)) {
-				sprintf(buf2, " %s%s(Blue Aura)%s",
+			else if (IS_GOOD(i))
+				send_to_char(ch, " %s%s(Blue Aura)%s",
 					CCBLD(ch, C_CMP), CCBLU(ch, C_NRM), CCNRM(ch, C_NRM));
-				strcat(buf, buf2);
-			}
 		}
 
-		send_to_char(ch, "%s\r\n", buf);
+		send_to_char(ch, "\r\n");
 
 		if (IN_ROOM(ch) != IN_ROOM(i))
 			return;

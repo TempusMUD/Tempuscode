@@ -64,6 +64,9 @@ typedef void sigfunc(int);
 
 struct last_command_data {
 	int idnum;
+	char name[MAX_INPUT_LENGTH];
+	int roomnum;
+	char room[MAX_INPUT_LENGTH];
 	char string[MAX_INPUT_LENGTH];
 };
 

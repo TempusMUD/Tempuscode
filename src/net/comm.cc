@@ -111,7 +111,7 @@ int perform_alias(struct descriptor_data *d, char *orig);
 void record_usage(void);
 void make_prompt(struct descriptor_data *point);
 void bamf_quad_damage(void);
-void push_command_onto_list(int idnum, char *comm);
+void push_command_onto_list(char_data *ch, char *comm);
 void descriptor_update(void);
 
 /* extern fcnts */
@@ -576,7 +576,7 @@ game_loop(int mother_desc)
 					d->character->char_specials.timer = 0;
 					d->idle = 0;
 					if (!d->connected && *comm)
-						push_command_onto_list(GET_IDNUM(d->character), comm);
+						push_command_onto_list(d->character, comm);
 					if (!d->connected && GET_WAS_IN(d->character) != NULL) {
 						if (d->character->in_room != NULL)
 							char_from_room(d->character);
@@ -1447,9 +1447,8 @@ checkpointing(int sig = 0)
 {
 	if (!tics) {
 		slog("SYSERR: CHECKPOINT shutdown: tics not updated");
-		sprintf(buf, "Last command: %s %s.", get_name_by_id(last_cmd[0].idnum),
+		slog("Last command: %s %s.", get_name_by_id(last_cmd[0].idnum),
 			last_cmd[0].string);
-		slog(buf);
 		raise(SIGSEGV);
 	} else
 		tics = 0;
@@ -2066,19 +2065,24 @@ bamf_quad_damage(void)
 
 
 void
-push_command_onto_list(int idnum, char *string)
+push_command_onto_list(char_data *ch, char *string)
 {
 
 	int i;
 
 	for (i = NUM_SAVE_CMDS - 2; i >= 0; i--) {
 		last_cmd[i + 1].idnum = last_cmd[i].idnum;
+		strcpy(last_cmd[i + 1].name, last_cmd[i].name);
+		last_cmd[i + 1].roomnum = last_cmd[i].roomnum;
+		strcpy(last_cmd[i + 1].room, last_cmd[i].room);
 		strcpy(last_cmd[i + 1].string, last_cmd[i].string);
 	}
 
-	last_cmd[0].idnum = idnum;
+	last_cmd[0].idnum = GET_IDNUM(ch);
+	strcpy(last_cmd[0].name, GET_NAME(ch));
+	last_cmd[0].roomnum = (ch->in_room) ? ch->in_room->number:-1;
+	strcpy(last_cmd[0].room, (ch->in_room) ? ch->in_room->name:"<NULL>");
 	strcpy(last_cmd[0].string, string);
-
 }
 
 void
