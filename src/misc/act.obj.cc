@@ -1198,22 +1198,27 @@ perform_drop_credits(struct Creature *ch, int amount,
 #define VANISH(mode) ((mode == SCMD_DONATE || mode == SCMD_JUNK) ? \
 		      "  It vanishes in a puff of smoke!" : "")
 #define PROTO_SDESC(vnum) (real_object_proto(vnum)->short_description)
-#define IS_CONTAINER(obj) (GET_OBJ_TYPE(obj) == ITEM_CONTAINER)
 
 bool
-junkable(struct obj_data *obj)
+is_undisposable(Creature *ch, const char *cmdstr, struct obj_data *obj, bool display)
 {
-	if (obj->shared && obj->shared->vnum >= 0 &&
-		strcmp(obj->short_description, PROTO_SDESC(obj->shared->vnum)))
+	if (GET_LEVEL(ch) > LVL_SPIRIT)
 		return false;
 
-	if (IS_CONTAINER(obj)) {
-		for (obj = obj->contains; obj; obj = obj->next_content) {
-			if (!junkable(obj))
-				return false;
-		}
+	if (obj->shared && obj->shared->vnum >= 0 &&
+			strcmp(obj->short_description, PROTO_SDESC(obj->shared->vnum))) {
+		if (display)
+			send_to_char(ch, "You can't %s a renamed object!\r\n", cmdstr);
+		return true;
 	}
-	return true;
+
+	if (GET_OBJ_TYPE(obj) == ITEM_CONTAINER && obj->contains) {
+		if (display)
+			send_to_char(ch, "You can't %s a container with items in it!\r\n", cmdstr);
+		return true;
+	}
+
+	return false;
 }
 
 int
@@ -1236,21 +1241,8 @@ perform_drop(struct Creature *ch, struct obj_data *obj,
 	}
 
 	if ((mode == SCMD_DONATE || mode == SCMD_JUNK) &&
-		GET_LEVEL(ch) < LVL_SPIRIT) {
-		if (!junkable(obj)) {
-			if (IS_CONTAINER(obj)) {
-				string containerName(obj->short_description);
-				sbuf = AN(obj->name) + string(" ") + containerName +
-					" contains, or is, a renamed object.\r\n";
-			} else
-				sbuf = "You can't " + (mode == SCMD_JUNK ? string("junk") :
-					string("donate")) + " a renamed object.\r\n";
-
-			if (display == TRUE)
-				send_to_char(ch, sbuf.c_str());
-			return 0;
-		}
-	}
+			is_undisposable(ch, (mode == SCMD_JUNK) ? "junk":"donate", obj, true))
+		return 0;
 
 	if (display == TRUE) {
 		sprintf(buf, "You %s $p.%s", sname, VANISH(mode));
@@ -3862,20 +3854,9 @@ ACMD(do_sacrifice)
 		send_to_char(ch, "You can't sacrifice that.\r\n");
 		return;
 	}
-	if (GET_LEVEL(ch) < LVL_SPIRIT) {
-		if (!junkable(obj)) {
-			if (IS_CONTAINER(obj)) {
-				string containerName(obj->name);
-				sbuf =
-					AN(obj->short_description) + string(" ") + containerName +
-					" contains, or is, a renamed object.\r\n";
-			} else
-				sbuf = "You can't sacrifice a renamed object.\r\n";
 
-			send_to_char(ch, sbuf.c_str());
-			return;
-		}
-	}
+	if (is_undisposable(ch, "sacrifice", obj, true))
+		return;
 
 	act("$n sacrifices $p.", FALSE, ch, obj, 0, TO_ROOM);
 	act("You sacrifice $p.", FALSE, ch, obj, 0, TO_CHAR);
