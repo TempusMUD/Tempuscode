@@ -1294,57 +1294,62 @@ SPECIAL(pet_shops)
 SPECIAL(bank)
 {
 	struct clan_data *clan = NULL;
-	struct clanmember_data *member;
-	char *arg1, *arg2;
+	struct clanmember_data *member = NULL;
+	const char *vict_name;
+	Account *acct;
+	char *arg;
 	int amount;
 
 	if (spec_mode != SPECIAL_CMD)
 		return 0;
 
-	arg1 = tmp_getword(&argument);
-	arg2 = tmp_getword(&argument);
-
-    if( !CMD_IS("balance") && !CMD_IS("withdraw") && !CMD_IS("deposit") ) {
+    if (!CMD_IS("balance") && !CMD_IS("withdraw") && !CMD_IS("deposit") && !CMD_IS("transfer")) {
         return 0;
     }
+
+	arg = tmp_getword(&argument);
+	if (!str_cmp(arg, "clan")) {
+		clan = real_clan(GET_CLAN(ch));
+		member = (clan) ? real_clanmember(GET_IDNUM(ch), clan) : NULL;
+		
+		if (!member) {
+			send_to_char(ch, "You can't do that.\r\n");
+			return 1;
+		}
+
+		arg = tmp_getword(&argument);
+	}
 
 	if( GET_LEVEL(ch) >= LVL_AMBASSADOR || IS_NPC(ch) ) {
 		send_to_char(ch, "Why would you need a bank?\r\n");
 		return 0;
 	}
 
-	if (CMD_IS("balance")) {
-		// Balance is always displayed, so we just check for clan here
-		if (*arg1 && !str_cmp(arg1, "clan")) {
-			clan = real_clan(GET_CLAN(ch));
-			member = (clan) ? real_clanmember(GET_IDNUM(ch), clan) : NULL;
-
-			if (!member) {
-				send_to_char(ch, "You can't do that.\r\n");
-				return 1;
-			}
+	if (!CMD_IS("balance")) {
+		// Do checks for deposit, withdraw, and transfer
+		if (!is_number(arg) && str_cmp(arg, "all")) {
+			send_to_char(ch, "You must specify an amount!\r\n");
+			return 1;
 		}
-	} else if (CMD_IS("deposit")) {
-		if (*arg1 && !str_cmp(arg2, "clan")) {
-			clan = real_clan(GET_CLAN(ch));
-			member = (clan) ? real_clanmember(GET_IDNUM(ch), clan) : NULL;
-
-			if (!member) {
-				send_to_char(ch, "You can't do that.\r\n");
-				return 1;
-			}
+		amount = atoi(arg);
+		if (amount < 0) {
+			send_to_char(ch, "Ha ha.  Very funny.\r\n");
+			return 1;
+		} else if (amount == 0) {
+			send_to_char(ch, "You should specify more than zero!\r\n");
+			return 1;
 		}
-
-		if (!strcasecmp(arg1, "all")) {
+	}
+			
+	
+	if (CMD_IS("deposit")) {
+		if (!strcasecmp(arg, "all")) {
 			if (!CASH_MONEY(ch)) {
 				send_to_char(ch, "You don't have any %ss to deposit!\r\n",
 					CURRENCY(ch));
 				return 1;
 			}
 			amount = CASH_MONEY(ch);
-		} else if (!*arg1 || (amount = atoi(arg1)) <= 0) {
-			send_to_char(ch, "How much do you want to deposit?\r\n");
-			return 1;
 		}
 
 		if (CASH_MONEY(ch) < amount) {
@@ -1378,26 +1383,13 @@ SPECIAL(bank)
 		act("$n makes a bank transaction.", TRUE, ch, 0, FALSE, TO_ROOM);
 
 	} else if (CMD_IS("withdraw")) {
-		if (*arg1 && !str_cmp(arg2, "clan")) {
-			clan = real_clan(GET_CLAN(ch));
-			member = (clan) ? real_clanmember(GET_IDNUM(ch), clan) : NULL;
-
-			if (!member || !PLR_FLAGGED(ch, PLR_CLAN_LEADER)) {
-				send_to_char(ch, "You can't do that.\r\n");
-				return 1;
-			}
-		}
-
-		if (!strcasecmp(arg1, "all")) {
+		if (!strcasecmp(arg, "all")) {
 			amount = (clan) ? clan->bank_account:BANK_MONEY(ch);
 			if (!amount) {
 				send_to_char(ch,
 					"There's nothing there for you to withdraw!\r\n");
 				return 1;
 			}
-		} else if ((amount = atoi(arg1)) <= 0) {
-			send_to_char(ch, "How much do you want to withdraw?\r\n");
-			return 1;
 		}
 
 		if (IS_AFFECTED(ch, AFF_CHARM)) {
@@ -1440,8 +1432,81 @@ SPECIAL(bank)
 				GET_NAME(ch), amount, (clan) ? "clan account":"bank");
 		}
 
-	} else
-		return 0;
+	} else if (CMD_IS("transfer")) {
+		if (!strcasecmp(arg, "all")) {
+			amount = (clan) ? clan->bank_account:BANK_MONEY(ch);
+			if (!amount) {
+				send_to_char(ch,
+					"There's nothing there for you to transfer!\r\n");
+				return 1;
+			}
+		}
+
+		arg = tmp_getword(&argument);
+		if (!*arg) {
+			send_to_char(ch, "Who do you want to transfer money to?\r\n");
+			return 1;
+		}
+
+		if (!playerIndex.exists(arg)) {
+			send_to_char(ch, "You can't transfer money to someone who doesn't exist!\r\n");
+			return 1;
+		}
+
+		vict_name = playerIndex.getName(playerIndex.getID(arg));
+		acct = Account::retrieve(playerIndex.getAccountID(arg));
+
+		if (!clan && acct == ch->account) {
+			send_to_char(ch, "Transferring money to your own account?  Odd...\r\n");
+			return 1;
+		}
+
+		if (IS_AFFECTED(ch, AFF_CHARM)) {
+			send_to_char(ch, "You can't do that while charmed!\r\n");
+			if (ch->master)
+				send_to_char(ch->master,
+					"You can't force %s to do that, even while charmed!\r\n",
+					GET_NAME(ch));
+			return 1;
+		}
+
+		if (clan) {
+			if (clan->bank_account < amount) {
+				send_to_char(ch,
+					"The clan doesn't have that much deposited.\r\n");
+				return 1;
+			}
+			clan->bank_account -= amount;
+			sql_exec("update clans set bank=%lld where idnum=%d",
+				clan->bank_account, clan->number);
+		} else {
+			if (BANK_MONEY(ch) < amount) {
+				send_to_char(ch, "You don't have that many %ss deposited!\r\n",
+					CURRENCY(ch));
+				return 1;
+			}
+			if (ch->in_room->zone->time_frame == TIME_ELECTRO)
+				ch->account->withdraw_future_bank(amount);
+			else
+				ch->account->withdraw_past_bank(amount);
+		}
+
+		if (ch->in_room->zone->time_frame == TIME_ELECTRO)
+			acct->deposit_future_bank(amount);
+		else
+			acct->deposit_past_bank(amount);
+
+		send_to_char(ch, "You transfer %d %s%s to %s's account.\r\n",
+			amount, CURRENCY(ch), PLURAL(amount), vict_name);
+		act("$n makes a bank transaction.", TRUE, ch, 0, FALSE, TO_ROOM);
+
+		if (amount > 50000000) {
+			mudlog(LVL_IMMORT, NRM, true,
+				"%s transferred %d from %s to %s's account",
+				GET_NAME(ch), amount, (clan) ? "clan account":"bank",
+				vict_name);
+		}
+	}
 
 	ch->saveToXML();
 	if (clan) {

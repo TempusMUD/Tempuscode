@@ -490,6 +490,13 @@ ACMD(do_trans)
     struct room_data *was_in;
     struct Creature *victim;
 
+	if (GET_LEVEL(ch) < LVL_IMMORT
+			|| !(Security::isMember(ch, "WizardBasic")
+				|| Security::isMember(ch, "Questor"))) {
+		send_to_char(ch, "Sorry, but you can't do that here!\r\n");
+		return;
+	}
+
     one_argument(argument, buf);
     if (!*buf)
         send_to_char(ch, "Whom do you wish to transfer?\r\n");
