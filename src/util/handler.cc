@@ -1013,6 +1013,8 @@ update_trail(struct Creature *ch, struct room_data *room, int dir, int mode)
 			next_trail = trail->next;
 			if (trail->name)
 				free(trail->name);
+			if (trail->aliases)
+				free(trail->aliases);
 			free(trail);
 			trail = next_trail;
 		}
