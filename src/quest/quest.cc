@@ -2779,7 +2779,7 @@ bool Quest::removePlayer( long id ) {
 		if (vict->loadFromXML(id)) {
 			//HERE
 			GET_QUEST(vict) = 0;
-			vict->crashSave();
+			vict->saveToXML();
 			delete vict;
 		} else {
 			//send_to_char(ch, "Error loading char from file.\r\n");
