@@ -48,6 +48,7 @@ void weight_change_object(struct obj_data *obj, int weight);
 void add_follower(struct Creature *ch, struct Creature *leader);
 extern struct spell_info_type spell_info[];
 ACMD(do_flee);
+ACCMD(do_drop);
 void sound_gunshots(struct room_data *rm, int type, int power, int num);
 void ice_room(struct room_data *room, int amount);
 
@@ -869,7 +870,7 @@ mag_damage(int level, struct Creature *ch, struct Creature *victim,
 	
 	//fortissimo makes bard songs more powerful
 	affected_type *af = NULL;
-	if (af = affected_by_spell(ch, SONG_FORTISSIMO)) {
+	if ((af = affected_by_spell(ch, SONG_FORTISSIMO))) {
 		dam += (dam * af->level)/100; //up to 1.79 dam at gen 10/49
 	}
 	
@@ -3061,6 +3062,9 @@ mag_areas(byte level, struct Creature *ch, int spellnum, int savetype)
 			continue;
 		if (spellnum == SPELL_EARTHQUAKE && (*it)->getPosition() == POS_FLYING)
 			continue;
+		if (spellnum == SONG_SONIC_DISRUPTION && IS_UNDEAD(*it)) {
+			continue;
+		}
 
 		if (spellnum == SPELL_MASS_HYSTERIA) {
 			call_magic(ch, (*it), 0, NULL, SPELL_FEAR, level, CAST_PSIONIC);
@@ -3070,6 +3074,27 @@ mag_areas(byte level, struct Creature *ch, int spellnum, int savetype)
 		if (spellnum == SPELL_FISSION_BLAST
 			&& !(mag_savingthrow((*it), level, SAVING_PHY))) {
 			add_rad_sickness((*it), level);
+		}
+		if (spellnum == SONG_SONIC_DISRUPTION) { //drop things
+			obj_data *obj=NULL;
+			if ((random_number_zero_low(3 + (level >> 2)) + 3) > GET_DEX(*it) && 
+				(obj = (*it)->carrying)) { //assignment to obj done here
+				while (obj) {
+					if (can_see_object(*it, obj) && !IS_OBJ_STAT(obj, ITEM_NODROP))
+						break;
+					obj = obj->next_content;
+				}
+				if (obj) {
+					act("$p is blasted from the hands of $N by the powerful sonic waves!",
+					TRUE, ch, obj, *it,	TO_ROOM);
+					act("$p is blasted from your hands by the powerful sonic waves!", 
+					TRUE, ch, obj, *it, TO_VICT);
+					act("$p is blasted from the hands of $N by your powerful sonic waves!", 
+					TRUE, ch, obj, *it, TO_CHAR);
+					obj_from_char(obj);
+					obj_to_room(obj, (*it)->in_room);
+				}
+			}
 		}
 		int retval = mag_damage(level, ch, (*it), spellnum, 1);
 		return_value |= retval;
