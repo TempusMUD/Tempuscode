@@ -43,7 +43,7 @@ SPECIAL(barbarian);
 SPECIAL(thieves_guard_south);
 SPECIAL(thieves_guard_west);
 SPECIAL(chest_mimic);
-SPECIAL(rat_mama); 
+SPECIAL(rat_mama);
 SPECIAL(improve_dex);
 SPECIAL(improve_int);
 SPECIAL(improve_con);
@@ -156,7 +156,7 @@ SPECIAL(arioch);
 SPECIAL(maladomini_jailer);
 SPECIAL(hell_regulator);
 SPECIAL(hell_ressurector);
-SPECIAL( hell_domed_chamber );
+SPECIAL(hell_domed_chamber);
 SPECIAL(killzone_room);
 SPECIAL(malagard_lightning_room);
 SPECIAL(pit_keeper);
@@ -178,7 +178,7 @@ SPECIAL(hobbes_speaker);
 SPECIAL(rust_monster);
 SPECIAL(weaponsmaster);
 SPECIAL(morkoth);
-SPECIAL( unspecializer );
+SPECIAL(unspecializer);
 
 // lovely_specs
 SPECIAL(mavernal_citizen);
@@ -255,7 +255,7 @@ SPECIAL(stygian_lightning_rm);
 SPECIAL(donation_room);
 SPECIAL(pendulum_room);
 SPECIAL(monastery_eating);
-SPECIAL(modrian_fountain_rm);  
+SPECIAL(modrian_fountain_rm);
 /*SPECIAL(borg_guild_entrance); */
 SPECIAL(malbolge_bridge);
 SPECIAL(abandoned_cavern);
@@ -283,22 +283,22 @@ SPECIAL(clone_lab);
 #define SPEC_RES 8
 
 struct spec_func_data {
-  char *tag;
+	char *tag;
 //  void *func;
-    SPECIAL(*func);
-  byte flags;
+	 SPECIAL(*func);
+	byte flags;
 };
 
 int
-find_spec_index_arg(char *arg);
+ find_spec_index_arg(char *arg);
 void
-do_show_specials(struct char_data *ch, char *arg);
+ do_show_specials(struct char_data *ch, char *arg);
 int
-do_specassign_save(struct char_data *ch, int mode);
+ do_specassign_save(struct char_data *ch, int mode);
 int
-find_spec_index_ptr(SPECIAL(*func));
+ find_spec_index_ptr(SPECIAL(*func));
 int
-mob_read_script(struct char_data *ch);
+ mob_read_script(struct char_data *ch);
 
 #define SPEC_FILE_MOB "etc/spec_ass_mob"
 #define SPEC_FILE_OBJ "etc/spec_ass_obj"

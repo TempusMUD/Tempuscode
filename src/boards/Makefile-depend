@@ -1,4 +1,4 @@
 $(OBJ)/boards.o : boards.cc \
-	$(INCLUDE)/structs.h $(INCLUDE)/utils.h $(INCLUDE)/comm.h $(INCLUDE)/db.h $(INCLUDE)/boards.h $(INCLUDE)/interpreter.h $(INCLUDE)/handler.h $(INCLUDE)/screen.h $(INCLUDE)/clan.h 
+	$(INCLUDE)/structs.h $(INCLUDE)/utils.h $(INCLUDE)/comm.h $(INCLUDE)/db.h $(INCLUDE)/boards.h $(INCLUDE)/interpreter.h $(INCLUDE)/handler.h $(INCLUDE)/screen.h $(INCLUDE)/clan.h $(INCLUDE)/security.h 
 	$(CXX) -c $(CXXFLAGS) boards.cc            -o $(OBJ)/boards.o
 OBJFILES= $(OBJ)/boards.o

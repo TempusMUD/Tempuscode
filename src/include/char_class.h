@@ -16,9 +16,9 @@ extern const char *char_class_abbrevs[];
 extern const int guild_info[][4];
 extern const int prac_params[4][NUM_CLASSES];
 extern const float thaco_factor[NUM_CLASSES];
-extern const int exp_scale[LVL_GRIMP+2];
+extern const int exp_scale[LVL_GRIMP + 2];
 extern const struct title_type titles[NUM_CLASSES][LVL_GRIMP + 1];
-extern const char *evil_knight_titles[LVL_GRIMP+1];
+extern const char *evil_knight_titles[LVL_GRIMP + 1];
 
 #endif
 
@@ -41,20 +41,20 @@ void gain_skill_prof(struct char_data *ch, int skl);
 #define MORT_LEARNED(ch) \
                    (prac_params[0][(int)MIN(NUM_CLASSES-1, \
 					    GET_CLASS(ch))])
-     
+
 #define REMORT_LEARNED(ch) \
                    (!IS_REMORT(ch) ? 0 : \
 		    prac_params[0][(int)MIN(NUM_CLASSES-1, \
 					    GET_REMORT_CLASS(ch))])
-     
+
 #define LEARNED(ch) 	(MAX(MORT_LEARNED(ch), REMORT_LEARNED(ch)) + \
 			 (GET_REMORT_GEN(ch) << 1))
-		     /*
-#define MAXGAIN(ch) 	(prac_params[1][(int)GET_CLASS(ch)] + (GET_REMORT_GEN(ch) << 2))
+			 /*
+			    #define MAXGAIN(ch)     (prac_params[1][(int)GET_CLASS(ch)] + (GET_REMORT_GEN(ch) << 2))
 
-#define MINGAIN(ch) 	(prac_params[2][(int)GET_CLASS(ch)] + \
-			 GET_REMORT_GEN(ch))
-			 */
+			    #define MINGAIN(ch)     (prac_params[2][(int)GET_CLASS(ch)] + \
+			    GET_REMORT_GEN(ch))
+			  */
 #define MINGAIN(ch)     (GET_INT(ch) + GET_REMORT_GEN(ch))
 #define MAXGAIN(ch)     ((GET_INT(ch) << 1) + GET_REMORT_GEN(ch))
 
@@ -78,4 +78,3 @@ void gain_skill_prof(struct char_data *ch, int skl);
 
 
 #endif
-

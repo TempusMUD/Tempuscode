@@ -15,6 +15,6 @@
 #include "olc.h"
 
 void
-polc_input( struct descriptor_data *d, char *str)
+polc_input(struct descriptor_data *d, char *str)
 {
 }

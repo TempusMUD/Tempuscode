@@ -18,42 +18,42 @@
 #define NUM_RESERVED_DESCS	8
 
 /* comm.c */
-void	send_to_all(char *messg);
-void	send_to_char(const char *messg, struct char_data *ch);
-void	send_to_room(char *messg, struct room_data *room);
-void    send_to_clerics(char *messg);
-void	send_to_outdoor(char *messg,int isecho=0);
-void    send_to_clan(char *messg, int clan);
-void    send_to_zone(char *messg, struct zone_data *zone, int outdoor);
-void    send_to_comm_channel(struct char_data *ch, char *buff, int chan, int mode, int hide_invis);
-void    send_to_newbie_helpers(char *messg);
-void	perform_to_all(char *messg, struct char_data *ch);
-void	close_socket(struct descriptor_data *d);
+void send_to_all(char *messg);
+void send_to_char(const char *messg, struct char_data *ch);
+void send_to_room(char *messg, struct room_data *room);
+void send_to_clerics(char *messg);
+void send_to_outdoor(char *messg, int isecho = 0);
+void send_to_clan(char *messg, int clan);
+void send_to_zone(char *messg, struct zone_data *zone, int outdoor);
+void send_to_comm_channel(struct char_data *ch, char *buff, int chan, int mode,
+	int hide_invis);
+void send_to_newbie_helpers(char *messg);
+void perform_to_all(char *messg, struct char_data *ch);
+void close_socket(struct descriptor_data *d);
 
-void	perform_act(const char *orig, struct char_data *ch, 
-            struct obj_data *obj, void *vict_obj, struct char_data *to, 
-            int mode);
+void perform_act(const char *orig, struct char_data *ch,
+	struct obj_data *obj, void *vict_obj, struct char_data *to, int mode);
 
-void	act(const char *str, int hide_invisible, struct char_data *ch,
-struct obj_data *obj, void *vict_obj, int type);
+void act(const char *str, int hide_invisible, struct char_data *ch,
+	struct obj_data *obj, void *vict_obj, int type);
 
 #define TO_ROOM		1
 #define TO_VICT		2
 #define TO_NOTVICT	3
 #define TO_CHAR		4
 #define ACT_HIDECAR     8
-#define TO_SLEEP	128	/* to char, even if sleeping */
+#define TO_SLEEP	128			/* to char, even if sleeping */
 
 #define SHUTDOWN_NONE   0
 #define SHUTDOWN_DIE    1
 #define SHUTDOWN_PAUSE  2
 #define SHUTDOWN_REBOOT 3
 
-int	write_to_descriptor(int desc, char *txt);
-void	write_to_q(char *txt, struct txt_q *queue, int aliased);
-void	write_to_output(const char *txt, struct descriptor_data *d);
-void	page_string(struct descriptor_data *d, char *str, int keep_internal);
-void    show_file(struct char_data *ch, char *fname,int lines);
+int write_to_descriptor(int desc, char *txt);
+void write_to_q(char *txt, struct txt_q *queue, int aliased);
+void write_to_output(const char *txt, struct descriptor_data *d);
+void page_string(struct descriptor_data *d, char *str, int keep_internal);
+void show_file(struct char_data *ch, char *fname, int lines);
 
 #define SEND_TO_Q(messg, desc)  write_to_output((messg), desc)
 
@@ -63,8 +63,8 @@ void    show_file(struct char_data *ch, char *fname,int lines);
 typedef void sigfunc(int);
 
 struct last_command_data {
-  int idnum;
-  char string[MAX_INPUT_LENGTH];
+	int idnum;
+	char string[MAX_INPUT_LENGTH];
 };
 
 #define NUM_SAVE_CMDS 30
@@ -75,11 +75,11 @@ struct last_command_data {
 #if     defined(_AIX)
 #define POSIX_NONBLOCK_BROKEN
 #include <sys/select.h>
-int accept(int s, struct sockaddr * addr, int *addrlen);
-int bind(int s, struct sockaddr * name, int namelen);
-int getpeername(int s, struct sockaddr * name, int *namelen);
-int getsockname(int s, struct sockaddr * name, int *namelen);
-int gettimeofday(struct timeval * tp, struct timezone * tzp);
+int accept(int s, struct sockaddr *addr, int *addrlen);
+int bind(int s, struct sockaddr *name, int namelen);
+int getpeername(int s, struct sockaddr *name, int *namelen);
+int getsockname(int s, struct sockaddr *name, int *namelen);
+int gettimeofday(struct timeval *tp, struct timezone *tzp);
 int listen(int s, int backlog);
 int setsockopt(int s, int level, int optname, void *optval, int optlen);
 int socket(int domain, int type, int protocol);
@@ -90,10 +90,9 @@ int accept(int s, void *addr, int *addrlen);
 int bind(int s, const void *addr, int addrlen);
 int getpeername(int s, void *addr, int *addrlen);
 int getsockname(int s, void *name, int *addrlen);
-int gettimeofday(struct timeval * tp, struct timezone * tzp);
+int gettimeofday(struct timeval *tp, struct timezone *tzp);
 int listen(int s, int backlog);
-int setsockopt(int s, int level, int optname,
-	           const void *optval, int optlen);
+int setsockopt(int s, int level, int optname, const void *optval, int optlen);
 int socket(int domain, int type, int protocol);
 #endif
 
@@ -106,10 +105,10 @@ int socket(int domain, int type, int protocol);
 int close(int fd);
 //int getpeername(int s, struct sockaddr * name, int *namelen);
 //int getsockname(int s, struct sockaddr * name, int *namelen);
-int gettimeofday(struct timeval * tp, struct timezone * tzp);
+int gettimeofday(struct timeval *tp, struct timezone *tzp);
 //int listen(int s, int backlog);
 int select(int width, fd_set * readfds, fd_set * writefds,
-	       fd_set * exceptfds, struct timeval * timeout);
+	fd_set * exceptfds, struct timeval *timeout);
 int socket(int domain, int type, int protocol);
 #endif
 
@@ -130,18 +129,18 @@ u_long htonl(u_long hostlong);
 #endif
 int read(int fd, char *buf, int nbyte);
 int select(int width, fd_set * readfds, fd_set * writefds,
-	       fd_set * exceptfds, struct timeval * timeout);
+	fd_set * exceptfds, struct timeval *timeout);
 int write(int fd, char *buf, int nbyte);
 #endif
 
 #if     defined(sequent)
-int accept(int s, struct sockaddr * addr, int *addrlen);
-int bind(int s, struct sockaddr * name, int namelen);
+int accept(int s, struct sockaddr *addr, int *addrlen);
+int bind(int s, struct sockaddr *name, int namelen);
 int close(int fd);
 int fcntl(int fd, int cmd, int arg);
-int getpeername(int s, struct sockaddr * name, int *namelen);
-int getsockname(int s, struct sockaddr * name, int *namelen);
-int gettimeofday(struct timeval * tp, struct timezone * tzp);
+int getpeername(int s, struct sockaddr *name, int *namelen);
+int getsockname(int s, struct sockaddr *name, int *namelen);
+int gettimeofday(struct timeval *tp, struct timezone *tzp);
 #if     !defined(htons)
 u_short htons(u_short hostshort);
 #endif
@@ -151,9 +150,8 @@ u_long ntohl(u_long hostlong);
 #endif
 int read(int fd, char *buf, int nbyte);
 int select(int width, fd_set * readfds, fd_set * writefds,
-	       fd_set * exceptfds, struct timeval * timeout);
-int setsockopt(int s, int level, int optname, caddr_t optval,
-	           int optlen);
+	fd_set * exceptfds, struct timeval *timeout);
+int setsockopt(int s, int level, int optname, caddr_t optval, int optlen);
 int socket(int domain, int type, int protocol);
 int write(int fd, char *buf, int nbyte);
 #endif
@@ -165,36 +163,33 @@ int write(int fd, char *buf, int nbyte);
 int getrlimit(int resource, struct rlimit *rlp);
 int setrlimit(int resource, const struct rlimit *rlp);
 int setitimer(int which, struct itimerval *value, struct itimerval *ovalue);
-int accept(int s, struct sockaddr * addr, int *addrlen);
-int bind(int s, struct sockaddr * name, int namelen);
+int accept(int s, struct sockaddr *addr, int *addrlen);
+int bind(int s, struct sockaddr *name, int namelen);
 int close(int fd);
-int getpeername(int s, struct sockaddr * name, int *namelen);
-int getsockname(int s, struct sockaddr * name, int *namelen);
-int gettimeofday(struct timeval * tp, struct timezone * tzp);
+int getpeername(int s, struct sockaddr *name, int *namelen);
+int getsockname(int s, struct sockaddr *name, int *namelen);
+int gettimeofday(struct timeval *tp, struct timezone *tzp);
 int listen(int s, int backlog);
 int select(int width, fd_set * readfds, fd_set * writefds,
-	       fd_set * exceptfds, struct timeval * timeout);
-int setsockopt(int s, int level, int optname, const char *optval,
-	           int optlen);
+	fd_set * exceptfds, struct timeval *timeout);
+int setsockopt(int s, int level, int optname, const char *optval, int optlen);
 int socket(int domain, int type, int protocol);
 #endif
 
 #if defined(ultrix)
 void bzero(char *b1, int length);
 int setitimer(int which, struct itimerval *value, struct itimerval *ovalue);
-int accept(int s, struct sockaddr * addr, int *addrlen);
-int bind(int s, struct sockaddr * name, int namelen);
+int accept(int s, struct sockaddr *addr, int *addrlen);
+int bind(int s, struct sockaddr *name, int namelen);
 int close(int fd);
-int getpeername(int s, struct sockaddr * name, int *namelen);
-int getsockname(int s, struct sockaddr * name, int *namelen);
-int gettimeofday(struct timeval * tp, struct timezone * tzp);
+int getpeername(int s, struct sockaddr *name, int *namelen);
+int getsockname(int s, struct sockaddr *name, int *namelen);
+int gettimeofday(struct timeval *tp, struct timezone *tzp);
 int listen(int s, int backlog);
 int select(int width, fd_set * readfds, fd_set * writefds,
-	       fd_set * exceptfds, struct timeval * timeout);
-int setsockopt(int s, int level, int optname, void *optval,
-	           int optlen);
+	fd_set * exceptfds, struct timeval *timeout);
+int setsockopt(int s, int level, int optname, void *optval, int optlen);
 int socket(int domain, int type, int protocol);
 #endif
 
-#endif /* #ifdef __COMM_C__ */
-
+#endif							/* #ifdef __COMM_C__ */

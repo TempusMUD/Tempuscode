@@ -58,7 +58,7 @@ int holler_move_cost = 20;
 
 /* exp change limits */
 int max_exp_gain = 10000000;	/* max gainable per kill */
-int max_exp_loss = 1000000;	/* max losable per death */
+int max_exp_loss = 1000000;		/* max losable per death */
 
 /* number of tics (usually 75 seconds) before PC/NPC corpses decompose */
 int max_npc_corpse_time = 5;
@@ -82,7 +82,7 @@ char *NOEFFECT = "Nothing seems to happen.\r\n";
  * Should the MUD allow you to 'rent' for free?  (i.e. if you just quit,
  * your objects are saved at no cost, as in Merc-type MUDs.
  */
-int free_rent = NO; 
+int free_rent = NO;
 
 /* maximum number of items players are allowed to rent */
 int max_obj_save = 25;
@@ -135,8 +135,8 @@ room_num human_square_start_room = 22898;
 room_num skullport_start_room = 22873;
 room_num drow_isle_start_room = 22727;
 room_num skullport_newbie_start_room = 23100;
-room_num zul_dane_newbie_start_room  = 53306;
-room_num zul_dane_start_room  = 53172;
+room_num zul_dane_newbie_start_room = 53306;
+room_num zul_dane_start_room = 53172;
 room_num newbie_school_start_room = 200;
 
 room_num astral_manse_start_room = 42500;
@@ -153,7 +153,7 @@ room_num frozen_start_room = 1202;
  * donation rooms.
  */
 room_num donation_room_1 = 3032;
-room_num donation_room_2 = 30032; 
+room_num donation_room_2 = 30032;
 room_num donation_room_3 = 5510;
 room_num donation_room_istan = 20470;
 room_num donation_room_solace = 63102;
@@ -162,66 +162,66 @@ room_num donation_room_skullport_dwarven = 22807;
 
 int guild_donation_info[][4] = {
 
-    {CLASS_THIEF,    ALL,  HOME_SKULLPORT, 22998},
-    {CLASS_THIEF,    ALL,  HOME_DWARVEN_CAVERNS, 22998},
-    {CLASS_THIEF,    ALL,  HOME_HUMAN_SQUARE, 22998},
-    {CLASS_THIEF,    ALL,  HOME_DROW_ISLE, 22998},
+	{CLASS_THIEF, ALL, HOME_SKULLPORT, 22998},
+	{CLASS_THIEF, ALL, HOME_DWARVEN_CAVERNS, 22998},
+	{CLASS_THIEF, ALL, HOME_HUMAN_SQUARE, 22998},
+	{CLASS_THIEF, ALL, HOME_DROW_ISLE, 22998},
 
-    {CLASS_CLERIC,  EVIL,  HOME_SKULLPORT, 22929},
-    {CLASS_CLERIC,  EVIL,  HOME_DWARVEN_CAVERNS, 22929},
-    {CLASS_CLERIC,  EVIL,  HOME_HUMAN_SQUARE, 22929},
-    {CLASS_CLERIC,  EVIL,  HOME_DROW_ISLE, 22929},
+	{CLASS_CLERIC, EVIL, HOME_SKULLPORT, 22929},
+	{CLASS_CLERIC, EVIL, HOME_DWARVEN_CAVERNS, 22929},
+	{CLASS_CLERIC, EVIL, HOME_HUMAN_SQUARE, 22929},
+	{CLASS_CLERIC, EVIL, HOME_DROW_ISLE, 22929},
 
-    {CLASS_VAMPIRE,  EVIL,  HOME_SKULLPORT, 22995},
-    {CLASS_VAMPIRE,  EVIL,  HOME_DWARVEN_CAVERNS, 22995},
-    {CLASS_VAMPIRE,  EVIL,  HOME_HUMAN_SQUARE, 22995},
-    {CLASS_VAMPIRE,  EVIL,  HOME_DROW_ISLE, 22995},
+	{CLASS_VAMPIRE, EVIL, HOME_SKULLPORT, 22995},
+	{CLASS_VAMPIRE, EVIL, HOME_DWARVEN_CAVERNS, 22995},
+	{CLASS_VAMPIRE, EVIL, HOME_HUMAN_SQUARE, 22995},
+	{CLASS_VAMPIRE, EVIL, HOME_DROW_ISLE, 22995},
 
-    {CLASS_BARB,    ALL,  HOME_SKULLPORT, 22993},
-    {CLASS_BARB,    ALL,  HOME_DWARVEN_CAVERNS, 22993},
-    {CLASS_BARB,    ALL,  HOME_HUMAN_SQUARE, 22993},
-    {CLASS_BARB,    ALL,  HOME_DROW_ISLE, 22993},
+	{CLASS_BARB, ALL, HOME_SKULLPORT, 22993},
+	{CLASS_BARB, ALL, HOME_DWARVEN_CAVERNS, 22993},
+	{CLASS_BARB, ALL, HOME_HUMAN_SQUARE, 22993},
+	{CLASS_BARB, ALL, HOME_DROW_ISLE, 22993},
 
-    {CLASS_MAGIC_USER,    ALL,  HOME_SKULLPORT, 22712},
-    {CLASS_MAGIC_USER,    ALL,  HOME_DWARVEN_CAVERNS, 22712},
-    {CLASS_MAGIC_USER,    ALL,  HOME_HUMAN_SQUARE, 22712},
-    {CLASS_MAGIC_USER,    ALL,  HOME_DROW_ISLE, 22712},
+	{CLASS_MAGIC_USER, ALL, HOME_SKULLPORT, 22712},
+	{CLASS_MAGIC_USER, ALL, HOME_DWARVEN_CAVERNS, 22712},
+	{CLASS_MAGIC_USER, ALL, HOME_HUMAN_SQUARE, 22712},
+	{CLASS_MAGIC_USER, ALL, HOME_DROW_ISLE, 22712},
 
-    {CLASS_KNIGHT,    EVIL,  HOME_SKULLPORT, 22992},
-    {CLASS_KNIGHT,    EVIL,  HOME_DWARVEN_CAVERNS, 22992},
-    {CLASS_KNIGHT,    EVIL,  HOME_HUMAN_SQUARE, 22992},
-    {CLASS_KNIGHT,    EVIL,  HOME_DROW_ISLE, 22992},
+	{CLASS_KNIGHT, EVIL, HOME_SKULLPORT, 22992},
+	{CLASS_KNIGHT, EVIL, HOME_DWARVEN_CAVERNS, 22992},
+	{CLASS_KNIGHT, EVIL, HOME_HUMAN_SQUARE, 22992},
+	{CLASS_KNIGHT, EVIL, HOME_DROW_ISLE, 22992},
 
-    {CLASS_RANGER,   ALL,  HOME_MODRIAN, 2701  },
-    {CLASS_MAGIC_USER,ALL, HOME_MODRIAN, 2702  },
-    {CLASS_THIEF,    ALL,  HOME_MODRIAN, 2703  },
-    {CLASS_BARB,     ALL,  HOME_MODRIAN, 2704  },
-    {CLASS_CLERIC,  EVIL,  HOME_MODRIAN, 2705  },
-    {CLASS_KNIGHT,  EVIL,  HOME_MODRIAN, 2706  },
-    {CLASS_KNIGHT,  GOOD,  HOME_MODRIAN, 2707  },
-    {CLASS_CLERIC,  GOOD,  HOME_MODRIAN, 2708  },
+	{CLASS_RANGER, ALL, HOME_MODRIAN, 2701},
+	{CLASS_MAGIC_USER, ALL, HOME_MODRIAN, 2702},
+	{CLASS_THIEF, ALL, HOME_MODRIAN, 2703},
+	{CLASS_BARB, ALL, HOME_MODRIAN, 2704},
+	{CLASS_CLERIC, EVIL, HOME_MODRIAN, 2705},
+	{CLASS_KNIGHT, EVIL, HOME_MODRIAN, 2706},
+	{CLASS_KNIGHT, GOOD, HOME_MODRIAN, 2707},
+	{CLASS_CLERIC, GOOD, HOME_MODRIAN, 2708},
 
-    {CLASS_MONK,    ALL,   HOME_MONK,    21033 },
+	{CLASS_MONK, ALL, HOME_MONK, 21033},
 
-    {CLASS_CYBORG,   ALL,  HOME_ELECTRO, 30270 },
-    {CLASS_PHYSIC,   ALL,  HOME_ELECTRO, 30271 },
-    {CLASS_MONK,     ALL,  HOME_ELECTRO, 30272 },
-    {CLASS_PSIONIC,  ALL,  HOME_ELECTRO, 30273 },
-    {CLASS_MERCENARY, ALL, HOME_ELECTRO, 30274 },
-    {CLASS_HOOD,     ALL,  HOME_ELECTRO, 30275 },
-    {CLASS_CLERIC,   EVIL, HOME_ELECTRO, 30276 },
-    {CLASS_THIEF,    ALL,  HOME_ELECTRO, 30277 },
-    {CLASS_RANGER,   ALL,  HOME_ELECTRO, 30278 },
+	{CLASS_CYBORG, ALL, HOME_ELECTRO, 30270},
+	{CLASS_PHYSIC, ALL, HOME_ELECTRO, 30271},
+	{CLASS_MONK, ALL, HOME_ELECTRO, 30272},
+	{CLASS_PSIONIC, ALL, HOME_ELECTRO, 30273},
+	{CLASS_MERCENARY, ALL, HOME_ELECTRO, 30274},
+	{CLASS_HOOD, ALL, HOME_ELECTRO, 30275},
+	{CLASS_CLERIC, EVIL, HOME_ELECTRO, 30276},
+	{CLASS_THIEF, ALL, HOME_ELECTRO, 30277},
+	{CLASS_RANGER, ALL, HOME_ELECTRO, 30278},
 
-    {CLASS_RANGER,        ALL,   HOME_SOLACE_COVE,    63134 },
-    {CLASS_MAGIC_USER,    ALL,   HOME_SOLACE_COVE,    63137 },
-    {CLASS_BARB,          ALL,   HOME_SOLACE_COVE,    63140 },
-    {CLASS_KNIGHT,        EVIL,  HOME_SOLACE_COVE,    63143 },
-    {CLASS_KNIGHT,        GOOD,  HOME_SOLACE_COVE,    63146 },
-    {CLASS_CLERIC,        GOOD,  HOME_SOLACE_COVE,    63149 },
-    {CLASS_THIEF,         ALL,   HOME_SOLACE_COVE,    63152 },
-  
-    {-1,-1,-1,-1}
+	{CLASS_RANGER, ALL, HOME_SOLACE_COVE, 63134},
+	{CLASS_MAGIC_USER, ALL, HOME_SOLACE_COVE, 63137},
+	{CLASS_BARB, ALL, HOME_SOLACE_COVE, 63140},
+	{CLASS_KNIGHT, EVIL, HOME_SOLACE_COVE, 63143},
+	{CLASS_KNIGHT, GOOD, HOME_SOLACE_COVE, 63146},
+	{CLASS_CLERIC, GOOD, HOME_SOLACE_COVE, 63149},
+	{CLASS_THIEF, ALL, HOME_SOLACE_COVE, 63152},
+
+	{-1, -1, -1, -1}
 };
 
 /****************************************************************************/
@@ -265,69 +265,65 @@ int nameserver_is_slow = YES;
 
 
 char *GREETINGS =
-
-".   .   .   .   .   .   .   .   .   .   .   .   .   .   .   .   .   .   .   . \r\n"             
-"\r\n"
-".   .   .  @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@ .   .   . \r\n"
-"          @@@****************************************************@@@\r\n"
-".   .   . @@* ************************************************** *@@.   .   . \r\n"
-"          @@* *                     TEMPUS                     * *@@\r\n"	
-".   .   . @@* *                                                * *@@.   .   . \r\n"
-"          @@* *               the anachronistic                * *@@\r\n"
-".   .   . @@* *             Multiple User Domain               * *@@.   .   . \r\n"
-"          @@* *                                                * *@@\r\n"
-".   .   . @@* *                                                * *@@.   .   . \r\n"
-"          @@* *     FOUNDATION:  Circle 3.00, Jeremy Elson     * *@@\r\n"
-".   .   . @@* *       A derivative of DikuMUD (GAMMA 0.0)      * *@@.   .   . \r\n"
-"          @@* *                                                * *@@\r\n"
-".   .   . @@* *               Powered by Linux                 * *@@.   .   . \r\n"
-"          @@* ************************************************** *@@\r\n"
-".   .   . @@@****************************************************@@@.   .   . \r\n"
-"           @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@\r\n"
-".   .   .   .   .   .   .   .   .   .   .   .   .   .   .   .   .   .   .   . \r\n"
-"\r\n"
-".   .   .   .   .   .   . Welcome to the Mothership .   .   .   .   .   .   . \r\n"
-"\r\n"
-".   .   .   .   .   .   .   .   .   .   .   .   .   .   .   .   .   .   .   . \r\n"
-"\r\n";
+	".   .   .   .   .   .   .   .   .   .   .   .   .   .   .   .   .   .   .   . \r\n"
+	"\r\n"
+	".   .   .  @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@ .   .   . \r\n"
+	"          @@@****************************************************@@@\r\n"
+	".   .   . @@* ************************************************** *@@.   .   . \r\n"
+	"          @@* *                     TEMPUS                     * *@@\r\n"
+	".   .   . @@* *                                                * *@@.   .   . \r\n"
+	"          @@* *               the anachronistic                * *@@\r\n"
+	".   .   . @@* *             Multiple User Domain               * *@@.   .   . \r\n"
+	"          @@* *                                                * *@@\r\n"
+	".   .   . @@* *                                                * *@@.   .   . \r\n"
+	"          @@* *     FOUNDATION:  Circle 3.00, Jeremy Elson     * *@@\r\n"
+	".   .   . @@* *       A derivative of DikuMUD (GAMMA 0.0)      * *@@.   .   . \r\n"
+	"          @@* *                                                * *@@\r\n"
+	".   .   . @@* *               Powered by Linux                 * *@@.   .   . \r\n"
+	"          @@* ************************************************** *@@\r\n"
+	".   .   . @@@****************************************************@@@.   .   . \r\n"
+	"           @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@\r\n"
+	".   .   .   .   .   .   .   .   .   .   .   .   .   .   .   .   .   .   .   . \r\n"
+	"\r\n"
+	".   .   .   .   .   .   . Welcome to the Mothership .   .   .   .   .   .   . \r\n"
+	"\r\n"
+	".   .   .   .   .   .   .   .   .   .   .   .   .   .   .   .   .   .   .   . \r\n"
+	"\r\n";
 
 char *MUD_MOVED_MSG =
+	".   .   .   .   .   .   .   .   .   .   .   .   .   .   .   .   .   .   .   . \r\n"
+	"\r\n"
+	".   .   .  @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@ .   .   . \r\n"
+	"          @@@****************************************************@@@\r\n"
+	".   .   . @@* ************************************************** *@@.   .   . \r\n"
+	"          @@* *                     TEMPUS                     * *@@\r\n"
+	".   .   . @@* *                                                * *@@.   .   . \r\n"
+	"          @@* *               the anachronistic                * *@@\r\n"
+	".   .   . @@* *             Multiple User Domain               * *@@.   .   . \r\n"
+	"          @@* *                                                * *@@\r\n"
+	".   .   . @@* *                                                * *@@.   .   . \r\n"
+	"          @@* *               TEMPUS HAS MOVED!                * *@@\r\n"
+	".   .   . @@* *                                                * *@@.   .   . \r\n"
+	"          @@* *         mud.tempusmud.com port 2020            * *@@\r\n"
+	".   .   . @@* *              ( 206.41.250.2 )                  * *@@.   .   . \r\n"
+	"          @@* *                                                * *@@\r\n"
+	".   .   . @@* *                                                * *@@.   .   . \r\n"
+	"          @@* ************************************************** *@@\r\n"
+	".   .   . @@@****************************************************@@@.   .   . \r\n"
+	"           @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@\r\n"
+	".   .   .   .   .   .   .   .   .   .   .   .   .   .   .   .   .   .   .   . \r\n"
+	"\r\n"
+	".   .   .   .   .   .   . The Mothership awaits you .   .   .   .   .   .   . \r\n"
+	"\r\n"
+	".   .   .   .   .   .   .   .   .   .   .   .   .   .   .   .   .   .   .   . \r\n"
+	"\r\n";
 
-".   .   .   .   .   .   .   .   .   .   .   .   .   .   .   .   .   .   .   . \r\n"             
-"\r\n"
-".   .   .  @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@ .   .   . \r\n"
-"          @@@****************************************************@@@\r\n"
-".   .   . @@* ************************************************** *@@.   .   . \r\n"
-"          @@* *                     TEMPUS                     * *@@\r\n"	
-".   .   . @@* *                                                * *@@.   .   . \r\n"
-"          @@* *               the anachronistic                * *@@\r\n"
-".   .   . @@* *             Multiple User Domain               * *@@.   .   . \r\n"
-"          @@* *                                                * *@@\r\n"
-".   .   . @@* *                                                * *@@.   .   . \r\n"
-"          @@* *               TEMPUS HAS MOVED!                * *@@\r\n"
-".   .   . @@* *                                                * *@@.   .   . \r\n"
-"          @@* *         mud.tempusmud.com port 2020            * *@@\r\n"
-".   .   . @@* *              ( 206.41.250.2 )                  * *@@.   .   . \r\n"
-"          @@* *                                                * *@@\r\n"
-".   .   . @@* *                                                * *@@.   .   . \r\n"
-"          @@* ************************************************** *@@\r\n"
-".   .   . @@@****************************************************@@@.   .   . \r\n"
-"           @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@\r\n"
-".   .   .   .   .   .   .   .   .   .   .   .   .   .   .   .   .   .   .   . \r\n"
-"\r\n"
-".   .   .   .   .   .   . The Mothership awaits you .   .   .   .   .   .   . \r\n"
-"\r\n"
-".   .   .   .   .   .   .   .   .   .   .   .   .   .   .   .   .   .   .   . \r\n"
-"\r\n";
-
-char *WELC_MESSG =
-"\r\n"
-"Welcome to the realms of Tempus, adventurer.\r\n";
+char *WELC_MESSG = "\r\n" "Welcome to the realms of Tempus, adventurer.\r\n";
 
 char *START_MESSG =
-"Welcome.  This is your new character in the world of Tempus! \r\n"
-"You must be strong to survive, but in time you may become powerful\r\n"
-"beyond your wildest dreams, and even attain immortality...\r\n\r\n";
+	"Welcome.  This is your new character in the world of Tempus! \r\n"
+	"You must be strong to survive, but in time you may become powerful\r\n"
+	"beyond your wildest dreams, and even attain immortality...\r\n\r\n";
 
 /****************************************************************************/
 /****************************************************************************/

@@ -16,34 +16,35 @@
 //
 
 /* handling the affected-structures */
-void	affect_total(struct char_data *ch);
-void	affect_modify(struct char_data *ch, sh_int loc, sh_int mod, long bitv, int index, bool add);
-void	affect_to_char(struct char_data *ch, struct affected_type *af);
+void affect_total(struct char_data *ch);
+void affect_modify(struct char_data *ch, sh_int loc, sh_int mod, long bitv,
+	int index, bool add);
+void affect_to_char(struct char_data *ch, struct affected_type *af);
 int affect_remove(struct char_data *ch, struct affected_type *af);
-int	affect_from_char(struct char_data *ch, sh_int type);
+int affect_from_char(struct char_data *ch, sh_int type);
 struct affected_type *affected_by_spell(struct char_data *ch, sh_int type);
-void	affect_join(struct char_data *ch, struct affected_type *af,
-        bool add_dur, bool avg_dur, bool add_mod, bool avg_mod);
+void affect_join(struct char_data *ch, struct affected_type *af,
+	bool add_dur, bool avg_dur, bool add_mod, bool avg_mod);
 void check_interface(struct char_data *ch, struct obj_data *obj, int mode);
 
-void    check_flying(struct char_data *ch);
-bool     can_travel_sector(struct char_data *ch, int sect_type, bool active);
+void check_flying(struct char_data *ch);
+bool can_travel_sector(struct char_data *ch, int sect_type, bool active);
 
 
 /* utility */
 char *money_desc(int amount, int mode);
 struct obj_data *create_money(int amount, int mode);
-int	isname(const char *str, const char *namelist);
-int	isname_exact(const char *str, const char *namelist);
-char	*fname(const char *namelist);
-int	get_number(char **name);
+int isname(const char *str, const char *namelist);
+int isname_exact(const char *str, const char *namelist);
+char *fname(const char *namelist);
+int get_number(char **name);
 
 /* ******** objects *********** */
 
-void	obj_to_char(struct obj_data *object, struct char_data *ch);
-void	obj_from_char(struct obj_data *object);
+void obj_to_char(struct obj_data *object, struct char_data *ch);
+void obj_from_char(struct obj_data *object);
 
-int  equip_char(struct char_data *ch,struct obj_data *obj,int pos,int mode);
+int equip_char(struct char_data *ch, struct obj_data *obj, int pos, int mode);
 struct obj_data *unequip_char(struct char_data *ch, int pos, int mode);
 
 struct obj_data *get_obj_in_list(char *name, struct obj_data *list);
@@ -51,13 +52,13 @@ struct obj_data *get_obj_in_list_num(int num, struct obj_data *list);
 struct obj_data *get_obj(char *name);
 struct obj_data *get_obj_num(int nr);
 
-void	obj_to_room(struct obj_data *object, struct room_data *room);
-void	obj_from_room(struct obj_data *object);
-void	obj_to_obj(struct obj_data *obj, struct obj_data *obj_to);
-void	obj_from_obj(struct obj_data *obj);
-void	object_list_new_owner(struct obj_data *list, struct char_data *ch);
+void obj_to_room(struct obj_data *object, struct room_data *room);
+void obj_from_room(struct obj_data *object);
+void obj_to_obj(struct obj_data *obj, struct obj_data *obj_to);
+void obj_from_obj(struct obj_data *obj);
+void object_list_new_owner(struct obj_data *list, struct char_data *ch);
 
-void	extract_obj(struct obj_data *obj);
+void extract_obj(struct obj_data *obj);
 
 /* ******* characters ********* */
 
@@ -66,30 +67,32 @@ struct char_data *get_char_num(int nr);
 struct char_data *get_char(char *name);
 struct char_data *get_char_in_world_by_idnum(int nr);
 
-void	char_from_room(struct char_data *ch);
-void	char_to_room(struct char_data *ch, struct room_data *room);
+void char_from_room(struct char_data *ch);
+void char_to_room(struct char_data *ch, struct room_data *room);
 
 /* find if character can see */
 struct char_data *get_char_room_vis(struct char_data *ch, char *name);
-struct char_data *get_char_in_remote_room_vis(struct char_data *ch, char *name, struct room_data *inroom);
+struct char_data *get_char_in_remote_room_vis(struct char_data *ch, char *name,
+	struct room_data *inroom);
 struct char_data *get_player_vis(struct char_data *ch, char *name, int inroom);
 struct char_data *get_char_vis(struct char_data *ch, char *name);
-struct obj_data *get_obj_in_list_vis(struct char_data *ch, char *name, 
-struct obj_data *list);
-struct obj_data *get_obj_in_list_all(struct char_data *ch, char *name, 
-struct obj_data *list);
+struct obj_data *get_obj_in_list_vis(struct char_data *ch, char *name,
+	struct obj_data *list);
+struct obj_data *get_obj_in_list_all(struct char_data *ch, char *name,
+	struct obj_data *list);
 struct obj_data *get_obj_vis(struct char_data *ch, char *name);
 struct obj_data *get_object_in_equip_vis(struct char_data *ch,
-                             char *arg, struct obj_data *equipment[], int *j);
-struct obj_data *get_object_in_equip_pos(struct char_data *ch, char *arg, int pos);
-struct obj_data *get_object_in_equip_all(struct char_data *ch,
-                            char *arg, struct obj_data *equipment[], int *j);
+	char *arg, struct obj_data *equipment[], int *j);
+struct obj_data *get_object_in_equip_pos(struct char_data *ch, char *arg,
+	int pos);
+struct obj_data *get_object_in_equip_all(struct char_data *ch, char *arg,
+	struct obj_data *equipment[], int *j);
 
 int weapon_prof(struct char_data *ch, struct obj_data *obj);
 
 /* find all dots */
 
-int	find_all_dots(char *arg);
+int find_all_dots(char *arg);
 
 #define FIND_INDIV	0
 #define FIND_ALL	1
@@ -98,8 +101,8 @@ int	find_all_dots(char *arg);
 
 /* Generic Find */
 
-int	generic_find(char *arg, int bitvector, struct char_data *ch,
-struct char_data **tar_ch, struct obj_data **tar_obj);
+int generic_find(char *arg, int bitvector, struct char_data *ch,
+	struct char_data **tar_ch, struct obj_data **tar_obj);
 
 #define FIND_CHAR_ROOM      (1 << 0)
 #define FIND_CHAR_WORLD     (1 << 1)
@@ -117,15 +120,15 @@ struct char_data **tar_ch, struct obj_data **tar_obj);
 
 /* prototypes from crash save system */
 
-int	Crash_get_filename(char *orig_name, char *filename);
-int	Crash_delete_file(char *name, int mode);
-int	Crash_delete_crashfile(struct char_data *ch);
-int	Crash_clean_file(char *name);
-void	Crash_listrent(struct char_data *ch, char *name);
-int	Crash_load(struct char_data *ch);
-void	Crash_crashsave(struct char_data *ch);
-void	Crash_idlesave(struct char_data *ch);
-void	Crash_save_all(void);
+int Crash_get_filename(char *orig_name, char *filename);
+int Crash_delete_file(char *name, int mode);
+int Crash_delete_crashfile(struct char_data *ch);
+int Crash_clean_file(char *name);
+void Crash_listrent(struct char_data *ch, char *name);
+int Crash_load(struct char_data *ch);
+void Crash_crashsave(struct char_data *ch);
+void Crash_idlesave(struct char_data *ch);
+void Crash_save_all(void);
 /*
 #define TED_MESSAGE " Write the text.  Terminate with @ on a new line.\r\n"\
       " Enter a * on a new line to enter TED\r\n"  \

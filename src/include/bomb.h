@@ -15,9 +15,9 @@ void sound_gunshots(struct room_data *rm, int type, int power, int num);
 #define BOMB_CONCUSSION           1
 #define BOMB_FRAGMENTATION        2
 #define BOMB_INCENDIARY           3
-#define BOMB_DISRUPTION           4  /* electrical-undead disruption */
+#define BOMB_DISRUPTION           4	/* electrical-undead disruption */
 #define BOMB_NUCLEAR              5
-#define BOMB_FLASH                6  /* blinds room */
+#define BOMB_FLASH                6	/* blinds room */
 #define BOMB_SMOKE                7
 #define MAX_BOMB_TYPES            8
 
@@ -62,4 +62,4 @@ extern const char *fuse_types[];
 
 #endif
 
-#endif 
+#endif

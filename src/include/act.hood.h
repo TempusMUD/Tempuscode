@@ -7,6 +7,6 @@
 #ifndef __act_hood_h__
 #define __act_hood_h__
 
-#endif // __act_hood_h_
+#endif							// __act_hood_h_
 
 ACMD(do_drag_char);

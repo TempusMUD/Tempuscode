@@ -10,57 +10,59 @@ using namespace std;
 eventQueue mobileQueue;
 
 struct char_data;
-extern list<CIScript *> scriptList;
+extern list <CIScript *>scriptList;
 
 //void call_process(MobileEvent *e);
 
 void send_to_char(const char *, struct char_data *);
 
-MobileEvent::MobileEvent(char_data *ch, 
-                         char_data *target, 
-                         short val1, 
-                         short val2, 
-                         short val3, 
-                         short val4, 
-                         string event_type) 
+MobileEvent::MobileEvent(char_data * ch,
+	char_data * target,
+	short val1, short val2, short val3, short val4, string event_type)
 {
-  this->ch = ch;
-  this->target = target;
-  this->event_type = event_type;
-  val[0] = val1;
-  val[1] = val2;
-  val[2] = val3;
-  val[3] = val4;
+	this->ch = ch;
+	this->target = target;
+	this->event_type = event_type;
+	val[0] = val1;
+	val[1] = val2;
+	val[2] = val3;
+	val[3] = val4;
 }
 
-struct char_data *MobileEvent::getInit()
+struct char_data *
+MobileEvent::getInit()
 {
-    return this->ch;
+	return this->ch;
 }
 
-struct char_data *MobileEvent::getTarget()
+struct char_data *
+MobileEvent::getTarget()
 {
-    return this->target;
+	return this->target;
 }
 
-void MobileEvent::setInit(char_data *init)
+void
+MobileEvent::setInit(char_data * init)
 {
-    this->ch = ch;
+	this->ch = ch;
 }
 
-void MobileEvent::setTarget(char_data *target)
+void
+MobileEvent::setTarget(char_data * target)
 {
-    this->target = target;
+	this->target = target;
 }
 
-int MobileEvent::getVal(int val)
+int
+MobileEvent::getVal(int val)
 {
-    return this->val[val];
+	return this->val[val];
 }
 
-void MobileEvent::setVal(int val_num, int set_to)
+void
+MobileEvent::setVal(int val_num, int set_to)
 {
-    this->val[val_num] = set_to;
+	this->val[val_num] = set_to;
 }
 
 /*void EventPhysicalAttack::process()
@@ -98,28 +100,31 @@ void EventSteal::process()
         }
     }
 }*/
-void MobileEvent::process()
+void
+MobileEvent::process()
 {
-    list<CIScript *>::iterator s;
-    for(s = scriptList.begin(); s != scriptList.end(); s++) {
-        if(GET_SCRIPT_VNUM(this->getTarget()) == (*s)->getVnum()) {
-            (*s)->setTarget(this->getTarget());
-            (*s)->setInit(this->getInit());
-            (*s)->do_handler((*s)->handler_exists(this->event_type));
-        }
-    }
+	list <CIScript *>::iterator s;
+	for (s = scriptList.begin(); s != scriptList.end(); s++) {
+		if (GET_SCRIPT_VNUM(this->getTarget()) == (*s)->getVnum()) {
+			(*s)->setTarget(this->getTarget());
+			(*s)->setInit(this->getInit());
+			(*s)->do_handler((*s)->handler_exists(this->event_type));
+		}
+	}
 }
 
-void send_to_queue(MobileEvent *e)
+void
+send_to_queue(MobileEvent * e)
 {
-  mobileQueue.push_back(e);
+	mobileQueue.push_back(e);
 }
 
-void process_queue(void)
+void
+process_queue(void)
 {
-  while(!mobileQueue.empty()) {  
-    mobileQueue.front()->process();
-    if(!mobileQueue.empty())
-        mobileQueue.pop_front();
-  }
+	while (!mobileQueue.empty()) {
+		mobileQueue.front()->process();
+		if (!mobileQueue.empty())
+			mobileQueue.pop_front();
+	}
 }

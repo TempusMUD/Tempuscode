@@ -33,11 +33,11 @@
 #include <sys/types.h>
 #include <pthread.h>
 
-typedef signed char		sbyte;
-typedef unsigned char		ubyte;
-typedef signed short int	sh_int;
-typedef unsigned short int	ush_int;
-typedef char                    byte;
+typedef signed char sbyte;
+typedef unsigned char ubyte;
+typedef signed short int sh_int;
+typedef unsigned short int ush_int;
+typedef char byte;
 
 typedef int room_num;
 typedef int obj_num;
@@ -54,4 +54,4 @@ typedef int obj_num;
 #include "zone_data.h"
 #include "ban.h"
 
-#endif 
+#endif

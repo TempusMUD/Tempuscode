@@ -9,11 +9,11 @@
 
 #define BANNED_SITE_LENGTH    50
 struct ban_list_element {
-   char	site[BANNED_SITE_LENGTH+1];
-   int	type;
-   time_t date;
-   char	name[MAX_NAME_LENGTH+1];
-   struct ban_list_element *next;
+	char site[BANNED_SITE_LENGTH + 1];
+	int type;
+	time_t date;
+	char name[MAX_NAME_LENGTH + 1];
+	struct ban_list_element *next;
 };
 
 

@@ -69,13 +69,13 @@
 #define MAT_SHADOW        3
 #define MAT_GELATIN       4
 #define MAT_LIGHT         5
- 
+
 #define MAT_PAPER         10
 #define MAT_PAPYRUS       11
 #define MAT_CARDBOARD     12
 #define MAT_HEMP          13
 #define MAT_PARCHMENT     14
- 
+
 #define MAT_CLOTH         20
 #define MAT_SILK          21
 #define MAT_COTTON        22
@@ -89,7 +89,7 @@
 #define MAT_NYLON         30
 #define MAT_CANVAS        31
 #define MAT_SPONGE        32
- 
+
 #define MAT_LEATHER       40
 #define MAT_SUEDE         41
 #define MAT_HARD_LEATHER  42
@@ -98,7 +98,7 @@
 #define MAT_SCALES        45
 #define MAT_HAIR          46
 #define MAT_IVORY         57
- 
+
 #define MAT_FLESH         50
 #define MAT_BONE          51
 #define MAT_TISSUE        52
@@ -107,7 +107,7 @@
 #define MAT_CHEESE        55
 #define MAT_EGG           56
 
- 
+
 #define MAT_VEGETABLE     60
 #define MAT_LEAF          61
 #define MAT_GRAIN         62
@@ -158,7 +158,7 @@
 #define MAT_URANIUM      122
 #define MAT_RUST         123
 #define MAT_ORICHALCUM   124
- 
+
 #define MAT_PLASTIC       140
 #define MAT_KEVLAR        141
 #define MAT_RUBBER        142
@@ -169,7 +169,7 @@
 #define MAT_PHENOLIC      147
 #define MAT_LATEX         148
 #define MAT_ENAMEL        149
- 
+
 #define MAT_GLASS         160
 #define MAT_CRYSTAL       161
 #define MAT_LUCITE        162
@@ -179,7 +179,7 @@
 #define MAT_EARTHENWARE   166
 #define MAT_POTTERY       167
 #define MAT_CERAMIC       168
- 
+
 #define MAT_STONE            180
 #define MAT_AZURITE          181
 #define MAT_AGATE            182
@@ -243,12 +243,3 @@
 #define MAT_BASALT           240
 #define MAT_ASH              241
 #define TOP_MATERIAL         242
- 
-
-
-
-
-
-
-
-

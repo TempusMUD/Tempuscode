@@ -21,8 +21,8 @@ extern const char *temper_str[];
 extern const char *shop_bits[];
 extern const char *search_bits[];
 extern const char *searchflag_help[];
-extern const  char *wear_eqpos[];
-extern const  char *wear_implantpos[];
+extern const char *wear_eqpos[];
+extern const char *wear_implantpos[];
 extern const char *attack_type[];
 extern const char *reset_mode[];
 extern const char *zone_flags[];
@@ -63,7 +63,7 @@ extern const char *item_types[];
 extern const char *item_value_types[][4];
 extern const char *smoke_types[];
 extern const char *wear_bits[];
-extern const  char *wear_keywords[];
+extern const char *wear_keywords[];
 extern const char *wear_description[];
 extern const char *extra_bits[];
 extern const char *extra_names[];
@@ -98,5 +98,5 @@ extern const char *trail_flags[];
 extern const char *spell_bits[];
 
 extern const int wear_bitvectors[];
-#endif // __extern constants_cc__
-#endif // __extern constants_h__
+#endif							// __extern constants_cc__
+#endif							// __extern constants_h__

@@ -9,23 +9,23 @@
 
 void show_gun_status(struct char_data *ch, struct obj_data *gun);
 
-     /*** energy gun utils ***/
+	 /*** energy gun utils ***/
 #define IS_ENERGY_GUN(obj)      (GET_OBJ_TYPE(obj) == ITEM_ENERGY_GUN)
 
 #define IS_RIFLE(obj)           ((GET_OBJ_TYPE(obj) == ITEM_GUN) \
                                   && (GUN_TYPE(obj) == GUN_7mm_mag))
 #define EGUN_MAX_ENERGY(obj)     ((obj->contains &&                 \
 				   IS_ENERGY_CELL(obj->contains)) ?  \
-				  MAX_ENERGY(obj->contains) : 0) 
+				  MAX_ENERGY(obj->contains) : 0)
 #define EGUN_CUR_ENERGY(obj)     ((obj->contains &&                 \
 				   IS_ENERGY_CELL(obj->contains)) ?  \
 				  CUR_ENERGY(obj->contains) : 0)
-     
+
 #define MAX_R_O_F(obj)       (GET_OBJ_VAL(obj, 0))
 #define CUR_R_O_F(obj)       (GET_OBJ_VAL(obj, 1))
 #define GUN_DISCHARGE(obj)   (GET_OBJ_VAL(obj, 2))
 
-     /** gun utils **/
+	 /** gun utils **/
 
 #define GUN_TYPE(gun)            (GET_OBJ_VAL(gun, 3))
 #define MAX_LOAD(gun)            (GET_OBJ_VAL(gun, 2))
@@ -87,5 +87,4 @@ extern const int gun_damage[][2];
 
 #endif
 
-#endif 
-
+#endif

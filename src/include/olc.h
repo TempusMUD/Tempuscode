@@ -33,25 +33,25 @@
 #define NORMAL_OSET 1
 
 struct olc_help_r {
-  char *keyword;
-  long  pos;
-  char *text;
+	char *keyword;
+	long pos;
+	char *text;
 };
 
 
 struct ticl_data {
-  int    vnum;             /* VNUM of this proc */
-  long   proc_id;          /* IDNum of this proc */
-  long   creator;          /* IDNum of the creator */
-  time_t date_created;     /* Date proc created */
-  time_t last_modified;    /* Date last modified */
-  long   last_modified_by; /* IDNum of char to last modify */
-  int    times_executed;   /* Number of times proc run */
-  int    flags;            /* MOB/OBJ/ROOM/ZONE/!APPROVED */
-  int    compiled;         /* Indicates successfull interpretation */
-  char  *title;            /* Name of proc */
-  char  *code;             /* TICL instructions (code) */
-  struct ticl_data *next;  /* Pointer to next TICL proc */
+	int vnum;					/* VNUM of this proc */
+	long proc_id;				/* IDNum of this proc */
+	long creator;				/* IDNum of the creator */
+	time_t date_created;		/* Date proc created */
+	time_t last_modified;		/* Date last modified */
+	long last_modified_by;		/* IDNum of char to last modify */
+	int times_executed;			/* Number of times proc run */
+	int flags;					/* MOB/OBJ/ROOM/ZONE/!APPROVED */
+	int compiled;				/* Indicates successfull interpretation */
+	char *title;				/* Name of proc */
+	char *code;					/* TICL instructions (code) */
+	struct ticl_data *next;		/* Pointer to next TICL proc */
 };
 
 
@@ -59,13 +59,13 @@ struct ticl_data {
 #define MOB_D2(lev)    (6 + (lev >> 1))
 #define MOB_MOD(lev)   (((lev*lev*lev*lev*lev) >> 15) + lev + 6)
 
-bool CAN_EDIT_ZONE(CHAR *ch, struct zone_data *zone);
-bool OLC_EDIT_OK( CHAR *ch, struct zone_data *zone, int bits );
+bool CAN_EDIT_ZONE(CHAR * ch, struct zone_data *zone);
+bool OLC_EDIT_OK(CHAR * ch, struct zone_data *zone, int bits);
 
 #define OLCGOD(ch) ( PLR_FLAGGED(ch, PLR_OLCGOD) )
 //#define OLCIMP(ch) ( GET_LEVEL(ch) >= LVL_CREATOR )
 
-bool OLCIMP( char_data *ch );
+bool OLCIMP(char_data * ch);
 
 #define UPDATE_OBJLIST_NAMES(obj_p, tmp_obj, _item)                         \
      for (tmp_obj = object_list; tmp_obj; tmp_obj = tmp_obj->next)   \
@@ -123,11 +123,11 @@ bool OLCIMP( char_data *ch );
 
 
 void
-print_search_data_to_buf(struct char_data *ch, struct room_data *room,
-			 struct special_search_data *cur_search, char *buf);
+ print_search_data_to_buf(struct char_data *ch, struct room_data *room,
+	struct special_search_data *cur_search, char *buf);
 
-void    show_olc_help(struct char_data *ch, char *arg);
+void show_olc_help(struct char_data *ch, char *arg);
 int mobile_experience(struct char_data *mob);
 
 
-#endif // __OLC_H__
+#endif							// __OLC_H__

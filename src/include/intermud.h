@@ -2,7 +2,7 @@
 /* Maximum size of incoming data on internet UDP port.
 ** Not a good idea to change this value right now.
 ** 
-*/ 
+*/
 
 #define MAX_NET_MESSAGE 1024
 
@@ -87,4 +87,3 @@
 #define SRV_INTERWHO     1
 
 #define SRV_INTERBOARD   1
-

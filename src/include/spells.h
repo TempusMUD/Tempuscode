@@ -43,41 +43,41 @@ static const int CAST_PHYSIC = 11;
 static const int CAST_INTERNAL = 12;
 static const int CAST_MERCENARY = 13;
 
-static const int MAG_DAMAGE = (1 << 0); 
-static const int MAG_AFFECTS = (1 << 1); 
-static const int MAG_UNAFFECTS = (1 << 2); 
-static const int MAG_POINTS = (1 << 3); 
-static const int MAG_ALTER_OBJS = (1 << 4); 
-static const int MAG_GROUPS = (1 << 5); 
-static const int MAG_MASSES = (1 << 6); 
-static const int MAG_AREAS = (1 << 7); 
-static const int MAG_SUMMONS = (1 << 8); 
-static const int MAG_CREATIONS = (1 << 9); 
-static const int MAG_MANUAL = (1 << 10); 
-static const int MAG_OBJECTS = (1 << 11); 
-static const int MAG_TOUCH = (1 << 12); 
-static const int MAG_MAGIC = (1 << 13); 
-static const int MAG_DIVINE = (1 << 14); 
-static const int MAG_PHYSICS = (1 << 15); 
-static const int MAG_PSIONIC = (1 << 16); 
-static const int MAG_BIOLOGIC = (1 << 17); 
-static const int CYB_ACTIVATE = (1 << 18); 
-static const int MAG_EVIL = (1 << 19); 
-static const int MAG_GOOD = (1 << 20); 
-static const int MAG_EXITS = (1 << 21); 
-static const int MAG_OUTDOORS = (1 << 22); 
-static const int MAG_NOWATER = (1 << 23); 
-static const int MAG_WATERZAP = (1 << 24); 
-static const int MAG_NOSUN = (1 << 25); 
-static const int MAG_ZEN = (1 << 26); 
-static const int MAG_MERCENARY = (1 << 27); 
+static const int MAG_DAMAGE = (1 << 0);
+static const int MAG_AFFECTS = (1 << 1);
+static const int MAG_UNAFFECTS = (1 << 2);
+static const int MAG_POINTS = (1 << 3);
+static const int MAG_ALTER_OBJS = (1 << 4);
+static const int MAG_GROUPS = (1 << 5);
+static const int MAG_MASSES = (1 << 6);
+static const int MAG_AREAS = (1 << 7);
+static const int MAG_SUMMONS = (1 << 8);
+static const int MAG_CREATIONS = (1 << 9);
+static const int MAG_MANUAL = (1 << 10);
+static const int MAG_OBJECTS = (1 << 11);
+static const int MAG_TOUCH = (1 << 12);
+static const int MAG_MAGIC = (1 << 13);
+static const int MAG_DIVINE = (1 << 14);
+static const int MAG_PHYSICS = (1 << 15);
+static const int MAG_PSIONIC = (1 << 16);
+static const int MAG_BIOLOGIC = (1 << 17);
+static const int CYB_ACTIVATE = (1 << 18);
+static const int MAG_EVIL = (1 << 19);
+static const int MAG_GOOD = (1 << 20);
+static const int MAG_EXITS = (1 << 21);
+static const int MAG_OUTDOORS = (1 << 22);
+static const int MAG_NOWATER = (1 << 23);
+static const int MAG_WATERZAP = (1 << 24);
+static const int MAG_NOSUN = (1 << 25);
+static const int MAG_ZEN = (1 << 26);
+static const int MAG_MERCENARY = (1 << 27);
 
 #define SPELL_IS_MAGIC(splnm)   IS_SET(spell_info[splnm].routines, MAG_MAGIC)
 #define SPELL_IS_DIVINE(splnm)  IS_SET(spell_info[splnm].routines, MAG_DIVINE)
 #define SPELL_IS_PHYSICS(splnm) IS_SET(spell_info[splnm].routines, MAG_PHYSICS)
 #define SPELL_IS_PSIONIC(splnm) IS_SET(spell_info[splnm].routines, MAG_PSIONIC)
 #define SPELL_IS_BIO(splnm)    IS_SET(spell_info[splnm].routines, MAG_BIOLOGIC)
-#define SPELL_IS_PROGRAM(splnm)IS_SET(spell_info[splnm].routines, CYB_ACTIVATE) 
+#define SPELL_IS_PROGRAM(splnm)IS_SET(spell_info[splnm].routines, CYB_ACTIVATE)
 #define SPELL_IS_EVIL(splnm)    IS_SET(spell_info[splnm].routines, MAG_EVIL)
 #define SPELL_IS_GOOD(splnm)    IS_SET(spell_info[splnm].routines, MAG_GOOD)
 #define SPELL_IS_MERCENARY(splnm) IS_SET(spell_info[splnm].routines, MAG_MERCENARY)
@@ -86,9 +86,9 @@ static const int MAG_MERCENARY = (1 << 27);
 
 #define SPELL_FLAGS(splnm)     (spell_info[splnm].routines)
 #define SPELL_FLAGGED(splnm, flag) (IS_SET(SPELL_FLAGS(splnm), flag))
- 
+
 static const int TYPE_UNDEFINED = -1;
-static const int SPELL_RESERVED_DBC = 0;  /* SKILL NUMBER ZERO -- RESERVED */
+static const int SPELL_RESERVED_DBC = 0;	/* SKILL NUMBER ZERO -- RESERVED */
 #define SPELL_LEVEL(spl, char_class)        (spell_info[spl].min_level[char_class])
 #define SPELL_GEN(spl, char_class)          (spell_info[spl].gen[char_class])
 #define ABLE_TO_LEARN(ch, spl) \
@@ -99,62 +99,62 @@ static const int SPELL_RESERVED_DBC = 0;  /* SKILL NUMBER ZERO -- RESERVED */
 
 static const int UNHOLY_STALKER_VNUM = 1513;
 static const int ZOMBIE_VNUM = 1512;
-  
+
   /* PLAYER SPELLS -- Numbered from 1 to MAX_SPELLS */
 
-static const int SPELL_ARMOR = 1; /* Reserved Skill[] DO NOT CHANGE */
-static const int SPELL_TELEPORT = 2; /* Reserved Skill[] DO NOT CHANGE */
-static const int SPELL_BLESS = 3; /* Reserved Skill[] DO NOT CHANGE */
-static const int SPELL_BLINDNESS = 4; /* Reserved Skill[] DO NOT CHANGE */
-static const int SPELL_BURNING_HANDS = 5; /* Reserved Skill[] DO NOT CHANGE */
-static const int SPELL_CALL_LIGHTNING = 6; /* Reserved Skill[] DO NOT CHANGE */
-static const int SPELL_CHARM = 7; /* Reserved Skill[] DO NOT CHANGE */
-static const int SPELL_CHILL_TOUCH = 8; /* Reserved Skill[] DO NOT CHANGE */
-static const int SPELL_CLONE = 9; /* Reserved Skill[] DO NOT CHANGE */
-static const int SPELL_COLOR_SPRAY = 10; /* Reserved Skill[] DO NOT CHANGE */
-static const int SPELL_CONTROL_WEATHER = 11; /* Reserved Skill[] DO NOT CHANGE */
-static const int SPELL_CREATE_FOOD = 12; /* Reserved Skill[] DO NOT CHANGE */
-static const int SPELL_CREATE_WATER = 13; /* Reserved Skill[] DO NOT CHANGE */
-static const int SPELL_CURE_BLIND = 14; /* Reserved Skill[] DO NOT CHANGE */
-static const int SPELL_CURE_CRITIC = 15; /* Reserved Skill[] DO NOT CHANGE */
-static const int SPELL_CURE_LIGHT = 16; /* Reserved Skill[] DO NOT CHANGE */
-static const int SPELL_CURSE = 17; /* Reserved Skill[] DO NOT CHANGE */
-static const int SPELL_DETECT_ALIGN = 18; /* Reserved Skill[] DO NOT CHANGE */
-static const int SPELL_DETECT_INVIS = 19; /* Reserved Skill[] DO NOT CHANGE */
-static const int SPELL_DETECT_MAGIC = 20; /* Reserved Skill[] DO NOT CHANGE */
-static const int SPELL_DETECT_POISON = 21; /* Reserved Skill[] DO NOT CHANGE */
-static const int SPELL_DISPEL_EVIL = 22; /* Reserved Skill[] DO NOT CHANGE */
-static const int SPELL_EARTHQUAKE = 23; /* Reserved Skill[] DO NOT CHANGE */
-static const int SPELL_ENCHANT_WEAPON = 24; /* Reserved Skill[] DO NOT CHANGE */
-static const int SPELL_ENERGY_DRAIN = 25; /* Reserved Skill[] DO NOT CHANGE */
-static const int SPELL_FIREBALL = 26; /* Reserved Skill[] DO NOT CHANGE */
-static const int SPELL_HARM = 27; /* Reserved Skill[] DO NOT CHANGE */
-static const int SPELL_HEAL = 28; /* Reserved Skill[] DO NOT CHANGE */
-static const int SPELL_INVISIBLE = 29; /* Reserved Skill[] DO NOT CHANGE */
-static const int SPELL_LIGHTNING_BOLT = 30; /* Reserved Skill[] DO NOT CHANGE */
-static const int SPELL_LOCATE_OBJECT = 31; /* Reserved Skill[] DO NOT CHANGE */
-static const int SPELL_MAGIC_MISSILE = 32; /* Reserved Skill[] DO NOT CHANGE */
-static const int SPELL_POISON = 33; /* Reserved Skill[] DO NOT CHANGE */
-static const int SPELL_PROT_FROM_EVIL = 34; /* Reserved Skill[] DO NOT CHANGE */
-static const int SPELL_REMOVE_CURSE = 35; /* Reserved Skill[] DO NOT CHANGE */
-static const int SPELL_SANCTUARY = 36; /* Reserved Skill[] DO NOT CHANGE */
-static const int SPELL_SHOCKING_GRASP = 37; /* Reserved Skill[] DO NOT CHANGE */
-static const int SPELL_SLEEP = 38; /* Reserved Skill[] DO NOT CHANGE */
-static const int SPELL_STRENGTH = 39; /* Reserved Skill[] DO NOT CHANGE */
-static const int SPELL_SUMMON = 40; /* Reserved Skill[] DO NOT CHANGE */
-static const int SPELL_VENTRILOQUATE = 41; /* Reserved Skill[] DO NOT CHANGE */
-static const int SPELL_WORD_OF_RECALL = 42; /* Reserved Skill[] DO NOT CHANGE */
-static const int SPELL_REMOVE_POISON = 43; /* Reserved Skill[] DO NOT CHANGE */
-static const int SPELL_SENSE_LIFE = 44; /* Reserved Skill[] DO NOT CHANGE */
-static const int SPELL_ANIMATE_DEAD = 45; /* Reserved Skill[] DO NOT CHANGE */
-static const int SPELL_DISPEL_GOOD = 46; /* Reserved Skill[] DO NOT CHANGE */
-static const int SPELL_GROUP_ARMOR = 47; /* Reserved Skill[] DO NOT CHANGE */
-static const int SPELL_GROUP_HEAL = 48; /* Reserved Skill[] DO NOT CHANGE */
-static const int SPELL_GROUP_RECALL = 49; /* Reserved Skill[] DO NOT CHANGE */
-static const int SPELL_INFRAVISION = 50; /* Reserved Skill[] DO NOT CHANGE */
-static const int SPELL_WATERWALK = 51; /* Reserved Skill[] DO NOT CHANGE */
+static const int SPELL_ARMOR = 1;	/* Reserved Skill[] DO NOT CHANGE */
+static const int SPELL_TELEPORT = 2;	/* Reserved Skill[] DO NOT CHANGE */
+static const int SPELL_BLESS = 3;	/* Reserved Skill[] DO NOT CHANGE */
+static const int SPELL_BLINDNESS = 4;	/* Reserved Skill[] DO NOT CHANGE */
+static const int SPELL_BURNING_HANDS = 5;	/* Reserved Skill[] DO NOT CHANGE */
+static const int SPELL_CALL_LIGHTNING = 6;	/* Reserved Skill[] DO NOT CHANGE */
+static const int SPELL_CHARM = 7;	/* Reserved Skill[] DO NOT CHANGE */
+static const int SPELL_CHILL_TOUCH = 8;	/* Reserved Skill[] DO NOT CHANGE */
+static const int SPELL_CLONE = 9;	/* Reserved Skill[] DO NOT CHANGE */
+static const int SPELL_COLOR_SPRAY = 10;	/* Reserved Skill[] DO NOT CHANGE */
+static const int SPELL_CONTROL_WEATHER = 11;	/* Reserved Skill[] DO NOT CHANGE */
+static const int SPELL_CREATE_FOOD = 12;	/* Reserved Skill[] DO NOT CHANGE */
+static const int SPELL_CREATE_WATER = 13;	/* Reserved Skill[] DO NOT CHANGE */
+static const int SPELL_CURE_BLIND = 14;	/* Reserved Skill[] DO NOT CHANGE */
+static const int SPELL_CURE_CRITIC = 15;	/* Reserved Skill[] DO NOT CHANGE */
+static const int SPELL_CURE_LIGHT = 16;	/* Reserved Skill[] DO NOT CHANGE */
+static const int SPELL_CURSE = 17;	/* Reserved Skill[] DO NOT CHANGE */
+static const int SPELL_DETECT_ALIGN = 18;	/* Reserved Skill[] DO NOT CHANGE */
+static const int SPELL_DETECT_INVIS = 19;	/* Reserved Skill[] DO NOT CHANGE */
+static const int SPELL_DETECT_MAGIC = 20;	/* Reserved Skill[] DO NOT CHANGE */
+static const int SPELL_DETECT_POISON = 21;	/* Reserved Skill[] DO NOT CHANGE */
+static const int SPELL_DISPEL_EVIL = 22;	/* Reserved Skill[] DO NOT CHANGE */
+static const int SPELL_EARTHQUAKE = 23;	/* Reserved Skill[] DO NOT CHANGE */
+static const int SPELL_ENCHANT_WEAPON = 24;	/* Reserved Skill[] DO NOT CHANGE */
+static const int SPELL_ENERGY_DRAIN = 25;	/* Reserved Skill[] DO NOT CHANGE */
+static const int SPELL_FIREBALL = 26;	/* Reserved Skill[] DO NOT CHANGE */
+static const int SPELL_HARM = 27;	/* Reserved Skill[] DO NOT CHANGE */
+static const int SPELL_HEAL = 28;	/* Reserved Skill[] DO NOT CHANGE */
+static const int SPELL_INVISIBLE = 29;	/* Reserved Skill[] DO NOT CHANGE */
+static const int SPELL_LIGHTNING_BOLT = 30;	/* Reserved Skill[] DO NOT CHANGE */
+static const int SPELL_LOCATE_OBJECT = 31;	/* Reserved Skill[] DO NOT CHANGE */
+static const int SPELL_MAGIC_MISSILE = 32;	/* Reserved Skill[] DO NOT CHANGE */
+static const int SPELL_POISON = 33;	/* Reserved Skill[] DO NOT CHANGE */
+static const int SPELL_PROT_FROM_EVIL = 34;	/* Reserved Skill[] DO NOT CHANGE */
+static const int SPELL_REMOVE_CURSE = 35;	/* Reserved Skill[] DO NOT CHANGE */
+static const int SPELL_SANCTUARY = 36;	/* Reserved Skill[] DO NOT CHANGE */
+static const int SPELL_SHOCKING_GRASP = 37;	/* Reserved Skill[] DO NOT CHANGE */
+static const int SPELL_SLEEP = 38;	/* Reserved Skill[] DO NOT CHANGE */
+static const int SPELL_STRENGTH = 39;	/* Reserved Skill[] DO NOT CHANGE */
+static const int SPELL_SUMMON = 40;	/* Reserved Skill[] DO NOT CHANGE */
+static const int SPELL_VENTRILOQUATE = 41;	/* Reserved Skill[] DO NOT CHANGE */
+static const int SPELL_WORD_OF_RECALL = 42;	/* Reserved Skill[] DO NOT CHANGE */
+static const int SPELL_REMOVE_POISON = 43;	/* Reserved Skill[] DO NOT CHANGE */
+static const int SPELL_SENSE_LIFE = 44;	/* Reserved Skill[] DO NOT CHANGE */
+static const int SPELL_ANIMATE_DEAD = 45;	/* Reserved Skill[] DO NOT CHANGE */
+static const int SPELL_DISPEL_GOOD = 46;	/* Reserved Skill[] DO NOT CHANGE */
+static const int SPELL_GROUP_ARMOR = 47;	/* Reserved Skill[] DO NOT CHANGE */
+static const int SPELL_GROUP_HEAL = 48;	/* Reserved Skill[] DO NOT CHANGE */
+static const int SPELL_GROUP_RECALL = 49;	/* Reserved Skill[] DO NOT CHANGE */
+static const int SPELL_INFRAVISION = 50;	/* Reserved Skill[] DO NOT CHANGE */
+static const int SPELL_WATERWALK = 51;	/* Reserved Skill[] DO NOT CHANGE */
 static const int SPELL_MANA_SHIELD = 52;
-static const int SPELL_IDENTIFY = 53;	
+static const int SPELL_IDENTIFY = 53;
 static const int SPELL_GLOWLIGHT = 54;
 static const int SPELL_BLUR = 55;
 static const int SPELL_KNOCK = 56;
@@ -230,38 +230,38 @@ static const int SPELL_FIERY_SHEET = 125;
 static const int SPELL_CHAIN_LIGHTNING = 126;
 static const int SPELL_HAILSTORM = 127;
 static const int SPELL_ICE_STORM = 128;
-static const int SPELL_SHIELD_OF_RIGHTEOUSNESS = 129;  // group protection
-static const int SPELL_BLACKMANTLE = 130;  // blocks healing spells
-static const int SPELL_SANCTIFICATION = 131;  // 2x dam vs. evil
-static const int SPELL_STIGMATA = 132;  // causes a bleeding wound
-static const int SPELL_SUMMON_LEGION = 133;  // knights summon devils
-static const int SPELL_ENTANGLE = 134;  // rangers entangle in veg.
-static const int SPELL_ANTI_MAGIC_SHELL = 135;    
+static const int SPELL_SHIELD_OF_RIGHTEOUSNESS = 129;	// group protection
+static const int SPELL_BLACKMANTLE = 130;	// blocks healing spells
+static const int SPELL_SANCTIFICATION = 131;	// 2x dam vs. evil
+static const int SPELL_STIGMATA = 132;	// causes a bleeding wound
+static const int SPELL_SUMMON_LEGION = 133;	// knights summon devils
+static const int SPELL_ENTANGLE = 134;	// rangers entangle in veg.
+static const int SPELL_ANTI_MAGIC_SHELL = 135;
 static const int SPELL_DIVINE_INTERVENTION = 136;
 static const int SPELL_SPHERE_OF_DESECRATION = 137;
-static const int SPELL_MALEFIC_VIOLATION = 138;  // cuts thru good sanct
-static const int SPELL_RIGHTEOUS_PENETRATION = 139;  // cuts thru evil sanct
-static const int SPELL_UNHOLY_STALKER = 140;  // evil cleric hunter mob
-static const int SPELL_INFERNO = 141;  // evil cleric room affect
-static const int SPELL_VAMPIRIC_REGENERATION = 142;  // evil cleric vamp. regen
-static const int SPELL_BANISHMENT = 143;  // evil cleric sends devils away
-static const int SPELL_CONTROL_UNDEAD = 144;  // evil clerics charm undead
-static const int SPELL_STONESKIN = 145;  // remort rangers stone skin
-static const int SPELL_SUN_RAY = 146;  // Good cleric remort, 
-                                             // destroys undead.
-static const int SPELL_TAINT = 147;  // Evil knight remort spell, taint.
-static const int SPELL_LOCUST_REGENERATION = 148;  // Mage remort skill, drains mana
-static const int SPELL_DIVINE_POWER = 149;  // Good cleric remort skill.
-static const int SPELL_DEATH_KNELL = 150;  // Evil cleric remort skill.
+static const int SPELL_MALEFIC_VIOLATION = 138;	// cuts thru good sanct
+static const int SPELL_RIGHTEOUS_PENETRATION = 139;	// cuts thru evil sanct
+static const int SPELL_UNHOLY_STALKER = 140;	// evil cleric hunter mob
+static const int SPELL_INFERNO = 141;	// evil cleric room affect
+static const int SPELL_VAMPIRIC_REGENERATION = 142;	// evil cleric vamp. regen
+static const int SPELL_BANISHMENT = 143;	// evil cleric sends devils away
+static const int SPELL_CONTROL_UNDEAD = 144;	// evil clerics charm undead
+static const int SPELL_STONESKIN = 145;	// remort rangers stone skin
+static const int SPELL_SUN_RAY = 146;	// Good cleric remort, 
+											 // destroys undead.
+static const int SPELL_TAINT = 147;	// Evil knight remort spell, taint.
+static const int SPELL_LOCUST_REGENERATION = 148;	// Mage remort skill, drains mana
+static const int SPELL_DIVINE_POWER = 149;	// Good cleric remort skill.
+static const int SPELL_DEATH_KNELL = 150;	// Evil cleric remort skill.
 
   /************************** Psionic Triggers ***************/
-static const int SPELL_POWER = 201; /* Strength                */
+static const int SPELL_POWER = 201;	/* Strength                */
 static const int SPELL_INTELLECT = 202;
 static const int SPELL_CONFUSION = 203;
 static const int SPELL_FEAR = 204;
-static const int SPELL_SATIATION = 205; /* fills hunger */
-static const int SPELL_QUENCH = 206; /* fills thirst */
-static const int SPELL_CONFIDENCE = 207; /* sets nopain */
+static const int SPELL_SATIATION = 205;	/* fills hunger */
+static const int SPELL_QUENCH = 206;	/* fills thirst */
+static const int SPELL_CONFIDENCE = 207;	/* sets nopain */
 static const int SPELL_NOPAIN = 208;
 static const int SPELL_DERMAL_HARDENING = 209;
 static const int SPELL_WOUND_CLOSURE = 210;
@@ -270,11 +270,11 @@ static const int SPELL_RETINA = 212;
 static const int SPELL_ADRENALINE = 213;
 static const int SPELL_BREATHING_STASIS = 214;
 static const int SPELL_VERTIGO = 215;
-static const int SPELL_METABOLISM = 216; /* Increased healing, hunger, thirst */
+static const int SPELL_METABOLISM = 216;	/* Increased healing, hunger, thirst */
 static const int SPELL_EGO_WHIP = 217;
 static const int SPELL_PSYCHIC_CRUSH = 218;
-static const int SPELL_RELAXATION = 219; /* speeds mana regen, weakens char */
-static const int SPELL_WEAKNESS = 220; /* minus str */
+static const int SPELL_RELAXATION = 219;	/* speeds mana regen, weakens char */
+static const int SPELL_WEAKNESS = 220;	/* minus str */
 static const int SPELL_FORTRESS_OF_WILL = 221;
 static const int SPELL_CELL_REGEN = 222;
 static const int SPELL_PSISHIELD = 223;
@@ -289,10 +289,10 @@ static const int SPELL_MASS_HYSTERIA = 231;
 static const int SPELL_GROUP_CONFIDENCE = 232;
 static const int SPELL_CLUMSINESS = 233;
 static const int SPELL_ENDURANCE = 234;
-static const int SPELL_AMNESIA = 235;  // psi remorts
-static const int SPELL_NULLPSI = 236;  // remove psi affects
+static const int SPELL_AMNESIA = 235;	// psi remorts
+static const int SPELL_NULLPSI = 236;	// remove psi affects
   /**************************  Mercenary Devices ******************/
-static const int SPELL_DECOY = 237;  
+static const int SPELL_DECOY = 237;
   /*************************** Physic Alterations *****************/
 static const int SPELL_ACIDITY = 301;
 static const int SPELL_ATTRACTION_FIELD = 302;
@@ -302,43 +302,43 @@ static const int SPELL_GAMMA_RAY = 305;
 static const int SPELL_HALFLIFE = 306;
 static const int SPELL_MICROWAVE = 307;
 static const int SPELL_OXIDIZE = 308;
-static const int SPELL_RANDOM_COORDINATES = 309;  // random teleport
-static const int SPELL_REPULSION_FIELD = 310;  
-static const int SPELL_TRANSMITTANCE = 311;  // transparency
-static const int SPELL_SPACETIME_IMPRINT = 312;  // sets room as teleport spot
-static const int SPELL_SPACETIME_RECALL = 313;  // teleports to imprint telep spot
-static const int SPELL_TIME_WARP = 314;  // random teleport into other time
-static const int SPELL_TIDAL_SPACEWARP = 315;  // fly
-static const int SPELL_FISSION_BLAST = 316;  // full-room damage
-static const int SPELL_REFRACTION = 317;  // like displacement
-static const int SPELL_ELECTROSHIELD = 318;  // prot_lightning
-static const int SPELL_VACUUM_SHROUD = 319;  // eliminates breathing and fire
-static const int SPELL_DENSIFY = 320;  // increase weight of obj & char
-static const int SPELL_CHEMICAL_STABILITY = 321;  // prevent/stop acidity
-static const int SPELL_ENTROPY_FIELD = 322;  // drains move on victim (time effect)
-static const int SPELL_GRAVITY_WELL = 323;  // time effect crushing damage
-static const int SPELL_CAPACITANCE_BOOST = 324;  // increase maxmv
-static const int SPELL_ELECTRIC_ARC = 325;  // lightning bolt
-static const int SPELL_SONIC_BOOM = 326;  // area damage + wait state
-static const int SPELL_LATTICE_HARDENING = 327;  // dermal hard or increase obj maxdam
-static const int SPELL_NULLIFY = 328;  // like dispel magic
-static const int SPELL_FORCE_WALL = 329;  // sets up an exit blocker
+static const int SPELL_RANDOM_COORDINATES = 309;	// random teleport
+static const int SPELL_REPULSION_FIELD = 310;
+static const int SPELL_TRANSMITTANCE = 311;	// transparency
+static const int SPELL_SPACETIME_IMPRINT = 312;	// sets room as teleport spot
+static const int SPELL_SPACETIME_RECALL = 313;	// teleports to imprint telep spot
+static const int SPELL_TIME_WARP = 314;	// random teleport into other time
+static const int SPELL_TIDAL_SPACEWARP = 315;	// fly
+static const int SPELL_FISSION_BLAST = 316;	// full-room damage
+static const int SPELL_REFRACTION = 317;	// like displacement
+static const int SPELL_ELECTROSHIELD = 318;	// prot_lightning
+static const int SPELL_VACUUM_SHROUD = 319;	// eliminates breathing and fire
+static const int SPELL_DENSIFY = 320;	// increase weight of obj & char
+static const int SPELL_CHEMICAL_STABILITY = 321;	// prevent/stop acidity
+static const int SPELL_ENTROPY_FIELD = 322;	// drains move on victim (time effect)
+static const int SPELL_GRAVITY_WELL = 323;	// time effect crushing damage
+static const int SPELL_CAPACITANCE_BOOST = 324;	// increase maxmv
+static const int SPELL_ELECTRIC_ARC = 325;	// lightning bolt
+static const int SPELL_SONIC_BOOM = 326;	// area damage + wait state
+static const int SPELL_LATTICE_HARDENING = 327;	// dermal hard or increase obj maxdam
+static const int SPELL_NULLIFY = 328;	// like dispel magic
+static const int SPELL_FORCE_WALL = 329;	// sets up an exit blocker
 static const int SPELL_UNUSED_330 = 330;
-static const int SPELL_PHASING = 331;  // invuln.
-static const int SPELL_ABSORPTION_SHIELD = 332;  // works like mana shield
-static const int SPELL_TEMPORAL_COMPRESSION = 333;  // works like haste
-static const int SPELL_TEMPORAL_DILATION = 334;  // works like slow
-static const int SPELL_GAUSS_SHIELD = 335;  // half damage from metal
-static const int SPELL_ALBEDO_SHIELD = 336;  // reflects e/m attacks
-static const int SPELL_THERMOSTATIC_FIELD = 337;  // sets prot_heat + end_cold
-static const int SPELL_RADIOIMMUNITY = 338;  // sets prot_rad
-static const int SPELL_TRANSDIMENSIONALITY = 339;  // randomly teleport to another plane
-static const int SPELL_AREA_STASIS = 340;  // sets !phy room flag
-static const int SPELL_ELECTROSTATIC_FIELD = 341;  // protective static field does damage to attackers
-static const int SPELL_EMP_PULSE = 342;  // Shuts off devices, communicators
-                                        // deactivats all cyborg programs
-                                        // blocked by emp shield
-static const int SPELL_QUANTUM_RIFT = 343;  // Shuts off devices, communicators
+static const int SPELL_PHASING = 331;	// invuln.
+static const int SPELL_ABSORPTION_SHIELD = 332;	// works like mana shield
+static const int SPELL_TEMPORAL_COMPRESSION = 333;	// works like haste
+static const int SPELL_TEMPORAL_DILATION = 334;	// works like slow
+static const int SPELL_GAUSS_SHIELD = 335;	// half damage from metal
+static const int SPELL_ALBEDO_SHIELD = 336;	// reflects e/m attacks
+static const int SPELL_THERMOSTATIC_FIELD = 337;	// sets prot_heat + end_cold
+static const int SPELL_RADIOIMMUNITY = 338;	// sets prot_rad
+static const int SPELL_TRANSDIMENSIONALITY = 339;	// randomly teleport to another plane
+static const int SPELL_AREA_STASIS = 340;	// sets !phy room flag
+static const int SPELL_ELECTROSTATIC_FIELD = 341;	// protective static field does damage to attackers
+static const int SPELL_EMP_PULSE = 342;	// Shuts off devices, communicators
+										// deactivats all cyborg programs
+										// blocked by emp shield
+static const int SPELL_QUANTUM_RIFT = 343;	// Shuts off devices, communicators
   /*********************  MONK ZENS  *******************/
 static const int ZEN_HEALING = 401;
 static const int ZEN_AWARENESS = 402;
@@ -350,16 +350,16 @@ static const int ZEN_CELERITY = 406;
 static const int MAX_SPELLS = 500;
 
 /* PLAYER SKILLS - Numbered from MAX_SPELLS+1 to MAX_SKILLS */
-static const int SKILL_BACKSTAB = 501; /* Reserved Skill[] DO NOT CHANGE */
-static const int SKILL_BASH = 502; /* Reserved Skill[] DO NOT CHANGE */
-static const int SKILL_HIDE = 503; /* Reserved Skill[] DO NOT CHANGE */
-static const int SKILL_KICK = 504; /* Reserved Skill[] DO NOT CHANGE */
-static const int SKILL_PICK_LOCK = 505; /* Reserved Skill[] DO NOT CHANGE */
-static const int SKILL_PUNCH = 506; /* Reserved Skill[] DO NOT CHANGE */
-static const int SKILL_RESCUE = 507; /* Reserved Skill[] DO NOT CHANGE */
-static const int SKILL_SNEAK = 508; /* Reserved Skill[] DO NOT CHANGE */
-static const int SKILL_STEAL = 509; /* Reserved Skill[] DO NOT CHANGE */
-static const int SKILL_TRACK = 510; /* Reserved Skill[] DO NOT CHANGE */
+static const int SKILL_BACKSTAB = 501;	/* Reserved Skill[] DO NOT CHANGE */
+static const int SKILL_BASH = 502;	/* Reserved Skill[] DO NOT CHANGE */
+static const int SKILL_HIDE = 503;	/* Reserved Skill[] DO NOT CHANGE */
+static const int SKILL_KICK = 504;	/* Reserved Skill[] DO NOT CHANGE */
+static const int SKILL_PICK_LOCK = 505;	/* Reserved Skill[] DO NOT CHANGE */
+static const int SKILL_PUNCH = 506;	/* Reserved Skill[] DO NOT CHANGE */
+static const int SKILL_RESCUE = 507;	/* Reserved Skill[] DO NOT CHANGE */
+static const int SKILL_SNEAK = 508;	/* Reserved Skill[] DO NOT CHANGE */
+static const int SKILL_STEAL = 509;	/* Reserved Skill[] DO NOT CHANGE */
+static const int SKILL_TRACK = 510;	/* Reserved Skill[] DO NOT CHANGE */
 static const int SKILL_PILEDRIVE = 511;
 static const int SKILL_SLEEPER = 512;
 static const int SKILL_ELBOW = 513;
@@ -437,78 +437,78 @@ static const int SKILL_SCANNING = 581;
 static const int SKILL_CURE_DISEASE = 582;
 static const int SKILL_BATTLE_CRY = 583;
 static const int SKILL_AUTOPSY = 584;
-static const int SKILL_TRANSMUTE = 585; /* physic transmute objs */
+static const int SKILL_TRANSMUTE = 585;	/* physic transmute objs */
 static const int SKILL_METALWORKING = 586;
 static const int SKILL_LEATHERWORKING = 587;
 static const int SKILL_DEMOLITIONS = 588;
 static const int SKILL_PSIBLAST = 589;
 static const int SKILL_PSILOCATE = 590;
-static const int SKILL_PSIDRAIN = 591;  /* drain mana from vict */
-static const int SKILL_GUNSMITHING = 592;  /* repair gunz */
-static const int SKILL_ELUSION = 593;  /* !track */
-static const int SKILL_PISTOLWHIP = 594;  
-static const int SKILL_CROSSFACE = 595;  /* rifle whip */
-static const int SKILL_WRENCH = 596;  /* break neck */
+static const int SKILL_PSIDRAIN = 591;	/* drain mana from vict */
+static const int SKILL_GUNSMITHING = 592;	/* repair gunz */
+static const int SKILL_ELUSION = 593;	/* !track */
+static const int SKILL_PISTOLWHIP = 594;
+static const int SKILL_CROSSFACE = 595;	/* rifle whip */
+static const int SKILL_WRENCH = 596;	/* break neck */
 static const int SKILL_CRY_FROM_BEYOND = 597;
 static const int SKILL_KIA = 598;
-static const int SKILL_WORMHOLE = 599; // physic's wormhole
-static const int SKILL_LECTURE = 600; // physic's boring-ass lecture
+static const int SKILL_WORMHOLE = 599;	// physic's wormhole
+static const int SKILL_LECTURE = 600;	// physic's boring-ass lecture
 
-static const int SKILL_TURN = 601; /* Cleric's turn               */
-static const int SKILL_ANALYZE = 602; /* Physic's analysis           */
-static const int SKILL_EVALUATE = 603; /* Physic's evaluation      */
-static const int SKILL_HOLY_TOUCH = 604; /* Knight's skill              */
+static const int SKILL_TURN = 601;	/* Cleric's turn               */
+static const int SKILL_ANALYZE = 602;	/* Physic's analysis           */
+static const int SKILL_EVALUATE = 603;	/* Physic's evaluation      */
+static const int SKILL_HOLY_TOUCH = 604;	/* Knight's skill              */
 static const int SKILL_NIGHT_VISION = 605;
 static const int SKILL_EMPOWER = 606;
 static const int SKILL_SWIMMING = 607;
 static const int SKILL_THROWING = 608;
 static const int SKILL_RIDING = 609;
-static const int SKILL_PIPEMAKING = 610; //Make a pipe!
-static const int SKILL_CHARGE = 611; // BANG!
+static const int SKILL_PIPEMAKING = 610;	//Make a pipe!
+static const int SKILL_CHARGE = 611;	// BANG!
 
 
   /*****************  CYBORG SKILLS  ********************/
-static const int SKILL_RECONFIGURE = 613; // Re-allocate stats
-static const int SKILL_REBOOT = 614; // Start over from scratch
-static const int SKILL_MOTION_SENSOR = 615; // Detect Entries into room
-static const int SKILL_STASIS = 616; // State of rapid healing
-static const int SKILL_ENERGY_FIELD = 617; // Protective field
-static const int SKILL_REFLEX_BOOST = 618; // Speeds up processes
-static const int SKILL_POWER_BOOST = 619; // Increases Strength
-static const int SKILL_UNUSED_1 = 620; //  
-static const int SKILL_FASTBOOT = 621; // Reboots are faster
-static const int SKILL_SELF_DESTRUCT = 622; // Effective self destructs
-static const int SKILL_UNUSED_2 = 623; //  
-static const int SKILL_BIOSCAN = 624; // Sense Life scan
-static const int SKILL_DISCHARGE = 625; // Discharge attack
-static const int SKILL_SELFREPAIR = 626; // Repair hit points
-static const int SKILL_CYBOREPAIR = 627; // Repair other borgs
-static const int SKILL_OVERHAUL = 628; // Overhaul other borgs
-static const int SKILL_DAMAGE_CONTROL = 629; // Damage Control System
-static const int SKILL_ELECTRONICS = 630; // Operation of Electronics
-static const int SKILL_HACKING = 631; // hack electronic systems 
-static const int SKILL_CYBERSCAN = 632; // scan others for implants
-static const int SKILL_CYBO_SURGERY = 633; // implant objects
-static const int SKILL_ENERGY_WEAPONS = 634; // energy weapon use
-static const int SKILL_PROJ_WEAPONS = 635; // projectile weapon use
-static const int SKILL_SPEED_LOADING = 636; // speed load weapons
-static const int SKILL_HYPERSCAN = 637; // aware of hidden objs and traps
-static const int SKILL_OVERDRAIN = 638; // overdrain batteries
-static const int SKILL_DE_ENERGIZE = 639; // drain energy from chars
-static const int SKILL_ASSIMILATE = 640; // assimilate objects
-static const int SKILL_RADIONEGATION = 641; // immunity to radiation
-static const int SKILL_IMPLANT_W = 642; // Extra attacks with implant weapons.
-static const int SKILL_ADV_IMPLANT_W = 643; // ""
-static const int SKILL_OFFENSIVE_POS = 644; // Offensive Posturing
-static const int SKILL_DEFENSIVE_POS = 645; // Defensive Posturing
-static const int SKILL_MELEE_COMBAT_TAC = 646; // Melee combat tactics
-static const int SKILL_NEURAL_BRIDGING = 647; // Cogenic Neural Bridging
+static const int SKILL_RECONFIGURE = 613;	// Re-allocate stats
+static const int SKILL_REBOOT = 614;	// Start over from scratch
+static const int SKILL_MOTION_SENSOR = 615;	// Detect Entries into room
+static const int SKILL_STASIS = 616;	// State of rapid healing
+static const int SKILL_ENERGY_FIELD = 617;	// Protective field
+static const int SKILL_REFLEX_BOOST = 618;	// Speeds up processes
+static const int SKILL_POWER_BOOST = 619;	// Increases Strength
+static const int SKILL_UNUSED_1 = 620;	//  
+static const int SKILL_FASTBOOT = 621;	// Reboots are faster
+static const int SKILL_SELF_DESTRUCT = 622;	// Effective self destructs
+static const int SKILL_UNUSED_2 = 623;	//  
+static const int SKILL_BIOSCAN = 624;	// Sense Life scan
+static const int SKILL_DISCHARGE = 625;	// Discharge attack
+static const int SKILL_SELFREPAIR = 626;	// Repair hit points
+static const int SKILL_CYBOREPAIR = 627;	// Repair other borgs
+static const int SKILL_OVERHAUL = 628;	// Overhaul other borgs
+static const int SKILL_DAMAGE_CONTROL = 629;	// Damage Control System
+static const int SKILL_ELECTRONICS = 630;	// Operation of Electronics
+static const int SKILL_HACKING = 631;	// hack electronic systems 
+static const int SKILL_CYBERSCAN = 632;	// scan others for implants
+static const int SKILL_CYBO_SURGERY = 633;	// implant objects
+static const int SKILL_ENERGY_WEAPONS = 634;	// energy weapon use
+static const int SKILL_PROJ_WEAPONS = 635;	// projectile weapon use
+static const int SKILL_SPEED_LOADING = 636;	// speed load weapons
+static const int SKILL_HYPERSCAN = 637;	// aware of hidden objs and traps
+static const int SKILL_OVERDRAIN = 638;	// overdrain batteries
+static const int SKILL_DE_ENERGIZE = 639;	// drain energy from chars
+static const int SKILL_ASSIMILATE = 640;	// assimilate objects
+static const int SKILL_RADIONEGATION = 641;	// immunity to radiation
+static const int SKILL_IMPLANT_W = 642;	// Extra attacks with implant weapons.
+static const int SKILL_ADV_IMPLANT_W = 643;	// ""
+static const int SKILL_OFFENSIVE_POS = 644;	// Offensive Posturing
+static const int SKILL_DEFENSIVE_POS = 645;	// Defensive Posturing
+static const int SKILL_MELEE_COMBAT_TAC = 646;	// Melee combat tactics
+static const int SKILL_NEURAL_BRIDGING = 647;	// Cogenic Neural Bridging
 										// (Ambidextarity)
 // Continue around 670
 
-static const int SKILL_RETREAT = 648; // controlled flee
-static const int SKILL_DISGUISE = 649; // look like a mob
-static const int SKILL_AMBUSH = 650; // surprise victim
+static const int SKILL_RETREAT = 648;	// controlled flee
+static const int SKILL_DISGUISE = 649;	// look like a mob
+static const int SKILL_AMBUSH = 650;	// surprise victim
 
 //--------------  VAMPIRE SKILLS  ------------------
 static const int SKILL_FLYING = 651;
@@ -528,17 +528,17 @@ static const int SKILL_DRAG = 668;
 //static const int SKILL_TAUNT = 669;
 
 //------------  Mercenary Skills -------------------
-static const int SKILL_SNIPE = 669;  // sniper skill for mercs
-static const int SKILL_INFILTRATE = 670;  // merc skill, improvement on sneak
-static const int SKILL_SHOULDER_THROW = 671;  // grounding skill between hiptoss
-                                         // and sweepkick
+static const int SKILL_SNIPE = 669;	// sniper skill for mercs
+static const int SKILL_INFILTRATE = 670;	// merc skill, improvement on sneak
+static const int SKILL_SHOULDER_THROW = 671;	// grounding skill between hiptoss
+										 // and sweepkick
 
 // Overflow Cyborg
-static const int SKILL_ARTERIAL_FLOW = 676; // Arterial Flow Enhancement
-static const int SKILL_OPTIMMUNAL_RESP = 677; // Genetek Optimmunal Nodes
-static const int SKILL_ADRENAL_MAXIMIZER = 678; // Shukutei Adrenal Maximizer
+static const int SKILL_ARTERIAL_FLOW = 676;	// Arterial Flow Enhancement
+static const int SKILL_OPTIMMUNAL_RESP = 677;	// Genetek Optimmunal Nodes
+static const int SKILL_ADRENAL_MAXIMIZER = 678;	// Shukutei Adrenal Maximizer
 
-static const int SKILL_ENERGY_CONVERSION = 679; // physic's energy conversion
+static const int SKILL_ENERGY_CONVERSION = 679;	// physic's energy conversion
 
 
   /******************  PROFICENCIES  *******************/
@@ -617,7 +617,7 @@ static const int TYPE_ACID_BURN = 763;
 static const int SPELL_ZHENGIS_FIST_OF_ANNIHILATION = 764;
 static const int TYPE_RAD_SICKNESS = 765;
 static const int TYPE_FLAMETHROWER = 766;
-static const int TYPE_MALOVENT_HOLYTOUCH = 767; // When holytouch wears off.
+static const int TYPE_MALOVENT_HOLYTOUCH = 767;	// When holytouch wears off.
 static const int SPELL_YOUTH = 768;
 static const int TOP_NPC_SPELL = 769;
 
@@ -650,12 +650,12 @@ static const int TYPE_SHOOT = 818;
 
 static const int TOP_ATTACKTYPE = 819;
 /* new attack types can be added here - up to TYPE_SUFFERING */
-static const int TYPE_TAINT_BURN = 893; // casting while tainted
+static const int TYPE_TAINT_BURN = 893;	// casting while tainted
 static const int TYPE_PRESSURE = 894;
 static const int TYPE_SUFFOCATING = 895;
-static const int TYPE_ANGUISH = 896; // Soulless and good aligned. dumbass.
-static const int TYPE_BLEED = 897; // Open wound
-static const int TYPE_OVERLOAD = 898; // cyborg overloading systems.
+static const int TYPE_ANGUISH = 896;	// Soulless and good aligned. dumbass.
+static const int TYPE_BLEED = 897;	// Open wound
+static const int TYPE_OVERLOAD = 898;	// cyborg overloading systems.
 static const int TYPE_SUFFERING = 899;
 
 static const int SAVING_PARA = 0;
@@ -673,8 +673,8 @@ static const int TAR_CHAR_ROOM = 2;
 static const int TAR_CHAR_WORLD = 4;
 static const int TAR_FIGHT_SELF = 8;
 static const int TAR_FIGHT_VICT = 16;
-static const int TAR_SELF_ONLY = 32; /* Only a check, use with i.e. TAR_CHAR_ROOM */
-static const int TAR_NOT_SELF = 64; /* Only a check, use with i.e. TAR_CHAR_ROOM */
+static const int TAR_SELF_ONLY = 32;	/* Only a check, use with i.e. TAR_CHAR_ROOM */
+static const int TAR_NOT_SELF = 64;	/* Only a check, use with i.e. TAR_CHAR_ROOM */
 static const int TAR_OBJ_INV = 128;
 static const int TAR_OBJ_ROOM = 256;
 static const int TAR_OBJ_WORLD = 512;
@@ -683,16 +683,16 @@ static const int TAR_DOOR = 2048;
 static const int TAR_UNPLEASANT = 4096;
 
 struct spell_info_type {
-  char min_position;	/* Position for caster	 */
-  sh_int mana_min;	/* Min amount of mana used by a spell (highest lev) */
-  sh_int mana_max;	/* Max amount of mana used by a spell (lowest lev) */
-  char mana_change;	/* Change in mana used by spell from lev to lev */
-  
-  char min_level[NUM_CLASSES];
-  char gen[NUM_CLASSES];
-  int routines;
-  char violent;
-  sh_int targets;         /* See below for use with TAR_XXX  */
+	char min_position;			/* Position for caster   */
+	sh_int mana_min;			/* Min amount of mana used by a spell (highest lev) */
+	sh_int mana_max;			/* Max amount of mana used by a spell (lowest lev) */
+	char mana_change;			/* Change in mana used by spell from lev to lev */
+
+	char min_level[NUM_CLASSES];
+	char gen[NUM_CLASSES];
+	int routines;
+	char violent;
+	sh_int targets;				/* See below for use with TAR_XXX  */
 };
 
 /* Possible Targets:
@@ -720,8 +720,8 @@ static const int SPELL_TYPE_SCROLL = 4;
 /* Attacktypes with grammar */
 
 struct attack_hit_type {
-   char	*singular;
-   char	*plural;
+	char *singular;
+	char *plural;
 };
 
 
@@ -777,16 +777,16 @@ ASPELL(spell_death_knell);
 int find_skill_num(char *name);
 
 int mag_damage(int level, struct char_data *ch, struct char_data *victim,
-	       int spellnum, int savetype);
+	int spellnum, int savetype);
 
-int mag_exits(int level, struct char_data *caster, struct room_data *room, 
-	      int spellnum);
+int mag_exits(int level, struct char_data *caster, struct room_data *room,
+	int spellnum);
 
 void mag_affects(int level, struct char_data *ch, struct char_data *victim,
-		 int spellnum, int savetype);
+	int spellnum, int savetype);
 
-void mag_group_switch(int level, struct char_data *ch, struct char_data *tch, 
-		      int spellnum, int savetype);
+void mag_group_switch(int level, struct char_data *ch, struct char_data *tch,
+	int spellnum, int savetype);
 
 void mag_groups(int level, struct char_data *ch, int spellnum, int savetype);
 
@@ -795,35 +795,35 @@ void mag_masses(byte level, struct char_data *ch, int spellnum, int savetype);
 int mag_areas(byte level, struct char_data *ch, int spellnum, int savetype);
 
 void mag_summons(int level, struct char_data *ch, struct obj_data *obj,
-		 int spellnum, int savetype);
+	int spellnum, int savetype);
 
 void mag_points(int level, struct char_data *ch, struct char_data *victim,
-		int spellnum, int savetype);
+	int spellnum, int savetype);
 
 void mag_unaffects(int level, struct char_data *ch, struct char_data *victim,
-		   int spellnum, int type);
+	int spellnum, int type);
 
 void mag_alter_objs(int level, struct char_data *ch, struct obj_data *obj,
-		    int spellnum, int type);
+	int spellnum, int type);
 
 void mag_creations(int level, struct char_data *ch, int spellnum);
 
 int call_magic(struct char_data *caster, struct char_data *cvict,
-	       struct obj_data *ovict, int spellnum, int level, int casttype, int *return_flags = 0 );
+	struct obj_data *ovict, int spellnum, int level, int casttype,
+	int *return_flags = 0);
 
 int mag_objectmagic(struct char_data *ch, struct obj_data *obj,
-		    char *argument,int *return_flags=NULL);
+	char *argument, int *return_flags = NULL);
 
 void mag_objects(int level, struct char_data *ch, struct obj_data *obj,
-		 int spellnum);
+	int spellnum);
 
 int cast_spell(struct char_data *ch, struct char_data *tch,
-	       struct obj_data *tobj, int spellnum, int *return_flags = 0 );
+	struct obj_data *tobj, int spellnum, int *return_flags = 0);
 
 int mag_savingthrow(struct char_data *ch, int level, int type);
 
-int mag_manacost(struct char_data * ch, int spellnum);
+int mag_manacost(struct char_data *ch, int spellnum);
 
 
 #endif
-

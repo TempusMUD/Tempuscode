@@ -21,26 +21,27 @@
 #define ACCMD(name)  \
    void (name)(struct char_data *ch, char *argument, int cmd, int subcmd, int *return_flags = 0 )
 
-void	command_interpreter(struct char_data *ch, char *argument);
-int	search_block(char *arg, const char **list, bool exact);
-char	lower( char c );
-char	*one_argument(char *argument, char *first_arg);
-void    one_argument(const char *argument, char *first_arg);
-char	*any_one_arg(char *argument, char *first_arg);
-char	*two_arguments(char *argument, char *first_arg, char *second_arg);
-void    two_arguments(const char *argument, char *first_arg, char *second_arg);
-int	fill_word(char *argument);
-void	half_chop(char *string, char *arg1, char *arg2);
-void	nanny(struct descriptor_data *d, char *arg);
-int	is_abbrev(const char *arg1, const char *arg2);
-int	is_number( const char *str );
-int	find_command(char *command);
-void	skip_spaces(char **string);
-void	skip_spaces(const char **string);
-char	*delete_doubledollar(char *string);
+void command_interpreter(struct char_data *ch, char *argument);
+int search_block(char *arg, const char **list, bool exact);
+char lower(char c);
+char *one_argument(char *argument, char *first_arg);
+void one_argument(const char *argument, char *first_arg);
+char *any_one_arg(char *argument, char *first_arg);
+char *two_arguments(char *argument, char *first_arg, char *second_arg);
+void two_arguments(const char *argument, char *first_arg, char *second_arg);
+int fill_word(char *argument);
+void half_chop(char *string, char *arg1, char *arg2);
+void nanny(struct descriptor_data *d, char *arg);
+int is_abbrev(const char *arg1, const char *arg2);
+int is_number(const char *str);
+int find_command(char *command);
+void skip_spaces(char **string);
+void skip_spaces(const char **string);
+char *delete_doubledollar(char *string);
 
 // from search.c
-int triggers_search(struct char_data *ch, int cmd, char *arg, struct special_search_data *srch);
+int triggers_search(struct char_data *ch, int cmd, char *arg,
+	struct special_search_data *srch);
 
 //
 // used by ACMD functinos to set return_flags if they exist
@@ -56,21 +57,23 @@ int triggers_search(struct char_data *ch, int cmd, char *arg, struct special_sea
 // used by any functions to set their return_flags if they exist
 //
 
-inline void set_return_flags( int *flags, int val ) {
-    if ( flags ) {
-        *flags = val;
-    }
+inline void
+set_return_flags(int *flags, int val)
+{
+	if (flags) {
+		*flags = val;
+	}
 }
 
 struct command_info {
-    char *command;
-    byte minimum_position;
-    ACMD(*command_pointer);
-    //    void	(*command_pointer)
-    //        (struct char_data *ch, char * argument, int cmd, int subcmd);
-    sh_int minimum_level;
-    int	subcmd;
-    int security;
+	char *command;
+	byte minimum_position;
+	 ACMD(*command_pointer);
+	//    void  (*command_pointer)
+	//        (struct char_data *ch, char * argument, int cmd, int subcmd);
+	sh_int minimum_level;
+	int subcmd;
+	int security;
 };
 
 /* necessary for CMD_IS macro */
@@ -83,10 +86,10 @@ extern struct command_info cmd_info[];
 #define IS_MOVE(cmdnum) (cmdnum >= 1 && cmdnum <= 6)
 
 struct alias_data {
-  char *alias;
-  char *replacement;
-  int type;
-  struct alias_data *next;
+	char *alias;
+	char *replacement;
+	int type;
+	struct alias_data *next;
 };
 
 #define ALIAS_SIMPLE	0
@@ -97,16 +100,16 @@ struct alias_data {
 #define ALIAS_GLOB_CHAR	'*'
 
 struct show_struct {
-    char *cmd;
-    char level;
-    char *group;
+	char *cmd;
+	char level;
+	char *group;
 };
 struct set_struct {
-    char *cmd;
-    char level;
-    char pcnpc;
-    char type;
-    char *group;
+	char *cmd;
+	char level;
+	char pcnpc;
+	char type;
+	char *group;
 };
 
 /*
@@ -122,10 +125,10 @@ struct set_struct {
 #define SCMD_WEST	4
 #define SCMD_UP		5
 #define SCMD_DOWN	6
-#define SCMD_FUTURE     7 
-#define SCMD_PAST       8 
-#define SCMD_MOVE       9 
-#define SCMD_JUMP       10 
+#define SCMD_FUTURE     7
+#define SCMD_PAST       8
+#define SCMD_MOVE       9
+#define SCMD_JUMP       10
 
 /* do_gen_ps */
 #define SCMD_INFO       0
@@ -395,4 +398,4 @@ struct set_struct {
 #define SCMD_DYNTEXT_FAIT_2 4
 #define SCMD_DYNTEXT_FAIT_3 5
 
-#endif //TEMPUSMUD_INTERPRETER_H
+#endif							//TEMPUSMUD_INTERPRETER_H

@@ -61,25 +61,27 @@
 
 static unsigned long seed;
 
-void my_srand(unsigned long initial_seed)
+void
+my_srand(unsigned long initial_seed)
 {
-    seed = initial_seed; 
+	seed = initial_seed;
 }
 
 
-unsigned long my_rand(void)
+unsigned long
+my_rand(void)
 {
-   register int lo, hi, test;
+	register int lo, hi, test;
 
-    hi   = seed/q;
-    lo   = seed%q;
+	hi = seed / q;
+	lo = seed % q;
 
-    test = a*lo - r*hi;
+	test = a * lo - r * hi;
 
-    if (test > 0)
-	seed = test;
-    else
-	seed = test+ m;
+	if (test > 0)
+		seed = test;
+	else
+		seed = test + m;
 
-    return seed;
+	return seed;
 }

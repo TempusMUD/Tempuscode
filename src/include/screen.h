@@ -127,4 +127,3 @@
 #define QMAG CCMAG(ch,C_SPR)
 #define QCYN CCCYN(ch,C_SPR)
 #define QWHT CCWHT(ch,C_SPR)
-

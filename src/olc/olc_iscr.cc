@@ -33,681 +33,689 @@
 #include "events.h"
 #include <fstream>
 
-extern        list<CIScript *> scriptList;
+extern list <CIScript *>scriptList;
 extern struct zone_data *zone_table;
 extern struct descriptor_data *descriptor_list;
 extern struct char_data *character_list;
-extern int    olc_lock;
-extern int    *iscr_index;
+extern int olc_lock;
+extern int *iscr_index;
 
-extern char   arg1[MAX_INPUT_LENGTH], arg2[MAX_INPUT_LENGTH], arg3[MAX_INPUT_LENGTH];
+extern char arg1[MAX_INPUT_LENGTH], arg2[MAX_INPUT_LENGTH],
+	arg3[MAX_INPUT_LENGTH];
 
-const char    *olc_iset_keys[] = {
-    "name",
+const char *olc_iset_keys[] = {
+	"name",
 //    "flags",
-    "\n"
+	"\n"
 };
 
 const char *olc_ihandler_keys[] = {
-    "create",
-    "delete",
-    "edit",
-    "\n"
+	"create",
+	"delete",
+	"edit",
+	"\n"
 };
 
 const char *event_types[] = {
-    "EVT_EXAMINE",
-    "EVT_PHYSICAL_ATTACK",
-    "EVT_STEAL",
-    "\n"
+	"EVT_EXAMINE",
+	"EVT_PHYSICAL_ATTACK",
+	"EVT_STEAL",
+	"\n"
 };
 
 #define NUM_ISET_COMMANDS 1
 #define NUM_IHANDLER_COMMANDS 3
 
-int write_iscr_index(struct char_data * ch, struct zone_data *zone)
+int
+write_iscr_index(struct char_data *ch, struct zone_data *zone)
 {
-    int done = 0, i, j, found = 0, count = 0, *new_index;
-    char fname[64];
-    FILE *index;
-        
-    for (i = 0; iscr_index[i] != -1; i++) {
-        count++;
-        if (iscr_index[i] == zone->number) {
-            found = 1;
-            break;
-        }
-    }
+	int done = 0, i, j, found = 0, count = 0, *new_index;
+	char fname[64];
+	FILE *index;
 
-    if (found == 1)
-        return(1);
-    
-    CREATE(new_index, int, count+2);
-            
-    for (i = 0, j = 0;; i++) {
-        if (iscr_index[i] == -1) {
-            if (done == 0) {
-                new_index[j] = zone->number;
-                new_index[j+1] = -1;
-            }
-            else
-                new_index[j] = -1;
-            break;
-        }
-        if (iscr_index[i] > zone->number && done != 1) {  
-            new_index[j] = zone->number;
-            j++;
-            new_index[j] = iscr_index[i];
-            done = 1;
-        }
-        else
-            new_index[j] = iscr_index[i];
-        j++;
-    }
-     
-    free(iscr_index);
-    
+	for (i = 0; iscr_index[i] != -1; i++) {
+		count++;
+		if (iscr_index[i] == zone->number) {
+			found = 1;
+			break;
+		}
+	}
+
+	if (found == 1)
+		return (1);
+
+	CREATE(new_index, int, count + 2);
+
+	for (i = 0, j = 0;; i++) {
+		if (iscr_index[i] == -1) {
+			if (done == 0) {
+				new_index[j] = zone->number;
+				new_index[j + 1] = -1;
+			} else
+				new_index[j] = -1;
+			break;
+		}
+		if (iscr_index[i] > zone->number && done != 1) {
+			new_index[j] = zone->number;
+			j++;
+			new_index[j] = iscr_index[i];
+			done = 1;
+		} else
+			new_index[j] = iscr_index[i];
+		j++;
+	}
+
+	free(iscr_index);
+
 #ifdef DMALLOC
-    dmalloc_verify(0);
+	dmalloc_verify(0);
 #endif
-    
-    iscr_index = new_index;
-        
-    sprintf(fname,"world/iscr/index");
-    if (!(index = fopen(fname, "w"))) {
-        send_to_char("Could not open index file, iscript save aborted.\r\n", ch);
-        return(0);
-    }
-    for (i = 0; iscr_index[i] != -1; i++)
-        fprintf(index, "%d.iscr\n", iscr_index[i]);
-        
-    fprintf(index, "$\n");
-            
-    send_to_char("IScript index file re-written.\r\n", ch);
-            
-    fclose(index);
-        
-    return(1);
+
+	iscr_index = new_index;
+
+	sprintf(fname, "world/iscr/index");
+	if (!(index = fopen(fname, "w"))) {
+		send_to_char("Could not open index file, iscript save aborted.\r\n",
+			ch);
+		return (0);
+	}
+	for (i = 0; iscr_index[i] != -1; i++)
+		fprintf(index, "%d.iscr\n", iscr_index[i]);
+
+	fprintf(index, "$\n");
+
+	send_to_char("IScript index file re-written.\r\n", ch);
+
+	fclose(index);
+
+	return (1);
 }
 
-int do_olc_isave(struct char_data *ch)
+int
+do_olc_isave(struct char_data *ch)
 {
-    struct zone_data *zone;
-    int svnum;
-    room_num low = 0, high = 0;
-    char fname[64];
-    string line;
-    
-    if(GET_OLC_ISCR(ch)) {
-        svnum = GET_OLC_ISCR(ch)->getVnum();
-        for(zone = zone_table; zone; zone = zone->next) {
-            if(svnum >= zone->number * 100 && svnum <= zone->top) {
-                break;
-            }
-        }
+	struct zone_data *zone;
+	int svnum;
+	room_num low = 0, high = 0;
+	char fname[64];
+	string line;
 
-        if(!zone) {
-            sprintf(buf, "OLC:  ERROR finding zone for iscript %d.", svnum);
-            slog(buf);
-            send_to_char("Unable to match iscript with zone error.\r\n", ch);
-            return 1;
-        }
-    }
-    else
-        zone = ch->in_room->zone;
+	if (GET_OLC_ISCR(ch)) {
+		svnum = GET_OLC_ISCR(ch)->getVnum();
+		for (zone = zone_table; zone; zone = zone->next) {
+			if (svnum >= zone->number * 100 && svnum <= zone->top) {
+				break;
+			}
+		}
 
-    sprintf(fname, "world/iscr/%d.iscr", zone->number);
-	if( ( access(fname,F_OK) >= 0 ) && ( access(fname,W_OK) < 0) ){
-        sprintf(buf, "OLC: ERROR - Main iscript file for zone %d is read-only.", 
-                zone->number);
-        mudlog(buf, BRF, 0, TRUE);        
-    }
-    sprintf(fname, "world/iscr/olc/%d.iscr", zone->number);
-    ofstream ofile(fname);
-    if(!ofile)
-        return 1;
-    if ((write_iscr_index(ch, zone)) != 1) {
-        return 1;
-    }
-    
-    low = zone->number * 100;
-    high = zone->top;
+		if (!zone) {
+			sprintf(buf, "OLC:  ERROR finding zone for iscript %d.", svnum);
+			slog(buf);
+			send_to_char("Unable to match iscript with zone error.\r\n", ch);
+			return 1;
+		}
+	} else
+		zone = ch->in_room->zone;
 
-    list<CIScript *>::iterator si;
-    list<CHandler *>::iterator hi;
-    list<string>::iterator     li;
-    
-    for(si = scriptList.begin(); si != scriptList.end(); si++) {
-        if((*si)->getVnum() < low)
-            continue;
-        if((*si)->getVnum() > high)
-            break;
+	sprintf(fname, "world/iscr/%d.iscr", zone->number);
+	if ((access(fname, F_OK) >= 0) && (access(fname, W_OK) < 0)) {
+		sprintf(buf,
+			"OLC: ERROR - Main iscript file for zone %d is read-only.",
+			zone->number);
+		mudlog(buf, BRF, 0, TRUE);
+	}
+	sprintf(fname, "world/iscr/olc/%d.iscr", zone->number);
+	ofstream ofile(fname);
+	if (!ofile)
+		return 1;
+	if ((write_iscr_index(ch, zone)) != 1) {
+		return 1;
+	}
 
-        ofile << "#" << (*si)->getVnum() << endl;
-        ofile << "Name: " << (*si)->getName() << endl;
-        for(hi = (*si)->theScript.begin(); hi != (*si)->theScript.end(); hi++) {
-            ofile << (*hi)->getEventType() << endl;
-            for(li = (*hi)->getTheLines().begin(); li != (*hi)->getTheLines().end(); li++) {
-                ofile << *li << endl;
-            }
-            ofile << "__end event__" << endl;
-        }
-        ofile << "__end script__" << endl;
-    }
+	low = zone->number * 100;
+	high = zone->top;
 
-    ofile << "$" << endl;
-    ofile.close();
-    
-    sprintf(buf, "OLC:  %s isaved %d.", GET_NAME(ch), zone->number);
-    slog(buf);
+	list <CIScript *>::iterator si;
+	list <CHandler *>::iterator hi;
+	list <string>::iterator li;
 
-    sprintf(fname, "world/iscr/%d.iscr", zone->number);
-    ofstream realfile(fname);
-    if(realfile) {
-        sprintf(fname, "world/iscr/olc/%d.iscr", zone->number);
-        ifstream ifile(fname);
-        if(!ifile) {
-            slog("SYSERR: Failure to reopen olc iscript file.");
-            send_to_char("OLC Error:  Failure to duplicate mob file in main dir."
-                         "\r\n", ch);
-            realfile.close();
-            return 1;
-        }
-        
-        while(getline(ifile, line))
-            realfile << line << endl;
-        
-        realfile.close();
-        ifile.close();
-    }
-    else {
-        sprintf(buf, "SYSERR: Failure to open main iscript file: %s", fname);
-        slog(buf);
-        send_to_char("OLC Error:  Failure to open main iscript file.\r\n", ch);
-    }
-    return 0;
+	for (si = scriptList.begin(); si != scriptList.end(); si++) {
+		if ((*si)->getVnum() < low)
+			continue;
+		if ((*si)->getVnum() > high)
+			break;
+
+		ofile << "#" << (*si)->getVnum() << endl;
+		ofile << "Name: " << (*si)->getName() << endl;
+		for (hi = (*si)->theScript.begin(); hi != (*si)->theScript.end(); hi++) {
+			ofile << (*hi)->getEventType() << endl;
+			for (li = (*hi)->getTheLines().begin();
+				li != (*hi)->getTheLines().end(); li++) {
+				ofile << *li << endl;
+			}
+			ofile << "__end event__" << endl;
+		}
+		ofile << "__end script__" << endl;
+	}
+
+	ofile << "$" << endl;
+	ofile.close();
+
+	sprintf(buf, "OLC:  %s isaved %d.", GET_NAME(ch), zone->number);
+	slog(buf);
+
+	sprintf(fname, "world/iscr/%d.iscr", zone->number);
+	ofstream realfile(fname);
+	if (realfile) {
+		sprintf(fname, "world/iscr/olc/%d.iscr", zone->number);
+		ifstream ifile(fname);
+		if (!ifile) {
+			slog("SYSERR: Failure to reopen olc iscript file.");
+			send_to_char
+				("OLC Error:  Failure to duplicate mob file in main dir."
+				"\r\n", ch);
+			realfile.close();
+			return 1;
+		}
+
+		while (getline(ifile, line))
+			realfile << line << endl;
+
+		realfile.close();
+		ifile.close();
+	} else {
+		sprintf(buf, "SYSERR: Failure to open main iscript file: %s", fname);
+		slog(buf);
+		send_to_char("OLC Error:  Failure to open main iscript file.\r\n", ch);
+	}
+	return 0;
 }
 
-void do_olc_ihandler(struct char_data *ch, char *arg)
+void
+do_olc_ihandler(struct char_data *ch, char *arg)
 {
-    class CIScript *script;
-    int i, ihandler_command;
-    bool found = false;
-    
-    if(!(script = GET_OLC_ISCR(ch))) {
-        send_to_char("You are not currently editing an iscript.\r\n", ch);
-        return;
-    }
+	class CIScript *script;
+	int i, ihandler_command;
+	bool found = false;
 
-    if(!*arg) {
-        strcpy(buf, "Valid ihandler commands:\r\n");
-        strcat(buf, CCYEL(ch, C_NRM));
-        i = 0;
-        while(i < NUM_IHANDLER_COMMANDS) {
-            strcat(buf, olc_ihandler_keys[i]);
-            strcat(buf, "\r\n");
-            i++;
-        }
-        strcat(buf, CCNRM(ch, C_NRM));
-        page_string(ch->desc, buf, 1);
-        return;
-    }
+	if (!(script = GET_OLC_ISCR(ch))) {
+		send_to_char("You are not currently editing an iscript.\r\n", ch);
+		return;
+	}
 
-    half_chop(arg, arg1, arg2);
-    skip_spaces(&arg);
+	if (!*arg) {
+		strcpy(buf, "Valid ihandler commands:\r\n");
+		strcat(buf, CCYEL(ch, C_NRM));
+		i = 0;
+		while (i < NUM_IHANDLER_COMMANDS) {
+			strcat(buf, olc_ihandler_keys[i]);
+			strcat(buf, "\r\n");
+			i++;
+		}
+		strcat(buf, CCNRM(ch, C_NRM));
+		page_string(ch->desc, buf, 1);
+		return;
+	}
 
-    if((ihandler_command = search_block(arg1, olc_ihandler_keys, FALSE)) < 0) {
-        sprintf(buf, "Invalid ihandler command '%s'.\r\n", arg1);
-        send_to_char(buf, ch);
-        return;
-    }
-    
-    if(!*arg2) {
-        sprintf(buf, "%s what??\r\n", olc_ihandler_keys[ihandler_command]);
-        send_to_char(buf, ch);
-        return;
-    }
-    
-    if(is_number(arg2)) {
-        if(*arg2 == '0') {
-            i = 0;
-            strcpy(arg2, event_types[i]);
-        }    
-        else if((i = atoi(arg2))) {
-            if(i < NUM_EVENTS)
-                strcpy(arg2, event_types[i]);
-            else {
-                send_to_char("Please check olc help ihandler to get a valid event"
-                             " number\r\n", ch);
-                return;             
-            }    
-        }
-        else {
-            mudlog("OLC: Error converting arg2 to an integer in do_olc_ihandler.\r\n", BRF,
-                   0, TRUE);
-        }           
-    }
-    
-    for(i = 0; i < NUM_EVENTS; i++) {
-        if(strcmp(arg2, event_types[i]) == 0) {
-            found = true;
-            break;
-        }
-    }
-    
-    if(!found) {    
-        strcpy(buf, "EVENT TYPES:\r\n");
-        for(i = 0; i < NUM_EVENTS; i++) {
-            sprintf(buf2, "%s%2d)  %s%s%s\r\n",
-                    CCYEL(ch, C_NRM), i, CCCYN(ch, C_NRM), event_types[i], CCNRM(ch, C_NRM));
-            strcat(buf, buf2);
-        }
-        page_string(ch->desc, buf, 1);
-        return;
-    }    
-    
-    CHandler *h = new CHandler(strdup(arg2)); 
-    
-    switch(ihandler_command) {
-        case 0:                    // Create
-            if((*script).handler_exists(arg2) != NULL) {
-                send_to_char("That event already exists.\r\n", ch);
-                return;
-            }
-            if(h != NULL) {
-                SET_BIT(PLR_FLAGS(ch), PLR_OLC);
-                GET_OLC_HANDLER(ch) = h;
-                (*script).theScript.push_back(h);
-                start_script_editor(ch->desc, h->getTheLines(), true);
-            }
-            else {
-                slog("ERROR: do_olc_ihandler unable to create handler!");
-                send_to_char("ERROR:  do_olc_ihandler unable to create handler!\r\n", ch);
-            }
-        break;
-        
-        case 1:                   // Delete
-            if((*script).deleteHandler(arg2))
-                send_to_char("Handler successfully deleted.\r\n", ch);
-            else
-                send_to_char("ERROR:  Could not delete handler.\r\n", ch);
-        break;
-            
-        case 2:                  // Edit 
-            SET_BIT(PLR_FLAGS(ch), PLR_OLC);
-            CHandler *hr = (*script).handler_exists(arg2);
-            if(hr == NULL) {
-                sprintf(buf, "No handler: %s  exists in script: %s.\r\n", arg2, 
-                       (*script).getName().c_str());
-                send_to_char(buf, ch);       
-                return;       
-            }
-            GET_OLC_HANDLER(ch) = hr;
-            start_script_editor(ch->desc, hr->getTheLines(), true);
-        break;
-    }   
+	half_chop(arg, arg1, arg2);
+	skip_spaces(&arg);
+
+	if ((ihandler_command = search_block(arg1, olc_ihandler_keys, FALSE)) < 0) {
+		sprintf(buf, "Invalid ihandler command '%s'.\r\n", arg1);
+		send_to_char(buf, ch);
+		return;
+	}
+
+	if (!*arg2) {
+		sprintf(buf, "%s what??\r\n", olc_ihandler_keys[ihandler_command]);
+		send_to_char(buf, ch);
+		return;
+	}
+
+	if (is_number(arg2)) {
+		if (*arg2 == '0') {
+			i = 0;
+			strcpy(arg2, event_types[i]);
+		} else if ((i = atoi(arg2))) {
+			if (i < NUM_EVENTS)
+				strcpy(arg2, event_types[i]);
+			else {
+				send_to_char
+					("Please check olc help ihandler to get a valid event"
+					" number\r\n", ch);
+				return;
+			}
+		} else {
+			mudlog
+				("OLC: Error converting arg2 to an integer in do_olc_ihandler.\r\n",
+				BRF, 0, TRUE);
+		}
+	}
+
+	for (i = 0; i < NUM_EVENTS; i++) {
+		if (strcmp(arg2, event_types[i]) == 0) {
+			found = true;
+			break;
+		}
+	}
+
+	if (!found) {
+		strcpy(buf, "EVENT TYPES:\r\n");
+		for (i = 0; i < NUM_EVENTS; i++) {
+			sprintf(buf2, "%s%2d)  %s%s%s\r\n",
+				CCYEL(ch, C_NRM), i, CCCYN(ch, C_NRM), event_types[i],
+				CCNRM(ch, C_NRM));
+			strcat(buf, buf2);
+		}
+		page_string(ch->desc, buf, 1);
+		return;
+	}
+
+	CHandler *h = new CHandler(strdup(arg2));
+
+	switch (ihandler_command) {
+	case 0:					// Create
+		if ((*script).handler_exists(arg2) != NULL) {
+			send_to_char("That event already exists.\r\n", ch);
+			return;
+		}
+		if (h != NULL) {
+			SET_BIT(PLR_FLAGS(ch), PLR_OLC);
+			GET_OLC_HANDLER(ch) = h;
+			(*script).theScript.push_back(h);
+			start_script_editor(ch->desc, h->getTheLines(), true);
+		} else {
+			slog("ERROR: do_olc_ihandler unable to create handler!");
+			send_to_char
+				("ERROR:  do_olc_ihandler unable to create handler!\r\n", ch);
+		}
+		break;
+
+	case 1:					// Delete
+		if ((*script).deleteHandler(arg2))
+			send_to_char("Handler successfully deleted.\r\n", ch);
+		else
+			send_to_char("ERROR:  Could not delete handler.\r\n", ch);
+		break;
+
+	case 2:					// Edit 
+		SET_BIT(PLR_FLAGS(ch), PLR_OLC);
+		CHandler *hr = (*script).handler_exists(arg2);
+		if (hr == NULL) {
+			sprintf(buf, "No handler: %s  exists in script: %s.\r\n", arg2,
+				(*script).getName().c_str());
+			send_to_char(buf, ch);
+			return;
+		}
+		GET_OLC_HANDLER(ch) = hr;
+		start_script_editor(ch->desc, hr->getTheLines(), true);
+		break;
+	}
 }
 
-void do_olc_iset(struct char_data *ch, char *arg)
+void
+do_olc_iset(struct char_data *ch, char *arg)
 {
-    class CIScript *script;
-    int i, iset_command;
-    
-    if(!(script = GET_OLC_ISCR(ch))) {
-        send_to_char("You are not currently editing an iscript.\r\n", ch);
-        return;
-    }
-    if(!*arg) {
-        strcpy(buf, "Valid iset commands:\r\n");
-        strcat(buf, CCYEL(ch, C_NRM));
-        i = 0;
-        while(i < NUM_ISET_COMMANDS) {
-            strcat(buf, olc_iset_keys[i]);
-            strcat(buf, "\r\n");
-            i++;
-        }
-        strcat(buf, CCNRM(ch, C_NRM));
-        page_string(ch->desc, buf, 1);
-        return;
-    }
+	class CIScript *script;
+	int i, iset_command;
 
-    half_chop(arg, arg1, arg2);
-    skip_spaces(&arg);
+	if (!(script = GET_OLC_ISCR(ch))) {
+		send_to_char("You are not currently editing an iscript.\r\n", ch);
+		return;
+	}
+	if (!*arg) {
+		strcpy(buf, "Valid iset commands:\r\n");
+		strcat(buf, CCYEL(ch, C_NRM));
+		i = 0;
+		while (i < NUM_ISET_COMMANDS) {
+			strcat(buf, olc_iset_keys[i]);
+			strcat(buf, "\r\n");
+			i++;
+		}
+		strcat(buf, CCNRM(ch, C_NRM));
+		page_string(ch->desc, buf, 1);
+		return;
+	}
 
-    if((iset_command = search_block(arg1, olc_iset_keys, FALSE)) < 0) {
-        sprintf(buf, "Invalid iset command '%s'.\r\n", arg1);
-        send_to_char(buf, ch);
-        return;
-    }
+	half_chop(arg, arg1, arg2);
+	skip_spaces(&arg);
 
-    if(!*arg2) {
-        sprintf(buf, "Set %s to what??\r\n", olc_iset_keys[iset_command]);
-        send_to_char(buf, ch);
-        return;
-    }
+	if ((iset_command = search_block(arg1, olc_iset_keys, FALSE)) < 0) {
+		sprintf(buf, "Invalid iset command '%s'.\r\n", arg1);
+		send_to_char(buf, ch);
+		return;
+	}
 
-    switch(iset_command) {
-        case 0:            // Name
-            (*script).setName(arg2);
-            send_to_char("IScript name set.\r\n", ch);
-        break;
-        
-        default:
-        break;
-    }
+	if (!*arg2) {
+		sprintf(buf, "Set %s to what??\r\n", olc_iset_keys[iset_command]);
+		send_to_char(buf, ch);
+		return;
+	}
+
+	switch (iset_command) {
+	case 0:					// Name
+		(*script).setName(arg2);
+		send_to_char("IScript name set.\r\n", ch);
+		break;
+
+	default:
+		break;
+	}
 }
 
-void do_olc_idelete(struct char_data *ch, char *argument)
+void
+do_olc_idelete(struct char_data *ch, char *argument)
 {
-    struct zone_data *zone = NULL;
-    struct descriptor_data *d = NULL; 
-    class CIScript *script = GET_OLC_ISCR(ch);
-    bool found = false;
-    int i;
+	struct zone_data *zone = NULL;
+	struct descriptor_data *d = NULL;
+	class CIScript *script = GET_OLC_ISCR(ch);
+	bool found = false;
+	int i;
 
-    if(!argument) {
-        if(!script)
-            send_to_char("You are not currently editing an iscript.\r\n", ch);
-    }
+	if (!argument) {
+		if (!script)
+			send_to_char("You are not currently editing an iscript.\r\n", ch);
+	}
 
-    if(!is_number(argument) && !script) {
-        send_to_char("The argument must be a number.\r\n", ch);
-        return;
-    }
-    
-    i = atoi(argument);
-    if((script = real_iscript(i)) == NULL)
-        send_to_char("There is no such iscript.\r\n", ch);
-    else
-        for(zone = zone_table; zone; zone = zone->next) {
-            if(i <= zone->top)
-                break;
-        }
-        if(!zone) {
-            send_to_char("That iscript doesn't belong to any zone!!\r\n", ch);
-            slog("SYSERR:  iscript not in any zone."); 
-            return;
-        }
+	if (!is_number(argument) && !script) {
+		send_to_char("The argument must be a number.\r\n", ch);
+		return;
+	}
 
-        if(!CAN_EDIT_ZONE(ch, zone)) {
-            send_to_char("You do not have permission to delete that iscript.\r\n", ch);
-            return;
-        }    
+	i = atoi(argument);
+	if ((script = real_iscript(i)) == NULL)
+		send_to_char("There is no such iscript.\r\n", ch);
+	else
+		for (zone = zone_table; zone; zone = zone->next) {
+			if (i <= zone->top)
+				break;
+		}
+	if (!zone) {
+		send_to_char("That iscript doesn't belong to any zone!!\r\n", ch);
+		slog("SYSERR:  iscript not in any zone.");
+		return;
+	}
 
-        for(d = descriptor_list; d; d = d->next) { 
-            if(d->character && GET_OLC_ISCR(d->character) == script) { 
-                act("$N is currently editing that iscript.", FALSE, ch, 0, d->character, 
-                    TO_CHAR);
-                return;
-            }
-        }
+	if (!CAN_EDIT_ZONE(ch, zone)) {
+		send_to_char("You do not have permission to delete that iscript.\r\n",
+			ch);
+		return;
+	}
 
-        list<CIScript *>::iterator si;
+	for (d = descriptor_list; d; d = d->next) {
+		if (d->character && GET_OLC_ISCR(d->character) == script) {
+			act("$N is currently editing that iscript.", FALSE, ch, 0,
+				d->character, TO_CHAR);
+			return;
+		}
+	}
 
-        for(si = scriptList.begin(); si != scriptList.end();) {
-            if((*si)->getVnum() == (*script).getVnum()) {
-                found = true;
-                si = scriptList.erase(si);
-            }
-            else
-                si++;
-        }
+	list <CIScript *>::iterator si;
 
-        send_to_char(found ? "IScript successfully deleted.\r\n" : 
-                             "Could not find that IScript.  Bug this.\r\n", ch);
-        if(!found) {
-            sprintf(buf, "OLC: Error in do_olc_idelete.  prototype exists for script "
-                        "[%5d] [%s] but it's not in the list!\r\n", (*script).getVnum(), 
-                        (*script).getName().c_str());
-            mudlog(buf, BRF, 0, TRUE);
-            slog(buf);
-        }
+	for (si = scriptList.begin(); si != scriptList.end();) {
+		if ((*si)->getVnum() == (*script).getVnum()) {
+			found = true;
+			si = scriptList.erase(si);
+		} else
+			si++;
+	}
+
+	send_to_char(found ? "IScript successfully deleted.\r\n" :
+		"Could not find that IScript.  Bug this.\r\n", ch);
+	if (!found) {
+		sprintf(buf,
+			"OLC: Error in do_olc_idelete.  prototype exists for script "
+			"[%5d] [%s] but it's not in the list!\r\n", (*script).getVnum(),
+			(*script).getName().c_str());
+		mudlog(buf, BRF, 0, TRUE);
+		slog(buf);
+	}
 }
 
-void do_olc_iedit(struct char_data *ch, char *argument)
+void
+do_olc_iedit(struct char_data *ch, char *argument)
 {
-    struct zone_data *zone = NULL;
-    struct descriptor_data *d = NULL;
-    class CIScript *script = GET_OLC_ISCR(ch);
-    int i;
-    
-    if(!*argument) {
-        if(!script)
-            send_to_char("You are not currently editing an iscript.\r\n", ch);
-        else {
-            sprintf(buf, "Current olc iscript: [%5d] %s\r\n",
-                    (*script).getVnum(), (*script).getName().c_str());
-            send_to_char(buf, ch);        
-        }
-        return;
-    }
-    if(!is_number(argument)) {
-        if(is_abbrev(argument, "exit")) {
-            send_to_char("Exiting iscript editor.\r\n", ch);
-            GET_OLC_ISCR(ch) = NULL;
-            return;
-        }
-        send_to_char("The argument must be a number.\r\n", ch);
-        return;
-    }
-    else {
-        i = atoi(argument);
-        if((script = real_iscript(i)) == NULL)
-            send_to_char("There is no such iscript.\r\n", ch);
-        else {
-            for(zone = zone_table; zone; zone = zone->next) {
-                if(i <= zone->top)
-                    break;
-            }        
-            if(!zone) {
-                send_to_char("That iscript doesn't belong to any zone!!\r\n", ch);
-                slog("SYSERR:  iscript not in any zone.");
-                return;
-            }
+	struct zone_data *zone = NULL;
+	struct descriptor_data *d = NULL;
+	class CIScript *script = GET_OLC_ISCR(ch);
+	int i;
 
-            if(!CAN_EDIT_ZONE(ch, zone)) {
-                send_to_char("You do not have permission to edit that iscript.\r\n", ch);
-                return;
-            }
+	if (!*argument) {
+		if (!script)
+			send_to_char("You are not currently editing an iscript.\r\n", ch);
+		else {
+			sprintf(buf, "Current olc iscript: [%5d] %s\r\n",
+				(*script).getVnum(), (*script).getName().c_str());
+			send_to_char(buf, ch);
+		}
+		return;
+	}
+	if (!is_number(argument)) {
+		if (is_abbrev(argument, "exit")) {
+			send_to_char("Exiting iscript editor.\r\n", ch);
+			GET_OLC_ISCR(ch) = NULL;
+			return;
+		}
+		send_to_char("The argument must be a number.\r\n", ch);
+		return;
+	} else {
+		i = atoi(argument);
+		if ((script = real_iscript(i)) == NULL)
+			send_to_char("There is no such iscript.\r\n", ch);
+		else {
+			for (zone = zone_table; zone; zone = zone->next) {
+				if (i <= zone->top)
+					break;
+			}
+			if (!zone) {
+				send_to_char("That iscript doesn't belong to any zone!!\r\n",
+					ch);
+				slog("SYSERR:  iscript not in any zone.");
+				return;
+			}
 
-            for(d = descriptor_list; d; d = d->next) {
-                if(d->character && GET_OLC_ISCR(d->character) == script) {
-                    act("$N is already editing that iscript.", FALSE, ch, 0, d->character, 
-                        TO_CHAR);
-                    return;    
-                }    
-            }
+			if (!CAN_EDIT_ZONE(ch, zone)) {
+				send_to_char
+					("You do not have permission to edit that iscript.\r\n",
+					ch);
+				return;
+			}
 
-            GET_OLC_ISCR(ch) = script;
-            sprintf(buf, "Now editing iscript [%5d] %s%s%s\r\n",
-                    (*script).getVnum(), CCGRN(ch, C_NRM), (*script).getName().c_str(),
-                    CCNRM(ch, C_NRM));
-            send_to_char(buf, ch);        
-        }
-    }
+			for (d = descriptor_list; d; d = d->next) {
+				if (d->character && GET_OLC_ISCR(d->character) == script) {
+					act("$N is already editing that iscript.", FALSE, ch, 0,
+						d->character, TO_CHAR);
+					return;
+				}
+			}
+
+			GET_OLC_ISCR(ch) = script;
+			sprintf(buf, "Now editing iscript [%5d] %s%s%s\r\n",
+				(*script).getVnum(), CCGRN(ch, C_NRM),
+				(*script).getName().c_str(), CCNRM(ch, C_NRM));
+			send_to_char(buf, ch);
+		}
+	}
 }
 
-void do_olc_ilist(struct char_data *ch, char *argument)
+void
+do_olc_ilist(struct char_data *ch, char *argument)
 {
-    int counter = 0, znum = -1;
-    list<CIScript *>::iterator si;
-    struct zone_data *zone;
-    string buf1, head_buf, body_buf;
-    
-    buf1 = "";
-    
-    // Ok, this is screwed up and I know it...but it saves code duplication
-    for(is_abbrev(argument, "all") ? (zone = zone_table) : (zone = ch->in_room->zone);
-        zone; is_abbrev(argument, "all") ? (zone = zone->next) : zone = NULL) { 
-        znum = zone->number;
-        counter = 0;
-        head_buf = "";
-        body_buf = "";
-        sprintf(buf, "\r\n"
-                "%sIScripts for zone: [%s%5d%s]\r\n"
-                "---------------------------------------------------%s\r\n",
-                CCGRN(ch, C_NRM),
-                CCRED(ch, C_NRM),
-                znum,
-                CCGRN(ch, C_NRM),
-                CCNRM(ch, C_NRM));
-        
-        head_buf =  buf;
-        for(si = scriptList.begin(); si != scriptList.end(); si++) {
-            if(((*si)->getVnum() >= znum * 100) && ((*si)->getVnum() <= zone->top)) {
-                counter++;
-                sprintf(buf, "%s%3d%s)  [%s%5d%s]%s %s%s\r\n",
-                        CCYEL(ch, C_NRM),
-                        counter,
-                        CCGRN(ch, C_NRM),
-                        CCRED(ch, C_NRM),
-                        (*si)->getVnum(),
-                        CCGRN(ch, C_NRM),
-                        CCCYN(ch, C_NRM),
-                        (*si)->getName().c_str(),
-                        CCNRM(ch, C_NRM));
-                body_buf += buf; 
-            }
-        }
-        if(is_abbrev(argument, "all")) { 
-            if(counter > 0) {
-                buf1 += head_buf;
-                buf1 += body_buf;
-            }    
-        }
-        else if(counter == 0) {
-            buf1 += head_buf;
-            buf1 += "There are no iscripts defined for this zone.\r\n";
-        }
-        else {
-            buf1 += head_buf;
-            buf1 += body_buf;
-        }
-    }        
-    char *tmp_buf = new char[buf1.length() + 1];
-    strcpy(tmp_buf, buf1.c_str());
-    page_string(ch->desc, tmp_buf, 1);
+	int counter = 0, znum = -1;
+	list <CIScript *>::iterator si;
+	struct zone_data *zone;
+	string buf1, head_buf, body_buf;
+
+	buf1 = "";
+
+	// Ok, this is screwed up and I know it...but it saves code duplication
+	for (is_abbrev(argument, "all") ? (zone = zone_table) : (zone =
+			ch->in_room->zone); zone;
+		is_abbrev(argument, "all") ? (zone = zone->next) : zone = NULL) {
+		znum = zone->number;
+		counter = 0;
+		head_buf = "";
+		body_buf = "";
+		sprintf(buf, "\r\n"
+			"%sIScripts for zone: [%s%5d%s]\r\n"
+			"---------------------------------------------------%s\r\n",
+			CCGRN(ch, C_NRM),
+			CCRED(ch, C_NRM), znum, CCGRN(ch, C_NRM), CCNRM(ch, C_NRM));
+
+		head_buf = buf;
+		for (si = scriptList.begin(); si != scriptList.end(); si++) {
+			if (((*si)->getVnum() >= znum * 100)
+				&& ((*si)->getVnum() <= zone->top)) {
+				counter++;
+				sprintf(buf, "%s%3d%s)  [%s%5d%s]%s %s%s\r\n",
+					CCYEL(ch, C_NRM),
+					counter,
+					CCGRN(ch, C_NRM),
+					CCRED(ch, C_NRM),
+					(*si)->getVnum(),
+					CCGRN(ch, C_NRM),
+					CCCYN(ch, C_NRM),
+					(*si)->getName().c_str(), CCNRM(ch, C_NRM));
+				body_buf += buf;
+			}
+		}
+		if (is_abbrev(argument, "all")) {
+			if (counter > 0) {
+				buf1 += head_buf;
+				buf1 += body_buf;
+			}
+		} else if (counter == 0) {
+			buf1 += head_buf;
+			buf1 += "There are no iscripts defined for this zone.\r\n";
+		} else {
+			buf1 += head_buf;
+			buf1 += body_buf;
+		}
+	}
+	char *tmp_buf = new char[buf1.length() + 1];
+	strcpy(tmp_buf, buf1.c_str());
+	page_string(ch->desc, tmp_buf, 1);
 }
 
-class CIScript *do_create_iscr(struct char_data *ch, int vnum)
+class CIScript *
+do_create_iscr(struct char_data *ch, int vnum)
 {
-    struct zone_data *zone = NULL;
+	struct zone_data *zone = NULL;
 
-    if (real_iscript(vnum)) {
-        send_to_char("ERROR:  ISCRIPT already exists\r\n", ch);
-        return NULL;
-    }
+	if (real_iscript(vnum)) {
+		send_to_char("ERROR:  ISCRIPT already exists\r\n", ch);
+		return NULL;
+	}
 
-    for(zone = zone_table; zone; zone = zone->next) {
-        if(vnum >= zone->number * 100 && vnum <= zone->top) {
-            break;
-        }    
-    }        
+	for (zone = zone_table; zone; zone = zone->next) {
+		if (vnum >= zone->number * 100 && vnum <= zone->top) {
+			break;
+		}
+	}
 
-    if(!zone) {
-        send_to_char("ERROR: A zone must be defined for the ISCRIPT first.\r\n", ch);
-        return NULL;
-    }
+	if (!zone) {
+		send_to_char
+			("ERROR: A zone must be defined for the ISCRIPT first.\r\n", ch);
+		return NULL;
+	}
 
-    if(!CAN_EDIT_ZONE(ch, zone)) {
-        send_to_char("Try again in your own zone, pissant.\r\n", ch);
-        sprintf(buf, "OLC: %s failed attempt to CREATE iscript %d.",
-                      GET_NAME(ch), vnum);
-        mudlog(buf, BRF, GET_INVIS_LEV(ch), TRUE);
-        return NULL;
-    }
+	if (!CAN_EDIT_ZONE(ch, zone)) {
+		send_to_char("Try again in your own zone, pissant.\r\n", ch);
+		sprintf(buf, "OLC: %s failed attempt to CREATE iscript %d.",
+			GET_NAME(ch), vnum);
+		mudlog(buf, BRF, GET_INVIS_LEV(ch), TRUE);
+		return NULL;
+	}
 
-    CIScript *script = new CIScript(vnum);
-    list<CIScript *>::iterator si;
-    list<CIScript *>::iterator tmp_si;
-    if(scriptList.empty()) {
-        scriptList.push_front(script);
-        return script;
-    }
-    for(si = scriptList.begin(); si != scriptList.end(); si++) { 
-        tmp_si = si;
-        tmp_si--;
-        if(si == scriptList.begin() && (*si)->getVnum() > vnum) {
-            scriptList.push_front(script);
-            break;
-        }
-        else if((*si)->getVnum() > vnum && (*tmp_si)->getVnum() < vnum) {
-            scriptList.insert(si, script);
-            break;
-        }
-        else {
-            tmp_si = si;
-            tmp_si++;
-            if(tmp_si == scriptList.end()) {
-                scriptList.push_back(script);
-                break;
-            }    
-        }    
-    }
+	CIScript *script = new CIScript(vnum);
+	list <CIScript *>::iterator si;
+	list <CIScript *>::iterator tmp_si;
+	if (scriptList.empty()) {
+		scriptList.push_front(script);
+		return script;
+	}
+	for (si = scriptList.begin(); si != scriptList.end(); si++) {
+		tmp_si = si;
+		tmp_si--;
+		if (si == scriptList.begin() && (*si)->getVnum() > vnum) {
+			scriptList.push_front(script);
+			break;
+		} else if ((*si)->getVnum() > vnum && (*tmp_si)->getVnum() < vnum) {
+			scriptList.insert(si, script);
+			break;
+		} else {
+			tmp_si = si;
+			tmp_si++;
+			if (tmp_si == scriptList.end()) {
+				scriptList.push_back(script);
+				break;
+			}
+		}
+	}
 
-    return script;
+	return script;
 }
 
-void do_olc_istat(struct char_data *ch, char *arg)
+void
+do_olc_istat(struct char_data *ch, char *arg)
 {
-    list<CIScript *>::iterator si;
-    list<CHandler *>::iterator hi;
-    int svnum;
-    int counter = -1;
-    char buf1[1024];
-    
-    skip_spaces(&arg);
+	list <CIScript *>::iterator si;
+	list <CHandler *>::iterator hi;
+	int svnum;
+	int counter = -1;
+	char buf1[1024];
 
-    if(!(*arg) && !GET_OLC_ISCR(ch)) {
-        send_to_char("Which iscript?\r\n", ch);
-        return;
-    }
+	skip_spaces(&arg);
 
-    if(!is_number(arg)) {
-        send_to_char("The argument must be a number.\r\n", ch);
-        return;
-    }
-    
-    if(!(svnum = atoi(arg))) {
-       if(!(svnum = GET_OLC_ISCR(ch)->getVnum())) {
-           send_to_char("Usage:  olc istat [vnum]\r\n", ch); 
-       }
-    }    
-    
-    for(si = scriptList.begin(); si != scriptList.end() && (svnum != (*si)->getVnum()); si++);
-    
-    if(si == scriptList.end()) {
-        send_to_char("There is no such iscript.\r\n", ch);
-        return; 
-    }    
-    
-    bzero(buf1, 1024);
-    sprintf(buf, "\r\n"
-            "%sStatus for IScript: [%s%5d%s]\r\n"
-            "              Name: [%s%s%s]\r\n"
-            "---------------------------------------------------%s\r\n\r\n",
-            CCGRN(ch, C_NRM),
-            CCRED(ch, C_NRM),
-            (*si)->getVnum(),
-            CCGRN(ch, C_NRM),
-            CCCYN(ch, C_NRM),
-            (*si)->getName().c_str(),
-            CCGRN(ch, C_NRM),
-            CCNRM(ch, C_NRM));
-    send_to_char(buf, ch);
-    
-    sprintf(buf, "  %sEvents:\r\n%s", CCYEL(ch, C_NRM), CCNRM(ch, C_NRM));
-    send_to_char(buf, ch);
-    for(hi = (*si)->theScript.begin(); hi != (*si)->theScript.end(); hi++) {
-        counter++;
-        sprintf(buf, "    %s%s%s\r\n", 
-                CCCYN(ch, C_NRM), 
-                (*hi)->getEventType().c_str(), 
-                CCNRM(ch, C_NRM));
-        strcat(buf1, buf);        
-    }
-    if(counter == -1) 
-      send_to_char("    There are no event handlers defined for this iscript.\r\n", ch);
-    else
-      page_string(ch->desc, buf1, 1);
+	if (!(*arg) && !GET_OLC_ISCR(ch)) {
+		send_to_char("Which iscript?\r\n", ch);
+		return;
+	}
+
+	if (!is_number(arg)) {
+		send_to_char("The argument must be a number.\r\n", ch);
+		return;
+	}
+
+	if (!(svnum = atoi(arg))) {
+		if (!(svnum = GET_OLC_ISCR(ch)->getVnum())) {
+			send_to_char("Usage:  olc istat [vnum]\r\n", ch);
+		}
+	}
+
+	for (si = scriptList.begin();
+		si != scriptList.end() && (svnum != (*si)->getVnum()); si++);
+
+	if (si == scriptList.end()) {
+		send_to_char("There is no such iscript.\r\n", ch);
+		return;
+	}
+
+	bzero(buf1, 1024);
+	sprintf(buf, "\r\n"
+		"%sStatus for IScript: [%s%5d%s]\r\n"
+		"              Name: [%s%s%s]\r\n"
+		"---------------------------------------------------%s\r\n\r\n",
+		CCGRN(ch, C_NRM),
+		CCRED(ch, C_NRM),
+		(*si)->getVnum(),
+		CCGRN(ch, C_NRM),
+		CCCYN(ch, C_NRM),
+		(*si)->getName().c_str(), CCGRN(ch, C_NRM), CCNRM(ch, C_NRM));
+	send_to_char(buf, ch);
+
+	sprintf(buf, "  %sEvents:\r\n%s", CCYEL(ch, C_NRM), CCNRM(ch, C_NRM));
+	send_to_char(buf, ch);
+	for (hi = (*si)->theScript.begin(); hi != (*si)->theScript.end(); hi++) {
+		counter++;
+		sprintf(buf, "    %s%s%s\r\n",
+			CCCYN(ch, C_NRM), (*hi)->getEventType().c_str(), CCNRM(ch, C_NRM));
+		strcat(buf1, buf);
+	}
+	if (counter == -1)
+		send_to_char
+			("    There are no event handlers defined for this iscript.\r\n",
+			ch);
+	else
+		page_string(ch->desc, buf1, 1);
 }

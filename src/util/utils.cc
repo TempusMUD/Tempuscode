@@ -44,104 +44,108 @@ unsigned long my_rand(void);
 void
 safe_exit(int mode)
 {
-    touch("../pause");
-    sprintf(buf, "Exiting with status %d from safe_exit().", mode);
-    slog(buf);
-    exit(mode);
+	touch("../pause");
+	sprintf(buf, "Exiting with status %d from safe_exit().", mode);
+	slog(buf);
+	exit(mode);
 }
 
 char *
 VT_GOPOS(int x, int y)
 {
-    sprintf(ANSI, "\x1B[%d;%dH", x, y);
-    return(ANSI);
+	sprintf(ANSI, "\x1B[%d;%dH", x, y);
+	return (ANSI);
 }
 
 char *
 VT_RPPOS(int x, int y)
 {
-    sprintf(ANSI, "\x1B[%d;%dr", x, y);
-    return(ANSI);
+	sprintf(ANSI, "\x1B[%d;%dr", x, y);
+	return (ANSI);
 }
 
-void enable_vt100(struct char_data *ch)
+void
+enable_vt100(struct char_data *ch)
 {
-    char level[4];
-    char seperator[161];
-    int rows = 25, cols = 80, i = 0;
-  
-    if (GET_ROWS(ch) != -1)
-        rows = GET_ROWS(ch);
-    if (GET_COLS(ch) != -1)
-        cols = GET_COLS(ch);
-  
-    sprintf(level, "%d", GET_LEVEL(ch));
-  
-    for (i = 0; i <= GET_COLS(ch)-1; i++)
-        seperator[i] = '-';
-  
-    seperator[GET_COLS(ch)] = '\0';
+	char level[4];
+	char seperator[161];
+	int rows = 25, cols = 80, i = 0;
 
-    strcpy(buf, VT_CLEAR);
-    strcat(buf, VT_GOPOS(0,0));
-    strcat(buf, VT_SVPOS);
-    strcat(buf, VT_GOPOS(0,0));
-    strcat(buf, seperator);
-    strcat(buf, VT_GOPOS(0, 5));
-    strcat(buf, "[Player: ");
-    strcat(buf, GET_NAME(ch));
-    strcat(buf, "   Level: ");
-    strcat(buf, level);
-    strcat(buf, "]");
-    strcat(buf, VT_RTPOS);
-    strcat(buf, VT_SVPOS);
-    strcat(buf, VT_GOPOS(rows-1, 1));
-    strcat(buf, seperator);
-    strcat(buf, VT_RTPOS);
-    strcat(buf, VT_RPPOS(2, rows-2));
-    strcat(buf, VT_GOPOS(3, 1));
-    strcat(buf, VT_SVPOS);
+	if (GET_ROWS(ch) != -1)
+		rows = GET_ROWS(ch);
+	if (GET_COLS(ch) != -1)
+		cols = GET_COLS(ch);
+
+	sprintf(level, "%d", GET_LEVEL(ch));
+
+	for (i = 0; i <= GET_COLS(ch) - 1; i++)
+		seperator[i] = '-';
+
+	seperator[GET_COLS(ch)] = '\0';
+
+	strcpy(buf, VT_CLEAR);
+	strcat(buf, VT_GOPOS(0, 0));
+	strcat(buf, VT_SVPOS);
+	strcat(buf, VT_GOPOS(0, 0));
+	strcat(buf, seperator);
+	strcat(buf, VT_GOPOS(0, 5));
+	strcat(buf, "[Player: ");
+	strcat(buf, GET_NAME(ch));
+	strcat(buf, "   Level: ");
+	strcat(buf, level);
+	strcat(buf, "]");
+	strcat(buf, VT_RTPOS);
+	strcat(buf, VT_SVPOS);
+	strcat(buf, VT_GOPOS(rows - 1, 1));
+	strcat(buf, seperator);
+	strcat(buf, VT_RTPOS);
+	strcat(buf, VT_RPPOS(2, rows - 2));
+	strcat(buf, VT_GOPOS(3, 1));
+	strcat(buf, VT_SVPOS);
 
 /*  
     sprintf(buf, "%s%s%s%s%s%s%s%s%s%s%s%s%s", VT_CLEAR, VT_GOPOS(0,0), VT_SVPOS, VT_GOPOS(2,1), seperator,
     VT_RTPOS, VT_SVPOS, VT_GOPOS(rows-1,1), seperator,
     VT_RTPOS, VT_RPPOS(3,rows-2), VT_GOPOS(3,1), VT_SVPOS);
 */
-    send_to_char(buf, ch);
+	send_to_char(buf, ch);
 }
 
-void disable_vt100(struct char_data *ch)
+void
+disable_vt100(struct char_data *ch)
 {
 }
 
 /* Gets number of lines in a buffer */
-int get_line_count(char *buffer)
+int
+get_line_count(char *buffer)
 {
-    char *tmpbuf, *line, *safebuf;
-    int   i=0;
+	char *tmpbuf, *line, *safebuf;
+	int i = 0;
 
-    if ( !buffer ) 
-        return 0;
+	if (!buffer)
+		return 0;
 
-    safebuf = tmpbuf = strdup(buffer);
-    line = strsep(&tmpbuf, "\n");
-    while (line != NULL) {
-        i++;
-        line = strsep(&tmpbuf, "\n");
-    }
-    if (safebuf)
-        free(safebuf);
-    return(i);
+	safebuf = tmpbuf = strdup(buffer);
+	line = strsep(&tmpbuf, "\n");
+	while (line != NULL) {
+		i++;
+		line = strsep(&tmpbuf, "\n");
+	}
+	if (safebuf)
+		free(safebuf);
+	return (i);
 }
 
 // removes all occurances of the specified character c from char * str,
 // replacing each occurance with a char c_to
-int remove_from_cstring( char *str, char c = '~', char c_to = '.' )
+int
+remove_from_cstring(char *str, char c = '~', char c_to = '.')
 {
-    for ( char *p = str; p && *p; ++p )
-        if ( *p == c )
-            *p = c_to;
-    return 0;
+	for (char *p = str; p && *p; ++p)
+		if (*p == c)
+			*p = c_to;
+	return 0;
 }
 
 
@@ -149,10 +153,10 @@ int remove_from_cstring( char *str, char c = '~', char c_to = '.' )
 char *
 str_dup(const char *source)
 {
-    char *new_str;
+	char *new_str;
 
-    CREATE(new_str, char, strlen(source) + 1);
-    return (strcpy(new_str, source));
+	CREATE(new_str, char, strlen(source) + 1);
+	return (strcpy(new_str, source));
 }
 
 
@@ -160,79 +164,79 @@ str_dup(const char *source)
 /* str_cmp: a case-insensitive version of strcmp */
 /* returns: 0 if equal, 1 if arg1 > arg2, -1 if arg1 < arg2  */
 /* scan 'till found different or end of both                 */
-int 
+int
 str_cmp(const char *arg1, const char *arg2)
 {
-    int chk, i;
+	int chk, i;
 
-    for (i = 0; *(arg1 + i) || *(arg2 + i); i++)
-        if ((chk = LOWER(*(arg1 + i)) - LOWER(*(arg2 + i))))
-            if (chk < 0)
-                return (-1);
-            else
-                return (1);
-    return (0);
+	for (i = 0; *(arg1 + i) || *(arg2 + i); i++)
+		if ((chk = LOWER(*(arg1 + i)) - LOWER(*(arg2 + i))))
+			if (chk < 0)
+				return (-1);
+			else
+				return (1);
+	return (0);
 }
 
 
 /* strn_cmp: a case-insensitive version of strncmp */
 /* returns: 0 if equal, 1 if arg1 > arg2, -1 if arg1 < arg2  */
 /* scan 'till found different, end of both, or n reached     */
-int 
+int
 strn_cmp(char *arg1, char *arg2, int n)
 {
-    int chk, i;
+	int chk, i;
 
-    for (i = 0; (*(arg1 + i) || *(arg2 + i)) && (n > 0); i++, n--)
-        if ((chk = LOWER(*(arg1 + i)) - LOWER(*(arg2 + i))))
-            if (chk < 0)
-                return (-1);
-            else
-                return (1);
+	for (i = 0; (*(arg1 + i) || *(arg2 + i)) && (n > 0); i++, n--)
+		if ((chk = LOWER(*(arg1 + i)) - LOWER(*(arg2 + i))))
+			if (chk < 0)
+				return (-1);
+			else
+				return (1);
 
-    return (0);
+	return (0);
 }
 
 
 /* log a death trap hit */
-void 
-log_death_trap(struct char_data * ch)
+void
+log_death_trap(struct char_data *ch)
 {
-    char buf[150];
+	char buf[150];
 
-    sprintf(buf, "%s hit death trap #%d (%s)", GET_NAME(ch),
-            ch->in_room->number, ch->in_room->name);
-    mudlog(buf, BRF, LVL_AMBASSADOR, TRUE);
+	sprintf(buf, "%s hit death trap #%d (%s)", GET_NAME(ch),
+		ch->in_room->number, ch->in_room->name);
+	mudlog(buf, BRF, LVL_AMBASSADOR, TRUE);
 }
 
 
 /* writes a string to the log */
-void 
+void
 slog(char *str)
 {
-    time_t ct;
-    char *tmstr;
+	time_t ct;
+	char *tmstr;
 
-    ct = time(0);
-    tmstr = asctime(localtime(&ct));
-    *(tmstr + strlen(tmstr) - 1) = '\0';
-    fprintf(stderr, "%-19.19s :: %s\n", tmstr, str);
+	ct = time(0);
+	tmstr = asctime(localtime(&ct));
+	*(tmstr + strlen(tmstr) - 1) = '\0';
+	fprintf(stderr, "%-19.19s :: %s\n", tmstr, str);
 }
 
 
 /* the "touch" command, essentially. */
-int 
+int
 touch(char *path)
 {
-    FILE *fl;
+	FILE *fl;
 
-    if (!(fl = fopen(path, "a"))) {
-        perror(path);
-        return -1;
-    } else {
-        fclose(fl);
-        return 0;
-    }
+	if (!(fl = fopen(path, "a"))) {
+		perror(path);
+		return -1;
+	} else {
+		fclose(fl);
+		return 0;
+	}
 }
 
 
@@ -240,159 +244,159 @@ touch(char *path)
  * mudlog -- log mud messages to a file & to online imm's syslogs
  * based on syslog by Fen Jul 3, 1992
  */
-void 
+void
 mudlog(char *str, char type, sbyte level, byte file)
 {
-    char buf[MAX_INPUT_LENGTH * 3];
-    extern struct descriptor_data *descriptor_list;
-    struct descriptor_data *i;
-    char *tmp, tp;
-    time_t ct;
+	char buf[MAX_INPUT_LENGTH * 3];
+	extern struct descriptor_data *descriptor_list;
+	struct descriptor_data *i;
+	char *tmp, tp;
+	time_t ct;
 
-    ct = time(0);
-    tmp = asctime(localtime(&ct));
+	ct = time(0);
+	tmp = asctime(localtime(&ct));
 
-    if (file)
-        fprintf(stderr, "%-19.19s :: %s\n", tmp, str);
-    if (level < 0)
-        return;
-    
-    if(strlen(str) > (MAX_INPUT_LENGTH * 2))
-        str[(MAX_INPUT_LENGTH * 2)] = '\0';
+	if (file)
+		fprintf(stderr, "%-19.19s :: %s\n", tmp, str);
+	if (level < 0)
+		return;
 
-    sprintf(buf, "[ %s ]\r\n", str);
+	if (strlen(str) > (MAX_INPUT_LENGTH * 2))
+		str[(MAX_INPUT_LENGTH * 2)] = '\0';
 
-    for (i = descriptor_list; i; i = i->next)
-        if (!i->connected && !PLR_FLAGGED(i->character, PLR_WRITING) &&
-            !PLR_FLAGGED(i->character, PLR_OLC)) {
-            tp = ((PRF_FLAGGED(i->character, PRF_LOG1) ? 1 : 0) +
-                  (PRF_FLAGGED(i->character, PRF_LOG2) ? 2 : 0));
+	sprintf(buf, "[ %s ]\r\n", str);
 
-            if ((GET_LEVEL(i->character) >= level) && (tp >= type)) {
-                send_to_char(CCGRN(i->character, C_NRM), i->character);
-                send_to_char(buf, i->character);
-                send_to_char(CCNRM(i->character, C_NRM), i->character);
-            }
-        }
+	for (i = descriptor_list; i; i = i->next)
+		if (!i->connected && !PLR_FLAGGED(i->character, PLR_WRITING) &&
+			!PLR_FLAGGED(i->character, PLR_OLC)) {
+			tp = ((PRF_FLAGGED(i->character, PRF_LOG1) ? 1 : 0) +
+				(PRF_FLAGGED(i->character, PRF_LOG2) ? 2 : 0));
+
+			if ((GET_LEVEL(i->character) >= level) && (tp >= type)) {
+				send_to_char(CCGRN(i->character, C_NRM), i->character);
+				send_to_char(buf, i->character);
+				send_to_char(CCNRM(i->character, C_NRM), i->character);
+			}
+		}
 }
 
-void 
+void
 sprintbit(long vektor, const char *names[], char *result)
 {
-    long nr;
+	long nr;
 
-    *result = '\0';
+	*result = '\0';
 
-    if (vektor < 0) {
-        strcpy(result, "SPRINTBIT ERROR!");
-        return;
-    }
-    for (nr = 0; vektor; vektor >>= 1) {
-        if (IS_SET(1, vektor)) {
-            if (*names[nr] != '\n') {
-                strcat(result, names[nr]);
-                strcat(result, " ");
-            } else
-                strcat(result, "UNDEFINED ");
-        }
-        if (*names[nr] != '\n')
-            nr++;
-    }
+	if (vektor < 0) {
+		strcpy(result, "SPRINTBIT ERROR!");
+		return;
+	}
+	for (nr = 0; vektor; vektor >>= 1) {
+		if (IS_SET(1, vektor)) {
+			if (*names[nr] != '\n') {
+				strcat(result, names[nr]);
+				strcat(result, " ");
+			} else
+				strcat(result, "UNDEFINED ");
+		}
+		if (*names[nr] != '\n')
+			nr++;
+	}
 
-    if (!*result)
-        strcat(result, "NOBITS ");
+	if (!*result)
+		strcat(result, "NOBITS ");
 }
 
 
 
-void 
+void
 sprinttype(int type, const char *names[], char *result)
 {
-    int nr;
+	int nr;
 
-    for (nr = 0; (*names[nr] != '\n'); nr++);
-    if (type < nr && type >= 0)
-        strcpy(result, names[type]);
-    else
-        strcpy(result, "UNDEFINED");
+	for (nr = 0; (*names[nr] != '\n'); nr++);
+	if (type < nr && type >= 0)
+		strcpy(result, names[type]);
+	else
+		strcpy(result, "UNDEFINED");
 }
 
 
 /* Calculate the REAL time passed over the last t2-t1 centuries (secs) */
-struct time_info_data 
+struct time_info_data
 real_time_passed(time_t t2, time_t t1)
 {
-    long secs;
-    struct time_info_data now;
+	long secs;
+	struct time_info_data now;
 
-    secs = (long) (t2 - t1);
+	secs = (long)(t2 - t1);
 
-    now.hours = (secs / SECS_PER_REAL_HOUR) % 24;        /* 0..23 hours */
-    secs -= SECS_PER_REAL_HOUR * now.hours;
+	now.hours = (secs / SECS_PER_REAL_HOUR) % 24;	/* 0..23 hours */
+	secs -= SECS_PER_REAL_HOUR * now.hours;
 
-    now.day = (secs / SECS_PER_REAL_DAY);        /* 0..34 days  */
-    secs -= SECS_PER_REAL_DAY * now.day;
+	now.day = (secs / SECS_PER_REAL_DAY);	/* 0..34 days  */
+	secs -= SECS_PER_REAL_DAY * now.day;
 
-    now.month = -1;
-    now.year = -1;
+	now.month = -1;
+	now.year = -1;
 
-    return now;
+	return now;
 }
 
 
 
 /* Calculate the MUD time passed over the last t2-t1 centuries (secs) */
-struct time_info_data 
+struct time_info_data
 mud_time_passed(time_t t2, time_t t1)
 {
-    long secs;
-    struct time_info_data now;
+	long secs;
+	struct time_info_data now;
 
-    secs = (long) (t2 - t1);
+	secs = (long)(t2 - t1);
 
-    now.hours = (secs / SECS_PER_MUD_HOUR) % 24;        /* 0..23 hours */
-    secs -= SECS_PER_MUD_HOUR * now.hours;
+	now.hours = (secs / SECS_PER_MUD_HOUR) % 24;	/* 0..23 hours */
+	secs -= SECS_PER_MUD_HOUR * now.hours;
 
-    now.day = (secs / SECS_PER_MUD_DAY) % 35;        /* 0..34 days  */
-    secs -= SECS_PER_MUD_DAY * now.day;
+	now.day = (secs / SECS_PER_MUD_DAY) % 35;	/* 0..34 days  */
+	secs -= SECS_PER_MUD_DAY * now.day;
 
-    now.month = (secs / SECS_PER_MUD_MONTH) % 17;        /* 0..16 months */
-    secs -= SECS_PER_MUD_MONTH * now.month;
+	now.month = (secs / SECS_PER_MUD_MONTH) % 17;	/* 0..16 months */
+	secs -= SECS_PER_MUD_MONTH * now.month;
 
-    now.year = (secs / SECS_PER_MUD_YEAR);        /* 0..XX? years */
+	now.year = (secs / SECS_PER_MUD_YEAR);	/* 0..XX? years */
 
-    return now;
+	return now;
 }
 
 
 
-struct time_info_data 
-age(struct char_data * ch)
+struct time_info_data
+age(struct char_data *ch)
 {
-    struct time_info_data player_age;
+	struct time_info_data player_age;
 
-    player_age = mud_time_passed(time(0), ch->player.time.birth);
+	player_age = mud_time_passed(time(0), ch->player.time.birth);
 
-    switch (GET_RACE(ch)) {
-    case RACE_ELF:
-    case RACE_DROW:
-        player_age.year += 80;
-        break;
-    case RACE_DWARF:
-        player_age.year += 40;
-        break;
-    case RACE_HALF_ORC:
-        player_age.year += 12;
-        break;
-    case RACE_HUMAN:
-        player_age.year += 13;
-        break;
-    default:
-        player_age.year += 13;
-        break;
-    }
+	switch (GET_RACE(ch)) {
+	case RACE_ELF:
+	case RACE_DROW:
+		player_age.year += 80;
+		break;
+	case RACE_DWARF:
+		player_age.year += 40;
+		break;
+	case RACE_HALF_ORC:
+		player_age.year += 12;
+		break;
+	case RACE_HUMAN:
+		player_age.year += 13;
+		break;
+	default:
+		player_age.year += 13;
+		break;
+	}
 
-    return player_age;
+	return player_age;
 }
 
 
@@ -400,144 +404,149 @@ age(struct char_data * ch)
 
 /* Check if making CH follow VICTIM will create an illegal */
 /* Follow "Loop/circle"                                    */
-bool 
+bool
 circle_follow(struct char_data * ch, struct char_data * victim)
 {
-    struct char_data *k;
+	struct char_data *k;
 
-    for (k = victim; k; k = k->master) {
-        if (k == ch)
-            return TRUE;
-    }
+	for (k = victim; k; k = k->master) {
+		if (k == ch)
+			return TRUE;
+	}
 
-    return FALSE;
+	return FALSE;
 }
 
 
 
 /* Called when stop following persons, or stopping charm */
 /* This will NOT do if a character quits/dies!!          */
-void 
-stop_follower(struct char_data * ch)
+void
+stop_follower(struct char_data *ch)
 {
-    struct follow_type *j, *k;
+	struct follow_type *j, *k;
 
-    if ( !ch->master )
-        raise( SIGSEGV );
+	if (!ch->master)
+		raise(SIGSEGV);
 
-    if (IS_AFFECTED(ch, AFF_CHARM) && !MOB2_FLAGGED(ch, MOB2_MOUNT)) {
-        act("You realize that $N is a jerk!", FALSE, ch, 0, ch->master, TO_CHAR);
-        act("$n realizes that $N is a jerk!", FALSE, ch, 0, ch->master, TO_NOTVICT);
-        act("$n hates your guts!", FALSE, ch, 0, ch->master, TO_VICT);
-        if (affected_by_spell(ch, SPELL_CHARM))
-            affect_from_char(ch, SPELL_CHARM);
-    } else {
-        act("You stop following $N.", FALSE, ch, 0, ch->master, TO_CHAR);
-        act("$n stops following $N.", TRUE, ch, 0, ch->master, TO_NOTVICT);
-        if (GET_INVIS_LEV(ch) < GET_LEVEL(ch->master) && !IS_AFFECTED(ch, AFF_SNEAK))
-            act("$n stops following you.", TRUE, ch, 0, ch->master, TO_VICT);
-    }
-  
-    if (ch->master->followers->follower == ch) {        /* Head of follower-list? */
-        k = ch->master->followers;
-        ch->master->followers = k->next;
-        free(k);
+	if (IS_AFFECTED(ch, AFF_CHARM) && !MOB2_FLAGGED(ch, MOB2_MOUNT)) {
+		act("You realize that $N is a jerk!", FALSE, ch, 0, ch->master,
+			TO_CHAR);
+		act("$n realizes that $N is a jerk!", FALSE, ch, 0, ch->master,
+			TO_NOTVICT);
+		act("$n hates your guts!", FALSE, ch, 0, ch->master, TO_VICT);
+		if (affected_by_spell(ch, SPELL_CHARM))
+			affect_from_char(ch, SPELL_CHARM);
+	} else {
+		act("You stop following $N.", FALSE, ch, 0, ch->master, TO_CHAR);
+		act("$n stops following $N.", TRUE, ch, 0, ch->master, TO_NOTVICT);
+		if (GET_INVIS_LEV(ch) < GET_LEVEL(ch->master)
+			&& !IS_AFFECTED(ch, AFF_SNEAK))
+			act("$n stops following you.", TRUE, ch, 0, ch->master, TO_VICT);
+	}
+
+	if (ch->master->followers->follower == ch) {	/* Head of follower-list? */
+		k = ch->master->followers;
+		ch->master->followers = k->next;
+		free(k);
 #ifdef DMALLOC
-        dmalloc_verify(0);
+		dmalloc_verify(0);
 #endif
-    } else {                        /* locate follower who is not head of list */
-        for (k = ch->master->followers; k->next->follower != ch; k = k->next);
+	} else {					/* locate follower who is not head of list */
+		for (k = ch->master->followers; k->next->follower != ch; k = k->next);
 
-        j = k->next;
-        k->next = j->next;
-        free(j);
+		j = k->next;
+		k->next = j->next;
+		free(j);
 #ifdef DMALLOC
-        dmalloc_verify(0);
+		dmalloc_verify(0);
 #endif
-    }
+	}
 
-    ch->master = NULL;
-    REMOVE_BIT(AFF_FLAGS(ch), AFF_CHARM | AFF_GROUP);
+	ch->master = NULL;
+	REMOVE_BIT(AFF_FLAGS(ch), AFF_CHARM | AFF_GROUP);
 }
 
 
 
 /* Called when a character that follows/is followed dies */
-void 
-die_follower(struct char_data * ch)
+void
+die_follower(struct char_data *ch)
 {
-    struct follow_type *j, *k;
+	struct follow_type *j, *k;
 
-    if (order_next_k && order_next_k->follower && ch == order_next_k->follower)
-            order_next_k = NULL;
-  
-    if (ch->master)
-            stop_follower(ch);
+	if (order_next_k && order_next_k->follower && ch == order_next_k->follower)
+		order_next_k = NULL;
 
-    for (k = ch->followers; k; k = j) {
-            j = k->next;
-            stop_follower(k->follower);
-    }
+	if (ch->master)
+		stop_follower(ch);
+
+	for (k = ch->followers; k; k = j) {
+		j = k->next;
+		stop_follower(k->follower);
+	}
 }
 int
-player_in_room ( struct room_data *room ) {
-    CharacterList::iterator it = room->people.begin();
-    for( ; it != room->people.end(); ++it ) {
-        if(!IS_NPC((*it)) && GET_LEVEL((*it)) < LVL_AMBASSADOR)
-            return 1;
-    }
-    return 0;
-}   
+player_in_room(struct room_data *room)
+{
+	CharacterList::iterator it = room->people.begin();
+	for (; it != room->people.end(); ++it) {
+		if (!IS_NPC((*it)) && GET_LEVEL((*it)) < LVL_AMBASSADOR)
+			return 1;
+	}
+	return 0;
+}
 
 
 
 /* Do NOT call this before having checked if a circle of followers */
 /* will arise. CH will follow leader                               */
-void 
-add_follower(struct char_data * ch, struct char_data * leader)
+void
+add_follower(struct char_data *ch, struct char_data *leader)
 {
-    struct follow_type *k;
+	struct follow_type *k;
 
-    if (ch->master)
-        raise( SIGSEGV );
+	if (ch->master)
+		raise(SIGSEGV);
 
-    ch->master = leader;
+	ch->master = leader;
 
-    CREATE(k, struct follow_type, 1);
+	CREATE(k, struct follow_type, 1);
 
-    k->follower = ch;
-    k->next = leader->followers;
-    leader->followers = k;
+	k->follower = ch;
+	k->next = leader->followers;
+	leader->followers = k;
 
-    act("You now follow $N.", FALSE, ch, 0, leader, TO_CHAR);
-    if (CAN_SEE(leader, ch))
-        act("$n starts following you.", TRUE, ch, 0, leader, TO_VICT);
-    act("$n starts to follow $N.", TRUE, ch, 0, leader, TO_NOTVICT);
+	act("You now follow $N.", FALSE, ch, 0, leader, TO_CHAR);
+	if (CAN_SEE(leader, ch))
+		act("$n starts following you.", TRUE, ch, 0, leader, TO_VICT);
+	act("$n starts to follow $N.", TRUE, ch, 0, leader, TO_NOTVICT);
 }
-void 
-add_stalker(struct char_data * ch, struct char_data * leader)
+
+void
+add_stalker(struct char_data *ch, struct char_data *leader)
 {
-    struct follow_type *k;
+	struct follow_type *k;
 
-    if (ch->master)
-        raise( SIGSEGV );
+	if (ch->master)
+		raise(SIGSEGV);
 
-    ch->master = leader;
+	ch->master = leader;
 
-    CREATE(k, struct follow_type, 1);
+	CREATE(k, struct follow_type, 1);
 
-    k->follower = ch;
-    k->next = leader->followers;
-    leader->followers = k;
+	k->follower = ch;
+	k->next = leader->followers;
+	leader->followers = k;
 
-    act("You are now stalking $N.", FALSE, ch, 0, leader, TO_CHAR);
-    if (CAN_SEE(leader, ch)) {
-        if (CHECK_SKILL(ch, SKILL_STALK) < (number(0, 80) + GET_WIS(leader))) {
-            act("$n starts following you.", TRUE, ch, 0, leader, TO_VICT);
-            act("$n starts to follow $N.", TRUE, ch, 0, leader, TO_NOTVICT);
-        } else
-            gain_skill_prof(ch, SKILL_STALK);
-    }
+	act("You are now stalking $N.", FALSE, ch, 0, leader, TO_CHAR);
+	if (CAN_SEE(leader, ch)) {
+		if (CHECK_SKILL(ch, SKILL_STALK) < (number(0, 80) + GET_WIS(leader))) {
+			act("$n starts following you.", TRUE, ch, 0, leader, TO_VICT);
+			act("$n starts to follow $N.", TRUE, ch, 0, leader, TO_NOTVICT);
+		} else
+			gain_skill_prof(ch, SKILL_STALK);
+	}
 }
 
 /*
@@ -547,355 +556,403 @@ add_stalker(struct char_data * ch, struct char_data * leader)
  *
  * Returns the number of lines advanced in the file.
  */
-int 
+int
 get_line(FILE * fl, char *buf)
 {
-    char temp[512];
-    int lines = 0;
+	char temp[512];
+	int lines = 0;
 
-    temp[0] = '\0';
-    do {
-        lines++;
-        fgets(temp, 256, fl);
-        temp[511] = '\0';
-        if (*temp)
-            temp[strlen(temp) - 1] = '\0';
-    } while (!feof(fl) && (*temp == '*' || !*temp));
+	temp[0] = '\0';
+	do {
+		lines++;
+		fgets(temp, 256, fl);
+		temp[511] = '\0';
+		if (*temp)
+			temp[strlen(temp) - 1] = '\0';
+	} while (!feof(fl) && (*temp == '*' || !*temp));
 
-    if (feof(fl))
-        return 0;
-    else {
-        strcpy(buf, temp);
-        return lines;
-    }
+	if (feof(fl))
+		return 0;
+	else {
+		strcpy(buf, temp);
+		return lines;
+	}
 }
 
 
-int 
+int
 get_filename(char *orig_name, char *filename, int mode)
 {
-    char *prefix, *middle, *suffix, *ptr, name[64];
+	char *prefix, *middle, *suffix, *ptr, name[64];
 
-    switch (mode) {
-        case PLAYER_MAIL_FILE:
-        prefix = "plrmail";
-        suffix = "mail";
-        break;
-    case CRASH_FILE:
-        prefix = "plrobjs";
-        suffix = "objs";
-        break;
-    case ETEXT_FILE:
-        prefix = "plrtext";
-        suffix = "text";
-        break;
-    case IMPLANT_FILE:
-        prefix = "implants";
-        suffix = "implant";
-        break;
-    default:
-        return 0;
-        break;
-    }
+	switch (mode) {
+	case PLAYER_MAIL_FILE:
+		prefix = "plrmail";
+		suffix = "mail";
+		break;
+	case CRASH_FILE:
+		prefix = "plrobjs";
+		suffix = "objs";
+		break;
+	case ETEXT_FILE:
+		prefix = "plrtext";
+		suffix = "text";
+		break;
+	case IMPLANT_FILE:
+		prefix = "implants";
+		suffix = "implant";
+		break;
+	default:
+		return 0;
+		break;
+	}
 
-    if (!*orig_name)
-        return 0;
+	if (!*orig_name)
+		return 0;
 
-    strcpy(name, orig_name);
-    for (ptr = name; *ptr; ptr++)
-        *ptr = LOWER(*ptr);
+	strcpy(name, orig_name);
+	for (ptr = name; *ptr; ptr++)
+		*ptr = LOWER(*ptr);
 
-    switch (LOWER(*name)) {
-    case 'a':  case 'b':  case 'c':  case 'd':  case 'e':
-        middle = "A-E";
-        break;
-    case 'f':  case 'g':  case 'h':  case 'i':  case 'j':
-        middle = "F-J";
-        break;
-    case 'k':  case 'l':  case 'm':  case 'n':  case 'o':
-        middle = "K-O";
-        break;
-    case 'p':  case 'q':  case 'r':  case 's':  case 't':
-        middle = "P-T";
-        break;
-    case 'u':  case 'v':  case 'w':  case 'x':  case 'y':  case 'z':
-        middle = "U-Z";
-        break;
-    default:
-        middle = "ZZZ";
-        break;
-    }
+	switch (LOWER(*name)) {
+	case 'a':
+	case 'b':
+	case 'c':
+	case 'd':
+	case 'e':
+		middle = "A-E";
+		break;
+	case 'f':
+	case 'g':
+	case 'h':
+	case 'i':
+	case 'j':
+		middle = "F-J";
+		break;
+	case 'k':
+	case 'l':
+	case 'm':
+	case 'n':
+	case 'o':
+		middle = "K-O";
+		break;
+	case 'p':
+	case 'q':
+	case 'r':
+	case 's':
+	case 't':
+		middle = "P-T";
+		break;
+	case 'u':
+	case 'v':
+	case 'w':
+	case 'x':
+	case 'y':
+	case 'z':
+		middle = "U-Z";
+		break;
+	default:
+		middle = "ZZZ";
+		break;
+	}
 
-    sprintf(filename, "%s/%s/%s.%s", prefix, middle, name, suffix);
-    return 1;
+	sprintf(filename, "%s/%s/%s.%s", prefix, middle, name, suffix);
+	return 1;
 }
-void num2str(char *str, int num)
+
+void
+num2str(char *str, int num)
 {
-    str[0] = 0;
+	str[0] = 0;
 
-    if (num == 0)  {
-        str[0] = '0';
-        str[1] = '\0';
-        return;
-    }
+	if (num == 0) {
+		str[0] = '0';
+		str[1] = '\0';
+		return;
+	}
 
-    if (num & (1 << 0))
-        strncat (str,"a",1);
+	if (num & (1 << 0))
+		strncat(str, "a", 1);
 
-    if (num & (1 << 1))
-        strncat (str,"b",1);
+	if (num & (1 << 1))
+		strncat(str, "b", 1);
 
-    if (num & (1 << 2))
-        strncat (str,"c",1);
+	if (num & (1 << 2))
+		strncat(str, "c", 1);
 
-    if (num & (1 << 3))
-        strncat (str,"d",1);
+	if (num & (1 << 3))
+		strncat(str, "d", 1);
 
-    if (num & (1 << 4))
-        strncat (str,"e",1);
+	if (num & (1 << 4))
+		strncat(str, "e", 1);
 
-    if (num & (1 << 5))
-        strncat (str,"f",1);
+	if (num & (1 << 5))
+		strncat(str, "f", 1);
 
-    if (num & (1 << 6))
-        strncat (str,"g",1);
+	if (num & (1 << 6))
+		strncat(str, "g", 1);
 
-    if (num & (1 << 7))
-        strncat (str,"h",1);
+	if (num & (1 << 7))
+		strncat(str, "h", 1);
 
-    if (num & (1 << 8))
-        strncat (str,"i",1);
+	if (num & (1 << 8))
+		strncat(str, "i", 1);
 
-    if (num & (1 << 9))
-        strncat (str,"j",1);
+	if (num & (1 << 9))
+		strncat(str, "j", 1);
 
-    if (num & (1 << 10))
-        strncat (str,"k",1);
+	if (num & (1 << 10))
+		strncat(str, "k", 1);
 
-    if (num & (1 << 11))
-        strncat (str,"l",1);
+	if (num & (1 << 11))
+		strncat(str, "l", 1);
 
-    if (num & (1 << 12))
-        strncat (str,"m",1);
+	if (num & (1 << 12))
+		strncat(str, "m", 1);
 
-    if (num & (1 << 13))
-        strncat (str,"n",1);
+	if (num & (1 << 13))
+		strncat(str, "n", 1);
 
-    if (num & (1 << 14))
-        strncat (str,"o",1);
+	if (num & (1 << 14))
+		strncat(str, "o", 1);
 
-    if (num & (1 << 15))
-        strncat (str,"p",1);
+	if (num & (1 << 15))
+		strncat(str, "p", 1);
 
-    if (num & (1 << 16))
-        strncat (str,"q",1);
+	if (num & (1 << 16))
+		strncat(str, "q", 1);
 
-    if (num & (1 << 17))
-        strncat (str,"r",1);
+	if (num & (1 << 17))
+		strncat(str, "r", 1);
 
-    if (num & (1 << 18))
-        strncat (str,"s",1);
+	if (num & (1 << 18))
+		strncat(str, "s", 1);
 
-    if (num & (1 << 19))
-        strncat (str,"t",1);
+	if (num & (1 << 19))
+		strncat(str, "t", 1);
 
-    if (num & (1 << 20))
-        strncat (str,"u",1);
+	if (num & (1 << 20))
+		strncat(str, "u", 1);
 
-    if (num & (1 << 21))
-        strncat (str,"v",1);
+	if (num & (1 << 21))
+		strncat(str, "v", 1);
 
-    if (num & (1 << 22))
-        strncat (str,"w",1);
+	if (num & (1 << 22))
+		strncat(str, "w", 1);
 
-    if (num & (1 << 23))
-        strncat (str,"x",1);
+	if (num & (1 << 23))
+		strncat(str, "x", 1);
 
-    if (num & (1 << 24))
-        strncat (str,"y",1);
+	if (num & (1 << 24))
+		strncat(str, "y", 1);
 
-    if (num & (1 << 25))
-        strncat (str,"z",1);
+	if (num & (1 << 25))
+		strncat(str, "z", 1);
 
-    if (num & (1 << 26))
-        strncat (str,"A",1);
+	if (num & (1 << 26))
+		strncat(str, "A", 1);
 
-    if (num & (1 << 27))
-        strncat (str,"B",1);
+	if (num & (1 << 27))
+		strncat(str, "B", 1);
 
-    if (num & (1 << 28))
-        strncat (str,"C",1);
+	if (num & (1 << 28))
+		strncat(str, "C", 1);
 
-    if (num & (1 << 29))
-        strncat (str,"D",1);
+	if (num & (1 << 29))
+		strncat(str, "D", 1);
 
-    if (num & (1 << 30))
-        strncat (str,"E",1);
+	if (num & (1 << 30))
+		strncat(str, "E", 1);
 
-    if (num & (1 << 31))
-        strncat (str,"F",1);
+	if (num & (1 << 31))
+		strncat(str, "F", 1);
 }
 
 char *
 GET_DISGUISED_NAME(struct char_data *ch, struct char_data *tch)
 {
-    struct affected_type *af = NULL;
-    struct char_data *mob = NULL;
-    static char buf[1024];
+	struct affected_type *af = NULL;
+	struct char_data *mob = NULL;
+	static char buf[1024];
 
-    if (IS_NPC(tch))
-        return GET_NAME(tch);
+	if (IS_NPC(tch))
+		return GET_NAME(tch);
 
-    if (!(af = affected_by_spell(tch, SKILL_DISGUISE)))
-        return GET_NAME(tch);
+	if (!(af = affected_by_spell(tch, SKILL_DISGUISE)))
+		return GET_NAME(tch);
 
-    if (!(mob = real_mobile_proto(af->modifier)))
-        return GET_NAME(tch);
+	if (!(mob = real_mobile_proto(af->modifier)))
+		return GET_NAME(tch);
 
-    if (CAN_DETECT_DISGUISE(ch, tch, af->duration)) {
-        sprintf(buf, "%s (disguised as %s)", GET_NAME(tch), GET_NAME(mob));
-        return (buf);
-    }
-    gain_skill_prof(tch, SKILL_DISGUISE);
-    return GET_NAME(mob);
+	if (CAN_DETECT_DISGUISE(ch, tch, af->duration)) {
+		sprintf(buf, "%s (disguised as %s)", GET_NAME(tch), GET_NAME(mob));
+		return (buf);
+	}
+	gain_skill_prof(tch, SKILL_DISGUISE);
+	return GET_NAME(mob);
 }
-int
-CHECK_SKILL(struct char_data *ch, int i) 
-{
-    int level = 0;
-    struct affected_type *af_ptr = NULL;
 
-    if (!IS_NPC(ch)) {
-        level = ch->player_specials->saved.skills[i];
-    } else {
-        if (GET_CLASS(ch) < NUM_CLASSES) {
-            if (GET_LEVEL(ch) >=                      
-                spell_info[i].min_level[(int)GET_CLASS(ch)])
-                level = 50 + GET_LEVEL(ch);
-        }
-        if (!level &&
-            GET_REMORT_CLASS(ch) < NUM_CLASSES && GET_REMORT_CLASS(ch) >= 0) {
-            if (GET_LEVEL(ch) >=                      
-                spell_info[i].min_level[(int)GET_REMORT_CLASS(ch)])
-                level = 50 + GET_LEVEL(ch);
-        }
-        if (!level) {
-            if (IS_GIANT(ch))
-                if (GET_LEVEL(ch) >= spell_info[i].min_level[CLASS_BARB])
-                    level = 50 + GET_LEVEL(ch);
-        }
-        if (IS_DEVIL(ch))
-            level += GET_LEVEL(ch) >> 1;
-    }
-    if (level > 0 && (af_ptr = affected_by_spell(ch, SPELL_AMNESIA)))
-        level = MAX(0, level - af_ptr->duration);
-    
-    return level;
+int
+CHECK_SKILL(struct char_data *ch, int i)
+{
+	int level = 0;
+	struct affected_type *af_ptr = NULL;
+
+	if (!IS_NPC(ch)) {
+		level = ch->player_specials->saved.skills[i];
+	} else {
+		if (GET_CLASS(ch) < NUM_CLASSES) {
+			if (GET_LEVEL(ch) >= spell_info[i].min_level[(int)GET_CLASS(ch)])
+				level = 50 + GET_LEVEL(ch);
+		}
+		if (!level &&
+			GET_REMORT_CLASS(ch) < NUM_CLASSES && GET_REMORT_CLASS(ch) >= 0) {
+			if (GET_LEVEL(ch) >=
+				spell_info[i].min_level[(int)GET_REMORT_CLASS(ch)])
+				level = 50 + GET_LEVEL(ch);
+		}
+		if (!level) {
+			if (IS_GIANT(ch))
+				if (GET_LEVEL(ch) >= spell_info[i].min_level[CLASS_BARB])
+					level = 50 + GET_LEVEL(ch);
+		}
+		if (IS_DEVIL(ch))
+			level += GET_LEVEL(ch) >> 1;
+	}
+	if (level > 0 && (af_ptr = affected_by_spell(ch, SPELL_AMNESIA)))
+		level = MAX(0, level - af_ptr->duration);
+
+	return level;
 }
 
 void
-WAIT_STATE(struct char_data * ch, int cycle)
+WAIT_STATE(struct char_data *ch, int cycle)
 {
-    int wait;
+	int wait;
 
-    if ( GET_LEVEL(ch) >= LVL_TIMEGOD )
-        return;
+	if (GET_LEVEL(ch) >= LVL_TIMEGOD)
+		return;
 
-    wait = cycle;
+	wait = cycle;
 
-    if ( AFF2_FLAGGED(ch, AFF2_HASTE) )
-         wait -= cycle >> 2;
-    if ( AFF2_FLAGGED(ch, AFF2_SLOW) )
-         wait += cycle >> 2;
-    if ( ch->getSpeed() )
-        wait -= ( cycle * ch->getSpeed() ) / 100;
-    
-    if ( ch->desc ) {
-        ch->desc->wait = MAX(ch->desc->wait, wait);    
-    }
+	if (AFF2_FLAGGED(ch, AFF2_HASTE))
+		wait -= cycle >> 2;
+	if (AFF2_FLAGGED(ch, AFF2_SLOW))
+		wait += cycle >> 2;
+	if (ch->getSpeed())
+		wait -= (cycle * ch->getSpeed()) / 100;
 
-    else if ( IS_NPC(ch) ) {
-        GET_MOB_WAIT(ch) =   MAX(GET_MOB_WAIT(ch),  wait);
-    }
-}
+	if (ch->desc) {
+		ch->desc->wait = MAX(ch->desc->wait, wait);
+	}
 
-char *OBJN(obj_data *obj, char_data *vict) {
-    if( CAN_SEE_OBJ(vict,obj) )
-        return fname((obj)->name);
-    else
-        return "something";
-}
-char *OBJS(obj_data *obj, char_data *vict) {
-    if( CAN_SEE_OBJ((vict),(obj)) )
-        return obj->short_description;
-    else
-        return "something";
-}
-char *PERS( char_data *ch, char_data *sub ) {
-    if( CAN_SEE(sub, ch) )
-        return GET_DISGUISED_NAME(sub,ch);
-    else
-        return "someone";
-}
-char *AN( char *str ) {
-    if( PLUR(str) )
-        return "some";
-    if(strchr("aeiouAEIOU",*str))
-        return "an";
-    return "a";
-}
-char *YESNO(bool a){
-    if( a )
-        return "YES";
-    else
-        return "NO";
-}
-char *ONOFF(bool a) {
-    if( a )
-        return "ON";
-    return "OFF";
+	else if (IS_NPC(ch)) {
+		GET_MOB_WAIT(ch) = MAX(GET_MOB_WAIT(ch), wait);
+	}
 }
 
-char *CURRENCY(char_data *ch) {
-    if( ch->in_room->zone->time_frame == TIME_ELECTRO )
-        return "credit";
-    return "coin";
-}    
-bool CAN_GO(char_data *ch, int door ) {
-    room_direction_data *exit = EXIT(ch,door);
-    return ( exit != NULL && 
-             !IS_SET(exit->exit_info, EX_CLOSED | EX_NOPASS) &&
-             exit->to_room != NULL );
-}
-bool CAN_GO(obj_data *obj, int door ) {
-    room_direction_data *exit = EXIT(obj,door);
-    return ( exit != NULL && 
-             !IS_SET(exit->exit_info, EX_CLOSED | EX_NOPASS) &&
-             exit->to_room != NULL );
-}
-
-const char *stristr( const char *haystack,const char *needle )
+char *
+OBJN(obj_data * obj, char_data * vict)
 {
-	const char *read_pt,*search_pt;
+	if (CAN_SEE_OBJ(vict, obj))
+		return fname((obj)->name);
+	else
+		return "something";
+}
 
-	while ( *haystack )
-		{
+char *
+OBJS(obj_data * obj, char_data * vict)
+{
+	if (CAN_SEE_OBJ((vict), (obj)))
+		return obj->short_description;
+	else
+		return "something";
+}
+
+char *
+PERS(char_data * ch, char_data * sub)
+{
+	if (CAN_SEE(sub, ch))
+		return GET_DISGUISED_NAME(sub, ch);
+	else
+		return "someone";
+}
+
+char *
+AN(char *str)
+{
+	if (PLUR(str))
+		return "some";
+	if (strchr("aeiouAEIOU", *str))
+		return "an";
+	return "a";
+}
+
+char *
+YESNO(bool a)
+{
+	if (a)
+		return "YES";
+	else
+		return "NO";
+}
+
+char *
+ONOFF(bool a)
+{
+	if (a)
+		return "ON";
+	return "OFF";
+}
+
+char *
+CURRENCY(char_data * ch)
+{
+	if (ch->in_room->zone->time_frame == TIME_ELECTRO)
+		return "credit";
+	return "coin";
+}
+
+bool
+CAN_GO(char_data * ch, int door)
+{
+	room_direction_data *exit = EXIT(ch, door);
+	return (exit != NULL &&
+		!IS_SET(exit->exit_info, EX_CLOSED | EX_NOPASS) &&
+		exit->to_room != NULL);
+}
+
+bool
+CAN_GO(obj_data * obj, int door)
+{
+	room_direction_data *exit = EXIT(obj, door);
+	return (exit != NULL &&
+		!IS_SET(exit->exit_info, EX_CLOSED | EX_NOPASS) &&
+		exit->to_room != NULL);
+}
+
+const char *
+stristr(const char *haystack, const char *needle)
+{
+	const char *read_pt, *search_pt;
+
+	while (*haystack) {
 		search_pt = haystack;
 		read_pt = needle;
-		while ( tolower(*search_pt) == tolower(*read_pt) && *search_pt && *read_pt )
-			{
+		while (tolower(*search_pt) == tolower(*read_pt) && *search_pt
+			&& *read_pt) {
 			search_pt++;
 			read_pt++;
-			}
+		}
 
-		if ( !*read_pt )
+		if (!*read_pt)
 			return haystack;
-		
-		if ( !*search_pt )
+
+		if (!*search_pt)
 			return NULL;
 
 		haystack++;
-		}
+	}
 
 	return NULL;
 }

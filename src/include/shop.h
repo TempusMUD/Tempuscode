@@ -6,49 +6,49 @@
 
 
 struct shop_buy_data {
-   int type;
-   char *keywords;
-} ;
+	int type;
+	char *keywords;
+};
 
 #define BUY_TYPE(i)		((i).type)
 #define BUY_WORD(i)		((i).keywords)
 
 
 struct shop_data {
-   int	 vnum;		/* Virtual number of this shop		*/
-   int	*producing;		/* Which item to produce (vnum)	*/
-   byte currency;               /* What is legal tender ?               */
-   float profit_buy;		/* Factor to multiply cost with		*/
-   float profit_sell;		/* Factor to multiply cost with		*/
-   int	revenue;			// How much of thier original cash do they get back
-   							// Each zone reset?
-   struct shop_buy_data *type;	/* Which items to trade			*/
-   char	*no_such_item1;		/* Message if keeper hasn't got an item	*/
-   char	*no_such_item2;		/* Message if player hasn't got an item	*/
-   char	*missing_cash1;		/* Message if keeper hasn't got cash	*/
-   char	*missing_cash2;		/* Message if player hasn't got cash	*/
-   char	*do_not_buy;		/* If keeper dosn't buy such things	*/
-   char	*message_buy;		/* Message when player buys item	*/
-   char	*message_sell;		/* Message when player sells item	*/
-   int	 temper1;		/* How does keeper react if no money	*/
-   int	 bitvector;		/* Can attack? Use bank? Cast here?	*/
-   int	 keeper;		/* The mobil who owns the shop (vnum)*/
-   int	 with_who;		/* Who does the shop trade with?	*/
-   int	*in_room;		/* Where is the shop?			*/
-   int	 open1, open2;		/* When does the shop open?		*/
-   int	 close1, close2;	/* When does the shop close?		*/
-   int	 bankAccount;		/* Store all gold over 15000 (disabled)	*/
-   int	 lastsort;		/* How many items are sorted in inven?	*/
-   SPECIAL (*func);		/* Secondary spec_proc for shopkeeper	*/
-   struct shop_data *next;      /* Next shop in linked list             */
+	int vnum;					/* Virtual number of this shop      */
+	int *producing;				/* Which item to produce (vnum) */
+	byte currency;				/* What is legal tender ?               */
+	float profit_buy;			/* Factor to multiply cost with     */
+	float profit_sell;			/* Factor to multiply cost with     */
+	int revenue;				// How much of thier original cash do they get back
+	// Each zone reset?
+	struct shop_buy_data *type;	/* Which items to trade         */
+	char *no_such_item1;		/* Message if keeper hasn't got an item */
+	char *no_such_item2;		/* Message if player hasn't got an item */
+	char *missing_cash1;		/* Message if keeper hasn't got cash    */
+	char *missing_cash2;		/* Message if player hasn't got cash    */
+	char *do_not_buy;			/* If keeper dosn't buy such things */
+	char *message_buy;			/* Message when player buys item    */
+	char *message_sell;			/* Message when player sells item   */
+	int temper1;				/* How does keeper react if no money    */
+	int bitvector;				/* Can attack? Use bank? Cast here? */
+	int keeper;					/* The mobil who owns the shop (vnum) */
+	int with_who;				/* Who does the shop trade with?    */
+	int *in_room;				/* Where is the shop?           */
+	int open1, open2;			/* When does the shop open?     */
+	int close1, close2;			/* When does the shop close?        */
+	int bankAccount;			/* Store all gold over 15000 (disabled) */
+	int lastsort;				/* How many items are sorted in inven?  */
+	 SPECIAL(*func);			/* Secondary spec_proc for shopkeeper   */
+	struct shop_data *next;		/* Next shop in linked list             */
 };
 
 
-#define MAX_TRADE	5	/* List maximums for compatibility	*/
-#define MAX_PROD	5	/*	with shops before v3.0		*/
-#define VERSION3_TAG	"v3.0"	/* The file has v3.0 shops in it!	*/
+#define MAX_TRADE	5			/* List maximums for compatibility  */
+#define MAX_PROD	5			/*  with shops before v3.0      */
+#define VERSION3_TAG	"v3.0"	/* The file has v3.0 shops in it!   */
 #define SHP_MOD_LEV		"pl"
-#define MAX_SHOP_OBJ	100	/* "Soft" maximum for list maximums	*/
+#define MAX_SHOP_OBJ	100		/* "Soft" maximum for list maximums */
 
 
 /* Pretty general macros that could be used elsewhere */
@@ -104,9 +104,9 @@ struct shop_data {
 
 
 struct stack_data {
-   int data[100];
-   int len;
-} ;
+	int data[100];
+	int len;
+};
 
 #define S_DATA(stack, index)	((stack)->data[(index)])
 #define S_LEN(stack)		((stack)->len)
@@ -183,5 +183,5 @@ struct stack_data {
 #define SHOP_DEFAULT_MESSAGE_BUY  "You spend %d."
 #define SHOP_DEFAULT_MESSAGE_SELL "You receive %d."
 
-int ok_damage_shopkeeper(struct char_data * ch, struct char_data * victim);
-bool shop_check_message_format( char *format_buf );
+int ok_damage_shopkeeper(struct char_data *ch, struct char_data *victim);
+bool shop_check_message_format(char *format_buf);

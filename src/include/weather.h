@@ -22,14 +22,14 @@
 #define SKY_RAINING	2
 #define SKY_LIGHTNING	3
 
-#define MOON_NEW           0   /* 23 /  0 */
-#define MOON_WAX_CRESCENT  1   /*  1 -  4 */
-#define MOON_FIRST_QUARTER 2   /*  5 -  6 */
-#define MOON_WAX_GIBBOUS   3   /*  7 - 10 */
-#define MOON_FULL          4   /* 11 - 12 */
-#define MOON_WANE_GIBBOUS  5   /* 13 - 16 */
-#define MOON_LAST_QUARTER  6   /* 17 - 18 */
-#define MOON_WANE_CRESCENT 7   /* 19 - 22 */
+#define MOON_NEW           0	/* 23 /  0 */
+#define MOON_WAX_CRESCENT  1	/*  1 -  4 */
+#define MOON_FIRST_QUARTER 2	/*  5 -  6 */
+#define MOON_WAX_GIBBOUS   3	/*  7 - 10 */
+#define MOON_FULL          4	/* 11 - 12 */
+#define MOON_WANE_GIBBOUS  5	/* 13 - 16 */
+#define MOON_LAST_QUARTER  6	/* 17 - 18 */
+#define MOON_WANE_CRESCENT 7	/* 19 - 22 */
 
 #define MOON_SKY_NONE      0
 #define MOON_SKY_RISE      1
@@ -40,14 +40,13 @@
 
 
 struct weather_data {
-  int  pressure;	/* How is the pressure ( Mb ) */
-  int  change;	        /* How fast and what way does it change. */
-  byte sky;	        /* How is the sky. */
-  byte sunlight;	/* And how much sun. */
-  byte moonlight;
-  byte temp;            /* temperature */
-  byte humid;           /* humidity */
+	int pressure;				/* How is the pressure ( Mb ) */
+	int change;					/* How fast and what way does it change. */
+	byte sky;					/* How is the sky. */
+	byte sunlight;				/* And how much sun. */
+	byte moonlight;
+	byte temp;					/* temperature */
+	byte humid;					/* humidity */
 };
 
-#endif 
-
+#endif

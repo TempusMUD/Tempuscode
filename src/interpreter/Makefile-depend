@@ -5,6 +5,6 @@ $(OBJ)/interpreter.o : interpreter.cc \
 	$(INCLUDE)/structs.h $(INCLUDE)/comm.h $(INCLUDE)/interpreter.h $(INCLUDE)/db.h $(INCLUDE)/utils.h $(INCLUDE)/spells.h $(INCLUDE)/handler.h $(INCLUDE)/mail.h $(INCLUDE)/screen.h $(INCLUDE)/help.h $(INCLUDE)/char_class.h $(INCLUDE)/clan.h $(INCLUDE)/vehicle.h $(INCLUDE)/house.h $(INCLUDE)/login.h $(INCLUDE)/matrix.h $(INCLUDE)/bomb.h $(INCLUDE)/security.h 
 	$(CXX) -c $(CXXFLAGS) interpreter.cc       -o $(OBJ)/interpreter.o
 $(OBJ)/security.o : security.cc \
-	$(INCLUDE)/xml_utils.h $(INCLUDE)/structs.h $(INCLUDE)/utils.h $(INCLUDE)/db.h $(INCLUDE)/interpreter.h $(INCLUDE)/comm.h $(INCLUDE)/security.h $(INCLUDE)/tokenizer.h 
+	$(INCLUDE)/xml_utils.h $(INCLUDE)/structs.h $(INCLUDE)/utils.h $(INCLUDE)/db.h $(INCLUDE)/interpreter.h $(INCLUDE)/comm.h $(INCLUDE)/tokenizer.h $(INCLUDE)/screen.h $(INCLUDE)/security.h $(INCLUDE)/boards.h 
 	$(CXX) -c $(CXXFLAGS) security.cc          -o $(OBJ)/security.o
 OBJFILES= $(OBJ)/group.o $(OBJ)/interpreter.o $(OBJ)/security.o

@@ -23,29 +23,29 @@
 /* external declarations and prototypes **********************************/
 
 /* public functions in utils.c */
-char        *str_dup(const char *source);
-int        str_cmp(const char *arg1, const char *arg2);
-int        strn_cmp(char *arg1, char *arg2, int n);
-void    slog(char *str);
-int        touch(char *path);
-void        mudlog(char *str, char type, sbyte level, byte file);
-void        log_death_trap(struct char_data *ch);
-int        number(int from, int to);
-double  float_number(double from, double to);
-int        dice(int number, int size);
-void        sprintbit(long vektor, const char *names[], char *result);
-void        sprinttype(int type, const char *names[], char *result);
-int        get_line(FILE *fl, char *buf);
-int        get_filename(char *orig_name, char *filename, int mode);
+char *str_dup(const char *source);
+int str_cmp(const char *arg1, const char *arg2);
+int strn_cmp(char *arg1, char *arg2, int n);
+void slog(char *str);
+int touch(char *path);
+void mudlog(char *str, char type, sbyte level, byte file);
+void log_death_trap(struct char_data *ch);
+int number(int from, int to);
+double float_number(double from, double to);
+int dice(int number, int size);
+void sprintbit(long vektor, const char *names[], char *result);
+void sprinttype(int type, const char *names[], char *result);
+int get_line(FILE * fl, char *buf);
+int get_filename(char *orig_name, char *filename, int mode);
 int get_line_count(char *buffer);
-int remove_from_cstring( char *str, char c = '~', char c_to = '.' );
+int remove_from_cstring(char *str, char c = '~', char c_to = '.');
 
 struct time_info_data age(struct char_data *ch);
 extern struct zone_data *zone_table;
 extern struct char_data *mob_proto;
 extern struct spell_info_type spell_info[];
 void safe_exit(int mode);
-int player_in_room ( struct room_data *room );
+int player_in_room(struct room_data *room);
 
 
 /* undefine MAX and MIN so that our functions are used instead */
@@ -61,35 +61,35 @@ int player_in_room ( struct room_data *room );
 #define MIN(a, b) (a > b ? b : a)
 
 /* in magic.c */
-bool        circle_follow(struct char_data *ch, struct char_data * victim);
+bool circle_follow(struct char_data *ch, struct char_data *victim);
 
 /* in act.informative.c */
-void        look_at_room(struct char_data *ch, struct room_data *room, int mode);
+void look_at_room(struct char_data *ch, struct room_data *room, int mode);
 
 /* in act.movmement.c */
-int        do_simple_move(struct char_data *ch, int dir, int mode, int following);
-int        perform_move(struct char_data *ch, int dir, int mode, int following);
+int do_simple_move(struct char_data *ch, int dir, int mode, int following);
+int perform_move(struct char_data *ch, int dir, int mode, int following);
 
 /* in limits.c */
-int        mana_limit(struct char_data *ch);
-int        hit_limit(struct char_data *ch);
-int        move_limit(struct char_data *ch);
-int        mana_gain(struct char_data *ch);
-int        hit_gain(struct char_data *ch);
-int        move_gain(struct char_data *ch);
-void        advance_level(struct char_data *ch, byte keep_internal);
-void        set_title(struct char_data *ch, char *title);
-void        gain_exp(struct char_data *ch, int gain);
-void        gain_exp_regardless(struct char_data *ch, int gain);
-void        gain_condition(struct char_data *ch, int condition, int value);
-int        check_idling(struct char_data *ch);
-void        point_update(void);
-void        update_pos(struct char_data *victim);
+int mana_limit(struct char_data *ch);
+int hit_limit(struct char_data *ch);
+int move_limit(struct char_data *ch);
+int mana_gain(struct char_data *ch);
+int hit_gain(struct char_data *ch);
+int move_gain(struct char_data *ch);
+void advance_level(struct char_data *ch, byte keep_internal);
+void set_title(struct char_data *ch, char *title);
+void gain_exp(struct char_data *ch, int gain);
+void gain_exp_regardless(struct char_data *ch, int gain);
+void gain_condition(struct char_data *ch, int condition, int value);
+int check_idling(struct char_data *ch);
+void point_update(void);
+void update_pos(struct char_data *victim);
 char *GET_DISGUISED_NAME(struct char_data *ch, struct char_data *tch);
 int CHECK_SKILL(struct char_data *ch, int i);
-char *OBJS(obj_data *obj, char_data *vict);
-char *OBJN(obj_data *obj, char_data *vict);
-char *PERS( char_data *ch, char_data *sub );
+char *OBJS(obj_data * obj, char_data * vict);
+char *OBJN(obj_data * obj, char_data * vict);
+char *PERS(char_data * ch, char_data * sub);
 
 void WAIT_STATE(struct char_data *ch, int cycle);
 /* various constants *****************************************************/
@@ -133,13 +133,13 @@ void WAIT_STATE(struct char_data *ch, int cycle);
 #define LOWER(c)   (((c)>='A'  && (c) <= 'Z') ? ((c)+('a'-'A')) : (c))
 #define UPPER(c)   (((c)>='a'  && (c) <= 'z') ? ((c)+('A'-'a')) : (c) )
 
-#define ISNEWL(ch) ((ch) == '\n' || (ch) == '\r') 
+#define ISNEWL(ch) ((ch) == '\n' || (ch) == '\r')
 #define IF_STR(st) ((st) ? (st) : "\0")
 #define CAP(st)  (*(st) = UPPER(*(st)), st)
 
 char *YESNO(bool a);
 char *ONOFF(bool a);
-char *AN( char *str );
+char *AN(char *str);
 
 //#define AN(str) ( PLUR( str ) ? "some" : (strchr("aeiouAEIOU", *str) ? "an" : "a"))
 
@@ -224,14 +224,14 @@ char *AN( char *str );
     (!IS_MERC(ch)   || !SRCH_FLAGGED(srch, SRCH_NOMERC)) &&   \
     (!IS_HOOD(ch)   || !SRCH_FLAGGED(srch, SRCH_NOHOOD)) &&   \
     !SRCH_FLAGGED(srch, SRCH_TRIPPED))
-     
+
 #define IN_ICY_HELL(ch)  (ch->in_room->zone->plane == PLANE_HELL_5)
 #define HELL_PLANE(zone, num)  ((zone)->plane == (PLANE_HELL_1 - 1 + num))
 
 /******************* SHADOW PLANE STUFF *******************/
 #define SHADOW_ZONE(zone)     ((zone)->plane == PLANE_SHADOW)
 #define ZONE_IS_SHADE(zone)   ((zone)->number == 198)
-/***************** END  SHADOW PLANE STUFF *****************/    
+/***************** END  SHADOW PLANE STUFF *****************/
 
 #define ZONE_IS_HELL(zone) \
                           (zone->plane >= PLANE_HELL_1 && zone->plane <= PLANE_HELL_9)
@@ -312,9 +312,9 @@ char *AN( char *str );
                         || IS_AFFECTED_3(ch, AFF3_SYMBOL_OF_PAIN) \
                         || IS_AFFECTED_3(ch, AFF3_TAINTED))
 // IS_AFFECTED for backwards compatibility
-#define IS_AFFECTED(ch, skill) (AFF_FLAGGED((ch), (skill))) 
-#define IS_AFFECTED_2(ch, skill) (AFF2_FLAGGED((ch), (skill))) 
-#define IS_AFFECTED_3(ch, skill) (AFF3_FLAGGED((ch), (skill))) 
+#define IS_AFFECTED(ch, skill) (AFF_FLAGGED((ch), (skill)))
+#define IS_AFFECTED_2(ch, skill) (AFF2_FLAGGED((ch), (skill)))
+#define IS_AFFECTED_3(ch, skill) (AFF3_FLAGGED((ch), (skill)))
 
 #define PLR_TOG_CHK(ch,flag) ((TOGGLE_BIT(PLR_FLAGS(ch), (flag))) & (flag))
 #define PRF_TOG_CHK(ch,flag) ((TOGGLE_BIT(PRF_FLAGS(ch), (flag))) & (flag))
@@ -382,12 +382,16 @@ char *AN( char *str );
         tch->in_room->zone->time_frame != TIME_TIMELESS) ||                \
        ROOM_FLAGGED(ch->in_room, ROOM_SOUNDPROOF) ||                       \
        ROOM_FLAGGED(tch->in_room, ROOM_SOUNDPROOF)))
-       
-      
-      /* room utils ************************************************************/
 
 
-static inline int SECT(room_data *room) { return room->sector_type; }
+	  /* room utils *********************************************************** */
+
+
+static inline int
+SECT(room_data * room)
+{
+	return room->sector_type;
+}
 
 /*
 #define IS_DARK(room)  (!room->light && \
@@ -402,28 +406,32 @@ static inline int SECT(room_data *room) { return room->sector_type; }
 
 #define IS_LIGHT(room)  (!IS_DARK(room))
 */
-static inline bool IS_DARK(room_data *room) {
-    if( room->light ) 
-        return false;
-    if( SECT(room) == SECT_ELEMENTAL_OOZE )
-        return true;
-    if( ROOM_FLAGGED(room, ROOM_DARK) )
-        return true;
-    if(! PRIME_MATERIAL_ROOM(room) ) 
-        return false;
-    if( ROOM_FLAGGED(room, ROOM_INDOORS) )
-        return false;
-    if( SECT(room) == SECT_INSIDE )
-        return false;
-    if( SECT(room) == SECT_VEHICLE )
-        return false;
-    if( SECT(room) == SECT_CITY )
-        return false;
-    int sunlight = (room)->zone->weather->sunlight;
-    return ( sunlight == SUN_SET || sunlight == SUN_DARK );
+static inline bool
+IS_DARK(room_data * room)
+{
+	if (room->light)
+		return false;
+	if (SECT(room) == SECT_ELEMENTAL_OOZE)
+		return true;
+	if (ROOM_FLAGGED(room, ROOM_DARK))
+		return true;
+	if (!PRIME_MATERIAL_ROOM(room))
+		return false;
+	if (ROOM_FLAGGED(room, ROOM_INDOORS))
+		return false;
+	if (SECT(room) == SECT_INSIDE)
+		return false;
+	if (SECT(room) == SECT_VEHICLE)
+		return false;
+	if (SECT(room) == SECT_CITY)
+		return false;
+	int sunlight = (room)->zone->weather->sunlight;
+	return (sunlight == SUN_SET || sunlight == SUN_DARK);
 }
-static inline bool IS_LIGHT(room_data *room) {
-    return !( IS_DARK(room) );
+static inline bool
+IS_LIGHT(room_data * room)
+{
+	return !(IS_DARK(room));
 }
 
 #define GET_ROOM_SPEC(room) ((room) != NULL ? (room)->func : NULL)
@@ -487,7 +495,7 @@ static inline bool IS_LIGHT(room_data *room) {
                         GET_ECONET(ch) : GET_BANK_GOLD(ch))
 #define CASH_MONEY(ch) (ch->in_room->zone->time_frame == TIME_ELECTRO ? \
                     GET_CASH(ch) : GET_GOLD(ch))
-char *CURRENCY(char_data *ch);
+char *CURRENCY(char_data * ch);
 
 #define GET_HITROLL(ch)          ((ch)->points.hitroll)
 #define GET_DAMROLL(ch)   ((ch)->points.damroll)
@@ -618,13 +626,13 @@ char *CURRENCY(char_data *ch);
 #define IS_POISONED(ch) (HAS_POISON_1(ch) || HAS_POISON_2(ch) || \
                          HAS_POISON_3(ch))
 #define IS_CONFUSED(ch)  (IS_AFFECTED(ch, AFF_CONFUSION) \
-                          || IS_AFFECTED_3(ch, AFF3_SYMBOL_OF_PAIN)) 
+                          || IS_AFFECTED_3(ch, AFF3_SYMBOL_OF_PAIN))
 #define THACO(char_class, level) \
      ((char_class < 0) ? 20 :                             \
       ((char_class < NUM_CLASSES) ?                       \
        (20 - (level * thaco_factor[char_class])) :        \
        (20 - (level * thaco_factor[CLASS_WARRIOR]))))
-     
+
 /* descriptor-based utils ************************************************/
 
 
@@ -657,7 +665,7 @@ char *CURRENCY(char_data *ch);
 #define CORPSE_IDNUM(obj)        ((obj)->obj_flags.value[2])
 #define CORPSE_KILLER(obj)        ((obj)->obj_flags.value[1])
 #define OBJ_CUR_PULSE(obj)      ((obj)->cur_flow_pulse)
-#define GET_OBJ_VNUM(obj)        ((obj)->shared->vnum) 
+#define GET_OBJ_VNUM(obj)        ((obj)->shared->vnum)
 #define IS_OBJ_STAT(obj,stat)        (IS_SET((obj)->obj_flags.extra_flags,stat))
 #define IS_OBJ_STAT2(obj,stat)        (IS_SET((obj)->obj_flags.extra2_flags,stat))
 #define IS_OBJ_STAT3(obj,stat)        (IS_SET((obj)->obj_flags.extra3_flags,stat))
@@ -702,7 +710,7 @@ char *CURRENCY(char_data *ch);
                              !IS_GOLEM(ch) && !IS_ROBOT(ch) && \
                              !IS_PLANT(ch) && !IS_ALIEN_1(ch) && \
                              !IS_PUDDING(ch) && !IS_SLIME(ch))
-                             
+
 
 
 #define OBJ_REINFORCED(obj) (IS_OBJ_STAT2(obj, ITEM2_REINFORCED))
@@ -767,7 +775,7 @@ char *CURRENCY(char_data *ch);
      (AFF_FLAGGED(ch, AFF_INFRAVISION) || PRF_FLAGGED(ch, PRF_HOLYLIGHT) || \
       AFF_FLAGGED(ch, AFF_RETINA) || \
       IS_RACE_INFRA(ch) || NIGHT_VIS(ch))
-                
+
 
 #define LIGHT_OK(sub)        ((!IS_AFFECTED(sub, AFF_BLIND) && \
                           (IS_LIGHT((sub)->in_room) ||  \
@@ -781,7 +789,7 @@ char *CURRENCY(char_data *ch);
 
 #define ROOM_OK(sub)    (!sub->in_room ||                   \
                          !ROOM_FLAGGED(sub->in_room, ROOM_SMOKE_FILLED))
-inline bool INVIS_OK(char_data *sub, char_data *obj);
+inline bool INVIS_OK(char_data * sub, char_data * obj);
 #define MORT_CAN_SEE(sub, obj) (LIGHT_OK(sub) && ROOM_OK(sub) && \
                                 INVIS_OK(sub, obj) &&     \
                                 (!PLR_FLAGGED(obj, PLR_TESTER) || \
@@ -842,8 +850,8 @@ inline bool INVIS_OK(char_data *sub, char_data *obj);
 
 #define ABS_EXIT(room, door)  ((room)->dir_option[door])
 
-bool CAN_GO(char_data *ch, int door );
-bool CAN_GO(obj_data *obj, int door );
+bool CAN_GO(char_data * ch, int door);
+bool CAN_GO(obj_data * obj, int door);
 
 
 #define CLASS_ABBR(ch) (char_class_abbrevs[(int)GET_CLASS(ch)])
@@ -948,8 +956,8 @@ bool CAN_GO(obj_data *obj, int door );
                                  IS_RACE(ch, RACE_MEPHIT) ||    \
                                  IS_RACE(ch, RACE_DAEMON) ||    \
                                  IS_RACE(ch, RACE_RAKSHASA))
-                                 
-                                 
+
+
 #define IS_TIAMAT(ch)           (GET_MOB_VNUM(ch) == 61119)
 #define IS_TARRASQUE(ch)           (GET_MOB_VNUM(ch) == 24800)
 
@@ -969,37 +977,42 @@ bool CAN_GO(obj_data *obj, int door );
                                         (ch)->in_room->sector_type != SECT_INSIDE )
 
 
-inline bool INVIS_OK(char_data *sub, char_data *obj) {
-    // Holy is the light that shines on the chosen
-    if(PRF_FLAGGED(sub, PRF_HOLYLIGHT))
-        return true;
+inline bool
+INVIS_OK(char_data * sub, char_data * obj)
+{
+	// Holy is the light that shines on the chosen
+	if (PRF_FLAGGED(sub, PRF_HOLYLIGHT))
+		return true;
 
-    // Invis/Transparent
-    if (IS_AFFECTED(obj,AFF_INVISIBLE) || IS_AFFECTED_2(obj,AFF2_TRANSPARENT)) {
-        if(!IS_AFFECTED(sub, AFF_DETECT_INVIS) && !IS_AFFECTED_2(sub, AFF2_TRUE_SEEING))
-            return false;
-    }
-    // Invis to Undead
-    if(IS_UNDEAD(sub) && IS_AFFECTED_2(obj, AFF2_INVIS_TO_UNDEAD) ) {
-        if (!AFF2_FLAGGED(sub, AFF2_TRUE_SEEING)) {
-            return false;
-        }
-    }
-    // Invis to animals
-    if(IS_ANIMAL(sub) && IS_AFFECTED_2(obj, AFF2_INVIS_TO_ANIMALS)) {
-        if(!AFF_FLAGGED(sub, AFF_DETECT_INVIS) && !AFF2_FLAGGED(sub, AFF2_TRUE_SEEING))
-            return false;
-    }
-    // Remort invis. 
-    // (mobs don't have it and aren't affected by it.)
-    if(IS_NPC(sub) || IS_NPC(obj))
-        return true;
-    if( GET_LEVEL(sub) >= GET_REMORT_INVIS(obj) 
-     || GET_REMORT_GEN(sub) >= GET_REMORT_GEN(obj))
-        return true;
+	// Invis/Transparent
+	if (IS_AFFECTED(obj, AFF_INVISIBLE)
+		|| IS_AFFECTED_2(obj, AFF2_TRANSPARENT)) {
+		if (!IS_AFFECTED(sub, AFF_DETECT_INVIS)
+			&& !IS_AFFECTED_2(sub, AFF2_TRUE_SEEING))
+			return false;
+	}
+	// Invis to Undead
+	if (IS_UNDEAD(sub) && IS_AFFECTED_2(obj, AFF2_INVIS_TO_UNDEAD)) {
+		if (!AFF2_FLAGGED(sub, AFF2_TRUE_SEEING)) {
+			return false;
+		}
+	}
+	// Invis to animals
+	if (IS_ANIMAL(sub) && IS_AFFECTED_2(obj, AFF2_INVIS_TO_ANIMALS)) {
+		if (!AFF_FLAGGED(sub, AFF_DETECT_INVIS)
+			&& !AFF2_FLAGGED(sub, AFF2_TRUE_SEEING))
+			return false;
+	}
+	// Remort invis. 
+	// (mobs don't have it and aren't affected by it.)
+	if (IS_NPC(sub) || IS_NPC(obj))
+		return true;
+	if (GET_LEVEL(sub) >= GET_REMORT_INVIS(obj)
+		|| GET_REMORT_GEN(sub) >= GET_REMORT_GEN(obj))
+		return true;
 
-    // If none of this counts for you, you just suck.
-    return false;
+	// If none of this counts for you, you just suck.
+	return false;
 }
 
 /* OS compatibility ******************************************************/
@@ -1040,151 +1053,179 @@ inline bool INVIS_OK(char_data *sub, char_data *obj) {
 #define CRYPT(a,b) ((char *) crypt((a),(b)))
 #endif
 
-inline bool MOB_CAN_GO( struct char_data *ch, int door ) {
-    if ( EXIT( ch, door ) &&
-         EXIT(ch,door)->to_room &&
-         (!IS_SET(EXIT(ch, door)->exit_info,            
-                  EX_CLOSED | EX_NOPASS | EX_HIDDEN) || 
-          GET_LEVEL(ch) >= LVL_IMMORT ||                
-          NON_CORPOREAL_UNDEAD(ch) ) ) {
-        return true;
-    }
-    return false;
+inline bool
+MOB_CAN_GO(struct char_data * ch, int door)
+{
+	if (EXIT(ch, door) &&
+		EXIT(ch, door)->to_room &&
+		(!IS_SET(EXIT(ch, door)->exit_info,
+				EX_CLOSED | EX_NOPASS | EX_HIDDEN) ||
+			GET_LEVEL(ch) >= LVL_IMMORT || NON_CORPOREAL_UNDEAD(ch))) {
+		return true;
+	}
+	return false;
 }
 
 //
 // my_rand() returns 0 to 2147483647
 //
 
-unsigned long my_rand( void );
+unsigned long my_rand(void);
 
 //
 // returns a random boolean value
 //
-inline bool random_binary() {
-    return ( my_rand() > 1073741823 );
+inline bool
+random_binary()
+{
+	return (my_rand() > 1073741823);
 }
 
 //
 // returns a random boolean value, true 1/num of returns
 //
-inline bool random_fractional( unsigned int num ) {
-    if ( num == 0 )
-        return true;
-    return ( my_rand() < ( 2147483647 / num ) );
+inline bool
+random_fractional(unsigned int num)
+{
+	if (num == 0)
+		return true;
+	return (my_rand() < (2147483647 / num));
 }
 
 //
 // returns a random boolean value, true 1/3 of returns (33% tru)
 //
-inline bool random_fractional_3() {
-    return ( my_rand() < 715827882 );
+inline bool
+random_fractional_3()
+{
+	return (my_rand() < 715827882);
 }
 
 //
 // returns a random boolean value, true 1/4 of returns (25% true)
 //
-inline bool random_fractional_4() {
-    return ( my_rand() < 536870911 );
+inline bool
+random_fractional_4()
+{
+	return (my_rand() < 536870911);
 }
 
 //
 // returns a random boolean value, true 1/5 of returns (20% true)
 //
-inline bool random_fractional_5() {
-    return ( my_rand() < 429496729 );
+inline bool
+random_fractional_5()
+{
+	return (my_rand() < 429496729);
 }
 
 //
 // returns a random boolean value, true 1/10 of returns (10% true)
 //
-inline bool random_fractional_10() {
-    return ( my_rand() < 214748365 );
+inline bool
+random_fractional_10()
+{
+	return (my_rand() < 214748365);
 }
 
 //
 // returns a random boolean value, true 1/20 of returns (5% true)
 //
-inline bool random_fractional_20() {
-    return ( my_rand() < 107374182 );
+inline bool
+random_fractional_20()
+{
+	return (my_rand() < 107374182);
 }
 
 //
 // returns a random boolean value, true 1/20 of returns (5% true)
 //
-inline bool random_fractional_50() {
-    return ( my_rand() < 42949672 );
+inline bool
+random_fractional_50()
+{
+	return (my_rand() < 42949672);
 }
 
 //
 // returns a random boolean value, true 1/20 of returns (5% true)
 //
-inline bool random_fractional_100() {
-    return ( my_rand() < 21474836 );
+inline bool
+random_fractional_100()
+{
+	return (my_rand() < 21474836);
 }
 
 //
 // returns a random value between and including 1-100
 //
-inline int random_percentage() {
-    return ( ( my_rand() / 21474837 ) + 1 );
+inline int
+random_percentage()
+{
+	return ((my_rand() / 21474837) + 1);
 }
 
 //
 // returns a random value between and including 0-99
 //
-inline int random_percentage_zero_low() {
-    return ( my_rand() / 21474837 );
+inline int
+random_percentage_zero_low()
+{
+	return (my_rand() / 21474837);
 }
 
 //
 // return a random value between 0 and num
 //
-inline int random_number_zero_low( unsigned int num ) {
-    return ( my_rand() % ( num + 1 ) );
+inline int
+random_number_zero_low(unsigned int num)
+{
+	return (my_rand() % (num + 1));
 }
 
 //
 // creates a random number in interval [from;to]'
 //
-inline int number(int from, int to)
+inline int
+number(int from, int to)
 {
-    if (to <= from)
-        return (from);
-    return ((my_rand() % (to - from + 1)) + from);
+	if (to <= from)
+		return (from);
+	return ((my_rand() % (to - from + 1)) + from);
 }
 
 //
 //
 //
 
-inline double float_number(double from, double to)
+inline double
+float_number(double from, double to)
 {
-    double pct;
-    if (to <= from)
-        return (from);
-    pct = (double) ((double)my_rand() / 2147483647);
-    if (pct > 1) {
-        slog("SYSERR: float_number pct > 1.");
-        return (from);
-    }
-    return ((double) (pct * (to-from)) + from);
+	double pct;
+	if (to <= from)
+		return (from);
+	pct = (double)((double)my_rand() / 2147483647);
+	if (pct > 1) {
+		slog("SYSERR: float_number pct > 1.");
+		return (from);
+	}
+	return ((double)(pct * (to - from)) + from);
 }
 
 //
 // simulates dice roll
 //
-inline int dice(int number, int size)
+inline int
+dice(int number, int size)
 {
-    int sum = 0;
+	int sum = 0;
 
-    if (size <= 0 || number <= 0)
-        return 0;
+	if (size <= 0 || number <= 0)
+		return 0;
 
-    while (number-- > 0)
-        sum += ((my_rand() % size) + 1);
+	while (number-- > 0)
+		sum += ((my_rand() % size) + 1);
 
-    return sum;
+	return sum;
 }
 
 

@@ -7,13 +7,13 @@
 #ifndef __physic_h__
 #define __physic_h__
 
-void add_rad_sickness(CHAR *ch, int level);
+void add_rad_sickness(CHAR * ch, int level);
 int boot_timewarp_data(void);
-void show_timewarps(CHAR *ch);
+void show_timewarps(CHAR * ch);
 
 typedef struct timewarp_data {
-  int from;
-  int to;
+	int from;
+	int to;
 } timewarp_data;
 
 #define TIMEWARP_FILE "etc/timewarps"
@@ -29,4 +29,4 @@ ASPELL(spell_area_stasis);
 //extern timewarp_data *timewarp_list;
 //extern int num_timewarp_data;
 
-#endif // #ifndef __physic_h__
+#endif							// #ifndef __physic_h__

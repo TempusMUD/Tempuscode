@@ -7,4 +7,4 @@
 #ifndef __act_merc_h__
 #define __act_merc_h__
 
-#endif // __act_merc_h_
+#endif							// __act_merc_h_

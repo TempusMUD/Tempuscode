@@ -9,13 +9,13 @@
 
 int max_component_dam(struct char_data *ch);
 int room_count(struct char_data *ch, struct room_data *room);
-struct obj_data *damage_eq(struct char_data *ch, 
-			   struct obj_data *obj, int eq_dam, int type=-1);
+struct obj_data *damage_eq(struct char_data *ch,
+	struct obj_data *obj, int eq_dam, int type = -1);
 struct obj_data *detonate_bomb(struct obj_data *bomb);
 int redundant_skillchip(struct obj_data *chip, struct obj_data *slot);
-void engage_self_destruct( struct char_data *ch );
+void engage_self_destruct(struct char_data *ch);
 
-#define NUM_COMPS               9  /* Number of borg components */
+#define NUM_COMPS               9	/* Number of borg components */
 
 #define BORG_POWER              0
 #define BORG_SPEED              1
@@ -30,7 +30,7 @@ void engage_self_destruct( struct char_data *ch );
 #define INTERFACE_CHIPS         2
 #define NUM_INTERFACES          3
 
-     /**** microchip utils ****/
+	 /**** microchip utils ****/
 
 #define IS_CHIP(obj)           (GET_OBJ_TYPE(obj) == ITEM_MICROCHIP)
 #define CHIP_TYPE(obj)         (GET_OBJ_VAL(obj, 0))
