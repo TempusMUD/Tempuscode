@@ -120,7 +120,7 @@ Account::load(long idnum)
 	delete [] fields;
 
 	// Now we add the players to the account and player index
-	res = sql_query("select idnum from players where account=%ld", idnum);
+	res = sql_query("select idnum from players where account=%ld order by idnum", idnum);
 	count = PQntuples(res);
 	for (idx = 0;idx < count;idx++)
 		this->add_player(atol(PQgetvalue(res, idx, 0)));
@@ -624,7 +624,7 @@ Account::deny_char_entry(Creature *ch)
 		}
 	}
 
-	return true;
+	return false;
 }
 
 bool 
