@@ -3908,12 +3908,32 @@ show_account(Creature *ch, char *value)
         return;
     }
 
-    if ( is_number(value) ) {
-        idnum = atoi(value);
-        account = accountIndex.find_account(idnum);
-    } else {
-        account = accountIndex.find_account(value);
-    }
+	if (*value == '.') {
+		value++;
+		if (is_number(value)) {
+			idnum = atoi(value);
+			if (!playerIndex.exists(idnum)) {
+				send_to_char(ch, "There is no such player: %s\r\n", value);
+				return;
+			}
+			idnum = playerIndex.getAccountID(atoi(value));
+		} else {
+			if (!playerIndex.exists(value)) {
+				send_to_char(ch, "There is no such player: %s\r\n", value);
+				return;
+			}
+			idnum = playerIndex.getAccountID(value);
+		}
+
+		account = accountIndex.find_account(idnum);
+	} else {
+		if (is_number(value)) {
+			idnum = atoi(value);
+			account = accountIndex.find_account(idnum);
+		} else {
+			account = accountIndex.find_account(value);
+		}
+	}
 
     if( account == NULL ) {
         send_to_char(ch, "There is no such account: '%s'\r\n", value);
