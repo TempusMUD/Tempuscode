@@ -540,7 +540,7 @@ show_trailers_to_char(struct char_data *ch, struct char_data *i)
     if (IS_AFFECTED_2(i, AFF2_ENERGY_FIELD))
 	act("...$e is covered by a crackling field of energy!", 
 	    FALSE, i, 0, ch, TO_VICT);
-    if ( PLR2_FLAGGED(ch, PLR2_SOULLESS) )
+    if ( PLR2_FLAGGED(i, PLR2_SOULLESS) )
 	act("...a deep red pentagram has been burnt into $s forehead!", 
 	    FALSE, i, 0, ch, TO_VICT);
     if (IS_AFFECTED_3(i, AFF3_PRISMATIC_SPHERE))
