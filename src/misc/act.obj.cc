@@ -1424,7 +1424,7 @@ ACCMD(do_drop)
 	}
 
 	if (dotmode == FIND_ALL && subcmd == SCMD_DONATE) {
-		send_to_char(ch, "Go do the donation room if you want to donate EVERYTHING!\r\n");
+		send_to_char(ch, "Go to the donation room if you want to donate EVERYTHING!\r\n");
 		return;
 	}
 
