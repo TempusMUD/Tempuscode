@@ -680,10 +680,17 @@ game_loop(int mother_desc)
 		/* give each descriptor an appropriate prompt */
 		for (d = descriptor_list; d; d = d->next) {
 			if (d->need_prompt) {
-				send_prompt(d);
+				// Before prompt crlf
 				if (d->creature
 						&& d->output[0]
-						&& (!PRF_FLAGGED(d->creature, PRF_COMPACT)))
+						&& d->account->get_compact_level() < 2)
+					SEND_TO_Q("\r\n", d);
+				send_prompt(d);
+				// After prompt crlf
+				if (d->creature
+						&& d->output[0]
+						&& (d->account->get_compact_level() == 0
+							|| d->account->get_compact_level() == 2))
 					SEND_TO_Q("\r\n", d);
 				d->need_prompt = 0;
 			}
@@ -867,7 +874,10 @@ write_to_output(const char *txt, struct descriptor_data *t)
 	if (!t->need_prompt && (!t->creature
 			|| PRF2_FLAGGED(t->creature, PRF2_AUTOPROMPT))) {
 		t->need_prompt = true;
-		if (!t->creature || PRF_FLAGGED(t->creature, PRF_COMPACT))
+		// New output crlf
+		if (!t->account
+				|| t->account->get_compact_level() == 1
+				|| t->account->get_compact_level() == 3)
 			write_to_output("\r\n", t);
 	}
 

@@ -338,7 +338,7 @@ static const int MOB2_NOAGGRO_RACE = (1 << 14);	/* wont attack members of own ra
 
 /* Preference flags: used by Creature.player_specials.pref */
 static const int PRF_BRIEF = (1 << 0);	/* Room descs won't normally be shown    */
-static const int PRF_COMPACT = (1 << 1);	/* No extra CRLF pair before prompts    */
+static const int PRF_UNUSED = (1 << 1);
 static const int PRF_DEAF = (1 << 2);	/* Can't hear shouts            */
 static const int PRF_NOTELL = (1 << 3);	/* Can't receive tells        */
 static const int PRF_DISPHP = (1 << 4);	/* Display hit points in prompt    */

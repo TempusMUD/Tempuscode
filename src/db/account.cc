@@ -22,6 +22,14 @@ const char *ansi_levels[] = {
 	"\n"
 };
 
+const char *compact_levels[] = {
+	"off",
+	"minimal",
+	"partial",
+	"full",
+	"\n"
+};
+
 char *get_account_file_path(long id);
 
 long Account::_top_id = 0;
@@ -66,6 +74,7 @@ Account::Account(void)
 	_creation_addr = NULL;
 	_login_addr = NULL;
 	_ansi_level = 0;
+	_compact_level = 0;
     _bank_past = 0;
     _bank_future = 0;
 	_term_height = DEFAULT_TERM_HEIGHT;
@@ -96,7 +105,7 @@ Account::load(long idnum)
 	const char **fields;
 	PGresult *res;
 
-	res = sql_query("select idnum, name, password, email, date_part('epoch', creation_time) as creation_time, creation_addr, date_part('epoch', login_time) as login_time, login_addr, date_part('epoch', entry_time) as entry_time, ansi_level, term_height, term_width, bank_past, bank_future from accounts where idnum=%ld", idnum);
+	res = sql_query("select idnum, name, password, email, date_part('epoch', creation_time) as creation_time, creation_addr, date_part('epoch', login_time) as login_time, login_addr, date_part('epoch', entry_time) as entry_time, ansi_level, compact_level, term_height, term_width, bank_past, bank_future from accounts where idnum=%ld", idnum);
 	acct_count = PQntuples(res);
 
 	if (acct_count > 1) {
@@ -149,6 +158,8 @@ Account::set(const char *key, const char *val)
 		_email = strdup(val);
 	else if (!strcmp(key, "ansi_level"))
 		_ansi_level = atoi(val);
+	else if (!strcmp(key, "compact_level"))
+		_compact_level = atoi(val);
 	else if (!strcmp(key, "term_height"))
 		_term_height = atoi(val);
 	else if (!strcmp(key, "term_width"))
@@ -342,7 +353,7 @@ Account::create_char(const char *name)
 	ch->points.move = GET_MAX_MOVE(ch);
 	ch->points.armor = 100;
 
-	SET_BIT(PRF_FLAGS(ch), PRF_COMPACT | PRF_DISPHP | PRF_DISPMANA | PRF_DISPMOVE | PRF_AUTOEXIT | PRF_NOSPEW);
+	SET_BIT(PRF_FLAGS(ch), PRF_DISPHP | PRF_DISPMANA | PRF_DISPMOVE | PRF_AUTOEXIT | PRF_NOSPEW);
 	SET_BIT(PRF2_FLAGS(ch), PRF2_AUTO_DIAGNOSE | PRF2_AUTOPROMPT | PRF2_DISPALIGN | PRF2_NEWBIE_HELPER);
 
 	
@@ -468,13 +479,14 @@ Account::initialize(const char *name, descriptor_data *d, int idnum)
 	_creation_addr = strdup(d->host);
 	_login_addr = strdup(d->host);
 	_ansi_level = 0;
+	_compact_level = 0;
 	_term_height = 22;
 	_term_width = 80;
 	_bank_past = 0;
 	_bank_future = 0;
 
 	slog("new account: %s[%d] from %s", _name, idnum, d->host);
-	sql_exec("insert into accounts (idnum, name, creation_time, creation_addr, login_time, login_addr, ansi_level, term_height, term_width, bank_past, bank_future) values (%d, '%s', now(), '%s', now(), '%s', 0, %d, %d, 0, 0)",
+	sql_exec("insert into accounts (idnum, name, creation_time, creation_addr, login_time, login_addr, ansi_level, compact_level, term_height, term_width, bank_past, bank_future) values (%d, '%s', now(), '%s', now(), '%s', 0, 0, %d, %d, 0, 0)",
 		idnum, tmp_sqlescape(name), tmp_sqlescape(d->host),
 		tmp_sqlescape(d->host), DEFAULT_TERM_HEIGHT, DEFAULT_TERM_WIDTH);
 }
@@ -717,6 +729,14 @@ Account::set_ansi_level(int level)
 	_ansi_level = level;
 	sql_exec("update accounts set ansi_level=%d where idnum=%d",
 		_ansi_level, _id);
+}
+
+void
+Account::set_compact_level(int level)
+{
+	_compact_level = level;
+	sql_exec("update accounts set compact_level=%d where idnum=%d",
+		_compact_level, _id);
 }
 
 void

@@ -11,6 +11,9 @@ struct descriptor_data;
 const int DEFAULT_TERM_HEIGHT = 22;
 const int DEFAULT_TERM_WIDTH = 80;
 
+extern const char *ansi_levels[];
+extern const char *compact_levels[];
+
 class Account {
 	public:
 		static void boot(void);
@@ -38,6 +41,8 @@ class Account {
 
 		inline int get_ansi_level(void) { return _ansi_level; }
 		void set_ansi_level(int level);
+		inline int get_compact_level(void) { return _compact_level; }
+		void set_compact_level(int level);
 		inline int get_term_height(void) { return _term_height; }
 		void set_term_height(int height);
 		inline int get_term_width(void) { return _term_width; }
@@ -114,6 +119,7 @@ class Account {
 		time_t _entry_time;			// last time char entered game
 		// Account-wide references
 		unsigned char _ansi_level;
+		unsigned char _compact_level;
 		unsigned int _term_height;
 		unsigned int _term_width;
 		// Game data

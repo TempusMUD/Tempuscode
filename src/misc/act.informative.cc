@@ -3128,7 +3128,7 @@ ACMD(do_who)
 	sprintf(buf2,
 		"%s**************       %sVisible Players of TEMPUS%s%s       **************%s\r\n%s",
 		CCBLD(ch, C_CMP), CCGRN(ch, C_NRM), CCNRM(ch, C_NRM), CCBLD(ch, C_CMP),
-		CCNRM(ch, C_SPR), PRF_FLAGGED(ch, PRF_COMPACT) ? "" : "\r\n");
+		CCNRM(ch, C_SPR), (ch->account->get_compact_level() > 1) ? "" : "\r\n");
 
 	for (d = descriptor_list; d; d = d->next) {
 		if (!IS_PLAYING(d))
@@ -4364,6 +4364,31 @@ ACMD(do_pkiller)
 }
 
 
+ACMD(do_compact)
+{
+	int tp;
+
+	if (IS_NPC(ch))
+		return;
+
+	one_argument(argument, arg);
+
+	if (!*arg) {
+		send_to_char(ch, "Your current compact level is %s.\r\n",
+			compact_levels[ch->account->get_compact_level()]);
+		return;
+	}
+	if (((tp = search_block(arg, compact_levels, FALSE)) == -1)) {
+		send_to_char(ch, "Usage: compact { off | minimal | partial | full }\r\n");
+		return;
+	}
+	ch->account->set_compact_level(tp);
+
+	send_to_char(ch, "Your %scompact setting%s is now %s%s%s%s.\r\n", CCRED(ch, C_SPR),
+		CCNRM(ch, C_OFF), CCYEL(ch, C_NRM), CCBLD(ch, C_CMP), compact_levels[tp],
+		CCNRM(ch, C_NRM));
+}
+
 ACMD(do_color)
 {
 	int tp;
@@ -4375,17 +4400,17 @@ ACMD(do_color)
 
 	if (!*arg) {
 		send_to_char(ch, "Your current color level is %s.\r\n",
-			ctypes[COLOR_LEV(ch)]);
+			ansi_levels[COLOR_LEV(ch)]);
 		return;
 	}
-	if (((tp = search_block(arg, ctypes, FALSE)) == -1)) {
+	if (((tp = search_block(arg, ansi_levels, FALSE)) == -1)) {
 		send_to_char(ch, "Usage: color { Off | Sparse | Normal | Complete }\r\n");
 		return;
 	}
 	ch->account->set_ansi_level(tp);
 
 	send_to_char(ch, "Your %scolor%s is now %s%s%s%s.\r\n", CCRED(ch, C_SPR),
-		CCNRM(ch, C_OFF), CCYEL(ch, C_NRM), CCBLD(ch, C_CMP), ctypes[tp],
+		CCNRM(ch, C_OFF), CCYEL(ch, C_NRM), CCBLD(ch, C_CMP), ansi_levels[tp],
 		CCNRM(ch, C_NRM));
 }
 
@@ -4409,8 +4434,8 @@ show_all_toggles(Creature *ch)
 		"   Autodiagnose: %-3s    "
 		"     Autoprompt: %-3s\r\n"
 		"     Brief Mode: %-3s    "
-		"Compact Display: %-3s    "
-		"     See misses: %-3s\r\n"
+		"     See misses: %-3s    "
+		"Compact Display: %s\r\n"
 		"  Screen Length: %-3d    "
 		"     Notrailers: %-3s    "
 		"    Color Level: %s\r\n\r\n"
@@ -4446,11 +4471,11 @@ show_all_toggles(Creature *ch)
 		ONOFF(PRF2_FLAGGED(ch, PRF2_AUTO_DIAGNOSE)),
 		YESNO(PRF2_FLAGGED(ch, PRF2_AUTOPROMPT)),
 		ONOFF(PRF_FLAGGED(ch, PRF_BRIEF)),
-		ONOFF(PRF_FLAGGED(ch, PRF_COMPACT)),
+		compact_levels[ch->account->get_compact_level()],
 		YESNO(!PRF_FLAGGED(ch, PRF_GAGMISS)),
 		GET_PAGE_LENGTH(ch),
 		ONOFF(PRF2_FLAGGED(ch, PRF2_NOTRAILERS)),
-		ctypes[COLOR_LEV(ch)],
+		ansi_levels[COLOR_LEV(ch)],
 
 		ONOFF(PRF2_FLAGGED(ch, PRF2_AUTOPAGE)),
 		YESNO(PRF2_FLAGGED(ch, PRF2_NEWBIE_HELPER)),
@@ -4515,8 +4540,6 @@ ACMD(do_toggle)
 		do_gen_tog(ch, NULL, cmd, SCMD_NOPROJECT, 0);
 	else if (is_abbrev(arg, "brief"))
 		do_gen_tog(ch, NULL, cmd, SCMD_BRIEF, 0);
-	else if (is_abbrev(arg, "compact"))
-		do_gen_tog(ch, NULL, cmd, SCMD_COMPACT, 0);
 	else
 		send_to_char(ch, "What is it that you want to toggle?\r\n");
 	return;

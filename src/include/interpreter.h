@@ -163,7 +163,7 @@ struct set_struct {
 #define SCMD_NOSUMMON   0
 #define SCMD_NOHASSLE   1
 #define SCMD_BRIEF      2
-#define SCMD_COMPACT    3
+#define SCMD_UNUSED     3
 #define SCMD_NOTELL	4
 #define SCMD_NOAUCTION	5
 #define SCMD_DEAF	6

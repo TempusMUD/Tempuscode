@@ -191,15 +191,24 @@ handle_input(struct descriptor_data *d)
 		break;
 	case CXN_ANSI_PROMPT:
 		
-		i = search_block(arg, ctypes, FALSE);
+		i = search_block(arg, ansi_levels, FALSE);
 		if (i == -1) {
 			send_to_desc(d, "\r\nPlease enter one of the selections.\r\n\r\n");
 			return;
 		}
 
 		d->account->set_ansi_level(i);
-		set_desc_state(CXN_EMAIL_PROMPT, d);
+		set_desc_state(CXN_COMPACT_PROMPT, d);
 		break;
+	case CXN_COMPACT_PROMPT:
+		i = search_block(arg, compact_levels, FALSE);
+		if (i == -1) {
+			send_to_desc(d, "\r\nPlease enter one of the selections.\r\n\r\n");
+			return;
+		}
+
+		d->account->set_compact_level(i);
+		set_desc_state(CXN_EMAIL_PROMPT, d);
 	case CXN_EMAIL_PROMPT:
 		d->account->set_email_addr(arg);
 		set_desc_state(CXN_PW_PROMPT, d);
@@ -804,6 +813,8 @@ send_prompt(descriptor_data *d)
 		break;
 	case CXN_ANSI_PROMPT:
 		send_to_desc(d, "Enter the level of color you prefer: "); break;
+	case CXN_COMPACT_PROMPT:
+		send_to_desc(d, "Enter the level of compactness you prefer: "); break;
 	case CXN_EMAIL_PROMPT:
 		send_to_desc(d, "Please enter your email address: "); break;
 	case CXN_OLDPW_PROMPT:
@@ -926,6 +937,26 @@ send_menu(descriptor_data *d)
 "              Sparse - Minimal amounts of color will be used.\r\n"
 "              Normal - Color will be used a medium amount.\r\n"
 "            Complete - Use the maximum amount of color available.\r\n\r\n");
+		break;
+	case CXN_COMPACT_PROMPT:
+		send_to_desc(d, "\e[H\e[J");
+		send_to_desc(d,"\r\n                              TEXT COMPACTNESS\r\n*******************************************************************************&n\r\n");
+		send_to_desc(d,
+"\r\n\r\n"
+"    Many players have differing tastes as to the vertical spacing of their\r\n"
+"display.  A less compact view is often easier to read, while a more\r\n"
+"compact view allows for more lines to fit on the screen.\r\n\r\n"
+"Compact off:                         Compact minimal:\r\n"
+"<---H ---M ---V ---A>                <---H ---M ---V ---A>\r\n"
+"A goblin spits in your face!         A goblin tries to steal from you!\r\n"
+"\r\n"
+"<---H ---M ---V ---A>                <---H ---M ---V ---A> kill goblin\r\n"
+"kill goblin\r\n\r\n"
+"Compact partial:                     Compact full:\r\n"
+"<---H ---M ---V ---A>                <---H ---M ---V ---A>\r\n"
+"A goblin gives you a wedgie!         A goblin laughs insultingly at you!\r\n"
+"<---H ---M ---V ---A>                <---H ---M ---V ---A> kill goblin\r\n"
+"kill goblin\r\n");
 		break;
 	case CXN_EMAIL_PROMPT:
 		send_to_desc(d, "\e[H\e[J");

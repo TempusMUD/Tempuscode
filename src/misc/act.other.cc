@@ -1129,9 +1129,6 @@ ACMD(do_gen_tog)
 	case SCMD_BRIEF:
 		result = PRF_TOG_CHK(ch, PRF_BRIEF);
 		break;
-	case SCMD_COMPACT:
-		result = PRF_TOG_CHK(ch, PRF_COMPACT);
-		break;
 	case SCMD_NOTELL:
 		result = PRF_TOG_CHK(ch, PRF_NOTELL);
 		break;

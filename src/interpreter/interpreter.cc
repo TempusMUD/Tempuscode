@@ -161,6 +161,7 @@ ACMD(do_color);
 ACMD(do_combo);
 ACMD(do_commands);
 ACMD(do_compare);
+ACMD(do_compact);
 ACMD(do_computer);
 ACMD(do_consider);
 ACMD(do_convert);
@@ -581,7 +582,7 @@ struct command_info cmd_info[] = {
 	{"comb", POS_RESTING, do_action, 0, 0, 0, 0},
 	{"combo", POS_FIGHTING, do_combo, 0, 0, 0, 0},
 	{"commands", POS_DEAD, do_commands, 0, SCMD_COMMANDS, 0, 0},
-	{"compact", POS_DEAD, do_gen_tog, 0, SCMD_COMPACT, 0, 0},
+	{"compact", POS_DEAD, do_compact, 0, 0, 0, 0},
 	{"compare", POS_RESTING, do_compare, 0, 0, 0, 0},
 	{"consider", POS_RESTING, do_consider, 0, 0, 0, 0},
 	{"conceal", POS_RESTING, do_conceal, 0, 0, 0, 0},
