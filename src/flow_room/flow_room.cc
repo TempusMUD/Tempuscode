@@ -242,6 +242,8 @@ flow_room(int pulse)
 					rnum->trail = trail->next;
 					if (trail->name)
 						free(trail->name);
+					if (trail->aliases)
+						free(trail->aliases);
 					free(trail);
 				}
 			}
