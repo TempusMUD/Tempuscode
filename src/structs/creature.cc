@@ -1416,8 +1416,18 @@ Creature::addCombat(Creature *ch, bool initiated)
     update_pos(this);
     trigger_prog_fight(this, ch);
 
-    if (!previously_fighting && numCombatants() > 0)
-        combatList.add(this);
+    if (!previously_fighting && numCombatants() > 0) {
+        CreatureList::iterator li;
+        bool found = false;
+        for (li = combatList.begin(); li != combatList.end(); ++li) {
+            if (*li == this) {
+                found = true;
+            }
+        }
+        if (!found) {
+            combatList.add(this);
+        }
+    }
     
 }
 
