@@ -2159,16 +2159,11 @@ hit(struct Creature *ch, struct Creature *victim, int type)
                 cur_weap->worn_on == WEAR_WIELD) 
             {
 				int dam_add;
-				dam_add = cur_weap->getWeight() / 2;
-				if (CHECK_SKILL(ch, SKILL_DISCIPLINE_OF_STEEL) > 30) {
-					dam_add +=
-						(cur_weap->getWeight() * (GET_LEVEL(ch) + 1) / 100);
-					dam_add +=
-						(cur_weap->getWeight() * (GET_REMORT_GEN(ch) +
-							1) / 11);
-					dam_add =
-						dam_add * CHECK_SKILL(ch,
-						SKILL_DISCIPLINE_OF_STEEL) / 100;
+				dam_add = cur_weap->getWeight() / 4;
+				if (CHECK_SKILL(ch, SKILL_DISCIPLINE_OF_STEEL) > 60) {
+					int bonus = ch->getLevelBonus( SKILL_DISCIPLINE_OF_STEEL );
+					int weight = cur_weap->getWeight();
+					dam_add += ( bonus * weight ) / 100;
 				}
 				dam += dam_add;
 			}
