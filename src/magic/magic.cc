@@ -3355,12 +3355,12 @@ mag_alter_objs(int level, struct Creature *ch, struct obj_data *obj,
         break;
     case SPELL_ENVENOM:
         if (!(GET_OBJ_TYPE(obj) == ITEM_WEAPON)) {
-            to_char = "You can only envenomate weapons.";
+            to_char = "You can only envenom weapons.";
             break;
         }
 
         if (obj->affectedBySpell(SPELL_ENVENOM)) {
-            to_char = "That weapon is already envenomated!";
+            to_char = "That weapon is already envenomed!";
             break;
         }
         oaf[0].level = ch->getLevelBonus(SPELL_ENVENOM);
