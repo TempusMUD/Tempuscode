@@ -4798,9 +4798,11 @@ ACMD(do_specializations)
 	for (obj = NULL, i = 0; i < MAX_WEAPON_SPEC; obj = NULL) {
 		if (GET_WEAP_SPEC(ch, i).level &&
 			GET_WEAP_SPEC(ch, i).vnum > 0 &&
-			(obj = real_object_proto(GET_WEAP_SPEC(ch, i).vnum)))
-			send_to_char(ch, " %2d. %-30s [%d]\r\n", ++i,
+			(obj = real_object_proto(GET_WEAP_SPEC(ch, i).vnum))) {
+			send_to_char(ch, " %2d. %-30s [%d]\r\n", i,
 				obj->short_description, GET_WEAP_SPEC(ch, i).level);
+            i++;
+        }
 		else
 			break;
 	}
