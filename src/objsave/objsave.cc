@@ -174,7 +174,7 @@ struct obj_data *Obj_from_store( FILE * fl, bool allow_inroom ) {
 
     return obj;
 }
-
+/*
 int 
 Obj_to_store( struct obj_data * obj, FILE * fl )
 {
@@ -247,7 +247,12 @@ Obj_to_store( struct obj_data * obj, FILE * fl )
   
     return 1;
 }
-
+*/
+/**
+ * Deletes the objects or implants file for the given character.
+ *
+ * First complains if it doesnt have r/w access, then unlinks.
+ */
 int 
 Crash_delete_file( char *name, int mode )
 {
@@ -277,7 +282,9 @@ Crash_delete_file( char *name, int mode )
     return ( 1 );
 }
 
-
+/**
+ * Deletes this player's .objs file if the rentcode is RENT_CRASH
+ */
 int 
 Crash_delete_crashfile( struct char_data * ch )
 {
@@ -304,7 +311,9 @@ Crash_delete_crashfile( struct char_data * ch )
     return 1;
 }
 
-
+/**
+ * Deletes .objs file for the given character if it is too old.
+ */
 int 
 Crash_clean_file( char *name )
 {
@@ -366,7 +375,13 @@ Crash_clean_file( char *name )
 }
 
 
-
+/**
+ * Deletes .objs files for all known players if they are
+ * too old.  
+ *
+ * Calls Crash_clean_file for every character in the player table.
+ *
+**/
 void 
 update_obj_file( void )
 {
@@ -378,7 +393,10 @@ update_obj_file( void )
 }
 
 
-
+/**
+ * prints the contents of 'name''s rent file into a buffer and pages
+ * that buffer to 'ch'
+**/
 void 
 Crash_listrent( struct char_data * ch, char *name )
 {
@@ -474,9 +492,11 @@ Crash_listrent( struct char_data * ch, char *name )
 }
 
 
-
+/**
+ * Writes the given rent_info into the given FILE
+ */
 int 
-Crash_write_rentcode( struct char_data * ch, FILE * fl, struct rent_info * rent )
+write_rentinfo( FILE * fl, struct rent_info * rent )
 {
     if ( fwrite( rent, sizeof( struct rent_info ), 1, fl ) < 1 ) {
         perror( "Writing rent code." );
@@ -683,7 +703,7 @@ store_obj_list( struct obj_data * obj, FILE * fp )
 
     if ( obj ) {
         store_obj_list( obj->next_content, fp );
-        result = Obj_to_store( obj, fp );
+        result = obj->save( fp );
 
         if ( !result )
             return 0;
@@ -703,37 +723,16 @@ Crash_restore_weight( struct obj_data * obj )
     }
 }
 
-
+/**
+ * recursively extracts all the objects in 
+ * this list and thier contents.
+ */
 void 
-Crash_extract_objs( struct obj_data * obj )
-{
-    if ( obj ) {
-        Crash_extract_objs( obj->contains );
-        Crash_extract_objs( obj->next_content );
-        extract_obj( obj );
-    }
-}
-
-
-int 
-Crash_is_unrentable( struct obj_data * obj )
-{
-    if ( !obj )
-        return 0;
-
-    if ( IS_OBJ_STAT( obj, ITEM_NORENT ) || GET_OBJ_RENT( obj ) < 0 ||
-         !OBJ_APPROVED( obj ) ||
-         GET_OBJ_VNUM( obj ) <= NOTHING || 
-         ( GET_OBJ_TYPE( obj ) == ITEM_KEY &&
-           GET_OBJ_VAL( obj, 1 ) == 0 ) || 
-         ( GET_OBJ_TYPE( obj ) == ITEM_CIGARETTE &&
-           GET_OBJ_VAL( obj, 3 ) ) )
-        return 1;
-  
-    if ( no_plrtext && obj->plrtext_len )
-        return 1;
-
-    return 0;
+extract_object_list( obj_data * head ) {
+    if (! head ) return;
+    extract_object_list( head->contains );
+    extract_object_list( head->next_content );
+    extract_obj( head );
 }
 
 
@@ -743,7 +742,7 @@ Crash_extract_norents( struct obj_data * obj )
     if ( obj ) {
         Crash_extract_norents( obj->contains );
         Crash_extract_norents( obj->next_content );
-        if ( Crash_is_unrentable( obj ) &&
+        if ( obj->isUnrentable() &&
              ( !obj->worn_by || !IS_OBJ_STAT2( obj, ITEM2_NOREMOVE ) ) &&
              !IS_OBJ_STAT( obj, ITEM_NODROP ) )
             extract_obj( obj );
@@ -776,7 +775,7 @@ Crash_save_implants( struct char_data *ch )
     for ( int j = 0; j < NUM_WEARS; j++ )
         if ( GET_IMPLANT( ch, j ) ) {
             if ( store_obj_list( GET_IMPLANT( ch, j ), fp ) ) {
-                Crash_extract_objs( GET_IMPLANT( ch, j ) );
+                extract_object_list( GET_IMPLANT( ch, j ) );
             } else {
                 fclose( fp );
                 return;
@@ -805,7 +804,7 @@ Crash_crashsave( struct char_data * ch )
     rent.time = time( 0 );
     rent.currency = ch->in_room->zone->time_frame;
 
-    if ( !Crash_write_rentcode( ch, fp, &rent ) ) {
+    if ( !write_rentinfo( fp, &rent ) ) {
         fclose( fp );
         return;
     }
@@ -857,7 +856,7 @@ Crash_rentsave( struct char_data * ch, int cost, int rentcode )
     rent.gold = GET_GOLD( ch );
     rent.account = GET_BANK_GOLD( ch );
     rent.currency = ch->in_room->zone->time_frame;
-    if ( !Crash_write_rentcode( ch, fp, &rent ) ) {
+    if ( !write_rentinfo( fp, &rent ) ) {
         fclose( fp );
         return;
     }
@@ -865,10 +864,10 @@ Crash_rentsave( struct char_data * ch, int cost, int rentcode )
     for ( j = 0; j < NUM_WEARS; j++ )
         if ( GET_EQ( ch, j ) )
             if( store_obj_list( GET_EQ( ch, j ), fp ) )
-                Crash_extract_objs( GET_EQ( ch, j ) );
+                extract_object_list( GET_EQ( ch, j ) );
   
     if ( store_obj_list( ch->carrying, fp ) )
-        Crash_extract_objs( ch->carrying );
+        extract_object_list( ch->carrying );
   
     fclose( fp );
 
@@ -912,7 +911,7 @@ Crash_cursesave( struct char_data * ch )
     rent.account = GET_BANK_GOLD( ch );
     rent.currency = ch->in_room->zone->time_frame;
 
-    if ( !Crash_write_rentcode( ch, fp, &rent ) ) {
+    if ( !write_rentinfo( fp, &rent ) ) {
         fclose( fp );
         return;
     }
@@ -924,10 +923,10 @@ Crash_cursesave( struct char_data * ch )
                 
                 // the item is cursed, but its contents cannot be (normally)
                 while ( GET_EQ( ch, j )->contains )
-                    Crash_extract_objs( GET_EQ( ch, j )->contains );
+                    extract_object_list( GET_EQ( ch, j )->contains );
                 
                 if ( store_obj_list( GET_EQ( ch, j ), fp ) )
-                    Crash_extract_objs( GET_EQ( ch, j ) );
+                    extract_object_list( GET_EQ( ch, j ) );
             }
         }
     }
@@ -938,9 +937,9 @@ Crash_cursesave( struct char_data * ch )
             
             // the item is cursed, but its contents cannot be (normally)
             while ( obj->contains )
-                Crash_extract_objs( obj->contains );
+                extract_object_list( obj->contains );
             
-            if ( Obj_to_store( obj, fp ) )
+            if ( obj->save( fp ) )
                 extract_obj( obj );
         }
         
@@ -989,7 +988,7 @@ Crash_cryosave( struct char_data * ch, int cost )
     rent.net_cost_per_diem = 0;
     rent.currency = ch->in_room->zone->time_frame;
 
-    if ( !Crash_write_rentcode( ch, fp, &rent ) ) {
+    if ( !write_rentinfo( fp, &rent ) ) {
         fclose( fp );
         return;
     }
@@ -997,7 +996,7 @@ Crash_cryosave( struct char_data * ch, int cost )
     for ( j = 0; j < NUM_WEARS; j++ )
         if ( GET_EQ( ch, j ) )
             if ( store_obj_list( GET_EQ( ch, j ), fp ) )
-                Crash_extract_objs( GET_EQ( ch, j ) );
+                extract_object_list( GET_EQ( ch, j ) );
 
     if ( !store_obj_list( ch->carrying, fp ) ) {
         fclose( fp );
@@ -1005,7 +1004,7 @@ Crash_cryosave( struct char_data * ch, int cost )
     }
     fclose( fp );
 
-    Crash_extract_objs( ch->carrying );
+    extract_object_list( ch->carrying );
 
     Crash_save_implants( ch );
 
@@ -1048,7 +1047,7 @@ Crash_report_unrentables( struct char_data * ch, struct char_data * recep,
     int has_norents = 0;
 
     if ( obj ) {
-        if ( Crash_is_unrentable( obj ) ) {
+        if ( obj->isUnrentable()  ) {
             has_norents = 1;
             if ( ( GET_OBJ_TYPE( obj ) == ITEM_CIGARETTE || 
                    GET_OBJ_TYPE( obj ) == ITEM_PIPE )
@@ -1088,7 +1087,7 @@ Crash_report_rent( struct char_data * ch, struct char_data * recep,
         strcpy( curr, "coins" );
   
     if ( obj ) {
-        if ( !Crash_is_unrentable( obj ) ) {
+        if ( !( obj->isUnrentable() ) ) {
             ( *nitems )++;
             *cost += ( GET_OBJ_RENT( obj ) * factor );
             if ( display ) {
@@ -1355,15 +1354,4 @@ Crash_save_all( void )
             }
         }
     }
-}
-
-int
-write_plrtext ( struct obj_data *obj, FILE *fl )
-{
-
-    if( !fwrite( obj->action_description,obj->plrtext_len,1,fl ) ) {
-        return 0;
-    }
-
-    return 1;
 }

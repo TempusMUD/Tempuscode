@@ -41,7 +41,6 @@ extern struct obj_data *obj_proto;        /* prototypes for objs                
 extern int no_plrtext;
 
 struct obj_data *Obj_from_store(FILE * fl, bool allow_inroom);
-int Obj_to_store(struct obj_data * obj, FILE * fl);
 
 struct house_control_rec house_control[MAX_HOUSES];
 int num_of_houses = 0;
@@ -376,7 +375,7 @@ House_save(struct obj_data * obj, FILE * fp)
 {
     if (obj) {
         House_save(obj->next_content, fp);
-        if (!Obj_to_store(obj, fp)) {
+        if (!(obj->save( fp ) )) {
             return 0;
         }
     }

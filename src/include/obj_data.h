@@ -300,6 +300,8 @@ struct obj_affected_type {
 
 /* ================== Memory Structure for Objects ================== */
 struct obj_data {
+    bool isUnrentable();
+    int save( FILE *fl );
     int modifyWeight( int mod_weight );
     int setWeight( int new_weight );
     inline int getWeight( void ) { return obj_flags.getWeight(); }
