@@ -6,58 +6,6 @@
 
 /*****************************************************/
 
-// Don't allow player into labyrinth with equipment or items
-SPECIAL(labyrinth_portal)
-{
-	obj_data *portal = (obj_data *)me;
-	room_data *room;
-	int idx;
-
-	if (spec_mode != SPECIAL_CMD)
-		return 0;
-
-	if (!CMD_IS("enter"))
-		return 0;
-
-	skip_spaces(&argument);
-	if (!isname(argument, portal->name))
-		return 0;
-
-	for (idx = 0; idx < NUM_WEARS;idx++) 
-		if (GET_EQ(ch, idx)) {
-			send_to_char(ch, "The portal of the labyrinth repulses you.\r\n");
-			return 1;
-		}
-
-	if (ch->carrying) {
-		send_to_char(ch, "The portal of the labyrinth repulses you.\r\n");
-		return 1;
-	}
-
-	room = real_room(GET_OBJ_VAL(portal, 0));
-	if (!room) {
-		send_to_char(ch, "The labyrinth is currently closed for remodeling.\r\n");
-		return 1;
-	}
-
-	send_to_char(ch, "You enter the realm of the labyrinth.\r\n");
-	act("$n steps into $p", true, ch, portal, 0, TO_ROOM);
-	if (!IS_NPC(ch) && ch->in_room->zone != room->zone)
-		room->zone->enter_count++;
-	
-	char_from_room(ch);
-	char_to_room(ch, room);
-	act("$n steps out of the portal.", true, ch, 0, 0, TO_ROOM);
-	return 1;
-}
-
-// This is a fake special, used as a flag to the pendulum_timer mob
-// the exits will "spin" clockwise every pendulum tick
-SPECIAL(labyrinth_carousel)
-{
-	return 0;
-}
-
 SPECIAL(labyrinth_clock)
 {
 	/* object vnum is 66000 */
@@ -360,38 +308,6 @@ SPECIAL(gollum)
 	return 0;
 }
 
-void
-labyrinth_spin_carousels(zone_data *zone)
-{
-	room_data *cur_room;
-	CreatureList::iterator it;
-	room_direction_data *dir_save[NUM_DIRS];
-
-	for (cur_room = zone->world;cur_room && cur_room->number < zone->top;cur_room = cur_room->next) {
-		if (cur_room->func != labyrinth_carousel)
-			continue;
-
-		// Spin the room!  Wheee!
-		memcpy(dir_save, cur_room->dir_option, sizeof(room_direction_data) * NUM_DIRS);
-		cur_room->dir_option[NORTH] = dir_save[WEST];
-		cur_room->dir_option[EAST] = dir_save[NORTH];
-		cur_room->dir_option[SOUTH] = dir_save[EAST];
-		cur_room->dir_option[WEST] = dir_save[SOUTH];
-
-		if (cur_room->people.empty())
-			continue;
-
-		// Knock people down and describe if there are observers
-		act("The floor lurches beneath your feet!", true, 0, 0, 0, TO_ROOM);
-		it = cur_room->people.begin();
-		for (;it != cur_room->people.end();++it)
-			if (number(1, 26) > GET_DEX(*it)) {
-				send_to_char(*it, "You fall to the floor!  Oof!\r\n");
-				(*it)->setPosition(POS_SITTING);
-			}
-	}
-}
-
 //*****************************************************
 // Pendulum description
 // There is a timer mob that does the actual swinging of the pendulum.  It 
@@ -437,8 +353,6 @@ SPECIAL(pendulum_timer_mob)
 
 	if (pendulum_time >= 2) {
 		pendulum_time = 0;
-
-		labyrinth_spin_carousels(pendulum_timer_mob->in_room->zone );
 
 		for (test_obj = in_room->contents; test_obj;
 			test_obj = test_obj->next_content) {

@@ -2017,6 +2017,12 @@ SPECIAL(cave_bear)
 /* RADFORD's SPECS */
 #include "Specs/rad_specs/labyrinth.spec"
 
+/* LABYRINTH SPECS */
+#include "Specs/labyrinth/laby_portal.spec"
+#include "Specs/labyrinth/laby_carousel.spec"
+#include "Specs/labyrinth/laby_altar.spec"
+
+
 /* Bugs' SPECS */
 #include "Specs/bugs_specs/monastery_eating.spec"
 #include "Specs/bugs_specs/red_highlord.spec"
