@@ -3514,8 +3514,7 @@ ACMD(do_wiznet)
             && (subcmd != SCMD_IMMCHAT
                 || !PRF2_FLAGGED(d->creature, PRF2_NOIMMCHAT))
             && (!PLR_FLAGGED(d->creature,
-                    PLR_WRITING | PLR_MAILING | PLR_OLC))
-            && d != ch->desc) {
+				PLR_WRITING | PLR_MAILING | PLR_OLC))) {
 
             if (subcmd == SCMD_IMMCHAT) {
                 send_to_char(d->creature, CCYEL(d->creature, C_SPR));
