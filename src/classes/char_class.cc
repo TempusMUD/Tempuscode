@@ -2948,6 +2948,30 @@ extern const char *evil_knight_titles[LVL_GRIMP + 1] = {
 	"da GRIMP"
 };
 
+int
+correct_race( int race ) {
+    switch( race ) {
+        case RACE_ANIMAL:
+        case RACE_DRAGON:
+        case RACE_GIANT:
+        case RACE_UNDEAD:
+        case RACE_TROLL:
+        case RACE_OGRE:
+        case RACE_INSECT:
+        case RACE_HAFLING:
+        case RACE_GOBLIN:
+        case RACE_ELEMENTAL:
+        case RACE_DUERGAR:
+        case RACE_DEVIL:
+        case RACE_DEVA:
+        case RACE_DEMON:
+        case RACE_ARCHON:
+        case RACE_ALIEN_1:
+            return RACE_HUMAN;
+    }
+    return race;
+}
+
 long
 import_old_character(descriptor_data *d)
 {
@@ -2961,10 +2985,10 @@ import_old_character(descriptor_data *d)
     d->creature->desc = d;
     d->creature->player_specials->rentcode = RENT_NEW_CHAR;
     d->account->save_to_xml();
-    
-    
+
     // race
-    GET_RACE(d->creature) = GET_RACE(d->original);
+    GET_RACE(d->creature) = correct_race(GET_RACE(d->original));
+
     // sex
     GET_SEX(d->creature) = GET_SEX(d->original);
     // class
