@@ -132,6 +132,14 @@ HelpCollection::~HelpCollection() {
     }
     slog("Help system ended.");
 }
+void HelpCollection::Push(HelpItem *n) {
+    if(bottom) {
+        bottom->SetNext(n);
+    } else {
+        bottom = n;
+        items = n;
+    }
+}
 int HelpCollection::GetTop( void ) {
     return top_id;
 }
@@ -183,11 +191,9 @@ void HelpCollection::List( char_data *ch, char *args ) {
 bool HelpCollection::CreateItem( char_data *ch ) {
     HelpItem *n;
 
-    n = new HelpItem();
+    n = new HelpItem;
     n->idnum = ++top_id;
-    bottom = n->Push(bottom);
-    if(!items)
-        items = bottom;
+    Push(n);
     sprintf(buf,"Item #%d created.\r\n",n->idnum);
     send_to_char(buf,ch);
     n->Save();
@@ -212,7 +218,7 @@ bool HelpCollection::EditItem( char_data *ch, int idnum ) {
 }
 // Clear an item
 bool HelpCollection::ClearItem( char_data *ch ) {
-    if( !ch->player_specials->olc_help_item ) {
+    if( !GET_OLC_HELP(ch) ) {
         send_to_char("You must be editing an item to clear it.\r\n",ch);
         return false;
     }
@@ -225,7 +231,7 @@ bool HelpCollection::SaveItem( char_data *ch ) {
         send_to_char("You must be editing an item to save it.\r\n",ch);
         return false;
     }
-    GET_OLC_HELP(ch)->Clear();
+    GET_OLC_HELP(ch)->Save();
     return true;
 }
 // Find an Item in the index 
@@ -263,7 +269,6 @@ bool HelpCollection::SaveAll( char_data *ch ) {
         if(IS_SET(cur->flags,HFLAG_MODIFIED))
             cur->Save();
     }
-    Sync();
     send_to_char("Saved.\r\n",ch);
     sprintf(buf,"%s has saved the help system.",GET_NAME(ch));
     slog(buf);
@@ -301,7 +306,7 @@ bool HelpCollection::SaveIndex( char_data *ch ) {
 // Load the items from the index file
 bool HelpCollection::LoadIndex() {
     char fname[256],*s;
-    HelpItem *theItem;
+    HelpItem *n;
     int num_items = 0;
     s = fname;
     sprintf(fname,"%s/%s",Help_Directory,"index");
@@ -314,24 +319,22 @@ bool HelpCollection::LoadIndex() {
     index_file.seekp(0);
     index_file >> top_id;
     for(int i = 1;i <= top_id; i++) {
-            theItem = new HelpItem;
-            index_file  >> theItem->idnum >> theItem->groups 
-                        >>  theItem->counter >> theItem->flags  
-                        >> theItem->owner;
+            n = new HelpItem;
+            index_file  >> n->idnum >> n->groups 
+                        >>  n->counter >> n->flags  
+                        >> n->owner;
 
             index_file.getline(fname,100,'\n');
             index_file.getline(fname,100,'\n');
-            theItem->SetName(s);
+            n->SetName(s);
                 
             s = fname;
             index_file.getline(fname,100,'\n');
-            theItem->SetKeyWords(s);
+            n->SetKeyWords(s);
 
-            bottom = theItem->Push(bottom);
-            if(!items)
-                items = bottom;
+            Push(n);
             num_items++;
-            REMOVE_BIT(theItem->flags,HFLAG_MODIFIED);
+            REMOVE_BIT(n->flags,HFLAG_MODIFIED);
     }
     index_file.close();
     if(num_items == 0){

@@ -46,11 +46,8 @@ class HelpItem {
     ~HelpItem();
     
     HelpItem *Next( void ); // Returns the next HelpItem
+    void SetNext( HelpItem *n); // Returns the next HelpItem
     // Returns the next HelpItem in the list to be shown
-    HelpItem *NextShow( void ); 
-    void BlankShow( void ); // null the next_show pointer
-    HelpItem *Push( HelpItem *head );// Add the item to the list.
-    HelpItem *PushShow( HelpItem *head );// Add item to show list.
     bool Edit( char_data *ch ); // Begin editing an item
     bool Clear();// Clear the item out.
     void SetName(char *argument);
@@ -128,6 +125,7 @@ class HelpCollection {
     bool AddUser( char *argument);
     void Show(char_data *ch);
     int GetTop(void);
+    void Push(HelpItem *n);
     
     // Data
     HelpItem *items;

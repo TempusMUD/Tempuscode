@@ -149,6 +149,7 @@ void HelpItem::SetGroups(char *argument) {
 // Don't call me Roger.
 void HelpItem::SetName(char *argument) {
     skip_spaces(&argument);
+    delete name;
     name = new char[strlen(argument) + 1];
     strcpy(name, argument);
     SET_BIT(flags,HFLAG_MODIFIED);
@@ -159,6 +160,7 @@ void HelpItem::SetName(char *argument) {
 // Set the...um. keywords and stuff.
 void HelpItem::SetKeyWords(char *argument) {
     skip_spaces(&argument);
+    delete keys;
     keys = new char[strlen(argument) + 1];
     strcpy(keys, argument);
     SET_BIT(flags,HFLAG_MODIFIED);
@@ -229,30 +231,13 @@ bool HelpItem::Edit( char_data *ch ) {
     return true;
 }
 
-// Push on the the tail of the items list.
-// Make sure the set items and bottom equal
-// to the first element you push in.
-HelpItem *HelpItem::Push( HelpItem *tail) {
-    if(tail)
-        tail->next = this;
-    return this;
-}
-// Push into the "next to show" list.
-HelpItem *HelpItem::PushShow( HelpItem *list ) {
-    next_show = list;
-    return this;
-}
 // Returns the next HelpItem
 HelpItem *HelpItem::Next( void ){
     return next;
 } 
-// Returns the next HelpItem in the list to be shown
-HelpItem *HelpItem::NextShow( void ){
-    return next_show;
-} 
-// Wrapper for the next_show pointer
-void HelpItem::BlankShow( void ){
-    next_show = NULL;
+
+void HelpItem::SetNext( HelpItem *n ) {
+    next = n;
 }
 
 // Saves the current HelpItem. Does NOT alter the index.
@@ -275,8 +260,10 @@ bool HelpItem::Save(){
     file << idnum << " " 
          << (text ? strlen(text) + 1 : 0) 
          << endl << name << endl;
-    if(text)
+    if(text) {
         file.write(text,strlen(text));
+        delete text;
+    }
     file.close();
     REMOVE_BIT(flags,HFLAG_MODIFIED);
     return true;
@@ -286,6 +273,8 @@ bool HelpItem::Save(){
 bool HelpItem::LoadText() {
     char fname[256];
     int di;
+    if(text)
+        return true;
 
     sprintf(fname,"%s/%04d.topic",Help_Directory,idnum);
     help_file.open(fname,ios::in | ios::nocreate);
@@ -294,13 +283,14 @@ bool HelpItem::LoadText() {
         return false;
     }
     help_file.seekp(0);
-    if(!text)
-        text = new char[MAX_HELP_TEXT_LENGTH];
+    text = new char[MAX_HELP_TEXT_LENGTH];
     strcpy(text,"");
 
     help_file >> di >> di;
     help_file.getline(fname,256,'\n'); // eat the \r\n at the end of the #s
     help_file.getline(fname,256,'\n'); // then burn up the name since we dont really need it.
+    if(di > MAX_HELP_TEXT_LENGTH - 1)
+        di = MAX_HELP_TEXT_LENGTH -1;
     if(di > 0)
         help_file.read(text,di);
     help_file.close();

@@ -4,4 +4,7 @@ $(OBJ)/help_collection.o : help_collection.cc \
 $(OBJ)/help_group.o : help_group.cc \
 	$(INCLUDE)/structs.h $(INCLUDE)/char_data.h $(INCLUDE)/utils.h $(INCLUDE)/defs.h $(INCLUDE)/help.h $(INCLUDE)/interpreter.h $(INCLUDE)/db.h $(INCLUDE)/comm.h $(INCLUDE)/screen.h $(INCLUDE)/handler.h 
 	$(CXX) -c $(CXXFLAGS) help_group.cc        -o $(OBJ)/help_group.o
-OBJFILES= $(OBJ)/help_collection.o $(OBJ)/help_group.o
+$(OBJ)/help_item.o : help_item.cc \
+	$(INCLUDE)/structs.h $(INCLUDE)/char_data.h $(INCLUDE)/utils.h $(INCLUDE)/defs.h $(INCLUDE)/help.h $(INCLUDE)/interpreter.h $(INCLUDE)/db.h $(INCLUDE)/comm.h $(INCLUDE)/screen.h $(INCLUDE)/handler.h 
+	$(CXX) -c $(CXXFLAGS) help_item.cc         -o $(OBJ)/help_item.o
+OBJFILES= $(OBJ)/help_collection.o $(OBJ)/help_group.o $(OBJ)/help_item.o
