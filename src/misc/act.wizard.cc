@@ -2017,7 +2017,7 @@ ACMD(do_stat)
         if (!*buf2) {
             send_to_char(ch, "Stats on which player?\r\n");
         } else {
-			victim = new Creature;
+			victim = new Creature(true);
 			if (playerIndex.exists(buf2)) {
                 send_to_char(ch, "There is no such player.\r\n");
 				if (victim->loadFromXML(playerIndex.getID(buf2)))
@@ -3305,7 +3305,7 @@ ACMD(do_last)
         send_to_char(ch, "There is no such player.\r\n");
         return;
     }
-	vict = new Creature;
+	vict = new Creature(true);
 	if (!vict->loadFromXML(pid)) {
 		send_to_char(ch, "There was an error.\r\n");
 		slog("Unable to load character for 'LAST'.");
@@ -3985,7 +3985,7 @@ show_player(Creature *ch, char *value)
     }
 
     idnum = playerIndex.getID(value);
-	vict = new Creature;
+	vict = new Creature(true);
 	vict->loadFromXML(idnum);
 
     if (GET_REMORT_GEN(vict) <= 0) {
@@ -4553,7 +4553,7 @@ ACMD(do_show)
                 send_to_char(ch, 
                     "Getting that data from file requires basic administrative rights.\r\n");
             } else {
-                vict = new Creature;
+                vict = new Creature(true);
 				if (!playerIndex.exists(value))
                     send_to_char(ch, "There is no such player.\r\n");
                 else if (!vict->loadFromXML(playerIndex.getID(value)))
@@ -5399,7 +5399,7 @@ ACMD(do_set)
             }
         }
     } else if (is_file) {
-        cbuf = new Creature;
+        cbuf = new Creature(true);
 		vict = NULL;
 		if (!playerIndex.exists(name))
             send_to_char(ch, "There is no such player.\r\n");

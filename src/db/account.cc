@@ -294,8 +294,7 @@ Account::create_char(const char *name)
 	Creature *ch;
 	int i;
 
-	// create a player_special structure
-	ch = new Creature;
+	ch = new Creature(true);
 
     GET_NAME(ch) = strdup(tmp_capitalize(tmp_tolower(name)));
     ch->char_specials.saved.idnum = playerIndex.getTopIDNum() + 1;

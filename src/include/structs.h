@@ -100,4 +100,6 @@ struct message_list {
 	struct message_type *msg;	/* List of messages.                        */
 };
 
+extern struct player_special_data dummy_mob;	/* dummy spec area for mobs         */
+
 #endif

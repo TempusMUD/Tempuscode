@@ -1967,7 +1967,7 @@ parse_mobile(FILE * mob_f, int nr)
 	char f1[128], f2[128], f3[128], f4[128], f5[128];
 	struct Creature *mobile = NULL, *tmp_mob = NULL;
 
-	mobile = new Creature;
+	mobile = new Creature(false);
 
 	tmp_mob = real_mobile_proto(nr);
 
@@ -2489,7 +2489,7 @@ read_mobile(int vnum)
 		//for (tmp_mob = mob_proto; tmp_mob; tmp_mob = tmp_mob->next) {
 		if (tmp_mob->mob_specials.shared->vnum >= vnum) {
 			if (tmp_mob->mob_specials.shared->vnum == vnum) {
-				mob = new Creature;
+				mob = new Creature(false);
 				*mob = *tmp_mob;
 				tmp_mob->mob_specials.shared->number++;
 				tmp_mob->mob_specials.shared->loaded++;

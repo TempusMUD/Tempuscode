@@ -208,7 +208,7 @@ handle_input(struct descriptor_data *d, char *arg)
 				set_desc_state(CXN_DELETE_PROMPT, d);
 			} else if (!d->account->invalid_char_index(1)) {
 				char_id = d->account->get_char_by_index(1);
-				d->creature = new Creature;
+				d->creature = new Creature(true);
 				d->creature->desc = d;
 				if (d->creature->loadFromXML(char_id)) {
 					set_desc_state(CXN_DELETE_PW, d);
@@ -226,7 +226,7 @@ handle_input(struct descriptor_data *d, char *arg)
 				set_desc_state(CXN_EDIT_PROMPT, d);
 			} else if (!d->account->invalid_char_index(1)) {
 				char_id = d->account->get_char_by_index(1);
-				d->creature = new Creature;
+				d->creature = new Creature(true);
 				d->creature->desc = d;
 				if (d->creature->loadFromXML(char_id)) {
 					set_desc_state(CXN_EDIT_DESC, d);
@@ -244,7 +244,7 @@ handle_input(struct descriptor_data *d, char *arg)
 				set_desc_state(CXN_DETAILS_PROMPT, d);
 			} else if (!d->account->invalid_char_index(1)) {
 				char_id = d->account->get_char_by_index(1);
-				d->creature = new Creature;
+				d->creature = new Creature(true);
 				d->creature->desc = d;
 				if (d->creature->loadFromXML(char_id)) {
 					d->creature->desc = d;
@@ -305,7 +305,7 @@ handle_input(struct descriptor_data *d, char *arg)
 				return;
 			}
 
-			d->creature = new Creature;
+			d->creature = new Creature(true);
 			d->creature->desc = d;
 			d->creature->account = d->account;
 
@@ -560,7 +560,7 @@ handle_input(struct descriptor_data *d, char *arg)
 		}
 
 		char_id = d->account->get_char_by_index(atoi(arg));
-		d->creature = new Creature;
+		d->creature = new Creature(true);
 		d->creature->desc = d;
 		if (!d->creature->loadFromXML(char_id)) {
 			send_to_desc(d, "Sorry.  That character could not be loaded.\r\n");
@@ -578,7 +578,7 @@ handle_input(struct descriptor_data *d, char *arg)
 		}
 
 		char_id = d->account->get_char_by_index(atoi(arg));
-		d->creature = new Creature;
+		d->creature = new Creature(true);
 		d->creature->desc = d;
 		if (!d->creature->loadFromXML(char_id)) {
 			send_to_desc(d, "Sorry.  That character could not be loaded.\r\n");
@@ -670,7 +670,7 @@ handle_input(struct descriptor_data *d, char *arg)
 		}
 
 		char_id = d->account->get_char_by_index(atoi(arg));
-		d->creature = new Creature;
+		d->creature = new Creature(true);
 		d->creature->desc = d;
 		if (!d->creature->loadFromXML(char_id)) {
 			send_to_desc(d, "Sorry.  That character could not be loaded.\r\n");
@@ -701,7 +701,7 @@ handle_input(struct descriptor_data *d, char *arg)
 
         long id = oldPlayerIndex.getID( arg );
         char* filename = tmp_sprintf("oldplayers/%ld/%ld.dat", (id%10), id );
-        d->original = new Creature;
+        d->original = new Creature(true);
         if( !d->original->loadFromXML( filename ) ) {
             delete d->original;
             d->original = NULL;
@@ -1063,7 +1063,7 @@ send_menu(descriptor_data *d)
 			"&b -- -------------- --- --- --- -------- --------- ------------- --------- ----\r\n");
 
 		idx = 1;
-		tmp_ch = new Creature;
+		tmp_ch = new Creature(true);
 		while (!d->account->invalid_char_index(idx)) {
 			const char *class_str, *status_str, *mail_str;
 			char laston_str[15];
@@ -1172,7 +1172,7 @@ send_menu(descriptor_data *d)
 		send_to_desc(d, "&r\r\n                                DELETE CHARACTER\r\n*******************************************************************************&n\r\n\r\n");
 
 		idx = 1;
-		tmp_ch = new Creature;
+		tmp_ch = new Creature(true);
 		while (!d->account->invalid_char_index(idx)) {
 			tmp_ch->clear();
 			tmp_ch->loadFromXML(d->account->get_char_by_index(idx));
@@ -1192,7 +1192,7 @@ send_menu(descriptor_data *d)
 		send_to_desc(d, "&c\r\n                         EDIT CHARACTER DESCRIPTION\r\n*******************************************************************************&n\r\n\r\n");
 
 		idx = 1;
-		tmp_ch = new Creature;
+		tmp_ch = new Creature(true);
 		while (!d->account->invalid_char_index(idx)) {
 			tmp_ch->clear();
 			tmp_ch->loadFromXML(d->account->get_char_by_index(idx));
@@ -1212,7 +1212,7 @@ send_menu(descriptor_data *d)
 		send_to_desc(d, "&c\r\n                            VIEW CHARACTER DETAILS\r\n*******************************************************************************&n\r\n\r\n");
 
 		idx = 1;
-		tmp_ch = new Creature;
+		tmp_ch = new Creature(true);
 		while (!d->account->invalid_char_index(idx)) {
 			tmp_ch->clear();
 			tmp_ch->loadFromXML(d->account->get_char_by_index(idx));
@@ -1472,7 +1472,7 @@ char_to_game(descriptor_data *d)
 		send_to_newbie_helpers(tmp_sprintf(
 				" ***> New adventurer %s has entered the realm. <***\r\n",
 				GET_NAME(d->creature)));
-		do_start(d->creature, 1);
+		do_start(d->creature, 0);
 
 		// New characters shouldn't get old mail.
 		if(has_mail(GET_IDNUM(d->creature))) {

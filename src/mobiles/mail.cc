@@ -96,7 +96,7 @@ mail_box_status(long id)
     struct Creature *victim;
     int flag = 0;
 
-    victim = new Creature;
+    victim = new Creature(true);
     if (!victim->loadFromXML(id)) {
         delete victim;
         return 4;

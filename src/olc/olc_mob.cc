@@ -152,7 +152,7 @@ do_create_mob(struct Creature *ch, int vnum)
 			break;
 
 	}
-	new_mob = new Creature;
+	new_mob = new Creature(false);
 
 	CREATE(new_mob->mob_specials.shared, struct mob_shared_data, 1);
 	new_mob->mob_specials.shared->vnum = vnum;

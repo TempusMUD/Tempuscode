@@ -2668,7 +2668,7 @@ load_corpse_owner(struct obj_data *obj)
 	// pc, load from file
 	//
 
-	vict = new Creature;
+	vict = new Creature(true);
 
 	if (vict->loadFromXML(CORPSE_IDNUM(obj)))
 		return (vict);

@@ -964,7 +964,7 @@ do_qcontrol_kick(Creature *ch, char *argument, int com)
 
 	if (!(vict = get_char_in_world_by_idnum(idnum))) {
 		// load the char from file
-		vict = new Creature;
+		vict = new Creature(true);
 		pid = playerIndex.getID(arg1);
 		if (pid > 0) {
 			vict->loadFromXML(pid);
@@ -1233,7 +1233,7 @@ do_qcontrol_ban(Creature *ch, char *argument, int com)
 
 	if (!(vict = get_char_in_world_by_idnum(idnum))) {
 		// load the char from file
-		vict = new Creature;
+		vict = new Creature(true);
 		pid = playerIndex.getID(arg1);
 		if (pid > 0) {
 			vict->loadFromXML(pid);
@@ -1323,7 +1323,7 @@ do_qcontrol_unban(Creature *ch, char *argument, int com)
 
 	if (!(vict = get_char_in_world_by_idnum(idnum))) {
 		// load the char from file
-		vict = new Creature;
+		vict = new Creature(true);
 		if (idnum > 0) {
 			vict->loadFromXML(idnum);
 			level = GET_LEVEL(vict);
@@ -2390,7 +2390,7 @@ qp_reload(int sig)
 	struct Creature *immortal;
 	int online = 0, offline = 0;
 
-	immortal = new Creature;
+	immortal = new Creature(true);
 	for (x = 0; x <= playerIndex.getTopIDNum(); ++x) {
 		if (playerIndex.exists(x) && !get_char_in_world_by_idnum(x)) {
 			immortal->clear();
@@ -2799,7 +2799,7 @@ bool Quest::removePlayer( long id ) {
 
 	if (!(vict = get_char_in_world_by_idnum(id))) {
 		// load the char from file
-		vict = new Creature;
+		vict = new Creature(true);
 		if (vict->loadFromXML(id)) {
 			//HERE
 			if (GET_LEVEL(vict) < LVL_AMBASSADOR && PRF_FLAGGED(vict, PRF_QUEST)) {

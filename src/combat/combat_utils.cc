@@ -338,7 +338,7 @@ check_thief(struct Creature *ch, struct Creature *vict,
 void
 check_object_killer(struct obj_data *obj, struct Creature *vict)
 {
-	Creature cbuf;
+	Creature cbuf(true);
 	struct Creature *killer = NULL;
 	int obj_id;
 	int is_file = 0;

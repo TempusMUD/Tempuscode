@@ -21,18 +21,23 @@ void Crash_extract_norents(struct obj_data *obj);
 extern struct descriptor_data *descriptor_list;
 struct player_special_data dummy_mob;	/* dummy spec area for mobs         */
 
-Creature::Creature(void)
+Creature::Creature(bool pc)
 {
 	memset((char *)this, 0, sizeof(Creature));
-	player_specials = new player_special_data;
-	memset((char *)player_specials, 0, sizeof(player_special_data));
+	if (pc) {
+		player_specials = new player_special_data;
+		memset((char *)player_specials, 0, sizeof(player_special_data));
+	} else {
+		player_specials = &dummy_mob;
+	}
 	clear();
 }
 
 Creature::~Creature(void)
 {
 	clear();
-	delete player_specials;
+	if (player_specials != &dummy_mob)
+		delete player_specials;
 	free(player.title);
 }
 
@@ -709,6 +714,7 @@ Creature::clear(void)
 {
 	struct Creature *tmp_mob;
 	struct alias_data *a;
+	bool is_pc;
 
 	void free_alias(struct alias_data *a);
 
@@ -785,6 +791,8 @@ Creature::clear(void)
 	// - poofout
 	//
 
+	is_pc = !IS_NPC(this);
+
 	if (this->player_specials != NULL && this->player_specials != &dummy_mob) {
 		if (this->player_specials->poofin)
 			free(this->player_specials->poofin);
@@ -811,9 +819,13 @@ Creature::clear(void)
 	if (this->points.max_mana < 100)
 		this->points.max_mana = 100;
 
-	player_specials = new player_special_data;
-	memset((char *)player_specials, 0, sizeof(player_special_data));
-	player_specials->desc_mode = CXN_UNKNOWN;
+	if (is_pc) {
+		player_specials = new player_special_data;
+		memset((char *)player_specials, 0, sizeof(player_special_data));
+		player_specials->desc_mode = CXN_UNKNOWN;
+	} else {
+		player_specials = &dummy_mob;
+	}
 
 	set_title(this, "");
 }

@@ -936,7 +936,7 @@ struct follow_type {
 struct Creature {
 
   public:						// *******   METHODS ******
-  	Creature(void);	// constructor
+  	Creature(bool pc);	// constructor
 	~Creature(void);
 
 	// Reset creature to initial state

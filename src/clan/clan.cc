@@ -160,7 +160,7 @@ ACMD(do_dismiss)
 
 	if (!(vict = get_char_in_world_by_idnum(idnum))) {
 		// load the char from file
-		vict = new Creature;
+		vict = new Creature(true);
 		in_file = true;
 
 		if (!vict->loadFromXML(idnum)) {
@@ -371,7 +371,7 @@ ACMD(do_clanlist)
 				!playerIndex.getName(member->idnum)) {
 				continue;
 			}
-			i = new Creature;
+			i = new Creature(true);
 			if (i->loadFromXML(member->idnum)) {
 				name = tmp_strcat(GET_NAME(i), " ",
 					clan->ranknames[(int)member->rank] ?
@@ -1184,7 +1184,7 @@ boot_clans()
 	struct clanmember_data *member = NULL, *tmp_member = NULL;
 	struct room_data *room = NULL;
 	struct room_list_elem *rm_list = NULL;
-	Creature clan_member;
+	Creature clan_member(true);
 
 	clan_list = NULL;
 
