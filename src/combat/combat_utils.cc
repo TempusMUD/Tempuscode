@@ -1645,55 +1645,60 @@ make_corpse(struct Creature *ch, struct Creature *killer, int attacktype)
 		CORPSE_KILLER(corpse) = DAM_OBJECT_IDNUM(dam_object);
 
 	// if non-arena room, transfer eq to corpse
-	if ((!is_arena_combat(killer, ch) || IS_MOB(ch)) &&
-		GET_LEVEL(ch) < LVL_AMBASSADOR) {
+	bool lose_eq = (!is_arena_combat(killer, ch) || IS_MOB(ch))
+		&& GET_LEVEL(ch) < LVL_AMBASSADOR;
+	obj_data *next_obj;
 
-		/* transfer character's inventory to the corpse */
-		corpse->contains = ch->carrying;
-		for (o = corpse->contains; o != NULL; o = o->next_content)
-			o->in_obj = corpse;
-		object_list_new_owner(corpse, NULL);
+	/* transfer character's inventory to the corpse */
+	for (o = ch->carrying;o != NULL;o = next_obj) {
+		next_obj = o->next_content;
+		if (lose_eq || o->isUnrentable()) {
+			obj_from_char(o);
+			obj_to_obj(o, corpse);
+		}
+	}
 
-		/* transfer character's equipment to the corpse */
-		for (i = 0; i < NUM_WEARS; i++) {
-			if (GET_EQ(ch, i))
-				obj_to_obj(unequip_char(ch, i, MODE_EQ, true), corpse);
-			if (GET_IMPLANT(ch, i)) {
-				REMOVE_BIT(GET_OBJ_WEAR(GET_IMPLANT(ch, i)), ITEM_WEAR_TAKE);
-				obj_to_obj(unequip_char(ch, i, MODE_IMPLANT, true), corpse);
-			}
+	/* transfer character's equipment to the corpse */
+	for (i = 0; i < NUM_WEARS; i++) {
+		if (GET_EQ(ch, i) && (lose_eq || GET_EQ(ch, i)->isUnrentable()))
+			obj_to_obj(unequip_char(ch, i, MODE_EQ, true), corpse);
+		if (GET_IMPLANT(ch, i) && (lose_eq || GET_IMPLANT(ch, i)->isUnrentable())) {
+			REMOVE_BIT(GET_OBJ_WEAR(GET_IMPLANT(ch, i)), ITEM_WEAR_TAKE);
+			obj_to_obj(unequip_char(ch, i, MODE_IMPLANT, true), corpse);
 		}
+	}
 
-		/* transfer gold */
-		if (GET_GOLD(ch) > 0) {
-			/* following 'if' clause added to fix gold duplication loophole */
-			if (IS_NPC(ch) || (!IS_NPC(ch) && ch->desc)) {
-				if ((money = create_money(GET_GOLD(ch), 0)))
-					obj_to_obj(money, corpse);
-			}
-			GET_GOLD(ch) = 0;
+	/* transfer gold */
+	if (GET_GOLD(ch) > 0 && lose_eq) {
+		/* following 'if' clause added to fix gold duplication loophole */
+		if (IS_NPC(ch) || (!IS_NPC(ch) && ch->desc)) {
+			if ((money = create_money(GET_GOLD(ch), 0)))
+				obj_to_obj(money, corpse);
 		}
-		if (GET_CASH(ch) > 0) {
-			/* following 'if' clause added to fix gold duplication loophole */
-			if (IS_NPC(ch) || (!IS_NPC(ch) && ch->desc)) {
-				if ((money = create_money(GET_CASH(ch), 1)))
-					obj_to_obj(money, corpse);
-			}
-			GET_CASH(ch) = 0;
+		GET_GOLD(ch) = 0;
+	}
+	if (GET_CASH(ch) > 0 && lose_eq) {
+		/* following 'if' clause added to fix gold duplication loophole */
+		if (IS_NPC(ch) || (!IS_NPC(ch) && ch->desc)) {
+			if ((money = create_money(GET_CASH(ch), 1)))
+				obj_to_obj(money, corpse);
 		}
+		GET_CASH(ch) = 0;
+	}
+	if (lose_eq) {
 		ch->carrying = NULL;
 		IS_CARRYING_N(ch) = 0;
 		IS_CARRYING_W(ch) = 0;
+	}
 
-		// Remove all script objects if not an immortal
-		if (!IS_IMMORT(ch)) {
-			for (o = corpse->contains; o; o = next_o) {
-				next_o = o->next_content;
-				if (OBJ_TYPE(o, ITEM_SCRIPT))
-					extract_obj(o);
-			}
+	// Remove all script objects if not an immortal
+	if (!IS_IMMORT(ch)) {
+		for (o = corpse->contains; o; o = next_o) {
+			next_o = o->next_content;
+			if (OBJ_TYPE(o, ITEM_SCRIPT))
+				extract_obj(o);
 		}
-	} 
+	}
 
 	// leave no corpse behind
 	if (NON_CORPOREAL_UNDEAD(ch) || GET_MOB_SPEC(ch) == fate) {
