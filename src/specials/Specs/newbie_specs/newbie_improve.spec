@@ -24,7 +24,7 @@ SPECIAL(newbie_improve)
   if (!CMD_IS("improve") && !CMD_IS("train"))
     return 0;
   
-  if (GET_LEVEL(ch) > 7) {
+  if (GET_LEVEL(ch) > 7 || GET_REMORT_GEN(ch) > 0) {
     sprintf(buf3, "Get out of here, %s.  I cannot help you.", GET_NAME(ch));
     do_say(impro, buf3, 0, 0);
     return 1;
