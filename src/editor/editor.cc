@@ -494,8 +494,7 @@ bool CTextEditor::Clear( void ) {
 void CTextEditor::ImportText( void ) {
     char *b,*s;// s is the cursor, b is the beginning of the current line
     string text;
-
-    strcpy(editbuf, *target);
+    strncpy(editbuf, *target,maxSize);
     s = editbuf;
     while (s && *s) {
         for(b = s; *s && *s != '\r';s++);
