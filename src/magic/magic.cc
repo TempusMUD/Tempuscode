@@ -3215,7 +3215,7 @@ mag_alter_objs(int level, struct Creature *ch, struct obj_data *obj,
 
         oaf[0].level = ch->getLevelBonus(SPELL_ATTRACTION_FIELD);
         oaf[0].type = SPELL_ITEM_ATTRACTION_FIELD;
-        oaf[0].duration = ch->getLevelBonus(SPELL_ATTRACTION_FIELD) / 2;
+        oaf[0].duration = 20 + ch->getLevelBonus(SPELL_ATTRACTION_FIELD) / 2;
 
         if (GET_OBJ_TYPE(obj) == ITEM_WEAPON) {
 			int levelBonus = ch->getLevelBonus(SPELL_ATTRACTION_FIELD);
@@ -3253,7 +3253,7 @@ mag_alter_objs(int level, struct Creature *ch, struct obj_data *obj,
 
         oaf[0].level = ch->getLevelBonus(SPELL_REPULSION_FIELD);
         oaf[0].type = SPELL_ITEM_REPULSION_FIELD;
-        oaf[0].duration = ch->getLevelBonus(SPELL_REPULSION_FIELD) / 2;
+        oaf[0].duration = 20 + ch->getLevelBonus(SPELL_REPULSION_FIELD) / 2;
 
         if (GET_OBJ_TYPE(obj) == ITEM_WEAPON) {
 			int levelBonus = ch->getLevelBonus(SPELL_REPULSION_FIELD);
