@@ -303,17 +303,4 @@ ACMD(do_ambush)
 	hit(ch, vict, TYPE_UNDEFINED);
 }
 
-ACMD(forage)
-{
-	int prob;
-	
-//	prob = CHECK_SKILL(ch, SKILL_FORAGE);
-	if (number(0, 110) > prob) {
-		send_to_char(ch, "You don't find anything.\r\n");
-		return;
-	}
-
-	WAIT_STATE(ch, 5 RL_SEC);
-}
-
 #undef __act_ranger_c__
