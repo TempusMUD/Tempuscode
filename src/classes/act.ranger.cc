@@ -237,18 +237,17 @@ ACMD(do_autopsy)
 
 	act("$n examines $p.", TRUE, ch, corpse, 0, TO_ROOM);
 
-	if (number(30, 151) > GET_LEVEL(ch) + CHECK_SKILL(ch, SKILL_AUTOPSY))
-		send_to_char(ch, "You cannot determine the identity of the killer.\r\n");
-	else {
-		if (vict)
-			act("The killer seems to have been $N.", FALSE, ch, corpse, vict,
-				TO_CHAR);
-		else {
-			send_to_char(ch, "The killer seems to have been %s.\r\n",
-				tmp_capitalize(name));
-		}
-		gain_skill_prof(ch, SKILL_AUTOPSY);
+	if (number(30, 151) > GET_LEVEL(ch) + CHECK_SKILL(ch, SKILL_AUTOPSY)) {
+		send_to_char(ch,
+			"You cannot determine the identity of the killer.\r\n");
+		return;
 	}
+
+	if (vict)
+		name = GET_NAME(vict);
+	send_to_char(ch, "The killer seems to have been %s.\r\n",
+		tmp_capitalize(name));
+	gain_skill_prof(ch, SKILL_AUTOPSY);
 }
 
 ACMD(do_ambush)
