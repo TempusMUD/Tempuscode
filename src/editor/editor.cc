@@ -37,14 +37,14 @@ start_text_editor(struct descriptor_data *d, char **dest, bool sendmessage=true,
     */
     // There MUST be a destination!
     if(!dest) {
-        mudlog("ERROR: NULL destination pointer passed into start_text_editor!!",
+        mudlog("SYSERR: NULL destination pointer passed into start_text_editor!!",
                 BRF, LVL_IMMORT, TRUE);
         send_to_char("This command seems to be broken. Bug this.\r\n",d->character);
         REMOVE_BIT(PLR_FLAGS(d->character), PLR_WRITING | PLR_OLC | PLR_MAILING);
         return;
     }
     if(d->text_editor) {
-        mudlog("ERROR: Text editor object not null in start_text_editor.",
+        mudlog("SYSERR: Text editor object not null in start_text_editor.",
                 BRF,LVL_IMMORT,TRUE);
         REMOVE_BIT(PLR_FLAGS(d->character), PLR_WRITING | PLR_OLC | PLR_MAILING);
         return;
@@ -550,7 +550,8 @@ void CTextEditor::SendMessage(const char *message) {
     char *output = NULL;
     // If the original message is too long, make a new one thats small
     if(strlen(message) >= LARGE_BUFSIZE) { 
-        sprintf(small_editbuf,"ERR: SendMessage Truncating message. NAME(%s)",GET_NAME(desc->character));
+        sprintf(small_editbuf,"TEDERR: SendMessage Truncating message. NAME(%s) Length(%d)",
+            GET_NAME(desc->character),strlen(message));
         slog(small_editbuf);
         output = new char[LARGE_BUFSIZE];
         strncpy(output,message,LARGE_BUFSIZE - 2);
@@ -580,13 +581,19 @@ void CTextEditor::SendStartupMessage( void ) {
 
 void CTextEditor::UpdateSize( void ) {
     list<string>::iterator s;
-    
     curSize = 0;
 
     for(s = theText.begin();s != theText.end();s++) {
         curSize += s->length();
     }
+    // Current line number for prompt.
     desc->editor_cur_lnum = theText.size() + 1;
+    // Obvious buffer flow state. This should never happen, but if it does, say something.
+    if(curSize > maxSize) {
+        sprintf(buf,"TEDERR: UpdateSize updated to > maxSize. Name(%s) Size(%d) Max(%d)\r\n",
+            GET_NAME(desc->character),curSize,maxSize);
+        slog(buf);
+    }
 }
 void CTextEditor::ProcessHelp(char *inStr) {
     struct char_data *ch = desc->character;
