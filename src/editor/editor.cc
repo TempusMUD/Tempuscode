@@ -559,6 +559,10 @@ CTextEditor::CTextEditor(struct descriptor_data *d,
 
 void CTextEditor::SendMessage(const char *message) {
     char *output = NULL;
+    if(desc == NULL || desc->character == NULL) {
+        slog("SYSERR: TEDII Attempting to SendMessage with null desc or desc->character\r\n");
+        return;
+    }
     // If the original message is too long, make a new one thats small
     if(strlen(message) >= LARGE_BUFSIZE) { 
         sprintf(small_editbuf,"TEDERR: SendMessage Truncating message. NAME(%s) Length(%d)",
