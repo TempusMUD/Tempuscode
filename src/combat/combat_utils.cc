@@ -296,7 +296,15 @@ check_object_killer( struct obj_data * obj, struct char_data * vict )
     if ( ROOM_FLAGGED( vict->in_room, ROOM_PEACEFUL ) )
         return;
 
-    sprintf( buf, "Checking object killer %s -> %s.", obj->short_description, GET_NAME( vict ) );;;
+    // Lawless... Not wrong to pk in lawless zones.
+    if ( vict->in_room && ZONE_FLAGGED( vict->in_room->zone, ZONE_NOLAW ) ) {
+        sprintf( buf, "Checking object killer %s -> %s. (!LAW. Poor schmuck.)", 
+            obj->short_description, GET_NAME( vict ) );
+        slog( buf );
+        return;
+    }
+
+    sprintf( buf, "Checking object killer %s -> %s.", obj->short_description, GET_NAME( vict ) );
     slog( buf );
 
     if ( IS_BOMB( obj ) )
