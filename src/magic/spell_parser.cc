@@ -996,40 +996,6 @@ int call_magic( struct char_data * caster, struct char_data * cvict,
 	savetype = SAVING_BREATH;
 	break;
     }
-
-    if (IS_SET(SINFO.routines, MAG_EXITS) && knock_door)
-	mag_exits(level, caster, caster->in_room, spellnum);
-
-    if (IS_SET(SINFO.routines, MAG_AFFECTS))
-	mag_affects(level, caster, cvict, spellnum, savetype);
-
-    if (IS_SET(SINFO.routines, MAG_UNAFFECTS))
-	mag_unaffects(level, caster, cvict, spellnum, savetype);
-
-    if (IS_SET(SINFO.routines, MAG_POINTS))
-	mag_points(level, caster, cvict, spellnum, savetype);
-
-    if (IS_SET(SINFO.routines, MAG_ALTER_OBJS))
-	mag_alter_objs(level, caster, ovict, spellnum, savetype);
-
-    if (IS_SET(SINFO.routines, MAG_GROUPS))
-	mag_groups(level, caster, spellnum, savetype);
-
-    if (IS_SET(SINFO.routines, MAG_MASSES))
-	mag_masses(level, caster, spellnum, savetype);
-
-    if (IS_SET(SINFO.routines, MAG_AREAS))
-	mag_areas(level, caster, spellnum, savetype);
-
-    if (IS_SET(SINFO.routines, MAG_SUMMONS))
-	mag_summons(level, caster, ovict, spellnum, savetype);
-
-    if (IS_SET(SINFO.routines, MAG_CREATIONS))
-	mag_creations(level, caster, spellnum);
-
-    if (IS_SET(SINFO.routines, MAG_OBJECTS) && ovict)
-	mag_objects(level, caster, ovict, spellnum);
-
     if (IS_SET(SINFO.routines, MAG_DAMAGE)) {
         if (caster == cvict)
             same_vict = true;
@@ -1068,9 +1034,43 @@ int call_magic( struct char_data * caster, struct char_data * cvict,
             }
             */
             
-            return 0;
+            return 1;
         }
     }
+
+    if (IS_SET(SINFO.routines, MAG_EXITS) && knock_door)
+	mag_exits(level, caster, caster->in_room, spellnum);
+
+    if (IS_SET(SINFO.routines, MAG_AFFECTS))
+	mag_affects(level, caster, cvict, spellnum, savetype);
+
+    if (IS_SET(SINFO.routines, MAG_UNAFFECTS))
+	mag_unaffects(level, caster, cvict, spellnum, savetype);
+
+    if (IS_SET(SINFO.routines, MAG_POINTS))
+	mag_points(level, caster, cvict, spellnum, savetype);
+
+    if (IS_SET(SINFO.routines, MAG_ALTER_OBJS))
+	mag_alter_objs(level, caster, ovict, spellnum, savetype);
+
+    if (IS_SET(SINFO.routines, MAG_GROUPS))
+	mag_groups(level, caster, spellnum, savetype);
+
+    if (IS_SET(SINFO.routines, MAG_MASSES))
+	mag_masses(level, caster, spellnum, savetype);
+
+    if (IS_SET(SINFO.routines, MAG_AREAS))
+	mag_areas(level, caster, spellnum, savetype);
+
+    if (IS_SET(SINFO.routines, MAG_SUMMONS))
+	mag_summons(level, caster, ovict, spellnum, savetype);
+
+    if (IS_SET(SINFO.routines, MAG_CREATIONS))
+	mag_creations(level, caster, spellnum);
+
+    if (IS_SET(SINFO.routines, MAG_OBJECTS) && ovict)
+	mag_objects(level, caster, ovict, spellnum);
+
 
     if (IS_SET(SINFO.routines, MAG_MANUAL))
 	switch (spellnum) {
@@ -1700,240 +1700,240 @@ ACMD(do_cast)
     int mana, spellnum, i, target = 0, prob = 0, metal_wt = 0, num_eq = 0;
 
     if (IS_NPC(ch))
-	return;
+        return;
 
-    if (!IS_MAGE(ch) && !IS_CLERIC(ch) && !IS_KNIGHT(ch)     &&
-	!IS_RANGER(ch) && !IS_VAMPIRE(ch) &&
-	GET_CLASS(ch) < NUM_CLASSES  &&
-	(GET_LEVEL(ch) < LVL_GRGOD)) {
-	send_to_char("You are not learned in the ways of magic.\r\n", ch);
-	return;
+    if (!IS_MAGE(ch) && !IS_CLERIC(ch) && !IS_KNIGHT(ch) && !IS_RANGER(ch) && !IS_VAMPIRE(ch) &&
+	GET_CLASS(ch) < NUM_CLASSES  && (GET_LEVEL(ch) < LVL_GRGOD)) {
+        send_to_char("You are not learned in the ways of magic.\r\n", ch);
+        return;
     }
     if (GET_LEVEL(ch) < LVL_AMBASSADOR && 
 	IS_WEARING_W(ch) > (CAN_CARRY_W(ch) * 0.90)) {
-	send_to_char("Your equipment is too heavy and bulky to cast anything useful!\r\n", ch);
-	return;
+        send_to_char("Your equipment is too heavy and bulky to cast anything useful!\r\n", ch);
+        return;
     }
     if (GET_LEVEL(ch) < LVL_AMBASSADOR && GET_EQ(ch, WEAR_WIELD) && 
 	IS_OBJ_STAT2(GET_EQ(ch, WEAR_WIELD), ITEM2_TWO_HANDED)) {
-	send_to_char("You can't cast spells while wielding a two handed weapon!\r\n", ch);
-	return;
+        send_to_char("You can't cast spells while wielding a two handed weapon!\r\n", ch);
+        return;
     }
 
     if (!(find_spell_targets(ch,argument,&tch,&tobj,&target,&spellnum,cmd)))
-	return;
+        return;
 
     if (!SPELL_IS_MAGIC(spellnum) && !SPELL_IS_DIVINE(spellnum)) {
-	act("That is not a spell.", FALSE, ch, 0, 0, TO_CHAR);
-	return;
+        act("That is not a spell.", FALSE, ch, 0, 0, TO_CHAR);
+        return;
     }
 
     if (!target && !IS_SET(SINFO.targets, TAR_DOOR)) {
-	send_to_char("Cannot find the target of your spell!\r\n", ch);
-	return;
+        send_to_char("Cannot find the target of your spell!\r\n", ch);
+        return;
     }
+
     mana = mag_manacost(ch, spellnum);
 
     if ((mana > 0) && (GET_MANA(ch) < mana) && GET_LEVEL(ch) < LVL_AMBASSADOR &&
 	!PLR_FLAGGED(ch, PLR_MORTALIZED)) {
-	send_to_char("You haven't the energy to cast that spell!\r\n", ch);
-	return;
+        send_to_char("You haven't the energy to cast that spell!\r\n", ch);
+        return;
     }
   
-    if (GET_LEVEL(ch) < LVL_IMMORT && 
-        (!IS_EVIL(ch) && SPELL_IS_EVIL(spellnum)) ||
-        (!IS_GOOD(ch) && SPELL_IS_GOOD(spellnum))
-       ) {
-	send_to_char("You cannot cast that spell.\r\n", ch);
-	return;
+    if (GET_LEVEL(ch) < LVL_IMMORT && (!IS_EVIL(ch) && SPELL_IS_EVIL(spellnum)) ||
+    (!IS_GOOD(ch) && SPELL_IS_GOOD(spellnum))) {
+        send_to_char("You cannot cast that spell.\r\n", ch);
+        return;
     }
 
     if (GET_LEVEL(ch) > 3 && GET_LEVEL(ch) < LVL_AMBASSADOR && !IS_NPC(ch) &&
 	(IS_CLERIC(ch) || IS_KNIGHT(ch)) && SPELL_IS_DIVINE(spellnum)) {
-	for (i = 0; i < NUM_WEARS; i++) {
-	    if (ch->equipment[i]) {
-		if (GET_OBJ_TYPE(ch->equipment[i]) == ITEM_HOLY_SYMB) {
-		    holy_symbol = ch->equipment[i];
-		    break;
-		}
-	    }
-	}
-	if (!holy_symbol) {
-	    send_to_char("You do not even wear the symbol of your faith!\r\n", ch);
-	    return;
-	}
-	if ((IS_GOOD(ch) && (GET_OBJ_VAL(holy_symbol, 0) == 2)) ||
-	    (IS_EVIL(ch) && (GET_OBJ_VAL(holy_symbol, 0) == 0))) {
-	    send_to_char("You are not aligned with your holy symbol!\r\n", ch);
-	    return;
-	}
-	if (GET_CLASS(ch) != GET_OBJ_VAL(holy_symbol, 1) &&
-	    GET_REMORT_CLASS(ch) != GET_OBJ_VAL(holy_symbol, 1)) {
-	    send_to_char("The holy symbol you wear is not of your faith!\r\n", ch);
-	    return;
-	}
-	if (GET_LEVEL(ch) < GET_OBJ_VAL(holy_symbol, 2)) {
-	    send_to_char("You are not powerful enough to utilize your holy symbol!\r\n", ch);
-	    return;
-	}
-	if (GET_LEVEL(ch) > GET_OBJ_VAL(holy_symbol, 3)) {
-	    act("$p will no longer support your power!",
-		FALSE, ch, holy_symbol, 0, TO_CHAR);
-	    return;
-	}
+        for (i = 0; i < NUM_WEARS; i++) {
+            if (ch->equipment[i]) {
+                if (GET_OBJ_TYPE(ch->equipment[i]) == ITEM_HOLY_SYMB) {
+                    holy_symbol = ch->equipment[i];
+                    break;
+                }
+            }
+        }
+        if (!holy_symbol) {
+            send_to_char("You do not even wear the symbol of your faith!\r\n", ch);
+            return;
+        }
+        if ((IS_GOOD(ch) && (GET_OBJ_VAL(holy_symbol, 0) == 2)) ||
+            (IS_EVIL(ch) && (GET_OBJ_VAL(holy_symbol, 0) == 0))) {
+            send_to_char("You are not aligned with your holy symbol!\r\n", ch);
+            return;
+        }
+        if (GET_CLASS(ch) != GET_OBJ_VAL(holy_symbol, 1) &&
+            GET_REMORT_CLASS(ch) != GET_OBJ_VAL(holy_symbol, 1)) {
+            send_to_char("The holy symbol you wear is not of your faith!\r\n", ch);
+            return;
+        }
+        if (GET_LEVEL(ch) < GET_OBJ_VAL(holy_symbol, 2)) {
+            send_to_char("You are not powerful enough to utilize your holy symbol!\r\n", ch);
+            return;
+        }
+        if (GET_LEVEL(ch) > GET_OBJ_VAL(holy_symbol, 3)) {
+            act("$p will no longer support your power!",
+            FALSE, ch, holy_symbol, 0, TO_CHAR);
+            return;
+        }
     }
 
     /***** casting probability calculation *****/
     if ((IS_CLERIC(ch) || IS_KNIGHT(ch)) && SPELL_IS_DIVINE(spellnum)) {
-	prob -= (GET_WIS(ch) + (abs(GET_ALIGNMENT(ch)/70)));
-	if (IS_NEUTRAL(ch))
-	    prob += 30;
+        prob -= (GET_WIS(ch) + (abs(GET_ALIGNMENT(ch)/70)));
+        if (IS_NEUTRAL(ch))
+            prob += 30;
     }
-    if ((IS_MAGE(ch) || IS_RANGER(ch) || IS_VAMPIRE(ch)) && 
-	SPELL_IS_MAGIC(spellnum))
-	prob -= (GET_INT(ch) + GET_DEX(ch));
+    if ((IS_MAGE(ch) || IS_RANGER(ch) || IS_VAMPIRE(ch)) && SPELL_IS_MAGIC(spellnum))
+        prob -= (GET_INT(ch) + GET_DEX(ch));
 
     if (IS_SICK(ch))
-	prob += 20;
+        prob += 20;
+
     if (IS_CONFUSED(ch))
-	prob += number(35, 55) - GET_INT(ch);
+        prob += number(35, 55) - GET_INT(ch);
 
     if (GET_LEVEL(ch) < LVL_AMBASSADOR && GET_EQ(ch, WEAR_SHIELD))
-	prob += GET_EQ(ch, WEAR_SHIELD)->getWeight();
+        prob += GET_EQ(ch, WEAR_SHIELD)->getWeight();
   
     prob += ((IS_CARRYING_W(ch) + IS_WEARING_W(ch)) << 3) / CAN_CARRY_W(ch);
 
-    for (i = 0, num_eq = 0, metal_wt = 0; i < NUM_WEARS; i++)
-	if (ch->equipment[i]) {
-	    num_eq++;
-	    if (i != WEAR_WIELD &&
-		GET_OBJ_TYPE(ch->equipment[i]) == ITEM_ARMOR &&
-		IS_METAL_TYPE(ch->equipment[i])) {
-		metal_wt += ch->equipment[i]->getWeight();
-		if (!metal || !number(0, 8) || 
-		    (ch->equipment[i]->getWeight() > metal->getWeight() &&
-		     !number(0, 1)))
-		    metal = ch->equipment[i];
-	    }
-	    if (ch->implants[i]) {  
-		if (IS_METAL_TYPE(ch->equipment[i])) {
-		    metal_wt += ch->equipment[i]->getWeight();
-		    if (!metal || !number(0, 8) || 
-			( ch->implants[i]->getWeight() > metal->getWeight() &&
-			 !number(0, 1)))
-			metal = ch->implants[i];
-		}
-	    }
-	}
+    for (i = 0, num_eq = 0, metal_wt = 0; i < NUM_WEARS; i++) {
+        if (ch->equipment[i]) {
+            num_eq++;
+            if (i != WEAR_WIELD && GET_OBJ_TYPE(ch->equipment[i]) == ITEM_ARMOR &&
+            IS_METAL_TYPE(ch->equipment[i])) {
+                metal_wt += ch->equipment[i]->getWeight();
+            if (!metal || !number(0, 8) || 
+                (ch->equipment[i]->getWeight() > metal->getWeight() &&
+                 !number(0, 1)))
+                metal = ch->equipment[i];
+            }
+            if (ch->implants[i]) {  
+                if (IS_METAL_TYPE(ch->equipment[i])) {
+                    metal_wt += ch->equipment[i]->getWeight();
+                    if (!metal || !number(0, 8) || 
+                    ( ch->implants[i]->getWeight() > metal->getWeight() &&
+                     !number(0, 1)))
+                    metal = ch->implants[i];
+                }
+            }
+        }
+    }
   
-    if ((IS_MAGE(ch) || IS_RANGER(ch) || IS_VAMPIRE(ch)) && 
-	SPELL_IS_MAGIC(spellnum) &&
-	GET_LEVEL(ch) < LVL_ETERNAL)
-	prob += metal_wt;
+    if ((IS_MAGE(ch) || IS_RANGER(ch) || IS_VAMPIRE(ch)) && SPELL_IS_MAGIC(spellnum) 
+    && GET_LEVEL(ch) < LVL_ETERNAL)
+        prob += metal_wt;
 
     prob -= (NUM_WEARS - num_eq);
 
     if (FIGHTING(ch) && (FIGHTING(ch))->getPosition() == POS_FIGHTING)
-	prob += (GET_LEVEL(FIGHTING(ch)) >> 3);
+        prob += (GET_LEVEL(FIGHTING(ch)) >> 3);
   
     /**** casting probability ends here *****/
   
+    /* Begin fucking them over for failing and describing said fuckover */
+
     if ((prob + number(0, 75)) > CHECK_SKILL(ch, spellnum)) {
-	/* there is a failure */
+    /* there is a failure */
 
-	WAIT_STATE(ch, ((3 RL_SEC) - GET_REMORT_GEN(ch)));
-    
-	if (tch && tch != ch) { 
-	    /* victim exists */
+        WAIT_STATE(ch, ((3 RL_SEC) - GET_REMORT_GEN(ch)));
+        
+        if (tch && tch != ch) { 
+            /* victim exists */
 
-	    if ((IS_SET(SINFO.routines, MAG_DAMAGE) || SINFO.violent) && 
-		!IS_SET(SINFO.routines, MAG_TOUCH) &&
-		PLR_FLAGGED(ch, PLR_TOUGHGUY) &&
-		(prob + number(0, 111)) > CHECK_SKILL(ch, spellnum)) {
-		/* misdirect */
+            if ((IS_SET(SINFO.routines, MAG_DAMAGE) || SINFO.violent) && 
+            !IS_SET(SINFO.routines, MAG_TOUCH) &&
+            PLR_FLAGGED(ch, PLR_TOUGHGUY) &&
+            (prob + number(0, 111)) > CHECK_SKILL(ch, spellnum)) {
+                /* misdirect */
 
-		for (vict = ch->in_room->people; vict; vict = vict->next_in_room) {
-		    if (vict != ch && vict != tch && 
-			GET_LEVEL(vict) < LVL_AMBASSADOR && 
-			(IS_NPC(vict) || (PLR_FLAGGED(ch, PLR_TOUGHGUY) &&
-					  PLR_FLAGGED(vict, PLR_TOUGHGUY) &&
-					  GET_LEVEL(ch) < GET_LEVEL(vict) &&
-					  (!IS_REMORT(vict) || IS_REMORT(ch) ||
-					   PLR_FLAGGED(ch, PLR_REMORT_TOUGHGUY)) &&
-					  (!IS_REMORT(ch) || IS_REMORT(vict) ||
-					   PLR_FLAGGED(vict, PLR_REMORT_TOUGHGUY)))) &&
-			(!number(0, 4) || !vict->next_in_room)) {
-			if ((IS_MAGE(ch) || IS_RANGER(ch) || IS_VAMPIRE(ch)) && metal && 
-			    SPELL_IS_MAGIC(spellnum) && metal_wt > number(5, 80))
-			    act("$p has misdirected your spell toward $N!!",
-				FALSE, ch, metal, vict, TO_CHAR);
-			else
-			    act("Your spell has been misdirected toward $N!!",
-				FALSE, ch, 0, vict, TO_CHAR);
-			cast_spell(ch, vict, tobj, spellnum);
-			if (mana > 0)
-			    GET_MANA(ch) = MAX(0, MIN(GET_MAX_MANA(ch), GET_MANA(ch) - 
-						      (mana >> 1)));
-			WAIT_STATE(ch, 2 RL_SEC);
-			return;
-		    }
-		}
-	    } 
+                for (vict = ch->in_room->people; vict; vict = vict->next_in_room) {
+                    if (vict != ch && vict != tch && 
+                    GET_LEVEL(vict) < LVL_AMBASSADOR && 
+                    (IS_NPC(vict) || (PLR_FLAGGED(ch, PLR_TOUGHGUY) &&
+                              PLR_FLAGGED(vict, PLR_TOUGHGUY) &&
+                              GET_LEVEL(ch) < GET_LEVEL(vict) &&
+                              (!IS_REMORT(vict) || IS_REMORT(ch) ||
+                               PLR_FLAGGED(ch, PLR_REMORT_TOUGHGUY)) &&
+                              (!IS_REMORT(ch) || IS_REMORT(vict) ||
+                               PLR_FLAGGED(vict, PLR_REMORT_TOUGHGUY)))) &&
+                    (!number(0, 4) || !vict->next_in_room)) {
+                    if ((IS_MAGE(ch) || IS_RANGER(ch) || IS_VAMPIRE(ch)) && metal && 
+                        SPELL_IS_MAGIC(spellnum) && metal_wt > number(5, 80))
+                        act("$p has misdirected your spell toward $N!!",
+                        FALSE, ch, metal, vict, TO_CHAR);
+                    else
+                        act("Your spell has been misdirected toward $N!!",
+                        FALSE, ch, 0, vict, TO_CHAR);
+                    cast_spell(ch, vict, tobj, spellnum);
+                    if (mana > 0)
+                        GET_MANA(ch) = MAX(0, MIN(GET_MAX_MANA(ch), GET_MANA(ch) - 
+                                      (mana >> 1)));
+                    WAIT_STATE(ch, 2 RL_SEC);
+                    return;
+                    }
+                }
+            } 
 
-	    if ((IS_SET(SINFO.routines, MAG_DAMAGE) || SINFO.violent) && 
-		(prob + number(0, 81)) > CHECK_SKILL(ch, spellnum)) {
+            if ((IS_SET(SINFO.routines, MAG_DAMAGE) || SINFO.violent) && 
+            (prob + number(0, 81)) > CHECK_SKILL(ch, spellnum)) {
 
-		/* backfire */
+            /* backfire */
 
-		if ((IS_MAGE(ch) || IS_RANGER(ch) || IS_VAMPIRE(ch)) && metal &&
-		    SPELL_IS_MAGIC(spellnum) && metal_wt > number(5, 80))
-		    act("$p has caused your spell to backfire!!",
-			FALSE, ch, metal, 0, TO_CHAR);
-		else
-		    send_to_char("Your spell has backfired!!\r\n", ch);
-		cast_spell(ch, ch, tobj, spellnum);
-		if (mana > 0)
-		    GET_MANA(ch) = MAX(0, MIN(GET_MAX_MANA(ch), GET_MANA(ch) - 
-					      (mana >> 1)));
-		WAIT_STATE(ch, 2 RL_SEC);
-		return;
-	    }
+            if ((IS_MAGE(ch) || IS_RANGER(ch) || IS_VAMPIRE(ch)) && metal &&
+                SPELL_IS_MAGIC(spellnum) && metal_wt > number(5, 80))
+                act("$p has caused your spell to backfire!!",
+                FALSE, ch, metal, 0, TO_CHAR);
+            else
+                send_to_char("Your spell has backfired!!\r\n", ch);
+            cast_spell(ch, ch, tobj, spellnum);
+            if (mana > 0)
+                GET_MANA(ch) = MAX(0, MIN(GET_MAX_MANA(ch), GET_MANA(ch) - 
+                              (mana >> 1)));
+            WAIT_STATE(ch, 2 RL_SEC);
+            return;
+            }
 
-	    /* plain dud */
-	    if ((IS_MAGE(ch) || IS_RANGER(ch) || IS_VAMPIRE(ch)) && metal && 
-		SPELL_IS_MAGIC(spellnum) && metal_wt > number(5, 100))
-		act("$p has interfered with your spell!",
-		    FALSE, ch, metal, 0, TO_CHAR);
-	    else
-		send_to_char("You lost your concentration!\r\n", ch);
-      	ACMD(do_say);
-	    if (!skill_message(0, ch, tch, spellnum)) {
-			send_to_char("Nothing seems to happen.\r\n", ch);
-		}
+            /* plain dud */
+            if ((IS_MAGE(ch) || IS_RANGER(ch) || IS_VAMPIRE(ch)) && metal && 
+            SPELL_IS_MAGIC(spellnum) && metal_wt > number(5, 100))
+            act("$p has interfered with your spell!",
+                FALSE, ch, metal, 0, TO_CHAR);
+            else
+            send_to_char("You lost your concentration!\r\n", ch);
+            ACMD(do_say);
+            if (!skill_message(0, ch, tch, spellnum)) {
+                send_to_char("Nothing seems to happen.\r\n", ch);
+            }
 
-	    if (((IS_SET(SINFO.routines, MAG_DAMAGE) || SINFO.violent)) &&
-		IS_NPC(tch) && !PRF_FLAGGED(ch, PRF_NOHASSLE) &&
-		CAN_SEE(tch, ch))
-		hit(tch, ch, TYPE_UNDEFINED);
+            if (((IS_SET(SINFO.routines, MAG_DAMAGE) || SINFO.violent)) &&
+            IS_NPC(tch) && !PRF_FLAGGED(ch, PRF_NOHASSLE) &&
+            CAN_SEE(tch, ch))
+            hit(tch, ch, TYPE_UNDEFINED);
 
-	} else if ((IS_MAGE(ch) || IS_RANGER(ch) || IS_VAMPIRE(ch)) && 
-		   SPELL_IS_MAGIC(spellnum) && metal && metal_wt > number(5, 90))
-	    act("$p has interfered with your spell!",
-		FALSE, ch, metal, 0, TO_CHAR);
-	else
-	    send_to_char("You lost your concentration!\r\n", ch);
-    
-	if (mana > 0)
-	    GET_MANA(ch) = MAX(0, MIN(GET_MAX_MANA(ch), GET_MANA(ch) - (mana >> 1)));
-    } else { /* cast spell returns 1 on success; subtract mana & set waitstate */
-	if (cast_spell(ch, tch, tobj, spellnum)) {
-	    WAIT_STATE(ch, ((3 RL_SEC) - (GET_CLASS(ch) == CLASS_MAGIC_USER ? 
-					  GET_REMORT_GEN(ch) : 0)));
-	    if (mana > 0)
-		GET_MANA(ch) = MAX(0, MIN(GET_MAX_MANA(ch), GET_MANA(ch) - mana));
-	    gain_skill_prof(ch, spellnum); 
-      
-	}
+        } else if ((IS_MAGE(ch) || IS_RANGER(ch) || IS_VAMPIRE(ch)) && 
+               SPELL_IS_MAGIC(spellnum) && metal && metal_wt > number(5, 90))
+            act("$p has interfered with your spell!",
+            FALSE, ch, metal, 0, TO_CHAR);
+        else
+            send_to_char("You lost your concentration!\r\n", ch);
+        
+        if (mana > 0)
+            GET_MANA(ch) = MAX(0, MIN(GET_MAX_MANA(ch), GET_MANA(ch) - (mana >> 1)));
+    /* cast spell returns 1 on success; subtract mana & set waitstate */
+    //HERE
+    } else { 
+        if (cast_spell(ch, tch, tobj, spellnum)) {
+            WAIT_STATE(ch, ((3 RL_SEC) - (GET_CLASS(ch) == CLASS_MAGIC_USER ? 
+                          GET_REMORT_GEN(ch) : 0)));
+            if (mana > 0)
+            GET_MANA(ch) = MAX(0, MIN(GET_MAX_MANA(ch), GET_MANA(ch) - mana));
+            gain_skill_prof(ch, spellnum); 
+          
+        }
     }
 }
 
