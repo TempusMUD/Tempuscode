@@ -578,7 +578,7 @@ extern const char *player_race[] = {
     "Griffin",
     "Rotarian",
     "Half Elf",
-    "Celesital",
+    "Celestial",
     "Elysian",
     "Olympian",
 	"\n"
