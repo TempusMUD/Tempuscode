@@ -359,6 +359,94 @@ extern const char *char_class_menu =
 	"  [R]anger\r\n" "  [H]oodlum\r\n" "  Bou[n]ty Hunter\r\n";
 
 
+// Returns a tmpstr allocated char* containing an appropriate ANSI
+// color code for the given target Creature (tch) with the given
+// recipient Creature(ch)'s color settings in mind.
+const char*
+get_char_class_color( Creature *ch, Creature *tch, int char_class ) {
+    switch( char_class ) {
+        case CLASS_MAGIC_USER:
+            return tmp_strdup(CCMAG(ch, C_NRM));
+        case CLASS_CLERIC:
+            if (IS_GOOD(tch)) {
+                return tmp_strdup(CCYEL_BLD(ch, C_NRM));
+            } else if (IS_EVIL(tch)) {
+                return tmp_strdup(CCRED_BLD(ch, C_NRM));
+            } else {
+                return tmp_strdup(CCYEL(ch, C_NRM));
+            }
+        case CLASS_KNIGHT:
+            if (IS_GOOD(tch)) {
+                return tmp_strdup(CCBLU_BLD(ch, C_NRM));
+            } else if (IS_EVIL(tch)) {
+                return tmp_strdup(CCRED(ch, C_NRM));
+            } else {
+                return tmp_strdup(CCYEL(ch, C_NRM));
+            }
+        case CLASS_RANGER:
+            return tmp_strdup(CCGRN(ch, C_NRM));
+        case CLASS_BARB:
+            return tmp_strdup(CCCYN(ch, C_NRM));
+        case CLASS_THIEF:
+            return tmp_strdup( CCNRM_BLD(ch, C_NRM));
+        case CLASS_CYBORG:
+            return tmp_strdup( CCCYN(ch, C_NRM));
+        case CLASS_PSIONIC:
+            return tmp_strdup( CCMAG(ch, C_NRM));
+        case CLASS_PHYSIC:
+            return tmp_strdup( CCNRM_BLD(ch, C_NRM));
+        case CLASS_HOOD:
+            return tmp_strdup( CCRED(ch, C_NRM));
+        case CLASS_MONK:
+            return tmp_strdup( CCGRN(ch, C_NRM));
+        case CLASS_MERCENARY:
+            return tmp_strdup( CCYEL(ch, C_NRM));
+        default:
+            return tmp_strdup( CCNRM(ch, C_NRM));
+    }
+}
+
+// Returns a const char* containing an appropriate '&c' color code for the given target 
+// Creature (tch) suitable for use with send_to_desc.
+const char*
+get_char_class_color( Creature *tch, int char_class ) {
+    switch( char_class ) {
+        case CLASS_MAGIC_USER:
+            return "&m";
+        case CLASS_CLERIC:
+        case CLASS_KNIGHT:
+            if (IS_GOOD(tch)) {
+                return "&Y";
+            } else if (IS_EVIL(tch)) {
+                return "&R";
+            } else {
+                return "&y";
+            }
+        case CLASS_RANGER:
+            return "&g";
+        case CLASS_BARB:
+            return "&c";
+        case CLASS_THIEF:
+            return "&N";
+        case CLASS_CYBORG:
+            return "&c";
+        case CLASS_PSIONIC:
+            return "&m";
+        case CLASS_PHYSIC:
+            return "&N";
+        case CLASS_HOOD:
+            return "&r";
+        case CLASS_MONK:
+            return "&g";
+        case CLASS_MERCENARY:
+            return "&y";
+        default:
+            return "&n";
+    }
+}
+
+
+
 /*
  * The code to interpret a hometown letter -- used in interpreter.c
  */
