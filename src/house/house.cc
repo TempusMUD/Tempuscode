@@ -472,8 +472,8 @@ House::save()
 	fprintf( ouf, "<housefile>\n");
 	fprintf( ouf, "<house id=\"%d\" type=\"%s\" owner=\"%d\" created=\"%ld\"",
 				  getID(), getTypeName(), getOwnerID(), getCreated() );
-	fprintf( ouf, " landlord=\"%ld\" rate=\"%d\" >\n",
-			      getLandlord(), getRentalRate() );
+	fprintf( ouf, " landlord=\"%ld\" rate=\"%d\" overflow=\"%ld\" >\n",
+			      getLandlord(), getRentalRate(), rentOverflow );
 	for( unsigned int i = 0; i < getRoomCount(); i++ ) {
 		room_data *room = real_room( getRoom(i) );
 		if( room == NULL ) 
@@ -552,6 +552,7 @@ House::load( const char* filename )
 	created = xmlGetLongProp( houseNode, "created", 0 );
 	landlord = xmlGetLongProp( houseNode, "landlord", -1 );
 	rentalRate = xmlGetIntProp( houseNode, "rate", 0 );
+	rentOverflow = xmlGetLongProp( houseNode, "rentOverflow", 0 );
 	
 	
 	for ( xmlNodePtr node = houseNode->xmlChildrenNode; node; node = node->next ) 
