@@ -2227,9 +2227,10 @@ mobile_activity(void)
 				found = 0;
 
 				for (dir = 0; dir < NUM_DIRS && !found; dir++) {
+					if(! CAN_GO(ch, dir) )
+						continue;
 					room_data *tmp_room = EXIT(ch, dir)->to_room;
-					if (CAN_GO(ch, dir) 
-						&& !ROOM_FLAGGED(tmp_room, ROOM_DEATH | ROOM_NOMOB | ROOM_PEACEFUL) 
+					if ( !ROOM_FLAGGED(tmp_room, ROOM_DEATH | ROOM_NOMOB | ROOM_PEACEFUL) 
 						&& tmp_room != ch->in_room 
 						&& CHAR_LIKES_ROOM(ch, tmp_room) 
 						&& tmp_room->people.size() > 0 
