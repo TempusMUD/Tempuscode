@@ -918,7 +918,7 @@ extern const struct command_info cmd_info[] = {
     { "notitle"  , POS_DEAD    , do_wizutil  , LVL_POWER, SCMD_NOTITLE },
     { "nopost"   , POS_DEAD    , do_wizutil  , LVL_POWER, SCMD_NOPOST },
     { "notrailers", POS_DEAD   , do_gen_tog  , 1, SCMD_NOTRAILERS},
-    { "nowho"    , POS_DEAD    , do_gen_tog  , LVL_CAN_CLAN, SCMD_NOWHO },
+    { "nowho"    , POS_DEAD    , do_gen_tog  , LVL_IMMORT, SCMD_NOWHO },
     { "nowiz"    , POS_DEAD    , do_gen_tog  , LVL_DEMI, SCMD_NOWIZ },
     { "nudge"    , POS_RESTING , do_action   , 0, 0 },
     { "nuzzle"   , POS_RESTING , do_action   , 0, 0 },
@@ -3185,6 +3185,8 @@ nanny(struct descriptor_data * d, char *arg)
             send_to_char("\r\n", d->character);
 
             STATE(d) = CON_PLAYING;
+            if( GET_LEVEL(d->character) < LVL_IMMORT )
+                REMOVE_BIT(PRF2_FLAGS(d->character), PRF2_NOWHO);
             if (!GET_LEVEL(d->character)) {
                 send_to_char(START_MESSG, d->character);
                 sprintf(buf, 

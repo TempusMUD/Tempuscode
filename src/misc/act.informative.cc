@@ -3074,7 +3074,7 @@ ACMD(do_who)
         if (COMM_NOTOK_ZONES(ch, tch))
             continue;
         if (ch != tch && !PRF_FLAGGED(ch, PRF_HOLYLIGHT) && 
-            PRF2_FLAGGED(tch, PRF2_NOWHO) && 
+            PRF2_FLAGGED(tch, PRF2_NOWHO) && GET_LEVEL(tch) >= LVL_IMMORT &&
             !PLR_FLAGGED(tch, PLR_KILLER | PLR_THIEF))
             continue;
         if (outlaws && !PLR_FLAGGED(tch, PLR_KILLER) &&
