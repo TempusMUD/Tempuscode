@@ -797,6 +797,8 @@ ACMD(do_gen_comm)
 			send_to_char(ch, "That guild doesn't exist in this universe.\r\n");
 			return;
 		}
+
+		argument = tmp_arg;
 	}
 	
 	/* see if it's dirty! */
