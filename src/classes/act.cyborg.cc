@@ -1031,7 +1031,7 @@ ACMD(do_cyborg_reboot)
     send_to_char("Systems shutting down...\r\n"
          "Sending all processes the TERM signal.\r\n"
          "Unmounting filesystems.... done.\r\n"
-         "Reboot succesful.\r\n", ch);
+         "Reboot successful.\r\n", ch);
     if (CHECK_SKILL(ch, SKILL_FASTBOOT) > 10) {
     sprintf(buf, "Fastboot script enabled... %d %% efficiency.\r\n", 
         CHECK_SKILL(ch, SKILL_FASTBOOT));
