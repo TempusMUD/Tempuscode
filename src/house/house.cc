@@ -65,7 +65,7 @@ can_edit_house( struct char_data *ch, struct house_control_rec *house )
     else
 	return 1;
     
-    if ( GET_LEVEL( vict ) >= GET_LEVEL( ch ) )
+    if ( GET_LEVEL( vict ) > GET_LEVEL( ch ) )
 	return 0;
 
     return 1;
