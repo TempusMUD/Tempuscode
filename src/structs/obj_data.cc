@@ -186,7 +186,8 @@ obj_data::loadFromXML(obj_data *container, Creature *victim, room_data* room, xm
 			struct extra_descr_data *desc;
 			char *keyword;
 
-			if (ex_description == shared->proto->ex_description)
+			if (shared->proto
+					&& ex_description == shared->proto->ex_description)
 				ex_description = exdesc_list_dup(shared->proto->ex_description);
 			
 			keyword = xmlGetProp(cur, "keywords");
