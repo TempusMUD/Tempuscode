@@ -199,6 +199,10 @@ nanny(struct descriptor_data * d, char *arg)
 								   PLR_QUESTOR);
 						REMOVE_BIT(PRF2_FLAGS(d->character), PRF2_WORLDWRITE);
 
+						if(d->character->getLevel() < LVL_AMBASSADOR) {
+							GET_QLOG_LEVEL(d->character) = 0;
+						}
+
 						// make sure clan is valid
 						if ((clan = real_clan(GET_CLAN(d->character)))) {
 							if (!(member = real_clanmember(GET_IDNUM(d->character), clan)))
@@ -702,7 +706,7 @@ nanny(struct descriptor_data * d, char *arg)
 					GET_NAME(d->character), GET_REMORT_GEN(d->character),
 					pc_char_class_types[(int)GET_CLASS(d->character)],
 					pc_char_class_types[(int)GET_REMORT_CLASS(d->character)]);
-				mudlog(buf, BRF, LVL_IMMORT, FALSE);
+				mudlog(buf, BRF, LVL_IMMORT, TRUE);
 				set_desc_state( CON_MENU,d );
 			}
 			break;
