@@ -588,10 +588,11 @@ do_qcontrol_trans(CHAR * ch, char *argument, int com)
 		act("$n arrives from a puff of smoke.", FALSE, vict, 0, 0, TO_ROOM);
 		act("$n has transferred you!", FALSE, ch, 0, vict, TO_VICT);
 		look_at_room(vict, room, 0);
-		char *buf = tmp_sprintf("has transferred %s to %s[%d] for quest %d.", 
-			 GET_NAME(vict), room->name,room->number, quest->getVnum());
-		qlog(ch, buf, QLOG_BRIEF, MAX(GET_INVIS_LEV(ch), LVL_IMMORT), TRUE);
 	}
+	char *buf = tmp_sprintf("has transferred %d questers to %s[%d] for quest %d.", 
+		 					transCount, room->name,room->number, quest->getVnum());
+	qlog(ch, buf, QLOG_BRIEF, MAX(GET_INVIS_LEV(ch), LVL_IMMORT), TRUE);
+
 	send_to_char(ch,"%d players transferred.\r\n",transCount);
 }
 
