@@ -170,7 +170,7 @@ ACMD(do_dismiss)
 		return;
 	}
 	/* Find the player. */
-	if ((idnum = playerIndex.getID(arg)) < 0) {
+	if ((idnum = playerIndex.getID(arg)) == 0) {
 		send_to_char(ch, "There is no character named '%s'\r\n", arg);
 		return;
 	}
