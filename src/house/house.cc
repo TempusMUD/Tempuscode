@@ -1353,17 +1353,17 @@ hcontrol_set_house( Creature *ch, char *arg)
 				house->getID(), house->getTypeName(), GET_NAME(ch) );
 
 	} else if (is_abbrev(arg2, "landlord")) {
-
 		if (!*arg) {
 			send_to_char(ch, "Set who as the landlord?\r\n");
 			return;
 		}
-		if(! playerIndex.exists(arg) ) {
+		char *landlord = tmp_getword(&arg);
+		if(! playerIndex.exists(landlord) ) {
 			send_to_char(ch, "There is no such player, '%s'\r\n", arg);
 			return;
 		}
 
-		house->setLandlord( playerIndex.getID(arg) );
+		house->setLandlord( playerIndex.getID(landlord) );
 
 		send_to_char(ch, "Landlord of house %d set to %s.\r\n", 
 				house->getID(), playerIndex.getName(house->getLandlord()) );
@@ -1375,15 +1375,15 @@ hcontrol_set_house( Creature *ch, char *arg)
 			send_to_char(ch, "Set who as the owner?\r\n");
 			return;
 		}
-		
+		char *owner = tmp_getword(&arg);
 		switch( house->getType() ) {
 			case House::PRIVATE:
 			case House::PUBLIC:
 			case House::RENTAL:
-				set_house_account_owner(ch, house, arg);
+				set_house_account_owner(ch, house, owner);
 				break;
 			case House::CLAN:
-				set_house_clan_owner(ch, house, arg);
+				set_house_clan_owner(ch, house, owner);
 				break;
 			case House::INVALID:
 				send_to_char(ch, "Invalid house type. Nothing set.\r\n");
