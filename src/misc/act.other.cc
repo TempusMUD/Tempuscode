@@ -522,7 +522,7 @@ ACMD(do_report)
     if (k != ch)
 	send_to_char(buf, k);
 
-    sprintf(buf, "You report: %d/%dH, %d/%dM, %d/%dV, %dA\r\n\r\n",
+    sprintf(buf, "You report: %d/%dH, %d/%dM, %d/%dV, %dA\r\n",
 	    GET_HIT(ch), GET_MAX_HIT(ch),
 	    GET_MANA(ch), GET_MAX_MANA(ch),
 	    GET_MOVE(ch), GET_MAX_MOVE(ch),
