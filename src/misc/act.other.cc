@@ -102,8 +102,6 @@ ACMD(do_quit)
 	else if (ch->getPosition() < POS_STUNNED) {
 		send_to_char(ch, "You die before your time...\r\n");
 		die(ch, 0, 0, 0);
-	} else if (PLR_FLAGGED(ch, PLR_QUESTOR)) {
-		send_to_char(ch, "Please remove your questor flag first.\r\n");
 	} else {
 
 		/*
