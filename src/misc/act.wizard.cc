@@ -52,6 +52,7 @@ using namespace std;
 #include "utils.h"
 #include "player_table.h"
 #include "quest.h"
+#include "ban.h"
 
 
 /*   external vars  */
@@ -5649,6 +5650,11 @@ ACMD(do_set)
 
         break;
     case 38:
+		if (IS_PC(vict) && !Valid_Name(argument)) {
+			send_to_char(ch, "That character name is invalid.\r\n");
+			return;
+		}
+
 		slog("%s set %s %s's name to '%s'",
 			GET_NAME(ch),
 			(IS_NPC(vict) ? "NPC":"PC"),
