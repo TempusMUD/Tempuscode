@@ -2940,13 +2940,13 @@ mag_assign_spells(void)
 
 
     spello(ZEN_HEALING,X,X,X, X, X, X, X, X, X, X, X, 36, X,X,X,X,X, 30, 9, 2, 
-	   0, 0, 0, 0);
+	   0, 0, 0, MAG_ZEN);
     spello(ZEN_AWARENESS,X,X,X,X, X, X, X, X, X, X, X, 21,X,X,X,X,X,30, 5, 1, 
-	   0, 0, 0, 0);
+	   0, 0, 0, MAG_ZEN);
     spello(ZEN_OBLIVITY,X,X,X,X, X, X, X, X, X, X, X, 43, X, X,X,X,X,40, 10, 4, 
-	   0, 0, 0, 0);
+	   0, 0, 0, MAG_ZEN);
     spello(ZEN_MOTION, X, X, X, X, X, X, X, X, X, X, X, 28, X,X,X,X,X, 30, 7, 1, 
-	   0, 0, 0, 0);
+	   0, 0, 0, MAG_ZEN);
 
 
     /* C L A S S E S      M A N A   */
@@ -3021,10 +3021,10 @@ mag_assign_spells(void)
 		  MAG_PSIONIC | MAG_AFFECTS);
 
     remort_spello(ZEN_TRANSLOCATION, CLASS_MONK, 37, 1,
-		  40, 20, 1, 0, 0, 0, 0);
+		  40, 20, 1, 0, 0, 0, MAG_ZEN);
 
     remort_spello(ZEN_CELERITY, CLASS_MONK, 25, 2,
-		  40, 20, 1, 0, 0, 0, 0);
+		  40, 20, 1, 0, 0, 0, MAG_ZEN);
 
     remort_spello(SKILL_DISGUISE, CLASS_THIEF, 17, 1,
 		  40, 20, 1, 0, 0, 0, 0);

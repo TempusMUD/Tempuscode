@@ -68,6 +68,7 @@ extern const char *spells[];
 #define MAG_NOWATER     (1 << 23)
 #define MAG_WATERZAP    (1 << 24)
 #define MAG_NOSUN       (1 << 25)
+#define MAG_ZEN			(1 << 26)
 
 #define SPELL_IS_MAGIC(splnm)   IS_SET(spell_info[splnm].routines, MAG_MAGIC)
 #define SPELL_IS_DIVINE(splnm)  IS_SET(spell_info[splnm].routines, MAG_DIVINE)

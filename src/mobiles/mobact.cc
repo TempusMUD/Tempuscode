@@ -85,6 +85,8 @@ ACMD(do_firstaid);
 ACMD(do_bandage);
 ACMD(do_activate);
 ACMD(do_discharge);
+ACMD(do_de_energize);
+
 
 SPECIAL(thief);
 SPECIAL(cityguard);
@@ -2529,10 +2531,14 @@ mobile_battle_activity(struct char_data *ch)
 		/* if I didn't pick any of those, then just slam the guy I'm fighting */
 		if (vict == NULL)
 			vict = FIGHTING(ch);
-		if( !random_fractional_3() ) {
+		if( random_fractional_3() == 1) {
+			if( GET_MOVE(ch) < 200 && random_binary()) {
+				do_de_energize(ch,GET_NAME(vict),0,0);
+				return;
+			}
 			if( GET_LEVEL(ch) >= 14 && random_binary() ) {
-				if( random_fractional_10() ) {
-					sprintf(buf,"%d%s",GET_LEVEL(ch)/3,GET_NAME(vict));
+				if( GET_MOVE(ch) > 50 && random_binary()) {
+					sprintf(buf,"%d %s",GET_LEVEL(ch)/3,GET_NAME(vict));
 					do_discharge(ch,buf,0,0);
 					return;
 				}
