@@ -69,6 +69,26 @@ set_fighting(struct Creature *ch, struct Creature *vict, int aggr)
 		return;
 	}
 
+	CreatureList::iterator cit;
+	for (cit = ch->in_room->people.begin();
+			cit != ch->in_room->people.end();
+			cit++) {
+		if ((*cit) != vict
+				&& (*cit) != ch
+				&& DEFENDING((*cit)) == vict
+				&& !(*cit)->isFighting()
+				&& (*cit)->getPosition() > POS_RESTING) {
+			send_to_char(*cit, "You defend %s from %s's vicious attack!\r\n",
+				PERS(vict, (*cit)), PERS(ch, (*cit)));
+			send_to_char(vict, "%s defends you from %s's vicious attack!\r\n",
+				PERS(*cit, vict), PERS(ch, vict));
+			act("$n comes to $N's defense!", false,
+				*cit, 0, vict, TO_NOTVICT);
+			vict = *cit;
+			break;
+		}
+	}
+
 	if (aggr && !IS_NPC(vict)) {
 		if (IS_NPC(ch)) {
 			if (AFF_FLAGGED(ch, AFF_CHARM) && ch->master && !IS_NPC(ch->master)
@@ -112,6 +132,9 @@ set_fighting(struct Creature *ch, struct Creature *vict, int aggr)
 			}
 		}
 	}
+
+	if (DEFENDING(vict) == ch)
+		stop_defending(vict);
 
 	combatList.add(ch);
 
@@ -158,6 +181,22 @@ stop_fighting(CreatureList::iterator & cit)
 	remove_fighting_affects(ch);
 }
 
+void
+set_defending(Creature *ch, Creature *target)
+{
+	if (DEFENDING(ch))
+		stop_defending(ch);
+
+	DEFENDING(ch) = target;
+
+	act("You start defending $N against attacks.",
+		true, ch, 0, DEFENDING(ch), TO_CHAR);
+	act("$n starts defending you against attacks.",
+		false, ch, 0, DEFENDING(ch), TO_VICT);
+	act("$n starts defending $N against attacks.",
+		false, ch, 0, DEFENDING(ch), TO_NOTVICT);
+}
+
 /* remove a char from the list of fighting chars */
 void
 stop_fighting(struct Creature *ch)
@@ -166,6 +205,18 @@ stop_fighting(struct Creature *ch)
 	remove_fighting_affects(ch);
 }
 
+void
+stop_defending(struct Creature *ch)
+{
+	act("You stop defending $N.",
+		true, ch, 0, DEFENDING(ch), TO_CHAR);
+	if (ch->in_room == DEFENDING(ch)->in_room) {
+		act("$n stops defending you against attacks.",
+			false, ch, 0, DEFENDING(ch), TO_VICT);
+		act("$n stops defending $N.",
+			false, ch, 0, DEFENDING(ch), TO_NOTVICT);
+	}
+}
 
 /* When ch kills victim */
 void
@@ -1853,8 +1904,12 @@ damage(struct Creature *ch, struct Creature *victim, int dam,
 							HUNTING(victim) = ch;
 					}
 					// make the victim retailiate against the attacker
-					if (!FIGHTING(victim) && ch->in_room == victim->in_room) {
-						set_fighting(victim, ch, FALSE);
+					if (FIGHTING(ch)) {
+						if (!FIGHTING(FIGHTING(ch)))
+							set_fighting(FIGHTING(ch), ch, FALSE);
+					} else {
+						if (!FIGHTING(victim) && ch->in_room == victim->in_room)
+							set_fighting(victim, ch, FALSE);
 					}
 				}
 			}

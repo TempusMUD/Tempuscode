@@ -231,6 +231,8 @@ extern struct obj_data *cur_weap;
 /* prototypes from fight.c */
 void set_fighting(struct Creature *ch, struct Creature *victim, int aggr);
 void stop_fighting(struct Creature *ch);
+void set_defending(struct Creature *ch, struct Creature *target);
+void stop_defending(struct Creature *ch);
 void stop_follower(struct Creature *ch);
 int hit(struct Creature *ch, struct Creature *victim, int type);
 void forget(struct Creature *ch, struct Creature *victim);

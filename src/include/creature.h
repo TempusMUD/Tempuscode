@@ -765,6 +765,7 @@ struct char_special_data {
 	}
 
 	struct Creature *fighting;	/* Opponent                */
+	struct Creature *defending;	/* Char defended by this char */
 	struct Creature *hunting;	/* Char hunted by this char        */
 	struct Creature *mounted;	/* creatures mounted ON this char        */
 

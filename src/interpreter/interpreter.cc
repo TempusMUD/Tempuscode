@@ -115,6 +115,7 @@ ACMD(do_breathe);
 ACMD(do_crossface);
 ACMD(do_demote);
 ACMD(do_de_energize);
+ACMD(do_defend);
 ACMD(do_defuse);
 ACMD(do_disembark);
 ACMD(do_disguise);
@@ -617,6 +618,7 @@ struct command_info cmd_info[] = {
 	{"deactivate", POS_SITTING, do_activate, 0, SCMD_OFF, 0, 0},
 	{"deassimilate", POS_RESTING, do_deassimilate, 0, 0, 0, 0},
 	{"deathtouch", POS_FIGHTING, do_offensive_skill, 0, SKILL_DEATH_TOUCH, 0, 0},
+	{"defend", POS_SITTING, do_defend, 0, 0, 0, 0},
 	{"defuse", POS_SITTING, do_defuse, 0, 0, 0, 0},
 	{"delete", POS_DEAD, do_delete, LVL_IMMORT, 0, 0, 0},
 	{"demote", POS_RESTING, do_demote, 0, 0, 0, 0},

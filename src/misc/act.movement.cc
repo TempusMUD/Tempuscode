@@ -2540,6 +2540,39 @@ ACMD(do_follow)
 	}
 }
 
+ACMD(do_defend)
+{
+	struct Creature *targ;
+	char *arg;
+
+	arg = tmp_getword(&argument);
+
+	if (*buf) {
+		if (!(targ = get_char_room_vis(ch, arg))) {
+			send_to_char(ch, NOPERSON);
+			return;
+		}
+	} else {
+		send_to_char(ch, "Whom do you wish to defend?\r\n");
+		return;
+	}
+
+	if (DEFENDING(ch) == targ) {
+		act("You are already defending $M.", FALSE, ch, 0, targ, TO_CHAR);
+		return;
+	}
+	if (IS_AFFECTED(ch, AFF_CHARM) && ch->master && targ != ch->master) {
+		act("But you only feel like defending $N!", FALSE, ch, 0, ch->master,
+			TO_CHAR);
+	} else {
+		if (targ == ch) {
+			stop_defending(ch);
+		} else {
+			set_defending(ch, targ);
+		}
+	}
+}
+
 #define TL_USAGE (subcmd == SKILL_WORMHOLE ?                        \
                   "Usage: wormhole <direction> <distance>\r\n" :    \
                   "Usage: translocate <direction> <distance>\r\n")

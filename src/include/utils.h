@@ -548,6 +548,7 @@ char *CURRENCY(Creature * ch);
 #define GET_MOOD(ch)		(ch->char_specials.mood_str)
 
 #define FIGHTING(ch)          (ch->getFighting())
+#define DEFENDING(ch)		 (ch->char_specials.defending)
 #define HUNTING(ch)          ((ch)->char_specials.hunting)
 #define MOUNTED(ch)          ((ch)->char_specials.mounted)
 #define DRIVING(ch)       ((ch)->char_specials.driving)

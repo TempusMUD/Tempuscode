@@ -529,11 +529,15 @@ Creature::extract(cxn_state con_state)
 		die_follower(this);
 
 
+	// remove fighters, defenders, hunters and mounters
 	if (FIGHTING(this))
 		stop_fighting(this);
 
-	// remove hunters and mounters
 	for (cit = characterList.begin(); cit != characterList.end(); ++cit) {
+		if (this == FIGHTING((*cit)))
+			stop_fighting(*cit);
+		if (this == DEFENDING((*cit)))
+			stop_defending(*cit);
 		if (this == HUNTING((*cit)))
 			HUNTING((*cit)) = NULL;
 		if (this == MOUNTED((*cit))) {
@@ -546,7 +550,6 @@ Creature::extract(cxn_state con_state)
 			}
 		}
 	}
-
 
 	if (MOUNTED(this)) {
 		REMOVE_BIT(AFF2_FLAGS(MOUNTED(this)), AFF2_MOUNTED);
@@ -584,16 +587,6 @@ Creature::extract(cxn_state con_state)
 		obj_from_char(obj);
 		extract_obj(obj);
 	}
-
-	if (FIGHTING(this))
-		stop_fighting(this);
-
-	// stop all fighting
-	for (cit = combatList.begin(); cit != combatList.end(); ++cit) {
-		if (this == FIGHTING((*cit)))
-			stop_fighting(*cit);
-	}
-
 
 	if (desc && desc->original)
 		do_return(this, "", 0, SCMD_NOEXTRACT, 0);
