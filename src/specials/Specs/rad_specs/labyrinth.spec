@@ -589,7 +589,7 @@ SPECIAL(astrolabe)
 		act("$n suddenly appears near you.", TRUE, ch, 0, 0, TO_ROOM);
 		NUM_USES(astrolabe)--;
 		if (NUM_USES(astrolabe) <= 0) {
-			act("$p slowly fades from existance.", FALSE, ch, astrolabe, 0,
+			act("$p slowly fades from existence.", FALSE, ch, astrolabe, 0,
 				TO_CHAR);
 			extract_obj(astrolabe);
 		}

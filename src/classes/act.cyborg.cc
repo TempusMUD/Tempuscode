@@ -979,7 +979,7 @@ ACMD(do_activate)
 				CUR_ENERGY(obj) -= mass;
 
 				send_to_char(ch, "You flip a switch and disappear.\r\n");
-				act("$n flips a switch on $p and fades out of existance.",
+				act("$n flips a switch on $p and fades out of existence.",
 					TRUE, ch, obj, 0, TO_ROOM);
 
 				char_from_room(ch);
@@ -987,7 +987,7 @@ ACMD(do_activate)
 
 				send_to_char(ch, 
 					"A buzzing fills your ears as you materialize...\r\n");
-				act("You hear a buzzing sound as $n fades into existance.",
+				act("You hear a buzzing sound as $n fades into existence.",
 					FALSE, ch, 0, 0, TO_ROOM);
 				look_at_room(ch, ch->in_room, 0);
 

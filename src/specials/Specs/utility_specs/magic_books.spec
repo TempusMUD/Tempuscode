@@ -40,8 +40,8 @@ SPECIAL(improve_stat_book)
 	if (ch != obj->carried_by && ch != obj->worn_by)
 		return 0;
 
-	act("You spend several hours reading the magical writing inscribed upon\r\n" "the pages of $p, which afterwards\r\nslowly fades from existance.\r\n", FALSE, ch, obj, 0, TO_CHAR);
-	act("$n spends several hours reading the magical writing inscribed upon\r\n" "the pages of $p, which afterwards\r\nslowly fades from existance.", FALSE, ch, obj, 0, TO_ROOM);
+	act("You spend several hours reading the magical writing inscribed upon\r\n" "the pages of $p, which afterwards\r\nslowly fades from existence.\r\n", FALSE, ch, obj, 0, TO_CHAR);
+	act("$n spends several hours reading the magical writing inscribed upon\r\n" "the pages of $p, which afterwards\r\nslowly fades from existence.", FALSE, ch, obj, 0, TO_ROOM);
 
 	if ((IS_OBJ_STAT(obj, ITEM_ANTI_EVIL) && IS_EVIL(ch)) ||
 		(IS_OBJ_STAT(obj, ITEM_ANTI_GOOD) && IS_GOOD(ch)) ||

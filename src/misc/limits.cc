@@ -931,15 +931,15 @@ point_update(void)
 			if (!GET_OBJ_TIMER(j) || out_of_zone) {
 
 				if (j->carried_by)
-					act("$p slowly fades out of existance.",
+					act("$p slowly fades out of existence.",
 						FALSE, j->carried_by, j, 0, TO_CHAR);
 				if (j->worn_by)
 					act("$p disintegrates as you are wearing it.",
 						FALSE, j->worn_by, j, 0, TO_CHAR);
 				else if ((j->in_room != NULL) && (j->in_room->people)) {
-					act("$p slowly fades out of existance.",
+					act("$p slowly fades out of existence.",
 						TRUE, j->in_room->people, j, 0, TO_ROOM);
-					act("$p slowly fades out of existance.",
+					act("$p slowly fades out of existence.",
 						TRUE, j->in_room->people, j, 0, TO_CHAR);
 				}
 				for (jj = j->contains; jj; jj = next_thing2) {

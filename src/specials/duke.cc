@@ -279,9 +279,9 @@ fry_victim(struct Creature *ch)
 	case 1:
 	case 2:
 	case 3:
-		act("You raise your hand in a dramatical gesture.", 1, ch, 0, 0,
+		act("You raise your hand in a dramatic gesture.", 1, ch, 0, 0,
 			TO_CHAR);
-		act("$n raises $s hand in a dramatical gesture.", 1, ch, 0, 0,
+		act("$n raises $s hand in a dramatic gesture.", 1, ch, 0, 0,
 			TO_ROOM);
 		cast_spell(ch, tch, 0, SPELL_COLOR_SPRAY);
 		break;

@@ -439,8 +439,8 @@ SPECIAL(hell_hunter)
 #define BLADE_VNUM 16203
 #define ARIOCH_LAIR 16284
 #define PENTAGRAM_ROOM 15437
-#define ARIOCH_LEAVE_MSG "A glowing portal spins into existance behind $n, who is then drawn backwards into the mouth of the conduit, and out of this plane.  The portal then spins down to a singular point and disappears."
-#define ARIOCH_ARRIVE_MSG "A glowing portal spins into existance before you, and you see a dark figure approaching from the depths.  $n steps suddenly from the mouth of the conduit, which snaps shut behind $m."
+#define ARIOCH_LEAVE_MSG "A glowing portal spins into existence behind $n, who is then drawn backwards into the mouth of the conduit, and out of this plane.  The portal then spins down to a singular point and disappears."
+#define ARIOCH_ARRIVE_MSG "A glowing portal spins into existence before you, and you see a dark figure approaching from the depths.  $n steps suddenly from the mouth of the conduit, which snaps shut behind $m."
 
 SPECIAL(arioch)
 {

@@ -947,7 +947,7 @@ ACMD(do_cedit)
 
 			if (!is_number(arg3)) {
 				if ((i = get_id_by_name(arg3)) < 0) {
-					send_to_char(ch, "There is no such player in existance...\r\n");
+					send_to_char(ch, "There is no such player in existence...\r\n");
 					return;
 				}
 			} else if ((i = atoi(arg3)) < 0) {
