@@ -249,22 +249,22 @@ void burn_update(void) {
     } 
     // character is poisoned (3)
     if (HAS_POISON_3(ch) && GET_LEVEL(ch) < LVL_AMBASSADOR) {
-        if (damage(ch, ch, dice(4, 3) + (affected_by_spell(ch, SPELL_METABOLISM) ? dice (4, 11) : 0), SPELL_POISON, -1))
+        if (damage(NULL, ch, dice(4, 3) + (affected_by_spell(ch, SPELL_METABOLISM) ? dice (4, 11) : 0), SPELL_POISON, -1))
         continue;
     }
     // psychic crush
     if (AFF3_FLAGGED(ch, AFF3_PSYCHIC_CRUSH)) {
-        if (damage(ch, ch, mag_savingthrow(ch, 50, SAVING_PSI) ? 0 : dice(4, 20), SPELL_PSYCHIC_CRUSH, WEAR_HEAD))
+        if (damage(NULL, ch, mag_savingthrow(ch, 50, SAVING_PSI) ? 0 : dice(4, 20), SPELL_PSYCHIC_CRUSH, WEAR_HEAD))
         continue;
     }
     // character has a stigmata
     if ((af = affected_by_spell(ch, SPELL_STIGMATA))) {
-        if (damage(ch, ch, mag_savingthrow(ch, af->level, SAVING_SPELL) ? 0 : dice(3, af->level), SPELL_STIGMATA, WEAR_FACE))
+        if (damage(NULL, ch, mag_savingthrow(ch, af->level, SAVING_SPELL) ? 0 : dice(3, af->level), SPELL_STIGMATA, WEAR_FACE))
         continue;
     }
     // character has acidity
     if (AFF3_FLAGGED(ch, AFF3_ACIDITY)) {
-        if (damage(ch, ch, mag_savingthrow(ch, 50, SAVING_PHY) ? 0 : dice(2, 10), TYPE_ACID_BURN, -1))
+        if (damage(NULL, ch, mag_savingthrow(ch, 50, SAVING_PHY) ? 0 : dice(2, 10), TYPE_ACID_BURN, -1))
         continue;
     }
 
@@ -309,7 +309,7 @@ void burn_update(void) {
         int thedam;
         thedam = dice ( 2, 3 );
         if(GET_HIT(ch) + 1 > thedam)
-            if( damage( ch, ch, thedam , TYPE_ANGUISH, -1) )
+            if( damage( NULL, ch, thedam , TYPE_ANGUISH, -1) )
                 continue;
     }
 
@@ -339,7 +339,7 @@ void burn_update(void) {
         if(CHAR_WITHSTANDS_FIRE(ch)) {
             continue;
         }
-        if (damage(ch, ch, 
+        if (damage(NULL, ch, 
                CHAR_WITHSTANDS_FIRE(ch) ? 0 :
                ROOM_FLAGGED(ch->in_room, ROOM_FLAME_FILLED) ? dice (8, 7) : 
                dice(5, 5), TYPE_ABLAZE, -1))
@@ -360,12 +360,12 @@ void burn_update(void) {
         act("$n suddenly bursts into flames!", FALSE, ch, 0, 0, TO_ROOM);
         GET_MANA(ch) = 0;
         SET_BIT(AFF2_FLAGS(ch), AFF2_ABLAZE);
-        if (damage(ch, ch, dice(4, 5), TYPE_ABLAZE, -1))
+        if (damage(NULL, ch, dice(4, 5), TYPE_ABLAZE, -1))
         continue;
     } 
     // freezing room
     else if (ROOM_FLAGGED(ch->in_room, ROOM_ICE_COLD) && !CHAR_WITHSTANDS_COLD(ch)) {
-        if (damage(ch, ch, dice(4, 5), TYPE_FREEZING, -1))
+        if (damage(NULL, ch, dice(4, 5), TYPE_FREEZING, -1))
         continue;
         if (IS_MOB(ch) && (IS_CLERIC(ch) || IS_RANGER(ch)) && GET_LEVEL(ch) > 15)
         cast_spell(ch, ch, 0, SPELL_ENDURE_COLD);
@@ -373,7 +373,7 @@ void burn_update(void) {
     } 
     // holywater ocean
     else if (ROOM_FLAGGED(ch->in_room, ROOM_HOLYOCEAN) && IS_EVIL(ch) &&  GET_POS(ch) < POS_FLYING) {
-        if (damage(ch, ch, dice(4, 5), TYPE_HOLYOCEAN, WEAR_RANDOM))
+        if (damage(NULL, ch, dice(4, 5), TYPE_HOLYOCEAN, WEAR_RANDOM))
         continue;
         if (IS_MOB(ch) && !FIGHTING(ch)) {
         do_flee(ch, "", 0, 0);
@@ -382,7 +382,7 @@ void burn_update(void) {
     // boiling pitch
     else if ((ch->in_room->sector_type == SECT_PITCH_PIT || ch->in_room->sector_type == SECT_PITCH_SUB) &&
          !CHAR_WITHSTANDS_HEAT(ch)) {
-        if (damage(ch, ch, dice(4, 3), TYPE_BOILING_PITCH, WEAR_RANDOM))
+        if (damage(NULL, ch, dice(4, 3), TYPE_BOILING_PITCH, WEAR_RANDOM))
         continue;
     }
 
@@ -439,7 +439,7 @@ void burn_update(void) {
         else {
         type = TYPE_DROWNING;
         }
-        if (damage(ch, ch, dice(4, 5), type, -1))
+        if (damage(NULL, ch, dice(4, 5), type, -1))
         continue;
         
         if (AFF_FLAGGED(ch, AFF_INFLIGHT) && 
@@ -495,7 +495,7 @@ void burn_update(void) {
 
     if ( IS_NPC(ch) && GET_MOB_VNUM(ch) == ZOMBIE_VNUM && 
          OUTSIDE(ch) && IS_LIGHT(ch->in_room) && PRIME_MATERIAL_ROOM(ch->in_room))
-        if ( damage(ch, ch, dice(4, 5), TOP_SPELL_DEFINE, -1) )
+        if ( damage(NULL, ch, dice(4, 5), TOP_SPELL_DEFINE, -1) )
         continue;
     
     /* Hunter Mobs */
