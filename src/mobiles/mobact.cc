@@ -50,6 +50,7 @@ int tarrasque_fight(struct Creature *tarr);
 int general_search(struct Creature *ch, struct special_search_data *srch,
 	int mode);
 int smart_mobile_move(struct Creature *ch, int dir);
+bool perform_offensive_skill(Creature *ch, Creature *vict, int skill, int *return_flags);
 
 ACMD(do_flee);
 ACMD(do_sleeper);
@@ -59,7 +60,6 @@ ACMD(do_backstab);
 ACMD(do_say);
 ACMD(do_feign);
 ACMD(do_hide);
-ACCMD(do_offensive_skill);
 ACMD(do_gen_comm);
 ACMD(do_remove);
 ACCMD(do_drop);
@@ -1125,15 +1125,13 @@ best_attack(struct Creature *ch, struct Creature *vict)
 			else if (GET_LEVEL(ch) > 43)
 				do_circle(ch, fname(vict->player.name), 0, 0, &return_flags);
 			else if (GET_LEVEL(ch) >= 30)
-				do_offensive_skill(ch, fname(vict->player.name), 0,
-					SKILL_GOUGE, &return_flags);
+				perform_offensive_skill(ch, vict, SKILL_GOUGE, &return_flags);
 			else {
 				return_flags = hit(ch, vict, TYPE_UNDEFINED);
 			}
 		} else {
 			if (GET_LEVEL(ch) >= 30) {
-				do_offensive_skill(ch, fname(vict->player.name), 0,
-					SKILL_GOUGE, &return_flags);
+				perform_offensive_skill(ch, vict, SKILL_GOUGE, &return_flags);
 			} else {
 				return_flags = hit(ch, vict, TYPE_UNDEFINED);
 			}
@@ -1215,7 +1213,7 @@ best_attack(struct Creature *ch, struct Creature *vict)
 
 	if (cur_class == CLASS_BARB || cur_class == CLASS_WARRIOR) {
 		if (GET_LEVEL(ch) >= 25 && vict->getPosition() > POS_SITTING)
-			do_offensive_skill(ch, GET_NAME(vict), 0, SKILL_BASH, 0);
+			perform_offensive_skill(ch, vict, SKILL_BASH, &return_flags);
 		else
 			return_flags = hit(ch, vict, TYPE_UNDEFINED);
 		return return_flags;
@@ -1255,8 +1253,7 @@ best_attack(struct Creature *ch, struct Creature *vict)
 			} else if (GET_LEVEL(ch) >= 33) {
 				do_combo(ch, fname(vict->player.name), 0, 0, &return_flags);
 			} else if (GET_LEVEL(ch) >= 30) {
-				do_offensive_skill(ch, fname(vict->player.name), 0,
-					SKILL_RIDGEHAND, &return_flags);
+				perform_offensive_skill(ch, vict, SKILL_RIDGEHAND, &return_flags);
 			} else {
 				return_flags = hit(ch, vict, TYPE_UNDEFINED);
 			}
@@ -3129,8 +3126,7 @@ mobile_battle_activity(struct Creature *ch, struct Creature *precious_vict)
 					(GET_OBJ_VAL(GET_EQ(ch, WEAR_WIELD), 3) ==
 						TYPE_SLASH - TYPE_HIT) && random_fractional_4()) &&
 				GET_MOVE(ch) > 20) {
-				do_offensive_skill(ch, fname(vict->player.name), 0,
-					SKILL_BEHEAD, 0);
+				perform_offensive_skill(ch, vict, SKILL_BEHEAD, &return_flags);
 				return 0;
 			}
 			if (!IS_PET(ch)) {
@@ -3343,7 +3339,7 @@ mobile_battle_activity(struct Creature *ch, struct Creature *precious_vict)
 					return 0;
 				}
 			} else if (GET_LEVEL(ch) >= 9) {
-				do_offensive_skill(ch, GET_NAME(vict), 0, SKILL_KICK, 0);
+				perform_offensive_skill(ch, vict, SKILL_KICK, &return_flags);
 				return 0;
 			}
 		}
@@ -3490,50 +3486,50 @@ mobile_battle_activity(struct Creature *ch, struct Creature *precious_vict)
 		if (can_see_creature(ch, vict) &&
 			(IS_MAGE(vict) || IS_CLERIC(vict))
 			&& vict->getPosition() > POS_SITTING) {
-			do_offensive_skill(ch, GET_NAME(vict), 0, SKILL_BASH, 0);
-			return 0;
+			perform_offensive_skill(ch, vict, SKILL_BASH, &return_flags);
+			return return_flags;
 		}
 
 		if ((GET_LEVEL(ch) > 37) && vict->getPosition() > POS_SITTING &&
 			random_fractional_5()) {
-			do_offensive_skill(ch, GET_NAME(vict), 0, SKILL_BASH, 0);
-			return 0;
+			perform_offensive_skill(ch, vict, SKILL_BASH, &return_flags);
+			return return_flags;
 		} else if ((GET_LEVEL(ch) >= 20) &&
 			GET_EQ(ch, WEAR_WIELD) && GET_EQ(vict, WEAR_WIELD) &&
 			random_fractional_5()) {
 			do_disarm(ch, PERS(vict, ch), 0, 0, 0);
 			return 0;
 		} else if ((GET_LEVEL(ch) > 9) && random_fractional_5()) {
-			do_offensive_skill(ch, GET_NAME(vict), 0, SKILL_ELBOW, 0);
-			return 0;
+			perform_offensive_skill(ch, vict, SKILL_ELBOW, &return_flags);
+			return return_flags;
 		} else if ((GET_LEVEL(ch) > 5) && random_fractional_5()) {
-			do_offensive_skill(ch, GET_NAME(vict), 0, SKILL_STOMP, 0);
-			return 0;
+			perform_offensive_skill(ch, vict, SKILL_STOMP, &return_flags);
+			return return_flags;
 		} else if ((GET_LEVEL(ch) > 2) && random_fractional_5()) {
-			do_offensive_skill(ch, GET_NAME(vict), 0, SKILL_PUNCH, 0);
-			return 0;
+			perform_offensive_skill(ch, vict, SKILL_PUNCH, &return_flags);
+			return return_flags;
 		}
 
 		if (random_fractional_5()) {
 
 			if (GET_LEVEL(ch) < 3) {
-				do_offensive_skill(ch, GET_NAME(vict), 0, SKILL_PUNCH, 0);
+				perform_offensive_skill(ch, vict, SKILL_PUNCH, &return_flags);
 			} else if (GET_LEVEL(ch) < 5) {
-				do_offensive_skill(ch, GET_NAME(vict), 0, SKILL_KICK, 0);
+				perform_offensive_skill(ch, vict, SKILL_KICK, &return_flags);
 			} else if (GET_LEVEL(ch) < 7) {
-				do_offensive_skill(ch, GET_NAME(vict), 0, SKILL_STOMP, 0);
+				perform_offensive_skill(ch, vict, SKILL_STOMP, &return_flags);
 			} else if (GET_LEVEL(ch) < 9) {
-				do_offensive_skill(ch, GET_NAME(vict), 0, SKILL_KNEE, 0);
+				perform_offensive_skill(ch, vict, SKILL_KNEE, &return_flags);
 			} else if (GET_LEVEL(ch) < 14) {
-				do_offensive_skill(ch, GET_NAME(vict), 0, SKILL_UPPERCUT, 0);
+				perform_offensive_skill(ch, vict, SKILL_UPPERCUT, &return_flags);
 			} else if (GET_LEVEL(ch) < 16) {
-				do_offensive_skill(ch, GET_NAME(vict), 0, SKILL_ELBOW, 0);
+				perform_offensive_skill(ch, vict, SKILL_ELBOW, &return_flags);
 			} else if (GET_LEVEL(ch) < 24) {
-				do_offensive_skill(ch, GET_NAME(vict), 0, SKILL_HOOK, 0);
+				perform_offensive_skill(ch, vict, SKILL_HOOK, &return_flags);
 			} else if (GET_LEVEL(ch) < 36) {
-				do_offensive_skill(ch, GET_NAME(vict), 0, SKILL_SIDEKICK, 0);
+				perform_offensive_skill(ch, vict, SKILL_SIDEKICK, &return_flags);
 			}
-			return 0;
+			return return_flags;
 		}
 	}
 
@@ -3544,16 +3540,16 @@ mobile_battle_activity(struct Creature *ch, struct Creature *precious_vict)
 
 		if (GET_LEVEL(ch) > 18 && vict->getPosition() >= POS_FIGHTING
 			&& random_fractional_4()) {
-			do_offensive_skill(ch, GET_NAME(vict), 0, SKILL_TRIP, 0);
-			return 0;
+			perform_offensive_skill(ch, vict, SKILL_TRIP, &return_flags);
+			return return_flags;
 		} else if ((GET_LEVEL(ch) >= 20) &&
 			GET_EQ(ch, WEAR_WIELD) && GET_EQ(vict, WEAR_WIELD) &&
 			random_fractional_5()) {
 			do_disarm(ch, PERS(vict, ch), 0, 0, 0);
 			return 0;
 		} else if (GET_LEVEL(ch) > 29 && random_fractional_4()) {
-			do_offensive_skill(ch, PERS(vict, ch), 0, SKILL_GOUGE, 0);
-			return 0;
+			perform_offensive_skill(ch, vict, SKILL_GOUGE, &return_flags);
+			return return_flags;
 		} else if (GET_LEVEL(ch) > 24 && random_fractional_4()) {
 			do_feign(ch, "", 0, 0, 0);
 			do_hide(ch, "", 0, 0, 0);
@@ -3567,32 +3563,32 @@ mobile_battle_activity(struct Creature *ch, struct Creature *precious_vict)
 			do_circle(ch, fname(vict->player.name), 0, 0, 0);
 			return 0;
 		} else if ((GET_LEVEL(ch) > 9) && random_fractional_5()) {
-			do_offensive_skill(ch, GET_NAME(vict), 0, SKILL_ELBOW, 0);
-			return 0;
+			perform_offensive_skill(ch, vict, SKILL_ELBOW, &return_flags);
+			return return_flags;
 		} else if ((GET_LEVEL(ch) > 5) && random_fractional_5()) {
-			do_offensive_skill(ch, GET_NAME(vict), 0, SKILL_STOMP, 0);
-			return 0;
+			perform_offensive_skill(ch, vict, SKILL_STOMP, &return_flags);
+			return return_flags;
 		} else if ((GET_LEVEL(ch) > 2) && random_fractional_5()) {
-			do_offensive_skill(ch, GET_NAME(vict), 0, SKILL_PUNCH, 0);
-			return 0;
+			perform_offensive_skill(ch, vict, SKILL_PUNCH, &return_flags);
+			return return_flags;
 		}
 
 		if (random_fractional_5()) {
 
 			if (GET_LEVEL(ch) < 3) {
-				do_offensive_skill(ch, GET_NAME(vict), 0, SKILL_PUNCH, 0);
+				perform_offensive_skill(ch, vict, SKILL_PUNCH, &return_flags);
 			} else if (GET_LEVEL(ch) < 7) {
-				do_offensive_skill(ch, GET_NAME(vict), 0, SKILL_STOMP, 0);
+				perform_offensive_skill(ch, vict, SKILL_STOMP, &return_flags);
 			} else if (GET_LEVEL(ch) < 9) {
-				do_offensive_skill(ch, GET_NAME(vict), 0, SKILL_KNEE, 0);
+				perform_offensive_skill(ch, vict, SKILL_KNEE, &return_flags);
 			} else if (GET_LEVEL(ch) < 16) {
-				do_offensive_skill(ch, GET_NAME(vict), 0, SKILL_ELBOW, 0);
+				perform_offensive_skill(ch, vict, SKILL_ELBOW, &return_flags);
 			} else if (GET_LEVEL(ch) < 24) {
-				do_offensive_skill(ch, GET_NAME(vict), 0, SKILL_HOOK, 0);
+				perform_offensive_skill(ch, vict, SKILL_HOOK, &return_flags);
 			} else if (GET_LEVEL(ch) < 36) {
-				do_offensive_skill(ch, GET_NAME(vict), 0, SKILL_SIDEKICK, 0);
+				perform_offensive_skill(ch, vict, SKILL_SIDEKICK, &return_flags);
 			}
-			return 0;
+			return return_flags;
 		}
 	}
 	if (cur_class == CLASS_RANGER) {
@@ -3628,21 +3624,21 @@ mobile_battle_activity(struct Creature *ch, struct Creature *precious_vict)
 		if (random_fractional_3() && (GET_CLASS(vict) == CLASS_MAGIC_USER ||
 				GET_CLASS(vict) == CLASS_CLERIC)) {
 			if (GET_LEVEL(ch) >= 27)
-				do_offensive_skill(ch, GET_NAME(vict), 0, SKILL_HIP_TOSS, 0);
+				perform_offensive_skill(ch, vict, SKILL_HIP_TOSS, &return_flags);
 			else if (GET_LEVEL(ch) >= 25)
-				do_offensive_skill(ch, GET_NAME(vict), 0, SKILL_SWEEPKICK, 0);
-			return 0;
+				perform_offensive_skill(ch, vict, SKILL_SWEEPKICK, &return_flags);
+			return return_flags;
 		}
 		if ((GET_LEVEL(ch) >= 49) && (random_fractional_5() ||
 				vict->getPosition() < POS_FIGHTING)) {
-			do_offensive_skill(ch, GET_NAME(vict), 0, SKILL_DEATH_TOUCH, 0);
-			return 0;
+			perform_offensive_skill(ch, vict, SKILL_DEATH_TOUCH, &return_flags);
+			return return_flags;
 		} else if ((GET_LEVEL(ch) > 33) && random_fractional_5()) {
 			do_combo(ch, GET_NAME(vict), 0, 0, 0);
 			return 0;
 		} else if ((GET_LEVEL(ch) > 27) && random_fractional_5()) {
-			do_offensive_skill(ch, GET_NAME(vict), 0, SKILL_HIP_TOSS, 0);
-			return 0;
+			perform_offensive_skill(ch, vict, SKILL_HIP_TOSS, &return_flags);
+			return return_flags;
 		} else if (random_fractional_5()
 				&& !affected_by_spell(vict, SKILL_PINCH_EPSILON)
 				&& (GET_LEVEL(ch) > 26)) {
@@ -3664,17 +3660,17 @@ mobile_battle_activity(struct Creature *ch, struct Creature *precious_vict)
 			do_pinch(ch, tmp_sprintf("%s alpha", fname(vict->player.name)), 0, 0, 0);
 			return 0;
 		} else if ((GET_LEVEL(ch) > 30) && random_fractional_5()) {
-			do_offensive_skill(ch, GET_NAME(vict), 0, SKILL_RIDGEHAND, 0);
-			return 0;
+			perform_offensive_skill(ch, vict, SKILL_RIDGEHAND, &return_flags);
+			return return_flags;
 		} else if ((GET_LEVEL(ch) > 25) && random_fractional_5()) {
-			do_offensive_skill(ch, GET_NAME(vict), 0, SKILL_SWEEPKICK, 0);
-			return 0;
+			perform_offensive_skill(ch, vict, SKILL_SWEEPKICK, &return_flags);
+			return return_flags;
 		} else if ((GET_LEVEL(ch) > 36) && random_fractional_5()) {
-			do_offensive_skill(ch, GET_NAME(vict), 0, SKILL_GOUGE, 0);
-			return 0;
+			perform_offensive_skill(ch, vict, SKILL_GOUGE, &return_flags);
+			return return_flags;
 		} else if ((GET_LEVEL(ch) > 10) && random_fractional_5()) {
-			do_offensive_skill(ch, GET_NAME(vict), 0, SKILL_THROAT_STRIKE, 0);
-			return 0;
+			perform_offensive_skill(ch, vict, SKILL_THROAT_STRIKE, &return_flags);
+			return return_flags;
 		}
 	}
 	return 0;
@@ -4561,16 +4557,18 @@ void knight_activity(struct Creature *ch){
  *******************************************************************************/
 
 int knight_battle_activity(struct Creature *ch, struct Creature *precious_vict){
-    struct Creature * vict;
     ACCMD(do_disarm);
+    struct Creature * vict;
+	int return_flags;
+
     if (!(vict = choose_opponent(ch, precious_vict)))
         return 0;
 
     if (can_see_creature(ch, vict) &&
         (IS_MAGE(vict) || IS_CLERIC(vict))
         && vict->getPosition() > POS_SITTING) {
-        do_offensive_skill(ch, GET_NAME(vict), 0, SKILL_BASH, 0);
-        return 0;
+		perform_offensive_skill(ch, vict, SKILL_BASH, &return_flags);
+		return return_flags;
     }
 
     if (GET_LEVEL(ch) > 4 && random_fractional_5() &&
@@ -4630,21 +4628,21 @@ int knight_battle_activity(struct Creature *ch, struct Creature *precious_vict){
     if (random_fractional_4()) {
 
         if (GET_LEVEL(ch) < 7) {
-            do_offensive_skill(ch, GET_NAME(vict), 0, SKILL_SPINFIST, 0);
+			perform_offensive_skill(ch, vict, SKILL_SPINFIST, &return_flags);
         } else if (GET_LEVEL(ch) < 16) {
-            do_offensive_skill(ch, GET_NAME(vict), 0, SKILL_UPPERCUT, 0);
+			perform_offensive_skill(ch, vict, SKILL_UPPERCUT, &return_flags);
         } else if (GET_LEVEL(ch) < 23) {
-            do_offensive_skill(ch, GET_NAME(vict), 0, SKILL_HOOK, 0);
+			perform_offensive_skill(ch, vict, SKILL_HOOK, &return_flags);
         } else if (GET_LEVEL(ch) < 35) {
-            do_offensive_skill(ch, GET_NAME(vict), 0, SKILL_LUNGE_PUNCH, 0);
+			perform_offensive_skill(ch, vict, SKILL_LUNGE_PUNCH, &return_flags);
         } else if (GET_EQ(ch, WEAR_WIELD) &&
             GET_OBJ_VAL(GET_EQ(ch, WEAR_WIELD), 3) == 3 && 
             random_binary()) {
-            do_offensive_skill(ch, GET_NAME(vict), 0, SKILL_BEHEAD, 0);
+			perform_offensive_skill(ch, vict, SKILL_BEHEAD, &return_flags);
         } else if(IS_EVIL(ch) && IS_GOOD(vict)){
             do_holytouch(ch, PERS(vict, ch), 0, 0, 0);
         }
-        return 0;
+        return return_flags;
     }
     return 1;
 }
@@ -4690,8 +4688,11 @@ void ranger_activity(struct Creature *ch){
 
 
 int ranger_battle_activity(struct Creature *ch, struct Creature *precious_vict){
-    struct Creature * vict;
     ACCMD(do_disarm);
+
+    struct Creature * vict;
+	int return_flags;
+
     if (!(vict = choose_opponent(ch, precious_vict)))
         return 0;
 
@@ -4713,15 +4714,15 @@ int ranger_battle_activity(struct Creature *ch, struct Creature *precious_vict){
     if (GET_LEVEL(ch) >= 27 &&
         (GET_CLASS(vict) == CLASS_MAGIC_USER ||
             GET_CLASS(vict) == CLASS_CLERIC) && random_fractional_3()) {
-        do_offensive_skill(ch, GET_NAME(vict), 0, SKILL_SWEEPKICK, 0);
-        return 0;
+		perform_offensive_skill(ch, vict, SKILL_SWEEPKICK, &return_flags);
+        return return_flags;
     }
     if ((GET_LEVEL(ch) > 42) && random_fractional_5()) {
-        do_offensive_skill(ch, GET_NAME(vict), 0, SKILL_LUNGE_PUNCH, 0);
-        return 0;
+		perform_offensive_skill(ch, vict, SKILL_LUNGE_PUNCH, &return_flags);
+        return return_flags;
     } else if ((GET_LEVEL(ch) > 25) && random_fractional_5()) {
-        do_offensive_skill(ch, GET_NAME(vict), 0, SKILL_BEARHUG, 0);
-        return 0;
+		perform_offensive_skill(ch, vict, SKILL_BEARHUG, &return_flags);
+        return return_flags;
     } else if ((GET_LEVEL(ch) >= 20) &&
         GET_EQ(ch, WEAR_WIELD) && GET_EQ(vict, WEAR_WIELD) &&
         random_fractional_5()) {
@@ -4732,23 +4733,23 @@ int ranger_battle_activity(struct Creature *ch, struct Creature *precious_vict){
     if (random_fractional_4()) {
 
         if (GET_LEVEL(ch) < 3) {
-            do_offensive_skill(ch, GET_NAME(vict), 0, SKILL_KICK, 0);
+            perform_offensive_skill(ch, vict, SKILL_KICK, &return_flags);
         } else if (GET_LEVEL(ch) < 6) {
-            do_offensive_skill(ch, GET_NAME(vict), 0, SKILL_BITE, 0);
+            perform_offensive_skill(ch, vict, SKILL_BITE, &return_flags);
         } else if (GET_LEVEL(ch) < 14) {
-            do_offensive_skill(ch, GET_NAME(vict), 0, SKILL_UPPERCUT, 0);
+            perform_offensive_skill(ch, vict, SKILL_UPPERCUT, &return_flags);
         } else if (GET_LEVEL(ch) < 17) {
-            do_offensive_skill(ch, GET_NAME(vict), 0, SKILL_HEADBUTT, 0);
+            perform_offensive_skill(ch, vict, SKILL_HEADBUTT, &return_flags);
         } else if (GET_LEVEL(ch) < 22) {
-            do_offensive_skill(ch, GET_NAME(vict), 0, SKILL_ROUNDHOUSE, 0);
+            perform_offensive_skill(ch, vict, SKILL_ROUNDHOUSE, &return_flags);
         } else if (GET_LEVEL(ch) < 24) {
-            do_offensive_skill(ch, GET_NAME(vict), 0, SKILL_HOOK, 0);
+            perform_offensive_skill(ch, vict, SKILL_HOOK, &return_flags);
         } else if (GET_LEVEL(ch) < 36) {
-            do_offensive_skill(ch, GET_NAME(vict), 0, SKILL_SIDEKICK, 0);
+            perform_offensive_skill(ch, vict, SKILL_SIDEKICK, &return_flags);
         } else {
-            do_offensive_skill(ch, GET_NAME(vict), 0, SKILL_LUNGE_PUNCH, 0);
+            perform_offensive_skill(ch, vict, SKILL_LUNGE_PUNCH, &return_flags);
         }
-        return 0;
+        return return_flags;
     }
     return 1;
 }
@@ -4811,8 +4812,11 @@ void barbarian_activity(struct Creature *ch){
 
 
 int barbarian_battle_activity(struct Creature *ch, struct Creature *precious_vict){
-    struct Creature * vict;
     ACCMD(do_disarm);
+
+    struct Creature * vict;
+	int return_flags = 0;
+
     if (!(vict = choose_opponent(ch, precious_vict)))
         return 0;
 
@@ -4825,13 +4829,13 @@ int barbarian_battle_activity(struct Creature *ch, struct Creature *precious_vic
 
     if (random_fractional_3() && (GET_CLASS(vict) == CLASS_MAGIC_USER ||
             GET_CLASS(vict) == CLASS_CLERIC)) {
-        do_offensive_skill(ch, GET_NAME(vict), 0, SKILL_BASH, 0);
-        return 0;
+        perform_offensive_skill(ch, vict, SKILL_BASH, &return_flags);
+        return return_flags;
     }
     if ((GET_LEVEL(ch) > 27) && random_fractional_5()
         && vict->getPosition() > POS_RESTING) {
-        do_offensive_skill(ch, GET_NAME(vict), 0, SKILL_BASH, 0);
-        return 0;
+        perform_offensive_skill(ch, vict, SKILL_BASH, &return_flags);
+        return return_flags;
     }
 
 		//
@@ -4842,24 +4846,23 @@ int barbarian_battle_activity(struct Creature *ch, struct Creature *precious_vic
 		!ROOM_FLAGGED(ch->in_room, ROOM_PEACEFUL)) {
         do_berserk(ch, "", 0, 0, 0);
 
-		int return_flags = 0;
 		if (!perform_barb_berserk(ch, 0, &return_flags)){
             return return_flags;
         }
 	}
     if (random_fractional_4()) {
         if( GET_LEVEL(ch) >= 30 && GET_EQ(ch, WEAR_WIELD) && IS_TWO_HAND(GET_EQ(ch, WEAR_WIELD)) ){
-            do_offensive_skill(ch, GET_NAME(vict), 0, SKILL_CLEAVE, 0);
+            perform_offensive_skill(ch, vict, SKILL_CLEAVE, &return_flags);
         } else if (GET_LEVEL(ch) >= 17) {
-            do_offensive_skill(ch, GET_NAME(vict), 0, SKILL_STRIKE, 0);
+            perform_offensive_skill(ch, vict, SKILL_STRIKE, &return_flags);
         } else if (GET_LEVEL(ch) >= 13) {
-            do_offensive_skill(ch, GET_NAME(vict), 0, SKILL_HEADBUTT, 0);
+            perform_offensive_skill(ch, vict, SKILL_HEADBUTT, &return_flags);
         } else if (GET_LEVEL(ch) >= 4 ) {
-            do_offensive_skill(ch, GET_NAME(vict), 0, SKILL_STOMP, 0);
+            perform_offensive_skill(ch, vict, SKILL_STOMP, &return_flags);
         } else{
-            do_offensive_skill(ch, GET_NAME(vict), 0, SKILL_KICK, 0 );
+            perform_offensive_skill(ch, vict, SKILL_KICK, 0 );
         }
-        return 0;
+        return return_flags;
     }
     return -1;
 }
