@@ -515,12 +515,22 @@ do_simple_move(struct Creature *ch, int dir, int mode,
 		return 1;
 	}
 	if (EXIT(ch, dir)->to_room->isOpenAir() && !NOGRAV_ZONE(ch->in_room->zone)
-		&& ch->getPosition() != POS_FLYING && mode != MOVE_JUMP &&
-		(!MOUNTED(ch) || MOUNTED(ch)->getPosition() != POS_FLYING)) {
-		send_to_char(ch, "You need to be flying to go there.\r\n"
-			"You can 'jump' in that direction however...\r\n");
+			&& ch->getPosition() != POS_FLYING && mode != MOVE_JUMP &&
+			(!MOUNTED(ch) || MOUNTED(ch)->getPosition() != POS_FLYING)) {
+		send_to_char(ch, "You need to be flying to go there.\r\n");
+		if (dir != UP)
+			send_to_char(ch, "You can 'jump' in that direction however...\r\n");
 		return 1;
 	}
+
+	if (dir == UP && mode == MOVE_JUMP
+			&& EXIT(ch, dir)->to_room->isOpenAir()) {
+		send_to_char(ch, "You jump up in the air and land on your feet.\r\n");
+		act("$n jumps up into the air and lands on $s feet.\r\n",
+			false, ch, 0, 0, TO_ROOM);
+		return 1;
+	}
+
 
 	if (ch->getPosition() == POS_FLYING && mode == MOVE_CRAWL) {
 		send_to_char(ch, "Maybe you should return to the ground before crawling.\r\n");
