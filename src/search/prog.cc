@@ -237,7 +237,7 @@ prog_eval_condition(prog_env *env, prog_evt *evt, char *args)
 {
 	obj_data *obj;
 	int vnum;
-	char *arg, *str, *arg2;
+	char *arg, *str;
 	bool result = false, not_flag = false;
 
 	arg = tmp_getword(&args);
@@ -278,28 +278,27 @@ prog_eval_condition(prog_env *env, prog_evt *evt, char *args)
 			}
 		}
 	} else if (!strcmp(arg, "abbrev")) {
-        if (evt->args) {
-            str = evt->args;
-            arg = tmp_getword(&str);
-            while (*arg) {
-                char *tmp_args = args;
-                char *cmp = tmp_getword(&tmp_args);
-                while (*cmp) {
-                    int length = 0;
-                    arg2 = tmp_peekword(&tmp_args);
-                    if (is_number(arg2)) {
-                        length = atoi(arg2);
-                        tmp_getword(&tmp_args);
+		if (evt->args) {
+			str = evt->args;
+			arg = tmp_getword(&str);
+			while (*arg) {
+                char *len_ptr = NULL, *tmp_args = args, *saved_args = args;
+                while (*args && (args = tmp_getword(&tmp_args))) {
+                    int len = 0;
+                    if ((len_ptr = strstr(args, "*"))) {
+                        len = len_ptr - args;
+                        memcpy(len_ptr, len_ptr + 1, strlen(args) - len - 1);
+                        args[strlen(args) - 1] = 0;
                     }
-                    if (is_abbrev(arg, cmp, length)) {
-                        result = true;
-                        break;
-                    }
-                    cmp = tmp_getword(&tmp_args);
+				    if (is_abbrev(arg, args, len)) {
+					    result = true;
+					    break;
+				    }
                 }
-                arg = tmp_getword(&str);
-            }
-        }
+                args = saved_args;
+				arg = tmp_getword(&str);
+			}
+		}
     } else if (!strcmp(arg, "fighting")) {
 		result = (env->owner_type == PROG_TYPE_MOBILE 
 				&& ((Creature *)env->owner)->isFighting());
