@@ -91,6 +91,7 @@ int prototype_obj_value(struct obj_data *obj);
 int choose_material(struct obj_data *obj);
 int set_maxdamage(struct obj_data *obj);
 
+void build_player_table(void);
 long asciiflag_conv(char *buf);
 void show_social_messages(struct Creature *ch, char *arg);
 void autosave_zones(int SAVE_TYPE);
@@ -7401,6 +7402,7 @@ static const char* CODER_UTIL_USAGE =
 					"Usage: coderutil <command> <args>\r\n"
 					"Commands: \r\n"
 					"      export - Exports the current player file to XML.\r\n"
+					"      rebuild - Rebuilds the player table from xml.\r\n"
 					"      osave <object> - Saves the given object to your equipment file.\r\n"
 					"      oload - Loads your equipment file onto the ground.\r\n";
 
@@ -7420,6 +7422,10 @@ ACMD(do_coderutil)
 		} else {
 			export_player_table(ch);
 		}
+	} else if( strcmp( token, "reload" )  == 0 ) {
+		playerIndex.clear();
+		build_player_table();
+		send_to_char(ch, "Reloaded.\r\n");
 	} else if( strcmp( token, "osave" )  == 0 ) {
 		ch->saveObjects();
 		send_to_char(ch, "Saved.\r\n");

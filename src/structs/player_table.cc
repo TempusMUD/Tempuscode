@@ -13,6 +13,14 @@ PlayerTable::PlayerTable()
 { 
 }
 
+void
+PlayerTable::clear(void)
+{
+	idTable.clear();
+	nameTable.clear();
+	top_id = 0;
+}
+
 int PlayerTable::getTopIDNum() {
     return top_id;
 }

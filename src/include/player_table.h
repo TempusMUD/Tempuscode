@@ -2,7 +2,7 @@
 #define __PLAYER_TABLE_H__
 
 #include <vector>
-#include <pair.h>
+#include <utility>
 #include <algorithm>
 using namespace std;
 
@@ -108,6 +108,8 @@ class PlayerTable
     public:
         /** Creates a blank PlayerTable  **/
         PlayerTable();
+
+		void clear();
 
         /** Returns true if the given id is present in the player table. **/
         bool exists( long id );

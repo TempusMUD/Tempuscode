@@ -1,7 +1,6 @@
 #ifndef __FLAGS_H__
 #define __FLAGS_H__
 
-#include <bvector.h>
 #include <vector>
 #include <map>
 #include <algorithm>
