@@ -162,13 +162,13 @@ obj_data::loadFromXML(obj_data *container, Creature *victim, room_data* room, xm
 	ex_description = shared->proto->ex_description;
 
 	for( xmlNodePtr cur = node->xmlChildrenNode; cur; cur = cur->next) {
-		if( xmlMatches( cur->name, "name" ) || xmlMatches(cur->name, "aliases")) {
-			aliases = (char*)xmlNodeGetContent( cur );
-		} else if(xmlMatches(cur->name, "short_desc")) {
+		if(xmlMatches(cur->name, "name")) {
 			str = (char *)xmlNodeGetContent(cur);
 			name = strdup(tmp_gsub(str, "\n", "\r\n"));
 			free(str);
-		} else if (xmlMatches(cur->name, "long_desc") || xmlMatches(cur->name, "line_desc")) {
+		} else if(xmlMatches(cur->name, "aliases")) {
+			aliases = (char*)xmlNodeGetContent(cur);
+		} else if (xmlMatches(cur->name, "line_desc")) {
 			str = (char *)xmlNodeGetContent(cur);
 			line_desc = strdup(tmp_gsub(str, "\n", "\r\n"));
 			free(str);
