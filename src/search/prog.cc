@@ -235,12 +235,24 @@ prog_eval_condition(prog_env *env, prog_evt *evt, char *args)
 
 	if (!strcmp(arg, "argument")) {
 		result = (evt->args && !strcasecmp(args, evt->args));
-	} else if (!strcmp(arg, "keyword")) {
+	} else if (!strcmp(arg, "alias")) {
 		if (evt->args) {
 			str = evt->args;
 			arg = tmp_getword(&str);
 			while (*arg) {
 				if (isname(arg, args)) {
+					result = true;
+					break;
+				}
+				arg = tmp_getword(&str);
+			}
+		}
+	} else if (!strcmp(arg, "keyword")) {
+		if (evt->args) {
+			str = evt->args;
+			arg = tmp_getword(&str);
+			while (*arg) {
+				if (isname_exact(arg, args)) {
 					result = true;
 					break;
 				}
