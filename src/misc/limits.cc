@@ -779,15 +779,15 @@ point_update(void)
 				) {
 	    // body parts
 	    if (GET_OBJ_TIMER(j) > 0)
-		GET_OBJ_TIMER(j)--;
-	    if (!GET_OBJ_TIMER(j)) {
-		if (j->carried_by)
-		    act("$p collapses into mush in your hands.", FALSE, j->carried_by, j, 0, TO_CHAR);
-		else if ((j->in_room != NULL) && (j->in_room->people)) {
-		    act("$p collapses into nothing.",
-			TRUE, j->in_room->people, j, 0, TO_ROOM);
-		    act("$p collapses into nothing.",
-			TRUE, j->in_room->people, j, 0, TO_CHAR);
+            GET_OBJ_TIMER(j)--;
+	    if (GET_OBJ_TIMER(j) == 0) {
+            if (j->carried_by)
+                act("$p collapses into mush in your hands.", FALSE, j->carried_by, j, 0, TO_CHAR);
+            else if ((j->in_room != NULL) && (j->in_room->people)) {
+                act("$p collapses into nothing.",
+                TRUE, j->in_room->people, j, 0, TO_ROOM);
+                act("$p collapses into nothing.",
+                TRUE, j->in_room->people, j, 0, TO_CHAR);
 		}
 
 		// drop out the (damaged) implants
