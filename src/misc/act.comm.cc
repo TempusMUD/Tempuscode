@@ -800,8 +800,8 @@ ACMD(do_gen_comm)
 		continue;
     
 	    if (subcmd == SCMD_DREAM && 
-            (GET_POS(i->character) != POS_SLEEPING) 
-                || GET_LEVEL(i->character) >= LVL_GOD)
+            (GET_POS(i->character) != POS_SLEEPING 
+                && GET_LEVEL(i->character) < LVL_GOD))
 		continue;
     
 	    if (subcmd == SCMD_NEWBIE &&
