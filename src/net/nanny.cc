@@ -927,12 +927,15 @@ nanny(struct descriptor_data * d, char *arg)
 
 				// Remove the quest prf flag (for who list) if they're
 				// not in an active quest.
-				if( PRF_FLAGGED(d->character, PRF_QUEST) )
+				if( PRF_FLAGGED(d->character, PRF_QUEST) 
+				|| GET_QUEST(d->character) != 0 )
 				{
 					Quest *quest = quest_by_vnum( GET_QUEST(d->character) );
 					if( GET_QUEST(d->character) == 0 || quest == NULL 
-					|| quest->getEnded() >= 0 || !quest->isPlaying(GET_IDNUM(d->character)) ) 
+					|| quest->getEnded() != 0 || !quest->isPlaying(GET_IDNUM(d->character)) ) 
 					{
+						slog( "%s being removed from quest %d.\r\n", 
+							  GET_NAME(d->character), GET_QUEST(d->character) );
 						REMOVE_BIT(PRF_FLAGS(d->character), PRF_QUEST );
 						GET_QUEST(d->character) = 0;
 					}

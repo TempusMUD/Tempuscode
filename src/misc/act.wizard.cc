@@ -52,6 +52,7 @@ using namespace std;
 #include "interpreter.h"
 #include "utils.h"
 #include "player_table.h"
+#include "quest.h"
 
 
 /*   external vars  */
@@ -1799,9 +1800,13 @@ do_stat_character(struct Creature *ch, struct Creature *k)
 	} else if (found)
 		strcat(outbuf, "\r\n");
 
-	if (!IS_NPC(k) && GET_QUEST(k))
-		sprintf(outbuf, "%s Questing: [%s (%d)]\r\n", outbuf,
-			get_name_by_id(GET_QUEST(k)), GET_QUEST(k));
+	if (!IS_NPC(k) && GET_QUEST(k)) {
+		char* name = "None";
+		Quest *quest = quest_by_vnum( GET_QUEST(k) );
+		if( quest != NULL && quest->isPlaying(GET_IDNUM(k)) )
+			name = quest->name;
+		sprintf(outbuf, "%sQuest [%d]: \'%s\'\r\n", outbuf, GET_QUEST(k), name );
+	}
 
 	if (k->in_room && (k->master || k->followers)) {
 		sprintf(buf, "Master is: %s, Followers are:",
