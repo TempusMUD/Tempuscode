@@ -2025,18 +2025,18 @@ two_arguments(const char *argument, char *first_arg, char *second_arg)
  * returns 0 otherwise
  */
 int
-is_abbrev(const char *arg1, const char *arg2)
+is_abbrev(const char *needle, const char *haystack)
 {
-	if (!*arg1)
+	if (!*needle)
 		return 0;
 
-	while (*arg1 && *arg2)
-		if (tolower(*arg1++) != tolower(*arg2++))
+	while (*needle && *haystack)
+		if (tolower(*needle++) != tolower(*haystack++))
 			return 0;
 	
-	if (!*arg1 && !*arg2)
+	if (!*needle && !*haystack)
 		return 2;
-	if (!*arg1)
+	if (!*needle)
 		return 1;
 
 	return 0;
