@@ -263,7 +263,7 @@ ACMD(do_lecture)
 	if (IS_PC(vict)) {
 		check_killer(ch, vict);
 	}
-	prob = ch->getLevelBonus(SKILL_LECTURE) + (GET_INT(ch) << 1) - GET_CHA(ch);
+	prob = ch->getLevelBonus(SKILL_LECTURE) + (GET_INT(ch) << 1);
 	if(AFF_FLAGGED(ch, AFF_CONFUSION))
 		prob -= 60;
 
@@ -279,12 +279,12 @@ ACMD(do_lecture)
 	act(buf, FALSE, ch, 0, vict, TO_VICT);
 
 	percent = (GET_LEVEL(vict) >> 1) + GET_REMORT_GEN(vict) + GET_INT(vict);
-	percent += number(0, 50);
+	percent += number(0, 60);
 
 	if( affected_by_spell( vict, SPELL_ENDURANCE) )
-		percent += 20;
+		percent += 10;
 	if( AFF_FLAGGED(vict, AFF_ADRENALINE) )
-		percent += 20;
+		percent += 10;
 	if( IS_AFFECTED_2(vict, AFF2_BERSERK) )
 		percent += 50;
 
