@@ -371,6 +371,10 @@ gain_exp(struct char_data * ch, int gain)
     int num_levels = 0;
     char buf[128];
 
+    
+    if( ch && ch->in_room && ROOM_FLAGGED(ch->in_room, ROOM_ARENA))
+    return;
+    
     if (!IS_NPC(ch) && ((GET_LEVEL(ch) < 1 || GET_LEVEL(ch) >= LVL_AMBASSADOR)))
 	return;
 
