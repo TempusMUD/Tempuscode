@@ -484,6 +484,7 @@ struct command_info cmd_info[] = {
 	{"autowrap", POS_DEAD, do_gen_tog, LVL_IMMORT, SCMD_AUTOWRAP, 0, 0},
 	{"affects", POS_SLEEPING, do_affects, 0, 0, 0, 0},
 	{"afk", POS_SLEEPING, do_gen_tog, 0, SCMD_AFK, 0, 0},
+	{"admire", POS_RESTING, do_action, 0, 0, 0, 0},
 
 	{"babble", POS_RESTING, do_say, 0, SCMD_BABBLE, 0, 0},
 	{"backstab", POS_STANDING, do_backstab, 1, 0, 0, 0},
@@ -511,6 +512,7 @@ struct command_info cmd_info[] = {
 	{"beeper", POS_SLEEPING, do_gen_tog, 0, SCMD_AUTOPAGE, 0, 0},
 	{"bell", POS_SLEEPING, do_gen_tog, 0, SCMD_AUTOPAGE, 0, 0},
 	{"belch", POS_SLEEPING, do_action, 0, 0, 0, 0},
+	{"befuddle", POS_RESTING, do_action, 0, 0, 0, 0},
 	{"bioscan", POS_SITTING, do_bioscan, 0, 0, 0, 0},
 	{"bird", POS_RESTING, do_action, 0, 0, 0, 0},
 	{"bite", POS_FIGHTING, do_offensive_skill, 0, SKILL_BITE, 0, 0},
@@ -531,6 +533,7 @@ struct command_info cmd_info[] = {
 	{"booger", POS_RESTING, do_action, 0, 0, 0, 0},
 	{"bottle", POS_RESTING, do_action, 0, 0, 0, 0},
 	{"bounce", POS_SITTING, do_action, 0, 0, 0, 0},
+	{"boo", POS_RESTING, do_action, 0, 0, 0, 0},
 	{"brace", POS_SITTING, do_action, 0, 0, 0, 0},
 	{"brag", POS_RESTING, do_action, 0, 0, 0, 0},
 	{"brb", POS_RESTING, do_action, 0, 0, 0, 0},
@@ -543,6 +546,7 @@ struct command_info cmd_info[] = {
 	{"burn", POS_RESTING, do_action, 0, 0, 0, 0},
 	{"buy", POS_STANDING, do_not_here, 0, 0, 0, 0},
 	{"bug", POS_DEAD, do_gen_write, 0, SCMD_BUG, 0, 0},
+	{"baffle", POS_RESTING, do_action, 0, 0, 0, 0},
 
 	{"cast", POS_SITTING, do_cast, 1, 0, 0, 0},
 	{"cash", POS_DEAD, do_cash, 0, 0, 0, 0},
@@ -829,6 +833,7 @@ struct command_info cmd_info[] = {
 	{"hungry", POS_RESTING, do_action, 0, 0, 0, 0},
 	{"hurl", POS_RESTING, do_action, 0, 0, 0, 0},
 	{"hush", POS_RESTING, do_action, 0, 0, 0, 0},
+	{"hate", POS_RESTING, do_action, 0, 0, 0, 0},
 
 	{"inventory", POS_DEAD, do_inventory, 0, 0, 0, 0},
 	{"inews", POS_SLEEPING, do_dyntext_show, LVL_AMBASSADOR,
@@ -860,6 +865,7 @@ struct command_info cmd_info[] = {
     {"interrogate", POS_RESTING, do_action, 0, 0, 0, 0},
 	{"invis", POS_DEAD, do_invis, LVL_AMBASSADOR, 0, 0, 0},
 	{"irritate", POS_RESTING, do_action, 0, 0, 0, 0},
+	{"indianburn", POS_RESTING, do_action, 0, 0, 0, 0},
 
 	{"jab", POS_FIGHTING, do_offensive_skill, 0, SKILL_JAB, 0, 0},
 	{"jet_stream", POS_DEAD, do_gen_tog, LVL_CREATOR, SCMD_JET_STREAM, 0, 0},
@@ -947,6 +953,7 @@ struct command_info cmd_info[] = {
 	{"mute", POS_DEAD, do_wizutil, LVL_IMMORT, SCMD_SQUELCH, 0, 0},
 	{"mutter", POS_RESTING, do_action, 0, 0, 0, 0},
 	{"murder", POS_FIGHTING, do_hit, 0, SCMD_MURDER, 0, 0},
+	{"mine", POS_RESTING, do_action, 0, 0, 0, 0},
 
 	{"nasty", POS_SLEEPING, do_gen_tog, 0, SCMD_NASTY, 0, 0},
 	{"news", POS_SLEEPING, do_dyntext_show, 0, SCMD_DYNTEXT_NEWS, 0, 0},
@@ -999,6 +1006,8 @@ struct command_info cmd_info[] = {
 	{"overhaul", POS_STANDING, do_overhaul, 1, 0, 0, 0},
 	{"overdrain", POS_STANDING, do_overdrain, 1, 0, 0, 0},
 	{"objupdate", POS_DEAD, do_objupdate, LVL_GRIMP, 0, 0, 0},
+	{"owned", POS_RESTING, do_action, 0, 0, 0, 0},
+	{"orgasm", POS_RESTING, do_action, 0, 0, 0, 0},
 
 	{"pace", POS_STANDING, do_action, 0, 0, 0, 0},
 	{"pack", POS_RESTING, do_put, 0, 0, 0, 0},
@@ -1061,6 +1070,7 @@ struct command_info cmd_info[] = {
 	{"propose", POS_RESTING, do_action, 0, 0, 0, 0},
 	{"practice", POS_SLEEPING, do_practice, 1, 0, 0, 0},
 	{"pray", POS_SITTING, do_action, 0, 0, 0, 0},
+	{"prod", POS_RESTING, do_action, 0, 0, 0, 0},
 	{"psiblast", POS_FIGHTING, do_offensive_skill, 0, SKILL_PSIBLAST, 0, 0},
 	{"psidrain", POS_FIGHTING, do_psidrain, 0, 0, 0, 0},
 	{"psilocate", POS_STANDING, do_psilocate, 0, 0, 0, 0},
@@ -1069,6 +1079,9 @@ struct command_info cmd_info[] = {
 	{"punish", POS_RESTING, do_action, 0, 0, 0, 0},
 	{"purr", POS_RESTING, do_action, 0, 0, 0, 0},
 	{"purge", POS_DEAD, do_purge, LVL_IMMORT, 0, 0, 0},
+	{"protest", POS_RESTING, do_action, 0, 0, 0, 0},
+	{"placate", POS_RESTING, do_action, 0, 0, 0, 0},
+	{"potty", POS_RESTING, do_action, 0, 0, 0, 0},
 
 	{"quaff", POS_RESTING, do_use, 0, SCMD_QUAFF, 0, 0},
 	{"qcontrol", POS_DEAD, do_qcontrol, LVL_IMMORT, 0, 0, 0},
@@ -1142,6 +1155,7 @@ struct command_info cmd_info[] = {
 	{"save", POS_SLEEPING, do_save, 0, 0, 0, 0},
 	{"score", POS_DEAD, do_score, 0, 0, 0, 0},
 	{"scan", POS_RESTING, do_scan, 0, 0, 0, 0},
+	{"scare", POS_RESTING, do_action, 0, 0, 0, 0},
 	{"scissorkick", POS_FIGHTING, do_offensive_skill, 0, SKILL_SCISSOR_KICK,
 			0, 0},
 	{"scold", POS_RESTING, do_action, 0, 0, 0, 0},
@@ -1263,6 +1277,11 @@ struct command_info cmd_info[] = {
 	{"sweat", POS_RESTING, do_action, 0, 0, 0, 0},
 	{"swoon", POS_RESTING, do_action, 0, 0, 0, 0},
 	{"syslog", POS_DEAD, do_syslog, LVL_AMBASSADOR, 0, 0, 0},
+	{"slobber", POS_RESTING, do_action, 0, 0, 0, 0},
+	{"shag", POS_RESTING, do_action, 0, 0, 0, 0},
+	{"shame", POS_RESTING, do_action, 0, 0, 0, 0},
+	{"scowl", POS_RESTING, do_action, 0, 0, 0, 0},
+	{"strangle", POS_RESTING, do_action, 0, 0, 0, 0},
 
 	{"tell", POS_DEAD, do_tell, 0, 0, 0, 0},
 	//    { "tempus"   , POS_DEAD    , do_help     , 0, 0 , 0 , 0},
@@ -1400,6 +1419,7 @@ struct command_info cmd_info[] = {
 	{"wrench", POS_FIGHTING, do_wrench, 0, 0, 0, 0},
 	{"wrestle", POS_RESTING, do_action, 0, 0, 0, 0},
 	{"write", POS_RESTING, do_write, 1, 0, 0, 0},
+	{"weep", POS_RESTING, do_action, 0, 0, 0, 0},
 
 	{"xlag", POS_DEAD, do_xlag, LVL_IMMORT, 0, 0, 0},
 	{"yae", POS_RESTING, do_action, 0, 0, 0, 0},
