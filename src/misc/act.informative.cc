@@ -2717,10 +2717,11 @@ ACMD(do_inventory)
 
 ACMD(do_equipment)
 {
-	int i;
+	int idx, pos;
 	bool found = false;
 	struct obj_data *obj = NULL;
 	char outbuf[MAX_STRING_LENGTH];
+	char *str;
 	const char *active_buf[2] = { "(inactive)", "(active)" };
 	bool show_all = false;
 	skip_spaces(&argument);
@@ -2728,8 +2729,10 @@ ACMD(do_equipment)
 	if (subcmd == SCMD_EQ) {
 		if (*argument && is_abbrev(argument, "status")) {
 			strcpy(outbuf, "Equipment status:\r\n");
-			for (i = 0; i < NUM_WEARS; i++) {
-				if (!(obj = GET_EQ(ch, i)))
+			for (idx = 0; idx < NUM_WEARS; idx++) {
+				pos = eq_pos_order[idx];
+
+				if (!(obj = GET_EQ(ch, pos)))
 					continue;
 				found = 1;
 				sprintf(outbuf, "%s-%s- is in %s condition.\r\n", outbuf,
@@ -2744,32 +2747,29 @@ ACMD(do_equipment)
 			show_all = true;
 		}
 		
-		if( show_all ) {
+		if(show_all) {
 			send_to_char(ch, "You are using:\r\n");
 		}
-		for (i = 0; i < NUM_WEARS; i++) {
-			if (GET_EQ(ch, eq_pos_order[i])) {
+		for (idx = 0; idx < NUM_WEARS; idx++) {
+			pos = eq_pos_order[idx];
+			if (GET_EQ(ch, pos)) {
 				if (!found && !show_all) {
 					send_to_char(ch, "You are using:\r\n");
 					found = true;
 				}
-				if (can_see_object(ch, GET_EQ(ch, eq_pos_order[i]))) {
-					send_to_char(ch, strcat(strcat(strcpy(buf,
-									CCGRN(ch, C_NRM)),
-								where[eq_pos_order[i]]),
-							CCNRM(ch, C_NRM)));
-					show_obj_to_char(GET_EQ(ch, eq_pos_order[i]), ch, 1, 0);
+				if (can_see_object(ch, GET_EQ(ch, pos))) {
+					send_to_char(ch, "%s%s%s", CCGRN(ch, C_NRM),
+						where[pos], CCNRM(ch, C_NRM));
+					show_obj_to_char(GET_EQ(ch, pos), ch, 1, 0);
 				} else {
-					send_to_char(ch, where[eq_pos_order[i]]);
-					send_to_char(ch, "Something.\r\n");
+					send_to_char(ch, "%sSomething.\r\n", where[pos]);
 				}
-			} else if( show_all && i != WEAR_ASS ) {
-				send_to_char(ch, where[eq_pos_order[i]]);
-				send_to_char(ch, "Nothing!\r\n");
+			} else if (show_all && pos != WEAR_ASS) {
+				send_to_char(ch, "%sNothing!\r\n", where[pos]);
 			}
 		}
 
-		if(!found && !show_all) {
+		if (!found && !show_all) {
 			send_to_char(ch, "You're totally naked!\r\n");
 		}
 		return;
@@ -2778,8 +2778,10 @@ ACMD(do_equipment)
 	if (subcmd == SCMD_IMPLANTS) {
 		if (*argument && is_abbrev(argument, "status")) {
 			strcpy(outbuf, "Implant status:\r\n");
-			for (i = 0; i < NUM_WEARS; i++) {
-				if (!(obj = GET_IMPLANT(ch, i)))
+			for (idx = 0; idx < NUM_WEARS; idx++) {
+				pos = implant_pos_order[idx];
+
+				if (!(obj = GET_IMPLANT(ch, pos)))
 					continue;
 				found = true;
 				sprintf(outbuf, "%s-%s- is in %s condition.\r\n",
@@ -2798,36 +2800,40 @@ ACMD(do_equipment)
 		if (show_all) {
 			send_to_char(ch, "You are implanted with:\r\n");
 		}
-		for (i = 0; i < NUM_WEARS; i++) {
-			if (GET_IMPLANT(ch, eq_pos_order[i])) {
+		for (idx = 0; idx < NUM_WEARS; idx++) {
+			pos = implant_pos_order[idx];
+			if (ILLEGAL_IMPLANTPOS(pos))
+				continue;
+
+			if (GET_IMPLANT(ch, pos)) {
 				if (!found && !show_all) {
 					send_to_char(ch, "You are implanted with:\r\n");
 					found = 1;
 				}
-				if (can_see_object(ch, GET_IMPLANT(ch, eq_pos_order[i]))) {
+				if (can_see_object(ch, GET_IMPLANT(ch, pos))) {
 
-					if (IS_DEVICE(GET_IMPLANT(ch, eq_pos_order[i])))
-						sprintf(buf2, " %10s %s(%s%d%s/%s%d%s)%s",
-							active_buf[(ENGINE_STATE(GET_IMPLANT(ch, eq_pos_order[i]))) ? 1:0],
+					if (IS_DEVICE(GET_IMPLANT(ch, pos)))
+						str = tmp_sprintf(" %10s %s(%s%d%s/%s%d%s)%s",
+							active_buf[(ENGINE_STATE(GET_IMPLANT(ch, pos))) ? 1:0],
 							CCGRN(ch, C_NRM), CCNRM(ch, C_NRM),
-							CUR_ENERGY(GET_IMPLANT(ch, eq_pos_order[i])),
+							CUR_ENERGY(GET_IMPLANT(ch, pos)),
 							CCGRN(ch, C_NRM), CCNRM(ch, C_NRM),
-							MAX_ENERGY(GET_IMPLANT(ch, eq_pos_order[i])),
+							MAX_ENERGY(GET_IMPLANT(ch, pos)),
 							CCGRN(ch, C_NRM), CCNRM(ch, C_NRM));
 					else
-						strcpy(buf2, "");
+						str = "";
 
-					send_to_char(ch, "%s[%12s]%s - %25s%s\r\n", CCCYN(ch, C_NRM),
-						wear_implantpos[eq_pos_order[i]], CCNRM(ch,
-							C_NRM), GET_IMPLANT(ch, eq_pos_order[i])->name, buf2);
+					send_to_char(ch, "%s[%12s]%s - %-30s%s\r\n",
+						CCCYN(ch, C_NRM), wear_implantpos[pos],
+						CCNRM(ch, C_NRM), GET_IMPLANT(ch, pos)->name, str);
 				} else {
 					send_to_char(ch, "%s[%12s]%s - (UNKNOWN)\r\n", CCCYN(ch,
-							C_NRM), wear_implantpos[eq_pos_order[i]],
+							C_NRM), wear_implantpos[pos],
 						CCNRM(ch, C_NRM));
 				}
-			} else if( show_all && i != WEAR_ASS ) {
+			} else if (show_all && pos != WEAR_ASS && pos != WEAR_HOLD) {
 				send_to_char(ch, "[%12s] - Nothing!\r\n", 
-								 wear_implantpos[eq_pos_order[i]]);
+					wear_implantpos[pos]);
 			}
 		}
 	}
