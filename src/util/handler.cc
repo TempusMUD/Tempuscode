@@ -1965,6 +1965,9 @@ extract_obj(struct obj_data *obj)
 	while (obj->contains)
 		extract_obj(obj->contains);
 
+	if (obj->func_data)
+		free(obj->func_data);
+
 	if (obj->shared && obj->shared->vnum >= 0)
 		obj->shared->number--;
 
