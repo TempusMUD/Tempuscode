@@ -335,6 +335,10 @@ SPECIAL(gen_board)
 			&& !isname(argument, self->aliases))
 		return 0;
 	
+	// If they can't see the board, they can't use it at all
+	if (!can_see_object(ch, self))
+		return 0;
+
 	// Just what kind of a board is this, anyway?
 	board = (board_data *)GET_OBJ_DATA(self);
 	if (!board) {
