@@ -99,9 +99,8 @@ fname(const char *namelist)
 int
 isname(const char *str, const char *namelist)
 {
-	register char *curname, *curstr;
-	static char tmpnamelist[MAX_STRING_LENGTH];
-	static char tmpstr[MAX_STRING_LENGTH];
+	register const char *curname, *curstr;
+
 	if (!*str)
 		return 0;
 
@@ -109,70 +108,101 @@ isname(const char *str, const char *namelist)
 		slog("SYSERR:  NULL namelist given to isname()");
 		return 0;
 	}
-	strcpy(tmpnamelist, namelist);
-	strcpy(tmpstr, str);
-	curname = tmpnamelist;
-	for (;;) {
-		for (curstr = tmpstr;; curstr++, curname++) {
+
+	curname = namelist;
+	while (*curname) {
+		curstr = str;
+		while (true) {
 			if (!*curstr)		// && !isalnum(*curname))
-				return (1);
+				return true;
 
 			if (!*curname)
-				return (0);
+				return false;
 
-			if (!*curstr || *curname == ' ')
+			if (*curname == ' ')
 				break;
 
 			if (tolower(*curstr) != tolower(*curname))
 				break;
+
+			curstr++;
+			curname++;
 		}
 
 		/* skip to next name */
 
-		for (; isalnum(*curname); curname++);
+		while (isalnum(*curname))
+			curname++;
 		if (!*curname)
-			return (0);
+			return false;
 		curname++;				/* first char of new name */
 	}
+
+	return false;
 }
 
 int
 isname_exact(const char *str, const char *namelist)
 {
-	register char *curname, *curstr;
-	static char tmpnamelist[MAX_STRING_LENGTH];
-	static char tmpstr[MAX_STRING_LENGTH];
+	register const char *curname, *curstr;
 
 	if (!*str)
 		return 0;
 
-	strcpy(tmpnamelist, namelist);
-	strcpy(tmpstr, str);
-	curname = tmpnamelist;
-	for (;;) {
-		for (curstr = tmpstr;; curstr++, curname++) {
+	if ( namelist == NULL || *namelist == '\0' ) {
+		slog("SYSERR:  NULL namelist given to isname()");
+		return 0;
+	}
+
+	curname = namelist;
+	while (*curname) {
+		curstr = str;
+		while (true) {
 			if (!*curstr && !isalnum(*curname))
-				return (1);
+				return true;
 
 			if (!*curname)
-				return (0);
+				return false;
 
-			if (!*curstr || *curname == ' ')
+			if (*curname == ' ')
 				break;
 
 			if (tolower(*curstr) != tolower(*curname))
 				break;
+
+			curstr++;
+			curname++;
 		}
 
 		/* skip to next name */
 
-		for (; isalnum(*curname); curname++);
+		while (isalnum(*curname))
+			curname++;
 		if (!*curname)
-			return (0);
+			return false;
 		curname++;				/* first char of new name */
 	}
+
+	return false;
 }
 
+// Returns true if all words in list_targ can be found in list_vict
+// list targ and list_vict are both space delimited strings
+bool
+namelist_match(const char *sub_list, const char *super_list)
+{
+	const char *word_pt;
+	
+	word_pt = tmp_getword(&sub_list);
+	if (!*word_pt)
+		return false;
+	while (*word_pt) {
+		if (!isname(word_pt, super_list))
+			return false;
+		word_pt = tmp_getword(&sub_list);
+	}
+	return true;
+}
 
 void
 check_interface(struct Creature *ch, struct obj_data *obj, int mode)
