@@ -2029,7 +2029,10 @@ ACMD(do_drink)
 			act(buf, TRUE, ch, temp, 0, TO_ROOM);
 		}
 
-		send_to_char(ch, "You drink the %s.\r\n", drinks[GET_OBJ_VAL(temp, 2)]);
+		if (temp->action_description && *temp->action_description)
+			send_to_char(ch, "%s\r\n", temp->action_description);
+		else
+			send_to_char(ch, "You drink the %s.\r\n", drinks[GET_OBJ_VAL(temp, 2)]);
 
 		if (IS_VAMPIRE(ch) && GET_OBJ_VAL(temp, 2) == LIQ_BLOOD)
 			send_to_char(ch, "Ack!  It is cold!\r\n");
