@@ -1333,37 +1333,34 @@ Creature::getCombatList()
 void
 Creature::addCombat(Creature *ch, bool initiated)
 {
-//    slog("Creature::addCombat() :: this=0x%x, ch=0x%x", &(*this), &(*ch));
+    Creature *defender;
+    bool previously_fighting;
+
     if (!ch)
         return;
 
-    if (this == ch || this->in_room != ch->in_room)
+	if (this == ch || this->in_room != ch->in_room)
         return;
 
     if (!isOkToAttack(ch))
         return;
 
-    Creature *def;
-    bool defend = false;
-    if ((def = hasDefender(ch))) {
-        if (findCombat(def))
+	previously_fighting = (getCombatList()->size() != 0);
+
+	defender = hasDefender(ch);
+    if (defender) {
+        if (findCombat(defender))
             return;
 
-        send_to_char(def, "You defend %s from %s's vicious attack!\r\n",
-                     PERS(ch, def), PERS(this, def));
+        send_to_char(defender, "You defend %s from %s's vicious attack!\r\n",
+                     PERS(ch, defender), PERS(this, defender));
         send_to_char(ch, "%s defends you from %s's vicious attack!\r\n",
-                     PERS(def, ch), PERS(this, ch));
+                     PERS(defender, ch), PERS(this, ch));
         act("$n comes to $N's defense!", false,
-            def, 0, ch, TO_NOTVICT);
-        defend = true;
-        //ch = def;
-    }
-    
-    
-    //defender updates
-    if (defend) {
-        if (def->isDefending() == this)
-            def->stopDefending();
+            defender, 0, ch, TO_NOTVICT);
+
+        if (defender->isDefending() == this)
+            defender->stopDefending();
         
         // If we're already in combat with the victim, move him
         // to the front of the list
@@ -1372,15 +1369,15 @@ Creature::addCombat(Creature *ch, bool initiated)
             if (li->getOpponent() == ch) {
                 bool ini = li->getInitiated();
                 getCombatList()->remove(li);
-                getCombatList()->add_front(CharCombat(def, ini)); 
+                getCombatList()->add_front(CharCombat(defender, ini)); 
                 return;
             }
         }
         
-        getCombatList()->add_back(CharCombat(def, initiated));
+        getCombatList()->add_back(CharCombat(defender, initiated));
         
         update_pos(this);
-        trigger_prog_fight(this, def);
+        trigger_prog_fight(this, defender);
         
     }
     
@@ -1404,7 +1401,7 @@ Creature::addCombat(Creature *ch, bool initiated)
     update_pos(this);
     trigger_prog_fight(this, ch);
 
-    if (numCombatants() == 1)
+    if (!previously_fighting && numCombatants() > 0)
         combatList.add(this);
     
 }
