@@ -269,6 +269,11 @@ ACMD(do_backstab)
 		send_to_char(ch, "How can you sneak up on yourself?\r\n");
 		return;
 	}
+	if (CHECK_SKILL(ch, SKILL_BACKSTAB) < 30) {
+		send_to_char(ch, "You aren't really sure how to backstab properly.\r\n");
+		return;
+	}
+
 	if (!peaceful_room_ok(ch, vict, true))
 		return;
 
