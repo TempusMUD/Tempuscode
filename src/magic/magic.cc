@@ -1789,7 +1789,7 @@ mag_affects(int level, struct char_data * ch, struct char_data * victim,
     case SPELL_ELECTROSTATIC_FIELD:
 	to_room = "An electrostatic field crackles into being around $n.";
 	to_vict = "An electrostatic field crackles into being around you.";
-	af.duration = ( level >> 3 ) + 2;
+	af.duration = ( level >> 2 ) + 2;
 	break;
 
     case SPELL_RADIOIMMUNITY:
