@@ -837,7 +837,7 @@ ACMD(do_gen_comm)
 		}
 	}
 
-	if (ROOM_FLAGGED(i->character->in_room, ROOM_SOUNDPROOF) &&
+	if (ROOM_FLAGGED(ch->in_room, ROOM_SOUNDPROOF) &&
 			GET_LEVEL(ch) < LVL_IMMORT)
 		send_to_char(ch, "The walls seem to absorb your words.\r\n");
 }
