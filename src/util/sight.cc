@@ -84,6 +84,10 @@ check_sight_room(Creature *self, room_data *room)
 {
 	if (!room) {
 		slog("SYSERR: check_sight_room() called with NULL room");
+		slog( tmp_sprintf("        stack trace: 0x%lx 0x%lx 0x%lx\n",
+					(long)__builtin_return_address(0),
+					(long)__builtin_return_address(1),
+					(long)__builtin_return_address(2)));
 		return false;
 	}
 
