@@ -109,6 +109,9 @@ INVIS_OK(Creature *sub, Creature *obj)
 {
 	// Other players can't see invis'd immortals.  Also checks for switched
 	// mobiles
+	if (IS_PC(sub) && IS_PC(obj) && IS_IMMORT(sub) && !IS_IMMORT(obj))
+		return true;
+
 	if (IS_PC(sub) && IS_PC(obj) && IS_IMMORT(obj) && 
 			!sub->desc &&
 			GET_LEVEL(sub) < GET_INVIS_LVL(obj))
