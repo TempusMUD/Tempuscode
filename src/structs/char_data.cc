@@ -56,26 +56,37 @@ int char_data::getPenalizedExperience( int experience, char_data *victim = NULL 
 		return 0;
 	}
 
-	// good clerics & knights penalized for killing good
-	if (victim != NULL) {
-		if( IS_GOOD(this) && IS_GOOD(victim) 
-			&& (IS_CLERIC(this) || IS_KNIGHT(this)) ) 
-		{
-			experience /= 2;
-		}
-
+	if ( victim != NULL && IS_GOOD(victim) ) {
 		if( victim->getLevel() >= LVL_AMBASSADOR )
 			return 0;
+
+		// good clerics & knights penalized for killing good
+		if( IS_GOOD(this) && (IS_CLERIC(this) || IS_KNIGHT(this)) ) {
+			experience /= 2;
+		}
 	}
 
-	// Slow remorts down a little.  
-	// This algorithm should yied 60 percent gain at gen 1 level 49
-	// and 10 percent gain at gen 10 level 49. LK 1/22/02
+	// Slow remorting down a little without slowing leveling completely.
+	// This penalty works out to:
+	// gen lvl <=15 16->39  40>
+	//  1     23.3%	 33.3%  43.3%
+	//  2     40.0%  50.0%  60.0%
+	//  3     50.0%  60.0%  70.0%
+	//  4     56.6%  66.6%  76.6%
+	//  5     61.4%  71.4%  81.4%
+	//  6     65.0%  75.0%  85.0%
+	//  7     67.7%  77.7%  87.7%
+	//  8     70.0%  80.0%  90.0%
+	//  9     71.8%  81.8%  91.8%
+	// 10     73.3%  83.3%  93.3%
 	if( IS_REMORT(this) ) {
-		int levelBonus = MAX(0, getLevelBonus(true) - 5 );
-		// just to be sure it isn't rounded
-		float multiplier = levelBonus / 100; 
-		experience -= experience * multiplier;
+		int gen = MIN( 10, GET_REMORT_GEN(this) );
+		float multiplier = (float)(gen / ( gen + 2 ));
+		if( getLevel() <= 15 )
+			multiplier -= 0.10;
+		else if( getLevel() >= 40 )
+			multiplier += 0.10;
+		experience -= (int)(experience * multiplier);
 	}
 
 	return experience;
