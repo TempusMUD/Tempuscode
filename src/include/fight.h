@@ -83,6 +83,10 @@ CANNOT_DAMAGE(Creature *ch, Creature *vict, obj_data *weap, int attacktype) {
 					affected_by_spell(ch, SKILL_KATA)) 
 			return false;	
 
+        // energy weapons can hit them
+        if (IS_WEAPON(attacktype) && weap && GET_OBJ_TYPE(weap) == ITEM_ENERGY_GUN)
+            return false;
+        
 		// nothing else can
 		return true;
 	}
