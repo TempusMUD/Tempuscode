@@ -44,6 +44,7 @@ int total_coins = 0;
 int total_credits = 0;
 extern struct obj_data *dam_object;
 
+int char_hands_free(CHAR *ch);
 int  empty_to_obj( struct obj_data *obj, struct obj_data *container, struct char_data *ch );
 bool junkable(struct obj_data *obj);
 void gain_skill_prof(struct char_data *ch, int skillnum);
@@ -250,7 +251,6 @@ bool activate_char_quad( struct char_data *ch ) {
     }
     return false;
 }
-
 
 
 void 
@@ -2809,65 +2809,82 @@ ACMD(do_wear)
 }
 
 
-
 ACCMD(do_wield)
 {
     struct obj_data *obj;
+	int hands_free = 2;
 
     one_argument(argument, arg);
 
-    if (!*arg)
+    if (!*arg) {
         send_to_char("Wield what?\r\n", ch);
-    else if (!(obj = get_obj_in_list_all(ch, arg, ch->carrying))) {
+		return;
+	}
+
+    if (!(obj = get_obj_in_list_all(ch, arg, ch->carrying))) {
         sprintf(buf, "You don't seem to have %s %s.\r\n", AN(arg), arg);
         send_to_char(buf, ch);
-    } else {
-        if (!CAN_WEAR(obj, ITEM_WEAR_WIELD))
-            send_to_char("You can't wield that.\r\n", ch);
-        else if ( obj->getWeight() > str_app[STRENGTH_APPLY_INDEX(ch)].wield_w)
-            send_to_char("It's too damn heavy.\r\n", ch);
-        else if (IS_CLERIC(ch) && !IS_EVIL(ch) &&
-                 (GET_OBJ_TYPE(obj) == ITEM_WEAPON)  &&
-                 ((GET_OBJ_VAL(obj, 3) == TYPE_SLASH - TYPE_HIT) || 
-                  (GET_OBJ_VAL(obj, 3) == TYPE_PIERCE - TYPE_HIT) || 
-                  (GET_OBJ_VAL(obj, 3) == TYPE_STAB - TYPE_HIT) || 
-                  (GET_OBJ_VAL(obj, 3) == TYPE_RIP - TYPE_HIT) || 
-                  (GET_OBJ_VAL(obj, 3) == TYPE_CHOP - TYPE_HIT) || 
-                  (GET_OBJ_VAL(obj, 3) == TYPE_CLAW - TYPE_HIT)))
-            send_to_char("You can't wield that as a cleric.\r\n", ch);
-        else if (GET_EQ(ch, WEAR_SHIELD) && GET_EQ(ch, WEAR_HOLD))
-            act("You are using both $p and $P right now.",
-                FALSE, ch, GET_EQ(ch, WEAR_SHIELD), GET_EQ(ch, WEAR_HOLD), TO_CHAR);
-        else if ((GET_EQ(ch, WEAR_WIELD) || GET_EQ(ch, WEAR_HOLD) ||
-                  GET_EQ(ch, WEAR_SHIELD)) &&
-                 IS_OBJ_STAT2(obj, ITEM2_TWO_HANDED))
-            act("You need both hands free to wield $p.",FALSE,ch,obj,0,TO_CHAR);
-        else if (GET_EQ(ch, WEAR_HANDS) && 
-                 IS_OBJ_STAT2(GET_EQ(ch, WEAR_HANDS), ITEM2_TWO_HANDED))
-            act("You can't wield anything while wearing $p on your hands.",
-                FALSE, ch, GET_EQ(ch, WEAR_HANDS), 0, TO_CHAR);
-        else if (GET_EQ(ch, WEAR_WIELD)) {
-            if (GET_EQ(ch, WEAR_HOLD) || GET_EQ(ch, WEAR_SHIELD) ||
-                GET_EQ(ch, WEAR_WIELD_2) || 
-                IS_OBJ_STAT2(GET_EQ(ch, WEAR_WIELD), ITEM2_TWO_HANDED))
-                send_to_char("You don't have a hand free to wield it with.\r\n", ch);
-            // Guns and Mercs have to be handled a bit differently, but I hate they
-            // way I've done this.  However, I can't think of a better way ATM...
-            // feel free to clean this up if you like
-            else if (IS_MERC(ch) && IS_ANY_GUN(GET_EQ(ch, WEAR_WIELD)) && IS_ANY_GUN(obj))
-              perform_wear(ch, obj, WEAR_WIELD_2);
-
-            else if ( 
-                     GET_EQ(ch, WEAR_WIELD)->getWeight() <= 6 ?
-                     ( obj->getWeight() > GET_EQ( ch, WEAR_WIELD )->getWeight() ) :
-                     ( obj->getWeight() > ( GET_EQ(ch, WEAR_WIELD)->getWeight() >> 1 )) 
-                    ) 
-                send_to_char("Your secondary weapon must weigh less than half of your primary weapon,\r\nif your primary weighs more than 6 lbs.\r\n", ch);
-            else
-                perform_wear(ch, obj, WEAR_WIELD_2);
-        } else
-            perform_wear(ch, obj, WEAR_WIELD);
+		return;
     }
+
+	if (!CAN_WEAR(obj, ITEM_WEAR_WIELD)) {
+		send_to_char("You can't wield that.\r\n", ch);
+		return;
+	}
+
+	if ( obj->getWeight() > str_app[STRENGTH_APPLY_INDEX(ch)].wield_w) {
+		send_to_char("It's too damn heavy.\r\n", ch);
+		return;
+	}
+
+	if (IS_CLERIC(ch) && !IS_EVIL(ch) &&
+			 (GET_OBJ_TYPE(obj) == ITEM_WEAPON)  &&
+			 ((GET_OBJ_VAL(obj, 3) == TYPE_SLASH - TYPE_HIT) || 
+			  (GET_OBJ_VAL(obj, 3) == TYPE_PIERCE - TYPE_HIT) || 
+			  (GET_OBJ_VAL(obj, 3) == TYPE_STAB - TYPE_HIT) || 
+			  (GET_OBJ_VAL(obj, 3) == TYPE_RIP - TYPE_HIT) || 
+			  (GET_OBJ_VAL(obj, 3) == TYPE_CHOP - TYPE_HIT) || 
+			  (GET_OBJ_VAL(obj, 3) == TYPE_CLAW - TYPE_HIT))) {
+		send_to_char("You can't wield that as a cleric.\r\n", ch);
+		return;
+	}
+
+	hands_free = char_hands_free(ch);
+
+	if (!hands_free) {
+		send_to_char("You don't have a hand free to wield it with.\r\n", ch);
+		return;
+	}
+
+	if ( hands_free != 2 && IS_OBJ_STAT2(obj, ITEM2_TWO_HANDED)) {
+		act("You need both hands free to wield $p.",FALSE,ch,obj,0,TO_CHAR);
+		return;
+	}
+
+	if (GET_EQ(ch, WEAR_HANDS) && 
+			 IS_OBJ_STAT2(GET_EQ(ch, WEAR_HANDS), ITEM2_TWO_HANDED)) {
+		act("You can't wield anything while wearing $p on your hands.",
+			FALSE, ch, GET_EQ(ch, WEAR_HANDS), 0, TO_CHAR);
+		return;
+	}
+
+	if (GET_EQ(ch, WEAR_WIELD)) {
+		// Guns and Mercs have to be handled a bit differently, but I hate they
+		// way I've done this.  However, I can't think of a better way ATM...
+		// feel free to clean this up if you like
+		if (IS_MERC(ch) && IS_ANY_GUN(GET_EQ(ch, WEAR_WIELD)) && IS_ANY_GUN(obj))
+		  perform_wear(ch, obj, WEAR_WIELD_2);
+
+		else if ( 
+				 GET_EQ(ch, WEAR_WIELD)->getWeight() <= 6 ?
+				 ( obj->getWeight() > GET_EQ( ch, WEAR_WIELD )->getWeight() ) :
+				 ( obj->getWeight() > ( GET_EQ(ch, WEAR_WIELD)->getWeight() >> 1 )) 
+				) 
+			send_to_char("Your secondary weapon must weigh less than half of your primary weapon,\r\nif your primary weighs more than 6 lbs.\r\n", ch);
+		else
+			perform_wear(ch, obj, WEAR_WIELD_2);
+	} else
+		perform_wear(ch, obj, WEAR_WIELD);
 }
 
 
@@ -2940,6 +2957,45 @@ perform_remove(struct char_data * ch, int pos)
         }
 
     }
+}
+
+
+int
+char_hands_free(CHAR *ch) {
+	struct obj_data *obj;
+	int hands_free;
+
+	hands_free = 2;
+
+	obj = GET_EQ(ch, WEAR_WIELD);
+	if (obj) hands_free -= IS_OBJ_STAT2(obj, ITEM2_TWO_HANDED) ? 2:1;
+	obj = GET_EQ(ch, WEAR_WIELD_2);
+	if (obj) hands_free -= IS_OBJ_STAT2(obj, ITEM2_TWO_HANDED) ? 2:1;
+	obj = GET_EQ(ch, WEAR_SHIELD);
+	if (obj) hands_free -= IS_OBJ_STAT2(obj, ITEM2_TWO_HANDED) ? 2:1;
+	obj = GET_EQ(ch, WEAR_HOLD);
+	if (obj) hands_free -= IS_OBJ_STAT2(obj, ITEM2_TWO_HANDED) ? 2:1;
+
+	if (hands_free < 0) {
+		char buf[2048];
+
+		// Report it to the immortals
+		snprintf(buf, 2047, "SYSERR: %s has negative hands free", GET_NAME(ch));
+		slog(buf);
+		// Now fix the problem
+		act("Oops... You dropped everything that was in your hands.",
+			FALSE, ch, NULL, NULL, TO_CHAR);
+		if (GET_EQ(ch, WEAR_WIELD))
+			perform_remove(ch, WEAR_WIELD);
+		if (GET_EQ(ch, WEAR_WIELD_2))
+			perform_remove(ch, WEAR_WIELD_2);
+		if (GET_EQ(ch, WEAR_SHIELD))
+			perform_remove(ch, WEAR_SHIELD);
+		if (GET_EQ(ch, WEAR_HOLD))
+			perform_remove(ch, WEAR_HOLD);
+		hands_free = 2;
+	}
+	return hands_free;
 }
 
 ACMD(do_remove)

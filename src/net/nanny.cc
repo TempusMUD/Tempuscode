@@ -578,19 +578,15 @@ nanny(struct descriptor_data * d, char *arg)
 			break;
 
 		case CON_QTIME_FRAME:
-
-			if ((GET_HOME(d->character) = parse_time_frame(arg)) == HOME_UNDEFINED) {
+			if (is_abbrev(arg, "past"))
+				set_desc_state(CON_RACE_PAST, d);
+			else if (is_abbrev(arg, "future"))
+				set_desc_state(CON_RACE_FUTURE, d);
+			else {
 				SEND_TO_Q("\r\nThat's not a choice.\r\n\r\n", d);
 				return;
 			}
-
-			if (GET_HOME(d->character) == HOME_ELECTRO) {
-				set_desc_state( CON_RACE_FUTURE,d );
-			} else {
-				set_desc_state( CON_RACE_PAST,d );
-			}
 			break;
-
 		case CON_RACEHELP_P:
 			show_race_menu_future(d);
 			set_desc_state( CON_RACE_PAST,d );
@@ -683,15 +679,12 @@ nanny(struct descriptor_data * d, char *arg)
 			if ( IS_DROW(d->character) )
 				{
 				GET_ALIGNMENT(d->character) = -666;
-				GET_HOME(d->character) = HOME_SKULLPORT;
 				set_desc_state( CON_QREROLL,d );
 				break;
 				}
 			else if ( IS_MONK( d->character ) )
 				{
 				GET_ALIGNMENT(d->character) = 0;
-				if (GET_HOME(d->character) != HOME_ELECTRO)
-					GET_HOME(d->character) = HOME_MONK;
 				set_desc_state( CON_QREROLL,d );
 				break;
 				}
@@ -740,7 +733,7 @@ nanny(struct descriptor_data * d, char *arg)
 				sprintf(buf, "%s [%s] new player.", GET_NAME(d->character), d->host);
 				mudlog(buf, NRM, LVL_GOD, TRUE);
 				GET_HOME(d->character) = HOME_NEWBIE_SCHOOL;
-				population_record[GET_HOME(d->character)]++;
+				population_record[HOME_NEWBIE_SCHOOL]++;
 
 				if (GET_PFILEPOS(d->character) < 0)
 					GET_PFILEPOS(d->character) = create_entry(GET_NAME(d->character));
