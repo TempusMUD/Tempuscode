@@ -1272,6 +1272,9 @@ call_magic(struct Creature *caster, struct Creature *cvict,
 		case SPELL_DEATH_KNELL:
 			MANUAL_SPELL(spell_death_knell);
 			break;
+		case SPELL_DISPEL_MAGIC:
+			MANUAL_SPELL(spell_dispel_magic);
+			break;
 		}
 
 	knock_door = NULL;
@@ -2773,7 +2776,7 @@ mag_assign_spells(void)
 
 	spello(SPELL_DISPEL_MAGIC, 39, X, X, X, X, X, X, X, X, X, X, X, X, X, X, X,
 		X, 90, 55, 5, POS_STANDING, TAR_CHAR_ROOM | TAR_OBJ_INV | TAR_OBJ_ROOM,
-		FALSE, MAG_MAGIC | MAG_UNAFFECTS | MAG_ALTER_OBJS);
+		FALSE, MAG_MAGIC | MAG_MANUAL);
 
 	spello(SPELL_DISRUPTION, X, 38, X, X, X, X, X, X, X, X, X, X, X, X, X, X,
 		X, 150, 75, 7, POS_FIGHTING, TAR_CHAR_ROOM | TAR_FIGHT_VICT, TRUE,
