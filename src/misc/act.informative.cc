@@ -23,6 +23,10 @@
 #include <errno.h>
 #include <sys/time.h>
 
+#include <list>
+#include <string>
+using namespace std;
+
 #include "structs.h"
 #include "utils.h"
 #include "comm.h"
@@ -2880,7 +2884,7 @@ ACMD(do_weather)
 }
 
 #define WHO_FORMAT \
-"format: who [minlev[-maxlev]] [-n name] [-c char_classlist] [-a clan] [-<soqrzmftpx>]\r\n"
+"format: who [minlev[-maxlev]] [-n name] [-c char_claslist] [-a clan] [-<soqrzmftpx>]\r\n"
 
 ACMD(do_who)
 {
@@ -3341,7 +3345,7 @@ ACMD(do_who)
 
 
 #define USERS_FORMAT \
-"format: users [-l minlevel[-maxlevel]] [-n name] [-h host] [-c char_classlist] [-o] [-p]\r\n"
+"format: users [-l minlevel[-maxlevel]] [-n name] [-h host] [-c char_claslist] [-o] [-p]\r\n"
 
 ACMD(do_users)
 {
@@ -3707,6 +3711,8 @@ perform_immort_where(struct char_data * ch, char *arg)
         page_string(ch->desc, main_buf, 1);
     } else {
 		main_buf[0] = '\0';
+        list<string> outList;
+
         two_arguments(arg, arg1, arg2);
         CharacterList::iterator cit = characterList.begin();
         for(; cit != characterList.end(); ++cit) {
@@ -3722,19 +3728,33 @@ perform_immort_where(struct char_data * ch, char *arg)
                         CCGRN(ch, C_NRM), CCNRM(ch, C_NRM), i->in_room->number, 
                         CCGRN(ch, C_NRM), CCNRM(ch, C_NRM), CCCYN(ch, C_NRM), 
                         i->in_room->name, CCNRM(ch, C_NRM));
-				strcat(main_buf, buf);
+                outList.push_back(buf);
             }
         }
         for (num = 0, k = object_list; k; k = k->next) {
             if (CAN_SEE_OBJ(ch, k) && isname(arg1, k->name) && ++num && (!*arg2 || isname(arg2, k->name))) {
                 found = 1;
+                main_buf[0] = '\0';
                 print_object_location(num, k, ch, TRUE, main_buf);
+                outList.push_back(main_buf);
             }
         }
-        if (!found)
+        if (!found) {
             send_to_char("Couldn't find any such thing.\r\n", ch);
-		else
-			page_string(ch->desc, main_buf, 1);
+        } else {
+            main_buf[0] = '\0';
+            list<string>::iterator it = outList.begin(); 
+            int space = MAX_STRING_LENGTH - 128;
+            for( ; it != outList.end(); it++ ) {
+                space -= (*it).length();
+                if( space <= 0 ) {
+                    strcat( main_buf, "\r\n****** Buffer size exceeded. Use more specific search terms. ******\r\n" );
+                    break;
+                }
+                strcat( main_buf, (*it).c_str() );
+            }
+            page_string(ch->desc, main_buf, 1);
+        }
     }
 }
 
