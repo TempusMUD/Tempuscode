@@ -1010,7 +1010,7 @@ struct Creature {
     bool loadFromXML( long id );
     void saveToXML();
 
-	bool loadObjects();
+	int loadObjects();
     room_data *getLoadroom(); // Retrieves the characters appropriate loadroom.
 
     // Saves the given characters equipment to a file. Intended for use while 
