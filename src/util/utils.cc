@@ -878,6 +878,8 @@ PERS(Creature * ch, Creature * sub)
 {
 	if (CAN_SEE(sub, ch))
 		return GET_DISGUISED_NAME(sub, ch);
+	else if (GET_LEVEL(ch) >= LVL_AMBASSADOR)
+		return "a divine presence";
 	else
 		return "someone";
 }
