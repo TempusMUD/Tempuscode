@@ -1498,6 +1498,11 @@ mobile_activity(void)
              continue;
          }
 
+	     if (!ch->in_room) {
+		 	 errlog("SYSERR: Skipping mobile in null room");
+			 continue;
+		 }
+
          if (!ch->in_room && !ch->player.name && !ch->player.short_descr
              && !ch->player.description) {
              errlog("SYSERR: Skipping null mobile in mobile_activity");
