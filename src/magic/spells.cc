@@ -466,11 +466,14 @@ ASPELL(spell_teleport)
     }
     if (ROOM_FLAGGED(victim->in_room, ROOM_NORECALL)) {
         send_to_char("You fade out for a moment...\r\n"
-                     "You are caught up in an energy vortex and thrown to the ground!\r\n", 
-                     victim);
+                     "The magic quickly dissipates!\r\n", victim);
+        act("$n fades out for a moment but quickly flickers back into view.",
+            FALSE, victim, 0, 0, TO_ROOM);
+        /* Removed per Cat's request        
+            "You are caught up in an energy vortex and thrown to the ground!\r\n", victim);
         act("$n is knocked to the ground by a blinding flash of light!", 
             FALSE, victim, 0, 0, TO_ROOM);
-        victim->setPosition( POS_RESTING );
+        victim->setPosition( POS_RESTING );*/
         return;
     }
  
@@ -585,11 +588,14 @@ ASPELL(spell_astral_spell)
     }
     if (ROOM_FLAGGED(victim->in_room, ROOM_NORECALL)) {
         send_to_char("You fade out for a moment...\r\n"
-                     "You are caught up in an energy vortex and thrown to the ground!\r\n", 
-                     victim);
+                     "The magic quickly dissipates!\r\n", victim);
+        act("$n fades out for a moment but quickly flickers back into view.",
+            FALSE, victim, 0, 0, TO_ROOM);
+        /* Removed per Cat's request        
+            "You are caught up in an energy vortex and thrown to the ground!\r\n", victim);
         act("$n is knocked to the ground by a blinding flash of light!", 
             FALSE, victim, 0, 0, TO_ROOM);
-        victim->setPosition(POS_RESTING);
+        victim->setPosition( POS_RESTING );*/
         return;
     }
  
@@ -697,11 +703,14 @@ ASPELL(spell_summon)
 
     if (ROOM_FLAGGED(victim->in_room, ROOM_NORECALL)) {
         send_to_char("You fade out for a moment...\r\n"
-                     "You are caught up in an energy vortex and thrown to the ground!\r\n", 
-                     victim);
+        "The magic quickly dissipates!\r\n", victim);
+        act("$n fades out for a moment but quickly flickers back into view.",
+            FALSE, victim, 0, 0, TO_ROOM);
+        /* Removed per Cat's request        
+            "You are caught up in an energy vortex and thrown to the ground!\r\n", victim);
         act("$n is knocked to the ground by a blinding flash of light!", 
             FALSE, victim, 0, 0, TO_ROOM);
-        victim->setPosition( POS_RESTING );
+        victim->setPosition( POS_RESTING );*/
         send_to_char(SUMMON_FAIL, ch);
         return;
     }
