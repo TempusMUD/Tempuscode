@@ -801,17 +801,24 @@ Creature::loadFromXML( const char *path )
 			affect_to_char(this, &af);
 
         } else if ( xmlMatches(node->name, "affects") ) {
-			char* flag = xmlGetProp( node, "flag1" );
-			AFF_FLAGS(this) = hex2dec(flag);
-			free(flag);
+			// PCs shouldn't have ANY perm affects
+			if (IS_NPC(this)) {
+				char* flag = xmlGetProp( node, "flag1" );
+				AFF_FLAGS(this) = hex2dec(flag);
+				free(flag);
 
-			flag = xmlGetProp( node, "flag2" );
-			AFF2_FLAGS(this) = hex2dec(flag);
-			free(flag);
+				flag = xmlGetProp( node, "flag2" );
+				AFF2_FLAGS(this) = hex2dec(flag);
+				free(flag);
 
-			flag = xmlGetProp( node, "flag3" );
-			AFF3_FLAGS(this) = hex2dec(flag);
-			free(flag);
+				flag = xmlGetProp( node, "flag3" );
+				AFF3_FLAGS(this) = hex2dec(flag);
+				free(flag);
+			} else {
+				AFF_FLAGS(this) = 0;
+				AFF2_FLAGS(this) = 0;
+				AFF3_FLAGS(this) = 0;
+			}
 
         } else if ( xmlMatches(node->name, "skill") ) {
 			char *spellName = xmlGetProp( node, "name" );
