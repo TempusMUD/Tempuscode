@@ -3730,7 +3730,7 @@ mag_assign_spells(void)
     spello(SKILL_ELUSION, X, X, X, X, X, X, X, X, X, X, X, X, X, 10, X, X, X,
            0, 0, 0, 0, 0, 0, 0);
 
-    spello(SKILL_SNIPE,   X, X, X, X, X, X, X, X, X, X, X, X, X, X, X, X, X,
+    spello(SKILL_SNIPE,   X, X, X, X, X, X, X, X, X, X, X, X, X, 37, X, X, X,
            0, 0, 0, 0, 0, 0, 0);
 
     spello(SKILL_INFILTRATE, X, X, X, X, X, X, X, X, X, X, X, X, X, 27, X, X, X,

@@ -2346,7 +2346,7 @@ void perform_violence( void ) {
 
             bool stop = false;
             
-/*            if(IS_MERC(ch)) {
+            if(IS_MERC(ch)) {
               if(do_combat_fire(ch, FIGHTING(ch), WEAR_WIELD)) {
                 stop = true;
               }
@@ -2355,7 +2355,7 @@ void perform_violence( void ) {
               }
               if(stop)
                 break;
-            } */
+            }
 
             for ( i = 0; i < 4; i++ ) {
                 if ( !FIGHTING( ch ) || GET_LEVEL( ch ) < ( i << 3 ) )
