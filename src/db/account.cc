@@ -17,6 +17,7 @@
 
 const char *ansi_levels[] = {
 	"none",
+	"sparse",
 	"normal",
 	"complete",
 	"\n"
