@@ -229,7 +229,7 @@ evaluate_expression(struct obj_data * obj, char *expr)
 		strncpy(name, end, ptr - end);
 		name[ptr - end] = 0;
 		for (index = 0; *extra_bits[index] != '\n'; index++)
-		    if (!str_cmp(name, (char *)extra_bits[index])) {
+		    if (!strcmp(name, extra_bits[index])) {
 			push(&vals, IS_SET(GET_OBJ_EXTRA(obj), 1 << index));
 			break;
 		    }
@@ -1305,7 +1305,7 @@ read_type_list(FILE * shop_f, struct shop_buy_data * list,
 	else
 	    *(END_OF(buf) - 1) = 0;
 	for (index = 0, num = NOTHING; *item_types[index] != '\n'; index++)
-	    if (!strn_cmp((char *)item_types[index], buf, strlen(item_types[index]))) {
+	    if (!strncmp( item_types[index], buf, strlen(item_types[index]))) {
 		num = index;
 		strcpy(buf, buf + strlen(item_types[index]));
 		break;

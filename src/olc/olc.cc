@@ -1748,7 +1748,7 @@ void show_olc_help(struct char_data *ch, char *arg)
 
 	strcpy(buf, "SPELLS:\r\n");
 	for (i = 1; i < TOP_NPC_SPELL; i++) {
-	    if (str_cmp((char *)spells[i], "!UNUSED!")) {
+	    if ( strcmp( spells[i], "!UNUSED!") ) {
 		sprintf(buf2, "%3d         %s%s%s\r\n", 
 			i, CCCYN(ch, C_NRM), spells[i], CCNRM(ch, C_NRM));
 		strcat(buf, buf2);
@@ -1787,7 +1787,7 @@ void show_olc_help(struct char_data *ch, char *arg)
 	    j = NUM_ZONE_FLAGS;
 	strcpy(buf, "ZONE FLAGS:\r\n");
 	for (i = 0; i < j; i++) {
-	    if (!is_number((char*)zone_flags[i])) {
+	    if (!is_number( zone_flags[i])) {
 		sprintf(buf2, "%2d         %s%s%s\r\n", 
 			i, CCCYN(ch, C_NRM), zone_flags[i], CCNRM(ch, C_NRM));
 		strcat(buf, buf2);

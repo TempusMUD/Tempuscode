@@ -32,7 +32,7 @@ int	fill_word(char *argument);
 void	half_chop(char *string, char *arg1, char *arg2);
 void	nanny(struct descriptor_data *d, char *arg);
 int	is_abbrev(const char *arg1, const char *arg2);
-int	is_number(char *str);
+int	is_number( const char *str );
 int	find_command(char *command);
 void	skip_spaces(char **string);
 char	*delete_doubledollar(char *string);

@@ -1760,9 +1760,8 @@ search_block(char *arg, const char **list, bool exact)
 }
 
 
-int 
-is_number(char *str)
-{
+int is_number( const char *str ) {
+
     if (str[0] == '-' || str[0] == '+')
     str++;
 
