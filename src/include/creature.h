@@ -1053,6 +1053,7 @@ struct Creature {
 
 	struct follow_type *followers;	/* List of chars followers       */
 	struct Creature *master;	/* Who is char following?        */
+    int thaw_time;
 };
 
 /* ====================================================================== */
