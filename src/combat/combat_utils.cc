@@ -494,7 +494,7 @@ apply_soil_to_char( struct char_data *ch,struct obj_data *obj,int type,int pos )
     if ( count >= 100 ) /* didnt find pos.  rare, but possible */
         return 0;
 	   
-    if ( GET_EQ( ch, pos ) && GET_EQ( ch, pos ) == obj ) {
+    if ( GET_EQ( ch, pos ) && (GET_EQ( ch, pos ) == obj || !obj) ) {
         if ( OBJ_SOILED( GET_EQ( ch, pos ), type ) )
             return 0;
 
