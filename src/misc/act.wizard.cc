@@ -3746,7 +3746,7 @@ show_wizcommands(CHAR *ch)
         i = 0;
         found = 0;
         while (cmd_info[i].command[0] != '\n') {
-            if (cmd_info[i].minimum_level == lev) {
+            if (cmd_info[i].minimum_level == lev && (!command->security & GROUP) ) {
                 found++;
                 sprintf(outbuf, "%s %16s", outbuf, cmd_info[i].command);
                 if (!(found % 4))
