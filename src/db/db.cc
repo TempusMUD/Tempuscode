@@ -2019,7 +2019,7 @@ parse_object(FILE * obj_f, int nr)
     static char line[256];
     int t[10], j;
     char *tmpptr;
-    char f1[256], f2[256], f3[256];
+    char f1[256], f2[256], f3[256], f4[256];
     struct extra_descr_data *new_descr;
     struct obj_data *obj = NULL, *tmp_obj = NULL;
   
@@ -2058,16 +2058,19 @@ parse_object(FILE * obj_f, int nr)
 
     /* *** numeric data *** */
     if (!get_line(obj_f, line) ||
-	(retval = sscanf(line, " %d %s %s %s", t, f1, f2, f3)) != 4) {
-	fprintf(stderr, 
-		"Format error in first nmric line (expctng 4 args, got %d), %s\n",
-		retval, buf2);
-	safe_exit(1);
+	(retval = sscanf(line, " %d %s %s %s %s", t, f1, f2, f3, f4)) != 5) {
+        if(retval != 4) {
+            fprintf(stderr, 
+                "Format error in first nmric line (expctng 4 or 5 args, got %d), %s\n",
+                retval, buf2);
+            safe_exit(1);
+        }
     }
     obj->obj_flags.type_flag = t[0];
     obj->obj_flags.extra_flags = asciiflag_conv(f1);
     obj->obj_flags.extra2_flags = asciiflag_conv(f2);
-    obj->obj_flags.wear_flags = asciiflag_conv(f3);
+    obj->obj_flags.extra3_flags = asciiflag_conv(f3);
+    obj->obj_flags.wear_flags = asciiflag_conv(f4);
 
     if (!get_line(obj_f, line) ||
 	(retval = sscanf(line, "%d %d %d %d", t, t + 1, t + 2, t + 3)) != 4) {

@@ -152,7 +152,7 @@ save_objs (struct char_data *ch)
     room_num                low  = 0;
     room_num                high = 0;
     char                    fname[64];
-    char                    sbuf1[64], sbuf2[64], sbuf3[64];
+    char                    sbuf1[64], sbuf2[64], sbuf3[64], sbuf4[64];
     struct extra_descr_data *desc;
     struct zone_data *zone;
     struct obj_data  *obj;
@@ -229,10 +229,11 @@ save_objs (struct char_data *ch)
     
 	num2str(sbuf1, obj->obj_flags.extra_flags);
 	num2str(sbuf2, obj->obj_flags.extra2_flags);
-	num2str(sbuf3, obj->obj_flags.wear_flags);
+	num2str(sbuf3, obj->obj_flags.extra3_flags);
+	num2str(sbuf4, obj->obj_flags.wear_flags);
     
-	fprintf(file,"%d %s %s %s\n", obj->obj_flags.type_flag,
-		sbuf1, sbuf2, sbuf3);
+	fprintf(file,"%d %s %s %s %s\n", obj->obj_flags.type_flag,
+		sbuf1, sbuf2, sbuf3, sbuf4);
       
 	for (i = 0; i < 4; i++)  {
 	    fprintf(file, "%d", obj->obj_flags.value[i]);
