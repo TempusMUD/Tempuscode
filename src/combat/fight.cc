@@ -217,8 +217,6 @@ void
 raw_kill(struct Creature *ch, struct Creature *killer, int attacktype)
 {
 
-	ch->removeAllCombat();
-
 	if (attacktype != SKILL_GAROTTE)
 		death_cry(ch);
 
@@ -2848,14 +2846,14 @@ perform_violence(void)
 			// rarely enough that nobody should notice
 			//
 
-            list<CharCombat>::iterator li;
+/*            list<CharCombat>::iterator li;
             li = ch->getCombatList()->begin();
             for (; li != ch->getCombatList()->end(); ++li) {
                 if (li->getOpponent() == next_combat_list) {
                     hit(ch, li->getOpponent(), TYPE_UNDEFINED);
                     continue;
                 }
-            }
+            }*/
 
 
 			if (MOB_FLAGGED(ch, MOB_SPEC) && ch->in_room &&

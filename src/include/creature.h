@@ -982,7 +982,7 @@ struct Creature {
   	Creature(bool pc);	// constructor
 	~Creature(void);
 
-    Creature(const Creature &c); // Copy constructor
+    Creature(const Creature &c, bool is_npc); // Copy constructor
 
 	// Reset creature to initial state
 	void clear();    

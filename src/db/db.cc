@@ -2333,7 +2333,7 @@ read_mobile(int vnum)
 		sprintf(buf, "Mobile (V) %d does not exist in database.", vnum);
 		return (NULL);
 	}
-    mob = new Creature(*tmp_mob);
+    mob = new Creature(*tmp_mob, true);
     tmp_mob->mob_specials.shared->number++;
     tmp_mob->mob_specials.shared->loaded++;
     
