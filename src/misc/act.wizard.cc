@@ -824,9 +824,9 @@ do_stat_zone(struct Creature *ch, struct zone_data *zone)
         CCCYN(ch, C_NRM), zone->name, CCNRM(ch, C_NRM),
         CCYEL(ch, C_NRM), zone->number, CCNRM(ch, C_NRM));
     send_to_char(ch,
-        "Lifespan: %d  Age: %d  Rooms: [%d-%d]  Reset Mode: %s\r\n",
-        zone->lifespan, zone->age, zone->number * 100, zone->top,
-        reset_mode[zone->reset_mode]);
+        "Rooms: [%d-%d]  Respawn pt: [%d]  Reset Mode: %s\r\n",
+        zone->number * 100, zone->top,
+        zone->respawn_pt, reset_mode[zone->reset_mode]);
 
     send_to_char(ch, "TimeFrame: [%s]  Plane: [%s]   ",
         time_frames[zone->time_frame], planes[zone->plane]);
@@ -857,8 +857,9 @@ do_stat_zone(struct Creature *ch, struct zone_data *zone)
     send_to_char(ch, "Co-Owner: %s  \r\n", (playerIndex.getName(zone->co_owner_idnum) ?
             playerIndex.getName(zone->co_owner_idnum) : "None"));
 
-    send_to_char(ch, "Hours: [%3d]  Years: [%3d]  Idle:[%3d]\r\n",
-        zone->hour_mod, zone->year_mod, zone->idle_time);
+    send_to_char(ch, "Hours: [%3d]  Years: [%3d]  Idle:[%3d]  Lifespan: [%d]  Age: [%d]\r\n",
+        zone->hour_mod, zone->year_mod, zone->idle_time,
+		zone->lifespan, zone->age);
 
     send_to_char(ch,
         "Sun: [%s (%d)] Sky: [%s (%d)] Moon: [%s (%d)]\r\n"
