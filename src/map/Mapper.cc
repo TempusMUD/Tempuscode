@@ -42,10 +42,12 @@ ACMD(do_map) {
 MapToken::MapToken( int d, int r, int c, room_data *s, room_data *t ) {
     direction = d; row = r; column = c; source = s; target = t;
     targetID = t->number;
+    /*
     if( source == NULL || target == NULL ) {
         fprintf(stderr,"Error creating token.\r\n");
         raise(666);
     }
+    */
     next = NULL;
 }
 Mapper::Mapper(char_data *ch,int rows, int columns) {
@@ -76,7 +78,7 @@ void Mapper::display(int bRows,int bCols) {
     for ( row = 0;row < bRows;row++) {
         for (col = 0;col < bCols;col++) {
             if(!(validRow(row) && validColumn(col))) {
-                fprintf(stderr,"Mapper::display - Invalid row/col [%d,%d]\r\n",row,col);
+                //fprintf(stderr,"Mapper::display - Invalid row/col [%d,%d]\r\n",row,col);
                 continue;
             }
             pixel = mapDisplay + (row * columns + col);
@@ -386,8 +388,8 @@ bool Mapper::build() {
         MAP(curToken->getTarget(),curToken->direction);
         
         // Draw the room and the link
-        drawRoom( curToken->getSource(),curToken->getTarget(),curToken->row,curToken->column);
-        drawLink( curToken->getSource(),curToken->getTarget(),curToken->row,curToken->column);
+        if(drawRoom( curToken->getSource(),curToken->getTarget(),curToken->row,curToken->column))
+            drawLink( curToken->getSource(),curToken->getTarget(),curToken->row,curToken->column);
         
 
         if( ! full ) {
