@@ -2,7 +2,7 @@ $(OBJ)/act.comm.o : act.comm.cc \
 	$(INCLUDE)/structs.h $(INCLUDE)/spells.h $(INCLUDE)/utils.h $(INCLUDE)/comm.h $(INCLUDE)/interpreter.h $(INCLUDE)/handler.h $(INCLUDE)/db.h $(INCLUDE)/screen.h $(INCLUDE)/rpl_resp.h 
 	$(CXX) -c $(CXXFLAGS) act.comm.cc          -o $(OBJ)/act.comm.o
 $(OBJ)/act.informative.o : act.informative.cc \
-	$(INCLUDE)/structs.h $(INCLUDE)/utils.h $(INCLUDE)/comm.h $(INCLUDE)/interpreter.h $(INCLUDE)/handler.h $(INCLUDE)/db.h $(INCLUDE)/spells.h $(INCLUDE)/screen.h $(INCLUDE)/vehicle.h $(INCLUDE)/materials.h $(INCLUDE)/clan.h $(INCLUDE)/smokes.h $(INCLUDE)/bomb.h $(INCLUDE)/fight.h 
+	$(INCLUDE)/structs.h $(INCLUDE)/utils.h $(INCLUDE)/comm.h $(INCLUDE)/interpreter.h $(INCLUDE)/handler.h $(INCLUDE)/db.h $(INCLUDE)/spells.h $(INCLUDE)/screen.h $(INCLUDE)/vehicle.h $(INCLUDE)/materials.h $(INCLUDE)/clan.h $(INCLUDE)/smokes.h $(INCLUDE)/bomb.h $(INCLUDE)/fight.h $(INCLUDE)/specs.h 
 	$(CXX) -c $(CXXFLAGS) act.informative.cc   -o $(OBJ)/act.informative.o
 $(OBJ)/act.movement.o : act.movement.cc \
 	$(INCLUDE)/structs.h $(INCLUDE)/utils.h $(INCLUDE)/comm.h $(INCLUDE)/interpreter.h $(INCLUDE)/handler.h $(INCLUDE)/db.h $(INCLUDE)/spells.h $(INCLUDE)/house.h $(INCLUDE)/vehicle.h $(INCLUDE)/materials.h $(INCLUDE)/fight.h 
@@ -23,7 +23,7 @@ $(OBJ)/constants.o : constants.cc \
 	$(INCLUDE)/structs.h $(INCLUDE)/spells.h 
 	$(CXX) -c $(CXXFLAGS) constants.cc         -o $(OBJ)/constants.o
 $(OBJ)/limits.o : limits.cc \
-	$(INCLUDE)/structs.h $(INCLUDE)/utils.h $(INCLUDE)/spells.h $(INCLUDE)/comm.h $(INCLUDE)/db.h $(INCLUDE)/handler.h $(INCLUDE)/vehicle.h $(INCLUDE)/clan.h 
+	$(INCLUDE)/structs.h $(INCLUDE)/utils.h $(INCLUDE)/spells.h $(INCLUDE)/comm.h $(INCLUDE)/db.h $(INCLUDE)/handler.h $(INCLUDE)/vehicle.h $(INCLUDE)/clan.h $(INCLUDE)/specs.h 
 	$(CXX) -c $(CXXFLAGS) limits.cc            -o $(OBJ)/limits.o
 $(OBJ)/login.o : login.cc \
 	$(INCLUDE)/structs.h $(INCLUDE)/comm.h $(INCLUDE)/db.h $(INCLUDE)/screen.h $(INCLUDE)/interpreter.h $(INCLUDE)/utils.h $(INCLUDE)/login.h 

@@ -59,7 +59,15 @@
 //
 // internal functions
 //
+void update_pos( struct char_data * victim );
 
+void dam_message( int dam, struct char_data * ch, struct char_data * victim,
+         int w_type, int location );
+
+void death_cry( struct char_data * ch );
+void appear( struct char_data * ch, struct char_data *vict );
+void make_corpse( struct char_data *ch,struct char_data *killer,int attacktype);
+void check_object_killer( struct obj_data * obj, struct char_data * vict );
 void raw_kill(struct char_data * ch, struct char_data *killer, int attacktype);
 int peaceful_room_ok(struct char_data *ch, struct char_data *vict, bool mssg);
 void check_toughguy(struct char_data * ch, struct char_data * vict, int mode);
@@ -69,8 +77,8 @@ int calculate_thaco(struct char_data *ch, struct char_data *victim,
 		    struct obj_data *obj);
 
 
-#ifdef __fight_c__
-
+#ifdef __combat_code__
+#ifdef __combat_utils__
 static int limb_probs[] = {
     0, //#define WEAR_LIGHT      0
     3, //#define WEAR_FINGER_R   1
@@ -101,7 +109,9 @@ static int limb_probs[] = {
     0, //#define WEAR_ASS       26
 };
 //#define NUM_WEARS      27	/* This must be the # of eq positions!! */
+#endif
 
+#ifdef __combat_messages__
 static int wear_translator[] = {
     WEAR_LIGHT, WEAR_FINGER_R, WEAR_FINGER_R, WEAR_NECK_1, WEAR_NECK_1,
     WEAR_BODY, WEAR_HEAD, WEAR_LEGS, WEAR_FEET, WEAR_HANDS, WEAR_ARMS,
@@ -132,13 +142,7 @@ extern const struct attack_hit_type attack_hit_text[] =
     {"chop", "chops"},
     {"shoot", "shoots"},
 };
-
-
-/* Structures */
-struct char_data *combat_list = NULL;  /* head of list of fighting chars */
-struct char_data *next_combat_list = NULL;
-struct obj_data *cur_weap = NULL;
-
+#endif // __combat_messages__
 /* External structures */
 extern struct spell_info_type spell_info[TOP_SPELL_DEFINE + 1];
 
@@ -172,13 +176,16 @@ int choose_random_limb(CHAR *victim);
 
 extern FILE *player_fl;
 
-#else  // __FIGHT_C__
-
+#endif
+#ifdef __fight_c__
+/* Structures */
+struct char_data *combat_list = NULL;  /* head of list of fighting chars */
+struct char_data *next_combat_list = NULL;
+struct obj_data *cur_weap = NULL;
+#else
 extern struct char_data *combat_list;  /* head of list of fighting chars */
 extern struct char_data *next_combat_list;
 extern struct obj_data *cur_weap;
-
-
 #endif
 
 ACCMD(do_offensive_skill);
