@@ -501,8 +501,6 @@ HouseControl::countObjects()
 
 	for( unsigned int i = 0; i < getHouseCount(); i++) {
 		House *house = getHouse(i);
-		if( house->getType() == House::PUBLIC )
-			continue;
 		for( unsigned int j = 0; j < house->getRoomCount(); j++ ) {
 			room_data *room = real_room( house->getRoom(j) );
 			if( room != NULL  ) {
