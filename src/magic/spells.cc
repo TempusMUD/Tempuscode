@@ -1015,11 +1015,11 @@ ASPELL(spell_charm)
 			"You need a different sort of magic to charm animals.\r\n");
 	else if (circle_follow(victim, ch))
 		send_to_char(ch, "Sorry, following in circles can not be allowed.\r\n");
-	else if (mag_savingthrow(victim, level, SAVING_PARA)
-		&& (GET_INT(victim) + number(0,
-				GET_LEVEL(victim) + (AFF_FLAGGED(victim,
-						AFF_CONFIDENCE) ? 20 : 0))) >
-		GET_LEVEL(ch) + 2 * GET_CHA(ch)) {
+	else if (mag_savingthrow(victim, level, SAVING_PARA) ||
+			(GET_INT(victim) + number(0, GET_LEVEL(victim) +
+				(AFF_FLAGGED(victim, AFF_CONFIDENCE) ? 20 : 0))) >
+				GET_LEVEL(ch) + 2 * GET_CHA(ch) ||
+				!can_charm_more(ch)) {
 		send_to_char(ch, "Your victim resists!\r\n");
 		if (MOB_FLAGGED(victim, MOB_MEMORY))
 			remember(victim, ch);
@@ -1088,7 +1088,8 @@ ASPELL(spell_charm_animal)
 		send_to_char(ch, "You fail.\r\n");
 	else if (circle_follow(victim, ch))
 		send_to_char(ch, "Sorry, following in circles can not be allowed.\r\n");
-	else if (mag_savingthrow(victim, level, SAVING_PARA))
+	else if (mag_savingthrow(victim, level, SAVING_PARA) ||
+			!can_charm_more(ch))
 		send_to_char(ch, "Your victim resists!\r\n");
 	else if ((!IS_NPC(victim)) && (IS_ELF(victim) || IS_DROW(victim))) {
 		percent = (40 + GET_LEVEL(victim));
@@ -1884,17 +1885,22 @@ ASPELL(spell_conjure_elemental)
 		send_to_char(ch, "You are unable to make the conjuration.\r\n");
 		return;
 	}
+	char_to_room(elemental, ch->in_room);
 	act("You have conjured $N from $S home plane!",
 		FALSE, ch, 0, elemental, TO_CHAR);
 	act("$n has conjured $N from $S home plane!",
 		FALSE, ch, 0, elemental, TO_ROOM);
-	char_to_room(elemental, ch->in_room);
 
 	SET_BIT(MOB_FLAGS(elemental), MOB_PET);
 
 	if ((number(0, 101) + GET_LEVEL(elemental) - GET_LEVEL(ch)
-			- GET_INT(ch) - GET_WIS(ch)) > 60) {
-		hit(elemental, ch, TYPE_UNDEFINED);
+			- GET_INT(ch) - GET_WIS(ch)) > 60 ||
+			!can_charm_more(ch)) {
+		act("Uh, oh.  $N doesn't look happy at you!",
+			false, ch, 0, elemental, TO_CHAR);
+		act("$N doesn't look too happy at $n!",
+			false, ch, 0, elemental, TO_ROOM);
+		remember(elemental, ch);
 		return;
 	} else {
 		if (elemental->master)
@@ -2611,8 +2617,13 @@ ASPELL(spell_summon_legion)
 		FALSE, devil, 0, 0, TO_ROOM);
 
 	if (number(0, 50 + GET_LEVEL(devil)) >
-		ch->getLevelBonus(SPELL_SUMMON_LEGION)) {
-		hit(devil, ch, TYPE_UNDEFINED);
+			ch->getLevelBonus(SPELL_SUMMON_LEGION) ||
+			can_charm_more(ch)) {
+		act("Uh, oh.  $N doesn't look happy at you!",
+			false, ch, 0, devil, TO_CHAR);
+		act("$N doesn't look too happy at $n!",
+			false, ch, 0, devil, TO_ROOM);
+		remember(devil, ch);
 		return;
 	}
 	for (k = ch->followers, count = 0; k; k = k->next)
