@@ -312,7 +312,7 @@ dynamic_object_pulse()
 	next_obj = obj->next;
 
 	if (fallpulse &&
-	    obj->in_room && SECT_TYPE(obj->in_room) == SECT_FLYING &&
+	    obj->in_room && obj->in_room->isOpenAir() &&
 	    (CAN_WEAR(obj, ITEM_WEAR_TAKE) || GET_OBJ_VNUM(obj) == BLOOD_VNUM) &&
 	    obj->in_room->dir_option[DOWN] &&
 	    (fall_to = obj->in_room->dir_option[DOWN]->to_room) &&

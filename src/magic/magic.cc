@@ -305,7 +305,7 @@ affect_update(void)
 			    else if (IS_PHYSIC(i) && GET_LEVEL(i) > 31 && GET_MANA(i) > 50)
 				found = cast_spell(i, i, 0, SPELL_TIDAL_SPACEWARP);
 			    if (!found) {
-				if (SECT_TYPE(i->in_room) != SECT_FLYING)
+				if ( !i->in_room->isOpenAir() )
 				    do_stand(i, "", 0, 0);
 				else if (EXIT(i, DOWN) && EXIT(i, DOWN)->to_room != NULL) {
 				    if (IS_SET(EXIT(i, DOWN)->exit_info, EX_CLOSED))
@@ -2072,8 +2072,7 @@ mag_areas(byte level, struct char_data * ch, int spellnum, int savetype)
 	act(to_room, FALSE, ch, 0, 0, TO_ROOM);
 
     if (spellnum == SPELL_EARTHQUAKE && 
-	(SECT_TYPE(ch->in_room) == SECT_UNDERWATER ||
-	 SECT_TYPE(ch->in_room) == SECT_FLYING))
+	(SECT_TYPE(ch->in_room) == SECT_UNDERWATER || ch->in_room->isOpenAir() ) )
 	return;
     if (spellnum == SPELL_METEOR_STORM &&
 	SECT_TYPE(ch->in_room) == SECT_UNDERWATER)

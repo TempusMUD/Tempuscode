@@ -1437,7 +1437,7 @@ char_class_race_hit_bonus(struct char_data *ch, struct char_data *vict)
 			       (GET_HEIGHT(vict) > 2*GET_HEIGHT(ch))));
     bonus -= (IS_DWARF(ch) && (SECT_TYPE(ch->in_room) == SECT_WATER_SWIM ||
 			       SECT_TYPE(ch->in_room) == SECT_WATER_NOSWIM ||
-			       SECT_TYPE(ch->in_room) == SECT_FLYING ||
+			       ch->in_room->isOpenAir() ||
 			       SECT_TYPE(ch->in_room) == SECT_UNDERWATER));
     bonus += (IS_THIEF(ch) && IS_DARK(ch->in_room));
     bonus += (IS_RANGER(ch) && (SECT_TYPE(ch->in_room) == SECT_FOREST ||

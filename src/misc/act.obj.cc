@@ -1025,9 +1025,9 @@ perform_drop_credits(struct char_data * ch, int amount,
     switch (mode) {
     case SCMD_DROP:
 	obj_to_room(obj, ch->in_room);
-	if (ch->in_room->sector_type == SECT_FLYING && EXIT(ch, DOWN) &&
-	    EXIT(ch, DOWN)->to_room && 
-	    !IS_SET(EXIT(ch, DOWN)->exit_info, EX_CLOSED)) {
+	if ( ch->in_room->isOpenAir() &&
+	     EXIT(ch, DOWN)->to_room && 
+	     !IS_SET(EXIT(ch, DOWN)->exit_info, EX_CLOSED)) {
 	    act("$p falls downward through the air, out of sight!", 
 		FALSE, ch, obj, 0, TO_ROOM);
 	    act("$p falls downward through the air, out of sight!", 
@@ -2996,9 +2996,6 @@ prototype_obj_value(struct obj_data *obj)
 	break;
     }
   
-    // divide value by 2 for now.
-    value >>= 1;
-
     return value;
 }
 
@@ -3335,6 +3332,8 @@ choose_material(struct obj_data *obj)
 
 ACMD(do_objupdate)
 {
+    return;
+
     struct obj_data *obj = NULL;
     
     if (GET_IDNUM(ch) != 1)

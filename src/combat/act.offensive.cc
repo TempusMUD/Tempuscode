@@ -170,7 +170,7 @@ calc_skill_prob(struct char_data *ch, struct char_data *vict, int skillnum,
 	ch->in_room->sector_type == SECT_WATER_NOSWIM ||
 	ch->in_room->sector_type == SECT_WATER_SWIM ||
 	ch->in_room->sector_type == SECT_ASTRAL ||
-	ch->in_room->sector_type == SECT_FLYING)
+	ch->in_room->isOpenAir() )
 	bad_sect = TRUE;
 
     if (bad_sect)
@@ -1073,8 +1073,7 @@ ACMD(do_flee)
 	    !IS_SET(ROOM_FLAGS(EXIT(ch, attempt)->to_room), 
 		    ROOM_DEATH | ROOM_GODROOM)) {
 	    act("$n panics, and attempts to flee!", TRUE, ch, 0, 0, TO_ROOM);
-	    if ((ch->in_room->sector_type == SECT_FLYING) ||
-		(EXIT(ch, attempt)->to_room->sector_type == SECT_FLYING)) {
+	    if ( ch->in_room->isOpenAir() || EXIT(ch, attempt)->to_room->isOpenAir() ) {
 		if (IS_AFFECTED(ch, AFF_INFLIGHT))
 		    GET_POS(ch) = POS_FLYING;
 		else 
@@ -1091,7 +1090,7 @@ ACMD(do_flee)
 			stop_fighting(FIGHTING(ch));
 		    stop_fighting(ch);
 		}
-		if (SECT_TYPE(ch->in_room) == SECT_FLYING)
+		if ( ch->in_room->isOpenAir() )
 		    GET_POS(ch) = POS_FLYING;
 	    } else {
 		act("$n tries to flee, but can't!", TRUE, ch, 0, 0, TO_ROOM);
@@ -1152,7 +1151,7 @@ ACMD(do_retreat)
 	    gain_skill_prof(ch, SKILL_RETREAT);
 	if (FIGHTING(ch))
 	    stop_fighting(ch);
-	if (SECT_TYPE(ch->in_room) == SECT_FLYING)
+	if ( ch->in_room->isOpenAir() )
 	    GET_POS(ch) = POS_FLYING;
 	GET_MOVE(ch) = (MAX(0, GET_MOVE(ch) - 10));
     } else if (ch->in_room)

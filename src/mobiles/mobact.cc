@@ -128,7 +128,7 @@ burn_update(void)
 	}
 
 	// character is in open air
-	if (ch->in_room->sector_type == SECT_FLYING && 
+	if (ch->in_room->isOpenAir() &&
 	    !NOGRAV_ZONE(ch->in_room->zone) &&
 	    GET_POS(ch) < POS_FLYING &&
 	    (!FIGHTING(ch) || !AFF_FLAGGED(ch, AFF_INFLIGHT)) &&
@@ -150,7 +150,7 @@ burn_update(void)
 		act("$n falls in from above!", TRUE, ch, 0, 0, TO_ROOM);
 		GET_FALL_COUNT(ch)++;
 
-		if (ch->in_room->sector_type != SECT_FLYING ||
+		if ( !ch->in_room->isOpenAir() ||
 		    !ch->in_room->dir_option[DOWN] ||
 		    !(fall_to = ch->in_room->dir_option[DOWN]->to_room) ||
 		    fall_to == ch->in_room ||
@@ -1848,7 +1848,7 @@ mobile_activity(void)
 	    case CLASS_EARTH:
 		if (k || sect == SECT_WATER_SWIM ||
 		    sect == SECT_WATER_NOSWIM ||
-		    sect == SECT_FLYING ||
+		    ch->in_room->isOpenAir() ||
 		    sect == SECT_UNDERWATER) {
 		    found = 1;
 		    act("$n dissolves, and returns to $s home plane!", 
@@ -1859,7 +1859,7 @@ mobile_activity(void)
 	    case CLASS_FIRE:
 		if ((k || sect == SECT_WATER_SWIM ||
 		     sect == SECT_WATER_NOSWIM ||
-		     sect == SECT_FLYING ||
+		     ch->in_room->isOpenAir() ||
 		     sect == SECT_UNDERWATER ||
 		     (OUTSIDE(ch) && 
 		      ch->in_room->zone->weather->sky == SKY_RAINING)) &&
@@ -1902,7 +1902,7 @@ mobile_activity(void)
 	} 
 	if (GET_RACE(ch) == RACE_ANIMAL && !number(0, 2)) {
 	    if (GET_CLASS(ch) == CLASS_BIRD && IS_AFFECTED(ch, AFF_INFLIGHT) &&
-		SECT_TYPE(ch->in_room) != SECT_FLYING) {
+		!ch->in_room->isOpenAir() ) {
 		if (GET_POS(ch) == POS_FLYING && !number(0,4)) {
 		    act("$n flutters to the ground.", TRUE, ch, 0, 0, TO_ROOM);
 		    GET_POS(ch) = POS_STANDING;
@@ -1914,7 +1914,7 @@ mobile_activity(void)
 	    }
 	} 
 	if (IS_AFFECTED(ch, AFF_INFLIGHT) && !number(0, 8)) {
-	    if (SECT_TYPE(ch->in_room) != SECT_FLYING) {
+	    if ( !ch->in_room->isOpenAir() ) {
 		if (GET_POS(ch) == POS_FLYING && !number(0,10)) {
 		    GET_POS(ch) = POS_STANDING;
 		    if (!can_travel_sector(ch, ch->in_room->sector_type, 1)) {

@@ -109,10 +109,9 @@ can_travel_sector(struct char_data *ch, int sector_type, bool active)
     if (GET_LEVEL(ch) > LVL_ELEMENT)
 	return 1;
 
-    switch (sector_type) {
-    case SECT_UNDERWATER:
-    case SECT_PITCH_SUB:
-    case SECT_WATER_NOSWIM:
+    if ( sector_type == SECT_UNDERWATER ||
+	 sector_type == SECT_PITCH_SUB ||
+	 sector_type == SECT_WATER_NOSWIM ) {
    
 	if (IS_RACE(ch, RACE_FISH))
 	    return 1;
@@ -163,8 +162,15 @@ can_travel_sector(struct char_data *ch, int sector_type, bool active)
 	    send_to_char("You are running out of breath.\r\n", ch);
 	    return 1;
 	}
-	break;
-    case SECT_FLYING:
+	return 0;
+    }
+
+    if ( sector_type == SECT_FLYING ||
+	 sector_type == SECT_ELEMENTAL_AIR ||
+	 sector_type == SECT_ELEMENTAL_RADIANCE ||
+	 sector_type == SECT_ELEMENTAL_LIGHTNING ||
+	 sector_type == SECT_ELEMENTAL_VACUUM ) {
+
 	if (IS_AFFECTED(ch, AFF_INFLIGHT) || 
 	    (IS_ELEMENTAL(ch) && GET_CLASS(ch) == CLASS_AIR))
 	    return 1;
@@ -174,11 +180,9 @@ can_travel_sector(struct char_data *ch, int sector_type, bool active)
 		    return 1;
 	    }
 	}
-	break;
-
-    default:
-	return 1;
+	return 0;
     }
+
     return 0;
 }
 
@@ -363,13 +367,12 @@ do_simple_move(struct char_data * ch, int dir, int mode, int need_specials_check
 	}
     }
     /* if this room or the one we're going to needs wings, check for one */
-    if (ch->in_room->sector_type == SECT_FLYING &&
-	GET_POS(ch) != POS_FLYING) {
+    if ( ch->in_room->isOpenAir() &&
+	 GET_POS(ch) != POS_FLYING) {
 	send_to_char("You scramble wildly for a grasp of thin air.\r\n", ch);
 	return 0;
     }
-    if (EXIT(ch, dir)->to_room->sector_type == SECT_FLYING &&
-	!NOGRAV_ZONE(ch->in_room->zone) &&
+    if (EXIT(ch, dir)->to_room->isOpenAir() && !NOGRAV_ZONE(ch->in_room->zone) &&
 	GET_POS(ch) != POS_FLYING && mode != MOVE_JUMP) {
 	send_to_char("You need to be flying to go there.\r\n"
 		     "You can 'jump' in that direction however...\r\n", ch);
@@ -476,9 +479,8 @@ do_simple_move(struct char_data * ch, int dir, int mode, int need_specials_check
 	    sprintf(buf, "$n flees %sward.", dirs[dir]);
 	} else if (mode == MOVE_RETREAT) {
 	    sprintf(buf, "$n retreats %sward.", dirs[dir]);
-	} else if (GET_POS(ch) == POS_FLYING || 
-		   SECT_TYPE(ch->in_room) == SECT_FLYING
-		   || SECT_TYPE(EXIT(ch,dir)->to_room) == SECT_FLYING) {
+	} else if (GET_POS(ch) == POS_FLYING || ch->in_room->isOpenAir() ||
+		   EXIT(ch,dir)->to_room->isOpenAir() ) {
 	    sprintf(buf, "$n flies %s.", to_dirs[dir]);
 	} else if (ch->in_room->sector_type == SECT_ASTRAL) {
 	    sprintf(buf, "$n travels what seems to be %sward.", to_dirs[dir]);
@@ -622,7 +624,7 @@ do_simple_move(struct char_data * ch, int dir, int mode, int need_specials_check
 		 (was_in->sector_type == SECT_WATER_NOSWIM &&
 		  !AFF_FLAGGED(ch, AFF_WATERWALK)) ||
 		 was_in->sector_type == SECT_PITCH_SUB) ? "swim" :
-		(was_in->sector_type == SECT_FLYING ||
+		(was_in->isOpenAir() ||
 		 GET_POS(ch) == POS_FLYING) ? "fly" :
 		MOUNTED(ch) ? "ride" : "pass",
 		IS_SET(was_in->dir_option[dir]->exit_info, EX_CLOSED) ?
@@ -686,7 +688,7 @@ do_simple_move(struct char_data * ch, int dir, int mode, int need_specials_check
 	} else if (mode == MOVE_FLEE) {
 	    sprintf(buf, "$n runs in from %s.", from_dirs[dir]);
 	} else if (GET_POS(ch) == POS_FLYING ||
-		   SECT_TYPE(ch->in_room) == SECT_FLYING) {
+		   ch->in_room->isOpenAir() ) {
 	    if (!IS_AFFECTED_2(ch, AFF2_ABLAZE))
 		sprintf(buf, "$n flies in from %s.", from_dirs[dir]);
 	    else
@@ -879,7 +881,7 @@ do_simple_move(struct char_data * ch, int dir, int mode, int need_specials_check
 	    ch->in_room->sector_type == SECT_WATER_NOSWIM ||
 	    ch->in_room->sector_type == SECT_WATER_SWIM) {
 
-	} else if (ch->in_room->sector_type == SECT_FLYING) {
+	} else if ( ch->in_room->isOpenAir() ) {
 	    if (GET_DEX(ch) + number(0, 10) < GET_OBJ_TIMER(obj)) {
 		if (apply_soil_to_char(ch, obj, SOIL_BLOOD, WEAR_RANDOM))
 		    send_to_char("You fly through the mist of blood.\r\n", ch);
@@ -1599,7 +1601,7 @@ ACMD(do_stand)
 	if (IS_RACE(ch, RACE_GASEOUS)) {
 	    send_to_char("You don't have legs.\r\n", ch);
 	    break;
-	} else if (ch->in_room->sector_type == SECT_FLYING) {
+	} else if ( ch->in_room->isOpenAir() ) {
 	    act("You can't stand on air, silly!", FALSE, ch, 0, 0, TO_CHAR);
 	    break;
 	} else if

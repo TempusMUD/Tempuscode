@@ -430,7 +430,7 @@ extern const char *room_bits[] = {
   "SLEEP",
   "EXPLOD",
   "POISON",
-  "30",
+  "VACUUM",
   "31",
   "\n"
 };

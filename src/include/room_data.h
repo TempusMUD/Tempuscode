@@ -22,7 +22,7 @@
 #define PAST           7
 #define NUM_DIRS       8
 
-  /* Door reset-states */
+/* Door reset-states */
 #define DOOR_OPEN               (1 << 0)
 #define DOOR_CLOSED             (1 << 1)
 #define DOOR_LOCKED             (1 << 2)
@@ -62,6 +62,7 @@
 #define ROOM_SLEEP_GAS          (1 << 27)  /* sleepy room */
 #define ROOM_EXPLOSIVE_GAS      (1 << 28)  /* explodes */
 #define ROOM_POISON_GAS         (1 << 29)  /* poisons char */
+#define ROOM_VACUUM             (1 << 30) // no breathable air
 #define NUM_ROOM_FLAGS          30
 
 
@@ -147,21 +148,21 @@
 
 
 struct room_direction_data {
-   char	*general_description;   /* When look DIR.			*/
-   char	*keyword;		/* for open/close			*/
+    char	*general_description;   /* When look DIR.			*/
+    char	*keyword;		/* for open/close			*/
 
-   sh_int exit_info;		/* Exit info				*/
-   obj_num key;			/* Key's number (-1 for no key)		*/
-   struct room_data *to_room;   /* Pointer to room                    */
+    sh_int exit_info;		/* Exit info				*/
+    obj_num key;			/* Key's number (-1 for no key)		*/
+    struct room_data *to_room;   /* Pointer to room                    */
 };
 
 struct room_affect_data {
-  char *description;
-  byte level;
-  int flags;
-  byte type;
-  byte duration;
-  struct room_affect_data *next;
+    char *description;
+    byte level;
+    int flags;
+    byte type;
+    byte duration;
+    struct room_affect_data *next;
 };
 
 #define TRAIL_EXIT 0
@@ -171,42 +172,45 @@ struct room_affect_data {
 #define TRAIL_FLAG_BLOOD_DROPS    (1 << 1)
 
 struct room_trail_data {
-  char *name;        /* namelist of trail owner, in case they're gone */
-  time_t time;       /* time char passed by */
-  int idnum;         /* idnum of char (negative for mobiles) */
-  char from_dir;      /* direction from which character entered */
-  char to_dir;        /* direction to which character left */
-  char track;         /* strength of physical trail (0 - 10) */
-  int flags;         /* misc flags */
-  struct room_trail_data *next;
+    char *name;        /* namelist of trail owner, in case they're gone */
+    time_t time;       /* time char passed by */
+    int idnum;         /* idnum of char (negative for mobiles) */
+    char from_dir;      /* direction from which character entered */
+    char to_dir;        /* direction to which character left */
+    char track;         /* strength of physical trail (0 - 10) */
+    int flags;         /* misc flags */
+    struct room_trail_data *next;
 };
   
 /* ================== Memory Structure for room ======================= */
 struct room_data {
-   room_num number;		/* Rooms number	(vnum)		      */
-   int	sector_type;            /* sector type (move/hide)            */
-   char *name;			/* You are...			      */
-   char	*description;           /* Shown when entered                 */
-   char *sounds;		/* Sounds in the room		      */
-   struct extra_descr_data *ex_description; /* for examine/look       */
-   struct room_direction_data *dir_option[NUM_OF_DIRS]; /* Directions */
-   struct special_search_data *search; /* Specials to be searched     */
-   struct room_affect_data *affects; /* temp. room affects            */
-   struct room_trail_data *trail;  /* tracking data */
-   int room_flags;		/* DEATH,DARK ... etc                 */
-   sh_int max_occupancy;        /* Maximum Occupancy of Room          */
+    room_num number;		/* Rooms number	(vnum)		      */
+    int	sector_type;            /* sector type (move/hide)            */
 
-   byte light;                  /* Number of lightsources in room     */
-   byte flow_dir;               /* Direction of flow                  */
-   byte flow_speed;             /* Speed of flow                      */
-   byte flow_type;              /* Type of flow                       */
-   struct ticl_data *ticl_ptr;  /* Pointer to TICL procedure          */
-   SPECIAL(*func);
+    char *name;			/* You are...			      */
+    char	*description;           /* Shown when entered                 */
+    char *sounds;		/* Sounds in the room		      */
+    struct extra_descr_data *ex_description; /* for examine/look       */
+    struct room_direction_data *dir_option[NUM_OF_DIRS]; /* Directions */
+    struct special_search_data *search; /* Specials to be searched     */
+    struct room_affect_data *affects; /* temp. room affects            */
+    struct room_trail_data *trail;  /* tracking data */
+    int room_flags;		/* DEATH,DARK ... etc                 */
+    sh_int max_occupancy;        /* Maximum Occupancy of Room          */
 
-   struct obj_data *contents;   /* List of items in room              */
-   struct char_data *people;    /* List of NPC / PC in room           */
-   struct zone_data *zone;      /* zone the room is in                */
-   struct room_data *next;
+    byte light;                  /* Number of lightsources in room     */
+    byte flow_dir;               /* Direction of flow                  */
+    byte flow_speed;             /* Speed of flow                      */
+    byte flow_type;              /* Type of flow                       */
+    struct ticl_data *ticl_ptr;  /* Pointer to TICL procedure          */
+    SPECIAL(*func);
+
+    struct obj_data *contents;   /* List of items in room              */
+    struct char_data *people;    /* List of NPC / PC in room           */
+    struct zone_data *zone;      /* zone the room is in                */
+    struct room_data *next;
+
+    bool isOpenAir( void );
 };
 
 #endif __room_data_h__

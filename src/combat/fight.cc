@@ -178,11 +178,12 @@ update_pos( struct char_data * victim )
 	    GET_POS( victim ) = POS_FIGHTING;
 	else
 	    return;
-    } else if ( GET_HIT( victim ) > 0 && 
-		victim->in_room->sector_type != SECT_FLYING ) 
-	GET_POS( victim ) = POS_STANDING;
-    else if ( GET_HIT( victim ) > 0 && victim->in_room->sector_type == SECT_FLYING ) 
-	GET_POS( victim ) = POS_FLYING;
+    } else if ( GET_HIT( victim ) > 0 ) {
+	if ( victim->in_room->isOpenAir() )
+	    GET_POS( victim ) = POS_FLYING;
+	else
+	    GET_POS( victim ) = POS_STANDING;
+    }
     else if ( GET_HIT( victim ) <= -11 )
 	GET_POS( victim ) = POS_DEAD;
     else if ( GET_HIT( victim ) <= -6 )
@@ -439,7 +440,7 @@ stop_fighting( struct char_data * ch )
     ch->next_fighting = NULL;
     FIGHTING( ch ) = NULL;
 
-    if ( ch->in_room && ch->in_room->sector_type == SECT_FLYING )
+    if ( ch->in_room && ch->in_room->isOpenAir() )
 	GET_POS( ch ) = POS_FLYING;
     else if ( !IS_NPC( ch ) )
 	GET_POS( ch ) = POS_STANDING;

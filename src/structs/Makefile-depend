@@ -4,4 +4,7 @@ $(OBJ)/char_data.o : char_data.cc \
 $(OBJ)/obj_data.o : obj_data.cc \
 	$(INCLUDE)/structs.h $(INCLUDE)/utils.h 
 	$(CXX) -c $(CXXFLAGS) obj_data.cc          -o $(OBJ)/obj_data.o
-OBJFILES= $(OBJ)/char_data.o $(OBJ)/obj_data.o
+$(OBJ)/room_data.o : room_data.cc \
+	$(INCLUDE)/structs.h 
+	$(CXX) -c $(CXXFLAGS) room_data.cc         -o $(OBJ)/room_data.o
+OBJFILES= $(OBJ)/char_data.o $(OBJ)/obj_data.o $(OBJ)/room_data.o

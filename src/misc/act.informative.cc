@@ -1412,8 +1412,15 @@ look_in_direction(struct char_data * ch, int dir)
 	    else if ((ch->in_room->sector_type == SECT_WATER_SWIM) ||
 		     (ch->in_room->sector_type == SECT_WATER_NOSWIM))  
 		send_to_char("You see the water below you.\r\n", ch);
-	    else if (ch->in_room->sector_type == SECT_FLYING) 
-		send_to_char("Below your feet is thin air.\r\n", ch);
+	    else if ( ch->in_room->isOpenAir() ) {
+		if (ch->in_room->sector_type == SECT_FLYING ||
+		    ch->in_room->sector_type == SECT_ELEMENTAL_AIR )
+		    send_to_char("Below your feet is thin air.\r\n", ch);
+		else if ( ch->in_room->sector_type == SECT_ELEMENTAL_LIGHTNING )
+		    send_to_char( "Elemental lightning flickers beneath your feet.\r\n", ch );
+		else
+		    send_to_char( "Nothing substantial lies below your feet.\r\n", ch );
+	    }
 	    else if (ch->in_room->sector_type == SECT_DESERT) 
 		send_to_char("You see the sands below your feet.\r\n", ch);
 	    else if (ch->in_room->sector_type == SECT_SWAMP) 

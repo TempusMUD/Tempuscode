@@ -255,7 +255,7 @@ ACMD(do_track)
 	if (GET_LEVEL(ch) < LVL_IMPL)
 	    return;
     }
-    if (GET_LEVEL(ch) < LVL_AMBASSADOR && SECT_TYPE(ch->in_room) == SECT_FLYING) {
+    if (GET_LEVEL(ch) < LVL_AMBASSADOR && ch->in_room->isOpenAir() ) {
 	send_to_char("Track through the open air?\r\n", ch);
 	return;
     }
@@ -437,7 +437,7 @@ smart_mobile_move(struct char_data *ch, int dir)
 	    } else
 		do_gen_door(ch, doorbuf, 0, SCMD_OPEN);
 
-	} else if (SECT_TYPE(EXIT(ch, dir)->to_room) == SECT_FLYING &&
+	} else if (EXIT(ch, dir)->to_room->isOpenAir() &&
 		   GET_POS(ch) != POS_FLYING) {
 	    if (can_travel_sector(ch, SECT_TYPE(EXIT(ch, dir)->to_room), 0))
 		do_fly(ch, "", 0, 0);

@@ -8,7 +8,7 @@ SUBDIRS= \
 	intermud interpreter magic mail matrix misc mobiles net objsave olc paths            \
 	quest search shop smokes social specials util vehicle weather structs
 
-MAKEFLAGS=-s
+MAKEFLAGS=-s -k 4
 OBJ=ObjFiles
 LIBS=-lcrypt
 EXE=../bin/circle
@@ -26,10 +26,12 @@ depend:
 	$(MAKE) $(SUBDIRS) TARGET=$@
 
 $(INCLUDE) : FORCE
-	@cd $@; $(MAKE) $(TARGET) INCLUDE=../$(INCLUDE) OBJ=../$(OBJ) CCFLAGS="$(CCFLAGS)"
+	@printf "[33m :: compiling %-20s[0m | [36m%s[0m\n" $@ $(TARGET)
+	@cd $@; $(MAKE) $(TARGET) INCLUDE=../$(INCLUDE) OBJ=../$(OBJ) CCFLAGS="$(CCFLAGS)" MAKEFLAGS=-s
 
 $(SUBDIRS) : FORCE
-	@cd $@; $(MAKE) $(TARGET) INCLUDE=../$(INCLUDE) OBJ=../$(OBJ) CCFLAGS="$(CCFLAGS)"
+	@printf "[33m :: compiling %-20s[0m | [36m%s[0m\n" $@ $(TARGET)
+	@cd $@; $(MAKE) $(TARGET) INCLUDE=../$(INCLUDE) OBJ=../$(OBJ) CCFLAGS="$(CCFLAGS)" MAKEFLAGS=-s
 
 
 $(EXE): $(OBJ)/*.o

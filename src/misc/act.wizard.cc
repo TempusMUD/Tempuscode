@@ -406,7 +406,7 @@ ACMD(do_goto)
     act(buf, TRUE, ch, 0, 0, TO_ROOM);
     char_from_room(ch);
     char_to_room(ch, location);
-    if (location->sector_type == SECT_FLYING)
+    if (location->isOpenAir() )
 	GET_POS(ch) = POS_FLYING;
 
     if (POOFIN(ch))
@@ -459,8 +459,7 @@ ACMD(do_trans)
 		send_to_char("Go transfer someone your own size.\r\n", ch);
 		return;
 	    }
-	    if ((ch->in_room->sector_type == SECT_FLYING) && 
-		(GET_POS(victim) != POS_FLYING)) {
+	    if ( ch->in_room->isOpenAir() && GET_POS(victim) != POS_FLYING ) {
 		send_to_char("Come now, you are in midair.  Are they flying?  I think not.\r\n", ch);
 		return;
 	    }

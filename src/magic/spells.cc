@@ -1820,13 +1820,13 @@ ASPELL(spell_conjure_elemental)
 	     sect_type != SECT_WATER_SWIM &&
 	     sect_type != SECT_WATER_NOSWIM &&
 	     sect_type != SECT_UNDERWATER &&
-	     sect_type != SECT_FLYING)
+	     !ch->in_room->isOpenAir() )
 	elemental = read_mobile(1281);		/*  Fire Elemental */
     else if (GET_LEVEL(ch) >= 20 && number(0, GET_INT(ch)) > 3 &&
 	     sect_type != SECT_WATER_SWIM &&
 	     sect_type != SECT_WATER_NOSWIM &&
 	     sect_type != SECT_UNDERWATER &&
-	     sect_type != SECT_FLYING)
+	     !ch->in_room->isOpenAir() )
 	elemental = read_mobile(1280);		/* Earth Elemental */
     else elemental = NULL;
     if (elemental == NULL) {

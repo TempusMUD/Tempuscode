@@ -1096,7 +1096,7 @@ perform_oset(struct char_data *ch, struct obj_data *obj_p,
 	    obj_p->shared->cost = prototype_obj_value(obj_p);
 	    i = obj_p->shared->cost % 10;
 	    obj_p->shared->cost -= i;
-	    obj_p->shared->cost_per_day = obj_p->shared->cost / 25;
+	    obj_p->shared->cost_per_day = obj_p->shared->cost / 50;
 	}
 	if (oset_command == 4 ||            /* type   */
 	    oset_command == 5 ||            /* extra1 */

@@ -138,6 +138,7 @@ SPECIAL(remorter)
     value = GET_GOLD(ch);
 
     if (index < 0) {
+	/*
 	for (i = 0; i < NUM_WEARS; i++) {
 	    if ((obj = GET_EQ(ch, i)))
 		value += recurs_obj_cost(obj, true, 0);
@@ -147,7 +148,8 @@ SPECIAL(remorter)
 	    next_obj = obj->next_content;
 	    value += recurs_obj_cost(obj, true, 0);
 	}
-    
+	*/
+
 	if (IS_SET(status, MODE_IMMORT))
 	    level = 10;
 	else
@@ -167,12 +169,12 @@ SPECIAL(remorter)
 	value = MIN(level * 5000000, GET_GOLD(ch));
 	GET_GOLD(ch) -= value;
 
-	for (obj = ch->carrying; obj && value < level * 5000000; obj = next_obj) {
+	for (obj = ch->carrying; obj; obj = next_obj) {
 	    next_obj = obj->next_content;
-	    value += recurs_obj_cost(obj, true, 0);
+//	    value += recurs_obj_cost(obj, true, 0);
 	    extract_obj(obj);
 	}
-
+	
 	for ( i = 0; i < NUM_WEARS; i++ ) {
 	    if ( ( obj = GET_EQ( ch, i ) ) ) {
 		extract_obj( GET_EQ( ch, i ) );
