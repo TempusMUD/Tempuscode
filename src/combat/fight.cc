@@ -246,9 +246,14 @@ die(struct Creature *ch, struct Creature *killer, int attacktype,
 				attacktype);
 		}
 	}
-	if (!ROOM_FLAGGED(ch->in_room, ROOM_ARENA) && killer &&
-		!PLR_FLAGGED(killer, PLR_KILLER))
-		gain_exp(ch, -(GET_EXP(ch) >> 3));
+	if( IS_PC(ch) && !ROOM_FLAGGED(ch->in_room, ROOM_ARENA) && killer != NULL
+	&& !PLR_FLAGGED(killer, PLR_KILLER) && !ch->isNewbie() ) 
+	{
+		// exp loss capped at the beginning of the level.
+		int loss = GET_EXP(ch) >> 3;
+		loss = MIN( loss, GET_EXP(ch) - exp_scale[GET_LEVEL(ch)] );
+		gain_exp(ch, -loss);
+	}
 
 	if (PLR_FLAGGED(ch, PLR_KILLER | PLR_THIEF) &&
 			GET_LEVEL(ch) < LVL_AMBASSADOR) {
@@ -340,8 +345,7 @@ die(struct Creature *ch, struct Creature *killer, int attacktype,
 
 			} else if (GET_LIFE_POINTS(ch) > 0) {
 				GET_LIFE_POINTS(ch) =
-					MAX(0, GET_LIFE_POINTS(ch) - number(1,
-						(GET_LEVEL(ch) >> 3)));
+					MAX(0, GET_LIFE_POINTS(ch) - number(1, (GET_LEVEL(ch) >> 3)));
 			} else if (!number(0, 3)) {
 				GET_CON(ch) = MAX(3, GET_CON(ch) - 1);
 			} else if (GET_LEVEL(ch) > number(20, 50)) {
@@ -2106,7 +2110,9 @@ hit(struct Creature *ch, struct Creature *victim, int type)
 				IS_STONE_TYPE(ch->equipment[i])))
 			metal_wt += ch->equipment[i]->getWeight();
 
-
+//	if( type == SKILL_CLEAVE ) {
+//		cur_weap = GET_EQ(ch, WEAR_WIELD);
+//	} else 
 	if ((type != SKILL_BACKSTAB && type != SKILL_CIRCLE &&
 			type != SKILL_BEHEAD && type != SKILL_CLEAVE) || !cur_weap) {
 		if (type == SKILL_IMPLANT_W || type == SKILL_ADV_IMPLANT_W)
@@ -2214,7 +2220,13 @@ hit(struct Creature *ch, struct Creature *victim, int type)
             if( type == SKILL_CLEAVE ) {
                 dam *= 4;
 				w_type = SKILL_CLEAVE;
-            }
+				//if( IS_PC(ch) )
+				//	fprintf(stderr, "CLEAVE %d\r\n", dam );
+            } 
+			//else {
+			//	if( IS_PC(ch) )
+			//		fprintf(stderr, "NORMAL %d\r\n", dam );
+			//}
 		} else if (IS_OBJ_TYPE(cur_weap, ITEM_ARMOR)) {
 			dam += (GET_OBJ_VAL(cur_weap, 0) / 3);
 		} else
