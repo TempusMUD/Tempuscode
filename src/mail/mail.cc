@@ -56,25 +56,30 @@ has_mail ( long id ) {
 }
 
 int 
-can_recieve_mail( long id ) {
-	// Chars can't get mail if they are frozen/deleted or buried.
+mail_box_status( long id ) {
+	// 0 is normal
+    // 1 is frozen
+    // 2 is buried
+    // 3 is deleted
+    // 4 is failure
 
 	struct char_data *victim = NULL;
-	struct char_file_u tmp_store = NULL;
-	int flag = 1;
+	struct char_file_u tmp_store;
+	int flag = 0;
+
+	if (load_char(get_name_by_id(id), &tmp_store) < 0) 
+	    return 4; // Failed to load char.
 
 	CREATE(victim, struct char_data, 1);
 	clear_char(victim);
 
-	if (load_char(buf2, &tmp_store) < 0) 
-		flag = 0; // Failed to load char.
-
 	store_to_char(&tmp_store, victim);
-	if(PLR_FLAGGED(victim,PLR_FROZEN) 
-		|| PLR_FLAGGED(victim,PLR_DELETED)
-		|| PLR2_FLAGGED(victim,PLR2_BURIED)) {
-		flag = 0;
-		}
+	if(PLR_FLAGGED(victim,PLR_FROZEN))
+        flag = 1;
+    if(PLR2_FLAGGED(victim,PLR2_BURIED))
+		flag = 2;
+    if(PLR_FLAGGED(victim,PLR_DELETED))
+        flag = 3;
 
 	// Free the victim
 	free_char(victim);
@@ -88,7 +93,7 @@ store_mail( long to_id, long from_id, char *txt , time_t *cur_time = NULL) {
     fstream mail_file;
     mail_data *letter;
     char fname[256];
-    /*
+    /* FIXME
 	Add in something here to avoid sending length 0 messages.
 	if (!txt || !strlen(txt)) {
         sprintf(buf,"Why would you send a blank message?");
@@ -137,6 +142,7 @@ store_mail( long to_id, long from_id, char *txt , time_t *cur_time = NULL) {
 int 
 recieve_mail(char_data *ch) {
     obj_data *obj = NULL;
+    obj_data *bag = NULL;
     int num_letters = 0;
     fstream mail_file;
     char fname[256];
@@ -234,6 +240,7 @@ postmaster_send_mail(struct char_data * ch, struct char_data *mailman,
     int total_cost = 0;
     struct clan_data *clan = NULL;
     struct clanmember_data *member = NULL;
+    int status = 0;
   
     if (GET_LEVEL(ch) < MIN_MAIL_LEVEL) {
 		sprintf(buf2, "Sorry, you have to be level %d to send mail!", 
@@ -270,9 +277,25 @@ postmaster_send_mail(struct char_data * ch, struct char_data *mailman,
 			if ((recipient = get_id_by_name(buf)) < 0) {
 				sprintf(buf2, "No one by the name '%s' is registered here!", buf);
 				perform_tell(mailman, ch, buf2);
-			} else if (!can_recieve_mail(recipient)) {
-				sprintf(buf2, "I don't have an address for %s!", buf);
-				perform_tell(mailman, ch, buf2);
+			} else if ((status = mail_box_status(recipient)) > 0) {
+                // 0 is normal
+                // 1 is frozen
+                // 2 is buried
+                // 3 is deleted
+                switch (status) {
+                    case 1:
+                        sprintf(buf2, "%s's mailbox is frozen shut!",buf);
+                        break;
+                    case 2:
+                        sprintf(buf2, "%s is buried! Go put it on thier grave!",buf);
+                        break;
+                    case 3:
+                        sprintf(buf2, "No one by the name '%s' is registered here!", buf);
+                        break;
+                    default:
+                        sprintf(buf2, "I don't have an address for %s. Try back later!",buf);
+                }
+                perform_tell(mailman, ch, buf2);
 			} else {
 				if (recipient == 1) // fireball
 					total_cost += 1000000;
@@ -397,133 +420,4 @@ postmaster_receive_mail(struct char_data * ch, struct char_data *mailman,
         perform_tell(mailman, ch, buf2);
     }
     save_char(ch, NULL);
-}
-
-
-#define MIN_MAIL_LEVEL 1
-#define STAMP_PRICE 50
-#define MAX_MAIL_SIZE 4096
-#define BLOCK_SIZE 100
-#define HEADER_BLOCK  -1
-#define LAST_BLOCK    -2
-#define DELETED_BLOCK -3
-
-#define MAX_MAIL_AGE 15552000 // should be 6 months.
-#define PURGE_OLD_MAIL 1
-
-/*
- * note: next_block is part of header_blk in a data block; we can't combine
- * them here because we have to be able to differentiate a data block from a
- * header block when booting mail system.
- */
-
-struct header_data_type {
-   long next_block;     /* if header block, link to next block  */
-   long from;           /* idnum of the mail's sender       */
-   long to;         /* idnum of mail's recipient        */
-   time_t mail_time;        /* when was the letter mailed?      */
-};
-
-/* size of the data part of a header block */
-#define HEADER_BLOCK_DATASIZE \
-    (BLOCK_SIZE - sizeof(long) - sizeof(struct header_data_type) - 1)
-
-/* size of the data part of a data block */
-#define DATA_BLOCK_DATASIZE (BLOCK_SIZE - sizeof(long) - 1)
-struct header_block_type_d {
-   long block_type;     /* is this a header or data block?  */
-   struct header_data_type header_data; /* other header data        */
-   char txt[HEADER_BLOCK_DATASIZE+1]; /* actual text plus 1 for null    */
-};
-
-struct data_block_type_d {
-   long block_type;     /* -1 if header block, -2 if last data block
-                       in mail, otherwise a link to the next */
-   char txt[DATA_BLOCK_DATASIZE+1]; /* actual text plus 1 for null  */
-};
-
-typedef struct header_block_type_d header_block_type;
-typedef struct data_block_type_d data_block_type;
-
-struct position_list_type_d {
-   long position;
-   struct position_list_type_d *next;
-};
-
-typedef struct position_list_type_d position_list_type;
-
-struct mail_index_type_d {
-   long recipient;          /* who is this mail for?    */
-   position_list_type *list_start;  /* list of mail positions   */
-   struct mail_index_type_d *next;  /* link to next one     */
-};
-
-typedef struct mail_index_type_d mail_index_type;
-
-
-ACMD(do_toss_mail)
-{
-    FILE *mail_file;
-    header_block_type next_block;
-    int block_num = 0;
-    data_block_type data;
-    time_t current_time = 0;
-    long following_block;
-    long position;
-    time_t mail_time;
-    char *txt = NULL;
-    long to_id=0,from_id=0;
-    int letters_tossed = 0;
-    int letters_ignored = 0;
-    int letters_failed = 0;
-
-    if (!(mail_file = fopen(MAIL_FILE, "r"))) {
-        slog("Mail file non-existant... creating new file.");
-        mail_file = fopen(MAIL_FILE, "w");
-        fclose(mail_file);
-        return;
-    }
-    current_time = time(NULL);
-    while (fread(&next_block, sizeof(header_block_type), 1, mail_file)) {
-        position = ftell(mail_file) - sizeof(header_block_type);
-        if (next_block.block_type == HEADER_BLOCK) {
-            if( PURGE_OLD_MAIL &&  
-                next_block.header_data.mail_time + MAX_MAIL_AGE < current_time) {
-                following_block = next_block.header_data.next_block;
-                fseek(mail_file, position + BLOCK_SIZE, SEEK_SET);
-                letters_ignored++;
-            } else {
-                to_id = next_block.header_data.to;
-                from_id = next_block.header_data.from;
-                mail_time = next_block.header_data.mail_time;
-                txt = new char[MAX_MAIL_SIZE + 1];
-                strcpy(txt,next_block.txt);
-                
-                following_block = next_block.header_data.next_block;
-                while (following_block != LAST_BLOCK) {
-                    fseek(mail_file, following_block, SEEK_SET);
-                    fread(&data, BLOCK_SIZE, 1, mail_file);
-                    fseek(mail_file, following_block, SEEK_SET);
-                    following_block = data.block_type;
-                    strcat(txt,data.txt);
-                }
-                fseek(mail_file, position + BLOCK_SIZE, SEEK_SET);
-                if(!store_mail(to_id, from_id, txt, &mail_time)) {
-                //    send_to_char("ERROR: Unable to store mail!\r\n",ch);
-                    letters_failed++;
-                    delete txt;
-                    continue;
-                }
-                delete txt;
-                letters_tossed++;
-            }
-        } 
-        block_num++;
-    }
-
-    fclose(mail_file);
-    sprintf(buf, "Mail tossed.\r\n    %d letters tossed.\r\n    %d letters ignored.\r\n    %d letters failed\r\n",
-        letters_tossed, letters_ignored,letters_failed);
-    send_to_char(buf,ch);
-    return;
 }
