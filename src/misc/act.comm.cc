@@ -711,8 +711,32 @@ ACMD(do_gen_comm)
 			send_to_char(ch, "You aren't on the illustrious newbie channel.\r\n");
 			return;
 		}
+
+		if (subcmd == SCMD_GUILDSAY) {
+			if (IS_NEUTRAL(ch)) {
+				// Clerics and knights cannot be neutral
+				if (GET_CLASS(ch) == CLASS_CLERIC) {
+					send_to_char(ch,
+						"You have been cast out of the ranks of the blessed.\r\n");
+					return;
+				}
+				if (GET_CLASS(ch) == CLASS_KNIGHT) {
+					send_to_char(ch,
+						"You have been cast out of the ranks of the honored.\r\n");
+					return;
+				}
+					
+			} else {
+				// Monks must be neutral
+				if (GET_CLASS(ch) == CLASS_MONK) {
+					send_to_char(ch, "You have been cast out of the monks until your neutrality is regained.\r\n");
+					return;
+				}
+			}
+		}
 	}
-	/* skip leading spaces */
+
+	// skip leading spaces
 	skip_spaces(&argument);
 
 	/* make sure that there is something there to say! */
@@ -790,6 +814,24 @@ ACMD(do_gen_comm)
 		// Must be in same guild to hear guildsay - even immortals
 		if (subcmd == SCMD_GUILDSAY &&
 				GET_CLASS(i->character) != GET_CLASS(ch))
+			continue;
+
+		// Evil and good clerics and knights have different guilds
+		if (subcmd == SCMD_GUILDSAY &&
+				(GET_CLASS(i->character) == CLASS_CLERIC ||
+				GET_CLASS(i->character) == CLASS_KNIGHT)) {
+			if (IS_NEUTRAL(ch))
+				continue;
+			if (IS_EVIL(ch) && !IS_EVIL(i->character))
+				continue;
+			if (IS_GOOD(ch) && !IS_GOOD(i->character))
+				continue;
+		}
+
+		// Outcast monks don't hear other monks
+		if (subcmd == SCMD_GUILDSAY &&
+				GET_CLASS(i->character) == CLASS_MONK &&
+				!IS_NEUTRAL(i->character))
 			continue;
 
 		if (subcmd == SCMD_PROJECT && !IS_REMORT(i->character))
