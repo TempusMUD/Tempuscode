@@ -147,6 +147,7 @@ ACMD(do_compare);
 ACMD(do_computer);
 ACMD(do_consider);
 ACMD(do_convert);
+ACMD(do_corner);
 ACMD(do_credits);
 ACMD(do_date);
 ACMD(do_dc);
@@ -335,6 +336,7 @@ ACMD(do_stun);
 ACMD(do_switch);
 ACMD(do_syslog);
 ACMD(do_tag);
+ACMD(do_taunt);
 ACMD(do_teleport);
 ACMD(do_tell);
 ACMD(do_time);
@@ -549,6 +551,7 @@ extern const struct command_info cmd_info[] = {
     { "conspire" , POS_RESTING , do_action   , 0, 0 },
     { "contemplate", POS_RESTING, do_action  , 0, 0 },
     { "convert"  , POS_RESTING , do_convert  , 0, 0 },
+    { "corner"  ,  POS_FIGHTING, do_corner   , 0, 0 },
     { "cough"    , POS_RESTING , do_action   , 0, 0 },
     { "council"  , POS_DEAD    , do_wizutil  , LVL_GOD, SCMD_COUNCIL },
     { "cover"    , POS_RESTING , do_action   , 0, 0 },
@@ -1166,7 +1169,8 @@ extern const struct command_info cmd_info[] = {
     { "train"    , POS_STANDING, do_practice , 1, 0 },
     { "transfer" , POS_SLEEPING, do_trans    , LVL_DEMI, 0 },
     { "translocate", POS_RESTING, do_translocate, 20, ZEN_TRANSLOCATION },
-    { "transmit" , POS_SLEEPING, do_transmit , 0, 0 },
+	{ "transmit" , POS_SLEEPING, do_transmit , 0, 0 },
+    { "taunt" 	 , POS_STANDING, do_taunt	 , 0, 0 },
     { "trigger"  , POS_SITTING , do_trigger  , 1, 0 },
     { "triggers" , POS_SLEEPING, do_skills   , 0, SCMD_SPELLS_ONLY },
     { "trip"     , POS_FIGHTING, do_offensive_skill, 0, SKILL_TRIP },
