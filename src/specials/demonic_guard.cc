@@ -150,7 +150,7 @@ SPECIAL(demonic_overmind)
 		}
 		
 		if (cur_rec->demons < cur_rec->gen + 2) {
-			mob = read_mobile(DEMONIC_BASE + MIN(5, (GET_LEVEL(vict) / 9))
+			mob = read_mobile(DEMONIC_BASE + MIN(4, (GET_LEVEL(vict) / 9))
 				+ number(0,1));
 			if (!mob) {
 				slog("SYSERR: Unable to load mob in demonic_overmind");
