@@ -1146,6 +1146,8 @@ CTextEditor::AddRecipient(char *name)
 	long new_id_num = 0;
 	struct mail_recipient_data *cur = NULL;
 	struct mail_recipient_data *new_rcpt = NULL;
+	const char *money_desc;
+	int money, cost;
 
 	new_id_num = playerIndex.getID(name);
 	if ((new_id_num) < 0) {
@@ -1153,137 +1155,64 @@ CTextEditor::AddRecipient(char *name)
 		return;
 	}
 
-	new_rcpt =
-		(struct mail_recipient_data *)malloc(sizeof(struct
-			mail_recipient_data));
+	new_rcpt = (mail_recipient_data *)malloc(sizeof(mail_recipient_data));
 	new_rcpt->recpt_idnum = new_id_num;
 	new_rcpt->next = NULL;
 
 	// Now find the end of the current list and add the new cur
+	cur = desc->mail_to;
+	while (cur && cur->recpt_idnum != new_id_num && cur->next)
+		cur = cur->next;
 
-	if (desc->creature->in_room->zone->time_frame == TIME_ELECTRO) {
-
-		for (cur = desc->mail_to; cur;) {
-			if (cur->next) {
-				cur = cur->next;
-				if (cur->recpt_idnum == new_id_num) {
-					sprintf(tedii_out_buf,
-						"%s is already on the recipient list.\r\n",
-						tmp_capitalize(playerIndex.getName(new_id_num)));
-					SendMessage(tedii_out_buf);
-					free(new_rcpt);
-					return;
-				}
-			} else {
-				if (new_id_num == 1) {	//mailing fireball, charge em out the ass
-					if (GET_LEVEL(desc->creature) < LVL_AMBASSADOR) {
-						//if the creature doesn't have enough gold to add someone else
-						if (GET_CASH(desc->creature) < 1000000) {
-							sprintf(tedii_out_buf,
-								"You don't have enough credits to add %s.\r\n",
-								tmp_capitalize(playerIndex.getName(new_id_num)));
-							free(new_rcpt);
-							SendMessage(tedii_out_buf);
-							return;
-						}
-						//everythings all good.  Message to add person and charge em.
-						else {
-							sprintf(tedii_out_buf,
-								"%s added to recipient list.  %d credits have been charged.\r\n",
-								tmp_capitalize(playerIndex.getName(new_id_num)), 1000000);
-							GET_CASH(desc->creature) -= 1000000;
-						}
-					} else {	//it's an imm, don't check the cash
-						sprintf(tedii_out_buf,
-							"%s added to recipient list.\r\n",
-							tmp_capitalize(playerIndex.getName(new_id_num)));
-					}
-				} else {
-					if (GET_LEVEL(desc->creature) < LVL_AMBASSADOR) {
-						if (GET_CASH(desc->creature) < STAMP_PRICE) {
-							sprintf(tedii_out_buf,
-								"You don't have enough credits to add %s.\r\n",
-								tmp_capitalize(playerIndex.getName(new_id_num)));
-							free(new_rcpt);
-							SendMessage(tedii_out_buf);
-							return;
-						} else {
-							sprintf(tedii_out_buf,
-								"%s added to recipient list.  %d credits have been charged.\r\n",
-								tmp_capitalize(playerIndex.getName(new_id_num)), STAMP_PRICE);
-							GET_CASH(desc->creature) -= STAMP_PRICE;
-						}
-					} else {	//imms again :)  
-						sprintf(tedii_out_buf,
-							"%s added to recipient list.\r\n",
-							tmp_capitalize(playerIndex.getName(new_id_num)));
-					}
-				}
-				cur->next = new_rcpt;
-				SendMessage(tedii_out_buf);
-				ListRecipients();
-				return;
-			}
-		}
+	if (cur->recpt_idnum == new_id_num) {
+		sprintf(tedii_out_buf,
+			"%s is already on the recipient list.\r\n",
+			tmp_capitalize(playerIndex.getName(new_id_num)));
+		SendMessage(tedii_out_buf);
+		free(new_rcpt);
+		return;
 	}
-	//if not in future.. charge gold
-	for (cur = desc->mail_to; cur;) {
-		if (cur->next) {
-			cur = cur->next;
-			if (cur->recpt_idnum == new_id_num) {
-				sprintf(tedii_out_buf,
-					"%s is already on the recipient list.\r\n",
-					tmp_capitalize(playerIndex.getName(new_id_num)));
-				SendMessage(tedii_out_buf);
-				free(new_rcpt);
-				return;
-			}
+
+	if (GET_LEVEL(desc->creature) < LVL_AMBASSADOR) {
+		//mailing the grimp, charge em out the ass
+		if (desc->creature->in_room->zone->time_frame == TIME_ELECTRO) {
+			money_desc = "creds";
+			money = GET_CASH(desc->creature);
 		} else {
-			if (new_id_num == 1) {	//mailing fireball, charge em out the ass
-				if (GET_LEVEL(desc->creature) < LVL_AMBASSADOR) {
-					if (GET_GOLD(desc->creature) < 1000000) {
-						sprintf(tedii_out_buf,
-							"You don't have enough gold to add %s.\r\n",
-							tmp_capitalize(playerIndex.getName(new_id_num)));
-						free(new_rcpt);
-						SendMessage(tedii_out_buf);
-						return;
-					} else {
-						sprintf(tedii_out_buf,
-							"%s added to recipient list.  %d gold has been charged.\r\n",
-							tmp_capitalize(playerIndex.getName(new_id_num)), 1000000);
-						GET_GOLD(desc->creature) -= 1000000;
-					}
-				} else {
-					sprintf(tedii_out_buf, "%s added to recipient list.\r\n",
-						tmp_capitalize(playerIndex.getName(new_id_num)));
-				}
-			} else {
-				if (GET_LEVEL(desc->creature) < LVL_AMBASSADOR) {
-					if (GET_GOLD(desc->creature) < STAMP_PRICE) {
-						sprintf(tedii_out_buf,
-							"You don't have enough gold to add %s.\r\n",
-							tmp_capitalize(playerIndex.getName(new_id_num)));
-						free(new_rcpt);
-						SendMessage(tedii_out_buf);
-						return;
-					} else {
-						sprintf(tedii_out_buf,
-							"%s added to recipient list.  %d gold has been charged.\r\n",
-							tmp_capitalize(playerIndex.getName(new_id_num)), STAMP_PRICE);
-						GET_GOLD(desc->creature) -= STAMP_PRICE;
-					}
-				} else {
-					sprintf(tedii_out_buf, "%s added to recipient list.\r\n",
-						tmp_capitalize(playerIndex.getName(new_id_num)));
-				}
-			}
-			cur->next = new_rcpt;
-			SendMessage(tedii_out_buf);
-			ListRecipients();
-			return;
+			money_desc = "gold";
+			money = GET_GOLD(desc->creature);
 		}
+
+		if (new_id_num == 1)
+			cost = 1000000;
+		else
+			cost = STAMP_PRICE;
+
+		if (money < cost) {
+			sprintf(tedii_out_buf,
+				"You don't have the %d %s necessary to add %s.\r\n",
+				cost, money_desc, 
+				tmp_capitalize(playerIndex.getName(new_id_num)));
+			free(new_rcpt);
+			SendMessage(tedii_out_buf);
+			return;
+		} else {
+			sprintf(tedii_out_buf,
+				"%s added to recipient list.  You have been charged %d %s.\r\n",
+				tmp_capitalize(playerIndex.getName(new_id_num)), cost,
+				money_desc);
+			if (desc->creature->in_room->zone->time_frame == TIME_ELECTRO)
+				GET_CASH(desc->creature) -= cost;
+			else
+				GET_GOLD(desc->creature) -= cost;
+		}
+	} else {
+		sprintf(tedii_out_buf, "%s added to recipient list.\r\n",
+			tmp_capitalize(playerIndex.getName(new_id_num)));
 	}
+	cur->next = new_rcpt;
+	SendMessage(tedii_out_buf);
+	ListRecipients();
 }
 
 void
