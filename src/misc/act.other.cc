@@ -1967,8 +1967,8 @@ ACMD(do_gasify)
 
 ACMD(do_clean)
 {
-    struct obj_data *obj;
-    struct char_data *vict;
+    struct obj_data *obj=NULL;
+    struct char_data *vict=NULL;
     int i, j, k, found, pos;
     char arg1[MAX_INPUT_LENGTH], arg2[MAX_INPUT_LENGTH];
 

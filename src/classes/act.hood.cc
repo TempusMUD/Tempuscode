@@ -289,7 +289,7 @@ ACMD(do_snatch)
     struct char_data *vict=NULL;
     struct obj_data *obj, *sec_weap;
     char vict_name[MAX_INPUT_LENGTH];
-    int percent, eq_pos;
+    int percent=-1, eq_pos=-1;
     int prob = 0;
     int position = 0;
     int dam = 0;

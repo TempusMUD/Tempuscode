@@ -2427,7 +2427,7 @@ void
 mag_summons(int level, struct char_data * ch, struct obj_data * obj,
 	    int spellnum, int savetype)
 {
-    struct char_data *mob;
+    struct char_data *mob=NULL;
     struct obj_data *tobj, *next_obj;
     int pfail = 0;
     int msg = 0, fmsg = 0;

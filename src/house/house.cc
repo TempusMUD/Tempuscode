@@ -426,7 +426,7 @@ House_crashsave(int vnum)
     struct room_data *rnum;
     char buf[MAX_STRING_LENGTH];
     char buf2[MAX_STRING_LENGTH];
-    FILE *fp, *fp_door;
+    FILE *fp=NULL, *fp_door=NULL;
 
     if ((pos = find_house(vnum)) == -1)
 	return;

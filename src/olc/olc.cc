@@ -300,7 +300,7 @@ ACMD(do_olc)
     room_num                vnum;
     struct room_data       *rnum, *room;
     int                     edir;
-    int                     i, j, k, found;
+    int                     i=0, j, k, found;
     byte one_way = FALSE;
     struct extra_descr_data *desc, *ndesc, *temp;
     struct obj_data *tmp_obj = NULL, *obj = NULL;

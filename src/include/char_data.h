@@ -902,6 +902,7 @@ struct char_data {
     inline short setWeight( short new_weight ) {
 	return player.setWeight( new_weight );
     }
+    inline int getLevel( void ) { return player.level; }
     inline short modifyWeight( short mod_weight ) { return player.modifyWeight( mod_weight ); }
 
     // breath count
@@ -933,7 +934,6 @@ struct char_data {
     }
 
     
-    inline int getLevel( void ) { return player.level; }
 
     int pfilepos;			 /* playerfile pos		  */
     struct room_data *in_room;            /* Location (real room number)	  */

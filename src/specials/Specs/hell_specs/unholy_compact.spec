@@ -11,7 +11,7 @@ SPECIAL(unholy_compact)
   int gold, life_cost;
   int con_cost = 5;
   char buf[MAX_STRING_LENGTH];
-  int min_gen;
+  int min_gen=0;
   if (!CMD_IS("sell"))
     return 0;
   skip_spaces(&argument);
