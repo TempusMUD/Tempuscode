@@ -1338,11 +1338,11 @@ ASPELL(spell_minor_identify)
 				item_types[(int)GET_OBJ_TYPE(obj)]);
 
 			if (GET_OBJ_VAL(obj, 1) >= 1)
-				send_to_char(ch, "%s\r\n", buf, spell_to_str(GET_OBJ_VAL(obj, 1)));
+				send_to_char(ch, "%s\r\n", spell_to_str(GET_OBJ_VAL(obj, 1)));
 			if (GET_OBJ_VAL(obj, 2) >= 1)
-				send_to_char(ch, "%s\r\n", buf, spell_to_str(GET_OBJ_VAL(obj, 2)));
+				send_to_char(ch, "%s\r\n", spell_to_str(GET_OBJ_VAL(obj, 2)));
 			if (GET_OBJ_VAL(obj, 3) >= 1)
-				send_to_char(ch, "%s\r\n", buf, spell_to_str(GET_OBJ_VAL(obj, 3)));
+				send_to_char(ch, "%s\r\n", spell_to_str(GET_OBJ_VAL(obj, 3)));
 			break;
 		case ITEM_WAND:
 		case ITEM_STAFF:
@@ -1401,7 +1401,7 @@ ASPELL(spell_minor_identify)
 			GET_HEIGHT(victim), GET_WEIGHT(victim));
 		send_to_char(ch, "Level: %d, Hits: %d, Mana: %d\r\n",
 			GET_LEVEL(victim), GET_HIT(victim), GET_MANA(victim));
-		send_to_char(ch, "%sAC: %d, Hitroll: %d, Damroll: %d\r\n", buf,
+		send_to_char(ch, "AC: %d, Hitroll: %d, Damroll: %d\r\n",
 			GET_AC(victim), GET_HITROLL(victim), GET_DAMROLL(victim));
 		send_to_char(ch,
 			"Str: %d/%d, Int: %d, Wis: %d, Dex: %d, Con: %d, Cha: %d\r\n",

@@ -507,10 +507,11 @@ ACMD(do_ungroup)
 			next_fol = f->next;
 			if (IS_AFFECTED(f->follower, AFF_GROUP)) {
 				REMOVE_BIT(AFF_FLAGS(f->follower), AFF_GROUP);
-				if (!IS_AFFECTED(f->follower, AFF_CHARM))
+				if (!IS_AFFECTED(f->follower, AFF_CHARM)) {
+					send_to_char(f->follower, "%s has disbanded the group.\r\n", PERS(ch, f->follower));
 					stop_follower(f->follower);
+				}
 			}
-			send_to_char(f->follower, "%s has disbanded the group.\r\n", PERS(ch, f->follower));
 		}
 
 		REMOVE_BIT(AFF_FLAGS(ch), AFF_GROUP);

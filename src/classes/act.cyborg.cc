@@ -1774,18 +1774,17 @@ ACMD(do_status)
 
 		for (bul = obj->contains, i = 0; bul; i++, bul = bul->next_content);
 
-		sprintf(buf, "%s contains %d/%d cartridge%s.\r\n",
+		send_to_char(ch, "%s contains %d/%d cartridge%s.\r\n",
 			obj->short_description, i, MAX_LOAD(obj), i == 1 ? "" : "s");
-		send_to_char(ch, "%s", buf);
 		break;
 
 	case ITEM_INTERFACE:
 
 		if (INTERFACE_TYPE(obj) == INTERFACE_CHIPS) {
-			sprintf(buf, "%s [%d slots] is loaded with:\r\n",
+			send_to_char(ch, "%s [%d slots] is loaded with:\r\n",
 				obj->short_description, INTERFACE_MAX(obj));
 			for (bul = obj->contains, i = 0; bul; i++, bul = bul->next_content)
-				send_to_char(ch, "%s%2d. %s\r\n", buf, i, bul->short_description);
+				send_to_char(ch, "%2d. %s\r\n", i, bul->short_description);
 			break;
 		}
 		break;

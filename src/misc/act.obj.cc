@@ -1809,12 +1809,12 @@ ACMD(do_give)
 		amount = atoi(arg);
 		argument = one_argument(argument, arg);
 
-		if (!is_abbrev("coins", arg)) {
+		if (is_abbrev("coins", arg)) {
 			argument = one_argument(argument, arg);
 			if ((vict = give_find_vict(ch, arg)))
 				perform_give_gold(ch, vict, amount);
 			return;
-		} else if (!is_abbrev("credits", arg) || !is_abbrev("cash", arg)) {
+		} else if (is_abbrev("credits", arg) || is_abbrev("cash", arg)) {
 			argument = one_argument(argument, arg);
 			if ((vict = give_find_vict(ch, arg)))
 				perform_give_credits(ch, vict, amount);
