@@ -72,6 +72,7 @@ void HelpItem::SetFlags( char *argument ) {
         sprintf(buf, "Flags for help item %d not altered.\r\n", idnum);
         send_to_char(buf, editor);
     } else {
+        SET_BIT(flags,HFLAG_MODIFIED);
         sprintf(buf, "[%s] flags %s for help item %d.\r\n", buf2,
             state == 1 ? "added" : "removed", idnum);
         send_to_char(buf, editor);
@@ -81,6 +82,7 @@ void HelpItem::SetFlags( char *argument ) {
 void HelpItem::EditText( void ) {
 
     LoadText();
+    SET_BIT(flags,HFLAG_MODIFIED);
     start_text_editor(editor->desc, &text, true, MAX_HELP_TEXT_LENGTH);
     SET_BIT(PLR_FLAGS(editor), PLR_OLC);
 
