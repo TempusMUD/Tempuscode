@@ -2677,7 +2677,7 @@ Reaction::add_reaction(decision_t action, char *arg)
 		new_reaction[1] = atoi(arg);
 		if (new_reaction[1] < 1 || new_reaction[1] > 70)
 			return false;
-	else if (is_abbrev(condition, "clanleader"))
+	} else if (is_abbrev(condition, "clanleader")) {
 		new_reaction[0] |= 0x0d;
 	} else
 		return false;
