@@ -2750,7 +2750,9 @@ do_zone_cmdlist(struct Creature *ch, struct zone_data *zone, char *arg)
 
 	arg = one_argument(arg, arg1);
 	if (!*arg1) {
-		mode_all = 1;
+		send_to_char(ch, "Optional arguments: all, objects, removes, mobiles, equips, implants, gives,\r\n"
+            "                    puts, doors, paths, range <start> <finish>.\r\n");
+        mode_all = 1;
 	} else {
 		while (*arg1) {
 			if (is_abbrev(arg1, "all")) {
@@ -2792,7 +2794,9 @@ do_zone_cmdlist(struct Creature *ch, struct zone_data *zone, char *arg)
 				|| is_abbrev(arg1, "comments")) {
 				mode_error = 1;
 			} else {
-				send_to_char(ch, "'%s' is not a valid argument.\r\n", arg1);
+                send_to_char(ch, "'%s' is not a valid argument.\r\n", arg1);
+                send_to_char(ch, "Optional arguments: all, objects, removes, mobiles, equips, implants, gives,\r\n"
+                    "                    puts, doors, paths, range <start> <finish>.\r\n");
 			}
 			arg = one_argument(arg, arg1);
 		}
