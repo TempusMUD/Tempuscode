@@ -2365,7 +2365,7 @@ ACMD(do_pour)
 			act("$n empties $p.", TRUE, ch, from_obj, 0, TO_ROOM);
 			act("You empty $p.", FALSE, ch, from_obj, 0, TO_CHAR);
 
-			weight_change_object(from_obj, -GET_OBJ_VAL(from_obj, 1));	/* Empty */
+			weight_change_object(from_obj, -(GET_OBJ_VAL(from_obj, 1)/8));	/* Empty */
 			GET_OBJ_VAL(from_obj, 1) = 0;
 			GET_OBJ_VAL(from_obj, 2) = 0;
 			GET_OBJ_VAL(from_obj, 3) = 0;
@@ -2441,8 +2441,8 @@ ACMD(do_pour)
 		(GET_OBJ_VAL(to_obj, 3) || GET_OBJ_VAL(from_obj, 3));
 
 	/* And the weight boogie */
-	weight_change_object(from_obj, -amount);
-	weight_change_object(to_obj, amount);	/* Add weight */
+	weight_change_object(from_obj, -(amount/8));
+	weight_change_object(to_obj, (amount/8));	/* Add weight */
 
 	return;
 }
