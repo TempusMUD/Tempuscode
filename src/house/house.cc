@@ -1014,6 +1014,8 @@ hcontrol_build_house( Creature *ch, char *arg)
 	} else if( Housing.createHouse( owner, virt_atrium, virt_top_room ) ) {
 		send_to_char(ch, "House built.  Mazel tov!\r\n");
 		House *house = Housing.getHouse( Housing.getHouseCount() - 1 );
+		house->setLandlord( GET_IDNUM(ch) );
+		Housing.save();
 		slog("HOUSE: %s created house %d for account %d with first room %d.", 
 			GET_NAME(ch), house->getID(), owner, house->getRoom(0) );
 	} else {
