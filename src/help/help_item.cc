@@ -211,6 +211,11 @@ void SwapItems(HelpItem *A,HelpItem *Ap, HelpItem *B, HelpItem *Bp) {
             Ap->SetNext(B);
             B->SetNext(A);
         }
+        // If B was the last element
+        // Reset the bottom pointer.
+        if(Bn == NULL) {
+            Help->bottom = A;
+        }
         return;
     }
 	// Second Case:
@@ -235,10 +240,7 @@ void SwapItems(HelpItem *A,HelpItem *Ap, HelpItem *B, HelpItem *Bp) {
 	// If B was the last element
     // Reset the bottom pointer.
     if(Bn == NULL) {
-		while(Bn) {
-			Help->bottom = Bn;
-			Bn = Bn->Next();
-		}
+        Help->bottom = A;
     }
 }
 
