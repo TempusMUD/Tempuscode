@@ -2365,8 +2365,7 @@ read_mobile(int vnum)
 		sprintf(buf, "Mobile (V) %d does not exist in database.", vnum);
 		return (NULL);
 	}
-    mob = new Creature(false);
-    *mob = *tmp_mob;
+    mob = new Creature(*tmp_mob);
     tmp_mob->mob_specials.shared->number++;
     tmp_mob->mob_specials.shared->loaded++;
     
@@ -2385,7 +2384,6 @@ read_mobile(int vnum)
 	mob->player.time.death = 0;
 	mob->player.time.played = 0;
 	mob->player.time.logon = mob->player.time.birth;
-	mob->fighting = new list<CharCombat>;
 
 	MOB_IDNUM(mob) = (++current_mob_idnum);
 
