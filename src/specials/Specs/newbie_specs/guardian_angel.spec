@@ -190,7 +190,8 @@ SPECIAL(guardian_angel)
 	angel_data *data = (angel_data *)self->mob_specials.func_data;
 	angel_chat_data *cur_chat;
 	Creature *charge;
-	char *arg, *word;
+	char *arg;
+	const char *word;
 	int result;
 
 	if (!data) {
@@ -261,6 +262,7 @@ SPECIAL(guardian_angel)
 	
 	if (ch->in_room->people.size() > 2) {
 		arg = argument;
+		word = arg;
 		while (*word) {
 			word = tmp_getword(&arg);
 			if (isname(word, self->player.name))
