@@ -420,11 +420,12 @@ perform_gain_kill_exp(struct char_data *ch, struct char_data *victim,
 //		exp -= (exp * GET_REMORT_GEN(ch)) / (GET_REMORT_GEN(ch) + 2);
         // Slow remorts down a little.  This algorithm should yied 60 percent gain at gen 1
         // and 10 percent gain at gen 10. LK 1/22/02
-        exp -= (exp * (ch->getLevelBonus(true) - 10)) / 100;         
+		
+       exp -= (exp * (ch->getLevelBonus(true) - 10)) / 100;         
      
 	if (IS_GOOD(ch) && (IS_CLERIC(ch) || IS_KNIGHT(ch)) && IS_GOOD(victim)) {	// good clerics & knights penalized
         // I've never liked this...it's unfair...lets change it 1/22/02
-        exp -= (exp * 50) / 100;
+        exp /= 2;
 /*		exp = -exp;
 		act("You feel a sharp pang of remorse for $N's death.",
 			FALSE, ch, 0, victim, TO_CHAR); */
@@ -1464,7 +1465,7 @@ damage(struct char_data *ch, struct char_data *victim, int dam,
 		exp = MIN(GET_LEVEL(ch) * GET_LEVEL(ch) * GET_LEVEL(ch),
 			GET_LEVEL(victim) * dam);
 		if (!IS_NPC(ch) && IS_REMORT(ch))
-			exp -= (exp * GET_REMORT_GEN(ch)) / (GET_REMORT_GEN(ch) + 2);
+		   exp -= (exp * (ch->getLevelBonus(true) - 10)) / 100;         
 		if (IS_CLERIC(ch) && !IS_GOOD(ch))
 			exp -= (exp * 15) / 100;
 		if (IS_KNIGHT(ch) && IS_GOOD(ch))
