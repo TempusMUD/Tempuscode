@@ -2708,9 +2708,9 @@ do_zone_cmdlist(struct char_data *ch, struct zone_data *zone, char *arg)
     PHead *p_head = NULL;
 
     if (!zone) {
-	slog("SYSERR: Improper zone passed to do_zone_cmdlist.");
-	send_to_char("Improper zone error.\r\n", ch);
-	return;
+        slog("SYSERR: Improper zone passed to do_zone_cmdlist.");
+        send_to_char("Improper zone error.\r\n", ch);
+        return;
     }
     arg1[0]='\0';
     out_buf[0]='\0';
@@ -2759,8 +2759,8 @@ do_zone_cmdlist(struct char_data *ch, struct zone_data *zone, char *arg)
 			} else if (is_abbrev(arg1, "errors") || is_abbrev(arg1, "comments"))
 				mode_error = 1;	
 			else {
-				sprintf(buf, "'%s' is not a valid argument.\r\n", arg1);
-				send_to_char(buf, ch);
+				sprintf(out_buf, "'%s' is not a valid argument.\r\n", arg1);
+				send_to_char(out_buf, ch);
 			}
 			arg = one_argument(arg, arg1);
 		}
