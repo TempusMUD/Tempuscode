@@ -108,6 +108,7 @@ nanny(struct descriptor_data * d, char *arg)
     int load_char(char *name, struct char_file_u * char_element);
     int parse_char_class_future(char *arg);
     int parse_char_class_past(char *arg);
+    int parse_char_class(char *arg);
     int parse_time_frame(char *arg);
 
     skip_spaces(&arg);
@@ -603,7 +604,8 @@ nanny(struct descriptor_data * d, char *arg)
 			break;
 
 		case CON_RACE_PAST:
-			if ((GET_RACE(d->character) = parse_race_past(d, arg)) == -1) {
+			GET_RACE(d->character) = parse_pc_race(d, arg, TIME_PAST);
+			if (GET_RACE(d->character) == CLASS_UNDEFINED) {
 				SEND_TO_Q(CCRED(d->character, C_NRM), d);
 				SEND_TO_Q("\r\nThat's not a choice.\r\n", d);
 				SEND_TO_Q(CCNRM(d->character, C_NRM), d);
@@ -612,10 +614,11 @@ nanny(struct descriptor_data * d, char *arg)
 				set_desc_state( CON_RACEHELP_P,d );
 				break;
 			}
+			GET_CLASS(d->character) = CLASS_UNDEFINED;
 			set_desc_state( CON_QCLASS_PAST,d );
 			break;
 		case CON_RACE_FUTURE:
-			if ((GET_RACE(d->character) = parse_race_future(d, arg)) == -1) {
+			if ((GET_RACE(d->character) = parse_pc_race(d, arg, TIME_FUTURE)) == -1) {
 				SEND_TO_Q(CCRED(d->character, C_NRM), d);
 				SEND_TO_Q("\r\nThat's not a choice.\r\n", d);
 				SEND_TO_Q(CCNRM(d->character, C_NRM), d);
@@ -624,62 +627,88 @@ nanny(struct descriptor_data * d, char *arg)
 				set_desc_state( CON_RACEHELP_F,d );
 				break;
 			}
+			GET_CLASS(d->character) = CLASS_UNDEFINED;
 			set_desc_state( CON_QCLASS_FUTURE,d );
 			break;
 		case CON_CLASSHELP_P:
-			show_char_class_menu_past(d);
+			show_char_class_menu(d, TIME_PAST);
 			set_desc_state( CON_QCLASS_PAST,d );
 			break;
 
 		case CON_CLASSHELP_F:
-			show_char_class_menu_future(d);
+			show_char_class_menu(d, TIME_FUTURE);
 			set_desc_state( CON_QCLASS_FUTURE,d );
 			break;
 
 		case CON_QCLASS_PAST:
-			if ((GET_CLASS(d->character) = parse_char_class_past(arg))==CLASS_UNDEFINED)
-				{
-					SEND_TO_Q(CCRED(d->character, C_NRM), d);
-					SEND_TO_Q("\r\nThat's not a character class.\r\n", d);
-					SEND_TO_Q(CCNRM(d->character, C_NRM), d);
-					return;
-				} else if ((IS_DWARF(d->character) &&
-							(IS_MAGE(d->character) ||
-							 IS_MONK(d->character) || IS_RANGER(d->character))) ||
-						   (IS_HALF_ORC(d->character) &&
-							(IS_MAGE(d->character) || IS_CLERIC(d->character) ||
-							 IS_MONK(d->character) || IS_KNIGHT(d->character) ||
-							 IS_RANGER(d->character))) ||
-						   (IS_ELF(d->character) && IS_BARB(d->character)) ||
-						   (IS_DROW(d->character) && (IS_BARB(d->character) ||
-													  IS_MONK(d->character))) ||
-						   (IS_TABAXI(d->character) && IS_KNIGHT(d->character)) ||
-						   (IS_MINOTAUR(d->character) &&
-							(IS_KNIGHT(d->character) || IS_THIEF(d->character) ||
-							 IS_MONK(d->character)))) {
+			GET_CLASS(d->character) = parse_char_class_past(arg);
+			if (GET_CLASS(d->character) == CLASS_UNDEFINED) {
+				SEND_TO_Q(CCRED(d->character, C_NRM), d);
+				SEND_TO_Q("\r\nThat's not a character class.\r\n", d);
+				SEND_TO_Q(CCNRM(d->character, C_NRM), d);
+				return;
+			}
+
+			for (i=0;i < NUM_PC_RACES;i++) {
+				if (race_restr[i][0] == GET_RACE(d->character))
+					break;
+			}
+
+			if (!race_restr[i][GET_CLASS(d->character)+1]) {
 					SEND_TO_Q(CCGRN(d->character, C_NRM), d);
 					SEND_TO_Q("\r\nThat character class is not allowed to your race!\r\n", d);
-					show_race_restrict_past(d);
-					set_desc_state( CON_RACE_PAST,d );
-					break;
-				}
-			set_desc_state( CON_QALIGN,d );
+					GET_CLASS(d->character) = CLASS_UNDEFINED;
+			} else
+				set_desc_state( CON_QALIGN,d );
 			break;
 		case CON_QCLASS_FUTURE:
-				if ((GET_CLASS(d->character)=parse_char_class_future(arg))==CLASS_UNDEFINED){
-					SEND_TO_Q(CCRED(d->character, C_NRM), d);
-					SEND_TO_Q("\r\nThat's not a character class.\r\n", d);
-					SEND_TO_Q(CCNRM(d->character, C_NRM), d);
+			GET_CLASS(d->character) = parse_char_class_future(arg);
+			if (GET_CLASS(d->character) == CLASS_UNDEFINED) {
+				SEND_TO_Q(CCRED(d->character, C_NRM), d);
+				SEND_TO_Q("\r\nThat's not a character class.\r\n", d);
+				SEND_TO_Q(CCNRM(d->character, C_NRM), d);
+				return;
+			}
+
+			for (i=0;i < NUM_PC_RACES;i++)
+				if (race_restr[i][0] == GET_RACE(d->character))
 					break;
-				} else if (IS_HALF_ORC(d->character) && IS_PSIONIC(d->character)) {
+			if (!race_restr[i][GET_CLASS(d->character)+1]) {
 					SEND_TO_Q(CCGRN(d->character, C_NRM), d);
 					SEND_TO_Q("\r\nThat character class is not allowed to your race!\r\n", d);
-					show_race_restrict_past(d);
-					set_desc_state( CON_RACE_FUTURE,d );
-					break;
-				}
+					GET_CLASS(d->character) = CLASS_UNDEFINED;
+			} else
+				set_desc_state( CON_QALIGN,d );
+			break;
+		case CON_QCLASS_REMORT:
+			GET_REMORT_CLASS(d->character) = parse_char_class(arg);
+			if (GET_REMORT_CLASS(d->character) == CLASS_UNDEFINED) {
+				SEND_TO_Q(CCRED(d->character, C_NRM), d);
+				SEND_TO_Q("\r\nThat's not a character class.\r\n", d);
+				SEND_TO_Q(CCNRM(d->character, C_NRM), d);
+				return;
+			}
 
-			set_desc_state( CON_QALIGN,d );
+			for (i=0;i < NUM_PC_RACES;i++)
+				if (race_restr[i][0] == GET_RACE(d->character))
+					break;
+			if (!race_restr[i][GET_REMORT_CLASS(d->character)+1]) {
+				SEND_TO_Q(CCGRN(d->character, C_NRM), d);
+				SEND_TO_Q("\r\nThat character class is not allowed to your race!\r\n", d);
+			} else if (GET_REMORT_CLASS(d->character) == GET_CLASS(d->character)) {
+				SEND_TO_Q(CCGRN(d->character, C_NRM), d);
+				SEND_TO_Q("\r\nYou can't remort to your primary class!\r\n", d);
+				
+			} else {
+				if (GET_CLASS(d->character) == CLASS_VAMPIRE)
+					GET_CLASS(d->character) = GET_OLD_CLASS(d->character);
+				sprintf(buf, "%s has remorted to gen %d as a %s/%s",
+					GET_NAME(d->character), GET_REMORT_GEN(d->character),
+					pc_char_class_types[(int)GET_CLASS(d->character)],
+					pc_char_class_types[(int)GET_REMORT_CLASS(d->character)]);
+				mudlog(buf, BRF, LVL_IMMORT, FALSE);
+				set_desc_state( CON_MENU,d );
+			}
 			break;
 		case CON_QALIGN:
 			if ( IS_DROW(d->character) )
@@ -733,9 +762,6 @@ nanny(struct descriptor_data * d, char *arg)
 				break;
 			} else if (is_abbrev(arg, "keep")) {
 				save_char(d->character, NULL);
-                SEND_TO_Q("Attributes Saved.",d);
-				set_desc_state( CON_RMOTD,d );
-
 				sprintf(buf, "%s [%s] new player.", GET_NAME(d->character), d->host);
 				mudlog(buf, NRM, LVL_GOD, TRUE);
 				GET_HOME(d->character) = HOME_NEWBIE_SCHOOL;
@@ -745,6 +771,9 @@ nanny(struct descriptor_data * d, char *arg)
 					GET_PFILEPOS(d->character) = create_entry(GET_NAME(d->character));
 				init_char(d->character);
 				save_char(d->character, NULL);
+				set_desc_state( CON_EXDESC,d );
+				start_text_editor(d,&d->character->player.description,true, MAX_CHAR_DESC-1);
+
 			} else
 				SEND_TO_Q("You must type 'reroll' or 'keep'.\r\n", d);
 			break;
@@ -776,14 +805,6 @@ nanny(struct descriptor_data * d, char *arg)
 					}
 				}
 				if (!mini_mud)    SEND_TO_Q("\033[H\033[J", d);
-				if (!d->character->player.description && !GET_LEVEL(d->character)) {
-					SEND_TO_Q("Other players will usually be able to determine your general\r\n"
-							  "size, as well as your race and gender, by looking at you.  What\r\n"
-							  "else is noticable about your character?\r\n", d);
-					start_text_editor(d,&d->character->player.description,true, MAX_CHAR_DESC-1);
-					set_desc_state( CON_EXDESC,d );
-					break;
-				}
 
 				reset_char(d->character);
 
@@ -1347,8 +1368,9 @@ make_prompt(struct descriptor_data * d)
 				CCCYN(d->character, C_NRM),CCNRM(d->character,C_NRM));
 			SEND_TO_Q( prompt,d );
             break;
-		case CON_QCLASS_PAST:		// Class?
-		case CON_QCLASS_FUTURE:		// Class?
+		case CON_QCLASS_PAST:
+		case CON_QCLASS_FUTURE:
+		case CON_QCLASS_REMORT:
 			sprintf( prompt,"\r\n%s          Choose your profession from the above list: %s",
 				CCCYN(d->character, C_NRM),CCNRM(d->character,C_NRM));
 			SEND_TO_Q( prompt,d );
@@ -1398,7 +1420,7 @@ make_prompt(struct descriptor_data * d)
 			SEND_TO_Q("Would you like to REROLL or KEEP these attributes? ",d);
 			break;
 		case CON_RMOTD:				// PRESS RETURN after MOTD
-			SEND_TO_Q("\r\n*** PRESS RETURN: ", d);
+			SEND_TO_Q("\r\n  Press return to continue.", d);
 			break;
 		case CON_MENU:				// Your choice: (main menu)
 			show_menu(d); break;
@@ -1424,6 +1446,7 @@ make_prompt(struct descriptor_data * d)
 		case CON_CLASSHELP_P:		
 		case CON_RACEHELP_F:		
 		case CON_CLASSHELP_F:		
+			SEND_TO_Q("\r\n  Press return to continue.", d);
 			break;
 		case CON_NETWORK:
             SEND_TO_Q("> ",d ); break;
@@ -1482,17 +1505,23 @@ make_menu( struct descriptor_data *d )
 			SEND_TO_Q(buf,d);
 			show_time_menu( d );
 			break;
-		case CON_QCLASS_PAST:		// Class?
+		case CON_QCLASS_PAST:
 			SEND_TO_Q( "\033[H\033[J",d );
 			sprintf(buf,"%s\r\n                                   PROFESSION\r\n*******************************************************************************\r\n\r\n\r\n",CCCYN(d->character,C_NRM));
 			SEND_TO_Q(buf,d);
-            show_char_class_menu_past(d);
+			show_char_class_menu(d, TIME_PAST);
 			break;
-		case CON_QCLASS_FUTURE:		// Class?
+		case CON_QCLASS_FUTURE:
 			SEND_TO_Q( "\033[H\033[J",d );
 			sprintf(buf,"%s\r\n                                   PROFESSION\r\n*******************************************************************************\r\n\r\n\r\n",CCCYN(d->character,C_NRM));
 			SEND_TO_Q(buf,d);
-            show_char_class_menu_future(d);
+			show_char_class_menu(d, TIME_FUTURE);
+			break;
+		case CON_QCLASS_REMORT:
+			SEND_TO_Q( "\033[H\033[J",d );
+			sprintf(buf,"%s\r\n                                   PROFESSION\r\n*******************************************************************************\r\n\r\n\r\n",CCCYN(d->character,C_NRM));
+			SEND_TO_Q(buf,d);
+            show_char_class_menu(d);
 			break;
 		case CON_CLASSHELP_P:		
 			SEND_TO_Q( "\033[H\033[J",d );
@@ -1509,6 +1538,14 @@ make_menu( struct descriptor_data *d )
 			sprintf(buf,"%s\r\n                                   ALIGNMENT\r\n*******************************************************************************\r\n",CCCYN(d->character,C_NRM));
 			SEND_TO_Q(buf,d);
 			SEND_TO_Q("\r\n\r\n    ALIGNMENT is a measure of your philosophies and morals.\r\n\r\n", d);
+			break;
+		case CON_EXDESC:
+			SEND_TO_Q("\033[H\033[J", d);
+			sprintf(buf,"%s\r\n                                  DESCRIPTION\r\n*******************************************************************************\r\n",CCCYN(d->character,C_NRM));
+			SEND_TO_Q(buf,d);
+			SEND_TO_Q("\r\n\r\n    Other players will usually be able to determine your general\r\n"
+					  "size, as well as your race and gender, by looking at you.  What\r\n"
+					  "else is noticable about your character?\r\n\r\n", d);
 			break;
 		case CON_NETWORK:
 			SEND_TO_Q("\033[H\033[J",d );

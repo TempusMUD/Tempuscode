@@ -81,6 +81,8 @@
 #define TIME_TIMELESS       0
 #define TIME_MODRIAN        1
 #define TIME_ELECTRO        2
+#define TIME_PAST			TIME_MODRIAN
+#define TIME_FUTURE			TIME_ELECTRO
 
 struct ticl_data;
 

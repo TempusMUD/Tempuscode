@@ -1859,9 +1859,10 @@ damage(struct char_data *ch, struct char_data *victim, int dam,
 				}
 				// Killed someone else
 				if (victim != ch) {
-					sprintf(buf2, "%s %skilled by %s at %s ( %d )",
+					sprintf(buf2, "%s %skilled by %s at %s ( %d )%s",
 						GET_NAME(victim), !IS_NPC(ch) ? "p" : "", GET_NAME(ch),
-						victim->in_room->name, victim->in_room->number);
+						victim->in_room->name, victim->in_room->number,
+						affected_by_spell(ch, SPELL_QUAD_DAMAGE) ? "QUAD":"");
 
 					// If it's not arena, give em a pkill
 					if (!arena) {

@@ -25,6 +25,7 @@ enum {
 	CON_QSEX,					// Sex?             
 	CON_QCLASS_PAST,			// Class past?          
 	CON_QCLASS_FUTURE,			// Class future?            
+	CON_QCLASS_REMORT,			// Class remort?
 	CON_RMOTD,					// PRESS RETURN after MOTD  
 	CON_MENU,					// Your choice: (main menu) 
 	CON_EXDESC,					// Enter a new description: 

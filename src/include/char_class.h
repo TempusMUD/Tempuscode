@@ -19,6 +19,7 @@ extern const float thaco_factor[NUM_CLASSES];
 extern const int exp_scale[LVL_GRIMP + 2];
 extern const struct title_type titles[NUM_CLASSES][LVL_GRIMP + 1];
 extern const char *evil_knight_titles[LVL_GRIMP + 1];
+extern const char race_restr[NUM_PC_RACES][NUM_CLASSES + 1];
 
 #endif
 

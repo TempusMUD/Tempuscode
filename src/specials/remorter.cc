@@ -48,7 +48,7 @@ void Crash_save_implants(struct char_data *ch, bool extract = true);
 SPECIAL(remorter)
 {
 	static Quiz quiz;
-	int char_class_choice, i;
+	int i;
 	int value, level;
 	struct obj_data *obj = NULL, *next_obj = NULL;
 
@@ -108,80 +108,6 @@ SPECIAL(remorter)
 			send_to_char
 				("You must say 'remort' to begin or 'goodbye' to leave.\r\n",
 				ch);
-		}
-		return 1;
-	}
-	// ** TEST FINISHED
-	if (quiz.isComplete()) {
-		char_class_choice = parse_char_class(argument);
-		if (char_class_choice == CLASS_UNDEFINED
-			|| char_class_choice >= CLASS_SPARE1
-			|| char_class_choice == CLASS_WARRIOR
-			|| char_class_choice == CLASS_VAMPIRE) {
-			send_to_char("You must choose one of the following:\r\n", ch);
-			show_char_class_menu(ch->desc);
-		} else if (char_class_choice == GET_CLASS(ch) ||
-			(GET_CLASS(ch) == CLASS_VAMPIRE
-				&& char_class_choice == GET_OLD_CLASS(ch))) {
-			send_to_char
-				("You must pick a char_class other than your first char_class.\r\n",
-				ch);
-
-		} else {
-			if (GET_CLASS(ch) == CLASS_VAMPIRE) {
-				GET_CLASS(ch) = GET_OLD_CLASS(ch);
-			}
-			GET_REMORT_CLASS(ch) = char_class_choice;
-
-			// Remove all affects
-			while (ch->affected)
-				affect_remove(ch, ch->affected);
-			// Wipe thier skills
-			for (i = 1; i <= MAX_SKILLS; i++)
-				SET_SKILL(ch, i, 0);
-
-			do_start(ch, FALSE);
-
-			REMOVE_BIT(PRF_FLAGS(ch),
-				PRF_NOPROJECT | PRF_ROOMFLAGS | PRF_HOLYLIGHT | PRF_NOHASSLE |
-				PRF_LOG1 | PRF_LOG2 | PRF_NOWIZ);
-			REMOVE_BIT(PLR_FLAGS(ch),
-				PLR_HALT | PLR_INVSTART | PLR_QUESTOR | PLR_MORTALIZED |
-				PLR_OLCGOD);
-
-			GET_INVIS_LEV(ch) = 0;
-			GET_REMORT_INVIS(ch) = 0;
-			GET_COND(ch, DRUNK) = 0;
-			GET_COND(ch, FULL) = 0;
-			GET_COND(ch, THIRST) = 0;
-
-			// Give em another gen
-			if (GET_REMORT_GEN(ch) < 10)
-				GET_REMORT_GEN(ch)++;
-			// Whack thier remort invis
-			GET_REMORT_INVIS(ch) = 0;
-			GET_WIMP_LEV(ch) = 0;	// wimpy
-			GET_TOT_DAM(ch) = 0;	// cyborg damage 
-
-			// Tell everyone that they remorted
-			sprintf(buf, "%s has remorted to gen %d as a %s/%s. Score(%d)",
-				GET_NAME(ch), GET_REMORT_GEN(ch),
-				pc_char_class_types[(int)GET_CLASS(ch)],
-				pc_char_class_types[(int)GET_REMORT_CLASS(ch)],
-				quiz.getScore());
-			mudlog(buf, BRF, LVL_IMMORT, FALSE);
-			quiz.log(buf);
-			quiz.logScore();
-
-			REMOVE_BIT(ch->in_room->room_flags, ROOM_NORECALL);
-			quiz.reset();
-
-			// Save the char and its implants but not its eq
-			save_char(ch, NULL);
-			Crash_save_implants(ch);
-			ch->extract(false, false, CON_MENU);
-
-			//ch->extract(true, true, CON_MENU);
 		}
 		return 1;
 	}
@@ -286,11 +212,22 @@ SPECIAL(remorter)
 		quiz.sendQuestion(ch);
 		return 1;
 	} else {					// *******    TEST COMPLETE.  YAY.
-		send_to_char("The test is over.\r\n", ch);
+		// remove all eq and affects here, just in case
+		for (i = 0; i < NUM_WEARS; i++) {
+			if ((obj = GET_EQ(ch, i))) {
+				extract_obj(GET_EQ(ch, i));
+			}
+		}
+
 		while (ch->affected)
 			affect_remove(ch, ch->affected);
 
+		// Save the char and its implants but not its eq
+		save_char(ch, NULL);
+		Crash_save_implants(ch);
+
 		if (!quiz.isPassing()) {
+			send_to_char("The test is over.\r\n", ch);
 			sprintf(buf, "Your answers were only %d percent correct.\r\n"
 				//"You must be able to answer %d percent correctly.\r\n"
 				"You are unable to remort at this time.\r\n", quiz.getScore());
@@ -302,29 +239,55 @@ SPECIAL(remorter)
 			quiz.logScore();
 			REMOVE_BIT(ch->in_room->room_flags, ROOM_NORECALL);
 
-			// remove all eq and affects here, just in case
-			for (i = 0; i < NUM_WEARS; i++) {
-				if ((obj = GET_EQ(ch, i))) {
-					extract_obj(GET_EQ(ch, i));
-				}
-			}
-
-			while (ch->affected)
-				affect_remove(ch, ch->affected);
-
-			// Save the char and its implants but not its eq
-			save_char(ch, NULL);
-			Crash_save_implants(ch);
 			ch->extract(false, false, CON_MENU);
 			//ch->extract(true, true, CON_MENU);
 			quiz.reset();
 			return 1;
+		} else {
+			// Wipe thier skills
+			for (i = 1; i <= MAX_SKILLS; i++)
+				SET_SKILL(ch, i, 0);
+
+			do_start(ch, FALSE);
+
+			REMOVE_BIT(PRF_FLAGS(ch),
+				PRF_NOPROJECT | PRF_ROOMFLAGS | PRF_HOLYLIGHT | PRF_NOHASSLE |
+				PRF_LOG1 | PRF_LOG2 | PRF_NOWIZ);
+			REMOVE_BIT(PLR_FLAGS(ch),
+				PLR_HALT | PLR_INVSTART | PLR_QUESTOR | PLR_MORTALIZED |
+				PLR_OLCGOD);
+
+			GET_INVIS_LEV(ch) = 0;
+			GET_REMORT_INVIS(ch) = 0;
+			GET_COND(ch, DRUNK) = 0;
+			GET_COND(ch, FULL) = 0;
+			GET_COND(ch, THIRST) = 0;
+
+			// Give em another gen
+			if (GET_REMORT_GEN(ch) < 10)
+				GET_REMORT_GEN(ch)++;
+			// Whack thier remort invis
+			GET_REMORT_INVIS(ch) = 0;
+			GET_WIMP_LEV(ch) = 0;	// wimpy
+			GET_TOT_DAM(ch) = 0;	// cyborg damage 
+
+			// Tell everyone that they remorted
+			sprintf(buf, "%s completed gen %d remort test with score %d",
+				GET_NAME(ch), GET_REMORT_GEN(ch),
+				quiz.getScore());
+			mudlog(buf, BRF, LVL_IMMORT, FALSE);
+			quiz.log(buf);
+			quiz.logScore();
+
+			REMOVE_BIT(ch->in_room->room_flags, ROOM_NORECALL);
+			quiz.reset();
+
+			// Save the char and its implants but not its eq
+			save_char(ch, NULL);
+			Crash_save_implants(ch);
+			ch->extract(false, false, CON_QCLASS_REMORT);
+
+			return 1;
 		}
-		send_to_char("You have passed the test!\r\n", ch);
-		send_to_char("You have succeeded in remortalizing!\r\n"
-			"You may now choose your second char_class for this reincarnation.\r\n"
-			"Choose by speaking the char_class which you desire.", ch);
-		show_char_class_menu(ch->desc);
-		return 1;
 	}
 }

@@ -12,6 +12,7 @@
 
 
 /* PC char_classes */
+static const int CLASS_HELP = -2;
 static const int CLASS_UNDEFINED = -1;
 static const int CLASS_MAGIC_USER = 0;
 static const int CLASS_MAGE = CLASS_MAGIC_USER;
@@ -167,6 +168,7 @@ static const int RACE_WEMIC = 50;
 static const int RACE_RAKSHASA = 51;
 static const int RACE_SPIDER = 52;
 static const int NUM_RACES = 53;
+static const int NUM_PC_RACES = 9;
 
 /* Hometown defines                            */
 

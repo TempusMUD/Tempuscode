@@ -11,22 +11,16 @@
 #include "interpreter.h"
 #include "utils.h"
 #include "login.h"
+#include "char_class.h"
 
-//
-// The colorful menu
-// this should really be made into a loadable text file.
-//
+void show_race_help(struct descriptor_data *d, int race, int timeframe);
 
 void
 show_menu(struct descriptor_data *d)
 {
-
 	if (!(d->character)) {
 		return;
 	}
-
-
-
 
 	SEND_TO_Q("\r\n\r\n", d);
 
@@ -79,80 +73,68 @@ show_menu(struct descriptor_data *d)
 //
 
 void
-show_char_class_menu(struct descriptor_data *d)
+show_char_class_menu(struct descriptor_data *d, int timeframe = 0)
 {
-	strcpy(buf, "\r\nSelect a character class:\r\n");
-	strcat(buf, "  Cleric\r\n");
-	strcat(buf, "  Thief\r\n");
-	strcat(buf, "  Barbarian\r\n");
-	strcat(buf, "  Mage\r\n");
-	strcat(buf, "  Psionic\r\n");
-	strcat(buf, "  Physic\r\n");
-	strcat(buf, "  Cyborg\r\n");
-	strcat(buf, "  Knight\r\n");
-	strcat(buf, "  Ranger\r\n");
-	strcat(buf, "  Hoodlum\r\n");
-	strcat(buf, "  Monk\r\n");
-	SEND_TO_Q(buf, d);
-}
+	char_data *ch = d->character;
+	int i;
 
-//
-// show_char_class_menu_past
-//
+	for (i = 0;i < NUM_PC_RACES;i++)
+		if (race_restr[i][0] == GET_RACE(ch))
+			break;
+		
+	buf[0] = '\0';
+	if (!timeframe || timeframe == TIME_PAST) {
+		if (GET_CLASS(ch) != CLASS_MAGE && race_restr[i][CLASS_MAGE + 1])
+			sprintf(buf,
+				"%s                %sMage%s      --  Delver in Magical Arts\r\n",
+				buf, CCGRN(d->character, C_NRM), CCCYN(d->character, C_NRM));
+		if (GET_CLASS(ch) != CLASS_BARB && race_restr[i][CLASS_BARB + 1])
+			sprintf(buf, "%s                %sBarbarian%s --  Uncivilized Warrior\r\n",
+				buf, CCGRN(d->character, C_NRM), CCCYN(d->character, C_NRM));
+		if (GET_CLASS(ch) != CLASS_KNIGHT && race_restr[i][CLASS_KNIGHT + 1])
+			sprintf(buf,
+				"%s                %sKnight%s    --  Defender of the Faith\r\n", buf,
+				CCGRN(d->character, C_NRM), CCCYN(d->character, C_NRM));
+		if (GET_CLASS(ch) != CLASS_RANGER && race_restr[i][CLASS_RANGER + 1])
+			sprintf(buf, "%s                %sRanger%s    --  Roamer of Worlds\r\n",
+				buf, CCGRN(d->character, C_NRM), CCCYN(d->character, C_NRM));
+		if (GET_CLASS(ch) != CLASS_CLERIC && race_restr[i][CLASS_CLERIC + 1])
+			sprintf(buf, "%s                %sCleric%s    --  Servant of Diety\r\n",
+				buf, CCGRN(d->character, C_NRM), CCCYN(d->character, C_NRM));
+		if (GET_CLASS(ch) != CLASS_THIEF && race_restr[i][CLASS_THIEF + 1])
+			sprintf(buf, "%s                %sThief%s     --  Stealthy Rogue\r\n", buf,
+			CCGRN(d->character, C_NRM), CCCYN(d->character, C_NRM));
+	}
 
-void
-show_char_class_menu_past(struct descriptor_data *d)
-{
+	// Print future classes
+	if (!timeframe || timeframe == TIME_FUTURE) {
+		if (GET_CLASS(ch) != CLASS_CYBORG && race_restr[i][CLASS_CYBORG + 1])
+			sprintf(buf,
+				"%s                %sCyborg%s      --  The Electronically Advanced\r\n",
+				buf, CCGRN(d->character, C_NRM), CCCYN(d->character, C_NRM));
+		if (GET_CLASS(ch) != CLASS_PSIONIC && race_restr[i][CLASS_PSIONIC + 1])
+			sprintf(buf, "%s                %sPsionic%s     --  Mind Traveller\r\n",
+				buf, CCGRN(d->character, C_NRM), CCCYN(d->character, C_NRM));
+		if (GET_CLASS(ch) != CLASS_MERCENARY && race_restr[i][CLASS_MERCENARY + 1])
+			sprintf(buf, "%s                %sMercenary%s   --  Gun for Hire\r\n", buf,
+				CCGRN(d->character, C_NRM), CCCYN(d->character, C_NRM));
+		if (GET_CLASS(ch) != CLASS_PHYSIC && race_restr[i][CLASS_PHYSIC + 1])
+			sprintf(buf,
+				"%s                %sPhysic%s      --  Controller of Forces\r\n", buf,
+				CCGRN(d->character, C_NRM), CCCYN(d->character, C_NRM));
+		if (GET_CLASS(ch) != CLASS_HOOD && race_restr[i][CLASS_HOOD + 1])
+			sprintf(buf,
+				"%s                %sHoodlum%s     --  The Lowdown Street Punk\r\n",
+				buf, CCGRN(d->character, C_NRM), CCCYN(d->character, C_NRM));
+	}
 
-	sprintf(buf,
-		"                %sMage%s      --  Delver in Magical Arts\r\n",
-		CCGRN(d->character, C_NRM), CCCYN(d->character, C_NRM));
-	sprintf(buf, "%s                %sBarbarian%s --  Uncivilized Warrior\r\n",
-		buf, CCGRN(d->character, C_NRM), CCCYN(d->character, C_NRM));
-	sprintf(buf,
-		"%s                %sKnight%s    --  Defender of the Faith\r\n", buf,
-		CCGRN(d->character, C_NRM), CCCYN(d->character, C_NRM));
-	sprintf(buf, "%s                %sRanger%s    --  Roamer of Worlds\r\n",
-		buf, CCGRN(d->character, C_NRM), CCCYN(d->character, C_NRM));
-	sprintf(buf, "%s                %sCleric%s    --  Servant of Diety\r\n",
-		buf, CCGRN(d->character, C_NRM), CCCYN(d->character, C_NRM));
-	sprintf(buf, "%s                %sThief%s     --  Stealthy Rogue\r\n", buf,
-		CCGRN(d->character, C_NRM), CCCYN(d->character, C_NRM));
-	sprintf(buf,
-		"%s                %sMonk%s      --  Philosophical Warrior\r\n", buf,
-		CCGRN(d->character, C_NRM), CCCYN(d->character, C_NRM));
+	// Monks are both future and past
+	if (GET_CLASS(ch) != CLASS_MONK && race_restr[i][CLASS_MONK + 1])
+		sprintf(buf,
+			"%s                %sMonk%s      --  Philosophical Warrior\r\n", buf,
+			CCGRN(ch, C_NRM), CCCYN(ch, C_NRM));
 
 	strcat(buf, CCNRM(d->character, C_NRM));
-
-	SEND_TO_Q(buf, d);
-}
-
-//
-// show_char_class_menu_future
-//
-
-void
-show_char_class_menu_future(struct descriptor_data *d)
-{
-	sprintf(buf,
-		"                %sCyborg%s      --  The Electronically Advanced\r\n",
-		CCGRN(d->character, C_NRM), CCCYN(d->character, C_NRM));
-	sprintf(buf, "%s                %sPsionic%s     --  Mind Traveller\r\n",
-		buf, CCGRN(d->character, C_NRM), CCCYN(d->character, C_NRM));
-	sprintf(buf, "%s                %sMercenary%s   --  Gun for Hire\r\n", buf,
-		CCGRN(d->character, C_NRM), CCCYN(d->character, C_NRM));
-	sprintf(buf,
-		"%s                %sPhysic%s      --  Controller of Forces\r\n", buf,
-		CCGRN(d->character, C_NRM), CCCYN(d->character, C_NRM));
-	sprintf(buf,
-		"%s                %sHoodlum%s     --  The Lowdown Street Punk\r\n",
-		buf, CCGRN(d->character, C_NRM), CCCYN(d->character, C_NRM));
-	sprintf(buf,
-		"%s                %sMonk%s        --  Philosophical Warrior\r\n", buf,
-		CCGRN(d->character, C_NRM), CCCYN(d->character, C_NRM));
-
-	strcat(buf, CCNRM(d->character, C_NRM));
-
 	SEND_TO_Q(buf, d);
 }
 
@@ -437,10 +419,6 @@ show_time_menu(struct descriptor_data *d)
 	SEND_TO_Q(buf, d);
 }
 
-//
-// show_race_menu_past
-//
-
 void
 show_race_menu_past(struct descriptor_data *d)
 {
@@ -470,96 +448,8 @@ show_race_menu_past(struct descriptor_data *d)
 	SEND_TO_Q(buf, d);
 }
 
-//
-// show_race_help_past
-//
-
-void
-show_race_help_past(struct descriptor_data *d, int race)
-{
-
-	SEND_TO_Q("\r\n", d);
-	switch (race) {
-
-	case RACE_HUMAN:
-		SEND_TO_Q("Heh, do you need help?\r\n", d);
-		break;
-	case RACE_ELF:
-		SEND_TO_Q
-			("   Elves are an agile, intellegent race which lives in close\r\n"
-			"harmony with the natural world.  They are very long lived, often\r\n"
-			"exceeding a thousand years in age.  Elves are especially adept\r\n"
-			"with bows and swords, resistant to Charm and Sleep spells, and\r\n"
-			"have natural night vision.  Elves, however, are hated by the\r\n"
-			"evil humanoid races such as the orcs and goblins.\r\n"
-			"Elves can be of any char_class except Barbarian.\r\n", d);
-		break;
-	case RACE_DROW:
-		SEND_TO_Q
-			("   The Drow are a race of evil creatures that live beneath the ground.\r\n"
-			"The strongest concentration of drow has been pinpointed to Skullport\r\n"
-			"inside Undermountain.  This is only the information that we have garnered\r\n"
-			"from the few that we have captured.  The truth is far from known.\r\n"
-			"     Drow are subterranean elves that have spent their entire lives\r\n"
-			"underground.  Like elves they are slightly faster, and smarter than\r\n"
-			"humans, and just a little less healty.  Unlike elves, the lifespan of\r\n"
-			"Drow is only around 500 yrs.  This is probably due to their link with\r\n"
-			"chaos.  Drow have to start in Skullport, and must be evil.\r\n"
-			"Drow may be of any char_class except barbarian and monk.\r\n", d);
-		break;
-	case RACE_DWARF:
-		SEND_TO_Q
-			("   Dwarves are short, stocky humanoids which feel most at home in\r\n"
-			"deep caves and mountains.  They are usually quite strong and healthy\r\n"
-			"can see in the dark, and have great success fighting giant creatures,\r\n"
-			"but tend be ill-tempered.  Dwarves are unable to use magical spells\r\n"
-			"and have much difficulty getting magical items to work.  Dwarves\r\n"
-			"tolerate elves, but hate orcs and goblins, and attack them on sight!\r\n"
-			"Dwarves cannot be Mages, Monks, or Rangers.\r\n", d);
-		break;
-	case RACE_HALF_ORC:
-		SEND_TO_Q
-			("   Half-Orcs are the result of a cross breeding of an orc and human,\r\n"
-			"the father usually being the orc.  The other races usually hate\r\n"
-			"half-orcs, but tolerate them.  Half-orcs are especially strong\r\n"
-			"and visious, but have no magical abilities.  They are able to see\r\n"
-			"in the dark, and are able to take a lot of abuse.\r\n"
-			"Half-Orcs cannot be Clerics, Mages, Knights, Monks, or Rangers.\r\n",
-			d);
-		break;
-	case RACE_TABAXI:
-		SEND_TO_Q
-			("   This is an intellegent race of feline humanoids from the far\r\n"
-			"reaches of the jungles of the southern continent.  Most tabaxi are\r\n"
-			"at least as tall as their human counterparts, but more lithe.\r\n"
-			"Adult tabaxi are covered in light tawny fur which is striped in\r\n"
-			"black, and their eyes range in color from green to yellow.  Tabaxi\r\n"
-			"are exceptionally agile, and fairly strong, but their intellegence\r\n"
-			"is somewhat animalistic.  Tabaxi may be of all char_classes except Knight.\r\n",
-			d);
-		break;
-	case RACE_MINOTAUR:
-		SEND_TO_Q
-			("   Minotaurs are the result of an ancient curse which transformed\r\n"
-			"men into powerful monsters with the head of a bull.  Minotaurs are\r\n"
-			"very large and strong, but often somewhat lacking in mental\r\n"
-			"facilities.  Minotaurs may not be knights, monks, or thieves.\r\n",
-			d);
-		break;
-
-	default:
-		SEND_TO_Q("There is no help on that race.\r\n", d);
-		break;
-	}
-	SEND_TO_Q("\r\n", d);
-}
-
-//
-// parse_race_past
-//
-
 int
-parse_race_past(struct descriptor_data *d, char *arg)
+parse_pc_race(struct descriptor_data *d, char *arg, int timeframe)
 {
 	int race = -1;
 
@@ -570,8 +460,8 @@ parse_race_past(struct descriptor_data *d, char *arg)
 		if (!*buf2)
 			SEND_TO_Q("Help on what race?\r\n", d);
 		else {
-			race = parse_race_past(d, buf2);
-			show_race_help_past(d, race);
+			race = parse_pc_race(d, buf2, timeframe);
+			show_race_help(d, race, timeframe);
 		}
 		return (-2);
 	}
@@ -580,45 +470,26 @@ parse_race_past(struct descriptor_data *d, char *arg)
 		return RACE_HUMAN;
 	else if (is_abbrev(buf, "elf") || is_abbrev(buf, "elven"))
 		return RACE_ELF;
-	else if (is_abbrev(buf, "dwarf") || is_abbrev(buf, "dwarven"))
-		return RACE_DWARF;
 	else if (is_abbrev(buf, "half orc") || is_abbrev(buf, "half orcen"))
 		return RACE_HALF_ORC;
 	else if (is_abbrev(buf, "tabaxi"))
 		return RACE_TABAXI;
-	else if (is_abbrev(buf, "minotaur"))
-		return RACE_MINOTAUR;
-	else if (is_abbrev(buf, "drow"))
-		return RACE_DROW;
+	if (timeframe == TIME_PAST) {
+		// Past only classes
+		if (is_abbrev(buf, "dwarf") || is_abbrev(buf, "dwarven"))
+			return RACE_DWARF;
+		else if (is_abbrev(buf, "minotaur"))
+			return RACE_MINOTAUR;
+		else if (is_abbrev(buf, "drow"))
+			return RACE_DROW;
+	} else {
+		// Future only races
+		if (is_abbrev(buf, "orc"))
+			return RACE_ORC;
+	}
 
 	return (-1);
 }
-
-//
-// show_race_restrict_past      (crude)
-//
-
-void
-show_race_restrict_past(struct descriptor_data *d)
-{
-	strcpy(buf, "\r\n");
-	strcat(buf, CCYEL(d->character, C_NRM));
-	strcat(buf, "           The restrictions are:\r\n");
-	strcat(buf, "           HUMAN         can't be - none\r\n");
-	strcat(buf, "           ELF           can't be - barbarian\r\n");
-	strcat(buf, "           DWARF         can't be - mage, ranger, monk\r\n");
-	strcat(buf,
-		"           HALF-ORC      can't be - cleric, mage, knight, monk\r\n");
-	strcat(buf, "           TABAXI        can't be - knight\r\n");
-	strcat(buf, "           MINOTAUR      can't be - knight, thief, monk\r\n");
-	strcat(buf, "           DROW          can't be - barbarian, monk\r\n");
-	strcat(buf, CCNRM(d->character, C_NRM));
-	SEND_TO_Q(buf, d);
-}
-
-//
-// show_race_menu_future
-//
 
 void
 show_race_menu_future(struct descriptor_data *d)
@@ -643,17 +514,12 @@ show_race_menu_future(struct descriptor_data *d)
 	SEND_TO_Q(buf, d);
 }
 
-//
-// show_race_help_future
-//
-
 void
-show_race_help_future(struct descriptor_data *d, int race)
+show_race_help(struct descriptor_data *d, int race, int timeframe)
 {
 
 	SEND_TO_Q("\r\n", d);
 	switch (race) {
-
 	case RACE_HUMAN:
 		SEND_TO_Q("Heh, do you need help?\r\n", d);
 		break;
@@ -665,14 +531,14 @@ show_race_help_future(struct descriptor_data *d, int race)
 			"with bows and swords, resistant to Charm and Sleep spells, and\r\n"
 			"have natural night vision.  Elves, however, are hated by the\r\n"
 			"evil humanoid races such as the orcs and goblins.\r\n"
-			"Elves can be of any char_class except Barbarian.\r\n", d);
+			"Elves can be of any class except Barbarian.\r\n", d);
 		break;
 	case RACE_HALF_ORC:
 		SEND_TO_Q
 			("   Half-Orcs are the result of a cross breeding of an orc and human,\r\n"
 			"the father usually being the orc.  The other races usually hate\r\n"
 			"half-orcs, but tolerate them.  Half-orcs are especially strong\r\n"
-			"and visious, but have no magical abilities.  They are able to see\r\n"
+			"and viscious, but have no magical abilities.  They are able to see\r\n"
 			"in the dark, and are able to take a lot of abuse.\r\n"
 			"Half-Orcs cannot be Clerics, Mages, Knights, Monks, or Rangers.\r\n",
 			d);
@@ -685,67 +551,44 @@ show_race_help_future(struct descriptor_data *d, int race)
 			"Adult tabaxi are covered in light tawny fur which is striped in\r\n"
 			"black, and their eyes range in color from green to yellow.  Tabaxi\r\n"
 			"are exceptionally agile, and fairly strong, but their intellegence\r\n"
-			"is somewhat animalistic.  Tabaxi may be of all char_classes except Knight.\r\n",
+			"is somewhat animalistic.  Tabaxi may be of all classes except Knight.\r\n",
 			d);
+		break;
+	case RACE_MINOTAUR:
+		SEND_TO_Q
+			("   Minotaurs are the result of an ancient curse which transformed\r\n"
+			"men into powerful monsters with the head of a bull.  Minotaurs are\r\n"
+			"very large and strong, but often lacking in mental\r\n"
+			"facilities.  Minotaurs may not be knights, monks, or thieves.\r\n",
+			d);
+		break;
+
+	case RACE_DROW:
+		SEND_TO_Q
+			("   The Drow are a race of evil creatures that live beneath the ground.\r\n"
+			"The strongest concentration of drow has been pinpointed to Skullport\r\n"
+			"inside Undermountain.  This is only the information that we have garnered\r\n"
+			"from the few that we have captured.  The truth is far from known.\r\n"
+			"     Drow are subterranean elves that have spent their entire lives\r\n"
+			"underground.  Like elves they are slightly faster, and smarter than\r\n"
+			"humans, and just a little less healty.  Unlike elves, the lifespan of\r\n"
+			"Drow is only around 500 yrs.  This is probably due to their link with\r\n"
+			"chaos.  Drow have to start in Skullport, and must be evil.\r\n"
+			"Drow may be of any char_class except barbarian and monk.\r\n", d);
+		break;
+	case RACE_DWARF:
+		SEND_TO_Q
+			("   Dwarves are short, stocky humanoids which feel most at home in\r\n"
+			"deep caves and mountains.  They are usually quite strong and healthy\r\n"
+			"can see in the dark, and have great success fighting giant creatures,\r\n"
+			"but tend be ill-tempered.  Dwarves are unable to use magical spells\r\n"
+			"and have much difficulty getting magical items to work.  Dwarves\r\n"
+			"tolerate elves, but hate orcs and goblins, and attack them on sight!\r\n"
+			"Dwarves cannot be Mages, Monks, or Rangers.\r\n", d);
 		break;
 	default:
 		SEND_TO_Q("There is no help on that race.\r\n", d);
 		break;
 	}
 	SEND_TO_Q("\r\n", d);
-}
-
-//
-// parse_race_future
-//
-
-int
-parse_race_future(struct descriptor_data *d, char *arg)
-{
-	int race = -1;
-
-	skip_spaces(&arg);
-	half_chop(arg, buf, buf2);
-
-	if (!str_cmp(buf, "help")) {
-		if (!*buf2)
-			SEND_TO_Q("Help on what race?\r\n", d);
-		else {
-			race = parse_race_past(d, buf2);
-			show_race_help_future(d, race);
-		}
-		return (-2);
-	}
-
-	if (is_abbrev(buf, "human"))
-		return RACE_HUMAN;
-	else if (is_abbrev(buf, "elf") || is_abbrev(buf, "elven"))
-		return RACE_ELF;
-	else if (is_abbrev(buf, "half orc") || is_abbrev(buf, "half orcen"))
-		return RACE_HALF_ORC;
-	else if (is_abbrev(buf, "orc"))
-		return RACE_ORC;
-	else if (is_abbrev(buf, "tabaxi"))
-		return RACE_TABAXI;
-
-	return (-1);
-}
-
-//
-// show_race_restrict_future (crude)
-//
-
-void
-show_race_restrict_future(struct descriptor_data *d)
-{
-	strcpy(buf, "\r\n");
-	strcat(buf, CCYEL(d->character, C_NRM));
-	strcat(buf, "           The restrictions are:\r\n");
-	strcat(buf, "           HUMAN         none\r\n");
-	strcat(buf, "           ELF           cyborg\r\n");
-	strcat(buf, "           HALF-ORC      psionic\r\n");
-	strcat(buf, "           ORC           physic, psionic\r\n");
-	strcat(buf, "           TABAXI        none\r\n");
-	strcat(buf, CCNRM(d->character, C_NRM));
-	SEND_TO_Q(buf, d);
 }
