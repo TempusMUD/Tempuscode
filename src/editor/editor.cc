@@ -61,7 +61,7 @@ start_text_editor(struct descriptor_data *d, char **dest, bool sendmessage=true,
 void CTextEditor::Process( char *inStr ) {
     // 2 special chars, @ and &
     char inbuf[MAX_INPUT_LENGTH + 1];
-    strncpy(inbuf,inStr,MAX_INPUT_LEN);
+    strncpy(inbuf,inStr,MAX_INPUT_LENGTH);
 
     delete_doubledollar(inbuf);
 

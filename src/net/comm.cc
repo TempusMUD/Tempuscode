@@ -804,15 +804,15 @@ record_usage(void)
 void 
 make_prompt(struct descriptor_data * d)
 {
-    char lnum[5];
+	char prompt[MAX_INPUT_LENGTH];
     char colorbuf[ 100 ];	
   
     if (d->text_editor) {
-	    sprintf(lnum, "%-2d%s]%s ",
+	    sprintf(prompt, "%-2d%s]%s ",
         d->editor_cur_lnum, 
         CCBLU_BLD(d->character,C_NRM), 
         CCNRM(d->character,C_NRM));
-	    write_to_descriptor(d->descriptor, lnum);
+	    write_to_descriptor(d->descriptor, prompt);
 	}
     else if (d->showstr_point) {
 	sprintf(buf, " %s%s******%s  Press return to continue, q to quit  %s******%s",
@@ -822,7 +822,6 @@ make_prompt(struct descriptor_data * d)
 	write_to_descriptor(d->descriptor, buf);
     } else if (!d->connected && (d->prompt_mode != 2 ||
 				 PRF2_FLAGGED(d->character, PRF2_AUTOPROMPT))) {
-	char prompt[MAX_INPUT_LENGTH];
 
 	*prompt = '\0';
 
