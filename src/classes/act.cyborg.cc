@@ -2134,6 +2134,11 @@ ACMD(do_analyze)
 	strcat(buf, buf2);
 	sprintf(buf, "%s%s\r\n", buf, CCNRM(ch, C_NRM));
 
+	sprintf(buf, "%sInherent Properties:  %s", buf, CCCYN(ch, C_NRM));
+	sprintbit(GET_OBJ_EXTRA3(obj), extra3_bits, buf2);
+	strcat(buf, buf2);
+	sprintf(buf, "%s%s\r\n", buf, CCNRM(ch, C_NRM));
+
 	// check for affections
 	found = 0;
 	strcpy(buf2, "Apply:               ");
