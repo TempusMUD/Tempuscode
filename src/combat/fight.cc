@@ -1466,12 +1466,13 @@ damage(struct char_data *ch, struct char_data *victim, int dam,
 			GET_LEVEL(victim) * dam);
 		if (!IS_NPC(ch) && IS_REMORT(ch))
 		   exp -= (exp * (ch->getLevelBonus(true) - 10)) / 100;         
+        /* I missed this one    
 		if (IS_CLERIC(ch) && !IS_GOOD(ch))
 			exp -= (exp * 15) / 100;
 		if (IS_KNIGHT(ch) && IS_GOOD(ch))
-			exp -= (exp * 25) / 100;
+			exp -= (exp * 25) / 100; */
 		if (IS_GOOD(ch) && (IS_CLERIC(ch) || IS_KNIGHT(ch)) && IS_GOOD(victim)) {	// good clerics & knights penalized
-			exp = -exp;
+			exp /= 2;
 		}
 		gain_exp(ch, exp);
 	}
