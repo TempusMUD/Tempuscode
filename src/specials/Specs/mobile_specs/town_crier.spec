@@ -9,8 +9,8 @@ void
 town_crier_reset_timer(town_crier_data *data)
 {
 	// On average, the crier should shout something every
-	// 10 minutes or so
-	data->counter = (540 + number(0, 60)) / 4;
+	// 45  minutes to 1 1/4 of an hour
+	data->counter = (3600 + number(0, 300)) / 4;
 }
 
 void
@@ -70,7 +70,7 @@ SPECIAL(town_crier)
 		self->mob_specials.func_data = data;
 		data->msg_head = data->msg_pos = NULL;
 		data->last_msg = 0;
-		data->counter = number(0, 600) / 4;
+		data->counter = number(0, 3600) / 4;
 	}
 
 	if (spec_mode == SPECIAL_CMD && IS_IMMORT(ch)) {
