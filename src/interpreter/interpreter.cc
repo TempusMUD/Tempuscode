@@ -883,7 +883,7 @@ extern const struct command_info cmd_info[] = {
     { "nomusic"  , POS_DEAD    , do_gen_tog  , 0, SCMD_NOMUSIC },
     { "nonewbie",POS_DEAD  , do_gen_tog  , 0, SCMD_NEWBIE_HELP },
     { "noogie"   , POS_RESTING , do_action   , 0, 0 },
-    { "nolocate" , POS_SLEEPING, do_nolocate, LVL_DEMI, 0 },
+    { "nolocate" , POS_SLEEPING, do_nolocate, LVL_SPIRIT, 0 },
     { "noproject", POS_DEAD    , do_gen_tog  , 1, SCMD_NOPROJECT },
     { "norepeat" , POS_DEAD    , do_gen_tog  , 0, SCMD_NOREPEAT },
     { "noshout"  , POS_SLEEPING, do_gen_tog  , 1, SCMD_DEAF },
