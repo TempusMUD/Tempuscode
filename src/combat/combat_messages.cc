@@ -374,12 +374,15 @@ blood_spray(struct Creature *ch, struct Creature *victim,
 			continue;
 
 		if (number(5, 30) > GET_DEX(nvict) && (nvict != ch || !number(0, 2))) {
-			if ((pos =
-					apply_soil_to_char(nvict, NULL, SOIL_BLOOD,
-						WEAR_RANDOM))) {
-				sprintf(buf, "$N's blood splatters all over your %s!",
-					GET_EQ(nvict, pos) ? GET_EQ(nvict,
-						pos)->short_description : wear_description[pos]);
+			pos = apply_soil_to_char(nvict, NULL, SOIL_BLOOD, WEAR_RANDOM);
+			if (pos) {
+				if (GET_EQ(nvict, pos))
+					sprintf(buf, "$N's blood splatters all over %s!",
+						GET_EQ(nvict, pos)->short_description);
+				else
+					sprintf(buf, "$N's blood splatters all over your %s!",
+						wear_description[pos]);
+
 				act(buf, FALSE, nvict, 0, victim, TO_CHAR);
 				found = 1;
 
