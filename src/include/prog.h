@@ -27,7 +27,8 @@ enum prog_evt_kind {
 	PROG_EVT_LEAVE,
 	PROG_EVT_LOAD,
 	PROG_EVT_TICK,
-    PROG_EVT_SPELL
+    PROG_EVT_SPELL,
+    PROG_EVT_COMBAT
 };
 
 struct prog_evt {
@@ -70,6 +71,7 @@ bool trigger_prog_spell(void *owner, int owner_type, Creature *ch, int cmd);
 bool trigger_prog_move(void *owner, int owner_type, Creature *ch, special_mode mode);
 void trigger_progs_after(Creature *ch, int cmd, char *argument);
 void trigger_prog_idle(void *owner, int owner_type);
+void trigger_prog_combat(void *owner, int owner_type);
 void trigger_prog_tick(void *owner, int owner_type);
 void trigger_prog_load(Creature *self);
 void trigger_prog_fight(Creature *ch, Creature *self);

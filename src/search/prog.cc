@@ -217,6 +217,8 @@ prog_trigger_handler(prog_env *env, prog_evt *evt, int phase, char *args)
       }
   } else if (!strcmp("idle", arg)) {
 	matched = (evt->kind == PROG_EVT_IDLE);
+  } else if (!strcmp("combat", arg)) {
+      matched = (evt->kind == PROG_EVT_COMBAT);
   } else if (!strcmp("fight", arg)) {
 	matched = (evt->kind == PROG_EVT_FIGHT);
   } else if (!strcmp("give", arg)) {
@@ -1441,7 +1443,7 @@ trigger_prog_spell(void *owner, int owner_type, Creature *ch, int cmd)
   evt.kind = PROG_EVT_SPELL;
   evt.cmd = cmd;
   evt.subject = ch;
-  evt.object = NULL;
+  evt.object = NULL; //this should perhaps be updated to hold the target of the spell
   evt.object_type = PROG_TYPE_NONE;
   evt.args = strdup("");
   env = prog_start(owner_type, owner, ch, &evt);
@@ -1574,6 +1576,30 @@ trigger_prog_idle(void *owner, int owner_type)
   evt.args = NULL;
 
   // We start an idle mobprog here
+  env = prog_start(owner_type, owner, NULL, &evt);
+  prog_execute(env);
+}
+
+//handles idle combat actions
+void
+trigger_prog_combat(void *owner, int owner_type)
+{
+  prog_env *env;
+  prog_evt evt;
+
+  // Are we already running a prog?  We're not idle if we are.
+  if (find_prog_by_owner(owner))
+	return;
+	
+  evt.phase = PROG_EVT_HANDLE;
+  evt.kind = PROG_EVT_COMBAT;
+  evt.cmd = -1;
+  evt.subject = NULL;
+  evt.object = NULL;
+  evt.object_type = PROG_TYPE_NONE;
+  evt.args = NULL;
+
+  // We start a combat prog here
   env = prog_start(owner_type, owner, NULL, &evt);
   prog_execute(env);
 }

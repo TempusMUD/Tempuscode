@@ -779,8 +779,13 @@ burn_update(void)
 			continue;
 		}
 
-		if (GET_MOB_PROG(ch) && !ch->numCombatants())
-			trigger_prog_idle(ch, PROG_TYPE_MOBILE);
+		if (GET_MOB_PROG(ch)) { 
+            if (!ch->numCombatants()) {
+                trigger_prog_idle(ch, PROG_TYPE_MOBILE);
+            } else {
+                trigger_prog_combat(ch, PROG_TYPE_MOBILE);
+            }
+        }
 	}
 }
 
