@@ -1201,7 +1201,7 @@ perform_oset(struct char_data *ch, struct obj_data *obj_p,
 				oset_command == 2))	// ldesc
 			obj_p->obj_flags.material = choose_material(obj_p);
 
-		if (!ZONE_FLAGGED(zone, ZONE_FULLCONTROL))
+		if (!ZONE_FLAGGED(zone, ZONE_FULLCONTROL) && !OLCIMP(ch) )
 			SET_BIT(obj_p->obj_flags.extra2_flags, ITEM2_UNAPPROVED);
 	}
 }
