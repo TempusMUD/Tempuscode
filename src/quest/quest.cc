@@ -65,9 +65,9 @@ const struct qcontrol_option {
     { "minlev",   "<vnum> <minlev>",                            LVL_IMMORT }, // 15
     { "maxlev",   "<vnum> <maxlev>",                            LVL_IMMORT },
     { "award",    "<player> <vnum> <pts> [comments]",           LVL_IMMORT },
-    { "penalize", "<player> <vnum> <pts> <reason>",             LVL_POWER  },
-    { "load",     "<mobile vnum> <vnum>",                              LVL_POWER   },
-    { "purge",    "<vnum> <mobile name>",                              LVL_POWER   }, // 20
+    { "penalize", "<player> <vnum> <pts> <reason>",             LVL_LUMINARY },
+    { "load",     "<mobile vnum> <vnum>",                       LVL_POWER   },
+    { "purge",    "<vnum> <mobile name>",                       LVL_POWER   }, // 20
     { "save",     "",                                           LVL_GRGOD  },
     { "help",     "<topic>",                                    LVL_IMMORT },
     { "switch",   "<mobile name>",                              LVL_IMMORT },
