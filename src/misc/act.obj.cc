@@ -3022,6 +3022,8 @@ ACMD(do_remove)
             if (GET_EQ(ch, i)) {
                 perform_remove(ch, i);
                 found = 1;
+				if (GET_EQ(ch, i))
+					perform_remove(ch, i);
             }
         if (!found)
             send_to_char("You're not using anything.\r\n", ch);
