@@ -499,7 +499,7 @@ Crash_load(struct Creature *ch)
 			return -1;
 		}
 		mudlog(MAX(LVL_AMBASSADOR, GET_INVIS_LVL(ch)), NRM, true,
-			"%s entering game with no equipment.", GET_NAME(ch));
+			"%s entering game with no equipment", GET_NAME(ch));
 		return 1;
 	}
 
@@ -544,30 +544,30 @@ Crash_load(struct Creature *ch)
 	switch (orig_rent_code = rent.rentcode) {
 	case RENT_RENTED:
 		if (!cost)				// rent is paid in full, normal un-rent status
-			sprintf(buf, "%s un-renting and entering game.", GET_NAME(ch));
+			sprintf(buf, "%s un-renting and entering game", GET_NAME(ch));
 		else
 			*buf = 0;
 		break;
 	case RENT_CRASH:
-		sprintf(buf, "%s retrieving crash-saved items and entering game.",
+		sprintf(buf, "%s retrieving crash-saved items and entering game",
 			GET_NAME(ch));
 		GET_HIT(ch) = GET_MAX_HIT(ch);	//  if it crashes, give them 
 		GET_MOVE(ch) = GET_MAX_MOVE(ch);	//  a break.
 		GET_MANA(ch) = GET_MAX_MANA(ch);
 		break;
 	case RENT_CRYO:
-		sprintf(buf, "%s un-cryo'ing and entering game.", GET_NAME(ch));
+		sprintf(buf, "%s un-cryo'ing and entering game", GET_NAME(ch));
 		break;
 	case RENT_FORCED:
 	case RENT_TIMEDOUT:
-		sprintf(buf,
+		send_to_char(ch,
 			"%sWARNING:%s Failure to rent before disconnecting has tripled your rent.\r\n",
 			CCRED(ch, C_NRM), CCNRM(ch, C_NRM));
-		sprintf(buf, "%s retrieving force-saved items and entering game.",
+		sprintf(buf, "%s retrieving force-saved items and entering game",
 			GET_NAME(ch));
 		break;
 	default:
-		sprintf(buf, "WARNING: %s entering game with undefined rent code.",
+		sprintf(buf, "WARNING: %s entering game with undefined rent code",
 			GET_NAME(ch));
 		break;
 

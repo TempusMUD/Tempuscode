@@ -265,7 +265,7 @@ nanny(struct descriptor_data * d, char *arg)
 					return;
 				}
 				mudlog(LVL_GOD, NRM, true,
-					"New player [%s] connect from %s.", GET_NAME(d->character),
+					"New player [%s] connect from %s", GET_NAME(d->character),
 					d->host);
 
 				sprintf(buf,"Creating new character '%s'.\r\n\r\n",
@@ -382,7 +382,7 @@ nanny(struct descriptor_data * d, char *arg)
 
 						mudlog(MAX(LVL_GOD, GET_INVIS_LVL(d->character)), NRM,
 							true,
-							"%s [%s] has reconnected.",
+							"%s [%s] has reconnected",
 							GET_NAME(d->character), d->host);
 						return;
 					}
@@ -406,7 +406,7 @@ nanny(struct descriptor_data * d, char *arg)
 							}
 
 							mudlog(MAX(LVL_GOD, GET_INVIS_LVL(d->character)), NRM, true,
-								"%s [%s] has reconnected.", GET_NAME(d->character),
+								"%s [%s] has reconnected", GET_NAME(d->character),
 								d->host);
 							if (!polc_char) {
 								if (GET_WAS_IN(tmp_ch)) {
@@ -432,7 +432,7 @@ nanny(struct descriptor_data * d, char *arg)
 						} else {
 							mudlog(MAX(LVL_GOD, GET_INVIS_LVL(tmp_ch)),
 								NRM, true,
-								"%s has re-logged:[%s]. disconnecting old socket.",
+								"%s has re-logged:[%s], disconnecting old socket",
 								GET_NAME(tmp_ch), d->host);
 							SEND_TO_Q("This body has been usurped!\r\n", tmp_ch->desc);
 							STATE(tmp_ch->desc) = CON_CLOSE;
@@ -492,7 +492,7 @@ nanny(struct descriptor_data * d, char *arg)
 					 PLR_FLAGGED(d->character, PLR_INVSTART) ?
 					 GET_LEVEL(d->character) :
 					 GET_INVIS_LVL(d->character)), CMP, true,
-					"%s [%s] has connected.", GET_NAME(d->character), d->host);
+					"%s [%s] has connected", GET_NAME(d->character), d->host);
 				if (polc_char) {
 					set_desc_state( CON_PORT_OLC,d );
 				}
@@ -778,7 +778,7 @@ nanny(struct descriptor_data * d, char *arg)
 			} else if (is_abbrev(arg, "keep")) {
 				save_char(d->character, NULL);
 				mudlog(LVL_GOD, NRM, true,
-					"%s [%s] new player.", GET_NAME(d->character), d->host);
+					"%s [%s] new player", GET_NAME(d->character), d->host);
 				GET_HOME(d->character) = HOME_NEWBIE_SCHOOL;
 				population_record[HOME_NEWBIE_SCHOOL]++;
 
@@ -905,7 +905,7 @@ nanny(struct descriptor_data * d, char *arg)
 						"Goodbye.\r\n", GET_NAME(d->character));
 				SEND_TO_Q(buf, d);
 				mudlog(LVL_GOD, NRM, true,
-					"%s (lev %d) has self-deleted.", GET_NAME(d->character),
+					"%s (lev %d) has self-deleted", GET_NAME(d->character),
 					GET_LEVEL(d->character));
 				set_desc_state( CON_CLOSE,d );
 				return;
@@ -1343,7 +1343,7 @@ char_to_game(descriptor_data *d)
 			"You lay fresh flowers on the grave of %s.\r\n",
 			GET_NAME(d->character)), d);
 		mudlog(LVL_GOD, NRM, true,
-			"Disconnecting %s. - Character is buried.",
+			"Disconnecting buried character %s",
 			GET_NAME(d->character));
 		set_desc_state( CON_CLOSE,d );
 		return;
@@ -1355,7 +1355,7 @@ char_to_game(descriptor_data *d)
 		room = real_room(GET_LOADROOM(d->character));
 		if (room && !House_can_enter(d->character, room->number)) {
 			mudlog(LVL_DEMI, NRM, true,
-				"%s unable to load in house room %d. Loadroom unset.",
+				"%s unable to load in house room %d, loadroom unset",
 				GET_NAME(d->character),GET_LOADROOM(d->character));
 			room = NULL;
 			GET_LOADROOM(d->character) = -1;
@@ -1363,7 +1363,7 @@ char_to_game(descriptor_data *d)
 
 		if (room && !clan_house_can_enter(d->character, room)) {
 			mudlog(LVL_DEMI, NRM, true,
-				"%s unable to load in clanhouse room %d. Loadroom unset.",
+				"%s unable to load in clanhouse room %d; loadroom unset",
 				GET_NAME(d->character),GET_LOADROOM(d->character));
 			room = NULL;
 			GET_LOADROOM(d->character) = -1;

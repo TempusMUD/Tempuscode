@@ -1303,9 +1303,9 @@ advance_level(struct Creature *ch, byte keep_internal)
 
 	save_char(ch, NULL);
 
-	msg = tmp_sprintf("%s advanced to level %d in room %d %s",
+	msg = tmp_sprintf("%s advanced to level %d in room %d%s",
 		GET_NAME(ch), GET_LEVEL(ch), ch->in_room->number,
-		ch->isTester() ? "<TESTER>" : "");
+		ch->isTester() ? " <TESTER>" : "");
 	if (keep_internal)
 		slog(msg);
 	else

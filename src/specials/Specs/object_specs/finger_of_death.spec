@@ -42,7 +42,7 @@ SPECIAL(finger_of_death)
         act("$n disintegrates $N with $p.", FALSE, ch, finger, target, TO_NOTVICT);
         act("$n disintegrates you with $p.", FALSE, ch, finger, target, TO_VICT);
         act("You give $N the finger, destroying it utterly.", TRUE, ch, finger, target, TO_CHAR);
-		mudlog( 0, BRF, true, "(f0d) %s has purged %s with %s at %d.",
+		mudlog( 0, BRF, true, "(f0d) %s has purged %s with %s at %d",
 				GET_NAME(ch), GET_NAME(target), 
 				finger->short_description, target->in_room->number);
         target->extract(false, true, CON_CLOSE);

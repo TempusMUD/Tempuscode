@@ -1347,13 +1347,13 @@ close_socket(struct descriptor_data *d)
 			save_char(d->character, NULL);
 			act("$n has lost $s link.", TRUE, d->character, 0, 0, TO_ROOM);
 			mudlog(MAX(LVL_AMBASSADOR, GET_INVIS_LVL(d->character)), NRM, true,
-				"Closing link to: %s. [%s] ", GET_NAME(d->character),
+				"Closing link to: %s [%s] ", GET_NAME(d->character),
 				d->host);
 			d->character->desc = NULL;
 			GET_OLC_OBJ(d->character) = NULL;
 		} else {
 			mudlog(MAX(LVL_AMBASSADOR, GET_INVIS_LVL(d->character)), NRM, true,
-				"Losing player: %s. [%s]",
+				"Losing player: %s [%s]",
 				GET_NAME(d->character) ? GET_NAME(d->character) : "<null>",
 				d->host);
 #ifdef DMALLOC
@@ -1365,7 +1365,7 @@ close_socket(struct descriptor_data *d)
 #endif
 		}
 	} else
-		mudlog(LVL_AMBASSADOR, CMP, true, "Losing descriptor without char.");
+		mudlog(LVL_AMBASSADOR, CMP, true, "Losing descriptor without char");
 	/* JE 2/22/95 -- part of my enending quest to make switch stable */
 	if (d->original && d->original->desc)
 		d->original->desc = NULL;
@@ -2090,7 +2090,7 @@ descriptor_update(void)
 
 		if (d->idle >= 10 && STATE(d) != CON_PLAYING
 			&& STATE(d) != CON_NETWORK) {
-			mudlog(LVL_IMMORT, CMP, true, "Descriptor idling out after 10 minutes.");
+			mudlog(LVL_IMMORT, CMP, true, "Descriptor idling out after 10 minutes");
 			SEND_TO_Q("Idle time limit reached, disconnecting.\r\n", d);
 			set_desc_state(CON_CLOSE, d);
 		}

@@ -7196,7 +7196,7 @@ ACMD(do_qpreload)
 
 	qp_reload();
 	send_to_char(ch, "Reloading Quest Points.\r\n");
-	mudlog(LVL_GRGOD, NRM, true, "(GC) %s has reloaded QP.", GET_NAME(ch));
+	mudlog(LVL_GRGOD, NRM, true, "(GC) %s has reloaded QP", GET_NAME(ch));
 
 }
 

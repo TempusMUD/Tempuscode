@@ -366,7 +366,7 @@ check_autowiz(struct Creature *ch)
 	if (use_autowiz && GET_LEVEL(ch) >= LVL_AMBASSADOR) {
 		sprintf(buf, "nice ../bin/autowiz %d %s %d %s %d &", min_wizlist_lev,
 			WIZLIST_FILE, LVL_AMBASSADOR, IMMLIST_FILE, (int)getpid());
-		mudlog(LVL_AMBASSADOR, CMP, false, "Initiating autowiz.");
+		mudlog(LVL_AMBASSADOR, CMP, false, "Initiating autowiz");
 		system(buf);
 	}
 }

@@ -47,11 +47,11 @@ SPECIAL(questor_util)
 			}
 		}
 		if (!found) {
-			mudlog(GET_INVIS_LVL(ch), NRM, true, "Quest_status disabled.");
+			mudlog(GET_INVIS_LVL(ch), NRM, true, "Quest_status disabled");
 			quest_status = 0;
 		}
 	} else if (!quest_status) {
-		mudlog(GET_INVIS_LVL(ch), NRM, true, "Quest_status enabled.");
+		mudlog(GET_INVIS_LVL(ch), NRM, true, "Quest_status enabled");
 		quest_status = 1;
 	}
 	return 1;
