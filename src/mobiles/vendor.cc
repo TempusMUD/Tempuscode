@@ -541,7 +541,7 @@ vendor_list(Creature *ch, char *arg, Creature *self, ShopData *shop)
 {
 	obj_data *cur_obj, *last_obj;
 	int idx, cnt;
-	char *msg;
+	char *msg, *name;
 
 	if (!self->carrying) {
 		do_say(self,
@@ -550,6 +550,7 @@ vendor_list(Creature *ch, char *arg, Creature *self, ShopData *shop)
 		return;
 	}
 
+	name = tmp_getword(&arg);
 	switch (shop->currency) {
 	case 0:
 		msg = "        Gold"; break;
@@ -576,8 +577,9 @@ vendor_list(Creature *ch, char *arg, Creature *self, ShopData *shop)
 		} else {
 			if (vendor_is_produced(last_obj, shop))
 				cnt = -1;
-			msg = tmp_strcat(msg, vendor_list_obj(ch, last_obj, cnt, idx,
-				vendor_get_value(last_obj, shop->markup)));
+			if (!*name || isname(name, last_obj->name)) 
+				msg = tmp_strcat(msg, vendor_list_obj(ch, last_obj, cnt, idx,
+					vendor_get_value(last_obj, shop->markup)));
 			cnt = 1;
 			idx++;
 		}
@@ -586,8 +588,9 @@ vendor_list(Creature *ch, char *arg, Creature *self, ShopData *shop)
 	if (last_obj) {
 		if (vendor_is_produced(last_obj, shop))
 			cnt = -1;
-		msg = tmp_strcat(msg, vendor_list_obj(ch, last_obj, cnt, idx,
-			vendor_get_value(last_obj, shop->markup)));
+		if (!*name || isname(name, last_obj->name)) 
+			msg = tmp_strcat(msg, vendor_list_obj(ch, last_obj, cnt, idx,
+				vendor_get_value(last_obj, shop->markup)));
 	}
 
 	act("$n peruses the shop's wares.", false, ch, 0, 0, TO_ROOM);
