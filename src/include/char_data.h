@@ -453,7 +453,8 @@
 #define AFF3_SYMBOL_OF_PAIN     (1 << 23)    // Char's mind is burning with pain
 #define AFF3_EMP_SHIELD         (1 << 24)    // EMP SHIELDING
 #define AFF3_INST_AFF           (1 << 25)    // Affected by an instant affect
-#define NUM_AFF3_FLAGS                26
+#define AFF3_SNIPED             (1 << 26)
+#define NUM_AFF3_FLAGS                27
 
 #define ARRAY_AFF_1       1
 #define ARRAY_AFF_2       2
