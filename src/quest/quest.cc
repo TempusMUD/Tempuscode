@@ -658,11 +658,17 @@ do_qcontrol_show(Creature *ch, char *argument)
 	char *timestr_e, *timestr_s;
 	char timestr_a[16];
 
+	if (!quests.size()) {
+		send_to_char(ch, "There are no quests to show.\r\n");
+		return;
+	}
+
 	// show all quests
 	if (!*argument) {
-		char *msg = "";
-		msg = list_active_quests(ch, msg);
-		msg = list_inactive_quests(ch, msg);
+		char *msg;
+
+		msg = list_active_quests(ch);
+		msg = tmp_strcat(msg, list_inactive_quests(ch));
 		page_string(ch->desc, msg);
 		return;
 	}
@@ -1699,18 +1705,21 @@ quest_by_vnum(int vnum)
 
 /*************************************************************************
  * function to list active quests to both mortals and gods               *
- * if outbuf is NULL, the list is sent to the character, otherwise the   *
- * list is copied to outbuf                                              *
  *************************************************************************/
 
 char *
-list_active_quests(Creature *ch, char* outbuf)
+list_active_quests(Creature *ch)
 {
 	int timediff;
 	int questCount = 0;
 	char timestr_a[32];
-	char *msg = tmp_sprintf( "Active quests:\r\n"
-		"-Vnum--Owner-------Type------Name----------------------Age------Players\r\n");
+	char *msg = 
+"Active quests:\r\n"
+"-Vnum--Owner-------Type------Name----------------------Age------Players\r\n";
+
+	if (!quests.size())
+		return "There are no active quests.\r\n";
+
 	for (unsigned int i = 0; i < quests.size(); i++) {
 		Quest *quest = &(quests[i]);
 		if (quest->getEnded())
@@ -1723,35 +1732,32 @@ list_active_quests(Creature *ch, char* outbuf)
 		timediff = time(0) - quest->getStarted();
 		snprintf(timestr_a, 16, "%02d:%02d", timediff / 3600, (timediff / 60) % 60);
 
-		char *line = tmp_sprintf( " %3d  %-10s  %-8s  %-24s %6s    %d\r\n",
-									quest->getVnum(), get_name_by_id(quest->getOwner()), 
-									qtype_abbrevs[(int)quest->type], quest->name, 
-									timestr_a, quest->getNumPlayers());
-
-		msg = tmp_strcat(msg,line,NULL);
+		msg = tmp_sprintf( "%s %3d  %-10s  %-8s  %-24s %6s    %d\r\n", msg,
+			quest->getVnum(), get_name_by_id(quest->getOwner()), 
+			qtype_abbrevs[(int)quest->type], quest->name, timestr_a,
+			quest->getNumPlayers());
 	}
-	char *s = tmp_sprintf("%d visible quest%s active.\r\n\r\n", 
-						  questCount, questCount == 1 ? "" : "s");
-	msg = tmp_strcat(msg,s,NULL);
+	if (!questCount)
+		return "There are no visible quests.\r\n";
 
-	if (outbuf)
-		return tmp_strcat(outbuf,msg,NULL);
-	else
-		page_string(ch->desc, msg);
-	return "ERROR";
+	return tmp_sprintf("%s%d visible quest%s active.\r\n\r\n", msg,
+		questCount, questCount == 1 ? "" : "s");
 }
 
 char *
-list_inactive_quests(Creature *ch, char *outbuf)
+list_inactive_quests(Creature *ch)
 {
 	int timediff;
 	char timestr_a[128];
 	int questCount = 0;
+	char *msg =
+"Finished Quests:\r\n"
+"-Vnum--Owner-------Type------Name----------------------Age------Players\r\n";
 
-	char *msg = tmp_sprintf( "Finished Quests:\r\n"
-		"-Vnum--Owner-------Type------Name----------------------Age------Players\r\n");
+	if (!quests.size())
+		return "There are no finished quests.\r\n";
 
-	for (unsigned int i = quests.size() - 1; i >= 0; --i) {
+	for (int i = quests.size() - 1; i >= 0; --i) {
 		Quest *quest = &(quests[i]);
 		if (!quest->getEnded())
 			continue;
@@ -1759,22 +1765,17 @@ list_inactive_quests(Creature *ch, char *outbuf)
 		timediff = quest->getEnded() - quest->getStarted();
 		snprintf(timestr_a, 127, "%02d:%02d", timediff / 3600, (timediff / 60) % 60);
 
-		char *line = tmp_sprintf( " %3d  %-10s  %-8s  %-24s %6s    %d\r\n",
-									quest->getVnum(), get_name_by_id(quest->getOwner()), 
-									qtype_abbrevs[(int)quest->type], quest->name, 
-									timestr_a, quest->getNumPlayers());
-
-		msg = tmp_strcat(msg,line,NULL);
+		msg = tmp_sprintf( "%s %3d  %-10s  %-8s  %-24s %6s    %d\r\n", msg,
+			quest->getVnum(), get_name_by_id(quest->getOwner()), 
+			qtype_abbrevs[(int)quest->type], quest->name, timestr_a,
+			quest->getNumPlayers());
 	}
-	char *s = tmp_sprintf("%d visible quest%s finished.\r\n\r\n", 
-						  questCount, questCount == 1 ? "" : "s");
-	msg = tmp_strcat(msg,s,NULL);
 
-	if (outbuf)
-		return tmp_strcat(outbuf,msg,NULL);
-	else
-		page_string(ch->desc, msg);
-	return "ERROR";
+	if (!questCount)
+		return "There are no finished quests.\r\n";
+
+	return tmp_sprintf("%s%d visible quest%s finished.\r\n", msg, 
+						  questCount, questCount == 1 ? "" : "s");
 }
 
 void
@@ -2065,7 +2066,7 @@ ACMD(do_quest)
 void
 do_quest_list(Creature *ch)
 {
-	list_active_quests(ch, NULL);
+	send_to_char(ch, "%s", list_active_quests(ch));
 }
 
 void
@@ -2233,8 +2234,8 @@ do_quest_status(Creature *ch, char *argument)
 	int timediff;
 	bool found = false;
 
-	char *msg = tmp_sprintf( "You are participating in the following quests:\r\n"
-		"-Vnum--Owner-------Type------Name----------------------Age------Players\r\n");
+	char *msg = "You are participating in the following quests:\r\n"
+		"-Vnum--Owner-------Type------Name----------------------Age------Players\r\n";
 
 	for( unsigned int i = 0; i < quests.size(); i++ ) {
 		Quest *quest = &(quests[i]);

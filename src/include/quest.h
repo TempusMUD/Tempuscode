@@ -173,8 +173,8 @@ void do_qcontrol_trans(Creature *ch, char *argument, int com);	//trans whole que
 // utility functions
 void do_qcontrol_usage(Creature *ch, int com);
 Quest *find_quest(Creature *ch, char *argument);
-char *list_active_quests(Creature *ch, char *outbuf);
-char *list_inactive_quests(Creature *ch, char *outbuf);
+char *list_active_quests(Creature *ch);
+char *list_inactive_quests(Creature *ch);
 Quest *quest_by_vnum(int vnum);
 void qp_reload(int sig = 0);
 
