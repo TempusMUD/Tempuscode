@@ -119,11 +119,10 @@ int
 store_mail(long to_id, long from_id, char *txt, list<string> cc_list,
     time_t *cur_time)
 {
-    int buf_size = 0;
     char *mail_file_path;
     FILE *ofile;
     char *time_str;
-    char buf[MAX_MAIL_SIZE];
+	char *msg;
     struct obj_data *obj;
     struct stat stat_buf;
     time_t now = time(NULL);
@@ -161,40 +160,23 @@ store_mail(long to_id, long from_id, char *txt, list<string> cc_list,
     time_str = asctime(localtime(&now));
     *(time_str + strlen(time_str) - 1) = '\0';
      
-    sprintf(buf, " * * * *  Tempus Mail System  * * * *\r\n"
-                 "Date: %s\r\n"
-                 "  To: %s\r\n"
-                 "From: %s\r\n", time_str, playerIndex.getName(to_id), 
-            playerIndex.getName(from_id));
+    msg = tmp_sprintf(" * * * *  Tempus Mail System  * * * *\r\n"
+		"Date: %s\r\n  To: %s\r\nFrom: %s",
+		time_str, playerIndex.getName(to_id), playerIndex.getName(from_id));
 
-    buf_size = strlen(txt) + strlen(buf);
+    if (!cc_list.empty()) {
+		list<string>::iterator si;
 
-    list<string>::iterator si;
-    for (si = cc_list.begin(); si != cc_list.end(); si++)
-        buf_size += si->length() + 1; // for the commas
-        
-    buf_size += 6; // for "  CC: "
+		for (si = cc_list.begin(); si != cc_list.end(); si++)
+			msg = tmp_strcat(msg,
+				(si == cc_list.begin()) ? "\r\n  CC: ":", ",
+				si->c_str(), NULL);
+	}
+
+	msg = tmp_strcat(msg, "\r\n\r\n", txt, NULL);
     
-    obj->action_description = (char*)malloc(sizeof(char) * buf_size + 2); // for the extra /n
+    obj->action_description = strdup(msg);
     
-    strcpy(obj->action_description, buf);
-
-    if (!cc_list.empty())
-        strcat(obj->action_description, "  CC: ");
-
-    unsigned count = 1;
-    for (si = cc_list.begin(); si != cc_list.end(); si++) {
-        count++;
-        strcat(obj->action_description, si->c_str());
-        if (count <= cc_list.size())
-            strcat(obj->action_description, ", ");
-        else
-            strcat(obj->action_description, "\n");
-    }
-
-    strcat(obj->action_description, "\n");
-    strcat(obj->action_description, txt);
-
     obj->plrtext_len = strlen(obj->action_description) + 1;
     mailBag.push_back(obj);
     
