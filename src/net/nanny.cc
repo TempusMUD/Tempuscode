@@ -1006,7 +1006,10 @@ send_menu(descriptor_data *d)
 			"&n&b|                                 &YT E M P U S&n                                 &b|\r\n"
 			"&c*&b-----------------------------------------------------------------------------&c*&n\r\n\r\n");
 		
-		show_account_chars(d, d->account, false);
+		show_account_chars(d,
+			d->account,
+			false,
+			(d->account->get_char_count() > 5));
 
 		send_to_desc(d, "\r\n             Past bank: %-12lld      Future Bank: %-12lld\r\n\r\n",
 			d->account->get_past_bank(), d->account->get_future_bank());
@@ -1015,6 +1018,16 @@ send_menu(descriptor_data *d)
         if (!d->account->invalid_char_index(1))
 			send_to_desc(d, "    &b[&yE&b] &cEdit a character's description   &b[&yD&b] &cDelete an existing character\r\n");
 		send_to_desc(d, "\r\n                            &b[&yL&b] &cLog out of the game&n\r\n");
+
+		// Helpful items for those people with only one character
+		if (d->account->get_char_count() == 1) {
+			send_to_desc(d, 
+"\r\n      This menu is your account menu, where you can manage your account,\r\n"
+"      and enter the game.  Your characters are listed at the top.  To\r\n"
+"      enter the game, you may type the number of the character you wish to\r\n"
+"      play.  To select one of the other options, type the adjacent letter.\r\n"
+			);
+		}
 		break;
 	case CXN_DELETE_PROMPT:
 		send_to_desc(d, "\e[H\e[J");
@@ -1484,7 +1497,7 @@ show_character_detail(descriptor_data *d)
 }
 
 void
-show_account_chars(descriptor_data *d, Account *acct, bool immort)
+show_account_chars(descriptor_data *d, Account *acct, bool immort, bool brief)
 {
 	const char *class_str, *status_str, *mail_str;
 	char *sex_color = "";
@@ -1493,10 +1506,17 @@ show_account_chars(descriptor_data *d, Account *acct, bool immort)
 	char laston_str[40];
 	int idx;
 
-	if (!immort)
-		send_to_desc(d,
-			"&y  # Name           Lvl Gen Sex     Race     Class      Last on    Status  Mail\r\n"
-			"&b -- -------------- --- --- --- -------- --------- ------------- --------- ----\r\n");
+	if (!immort) {
+		if (brief)
+			send_to_desc(d,
+"  # Name         Last on   Status  Mail   # Name         Last on   Status  Mail\r\n"
+" -- --------- ---------- --------- ----  -- --------- ---------- --------- ----\r\n");
+		else
+			send_to_desc(d,
+	"&y  # Name           Lvl Gen Sex     Race     Class      Last on    Status  Mail\r\n"
+	"&b -- -------------- --- --- --- -------- --------- ------------- --------- ----\r\n");
+
+	} 
 
 	idx = 1;
 	tmp_ch = new Creature(true);
@@ -1544,6 +1564,9 @@ show_account_chars(descriptor_data *d, Account *acct, bool immort)
 		if (immort)
 			strftime(laston_str, sizeof(laston_str), "%a, %d %b %Y %H:%M:%S",
 				localtime(&tmp_ch->player.time.logon));
+		else if (brief)
+			strftime(laston_str, sizeof(laston_str), "%Y/%m/%d",
+				localtime(&tmp_ch->player.time.logon));
 		else
 			strftime(laston_str, sizeof(laston_str), "%b %d, %Y",
 				localtime(&tmp_ch->player.time.logon));
@@ -1584,25 +1607,41 @@ show_account_chars(descriptor_data *d, Account *acct, bool immort)
 			mail_str = "&Y Yes";
 		else
 			mail_str = "&n No ";
+// [ 1] Azimuth  2002/12/19    Rented  No  [ 2] Prism    2002/12/19    Rented  No
 		if (immort) {
 			send_to_desc(d,
 				"&y%5ld &n%-13s %s&n %s\r\n",
 				GET_IDNUM(tmp_ch), GET_NAME(tmp_ch), status_str, laston_str);
 		} else if (tmp_ch->player_specials->rentcode == RENT_CREATING) {
-			send_to_desc(d,
-				"&b[&y%2d&b] &n%-13s   &y-   -  -         -         -         Never  Creating&n  --\r\n",
-				idx, GET_NAME(tmp_ch));
+			if (brief)
+				send_to_desc(d,
+					"&b[&y%2d&b] &n%-8s     &yNever  Creating&n  --  ",
+					idx, GET_NAME(tmp_ch));
+			else
+				send_to_desc(d,
+					"&b[&y%2d&b] &n%-13s   &y-   -  -         -         -         Never  Creating&n  --\r\n",
+					idx, GET_NAME(tmp_ch));
 		} else {
-			send_to_desc(d,
-				"&b[&y%2d&b] &n%-13s %3d %3d  %s  %8s %s %13s %s %s&n\r\n",
-				idx, GET_NAME(tmp_ch),
-				GET_LEVEL(tmp_ch), GET_REMORT_GEN(tmp_ch),
-				sex_str,
-				player_race[(int)GET_RACE(tmp_ch)],
-				class_str, laston_str, status_str, mail_str);
+			if (brief)
+				send_to_desc(d,
+					"&b[&y%2d&b] &n%-8s %10s %s %s&n ",
+					idx, GET_NAME(tmp_ch),
+					laston_str, status_str, mail_str);
+			else
+				send_to_desc(d,
+					"&b[&y%2d&b] &n%-13s %3d %3d  %s  %8s %s %13s %s %s&n\r\n",
+					idx, GET_NAME(tmp_ch),
+					GET_LEVEL(tmp_ch), GET_REMORT_GEN(tmp_ch),
+					sex_str,
+					player_race[(int)GET_RACE(tmp_ch)],
+					class_str, laston_str, status_str, mail_str);
 		}
 		idx++;
+		if (brief && (idx & 1))
+			send_to_desc(d, "\r\n");
 	}
+	if (brief && (idx & 1))
+		send_to_desc(d, "\r\n");
 	delete tmp_ch;
 }
 

@@ -3938,7 +3938,7 @@ show_account(Creature *ch, char *value)
 		account->get_past_bank(), account->get_future_bank());
 	send_to_desc(ch->desc, "&b ----------------------------------------------------------------------------&n\r\n");
 
-	show_account_chars(ch->desc, account, true);
+	show_account_chars(ch->desc, account, true, false);
 }
 
 void

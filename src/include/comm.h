@@ -61,7 +61,7 @@ void write_to_q(char *txt, struct txt_q *queue, int aliased);
 void write_to_output(const char *txt, struct descriptor_data *d);
 void page_string(struct descriptor_data *d, const char *str);
 void show_file(struct Creature *ch, char *fname, int lines);
-void show_account_chars(descriptor_data *d, Account *acct, bool immort);
+void show_account_chars(descriptor_data *d, Account *acct, bool immort, bool brief);
 
 #define SEND_TO_Q(messg, desc)  write_to_output((messg), desc)
 
