@@ -218,10 +218,13 @@ bool HelpItem::Clear( void ) {
 // Sets yer currently editable item to this one.
 bool HelpItem::Edit( char_data *ch ) {
     if(editor) {
-        if(editor != ch)
-            send_to_char("Someone is already editing that item!\r\n",ch);
-        else
-            send_to_char("You're already editing that item!\r\n",ch);
+        if(editor != ch) {
+            sprintf(buf,"%s is already editing that item. Tough!\r\n",
+                GET_NAME(ch));
+            send_to_char(buf,ch);
+        } else {
+            send_to_char("I don't see how editing it _again_ will help any.\r\n",ch);
+        }
         return false;
     }
     if(GET_OLC_HELP(ch))

@@ -75,6 +75,7 @@ extern const char *spells[];
 #define SPELL_IS_PHYSICS(splnm) IS_SET(spell_info[splnm].routines, MAG_PHYSICS)
 #define SPELL_IS_PSIONIC(splnm) IS_SET(spell_info[splnm].routines, MAG_PSIONIC)
 #define SPELL_IS_BIO(splnm)    IS_SET(spell_info[splnm].routines, MAG_BIOLOGIC)
+#define SPELL_IS_PROGRAM(splnm)IS_SET(spell_info[splnm].routines, CYB_ACTIVATE) 
 #define SPELL_IS_EVIL(splnm)    IS_SET(spell_info[splnm].routines, MAG_EVIL)
 #define SPELL_IS_GOOD(splnm)    IS_SET(spell_info[splnm].routines, MAG_GOOD)
 

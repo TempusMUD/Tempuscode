@@ -44,6 +44,7 @@ static const struct hcollect_command {
     { "stat",    "[<topic #>]",            LVL_IMMORT },
     { "sync",    "",                       LVL_GRGOD  },
     { "search",  "<keyword>",              LVL_IMMORT },
+    { "unapprove","<topic #>",             LVL_GOD },
     { NULL, NULL, 0 }       // list terminator
 };
 static const struct group_command {
@@ -425,6 +426,29 @@ void HelpCollection::ApproveItem( char_data *ch, char *argument) {
         }
     return;
 }
+// Unapprove an item
+void HelpCollection::UnApproveItem( char_data *ch, char *argument) {
+        char arg1[256];
+        int idnum = 0;
+        HelpItem *cur;
+        skip_spaces(&argument);
+        argument = one_argument(argument,arg1);
+        if(isdigit(arg1[0])) 
+            idnum = atoi(arg1);
+        if(idnum > top_id || idnum < 1) {
+            send_to_char("UnApprove which item?\r\n",ch);
+            return;
+        }
+        for(cur = items;cur && cur->idnum != idnum;cur = cur->Next());
+        if(cur) {
+            SET_BIT(cur->flags,HFLAG_UNAPPROVED);
+            sprintf(buf,"Item #%d unapproved.\r\n",cur->idnum);
+            send_to_char(buf,ch);
+        } else {
+            send_to_char("Unable to find item.\r\n",ch);
+        }
+    return;
+}
 // Give some stat info on the Help System
 void HelpCollection::Show( char_data *ch) {
     int num_items = 0;
@@ -639,6 +663,9 @@ ACMD(do_help_collection_command) {
             break;
         case 10: // Search (mode==3 is "stat" rather than "show") show_no_app "true"
             Help->GetTopic(ch,argument,3,true);
+            break;
+        case 11: // UnApprove
+            Help->UnApproveItem( ch, argument );
             break;
         default:
             do_hcollect_cmds(ch);

@@ -116,6 +116,7 @@ class HelpCollection {
     bool CreateItem( char_data *ch ); 
     bool EditItem( char_data *ch, int idnum ); // Begin editing an item
     void ApproveItem( char_data *ch, char *argument); // Approve an item
+    void UnApproveItem( char_data *ch, char *argument); // Approve an item
     bool ClearItem( char_data *ch ); // Clear an item
     bool SaveItem( char_data *ch );  // Duh?
     bool SaveIndex( char_data *ch ); // Save the entire index

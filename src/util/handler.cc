@@ -32,6 +32,7 @@
 #include "materials.h"
 #include "login.h"
 #include "char_class.h"
+#include "help.h"
 
 /* external vars */
 extern struct descriptor_data *descriptor_list;
@@ -1818,6 +1819,11 @@ extract_char(struct char_data * ch, byte mode)
 	if (ch == HUNTING(k))
 	    HUNTING(k) = NULL;
 
+    // Make sure they aren't editing a help topic.
+    if(GET_OLC_HELP(ch)) {
+        GET_OLC_HELP(ch)->editor = NULL;
+        GET_OLC_HELP(ch) = NULL;
+    }
     /* Forget snooping, if applicable */
     if (ch->desc) {
 	if (ch->desc->snooping) {
