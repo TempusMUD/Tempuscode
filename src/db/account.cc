@@ -77,6 +77,7 @@ Account::Account(void)
 	_compact_level = 0;
     _bank_past = 0;
     _bank_future = 0;
+	_reputation = 0;
 	_term_height = DEFAULT_TERM_HEIGHT;
 	_term_width = DEFAULT_TERM_WIDTH;
 }
@@ -105,7 +106,7 @@ Account::load(long idnum)
 	const char **fields;
 	PGresult *res;
 
-	res = sql_query("select idnum, name, password, email, date_part('epoch', creation_time) as creation_time, creation_addr, date_part('epoch', login_time) as login_time, login_addr, date_part('epoch', entry_time) as entry_time, ansi_level, compact_level, term_height, term_width, bank_past, bank_future from accounts where idnum=%ld", idnum);
+	res = sql_query("select idnum, name, password, email, date_part('epoch', creation_time) as creation_time, creation_addr, date_part('epoch', login_time) as login_time, login_addr, date_part('epoch', entry_time) as entry_time, ansi_level, compact_level, term_height, term_width, reputation, bank_past, bank_future from accounts where idnum=%ld", idnum);
 	acct_count = PQntuples(res);
 
 	if (acct_count > 1) {
@@ -174,6 +175,8 @@ Account::set(const char *key, const char *val)
 		_login_addr = strdup(val);
 	else if (!strcmp(key, "entry_time"))
 		_entry_time = atol(val);
+	else if (!strcmp(key, "reputation"))
+		_reputation = atoi(val);
 	else if (!strcmp(key, "bank_past"))
 		_bank_past = atoll(val);
 	else if (!strcmp(key, "bank_future"))
@@ -494,7 +497,7 @@ Account::initialize(const char *name, descriptor_data *d, int idnum)
 	_bank_future = 0;
 
 	slog("new account: %s[%d] from %s", _name, idnum, d->host);
-	sql_exec("insert into accounts (idnum, name, creation_time, creation_addr, login_time, login_addr, ansi_level, compact_level, term_height, term_width, bank_past, bank_future) values (%d, '%s', now(), '%s', now(), '%s', 0, 0, %d, %d, 0, 0)",
+	sql_exec("insert into accounts (idnum, name, creation_time, creation_addr, login_time, login_addr, ansi_level, compact_level, term_height, term_width, reputation, bank_past, bank_future) values (%d, '%s', now(), '%s', now(), '%s', 0, 0, %d, %d, 0, 0, 0)",
 		idnum, tmp_sqlescape(name), tmp_sqlescape(d->host),
 		tmp_sqlescape(d->host), DEFAULT_TERM_HEIGHT, DEFAULT_TERM_WIDTH);
 }
@@ -521,6 +524,15 @@ Account::set_password(const char *pw)
 	_password = strdup(crypt(pw, salt));
 	sql_exec("update accounts set password='%s' where idnum=%d",
 		tmp_sqlescape(_password), _id);
+}
+
+void
+Account::gain_reputation(int amt)
+{
+	_reputation += amt;
+	sql_exec("update accounts set reputation=%d where idnum=%d",
+		_reputation, _id);
+	
 }
 
 void

@@ -63,6 +63,9 @@ class Account {
 		// Attempts to add the given orphaned character to this account
 		void exhume_char( Creature *exhumer, long id );
 
+		inline int get_reputation(void) { return _reputation; }
+		void gain_reputation(int amt);
+
 		inline long long get_past_bank(void) { return _bank_past; }
 		inline long long get_future_bank(void) { return _bank_future; }
 		void set_past_bank(long long amt);
@@ -125,6 +128,7 @@ class Account {
 		// Game data
 		vector<long> _chars;
 		vector<long> _trusted;
+		int _reputation;
 		long long _bank_past;
 		long long _bank_future;
 };
