@@ -2585,6 +2585,10 @@ perform_wear(struct Creature *ch, struct obj_data *obj, int where)
 	};
 
 	/* first, make sure that the wear position is valid. */
+	if (IS_ANIMAL(ch)) {
+		send_to_char(ch, "Animals don't wear things.\r\n");
+		return 0;
+	}
 	if (!CAN_WEAR(obj, wear_bitvectors[where])) {
 		act("You can't wear $p there.", FALSE, ch, obj, 0, TO_CHAR);
 		return 0;
@@ -2865,6 +2869,11 @@ ACCMD(do_wield)
 
 	if (!(obj = get_obj_in_list_all(ch, arg, ch->carrying))) {
 		send_to_char(ch, "You don't seem to have %s %s.\r\n", AN(arg), arg);
+		return;
+	}
+
+	if (IS_ANIMAL(ch)) {
+		send_to_char(ch, "Animals don't wield weapons.\r\n");
 		return;
 	}
 
