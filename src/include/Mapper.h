@@ -48,7 +48,7 @@ class Mapper {
     public:
         Mapper(char_data *ch,int rows, int columns);
         ~Mapper();
-        bool build();
+        bool build(bool stayzone);
         void display(int bRows,int bCols);
         void clear();
         int processed;
