@@ -1424,6 +1424,8 @@ char_to_game(descriptor_data *d)
 		note->plrtext_len = strlen(note->action_description) + 1;
 		obj_to_char( note, d->creature );
 		send_to_char(d->creature, "The TempusMUD Landlord gives you a letter detailing your bill.\r\n");
+		house->clearRepoNotes();
+		house->save();
 	}
 
 	if (shutdown_count > 0)
