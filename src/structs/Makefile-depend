@@ -11,7 +11,7 @@ $(OBJ)/obj_data.o : obj_data.cc \
 	$(INCLUDE)/structs.h $(INCLUDE)/utils.h $(INCLUDE)/handler.h $(INCLUDE)/db.h $(INCLUDE)/comm.h 
 	$(CXX) -c $(CXXFLAGS) obj_data.cc          -o $(OBJ)/obj_data.o
 $(OBJ)/player_table.o : player_table.cc \
-	$(INCLUDE)/player_table.h $(INCLUDE)/utils.h 
+	$(INCLUDE)/player_table.h $(INCLUDE)/utils.h $(INCLUDE)/db.h 
 	$(CXX) -c $(CXXFLAGS) player_table.cc      -o $(OBJ)/player_table.o
 $(OBJ)/room_data.o : room_data.cc \
 	$(INCLUDE)/structs.h $(INCLUDE)/room_data.h 

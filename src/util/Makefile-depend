@@ -1,3 +1,6 @@
+$(OBJ)/accstr.o : accstr.cc \
+	$(INCLUDE)/interpreter.h $(INCLUDE)/utils.h $(INCLUDE)/db.h 
+	$(CXX) -c $(CXXFLAGS) accstr.cc            -o $(OBJ)/accstr.o
 $(OBJ)/graph.o : graph.cc \
 	$(INCLUDE)/structs.h $(INCLUDE)/utils.h $(INCLUDE)/comm.h $(INCLUDE)/interpreter.h $(INCLUDE)/handler.h $(INCLUDE)/db.h $(INCLUDE)/spells.h $(INCLUDE)/vehicle.h $(INCLUDE)/fight.h $(INCLUDE)/char_class.h 
 	$(CXX) -c $(CXXFLAGS) graph.cc             -o $(OBJ)/graph.o
@@ -22,4 +25,4 @@ $(OBJ)/tmpstr.o : tmpstr.cc \
 $(OBJ)/utils.o : utils.cc \
 	$(INCLUDE)/structs.h $(INCLUDE)/utils.h $(INCLUDE)/comm.h $(INCLUDE)/screen.h $(INCLUDE)/spells.h $(INCLUDE)/handler.h $(INCLUDE)/interpreter.h $(INCLUDE)/security.h $(INCLUDE)/db.h $(INCLUDE)/char_class.h $(INCLUDE)/tmpstr.h $(INCLUDE)/spells.h 
 	$(CXX) -c $(CXXFLAGS) utils.cc             -o $(OBJ)/utils.o
-OBJFILES= $(OBJ)/graph.o $(OBJ)/handler.o $(OBJ)/memtrack.o $(OBJ)/modify.o $(OBJ)/random.o $(OBJ)/sight.o $(OBJ)/tmpstr.o $(OBJ)/utils.o
+OBJFILES= $(OBJ)/accstr.o $(OBJ)/graph.o $(OBJ)/handler.o $(OBJ)/memtrack.o $(OBJ)/modify.o $(OBJ)/random.o $(OBJ)/sight.o $(OBJ)/tmpstr.o $(OBJ)/utils.o
