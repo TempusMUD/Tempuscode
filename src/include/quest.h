@@ -134,8 +134,10 @@ class Quest {
 		char *description;
 		char *updates;
 		int owner_level;
-		int minlev;
-		int maxlev;
+		int minlevel;
+		int maxlevel;
+		int mingen;
+		int maxgen;
 		ubyte type;
 };
 
@@ -155,6 +157,8 @@ void do_qcontrol_unban(CHAR * ch, char *argument, int com);
 void do_qcontrol_level(CHAR * ch, char *argument, int com);
 void do_qcontrol_minlev(CHAR * ch, char *argument, int com);
 void do_qcontrol_maxlev(CHAR * ch, char *argument, int com);
+void do_qcontrol_mingen(CHAR * ch, char *argument, int com);
+void do_qcontrol_maxgen(CHAR * ch, char *argument, int com);
 void do_qcontrol_mute(CHAR * ch, char *argument, int com);
 void do_qcontrol_unmute(CHAR * ch, char *argument, int com);
 void do_qcontrol_award(CHAR * ch, char *argument, int com);

@@ -75,8 +75,8 @@ const struct qcontrol_option {
 	"minlev", "<vnum> <minlev>", LVL_AMBASSADOR},	// 15
 	{
 	"maxlev", "<vnum> <maxlev>", LVL_AMBASSADOR}, {
-	"award", "<player> <vnum> <pts> [comments]", LVL_AMBASSADOR}, {
-	"penalize", "<player> <vnum> <pts> [reason]", LVL_AMBASSADOR}, {
+	"mingen", "<vnum> <min generation>", LVL_AMBASSADOR}, {
+	"maxgen", "<vnum> <max generation>", LVL_AMBASSADOR}, {
 	"mload", "<mobile vnum> <vnum>", LVL_IMMORT}, {
 	"purge", "<vnum> <mobile name>", LVL_IMMORT},	// 20
 	{
@@ -86,6 +86,8 @@ const struct qcontrol_option {
 	"rename", "<obj name> <new obj name>", 73}, {
 	"oload", "<item num> <vnum>", LVL_AMBASSADOR}, {
 	"trans", "<vnum> [room number]", LVL_AMBASSADOR}, {
+	"award", "<player> <vnum> <pts> [comments]", LVL_AMBASSADOR}, {
+	"penalize", "<player> <vnum> <pts> [reason]", LVL_AMBASSADOR}, {
 	NULL, NULL, 0}				// list terminator
 };
 
@@ -290,11 +292,11 @@ ACMD(do_qcontrol)
 	case 15:					// maxlev
 		do_qcontrol_maxlev(ch, argument, com);
 		break;
-	case 16:					// award
-		do_qcontrol_award(ch, argument, com);
+	case 16:					// maxgen
+		do_qcontrol_mingen(ch, argument, com);
 		break;
-	case 17:					// penalize
-		do_qcontrol_penalize(ch, argument, com);
+	case 17:					// mingen
+		do_qcontrol_maxgen(ch, argument, com);
 		break;
 	case 18:					// Load Mobile
 		do_qcontrol_mload(ch, argument, com);
@@ -320,6 +322,12 @@ ACMD(do_qcontrol)
 		break;
 	case 25:
 		do_qcontrol_trans(ch, argument, com);
+		break;
+	case 26:					// award
+		do_qcontrol_award(ch, argument, com);
+		break;
+	case 27:					// penalize
+		do_qcontrol_penalize(ch, argument, com);
 		break;
 	default:
 		send_to_char(ch, "Sorry, this qcontrol option is not implemented.\r\n");
@@ -668,8 +676,8 @@ do_qcontrol_show(CHAR * ch, char *argument)
 			"  Started:        %s\r\n"
 			"  Ended:          %s\r\n"
 			"  Age:            %s\r\n"
-			"  Min Level:   Gen %-2d, Level %2d  (%d)\r\n"
-			"  Max Level:   Gen %-2d, Level %2d  (%d)\r\n"
+			"  Min Level:   Gen %-2d, Level %2d\r\n"
+			"  Max Level:   Gen %-2d, Level %2d\r\n"
 			"  Max Players:    %d\r\n"
 			"  Pts. Awarded:   %d\r\n",
 			get_name_by_id(quest->getOwner()), quest->owner_level,
@@ -677,8 +685,8 @@ do_qcontrol_show(CHAR * ch, char *argument)
 			quest->description ? quest->description : "None.\r\n",
 			qtypes[(int)quest->type], timestr_s,
 			timestr_e, timestr_a,
-			quest->minlev / 50, quest->minlev % 50, quest->minlev,
-			quest->maxlev / 50, quest->maxlev % 50, quest->maxlev,
+			quest->mingen , quest->minlevel,
+			quest->maxgen , quest->maxlevel,
 			quest->getMaxPlayers(), quest->getAwarded());
 		page_string(ch->desc, buf);
 		return;
@@ -701,8 +709,8 @@ do_qcontrol_show(CHAR * ch, char *argument)
 		"  Flags:           %s\r\n"
 		"  Started:         %s\r\n"
 		"  Age:             %s\r\n"
-		"  Min Level:   Gen %-2d, Level %2d  (%d)\r\n"
-		"  Max Level:   Gen %-2d, Level %2d  (%d)\r\n"
+		"  Min Level:   Gen %-2d, Level %2d\r\n"
+		"  Max Level:   Gen %-2d, Level %2d\r\n"
 		"  Num Players:     %d\r\n"
 		"  Max Players:     %d\r\n"
 		"  Pts. Awarded:    %d\r\n",
@@ -712,8 +720,8 @@ do_qcontrol_show(CHAR * ch, char *argument)
 		quest->updates ? quest->updates : "None.\r\n",
 		qtypes[(int)quest->type], buf2, timestr_s,
 		timestr_a,
-		quest->minlev / 50, quest->minlev % 50, quest->minlev,
-		quest->maxlev / 50, quest->maxlev % 50, quest->maxlev,
+		quest->mingen , quest->minlevel,
+		quest->maxgen , quest->maxlevel,
 		quest->getNumPlayers(), quest->getMaxPlayers(), quest->getAwarded());
 
 	if (quest->getNumPlayers()) {
@@ -1376,10 +1384,11 @@ do_qcontrol_minlev(CHAR * ch, char *argument, int com)
 	if (!quest->canEdit(ch))
 		return;
 
-	quest->minlev = MAX(0, atoi(arg2));
+	quest->minlevel = MIN(LVL_GRIMP, MAX(0, atoi(arg2)));
 
-	sprintf(buf, "set quest '%s' minimum level to gen %-2d level %2d",
-		quest->name, quest->minlev / 50, quest->minlev % 50);
+	sprintf(buf, "set quest '%s' minimum level to %d",
+		quest->name, quest->minlevel);
+
 	qlog(ch, buf, QLOG_NORM, LVL_AMBASSADOR, TRUE);
 
 }
@@ -1402,13 +1411,64 @@ do_qcontrol_maxlev(CHAR * ch, char *argument, int com)
 	if (!quest->canEdit(ch))
 		return;
 
-	quest->maxlev = MAX(0, atoi(arg2));
+	quest->maxlevel = MIN(LVL_GRIMP, MAX(0, atoi(arg2)));
 
-	sprintf(buf, "set quest '%s' maximum level to gen %-2d level %2d",
-		quest->name, quest->maxlev / 50, quest->maxlev % 50);
+	sprintf(buf, "set quest '%s' maximum level to %d",
+		quest->name, quest->maxlevel);
 	qlog(ch, buf, QLOG_NORM, LVL_AMBASSADOR, TRUE);
-
 }
+
+
+void
+do_qcontrol_mingen(CHAR * ch, char *argument, int com)
+{
+	Quest *quest = NULL;
+
+	argument = two_arguments(argument, arg1, arg2);
+
+	if (!*arg2 || !*arg1) {
+		do_qcontrol_usage(ch, com);
+		return;
+	}
+
+	if (!(quest = find_quest(ch, arg1)))
+		return;
+
+	if (!quest->canEdit(ch))
+		return;
+
+	quest->mingen = MIN(10, MAX(0, atoi(arg2)));
+
+	sprintf(buf, "set quest '%s' minimum gen to %d",
+		quest->name, quest->mingen );
+	qlog(ch, buf, QLOG_NORM, LVL_AMBASSADOR, TRUE);
+}
+
+void
+do_qcontrol_maxgen(CHAR * ch, char *argument, int com)
+{
+	Quest *quest = NULL;
+
+	argument = two_arguments(argument, arg1, arg2);
+
+	if (!*arg2 || !*arg1) {
+		do_qcontrol_usage(ch, com);
+		return;
+	}
+
+	if (!(quest = find_quest(ch, arg1)))
+		return;
+
+	if (!quest->canEdit(ch))
+		return;
+
+	quest->maxgen = MIN(10, MAX(0, atoi(arg2)));
+
+	sprintf(buf, "set quest '%s' maximum gen to %d",
+		quest->name, quest->maxgen);
+	qlog(ch, buf, QLOG_NORM, LVL_AMBASSADOR, TRUE);
+}
+
 
 void
 do_qcontrol_mute(CHAR * ch, char *argument, int com)
@@ -2089,8 +2149,8 @@ do_quest_info(CHAR * ch, char *argument)
 		quest->description ? quest->description : "None.\r\n",
 		quest->updates ? quest->updates : "None.\r\n",
 		qtypes[(int)quest->type], timestr_s, timestr_a,
-		quest->minlev / 50, quest->minlev % 50,
-		quest->maxlev / 50, quest->maxlev % 50,
+		quest->mingen, quest->minlevel,
+		quest->maxgen, quest->maxlevel,
 		quest->getNumPlayers(), quest->getMaxPlayers());
 	page_string(ch->desc, buf);
 
@@ -2594,8 +2654,10 @@ Quest::Quest( char_data *ch, int type, const char* name )
 	max_players = 0;
 	awarded = 0;
 	penalized = 0;
-	minlev = 0;
-	maxlev = 549;
+	minlevel = 0;
+	maxlevel = 49;
+	mingen = 0;
+	maxgen = 10;
 }
 
 Quest::~Quest() 
@@ -2632,8 +2694,10 @@ Quest::Quest( xmlNodePtr n, xmlDocPtr doc )
 	started = (time_t) xmlGetLongProp(n, "STARTED");
 	ended = (time_t) xmlGetLongProp(n, "ENDED");
 	max_players = xmlGetIntProp(n, "MAX_PLAYERS");
-	minlev = xmlGetIntProp(n, "MAX_LEVEL");
-	minlev = xmlGetIntProp(n, "MIN_LEVEL");
+	maxlevel = xmlGetIntProp(n, "MAX_LEVEL");
+	minlevel = xmlGetIntProp(n, "MIN_LEVEL");
+	maxgen = xmlGetIntProp(n, "MAX_GEN");
+	mingen = xmlGetIntProp(n, "MIN_GEN");
 	awarded = xmlGetIntProp(n, "AWARDED");
 	penalized = xmlGetIntProp(n, "PENALIZED");
 	owner_level = xmlGetIntProp(n, "OWNER_LEVEL");
@@ -2697,8 +2761,10 @@ Quest& Quest::operator=( const Quest &q )
 	max_players = q.max_players;
 	awarded = q.awarded;
 	penalized = q.penalized;
-	minlev = q.minlev;
-	maxlev = q.maxlev;
+	minlevel = q.minlevel;
+	maxlevel = q.maxlevel;
+	maxgen = q.maxgen;
+	mingen = q.mingen;
 	return *this;
 }
 
@@ -2858,14 +2924,26 @@ Quest::levelOK(CHAR * ch)
 {
 	if (GET_LEVEL(ch) >= LVL_AMBASSADOR)
 		return true;
-	if (GET_REMORT_GEN(ch) * 50 + GET_LEVEL(ch) > maxlev) {
+
+	if (GET_REMORT_GEN(ch) > maxgen) {
+		send_to_char(ch, "Your generation is too high for this quest.\r\n");
+		return false;
+	}
+
+	if ( GET_LEVEL(ch) > maxlevel ) {
 		send_to_char(ch, "Your level is too high for this quest.\r\n");
 		return false;
 	}
-	if (GET_REMORT_GEN(ch) * 50 + GET_LEVEL(ch) < minlev) {
+	if (GET_REMORT_GEN(ch) < mingen ) {
+		send_to_char(ch, "Your generation is too low for this quest.\r\n");
+		return false;
+	}
+
+	if ( GET_LEVEL(ch) < minlevel ) {
 		send_to_char(ch, "Your level is too low for this quest.\r\n");
 		return false;
 	}
+
 	return true;
 }
 
@@ -2879,13 +2957,16 @@ Quest::save(std::ostream &out)
 				  << "\" ENDED=\"" << ended << "\"" 
 				  << endl;
 	out << indent << indent 
-				  << "MAX_PLAYERS=\"" << max_players << "\" MAX_LEVEL=\"" << maxlev
-				  << "\" MIN_LEVEL=\"" << minlev << "\" AWARDED=\"" << awarded << "\""
-				  << endl;
+				  << "MAX_PLAYERS=\"" << max_players << "\" MAX_LEVEL=\"" << maxlevel
+				  << "\" MIN_LEVEL=\"" << minlevel << "\" MAX_GEN=\"" << maxgen 
+				  << "\" MIN_GEN=\"" << mingen << "\"" << endl;
+				  
 	out << indent << indent 
-				  << "PENALIZED=\"" << penalized << "\" TYPE=\"" << qtype_abbrevs[type] 
+				  << "AWARDED=\"" << awarded << "\""
+				  << " PENALIZED=\"" << penalized << "\" TYPE=\"" << qtype_abbrevs[type] 
 				  << "\" OWNER_LEVEL=\"" << owner_level << "\" FLAGS=\"" << flags 
 				  << "\" >" << endl;
+
 	xmlChar *str= xmlEncodeEntitiesReentrant( NULL, (xmlChar*)description );
 	out << indent << "  <Description>" << str << "</Description>" << endl;
 	free(str);
