@@ -57,8 +57,8 @@ SPECIAL(phantasmic_sword)
 					!(number(0, GET_LEVEL(mast) +
 							(GET_CHA(mast) >> (mast->in_room !=
 									ch->in_room))))) {
-					hit(ch, (*it), TYPE_UNDEFINED);
-					return 1;
+					set_fighting(ch, *it, true);
+					return 0;
 				}
 			}
 
