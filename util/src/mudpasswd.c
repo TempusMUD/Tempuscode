@@ -7,8 +7,10 @@
 
 #include <stdio.h>
 #include <ctype.h>
+#include <crypt.h>
+#include <unistd.h>
 
-#include "../structs.h"
+#include "../../src/include/structs.h"
 
 #define FALSE 0
 #define TRUE 1
@@ -32,13 +34,11 @@ int	str_eq(char *s, char *t)
    }
 }
 
-
 void	pword(char *filename, char *name, char *password)
 {
    FILE * fl;
    struct char_file_u buf;
    int	found = FALSE;
-   extern char	*crypt();
 
    if (!(fl = fopen(filename, "r+"))) {
       perror(filename);
