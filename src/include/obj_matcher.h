@@ -61,6 +61,13 @@ class ObjectMatcher {
 			_ready = ready; 
 		}
 		const char* getKey() { return key.c_str(); }
+		/* 
+		 * Returns additional info to show for the objects matched 
+		 * by this matcher in a char[] allocated by tmpstr.
+		 **/
+		virtual const char* getAddedInfo( Creature *ch, obj_data *obj ) {
+			return "";
+		}
 	private:
 		bool _ready;
 	private:
@@ -110,6 +117,7 @@ class ObjectApplyMatcher : public ObjectMatcher {
 		virtual ~ObjectApplyMatcher() { }
 		virtual bool init( Creature *ch, Tokenizer &tokens );
 		virtual bool isMatch( obj_data *obj );
+		virtual const char* getAddedInfo( Creature *ch, obj_data *obj );
 	private:
 		int apply;
 };
@@ -159,6 +167,7 @@ class ObjectCostMatcher : public ObjectMatcher {
 		virtual ~ObjectCostMatcher() { }
 		virtual bool init( Creature *ch, Tokenizer &tokens );
 		virtual bool isMatch( obj_data *obj );
+		virtual const char* getAddedInfo( Creature *ch, obj_data *obj );
 	private:
 		int costBelow;
 		int costAbove;
@@ -178,6 +187,7 @@ class ObjectSpellMatcher : public ObjectMatcher {
 		virtual ~ObjectSpellMatcher() { }
 		virtual bool init( Creature *ch, Tokenizer &tokens );
 		virtual bool isMatch( obj_data *obj );
+		virtual const char* getAddedInfo( Creature *ch, obj_data *obj );
 	private:
 		int spell;
 };

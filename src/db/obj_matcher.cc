@@ -22,6 +22,8 @@
 #include "materials.h"
 #include "obj_matcher.h"
 #include "interpreter.h"
+#include "screen.h"
+#include "tmpstr.h"
 
 //
 // TYPE
@@ -114,7 +116,17 @@ bool ObjectApplyMatcher::isMatch( obj_data *obj ) {
     }
     return false;
 }
+const char*
+ObjectApplyMatcher::getAddedInfo( Creature *ch, obj_data *obj ) {
+	int modifier = 0;
+	for (int i = 0; i < MAX_OBJ_AFFECT; i++) {
+		if( obj->affected[i].location == apply ) {
+			modifier = obj->affected[i].modifier;
+		}
+	}
 
+	return tmp_sprintf("[%3d]", modifier);
+}
 
 //
 // SPECIAL
@@ -210,6 +222,14 @@ bool ObjectCostMatcher::isMatch( obj_data *obj ) {
              GET_OBJ_COST(obj) < costBelow );
 }
 
+const char*
+ObjectCostMatcher::getAddedInfo( Creature *ch, obj_data *obj ) {
+	return tmp_sprintf("%s[%s%11d%s]%s",
+		CCYEL(ch,C_NRM), CCGRN(ch, C_NRM),
+		obj->shared->cost,
+		CCYEL(ch, C_NRM), CCNRM(ch,C_NRM) );
+}
+
 
 //
 // SPELL
@@ -273,6 +293,37 @@ bool ObjectSpellMatcher::isMatch( obj_data *obj ) {
             return false;
     }
     return isReady() ;
+}
+
+const char*
+ObjectSpellMatcher::getAddedInfo( Creature *ch, obj_data *obj ) {
+	const char *spell1 = "0"; 
+	const char *spell2 = "0";
+	const char *spell3 = "0";
+
+	switch (GET_OBJ_TYPE(obj)) {
+		case ITEM_WAND:	// val 3 
+		case ITEM_STAFF:	// val 3
+			spell1 = spell_to_str(GET_OBJ_VAL(obj, 3));
+			break;
+		case ITEM_WEAPON:	// val 0
+			spell1 = spell_to_str(GET_OBJ_VAL(obj, 0));
+			break;
+		case ITEM_SCROLL:	// val 1,2,3
+		case ITEM_POTION:	// val 1,2,3
+		case ITEM_PILL:	// ""
+			spell1 = spell_to_str(GET_OBJ_VAL(obj, 1));
+			spell2 = spell_to_str(GET_OBJ_VAL(obj, 2));
+			spell3 = spell_to_str(GET_OBJ_VAL(obj, 3));
+			break;
+		case ITEM_FOOD:	// Val 2 is spell
+			spell1 = spell_to_str(GET_OBJ_VAL(obj, 2));
+			break;
+	}
+	return tmp_sprintf("[%s%s%s,%s%s%s,%s%s%s]",
+		CCCYN(ch, C_NRM),spell1,CCNRM(ch, C_NRM),
+		CCCYN(ch, C_NRM),spell2,CCNRM(ch, C_NRM),
+		CCCYN(ch, C_NRM),spell3,CCNRM(ch, C_NRM) );
 }
 
 //

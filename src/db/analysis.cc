@@ -119,44 +119,18 @@ class ObjectMatcherTable {
 			}
 			return false;
 		}
+		const char* getAddedInfo( Creature *ch, obj_data *obj ) {
+			const char* info = "";
+			for( unsigned int i = 0; i < table.size(); i++  ) {
+				if(! table[i]->isReady() )
+					continue;
+				const char* line = table[i]->getAddedInfo(ch,obj);
+				if( *line != '\0' )
+					info = tmp_strcat(info, line);
+			}
+			return info;
+		}
 };
-
-
-/** 
- * prints the names of the spells on the given object into
- * the given buffer with color for ch.
-**/
-char*
-get_spell_names( Creature *ch, obj_data *obj ) 
-{
-	const char *spell1 = "0"; 
-	const char *spell2 = "0";
-	const char *spell3 = "0";
-
-	switch (GET_OBJ_TYPE(obj)) {
-		case ITEM_WAND:	// val 3 
-		case ITEM_STAFF:	// val 3
-			spell1 = spell_to_str(GET_OBJ_VAL(obj, 3));
-			break;
-		case ITEM_WEAPON:	// val 0
-			spell1 = spell_to_str(GET_OBJ_VAL(obj, 0));
-			break;
-		case ITEM_SCROLL:	// val 1,2,3
-		case ITEM_POTION:	// val 1,2,3
-		case ITEM_PILL:	// ""
-			spell1 = spell_to_str(GET_OBJ_VAL(obj, 1));
-			spell2 = spell_to_str(GET_OBJ_VAL(obj, 2));
-			spell3 = spell_to_str(GET_OBJ_VAL(obj, 3));
-			break;
-		case ITEM_FOOD:	// Val 2 is spell
-			spell1 = spell_to_str(GET_OBJ_VAL(obj, 2));
-			break;
-	}
-	return tmp_sprintf("[%s%s%s,%s%s%s,%s%s%s]",
-		CCCYN(ch, C_NRM),spell1,CCNRM(ch, C_NRM),
-		CCCYN(ch, C_NRM),spell2,CCNRM(ch, C_NRM),
-		CCCYN(ch, C_NRM),spell3,CCNRM(ch, C_NRM) );
-}
 
 /** 
  * prints a delightfull description of the given object into the
@@ -164,13 +138,13 @@ get_spell_names( Creature *ch, obj_data *obj )
  * showing or not showing spell names.
 **/
 char*
-sprintobj( Creature *ch, obj_data *obj, int num, bool show_spell=false ) 
+sprintobj( Creature *ch, obj_data *obj, ObjectMatcherTable &table, int num ) 
 {
-	return tmp_sprintf("%3d. %s[%s%5d%s] %40s%s%s %s\r\n", num,
-			     CCGRN(ch, C_NRM), CCNRM(ch, C_NRM), GET_OBJ_VNUM(obj),
-				 CCGRN(ch, C_NRM), obj->short_description, CCNRM(ch, C_NRM),
-				 !OBJ_APPROVED(obj) ? " (!appr)" : "", 
-                 show_spell ? get_spell_names( ch, obj ) : "" );
+	const char *info = table.getAddedInfo( ch, obj );
+	return tmp_sprintf("%3d. %s[%s%5d%s] %35s%s %s%s\r\n", num,
+					   CCGRN(ch, C_NRM), CCNRM(ch, C_NRM), GET_OBJ_VNUM(obj),
+					   CCGRN(ch, C_NRM), obj->short_description, CCNRM(ch, C_NRM),
+					   info, !OBJ_APPROVED(obj) ? "(!appr)" : "");
 }
 
 void
@@ -208,7 +182,7 @@ do_show_objects( Creature *ch, char *value, char *arg ) {
 
 	list<obj_data*>::iterator it = objects.begin();
 	for( ; it != objects.end() && objNum <= 300; ++it ) {
-        char *line = sprintobj( ch, *it, objNum++, matcherTable.isUsed("spell") );
+        char *line = sprintobj( ch, *it, matcherTable, objNum++);
 		msg = tmp_strcat( msg, line, NULL);
 	}
 	if( objNum > 300 )
