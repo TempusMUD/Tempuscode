@@ -39,44 +39,44 @@ Creature::saveToXML() {
 		return;
 	}
 
-	fprintf(ouf, "<CREATURE NAME=\"%s\" IDNUM=\"%ld\">\n",
+	fprintf(ouf, "<creature name=\"%s\" idnum=\"%ld\">\n",
 		GET_NAME(ch), ch->char_specials.saved.idnum);
 
-	fprintf(ouf, "<POINTS HIT=\"%d\" MANA=\"%d\" MOVE=\"%d\" MAXHIT=\"%d\" MAXMANA=\"%d\" MAXMOVE=\"%d\"/>\n",
+	fprintf(ouf, "<points hit=\"%d\" mana=\"%d\" move=\"%d\" maxhit=\"%d\" maxmana=\"%d\" maxmove=\"%d\"/>\n",
 		ch->points.hit, ch->points.mana, ch->points.move,
 		ch->points.max_hit, ch->points.max_mana, ch->points.max_move);
 
-    fprintf(ouf, "<MONEY GOLD=\"%d\" BANK=\"%d\" CASH=\"%d\" CREDITS=\"%d\" XP=\"%d\"/>\n",
+    fprintf(ouf, "<money gold=\"%d\" bank=\"%d\" cash=\"%d\" credits=\"%d\" xp=\"%d\"/>\n",
         ch->points.gold, ch->points.bank_gold, 
 		ch->points.cash, ch->points.credits, 
 		ch->points.exp);
 
-	fprintf(ouf, "<STATS LEVEL=\"%d\" SEX=\"%s\" RACE=\"%s\" HEIGHT=\"%d\" WEIGHT=\"%d\" ALIGN=\"%d\"/>\n",
+	fprintf(ouf, "<stats level=\"%d\" sex=\"%s\" race=\"%s\" height=\"%d\" weight=\"%d\" align=\"%d\"/>\n",
 		GET_LEVEL(ch), genders[GET_SEX(ch)], player_race[GET_RACE(ch)],
 		GET_HEIGHT(ch), GET_WEIGHT(ch), GET_ALIGNMENT(ch));
 	
-	fprintf(ouf, "<CLASS NAME=\"%s\"", pc_char_class_types[GET_CLASS(ch)]);
+	fprintf(ouf, "<class name=\"%s\"", pc_char_class_types[GET_CLASS(ch)]);
 	if (GET_REMORT_GEN(ch))
-		fprintf(ouf, " REMORT=\"%s\" GEN=\"%d\"",
+		fprintf(ouf, " remort=\"%s\" gen=\"%d\"",
 			pc_char_class_types[GET_REMORT_CLASS(ch)], GET_REMORT_GEN(ch));
 	if (IS_CYBORG(ch)) {
 		if (GET_OLD_CLASS(ch) != -1)
-			fprintf(ouf, " SUBCLASS=\"%s\"",
+			fprintf(ouf, " subclass=\"%s\"",
 				borg_subchar_class_names[GET_OLD_CLASS(ch)]);
 		if (GET_TOT_DAM(ch))
-			fprintf(ouf, " TOTAL_DAM=\"%d\"", GET_TOT_DAM(ch));
+			fprintf(ouf, " total_dam=\"%d\"", GET_TOT_DAM(ch));
 		if (GET_BROKE(ch))
-			fprintf(ouf, " BROKEN=\"%d\"", GET_BROKE(ch));
+			fprintf(ouf, " broken=\"%d\"", GET_BROKE(ch));
 	} else if (GET_CLASS(ch) == CLASS_MAGE &&
 			GET_SKILL(ch, SPELL_MANA_SHIELD) > 0) {
-		fprintf(ouf, " MANASH_LOW=\"%ld\" MANASH_PCT=\"%ld\"",	
+		fprintf(ouf, " manash_low=\"%ld\" manash_pct=\"%ld\"",	
 			ch->player_specials->saved.mana_shield_low,
 			ch->player_specials->saved.mana_shield_pct);
 	}
 	fprintf(ouf, "/>\n");
 
 
-	fprintf(ouf, "<TIME BIRTH=\"%ld\" DEATH=\"%ld\" PLAYED=\"%d\"/>\n",
+	fprintf(ouf, "<time birth=\"%ld\" death=\"%ld\" played=\"%d\"/>\n",
 		ch->player.time.birth,
 		ch->player.time.death,
 		ch->player.time.played);
@@ -85,90 +85,90 @@ Creature::saveToXML() {
 	if( desc != NULL ) {
 		host = xmlEncodeTmp( desc->host );
 	}
-	fprintf(ouf, "<LASTLOGIN TIME=\"%ld\" HOST=\"%s\"/>\n",
+	fprintf(ouf, "<lastlogin time=\"%ld\" host=\"%s\"/>\n",
 		(long int)ch->player.time.logon, host );
 
-	fprintf(ouf, "<CARNAGE PKILLS=\"%d\" MKILLS=\"%d\" DEATHS=\"%d\"/>\n",
+	fprintf(ouf, "<carnage pkills=\"%d\" mkills=\"%d\" deaths=\"%d\"/>\n",
 		GET_PKILLS(ch), GET_MOBKILLS(ch), GET_PC_DEATHS(ch));
 
-	fprintf(ouf, "<ATTR STR=\"%d\" INT=\"%d\" WIS=\"%d\" DEX=\"%d\" CON=\"%d\" CHA=\"%d\" STRADD=\"%d\"/>\n",
+	fprintf(ouf, "<attr str=\"%d\" int=\"%d\" wis=\"%d\" dex=\"%d\" con=\"%d\" cha=\"%d\" stradd=\"%d\"/>\n",
 		GET_STR(ch), GET_INT(ch), GET_WIS(ch), GET_DEX(ch), GET_CON(ch),
 		GET_CHA(ch), GET_ADD(ch));
     /*  Calculated from eq and affects.
-	fprintf(ouf, "<SAVE PARA=\"%d\" ROD=\"%d\" PETRI=\"%d\" BREATH=\"%d\" SPELL=\"%d\" CHEM=\"%d\" PSI=\"%d\" PHY=\"%d\"/>\n",
+	fprintf(ouf, "<save para=\"%d\" rod=\"%d\" petri=\"%d\" breath=\"%d\" spell=\"%d\" chem=\"%d\" psi=\"%d\" phy=\"%d\"/>\n",
 		GET_SAVE(ch, SAVING_PARA), GET_SAVE(ch, SAVING_ROD),
 		GET_SAVE(ch, SAVING_PETRI), GET_SAVE(ch, SAVING_BREATH),
 		GET_SAVE(ch, SAVING_SPELL), GET_SAVE(ch, SAVING_CHEM),
 		GET_SAVE(ch, SAVING_PSI), GET_SAVE(ch, SAVING_PHY));
     */
-	fprintf(ouf, "<CONDITION HUNGER=\"%d\" THIRST=\"%d\" DRUNK=\"%d\"/>\n",
+	fprintf(ouf, "<condition hunger=\"%d\" thirst=\"%d\" drunk=\"%d\"/>\n",
 		ch->player_specials->saved.conditions[0],
 		ch->player_specials->saved.conditions[1],
 		ch->player_specials->saved.conditions[2]);
 
-	fprintf(ouf, "<PLAYER INVIS=\"%d\" WIMPY=\"%d\" PRACS=\"%d\" LP=\"%d\" CLAN=\"%d\"/>\n",
+	fprintf(ouf, "<player invis=\"%d\" wimpy=\"%d\" pracs=\"%d\" lp=\"%d\" clan=\"%d\"/>\n",
 		GET_INVIS_LVL(ch), GET_WIMP_LEV(ch), GET_PRACTICES(ch),
 		GET_LIFE_POINTS(ch), GET_CLAN(ch));
 
-	fprintf(ouf, "<HOME TOWN=\"%d\" LOADROOM=\"%d\" HELD_TOWN=\"%d\" HELD_LOADROOM=\"%d\"/>\n",
+	fprintf(ouf, "<home town=\"%d\" loadroom=\"%d\" held_town=\"%d\" held_loadroom=\"%d\"/>\n",
 		GET_HOME(ch), GET_LOADROOM(ch), GET_HOLD_HOME(ch),
 		GET_HOLD_LOADROOM(ch));
 
-	fprintf(ouf, "<QUEST");
+	fprintf(ouf, "<quest");
 	if (GET_QUEST(ch))
-		fprintf(ouf, " CURRENT=\"%d\"", GET_QUEST(ch));
+		fprintf(ouf, " current=\"%d\"", GET_QUEST(ch));
 	if (GET_LEVEL(ch) >= LVL_IMMORT)
-		fprintf(ouf, " ALLOWANCE=\"%d\"", GET_QUEST_ALLOWANCE(ch));
+		fprintf(ouf, " allowance=\"%d\"", GET_QUEST_ALLOWANCE(ch));
     if( GET_QUEST_POINTS(ch) != 0 )
-        fprintf(ouf, " POINTS=\"%d\"", GET_QUEST_POINTS(ch));
+        fprintf(ouf, " points=\"%d\"", GET_QUEST_POINTS(ch));
     
 	fprintf(ouf, "/>\n");
 		
-	fprintf(ouf, "<ACCOUNT FLAG1=\"%lx\" FLAG2=\"%x\" PASSWORD=\"%s\" BAD_PWS=\"%d\"",
+	fprintf(ouf, "<account flag1=\"%lx\" flag2=\"%x\" password=\"%s\" bad_pws=\"%d\"",
 		ch->char_specials.saved.act, ch->player_specials->saved.plr2_bits,
 		ch->player.passwd, ch->player_specials->saved.bad_pws);
 	if (PLR_FLAGGED(ch, PLR_FROZEN))
-		fprintf(ouf, " FROZEN_LVL=\"%d\"", GET_FREEZE_LEV(ch));
+		fprintf(ouf, " frozen_lvl=\"%d\"", GET_FREEZE_LEV(ch));
 	fprintf(ouf, "/>\n");
 
-	fprintf(ouf, "<PREFS FLAG1=\"%lx\" FLAG2=\"%lx\"/>\n",
+	fprintf(ouf, "<prefs flag1=\"%lx\" flag2=\"%lx\"/>\n",
 		ch->player_specials->saved.pref, ch->player_specials->saved.pref2);
 
-	fprintf(ouf, "<TERMINAL ROWS=\"%d\" COLUMNS=\"%d\"/>\n",
+	fprintf(ouf, "<terminal rows=\"%d\" columns=\"%d\"/>\n",
 		GET_PAGE_LENGTH(ch), GET_COLS(ch));
 
-	fprintf(ouf, "<AFFECTS FLAG1=\"%lx\" FLAG2=\"%lx\" FLAG3=\"%lx\"/>\n",
+	fprintf(ouf, "<affects flag1=\"%lx\" flag2=\"%lx\" flag3=\"%lx\"/>\n",
 		ch->char_specials.saved.affected_by,
 		ch->char_specials.saved.affected2_by,
 		ch->char_specials.saved.affected3_by);
 
 	for (idx = 0;idx < MAX_WEAPON_SPEC;idx++) {
 		if (ch->player_specials->saved.weap_spec[idx].level)
-			fprintf(ouf, "<WEAPONSPEC VNUM=\"%d\" LEVEL=\"%d\"/>\n",
+			fprintf(ouf, "<weaponspec vnum=\"%d\" level=\"%d\"/>\n",
 				ch->player_specials->saved.weap_spec[idx].vnum,
 				ch->player_specials->saved.weap_spec[idx].level);
 	}
 
 	if (GET_TITLE(ch) && *GET_TITLE(ch)) {
-		fprintf(ouf, "<TITLE>%s</TITLE>\n", xmlEncodeTmp(GET_TITLE(ch)) );
+		fprintf(ouf, "<title>%s</title>\n", xmlEncodeTmp(GET_TITLE(ch)) );
 	}
 
 	if (GET_LEVEL(ch) >= LVL_IMMORT) {
-		fprintf(ouf, "<IMMORT BADGE=\"%d\"/>\n",
+		fprintf(ouf, "<immort badge=\"%d\"/>\n",
 			ch->player_specials->saved.occupation);
 		if (POOFIN(ch) && *POOFIN(ch))
-			fprintf(ouf, "<POOFIN>%s</POOFIN>\n", xmlEncodeTmp(POOFIN(ch)));
+			fprintf(ouf, "<poofin>%s</poofin>\n", xmlEncodeTmp(POOFIN(ch)));
 		if (POOFOUT(ch) && *POOFOUT(ch))
-			fprintf(ouf, "<POOFOUT>%s</POOFOUT>\n", xmlEncodeTmp(POOFOUT(ch)));
+			fprintf(ouf, "<poofout>%s</poofout>\n", xmlEncodeTmp(POOFOUT(ch)));
 	}
 	if (ch->player.description && *ch->player.description) {
-		fprintf(ouf, "<DESCRIPTION>%s</DESCRIPTION>\n",  xmlEncodeTmp(ch->player.description) );
+		fprintf(ouf, "<description>%s</description>\n",  xmlEncodeTmp(ch->player.description) );
 	}
 	for (cur_alias = ch->player_specials->aliases; cur_alias; cur_alias = cur_alias->next)
-		fprintf(ouf, "<ALIAS TYPE=\"%d\" ALIAS=\"%s\" REPLACE=\"%s\"/>\n",
+		fprintf(ouf, "<alias type=\"%d\" alias=\"%s\" replace=\"%s\"/>\n",
 			cur_alias->type, cur_alias->alias, cur_alias->replacement);
 	for (cur_aff = ch->affected;cur_aff; cur_aff = cur_aff->next)
-		fprintf(ouf, "<AFFECT TYPE=\"%d\" DURATION=\"%d\" MODIFIER=\"%d\" LOCATION=\"%d\" LEVEL=\"%d\" INSTANT=\"%s\" AFFBITS=\"%lx\" INDEX=\"%d\" />\n",
+		fprintf(ouf, "<affect type=\"%d\" duration=\"%d\" modifier=\"%d\" location=\"%d\" level=\"%d\" instant=\"%s\" affbits=\"%lx\" index=\"%d\" />\n",
 			cur_aff->type, cur_aff->duration, cur_aff->modifier,
 			cur_aff->location, cur_aff->level,
 			(cur_aff->is_instant) ? "yes":"no", 
@@ -177,10 +177,10 @@ Creature::saveToXML() {
 
 	for (idx = 0;idx < MAX_SKILLS;idx++)
 		if (ch->player_specials->saved.skills[idx] > 0)
-			fprintf(ouf, "<SKILL NAME=\"%s\" LEVEL=\"%d\"/>\n",
+			fprintf(ouf, "<skill name=\"%s\" level=\"%d\"/>\n",
 				spell_to_str(idx), GET_SKILL(ch, idx));
 
-	fprintf(ouf, "</CREATURE>\n");
+	fprintf(ouf, "</creature>\n");
 	fclose(ouf);
 }
 
@@ -211,59 +211,59 @@ Creature::loadFromXML( long id )
 	if (player_specials == NULL)
 		CREATE(player_specials, struct player_special_data, 1);
 
-    player.name = xmlGetProp(root, "NAME");
-    char_specials.saved.idnum = xmlGetIntProp(root, "IDNUM");
+    player.name = xmlGetProp(root, "name");
+    char_specials.saved.idnum = xmlGetIntProp(root, "idnum");
     
     // Read in the subnodes
 	for ( xmlNodePtr node = root->xmlChildrenNode; node; node = node->next ) {
-        if ( xmlMatches(node->name, "POINTS") ) {
-            points.mana = xmlGetIntProp(node, "MANA");
-            points.max_mana = xmlGetIntProp(node, "MAXMANA");
-            points.hit = xmlGetIntProp(node, "HIT");
-            points.max_hit = xmlGetIntProp(node, "MAXHIT");
-            points.move = xmlGetIntProp(node, "MOVE");
-            points.max_move = xmlGetIntProp(node, "MAXMOVE");
-        } else if ( xmlMatches(node->name, "MONEY") ) {
-            points.gold = xmlGetIntProp(node, "GOLD");
-            points.bank_gold = xmlGetIntProp(node, "BANK");
-            points.cash = xmlGetIntProp(node, "CASH");
-            points.credits = xmlGetIntProp(node, "CREDITS");
-            points.exp = xmlGetIntProp(node, "XP");
-        } else if ( xmlMatches(node->name, "STATS") ) {
-            player.level = xmlGetIntProp(node, "LEVEL");
-            player.height = xmlGetIntProp(node, "HEIGHT");
-            player.weight = xmlGetIntProp(node, "WEIGHT");
-            GET_ALIGNMENT(this) = xmlGetIntProp(node, "ALIGN");
+        if ( xmlMatches(node->name, "points") ) {
+            points.mana = xmlGetIntProp(node, "mana");
+            points.max_mana = xmlGetIntProp(node, "maxmana");
+            points.hit = xmlGetIntProp(node, "hit");
+            points.max_hit = xmlGetIntProp(node, "maxhit");
+            points.move = xmlGetIntProp(node, "move");
+            points.max_move = xmlGetIntProp(node, "maxmove");
+        } else if ( xmlMatches(node->name, "money") ) {
+            points.gold = xmlGetIntProp(node, "gold");
+            points.bank_gold = xmlGetIntProp(node, "bank");
+            points.cash = xmlGetIntProp(node, "cash");
+            points.credits = xmlGetIntProp(node, "credits");
+            points.exp = xmlGetIntProp(node, "xp");
+        } else if ( xmlMatches(node->name, "stats") ) {
+            player.level = xmlGetIntProp(node, "level");
+            player.height = xmlGetIntProp(node, "height");
+            player.weight = xmlGetIntProp(node, "weight");
+            GET_ALIGNMENT(this) = xmlGetIntProp(node, "align");
             
             GET_SEX(this) = 0;
-            char *sex = xmlGetProp(node, "SEX");
+            char *sex = xmlGetProp(node, "sex");
             if( sex != NULL )
                 GET_SEX(this) = search_block(sex, genders, FALSE);
 			free(sex);
 
             GET_RACE(this) = 0;
-            char *race = xmlGetProp(node, "RACE");
+            char *race = xmlGetProp(node, "race");
             if( race != NULL )
                 GET_RACE(this) = search_block(race, player_race, FALSE);
 			free(race);
 
-        } else if ( xmlMatches(node->name, "CLASS") ) {
+        } else if ( xmlMatches(node->name, "class") ) {
 			GET_OLD_CLASS(this) = GET_REMORT_CLASS(this) = GET_CLASS(this) = 0;
 
-            char *trade = xmlGetProp(node, "NAME");
+            char *trade = xmlGetProp(node, "name");
             if( trade != NULL ) {
                 GET_CLASS(this) = search_block(trade, pc_char_class_types, FALSE);
 				free(trade);
 			}
 			
-            trade = xmlGetProp(node, "REMORT");
+            trade = xmlGetProp(node, "remort");
             if( trade != NULL ) {
                 GET_REMORT_CLASS(this) = search_block(trade, pc_char_class_types, FALSE);
 				free(trade);
 			}
 
 			if( IS_CYBORG(this) ) {
-				char *subclass = xmlGetProp( node, "SUBCLASS" );
+				char *subclass = xmlGetProp( node, "subclass" );
 				if( subclass != NULL ) {
 					GET_OLD_CLASS(this) = search_block( subclass, 
 														borg_subchar_class_names, 
@@ -272,76 +272,76 @@ Creature::loadFromXML( long id )
 				}
 			}
 
-			GET_REMORT_GEN(this) = xmlGetIntProp( node, "GEN" );
-			GET_TOT_DAM(this) = xmlGetIntProp( node, "TOTAL_DAM" );
+			GET_REMORT_GEN(this) = xmlGetIntProp( node, "gen" );
+			GET_TOT_DAM(this) = xmlGetIntProp( node, "total_dam" );
 
-        } else if ( xmlMatches(node->name, "TIME") ) {
-            player.time.birth = xmlGetLongProp(node, "BIRTH");
-            player.time.death = xmlGetLongProp(node, "DEATH");
-            player.time.played = xmlGetIntProp(node, "PLAYED");
-            player.time.logon = xmlGetLongProp(node, "TIME");
-            //char *h = xmlGetProp(node, "HOST");
+        } else if ( xmlMatches(node->name, "time") ) {
+            player.time.birth = xmlGetLongProp(node, "birth");
+            player.time.death = xmlGetLongProp(node, "death");
+            player.time.played = xmlGetIntProp(node, "played");
+            player.time.logon = xmlGetLongProp(node, "time");
+            //char *h = xmlGetProp(node, "host");
             //strncpy( desc->host, h, HOST_LENGTH );
 			//desc->host[HOST_LENGTH] = '\0';
             //free(h);
-        } else if ( xmlMatches(node->name, "CARNAGE") ) {
-            GET_PKILLS(this) = xmlGetIntProp(node, "PKILLS");
-            GET_MOBKILLS(this) = xmlGetIntProp(node, "MKILLS");
-            GET_PC_DEATHS(this) = xmlGetIntProp(node, "DEATHS");
-        } else if ( xmlMatches(node->name, "ATTR") ) {
-            aff_abils.str = real_abils.str = xmlGetIntProp(node, "STR");
-            aff_abils.str_add = real_abils.str_add = xmlGetIntProp(node, "STRADD");
-            aff_abils.intel = real_abils.intel = xmlGetIntProp(node, "INT");
-            aff_abils.wis = real_abils.wis = xmlGetIntProp(node, "WIS");
-            aff_abils.dex = real_abils.dex = xmlGetIntProp(node, "DEX");
-            aff_abils.con = real_abils.con = xmlGetIntProp(node, "CON");
-            aff_abils.cha = real_abils.cha = xmlGetIntProp(node, "CHA");
-        } else if ( xmlMatches(node->name, "CONDITION") ) {
-			GET_COND(this, THIRST) = xmlGetIntProp(node, "THIRST");
-			GET_COND(this, FULL) = xmlGetIntProp(node, "HUNGER");
-			GET_COND(this, DRUNK) = xmlGetIntProp(node, "DRUNK");
-       	} else if ( xmlMatches(node->name, "PLAYER") ) {
-			GET_WIMP_LEV(this) = xmlGetIntProp(node, "WIMPY");
-			GET_PRACTICES(this) = xmlGetIntProp(node, "WIMPY");
-			GET_LIFE_POINTS(this) = xmlGetIntProp(node, "LP");
-			GET_INVIS_LVL(this) = xmlGetIntProp(node, "INVIS");
-			GET_CLAN(this) = xmlGetIntProp(node, "CLAN");
-        } else if ( xmlMatches(node->name, "HOME") ) {
-			GET_HOME(this) = xmlGetIntProp(node, "TOWN");
-			GET_HOLD_HOME(this) = xmlGetIntProp(node, "HELD_TOWN");
-			GET_LOADROOM(this) = xmlGetIntProp(node, "LOADROOM");
-			GET_HOLD_LOADROOM(this) = xmlGetIntProp(node, "HELD_LOADROOM");
-        } else if ( xmlMatches(node->name, "QUEST") ) {
-			GET_QUEST(this) = xmlGetIntProp(node, "CURRENT");
-			GET_QUEST_POINTS(this) = xmlGetIntProp(node, "POINTS");
-			GET_QUEST_ALLOWANCE(this) = xmlGetIntProp(node, "ALLOWANCE");
-        } else if ( xmlMatches(node->name, "ACCOUNT") ) {
-			char* flag = xmlGetProp( node, "FLAG1" );
+        } else if ( xmlMatches(node->name, "carnage") ) {
+            GET_PKILLS(this) = xmlGetIntProp(node, "pkills");
+            GET_MOBKILLS(this) = xmlGetIntProp(node, "mkills");
+            GET_PC_DEATHS(this) = xmlGetIntProp(node, "deaths");
+        } else if ( xmlMatches(node->name, "attr") ) {
+            aff_abils.str = real_abils.str = xmlGetIntProp(node, "str");
+            aff_abils.str_add = real_abils.str_add = xmlGetIntProp(node, "stradd");
+            aff_abils.intel = real_abils.intel = xmlGetIntProp(node, "int");
+            aff_abils.wis = real_abils.wis = xmlGetIntProp(node, "wis");
+            aff_abils.dex = real_abils.dex = xmlGetIntProp(node, "dex");
+            aff_abils.con = real_abils.con = xmlGetIntProp(node, "con");
+            aff_abils.cha = real_abils.cha = xmlGetIntProp(node, "cha");
+        } else if ( xmlMatches(node->name, "condition") ) {
+			GET_COND(this, THIRST) = xmlGetIntProp(node, "thirst");
+			GET_COND(this, FULL) = xmlGetIntProp(node, "hunger");
+			GET_COND(this, DRUNK) = xmlGetIntProp(node, "drunk");
+       	} else if ( xmlMatches(node->name, "player") ) {
+			GET_WIMP_LEV(this) = xmlGetIntProp(node, "wimpy");
+			GET_PRACTICES(this) = xmlGetIntProp(node, "wimpy");
+			GET_LIFE_POINTS(this) = xmlGetIntProp(node, "lp");
+			GET_INVIS_LVL(this) = xmlGetIntProp(node, "invis");
+			GET_CLAN(this) = xmlGetIntProp(node, "clan");
+        } else if ( xmlMatches(node->name, "home") ) {
+			GET_HOME(this) = xmlGetIntProp(node, "town");
+			GET_HOLD_HOME(this) = xmlGetIntProp(node, "held_town");
+			GET_LOADROOM(this) = xmlGetIntProp(node, "loadroom");
+			GET_HOLD_LOADROOM(this) = xmlGetIntProp(node, "held_loadroom");
+        } else if ( xmlMatches(node->name, "quest") ) {
+			GET_QUEST(this) = xmlGetIntProp(node, "current");
+			GET_QUEST_POINTS(this) = xmlGetIntProp(node, "points");
+			GET_QUEST_ALLOWANCE(this) = xmlGetIntProp(node, "allowance");
+        } else if ( xmlMatches(node->name, "account") ) {
+			char* flag = xmlGetProp( node, "flag1" );
 			char_specials.saved.act = hex2dec(flag);
 			free(flag);
 
-			flag = xmlGetProp( node, "FLAG2" );
+			flag = xmlGetProp( node, "flag2" );
 			player_specials->saved.plr2_bits = hex2dec(flag);
 			free(flag);
 
-			char *pw = xmlGetProp( node, "PASSWORD" );
+			char *pw = xmlGetProp( node, "password" );
 			strncpy( GET_PASSWD( this ), pw, MAX_PWD_LENGTH );
 			GET_PASSWD(this)[MAX_PWD_LENGTH] = '\0';
-			player_specials->saved.bad_pws = xmlGetIntProp( node, "BAD_PWS" );
-        } else if ( xmlMatches(node->name, "PREFS") ) {
-			char* flag = xmlGetProp( node, "FLAG1" );
+			player_specials->saved.bad_pws = xmlGetIntProp( node, "bad_pws" );
+        } else if ( xmlMatches(node->name, "prefs") ) {
+			char* flag = xmlGetProp( node, "flag1" );
 			player_specials->saved.pref = hex2dec(flag);
 			free(flag);
 
-			flag = xmlGetProp( node, "FLAG2" );
+			flag = xmlGetProp( node, "flag2" );
 			player_specials->saved.pref2 = hex2dec(flag);
 			free(flag);
-        } else if ( xmlMatches(node->name, "TERMINAL") ) {
-			GET_PAGE_LENGTH(this) = xmlGetIntProp( node, "ROWS" );
-			//GET_PAGE_WIDTH(this) = xmlGetIntProp( node, "COLUMNS" );
-        } else if ( xmlMatches(node->name, "WEAPONSPEC") ) {
-			int vnum = xmlGetIntProp( node, "VNUM" );
-			int level = xmlGetIntProp( node, "LEVEL" );
+        } else if ( xmlMatches(node->name, "terminal") ) {
+			GET_PAGE_LENGTH(this) = xmlGetIntProp( node, "rows" );
+			//GET_PAGE_WIDTH(this) = xmlGetIntProp( node, "columns" );
+        } else if ( xmlMatches(node->name, "weaponspec") ) {
+			int vnum = xmlGetIntProp( node, "vnum" );
+			int level = xmlGetIntProp( node, "level" );
 			if( vnum > 0 && level > 0 ) {
 				for( int i = 0; i < MAX_WEAPON_SPEC; i++ ) {
 					if( player_specials->saved.weap_spec[i].vnum == 0 ) {
@@ -351,18 +351,18 @@ Creature::loadFromXML( long id )
 					}
 				}
 			}
-        } else if ( xmlMatches(node->name, "TITLE") ) {
+        } else if ( xmlMatches(node->name, "title") ) {
 			GET_TITLE(this) = (char*)xmlNodeGetContent( node );
-        } else if ( xmlMatches(node->name, "AFFECT") ) {
+        } else if ( xmlMatches(node->name, "affect") ) {
 			affected_type af;
-			af.type = xmlGetIntProp( node, "TYPE" );
-			af.duration = xmlGetIntProp( node, "DURATION" );
-			af.modifier = xmlGetIntProp( node, "MODIFIER" );
-			af.location = xmlGetIntProp( node, "LOCATION" );
-			af.level = xmlGetIntProp( node, "LEVEL" );
-			af.aff_index = xmlGetIntProp( node, "INDEX" );
+			af.type = xmlGetIntProp( node, "type" );
+			af.duration = xmlGetIntProp( node, "duration" );
+			af.modifier = xmlGetIntProp( node, "modifier" );
+			af.location = xmlGetIntProp( node, "location" );
+			af.level = xmlGetIntProp( node, "level" );
+			af.aff_index = xmlGetIntProp( node, "index" );
 			af.next = NULL;
-			char* instant = xmlGetProp( node, "INSTANT" );
+			char* instant = xmlGetProp( node, "instant" );
 			if( instant != NULL && strcmp( instant, "yes" ) == 0 ) {
 				af.is_instant = 1;
 			} else {
@@ -370,51 +370,51 @@ Creature::loadFromXML( long id )
 			}
 			free(instant);
 
-			char* bits = xmlGetProp( node, "AFFBITS" );
+			char* bits = xmlGetProp( node, "affbits" );
 			af.bitvector = hex2dec(bits);
 			free(bits);
 
 			affect_to_char(this, &af);
 
-        } else if ( xmlMatches(node->name, "AFFECTS") ) {
-			char* flag = xmlGetProp( node, "FLAG1" );
+        } else if ( xmlMatches(node->name, "affects") ) {
+			char* flag = xmlGetProp( node, "flag1" );
 			AFF_FLAGS(this) = hex2dec(flag);
 			free(flag);
 
-			flag = xmlGetProp( node, "FLAG2" );
+			flag = xmlGetProp( node, "flag2" );
 			AFF2_FLAGS(this) = hex2dec(flag);
 			free(flag);
 
-			flag = xmlGetProp( node, "FLAG3" );
+			flag = xmlGetProp( node, "flag3" );
 			AFF3_FLAGS(this) = hex2dec(flag);
 			free(flag);
 
-        } else if ( xmlMatches(node->name, "SKILL") ) {
-			char *spellName = xmlGetProp( node, "NAME" );
+        } else if ( xmlMatches(node->name, "skill") ) {
+			char *spellName = xmlGetProp( node, "name" );
 			int index = str_to_spell( spellName );
 			if( index >= 0 ) {
-				GET_SKILL( this, index ) = xmlGetIntProp( node, "LEVEL" );
+				GET_SKILL( this, index ) = xmlGetIntProp( node, "level" );
 			}
 			free(spellName);
-        } else if ( xmlMatches(node->name, "ALIAS") ) {
+        } else if ( xmlMatches(node->name, "alias") ) {
 			alias_data *alias;
 			CREATE(alias, struct alias_data, 1);
-			alias->type = xmlGetIntProp(node, "TYPE");
-			alias->alias = xmlGetProp(node, "ALIAS");
-			alias->replacement = xmlGetProp(node, "REPLACE");
+			alias->type = xmlGetIntProp(node, "type");
+			alias->alias = xmlGetProp(node, "alias");
+			alias->replacement = xmlGetProp(node, "replace");
 			if( alias->alias == NULL || alias->replacement == NULL ) {
 				free(alias);
 			} else {
 				add_alias(this,alias);
 			}
-		} else if ( xmlMatches(node->name, "DESCRIPTION" ) ) {
+		} else if ( xmlMatches(node->name, "description" ) ) {
 			player.description = (char*)xmlNodeGetContent( node );
-        } else if ( xmlMatches(node->name, "POOFIN") ) {
+        } else if ( xmlMatches(node->name, "poofin") ) {
 			POOFIN(this) = (char*)xmlNodeGetContent( node );
-        } else if ( xmlMatches(node->name, "POOFOUT") ) {
+        } else if ( xmlMatches(node->name, "poofout") ) {
 			POOFOUT(this) = (char*)xmlNodeGetContent( node );
-        } else if ( xmlMatches(node->name, "IMMORT") ) {
-			player_specials->saved.occupation = xmlGetIntProp(node,"BADGE");
+        } else if ( xmlMatches(node->name, "immort") ) {
+			player_specials->saved.occupation = xmlGetIntProp(node,"badge");
         }
 
     }
