@@ -407,6 +407,12 @@ Creature::saveToXML()
 		return;
 	}
 
+
+	// Remove all spell affects without deleting them
+	saved_affs = affected;
+	affected = NULL;
+	affect_total(this);
+
 	// Before we save everything, every piece of eq, and every affect must
 	// be removed and stored - otherwise all the stats get screwed up when
 	// we restore the eq and affects
@@ -420,13 +426,6 @@ Creature::saveToXML()
 		else
 			saved_impl[pos] = NULL;
 	}
-
-	// Remove all spell affects without deleting them
-	saved_affs = affected;
-	affected = NULL;
-	for (cur_aff = saved_affs;cur_aff;cur_aff = cur_aff->next)
-		affect_modify(this, cur_aff->location, cur_aff->modifier,
-			cur_aff->bitvector, cur_aff->aff_index, false);
 
 	// we need to update time played every time we save...
 	player.time.played += time(0) - player.time.logon;
