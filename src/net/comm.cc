@@ -125,6 +125,7 @@ void boot_world(void);
 void affect_update(void);		/* In spells.c */
 void obj_affect_update(void);
 void mobile_activity(void);
+void mobile_spec(void);
 void burn_update(void);
 void dynamic_object_pulse();
 void flow_room(int pulse);
@@ -564,6 +565,8 @@ game_loop(int mother_desc)
 			zone_update();
 		if (!((pulse + 1) % PULSE_MOBILE))
 			mobile_activity();
+        if (!((pulse) % PULSE_MOBILE_SPEC))
+            mobile_spec();
 		if (!(pulse % SEG_VIOLENCE))
 			perform_violence();
 		if (!((pulse + 3) % FIRE_TICK))

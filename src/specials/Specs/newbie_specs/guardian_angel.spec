@@ -37,8 +37,8 @@ angel_chat_data angel_chat[] = {
 	{ CLASS_NONE, 100, "leave me", "dismiss" },
 	{ CLASS_NONE, 100, "piss off", "dismiss" },
 	{ CLASS_NONE, 100, "fuck off", "dismiss" },
-	{ CLASS_NONE, 100, "how you", "respond I'm doing ok, thanks for asking!" },
-	{ CLASS_NONE, 100, "who you", "respond I'm your guardian.  I'm here to help you out!" },
+	{ CLASS_NONE, 100, "how are you", "respond I'm doing ok, thanks for asking!" },
+	{ CLASS_NONE, 100, "who are you", "respond I'm your guardian.  I'm here to help you out!" },
 	{ CLASS_NONE, 100, "where buy", "respond You buy things at shops in cities." },
 	{ CLASS_NONE, 100, "where go fight", "respond You should try the cock fighting arena, the training grounds, or the holodeck.  You could try the halflings, but it might be dangerous." },
 	{ CLASS_NONE, 100, "where level", "respond You should try the cock fighting arena, the training grounds, or the holodeck" },
@@ -77,6 +77,8 @@ angel_chat_data angel_chat[] = {
 	{ CLASS_NONE, 100, "how stop wearing", "respond Type 'remove <item>' to stop wearing it." },
 	{ CLASS_NONE, 100, "how take off", "respond Type 'remove <item>' to take it off." },
 	{ CLASS_NONE, 100, "level me", "respond No, but I will try to protect you along the way." },
+	{ CLASS_NONE, 100, "help me level", "respond No, but I will try to protect you along the way." },
+	{ CLASS_NONE, 100, "help me fight", "respond I will only help you fight when you are in dire need." },
 	{ CLASS_NONE, 100, "love you", "respond It is fitting that you should." },
 	{ CLASS_NONE, 100, "me levels", "respond No, but I will try to protect you along the way." },
 	{ CLASS_NONE, 100, "why you here", "respond To protect your interests, and serve your needs." },
@@ -385,8 +387,11 @@ SPECIAL(guardian_angel)
 void
 angel_to_char(Creature *ch) 
 {
+/*    static const int ANGEL_VNUM = 3038;
+    static const int DEMON_VNUM = 3039; */
+
     static const int ANGEL_VNUM = 70603;
-    static const int DEMON_VNUM = 70604;
+    static const int DEMON_VNUM = 70607;
     Creature *angel;
     angel_data *data;
 

@@ -1474,25 +1474,21 @@ CHAR_LIKES_ROOM(struct Creature * ch, struct room_data * room)
 }
 
 void
-mobile_activity(void)
+mobile_spec(void)
 {
-
-	struct Creature *ch, *vict = NULL, *damager = NULL;
-	struct obj_data *obj, *best_obj, *i;
-	struct affected_type *af_ptr = NULL;
+	struct Creature *ch;
 	CreatureList::iterator cit, it;
-	int dir, found, max, k;
-	static unsigned int count = 0;
-	struct room_data *room = NULL;
-    int cur_class = 0;
+    int count = 0;
 
 	extern int no_specials;
 
 	cit = characterList.begin();
 	for (++count; cit != characterList.end(); ++cit) {
 		ch = *cit;
-		found = FALSE;
  
+        if (!(ch->char_specials.saved.act & MOB_ISNPC))
+            continue;
+
         if (!ch) {
             errlog("SYSERR: Skipping null mobile in mobile_activity");
             continue;
@@ -1523,6 +1519,57 @@ mobile_activity(void)
 				}
 			}
 		}
+    }
+}
+
+void
+mobile_activity(void)
+{
+
+	struct Creature *ch, *vict = NULL, *damager = NULL;
+	struct obj_data *obj, *best_obj, *i;
+	struct affected_type *af_ptr = NULL;
+	CreatureList::iterator cit, it;
+	int dir, found, max, k;
+	static unsigned int count = 0;
+	struct room_data *room = NULL;
+    int cur_class = 0;
+
+	cit = characterList.begin();
+	for (++count; cit != characterList.end(); ++cit) {
+		ch = *cit;
+		found = FALSE;
+ 
+        if (!ch) {
+            errlog("SYSERR: Skipping null mobile in mobile_activity");
+            continue;
+        }
+
+	    if (!ch->in_room) {
+		    errlog("SYSERR: Skipping mobile in null room");
+		    continue;
+		}
+
+        if (!ch->in_room && !ch->player.name && !ch->player.short_descr
+            && !ch->player.description) {
+            errlog("SYSERR: Skipping null mobile in mobile_activity");
+            continue;
+        }
+/*		//
+		// Check for mob spec
+		//
+		if (!no_specials && MOB_FLAGGED(ch, MOB_SPEC) &&
+			GET_MOB_WAIT(ch) <= 0 && !ch->desc && (count % 2)) {
+			if (ch->mob_specials.shared->func == NULL) {
+				errlog("%s (#%d): Attempting to call non-existing mob func",
+					GET_NAME(ch), GET_MOB_VNUM(ch));
+				REMOVE_BIT(MOB_FLAGS(ch), MOB_SPEC);
+			} else {
+				if ((ch->mob_specials.shared->func) (ch, ch, 0, "", SPECIAL_TICK)) {
+					continue;
+				}
+			}
+		}*/
 
         if (!ch->in_room && !ch->player.name && !ch->player.short_descr
             && !ch->player.description) {

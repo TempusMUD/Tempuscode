@@ -34,6 +34,7 @@ enum special_mode {
 
 #define PULSE_ZONE      (10 RL_SEC)
 #define PULSE_MOBILE    (4 RL_SEC)
+#define PULSE_MOBILE_SPEC (2 RL_SEC)
 #define PULSE_VIOLENCE  (2 RL_SEC)
 #define SEG_VIOLENCE    (7)
 #define FIRE_TICK       (3 RL_SEC)
