@@ -251,6 +251,7 @@ SPECIAL(cityguard)
 	char *str, *line, *param_key;
 	int action, dir;
 	int jail_num = 0, hq_num = 0;
+	bool lawful;
 	CreatureList::iterator it;
 
 	if (spec_mode != SPECIAL_TICK && spec_mode != SPECIAL_DEATH)
@@ -303,7 +304,7 @@ SPECIAL(cityguard)
 				&&GET_MOB_WAIT(self) <= 5
 				&& self->getPosition() >= POS_FIGHTING
 				&& !number(0, 1)) {
-			if (drag_char_to_jail(self, FIGHTING(ch), real_room(jail_num)))
+			if (drag_char_to_jail(self, FIGHTING(self), real_room(jail_num)))
 				return true;
 		}
 
@@ -339,10 +340,11 @@ SPECIAL(cityguard)
 	// action == 3 : attack criminal
 	// action == 4 : assist guard
 	action = 0;
+	lawful = !ZONE_FLAGGED(self->in_room->zone, ZONE_NOLAW);
 
 	tch = NULL;
-	it = ch->in_room->people.begin();
-	for (; it != ch->in_room->people.end(); ++it) {
+	it = self->in_room->people.begin();
+	for (; it != self->in_room->people.end(); ++it) {
 		tch = *it;
 		if (action < 4
 				&& FIGHTING(tch)
@@ -352,21 +354,23 @@ SPECIAL(cityguard)
 			target = tch;
 		}
 		if (action < 3
-				&& can_see_creature(ch, tch)
+				&& lawful
+				&& can_see_creature(self, tch)
 				&& !PRF_FLAGGED(tch, PRF_NOHASSLE)
 				&& GET_REPUTATION(tch) >= CRIMINAL_REP) {
 			action = 3;
 			target = tch;
 		}
 		if (action < 2
-				&& can_see_creature(ch, tch)
+				&& can_see_creature(self, tch)
 				&& !PRF_FLAGGED(tch, PRF_NOHASSLE)
 				&& FIGHTING(tch)) {
 			action = 2;
 			target = tch;
 		}
 		if (action < 1
-				&& can_see_creature(ch, tch)
+				&& lawful
+				&& can_see_creature(self, tch)
 				&& !PRF_FLAGGED(tch, PRF_NOHASSLE)
 				&& GET_REPUTATION(tch) >= CRIMINAL_REP / 2) {
 			action = 1;
@@ -385,41 +389,41 @@ SPECIAL(cityguard)
 		if (IS_GOOD(self) && IS_THIEF(target)) {
 			if (IS_EVIL(target)) {
 				act("$n looks at you suspiciously.", false,
-					ch, 0, tch, TO_VICT);
+					self, 0, tch, TO_VICT);
 				act("$n looks at $N suspiciously.", false,
-					ch, 0, tch, TO_NOTVICT);
+					self, 0, tch, TO_NOTVICT);
 			} else {
 				act("$n looks at you skeptically.", false,
-					ch, 0, tch, TO_VICT);
+					self, 0, tch, TO_VICT);
 				act("$n looks at $N skeptically.", false,
-					ch, 0, tch, TO_NOTVICT);
+					self, 0, tch, TO_NOTVICT);
 			}
 		} else if (cityguard == GET_MOB_SPEC(target)) {
-			act("$n nods at $N.", false, ch, 0, tch, TO_NOTVICT);
+			act("$n nods at $N.", false, self, 0, tch, TO_NOTVICT);
 		} else if (((IS_CLERIC(target) || IS_KNIGHT(target))
 					&& IS_EVIL(self) == IS_EVIL(target)
 					&& !IS_NEUTRAL(target))
 				|| GET_LEVEL(target) >= LVL_AMBASSADOR) {
 			act("$n bows before you.", false,
-				ch, 0, tch, TO_VICT);
+				self, 0, tch, TO_VICT);
 			act("$n bows before $N.", false,
-				ch, 0, tch, TO_NOTVICT);
+				self, 0, tch, TO_NOTVICT);
 		} else if (IS_EVIL(self) != IS_EVIL(target)) {
 			switch (number(0,2)) {
 			case 0:
-				act("$n watches you carefully.", false, ch, 0, tch,
+				act("$n watches you carefully.", false, self, 0, tch,
 					TO_VICT);
 				act("$n watches $N carefully.", false,
-					ch, 0, tch, TO_NOTVICT);
+					self, 0, tch, TO_NOTVICT);
 				break;
 			case 1:
 				act("$n thoroughly examines you.", false,
-					ch, 0, tch, TO_VICT);
+					self, 0, tch, TO_VICT);
 				act("$n thoroughly examines $N.", false,
-					ch, 0, tch, TO_NOTVICT);
+					self, 0, tch, TO_NOTVICT);
 			case 2:
 				act("$n mutters something under $s breath.",
-					false, ch, 0, tch, TO_ROOM);
+					false, self, 0, tch, TO_ROOM);
 				break;
 			}
 		}
@@ -427,21 +431,21 @@ SPECIAL(cityguard)
 	case 1:
 		// emote half-criminal
 		if (!number(0, 3)) {
-			act("$n growls at you.", false, ch, 0, tch, TO_VICT);
-			act("$n growls at $N.", false, ch, 0, tch, TO_NOTVICT);
+			act("$n growls at you.", false, self, 0, tch, TO_VICT);
+			act("$n growls at $N.", false, self, 0, tch, TO_NOTVICT);
 		} else if (!number(0, 2)) {
-			act("$n cracks $s knuckles.", false, ch, 0, tch, TO_ROOM);
-		} else if (!number(0, 1) && GET_EQ(ch, WEAR_WIELD) &&
-			(GET_OBJ_VAL(GET_EQ(ch, WEAR_WIELD), 3) ==
+			act("$n cracks $s knuckles.", false, self, 0, tch, TO_ROOM);
+		} else if (!number(0, 1) && GET_EQ(self, WEAR_WIELD) &&
+			(GET_OBJ_VAL(GET_EQ(self, WEAR_WIELD), 3) ==
 				(TYPE_SLASH - TYPE_HIT) ||
-				GET_OBJ_VAL(GET_EQ(ch, WEAR_WIELD), 3) ==
+				GET_OBJ_VAL(GET_EQ(self, WEAR_WIELD), 3) ==
 				(TYPE_PIERCE - TYPE_HIT) ||
-				GET_OBJ_VAL(GET_EQ(ch, WEAR_WIELD), 3) ==
+				GET_OBJ_VAL(GET_EQ(self, WEAR_WIELD), 3) ==
 				(TYPE_STAB - TYPE_HIT))) {
 			act("$n sharpens $p while watching $N.",
-				false, ch, GET_EQ(ch, WEAR_WIELD), tch, TO_NOTVICT);
+				false, self, GET_EQ(self, WEAR_WIELD), tch, TO_NOTVICT);
 			act("$n sharpens $p while watching you.",
-				false, ch, GET_EQ(ch, WEAR_WIELD), tch, TO_VICT);
+				false, self, GET_EQ(self, WEAR_WIELD), tch, TO_VICT);
 		}
 		break;
 	case 2:
@@ -454,16 +458,16 @@ SPECIAL(cityguard)
 		case 2:
 			do_say(self, "Here now, here now!  Stop that!", 0, SCMD_BELLOW, 0); break;
 		}
-		act("You shove $n to the ground.", false, ch, 0, target, TO_CHAR);
-		act("$n shoves you to the ground.", false, ch, 0, target, TO_VICT);
-		act("$n shoves $N to the ground.", false, ch, 0, target, TO_NOTVICT);
+		act("You shove $n to the ground.", false, self, 0, target, TO_CHAR);
+		act("$n shoves you to the ground.", false, self, 0, target, TO_VICT);
+		act("$n shoves $N to the ground.", false, self, 0, target, TO_NOTVICT);
 		stop_fighting(FIGHTING(target));
 		stop_fighting(target);
 		break;
 	case 3:
 		// attack criminal
 		act("$n screams 'HEY!!!  You're one of those CRIMINALS!!!!!!'",
-			false, ch, 0, 0, TO_ROOM);
+			false, self, 0, 0, TO_ROOM);
 		hit(self, target, TYPE_UNDEFINED);
 		break;
 	case 4:
