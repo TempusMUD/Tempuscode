@@ -94,6 +94,7 @@ struct zone_data {
   int  time_frame;	    /* time-frame of zone		  */
   int  plane;
   int  owner_idnum;         /* Idnum of creator of zone           */
+  int  co_owner_idnum;        /* Idnum of co owner of zone           */
   int  enter_count;         /* tally of # of playrs to enter zone */
   int  flags;               /* Prevents writing to this zone      */
   int  hour_mod;            /* */

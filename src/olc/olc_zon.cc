@@ -44,6 +44,7 @@ const char *olc_zset_keys[] = {
     "hours",
     "years",
     "blanket_exp",           /** 11 **/
+	"co-owner",
     "\n"
 };
 
@@ -2110,6 +2111,24 @@ do_zset_command(struct char_data *ch, char *argument)
 	    send_to_char("Blanket exp modified.  Don't forget to save.\r\n", ch);
 	}
 	break;
+    case 12: 
+	if (strcmp(argument, "none") == 0) { 
+	    zone->co_owner_idnum = -1; 
+	    send_to_char("Zone co-owner set to: None\r\n", ch); 
+	    SET_BIT(zone->flags, ZONE_ZONE_MODIFIED); 
+	} 
+	else { 
+	    if ((zone->co_owner_idnum = get_id_by_name(argument)) < 0) { 
+		send_to_char("No such player in the file.\r\n", ch); 
+		return; 
+	    } 
+	    else { 
+		sprintf(buf, "Zone %d c-owner set to: %s\r\n", zone->number, argument); 
+		send_to_char(buf, ch); 
+		SET_BIT(zone->flags, ZONE_ZONE_MODIFIED); 
+	    } 
+	} 
+	break; 
     }
     default:
 	send_to_char("Unsupported olc zset command.\r\n", ch);
@@ -2273,6 +2292,9 @@ save_zone(struct char_data *ch, struct zone_data *zone)
   
     if (zone->owner_idnum != -1)
 	fprintf(zone_file, "C %d\n", zone->owner_idnum);
+    
+	if (zone->co_owner_idnum != -1)
+	fprintf(zone_file, "C2 %d\n", zone->co_owner_idnum);
   
     tmp = zone->flags;
 

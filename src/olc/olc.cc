@@ -2286,6 +2286,9 @@ CAN_EDIT_ZONE(CHAR *ch, struct zone_data *zone)
 
     if (zone->owner_idnum == GET_IDNUM(ch))
 	return 1;
+
+    if (zone->co_owner_idnum == GET_IDNUM(ch))
+	return 1;
     
     if (!(name = get_name_by_id(zone->owner_idnum))) {
 	return 0;

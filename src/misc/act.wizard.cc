@@ -784,7 +784,13 @@ do_stat_zone(struct char_data *ch, struct zone_data *zone)
     strcpy(buf2, (get_name_by_id(zone->owner_idnum) ? 
 		  get_name_by_id(zone->owner_idnum) : "None"));
 
-    sprintf(buf, "Owner: %s\r\n", buf2);
+    sprintf(buf, "Owner: %s  ", buf2);
+    strcat(out_buf, buf);
+    
+	strcpy(buf2, (get_name_by_id(zone->co_owner_idnum) ? 
+		  get_name_by_id(zone->co_owner_idnum) : "None"));
+
+    sprintf(buf, "Co-Owner: %s\r\n", buf2);
     strcat(out_buf, buf);
 
     sprintf(out_buf, "%sHours: [%3d]  Years: [%3d]  Idle:[%3d]\r\n", out_buf,
