@@ -3686,6 +3686,7 @@ show_player(CHAR *ch, char * value)
     FILE   *fl;
 
     char birth[80];
+    char last_login[80];
     char remort_desc[80];
     char fname[ MAX_INPUT_LENGTH ];
 	char rent_type[80];
@@ -3757,9 +3758,9 @@ show_player(CHAR *ch, char * value)
 	}
 
 	if (vbuf.player_specials_saved.remort_generation <= 0) {
-	strcpy(remort_desc,"");
+        strcpy(remort_desc,"");
 	} else {
-	sprintf(remort_desc,"/%s",char_class_abbrevs[(int) vbuf.remort_char_class]);
+        sprintf(remort_desc,"/%s",char_class_abbrevs[(int) vbuf.remort_char_class]);
 	}
     sprintf(buf, "Player: %-12s (%s) [%2d %s %s%s]  Gen: %d", vbuf.name,
 	    genders[(int) vbuf.sex], vbuf.level, player_race[(int)vbuf.race],
@@ -3770,11 +3771,21 @@ show_player(CHAR *ch, char * value)
 	    buf, vbuf.points.gold, vbuf.points.bank_gold, vbuf.points.exp,
 	    vbuf.char_specials_saved.alignment,
 	    vbuf.player_specials_saved.spells_to_learn);
+    // Trim and fit the date to show year but not seconds.
     strcpy(birth, ctime(&vbuf.birth));
+    strcpy(birth + 16, birth + 19);
+    birth[21] = '\0';
+    if(vbuf.level > GET_LEVEL(ch)) {
+        strcpy(last_login, "Unknown");
+    } else {
+        // Trim and fit the date to show year but not seconds.
+        strcpy(last_login, ctime(&vbuf.last_logon));
+        strcpy(last_login + 16, last_login + 19);
+        last_login[21] = '\0';
+    }
     sprintf(buf,
-	    "%sStarted: %-20.16s  Last: %-20.16s  Played: %3dh %2dm\r\n",
-	    buf, birth, vbuf.level > GET_LEVEL(ch) ? "Unknown" : ctime(&vbuf.last_logon), (int) (vbuf.played / 3600),
-	    (int) (vbuf.played / 60 % 60));
+	    "%sStarted: %-22.21s Last: %-22.21s Played: %3dh %2dm\r\n",
+	    buf, birth, last_login, (int) (vbuf.played / 3600), (int) (vbuf.played / 60 % 60));
 
 	if(IS_SET(vbuf.char_specials_saved.act,PLR_FROZEN))
 		sprintf( buf, "%s%s%s is FROZEN!%s\r\n", buf, CCCYN( ch, C_NRM ),vbuf.name, CCNRM( ch, C_NRM ) );
