@@ -59,8 +59,7 @@ gen_board_write(board_data *board, Creature *ch, char *argument)
 		return;
 	}
 
-	if (ALLOW != board->read_perms->react(player) ||
-			ALLOW != board->post_perms->react(player)) {
+	if (ALLOW != board->post_perms->react(player)) {
 		send_to_char(ch, "Try as you might, you cannot bring yourself to write on this board.\r\n");
 		return;
 	}
@@ -120,18 +119,24 @@ gen_board_remove(board_data *board, Creature *ch, char *argument)
 		return;
 	}
 
-	if (ALLOW != board->read_perms->react(player) ||
-			ALLOW != board->remove_perms->react(player)) {
-		send_to_char(ch, "Try as you might, you cannot bring yourself to delete anything on this board.\r\n");
-		return;
-	}
-
 	// First we find the idnum of the thing we want to destroy
-	res = sql_query("select idnum from board_messages where board='%s' order by post_time limit 1 offset %d",
+	res = sql_query("select idnum, author from board_messages where board='%s' order by post_time limit 1 offset %d",
 		tmp_sqlescape(board->name), atoi(argument) - 1);
 	
 	if (PQntuples(res) != 1) {
 		send_to_char(ch, "That posting doesn't exist!\r\n");
+		return;
+	}
+
+	if (ALLOW != board->read_perms->react(player)
+			|| ALLOW != board->post_perms->react(player)) {
+		send_to_char(ch, "You may not delete anything on this board.\r\n");
+		return;
+	}
+
+	if (GET_IDNUM(player) != atol(PQgetvalue(res, 0, 1)) &&
+			ALLOW != board->remove_perms->react(player)) {
+		send_to_char(ch, "You may only remove your own messages on this board.\r\n");
 		return;
 	}
 
