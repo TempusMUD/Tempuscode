@@ -275,6 +275,9 @@ Valid_Name(char *newname)
     if( strlen(newname) > MAX_NAME_LENGTH )
         return 0;
 
+	if (strlen(newname) < 3)
+		return 0;
+
 	/* return valid if list doesn't exist */
 	if (!invalid_list || num_invalid < 1)
 		return 1;
