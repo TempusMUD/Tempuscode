@@ -25,11 +25,11 @@ SPECIAL(boulder_thrower)
 {
 
 	struct obj_data *obj = NULL, *tmp_obj = NULL;
-	char buf[MAX_STRING_LENGTH];
+
+	if (spec_mode != SPECIAL_TICK)
+		return 0;
 
 	if (cmd || !AWAKE(ch))
-		return 0;
-	if (spec_mode != SPECIAL_TICK)
 		return 0;
 
 	if (FIGHTING(ch) && can_see_creature(ch, FIGHTING(ch))) {
@@ -57,10 +57,10 @@ SPECIAL(boulder_thrower)
 		// object found, throw it
 		if (obj) {
 
-			sprintf(buf, "%s ", fname(obj->aliases));
-			strcat(buf, fname(FIGHTING(ch)->player.name));
-			do_throw(ch, buf, 0, 0, 0);
-			//      printf("throwing '%s'\n", buf);
+			char *str = tmp_sprintf("%s %s", 
+                                    fname(obj->aliases),
+                                    fname(FIGHTING(ch)->player.name) );
+			do_throw(ch, str, 0, 0, 0);
 			return 1;
 		}
 	}
