@@ -9,55 +9,6 @@
 #include "screen.h"
 #include "utils.h"
 
-const char VENDOR_HELP[] =
-"Directives:\r\n"
-"    room <room vnum>\r\n"
-"        if set, vendor will only work if the mob is in the specified room.\r\n"
-"        leave unset for wandering vendors.\r\n"
-"    produce <item vnum>\r\n"
-"        provides a limitless supply of the object (object must exist\r\n"
-"        within the vendor's inventory)\r\n"
-"    accept <item type>|all\r\n"
-"        Vendor will buy any item of the type configured by this directive.\r\n"
-"    refuse <item type>|all\r\n"
-"        Vendor will refuse to buy any item of the type configured by this\r\n"
-"        directive\r\n"
-"    refusal-msg <str to say>\r\n"
-"        What is said when the player is unacceptable to the vendor.\r\n"
-"    keeper-broke-msg <str to say>\r\n"
-"        What is said when the vendor doesn't have enough money to buy\r\n"
-"        an item from a player.\r\n"
-"    buyer-broke-msg <str to say>\r\n"
-"        What is said by the vendor when the player doesn't have enough\r\n"
-"        money to buy the selected item.\r\n"
-"    temper-cmd <cmd to execute>\r\n"
-"        Command to execute after saying buyer-broke-msg\r\n"
-"    buy-msg <str to say>\r\n"
-"        String said by the vendor after a purchase\r\n"
-"    sell-msg <str to say>\r\n"
-"        String said by the vendor upon a successful sale.\r\n"
-"    markup <percentage>\r\n"
-"        Percent to mark price up when selling to a player\r\n"
-"    markdown <percentage>\r\n"
-"        Percent to mark price down when buying from a player\r\n"
-"    currency past|future|quest\r\n"
-"        Which currency to use\r\n"
-"    steal-ok yes|no\r\n"
-"        If this is set, stealing from the vendor is allowed\r\n"
-"    attack-ok yes|no\r\n"
-"        If this is set, attacking the vendor is allowed\r\n"
-"    revenue <amount>\r\n"
-"        Indicates an amount of money given to the vendor every zone\r\n"
-"        reset, up to the amount set on the mob prototype.\r\n"
-"\r\n"
-"Once properly in place, the vendor will respond to the following\r\n"
-"commands:\r\n"
-"    buy [<amount>] (#<index>|<object alias> [<object alias> ...])\r\n"
-"    sell [<amount>] <object alias>\r\n"
-"    value <object alias>\r\n"
-"    offer <object alias>\r\n"
-"    list\r\n";
-
 const int MAX_ITEMS = 10;
 
 // From shop.cc
@@ -704,11 +655,6 @@ SPECIAL(vendor)
 	char *config, *line, *param_key, *err = NULL;
 	ShopData shop;
 	int val, lineno = 0;
-
-	if (spec_mode == SPECIAL_HELP) {
-		page_string(ch->desc, VENDOR_HELP);
-		return 1;
-	}
 
 	config = GET_MOB_PARAM(self);
 	if (!config)
