@@ -6,8 +6,8 @@
 SPECIAL(newbie_fodder)
 {
 	Creature *self = (Creature *)me;
-	Creature *new_mob;
-	room_data *new_loc;
+	Creature *new_mob = NULL;
+	room_data *new_loc = NULL;
 	int idx, count;
 
 	if (spec_mode != SPECIAL_DEATH)
