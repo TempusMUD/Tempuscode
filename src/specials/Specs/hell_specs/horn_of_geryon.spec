@@ -21,6 +21,7 @@ SPECIAL(horn_of_geryon)
       act("$n appears from a cold, swirling mist.",FALSE,minotaur,0,0,TO_ROOM);
       add_follower(minotaur, ch);
       SET_BIT(AFF_FLAGS(minotaur), AFF_CHARM);
+	  SET_BIT(MOB_FLAGS(minotaur), MOB_PET);
       GET_OBJ_VAL(horn, 0)--;
       if (GET_OBJ_VAL(horn, 0) <= 0)
 	extract_obj(horn);
