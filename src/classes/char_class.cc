@@ -1083,8 +1083,6 @@ do_start(struct Creature *ch, int mode)
 	GET_LEVEL(ch) = 1;
 	GET_EXP(ch) = 1;
 
-	set_title(ch, NULL);
-
 	if (mode)
 		roll_real_abils(ch);
 
@@ -1171,6 +1169,8 @@ do_start(struct Creature *ch, int mode)
 			ch->points.cash =
 				8192 + number(256, 2048) + GET_INT(ch) + GET_WIS(ch);
 		}
+
+		set_title(ch, "the complete newbie");
 	}
 
 	advance_level(ch, 0);
