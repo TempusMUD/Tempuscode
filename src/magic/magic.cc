@@ -652,6 +652,10 @@ mag_damage(int level, struct Creature *ch, struct Creature *victim,
 			dam = dam >> 1;
 		break;
 
+	case SPELL_ELECTRIC_ARC:
+		dam = dice(ch->getLevelBonus(SPELL_ELECTRIC_ARC), 7);
+		break;
+
 
 		/* Mostly clerics */
 /*	case SPELL_DISPEL_EVIL:

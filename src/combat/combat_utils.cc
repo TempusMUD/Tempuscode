@@ -1206,6 +1206,7 @@ make_corpse(struct Creature *ch, struct Creature *killer, int attacktype)
 	case SPELL_FIRE_SHIELD:
 	case SPELL_HELL_FIRE:
 	case TYPE_FLAMETHROWER:
+    case SPELL_ELECTRIC_ARC:
 		sprintf(buf2, "The charred %s of %s %s lying here.",
 			typebuf, GET_NAME(ch), isare);
 		corpse->line_desc = str_dup(buf2);

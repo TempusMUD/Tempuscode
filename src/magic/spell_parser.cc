@@ -300,7 +300,7 @@ const char *spells[] = {
 	"entropy field",
 	"gravity well",
 	"capacitance boost",
-	"!UNUSED!",					/* 325 */
+	"electric arc",					/* 325 */
 	"!UNUSED!",
 	"lattice hardening",
 	"nullify",
@@ -3362,6 +3362,10 @@ mag_assign_spells(void)
 	spello(SPELL_CAPACITANCE_BOOST, X, X, X, X, X, X, 6, X, X, X, X, X, X, X,
            X, X, X, 70, 45, 3, POS_FIGHTING, TAR_CHAR_ROOM, FALSE,
 		MAG_PHYSICS | MAG_AFFECTS | MAG_POINTS);
+
+	spello(SPELL_ELECTRIC_ARC, X, X, X, X, X, X, 21, X, X, X, X, X, X, X, X,
+		X, X, 90, 50, 1, POS_FIGHTING, TAR_CHAR_ROOM | TAR_FIGHT_VICT, TRUE,
+		MAG_PHYSICS | MAG_DAMAGE | MAG_WATERZAP);
 
 	spello(SPELL_HALFLIFE, X, X, X, X, X, X, 30, X, X, X, X, X, X, X, X, X, X,
 		120, 70, 5, POS_SITTING,
