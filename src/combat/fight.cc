@@ -2121,7 +2121,7 @@ hit(struct Creature *ch, struct Creature *victim, int type)
 			((diceroll == 1) || ((calc_thaco - diceroll)) > victim_ac))) {
 
 		if (type == SKILL_BACKSTAB || type == SKILL_CIRCLE ||
-			type == SKILL_SECOND_WEAPON)
+            type == SKILL_SECOND_WEAPON)
 			return (damage(ch, victim, 0, type, -1));
 		else
 			return (damage(ch, victim, 0, w_type, -1));
@@ -2182,6 +2182,10 @@ hit(struct Creature *ch, struct Creature *victim, int type)
 				}
 				dam += dam_add;
 			}
+              
+            if( type == SKILL_CLEAVE ) {
+                dam *= 4;
+            }
 		} else if (IS_OBJ_TYPE(cur_weap, ITEM_ARMOR)) {
 			dam += (GET_OBJ_VAL(cur_weap, 0) / 3);
 		} else
@@ -2200,6 +2204,7 @@ hit(struct Creature *ch, struct Creature *victim, int type)
 
 	dam = MAX(1, dam);			/* at least 1 hp damage min per hit */
 	dam = MIN(dam, 30 + (GET_LEVEL(ch) << 3));	/* level limit */
+  
 
 	if (type == SKILL_BACKSTAB) {
 		gain_skill_prof(ch, type);
@@ -2215,7 +2220,6 @@ hit(struct Creature *ch, struct Creature *victim, int type)
 		if (retval) {
 			return retval;
 		}
-
 	} else if (type == SKILL_CIRCLE) {
 		if (IS_THIEF(ch)) {
 			dam *= MAX(2, (BACKSTAB_MULT(ch) >> 1));
