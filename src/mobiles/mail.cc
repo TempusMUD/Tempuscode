@@ -66,7 +66,7 @@ has_mail(long id)
 }
 
 int
-can_recieve_mail(long id)
+can_receive_mail(long id)
 {
     long length = 0;
     fstream mail_file;
@@ -137,9 +137,9 @@ store_mail(long to_id, long from_id, char *txt, list<string> cc_list,
     }
     
     // Recipient is frozen, buried, or deleted
-    if (!can_recieve_mail(to_id)) {
+    if (!can_receive_mail(to_id)) {
         send_to_char(get_char_in_world_by_idnum(from_id), 
-                     "%s doesn't seem to be able to recieve mail.\r\n",
+                     "%s doesn't seem to be able to receive mail.\r\n",
             playerIndex.getName(to_id));
         return 0;
     }
@@ -216,9 +216,9 @@ purge_mail(long idnum)
 // Pull the mail out of the players mail file if he has one.
 // Create the "letters" from the file, and plant them on him without
 //     telling him.  We'll let the spec say what it wants.
-// Returns the number of mails recieved.
+// Returns the number of mails received.
 int
-recieve_mail(Creature * ch)
+receive_mail(Creature * ch)
 {
     int num_letters = 0;
     int counter = 0;
@@ -503,7 +503,7 @@ postmaster_receive_mail(struct Creature *ch, struct Creature *mailman,
         return;
     }
 
-    num_mails = recieve_mail(ch);
+    num_mails = receive_mail(ch);
 
     if (num_mails == 0) {
         strcpy(buf2, "Sorry, you don't have any mail waiting.");
