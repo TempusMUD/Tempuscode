@@ -591,7 +591,7 @@ get_line(FILE * fl, char *buf)
 
 
 int
-get_filename(char *orig_name, char *filename, int mode)
+get_filename(const char *orig_name, char *filename, int mode)
 {
 	char *prefix, *middle, *suffix, *ptr, name[64];
 
