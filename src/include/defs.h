@@ -114,8 +114,8 @@ int (name)(struct char_data *ch, void *me, int cmd, char *argument, int spec_mod
 #define PULSE_FLOWS     (1 RL_SEC)
 
 #define SMALL_BUFSIZE		1024
-#define LARGE_BUFSIZE		(12 * 1024)
-#define GARBAGE_SPACE		32
+#define LARGE_BUFSIZE		(32 * 1024)
+#define GARBAGE_SPACE		64
 
 #define MAX_STRING_LENGTH	65536
 #define MAX_INPUT_LENGTH	256	/* Max length per *line* of input */
