@@ -55,18 +55,13 @@ SPECIAL(remorter)
     if (!cmd)
         return 0;
 
-    if (CMD_IS("help")) {
-        if(GET_LEVEL(ch) < LVL_IMMORT ) {
-            show_char_class_menu(ch->desc);
-        } else {
-            send_to_char("Valid Commands:\r\n",ch);
-            send_to_char("Status - Shows current test state.\r\n",ch);
-            send_to_char("Reload - Resets test to waiting state.\r\n",ch);
-        }
+    if (CMD_IS("help") && GET_LEVEL(ch) >= LVL_IMMORT ) {
+        send_to_char("Valid Commands:\r\n",ch);
+        send_to_char("Status - Shows current test state.\r\n",ch);
+        send_to_char("Reload - Resets test to waiting state.\r\n",ch);
         return 1;
-        
     }
-    if( CMD_IS("status") ) {
+    if( CMD_IS("status") && GET_LEVEL(ch) >= LVL_IMMORT ) {
         quiz.sendStatus(ch);
         return 1;
     }
@@ -162,6 +157,7 @@ SPECIAL(remorter)
             pc_char_class_types[(int)GET_REMORT_CLASS(ch)], quiz.getScore());
             mudlog(buf, BRF, LVL_IMMORT, TRUE);
             REMOVE_BIT(ch->in_room->room_flags, ROOM_NORECALL);
+            quiz.reset();
 
             ch->extract( FALSE );
         }  
@@ -249,7 +245,7 @@ SPECIAL(remorter)
 
     argument = one_argument(argument, arg1);
     if( quiz.makeGuess(arg1) ) {
-        sprintf(buf,"%sThat is correct.%s\r\n",CCBLU(ch,C_NRM),CCNRM(ch,C_NRM));
+        sprintf(buf,"%s%sThat is correct.%s\r\n",CCBLD(ch,C_NRM),CCBLU(ch,C_NRM),CCNRM(ch,C_NRM));
     } else {
         sprintf(buf,"%sThat is incorrect.%s\r\n",CCRED(ch,C_NRM),CCNRM(ch,C_NRM));
     }
@@ -257,7 +253,7 @@ SPECIAL(remorter)
 
     if(! quiz.isComplete() ) {
         quiz.nextQuestion();
-        quiz.sendStatus(ch);
+        //quiz.sendStatus(ch);
         quiz.sendQuestion(ch);
         return 1;
     } else { // *******    TEST COMPLETE.  YAY.
@@ -275,7 +271,7 @@ SPECIAL(remorter)
                     //"You must be able to answer %d percent correctly.\r\n"
                     "You are unable to remort at this time.\r\n", quiz.getScore() );
             send_to_char(buf, ch);
-            sprintf(buf, "(RTEST) %s has failed (%d) remort test.", GET_NAME(ch),value);
+            sprintf(buf, "(RTEST) %s has failed (%d) remort test.", GET_NAME(ch),quiz.getScore());
             mudlog(buf, NRM, LVL_ELEMENT, TRUE);
             REMOVE_BIT(ch->in_room->room_flags, ROOM_NORECALL);
 
@@ -295,12 +291,11 @@ SPECIAL(remorter)
             quiz.reset();
             return 1;
         }
-        quiz.reset();
         send_to_char("You have passed the test!\r\n", ch);
         send_to_char("You have succeeded in remortalizing!\r\n"
                      "You may now choose your second char_class for this reincarnation.\r\n"
                      "Choose by speaking the char_class which you desire.", ch);
-        show_char_class_menu_past(ch->desc);
+        show_char_class_menu(ch->desc);
         return 1;
     }
 }  

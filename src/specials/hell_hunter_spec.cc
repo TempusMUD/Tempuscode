@@ -213,10 +213,11 @@ SPECIAL(hell_hunter_brain)
             continue;
         }
 
-        for (i = 0; (unsigned)i < targets.size(); i++)
-            if (targets[i].o_vnum == GET_OBJ_VNUM(obj))
+        for (i = 0; (unsigned)i < targets.size(); i++) {
+            if (targets[i].o_vnum == GET_OBJ_VNUM(obj) && IS_OBJ_STAT3(obj, ITEM3_HUNTED ) ) {
                 break;
-
+            }
+        }
         if ((unsigned)i == targets.size() )
             continue;
 

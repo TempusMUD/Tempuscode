@@ -195,6 +195,9 @@ class Quiz : private vector<Question*> {
             score *= 100;
             return (int)score;
         }
+            // Returns the average value of the current questions
+        float getAverage(int gen = -1 );
+        void sendGenDistribution(char_data *ch);
     private:
             // selects all appropriate body of questions from remortQuestions
         void selectQuestions(char_data *ch);
@@ -231,6 +234,43 @@ Question *Quiz::getQuestion() {
     return (*this)[current];
 }
 
+float Quiz::getAverage( int gen = -1 ) {
+    if( remortQuestions.size() == 0 )
+        return 0;
+    vector<Question>::iterator it = remortQuestions.begin();
+    float average = 0;
+    int count = 0;
+    for(; it != remortQuestions.end(); ++it ) {
+        if( gen == -1 || (*it).getGen() == gen ) {
+            average += (*it).getValue();
+            count++;
+        }
+    }
+    return average /count; 
+}
+void Quiz::sendGenDistribution(char_data *ch) {
+    if( remortQuestions.size() == 0 )
+        return;
+    vector<Question>::iterator it = remortQuestions.begin();
+    int gen = (*it).getGen();
+    int count = 0;
+    for(; it != remortQuestions.end(); ++it ) {
+        if( (*it).getGen() == gen ) {
+            count++;
+        } else {
+            sprintf(buf,"[%4d] Questions [%4d] Average [%5.2f]\r\n",
+                    gen, count, getAverage(gen));
+            send_to_char(buf,ch);
+            gen = (*it).getGen();
+            count = 0;
+        }
+    }
+    if( count > 0 ) {
+        sprintf(buf,"[%4d] Questions [%4d] Average [%5.2f]\r\n",
+                gen, count, getAverage(gen));
+        send_to_char(buf,ch);
+    }
+}
     // Print the current question to the character
 void Quiz::sendQuestion(char_data *ch) { 
     Question *q = getQuestion();
@@ -238,7 +278,11 @@ void Quiz::sendQuestion(char_data *ch) {
         send_to_char("There is no current question!\r\n",ch);
         return;
     }
-    sprintf(buf,"%s%s(%d)\r\n",CCGRN(ch,C_NRM),q->getQuestion(), q->getValue());
+    if( GET_LEVEL(ch) >= LVL_IMMORT ) 
+        sprintf(buf,"%s%s(%d)\r\n",CCGRN(ch,C_NRM),q->getQuestion(), q->getValue());
+    else
+        sprintf(buf,"%s%s\r\n",CCGRN(ch,C_NRM),q->getQuestion());
+            
     send_to_char(buf,ch);
     for( int i = 0;i < q->getChoiceCount(); i++ ) {
         sprintf(buf,"%s\r\n",q->getChoice(i));
@@ -268,19 +312,21 @@ bool Quiz::makeGuess(const char* guess) {
 
     // Sends the current status of this quiz to the given char.
 void Quiz::sendStatus(char_data *ch) {
-    if( GET_LEVEL(ch) >= LVL_IMMORT ) {
-        sprintf(buf,"Quiz Subject: %s (%d)\r\n", 
-           studentID > 0 ? get_name_by_id(studentID) : "NONE", studentID);
-        send_to_char(buf,ch);
-        sprintf(buf,"Ready [%s] Complete[%s] In Progress[%s]\r\n", 
-                isReady() ? "Yes" : "No" ,
-                isComplete() ? "Yes" : "No",
-                inProgress() ? "Yes" : "No");
-        send_to_char(buf,ch);
-    }
+    sprintf(buf,"Quiz Subject: %s (%d)\r\n", 
+       studentID > 0 ? get_name_by_id(studentID) : "NONE", studentID);
+    send_to_char(buf,ch);
+    sprintf(buf,"Ready [%s] Complete[%s] In Progress[%s] Number of Questions[%d]\r\n", 
+            isReady() ? "Yes" : "No" ,
+            isComplete() ? "Yes" : "No",
+            inProgress() ? "Yes" : "No",
+            size());
+    send_to_char(buf,ch);             
     sprintf( buf,"Earned[%d] Missed[%d] Needed[%d] Limit[%d] Score(%%%d)\r\n", 
              earnedPoints,lostPoints, neededPoints , maximumPoints , getScore() );
-    send_to_char(buf,ch);             
+    send_to_char(buf,ch);
+    sprintf(buf, "[ ALL] Questions [%4d] Average [%5.2f]\r\n",remortQuestions.size(),getAverage());
+    send_to_char( buf, ch);
+    sendGenDistribution(ch);
 }
 
     // Sets up the quiz for this character.
@@ -331,6 +377,5 @@ void Quiz::selectQuestions(char_data *ch) {
             continue;
         push_back( &(remortQuestions[i]) );
     }
-    fprintf(stderr,"REMORTER: %d questions selected.", size());
 }
 #endif //__REMORTER_H_

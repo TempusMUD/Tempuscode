@@ -120,7 +120,7 @@ set_fighting( struct char_data * ch, struct char_data * vict, int aggr )
                      FALSE, ch, 0, vict, TO_CHAR );
                 act( "You are protected by the gods against $n's attack!",
                      FALSE, ch, 0, vict, TO_VICT );          
-                sprintf( buf, "%s protected against %s ( set_fighting ) at %d\n",
+                sprintf( buf, "%s protected against %s ( set_fighting ) at %d",
                          GET_NAME( vict ), GET_NAME( ch ), vict->in_room->number );
                 slog( buf );
                 ch->setFighting(NULL);

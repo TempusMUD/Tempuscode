@@ -76,7 +76,7 @@ class SafeList : protected list<T> {
              *    than incremented again.
              *  Segfaults if no list to iterate through
             **/
-            iterator& operator++() {// preincrement
+            inline iterator& operator++() {// preincrement
                 // this iterator has been saved and shouldn't move yet.
                 if( _saved ) { 
                     _saved = false; 
@@ -87,15 +87,15 @@ class SafeList : protected list<T> {
                 return *this;
             }
             /** InEquality **/
-            bool operator!=(const iterator &it) { 
+            inline bool operator!=(const iterator &it) { 
                 return ( list<T>::iterator::operator!=(it) ); // different node
             }
             /** Equality **/
-            bool operator==(const iterator &it) const { 
+            inline bool operator==(const iterator &it) const { 
                 return ( list<T>::iterator::operator==(it) ); // same node
             }
             /** Derefencing **/
-            T operator*() const {
+            inline T operator*() const {
                 return list<T>::iterator::operator*();
             }
             /**  Assignment **/

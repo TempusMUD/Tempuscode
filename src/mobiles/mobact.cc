@@ -120,7 +120,7 @@ void burn_update(void) {
         ch = *cit;
         
         if (ch->in_room == NULL || ch->getPosition() == POS_DEAD) {
-            sprintf(buf,"SYSERR: Updating a corpse in burn_update.(%s)\n",
+            sprintf(buf,"SYSERR: Updating a corpse in burn_update.(%s)",
                 GET_NAME(ch) == NULL ? "NULL" : GET_NAME(ch));
             slog(buf);
             continue;
