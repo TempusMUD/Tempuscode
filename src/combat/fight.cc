@@ -208,7 +208,8 @@ check_killer( struct char_data * ch, struct char_data * vict, const char *debug_
 	 !affected_by_spell( vict, SKILL_DISGUISE ) &&
 	 ( ch != vict ) && !ROOM_FLAGGED( ch->in_room, ROOM_ARENA ) ) {
 	char buf[256];
-    
+    if( GET_LEVEL(ch) >= LVL_POWER )
+		return;
 	SET_BIT( PLR_FLAGS( ch ), PLR_KILLER );
 	sprintf( buf, "PC KILLER set on %s for attack on %s at %d.",
 		 GET_NAME( ch ), GET_NAME( vict ), vict->in_room->number );
@@ -332,7 +333,9 @@ check_object_killer( struct obj_data * obj, struct char_data * vict )
 	 !affected_by_spell( vict, SKILL_DISGUISE ) &&
 	 ( killer != vict ) && !ROOM_FLAGGED( vict->in_room, ROOM_ARENA ) ) {
 	char buf[256];
-
+	if( GET_LEVEL(killer) >= LVL_POWER ) {
+		return;
+	}
 	SET_BIT( PLR_FLAGS( killer ), PLR_KILLER );
 	sprintf( buf, "PC KILLER bit set on %s %sfor damaging %s at %s with %s.",
 		 GET_NAME( killer ), is_file ? "( file ) " : is_desc ? "( desc ) " :  "", GET_NAME( vict ), ( vict->in_room ) ? 
