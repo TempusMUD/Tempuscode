@@ -282,9 +282,6 @@ House_load(int atrium)
     }
 
     while (!feof(fl)) {
-	/*    if (atrium == 3152){
-	      printf("house3152-obj %d.\n", ++i);
-	      }*/
 
 	tmpo = Obj_from_store(fl);
 

@@ -2789,7 +2789,7 @@ prototype_obj_value(struct obj_data *obj)
 
     if (!obj) {
 	slog("SYSERR: NULL obj passed to prototype_obj_value.");
-	return (0);
+	return 0;
     }
 
 
@@ -2887,7 +2887,7 @@ prototype_obj_value(struct obj_data *obj)
 
     default:
 	value = GET_OBJ_COST(obj);  /* resets value for un-def'd item types ***/
-	return (value);
+	return value;
 	break;
     }
 
@@ -2996,7 +2996,10 @@ prototype_obj_value(struct obj_data *obj)
 	break;
     }
   
-    return (value);
+    // divide value by 2 for now.
+    value >>= 1;
+
+    return value;
 }
 
 int 
@@ -3329,33 +3332,38 @@ choose_material(struct obj_data *obj)
     return (MAT_NONE);
 }
 
-/*
+
 ACMD(do_objupdate)
 {
-  struct obj_data *obj = NULL;
-  
-  if (GET_IDNUM(ch) != 1)
-    return;
-
-  for (obj = obj_proto; obj; obj = obj->next) {
-
-    if (GET_OBJ_TYPE(obj)==ITEM_LIGHT || GET_OBJ_TYPE(obj)==ITEM_ARMOR ||
-	GET_OBJ_TYPE(obj)==ITEM_CONTAINER) {
-      obj->obj_flags.cost = prototype_obj_value(obj);
-      obj->obj_flags.cost += number(-(obj->obj_flags.cost>>6), 
-				    (obj->obj_flags.cost>>6));
-      i = obj->obj_flags.cost % 10;
-      obj->obj_flags.cost -= i;
-      obj->obj_flags.cost_per_day = obj->obj_flags.cost / 50;
-    }
-    obj->obj_flags.material = choose_material(obj);
-
-    GET_OBJ_MAX_DAM(obj) = set_maxdamage(obj);
-    GET_OBJ_DAM(obj) = GET_OBJ_MAX_DAM(obj);
+    struct obj_data *obj = NULL;
     
-  }
+    if (GET_IDNUM(ch) != 1)
+	return;
+    
+    for (obj = obj_proto; obj; obj = obj->next) {
+	
+	// reduce cost/value by half
+	GET_OBJ_COST(obj) >>= 1;
+
+	/*
+	if (GET_OBJ_TYPE(obj)==ITEM_LIGHT || GET_OBJ_TYPE(obj)==ITEM_ARMOR ||
+	    GET_OBJ_TYPE(obj)==ITEM_CONTAINER) {
+	    
+	    obj->obj_flags.cost = prototype_obj_value(obj);
+	    obj->obj_flags.cost += number(-(obj->obj_flags.cost>>6), 
+					  (obj->obj_flags.cost>>6));
+	    i = obj->obj_flags.cost % 10;
+	    obj->obj_flags.cost -= i;
+	    obj->obj_flags.cost_per_day = obj->obj_flags.cost / 50;
+	}
+	obj->obj_flags.material = choose_material(obj);
+	
+	GET_OBJ_MAX_DAM(obj) = set_maxdamage(obj);
+	GET_OBJ_DAM(obj) = GET_OBJ_MAX_DAM(obj);
+	*/
+    }
 }    
-*/
+
 
 ACMD(do_attach)
 {

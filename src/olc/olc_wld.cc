@@ -1199,7 +1199,6 @@ ACMD( do_hedit )
     case 5:   /* show */
 	argument = one_argument( argument, arg );
 	skip_spaces( &argument );
-	//    printf( "%d %d '%s' '%s'\n", *arg, *argument, arg, argument );
 	if ( ( *arg && is_abbrev( arg, "brief" ) ) || 
 	     ( *argument && is_abbrev( argument, "brief" ) ) ) {
 	    brief = true;

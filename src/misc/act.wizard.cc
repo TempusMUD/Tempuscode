@@ -1655,9 +1655,9 @@ do_stat_character(struct char_data * ch, struct char_data * k)
 		IS_CARRYING_W(k), IS_WEARING_W(k), 
 		(IS_CARRYING_W(k) + IS_WEARING_W(k)),	CAN_CARRY_W(k), 
 		IS_CARRYING_N(k), (int)CAN_CARRY_N(k), num, num2);
-	if (GET_BREATH_COUNT(k) || GET_FALL_COUNT(k)) {
+	if ( k->getBreathCount() || GET_FALL_COUNT(k)) {
 	    sprintf(buf, "%sBreath_count: %d, Fall_count: %d", buf, 
-		    GET_BREATH_COUNT(k), GET_FALL_COUNT(k));
+		    k->getBreathCount(), GET_FALL_COUNT(k));
 	    found = TRUE;
 	}
 	strcat(outbuf, buf);

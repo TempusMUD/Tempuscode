@@ -15,7 +15,7 @@
 // Copyright 1998 by John Watson, all rights reserved.
 //
 
-#include <assert.h>
+#include <signal.h>
 
 #include "structs.h"
 #include "utils.h"
@@ -647,8 +647,9 @@ affect_to_char(struct char_data * ch, struct affected_type * af)
 	ch->in_room->light++;
   
     if (IS_SET(af->bitvector, AFF3_SELF_DESTRUCT) &&
-	af->aff_index == 3)
-	assert(FALSE);
+	af->aff_index == 3) {
+	raise( SIGSEGV );
+    }
     
 }
 
@@ -771,9 +772,6 @@ retire_trails(void)
 		    trail->track--;
 		}
 		if (trail->track <= 0 || trail->time <= del_time) {  // delete trail
-		    /*	  printf("freeing trail rm [%5d], id [%5d], time [%ld], track [%2d]\n",
-			  rm->number, trail->idnum, trail->time, trail->track);
-		    */ 
 		    if (trail->name) {
 			free(trail->name);
 			trail->name = NULL;
@@ -1446,7 +1444,7 @@ obj_to_room(struct obj_data * object, struct room_data *room)
 	sprintf(buf, "SYSERR: Illegal %s | %s passed to obj_to_room", 
 		object ? "" : "OBJ", room ? "" : "ROOM");
 	slog(buf);
-	assert(FALSE);
+	raise( SIGSEGV );
 	return;
     }
 
@@ -1499,12 +1497,12 @@ obj_from_room(struct obj_data * object)
 
     if (!object) {
 	slog("SYSERR: NULL object passed to obj_from_room");
-	assert(FALSE);
+	raise( SIGSEGV );
 	return;
     }
     if (!object->in_room) {
 	slog("SYSERR: NULL object->in_room in obj_from_room");
-	assert(FALSE);
+	raise( SIGSEGV );
 	return;
     }
 
@@ -1611,9 +1609,9 @@ obj_from_obj(struct obj_data * obj)
     struct char_data *vict = NULL;
     int j;
 
-    if (obj->in_obj == NULL) {
+    if ( obj->in_obj == NULL ) {
 	slog("SYSERR (handler.c): trying to illegally extract obj from obj");
-	abort();
+	raise( SIGSEGV );
     }
 
 #ifdef TRACK_OBJS

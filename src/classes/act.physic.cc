@@ -740,8 +740,6 @@ int recurs_econvert_points( struct obj_data *obj, bool top ) {
 	break;
     }
 
-    printf( "object [%s]: %d\n", obj->short_description, num_points );
-
     return ( num_points + 
 	     recurs_econvert_points( obj->contains, false ) +
 	     ( top ? 0 : 

@@ -8,6 +8,9 @@
 #include <stdlib.h>
 #include <ctype.h>
 #include <string.h>
+#include <iostream>
+#include <iomanip>
+
 #include "structs.h"
 #include "utils.h"
 #include "comm.h"
@@ -1050,8 +1053,6 @@ perform_oset(struct char_data *ch, struct obj_data *obj_p,
 
 	skip_spaces(&argument);
 
-	printf("'%s' '%s'\n", arg1, argument);
-
 	if (!*arg1 || !*argument) {
 	    send_to_char("Usage: oset <obj> sigil <idnum|level> <value>\r\n", ch);
 	    return;
@@ -1095,7 +1096,7 @@ perform_oset(struct char_data *ch, struct obj_data *obj_p,
 	    obj_p->shared->cost = prototype_obj_value(obj_p);
 	    i = obj_p->shared->cost % 10;
 	    obj_p->shared->cost -= i;
-	    obj_p->shared->cost_per_day = obj_p->shared->cost / 50;
+	    obj_p->shared->cost_per_day = obj_p->shared->cost / 25;
 	}
 	if (oset_command == 4 ||            /* type   */
 	    oset_command == 5 ||            /* extra1 */

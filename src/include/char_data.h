@@ -876,6 +876,18 @@ struct char_data {
     }
     inline short modifyWeight( short mod_weight ) { return player.modifyWeight( mod_weight ); }
 
+    // breath count
+    inline int getBreathCount( void ) { return char_specials.breath_count; }
+    inline int getBreathThreshold( void ) { return ( getLevel() >> 5 ) + 2; }
+    inline int setBreathCount( int new_count ) {
+	return ( char_specials.breath_count = new_count );
+    }
+    inline int modifyBreathCount( int mod_count ) {
+	return setBreathCount( getBreathCount() + mod_count );
+    }
+    
+    inline int getLevel( void ) { return player.level; }
+
     int pfilepos;			 /* playerfile pos		  */
     struct room_data *in_room;            /* Location (real room number)	  */
 

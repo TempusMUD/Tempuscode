@@ -18,7 +18,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include <assert.h>
+#include <signal.h>
 #include <limits.h>
 #include <time.h>
 #include <sys/types.h>
@@ -494,7 +494,8 @@ stop_follower(struct char_data * ch)
 {
     struct follow_type *j, *k;
 
-    assert(ch->master);
+    if ( !ch->master )
+	raise( SIGSEGV );
 
     if (IS_AFFECTED(ch, AFF_CHARM) && !MOB2_FLAGGED(ch, MOB2_MOUNT)) {
 	act("You realize that $N is a jerk!", FALSE, ch, 0, ch->master, TO_CHAR);
@@ -560,7 +561,8 @@ add_follower(struct char_data * ch, struct char_data * leader)
 {
     struct follow_type *k;
 
-    assert(!ch->master);
+    if (ch->master)
+	raise( SIGSEGV );
 
     ch->master = leader;
 
@@ -580,7 +582,8 @@ add_stalker(struct char_data * ch, struct char_data * leader)
 {
     struct follow_type *k;
 
-    assert(!ch->master);
+    if (ch->master)
+	raise( SIGSEGV );
 
     ch->master = leader;
 

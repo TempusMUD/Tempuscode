@@ -77,7 +77,7 @@ int House_can_enter(struct char_data *ch, room_num house);
 void notify_cleric_moon(struct char_data *ch);
 
 ACMD(do_zcom);
-/*ACMD(do_objupdate); */
+ACMD(do_objupdate);
 
 /* prototypes for all do_x functions. */
 ACMD(do_action);
@@ -887,7 +887,7 @@ extern const struct command_info cmd_info[] = {
     { "oset"     , POS_DEAD    , do_oset     , LVL_CREATOR, 0 },
     { "overhaul",  POS_STANDING, do_overhaul , 1, 0 },
     { "overdrain", POS_STANDING, do_overdrain , 1, 0 },
-    /*  { "objupdate", POS_DEAD,     do_objupdate, LVL_GRIMP, 0 }, */
+    { "objupdate", POS_DEAD,     do_objupdate, LVL_GRIMP, 0 },
 
     { "pace"     , POS_STANDING, do_action   , 0, 0 },
     { "pack"     , POS_RESTING , do_put      , 0, 0 },

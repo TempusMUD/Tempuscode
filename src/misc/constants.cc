@@ -526,6 +526,24 @@ extern const char *sector_types[] = {
   "Pitch Submerged",
   "Beach",
   "Astral",
+  "Elemental Fire",
+  "Elemental Earth",
+  "Elemental Air",
+  "Elemental Water",
+  "Elemental Positive",
+  "Elemental Negative",
+  "Elemental Smoke",
+  "Elemental Ice",
+  "Elemental Ooze",
+  "Elemental Magma",
+  "Elemental Lightning",
+  "Elemental Steam",
+  "Elemental Radiance",
+  "Elemental Minerals",
+  "Elemental Vacuum",
+  "Elemental Salt",
+  "Elemental Ash",
+  "Elemental Dust",
   "\n"
 };
 
@@ -2293,6 +2311,24 @@ extern const char movement_loss[] =
   18,                           /* Pitch Submerged */
   3,				/* Beach */
   1,                            /* Astral */
+  3,				// elemental fire
+  20,				// elemental earth
+  1,				// elemental air
+  4,				// elemental water
+  0,				// elemental positive
+  50,				// elemental negative
+  3,				// elemental smoke
+  8,				// elemental ice
+  8,				// elemental ooze
+  9,				// elemental magma
+  6,				// elemental lightning
+  4,				// elemental steam
+  1,				// elemental radiance
+  12,				// elemental minerals
+  1,				// elemental vacuum
+  4,				// elemental salt
+  3,				// elemental ash
+  3,				// elemental dust
   1,
   
 };

@@ -1500,7 +1500,6 @@ checkpointing( int sig = 0 )
 		last_cmd[0].string);
 	slog(buf);
 	raise(SIGSEGV);
-	abort();
     } else
 	tics = 0;
 }
@@ -1723,8 +1722,6 @@ send_to_comm_channel(struct char_data *ch, char *buf, int chan, int mode, int hi
 		act("$p makes some noises.", FALSE, 0, obj, 0, TO_ROOM);
 	    }
 	}
-	/*      printf("%s-%d-%d-%d-%d\n", obj->short_description, GET_OBJ_TYPE(obj),
-		COMM_CHANNEL(obj), obj->in_obj ? 1 : 0, ENGINE_ON(obj));*/
     }
 }
 

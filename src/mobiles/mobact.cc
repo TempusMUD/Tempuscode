@@ -382,8 +382,14 @@ burn_update(void)
 	    !can_travel_sector(ch, SECT_TYPE(ch->in_room), 1) &&
 	    !ROOM_FLAGGED(ch->in_room, ROOM_DOCK) && 
 	    GET_LEVEL(ch) < LVL_AMBASSADOR) {
+	    
+	    int drown_factor = ch->getBreathCount() - ch->getBreathThreshold();
+	    
+	    drown_factor = MAX( 0, drown_factor );
+	    
 	    if (damage(ch, ch, dice(4, 5), TYPE_DROWNING, -1))
 		continue;
+	    
 	    if (AFF_FLAGGED(ch, AFF_INFLIGHT) && 
 		GET_POS(ch) < POS_FLYING &&
 		SECT_TYPE(ch->in_room) == SECT_WATER_NOSWIM)

@@ -1224,13 +1224,6 @@ boot_clans()
 	clan->flags        = clan_hdr.flags;
 	clan->name         = str_dup(clan_hdr.name);
 	clan->badge        = str_dup(clan_hdr.badge);
-	/*
-	  strncpy(buf, clan_hdr.badge, MAX_CLAN_BADGE-1);
-	  printf("clan %d, badgelen: %d.\n", clan->number, strlen(buf));
-    
-	  buf[MIN(strlen(buf), MAX_CLAN_BADGE)] = '\0';
-	  clan->badge        = str_dup(buf);
-	*/
 	clan->member_list  = NULL;
 	clan->room_list    = NULL;
 	clan->next         = NULL;

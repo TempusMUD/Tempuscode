@@ -23,7 +23,7 @@ Written by Jeremy Elson (jelson@cs.jhu.edu)
 
 #include <stdio.h>
 #include <stdlib.h>
-#include <assert.h>
+#include <signal.h>
 #include <ctype.h>
 #include <string.h>
 #include <time.h>
@@ -248,8 +248,11 @@ store_mail(long to, long from, char *message_pointer)
     int bytes_written = 0;
     int total_length = strlen(message_pointer);
 
-    assert(sizeof(header_block_type) == sizeof(data_block_type));
-    assert(sizeof(header_block_type) == BLOCK_SIZE);
+    if (sizeof(header_block_type) != sizeof(data_block_type))
+	raise ( SIGSEGV );
+
+    if (sizeof(header_block_type) != BLOCK_SIZE)
+	raise( SIGSEGV );
 
     if (from < 0 || to < 0 || !*message_pointer) {
 	slog("SYSERR: Mail system -- non-fatal error #5.");

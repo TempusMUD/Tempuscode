@@ -110,6 +110,6 @@ void rpl_user_spec (struct char_data *ch, struct char_data *vict, char *desc)
 RPL (rpl_test)
 {
 
-    printf("test spec called \n");
+    slog("test spec called \n");
 
 }

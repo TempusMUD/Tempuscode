@@ -577,8 +577,6 @@ engage_self_destruct(struct char_data *ch)
     for (rad_elem = bomb_rooms; rad_elem; rad_elem = next_elem) {
 	next_elem = rad_elem->next;
 
-//	printf("damaging room: %d\n"
-//	       "  rad_elem->power: %d\n", rad_elem->room->number, rad_elem->power);
 	bomb_damage_room(GET_NAME(ch),
 			 SKILL_SELF_DESTRUCT,
 			 level,

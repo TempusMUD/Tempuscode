@@ -119,7 +119,25 @@
 #define SECT_PITCH_SUB      21
 #define SECT_BEACH          22
 #define SECT_ASTRAL         23
-#define NUM_SECT_TYPES      24
+#define SECT_ELEMENTAL_FIRE        24
+#define SECT_ELEMENTAL_EARTH       25
+#define SECT_ELEMENTAL_AIR         26
+#define SECT_ELEMENTAL_WATER       27
+#define SECT_ELEMENTAL_POSITIVE    28
+#define SECT_ELEMENTAL_NEGATIVE    29
+#define SECT_ELEMENTAL_SMOKE       30
+#define SECT_ELEMENTAL_ICE         31
+#define SECT_ELEMENTAL_OOZE        32
+#define SECT_ELEMENTAL_MAGMA       33
+#define SECT_ELEMENTAL_LIGHTNING   34
+#define SECT_ELEMENTAL_STEAM       35
+#define SECT_ELEMENTAL_RADIANCE    36
+#define SECT_ELEMENTAL_MINERALS    37
+#define SECT_ELEMENTAL_VACUUM      38
+#define SECT_ELEMENTAL_SALT        39
+#define SECT_ELEMENTAL_ASH         40
+#define SECT_ELEMENTAL_DUST        41
+#define NUM_SECT_TYPES      42
 
 
 

@@ -290,7 +290,6 @@ add_path(char *spath, int save)
 	    spath = tmpc + 1;
 	    *tmpc = 0;
 	    phead->path[i].str = str_dup(buf+2);
-	    printf(":%s:\n", phead->path[i].str);
 	    break;
 
 	case 'c':
@@ -585,7 +584,7 @@ path_do_echo (struct char_data *ch, struct obj_data *o, char *echo)
 	!(vnum=strtol(echo+1,&tmp,10))|| *tmp != ' ')
 	return;
 
-    printf("Sheit: %s",echo);
+    slog( "SYSERR: error in path_do_echo." );
 }
 
 void

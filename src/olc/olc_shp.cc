@@ -894,7 +894,6 @@ save_shops(struct char_data *ch)
     }
 
     if (!found) {
-	/*    printf("abort\n"); */
 	return 0;
     }
 

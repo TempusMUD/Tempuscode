@@ -1541,6 +1541,15 @@ ACMD(do_rescue)
 	act("But nobody is fighting $M!", FALSE, ch, 0, vict, TO_CHAR);
 	return;
     }
+
+    // check for NOPK flag
+    if ( !IS_NPC( ch ) && !IS_NPC( tmp_ch ) &&
+	 PLR_FLAGGED( ch, PLR_NOPK ) ) {
+	act( "That rescue would entail attacking $N, but you are flagged NO PK.",
+	     FALSE, ch, 0, tmp_ch, TO_CHAR );
+	return;
+    }
+						  
     if (GET_CLASS(ch) == CLASS_MAGIC_USER && (GET_REMORT_CLASS(ch) < 0
 					      || GET_REMORT_CLASS(ch) == CLASS_MAGIC_USER))
 	send_to_char("But only true warriors can do this!", ch);

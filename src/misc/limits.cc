@@ -18,7 +18,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <sys/types.h>
-#include <assert.h>
+#include <signal.h>
 #include <string.h>
 
 #include "structs.h"
@@ -729,7 +729,7 @@ point_update(void)
 		    else if (j->in_room != NULL)
 			obj_to_room(jj, j->in_room);
 		    else 
-			assert(FALSE);
+			raise( SIGSEGV );
 
 		    if (IS_IMPLANT(jj) && !CAN_WEAR(jj, ITEM_WEAR_TAKE)) {
 
@@ -775,7 +775,7 @@ point_update(void)
 		    else if (j->in_room)
 			obj_to_room(jj, j->in_room);
 		    else
-			assert(FALSE);
+			raise ( SIGSEGV );
 
 		    // fix up the implants, and damage them
 		    if (IS_IMPLANT(jj) && !CAN_WEAR(jj, ITEM_WEAR_TAKE)) {
@@ -837,7 +837,7 @@ point_update(void)
 		    else if (j->in_room != NULL)
 			obj_to_room(jj, j->in_room);
 		    else
-			assert(FALSE);
+			raise( SIGSEGV );
 		}
 		extract_obj(j);
 	    }

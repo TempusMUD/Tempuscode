@@ -1522,23 +1522,18 @@ do_destroy_mobile(struct char_data *ch, int vnum)
     }
 
     if (GET_NAME(mob)) {
-	printf("freeing name\n");
 	free(GET_NAME(mob));
     }
     if (mob->player.title) {
-	printf("freeing title\n");
 	free(mob->player.title);
     }
     if (mob->player.short_descr) {
-	printf("freeing sdesc\n");
 	free(mob->player.short_descr);
     }
     if (mob->player.long_descr) {
-	printf("freeing ldesc\n");
 	free(mob->player.long_descr);
     }
     if (mob->player.description) {
-	printf("freeing desc\n");
 	free(mob->player.description);
     }
 #ifdef DMALLOC
@@ -1546,7 +1541,6 @@ do_destroy_mobile(struct char_data *ch, int vnum)
 #endif
   
     while ((resp = mob->mob_specials.response)) {
-	printf("freeing response\n");
 	mob->mob_specials.response = resp->next;
 	if (resp->keyword)
 	    free(resp->keyword);
@@ -1559,25 +1553,20 @@ do_destroy_mobile(struct char_data *ch, int vnum)
 #endif
     mob->mob_specials.shared->proto = NULL;
     if (mob->mob_specials.shared->move_buf) {
-	printf("freeing moveb\n");
 	free(mob->mob_specials.shared->move_buf);
     }
     if (mob->mob_specials.mug) {
-	printf("freeing mug\n");
 	free(mob->mob_specials.mug);
     }
     while ((mem_r = mob->mob_specials.memory)) {
-	printf("freeing memory\n");
 	mob->mob_specials.memory = mem_r->next;
 	free(mem_r);
     }
     
     if (mob->mob_specials.shared) {
-	printf("freeing shared (%d)\n", sizeof(mob->mob_specials.shared));
 	free(mob->mob_specials.shared);
     }
     top_of_mobt--;
-    printf("freeing mob");
     free(mob);
 #ifdef DMALLOC
     dmalloc_verify(0);

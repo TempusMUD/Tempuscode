@@ -149,16 +149,18 @@ can_travel_sector(struct char_data *ch, int sector_type, bool active)
 		if (!GET_OBJ_VAL(obj->aux_obj, 1)) {
 		    act("A warning indicator reads: $p fully depleted.",
 			FALSE, ch, obj->aux_obj, 0, TO_CHAR);
-		    GET_BREATH_COUNT(ch) = 0;
+		    ch->setBreathCount( 0 );
 		} else if (GET_OBJ_VAL(obj->aux_obj, 1) == 5)
 		    act("A warning indicator reads: $p air level low.",
 			FALSE, ch, obj->aux_obj, 0, TO_CHAR);
 	    }
 	    return 1;
 	}
-	if (GET_BREATH_COUNT(ch)++ < (GET_LEVEL(ch) >> 5) + 2) {
-	    if (GET_BREATH_COUNT(ch) > GET_LEVEL(ch) >> 5)
-		send_to_char("You are running out of breath.\r\n", ch);
+	ch->modifyBreathCount( 1 );
+	
+	if ( ch->getBreathCount() < ch->getBreathThreshold() &&
+	     ch->getBreathCount() > ( ch->getBreathThreshold() - 2 ) ) {
+	    send_to_char("You are running out of breath.\r\n", ch);
 	    return 1;
 	}
 	break;
@@ -851,17 +853,20 @@ do_simple_move(struct char_data * ch, int dir, int mode, int need_specials_check
     if (ch->in_room->sector_type == SECT_UNDERWATER) {
 	if (was_in->sector_type != SECT_UNDERWATER &&
 	    was_in->sector_type != SECT_WATER_NOSWIM) {
+
 	    send_to_char("You are now submerged in water.\r\n", ch);
-	    GET_BREATH_COUNT(ch) = 0;
-	} else
-	    GET_BREATH_COUNT(ch)++;
+	    ch->setBreathCount( 0 );
+	} else {
+	    ch->modifyBreathCount( 1 );
+	}
     }
     if (ch->in_room->sector_type == SECT_WATER_NOSWIM) {
 	if (was_in->sector_type != SECT_UNDERWATER &&
-	    was_in->sector_type != SECT_WATER_NOSWIM)
-	    GET_BREATH_COUNT(ch) = 0;
-	else
-	    GET_BREATH_COUNT(ch) += 2;
+	    was_in->sector_type != SECT_WATER_NOSWIM) {
+	    ch->setBreathCount( 0 );
+	} else {
+	    ch->modifyBreathCount( 2 );
+	}
     }
 
     for (obj = ch->in_room->contents; obj; obj = obj->next_content)

@@ -14,6 +14,8 @@
 *  CircleMUD is based on DikuMUD, Copyright (C) 1990, 1991.               *
 ************************************************************************ */
 
+#include <iostream>
+#include <iomanip>
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -1006,8 +1008,9 @@ ACMD(do_olc)
 		    char_from_room(ch);
 		    char_to_room(ch, room);
 		    save_wld(ch);
-		    printf("SAVEWLD Super: Zone %d, rooms %d-%d.\n",
-			   zone->number, zone->number*100, zone->top);
+		    sprintf( buf, "SAVEWLD Super: Zone %d, rooms %d-%d.\n",
+			     zone->number, zone->number*100, zone->top);
+		    slog( buf );
 		    k++;
 		}
 	    }
@@ -1023,11 +1026,13 @@ ACMD(do_olc)
 
 	} else if (is_abbrev(argument, "objects")) {
 	    room = ch->in_room;
-	    for (zone = zone_table, i = 0; zone; zone = zone->next, i++)
-		if (zone->world) {
+	    for (zone = zone_table, i = 0; zone; zone = zone->next, i++) {
+		if ( zone->world ) {
 		    ch->in_room = zone->world;
 		    save_objs(ch);
 		}
+	    }
+
 	    ch->in_room = room;
 	    send_to_char("objs saved.\r\n", ch);
 	    return;
