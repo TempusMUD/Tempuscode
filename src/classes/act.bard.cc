@@ -311,14 +311,12 @@ struct bard_song songs[] = {
     static const int SONG_SONG_OF_SILENCE = 364; // Area, disallow speaking, casting. singing
     static const int SONG_RHAPSODY_OF_DEPRESSION = 367; // slow a target
     static const int SONG_SIRENS_SONG = 374; // single target, charm
-    static const int SONG_SONIC_DISRUPTION = 375; // area, medium damage
     static const int SONG_MIRROR_IMAGE_MELODY = 376; // causes multiple images of the singer
     static const int SONG_SHATTER = 382; // target; damage persons/objects, penetrate WALL O SOUND
     static const int SONG_PURPLE_HAZE = 385; // area, pauses fighting for short time
     static const int SONG_DIRGE = 387; // area, high damage, undead only
     static const int SONG_GHOST_INSTRUMENT = 389; // causes instrument to replay next some played
     static const int SONG_LICHS_LYRICS = 390; // area, only affects living creatures
-    static const int SONG_FORTISSIMO = 391; // increases damage of sonic attacks
     static const int SONG_REQUIEM = 395; // allows bard song to affect undead at half potency
 */
 
@@ -344,6 +342,7 @@ struct bard_song songs[] = {
     static const int SONG_RHYTHM_OF_RAGE = 371; // self only, berserk, counter = hymn of peace
     static const int SONG_POWER_OVERTURE = 372; // self only, increase strength and hitroll
     static const int SONG_GUIHARIAS_GLORY = 373; // self/group, + damroll
+    static const int SONG_SONIC_DISRUPTION = 375; // area, medium damage
     static const int SONG_CLARIFYING_HARMONIES = 377; // identify
     static const int SONG_UNLADEN_SWALLOW_SONG = 378; // group flight
     static const int SONG_IRRESISTABLE_DANCE = 379; // Target, -hitroll
@@ -353,6 +352,7 @@ struct bard_song songs[] = {
     static const int SONG_WEIGHT_OF_THE_WORLD = 384; // self/group/target, like telekinesis
     static const int SONG_WOUNDING_WHISPERS = 386; // self, like blade barrier
     static const int SONG_EAGLES_OVERTURE = 388; // self, group, target, increases cha
+    static const int SONG_FORTISSIMO = 391; // increases damage of sonic attacks
     static const int SONG_INSIDIOUS_RHYTHM = 392; // target, - int
 
     static const int SKILL_SCREAM = 672; // damage like psiblast, chance to stun

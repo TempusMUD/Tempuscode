@@ -2676,13 +2676,17 @@ Fireball: like harder bones, skin, organ membranecs
     }
 
     case SONG_ARIA_OF_ASYLUM:
-        aff_array[0].duration = 5 + ch->getLevelBonus(SONG_EAGLES_OVERTURE) >> 3; 
+        aff_array[0].duration = 5 + ch->getLevelBonus(SONG_ARIA_OF_ASYLUM) >> 3; 
         aff_array[0].location = APPLY_CASTER;
         if (IS_NPC(ch))
             aff_array[0].modifier = -(ch->getIdNum());
         else
             aff_array[0].modifier = ch->getIdNum();
 
+		if (CHECK_SKILL(ch, SKILL_LINGERING_SONG) > number(1, 120))
+            aff_array[0].duration = (int)(aff_array[0].duration * 1.5);
+
+		
         to_vict = "A gossimer shield of music forms around you.";
         to_room = "A gossimer shield of music forms around $n";
     break;
@@ -2690,7 +2694,12 @@ Fireball: like harder bones, skin, organ membranecs
 	case SONG_FORTISSIMO:
         aff_array[0].duration = GET_CHA(ch) + ch->getLevelBonus(SONG_FORTISSIMO) >> 3; 
         aff_array[0].location = APPLY_CASTER;
-        if (IS_NPC(ch))
+        
+		if (CHECK_SKILL(ch, SKILL_LINGERING_SONG) > number(1, 120))
+            aff_array[0].duration = (int)(aff_array[0].duration * 1.5);
+
+		
+		if (IS_NPC(ch))
             aff_array[0].modifier = -(ch->getIdNum());
         else
             aff_array[0].modifier = ch->getIdNum();
