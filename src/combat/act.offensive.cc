@@ -205,6 +205,15 @@ int calc_skill_prob( struct char_data *ch, struct char_data *vict, int skillnum,
         *vict_pos = POS_SITTING;
         *vict_wait = 2 RL_SEC;
         *wait = 9 RL_SEC;
+        if( IS_BARB(ch) ) {
+            // reduced wait state for barbs
+            int w = 5;
+            w *= ch->getLevelBonus(SKILL_BASH);
+            w /= 100;
+            *wait -= w;
+            // Improved damage for barbs
+            *dam += dice( 2, ch->getLevelBonus(SKILL_BASH) );
+        }
 
         break;
     
@@ -214,19 +223,21 @@ int calc_skill_prob( struct char_data *ch, struct char_data *vict, int skillnum,
     
         *dam = dice(3, (GET_LEVEL(ch) >> 3));
         ADD_EQ_DAM(ch, WEAR_HEAD);
-    if(IS_BARB(ch))
-        *dam = *dam << 1;
 
         *vict_wait = 1 RL_SEC;
         *wait = 4 RL_SEC;
         *loc = WEAR_HEAD;
-    // Barb headbutt should be nastier
-    if(IS_BARB(ch) && 0) {
-        int margin;
-        margin = (GET_STR(ch)/2) - number(1,20);
-        if(number(1,20) > (GET_DEX(vict) - margin))
-            *vict_pos = POS_SITTING;
-    }
+        // Barb headbutt should be nastier
+        if(IS_BARB(ch) && 0) {
+            // Improved damage for barbs
+            *dam += ch->getLevelBonus(SKILL_HEADBUTT);
+            // Knock them down?
+            int attack = GET_STR(ch) + GET_DEX(ch);
+            int defence = GET_CON(vict) + GET_DEX(vict);
+            int margin = attack - defence;
+            if(number(1,20) < margin )
+                *vict_pos = POS_SITTING;
+        }
         break;
 
     case SKILL_GOUGE:
