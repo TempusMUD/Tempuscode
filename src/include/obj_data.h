@@ -166,6 +166,7 @@ static const int ITEM2_HIDDEN = (1 << 5);
 static const int ITEM2_TRAPPED = (1 << 6);
 static const int ITEM2_SINGULAR = (1 << 7);
 static const int ITEM2_NOLOCATE = (1 << 8);
+static const int ITEM2_NOSOIL = (1 << 9);
 static const int ITEM2_CAST_WEAPON = (1 << 10);
 static const int ITEM2_TWO_HANDED = (1 << 11);
 static const int ITEM2_BODY_PART = (1 << 12);
