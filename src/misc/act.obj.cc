@@ -173,6 +173,7 @@ void consolidate_char_money( struct char_data *ch ) {
     }
 
     if ( num_gold ) {
+        GET_GOLD( ch ) += num_gold;
         sprintf( buf, "There were %d coins.\r\n", num_gold );
         send_to_char( buf, ch );
 
@@ -183,6 +184,7 @@ void consolidate_char_money( struct char_data *ch ) {
     }
 
     if ( num_credits ) {
+        GET_CASH( ch ) += num_credits;
         sprintf( buf, "There were %d credits.\r\n", num_credits );
         send_to_char( buf, ch );
 
