@@ -174,6 +174,13 @@ save_objs (struct char_data *ch)
     } else
 	zone = ch->in_room->zone;
 
+    sprintf(fname,"world/obj/%d.obj", zone->number);
+    if(access(fname,W_OK) < 0){
+        sprintf(buf,"OLC: ERROR - Main object file for zone %d is read-only.",
+            zone->number);
+        mudlog(buf, BRF, 0, TRUE);
+    }
+
     sprintf(fname,"world/obj/olc/%d.obj", zone->number);
     if (!(file = fopen(fname,"w")))
 	return 1;

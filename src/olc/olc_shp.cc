@@ -905,6 +905,12 @@ save_shops(struct char_data *ch)
     if (!found) {
 	return 0;
     }
+    sprintf(fname,"world/shp/%d.shp", zone->number);
+    if(access(fname,W_OK) < 0){
+        sprintf(buf,"OLC: ERROR - Main shop file for zone %d is read-only.",ch->in_room->zone->number);
+        mudlog(buf, BRF, 0, TRUE);
+    }
+
 
     sprintf(fname,"world/shp/olc/%d.shp", zone->number);
     if (!(file = fopen(fname,"w+"))) {
