@@ -1097,11 +1097,10 @@ ACMD(do_hedit)
 
 	if (olc_lock || (IS_SET(ch->in_room->zone->flags, ZONE_LOCKED))) {
 		if (GET_LEVEL(ch) >= LVL_IMPL) {
-			sprintf(buf,
+			send_to_char(ch,
 				"\007\007\007\007%sWARNING.%s  Overriding olc %s lock.\r\n",
 				CCRED_BLD(ch, C_NRM), CCNRM(ch, C_NRM),
 				olc_lock ? "global" : "discrete zone");
-			send_to_char(ch, "%s", buf);
 		} else {
 			send_to_char(ch, "OLC is currently locked.  Try again later.\r\n");
 			return;

@@ -394,10 +394,9 @@ do_zcmd(struct char_data *ch, char *argument)
 				}
 				int_arg3 = atoi(arg2);
 				if (!real_object_proto(int_arg3)) {
-					sprintf(buf,
+					send_to_char(ch, 
 						"Object (V) %d does not exist, buttmunch.\r\n",
 						int_arg3);
-					send_to_char(ch, "%s", buf);
 					return;
 				}
 			} else {
@@ -494,10 +493,9 @@ do_zcmd(struct char_data *ch, char *argument)
 				}
 				int_arg3 = atoi(arg2);
 				if (!real_mobile_proto(int_arg3)) {
-					sprintf(buf,
+					send_to_char(ch,
 						"Mobile (V) %d does not exist, buttmunch.\r\n",
 						int_arg3);
-					send_to_char(ch, "%s", buf);
 					return;
 				}
 			} else {
@@ -708,10 +706,9 @@ do_zcmd(struct char_data *ch, char *argument)
 				}
 				int_arg3 = atoi(arg2);
 				if (int_arg3 < 0 || int_arg3 > NUM_WEARS) {
-					sprintf(buf,
+					send_to_char(ch,
 						"Invalid implant position, %d, must be 0-27\r\n",
 						int_arg3);
-					send_to_char(ch, "%s", buf);
 					return;
 				}
 			} else {
@@ -1034,10 +1031,9 @@ do_zone_cmdmove(struct char_data *ch, struct zone_data *zone, char *argument)
 			if (i == where)
 				send_to_char(ch, "Moving command to the end of the list.\r\n");
 			else {
-				sprintf(buf,
+				send_to_char(ch,
 					"There is no command number %d in zone %d.  Moving cmd %d to pos %d.\r\n",
 					where, zone->number, num, i);
-				send_to_char(ch, "%s", buf);
 				where = i;
 			}
 		}
@@ -1238,25 +1234,17 @@ do_zput_cmd(struct char_data *ch, char *argument)
 			}
 		}
 		if (found == 0) {
-			sprintf(buf,
+			send_to_char(ch,
 				"Zone command O required for %d before this can be set.\r\n",
 				int_arg3);
-			send_to_char(ch, "%s", buf);
 			free(zonecmd);
-#ifdef DMALLOC
-			dmalloc_verify(0);
-#endif
 			return;
 		}
 	} else {
-		sprintf(buf,
+		send_to_char(ch,
 			"Zone command O required for %d before this can be set.\r\n",
 			int_arg3);
-		send_to_char(ch, "%s", buf);
 		free(zonecmd);
-#ifdef DMALLOC
-		dmalloc_verify(0);
-#endif
 		return;
 	}
 
@@ -1369,10 +1357,9 @@ do_zgive_cmd(struct char_data *ch, char *argument)
 			}
 		}
 		if (found == 0) {
-			sprintf(buf,
+			send_to_char(ch,
 				"Zone command M required for %d before this can be set.\r\n",
 				int_arg3);
-			send_to_char(ch, "%s", buf);
 			free(zonecmd);
 #ifdef DMALLOC
 			dmalloc_verify(0);
@@ -1380,10 +1367,9 @@ do_zgive_cmd(struct char_data *ch, char *argument)
 			return;
 		}
 	} else {
-		sprintf(buf,
+		send_to_char(ch,
 			"Zone command M required for %d before this can be set.\r\n",
 			int_arg3);
-		send_to_char(ch, "%s", buf);
 		free(zonecmd);
 #ifdef DMALLOC
 		dmalloc_verify(0);
@@ -1503,10 +1489,9 @@ do_zimplant_cmd(struct char_data *ch, char *argument)
 			}
 		}
 		if (found == 0) {
-			sprintf(buf,
+			send_to_char(ch,
 				"zmob command required for mobile (V) %d before this can be set.\r\n",
 				mob->mob_specials.shared->vnum);
-			send_to_char(ch, "%s", buf);
 			free(zonecmd);
 #ifdef DMALLOC
 			dmalloc_verify(0);
@@ -1514,10 +1499,9 @@ do_zimplant_cmd(struct char_data *ch, char *argument)
 			return;
 		}
 	} else {
-		sprintf(buf,
+		send_to_char(ch,
 			"zmob command required for mobile (V) %d before this can be set.\r\n",
 			mob->mob_specials.shared->vnum);
-		send_to_char(ch, "%s", buf);
 		free(zonecmd);
 #ifdef DMALLOC
 		dmalloc_verify(0);
@@ -1636,25 +1620,17 @@ do_zequip_cmd(struct char_data *ch, char *argument)
 			}
 		}
 		if (found == 0) {
-			sprintf(buf,
+			send_to_char(ch,
 				"zmob command required for mobile (V) %d before this can be set.\r\n",
 				mob->mob_specials.shared->vnum);
-			send_to_char(ch, "%s", buf);
 			free(zonecmd);
-#ifdef DMALLOC
-			dmalloc_verify(0);
-#endif
 			return;
 		}
 	} else {
-		sprintf(buf,
+		send_to_char(ch,
 			"zmob command required for mobile (V) %d before this can be set.\r\n",
 			mob->mob_specials.shared->vnum);
-		send_to_char(ch, "%s", buf);
 		free(zonecmd);
-#ifdef DMALLOC
-		dmalloc_verify(0);
-#endif
 		return;
 	}
 
@@ -2143,10 +2119,9 @@ do_zset_command(struct char_data *ch, char *argument)
 							state);
 					} else {
 						tmp_zonecmd->prob = state;
-						sprintf(buf,
+						send_to_char(ch,
 							"Probability of execution of command %d set to %d.\r\n",
 							cmd, state);
-						send_to_char(ch, "%s", buf);
 					}
 				} else if (tmp_zonecmd->command == 'P' ||
 					tmp_zonecmd->command == 'O' ||
@@ -2713,12 +2688,11 @@ do_zone_cmdlist(struct char_data *ch, struct zone_data *zone, char *arg)
 					send_to_char(ch, "Invalid zone command segment.\r\n");
 					return;
 				}
-			} else if (is_abbrev(arg1, "errors")
-				|| is_abbrev(arg1, "comments"))
+			} else if (is_abbrev(arg1, "errors") 
+				|| is_abbrev(arg1, "comments")) {
 				mode_error = 1;
-			else {
-				sprintf(out_buf, "'%s' is not a valid argument.\r\n", arg1);
-				send_to_char(ch, out_buf);
+			} else {
+				send_to_char(ch, "'%s' is not a valid argument.\r\n", arg1);
 			}
 			arg = one_argument(arg, arg1);
 		}
@@ -3038,25 +3012,17 @@ do_zpath_cmd(struct char_data *ch, char *argument)
 				}
 			}
 			if (found == 0) {
-				sprintf(buf,
+				send_to_char(ch,
 					"zmob command required for mobile (V) %d before this can be set.\r\n",
 					mob->mob_specials.shared->vnum);
-				send_to_char(ch, "%s", buf);
 				free(zonecmd);
-#ifdef DMALLOC
-				dmalloc_verify(0);
-#endif
 				return;
 			}
 		} else {
-			sprintf(buf,
+			send_to_char(ch,
 				"zmob command required for mobile (V) %d before this can be set.\r\n",
 				mob->mob_specials.shared->vnum);
-			send_to_char(ch, "%s", buf);
 			free(zonecmd);
-#ifdef DMALLOC
-			dmalloc_verify(0);
-#endif
 			return;
 		}
 
@@ -3103,25 +3069,17 @@ do_zpath_cmd(struct char_data *ch, char *argument)
 					break;
 				}
 			if (found == 0) {
-				sprintf(buf,
+				send_to_char(ch,
 					"Zone command O required for %d before this can be set.\r\n",
 					GET_OBJ_VNUM(obj));
-				send_to_char(ch, "%s", buf);
 				free(zonecmd);
-#ifdef DMALLOC
-				dmalloc_verify(0);
-#endif
 				return;
 			}
 		} else {
-			sprintf(buf,
+			send_to_char(ch,
 				"Zone command O required for %d before this can be set.\r\n",
 				GET_OBJ_VNUM(obj));
-			send_to_char(ch, "%s", buf);
 			free(zonecmd);
-#ifdef DMALLOC
-			dmalloc_verify(0);
-#endif
 			return;
 		}
 
