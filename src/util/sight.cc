@@ -163,8 +163,8 @@ CAN_SEE(Creature *sub, Creature *obj)
 			!IS_IMMORT(sub) && !sub->isTester())
 		return false;
 
-	// Non-tester mortals can't see testers
-	if (!IS_IMMORT(sub) && !sub->isTester() && obj->isTester())
+	// Non-tester mortal players can't see testers
+	if (!IS_IMMORT(sub) && !IS_NPC(sub) && !sub->isTester() && obj->isTester())
 		return false;
 
 	// Holy light sees over all in-game affects
