@@ -908,3 +908,25 @@ stristr(const char *haystack, const char *needle)
 
 	return NULL;
 }
+
+struct extra_descr_data *
+exdesc_list_dup(struct extra_descr_data *list)
+{
+	struct extra_descr_data *cur_old, *cur_new;
+	struct extra_descr_data *prev_new = NULL, *result = NULL;
+
+	for (cur_old = list;cur_old;cur_old = cur_old->next) {
+		CREATE(cur_new, struct extra_descr_data, 1);
+		cur_new->next = NULL;
+		cur_new->keyword = strdup(cur_old->keyword);
+		cur_new->description = strdup(cur_old->description);
+		if (prev_new)
+			prev_new->next = cur_new;
+		else
+			result = cur_new;
+		prev_new = cur_new;
+	}
+
+	return result;
+}
+

@@ -981,6 +981,7 @@ static inline room_direction_data*& ABS_EXIT( room_data *room, int dir ) {
 bool CAN_GO(Creature * ch, int door);
 bool CAN_GO(obj_data * obj, int door);
 
+struct extra_descr_data *exdesc_list_dup(struct extra_descr_data *list);
 
 
 /* OS compatibility ******************************************************/
