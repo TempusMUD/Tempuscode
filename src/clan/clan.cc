@@ -698,12 +698,12 @@ typedef struct cedit_command_data {
 } cedit_command_data;
 
 cedit_command_data cedit_keys[] = {
-    {"save",    LVL_GRGOD},
+    {"save",    LVL_GOD},
     {"create",  LVL_GRGOD},
     {"delete",  LVL_GRGOD},
-    {"set",     LVL_GRGOD},
-    {"show",    LVL_GRGOD},
-    {"add",     LVL_GRGOD},
+    {"set",     LVL_GOD},
+    {"show",    LVL_GOD},
+    {"add",     LVL_GOD},
     {"remove",  LVL_GRGOD},
     {"sort",    LVL_GRGOD},
     {NULL,      0}
@@ -838,21 +838,9 @@ ACMD(do_cedit)
 		return;
 	    }
 	    if (clan->name) {
-#ifdef DMALLOC
-		dmalloc_verify(0);
-#endif
 		free(clan->name);
-#ifdef DMALLOC
-		dmalloc_verify(0);
-#endif
 	    }
-#ifdef DMALLOC
-	    dmalloc_verify(0);
-#endif
 	    clan->name = str_dup(argument);
-#ifdef DMALLOC
-	    dmalloc_verify(0);
-#endif    
 	    sprintf(buf, "(cedit) %s set clan %d name to '%s'.", GET_NAME(ch), clan->number, clan->name);
 	    slog(buf);
 
@@ -918,21 +906,9 @@ ACMD(do_cedit)
 		return;
 	    }
 	    if (clan->ranknames[i]) {
-#ifdef DMALLOC
-		dmalloc_verify(0);
-#endif
 		free(clan->ranknames[i]);
-#ifdef DMALLOC
-		dmalloc_verify(0);
-#endif
 	    }
-#ifdef DMALLOC
-	    dmalloc_verify(0);
-#endif
 	    clan->ranknames[i] = str_dup(argument);
-#ifdef DMALLOC
-	    dmalloc_verify(0);
-#endif
       
 	    send_to_char("Rank title set.\r\n", ch);
 	    sprintf(buf, "(cedit) %s set clan %d rank %d to '%s'.", GET_NAME(ch), clan->number, i, clan->ranknames[i]);
@@ -1403,14 +1379,8 @@ create_clan(int vnum)
     newclan->number       = vnum;
     newclan->bank_account = 0;
     newclan->top_rank     = 0;
-#ifdef DMALLOC
-    dmalloc_verify(0);
-#endif
     newclan->name         = str_dup("New");
     newclan->badge        = str_dup("(//NEW\\\\)");
-#ifdef DMALLOC
-    dmalloc_verify(0);
-#endif
     for (i = 0; i < NUM_CLAN_RANKS; i++)
 	newclan->ranknames[i] = NULL;
 
@@ -1457,62 +1427,26 @@ delete_clan(struct clan_data *clan)
     }
 
     if (clan->name) {
-#ifdef DMALLOC
-	dmalloc_verify(0);
-#endif
 	free(clan->name);
-#ifdef DMALLOC
-	dmalloc_verify(0);
-#endif
     }
     if (clan->badge) {
-#ifdef DMALLOC
-	dmalloc_verify(0);
-#endif
 	free(clan->badge);
-#ifdef DMALLOC
-	dmalloc_verify(0);
-#endif
     }
     for (i = 0; i < NUM_CLAN_RANKS; i++)
 	if (clan->ranknames[i]) {
-#ifdef DMALLOC
-	    dmalloc_verify(0);
-#endif
 	    free(clan->ranknames[i]);
-#ifdef DMALLOC
-	    dmalloc_verify(0);
-#endif    
 	}
 
     for (member = clan->member_list; member; member = clan->member_list) {
 	clan->member_list = member->next;
-#ifdef DMALLOC
-	dmalloc_verify(0);
-#endif
 	free(member);
-#ifdef DMALLOC
-	dmalloc_verify(0);
-#endif
     }
 
     for (rm_list = clan->room_list; rm_list; rm_list = clan->room_list) {
 	clan->room_list = rm_list->next;
-#ifdef DMALLOC
-	dmalloc_verify(0);
-#endif
 	free(rm_list);
-#ifdef DMALLOC
-	dmalloc_verify(0);
-#endif
     }
-#ifdef DMALLOC
-    dmalloc_verify(0);
-#endif
     free(clan);
-#ifdef DMALLOC
-    dmalloc_verify(0);
-#endif  
     return 0;
 }
 

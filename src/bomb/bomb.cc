@@ -77,30 +77,30 @@ void
 sort_rooms()
 {
     struct bomb_radius_list 
-	*new_list = NULL, *i = NULL, *j = NULL, *k = NULL;
+        *new_list = NULL, *i = NULL, *j = NULL, *k = NULL;
 
     // Sort to put damage rooms in increasing power order
 
     for (i=bomb_rooms; i; i=j) {
-	j = i->next;
+        j = i->next;
 
-	if (!new_list || (new_list->power > i->power))  {
-	    i->next = new_list;
-	    new_list = i;
-	}
-	else  {
-	    k = new_list;
+        if (!new_list || (new_list->power > i->power))  {
+            i->next = new_list;
+            new_list = i;
+        }
+        else  {
+            k = new_list;
 
-	    while (k->next) {
-		if (k->next->power > i->power)
-		    break;
-		else
-		    k = k->next;
-	    }
+            while (k->next) {
+                if (k->next->power > i->power)
+                    break;
+                else
+                    k = k->next;
+            }
 
-	    i->next = k->next;
-	    k->next = i;
-	}
+            i->next = k->next;
+            k->next = i;
+        }
     }
     bomb_rooms = new_list;
 }
@@ -117,40 +117,40 @@ add_bomb_room(struct room_data *room, int fromdir, int p_factor)
     int dir, new_factor;
 
     for (rad_elem = bomb_rooms; rad_elem; rad_elem = rad_elem->next)
-	if (room == rad_elem->room) {
-	    if ((unsigned int) p_factor > rad_elem->power)
-		rad_elem->power = p_factor;
-	    else
-		return;
-	    break;
-	}
+        if (room == rad_elem->room) {
+            if ((unsigned int) p_factor > rad_elem->power)
+                rad_elem->power = p_factor;
+            else
+                return;
+            break;
+        }
 
     if (!rad_elem) {
-	CREATE(rad_elem, struct bomb_radius_list, 1);
-	rad_elem->room = room;
-	rad_elem->power = p_factor;
-	rad_elem->next = bomb_rooms;
-	bomb_rooms = rad_elem;
+        CREATE(rad_elem, struct bomb_radius_list, 1);
+        rad_elem->room = room;
+        rad_elem->power = p_factor;
+        rad_elem->next = bomb_rooms;
+        bomb_rooms = rad_elem;
     }
 
     if (p_factor > 0) {
-	for (dir = 0; dir < NUM_DIRS; dir++) {
-	    if (room->dir_option[dir] && room->dir_option[dir]->to_room &&
-		room->dir_option[dir]->to_room != room &&
-		!IS_SET(room->dir_option[dir]->exit_info, EX_ONEWAY) &&
-		(fromdir < 0 || rev_dir[fromdir] != dir)) {
-		new_factor = p_factor - (p_factor / 10) -
-		    (movement_loss[room->sector_type] << 4) -
-		    (IS_SET(room->dir_option[dir]->exit_info, EX_ISDOOR) ?     5 : 0) -
-		    (IS_SET(room->dir_option[dir]->exit_info, EX_CLOSED) ?    10 : 0) -
-		    (IS_SET(room->dir_option[dir]->exit_info, EX_PICKPROOF) ? 10 : 0) -
-		    (IS_SET(room->dir_option[dir]->exit_info, EX_ONEWAY) ?p_factor:0) -
-		    (IS_SET(room->dir_option[dir]->exit_info, EX_HEAVY_DOOR) ? 7 : 0);
+        for (dir = 0; dir < NUM_DIRS; dir++) {
+            if (room->dir_option[dir] && room->dir_option[dir]->to_room &&
+                room->dir_option[dir]->to_room != room &&
+                !IS_SET(room->dir_option[dir]->exit_info, EX_ONEWAY) &&
+                (fromdir < 0 || rev_dir[fromdir] != dir)) {
+                new_factor = p_factor - (p_factor / 10) -
+                    (movement_loss[room->sector_type] << 4) -
+                    (IS_SET(room->dir_option[dir]->exit_info, EX_ISDOOR) ?     5 : 0) -
+                    (IS_SET(room->dir_option[dir]->exit_info, EX_CLOSED) ?    10 : 0) -
+                    (IS_SET(room->dir_option[dir]->exit_info, EX_PICKPROOF) ? 10 : 0) -
+                    (IS_SET(room->dir_option[dir]->exit_info, EX_ONEWAY) ?p_factor:0) -
+                    (IS_SET(room->dir_option[dir]->exit_info, EX_HEAVY_DOOR) ? 7 : 0);
 
-		new_factor = MAX(0, new_factor);
-		add_bomb_room(room->dir_option[dir]->to_room, dir, new_factor);
-	    }
-	}
+                new_factor = MAX(0, new_factor);
+                add_bomb_room(room->dir_option[dir]->to_room, dir, new_factor);
+            }
+        }
     }
 }
 
@@ -161,11 +161,11 @@ add_bomb_room(struct room_data *room, int fromdir, int p_factor)
 
 void
 bomb_damage_room(char *bomb_name, int bomb_type, int bomb_power, 
-		 struct room_data *room, int dir, int power, 
+                 struct room_data *room, int dir, int power, 
                  struct char_data *precious_vict = 0 )
 {
 
-    struct char_data *vict = NULL, *next_vict = NULL;
+    struct char_data *vict = NULL;
     struct room_affect_data rm_aff;
     struct affected_type af;
     int dam, damage_type = 0;
@@ -224,19 +224,19 @@ bomb_damage_room(char *bomb_name, int bomb_type, int bomb_power,
             damage_type = TYPE_CRUSH;
             break;
         }
-        if (room->people) {
-            act(buf, FALSE, room->people, 0, 0, TO_CHAR | TO_SLEEP);
-            act(buf, FALSE, room->people, 0, 0, TO_ROOM | TO_SLEEP);
+        if (!(room->people.empty())) {
+            act(buf, FALSE, *(room->people.begin()), 0, 0, TO_CHAR | TO_SLEEP);
+            act(buf, FALSE, *(room->people.begin()), 0, 0, TO_ROOM | TO_SLEEP);
         }
     } else {
 
-	if (dir >=0 && room->dir_option[dir] && 
-	    IS_SET(room->dir_option[dir]->exit_info, EX_ISDOOR) &&
-	    IS_SET(room->dir_option[dir]->exit_info, EX_CLOSED)) {
-	    if (power > (IS_SET(room->dir_option[dir]->exit_info, EX_HEAVY_DOOR) ?
-			 6 : 1 + 
-			 IS_SET(room->dir_option[dir]->exit_info, EX_PICKPROOF) ?
-			 10 : 1)) {
+        if (dir >=0 && room->dir_option[dir] && 
+            IS_SET(room->dir_option[dir]->exit_info, EX_ISDOOR) &&
+            IS_SET(room->dir_option[dir]->exit_info, EX_CLOSED)) {
+            if (power > (IS_SET(room->dir_option[dir]->exit_info, EX_HEAVY_DOOR) ?
+                         6 : 1 + 
+                         IS_SET(room->dir_option[dir]->exit_info, EX_PICKPROOF) ?
+                         10 : 1)) {
             if (room->dir_option[dir]->keyword)
                 strcpy(dname, room->dir_option[dir]->keyword);
             else
@@ -251,87 +251,80 @@ bomb_damage_room(char *bomb_name, int bomb_type, int bomb_power,
                 REMOVE_BIT(room->dir_option[dir]->to_room->
                        dir_option[rev_dir[dir]]->exit_info, EX_CLOSED);
             REMOVE_BIT(room->dir_option[dir]->exit_info, EX_CLOSED);
-            if (room->people) {
+            if (!(room->people.empty())) {
                 sprintf(buf, "The %s %s blown open from the other side!\r\n",
                     dname, ISARE(dname));
                 send_to_room(buf, room);
             }
-	    }
-	}
+            }
+        }
 
-	if (power <= bomb_power * 0.10)
-	    strcpy(buf, "You hear an explosion");
-	else if (power <= bomb_power * 0.20)
-	    strcpy(buf, "You hear a loud explosion");
-	else if (power <= bomb_power * 0.25)
-	    strcpy(buf, "There is a deafening explosion");
-	else {
-	    switch (bomb_type) {
-	    case BOMB_CONCUSSION:
-		strcpy(buf, "You are rocked by a concussive blast");
-		damage_type = TYPE_CRUSH;
-		dam >>= 1;
-		break;
-	    case BOMB_FRAGMENTATION:
-		strcpy(buf, "You are ripped by a blast of shrapnel");
-		damage_type = TYPE_RIP;
-		break;
-	    case BOMB_INCENDIARY:
-		strcpy(buf, "You are engulfed by a blast of flame");
-		damage_type = TYPE_ABLAZE;
-		break;
-	    case BOMB_DISRUPTION:
-		strcpy(buf, "You are rocked by a disruption blast");
-		damage_type = SPELL_DISRUPTION;
-		break;
-	    case BOMB_NUCLEAR:
-		strcpy(buf, "You are engulfed by a nuclear blast");
-		damage_type = SPELL_FISSION_BLAST;
-		break;
-	    case BOMB_FLASH:
-		strcpy(buf, "There is a flash of light");
-		damage_type = 0;
-		dam = MIN(1, dam);
-		break;
-	    case BOMB_SMOKE:
-		strcpy(buf, "Clouds of smoke begin to billow in");
-		dam = MAX(1, dam);
-		damage_type = 0;
-		break;
-	    case SKILL_SELF_DESTRUCT:
-		strcpy(buf, "You are showered with a rain of fiery debris!");
-		damage_type = TYPE_RIP;
-		break;
-	
-	    default:
-		strcpy(buf, "You are rocked by an explosion");
-		damage_type = TYPE_CRUSH;
-		break;
-	    }
-	}
+        if (power <= bomb_power * 0.10)
+            strcpy(buf, "You hear an explosion");
+        else if (power <= bomb_power * 0.20)
+            strcpy(buf, "You hear a loud explosion");
+        else if (power <= bomb_power * 0.25)
+            strcpy(buf, "There is a deafening explosion");
+        else {
+            switch (bomb_type) {
+            case BOMB_CONCUSSION:
+                strcpy(buf, "You are rocked by a concussive blast");
+                damage_type = TYPE_CRUSH;
+                dam >>= 1;
+                break;
+            case BOMB_FRAGMENTATION:
+                strcpy(buf, "You are ripped by a blast of shrapnel");
+                damage_type = TYPE_RIP;
+                break;
+            case BOMB_INCENDIARY:
+                strcpy(buf, "You are engulfed by a blast of flame");
+                damage_type = TYPE_ABLAZE;
+                break;
+            case BOMB_DISRUPTION:
+                strcpy(buf, "You are rocked by a disruption blast");
+                damage_type = SPELL_DISRUPTION;
+                break;
+            case BOMB_NUCLEAR:
+                strcpy(buf, "You are engulfed by a nuclear blast");
+                damage_type = SPELL_FISSION_BLAST;
+                break;
+            case BOMB_FLASH:
+                strcpy(buf, "There is a flash of light");
+                damage_type = 0;
+                dam = MIN(1, dam);
+                break;
+            case BOMB_SMOKE:
+                strcpy(buf, "Clouds of smoke begin to billow in");
+                dam = MAX(1, dam);
+                damage_type = 0;
+                break;
+            case SKILL_SELF_DESTRUCT:
+                strcpy(buf, "You are showered with a rain of fiery debris!");
+                damage_type = TYPE_RIP;
+                break;
+        
+            default:
+                strcpy(buf, "You are rocked by an explosion");
+                damage_type = TYPE_CRUSH;
+                break;
+            }
+        }
 
-	if (dir >= 0) {
-	    strcpy(dname, from_dirs[rev_dir[dir]]);
-	    strcat(buf, " from ");
-	    strcat(buf, dname);
-	}
+        if (dir >= 0) {
+            strcpy(dname, from_dirs[rev_dir[dir]]);
+            strcat(buf, " from ");
+            strcat(buf, dname);
+        }
     
-	strcat(buf, ".\r\n");
-	send_to_room(buf, room);
+        strcat(buf, ".\r\n");
+        send_to_room(buf, room);
     }
 
     if (!dam)
-	return;
-
-    for (vict = room->people; vict; vict = next_vict) {
-        next_vict = vict->next_in_room;
-
-        //
-        // don't kill our precious!
-        //
-
-        if ( vict == precious_vict )
-            continue;
+        return;
+    CharacterList::iterator it = room->people.begin();
+    for (  ; it !=room->people.end(); ++it ) {
+        vict = (*it);
 
         if (damage(NULL, vict, dam, damage_type, WEAR_RANDOM))
             continue;
@@ -395,34 +388,34 @@ bomb_damage_room(char *bomb_name, int bomb_type, int bomb_power,
     // room affects here
 
     if (bomb_type == BOMB_INCENDIARY &&
-	room->sector_type != SECT_WATER_SWIM && 
-	room->sector_type != SECT_WATER_NOSWIM && 
-	room->sector_type != SECT_UNDERWATER && 
-	!ROOM_FLAGGED(room, ROOM_FLAME_FILLED)) {
-	rm_aff.description =
-	    str_dup("   The room is ablaze with raging flames!\r\n");
-	rm_aff.duration = 1 + number(power >> 3, power);
-	rm_aff.level = MIN(power >> 1, LVL_AMBASSADOR);
-	rm_aff.type = RM_AFF_FLAGS;
-	rm_aff.flags = ROOM_FLAME_FILLED;
-	affect_to_room(room, &rm_aff);
+        room->sector_type != SECT_WATER_SWIM && 
+        room->sector_type != SECT_WATER_NOSWIM && 
+        room->sector_type != SECT_UNDERWATER && 
+        !ROOM_FLAGGED(room, ROOM_FLAME_FILLED)) {
+        rm_aff.description =
+            str_dup("   The room is ablaze with raging flames!\r\n");
+        rm_aff.duration = 1 + number(power >> 3, power);
+        rm_aff.level = MIN(power >> 1, LVL_AMBASSADOR);
+        rm_aff.type = RM_AFF_FLAGS;
+        rm_aff.flags = ROOM_FLAME_FILLED;
+        affect_to_room(room, &rm_aff);
     } else if (bomb_type == BOMB_NUCLEAR &&
-	       !ROOM_FLAGGED(room, ROOM_RADIOACTIVE)) {
-	rm_aff.description = str_dup("   You feel a warm glowing feeling.\r\n");
-	rm_aff.duration = number(power << 1, power << 4);
-	rm_aff.type = RM_AFF_FLAGS;
-	rm_aff.level = MIN(power >> 1, LVL_AMBASSADOR);
-	rm_aff.flags = ROOM_RADIOACTIVE;
-	affect_to_room(room, &rm_aff);
+               !ROOM_FLAGGED(room, ROOM_RADIOACTIVE)) {
+        rm_aff.description = str_dup("   You feel a warm glowing feeling.\r\n");
+        rm_aff.duration = number(power << 1, power << 4);
+        rm_aff.type = RM_AFF_FLAGS;
+        rm_aff.level = MIN(power >> 1, LVL_AMBASSADOR);
+        rm_aff.flags = ROOM_RADIOACTIVE;
+        affect_to_room(room, &rm_aff);
     } else if (bomb_type == BOMB_SMOKE &&
-	       !ROOM_FLAGGED(room, ROOM_SMOKE_FILLED)) {
-	rm_aff.description = 
-	    str_dup("   The room is filled with thick smoke, hindering your vision.\r\n");
-	rm_aff.duration = number(power, power << 1);
-	rm_aff.type = RM_AFF_FLAGS;
-	rm_aff.level = MIN(power >> 1, LVL_AMBASSADOR);
-	rm_aff.flags = ROOM_SMOKE_FILLED | ROOM_NOTRACK;
-	affect_to_room(room, &rm_aff);
+               !ROOM_FLAGGED(room, ROOM_SMOKE_FILLED)) {
+        rm_aff.description = 
+            str_dup("   The room is filled with thick smoke, hindering your vision.\r\n");
+        rm_aff.duration = number(power, power << 1);
+        rm_aff.type = RM_AFF_FLAGS;
+        rm_aff.level = MIN(power >> 1, LVL_AMBASSADOR);
+        rm_aff.flags = ROOM_SMOKE_FILLED | ROOM_NOTRACK;
+        affect_to_room(room, &rm_aff);
     }
 }
 
@@ -494,26 +487,26 @@ detonate_bomb(struct obj_data *bomb)
     sort_rooms();
 
     for (rad_elem = bomb_rooms; rad_elem; rad_elem = next_elem) {
-	next_elem = rad_elem->next;
+        next_elem = rad_elem->next;
   
-	bomb_damage_room(bomb->short_description, BOMB_TYPE(bomb), BOMB_POWER(bomb), rad_elem->room, 
-			 find_first_step(rad_elem->room, room, 1), 
-			 rad_elem->power);
+        bomb_damage_room(bomb->short_description, BOMB_TYPE(bomb), BOMB_POWER(bomb), rad_elem->room, 
+                         find_first_step(rad_elem->room, room, 1), 
+                         rad_elem->power);
 #ifdef DMALLOC
-	dmalloc_verify(0);
+        dmalloc_verify(0);
 #endif
-	free(rad_elem);
+        free(rad_elem);
 #ifdef DMALLOC
-	dmalloc_verify(0);
+        dmalloc_verify(0);
 #endif
-	bomb_rooms = next_elem;
+        bomb_rooms = next_elem;
 
     }
     next_obj = bomb->next;
 
     for (cont = bomb->contains; cont; cont = cont->next_content)
-	if (next_obj == cont)
-	    next_obj = cont->next;
+        if (next_obj == cont)
+            next_obj = cont->next;
   
     extract_obj(bomb);
     dam_object = NULL;
@@ -525,8 +518,7 @@ detonate_bomb(struct obj_data *bomb)
 // engage_self_destruct is THE function that actually BLOWS UP somebody (assumed to be borg)
 //
 
-void engage_self_destruct( struct char_data *ch, 
-                           struct char_data *precious_vict ) {
+void engage_self_destruct( struct char_data *ch ) {
   
     int level, i;
     struct obj_data *obj = NULL, *n_obj = NULL;
@@ -540,14 +532,14 @@ void engage_self_destruct( struct char_data *ch,
 
     // kill the cyborg first
     for (i = 0; i < NUM_WEARS; i++)
-	if (GET_EQ(ch, i))
-	    obj_to_room(unequip_char(ch, i, MODE_EQ), ch->in_room);
+        if (GET_EQ(ch, i))
+            obj_to_room(unequip_char(ch, i, MODE_EQ), ch->in_room);
 
     for (obj = ch->carrying; obj; obj = n_obj) {
-	n_obj = obj->next_content;
+        n_obj = obj->next_content;
 
-	obj_from_char(obj);
-	obj_to_room(obj, ch->in_room);
+        obj_from_char(obj);
+        obj_to_room(obj, ch->in_room);
     }
 
     GET_HIT(ch) = 0;
@@ -556,23 +548,23 @@ void engage_self_destruct( struct char_data *ch,
     // must have life points to do damage
 
     if ( !ROOM_FLAGGED( ch->in_room, ROOM_ARENA ) ) {
-	if ( GET_LIFE_POINTS(ch) > 0 ) {
-	    GET_LIFE_POINTS(ch)--;
-	}
-	else {
-	    level = 0;
-	}
+        if ( GET_LIFE_POINTS(ch) > 0 ) {
+            GET_LIFE_POINTS(ch)--;
+        }
+        else {
+            level = 0;
+        }
     }
 
     // also must know the skill to do damage
 
     if ( CHECK_SKILL( ch, SKILL_SELF_DESTRUCT ) < 50 ) {
-	level = 0;
+        level = 0;
     }
 
     gain_skill_prof(ch, SKILL_SELF_DESTRUCT);
     sprintf(buf, "%s self-destructed at room #%d, level %d.", GET_NAME(ch), 
-	    ch->in_room->number, level);
+            ch->in_room->number, level);
     mudlog(buf, BRF, GET_INVIS_LEV(ch), TRUE);
     die(ch, ch, SKILL_SELF_DESTRUCT, FALSE);
   
@@ -583,17 +575,16 @@ void engage_self_destruct( struct char_data *ch,
     sort_rooms( );
   
     for (rad_elem = bomb_rooms; rad_elem; rad_elem = next_elem) {
-	next_elem = rad_elem->next;
+        next_elem = rad_elem->next;
 
-	bomb_damage_room( GET_NAME(ch),
+        bomb_damage_room( GET_NAME(ch),
                           SKILL_SELF_DESTRUCT,
                           level,
                           rad_elem->room, 
                           find_first_step(rad_elem->room, room, 1), 
-                          rad_elem->power,
-                          precious_vict );
-	free(rad_elem);
-	bomb_rooms = next_elem;
+                          rad_elem->power );
+        free(rad_elem);
+        bomb_rooms = next_elem;
     
     }
 
@@ -612,8 +603,8 @@ ACMD(do_bomb)
     skip_spaces(&argument);
 
     if (atoi(argument) > (GET_LEVEL(ch) - 49) * 80) {
-	send_to_char("Not so big... causes lag.\r\n", ch);
-	return;
+        send_to_char("Not so big... causes lag.\r\n", ch);
+        return;
     }
     bomb_rooms = NULL;
     add_bomb_room(ch->in_room, -1, atoi(argument));
@@ -623,45 +614,45 @@ ACMD(do_bomb)
 
     new_list = NULL;
     for (i=bomb_rooms; i; i=j) {
-	j = i->next;
-	if (!new_list || (new_list->power > i->power))  {
-	    i->next = new_list;
-	    new_list = i;
-	}
-	else  {
-	    k = new_list;
-	    while (k->next)
-		if (k->next->power > i->power)
-		    break;
-		else
-		    k = k->next;
-	    i->next = k->next;
-	    k->next = i;
-	}
+        j = i->next;
+        if (!new_list || (new_list->power > i->power))  {
+            i->next = new_list;
+            new_list = i;
+        }
+        else  {
+            k = new_list;
+            while (k->next)
+                if (k->next->power > i->power)
+                    break;
+                else
+                    k = k->next;
+            i->next = k->next;
+            k->next = i;
+        }
     }
     bomb_rooms = new_list;
 
 
     strcpy(buf, "BOMB AFFECTS:\r\n");
     for (rad_elem = bomb_rooms; rad_elem; rad_elem = next_elem) {
-	next_elem = rad_elem->next;
-	if (!overflow) {
-	    sprintf(buf2, " %3d - [%5d] %s%s%s\r\n", rad_elem->power,
-		    rad_elem->room->number, CCCYN(ch, C_NRM),
-		    rad_elem->room->name, CCNRM(ch, C_NRM));
-	    if (strlen(buf) + strlen(buf2) > MAX_STRING_LENGTH - 128) {
-		overflow = true;
-		strcat(buf, "OVERFLOW\r\n");
-	    }  else
-		strcat(buf, buf2);
-	}
-	bomb_rooms = next_elem;
+        next_elem = rad_elem->next;
+        if (!overflow) {
+            sprintf(buf2, " %3d - [%5d] %s%s%s\r\n", rad_elem->power,
+                    rad_elem->room->number, CCCYN(ch, C_NRM),
+                    rad_elem->room->name, CCNRM(ch, C_NRM));
+            if (strlen(buf) + strlen(buf2) > MAX_STRING_LENGTH - 128) {
+                overflow = true;
+                strcat(buf, "OVERFLOW\r\n");
+            }  else
+                strcat(buf, buf2);
+        }
+        bomb_rooms = next_elem;
 #ifdef DMALLOC
-	dmalloc_verify(0);
+        dmalloc_verify(0);
 #endif
-	free(rad_elem);
+        free(rad_elem);
 #ifdef DMALLOC
-	dmalloc_verify(0);
+        dmalloc_verify(0);
 #endif
     }
 
@@ -680,37 +671,37 @@ ACMD(do_defuse)
     skip_spaces(&argument);
 
     if (!(bomb = get_obj_in_list_vis(ch, argument, ch->carrying)) &&
-	!(bomb = get_obj_in_list_vis(ch, argument, ch->in_room->contents)))
-	send_to_char("Defuse what?\r\n", ch);
+        !(bomb = get_obj_in_list_vis(ch, argument, ch->in_room->contents)))
+        send_to_char("Defuse what?\r\n", ch);
     else if (!IS_BOMB(bomb))
-	act("$p is not a bomb.", FALSE, ch, bomb, 0, TO_CHAR);
+        act("$p is not a bomb.", FALSE, ch, bomb, 0, TO_CHAR);
     else if (CHECK_SKILL(ch, SKILL_DEMOLITIONS) < 20)
-	send_to_char("You have no idea how.\r\n", ch);
+        send_to_char("You have no idea how.\r\n", ch);
     else if (!(fuse = bomb->contains) || !IS_FUSE(fuse))
-	act("$p is not fused.", FALSE, ch, bomb, 0, TO_CHAR);
+        act("$p is not fused.", FALSE, ch, bomb, 0, TO_CHAR);
     else {
-	if (CHECK_SKILL(ch, SKILL_DEMOLITIONS) < 
-	    number(0, 60 + 
-		   (FUSE_STATE(fuse) ? 
-		    (FUSE_IS_CONTACT(fuse) ? 45 : FUSE_IS_MOTION(fuse) ? 35 : 25)
-		    : 20) + (IS_CONFUSED(ch) ? 30 : 0))) {
-	    send_to_char("You set it off!!\r\n", ch);
-	    detonate_bomb(bomb);
-	    return;
-	}
+        if (CHECK_SKILL(ch, SKILL_DEMOLITIONS) < 
+            number(0, 60 + 
+                   (FUSE_STATE(fuse) ? 
+                    (FUSE_IS_CONTACT(fuse) ? 45 : FUSE_IS_MOTION(fuse) ? 35 : 25)
+                    : 20) + (IS_CONFUSED(ch) ? 30 : 0))) {
+            send_to_char("You set it off!!\r\n", ch);
+            detonate_bomb(bomb);
+            return;
+        }
 
-	FUSE_STATE(fuse) = 0;
-	obj_from_obj(fuse);
-	obj_to_char(fuse, ch);
+        FUSE_STATE(fuse) = 0;
+        obj_from_obj(fuse);
+        obj_to_char(fuse, ch);
 
-	if (bomb->aux_obj && bomb == bomb->aux_obj->aux_obj) {
-	    bomb->aux_obj->aux_obj = NULL;
-	    bomb->aux_obj = NULL;
-	}
+        if (bomb->aux_obj && bomb == bomb->aux_obj->aux_obj) {
+            bomb->aux_obj->aux_obj = NULL;
+            bomb->aux_obj = NULL;
+        }
 
-	act("$n defuses $p.", TRUE, ch, bomb, 0, TO_ROOM);
-	act("You remove $P from $p.", FALSE, ch, bomb, fuse, TO_CHAR);
-	gain_skill_prof(ch, SKILL_DEMOLITIONS);
+        act("$n defuses $p.", TRUE, ch, bomb, 0, TO_ROOM);
+        act("You remove $P from $p.", FALSE, ch, bomb, fuse, TO_CHAR);
+        gain_skill_prof(ch, SKILL_DEMOLITIONS);
       
     }
 }
@@ -737,92 +728,86 @@ sound_gunshots(struct room_data *room, int type, int power, int num)
   
     while ((rad_elem = bomb_rooms)) {
 
-	bomb_rooms = bomb_rooms->next;
+        bomb_rooms = bomb_rooms->next;
 
-	if (rad_elem->room && rad_elem->room->people && rad_elem->room != room) {
-	    if ((dir = find_first_step(rad_elem->room, room, 1)) >= 0)
-		dir = rev_dir[dir];
+        if (rad_elem->room && !(rad_elem->room->people.empty()) && rad_elem->room != room) {
+            if ((dir = find_first_step(rad_elem->room, room, 1)) >= 0)
+                dir = rev_dir[dir];
 
-	    if (dir < 0 || dir >= NUM_DIRS) {
-		switch (type) {
-		case SKILL_PROJ_WEAPONS:
-		    sprintf(buf, "You hear %s.\r\n", num > 1 ? "some gunshots" :
-			    "a gunshot");
-		    break;
-		default:
-		    break;
-		}
-		continue;
-	    }
-	  
-	    switch (type) {
-	    case SKILL_BATTLE_CRY:
-		sprintf(buf, "You hear a fearsome warcry from %s.\r\n",
-			from_dirs[dir]);
-		break;
-	    case SKILL_KIA:
-		sprintf(buf, "You hear a fearsome KIA! from %s.\r\n",
-			from_dirs[dir]);
-		break;
-	    case SKILL_CRY_FROM_BEYOND:
-		sprintf(buf, "You hear a blood-curdling warrior's cry from %s!\r\n",
-			from_dirs[dir]);
-		break;
+            if (dir < 0 || dir >= NUM_DIRS) {
+                switch (type) {
+                case SKILL_PROJ_WEAPONS:
+                    sprintf(buf, "You hear %s.\r\n", num > 1 ? "some gunshots" :
+                            "a gunshot");
+                    break;
+                default:
+                    break;
+                }
+                continue;
+            }
+          
+            switch (type) {
+            case SKILL_BATTLE_CRY:
+                sprintf(buf, "You hear a fearsome warcry from %s.\r\n",
+                        from_dirs[dir]);
+                break;
+            case SKILL_KIA:
+                sprintf(buf, "You hear a fearsome KIA! from %s.\r\n",
+                        from_dirs[dir]);
+                break;
+            case SKILL_CRY_FROM_BEYOND:
+                sprintf(buf, "You hear a blood-curdling warrior's cry from %s!\r\n",
+                        from_dirs[dir]);
+                break;
 
-	    case SPELL_HELL_FIRE:
-	    case SPELL_FLAME_STRIKE:
-	    case SPELL_FIRE_BREATH:
-		sprintf(buf, "You hear a %sfiery blast from %s.\r\n",
-			LOUD ? "deafening " : "", from_dirs[dir]);
-		break;
-	    case SPELL_HELL_FROST:
-	    case SPELL_CONE_COLD:
-	    case SPELL_ICY_BLAST:
-	    case SPELL_ICE_STORM:
-		sprintf(buf, "You hear a%s icy blast from %s.\r\n",
-			LOUD ? " deafening" : "n", from_dirs[dir]);
-		break;
-	    case SPELL_LIGHTNING_BOLT:
-	    case SPELL_CHAIN_LIGHTNING:
-	    case SPELL_CALL_LIGHTNING:
-	    case SPELL_LIGHTNING_BREATH:
-		sprintf(buf, "You hear a %sthunderclap from %s.\r\n",
-			LOUD ? "loud " : "", from_dirs[dir]);
-		break;
-	    case SPELL_COLOR_SPRAY:
-	    case SPELL_PRISMATIC_SPRAY:
-		sprintf(buf, "You see a %sflash of light from %s.\r\n",
-			LOUD ? "bright " : "", from_dirs[dir]);
-		break;
-	    case SPELL_FIREBALL:
-		sprintf(buf, "There is a %sfiery explosion from %s.\r\n",
-			LOUD ? "deafening " : "", from_dirs[dir]);
-		break;
-	    case SPELL_METEOR_STORM:
-		sprintf(buf, "You hear the roar of a meteor storm from %s.\r\n",
-			from_dirs[dir]);
-		break;
-	    case SKILL_PROJ_WEAPONS:
-		if (num > 1)
-		    sprintf(buf, "You hear %d %sgunshots from %s.\r\n", 
-			    num, LOUD ? "loud " : "", from_dirs[dir]);
-		else
-		    sprintf(buf, "You hear a %sgunshot from %s.\r\n", 
-			    LOUD ? "loud " : "", from_dirs[dir]);
-		break;
-	    default:
-		sprintf(buf, "You heard a type %d sound from %s.  Please report this bug.\r\n", type, from_dirs[dir]);
-		break;
-	    }
-	    send_to_room(buf, rad_elem->room);
-	}
-#ifdef DMALLOC
-	dmalloc_verify(0);
-#endif    
-	free (rad_elem);
-#ifdef DMALLOC
-	dmalloc_verify(0);
-#endif
+            case SPELL_HELL_FIRE:
+            case SPELL_FLAME_STRIKE:
+            case SPELL_FIRE_BREATH:
+                sprintf(buf, "You hear a %sfiery blast from %s.\r\n",
+                        LOUD ? "deafening " : "", from_dirs[dir]);
+                break;
+            case SPELL_HELL_FROST:
+            case SPELL_CONE_COLD:
+            case SPELL_ICY_BLAST:
+            case SPELL_ICE_STORM:
+                sprintf(buf, "You hear a%s icy blast from %s.\r\n",
+                        LOUD ? " deafening" : "n", from_dirs[dir]);
+                break;
+            case SPELL_LIGHTNING_BOLT:
+            case SPELL_CHAIN_LIGHTNING:
+            case SPELL_CALL_LIGHTNING:
+            case SPELL_LIGHTNING_BREATH:
+                sprintf(buf, "You hear a %sthunderclap from %s.\r\n",
+                        LOUD ? "loud " : "", from_dirs[dir]);
+                break;
+            case SPELL_COLOR_SPRAY:
+            case SPELL_PRISMATIC_SPRAY:
+                sprintf(buf, "You see a %sflash of light from %s.\r\n",
+                        LOUD ? "bright " : "", from_dirs[dir]);
+                break;
+            case SPELL_FIREBALL:
+                sprintf(buf, "There is a %sfiery explosion from %s.\r\n",
+                        LOUD ? "deafening " : "", from_dirs[dir]);
+                break;
+            case SPELL_METEOR_STORM:
+                sprintf(buf, "You hear the roar of a meteor storm from %s.\r\n",
+                        from_dirs[dir]);
+                break;
+            case SKILL_PROJ_WEAPONS:
+                if (num > 1)
+                    sprintf(buf, "You hear %d %sgunshots from %s.\r\n", 
+                            num, LOUD ? "loud " : "", from_dirs[dir]);
+                else
+                    sprintf(buf, "You hear a %sgunshot from %s.\r\n", 
+                            LOUD ? "loud " : "", from_dirs[dir]);
+                break;
+            default:
+                sprintf(buf, "You heard a type %d sound from %s.  Please report this bug.\r\n", type, from_dirs[dir]);
+                break;
+            }
+            send_to_room(buf, rad_elem->room);
+        }
+        free (rad_elem);
     }
 }
 
