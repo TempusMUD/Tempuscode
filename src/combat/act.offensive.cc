@@ -911,6 +911,7 @@ perform_offensive_skill(Creature *ch, Creature *vict, int skill, int *return_fla
 
 		WAIT_STATE(ch, (wait >> 1));
 
+		ACMD_set_return_flags(my_return_flags);
 		return false;
 	}
 	//
@@ -933,6 +934,7 @@ perform_offensive_skill(Creature *ch, Creature *vict, int skill, int *return_fla
 	// set waits, position, and affects on victim if they are still alive
 	//
 
+	ACMD_set_return_flags(my_return_flags);
 	if ((!IS_SET(my_return_flags, DAM_ATTACK_FAILED))
 		&& (!IS_SET(my_return_flags, DAM_VICT_KILLED))) {
 		if (vict_pos)
