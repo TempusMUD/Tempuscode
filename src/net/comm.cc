@@ -138,6 +138,7 @@ void retire_trails(void);
 void qp_reload(int sig = 0);
 void process_queue(void);		// In events.cc
 void set_desc_state(int state, struct descriptor_data *d);
+void save_quests(); // quests.cc - saves quest data
 
 /* *********************************************************************
 *  main game loop and related stuff                                    *
@@ -663,6 +664,7 @@ game_loop(int mother_desc)
 			fflush(player_fl);
 			descriptor_update();
 			Help->Sync();
+			save_quests();
 		}
 		if (auto_save) {
 			if (!(pulse % (60 * PASSES_PER_SEC))) {	/* 1 minute */

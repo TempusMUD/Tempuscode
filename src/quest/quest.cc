@@ -15,6 +15,10 @@
 #include <stdio.h>
 #include <time.h>
 #include <string.h>
+#include <libxml/parser.h>
+#include <libxml/tree.h>
+#include <fstream>
+#include "xml_utils.h"
 
 #include "structs.h"
 #include "comm.h"
@@ -25,6 +29,8 @@
 #include "quest.h"
 #include "handler.h"
 #include "screen.h"
+#include "tmpstr.h"
+#include "utils.h"
 
 // external funcs here
 int find_name(char *name);
@@ -40,6 +46,7 @@ void do_qcontrol_help(struct char_data *ch, char *argument);
 void do_qcontrol_switch(struct char_data *ch, char *argument, int com);
 void do_qcontrol_oload_list(char_data * ch);
 void do_qcontrol_oload(CHAR * ch, char *argument, int com);
+void send_to_quest(CHAR * ch, char *str, Quest * quest, int level, int mode);
 
 // internal vars here
 
@@ -69,15 +76,16 @@ const struct qcontrol_option {
 	{
 	"maxlev", "<vnum> <maxlev>", LVL_AMBASSADOR}, {
 	"award", "<player> <vnum> <pts> [comments]", LVL_AMBASSADOR}, {
-	"penalize", "<player> <vnum> <pts> <reason>", LVL_AMBASSADOR}, {
+	"penalize", "<player> <vnum> <pts> [reason]", LVL_AMBASSADOR}, {
 	"mload", "<mobile vnum> <vnum>", LVL_IMMORT}, {
 	"purge", "<vnum> <mobile name>", LVL_IMMORT},	// 20
 	{
-	"save", "", 73}, {
+	"save", "", LVL_GRIMP }, {
 	"help", "<topic>", LVL_AMBASSADOR}, {
 	"switch", "<mobile name>", LVL_IMMORT}, {
 	"rename", "<obj name> <new obj name>", 73}, {
 	"oload", "<item num> <vnum>", LVL_AMBASSADOR}, {
+	"trans", "<vnum> [room number]", LVL_AMBASSADOR}, {
 	NULL, NULL, 0}				// list terminator
 };
 
@@ -128,9 +136,81 @@ const char *qp_bits[] = {
 	"\n"
 };
 
-quest_data *quests = NULL;
+class QuestControl : protected vector<Quest> {
+	public:
+		QuestControl() : vector<Quest>() {
+			filename = "etc/quest.xml";
+			top_vnum = 0;
+		}
+		~QuestControl() {
+			save();
+		}
+		void loadQuests();
+		void add( Quest &q ) { push_back(q); }
+		vector<Quest>::size;
+		vector<Quest>::operator[];
+		void save();
+		int getNextVnum() { 
+			return ++top_vnum;
+		}
+		void setNextVnum( int vnum ) {
+			if( vnum >= top_vnum ) {
+				top_vnum = vnum;
+			}
+		}
+	private:
+		int top_vnum;
+		char *filename;
+} quests;
+
+void
+QuestControl::loadQuests()
+{
+	erase(begin(),end());
+	xmlDocPtr doc = xmlParseFile(filename);
+	if (doc == NULL) {
+		slog("SYSERR: Quesst load FAILED.");
+		return;
+	}
+	// discard root node
+	xmlNodePtr cur = xmlDocGetRootElement(doc);
+	if (cur == NULL) {
+		xmlFreeDoc(doc);
+		return;
+	}
+
+	cur = cur->xmlChildrenNode;
+	// Load all the nodes in the file
+	while (cur != NULL) {
+		// But only question nodes
+		if ((xmlMatches(cur->name, "Quest"))) {
+			push_back(Quest(cur, doc));
+		}
+		cur = cur->next;
+	}
+	sort( begin(), end() );
+	xmlFreeDoc(doc);
+}
+
+void
+QuestControl::save()
+{
+	std::ofstream out(filename);
+	if(! out ) {
+		fprintf(stderr,"ERROR: Cannot open quest file: %s\r\n",filename);
+	}
+	out << "<Quests>" << endl;
+	for( unsigned int i = 0; i < quests.size(); i++ ) {
+		quests[i].save(out);
+	}
+	out << "</Quests>" << endl;
+	out.flush();
+	out.close();
+}
+
+
+
 char arg1[MAX_INPUT_LENGTH], arg2[MAX_INPUT_LENGTH];
-int top_vnum = 0;
 FILE *qlogfile = NULL;
 
 ACMD(do_qcontrol)
@@ -222,6 +302,9 @@ ACMD(do_qcontrol)
 	case 19:					// Purge Mobile
 		do_qcontrol_purge(ch, argument, com);
 		break;
+	case 20:
+		do_qcontrol_save(ch, argument, com);
+		break;
 	case 21:					// help
 		do_qcontrol_help(ch, argument);
 		break;
@@ -235,12 +318,15 @@ ACMD(do_qcontrol)
 	case 24:					// oload
 		do_qcontrol_oload(ch, argument, com);
 		break;
-
+	case 25:
+		do_qcontrol_trans(ch, argument, com);
+		break;
 	default:
 		send_to_char(ch, "Sorry, this qcontrol option is not implemented.\r\n");
 		break;
 	}
 }
+
 void
 do_qcontrol_help(struct char_data *ch, char *argument)
 {
@@ -284,7 +370,7 @@ void							//Load mobile.
 do_qcontrol_mload(CHAR * ch, char *argument, int com)
 {
 	struct char_data *mob;
-	struct quest_data *quest = NULL;
+	struct Quest *quest = NULL;
 	char arg1[MAX_INPUT_LENGTH];
 	int number;
 
@@ -298,10 +384,10 @@ do_qcontrol_mload(CHAR * ch, char *argument, int com)
 	if (!(quest = find_quest(ch, arg1))) {
 		return;
 	}
-	if (!quest_edit_ok(ch, quest)) {
+	if (!quest->canEdit(ch)) {
 		return;
 	}
-	if (quest->ended) {
+	if (quest->getEnded() ) {
 		send_to_char(ch, "Pay attentionu dummy! That quest is over!\r\n");
 		return;
 	}
@@ -322,7 +408,7 @@ do_qcontrol_mload(CHAR * ch, char *argument, int com)
 	act("You create $N.", FALSE, ch, 0, mob, TO_CHAR);
 
 	sprintf(buf, "mloaded %s at %d.", GET_NAME(mob), ch->in_room->number);
-	qlog(ch, buf, QLOG_BRIEF, MAX(GET_INVIS_LEV(ch), LVL_DEMI), TRUE);
+	qlog(ch, buf, QLOG_BRIEF, MAX(GET_INVIS_LEV(ch), LVL_IMMORT), TRUE);
 
 }
 
@@ -354,7 +440,7 @@ void
 do_qcontrol_oload(CHAR * ch, char *argument, int com)
 {
 	struct obj_data *obj;
-	struct quest_data *quest = NULL;
+	struct Quest *quest = NULL;
 	int number;
 	char arg2[MAX_INPUT_LENGTH];
 
@@ -370,10 +456,10 @@ do_qcontrol_oload(CHAR * ch, char *argument, int com)
 	if (!(quest = find_quest(ch, arg2))) {
 		return;
 	}
-	if (!quest_edit_ok(ch, quest)) {
+	if (!quest->canEdit(ch)) {
 		return;
 	}
-	if (quest->ended) {
+	if (quest->getEnded() ) {
 		send_to_char(ch, "Pay attentionu dummy! That quest is over!\r\n");
 		return;
 	}
@@ -424,17 +510,80 @@ do_qcontrol_oload(CHAR * ch, char *argument, int com)
 
 }
 
+
+void							//Purge mobile.
+do_qcontrol_trans(CHAR * ch, char *argument, int com)
+{
+
+	char_data *vict;
+	Quest *quest = NULL;
+	room_data *room = NULL;
+
+	argument = two_arguments(argument, arg1, arg2);
+	if (!*arg1) {
+		send_to_char(ch, "Usage: qcontrol trans <quest number> [room number]\r\n");
+		return;
+	}
+	if (!(quest = find_quest(ch, arg1))) {
+		return;
+	}
+	if (!quest->canEdit(ch)) {
+		return;
+	}
+	if (quest->getEnded() ) {
+		send_to_char(ch, "Pay attention dummy! That quest is over!\r\n");
+		return;
+	}
+	if( *arg2 ) {
+		if(! is_number(arg2) ) {
+			send_to_char(ch, "No such room: '%s'\r\n",arg2);
+			return;
+		}
+		room = real_room(atoi(arg2));
+		if( room == NULL ) {
+			send_to_char(ch, "No such room: '%s'\r\n",arg2);
+			return;
+		}
+	}
+
+	if( room == NULL )
+		room = ch->in_room;
+
+	int transCount = 0;
+	for (int i = 0; i < quest->getNumPlayers(); i++) {
+		long id = quest->getPlayer(i).idnum;
+		vict = get_char_in_world_by_idnum(id);
+		if ( vict == NULL || vict == ch )
+			continue;
+		if ((GET_LEVEL(ch) < GET_LEVEL(vict)) ) {
+			send_to_char(ch, "%s ignores your summons.\r\n", GET_NAME(vict));
+			continue;
+		}
+		++transCount;
+		act("$n disappears in a mushroom cloud.", FALSE, vict, 0, 0, TO_ROOM);
+		char_from_room(vict);
+		char_to_room(vict, room);
+		act("$n arrives from a puff of smoke.", FALSE, vict, 0, 0, TO_ROOM);
+		act("$n has transferred you!", FALSE, ch, 0, vict, TO_VICT);
+		look_at_room(vict, room, 0);
+		char *buf = tmp_sprintf("has transferred %s to %s[%d] for quest %d.", 
+			 GET_NAME(vict), room->name,room->number, quest->getVnum());
+		qlog(ch, buf, QLOG_BRIEF, MAX(GET_INVIS_LEV(ch), LVL_IMMORT), TRUE);
+	}
+	send_to_char(ch,"%d players transferred.\r\n",transCount);
+}
+
+
 void							//Purge mobile.
 do_qcontrol_purge(CHAR * ch, char *argument, int com)
 {
 
 	struct char_data *vict;
-	struct quest_data *quest = NULL;
+	struct Quest *quest = NULL;
 	char arg1[MAX_INPUT_LENGTH];
 
 
 	argument = two_arguments(argument, arg1, buf);
-	printf("arg1 %s\r\nbuf %s\r\n", arg1, buf);
 	if (!*buf) {
 		send_to_char(ch, "Purge what?\r\n");
 		return;
@@ -442,10 +591,10 @@ do_qcontrol_purge(CHAR * ch, char *argument, int com)
 	if (!(quest = find_quest(ch, arg1))) {
 		return;
 	}
-	if (!quest_edit_ok(ch, quest)) {
+	if (!quest->canEdit(ch)) {
 		return;
 	}
-	if (quest->ended) {
+	if (quest->getEnded() ) {
 		send_to_char(ch, "Pay attentionu dummy! That quest is over!\r\n");
 		return;
 	}
@@ -458,7 +607,7 @@ do_qcontrol_purge(CHAR * ch, char *argument, int com)
 		act("$n disintegrates $N.", FALSE, ch, 0, vict, TO_NOTVICT);
 		sprintf(buf, "has purged %s at %d.",
 			GET_NAME(vict), vict->in_room->number);
-		qlog(ch, buf, QLOG_BRIEF, MAX(GET_INVIS_LEV(ch), LVL_DEMI), TRUE);
+		qlog(ch, buf, QLOG_BRIEF, MAX(GET_INVIS_LEV(ch), LVL_IMMORT), TRUE);
 		if (vict->desc) {
 			close_socket(vict->desc);
 			vict->desc = NULL;
@@ -478,18 +627,16 @@ do_qcontrol_show(CHAR * ch, char *argument)
 {
 
 	int timediff;
-	quest_data *quest = NULL;
+	Quest *quest = NULL;
 	char *timestr_e, *timestr_s;
 	char timestr_a[16];
 
 	// show all quests
 	if (!*argument) {
-
-		list_active_quests(ch, buf);
-		list_inactive_quests(ch, buf2);
-		strcat(buf, buf2);
-
-		page_string(ch->desc, buf);
+		char *msg = tmp_sprintf("");
+		msg = list_active_quests(ch, msg);
+		msg = list_inactive_quests(ch, msg);
+		page_string(ch->desc, msg);
 		return;
 	}
 
@@ -497,17 +644,19 @@ do_qcontrol_show(CHAR * ch, char *argument)
 	if (!(quest = find_quest(ch, argument)))
 		return;
 
-	timestr_s = asctime(localtime(&quest->started));
+	time_t started = quest->getStarted();
+	timestr_s = asctime(localtime(&started));
 	*(timestr_s + strlen(timestr_s) - 1) = '\0';
 
 
 	// quest is over, show summary information
-	if (quest->ended) {
+	if (quest->getEnded() ) {
 
-		timediff = quest->ended - quest->started;
+		timediff = quest->getEnded() - quest->getStarted();
 		sprintf(timestr_a, "%02d:%02d", timediff / 3600, (timediff / 60) % 60);
 
-		timestr_e = asctime(localtime(&quest->started));
+		time_t started = quest->getStarted();
+		timestr_e = asctime(localtime(&started));
 		*(timestr_e + strlen(timestr_e) - 1) = '\0';
 
 		sprintf(buf,
@@ -523,21 +672,21 @@ do_qcontrol_show(CHAR * ch, char *argument)
 			"  Max Level:   Gen %-2d, Level %2d  (%d)\r\n"
 			"  Max Players:    %d\r\n"
 			"  Pts. Awarded:   %d\r\n",
-			get_name_by_id(quest->owner_id), quest->owner_level,
+			get_name_by_id(quest->getOwner()), quest->owner_level,
 			quest->name,
 			quest->description ? quest->description : "None.\r\n",
 			qtypes[(int)quest->type], timestr_s,
 			timestr_e, timestr_a,
 			quest->minlev / 50, quest->minlev % 50, quest->minlev,
 			quest->maxlev / 50, quest->maxlev % 50, quest->maxlev,
-			quest->max_players, quest->awarded);
+			quest->getMaxPlayers(), quest->getAwarded());
 		page_string(ch->desc, buf);
 		return;
 
 	}
 	// quest is still active
 
-	timediff = time(0) - quest->started;
+	timediff = time(0) - quest->getStarted();
 	sprintf(timestr_a, "%02d:%02d", timediff / 3600, (timediff / 60) % 60);
 
 	sprintbit(quest->flags, quest_bits, buf2);
@@ -557,7 +706,7 @@ do_qcontrol_show(CHAR * ch, char *argument)
 		"  Num Players:     %d\r\n"
 		"  Max Players:     %d\r\n"
 		"  Pts. Awarded:    %d\r\n",
-		get_name_by_id(quest->owner_id), quest->owner_level,
+		get_name_by_id(quest->getOwner()), quest->owner_level,
 		quest->name,
 		quest->description ? quest->description : "None.\r\n",
 		quest->updates ? quest->updates : "None.\r\n",
@@ -565,14 +714,14 @@ do_qcontrol_show(CHAR * ch, char *argument)
 		timestr_a,
 		quest->minlev / 50, quest->minlev % 50, quest->minlev,
 		quest->maxlev / 50, quest->maxlev % 50, quest->maxlev,
-		quest->num_players, quest->max_players, quest->awarded);
+		quest->getNumPlayers(), quest->getMaxPlayers(), quest->getAwarded());
 
-	if (quest->num_players) {
+	if (quest->getNumPlayers()) {
 		list_quest_players(ch, quest, buf2);
 		strcat(buf, buf2);
 	}
 
-	if (quest->num_bans) {
+	if (quest->getNumBans()) {
 		list_quest_bans(ch, quest, buf2);
 		strcat(buf, buf2);
 	}
@@ -627,8 +776,6 @@ void
 do_qcontrol_create(CHAR * ch, char *argument, int com)
 {
 	int type;
-	quest_data *quest = NULL;
-
 	argument = one_argument(argument, arg1);
 	skip_spaces(&argument);
 
@@ -651,19 +798,19 @@ do_qcontrol_create(CHAR * ch, char *argument, int com)
 		return;
 	}
 
-	quest = create_quest(ch, type, argument);
+	Quest quest(ch,type,argument);
+	quests.add(quest);
 
-	quest->next = quests;
-	quests = quest;
-
-	send_to_char(ch, "Quest %d created.\r\n", quest->vnum);
+	char *msg = tmp_sprintf("created quest type %s, '%s'", qtypes[type], argument);
+	qlog(ch, msg, QLOG_BRIEF, LVL_AMBASSADOR, TRUE);
+	send_to_char(ch, "Quest %d created.\r\n", quest.getVnum());
 }
 
 void
 do_qcontrol_end(CHAR * ch, char *argument, int com)
 {
 	CHAR *vict;
-	quest_data *quest = NULL;
+	Quest *quest = NULL;
 
 	if (!*argument) {
 		do_qcontrol_usage(ch, com);
@@ -673,7 +820,7 @@ do_qcontrol_end(CHAR * ch, char *argument, int com)
 	if (!(quest = find_quest(ch, argument)))
 		return;
 
-	if (quest->ended) {
+	if (quest->getEnded() ) {
 		send_to_char(ch, "That quest has already ended... duh.\r\n");
 		return;
 	}
@@ -682,23 +829,23 @@ do_qcontrol_end(CHAR * ch, char *argument, int com)
 
 	qlog(ch, "Purging players from quest...", QLOG_COMP, 0, TRUE);
 
-	while (quest->num_players) {
+	while (quest->getNumPlayers()) {
 		// Go back when you get time and make this set in the player file.
-		vict = get_char_in_world_by_idnum(quest->players[0].idnum);
+		vict = get_char_in_world_by_idnum(quest->getPlayer((int)0).idnum);
 		if (vict) {
 			if (GET_LEVEL(vict) < LVL_AMBASSADOR
 				&& PRF_FLAGGED(vict, PRF_QUEST)) {
 				REMOVE_BIT(PRF_FLAGS(vict), PRF_QUEST);
 			}
 		}
-		if (!remove_idnum_from_quest(quest->players[0].idnum, quest)) {
+		if (!quest->removePlayer(quest->getPlayer((int)0).idnum)) {
 			send_to_char(ch, "Error removing char from quest.\r\n");
 			break;
 		}
 
 	}
 
-	quest->ended = time(0);
+	quest->setEnded(time(0));
 	sprintf(buf, "ended quest '%s'", quest->name);
 	qlog(ch, buf, QLOG_BRIEF, 0, TRUE);
 	send_to_char(ch, "Quest ended.\r\n");
@@ -707,7 +854,7 @@ do_qcontrol_end(CHAR * ch, char *argument, int com)
 void
 do_qcontrol_add(CHAR * ch, char *argument, int com)
 {
-	quest_data *quest = NULL;
+	Quest *quest = NULL;
 	CHAR *vict = NULL;
 
 	argument = two_arguments(argument, arg1, arg2);
@@ -728,12 +875,12 @@ do_qcontrol_add(CHAR * ch, char *argument, int com)
 		return;
 	}
 
-	if (quest->ended) {
+	if (quest->getEnded() ) {
 		send_to_char(ch, "That quest has already ended, you wacko.\r\n");
 		return;
 	}
 
-	if (idnum_in_quest(GET_IDNUM(vict), quest)) {
+	if( quest->isPlaying(GET_IDNUM(vict) ) ) {
 		send_to_char(ch, "That person is already part of this quest.\r\n");
 		return;
 	}
@@ -743,22 +890,22 @@ do_qcontrol_add(CHAR * ch, char *argument, int com)
 		return;
 	}
 
-	if (!quest_edit_ok(ch, quest))
+	if (!quest->canEdit(ch)) 
 		return;
 
-	if (!add_idnum_to_quest(GET_IDNUM(vict), quest)) {
+	if ( !quest->addPlayer(GET_IDNUM(vict)) ) {
 		send_to_char(ch, "Error adding char to quest.\r\n");
 		return;
 	}
-	GET_QUEST(vict) = quest->vnum;
+	GET_QUEST(vict) = quest->getVnum();
 
 	sprintf(buf, "added %s to quest '%s'.", GET_NAME(vict), quest->name);
 	qlog(ch, buf, QLOG_COMP, GET_INVIS_LEV(vict), TRUE);
 
-	send_to_char(ch, "%s added to quest %d.\r\n", GET_NAME(vict), quest->vnum);
+	send_to_char(ch, "%s added to quest %d.\r\n", GET_NAME(vict), quest->getVnum());
 
 	send_to_char(vict, "%s has added you to quest %d.\r\n", GET_NAME(ch),
-		quest->vnum);
+		quest->getVnum());
 
 	sprintf(buf, "%s is now part of the quest.", GET_NAME(vict));
 	send_to_quest(NULL, buf, quest, MAX(GET_INVIS_LEV(vict), LVL_AMBASSADOR),
@@ -774,7 +921,7 @@ void
 do_qcontrol_kick(CHAR * ch, char *argument, int com)
 {
 
-	quest_data *quest = NULL;
+	Quest *quest = NULL;
 	CHAR *vict = NULL;
 	unsigned int idnum;
 	int level = 0;
@@ -795,16 +942,16 @@ do_qcontrol_kick(CHAR * ch, char *argument, int com)
 		return;
 	}
 
-	if (quest->ended) {
+	if (quest->getEnded() ) {
 		send_to_char(ch, 
 			"That quest has already ended.. there are no players in it.\r\n");
 		return;
 	}
 
-	if (!quest_edit_ok(ch, quest))
+	if (!quest->canEdit(ch)) 
 		return;
 
-	if (!idnum_in_quest(idnum, quest)) {
+	if(! quest->isPlaying(idnum) ) {
 		send_to_char(ch, "That person not participating in this quest.\r\n");
 		return;
 	}
@@ -833,20 +980,20 @@ do_qcontrol_kick(CHAR * ch, char *argument, int com)
 		return;
 	}
 
-	if (!remove_idnum_from_quest(idnum, quest)) {
+	if (!quest->removePlayer(idnum)) {
 		send_to_char(ch, "Error removing char from quest.\r\n");
 		return;
 	}
 
 
-	send_to_char(ch, "%s kicked from quest %d.\r\n", arg1, quest->vnum);
+	send_to_char(ch, "%s kicked from quest %d.\r\n", arg1, quest->getVnum());
 	if (vict) {
 		sprintf(buf, "kicked %s from quest '%s'.", arg1, quest->name);
 		qlog(ch, buf, QLOG_BRIEF, MAX(GET_INVIS_LEV(vict), LVL_AMBASSADOR),
 			TRUE);
 
 		send_to_char(vict, "%s kicked you from quest %d.\r\n",
-			GET_NAME(ch), quest->vnum);
+			GET_NAME(ch), quest->getVnum());
 
 		sprintf(buf, "%s has been kicked from the quest.", arg1);
 		send_to_quest(NULL, buf, quest, MAX(GET_INVIS_LEV(vict),
@@ -859,20 +1006,12 @@ do_qcontrol_kick(CHAR * ch, char *argument, int com)
 		send_to_quest(NULL, buf, quest, LVL_AMBASSADOR, QCOMM_ECHO);
 	}
 
-
-	// Go back and set this in the player file when you get time!
-	if (vict) {
-		if (GET_LEVEL(vict) < LVL_AMBASSADOR && PRF_FLAGGED(vict, PRF_QUEST)) {
-			REMOVE_BIT(PRF_FLAGS(vict), PRF_QUEST);
-		}
-	}
-
 }
 
 void
 do_qcontrol_flags(CHAR * ch, char *argument, int com)
 {
-	quest_data *quest = NULL;
+	Quest *quest = NULL;
 	int state, cur_flags = 0, tmp_flags = 0, flag = 0, old_flags = 0;
 
 	argument = two_arguments(argument, arg1, arg2);
@@ -885,7 +1024,7 @@ do_qcontrol_flags(CHAR * ch, char *argument, int com)
 	if (!(quest = find_quest(ch, arg1)))
 		return;
 
-	if (!quest_edit_ok(ch, quest))
+	if (!quest->canEdit(ch)) 
 		return;
 
 	if (*arg2 == '+')
@@ -923,10 +1062,10 @@ do_qcontrol_flags(CHAR * ch, char *argument, int com)
 	sprintbit(tmp_flags, quest_bits, buf2);
 
 	if (tmp_flags == 0) {
-		send_to_char(ch, "Flags for quest %d not altered.\r\n", quest->vnum);
+		send_to_char(ch, "Flags for quest %d not altered.\r\n", quest->getVnum());
 	} else {
 		send_to_char(ch, "[%s] flags %s for quest %d.\r\n", buf2,
-			state == 1 ? "added" : "removed", quest->vnum);
+			state == 1 ? "added" : "removed", quest->getVnum());
 
 		sprintf(buf, "%s [%s] flags for quest '%s'.",
 			state == 1 ? "added" : "removed", buf2, quest->name);
@@ -937,7 +1076,7 @@ do_qcontrol_flags(CHAR * ch, char *argument, int com)
 void
 do_qcontrol_comment(CHAR * ch, char *argument, int com)
 {
-	quest_data *quest = NULL;
+	Quest *quest = NULL;
 
 	argument = one_argument(argument, arg1);
 	skip_spaces(&argument);
@@ -950,7 +1089,7 @@ do_qcontrol_comment(CHAR * ch, char *argument, int com)
 	if (!(quest = find_quest(ch, arg1)))
 		return;
 
-	if (!quest_edit_ok(ch, quest))
+	if (!quest->canEdit(ch)) 
 		return;
 
 	sprintf(buf, "comment on quest '%s': %s", quest->name, argument);
@@ -961,7 +1100,7 @@ do_qcontrol_comment(CHAR * ch, char *argument, int com)
 void
 do_qcontrol_desc(CHAR * ch, char *argument, int com)
 {
-	quest_data *quest = NULL;
+	Quest *quest = NULL;
 
 	skip_spaces(&argument);
 
@@ -973,7 +1112,7 @@ do_qcontrol_desc(CHAR * ch, char *argument, int com)
 	if (!(quest = find_quest(ch, argument)))
 		return;
 
-	if (!quest_edit_ok(ch, quest))
+	if (!quest->canEdit(ch))
 		return;
 
 	if (check_editors(ch, &(quest->description)))
@@ -995,7 +1134,7 @@ do_qcontrol_desc(CHAR * ch, char *argument, int com)
 void
 do_qcontrol_update(CHAR * ch, char *argument, int com)
 {
-	quest_data *quest = NULL;
+	Quest *quest = NULL;
 
 	skip_spaces(&argument);
 
@@ -1007,7 +1146,7 @@ do_qcontrol_update(CHAR * ch, char *argument, int com)
 	if (!(quest = find_quest(ch, argument)))
 		return;
 
-	if (!quest_edit_ok(ch, quest))
+	if (!quest->canEdit(ch))
 		return;
 
 	if (check_editors(ch, &(quest->updates)))
@@ -1029,7 +1168,7 @@ do_qcontrol_update(CHAR * ch, char *argument, int com)
 void
 do_qcontrol_ban(CHAR * ch, char *argument, int com)
 {
-	quest_data *quest = NULL;
+	Quest *quest = NULL;
 	CHAR *vict = NULL;
 	unsigned int idnum;
 	struct char_file_u tmp_store;
@@ -1045,7 +1184,7 @@ do_qcontrol_ban(CHAR * ch, char *argument, int com)
 	if (!(quest = find_quest(ch, arg2)))
 		return;
 
-	if (!quest_edit_ok(ch, quest))
+	if (!quest->canEdit(ch))
 		return;
 
 	if ((idnum = get_id_by_name(arg1)) < 0) {
@@ -1053,8 +1192,8 @@ do_qcontrol_ban(CHAR * ch, char *argument, int com)
 		return;
 	}
 
-	if (quest->ended) {
-		send_to_char(ch, "That quest has already ended, you psychopath!\r\n");
+	if (quest->getEnded() ) {
+		send_to_char(ch, "That quest has already , you psychopath!\r\n");
 		return;
 	}
 
@@ -1081,13 +1220,13 @@ do_qcontrol_ban(CHAR * ch, char *argument, int com)
 		return;
 	}
 
-	if (idnum_banned_from_quest(idnum, quest)) {
+	if (quest->isBanned(idnum)) {
 		send_to_char(ch, "That character is already banned from this quest.\r\n");
 		return;
 	}
 
-	if (idnum_in_quest(idnum, quest)) {
-		if (!remove_idnum_from_quest(idnum, quest)) {
+	if (quest->isPlaying(idnum)) {
+		if (!quest->removePlayer(idnum)) {
 			send_to_char(ch, "Unable to auto-kick victim from quest!\r\n");
 		} else {
 			send_to_char(ch, "%s auto-kicked from quest.\r\n", arg1);
@@ -1098,7 +1237,7 @@ do_qcontrol_ban(CHAR * ch, char *argument, int com)
 		}
 	}
 
-	if (!ban_idnum_from_quest(idnum, quest)) {
+	if (!quest->addBan(idnum)) {
 		send_to_char(ch, "Error banning char from quest.\r\n");
 		return;
 	}
@@ -1112,7 +1251,7 @@ do_qcontrol_ban(CHAR * ch, char *argument, int com)
 	qlog(ch, buf, QLOG_COMP, 0, TRUE);
 
 	send_to_char(ch, "%s banned from quest %d.\r\n",
-		vict ? GET_NAME(vict) : arg1, quest->vnum);
+		vict ? GET_NAME(vict) : arg1, quest->getVnum());
 
 }
 
@@ -1120,7 +1259,7 @@ void
 do_qcontrol_unban(CHAR * ch, char *argument, int com)
 {
 
-	quest_data *quest = NULL;
+	Quest *quest = NULL;
 	CHAR *vict = NULL;
 	unsigned int idnum;
 	struct char_file_u tmp_store;
@@ -1136,7 +1275,7 @@ do_qcontrol_unban(CHAR * ch, char *argument, int com)
 	if (!(quest = find_quest(ch, arg2)))
 		return;
 
-	if (!quest_edit_ok(ch, quest))
+	if (!quest->canEdit(ch))
 		return;
 
 	if ((idnum = get_id_by_name(arg1)) < 0) {
@@ -1144,7 +1283,7 @@ do_qcontrol_unban(CHAR * ch, char *argument, int com)
 		return;
 	}
 
-	if (quest->ended) {
+	if (quest->getEnded() ) {
 		send_to_char(ch, "That quest has already ended, you psychopath!\r\n");
 		return;
 	}
@@ -1172,13 +1311,13 @@ do_qcontrol_unban(CHAR * ch, char *argument, int com)
 		return;
 	}
 
-	if (!idnum_banned_from_quest(idnum, quest)) {
+	if (!quest->isBanned(idnum)) {
 		send_to_char(ch, 
 			"That player is not banned... maybe you should ban him!\r\n");
 		return;
 	}
 
-	if (!unban_idnum_from_quest(idnum, quest)) {
+	if (!quest->removeBan(idnum)) {
 		send_to_char(ch, "Error unbanning char from quest.\r\n");
 		return;
 	}
@@ -1188,14 +1327,14 @@ do_qcontrol_unban(CHAR * ch, char *argument, int com)
 	qlog(ch, buf, QLOG_COMP, 0, TRUE);
 
 	send_to_char(ch, "%s unbanned from quest %d.\r\n",
-		vict ? GET_NAME(vict) : arg1, quest->vnum);
+		vict ? GET_NAME(vict) : arg1, quest->getVnum());
 
 }
 
 void
 do_qcontrol_level(CHAR * ch, char *argument, int com)
 {
-	quest_data *quest = NULL;
+	Quest *quest = NULL;
 
 	argument = one_argument(argument, arg1);
 	skip_spaces(&argument);
@@ -1208,7 +1347,7 @@ do_qcontrol_level(CHAR * ch, char *argument, int com)
 	if (!(quest = find_quest(ch, arg1)))
 		return;
 
-	if (!quest_edit_ok(ch, quest))
+	if (!quest->canEdit(ch))
 		return;
 
 	quest->owner_level = atoi(arg2);
@@ -1222,7 +1361,7 @@ do_qcontrol_level(CHAR * ch, char *argument, int com)
 void
 do_qcontrol_minlev(CHAR * ch, char *argument, int com)
 {
-	quest_data *quest = NULL;
+	Quest *quest = NULL;
 
 	argument = two_arguments(argument, arg1, arg2);
 
@@ -1234,7 +1373,7 @@ do_qcontrol_minlev(CHAR * ch, char *argument, int com)
 	if (!(quest = find_quest(ch, arg1)))
 		return;
 
-	if (!quest_edit_ok(ch, quest))
+	if (!quest->canEdit(ch))
 		return;
 
 	quest->minlev = MAX(0, atoi(arg2));
@@ -1248,7 +1387,7 @@ do_qcontrol_minlev(CHAR * ch, char *argument, int com)
 void
 do_qcontrol_maxlev(CHAR * ch, char *argument, int com)
 {
-	quest_data *quest = NULL;
+	Quest *quest = NULL;
 
 	argument = two_arguments(argument, arg1, arg2);
 
@@ -1260,7 +1399,7 @@ do_qcontrol_maxlev(CHAR * ch, char *argument, int com)
 	if (!(quest = find_quest(ch, arg1)))
 		return;
 
-	if (!quest_edit_ok(ch, quest))
+	if (!quest->canEdit(ch))
 		return;
 
 	quest->maxlev = MAX(0, atoi(arg2));
@@ -1275,9 +1414,8 @@ void
 do_qcontrol_mute(CHAR * ch, char *argument, int com)
 {
 
-	quest_data *quest = NULL;
-	unsigned int idnum;
-	qplayer_data *qp = NULL;
+	Quest *quest = NULL;
+	long idnum;
 
 	argument = two_arguments(argument, arg1, arg2);
 
@@ -1289,7 +1427,7 @@ do_qcontrol_mute(CHAR * ch, char *argument, int com)
 	if (!(quest = find_quest(ch, arg2)))
 		return;
 
-	if (!quest_edit_ok(ch, quest))
+	if (!quest->canEdit(ch))
 		return;
 
 	if ((idnum = get_id_by_name(arg1)) < 0) {
@@ -1297,27 +1435,27 @@ do_qcontrol_mute(CHAR * ch, char *argument, int com)
 		return;
 	}
 
-	if (quest->ended) {
+	if (quest->getEnded()) {
 		send_to_char(ch, "That quest has already ended, you psychopath!\r\n");
 		return;
 	}
 
-	if (!(qp = idnum_in_quest(idnum, quest))) {
+	if (! quest->isPlaying(idnum)) {
 		send_to_char(ch, "That player is not in the quest.\r\n");
 		return;
 	}
 
-	if (IS_SET(qp->flags, QP_MUTE)) {
+	if (quest->getPlayer(idnum).isFlagged(QP_MUTE)) {
 		send_to_char(ch, "That player is already muted.\r\n");
 		return;
 	}
 
-	SET_BIT(qp->flags, QP_MUTE);
+	quest->getPlayer(idnum).setFlag(QP_MUTE);
 
 	sprintf(buf, "muted %s in quest '%s'.", arg1, quest->name);
 	qlog(ch, buf, QLOG_COMP, 0, TRUE);
 
-	send_to_char(ch, "%s muted for quest %d.\r\n", arg1, quest->vnum);
+	send_to_char(ch, "%s muted for quest %d.\r\n", arg1, quest->getVnum());
 
 }
 
@@ -1326,9 +1464,8 @@ void
 do_qcontrol_unmute(CHAR * ch, char *argument, int com)
 {
 
-	quest_data *quest = NULL;
-	unsigned int idnum;
-	qplayer_data *qp = NULL;
+	Quest *quest = NULL;
+	long idnum;
 
 	argument = two_arguments(argument, arg1, arg2);
 
@@ -1340,7 +1477,7 @@ do_qcontrol_unmute(CHAR * ch, char *argument, int com)
 	if (!(quest = find_quest(ch, arg2)))
 		return;
 
-	if (!quest_edit_ok(ch, quest))
+	if (!quest->canEdit(ch))
 		return;
 
 	if ((idnum = get_id_by_name(arg1)) < 0) {
@@ -1348,39 +1485,38 @@ do_qcontrol_unmute(CHAR * ch, char *argument, int com)
 		return;
 	}
 
-	if (quest->ended) {
+	if (quest->getEnded()) {
 		send_to_char(ch, "That quest has already ended, you psychopath!\r\n");
 		return;
 	}
 
-	if (!(qp = idnum_in_quest(idnum, quest))) {
+	if(! quest->isPlaying(idnum) ) {
 		send_to_char(ch, "That player is not in the quest.\r\n");
 		return;
 	}
 
-	if (!IS_SET(qp->flags, QP_MUTE)) {
+	if (!quest->getPlayer(idnum).isFlagged(QP_MUTE)) {
 		send_to_char(ch, "That player not muted.\r\n");
 		return;
 	}
 
-	REMOVE_BIT(qp->flags, QP_MUTE);
+	quest->getPlayer(idnum).removeFlag(QP_MUTE);
 
 	sprintf(buf, "unmuted %s in quest '%s'.", arg1, quest->name);
 	qlog(ch, buf, QLOG_COMP, 0, TRUE);
 
-	send_to_char(ch, "%s unmuted for quest %d.\r\n", arg1, quest->vnum);
+	send_to_char(ch, "%s unmuted for quest %d.\r\n", arg1, quest->getVnum());
 
 }
 
 void
 do_qcontrol_switch(CHAR * ch, char *argument, int com)
 {
-	struct quest_data *quest = NULL;
-	struct qplayer_data *qp = NULL;
+	struct Quest *quest = NULL;
 
 
 	if ((!(quest = quest_by_vnum(GET_QUEST(ch))) ||
-			!(qp = idnum_in_quest(GET_IDNUM(ch), quest)))
+		!quest->isPlaying(GET_IDNUM(ch))  )
 		&& (GET_LEVEL(ch) < LVL_ELEMENT)) {
 		send_to_char(ch, "You are not currently active on any quest.\r\n");
 		return;
@@ -1398,215 +1534,38 @@ do_qcontrol_switch(CHAR * ch, char *argument, int com)
  * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
  *************************************************************************/
 
-qplayer_data *
-idnum_in_quest(unsigned int idnum, quest_data * quest)
-{
-	int i;
-
-	for (i = 0; i < quest->num_players; i++)
-		if (quest->players[i].idnum == idnum)
-			return (&quest->players[i]);
-
-	return NULL;
-}
-
-int
-add_idnum_to_quest(unsigned int idnum, quest_data * quest)
-{
-
-	//  unsigned int *
-	qplayer_data *newplayers = NULL;
-
-	// we need a bigger array
-	if (quest->max_players <= quest->num_players) {
-		if (!(newplayers = (qplayer_data *) realloc(quest->players,
-					sizeof(qplayer_data) * (quest->num_players + 1)))) {
-			slog("SYSERR: Error allocating new player array.\r\n");
-			return 0;
-		}
-		quest->players = newplayers;
-		quest->max_players++;
-	}
-
-	quest->players[quest->num_players].idnum = idnum;
-	quest->players[quest->num_players].flags = 0;
-
-	quest->num_players++;
-
-	return (quest->num_players);
-}
-
-int
-remove_idnum_from_quest(unsigned int idnum, quest_data * quest)
-{
-	int i;
-
-	for (i = 0; i < quest->num_players; i++)
-		if (quest->players[i].idnum == idnum)
-			break;
-
-	if (i >= quest->num_players) {
-		slog("SYSERR: error finding player idnum in remove_idnum_from_quest.");
-		return 0;
-	}
-
-	for (++i; i < quest->num_players; i++) {
-		quest->players[i - 1].idnum = quest->players[i].idnum;
-		quest->players[i - 1].flags = quest->players[i].flags;
-	}
-
-	quest->num_players--;
-
-	return 1;
-}
-
-qplayer_data *
-idnum_banned_from_quest(unsigned int idnum, quest_data * quest)
-{
-	int i;
-
-	for (i = 0; i < quest->num_bans; i++)
-		if (quest->bans[i].idnum == idnum)
-			return (&quest->bans[i]);
-
-	return NULL;
-}
-
-int
-ban_idnum_from_quest(unsigned int idnum, quest_data * quest)
-{
-
-	qplayer_data *newbans = NULL;
-
-	if (!(newbans = (qplayer_data *) realloc(quest->bans,
-				sizeof(qplayer_data) * (quest->num_bans + 1)))) {
-		slog("SYSERR: Error allocating new bans array.\r\n");
-		return 0;
-	}
-
-	quest->bans = newbans;
-
-	quest->bans[quest->num_bans].idnum = idnum;
-	quest->bans[quest->num_bans].flags = 0;
-
-	quest->num_bans++;
-
-	return (quest->num_bans);
-}
 
 
-int
-unban_idnum_from_quest(unsigned int idnum, quest_data * quest)
-{
-	int i;
-
-	for (i = 0; i < quest->num_bans; i++)
-		if (quest->bans[i].idnum == idnum)
-			break;
-
-	if (i >= quest->num_bans) {
-		slog("SYSERR: error finding player idnum in unban_idnum_from_quest.");
-		return 0;
-	}
-
-	for (++i; i < quest->num_bans; i++) {
-		quest->bans[i - 1].idnum = quest->bans[i].idnum;
-		quest->bans[i - 1].flags = quest->bans[i].flags;
-	}
-
-	quest->num_bans--;
-
-	return 1;
-}
-
-int
-quest_edit_ok(CHAR * ch, quest_data * quest)
-{
-	if (GET_LEVEL(ch) <= quest->owner_level &&
-		GET_IDNUM(ch) != quest->owner_id && GET_IDNUM(ch) != 1) {
-		send_to_char(ch, "You cannot do that to this quest.\r\n");
-		return 0;
-	}
-	return 1;
-}
-
-
-quest_data *
-create_quest(CHAR * ch, int type, char *name)
-{
-	quest_data *quest = NULL;
-
-	CREATE(quest, quest_data, 1);
-
-	top_vnum++;
-	quest->vnum = top_vnum;
-	quest->owner_id = GET_IDNUM(ch);
-	quest->owner_level = GET_LEVEL(ch);
-	quest->flags = QUEST_HIDE;
-	quest->started = time(0);
-	quest->ended = 0;
-	quest->name = str_dup(name);
-	quest->description = NULL;
-	quest->updates = NULL;
-	quest->players = NULL;
-	quest->bans = NULL;
-	quest->num_bans = 0;
-	quest->type = type;
-	quest->num_players = 0;
-	quest->max_players = 0;
-	quest->awarded = 0;
-	quest->penalized = 0;
-	quest->kicked = 0;
-	quest->banned = 0;
-	quest->loaded = 0;
-	quest->purged = 0;
-	quest->minlev = 0;
-	quest->maxlev = 549;
-
-	quest->next = NULL;
-
-	sprintf(buf, "created quest type %s, '%s'", qtypes[type], name);
-	qlog(ch, buf, QLOG_BRIEF, LVL_AMBASSADOR, TRUE);
-
-
-	return quest;
-}
 
 /*************************************************************************
  * function to find a quest                                              *
  * argument is the vnum of the quest as a string                         *
  *************************************************************************/
-quest_data *
+Quest *
 find_quest(CHAR * ch, char *argument)
 {
 	int vnum;
-	quest_data *quest = NULL;
-
+	Quest *quest = NULL;
 	vnum = atoi(argument);
-
 
 	if ((quest = quest_by_vnum(vnum)))
 		return quest;
 
-
 	send_to_char(ch, "There is no quest number %d.\r\n", vnum);
 
 	return NULL;
-
 }
 
 /*************************************************************************
  * low level function to return a quest                                  *
  *************************************************************************/
-quest_data *
+Quest *
 quest_by_vnum(int vnum)
 {
-	quest_data *quest = NULL;
-
-	for (quest = quests; quest; quest = quest->next)
-		if (quest->vnum == vnum)
-			return quest;
-
+	for( unsigned int i = 0; i < quests.size(); i++ ) {
+		if( quests[i].getVnum() == vnum )
+			return &quests[i];
+	}
 	return NULL;
 }
 
@@ -1616,81 +1575,82 @@ quest_by_vnum(int vnum)
  * list is copied to outbuf                                              *
  *************************************************************************/
 
-void
-list_active_quests(CHAR * ch, char *outbuf)
+char *
+list_active_quests(CHAR * ch, char* outbuf)
 {
-	char buf[MAX_STRING_LENGTH];
-	quest_data *quest = NULL;
-	int i;
 	int timediff;
-	char timestr_a[16];
-
-	strcpy(buf,
-		"Active quests:\r\n"
+	int questCount = 0;
+	char timestr_a[32];
+	char *msg = tmp_sprintf( "Active quests:\r\n"
 		"-Vnum--Owner-------Type------Name----------------------Age------Players\r\n");
-	for (i = 0, quest = quests; quest; quest = quest->next) {
-		if (quest->ended)
+	for (unsigned int i = 0; i < quests.size(); i++) {
+		Quest *quest = &(quests[i]);
+		if (quest->getEnded())
 			continue;
-
 		if (QUEST_FLAGGED(quest, QUEST_HIDE)
 			&& !PRF_FLAGGED(ch, PRF_HOLYLIGHT))
 			continue;
+		questCount++;
 
-		timediff = time(0) - quest->started;
-		sprintf(timestr_a, "%02d:%02d", timediff / 3600, (timediff / 60) % 60);
+		timediff = time(0) - quest->getStarted();
+		snprintf(timestr_a, 16, "%02d:%02d", timediff / 3600, (timediff / 60) % 60);
 
-		sprintf(buf, "%s  %3d  %-10s  %-8s  %-24s %6s    %d\r\n", buf,
-			quest->vnum,
-			get_name_by_id(quest->owner_id), qtype_abbrevs[(int)quest->type],
-			quest->name, timestr_a, quest->num_players);
-		i++;
+		char *line = tmp_sprintf( " %3d  %-10s  %-8s  %-24s %6s    %d\r\n",
+									quest->getVnum(), get_name_by_id(quest->getOwner()), 
+									qtype_abbrevs[(int)quest->type], quest->name, 
+									timestr_a, quest->getNumPlayers());
+
+		msg = tmp_strcat(msg,line,NULL);
 	}
-	sprintf(buf, "%s%d visible quest%s active.\r\n\r\n", buf,
-		i, i == 1 ? "" : "s");
+	char *s = tmp_sprintf("%d visible quest%s active.\r\n\r\n", 
+						  questCount, questCount == 1 ? "" : "s");
+	msg = tmp_strcat(msg,s,NULL);
 
 	if (outbuf)
-		strcpy(outbuf, buf);
+		return tmp_strcat(outbuf,msg);
 	else
-		page_string(ch->desc, buf);
+		page_string(ch->desc, msg);
+	return "ERROR";
 }
 
-void
+char *
 list_inactive_quests(CHAR * ch, char *outbuf)
 {
-	char buf[MAX_STRING_LENGTH];
-	quest_data *quest = NULL;
-	int i;
 	int timediff;
-	char timestr_a[16];
+	char timestr_a[128];
+	int questCount = 0;
 
-	strcpy(buf,
-		"Finished quests:\r\n"
-		"-Vnum--Owner-------Type------Name----------------------Run------Max Plrs\r\n");
+	char *msg = tmp_sprintf( "Finished Quests:\r\n"
+		"-Vnum--Owner-------Type------Name----------------------Age------Players\r\n");
 
-	for (i = 0, quest = quests; quest; quest = quest->next) {
-		if (!quest->ended)
+	for (unsigned int i = 0; i < quests.size(); i++) {
+		Quest *quest = &(quests[i]);
+		if (!quest->getEnded())
 			continue;
+		questCount++;
+		timediff = quest->getEnded() - quest->getStarted();
+		snprintf(timestr_a, 127, "%02d:%02d", timediff / 3600, (timediff / 60) % 60);
 
-		timediff = quest->ended - quest->started;
-		sprintf(timestr_a, "%02d:%02d", timediff / 3600, (timediff / 60) % 60);
+		char *line = tmp_sprintf( " %3d  %-10s  %-8s  %-24s %6s    %d\r\n",
+									quest->getVnum(), get_name_by_id(quest->getOwner()), 
+									qtype_abbrevs[(int)quest->type], quest->name, 
+									timestr_a, quest->getNumPlayers());
 
-		sprintf(buf, "%s  %3d  %-10s  %-8s  %-24s %6s    %d\r\n", buf,
-			quest->vnum,
-			get_name_by_id(quest->owner_id), qtype_abbrevs[(int)quest->type],
-			quest->name, timestr_a, quest->max_players);
-		i++;
+		msg = tmp_strcat(msg,line,NULL);
 	}
-	sprintf(buf, "%s%d quests finished.\r\n", buf, i);
+	char *s = tmp_sprintf("%d visible quest%s finished.\r\n\r\n", 
+						  questCount, questCount == 1 ? "" : "s");
+	msg = tmp_strcat(msg,s,NULL);
 
 	if (outbuf)
-		strcpy(outbuf, buf);
+		return tmp_strcat(outbuf,msg);
 	else
-		page_string(ch->desc, buf);
-
+		page_string(ch->desc, msg);
+	return "ERROR";
 }
 
 void
-list_quest_players(CHAR * ch, quest_data * quest, char *outbuf)
+list_quest_players(CHAR * ch, Quest * quest, char *outbuf)
 {
 	char buf[MAX_STRING_LENGTH], buf2[MAX_STRING_LENGTH], name[128];
 	int i, num_online, num_offline;
@@ -1700,9 +1660,11 @@ list_quest_players(CHAR * ch, quest_data * quest, char *outbuf)
 	strcpy(buf, "  -Online Players------------------------------------\r\n");
 	strcpy(buf2, "  -Offline Players-----------------------------------\r\n");
 
-	for (i = num_online = num_offline = 0; i < quest->num_players; i++) {
+	for (i = num_online = num_offline = 0; i < quest->getNumPlayers(); i++) {
 
-		sprintf(name, "%s", get_name_by_id(quest->players[i].idnum));
+
+		sprintf(name, "%s", get_name_by_id(quest->getPlayer(i).idnum));
+
 		if (!*name) {
 			strcat(buf, "BOGUS player idnum!\r\n");
 			strcat(buf2, "BOGUS player idnum!\r\n");
@@ -1711,13 +1673,14 @@ list_quest_players(CHAR * ch, quest_data * quest, char *outbuf)
 		}
 		strcpy(name, CAP(name));
 
-		if (quest->players[i].flags)
-			sprintbit(quest->players[i].flags, qp_bits, bitbuf);
-		else
+		if (quest->getPlayer(i).getFlags()) {
+			sprintbit(quest->getPlayer(i).getFlags(), qp_bits, bitbuf);
+		} else {
 			strcpy(bitbuf, "");
+		}
 
 		// player is in world and visible
-		if ((vict = get_char_in_world_by_idnum(quest->players[i].idnum)) &&
+		if ((vict = get_char_in_world_by_idnum(quest->getPlayer(i).idnum)) &&
 			CAN_SEE(ch, vict)) {
 
 			// see if we can see the locations of the players
@@ -1726,15 +1689,17 @@ list_quest_players(CHAR * ch, quest_data * quest, char *outbuf)
 				sprintf(buf, "%s  %2d. %-15s - %-10s - [%5d] %s %s\r\n", buf,
 					++num_online, name, bitbuf, vict->in_room->number,
 					vict->in_room->name, vict->desc ? "" : "   (linkless)");
-			} else
+			} else {
 				sprintf(buf, "%s  %2d. %-15s - %-10s\r\n", buf, ++num_online,
 					name, bitbuf);
+			}
 
 		}
 		// player is either offline or invisible
-		else if (PRF_FLAGGED(ch, PRF_HOLYLIGHT))
+		else if (PRF_FLAGGED(ch, PRF_HOLYLIGHT)) {
 			sprintf(buf2, "%s  %2d. %-15s - %-10s\r\n", buf2, ++num_offline,
 				name, bitbuf);
+		}
 	}
 
 	// only gods may see the offline players
@@ -1749,16 +1714,16 @@ list_quest_players(CHAR * ch, quest_data * quest, char *outbuf)
 }
 
 void
-list_quest_bans(CHAR * ch, quest_data * quest, char *outbuf)
+list_quest_bans(CHAR * ch, Quest * quest, char *outbuf)
 {
 	char buf[MAX_STRING_LENGTH], name[128];
 	int i, num;
 
 	strcpy(buf, "  -Banned Players------------------------------------\r\n");
 
-	for (i = num = 0; i < quest->num_bans; i++) {
+	for (i = num = 0; i < quest->getNumBans(); i++) {
 
-		sprintf(name, "%s", get_name_by_id(quest->bans[i].idnum));
+		sprintf(name, "%s", get_name_by_id(quest->getBan(i).idnum));
 		if (!*name) {
 			strcat(buf, "BOGUS player idnum!\r\n");
 			slog("SYSERR: bogus player idnum in list_quest_bans.");
@@ -1830,7 +1795,7 @@ boot_quests(void)
 		slog("SYSERR: unable to open qlogfile.");
 		safe_exit(1);
 	}
-
+	quests.loadQuests();
 	qlog(NULL, "Quests REBOOTED.", QLOG_OFF, 0, TRUE);
 	return 1;
 }
@@ -1912,13 +1877,14 @@ ACMD(do_quest)
 	argument = one_argument(argument, arg1);
 
 	if (!*arg1) {
-		strcpy(buf, "Quest options:\r\n");
+		send_to_char(ch, "Quest options:\r\n");
 
 		while (1) {
 			if (*quest_commands[i][0] == '\n')
 				break;
-			send_to_char(ch, "%s  %-10s -- %s\r\n", buf,
-				quest_commands[i][0], quest_commands[i][1]);
+			send_to_char(ch, "  %-10s -- %s\r\n",
+							 quest_commands[i][0], 
+							 quest_commands[i][1]);
 			i++;
 		}
 
@@ -1927,10 +1893,9 @@ ACMD(do_quest)
 
 	for (i = 0;; i++) {
 		if (*quest_commands[i][0] == '\n') {
-			sprintf(buf,
+			send_to_char(ch,
 				"No such quest option, '%s'.  Type 'quest' for usage.\r\n",
 				arg1);
-			send_to_char(ch, "%s", buf);
 			return;
 		}
 		if (is_abbrev(arg1, quest_commands[i][0]))
@@ -1976,7 +1941,7 @@ do_quest_list(CHAR * ch)
 void
 do_quest_join(CHAR * ch, char *argument)
 {
-	quest_data *quest = NULL;
+	Quest *quest = NULL;
 
 	skip_spaces(&argument);
 
@@ -1988,27 +1953,27 @@ do_quest_join(CHAR * ch, char *argument)
 	if (!(quest = find_quest(ch, argument)))
 		return;
 
-	if (quest->ended ||
+	if (quest->getEnded() ||
 		(QUEST_FLAGGED(quest, QUEST_HIDE)
 			&& !PRF_FLAGGED(ch, PRF_HOLYLIGHT))) {
 		send_to_char(ch, "No such quest is running.\r\n");
 		return;
 	}
 
-	if (idnum_in_quest(GET_IDNUM(ch), quest)) {
+	if (quest->isPlaying(GET_IDNUM(ch))) {
 		send_to_char(ch, "You are already in that quest, fool.\r\n");
 		return;
 	}
 
-	if (!quest_join_ok(ch, quest))
+	if (!quest->canJoin(ch))
 		return;
 
-	if (!add_idnum_to_quest(GET_IDNUM(ch), quest)) {
+	if (! quest->addPlayer(GET_IDNUM(ch))) {
 		send_to_char(ch, "Error adding char to quest.\r\n");
 		return;
 	}
 
-	GET_QUEST(ch) = quest->vnum;
+	GET_QUEST(ch) = quest->getVnum();
 
 	sprintf(buf, "joined quest '%s'.", quest->name);
 	qlog(ch, buf, QLOG_COMP, 0, TRUE);
@@ -2026,7 +1991,7 @@ do_quest_join(CHAR * ch, char *argument)
 void
 do_quest_leave(CHAR * ch, char *argument)
 {
-	quest_data *quest = NULL;
+	Quest *quest = NULL;
 
 	skip_spaces(&argument);
 
@@ -2040,22 +2005,22 @@ do_quest_leave(CHAR * ch, char *argument)
 	else if (!(quest = find_quest(ch, argument)))
 		return;
 
-	if (quest->ended ||
+	if (quest->getEnded() ||
 		(QUEST_FLAGGED(quest, QUEST_HIDE)
 			&& !PRF_FLAGGED(ch, PRF_HOLYLIGHT))) {
 		send_to_char(ch, "No such quest is running.\r\n");
 		return;
 	}
 
-	if (!idnum_in_quest(GET_IDNUM(ch), quest)) {
+	if (!quest->isPlaying(GET_IDNUM(ch))) {
 		send_to_char(ch, "You are not in that quest, fool.\r\n");
 		return;
 	}
 
-	if (!quest_leave_ok(ch, quest))
+	if (!quest->canLeave(ch))
 		return;
 
-	if (!remove_idnum_from_quest(GET_IDNUM(ch), quest)) {
+	if (!quest->removePlayer(GET_IDNUM(ch))) {
 		send_to_char(ch, "Error removing char from quest.\r\n");
 		return;
 	}
@@ -2077,7 +2042,7 @@ do_quest_leave(CHAR * ch, char *argument)
 void
 do_quest_info(CHAR * ch, char *argument)
 {
-	quest_data *quest = NULL;
+	Quest *quest = NULL;
 	int timediff;
 	char timestr_a[128];
 	char *timestr_s;
@@ -2092,17 +2057,18 @@ do_quest_info(CHAR * ch, char *argument)
 	} else if (!(quest = find_quest(ch, argument)))
 		return;
 
-	if (quest->ended ||
+	if (quest->getEnded() ||
 		(QUEST_FLAGGED(quest, QUEST_HIDE)
 			&& !PRF_FLAGGED(ch, PRF_HOLYLIGHT))) {
 		send_to_char(ch, "No such quest is running.\r\n");
 		return;
 	}
 
-	timediff = time(0) - quest->started;
+	timediff = time(0) - quest->getStarted();
 	sprintf(timestr_a, "%02d:%02d", timediff / 3600, (timediff / 60) % 60);
 
-	timestr_s = asctime(localtime(&quest->started));
+	time_t started = quest->getStarted();
+	timestr_s = asctime(localtime(&started));
 	*(timestr_s + strlen(timestr_s) - 1) = '\0';
 
 	sprintf(buf,
@@ -2118,14 +2084,14 @@ do_quest_info(CHAR * ch, char *argument)
 		"  Max Level:   Gen %-2d, Level %2d\r\n"
 		"  Num Players:     %d\r\n"
 		"  Max Players:     %d\r\n",
-		quest->vnum,
-		get_name_by_id(quest->owner_id), quest->name,
+		quest->getVnum(),
+		get_name_by_id(quest->getOwner()), quest->name,
 		quest->description ? quest->description : "None.\r\n",
 		quest->updates ? quest->updates : "None.\r\n",
 		qtypes[(int)quest->type], timestr_s, timestr_a,
 		quest->minlev / 50, quest->minlev % 50,
 		quest->maxlev / 50, quest->maxlev % 50,
-		quest->num_players, quest->max_players);
+		quest->getNumPlayers(), quest->getMaxPlayers());
 	page_string(ch->desc, buf);
 
 }
@@ -2133,48 +2099,39 @@ do_quest_info(CHAR * ch, char *argument)
 void
 do_quest_status(CHAR * ch, char *argument)
 {
-	quest_data *quest = NULL;
-	int i;
 	char timestr_a[128];
 	int timediff;
-	int found = 0;
+	bool found = false;
 
-	strcpy(buf,
-		"You are participating in the following quests:\r\n"
+	char *msg = tmp_sprintf( "You are participating in the following quests:\r\n"
 		"-Vnum--Owner-------Type------Name----------------------Age------Players\r\n");
 
-	for (quest = quests; quest; quest = quest->next) {
-
-		if (quest->ended)
+	for( unsigned int i = 0; i < quests.size(); i++ ) {
+		Quest *quest = &(quests[i]);
+		if (quest->getEnded())
 			continue;
+		if( quest->isPlaying( GET_IDNUM(ch) ) ) {
+			timediff = time(0) - quest->getStarted();
+			snprintf(timestr_a,128, "%02d:%02d", timediff / 3600, (timediff / 60) % 60);
 
-		for (i = 0; i < quest->num_players; i++) {
-			if (quest->players[i].idnum == (unsigned int)GET_IDNUM(ch)) {
-
-				timediff = time(0) - quest->started;
-				sprintf(timestr_a, "%02d:%02d", timediff / 3600,
-					(timediff / 60) % 60);
-
-				sprintf(buf, "%s %s%3d  %-10s  %-8s  %-24s %6s    %d\r\n", buf,
-					quest->vnum == GET_QUEST(ch) ? "*" : " ",
-					quest->vnum,
-					get_name_by_id(quest->owner_id),
-					qtype_abbrevs[(int)quest->type],
-					quest->name, timestr_a, quest->num_players);
-				found = 1;
-				break;
-			}
+			char *line = tmp_sprintf(" %s%3d  %-10s  %-8s  %-24s %6s    %d\r\n", 
+									quest->getVnum()== GET_QUEST(ch) ? "*" : " ",
+									quest->getVnum(), get_name_by_id(quest->getOwner()),
+									qtype_abbrevs[(int)quest->type],
+									quest->name, timestr_a, quest->getNumPlayers());
+			msg = tmp_strcat(msg,line,NULL);
+			found = true;
 		}
 	}
 	if (!found)
-		strcat(buf, "None.\r\n");
-	page_string(ch->desc, buf);
+		msg = tmp_strcat(msg,"None.\r\n",NULL);
+	page_string(ch->desc, msg);
 }
 
 void
 do_quest_who(CHAR * ch, char *argument)
 {
-	quest_data *quest = NULL;
+	Quest *quest = NULL;
 	skip_spaces(&argument);
 
 	if (!*argument) {
@@ -2185,7 +2142,7 @@ do_quest_who(CHAR * ch, char *argument)
 	} else if (!(quest = find_quest(ch, argument)))
 		return;
 
-	if (quest->ended ||
+	if (quest->getEnded()||
 		(QUEST_FLAGGED(quest, QUEST_HIDE)
 			&& !PRF_FLAGGED(ch, PRF_HOLYLIGHT))) {
 		send_to_char(ch, "No such quest is running.\r\n");
@@ -2198,7 +2155,7 @@ do_quest_who(CHAR * ch, char *argument)
 	}
 
 	if (QUEST_FLAGGED(quest, QUEST_NO_OUTWHO) &&
-		!idnum_in_quest(GET_IDNUM(ch), quest)) {
+	!quest->isPlaying(GET_IDNUM(ch))) {
 		send_to_char(ch, 
 			"Sorry, you cannot get a who listing from outside this quest.\r\n");
 		return;
@@ -2211,7 +2168,7 @@ do_quest_who(CHAR * ch, char *argument)
 void
 do_quest_current(CHAR * ch, char *argument)
 {
-	quest_data *quest = NULL;
+	Quest *quest = NULL;
 
 	skip_spaces(&argument);
 
@@ -2220,7 +2177,7 @@ do_quest_current(CHAR * ch, char *argument)
 			send_to_char(ch, "You are not current on any quests.\r\n");
 			return;
 		}
-		send_to_char(ch, "You are current on quest %d, '%s'\r\n", quest->vnum,
+		send_to_char(ch, "You are current on quest %d, '%s'\r\n", quest->getVnum(),
 			quest->name);
 		return;
 	}
@@ -2228,19 +2185,19 @@ do_quest_current(CHAR * ch, char *argument)
 	if (!(quest = find_quest(ch, argument)))
 		return;
 
-	if (quest->ended ||
+	if (quest->getEnded() ||
 		(QUEST_FLAGGED(quest, QUEST_HIDE)
 			&& !PRF_FLAGGED(ch, PRF_HOLYLIGHT))) {
 		send_to_char(ch, "No such quest is running.\r\n");
 		return;
 	}
 
-	if (!idnum_in_quest(GET_IDNUM(ch), quest)) {
+	if ( !quest->isPlaying(GET_IDNUM(ch))) {
 		send_to_char(ch, "You are not even in that quest.\r\n");
 		return;
 	}
 
-	GET_QUEST(ch) = quest->vnum;
+	GET_QUEST(ch) = quest->getVnum();
 
 	send_to_char(ch, "Ok, you are now currently active in '%s'.\r\n", quest->name);
 }
@@ -2248,8 +2205,7 @@ do_quest_current(CHAR * ch, char *argument)
 void
 do_quest_ignore(CHAR * ch, char *argument)
 {
-	quest_data *quest = NULL;
-	qplayer_data *qp = NULL;
+	Quest *quest = NULL;
 
 	skip_spaces(&argument);
 
@@ -2263,136 +2219,47 @@ do_quest_ignore(CHAR * ch, char *argument)
 	else if (!(quest = find_quest(ch, argument)))
 		return;
 
-	if (quest->ended ||
+	if (quest->getEnded() ||
 		(QUEST_FLAGGED(quest, QUEST_HIDE)
 			&& !PRF_FLAGGED(ch, PRF_HOLYLIGHT))) {
 		send_to_char(ch, "No such quest is running.\r\n");
 		return;
 	}
 
-	if (!(qp = idnum_in_quest(GET_IDNUM(ch), quest))) {
+	if(! quest->isPlaying(GET_IDNUM(ch) ) ) {
 		send_to_char(ch, "You are not even in that quest.\r\n");
 		return;
 	}
-
-	TOGGLE_BIT(qp->flags, QP_IGNORE);
+	
+	
+	quest->getPlayer(GET_IDNUM(ch)).toggleFlag(QP_IGNORE);
 
 	send_to_char(ch, "Ok, you are %s ignoring '%s'.\r\n",
-		IS_SET(qp->flags, QP_IGNORE) ? "now" : "no longer", quest->name);
+		quest->getPlayer(GET_IDNUM(ch)).isFlagged(QP_IGNORE) ? "now" : "no longer", 
+		quest->name);
 }
 
-int
-quest_join_ok(CHAR * ch, quest_data * quest)
-{
-	if (QUEST_FLAGGED(quest, QUEST_NOJOIN)) {
-		send_to_char(ch, "This quest is open by invitation only.\r\n"
-			"Contact the wizard in charge of the quest for an invitation.\r\n");
-		return 0;
-	}
 
-	if (!quest_level_ok(ch, quest))
-		return 0;
 
-	if (idnum_banned_from_quest(GET_IDNUM(ch), quest)) {
-		send_to_char(ch, "Sorry, you have been banned from this quest.\r\n");
-		return 0;
-	}
-
-	return 1;
-}
-
-int
-quest_leave_ok(CHAR * ch, quest_data * quest)
-{
-	if (QUEST_FLAGGED(quest, QUEST_NOLEAVE)) {
-		send_to_char(ch, "Sorry, you cannot leave the quest right now.\r\n");
-		return 0;
-	}
-	return 1;
-}
-
-int
-quest_level_ok(CHAR * ch, quest_data * quest)
-{
-	if (GET_LEVEL(ch) >= LVL_AMBASSADOR)
-		return 1;
-	if (GET_REMORT_GEN(ch) * 50 + GET_LEVEL(ch) > quest->maxlev) {
-		send_to_char(ch, "Your level is too high for this quest.\r\n");
-		return 0;
-	}
-	if (GET_REMORT_GEN(ch) * 50 + GET_LEVEL(ch) < quest->minlev) {
-		send_to_char(ch, "Your level is too low for this quest.\r\n");
-		return 0;
-	}
-	return 1;
-}
-
-void
-send_to_quest(CHAR * ch, char *str, quest_data * quest, int level, int mode)
-{
-	struct char_data *vict = NULL;
-	int i;
-	char buf[MAX_STRING_LENGTH];
-
-	for (i = 0; i < quest->num_players; i++) {
-		if (QP_FLAGGED((quest->players + i), QP_IGNORE)
-			&& (level < LVL_AMBASSADOR))
-			continue;
-
-		if ((vict = get_char_in_world_by_idnum(quest->players[i].idnum))) {
-			if (!PLR_FLAGGED(vict, PLR_MAILING | PLR_WRITING | PLR_OLC) &&
-				vict->desc &&
-				(!vict->desc->showstr_point ||
-					PRF2_FLAGGED(vict, PRF2_LIGHT_READ))
-				&& GET_LEVEL(vict) >= level) {
-				compose_qcomm_string(ch, vict, quest, mode, str, buf);
-				send_to_char(vict, "%s", buf);
-			}
-		}
-	}
-}
-
-void
-compose_qcomm_string(CHAR * ch, CHAR * vict, quest_data * quest,
-	int mode, char *str, char *outbuf)
-{
-
-	if (mode == QCOMM_SAY && ch) {
-		if (ch == vict) {
-			sprintf(outbuf, "%s %2d] You quest-say,%s '%s'\r\n",
-				CCYEL_BLD(vict, C_NRM), quest->vnum, CCNRM(vict, C_NRM), str);
-		} else {
-			sprintf(outbuf, "%s %2d] %s quest-says,%s '%s'\r\n",
-				CCYEL_BLD(vict, C_NRM), quest->vnum,
-				PERS(ch, vict), CCNRM(vict, C_NRM), str);
-		}
-	}
-	// quest echo
-	else {
-		sprintf(outbuf, "%s %2d] %s%s\r\n",
-			CCYEL_BLD(vict, C_NRM), quest->vnum, str, CCNRM(vict, C_NRM));
-	}
-}
 
 ACMD(do_qsay)
 {
-	quest_data *quest = NULL;
-	qplayer_data *qp = NULL;
+	Quest *quest = NULL;
 
 	skip_spaces(&argument);
 
 	if (!(quest = quest_by_vnum(GET_QUEST(ch))) ||
-		!(qp = idnum_in_quest(GET_IDNUM(ch), quest))) {
+			!quest->isPlaying(GET_IDNUM(ch)) ) {
 		send_to_char(ch, "You are not currently active on any quest.\r\n");
 		return;
 	}
 
-	if (QP_FLAGGED(qp, QP_MUTE)) {
+	if( quest->getPlayer(GET_IDNUM(ch)).isFlagged(QP_MUTE) ) {
 		send_to_char(ch, "You have been quest-muted.\r\n");
 		return;
 	}
 
-	if (QP_FLAGGED(qp, QP_IGNORE)) {
+	if( quest->getPlayer(GET_IDNUM(ch)).isFlagged(QP_IGNORE) ) {
 		send_to_char(ch, "You can't quest-say while ignoring the quest.\r\n");
 		return;
 	}
@@ -2407,23 +2274,22 @@ ACMD(do_qsay)
 
 ACMD(do_qecho)
 {
-	quest_data *quest = NULL;
-	qplayer_data *qp = NULL;
+	Quest *quest = NULL;
 
 	skip_spaces(&argument);
 
 	if (!(quest = quest_by_vnum(GET_QUEST(ch))) ||
-		!(qp = idnum_in_quest(GET_IDNUM(ch), quest))) {
+		!quest->isPlaying(GET_IDNUM(ch)) ){
 		send_to_char(ch, "You are not currently active on any quest.\r\n");
 		return;
 	}
 
-	if (QP_FLAGGED(qp, QP_MUTE)) {
+	if( quest->getPlayer(GET_IDNUM(ch)).isFlagged(QP_MUTE)) {
 		send_to_char(ch, "You have been quest-muted.\r\n");
 		return;
 	}
 
-	if (QP_FLAGGED(qp, QP_IGNORE)) {
+	if( quest->getPlayer(GET_IDNUM(ch)).isFlagged(QP_IGNORE)) {
 		send_to_char(ch, "You can't quest-echo while ignoring the quest.\r\n");
 		return;
 	}
@@ -2488,28 +2354,21 @@ qp_reload(int sig = 0)
 			slog(buf);
 
 			GET_QUEST_POINTS(immortal) = GET_QUEST_ALLOWANCE(immortal);
-			send_to_char(immortal, "You quest points have been restored!\r\n");
+			send_to_char(immortal, "Your quest points have been restored!\r\n");
 			save_char(immortal, NULL);
 			online++;
-			//
-			//  sprintf( buf, "Online Mode: %s's QP reset to %d", GET_NAME( immortal ), GET_QUEST_POINTS( immortal ) );
-			//  mudlog( buf, CMP, LVL_GOD, TRUE);
-			//
-
 		}
 	}
 	sprintf(buf, "QP's have been reloaded.  %d offline and %d online reset.",
 		offline, online);
 	mudlog(buf, NRM, LVL_GRGOD, TRUE);
-
-
 }
 
 
 void
 do_qcontrol_award(CHAR * ch, char *argument, int com)
 {
-	quest_data *quest = NULL;
+	Quest *quest = NULL;
 	CHAR *vict = NULL;
 	char arg3[MAX_INPUT_LENGTH];	// Awarded points
 	int award;
@@ -2529,7 +2388,7 @@ do_qcontrol_award(CHAR * ch, char *argument, int com)
 		return;
 	}
 
-	if (!quest_edit_ok(ch, quest)) {
+	if (!quest->canEdit(ch)) {
 		return;
 	}
 
@@ -2538,13 +2397,13 @@ do_qcontrol_award(CHAR * ch, char *argument, int com)
 		return;
 	}
 
-	if (quest->ended) {
+	if (quest->getEnded() ) {
 		send_to_char(ch, "That quest has already ended, you psychopath!\r\n");
 		return;
 	}
 
 	if ((vict = get_char_in_world_by_idnum(idnum))) {
-		if (!idnum_in_quest(idnum, quest)) {
+		if(! quest->isPlaying(idnum) ) {
 			send_to_char(ch, "No such player in the quest.\r\n");
 			return;
 		}
@@ -2589,7 +2448,7 @@ do_qcontrol_award(CHAR * ch, char *argument, int com)
 void
 do_qcontrol_penalize(CHAR * ch, char *argument, int com)
 {
-	quest_data *quest = NULL;
+	Quest *quest = NULL;
 	CHAR *vict = NULL;
 	char arg3[MAX_INPUT_LENGTH];	// Penalized points
 	int penalty;
@@ -2609,7 +2468,7 @@ do_qcontrol_penalize(CHAR * ch, char *argument, int com)
 		return;
 	}
 
-	if (!quest_edit_ok(ch, quest)) {
+	if (!quest->canEdit(ch)) {
 		return;
 	}
 
@@ -2618,13 +2477,13 @@ do_qcontrol_penalize(CHAR * ch, char *argument, int com)
 		return;
 	}
 
-	if (quest->ended) {
+	if (quest->getEnded() ) {
 		send_to_char(ch, "That quest has already ended, you psychopath!\r\n");
 		return;
 	}
 
 	if ((vict = get_char_in_world_by_idnum(idnum))) {
-		if (!idnum_in_quest(idnum, quest)) {
+		if(! quest->isPlaying(idnum) ) {
 			send_to_char(ch, "No such player in the quest.\r\n");
 			return;
 		}
@@ -2664,4 +2523,383 @@ do_qcontrol_penalize(CHAR * ch, char *argument, int com)
 				TRUE);
 		}
 	}
+}
+void 
+do_qcontrol_save(CHAR * ch, char *argument, int com)
+{
+	quests.save();
+	send_to_char(ch,"Quests saved.\r\n");
+}
+
+void
+save_quests() {
+	quests.save();
+}
+
+char *
+compose_qcomm_string(CHAR * ch, CHAR * vict, Quest * quest, int mode, char *str)
+{
+	if (mode == QCOMM_SAY && ch) {
+		if (ch == vict) {
+			return tmp_sprintf("%s %2d] You quest-say,%s '%s'\r\n",
+								CCYEL_BLD(vict, C_NRM), quest->getVnum(), 
+								CCNRM(vict, C_NRM), str);
+		} else {
+			return tmp_sprintf("%s %2d] %s quest-says,%s '%s'\r\n",
+								CCYEL_BLD(vict, C_NRM), quest->getVnum(),
+								PERS(ch, vict), CCNRM(vict, C_NRM), str);
+		}
+	} else {// quest echo
+		return tmp_sprintf("%s %2d] %s%s\r\n", 
+							CCYEL_BLD(vict, C_NRM), quest->getVnum(), 
+							str, CCNRM(vict, C_NRM));
+	}
+}
+void
+send_to_quest(CHAR * ch, char *str, Quest * quest, int level, int mode)
+{
+	struct char_data *vict = NULL;
+	int i;
+
+	for (i = 0; i < quest->getNumPlayers(); i++) {
+		if (quest->getPlayer(i).isFlagged(QP_IGNORE) && (level < LVL_AMBASSADOR))
+			continue;
+
+		if ((vict = get_char_in_world_by_idnum(quest->getPlayer(i).idnum))) {
+			if (!PLR_FLAGGED(vict, PLR_MAILING | PLR_WRITING | PLR_OLC) &&
+			vict->desc &&
+			(!vict->desc->showstr_point || PRF2_FLAGGED(vict, PRF2_LIGHT_READ))
+			&& GET_LEVEL(vict) >= level) 
+			{
+				send_to_char(vict, compose_qcomm_string(ch, vict, quest, mode, str) );
+			}
+		}
+	}
+}
+
+Quest::Quest( char_data *ch, int type, const char* name ) 
+	: players(), bans()
+{
+	this->vnum = quests.getNextVnum();
+	this->type = type;
+	this->name = str_dup(name);
+	this->owner_id = GET_IDNUM(ch);
+	this->owner_level = GET_LEVEL(ch);
+
+	flags = QUEST_HIDE;
+	started = time(0);
+	ended = 0;
+	description = NULL;
+	updates = NULL;
+	max_players = 0;
+	awarded = 0;
+	penalized = 0;
+	minlev = 0;
+	maxlev = 549;
+}
+
+Quest::~Quest() 
+{
+	clearDescs();
+}
+void Quest::clearDescs() {
+	if( name != NULL ) {
+		free(name);
+		name = NULL;
+	}
+	if( description != NULL ) {
+		free(description);
+		description = NULL;
+	}
+	if( updates != NULL ) {
+		free(updates);
+		updates = NULL;
+	}
+}
+
+Quest::Quest( const Quest &q ) : players(), bans() 
+{
+	name = description = updates = NULL;
+	*this = q;
+}
+
+Quest::Quest( xmlNodePtr n, xmlDocPtr doc )
+{
+	xmlChar *s;
+	vnum = xmlGetIntProp(n, "VNUM");
+	quests.setNextVnum( vnum );
+	owner_id = xmlGetLongProp(n, "OWNER");
+	started = (time_t) xmlGetLongProp(n, "STARTED");
+	ended = (time_t) xmlGetLongProp(n, "ENDED");
+	max_players = xmlGetIntProp(n, "MAX_PLAYERS");
+	minlev = xmlGetIntProp(n, "MAX_LEVEL");
+	minlev = xmlGetIntProp(n, "MIN_LEVEL");
+	awarded = xmlGetIntProp(n, "AWARDED");
+	penalized = xmlGetIntProp(n, "PENALIZED");
+	owner_level = xmlGetIntProp(n, "OWNER_LEVEL");
+	flags = xmlGetIntProp(n, "FLAGS");
+
+	char *typest = xmlGetProp(n, "TYPE");
+	type = search_block(typest, qtype_abbrevs, true);
+	free(typest);
+
+	name = xmlGetProp(n, "NAME");
+	
+
+	xmlNodePtr cur = n->xmlChildrenNode;
+	while (cur != NULL) {
+		if ((xmlMatches(cur->name, "Description"))) {
+			s = xmlNodeListGetString(doc, cur->xmlChildrenNode, 1);
+			if (s != NULL) {
+				description = (char *)s;
+			}
+		} else if ((xmlMatches(cur->name, "Update"))) {
+			s = xmlNodeListGetString(doc, cur->xmlChildrenNode, 1);
+			if (s != NULL) {
+				updates = (char *)s;
+			}
+		} else if ((xmlMatches(cur->name, "Player"))) {
+			long id = xmlGetLongProp(cur, "ID");
+			int flags = xmlGetIntProp(cur, "FLAGS");
+			qplayer_data player(id);
+			player.setFlag(flags);
+			players.push_back(player);
+		} else if ((xmlMatches(cur->name, "Ban"))) {
+			long id = xmlGetLongProp(cur, "ID");
+			int flags = xmlGetIntProp(cur, "FLAGS");
+			qplayer_data player(id);
+			player.setFlag(flags);
+			bans.push_back(player);
+		}
+		cur = cur->next;
+	}
+}
+
+Quest& Quest::operator=( const Quest &q )
+{
+	clearDescs();
+
+	vnum = q.vnum;
+	type = q.type;
+	name = str_dup(q.name);
+	owner_id = q.owner_id;
+	owner_level = q.owner_level;
+	players = q.players;
+	bans = q.bans;
+
+	flags = q.flags;
+	started = q.started;
+	ended = q.ended;
+	if( q.description != NULL )
+		description = str_dup(q.description);
+	if( q.updates != NULL )
+		updates = str_dup(q.description);
+	max_players = q.max_players;
+	awarded = q.awarded;
+	penalized = q.penalized;
+	minlev = q.minlev;
+	maxlev = q.maxlev;
+	return *this;
+}
+
+bool Quest::removePlayer( long id ) { 
+	char_data *vict = NULL;
+	struct char_file_u tmp_store;
+	vector<qplayer_data>::iterator it;
+
+	it = find(players.begin(),players.end(),qplayer_data(id) );
+	if( it == players.end() )
+		return false;
+
+	if (!(vict = get_char_in_world_by_idnum(id))) {
+		// load the char from file
+		CREATE(vict, CHAR, 1);
+		clear_char(vict);
+		if (load_char(arg1, &tmp_store) > -1) {
+			store_to_char(&tmp_store, vict);
+			//HERE
+			if (GET_LEVEL(vict) < LVL_AMBASSADOR && PRF_FLAGGED(vict, PRF_QUEST)) {
+				REMOVE_BIT(PRF_FLAGS(vict), PRF_QUEST);
+				vict->player_specials->saved.quest_id = -1;
+			}
+			save_char(vict,NULL);
+			free_char(vict);
+			vict = NULL;
+		} else {
+			//send_to_char(ch, "Error loading char from file.\r\n");
+			slog("Error loading player id %ld from file for removal from quest %ld.\r\n",
+					id, vnum );
+			return false;
+		}
+	} else {
+		if (GET_LEVEL(vict) < LVL_AMBASSADOR && PRF_FLAGGED(vict, PRF_QUEST)) {
+			REMOVE_BIT(PRF_FLAGS(vict), PRF_QUEST);
+			vict->player_specials->saved.quest_id = -1;
+		}
+	}
+	
+	players.erase(it);
+	return true;
+}
+
+bool Quest::removeBan( long id ) { 
+	vector<qplayer_data>::iterator it;
+
+	it = find(bans.begin(),bans.end(),qplayer_data(id) );
+	if( it == bans.end() )
+		return false;
+
+	bans.erase(it);
+	return true;
+}
+
+
+bool Quest::addBan( long id ) { 
+	if( find(bans.begin(),bans.end(),qplayer_data(id) ) == bans.end() ){
+		bans.push_back(qplayer_data(id)); 
+		return true;
+	} 
+	return false;
+}
+
+bool Quest::isBanned( long id ) { 
+	return find(bans.begin(),bans.end(),qplayer_data(id) ) != bans.end();
+}
+
+bool Quest::isPlaying( long id ) { 
+	return find(players.begin(),players.end(),qplayer_data(id) ) != players.end();
+}
+
+qplayer_data &Quest::getPlayer( long id ) { 
+	vector<qplayer_data>::iterator it;
+	it = find(players.begin(),players.end(),qplayer_data(id) );
+	return *it;
+}
+
+qplayer_data &Quest::getBan( long id ) { 
+	vector<qplayer_data>::iterator it;
+	it = find(bans.begin(),bans.end(),qplayer_data(id) );
+	return *it;
+}
+
+bool Quest::addPlayer( long id ) { 
+	if( find(players.begin(),players.end(),qplayer_data(id) ) == players.end() ){
+		players.push_back(qplayer_data(id)); 
+		return true;
+	} 
+	return false;
+}
+
+
+void qplayer_data::removeFlag( int flag ) {
+	REMOVE_BIT(flags,flag);
+}
+
+void qplayer_data::toggleFlag( int flag ) {
+	TOGGLE_BIT(flags,flag);
+}
+
+void qplayer_data::setFlag( int flag ) {
+	SET_BIT(flags,flag);
+}
+
+bool qplayer_data::isFlagged( int flag ) {
+	return IS_SET(flags, flag);
+}
+
+qplayer_data& qplayer_data::operator=( const qplayer_data &q )
+{
+	idnum = q.idnum; 
+	flags = q.flags; 
+	return *this;
+}
+
+bool Quest::canEdit(CHAR * ch)
+{
+	if (GET_LEVEL(ch) <= owner_level &&
+		GET_IDNUM(ch) != owner_id && GET_IDNUM(ch) != 1) {
+		send_to_char(ch, "You cannot do that to this quest.\r\n");
+		return false;
+	}
+	return true;
+}
+bool
+Quest::canJoin(CHAR * ch)
+{
+	if (QUEST_FLAGGED(this, QUEST_NOJOIN)) {
+		send_to_char(ch, "This quest is open by invitation only.\r\n"
+			"Contact the wizard in charge of the quest for an invitation.\r\n");
+		return false;
+	}
+
+	if (!levelOK(ch))
+		return false;
+
+	if (isBanned(GET_IDNUM(ch))) {
+		send_to_char(ch, "Sorry, you have been banned from this quest.\r\n");
+		return false;
+	}
+
+	return true;
+}
+
+bool
+Quest::canLeave(CHAR * ch)
+{
+	if (QUEST_FLAGGED(this, QUEST_NOLEAVE)) {
+		send_to_char(ch, "Sorry, you cannot leave the quest right now.\r\n");
+		return false;
+	}
+	return true;
+}
+
+bool
+Quest::levelOK(CHAR * ch)
+{
+	if (GET_LEVEL(ch) >= LVL_AMBASSADOR)
+		return true;
+	if (GET_REMORT_GEN(ch) * 50 + GET_LEVEL(ch) > maxlev) {
+		send_to_char(ch, "Your level is too high for this quest.\r\n");
+		return false;
+	}
+	if (GET_REMORT_GEN(ch) * 50 + GET_LEVEL(ch) < minlev) {
+		send_to_char(ch, "Your level is too low for this quest.\r\n");
+		return false;
+	}
+	return true;
+}
+
+void
+Quest::save(std::ostream &out)
+{
+	const char *indent = "    ";
+	
+	out << indent << "<Quest VNUM=\"" << vnum << "\" NAME=\"" << name 
+				  << "\" OWNER=\"" << owner_id << "\" STARTED=\"" << started
+				  << "\" ENDED=\"" << ended << "\"" 
+				  << endl;
+	out << indent << indent 
+				  << "MAX_PLAYERS=\"" << max_players << "\" MAX_LEVEL=\"" << maxlev
+				  << "\" MIN_LEVEL=\"" << minlev << "\" AWARDED=\"" << awarded << "\""
+				  << endl;
+	out << indent << indent 
+				  << "PENALIZED=\"" << penalized << "\" TYPE=\"" << qtype_abbrevs[type] 
+				  << "\" OWNER_LEVEL=\"" << owner_level << "\" FLAGS=\"" << flags 
+				  << "\" >" << endl;
+	xmlChar *str= xmlEncodeEntitiesReentrant( NULL, (xmlChar*)description );
+	out << indent << "  <Description>" << str << "</Description>" << endl;
+	free(str);
+	
+	str = xmlEncodeEntitiesReentrant( NULL, (xmlChar*)updates);
+	out << indent << "  <Update>" << str << "</Update>" << endl;
+
+	for( unsigned int i = 0; i < players.size(); i++ ) {
+		out << indent << "  <Player ID=\"" << players[i].idnum 
+					  << "\" FLAGS=\"" << players[i].getFlags() << "\" />" << endl;
+	}
+	for( unsigned int i = 0; i < bans.size(); i++ ) {
+		out << indent << "  <Ban ID=\"" << bans[i].idnum 
+					  << "\" FLAGS=\"" << bans[i].getFlags() << "\" />" << endl;
+	}
+	out << indent << "</Quest>" << endl;
 }
