@@ -1000,6 +1000,7 @@ ASPELL(spell_charm)
 	    stop_follower(ch);
 	add_follower(ch, victim);
 	af.type = SPELL_CHARM;
+    af.is_instant = 0;
 	if (GET_INT(victim))
 	    af.duration = 6 * 18 / GET_INT(victim);
 	else
@@ -1057,6 +1058,7 @@ ASPELL(spell_charm)
 	add_follower(victim, ch);
 
 	af.type = SPELL_CHARM;
+    af.is_instant = 0;
 
 	if (GET_INT(victim))
 	    af.duration = 24 * 18 / GET_INT(victim);
@@ -1112,6 +1114,7 @@ ASPELL(spell_charm_animal)
 	add_follower(victim, ch);
 
 	af.type = SPELL_CHARM;
+    af.is_instant = 0;
 
 	if (GET_INT(victim))
 	    af.duration = 48 * 18 / GET_INT(victim);
@@ -1929,6 +1932,7 @@ ASPELL(spell_conjure_elemental)
 	add_follower(elemental, ch);
 
 	af.type = SPELL_CHARM;
+    af.is_instant = 0;
 
 	if (GET_INT(elemental))
 	    af.duration = GET_LEVEL(ch) * 18 / GET_INT(elemental);
@@ -2061,6 +2065,7 @@ ASPELL(spell_sword)
     add_follower(sword, ch);
 
     af.type = SPELL_CHARM;
+    af.is_instant = 0;
 
     if (GET_INT(sword))
 	af.duration = GET_LEVEL(ch) * 18 / GET_INT(sword);
@@ -2485,6 +2490,7 @@ ASPELL(spell_summon_legion)
     add_follower(devil, ch);
   
     af.type = SPELL_CHARM;
+    af.is_instant = 0;
   
     af.duration = level * 10 / (GET_INT(devil) - GET_REMORT_GEN(ch));
   
@@ -2706,6 +2712,7 @@ ASPELL(spell_animate_dead)
     add_follower(zombie, ch);
     
     af.type = SPELL_CHARM;
+    af.is_instant = 0;
     af.duration = -1;
     af.modifier = 0;
     af.location = 0;
@@ -2850,6 +2857,7 @@ ASPELL(spell_control_undead)
 	    stop_follower(ch);
 	add_follower(ch, victim);
 	af.type = SPELL_CHARM;
+    af.is_instant = 0;
 	if (GET_INT(victim))
 	    af.duration = 6 * 18 / GET_INT(victim);
 	else
@@ -2909,6 +2917,7 @@ ASPELL(spell_control_undead)
 	add_follower(victim, ch);
 	
 	af.type = SPELL_CHARM;
+    af.is_instant = 0;
 	
 	if (GET_INT(victim))
 	    af.duration = 24 * 18 / GET_INT(victim);
@@ -2973,6 +2982,7 @@ ASPELL(spell_sun_ray)
                      !MOB_FLAGGED(vict, MOB_NOBLIND) ) {
 
                     struct affected_type af, af2;
+                    af.is_instant = af2.is_instant = 0;
                     af.type = af2.type = SPELL_BLINDNESS;
                     af.location = APPLY_HITROLL;
                     af.modifier = -4;

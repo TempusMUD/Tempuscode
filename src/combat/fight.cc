@@ -714,7 +714,12 @@ damage( struct char_data * ch, struct char_data * victim, int dam,
                         dam <<= 2;
                 else if ( AFF3_FLAGGED( ch, AFF3_DOUBLE_DAMAGE ) )
                         dam <<= 1;
-                
+                if( IS_AFFECTED_3(ch, AFF3_INST_AFF) ) { // In combat instant affects
+                    // Charging into combat gives a damage bonus
+                    if ( (af = affected_by_spell( ch, SKILL_CHARGE)) ) {
+                        dam += (dam * af->modifier / 10);
+                    }
+                }
                 if ( ( af = affected_by_spell( ch, SPELL_SANCTIFICATION ) ) ) {
                         if ( IS_EVIL( victim ) && !IS_SOULLESS(victim) )
                                 dam += ( dam * GET_REMORT_GEN( ch ) ) / 20;

@@ -39,6 +39,7 @@ void perform_monk_meditate(struct char_data *ch)
 	    (mag_manacost(ch, ZEN_OBLIVITY) + number(20, 40))) {
 	    send_to_char("You begin to perceive the zen of oblivity.\r\n", ch);
 	    af.type = ZEN_OBLIVITY;
+        af.is_instant = 0;
 	    af.bitvector = AFF2_OBLIVITY;
 	    af.aff_index     = 2;
 	    af.duration = af.level / 5;
@@ -501,6 +502,7 @@ ACMD(do_pinch)
 
     af.type = which_pinch;  
     af.location = APPLY_NONE;
+    af.is_instant = 0;
     af.modifier = 0;
     af.duration = 0;
     af.bitvector = 0;  
@@ -742,6 +744,7 @@ ACMD(do_kata)
 	    return;
     
 	af.type = SKILL_KATA;
+    af.is_instant =0;
 	af.bitvector = 0;
 	af.duration = 1 + (GET_LEVEL(ch) / 12);
 	af.level = GET_LEVEL(ch) + GET_REMORT_GEN(ch);

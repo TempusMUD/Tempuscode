@@ -132,6 +132,7 @@ ACMD(do_hamstring)
         apply_soil_to_char(ch, GET_EQ(vict,WEAR_FEET), SOIL_BLOOD, WEAR_FEET);
         if(!affected_by_spell(vict,SKILL_HAMSTRING)) {
             af.type = SKILL_HAMSTRING;
+            af.is_instant = 0;
             af.bitvector = AFF3_HAMSTRUNG;
             af.aff_index = 3;
             af.level = level + gen;

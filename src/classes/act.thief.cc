@@ -382,6 +382,7 @@ ACMD(do_sneak)
         return;
 
     af.type = SKILL_SNEAK;
+    af.is_instant = 0;
     af.duration = GET_LEVEL(ch);
     af.modifier = 0;
     af.location = APPLY_NONE;
@@ -481,6 +482,7 @@ ACMD(do_disguise)
         return;
     }
     af.type = SKILL_DISGUISE;
+    af.is_instant = 0;
     af.duration = GET_LEVEL(ch) + GET_REMORT_GEN(ch) + GET_INT(ch);
     af.modifier = GET_MOB_VNUM(vict);
     af.location = APPLY_DISGUISE;

@@ -492,6 +492,7 @@ void perform_cyborg_activate(CHAR *ch, int mode, int subcmd)
         to_char[1] = NULL;
 
         af[0].type = mode;
+        af[0].is_instant = 0;
         af[0].bitvector = 0;
         af[0].duration = -1;
         af[0].location = APPLY_NONE;
@@ -500,6 +501,7 @@ void perform_cyborg_activate(CHAR *ch, int mode, int subcmd)
         af[0].level = GET_LEVEL(ch);
 
         af[1].type = 0;
+        af[1].is_instant = 0;
         af[1].bitvector = 0;
         af[1].duration = -1;
         af[1].location = APPLY_NONE;
@@ -508,6 +510,7 @@ void perform_cyborg_activate(CHAR *ch, int mode, int subcmd)
         af[1].level = GET_LEVEL(ch);
 
         af[2].type = 0;
+        af[2].is_instant = 0;
         af[2].bitvector = 0;
         af[2].duration = -1;
         af[2].location = APPLY_NONE;

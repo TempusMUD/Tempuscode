@@ -29,7 +29,7 @@
 
 ACMD(do_charge)
 {
-    struct affected_type af, af2;
+    struct affected_type af;
     struct char_data *vict = NULL;
     one_argument(argument, buf);
     // Check for beserk.
@@ -49,18 +49,19 @@ ACMD(do_charge)
         send_to_char("Charge who?\r\n",ch);
         return;
     }
-	af.level = af2.level = GET_LEVEL(ch) + GET_REMORT_GEN(ch);
-	af2.type = af.type = SKILL_CHARGE;
-    af2.is_instant = af.is_instant = 1;
-	af2.duration = af.duration = number(1,2);
-	af2.location = af.location = 0;
-	af2.modifier = af.modifier = 0;
+    // Instant affect flag.  AFF3_INST_AFF is checked for
+    // every 4 seconds or so in burn_update and decremented.
+    af.is_instant = 1;
+
+	af.level = GET_LEVEL(ch);
+	af.type = SKILL_CHARGE;
+	af.duration = number(0,1);
+	af.location = 0;
+	af.modifier = GET_REMORT_GEN(ch);
     af.aff_index = 3;
-	af2.aff_index = 3;
 	af.bitvector = AFF3_INST_AFF;
-    af2.bitvector = AFF3_DOUBLE_DAMAGE;
 	affect_to_char(ch, &af);
-	affect_to_char(ch, &af2);
+    WAIT_STATE(ch,2 * PULSE_VIOLENCE);
     // Whap the bastard
 	hit(ch, vict, TYPE_UNDEFINED);
 }
@@ -147,6 +148,7 @@ ACMD(do_beserk)
 	    return;
 	}
 	af.level = af2.level = af3.level = GET_LEVEL(ch) + GET_REMORT_GEN(ch);
+    af.is_instant = af2.is_instant = af3.is_instant = 0;
 	af.type = SKILL_BESERK;
 	af2.type = SKILL_BESERK;
 	af3.type = SKILL_BESERK;

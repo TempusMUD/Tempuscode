@@ -769,6 +769,7 @@ ACCMD(do_offensive_skill)
     ACMD_set_return_flags( 0 );
 
     one_argument(argument, arg);
+    af.is_instant = 0;
 
     if (!(vict = get_char_room_vis(ch, arg))) {
 	if (FIGHTING(ch)) {
@@ -2645,6 +2646,7 @@ ACMD(do_intimidate)
 	if (affected_by_spell(ch, SKILL_INTIMIDATE))
 	    return;
 	af.type = SKILL_INTIMIDATE;
+    af.is_instant = 0;
 	af.duration = 2 + 2*(GET_LEVEL(ch) > 40);
 	af.modifier = -5;
 	af.location = APPLY_HITROLL;

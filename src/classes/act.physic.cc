@@ -373,6 +373,7 @@ add_rad_sickness(CHAR *ch, int level)
 
     // add a new effect
     newaff.type = TYPE_RAD_SICKNESS;
+    newaff.is_instant = 0;
     newaff.duration = MIN(level, 100);
     newaff.modifier = - (level >> 4);
     newaff.location = APPLY_CON;

@@ -218,6 +218,7 @@ ACMD(do_elude)
     } else {
 	if (CHECK_SKILL(ch, SKILL_ELUSION) > number(0, 101)) {
 	    af.type = SKILL_ELUSION;
+        af.is_instant = 0;
 	    af.duration = -1;
 	    af.location = APPLY_NONE;
 	    af.modifier = 0;

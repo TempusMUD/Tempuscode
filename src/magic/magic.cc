@@ -274,7 +274,7 @@ update_iaffects(char_data *ch) {
         if(!af->is_instant)
             continue;
         af->duration--;
-        if(!af->duration) {
+        if(af->duration <= 0) {
             affect_remove(ch, af);
             af = ch->affected;
         }
@@ -871,6 +871,7 @@ mag_affects(int level, struct char_data * ch, struct char_data * victim,
     char *to_vict = NULL;
     char *to_room = NULL;
 
+    af.is_instant = af2.is_instant = 0;
     if (victim == NULL || ch == NULL)
 	return;
 
