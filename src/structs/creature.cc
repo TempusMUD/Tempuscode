@@ -1011,7 +1011,7 @@ Creature::die(void)
 		player_specials->rent_per_day = 0;
 		player_specials->desc_mode = CXN_AFTERLIFE;
 		player_specials->rent_currency = 0;
-		GET_LOADROOM(this) = 0;
+		GET_LOADROOM(this) = in_room->zone->respawn_pt;
 		player.time.logon = time(0);
 		saveObjects();
 		saveToXML();
@@ -1030,7 +1030,7 @@ Creature::arena_die(void)
 			(GET_LEVEL(this) < LVL_IMMORT) ? calcDailyRent():0;
 		player_specials->desc_mode = CXN_UNKNOWN;
 		player_specials->rent_currency = in_room->zone->time_frame;
-		GET_LOADROOM(this) = in_room->number;
+		GET_LOADROOM(this) = in_room->zone->respawn_pt;
 		player.time.logon = time(0);
 		saveObjects();
 		saveToXML();
