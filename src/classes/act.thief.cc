@@ -69,13 +69,14 @@ ACMD(do_steal)
     }
     if ((GET_LEVEL(vict) + 5) < GET_LEVEL(ch) && !IS_MOB(vict) &&
 	!PLR_FLAGGED(vict, PLR_THIEF) && !PLR_FLAGGED(vict, PLR_KILLER) &&
-	!PLR_FLAGGED(vict, PLR_TOUGHGUY) &&
+	!PLR_FLAGGED(vict, PLR_TOUGHGUY) && 
+	!ZONE_FLAGGED(ch->in_room->zone, ZONE_NOLAW) &&
 	!PLR_FLAGGED(ch, PLR_THIEF) && GET_LEVEL(ch) < LVL_AMBASSADOR) {
-	send_to_char("Okay... You will now be a THIEF!\r\n", ch);
-	SET_BIT(PLR_FLAGS(ch), PLR_THIEF);
-	sprintf(buf, "PC THIEF bit set on %s for robbing %s.", GET_NAME(ch),
-		GET_NAME(vict));
-	mudlog(buf, NRM, MAX(GET_INVIS_LEV(ch), GET_INVIS_LEV(vict)), TRUE);
+		send_to_char("Okay... You will now be a THIEF!\r\n", ch);
+		SET_BIT(PLR_FLAGS(ch), PLR_THIEF);
+		sprintf(buf, "PC THIEF bit set on %s for robbing %s.", GET_NAME(ch),
+			GET_NAME(vict));
+		mudlog(buf, NRM, MAX(GET_INVIS_LEV(ch), GET_INVIS_LEV(vict)), TRUE);
     }
 
 

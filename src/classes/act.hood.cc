@@ -323,6 +323,7 @@ ACMD(do_snatch)
     if ((GET_LEVEL(vict) + 5) < GET_LEVEL(ch) && !IS_MOB(vict) &&
     !PLR_FLAGGED(vict, PLR_THIEF) && !PLR_FLAGGED(vict, PLR_KILLER) &&
     !PLR_FLAGGED(vict, PLR_TOUGHGUY) &&
+	!ZONE_FLAGGED(ch->in_room->zone, ZONE_NOLAW) &&
     !PLR_FLAGGED(ch, PLR_THIEF) && GET_LEVEL(ch) < LVL_AMBASSADOR) {
         send_to_char("Okay... You will now be a THIEF!\r\n", ch);
         SET_BIT(PLR_FLAGS(ch), PLR_THIEF);
