@@ -802,7 +802,7 @@ ACMD(do_gen_comm)
 				PRF2_FLAGGED(i->character, PRF2_NOHOLLER))
 				continue;
 
-			if (GET_LEVEL(i->character) < LVL_AMBASSADOR) {
+			if (IS_NPC(ch) || GET_LEVEL(i->character) < LVL_AMBASSADOR) {
 				if (subcmd == SCMD_SHOUT &&
 					((ch->in_room->zone != i->character->in_room->zone) ||
 					 i->character->getPosition() < POS_RESTING))
