@@ -22,6 +22,7 @@
 #include "creature.h"
 #include "comm.h"
 #include "screen.h"
+#include "handler.h"
 
 extern const char *player_race[];
 
@@ -1438,7 +1439,7 @@ int
 find_language_idx_by_name(char *language_name)
 {
 	for (int x = 0; x < NUM_LANGUAGES; x++) {
-		if (!strcasecmp(language_name, language_names[x]))
+		if (isname(language_name, language_names[x]))
 			return x;
 	}
 
@@ -1562,7 +1563,7 @@ ACMD(do_speak_language)
 	}
 
 	language = tmp_getword(&argument);
-	if (!strcmp(language, "common")) {
+	if (isname(language, "common")) {
 		GET_LANGUAGE(ch) = LANGUAGE_COMMON;
 		send_to_char(ch, "Ok, you're now speaking common.\r\n");
 		return;
