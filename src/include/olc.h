@@ -74,6 +74,7 @@ bool OLCIMP(Creature * ch);
 	  obj->name = obj_p->name;          \
 	}                                                             \
 	obj->line_desc = obj_p->line_desc ;                        \
+	obj->action_desc = obj_p->action_desc ;                        \
 	obj->ex_description = obj_p->ex_description;                  \
         obj->action_desc = obj_p->action_desc;          \
       }                                                               \
