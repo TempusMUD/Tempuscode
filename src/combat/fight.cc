@@ -406,7 +406,8 @@ gain_kill_exp(struct Creature *ch, struct Creature *victim)
 		return;
 	}
 
-    if (find_distance(ch->in_room, victim->in_room) > 2)
+    int distance = find_distance(ch->in_room, victim->in_room);
+    if ((distance > 2) || (distance < 0))
         return;
 
 	perform_gain_kill_exp(ch, victim, 1);
