@@ -911,23 +911,28 @@ int Account::hasCharLevel(int level)
     return 0;
 }
 
-int Account::hasCharGen(int gen)
+int
+Account::hasCharGen(int gen)
 {
-    int idx = 1;
     Creature *tmp_ch = new Creature(true);
+	struct stat st;
+	char *path;
+    int idx;
 
-    while (!this->invalid_char_index(idx)) {
+    for (idx = 1;!this->invalid_char_index(idx);idx++) {
         tmp_ch->clear();
 
-        if (!tmp_ch->loadFromXML(this->get_char_by_index(idx)))
-            return 0;
+		// test for file existence
+		path = get_player_file_path(this->get_char_by_index(idx));
+        if (stat(path, &st) < 0)
+			continue;
+		if (!tmp_ch->loadFromXML(path))
+			continue;
 
         if (GET_REMORT_GEN(tmp_ch) >= gen) {
             delete tmp_ch;
             return idx;
         }
-
-        idx++;
     }
 
     delete tmp_ch;
