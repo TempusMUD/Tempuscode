@@ -4,8 +4,9 @@
 
 #include <iostream>
 #include <iomanip>
-#include <stdio.h>
-#include <stdlib.h>
+#include <cstdio>
+#include <cstdlib>
+#include <errno.h>
 #include "structs.h"
 #include "utils.h"
 
@@ -31,16 +32,23 @@ static const char *local_char_class_abbrevs[ NUM_USED_CLASSES ] = {
 struct class_combo {
     int mort_class;
     int remort_class;
-    int count;
+    int count[4];
+    
     class_combo() {
 	mort_class = -1;
 	remort_class = -1;
-	count = 0;
+	count[0] = 0;
+	count[1] = 0;
+	count[2] = 0;
+	count[3] = 0;
     }
     class_combo( class_combo& c ) {
 	mort_class = c.mort_class;
 	remort_class = c.remort_class;
-	count = c.count;
+	count[0] = c.count[0];
+	count[1] = c.count[1];
+	count[2] = c.count[2];
+	count[3] = c.count[3];
     }
     class_combo& operator=( class_combo& );
 };
@@ -48,7 +56,11 @@ struct class_combo {
 class_combo& class_combo::operator=( class_combo& c ) {
     mort_class = c.mort_class;
     remort_class = c.remort_class;
-    count = c.count;
+    count[0] = c.count[0];
+    count[1] = c.count[1];
+    count[2] = c.count[2];
+    count[3] = c.count[3];
+    
     return *this;
 }	
 
@@ -65,27 +77,34 @@ const char* align_str[] = {
 };
 
 int align_flag = ALIGN_ALL;
+int align_sort = ALIGN_ALL;
 
-void	
-get_stats( char *filename )
+bool nomatrix = false;
+bool nomort   = false;
+bool noremort = false;
+
+void get_stats( char *filename )
 {
     FILE * fl;
     struct char_file_u player;
     
-    int num_players = 0;
-    int num_morts   = 0;
-    int num_remorts = 0;
+    int num_players[4] = { 0, 0, 0, 0 };
+    int num_morts[4]   = { 0, 0, 0, 0 };
+    int num_remorts[4] = { 0, 0, 0, 0 };
 
-    int player_classes[ NUM_USED_CLASSES ][ NUM_USED_CLASSES+1 ];
+    int player_classes[4][ NUM_USED_CLASSES ][ NUM_USED_CLASSES+1 ];
     
     for ( int i = 0; i < NUM_USED_CLASSES; ++i ) {
 	for ( int j = 0; j <= NUM_USED_CLASSES; ++j ) {
-	    player_classes[i][j] = 0;
+	    player_classes[0][i][j] = 0;
+	    player_classes[1][i][j] = 0;
+	    player_classes[2][i][j] = 0;
+	    player_classes[3][i][j] = 0;
 	}
     }
 
     if (!(fl = fopen(filename, "r"))) {
-	perror("error opening playerfile");
+	cerr << "error opening playerfile '" << filename << "' : " << strerror( errno ) << endl;
 	exit(1);
     }
   
@@ -107,18 +126,6 @@ get_stats( char *filename )
 	    continue;
 	}
 
-	if ( align_flag != ALIGN_ALL ) {
-	    if ( align_flag == ALIGN_EVIL && player.char_specials_saved.alignment > -300 )
-		continue;
-	    
-	    if ( align_flag == ALIGN_NEUTRAL && abs( player.char_specials_saved.alignment ) >= 300 )
-		continue;
-	    
-	    if ( align_flag == ALIGN_GOOD && player.char_specials_saved.alignment < 300 )
-		continue;
-	}
-	
-
 	if ( player.char_class < 0 || player.char_class >= NUM_CLASSES ) {
 	    cerr << "Error, player " << player.name << " has a class=" << player.char_class << endl;
 	    continue;
@@ -134,166 +141,343 @@ get_stats( char *filename )
 	    continue;
 	}
 
+	//
 	// a mortal
+	//
+
 	if ( player.remort_char_class < 0 ) {
-	    ++player_classes[ player.char_class ][ NUM_USED_CLASSES ];
-	    ++num_morts;
-	}
-
-	// a remort
-	else {
-	    ++player_classes[ player.char_class ][ player.remort_char_class ];
-	    ++num_remorts;
-	}
-
-	++num_players;
-    }
-
-    // get sorted list of mort classes
-    
-    class_combo mort_class_data[ NUM_USED_CLASSES ];
-    
-    for ( int i = 0; i < NUM_USED_CLASSES; ++i ) {
-	mort_class_data[ i ].mort_class = i;
-	mort_class_data[ i ].count = player_classes[ i ][ NUM_USED_CLASSES ];
-    }
-
-    for ( int i = 0; i < NUM_USED_CLASSES; ++i ) {
-
-	for ( int j = i+1; j < NUM_USED_CLASSES; j++ ) {
-	    
-	    if ( mort_class_data[ j ].count > mort_class_data[ i ].count ) {
-		class_combo tmp_c = mort_class_data[ j ];
-		mort_class_data[ j ] = mort_class_data[ i ];
-		mort_class_data[ i ] = tmp_c;
+	    if ( player.char_specials_saved.alignment <= -350 ) { 
+		++player_classes[ ALIGN_EVIL ][ player.char_class ][ NUM_USED_CLASSES ];
+		++num_morts[ ALIGN_EVIL ];
 	    }
-	}
-    }
-
-    
-    // get sorted list of remort classes
-
-    class_combo remort_class_data[ NUM_USED_CLASSES * NUM_USED_CLASSES - 1 ];
-    class_combo *d = remort_class_data;
-
-    for ( int i = 0; i < NUM_USED_CLASSES; ++i ) {
-	for ( int j = 0; j < NUM_USED_CLASSES; ++j ) {
-	    d->mort_class = i;
-	    d->remort_class = j;
-	    d->count = player_classes[ i ][ j ];
-	    ++d;
-	}
-    }
-
-    for ( int i = 0; i < NUM_USED_CLASSES * NUM_USED_CLASSES; ++i ) {
-
-	for ( int j = i+1; j < NUM_USED_CLASSES * NUM_USED_CLASSES; j++ ) {
-	    
-	    if ( remort_class_data[j].count > remort_class_data[i].count ) {
-		
-		class_combo tmp_c = remort_class_data[j];
-		remort_class_data[j] = remort_class_data[ i ];
-		remort_class_data[i] = tmp_c;
-	    }
-	}
-    }
-
-    
-
-    
-    
-    cout << "Results:  " << num_players << " players counted.  ( " << align_str[ align_flag ] << " aligns )" << endl << endl;
-    
-    cout << "MORT  |                   R E M O R T    C L A S S" << endl
-	 << "CLASS |-----------------------------------------------------------------" << endl;
-    cout << " ---- | ";
-
-    for ( int i = 0; i < NUM_USED_CLASSES; ++i ) {
-	if ( i == CLASS_VAMPIRE || i == CLASS_WARRIOR )
-	    continue;
-	cout << local_char_class_abbrevs[ i ] << " ";
-    }
-
-    cout << "MORT" << endl;
-
-    for ( int i = 0; i < NUM_USED_CLASSES; ++i ) {
-	if ( i == CLASS_VAMPIRE || i == CLASS_WARRIOR )
-	    continue;
-
-	cout << " " << local_char_class_abbrevs[ i ] << " | ";
-	for ( int j = 0; j <= NUM_USED_CLASSES; ++j ) {
-
-	    if ( j == CLASS_VAMPIRE || j == CLASS_WARRIOR )
-		continue;
-
-
-	    if ( j == i ) {
-		cout << "   - ";
+	    else if ( player.char_specials_saved.alignment >= 350 ) {
+		++player_classes[ ALIGN_GOOD ][ player.char_class ][ NUM_USED_CLASSES ];
+		++num_morts[ ALIGN_GOOD ];
 	    }
 	    else {
-		cout << setw( 4 ) << player_classes[ i ][ j ] << " ";
+		++player_classes[ ALIGN_NEUTRAL ][ player.char_class ][ NUM_USED_CLASSES ];
+		++num_morts[ ALIGN_NEUTRAL ];
+	    }
+
+	}
+
+	//
+	// a remort
+	//
+
+	else {
+	    if ( player.char_specials_saved.alignment <= -350 ) {
+		++player_classes[ ALIGN_EVIL ][ player.char_class ][ player.remort_char_class ];
+		++num_remorts[ ALIGN_EVIL ];
+	    }
+	    else if ( player.char_specials_saved.alignment >= 350 ) {
+		++player_classes[ ALIGN_GOOD ][ player.char_class ][ player.remort_char_class ];
+		++num_remorts[ ALIGN_GOOD ];
+	    }
+	    else {
+		++player_classes[ ALIGN_NEUTRAL ][ player.char_class ][ player.remort_char_class ];
+		++num_remorts[ ALIGN_NEUTRAL ];
+	    }
+
+	}
+
+    }
+
+    //
+    // sum the player/remort/mort totals
+    //
+
+    num_morts[ ALIGN_ALL ] = 
+	num_morts[ ALIGN_GOOD ] + 
+	num_morts[ ALIGN_EVIL ] + 
+	num_morts[ ALIGN_NEUTRAL ];
+
+    num_remorts[ ALIGN_ALL ] = 
+	num_remorts[ ALIGN_GOOD ] + 
+	num_remorts[ ALIGN_EVIL ] + 
+	num_remorts[ ALIGN_NEUTRAL ];
+
+    for ( int i = 0; i < 4; ++i ) {
+	num_players[ i ] = num_remorts[ i ] + num_morts[ i ];
+    }
+
+
+    //
+    // sum the align-specific class counts
+    //
+    
+    for ( int i = 0; i < NUM_USED_CLASSES; ++i ) {
+	for ( int j = i+1; j <= NUM_USED_CLASSES; j++ ) {
+	    player_classes[ ALIGN_ALL ][ i ][ j ] = 
+		player_classes[ ALIGN_GOOD ][ i ][ j ] +
+		player_classes[ ALIGN_EVIL ][ i ][ j ] +
+		player_classes[ ALIGN_NEUTRAL ][ i ][ j ];
+	}
+    }
+
+    class_combo mort_class_data[ NUM_USED_CLASSES ];
+    
+    if ( nomort == false ) {
+	//
+	// create list of mort classes
+	//
+
+	for ( int i = 0; i < NUM_USED_CLASSES; ++i ) {
+	    mort_class_data[ i ].mort_class = i;
+
+	    for ( int k = 0; k < 4; ++k ) {
+		mort_class_data[ i ].count[ k ]    = player_classes[ k ][ i ][ NUM_USED_CLASSES ];
 	    }
 	}
-	cout << endl;
-    }
-    
-    cout << endl << "   Top Mortal Classes:" << endl;
 
-    for ( int i = 0; i < NUM_USED_CLASSES; ++i ) {
+	//
+	// sort list of mortal classes
+	//
 
-	// skip vampires
-	// skip warriors
+	for ( int i = 0; i < NUM_USED_CLASSES; ++i ) {
 
-	if ( mort_class_data[ i ].mort_class == CLASS_VAMPIRE || mort_class_data[ i ].mort_class == CLASS_WARRIOR )
-	    continue;
-
-	cout << setw( 3 ) << " - " << local_char_class_abbrevs[ mort_class_data[ i ].mort_class ] << "            "
-	     << setw( 4 ) << mort_class_data[ i ].count << "   "
-	     << setw( 2 ) << ( mort_class_data[ i ].count * 100 / num_morts ) << " %" << endl;
-    }
-
-    cout << endl << "   Top Re-Mortal Classes:" << endl;
-
-    for ( int i = 0; i < NUM_USED_CLASSES * (NUM_USED_CLASSES - 1); ++i ) {
-
-	// skip dual-classes
-	// skip vampires
-	// skip warriors
-    
-	if ( remort_class_data[ i ].remort_class == remort_class_data[ i ].mort_class ||
-	     remort_class_data[ i ].remort_class == CLASS_VAMPIRE ||
-	     remort_class_data[ i ].mort_class == CLASS_VAMPIRE ||
-	     remort_class_data[ i ].remort_class == CLASS_WARRIOR ||
-	     remort_class_data[ i ].mort_class == CLASS_WARRIOR )
-	    continue;
-
-	cout << setw( 3 ) << " - "
-	     << local_char_class_abbrevs[ remort_class_data[i].mort_class ] << " / "
-	     << local_char_class_abbrevs[ remort_class_data[i].remort_class ] << "     "
-	     << setw( 4 ) << remort_class_data[ i ].count << "   "
-	     << setw( 2 ) << ( remort_class_data[ i ].count * 100 / num_remorts ) << " %" <<  endl;
-    }
-    
-
-}
-
-int 
-main(int argc, char **argv)
-{
-    if (argc < 2)
-	printf("Usage: %s playerfile-name [align]\n", argv[0]);
-    else {
-	if ( argc > 2 ) {
-	    if ( !strcasecmp( argv[2], "good" ) )
-		align_flag = ALIGN_GOOD;
-	    else if ( !strcasecmp( argv[2], "neutral" ) )
-		align_flag = ALIGN_NEUTRAL;
-	    else if ( !strcasecmp( argv[2], "evil" ) )
-		align_flag = ALIGN_EVIL;
+	    for ( int j = i+1; j < NUM_USED_CLASSES; j++ ) {
+	    
+		if ( mort_class_data[ j ].count[ align_sort ] > mort_class_data[ i ].count[ align_sort ] ) {
+		    class_combo tmp_c = mort_class_data[ j ];
+		    mort_class_data[ j ] = mort_class_data[ i ];
+		    mort_class_data[ i ] = tmp_c;
+		}
+	    }
 	}
-	get_stats( argv[ 1 ] );
     }
-    return 0;
+
+    class_combo remort_class_data[ NUM_USED_CLASSES * NUM_USED_CLASSES - 1 ];
+
+    if ( noremort == false ) {
+	//
+	// create list of remort classes
+	//
+
+	class_combo *d = remort_class_data;
+
+	for ( int i = 0; i < NUM_USED_CLASSES; ++i ) {
+	    for ( int j = 0; j < NUM_USED_CLASSES; ++j ) {
+		d->mort_class = i;
+		d->remort_class = j;
+
+		for ( int k = 0; k < 4; ++k ) {
+		    d->count[ k ] = player_classes[ k ][ i ][ j ];
+		}
+		++d;
+	    }
+	}
+
+	//
+	// sort list of remort classes
+	//
+
+	for ( int i = 0; i < NUM_USED_CLASSES * NUM_USED_CLASSES; ++i ) {
+
+	    for ( int j = i+1; j < NUM_USED_CLASSES * NUM_USED_CLASSES; j++ ) {
+	    
+		if ( remort_class_data[j].count[ align_sort ] > remort_class_data[i].count[ align_sort ] ) {
+		
+		    class_combo tmp_c = remort_class_data[j];
+		    remort_class_data[j] = remort_class_data[ i ];
+		    remort_class_data[i] = tmp_c;
+		}
+	    }
+	}
+
+    }    
+
+    //
+    // output results
+    //
+    
+    cout << "Results:  " 
+	 << setw( 4 ) << num_players[ ALIGN_ALL ] << " players counted." << endl
+	 << "Sorted on alignment: " << align_str[ align_sort ] << endl << endl
+	 << "  ALIGN       |   MORTALS   REMORTS     TOTAL" << endl
+	 << "---------------------------------------------" << endl;
+
+    
+    for ( int i = 3; i >= 0; --i ) {
+	cout << "  " << setw( 8 ) << align_str[ i ] << "    |  "
+	     << setw( 8 ) << num_morts[ i ] << "   " 
+	     << setw( 7 ) << num_remorts[ i ] << "    "
+	     << setw( 6 ) << num_players[ i ] << endl;
+    }
+    
+    cout << "---------------------------------------------" << endl << endl;
+
+    if ( nomatrix == false ) {
+
+	cout << "MORT  |                   R E M O R T    C L A S S" << endl
+	     << "CLASS |-----------------------------------------------------------------" << endl;
+	cout << " ---- | ";
+
+	for ( int i = 0; i < NUM_USED_CLASSES; ++i ) {
+	    if ( i == CLASS_VAMPIRE || i == CLASS_WARRIOR )
+		continue;
+	    cout << local_char_class_abbrevs[ i ] << " ";
+	}
+
+	cout << "MORT" << endl;
+
+	for ( int i = 0; i < NUM_USED_CLASSES; ++i ) {
+	    if ( i == CLASS_VAMPIRE || i == CLASS_WARRIOR )
+		continue;
+
+	    cout << " " << local_char_class_abbrevs[ i ] << " | ";
+	    for ( int j = 0; j <= NUM_USED_CLASSES; ++j ) {
+
+		if ( j == CLASS_VAMPIRE || j == CLASS_WARRIOR )
+		    continue;
+
+
+		if ( j == i ) {
+		    cout << "   - ";
+		}
+		else {
+		    cout << setw( 4 ) << player_classes[ align_flag ][ i ][ j ] << " ";
+		}
+	    }
+	    cout << endl;
+	}
+    }
+
+
+    if ( nomort == false ) {
+	cout << endl << "   Top Mort Classes:|       TOTAL |        GOOD |     NEUTRAL |        EVIL " << endl;
+
+	for ( int i = 0; i < NUM_USED_CLASSES; ++i ) {
+
+	    // skip vampires
+	    // skip warriors
+
+	    if ( mort_class_data[ i ].mort_class == CLASS_VAMPIRE || mort_class_data[ i ].mort_class == CLASS_WARRIOR )
+		continue;
+
+	    cout << setw( 3 ) << " - " << local_char_class_abbrevs[ mort_class_data[ i ].mort_class ] << "            ";
+
+	    for ( int align = 0 ; align < 4; ++align ) { 
+		cout << " | " 
+		     << setw( 4 ) << mort_class_data[ i ].count[ align ] << "   "
+		     << setw( 2 ) << ( mort_class_data[ i ].count[ align ] * 100 / num_morts[ ALIGN_ALL ] ) << " %";
+	    }
+	    cout << endl;
+
+	}
+    }
+
+    if ( noremort == false ) {
+//	cout << endl << "   Top Mort Classes:|       TOTAL |        GOOD |     NEUTRAL |        EVIL " << endl;
+	cout << endl << "   Top ReMort Class:|       TOTAL |        GOOD |     NEUTRAL |        EVIL " << endl;
+//	cout << endl << "   Top Re-Mortal Classes:" << endl;
+
+	for ( int i = 0; i < NUM_USED_CLASSES * (NUM_USED_CLASSES - 1); ++i ) {
+
+	    // skip dual-classes
+	    // skip vampires
+	    // skip warriors
+    
+	    if ( remort_class_data[ i ].remort_class == remort_class_data[ i ].mort_class ||
+		 remort_class_data[ i ].remort_class == CLASS_VAMPIRE ||
+		 remort_class_data[ i ].mort_class == CLASS_VAMPIRE ||
+		 remort_class_data[ i ].remort_class == CLASS_WARRIOR ||
+		 remort_class_data[ i ].mort_class == CLASS_WARRIOR )
+		continue;
+
+	    cout << setw( 3 ) << " - "
+		 << local_char_class_abbrevs[ remort_class_data[i].mort_class ] << " / "
+		 << local_char_class_abbrevs[ remort_class_data[i].remort_class ] << "     ";
+	    for ( int align = 0 ; align < 4; ++align ) { 
+		cout << " | " 
+		     << setw( 4 ) << remort_class_data[ i ].count[ align ] << "   "
+		     << setw( 2 ) << ( remort_class_data[ i ].count[ align ] * 100 / num_remorts[ ALIGN_ALL ] ) << " %";
+	    }
+	    cout << endl;
+	}
+    
+    }
 }
+
+int main( int argc, char **argv ) {
+
+    if (argc < 2)
+	printf("Usage: %s [options] <playerfile>\n", argv[0]);
+    else {
+	for ( int i = 1; i < argc; ++i ) {
+
+	    //
+	    // no more options, must be filename
+	    //
+
+	    if ( strncmp( argv[ i ], "-", 1 ) ) {
+		get_stats( argv[ i ] );
+		return 0;
+	    }
+	    
+	    if ( !strcasecmp( argv[ i ], "-align" ) ) {
+		if ( ++i >= argc ) {
+		    cout << "-align reqires an argument, good, neutral, or evil" << endl;
+		    return 1;
+		}
+	    
+		for ( int j = 0; j < 4; ++j ) {
+		    if ( !strcasecmp( argv[ i ], align_str[ j ] ) ) {
+			align_flag = j;
+			break;
+		    }
+		}
+	    }
+
+	    if ( !strcasecmp( argv[ i ], "-sort" ) ) {
+		if ( ++i >= argc ) {
+		    cout << "-sort reqires an argument, good, neutral, or evil" << endl;
+		    return 1;
+		}
+	    
+		for ( int j = 0; j < 4; ++j ) {
+		    if ( !strcasecmp( argv[ i ], align_str[ j ] ) ) {
+			align_sort = j;
+			break;
+		    }
+		}
+	    }
+
+	    else if ( !strcasecmp( argv[ i ], "-nomatrix" ) ) {
+		nomatrix = true;
+	    }
+	    
+	    else if ( !strcasecmp( argv[ i ], "-nomort" ) ) {
+		nomort = true;
+	    }
+
+	    else if ( !strcasecmp( argv[ i ], "-noremort" ) ) {
+		noremort = true;
+	    }
+	    else {
+		cout << "bad option: " << argv[ i ] << endl;
+		return 1;
+	    }
+	}
+
+	cout << "A playerfilename must be supplied." << endl;
+    }
+    return 1;
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
