@@ -1565,8 +1565,7 @@ look_at_target(struct char_data * ch, char *arg, int cmd)
     for (j = 0; j < 8; j++) {
 	if (EXIT(ch, j)&&EXIT(ch, j)->keyword &&isname(arg,EXIT(ch, j)->keyword)) {
 	    sprintf(buf, "The %s %s %s.\r\n", fname(EXIT(ch, j)->keyword), 
-		    EXIT(ch, j)->keyword[strlen(fname(EXIT(ch, j)->keyword)) - 1] == 's' ?
-		    "are" : "is",
+		    PLUR( fname( EXIT(ch, j)->keyword ) ) ? "are" : "is",
 		    IS_SET(EXIT(ch, j)->exit_info, EX_CLOSED) ? "closed" : "open");
 	    send_to_char(buf, ch);
 	    return;

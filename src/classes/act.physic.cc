@@ -170,6 +170,7 @@
 #include "char_class.h"
 #include "fight.h"
 #include "bomb.h"
+#include "shop.h"
 
 void appear(struct char_data *ch, struct char_data *vict);
 
@@ -219,7 +220,6 @@ ACMD(do_lecture)
     CHAR *vict = NULL;
     int prob, index, wait, percent;
 
-
     skip_spaces(&argument);
   
     if (!*argument) {
@@ -240,8 +240,17 @@ ACMD(do_lecture)
 	return;
     }
 
+    if ( FIGHTING( vict ) ) {
+	act( "$E is busy fighting right now!", FALSE, ch, 0, vict, TO_CHAR );
+	return;
+    }
+
     if (peaceful_room_ok(ch, vict, false)) {
+	if ( !ok_damage_shopkeeper( ch, vict ) )
+	    return;
+	
 	appear(ch, vict);
+
 	if (IS_PC(vict)) {
 	    check_toughguy(ch, vict, 1);
 	    check_killer(ch, vict);

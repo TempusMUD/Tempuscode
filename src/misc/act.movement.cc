@@ -53,6 +53,45 @@ void update_trail(struct char_data *ch, struct room_data *rm, int dir, int j);
 int apply_soil_to_char(struct char_data *ch,struct obj_data *obj,int type,int pos);
 int mag_manacost(struct char_data * ch, int spellnum);
 
+#define DOOR_IS_OPENABLE(ch, obj, door)	\
+((obj) ? \
+ (((GET_OBJ_TYPE(obj) == ITEM_CONTAINER && \
+    !GET_OBJ_VAL(obj, 3)) ||               \
+   (IS_OBJ_TYPE(obj, ITEM_V_WINDOW)   &&    \
+    CAR_OPENABLE(obj))          ||    \
+   GET_OBJ_TYPE(obj) == ITEM_VEHICLE ||    \
+   GET_OBJ_TYPE(obj) == ITEM_PORTAL ||     \
+   GET_OBJ_TYPE(obj) == ITEM_SCUBA_MASK || \
+   GET_OBJ_TYPE(obj) == ITEM_WINDOW) &&    \
+  (IS_SET(GET_OBJ_VAL(obj, 1), CONT_CLOSEABLE))) :\
+ (IS_SET(EXIT(ch, door)->exit_info, EX_ISDOOR)))
+
+#define DOOR_FLAGGED(ch, door, flag) \
+    (IS_SET(EXIT(ch, door)->exit_info, flag))
+#define DOOR_IS_OPEN(ch, obj, door)	((obj) ? \
+					 (!IS_SET(GET_OBJ_VAL(obj, 1), CONT_CLOSED)) :\
+					 (!IS_SET(EXIT(ch, door)->exit_info, EX_CLOSED)))
+#define DOOR_IS_UNLOCKED(ch, obj, door)	((obj) ? \
+					 (!IS_SET(GET_OBJ_VAL(obj, 1), CONT_LOCKED)) :\
+					 (!IS_SET(EXIT(ch, door)->exit_info, EX_LOCKED)))
+#define DOOR_IS_PICKPROOF(ch, obj, door) ((obj) ? \
+					  (IS_SET(GET_OBJ_VAL(obj, 1), CONT_PICKPROOF)) : \
+					  (IS_SET(EXIT(ch, door)->exit_info, EX_PICKPROOF)))
+#define DOOR_IS_TECH(ch, obj, door) (!obj && \
+				     (IS_SET(EXIT(ch, door)->exit_info, EX_TECH)))
+#define DOOR_IS_HEAVY(ch, obj, door)     (!obj && \
+					  (IS_SET(EXIT(ch, door)->exit_info, EX_HEAVY_DOOR)))
+
+#define DOOR_IS_CLOSED(ch, obj, door)	(!(DOOR_IS_OPEN(ch, obj, door)))
+#define DOOR_IS_LOCKED(ch, obj, door)	(!(DOOR_IS_UNLOCKED(ch, obj, door)))
+#define DOOR_KEY(ch, obj, door)		((obj) ? (GET_OBJ_VAL(obj, 2)) : \
+					 (EXIT(ch, door)->key))
+#define DOOR_LOCK(ch, obj, door)	((obj) ? (GET_OBJ_VAL(obj, 1)) : \
+					 (EXIT(ch, door)->exit_info))
+#define DOOR_IS_SPECIAL(ch, obj, door) (!obj && \
+					DOOR_FLAGGED(ch, door, EX_SPECIAL))
+	
+
 /* do_simple_move assumes
  *	1. That there is no master and no followers.
  *	2. That the direction exists.
@@ -1127,11 +1166,12 @@ const int flags_door[] =
 					 (TOGGLE_BIT(GET_OBJ_VAL(obj, 1), CONT_LOCKED)) :\
 					 (TOGGLE_BIT(EXITN(room, door)->exit_info, EX_LOCKED)))
 
-    void 
-    do_doorcmd(struct char_data *ch, struct obj_data *obj, int door, int scmd)
+void 
+do_doorcmd(struct char_data *ch, struct obj_data *obj, int door, int scmd)
 {
     struct room_data *other_room = NULL;
     struct room_direction_data *back = 0;
+    int wait_state = 0;
 
     sprintf(buf, "$n %ss ", cmd_door[scmd]);
     if (!obj && ((other_room = EXIT(ch, door)->to_room) != NULL))
@@ -1148,6 +1188,14 @@ const int flags_door[] =
 	    act("You open the air valve on $p.",FALSE,ch,obj,0,TO_CHAR);
 	else
 	    send_to_char("Okay, opened.\r\n", ch);
+
+	if ( obj )
+	    wait_state = 7;	// 0.7 sec
+	else if ( DOOR_IS_HEAVY( ch, obj, door ) )
+	    wait_state = 30;	// 3 sec
+	else
+	    wait_state = 15;	// 1.5 sec
+
 	break;
     case SCMD_CLOSE:
 	OPEN_DOOR(ch->in_room, obj, door);
@@ -1157,6 +1205,14 @@ const int flags_door[] =
 	    act("You close the air valve on $p.",FALSE,ch,obj,0,TO_CHAR);
 	else
 	    send_to_char("Okay, closed.\r\n", ch);
+
+	if ( obj )
+	    wait_state = 7;	// 0.7 sec
+	else if ( DOOR_IS_HEAVY( ch, obj, door ) )
+	    wait_state = 30;	// 3 sec
+	else
+	    wait_state = 15;	// 1.5 sec
+
 	break;
     case SCMD_UNLOCK:
     case SCMD_LOCK:
@@ -1164,6 +1220,7 @@ const int flags_door[] =
 	if (back)
 	    LOCK_DOOR(other_room, obj, rev_dir[door]);
 	send_to_char("*Click*\r\n", ch);
+	wait_state = 20;	// 2 sec
 	break;
     case SCMD_PICK:
 	LOCK_DOOR(ch->in_room, obj, door);
@@ -1171,6 +1228,7 @@ const int flags_door[] =
 	    LOCK_DOOR(other_room, obj, rev_dir[door]);
 	send_to_char("The lock quickly yields to your skills.\r\n", ch);
 	strcpy(buf, "$n skillfully picks the lock on ");
+	wait_state = 30;	// 3 sec
 	break;
     case SCMD_HACK:
 	LOCK_DOOR(ch->in_room, obj, door);
@@ -1178,9 +1236,13 @@ const int flags_door[] =
 	    LOCK_DOOR(other_room, obj, rev_dir[door]);
 	send_to_char("The system quickly yields to your skills.\r\n", ch);
 	strcpy(buf, "$n skillfully hacks access to ");
+	wait_state = 30;	// 3 sec
 	break;
 
     }
+
+    if ( wait_state )
+	WAIT_STATE( ch, wait_state );
 
     /* If we're opening a car, notify the interior */
     if (obj && IS_VEHICLE(obj)) {
@@ -1273,45 +1335,7 @@ ok_pick(struct char_data *ch, int keynum, int pickproof,int tech,int scmd)
 }
 
 
-#define DOOR_IS_OPENABLE(ch, obj, door)	\
-((obj) ? \
- (((GET_OBJ_TYPE(obj) == ITEM_CONTAINER && \
-    !GET_OBJ_VAL(obj, 3)) ||               \
-   (IS_OBJ_TYPE(obj, ITEM_V_WINDOW)   &&    \
-    CAR_OPENABLE(obj))          ||    \
-   GET_OBJ_TYPE(obj) == ITEM_VEHICLE ||    \
-   GET_OBJ_TYPE(obj) == ITEM_PORTAL ||     \
-   GET_OBJ_TYPE(obj) == ITEM_SCUBA_MASK || \
-   GET_OBJ_TYPE(obj) == ITEM_WINDOW) &&    \
-  (IS_SET(GET_OBJ_VAL(obj, 1), CONT_CLOSEABLE))) :\
- (IS_SET(EXIT(ch, door)->exit_info, EX_ISDOOR)))
-
-#define DOOR_FLAGGED(ch, door, flag) \
-    (IS_SET(EXIT(ch, door)->exit_info, flag))
-#define DOOR_IS_OPEN(ch, obj, door)	((obj) ? \
-					 (!IS_SET(GET_OBJ_VAL(obj, 1), CONT_CLOSED)) :\
-					 (!IS_SET(EXIT(ch, door)->exit_info, EX_CLOSED)))
-#define DOOR_IS_UNLOCKED(ch, obj, door)	((obj) ? \
-					 (!IS_SET(GET_OBJ_VAL(obj, 1), CONT_LOCKED)) :\
-					 (!IS_SET(EXIT(ch, door)->exit_info, EX_LOCKED)))
-#define DOOR_IS_PICKPROOF(ch, obj, door) ((obj) ? \
-					  (IS_SET(GET_OBJ_VAL(obj, 1), CONT_PICKPROOF)) : \
-					  (IS_SET(EXIT(ch, door)->exit_info, EX_PICKPROOF)))
-#define DOOR_IS_TECH(ch, obj, door) (!obj && \
-				     (IS_SET(EXIT(ch, door)->exit_info, EX_TECH)))
-#define DOOR_IS_HEAVY(ch, obj, door)     (!obj && \
-					  (IS_SET(EXIT(ch, door)->exit_info, EX_HEAVY_DOOR)))
-
-#define DOOR_IS_CLOSED(ch, obj, door)	(!(DOOR_IS_OPEN(ch, obj, door)))
-#define DOOR_IS_LOCKED(ch, obj, door)	(!(DOOR_IS_UNLOCKED(ch, obj, door)))
-#define DOOR_KEY(ch, obj, door)		((obj) ? (GET_OBJ_VAL(obj, 2)) : \
-					 (EXIT(ch, door)->key))
-#define DOOR_LOCK(ch, obj, door)	((obj) ? (GET_OBJ_VAL(obj, 1)) : \
-					 (EXIT(ch, door)->exit_info))
-#define DOOR_IS_SPECIAL(ch, obj, door) (!obj && \
-					DOOR_FLAGGED(ch, door, EX_SPECIAL))
-	
-    ACMD(do_gen_door)
+ACMD(do_gen_door)
 {
     int door=0, keynum;
     char type[MAX_INPUT_LENGTH], dir[MAX_INPUT_LENGTH], dname[128];

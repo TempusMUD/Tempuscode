@@ -610,6 +610,10 @@ struct char_player_data {
     sh_int char_class;       /* PC / NPC's char_class		       */
     sh_int remort_char_class; /* PC / NPC REMORT CLASS (-1 for none) */
     sh_int weight;      /* PC / NPC's weight                    */
+    inline short getWeight() { return weight; }
+    inline short setWeight( const short new_weight ) { return ( weight = new_weight ); }
+    short modifyWeight( const short mod_weight );
+
     sh_int height;      /* PC / NPC's height                    */
     sh_int hometown;    /* PC s Hometown (zone)                 */
     byte sex;           /* PC / NPC's sex                       */
@@ -678,8 +682,14 @@ struct char_special_data_saved {
 /* Special playing constants shared by PCs and NPCs which aren't in pfile */
 struct char_special_data {
 
-    int setCarriedWeight( int new_weight );
-    int setWornWeight( int new_weight );
+    int setCarriedWeight( int new_weight ) {
+	return ( carry_weight = new_weight );
+    }
+    
+    inline int setWornWeight( int new_weight ) {
+	return ( worn_weight = new_weight );
+    }
+    
     inline int getCarriedWeight( void ) { return carry_weight; }
     inline int getWornWeight( void ) { return worn_weight; }
 
@@ -844,12 +854,27 @@ struct follow_type {
 
 /* ================== Structure for player/non-player ===================== */
 struct char_data {
+
+    // carried weight
     inline int getCarriedWeight( void ) { return char_specials.getCarriedWeight(); }
-    inline int getWornWeight( void ) { return char_specials.getWornWeight(); }
+    inline int setCarriedWeight( int new_weight ) {
+	return char_specials.setCarriedWeight( new_weight );
+    }
     int modifyCarriedWeight( int mod_weight );
-    int setCarriedWeight( int new_weight );
+
+    // worn weight
+    inline int getWornWeight( void ) { return char_specials.getWornWeight(); }
+    inline int setWornWeight( int new_weight ) { 
+	return char_specials.setWornWeight( new_weight );
+    }
     int modifyWornWeight( int mod_weight );
-    int setWornWeight( int new_weight );
+
+    // char weight
+    inline short getWeight( void ) { return player.getWeight(); }
+    inline short setWeight( short new_weight ) {
+	return player.setWeight( new_weight );
+    }
+    inline short modifyWeight( short mod_weight ) { return player.modifyWeight( mod_weight ); }
 
     int pfilepos;			 /* playerfile pos		  */
     struct room_data *in_room;            /* Location (real room number)	  */

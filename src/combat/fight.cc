@@ -2714,7 +2714,7 @@ damage( struct char_data * ch, struct char_data * victim, int dam,
 		    impl_dam = ( int ) ( impl_dam * 0.7 );
 	    }
       
-	    struct obj_data *the_obj = impl ? impl : obj;
+	    //    struct obj_data *the_obj = impl ? impl : obj;
 
 	    /* here are the object oriented damage specifics */
 	    if ( ( attacktype == TYPE_SLASH || attacktype == TYPE_PIERCE ||

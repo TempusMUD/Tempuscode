@@ -128,8 +128,8 @@ int CHECK_SKILL(struct char_data *ch, int i);
 #define IF_STR(st) ((st) ? (st) : "\0")
 #define CAP(st)  (*(st) = UPPER(*(st)), st)
 
-#define AN(string) (string[strlen(string) - 1] == 's' ? "some" : \
-                     (strchr("aeiouAEIOU", *string) ? "an" : "a"))
+#define AN(str) ( PLUR( str ) ? "some" : \
+                     (strchr("aeiouAEIOU", *str) ? "an" : "a"))
 
 
 /* memory utils **********************************************************/
@@ -659,9 +659,11 @@ void WAIT_STATE(struct char_data *ch, int cycle);
 #define SANA(obj) (strchr("aeiouyAEIOUY", *(obj)->name) ? "an" : "a")
 
 // add special plural words that don't end in S to the SPECIAL_PLUR macro
-#define SPECIAL_PLUR( buf )    ( !strcasecmp( buf, "teeth" ) )
-
-#define PLUR(buf)              ( SPECIAL_PLUR( buf ) || buf[strlen(buf) - 1] == 's' )
+#define SPECIAL_PLUR( buf )    ( !strcasecmp( buf, "teeth" ) || \
+                                 !strcasecmp( buf, "cattle" ) ||  \
+                                 !strcasecmp( buf, "data" ) )
+#define SPECIAL_SING( buf )    ( !strcasecmp( buf, "portcullis" ) )
+#define PLUR(buf)              ( !SPECIAL_SING( buf ) && ( SPECIAL_PLUR( buf ) || buf[strlen(buf) - 1] == 's' ) )
 
 #define ISARE(buf)             (PLUR(buf) ? "are" : "is")
 #define IT_THEY(buf)           (PLUR(buf) ? "they" : "it")

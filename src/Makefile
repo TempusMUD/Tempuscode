@@ -8,6 +8,7 @@ SUBDIRS= \
 	intermud interpreter magic mail matrix misc mobiles net objsave olc paths            \
 	quest search shop smokes social specials util vehicle weather structs
 
+MAKEFLAGS=-s
 OBJ=ObjFiles
 LIBS=-lcrypt
 EXE=../bin/circle

@@ -5603,13 +5603,15 @@ ACMD(do_mlist)
     for (mob = mob_proto; mob && (mob->mob_specials.shared->vnum <= last); 
 	 mob = mob->next) {
 	if (mob->mob_specials.shared->vnum >= first) {
-	    sprintf(buf, "%5d. %s[%s%5d%s]%s %-40s%s  [%2d]%s\r\n", ++found,
+	    sprintf(buf, "%5d. %s[%s%5d%s]%s %-40s%s  [%2d] <%3d> %s\r\n", ++found,
 		    CCGRN(ch, C_NRM), CCNRM(ch, C_NRM), 
 		    mob->mob_specials.shared->vnum,
 		    CCGRN(ch, C_NRM), CCYEL(ch, C_NRM),
 		    mob->player.short_descr, CCNRM(ch, C_NRM), 
-		    mob->player.level, MOB2_FLAGGED(mob, MOB2_UNAPPROVED) ?
-		    "  (!ap)" : "");
+		    mob->player.level, 
+		    MOB_SHARED(mob)->number,
+		    MOB2_FLAGGED(mob, MOB2_UNAPPROVED) ?
+		    "(!ap)" : "" );
 	    if ((strlen(out_list) + strlen(buf)) < MAX_STRING_LENGTH - 20)
 		strcat(out_list, buf);
 	    else if (strlen(out_list) < (MAX_STRING_LENGTH - 20)) {

@@ -1531,7 +1531,6 @@ obj_from_room(struct obj_data * object)
 void 
 obj_to_obj(struct obj_data * obj, struct obj_data * obj_to)
 {
-    struct obj_data *tmp_obj;
     struct obj_data *o = NULL;
     struct char_data *vict = NULL;
     int found, j;
@@ -1559,22 +1558,26 @@ obj_to_obj(struct obj_data * obj, struct obj_data * obj_to)
     }
     obj->in_obj = obj_to;
 
+    /* 
+       obsolete
+       
     for (tmp_obj = obj->in_obj; tmp_obj->in_obj; tmp_obj = tmp_obj->in_obj) {
+	
 	tmp_obj->modifyWeight( obj->getWeight() );
+
+	// if the item is contained within an implant, increase character's weight
+	// if applicable
 	if (tmp_obj->worn_by && tmp_obj == 
 	    GET_IMPLANT(tmp_obj->worn_by, tmp_obj->worn_on))
 	    GET_WEIGHT(tmp_obj->worn_by) += obj->getWeight();
     }
+    */
 
     /* top level object.  Subtract weight from inventory if necessary. */
-    tmp_obj->modifyWeight( obj->getWeight() );
+    obj_to->modifyWeight( obj->getWeight() );
 
-    if (tmp_obj->carried_by)
-	IS_CARRYING_W(tmp_obj->carried_by) += obj->getWeight();
-    else if (tmp_obj->worn_by)
-	IS_WEARING_W(tmp_obj->worn_by) += obj->getWeight();
-    else if (tmp_obj->in_room && ROOM_FLAGGED(tmp_obj->in_room, ROOM_HOUSE)) 
-	SET_BIT(ROOM_FLAGS(tmp_obj->in_room), ROOM_HOUSE_CRASH);
+    if ( obj_to->in_room && ROOM_FLAGGED( obj_to->in_room, ROOM_HOUSE)) 
+	SET_BIT(ROOM_FLAGS( obj_to->in_room), ROOM_HOUSE_CRASH);
 
     if (IS_INTERFACE(obj_to)) {
 	INTERFACE_CUR(obj_to)++;
@@ -1604,7 +1607,7 @@ obj_to_obj(struct obj_data * obj, struct obj_data * obj_to)
 void
 obj_from_obj(struct obj_data * obj)
 {
-    struct obj_data *temp, *obj_from;
+    struct obj_data *obj_from = 0, *temp = 0;
     struct char_data *vict = NULL;
     int j;
 
@@ -1619,6 +1622,9 @@ obj_from_obj(struct obj_data * obj)
 #endif
 
     obj_from = obj->in_obj;
+
+    obj_from->modifyWeight( - obj->getWeight() );
+
     REMOVE_FROM_LIST(obj, obj_from->contains, next_content);
 
     if (IS_INTERFACE(obj_from)) {
@@ -1644,11 +1650,14 @@ obj_from_obj(struct obj_data * obj)
 	}
     }
 
-    /* Subtract weight from containers container */
+    /*
+      obsolete
+
+    // Subtract weight from containers container
     for (temp = obj->in_obj; temp->in_obj; temp = temp->in_obj)
 	temp->modifyWeight( - obj->getWeight() );
     
-    /* Subtract weight from char that carries the object */
+    // Subtract weight from char that carries the object
     temp->modifyWeight( - obj->getWeight() );
 
     if (temp->carried_by)
@@ -1658,8 +1667,11 @@ obj_from_obj(struct obj_data * obj)
 	    GET_WEIGHT(temp->worn_by) -= obj->getWeight();
 	else
 	    IS_WEARING_W(temp->worn_by) -= obj->getWeight();
-    } else if (temp->in_room && ROOM_FLAGGED(temp->in_room, ROOM_HOUSE)) 
-	SET_BIT(ROOM_FLAGS(temp->in_room), ROOM_HOUSE_CRASH);
+
+    */
+
+    if (obj_from->in_room && ROOM_FLAGGED( obj_from->in_room, ROOM_HOUSE)) 
+	SET_BIT(ROOM_FLAGS( obj_from->in_room), ROOM_HOUSE_CRASH);
 
     obj->in_obj = NULL;
     obj->next_content = NULL;

@@ -80,12 +80,12 @@ const char *olc_mset_keys[] = {
     "attacktype",
     "position",
     "sex",
-    "remortchar_class",
+    "remort_class",
     "cash",        /** 30 **/
     "hitroll",
     "damroll",
     "ac",
-    "char_class",
+    "class",
     "race",         /** 35 **/
     "dpos",
     "stradd",

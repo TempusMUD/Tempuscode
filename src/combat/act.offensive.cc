@@ -67,7 +67,7 @@ check_mob_reaction(struct char_data *ch, struct char_data *vict)
 } 
   
 
-// #define RAW_EQ_DAM(ch, pos, var) \
+// #define RAW_EQ_DAM(ch, pos, var)
 
 inline int RAW_EQ_DAM( struct char_data *ch, int pos, int *var ) {
     
