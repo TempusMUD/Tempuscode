@@ -235,7 +235,6 @@ extern struct shop_data *shop_index;
 extern struct obj_data *obj_proto;
 extern struct room_data *world;
 extern struct obj_data *object_list;
-extern struct Creature *character_list;
 
 #endif							// __db_c__
 

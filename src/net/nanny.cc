@@ -45,7 +45,6 @@ extern char *background;
 extern char *MENU;
 extern char *WELC_MESSG;
 extern char *START_MESSG;
-extern struct Creature *character_list;
 extern struct player_index_element *player_table;
 extern int top_of_p_table;
 extern int restrict;
@@ -394,7 +393,6 @@ nanny(struct descriptor_data * d, char *arg)
 				CreatureList::iterator cit = characterList.begin();
 				for ( ; cit != characterList.end(); ++cit ) {
 					tmp_ch = *cit;
-				//for (tmp_ch = character_list; tmp_ch; tmp_ch = tmp_ch->next)
 					if (!IS_NPC(tmp_ch) &&
 						GET_IDNUM(d->character) == GET_IDNUM(tmp_ch) &&
 						!strcmp(GET_NAME(tmp_ch),GET_NAME(d->character))) {

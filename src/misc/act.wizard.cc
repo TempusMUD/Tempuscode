@@ -54,7 +54,6 @@ using namespace std;
 
 /*   external vars  */
 extern FILE *player_fl;
-extern struct Creature *character_list;
 extern struct obj_data *object_list;
 extern struct descriptor_data *descriptor_list;
 extern struct Creature *mob_proto;
@@ -750,8 +749,6 @@ do_stat_memory(struct Creature *ch)
 
 	sum = 0;
 	i = 0;
-	//chars = character_list;
-	//while (chars) {
 	cit = characterList.begin();
 	for (; cit != characterList.end(); ++cit) {
 		chars = *cit;
@@ -2718,7 +2715,6 @@ ACMD(do_restore)
 	else if (!str_cmp(buf, "all")) {
 		CreatureList::iterator cit = characterList.begin();
 		for (; cit != characterList.end(); ++cit) {
-			//for (vict = character_list; vict; vict = vict->next) {
 			vict = *cit;
 			if (IS_NPC(vict))
 				continue;
@@ -3714,7 +3710,6 @@ do_show_stats(struct Creature *ch)
 	extern int buf_switches, buf_largecount, buf_overflows;
 	CreatureList::iterator cit = characterList.begin();
 	for (; cit != characterList.end(); ++cit) {
-		//for (vict = character_list; vict; vict = vict->next) {
 		vict = *cit;
 		if (IS_NPC(vict))
 			j++;
@@ -4131,7 +4126,6 @@ show_mlevels(Creature *ch, char *value, char *arg)
 		strcat(buf, "real mobiles:\r\n");
 		CreatureList::iterator cit = mobilePrototypes.begin();
 		for (; cit != mobilePrototypes.end(); ++cit) {
-			//for (mob = character_list; mob; mob = mob->next) {
 			mob = *cit;
 			if (IS_NPC(mob) && GET_LEVEL(mob) < 50 &&
 				((remort && IS_REMORT(mob)) || (!remort && !IS_REMORT(mob)))) {
@@ -6536,7 +6530,6 @@ ACMD(do_mudwipe)
 		CreatureList::iterator cit = characterList.begin();
 		for (; cit != characterList.end(); ++cit) {
 			mob = *cit;
-			//for (mob = character_list; mob; mob = mob->next) {
 			if (!IS_NPC(mob))
 				continue;
 			for (obj = mob->carrying; obj; obj = obj_tmp) {
@@ -6649,7 +6642,6 @@ ACMD(do_searchfor)
 	byte mob_found = FALSE, obj_found = FALSE;
 	CreatureList::iterator cit = characterList.begin();
 	for (; cit != characterList.end(); ++cit) {
-		//for (mob = character_list;mob;mob = mob->next) {
 		mob = *cit;
 		if (!mob->in_room) {
 			mob_found = TRUE;

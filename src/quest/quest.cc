@@ -36,7 +36,6 @@
 int find_name(char *name);
 ACMD(do_switch);
 // external vars here
-extern struct Creature *character_list;
 extern struct player_index_element *player_table;	// index to plr file
 extern int top_of_p_table;
 extern struct descriptor_data *descriptor_list;
@@ -1873,8 +1872,6 @@ qlog(Creature *ch, char *str, int type, int level, int file)
 		CreatureList::iterator cit = characterList.begin();
 		for (; cit != characterList.end(); ++cit) {
 			vict = *cit;
-			//for (vict = character_list; vict; vict = vict->next) {
-
 			if (GET_LEVEL(vict) >= level && GET_QLOG_LEVEL(vict) >= type) {
 
 				sprintf(buf,
@@ -2463,7 +2460,6 @@ qp_reload(int sig = 0)
 	CreatureList::iterator cit = characterList.begin();
 	for (; cit != characterList.end(); ++cit) {
 		immortal = *cit;
-		//for( immortal = character_list; immortal; immortal = immortal->next) {
 		if (GET_LEVEL(immortal) >= LVL_AMBASSADOR && (!IS_NPC(immortal)
 				&& GET_QUEST_ALLOWANCE(immortal) > 0)) {
 			slog("QP_RELOAD: Reset %s to %d QPs from %d. ( online )",

@@ -55,9 +55,6 @@
 
 int top_of_world = 0;			/* ref to top element of world         */
 
-//struct Creature *character_list = NULL;        /* global linked list of
-//                                                 * chars         */
-
 int top_of_mobt = 0;			/* top of mobile index table         */
 int current_mob_idnum = 0;
 
@@ -2468,8 +2465,6 @@ read_mobile(int vnum)
 		sprintf(buf, "Mobile (V) %d does not exist in database.", vnum);
 		return (NULL);
 	}
-	//mob->next = character_list;
-	//character_list = mob;
 	characterList.add(mob);
 	if (!mob->points.max_hit) {
 		mob->points.max_hit = dice(mob->points.hit, mob->points.mana) +
@@ -2673,7 +2668,6 @@ reset_zone(struct zone_data *zone)
 	struct Creature *vkeeper = NULL;
 
 	SPECIAL(shop_keeper);
-	//extern struct Creature *character_list;
 	extern struct shop_data *shop_index;
 
 	// Find all the shops in this zone and reset them.

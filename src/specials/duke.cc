@@ -28,7 +28,6 @@
 
 /*   external vars  */
 extern struct room_data *world;
-extern struct Creature *character_list;
 extern struct descriptor_data *descriptor_list;
 void set_local_time(struct zone_data *zone, struct time_info_data *local_time);
 

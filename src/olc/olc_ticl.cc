@@ -34,7 +34,6 @@
 
 extern struct zone_data *zone_table;
 extern struct descriptor_data *descriptor_list;
-extern struct Creature *character_list;
 extern int olc_lock;
 extern int *ticl_index;
 

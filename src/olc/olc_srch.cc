@@ -19,7 +19,6 @@
 #include "spells.h"
 #include "materials.h"
 
-extern struct Creature *character_list;
 int clan_house_can_enter(struct Creature *ch, struct room_data *room);
 const char *olc_xset_keys[] = {
 	"triggers",

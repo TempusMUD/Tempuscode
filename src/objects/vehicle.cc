@@ -29,7 +29,6 @@
 
 /*   external vars  */
 extern struct room_data *world;
-extern struct Creature *character_list;
 extern struct descriptor_data *descriptor_list;
 extern struct time_info_data time_info;
 extern struct obj_data *object_list;

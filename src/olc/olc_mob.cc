@@ -25,7 +25,6 @@
 
 extern struct zone_data *zone_table;
 extern struct descriptor_data *descriptor_list;
-extern struct Creature *character_list;
 extern struct player_special_data dummy_mob;
 extern int top_of_zone_table;
 extern int olc_lock;

@@ -341,7 +341,6 @@ ACMD(do_tell)
 
 ACMD(do_reply)
 {
-	//struct Creature *tch = character_list;
 	CreatureList::iterator tch = characterList.begin();
 	skip_spaces(&argument);
 

@@ -40,7 +40,6 @@
 #include "creature.h"
 
 /* external structs */
-extern struct Creature *character_list;
 void npc_steal(struct Creature *ch, struct Creature *victim);
 int hunt_victim(struct Creature *ch);
 void perform_tell(struct Creature *ch, struct Creature *vict, char *messg);
@@ -1765,7 +1764,6 @@ mobile_activity(void)
 
 					CreatureList::iterator cit = characterList.begin();
 					for (; cit != characterList.end(); ++cit) {
-						//for (vict = character_list; vict; vict = vict->next)
 						vict = *cit;
 						if (!IS_NPC(vict) && CAN_SEE(ch, vict) &&
 							GET_IDNUM(vict) == ch->mob_specials.mug->idnum)

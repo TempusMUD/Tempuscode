@@ -32,7 +32,6 @@
 
 extern struct room_data *world;
 extern struct obj_data *object_list;
-extern struct Creature *character_list;
 extern struct room_direction_data *knock_door;
 
 extern struct descriptor_data *descriptor_list;
@@ -290,7 +289,6 @@ affect_update(void)
 	CreatureList::iterator cit = characterList.begin();
 	for (; cit != characterList.end(); ++cit) {
 		i = *cit;
-		//for (i = character_list; i; i = i->next) {
 
 		hamstring_found = kata_found = beserk_found = assimilate_found = 0;
 

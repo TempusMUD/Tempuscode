@@ -41,7 +41,6 @@
 			 [(int)GET_LEVEL(ch)].title_f))
 
 
-extern struct Creature *character_list;
 extern struct obj_data *object_list;
 extern struct title_type titles[NUM_CLASSES][LVL_GRIMP + 1];
 extern struct room_data *world;

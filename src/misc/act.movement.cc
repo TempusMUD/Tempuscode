@@ -36,7 +36,6 @@
 #include "tmpstr.h"
 
 /* external vars  */
-extern struct Creature *character_list;
 extern struct descriptor_data *descriptor_list;
 extern const struct str_app_type str_app[];
 extern const struct dex_skill_type dex_app_skill[];

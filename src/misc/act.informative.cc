@@ -50,7 +50,6 @@ using namespace std;
 /* extern variables */
 extern struct room_data *world;
 extern struct descriptor_data *descriptor_list;
-//extern struct Creature *character_list;
 extern CreatureList characterList;
 
 extern struct obj_data *object_list;

@@ -24,7 +24,6 @@
 
 extern struct zone_data *zone_table;
 extern struct descriptor_data *descriptor_list;
-extern struct Creature *character_list;
 extern struct shop_data *shop_index;
 extern int *shp_index;
 extern int top_of_zone_table;
