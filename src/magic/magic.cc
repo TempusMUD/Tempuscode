@@ -1680,7 +1680,7 @@ mag_affects(int level, struct char_data * ch, struct char_data * victim,
 	af.location = APPLY_HIT;
 	af.modifier = - ( level );
     if(GET_CLASS(ch) == CLASS_PHYSIC)
-        af.modifier *= (GET_REMORT_GEN(ch) + 2)/2
+        af.modifier *= (GET_REMORT_GEN(ch) + 2)/2;
 	af2.location = APPLY_MOVE;
 	af2.modifier = - ( level >> 1 );
 	af2.duration = af.duration;

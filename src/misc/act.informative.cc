@@ -131,7 +131,7 @@ show_obj_to_char(struct obj_data * object, struct char_data * ch,
     if ((mode == SHOW_OBJ_ROOM) && object->description)
         strcpy(buf, object->description);
     else if (!object->description && GET_LEVEL(ch) >= LVL_AMBASSADOR )
-        sprintf(buf,"%s exits here.\r\n",object->name);
+        sprintf(buf,"%s exits here.\r\n",object->short_description);
     else if (object->short_description && 
 	     ((mode == 1) || (mode == 2) || (mode == 3) || (mode == 4)))
         strcpy(buf, object->short_description);
