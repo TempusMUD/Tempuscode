@@ -413,6 +413,16 @@ int calc_skill_prob( struct char_data *ch, struct char_data *vict, int skillnum,
 
     case SKILL_LUNGE_PUNCH:
     
+	if (bad_sect)
+	    prob = (int) ( prob * 0.90 );
+    
+	if ((MOB_FLAGGED(vict, MOB_NOBASH) ||
+	     vict->getPosition() < POS_FIGHTING) && GET_LEVEL(ch) < LVL_AMBASSADOR)
+	    prob = 0;
+    
+	if (IS_PUDDING(vict) || IS_SLIME(vict))
+	    prob = 0;
+
 	need_hand = 1;
 	*dam = dice(8, GET_LEVEL(ch) >> 3) + 1;
 	ADD_EQ_DAM(ch, WEAR_HANDS);
