@@ -28,19 +28,19 @@ using namespace std;
 
 // usage message
 #define HCONTROL_FIND_FORMAT \
-"Usage: hcontrol find <owner| guest |landlord> <name|id>\r\n"
+"Usage: hcontrol find <'owner' | 'guest' | 'landlord'> <name|id>\r\n"
 #define HCONTROL_DESTROY_FORMAT \
-"Usage: hcontrol destroy <house id>\r\n"
+"Usage: hcontrol destroy <house#>\r\n"
 #define HCONTROL_ADD_FORMAT \
-"Usage: hcontrol add    <house id> room/guest/owner <newroom/name>\r\n"
+"Usage: hcontrol add <house#> <'room'|'guest'> <room# | name >\r\n"
 #define HCONTROL_DELETE_FORMAT \
-"Usage: hcontrol delete <house id> room/guest/owner <newroom/name>\r\n"
+"Usage: hcontrol delete <house#> <'room'|'guest'> <room# | name >\r\n"
 #define HCONTROL_SET_FORMAT \
-"Usage: hcontrol set <house id> <rate|owner|type|landlord> <'value'|public|private|rental>\r\n"
+"Usage: hcontrol set <house#> <rate|owner|type|landlord> <'value'|public|private|rental>\r\n"
 #define HCONTROL_SHOW_FORMAT \
-"Usage: hcontrol show [house id]\r\n"
+"Usage: hcontrol show [house#]\r\n"
 #define HCONTROL_BUILD_FORMAT \
-"Usage: hcontrol build <player name|account id> <first room> <last room>\r\n"
+"Usage: hcontrol build <player name|account#> <first room#> <last room#>\r\n"
 
 #define HCONTROL_FORMAT \
 ( HCONTROL_BUILD_FORMAT \
