@@ -376,3 +376,25 @@ tmp_gsub(const char *haystack, const char *needle, const char *sub)
 	strcpy(write_pt, read_pt);
 	return result;
 }
+
+char *
+tmp_tolower(char *str)
+{
+	char *result, *c;
+
+	c = result = tmp_strcat(str, NULL);
+	while (*c)
+		*c++ = tolower(*c);
+	return result;
+}
+
+char *
+tmp_capitalize(char *str)
+{
+	char *result;
+
+	result = tmp_strcat(str, NULL);
+	if (*result)
+		*result = toupper(*result);
+	return result;
+}
