@@ -9,6 +9,8 @@ SPECIAL(asp)
   if (cmd)
     return FALSE;
 
+  if (spec_mode == SPECIAL_DEATH ) 
+    return FALSE;
   if (ch->getPosition() != POS_FIGHTING)
     return FALSE;
 

@@ -9,7 +9,7 @@ SPECIAL(fire_breather)
 
   if (cmd)
     return FALSE;
-
+  if (spec_mode == SPECIAL_DEATH) return FALSE;
   if (ch->getPosition() != POS_FIGHTING || !FIGHTING(ch))
     return FALSE;
 

@@ -8,6 +8,8 @@ SPECIAL(falling_tower_dt)
 {
   struct room_data *under_room;
   
+  if (spec_mode == SPECIAL_DEATH) return FALSE;
+
   if ((under_room = real_room(5241)) == NULL)
     return 0;
   if (ch->getPosition() == POS_FLYING)
