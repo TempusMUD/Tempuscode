@@ -109,8 +109,12 @@ tarrasque_swallow(Creature *tarr, Creature *vict)
 	send_to_char(vict, "The tarrasque suddenly leaps into the the air,\r\n"); 
 	send_to_char(vict, "The last thing you hear is the bloody crunch of your body.\r\n");
 	death_cry(vict);
-	char_from_room(vict);
-	char_to_room(vict, belly_rm);
+	mudlog( GET_INVIS_LEV(vict), NRM, true,
+		    "%s swallowed by %s at %s ( %d )", 
+		    GET_NAME(vict), GET_NAME(tarr), 
+		    tarr->in_room->name, tarr->in_room->number );
+	char_from_room(vict, false);
+	char_to_room(vict, belly_rm, false);
 	act("The body of $n flies in from the mouth.", 1, vict, 0, 0, TO_ROOM);
 	GET_HIT(vict) = -15;
 	die(vict, tarr, TYPE_SWALLOW, false);
@@ -327,7 +331,7 @@ SPECIAL(tarrasque)
 				}
 			} else {
 				vict = FIGHTING(tarr);
-				if (vict) {
+				if( vict == NULL ) {
 					send_to_char(ch, "Yes, but WHO?\r\n");
 					return 1;
 				}
