@@ -36,7 +36,10 @@ void print_search_data_to_buf( struct char_data *ch,
 			       char *buf );
 int House_can_enter( struct char_data *ch, room_num real_room );
 int clan_house_can_enter( struct char_data *ch, struct room_data *room );
+int room_tele_ok(CHAR *ch, struct room_data *room);
 void death_cry( struct char_data * ch );
+
+
 	
 #define SRCH_LOG( ch, srch ) \
 { if ( !ZONE_FLAGGED( ch->in_room->zone, ZONE_SEARCH_APPROVED ) && \
@@ -62,6 +65,7 @@ general_search( struct char_data *ch, struct special_search_data *srch,int mode 
     int add = 0, killed = 0, found = 0;
     int bits = 0, i, j;
     int retval = 0;
+    int maxlevel = 0;
 
     if ( !mode ) {
 	obj = NULL;
@@ -548,6 +552,25 @@ general_search( struct char_data *ch, struct special_search_data *srch,int mode 
 	else
 	    return 0;
 	break;
+
+    case SEARCH_COM_LOADROOM:
+        maxlevel = srch->arg[ 1 ];
+        targ_room = real_room( srch->arg[ 0 ] );
+
+
+        if( ( GET_LEVEL( ch ) < maxlevel ) && ( targ_room ) ) {
+
+            if( room_tele_ok( ch, targ_room ) ) {
+                GET_LOADROOM( ch ) = srch->arg[ 0 ];
+            }
+
+        }
+
+        else {
+            return 0;
+        }
+
+        break;
 
     case SEARCH_COM_NONE: /* simple echo search */
 
