@@ -902,7 +902,7 @@ ACMD(do_cedit)
 			}
 			clan->badge = str_dup(argument);
 			sql_exec("update clans set badge='%s' where idnum=%d",
-                clan->badge, clan->number);
+                tmp_sqlescape(clan->badge), clan->number);
 			slog("(cedit) %s set clan %d badge to '%s'.", GET_NAME(ch),
 				clan->number, clan->badge);
 
