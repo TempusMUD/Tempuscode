@@ -933,7 +933,7 @@ damage(struct Creature *ch, struct Creature *victim, int dam,
                     victim->addCombat(ch, false);
                 }
 
-                return 0;
+                DAM_RETURN(DAM_ATTACK_FAILED);
             }
         }
     }
