@@ -8518,6 +8518,7 @@ verify_tempus_integrity(Creature *ch)
 	zone_data *zone;
 	extra_descr_data *cur_exdesc;
 	memory_rec_struct *cur_mem;
+	const char *err;
 
 	// Check prototype mobs
 	for (cit = mobilePrototypes.begin();cit != mobilePrototypes.end();cit++) {
@@ -8729,6 +8730,12 @@ verify_tempus_integrity(Creature *ch)
 			}
 		}
 	}
+
+	// Check tmpstr module
+	err = tmp_string_test();
+	if (err)
+		send_to_char(ch, "%s\r\n", err);
+
 	// Check zones
 	// Check mobiles in game
 	// Check objects in game

@@ -338,6 +338,10 @@ tmp_gsub(const char *haystack, const char *needle, const char *sub)
 	size_t len;
 	int matches;
 
+	// An empty string matches nothing
+	if (!*needle)
+		return tmp_strdup(haystack);
+
 	// Count number of occurences of needle in haystack
 	matches = 0;
 	read_pt = haystack;
@@ -578,39 +582,139 @@ tmp_printbits(int val, const char *bit_descs[])
 char *
 tmp_substr(const char *str, int start_pos, int end_pos)
 {
+	struct tmp_str_pool *cur_buf;
 	const char *read_pt;
 	char *result, *write_pt;
 	int len;
+	size_t result_len;
 
-	// First do some bounds checking
 	len = strlen(str);
-	if (end_pos < 0)
-		end_pos = strlen(str) + end_pos;
-	if (end_pos < 0)
-		end_pos = 0;
+	// Check bounds for end_pos
+	if (end_pos < 0) {
+		end_pos = len + end_pos;
+		if (end_pos < 0)
+			end_pos = 0;
+	}
 	if (end_pos > len)
 		end_pos = len;
-	if (start_pos < 0)
-		start_pos = 0;
+
+	// Check bounds for start_pos
+	if (start_pos < 0) {
+		start_pos = len + start_pos;
+		if (start_pos < 0)
+			start_pos = 0;
+	}
 	if (start_pos > len)
 		start_pos = len;
 	
-	len = end_pos - start_pos;
+	// This is the true result string length
+	result_len = end_pos - start_pos + 2;
 
 	// If we don't have the space, we allocate another pool
-	if (len > tmp_list_tail->space - tmp_list_tail->used)
-		cur_buf = tmp_alloc_pool(len);
+	if (result_len > tmp_list_tail->space - tmp_list_tail->used)
+		cur_buf = tmp_alloc_pool(result_len);
 	else
 		cur_buf = tmp_list_tail;
 
 	result = cur_buf->data + cur_buf->used;
-	cur_buf->used += len;
+	cur_buf->used += result_len;
 	write_pt = result;
 	
 	read_pt = str + start_pos;
-	while (len--)
+	result_len--;
+	while (result_len--)
 		*write_pt++ = *read_pt++;	
 	*write_pt = '\0';
 
 	return result;
+}
+
+const char *
+tmp_string_test(void)
+{
+	const char *bit_descs[] = {
+		"BIT_00", "BIT_01", "BIT_02", "BIT_03", "BIT_04",
+		"BIT_05", "BIT_06", "BIT_07", "BIT_08", "BIT_09",
+		"BIT_10", "BIT_11", "BIT_12", "BIT_13", "BIT_14",
+		"BIT_15", "BIT_16", "BIT_17", "BIT_18", "BIT_19",
+		"BIT_20", "BIT_21", "BIT_22", "BIT_23", "BIT_24",
+		"BIT_25", "BIT_26", "BIT_27", "BIT_28", "BIT_29",
+		"BIT_30", "BIT_31", "BIT_32", "\n"
+	};
+
+	// Testing tmp_tolower
+	if (strcmp(tmp_tolower("abcdef"), "abcdef"))
+		return "tmp_tolower #1 failed";
+	if (strcmp(tmp_tolower("ABCDEF"), "abcdef"))
+		return "tmp_tolower #2 failed";
+	if (strcmp(tmp_tolower("AbCdEf"), "abcdef"))
+		return "tmp_tolower #3 failed";
+	if (strcmp(tmp_tolower("aBcDeF"), "abcdef"))
+		return "tmp_tolower #4 failed";
+	if (strcmp(tmp_tolower("123456"), "123456"))
+		return "tmp_tolower #5 failed";
+	if (strcmp(tmp_tolower(""), ""))
+		return "tmp_tolower #6 failed";
+
+	// Testing tmp_gsub
+	if (strcmp(tmp_gsub("abcdef", "", ""), "abcdef"))
+		return "tmp_gsub #1 failed";
+	if (strcmp(tmp_gsub("abcdef", "ghi", ""), "abcdef"))
+		return "tmp_gsub #2 failed";
+	if (strcmp(tmp_gsub("abcdef", "c", "ghi"), "abghidef"))
+		return "tmp_gsub #3 failed";
+	if (strcmp(tmp_gsub("abcdef", "cde", "g"), "abgf"))
+		return "tmp_gsub #4 failed";
+	if (strcmp(tmp_gsub("abcdef", "abc", ""), "def"))
+		return "tmp_gsub #5 failed";
+	if (strcmp(tmp_gsub("abcdef", "abc", "g"), "gdef"))
+		return "tmp_gsub #6 failed";
+	if (strcmp(tmp_gsub("abcdef", "def", ""), "abc"))
+		return "tmp_gsub #7 failed";
+	if (strcmp(tmp_gsub("abcdef", "def", "g"), "abcg"))
+		return "tmp_gsub #8 failed";
+	if (strcmp(tmp_gsub("", "", ""), ""))
+		return "tmp_gsub #9 failed";
+
+	// Testing tmp_sqlescape
+	if (strcmp(tmp_sqlescape("abcd'ef"), "abcd''ef"))
+		return "tmp_sqlescape #1 failed";
+	if (strcmp(tmp_sqlescape("abcd\\'ef"), "abcd\\\\''ef"))
+		return "tmp_sqlescape #2 failed";
+	if (strcmp(tmp_sqlescape("abcd\\ef"), "abcd\\\\ef"))
+		return "tmp_sqlescape #3 failed";
+
+	// Testing tmp_printbits
+	if (strcmp(tmp_printbits(0x1, bit_descs), "BIT_00"))
+		return "tmp_printbits #1 failed";
+	if (strcmp(tmp_printbits(0x2, bit_descs), "BIT_01"))
+		return "tmp_printbits #2 failed";
+	if (strcmp(tmp_printbits(0x3, bit_descs), "BIT_00 BIT_01"))
+		return "tmp_printbits #3 failed";
+	if (strcmp(tmp_printbits(0x4, bit_descs), "BIT_02"))
+		return "tmp_printbits #4 failed";
+	if (strcmp(tmp_printbits(0x5, bit_descs), "BIT_00 BIT_02"))
+		return "tmp_printbits #5 failed";
+	if (strcmp(tmp_printbits(0x6, bit_descs), "BIT_01 BIT_02"))
+		return "tmp_printbits #6 failed";
+	if (strcmp(tmp_printbits(0x7, bit_descs), "BIT_00 BIT_01 BIT_02"))
+		return "tmp_printbits #7 failed";
+
+	// Testing tmp_substr
+	if (strcmp(tmp_substr("abcdef", 0, -1), "abcdef"))
+		return "tmp_substr #1 failed";
+	if (strcmp(tmp_substr("abcdef", 0, 2), "abc"))
+		return "tmp_substr #2 failed";
+	if (strcmp(tmp_substr("abcdef", 1, 4), "bcde"))
+		return "tmp_substr #3 failed";
+	if (strcmp(tmp_substr("abcdef", 3, -1), "def"))
+		return "tmp_substr #4 failed";
+	if (strcmp(tmp_substr("abcdef", -1, -1), "f"))
+		return "tmp_substr #5 failed";
+	if (strcmp(tmp_substr("abcdef", 0, 0), "a"))
+		return "tmp_substr #6 failed";
+	if (strcmp(tmp_substr("abcdef", -5, -1), "bcdef"))
+		return "tmp_substr #7 failed";
+
+	return NULL;
 }

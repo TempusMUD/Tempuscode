@@ -77,6 +77,9 @@ void tmp_string_init(void);
 // invalid after this is called.
 void tmp_gc_strings(void);
 
+// returns NULL if passed or error string if failed
+const char *tmp_string_test(void);
+
 extern size_t tmp_max_used;
 
 #endif
