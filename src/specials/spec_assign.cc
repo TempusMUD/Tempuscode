@@ -89,6 +89,7 @@ const struct spec_func_data spec_list[] = {
 	{"newbie_healer", newbie_healer, SPEC_MOB | SPEC_RES},
 	{"newbie_improve", newbie_improve, SPEC_MOB | SPEC_RES},
 	{"newbie_fly", newbie_fly, SPEC_MOB | SPEC_RES},
+	{"newbie_fodder", newbie_fodder, SPEC_MOB | SPEC_RES},
 	{"gen_locker", gen_locker, SPEC_MOB},
 	{"guard", guard, SPEC_MOB},
 	{"newbie_gold_coupler", newbie_gold_coupler, SPEC_MOB | SPEC_RES},
