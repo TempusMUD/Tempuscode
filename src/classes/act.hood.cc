@@ -170,10 +170,8 @@ ACMD(do_hamstring)
 		// 3/5ths to cancel out the multiplier
 		dam = dice(level, 15 + gen / 2) * 3 / 5;
 		add_blood_to_room(vict->in_room, 1);
-		apply_soil_to_char(vict, GET_EQ(vict, WEAR_LEGS), SOIL_BLOOD,
-			WEAR_LEGS);
-		apply_soil_to_char(vict, GET_EQ(vict, WEAR_FEET), SOIL_BLOOD,
-			WEAR_FEET);
+		apply_soil_to_char(vict, GET_EQ(vict, WEAR_LEGS), SOIL_BLOOD, WEAR_LEGS);
+		apply_soil_to_char(vict, GET_EQ(vict, WEAR_FEET), SOIL_BLOOD, WEAR_FEET);
 		if (!affected_by_spell(vict, SKILL_HAMSTRING)) {
 			af.type = SKILL_HAMSTRING;
 			af.is_instant = 0;
@@ -193,9 +191,11 @@ ACMD(do_hamstring)
 			vict->setPosition(POS_SITTING);
 			retval = damage(ch, vict, dam / 2, SKILL_HAMSTRING, WEAR_LEGS);
 		}
-		gain_skill_prof(ch, SKILL_HAMSTRING);
+		if( !IS_SET(retval, DAM_ATTACKER_KILLED) ) {
+			gain_skill_prof(ch, SKILL_HAMSTRING);
+			WAIT_STATE(ch, 5 RL_SEC);
+		}
 	}
-	WAIT_STATE(ch, 5 RL_SEC);
 }
 
 
