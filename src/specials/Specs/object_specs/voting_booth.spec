@@ -307,9 +307,10 @@ voting_booth_remove(char_data *ch, struct obj_data *obj, char *argument) {
 		return;
 	}
 
-	if (1 == poll_num)
+	if (1 == poll_num) {
+		poll = voting_poll_list;
 		voting_poll_list = voting_poll_list->next;
-	else {
+	} else {
 		prev_poll = voting_poll_list;
 
 		poll_num--;	// stop at the prev_poll before
