@@ -1640,133 +1640,71 @@ give_find_vict(struct Creature *ch, char *arg)
 }
 
 void
-perform_give_gold(struct Creature *ch, struct Creature *vict, int amount)
+transfer_money(Creature *from, Creature *to, int amt, int currency, bool plant)
 {
-	if (amount <= 0) {
-		send_to_char(ch, "Heh heh heh ... we are jolly funny today, eh?\r\n");
+	const char *currency_str, *cmd_str;
+	int on_hand;
+
+	if (currency == 1) {
+		currency_str = "cred";
+		on_hand = GET_CASH(from);
+	} else {
+		currency_str = "gold coin";
+		on_hand = GET_GOLD(from);
+	}
+
+	if (amt <= 0) {
+		send_to_char(from, "Heh heh heh ... we are jolly funny today, eh?\r\n");
 		return;
 	}
-	if ((GET_GOLD(ch) < amount) && (IS_NPC(ch) || (GET_LEVEL(ch) < LVL_GOD))) {
-		send_to_char(ch, "You don't have that many coins!\r\n");
+	if (on_hand < amt) {
+		send_to_char(from, "You don't have that many %ss!\r\n", currency_str);
 		return;
 	}
-	if (GET_LEVEL(ch) < LVL_IMMORT && vict->getPosition() <= POS_SLEEPING) {
-		act("$E is currently unconscious.", FALSE, ch, 0, vict, TO_CHAR);
+
+	if (!plant && GET_LEVEL(from) < LVL_IMMORT && to->getPosition() <= POS_SLEEPING) {
+		act("$E is currently unconscious.", FALSE, from, 0, to, TO_CHAR);
 		return;
 	}
-	send_to_char(ch, OK);
-	sprintf(buf, "You are given %d gold coins by $n.", amount);
-	act(buf, FALSE, ch, 0, vict, TO_VICT);
-	sprintf(buf, "$n gives %s to $N.", money_desc(amount, 0));
-	act(buf, TRUE, ch, 0, vict, TO_NOTVICT);
-	if (IS_NPC(ch) || (GET_LEVEL(ch) < LVL_GOD))
-		GET_GOLD(ch) -= amount;
-	GET_GOLD(vict) += amount;
 
-	if (amount >= MONEY_LOG_LIMIT)
-		slog("MONEY: %s has given %d coins to %s in room #%d (%s)",
-			GET_NAME(ch), amount, GET_NAME(vict),
-			vict->in_room->number, vict->in_room->name);
-
-	ch->saveToXML();
-	vict->saveToXML();
-}
-
-void
-perform_plant_gold(struct Creature *ch, struct Creature *vict, int amount)
-{
-	if (amount <= 0) {
-		send_to_char(ch, "Heh heh heh ... we are jolly funny today, eh?\r\n");
-		return;
+	if (plant) {
+		send_to_char(from, "You plant %d %s%s on %s", amt, currency_str,
+			amt == 1 ? "":"s", PERS(from, to));
+		if (IS_IMMORT(to) || (GET_SKILL(from, SKILL_PLANT) + GET_DEX(from)) <
+				(number(0, 83) + GET_WIS(to))) {
+			act(tmp_sprintf(buf, "%d %s%s planted in your pocket by $n.", amt,
+					currency_str, amt == 1 ? "is" : "s are"),
+				FALSE, from, 0, to, TO_VICT);
+		}
+		cmd_str = "planted";
+	} else {
+		send_to_char(from, "You give %d %s%s to %s", amt, currency_str,
+			amt == 1 ? "":"s", PERS(from, to));
+		act(tmp_sprintf("You are given %d %s%s by $n.", amt, currency_str,
+				amt == 1 ? "":"s"),
+			FALSE, from, 0, to, TO_VICT);
+		act(tmp_sprintf("$n gives %s to $N.", money_desc(amt, currency)),
+			TRUE, from, 0, to, TO_NOTVICT);
+		cmd_str = "given";
 	}
-	if ((GET_GOLD(ch) < amount) && (IS_NPC(ch) || (GET_LEVEL(ch) < LVL_GOD))) {
-		send_to_char(ch, "You don't have that many coins!\r\n");
-		return;
-	}
-	send_to_char(ch, OK);
-	if ((GET_SKILL(ch, SKILL_PLANT) + GET_DEX(ch)) < (number(0,
-				83) + GET_WIS(vict))
-		|| IS_AFFECTED_2(vict, AFF2_TRUE_SEEING)) {
-		sprintf(buf, "%d gold coin%s planted in your pocket by $n.", amount,
-			amount == 1 ? " is" : "s are");
-		act(buf, FALSE, ch, 0, vict, TO_VICT);
-	}
-	if (IS_NPC(ch) || (GET_LEVEL(ch) < LVL_GOD))
-		GET_GOLD(ch) -= amount;
-	GET_GOLD(vict) += amount;
 
-	if (amount >= MONEY_LOG_LIMIT)
-		slog("MONEY: %s has planted %d coins on %s in room #%d (%s)",
-			GET_NAME(ch), amount, GET_NAME(vict),
-			vict->in_room->number, vict->in_room->name);
-
-	ch->saveToXML();
-	vict->saveToXML();
-}
-
-void
-perform_give_credits(struct Creature *ch, struct Creature *vict, int amount)
-{
-	if (amount <= 0) {
-		send_to_char(ch, "Heh heh heh ... we are jolly funny today, eh?\r\n");
-		return;
+	if (currency == 1) {
+		GET_CASH(from) -= amt;
+		GET_CASH(to) += amt;
+	} else {
+		GET_GOLD(from) -= amt;
+		GET_GOLD(to) += amt;
 	}
-	if ((GET_CASH(ch) < amount) && (IS_NPC(ch) || (GET_LEVEL(ch) < LVL_GOD))) {
-		send_to_char(ch, "You don't have that many credits!\r\n");
-		return;
-	}
-	if (GET_LEVEL(ch) < LVL_IMMORT && vict->getPosition() <= POS_SLEEPING) {
-		act("$E is currently unconscious.", FALSE, ch, 0, vict, TO_CHAR);
-		return;
-	}
-	send_to_char(ch, OK);
-	sprintf(buf, "You are given %d credits by $n.", amount);
-	act(buf, FALSE, ch, 0, vict, TO_VICT);
-	sprintf(buf, "$n gives %s to $N.", money_desc(amount, 1));
-	act(buf, TRUE, ch, 0, vict, TO_NOTVICT);
-	if (IS_NPC(ch) || (GET_LEVEL(ch) < LVL_GOD))
-		GET_CASH(ch) -= amount;
-	GET_CASH(vict) += amount;
 
-	if (amount >= MONEY_LOG_LIMIT)
-		slog("MONEY: %s has given %d credits to %s in room #%d (%s)",
-			GET_NAME(ch), amount, GET_NAME(vict),
-			vict->in_room->number, vict->in_room->name);
+	if (amt >= MONEY_LOG_LIMIT)
+		slog("MONEY: %s has %s %s to %s in room #%d (%s)",
+			GET_NAME(from), cmd_str, money_desc(amt, currency),
+			GET_NAME(to), to->in_room->number, to->in_room->name);
 
-	ch->saveToXML();
-	vict->saveToXML();
-}
-
-void
-perform_plant_credits(struct Creature *ch, struct Creature *vict, int amount)
-{
-	if (amount <= 0) {
-		send_to_char(ch, "Heh heh heh ... we are jolly funny today, eh?\r\n");
-		return;
-	}
-	if ((GET_CASH(ch) < amount) && (IS_NPC(ch) || (GET_LEVEL(ch) < LVL_GOD))) {
-		send_to_char(ch, "You don't have that many credits!\r\n");
-		return;
-	}
-	send_to_char(ch, OK);
-	if ((GET_SKILL(ch, SKILL_PLANT) + GET_DEX(ch)) <
-		(number(0, 83) + GET_WIS(vict)) ||
-		IS_AFFECTED_2(vict, AFF2_TRUE_SEEING)) {
-		sprintf(buf, "%d credit%s planted in your pocket by $n.",
-			amount, amount == 1 ? " is" : "s are");
-		act(buf, FALSE, ch, 0, vict, TO_VICT);
-	}
-	if (IS_NPC(ch) || (GET_LEVEL(ch) < LVL_GOD))
-		GET_CASH(ch) -= amount;
-	GET_CASH(vict) += amount;
-
-	if (amount >= MONEY_LOG_LIMIT)
-		slog("MONEY: %s has planted %d credits on %s in room #%d (%s)",
-			GET_NAME(ch), amount, GET_NAME(vict),
-			vict->in_room->number, vict->in_room->name);
-
-	ch->saveToXML();
-	vict->saveToXML();
+	if (IS_PC(from))
+		from->saveToXML();
+	if (IS_PC(to))
+		to->saveToXML();
 }
 
 ACMD(do_give)
@@ -1803,9 +1741,9 @@ ACMD(do_give)
 			return;
 
 		if (!str_cmp("coins", arg2) || !str_cmp("coin", arg2))
-			perform_give_gold(ch, vict, amount);
+			transfer_money(ch, vict, amount, 0, false);
 		else if (!str_cmp("credits", arg2) || !str_cmp("credit", arg2))
-			perform_give_credits(ch, vict, amount);
+			transfer_money(ch, vict, amount, 1, false);
 		else
 			/* code to give multiple items.  anyone want to write it? -je */
 			send_to_char(ch, 
@@ -1907,12 +1845,12 @@ ACMD(do_plant)
 		if (!str_cmp("coins", arg) || !str_cmp("coin", arg)) {
 			argument = one_argument(argument, arg);
 			if ((vict = give_find_vict(ch, arg)))
-				perform_plant_gold(ch, vict, amount);
+				transfer_money(ch, vict, amount, 0, true);
 			return;
 		} else if (!str_cmp("credits", arg) || !str_cmp("credit", arg)) {
 			argument = one_argument(argument, arg);
 			if ((vict = give_find_vict(ch, arg)))
-				perform_plant_credits(ch, vict, amount);
+				transfer_money(ch, vict, amount, 1, true);
 			return;
 		} else {
 			/* code to give multiple items.  anyone want to write it? -je */

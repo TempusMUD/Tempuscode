@@ -523,10 +523,7 @@ vendor_buy(Creature *ch, char *arg, Creature *self, ShopData *shop)
 	do_say(self, tmp_sprintf("%s %s", GET_NAME(ch), shop->msg_sell),
 		0, SCMD_SAY_TO, NULL);
 
-	if (shop->currency)
-		perform_give_credits(self, ch, cost * num);
-	else
-		perform_give_gold(self, ch, cost * num);
+	transfer_money(self, ch, cost * num, shop->currency, false);
 
 	// We've already verified that they have enough of the item via a
 	// call to vendor_inventory(), so we can just blindly transfer objects
