@@ -4046,7 +4046,7 @@ perform_violence( void )
 
 	if ( IS_NPC( ch ) ) {
 	    if ( GET_MOB_WAIT( ch ) > 0 ) {
-		GET_MOB_WAIT( ch ) -= SEG_VIOLENCE;
+			GET_MOB_WAIT( ch ) -= SEG_VIOLENCE;
 	    } else if ( GET_MOB_WAIT( ch ) < SEG_VIOLENCE ) {
 		GET_MOB_WAIT( ch ) = 0;
 		if ( GET_POS( ch ) < POS_FIGHTING && GET_POS( ch ) > POS_STUNNED ) {
@@ -4060,7 +4060,7 @@ perform_violence( void )
 	}
 
 	// Make sure they're fighting before they fight.
-	if (GET_POS(ch) != POS_FIGHTING) {
+	if (GET_POS(ch) == POS_STANDING || GET_POS(ch) == POS_FLYING) {
 		GET_POS(ch) = POS_FIGHTING;
 		continue;
 	}
