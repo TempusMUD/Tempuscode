@@ -228,11 +228,15 @@ check_killer( struct char_data * ch, struct char_data * vict, const char *debug_
          !affected_by_spell( vict, SKILL_DISGUISE ) &&
          ( ch != vict ) && !ROOM_FLAGGED( ch->in_room, ROOM_ARENA ) ) {
         char buf[256];
-    if( GET_LEVEL(ch) >= LVL_POWER )
+        if( GET_LEVEL(ch) >= LVL_POWER )
                 return;
-    // Lawless... Not wrong to pk in lawless zones.
-    if ( vict->in_room && ZONE_FLAGGED( vict->in_room->zone, ZONE_NOLAW ) )
-        return;
+        // Lawless... Not wrong to pk in lawless zones.
+        if ( vict->in_room && ZONE_FLAGGED( vict->in_room->zone, ZONE_NOLAW ) ) {
+            return;
+        }
+        if( GET_REMORT_GEN(vict) >= 3) {
+            return;
+        }
 
         SET_BIT( PLR_FLAGS( ch ), PLR_KILLER );
         sprintf( buf, "PC KILLER set on %s for attack on %s at %d. %s",
@@ -253,6 +257,9 @@ check_toughguy( struct char_data * ch, struct char_data * vict, int mode )
 {
     if ( IS_NPC( ch ) || IS_NPC( vict ) || affected_by_spell( vict, SKILL_DISGUISE ) ||
          ( ch == vict ) || ROOM_FLAGGED( vict->in_room, ROOM_ARENA ) )
+        return;
+    // no toughguy for !pkillers while in the same room as the vict
+    if(!PRF2_FLAGGED( ch, PRF2_PKILLER ) && ch->in_room == vict->in_room)
         return;
 
     if ( ( !PLR_FLAGGED( ch, PLR_TOUGHGUY ) ||
