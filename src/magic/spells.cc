@@ -2098,11 +2098,11 @@ ASPELL(spell_sword)
 		return;
 	}
 
+	char_to_room(sword, ch->in_room, false);
 	act("You have conjured $N from the ethereal plane!", FALSE, ch, 0, sword,
 		TO_CHAR);
 	act("$n has conjured $N from the ethereal plane!", FALSE, ch, 0, sword,
 		TO_ROOM);
-	char_to_room(sword, ch->in_room, false);
 
 	if (sword->master)
 		stop_follower(sword);
