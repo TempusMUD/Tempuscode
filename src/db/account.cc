@@ -409,6 +409,7 @@ Account::delete_char(Creature *ch)
 	it = lower_bound(_chars.begin(), _chars.end(), GET_IDNUM(ch));
 	if (it != _chars.end())
 		_chars.erase(it);
+	save_to_xml();
 
 	// Remove character from player index
 	playerIndex.remove(GET_IDNUM(ch));
@@ -429,37 +430,6 @@ Account::login(descriptor_data *d)
 {
 	slog("login: %s[%d] from %s", _name, get_idnum(), d->host);
 	set_desc_state(CXN_MENU, d);
-/*	if (_active_cxn) {
-		slog("login: %s from %s, disconnecting %s",
-			_name, _login_addr, _active_cxn->host);
-		set_desc_state(_active_cxn->input_mode, d);
-
-		set_desc_state(CXN_DISCONNECT, d);
-		_active_cxn->creature = NULL;
-		_active_cxn->account = NULL;
-		if (_active_char) {
-			d->creature = _active_char;
-			_active_char->desc = d;
-			send_to_char(d->creature, "You take over your own body, already in use!\r\n");
-			mudlog(GET_INVIS_LVL(_active_char), NRM, true,
-				"%s has reconnected to %s [%s]",
-				_name, GET_NAME(_active_char), _login_addr);
-		}
-	} else if (_active_char) {
-		slog("login: %s from %s", _name, _login_addr);
-		d->creature = _active_char;
-		_active_char->desc = d;
-		set_desc_state(CXN_PLAYING, d);
-		mudlog(GET_INVIS_LVL(_active_char), NRM, true,
-			"%s has reconnected to %s [%s]",
-			_name, GET_NAME(_active_char), _login_addr);
-		send_to_char(_active_char, "You take over your own body!\r\n");
-	} else {
-		slog("login: %s from %s", _name, _login_addr);
-		set_desc_state(CXN_MENU, d);
-	}
-	_active_cxn = d;
-*/
 }
 
 void
