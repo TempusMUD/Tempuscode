@@ -33,7 +33,7 @@ char *two_arguments(char *argument, char *first_arg, char *second_arg);
 void two_arguments(const char *argument, char *first_arg, char *second_arg);
 int fill_word(char *argument);
 void half_chop(char *string, char *arg1, char *arg2);
-void handle_input(struct descriptor_data *d, char *arg);
+void handle_input(struct descriptor_data *d);
 int is_abbrev(const char *arg1, const char *arg2);
 int is_number(const char *str);
 int find_command(char *command, bool abbrev = false);
