@@ -1786,28 +1786,39 @@ damage( struct char_data * ch, struct char_data * victim, int dam,
     //
 
     if ( victim->getPosition() == POS_DEAD ) {
+        bool arena = false;
         if ( ch ) {
             if(attacktype != SKILL_SNIPE) {
               gain_kill_exp( ch, victim );
             }
 
             if ( !IS_NPC( victim ) ) {
+                // Arena stuff is logged less etc. Check that
+                if ( ROOM_FLAGGED( victim->in_room, ROOM_ARENA ) ) {
+                    arena = true;
+                } 
+                // Killed someone else
                 if ( victim != ch ) {
-                    GET_PKILLS( ch ) += 1;
                     sprintf( buf2, "%s %skilled by %s at %s ( %d )", GET_NAME( victim ), 
                              !IS_NPC( ch ) ? "p" : "", GET_NAME( ch ),
                              victim->in_room->name, victim->in_room->number );
 
-                    if ( ROOM_FLAGGED( victim->in_room, ROOM_ARENA ) ) {
-                        strcat( buf2, " [ARENA]" );
-                    }
+                    // If it's not arena, give em a pkill
+                    if(! arena ) { GET_PKILLS( ch ) += 1; }
                 } else {
                     sprintf( buf2, "%s died%s%s at %s ( %d )", GET_NAME( ch ),
                              ( attacktype <= TOP_NPC_SPELL ) ? " by " : "",
                              ( attacktype <= TOP_NPC_SPELL ) ? spells[attacktype] : "",
                              ch->in_room->name, ch->in_room->number );
                 }
-                mudlog( buf2, BRF, GET_INVIS_LEV( victim ), TRUE );
+                // If it's arena, log it for complete only
+                // and tag it
+                if( arena ) {
+                    strcat( buf2, " [ARENA]" );
+                    mudlog( buf2, CMP, GET_INVIS_LEV( victim ), TRUE );
+                } else {
+                    mudlog( buf2, BRF, GET_INVIS_LEV( victim ), TRUE );
+                }
                 if ( MOB_FLAGGED( ch, MOB_MEMORY ) )
                     forget( ch, victim );
                 if ( !IS_NPC( ch ) && ch != victim )
