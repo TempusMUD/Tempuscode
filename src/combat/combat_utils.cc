@@ -92,7 +92,6 @@ calculate_weapon_probability( struct char_data *ch, int prob, struct obj_data *w
     return prob;
 }
 
-
 void 
 update_pos( struct char_data * victim )
 {
@@ -103,8 +102,14 @@ update_pos( struct char_data * victim )
 	else if ( GET_HIT( victim ) > 0  &&
 		 ( victim->getPosition() == POS_STANDING
 		   || victim->getPosition() == POS_FLYING ) &&
-		 FIGHTING(victim) )
+		 FIGHTING(victim) ) {
+            #ifdef DEBUG_POSITION
+			if(victim->setPosition( POS_FIGHTING, 1 ))
+            act( "$n moves to POS_FIGHTING.(from standing or flying)", 
+                TRUE, victim, 0, 0, TO_ROOM );
+            #endif
 			victim->setPosition( POS_FIGHTING, 1 );
+          }
 	// If they're alive, not stunned, in a fight, and not pos_fighting
 	// (Making mobs stand when they get popped.
     else if ( ( GET_HIT( victim ) > 0 ) 
@@ -117,14 +122,18 @@ update_pos( struct char_data * victim )
                 if(!IS_AFFECTED_3(victim,AFF3_GRAVITY_WELL) ||
                     number(1,20) < GET_STR(victim)) {
                     if(victim->setPosition( POS_FIGHTING, 1 )) {
-                        act( "$n scrambles to $s feet!", TRUE, victim, 0, 0, TO_ROOM );
+                        #ifdef DEBUG_POSITION
+                            act( "$n moves to POS_FIGHTING.(A)", TRUE, victim, 0, 0, TO_ROOM );
+                        #else
+                            act( "$n scrambles to $s feet!", TRUE, victim, 0, 0, TO_ROOM );
+                        #endif
                     }
                 }
                 WAIT_STATE( victim, PULSE_VIOLENCE );
             } else {
                 victim->setPosition( POS_FIGHTING, 1 );
             }
-        } else {
+        } else { // PC or a mob with a wait state.
 			return;
         }
     } else if ( GET_HIT( victim ) > 0 ) {
@@ -136,19 +145,55 @@ update_pos( struct char_data * victim )
                 victim->setPosition( POS_FLYING, 1 );
             else if(!IS_AFFECTED_3(victim,AFF3_GRAVITY_WELL) 
             && victim->getPosition() < POS_FIGHTING ) {
-                if(victim->setPosition( POS_STANDING, 1 )) {
-                    act( "$n scrambles to $s feet!", TRUE, victim, 0, 0, TO_ROOM );
-                    WAIT_STATE( victim, PULSE_VIOLENCE );
+                if(FIGHTING(victim)) {
+                    if(victim->setPosition( POS_FIGHTING, 1 )) {
+                        #ifdef DEBUG_POSITION
+                        act( "$n moves to POS_FIGHTING.(B1)", TRUE, victim, 0, 0, TO_ROOM );
+                        #else
+                        act( "$n scrambles to $s feet!", TRUE, victim, 0, 0, TO_ROOM );
+                        #endif
+                        WAIT_STATE( victim, PULSE_VIOLENCE );
+                    }
+                } else {
+                    if(victim->setPosition( POS_STANDING, 1 )) {
+                        #ifdef DEBUG_POSITION
+                        act( "$n moves to POS_STANDING.(B2)", TRUE, victim, 0, 0, TO_ROOM );
+                        #else
+                        act( "$n stands up.", TRUE, victim, 0, 0, TO_ROOM );
+                        #endif
+                        WAIT_STATE( victim, PULSE_VIOLENCE );
+                    }
                 }
             } else if ( number(1,20) < GET_STR(victim)
             && victim->getPosition() < POS_FIGHTING ) {
-                if(victim->setPosition( POS_STANDING, 1 )) {
-                    act( "$n scrambles to $s feet!", TRUE, victim, 0, 0, TO_ROOM );
-                    WAIT_STATE( victim, PULSE_VIOLENCE );
+                if(FIGHTING(victim)) {
+                    if(victim->setPosition( POS_FIGHTING, 1 )) {
+                        #ifdef DEBUG_POSITION
+                        act( "$n moves to POS_FIGHTING.(C1)", TRUE, victim, 0, 0, TO_ROOM );
+                        #else
+                        act( "$n scrambles to $s feet!", TRUE, victim, 0, 0, TO_ROOM );
+                        #endif
+                        WAIT_STATE( victim, PULSE_VIOLENCE );
+                    }
+                } else {
+                    if(victim->setPosition( POS_STANDING, 1 )) {
+                        #ifdef DEBUG_POSITION
+                        act( "$n moves to POS_STANDING.(C2)", TRUE, victim, 0, 0, TO_ROOM );
+                        #else
+                        act( "$n stands up.", TRUE, victim, 0, 0, TO_ROOM );
+                        #endif
+                        WAIT_STATE( victim, PULSE_VIOLENCE );
+                    }
                 }
             }
-		}
-    }
+		} else if(victim->getPosition() == POS_STUNNED) {
+            victim->setPosition(POS_RESTING,1);
+            #ifdef DEBUG_POSITION
+            act( "$n moves to POS_RESTING.(From Stunned)", TRUE, victim, 0, 0, TO_ROOM );
+            #endif
+        }
+    }// else if ( GET_HIT( victim ) > 0 ) {
+    // Various stages of unhappiness
     else if ( GET_HIT( victim ) <= -11 )
         victim->setPosition( POS_DEAD, 1 );
     else if ( GET_HIT( victim ) <= -6 )
@@ -157,13 +202,12 @@ update_pos( struct char_data * victim )
         victim->setPosition( POS_INCAP, 1 );
     else
         victim->setPosition( POS_STUNNED,1 );
+    return;
 }
 
 void
 check_killer( struct char_data * ch, struct char_data * vict, const char *debug_msg=0 )
 {
-	if(ZONE_FLAGGED(ch->in_room->zone, ZONE_NOLAW))
-		return;
     if ( !PLR_FLAGGED( vict, PLR_KILLER | PLR_THIEF ) &&
 	 !PLR_FLAGGED( ch, PLR_KILLER ) &&
 	 ( !PLR_FLAGGED( vict, PLR_TOUGHGUY ) ||  
