@@ -592,11 +592,11 @@ shopping_buy(char *arg, struct Creature *ch,
 			do_action(keeper, GET_NAME(ch), cmd_fart, 0, 0);
 			return;
 		case 4:
-			act("$n tokes on $s golden hookah.", FALSE, ch, 0, 0, TO_ROOM);
+			act("$n tokes on $s golden hookah.", FALSE, keeper, 0, 0, TO_ROOM);
 			return;
 		case 5:
 			act("$n inserts a microsoft behind $s ear and zones out.",
-				FALSE, ch, 0, 0, TO_ROOM);
+				FALSE, keeper, 0, 0, TO_ROOM);
 			return;
 		default:
 			return;
