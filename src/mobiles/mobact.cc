@@ -1666,6 +1666,10 @@ mobile_activity(void)
 		//
 		if( IS_NPC(ch) && ch->in_room->zone->idle_time >= ZONE_IDLE_TIME)
 			continue;
+        
+        //Utility mobs don't do anything
+        if ( IS_NPC(ch) && MOB_FLAGGED(ch, MOB_UTILITY) )
+            continue;
 
 		//
 		// poison 2 tick
