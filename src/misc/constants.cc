@@ -767,6 +767,7 @@ extern const char *action_bits[] = {
   "!PETRI",
   "PET",
   "SOULLESS",
+  "SPRT_HNTR",
   "\n"
 };
 
@@ -793,6 +794,7 @@ extern const char *action_bits_desc[] = {
   "nopetri",
   "pet",
   "soulless",
+  "Spirit_Hunter",
   "\n"
 };
 
