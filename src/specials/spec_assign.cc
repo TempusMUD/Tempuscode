@@ -277,7 +277,7 @@ const struct spec_func_data spec_list[] = {
     {"killzone_room",    killzone_room,        SPEC_RM | SPEC_RES },
     {"hell_domed_chamber",  hell_domed_chamber,        SPEC_RM | SPEC_RES },
     {"malagard_lightning_room", malagard_lightning_room, SPEC_RM | SPEC_RES },
-	{"shop_keeper",     shop_keeper,           SPEC_MOB },
+        {"shop_keeper",     shop_keeper,           SPEC_MOB },
     {NULL              , NULL,                 0 } //terminator
 };
 
