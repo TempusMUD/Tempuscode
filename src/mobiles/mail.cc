@@ -400,10 +400,10 @@ postmaster_send_mail(struct Creature *ch, struct Creature *mailman,
     } else {
 
         while (*buf) {
-            if ((recipient = playerIndex.getID(buf)) < 0) {
-                sprintf(buf2, "No one by the name '%s' is registered here!",
-                    buf);
-                perform_tell(mailman, ch, buf2);
+            if ((recipient = playerIndex.getID(buf)) <= 0) {
+                perform_tell(mailman, ch,
+					tmp_sprintf("No one by the name '%s' is registered here!",
+						buf));
             } else if ((status = mail_box_status(recipient)) > 0) {
                 // 0 is normal
                 // 1 is frozen
