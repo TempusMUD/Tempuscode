@@ -1,6 +1,6 @@
 CXX=g++
 INCLUDE=include
-CCFLAGS=-g -Wall -Winline -Wcast-qual -I/usr/include/libxml2
+CCFLAGS=-g -Wall -Winline -Wcast-qual -I/usr/include/libxml2 -I/usr/local/pgsql/include
 CXXFLAGS=$(CCFLAGS) -I$(INCLUDE)
 
 SUBDIRS= \
@@ -11,7 +11,7 @@ SUBDIRS= \
 
 MAKEFLAGS=-s -k 4 $(PARALLEL_MAKE)
 OBJ=ObjFiles
-LIBS=-lcrypt -lxml2
+LIBS=-L/usr/local/pgsql/lib -lcrypt -lxml2 -lpq
 EXE=../bin/circle
 
 default all:

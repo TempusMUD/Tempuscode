@@ -4360,7 +4360,6 @@ ACMD(do_color)
 		return;
 	}
 	ch->account->set_ansi_level(tp);
-	ch->account->save_to_xml();
 
 	send_to_char(ch, "Your %scolor%s is now %s%s%s%s.\r\n", CCRED(ch, C_SPR),
 		CCNRM(ch, C_OFF), CCYEL(ch, C_NRM), CCBLD(ch, C_CMP), ctypes[tp],

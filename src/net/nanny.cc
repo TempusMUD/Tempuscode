@@ -210,12 +210,10 @@ handle_input(struct descriptor_data *d)
 			send_to_desc(d, "Passwords did not match.  Please try again.\r\n");
 			set_desc_state(CXN_PW_PROMPT, d);
 		} else {
-			d->account->save_to_xml();
 			set_desc_state(CXN_NAME_PROMPT, d);
 		}
 		break;
 	case CXN_MENU:
-		d->account->save_to_xml();
 		switch (tolower(arg[0])) {
 		case 'l':
 		case '0':
@@ -377,7 +375,6 @@ handle_input(struct descriptor_data *d)
 				// reset name in account, playerIndex, creature, ugh...
 			}
 			set_desc_state(CXN_SEX_PROMPT, d);
-			d->account->save_to_xml();
 		} else {
             send_to_desc(d, "\r\nThat character name is invalid.\r\n\r\n");
         }
@@ -645,7 +642,6 @@ handle_input(struct descriptor_data *d)
 			send_to_desc(d, "\r\nPasswords did not match.  Please try again.\r\n\r\n");
 			set_desc_state(CXN_PW_PROMPT, d);
 		} else {
-			d->account->save_to_xml();
 			send_to_desc(d, "\r\n\r\nPassword changed!\r\n\r\n");
 			set_desc_state(CXN_WAIT_MENU, d);
 		}
@@ -995,8 +991,6 @@ send_menu(descriptor_data *d)
 			delete d->creature;
 			d->creature = NULL;
 		}
-
-		d->account->save_to_xml();
 
 		send_to_desc(d, "\e[H\e[J");
 		send_to_desc(d,

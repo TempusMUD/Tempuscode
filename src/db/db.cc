@@ -145,6 +145,7 @@ struct time_info_data time_info;	/* the infomation about the time    */
 /*struct weather_data weather_info;        the infomation about the weather */
 extern struct player_special_data dummy_mob;	/* dummy spec area for mobs         */
 struct reset_q_type reset_q;	/* queue of zones to be reset         */
+PGconn *sql_cxn = NULL;
 
 /* local functions */
 void setup_dir(FILE * fl, struct room_data *room, int dir);
@@ -319,6 +320,17 @@ boot_db(void)
 
 	slog("Resetting the game time:");
 	reset_time();
+
+	slog("Connecting to postgres.");
+	sql_cxn = PQconnectdb("user=realm dbname=tempus");
+	if (!sql_cxn) {
+		slog("Couldn't allocate postgres connection!");
+		safe_exit(1);
+	}
+	if (PQstatus(sql_cxn) != CONNECTION_OK) {
+		slog("Couldn't connect to postgres!");
+		safe_exit(1);
+	}
 
 	boot_accounts();
 	slog("Reading credits, bground, info & motds.");
@@ -3451,5 +3463,56 @@ get_equipment_file_path( long id )
     return tmp_sprintf( "players/equipment/%0ld/%ld.dat", (id % 10), id );
 }
 
+bool
+sql_exec(const char *str, ...)
+{
+	PGresult *res;
+	char *query;
+	va_list args;
+	bool result;
 
+	if (!str || !*str)
+		return false;
+
+	va_start(args, str);
+	query = tmp_vsprintf(str, args);
+	va_end(args);
+
+	res = PQexec(sql_cxn, query);
+	if (!res) {
+		slog("FATAL: Couldn't allocate sql result");
+		safe_exit(1);
+	}
+	result = PQresultStatus(res) == PGRES_COMMAND_OK;
+	if (!result) {
+		slog("WARNING: sql expression generated error: %s",
+			PQresultErrorMessage(res));
+		slog("FROM SQL: %s", query);
+	}
+	PQclear(res);
+	return result;
+}
+
+PGresult *
+sql_query(const char *str, ...)
+{
+	PGresult *res;
+	char *query;
+	va_list args;
+
+	if (!str || !*str)
+		return NULL;
+
+	va_start(args, str);
+	query = tmp_vsprintf(str, args);
+	va_end(args);
+
+	res = PQexec(sql_cxn, query);
+	if (!res) {
+		slog("FATAL: Couldn't allocate sql result");
+		safe_exit(1);
+	}
+
+	return res;
+}
 #undef __db_c__

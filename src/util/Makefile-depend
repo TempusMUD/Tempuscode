@@ -5,7 +5,7 @@ $(OBJ)/handler.o : handler.cc \
 	$(INCLUDE)/structs.h $(INCLUDE)/utils.h $(INCLUDE)/comm.h $(INCLUDE)/db.h $(INCLUDE)/handler.h $(INCLUDE)/interpreter.h $(INCLUDE)/spells.h $(INCLUDE)/screen.h $(INCLUDE)/vehicle.h $(INCLUDE)/vendor.h $(INCLUDE)/clan.h $(INCLUDE)/smokes.h $(INCLUDE)/materials.h $(INCLUDE)/login.h $(INCLUDE)/char_class.h $(INCLUDE)/help.h $(INCLUDE)/fight.h $(INCLUDE)/security.h $(INCLUDE)/tmpstr.h $(INCLUDE)/utils.h $(INCLUDE)/vendor.h 
 	$(CXX) -c $(CXXFLAGS) handler.cc           -o $(OBJ)/handler.o
 $(OBJ)/memtrack.o : memtrack.cc \
-	$(INCLUDE)/utils.h 
+	$(INCLUDE)/memtrack.h 
 	$(CXX) -c $(CXXFLAGS) memtrack.cc          -o $(OBJ)/memtrack.o
 $(OBJ)/modify.o : modify.cc \
 	$(INCLUDE)/structs.h $(INCLUDE)/utils.h $(INCLUDE)/interpreter.h $(INCLUDE)/handler.h $(INCLUDE)/db.h $(INCLUDE)/comm.h $(INCLUDE)/spells.h $(INCLUDE)/mail.h $(INCLUDE)/boards.h $(INCLUDE)/login.h $(INCLUDE)/screen.h 
@@ -17,7 +17,7 @@ $(OBJ)/sight.o : sight.cc \
 	$(INCLUDE)/defs.h $(INCLUDE)/creature.h $(INCLUDE)/utils.h $(INCLUDE)/spells.h 
 	$(CXX) -c $(CXXFLAGS) sight.cc             -o $(OBJ)/sight.o
 $(OBJ)/tmpstr.o : tmpstr.cc \
-	$(INCLUDE)/interpreter.h $(INCLUDE)/utils.h 
+	$(INCLUDE)/interpreter.h $(INCLUDE)/utils.h $(INCLUDE)/db.h 
 	$(CXX) -c $(CXXFLAGS) tmpstr.cc            -o $(OBJ)/tmpstr.o
 $(OBJ)/utils.o : utils.cc \
 	$(INCLUDE)/structs.h $(INCLUDE)/utils.h $(INCLUDE)/comm.h $(INCLUDE)/screen.h $(INCLUDE)/spells.h $(INCLUDE)/handler.h $(INCLUDE)/interpreter.h $(INCLUDE)/security.h $(INCLUDE)/db.h $(INCLUDE)/char_class.h $(INCLUDE)/tmpstr.h $(INCLUDE)/spells.h 

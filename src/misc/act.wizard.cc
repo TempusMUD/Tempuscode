@@ -7493,7 +7493,6 @@ ACMD(do_account)
 		account->set_password(token);
 		send_to_char(ch, "Password for account %s[%d] has been set.\r\n",
 			account->get_name(), account_id);
-		account->save_to_xml();
 	} else {
 		send_to_char(ch, ACCOUNT_USAGE);
 	}

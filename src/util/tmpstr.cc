@@ -6,6 +6,7 @@
 #include <string.h>
 #include "interpreter.h"
 #include "utils.h"
+#include "db.h"
 
 struct tmp_str_pool {
 	struct tmp_str_pool *next;		// Ptr to next in linked list
@@ -434,6 +435,46 @@ tmp_strdup(const char *src, const char *term_str)
 	while (--len)
 		*write_pt++ = *read_pt++;
 	*write_pt = '\0';
+
+	return result;
+}
+
+char *
+tmp_sqlescape(const char *str)
+{
+	struct tmp_str_pool *cur_buf;
+	char *result;
+	size_t len;
+	
+	len = strlen(str) * 2 + 1;
+	if (len + 1 > tmp_list_tail->space - tmp_list_tail->used)
+		cur_buf = tmp_alloc_pool(len + 1);
+	else
+		cur_buf = tmp_list_tail;
+
+	result = cur_buf->data + cur_buf->used;
+	len = PQescapeString(result, str, len);
+	cur_buf->used += len + 1;
+
+	return result;
+}
+
+char *
+tmp_ctime(time_t val)
+{
+	struct tmp_str_pool *cur_buf;
+	char *result;
+	size_t len;
+	
+	len = 17;
+	if (len + 1 > tmp_list_tail->space - tmp_list_tail->used)
+		cur_buf = tmp_alloc_pool(len + 1);
+	else
+		cur_buf = tmp_list_tail;
+
+	result = cur_buf->data + cur_buf->used;
+	strcpy(result, ctime(&val));
+	cur_buf->used += strlen(result) + 1;
 
 	return result;
 }

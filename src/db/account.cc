@@ -3,7 +3,6 @@
 #include <stdlib.h>
 #include <algorithm>
 #include <utility>
-#include "xml_utils.h"
 #include "utils.h"
 #include "desc_data.h"
 #include "interpreter.h"
@@ -14,6 +13,7 @@
 #include "security.h"
 #include "clan.h"
 #include "handler.h"
+#include "db.h"
 
 const char *ansi_levels[] = {
 	"none",
@@ -28,60 +28,53 @@ char *get_account_file_path(long id);
 void
 boot_accounts(void)
 {
-	DIR *dir;
-	dirent *file;
-	char dir_path[256], path[256];
-	long acct_count = 0;
-	xmlDocPtr doc;
-	xmlNodePtr node;
+	long acct_count, field_count, acct_idx, field_idx;
+	long count, idx, acct_id;
+	const char **fields;
 	Account *new_acct;
+	PGresult *acct_res, *res;
 
 	slog("Reading player accounts");
+	acct_res = sql_query("select idnum, name, password, email, date_part('epoch', creation_time) as creation_time, creation_addr, date_part('epoch', login_time) as login_time, login_addr, date_part('epoch', entry_time) as entry_time, ansi_level, term_height, term_width, bank_past, bank_future from accounts");
+	acct_count = PQntuples(acct_res);
 
-	for (int num = 0;num < 10;num++) {
-		snprintf(dir_path, 255, "players/accounts/%d", num);
-		dir = opendir(dir_path);
-		if (!dir) {
-			slog("SYSERR: directory '%s' does not exist", dir_path);
-			return;
-		}
+	// Get field names and put them in an array
+	field_count = PQnfields(acct_res);
+	fields = new (const char *)[field_count];
+	for (field_idx = 0;field_idx < field_count;field_idx++)
+		fields[field_idx] = PQfname(acct_res, field_idx);
 
-		while ((file = readdir(dir)) != NULL) {
-			if (!rindex(file->d_name, '.'))
-				continue;
-			if (strcmp(rindex(file->d_name, '.'), ".acct"))
-				continue;
+	for (acct_idx = 0;acct_idx < acct_count;acct_idx++) {
+		new_acct = new Account;
+		for (field_idx = 0;field_idx < field_count;field_idx++)
+			new_acct->set(fields[field_idx],
+				PQgetvalue(acct_res, acct_idx, field_idx));
+		accountIndex.add(new_acct);
 
-			snprintf(path, 255, "%s/%s", dir_path, file->d_name);
-			doc = xmlParseFile(path);
-			if (!doc) {
-				slog("SYSERR: XML parse error while loading %s", path);
-				continue;
-			}
+		acct_id = atol(PQgetvalue(acct_res, acct_idx, 0));
 
-			node = xmlDocGetRootElement(doc);
-			if (!node) {
-				xmlFreeDoc(doc);
-				slog("SYSERR: XML file %s is empty", path);
-				continue;
-			}
+		// Now we add the players to the account and player index
+		res = sql_query("select idnum, name from players where account=%ld",
+			acct_id);
+		count = PQntuples(res);
+		for (idx = 0;idx < count;idx++)
+			new_acct->add_player(atol(PQgetvalue(res, idx, 0)),
+				PQgetvalue(res, idx, 1));
+		PQclear(res);
 
-			if (!xmlMatches(node->name, "account")) {
-				xmlFreeDoc(doc);
-				slog("SYSERR: First XML node in %s is not an account", path);
-				continue;
-			}
-			
-			new_acct = new Account;
-			new_acct->load_from_xml(doc, node);
-			xmlFreeDoc(doc);
-
-			accountIndex.add(new_acct);
-			acct_count++;
-		}
-
-		closedir(dir);
+		// Add trusted players to account
+		res = sql_query("select player from trusted where account=%ld",
+			acct_id);
+		count = PQntuples(res);
+		for (idx = 0;idx < count;idx++)
+			new_acct->trust(atol(PQgetvalue(res, idx, 0)));
+		PQclear(res);
 	}
+
+	// Clean up
+	delete [] fields;
+	PQclear(acct_res);
+
 	if (accountIndex.size())
 		slog("... %d account%s loaded", accountIndex.size(), (accountIndex.size() == 1) ? "":"s");
 	else
@@ -133,92 +126,46 @@ Account::~Account(void)
 	accountIndex.remove(this);
 }
 
-bool
-Account::load_from_xml(xmlDocPtr doc, xmlNodePtr root)
+void
+Account::set(const char *key, const char *val)
 {
-	int num;
-	char *str;
-
-	_id = xmlGetIntProp(root, "idnum");
-	for (xmlNodePtr node = root->xmlChildrenNode;node;node = node->next) {
-		if (xmlMatches(node->name, "display")) {
-			_ansi_level = xmlGetIntProp(node, "ansi");
-			_term_height = xmlGetIntProp(node, "height");
-			_term_width = xmlGetIntProp(node, "width");
-		} else if (xmlMatches(node->name, "login")) {
-			_name = xmlGetProp(node, "name");
-			_password = xmlGetProp(node, "password");
-		} else if (xmlMatches(node->name, "email")) {
-			_email = (char *)xmlNodeGetContent(node);
-		} else if (xmlMatches(node->name, "creation")) {
-			_creation_time = xmlGetIntProp(node, "time");
-			_creation_addr = xmlGetProp(node, "addr");
-		} else if (xmlMatches(node->name, "lastlogin")) {
-			_login_time = xmlGetIntProp(node, "time");
-			_login_addr = xmlGetProp(node, "addr");
-		} else if (xmlMatches(node->name, "lastentry")) {
-			_entry_time = xmlGetIntProp(node, "time");
-		} else if (xmlMatches(node->name, "bank")) {
-			_bank_past = xmlGetLongLongProp(node, "past");
-			_bank_future = xmlGetLongLongProp(node, "future");
-		} else if (xmlMatches(node->name, "character")) {
-			num = xmlGetIntProp(node, "idnum");
-			str = xmlGetProp(node, "name");
-			_chars.push_back(num);
-			playerIndex.add(num, str, _id, false);
-			free(str);
-        } else if (xmlMatches(node->name, "trusted")) {
-			num = xmlGetIntProp(node, "idnum", -1);
-			_trusted.push_back(num);
-		} else if (!xmlMatches(node->name, "text")) {
-			slog("Can't happen at %s:%d", __FILE__, __LINE__);
-			return false;
-		}
-	}
-
-	return true;
+	if (!strcmp(key, "idnum"))
+		_id = atol(val);
+	else if (!strcmp(key, "name"))
+		_name = strdup(val);
+	else if (!strcmp(key, "password"))
+		_password = strdup(val);
+	else if (!strcmp(key, "email"))
+		_email = strdup(val);
+	else if (!strcmp(key, "ansi_level"))
+		_ansi_level = atoi(val);
+	else if (!strcmp(key, "term_height"))
+		_term_height = atoi(val);
+	else if (!strcmp(key, "term_width"))
+		_term_width = atoi(val);
+	else if (!strcmp(key, "creation_time"))
+		_creation_time = atol(val);
+	else if (!strcmp(key, "creation_addr"))
+		_creation_addr = strdup(val);
+	else if (!strcmp(key, "login_time"))
+		_login_time = atol(val);
+	else if (!strcmp(key, "login_addr"))
+		_login_addr = strdup(val);
+	else if (!strcmp(key, "entry_time"))
+		_entry_time = atol(val);
+	else if (!strcmp(key, "bank_past"))
+		_bank_past = atoll(val);
+	else if (!strcmp(key, "bank_future"))
+		_bank_future = atoll(val);
+	else
+		slog("Invalid account field %s set to %s", key, val);
 }
 
-bool
-Account::save_to_xml(void)
+void
+Account::add_player(long idnum, const char *name)
 {
-	vector<long>::iterator cur_pc;
-	char *path = get_account_file_path(_id);
-	FILE *ouf;
-
-	ouf = fopen(path, "w");
-
-	if (!ouf) {
-		slog("Unable to open XML account file '%s' for writing: %s", path,
-			strerror(errno));
-		return false;
-	}
-
-	fprintf(ouf, "<account idnum=\"%d\">\n", _id);
-	fprintf(ouf, "\t<login name=\"%s\" password=\"%s\"/>\n", _name, _password);
-	if (_email)
-		fprintf(ouf, "\t<email>%s</email>\n", _email);
-	fprintf(ouf, "\t<creation time=\"%lu\" addr=\"%s\"/>\n", _creation_time,
-		_creation_addr);
-	fprintf(ouf, "\t<lastlogin time=\"%lu\" addr=\"%s\"/>\n", _login_time,
-		_login_addr);
-	fprintf(ouf, "\t<lastentry time=\"%lu\"/>\n", _entry_time);
-	fprintf(ouf, "\t<display ansi=\"%u\" height=\"%u\" width=\"%u\"/>\n",
-		_ansi_level, _term_height, _term_width);
-	fprintf(ouf, "\t<bank past=\"%lld\" future=\"%lld\"/>\n",
-		_bank_past, _bank_future);
-	for (cur_pc = _chars.begin();cur_pc != _chars.end();cur_pc++) {
-		fprintf(ouf, "\t<character idnum=\"%ld\" name=\"%s\"/>\n",
-			*cur_pc, playerIndex.getName(*cur_pc));
-	}
-
-	for (cur_pc = _trusted.begin();cur_pc != _trusted.end();cur_pc++)
-		fprintf(ouf, "<trusted idnum=\"%ld\"/>\n", *cur_pc);
-
-	fprintf(ouf, "</account>\n");
-	fclose(ouf);
-
-	return true;
+	_chars.push_back(idnum);
+	playerIndex.add(idnum, name, _id, false);
 }
 
 Account* 
@@ -310,6 +257,8 @@ Account::create_char(const char *name)
     GET_NAME(ch) = strdup(tmp_capitalize(tmp_tolower(name)));
     ch->char_specials.saved.idnum = playerIndex.getTopIDNum() + 1;
 	_chars.push_back(GET_IDNUM(ch));
+	sql_exec("insert into players (idnum, name, account) values (%ld, '%s', %d)",
+		GET_IDNUM(ch), tmp_sqlescape(name), _id);
 	
     // *** if this is our first player --- he be God ***
 	if( GET_IDNUM(ch) == 1) {
@@ -423,7 +372,7 @@ Account::delete_char(Creature *ch)
 	it = lower_bound(_chars.begin(), _chars.end(), GET_IDNUM(ch));
 	if (it != _chars.end())
 		_chars.erase(it);
-	save_to_xml();
+	sql_exec("delete from players where idnum=%ld", GET_IDNUM(ch));
 
 	// Remove character from player index
 	playerIndex.remove(GET_IDNUM(ch));
@@ -433,9 +382,9 @@ Account::delete_char(Creature *ch)
 bool
 Account::authenticate(const char *pw)
 {
-	if( _password == NULL ) {
+	if(_password == NULL || *_password == '\0') {
 		slog("SYSERR: Account %s[%d] has NULL password. Setting to guess.", _name, _id );
-		_password = strdup( crypt(pw, _password) );
+		set_password(pw);
 	}
 	return !strcmp(_password, crypt(pw, _password));
 }
@@ -456,7 +405,9 @@ Account::logout(descriptor_data *d, bool forced)
 			free(_login_addr);
 		_login_addr = strdup(d->host);
 
-		save_to_xml();
+		sql_exec("update accounts set login_addr='%s', login_time='%s' where idnum=%d",
+			tmp_sqlescape(_login_addr), tmp_ctime(_login_time), _id);
+
 		slog("%slogout: %s[%d] from %s", (forced) ? "forced ":"", 
              _name, get_idnum(), _login_addr);
 	} else {
@@ -483,6 +434,9 @@ Account::initialize(const char *name, descriptor_data *d, int idnum)
 	_bank_future = 0;
 
 	slog("new account: %s[%d] from %s", _name, idnum, d->host);
+	sql_exec("insert into accounts (idnum, name, creation_time, creation_addr, login_time, login_addr, ansi_level, term_height, term_width, bank_past, bank_future) values (%d, '%s', now(), '%s', now(), '%s', 0, %d, %d, 0, 0)",
+		idnum, tmp_sqlescape(name), tmp_sqlescape(d->host),
+		tmp_sqlescape(d->host), DEFAULT_TERM_HEIGHT, DEFAULT_TERM_WIDTH);
 }
 
 void
@@ -505,40 +459,50 @@ Account::set_password(const char *pw)
 			salt[idx] = '/';
 	}
 	_password = strdup(crypt(pw, salt));
+	sql_exec("update accounts set password='%s' where idnum=%d",
+		tmp_sqlescape(_password), _id);
 }
 
 void
 Account::deposit_past_bank(long long amt)
 {
 	if (amt > 0)
-		_bank_past += amt;
+		set_past_bank(_bank_past + amt);
 }
 
 void
 Account::deposit_future_bank(long long amt)
 {
 	if (amt > 0)
-		_bank_future += amt;
+		set_future_bank(_bank_future + amt);
 }
 
 void
 Account::withdraw_past_bank(long long amt)
 {
-	if (amt > 0)
-		_bank_past -= amt;
+	if (amt <= 0)
+		return;
+	if (amt > _bank_past)
+		amt = _bank_past;
+	set_past_bank(_bank_past - amt);
 }
 
 void
 Account::withdraw_future_bank(long long amt)
 {
-	if (amt > 0)
-		_bank_future -= amt;
+	if (amt <= 0)
+		return;
+	if (amt > _bank_future)
+		amt = _bank_future;
+	set_future_bank(_bank_future - amt);
 }
 
 void
 Account::set_email_addr(const char *addr)
 {
 	_email = strdup(addr);
+	sql_exec("update accounts set email='%s' where idnum=%d",
+		tmp_sqlescape(_email), _id);
 }
 
 long
@@ -569,8 +533,8 @@ Account::move_char(long id, Account *dest)
 	playerIndex.remove(*it);
 	playerIndex.add(*it, name, dest->_id );
 	dest->_chars.push_back(id);
-	save_to_xml();
-	dest->save_to_xml();
+	sql_exec("update players set account=%d where idnum=%ld",
+		dest->_id, id);
 }
 
 void
@@ -588,7 +552,6 @@ Account::exhume_char( Creature *exhumer, long id )
 		_chars.push_back( id );
 		send_to_char(exhumer, "%s exhumed.\r\n", 
 					tmp_capitalize( GET_NAME(victim) ) );
-		save_to_xml();
 	} else {
 		send_to_char(exhumer, "Unable to load character %ld.\r\n", id );
 	}
@@ -652,6 +615,7 @@ void
 Account::update_last_entry(void)
 {
 	_entry_time = time(0);
+	sql_exec("update accounts set entry_time=now() where idnum=%d", _id);
 }
 
 bool
@@ -680,6 +644,8 @@ Account::trust(long idnum)
 			return;
 
 	_trusted.push_back(idnum);
+	sql_exec("insert into trusted (account, player) values (%d, %ld)",
+		_id, idnum);
 }
 
 void
@@ -690,6 +656,8 @@ Account::distrust(long idnum)
 	for (it = _trusted.begin();it != _trusted.end();it++) {
 		if (*it == idnum) {
 			_trusted.erase(it);
+			sql_exec("delete from trusted where account=%d and player=%ld",
+				_id, idnum);
 			return;
 		}
 	}
@@ -714,3 +682,52 @@ Account::displayTrusted(Creature *ch)
 	if (col)
 		send_to_char(ch, "\r\n");
 }
+
+void
+Account::set_ansi_level(int level)
+{
+	_ansi_level = level;
+	sql_exec("update accounts set ansi_level=%d where idnum=%d",
+		_ansi_level, _id);
+}
+
+void
+Account::set_past_bank(long long amt)
+{
+	_bank_past = amt;
+	sql_exec("update accounts set bank_past=%lld where idnum=%d",
+		_bank_past, _id);
+}
+
+void
+Account::set_future_bank(long long amt)
+{
+	_bank_future = amt;
+	sql_exec("update accounts set bank_future=%lld where idnum=%d",
+		_bank_future, _id);
+}
+
+void
+Account::set_term_height(int height)
+{
+	if (height < 2)
+		height = 2;
+	if (height > 200)
+		height = 200;
+	_term_height = height;
+	sql_exec("update accounts set term_height=%d where idnum=%d",
+		_term_height, _id);
+}
+
+void
+Account::set_term_width(int width)
+{
+	if (width < 2)
+		width = 2;
+	if (width > 200)
+		width = 200;
+	_term_width = width;
+	sql_exec("update accounts set term_width=%d where idnum=%d",
+		_term_width, _id);
+}
+

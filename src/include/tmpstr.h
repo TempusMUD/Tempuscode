@@ -53,6 +53,12 @@ char *tmp_tolower(const char *str);
 // returns a copy of str with the first character capitalized
 char *tmp_capitalize(const char *str);
 
+// returns an escaped string to be used in a sql query
+char *tmp_sqlescape(const char *str);
+
+// returns the standard string representation of a unix timestamp
+char *tmp_ctime(time_t val);
+
 // Initializes the structures used for the temporary string mechanism
 void tmp_string_init(void);
 

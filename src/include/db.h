@@ -22,6 +22,7 @@
 #include <stdio.h>
 #include "defs.h"
 #include "creature.h"
+#include "libpq-fe.h"
 
 #ifndef _NEWDYNCONTROL_			// used by a util
 
@@ -235,6 +236,15 @@ extern struct shop_data *shop_index;
 extern struct obj_data *obj_proto;
 extern struct room_data *world;
 extern struct obj_data *object_list;
+extern PGconn *sql_cxn;
+
+// Executes a SQL command, returns NULL if successful, an error string if not
+const char *sql_exec(const char *str, ...)
+	__attribute__ ((format (printf, 1, 2))); 
+// Executes a SQL query.  Returns the result, which must be deallocated
+// with PQclear() after use
+PGresult *sql_query(const char *str, ...)
+	__attribute__ ((format (printf, 1, 2))); 
 
 #endif							// __db_c__
 

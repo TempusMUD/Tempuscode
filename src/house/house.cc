@@ -993,7 +993,6 @@ House::reconcilePrivateCollection( int cost )
 			account->set_future_bank(0);
 		}
 	}
-	account->save_to_xml();
 	return cost;
 }
 
