@@ -190,7 +190,7 @@ void CTextEditor::ExportMail( void ) {
         // Check the length we need, just to be sure.
         for(mail_rcpt = desc->mail_to; mail_rcpt;mail_rcpt = mail_rcpt->next)
             cc_len++;
-        cc_list = new char[(cc_len * MAX_NAME_LENGTH) + 3];
+        cc_list = new char[(cc_len * MAX_NAME_LENGTH) + 32];
 
         strcpy(cc_list,"  CC: ");
         for(mail_rcpt = desc->mail_to; mail_rcpt; mail_rcpt = mail_rcpt->next){
@@ -828,7 +828,7 @@ void CTextEditor::ListRecipients( void ) {
 	for(mail_rcpt = desc->mail_to; mail_rcpt;mail_rcpt = mail_rcpt->next)
         cc_len++;
 
-    cc_list = new char[(cc_len * MAX_NAME_LENGTH) + 3];
+    cc_list = new char[(cc_len * MAX_NAME_LENGTH) + 32];
     
 	sprintf(cc_list, "%sTo%s:%s ", 
 		CCYEL(desc->character, C_NRM), 
@@ -856,8 +856,8 @@ void CTextEditor::ListRecipients( void ) {
 
 void CTextEditor::AddRecipient(char* name) {
     long new_id_num = 0;
-    struct mail_recipient_data *recipient = NULL;
-    struct mail_recipient_data *added_pointer = NULL;
+    struct mail_cur_data *cur = NULL;
+    struct mail_cur_data *new_rcpt = NULL;
     char buf[MAX_INPUT_LENGTH];
     int x = 0;
 
@@ -867,39 +867,42 @@ void CTextEditor::AddRecipient(char* name) {
         return;
     }
 
-    added_pointer = (struct mail_recipient_data *)malloc(sizeof(struct mail_recipient_data));
-    added_pointer->recpt_idnum = new_id_num;
-    added_pointer->next = NULL;
+    new_rcpt = (struct mail_cur_data *)malloc(sizeof(struct mail_cur_data));
+    new_rcpt->recpt_idnum = new_id_num;
+    new_rcpt->next = NULL;
 
-    // Now find the end of the current list and add the new recipient
+    // Now find the end of the current list and add the new cur
     
-    // First case, originally just one recipient
+    // First case, originally just one cur
     if(desc->mail_to->recpt_idnum == new_id_num) {
-        sprintf(buf, "%s is already on the recipient list.\r\n", CAP(get_name_by_id(new_id_num)));
+        sprintf(buf, "%s is already on the recipient list.\r\n", 
+			CAP(get_name_by_id(new_id_num)));
         SendMessage(buf);
-        free(added_pointer);
+        free(new_rcpt);
         return;
     } else if(desc->mail_to->next == NULL) {
-        desc->mail_to->next = added_pointer;
-        sprintf(buf, "%s added to recipient list.\r\n", CAP(get_name_by_id(new_id_num)));
+        desc->mail_to->next = new_rcpt;
+        sprintf(buf, "%s added to recipient list.\r\n", 
+			CAP(get_name_by_id(new_id_num)));
         SendMessage(buf);
         ListRecipients();
         return;
     }
     
-    for(recipient = desc->mail_to; recipient;){
-        if (recipient->next && x < 90) {
-            recipient = recipient->next;
-            if(recipient->recpt_idnum == new_id_num) {
-                sprintf(buf, "%s is already on the recipient list.\r\n", CAP(get_name_by_id(new_id_num)));
+    for(cur = desc->mail_to; cur;){
+        if (cur->next) {
+            cur = cur->next;
+            if(cur->recpt_idnum == new_id_num) {
+                sprintf(buf, "%s is already on the recipient list.\r\n", 
+					CAP(get_name_by_id(new_id_num)));
                 SendMessage(buf);
-                free(added_pointer);
+                free(new_rcpt);
                 return;
             }
-            x++;
         } else {
-            recipient->next = added_pointer;
-            sprintf(buf, "%s added to recipient list.\r\n", CAP(get_name_by_id(new_id_num)));
+            cur->next = new_rcpt;
+            sprintf(buf, "%s added to recipient list.\r\n", 
+				CAP(get_name_by_id(new_id_num)));
             SendMessage(buf);
             ListRecipients();
             return;
@@ -930,7 +933,8 @@ void CTextEditor::RemRecipient(char* name) {
         cur = desc->mail_to;
         desc->mail_to = desc->mail_to->next;
         free(cur);
-        sprintf(buf, "%s removed from recipient list.\r\n", CAP(get_name_by_id(removed_idnum)));
+        sprintf(buf, "%s removed from recipient list.\r\n", 
+			CAP(get_name_by_id(removed_idnum)));
         SendMessage(buf);
         return;
     }
@@ -946,7 +950,8 @@ void CTextEditor::RemRecipient(char* name) {
     prev->next = cur->next;
     free(cur);
 
-    sprintf(buf, "%s removed from recipient list.\r\n", CAP(get_name_by_id(removed_idnum)));
+    sprintf(buf, "%s removed from recipient list.\r\n", 
+		CAP(get_name_by_id(removed_idnum)));
     SendMessage(buf);
 
     return;
