@@ -28,17 +28,19 @@ SPECIAL(fate)
 	if( spec_mode == SPECIAL_CMD ) {
 		if(! Security::isMember(ch,"Coder") ) {
 			return 0;
-		} else if( strcmp(argument,"status") ) {
+		} else if( CMD_IS("status") ) {
 			send_to_char(ch, "Fate timers: %d, %d, %d\r\n",
 							 fate_timers[0], 
 							 fate_timers[1], 
 							 fate_timers[2] );
 			return 1;
-		} else if( strcmp(argument,"reset") ) {
+		} else if( CMD_IS("reset") ) {
 			send_to_char(ch, "Resetting fate timers.\r\n");
 			fate_timers[0] = fate_timers[1] = fate_timers[2] = 0;
 			return 1;
-		} 
+		} else {
+			send_to_char(ch, "Fate - Available commands are: status, reset\r\n");
+		}
 		return 0;
 	}
 
