@@ -1542,11 +1542,11 @@ ACMD(do_screen)
 		send_to_char(ch, "Your SCREEN is default 22 as an NPC.  Sorry.\r\n");
 		return;
 	}
-
-	send_to_char(ch, "Your current screen length is: %d lines.\r\n",
-		ch->desc->account->get_term_height());
-	return;
-
+    if(!*arg) {
+        send_to_char(ch, "Your current screen length is: %d lines.\r\n",
+            ch->desc->account->get_term_height());
+        return;
+    }
 	if (isdigit(*arg)) {
 		leng = atoi(arg);
 		leng = MIN(leng, 200);
@@ -1554,9 +1554,10 @@ ACMD(do_screen)
 		send_to_char(ch, "Your screen length will now be %d lines.\r\n",
 			GET_PAGE_LENGTH(ch));
 		return;
-	} else
+	} else {
 		send_to_char(ch, 
 			"Specify the length of your screen from top to bottom, in lines.\r\n");
+    }
 }
 
 ACMD(do_throw)
