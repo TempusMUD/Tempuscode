@@ -17,7 +17,7 @@
 
 #include <iostream>
 #include <fstream>
-#include <slist>
+#include <list>
 #include <string.h>
 using namespace std;
 
@@ -4364,7 +4364,7 @@ ACMD(do_show)
 			} else if (is_number(value)) {	// show a range ( from a to b )
 				int a = atoi(value);
 				int b = a;
-				slist <zone_data *>zone_list;
+				list <zone_data *>zone_list;
 				if (tokens.next(value))
 					b = atoi(value);
 				for (zone = zone_table; zone; zone = zone->next) {
@@ -4377,7 +4377,7 @@ ACMD(do_show)
 					return;
 				}
 				zone_list.reverse();
-				slist <zone_data *>::iterator it = zone_list.begin();
+				list <zone_data *>::iterator it = zone_list.begin();
 				for (; it != zone_list.end(); it++) {
 					print_zone_to_buf(ch, buf, *it);
 				}

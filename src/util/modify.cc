@@ -323,7 +323,7 @@ show_file(struct Creature *ch, char *fname, int lines)
 		delete[]logbuf;
 	} else {
 		file.seekg(0, ios::end);
-		size = file.tellg() + 1;
+		size = (int)file.tellg() + 1;
 		logbuf = new char[MAX_RAW_INPUT_LENGTH + 1];
 		file.seekg(0, ios::beg);
 		strcpy(buf, "");

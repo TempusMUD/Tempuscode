@@ -187,9 +187,10 @@ namespace Security {
 
     /* Sends a list of this group's members to the given character. */
     bool Group::sendPublicMemberList( Creature *ch, char *str) {
-        int pos = 1;
         vector<long>::iterator it = members.begin();
+        int pos = 1;
         char namebuf[80];
+
         strcat(str, "        ");
         for( ; it != members.end(); ++it ) {
             strcpy(namebuf, get_name_by_id(*it));

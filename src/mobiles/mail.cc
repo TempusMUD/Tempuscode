@@ -52,7 +52,7 @@ has_mail(long id)
 	if (!get_name_by_id(id))
 		return 0;
 	get_filename(get_name_by_id(id), fname, PLAYER_MAIL_FILE);
-	mail_file.open(fname, ios::in | ios::nocreate);
+	mail_file.open(fname, ios::in);
 
 	if (!mail_file.is_open())
 		return 0;
@@ -68,7 +68,7 @@ can_recieve_mail(long id)
 	if (!get_name_by_id(id))
 		return 0;
 	get_filename(get_name_by_id(id), fname, PLAYER_MAIL_FILE);
-	mail_file.open(fname, ios::in | ios::nocreate);
+	mail_file.open(fname, ios::in);
 
 	if (!mail_file.is_open())
 		return 1;
@@ -198,7 +198,7 @@ purge_mail(long idnum)
 	fstream mail_file;
 	char fname[256];
 	get_filename(get_name_by_id(idnum), fname, PLAYER_MAIL_FILE);
-	mail_file.open(fname, ios::in | ios::nocreate);
+	mail_file.open(fname, ios::in);
 	if (!mail_file.is_open()) {
 		return 0;
 	}
@@ -225,7 +225,7 @@ recieve_mail(Creature * ch)
 
 	get_filename(GET_NAME(ch), fname, PLAYER_MAIL_FILE);
 
-	mail_file.open(fname, ios::in | ios::nocreate);
+	mail_file.open(fname, ios::in);
 
 	if (!mail_file.is_open()) {
 		return 0;
@@ -234,7 +234,7 @@ recieve_mail(Creature * ch)
 	mail_file.seekp(0, ios::beg);
 	letter = new mail_data;
 	while (!mail_file.eof()) {
-		mail_file.read(letter, sizeof(mail_data));
+		mail_file.read((char *)letter, sizeof(mail_data));
 		text = NULL;
 		if (letter->msg_size && !mail_file.eof()
 			&& (obj = read_object(MAIL_OBJ_VNUM))) {

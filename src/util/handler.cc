@@ -102,6 +102,10 @@ isname(const char *str, const char *namelist)
 	if (!*str)
 		return 0;
 
+	if (!*namelist) {
+		slog("SYSERR:  NULL namelist given to isname()");
+		return 0;
+	}
 	strcpy(tmpnamelist, namelist);
 	strcpy(tmpstr, str);
 	curname = tmpnamelist;

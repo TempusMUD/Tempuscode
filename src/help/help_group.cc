@@ -223,9 +223,9 @@ HelpGroup::remove_user(long uid, long gid)
 	vector <long>::iterator s;
 	if (groups[gid].size() <= 0)
 		return false;
-	for (s = groups[gid].begin(); s && s != groups[gid].end() && *s != uid;
+	for (s = groups[gid].begin(); s != groups[gid].end() && *s != uid;
 		s++);
-	if (s && *s == uid) {
+	if (s != groups[gid].end() && *s == uid) {
 		groups[gid].erase(s);
 		return true;
 	}
@@ -238,9 +238,9 @@ HelpGroup::is_member(long uid, long gid)
 	vector <long>::iterator s;
 	if (groups[gid].size() <= 0)
 		return false;
-	for (s = groups[gid].begin(); s && s != groups[gid].end() && *s != uid;
+	for (s = groups[gid].begin(); s != groups[gid].end() && *s != uid;
 		s++);
-	if (s && *s == uid)
+	if (s != groups[gid].end() && *s == uid)
 		return true;
 	return false;
 }
@@ -321,7 +321,7 @@ HelpGroup::build_group_list()
 	int num_groups;
 	sprintf(fname, "%s/groups.dat", Help_Directory);
 
-	file.open(fname, ios::in | ios::nocreate);
+	file.open(fname, ios::in);
 	if (!file) {
 		slog("SYSERR: Error opening help groups data file.");
 		return;

@@ -1,9 +1,11 @@
 #ifndef __TEMPUS_SAFE_LIST_H
 #define __TEMPUS_SAFE_LIST_H
 
+#include <stdlib.h>
+#include <unistd.h>
 #include <list>
-#include <slist>
 #include <algorithm>
+
 using namespace std;
 
 /**
@@ -11,19 +13,23 @@ using namespace std;
  *  into it's nodes.  A "safe iterator" is defined as one that is incremented
  *  any time the node it "points to" is removed.
 **/
-template < class T > class SafeList:protected list < T > {
+template <class T> class SafeList:protected list <T> {
   public:
 	/** 
      *  A 'safe iterator' for use with this safelist
      *
     **/
-  class iterator:public list < T >::iterator {
-		friend class SafeList < T >;
+  class iterator:public list <T>::iterator {
+	  private:					// Data
+		SafeList <T> *_list;
+		bool _saved;			// iterator has been "saved" from pointing
+		// at an invalid node
+		friend class SafeList <T>;
 	  public:
 			/**
              *  Creates a fresh new iterator
             **/
-	  iterator():list < T >::iterator() {
+	  iterator():list <T>::iterator() {
 			_saved = false;
 			_list = NULL;
 		}
@@ -41,9 +47,9 @@ template < class T > class SafeList:protected list < T > {
              *  this list.
              *  l - The list to register this iterator with.
             **/
-	  iterator(SafeList < T > *l):list < T >::iterator() {
+	  iterator(SafeList <T> *l):list <T>::iterator() {
 			_saved = false;
-			list < T >::iterator::operator = (((list < T > *)l)->begin());
+			list <T>::iterator::operator = (((list <T> *)l)->begin());
 			_list = l;
 			if (_list != NULL)
 				_list->addIterator(this);
@@ -84,23 +90,23 @@ template < class T > class SafeList:protected list < T > {
 				return *this;
 			}
 			// Increment the superclass
-			list < T >::iterator::operator++ ();
+			list <T>::iterator::operator++ ();
 			return *this;
 		}
 			/** InEquality **/
 		inline bool operator != (const iterator & it) {
-			return (list < T >::iterator::operator != (it));	// different node
+			return (list <T>::iterator::operator != (it));	// different node
 		}
 			/** Equality **/
 		inline bool operator == (const iterator & it)const {
-			return (list < T >::iterator::operator == (it));	// same node
+			return (list <T>::iterator::operator == (it));	// same node
 		}
 			/** Derefencing **/ inline T operator *() const {
-			return list < T >::iterator::operator * ();
+			return list <T>::iterator::operator * ();
 		}
 			/**  Assignment **/ iterator & operator = (const iterator & it) {
 			// superclass assignment
-			list < T >::iterator::operator = (it);
+			list <T>::iterator::operator = (it);
 			// If pointing to a list, unregister
 			if (_list != NULL)
 				_list->removeIterator(this);
@@ -112,32 +118,28 @@ template < class T > class SafeList:protected list < T > {
 			return *this;
 		}
 	  private:					// Functions
-		void operator = (const list < T >::iterator & it){
+		void operator = (const list <T>::iterator & it){
 			// If pointing to a list, unregister
 			if (_list != NULL)
 				_list->removeIterator(this);
 			_list = NULL;
-			list < T >::iterator::operator = (it);
+			list <T>::iterator::operator = (it);
 		}
 		void save() {
 			_saved = false;
 			++(*this);
 			_saved = true;
 		}
-	  private:					// Data
-		SafeList < T > *_list;
-		bool _saved;			// iterator has been "saved" from pointing
-		// at an invalid node
 	};							// End SafeList::iterator
   public:
-  SafeList(bool prepend = false):list < T > (), _iterators() {
-		_end = list < T >::end();
+  SafeList(bool prepend = false):list <T> (), _iterators() {
+		_end = list <T>::end();
 		_end._list = this;
 		_prepend = prepend;
 	}
 	// Upgrades from list<T>
-	list < T >::size;
-	list < T >::insert;
+	list <T>::size;
+	list <T>::insert;
 	// list<T>'s begin and end dont work quite right
 	inline iterator begin() {
 		return iterator(this);
@@ -166,7 +168,7 @@ template < class T > class SafeList:protected list < T > {
 		if (it != _end) {
 			//Save iterators from being orphaned by a node removal.
 			removeUpdate(it);
-			list < T >::erase(it);
+			list <T>::erase(it);
 		}
 	}
 	void remove(iterator & it) {
@@ -174,7 +176,7 @@ template < class T > class SafeList:protected list < T > {
 		//Save iterators from being orphaned by a node removal.
 		removeUpdate(tempi, 1);
 		//it.save();// Move iterator out of the way
-		list < T >::erase(tempi);
+		list <T>::erase(tempi);
 	}
 	void addIterator(iterator * it) {
 		_iterators.push_front(it);
@@ -195,14 +197,14 @@ template < class T > class SafeList:protected list < T > {
 			return;
 		}
 
-		slist < iterator * >::iterator sit = _iterators.begin();
+		list < iterator * >::iterator sit = _iterators.begin();
 		for (; sit != _iterators.end(); ++sit) {
 			if (*sit != &it && *(*sit) == it) {
 				(*sit)->save();
 			}
 		}
 	}
-	slist < iterator * >_iterators;
+	list < iterator * >_iterators;
 	iterator _end;
 };
 

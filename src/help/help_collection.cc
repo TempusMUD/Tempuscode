@@ -404,7 +404,7 @@ HelpCollection::LoadIndex()
 	Groups.Load();
 	s = fname;
 	sprintf(fname, "%s/%s", Help_Directory, "index");
-	index_file.open(fname, ios::in | ios::nocreate);
+	index_file.open(fname, ios::in);
 	if (!index_file) {
 		slog("SYSERR: Cannot open help index.");
 		return false;

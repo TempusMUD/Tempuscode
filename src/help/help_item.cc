@@ -355,7 +355,7 @@ HelpItem::LoadText()
 		return true;
 
 	sprintf(fname, "%s/%04d.topic", Help_Directory, idnum);
-	help_file.open(fname, ios::in | ios::nocreate);
+	help_file.open(fname, ios::in);
 	if (!help_file) {
 		sprintf(buf, "Unable to open help file (%s).", fname);
 		return false;

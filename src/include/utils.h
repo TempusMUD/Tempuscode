@@ -992,7 +992,6 @@ bool CAN_GO(obj_data * obj, int door);
  *   United States to foreign countries.
  * Turn on NOCRYPT to keep passwords in plain text.
  */
-#define _XOPEN_SOURCE
 #include <unistd.h>
 #include <crypt.h>
 #ifdef NOCRYPT

@@ -28,7 +28,6 @@
 #include <fcntl.h>
 #include <signal.h>
 #include <netinet/in.h>
-#define _XOPEN_SOURCE
 #include <unistd.h>
 #include "structs.h"
 #include "utils.h"
