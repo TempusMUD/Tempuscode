@@ -70,7 +70,7 @@ const char *olc_sset_keys[] = {
 	"\n"
 };
 
-#define NUM_SSET_COMMANDS 24
+#define NUM_SSET_COMMANDS 25
 
 SPECIAL(shop_keeper);
 
