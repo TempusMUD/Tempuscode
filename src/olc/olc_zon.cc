@@ -2397,6 +2397,11 @@ do_create_zone(struct Creature *ch, int num)
 		}
 	}
 
+    if (num < 0 || num > 999) {
+        send_to_char (ch, "ERROR:  Zone number must be between 0 and 999.\r\n");
+        return (1);
+    }
+
 	/* Open the index file */
 
 	sprintf(fname, "world/zon/index");
