@@ -344,9 +344,9 @@ ACMD(do_snatch)
 			if( prob < percent + 10 ) {			
 				act("$n tries to take $p away from you, forcing you to drop it!", 
 					FALSE, ch, obj, vict, TO_VICT);
-				act("You try to snatch $p away from $N but $S drops it!", 
+				act("You try to snatch $p away from $N but $E drops it!", 
 					FALSE, ch, obj, vict, TO_CHAR);
-				act("$n tries to snatch $p from $N but $S drops it!", 
+				act("$n tries to snatch $p from $N but $E drops it!", 
 					FALSE, ch, obj, vict, TO_NOTVICT);
 
 				// weapon is the 1st of 2 wielded, shift to the second weapon.
