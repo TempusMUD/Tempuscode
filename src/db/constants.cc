@@ -2509,7 +2509,7 @@ extern const char *spell_wear_off_msg[] = {
     "The effects of the melody of mettle dissipate.", 
     "!lustration melisma!", 
     "You feel more vulnerable to external forces.", 
-    "You song bolstered confidence fades.",	/* 360 */
+    "Your song bolstered confidence fades.",	/* 360 */
 	"!UNUSED!", 
     "The valor of fallen heros leaves you to your own devices.", 
     "!UNUSED!", 
@@ -2521,7 +2521,7 @@ extern const char *spell_wear_off_msg[] = {
     "Your musical asylum fades away.", 
     "The white noise finally leaves your ears.",	/* 370 */
 	"Your rage subsides.", 
-    "Your strenth fails with your memory of the Power Overture.", 
+    "Your strength fails with your memory of the Power Overture.", 
     "The power of the dieties no longer flows in your veins.", 
     "!UNUSED!", 
     "!SONIC DISRUPTION!",	/* 375 */

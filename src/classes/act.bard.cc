@@ -303,7 +303,6 @@ struct bard_song songs[] = {
 // incomplete
 /*
     static const int SKILL_VENTRILOQUISM = 673; // makes objects talk
-    static const int SONG_MISDIRECTION_MELISMA = 350; // misleads a tracker
     static const int SONG_LULLABY = 352; // puts a room to sleep
     static const int SONG_VERSE_OF_VIBRATION = 355; // motor spasm++
     static const int SONG_SONG_SHIELD = 361; // self only, like psi shield
@@ -314,9 +313,7 @@ struct bard_song songs[] = {
     static const int SONG_MIRROR_IMAGE_MELODY = 376; // causes multiple images of the singer
     static const int SONG_SHATTER = 382; // target; damage persons/objects, penetrate WALL O SOUND
     static const int SONG_PURPLE_HAZE = 385; // area, pauses fighting for short time
-    static const int SONG_DIRGE = 387; // area, high damage, undead only
     static const int SONG_GHOST_INSTRUMENT = 389; // causes instrument to replay next some played
-    static const int SONG_LICHS_LYRICS = 390; // area, only affects living creatures
     static const int SONG_REQUIEM = 395; // allows bard song to affect undead at half potency
 */
 
@@ -325,6 +322,7 @@ struct bard_song songs[] = {
     static const int SONG_INSTANT_AUDIENCE = 346; // conjures an audience, like summon elem
     static const int SONG_WALL_OF_SOUND = 347; // seals an exit, broken by shatter
     static const int SONG_LAMENT_OF_LONGING = 349; // creates a portal to another character
+    static const int SONG_MISDIRECTION_MELISMA = 350; // misleads a tracker
     static const int SONG_ARIA_OF_ARMAMENT = 351; // Similar to armor, group spell
     static const int SONG_VERSE_OF_VULNERABILITY = 353; // lowers AC of target
     static const int SONG_EXPOSURE_OVERTURE = 354; // Area affect, causes targets to vis
@@ -351,7 +349,9 @@ struct bard_song songs[] = {
     static const int SONG_HOME_SWEET_HOME = 383; // recall
     static const int SONG_WEIGHT_OF_THE_WORLD = 384; // self/group/target, like telekinesis
     static const int SONG_WOUNDING_WHISPERS = 386; // self, like blade barrier
+    static const int SONG_DIRGE = 387; // area, high damage, undead only
     static const int SONG_EAGLES_OVERTURE = 388; // self, group, target, increases cha
+    static const int SONG_LICHS_LYRICS = 390; // area, only affects living creatures
     static const int SONG_FORTISSIMO = 391; // increases damage of sonic attacks
     static const int SONG_INSIDIOUS_RHYTHM = 392; // target, - int
 
