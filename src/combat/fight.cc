@@ -452,7 +452,7 @@ perform_gain_kill_exp(struct Creature *ch, struct Creature *victim,
 			GET_NAME(victim), GET_EXP(victim), exp);
 	}
 	if (exp > 0) {
-		send_to_char(ch, "%s%sYou have gained %ld experience.%s\r\n",
+		send_to_char(ch, "%s%sYou have gained %d experience.%s\r\n",
 			CCYEL(ch, C_NRM), CCBLD(ch, C_CMP), exp, CCNRM(ch, C_SPR));
 	} else if (exp < 0) {
 		send_to_char(ch, "%s%sYou have lost experience.%s\r\n",
@@ -2259,16 +2259,6 @@ hit(struct Creature *ch, struct Creature *victim, int type)
 				}
 				dam += dam_add;
 			}
-              
-            if( type == SKILL_CLEAVE ) {
-				if (GET_SKILL(ch, SKILL_GREAT_CLEAVE) > 50)
-					dam *= 4 + GET_REMORT_GEN(ch);
-				else
-					dam *= 4;
-				w_type = SKILL_CLEAVE;
-				//if( IS_PC(ch) )
-				//	fprintf(stderr, "CLEAVE %d\r\n", dam );
-            } 
 			//else {
 			//	if( IS_PC(ch) )
 			//		fprintf(stderr, "NORMAL %d\r\n", dam );
@@ -2291,7 +2281,14 @@ hit(struct Creature *ch, struct Creature *victim, int type)
 
 	dam = MAX(1, dam);			/* at least 1 hp damage min per hit */
 	dam = MIN(dam, 30 + (GET_LEVEL(ch) << 3));	/* level limit */
-  
+	  
+	if( type == SKILL_CLEAVE ) {
+		if (GET_SKILL(ch, SKILL_GREAT_CLEAVE) > 50)
+			dam *= 5 + GET_REMORT_GEN(ch) / 5;
+		else
+			dam *= 4;
+		w_type = SKILL_CLEAVE;
+	} 
 
 	if (type == SKILL_BACKSTAB) {
 		gain_skill_prof(ch, type);
