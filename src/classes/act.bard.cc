@@ -359,7 +359,7 @@ struct bard_song songs[] = {
     static const int SONG_INSTANT_AUDIENCE = 346; // conjures an audience, like summon elem
 */
 void
-sing_song(struct Creature *ch, Creature *vict, int songnum)
+sing_song(struct Creature *ch, Creature *vict, struct obj_data *ovict, int songnum)
 {
     char *buf, *vbuf;
     struct bard_song *song = &songs[songnum - TOP_BARD_SONG - 1];
@@ -381,6 +381,8 @@ sing_song(struct Creature *ch, Creature *vict, int songnum)
         if (tch == ch) {
             if (vict && vict != ch && (vict->in_room == ch->in_room))
                 vbuf = tmp_sprintf( " to %s", GET_NAME(vict));
+            else if (ovict)
+                vbuf = tmp_sprintf(" to %s", ovict->name);
             else
                 vbuf = "";
 
@@ -398,6 +400,8 @@ sing_song(struct Creature *ch, Creature *vict, int songnum)
                 vbuf = tmp_strdup(" to you");
             else if (vict && vict != ch)
                 vbuf = tmp_sprintf(" to %s", GET_NAME(vict));
+            else if (ovict)
+                vbuf = tmp_sprintf(" to %s", ovict->name);
             else
                 vbuf = "";
 

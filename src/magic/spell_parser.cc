@@ -1655,7 +1655,8 @@ cast_spell(struct Creature *ch, struct Creature *tch,
 	struct obj_data *tobj, int spellnum, int *return_flags)
 {
 
-    void sing_song(struct Creature *ch, Creature *vict, int spellnum);
+    void sing_song(struct Creature *ch, Creature *vict, 
+                   struct obj_data *ovict, int spellnum);
 
 	if (return_flags)
 		*return_flags = 0;
@@ -1772,7 +1773,7 @@ cast_spell(struct Creature *ch, struct Creature *tch,
 	}
 
     if (SPELL_IS_BARD(spellnum))
-        sing_song(ch, tch, spellnum);
+        sing_song(ch, tch, tobj, spellnum);
     else
 	    say_spell(ch, spellnum, tch, tobj);
 
