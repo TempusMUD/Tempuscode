@@ -52,6 +52,7 @@ void prog_do_or(prog_env *env, prog_evt *evt, char *args);
 void prog_do_resume(prog_env *env, prog_evt *evt, char *args);
 void prog_do_echo(prog_env *env, prog_evt *evt, char *args);
 void prog_do_mobflag(prog_env *env, prog_evt *evt, char *args);
+void prog_do_ldesc(prog_env *env, prog_evt *evt, char *args);
 
 //external prototypes
 struct Creature *real_mobile_proto(int vnum);
@@ -90,6 +91,7 @@ prog_command prog_cmds[] = {
 	{ "echo",		true,	prog_do_echo },
 	{ "halt",		false,	prog_do_halt },
 	{ "mobflag",	true,	prog_do_mobflag },
+	{ "ldesc",      true,   prog_do_ldesc },
 	{ NULL,		false,	prog_do_halt }
 };
 
@@ -531,7 +533,8 @@ prog_do_walkto(prog_env *env, prog_evt *evt, char *args)
 	if (room && room != ch->in_room) {
 		dir = find_first_step(ch->in_room, room, STD_TRACK);
 		if (dir != -1)
-			smart_mobile_move(ch, dir);
+		  if (!smart_mobile_move(ch, dir))
+			return;
 		
 		// we have to wait at least one second
 		pause = atoi(tmp_getword(&args));
@@ -638,6 +641,34 @@ prog_do_mobflag(prog_env *env, prog_evt *evt, char *args)
 		MOB_FLAGS(((Creature *)env->owner)) |= flags;
 	else
 		MOB_FLAGS(((Creature *)env->owner)) &= ~flags;
+}
+
+void
+prog_do_ldesc(prog_env *env, prog_evt *evt, char *args)
+{
+  Creature *mob;
+  obj_data *obj;
+
+  switch (env->owner_type) {
+  case PROG_TYPE_MOBILE:
+	mob = (Creature *)env->owner;
+	if (mob->player.long_descr) {
+	  if (mob->player.long_descr != mob->mob_specials.shared->proto->player.long_descr)
+		free(mob->player.long_descr);
+	}
+	mob->player.long_descr = str_dup(args);
+	break;
+  case PROG_TYPE_OBJECT:
+	obj = (obj_data *)env->owner;
+	if (obj->line_desc &&
+		obj->line_desc != obj->shared->proto->line_desc)
+	  free(obj->line_desc);
+	obj->line_desc = str_dup(args);
+	break;
+  default:
+	// do nothing
+	break;
+  }
 }
 
 void
