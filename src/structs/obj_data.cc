@@ -193,9 +193,10 @@ obj_data::saveToXML(FILE *ouf)
 bool
 obj_data::loadFromXML(obj_data *container, Creature *victim, room_data* room, xmlNodePtr node)
 {
-
-	clear();
 	int vnum = xmlGetIntProp(node, "vnum");
+	bool placed;
+
+	placed = false;
 	
 	if( vnum < 0 ) {
 		slog("obj_data->loadFromXML found vnum %d in %s's file. Junking.",
@@ -258,9 +259,17 @@ obj_data::loadFromXML(obj_data *container, Creature *victim, room_data* room, xm
 					equip_char( victim, this, position, MODE_EQ );
 				} else if( strcmp(type,"implanted") == 0 ) {
 					equip_char( victim, this, position, MODE_IMPLANT );
-				} else if( victim != NULL && container == NULL ) {
-					obj_to_char(this,victim);
+				} else if (container) {
+					obj_to_obj(this, container);
+				} else if (victim) {
+					obj_to_char(this, victim);
+				} else if (room) {
+					obj_to_room(this, room);
+				} else {
+					slog("SYSERR: Don't know where to put object!");
+					return false;
 				}
+				placed = true;
 			}
 			free(type);
 		} else if( xmlMatches( cur->name, "values" ) ) {
@@ -292,7 +301,6 @@ obj_data::loadFromXML(obj_data *container, Creature *victim, room_data* room, xm
 		} else if( xmlMatches( cur->name, "object" ) ) {
 			obj_data *obj;
 			CREATE(obj, struct obj_data, 1);
-			obj->clear();
 			if(! obj->loadFromXML(this,victim,room,cur) ) {
 				extract_obj(obj);
 			}
@@ -303,11 +311,14 @@ obj_data::loadFromXML(obj_data *container, Creature *victim, room_data* room, xm
 			 vnum, GET_NAME(victim) );
 		return false;
 	}
-	if( victim != NULL ) {
-	} else if( container != NULL ) {
-		obj_to_obj( this, container );
-	} else if( room != NULL ) {
-		obj_to_room( this, room );
+	if (!placed) {
+		if(victim) {
+			obj_to_char(this, victim);
+		} else if(container) {
+			obj_to_obj(this, container);
+		} else if( room != NULL ) {
+			obj_to_room(this, room);
+		}
 	}
 	return true;
 }
