@@ -1465,6 +1465,10 @@ close_socket(struct descriptor_data * d)
     if (d->showstr_head) 
 	free(d->showstr_head);
 
+    // Free text editor object.
+    if(d->text_editor)
+    delete d->text_editor;
+
     free(d);
 #ifdef DMALLOC
     dmalloc_verify(0);
