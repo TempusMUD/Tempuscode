@@ -561,22 +561,26 @@ ACMD(do_promote)
 	act("$N is not properly installed in the clan.\r\n",
 	    FALSE, ch, 0, vict, TO_CHAR);
     else if (!PLR_FLAGGED(ch, PLR_CLAN_LEADER) && GET_LEVEL(ch) < LVL_GRGOD) {
-	if (member2->rank >= member1->rank - 1 && GET_IDNUM(ch) != clan->owner)
-	    act("You are not in a position to promote $M.",
-		FALSE, ch, 0, vict, TO_CHAR);
-	else {
-	    member2->rank++;
-	    sprintf(buf, "%s has promoted %s to clan rank %s (%d)",
-		    GET_NAME(ch), GET_NAME(vict), 
-		    clan->ranknames[(int)member2->rank] ?
-		    clan->ranknames[(int)member2->rank] : "member", member2->rank);
-	    slog(buf);
-	    strcat(buf, "\r\n");
-	    send_to_clan(buf, clan->number);
-	    sort_clanmembers(clan);      
-	    LOG_CLANSAVE(ch, "do_promote (nonleader)");
-	    save_clans();
-	}
+        if (member2->rank >= member1->rank - 1 && GET_IDNUM(ch) != clan->owner) {
+            act("You are not in a position to promote $M.",
+            FALSE, ch, 0, vict, TO_CHAR);
+        } else {
+            if (member2->rank >= clan->top_rank ) {
+                act("$E is already fully advanced.",FALSE,ch,0,vict,TO_CHAR);
+                return;
+            }
+            member2->rank++;
+            sprintf(buf, "%s has promoted %s to clan rank %s (%d)",
+                GET_NAME(ch), GET_NAME(vict), 
+                clan->ranknames[(int)member2->rank] ?
+                clan->ranknames[(int)member2->rank] : "member", member2->rank);
+            slog(buf);
+            strcat(buf, "\r\n");
+            send_to_clan(buf, clan->number);
+            sort_clanmembers(clan);      
+            LOG_CLANSAVE(ch, "do_promote (nonleader)");
+            save_clans();
+        }
     } else if (PLR_FLAGGED(ch, PLR_CLAN_LEADER) || 
 	       member1->rank >= clan->top_rank) {
 	if (member2->rank >= clan->top_rank && PLR_FLAGGED(ch, PLR_CLAN_LEADER)) {
