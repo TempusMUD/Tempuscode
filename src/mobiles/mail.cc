@@ -41,6 +41,9 @@ Rewritten by John Rothe (forget@tempusmud.com)
 
 using namespace std;
 
+// The vnum of the "letter" object
+const int MAIL_OBJ_VNUM  = 1204;
+
 list<obj_data *> load_mail(char *path);
 
 void
