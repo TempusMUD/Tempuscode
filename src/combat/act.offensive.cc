@@ -432,6 +432,7 @@ int calc_skill_prob( struct char_data *ch, struct char_data *vict, int skillnum,
 	ADD_EQ_DAM(ch, WEAR_HANDS);
 	*wait = 4 RL_SEC;
 	*vict_pos = POS_SITTING;
+    *vict_wait = 2 RL_SEC;
 	*loc = WEAR_FACE;
 	break;
 
