@@ -2195,7 +2195,9 @@ extern const char *spell_wear_off_msg[] = {
   "Your granite-like flesh softens.",   /* 145 */
   "!UNUSED!",
   "The flow of blood obscures your vision as your rune of taint dissolves.",
-  "!UNUSED!","!UNUSED!","!UNUSED!",   /* 150 */
+  "!UNUSED!",
+  "The power of Guiharia leaves you to your own devices.",
+  "The effects of your death knell fade away.",   /* 150 */
   "!UNUSED!","!UNUSED!","!UNUSED!","!UNUSED!","!UNUSED!",   /* 155 */
   "!UNUSED!","!UNUSED!","!UNUSED!","!UNUSED!","!UNUSED!",   /* 160 */
   "!UNUSED!","!UNUSED!","!UNUSED!","!UNUSED!","!UNUSED!",   /* 165 */
