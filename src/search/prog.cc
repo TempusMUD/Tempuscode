@@ -1252,19 +1252,24 @@ prog_do_echo(prog_env *env, prog_evt *evt, char *args)
   char *arg;
   Creature *ch = NULL, *target = NULL;
   obj_data *obj = NULL;
-
+  room_data *room = NULL;
+  
   switch (env->owner_type) {
   case PROG_TYPE_MOBILE:
 	ch = ((Creature *)env->owner);
+    room = ch->in_room;
 	break;
   case PROG_TYPE_OBJECT:
 	obj = ((obj_data *)env->owner);
+    room = obj->find_room();
   case PROG_TYPE_ROOM:
-	// if there's noone in the room, no point in echoing
-	if (((room_data *)env->owner)->people.empty())
-	  return;
+	
+  // if there's noone in the room and it's not a zecho, no point in echoing
+	if (((room_data *)env->owner)->people.empty() && strcasecmp(arg, "zone"))
+            return;
 	// we just pick the top guy off the people list for rooms.
-	ch = *(((room_data *)env->owner)->people.begin());
+	room = (room_data *)env->owner;
+    ch = *(((room_data *)env->owner)->people.begin());
 	break;
   default:
 	errlog("Can't happen at %s:%d", __FILE__, __LINE__);
@@ -1279,6 +1284,16 @@ prog_do_echo(prog_env *env, prog_evt *evt, char *args)
 	act(args, false, ch, obj, target, TO_VICT);
   else if (!strcasecmp(arg, "!target"))
 	act(args, false, ch, obj, target, TO_NOTVICT);
+  else if (!strcasecmp(arg, "zone")) {
+      for (struct descriptor_data *pt = descriptor_list; pt; pt = pt->next) {
+          if (pt->input_mode == CXN_PLAYING && 
+              pt->creature && pt->creature->in_room 
+              && pt->creature->in_room->zone == room->zone
+              && !PLR_FLAGGED(pt->creature, PLR_OLC | PLR_WRITING)) {
+                  act(args, false, pt->creature, obj, target, TO_CHAR);
+          }
+      }
+  }
 }
 
 char *
