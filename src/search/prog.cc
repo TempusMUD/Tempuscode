@@ -587,7 +587,7 @@ prog_do_driveto(prog_env *env, prog_evt *evt, char *args)
 		return;
 
 	if (target_room != vehicle->in_room) {
-		dir = find_first_step(vehicle->in_room, target_room, PSI_TRACK);
+		dir = find_first_step(vehicle->in_room, target_room, GOD_TRACK);
 
 		// Validate exit the vehicle is going to take
 		exit = vehicle->in_room->dir_option[dir];
