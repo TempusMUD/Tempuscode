@@ -457,26 +457,23 @@ ACMD(do_psilocate)
 		number(10, CHECK_SKILL(ch, SKILL_PSILOCATE) + GET_LEVEL(ch)))
 		act("You feel $n's psyche connect with your mind briefly.",
 			FALSE, ch, 0, vict, TO_VICT);
-	else if (GET_INT(vict) > number(0, GET_INT(ch) << 1))
+	else
 		send_to_char(vict, 
 			"You feel a strange sensation on the periphery of your psyche.\r\n");
 
-	if (number(0, 121) + (AFF_FLAGGED(vict, AFF_HIDE) ? 10 : 0) >
-		CHECK_SKILL(ch, SKILL_PSILOCATE) + GET_INT(ch))
+	if (number(0, 121) > CHECK_SKILL(ch, SKILL_PSILOCATE) + GET_INT(ch))
 		dir = number(0, NUM_DIRS - 1);
 
 	error = number(0, 140 - CHECK_SKILL(ch, SKILL_PSILOCATE) - GET_INT(ch));
-	error = MAX(0, error);
-	error >>= 3;
+	error = MAX(0, error) / 8;
 
 	if (error)
 		dist += number(-error, error);
 
 	dist = MAX(1, dist);
 
-	sprintf(buf, "$N seems to be about %d rooms away %s.", dist, to_dirs[dir]);
-	act(buf, FALSE, ch, 0, vict, TO_CHAR);
-
+	act(tmp_sprintf("$N seems to be about %d rooms away %s.", dist, to_dirs[dir]),
+		false, ch, 0, vict, TO_CHAR);
 }
 
 //
