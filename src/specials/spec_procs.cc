@@ -1563,6 +1563,11 @@ SPECIAL(pet_shops)
 			return (TRUE);
 		}
 
+		if( pet == ch ) {
+			send_to_char(ch, "You buy yourself. Yay. Are you happy now?\r\n");
+			return (TRUE);
+		}
+
 		if (IS_NPC(ch))
 			cost = GET_EXP(pet) * 3;
 		else

@@ -20,6 +20,8 @@ SPECIAL(stable_room)
 		send_to_char(ch, "Available mounts are:\r\n");
 		CreatureList::iterator it = pet_room->people.begin();
 		for (; it != pet_room->people.end(); ++it) {
+			if(! IS_NPC((*it)) )
+				continue;
 			send_to_char(ch, "%8d - %s\r\n", 3 * GET_EXP((*it)),
 				GET_NAME((*it)));
 		}
@@ -33,7 +35,11 @@ SPECIAL(stable_room)
 			send_to_char(ch, "There is no such mount!\r\n");
 			return (TRUE);
 		}
-		if (GET_GOLD(ch) < (GET_EXP(pet) * 3)) {
+		if(! IS_NPC(pet) ) {
+			send_to_char(ch, "Funny.  Real funny.  Ha ha.\r\n");
+			return (TRUE);
+		}
+		if(GET_GOLD(ch) < (GET_EXP(pet) * 3)) {
 			send_to_char(ch, "You don't have enough gold!\r\n");
 			return (TRUE);
 		}

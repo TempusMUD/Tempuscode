@@ -18,7 +18,7 @@ SPECIAL(electrician)
 
 	Creature *mob = (Creature *) me;
 	int num;
-	if( spec_mode == SPECIAL_ENTER && spec_mode == SPECIAL_LEAVE) {
+	if( spec_mode == SPECIAL_ENTER || spec_mode == SPECIAL_LEAVE) {
 		num = number(0,4);
 	} else {
 		num = number(0,5);
