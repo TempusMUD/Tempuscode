@@ -474,6 +474,7 @@ prog_start(int owner_type, void *owner, Creature *target, char *prog, prog_evt *
 	new_prog->target = target;
 	new_prog->evt = *evt;
 
+	prog_next_handler(new_prog);
 	prog_execute(new_prog);
 
 	loop_fence -= 1;
