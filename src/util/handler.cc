@@ -2105,9 +2105,6 @@ get_char_room_vis(struct Creature *ch, char *name)
 		}
 	}
 
-	if ( str_cmp(name, "me") == 0 )
-		return ch;
-
 	return NULL;
 }
 
