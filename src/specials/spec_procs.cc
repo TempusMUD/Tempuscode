@@ -1724,6 +1724,7 @@ SPECIAL(cave_bear)
 #include "Specs/utility_specs/increaser.spec"
 #include "Specs/utility_specs/donation_room.spec"
 #include "Specs/utility_specs/tester_util.spec"
+#include "Specs/utility_specs/typo_util.spec"
 #include "Specs/utility_specs/newspaper.spec"
 #include "Specs/utility_specs/questor_util.spec"
 #include "Specs/utility_specs/prac_manual.spec"

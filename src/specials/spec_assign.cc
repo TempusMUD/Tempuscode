@@ -224,6 +224,7 @@ const struct spec_func_data spec_list[] = {
 	{"quantum_rift",    quantum_rift,		   SPEC_OBJ | SPEC_RES},
 	{"roaming_portal",  roaming_portal,		   SPEC_OBJ | SPEC_RES},
     {"tester_util",     tester_util,           SPEC_OBJ | SPEC_RES},
+    {"typo_util",       typo_util,             SPEC_OBJ | SPEC_RES},
     {"questor_util",    questor_util ,         SPEC_OBJ | SPEC_RES},
     {"labyrinth_clock", labyrinth_clock ,      SPEC_OBJ | SPEC_RES},
     {"drink_me_bottle", drink_me_bottle,       SPEC_OBJ | SPEC_RES},

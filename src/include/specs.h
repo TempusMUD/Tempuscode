@@ -212,6 +212,7 @@ SPECIAL(fate_portal);
 SPECIAL(quantum_rift);
 SPECIAL(roaming_portal);
 SPECIAL(tester_util);
+SPECIAL(typo_util);
 SPECIAL(questor_util);
 SPECIAL(labyrinth_clock);
 SPECIAL(drink_me_bottle);
