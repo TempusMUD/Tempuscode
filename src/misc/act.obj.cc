@@ -2183,7 +2183,9 @@ ACMD(do_eat)
 		do_drink(ch, argument, 0, SCMD_SIP, 0);
 		return;
 	}
-	if ((GET_OBJ_TYPE(food) != ITEM_FOOD) && (GET_LEVEL(ch) < LVL_GOD)) {
+	if (GET_OBJ_TYPE(food) != ITEM_FOOD && 
+		!Security::isMember(ch, "WizardFull")) 
+	{
 		send_to_char(ch, "You can't eat THAT!\r\n");
 		return;
 	}
