@@ -2419,10 +2419,10 @@ do_qcontrol_award( CHAR *ch, char *argument, int com)
 	save_char( ch, NULL );
 	save_char( vict, NULL );
 	sprintf( buf, "awarded player %s %d qpoints.",GET_NAME( vict ), award);
-	qlog( ch, buf, QLOG_BRIEF, 0, TRUE);
+	qlog( ch, buf, QLOG_BRIEF, LVL_IMMORT, TRUE);
 	if ( *argument ) {
 	    sprintf( buf, "'s Award Comments: %s", argument);
-	    qlog( ch, buf, QLOG_COMP, 0, TRUE);
+	    qlog( ch, buf, QLOG_COMP, LVL_IMMORT, TRUE);
 	}
     }    
 
@@ -2491,10 +2491,10 @@ do_qcontrol_penalize( CHAR *ch, char *argument, int com)
 		GET_QUEST_POINTS( vict ) -= penalty;
 		save_char( vict, NULL );
 		sprintf( buf, "penalized player %s %d qpoints.",GET_NAME( vict ), penalty);
-		qlog( ch, buf, QLOG_BRIEF, 0, TRUE);
+		qlog( ch, buf, QLOG_BRIEF, LVL_IMMORT, TRUE);
 		if ( *argument ) {
 			sprintf( buf, "'s Penalty Comments: %s", argument);
-			qlog( ch, buf, QLOG_COMP, 0, TRUE);
+			qlog( ch, buf, QLOG_COMP, LVL_IMMORT, TRUE);
 		}
     }    
 
