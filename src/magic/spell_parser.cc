@@ -1805,9 +1805,11 @@ ACMD(do_cast)
 		    FALSE, ch, metal, 0, TO_CHAR);
 	    else
 		send_to_char("You lost your concentration!\r\n", ch);
-      
-	    if (!skill_message(0, ch, tch, spellnum))
-		send_to_char("Nothing seems to happen.\r\n", ch);
+      	ACMD(do_say);
+	    if (!skill_message(0, ch, tch, spellnum)) {
+			do_say(ch,"There's no message for this spell. Darnit.",0,0);
+			send_to_char("Nothing seems to happen.\r\n", ch);
+		}
 
 	    if (((IS_SET(SINFO.routines, MAG_DAMAGE) || SINFO.violent)) &&
 		IS_NPC(tch) && !PRF_FLAGGED(ch, PRF_NOHASSLE) &&

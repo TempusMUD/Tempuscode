@@ -2581,7 +2581,7 @@ damage( struct char_data * ch, struct char_data * victim, int dam,
 			dam <<= 1;
 		
 		if ( ( af = affected_by_spell( ch, SPELL_SANCTIFICATION ) ) ) {
-			if ( IS_EVIL( victim ) && !PLR2_FLAGGED( victim, PLR2_SOULLESS) ) 
+			if ( IS_EVIL( victim ) && !IS_SOULLESS(victim) )
 				dam += ( dam * GET_REMORT_GEN( ch ) ) / 20;
 			else if (ch != victim &&  IS_GOOD( victim ) ) {
 				send_to_char( "You have been de-sanctified!\r\n", ch );

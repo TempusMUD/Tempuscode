@@ -756,6 +756,7 @@ extern const char *action_bits_desc[] = {
   "NoTurn",
   "nopetri",
   "pet",
+  "soulless",
   "\n"
 };
 
