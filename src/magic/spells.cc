@@ -699,6 +699,10 @@ ASPELL(spell_summon)
 	return;
     }
 
+    if ((ROOM_FLAGGED(ch->in_room, ROOM_ARENA) && !PRF_FLAGGED(victim, PRF_SUMMONABLE))) {
+        send_to_char("They must choose to enter this place.\r\n",ch);
+        return;
+    }
     if (ZONE_FLAGGED(ch->in_room->zone,ZONE_NOLAW) && !PRF_FLAGGED(victim, PRF_SUMMONABLE))  {
         send_to_char("They must choose to enter this lawless place.\r\n",ch);
         return;
