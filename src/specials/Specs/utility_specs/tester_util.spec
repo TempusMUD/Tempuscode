@@ -22,6 +22,12 @@ const char *tester_util_cmds[] = {
   "align",
   "generation",
   "debug",
+  "str",
+  "int",
+  "wis",
+  "con",
+  "dex",
+  "cha",
   "\n"
 };
 
@@ -43,7 +49,8 @@ const char *tester_util_cmds[] = {
 "roomflags\r\n"         \
 "align\r\n"             \
 "generation\r\n"		\
-"debug\r\n"
+"debug\r\n"				\
+"str|con|int|wis|dex|cha <val>\r\n"
 
 SPECIAL(tester_util)
 {
@@ -164,6 +171,15 @@ SPECIAL(tester_util)
   case 16:
   	do_gen_tog(ch, "", 0, SCMD_DEBUG);
 	break;
+  case 17: // strength
+  case 18: // intelligence
+  case 19: // wisdom
+  case 20: // constitution
+  case 21: // dexterity
+  case 22: // charisma
+    sprintf(buf, "me %s %s", arg1, arg2);
+    do_set(ch, buf, 0, 0);
+    break;
   default:
     sprintf(buf, "$p: Invalid command '%s'.", arg1);
     send_to_char(TESTER_UTIL_USAGE, ch);

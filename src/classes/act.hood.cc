@@ -321,7 +321,7 @@ ACMD(do_snatch)
 				+ (dex_mod * (GET_DEX(ch) - GET_DEX(vict))) 
 				+ (str_mod * (GET_STR(ch) - GET_STR(vict)));
 		if (CHECK_SKILL( ch, SKILL_SNATCH) > 100)
-			percent += CHECK_SKILL(ch,SKILL_SNATCH);
+			percent += CHECK_SKILL(ch,SKILL_SNATCH) - 100;
 		prob = number( 1, 100);
 		if(PRF2_FLAGGED(ch, PRF2_FIGHT_DEBUG)) {
 			sprintf(buf,"Roll: %d, Chance: %d\r\n",prob,percent);
