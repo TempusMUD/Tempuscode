@@ -96,12 +96,14 @@ show_path(struct char_data *ch, char *arg)
 	strcpy(outbuf, "Full path listing:\r\n");
 
 	for (path_head = first_path; path_head; path_head = (PHead *) path_head->next, i++) {
-	    sprintf(buf, "%3d. %-15s  Own:[%-12s]  Wt:[%3d]  Flags:[%3d]  Len:[%3d]\r\n",
+	    sprintf(buf, "%3d. %-15s  Own:[%-12s]  Wt:[%3d]  Flags:[%3d]  Len:[%3d]  BFS:[%9d]\r\n",
 		    path_head->number, path_head->name, 
 		    get_name_by_id(path_head->owner) ?
 		    get_name_by_id(path_head->owner) : "NULL",
 		    path_head->wait_time,
-		    path_head->flags, path_head->length);
+		    path_head->flags, 
+		    path_head->length,
+		    path_head->find_first_step_calls );
 	    strcat(outbuf, buf);
 	}
     } else if (!(path_head = real_path(arg)))
@@ -636,6 +638,8 @@ path_activity (void)
 		if (GET_POS(ch) < POS_STANDING)
 		    GET_POS(ch) = POS_STANDING;
 
+		o->phead->find_first_step_calls++;
+
 		if ((dir = find_first_step(ch->in_room, room, 1)) >= 0)
 		    perform_move(ch, dir, MOVE_NORM, 1);
 		if ((ch->in_room == room) && (o->phead->length != 1))
@@ -643,6 +647,9 @@ path_activity (void)
 	    }
 	    else if ((o->type == PVEHICLE) && room &&
 		     (obj = (struct obj_data *)o->object)->in_room) {
+
+		o->phead->find_first_step_calls++;
+
 		if ((dir = find_first_step(obj->in_room, room, 1)) >= 0)
 		    move_car(NULL, obj, dir);
 		if (GET_OBJ_VNUM(obj) == 1530)

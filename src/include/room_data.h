@@ -184,6 +184,9 @@ struct room_trail_data {
   
 /* ================== Memory Structure for room ======================= */
 struct room_data {
+
+    // members
+
     room_num number;		/* Rooms number	(vnum)		      */
     int	sector_type;            /* sector type (move/hide)            */
 
@@ -197,6 +200,8 @@ struct room_data {
     struct room_trail_data *trail;  /* tracking data */
     int room_flags;		/* DEATH,DARK ... etc                 */
     sh_int max_occupancy;        /* Maximum Occupancy of Room          */
+    
+    unsigned char find_first_step_index;
 
     byte light;                  /* Number of lightsources in room     */
     byte flow_dir;               /* Direction of flow                  */
@@ -209,6 +214,8 @@ struct room_data {
     struct char_data *people;    /* List of NPC / PC in room           */
     struct zone_data *zone;      /* zone the room is in                */
     struct room_data *next;
+
+    // methods
 
     bool isOpenAir( void );
 };

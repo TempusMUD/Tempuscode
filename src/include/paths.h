@@ -33,6 +33,7 @@ typedef struct {
   int   wait_time;
   int   flags;
   int   length;
+    unsigned int find_first_step_calls;
   Path  *path;
   void  *next;
 } PHead;

@@ -417,6 +417,7 @@ do_create_room( struct char_data *ch, int vnum )
     new_rm->people = NULL;
     new_rm->light = 0;
     new_rm->max_occupancy = 256;
+    new_rm->find_first_step_index = 0;
 
     for ( i = 0; i < NUM_OF_DIRS; i++ )
 	new_rm->dir_option[i] = NULL;

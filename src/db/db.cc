@@ -955,6 +955,7 @@ parse_room(FILE * fl, int vnum_nr)
     room->people = NULL;
     room->light = 0;	       /* Zero light sources     */
     room->max_occupancy = 256;  /* Default value set here */
+    room->find_first_step_index = 0;
 
     /* t[0] is the zone number; ignored with the zone-file system */
     zone = real_zone(t[0]);

@@ -59,11 +59,13 @@ struct bfs_queue_struct {
 };
 
 static struct bfs_queue_struct *queue_head = 0, *queue_tail = 0;
+static unsigned char find_first_step_index = 0;
 
 /* Utility macros */
-#define MARK(room) (SET_BIT(ROOM_FLAGS(room), ROOM_BFS_MARK))
-#define UNMARK(room) (REMOVE_BIT(ROOM_FLAGS(room), ROOM_BFS_MARK))
-#define IS_MARKED(room) (IS_SET(ROOM_FLAGS(room), ROOM_BFS_MARK))
+#define MARK(room) ( room->find_first_step_index = find_first_step_index )
+#define UNMARK(room) ( room->find_first_step_index = 0 )
+#define IS_MARKED(room) ( room->find_first_step_index == find_first_step_index )
+
 #define TOROOM(x, y) ((x)->dir_option[(y)]->to_room)
 #define IS_CLOSED(x, y) (IS_SET((x)->dir_option[(y)]->exit_info, EX_CLOSED))
 
@@ -72,14 +74,15 @@ static struct bfs_queue_struct *queue_head = 0, *queue_tail = 0;
 #define MODE_PSI  2
 
 #ifdef TRACK_THROUGH_DOORS
-#define VALID_EDGE(x,y,mode) ((x)->dir_option[(y)] &&              \
-			      TOROOM(x, y)  &&                     \
-			      !IS_MARKED(TOROOM(x, y)) &&          \
-			      (mode != MODE_PSI ||                 \
-			       !ROOM_FLAGGED(TOROOM(x,y),ROOM_NOPSIONICS)) &&\
-			      (mode == MODE_GOD ||                 \
-			       !ROOM_FLAGGED(TOROOM(x, y),        \
-					     ROOM_NOTRACK | ROOM_DEATH)))
+#define VALID_EDGE(x,y,mode) ( ( x )->dir_option[ ( y ) ] &&                         \
+			      TOROOM( x, y )  &&                                     \
+			      !IS_MARKED( TOROOM( x, y ) ) &&                        \
+			      ( mode != MODE_PSI ||                                  \
+			       !ROOM_FLAGGED( TOROOM( x,y ), ROOM_NOPSIONICS ) ) &&  \
+			      ( !ROOM_FLAGGED( TOROOM( x, y ),                       \
+					     ROOM_NOTRACK | ROOM_DEATH ) ||          \
+			       mode == MODE_GOD ) )
+
 #else
 #define VALID_EDGE(x,y,mode) ((x)->dir_option[(y)] &&              \
 			      TOROOM(x, y) &&                      \
@@ -93,9 +96,8 @@ static struct bfs_queue_struct *queue_head = 0, *queue_tail = 0;
 
 #endif
 
-    void 
-    bfs_enqueue(struct room_data *room, char dir)
-{
+inline void bfs_enqueue(struct room_data *room, char dir) {
+
     struct bfs_queue_struct *curr;
 
     CREATE(curr, struct bfs_queue_struct, 1);
@@ -111,9 +113,8 @@ static struct bfs_queue_struct *queue_head = 0, *queue_tail = 0;
 }
 
 
-void 
-bfs_dequeue(void)
-{
+inline void bfs_dequeue(void) {
+
     struct bfs_queue_struct *curr;
 
     curr = queue_head;
@@ -130,9 +131,8 @@ bfs_dequeue(void)
 }
 
 
-void 
-bfs_clear_queue(void)
-{
+inline void bfs_clear_queue(void) {
+
     while (queue_head)
 	bfs_dequeue();
 }
@@ -147,9 +147,9 @@ bfs_clear_queue(void)
    mode: TRUE -> go thru DT's, doorz, !track roomz 
 */
 
+
 int 
-find_first_step(struct room_data *src, struct room_data *target, byte mode)
-{
+find_first_step( struct room_data *src, struct room_data *target, byte mode ) {
     int curr_dir;
     struct room_data *curr_room;
     struct zone_data *zone;
@@ -161,12 +161,21 @@ find_first_step(struct room_data *src, struct room_data *target, byte mode)
     if (src == target)
 	return BFS_ALREADY_THERE;
 
-    /* clear marks first */
-  
-    for (zone = zone_table; zone; zone = zone->next)
-	for (curr_room = zone->world; curr_room; curr_room = curr_room->next)
-	    UNMARK(curr_room);
+    // increment the static index
+    ++find_first_step_index;
 
+    // check if find_first_step_index has rolled over to zero
+    if ( ! find_first_step_index ) {
+	// put index at 1;
+	++find_first_step_index;
+	
+	// reset all rooms' indices to zero
+	
+	for (zone = zone_table; zone; zone = zone->next)
+	    for (curr_room = zone->world; curr_room; curr_room = curr_room->next)
+		UNMARK(curr_room);
+    }
+    
     MARK(src);
 
     /* first, enqueue the first steps, saving which direction we're going. */
@@ -401,10 +410,12 @@ ACMD(do_psilocate)
 
 }
 
+//
+// smart_mobile_move()
 // returns -1 on a critical failure
-int 
-smart_mobile_move(struct char_data *ch, int dir)
-{
+//
+
+int smart_mobile_move(struct char_data *ch, int dir) {
   
     char doorbuf[128];
 
@@ -467,6 +478,12 @@ smart_mobile_move(struct char_data *ch, int dir)
     }
     return 0;
 }
+
+//
+// hunt_victim()
+//
+//
+
 void 
 hunt_victim(struct char_data * ch)
 {
