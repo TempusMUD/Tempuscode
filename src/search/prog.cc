@@ -173,6 +173,8 @@ prog_trigger_handler(prog_env *env, prog_evt *evt, int phase, char *args)
 		matched = (evt->kind == PROG_EVT_IDLE);
 	} else if (!strcmp("fight", arg)) {
 		matched = (evt->kind == PROG_EVT_FIGHT);
+	} else if (!strcmp("give", arg)) {
+		matched = (evt->kind == PROG_EVT_GIVE);
 	}
 
 	if (!matched)
@@ -730,6 +732,7 @@ trigger_prog_cmd(Creature *owner, Creature *ch, int cmd, char *argument)
 
 	evt.phase = PROG_EVT_AFTER;
 	env = prog_start(PROG_TYPE_MOBILE, owner, ch, GET_MOB_PROG(owner), &evt);
+	// note that we don't start executing yet...
 
 	loop_fence -= 1;
 
@@ -749,6 +752,25 @@ trigger_prog_fight(Creature *ch, Creature *self)
 		return;
 	evt.phase = PROG_EVT_AFTER;
 	evt.kind = PROG_EVT_FIGHT;
+	evt.cmd = -1;
+	evt.subject = ch;
+	evt.object = NULL;
+	evt.object_type = PROG_TYPE_NONE;
+	evt.args = strdup("");
+
+	env = prog_start(PROG_TYPE_MOBILE, self, ch, GET_MOB_PROG(self), &evt);
+}
+
+void
+trigger_prog_give(Creature *ch, Creature *self)
+{
+	prog_env *env;
+	prog_evt evt;
+
+	if (!self || !self->in_room || !GET_MOB_PROG(self))
+		return;
+	evt.phase = PROG_EVT_AFTER;
+	evt.kind = PROG_EVT_GIVE;
 	evt.cmd = -1;
 	evt.subject = ch;
 	evt.object = NULL;

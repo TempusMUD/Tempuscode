@@ -62,6 +62,7 @@ bool trigger_prog_cmd(Creature *self, Creature *ch, int cmd, char *argument);
 void trigger_progs_after(Creature *ch, int cmd, char *argument);
 void trigger_prog_idle(Creature *self);
 void trigger_prog_fight(Creature *ch, Creature *self);
+void trigger_prog_give(Creature *ch, Creature *self);
 prog_env *prog_start(int owner_type, void *owner, Creature *target, char *prog, prog_evt *evt);
 void prog_free(struct prog_env *prog);
 void prog_update(void);

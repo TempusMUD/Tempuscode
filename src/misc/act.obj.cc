@@ -37,6 +37,7 @@
 #include "security.h"
 #include "tmpstr.h"
 #include "player_table.h"
+#include "prog.h"
 #include "actions.h"
 
 /* extern variables */
@@ -1854,6 +1855,7 @@ ACMD(do_give)
 		}
 		obj = next_obj;
 	}
+	trigger_prog_give(ch, vict);
 }
 
 
