@@ -585,13 +585,20 @@ int get_from_container( struct char_data * ch, struct obj_data * cont, char *arg
         
     if ( dotmode == FIND_INDIV ) {
         
-        if ( ! ( obj = get_obj_in_list_all( ch, arg, cont->contains ) ) ||
-             ( IS_IMPLANT( obj ) && IS_CORPSE( cont ) && 
-               !CAN_WEAR( obj, ITEM_WEAR_TAKE ) && GET_LEVEL( ch ) < LVL_GOD ) ) {
-            
+        if ( ! ( obj = get_obj_in_list_all( ch, arg, cont->contains ) ) ) {
             sprintf(buf, "There doesn't seem to be %s %s in $p.", AN(arg), arg);
             act(buf, FALSE, ch, cont, 0, TO_CHAR);
             return 0;
+        }
+		if ( IS_IMPLANT( obj ) && IS_CORPSE( cont ) && 
+		   !CAN_WEAR( obj, ITEM_WEAR_TAKE ) ){ 
+		    if ( GET_LEVEL( ch ) < LVL_GOD ) {
+				sprintf(buf, "There doesn't seem to be %s %s in $p.", AN(arg), arg);
+				act(buf, FALSE, ch, cont, 0, TO_CHAR);
+				return 0;
+			} else {
+				SET_BIT(GET_OBJ_WEAR(obj), ITEM_WEAR_TAKE);
+			}
         }
 
         if ( ! perform_get_from_container( ch, obj, cont, check_weight, true, 1 ) )
@@ -626,6 +633,15 @@ int get_from_container( struct char_data * ch, struct obj_data * cont, char *arg
             if ( !CAN_SEE_OBJ(ch, obj) ) {
                 continue;
             }
+			// Gods can get all.corpse and get implants.
+			// Players cannot.
+			if ( IS_IMPLANT( obj ) && IS_CORPSE( cont ) && !CAN_WEAR( obj, ITEM_WEAR_TAKE ) ){
+				if(GET_LEVEL( ch ) < LVL_GOD) {
+					continue;	
+				} else {
+					SET_BIT(GET_OBJ_WEAR(obj), ITEM_WEAR_TAKE);
+				}
+			}
             
             //
             // match_name is set if this is a find alldot get

@@ -1932,10 +1932,10 @@ void mobile_activity(void) {
                     CAN_SEE(ch, vict)) {
                     
                     int fvict_help_prob = helper_help_probability( ch, FIGHTING( vict ) );
-                    int fvict_attack_prob = helper_help_probability( ch, FIGHTING( vict ) );
+                    int fvict_attack_prob = helper_attack_probability( ch, FIGHTING( vict ) );
 
                     int vict_help_prob = helper_help_probability( ch, vict );
-                    int vict_attack_prob = helper_help_probability( ch, vict );
+                    int vict_attack_prob = helper_attack_probability( ch, vict );
 
                     //
                     // if we're not willing to help anybody here, then just continue
