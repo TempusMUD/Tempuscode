@@ -258,7 +258,7 @@ char *AN(char *str);
     (!IS_PSIONIC(ch) || !SRCH_FLAGGED(srch, SRCH_NOPSIONIC)) && \
     (!IS_PHYSIC(ch) || !SRCH_FLAGGED(srch, SRCH_NOPHYSIC)) && \
     (!IS_MERC(ch)   || !SRCH_FLAGGED(srch, SRCH_NOMERC)) &&   \
-    (!IS_HOOD(ch)   || !SRCH_FLAGGED(srch, SRCH_NOHOOD)) &&   \
+    (!IS_BARD(ch)   || !SRCH_FLAGGED(srch, SRCH_NOBARD)) &&   \
     !SRCH_FLAGGED(srch, SRCH_TRIPPED))
 
 #define IN_ICY_HELL(ch)  (ch->in_room->zone->plane == PLANE_HELL_5)
@@ -851,7 +851,7 @@ long GET_SKILL_COST(Creature *ch, int skill);
 #define IS_CYBORG(ch)             IS_CLASS(ch, CLASS_CYBORG)
 #define IS_KNIGHT(ch)             IS_CLASS(ch, CLASS_KNIGHT)
 #define IS_RANGER(ch)             IS_CLASS(ch, CLASS_RANGER)
-#define IS_HOOD(ch)               IS_CLASS(ch, CLASS_HOOD)
+#define IS_BARD(ch)               IS_CLASS(ch, CLASS_BARD)
 #define IS_MONK(ch)               IS_CLASS(ch, CLASS_MONK)
 #define IS_MERC(ch)               IS_CLASS(ch, CLASS_MERCENARY)
 #define IS_SPARE1(ch)             IS_CLASS(ch, CLASS_SPARE1)

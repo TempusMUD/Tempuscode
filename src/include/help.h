@@ -27,7 +27,7 @@ using namespace std;
 #define HGROUP_CYBORG    (1 << 15)
 #define HGROUP_KNIGHT    (1 << 16)
 #define HGROUP_RANGER    (1 << 17)
-#define HGROUP_HOOD      (1 << 18)
+#define HGROUP_BARD      (1 << 18)
 #define HGROUP_MONK      (1 << 19)
 #define HGROUP_MERCENARY (1 << 20)
 #define HGROUP_HELP_EDIT (1 << 21)

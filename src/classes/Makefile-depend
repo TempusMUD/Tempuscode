@@ -1,6 +1,9 @@
 $(OBJ)/act.barb.o : act.barb.cc \
 	$(INCLUDE)/structs.h $(INCLUDE)/utils.h $(INCLUDE)/comm.h $(INCLUDE)/handler.h $(INCLUDE)/db.h $(INCLUDE)/spells.h $(INCLUDE)/screen.h $(INCLUDE)/vehicle.h $(INCLUDE)/materials.h $(INCLUDE)/flow_room.h $(INCLUDE)/house.h $(INCLUDE)/char_class.h $(INCLUDE)/bomb.h $(INCLUDE)/fight.h 
 	$(CXX) -c $(CXXFLAGS) act.barb.cc          -o $(OBJ)/act.barb.o
+$(OBJ)/act.bard.o : act.bard.cc \
+	$(INCLUDE)/structs.h $(INCLUDE)/utils.h $(INCLUDE)/comm.h $(INCLUDE)/handler.h $(INCLUDE)/db.h $(INCLUDE)/spells.h $(INCLUDE)/screen.h $(INCLUDE)/char_class.h $(INCLUDE)/vehicle.h $(INCLUDE)/materials.h $(INCLUDE)/fight.h $(INCLUDE)/guns.h $(INCLUDE)/bomb.h $(INCLUDE)/utils.h $(INCLUDE)/house.h $(INCLUDE)/vendor.h 
+	$(CXX) -c $(CXXFLAGS) act.bard.cc          -o $(OBJ)/act.bard.o
 $(OBJ)/act.cleric.o : act.cleric.cc \
 	$(INCLUDE)/structs.h $(INCLUDE)/utils.h $(INCLUDE)/comm.h $(INCLUDE)/handler.h $(INCLUDE)/db.h $(INCLUDE)/spells.h $(INCLUDE)/screen.h $(INCLUDE)/vehicle.h $(INCLUDE)/materials.h $(INCLUDE)/flow_room.h $(INCLUDE)/house.h $(INCLUDE)/char_class.h $(INCLUDE)/fight.h 
 	$(CXX) -c $(CXXFLAGS) act.cleric.cc        -o $(OBJ)/act.cleric.o
@@ -37,4 +40,4 @@ $(OBJ)/act.thief.o : act.thief.cc \
 $(OBJ)/char_class.o : char_class.cc \
 	$(INCLUDE)/structs.h $(INCLUDE)/db.h $(INCLUDE)/utils.h $(INCLUDE)/spells.h $(INCLUDE)/interpreter.h $(INCLUDE)/char_class.h $(INCLUDE)/comm.h $(INCLUDE)/vehicle.h $(INCLUDE)/handler.h $(INCLUDE)/security.h $(INCLUDE)/tmpstr.h $(INCLUDE)/player_table.h 
 	$(CXX) -c $(CXXFLAGS) char_class.cc        -o $(OBJ)/char_class.o
-OBJFILES= $(OBJ)/act.barb.o $(OBJ)/act.cleric.o $(OBJ)/act.cyborg.o $(OBJ)/act.hood.o $(OBJ)/act.knight.o $(OBJ)/act.mage.o $(OBJ)/act.merc.o $(OBJ)/act.monk.o $(OBJ)/act.physic.o $(OBJ)/act.psionic.o $(OBJ)/act.ranger.o $(OBJ)/act.thief.o $(OBJ)/char_class.o
+OBJFILES= $(OBJ)/act.barb.o $(OBJ)/act.bard.o $(OBJ)/act.cleric.o $(OBJ)/act.cyborg.o $(OBJ)/act.hood.o $(OBJ)/act.knight.o $(OBJ)/act.mage.o $(OBJ)/act.merc.o $(OBJ)/act.monk.o $(OBJ)/act.physic.o $(OBJ)/act.psionic.o $(OBJ)/act.ranger.o $(OBJ)/act.thief.o $(OBJ)/char_class.o

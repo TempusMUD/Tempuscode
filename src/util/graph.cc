@@ -517,7 +517,7 @@ smart_mobile_move(struct Creature *ch, int dir)
 			if (IS_SET(EXIT(ch, dir)->exit_info, EX_LOCKED)) {
 				if (has_key(ch, EXIT(ch, dir)->key))
 					do_gen_door(ch, doorbuf, 0, SCMD_UNLOCK, 0);
-				else if ((IS_THIEF(ch) || IS_HOOD(ch)) &&
+				else if ((IS_THIEF(ch) || IS_BARD(ch)) &&
 					CHECK_SKILL(ch, SKILL_PICK_LOCK) > 30)
 					do_gen_door(ch, doorbuf, 0, SCMD_PICK, 0);
 				else if (IS_MAGE(ch) && CHECK_SKILL(ch, SPELL_KNOCK) &&

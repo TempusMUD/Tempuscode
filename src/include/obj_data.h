@@ -95,7 +95,13 @@ static const int ITEM_CLIP = 58;
 static const int ITEM_MICROCHIP = 59;
 static const int ITEM_COMMUNICATOR = 60;
 static const int ITEM_SCRIPT = 61;
-static const int NUM_ITEM_TYPES = 62;
+static const int ITEM_INSTRUMENT = 62;
+static const int NUM_ITEM_TYPES = 63;
+
+// Instrument Types
+static const int ITEM_PERCUSSION = 0;
+static const int ITEM_STRING = 1;
+static const int ITEM_WIND = 2;
 
 
 /* Take/Wear flags: used by obj_data.obj_flags.wear_flags */
@@ -148,7 +154,7 @@ static const int ITEM_ANTI_PHYSIC = (1 << 19);	/* no physic */
 static const int ITEM_ANTI_CYBORG = (1 << 20);
 static const int ITEM_ANTI_KNIGHT = (1 << 21);
 static const int ITEM_ANTI_RANGER = (1 << 22);
-static const int ITEM_ANTI_HOOD = (1 << 23);
+static const int ITEM_ANTI_BARD = (1 << 23);
 static const int ITEM_ANTI_MONK = (1 << 24);
 static const int ITEM_BLURRED = (1 << 25);
 static const int ITEM_MAGIC_NODISPEL = (1 << 26);
@@ -199,7 +205,7 @@ static const int ITEM3_REQ_PHYSIC = (1 << 6);
 static const int ITEM3_REQ_CYBORG = (1 << 7);
 static const int ITEM3_REQ_KNIGHT = (1 << 8);
 static const int ITEM3_REQ_RANGER = (1 << 9);
-static const int ITEM3_REQ_HOOD = (1 << 10);
+static const int ITEM3_REQ_BARD = (1 << 10);
 static const int ITEM3_REQ_MONK = (1 << 11);
 static const int ITEM3_REQ_VAMPIRE = (1 << 12);
 static const int ITEM3_REQ_MERCENARY = (1 << 13);

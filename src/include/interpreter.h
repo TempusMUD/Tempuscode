@@ -414,6 +414,7 @@ struct set_struct {
 #define ZEN_BIT   4
 #define ALTER_BIT 8
 #define PROG_BIT 16
+#define SONG_BIT 32
 
 // do_dyntext_show
 #define SCMD_DYNTEXT_NEWS  1

@@ -165,6 +165,7 @@ const char *prac_types[] = {
 	"alteration",
 	"program",
 	"zen art",
+    "song",
 	"\n",
 };
 

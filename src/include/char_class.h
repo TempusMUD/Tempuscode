@@ -80,13 +80,13 @@ int get_max_cha( Creature *ch );
                     i == CLASS_KNIGHT || \
                     i == CLASS_BARB || \
                     i == CLASS_THIEF || \
-                    i == CLASS_MONK)
+                    i == CLASS_MONK || \
+                    i == CLASS_BARD)
 
 #define FUTURE_CLASS(i) (i == CLASS_MERCENARY || \
                      i == CLASS_PSIONIC || \
                      i == CLASS_PHYSIC || \
-                     i == CLASS_CYBORG || \
-                     i == CLASS_HOOD)
+                     i == CLASS_CYBORG)
 
 
 #endif

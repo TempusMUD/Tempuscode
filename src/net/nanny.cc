@@ -539,8 +539,13 @@ handle_input(struct descriptor_data *d)
 			break;
 		}
 
-		if (is_abbrev(arg, "evil"))
+		if (is_abbrev(arg, "evil")) {
+            if (GET_CLASS(d->creature) == CLASS_BARD) {
+                SEND_TO_Q("The bard class must be either Good or Neutral.\r\n\r\n", d);
+                break;
+            }
 			d->creature->char_specials.saved.alignment = -666;
+        }
 		else if (is_abbrev(arg, "good"))
 			d->creature->char_specials.saved.alignment = 777;
 		else if (is_abbrev(arg, "neutral")) {

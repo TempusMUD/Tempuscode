@@ -85,6 +85,7 @@ extern int mini_mud;
 extern int current_mob_idnum;
 extern struct last_command_data last_cmd[NUM_SAVE_CMDS];
 extern const char *language_names[];
+extern const char *instrument_types[];
 
 
 char *how_good(int percent);
@@ -143,7 +144,8 @@ show_char_class_skills(struct Creature *ch, int con, int immort, int bits)
         IS_SET(bits, SPELL_BIT) ? "spells" :
             IS_SET(bits, TRIG_BIT) ? "triggers" :
             IS_SET(bits, ZEN_BIT) ? "zens" :
-            IS_SET(bits, ALTER_BIT) ? "alterations" : "skills",
+            IS_SET(bits, ALTER_BIT) ? "alterations" : 
+            IS_SET(bits, SONG_BIT) ? "songs" : "skills",
         ":\r\n", NULL);
 
     if (GET_LEVEL(ch) < LVL_IMMORT)
@@ -1329,6 +1331,11 @@ do_stat_object(struct Creature *ch, struct obj_data *j)
             GET_OBJ_VAL(j, 0), GET_OBJ_VAL(j, 1), GET_OBJ_VAL(j, 2),
             GET_OBJ_VAL(j, 3));
         break;
+    case ITEM_INSTRUMENT:
+        sprintf(buf, "Instrument Type: [%d] (%s)", GET_OBJ_VAL(j, 0),
+                GET_OBJ_VAL(j, 0) < 2 ? instrument_types[GET_OBJ_VAL(j, 0)] :
+                "UNDEFINED");
+        break;
     case ITEM_SCROLL:
     case ITEM_POTION:
     case ITEM_PILL:
@@ -1484,7 +1491,6 @@ do_stat_object(struct Creature *ch, struct obj_data *j)
             item_value_types[(int)GET_OBJ_TYPE(j)][2], GET_OBJ_VAL(j, 2),
             item_value_types[(int)GET_OBJ_TYPE(j)][3], GET_OBJ_VAL(j, 3));
         break;
-
     default:
         sprintf(buf, "Values 0-3: %s:[%d] %s:[%d] %s:[%d] %s:[%d]",
             item_value_types[(int)GET_OBJ_TYPE(j)][0], GET_OBJ_VAL(j, 0),

@@ -327,17 +327,59 @@ const char *spells[] = {
 	"quantum rift",
 	"repulsion field (obj)",
 	"attraction field (obj)",		/* 345 */
-	"!UNUSED!", "!UNUSED!", "!UNUSED!", "!UNUSED!", "!UNUSED!",	/* 350 */
-	"!UNUSED!", "!UNUSED!", "!UNUSED!", "!UNUSED!", "!UNUSED!",	/* 355 */
-	"!UNUSED!", "!UNUSED!", "!UNUSED!", "!UNUSED!", "!UNUSED!",	/* 360 */
-	"!UNUSED!", "!UNUSED!", "!UNUSED!", "!UNUSED!", "!UNUSED!",	/* 365 */
-	"!UNUSED!", "!UNUSED!", "!UNUSED!", "!UNUSED!", "!UNUSED!",	/* 370 */
-	"!UNUSED!", "!UNUSED!", "!UNUSED!", "!UNUSED!", "!UNUSED!",	/* 375 */
-	"!UNUSED!", "!UNUSED!", "!UNUSED!", "!UNUSED!", "!UNUSED!",	/* 380 */
-	"!UNUSED!", "!UNUSED!", "!UNUSED!", "!UNUSED!", "!UNUSED!",	/* 385 */
-	"!UNUSED!", "!UNUSED!", "!UNUSED!", "!UNUSED!", "!UNUSED!",	/* 390 */
-	"!UNUSED!", "!UNUSED!", "!UNUSED!", "!UNUSED!", "!UNUSED!",	/* 395 */
-	"!UNUSED!", "!UNUSED!", "!UNUSED!", "!UNUSED!", "!UNUSED!",	/* 400 */
+    // Bard stuff
+	"instant audience", /* 346 */
+    "wall of sound", /* 347 */
+    "!UNUSED!", /* 348 */
+    "lament of longing", /* 349 */
+    "misdirection melisma",	/* 350 */
+	"aria of armament", 
+    "lullaby", 
+    "verse of vulnerability", 
+    "exposure overture", 
+    "verse of vibration",	/* 355 */
+	"regalers rhapsody", 
+    "melody of mettle", 
+    "lustration melisma", 
+    "defense ditty", 
+    "alrons aria",	/* 360 */
+	"song shield", 
+    "verse of valor", 
+    "hymn of peace", 
+    "song of silence", 
+    "drifters ditty",	/* 365 */
+	"unravelling diapason", 
+    "rhapsody of depression", 
+    "chant of light", 
+    "aria of asylum", 
+    "white noise",	/* 370 */
+	"rhythm of rage", 
+    "power overture", 
+    "guiharias glory", 
+    "sirens song", 
+    "sonic disruption",	/* 375 */
+	"mirror image melody", 
+    "clarifying harmonies", 
+    "unladen swallow song", 
+    "irresistable dance", 
+    "rythm of alarm",	/* 380 */
+	"rhapsody of remedy", 
+    "shatter", 
+    "home sweet home", 
+    "weight of the world", 
+    "purple haze",	/* 385 */
+	"wounding whispers", 
+    "dirge", 
+    "eagles overture", 
+    "ghost instrument", 
+    "lichs lyrics",	/* 390 */
+	"fortissimo", 
+    "insidious rhythm",
+    "!UNUSED!", 
+    "!UNUSED!", 
+    "requiem",	/* 395 */
+	"!UNUSED!", 
+    "!UNUSED!", "!UNUSED!", "!UNUSED!", "!UNUSED!",	/* 400 */
 
 	"zen of healing",
 	"zen of awareness",
@@ -529,9 +571,12 @@ const char *spells[] = {
 	"!UNUSED!",					/* 660 */
 	"!UNUSED!", "!UNUSED!", "!UNUSED!", "!UNUSED!", "!UNUSED!",	/* 665 */
 	"hamstring", "snatch", "drag", "snipe", "infiltrate",	/* 670 */
-	"shoulderthrow", "!UNUSED!", "!UNUSED!", "!UNUSED!",
+	"shoulderthrow", 
+    "scream", 
+    "ventriloquism", 
+    "tumbling",
 	"nanite reconstruction",	/* 675 */
-	"arterial flow enhancement",
+	"lingering song",
 	"genetek optimmunal response",
 	"shukutei adrenal maximizations",
 	"energy conversion",
@@ -958,10 +1003,18 @@ call_magic(struct Creature *caster, struct Creature *cvict,
 					"by the whole of the universe.", FALSE, caster, 0, 0,
 					TO_ROOM);
 				return 0;
-			} else {
+			} 
+            if (SPELL_IS_BARD(spellnum)) {
+				send_to_char(caster, 
+					"Your voice is stifled!\r\n");
+				act("$n attempts to sing a violent song, but is restrained "
+					"by the whole of the universe.", FALSE, caster, 0, 0,
+					TO_ROOM);
+				return 0;
+            } else {
 				send_to_char(caster, 
 					"A flash of white light fills the room, dispelling your "
-					"violent magic!\r\n");
+					"violent song!\r\n");
 				act("White light from no particular source suddenly fills the room, " "then vanishes.", FALSE, caster, 0, 0, TO_ROOM);
 				return 0;
 			}
@@ -1090,6 +1143,7 @@ call_magic(struct Creature *caster, struct Creature *cvict,
 		savetype = SAVING_PETRI;
 		break;
 	case CAST_BREATH:
+    case CAST_BARD:
 		savetype = SAVING_BREATH;
 		break;
 	case CAST_INTERNAL:
@@ -1281,6 +1335,18 @@ call_magic(struct Creature *caster, struct Creature *cvict,
             MANUAL_SPELL(spell_dispel_evil); break;
         case SPELL_DISPEL_GOOD:
             MANUAL_SPELL(spell_dispel_good); break;
+        case SONG_EXPOSURE_OVERTURE:
+            MANUAL_SPELL(song_exposure_overture); break;
+		case SONG_HOME_SWEET_HOME:
+			MANUAL_SPELL(spell_recall); break;
+		case SONG_CLARIFYING_HARMONIES:
+			MANUAL_SPELL(spell_identify); break;
+        case SONG_LAMENT_OF_LONGING:
+            MANUAL_SPELL(song_lament_of_longing); break;
+        case SONG_UNRAVELLING_DIAPASON:
+            MANUAL_SPELL(spell_dispel_magic);
+        case SONG_INSTANT_AUDIENCE:
+            MANUAL_SPELL(song_instant_audience);
 		}
 
 	knock_door = NULL;
@@ -1589,6 +1655,8 @@ cast_spell(struct Creature *ch, struct Creature *tch,
 	struct obj_data *tobj, int spellnum, int *return_flags)
 {
 
+    void sing_song(struct Creature *ch, Creature *vict, int spellnum);
+
 	if (return_flags)
 		*return_flags = 0;
 
@@ -1618,6 +1686,8 @@ cast_spell(struct Creature *ch, struct Creature *tch,
 				send_to_char(ch, "You dream about great physical powers.\r\n");
 			if (SPELL_IS_PSIONIC(spellnum))
 				send_to_char(ch, "You dream about great psionic powers.\r\n");
+            if (SPELL_IS_BARD(spellnum))
+                send_to_char(ch, "You dream about great musical talent.\r\n");
 			else
 				send_to_char(ch, "You dream about great magical powers.\r\n");
 			break;
@@ -1650,6 +1720,7 @@ cast_spell(struct Creature *ch, struct Creature *tch,
 			SPELL_IS_PHYSICS(spellnum) ? "alter this reality on" :
 			SPELL_IS_PSIONIC(spellnum) ? "trigger this psi on" :
 			SPELL_IS_MERCENARY(spellnum) ? "apply this device to" :
+            SPELL_IS_BARD(spellnum) ? "evoke this song on" :
 			"cast this spell upon");
 		return 0;
 	}
@@ -1658,6 +1729,7 @@ cast_spell(struct Creature *ch, struct Creature *tch,
 			SPELL_IS_PHYSICS(spellnum) ? "alter this reality on" :
 			SPELL_IS_PSIONIC(spellnum) ? "trigger this psi on" :
 			SPELL_IS_MERCENARY(spellnum) ? "apply this device to" :
+            SPELL_IS_BARD(spellnum) ? "evoke this song on" :
 			"cast this spell upon");
 		return 0;
 	}
@@ -1667,10 +1739,12 @@ cast_spell(struct Creature *ch, struct Creature *tch,
 			SPELL_IS_PHYSICS(spellnum) ? "alter any reality!" :
 			SPELL_IS_PSIONIC(spellnum) ? "trigger any psi!" :
 			SPELL_IS_MERCENARY(spellnum) ? "construct any devices!" :
+            SPELL_IS_BARD(spellnum) ? "sing any songs!" :
 			"cast any spells!");
 		return 0;
 	}
-	if (IS_SET(SINFO.routines, MAG_GROUPS) && !IS_AFFECTED(ch, AFF_GROUP)) {
+	if (IS_SET(SINFO.routines, MAG_GROUPS) && !IS_AFFECTED(ch, AFF_GROUP) && 
+        !IS_SET(SINFO.routines, MAG_BARD)) {
 		send_to_char(ch, "You can't do this if you're not in a group!\r\n");
 		return 0;
 	}
@@ -1697,7 +1771,10 @@ cast_spell(struct Creature *ch, struct Creature *tch,
             return rflags;
 	}
 
-	say_spell(ch, spellnum, tch, tobj);
+    if (SPELL_IS_BARD(spellnum))
+        sing_song(ch, tch, spellnum);
+    else
+	    say_spell(ch, spellnum, tch, tobj);
 
 	if (!IS_MOB(ch) && GET_LEVEL(ch) >= LVL_AMBASSADOR &&
 		GET_LEVEL(ch) < LVL_GOD && !mini_mud &&
@@ -1714,7 +1791,9 @@ cast_spell(struct Creature *ch, struct Creature *tch,
 	int retval = call_magic(ch, tch, tobj, spellnum,
 		GET_LEVEL(ch) + (!IS_NPC(ch) ? (GET_REMORT_GEN(ch) << 1) : 0),
 		(SPELL_IS_PSIONIC(spellnum) ? CAST_PSIONIC :
-			(SPELL_IS_PHYSICS(spellnum) ? CAST_PHYSIC : CAST_SPELL)),
+		(SPELL_IS_PHYSICS(spellnum) ? CAST_PHYSIC : 
+        (SPELL_IS_BARD(spellnum) ? CAST_BARD :
+         CAST_SPELL))),
 		&my_return_flags);
 
 	if (return_flags) {
@@ -1848,14 +1927,16 @@ find_spell_targets(struct Creature *ch, char *argument,
 		send_to_char(ch, "You do not know that %s!\r\n",
 			SPELL_IS_PSIONIC(spellnum) ? "trigger" :
 			SPELL_IS_PHYSICS(spellnum) ? "alteration" :
-			SPELL_IS_MERCENARY(spellnum) ? "device" : "spell");
+			SPELL_IS_MERCENARY(spellnum) ? "device" : 
+            SPELL_IS_BARD(spellnum) ? "song" : "spell");
 		return 0;
 	}
 	if (CHECK_SKILL(ch, spellnum) == 0) {
 		send_to_char(ch, "You are unfamiliar with that %s.\r\n",
 			SPELL_IS_PSIONIC(spellnum) ? "trigger" :
 			SPELL_IS_PHYSICS(spellnum) ? "alteration" :
-			SPELL_IS_MERCENARY(spellnum) ? "device" : "spell");
+			SPELL_IS_MERCENARY(spellnum) ? "device" : 
+            SPELL_IS_BARD(spellnum) ? "song" : "spell");
 		return 0;
 	}
 	/* Find the target */
@@ -2548,6 +2629,102 @@ ACMD(do_alter)
 	}
 }
 
+ACMD(do_perform)
+{
+	struct Creature *tch = NULL;
+	struct obj_data *tobj = NULL;
+	int mana, spellnum, target = 0, temp = 0;
+
+    extern bool check_instrument(Creature *ch, int songnum);
+    extern char *get_instrument_type(int songnum);
+
+	if (IS_NPC(ch))
+		return;
+
+	if (GET_CLASS(ch) != CLASS_BARD &&
+		GET_REMORT_CLASS(ch) != CLASS_BARD
+		&& GET_LEVEL(ch) < LVL_AMBASSADOR) {
+		send_to_char(ch, "You raise your pitiful voice to the heavens.\r\n");
+		return;
+	}
+	if (IS_WEARING_W(ch) > (CAN_CARRY_W(ch) * 0.80)) {
+		send_to_char(ch, 
+			"Your heavy equipment prevents you from breathing properly!\r\n");
+		return;
+	}
+
+	if (!(find_spell_targets(ch, argument, &tch, &tobj, &target, &spellnum,
+				cmd)))
+		return;
+
+	// Drunk bastards don't sing very well, do they... -- Nothing 8/28/2004
+	if ((GET_COND(ch, DRUNK) > 5) && (temp = number(1, 35)) > GET_INT(ch)) {
+		if (temp < 34) {
+			send_to_char(ch, 
+				"You try but you can't remember the tune!\r\n");
+			return;
+		} else {
+			send_to_char(ch, "You begin to play but you can't hold the tune!\r\n");
+			WAIT_STATE(ch, 2 RL_SEC);
+			spellnum = number(1, MAX_SPELLS);
+			if (!SPELL_IS_BARD(spellnum)) {
+				send_to_char(ch, "Your concentration slips away entirely.\r\n");
+				return;
+			}
+		}
+	}
+
+    if (tch && IS_UNDEAD(tch)) {
+        send_to_char(ch, "The undead have no appreciation for music!\r\n");
+        return;
+    }
+
+	if (!SPELL_IS_BARD(spellnum)) {
+		act("You do not know that song!", FALSE, ch, 0, 0, TO_CHAR);
+		return;
+	}
+    if (!check_instrument(ch, spellnum)) {
+        send_to_char(ch, "But you're not using a %s instrument!\r\n", 
+                     get_instrument_type(spellnum));
+        return;
+    }
+	if (!target) {
+		send_to_char(ch, "Cannot find the target of your serenade!\r\n");
+		return;
+	}
+	mana = mag_manacost(ch, spellnum);
+	if ((mana > 0) && (GET_MANA(ch) < mana)
+		&& (GET_LEVEL(ch) < LVL_AMBASSADOR)) {
+		send_to_char(ch, "You haven't the breath to perform that song!\r\n");
+		return;
+	}
+
+	if ((SECT_TYPE(ch->in_room) == SECT_UNDERWATER
+				|| SECT_TYPE(ch->in_room) == SECT_DEEP_OCEAN)) {
+		send_to_char(ch, "You can't sing or play underwater!.\r\n");
+		return;
+	}
+
+	/* You throws the dice and you takes your chances.. 101% is total failure */
+	if (number(0, 101) > GET_SKILL(ch, spellnum)) {
+		WAIT_STATE(ch, PULSE_VIOLENCE);
+		if (!tch || !skill_message(0, ch, tch, spellnum))
+			send_to_char(ch, "Your song was disturbed!\r\n");
+		if (mana > 0)
+			GET_MANA(ch) =
+				MAX(0, MIN(GET_MAX_MANA(ch), GET_MANA(ch) - (mana >> 1)));
+		if (SINFO.violent && tch && IS_NPC(tch))
+			hit(tch, ch, TYPE_UNDEFINED);
+	} else {
+		if (cast_spell(ch, tch, tobj, spellnum)) {
+			WAIT_STATE(ch, PULSE_VIOLENCE);
+			if (mana > 0)
+				GET_MANA(ch) =
+					MAX(0, MIN(GET_MAX_MANA(ch), GET_MANA(ch) - mana));
+			gain_skill_prof(ch, spellnum);
+		}
+	}
+}
 
 /* Assign the spells on boot up */
 
@@ -2571,7 +2748,7 @@ spello(int spl, int mlev, int clev, int tlev, int wlev, int blev,
 	spell_info[spl].min_level[CLASS_CYBORG] = ylev;
 	spell_info[spl].min_level[CLASS_KNIGHT] = klev;
 	spell_info[spl].min_level[CLASS_RANGER] = rlev;
-	spell_info[spl].min_level[CLASS_HOOD] = hlev;
+	spell_info[spl].min_level[CLASS_BARD] = hlev;
 	spell_info[spl].min_level[CLASS_MONK] = alev;
 	spell_info[spl].min_level[CLASS_VAMPIRE] = vlev;
 	spell_info[spl].min_level[CLASS_MERCENARY] = merclev;
@@ -2757,7 +2934,7 @@ mag_assign_spells(void)
 		MAG_MAGIC | MAG_MANUAL);
 
 	/* C L A S S E S      M A N A   */
-	/* Ma Cl Th Wa Bar Syk Ph Cyb Kni Ran Hood Bnt Max Min Chn */
+	/* Ma Cl Th Wa Bar Syk Ph Cyb Kni Ran Bard Bnt Max Min Chn */
 	spello(SPELL_CLONE, X, X, X, X, X, X, X, X, X, X, X, X, X, X, X, X, X,
 		80, 65, 5, POS_STANDING, TAR_CHAR_ROOM | TAR_SELF_ONLY, FALSE,
 		MAG_MAGIC | MAG_MANUAL);
@@ -2858,7 +3035,7 @@ mag_assign_spells(void)
 		MAG_MAGIC | MAG_AFFECTS);
 
 	/* C L A S S E S      M A N A   */
-	/* Ma Cl Th Wa Bar Syk Ph Cyb Kni Ran Hood Bnt Max Min Chn */
+	/* Ma Cl Th Wa Bar Syk Ph Cyb Kni Ran Bard Bnt Max Min Chn */
 	spello(SPELL_EARTHQUAKE, X, 30, X, X, X, X, X, X, X, X, X, X, X, X, X, X,
 		X, 40, 25, 3, POS_FIGHTING, TAR_IGNORE, TRUE, MAG_DIVINE | MAG_AREAS);
 
@@ -2892,7 +3069,7 @@ mag_assign_spells(void)
 		MAG_DIVINE | MAG_ALTER_OBJS | MAG_NOWATER);
 
 	/* C L A S S E S      M A N A   */
-	/* Ma Cl Th Wa Bar Syk Ph Cyb Kni Ran Hood Bnt Max Min Chn */
+	/* Ma Cl Th Wa Bar Syk Ph Cyb Kni Ran Bard Bnt Max Min Chn */
 	spello(SPELL_GOODBERRY, X, X, X, X, X, X, X, X, X, 7, X, X, X, X, X, X, X,
 		30, 5, 4, POS_STANDING, TAR_IGNORE, FALSE, MAG_MAGIC | MAG_CREATIONS);
 
@@ -3096,7 +3273,7 @@ mag_assign_spells(void)
 		POS_STANDING, TAR_CHAR_ROOM, FALSE, MAG_DIVINE | MAG_AFFECTS);
 
 	/* C L A S S E S      M A N A   */
-	/* Ma Cl Th Wa Bar Syk Ph Cy Kn Rn Hood Bnt Max Min Chn */
+	/* Ma Cl Th Wa Bar Syk Ph Cy Kn Rn Bard Bnt Max Min Chn */
 	spello(SPELL_SHOCKING_GRASP, 9, X, X, X, X, X, X, X, X, X, X, X, X, X, X,
 		X, X, 30, 15, 3, POS_FIGHTING, TAR_CHAR_ROOM | TAR_FIGHT_VICT, TRUE,
 		MAG_MAGIC | MAG_TOUCH | MAG_DAMAGE);
@@ -3376,7 +3553,7 @@ mag_assign_spells(void)
 
 	/*   Physic ALTERS go here ----\/ \/ \/       */
 	/* C L A S S E S      M A N A   */
-	/* Ma Cl Th Wa Bar Syk Ph Cyb Kni Ran Hood Bnt  */
+	/* Ma Cl Th Wa Bar Syk Ph Cyb Kni Ran Bard Bnt  */
 	spello(SPELL_ELECTROSTATIC_FIELD, X, X, X, X, X, X, 1, X, X, X, X, X, X, X,
 		X, X, X, 40, 20, 2, POS_SITTING, TAR_CHAR_ROOM | TAR_SELF_ONLY, FALSE,
 		MAG_PHYSICS | MAG_AFFECTS);
@@ -3524,7 +3701,117 @@ mag_assign_spells(void)
 	spello(ZEN_MOTION, X, X, X, X, X, X, X, X, X, X, X, 28, X, X, X, X, X, 30,
 		7, 1, 0, 0, 0, MAG_ZEN);
 
+// Bards...
+	spello(SONG_DRIFTERS_DITTY, X, X, X, X, X, X, X, X, X, X, 4, X, X, X,
+           X, X, X, 90, 75, 2, POS_STANDING, TAR_IGNORE, FALSE, MAG_BARD | 
+           MAG_GROUPS | MAG_AFFECTS | MAG_POINTS);
 
+	spello(SONG_ARIA_OF_ARMAMENT, X, X, X, X, X, X, X, X, X, X, 3, X, X, X,
+           X, X, X, 75, 50, 2, POS_STANDING, TAR_IGNORE, FALSE, MAG_BARD | 
+           MAG_GROUPS | MAG_AFFECTS);
+
+	spello(SONG_VERSE_OF_VULNERABILITY, X, X, X, X, X, X, X, X, X, X, 8, X, X, X,
+           X, X, X, 50, 20, 3, POS_FIGHTING, TAR_CHAR_ROOM | TAR_NOT_SELF | TAR_FIGHT_VICT, 
+           TRUE, MAG_BARD | MAG_AFFECTS);
+
+	spello(SONG_MELODY_OF_METTLE, X, X, X, X, X, X, X, X, X, X, 11, X, X, X,
+           X, X, X, 100, 75, 3, POS_STANDING, TAR_IGNORE, FALSE, MAG_BARD | 
+           MAG_AFFECTS | MAG_GROUPS);
+
+	spello(SONG_REGALERS_RHAPSODY, X, X, X, X, X, X, X, X, X, X, 5, X, X, X,
+           X, X, X, 65, 50, 1, POS_STANDING, TAR_IGNORE, FALSE, MAG_BARD | 
+           MAG_AFFECTS | MAG_GROUPS);
+
+	spello(SONG_DEFENSE_DITTY, X, X, X, X, X, X, X, X, X, X, 39, X, X, X,
+           X, X, X, 120, 95, 1, POS_STANDING, TAR_IGNORE, FALSE, MAG_BARD | 
+           MAG_AFFECTS | MAG_GROUPS);
+
+	spello(SONG_ALRONS_ARIA, X, X, X, X, X, X, X, X, X, X, 24, X, X, X,
+           X, X, X, 120, 95, 1, POS_STANDING, TAR_IGNORE, FALSE, MAG_BARD | 
+           MAG_AFFECTS | MAG_GROUPS | MAG_UNAFFECTS);
+
+	spello(SONG_LUSTRATION_MELISMA, X, X, X, X, X, X, X, X, X, X, 2, X, X, X,
+           X, X, X, 95, 75, 1, POS_STANDING, TAR_IGNORE, FALSE, MAG_BARD | 
+           MAG_GROUPS | MAG_UNAFFECTS);
+
+	spello(SONG_EXPOSURE_OVERTURE, X, X, X, X, X, X, X, X, X, X, 25, X, X, X,
+           X, X, X, 95, 75, 1, POS_STANDING, TAR_IGNORE, FALSE, MAG_BARD | 
+           MAG_MANUAL);
+
+	spello(SONG_VERSE_OF_VALOR, X, X, X, X, X, X, X, X, X, X, 10, X, X, X,
+           X, X, X, 95, 75, 1, POS_STANDING, TAR_IGNORE, FALSE, MAG_BARD | 
+           MAG_GROUPS | MAG_AFFECTS);
+
+	spello(SONG_WHITE_NOISE, X, X, X, X, X, X, X, X, X, X, 35, X, X, X,
+           X, X, X, 80, 40, 2, POS_FIGHTING, TAR_CHAR_ROOM | TAR_NOT_SELF | TAR_FIGHT_VICT, 
+           TRUE, MAG_BARD | MAG_AFFECTS);
+    
+	spello(SONG_HOME_SWEET_HOME, X, X, X, X, X, X, X, X, X, X, 9, X, X, X, X,
+		X, X, 100, 20, 2, POS_STANDING, TAR_CHAR_ROOM, FALSE, MAG_MANUAL | MAG_BARD);
+
+	spello(SONG_CHANT_OF_LIGHT, X, X, X, X, X, X, X, X, X, X, 1, X, X, X,
+           X, X, X, 30, 20, 1, POS_STANDING, TAR_IGNORE, FALSE, MAG_BARD | 
+           MAG_GROUPS | MAG_AFFECTS);
+
+	spello(SONG_IRRESISTABLE_DANCE, X, X, X, X, X, X, X, X, X, X, 38, X, X, X,
+           X, X, X, 65, 40, 1, POS_FIGHTING, TAR_CHAR_ROOM | TAR_NOT_SELF | TAR_FIGHT_VICT, 
+           TRUE, MAG_BARD | MAG_AFFECTS);
+
+	spello(SONG_INSIDIOUS_RHYTHM, X, X, X, X, X, X, X, X, X, X, 20, X, X, X,
+           X, X, X, 90, 55, 1, POS_FIGHTING, TAR_CHAR_ROOM | TAR_NOT_SELF | TAR_FIGHT_VICT, 
+           TRUE, MAG_BARD | MAG_AFFECTS);
+
+	spello(SONG_EAGLES_OVERTURE, X, X, X, X, X, X, X, X, X, X, 25, X, X, X,
+           X, X, X, 55, 25, 2, POS_STANDING, TAR_IGNORE, FALSE, MAG_BARD | 
+           MAG_GROUPS | MAG_AFFECTS);
+
+	spello(SONG_WEIGHT_OF_THE_WORLD, X, X, X, X, X, X, X, X, X, X, 21, X, X, X,
+           X, X, X, 180, 150, 1, POS_STANDING, TAR_IGNORE, FALSE, MAG_BARD | 
+           MAG_GROUPS | MAG_AFFECTS);
+
+	spello(SONG_GUIHARIAS_GLORY, X, X, X, X, X, X, X, X, X, X, 16, X, X, X,
+           X, X, X, 120, 80, 1, POS_STANDING, TAR_IGNORE, FALSE, MAG_BARD | 
+           MAG_GROUPS | MAG_AFFECTS);
+
+	spello(SONG_RHAPSODY_OF_REMEDY, X, X, X, X, X, X, X, X, X, X, 28, X, X, X,
+           X, X, X, 80, 50, 1, POS_FIGHTING, TAR_CHAR_ROOM, FALSE, MAG_BARD | 
+           MAG_POINTS);
+
+	spello(SONG_UNLADEN_SWALLOW_SONG, X, X, X, X, X, X, X, X, X, X, 19, X, X, X,
+           X, X, X, 105, 85, 1, POS_STANDING, TAR_IGNORE, FALSE, MAG_BARD | 
+           MAG_GROUPS | MAG_AFFECTS);
+
+	spello(SONG_CLARIFYING_HARMONIES, X, X, X, X, X, X, X, X, X, X, 12, X, X, X,
+           X, X, X, 45, 20, 1, POS_STANDING, TAR_CHAR_ROOM | TAR_OBJ_INV | 
+           TAR_OBJ_ROOM | TAR_OBJ_EQUIP, FALSE, MAG_BARD | MAG_MANUAL);
+
+	spello(SONG_POWER_OVERTURE, X, X, X, X, X, X, X, X, X, X, 13, X, X, X,
+           X, X, X, 50, 25, 1, POS_STANDING, TAR_CHAR_ROOM, FALSE, MAG_BARD | 
+           MAG_AFFECTS);
+
+	spello(SONG_RHYTHM_OF_RAGE, X, X, X, X, X, X, X, X, X, X, 36, X, X, X,
+           X, X, X, 325, 180, 3, POS_STANDING, TAR_CHAR_ROOM, FALSE, MAG_BARD | 
+           MAG_AFFECTS);
+    
+	spello(SONG_UNRAVELLING_DIAPASON, X, X, X, X, X, X, X, X, X, X, 40, X, X, X, X, X,
+		X, 120, 75, 3, POS_STANDING, TAR_CHAR_ROOM | TAR_OBJ_INV | TAR_OBJ_ROOM,
+		FALSE, MAG_BARD | MAG_MANUAL);
+
+	spello(SONG_INSTANT_AUDIENCE, X, X, X, X, X, X, X, X, X, X, 26, X, X, X, X, X,
+		X, 190, 100, 5, POS_STANDING, TAR_IGNORE, FALSE, MAG_BARD | MAG_MANUAL);
+
+	spello(SKILL_TUMBLING, X, X, X, X, X, X, X, X, X, X, 30, X, X, X, X, X, X,
+		0, 0, 0, 0, 0, 0, 0);
+
+	spello(SKILL_SCREAM, X, X, X, X, X, X, X, X, X, X, 5, X, X, X, X, X, X,
+		35, 35, 1, 0, 0, 0, MAG_DAMAGE | MAG_BARD);
+
+
+	/* C L A S S E S      M A N A   */
+
+	spello(SPELL_TIDAL_SPACEWARP, X, X, X, X, X, X, 15, X, X, X, X, X, X, X, X,
+		X, X, 100, 50, 2, POS_STANDING, TAR_CHAR_ROOM, FALSE,
+		MAG_PHYSICS | MAG_AFFECTS);
 	/* C L A S S E S      M A N A   */
 
 	spello(SPELL_TIDAL_SPACEWARP, X, X, X, X, X, X, 15, X, X, X, X, X, X, X, X,
@@ -3536,6 +3823,13 @@ mag_assign_spells(void)
 //            CLASS_MAGE, 35, 1, 
 //            280, 180, 10, POS_STANDING, TAR_CHAR_ROOM | TAR_SELF_ONLY,
 //            FALSE, MAG_MAGIC | MAG_AFFECTS);
+
+	remort_spello(SONG_LAMENT_OF_LONGING, CLASS_BARD, 40, 4,
+           320, 180, 5, POS_STANDING, TAR_CHAR_WORLD | TAR_NOT_SELF, 
+           FALSE, MAG_BARD | MAG_MANUAL);
+
+	remort_spello(SKILL_LINGERING_SONG, CLASS_BARD, 20, 2,
+           0, 0, 0, 0, 0, false, 0);
 
     remort_spello(SPELL_FIRE_BREATHING, 
             CLASS_MAGE, 35, 1, 
@@ -3731,13 +4025,13 @@ mag_assign_spells(void)
 	spello(SKILL_STRIKE, X, X, X, X, 17, X, X, X, X, X, X, X, X, X, X, X, X,
 		0, 0, 0, 0, 0, 0, 0);
 
-	spello(SKILL_HAMSTRING, X, X, X, X, X, X, X, X, X, X, 32, X, X, 32, X, X, X,
+	spello(SKILL_HAMSTRING, X, X, X, X, X, X, X, X, X, X, X, X, X, 32, X, X, X,
 		0, 0, 0, 0, 0, 0, 0);
 
-	spello(SKILL_DRAG, X, X, X, X, 40, X, X, X, X, X, 30, X, X, X, X, X, X,
+	spello(SKILL_DRAG, X, X, X, X, 40, X, X, X, X, X, X, X, X, X, X, X, X,
 		0, 0, 0, 0, 0, 0, 0);
 
-	spello(SKILL_SNATCH, X, X, X, X, X, X, X, X, X, X, 40, X, X, X, X, X, X,
+	spello(SKILL_SNATCH, X, X, X, X, X, X, X, X, X, X, X, X, X, X, X, X, X,
 		0, 0, 0, 0, 0, 0, 0);
 	spello(SKILL_ARCHERY, X, X, 14, 5, 24, X, X, X, X, 9, X, X, X, X, X, X, X,
 		0, 0, 0, 0, 0, 0, 0);
@@ -3746,10 +4040,10 @@ mag_assign_spells(void)
 		X, 0, 0, 0, 0, 0, 0, 0);
 
 	/*                        M C T Wa Br ps Ph cy Kn Rn Hd M v mr 1 2 3 */
-	spello(SKILL_READ_SCROLLS, 1, 2, 3, X, X, 35, X, X, 21, 21, X, 7, X, X, X,
+	spello(SKILL_READ_SCROLLS, 1, 2, 3, X, X, 35, X, X, 21, 21, 5, 7, X, X, X,
 		X, X, 0, 0, 0, 0, 0, 0, 0);
 
-	spello(SKILL_USE_WANDS, 4, 9, 10, X, X, 20, X, X, 21, 29, X, 35, X, X, X,
+	spello(SKILL_USE_WANDS, 4, 9, 10, X, X, 20, X, X, 21, 29, 5, 35, X, X, X,
 		X, X, 0, 0, 0, 0, 0, 0, 0);
 
 	spello(SKILL_BACKSTAB, X, X, 5, X, X, X, X, X, X, X, X, X, X, X, X, X, X,
@@ -3758,7 +4052,7 @@ mag_assign_spells(void)
 	spello(SKILL_CIRCLE, X, X, 33, X, X, X, X, X, X, X, X, X, X, X, X, X, X,
 		0, 0, 0, 0, 0, 0, 0);
 
-	spello(SKILL_HIDE, X, X, 3, X, X, X, X, X, X, 15, 7, X, X, 30, X, X, X,
+	spello(SKILL_HIDE, X, X, 3, X, X, X, X, X, X, 15, X, X, X, 30, X, X, X,
 		0, 0, 0, 0, 0, 0, 0);
 
 	/* Ma Cl Th Wa Br Syk Ph Cyb Kni Rn Hd Mnk vm mr 1 2 3 */
@@ -3786,8 +4080,8 @@ mag_assign_spells(void)
 	spello(SKILL_FEIGN, X, X, 25, X, X, X, X, X, X, X, X, X, X, X, X, X, X,
 		0, 0, 0, 0, 0, 0, 0);
 
-	/* Ma Cl  Th  Wa Bar Syk Ph Cyb Kni Ran Hood Bnt */
-	spello(SKILL_CONCEAL, X, X, 15, X, X, X, X, X, X, X, 16, X, X, 30, X, X, X,
+	/* Ma Cl  Th  Wa Bar Syk Ph Cyb Kni Ran Bard Bnt */
+	spello(SKILL_CONCEAL, X, X, 15, X, X, X, X, X, X, X, X, X, X, 30, X, X, X,
 		0, 0, 0, 0, 0, 0, 0);
 
 	spello(SKILL_PLANT, X, X, 20, X, X, X, X, X, X, X, X, X, X, 35, X, X, X,
@@ -3800,10 +4094,10 @@ mag_assign_spells(void)
 	spello(SKILL_RESCUE, X, X, X, 3, 12, X, X, X, 8, 12, X, 16, X, 26, X, X, X,
 		0, 0, 0, 0, 0, 0, 0);
 
-	spello(SKILL_SNEAK, X, X, 3, X, X, X, X, X, X, 8, X, X, 7, X, X, X, X,
+	spello(SKILL_SNEAK, X, X, 3, X, X, X, X, X, X, 8, 10, X, 7, X, X, X, X,
 		0, 0, 0, 0, 0, 0, 0);
 
-	spello(SKILL_STEAL, X, X, 2, X, X, X, X, X, X, X, X, X, X, X, X, X, X,
+	spello(SKILL_STEAL, X, X, 2, X, X, X, X, X, X, X, 15, X, X, X, X, X, X,
 		0, 0, 0, 0, 0, 0, 0);
 
 	spello(SKILL_TRACK, X, X, 8, 9, 14, X, X, 11, X, 11, X, X, 5, 14, X, X, X,
@@ -3857,8 +4151,8 @@ mag_assign_spells(void)
 	spello(SKILL_CLOTHESLINE, X, X, X, 1, 18, X, X, X, X, X, X, X, X, 12, X, X,
 		X, 0, 0, 0, 0, 0, 0, 0);
 
-	/* Ma  Cl  Th  Wa Bar  Cyb Kni Ran Hood Bnt */
-	/* Ma  Cl  Th  Wa Bar Syk Ph Cyb Kni Ran Hood Bnt */
+	/* Ma  Cl  Th  Wa Bar  Cyb Kni Ran Bard Bnt */
+	/* Ma  Cl  Th  Wa Bar Syk Ph Cyb Kni Ran Bard Bnt */
 	spello(SKILL_TAG, X, X, X, 1, 27, X, X, X, X, X, X, X, X, X, X, X, X,
 		0, 0, 0, 0, 0, 0, 0);
 
@@ -3882,7 +4176,7 @@ mag_assign_spells(void)
 		0, 0, 0, 0, 0, 0, 0);
 
 	/* Ma Cl Th Wa Ba Sy Ph Cy Kn  Rn  Hd Mn  V Mr */
-	spello(SKILL_DBL_ATTACK, X, X, 45, 30, 37, X, X, X, 25, 30, 42, 24, X, 25,
+	spello(SKILL_DBL_ATTACK, X, X, 45, 30, 37, X, X, X, 25, 30, 35, 24, X, 25,
 		X, X, X, 0, 0, 0, 0, 0, 0, 0);
 
 	spello(SKILL_NIGHT_VISION, X, X, X, X, X, X, X, X, X, 2, X, X, X, X, X, X,
@@ -3930,7 +4224,7 @@ mag_assign_spells(void)
 	spello(SKILL_GLANCE, X, X, 4, X, X, X, X, X, X, X, X, X, 14, X, X, X, X,
 		0, 0, 0, 0, 0, 0, 0);
 
-	spello(SKILL_SHOOT, X, X, 10, X, X, X, X, 20, X, 26, 20, X, 10, 3, X, X, X,
+	spello(SKILL_SHOOT, X, X, 10, X, X, X, X, 20, X, 26, 1, X, 10, 3, X, X, X,
 		0, 0, 0, 0, 0, 0, 0);
 
 	spello(SKILL_BEHEAD, X, X, X, X, X, X, X, X, 40, X, X, X, X, X, X, X, X,
@@ -3964,13 +4258,13 @@ mag_assign_spells(void)
 		X, 0, 0, 0, 0, 0, 0, 0);
 
 	/* Ma Cl Th  Wa Ba Sy Ph Cy Kn Rn Hd Mk Vm Mr 1 2 3 */
-	spello(SKILL_TRIP, X, X, 18, 1, X, X, X, X, X, X, 15, X, X, X, X, X, X,
+	spello(SKILL_TRIP, X, X, 18, 1, X, X, X, X, X, X, X, X, X, X, X, X, X,
 		0, 0, 0, 0, 0, 0, 0);
 
 	spello(SKILL_UPPERCUT, X, X, X, 1, 11, X, X, X, 15, 13, X, X, X, X, X, X,
 		X, 0, 0, 0, 0, 0, 0, 0);
 
-	spello(SKILL_GROINKICK, X, X, 12, 1, X, X, X, X, X, X, 7, X, X, X, X, X, X,
+	spello(SKILL_GROINKICK, X, X, 12, 1, X, X, X, X, X, X, X, X, X, X, X, X, X,
 		0, 0, 0, 0, 0, 0, 0);
 
 	spello(SKILL_CLAW, X, X, X, 1, X, X, X, X, X, 32, X, X, X, X, X, X, X,
@@ -4112,8 +4406,8 @@ mag_assign_spells(void)
 	spello(SKILL_NANITE_RECONSTRUCTION, X, X, X, X, X, X, X, 33, X, X, X, X, X, X, X, X,
 		X, 0, 0, 0, 0, 0, 0, CYB_ACTIVATE);
 
-	spello(SKILL_ARTERIAL_FLOW, X, X, X, X, X, X, X, X, X, X, X, X, X, X, X, X,
-		X, 0, 0, 0, 0, 0, 0, CYB_ACTIVATE);
+//	spello(SKILL_ARTERIAL_FLOW, X, X, X, X, X, X, X, X, X, X, X, X, X, X, X, X,
+//		X, 0, 0, 0, 0, 0, 0, CYB_ACTIVATE);
 
 	spello(SKILL_OPTIMMUNAL_RESP, X, X, X, X, X, X, X, X, X, X, X, X, X, X, X,
 		X, X, 0, 0, 0, 0, 0, 0, CYB_ACTIVATE);
@@ -4169,13 +4463,13 @@ mag_assign_spells(void)
 	spello(SKILL_OVERDRAIN, X, X, X, X, X, X, X, 8, X, X, X, X, X, X, X, X, X,
 		0, 0, 0, 0, TAR_OBJ_INV | TAR_OBJ_EQUIP | TAR_OBJ_ROOM, FALSE, 0);
 
-	spello(SKILL_ENERGY_WEAPONS, X, X, X, X, X, X, X, 20, X, X, 30, X, X, 7,
+	spello(SKILL_ENERGY_WEAPONS, X, X, X, X, X, X, X, 20, X, X, X, X, X, 7,
 		X, X, X, 0, 0, 0, 0, 0, 0, 0);
 	/*     M C T W B P Ph Cy Kn Rn Hd Mn Bm Mr 1 2 3 */
-	spello(SKILL_PROJ_WEAPONS, X, X, X, X, X, X, X, 20, X, X, 10, X, X, 8, X,
+	spello(SKILL_PROJ_WEAPONS, X, X, X, X, X, X, X, 20, X, X, X, X, X, 8, X,
 		X, X, 0, 0, 0, 0, 0, 0, 0);
 
-	spello(SKILL_SPEED_LOADING, X, X, X, X, X, X, X, 25, X, X, 30, X, X, 15, X,
+	spello(SKILL_SPEED_LOADING, X, X, X, X, X, X, X, 25, X, X, X, X, X, 15, X,
 		X, X, 0, 0, 0, 0, 0, 0, 0);
 
 	/***********************  MONK  SKILLS ***********************/

@@ -821,6 +821,23 @@ calc_skill_prob(struct Creature *ch, struct Creature *vict, int skillnum,
 		*move = 10;
 		break;
 
+	case SKILL_SCREAM:
+        if (ch->getLevel() < 51 && !IS_BARD(ch))
+            prob = 0;
+
+        *dam = GET_CON(ch) * (10 + (ch->getLevelBonus(SKILL_SCREAM) / 3));
+		*dam += dice(20, (CHECK_SKILL(ch, SKILL_SCREAM) / 3));
+
+		if (mag_savingthrow(vict, GET_LEVEL(ch), SAVING_BREATH))
+			*dam >>= 1;
+
+		*wait = 4 RL_SEC;
+		*vict_wait = 2 RL_SEC;
+		*mana = mag_manacost(ch, SKILL_SCREAM);
+		*move = 25;
+		break;
+
+
 	case SKILL_GAROTTE:
 		if (!affected_by_spell(ch, SKILL_KATA) && 
             (IS_PUDDING(vict) || IS_SLIME(vict) || NON_CORPOREAL_UNDEAD(vict))

@@ -39,6 +39,11 @@ extern const char *operator_str[] = {
 	"^'"
 };
 
+extern const char *instrument_types[] = {
+    "Percussion",
+    "String",
+    "Wind"
+};
 
 /* Extern Constant list for printing out who we sell to */
 extern const char *trade_letters[] = {
@@ -54,7 +59,7 @@ extern const char *trade_letters[] = {
 	"Ranger",
 	"Monk",
 	"Merc",
-	"Hood",
+	"Bard",
 	"Physic",
 	"Psionic",
 	"cyborg",
@@ -156,7 +161,7 @@ extern const char *search_bits[] = {
 	"NOPSI",
 	"NOPHY",
 	"NOMERC",
-	"NOHOOD",
+	"NOBARD",
 	"NOABBREV",
 	"NOAFFMOB",
 	"NOPLAYER",
@@ -191,7 +196,7 @@ extern const char *searchflag_help[] = {
 	"NOPSI",
 	"NOPHY",
 	"NOMERC",
-	"NOHOOD",
+	"NOBARD",
 	"abbreviated keywords will not work (prevent guessing.)",
 	"spell and damage do not affect mobs in the room.",
 	"NOPLAYER",
@@ -1384,6 +1389,7 @@ extern const char *item_types[] = {
 	"MICROCHIP",
 	"COMMUNICATOR",
 	"SCRIPT",
+    "INSTRUMENT",
 	"\n"
 };
 
@@ -1647,7 +1653,7 @@ extern const char *extra_bits[] = {
 	"!CYB",
 	"!KNI",
 	"!RAN",
-	"!HOOD",
+	"!BARD",
 	"!MONK",
 	"BLUR",
 	"!DISP_MAG",
@@ -1681,7 +1687,7 @@ extern const char *extra_names[] = {
 	"nocyborg",
 	"noknight",
 	"noranger",
-	"nohood",
+	"nobard",
 	"nomonk",
 	"blur",
 	"nodispel_magic",
@@ -1774,7 +1780,7 @@ extern const char *extra3_bits[] = {
 	"CYB",
 	"KNI",
 	"RAN",
-	"HOOD",
+	"BARD",
 	"MONK",
 	"VAMP",
 	"MER",
@@ -1799,7 +1805,7 @@ extern const char *extra3_names[] = {
 	"cyborg",
 	"knight",
 	"ranger",
-	"hood",
+	"bard",
 	"monk",
 	"vampire",
 	"mercenary",
@@ -2488,14 +2494,33 @@ extern const char *spell_wear_off_msg[] = {
 	"!UNUSED!", "!UNUSED!",
 	"The repulsion field of $p fades away.",
 	"The attraction field of $p fades away.",	/* 345 */
-	"!UNUSED!", "!UNUSED!", "!UNUSED!", "!UNUSED!", "!UNUSED!",	/* 350 */
-	"!UNUSED!", "!UNUSED!", "!UNUSED!", "!UNUSED!", "!UNUSED!",	/* 355 */
-	"!UNUSED!", "!UNUSED!", "!UNUSED!", "!UNUSED!", "!UNUSED!",	/* 360 */
-	"!UNUSED!", "!UNUSED!", "!UNUSED!", "!UNUSED!", "!UNUSED!",	/* 365 */
-	"!UNUSED!", "!UNUSED!", "!UNUSED!", "!UNUSED!", "!UNUSED!",	/* 370 */
-	"!UNUSED!", "!UNUSED!", "!UNUSED!", "!UNUSED!", "!UNUSED!",	/* 375 */
+	"!instant audience!", 
+    "!UNUSED!", "!UNUSED!", "!UNUSED!", "!lament of longing!",	/* 350 */
+	"The song armament fades.", 
+    "!UNUSED!", 
+    "Your armor returns to normal harness.", 
+    "!exposure overture!", 
+    "!UNUSED!",	/* 355 */
+	"You start to feel hungry again.", 
+    "The effects of the melody of mettle dissipate.", 
+    "!lustration melisma!", 
+    "You feel more vulnerable to external forces.", 
+    "You song bolstered confidence fades.",	/* 360 */
+	"!UNUSED!", 
+    "The valor of fallen heros leaves you to your own devices.", 
+    "!UNUSED!", "!UNUSED!", 
+    "You feel tired as the effect of the music leaves you.",	/* 365 */
+	"!unravelling diapason!", 
+    "!UNUSED!", 
+    "The light leaves the air around you.  A chill sets in.", 
+    "!UNUSED!", 
+    "The white noise finally leaves your ears.",	/* 370 */
+	"Your rage subsides.", 
+    "Your strenth fails with your memory of the Power Overture.", 
+    "!UNUSED!", "!UNUSED!", "!UNUSED!",	/* 375 */
 	"!UNUSED!", "!UNUSED!", "!UNUSED!", "!UNUSED!", "!UNUSED!",	/* 380 */
-	"!UNUSED!", "!UNUSED!", "!UNUSED!", "!UNUSED!", "!UNUSED!",	/* 385 */
+	"!UNUSED!", "!UNUSED!", 
+    "!home sweet home!", "!UNUSED!", "!UNUSED!",	/* 385 */
 	"!UNUSED!", "!UNUSED!", "!UNUSED!", "!UNUSED!", "!UNUSED!",	/* 390 */
 	"!UNUSED!", "!UNUSED!", "!UNUSED!", "!UNUSED!", "!UNUSED!",	/* 395 */
 	"!UNUSED!", "!UNUSED!", "!UNUSED!", "!UNUSED!", "!UNUSED!",	/* 400 */
@@ -2570,8 +2595,8 @@ extern const char *spell_wear_off_msg[] = {
 	"!UNUSED!", "!UNUSED!", "!UNUSED!", "!UNUSED!", "!UNUSED!",	/* 665 */
 	"The wound in your leg seems to have closed.",
 	"!UNUSED!", "!UNUSED!", "!UNUSED!", "!UNUSED!",	/* 670 */
-	"!UNUSED!", "!UNUSED!", "!UNUSED!", "!UNUSED!", "!UNUSED!",	/* 675 */
-	"!UNUSED!", "!UNUSED!", "!UNUSED!", "!UNUSED!", "!UNUSED!",	/* 680 */
+	"!UNUSED!", "!UNUSED!", "!UNUSED!", "!tumbling!", "!UNUSED!",	/* 675 */
+	"!lingering song!", "!UNUSED!", "!UNUSED!", "!UNUSED!", "!UNUSED!",	/* 680 */
 	"!UNUSED!", "!UNUSED!", "!UNUSED!", "!UNUSED!", "!UNUSED!",	/* 685 */
 	"!UNUSED!", "!UNUSED!", "!UNUSED!", "!UNUSED!", "!UNUSED!",	/* 690 */
 	"!UNUSED!", "!UNUSED!", "!UNUSED!", "!UNUSED!", "!UNUSED!",	/* 695 */
@@ -2681,11 +2706,26 @@ extern const char *item_wear_off_msg[] = {
 	"!UNUSED!", "!UNUSED!", "!UNUSED!", "!UNUSED!", "!UNUSED!",	/* 360 */
 	"!UNUSED!", "!UNUSED!", "!UNUSED!", "!UNUSED!", "!UNUSED!",	/* 365 */
 	"!UNUSED!", "!UNUSED!", "!UNUSED!", "!UNUSED!", "!UNUSED!",	/* 370 */
-	"!UNUSED!", "!UNUSED!", "!UNUSED!", "!UNUSED!", "!UNUSED!",	/* 375 */
-	"!UNUSED!", "!UNUSED!", "!UNUSED!", "!UNUSED!", "!UNUSED!",	/* 380 */
-	"!UNUSED!", "!UNUSED!", "!UNUSED!", "!UNUSED!", "!UNUSED!",	/* 385 */
-	"!UNUSED!", "!UNUSED!", "!UNUSED!", "!UNUSED!", "!UNUSED!",	/* 390 */
-	"!UNUSED!", "!UNUSED!", "!UNUSED!", "!UNUSED!", "!UNUSED!",	/* 395 */
+	"!UNUSED!", "!UNUSED!", 
+    "The power of the dieties leaves you.", 
+    "!UNUSED!", 
+    "!UNUSED!",	/* 375 */
+	"!UNUSED!", 
+    "!clarifying harmonies!", 
+    "The swallows wings return you gently to the ground.", 
+    "Your desire to dance expires.", 
+    "!UNUSED!",	/* 380 */
+	"!rhapsody of remedy!", 
+    "!UNUSED!", 
+    "!UNUSED!", 
+    "The weight of the world decends upon your shoulders.", 
+    "!UNUSED!",	/* 385 */
+	"!UNUSED!", "!UNUSED!", 
+    "You feel less charming.", 
+    "!UNUSED!", "!UNUSED!",	/* 390 */
+	"!UNUSED!", 
+    "The rhythm invading your brain dissipates.", 
+    "!UNUSED!", "!UNUSED!", "!UNUSED!",	/* 395 */
 	"!UNUSED!", "!UNUSED!", "!UNUSED!", "!UNUSED!", "!UNUSED!",	/* 400 */
 	"!UNUSED!", "!UNUSED!", "!UNUSED!", "!UNUSED!", "!UNUSED!",	/* 405 */
 	"!UNUSED!", "!UNUSED!", "!UNUSED!", "!UNUSED!", "!UNUSED!",	/* 410 */
@@ -2741,7 +2781,7 @@ extern const char *item_wear_off_msg[] = {
 	"!UNUSED!", "!UNUSED!", "!UNUSED!", "!UNUSED!", "!UNUSED!",	/* 660 */
 	"!UNUSED!", "!UNUSED!", "!UNUSED!", "!UNUSED!", "!UNUSED!",	/* 665 */
 	"!UNUSED!", "!UNUSED!", "!UNUSED!", "!UNUSED!", "!UNUSED!",	/* 670 */
-	"!UNUSED!", "!UNUSED!", "!UNUSED!", "!UNUSED!", "!UNUSED!",	/* 675 */
+	"!UNUSED!", "!scream!", "!UNUSED!", "!UNUSED!", "!UNUSED!",	/* 675 */
 	"!UNUSED!", "!UNUSED!", "!UNUSED!", "!UNUSED!", "!UNUSED!",	/* 680 */
 	"!UNUSED!", "!UNUSED!", "!UNUSED!", "!UNUSED!", "!UNUSED!",	/* 685 */
 	"!UNUSED!", "!UNUSED!", "!UNUSED!", "!UNUSED!", "!UNUSED!",	/* 690 */
@@ -3305,7 +3345,7 @@ extern const struct {
 	{
 	1.5, 6},					// ranger
 	{
-	2.0, 5},					// hoodlum
+	2.0, 5},					// bard
 	{
 	2.5, 3},					// monk
 	{

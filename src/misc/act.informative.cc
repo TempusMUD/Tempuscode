@@ -4686,7 +4686,8 @@ ACMD(do_skills)
 		show_char_class_skills(ch, char_class, 0,
 			(subcmd ? (char_class == CLASS_PSIONIC ? TRIG_BIT :
 					char_class == CLASS_PHYSIC ? ALTER_BIT :
-					char_class == CLASS_MONK ? ZEN_BIT : SPELL_BIT) : 0));
+					char_class == CLASS_MONK ? ZEN_BIT : 
+                    char_class == CLASS_BARD ? SONG_BIT : SPELL_BIT) : 0));
 		
 		return;
 	}

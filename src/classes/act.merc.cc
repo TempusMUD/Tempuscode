@@ -706,7 +706,7 @@ perform_appraise(Creature *ch, obj_data *obj, int skill_lvl)
 			ITEM_ANTI_MAGIC_USER | ITEM_ANTI_CLERIC | ITEM_ANTI_THIEF |
 			ITEM_ANTI_WARRIOR | ITEM_NOSELL | ITEM_ANTI_BARB |
 			ITEM_ANTI_PSYCHIC | ITEM_ANTI_PHYSIC | ITEM_ANTI_CYBORG |
-			ITEM_ANTI_KNIGHT | ITEM_ANTI_RANGER | ITEM_ANTI_HOOD |
+			ITEM_ANTI_KNIGHT | ITEM_ANTI_RANGER | ITEM_ANTI_BARD |
 			ITEM_ANTI_MONK | ITEM_BLURRED | ITEM_DAMNED;
 		if (GET_OBJ_EXTRA(obj) & eq_req_flags) {
 			sprintbit(GET_OBJ_EXTRA(obj) & eq_req_flags, extra_bits, buf);
@@ -722,7 +722,7 @@ perform_appraise(Creature *ch, obj_data *obj, int skill_lvl)
 		eq_req_flags = ITEM3_REQ_MAGE | ITEM3_REQ_CLERIC | ITEM3_REQ_THIEF |
 			ITEM3_REQ_WARRIOR | ITEM3_REQ_BARB | ITEM3_REQ_PSIONIC |
 			ITEM3_REQ_PHYSIC | ITEM3_REQ_CYBORG | ITEM3_REQ_KNIGHT |
-			ITEM3_REQ_RANGER | ITEM3_REQ_HOOD | ITEM3_REQ_MONK |
+			ITEM3_REQ_RANGER | ITEM3_REQ_BARD | ITEM3_REQ_MONK |
 			ITEM3_REQ_VAMPIRE | ITEM3_REQ_MERCENARY;
 		if (GET_OBJ_EXTRA3(obj) & eq_req_flags) {
 			sprintbit(GET_OBJ_EXTRA3(obj) & eq_req_flags, extra3_bits, buf);

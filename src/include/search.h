@@ -47,7 +47,7 @@
 #define SRCH_NOPSIONIC          (1 << 20)
 #define SRCH_NOPHYSIC           (1 << 21)
 #define SRCH_NOMERC             (1 << 22)
-#define SRCH_NOHOOD             (1 << 23)
+#define SRCH_NOBARD             (1 << 23)
 #define SRCH_NOABBREV           (1 << 24)
 #define SRCH_NOAFFMOB           (1 << 25)
 #define SRCH_NOPLAYER           (1 << 26)

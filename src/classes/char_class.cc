@@ -75,6 +75,7 @@ extern struct room_data *world;
 #define ALT     3
 #define PRG     4
 #define ZEN     5
+#define SNG     6
 
 /* #define LEARNED_LEVEL        0  % known which is considered "learned" */
 /* #define MAX_PER_PRAC                1  max percent gain in skill per practice */
@@ -82,12 +83,11 @@ extern struct room_data *world;
 /* #define PRAC_TYPE                3  should it say 'spell' or 'skill'?        */
 
 extern const int prac_params[4][NUM_CLASSES] = {
-/* MG  CL  TH  WR  BR  PS  PH  CY  KN  RN  HD  MN  VP  MR  S1  S2  S3*/
-	{75, 75, 70, 70, 65, 75, 75, 80, 75, 75, 75, 75, 75, 70, 70, 70, 70},
-	{25, 20, 20, 20, 20, 25, 20, 30, 20, 25, 25, 20, 15, 25, 25, 25, 25},
+  /* MG  CL  TH  WR  BR  PS  PH  CY  KN  RN  BD  MN  VP  MR  S1  S2  S3*/
+	{75, 75, 70, 70, 65, 75, 75, 80, 75, 75, 80, 75, 75, 70, 70, 70, 70},
+	{25, 20, 20, 20, 20, 25, 20, 30, 20, 25, 30, 20, 15, 25, 25, 25, 25},
 	{15, 15, 10, 15, 10, 15, 15, 15, 15, 15, 15, 10, 10, 10, 10, 10, 10},
-	{SPL, SPL, SKL, SKL, SKL, TRG, ALT, PRG, SPL, SPL, SKL, ZEN, SPL, SKL, SKL,
-			SKL, SKL}
+	{SPL,SPL,SKL,SKL,SKL,TRG,ALT,PRG,SPL,SPL,SNG,ZEN,SPL,SKL,SKL,SKL,SKL}
 
 };
 
@@ -95,14 +95,14 @@ extern const int prac_params[4][NUM_CLASSES] = {
 // 1 - class/race combination allowed only for secondary class
 // 2 - class/race combination allowed for primary class
 extern const char race_restr[NUM_PC_RACES][NUM_CLASSES + 1] = {
-	//                 MG CL TH WR BR PS PH CY KN RN HD MN VP MR S1 S2 S3
-	{ RACE_HUMAN,		2, 2, 2, 0, 2, 2, 2, 2, 2, 2, 0, 2, 0, 2, 0, 0, 0 },
-	{ RACE_ELF,			2, 2, 2, 0, 0, 2, 2, 2, 2, 2, 0, 2, 0, 2, 0, 0, 0 },
+	//                 MG CL TH WR BR PS PH CY KN RN BD MN VP MR S1 S2 S3
+	{ RACE_HUMAN,		2, 2, 2, 0, 2, 2, 2, 2, 2, 2, 2, 2, 0, 2, 0, 0, 0 },
+	{ RACE_ELF,			2, 2, 2, 0, 0, 2, 2, 2, 2, 2, 2, 2, 0, 2, 0, 0, 0 },
 	{ RACE_DWARF,		0, 2, 2, 0, 2, 1, 1, 1, 2, 0, 0, 0, 0, 1, 0, 0, 0 },
 	{ RACE_HALF_ORC,	0, 0, 2, 0, 2, 0, 2, 2, 0, 0, 0, 0, 0, 2, 0, 0, 0 },
-	{ RACE_HALFLING,	2, 2, 2, 0, 2, 1, 1, 1, 2, 2, 0, 2, 0, 1, 0, 0, 0 },
+	{ RACE_HALFLING,	2, 2, 2, 0, 2, 1, 1, 1, 2, 2, 2, 2, 0, 1, 0, 0, 0 },
 	{ RACE_TABAXI,		2, 2, 2, 0, 2, 2, 2, 2, 0, 2, 0, 2, 0, 2, 0, 0, 0 },
-	{ RACE_DROW,		2, 2, 2, 0, 0, 1, 1, 1, 2, 2, 0, 0, 0, 1, 0, 0, 0 },
+	{ RACE_DROW,		2, 2, 2, 0, 0, 1, 1, 1, 2, 2, 2, 0, 0, 1, 0, 0, 0 },
 	{ RACE_MINOTAUR,	2, 2, 0, 0, 2, 0, 1, 1, 0, 2, 0, 0, 0, 1, 0, 0, 0 },
 	{ RACE_ORC,			0, 0, 1, 0, 2, 0, 1, 2, 0, 0, 0, 2, 0, 2, 0, 0, 0 },
 };
@@ -120,7 +120,7 @@ extern const float thaco_factor[NUM_CLASSES] = {
 	0.30,						/* cyborg  */
 	0.35,						/* knight  */
 	0.35,						/* ranger  */
-	0.35,						/* hood    */
+	0.30,						/* bard    */
 	0.40,						/* monk    */
 	0.40,						/* vampire */
 	0.35,						/* merc    */
@@ -175,7 +175,7 @@ extern const char *char_class_abbrevs[] = {
 	"Borg",
 	"Knig",
 	"Rang",
-	"Hood",						/* 10 */
+	"Bard",						/* 10 */
 	"Monk",
 	"Vamp",
 	"Merc",
@@ -276,7 +276,7 @@ extern const char *pc_char_class_types[] = {
 	"Cyborg",
 	"Knight",
 	"Ranger",
-	"Hoodlum",					/* 10 */
+	"Bard",					/* 10 */
 	"Monk",
 	"Vampire",
 	"Mercenary",
@@ -372,7 +372,7 @@ get_char_class_color( Creature *ch, Creature *tch, int char_class ) {
             return CCMAG(ch, C_NRM);
         case CLASS_CLERIC:
             if (IS_GOOD(tch)) {
-                return CCYEL_BLD(ch, C_NRM);
+                return CCBLU_BLD(ch, C_NRM);
             } else if (IS_EVIL(tch)) {
                 return CCRED_BLD(ch, C_NRM);
             } else {
@@ -398,8 +398,8 @@ get_char_class_color( Creature *ch, Creature *tch, int char_class ) {
             return CCMAG(ch, C_NRM);
         case CLASS_PHYSIC:
             return CCNRM_BLD(ch, C_NRM);
-        case CLASS_HOOD:
-            return CCRED(ch, C_NRM);
+        case CLASS_BARD:
+            return CCYEL_BLD(ch, C_NRM);
         case CLASS_MONK:
             return CCGRN(ch, C_NRM);
         case CLASS_MERCENARY:
@@ -419,7 +419,7 @@ get_char_class_color( Creature *tch, int char_class ) {
         case CLASS_CLERIC:
         case CLASS_KNIGHT:
             if (IS_GOOD(tch)) {
-                return "&Y";
+                return "&B";
             } else if (IS_EVIL(tch)) {
                 return "&R";
             } else {
@@ -437,8 +437,8 @@ get_char_class_color( Creature *tch, int char_class ) {
             return "&m";
         case CLASS_PHYSIC:
             return "&N";
-        case CLASS_HOOD:
-            return "&r";
+        case CLASS_BARD:
+            return "&Y";
         case CLASS_MONK:
             return "&g";
         case CLASS_MERCENARY:
@@ -501,6 +501,8 @@ parse_player_class(char *arg)
 		return CLASS_MONK;
 	else if (is_abbrev(arg, "mercenary"))
 		return CLASS_MERCENARY;
+    else if (is_abbrev(arg, "bard"))
+        return CLASS_BARD;
 
 	return CLASS_UNDEFINED;
 }
@@ -855,6 +857,14 @@ roll_real_abils(struct Creature *ch)
 		if (ch->real_abils.str == 18)
 			ch->real_abils.str_add = str_add;
 		break;
+    case CLASS_BARD:
+		ch->real_abils.str = table[2];
+		ch->real_abils.dex = table[1];
+		ch->real_abils.cha = table[0];
+		ch->real_abils.con = table[3];
+		ch->real_abils.wis = table[4];
+		ch->real_abils.intel = table[5];
+		break;
 	default:
 		ch->real_abils.dex = table[0];
 		ch->real_abils.con = table[1];
@@ -1098,7 +1108,9 @@ do_start(struct Creature *ch, int mode)
 		break;
 	case CLASS_MERCENARY:
 		SET_SKILL(ch, SKILL_PUNCH, 20);
-
+    case CLASS_BARD:
+        SET_SKILL(ch, SKILL_PUNCH, 25);
+        SET_SKILL(ch, SKILL_ARCHERY, 25);
 		break;
 
 	}
@@ -1196,6 +1208,11 @@ advance_level(struct Creature *ch, byte keep_internal)
 			add_hp[i] += number(5, 11);
 			add_mana[i] += number(1, 10) + (GET_LEVEL(ch) / 5);
 			add_move[i] += number(1, 4);
+			break;
+		case CLASS_BARD:
+			add_hp[i] += number(6, 12);
+			add_mana[i] += number(1, 8) + (GET_LEVEL(ch) / 5);
+			add_move[i] += number(10, 18);
 			break;
 		case CLASS_THIEF:
 			add_hp[i] /= 3;
@@ -1422,8 +1439,8 @@ invalid_char_class(struct Creature *ch, struct obj_data *obj)
 				invalid = 0;
 			} else
 				invalid = 1;
-		if (!foundreq && IS_OBJ_STAT3(obj, ITEM3_REQ_HOOD))
-			if (IS_HOOD(ch)) {
+		if (!foundreq && IS_OBJ_STAT3(obj, ITEM3_REQ_BARD))
+			if (IS_BARD(ch)) {
 				foundreq = 1;
 				invalid = 0;
 			} else

@@ -134,6 +134,7 @@ ACMD(do_board);
 ACMD(do_bomb);
 ACMD(do_bandage);
 ACMD(do_cast);
+ACMD(do_perform);
 ACMD(do_ceasefire);
 ACMD(do_conceal);
 ACMD(do_cedit);
@@ -949,7 +950,7 @@ struct command_info cmd_info[] = {
 	{"mull", POS_RESTING, do_action, 0, 0, 0, 0},
 	{"mumble", POS_RESTING, do_action, 0, 0, 0, 0},
 	{"murmur", POS_RESTING, do_say, 0, SCMD_MURMUR, 0, 0},
-	{"music", POS_RESTING, do_gen_comm, 0, SCMD_MUSIC, 0, 0},
+	{"sing", POS_RESTING, do_gen_comm, 0, SCMD_MUSIC, 0, 0},
 	{"mute", POS_DEAD, do_wizutil, LVL_IMMORT, SCMD_SQUELCH, 0, 0},
 	{"mutter", POS_RESTING, do_action, 0, 0, 0, 0},
 	{"murder", POS_FIGHTING, do_hit, 0, SCMD_MURDER, 0, 0},
@@ -981,7 +982,7 @@ struct command_info cmd_info[] = {
 	{"noproject", POS_DEAD, do_gen_tog, 1, SCMD_NOPROJECT, 0, 0},
     {"nose", POS_RESTING, do_action, 0, 0, 0, 0},
 	{"noshout", POS_SLEEPING, do_gen_tog, 1, SCMD_DEAF, 0, 0},
-	{"nosing", POS_DEAD, do_gen_tog, 0, SCMD_NOMUSIC, 0, 0},
+	{"nomusic", POS_DEAD, do_gen_tog, 0, SCMD_NOMUSIC, 0, 0},
 	{"nospew", POS_DEAD, do_gen_tog, 1, SCMD_NOSPEW, 0, 0},
 	{"notell", POS_DEAD, do_gen_tog, 1, SCMD_NOTELL, 0, 0},
 	{"notitle", POS_DEAD, do_wizutil, LVL_IMMORT, SCMD_NOTITLE, 0, 0},
@@ -1025,6 +1026,7 @@ struct command_info cmd_info[] = {
 	{"pelekick", POS_FIGHTING, do_offensive_skill, 0, SKILL_PELE_KICK, 0, 0},
 	{"pet", POS_RESTING, do_action, 0, 0, 0, 0},
 	{"petition", POS_MORTALLYW, do_gen_comm, 0, SCMD_PETITION, 0, 0},
+	{"perform", POS_SITTING, do_perform, 0, 0, 0, 0},
 	{"pie", POS_RESTING, do_action, 0, 0, 0, 0},
     {"pity", POS_RESTING, do_action, 0, 0, 0, 0},
 	{"pkiller", POS_DEAD, do_pkiller, 0, 0, 0, 0},
@@ -1161,7 +1163,8 @@ struct command_info cmd_info[] = {
 	{"scold", POS_RESTING, do_action, 0, 0, 0, 0},
 	{"scoff", POS_RESTING, do_action, 0, 0, 0, 0},
 	{"scratch", POS_RESTING, do_action, 0, 0, 0, 0},
-	{"scream", POS_RESTING, do_action, 0, 0, 0, 0},
+//	{"scream", POS_RESTING, do_action, 0, 0, 0, 0},
+	{"scream", POS_FIGHTING, do_offensive_skill, 0, SKILL_SCREAM, 0, 0},
 	{"screen", POS_DEAD, do_screen, 0, 0, 0, 0},
 	{"scuff", POS_RESTING, do_action, 0, 0, 0, 0},
 	{"search", POS_DEAD, do_examine, 0, 0, 0, 0},
@@ -1191,7 +1194,6 @@ struct command_info cmd_info[] = {
 	{"sigh", POS_RESTING, do_action, 0, 0, 0, 0},
 	{"silly", POS_RESTING, do_action, 0, 0, 0, 0},
 	{"simon", POS_RESTING, do_action, 0, 0, 0, 0},
-	{"sing", POS_RESTING, do_gen_comm, 0, SCMD_MUSIC, 0, 0},
 	{"sip", POS_RESTING, do_drink, 0, SCMD_SIP, 0, 0},
 	{"sit", POS_RESTING, do_sit, 0, 0, 0, 0},
 	{"skank", POS_FIGHTING, do_action, 0, 0, 0, 0},

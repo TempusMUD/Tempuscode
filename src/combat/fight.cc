@@ -880,6 +880,22 @@ damage(struct Creature *ch, struct Creature *victim, int dam,
 
 		return 0;
     }
+
+    if (ch
+			&& IS_WEAPON(attacktype)
+        	&& !SPELL_IS_PSIONIC(attacktype)
+			&& CHECK_SKILL(victim, SKILL_TUMBLING) > 20
+			&& victim->getLevelBonus(SKILL_TUMBLING) > number(0, 425)
+			&& victim->getPosition() >= POS_FIGHTING) {
+		act("$N dexterously rolls away from your attack!", true,
+			ch, NULL, victim, TO_CHAR);
+		act("You dexterously roll away from $n's attack!", true,
+			ch, NULL, victim, TO_VICT);
+		act("$N dexterously rolls away from $n's attack!", true,
+			ch, NULL, victim, TO_NOTVICT);
+
+		return 0;
+    }
 	/** check for armor **/
 	if (location != -1) {
 

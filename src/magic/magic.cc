@@ -2350,6 +2350,305 @@ Fireball: like harder bones, skin, organ membranecs
 		to_vict = "A cold tingling begins in the back of your throat.";
 		break;
 
+    // Bard stuff       
+
+    case SONG_DRIFTERS_DITTY:
+		aff_array[0].duration = 1 + (level >> 1);
+		aff_array[0].modifier = 15 + ch->getLevelBonus(SONG_DRIFTERS_DITTY);
+		aff_array[0].location = APPLY_MOVE;
+
+        if (CHECK_SKILL(ch, SKILL_LINGERING_SONG) > number(1, 120))
+            aff_array[0].duration = (int)(aff_array[0].duration * 1.5);
+
+		to_vict = "The song bolsters your spirit!";
+		accum_duration = 1;
+		break;
+
+	case SONG_ARIA_OF_ARMAMENT:
+		aff_array[0].location = APPLY_AC;
+		aff_array[0].duration = 1 + ch->getLevelBonus(SONG_ARIA_OF_ARMAMENT) >> 2;
+		aff_array[0].modifier = -((ch->getLevelBonus(SONG_ARIA_OF_ARMAMENT) >> 2) + 20);
+
+        if (CHECK_SKILL(ch, SKILL_LINGERING_SONG) > number(1, 120))
+            aff_array[0].duration = (int)(aff_array[0].duration * 1.5);
+
+		accum_duration = 1;
+		to_vict = "You feel the song form a protective shield around you.";
+		break;
+
+	case SONG_VERSE_OF_VULNERABILITY:
+		aff_array[0].location = APPLY_AC;
+		aff_array[0].duration = 1 + ch->getLevelBonus(SONG_VERSE_OF_VULNERABILITY) >> 3;
+		aff_array[0].modifier = (ch->getLevelBonus(SONG_VERSE_OF_VULNERABILITY) >> 2) + number(5, 20);
+        if (CHECK_SKILL(ch, SKILL_LINGERING_SONG) > number(1, 120))
+            aff_array[0].duration = (int)(aff_array[0].duration * 1.5);
+
+        aff_array[1].location = APPLY_DEX;
+        aff_array[1].duration = aff_array[0].duration;
+        aff_array[1].modifier = -(1 + ch->getLevelBonus(SONG_VERSE_OF_VULNERABILITY) / 25);
+		to_vict = "Your armor softens at $N's words!";
+        to_room = "$N's armor appears to grow softer with $n's song!";
+		WAIT_STATE(victim, PULSE_VIOLENCE * 2);
+		break;
+
+    case SONG_MELODY_OF_METTLE:
+        aff_array[0].location = APPLY_CON;
+        aff_array[0].duration = (ch->getLevelBonus(SONG_MELODY_OF_METTLE) >> 2) + 10;
+        aff_array[0].modifier = 1 + (ch->getLevelBonus(SONG_MELODY_OF_METTLE) >> 1) / 25;
+
+        if (CHECK_SKILL(ch, SKILL_LINGERING_SONG) > number(1, 120))
+            aff_array[0].duration = (int)(aff_array[0].duration * 1.5);
+
+        aff_array[1].location = APPLY_HIT;
+        aff_array[1].duration = aff_array[0].duration;
+        aff_array[1].modifier = 50 + MIN(ch->getLevelBonus(SONG_MELODY_OF_METTLE), 125);
+        to_vict = "The power of the song infuses your spirit!";
+        break;
+
+    case SONG_REGALERS_RHAPSODY:
+        aff_array[0].location = APPLY_NOHUNGER;
+        aff_array[0].duration = (ch->getLevelBonus(SONG_REGALERS_RHAPSODY) >> 2) + 10;
+        aff_array[0].modifier = 1;
+
+        if (CHECK_SKILL(ch, SKILL_LINGERING_SONG) > number(1, 120))
+            aff_array[0].duration = (int)(aff_array[0].duration * 1.5);
+
+        aff_array[1].location = APPLY_NOTHIRST;
+        aff_array[1].duration = aff_array[0].duration;
+        aff_array[1].modifier = 1;
+        to_vict = "The uplifting tune drains away your hunger and thirst.";
+        break;
+
+    case SONG_DEFENSE_DITTY:
+        aff_array[0].location = APPLY_SAVING_PSI;
+        aff_array[0].duration = (ch->getLevelBonus(SONG_DEFENSE_DITTY) >> 3) + 20;
+        aff_array[0].modifier = 1 + ch->getLevelBonus(SONG_DEFENSE_DITTY) / 10;
+
+        if (CHECK_SKILL(ch, SKILL_LINGERING_SONG) > number(1, 120))
+            aff_array[0].duration = (int)(aff_array[0].duration * 1.5);
+
+        if (number(0, 120) < ch->getLevelBonus(SONG_DEFENSE_DITTY)) {
+            aff_array[1].location = APPLY_SAVING_PHY;
+            aff_array[1].duration = aff_array[0].duration;
+            aff_array[1].modifier = aff_array[0].modifier;
+        }
+        if (number(0, 200) < ch->getLevelBonus(SONG_DEFENSE_DITTY)) {
+            aff_array[2].location = APPLY_SAVING_SPELL;
+            aff_array[2].duration = aff_array[0].duration;
+            aff_array[2].modifier = aff_array[0].modifier;
+        }
+        to_vict = "Your resistances increase as the music surrounds you.";
+        break;
+
+	case SONG_ALRONS_ARIA:
+		aff_array[0].modifier = dice(2, (level >> 3) + 1);
+		aff_array[0].duration = 3 + (level >> 2);
+		aff_array[0].location = APPLY_HITROLL;
+		aff_array[0].bitvector = AFF_CONFIDENCE;
+
+        if (CHECK_SKILL(ch, SKILL_LINGERING_SONG) > number(1, 120))
+            aff_array[0].duration = (int)(aff_array[0].duration * 1.5);
+
+		aff_array[1].location = APPLY_SAVING_SPELL;
+		aff_array[1].modifier = -dice(1, (level >> 3) + 1);
+		aff_array[1].duration = aff_array[0].duration;
+		accum_duration = 1;
+		to_vict = "Your confidence soars!";
+		break;
+
+    case SONG_VERSE_OF_VALOR:
+        aff_array[0].location = APPLY_HITROLL;
+        aff_array[0].duration = 6 + ch->getLevelBonus(SONG_VERSE_OF_VALOR) >> 3;
+        aff_array[0].modifier = 5 + ch->getLevelBonus(SONG_VERSE_OF_VALOR) / 25 + number(0, 6);
+
+        if (CHECK_SKILL(ch, SKILL_LINGERING_SONG) > number(1, 120))
+            aff_array[0].duration = (int)(aff_array[0].duration * 1.5);
+
+        to_vict = "The valor of heros gone comes crashing into your mind!";
+        break;
+
+	case SONG_WHITE_NOISE:
+		aff_array[0].duration = 1 + ch->getLevelBonus(SONG_WHITE_NOISE) / 25;
+		aff_array[0].bitvector = AFF_CONFUSION;
+
+        if (CHECK_SKILL(ch, SKILL_LINGERING_SONG) > number(1, 120))
+            aff_array[0].duration = (int)(aff_array[0].duration * 1.5);
+
+		if (victim->getPosition() > POS_SLEEPING)
+			to_room = "$n stops suddenly and stares around as if confused.";
+		to_vict = "You suddenly feel very confused!";
+		WAIT_STATE(victim, PULSE_VIOLENCE * 2);
+		break;
+
+	case SONG_CHANT_OF_LIGHT:
+		aff_array[0].duration = 1 + ch->getLevelBonus(SONG_CHANT_OF_LIGHT) >> 2;
+		aff_array[0].bitvector = AFF_GLOWLIGHT;
+
+        if (CHECK_SKILL(ch, SKILL_LINGERING_SONG) > number(1, 120))
+            aff_array[0].duration = (int)(aff_array[0].duration * 1.5);
+
+		aff_array[1].duration = aff_array[0].duration;
+		aff_array[1].bitvector = AFF2_ENDURE_COLD;
+		aff_array[1].aff_index = 2;
+		accum_duration = true;
+		to_vict = "The air around you begins to emit a warm glow.";
+		to_room = "$n's music causes the air to glow warmly.";
+		break;
+
+    case SONG_IRRESISTABLE_DANCE:
+        aff_array[0].duration = 1 + ch->getLevelBonus(SONG_IRRESISTABLE_DANCE) / 25;
+		aff_array[0].modifier = -(4 + (ch->getLevelBonus(SONG_IRRESISTABLE_DANCE) / 20));
+		aff_array[0].location = APPLY_HITROLL;
+
+        if (CHECK_SKILL(ch, SKILL_LINGERING_SONG) > number(1, 120))
+            aff_array[0].duration = (int)(aff_array[0].duration * 1.5);
+
+        if (victim->getPosition() > POS_SITTING) {
+            to_vict = "You begin to dance uncontrollably!";
+            to_room = "$n begins to dance uncontrollably!";
+        }
+        break;
+
+    case SONG_INSIDIOUS_RHYTHM:
+        aff_array[0].duration = 1 + ch->getLevelBonus(SONG_INSIDIOUS_RHYTHM) / 25;
+		aff_array[0].modifier = -(2 + (ch->getLevelBonus(SONG_INSIDIOUS_RHYTHM) / 20));
+		aff_array[0].location = APPLY_INT;
+
+        if (CHECK_SKILL(ch, SKILL_LINGERING_SONG) > number(1, 120))
+            aff_array[0].duration = (int)(aff_array[0].duration * 1.5);
+
+        to_vict = "$N's music snakes it's way into your brain, dulling your senses.";
+        to_room = "Tme music causes $n's eyes glaze over.";
+        break;
+
+	case SONG_EAGLES_OVERTURE:
+		aff_array[0].location = APPLY_CHA;
+		aff_array[0].duration = 1 + ch->getLevelBonus(SONG_EAGLES_OVERTURE) >> 2;
+		aff_array[0].modifier = 5 + ch->getLevelBonus(SONG_EAGLES_OVERTURE) / 20;
+
+        if (CHECK_SKILL(ch, SKILL_LINGERING_SONG) > number(1, 120))
+            aff_array[0].duration = (int)(aff_array[0].duration * 1.5);
+
+		accum_duration = 1;
+		to_vict = "The song lifts your spirits and puts a smile on your face.";
+		break;
+
+	case SONG_WEIGHT_OF_THE_WORLD:
+		aff_array[0].duration = 1 + ch->getLevelBonus(SONG_WEIGHT_OF_THE_WORLD) / 25;
+		aff_array[0].bitvector = AFF2_TELEKINESIS;
+		aff_array[0].aff_index = 2;
+
+        if (CHECK_SKILL(ch, SKILL_LINGERING_SONG) > number(1, 120))
+            aff_array[0].duration = (int)(aff_array[0].duration * 1.5);
+
+		to_vict = "You feel the weight of the world lifted from your shoulders.";
+		break;
+
+	case SONG_GUIHARIAS_GLORY:
+		aff_array[0].modifier = dice(2, (ch->getLevelBonus(SONG_GUIHARIAS_GLORY) >> 4) + 1);
+		aff_array[0].duration = 3 + (ch->getLevelBonus(SONG_GUIHARIAS_GLORY) >> 3);
+		aff_array[0].location = APPLY_DAMROLL;
+
+        if (CHECK_SKILL(ch, SKILL_LINGERING_SONG) > number(1, 120))
+            aff_array[0].duration = (int)(aff_array[0].duration * 1.5);
+
+		to_vict = "You feel the power of dieties flowing in your veins!";
+		break;
+
+	case SONG_UNLADEN_SWALLOW_SONG:
+		if (victim->getPosition() <= POS_SLEEPING) {
+			act("$N is asleep and probably should not fly right now.", FALSE, ch, 0, victim,
+				TO_CHAR);
+			return;
+		}
+		aff_array[0].duration = 5 + ch->getLevelBonus(SONG_UNLADEN_SWALLOW_SONG) / 10;
+		aff_array[0].bitvector = AFF_INFLIGHT;
+
+        if (CHECK_SKILL(ch, SKILL_LINGERING_SONG) > number(1, 120))
+            aff_array[0].duration = (int)(aff_array[0].duration * 1.5);
+
+		accum_duration = true;
+		to_vict = "The music lifts you off your feet and sustains you.";
+		to_room = "$n is lifted by the music and held suspended.";
+		victim->setPosition(POS_FLYING);
+		break;
+
+    case SONG_POWER_OVERTURE:
+        if (ch != victim) {
+            send_to_char(ch, "%s doesn't seem to be moved by your song.\r\n",
+                         GET_NAME(victim));
+            return;
+        }
+
+        aff_array[0].duration = 1 + ch->getLevelBonus(SONG_EAGLES_OVERTURE) >> 2;
+        aff_array[0].modifier = 1 + ch->getLevelBonus(SONG_POWER_OVERTURE) / 30 + number(0, 2);
+        aff_array[0].location = APPLY_STR;
+
+        if (CHECK_SKILL(ch, SKILL_LINGERING_SONG) > number(1, 120))
+            aff_array[0].duration = (int)(aff_array[0].duration * 1.5);
+
+        aff_array[1].duration = aff_array[0].duration;
+        aff_array[1].modifier = aff_array[0].modifier + number(0, 5);
+        aff_array[1].location = APPLY_HITROLL;
+
+        to_vict = "Your strength seems to grow as the song swells,";
+        break;
+
+    case SONG_RHYTHM_OF_RAGE: {
+        if (ch != victim) {
+            send_to_char(ch, "Your tune fails to enrage %s.\r\n", GET_NAME(victim));
+        }
+
+        aff_array[0].type = SKILL_BERSERK;
+        aff_array[1].type = SKILL_BERSERK;
+        aff_array[2].type = SKILL_BERSERK;
+        
+        aff_array[0].duration = 1 + (ch->getLevelBonus(SONG_RHYTHM_OF_RAGE) >> 5);
+
+        if (CHECK_SKILL(ch, SKILL_LINGERING_SONG) > number(1, 120))
+            aff_array[0].duration = (int)(aff_array[0].duration * 1.5);
+
+        aff_array[1].duration = aff_array[0].duration;
+        aff_array[2].duration = aff_array[0].duration;
+
+        aff_array[0].location = APPLY_INT;
+        aff_array[1].location = APPLY_WIS;
+        aff_array[2].location = APPLY_DAMROLL;
+
+        aff_array[0].modifier = -(4 + (ch->getLevelBonus(SONG_RHYTHM_OF_RAGE) >> 5));
+        aff_array[1].modifier = aff_array[0].modifier;
+        aff_array[2].modifier = (1 + (ch->getLevelBonus(SONG_RHYTHM_OF_RAGE) / 12) + 
+                                 (GET_LEVEL(ch) >> 4));
+
+        aff_array[0].aff_index = 2;
+        aff_array[0].bitvector = AFF2_BERSERK;
+
+        act("The music drives you feril with rage!", false, ch, 0, 0, TO_CHAR);
+        act("$n looks murderous.  You might want to get out of here!", false, 
+            ch, 0, 0, TO_ROOM);
+
+        CreatureList::iterator it = ch->in_room->people.begin();
+        for (; it != ch->in_room->people.end(); ++it) {
+            if (ch == (*it) || !can_see_creature(ch, (*it)) ||
+                !ok_to_damage(ch, (*it)))
+                continue;
+
+            int percent = (number(1, 101) - GET_LEVEL(ch));
+            if (percent < CHECK_SKILL(ch, SKILL_BERSERK))
+                continue;
+            else {
+                act("You attack $N in your berserk rage!!!",
+                    FALSE, ch, 0, (*it), TO_CHAR);
+                act("$n attacks you in $s berserk rage!!!",
+                    FALSE, (*it), 0, ch, TO_CHAR);
+                act("$n attacks $N in $s berserk rage!!!",
+                    TRUE, ch, 0, (*it), TO_ROOM);
+                hit(ch, (*it), TYPE_UNDEFINED);
+                break;
+            }
+        }
+        break;
+    }
 	default:
 		errlog("unknown spell %d in mag_affects.", spellnum);
 		break;
@@ -2397,7 +2696,8 @@ Fireball: like harder bones, skin, organ membranecs
 			|| accum_affect))
 		return;
 
-	affect_join(victim, &af, accum_duration, FALSE, accum_affect, FALSE);
+    if (af.bitvector || af.location)
+	    affect_join(victim, &af, accum_duration, FALSE, accum_affect, FALSE);
 	if (af2.bitvector || af2.location)
 		affect_join(victim, &af2, accum_duration, FALSE, accum_affect, FALSE);
 
@@ -2414,6 +2714,9 @@ Fireball: like harder bones, skin, organ membranecs
 
 	if (spellnum == SPELL_DIVINE_POWER && accum_affect)
 		GET_HIT(ch) += (ch->getLevelBonus(SPELL_DIVINE_POWER) * 3);
+
+    if (spellnum == SONG_MELODY_OF_METTLE)
+        GET_HIT(ch) += 50 + MIN(ch->getLevelBonus(SONG_MELODY_OF_METTLE), 125);
 
 	if (spellnum == SPELL_FEAR && !mag_savingthrow(victim, level, SAVING_PSI)
 		&& victim->getPosition() > POS_SITTING)
@@ -2455,6 +2758,47 @@ perform_mag_groups(int level, struct Creature *ch,
 			break;
 		mag_affects(level, ch, tch, SPELL_SHIELD_OF_RIGHTEOUSNESS, savetype);
 		break;
+    case SONG_DRIFTERS_DITTY:
+		mag_affects(level, ch, tch, SONG_DRIFTERS_DITTY, savetype);
+		mag_points(level, ch, tch, SONG_DRIFTERS_DITTY, savetype);
+        break;
+    case SONG_ARIA_OF_ARMAMENT:
+        mag_affects(level, ch, tch, SONG_ARIA_OF_ARMAMENT, savetype);
+        break;
+    case SONG_MELODY_OF_METTLE:
+        mag_affects(level, ch, tch, SONG_MELODY_OF_METTLE, savetype);
+        break;
+    case SONG_REGALERS_RHAPSODY:
+        mag_affects(level, ch, tch, SONG_REGALERS_RHAPSODY, savetype);
+        break;
+    case SONG_DEFENSE_DITTY:
+        mag_affects(level, ch, tch, SONG_DEFENSE_DITTY, savetype);
+        break;
+    case SONG_ALRONS_ARIA:
+        mag_affects(level, ch, tch, SONG_ALRONS_ARIA, savetype);
+        mag_unaffects(level, ch, tch, SONG_ALRONS_ARIA, savetype);
+        break;
+    case SONG_LUSTRATION_MELISMA:
+        mag_unaffects(level, ch, tch, SONG_LUSTRATION_MELISMA, savetype);
+        break;
+    case SONG_VERSE_OF_VALOR:
+        mag_affects(level, ch, tch, SONG_VERSE_OF_VALOR, savetype);
+        break;
+    case SONG_CHANT_OF_LIGHT:
+        mag_affects(level, ch, tch, SONG_CHANT_OF_LIGHT, savetype);
+        break;
+    case SONG_EAGLES_OVERTURE:
+        mag_affects(level, ch, tch, SONG_EAGLES_OVERTURE, savetype);
+        break;
+    case SONG_WEIGHT_OF_THE_WORLD:
+        mag_affects(level, ch, tch, SONG_WEIGHT_OF_THE_WORLD, savetype);
+        break;
+    case SONG_GUIHARIAS_GLORY:
+        mag_affects(level, ch, tch, SONG_GUIHARIAS_GLORY, savetype);
+        break;
+    case SONG_UNLADEN_SWALLOW_SONG:
+        mag_affects(level, ch, tch, SONG_UNLADEN_SWALLOW_SONG, savetype);
+        break;
 	default:
 		errlog("Unknown spellnum %d in perform_mag_groups()",
 			spellnum);
@@ -2485,7 +2829,7 @@ mag_groups(int level, struct Creature *ch, int spellnum, int savetype)
 	if (ch == NULL)
 		return;
 
-	if (!IS_AFFECTED(ch, AFF_GROUP))
+	if (!IS_AFFECTED(ch, AFF_GROUP) && !SPELL_IS_BARD(spellnum))
 		return;
 	if (ch->master != NULL)
 		k = ch->master;
@@ -2916,6 +3260,17 @@ mag_points(int level, struct Creature *ch, struct Creature *victim,
 		move = level << 1;
 		break;
         
+    // Bard stuff
+    case SONG_DRIFTERS_DITTY:
+        move = level << 1;
+        break;
+
+    case SONG_RHAPSODY_OF_REMEDY:
+        hit = dice(10, 1 + ch->getLevelBonus(SONG_RHAPSODY_OF_REMEDY) >> 2);
+        hit += ((ch->getLevelBonus(SONG_RHAPSODY_OF_REMEDY) / 10) - (25 - GET_CHA(ch))) << 2;
+        to_vict = "Your wounds fade along with the last notes of the music.";
+        break;
+            
 	/** non-pc spells **/
 	case SPELL_ESSENCE_OF_EVIL:
 		if (!IS_GOOD(victim)) {
@@ -3109,6 +3464,18 @@ mag_unaffects(int level, struct Creature *ch, struct Creature *victim,
 		spell2 = SPELL_ACID_BREATH;	// acid breath
 		to_vict = "You feel less acidic  What a relief!\r\n";
 		break;
+
+	case SONG_ALRONS_ARIA:
+		spell = SPELL_FEAR;
+		to_vict = "You feel less afraid.";
+		break;
+
+    case SONG_LUSTRATION_MELISMA:
+        spell = SPELL_BLINDNESS;
+        spell2 = SPELL_POISON;
+        spell3 = SPELL_SICKNESS;
+        to_vict = "You feel cleansed of all your illnesses.";
+        break;
 
 	default:
 		errlog("unknown spellnum %d passed to mag_unaffects",

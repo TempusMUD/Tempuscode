@@ -50,6 +50,7 @@ extern char weapon_verbs[];
 extern int *max_ac_applys;
 extern char *last_command;
 extern struct apply_mod_defaults *apmd;
+extern const char *instrument_types[];
 
 void weight_change_object(struct obj_data *obj, int weight);
 void add_follower(struct Creature *ch, struct Creature *leader);
@@ -1165,6 +1166,12 @@ ASPELL(spell_identify)
 			send_to_char(ch, "Tool works with: %s, modifier: %d\r\n",
 				spell_to_str(TOOL_SKILL(obj)), TOOL_MOD(obj));
 			break;
+        case ITEM_INSTRUMENT:
+            send_to_char(ch, "Instrument type is: %s%s%s\r\n",
+                         CCCYN(ch, C_NRM), (GET_OBJ_VAL(obj, 0) < 2) ? 
+                         instrument_types[GET_OBJ_VAL(obj, 0)] : "UNDEFINED",
+                         CCNRM(ch, C_NRM));
+            break;
 		}
 		found = FALSE;
 		for (i = 0; i < MAX_OBJ_AFFECT; i++) {
@@ -1299,6 +1306,13 @@ ASPELL(spell_minor_identify)
 			send_to_char(ch, "This container holds a maximum of %d pounds.\r\n",
 				GET_OBJ_VAL(obj, 0));
 			break;
+        case ITEM_INSTRUMENT:
+            send_to_char(ch, "Instrument type is: %s%s%s\r\n",
+                         CCCYN(ch, C_NRM), 
+                         (GET_OBJ_VAL(obj, 0) < 2) ? instrument_types[GET_OBJ_VAL(obj, 0)] :
+                         "UNDEFINED",
+                         CCNRM(ch, C_NRM));
+            break;
 		}
 		found = FALSE;
 		for (i = 0; i < MAX_OBJ_AFFECT; i++) {
@@ -3307,8 +3321,8 @@ ASPELL(spell_dispel_magic)
 
             for (aff = victim->affected;aff;aff = next_aff) {
                 next_aff = aff->next;
-                if (SPELL_IS_MAGIC(aff->type) ||
-                        SPELL_IS_DIVINE(aff->type)) {
+                if (SPELL_IS_MAGIC(aff->type) || SPELL_IS_DIVINE(aff->type) ||
+                    SPELL_IS_BARD(aff->type)) {
                     if (aff->level < number(level / 2, level * 2))
                         affect_remove(victim, aff);
                 }

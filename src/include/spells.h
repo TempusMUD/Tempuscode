@@ -64,6 +64,7 @@ static const int CAST_PSIONIC = 10;
 static const int CAST_PHYSIC = 11;
 static const int CAST_INTERNAL = 12;
 static const int CAST_MERCENARY = 13;
+static const int CAST_BARD = 14;
 
 static const int MAG_DAMAGE = (1 << 0);
 static const int MAG_AFFECTS = (1 << 1);
@@ -93,6 +94,7 @@ static const int MAG_WATERZAP = (1 << 24);
 static const int MAG_NOSUN = (1 << 25);
 static const int MAG_ZEN = (1 << 26);
 static const int MAG_MERCENARY = (1 << 27);
+static const int MAG_BARD = (1 << 28);
 
 #define SPELL_IS_MAGIC(splnm)   IS_SET(spell_info[splnm].routines, MAG_MAGIC)
 #define SPELL_IS_DIVINE(splnm)  IS_SET(spell_info[splnm].routines, MAG_DIVINE)
@@ -103,6 +105,7 @@ static const int MAG_MERCENARY = (1 << 27);
 #define SPELL_IS_EVIL(splnm)    IS_SET(spell_info[splnm].routines, MAG_EVIL)
 #define SPELL_IS_GOOD(splnm)    IS_SET(spell_info[splnm].routines, MAG_GOOD)
 #define SPELL_IS_MERCENARY(splnm) IS_SET(spell_info[splnm].routines, MAG_MERCENARY)
+#define SPELL_IS_BARD(splnm) IS_SET(spell_info[splnm].routines, MAG_BARD)
 
 #define SPELL_USES_GRAVITY(splnm) (splnm == SPELL_GRAVITY_WELL)
 
@@ -376,6 +379,59 @@ static const int SPELL_EMP_PULSE = 342;	// Shuts off devices, communicators
 static const int SPELL_QUANTUM_RIFT = 343;	// Shuts off devices, communicators
 static const int SPELL_ITEM_REPULSION_FIELD = 344;
 static const int SPELL_ITEM_ATTRACTION_FIELD = 345;
+
+// *********************** Bard songs HERE man
+
+static const int SONG_INSTANT_AUDIENCE = 346; // conjures an audience, like summon elem
+static const int SONG_WALL_OF_SOUND = 347; // seals an exit, broken by shatter
+static const int SONG_LAMENT_OF_LONGING = 349; // creates a portal to another character
+static const int SONG_MISDIRECTION_MELISMA = 350; // misleads a tracker
+static const int SONG_ARIA_OF_ARMAMENT = 351; // Similar to armor, group spell
+static const int SONG_LULLABY = 352; // puts a room to sleep
+static const int SONG_VERSE_OF_VULNERABILITY = 353; // lowers AC of target
+static const int SONG_EXPOSURE_OVERTURE = 354; // Area affect, causes targets to vis
+static const int SONG_VERSE_OF_VIBRATION = 355; // motor spasm++
+static const int SONG_REGALERS_RHAPSODY = 356; // caster and groupies get satiated
+static const int SONG_MELODY_OF_METTLE = 357; // caster and group get con and maxhit
+static const int SONG_LUSTRATION_MELISMA = 358; // caster and group cleansed of blindness, poison, sickness
+static const int SONG_DEFENSE_DITTY = 359; // save spell, psi, psy based on gen
+static const int SONG_ALRONS_ARIA = 360; // singer/group confidence
+static const int SONG_SONG_SHIELD = 361; // self only, like psi block
+static const int SONG_VERSE_OF_VALOR = 362; // self/group increase hitroll
+static const int SONG_HYMN_OF_PEACE = 363; // stops fighting in room, counters req of rage
+static const int SONG_SONG_OF_SILENCE = 364; // Area, disallow speaking, casting. singing
+static const int SONG_DRIFTERS_DITTY = 365; // self/group increases move
+static const int SONG_UNRAVELLING_DIAPASON = 366; //dispel magic
+static const int SONG_RHAPSODY_OF_DEPRESSION = 367; // Area, slow all but grouped
+static const int SONG_CHANT_OF_LIGHT = 368; // group, light and prot_cold
+static const int SONG_ARIA_OF_ASYLUM = 369; // self/group/target up to 25 percent dam reduction
+static const int SONG_WHITE_NOISE = 370; // single target, confusion
+static const int SONG_RHYTHM_OF_RAGE = 371; // self only, berserk, counter = hymn of peace
+static const int SONG_POWER_OVERTURE = 372; // self only, increase strength and hitroll
+static const int SONG_GUIHARIAS_GLORY = 373; // self/group, + damroll
+static const int SONG_SIRENS_SONG = 374; // single target, charm
+static const int SONG_SONIC_DISRUPTION = 375; // area, medium damage
+static const int SONG_MIRROR_IMAGE_MELODY = 376; // causes multiple images of the singer
+static const int SONG_CLARIFYING_HARMONIES = 377; // identify
+static const int SONG_UNLADEN_SWALLOW_SONG = 378; // group flight
+static const int SONG_IRRESISTABLE_DANCE = 379; // Target, -hitroll
+static const int SONG_RHYTHM_OF_ALARM = 380; // room affect, notifies the bard of person entering room
+static const int SONG_RHAPSODY_OF_REMEDY = 381; // self/target, heal
+static const int SONG_SHATTER = 382; // target; damage persons/objects, penetrate WALL O SOUND
+static const int SONG_HOME_SWEET_HOME = 383; // recall
+static const int SONG_WEIGHT_OF_THE_WORLD = 384; // self/group/target, like telekinesis
+static const int SONG_PURPLE_HAZE = 385; // area, pauses fighting for short time
+static const int SONG_WOUNDING_WHISPERS = 386; // self, like blade barrier
+static const int SONG_DIRGE = 387; // area, high damage
+static const int SONG_EAGLES_OVERTURE = 388; // self, group, target, increases cha
+static const int SONG_GHOST_INSTRUMENT = 389; // causes instrument to replay next some played
+static const int SONG_LICHS_LYRICS = 390; // area, only affects living creatures
+static const int SONG_FORTISSIMO = 391; // increases damage of sonic attacks
+static const int SONG_INSIDIOUS_RHYTHM = 392; // target, - int
+static const int SONG_REQUIEM = 395; // allows bard song to affect undead at half potency
+
+// if you add a new bard skill/song here, change the NUM_BARD_SONGS const in act.bard.cc
+
   /*********************  MONK ZENS  *******************/
 static const int ZEN_HEALING = 401;
 static const int ZEN_AWARENESS = 402;
@@ -559,21 +615,27 @@ static const int SKILL_CONTROL_UNDEAD = 657;
 static const int SKILL_TERRORIZE = 658;
 
 //-------------  Hood Skillz... yeah. Just two
-static const int SKILL_HAMSTRING = 666;
 static const int SKILL_SNATCH = 667;
 static const int SKILL_DRAG = 668;
 
 //static const int SKILL_TAUNT = 669;
 
 //------------  Mercenary Skills -------------------
+static const int SKILL_HAMSTRING = 666;
 static const int SKILL_SNIPE = 669;	// sniper skill for mercs
 static const int SKILL_INFILTRATE = 670;	// merc skill, improvement on sneak
 static const int SKILL_SHOULDER_THROW = 671;	// grounding skill between hiptoss
 										 // and sweepkick
 
+// Bard Skills
+static const int SKILL_SCREAM = 672; // damage like psiblast, chance to stun
+static const int SKILL_VENTRILOQUISM = 673; // makes objects talk
+static const int SKILL_TUMBLING = 674; // like uncanny dodge 
+static const int SKILL_LINGERING_SONG = 676; // increases duration of song affects
+
 // Overflow Cyborg
 static const int SKILL_NANITE_RECONSTRUCTION = 675;	// repairs implants
-static const int SKILL_ARTERIAL_FLOW = 676;	// Arterial Flow Enhancement
+//static const int SKILL_ARTERIAL_FLOW = 676;	// Arterial Flow Enhancement
 static const int SKILL_OPTIMMUNAL_RESP = 677;	// Genetek Optimmunal Nodes
 static const int SKILL_ADRENAL_MAXIMIZER = 678;	// Shukutei Adrenal Maximizer
 
@@ -843,7 +905,10 @@ ASPELL(spell_call_beast);
 ASPELL(spell_call_predator);
 ASPELL(spell_dispel_evil);
 ASPELL(spell_dispel_good);
-
+ASPELL(song_exposure_overture);
+ASPELL(song_lament_of_longing);
+ASPELL(song_unravelling_diapason);
+ASPELL(song_instant_audience);
 
 /* basic magic calling functions */
 

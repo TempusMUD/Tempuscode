@@ -142,6 +142,9 @@ show_char_class_menu(struct descriptor_data *d, bool remort)
 	if (valid_class_race(ch, CLASS_THIEF, remort))
 		left_col = tmp_strcat(left_col,
 			"&gThief&n\r\n    Stealthy Rogue\r\n");
+	if (valid_class_race(ch, CLASS_BARD, remort))
+		left_col = tmp_strcat(left_col,
+			"&gBard&n\r\n    Roguish Performer\r\n");
 
 	// Print future classes
 	if (valid_class_race(ch, CLASS_CYBORG, remort))

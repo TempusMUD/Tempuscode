@@ -449,7 +449,7 @@ ACMD(do_snatch)
 		if (GET_LEVEL(ch) > LVL_TIMEGOD && GET_LEVEL(vict) < GET_LEVEL(ch))
 			percent = 0;
 		// Snatch the pebble from my hand grasshopper.
-		if (IS_MONK(vict) || IS_HOOD(vict))
+		if (IS_MONK(vict) || IS_THIEF(vict))
 			percent += 10;
 		if (affected_by_spell(vict, ZEN_AWARENESS))
 			percent += 10;
