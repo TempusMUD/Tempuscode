@@ -241,32 +241,34 @@ list_residents_to_char(struct Creature *ch, int town)
 
 ACMD(do_echo)
 {
+	char *mort_see;
+	char *imm_see;
 
 	skip_spaces(&argument);
 
-	if (!*argument)
+	if (!*argument) {
 		send_to_char(ch, "Yes.. but what?\r\n");
-	else {
-		if (subcmd == SCMD_EMOTE)
-			sprintf(buf, "$n %s", argument);
-		else {
-			strcpy(buf, argument);
-			sprintf(buf2, "[$n] %s", CAP(argument));
-		}
-		if (subcmd == SCMD_EMOTE) {
-			if (PRF_FLAGGED(ch, PRF_NOREPEAT))
-				send_to_char(ch, OK);
+		return;
+	}
+
+	if (subcmd == SCMD_EMOTE) {
+		mort_see = tmp_sprintf("$n %s", argument);
+
+		if (PRF_FLAGGED(ch, PRF_NOREPEAT))
+			send_to_char(ch, OK);
+		else
+			act(mort_see, FALSE, ch, 0, 0, TO_CHAR);
+		act(mort_see, FALSE, ch, 0, 0, TO_ROOM);
+	} else {
+		mort_see = tmp_strdup(argument);
+		imm_see = tmp_sprintf("[$n] %s", argument);
+
+		CharacterList::iterator it = ch->in_room->people.begin();
+		for (; it != ch->in_room->people.end(); ++it) {
+			if (GET_LEVEL((*it)) > GET_LEVEL(ch))
+				act(imm_see, FALSE, ch, 0, (*it), TO_VICT);
 			else
-				act(buf, FALSE, ch, 0, 0, TO_CHAR);
-			act(buf, FALSE, ch, 0, 0, TO_ROOM);
-		} else {
-			CharacterList::iterator it = ch->in_room->people.begin();
-			for (; it != ch->in_room->people.end(); ++it) {
-				if (GET_LEVEL((*it)) > GET_LEVEL(ch))
-					act(buf2, FALSE, ch, 0, (*it), TO_VICT);
-				else
-					act(buf, FALSE, ch, 0, (*it), TO_VICT);
-			}
+				act(mort_see, FALSE, ch, 0, (*it), TO_VICT);
 		}
 	}
 }
@@ -3485,6 +3487,7 @@ ACMD(do_wizutil)
 {
 	struct Creature *vict;
 	long result;
+	char *msg;
 	void roll_real_abils(struct Creature *ch);
 
 	one_argument(argument, arg);
@@ -3500,12 +3503,10 @@ ACMD(do_wizutil)
 	else {
 		switch (subcmd) {
 		case SCMD_REROLL:
-			send_to_char(ch, "Rerolled...\r\n");
 			roll_real_abils(vict);
-			send_to_char(ch, "(GC) %s has rerolled %s.", GET_NAME(ch),
-				GET_NAME(vict));
-			slog(buf);
-			sprintf(buf,
+			send_to_char(vict, "Your stats have been rerolled.\r\n");
+			slog("(GC) %s has rerolled %s.", GET_NAME(ch), GET_NAME(vict));
+			send_to_char(ch,
 				"New stats: Str %d/%d, Int %d, Wis %d, Dex %d, Con %d, Cha %d\r\n",
 				GET_STR(vict), GET_ADD(vict), GET_INT(vict), GET_WIS(vict),
 				GET_DEX(vict), GET_CON(vict), GET_CHA(vict));
@@ -3524,7 +3525,7 @@ ACMD(do_wizutil)
 			break;
 		case SCMD_NOTITLE: {
 			result = PLR_TOG_CHK(vict, PLR_NOTITLE);
-			char *msg = tmp_sprintf("Notitle %s for %s by %s.", 
+			msg = tmp_sprintf("Notitle %s for %s by %s.", 
 									ONOFF(result),
 									GET_NAME(vict), 
 									GET_NAME(ch));
@@ -3534,7 +3535,7 @@ ACMD(do_wizutil)
 		}
 		case SCMD_NOPOST: {
 			result = PLR_TOG_CHK(vict, PLR_NOPOST);
-			char *msg = tmp_sprintf("Nopost %s for %s by %s.", 
+			msg = tmp_sprintf("Nopost %s for %s by %s.", 
 									ONOFF(result),
 									GET_NAME(vict), 
 									GET_NAME(ch));
@@ -3544,7 +3545,7 @@ ACMD(do_wizutil)
 	    }
 		case SCMD_COUNCIL: {
 			result = PLR_TOG_CHK(vict, PLR_COUNCIL);
-			char *msg = tmp_sprintf("Council %s for %s by %s.", 
+			msg = tmp_sprintf("Council %s for %s by %s.", 
 									ONOFF(result),
 									GET_NAME(vict), 
 									GET_NAME(ch));
@@ -3554,7 +3555,7 @@ ACMD(do_wizutil)
 	    }
 		case SCMD_SQUELCH: {
 			result = PLR_TOG_CHK(vict, PLR_NOSHOUT);
-			char *msg = tmp_sprintf("Squelch %s for %s by %s.", 
+			msg = tmp_sprintf("Squelch %s for %s by %s.", 
 									ONOFF(result),
 									GET_NAME(vict), 
 									GET_NAME(ch) );
