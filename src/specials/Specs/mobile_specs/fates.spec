@@ -50,13 +50,7 @@ SPECIAL(fate)
 	if(player_in_room(fate->in_room))
 		return 0;
 
-	// Is it time to leave?
-	if(fate_timers[which_fate] > 0) { // Not time to leave yet.
-		fate_timers[which_fate] -= 10; // Specials are called every 10 seconds.
-		return 1;
-	}
 
-	// It's time to leave.
 	// Who is she?
 	switch(GET_MOB_VNUM(fate)){
 		case FATE_VNUM_LOW:
@@ -75,7 +69,13 @@ SPECIAL(fate)
 			return 0;
 	}
 
+	// Is it time to leave?
+	if(fate_timers[which_fate] > 0) { // Not time to leave yet.
+		fate_timers[which_fate] -= 10; // Specials are called every 10 seconds.
+		return 1;
+	}
 
+	// It's time to leave.
 	// Start the timer for the next jump.
 	fate_timers[which_fate] = 60 * dice(30,6); // 25 mins to 2.5 hours.
 

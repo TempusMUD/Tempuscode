@@ -377,6 +377,7 @@ ACMD(do_write);
 ACMD(do_xlag);
 ACMD(do_zreset);
 ACMD(do_zonepurge);
+ACMD(do_zecho);
 ACMD(do_rlist);
 ACMD(do_olist);
 ACMD(do_mlist);
@@ -1274,12 +1275,12 @@ extern const struct command_info cmd_info[] = {
 
     { "zerbert"  , POS_RESTING , do_action   , 0, 0 },
     { "zreset"   , POS_DEAD    , do_zreset   , LVL_GRGOD, 0 },
+    { "zoneecho" , POS_DEAD    , do_zecho    , LVL_AMBASSADOR, 0 },
     { "zonepurge", POS_DEAD    , do_zonepurge, LVL_IMPL,  0 },
     { "rlist"    , POS_DEAD    , do_rlist    , LVL_IMMORT, 0 },
     { "olist"    , POS_DEAD    , do_olist    , LVL_IMMORT, 0 },
     { "mlist"    , POS_DEAD    , do_mlist    , LVL_IMMORT, 0 },
     { "xlist"    , POS_DEAD    , do_xlist    , LVL_IMMORT, 0 },
-//    { "coderbs"  , POS_DEAD    , do_coderbs	 , LVL_GOD, 0 },
 
     { "\n", 0, 0, 0, 0 }
 };    /* this must be last */
