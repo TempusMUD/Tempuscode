@@ -180,6 +180,8 @@ ACMD(do_medic)
 	} else if (vict->numCombatants() || vict->getPosition() == POS_FIGHTING) {
 		send_to_char(ch, "They are fighting right now.\r\n");
 		return;
+	} else if (GET_HIT(vict) == GET_MAX_HIT(vict)) {
+	  act("What makes you think $e's bleeding?", true, ch, 0, vict, TO_CHAR);
 	} else {
 		mod = (GET_LEVEL(ch) + CHECK_SKILL(ch, SKILL_MEDIC));
 		if (GET_MOVE(ch) > mod) {
