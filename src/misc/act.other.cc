@@ -178,10 +178,9 @@ ACMD(do_quit)
 				destroy = true;
 				save = false;
 			} else {
-				sprintf(buf,
+				send_to_char(ch,
 					"\r\nVery well %s.  You drop all your things and vanish!\r\n",
 					GET_NAME(ch));
-				send_to_char(ch, "%s", buf);
 				Crash_cursesave(ch);	// saves !remove items
 				act("$n disappears, leaving all $s equipment behind!",
 					TRUE, ch, 0, 0, TO_ROOM);
@@ -196,6 +195,7 @@ ACMD(do_quit)
 			act("$n flickers out of reality.", TRUE, ch, 0, 0, TO_ROOM);
 			sprintf(buf, "%s has left the game naked.", GET_NAME(ch));
 			mudlog(buf, NRM, MAX(LVL_AMBASSADOR, GET_INVIS_LEV(ch)), TRUE);
+			save = destroy = false;
 		}
 
 		save_room = ch->in_room;
@@ -205,8 +205,6 @@ ACMD(do_quit)
 		}
 	}
 }
-
-
 
 ACMD(do_save)
 {

@@ -15,6 +15,7 @@
 #include "house.h"
 #include "clan.h"
 #include "security.h"
+#include "fight.h"
 
 int set_desc_state(int state, struct descriptor_data *d);
 
@@ -540,6 +541,7 @@ void
 			if (GET_IMPLANT(this, idx))
 				obj_to_room(unequip_char(this, idx, MODE_IMPLANT), in_room);
 		}
+
 		// transfer inventory to room, if any
 		while (carrying) {
 			obj = carrying;
@@ -587,6 +589,7 @@ void
 	if (IS_PC(this) && save) {
 		save_char(this, NULL);
 		Crash_crashsave(this);	// Is there any eq to save?
+		Crash_save_implants(this, false);	// Are there any implants to save?
 		Crash_delete_crashfile(this);	// Should this be here?
 	}
 	if (desc && desc->original) {

@@ -880,6 +880,16 @@ Crash_cursesave(struct char_data *ch)
 					extract_object_list(GET_EQ(ch, j));
 			}
 		}
+		if (GET_IMPLANT(ch, j)) {
+			struct obj_data *obj;
+
+			// Break implants and put them on the floor
+			obj = unequip_char(ch, j, MODE_IMPLANT);
+			GET_OBJ_DAM(obj) = GET_OBJ_MAX_DAM(obj) >> 3 - 1;
+			SET_BIT(GET_OBJ_EXTRA2(obj), ITEM2_BROKEN);
+			obj_to_room(obj, ch->in_room);
+		}
+
 	}
 
 	for (obj = ch->carrying; obj; obj = next_obj) {
@@ -901,7 +911,6 @@ Crash_cursesave(struct char_data *ch)
 	// save implants
 	Crash_save_implants(ch);
 	REMOVE_BIT(PLR_FLAGS(ch), PLR_CRASH);
-
 }
 
 

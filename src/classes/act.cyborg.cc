@@ -2411,7 +2411,8 @@ ACMD(do_insert)
 
 	if ((!(tool = GET_EQ(ch, WEAR_HOLD)) &&
 			!(tool = GET_IMPLANT(ch, WEAR_HOLD))) ||
-		!IS_TOOL(tool) || TOOL_SKILL(tool) != SKILL_CYBO_SURGERY) {
+		!IS_TOOL(tool) || TOOL_SKILL(tool) != SKILL_CYBO_SURGERY &&
+		GET_LEVEL(ch) < LVL_IMMORT) {
 		send_to_char(ch, 
 			"You must be holding a cyber surgery tool to do this.\r\n");
 		return;
@@ -2594,7 +2595,8 @@ ACMD(do_extract)
 
 	if ((!(tool = GET_EQ(ch, WEAR_HOLD)) &&
 			!(tool = GET_IMPLANT(ch, WEAR_HOLD))) ||
-		!IS_TOOL(tool) || TOOL_SKILL(tool) != SKILL_CYBO_SURGERY) {
+		!IS_TOOL(tool) || TOOL_SKILL(tool) != SKILL_CYBO_SURGERY &&
+		GET_LEVEL(ch) < LVL_IMMORT) {
 		send_to_char(ch, 
 			"You must be holding a cyber surgery tool to do this.\r\n");
 		return;
