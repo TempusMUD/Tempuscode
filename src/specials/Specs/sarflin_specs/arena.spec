@@ -61,7 +61,8 @@ SPECIAL(arena_object)
        { 
           SET_BIT(MOB_FLAGS(new_mob), MOB_AGGRESSIVE);
           REMOVE_BIT(MOB_FLAGS(new_mob), MOB_WIMPY);
-	  GET_EXP( new_mob ) >>= 2;
+          GET_GOLD(ch) = 0;
+          GET_EXP( new_mob ) >>= 2;
           char_to_room(new_mob,IN_ROOM(me2));
        } else printf("NULL\n");
        return 1;
