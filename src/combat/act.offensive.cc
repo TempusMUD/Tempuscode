@@ -924,6 +924,9 @@ ACCMD(do_offensive_skill)
 		gain_skill_prof(ch, subcmd);
 		WAIT_STATE(ch, wait);
 
+		// On success, we always do at least one point of damage
+		if (dam < 1)
+			dam = 1;
 		my_return_flags = damage(ch, vict, dam, subcmd, loc);
 
 		//
