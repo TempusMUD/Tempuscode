@@ -530,9 +530,9 @@ Creature::extract(bool destroy_objs, bool save, int con_state)
 		// destroy all that equipment
 		for (idx = 0; idx < NUM_WEARS; idx++) {
 			if (GET_EQ(this, idx))
-				extract_obj(unequip_char(this, idx, MODE_EQ));
+				extract_obj(unequip_char(this, idx, MODE_EQ, true));
 			if (GET_IMPLANT(this, idx))
-				extract_obj(unequip_char(this, idx, MODE_IMPLANT));
+				extract_obj(unequip_char(this, idx, MODE_IMPLANT, true));
 		}
 		// transfer inventory to room, if any
 		while (carrying) {
@@ -546,9 +546,9 @@ Creature::extract(bool destroy_objs, bool save, int con_state)
 		// transfer equipment to room, if any
 		for (idx = 0; idx < NUM_WEARS; idx++) {
 			if (GET_EQ(this, idx))
-				obj_to_room(unequip_char(this, idx, MODE_EQ), in_room);
+				obj_to_room(unequip_char(this, idx, MODE_EQ, true), in_room);
 			if (GET_IMPLANT(this, idx))
-				obj_to_room(unequip_char(this, idx, MODE_IMPLANT), in_room);
+				obj_to_room(unequip_char(this, idx, MODE_IMPLANT, true), in_room);
 		}
 
 		// transfer inventory to room, if any
