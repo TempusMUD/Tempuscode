@@ -977,6 +977,7 @@ mag_affects(int level, struct char_data * ch, struct char_data * victim,
     af.location = APPLY_AC;
     af.duration = dice(4, (level >> 3) + 1);
     af.modifier = -10;
+    af.level = ch->getLevelBonus(SPELL_BARKSKIN);
     accum_duration = TRUE;
     to_vict = "Your skin tightens up and hardens.";
     break;
@@ -988,6 +989,7 @@ mag_affects(int level, struct char_data * ch, struct char_data * victim,
              send_to_char( "\r\n", victim) ;
         }
     }
+    af.level = af2.level = ch->getLevelBonus(SPELL_STONESKIN);
     af2.location = APPLY_DEX;
     af.location = APPLY_AC;
     af.duration = af2.duration = dice(4, (level >> 3) + 1);
@@ -1623,6 +1625,7 @@ mag_affects(int level, struct char_data * ch, struct char_data * victim,
     break;
 
     case SPELL_DERMAL_HARDENING:
+    af.level = ch->getLevelBonus(SPELL_DERMAL_HARDENING);
     af.location = APPLY_AC;
     af.modifier = -10;
     af.duration = dice(4, (level >> 3) + 1);

@@ -690,9 +690,9 @@ index_boot(int mode)
 
     if (!(index = fopen(buf2, "r"))) {
         if (!(index = fopen(buf2, "a+"))) {
-                sprintf(buf1, "Error opening index file '%s'", buf2);
-                perror(buf1);
-                safe_exit(1);
+            sprintf(buf1, "Error opening index file '%s'", buf2);
+            perror(buf1);
+            safe_exit(1);
         }
     }
 
@@ -701,10 +701,13 @@ index_boot(int mode)
     while (*buf1 != '$') {
         sprintf(buf2, "%s/%s", prefix, buf1);
         if (!(db_file = fopen(buf2, "r"))) {
-            perror(buf2);
-            safe_exit(1);
-        } 
-    else {
+            //perror(buf2);
+            //safe_exit(1);
+            fprintf(stderr,"Unable to open: %s\r\n",buf2);
+            index_count++;
+            fscanf(index, "%s\n", buf1);
+            continue;
+        } else {
             if (mode == DB_BOOT_ZON)
                 rec_count++;
             else

@@ -179,14 +179,13 @@ float char_data::getDamReduction(char_data *attacker = NULL)
         
     //************** Stoneskin Barkskin Dermal Hardening ****************
     //*******************************************************************
-    if (affected_by_spell(ch, SPELL_STONESKIN)) 
-        dam_reduction += (ch->getLevelBonus(SPELL_STONESKIN)) / 4;
-    
-    else if (affected_by_spell(ch, SPELL_BARKSKIN))
-        dam_reduction += (ch->getLevelBonus(SPELL_BARKSKIN)) / 6;
-    
-    else if (affected_by_spell(ch, SPELL_DERMAL_HARDENING))
-        dam_reduction += (ch->getLevelBonus(SPELL_DERMAL_HARDENING)) / 6; 
+    struct affected_type *taf;
+    if ( ( taf = affected_by_spell(ch, SPELL_STONESKIN) )) 
+        dam_reduction += (taf->level) / 4;
+    else if( (taf = affected_by_spell(ch, SPELL_BARKSKIN) ) )
+        dam_reduction += (taf->level) / 6;
+    else if( ( taf = affected_by_spell(ch, SPELL_DERMAL_HARDENING) ) )
+        dam_reduction += (taf->level) / 6; 
         
     //************************** Petrification **************************
     //*******************************************************************

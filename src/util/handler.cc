@@ -466,9 +466,10 @@ affect_total(struct char_data * ch)
             !invalid_char_class(ch, ch->equipment[i]) && !IS_IMPLANT(ch->equipment[i]) &&
             (!IS_DEVICE(ch->equipment[i]) || ENGINE_STATE(ch->equipment[i]))) {
       
-            for (j = 0; j < MAX_OBJ_AFFECT; j++)
+            for (j = 0; j < MAX_OBJ_AFFECT; j++) {
                 affect_modify(ch, ch->equipment[i]->affected[j].location,
                               ch->equipment[i]->affected[j].modifier, 0, 0, FALSE);
+            }
             affect_modify(ch,0,0,ch->equipment[i]->obj_flags.bitvector[0], 1, FALSE);
             affect_modify(ch,0,0,ch->equipment[i]->obj_flags.bitvector[1], 2, FALSE);
             affect_modify(ch,0,0,ch->equipment[i]->obj_flags.bitvector[2], 3, FALSE);
@@ -482,12 +483,12 @@ affect_total(struct char_data * ch)
     
         // remove implant affects
         if (ch->implants[i] && !invalid_char_class(ch, ch->implants[i]) &&
-            !invalid_char_class(ch, ch->equipment[i]) &&
             (!IS_DEVICE(ch->implants[i]) || ENGINE_STATE(ch->implants[i]))) {
 
-            for (j = 0; j < MAX_OBJ_AFFECT; j++)
+            for (j = 0; j < MAX_OBJ_AFFECT; j++) {
                 affect_modify(ch, ch->implants[i]->affected[j].location,
                               ch->implants[i]->affected[j].modifier, 0, 0, FALSE);
+            }
             affect_modify(ch,0,0,ch->implants[i]->obj_flags.bitvector[0], 1, FALSE);
             affect_modify(ch,0,0,ch->implants[i]->obj_flags.bitvector[1], 2, FALSE);
             affect_modify(ch,0,0,ch->implants[i]->obj_flags.bitvector[2], 3, FALSE);

@@ -680,308 +680,313 @@ roll_real_abils(struct char_data * ch)
     int i, j, k, temp;
     ubyte table[6];
     ubyte rolls[4];
-
-    for (i = 0; i < 6; i++)
-        table[i] = 0;
-
+    // Zero out table
     for (i = 0; i < 6; i++) {
+        table[i] = 0;
+    }
 
-        for (j = 0; j < 4; j++)
+    // Roll the dice best 3 out of four, ordered highest to lowest
+    for (i = 0; i < 6; i++) { 
+        for (j = 0; j < 4; j++) {
             rolls[j] = number(1, 6);
+        }
 
         temp = rolls[0] + rolls[1] + rolls[2] + rolls[3] -
             MIN(rolls[0], MIN(rolls[1], MIN(rolls[2], rolls[3])));
 
-        for (k = 0; k < 6; k++)
+        for (k = 0; k < 6; k++) {
             if (table[k] < temp) {
                 temp ^= table[k];
                 table[k] ^= temp;
                 temp ^= table[k];
             }
+        }
     }
 
     ch->real_abils.str_add = 0;
 
     switch (GET_CLASS(ch)) {
-    case CLASS_MAGIC_USER:
-        ch->real_abils.intel = table[0];
-        ch->real_abils.wis = table[1];
-        ch->real_abils.dex = table[2];
-        ch->real_abils.cha = table[3];
-        ch->real_abils.con = table[4];
-        ch->real_abils.str = table[5];
-        break;
-    case CLASS_CLERIC:
-        ch->real_abils.wis = table[0];
-        ch->real_abils.intel = table[1];
-        ch->real_abils.str = table[2];
-        ch->real_abils.dex = table[3];
-        ch->real_abils.con = table[4];
-        ch->real_abils.cha = table[5];
-        break;
-    case CLASS_THIEF:
-        ch->real_abils.dex = table[0];
-        ch->real_abils.str = table[1];
-        ch->real_abils.con = table[2];
-        ch->real_abils.intel = table[3];
-        ch->real_abils.wis = table[4];
-        ch->real_abils.cha = table[5];
-        break;
-    case CLASS_WARRIOR:
-        ch->real_abils.str = table[0];
-        ch->real_abils.dex = table[1];
-        ch->real_abils.con = table[2];
-        ch->real_abils.wis = table[3];
-        ch->real_abils.intel = table[4];
-        ch->real_abils.cha = table[5];
-        if (ch->real_abils.str == 18)
-            ch->real_abils.str_add = number(0, 100);
-        break;
-    case CLASS_BARB:   
-        ch->real_abils.str = table[0];
-        ch->real_abils.con = table[1];
-        ch->real_abils.dex = table[2];
-        ch->real_abils.wis = table[3];
-        ch->real_abils.intel = table[4];
-        ch->real_abils.cha = table[5];
-        if (ch->real_abils.str == 18)
-            ch->real_abils.str_add = number(0, 100);
-        break;
-
-    case CLASS_PSIONIC:
-        ch->real_abils.intel = table[0];
-        ch->real_abils.wis = table[1];
-        ch->real_abils.dex = table[2];
-        ch->real_abils.str = table[3];
-        ch->real_abils.con = table[4];
-        ch->real_abils.cha = table[5];
-        break;
-    case CLASS_PHYSIC:
-        ch->real_abils.intel = table[0];
-        ch->real_abils.wis = table[1];
-        ch->real_abils.dex = table[2];
-        ch->real_abils.str = table[3];
-        ch->real_abils.con = table[4];
-        ch->real_abils.cha = table[5];
-        break;
-    case CLASS_CYBORG:
-        switch (GET_OLD_CLASS(ch)) {
-        case BORG_MENTANT:
+        case CLASS_MAGIC_USER:
             ch->real_abils.intel = table[0];
-            ch->real_abils.str = table[1];
+            ch->real_abils.wis = table[1];
             ch->real_abils.dex = table[2];
-            ch->real_abils.con = table[3];
+            ch->real_abils.cha = table[3];
+            ch->real_abils.con = table[4];
+            ch->real_abils.str = table[5];
+            break;
+        case CLASS_CLERIC:
+            ch->real_abils.wis = table[0];
+            ch->real_abils.intel = table[1];
+            ch->real_abils.str = table[2];
+            ch->real_abils.dex = table[3];
+            ch->real_abils.con = table[4];
+            ch->real_abils.cha = table[5];
+            break;
+        case CLASS_THIEF:
+            ch->real_abils.dex = table[0];
+            ch->real_abils.str = table[1];
+            ch->real_abils.con = table[2];
+            ch->real_abils.intel = table[3];
             ch->real_abils.wis = table[4];
             ch->real_abils.cha = table[5];
             break;
-        case BORG_SPEED:
-            ch->real_abils.dex   = table[0];
-            ch->real_abils.con   = table[1];
-            ch->real_abils.str   = table[2];
+        case CLASS_WARRIOR:
+            ch->real_abils.str = table[0];
+            ch->real_abils.dex = table[1];
+            ch->real_abils.con = table[2];
+            ch->real_abils.wis = table[3];
+            ch->real_abils.intel = table[4];
+            ch->real_abils.cha = table[5];
+            if (ch->real_abils.str == 18)
+                ch->real_abils.str_add = number(0, 100);
+            break;
+        case CLASS_BARB:   
+            ch->real_abils.str = table[0];
+            ch->real_abils.con = table[1];
+            ch->real_abils.dex = table[2];
+            ch->real_abils.wis = table[3];
+            ch->real_abils.intel = table[4];
+            ch->real_abils.cha = table[5];
+            if (ch->real_abils.str == 18)
+                ch->real_abils.str_add = number(0, 100);
+            break;
+
+        case CLASS_PSIONIC:
+            ch->real_abils.intel = table[0];
+            ch->real_abils.wis = table[1];
+            ch->real_abils.dex = table[2];
+            ch->real_abils.str = table[3];
+            ch->real_abils.con = table[4];
+            ch->real_abils.cha = table[5];
+            break;
+        case CLASS_PHYSIC:
+            ch->real_abils.intel = table[0];
+            ch->real_abils.wis = table[1];
+            ch->real_abils.dex = table[2];
+            ch->real_abils.str = table[3];
+            ch->real_abils.con = table[4];
+            ch->real_abils.cha = table[5];
+            break;
+        case CLASS_CYBORG:
+            switch (GET_OLD_CLASS(ch)) {
+                case BORG_MENTANT:
+                    ch->real_abils.intel = table[0];
+                    ch->real_abils.str = table[1];
+                    ch->real_abils.dex = table[2];
+                    ch->real_abils.con = table[3];
+                    ch->real_abils.wis = table[4];
+                    ch->real_abils.cha = table[5];
+                    break;
+                case BORG_SPEED:
+                    ch->real_abils.dex   = table[0];
+                    ch->real_abils.con   = table[1];
+                    ch->real_abils.str   = table[2];
+                    ch->real_abils.intel = table[3];
+                    ch->real_abils.wis   = table[4];
+                    ch->real_abils.cha   = table[5];
+                    break;
+                default:
+                    ch->real_abils.str   = table[0];
+                    ch->real_abils.con   = table[1];
+                    ch->real_abils.dex   = table[2];
+                    ch->real_abils.intel = table[3];
+                    ch->real_abils.wis   = table[4];
+                    ch->real_abils.cha   = table[5];
+                    break;
+            }
+            break;
+        case CLASS_KNIGHT:
+            ch->real_abils.str = table[0];
+            ch->real_abils.con = table[1];
+            ch->real_abils.wis = table[2];
+            ch->real_abils.dex = table[3];
+            ch->real_abils.intel = table[4];
+            ch->real_abils.cha = table[5];
+            if (ch->real_abils.str == 18)
+                ch->real_abils.str_add = number(0, 100);
+            break;
+        case CLASS_RANGER:
+            ch->real_abils.dex = table[0];
+            ch->real_abils.wis = table[1];
+            ch->real_abils.con = table[2];
+            ch->real_abils.str = table[3];
+            ch->real_abils.intel = table[4];
+            ch->real_abils.cha = table[5];
+            if (ch->real_abils.str == 18)
+                ch->real_abils.str_add = number(0, 100);
+            break;
+        case CLASS_HOOD:  
+            ch->real_abils.con = table[0];
+            ch->real_abils.str = table[1];
+            ch->real_abils.dex = table[2];
             ch->real_abils.intel = table[3];
-            ch->real_abils.wis   = table[4];
-            ch->real_abils.cha   = table[5];
+            ch->real_abils.wis = table[4];
+            ch->real_abils.cha = table[5];
+            break;
+        case CLASS_MONK:
+            ch->real_abils.dex =   table[0];
+            ch->real_abils.con =   table[1];
+            ch->real_abils.str =   table[2];
+            ch->real_abils.wis =   table[3];
+            ch->real_abils.intel = table[4];
+            ch->real_abils.cha =   table[5];
+            break;
+        case CLASS_VAMPIRE:
+            ch->real_abils.dex =   table[0];
+            ch->real_abils.con =   table[1];
+            ch->real_abils.str =   table[2];
+            ch->real_abils.intel = table[3];
+            ch->real_abils.wis =   table[4];
+            ch->real_abils.cha =   table[5];
+            break;
+        case CLASS_MERCENARY:
+            ch->real_abils.str =   table[0];
+            ch->real_abils.con =   table[1];
+            ch->real_abils.dex =   table[2];
+            ch->real_abils.intel = table[3];
+            ch->real_abils.wis =   table[4];
+            ch->real_abils.cha =   table[5];
+            if (ch->real_abils.str == 18)
+                ch->real_abils.str_add = number(0, 100);
             break;
         default:
-            ch->real_abils.str   = table[0];
-            ch->real_abils.con   = table[1];
-            ch->real_abils.dex   = table[2];
-            ch->real_abils.intel = table[3];
-            ch->real_abils.wis   = table[4];
-            ch->real_abils.cha   = table[5];
+            ch->real_abils.dex =   table[0];
+            ch->real_abils.con =   table[1];
+            ch->real_abils.str =   table[2];
+            ch->real_abils.wis =   table[3];
+            ch->real_abils.intel = table[4];
+            ch->real_abils.cha =   table[5];
             break;
-        }
-        break;
-    case CLASS_KNIGHT:
-        ch->real_abils.str = table[0];
-        ch->real_abils.con = table[1];
-        ch->real_abils.wis = table[2];
-        ch->real_abils.dex = table[3];
-        ch->real_abils.intel = table[4];
-        ch->real_abils.cha = table[5];
-        if (ch->real_abils.str == 18)
-            ch->real_abils.str_add = number(0, 100);
-        break;
-    case CLASS_RANGER:
-        ch->real_abils.dex = table[0];
-        ch->real_abils.wis = table[1];
-        ch->real_abils.con = table[2];
-        ch->real_abils.str = table[3];
-        ch->real_abils.intel = table[4];
-        ch->real_abils.cha = table[5];
-        if (ch->real_abils.str == 18)
-            ch->real_abils.str_add = number(0, 100);
-        break;
-    case CLASS_HOOD:  
-        ch->real_abils.con = table[0];
-        ch->real_abils.str = table[1];
-        ch->real_abils.dex = table[2];
-        ch->real_abils.intel = table[3];
-        ch->real_abils.wis = table[4];
-        ch->real_abils.cha = table[5];
-        break;
-    case CLASS_MONK:
-        ch->real_abils.dex =   table[0];
-        ch->real_abils.con =   table[1];
-        ch->real_abils.str =   table[2];
-        ch->real_abils.wis =   table[3];
-        ch->real_abils.intel = table[4];
-        ch->real_abils.cha =   table[5];
-        break;
-    case CLASS_VAMPIRE:
-        ch->real_abils.dex =   table[0];
-        ch->real_abils.con =   table[1];
-        ch->real_abils.str =   table[2];
-        ch->real_abils.intel = table[3];
-        ch->real_abils.wis =   table[4];
-        ch->real_abils.cha =   table[5];
-        break;
-    case CLASS_MERCENARY:
-        ch->real_abils.str =   table[0];
-        ch->real_abils.con =   table[1];
-        ch->real_abils.dex =   table[2];
-        ch->real_abils.intel = table[3];
-        ch->real_abils.wis =   table[4];
-        ch->real_abils.cha =   table[5];
-        if (ch->real_abils.str == 18)
-            ch->real_abils.str_add = number(0, 100);
-        break;
-    default:
-        ch->real_abils.dex =   table[0];
-        ch->real_abils.con =   table[1];
-        ch->real_abils.str =   table[2];
-        ch->real_abils.wis =   table[3];
-        ch->real_abils.intel = table[4];
-        ch->real_abils.cha =   table[5];
-        break;
     }
     switch (GET_RACE(ch)) {
-    case RACE_ELF:
-    case RACE_DROW:
-        ch->real_abils.intel += 1;
-        ch->real_abils.dex += 1;
-        ch->real_abils.con -= 1;
-        break;
-    case RACE_DWARF:
-        ch->real_abils.con += 1;
-        if (ch->real_abils.str == 18)
-            ch->real_abils.str_add = MIN(100, ch->real_abils.str_add + 10);
-        else ch->real_abils.str += 1;
-        ch->real_abils.cha -= 1;
-        break;
-    case RACE_HALF_ORC:
-        if (ch->real_abils.str == 18)
-            ch->real_abils.str_add = MIN(100, ch->real_abils.str_add + 10);
-        else ch->real_abils.str += 1;
-
-        if (ch->real_abils.str == 18)
-            ch->real_abils.str_add = MIN(100, ch->real_abils.str_add + 10);
-        else if (ch->real_abils.str < 18)
-            ch->real_abils.str += 1;
-
-        ch->real_abils.con += 1;
-        ch->real_abils.cha -= 3;
-        break;
-    case RACE_TABAXI:
-        ch->real_abils.dex  = MIN(20, ch->real_abils.dex + 3);
-        ch->real_abils.intel -= 1;
-        ch->real_abils.wis -= 3;
-        ch->real_abils.con += 1;
-        ch->real_abils.cha -= 2;
-        break;
-    case RACE_MINOTAUR:
-        ch->real_abils.intel -= 2;
-        ch->real_abils.wis -= 3;
-        ch->real_abils.con += 2;
-        ch->real_abils.cha -= 2;
-        ch->real_abils.str += 3;
-        if (ch->real_abils.str > 18) {
-            ch->real_abils.str_add += (ch->real_abils.str - 18) * 10;
-            if (ch->real_abils.str_add > 100) {
-                ch->real_abils.str = MIN(20, 18+((ch->real_abils.str_add - 100) / 10));
-                ch->real_abils.str_add = 0;
-            } else
-                ch->real_abils.str = 18;
-        }
-        break;
-
-    case RACE_HUMAN:
-       switch (GET_CLASS(ch)) {
-       case CLASS_MAGIC_USER:
-          ch->real_abils.intel +=1;
-               ch->real_abils.dex +=1;
-          break;
-       case CLASS_CLERIC:
-          ch->real_abils.intel +=1;
-               ch->real_abils.wis +=1;
-          break;
-       case CLASS_BARB:
-          if (ch->real_abils.str == 18)
-                       ch->real_abils.str_add = MIN(100, ch->real_abils.str_add + 10);
-               else 
-             ch->real_abils.str += 1;
-               ch->real_abils.con +=1;
-          break;
-       case CLASS_RANGER:
-          ch->real_abils.intel +=1;
-               ch->real_abils.dex +=1;
-          break;
-       case CLASS_THIEF:
-          ch->real_abils.intel +=1;
-               ch->real_abils.dex +=1;
-          break;
-       case CLASS_KNIGHT:
-          if (ch->real_abils.str == 18)
-             ch->real_abils.str_add = MIN(100, ch->real_abils.str_add + 10);
-               else 
-             ch->real_abils.str += 1;
-               ch->real_abils.wis +=1;
-          break;
-       case CLASS_PSIONIC:
-          ch->real_abils.intel +=1;
-          ch->real_abils.wis +=1;
-          break;
-       case CLASS_PHYSIC:
-          ch->real_abils.intel +=1;
-          ch->real_abils.wis +=1;
-          break;
-       case CLASS_CYBORG:
-          switch (GET_OLD_CLASS(ch)) {
-          case BORG_MENTANT:
-             ch->real_abils.intel +=1;
-             ch->real_abils.wis +=1;
-             break;       
-          case BORG_SPEED:
-             ch->real_abils.dex +=1;
-             ch->real_abils.intel +=1;
-                        break;
-          case BORG_POWER:
-             if (ch->real_abils.str == 18)
+        case RACE_ELF:
+        case RACE_DROW:
+            ch->real_abils.intel += 1;
+            ch->real_abils.dex += 1;
+            ch->real_abils.con -= 1;
+            break;
+        case RACE_DWARF:
+            ch->real_abils.con += 1;
+            if (ch->real_abils.str == 18) {
                 ch->real_abils.str_add = MIN(100, ch->real_abils.str_add + 10);
-                  else 
-                ch->real_abils.str +=1;
-             break;
-               default:
-                       break;
-               }
-          break;
-       case CLASS_HOOD:
-          ch->real_abils.dex +=1;
-          ch->real_abils.str +=1;
-          break;
-       case CLASS_MONK:
-          ch->real_abils.dex +=1;
-          ch->real_abils.wis +=1;
-          break;
-       case CLASS_MERCENARY:   
-          if (ch->real_abils.str == 18)
-             ch->real_abils.str_add = MIN(100, ch->real_abils.str_add + 10);
-               else 
-             ch->real_abils.str += 1;
-          ch->real_abils.dex +=1;
-          break;
-       default:
-          break;
+            } else {
+                ch->real_abils.str += 1;
+            }
+            ch->real_abils.cha -= 1;
+            break;
+        case RACE_HALF_ORC:
+            if (ch->real_abils.str == 18)
+                ch->real_abils.str_add = MIN(100, ch->real_abils.str_add + 10);
+            else ch->real_abils.str += 1;
+
+            if (ch->real_abils.str == 18)
+                ch->real_abils.str_add = MIN(100, ch->real_abils.str_add + 10);
+            else if (ch->real_abils.str < 18)
+                ch->real_abils.str += 1;
+
+            ch->real_abils.con += 1;
+            ch->real_abils.cha -= 3;
+            break;
+        case RACE_TABAXI:
+            ch->real_abils.dex  = MIN(20, ch->real_abils.dex + 3);
+            ch->real_abils.intel -= 1;
+            ch->real_abils.wis -= 3;
+            ch->real_abils.con += 1;
+            ch->real_abils.cha -= 2;
+            break;
+        case RACE_MINOTAUR:
+            ch->real_abils.intel -= 2;
+            ch->real_abils.wis -= 3;
+            ch->real_abils.con += 2;
+            ch->real_abils.cha -= 2;
+            ch->real_abils.str += 3;
+            if (ch->real_abils.str > 18) {
+                ch->real_abils.str_add += (ch->real_abils.str - 18) * 10;
+                if (ch->real_abils.str_add > 100) {
+                    ch->real_abils.str = MIN(20, 18+((ch->real_abils.str_add - 100) / 10));
+                    ch->real_abils.str_add = 0;
+                } else
+                    ch->real_abils.str = 18;
+            }
+            break;
+
+        case RACE_HUMAN:
+           switch (GET_CLASS(ch)) {
+           case CLASS_MAGIC_USER:
+              ch->real_abils.intel +=1;
+                   ch->real_abils.dex +=1;
+              break;
+           case CLASS_CLERIC:
+              ch->real_abils.intel +=1;
+                   ch->real_abils.wis +=1;
+              break;
+           case CLASS_BARB:
+              if (ch->real_abils.str == 18)
+                           ch->real_abils.str_add = MIN(100, ch->real_abils.str_add + 10);
+                   else 
+                 ch->real_abils.str += 1;
+                   ch->real_abils.con +=1;
+              break;
+           case CLASS_RANGER:
+              ch->real_abils.intel +=1;
+                   ch->real_abils.dex +=1;
+              break;
+           case CLASS_THIEF:
+              ch->real_abils.intel +=1;
+                   ch->real_abils.dex +=1;
+              break;
+           case CLASS_KNIGHT:
+              if (ch->real_abils.str == 18)
+                 ch->real_abils.str_add = MIN(100, ch->real_abils.str_add + 10);
+                   else 
+                 ch->real_abils.str += 1;
+                   ch->real_abils.wis +=1;
+              break;
+           case CLASS_PSIONIC:
+              ch->real_abils.intel +=1;
+              ch->real_abils.wis +=1;
+              break;
+           case CLASS_PHYSIC:
+              ch->real_abils.intel +=1;
+              ch->real_abils.wis +=1;
+              break;
+           case CLASS_CYBORG:
+              switch (GET_OLD_CLASS(ch)) {
+                  case BORG_MENTANT:
+                     ch->real_abils.intel +=1;
+                     ch->real_abils.wis +=1;
+                     break;       
+                  case BORG_SPEED:
+                     ch->real_abils.dex +=1;
+                     ch->real_abils.intel +=1;
+                                break;
+                  case BORG_POWER:
+                     if (ch->real_abils.str == 18)
+                        ch->real_abils.str_add = MIN(100, ch->real_abils.str_add + 10);
+                          else 
+                        ch->real_abils.str +=1;
+                     break;
+                       default:
+                               break;
+              }
+              break;
+           case CLASS_HOOD:
+              ch->real_abils.dex +=1;
+              ch->real_abils.str +=1;
+              break;
+           case CLASS_MONK:
+              ch->real_abils.dex +=1;
+              ch->real_abils.wis +=1;
+              break;
+           case CLASS_MERCENARY:   
+              if (ch->real_abils.str == 18)
+                 ch->real_abils.str_add = MIN(100, ch->real_abils.str_add + 10);
+                   else 
+                 ch->real_abils.str += 1;
+              ch->real_abils.dex +=1;
+              break;
+           default:
+              break;
        }
       break;
     }
