@@ -449,12 +449,12 @@ boot_db(void)
 
 	reset_q.head = reset_q.tail = NULL;
 
-	if (!mini_mud) {
-		slog("Booting houses.");
+    if( mini_mud ) {
+        slog("HOUSE: Mini-mud detected. Houses not loading.");
+	} else {
+		slog("HOUSE: Booting houses.");
 		Housing.load();
-
 		Housing.countObjects();
-
 	}
 
 	boot_time = time(0);
@@ -3482,7 +3482,7 @@ get_mail_file_path( long id )
 char*
 get_player_file_path( long id ) 
 {
-    return tmp_sprintf( "players/chars/%0ld/%ld.dat", (id % 10), id );
+    return tmp_sprintf( "players/character/%0ld/%ld.dat", (id % 10), id );
 }
 
 char*
@@ -3494,7 +3494,7 @@ get_account_file_path( long id )
 char*
 get_equipment_file_path( long id ) 
 {
-    return tmp_sprintf( "players/equip/%0ld/%ld.dat", (id % 10), id );
+    return tmp_sprintf( "players/equipment/%0ld/%ld.dat", (id % 10), id );
 }
 
 
