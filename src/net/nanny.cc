@@ -563,9 +563,6 @@ nanny(struct descriptor_data * d, char *arg)
 				SEND_TO_Q(CCYEL(d->character, C_NRM), d);
 				SEND_TO_Q("If this is not acceptable, you may change modes at any time.\r\n\r\n", d);
 				SEND_TO_Q(CCNRM(d->character, C_NRM), d);
-				// default settings
-				SET_BIT(PRF_FLAGS(d->character), PRF_COMPACT);
-				SET_BIT(PRF_FLAGS(d->character), PRF_NOSPEW);
 				break;
 			case 'n':
 			case 'N':
@@ -576,13 +573,14 @@ nanny(struct descriptor_data * d, char *arg)
 				return;
 			}
 
-			SET_BIT(PRF2_FLAGS(d->character), PRF2_LIGHT_READ |
-					PRF2_AUTOPROMPT | PRF2_NEWBIE_HELPER);
+			// default settings
+			SET_BIT(PRF_FLAGS(d->character), PRF_COMPACT | PRF_NOSPEW);
+			SET_BIT(PRF2_FLAGS(d->character), PRF2_AUTOPROMPT |
+				PRF2_NEWBIE_HELPER);
 			set_desc_state( CON_QSEX,d );
 			return;
 
 		case CON_QSEX:        // query sex of new user
-
 			if (is_abbrev(arg, "male"))
 				d->character->player.sex = SEX_MALE;
 			else if (is_abbrev(arg, "female"))
