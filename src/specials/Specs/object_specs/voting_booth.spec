@@ -11,7 +11,6 @@ struct voting_option {
 	char idx;
 	char *descrip;
 	int count;
-	long weight;
 };
 
 struct voting_poll {
@@ -19,7 +18,6 @@ struct voting_poll {
 	char *descrip;
 	time_t creation_time;
 	int count;
-	long weight;
 	struct voting_poll *next;
 	struct voting_option *options;
 	struct memory_rec_struct *memory;
@@ -48,12 +46,12 @@ voting_booth_save(void)
 
 	ouf = fopen("etc/voting.booth", "w");
 	for (poll = voting_poll_list; poll; poll = poll->next) {
-		fprintf(ouf, "# %ld %d %ld\n",
-			poll->creation_time, poll->count, poll->weight);
+		fprintf(ouf, "# %ld %d\n",
+			poll->creation_time, poll->count);
 		fprintf(ouf, "%s~\n", poll->header);
 		fprintf(ouf, "%s~\n", poll->descrip);
 		for (opt = poll->options; opt; opt = opt->next) {
-			fprintf(ouf, "O %d %ld\n", opt->count, opt->weight);
+			fprintf(ouf, "O %d\n", opt->count);
 			fprintf(ouf, "%s~\n", opt->descrip);
 		}
 		for (mem = poll->memory; mem; mem = mem->next) {
@@ -80,9 +78,9 @@ voting_booth_load(void)
 	while (fgets(buf, MAX_INPUT_LENGTH, inf)) {
 		if ('#' == buf[0]) {
 			CREATE(voting_new_poll, struct voting_poll, 1);
-			sscanf(buf, "# %ld %d %ld\n",
+			sscanf(buf, "# %ld %d\n",
 				&voting_new_poll->creation_time,
-				&voting_new_poll->count, &voting_new_poll->weight);
+				&voting_new_poll->count);
 			voting_new_poll->header = fread_string(inf, buf2);
 			voting_new_poll->descrip = fread_string(inf, buf2);
 			prev_opt = NULL;
@@ -95,7 +93,7 @@ voting_booth_load(void)
 			prev_poll = voting_new_poll;
 		} else if ('O' == buf[0]) {
 			CREATE(new_opt, struct voting_option, 1);
-			sscanf(buf, "O %d %ld", &new_opt->count, &new_opt->weight);
+			sscanf(buf, "O %d", &new_opt->count);
 			new_opt->descrip = fread_string(inf, buf2);
 			new_opt->idx = opt_idx++;
 			if (prev_opt)
@@ -154,14 +152,13 @@ voting_booth_read(Creature * ch, struct obj_data *obj, char *argument)
 	for (opt = poll->options; opt; opt = opt->next) {
 		if (GET_LEVEL(ch) >= LVL_AMBASSADOR) {
 			if (opt->count != poll->count)
-				msg = tmp_sprintf("%3d/%4ld (%2d%%/%2ld%%) %c) %s",
-					opt->count, opt->weight,
+				msg = tmp_sprintf("%3d (%2d%%) %c) %s",
+					opt->count,
 					((poll->count) ? ((opt->count * 100) / poll->count) : 0),
-					((poll->weight) ? ((opt->weight * 100) /
-							poll->weight) : 0), opt->idx, opt->descrip);
+					opt->idx, opt->descrip);
 			else
-				msg = tmp_sprintf("%3d/%4ld (all/all) %c) %s",
-					opt->count, opt->weight, opt->idx, opt->descrip);
+				msg = tmp_sprintf("%3d (all) %c) %s",
+					opt->count, opt->idx, opt->descrip);
 		} else if (memory && memory->id == ch->account->get_idnum()) {
 			if (opt->count != poll->count)
 				msg = tmp_sprintf("(%2d%%) %c) %s",
@@ -245,13 +242,7 @@ voting_booth_vote(Creature * ch, struct obj_data *obj, char *argument)
 	}
 
 	opt->count++;
-	opt->weight +=
-		GET_LEVEL(ch) + ((GET_LEVEL(ch) <
-			LVL_AMBASSADOR) ? (GET_REMORT_GEN(ch) * 50) : 0);
 	poll->count++;
-	poll->weight +=
-		GET_LEVEL(ch) + ((GET_LEVEL(ch) <
-			LVL_AMBASSADOR) ? (GET_REMORT_GEN(ch) * 50) : 0);
 
 	send_to_char(ch, "You have voted for %c) %s", opt->idx, opt->descrip);
 	act("$n votes on $P.", TRUE, ch, 0, obj, TO_ROOM);
@@ -371,7 +362,6 @@ voting_booth_write(Creature * ch, struct obj_data *obj, char *argument)
 	voting_new_poll->descrip = NULL;
 	voting_new_poll->creation_time = time(NULL);
 	voting_new_poll->count = 0;
-	voting_new_poll->weight = 0;
 	voting_new_poll->options = NULL;
 	voting_new_poll->memory = NULL;
 
@@ -431,7 +421,6 @@ voting_add_poll(void)
 					new_option->idx = opt_idx++;
 					new_option->descrip = str_dup(buf);
 					new_option->count = 0;
-					new_option->weight = 0;
 					new_option->next = NULL;
 					if (prev_option)
 						prev_option->next = new_option;
@@ -459,7 +448,6 @@ voting_add_poll(void)
 			new_option->idx = opt_idx++;
 			new_option->descrip = str_dup(buf);
 			new_option->count = 0;
-			new_option->weight = 0;
 			new_option->next = NULL;
 			if (prev_option)
 				prev_option->next = new_option;
@@ -490,7 +478,6 @@ voting_booth_init(void)
 	struct voting_option *cur_opt;
 	struct memory_rec_struct *cur_mem;
 	int vote_check;
-	long weight_check;
 	int poll_idx;
 
 	VOTING_CMD_READ = find_command("read");
@@ -513,16 +500,10 @@ voting_booth_init(void)
 			slog("ERROR: memory mismatch for voting booth %i", poll_idx);
 		}
 		vote_check = 0;
-		weight_check = 0;
-		for (cur_opt = cur_poll->options; cur_opt; cur_opt = cur_opt->next) {
+		for (cur_opt = cur_poll->options; cur_opt; cur_opt = cur_opt->next)
 			vote_check += cur_opt->count;
-			weight_check += cur_opt->weight;
-		}
 		if (vote_check != cur_poll->count) {
 			slog("ERROR: count mismatch for voting booth %i", poll_idx);
-		}
-		if (weight_check != cur_poll->weight) {
-			slog("ERROR: weight mismatch for voting booth %i", poll_idx);
 		}
 	}
 }
