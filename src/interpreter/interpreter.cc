@@ -2166,6 +2166,7 @@ nanny(struct descriptor_data * d, char *arg)
     extern struct room_data * r_dwarven_caverns_start_room;
     extern struct room_data * r_human_square_start_room;
     extern struct room_data * r_skullport_start_room;
+    extern struct room_data * r_skullport_newbie_start_room;
     extern struct room_data * r_drow_isle_start_room;
     extern struct room_data * r_astral_manse_start_room;
     extern struct room_data * r_zul_dane_start_room;
@@ -3145,6 +3146,8 @@ nanny(struct descriptor_data * d, char *arg)
                             load_room = r_city_start_room;
                         else if (GET_HOME(d->character) == HOME_MONK)
                             load_room = r_monk_start_room;
+                        else if (GET_HOME(d->character) == HOME_SKULLPORT_NEWBIE)
+                            load_room = r_skullport_newbie_start_room;
                         else if (GET_HOME(d->character) == HOME_SOLACE_COVE)
                             load_room = r_solace_start_room;
                         else if (GET_HOME(d->character) == HOME_MAVERNAL)

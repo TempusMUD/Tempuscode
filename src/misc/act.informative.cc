@@ -3124,14 +3124,11 @@ ACMD(do_who)
 			 !strncmp(GET_NAME(tch), "Generic", 7)  ? "GENERIC" : 
 			 !strncmp(GET_NAME(tch), "Ska", 3)      ? "  LADY " : 
 			 !strncmp(GET_NAME(tch), "Shiva", 5)    ? " DEATH " : 
-			 !strncmp(GET_NAME(tch), "Sarflin", 7)  ? "MOONMAN" : 
-			 !strncmp(GET_NAME(tch), "PLAYBOY", 7)  ? "STUDMAN" : 
 			 !strncmp(GET_NAME(tch), "Joran", 5)    ? "OVRLORD" :
 			 !strncmp(GET_NAME(tch), "Smitty", 6)   ? "FOREMAN" :
 			 !strncmp(GET_NAME(tch), "Dogma", 5)    ? "FOREMAN" :
 			 !strncmp(GET_NAME(tch), "Stryker", 7)  ? "CODEMAN" :
 			 !strncmp(GET_NAME(tch), "Forget", 6)   ? " CODER " :
-			 !strncmp(GET_NAME(tch), "Darth", 5)    ? " CHAOS " :
 			 LEV_ABBR(tch)),  CCYEL_BLD(ch, C_NRM), CCNRM(ch, C_NRM),
 			PRF2_FLAGGED(tch, PRF2_NOWHO) ? nowho_buf : "",
 			CCGRN(ch, C_NRM), 

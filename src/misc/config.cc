@@ -134,6 +134,7 @@ room_num dwarven_caverns_start_room = 22809;
 room_num human_square_start_room = 22898;
 room_num skullport_start_room = 22873;
 room_num drow_isle_start_room = 22727;
+room_num skullport_newbie_start_room = 23100;
 room_num zul_dane_newbie_start_room  = 53306;
 room_num zul_dane_start_room  = 53172;
 

@@ -188,7 +188,8 @@
 #define HOME_HUMAN_SQUARE    17
 #define HOME_DROW_ISLE       18
 #define HOME_ASTRAL_MANSE    19
-#define NUM_HOMETOWNS        20
+#define HOME_SKULLPORT_NEWBIE 20
+#define NUM_HOMETOWNS        21
 
 /* Deity Defines                */
 #define DEITY_NONE        0
