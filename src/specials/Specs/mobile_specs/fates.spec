@@ -122,7 +122,7 @@ SPECIAL(fate)
 		}
 		skip_spaces(&roomlist_buf);
 	}
-	delete roomlist_buf_top;
+	delete [] roomlist_buf_top;
 	// Didnt find any rooms. :P
 	if(!roomlist) {
 		do_say(fate,"Hmm... Where should I go to next?",0,0);
