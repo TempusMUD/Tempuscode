@@ -447,6 +447,9 @@ npc_steal(struct char_data * ch, struct char_data * victim)
 {
     struct obj_data *obj = NULL;
 
+    if(ch->getPosition() < POS_STANDING)
+        return;
+
     if (GET_LEVEL(victim) >= LVL_AMBASSADOR)
 	return;
 

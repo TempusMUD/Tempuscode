@@ -669,11 +669,25 @@ choose_random_limb( CHAR *victim ) {
 
     return i;
 }  
+
 // 
 // the check for PRF2_KILLER is rolled into here for increased ( un )coherency.
 // since this is called before any attack/damage/etc... its a good place to check the flag  
 int peaceful_room_ok( struct char_data *ch, struct char_data *vict, bool mssg )
 {
+    if ( vict->isNewbie() && !PLR_FLAGGED( vict, PLR_TOUGHGUY ) &&
+    IS_PC(ch) && GET_LEVEL( ch ) < LVL_IMMORT ) {
+         if(mssg) {
+            act( "$N is currently under new character protection.",
+             FALSE, ch, 0, vict, TO_CHAR );
+            act( "You are protected by the gods against $n's attack!",
+             FALSE, ch, 0, vict, TO_VICT );
+         }
+         sprintf( buf, "%s protected against %s [peaceful room check] at %d\n",
+             GET_NAME( vict ), GET_NAME( ch ), vict->in_room->number );
+         slog( buf );
+         return 0;
+    }
     if ( vict && IS_SET( ROOM_FLAGS( ch->in_room ), ROOM_PEACEFUL ) && 
          !PLR_FLAGGED( vict, PLR_KILLER ) && GET_LEVEL( ch ) < LVL_GRGOD && 
      !( PLR_FLAGGED(ch, PLR_KILLER) && FIGHTING(vict) == ch)

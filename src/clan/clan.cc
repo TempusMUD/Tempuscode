@@ -115,7 +115,7 @@ ACMD(do_enroll)
 	    send_to_char("The max number of members has been reached for this clan.\r\n", ch);
 	    return;
 	}
-
+    REMOVE_BIT(PLR_FLAGS(vict),PLR_CLAN_LEADER);
 	sprintf(buf, "You have been inducted into clan %s by %s!\r\n", 
 		clan->name, GET_NAME(ch));
 	send_to_char(buf, vict);
