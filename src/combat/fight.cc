@@ -336,21 +336,23 @@ group_gain(struct char_data *ch, struct char_data *victim)
 	CharacterList::iterator it = ch->in_room->people.begin();
 	for (; it != ch->in_room->people.end(); ++it) {
 		if (AFF_FLAGGED((*it), AFF_GROUP) && ((*it) == leader
-				|| leader == (*it)->master)) {
-			total_levs +=
-				GET_LEVEL((*it)) +
-				(IS_NPC((*it)) ? 0 : GET_REMORT_GEN((*it)) << 3);
-			if (!IS_NPC((*it)))
+		|| leader == (*it)->master)) 
+		{
+			total_levs = GET_LEVEL((*it));
+			if( IS_PC(*it) ) {
+				total_levs += GET_REMORT_GEN((*it)) << 3;
 				total_pc_mems++;
+			}
 		}
 	}
 	it = ch->in_room->people.begin();
 	for (; it != ch->in_room->people.end(); ++it) {
 		if (AFF_FLAGGED((*it), AFF_GROUP) && ((*it) == leader
-				|| leader == (*it)->master)) {
-			mult =
-				(float)GET_LEVEL((*it)) +
-				(IS_NPC((*it)) ? 0 : GET_REMORT_GEN((*it)) << 3);
+			|| leader == (*it)->master)) 
+		{
+			mult = (float)GET_LEVEL((*it));
+			if( IS_PC )
+				mult += (float)GET_REMORT_GEN((*it)) << 3;
 			mult /= (float)total_levs;
 
 			if (total_pc_mems) {
@@ -382,11 +384,10 @@ perform_gain_kill_exp(struct char_data *ch, struct char_data *victim,
 
 	/* Calculate level-difference bonus */
 	if (IS_NPC(ch))
-		exp += MAX(0, (exp * MIN(4, (GET_LEVEL(victim) -
-						GET_LEVEL(ch)))) >> 3);
+		exp += MAX(0, (exp * MIN(4, (GET_LEVEL(victim) - GET_LEVEL(ch)))) >> 3);
 	else
-		exp += MAX(0, (exp * MIN(8, (GET_LEVEL(victim) -
-						GET_LEVEL(ch)))) >> 3);
+		exp += MAX(0, (exp * MIN(8, (GET_LEVEL(victim) - GET_LEVEL(ch)))) >> 3);
+
 	exp = MAX(exp, 1);
 	exp = MIN(max_exp_gain, exp);
 
@@ -410,8 +411,9 @@ perform_gain_kill_exp(struct char_data *ch, struct char_data *victim,
 
 	exp = ch->getPenalizedExperience( exp, victim );
 
-	if (IS_NPC(victim) && !IS_NPC(ch) &&
-		(GET_EXP(victim) < 0 || exp > 5000000)) {
+	if (IS_NPC(victim) && !IS_NPC(ch) 
+	&& (GET_EXP(victim) < 0 || exp > 5000000)) 
+	{
 		sprintf(buf, "%s Killed %s( %d ) for exp: %d.", GET_NAME(ch),
 			GET_NAME(victim), GET_EXP(victim), exp);
 		slog(buf);

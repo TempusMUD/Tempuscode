@@ -47,31 +47,37 @@ bool char_data::isTester(){
 int char_data::getPenalizedExperience( int experience, char_data *victim = NULL ) 
 {
 
-	if( IS_NPC(this) || !IS_REMORT(this) )
+	// Mobs are easily trained
+	if( IS_NPC(this) )
 		return experience;
-
-	if( player_specials->saved.remort_generation <= 0
-	||  player_specials->saved.remort_generation > 10 ) {
-		return experience;
+	// Immortals are not
+	if(  getLevel() >= LVL_AMBASSADOR ) {
+		return 0;
 	}
-	// Slow remorts down a little.  
-	// This algorithm should yied 60 percent gain at gen 1
-	// and 10 percent gain at gen 10. LK 1/22/02
-	int modified_xp = (experience * (getLevelBonus(true) - 10)) / 100;
 
 	// good clerics & knights penalized for killing good
 	if (victim != NULL) {
+		if( IS_GOOD(this) && IS_GOOD(victim) 
+			&& (IS_CLERIC(this) || IS_KNIGHT(this)) ) 
+		{
+			experience /= 2;
+		}
 
-		if( IS_GOOD(this) && IS_GOOD(victim)
-		&& (IS_CLERIC(this) || IS_KNIGHT(this)) ) {
-			modified_xp /= 2;
-		}
-		if( victim->getLevel() >= LVL_AMBASSADOR 
-		||  getLevel() >= LVL_AMBASSADOR ) {
-			modified_xp = 0;
-		}
+		if( victim->getLevel() >= LVL_AMBASSADOR )
+			return 0;
 	}
-	return modified_xp;
+
+	// Slow remorts down a little.  
+	// This algorithm should yied 60 percent gain at gen 1 level 49
+	// and 10 percent gain at gen 10 level 49. LK 1/22/02
+	if( IS_REMORT(this) ) {
+		int levelBonus = MAX(0, getLevelBonus(true) - 5 );
+		// just to be sure it isn't rounded
+		float multiplier = levelBonus / 100; 
+		experience -= modified * multiplier;
+	}
+
+	return experience;
 }
 
 void
