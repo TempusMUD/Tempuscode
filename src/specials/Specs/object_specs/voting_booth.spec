@@ -72,6 +72,7 @@ voting_booth_load(void) {
 	struct voting_option *new_opt,*prev_opt = NULL;
 	struct memory_rec_struct *new_mem,*prev_mem = NULL;
 	FILE *inf;
+	int opt_idx;
 
 	inf = fopen("etc/voting.booth","r");
 	if (!inf) {
@@ -89,6 +90,7 @@ voting_booth_load(void) {
 			voting_new_poll->descrip = fread_string(inf, buf2);
 			prev_opt = NULL;
 			prev_mem = NULL;
+			opt_idx = 0;
 			if (prev_poll)
 				prev_poll->next = voting_new_poll;
 			else
@@ -100,6 +102,7 @@ voting_booth_load(void) {
 				&new_opt->count,
 				&new_opt->weight);
 			new_opt->descrip = fread_string(inf, buf2);
+			new_opt->idx = ++opt_idx;
 			if (prev_opt)
 				prev_opt->next = new_opt;
 			else
@@ -125,7 +128,7 @@ voting_booth_read(char_data *ch, struct obj_data *obj, char *argument) {
 	struct voting_poll *poll;
 	struct voting_option *opt;
 	struct memory_rec_struct *memory;
-	int poll_num,opt_idx;
+	int poll_num;
 
 	skip_spaces(&argument);
 
@@ -150,21 +153,19 @@ voting_booth_read(char_data *ch, struct obj_data *obj, char *argument) {
 		memory = memory->next;
 
 	send_to_char(poll->descrip,ch);
-	opt_idx = 0;
 	for (opt = poll->options;opt;opt = opt->next) {
-		opt_idx++;
 		if (GET_LEVEL(ch) >= LVL_AMBASSADOR) {
 			sprintf(buf, "%d/%ld (%3d%%/%3ld%%) %d) %s",
 				opt->count,opt->weight,
 				((poll->count) ? ((opt->count * 100)/poll->count):0),
 				((poll->weight) ? ((opt->weight * 100)/poll->weight):0),
-				opt_idx,opt->descrip);
+				opt->idx,opt->descrip);
 		} else if (memory && memory->id == GET_IDNUM(ch)) {
 			sprintf(buf, "(%3d%%) %d) %s",
 				((poll->count) ? ((opt->count * 100)/poll->count):0),
-				opt_idx,opt->descrip);
+				opt->idx,opt->descrip);
 		} else
-			sprintf(buf, "      %d) %s",opt_idx,opt->descrip);
+			sprintf(buf, "      %d) %s",opt->idx,opt->descrip);
 		send_to_char(buf, ch);
 	}
 }
@@ -227,7 +228,7 @@ voting_booth_vote(char_data *ch, struct obj_data *obj, char *argument) {
 	}
 
 	opt = poll->options;
-	while (opt && --answer)
+	while (opt && opt->idx != answer)
 		opt = opt->next;
 
 	if ( !opt ) {
