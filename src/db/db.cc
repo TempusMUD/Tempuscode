@@ -2498,11 +2498,43 @@ void
 log_zone_error(struct zone_data *zone, struct reset_com *zonecmd,
 	char *message)
 {
-	mudlog(LVL_IMMORT, (mini_mud) ? CMP : NRM, true,
-		"SYSERR: error in zone file: %s", message);
-	mudlog(LVL_IMMORT, (mini_mud) ? CMP : NRM, true,
-		"SYSERR: ...offending cmd: '%c' cmd in zone #%d, line %d",
-		zonecmd->command, zone->number, zonecmd->line);
+	struct descriptor_data *d;
+	bool display;
+
+	// Log the error to file first
+	slog("SYSERR: Zone #%d: %s (cmd %c, number %d)",
+		zone->number, message, zonecmd->command, zonecmd->line);
+
+	for (d = descriptor_list;d;d = d->next) {
+		// Only playing immortals can see zone errors
+		if (!IS_PLAYING(d) || GET_LEVEL(d->creature) < 50)
+			continue;
+
+		// Zone owners get to see them
+		display = GET_IDNUM(d->creature) == zone->owner_idnum;
+
+		// Zone co-owners also get to see them
+		if (!display)
+			display = GET_IDNUM(d->creature) == zone->co_owner_idnum;
+
+		// Relevant architects also get to see them.
+		if (!display) {
+			if (zone->time_frame == TIME_MODRIAN)
+				display = d->creature->player_specials->saved.occupation == 5;
+			else if (zone->time_frame == TIME_ELECTRO)
+				display = d->creature->player_specials->saved.occupation == 6;
+			else
+				display = d->creature->player_specials->saved.occupation == 7;
+		}
+
+		// Immortals within the zone see them
+		if (!display && d->creature->in_room)
+			display = d->creature->in_room->zone == zone;
+
+		if (display)
+			send_to_desc(d, "&yZone #%d: %s (cmd %c, number %d)&n\r\n",
+				zone->number, message, zonecmd->command, zonecmd->line);
+	}
 }
 
 #define ZONE_ERROR(message) \
