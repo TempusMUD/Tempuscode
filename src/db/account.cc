@@ -13,6 +13,7 @@
 #include "comm.h"
 #include "security.h"
 #include "clan.h"
+#include "handler.h"
 
 const char *ansi_levels[] = {
 	"none",
@@ -385,7 +386,14 @@ Account::delete_char(Creature *ch)
 {
 	vector<long>::iterator it;
 	clan_data *clan;
+	Creature *real_ch;
 
+	// Remove character from game
+	real_ch = get_char_in_world_by_idnum(GET_IDNUM(ch));
+	if (real_ch) {
+		send_to_char(real_ch, "This character has been deleted!  Goodbye!\r\n");
+		real_ch->purge(false);
+	}
 	// Remove character from clan
 	clan = real_clan(GET_CLAN(ch));
 	if (clan) {
@@ -413,6 +421,7 @@ Account::delete_char(Creature *ch)
 
 	// Remove character from player index
 	playerIndex.remove(GET_IDNUM(ch));
+
 }
 
 bool
