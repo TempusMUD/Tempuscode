@@ -371,7 +371,7 @@ void burn_update(void) {
             // Sect types that don't have oxygen
             //
         
-            if( SECT_TYPE( ch->in_room ) == SECT_ELEMENTAL_EARTH || 
+            if(// SECT_TYPE( ch->in_room ) == SECT_ELEMENTAL_EARTH || 
                 SECT_TYPE( ch->in_room ) == SECT_FREESPACE ) {
                 send_to_char("The flames on your body die in the absence of oxygen.\r\n", ch );
                 act("The flames on $n die in the absence of oxygen.", FALSE, ch, 0, 0, TO_ROOM );
@@ -461,8 +461,9 @@ void burn_update(void) {
         if ((SECT_TYPE(ch->in_room) == SECT_UNDERWATER ||
              SECT_TYPE(ch->in_room) == SECT_PITCH_SUB ||
              SECT_TYPE(ch->in_room) == SECT_WATER_NOSWIM || 
-             SECT_TYPE(ch->in_room) == SECT_FREESPACE ||
-             SECT_TYPE(ch->in_room) == SECT_ELEMENTAL_EARTH) &&
+             SECT_TYPE(ch->in_room) == SECT_FREESPACE 
+            // || SECT_TYPE(ch->in_room) == SECT_ELEMENTAL_EARTH
+             ) &&
             !can_travel_sector(ch, SECT_TYPE(ch->in_room), 1) &&
             !ROOM_FLAGGED(ch->in_room, ROOM_DOCK) && 
             GET_LEVEL(ch) < LVL_AMBASSADOR) {
