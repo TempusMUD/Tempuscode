@@ -2629,7 +2629,7 @@ find_all_dots(char *arg)
 	if (!strcmp(arg, "all"))
 		return FIND_ALL;
 	else if (!strncmp(arg, "all.", 4)) {
-		strcpy(arg, arg + 4);
+	  memmove(arg, arg + 4, strlen(arg) - 3);
 		return FIND_ALLDOT;
 	} else
 		return FIND_INDIV;
