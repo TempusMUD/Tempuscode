@@ -335,7 +335,7 @@ ACMD(do_olc)
 	char mode_arg[MAX_INPUT_LENGTH];
 	char arg1[MAX_INPUT_LENGTH], arg2[MAX_INPUT_LENGTH];
 	int olc_command;
-	room_num vnum;
+	room_num vnum = -1;
 	struct room_data *rnum, *room;
 	int edir;
 	int i = 0, j, k;
