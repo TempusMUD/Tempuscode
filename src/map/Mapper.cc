@@ -427,7 +427,7 @@ Mapper::drawLink(room_data * s,	// Source Room
 
 	return;
 }
-const static int mapBits[] = { 1, 2, 4, 8, 16, 32, 64, 128, 256, 512 };
+static const int mapBits[] = { 1, 2, 4, 8, 16, 32, 64, 128, 256, 512 };
 
 static inline bool
 MAPPED(room_data * mappedRoom, int mappedDirection)
