@@ -548,6 +548,21 @@ Account::invalid_char_index(int idx)
 }
 
 void
+Account::move_char(long id, Account *dest)
+{
+	vector<long>::iterator it;
+
+	// Remove character from account
+	it = lower_bound(_chars.begin(), _chars.end(), id);
+	if (it != _chars.end())
+		_chars.erase(it);
+
+	dest->_chars.push_back(id);
+	save_to_xml();
+	dest->save_to_xml();
+}
+
+void
 Account::exhume_char( Creature *exhumer, long id )
 {
 	if( playerIndex.exists(id) ) {
