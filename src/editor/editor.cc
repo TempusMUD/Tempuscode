@@ -1015,6 +1015,11 @@ void CTextEditor::RemRecipient(char* name) {
         prev = cur;
         cur = cur->next;
     }
+    // If the name isn't in the recipient list
+    if(!cur) {
+        SendMessage("You can't remove someone who's not on the list genious.\r\n");
+        return;
+    }
     // Link around the recipient to be removed.
     prev->next = cur->next;
     free(cur);
