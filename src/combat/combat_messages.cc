@@ -957,75 +957,78 @@ skill_message( int dam, struct char_data * ch, struct char_data * vict,
 	return 1;
 
     for ( i = 0; i < MAX_MESSAGES; i++ ) {
-	if ( fight_messages[i].a_type == attacktype ) {
-	    nr = dice( 1, fight_messages[i].number_of_attacks );
-	    for ( j = 1, msg = fight_messages[i].msg; ( j < nr ) && msg; j++ )
-		msg = msg->next;
-      
-	    /*      if ( attacktype == TYPE_SLASH ) {
-		    sprintf( buf, "slash [%d]\r\n", nr );
-		    send_to_char( buf, ch );
-		    }*/
-	    if ( attacktype == TYPE_SLASH && nr == 1 && !isname( "headless", vict->player.name ) )
-		corpse_state = SKILL_BEHEAD;
-	    else
-		corpse_state = 0;
+        if ( fight_messages[i].a_type == attacktype ) {
+            nr = dice( 1, fight_messages[i].number_of_attacks );
+            for ( j = 1, msg = fight_messages[i].msg; ( j < nr ) && msg; j++ )
+            msg = msg->next;
+          
+            /*      if ( attacktype == TYPE_SLASH ) {
+                sprintf( buf, "slash [%d]\r\n", nr );
+                send_to_char( buf, ch );
+                }*/
+            if ( attacktype == TYPE_SLASH && nr == 1 && !isname( "headless", vict->player.name ) )
+            corpse_state = SKILL_BEHEAD;
+            else
+            corpse_state = 0;
 
-	    if ( !IS_NPC( vict ) && GET_LEVEL( vict ) >= LVL_AMBASSADOR && 
-		 ( !PLR_FLAGGED( vict, PLR_MORTALIZED ) || dam == 0 ) ) {
-		act( msg->god_msg.attacker_msg, FALSE, ch, weap, vict, TO_CHAR );
-		act( msg->god_msg.victim_msg, FALSE, ch, weap, vict, TO_VICT );
-		act( msg->god_msg.room_msg, FALSE, ch, weap, vict, TO_NOTVICT );
-	    } else if ( dam != 0 ) {
-		if ( GET_POS( vict ) == POS_DEAD ) {
-		    if ( ch ) {
-			send_to_char( CCYEL( ch, C_NRM ), ch );
-			act( msg->die_msg.attacker_msg, FALSE, ch, weap, vict, TO_CHAR );
-			send_to_char( CCNRM( ch, C_NRM ), ch );
+            if ( !IS_NPC( vict ) && GET_LEVEL( vict ) >= LVL_AMBASSADOR && 
+             ( !PLR_FLAGGED( vict, PLR_MORTALIZED ) || dam == 0 ) ) {
+                act( msg->god_msg.attacker_msg, FALSE, ch, weap, vict, TO_CHAR );
+                act( msg->god_msg.victim_msg, FALSE, ch, weap, vict, TO_VICT );
+                act( msg->god_msg.room_msg, FALSE, ch, weap, vict, TO_NOTVICT );
+            } else if ( dam != 0 ) {
+                if ( GET_POS( vict ) == POS_DEAD ) {
 
-			act( msg->die_msg.room_msg, FALSE, ch, weap, vict, TO_NOTVICT );
-		    }
+                    if ( ch ) { 
+                        act( msg->die_msg.room_msg, FALSE, ch, weap, vict, TO_NOTVICT );
+                        if(ch != vict) {
+                            send_to_char( CCYEL( ch, C_NRM ), ch );
+                            act( msg->die_msg.attacker_msg, FALSE, ch, weap, vict, TO_CHAR );
+                            send_to_char( CCNRM( ch, C_NRM ), ch );
+                        }
 
-		    send_to_char( CCRED( vict, C_NRM ), vict );
-		    act( msg->die_msg.victim_msg, FALSE, ch, weap, vict, TO_VICT | TO_SLEEP );
-		    send_to_char( CCNRM( vict, C_NRM ), vict );
+                    }
 
-		} else {
-		    if ( ch ) {
-			send_to_char( CCYEL( ch, C_NRM ), ch );
-			act( msg->hit_msg.attacker_msg, FALSE, ch, weap, vict, TO_CHAR );
-			send_to_char( CCNRM( ch, C_NRM ), ch );
+                    send_to_char( CCRED( vict, C_NRM ), vict );
+                    act( msg->die_msg.victim_msg, FALSE, ch, weap, vict, TO_VICT | TO_SLEEP );
+                    send_to_char( CCNRM( vict, C_NRM ), vict );
 
-			act( msg->hit_msg.room_msg, FALSE, ch, weap, vict, TO_NOTVICT );
-		    }
+                } else {
+                    if ( ch ) {
+                        act( msg->hit_msg.room_msg, FALSE, ch, weap, vict, TO_NOTVICT );
+                        if(ch != vict) {
+                            send_to_char( CCYEL( ch, C_NRM ), ch );
+                            act( msg->hit_msg.attacker_msg, FALSE, ch, weap, vict, TO_CHAR );
+                            send_to_char( CCNRM( ch, C_NRM ), ch );
+                        }
+                    }
 
-		    send_to_char( CCRED( vict, C_NRM ), vict );
-		    act( msg->hit_msg.victim_msg, FALSE, ch, weap, vict, TO_VICT | TO_SLEEP );
-		    send_to_char( CCNRM( vict, C_NRM ), vict );
+                    send_to_char( CCRED( vict, C_NRM ), vict );
+                    act( msg->hit_msg.victim_msg, FALSE, ch, weap, vict, TO_VICT | TO_SLEEP );
+                    send_to_char( CCNRM( vict, C_NRM ), vict );
 
-		}
-	    } else if ( ch != vict ) {	/* Dam == 0 */
-		if ( ch && !PRF_FLAGGED( ch, PRF_GAGMISS ) ) {
-		    send_to_char( CCYEL( ch, C_NRM ), ch );
-		    act( msg->miss_msg.attacker_msg, FALSE, ch, weap, vict, TO_CHAR );
-		    send_to_char( CCNRM( ch, C_NRM ), ch );
+                }
+            } else if ( ch != vict ) {	/* Dam == 0 */
+                if ( ch && !PRF_FLAGGED( ch, PRF_GAGMISS ) ) {
+                    send_to_char( CCYEL( ch, C_NRM ), ch );
+                    act( msg->miss_msg.attacker_msg, FALSE, ch, weap, vict, TO_CHAR );
+                    send_to_char( CCNRM( ch, C_NRM ), ch );
 
-		    act( msg->miss_msg.room_msg, FALSE, ch, weap, vict, TO_NOTVICT );
-		}
+                    act( msg->miss_msg.room_msg, FALSE, ch, weap, vict, TO_NOTVICT );
+                }
 
-		if ( !PRF_FLAGGED( vict, PRF_GAGMISS ) ) {
-		    send_to_char( CCRED( vict, C_NRM ), vict );
-		    act( msg->miss_msg.victim_msg, FALSE, ch, weap, vict, 
-			 TO_VICT | TO_SLEEP );
-		    send_to_char( CCNRM( vict, C_NRM ), vict );
-		}
+                if ( !PRF_FLAGGED( vict, PRF_GAGMISS ) ) {
+                    send_to_char( CCRED( vict, C_NRM ), vict );
+                    act( msg->miss_msg.victim_msg, FALSE, ch, weap, vict, 
+                     TO_VICT | TO_SLEEP );
+                    send_to_char( CCNRM( vict, C_NRM ), vict );
+                }
+            }
+            if ( BLOODLET( vict, dam, attacktype ) )
+            blood_spray( ch, vict, dam, attacktype );
 
-	    }
-	    if ( BLOODLET( vict, dam, attacktype ) )
-		blood_spray( ch, vict, dam, attacktype );
-
-	    return 1;
-	}
+            return 1;
+        }
     }
     return 0;
 }

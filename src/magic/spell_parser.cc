@@ -284,7 +284,7 @@ const char *spells[] =
     "densify",	/* 320 */
     "chemical stability", 
     "entropy field", 
-    "!UNUSED!",
+    "gravity well",
     "capacitance boost", 
     "!UNUSED!",	/* 325 */
     "!UNUSED!", "!UNUSED!",
@@ -848,12 +848,21 @@ call_magic(struct char_data * caster, struct char_data * cvict,
     }
     if ((ROOM_FLAGGED(caster->in_room, ROOM_NOSCIENCE)) &&
 	SPELL_IS_PHYSICS(spellnum)) {
-	send_to_char("You are unable to alter physical reality in this space.\r\n",
-		     caster);
-	act("$n tries to solve an elaborate equation, but fails.", 
-	    FALSE, caster, 0, 0, TO_ROOM);
-	return 0;
+        send_to_char("You are unable to alter physical reality in this space.\r\n",
+                 caster);
+        act("$n tries to solve an elaborate equation, but fails.", 
+            FALSE, caster, 0, 0, TO_ROOM);
+        return 0;
     }
+    if(SPELL_USES_GRAVITY(spellnum) && NOGRAV_ZONE(caster->in_room->zone) &&
+    SPELL_IS_PHYSICS(spellnum)) {
+        send_to_char("There is no gravity here to alter.\r\n",
+                 caster);
+        act("$n tries to solve an elaborate equation, but fails.", 
+            FALSE, caster, 0, 0, TO_ROOM);
+        return 0;
+    }
+
 
     /* stuff to check caster vs. cvict */
     if (cvict && caster != cvict) {
@@ -2892,6 +2901,10 @@ mag_assign_spells(void)
 
     spello(SPELL_GAMMA_RAY, X, X, X, X, X, X, 25, X, X, X, X, X, X,X,X,X,X, 
 	   100, 50, 2, POS_SITTING, TAR_CHAR_ROOM | TAR_FIGHT_VICT, TRUE, 
+	   MAG_PHYSICS | MAG_DAMAGE | MAG_AFFECTS );
+
+    spello(SPELL_GRAVITY_WELL, X, X, X, X, X, X, 43, X, X, X, X, X, X,X,X,X,X, 
+	   130, 70, 4, POS_SITTING, TAR_CHAR_ROOM | TAR_FIGHT_VICT, TRUE, 
 	   MAG_PHYSICS | MAG_DAMAGE | MAG_AFFECTS );
 
     spello(SPELL_HALFLIFE, X, X, X, X, X, X, 30, X, X, X, X, X, X,X,X,X,X,

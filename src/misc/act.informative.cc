@@ -569,6 +569,10 @@ show_trailers_to_char(struct char_data *ch, struct char_data *i)
 	    act("...$e is hopelessly entangled in the undergrowth!", 
 		FALSE,i,0,ch,TO_VICT);
     }
+    if(IS_AFFECTED_3(ch,AFF3_GRAVITY_WELL)) {
+        act("...Spacetime bends around $e in a powerful gravity well!",
+        FALSE,i,0,ch,TO_VICT);
+    }
 
     if (IS_AFFECTED_2(i, AFF2_DISPLACEMENT)) {
 	if ( affected_by_spell( i, SPELL_REFRACTION ) )
@@ -2276,6 +2280,8 @@ print_affs_to_string(struct char_data *ch, char *str, byte mode)
 	       "You are surrounded by an magical obscurement shroud.\r\n");
     if (IS_SICK(ch))
 	strcat(str, "You are afflicted with a terrible sickness!\r\n");
+    if (IS_AFFECTED_3(ch, AFF3_GRAVITY_WELL))
+    strcat (str, "Spacetime is bent around you in a powerful gravity well!\r\n");
 	if (IS_AFFECTED_3(ch, AFF3_HAMSTRUNG)){
 		char tempstr[128];
 		tempstr[0] = '\0';

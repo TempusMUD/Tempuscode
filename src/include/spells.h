@@ -79,6 +79,8 @@ extern const char *spells[];
 #define SPELL_IS_EVIL(splnm)    IS_SET(spell_info[splnm].routines, MAG_EVIL)
 #define SPELL_IS_GOOD(splnm)    IS_SET(spell_info[splnm].routines, MAG_GOOD)
 
+#define SPELL_USES_GRAVITY(splnm) (splnm == SPELL_GRAVITY_WELL)
+
 #define SPELL_FLAGS(splnm)     (spell_info[splnm].routines)
 #define SPELL_FLAGGED(splnm, flag) (IS_SET(SPELL_FLAGS(splnm), flag))
  
@@ -305,7 +307,7 @@ extern const char *spells[];
 #define SPELL_DENSIFY              320  // increase weight of obj & char
 #define SPELL_CHEMICAL_STABILITY   321  // prevent/stop acidity
 #define SPELL_ENTROPY_FIELD        322  // drains move on victim (time effect)
-#define SPELL_GRAV_TRAP            323  // time effect crushing damage
+#define SPELL_GRAVITY_WELL         323  // time effect crushing damage
 #define SPELL_CAPACITANCE_BOOST    324  // increase maxmv
 #define SPELL_ELECTRIC_ARC         325  // lightning bolt
 #define SPELL_SONIC_BOOM           326  // area damage + wait state
@@ -627,7 +629,8 @@ extern const char *spells[];
 
 #define TOP_ATTACKTYPE               819
 /* new attack types can be added here - up to TYPE_SUFFERING */
-#define TYPE_SUFFOCATING              895
+#define TYPE_PRESSURE                894
+#define TYPE_SUFFOCATING             895
 #define TYPE_ANGUISH				 896 // Unholy compact etc.
 #define TYPE_BLEED					 897 // Open wound
 #define TYPE_OVERLOAD				 898 // cyborg overloading systems.

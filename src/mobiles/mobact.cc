@@ -134,6 +134,19 @@ void burn_update(void) {
         send_to_char("You can no longer fly!\r\n", ch);
         GET_POS(ch) = POS_STANDING;
     }
+    if(IS_AFFECTED_3(ch,AFF3_GRAVITY_WELL) && GET_POS(ch) == POS_FLYING &&
+         (  !ch->in_room->dir_option[DOWN] 
+            || !ch->in_room->isOpenAir() ||
+            IS_SET(ch->in_room->dir_option[DOWN]->exit_info, EX_CLOSED)
+         ) &&
+         !NOGRAV_ZONE(ch->in_room->zone)) {
+        send_to_char("You are slammed to the ground by the inexhorable force of gravity!\r\n",ch);
+        act("$N is slammed to the ground by the inexhorable force of gravity!\r\n",
+            TRUE, ch,0,0,TO_ROOM);
+        GET_POS(ch) = POS_RESTING;
+        if(damage(NULL, ch, dice(6,5), TYPE_FALLING, WEAR_RANDOM)) 
+            continue;
+    }
 
     // character is in open air
     if ( ch->in_room->dir_option[DOWN] &&
@@ -144,7 +157,7 @@ void burn_update(void) {
          !NOGRAV_ZONE(ch->in_room->zone) &&
          (fall_to = ch->in_room->dir_option[DOWN]->to_room) &&
          fall_to != ch->in_room) {
-        if (AFF_FLAGGED(ch, AFF_INFLIGHT) && AWAKE(ch)) {
+        if (AFF_FLAGGED(ch, AFF_INFLIGHT) && AWAKE(ch) && !IS_AFFECTED_3(ch,AFF3_GRAVITY_WELL)) {
         send_to_char("You realize you are about to fall and resume your flight!\r\n", ch);
         GET_POS(ch) = POS_FLYING;
         } else {
@@ -172,6 +185,8 @@ void burn_update(void) {
             SECT_TYPE(ch->in_room) == SECT_PITCH_PIT ||
             SECT_TYPE(ch->in_room) == SECT_PITCH_SUB) {
             dam >>= 1;
+            if(IS_AFFECTED_3(ch,AFF3_GRAVITY_WELL))
+                dam <<= 2;
         
             act("$n lands hard!", TRUE, ch, 0, 0, TO_ROOM);
             act("You land hard!", TRUE, ch, 0, 0, TO_CHAR);
@@ -252,6 +267,16 @@ void burn_update(void) {
         if (damage(ch, ch, dice(4, 3) + (affected_by_spell(ch, SPELL_METABOLISM) ? dice (4, 11) : 0), SPELL_POISON, -1))
         continue;
     }
+    // Gravity Well
+    if(IS_AFFECTED_3(ch,AFF3_GRAVITY_WELL) 
+    && !random_fractional_10() 
+    && !NOGRAV_ZONE(ch->in_room->zone)) {
+        af = affected_by_spell(ch,SPELL_GRAVITY_WELL);
+        if(!af)
+            continue;
+        if(damage(ch,ch, number(0,af->level/4), TYPE_PRESSURE,-1))
+            continue;
+    }
     // psychic crush
     if (AFF3_FLAGGED(ch, AFF3_PSYCHIC_CRUSH)) {
         if (damage(ch, ch, mag_savingthrow(ch, 50, SAVING_PSI) ? 0 : dice(4, 20), SPELL_PSYCHIC_CRUSH, WEAR_HEAD))
@@ -318,10 +343,10 @@ void burn_update(void) {
         if (SECT_TYPE(ch->in_room) == SECT_UNDERWATER ||
         SECT_TYPE(ch->in_room) == SECT_WATER_SWIM ||
         SECT_TYPE(ch->in_room) == SECT_WATER_NOSWIM) {
-        send_to_char("The flames on your body sizzle out and die, leaving you in a cloud of steam.\r\n", ch);
-        act("The flames on $n sizzle and die, leaving a cloud of steam.", 
-            FALSE, ch, 0, 0, TO_ROOM);    
-        REMOVE_BIT(AFF2_FLAGS(ch), AFF2_ABLAZE);
+            send_to_char("The flames on your body sizzle out and die, leaving you in a cloud of steam.\r\n", ch);
+            act("The flames on $n sizzle and die, leaving a cloud of steam.", 
+                FALSE, ch, 0, 0, TO_ROOM);    
+            REMOVE_BIT(AFF2_FLAGS(ch), AFF2_ABLAZE);
         } 
         
         // 
@@ -329,24 +354,19 @@ void burn_update(void) {
         //
         
         if( SECT_TYPE( ch->in_room ) == SECT_ELEMENTAL_EARTH || 
-        SECT_TYPE( ch->in_room ) == SECT_FREESPACE ) {
-        send_to_char("The flames on your body die in the absence of oxygen.\r\n", ch );
-        act("The flames on $n die in the absence of oxygen.", FALSE, ch, 0, 0, TO_ROOM );
-        REMOVE_BIT( AFF2_FLAGS( ch ), AFF2_ABLAZE );
-        }
-        
-        else if ( !random_fractional_3() ) {
-        if(CHAR_WITHSTANDS_FIRE(ch)) {
-            continue;
-        }
-        if (damage(ch, ch, 
-               CHAR_WITHSTANDS_FIRE(ch) ? 0 :
-               ROOM_FLAGGED(ch->in_room, ROOM_FLAME_FILLED) ? dice (8, 7) : 
-               dice(5, 5), TYPE_ABLAZE, -1))
-            continue;
-        if (IS_MOB(ch) && GET_POS(ch) >= POS_RESTING &&
-            !GET_MOB_WAIT(ch) && !CHAR_WITHSTANDS_FIRE(ch)) 
-            do_extinguish(ch, "", 0, 0);
+            SECT_TYPE( ch->in_room ) == SECT_FREESPACE ) {
+            send_to_char("The flames on your body die in the absence of oxygen.\r\n", ch );
+            act("The flames on $n die in the absence of oxygen.", FALSE, ch, 0, 0, TO_ROOM );
+            REMOVE_BIT( AFF2_FLAGS( ch ), AFF2_ABLAZE );
+        } else if ( !random_fractional_3()  && !CHAR_WITHSTANDS_FIRE(ch)) {
+            if (damage(ch, ch, 
+                   CHAR_WITHSTANDS_FIRE(ch) ? 0 :
+                   ROOM_FLAGGED(ch->in_room, ROOM_FLAME_FILLED) ? dice (8, 7) : 
+                   dice(5, 5), TYPE_ABLAZE, -1))
+                continue;
+            if (IS_MOB(ch) && GET_POS(ch) >= POS_RESTING &&
+                !GET_MOB_WAIT(ch) && !CHAR_WITHSTANDS_FIRE(ch)) 
+                do_extinguish(ch, "", 0, 0);
         }      
     }
     // burning rooms

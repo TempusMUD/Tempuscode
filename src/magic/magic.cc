@@ -588,6 +588,13 @@ mag_damage(int level, struct char_data * ch, struct char_data * victim,
     case SPELL_OXIDIZE:
 	dam = dice(7, 8) + (level);
 	break;
+    case SPELL_GRAVITY_WELL:
+        dam = dice(level/2,5);
+        if(!GET_CLASS(ch) == CLASS_PHYSIC)
+            dam = dam >> 1;
+        if(IS_AFFECTED_3(victim,AFF3_GRAVITY_WELL))
+            dam = dam >> 1;
+    break;
 
 
 	/* Mostly clerics */
@@ -758,10 +765,13 @@ mag_damage(int level, struct char_data * ch, struct char_data * victim,
 
     if (audible)
 	sound_gunshots(ch->in_room, spellnum, dam, 1);
-
-    if (damage(ch, victim, dam, spellnum, WEAR_RANDOM))
-	return 1;
-  
+    // Yeah yeah, its a hack. so sue me.
+    if(spellnum == SPELL_GRAVITY_WELL) {
+        if (damage(ch, victim, dam, TYPE_PRESSURE, WEAR_RANDOM))
+            return 1;
+    } else if (damage(ch, victim, dam, spellnum, WEAR_RANDOM)) {
+        return 1;
+    }
     else if (spellnum == SPELL_PSYCHIC_SURGE && 
 	     !mag_savingthrow(victim, level, SAVING_PSI) &&
 	     (!IS_NPC(victim) || !MOB2_FLAGGED(victim, MOB2_NOSTUN)) &&
@@ -1658,6 +1668,28 @@ mag_affects(int level, struct char_data * ch, struct char_data * victim,
 	to_room = "$n appears slightly irradiated.";
 	to_vict = "You feel irradiated... how irritating.";
 	break;
+    case SPELL_GRAVITY_WELL:
+	af.duration = ( level >> 3 );
+	af.location = APPLY_STR;
+	af.bitvector = AFF3_GRAVITY_WELL;
+    af.aff_index = 3;
+
+    if(GET_CLASS(ch) == CLASS_PHYSIC) {
+        af.modifier = - ( level/5 );
+    } else {
+        af.modifier = - ( level/8 );
+    }
+    
+    if(GET_POS(victim) > POS_STANDING) {
+        GET_POS(victim) = POS_RESTING;
+        to_vict = "Gravity increases around you, slamming you to the ground!";
+        to_room = "Gravity seems to increase around $n, slamming $S to the ground!";
+    } else {
+        to_vict = "The gravity around you increases, crushing your body.";
+    }
+    WAIT_STATE(victim,2 RL_SEC);
+	accum_affect = FALSE;
+    break;
 	
     case SPELL_CHEMICAL_STABILITY:
 	af.duration   = (level >> 2);

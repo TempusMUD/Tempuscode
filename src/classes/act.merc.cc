@@ -77,7 +77,7 @@ ACMD(do_pistolwhip)
     } else {
 	dam = dice(GET_LEVEL(ch), str_app[STRENGTH_APPLY_INDEX(ch)].todam) +
 	    dice(4, weap->getWeight() );
-	dam /= 5;
+	dam /= 4;
 	damage(ch, vict, dam, SKILL_PISTOLWHIP, WEAR_HEAD);
 	gain_skill_prof(ch, SKILL_PISTOLWHIP);
     }

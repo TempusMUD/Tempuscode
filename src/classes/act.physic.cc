@@ -80,8 +80,7 @@
   #define SPELL_ENTROPY_FIELD        322  // drains move on victim (time effect)
   incomplete
 
-  #define SPELL_GRAV_TRAP            323  // time effect crushing damage
-  incomplete
+  #define SPELL_GRAVITY_WELL         323  // time effect crushing damage
 
   #define SPELL_CAPACITANCE_BOOST    324  // increase maxmv
   incomplete
@@ -876,5 +875,3 @@ ASPELL(spell_area_stasis)
     affect_to_room( ch->in_room, &rm_aff );
 }
 
-
-   

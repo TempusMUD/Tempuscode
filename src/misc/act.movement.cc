@@ -1609,14 +1609,44 @@ ACMD(do_stand)
 	act("You are already standing.", FALSE, ch, 0, 0, TO_CHAR);
 	break;
     case POS_SITTING:
-	act("You stand up.", FALSE, ch, 0, 0, TO_CHAR);
-	act("$n clambers to $s feet.", TRUE, ch, 0, 0, TO_ROOM);
-	GET_POS(ch) = POS_STANDING;
+    if(IS_AFFECTED_3(ch,AFF3_GRAVITY_WELL)) {
+        if(number(1,20) < GET_STR(ch)) {
+            act("You defy the probability waves of the gravity well and struggle to your feet.", 
+                FALSE, ch, 0, 0, TO_CHAR);
+            act("$n defies the gravity well and struggles to $s feet.", TRUE, ch, 0, 0, TO_ROOM);
+            GET_POS(ch) = POS_STANDING;
+        } else {
+            act("The gravity well drives you into the ground as you try to stand.", 
+                FALSE, ch, 0, 0, TO_CHAR);
+            act("The gravity well drives $n into the ground as $e attempts to stand.", 
+                TRUE, ch, 0, 0, TO_ROOM);
+            GET_POS(ch) = POS_RESTING;
+        }
+    } else {
+        act("You stand up.", FALSE, ch, 0, 0, TO_CHAR);
+        act("$n clambers to $s feet.", TRUE, ch, 0, 0, TO_ROOM);
+        GET_POS(ch) = POS_STANDING;
+    }
 	break;
     case POS_RESTING:
-	act("You stop resting, and stand up.", FALSE, ch, 0, 0, TO_CHAR);
-	act("$n stops resting, and clambers on $s feet.", TRUE, ch, 0, 0, TO_ROOM);
-	GET_POS(ch) = POS_STANDING;
+    if(IS_AFFECTED_3(ch,AFF3_GRAVITY_WELL)) {
+        if(number(1,20) < GET_STR(ch)) {
+            act("You defy the probability waves of the gravity well and struggle to your feet.", 
+                FALSE, ch, 0, 0, TO_CHAR);
+            act("$n defies the gravity well and struggles to $s feet.", TRUE, ch, 0, 0, TO_ROOM);
+            GET_POS(ch) = POS_STANDING;
+        } else {
+            act("The gravity well drives you into the ground as you try to stand.", 
+                FALSE, ch, 0, 0, TO_CHAR);
+            act("The gravity well drives $n into the ground as $e attempts to stand.", 
+                TRUE, ch, 0, 0, TO_ROOM);
+            GET_POS(ch) = POS_RESTING;
+        }
+    } else {
+        act("You stop resting, and stand up.", FALSE, ch, 0, 0, TO_CHAR);
+        act("$n stops resting, and clambers on $s feet.", TRUE, ch, 0, 0, TO_ROOM);
+        GET_POS(ch) = POS_STANDING;
+    }
 	break;
     case POS_SLEEPING:
 	act("You have to wake up first!", FALSE, ch, 0, 0, TO_CHAR);

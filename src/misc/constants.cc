@@ -232,7 +232,7 @@ extern const char *zone_flags[] =
   "SNDPRF",
   "NOIDLE",
   "FULLCONTROL",
-  "13",
+  "PAUSED",
   "14",
   "15",
   "16",
@@ -1032,6 +1032,7 @@ extern const char *affected3_bits[]=
   "2xDAM",
   "ACID",
   "HAMSTRING",
+  "GRV WELL",
   "\n"
 };  
 
@@ -1058,6 +1059,7 @@ extern const char *affected3_bits_desc[] = {
   "double_damage",
   "acidity",
   "hamstring",
+  "gravity well",
   "\n"
 };
 
@@ -2208,7 +2210,9 @@ extern const char *spell_wear_off_msg[] = {
   "The vacuum shroud surrounding you dissipates.",
   "You feel less dense.",   /* 320 */
   "You feel less chemically inert.",
-  "!UNUSED!","!UNUSED!","!UNUSED!","!UNUSED!",   /* 325 */
+  "!UNUSED!",
+  "The gravity well around you fades.",
+  "!UNUSED!","!UNUSED!",   /* 325 */
   "!UNUSED!","!UNUSED!","!UNUSED!","!UNUSED!","!UNUSED!",   /* 330 */
   "!UNUSED!","!UNUSED!","!UNUSED!","!UNUSED!","!UNUSED!",   /* 335 */
   "!UNUSED!",
