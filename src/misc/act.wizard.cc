@@ -4067,15 +4067,13 @@ show_player(Creature *ch, char *value)
                  GET_PAST_BANK(vict), GET_FUTURE_BANK(vict) );
     // Trim and fit the date to show year but not seconds.
     strcpy(birth, ctime(&vict->player.time.birth));
-    strcpy(birth + 16, birth + 19);
-    birth[21] = '\0';
-    if (GET_LEVEL(ch) > GET_LEVEL(ch)) {
+	memmove(birth + 16, birth + 19, strlen(birth + 19) + 1);
+    if (GET_LEVEL(vict) > GET_LEVEL(ch)) {
         strcpy(last_login, "Unknown");
     } else {
         // Trim and fit the date to show year but not seconds.
         strcpy(last_login, ctime(&vict->player.time.logon));
-        strcpy(last_login + 16, last_login + 19);
-        last_login[21] = '\0';
+		memmove(birth + 16, birth + 19, strlen(birth + 19) + 1);
     }
     sprintf(buf,
         "%sStarted: %-22.21s Last: %-22.21s Played: %3dh %2dm\r\n",
