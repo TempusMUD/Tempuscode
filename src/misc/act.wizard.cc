@@ -1660,15 +1660,16 @@ do_stat_character(struct Creature *ch, struct Creature *k)
         acc_strcat("ILLEGAL-SEX!!", NULL); break;
     }
 
-    acc_sprintf(" %s '%s%s%s'  IDNum: [%5ld], In room %s[%s%5d%s]%s",
+    acc_sprintf(" %s '%s%s%s'  IDNum: [%5ld], AccountNum: [%5ld], In room %s[%s%5d%s]%s\n",
         (!IS_NPC(k) ? "PC" : (!IS_MOB(k) ? "NPC" : "MOB")),
         CCYEL(ch, C_NRM), GET_NAME(k), CCNRM(ch, C_NRM),
         IS_NPC(k) ? MOB_IDNUM(k) : GET_IDNUM(k),
+        IS_NPC(k) ? -1 : k->getAccountID(),
         CCGRN(ch, C_NRM), CCNRM(ch, C_NRM), k->in_room ?
         k->in_room->number : -1, CCGRN(ch, C_NRM), CCNRM(ch, C_NRM));
 
     if (!IS_MOB(k) && GET_LEVEL(k) >= LVL_AMBASSADOR)
-        acc_sprintf(", OlcObj: [%d], OlcMob: [%d]\r\n",
+        acc_sprintf("OlcObj: [%d], OlcMob: [%d]\r\n",
             (GET_OLC_OBJ(k) ? GET_OLC_OBJ(k)->shared->vnum : (-1)),
             (GET_OLC_MOB(k) ?
                 GET_OLC_MOB(k)->mob_specials.shared->vnum : (-1)));
