@@ -1549,7 +1549,8 @@ show_account_chars(descriptor_data *d, Account *acct, bool immort, bool brief)
 				sex_color, toupper(genders[(int)GET_SEX(tmp_ch)][0]) );
 				
 		name_str = tmp_strdup(GET_NAME(tmp_ch));
-		name_str[(brief) ? 8:13] = '\0';
+		if (strlen(name_str) > ((brief) ? 8:13))
+			name_str[(brief) ? 8:13] = '\0';
 
 		// Construct compact menu entry for each character
 		if (IS_REMORT(tmp_ch)) {
