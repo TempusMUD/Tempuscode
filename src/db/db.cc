@@ -537,7 +537,7 @@ build_player_table()
 	char filename[256];
 	char line[131072];
 	for( int i = 0; i <= 9; i++ ) {
-		sprintf(dirname, "plrxml/%d",i);
+		sprintf(dirname, "players/%d",i);
 		DIR* dir = opendir(dirname);
 		dirent *file;
 		while ((file = readdir(dir)) != NULL) {
@@ -548,8 +548,8 @@ build_player_table()
 			sprintf( filename, "%s/%s", dirname, file->d_name );
 			ifstream in( filename );
 			while( !in.eof() && in.getline( line, 131000, '\n' ) ) {
-				char *name = strstr( line, "NAME=" );
-				char *idnum = strstr( line, "IDNUM=" );
+				char *name = strstr( line, "name=" );
+				char *idnum = strstr( line, "idnum=" );
 				if( name == NULL || idnum == NULL )
 					continue;
 				name += 6;
@@ -4270,11 +4270,16 @@ obj_owner(struct obj_data *obj)
 }
 
 char*
-getPlayerfilePath( long id ) 
+get_player_file_path( long id ) 
 {
-    return tmp_sprintf( "plrxml/%0ld/%ld.dat", (id % 10), id );
+    return tmp_sprintf( "players/%0ld/%ld.dat", (id % 10), id );
 }
 
+char*
+get_equipment_file_path( long id ) 
+{
+    return tmp_sprintf( "equipment/%0ld/%ld.dat", (id % 10), id );
+}
 
 
 #undef __db_c__

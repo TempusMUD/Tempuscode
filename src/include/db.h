@@ -128,7 +128,16 @@ struct Creature *obj_owner(struct obj_data *obj);
 
 #define ZONE_IDLE_TIME 5
 
-char* getPlayerfilePath( long id );
+/** 
+ * Returns a temporarily allocated char* containing the path to the given
+ * player_id's player file.
+**/
+char* get_player_file_path( long id );
+/** 
+ * Returns a temporarily allocated char* containing the path to the given
+ * player_id's equipment file.
+**/
+char* get_equipment_file_path( long id );
 
 /* structure for the reset commands */
 struct reset_com {
