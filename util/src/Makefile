@@ -1,4 +1,4 @@
-UTILS=hcontrol-view showplay economic_stats demographic_stats scan_rent purgeplay
+UTILS=hcontrol-view showplay economic_stats demographic_stats scan_rent purgeplay newdyncontrol
 INCLUDE=-I../../src/include
 CXX=g++ -Wall -O3 $(INCLUDE)
 
@@ -24,3 +24,6 @@ purgeplay: purgeplay.cc
 
 makearray: makearray.cc
 	$(CXX) makearray.cc -o $@
+
+newdyncontrol: newdyncontrol.cc
+	$(CXX) newdyncontrol.cc -o $@
