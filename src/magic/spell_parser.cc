@@ -52,6 +52,8 @@ void name_from_drinkcon(struct obj_data *obj);
  * ample slots for skills.
  */
 
+int max_spell_num = 0;
+
 const char *spells[] = {
 	"!RESERVED!",				/* 0 - reserved */
 
@@ -688,7 +690,7 @@ say_spell(struct char_data *ch, int spellnum, struct char_data *tch,
 	int j, ofs = 0;
 
 	*buf = '\0';
-	strcpy(lbuf, spells[spellnum]);
+	strcpy(lbuf, spell_to_str(spellnum));
 
 	while (*(lbuf + ofs)) {
 		for (j = 0; *(syls[j].org); j++) {
@@ -770,7 +772,7 @@ say_spell(struct char_data *ch, int spellnum, struct char_data *tch,
 		}
 
 		act(xbuf, FALSE, ch, tobj, tch, TO_CHAR);
-		sprintf(buf1, lbuf, spells[spellnum]);
+		sprintf(buf1, lbuf, spell_to_str(spellnum));
 		sprintf(buf2, lbuf, buf);
 	}
 
@@ -808,12 +810,12 @@ find_skill_num(char *name)
 	char spellname[256];
 	char first[256], first2[256];
 
-	while (*spells[++index] != '\n') {
-		if (is_abbrev(name, spells[index]))
+	while (*spell_to_str(++index) != '\n') {
+		if (is_abbrev(name, spell_to_str(index)))
 			return index;
 
 		ok = 1;
-		strncpy(spellname, spells[index], 255);
+		strncpy(spellname, spell_to_str(index), 255);
 		temp = any_one_arg(spellname, first);
 		temp2 = any_one_arg(name, first2);
 		while (*first && *first2 && ok) {
@@ -990,14 +992,14 @@ call_magic(struct char_data *caster, struct char_data *cvict,
 			((af_ptr = affected_by_spell(cvict, SPELL_SPHERE_OF_DESECRATION))
 				&& SPELL_IS_DIVINE(spellnum) && IS_GOOD(caster)
 				&& number(0, af_ptr->level) > number(0, level))) {
-			sprintf(buf, "$N's %s absorbs $n's %s!", spells[af_ptr->type],
-				spells[spellnum]);
+			sprintf(buf, "$N's %s absorbs $n's %s!", spell_to_str(af_ptr->type),
+				spell_to_str(spellnum));
 			act(buf, FALSE, caster, 0, cvict, TO_NOTVICT);
-			sprintf(buf, "Your %s absorbs $n's %s!", spells[af_ptr->type],
-				spells[spellnum]);
+			sprintf(buf, "Your %s absorbs $n's %s!", spell_to_str(af_ptr->type),
+				spell_to_str(spellnum));
 			act(buf, FALSE, caster, 0, cvict, TO_VICT);
-			sprintf(buf, "$N's %s absorbs your %s!", spells[af_ptr->type],
-				spells[spellnum]);
+			sprintf(buf, "$N's %s absorbs your %s!", spell_to_str(af_ptr->type),
+				spell_to_str(spellnum));
 			act(buf, FALSE, caster, 0, cvict, TO_CHAR);
 			GET_MANA(cvict) = MIN(GET_MAX_MANA(cvict),
 				GET_MANA(cvict) + (level >> 1));
@@ -1009,7 +1011,7 @@ call_magic(struct char_data *caster, struct char_data *cvict,
 							GET_MANA(caster) - mana));
 			}
 			if ((af_ptr->duration -= (level >> 2)) <= 0) {
-				sprintf(buf, "Your %s dissolves.\r\n", spells[af_ptr->type]);
+				sprintf(buf, "Your %s dissolves.\r\n", spell_to_str(af_ptr->type));
 				send_to_char(buf, cvict);
 				affect_remove(cvict, af_ptr);
 			}
@@ -1710,7 +1712,7 @@ cast_spell(struct char_data *ch, struct char_data *tch,
 		GET_LEVEL(ch) < LVL_GOD && !mini_mud &&
 		(!tch || GET_LEVEL(tch) < LVL_AMBASSADOR) && (ch != tch)) {
 		sprintf(buf, "ImmCast: %s called %s on %s.", GET_NAME(ch),
-			spells[spellnum], tch ? GET_NAME(tch) : tobj ?
+			spell_to_str(spellnum), tch ? GET_NAME(tch) : tobj ?
 			tobj->short_description : knock_door ?
 			(knock_door->keyword ? fname(knock_door->keyword) :
 				"door") : "NULL");

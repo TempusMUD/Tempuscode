@@ -419,14 +419,14 @@ print_search_data_to_buf(struct char_data *ch, struct room_data *room,
 			buf, cur_search->arg[0],
 			cur_search->arg[1], cur_search->arg[2],
 			(cur_search->arg[2] > 0 && cur_search->arg[2] < TOP_NPC_SPELL) ?
-			spells[cur_search->arg[2]] : "NULL");
+			spell_to_str(cur_search->arg[2]) : "NULL");
 		break;
 	case SEARCH_COM_DAMAGE:
 		sprintf(buf, "%s DAMAGE      %5d        %5d        %5d (%s)\r\n",
 			buf, cur_search->arg[0],
 			cur_search->arg[1], cur_search->arg[2],
 			(cur_search->arg[2] > 0 && cur_search->arg[2] < TYPE_SUFFERING) ?
-			spells[cur_search->arg[2]] : "NULL");
+			spell_to_str(cur_search->arg[2]) : "NULL");
 		break;
 	case SEARCH_COM_SPAWN:
 		sprintf(buf, "%s SPAWN  Spawn_rm: %5d   Targ_rm:%5d   Hunt: %5d\r\n",

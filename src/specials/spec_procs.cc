@@ -92,8 +92,8 @@ sort_spells(void)
 	/* Sort.  'a' starts at 1, not 0, to remove 'RESERVED' */
 	for (a = 1; a < MAX_SPELLS - 1; a++)
 		for (b = a + 1; b < MAX_SPELLS; b++)
-			if (strcmp(spells[spell_sort_info[a]],
-					spells[spell_sort_info[b]]) > 0) {
+			if (strcmp(spell_to_str(spell_sort_info[a]),
+					spell_to_str(spell_sort_info[b])) > 0) {
 				tmp = spell_sort_info[a];
 				spell_sort_info[a] = spell_sort_info[b];
 				spell_sort_info[b] = tmp;
@@ -112,8 +112,8 @@ sort_skills(void)
 	/* Sort.  'a' starts at 1, not 0, to remove 'RESERVED' */
 	for (a = 1; a < MAX_SKILLS - MAX_SPELLS - 1; a++)
 		for (b = a + 1; b < MAX_SKILLS - MAX_SPELLS; b++)
-			if (strcmp(spells[skill_sort_info[a]],
-					spells[skill_sort_info[b]]) > 0) {
+			if (strcmp(spell_to_str(skill_sort_info[a]),
+					spell_to_str(skill_sort_info[b])) > 0) {
 				tmp = skill_sort_info[a];
 				skill_sort_info[a] = skill_sort_info[b];
 				skill_sort_info[b] = tmp;
@@ -224,7 +224,7 @@ list_skills(struct char_data *ch, int mode, int type)
 					continue;
 				sprintf(buf, "%s%s%-22s %s%-17s%s %s(%3d mana)%s\r\n",
 					CCGRN(ch, C_NRM),
-					GET_LEVEL(ch) >= LVL_AMBASSADOR ? buf4 : "", spells[i],
+					GET_LEVEL(ch) >= LVL_AMBASSADOR ? buf4 : "", spell_to_str(i),
 					CCBLD(ch, C_SPR), how_good(CHECK_SKILL(ch, i)),
 					GET_LEVEL(ch) > LVL_ETERNAL ? buf3 : "", CCRED(ch, C_SPR),
 					mag_manacost(ch, i), CCNRM(ch, C_SPR));
@@ -266,7 +266,7 @@ list_skills(struct char_data *ch, int mode, int type)
 
 			sprintf(buf, "%s%s%-22s %s%-17s%s%s\r\n",
 				CCGRN(ch, C_NRM), GET_LEVEL(ch) >= LVL_AMBASSADOR ? buf4 : "",
-				spells[i], CCBLD(ch, C_SPR), how_good(GET_SKILL(ch, i)),
+				spell_to_str(i), CCBLD(ch, C_SPR), how_good(GET_SKILL(ch, i)),
 				GET_LEVEL(ch) > LVL_ETERNAL ? buf3 : "", CCNRM(ch, C_SPR));
 			strcat(buf2, buf);
 		}
@@ -2048,7 +2048,7 @@ SPECIAL(weapon_lister)
 			strcat(buf, "2-H ");
 
 		if (GET_OBJ_VAL(obj, 0))
-			sprintf(buf, "%sCast:%s ", buf, spells[GET_OBJ_VAL(obj, 0)]);
+			sprintf(buf, "%sCast:%s ", buf, spell_to_str(GET_OBJ_VAL(obj, 0)));
 
 		for (i = 0, found = 0; i < 3; i++)
 			if (obj->obj_flags.bitvector[i]) {

@@ -329,7 +329,7 @@ blood_spray(struct char_data *ch, struct char_data *victim,
 	sprintf(buf,
 		to_char,
 		attacktype >= TYPE_HIT ?
-		attack_hit_text[attacktype - TYPE_HIT].singular : spells[attacktype]);
+		attack_hit_text[attacktype - TYPE_HIT].singular : spell_to_str(attacktype));
 	send_to_char(CCRED(ch, C_NRM), ch);
 	act(buf, FALSE, ch, 0, victim, TO_CHAR);
 	send_to_char(CCNRM(ch, C_NRM), ch);
@@ -337,7 +337,7 @@ blood_spray(struct char_data *ch, struct char_data *victim,
 	sprintf(buf,
 		to_vict,
 		attacktype >= TYPE_HIT ?
-		attack_hit_text[attacktype - TYPE_HIT].singular : spells[attacktype]);
+		attack_hit_text[attacktype - TYPE_HIT].singular : spell_to_str(attacktype));
 	send_to_char(CCRED(victim, C_NRM), victim);
 	act(buf, FALSE, ch, 0, victim, TO_VICT);
 	send_to_char(CCNRM(victim, C_NRM), victim);
@@ -352,7 +352,7 @@ blood_spray(struct char_data *ch, struct char_data *victim,
 	sprintf(buf,
 		to_notvict,
 		attacktype >= TYPE_HIT ?
-		attack_hit_text[attacktype - TYPE_HIT].singular : spells[attacktype]);
+		attack_hit_text[attacktype - TYPE_HIT].singular : spell_to_str(attacktype));
 
 	act(buf, FALSE, ch, 0, victim, TO_NOTVICT);
 	it = ch->in_room->people.begin();

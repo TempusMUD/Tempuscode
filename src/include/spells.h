@@ -18,11 +18,21 @@
 #ifndef __spells_h__
 #define __spells_h__
 
-#ifndef __spell_parser_c__
-
+extern int max_spell_num;
 extern const char *spells[];
 
-#endif
+inline const char *
+spell_to_str(int spell)
+{
+	static char ill_result[20];
+
+	if (spell < 0 || spell > max_spell_num) {
+		sprintf(ill_result, "!ILLEGAL(%d)!", spell);
+		return ill_result;
+	}
+
+	return spells[spell];
+}
 
 static const int DEFAULT_STAFF_LVL = 12;
 static const int DEFAULT_WAND_LVL = 12;

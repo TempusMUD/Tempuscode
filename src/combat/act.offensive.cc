@@ -894,7 +894,7 @@ ACCMD(do_offensive_skill)
 				tmp_wait = MAX(tmp_wait, 70);
 				wait += tmp_wait;
 				sprintf(buf, "%s failed %s miserably, tacking on %d x0.1 sec",
-					GET_NAME(ch), spells[subcmd], tmp_wait);
+					GET_NAME(ch), spell_to_str(subcmd), tmp_wait);
 				slog(buf);
 			}
 		}

@@ -1203,11 +1203,11 @@ ASPELL(spell_identify)
 				item_types[(int)GET_OBJ_TYPE(obj)]);
 
 			if (GET_OBJ_VAL(obj, 1) >= 1)
-				sprintf(buf, "%s %s", buf, spells[GET_OBJ_VAL(obj, 1)]);
+				sprintf(buf, "%s %s", buf, spell_to_str(GET_OBJ_VAL(obj, 1)));
 			if (GET_OBJ_VAL(obj, 2) >= 1)
-				sprintf(buf, "%s %s", buf, spells[GET_OBJ_VAL(obj, 2)]);
+				sprintf(buf, "%s %s", buf, spell_to_str(GET_OBJ_VAL(obj, 2)));
 			if (GET_OBJ_VAL(obj, 3) >= 1)
-				sprintf(buf, "%s %s", buf, spells[GET_OBJ_VAL(obj, 3)]);
+				sprintf(buf, "%s %s", buf, spell_to_str(GET_OBJ_VAL(obj, 3)));
 			sprintf(buf, "%s\r\n", buf);
 			send_to_char(buf, ch);
 			break;
@@ -1215,8 +1215,7 @@ ASPELL(spell_identify)
 		case ITEM_STAFF:
 			sprintf(buf, "This %s casts: ",
 				item_types[(int)GET_OBJ_TYPE(obj)]);
-			sprintf(buf, "%s %s at level %d\r\n", buf, spells[GET_OBJ_VAL(obj,
-						3)], GET_OBJ_VAL(obj, 0));
+			sprintf(buf, "%s %s at level %d\r\n", buf, spell_to_str(GET_OBJ_VAL(obj, 3)), GET_OBJ_VAL(obj, 0));
 			sprintf(buf, "%sIt has %d maximum charge%s and %d remaining.\r\n",
 				buf, GET_OBJ_VAL(obj, 1), GET_OBJ_VAL(obj, 1) == 1 ? "" : "s",
 				GET_OBJ_VAL(obj, 2));
@@ -1230,7 +1229,7 @@ ASPELL(spell_identify)
 						1)));
 			if (IS_OBJ_STAT2(obj, ITEM2_CAST_WEAPON))
 				sprintf(buf, "%sThis weapon casts: %s\r\n", buf,
-					spells[GET_OBJ_VAL(obj, 0)]);
+					spell_to_str(GET_OBJ_VAL(obj, 0)));
 			send_to_char(buf, ch);
 			break;
 		case ITEM_ARMOR:
@@ -1259,7 +1258,7 @@ ASPELL(spell_identify)
 
 		case ITEM_TOOL:
 			sprintf(buf, "Tool works with: %s, modifier: %d\r\n",
-				spells[TOOL_SKILL(obj)], TOOL_MOD(obj));
+				spell_to_str(TOOL_SKILL(obj)), TOOL_MOD(obj));
 			send_to_char(buf, ch);
 			break;
 		}
@@ -1381,11 +1380,11 @@ ASPELL(spell_minor_identify)
 				item_types[(int)GET_OBJ_TYPE(obj)]);
 
 			if (GET_OBJ_VAL(obj, 1) >= 1)
-				sprintf(buf, "%s %s", buf, spells[GET_OBJ_VAL(obj, 1)]);
+				sprintf(buf, "%s %s", buf, spell_to_str(GET_OBJ_VAL(obj, 1)));
 			if (GET_OBJ_VAL(obj, 2) >= 1)
-				sprintf(buf, "%s %s", buf, spells[GET_OBJ_VAL(obj, 2)]);
+				sprintf(buf, "%s %s", buf, spell_to_str(GET_OBJ_VAL(obj, 2)));
 			if (GET_OBJ_VAL(obj, 3) >= 1)
-				sprintf(buf, "%s %s", buf, spells[GET_OBJ_VAL(obj, 3)]);
+				sprintf(buf, "%s %s", buf, spell_to_str(GET_OBJ_VAL(obj, 3)));
 			sprintf(buf, "%s\r\n", buf);
 			send_to_char(buf, ch);
 			break;
@@ -1393,7 +1392,7 @@ ASPELL(spell_minor_identify)
 		case ITEM_STAFF:
 			sprintf(buf, "This %s casts: ",
 				item_types[(int)GET_OBJ_TYPE(obj)]);
-			sprintf(buf, "%s %s\r\n", buf, spells[GET_OBJ_VAL(obj, 3)]);
+			sprintf(buf, "%s %s\r\n", buf, spell_to_str(GET_OBJ_VAL(obj, 3)));
 			sprintf(buf, "%sIt has %d maximum charge%s and %d remaining.\r\n",
 				buf, GET_OBJ_VAL(obj, 1), GET_OBJ_VAL(obj, 1) == 1 ? "" : "s",
 				GET_OBJ_VAL(obj, 2));

@@ -158,10 +158,10 @@ show_char_class_skills(struct char_data *ch, int con, int immort, int bits)
 				if (spell_info[j].gen[con]) {
 					sprintf(buf, "%s%s(%d) %s%-21s%s",
 						buf, CCYEL(ch, C_NRM), spell_info[j].gen[con],
-						CCGRN(ch, C_NRM), spells[j], CCNRM(ch, C_NRM));
+						CCGRN(ch, C_NRM), spell_to_str(j), CCNRM(ch, C_NRM));
 				} else {
 					sprintf(buf, "%s%s%-25s%s",
-						buf, CCGRN(ch, C_NRM), spells[j], CCNRM(ch, C_NRM));
+						buf, CCGRN(ch, C_NRM), spell_to_str(j), CCNRM(ch, C_NRM));
 				}
 				if (immort)
 					sprintf(buf, "%s%-3d  %-3d  %-2d", buf,
@@ -1241,11 +1241,11 @@ do_stat_object(struct char_data *ch, struct obj_data *j)
 	case ITEM_SYRINGE:
 		sprintf(buf, "Level: %d, Spells: %s(%d), %s(%d), %s(%d)",
 			GET_OBJ_VAL(j, 0),
-			(GET_OBJ_VAL(j, 1) > 0) ? spells[(int)GET_OBJ_VAL(j, 1)] :
+			(GET_OBJ_VAL(j, 1) > 0) ? spell_to_str((int)GET_OBJ_VAL(j, 1)) :
 			"None", GET_OBJ_VAL(j, 1),
-			(GET_OBJ_VAL(j, 2) > 0) ? spells[(int)GET_OBJ_VAL(j, 2)] :
+			(GET_OBJ_VAL(j, 2) > 0) ? spell_to_str((int)GET_OBJ_VAL(j, 2)) :
 			"None", GET_OBJ_VAL(j, 2),
-			(GET_OBJ_VAL(j, 3) > 0) ? spells[(int)GET_OBJ_VAL(j, 3)] :
+			(GET_OBJ_VAL(j, 3) > 0) ? spell_to_str((int)GET_OBJ_VAL(j, 3)) :
 			"None", GET_OBJ_VAL(j, 3));
 		break;
 	case ITEM_WAND:
@@ -1253,7 +1253,7 @@ do_stat_object(struct char_data *ch, struct obj_data *j)
 		sprintf(buf,
 			"Level: %d, Max Charge: %d, Current Charge: %d, Spell: %s",
 			GET_OBJ_VAL(j, 0), GET_OBJ_VAL(j, 1), GET_OBJ_VAL(j, 2),
-			spells[(int)GET_OBJ_VAL(j, 3)]);
+			spell_to_str((int)GET_OBJ_VAL(j, 3)));
 		break;
 	case ITEM_FIREWEAPON:
 	case ITEM_WEAPON:
@@ -1261,8 +1261,8 @@ do_stat_object(struct char_data *ch, struct obj_data *j)
 			"Spell: %s (%d), Todam: %dd%d (av %d), Damage Type: %s (%d)",
 			((GET_OBJ_VAL(j, 0) > 0
 					&& GET_OBJ_VAL(j,
-						0) < TOP_NPC_SPELL) ? spells[(int)GET_OBJ_VAL(j,
-						0)] : "NONE"), GET_OBJ_VAL(j, 0), GET_OBJ_VAL(j, 1),
+						0) < TOP_NPC_SPELL) ? spell_to_str((int)GET_OBJ_VAL(j,
+						0)) : "NONE"), GET_OBJ_VAL(j, 0), GET_OBJ_VAL(j, 1),
 			GET_OBJ_VAL(j, 2), (GET_OBJ_VAL(j, 1) * (GET_OBJ_VAL(j,
 						2) + 1)) / 2, (GET_OBJ_VAL(j, 3) >= 0
 				&& GET_OBJ_VAL(j,
@@ -1304,8 +1304,8 @@ do_stat_object(struct char_data *ch, struct obj_data *j)
 	case ITEM_FOOD:
 		sprintf(buf,
 			"Makes full: %d, Value 1: %d, Spell : %s(%d), Poisoned: %d",
-			GET_OBJ_VAL(j, 0), GET_OBJ_VAL(j, 1), spells[(int)GET_OBJ_VAL(j,
-					2)], GET_OBJ_VAL(j, 2), GET_OBJ_VAL(j, 3));
+			GET_OBJ_VAL(j, 0), GET_OBJ_VAL(j, 1), spell_to_str((int)GET_OBJ_VAL(j,
+					2)), GET_OBJ_VAL(j, 2), GET_OBJ_VAL(j, 3));
 		break;
 	case ITEM_HOLY_SYMB:
 		sprintf(buf,
@@ -1828,7 +1828,7 @@ do_stat_character(struct char_data *ch, struct char_data *k)
 			*buf2 = '\0';
 			sprintf(buf, "SPL: (%3d%s) [%2d] %s%-24s%s ", aff->duration + 1,
 				aff->is_instant ? "sec" : "hr", aff->level,
-				CCCYN(ch, C_NRM), spells[aff->type], CCNRM(ch, C_NRM));
+				CCCYN(ch, C_NRM), spell_to_str(aff->type), CCNRM(ch, C_NRM));
 			if (aff->modifier) {
 				sprintf(buf2, "%+d to %s", aff->modifier,
 					apply_types[(int)aff->location]);
@@ -3688,7 +3688,7 @@ list_skills_to_char(struct char_data *ch, struct char_data *vict)
 						spell_info[i].
 						min_level[(int)GET_REMORT_CLASS(vict)]))) {
 				sprintf(buf, "%s%3d.%-20s %s%-17s%s %s(%3d mana)%s\r\n",
-					CCGRN(ch, C_NRM), i, spells[i], CCBLD(ch, C_SPR),
+					CCGRN(ch, C_NRM), i, spell_to_str(i), CCBLD(ch, C_SPR),
 					how_good(GET_SKILL(vict, i)),
 					GET_LEVEL(ch) > LVL_ETERNAL ? buf3 : "", CCRED(ch, C_SPR),
 					mag_manacost(vict, i), CCNRM(ch, C_SPR));
@@ -3718,7 +3718,7 @@ list_skills_to_char(struct char_data *ch, struct char_data *vict)
 					&& GET_LEVEL(vict) >=
 					spell_info[i].min_level[(int)GET_REMORT_CLASS(vict)]))) {
 			sprintf(buf, "%s%3d.%-20s %s%-17s%s%s\r\n", CCGRN(ch, C_NRM), i,
-				spells[i], CCBLD(ch, C_SPR), how_good(GET_SKILL(vict, i)),
+				spell_to_str(i), CCBLD(ch, C_SPR), how_good(GET_SKILL(vict, i)),
 				GET_LEVEL(ch) > LVL_ETERNAL ? buf3 : "", CCNRM(ch, C_SPR));
 			strcat(buf2, buf);
 		}
@@ -7488,7 +7488,7 @@ do_show_objects(struct char_data *ch, char *value, char *arg)
 				sprintf(buf2, "%3d. [%5d] %s%-34s%s  [%s%5s%s]\r\n",
 					j, GET_OBJ_VNUM(obj), CCGRN(ch, C_NRM),
 					obj->short_description, CCNRM(ch, C_NRM),
-					CCCYN(ch, C_NRM), spells[spell1], CCNRM(ch, C_NRM));
+					CCCYN(ch, C_NRM), spell_to_str(spell1), CCNRM(ch, C_NRM));
 				break;
 			case ITEM_WEAPON:	// val 0
 				spell1 = GET_OBJ_VAL(obj, 0);
@@ -7497,7 +7497,7 @@ do_show_objects(struct char_data *ch, char *value, char *arg)
 				sprintf(buf2, "%3d. [%5d] %s%-34s%s  [%s%5s%s]\r\n",
 					j, GET_OBJ_VNUM(obj), CCGRN(ch, C_NRM),
 					obj->short_description, CCNRM(ch, C_NRM),
-					CCCYN(ch, C_NRM), spells[spell1], CCNRM(ch, C_NRM));
+					CCCYN(ch, C_NRM), spell_to_str(spell1), CCNRM(ch, C_NRM));
 				break;
 			case ITEM_SCROLL:	// val 1,2,3
 			case ITEM_POTION:	// val 1,2,3
@@ -7514,8 +7514,8 @@ do_show_objects(struct char_data *ch, char *value, char *arg)
 				sprintf(buf2, "%3d. [%5d] %s%-34s%s  [%s%s,%s,%s%s]\r\n",
 					j, GET_OBJ_VNUM(obj), CCGRN(ch, C_NRM),
 					obj->short_description, CCNRM(ch, C_NRM),
-					CCCYN(ch, C_NRM), spells[spell1], spells[spell2],
-					spells[spell3], CCNRM(ch, C_NRM));
+					CCCYN(ch, C_NRM), spell_to_str(spell1), spell_to_str(spell2),
+					spell_to_str(spell3), CCNRM(ch, C_NRM));
 				break;
 			case ITEM_FOOD:	// Val 2 is spell
 				spell1 = GET_OBJ_VAL(obj, 2);
@@ -7524,7 +7524,7 @@ do_show_objects(struct char_data *ch, char *value, char *arg)
 				sprintf(buf2, "%3d. [%5d] %s%-34s%s  [%s%5s%s]\r\n",
 					j, GET_OBJ_VNUM(obj), CCGRN(ch, C_NRM),
 					obj->short_description, CCNRM(ch, C_NRM),
-					CCCYN(ch, C_NRM), spells[spell1], CCNRM(ch, C_NRM));
+					CCCYN(ch, C_NRM), spell_to_str(spell1), CCNRM(ch, C_NRM));
 				break;
 			default:
 				break;
@@ -7764,11 +7764,11 @@ stat_obj_to_file(struct obj_data *j, ofstream & out)
 	case ITEM_SYRINGE:
 		sprintf(buf, "Level: %d, Spells: %s(%d), %s(%d), %s(%d)",
 			GET_OBJ_VAL(j, 0),
-			(GET_OBJ_VAL(j, 1) > 0) ? spells[(int)GET_OBJ_VAL(j, 1)] :
+			(GET_OBJ_VAL(j, 1) > 0) ? spell_to_str((int)GET_OBJ_VAL(j, 1)) :
 			"None", GET_OBJ_VAL(j, 1),
-			(GET_OBJ_VAL(j, 2) > 0) ? spells[(int)GET_OBJ_VAL(j, 2)] :
+			(GET_OBJ_VAL(j, 2) > 0) ? spell_to_str((int)GET_OBJ_VAL(j, 2)) :
 			"None", GET_OBJ_VAL(j, 2),
-			(GET_OBJ_VAL(j, 3) > 0) ? spells[(int)GET_OBJ_VAL(j, 3)] :
+			(GET_OBJ_VAL(j, 3) > 0) ? spell_to_str((int)GET_OBJ_VAL(j, 3)) :
 			"None", GET_OBJ_VAL(j, 3));
 		break;
 	case ITEM_WAND:
@@ -7776,7 +7776,7 @@ stat_obj_to_file(struct obj_data *j, ofstream & out)
 		sprintf(buf,
 			"Level: %d, Max Charge: %d, Current Charge: %d, Spell: %s",
 			GET_OBJ_VAL(j, 0), GET_OBJ_VAL(j, 1), GET_OBJ_VAL(j, 2),
-			spells[(int)GET_OBJ_VAL(j, 3)]);
+			spell_to_str((int)GET_OBJ_VAL(j, 3)));
 		break;
 	case ITEM_FIREWEAPON:
 	case ITEM_WEAPON:
@@ -7784,8 +7784,8 @@ stat_obj_to_file(struct obj_data *j, ofstream & out)
 			"Spell: %s (%d), Todam: %dd%d (av %d), Damage Type: %s (%d)",
 			((GET_OBJ_VAL(j, 0) > 0
 					&& GET_OBJ_VAL(j,
-						0) < TOP_NPC_SPELL) ? spells[(int)GET_OBJ_VAL(j,
-						0)] : "NONE"), GET_OBJ_VAL(j, 0), GET_OBJ_VAL(j, 1),
+						0) < TOP_NPC_SPELL) ? spell_to_str((int)GET_OBJ_VAL(j,
+						0)) : "NONE"), GET_OBJ_VAL(j, 0), GET_OBJ_VAL(j, 1),
 			GET_OBJ_VAL(j, 2), (GET_OBJ_VAL(j, 1) * (GET_OBJ_VAL(j,
 						2) + 1)) / 2, (GET_OBJ_VAL(j, 3) >= 0
 				&& GET_OBJ_VAL(j,
@@ -7827,8 +7827,8 @@ stat_obj_to_file(struct obj_data *j, ofstream & out)
 	case ITEM_FOOD:
 		sprintf(buf,
 			"Makes full: %d, Value 1: %d, Spell : %s(%d), Poisoned: %d",
-			GET_OBJ_VAL(j, 0), GET_OBJ_VAL(j, 1), spells[(int)GET_OBJ_VAL(j,
-					2)], GET_OBJ_VAL(j, 2), GET_OBJ_VAL(j, 3));
+			GET_OBJ_VAL(j, 0), GET_OBJ_VAL(j, 1), spell_to_str((int)GET_OBJ_VAL(j,
+					2)), GET_OBJ_VAL(j, 2), GET_OBJ_VAL(j, 3));
 		break;
 	case ITEM_HOLY_SYMB:
 		sprintf(buf,

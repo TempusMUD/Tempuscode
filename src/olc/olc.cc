@@ -1963,23 +1963,23 @@ show_olc_help(struct char_data *ch, char *arg)
 				return;
 			}
 			sprintf(buf, "%2d         %s%s%s\r\n",
-				i, CCCYN(ch, C_NRM), spells[i], CCNRM(ch, C_NRM));
+				i, CCCYN(ch, C_NRM), spell_to_str(i), CCNRM(ch, C_NRM));
 			send_to_char(buf, ch);
 			return;
 		}
 
 		strcpy(buf, "SPELLS:\r\n");
 		for (i = 1; i < TOP_NPC_SPELL; i++) {
-			if (strcmp(spells[i], "!UNUSED!")) {
+			if (strcmp(spell_to_str(i), "!UNUSED!")) {
 				sprintf(buf2, "%3d         %s%s%s\r\n",
-					i, CCCYN(ch, C_NRM), spells[i], CCNRM(ch, C_NRM));
+					i, CCCYN(ch, C_NRM), spell_to_str(i), CCNRM(ch, C_NRM));
 				strcat(buf, buf2);
 			}
 		}						/*
 								   for (i = MAX_SKILLS+1; i < TOP_NPC_SPELL; i++) {
-								   if (str_cmp(spells[i], "!UNUSED!")) {
+								   if (str_cmp(spell_to_str(i), "!UNUSED!")) {
 								   sprintf(buf2, "%2d         %s%s%s\r\n", 
-								   i, CCCYN(ch, C_NRM), spells[i], CCNRM(ch, C_NRM));
+								   i, CCCYN(ch, C_NRM), spell_to_str(i), CCNRM(ch, C_NRM));
 								   strcat(buf, buf2);
 								   }
 								   } */

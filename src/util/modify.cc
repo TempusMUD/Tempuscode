@@ -89,10 +89,10 @@ ACMD(do_skillset)
 	if (!*name) {				/* no arguments. print an informative text */
 		send_to_char("Syntax: skillset <name> '<skill>' <value>\r\n", ch);
 		strcpy(help, "Skill being one of the following:\r\n");
-		for (i = 0; *spells[i] != '\n'; i++) {
-			if (*spells[i] == '!')
+		for (i = 0; *spell_to_str(i) != '\n'; i++) {
+			if (*spell_to_str(i) == '!')
 				continue;
-			sprintf(help + strlen(help), "%18s", spells[i]);
+			sprintf(help + strlen(help), "%18s", spell_to_str(i));
 			if (i % 4 == 3) {
 				strcat(help, "\r\n");
 				send_to_char(help, ch);
@@ -155,13 +155,13 @@ ACMD(do_skillset)
 		return;
 	}
 	sprintf(buf2, "%s changed %s's %s to %d.", GET_NAME(ch), GET_NAME(vict),
-		spells[skill], value);
+		spell_to_str(skill), value);
 	mudlog(buf2, BRF, -1, TRUE);
 
 	SET_SKILL(vict, skill, value);
 
 	sprintf(buf2, "You change %s's %s to %d.\r\n", GET_NAME(vict),
-		spells[skill], value);
+		spell_to_str(skill), value);
 	send_to_char(buf2, ch);
 }
 

@@ -1851,7 +1851,7 @@ damage(struct char_data *ch, struct char_data *victim, int dam,
 					sprintf(buf2, "%s died%s%s at %s ( %d )", GET_NAME(ch),
 						(attacktype <= TOP_NPC_SPELL) ? " by " : "",
 						(attacktype <=
-							TOP_NPC_SPELL) ? spells[attacktype] : "",
+							TOP_NPC_SPELL) ? spell_to_str(attacktype) : "",
 						ch->in_room->name, ch->in_room->number);
 				}
 				// If it's arena, log it for complete only
@@ -1881,7 +1881,7 @@ damage(struct char_data *ch, struct char_data *victim, int dam,
 			sprintf(buf, "%s killed by NULL-char ( type %d ( %s ) ) at %d.",
 				GET_NAME(victim), attacktype,
 				(attacktype > 0 && attacktype < TOP_NPC_SPELL) ?
-				spells[attacktype] :
+				spell_to_str(attacktype) :
 				(attacktype >= TYPE_HIT && attacktype <= TOP_ATTACKTYPE) ?
 				attack_type[attacktype - TYPE_HIT] : "bunk",
 				victim->in_room->number);

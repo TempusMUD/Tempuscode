@@ -466,6 +466,9 @@ boot_db(void)
 
 	boot_time = time(0);
 
+	while (spells[max_spell_num][0] != '\n')
+		max_spell_num++;
+
 	slog("Boot db -- DONE.");
 }
 

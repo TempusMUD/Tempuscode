@@ -151,7 +151,7 @@ perform_net_load(descriptor_data *d,char *arg) {
 				GET_SKILL(d->character,skill_num),percent);
 	GET_PRACTICES(d->character)--;
 	SET_SKILL(d->character, skill_num, GET_SKILL(d->character, skill_num) + percent);
-	sprintf(buf, "Program download: %s terminating, %d percent transfer.\r\n", spells[skill_num], percent);
+	sprintf(buf, "Program download: %s terminating, %d percent transfer.\r\n", spell_to_str(skill_num), percent);
 	SEND_TO_Q(buf, d);
 	if (GET_SKILL(d->character, skill_num) >= LEARNED( d->character))
 		strcpy(buf,"Program fully installed on local system.\r\n");
@@ -228,7 +228,7 @@ perform_net_list(struct char_data * ch, int char_class) {
         if ((CHECK_SKILL(ch, i) || ABLE_TO_LEARN(ch, i)) &&
             SPELL_LEVEL(i, 0) <= LVL_GRIMP) {
             sprintf(buf, "%-30s [%3d] percent installed.\r\n", 
-                    spells[i], GET_SKILL(ch, i));
+                    spell_to_str(i), GET_SKILL(ch, i));
             strcat(buf2, buf);
         } 
     }

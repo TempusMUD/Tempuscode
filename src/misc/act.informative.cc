@@ -89,7 +89,6 @@ extern const char *player_race[];
 extern const char *pc_char_class_types[];
 extern const char *room_bits[];
 extern const char *sector_types[];
-extern const char *spells[];
 extern const char *genders[];
 extern const char *from_dirs[];
 extern const char *material_names[];

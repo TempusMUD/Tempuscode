@@ -760,8 +760,8 @@ perform_cyborg_activate(CHAR * ch, int mode, int subcmd)
 			if (affected_by_spell(ch, opposite_mode))
 				mode = opposite_mode;
 			sprintf(buf, "%sERROR:%s %s %s %s activated.\r\n", CCCYN(ch,
-					C_NRM), CCNRM(ch, C_NRM), spells[mode],
-				ISARE(spells[mode]), subcmd ? "already" : "not currently");
+					C_NRM), CCNRM(ch, C_NRM), spell_to_str(mode),
+				ISARE(spell_to_str(mode)), subcmd ? "already" : "not currently");
 			send_to_char(buf, ch);
 			return;
 		}
@@ -774,7 +774,7 @@ perform_cyborg_activate(CHAR * ch, int mode, int subcmd)
 					&& (GET_MOVE(ch) + af[1].modifier) < 0)) {
 				sprintf(buf,
 					"%sERROR:%s Energy levels too low to activate %s.\r\n",
-					CCCYN(ch, C_NRM), CCNRM(ch, C_NRM), spells[mode]);
+					CCCYN(ch, C_NRM), CCNRM(ch, C_NRM), spell_to_str(mode));
 				send_to_char(buf, ch);
 				return;
 			}
@@ -842,7 +842,7 @@ ACMD(do_activate)
 	}
 	if (IS_CYBORG(ch)) {
 		for (i = MAX_SPELLS; i < MAX_SKILLS; i++)
-			if (!strncasecmp(argument, spells[i], strlen(argument) - 1) &&
+			if (!strncasecmp(argument, spell_to_str(i), strlen(argument) - 1) &&
 				IS_SET(spell_info[i].routines, CYB_ACTIVATE)) {
 				mode = i;
 				break;
@@ -2047,7 +2047,7 @@ ACMD(do_repair)
 
 	if (CHECK_SKILL(ch, skill) < 20) {
 		sprintf(buf, "You are not skilled in the art of %s.\r\n",
-			spells[skill]);
+			spell_to_str(skill));
 		send_to_char(buf, ch);
 		return;
 	}
@@ -2065,7 +2065,7 @@ ACMD(do_repair)
 			!(tool = GET_IMPLANT(ch, WEAR_HOLD))) ||
 		!IS_TOOL(tool) || TOOL_SKILL(tool) != skill) {
 		sprintf(buf, "You must be holding a %s tool to do this.\r\n",
-			spells[skill]);
+			spell_to_str(skill));
 		send_to_char(buf, ch);
 		return;
 	}
@@ -2390,7 +2390,7 @@ ACMD(do_analyze)
 				if (CHIP_DATA(obj) > 0 && CHIP_DATA(obj) < MAX_SKILLS) {
 					sprintf(buf, "%s%sData Contained: %s\'%s\'%s\r\n",
 						buf, CCNRM(ch, C_NRM), CCCYN(ch, C_NRM),
-						spells[CHIP_DATA(obj)], CCNRM(ch, C_NRM));
+						spell_to_str(CHIP_DATA(obj)), CCNRM(ch, C_NRM));
 				}
 			}
 			break;
