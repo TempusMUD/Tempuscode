@@ -365,6 +365,7 @@ struct obj_data {
 	struct obj_shared_data *shared;
 	sh_int worn_on;				/* Worn where?              */
 	unsigned int soilage;
+	void *func_data;
 
 	struct obj_data *in_obj;	/* In what object NULL when none    */
 	struct obj_data *contains;	/* Contains objects                 */
