@@ -1,7 +1,7 @@
 CXX=g++
 INCLUDE=include
 CCFLAGS=-g -Wall -Winline -Wcast-qual
-CXXFLAGS=$(CCFLAGS) -I$(INCLUDE)
+CXXFLAGS=$(CCFLAGS) -I$(INCLUDE) -I/usr/include/libxml2/
 
 SUBDIRS= \
 	ban boards bomb clan classes combat db dyntext editor elevators \
@@ -11,7 +11,7 @@ SUBDIRS= \
 
 MAKEFLAGS=-s -k 4 -j 4
 OBJ=ObjFiles
-LIBS=-lcrypt -lxml2 
+LIBS=-lcrypt -lxml2 -lefence
 EXE=../bin/circle
 
 default all:
