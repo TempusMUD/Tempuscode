@@ -18,10 +18,12 @@ extern void send_to_zone(char *messg, struct zone_data *zone, int outdoor);
 // moves all characters from "from" to "to"
 // Does not deal with nulls in either place.
 void move_chars(room_data *from, room_data *to) {
+     char_data *ch = NULL;
      CharacterList::iterator it = from->people.begin();
      for( ; it != from->people.end(); ++it ) {
-         char_from_room(*it);
-         char_to_room(*it, to);
+         ch = *it;
+         char_from_room(ch);
+         char_to_room(ch, to);
      }
 }
 // Connects the "dir" exit of link room to dest_room
