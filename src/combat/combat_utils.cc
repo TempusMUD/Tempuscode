@@ -262,9 +262,10 @@ check_toughguy( struct char_data * ch, struct char_data * vict, int mode )
 	if ( !PLR_FLAGGED( ch, PLR_TOUGHGUY ) ) {
 	    SET_BIT( PLR_FLAGS( ch ), PLR_TOUGHGUY );
 	    sprintf( buf,
-		     "PC Tough bit set on %s for %s %s at %d.",
+		     "PC Tough bit set on %s for %s %s at %d. PK(%s)",
 		     GET_NAME( ch ), mode ? "robbing" : "attack on",
-		     GET_NAME( vict ), vict->in_room->number );
+		     GET_NAME( vict ), vict->in_room->number,
+             PRF2_FLAGGED( ch, PRF2_PKILLER ) ? "ON" : "OFF" );
 	    mudlog( buf, BRF, LVL_AMBASSADOR, TRUE );
 	}
 	if ( IS_REMORT( vict ) && !IS_REMORT( ch ) && 
