@@ -1086,7 +1086,7 @@ ACMD(do_olc)
 					send_to_char("No allocatable rooms found in zone.\r\n",ch);
 			}
 	    } else if (is_abbrev(arg1, "zone")) {
-		if (GET_LEVEL(ch) < LVL_IMPL) {
+		if (GET_LEVEL(ch) < LVL_ENTITY) {
 		    send_to_char("You cannot create zones.\r\n", ch);
 		    return;
 		}
