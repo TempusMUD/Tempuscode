@@ -1935,20 +1935,21 @@ ACMD(do_trigger)
 
     /* You throws the dice and you takes your chances.. 101% is total failure */
     if (number(0, 111) > prob) {
-	WAIT_STATE(ch, PULSE_VIOLENCE);
-	if (!tch || !skill_message(0, ch, tch, spellnum))
-	    send_to_char("Your concentration was disturbed!\r\n", ch);
-	if (mana > 0)
-	    GET_MANA(ch) = MAX(0, MIN(GET_MAX_MANA(ch), GET_MANA(ch) - (mana >> 1)));
-	if (SINFO.violent && tch && IS_NPC(tch))
-	    hit(tch, ch, TYPE_UNDEFINED);
+        WAIT_STATE(ch, PULSE_VIOLENCE);
+        if (!tch || spellnum == SPELL_ELECTROSTATIC_FIELD 
+                 || !skill_message(0, ch, tch, spellnum))
+            send_to_char("Your concentration was disturbed!\r\n", ch);
+        if (mana > 0)
+            GET_MANA(ch) = MAX(0, MIN(GET_MAX_MANA(ch), GET_MANA(ch) - (mana >> 1)));
+        if (SINFO.violent && tch && IS_NPC(tch))
+            hit(tch, ch, TYPE_UNDEFINED);
     } else {
-	if (cast_spell(ch, tch, tobj, spellnum)) {
-	    WAIT_STATE(ch, PULSE_VIOLENCE);
-	    if (mana > 0)
-		GET_MANA(ch) = MAX(0, MIN(GET_MAX_MANA(ch), GET_MANA(ch) - mana));
-	    gain_skill_prof(ch, spellnum); 
-	}
+        if (cast_spell(ch, tch, tobj, spellnum)) {
+            WAIT_STATE(ch, PULSE_VIOLENCE);
+            if (mana > 0)
+            GET_MANA(ch) = MAX(0, MIN(GET_MAX_MANA(ch), GET_MANA(ch) - mana));
+            gain_skill_prof(ch, spellnum); 
+        }
     }
 }
 
