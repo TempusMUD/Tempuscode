@@ -874,7 +874,7 @@ desc_one_char(Creature *ch, Creature *i, bool is_group)
 				CCBLD(ch, C_CMP), GET_ALIGNMENT(i), CCNRM(ch, C_NRM));
 	}
 	// If they can see it, they probably need to know it's unapproved
-	if (MOB_UNAPPROVED(i))
+	if (MOB2_FLAGGED(i, MOB2_UNAPPROVED))
 		appr = tmp_sprintf(" %s(!appr)%s", CCRED(ch, C_NRM),
 			CCNRM(ch, C_NRM));
 		
@@ -938,9 +938,9 @@ list_char_to_char(struct Creature *list, struct Creature *ch)
 			if (hide_prob > hide_roll) {
 				unseen++;
 				continue;
-			} else if (CAN_SEE(i, ch))
-				send_to_char(i, "%s seems to have seen you.\r\n",
-					GET_NAME(ch));
+			}
+
+			send_to_char(i, "%s seems to have seen you.\r\n", GET_NAME(ch));
 		}
 
 		if (IS_AFFECTED(ch, AFF_GROUP) && IS_AFFECTED(i, AFF_GROUP)) {
