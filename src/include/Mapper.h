@@ -6,22 +6,25 @@ using namespace std;
 #include "db.h"
 #include "utils.h"
 #include "interpreter.h"
+#include <signal.h>
 
 class MapToken {
     public:
-        MapToken();
-        MapToken(const MapToken &token);
-        MapToken &operator=(const MapToken &token);
-        MapToken( int d, int r, int c, room_data *s, room_data *t )  {
-            MapToken();
-            set(d,r,c,s,t);
+        MapToken( int d, int r, int c, room_data *s, room_data *t );
+        void clear() {
+            source = target = NULL;
+            next = NULL;
+            targetID = -1;
+            row = -7777777;
+            column = -7777777;
+            direction = -7777777;
         }
-        void set( int d, int r, int c, room_data *s, room_data *t ); 
         room_data *getSource() {return source;}
-        void setSource(room_data *s){source = s;}
-
         room_data *getTarget() {return target;}
+        /*
         void setTarget(room_data *t){target = t;}
+        void setSource(room_data *s){source = s;}
+        MapToken &operator=(const MapToken &token);
 
         int getDirection() {return direction;}
         void setDirection(int d) {direction = d;}
@@ -31,15 +34,15 @@ class MapToken {
 
         void setColumn(int c) {column = c;}
         int getColumn() {return column;}
-
+        */
+        MapToken *next;
         int direction;
         int row;
         int column;
         long targetID;
+    private:
         struct room_data *target;
         struct room_data *source;
-
-        MapToken *next;
 };
 class MapPixel {
     public:
@@ -60,13 +63,19 @@ class Mapper {
         Mapper(char_data *ch,int rows, int columns);
         ~Mapper();
         bool build();
-        void display(char *buf,int bRows,int bCols);
-
+        void display(int bRows,int bCols);
+        void clear();
+        int processed;
+        int size;
+        int maxSize;
+        int last;
+        bool full;
     private:
         char_data *ch; // character doing the mapping
         int rows,columns; // size of the desired map
         MapPixel *mapDisplay;
         MapToken *mapStack;
+        zone_data *curZone;
         void drawLink (room_data *s,room_data *t,int row,int col,bool justLink = false);
         bool drawRoom( room_data *s,room_data *t,long row, long col);
         int getOppDir(int dir) {
@@ -95,9 +104,17 @@ class Mapper {
                 return NULL;
             MapToken *t = mapStack;
             mapStack = t->next;
+            t->next = NULL;
+            ++processed;
+            --size;
             return t;
         }
         inline void push(MapToken *t) {
+            ++size;
+            if(size > maxSize)maxSize = size;
+            if(size > 30000) {
+                full = true;
+            }
             t->next = mapStack;
             mapStack = t;
         }

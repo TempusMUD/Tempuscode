@@ -4,15 +4,28 @@ using namespace std;
 #include <signal.h>
 
 
-const static int mapBits [] = { 1, 2, 4, 8, 16, 32, 64, 128, 256, 512 };
+bool
+is_real_room(int vnum, room_data *r)
+{
+    struct room_data *room;
+    struct zone_data *zone;
+    int num = (vnum / 10);
 
-static inline bool MAPPED(room_data *mappedRoom, int mappedDirection) {
-    return (mappedRoom->find_first_step_index & mapBits[mappedDirection]);
-}
-static inline bool MAP(room_data *mappedRoom, int mappedDirection) {
-    return (mappedRoom->find_first_step_index |= mapBits[mappedDirection]);
+    for (zone = zone_table; zone; zone = zone->next) {
+        if (num >= zone->number &&
+            vnum <= zone->top) {
+            for (room = zone->world; room; room = room->next) {
+        
+            if (room->number == vnum)
+                return (room == r);
+            }
+            return false;
+        }
+    }
+    return false;
 }
 bool CAN_EDIT_ZONE(CHAR *ch, struct zone_data *zone);
+
 ACMD(do_map) {
     int rows;
     int columns;
@@ -36,38 +49,25 @@ ACMD(do_map) {
         columns = rows = GET_PAGE_LENGTH(ch)/2;
     }
     
-    char mapBuf[rows * columns];
     Mapper theMap(ch,rows,columns);
-    theMap.build();
-    theMap.display(mapBuf,rows,columns);
-}
-MapToken::MapToken() {
-        direction = -1;
-        row = 0;
-        column = 0;
-        target = NULL;
-        source = NULL;
-        next = NULL;
-        targetID = -1;
-}
-void MapToken::set(int d, int r, int c, room_data *s, room_data *t ) {
-    direction = d; row = r; column = c; source = s; target = t;
-    targetID = target->number;
-}
-MapToken::MapToken( const MapToken & token ) {
-    *this = token;
-}
-MapToken &MapToken::operator=(const MapToken &token) {
-    this->direction = token.direction;
-    this->row = token.row;
-    this->column = token.column;
-    this->source = token.source;
-    this->target = token.target;
-    this->targetID = token.targetID;
-    if(target == NULL) {
-        raise(SIGSEGV);
+    if(theMap.build()) {
+        theMap.display(rows,columns);
+        if(theMap.full) {
+            send_to_char("Room mapping limit reached. Some rooms not mapped.\r\n",ch);
+        }
+        sprintf(buf,"%d room's processed.\r\n",theMap.processed);
+        send_to_char(buf,ch);
     }
-    return *this;
+    WAIT_STATE(ch,1 RL_SEC);
+}
+MapToken::MapToken( int d, int r, int c, room_data *s, room_data *t ) {
+    direction = d; row = r; column = c; source = s; target = t;
+    targetID = t->number;
+    if( source == NULL || target == NULL ) {
+        fprintf(stderr,"Error creating token.\r\n");
+        raise(666);
+    }
+    next = NULL;
 }
 Mapper::Mapper(char_data *ch,int rows, int columns) {
     mapDisplay = new MapPixel[rows * columns];
@@ -75,27 +75,34 @@ Mapper::Mapper(char_data *ch,int rows, int columns) {
     this->rows = rows;
     this->columns = columns;
     this->ch = ch;
+    processed = 0;
+    size = 0;
+    maxSize = 0;
+    full = false;
 }
 Mapper::~Mapper() {
-    if(mapDisplay != NULL)
-        delete mapDisplay;
+    if(mapDisplay != NULL) {
+        delete [] mapDisplay;
+        mapDisplay = NULL;
+    }
 }
-void Mapper::display(char *buf,int bRows,int bCols) {
+void Mapper::display(int bRows,int bCols) {
     string line;
-    char *r,pen;
+    char pen;
     int exits;
     char terrain;
-    long row,col;
-    long wrtLen;
+    int row,col;
     row = col = 0;
-    r = buf;
     MapPixel *pixel;
     for ( row = 0;row < bRows;row++) {
         for (col = 0;col < bCols;col++) {
-            pixel = mapDisplay + row * columns + col;
+            if(!(validRow(row) && validColumn(col))) {
+                fprintf(stderr,"Mapper::display - Invalid row/col [%d,%d]\r\n",row,col);
+                continue;
+            }
+            pixel = mapDisplay + (row * columns + col);
             terrain = (*pixel).terrain;
             exits = (*pixel).exits;
-            wrtLen = 0;
             switch(terrain) {
                 case -1:
                     pen = ' ';
@@ -199,37 +206,33 @@ void Mapper::display(char *buf,int bRows,int bCols) {
 }
     
 bool Mapper::drawRoom( room_data *s,room_data *t,long row, long col) {
-    //struct zone_data *currentZone = ch->in_room->zone;
-    bool drawn;     // did we draw?
-    short terrain, exits;
- 
+    int position = (row * columns) + col;
+    short exits = 0;
     // if this is an obvious loop room, drop it
     if (t == s)
         return false;
     // If we are out of bounds, drop out of this room.
-    if ( row < 0 || row > rows || col < 0 || col > columns)
+    if(!validRow(row) || !validColumn(col)) 
         return false;
-
-    terrain = -1;
-    exits = 0;
 
     // Check for existing map symbol
     // if there is one, just return.
-    if  ( !( mapDisplay[row * columns + col].mapped ) ) {
-        // Check terrain type
+    if  ( !( mapDisplay[position].mapped ) ) {
+        if(t->zone != curZone) {
+            exits = 4;
+        } else {
+            // Check for links up and down.
+            if (t->dir_option[Up] && t->dir_option[Up]->to_room)
+                exits += 1;
+            if (t->dir_option[Down] && t->dir_option[Down]->to_room)
+                exits += 2;
+        }
 
-
-
-        // Check for links up and down.
-        if (t->dir_option[Up] && t->dir_option[Up]->to_room)
-            exits += 1;
-        if (t->dir_option[Down] && t->dir_option[Down]->to_room)
-            exits += 2;
-
-        mapDisplay[row * columns + col].terrain = t->sector_type;
-        mapDisplay[row * columns + col].exits = exits;
+        mapDisplay[position].terrain = t->sector_type;
+        mapDisplay[position].exits = exits;
+        return true;
     }
-    return drawn;
+    return false;
 }
 
 void Mapper::drawLink    (
@@ -263,34 +266,32 @@ void Mapper::drawLink    (
         r = row + 1;
         c = col;
         if( validRow( r ) && validColumn( c )) {
-            mapDisplay[ (r)* columns + col].terrain = 126;
-            mapDisplay[ (r)* columns + col].exits = 0;
+            mapDisplay[ (r * columns) + col].terrain = 126;
+            mapDisplay[ (r * columns) + col].exits = 0;
         }
     } else if(sExit == South && tExit == North) {
         r = row - 1;
         c = col;
         if( validRow( r ) && validColumn( col )) {
-            mapDisplay[ (r)* columns + col].terrain = 126;
-            mapDisplay[ (r)* columns + col].exits = 0;        
+            mapDisplay[ (r * columns) + col].terrain = 126;
+            mapDisplay[ (r * columns) + col].exits = 0;        
         }
     } else if(sExit == East && tExit == West)  {   // Normal east/west links
         r = row;
         c = col - 1;
         if( validRow( r ) && validColumn( c )) {
-            mapDisplay[ ( r )* columns + ( c )].terrain = 127;
-            mapDisplay[ ( r )* columns + ( c )].exits = 0;
+            mapDisplay[ (r * columns) + c ].terrain = 127;
+            mapDisplay[ (r * columns) + c ].exits = 0;
          }
     } else if(sExit == West && tExit == East) {
         r = row;
         c = col + 1;
         if( validRow( r ) && validColumn( c )) {
-            mapDisplay[ ( r )* columns + ( c )].terrain = 127;
-            mapDisplay[ ( r )* columns + ( c )].exits = 0;
+            mapDisplay[ (r * columns) + c ].terrain = 127;
+            mapDisplay[ (r * columns) + c ].exits = 0;
         }
     }
-    // Here starts the wierd links. (round rooms and the like)
-    // Round rooms put off till sometime next centry.
-
+   // Here starts the wierd links. (round rooms and the like)
    //    **    One way exits with no return to any room    **
    //
    // Note : This does not apply to a room that has a
@@ -345,11 +346,18 @@ void Mapper::drawLink    (
 
     return;
 }
+const static int mapBits [] = { 1, 2, 4, 8, 16, 32, 64, 128, 256, 512 };
+
+static inline bool MAPPED(room_data *mappedRoom, int mappedDirection) {
+    return (mappedRoom->find_first_step_index & mapBits[mappedDirection]);
+}
+static inline bool MAP(room_data *mappedRoom, int mappedDirection) {
+    return (mappedRoom->find_first_step_index |= mapBits[mappedDirection]);
+}
 bool Mapper::build() {
     int i;
     long row,col;
     room_data *curRoom;
-    zone_data *curZone;
     MapToken *token = NULL;
     MapToken *curToken;
     
@@ -363,7 +371,7 @@ bool Mapper::build() {
         if(curRoom->dir_option[i] && curRoom->dir_option[i]->to_room != NULL) 
             break;
     }
-    if(i > 4) { // no exits
+    if(i >= 4) { // no exits
         send_to_char("You glance around and take note of your vast surroundings.\r\n",ch);
         return false;
     }
@@ -382,7 +390,7 @@ bool Mapper::build() {
     // Queue up the first room
     //         MapToken( int d, int r, int c, room_data *s, room_data *t ); 
 
-    token = new MapToken(0,row,col,ch->in_room,ch->in_room);
+    token = new MapToken(Up,row,col,ch->in_room,ch->in_room);
     push(token);
     // Process the queue
     while (! empty() ) {
@@ -390,35 +398,53 @@ bool Mapper::build() {
 
         // Check for a mark in the current direction
         // If it's marked, drop the current room and continue.
-        if (MAPPED(curToken->target,getOppDir(curToken->direction))) {
+        if (MAPPED(curToken->getTarget(),curToken->direction)) {
+            curToken->clear();
+            delete curToken;
             continue;
         }
         // Mark the target room
-        MAP(curToken->target,getOppDir(curToken->direction));
+        MAP(curToken->getTarget(),curToken->direction);
         
         // Draw the room and the link
-        drawRoom( curToken->source,curToken->target,curToken->row,curToken->column);
-        drawLink( curToken->source,curToken->target,curToken->row,curToken->column);
+        drawRoom( curToken->getSource(),curToken->getTarget(),curToken->row,curToken->column);
+        drawLink( curToken->getSource(),curToken->getTarget(),curToken->row,curToken->column);
         
 
-        room_direction_data *op = NULL;
-        // Queue the exits
-        op = curToken->target->dir_option[North];
-        if( op != NULL && op->to_room != NULL && op->to_room->zone == curZone) {
-            push(new MapToken(North,curToken->row - 2,curToken->column,curToken->target, op->to_room));
-        }                
-        op = curToken->target->dir_option[South];
-        if( op != NULL && op->to_room != NULL && op->to_room->zone == curZone) {
-            push(new MapToken( South,curToken->row + 2,curToken->column,curToken->target, op->to_room));
-        }                
-        op = curToken->target->dir_option[East];
-        if( op != NULL && op->to_room != NULL && op->to_room->zone == curZone) {
-            push(new MapToken( East, curToken->row, curToken->column + 2,curToken->target, op->to_room));
-        }                
-        op = curToken->target->dir_option[West];
-        if( op != NULL && op->to_room != NULL && op->to_room->zone == curZone) {
-            push(new MapToken( West,curToken->row, curToken->column - 2,curToken->target, op->to_room));
+        if( ! full ) {
+            room_direction_data *exit = NULL;
+            // Queue the exits
+            token = NULL;
+            exit = curToken->getTarget()->dir_option[North];
+            if( exit != NULL && exit->to_room != NULL && !MAPPED(exit->to_room,North)) {
+                token = (new MapToken(North,curToken->row - 2,curToken->column,curToken->getTarget(), exit->to_room));
+                if(token != NULL)
+                    push(token);
+            }                
+            token = NULL;
+            exit = curToken->getTarget()->dir_option[South];//&& exit->to_room->zone == curZone) {
+            if( exit != NULL && exit->to_room != NULL && !MAPPED(exit->to_room,South)) {
+                token = (new MapToken( South,curToken->row + 2,curToken->column,curToken->getTarget(), exit->to_room));
+                if(token != NULL)
+                    push(token);
+            }                
+            token = NULL;
+            exit = curToken->getTarget()->dir_option[East];
+            if( exit != NULL && exit->to_room != NULL && !MAPPED(exit->to_room,East)) {
+                token = (new MapToken( East, curToken->row, curToken->column + 2,curToken->getTarget(), exit->to_room));
+                if(token != NULL)
+                    push(token);
+            }                
+            token = NULL;
+            exit = curToken->getTarget()->dir_option[West];
+            if( exit != NULL && exit->to_room != NULL && !MAPPED(exit->to_room,West)) {
+                token = (new MapToken( West,curToken->row, curToken->column - 2,curToken->getTarget(), exit->to_room));
+                if(token != NULL)
+                    push(token);
+            }
         }
+        curToken->clear();
+        delete curToken;
     }
     
 
@@ -426,7 +452,7 @@ bool Mapper::build() {
     // terrain 125 (*), exits 5 ( magenta )
     mapDisplay[ (row)* columns + (col)].terrain = 125;
     mapDisplay[ (row)* columns + (col)].exits = 5;
-    delete curToken;
     return true;
 }
+
 
