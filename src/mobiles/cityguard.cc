@@ -656,7 +656,7 @@ SPECIAL(cityguard)
     }
 	case 3:
 		// drag criminal to jail
-		if (!affected_by_spell(target, SKILL_SLEEPER))
+		if (!affected_by_spell(target, SKILL_SLEEPER) && !GET_QUEST(ch))
 			knock_unconscious(self, target);
 		else if (jail_num > 0)
 			drag_char_to_jail(self, target, real_room(jail_num));
