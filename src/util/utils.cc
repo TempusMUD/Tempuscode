@@ -68,25 +68,19 @@ VT_RPPOS(int x, int y)
 long
 GET_SKILL_COST(Creature *ch, int skill)
 {
-	// Mort costs: Level 1: 5000, Level 49: 12mil
-	long pcost = SPELL_LEVEL(skill, GET_CLASS(ch))
-			* SPELL_LEVEL(skill, GET_CLASS(ch))
-			* 250;
-	// Remort costs: gen 1, lvl 35: 12mil  gen 10, lvl 49: 132mil
+	// Mort costs per prac: Level 1: 100, Level 49: 240k
+	long skill_lvl, cost;
+
+	skill_lvl = SPELL_LEVEL(skill, GET_CLASS(ch));
+	if (IS_REMORT(ch) && skill_lvl > SPELL_LEVEL(skill, GET_REMORT_CLASS(ch)))
+		skill_lvl = SPELL_LEVEL(skill, GET_REMORT_CLASS(ch));
+		
+	cost = skill_lvl * skill_lvl * 100;
+
+	// Remort costs: gen 1, lvl 35: 245k  gen 10, lvl 49: 2641100
 	if (SPELL_GEN(skill, GET_CLASS(ch)))
-		pcost *= SPELL_GEN(skill, GET_CLASS(ch)) + 1;
+		cost *= SPELL_GEN(skill, GET_CLASS(ch)) + 1;
 
-	long scost = SPELL_LEVEL(skill, GET_REMORT_CLASS(ch))
-			* SPELL_LEVEL(skill, GET_REMORT_CLASS(ch))
-			* 250;
-	// Remort costs: gen 1, lvl 35: 12mil  gen 10, lvl 49: 132mil
-	if (SPELL_GEN(skill, GET_REMORT_CLASS(ch)))
-		scost *= SPELL_GEN(skill, GET_REMORT_CLASS(ch)) + 1;
-
-	long cost = ( pcost < scost ) ? pcost : scost;
-
-	// Charisma knocks off up to 1/4 of price
-	cost -= cost * GET_CHA(ch) / 100;
 	return cost;
 }
 
