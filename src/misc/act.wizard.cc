@@ -2851,7 +2851,11 @@ ACMD(do_zecho)
 {
     struct descriptor_data *pt;
     struct zone_data *here;
-
+    // charmed mobs and players < LVL_GOD cant use this
+    if((!IS_NPC(ch) && GET_LEVEL(ch) < LVL_GOD) 
+        || (IS_NPC(ch) && IS_AFFECTED(ch,AFF_CHARM))) {
+        send_to_char("You probably shouldn't be using this.\r\n",ch);
+    }
     if(ch->in_room && ch->in_room->zone) {
         here = ch->in_room->zone;
     } else {
@@ -2864,7 +2868,7 @@ ACMD(do_zecho)
 	send_to_char("That must be a mistake...\r\n", ch);
     else {
 	sprintf(buf, "%s\r\n", argument);
-	sprintf(buf2, "[%s-g] %s\r\n", GET_NAME(ch), argument);
+	sprintf(buf2, "[%s-zone] %s\r\n", GET_NAME(ch), argument);
 	for (pt = descriptor_list; pt; pt = pt->next) {
 	    if (!pt->connected && pt->character && pt->character != ch &&
         pt->character->in_room && pt->character->in_room->zone == here &&
