@@ -452,9 +452,8 @@ Creature::saveToXML()
 	fprintf(ouf, "<condition hunger=\"%d\" thirst=\"%d\" drunk=\"%d\"/>\n",
 		GET_COND(ch, FULL), GET_COND(ch, THIRST), GET_COND(ch, DRUNK));
 
-	fprintf(ouf, "<player invis=\"%d\" wimpy=\"%d\" lp=\"%d\" clan=\"%d\"/>\n",
-		GET_INVIS_LVL(ch), GET_WIMP_LEV(ch),
-		GET_LIFE_POINTS(ch), GET_CLAN(ch));
+	fprintf(ouf, "<player wimpy=\"%d\" lp=\"%d\" clan=\"%d\"/>\n",
+		GET_WIMP_LEV(ch), GET_LIFE_POINTS(ch), GET_CLAN(ch));
 
 	if (ch->desc)
 		ch->player_specials->desc_mode = ch->desc->input_mode;
@@ -507,8 +506,9 @@ Creature::saveToXML()
 	}
 
 	if (GET_LEVEL(ch) >= LVL_IMMORT) {
-		fprintf(ouf, "<immort badge=\"%d\" qlog=\"%d\"/>\n",
-			ch->player_specials->saved.occupation, GET_QLOG_LEVEL(this));
+		fprintf(ouf, "<immort badge=\"%d\" qlog=\"%d\" invis=\"%d\"/>\n",
+			ch->player_specials->saved.occupation, GET_QLOG_LEVEL(this),
+			GET_INVIS_LVL(ch));
 		if (POOFIN(ch) && *POOFIN(ch))
 			fprintf(ouf, "<poofin>%s</poofin>\n", xmlEncodeTmp(POOFIN(ch)));
 		if (POOFOUT(ch) && *POOFOUT(ch))
@@ -703,7 +703,6 @@ Creature::loadFromXML( const char *path )
        	} else if ( xmlMatches(node->name, "player") ) {
 			GET_WIMP_LEV(this) = xmlGetIntProp(node, "wimpy");
 			GET_LIFE_POINTS(this) = xmlGetIntProp(node, "lp");
-			GET_INVIS_LVL(this) = xmlGetIntProp(node, "invis");
 			GET_CLAN(this) = xmlGetIntProp(node, "clan");
         } else if ( xmlMatches(node->name, "home") ) {
 			GET_HOME(this) = xmlGetIntProp(node, "town");
@@ -825,6 +824,7 @@ Creature::loadFromXML( const char *path )
         } else if ( xmlMatches(node->name, "immort") ) {
 			player_specials->saved.occupation = xmlGetIntProp(node,"badge");
 			GET_QLOG_LEVEL(this) = xmlGetIntProp(node, "qlog");
+			GET_INVIS_LVL(this) = xmlGetIntProp(node, "qlog");
         } else if (xmlMatches(node->name, "rent")) {
 			char *txt;
 
