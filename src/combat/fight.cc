@@ -99,7 +99,7 @@ set_fighting( struct char_data * ch, struct char_data * vict, int aggr )
                 return;
             }
             if ( ch->isNewbie() && !PLR_FLAGGED( ch, PLR_TOUGHGUY ) ) {
-                send_to_char( "You are currently under new player protection, which expires at level 6.\r\nYou cannot attack other players while under this protection.\r\n", ch );
+                send_to_char( "You are currently under new player protection, which expires at level 41.\r\nYou cannot attack other players while under this protection.\r\n", ch );
                 return;
             }
       
@@ -809,7 +809,7 @@ damage( struct char_data * ch, struct char_data * victim, int dam,
         }
 
         if (ch->isNewbie() && !PLR_FLAGGED( ch, PLR_TOUGHGUY ) ) {
-            send_to_char( "You are currently under new player protection, which expires at level 6.\r\n"
+            send_to_char( "You are currently under new player protection, which expires at level 41.\r\n"
                           "You cannot attack other players while under this protection.\r\n", ch );
             DAM_RETURN( 0 );
         }

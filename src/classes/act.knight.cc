@@ -79,7 +79,7 @@ holytouch_after_effect(char_data *vict,int level ) {
 
     send_to_char("Visions of pure evil sear through your mind!\r\n",vict);
     if(vict->getPosition() > POS_SITTING) {
-        act("$n falls to his knees screaming!", TRUE, vict, 0, 0, TO_ROOM);
+        act("$n falls to $s knees screaming!", TRUE, vict, 0, 0, TO_ROOM);
         vict->setPosition(POS_SITTING);
     } else {
         act("$n begins to scream!", TRUE, vict, 0, 0, TO_ROOM);
