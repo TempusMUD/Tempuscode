@@ -936,7 +936,7 @@ damage(struct Creature *ch, struct Creature *victim, int dam,
 
 	if (IS_WEAPON(attacktype)
 			&& GET_EQ(victim, WEAR_SHIELD)
-			&& CHECK_SKILL(victim, SKILL_SHIELD_MASTERY) > number(0, 400)) {
+			&& victim->getLevelBonus(SKILL_SHIELD_MASTERY) > number(0, 600)) {
 		act("$N deflects your attack with $S shield!", true,
 			ch, GET_EQ(victim, WEAR_SHIELD), victim, TO_CHAR);
 		act("You deflect $n's attack with $p!", true,
