@@ -2997,7 +2997,7 @@ mag_alter_objs(int level, struct char_data * ch, struct obj_data * obj,
             TRUE,ch,obj,0,TO_CHAR);
         return;
     }
-    if(obj->obj_flags.max_dam < 0 || obj->obj_flags->dam < 0 ) {
+    if(obj->obj_flags.max_dam < 0 || obj->obj_flags.damage < 0 ) {
         act("$p's molecular lattice cannot be strengthened.",
             TRUE,ch,obj,0,TO_CHAR);
         return;
