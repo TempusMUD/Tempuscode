@@ -898,9 +898,10 @@ do_emp_pulse_char( char_data *ch, char_data *vict ) {
         return;
     }
    // Put a saving throw in here!!!
-   if(IS_CYBORG(vict) && !mag_savingthrow(vict,GET_LEVEL(ch),SAVING_CHEM) ) {
+   if(IS_CYBORG(vict) ) {
         for( af = vict->affected; af; af = af ? af->next : NULL) {
-            if(SPELL_IS_PROGRAM(af->type)) {
+            if(SPELL_IS_PROGRAM(af->type) 
+            && !mag_savingthrow(vict,GET_LEVEL(ch),SAVING_CHEM) ) {
                 affect_remove(vict,af);
                 af = vict->affected;
                 removed++;
@@ -938,7 +939,7 @@ ASPELL(spell_emp_pulse) {
 
     send_to_room( "An electromagnetic pulse jolts the room!\r\n", ch->in_room );
     for(vict = ch->in_room->people;vict;vict = vict->next_in_room) {
-        if(vict != ch) {
+        if(vict != ch && GET_LEVEL(vict) < LVL_IMMORT) {
             if (IS_PC(vict)) {
                 check_toughguy(ch, vict, 1);
                 check_killer(ch, vict);
