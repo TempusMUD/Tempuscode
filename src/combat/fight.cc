@@ -1998,6 +1998,17 @@ get_next_weap(struct Creature *ch)
 	return GET_EQ(ch, WEAR_HANDS);
 }
 
+// Damage multiplier for the backstab skill.
+// 7x max for levels.
+// 6x max more for gens based on getLevelBonus.
+static inline int BACKSTAB_MULT( Creature *ch  ) {
+	int mult = 2 + ( ch->getLevel() + 1 )/10;
+	int bonus = MAX(0,ch->getLevelBonus(SKILL_BACKSTAB) - 50);
+	mult += ( 6 * bonus ) / 50;
+	return mult;
+}
+
+
 //
 // generic hit
 //
