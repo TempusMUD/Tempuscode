@@ -85,10 +85,9 @@ ACMD(do_empower)
 	val2 = MIN(GET_LEVEL(ch), (GET_MOVE(ch) >> 2));
 
 	af.level = af2.level = af3.level = GET_LEVEL(ch) + GET_REMORT_GEN(ch);
+	af.bitvector = af2.bitvector = af3.bitvector = 0;
+	af.is_instant = af2.is_instant = af3.is_instant = false;
 
-	af.bitvector = 0;
-	af2.bitvector = 0;
-	af3.bitvector = 0;
 	af.type = SKILL_EMPOWER;
 	af2.type = SKILL_EMPOWER;
 	af3.type = SKILL_EMPOWER;

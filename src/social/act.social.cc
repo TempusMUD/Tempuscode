@@ -345,7 +345,7 @@ boot_social_messages(void)
 
 	CREATE(soc_mess_list, struct social_messg, list_top + 1);
 
-	for (idx = 0, i = 0; idx <= social_count && i < list_top;
+	for (idx = 0, i = 0; idx < social_count && i < list_top;
 		idx++)
 		if (tmp_soc_mess_list[idx].act_nr >= 0) {
 			soc_mess_list[i] = tmp_soc_mess_list[idx];
@@ -355,7 +355,7 @@ boot_social_messages(void)
 	/* now, sort 'em */
 	for (idx = 0; idx < list_top; idx++) {
 		min_pos = idx;
-		for (i = idx + 1; i <= list_top; i++)
+		for (i = idx + 1; i < list_top; i++)
 			if (soc_mess_list[i].act_nr < soc_mess_list[min_pos].act_nr)
 				min_pos = i;
 		if (idx != min_pos) {
@@ -364,6 +364,13 @@ boot_social_messages(void)
 			soc_mess_list[min_pos] = temp;
 		}
 	}
+
+	/* Check to make sure that all social commands are defined */
+	for (nr = 0; *cmd_info[nr].command != '\n'; nr++)
+		if (cmd_info[nr].command_pointer == do_action && find_action(nr) < 0)
+			slog("SYSERR: Social '%s' is not defined in socials file",
+				cmd_info[nr].command);
+
 }
 
 

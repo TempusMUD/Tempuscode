@@ -824,8 +824,12 @@ shopping_sell(char *arg, struct char_data *ch,
 		return;
 	}
 	if (IS_CORPSE(obj)) {
-		strcpy(buf, "Take your corpse and get the hell out of my store!");
-		perform_tell(keeper, ch, buf);
+		perform_tell(keeper, ch, "Take your corpse and get the hell out of my store!");
+		return;
+	}
+
+	if (GET_OBJ_EXTRA3(obj) & ITEM3_HUNTED) {
+		perform_tell(keeper, ch, "This is hunted by the forces of Hell!  I'm not taking this!");
 		return;
 	}
 

@@ -480,7 +480,7 @@ HelpCollection::Sync(void)
 	HelpItem *n;
 	for (n = items; n; n = n->Next()) {
 		if (n->text && !IS_SET(n->flags, HFLAG_MODIFIED) && !n->editor) {
-			delete n->text;
+			delete [] n->text;
 			n->text = NULL;
 		}
 	}

@@ -1824,6 +1824,10 @@ qlog(CHAR * ch, char *str, int type, int level, int file)
 	CHAR *vict = NULL;
 	char buf[MAX_STRING_LENGTH];
 
+	// Mortals don't need to be seeing logs
+	if (level < LVL_IMMORT)
+		level = LVL_IMMORT;
+
 	if (type) {
 		CharacterList::iterator cit = characterList.begin();
 		for (; cit != characterList.end(); ++cit) {
