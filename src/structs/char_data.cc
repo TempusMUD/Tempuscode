@@ -399,8 +399,8 @@ void char_data::extract( char mode ) {
     for (i = 0; i < NUM_WEARS; i++) {
         if (GET_EQ(this, i))
             obj_to_room(unequip_char(this, i, MODE_EQ), in_room);
-//        if (GET_IMPLANT(this, i))
-//            obj_to_room(unequip_char(this, i, MODE_IMPLANT), in_room);
+        if (GET_IMPLANT(this, i))
+            extract_obj(unequip_char(this, i, MODE_IMPLANT));
     }
 
 	// transfer gold to room
