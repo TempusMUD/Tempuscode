@@ -579,7 +579,7 @@ extern const char *player_race[] = {
     "Rotarian",
     "Half Elf",
     "Celestial",
-    "Elysian",
+    "Guardinal",
     "Olympian",
 	"\n"
 };
