@@ -54,6 +54,38 @@ struct shop_data *shop_index;
 int top_shop = 0;
 int cmd_say, cmd_tell, cmd_emote, cmd_slap, cmd_puke, cmd_fart, cmd_spit;
 
+//
+// returns true if the message format is ok
+// to be correct, the message format must contain one
+// and only one printf format code, and it must be %d
+//
+
+bool shop_check_message_format( char *format_buf ) {
+
+    bool format_code_found = false;
+    
+    for ( char *ptr = format_buf; *ptr; ++ptr ) {
+        if ( *ptr == '%' ) {
+            
+            // if we've already found a %d, then another % in the string is an error
+            if ( format_code_found ) {
+                return false;
+            }
+            
+            // we've found the first %d in the string
+            if ( *(++ptr) == 'd' ) {
+                format_code_found = true;
+            }
+
+            // we got a %<something else>, an error
+            else {
+                return false;
+            }
+        }
+    }
+
+    return format_code_found;
+}
 
 int is_ok_char(struct char_data * keeper, struct char_data * ch, 
 	       struct shop_data *shop)
@@ -1381,6 +1413,24 @@ boot_the_shops(FILE * shop_f, char *filename, int rec_count)
             new_shop->missing_cash2 = fread_string(shop_f, buf2);
             new_shop->message_buy = fread_string(shop_f, buf2);
             new_shop->message_sell = fread_string(shop_f, buf2);
+
+            //
+            // check the printf-formatted buy/sell messages
+            //
+            if ( !shop_check_message_format( new_shop->message_buy ) ) {
+                sprintf( buf, "SYSERR: error in shop %d buy message: '%s'.", 
+                         SHOP_NUM( new_shop ), new_shop->message_buy );
+                free( new_shop->message_buy );
+                new_shop->message_buy = strdup( SHOP_DEFAULT_MESSAGE_BUY );
+            }
+
+            if ( !shop_check_message_format( new_shop->message_sell ) ) {
+                sprintf( buf, "SYSERR: error in shop %d sell message: '%s'.", 
+                         SHOP_NUM( new_shop ), new_shop->message_sell );
+                free( new_shop->message_sell );
+                new_shop->message_sell = strdup( SHOP_DEFAULT_MESSAGE_SELL );
+            }
+                
             read_line(shop_f, "%d", &SHOP_BROKE_TEMPER(new_shop), new_shop);
             read_line(shop_f, "%d", &SHOP_BITVECTOR(new_shop), new_shop);
             read_line(shop_f, "%d", &SHOP_KEEPER(new_shop), new_shop);

@@ -334,9 +334,6 @@ void do_shop_sset(struct char_data *ch, char *argument)
 	    new_products[count] = GET_OBJ_VNUM(obj);
 	    new_products[count+1] = -1;
 	    free(shop_p->producing);
-#ifdef DMALLOC
-	    dmalloc_verify(0);
-#endif
 	    shop_p->producing = new_products;
 	
 	    send_to_char("Product added to shopping list.\r\n", ch);
@@ -370,9 +367,6 @@ void do_shop_sset(struct char_data *ch, char *argument)
 		}
 	  
 		free(shop_p->producing);
-#ifdef DMALLOC
-		dmalloc_verify(0);
-#endif
 		shop_p->producing = new_products;
 		send_to_char("Product deleted from shopping list.\r\n", ch);
 	    }
@@ -425,9 +419,6 @@ void do_shop_sset(struct char_data *ch, char *argument)
 	new_types[count+1].type = -1;
 	
 	free(shop_p->type);
-#ifdef DMALLOC
-	dmalloc_verify(0);
-#endif
 	shop_p->type = new_types;
 	
 	send_to_char("Product type added to list.\r\n", ch);
@@ -461,9 +452,6 @@ void do_shop_sset(struct char_data *ch, char *argument)
 	    }
 	  
 	    free(shop_p->type);
-#ifdef DMALLOC
-	    dmalloc_verify(0);
-#endif
 	    shop_p->type = new_types;
 	    send_to_char("Product type deleted from list.\r\n", ch);
 	}
@@ -473,58 +461,52 @@ void do_shop_sset(struct char_data *ch, char *argument)
     case 6:               /* msg_no_item1 */
 	if (shop_p->no_such_item1)
 	    free(shop_p->no_such_item1);
-#ifdef DMALLOC
-	dmalloc_verify(0);
-#endif
 	shop_p->no_such_item1 = strdup(arg2);
 	send_to_char("Shop message no such item1 set.\r\n", ch);
 	break;
     case 7:               /* msg_no_item2 */
 	if (shop_p->no_such_item2)
 	    free(shop_p->no_such_item2);
-#ifdef DMALLOC
-	dmalloc_verify(0);
-#endif
 	shop_p->no_such_item2 = strdup(arg2);
 	send_to_char("Shop message no such item2 set.\r\n", ch);
 	break;
     case 8:               /* msg_no_buy */
 	if (shop_p->do_not_buy)
 	    free(shop_p->do_not_buy);
-#ifdef DMALLOC
-	dmalloc_verify(0);
-#endif
 	shop_p->do_not_buy = strdup(arg2);
 	send_to_char("Shop message do not buy set.\r\n", ch);
 	break;
     case 9:               /* msg_miss_cash1 */
 	if (shop_p->missing_cash1)
 	    free(shop_p->missing_cash1);
-#ifdef DMALLOC
-	dmalloc_verify(0);
-#endif
 	shop_p->missing_cash1 = strdup(arg2);
 	send_to_char("Shop message missing cash1 set.\r\n", ch);
 	break;
     case 10:              /* msg_miss_cash2 */
 	if (shop_p->missing_cash2)
 	    free(shop_p->missing_cash2);
-#ifdef DMALLOC
-	dmalloc_verify(0);
-#endif    
 	shop_p->missing_cash2 = strdup(arg2);
 	send_to_char("Shop message missing cash2 set.\r\n", ch);
 	break;
     case 11:              /* msg_buy */
+
+        if ( ! shop_check_message_format( arg2 ) ) {
+            send_to_char( "Shop message format invalid.  Must contain one and only one %d.\r\n", ch );
+            return;
+        }
+
 	if (shop_p->message_buy)
 	    free(shop_p->message_buy);
-#ifdef DMALLOC
-	dmalloc_verify(0);
-#endif    
 	shop_p->message_buy = strdup(arg2);
 	send_to_char("Shop message buy set.\r\n", ch);
 	break;
     case 12:              /* msg_sell */
+
+        if ( ! shop_check_message_format( arg2 ) ) {
+            send_to_char( "Shop message format invalid.  Must contain one and only one %d.\r\n", ch );
+            return;
+        }
+
 	if (shop_p->message_sell)
 	    free(shop_p->message_sell);
 	shop_p->message_sell = strdup(arg2);
@@ -688,9 +670,6 @@ void do_shop_sset(struct char_data *ch, char *argument)
 	    new_rooms[count+1] = -1;
 	
 	    free(shop_p->in_room);
-#ifdef DMALLOC
-	    dmalloc_verify(0);
-#endif
 	    shop_p->in_room = new_rooms;
 	
 	    send_to_char("Room added to room list.\r\n", ch);
@@ -724,9 +703,6 @@ void do_shop_sset(struct char_data *ch, char *argument)
 		}
 	  
 		free(shop_p->in_room);
-#ifdef DMALLOC
-		dmalloc_verify(0);
-#endif
 		shop_p->in_room = new_rooms;
 		send_to_char("Room deleted from room list.\r\n", ch);
 	    }
@@ -840,9 +816,6 @@ write_shp_index(struct char_data *ch, struct zone_data *zone)
     }
   
     free(shp_index);
-#ifdef DMALLOC
-    dmalloc_verify(0);
-#endif
     shp_index = new_index;
   
     sprintf(fname,"world/shp/index");
@@ -1080,9 +1053,6 @@ int do_destroy_shop(struct char_data *ch, int vnum)
 	    break;
 	}
 
-#ifdef DMALLOC
-    dmalloc_verify(0);
-#endif
 
     if (shop->producing)
 	free(shop->producing);
@@ -1106,8 +1076,5 @@ int do_destroy_shop(struct char_data *ch, int vnum)
     top_shop--;
     free(shop);
 
-#ifdef DMALLOC
-    dmalloc_verify(0);
-#endif
     return 0;
 }

@@ -180,4 +180,8 @@ struct stack_data {
 #define MSG_NO_SELL_OBJ         "I have no interest in that."
 #define MSG_BROKEN_OBJ          "I don't buy broken objects."
 
+#define SHOP_DEFAULT_MESSAGE_BUY  "You spend %d."
+#define SHOP_DEFAULT_MESSAGE_SELL "You receive %d."
+
 int ok_damage_shopkeeper(struct char_data * ch, struct char_data * victim);
+bool shop_check_message_format( char *format_buf );
