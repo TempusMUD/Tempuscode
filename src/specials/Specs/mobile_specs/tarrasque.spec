@@ -346,7 +346,7 @@ SPECIAL(tarrasque)
 
 	if (spec_mode == SPECIAL_CMD) {
 		if (CMD_IS("status") && GET_LEVEL(ch) >= LVL_IMMORT) {
-			char *mode_str;
+			char *mode_str = NULL;
 
 			switch (mode) {
 			case T_SLEEP:
