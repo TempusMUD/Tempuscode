@@ -5,7 +5,7 @@ $(OBJ)/act.cleric.o : act.cleric.cc \
 	$(INCLUDE)/structs.h $(INCLUDE)/utils.h $(INCLUDE)/comm.h $(INCLUDE)/handler.h $(INCLUDE)/db.h $(INCLUDE)/spells.h $(INCLUDE)/screen.h $(INCLUDE)/vehicle.h $(INCLUDE)/materials.h $(INCLUDE)/flow_room.h $(INCLUDE)/house.h $(INCLUDE)/char_class.h $(INCLUDE)/fight.h 
 	$(CXX) -c $(CXXFLAGS) act.cleric.cc        -o $(OBJ)/act.cleric.o
 $(OBJ)/act.cyborg.o : act.cyborg.cc \
-	$(INCLUDE)/structs.h $(INCLUDE)/utils.h $(INCLUDE)/comm.h $(INCLUDE)/handler.h $(INCLUDE)/db.h $(INCLUDE)/spells.h $(INCLUDE)/screen.h $(INCLUDE)/vehicle.h $(INCLUDE)/materials.h $(INCLUDE)/char_class.h $(INCLUDE)/guns.h $(INCLUDE)/bomb.h $(INCLUDE)/fight.h $(INCLUDE)/house.h $(INCLUDE)/utils.h 
+	$(INCLUDE)/structs.h $(INCLUDE)/utils.h $(INCLUDE)/comm.h $(INCLUDE)/handler.h $(INCLUDE)/db.h $(INCLUDE)/spells.h $(INCLUDE)/screen.h $(INCLUDE)/vehicle.h $(INCLUDE)/materials.h $(INCLUDE)/char_class.h $(INCLUDE)/guns.h $(INCLUDE)/bomb.h $(INCLUDE)/fight.h $(INCLUDE)/house.h $(INCLUDE)/utils.h $(INCLUDE)/accstr.h 
 	$(CXX) -c $(CXXFLAGS) act.cyborg.cc        -o $(OBJ)/act.cyborg.o
 $(OBJ)/act.hood.o : act.hood.cc \
 	$(INCLUDE)/structs.h $(INCLUDE)/utils.h $(INCLUDE)/comm.h $(INCLUDE)/handler.h $(INCLUDE)/db.h $(INCLUDE)/spells.h $(INCLUDE)/screen.h $(INCLUDE)/char_class.h $(INCLUDE)/vehicle.h $(INCLUDE)/materials.h $(INCLUDE)/fight.h $(INCLUDE)/guns.h $(INCLUDE)/bomb.h $(INCLUDE)/utils.h $(INCLUDE)/house.h $(INCLUDE)/vendor.h 
