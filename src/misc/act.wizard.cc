@@ -5654,10 +5654,13 @@ ACMD(do_set)
 		GET_NAME(vict) = strdup(argument);
 		// Set name
 		if (IS_PC(vict)) {
+			long acct_id;
+
+			acct_id = playerIndex.getAccountID(GET_IDNUM(vict));
 			playerIndex.remove(GET_IDNUM(vict));
 			playerIndex.add(GET_IDNUM(vict),
 				GET_NAME(vict),
-				vict->account->get_idnum(),
+				acct_id,
 				true);
 			vict->saveToXML();
 		}
