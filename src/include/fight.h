@@ -75,14 +75,19 @@ CANNOT_DAMAGE(Creature *ch, Creature *vict, obj_data *weap, int attacktype) {
 	if (NON_CORPOREAL_UNDEAD(vict) ||
 			IS_RAKSHASA(vict) ||
 			IS_GREATER_DEVIL(vict)) {
-		if (IS_WEAPON(attacktype) && weap && IS_OBJ_TYPE(weap, ITEM_WEAPON) &&
-				!IS_OBJ_STAT(weap, ITEM_MAGIC))
-			return true;
-		// bare-handed monk attacks can hit magical stuff with kata
+
+		// Magical items can hit them
+		if (IS_WEAPON(attacktype) && weap && IS_OBJ_STAT(weap, ITEM_MAGIC))
+			return false;
+
+		// bare-handed attacks with kata can hit magical stuff
 		if (IS_WEAPON(attacktype) && !weap && ch &&
-				(ch->getLevelBonus(SKILL_KATA) < 50 ||
-					!affected_by_spell(ch, SKILL_KATA))) 
-			return true;	
+				ch->getLevelBonus(SKILL_KATA) >= 50 &&
+					affected_by_spell(ch, SKILL_KATA)) 
+			return false;	
+
+		// nothing else can
+		return true;
 	}
 
 	return false;
