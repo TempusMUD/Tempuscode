@@ -311,8 +311,8 @@ check_killer(struct Creature *ch, struct Creature *vict,
 	if (ok_to_damage(perp, vict))
 		return;
 
-	if (PLR_FLAGGED(perp, PLR_KILLER | PLR_THIEF))
-		return;
+	GET_SEVERITY(perp) += (GET_LEVEL(perp) + GET_REMORT_GEN(perp) * 50) - 
+						  (GET_LEVEL(vict) + GET_REMORT_GEN(vict) * 50);
 
 	// You don't get a killer for attacking someone with a higher
 	// reputation than you, but you do get a reputation...
@@ -325,10 +325,11 @@ check_killer(struct Creature *ch, struct Creature *vict,
 		return;
 	}
 
+	if (PLR_FLAGGED(perp, PLR_KILLER | PLR_THIEF))
+		return;
+
 	// If we get to this point, perp gets a killer
 	SET_BIT(PLR_FLAGS(perp), PLR_KILLER);
-	GET_SEVERITY(perp) += (GET_LEVEL(perp) + GET_REMORT_GEN(perp) * 50) - 
-		(GET_LEVEL(vict) + GET_REMORT_GEN(vict) * 50);
 	if (perp == ch) {
 		mudlog(LVL_AMBASSADOR, BRF, true,
 			"PC KILLER set on %s for attack on %s at %d. %s",
