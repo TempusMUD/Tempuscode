@@ -1167,6 +1167,11 @@ ACMD(do_flee)
 }
 
 #define FLEE_SPEED(ch) (GET_DEX(ch) + (AFF2_FLAGGED(ch, AFF2_HASTE) ? 20 : 0) + (AFF_FLAGGED(ch, AFF_ADRENALINE) ? 10 : 0) + (AFF2_FLAGGED(ch, AFF2_SLOW ? -20 : 0)))
+
+//
+// if this case, if return_flags has DAM_ATTACKER_KILLED set, it is not absolutely
+// certain that he is dead, but you better damn well not mess with his pointer afterwards
+//
 ACMD(do_retreat)
 {
     int dir;
@@ -1205,13 +1210,22 @@ ACMD(do_retreat)
 	     (vict->desc && vict->desc->wait < 10)) &&
 	    number(0, FLEE_SPEED(ch)) < number(0, FLEE_SPEED(vict))) {
 	    found = 1;
-	    if (hit(vict, ch, TYPE_UNDEFINED))
-		return;
+            int retval = hit( vict, ch, TYPE_UNDEFINED );
+        
+            if ( retval & DAM_VICT_KILLED ) {
+                ACMD_set_return_flags( DAM_ATTACKER_KILLED );
+                return;
+            }
+
 	    if (ch == FIGHTING(vict))
 		stop_fighting(vict);
 	}
     }
-    if (perform_move(ch, dir, MOVE_RETREAT, TRUE)) {
+
+    int retval = perform_move(ch, dir, MOVE_RETREAT, TRUE );
+
+    if ( retval == 0 ) {
+    
 	if (fighting && !found)
 	    gain_skill_prof(ch, SKILL_RETREAT);
 	if (FIGHTING(ch))
@@ -1219,8 +1233,16 @@ ACMD(do_retreat)
 	if ( ch->in_room->isOpenAir() )
 	    ch->setPosition( POS_FLYING );
 	GET_MOVE(ch) = (MAX(0, GET_MOVE(ch) - 10));
-    } else if (ch->in_room)
+        return;
+    } 
+    else if ( retval == 1 ) {
 	act("$n attempts to retreat, but fails!",TRUE,ch,0,0,TO_ROOM);
+    }
+    // critical failure, possible ch death
+    else if ( retval == 2 ) {
+        ACMD_set_return_flags( DAM_ATTACKER_KILLED );
+        return;
+    }
 }
 #undef FLEE_SPEED(ch)
 

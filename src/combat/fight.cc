@@ -206,53 +206,56 @@ die( struct char_data *ch, struct char_data *killer,
         gain_exp( ch, -( GET_EXP( ch ) >> 3 ) );
   
     if ( PLR_FLAGGED( ch, PLR_KILLER ) && GET_LEVEL( ch ) < LVL_AMBASSADOR ) {
-		GET_EXP( ch ) = MAX( 0, MIN( GET_EXP( ch ) - ( GET_LEVEL( ch ) * GET_LEVEL( ch ) ),
-						 exp_scale[GET_LEVEL( ch ) - 2] ) );
+        GET_EXP( ch ) = MAX( 0, MIN( GET_EXP( ch ) - ( GET_LEVEL( ch ) * GET_LEVEL( ch ) ),
+                                     exp_scale[GET_LEVEL( ch ) - 2] ) );
 
-                //
-		// Unaffect the character before all the stuff is subtracted. Bug was being abused
-                //
+        //
+        // Unaffect the character before all the stuff is subtracted. Bug was being abused
+        //
 
-		while ( ch->affected ) {
-		    affect_remove( ch, ch->affected );
-                }
+        while ( ch->affected ) {
+            affect_remove( ch, ch->affected );
+        }
 		
 
-		GET_LEVEL( ch ) = MAX( 1, GET_LEVEL( ch ) - 1 );
-		GET_CHA( ch ) = MAX( 3, GET_CHA( ch ) -2 );
-		GET_MAX_HIT( ch ) = MAX( 0, GET_MAX_HIT( ch ) - GET_LEVEL( ch ) );
+        GET_LEVEL( ch ) = MAX( 1, GET_LEVEL( ch ) - 1 );
+        GET_CHA( ch ) = MAX( 3, GET_CHA( ch ) -2 );
+        GET_MAX_HIT( ch ) = MAX( 0, GET_MAX_HIT( ch ) - GET_LEVEL( ch ) );
     }
   
     if ( !IS_NPC( ch ) && (!ch->in_room) || !ROOM_FLAGGED(ch->in_room, ROOM_ARENA) ) {
-		if ( ch != killer )
-			REMOVE_BIT( PLR_FLAGS( ch ), PLR_KILLER | PLR_THIEF );
+        if ( ch != killer )
+            REMOVE_BIT( PLR_FLAGS( ch ), PLR_KILLER | PLR_THIEF );
 		
-		if ( GET_LEVEL( ch ) > 10 ) {
-			if ( GET_LIFE_POINTS( ch ) <= 0 && GET_MAX_HIT( ch ) <= 1) {
-				if(IS_EVIL(ch) || IS_NEUTRAL(ch))
-				send_to_char("Your soul screaches in agony as it's torn from the mortal realms... forever.\r\n",ch);
-				else if(IS_GOOD(ch))
-				send_to_char("The righteous rejoice as your soul departs the mortal realms... forever.\r\n",ch);
-				SET_BIT(PLR2_FLAGS(ch), PLR2_BURIED);
-				sprintf(buf,"%s died with no maxhit and no life points. Burying.",GET_NAME(ch));
-				mudlog(buf, NRM, LVL_GOD, TRUE);
+        if ( GET_LEVEL( ch ) > 10 ) {
+            if ( GET_LIFE_POINTS( ch ) <= 0 && GET_MAX_HIT( ch ) <= 1) {
 
-			} else if ( GET_LIFE_POINTS( ch ) > 0 ) {
-				GET_LIFE_POINTS( ch ) = 
-					MAX( 0, GET_LIFE_POINTS( ch ) - number( 1, ( GET_LEVEL( ch ) >> 3 ) ) );
-			} else if ( !number( 0, 3 ) ) {
-				GET_CON( ch ) = MAX( 3, GET_CON( ch ) - 1 );
-			} else if ( GET_LEVEL( ch ) > number( 20, 50 ) ) {
-				GET_MAX_HIT( ch ) = MAX( 1, GET_MAX_HIT( ch ) - dice( 3, 5 ) );
-			}
-		}
-		if ( IS_CYBORG( ch ) ) {
-			GET_TOT_DAM( ch ) = 0;
-			GET_BROKE( ch ) = 0;
-		}
-		GET_PC_DEATHS( ch )++;
+                if(IS_EVIL(ch) || IS_NEUTRAL(ch))
+                    send_to_char("Your soul screeches in agony as it's torn from the mortal realms... forever.\r\n",ch);
+
+                else if(IS_GOOD(ch))
+                    send_to_char("The righteous rejoice as your soul departs the mortal realms... forever.\r\n",ch);
+
+                SET_BIT(PLR2_FLAGS(ch), PLR2_BURIED);
+                sprintf(buf,"%s died with no maxhit and no life points. Burying.",GET_NAME(ch));
+                mudlog(buf, NRM, LVL_GOD, TRUE);
+                            
+            } else if ( GET_LIFE_POINTS( ch ) > 0 ) {
+                GET_LIFE_POINTS( ch ) = 
+                    MAX( 0, GET_LIFE_POINTS( ch ) - number( 1, ( GET_LEVEL( ch ) >> 3 ) ) );
+            } else if ( !number( 0, 3 ) ) {
+                GET_CON( ch ) = MAX( 3, GET_CON( ch ) - 1 );
+            } else if ( GET_LEVEL( ch ) > number( 20, 50 ) ) {
+                GET_MAX_HIT( ch ) = MAX( 1, GET_MAX_HIT( ch ) - dice( 3, 5 ) );
+            }
+        }
+        if ( IS_CYBORG( ch ) ) {
+            GET_TOT_DAM( ch ) = 0;
+            GET_BROKE( ch ) = 0;
+        }
+        GET_PC_DEATHS( ch )++;
     }
-
+    
     REMOVE_BIT( AFF2_FLAGS( ch ), AFF2_ABLAZE );
     REMOVE_BIT( AFF3_FLAGS( ch ), AFF3_SELF_DESTRUCT );
     raw_kill( ch, killer, attacktype );
@@ -655,6 +658,9 @@ inline int damage_attacker( struct char_data * ch, struct char_data * victim, in
 //
 // damage( ) returns TRUE on a kill, FALSE otherwise
 // damage(  ) MUST return with DAM_RETURN(  ) macro !!!
+// the return value bits can be a combination of:
+// DAM_VICT_KILLED
+// DAM_ATTACKER_KILLED
 //
 
 int 

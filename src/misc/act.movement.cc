@@ -992,7 +992,11 @@ int do_simple_move(struct char_data * ch, int dir, int mode, int need_specials_c
 	    }
 	}
     }
-  
+
+    //
+    // death trap
+    //
+
     if (IS_SET(ROOM_FLAGS(ch->in_room),ROOM_DEATH) &&
 	GET_LEVEL(ch) < LVL_AMBASSADOR) {
 	was_in = ch->in_room;
@@ -1007,6 +1011,10 @@ int do_simple_move(struct char_data * ch, int dir, int mode, int need_specials_c
 	}
 	return 2;
     }
+
+    //
+    // trig_enter searches
+    //
 
     for (srch = ch->in_room->search, found = 0; srch; srch = srch->next) {
 	if (SRCH_FLAGGED(srch, SRCH_TRIG_ENTER) && SRCH_OK(ch, srch)) {
@@ -1024,7 +1032,14 @@ int do_simple_move(struct char_data * ch, int dir, int mode, int need_specials_c
     return 0;
 }
 
-
+/* 
+ *
+ *   Returns :
+ *   0 : If succes.
+ *   1 : If fail
+ *   2 : If critical failure / possible death
+ * same as do_simple_move
+ */
 int 
 perform_move(struct char_data *ch, int dir, int mode, int need_specials_check)
 {
@@ -1032,7 +1047,7 @@ perform_move(struct char_data *ch, int dir, int mode, int need_specials_check)
     struct follow_type *k, *next;
 
     if (ch == NULL || dir < 0 || dir >= NUM_OF_DIRS || ch->in_room == NULL )
-	return 0;
+	return 1;
 
     if (IS_AFFECTED_2(ch, AFF2_VERTIGO) && GET_LEVEL(ch) < LVL_AMBASSADOR && 
 	number(0, 60) > (GET_LEVEL(ch) + GET_DEX(ch)) && 
@@ -1121,8 +1136,9 @@ perform_move(struct char_data *ch, int dir, int mode, int need_specials_check)
 	    return (do_simple_move(ch, dir, mode, need_specials_check));
 
 	was_in = ch->in_room;
-	if ( do_simple_move(ch, dir, mode, need_specials_check) != 0 )
-	    return 0;
+        int retval = 0;
+	if ( ( retval = do_simple_move(ch, dir, mode, need_specials_check) ) != 0 )
+	    return retval;
 
 	for (k = ch->followers; k; k = next) {
 	    next = k->next;
@@ -1135,10 +1151,10 @@ perform_move(struct char_data *ch, int dir, int mode, int need_specials_check)
 		perform_move(k->follower, dir, MOVE_NORM, 1);
 	    }
 	}
-	return 1;
+	return 0;
     }
 
-    return 0;
+    return 1;
 }
 
 
