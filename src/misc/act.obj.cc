@@ -3211,10 +3211,11 @@ prototype_obj_value(struct obj_data *obj)
 		break;
 
 	case ITEM_ENERGY_GUN:
-		value += GUN_DISCHARGE(obj) * GUN_DISCHARGE(obj) *
-			GUN_DISCHARGE(obj) * MAX_R_O_F(obj) * MAX_R_O_F(obj) *
-			MAX_R_O_F(obj);
-
+		value += GET_OBJ_VAL(obj, 1) * GET_OBJ_VAL(obj, 1) *
+			GET_OBJ_VAL(obj, 1) *
+			GET_OBJ_VAL(obj, 2) * GET_OBJ_VAL(obj, 2) * 4;
+            
+        value += 1000 * GET_OBJ_VAL(obj, 3);
 		break;
 
 	case ITEM_BATTERY:
@@ -3412,7 +3413,7 @@ set_maxdamage(struct obj_data *obj)
 		dam *= 3;
 		break;
 	case ITEM_ENERGY_GUN:
-		dam *= 7;
+		dam *= 20;
 		break;
 	case ITEM_METAL:
 		dam *= 30;
