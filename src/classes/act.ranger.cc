@@ -170,8 +170,10 @@ ACMD(do_medic)
 			return;
 		}
 		if (GET_MOVE(ch) > mod) {
-			if (GET_CLASS(ch) == CLASS_RANGER) mod *= 2; //2x multiplier for prime rangers
-            GET_HIT(ch) = MIN(GET_MAX_HIT(ch), GET_HIT(ch) + mod);
+			GET_HIT(ch) = MIN(GET_MAX_HIT(ch), GET_HIT(ch) + mod);
+            if (GET_CLASS(ch) == CLASS_RANGER) { //2x multiplier for prime rangers
+                GET_HIT(ch) = MIN(GET_MAX_HIT(ch), GET_HIT(ch) + mod);
+            }
 			GET_MOVE(ch) = MAX(GET_MOVE(ch) - mod, 0);
 			send_to_char(ch, "You apply some TLC to your wounds.\r\n");
 			act("$n fixes up $s wounds.", TRUE, ch, 0, 0, TO_ROOM);
