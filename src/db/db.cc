@@ -3203,7 +3203,7 @@ save_char(struct Creature *ch, struct room_data *load_room)
 		return;
 
 	char_to_store(ch, &st);
-	if (ch->desc && !STATE(ch->desc))
+	if (ch->desc && STATE(ch->desc) == CON_PLAYING)
 		save_aliases(ch);
 
 	strncpy(st.host, ch->desc->host, HOST_LENGTH);
@@ -3223,8 +3223,6 @@ save_char(struct Creature *ch, struct room_data *load_room)
 		GET_LOADROOM(ch) = -1;
 		st.player_specials_saved.load_room = -1;
 	}
-
-	strcpy(st.pwd, GET_PASSWD(ch));
 
 	fseek(player_fl, GET_PFILEPOS(ch) * sizeof(struct char_file_u), SEEK_SET);
 	fwrite(&st, sizeof(struct char_file_u), 1, player_fl);
@@ -3366,8 +3364,10 @@ store_to_char(struct char_file_u *st, struct Creature *ch)
 	ch->points.damroll = 0;
 	ch->setSpeed(0);
 
+	st->name[MAX_NAME_LENGTH] = '\0';
 	CREATE(ch->player.name, char, strlen(st->name) + 1);
 	strcpy(ch->player.name, st->name);
+	st->pwd[MAX_PWD_LENGTH] = '\0';
 	strcpy(ch->player.passwd, st->pwd);
 
 	if (*st->poofin) {
@@ -3520,7 +3520,11 @@ char_to_store(struct Creature *ch, struct char_file_u *st)
 	else
 		*st->poofout = '\0';
 
-	strcpy(st->name, GET_NAME(ch));
+	strncpy(st->name, GET_NAME(ch), MAX_NAME_LENGTH);
+	st->name[MAX_NAME_LENGTH] = '\0';
+	strncpy(st->pwd, GET_PASSWD(ch), MAX_PWD_LENGTH);
+	st->pwd[MAX_PWD_LENGTH] = '\0';
+
 
 	/* add spell and eq affections back in now */
 	for (i = 0; i < MAX_AFFECT; i++) {
