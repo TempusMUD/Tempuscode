@@ -828,7 +828,7 @@ desc_one_char(Creature *ch, Creature *i, bool is_group)
 		else if (MOUNTED(i) == ch)
 			desc = tmp_sprintf("%s is here, mounted on YOU.  Heh heh...", desc);
 		else if (MOUNTED(i)->in_room == i->in_room)
-			desc = tmp_sprintf("%s is here, mounted on %s!", desc,
+			desc = tmp_sprintf("%s is here, mounted on %s.", desc,
 				PERS(MOUNTED(i), ch));
 		else
 			desc = tmp_sprintf("%s is here, mounted on someone who already left!",
