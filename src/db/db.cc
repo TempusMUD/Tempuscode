@@ -2741,6 +2741,7 @@ reset_zone(struct zone_data *zone)
 	extern struct shop_data *shop_index;
 
 	// Find all the shops in this zone and reset them.
+	// Also, send SPECIAL_RESET notification to all mobiles with specials
 	CreatureList::iterator cit = characterList.begin();
 	for (; cit != characterList.end(); ++cit) {
 		// Wrong zone
@@ -2750,8 +2751,11 @@ reset_zone(struct zone_data *zone)
 		if (!MOB_FLAGGED((*cit), MOB_SPEC))
 			continue;
 		// Wrong special
-		if (GET_MOB_SPEC((*cit)) != shop_keeper)
+		if (GET_MOB_SPEC((*cit)) != shop_keeper) {
+			if (GET_MOB_SPEC((*cit)))
+				GET_MOB_SPEC((*cit))((*cit), (*cit), 0, "", SPECIAL_RESET);
 			continue;
+		}
 		// Run through the shop list and find the right one
 		for (shop = shop_index; shop; shop = shop->next) {
 			// Do they have revenue set on the shop?
