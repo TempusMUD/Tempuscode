@@ -8627,8 +8627,8 @@ verify_tempus_integrity(Creature *ch)
 		vict = cit->second;
 
 		if (!vict->player.name)
-			send_to_char(ch, "Alias of creature proto #%d is NULL!\r\n",
-				MOB_IDNUM(vict));
+			send_to_char(ch, "Alias of creature proto #%d (%s) is NULL!\r\n",
+				MOB_IDNUM(vict), vict->player.short_descr);
 		check_tempus_pointer(ch, vict->player.name, 0,
 			"aliases of creature proto", MOB_IDNUM(vict));
 		check_tempus_pointer(ch, vict->player.short_descr, 0,
