@@ -1309,6 +1309,14 @@ char_to_game(descriptor_data *d)
 				notes = tmp_strcat(notes, "\r\n\007You could not afford your rent!\r\n"
 					 "Some of your possessions have been sold to cover your bill!\r\n");
 				break;
+			case 3:
+				load_room = real_room(number(10919, 10921));
+				if (!load_room) {
+					slog("SYSERR: Can't send %s to jail - jail doesn't exist!",
+						GET_NAME(d->creature));
+				}
+				notes = tmp_strcat(notes, "\r\nYou were unable to pay your rent and have been put in JAIL!\r\n");
+				break;
 			default:
 				slog("Can't happen at %s:%d", __FILE__, __LINE__);
 		}

@@ -69,7 +69,7 @@ Creature::findCostliestObj(void)
 
 // Creature::payRent will pay the player's rent, selling off items to meet the
 // bill, if necessary.
-bool
+int
 Creature::payRent(time_t last_time, int code, int currency)
 {
 	float day_count;
@@ -78,13 +78,13 @@ Creature::payRent(time_t last_time, int code, int currency)
 
 	// Immortals don't pay rent
 	if (GET_LEVEL(this) >= LVL_AMBASSADOR)
-		return false;
+		return 0;
     if (isTester())
-        return false;
+        return 0;
 
 	// Cryoed chars already paid their rent, quit chars don't have any rent
 	if (code == RENT_NEW_CHAR || code == RENT_CRYO || code == RENT_QUIT)
-		return false;
+		return 0;
 
 	// Calculate total cost
 	day_count = (float)(time(NULL) - last_time) / SECS_PER_REAL_DAY;
@@ -181,23 +181,11 @@ Creature::payRent(time_t last_time, int code, int currency)
 				GET_CASH(this) -= cost;
 			else
 				GET_GOLD(this) -= cost;
-		} else if (cost > 0) {
-			// If they've sold all they have, they wake up in prison!
-			int room_num;
-
-			room_num = number(10919, 10921);
-			if (!real_room(room_num))
-				slog("SYSERR: Can't send %s to jail - room #%d doesn't exist!",
-					GET_NAME(this), room_num);
-			else {
-				send_to_char(this, "You were unable to pay your rent and have been put in JAIL!\r\n");
-				char_to_room(this, real_room(room_num));
-			}
 		}
 
-		return true;
+		return (cost > 0) ? 2:3;
 	}
-	return false;
+	return 0;
 }
 
 bool
@@ -339,9 +327,7 @@ Creature::loadObjects()
 
     xmlFreeDoc(doc);
 
-	if (payRent(player.time.logon, player_specials->rentcode, player_specials->rent_currency))
-		return 2;
-	return 0;
+	return payRent(player.time.logon, player_specials->rentcode, player_specials->rent_currency);
 }
 
 

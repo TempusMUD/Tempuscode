@@ -1018,7 +1018,7 @@ struct Creature {
 
 	bool displayUnrentables(void);
 	obj_data *findCostliestObj(void);
-	bool payRent(time_t last_time, int code, int currency);
+	int payRent(time_t last_time, int code, int currency);
     // Saves the given characters equipment to a file. Intended for use while 
     // the character is still in the game. 
     bool crashSave();
