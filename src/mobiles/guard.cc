@@ -10,6 +10,8 @@
 #include "screen.h"
 #include "utils.h"
 
+void call_for_help(Creature *, Creature *);
+
 SPECIAL(guard)
 {
 	struct Creature *self = (struct Creature *)me;
@@ -18,12 +20,17 @@ SPECIAL(guard)
 	char *to_vict = "You are blocked by $n.";
 	char *to_room = "$N is blocked by $n.";
 	char *str, *line, *param_key, *dir_str, *room_str;
-	bool attack = false, fallible = false;
+	bool attack = false, fallible = false, callsforhelp = false;
 	char *err = NULL;
 	long room_num = -1;
 
 
-	if (spec_mode != SPECIAL_CMD || !IS_MOVE(cmd) || !GET_MOB_PARAM(self))
+	// we only handle ticks if we're fighting, and commands only if they're
+	// movement commands
+	if (!GET_MOB_PARAM(self)
+			|| (spec_mode != SPECIAL_TICK && spec_mode != SPECIAL_CMD)
+			|| (spec_mode == SPECIAL_TICK && !FIGHTING(self))
+			|| (spec_mode == SPECIAL_CMD && !IS_MOVE(cmd)))
 		return 0;
 
 	str = GET_MOB_PARAM(self);
@@ -65,11 +72,24 @@ SPECIAL(guard)
 		} else if (!strcmp(param_key, "fallible")) {
 			fallible = (is_abbrev(line, "yes") || is_abbrev(line, "on") ||
 				is_abbrev(line, "1") || is_abbrev(line, "true"));
+		} else if (!strcmp(param_key, "callsforhelp")) {
+			callsforhelp = (is_abbrev(line, "yes") || is_abbrev(line, "on") ||
+				is_abbrev(line, "1") || is_abbrev(line, "true"));
 		} else {
 			err = "an invalid directive";
 			break;
 		}
 	}
+
+	if (spec_mode == SPECIAL_TICK) {
+		if (callsforhelp && !number(0, 10)) {
+			call_for_help(self, FIGHTING(self));
+			return true;
+		}
+
+		return false;
+	}
+
 	if (dir == -1)
 		return false;
 
