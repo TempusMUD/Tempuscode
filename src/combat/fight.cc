@@ -4114,7 +4114,7 @@ perform_violence( void )
 	    if ( IS_CYBORG( ch ) ) {
 		int implant_prob;
 
-		if ( !FIGHTING( ch ) || GET_LEVEL( ch ) < ( i << 3 ) )
+		if ( !FIGHTING( ch ) )
 		    continue;
 		if ( GET_POS( ch ) < POS_FIGHTING ) {
 		    if ( CHECK_WAIT( ch ) < 10 )
@@ -4133,6 +4133,8 @@ perform_violence( void )
 			    continue;
 		    }
 		}
+		if ( !FIGHTING( ch ) )
+		    continue;
 		if ( number(1,100) < CHECK_SKILL(ch, SKILL_IMPLANT_W ) ) {
 		    implant_prob = 25;
 		    if (CHECK_SKILL(ch, SKILL_IMPLANT_W) > 100) {
