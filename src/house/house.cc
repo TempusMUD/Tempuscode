@@ -52,7 +52,8 @@ using namespace std;
   HCONTROL_SET_FORMAT \
   HCONTROL_SHOW_FORMAT \
   "Usage: hcontrol save/recount\r\n" \
-  "Usage: hcontrol where\r\n" )
+  "Usage: hcontrol where\r\n" \
+  "Usage: hcontrol reload [house#] (Use with caution!)\r\n" )
 
 
 
@@ -708,6 +709,13 @@ HouseControl::save()
 	}
 }
 
+bool
+House::load()
+{
+ 	char *path = get_house_file_path(getID());
+
+    return this->load(path);
+}
 
 void
 HouseControl::load()
@@ -1381,7 +1389,7 @@ hcontrol_set_house( Creature *ch, char *arg)
 			return;
 		}
 		char *landlord = tmp_getword(&arg);
-		if(! playerIndex.exists(landlord) ) {
+		if(!playerIndex.exists(landlord) ) {
 			send_to_char(ch, "There is no such player, '%s'\r\n", arg);
 			return;
 		}
@@ -1436,6 +1444,46 @@ hcontrol_where_house( Creature *ch, char *arg)
 		CCGRN(ch, C_NRM), CCNRM(ch, C_NRM), h->getOwnerID() );
 }
 
+void hcontrol_reload_house(Creature *ch, char *arg) 
+{
+    struct room_data *room = NULL;
+    struct obj_data *obj = NULL, *next_o = NULL;
+    const char *arg1 = tmp_getword(&arg);
+    House *h = NULL; 
+
+    if (arg1 == NULL || *arg1 == '\0') {
+        if (!(h = Housing.findHouseByRoom(ch->in_room->number))) {
+            send_to_char(ch, "You are not in a house.\r\n");
+            return;
+        }
+    }
+    else {
+        if (!atoi(arg1)) {
+		    send_to_char(ch, HCONTROL_FORMAT);
+            return;
+        }
+	    if (!(h = Housing.findHouseById(atoi(arg1)))) {
+            send_to_char(ch, "House id: [%d] does not exist\r\n", atoi(arg1));
+            return;
+        }
+    }
+
+    if (h == NULL) {
+        send_to_char(ch, "Bad things just happened.  Please report\r\n");
+        return;
+    }
+
+    for( unsigned int i = 1; i < h->getRoomCount(); i++ ) {
+        int room_num = h->getRoom(i);
+        room = real_room(room_num); 
+        for (obj = room->contents; obj; obj = next_o) {
+            next_o = obj->next_content;
+            extract_obj(obj);
+        }
+    }
+
+    h->load();
+}
 /* Misc. administrative functions */
 
 void
@@ -1719,7 +1767,10 @@ ACMD(do_hcontrol)
 				send_to_char(ch, HCONTROL_SHOW_FORMAT);
 			}
 		}
-	} else {
+	} 
+    else if (is_abbrev(action_str, "reload")) {
+        hcontrol_reload_house(ch, argument);
+    } else {
 		send_to_char(ch,HCONTROL_FORMAT);
     }
 }
@@ -1851,4 +1902,5 @@ HouseControl::displayHouses( list<House*> houses, Creature *ch )
 					  roomlist );
     }
 }
+
 

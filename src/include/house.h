@@ -84,7 +84,7 @@ class House
 		bool save();
 		// initializes this house from the given file
 		bool load( const char* filename );
-		
+	    bool load();	
 		// retrieves this house's unique identifier
 		int getID() const { return id; }
 		// retrieves the unique id of the account that owns this house
