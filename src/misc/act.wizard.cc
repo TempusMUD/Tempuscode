@@ -114,6 +114,7 @@ void save_quests(); // quests.cc - saves quest data
 void save_all_players();
 int do_freeze_char(char *argument, Creature *vict, Creature *ch);
 void verify_tempus_integrity(Creature *ch);
+void do_stat_obj_tmp_affs(struct Creature *ch, struct obj_data *obj);
 
 ACMD(do_equipment);
 
@@ -1523,8 +1524,70 @@ do_stat_object(struct Creature *ch, struct obj_data *j)
 		send_to_char(ch, "Spec_param: \r\n%s\r\n",
 			GET_OBJ_PARAM(j));
 	}
+
+    do_stat_obj_tmp_affs(ch, j);
 }
 
+void
+do_stat_obj_tmp_affs(struct Creature *ch, struct obj_data *obj)
+{
+    struct tmp_obj_affect *aff = obj->tmp_affects;
+    char *buf;
+    char buf2[32];
+    char *stat_string;
+    
+    if (aff == NULL)
+        return;
+
+    for (; aff != NULL; aff = aff->next) {
+        stat_string = tmp_sprintf("AFF: (%3dhr) [%3hhd] %s%-20s%s ", 
+                                  aff->duration, aff->level, CCCYN(ch, C_NRM),
+                                  spell_to_str(aff->type), CCNRM(ch, C_NRM));
+
+        for (int i = 0; i < 4; i++) {
+            if (aff->val_mod[i] != 0) {
+                buf = tmp_strcat(stat_string, 
+                                 item_value_types[(int)GET_OBJ_TYPE(obj)][i],
+                                 " by ", tmp_sprintf("%d", 
+                                                     aff->val_mod[i]), NULL);
+                send_to_char(ch, "%s\r\n", buf);
+            }
+        }
+
+        if (aff->type_mod) {
+            send_to_char(ch, "%stype = %s\r\n", stat_string, 
+                         item_type_descs[(int)GET_OBJ_TYPE(obj)]);
+        }
+
+        if (aff->worn_mod) {
+            sprintbit(aff->worn_mod, wear_bits, buf2);
+            send_to_char(ch, "%sworn + %s\r\n", stat_string, buf2);
+        }
+
+        if (aff->extra_mod) {
+            if (aff->extra_index == 1)
+                sprintbit(aff->extra_mod, extra_bits, buf2);
+            if (aff->extra_index == 2)
+                sprintbit(aff->extra_mod, extra2_bits, buf2);
+            if (aff->extra_index == 3)
+                sprintbit(aff->extra_mod, extra3_bits, buf2);
+            send_to_char(ch, "%sextra + %s\r\n", stat_string, buf2);
+        }
+
+        if (aff->weight_mod) {
+            send_to_char(ch, "%sweight by %s\r\n", stat_string,
+                             tmp_sprintf("%d", aff->weight_mod));
+        }
+
+        for (int i = 0; i < MAX_OBJ_AFFECT; i++) {
+            if (aff->affect_loc[i]) {
+                sprinttype(aff->affect_loc[i], apply_types, buf2);
+                send_to_char(ch, "%s%+d to %s\r\n", stat_string, 
+                             aff->affect_mod[i], buf2);
+            }
+        }
+    }
+}
 
 void
 do_stat_character(struct Creature *ch, struct Creature *k)

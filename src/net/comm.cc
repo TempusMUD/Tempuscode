@@ -121,6 +121,7 @@ int write_to_descriptor(int desc, char *txt);
 /* extern fcnts */
 void boot_world(void);
 void affect_update(void);		/* In spells.c */
+void obj_affect_update(void);
 void mobile_activity(void);
 void burn_update(void);
 void dynamic_object_pulse();
@@ -582,6 +583,7 @@ game_loop(int mother_desc)
 		if (!(pulse % (SECS_PER_MUD_HOUR * PASSES_PER_SEC))) {
 			weather_and_time(1);
 			affect_update();
+            obj_affect_update();
 			point_update();
 			descriptor_update();
 			Help->Sync();

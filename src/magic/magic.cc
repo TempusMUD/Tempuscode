@@ -29,6 +29,7 @@
 #include "char_class.h"
 #include "flow_room.h"
 #include "fight.h"
+#include "obj_data.h"
 
 extern struct room_data *world;
 extern struct obj_data *object_list;
@@ -272,6 +273,31 @@ update_iaffects(Creature * ch)
 		}
 	}
 	return 0;
+}
+
+void
+obj_affect_update(void)
+{
+    extern struct obj_data *object_list;
+    struct obj_data *obj;
+    struct tmp_obj_affect *af;
+
+    for (obj = object_list; obj != NULL; obj = obj->next) {
+        if (obj->tmp_affects != NULL) {
+            for (af = obj->tmp_affects; af != NULL; af = af->next) {
+                af->duration--;
+                if (af->duration == -1) {
+                    if (*item_wear_off_msg[af->type] && 
+                        obj->carried_by  &&
+                        !PLR_FLAGGED(obj->carried_by, PLR_OLC)) {
+                        act(item_wear_off_msg[af->type], FALSE,
+                            obj->carried_by, obj, NULL, TO_CHAR);
+                    }
+                    obj->removeAffect(af);
+                }
+            }
+        }
+    }
 }
 
 /* affect_update: called from comm.c (causes spells to wear off) */

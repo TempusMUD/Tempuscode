@@ -134,6 +134,7 @@ extern const char *color_liquid[];
 extern const char *fullness[];
 extern const int mana_bonus[26];
 extern const char *spell_wear_off_msg[];
+extern const char *item_wear_off_msg[];
 extern const int rev_dir[];
 extern const char movement_loss[];
 extern const char *weekdays[7];

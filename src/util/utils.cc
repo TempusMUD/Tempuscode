@@ -949,3 +949,10 @@ exdesc_list_dup(struct extra_descr_data *list)
 	return result;
 }
 
+void check_bits_32(int bitv, int *newbits)
+{
+    for (int i = 0; i < 32; i++) {
+        if (bitv & (1 << i))
+            *newbits &= ~(1 << i);
+    }
+}

@@ -267,6 +267,11 @@ static const int CREATED_SEARCH = 3;
 static const int CREATED_ZONE = 4;
 static const int CREATED_MOB = 5;
 
+// These constants are to be passed to affectJoin()
+static const int AFF_ADD = 0;
+static const int AFF_AVG = 1;
+static const int AFF_NOOP = 3;
+
 inline const char *
 liquid_to_str(int liquid)
 {
@@ -311,6 +316,25 @@ struct obj_affected_type {
 	byte location;				/* Which ability to change (APPLY_XXX) */
 	sbyte modifier;				/* How much it changes by              */
 };
+
+struct tmp_obj_affect {
+    char level;           /* level of spell which applied this affect */
+    int type;             /* type of spell which applied this effect */
+    int duration;         /* How long this effect will last */
+    int dam_mod;          /* Current damage modifier */
+    int maxdam_mod;       /* Max damage modifier */
+    char val_mod[4];      /* How much to change each value by */
+    char type_mod;        /* Change the type of the obj to this value */
+    char old_type;        /* Original obj type (saved for wearoff) */
+    int worn_mod;         /* Add these bits to the wear positions */
+    int extra_mod;        /* Add this to the extra bitvector */
+    char extra_index;     /* Which bitvector to modify */
+    int weight_mod;       /* Change the weight by this value */
+    char affect_loc[MAX_OBJ_AFFECT];  /* (APPLY_XXX)*/
+    char affect_mod[MAX_OBJ_AFFECT];; /* Change apply by this value */
+    struct tmp_obj_affect *next;
+};
+
 /* ================== Memory Structure for Objects ================== */
 struct obj_data {
 	bool isUnrentable();
@@ -351,6 +375,12 @@ struct obj_data {
 					  room_data *room, 
 					  xmlNodePtr node);
 
+    void addAffect(struct tmp_obj_affect *af);
+    void removeAffect(struct tmp_obj_affect *af);
+    /* add == true adds the affect, add == false removes it */
+    void affectModify(struct tmp_obj_affect *af, bool add);
+    void affectJoin(struct tmp_obj_affect *af, int dur_mode, int val_mode,
+                    int aff_mode);
 	void saveToXML( FILE* ouf );
 	void display_rent(Creature *ch, const char *currency_str);
 
@@ -377,6 +407,8 @@ struct obj_data {
 	int creation_method;
 	long int creator;
 
+    /* Temp obj affects! */
+    struct tmp_obj_affect *tmp_affects;
 	struct obj_data *in_obj;	/* In what object NULL when none    */
 	struct obj_data *contains;	/* Contains objects                 */
 	struct obj_data *aux_obj;	/* for special usage                */

@@ -368,5 +368,226 @@ obj_data::display_rent(Creature *ch, const char *currency_str)
 		name);
 }
 
+void
+obj_data::addAffect(struct tmp_obj_affect *af)
+{
+    struct tmp_obj_affect *new_aff;
+    
+    CREATE(new_aff, struct tmp_obj_affect, 1);
+
+    memcpy(new_aff, af, sizeof(struct tmp_obj_affect));
+    new_aff->next = this->tmp_affects;
+    this->tmp_affects = new_aff;
+
+    affectModify(new_aff, true);
+}
+
+void
+obj_data::removeAffect(struct tmp_obj_affect *af)
+{
+    struct tmp_obj_affect *curr_aff;
+    struct tmp_obj_affect *prev_aff = NULL;
+    bool found = true;
+
+    affectModify(af, false);
+
+    curr_aff = this->tmp_affects;
+    
+    while(curr_aff != NULL) {
+        found = false;
+        if (curr_aff == af) {
+            found = true;
+            if (prev_aff != NULL)
+                prev_aff->next = af->next;
+            else
+                this->tmp_affects = NULL;
+            
+            free(af);
+            break;
+        }
+        else {
+            prev_aff = curr_aff;
+            curr_aff = curr_aff->next;
+        }
+    }
+
+    if (!found) {
+        mudlog(LVL_AMBASSADOR, BRF, true, "SYSERR: Could not find matching "
+               "temporary object affect to remove.");
+    }
+}
+
+// add == true adds the affect, add == false deletes the affect
+void
+obj_data::affectModify(struct tmp_obj_affect *af, bool add)
+{
+    // Set or restore damage
+    if (af->dam_mod) {
+        if (add)
+            this->obj_flags.damage += af->dam_mod;
+        else
+            this->obj_flags.damage -= af->dam_mod;
+    }
+    //Set or restore maxdam
+    if (af->maxdam_mod) {
+        if (add)
+            this->obj_flags.max_dam += af->maxdam_mod;
+        else
+            this->obj_flags.max_dam -= af->maxdam_mod;
+    }
+    // Set or reset the value mods
+    for (int i = 0; i < 4; i++) {
+        if (af->val_mod[i] != 0) {
+            if (add)
+                this->obj_flags.value[i] += af->val_mod[i];
+            else
+                this->obj_flags.value[i] -= af->val_mod[i];
+        }
+    }
+    // Set or restore type
+    if (af->type_mod) {
+        if (add) {
+            af->old_type = this->obj_flags.type_flag;
+            this->obj_flags.type_flag = af->type_mod;
+        }
+        else
+            this->obj_flags.type_flag = af->old_type;
+    }
+
+    // Set or reset wear positions
+    if (af->worn_mod) {
+        if (add) {
+            check_bits_32(this->obj_flags.wear_flags, &af->worn_mod);
+            this->obj_flags.wear_flags |= af->worn_mod;
+        }
+        else
+            this->obj_flags.wear_flags &= ~(af->worn_mod);
+    }
+
+    // set or reset extra flags
+    if (af->extra_mod && af->extra_index) {
+        int *oextra;
+        if (af->extra_index == 1) {
+            oextra = &this->obj_flags.extra_flags;
+        }
+        else if (af->extra_index == 2) {
+            oextra = &this->obj_flags.extra2_flags;
+        }
+        else if (af->extra_index == 3) {
+            oextra = &this->obj_flags.extra3_flags;
+        }
+        else {
+            mudlog(LVL_AMBASSADOR, BRF, true, "SYSERR: Invalid extra index (%d) "
+                   "in obj_data::affectModify().", af->extra_index);
+            return;
+        }
+
+        if (add) {
+            check_bits_32(*oextra, &af->extra_mod);
+            *oextra |= af->extra_mod;
+        }
+        else
+            *oextra &= ~(af->extra_mod);
+    }
+
+    // Set or reset weight
+    if (af->weight_mod) {
+        if (add)
+            this->setWeight(this->getWeight() + af->weight_mod);
+        else
+            this->setWeight(this->getWeight() - af->weight_mod);
+    }
+
+    // Set or reset affections
+    // I probably could have done this with less code but it would have been
+    // much more difficult to understand
+    for (int i = 0; i < MAX_OBJ_AFFECT; i++) {
+        if (af->affect_mod[i] > 125)
+            af->affect_mod[i] = 125;
+        else if (af->affect_mod[i] < -125)
+            af->affect_mod[i] = -125;
+
+        if (af->affect_loc[i] != APPLY_NONE) {
+            bool found = false;
+            for (int j = 0; j < MAX_OBJ_AFFECT; j++) {
+                if (this->affected[j].location == af->affect_loc[i]) {
+                    found = true;
+                    if (add)
+                        this->affected[j].modifier += af->affect_mod[i];
+                    else
+                        this->affected[j].modifier -= af->affect_mod[i];
+                    break;
+                }
+
+                if (found) {
+                    if (this->affected[j].modifier == 0) {
+                        this->affected[j].location = APPLY_NONE;
+                    }
+                }
+            }
+            
+            if (!found) {
+                for (int j = 0; j < MAX_OBJ_AFFECT; j++) {
+                    if (this->affected[j].location == APPLY_NONE) {
+                        found = true;
+                        this->affected[j].location = af->affect_loc[i];
+                        this->affected[j].modifier = af->affect_mod[i];
+                        break;
+                    }
+                }
+            }
+
+            if (!found)
+                mudlog(LVL_AMBASSADOR, BRF, true, "SYSERR: Unable to alter "
+                       "temporary object affect.  No free affect locations.");
+        }
+    }
+}
+
+void
+obj_data::affectJoin(struct tmp_obj_affect *af, int dur_mode, int val_mode,
+                     int aff_mode)
+{
+    struct tmp_obj_affect *cur_aff = this->tmp_affects;
+    struct tmp_obj_affect tmp_aff;
+
+    for (; cur_aff != NULL; cur_aff = tmp_aff.next) {
+        if (cur_aff->type == af->type) {
+            memcpy(&tmp_aff, cur_aff, sizeof(struct tmp_obj_affect));
+            if (dur_mode == AFF_ADD)
+                tmp_aff.duration = MIN(666, af->duration + tmp_aff.duration);
+            else if (dur_mode == AFF_AVG)
+                tmp_aff.duration = (af->duration + tmp_aff.duration) / 2;
+
+            for (int i = 0; i < 4; i++) {
+                if (af->val_mod[i] != 0) {
+                    if (val_mode == AFF_ADD)
+                        tmp_aff.val_mod[i] += af->val_mod[i];
+                    else if (val_mode == AFF_AVG)
+                        tmp_aff.val_mod[i] = (af->val_mod[i] + 
+                                               tmp_aff.val_mod[i]) / 2;
+                }
+            }
+
+            for (int i = 0; i < MAX_OBJ_AFFECT; i++) {
+                for (int j = 0; j < MAX_OBJ_AFFECT; j++) {
+                    if (tmp_aff.affect_loc[i] == af->affect_loc[j]) {
+                        if (aff_mode == AFF_ADD)
+                            tmp_aff.affect_mod[i] += af->affect_mod[j];
+                        else if (aff_mode == AFF_AVG)
+                            tmp_aff.affect_mod[i] = (tmp_aff.affect_mod[j] +
+                                                      af->affect_mod[j]) / 2;
+                    }
+                }
+            }
+
+            removeAffect(cur_aff);
+            addAffect(&tmp_aff);
+            return;
+        }
+    }
+
+    this->addAffect(af);
+}
 
 #undef __obj_data_cc__
