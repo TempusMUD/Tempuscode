@@ -992,16 +992,21 @@ do_olc_rset(struct char_data *ch, char *argument)
 }
 
 void
-do_olc_rexdesc(struct char_data *ch, char *argument)
+do_olc_rexdesc(struct char_data *ch, char *argument, bool is_hedit)
 {
 
 	struct extra_descr_data *desc = NULL, *ndesc = NULL, *temp = NULL;
 	char arg1[MAX_INPUT_LENGTH], arg2[MAX_INPUT_LENGTH];
+	const char *cmd;
+
+	cmd = (is_hedit) ? "hedit extradesc":"olc rexdesc";
 
 	if (!*argument) {
-		send_to_char(OLC_EXDESC_USAGE, ch);
+		sprintf(buf, "Usage: %s <create | remove | edit | addkey> <keyword> [new keywords]\r\n", cmd);
+		send_to_char(buf, ch);
 		return;
 	}
+
 	half_chop(argument, buf, argument);
 	if (!*argument)
 		send_to_char
@@ -1030,10 +1035,10 @@ do_olc_rexdesc(struct char_data *ch, char *argument)
 		return;
 	} else if (is_abbrev(buf, "create")) {
 		if (find_exdesc(argument, ch->in_room->ex_description)) {
-			send_to_char
-				("An extra description already exists with that keyword.\r\n"
-				"Use the 'olc rexdesc remove' command to remove it, or the\r\n"
-				"'olc rexdesc edit' command to change it, punk.\r\n", ch);
+			sprintf(buf, "An extra description already exists with that keyword.\r\n"
+				"Use the '%s remove' command to remove it, or the\r\n"
+				"'%s edit' command to change it, punk.\r\n", cmd, cmd);
+			send_to_char(buf, ch);
 			return;
 		}
 		CREATE(ndesc, struct extra_descr_data, 1);
@@ -1173,7 +1178,7 @@ ACMD(do_hedit)
 		do_olc_rset(ch, buf);
 		break;
 	case 2:					/* extra */
-		do_olc_rexdesc(ch, argument);
+		do_olc_rexdesc(ch, argument, true);
 		break;
 	case 4:					/* save  */
 		if (!save_wld(ch))

@@ -200,7 +200,7 @@ int do_create_zone(struct char_data *ch, int num);
 int olc_mimic_mob(struct char_data *ch, struct char_data *orig,
 	struct char_data *targ, int mode);
 void olc_mimic_room(struct char_data *ch, struct room_data *targ, char *arg);
-void do_olc_rexdesc(struct char_data *ch, char *a);
+void do_olc_rexdesc(struct char_data *ch, char *a, bool is_hedit);
 void perform_oset(struct char_data *ch, struct obj_data *obj_p,
 	char *argument, byte subcmd);
 void do_zset_command(struct char_data *ch, char *argument);
@@ -569,7 +569,7 @@ ACMD(do_olc)
 		send_to_char("Use olc zset owner, instead.\r\n", ch);
 		break;
 	case 5:					/* rexdesc */
-		do_olc_rexdesc(ch, argument);
+		do_olc_rexdesc(ch, argument, false);
 		break;
 	case 6:					/*  unlock */
 		if (!*argument || is_abbrev(argument, "all")) {

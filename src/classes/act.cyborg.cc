@@ -1788,7 +1788,7 @@ ACMD(do_status)
 
 	case ITEM_DETONATOR:
 		if (CHECK_SKILL(ch, SKILL_DEMOLITIONS) < 50)
-			send_to_char("You have no idea.\r\n", ch);
+			send_to_char("You have no idea how.\r\n", ch);
 		else if (obj->aux_obj)
 			act("$p is currently tuned to $P.", FALSE, ch, obj, obj->aux_obj,
 				TO_CHAR);
@@ -1799,7 +1799,7 @@ ACMD(do_status)
 
 	case ITEM_BOMB:
 		if (CHECK_SKILL(ch, SKILL_DEMOLITIONS) < 50)
-			send_to_char("You have no idea.\r\n", ch);
+			send_to_char("You have no idea how.\r\n", ch);
 		else {
 			sprintf(buf, "$p is %sfused and %sactive.",
 				(obj->contains && IS_FUSE(obj->contains)) ? "" : "un",

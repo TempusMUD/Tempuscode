@@ -8,9 +8,8 @@ extern struct {double multiplier;int max;} weap_spec_char_class[];
 #define weap_spec GET_WEAP_SPEC(ch, i)	
 SPECIAL(weaponsmaster)
 {
-	struct obj_data *weap;
-	int cost, i, char_class, check_only = 0;
-	int found = 0;
+	struct obj_data *weap = NULL;
+	int pos, cost, i, char_class, check_only = 0;
 
     if (spec_mode != SPECIAL_CMD && spec_mode != SPECIAL_TICK) return FALSE;
 
@@ -29,17 +28,25 @@ SPECIAL(weaponsmaster)
 		send_to_char("To specialize in a weapon, type 'train <weapon name>'.\r\n",ch);
 		return 1;
 	}
-    weap  = GET_EQ(ch, WEAR_WIELD);
-    if(weap && isname(argument, weap->name))
-        found = 1;
-    if(!found )
-        weap = GET_EQ(ch, WEAR_HANDS);
-    if(weap && isname(argument, weap->name))
-        found = 1;
-    if(!found) {
+	for (pos = 0;pos < NUM_WEARS && !weap;pos++) {
+		weap = GET_EQ(ch, pos);
+		if (weap && GET_OBJ_TYPE(weap) == ITEM_WEAPON &&
+				isname(argument, weap->name))
+			break;
+
+		weap = GET_IMPLANT(ch, pos);
+		if (weap && GET_OBJ_TYPE(weap) == ITEM_WEAPON &&
+				isname(argument, weap->name))
+			break;
+
+		weap = NULL;
+	}
+
+    if(!weap) {
         send_to_char("You must be wielding or wearing the weapon you want to specialize in.\r\n", ch);
         return 1;
     }
+
     if( weap->worn_on == WEAR_HANDS && GET_CLASS(ch) != CLASS_MONK) {
         send_to_char("Only monks can train a weapon of this type.\r\n",ch);
         return 1;
