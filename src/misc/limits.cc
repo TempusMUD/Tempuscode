@@ -313,19 +313,6 @@ move_gain(struct Creature *ch)
 void
 set_title(struct Creature *ch, char *title)
 {
-	struct clan_data *clan = NULL;
-	struct clanmember_data *memb = NULL;
-
-	if( title == NULL && GET_CLASS(ch) >= 0 ) {
-		title = READ_TITLE(ch);
-
-		if (PRF2_FLAGGED(ch, PRF2_CLAN_TITLE) &&
-			(clan = real_clan(GET_CLAN(ch))) &&
-			(memb = real_clanmember(GET_IDNUM(ch), clan)) &&
-			memb->rank < clan->top_rank && clan->ranknames[(int)memb->rank])
-			title = clan->ranknames[(int)memb->rank];
-	}
-
     if( title == NULL ) {
         title = strdup( "" );
     }
@@ -344,7 +331,6 @@ set_title(struct Creature *ch, char *title)
 		strcat(GET_TITLE(ch), title);
 	} else
 		*GET_TITLE(ch) = '\0';
-
 }
 
 
@@ -411,7 +397,6 @@ gain_exp(struct Creature *ch, int gain)
 				send_to_char(ch, "You rise %d levels!\r\n", num_levels);
 			}
 			ch->saveToXML();
-			set_title(ch, NULL);
 			check_autowiz(ch);
 		}
 	} else if (gain < 0) {
@@ -448,7 +433,6 @@ gain_exp_regardless(struct Creature *ch, int gain)
 			else {
 				send_to_char(ch, "You rise %d levels!\r\n", num_levels);
 			}
-			set_title(ch, NULL);
 			check_autowiz(ch);
 		}
 	}
