@@ -1688,14 +1688,26 @@ ACMD(do_olc)
             send_to_char(ch, "A NEGATIVE number??\r\n");
             return;
         }
-        if (is_abbrev(buf1, "mob")) {
+		for (zone = zone_table;zone;zone = zone->next)
+			if (vnum >= zone->number * 100 && vnum <= zone->top)
+				break;
+
+		if (!zone) {
+			send_to_char(ch, "Hmm.  There's no zone attached to it.\r\n");
+			break;
+		}
+		if (!CAN_EDIT_ZONE(ch, zone)) {
+			send_to_char(ch, "You can't edit that zone.\r\n");
+			break;
+		}
+        if (is_abbrev(buf1, "mobile")) {
             if (!(mob = real_mobile_proto(number))) {
                 send_to_char(ch, "There is no monster with that number.\r\n");
             } else {
-                recalculate_based_on_level(mob);
-                send_to_char(ch,"Mobile %d statistics recalculated based on level.\r\n", number);
+				recalculate_based_on_level(mob);
+				send_to_char(ch,"Mobile %d statistics recalculated based on level.\r\n", number);
             }
-        } else if (is_abbrev(buf1, "obj")) {
+        } else if (is_abbrev(buf1, "object")) {
             if (!(obj = real_object_proto(number))) {
                 send_to_char(ch, "There is no object with that number.\r\n");
             } else {
