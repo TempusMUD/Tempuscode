@@ -29,6 +29,12 @@ int PlayerTable::getTopIDNum() {
 bool PlayerTable::loadPlayer( const char* name, Creature *victim ) const 
 {
 	long id = getID( name );
+	return loadPlayer(id, victim);
+}
+
+/** loads the victim with the given id into the provided Creature **/
+bool PlayerTable::loadPlayer( const long id, Creature *victim ) const 
+{
 	if( id <= 0 ) {
 		return false;
 	}
