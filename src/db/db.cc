@@ -1329,9 +1329,9 @@ renum_zone_table(void)
 			}
 			if (!mini_mud && !scheck) {
 				if (a < 0)
-					zerrlog(zone, "Invalid vnum %d in zone %d, cmd disabled", a);
+					zerrlog(zone, "Invalid vnum %d - cmd disabled", a);
 				if (b < 0)
-					zerrlog(zone, "Invalid vnum %d in zone %d, cmd disabled", b);
+					zerrlog(zone, "Invalid vnum %d - cmd disabled", b);
 				if (a < 0 || b < 0)
 					zonecmd->command = '*';
 			}
