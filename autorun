@@ -40,47 +40,47 @@ while /bin/true; do
 
     FLAGS=$OLDFLAGS
 
-    fgrep "self-delete"   syslog >> log/delete
-    fgrep "death trap"    syslog >> log/dts
-    fgrep "killed"        syslog >> log/rip
-    fgrep "Running"       syslog >> log/restarts
-    fgrep "advanced"      syslog >> log/levels
-    fgrep "equipment lost" syslog >> log/rentgone
-    fgrep "usage"         syslog >> log/usage
-    fgrep "new player"    syslog >> log/newplayers
-    fgrep "new player"    syslog >> log/cur_newplayers
-    fgrep "SYSERR"        syslog >> log/errors
-    fgrep "DEBUG"         syslog >> log/debug
-    fgrep "(GC)"          syslog >> log/godcmds
-    fgrep "(QC)"          syslog >> log/questcmds
-    fgrep "Bad PW"        syslog >> log/badpws
-    fgrep "undefined rent" syslog >> log/undef_rent
-    fgrep "REIMB"         syslog >> log/bad_reimb
-    fgrep "WIPE"          syslog >> log/mudwipes
-    fgrep "rename"        syslog >> log/eq_renames
-    fgrep "been restored" syslog >> log/restores
-    fgrep "ENCHANT"       syslog >> log/imm_enchants
-    fgrep " Killed"       syslog >> log/exp_log
-    fgrep "Failed a"      syslog >> log/failed_olc
-    fgrep "OLC"           syslog >> log/olc_log
-    fgrep "register"      syslog >> log/home_register
-    fgrep "pkilled"       syslog >> log/pkills
-    fgrep "stole"         syslog >> log/imm_larceny
-    fgrep "ImmCast"       syslog >> log/imm_magic
-    fgrep "approved object"        syslog >> log/olc_obj_approve
-    fgrep "approved mobile"        syslog >> log/olc_mob_approve
-    fgrep "has gained"    syslog >> log/no_hunger_t_d
-    fgrep "(RTEST)"       syslog >> log/remorts
-    fgrep "jail"          syslog >> log/jail_log
-    fgrep "looted"        syslog >> log/corpse_looting
-    fgrep "MONEY"         syslog >> log/cash_transfer
-    fgrep "CLAN:"         syslog >> log/clan_accounts
-    fgrep "SRCH:"         syslog >> log/searches
-    fgrep "(cedit)"       syslog >> log/cedit_log
-    fgrep "increased"     syslog >> log/increase_log
-    fgrep "improved"      syslog >> log/improve_log
-    fgrep "siteok'd"      syslog >> log/siteok_log
-    fgrep "joining the soulless masses."      syslog >> log/soulless
+    fgrep "self-delete"   syslog >> log/parsed/delete
+    fgrep "death trap"    syslog >> log/parsed/dts
+    fgrep "killed"        syslog >> log/parsed/rip
+    fgrep "Running"       syslog >> log/parsed/restarts
+    fgrep "advanced"      syslog >> log/parsed/levels
+    fgrep "equipment lost" syslog >> log/parsed/rentgone
+    fgrep "usage"         syslog >> log/parsed/usage
+    fgrep "new player"    syslog >> log/parsed/newplayers
+    fgrep "new player"    syslog >> log/parsed/cur_newplayers
+    fgrep "SYSERR"        syslog >> log/parsed/errors
+    fgrep "DEBUG"         syslog >> log/parsed/debug
+    fgrep "(GC)"          syslog >> log/parsed/godcmds
+    fgrep "(QC)"          syslog >> log/parsed/questcmds
+    fgrep "Bad PW"        syslog >> log/parsed/badpws
+    fgrep "undefined rent" syslog >> log/parsed/undef_rent
+    fgrep "REIMB"         syslog >> log/parsed/bad_reimb
+    fgrep "WIPE"          syslog >> log/parsed/mudwipes
+    fgrep "rename"        syslog >> log/parsed/eq_renames
+    fgrep "been restored" syslog >> log/parsed/restores
+    fgrep "ENCHANT"       syslog >> log/parsed/imm_enchants
+    fgrep " Killed"       syslog >> log/parsed/exp_log
+    fgrep "Failed a"      syslog >> log/parsed/failed_olc
+    fgrep "OLC"           syslog >> log/parsed/olc_log
+    fgrep "register"      syslog >> log/parsed/home_register
+    fgrep "pkilled"       syslog >> log/parsed/pkills
+    fgrep "stole"         syslog >> log/parsed/imm_larceny
+    fgrep "ImmCast"       syslog >> log/parsed/imm_magic
+    fgrep "approved object"        syslog >> log/parsed/olc_obj_approve
+    fgrep "approved mobile"        syslog >> log/parsed/olc_mob_approve
+    fgrep "has gained"    syslog >> log/parsed/no_hunger_t_d
+    fgrep "(RTEST)"       syslog >> log/parsed/remorts
+    fgrep "jail"          syslog >> log/parsed/jail_log
+    fgrep "looted"        syslog >> log/parsed/corpse_looting
+    fgrep "MONEY"         syslog >> log/parsed/cash_transfer
+    fgrep "CLAN:"         syslog >> log/parsed/clan_accounts
+    fgrep "SRCH:"         syslog >> log/parsed/searches
+    fgrep "(cedit)"       syslog >> log/parsed/cedit_log
+    fgrep "increased"     syslog >> log/parsed/increase_log
+    fgrep "improved"      syslog >> log/parsed/improve_log
+    fgrep "siteok'd"      syslog >> log/parsed/siteok_log
+    fgrep "joining the soulless masses."      syslog >> log/parsed/soulless
 
     
     rm log/syslog.1
@@ -89,8 +89,25 @@ while /bin/true; do
     mv log/syslog.4 log/syslog.3
     mv log/syslog.5 log/syslog.4
     mv log/syslog.6 log/syslog.5
-    mv syslog       log/syslog.6
+    mv log/syslog.7 log/syslog.6
+    mv log/syslog.8 log/syslog.7
+    mv log/syslog.9 log/syslog.8
+    mv log/syslog.0 log/syslog.9
+    mv syslog       log/syslog.0
     touch syslog
+
+    rm log/command.log.1
+    mv log/command.log.2  log/command.log.1
+    mv log/command.log.3  log/command.log.2
+    mv log/command.log.4  log/command.log.3
+    mv log/command.log.5  log/command.log.4
+    mv log/command.log.6  log/command.log.5
+    mv log/command.log.7  log/command.log.6
+    mv log/command.log.8  log/command.log.7
+    mv log/command.log.9  log/command.log.8
+    mv log/command.log.0  log/command.log.9
+	mv log/command.log    log/command.log.0
+    touch log/command.log 
 
   
 # rm log/prof_log.1
