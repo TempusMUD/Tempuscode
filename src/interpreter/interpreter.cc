@@ -373,6 +373,7 @@ ACMD(do_wizlock);
 ACMD(do_wiznet);
 ACMD(do_wizutil);
 ACMD(do_mudwipe);
+ACMD(do_wrench);
 ACMD(do_write);
 ACMD(do_xlag);
 ACMD(do_zreset);
@@ -1261,6 +1262,7 @@ extern const struct command_info cmd_info[] = {
     { "wormhole" , POS_STANDING, do_translocate, 0, SKILL_WORMHOLE },
     { "worry"    , POS_RESTING , do_action   , 0, 0 },
     { "worship"  , POS_RESTING , do_action   , 0, 0 },
+    { "wrench"   , POS_FIGHTING, do_wrench   , 0, 0 },
     { "wrestle"  , POS_RESTING , do_action   , 0, 0 },
     { "write"    , POS_RESTING , do_write    , 1, 0 },
 
