@@ -2007,7 +2007,12 @@ ACMD(do_stat)
 		} else {
 			CREATE(victim, struct Creature, 1);
 			clear_char(victim);
-			if (load_char(buf2, &tmp_store) > -1) {
+			if( true ) {
+				int id = get_id_by_name(buf2);
+				victim->loadFromXML(id);
+				do_stat_character(ch, victim);
+				free_char(victim);
+			} else if (load_char(buf2, &tmp_store) > -1) {
 				store_to_char(&tmp_store, victim);
 				if (GET_LEVEL(victim) > GET_LEVEL(ch) && GET_IDNUM(ch) != 1)
 					send_to_char(ch, "Sorry, you can't do that.\r\n");

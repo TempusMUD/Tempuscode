@@ -1199,5 +1199,17 @@ SAFETY(const char *str)
 	return str;
 }
 
+inline int
+hex2dec(const char *s)
+{
+	int i = 0;
+
+	while (isxdigit(*s)) {
+		int n = toupper(*s);
+		i = i << 4 | (n - ((n >= 'A') ? '7':'0'));
+		s++;
+	}
+	return i;
+}
 
 #endif

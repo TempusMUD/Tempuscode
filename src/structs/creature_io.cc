@@ -18,6 +18,7 @@
 
 
 void add_alias(struct Creature *ch, struct alias_data *a);
+void affect_to_char(struct Creature *ch, struct affected_type *af);
 
 void
 Creature::saveToXML() {
@@ -126,10 +127,8 @@ Creature::saveToXML() {
 		fprintf(ouf, " FROZEN_LVL=\"%d\"", GET_FREEZE_LEV(ch));
 	fprintf(ouf, "/>\n");
 
-	fprintf(ouf, "<PREFS FLAG1=\"%ld\" FLAG2=\"%ld\" LOADROOM=\"%d\" PAGE_LEN=\"%d\"/>\n",
-		ch->player_specials->saved.pref, ch->player_specials->saved.pref2,
-		ch->player_specials->saved.load_room,
-		ch->player_specials->saved.page_length);
+	fprintf(ouf, "<PREFS FLAG1=\"%ld\" FLAG2=\"%ld\"/>\n",
+		ch->player_specials->saved.pref, ch->player_specials->saved.pref2);
 
 	fprintf(ouf, "<TERMINAL ROWS=\"%d\" COLUMNS=\"%d\"/>\n",
 		GET_PAGE_LENGTH(ch), GET_COLS(ch));
@@ -253,9 +252,10 @@ Creature::loadFromXML( long id )
             player.time.death = xmlGetLongProp(node, "DEATH");
             player.time.played = xmlGetIntProp(node, "PLAYED");
             player.time.logon = xmlGetLongProp(node, "TIME");
-            char *h = xmlGetProp(node, "HOST");
-            strcpy( desc->host, h );
-            free(h);
+            //char *h = xmlGetProp(node, "HOST");
+            //strncpy( desc->host, h, HOST_LENGTH );
+			//desc->host[HOST_LENGTH] = '\0';
+            //free(h);
         } else if ( xmlMatches(node->name, "CARNAGE") ) {
             GET_PKILLS(this) = xmlGetIntProp(node, "PKILLS");
             GET_MOBKILLS(this) = xmlGetIntProp(node, "MKILLS");
@@ -288,14 +288,30 @@ Creature::loadFromXML( long id )
 			GET_QUEST_POINTS(this) = xmlGetIntProp(node, "POINTS");
 			GET_QUEST_ALLOWANCE(this) = xmlGetIntProp(node, "ALLOWANCE");
         } else if ( xmlMatches(node->name, "ACCOUNT") ) {
-			// <ACCOUNT FLAG1="3434624" FLAG2="0" PASSWORD="FoVpL4BbMR" BAD_PWS="0"/>
+			char* flag = xmlGetProp( node, "FLAG1" );
+			char_specials.saved.act = hex2dec(flag);
+			free(flag);
+
+			flag = xmlGetProp( node, "FLAG2" );
+			player_specials->saved.plr2_bits = hex2dec(flag);
+			free(flag);
+
+			char *pw = xmlGetProp( node, "PASSWORD" );
+			strncpy( GET_PASSWD( this ), pw, MAX_PWD_LENGTH );
+			GET_PASSWD(this)[MAX_PWD_LENGTH] = '\0';
+			player_specials->saved.bad_pws = xmlGetIntProp( node, "BAD_PWS" );
         } else if ( xmlMatches(node->name, "PREFS") ) {
-			// <PREFS FLAG1="677867907" FLAG2="133663" LOADROOM="92700" PAGE_LEN="30"/
+			char* flag = xmlGetProp( node, "FLAG1" );
+			player_specials->saved.pref = hex2dec(flag);
+			free(flag);
+
+			flag = xmlGetProp( node, "FLAG2" );
+			player_specials->saved.pref2 = hex2dec(flag);
+			free(flag);
         } else if ( xmlMatches(node->name, "TERMINAL") ) {
 			GET_PAGE_LENGTH(this) = xmlGetIntProp( node, "ROWS" );
 			//GET_PAGE_WIDTH(this) = xmlGetIntProp( node, "COLUMNS" );
         } else if ( xmlMatches(node->name, "WEAPONSPEC") ) {
-			// <WEAPONSPEC VNUM="48137" LEVEL="5"/>
 			int vnum = xmlGetIntProp( node, "VNUM" );
 			int level = xmlGetIntProp( node, "LEVEL" );
 			if( vnum > 0 && level > 0 ) {
@@ -310,10 +326,37 @@ Creature::loadFromXML( long id )
         } else if ( xmlMatches(node->name, "TITLE") ) {
 			GET_TITLE(this) = (char*)xmlNodeGetContent( node );
         } else if ( xmlMatches(node->name, "AFFECT") ) {
-			// <AFFECT TYPE="619" DURATION="-1" MODIFIER="5" 
-			// LOCATION="1" LEVEL="72" INSTANT="no" AFFBITS="0"/>
+			affected_type af;
+			af.type = xmlGetIntProp( node, "TYPE" );
+			af.duration = xmlGetIntProp( node, "DURATION" );
+			af.modifier = xmlGetIntProp( node, "MODIFIER" );
+			af.location = xmlGetIntProp( node, "LOCATION" );
+			//af.is_instant = xmlGetIntProp( node, "INSTANT" );
+			char* instant = xmlGetProp( node, "INSTANT" );
+			if( instant != NULL && strcmp( instant, "yes" ) == 0 ) {
+				af.is_instant = 1;
+			}
+			free(instant);
+
+			char* bits = xmlGetProp( node, "AFFBITS" );
+			af.bitvector = hex2dec(bits);
+			free(bits);
+
+			affect_to_char(this, &af);
+
         } else if ( xmlMatches(node->name, "AFFECTS") ) {
-			// <AFFECTS FLAG1="557056" FLAG2="256" FLAG3="0"/>
+			char* flag = xmlGetProp( node, "FLAG1" );
+			AFF_FLAGS(this) = hex2dec(flag);
+			free(flag);
+
+			flag = xmlGetProp( node, "FLAG2" );
+			AFF2_FLAGS(this) = hex2dec(flag);
+			free(flag);
+
+			flag = xmlGetProp( node, "FLAG3" );
+			AFF3_FLAGS(this) = hex2dec(flag);
+			free(flag);
+
         } else if ( xmlMatches(node->name, "SKILL") ) {
 			char *spellName = xmlGetProp( node, "NAME" );
 			int index = str_to_spell( spellName );
