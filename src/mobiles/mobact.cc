@@ -1388,11 +1388,6 @@ mobile_activity(void)
 		ch = *cit;
 		found = FALSE;
 
-	    if (GET_REMORT_CLASS(ch) != CLASS_UNDEFINED && !random_fractional_3())
-            cur_class = GET_REMORT_CLASS(ch);
-        else
-            cur_class = GET_CLASS(ch);
-
 		//
 		// Check for mob spec
 		//
@@ -1427,6 +1422,14 @@ mobile_activity(void)
 							11) : 0), SPELL_POISON, -1))
 				continue;
 		}
+
+		// Remorts will act like their secondary class 1/3rd of the time
+	    if (GET_REMORT_CLASS(ch) != CLASS_UNDEFINED && !random_fractional_3())
+            cur_class = GET_REMORT_CLASS(ch);
+        else
+            cur_class = GET_CLASS(ch);
+
+		
 		//
 		// bleed
 		//
@@ -1555,6 +1558,11 @@ mobile_activity(void)
 
 		if (!IS_MOB(ch) || ch->desc)
 			continue;
+
+		// If players can't do anything while petrified, neither can mobs
+		if (IS_AFFECTED_2(ch, AFF2_PETRIFIED))
+			continue;
+
 
 		/** implicit awake && !fighting **/
 
