@@ -60,7 +60,7 @@ SPECIAL(remorter)
                     correct,incorrect);
         send_to_char(buf,ch);
         sprintf(buf,"  Current Score [%d]\r\n",
-            correct > 0 ? (correct + incorrect)/correct : 100 );
+            correct > 0 ? ( (correct + incorrect)/correct) * 100 : 100 );
         send_to_char(buf,ch);
         return 1;
     }
