@@ -300,14 +300,12 @@ tmp_getline(char **src)
 	char *result, *read_pt, *write_pt;
 	size_t len = 0;
 
-	skip_spaces(src);
-
 	read_pt = *src;
 	while (*read_pt && '\r' != *read_pt && '\n' != *read_pt)
 		read_pt++;
 	len = (read_pt - *src) + 1;
 
-	if (len == 1)
+	if (len == 1 && !*read_pt)
 		return NULL;
 
 	if (len > tmp_list_tail->space - tmp_list_tail->used)
@@ -324,9 +322,12 @@ tmp_getline(char **src)
 	*write_pt = '\0';
 
 	cur_buf->used += len;
+	if (*read_pt == '\r')
+		read_pt++;
+	if (*read_pt == '\n')
+		read_pt++;
 	*src = read_pt;
 
-	skip_spaces(src);
 	return result;
 }
 
