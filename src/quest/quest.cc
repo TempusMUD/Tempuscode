@@ -400,7 +400,7 @@ do_qcontrol_oload_list(Creature * ch)
 			continue;
 		send_to_char(ch, "    %s%d. %s%s %s: %d qps\r\n", CCNRM(ch, C_NRM),
 			i - MIN_QUEST_OBJ_VNUM, CCGRN(ch, C_NRM), obj->name,
-			CCNRM(ch, C_NRM), (obj->shared->cost / 100000));
+			CCNRM(ch, C_NRM), obj->shared->cost);
 	}
 }
 
@@ -459,13 +459,13 @@ do_qcontrol_oload(Creature *ch, char *argument, int com)
 		return;
 	}
 
-	if (((obj->shared->cost / 100000) > GET_QUEST_POINTS(ch))) {
+	if (obj->shared->cost > GET_QUEST_POINTS(ch)) {
 		send_to_char(ch, "You do not have the required quest points.\r\n");
 		extract_obj(obj);
 		return;
 	}
 
-	GET_QUEST_POINTS(ch) -= (obj->shared->cost / 100000);
+	GET_QUEST_POINTS(ch) -= obj->shared->cost;
 	obj_to_char(obj, ch);
 	ch->crashSave();
 	act("$n makes a quaint, magical gesture with one hand.", TRUE, ch,
