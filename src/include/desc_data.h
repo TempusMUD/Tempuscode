@@ -85,7 +85,6 @@ struct descriptor_data {
 	time_t old_login_time;		// used for the dynamic text notification
 	char *showstr_head;			/* for paging through texts     */
 	char *showstr_point;		/*      -           */
-	char **str;					/* for the modify-str system        */
 	byte bad_pws;				/* number of bad pw attemps this login  */
 	byte need_prompt;			/* control of prompt-printing       */
 	int max_str;				/*      -           */

@@ -1161,17 +1161,6 @@ make_prompt(struct descriptor_data * d)
 		return;
 		}
 
-	// Are we displaying a multi-line string?
-	if (d->character && d->showstr_point) {
-		sprintf(buf, " %s%s******%s  Press return to continue, q to quit  %s******%s",
-				CCBLD(d->character, C_CMP),
-				CCRED(d->character, C_NRM), CCWHT(d->character, C_NRM),
-				CCRED(d->character, C_NRM), CCNRM(d->character, C_NRM));
-		SEND_TO_Q(buf,d);
-		d->need_prompt = false;
-		return;
-		}
-
 	// Handle all other states
 	switch ( STATE(d) )
 	{

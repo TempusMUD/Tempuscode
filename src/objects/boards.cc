@@ -564,7 +564,7 @@ Board_remove_msg(int board_type, struct char_data *ch, struct obj_data *obj,
 		return 1;
 	}
 	for (d = descriptor_list; d; d = d->next)
-		if (IS_PLAYING(d) && d->str == &(msg_storage[slot_num])) {
+		if (IS_PLAYING(d) && d->text_editor && d->text_editor->IsEditing(msg_storage[slot_num])) {
 			send_to_char(ch, 
 				"At least wait until the author is finished before removing it!\r\n");
 			return 1;

@@ -256,6 +256,7 @@ ACMD(do_meditate);
 ACMD(do_menu);
 ACMD(do_mload);
 ACMD(do_mount);
+ACMD(do_show_more);
 ACMD(do_move);
 ACMD(do_mshield);
 ACMD(do_mudlist);
@@ -864,6 +865,7 @@ struct command_info cmd_info[] = {
 	{"lungepunch", POS_FIGHTING, do_offensive_skill, 0, SKILL_LUNGE_PUNCH, 0},
 	{"lust", POS_RESTING, do_action, 0, 0, 0},
 
+	{"more", POS_DEAD, do_show_more, 0, 0, 0},
 	{"makeout", POS_RESTING, do_action, 0, 0, 0},
 	{"makemount", POS_STANDING, do_makemount, LVL_IMMORT, 0, 0},
 	{"map", POS_SLEEPING, do_map, LVL_IMMORT, 0, 0},

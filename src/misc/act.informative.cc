@@ -1278,7 +1278,7 @@ look_at_room(struct char_data *ch, struct room_data *room, int ignore_brief)
 		&& (!ROOM_FLAGGED(room, ROOM_SMOKE_FILLED)
 			|| PRF_FLAGGED(ch, PRF_HOLYLIGHT)
 			|| ROOM_FLAGGED(room, ROOM_DEATH)))
-		send_to_char(ch, room->description);
+		send_to_char(ch, "%s", room->description);
 
 	for (aff = room->affects; aff; aff = aff->next)
 		if (aff->description)
@@ -2499,18 +2499,18 @@ ACMD(do_score)
 	struct time_info_data playing_time;
 	struct time_info_data real_time_passed(time_t t2, time_t t1);
 
-	sprintf(buf,
+	send_to_char(ch,
 		"%s*****************************************************************\r\n",
 		CCRED(ch, C_NRM));
-	sprintf(buf,
-		"%s%s***************************%sS C O R E%s%s*****************************\r\n",
-		buf, CCYEL(ch, C_NRM), CCBLD(ch, C_SPR), CCNRM(ch, C_SPR), CCYEL(ch,
+	send_to_char(ch,
+		"%s***************************%sS C O R E%s%s*****************************\r\n",
+		CCYEL(ch, C_NRM), CCBLD(ch, C_SPR), CCNRM(ch, C_SPR), CCYEL(ch,
 			C_NRM));
-	sprintf(buf,
-		"%s%s*****************************************************************%s\r\n",
-		buf, CCGRN(ch, C_NRM), CCNRM(ch, C_NRM));
+	send_to_char(ch,
+		"%s*****************************************************************%s\r\n",
+		CCGRN(ch, C_NRM), CCNRM(ch, C_NRM));
 
-	sprintf(buf, "%s%s, %d year old %s %s %s.  Your level is %d.\r\n", buf,
+	send_to_char(ch, "%s, %d year old %s %s %s.  Your level is %d.\r\n",
 		GET_NAME(ch),
 		GET_AGE(ch), genders[(int)GET_SEX(ch)],
 		(GET_RACE(ch) >= 0 && GET_RACE(ch) < NUM_RACES) ?
@@ -2518,167 +2518,155 @@ ACMD(do_score)
 		(GET_CLASS(ch) >= 0 && GET_CLASS(ch) < TOP_CLASS) ?
 		pc_char_class_types[(int)GET_CLASS(ch)] : "BAD CLASS", GET_LEVEL(ch));
 	if (!IS_NPC(ch) && IS_REMORT(ch))
-		sprintf(buf, "%sYou have remortalized as a %s (generation %d).\r\n",
-			buf, pc_char_class_types[(int)GET_REMORT_CLASS(ch)],
+		send_to_char(ch, "You have remortalized as a %s (generation %d).\r\n",
+			pc_char_class_types[(int)GET_REMORT_CLASS(ch)],
 			GET_REMORT_GEN(ch));
 	if ((age(ch).month == 0) && (age(ch).day == 0))
-		strcat(buf, "  It's your birthday today!\r\n\r\n");
+		send_to_char(ch, "  It's your birthday today!\r\n\r\n");
 	else
-		strcat(buf, "\r\n");
+		send_to_char(ch, "\r\n");
 
 	sprintf(buf2, "(%s%4d%s/%s%4d%s)", CCYEL(ch, C_NRM), GET_HIT(ch),
 		CCNRM(ch, C_NRM), CCGRN(ch, C_NRM), GET_MAX_HIT(ch), CCNRM(ch, C_NRM));
-	sprintf(buf, "%sHit Points:  %11s           Armor Class: %s%d/10%s\r\n",
-		buf, buf2, CCGRN(ch, C_NRM), GET_AC(ch), CCNRM(ch, C_NRM));
+	send_to_char(ch, "Hit Points:  %11s           Armor Class: %s%d/10%s\r\n",
+		buf2, CCGRN(ch, C_NRM), GET_AC(ch), CCNRM(ch, C_NRM));
 	sprintf(buf2, "(%s%4d%s/%s%4d%s)", CCYEL(ch, C_NRM), GET_MANA(ch),
 		CCNRM(ch, C_NRM), CCGRN(ch, C_NRM), GET_MAX_MANA(ch), CCNRM(ch,
 			C_NRM));
-	sprintf(buf, "%sMana Points: %11s           Alignment: %s%d%s\r\n", buf,
+	send_to_char(ch, "Mana Points: %11s           Alignment: %s%d%s\r\n",
 		buf2, CCGRN(ch, C_NRM), GET_ALIGNMENT(ch), CCNRM(ch, C_NRM));
 	sprintf(buf2, "(%s%4d%s/%s%4d%s)", CCYEL(ch, C_NRM), GET_MOVE(ch),
 		CCNRM(ch, C_NRM), CCGRN(ch, C_NRM), GET_MAX_MOVE(ch), CCNRM(ch,
 			C_NRM));
-	sprintf(buf, "%sMove Points: %11s           Experience: %s%d%s\r\n", buf,
+	send_to_char(ch, "Move Points: %11s           Experience: %s%d%s\r\n",
 		buf2, CCGRN(ch, C_NRM), GET_EXP(ch), CCNRM(ch, C_NRM));
-	sprintf(buf,
-		"%s                                   %sKills%s: %d, %sPKills%s: %d\r\n",
-		buf, CCYEL(ch, C_NRM), CCNRM(ch, C_NRM),
+	send_to_char(ch,
+		"                                   %sKills%s: %d, %sPKills%s: %d\r\n",
+		CCYEL(ch, C_NRM), CCNRM(ch, C_NRM),
 		(GET_MOBKILLS(ch) + GET_PKILLS(ch)), CCRED(ch, C_NRM), CCNRM(ch,
 			C_NRM), GET_PKILLS(ch));
 
-	sprintf(buf,
-		"%s%s*****************************************************************%s\r\n",
-		buf, CCRED(ch, C_NRM), CCNRM(ch, C_NRM));
-	sprintf(buf, "%sYou have %s%d%s %s and %s%d%s life points.\r\n", buf,
+	send_to_char(ch,
+		"%s*****************************************************************%s\r\n",
+		CCRED(ch, C_NRM), CCNRM(ch, C_NRM));
+	send_to_char(ch, "You have %s%d%s %s and %s%d%s life points.\r\n",
 		CCCYN(ch, C_NRM), GET_PRACTICES(ch), CCNRM(ch, C_NRM),
 		GET_CLASS(ch) == CLASS_CYBORG ? "dsu free" : "practice points",
 		CCCYN(ch, C_NRM), GET_LIFE_POINTS(ch), CCNRM(ch, C_NRM));
-	sprintf(buf, "%sYou are %s%d%s cm tall, and weigh %s%d%s pounds.\r\n", buf,
+	send_to_char(ch, "You are %s%d%s cm tall, and weigh %s%d%s pounds.\r\n",
 		CCCYN(ch, C_NRM), GET_HEIGHT(ch), CCNRM(ch, C_NRM), CCCYN(ch, C_NRM),
 		GET_WEIGHT(ch), CCNRM(ch, C_NRM));
 	if (!IS_NPC(ch)) {
 		if (GET_LEVEL(ch) < LVL_AMBASSADOR) {
-			sprintf(buf, "%sYou need %s%d%s exp to reach your next level.\r\n",
-				buf, CCCYN(ch, C_NRM),
+			send_to_char(ch, "You need %s%d%s exp to reach your next level.\r\n",
+				CCCYN(ch, C_NRM),
 				((exp_scale[GET_LEVEL(ch) + 1]) - GET_EXP(ch)), CCNRM(ch,
 					C_NRM));
 		} else {
 			if (ch->player_specials->poofout) {
-				sprintf(buf, "%s%sPoofout:%s  %s\r\n",
-					buf, CCCYN(ch, C_NRM), CCNRM(ch, C_NRM),
+				send_to_char(ch, "%sPoofout:%s  %s\r\n",
+					CCCYN(ch, C_NRM), CCNRM(ch, C_NRM),
 					ch->player_specials->poofout);
 			}
 			if (ch->player_specials->poofin) {
-				sprintf(buf, "%s%sPoofin :%s  %s\r\n",
-					buf, CCCYN(ch, C_NRM), CCNRM(ch, C_NRM),
+				send_to_char(ch, "%sPoofin :%s  %s\r\n",
+					CCCYN(ch, C_NRM), CCNRM(ch, C_NRM),
 					ch->player_specials->poofin);
 			}
 		}
 		playing_time = real_time_passed((time(0) - ch->player.time.logon) +
 			ch->player.time.played, 0);
-		sprintf(buf, "%sYou have existed here for %d days and %d hours.\r\n",
-			buf, playing_time.day, playing_time.hours);
+		send_to_char(ch, "You have existed here for %d days and %d hours.\r\n",
+			playing_time.day, playing_time.hours);
 
-		sprintf(buf, "%sYou are known as %s%s%s.%s\r\n", buf,
+		send_to_char(ch, "You are known as %s%s%s.%s\r\n",
 			CCYEL(ch, C_NRM), GET_NAME(ch), GET_TITLE(ch), CCNRM(ch, C_NRM));
 	}
-	sprintf(buf,
-		"%sYou carry %s%d%s gold coins.  You have %s%d%s cash credits.\r\n",
-		buf, CCCYN(ch, C_NRM), GET_GOLD(ch), CCNRM(ch, C_NRM), CCCYN(ch,
+	send_to_char(ch,
+		"You carry %s%d%s gold coins.  You have %s%d%s cash credits.\r\n",
+		CCCYN(ch, C_NRM), GET_GOLD(ch), CCNRM(ch, C_NRM), CCCYN(ch,
 			C_NRM), GET_CASH(ch), CCNRM(ch, C_NRM));
 
 	switch (ch->getPosition()) {
 	case POS_DEAD:
-		strcat(buf, CCRED(ch, C_NRM));
-		strcat(buf, "You are DEAD!\r\n");
-		strcat(buf, CCNRM(ch, C_NRM));
+		send_to_char(ch, "%sYou are DEAD!\r\n%s", CCRED(ch, C_NRM));
 		break;
 	case POS_MORTALLYW:
-		strcat(buf, CCRED(ch, C_NRM));
-		strcat(buf, "You are mortally wounded!  You should seek help!\r\n");
-		strcat(buf, CCNRM(ch, C_NRM));
+		send_to_char(ch,
+			"%sYou are mortally wounded!  You should seek help!%s\r\n",
+			CCRED(ch, C_NRM),CCNRM(ch, C_NRM));
 		break;
 	case POS_INCAP:
-		strcat(buf, CCRED(ch, C_NRM));
-		strcat(buf, "You are incapacitated, slowly fading away...\r\n");
-		strcat(buf, CCNRM(ch, C_NRM));
+		send_to_char(ch,
+			"%sYou are incapacitated, slowly fading away...\r\n%s",
+			CCRED(ch, C_NRM),CCNRM(ch, C_NRM));
 		break;
 	case POS_STUNNED:
-		strcat(buf, CCRED(ch, C_NRM));
-		strcat(buf, "You are stunned!  You can't move!\r\n");
-		strcat(buf, CCNRM(ch, C_NRM));
+		send_to_char(ch,
+			"%sYou are stunned!  You can't move!\r\n%s",
+			CCRED(ch, C_NRM),CCNRM(ch, C_NRM));
 		break;
 	case POS_SLEEPING:
-		strcat(buf, CCGRN(ch, C_NRM));
 		if (AFF3_FLAGGED(ch, AFF3_STASIS))
-			strcat(buf, "You are inactive in a static state.\r\n");
+			send_to_char(ch, "%sYou are inactive in a static state.%s\r\n", CCGRN(ch, C_NRM),CCNRM(ch, C_NRM));
 		else
-			strcat(buf, "You are sleeping.\r\n");
-		strcat(buf, CCNRM(ch, C_NRM));
+			send_to_char(ch, "%sYou are sleeping.%s\r\n", CCGRN(ch, C_NRM),CCNRM(ch, C_NRM));
 		break;
 	case POS_RESTING:
-		strcat(buf, CCGRN(ch, C_NRM));
-		strcat(buf, "You are resting.\r\n");
-		strcat(buf, CCNRM(ch, C_NRM));
-		break;
+			send_to_char(ch, "%sYou are resting.%s\r\n", CCGRN(ch, C_NRM),CCNRM(ch, C_NRM)); break;
 	case POS_SITTING:
-		strcat(buf, CCGRN(ch, C_NRM));
 		if (IS_AFFECTED_2(ch, AFF2_MEDITATE))
-			strcat(buf, "You are meditating.\r\n");
+			send_to_char(ch, "%sYou are meditating.%s\r\n", CCGRN(ch, C_NRM),CCNRM(ch, C_NRM));
 		else
-			strcat(buf, "You are sitting.\r\n");
-		strcat(buf, CCNRM(ch, C_NRM));
+			send_to_char(ch, "%sYou are sitting.%s\r\n", CCGRN(ch, C_NRM),CCNRM(ch, C_NRM));
 		break;
 	case POS_FIGHTING:
-		strcat(buf, CCYEL(ch, C_NRM));
 		if ((ch->isFighting()))
-			sprintf(buf, "%sYou are fighting %s.\r\n", buf,
-				PERS(ch->getFighting(), ch));
+			send_to_char(ch, "%sYou are fighting %s.%s\r\n",
+				CCYEL(ch, C_NRM), PERS(ch->getFighting(), ch), CCNRM(ch, C_NRM));
 		else
-			strcat(buf, "You are fighting thin air.\r\n");
-		strcat(buf, CCNRM(ch, C_NRM));
+			send_to_char(ch, "%sYou are fighting thin air.%s\r\n",
+				CCYEL(ch, C_NRM), CCNRM(ch, C_NRM));
 		break;
 	case POS_MOUNTED:
 		strcat(buf, CCGRN(ch, C_NRM));
 		if (MOUNTED(ch))
-			sprintf(buf, "%sYou are mounted on %s.\r\n", buf, PERS(MOUNTED(ch),
-					ch));
+			send_to_char(ch, "%sYou are mounted on %s.%s\r\n",
+				CCGRN(ch, C_NRM), PERS(MOUNTED(ch), ch), CCNRM(ch, C_NRM));
 		else
-			strcat(buf, "You are mounted on the thin air!?\r\n");
-		strcat(buf, CCNRM(ch, C_NRM));
+			send_to_char(ch, "%sYou are mounted on the thin air!?%s\r\n",
+				CCGRN(ch, C_NRM), CCNRM(ch, C_NRM));
 		break;
 	case POS_STANDING:
-		strcat(buf, CCGRN(ch, C_NRM));
-		strcat(buf, "You are standing.\r\n");
-		strcat(buf, CCNRM(ch, C_NRM));
+		send_to_char(ch, "%sYou are standing.%s\r\n",
+			CCGRN(ch, C_NRM), CCNRM(ch, C_NRM));
 		break;
 	case POS_FLYING:
-		strcat(buf, CCGRN(ch, C_NRM));
-		strcat(buf, "You are hovering in midair.\r\n");
-		strcat(buf, CCNRM(ch, C_NRM));
+		send_to_char(ch, "%sYou are hovering in midair.%s\r\n",
+			CCGRN(ch, C_NRM), CCNRM(ch, C_NRM));
 		break;
 	default:
-		strcat(buf, CCCYN(ch, C_NRM));
-		strcat(buf, "You are floating.\r\n");
-		strcat(buf, CCNRM(ch, C_NRM));
+		send_to_char(ch, "%sYou are floating.%s\r\n",
+			CCGRN(ch, C_NRM), CCNRM(ch, C_NRM));
 		break;
 	}
 
 	if (GET_COND(ch, DRUNK) > 10)
-		strcat(buf, "You are intoxicated.\r\n");
+		send_to_char(ch, "You are intoxicated.\r\n");
 	if (GET_COND(ch, FULL) == 0)
-		strcat(buf, "You are hungry.\r\n");
+		send_to_char(ch, "You are hungry.\r\n");
 	if (GET_COND(ch, THIRST) == 0) {
 		if (IS_VAMPIRE(ch))
-			strcat(buf, "You have an intense thirst for blood.\r\n");
+			send_to_char(ch, "You have an intense thirst for blood.\r\n");
 		else
-			strcat(buf, "You are thirsty.\r\n");
+			send_to_char(ch, "You are thirsty.\r\n");
 	} else if (IS_VAMPIRE(ch) && GET_COND(ch, THIRST) < 4)
-		strcat(buf, "You feel the onset of your bloodlust.\r\n");
+		send_to_char(ch, "You feel the onset of your bloodlust.\r\n");
 
 	if (GET_LEVEL(ch) >= LVL_AMBASSADOR && PLR_FLAGGED(ch, PLR_MORTALIZED))
-		strcat(buf, "You are mortalized.\r\n");
+		send_to_char(ch, "You are mortalized.\r\n");
 
+	buf[0] = '\0';
 	print_affs_to_string(ch, buf, PRF2_FLAGGED(ch, PRF2_NOAFFECTS));
 
 	page_string(ch->desc, buf, 1);
@@ -2764,16 +2752,14 @@ ACMD(do_equipment)
 				}
 				if (*buf2) {
 					if ((pos = search_block(buf, wear_implantpos, 0)) < 0) {
-						sprintf(buf,
+						send_to_char(ch,
 							"'%s' is an invalid implant position.\r\n", buf2);
-						send_to_char(ch, "%s", buf);
 						return;
 					}
 					if (!(obj = GET_IMPLANT(ch, pos))) {
-						sprintf(buf,
+						send_to_char(ch,
 							"You are not implanted at position '%s'.\r\n",
 							wear_implantpos[pos]);
-						send_to_char(ch, "%s", buf);
 						return;
 					}
 					if (!isname(buf, obj->name)) {
@@ -2789,12 +2775,11 @@ ACMD(do_equipment)
 					send_to_char(ch, "You are equipped with no such implant.\r\n");
 				} else {
 					if (IS_DEVICE(obj)) {
-						sprintf(buf,
+						send_to_char(ch,
 							"-%s- is %sactive with energy (%d/%d).\r\n",
 							obj->short_description,
 							ENGINE_STATE(obj) ? "" : "in", CUR_ENERGY(obj),
 							MAX_ENERGY(obj));
-						send_to_char(ch, "%s", buf);
 					}
 					send_to_char(ch, "%s is in %s condition.\r\n",
 						obj->short_description, obj_cond_color(obj, ch));
@@ -2827,7 +2812,7 @@ ACMD(do_equipment)
 							(int)eq_pos_order[i])->short_description, buf2);
 					found = TRUE;
 				} else {
-					sprintf(buf, "%s[%12s]%s - (UNKNOWN)\r\n", CCCYN(ch,
+					send_to_char(ch, "%s[%12s]%s - (UNKNOWN)\r\n", CCCYN(ch,
 							C_NRM), wear_implantpos[(int)eq_pos_order[i]],
 						CCNRM(ch, C_NRM));
 					found = TRUE;

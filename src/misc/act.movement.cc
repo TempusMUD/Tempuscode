@@ -1182,8 +1182,6 @@ perform_move(struct char_data *ch, int dir, int mode, int need_specials_check)
 			next = k->next;
 			if ((was_in == k->follower->in_room) &&
 				!PLR_FLAGGED(k->follower, PLR_OLC | PLR_WRITING | PLR_MAILING)
-				&& (!k->follower->desc || !k->follower->desc->showstr_point
-					|| PRF2_FLAGGED(k->follower, PRF2_LIGHT_READ))
 				&& (k->follower->getPosition() >= POS_STANDING)) {
 				act("You follow $N.\r\n", FALSE, k->follower, 0, ch, TO_CHAR);
 				perform_move(k->follower, dir, MOVE_NORM, 1);

@@ -590,8 +590,6 @@ game_loop(int mother_desc)
 
 				if (d->text_editor)	/* writing boards, mail, etc.        */
 					d->text_editor->Process(comm);
-				else if (d->showstr_point)	/* reading something w/ pager        */
-					show_string(d, comm);
 				else if (STATE(d) != CON_PLAYING)	/* in menus, etc.        */
 					nanny(d, comm);
 				else {			/* else: we're playing normally */
@@ -1174,17 +1172,6 @@ process_input(struct descriptor_data *t)
 
 		read_point += bytes_read;
 		space_left -= bytes_read;
-
-		/*
-		 * on some systems such as AIX, POSIX-standard nonblocking I/O is broken,
-		 * causing the MUD to hang when it encounters input not terminated by a
-		 * newline.  This was causing hangs at the Password: prompt, for example.
-		 * I attempt to compensate by always returning after the _first_ read, instead
-		 * of looping forever until a read returns -1.  This simulates non-blocking
-		 * I/O because the result is we never call read unless we know from select()
-		 * that data is ready (process_input is only called if select indicates that
-		 * this descriptor is in the read set).  JE 2/23/95.
-		 */
 	} while (nl_pos == NULL);
 
 	/*
@@ -1894,9 +1881,7 @@ perform_act(const char *orig, struct char_data *ch, struct obj_data *obj,
 
 
 #define SENDOK(ch) ((ch)->desc && (AWAKE(ch) || sleep) &&           \
-                    !PLR_FLAGGED((ch), PLR_WRITING | PLR_OLC) &&    \
-                    (!ch->desc->showstr_point ||                 \
-                     PRF2_FLAGGED(ch, PRF2_LIGHT_READ)))
+                    !PLR_FLAGGED((ch), PLR_WRITING | PLR_OLC))
 
 void
 act(const char *str, int hide_invisible, struct char_data *ch,

@@ -63,6 +63,19 @@ int drag_object(CHAR * ch, struct obj_data *obj, char *argument);
 void ice_room(struct room_data *room, int amount);
 ACMD(do_drag_char);
 
+ACMD(do_show_more)
+{
+	if (!ch->desc)
+		return;
+	if (!ch->desc->showstr_head) {
+		send_to_char(ch, "You weren't in the middle of reading anything.\r\n");
+		return;
+	}
+
+	show_string(ch->desc);
+	
+}
+
 ACMD(do_quit)
 {
 	extern int free_rent;

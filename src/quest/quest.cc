@@ -1841,7 +1841,7 @@ check_editors(CHAR * ch, char **buffer)
 	struct descriptor_data *d = NULL;
 
 	for (d = descriptor_list; d; d = d->next) {
-		if (d->str == buffer) {
+		if (d->text_editor && d->text_editor->IsEditing(*buffer)) {
 			send_to_char(ch, "%s is already editing that buffer.\r\n",
 				d->character ? PERS(d->character, ch) : "BOGUSMAN");
 			return 1;

@@ -50,7 +50,7 @@ extern char *policies;
 extern char *areas;
 
 
-void show_string(struct descriptor_data *d, char *input);
+void show_string(struct descriptor_data *d);
 extern struct descriptor_data *descriptor_list;
 
 char *string_fields[] = {
@@ -350,38 +350,21 @@ page_string(struct descriptor_data *d, char *str, int keep_internal)
 	} else
 		d->showstr_point = str;
 
-	show_string(d, "");
+	show_string(d);
 }
 
-
-
 void
-show_string(struct descriptor_data *d, char *input)
+show_string(struct descriptor_data *d)
 {
-	char buffer[MAX_STRING_LENGTH], buf[MAX_INPUT_LENGTH];
+	char buffer[MAX_STRING_LENGTH];
 	register char *scan, *chk;
 	int lines = 0, toggle = 1, page_length;
 
-	one_argument(input, buf);
 	if (IS_NPC(d->character))
 		page_length = 22;
 	else
 		page_length = GET_PAGE_LENGTH(d->character);
 
-	if (*buf) {
-		if (d->showstr_head) {
-#ifdef DMALLOC
-			dmalloc_verify(0);
-#endif
-			free(d->showstr_head);
-#ifdef DMALLOC
-			dmalloc_verify(0);
-#endif
-			d->showstr_head = 0;
-		}
-		d->showstr_point = 0;
-		return;
-	}
 	/* show a chunk */
 	for (scan = buffer;; scan++, d->showstr_point++) {
 		if ((((*scan = *d->showstr_point) == '\n') || (*scan == '\r')) &&
@@ -413,6 +396,8 @@ show_string(struct descriptor_data *d, char *input)
 					d->showstr_head = 0;
 				}
 				d->showstr_point = 0;
+			} else {
+				SEND_TO_Q("Use the 'more' command to view more.\r\n", d);
 			}
 			return;
 		}

@@ -142,8 +142,6 @@ ACMD(do_say)
 			CharacterList::iterator it = ch->in_room->people.begin();
 			for (; it != ch->in_room->people.end(); ++it) {
 				if (!AWAKE((*it)) || (*it) == ch ||
-					((*it)->desc && (*it)->desc->showstr_point &&
-						!PRF2_FLAGGED((*it), PRF2_LIGHT_READ)) ||
 					PLR_FLAGGED((*it), PLR_OLC | PLR_WRITING | PLR_MAILING))
 					continue;
 				strcpy(buf, PERS(ch, (*it)));
@@ -178,8 +176,6 @@ ACMD(do_say)
 	CharacterList::iterator it = ch->in_room->people.begin();
 	for (; it != ch->in_room->people.end(); ++it) {
 		if (!AWAKE((*it)) || (*it) == ch ||
-			((*it)->desc && (*it)->desc->showstr_point &&
-				!PRF2_FLAGGED((*it), PRF2_LIGHT_READ)) ||
 			PLR_FLAGGED((*it), PLR_OLC | PLR_MAILING | PLR_WRITING))
 			continue;
 		strcpy(buf, PERS(ch, (*it)));
@@ -795,7 +791,6 @@ ACMD(do_gen_comm)
 			!PRF_FLAGGED(i->character, channels[subcmd]) &&
 			!PLR_FLAGGED(i->character, PLR_WRITING) &&
 			!PLR_FLAGGED(i->character, PLR_OLC) &&
-			(!i->showstr_point || PRF2_FLAGGED(ch, PRF2_LIGHT_READ)) &&
 			!ROOM_FLAGGED(i->character->in_room, ROOM_SOUNDPROOF)) {
 
 			if (subcmd == SCMD_NEWBIE &&
@@ -925,7 +920,6 @@ ACMD(do_qcomm)
 					PRF_FLAGGED(i->character, PRF_QUEST) &&
 					i->character->in_room != NULL &&
 					!ROOM_FLAGGED(i->character->in_room, ROOM_SOUNDPROOF) &&
-					(!i->showstr_point || PRF2_FLAGGED(ch, PRF2_LIGHT_READ)) &&
 					!PLR_FLAGGED(i->character,
 						PLR_MAILING | PLR_WRITING | PLR_OLC)) {
 					send_to_char(i->character, "%s%s quest-says,%s '%s'\r\n",
@@ -942,7 +936,6 @@ ACMD(do_qcomm)
 					PRF_FLAGGED(i->character, PRF_QUEST) &&
 					i->character->in_room != NULL &&
 					!ROOM_FLAGGED(i->character->in_room, ROOM_SOUNDPROOF) &&
-					(!i->showstr_point || PRF2_FLAGGED(ch, PRF2_LIGHT_READ)) &&
 					!PLR_FLAGGED(i->character,
 						PLR_MAILING | PLR_WRITING | PLR_OLC)) {
 					send_to_char(i->character, "%s", CCYEL_BLD(i->character, C_NRM));
@@ -991,7 +984,6 @@ ACMD(do_clan_comm)
 					!PRF_FLAGGED(i->character, PRF_NOCLANSAY) &&
 					i->character->in_room != NULL &&
 					!COMM_NOTOK_ZONES(ch, i->character) &&
-					(!i->showstr_point || PRF2_FLAGGED(ch, PRF2_LIGHT_READ)) &&
 					!PLR_FLAGGED(i->character,
 						PLR_MAILING | PLR_WRITING | PLR_OLC)) {
 					strcpy(buf, CCCYN(i->character, C_NRM));
@@ -1009,7 +1001,6 @@ ACMD(do_clan_comm)
 					!PRF_FLAGGED(i->character, PRF_NOCLANSAY) &&
 					i->character->in_room != NULL &&
 					!COMM_NOTOK_ZONES(ch, i->character) &&
-					(!i->showstr_point || PRF2_FLAGGED(ch, PRF2_LIGHT_READ)) &&
 					!PLR_FLAGGED(i->character,
 						PLR_MAILING | PLR_WRITING | PLR_OLC)) {
 					sprintf(buf, "$n%s %s", CCNRM(i->character, C_NRM),

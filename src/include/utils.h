@@ -32,6 +32,7 @@ void slog(char *str, ...);
 int touch(char *path);
 void mudlog(char *str, char type, sbyte level, byte file);
 void log_death_trap(struct char_data *ch);
+void show_string(struct descriptor_data *desc);
 int number(int from, int to);
 double float_number(double from, double to);
 int dice(int number, int size);

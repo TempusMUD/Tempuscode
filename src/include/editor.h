@@ -23,6 +23,11 @@ class CTextEditor {
 	void Process(char *inStr);
 	// Replaced "send_to_char(TED_MESSAGE,ch);
 	void SendStartupMessage(void);
+
+	inline bool IsEditing(char *inStr) {
+		return (inStr == *target);
+	}
+
   private:
 	// Private so noone can use it.
 	 CTextEditor();
@@ -43,7 +48,6 @@ class CTextEditor {
 	void List(unsigned int startline = 1);	// Print the contents.
 	void SendMessage(const char *message);	// Wrapper for sendtochar
 	void Help(char *inStr);		// Open refrigerator?
-
 	void UpdateSize(void);
 	bool Wrap(void);			// Wordwrap
 	bool Full(char *inStr = NULL);
