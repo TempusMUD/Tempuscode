@@ -71,6 +71,7 @@ void print_attributes_to_buf(struct Creature *ch, char *buff);
 void polc_input(struct descriptor_data * d, char *str);
 void show_character_detail(descriptor_data *d);
 long import_old_character(descriptor_data *d);
+void push_command_onto_list(Creature *ch, char *comm);
 
 int isbanned(char *hostname, char *blocking_hostname);
 int Valid_Name(char *newname);
@@ -94,10 +95,19 @@ void notify_cleric_moon(struct Creature *ch);
 void send_menu(descriptor_data *d);
 
 void
-handle_input(struct descriptor_data *d, char *arg)
+handle_input(struct descriptor_data *d)
 {
+	char arg[MAX_INPUT_LENGTH * 10];
+	int aliased;
 	int char_id;
 	int i;
+
+	if (!get_from_q(&d->input, arg, &aliased))
+		return;
+
+	// we need a prompt here
+	d->need_prompt = true;
+	d->wait = 1;
 
 	if (d->text_editor) {
 		d->text_editor->Process(arg);
@@ -108,14 +118,23 @@ handle_input(struct descriptor_data *d, char *arg)
 	case CXN_UNKNOWN:
 	case CXN_DISCONNECT:
 		break;
-	case CXN_PLAYING: {
-		int aliased;
-
-		if (perform_alias(d, arg))	/* run it through aliasing system */
-			get_from_q(&d->input, arg, &aliased);
-		command_interpreter(d->creature, arg);	/* send it to interpreter */
-		break;
+	case CXN_PLAYING:
+		// Push input onto command list
+		push_command_onto_list(d->creature, arg);
+		// Drag them back from limbo
+		if (GET_WAS_IN(d->creature)) {
+			if (d->creature->in_room)
+				char_from_room(d->creature, false);
+			char_to_room(d->creature, GET_WAS_IN(d->creature), false);
+			GET_WAS_IN(d->creature) = NULL;
+			act("$n has returned.", true, d->creature, 0, 0, TO_ROOM);
 		}
+		// run it through aliasing system
+		if (!aliased && perform_alias(d, arg))
+			get_from_q(&d->input, arg, &aliased);
+		// send it to interpreter
+		command_interpreter(d->creature, arg);
+		break;
 	case CXN_ACCOUNT_LOGIN:
 		if (strcasecmp(arg, "new")) {
 			d->account = accountIndex.find_account(arg);
