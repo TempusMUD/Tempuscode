@@ -204,7 +204,16 @@ die( struct char_data *ch, struct char_data *killer,
     if ( PLR_FLAGGED( ch, PLR_KILLER ) && GET_LEVEL( ch ) < LVL_AMBASSADOR ) {
 		GET_EXP( ch ) = MAX( 0, MIN( GET_EXP( ch ) - ( GET_LEVEL( ch ) * GET_LEVEL( ch ) ),
 						 exp_scale[GET_LEVEL( ch ) - 2] ) );
+
+                //
+		// Unaffect the character before all the stuff is subtracted. Bug was being abused
+                //
+
+		while ( ch->affected ) {
+		    affect_remove( ch, ch->affected );
+                }
 		
+
 		GET_LEVEL( ch ) = MAX( 1, GET_LEVEL( ch ) - 1 );
 		GET_CHA( ch ) = MAX( 3, GET_CHA( ch ) -2 );
 		GET_MAX_HIT( ch ) = MAX( 0, GET_MAX_HIT( ch ) - GET_LEVEL( ch ) );
