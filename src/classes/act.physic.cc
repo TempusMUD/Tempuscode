@@ -266,8 +266,9 @@ ACMD(do_lecture)
 			check_toughguy(ch, vict, 1);
 			check_killer(ch, vict);
 		}
-		prob =
-			CHECK_SKILL(ch, SKILL_LECTURE) + (GET_INT(ch) << 1) - GET_CHA(ch);
+		prob = ch->getLevelBonus(SKILL_LECTURE) + (GET_INT(ch) << 1) - GET_CHA(ch);
+		if( AFF_FLAGGED(ch, AFF_CONFUSION) )
+			percent -= 60;
 	} else
 		prob = 0;
 
@@ -282,9 +283,16 @@ ACMD(do_lecture)
 	sprintf(buf, "$n begins lecturing you %s", lecture_topics[index]);
 	act(buf, FALSE, ch, 0, vict, TO_VICT);
 
-	percent =
-		number(0, 50) +
-		(GET_LEVEL(vict) >> 1) + GET_REMORT_GEN(vict) + GET_INT(vict);
+	percent = (GET_LEVEL(vict) >> 1) + GET_REMORT_GEN(vict) + GET_INT(vict);
+	percent += number(0, 50);
+
+	if( affected_by_spell( vict, SPELL_ENDURANCE) )
+		percent += 20;
+	if( AFF_FLAGGED(vict, AFF_ADRENALINE) )
+		percent += 20;
+	if( IS_AFFECTED_2(vict, AFF2_BESERK) )
+		percent += 50;
+
 
 	if (MOB_FLAGGED(vict, MOB_NOSLEEP) || IS_UNDEAD(vict) ||
 		CHECK_SKILL(ch, SKILL_LECTURE) < 30 || IS_PHYSIC(vict))
