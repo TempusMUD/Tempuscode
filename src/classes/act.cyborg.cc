@@ -328,7 +328,6 @@ ACMD(do_recharge)
 				return;
 			}
 		} else if (strncmp(arg3, "self", 4) &&
-			strncmp(arg3, "me", 2) &&
 			!(battery = get_obj_in_list_vis(ch, arg3, ch->carrying)) &&
 			!(battery = get_object_in_equip_vis(ch, arg3, ch->equipment, &i))
 			&& !(battery =
@@ -427,7 +426,6 @@ ACMD(do_recharge)
 			return;
 		}
 	} else if (strncmp(arg2, "self", 4) &&
-		strncmp(arg2, "me", 2) &&
 		!(battery = get_obj_in_list_vis(ch, arg2, ch->carrying)) &&
 		!(battery = get_object_in_equip_vis(ch, arg2, ch->equipment, &i)) &&
 		!(battery = get_obj_in_list_vis(ch, arg2, ch->in_room->contents))) {
