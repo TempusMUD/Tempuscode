@@ -28,7 +28,6 @@ struct set_struct;
 **/
 namespace Security {
     /** The name of the file to store security data in. **/
-    static const char SECURITY_FILE[] = "etc/security.dat";
     static const bool TRACE = false;
     static inline void trace( const char *msg, const char *name = "system" ) {
         if( TRACE )
@@ -95,6 +94,10 @@ namespace Security {
             const char *getDescription() { return _description; }
             /* sets this group's description */
             void setDescription(const char *desc);
+			// Retrieves this groups db id
+			int getID() { return _id; }
+			// sets this group's db id
+			void setID(int id) { _id = id; }
             /* Retrieves this group's name */
             const char *getName() { return _name; }
             /* retrieves the name of the group that can admin this group. */
@@ -162,6 +165,8 @@ namespace Security {
             char *_name;
             /* The name of the group whos members can administrate this group */
             char *_adminGroup;
+
+			int _id;
             /** 
              * resolved on group load/creation. 
              * Command names stored in file.
@@ -250,13 +255,11 @@ namespace Security {
      **/
     bool removeMember( const char *member, const char *group_name );
     
-    /** stores the security groups in the given file in XML format. **/
-    bool saveGroups( const char *filename = SECURITY_FILE );
     /** 
      * clears the current security groups and loads new groups and 
-     * membership from the given filename 
+     * membership from the database
      **/
-    bool loadGroups( const char *filename = SECURITY_FILE );
+    bool loadGroups(void);
 
     /**
      *

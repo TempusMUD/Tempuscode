@@ -60,7 +60,6 @@ const struct {
     { "remcmd",     "<group name> <command> [<command>...]" },
     { "destroy",     "<group name>" },
     { "stat",       "<group name>"}, 
-    { "save",       ""},
     { NULL,         NULL }
 };
 
@@ -120,12 +119,13 @@ ACCMD(do_access) {
                     send_to_char(ch, "You cannot add members to this group.\r\n");
                     return;
                 }
-                
+
                 if(! tokens.hasNext() )
                     send_to_char(ch, "Add what member?\r\n");
 
                 while( tokens.next(token2) ) {
                     if( addMember( token2, token1 ) ) {
+						
                         send_to_char(ch, "Member added : %s\r\n", token2);
 						slog("Security:  %s added to group '%s' by %s.", 
 						      token2, token1, GET_NAME(ch) );
@@ -166,6 +166,8 @@ ACCMD(do_access) {
                 }
                 if( tokens.next(token2) && isGroup(token2) ) {
                     getGroup(token1).setAdminGroup( token2 );
+					sql_exec("update sgroups set admin=%d where idnum=%d",
+						getGroup(token2).getID(), getGroup(token1).getID());
                     send_to_char(ch, "Administrative group set.\r\n");
                 } else {
                     send_to_char(ch, "Set admin group to what?\r\n");
@@ -209,6 +211,8 @@ ACCMD(do_access) {
                 if( tokens.remaining(linebuf) ) {
                     getGroup(token1).setDescription( linebuf );
                     send_to_char(ch, "Description set.\r\n");
+					sql_exec("update sgroups set descrip='%s' where idnum=%d",
+						tmp_sqlescape(linebuf), getGroup(token1).getID());
 					slog("Security:  Group '%s' described by %s.", 
 						  token1, GET_NAME(ch) );
                 } else {
@@ -317,14 +321,6 @@ ACCMD(do_access) {
                 getGroup(token1).sendStatus(ch);
             } else {
                 send_to_char(ch, "Stat what group?\r\n");
-            }
-            break;
-        case 14: // save
-            if( saveGroups() ) {
-                send_to_char(ch, "Access groups saved.\r\n");
-				slog("Security:  Access group data saved by %s.", GET_NAME(ch) );
-            } else {
-                send_to_char(ch, "Error saving access groups.\r\n");
             }
             break;
         default:
@@ -464,12 +460,23 @@ namespace Security {
 
      bool createGroup( char *name ) {
         list<Group>::iterator it = find( groups.begin(), groups.end(), name );
+		PGresult *res;
+		int group_id;
+
         if( it != groups.end() ) {
             trace("createGroup: group exists");
             return false;
         }
+		res = sql_query("select MAX(idnum) from sgroups");
+		group_id = atoi(PQgetvalue(res, 0, 0)) + 1;
+		PQclear(res);
+
         groups.push_back(name);
+		getGroup(name).setID(group_id);
         groups.sort();
+
+		sql_exec("insert into sgroups (idnum, name, descrip) values (%d, '%s', 'No description.')",
+			group_id, name);
         return true;
     }
 
@@ -478,6 +485,11 @@ namespace Security {
         if( it == groups.end() ) {
             return false;
         }
+		sql_exec("update sgroups set admin=NULL where admin=%d", it->getID());
+		sql_exec("delete from sgroup_members where sgroup=%d", it->getID());
+		sql_exec("delete from sgroup_commands where sgroup=%d", it->getID());
+		sql_exec("delete from sgroups where idnum=%d", it->getID());
+
         groups.erase(it);
         return true;
     }
@@ -553,17 +565,35 @@ namespace Security {
         }
         /* otherwise, find the command */
 
+		sql_exec("insert into sgroup_commands (sgroup, command) values (%d, '%s')",
+			it->getID(), cmd_info[index].command);
         return (*it).addCommand( &cmd_info[index] );
     }
     
     bool addMember( const char *member, const char *group_name ) {
         list<Group>::iterator it = find( groups.begin(), groups.end(), group_name );
+		long player_id;
+
         if( it == groups.end() ) {
             trace("addMember: group not found");
             return false;
         }
 
-        return (*it).addMember( member );
+		if (!playerIndex.exists(member)) {
+			trace("addMember: player not found");
+			return false;
+		}
+
+		player_id = playerIndex.getID(member);
+		if (it->member(player_id)) {
+			trace("addMember: player already exists in group");
+			return false;
+		}
+
+		sql_exec("insert into sgroup_members (sgroup, player) values (%d, %ld)",
+			it->getID(), player_id);
+
+        return (*it).addMember(player_id);
     }
 
     bool removeCommand( char *command, char *group_name ) {
@@ -577,15 +607,27 @@ namespace Security {
             trace("removeCommand: command not found");
             return false;
         }
+		sql_exec("delete from sgroup_commands where sgroup=%d and command='%s'",
+			it->getID(), cmd_info[index].command);
         return (*it).removeCommand( &cmd_info[index] );
     }
     
     bool removeMember( const char *member, const char *group_name ) {
         list<Group>::iterator it = find( groups.begin(), groups.end(), group_name );
+		long player_id;
+
         if( it == groups.end() ) {
             trace("removeMember: group not found");
             return false;
         }
+		player_id = playerIndex.getID(member);
+		if (player_id < 1) {
+			trace("removeMember: player not found");
+			return false;
+		}
+			
+		sql_exec("delete from sgroup_members where sgroup=%d and player=%ld",
+			it->getID(), player_id);
         return (*it).removeMember( member );
     }
     
@@ -603,43 +645,43 @@ namespace Security {
         list<Group>::iterator it = find( groups.begin(), groups.end(), name );
         return *it;
     }
-        
-    bool saveGroups( const char *filename) {
-        xmlDocPtr doc;
-        doc = xmlNewDoc((const xmlChar*)"1.0");
-        doc->children = xmlNewDocNode(doc, NULL, (const xmlChar *)"Security", NULL);
-        
-        list<Group>::iterator it = groups.begin();
-        for( ; it != groups.end(); ++it ) {
-            (*it).save(doc->children);
-        }
-        int rc = xmlSaveFormatFile( filename, doc, 1 );
-        xmlFreeDoc(doc);
-        return( rc != -1 );
-    }
 
-    bool loadGroups( const char *filename) {
+    bool loadGroups(void) {
+		PGresult *res;
+		char *name;
+		int idx, count, cmd;
+
         groups.erase(groups.begin(),groups.end());
-        xmlDocPtr doc = xmlParseFile(filename);
-        if( doc == NULL ) {
-            return true;
-        }
-        // discard root node
-        xmlNodePtr cur = xmlDocGetRootElement(doc);
-        if( cur == NULL ) {
-            xmlFreeDoc(doc);
-            return false;
-        }
-        cur = cur->xmlChildrenNode;
-        // Load all the nodes in the file
-        while (cur != NULL) {
-            // But only question nodes
-            if ((xmlMatches(cur->name, "Group"))) {
-                groups.push_back(Group(cur));
-            }
-            cur = cur->next;
-        }
-        xmlFreeDoc(doc);
+		res = sql_query("select sgroups.idnum, sgroups.name, sgroups.descrip, admin.name from sgroups left outer join sgroups as admin on admin.idnum=sgroups.admin order by sgroups.name");
+		count = PQntuples(res);
+		for (idx = 0;idx < count;idx++) {
+			name = PQgetvalue(res, idx, 1);
+			groups.push_back(Group(str_dup(name),
+					str_dup(PQgetvalue(res, idx, 2))));
+			getGroup(name).setAdminGroup(PQgetvalue(res, idx, 3));
+			getGroup(name).setID(atoi(PQgetvalue(res, idx, 0)));
+		}
+		PQclear(res);
+
+		res = sql_query("select name, command from sgroups, sgroup_commands where sgroups.idnum=sgroup_commands.sgroup order by command");
+		count = PQntuples(res);
+		for (idx = 0;idx < count;idx++) {
+			cmd = find_command(PQgetvalue(res, idx, 1));
+			if( cmd >= 0 )
+				getGroup(PQgetvalue(res, idx, 0)).addCommand(&cmd_info[cmd]);
+			else
+				slog("SYSERR: Invalid command '%s' in security group '%s'",
+					PQgetvalue(res, idx, 1), PQgetvalue(res, idx, 0));
+		}
+		PQclear(res);
+
+		res = sql_query("select name, player from sgroups, sgroup_members where sgroups.idnum=sgroup_members.sgroup order by player");
+		count = PQntuples(res);
+		for (idx = 0;idx < count;idx++) {
+			getGroup(PQgetvalue(res, idx, 0)).addMember(atol(PQgetvalue(res, idx, 1)));
+		}
+		PQclear(res);
+
         slog("Security:  Access group data loaded.");
         return true;
     }
