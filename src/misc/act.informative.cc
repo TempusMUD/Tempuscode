@@ -3107,6 +3107,9 @@ ACMD(do_who)
 
 		tot_num++;
 
+		if (!CAN_SEE(ch, tch))
+			continue;
+
 		if (*name_search && str_cmp(GET_NAME(tch), name_search) &&
 			!strstr(GET_TITLE(tch), name_search))
 			continue;
@@ -3390,14 +3393,14 @@ ACMD(do_who)
 	if (num_can_see == 0)
 		strcat(buf2, "\r\nNo-one at all!  ");
 	else if (num_can_see == 1)
-		strcat(buf2, "\r\nOne lonely character displayed.  ");
+		strcat(buf2, "\r\nOne lonely player is visible.  ");
 	else
-		sprintf(buf2, "%s\r\n%d characters displayed.  ", buf2, num_can_see);
+		sprintf(buf2, "%s\r\n%d characters are visible.  ", buf2, num_can_see);
 
 	if (tot_num == 1)
-		strcat(buf2, "Only one in the game.\r\n");
+		strcat(buf2, "Only one player is logged in.\r\n");
 	else
-		sprintf(buf2, "%s%d total detected in game.\r\n", buf2, tot_num);
+		sprintf(buf2, "%s%d players are logged into the game.\r\n", buf2, tot_num);
 
 	strcat(buf2, CCNRM(ch, C_CMP));
 	page_string(ch->desc, buf2);
