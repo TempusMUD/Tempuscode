@@ -48,6 +48,7 @@ using namespace std;
 #include "defs.h"
 #include "tokenizer.h"
 #include "tmpstr.h"
+#include "accstr.h"
 #include "interpreter.h"
 #include "utils.h"
 #include "player_table.h"
@@ -4100,14 +4101,14 @@ show_room_append(Creature *ch, room_data *room, int mode, const char *extra)
 		extra = "";
 
 	if (mode != 0)
-		sprintf(buf, "%s%s%s%3d %s%s%-30s %s%5d %s%-30s %s%s\r\n", buf,
+		acc_sprintf("%s%s%3d %s%s%-30s %s%5d %s%-30s %s%s\r\n",
 			CCBLD(ch, C_CMP), CCYEL(ch, C_NRM), room->zone->number,
 			CCNRM(ch, C_NRM), CCCYN(ch, C_NRM), room->zone->name,
 			CCYEL(ch, C_NRM), room->number,
 			CCCYN(ch, C_NRM), room->name, 
 			CCNRM(ch, C_NRM), extra);
 	else
-		sprintf(buf, "%s%s#%d %s%-40s %s%s\r\n", buf,
+		acc_sprintf("%s#%d %s%-40s %s%s\r\n",
 			CCYEL(ch, C_NRM), room->number,
 			CCCYN(ch, C_NRM), room->name, 
 			CCNRM(ch, C_NRM), extra);
@@ -4287,7 +4288,7 @@ show_rooms_in_zone(Creature *ch, zone_data *zone, int pos, int mode, char *args)
 						tmp_sprintf("[%2d]", mob_names.size()));
 					found = 1;
 					for (str_it = mob_names.begin(); str_it != mob_names.end(); str_it++)
-						sprintf(buf, "%s\t%s%s%s\r\n", buf, CCYEL(ch, C_NRM),
+						acc_sprintf("\t%s%s%s\r\n", CCYEL(ch, C_NRM),
 								str_it->c_str(), CCNRM(ch, C_NRM));
 				}
 			}
@@ -4392,6 +4393,8 @@ show_rooms(Creature *ch, char *value, char *args)
 	int found = 0;
 	char *arg;
 
+	acc_string_clear();
+
 	show_mode = search_block(value, show_room_modes, 0);
     if (show_mode < 0) {
         send_to_char(ch, "%s\n", usage);
@@ -4400,8 +4403,6 @@ show_rooms(Creature *ch, char *value, char *args)
     
 	arg = tmp_getword(&args);
     if (arg && ((pos = search_block(arg, show_room_flags, 0)) >= 0)) {
-		// Initialize buffer
-		buf[0] = '\0';
 		switch (show_mode) {
 		case 0:
 			found = show_rooms_in_zone(ch, ch->in_room->zone, pos, show_mode, args);
@@ -4436,7 +4437,7 @@ show_rooms(Creature *ch, char *value, char *args)
 		}
 
 		if (found)
-			page_string(ch->desc, buf);
+			page_string(ch->desc, acc_get_string());
 		else
 			send_to_char(ch, "No matching rooms.\r\n");
     } else {
