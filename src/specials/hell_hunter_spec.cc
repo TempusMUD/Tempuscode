@@ -346,7 +346,7 @@ SPECIAL(hell_hunter)
     if (!FIGHTING(ch) && !HUNTING(ch) && !AFF_FLAGGED(ch, AFF_CHARM)) {
         act("$n vanishes into the mouth of an interplanar conduit.",
             FALSE, ch, 0, 0, TO_ROOM);
-        ch->extract( TRUE );
+        ch->extract(true, false, CON_MENU);
         return 1;
     }
 
@@ -355,7 +355,7 @@ SPECIAL(hell_hunter)
         if ( GET_MANA(ch) < 100 ) {
             act("$n vanishes into the mouth of an interplanar conduit.",
                 FALSE, ch, 0, 0, TO_ROOM);
-            ch->extract( TRUE );
+            ch->extract(true, false, CON_MENU);
             return 1;
         }
 

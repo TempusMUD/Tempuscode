@@ -21,8 +21,7 @@ SPECIAL(newbie_healer)
         continue;
     if (IS_NPC(i)) {
         act("$n banishes $N!", FALSE, ch, 0, i, TO_ROOM);
-        //extract_char(i, 0);
-        i->extract( FALSE );
+        i->extract(true, false, CON_MENU);
         continue;
     }
     if (!IS_NPC(i) && GET_LEVEL(i) < 5 && !number(0, GET_LEVEL(i))) {

@@ -1529,8 +1529,7 @@ do_destroy_mobile(struct char_data *ch, int vnum)
     CharacterList::iterator cit = characterList.begin();
     for( ; cit != characterList.end(); ++cit ) {
         if (GET_MOB_VNUM((*cit)) == GET_MOB_VNUM(mob))
-            //extract_char(*cit, FALSE);
-            (*cit)->extract( FALSE );
+            (*cit)->extract(false, false, CON_MENU);
     }
     mobilePrototypes.remove(mob);
 
@@ -1783,8 +1782,7 @@ int olc_mimic_mob(struct char_data *ch,
         CharacterList::iterator cit = characterList.begin();
         for( ; cit != characterList.end(); ++cit ) {
             if (IS_NPC((*cit)) && GET_MOB_VNUM((*cit)) == GET_MOB_VNUM(targ))
-                //extract_char((*cit), FALSE);
-                (*cit)->extract( FALSE );
+                (*cit)->extract(false, false, CON_MENU);
         }
     }
 

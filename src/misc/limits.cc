@@ -549,7 +549,7 @@ check_idling(struct char_data * ch)
 			Crash_idlesave(ch);
 			sprintf(buf, "%s force-rented and extracted (idle).", GET_NAME(ch));
 			mudlog(buf, CMP, LVL_GOD, TRUE);
-			ch->extract( FALSE );
+			ch->extract(true, false, CON_MENU);
 			return TRUE;
 		}
 	}

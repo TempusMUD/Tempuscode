@@ -173,8 +173,7 @@ ACMD(do_quit)
 	}
 
 	save_room = ch->in_room;
-	//extract_char(ch, FALSE);	 /* Char is saved in extract char */
-	ch->extract( FALSE );
+	ch->extract(false, true, CON_MENU);
 	if (GET_ZONE(save_room) == 109 || ROOM_FLAGGED(save_room, ROOM_HOUSE)) {
 	    save_char(ch, save_room);
 	}

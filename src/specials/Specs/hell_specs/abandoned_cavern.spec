@@ -68,7 +68,7 @@ SPECIAL( abandoned_cavern )
                 }
                 save_char(  vict, NULL  );
                 Crash_crashsave(  vict  );
-                vict->extract( TRUE );
+                vict->extract(false, true, CON_AFTERLIFE);
             }
         }
 

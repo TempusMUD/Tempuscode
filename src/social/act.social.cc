@@ -147,7 +147,7 @@ ACMD(do_action)
         }
     }
     if (obj && IS_MOB(vict))
-        vict->extract( FALSE );
+        vict->extract(true, false, CON_MENU);
 }
 
 ACMD(do_point)

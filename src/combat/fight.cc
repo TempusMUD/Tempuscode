@@ -219,8 +219,7 @@ raw_kill( struct char_data * ch, struct char_data *killer, int attacktype ) {
                 qi++;
         }
     }
-    //extract_char( ch, 1 );
-    ch->extract( TRUE );
+    ch->extract(false, true, CON_AFTERLIFE);
 }
 
 

@@ -11,7 +11,7 @@ SPECIAL(unholy_stalker)
     if( spec_mode == SPECIAL_DEATH ) return 0;
     if ( !HUNTING(ch) && !FIGHTING(ch) ) {
         act("$n dematerializes, returning to the negative planes.", TRUE, ch, 0, 0, TO_ROOM);
-        ch->extract( FALSE );
+        ch->extract(true, false, CON_MENU);
         return 1;
     }
 

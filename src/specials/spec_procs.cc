@@ -1235,8 +1235,7 @@ throw_char_in_jail(struct char_data *ch, struct char_data *vict)
     act("$n throws you into a cell and slams the door behind you!\r\n", FALSE, ch, 0, vict, TO_VICT);
 
     if (IS_NPC(vict)) {
-        //extract_char(vict, FALSE);
-        vict->extract( FALSE );
+        vict->extract(false, false, CON_MENU);
         return 1;
     }
 

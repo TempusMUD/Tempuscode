@@ -13,7 +13,7 @@
 #include "paths.h"
 #include "login.h"
 
-int set_desc_state( int state,struct descriptor_data *d );
+int set_desc_state(int state, struct descriptor_data *d);
 
 extern struct descriptor_data *descriptor_list;
 
@@ -27,22 +27,22 @@ void char_data::setFighting(char_data *ch) {
     char_specials.fighting = ch;
 }
 
-int char_data::modifyCarriedWeight( int mod_weight ) {
-    return ( setCarriedWeight( getCarriedWeight() + mod_weight ) );
+int char_data::modifyCarriedWeight(int mod_weight) {
+    return (setCarriedWeight(getCarriedWeight() + mod_weight));
 }
-int char_data::modifyWornWeight( int mod_weight ) {
-    return ( setWornWeight( getWornWeight() + mod_weight ) );
+int char_data::modifyWornWeight(int mod_weight) {
+    return (setWornWeight(getWornWeight() + mod_weight));
 }
-short char_player_data::modifyWeight( short mod_weight ) {
-    return setWeight( getWeight() + mod_weight );
+short char_player_data::modifyWeight(short mod_weight) {
+    return setWeight(getWeight() + mod_weight);
 }
-int char_data::getSpeed( void ) {
+int char_data::getSpeed(void) {
     // if(IS_NPC(this))
     if(char_specials.saved.act & MOB_ISNPC)
         return 0;
     return (int)player_specials->saved.speed;
 }
-void char_data::setSpeed( int speed ) {
+void char_data::setSpeed(int speed) {
     // if(IS_NPC(this))
     if(char_specials.saved.act & MOB_ISNPC)
         return;
@@ -154,16 +154,16 @@ float char_data::getDamReduction(char_data *attacker = NULL)
         if (af->modifier == GET_IDNUM(ch)) {
             dam_reduction += (ch->getLevelBonus(SPELL_SHIELD_OF_RIGHTEOUSNESS) / 20)
                                    + (GET_ALIGNMENT(ch) / 100);
-        } else if( ch->in_room != NULL ) {
+        } else if(ch->in_room != NULL) {
             
             CharacterList::iterator it = ch->in_room->people.begin();
-            for( ; it != ch->in_room->people.end(); ++it ) {
+            for(; it != ch->in_room->people.end(); ++it) {
                 if (IS_NPC((*it)) && af->modifier == (short int)-MOB_IDNUM((*it))) {
                     dam_reduction += ((*it)->getLevelBonus(SPELL_SHIELD_OF_RIGHTEOUSNESS) / 20)
                                            + (GET_ALIGNMENT(ch) / 100);
                     break;
                 } 
-                else if (!IS_NPC((*it)) && af->modifier == GET_IDNUM((*it) )) {     
+                else if (!IS_NPC((*it)) && af->modifier == GET_IDNUM((*it))) {     
                     dam_reduction += ((*it)->getLevelBonus(SPELL_SHIELD_OF_RIGHTEOUSNESS) / 20)
                                            + (GET_ALIGNMENT(ch) / 100); 
                     break;
@@ -220,16 +220,16 @@ float char_data::getDamReduction(char_data *attacker = NULL)
 //   params: primary - Add in remort gen as a primary?
 //   return: a number from 1-100 based on level and primary/secondary)
 
-int char_data::getLevelBonus ( bool primary ) {
-    int bonus = MIN(50,player.level + 1);
+int char_data::getLevelBonus (bool primary) {
+    int bonus = MIN(50, player.level + 1);
     short gen;
 
     if(IS_NPC(this)) {
-        if( (player.remort_char_class % NUM_CLASSES) == 0) {
+        if((player.remort_char_class % NUM_CLASSES) == 0) {
             gen = 0;
         } else {
             gen = (aff_abils.intel + aff_abils.str + aff_abils.wis) / 3;
-            gen = MAX( 0, gen - 18 );
+            gen = MAX(0, gen - 18);
        }
     } else {
         gen = player_specials->saved.remort_generation; // Player generation
@@ -239,9 +239,9 @@ int char_data::getLevelBonus ( bool primary ) {
         return bonus;
     } else {
         if(primary) { // Primary. Give full remort bonus per gen.
-            return bonus + (MIN(gen,10)) * 5;
+            return bonus + (MIN(gen, 10)) * 5;
         } else { // Secondary. Give less level bonus and less remort bonus.
-            return (bonus * 3 / 4) + (MIN(gen,10) * 3);
+            return (bonus * 3 / 4) + (MIN(gen, 10) * 3);
         }
     }
 }
@@ -252,7 +252,7 @@ int char_data::getLevelBonus ( bool primary ) {
 // params: skill - the skill # to check bonus for.
 // return: a number from 1-100 based on level/gen/can learn skill.
 
-int char_data::getLevelBonus( int skill ) {
+int char_data::getLevelBonus(int skill) {
 
     // Immorts get full bonus. 
     if(player.level >= 50) return 100; 
@@ -268,7 +268,7 @@ int char_data::getLevelBonus( int skill ) {
             gen = 0;
         } else {
             gen = (aff_abils.intel + aff_abils.str + aff_abils.wis) / 3;
-            gen = MAX( 0, gen - 18 );
+            gen = MAX(0, gen - 18);
        }
     } else {
         gen = player_specials->saved.remort_generation; // Player generation
@@ -291,7 +291,7 @@ int char_data::getLevelBonus( int skill ) {
     // if neither, *SPLAT*
     if(pLevel < 50) {         // primary gets skill
         primary = true;
-    } else if( sLevel < 50) { // secondary gets skill
+    } else if(sLevel < 50) { // secondary gets skill
         primary = false;
     } else {                  // Dont get the skill at all
         return (getLevelBonus(false))/2;
@@ -311,17 +311,17 @@ int char_data::getLevelBonus( int skill ) {
 //  @param mode: 1 == from update_pos, 2 == from perform violence (not used for anything really)
 //  @param new_position the enumerated int position to be set to.
 
-bool char_data::setPosition( int new_pos, int mode=0 ){
+bool char_data::setPosition(int new_pos, int mode=0){
     if(new_pos == char_specials.getPosition())
         return false;
     if(new_pos < BOTTOM_POS || new_pos > TOP_POS)
         return false;
     // Petrified
-    if(IS_AFFECTED_2(this,AFF2_PETRIFIED) ){
+    if(IS_AFFECTED_2(this, AFF2_PETRIFIED)){
         // Stoners can stop fighting
-        if( char_specials.getPosition() == POS_FIGHTING && new_pos == POS_STANDING )
+        if(char_specials.getPosition() == POS_FIGHTING && new_pos == POS_STANDING)
             return true;
-        if( new_pos > char_specials.getPosition())
+        if(new_pos > char_specials.getPosition())
             return false;
     }
     if(new_pos == POS_STANDING && FIGHTING(this)) {
@@ -334,17 +334,25 @@ bool char_data::setPosition( int new_pos, int mode=0 ){
 //
 // Returns current position (standing sitting etc.)
 
-int char_data::getPosition( void ) {
+int char_data::getPosition(void) {
     return char_specials.getPosition();
 }
 // Extract a ch completely from the world, and leave his stuff behind
-// mode = 0 -> menu, 1 -> afterlife, 2 -> remort reroll
-void char_data::extract( char mode ) {
-    void stop_fighting( struct char_data * ch );
+// Parameters
+//		destroy_objs - if false, will dump all objects into room.  if true,
+//			will destroy all the objects.
+//		save - if true and this is a player, will save the character after
+//			removing everything
+//		con_state - the connection state to change the descriptor to, if one
+//			exists
+void
+char_data::extract(bool destroy_objs, bool save, int con_state) {
+    void stop_fighting(struct char_data * ch);
     struct char_data *k;
+	struct obj_data *obj;
     struct descriptor_data *t_desc;
-    struct obj_data *obj;
-    int i, freed = 0;
+    int idx, freed = 0;
+    CharacterList::iterator cit;
     ACMD(do_return);
 
     void die_follower(struct char_data * ch);
@@ -364,17 +372,22 @@ void char_data::extract( char mode ) {
     if (followers || master)
         die_follower(this);
 
+
+	if (FIGHTING(this))
+		stop_fighting(this);
+
     // remove hunters
-    CharacterList::iterator cit = characterList.begin();
-    for( ; cit != characterList.end(); ++cit ) {
+    for(cit = characterList.begin(); cit != characterList.end(); ++cit) {
         if (this == HUNTING((*cit)))
             HUNTING((*cit)) = NULL;
     }
+
     // Make sure they aren't editing a help topic.
     if(GET_OLC_HELP(this)) {
         GET_OLC_HELP(this)->editor = NULL;
         GET_OLC_HELP(this) = NULL;
-    }
+	}
+
     // Forget snooping, if applicable
     if (desc) {
         if (desc->snooping) {
@@ -382,42 +395,58 @@ void char_data::extract( char mode ) {
             desc->snooping = NULL;
         }
         if (desc->snoop_by) {
-            SEND_TO_Q("Your victim is no longer among us.\r\n",
+            SEND_TO_Q("Your victim is no longer among us.\r\n", 
                       desc->snoop_by);
             desc->snoop_by->snooping = NULL;
             desc->snoop_by = NULL;
         }
     }
-    // transfer objects to room, if any
-    while (carrying) {
-        obj = carrying;
-        obj_from_char(obj);
-        obj_to_room(obj, in_room);
-    }
+	if (destroy_objs) {
+		// destroy all that equipment
+		for (idx = 0; idx < NUM_WEARS; idx++) {
+			if (GET_EQ(this, idx))
+				extract_obj(unequip_char(this, idx, MODE_EQ));
+			if (GET_IMPLANT(this, idx))
+				extract_obj(unequip_char(this, idx, MODE_IMPLANT));
+		}
+		// transfer inventory to room, if any
+		while (carrying) {
+			obj = carrying;
+			obj_from_char(obj);
+			extract_obj(obj);
+		}
+		// gold and cash aren't actually objects, so we just let them
+		// dissipate in a mist of deallocated bits
+	} else {
+		// transfer equipment to room, if any
+		for (idx = 0; idx < NUM_WEARS; idx++) {
+			if (GET_EQ(this, idx))
+				obj_to_room(unequip_char(this, idx, MODE_EQ), in_room);
+			if (GET_IMPLANT(this, idx))
+				obj_to_room(unequip_char(this, idx, MODE_IMPLANT), in_room);
+		}
+		// transfer inventory to room, if any
+		while (carrying) {
+			obj = carrying;
+			obj_from_char(obj);
+			obj_to_room(obj, in_room);
+		}
 
-    // transfer equipment to room, if any
-    for (i = 0; i < NUM_WEARS; i++) {
-        if (GET_EQ(this, i))
-            obj_to_room(unequip_char(this, i, MODE_EQ), in_room);
-        if (GET_IMPLANT(this, i))
-            obj_to_room(unequip_char(this, i, MODE_IMPLANT), in_room);
-    }
-
-	// transfer gold to room
-	if ( GET_GOLD(this) > 0 )
-		obj_to_room(create_money(GET_GOLD(this), 0), in_room);
-	if ( GET_CASH(this) > 0 )
-		obj_to_room(create_money(GET_CASH(this), 1), in_room);
-	GET_GOLD(this) = GET_CASH(this) = 0;
+		// transfer gold to room
+		if (GET_GOLD(this) > 0)
+			obj_to_room(create_money(GET_GOLD(this), 0), in_room);
+		if (GET_CASH(this) > 0)
+			obj_to_room(create_money(GET_CASH(this), 1), in_room);
+		GET_GOLD(this) = GET_CASH(this) = 0;
+	}
 
     if (FIGHTING(this))
         stop_fighting(this);
 
     // stop all fighting
-    CharacterList::iterator coit = combatList.begin();
-    for( ; coit != combatList.end(); ++coit ) {
-        if (this == FIGHTING((*coit)))
-            stop_fighting(*coit);
+    for(cit = combatList.begin(); cit != combatList.end(); ++cit) {
+        if (this == FIGHTING((*cit)))
+            stop_fighting(*cit);
     }
 
     if (MOUNTED(this)) {
@@ -426,23 +455,22 @@ void char_data::extract( char mode ) {
     }
 
     if (AFF2_FLAGGED(this, AFF2_MOUNTED)) {
-        CharacterList::iterator cit = characterList.begin();
-        for( ; cit != characterList.end(); ++cit ) {
+        for(cit = characterList.begin();cit != characterList.end();++cit) {
             k = *cit;
             if (this == MOUNTED(k)) {
                 MOUNTED(k) = NULL;
                 if (k->getPosition() == POS_MOUNTED) {
                     if (k->in_room->sector_type == SECT_FLYING)
-                        k->setPosition( POS_FLYING );
+                        k->setPosition(POS_FLYING);
                     else 
-                        k->setPosition( POS_STANDING );
+                        k->setPosition(POS_STANDING);
                 }
             }
         }
     }
 
     if (desc && desc->original) {
-        do_return(this, "", 0,  SCMD_NOEXTRACT);
+        do_return(this, "", 0, SCMD_NOEXTRACT);
     }
 
     char_from_room(this);
@@ -454,24 +482,20 @@ void char_data::extract( char mode ) {
     path_remove_object(this);
 
     if (!IS_NPC(this)) {
-        save_char(this, NULL);
-        Crash_delete_crashfile(this);
+		if (save) {
+			save_char(this, NULL);
+			Crash_delete_crashfile(this);
+		}
     } else {
         if (GET_MOB_VNUM(this) > -1)                // if mobile
             mob_specials.shared->number--;
         clearMemory();                // Only NPC's can have memory
         free_char(this);
-        freed = 1;
         return;
     }
 
     if (desc) { // PC's have descriptors. Take care of them
-        if (mode) { // Afterlife or Remort-Reroll
-			set_desc_state( CON_AFTERLIFE,desc );
-            desc->wait = 0;
-        } else { // Menu 
-			set_desc_state( CON_MENU,desc );
-        }
+		set_desc_state(con_state, desc);
     } else {  // if a player gets purged from within the game
         if (!freed)
             free_char(this);

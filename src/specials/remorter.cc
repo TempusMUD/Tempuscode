@@ -161,7 +161,7 @@ SPECIAL(remorter)
             REMOVE_BIT(ch->in_room->room_flags, ROOM_NORECALL);
             quiz.reset();
 
-            ch->extract( FALSE );
+            ch->extract(true, true, CON_MENU);
         }  
         return 1;
     }
@@ -284,9 +284,7 @@ SPECIAL(remorter)
             while ( ch->affected )
                 affect_remove( ch, ch->affected );
 
-            save_char(ch, NULL);
-            //extract_char(ch, 0);
-            ch->extract( FALSE );
+            ch->extract(true, true, CON_MENU);
             quiz.reset();
             return 1;
         }

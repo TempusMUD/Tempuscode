@@ -27,8 +27,7 @@ SPECIAL(rat_mama)
       if (!number(0, 1) == 0 && IS_NPC((*it)) && isname("rat", (*it)->player.name)) {
         act("$n climbs into a hole in the wall.", FALSE, (*it), 0, 0, TO_ROOM);
         char_from_room((*it));
-        //extract_char(rat, FALSE);
-        (*it)->extract( FALSE );
+        (*it)->extract(true, false, CON_MENU);
         return TRUE;
       } 
     }

@@ -2616,7 +2616,7 @@ void mobile_activity(void) {
                     act("$n dissolves, and returns to $s home plane!", 
                         TRUE, ch, 0, 0, TO_ROOM);
                     //extract_char(ch, FALSE);
-                    ch->extract( FALSE );
+                    ch->extract(true, false, CON_MENU);
                 }
                 break;
             case CLASS_FIRE:
@@ -2631,7 +2631,7 @@ void mobile_activity(void) {
                     act("$n dissipates, and returns to $s home plane!", 
                         TRUE, ch, 0, 0, TO_ROOM);
                     //extract_char(ch, FALSE);
-                    ch->extract( FALSE );
+                    ch->extract(true, false, CON_MENU);
                 }
                 break;
             case CLASS_WATER:
@@ -2644,7 +2644,7 @@ void mobile_activity(void) {
                     act("$n dissipates, and returns to $s home plane!", 
                         TRUE, ch, 0, 0, TO_ROOM);
                     //extract_char(ch, FALSE);
-                    ch->extract( FALSE );
+                    ch->extract(true, false, CON_MENU);
                 }
                 break;
             case CLASS_AIR:
@@ -2653,7 +2653,7 @@ void mobile_activity(void) {
                     act("$n dissipates, and returns to $s home plane!", 
                         TRUE, ch, 0, 0, TO_ROOM);
                     //extract_char(ch, FALSE);
-                    ch->extract( FALSE );
+                    ch->extract(true, false, CON_MENU);
                 }
                 break;
             default:
@@ -2661,7 +2661,7 @@ void mobile_activity(void) {
                     found = 1;
                     act("$n disappears.",TRUE,ch,0,0,TO_ROOM);
                     //extract_char(ch, FALSE);
-                    ch->extract( FALSE );
+                    ch->extract(true, false, CON_MENU);
                 }
             } 
 

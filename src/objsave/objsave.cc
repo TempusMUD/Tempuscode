@@ -1315,10 +1315,8 @@ gen_receptionist( struct char_data * ch, struct char_data * recep,
         act( "$n helps $N into $S private chamber.", 
              FALSE, recep, 0, ch, TO_NOTVICT );
         save_room = ch->in_room;
-        //extract_char(ch, FALSE);
-        ch->extract( FALSE );
-
         save_char( ch, save_room );
+        ch->extract(true, false, CON_MENU);
     } else {
         Crash_offer_rent( ch, recep, TRUE, mode );
         act( "$N gives $n an offer.", FALSE, ch, 0, recep, TO_ROOM );

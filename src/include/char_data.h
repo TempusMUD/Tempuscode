@@ -605,7 +605,6 @@
 
 /* char-related structures ************************************************/
 
-
 /* memory structure for characters */
 struct memory_rec_struct {
     long    id;
@@ -948,11 +947,7 @@ struct char_data {
         bool isFighting();
         char_data *getFighting();
         void setFighting(char_data *ch);
-        /** 
-         * Extract a ch completely from the world, and leave his stuff behind 
-         * mode = 0 -> menu, 1 -> afterlife, 2 -> remort reroll 
-        **/
-        void extract( char mode );
+        void extract(bool destroy_objs, bool save, int con_state);
         void clearMemory();
 
     public: // ******  Data ****

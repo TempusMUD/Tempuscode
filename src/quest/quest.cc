@@ -456,8 +456,7 @@ do_qcontrol_purge   (CHAR *ch, char *argument, int com) {
             close_socket(vict->desc);
             vict->desc = NULL;
         }
-        //extract_char(vict, TRUE);
-        vict->extract( FALSE );
+        vict->extract(false, false, CON_MENU);
         send_to_char(OK, ch);
     } else {
         send_to_char("Purge what?\r\n",ch);

@@ -992,8 +992,7 @@ int do_simple_move(struct char_data * ch, int dir, int mode, int need_specials_c
         was_in = ch->in_room;
         log_death_trap(ch);
         death_cry(ch);
-        //extract_char(ch, 1);
-        ch->extract( 1 );
+        ch->extract(false, true, CON_AFTERLIFE);
         if (was_in->number == 34004) {
             for (obj = was_in->contents; obj; obj = next_obj) {
                 next_obj = obj->next_content;
@@ -2410,8 +2409,7 @@ ACMD(do_follow)
     
         send_to_char("You go too far, rematerializing inside solid matter!!\r\n"
                      "Better luck next time...\r\n", ch);
-        //extract_char(ch, 1);
-        ch->extract( 1 );
+        ch->extract(false, true, CON_AFTERLIFE);
         return;
     }
     else {
@@ -2430,8 +2428,7 @@ ACMD(do_follow)
             GET_LEVEL(ch) < LVL_AMBASSADOR) {
             log_death_trap(ch);
             death_cry(ch);
-            //extract_char(ch, 1);
-            ch->extract( 1 );
+            ch->extract(false, true, CON_AFTERLIFE);
             if (rm->number == 34004) {
                 for (obj = rm->contents; obj; obj = next_obj) {
                     next_obj = obj->next_content;

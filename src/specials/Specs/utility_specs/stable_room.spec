@@ -111,8 +111,7 @@ SPECIAL(stable_room)
     CharacterList::iterator it = pet_room->people.begin();
     for( ; it != pet_room->people.end(); ++it ) {
         if ((*it) != pet && IS_NPC((*it)) && GET_MOB_VNUM((*it)) == GET_MOB_VNUM(pet)) {
-            //extract_char(pet2, 0);
-            (*it)->extract( FALSE );
+            (*it)->extract(true, false, CON_MENU);
             return 1;
         }
     }

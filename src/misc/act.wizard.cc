@@ -2327,8 +2327,7 @@ ACMD(do_return)
             act("$n materializes from a cloud of gas.", 
                 FALSE, orig, 0, 0, TO_ROOM);
             if (subcmd != SCMD_NOEXTRACT)
-                ch->extract( FALSE );
-                //extract_char(ch, 0);
+                ch->extract(true, false, CON_MENU);
         }
     } else 
         send_to_char("There is no need to return.\r\n", ch);
@@ -2539,13 +2538,8 @@ ACMD(do_purge)
                 sprintf(buf, "(GC) %s has purged %s at %d.", 
                         GET_NAME(ch), GET_NAME(vict), vict->in_room->number);
                 mudlog(buf, BRF, LVL_POWER, TRUE);
-                if (vict->desc) {
-                    close_socket(vict->desc);
-                    vict->desc = NULL;
-                }
             }
-            //extract_char(vict, TRUE);
-            vict->extract( 1 );
+            vict->extract(false, true, CON_CLOSE);
         } else if ((obj = get_obj_in_list_vis(ch, buf, ch->in_room->contents))) {
             act("$n destroys $p.", FALSE, ch, obj, 0, TO_ROOM);
             sprintf(buf, "(GC) %s purged %s at %d.", GET_NAME(ch),
@@ -2567,7 +2561,7 @@ ACMD(do_purge)
         CharacterList::iterator it = ch->in_room->people.begin();
         for( ; it != ch->in_room->people.end(); ++it ) {
             if (IS_NPC((*it))) {
-                (*it)->extract( FALSE );
+                (*it)->extract(true, false, CON_MENU);
             }
         }
 
@@ -6470,8 +6464,7 @@ ACMD(do_mudwipe)
         CharacterList::iterator mit = characterList.begin();
         for( ; mit != characterList.end(); ++mit ) {
             if (IS_NPC(*mit)) {
-                //extract_char(*mit, FALSE);
-                (*mit)->extract( FALSE );
+                (*mit)->extract(true, false, CON_MENU);
             }
         }
         send_to_char("DONE.  Mud cleaned of all mobiles.\r\n", ch);
@@ -6524,7 +6517,7 @@ ACMD(do_zonepurge)
             CharacterList::iterator it = rm->people.begin();
             for( ; it != rm->people.end(); ++it ) {
                 if (IS_MOB((*it))) {
-                    (*it)->extract( FALSE );
+                    (*it)->extract(true, false, CON_MENU);
                     mob_count++;
                 } else {
                     send_to_char("You feel a rush of heat wash over you!\r\n", *it);

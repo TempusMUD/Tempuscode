@@ -64,11 +64,11 @@ int search_trans_character( char_data *ch,
         if ( GET_LEVEL( ch ) < LVL_AMBASSADOR ) {
             log_death_trap( ch );
             death_cry( ch );
-            ch->extract( TRUE );
+            ch->extract(false, true, CON_AFTERLIFE);
             return 2;
         }
         else {
-            sprintf( buf, "( GC ) %s trans-searched goto into deathtrap %d.", 
+            sprintf( buf, "(GC) %s trans-searched into deathtrap %d.", 
                      GET_NAME( ch ), ch->in_room->number );
             mudlog( buf, NRM, LVL_GOD, TRUE );
         }
@@ -281,11 +281,11 @@ general_search( struct char_data *ch, struct special_search_data *srch,int mode 
                     log_death_trap( ch );
                     death_cry( ch );
                     //extract_char( ch, 1 );
-                    ch->extract( TRUE );
+                    ch->extract(false, true, CON_AFTERLIFE);
                     return 2;
                 }
                 else {
-                    sprintf( buf, "( GC ) %s trans-searched goto into deathtrap %d.", 
+                    sprintf( buf, "( GC ) %s trans-searched into deathtrap %d.", 
                              GET_NAME( ch ), ch->in_room->number );
                     mudlog( buf, NRM, LVL_GOD, TRUE );
                 }

@@ -676,7 +676,7 @@ ASPELL(spell_summon)
     struct room_data *targ_room = NULL;
     int prob = 0;
 
-    if (ch == NULL || victim == NULL)
+    if (ch == NULL || victim == NULL || ch == victim)
         return;
 
     if (ROOM_FLAGGED(victim->in_room, ROOM_NORECALL)) {
@@ -717,8 +717,10 @@ ASPELL(spell_summon)
         return;
     }
 
-    if (ch != victim && (ROOM_FLAGGED(victim->in_room, ROOM_PEACEFUL) && 
-                         !PLR_FLAGGED(victim, PLR_KILLER) && GET_LEVEL(ch) < LVL_GRGOD)) {
+    if ((ROOM_FLAGGED(victim->in_room, ROOM_PEACEFUL) &&
+		!ROOM_FLAGGED(ch->in_room, ROOM_PEACEFUL)) &&
+		!PLR_FLAGGED(victim, PLR_KILLER) &&
+		GET_LEVEL(ch) < LVL_GRGOD) {
         act("A strange vortex of energy opens up but fails to draw you in.\r\n"
             "$n has attempted to summon you!", FALSE, ch, 0, victim, TO_VICT);
         act("You fail.  $N is in a non-violence zone!.",FALSE,ch,0,victim,TO_CHAR);
@@ -2789,23 +2791,21 @@ ASPELL(spell_animate_dead)
 
     if ( IS_UNDEAD(orig_char) ) {
         act("You cannot re-animate $p.", FALSE, ch, obj, 0, TO_CHAR);
-        //extract_char( orig_char, 0 );
-        orig_char->extract( FALSE );
+        orig_char->extract(true, false, CON_MENU);
         return;
     }
         
     if ( GET_LEVEL(orig_char) >= LVL_AMBASSADOR && GET_LEVEL(orig_char) > GET_LEVEL(ch) ) {
         send_to_char("You find yourself unable to perform this necromantic deed.\r\n", ch);
         //extract_char( orig_char, 0 );
-        orig_char->extract( FALSE );
+        orig_char->extract(true, false, CON_MENU);
         return;
     }
 
     if ( ! ( zombie = read_mobile(ZOMBIE_VNUM) ) ) {
         send_to_char("The dark powers are not with you, tonight.\r\n", ch);
         slog("SYSERR: unable to load ZOMBIE_VNUM in spell_animate_dead.");
-        //extract_char( orig_char, 0 );
-        orig_char->extract( FALSE );
+        orig_char->extract(true, false, CON_MENU);
         return;
     }
 
@@ -2904,8 +2904,7 @@ ASPELL(spell_animate_dead)
 
     extract_obj(obj);
 
-    //extract_char( orig_char, 0 );
-    orig_char->extract( FALSE );
+    orig_char->extract(true, false, CON_MENU);
 
     char_to_room(zombie, ch->in_room);
     act("$n rises slowly to a standing position.", FALSE, zombie, 0, 0, TO_ROOM);
@@ -3285,8 +3284,7 @@ ASPELL(spell_banishment)
 
        act("$n is banished to $s home plane!", FALSE, victim, 0, 0, TO_ROOM);
 
-       victim->extract( FALSE );
-       //extract_char(victim, 0);
+       victim->extract(true, false, CON_MENU);
        
        gain_skill_prof(ch, SPELL_BANISHMENT);
 
