@@ -321,7 +321,11 @@ show_obj_to_char(struct obj_data *object, struct Creature *ch,
 				CCGRN(ch, C_NRM), CCNRM(ch, C_NRM));
 			found = true;
 		}
-
+		if ( object->shared->owner_id != 0 ) {
+			msg = tmp_sprintf("%s %s(protected)%s", msg,
+				CCYEL_BLD(ch, C_SPR), CCNRM(ch, C_SPR));
+			found = true;
+		}
 		if (mode == 0)
 			msg = tmp_strcat(msg, CCGRN(ch, C_NRM), NULL);
 	}
@@ -3194,16 +3198,19 @@ ACMD(do_who)
 					strcpy(badge, "CODEMAN");
 				} else if (!strncmp(GET_NAME(tch), "Nothing", 7)) {
 					strcpy(badge, "THECODE");
-				} else if (!strncmp(GET_NAME(tch), "Cedric", 6)) {
-					strcpy(badge, "ARBITER");
 				} else {
 					strcpy(badge, LEV_ABBR(tch));
 				}
 				break;
 			case 9:
 				strcpy(badge, " ELDER ");
+				break;
 			case 10:
 				strcpy(badge, "ARBITER");
+				break;
+			case 11:
+				strcpy(badge, "FOREMAN");
+				break;
 			default:
 				strcpy(badge, LEV_ABBR(tch));
 			}
@@ -4837,10 +4844,15 @@ ACMD(do_wizlist)
     getGroup("Wizlist_Grimps").sendPublicMemberList(ch, buf);
     send_wizlist_section_title("Administrators",ch);
     getGroup("Wizlist_Admins").sendPublicMemberList(ch, buf,"WizardAdmin");
+    send_wizlist_section_title("Foreman",ch);
+    getGroup("Wizlist_Foreman").sendPublicMemberList(ch, buf, "WorldAdmin" );
     send_wizlist_section_title("Architects",ch);
-    getGroup("Wizlist_Arch_P").sendPublicMemberList(ch, buf, "OLCWorldWrite" );
-    getGroup("Wizlist_ArchEC").sendPublicMemberList(ch, buf, "OLCWorldWrite" );
-    getGroup("Wizlist_ArchOP").sendPublicMemberList(ch, buf, "OLCWorldWrite" );
+	strcat(buf, "        ");
+    getGroup("Wizlist_Arch_P").sendPublicMember(ch, buf, "Past: " );
+	strcat(buf,"   ");
+    getGroup("Wizlist_ArchEC").sendPublicMember(ch, buf, "Future: " );
+	strcat(buf,"   ");
+    getGroup("Wizlist_ArchOP").sendPublicMember(ch, buf, "Outer Planes: " );
     send_wizlist_section_title("Builders",ch);
     getGroup("Wizlist_Blders").sendPublicMemberList(ch, buf);
     send_wizlist_section_title("Coders",ch);
@@ -4852,6 +4864,3 @@ ACMD(do_wizlist)
 	strcat(buf, "\r\n\r\n");
 	page_string(ch->desc, buf);
 }
-
-
-
