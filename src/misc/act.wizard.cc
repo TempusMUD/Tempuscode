@@ -1578,9 +1578,11 @@ do_stat_character(struct char_data *ch, struct char_data *k)
 		strcat(outbuf, buf);
 
 		sprintf(buf,
-			"PRAC[%d] (%d/prac) (%.2f/level), Life[%d], Qpoints[%d/%d]\r\n",
+			"PRAC[%d] (%d/prac) (%.2f/level), Life[%d], Qpoints[%d/%d], Thac0[%d]\r\n",
 			GET_PRACTICES(k), skill_gain(k, FALSE), prac_gain(k, FALSE),
-			GET_LIFE_POINTS(k), GET_QUEST_POINTS(k), GET_QUEST_ALLOWANCE(k));
+			GET_LIFE_POINTS(k), GET_QUEST_POINTS(k), GET_QUEST_ALLOWANCE(k),
+			(int)MIN(THACO(GET_CLASS(k), GET_LEVEL(k)), 
+					 THACO(GET_REMORT_CLASS(k), GET_LEVEL(k))));
 		strcat(outbuf, buf);
 
 		sprintf(buf,
@@ -5613,10 +5615,10 @@ ACMD(do_set)
 		affect_total(vict);
 		break;
 	case 19:
-		GET_GOLD(vict) = RANGE(0, 100000000);
+		GET_GOLD(vict) = RANGE(0, 1000000000);
 		break;
 	case 20:
-		GET_BANK_GOLD(vict) = RANGE(0, 100000000);
+		GET_BANK_GOLD(vict) = RANGE(0, 1000000000);
 		break;
 	case 21:
 		vict->points.exp = RANGE(0, 1500000000);
@@ -5956,7 +5958,7 @@ ACMD(do_set)
 		vict->player.age_adjust = (byte) RANGE(-125, 125);
 		break;
 	case 81:
-		GET_CASH(vict) = RANGE(0, 100000000);
+		GET_CASH(vict) = RANGE(0, 1000000000);
 		break;
 	case 82:
 		GET_REMORT_GEN(vict) = RANGE(0, 1000);
@@ -6006,7 +6008,7 @@ ACMD(do_set)
 		CHAR_SOILAGE(vict, i) = atoi(arg2);
 		break;
 	case 92:
-		GET_ECONET(vict) = RANGE(0, 100000000);
+		GET_ECONET(vict) = RANGE(0, 1000000000);
 		break;
 	case 93:					// specialization
 		two_arguments(val_arg, arg1, arg2);
