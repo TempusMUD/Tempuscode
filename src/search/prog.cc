@@ -216,7 +216,7 @@ prog_var_equal(prog_state_data *state, char *key, char *arg)
 	for (cur_var = state->var_list;cur_var;cur_var = cur_var->next)
 		if (!strcasecmp(cur_var->key, key))
 			break;
-	if (!cur_var->key)
+	if (!cur_var || !cur_var->key)
 		return !(*arg);
 	return !strcasecmp(cur_var->value, arg);
 }
