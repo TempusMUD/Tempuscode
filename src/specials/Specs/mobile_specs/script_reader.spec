@@ -26,7 +26,10 @@ script_perform(Creature *ch, obj_data *obj, int num)
 	if (!desc)
 		return false;
 	
-	command_interpreter(ch, tmp_gsub(tmp_getline(&desc), "\r\n", " "));
+	desc = tmp_gsub(desc, "\r\n", " ");
+	if (*desc)
+		desc[strlen(desc) - 1] = '\0';
+	command_interpreter(ch, tmp_gsub(desc, "\r\n", " "));
 	return true;
 }
 
