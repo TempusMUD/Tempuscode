@@ -96,7 +96,7 @@ number(int from, int to)
 {
 	if (to <= from)
 		return (from);
-	return (int)(((long long)my_rand() * (long long)(to - from) / INT_MAX) + from);
+	return (int)(((long long)my_rand() * (long long)(to - from + 1) / INT_MAX) + from);
 }
 
 double
