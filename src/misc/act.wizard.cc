@@ -6348,46 +6348,65 @@ ACMD(do_addname)
 	struct obj_data *obj;
 	struct Creature *vict = NULL;
 	char new_name[MAX_INPUT_LENGTH];
+    Tokenizer args(argument);
 
-	two_arguments(argument, arg, new_name);
-	delete_doubledollar(new_name);
+	//two_arguments(argument, arg, new_name);
+	if(!args.hasNext()) {
+        send_to_char(ch, "Addname usage: addname <target> <strings>\r\n");
+        return;
+    }
+    
+    //arg = the target
+    args.next(arg);
+    
+    if(!args.hasNext()) {
+        send_to_char(ch, "What name keywords do you want to add?\r\b");
+        return;
+    }
+    
+    while(args.next(new_name)) {
+        delete_doubledollar(new_name);
 
-	if (!new_name) {
-		send_to_char(ch, "What name keyword do you want to add?\r\b");
-		return;
-	}
-	if (!arg) {
-		send_to_char(ch, "Addname usage: addname <target> <string>\r\n");
-		return;
-	}
-	if (strlen(new_name) >= MAX_INPUT_LENGTH) {
-		send_to_char(ch, "Name too long.\r\n");
-		return;
-	}
-
-	if (!(obj = get_obj_in_list_all(ch, arg, ch->carrying))) {
-		vict = get_char_room_vis(ch, arg);
-		if (!(vict)) {
-			if (!(obj = get_obj_in_list_vis(ch, arg, ch->in_room->contents))) {
-				send_to_char(ch, "No such object or mobile around.\r\n");
-				return;
-			}
-		} else if (!IS_NPC(vict)) {
-			send_to_char(ch, "You can do this only with NPC's.\r\n");
-			return;
-		}
-	}
-
-	if (obj) {
-		sprintf(buf, "%s ", new_name);
-		strcat(buf, obj->name);
-		obj->name = str_dup(buf);
-	} else if (vict) {
-		sprintf(buf, "%s ", new_name);
-		strcat(buf, vict->player.name);
-		vict->player.name = str_dup(buf);
-	}
-	send_to_char(ch, "Okay, you do it.\r\n");
+        if (!(obj = get_obj_in_list_all(ch, arg, ch->carrying))) {
+            vict = get_char_room_vis(ch, arg);
+            if (!(vict)) {
+                if (!(obj = get_obj_in_list_vis(ch, arg, ch->in_room->contents))) {
+                    send_to_char(ch, "No such object or mobile around.\r\n");
+                    return;
+                }
+            } else if (!IS_NPC(vict)) {
+                send_to_char(ch, "You can do this only with NPC's.\r\n");
+                return;
+            }
+        }
+        
+        if (strlen(new_name) >= MAX_INPUT_LENGTH) {
+            send_to_char(ch, "Name: \'%s\' too long.\r\n", new_name);
+            continue;
+        }
+        //check to see if the name is already in the list
+        
+        
+        if (obj) {
+            
+            if(strstr(obj->name, new_name) != NULL) {
+                send_to_char(ch, "Name: \'%s\' is already an alias.\r\n", new_name);
+                continue;
+            }
+            snprintf(buf, EXDSCR_LENGTH, "%s %s", obj->name, new_name);
+            obj->name = str_dup(buf);
+        } else if (vict) {
+            if(strstr(vict->player.name, new_name) != NULL) {
+                send_to_char(ch, "Name: \'%s\' is already an alias.\r\n", new_name);
+                continue;
+            }
+            
+            sprintf(buf, "%s ", new_name);
+            strcat(buf, vict->player.name);
+            vict->player.name = str_dup(buf);
+        }
+    }
+    send_to_char(ch, "Okay, you do it.\r\n");
 	return;
 }
 
