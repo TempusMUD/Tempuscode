@@ -2473,8 +2473,18 @@ mag_unaffects(int level, struct char_data * ch, struct char_data * victim,
 	}
 	break;
     case SPELL_REMOVE_POISON:
+	spell = SPELL_POISON;
+	to_vict = "A warm feeling runs through your body!";
+	to_room = "$n looks better.";
+	break;
     case SPELL_ANTIBODY:
 	spell = SPELL_POISON;
+	if(GET_LEVEL(ch) > 30 ) {
+		spell2 = SPELL_SICKNESS;
+		REMOVE_BIT(AFF3_FLAGS(victim), AFF3_SICKNESS);
+		to_vict2 = "Your sickness subsides.  What intense relief.";
+		to_room2 = "$n looks better.";
+	}
 	to_vict = "A warm feeling runs through your body!";
 	to_room = "$n looks better.";
 	break;

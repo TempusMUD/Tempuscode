@@ -21,6 +21,7 @@ const char *tester_util_cmds[] = {
   "roomflags",
   "align",
   "generation",
+  "debug",
   "\n"
 };
 
@@ -41,7 +42,8 @@ const char *tester_util_cmds[] = {
 "nohassle\r\n"          \
 "roomflags\r\n"         \
 "align\r\n"             \
-"generation\r\n"
+"generation\r\n"		\
+"debug\r\n"
 
 SPECIAL(tester_util)
 {
@@ -159,6 +161,9 @@ SPECIAL(tester_util)
       send_to_char(buf, ch);
     }
     break;
+  case 16:
+  	do_gen_tog(ch, "", 0, SCMD_DEBUG);
+	break;
   default:
     sprintf(buf, "$p: Invalid command '%s'.", arg1);
     send_to_char(TESTER_UTIL_USAGE, ch);

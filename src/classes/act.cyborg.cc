@@ -2964,6 +2964,11 @@ ACMD(do_de_energize)
 	return;
     }
 
+    if (vict == ch) {
+	send_to_char("Let's not try that shall we...\r\n", ch);
+	return;
+    }
+
     if (!peaceful_room_ok(ch, vict, true))
 	return;
 
