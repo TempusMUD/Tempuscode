@@ -152,12 +152,13 @@ ACMD(do_quit)
 			if (ROOM_FLAGGED(ch->in_room, ROOM_HOUSE)) {
 				cost = calc_daily_rent(ch, 1, NULL, NULL);
 
+				if(ch->displayUnrentables())
+					return;
+
 				if (cost < 0) {
 					send_to_char(ch, "Unable to rent.\r\n");
 					return;
 				}
-
-
 
 				mudlog(MAX(LVL_AMBASSADOR, GET_INVIS_LVL(ch)), NRM, true,
 					"%s has left the game from house, room %d",
