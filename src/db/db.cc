@@ -48,6 +48,7 @@
 #include "combat.h"
 #include "iscript.h"
 #include "tmpstr.h"
+#include "flags.h"
 
 /**************************************************************************
 *  declarations of most of the 'global' variables                         *
@@ -333,6 +334,8 @@ boot_db(void)
 	struct zone_data *zone;
 
 	slog("Boot db -- BEGIN.");
+
+	//boot_flagsets();
 
 	slog("Resetting the game time:");
 	reset_time();

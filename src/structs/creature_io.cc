@@ -234,17 +234,20 @@ Creature::loadFromXML( long id )
             char *sex = xmlGetProp(node, "SEX");
             if( sex != NULL )
                 GET_SEX(this) = search_block(sex, genders, FALSE);
+			free(sex);
+
             GET_RACE(this) = 0;
             char *race = xmlGetProp(node, "RACE");
             if( race != NULL )
                 GET_RACE(this) = search_block(race, player_race, FALSE);
+			free(race);
 
         } else if ( xmlMatches(node->name, "CLASS") ) {
             GET_CLASS(this) = 0;
             char *trade = xmlGetProp(node, "NAME");
             if( trade != NULL )
                 GET_CLASS(this) = search_block(trade, pc_char_class_types, FALSE);
-            
+            free(trade);
         } else if ( xmlMatches(node->name, "TIME") ) {
             player.time.birth = xmlGetLongProp(node, "BIRTH");
             player.time.death = xmlGetLongProp(node, "DEATH");
@@ -312,10 +315,12 @@ Creature::loadFromXML( long id )
         } else if ( xmlMatches(node->name, "AFFECTS") ) {
 			// <AFFECTS FLAG1="557056" FLAG2="256" FLAG3="0"/>
         } else if ( xmlMatches(node->name, "SKILL") ) {
-			int index = str_to_spell( xmlGetProp( node, "NAME" ) );
+			char *spellName = xmlGetProp( node, "NAME" );
+			int index = str_to_spell( spellName );
 			if( index >= 0 ) {
 				GET_SKILL( this, index ) = xmlGetIntProp( node, "LEVEL" );
 			}
+			free(spellName);
         } else if ( xmlMatches(node->name, "ALIAS") ) {
 			alias_data *alias;
 			CREATE(alias, struct alias_data, 1);

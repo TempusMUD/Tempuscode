@@ -19,19 +19,29 @@ using namespace std;
 /** Struct to represent a flag object. **/
 class Flag {
 	public:
-		Flag( const char *_name, const char *_bits, const char *_desc ) 
-			: index(-1), name(_name),bits(_bits),desc(_desc) { }
+		Flag() : index(-1), name("ERROR"), bits("ERROR"), desc("ERROR") { }
 
+		Flag( const Flag &f )
+			: index(f.index), name(f.name), bits(f.bits), desc(f.desc) { }
+
+		Flag( int _index, const char *_name, const char *_bits, const char *_desc ) 
+			: index(_index), name(_name),bits(_bits),desc(_desc) { }
 
 		Flag( xmlChar *_name, xmlChar *_bits, xmlChar *_desc ) 
 			: index(-1), name((char*)_name),bits((char*)_bits),desc((char*)_desc) { }
-		
+
+		void set( int _index, const char *_name, const char *_bits, const char *_desc ) 
+		{
+			index = _index;
+			name = _name;
+			bits = _bits;
+			desc = _desc;
+		}
 		int index;  // This Flag's index in the FlagTable
 		string name;
 		string bits;// The string used to represent this flag in sprintbits
 		string desc;// 
 	private:
-		Flag() : index(-1), name(), bits(), desc() { }
 };
 
 /**
@@ -45,18 +55,26 @@ class FlagTable : protected vector<Flag>
 		map<string,Flag*> bitsIndex;
 		map<string,Flag*> descIndex;
 	public:
-		FlagTable( const char* name ) 
-			: vector<Flag>(), nameIndex(), bitsIndex(), descIndex() 
-		{
-			this->name = name;
-		}
+		FlagTable( const char* _name ) 
+			: vector<Flag>(), name(_name), nameIndex(), bitsIndex(), descIndex() { }
 
 		~FlagTable() {
         }
 
 		// Initializes this FlagTable by add()'ing each FLAG entry
-		bool initialize( xmlNodePtr flagTableDef ) {
-            return false;
+		bool initialize( xmlNodePtr flagTableDef ) 
+		{
+			if( flagTableDef == NULL || flagTableDef->xmlChildrenNode == NULL )
+				return false;
+
+			Flag flag;
+			xmlNodePtr cur = flagTableDef->xmlChildrenNode;
+			while( cur != NULL ) {
+				if ((xmlMatches(cur->name, "FLAG"))) {
+					add( cur );
+				}
+			}
+			return true;
         }
 
         // Retrieves the name of this table
@@ -65,22 +83,31 @@ class FlagTable : protected vector<Flag>
         int getIndexForName( const char *name ) const;
 		int getIndexForBits( const char *bits ) const;
 		int getIndexForDesc( const char *desc ) const;
-        
 
 		const char* getName( int index ) const;
 		const char* getBits( int index ) const;
 		const char* getDesc( int index ) const;
 
 		void add( const char *name, const char *bits, const char *desc ) {
-			Flag f( name, bits, desc );
-			f.index = (int)(size());
+			Flag f( (int)size(), name, bits, desc );
 			push_back(f);
-			//TODO: Add to maps
+			nameIndex[f.name] = &f;
+			bitsIndex[f.bits] = &f;
+			descIndex[f.desc] = &f;
 		}
 
 		// a FLAGTABLE tag containing FLAG's
 		// <FLAG NAME="noecho" DESC="No Echo" BITS="NOECHO" />
-		void add( xmlNodePtr flagDef );
+		void add( xmlNodePtr flagDef ) 
+		{
+			char* bits = xmlGetProp(flagDef,"BITS");
+			char* name = xmlGetProp(flagDef,"NAME");
+			char* desc = xmlGetProp(flagDef,"DESC");
+			add( name, bits, desc );
+			free( bits );
+			free( name );
+			free( desc );
+		}
 
 		// vector<Flag> inherited members
 		vector<Flag>::size;
@@ -193,6 +220,8 @@ boot_flagsets() {
 	tables.push_back(&objectFlagTable);
 	tables.push_back(&roomFlagTable);
 	
+	slog("Loading flag tables."); 
+
 	xmlDocPtr doc = xmlParseFile("etc/flagtables.xml");
 	if (doc == NULL) {
 		slog("SYSERR: Failed to load flag tables. Exiting."); 
@@ -212,6 +241,7 @@ boot_flagsets() {
 		// But only question nodes
 		if ((xmlMatches(cur->name, "FLAGTABLE"))) {
 			char *name = xmlGetProp(cur,"NAME");
+			slog("Loading flag table: %s", name );
 			for( unsigned int i = 0; i < tables.size(); i++ ) {
 				if( strcmp( tables[i]->getName(), name ) == 0 ) {
 					tables[i]->initialize( cur );
