@@ -86,7 +86,7 @@ voting_booth_load(void)
 			continue;
 		CREATE(new_opt, struct voting_option, 1);
 		new_opt->descrip = strdup(PQgetvalue(res, idx, 1));
-		new_opt->count = atoi(PQgetvalue(res, idx, 1));
+		new_opt->count = atoi(PQgetvalue(res, idx, 2));
 		new_opt->next = NULL;
 
 		if (new_poll->options) {
