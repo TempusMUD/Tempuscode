@@ -891,28 +891,32 @@ ACMD(do_assist)
     one_argument(argument, arg);
 
     if (!*arg)
-	send_to_char("Whom do you wish to assist?\r\n", ch);
+        send_to_char("Whom do you wish to assist?\r\n", ch);
     else if (!(helpee = get_char_room_vis(ch, arg))) {
-	send_to_char(NOPERSON, ch);
-	WAIT_STATE(ch, 4);
-    } else if (helpee == ch)
-	send_to_char("You can't help yourself any more than this!\r\n", ch);
-    else {
-	for (opponent = ch->in_room->people;
-	     opponent && (FIGHTING(opponent) != helpee);
-	     opponent = opponent->next_in_room);
+        send_to_char(NOPERSON, ch);
+        WAIT_STATE(ch, 4);
+    } else if (helpee == ch) {
+        send_to_char("You can't help yourself any more than this!\r\n", ch);
+    } else {
+        for (opponent = ch->in_room->people;
+             opponent && (FIGHTING(opponent) != helpee);
+             opponent = opponent->next_in_room);
 
-	if (!opponent)
-	    act("But nobody is fighting $M!", FALSE, ch, 0, helpee, TO_CHAR);
-	else if (!CAN_SEE(ch, opponent))
-	    act("You can't see who is fighting $M!", FALSE, ch, 0, helpee, TO_CHAR);
-	else {
-	    send_to_char("You join the fight!\r\n", ch);
-	    act("$N assists you!", 0, helpee, 0, ch, TO_CHAR);
-	    act("$n assists $N.", FALSE, ch, 0, helpee, TO_NOTVICT);
-	    hit(ch, opponent, TYPE_UNDEFINED);
-	    WAIT_STATE(ch, 1 RL_SEC);
-	}
+        if (!opponent) {
+            act("But nobody is fighting $M!", FALSE, ch, 0, helpee, TO_CHAR);
+        } else if (!CAN_SEE(ch, opponent)) {
+            act("You can't see who is fighting $M!", FALSE, ch, 0, helpee, TO_CHAR);
+        } else if ( !IS_NPC( ch ) && !IS_NPC( opponent ) && !PRF2_FLAGGED( ch, PRF2_PKILLER ) ) {
+            act( "That rescue would entail attacking $N, but you are flagged NO PK.", 
+            FALSE, ch, 0, opponent, TO_CHAR );
+            return;
+        } else {
+            send_to_char("You join the fight!\r\n", ch);
+            act("$N assists you!", 0, helpee, 0, ch, TO_CHAR);
+            act("$n assists $N.", FALSE, ch, 0, helpee, TO_NOTVICT);
+            hit(ch, opponent, TYPE_UNDEFINED);
+            WAIT_STATE(ch, 1 RL_SEC);
+        }
     }
 }
 
