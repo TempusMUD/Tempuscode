@@ -1537,7 +1537,8 @@ char_to_game(descriptor_data *d)
 		}
 	}
     
-    if (d->creature->getLevel() <= 10 && !IS_REMORT(d->creature))
+    if (d->creature->getLevel() <= 10 && !IS_REMORT(d->creature) &&
+        !d->creature->account->hasCharGen(1))
         angel_to_char(d->creature);
 
     // Set thier languages here to make sure they speak their race language
