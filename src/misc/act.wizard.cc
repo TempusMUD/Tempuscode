@@ -1710,7 +1710,7 @@ do_stat_character(struct Creature *ch, struct Creature *k)
 
         acc_sprintf(
             "Life[%d], Qpoints[%d/%d], Thac0[%d], Reputation: [%4d]\r\n",
-            GET_LIFE_POINTS(k), GET_QUEST_POINTS(k), GET_QUEST_ALLOWANCE(k),
+            GET_LIFE_POINTS(k), GET_IMMORT_QP(k), GET_QUEST_ALLOWANCE(k),
             (int)MIN(THACO(GET_CLASS(k), GET_LEVEL(k)), 
                      THACO(GET_REMORT_CLASS(k), GET_LEVEL(k))),
 			GET_REPUTATION(k));
@@ -3945,13 +3945,19 @@ show_account(Creature *ch, char *value)
 		localtime(&last));
     send_to_desc(ch->desc, "&y  Started: &n%s   &yLast login: &n%s\r\n", created_buf, last_buf);
 	if( Security::isMember(ch, "AdminFull") ) {
-		send_to_desc(ch->desc, "&y  Created: &n%s   &yLast: &n%s   &yReputation: &n%d\r\n", 
+		send_to_desc(ch->desc, "&y  Created: &n%-15s   &yLast: &n%-15s       &yReputation: &n%d\r\n", 
 					 account->get_login_addr(), 
 					 account->get_creation_addr(),
 					 account->get_reputation());
 	}
-	send_to_desc(ch->desc, "&y  Past bank: &n%-12lld    &yFuture Bank: &n%-12lld\r\n",
+	send_to_desc(ch->desc, "&y  Past bank: &n%-12lld    &yFuture Bank: &n%-12lld",
 		account->get_past_bank(), account->get_future_bank());
+	if (Security::isMember(ch, "Questor")) {
+		send_to_desc(ch->desc, "   &yQuest Points: &n%d\r\n",
+			account->get_quest_points());
+	} else {
+		send_to_desc(ch->desc, "\r\n");
+	}
 	send_to_desc(ch->desc, "&b ----------------------------------------------------------------------------&n\r\n");
 
 	show_account_chars(ch->desc, account, true, false);
@@ -6399,7 +6405,7 @@ ACMD(do_set)
         return;
         // qpoints
     case 94:
-        GET_QUEST_POINTS(vict) = RANGE(0, 10000000);
+		vict->account->set_quest_points(RANGE(0, 10000000));
         break;
 
     case 95:

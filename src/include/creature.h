@@ -814,7 +814,7 @@ struct player_special_data_saved {
 	ubyte clan;
 	ubyte spare22;
 	ubyte broken_component;
-	ubyte quest_points;
+	ubyte imm_qp;
 	ubyte qlog_level;			// what level of awareness we have to qlog
 	ubyte speed;				// percentage of speedup
 	ubyte qp_allowance;			// Quest point allowance 

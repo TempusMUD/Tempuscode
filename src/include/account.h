@@ -66,6 +66,9 @@ class Account {
 		inline int get_reputation(void) { return _reputation; }
 		void gain_reputation(int amt);
 
+		inline int get_quest_points(void) { return _quest_points; }
+		void set_quest_points(int amt);
+
 		inline long long get_past_bank(void) { return _bank_past; }
 		inline long long get_future_bank(void) { return _bank_future; }
 		void set_past_bank(long long amt);
@@ -129,6 +132,7 @@ class Account {
 		vector<long> _chars;
 		vector<long> _trusted;
 		int _reputation;
+		int _quest_points;
 		long long _bank_past;
 		long long _bank_future;
 };

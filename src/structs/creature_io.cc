@@ -555,8 +555,8 @@ Creature::saveToXML()
 		fprintf(ouf, " current=\"%d\"", GET_QUEST(ch));
 	if (GET_LEVEL(ch) >= LVL_IMMORT)
 		fprintf(ouf, " allowance=\"%d\"", GET_QUEST_ALLOWANCE(ch));
-	if( GET_QUEST_POINTS(ch) != 0 )
-		fprintf(ouf, " points=\"%d\"", GET_QUEST_POINTS(ch));
+	if( GET_IMMORT_QP(ch) != 0 )
+		fprintf(ouf, " points=\"%d\"", GET_IMMORT_QP(ch));
 	fprintf(ouf, "/>\n");
 		
 	fprintf(ouf, "<bits flag1=\"%lx\" flag2=\"%x\"/>\n",
@@ -795,7 +795,7 @@ Creature::loadFromXML( const char *path )
 			GET_LOADROOM(this) = xmlGetIntProp(node, "loadroom");
         } else if ( xmlMatches(node->name, "quest") ) {
 			GET_QUEST(this) = xmlGetIntProp(node, "current");
-			GET_QUEST_POINTS(this) = xmlGetIntProp(node, "points");
+			GET_IMMORT_QP(this) = xmlGetIntProp(node, "points");
 			GET_QUEST_ALLOWANCE(this) = xmlGetIntProp(node, "allowance");
         } else if ( xmlMatches(node->name, "bits") ) {
 			char* flag = xmlGetProp( node, "flag1" );

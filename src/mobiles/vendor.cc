@@ -294,7 +294,7 @@ vendor_appraise(Creature *ch, obj_data *obj, Creature *self, ShopData *shop)
 			currency_str = "creds";
 			break;
 		case 2:
-			GET_QUEST_POINTS(ch) -= cost;
+			ch->account->set_quest_points(ch->account->get_quest_points() - cost);
 			currency_str = "quest points";
 			break;
 		default:
@@ -403,7 +403,7 @@ vendor_sell(Creature *ch, char *arg, Creature *self, ShopData *shop)
 	case 1:	
 		amt_carried = GET_CASH(ch); break;
 	case 2:	
-		amt_carried = GET_QUEST_POINTS(ch); break;
+		amt_carried = ch->account->get_quest_points(); break;
 	default:
 		slog("Can't happen at %s:%d", __FILE__, __LINE__);
 		amt_carried = 0;
@@ -476,7 +476,7 @@ vendor_sell(Creature *ch, char *arg, Creature *self, ShopData *shop)
 		currency_str = "creds";
 		break;
 	case 2:
-		GET_QUEST_POINTS(ch) -= cost * num;
+		ch->account->set_quest_points(ch->account->get_quest_points() - (cost * num));
 		currency_str = "quest points";
 		break;
 	default:

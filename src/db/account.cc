@@ -78,6 +78,7 @@ Account::Account(void)
     _bank_past = 0;
     _bank_future = 0;
 	_reputation = 0;
+	_quest_points = 0;
 	_term_height = DEFAULT_TERM_HEIGHT;
 	_term_width = DEFAULT_TERM_WIDTH;
 }
@@ -176,6 +177,8 @@ Account::set(const char *key, const char *val)
 	else if (!strcmp(key, "entry_time"))
 		_entry_time = atol(val);
 	else if (!strcmp(key, "reputation"))
+		_reputation = atoi(val);
+	else if (!strcmp(key, "quest_points"))
 		_reputation = atoi(val);
 	else if (!strcmp(key, "bank_past"))
 		_bank_past = atoll(val);
@@ -343,7 +346,7 @@ Account::create_char(const char *name)
 		ch->player_specials->saved.weap_spec[i].vnum = -1;
 		ch->player_specials->saved.weap_spec[i].level = 0;
 	}
-	ch->player_specials->saved.quest_points = 0;
+	ch->player_specials->saved.imm_qp = 0;
 	ch->player_specials->saved.quest_id = 0;
 	ch->player_specials->saved.qlog_level = 0;
 
@@ -799,3 +802,12 @@ Account::set_term_width(int width)
 		_term_width, _id);
 }
 
+void
+Account::set_quest_points(int qp)
+{
+	if (qp < 0)
+		qp = 0;
+	_quest_points = qp;
+	sql_exec("update accounts set quest_points=%d where idnum=%d",
+		_quest_points, _id);
+}

@@ -603,7 +603,7 @@ static inline bool IS_REMORT( const Creature *ch )
 		return false;
 	return true;
 }
-#define GET_QUEST_POINTS(ch)    ((ch)->player_specials->saved.quest_points)
+#define GET_IMMORT_QP(ch)    ((ch)->player_specials->saved.imm_qp)
 #define GET_QUEST_ALLOWANCE(ch) ((ch)->player_specials->saved.qp_allowance)
 #define GET_QLOG_LEVEL(ch)     ((ch)->player_specials->saved.qlog_level)
 #define GET_QUEST(ch)           ((ch)->player_specials->saved.quest_id)

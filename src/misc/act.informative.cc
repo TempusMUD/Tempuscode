@@ -2118,8 +2118,17 @@ ACMD(do_examine)
 
 ACMD(do_qpoints)
 {
-	send_to_char(ch, "You have %d quest point%s.\r\n", GET_QUEST_POINTS(ch),
-		GET_QUEST_POINTS(ch) == 1 ? "" : "s");
+	int qp;
+
+	if (IS_IMMORT(ch)) {
+		qp = GET_IMMORT_QP(ch);
+		send_to_char(ch, "You have %d quest point%s to award.\r\n", qp,
+			(qp == 1) ? "" : "s");
+	} else {
+		qp = ch->account->get_quest_points();
+		send_to_char(ch, "You have %d quest point%s.\r\n", qp,
+			(qp == 1) ? "" : "s");
+	}
 }
 
 ACMD(do_gold)

@@ -422,14 +422,14 @@ implanter_redeem(Creature * me, Creature * ch, char *args)
 		obj_from_char(obj);
 		extract_obj(obj);
 	} else if (is_abbrev(args, "qpoint")) {
-		if (GET_QUEST_POINTS(ch) <= 0) {
+		if (ch->account->get_quest_points() <= 0) {
 			perform_tell(me, ch, "You don't have any quest points to redeem!");
 			return;
 		}
 
-		GET_QUEST_POINTS(ch) -= 1;
+		ch->account->set_quest_points(ch->account->get_quest_points() - 1);
 	} else {
-		perform_tell(me, ch, "What do ya wanna redeem?");
+		perform_tell(me, ch, "What do ya wanna redeem?  A ticket or a qpoint?");
 		return;
 	}
 

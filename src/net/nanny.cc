@@ -1397,12 +1397,12 @@ char_to_game(descriptor_data *d)
 	// since the last reload.
 	if (GET_LEVEL(d->creature) >= LVL_AMBASSADOR && IS_PC(d->creature) &&
 			GET_QUEST_ALLOWANCE(d->creature) > 0 &&
-			GET_QUEST_POINTS(d->creature) != GET_QUEST_ALLOWANCE(d->creature) &&
+			GET_IMMORT_QP(d->creature) != GET_QUEST_ALLOWANCE(d->creature) &&
 			d->creature->player.time.logon < last_sunday_time) {
 		slog("Reset %s to %d QPs from %d (login)",
 			GET_NAME(d->creature), GET_QUEST_ALLOWANCE(d->creature),
-			GET_QUEST_POINTS(d->creature));
-		GET_QUEST_POINTS(d->creature) = GET_QUEST_ALLOWANCE(d->creature);
+			GET_IMMORT_QP(d->creature));
+		GET_IMMORT_QP(d->creature) = GET_QUEST_ALLOWANCE(d->creature);
 		notes = tmp_strcat(notes, "Your quest points have been restored!\r\n");
 	}
 		

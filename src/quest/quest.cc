@@ -520,13 +520,13 @@ do_qcontrol_oload(Creature *ch, char *argument, int com)
 		return;
 	}
 
-	if (obj->shared->cost > GET_QUEST_POINTS(ch)) {
+	if (obj->shared->cost > GET_IMMORT_QP(ch)) {
 		send_to_char(ch, "You do not have the required quest points.\r\n");
 		extract_obj(obj);
 		return;
 	}
 
-	GET_QUEST_POINTS(ch) -= obj->shared->cost;
+	GET_IMMORT_QP(ch) -= obj->shared->cost;
 	obj_to_char(obj, ch);
 	ch->crashSave();
 	act("$n makes a quaint, magical gesture with one hand.", TRUE, ch,
@@ -2472,9 +2472,9 @@ qp_reload(int sig)
 				&& GET_QUEST_ALLOWANCE(immortal) > 0)) {
 			slog("QP_RELOAD: Reset %s to %d QPs from %d. ( online )",
 				GET_NAME(immortal), GET_QUEST_ALLOWANCE(immortal),
-				GET_QUEST_POINTS(immortal));
+				GET_IMMORT_QP(immortal));
 
-			GET_QUEST_POINTS(immortal) = GET_QUEST_ALLOWANCE(immortal);
+			GET_IMMORT_QP(immortal) = GET_QUEST_ALLOWANCE(immortal);
 			send_to_char(immortal, "Your quest points have been restored!\r\n");
 			immortal->crashSave();
 			online++;
@@ -2539,7 +2539,7 @@ do_qcontrol_award(Creature *ch, char *argument, int com)
 		return;
 	}
 
-	if ((award > GET_QUEST_POINTS(ch))) {
+	if ((award > GET_IMMORT_QP(ch))) {
 		send_to_char(ch, "You do not have the required quest points.\r\n");
 		return;
 	}
@@ -2550,8 +2550,8 @@ do_qcontrol_award(Creature *ch, char *argument, int com)
 	}
 
 	if ((ch) && (vict)) {
-		GET_QUEST_POINTS(ch) -= award;
-		GET_QUEST_POINTS(vict) += award;
+		GET_IMMORT_QP(ch) -= award;
+		vict->account->set_quest_points(vict->account->get_quest_points() + award);
 		quest->addAwarded(award);
 		ch->crashSave();
 		vict->crashSave();
@@ -2620,14 +2620,14 @@ do_qcontrol_penalize(Creature *ch, char *argument, int com)
 		return;
 	}
 
-	if ((penalty > GET_QUEST_POINTS(vict))) {
+	if ((penalty > vict->account->get_quest_points())) {
 		send_to_char(ch, "They do not have the required quest points.\r\n");
 		return;
 	}
 
 	if ((ch) && (vict)) {
-		GET_QUEST_POINTS(vict) -= penalty;
-		GET_QUEST_POINTS(ch) += penalty;
+		vict->account->set_quest_points(vict->account->get_quest_points() - penalty);
+		GET_IMMORT_QP(ch) += penalty;
 		quest->addPenalized(penalty);
 		vict->crashSave();
 		ch->crashSave();

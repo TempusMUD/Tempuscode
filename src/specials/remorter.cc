@@ -281,7 +281,7 @@ int do_pass_remort_test(Quiz *quiz, struct Creature *ch)
 
 	// Give em another gen
 	if (GET_REMORT_GEN(ch) == 10)
-		GET_QUEST_POINTS(ch)++;
+		ch->account->set_quest_points(ch->account->get_quest_points() + 1);
 	if (GET_REMORT_GEN(ch) < 10)
 		GET_REMORT_GEN(ch)++;
 	// Whack thier remort invis
