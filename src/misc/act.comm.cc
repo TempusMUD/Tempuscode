@@ -133,6 +133,7 @@ ACMD(do_say)
 		skip_spaces(&argument);
 
 	delete_doubledollar(argument);
+	cur_mood = GET_MOOD(ch) ? GET_MOOD(ch):"";
 
 	if (subcmd == SCMD_SAY_TO) {
 		argument = one_argument(argument, name);
@@ -173,10 +174,11 @@ ACMD(do_say)
 					strcat(buf3, "self");
 				} else
 					strcpy(buf3, PERS(vict, (*it)));
-				send_to_char(*it, "%s%s%s%s says to %s,%s %s'%s'%s\r\n",
+				send_to_char(*it, "%s%s%s%s%s says to %s,%s %s'%s'%s\r\n",
 					recurs_say ? "(remote) " : "", CCBLD((*it), C_NRM),
-					CCBLU((*it), C_SPR), buf2, buf3, CCNRM((*it), C_SPR),
-					CCCYN((*it), C_NRM), argument, CCNRM((*it), C_NRM));
+					CCBLU((*it), C_SPR), buf2, buf3, cur_mood,
+					CCNRM((*it), C_SPR), CCCYN((*it), C_NRM), argument,
+					CCNRM((*it), C_NRM));
 			}
 			if (!recurs_say) {
 				if (o)
@@ -185,8 +187,8 @@ ACMD(do_say)
 					strcpy(buf3, "yourself");
 				else
 					strcpy(buf3, PERS(vict, ch));
-				send_to_char(ch, "%s%sYou say to %s,%s %s'%s'%s\r\n", CCBLD(ch,
-						C_NRM), CCBLU(ch, C_NRM), buf3,
+				send_to_char(ch, "%s%sYou%s say to %s,%s %s'%s'%s\r\n",
+					CCBLD(ch, C_NRM), CCBLU(ch, C_NRM), cur_mood, buf3,
 						CCNRM(ch, C_NRM), CCCYN(ch, C_NRM),
 					argument, CCNRM(ch, C_NRM));
 			}
@@ -195,7 +197,6 @@ ACMD(do_say)
 	}
 
 	/* NOT say_to stuff: ********************************************* */
-	cur_mood = GET_MOOD(ch) ? GET_MOOD(ch):"";
 	CreatureList::iterator it = ch->in_room->people.begin();
 	for (; it != ch->in_room->people.end(); ++it) {
 		if (!AWAKE((*it)) || (*it) == ch ||
