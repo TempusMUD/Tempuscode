@@ -496,7 +496,7 @@ ACMD(do_trans)
         }
 
         for (i = descriptor_list; i; i = i->next)
-            if (i->connected == CON_PLAYING && i->character && i->character != ch) {
+            if (STATE(i) == CON_PLAYING && i->character && i->character != ch) {
                 victim = i->character;
                 if (GET_LEVEL(victim) >= GET_LEVEL(ch))
                     continue;
@@ -3206,7 +3206,7 @@ ACMD(do_force)
         for (i = descriptor_list; i; i = next_desc) {
             next_desc = i->next;
 
-            if (i->connected || !(vict = i->character) || 
+            if (STATE(i) || !(vict = i->character) || 
                 GET_LEVEL(vict) >= GET_LEVEL(ch))
                 continue;
             act(buf1, TRUE, ch, NULL, vict, TO_VICT);
@@ -3260,7 +3260,7 @@ ACMD(do_wiznet)
         break;
     case '@':
         for (d = descriptor_list; d; d = d->next) {
-            if (d->connected == CON_PLAYING && GET_LEVEL(d->character) >= 
+            if (STATE(d) == CON_PLAYING && GET_LEVEL(d->character) >= 
                 (subcmd == SCMD_IMMCHAT ? LVL_AMBASSADOR : LVL_DEMI) &&
                 ((subcmd == SCMD_IMMCHAT && 
                   !PRF2_FLAGGED(d->character, PRF2_NOIMMCHAT)) ||
@@ -3289,7 +3289,7 @@ ACMD(do_wiznet)
 
         any = FALSE;
         for (d = descriptor_list; d; d = d->next) {
-            if (d->connected == CON_PLAYING && GET_LEVEL(d->character) >= LVL_AMBASSADOR &&
+            if (STATE(d) == CON_PLAYING && GET_LEVEL(d->character) >= LVL_AMBASSADOR &&
                 ((subcmd == SCMD_IMMCHAT && 
                   PRF2_FLAGGED(d->character, PRF2_NOIMMCHAT)) ||
                  (subcmd == SCMD_WIZNET && 
@@ -3339,7 +3339,7 @@ ACMD(do_wiznet)
     }
 
     for (d = descriptor_list; d; d = d->next) {
-        if ((d->connected == CON_PLAYING) && (GET_LEVEL(d->character) >= level) &&
+        if ((STATE(d) == CON_PLAYING) && (GET_LEVEL(d->character) >= level) &&
             (subcmd != SCMD_WIZNET  || !PRF_FLAGGED(d->character, PRF_NOWIZ)) &&
             (subcmd != SCMD_IMMCHAT||!PRF2_FLAGGED(d->character,PRF2_NOIMMCHAT)) &&
             (!PLR_FLAGGED(d->character, PLR_WRITING | PLR_MAILING | PLR_OLC))
@@ -3867,6 +3867,56 @@ show_player(CHAR *ch, char * value)
 }
 
 void
+show_multi(CHAR *ch, char *arg) {
+	struct char_file_u *whole_file,*cur_pl;
+    struct char_file_u chdata;
+	int pl_idx,dot_pos;
+
+    if (!*arg) {
+        send_to_char("For whom do you wish to search?\r\n", ch);
+        return;
+    }
+    if (load_char(arg, &chdata) < 0) {
+        send_to_char("There is no such player.\r\n", ch);
+        return;
+    }
+    if ((chdata.level > GET_LEVEL(ch)) && (GET_LEVEL(ch) < LVL_GRIMP)) {
+        send_to_char("You are not sufficiently godly for that!\r\n", ch);
+        return;
+    }
+
+    sprintf(buf, "[%5ld] [%2d %s] %-12s : %-18s : %-20s",
+            chdata.char_specials_saved.idnum, (int) chdata.level,
+            char_class_abbrevs[(int) chdata.char_class], chdata.name, 
+            GET_LEVEL(ch) > LVL_ETERNAL ? chdata.host : "Unknown",
+            ctime(&chdata.last_logon));
+	
+	dot_pos = ( strrchr( chdata.host,'.' ) - chdata.host ) - 1;
+
+	// Now we load in the whole player file, looking for matches
+	pl_idx = top_of_p_table + 1;
+	CREATE(whole_file, struct char_file_u, pl_idx);
+	fseek(player_fl, 0, SEEK_SET);
+	if ( (int)fread(whole_file, sizeof(struct char_file_u), pl_idx, player_fl) != pl_idx ) {
+		send_to_char("Didn't read the right number of records.\r\n", ch);
+		return;
+	}
+	for (cur_pl = whole_file;pl_idx;cur_pl++, pl_idx--) {
+		if ( cur_pl->char_specials_saved.idnum == GET_IDNUM(ch) || cur_pl->char_specials_saved.idnum == chdata.char_specials_saved.idnum )
+			continue;
+		if ( !strncmp(cur_pl->host, chdata.host, dot_pos) &&
+			 cur_pl->level <= GET_LEVEL(ch) )
+			sprintf(buf, "%s[%5ld] [%2d %s] %-12s : %-18s : %-20s", buf,
+					cur_pl->char_specials_saved.idnum, (int) cur_pl->level,
+					char_class_abbrevs[(int) cur_pl->char_class], cur_pl->name, 
+					GET_LEVEL(ch) > LVL_ETERNAL ? cur_pl->host : "Unknown",
+					ctime(&cur_pl->last_logon));
+	}
+	free(whole_file);
+	page_string(ch->desc, buf, 1);
+}
+
+void
 show_zoneusage(CHAR *ch, char *value)
 {
     int i;
@@ -4175,6 +4225,7 @@ struct show_struct {
     { "wizcommands",    LVL_IMMORT },
     { "timewarps",      LVL_IMMORT },        // 55
     { "zonecommands",         LVL_IMMORT },
+	{ "multi",          LVL_ETERNAL },
     { "\n", 0 }
 };
 
@@ -5005,7 +5056,8 @@ ACMD(do_show)
     strcat(buf,arg);
     do_zone_cmdlist(ch,ch->in_room->zone,buf);
         break;
-
+	case 57:
+		show_multi(ch, value); break;
     default:
         send_to_char("Sorry, I don't understand that.\r\n", ch);
         break;

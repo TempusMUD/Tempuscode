@@ -2404,30 +2404,30 @@ extern const int rev_dir[] =
 
 extern const char movement_loss[] =
 {
-  1,				/* Inside     */
-  1,				/* City       */
-  2,				/* Field      */
-  3,				/* Forest     */
-  4,				/* Hills      */
-  5,				/* Mountains  */
-  3,				/* Swimming   */
-  3,				/* Unswimable */
-  4,				/* Underwater */
-  2,				/* Flying     */
-  1,				/* Notime     */
-  6, 				/* Climbing   */
-  2, 				/* Free Space */
-  2,			        /* Road       */
-  1, 				/* Vehicle    */
-  2, 				/* Cornfield  */
-  3, 				/* Swamp      */
-  2,				/* Desert     */
-  3,                            /* Fire River */
-  10,                           /* Jungle     */
-  12,                           /* Pitch Surface */
-  18,                           /* Pitch Submerged */
-  3,				/* Beach */
-  1,                            /* Astral */
+  1,				// Inside
+  1,				// City
+  2,				// Field
+  3,				// Forest
+  4,				// Hills
+  5,				// Mountains
+  3,				// Swimming
+  3,				// Unswimable
+  4,				// Underwater
+  2,				// Flying
+  1,				// Notime
+  6, 				// Climbing
+  2, 				// Free Space
+  2,			    // Road
+  1, 				// Vehicle
+  2, 				// Cornfield
+  3, 				// Swamp
+  2,				// Desert
+  3,                // Fire River
+  10,               // Jungle
+  12,               // Pitch Surface
+  18,               // Pitch Submerged
+  3,				// Beach
+  1,                // Astral
   3,				// elemental fire
   20,				// elemental earth
   1,				// elemental air
@@ -2446,8 +2446,12 @@ extern const char movement_loss[] =
   4,				// elemental salt
   3,				// elemental ash
   3,				// elemental dust
-  1,
-  
+  4,				// blood
+  1,				// rock
+  4,				// muddy
+  3,				// trail
+  3,				// tundra
+  1,				// cracked_road
 };
 
 

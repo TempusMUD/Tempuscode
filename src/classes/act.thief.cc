@@ -255,7 +255,6 @@ ACMD(do_steal)
          GET_REMORT_INVIS( ch ) > GET_LEVEL( vict ) ) {
         GET_REMORT_INVIS( ch ) = GET_LEVEL( vict );
         send_to_char("You feel a bit more visible.\n", ch );
-        found = 1;
     }
 		
     if (ohoh && IS_NPC(vict) && AWAKE(vict) && check_mob_reaction(ch, vict))
