@@ -570,6 +570,12 @@ char *CURRENCY(Creature * ch);
 #define GET_REPUTATION(ch)      ((ch)->get_reputation())
 #define GET_SEVERITY(ch)		((ch)->player_specials->saved.killer_severity)
 
+inline bool
+IS_CRIMINAL(Creature *ch)
+{
+	return IS_PC(ch) && GET_REPUTATION(ch) >= 300;
+}
+
 inline int
 GET_REPUTATION_RANK(Creature *ch)
 {
