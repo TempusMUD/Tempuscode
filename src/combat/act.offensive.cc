@@ -2617,15 +2617,20 @@ ACMD(do_impale)
                 FALSE, ch, 0, ch->master, TO_CHAR);
             return;
         }
-        if(! strcmp( arg, "self") ) {
-            act("You impale yourself with $p!", FALSE, ch, weap, 0, TO_CHAR);
-            act("$n suddenly impales $mself with $p!", TRUE, ch, weap, 0, TO_ROOM);
-            sprintf(buf, "%s killed self with an impale at %d.",
-                    GET_NAME(ch), ch->in_room->number);
-            mudlog(buf, NRM, GET_INVIS_LEV(ch), TRUE);
-            gain_exp(ch, -(GET_LEVEL(ch) * 1000));
-            raw_kill(ch, ch, SKILL_IMPALE); // Impaling yourself
-            return;
+        if(!strcmp( arg, "self") || !strcmp(arg, "me")) {
+			if (!(ch->in_room && ROOM_FLAGGED(ch->in_room, ROOM_ARENA))) {
+				act("You impale yourself with $p!", FALSE, ch, weap, 0, TO_CHAR);
+				act("$n suddenly impales $mself with $p!", TRUE, ch, weap, 0, TO_ROOM);
+				sprintf(buf, "%s killed self with an impale at %d.",
+						GET_NAME(ch), ch->in_room->number);
+				mudlog(buf, NRM, GET_INVIS_LEV(ch), TRUE);
+				gain_exp(ch, -(GET_LEVEL(ch) * 1000));
+				raw_kill(ch, ch, SKILL_IMPALE); // Impaling yourself
+				return;
+			} else {
+				send_to_char("Suicide is not the answer...\r\n", ch);
+				return;
+			}
         } else {
             act("Are you sure $p is supposed to go there?", FALSE, ch, weap, 0, TO_CHAR);
             return;
