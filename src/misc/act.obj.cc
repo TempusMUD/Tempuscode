@@ -1443,6 +1443,11 @@ ACCMD(do_drop)
 		return;
 	}
 
+	if (subcmd == SCMD_JUNK && GET_MOVE(ch) == 0) {
+		send_to_char(ch, "You don't have the energy to be junking anything!\r\n");
+		return;
+	}
+
 	// Iterate through objects
 	counter = 0;
 	while (obj) {
@@ -1473,6 +1478,15 @@ ACCMD(do_drop)
 			counter++;
 
 		amount += found;
+
+		if (subcmd == SCMD_JUNK && !IS_IMMORT(ch)) {
+			GET_MOVE(ch) -= 1;
+			if (GET_MOVE(ch) == 0) {
+				send_to_char(ch, "You only have the energy to junk %d item%s.\r\n",
+					counter, (counter == 1) ? "":"s");
+				next_obj = NULL;
+			}
+		}
 
 		if (!next_obj
 			|| strcmp(next_obj->name, short_desc)) {
