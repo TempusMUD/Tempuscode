@@ -2888,6 +2888,11 @@ bool Quest::canEdit(Creature *ch)
 bool
 Quest::canJoin(Creature *ch)
 {
+	if (PLR_FLAGGED(ch, PLR_KILLER | PLR_THIEF)) {
+		send_to_char(ch, "Join when you're no longer a killer or thief.\r\n");
+		return false;
+	}
+
 	if (QUEST_FLAGGED(this, QUEST_NOJOIN)) {
 		send_to_char(ch, "This quest is open by invitation only.\r\n"
 			"Contact the wizard in charge of the quest for an invitation.\r\n");
