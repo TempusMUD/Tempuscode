@@ -1449,7 +1449,8 @@ find_language_idx_by_name(char *language_name)
 int
 find_language_idx_by_race(const char *race_name)
 {
-	char *language_name;
+	char *language_name = NULL;
+	 
 	for (int x = 0; *race_language[x][0] != '\n'; x++) {
 		if (!strcmp(race_language[x][0], race_name)) {
 			language_name = tmp_strdup(race_language[x][1]);
@@ -1457,7 +1458,7 @@ find_language_idx_by_race(const char *race_name)
 		}
 	}
 
-	return find_language_idx_by_name(language_name);
+	return language_name ? find_language_idx_by_name(language_name):0;
 }
 
 char *
@@ -1500,7 +1501,7 @@ translate_word(char **word, char language_idx)
 	int length;
 	int start_pos, end_pos;
 	char *arg;
-	bool found;
+	bool found = false;
 
 	length = strlen(*word);
 	arg = tmp_strdup(*word);
