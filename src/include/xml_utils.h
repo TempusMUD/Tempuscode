@@ -121,9 +121,9 @@ xmlEncodeTmp( char* text )
  *       than <name>value</name>.
 **/
 static inline char*
-xmlEncodeSpecialTmp( char* text ) 
+xmlEncodeSpecialTmp( const char* text ) 
 {
-	char *encoded = (char*)xmlEncodeSpecialChars(NULL, (xmlChar*)text);
+	char *encoded = (char*)xmlEncodeSpecialChars(NULL, (const xmlChar*)text);
 	char *tmp_encoded = tmp_strdup(encoded);
 	free(encoded);
 	return tmp_encoded;
