@@ -1005,6 +1005,8 @@ inline bool random_binary() {
 // returns a random boolean value, true 1/num of returns
 //
 inline bool random_fractional( unsigned int num ) {
+    if ( num == 0 )
+	return true;
     return ( my_rand() < ( 2147483647 / num ) );
 }
 
