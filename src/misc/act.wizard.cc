@@ -5445,7 +5445,7 @@ ACMD(do_show)
     case 42: {                   /* fighting */
         strcpy(buf, "Fighting characters:\r\n");
 
-        SafeList<CharCombat>::iterator it;
+        CombatDataList::iterator it;
         cit = combatList.begin();
         for (; cit != combatList.end(); ++cit) {
             vict = *cit;

@@ -1210,7 +1210,7 @@ ACMD(do_order)
 					if (IS_NPC(vict) && GET_MOB_VNUM(vict) == 5318)
 						do_say(vict, "As you command, master.", 0, 0, 0);
 					if (vict->numCombatants()) {
-                        SafeList<CharCombat>::iterator li;
+                        CombatDataList::iterator li;
                         li = vict->getCombatList()->begin();
                         for (; li != vict->getCombatList()->end(); ++li)
 						    detect_opponent_master(li->getOpponent(), vict);
@@ -1244,7 +1244,7 @@ ACMD(do_order)
 								&& GET_MOB_VNUM(k->follower) == 5318)
 								do_say(vict, "As you command, master.", 0, 0, 0);
 							if (k->follower->numCombatants()) {
-                                SafeList<CharCombat>::iterator li;
+                                CombatDataList::iterator li;
                                 li = k->follower->getCombatList()->begin();
                                 for (; li != k->follower->getCombatList()->end(); ++li)
                                     detect_opponent_master(li->getOpponent(), k->follower);
@@ -2659,7 +2659,7 @@ ACMD(do_ceasefire)
     CreatureList::iterator it = ch->in_room->people.begin();
 	for (; it != ch->in_room->people.end(); ++it) {
         // Nasty hack because SafeList won't let me use front()...
-        SafeList<CharCombat> *combatList = (*it)->getCombatList();
+        CombatDataList *combatList = (*it)->getCombatList();
 		if (combatList->begin()->getOpponent() == ch) {
 			f = *it;
 			break;

@@ -30,34 +30,6 @@ class CreatureList:public SafeList <Creature *> {
 	}
 };
 
-class CombatDataList : public SafeList <CharCombat> {
-    public:
-        CombatDataList(bool prepend = false) : SafeList <CharCombat>(prepend) {
-        }
-        ~CombatDataList() {
-        }
-
-        void clear() {
-            while (size > 0) {
-                remove(*(begin()));
-            }
-        }
-
-        void add_front(CharCombat c) {
-            push_front(c);
-        }
-
-        void add_back(CharCombat c) {
-            push_back(c);
-        }
-
-    private:
-        inline operator int () {
-            raise(SIGSEGV);
-            return -1;
-        }
-};
-
 /* prototypes for mobs		 */
 extern CreatureList characterList;
 extern CreatureList combatList;

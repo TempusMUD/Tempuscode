@@ -10,12 +10,12 @@
 #include <signal.h>
 
 #include <list>
+#include "combat_data_list.h"
 #include "structs.h"
 #include "constants.h"
 #include "macros.h"
 #include "account.h"
 #include "desc_data.h"
-#include "creature_list.h"
 #include "interpreter.h"
 
 /* char and mob-related defines *****************************************/
@@ -826,46 +826,6 @@ struct char_special_data_saved {
 	sh_int apply_saving_throw[10];	/* Saving throw (Bonuses)        */
 };
 
-
-class CharCombat {
-    private:
-        CharCombat() {
-            _initiated = false;
-            _opponent = NULL;
-        }
-    public:
-        CharCombat(Creature *ch, bool initiated) {
-            _initiated = initiated;
-            _opponent = ch;
-        }
-        CharCombat(const CharCombat &a) {
-            this->_initiated = a._initiated;
-            this->_opponent = a._opponent;
-        }
-        inline bool getInitiated() { 
-            return _initiated; 
-        }
-        inline void setInitiated(bool init) { 
-            _initiated = init;
-        }
-        inline void setOpponent(Creature *ch) { 
-            _opponent = ch; 
-        } 
-        inline Creature *getOpponent() { 
-            return _opponent; 
-        }
-        bool operator==( const Creature* c ) {
-                   return _opponent == c;
-        }
-        bool operator==( const CharCombat& c ) {
-            return _initiated == c._initiated &&
-                   _opponent == c._opponent;
-        }
-
-    private:
-        bool _initiated;
-        struct Creature *_opponent;
-};
 
 /* Special playing constants shared by PCs and NPCs which aren't in pfile */
 struct char_special_data {

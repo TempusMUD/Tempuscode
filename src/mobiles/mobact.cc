@@ -2962,7 +2962,7 @@ mobile_battle_activity(struct Creature *ch, struct Creature *precious_vict)
 
 		else if (random_binary()) {
 			act("$n releases a deafening scream!!", FALSE, ch, 0, 0, TO_ROOM);
-            SafeList<CharCombat>::iterator li = ch->getCombatList()->begin();
+            CombatDataList::iterator li = ch->getCombatList()->begin();
             for (; li != ch->getCombatList()->end(); ++li) {
 			    call_magic(ch, li->getOpponent(), 0, SPELL_FEAR, GET_LEVEL(ch),
 				    CAST_BREATH, &return_flags);
@@ -3172,7 +3172,7 @@ mobile_battle_activity(struct Creature *ch, struct Creature *precious_vict)
 	if (IS_DRAGON(ch)) {
 		if (random_number_zero_low(GET_LEVEL(ch)) > 10) {
 			act("You feel a wave of sheer terror wash over you as $n approaches!", FALSE, ch, 0, 0, TO_ROOM);
-            SafeList<CharCombat>::iterator it = ch->getCombatList()->begin();
+            CombatDataList::iterator it = ch->getCombatList()->begin();
             for (; it != ch->getCombatList()->end(); it++) {
                 vict = it->getOpponent();
                 if (!mag_savingthrow(vict, GET_LEVEL(ch), SAVING_SPELL) &&
