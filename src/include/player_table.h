@@ -138,6 +138,9 @@ class PlayerTable
 		
 		/** loads the named victim into the provided Creature **/
 		bool loadPlayer( const char* name, Creature *victim ) const;
+	
+		/** Returns the number of id->name mappings in this player table. **/
+		size_t size() { return idTable.size(); }
 };
 
 

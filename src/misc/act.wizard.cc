@@ -110,6 +110,7 @@ void qp_reload(int sig = 0);
 void list_obj_to_char(struct obj_data *list, struct Creature *ch, int mode,
 	bool show);
 void save_quests(); // quests.cc - saves quest data
+void export_player_table(Creature *ch);
 
 ACMD(do_equipment);
 SPECIAL(shop_keeper);
@@ -7396,7 +7397,37 @@ static const char *tester_cmds[] = {
   "\n"
 };
 
-void export_player_table();
+static const char* CODER_UTIL_USAGE = 
+					"Usage: coderutil <command> <args>\r\n"
+					"Commands: \r\n"
+					"      export - Exports the current player file to XML.\r\n"
+					"      osave <object> - Saves the given object to your equipment file.\r\n"
+					"      oload - Loads your equipment file onto the ground.\r\n";
+
+ACMD(do_coderutil)
+{
+	Tokenizer tokens(argument);
+	char token[MAX_INPUT_LENGTH];
+	
+	if(! tokens.next(token) ) {
+		send_to_char( ch, CODER_UTIL_USAGE );
+		return;
+	}
+
+	if( strcmp( token, "export" )  == 0 ) {
+		if(ch->getLevel() < 72 ){
+			send_to_char(ch, "You can't do that here.\r\n");
+		} else {
+			export_player_table(ch);
+		}
+	} else if( strcmp( token, "osave" )  == 0 ) {
+		send_to_char(ch, "osave not implemented.\r\n");
+	} else if( strcmp( token, "oload" )  == 0 ) {
+		send_to_char(ch, "oload not implemented.\r\n");
+	} else {
+		send_to_char( ch, CODER_UTIL_USAGE );
+	}
+}
 
 ACMD(do_tester)
 {
@@ -7406,19 +7437,12 @@ ACMD(do_tester)
 	byte tcmd;
 	int i;
 
-	two_arguments(argument, arg1, arg2);
-
-	if( strcmp( arg1, "export" )  == 0 ) {
-		if(ch->getLevel() < 72 ){
-			send_to_char(ch, "No.\r\n");
-		}
-		export_player_table();
-	}
-
 	if( ! ch->isTester() || GET_LEVEL(ch) >= LVL_AMBASSADOR ) {
 		send_to_char(ch, "You are not a tester.\r\n");
 		return;
 	}
+
+	two_arguments(argument, arg1, arg2);
 
 	if (!*arg1) {
 		send_to_char(ch, "Test what?\r\n");

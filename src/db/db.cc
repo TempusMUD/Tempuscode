@@ -348,6 +348,7 @@ boot_db(void)
 	if( mini_mud ) {
 		slog("Building player table.");
 		build_player_table();
+		slog("...%d records added.", playerIndex.size());
 	}
 
 	slog("Reading credits, bground, info & motds.");
@@ -3090,19 +3091,21 @@ get_name_by_id(long id)
 }
 
 void
-export_player_table() 
+export_player_table( Creature *ch ) 
 {
 	char_file_u file_e;
 	Creature *vict;
 	CREATE(vict, Creature, 1);
 	clear_char(vict);
 
-	for( int i = 0; i <= top_of_p_table; i++ ) {
+	int i;
+	for( i = 0; i <= top_of_p_table; i++ ) {
 		load_char( player_table[i].name, &file_e );
 		store_to_char( &file_e, vict );
 		vict->saveToXML();
 		clear_char(vict);
 	}
+	send_to_char(ch, "Exported %d files.\r\n", i);
 }
 
 // Load a char, pfile index if loaded, -1 if not

@@ -92,44 +92,49 @@ void
 obj_data::saveToXML(FILE *ouf)
 {
 	static string indent = "";
+	fprintf( ouf, "%s<object vnum=\"%d\">\n", 
+			indent.c_str(), shared->vnum );
+	indent += '\t';
+
 	if( strcmp( short_description, shared->proto->short_description ) ) {
-		fprintf( ouf, "%s<short_desc>%s</short_desc>",
+		fprintf( ouf, "%s<short_desc>%s</short_desc>\n",
 				indent.c_str(), 
 				xmlEncodeTmp(short_description) );
 	}
 	if( strcmp( name, shared->proto->name ) ) {
-		fprintf( ouf, "%s<name>%s</name>",
+		fprintf( ouf, "%s<name>%s</name>\n",
 				 indent.c_str(), xmlEncodeTmp(name) );
 	}
 	if( strcmp( description, shared->proto->description ) ) {
-		fprintf( ouf, "%s<long_desc>%s</long_desc>",
+		fprintf( ouf, "%s<long_desc>%s</long_desc>\n",
 				 indent.c_str(), xmlEncodeTmp(description) );
 	}
 	if( strcmp( description, shared->proto->action_description ) ) {
-		fprintf( ouf, "%s<action_desc>%s</action_desc>",
+		fprintf( ouf, "%s<action_desc>%s</action_desc>\n",
 				 indent.c_str(), xmlEncodeTmp(action_description));
 	}
-
-	fprintf( ouf, "%s<points type=\"%d\" soilage=\"%d\" weight=\"%d\" material=\"%d\" timer=\"%d\"/>",
+	fprintf( ouf, "%s<equipment wearable=\"%x\" worn_on=\"%d\" />\n", 
+			indent.c_str(), obj_flags.wear_flags, worn_on );
+	fprintf( ouf, "%s<points type=\"%d\" soilage=\"%d\" weight=\"%d\" material=\"%d\" timer=\"%d\"/>\n",
 			 indent.c_str(), obj_flags.type_flag, soilage, 
 			 obj_flags.getWeight(), obj_flags.material, obj_flags.timer );
-	fprintf( ouf, "%s<damage current=\"%d\" max=\"%d\" sigil_id=\"%d\" sigil_level=\"%d\" />",
+	fprintf( ouf, "%s<damage current=\"%d\" max=\"%d\" sigil_id=\"%d\" sigil_level=\"%d\" />\n",
 			indent.c_str(), obj_flags.damage, obj_flags.max_dam, 
 			obj_flags.sigil_idnum, obj_flags.sigil_level );
-	fprintf( ouf, "%s<flags wear=\"%x\" extra=\"%x\" extra2=\"%x\" extra3=\"%x\" />",
-			indent.c_str(), obj_flags.wear_flags, obj_flags.extra_flags, 
+	fprintf( ouf, "%s<flags extra=\"%x\" extra2=\"%x\" extra3=\"%x\" />\n",
+			indent.c_str(), obj_flags.extra_flags, 
 			obj_flags.extra2_flags, obj_flags.extra3_flags );
-	fprintf( ouf, "%s<values v0=\"%d\" v1=\"%d\" v2=\"%d\" v3=\"%d\" />",
+	fprintf( ouf, "%s<values v0=\"%d\" v1=\"%d\" v2=\"%d\" v3=\"%d\" />\n",
 			indent.c_str(), obj_flags.value[0],obj_flags.value[1],
 			obj_flags.value[2],obj_flags.value[3] );
 
-	fprintf( ouf, "%s<affectbits aff1=\"%lx\" aff2=\"%lx\" aff3=\"%lx\" />",
+	fprintf( ouf, "%s<affectbits aff1=\"%lx\" aff2=\"%lx\" aff3=\"%lx\" />\n",
 			indent.c_str(), obj_flags.bitvector[0], 
 			obj_flags.bitvector[1], obj_flags.bitvector[2] );
 
 	for( int i = 0; i < MAX_OBJ_AFFECT; i++ ) {
 		if( affected[i].location > 0 && affected[i].modifier > 0 ) {
-			fprintf( ouf, "%s<affect modifier=\"%d\" location=\"%d\" />",
+			fprintf( ouf, "%s<affect modifier=\"%d\" location=\"%d\" />\n",
 					 indent.c_str(), affected[i].modifier, affected[i].location );
 		}
 	}
@@ -138,7 +143,7 @@ obj_data::saveToXML(FILE *ouf)
 	for( obj_data *obj = contains; obj != NULL; obj = obj->next_content ) {
 		obj->saveToXML(ouf);
 	}
-	indent.erase( indent.size() - 1 );
+	indent.erase( indent.size() - 2, 2 );
 	return;
 }
 
@@ -147,7 +152,7 @@ obj_data::loadFromXML(xmlNodePtr node)
 {
 
 	clear();
-	int vnum = xmlGetIntProp(node, "VNUM");
+	int vnum = xmlGetIntProp(node, "vnum");
 	
 	obj_data* prototype = real_object_proto( vnum );
 	if( prototype == NULL )
@@ -180,10 +185,7 @@ obj_data::loadFromXML(xmlNodePtr node)
 			obj_flags.sigil_idnum = xmlGetIntProp( cur, "sigil_id");
 			obj_flags.sigil_level = xmlGetIntProp( cur, "sigil_level");
 		} else if( xmlMatches( cur->name, "flags" ) ) {
-			char* flag = xmlGetProp(cur,"wear");
-			obj_flags.wear_flags = hex2dec(flag);
-			free(flag);
-			flag = xmlGetProp(cur,"extra");
+			char* flag = xmlGetProp(cur,"extra");
 			obj_flags.extra_flags = hex2dec(flag);
 			free(flag);
 			flag = xmlGetProp(cur,"extra2");
@@ -192,6 +194,11 @@ obj_data::loadFromXML(xmlNodePtr node)
 			flag = xmlGetProp(cur,"extra3");
 			obj_flags.extra3_flags = hex2dec(flag);
 			free(flag);
+		} else if( xmlMatches( cur->name, "equipment" ) ) {
+			char* flag = xmlGetProp(cur,"wear");
+			obj_flags.wear_flags = hex2dec(flag);
+			free(flag);
+			worn_on = xmlGetIntProp( cur, "worn_on" );
 		} else if( xmlMatches( cur->name, "values" ) ) {
 			obj_flags.value[0] = xmlGetIntProp( cur, "V0" );
 			obj_flags.value[1] = xmlGetIntProp( cur, "V1" );

@@ -289,13 +289,13 @@ Creature::loadFromXML( long id )
             GET_MOBKILLS(this) = xmlGetIntProp(node, "MKILLS");
             GET_PC_DEATHS(this) = xmlGetIntProp(node, "DEATHS");
         } else if ( xmlMatches(node->name, "ATTR") ) {
-            real_abils.str = xmlGetIntProp(node, "STR");
-            real_abils.str_add = xmlGetIntProp(node, "STRADD");
-            real_abils.intel = xmlGetIntProp(node, "INT");
-            real_abils.wis = xmlGetIntProp(node, "WIS");
-            real_abils.dex = xmlGetIntProp(node, "DEX");
-            real_abils.con = xmlGetIntProp(node, "CON");
-            real_abils.cha = xmlGetIntProp(node, "CHA");
+            aff_abils.str = real_abils.str = xmlGetIntProp(node, "STR");
+            aff_abils.str_add = real_abils.str_add = xmlGetIntProp(node, "STRADD");
+            aff_abils.intel = real_abils.intel = xmlGetIntProp(node, "INT");
+            aff_abils.wis = real_abils.wis = xmlGetIntProp(node, "WIS");
+            aff_abils.dex = real_abils.dex = xmlGetIntProp(node, "DEX");
+            aff_abils.con = real_abils.con = xmlGetIntProp(node, "CON");
+            aff_abils.cha = real_abils.cha = xmlGetIntProp(node, "CHA");
         } else if ( xmlMatches(node->name, "CONDITION") ) {
 			GET_COND(this, THIRST) = xmlGetIntProp(node, "THIRST");
 			GET_COND(this, FULL) = xmlGetIntProp(node, "HUNGER");
