@@ -591,7 +591,7 @@
 #define LVL_IMMORT     51
 #define LVL_AMBASSADOR 50
 
-#define LVL_FREEZE    LVL_GOD
+#define LVL_FREEZE    LVL_ENERGY
 #define LVL_CAN_BAN     LVL_GOD
 #define LVL_VIOLENCE    LVL_POWER
 #define LVL_LOGALL      LVL_ENTITY
