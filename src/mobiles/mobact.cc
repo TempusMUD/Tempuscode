@@ -150,6 +150,7 @@ burn_update(void)
 				"You are slammed to the ground by the inexhorable force of gravity!\r\n");
 			act("$n is slammed to the ground by the inexhorable force of gravity!\r\n", TRUE, ch, 0, 0, TO_ROOM);
 			ch->setPosition(POS_RESTING);
+			WAIT_STATE(ch, 1);
 			if (damage(NULL, ch, dice(6, 5), TYPE_FALLING, WEAR_RANDOM))
 				continue;
 		}
