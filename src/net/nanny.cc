@@ -488,6 +488,7 @@ nanny(struct descriptor_data * d, char *arg)
 						SEND_TO_Q(buf, d);
 					}
 					set_desc_state( CON_RMOTD,d );
+					//set_desc_state( CON_MENU,d );
 				}
 			}
 			break;
@@ -733,7 +734,7 @@ nanny(struct descriptor_data * d, char *arg)
 				break;
 			} else if (is_abbrev(arg, "keep")) {
 				save_char(d->character, NULL);
-
+                SEND_TO_Q("Attributes Saved.",d);
 				set_desc_state( CON_RMOTD,d );
 
 				sprintf(buf, "%s [%s] new player.", GET_NAME(d->character), d->host);
@@ -1482,7 +1483,7 @@ make_prompt(struct descriptor_data * d)
 			SEND_TO_Q( "          Is your terminal compatible to receive colors (Y/N)? ",d );
 			break;
 		case CON_QSEX:				// Sex?
-			sprintf( buf,"%s          What do you choose as your sex %s(M/F)%s?%s ",
+			sprintf( buf,"%s          What gender are you %s(M/F)%s?%s ",
 				CCCYN(d->character, C_NRM), CCGRN(d->character, C_NRM),
 				CCCYN(d->character, C_NRM), CCNRM(d->character, C_NRM));
 			SEND_TO_Q( buf,d );
@@ -1512,7 +1513,8 @@ make_prompt(struct descriptor_data * d)
 				}
 			else if ( IS_MONK(d->character) )
 				{
-				SEND_TO_Q("    The monastic ideology requires that you remain neutral in alignment.\r\nTherefore you begin your life with a perfect neutrality.\r\n\r\n          Press return to continue.\r\n",d );
+				SEND_TO_Q("    The monastic ideology requires that you remain neutral in alignment.\r\nTherefore you begin your life with a perfect neutrality.\r\n\r\n",d );
+                SEND_TO_Q("\r\n*** PRESS RETURN: ", d);
 				break;
 				}
 			else if ( GET_CLASS(d->character) == CLASS_KNIGHT ||
@@ -1548,7 +1550,7 @@ make_prompt(struct descriptor_data * d)
 			SEND_TO_Q("Would you like to REROLL or KEEP these attributes? ",d);
 			break;
 		case CON_RMOTD:				// PRESS RETURN after MOTD
-			SEND_TO_Q( clr(d->character,C_NRM) ? ansi_motd:motd,d );
+			//SEND_TO_Q( clr(d->character,C_NRM) ? ansi_motd:motd,d );
 			SEND_TO_Q("\r\n*** PRESS RETURN: ", d);
 			break;
 		case CON_MENU:				// Your choice: (main menu)
@@ -1606,7 +1608,7 @@ make_menu( struct descriptor_data *d )
 			SEND_TO_Q( "\033[H\033[J",d );
 			sprintf(buf,"%s\r\n                                  SET PASSWORD\r\n*******************************************************************************\r\n%s",CCCYN(d->character,C_NRM),CCNRM(d->character,C_NRM));
 			SEND_TO_Q(buf,d);
-            SEND_TO_Q("\r\n\r\n    In order to protect your character against intrustion, you must\r\n"
+            SEND_TO_Q("\r\n\r\n    In order to protect your character against intrusion, you must\r\n"
                     "choose a password to use on this system.\r\n\r\n",d);
 			break;
 		case CON_DELCNF1:

@@ -876,11 +876,10 @@ write_to_output(const char *txt, struct descriptor_data * t)
     if (t->bufptr < 0)
         return;
 
-	if ( !t->need_prompt && ( !t->character || PRF2_FLAGGED(t->character,PRF2_AUTOPROMPT) ) )
-		{
-		t->need_prompt = true;
-		write_to_output( "\r\n",t );
-		}
+    if ( !t->need_prompt && ( !t->character || PRF2_FLAGGED(t->character,PRF2_AUTOPROMPT) ) ) {
+        t->need_prompt = true;
+        write_to_output( "\r\n",t );
+    }
 
     /* if we have enough space, just write to buffer and that's it! */
     if (t->bufspace >= size) {
@@ -1030,20 +1029,20 @@ process_output(struct descriptor_data * d)
     static int result;
 
 
-	result = write_to_descriptor( d->descriptor,d->output );
+        result = write_to_descriptor( d->descriptor,d->output );
 
     /* if we're in the overflow state, notify the user */
-	if ( !result && d->bufptr < 0 )
-		result = write_to_descriptor( d->descriptor,"**OVERFLOW**" );
+        if ( !result && d->bufptr < 0 )
+                result = write_to_descriptor( d->descriptor,"**OVERFLOW**" );
 
     /* handle snooping: prepend "% " and send to snooper */
     if (d->snoop_by && d->snoop_by->character) {
         SEND_TO_Q(CCRED(d->snoop_by->character, C_NRM), d->snoop_by);
-        SEND_TO_Q("% ", d->snoop_by);
+        SEND_TO_Q("{ ", d->snoop_by);
         SEND_TO_Q(CCNRM(d->snoop_by->character, C_NRM), d->snoop_by);
         SEND_TO_Q(d->output, d->snoop_by);
         SEND_TO_Q(CCRED(d->snoop_by->character, C_NRM), d->snoop_by);
-        SEND_TO_Q("%%", d->snoop_by);
+        SEND_TO_Q("}\r\n", d->snoop_by);
         SEND_TO_Q(CCNRM(d->snoop_by->character, C_NRM), d->snoop_by);
     }
     /*
@@ -1168,8 +1167,8 @@ process_input(struct descriptor_data * t)
     
     read_point = t->inbuf;
 
-	// And since we have one newline, we're guaranteed to need a prompt
-	t->need_prompt = true;
+        // And since we have one newline, we're guaranteed to need a prompt
+        t->need_prompt = true;
     
     while (nl_pos != NULL) {
         write_point = tmp;
@@ -1204,10 +1203,12 @@ process_input(struct descriptor_data * t)
         }
         if (t->snoop_by) {
             SEND_TO_Q(CCRED(t->snoop_by->character, C_NRM), t->snoop_by);
-            SEND_TO_Q("% ", t->snoop_by);
+            SEND_TO_Q("[ ", t->snoop_by);
             SEND_TO_Q(CCNRM(t->snoop_by->character, C_NRM), t->snoop_by);
             SEND_TO_Q(tmp, t->snoop_by);
-            SEND_TO_Q("\r\n", t->snoop_by);
+            SEND_TO_Q(CCRED(t->snoop_by->character, C_NRM), t->snoop_by);
+            SEND_TO_Q(" ]\r\n", t->snoop_by);
+            SEND_TO_Q(CCNRM(t->snoop_by->character, C_NRM), t->snoop_by);
         }
 
         failed_subst = 0;
