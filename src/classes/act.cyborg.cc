@@ -633,7 +633,7 @@ void perform_cyborg_activate(CHAR *ch, int mode, int subcmd)
         case SKILL_STASIS:
             if (subcmd) {           /************ activate ****************/
                 if (ch->getPosition() >= POS_FLYING)
-                    send_to_char("I don't think so.\r\n", ch);
+                    send_to_char("Go into stasis while flying?!?!?\r\n", ch);
                 else {
                     TOGGLE_BIT(AFF3_FLAGS(ch), AFF3_STASIS);
                     ch->setPosition( POS_SLEEPING );
