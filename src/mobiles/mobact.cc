@@ -2852,8 +2852,6 @@ mobile_battle_activity(struct Creature *ch, struct Creature *precious_vict)
 
 		else if (random_binary()) {
 			act("$n releases a deafening scream!!", FALSE, ch, 0, 0, TO_ROOM);
-			if (FIGHTING(ch))
-				WAIT_STATE(FIGHTING(ch), 3 RL_SEC);
 			call_magic(ch, FIGHTING(ch), 0, SPELL_FEAR, GET_LEVEL(ch),
 				CAST_BREATH, &return_flags);
 			return return_flags;
