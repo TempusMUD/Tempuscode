@@ -83,7 +83,7 @@ perform_skillset(Creature *ch, Creature *vict, char *skill_str, int value)
 {
 	int skill;
 
-	if ((skill = find_skill_num(skill_str)) <= 0) {
+	if ( *skill_str == '\0' || (skill = find_skill_num(skill_str)) <= 0) {
 		send_to_char(ch, "Unrecognized skill.\r\n");
 		return;
 	}
