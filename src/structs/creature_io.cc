@@ -824,7 +824,7 @@ Creature::loadFromXML( const char *path )
         } else if ( xmlMatches(node->name, "immort") ) {
 			player_specials->saved.occupation = xmlGetIntProp(node,"badge");
 			GET_QLOG_LEVEL(this) = xmlGetIntProp(node, "qlog");
-			GET_INVIS_LVL(this) = xmlGetIntProp(node, "qlog");
+			GET_INVIS_LVL(this) = xmlGetIntProp(node, "invis");
         } else if (xmlMatches(node->name, "rent")) {
 			char *txt;
 
