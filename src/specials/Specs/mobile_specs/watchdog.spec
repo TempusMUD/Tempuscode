@@ -12,7 +12,7 @@ SPECIAL(watchdog)
     struct char_data *dog = (struct char_data *) me;
     struct char_data *vict = NULL;
     static byte indignation = 0;
-	CharacterList::iterator it
+	CharacterList::iterator it;
 
     if( spec_mode == SPECIAL_DEATH ) return 0;
 
@@ -26,17 +26,13 @@ SPECIAL(watchdog)
 		}
 	}
 
-        if (!vict || vict == dog)
-                return 0;
+	if (!vict || vict == dog)
+		return 0;
 
-        count = 0;
-        act("$n begins barking visciously at $N!",FALSE,dog,0,vict, TO_NOTVICT);
-        act("$n begins barking visciously at you!",FALSE,dog,0,vict, TO_VICT);
-        count++;
-        return 1;
-    
-    if (count && vict ) {
-        switch (number(0, 10)) {
+	indignation++;
+
+    if ( vict ) {
+        switch (number(0, 4)) {
         case 0:
             act("$n growls menacingly at $N.", FALSE, dog, 0, vict, TO_NOTVICT);
             act("$n growls menacingly at you.", FALSE, dog, 0, vict, TO_VICT);
@@ -56,16 +52,13 @@ SPECIAL(watchdog)
 		default:
 			break;
         }
-        count++;
 
-        if (count > (GET_CHA(vict) >> 2)) {
+        if (indignation > (GET_CHA(vict) >> 2)) {
             hit(dog, vict, TYPE_UNDEFINED);
-            count = 0;
+            indignation = 0;
             vict = NULL;
         } 
         return 1;
     }
     return 0;
 }
-
-            
