@@ -87,7 +87,7 @@ calculate_weapon_probability(struct Creature *ch, int prob,
 			(prob * weap_weight) /
 			(str_app[STRENGTH_APPLY_INDEX(ch)].wield_w >> 1);
 		if (!affected_by_spell(ch, SKILL_NEURAL_BRIDGING)) {
-			prob += CHECK_SKILL(ch, SKILL_SECOND_WEAPON) - 60;
+			prob += CHECK_SKILL(ch, SKILL_NEURAL_BRIDGING) - 60;
 		} else {
 			if (CHECK_SKILL(ch, SKILL_SECOND_WEAPON) >= LEARNED(ch)) {
 				prob += CHECK_SKILL(ch, SKILL_SECOND_WEAPON) - 60;
