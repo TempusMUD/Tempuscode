@@ -7,9 +7,6 @@
 #define KILLER 0
 #define THIEF  1
 
-#define KILLER_COST   3000000
-#define THIEF_COST    1000000
-
 SPECIAL(lawyer)
 {
 	struct Creature *lawy = (struct Creature *)me;
@@ -29,10 +26,9 @@ SPECIAL(lawyer)
 			send_to_char(ch, "We dont sell any '%s'.\r\n", argument);
 		} else {
 			send_to_char(ch,
-				"The value of a pardon will be %d credits for thieves,\r\n"
-				"%d credits for killers, plus a %d credit fee.\r\n",
-				THIEF_COST, KILLER_COST,
-				(GET_LEVEL(ch) * 300000) + GET_REMORT_GEN(ch) * 3000000);
+				"For you, I'll make you a deal for %d credits.\r\n"
+				"That's better than you'll get from the bounty hunters.\r\n",
+				GET_SEVERITY(ch) * 1000000);
 		}
 		return 1;
 	}
@@ -57,21 +53,19 @@ SPECIAL(lawyer)
 				return 1;
 			}
 			mode = KILLER;
-			cost = KILLER_COST;
 		} else if (is_abbrev(argument, "thief")) {
 			if (!PLR_FLAGGED(ch, PLR_THIEF)) {
 				return 1;
 			}
 			mode = THIEF;
-			cost = THIEF_COST;
 		} else {
 			send_to_char(ch, "We don't provide pardons for '%s'.\r\n",
 				argument);
 			return 1;
 		}
 
-		cost += GET_LEVEL(ch) * 300000;
-		cost += GET_REMORT_GEN(ch) * 3000000;
+		cost = GET_SEVERITY(ch) * 1000000;
+
 		if (GET_LEVEL(ch) >= 51) {
 			cost = 1;
 		}
