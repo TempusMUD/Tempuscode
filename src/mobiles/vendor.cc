@@ -9,6 +9,43 @@
 #include "screen.h"
 #include "utils.h"
 
+const char VENDOR_HELP[] =
+"Directives:\r\n"
+"    room <room vnum>\r\n"
+"        if set, vendor will only work if the mob is in the specified room.\r\n"
+"        leave unset for wandering vendors.\r\n"
+"    produce <item vnum>\r\n"
+"        (unimplemented) provides a limitless supply of the object\r\n"
+"    accept <item type>|all\r\n"
+"        Vendor will buy any item of the type configured by this directive.\r\n"
+"    refuse <item type>|all\r\n"
+"        Vendor will refuse to buy any item of the type configured by this\r\n"
+"        directive\r\n"
+"    refusal-msg <str to say>\r\n"
+"        What is said when the player is unacceptable to the vendor.\r\n"
+"    keeper-broke-msg <str to say>\r\n"
+"        What is said when the vendor doesn't have enough money to buy\r\n"
+"        an item from a player.\r\n"
+"    buyer-broke-msg <str to say>\r\n"
+"        What is said by the vendor when the player doesn't have enough\r\n"
+"        money to buy the selected item.\r\n"
+"    temper-cmd <cmd to execute>\r\n"
+"        Command to execute after saying buyer-broke-msg\r\n"
+"    buy-msg <str to say>\r\n"
+"        String said by the vendor after a purchase\r\n"
+"    sell-msg <str to say>\r\n"
+"        String said by the vendor upon a successful sale.\r\n"
+"    markup <percentage>\r\n"
+"        Percent to mark price up when selling to a player\r\n"
+"    markdown <percentage>\r\n"
+"        Percent to mark price down when buying from a player\r\n"
+"    currency gold|cash\r\n"
+"        Which currency to use\r\n"
+"    steal-ok yes|no\r\n"
+"        If this is set, stealing from the vendor is allowed\r\n"
+"    attack-ok yes|no\r\n";
+"        If this is set, attacking the vendor is allowed\r\n"
+
 // From shop.cc
 int same_obj(obj_data *, obj_data *);
 // From act.comm.cc
@@ -69,11 +106,14 @@ vendor_invalid_buy(Creature *self, Creature *ch, ShopData *shop, obj_data *obj)
 
 	if (shop->item_types.size() > 0) {
 		vector<int>::iterator it;
-		bool found = false;
-		for (it = shop->item_types.begin();!found && it != shop->item_types.end();it++)
-			if (*it == GET_OBJ_TYPE(obj) || *it == -1)
-				found = true;
-		if (!found) {
+		bool accepted = false;
+		for (it = shop->item_types.begin();it != shop->item_types.end();it++) {
+			if ((*it & 0xFF) == GET_OBJ_TYPE(obj) || (*it & 0xFF) == 0) {
+				accepted = *it >> 8;
+				break;
+			}
+		}
+		if (!accepted) {
 			do_say(self, tmp_sprintf("%s %s", GET_NAME(ch),
 				shop->msg_badobj), 0, SCMD_SAY_TO, NULL);
 			return true;
@@ -501,6 +541,11 @@ SPECIAL(vendor)
 	ShopData shop;
 	int val, lineno = 0;
 
+	if (spec_mode == SPECIAL_HELP) {
+		page_string(ch->desc, VENDOR_HELP);
+		return 1;
+	}
+
 	if (spec_mode != SPECIAL_CMD)
 		return 0;	
 
@@ -509,10 +554,11 @@ SPECIAL(vendor)
 	if (!config)
 		return 0;
 
-	if (!(CMD_IS("buy") || CMD_IS("sell") || CMD_IS("list") || CMD_IS("value") || CMD_IS("steal")))
+	if (!(CMD_IS("buy") || CMD_IS("sell") || CMD_IS("list") || CMD_IS("value") || CMD_IS("offer") || CMD_IS("steal")))
 		return 0;
 
 	// Initialize default values
+	shop.room = -1;
 	shop.msg_denied = "I'm not buying that.";
 	shop.msg_badobj = "I don't buy that sort of thing.";
 	shop.msg_selfbroke = "Sorry, but I don't have the cash.";
@@ -541,13 +587,26 @@ SPECIAL(vendor)
 				break;
 			}
 			shop.item_list.push_back(atoi(line));
-		} else if (!strcmp(param_key, "buy")) {
-			val = search_block(line, item_types, 0);
-			if (val < 0) {
-				err = "an invalid buy line";
-				break;
-			}
-			shop.item_types.push_back(val);
+		} else if (!strcmp(param_key, "accept")) {
+			if (strcmp(line, "all")) {
+				val = search_block(line, item_types, 0);
+				if (val <= 0) {
+					err = "an invalid accept line";
+					break;
+				}
+			} else
+				val = 0;
+			shop.item_types.push_back( 1 << 8 | val);
+		} else if (!strcmp(param_key, "refuse")) {
+			if (strcmp(line, "all")) {
+				val = search_block(line, item_types, 0);
+				if (val <= 0) {
+					err = "an invalid accept line";
+					break;
+				}
+			} else
+				val = 0;
+			shop.item_types.push_back( 0 << 8 | val);
 		} else if (!strcmp(param_key, "denied-msg")) {
 			shop.msg_denied = line;
 		} else if (!strcmp(param_key, "keeper-broke-msg")) {
@@ -600,18 +659,25 @@ SPECIAL(vendor)
 					GET_NAME(ch)), 0, SCMD_SAY_TO, NULL);
 			}
 		}
+		return true;
 	}
 
 	if (CMD_IS("steal") && !shop.steal_ok && GET_LEVEL(ch) < LVL_IMMORT) {
 		do_gen_comm(self, tmp_sprintf("%s is a bloody thief!", GET_NAME(ch)),
 			0, SCMD_SHOUT, 0);
-		return 1;
+		return true;
 	}
 	
+	if (shop.room != -1 && shop.room != self->in_room->number) {
+		do_say(self, tmp_sprintf("%s Catch me when I'm in my store.",
+			GET_NAME(ch)), 0, SCMD_SAY_TO, 0);
+		return true;
+	}
+
 	if (shop.reaction.react(ch) != ALLOW) {
 		do_say(self, tmp_sprintf("%s %s", GET_NAME(ch), shop.msg_denied),
 			0, SCMD_SAY_TO, 0);
-		return 1;
+		return true;
 	}
 
 	if (CMD_IS("buy"))
@@ -620,10 +686,10 @@ SPECIAL(vendor)
 		vendor_buy(ch, argument, self, &shop);
 	else if (CMD_IS("list"))
 		vendor_list(ch, argument, self, &shop);
-	else if (CMD_IS("value"))
+	else if (CMD_IS("value") || CMD_IS("offer"))
 		vendor_value(ch, argument, self, &shop);
 	else
-		return 0;
+		return false;
 	
-	return 1;
+	return true;
 }
