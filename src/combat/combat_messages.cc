@@ -85,9 +85,7 @@ appear( struct char_data * ch, struct char_data *vict )
          GET_REMORT_GEN( ch ) > GET_REMORT_GEN( vict ) &&
          GET_REMORT_INVIS( ch ) > GET_LEVEL( vict ) ) {
         GET_REMORT_INVIS( ch ) = GET_LEVEL( vict );
-        sprintf( buf, "Your remort invisibility has dropped to level %d.\n",
-                 GET_REMORT_INVIS( ch ) );
-        send_to_char( buf, ch );
+        send_to_char("You feel a bit more visible.\n", ch);
         found = 1;
     }
       

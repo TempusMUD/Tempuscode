@@ -249,6 +249,15 @@ ACMD(do_steal)
         }
     }
 
+	// Drop remort vis upon steal failure
+    if ( ohoh && !IS_NPC( vict ) && !IS_NPC( ch ) &&
+         GET_REMORT_GEN( ch ) > GET_REMORT_GEN( vict ) &&
+         GET_REMORT_INVIS( ch ) > GET_LEVEL( vict ) ) {
+        GET_REMORT_INVIS( ch ) = GET_LEVEL( vict );
+        send_to_char("You feel a bit more visible.\n", ch );
+        found = 1;
+    }
+		
     if (ohoh && IS_NPC(vict) && AWAKE(vict) && check_mob_reaction(ch, vict))
         hit(vict, ch, TYPE_UNDEFINED);
     if (ohoh && IS_NPC(vict) && AWAKE(vict) && IS_SET(MOB_FLAGS(vict), MOB_ISCRIPT)) {
