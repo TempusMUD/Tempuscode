@@ -1616,11 +1616,17 @@ do_stat_character(struct Creature *ch, struct Creature *k)
     struct affected_type *aff;
     extern struct attack_hit_type attack_hit_text[];
 
-    if (GET_MOB_SPEC(k) == fate && GET_LEVEL(ch) < LVL_SPIRIT) {
+	if (IS_PC(k) && !Security::isMember(ch, Security::ADMINBASIC)) {
+        send_to_char(ch, "You can't stat this player.\r\n");
+        return;
+	}
+
+	if (GET_MOB_SPEC(k) == fate
+			&& !Security::isMember(ch, Security::WIZARDBASIC)) {
         send_to_char(ch, "You can't stat this mob.\r\n");
         return;
-    }
-
+	}
+		
 	acc_string_clear();
     switch (GET_SEX(k)) {
     case SEX_NEUTRAL:
