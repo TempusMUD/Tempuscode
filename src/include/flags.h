@@ -20,8 +20,7 @@ using namespace std;
 class Flag {
 	public:
 		Flag( const char *_name, const char *_bits, const char *_desc ) 
-        : name(_name),bits(_bits),desc(_desc) { 
-            index = -1;
+        : name(_name),bits(_bits),desc(_desc), index = -1 { 
         }
 
 
@@ -109,7 +108,7 @@ class FlagSet
 		bit_vector data;
 		const FlagTable *table;
 	public:
-		FlagSet( const FlagTable &table ) {
+		FlagSet( const FlagTable &table ) : data() {
 			this->table = &table;
 			data.reserve(table.size());
 			data.assign( table.size(), false );
