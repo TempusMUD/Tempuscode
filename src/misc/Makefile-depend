@@ -1,5 +1,5 @@
 $(OBJ)/act.comm.o : act.comm.cc \
-	$(INCLUDE)/structs.h $(INCLUDE)/spells.h $(INCLUDE)/utils.h $(INCLUDE)/comm.h $(INCLUDE)/interpreter.h $(INCLUDE)/handler.h $(INCLUDE)/db.h $(INCLUDE)/screen.h $(INCLUDE)/rpl_resp.h $(INCLUDE)/creature_list.h $(INCLUDE)/tmpstr.h 
+	$(INCLUDE)/structs.h $(INCLUDE)/spells.h $(INCLUDE)/utils.h $(INCLUDE)/comm.h $(INCLUDE)/interpreter.h $(INCLUDE)/handler.h $(INCLUDE)/db.h $(INCLUDE)/screen.h $(INCLUDE)/rpl_resp.h $(INCLUDE)/creature_list.h $(INCLUDE)/clan.h $(INCLUDE)/security.h $(INCLUDE)/tmpstr.h 
 	$(CXX) -c $(CXXFLAGS) act.comm.cc          -o $(OBJ)/act.comm.o
 $(OBJ)/act.informative.o : act.informative.cc \
 	$(INCLUDE)/structs.h $(INCLUDE)/utils.h $(INCLUDE)/comm.h $(INCLUDE)/interpreter.h $(INCLUDE)/handler.h $(INCLUDE)/db.h $(INCLUDE)/spells.h $(INCLUDE)/screen.h $(INCLUDE)/vehicle.h $(INCLUDE)/materials.h $(INCLUDE)/clan.h $(INCLUDE)/smokes.h $(INCLUDE)/bomb.h $(INCLUDE)/fight.h $(INCLUDE)/specs.h $(INCLUDE)/events.h $(INCLUDE)/security.h $(INCLUDE)/char_class.h $(INCLUDE)/tmpstr.h $(INCLUDE)/tokenizer.h 

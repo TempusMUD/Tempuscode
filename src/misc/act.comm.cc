@@ -31,9 +31,12 @@
 #include "screen.h"
 #include "rpl_resp.h"
 #include "creature_list.h"
+#include "clan.h"
+#include "security.h"
 #include "tmpstr.h"
 
 /* extern variables */
+extern const char *pc_char_class_types[];
 extern struct room_data *world;
 extern struct descriptor_data *descriptor_list;
 extern struct zone_data *zone_table;
@@ -644,6 +647,8 @@ ACMD(do_gen_comm)
 	const channel_info_t *chan;
 	struct descriptor_data *i;
 	char *plain_emit, *color_emit;
+	char *imm_plain_emit, *imm_color_emit;
+	const char *str;
 
 	chan = &channels[subcmd];
 
@@ -788,6 +793,22 @@ ACMD(do_gen_comm)
 	plain_emit = tmp_sprintf("%%s %ss, '%s'\r\n", chan->name, argument);
 	color_emit = tmp_sprintf("%s%%s %ss,%s%s '%s'%s\r\n", chan->desc_color,
 		chan->name, KNRM, chan->text_color, argument, KNRM);
+	if (subcmd == SCMD_GUILDSAY) {
+		if (GET_CLASS(ch) >= 0 && GET_CLASS(ch) < TOP_CLASS)
+			str = tmp_tolower(pc_char_class_types[GET_CLASS(ch)]);
+		else
+			str = tmp_sprintf("#%d", GET_CLASS(ch));
+		if (GET_CLASS(ch) == CLASS_CLERIC || GET_CLASS(ch) == CLASS_KNIGHT)
+			str = tmp_sprintf("%s-%s", (IS_GOOD(ch) ? "g":"e"), str);
+		imm_plain_emit = tmp_sprintf("%%s %ss [%s], '%s'\r\n", chan->name, str,
+			argument);
+		imm_color_emit = tmp_sprintf("%s%%s %ss [%s],%s%s '%s'%s\r\n",
+			chan->desc_color, chan->name, str, KNRM, chan->text_color,
+			argument, KNRM);
+	} else {
+		imm_plain_emit = plain_emit;
+		imm_color_emit = color_emit;
+	}
 
 	/* now send all the strings out */
 	for (i = descriptor_list; i; i = i->next) {
@@ -807,19 +828,22 @@ ACMD(do_gen_comm)
 			continue;
 
 		// Must be in same clan to hear clansay - even immortals
-		if (subcmd == SCMD_CLANSAY && (!GET_CLAN(i->character) ||
-				GET_CLAN(i->character) != GET_CLAN(ch)))
+		if (subcmd == SCMD_CLANSAY &&
+				(!GET_CLAN(i->character) ||
+					GET_CLAN(i->character) != GET_CLAN(ch)))
 			continue;
 
-		// Must be in same guild to hear guildsay - even immortals
+		// Must be in same guild or an admin to hear guildsay
 		if (subcmd == SCMD_GUILDSAY &&
-				GET_CLASS(i->character) != GET_CLASS(ch))
+				GET_CLASS(i->character) != GET_CLASS(ch) &&
+				!Security::isMember(i->character, "AdminBasic"))
 			continue;
 
 		// Evil and good clerics and knights have different guilds
 		if (subcmd == SCMD_GUILDSAY &&
 				(GET_CLASS(i->character) == CLASS_CLERIC ||
-				GET_CLASS(i->character) == CLASS_KNIGHT)) {
+				GET_CLASS(i->character) == CLASS_KNIGHT) &&
+				!Security::isMember(i->character, "AdminBasic")) {
 			if (IS_NEUTRAL(ch))
 				continue;
 			if (IS_EVIL(ch) && !IS_EVIL(i->character))
@@ -831,34 +855,40 @@ ACMD(do_gen_comm)
 		// Outcast monks don't hear other monks
 		if (subcmd == SCMD_GUILDSAY &&
 				GET_CLASS(i->character) == CLASS_MONK &&
-				!IS_NEUTRAL(i->character))
+				!IS_NEUTRAL(i->character) &&
+				!Security::isMember(i->character, "AdminBasic"))
 			continue;
 
-		if (subcmd == SCMD_PROJECT && !IS_REMORT(i->character))
-			continue;
+		if (IS_NPC(ch) || !IS_IMMORT(i->character)) {
+			if (subcmd == SCMD_PROJECT && !IS_REMORT(i->character))
+				continue;
 
-		if (subcmd == SCMD_DREAM &&
-				i->character->getPosition() != POS_SLEEPING)
-			continue;
+			if (subcmd == SCMD_DREAM &&
+					i->character->getPosition() != POS_SLEEPING)
+				continue;
 
-		if (subcmd == SCMD_SHOUT &&
-			((ch->in_room->zone != i->character->in_room->zone) ||
-				i->character->getPosition() < POS_RESTING))
-			continue;
+			if (subcmd == SCMD_SHOUT &&
+				((ch->in_room->zone != i->character->in_room->zone) ||
+					i->character->getPosition() < POS_RESTING))
+				continue;
 
-		if ((ROOM_FLAGGED(ch->in_room, ROOM_SOUNDPROOF) ||
-				ROOM_FLAGGED(i->character->in_room, ROOM_SOUNDPROOF)) &&
-				!IS_IMMORT(ch) && !IS_IMMORT(i->character) &&
-				i->character->in_room != ch->in_room)
-			continue;
+			if ((ROOM_FLAGGED(ch->in_room, ROOM_SOUNDPROOF) ||
+					ROOM_FLAGGED(i->character->in_room, ROOM_SOUNDPROOF)) &&
+					!IS_IMMORT(ch) && i->character->in_room != ch->in_room)
+				continue;
 
-		if (chan->check_plane && !IS_IMMORT(i->character) &&
-				COMM_NOTOK_ZONES(ch, i->character))
-			continue;
+			if (chan->check_plane && COMM_NOTOK_ZONES(ch, i->character))
+				continue;
+		}
 
-		send_to_char(i->character,
-			COLOR_LEV(i->character) >= C_NRM ? color_emit : plain_emit,
-			tmp_capitalize(PERS(ch, i->character)));
+		if (IS_IMMORT(i->character))
+			send_to_char(i->character,
+				COLOR_LEV(i->character) >= C_NRM ? imm_color_emit : imm_plain_emit,
+				tmp_capitalize(PERS(ch, i->character)));
+		else
+			send_to_char(i->character,
+				COLOR_LEV(i->character) >= C_NRM ? color_emit : plain_emit,
+				tmp_capitalize(PERS(ch, i->character)));
 	}
 
 	if (ROOM_FLAGGED(ch->in_room, ROOM_SOUNDPROOF) && !IS_IMMORT(ch))
