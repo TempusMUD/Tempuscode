@@ -2119,13 +2119,14 @@ special(struct Creature *ch, int cmd, int subcmd, char *arg, special_mode spec_m
 
 	/* special in object present? */
 	for (i = ch->in_room->contents; i; i = i->next_content) {
-		if (GET_OBJ_SPEC(i) != NULL)
+		if (GET_OBJ_SPEC(i) != NULL) {
 			specAddress = (long)GET_OBJ_SPEC(i);
 			if (GET_OBJ_SPEC(i) (ch, i, cmd, arg, spec_mode)) {
                 //if( spec_mode == SPECIAL_LEAVE )
                 //    raise(SIGINT);
 				return specAddress;
             }
+        }
 		if (IS_BOMB(i) && i->contains && IS_FUSE(i->contains) &&
 			FUSE_IS_MOTION(i->contains) && FUSE_STATE(i->contains)) {
 			FUSE_TIMER(i->contains)--;
