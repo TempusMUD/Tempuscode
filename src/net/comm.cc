@@ -131,6 +131,7 @@ int isbanned(char *hostname, char *blocking_hostname);
 int intermud_desc;
 int connected_to_intermud;
 void init_intermud_socket(void);
+void verify_environment(void);
 void incoming_intermud_message(int intermud_desc);
 void weather_and_time(int mode);
 void autosave_zones(int SAVE_TYPE);
@@ -243,6 +244,7 @@ main(int argc, char **argv)
 	}
 
 	slog("Using %s as data directory.", dir);
+	verify_environment();
 
 	if (scheck) {
 		boot_world();
@@ -2124,5 +2126,34 @@ descriptor_update(void)
 			SEND_TO_Q("Idle time limit reached, disconnecting.\r\n", d);
 			set_desc_state(CXN_DISCONNECT, d);
 		}
+	}
+}
+
+void
+verify_environment(void)
+{
+	char path[256];
+	int idx;
+
+	mkdir("players", 0755);
+	mkdir("players/accounts", 0755);
+	for (idx = 0;idx < 10;idx++) {
+		snprintf(path, 255, "players/accounts/%d", idx);
+		mkdir(path, 0755);
+	}
+	mkdir("players/character", 0755);
+	for (idx = 0;idx < 10;idx++) {
+		snprintf(path, 255, "players/character/%d", idx);
+		mkdir(path, 0755);
+	}
+	mkdir("players/equipment", 0755);
+	for (idx = 0;idx < 10;idx++) {
+		snprintf(path, 255, "players/equipment/%d", idx);
+		mkdir(path, 0755);
+	}
+	mkdir("players/housing", 0755);
+	for (idx = 0;idx < 10;idx++) {
+		snprintf(path, 255, "players/housing/%d", idx);
+		mkdir(path, 0755);
 	}
 }
