@@ -2554,8 +2554,10 @@ perform_wear(struct char_data * ch, struct obj_data * obj, int where)
     if ((IS_OBJ_TYPE(obj, ITEM_WORN) ||
 	 IS_OBJ_TYPE(obj, ITEM_ARMOR) ||
 	 IS_OBJ_TYPE(obj, ITEM_WEAPON)) &&
-	obj->action_description)
-	act(obj->action_description, FALSE, ch, obj, 0, TO_CHAR);
+	obj->action_description) {
+        act(obj->action_description, FALSE, ch, obj, 0, TO_ROOM);
+        act(obj->action_description, FALSE, ch, obj, 0, TO_CHAR);
+    }
     obj_from_char(obj);
     return (equip_char(ch, obj, where, MODE_EQ));
 }
