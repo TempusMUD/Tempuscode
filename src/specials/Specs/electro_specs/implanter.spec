@@ -483,14 +483,14 @@ implanter_show_pos(Creature * me, Creature * ch, obj_data * obj)
 	bool not_first = false;
 
 	strcpy(buf, "You can implant it in these positions: ");
-	for (pos = 0; wear_eqpos[pos][0] != '\n'; pos++)
+	for (pos = 0; wear_implantpos[pos][0] != '\n'; pos++)
 		if (!ILLEGAL_IMPLANTPOS(pos) && CAN_WEAR(obj, wear_bitvectors[pos])) {
 			if (not_first)
 				strcat(buf, ", ");
 			else
 				not_first = true;
 
-			strcat(buf, wear_eqpos[pos]);
+			strcat(buf, wear_implantpos[pos]);
 		}
 
 	perform_tell(me, ch, buf);
