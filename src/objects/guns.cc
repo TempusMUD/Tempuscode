@@ -136,7 +136,7 @@ show_gun_status(struct Creature *ch, struct obj_data *gun)
 
 		sprintf(buf,
 			"%sGun Classification:    %s[%s]%s\r\n",
-			buf, QGRN, egun_types[GET_OBJ_VAL(gun,3)], QNRM);
+			buf, QGRN, egun_types[MIN(GET_OBJ_VAL(gun,3), EGUN_TOP)], QNRM);
 		
 		send_to_char(ch, "%s", buf);
 	}
