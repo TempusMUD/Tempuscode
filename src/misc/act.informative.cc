@@ -3678,6 +3678,7 @@ perform_immort_where(struct char_data * ch, char *arg)
     char main_buf[MAX_STRING_LENGTH];
     char arg1[MAX_INPUT_LENGTH], arg2[MAX_INPUT_LENGTH];
 
+    arg1[0] = arg2[0] = '\0';
     if (!*arg) {
         strcpy(main_buf, "Players\r\n-------\r\n");
         for (d = descriptor_list; d; d = d->next) {

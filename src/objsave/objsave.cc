@@ -892,7 +892,10 @@ Crash_idlesave( struct char_data * ch )
     Crash_rentsave( ch, ( cost * 3 ), RENT_FORCED );
 }
 
-
+/**
+ *  Saves the char into it's rent file, extracting all cursed eq in the
+ *  process.
+**/
 void 
 Crash_cursesave( struct char_data * ch )
 {
