@@ -319,6 +319,10 @@ Valid_Name(char *newname)
 	if (alpha_hist['\''] > 1)
 		return 0;
 
+	// no 's at end of name
+	if (tempname[len - 1] == 's' && tempname[len - 2] == '\'')
+		return 0;
+
 	return 1;
 }
 
