@@ -1280,7 +1280,10 @@ death_cry( struct char_data * ch )
     struct room_data *was_in = NULL;
     int found = 0;
 
-    if ( IS_GHOUL( ch ) || IS_WIGHT( ch ) || IS_MUMMY( ch ) )
+	if ( GET_MOB_SPEC( ch ) == fate )
+		act( "$n dissipates in a cloud of mystery, leaving you to your fate.",
+			FALSE, ch, 0, 0, TO_ROOM );
+    else if ( IS_GHOUL( ch ) || IS_WIGHT( ch ) || IS_MUMMY( ch ) )
 	act( "$n falls lifeless to the floor with a shriek.", 
 	     FALSE, ch, 0, 0, TO_ROOM );
     else if ( IS_SKELETON( ch ) )
