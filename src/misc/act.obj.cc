@@ -3864,8 +3864,11 @@ ACMD(do_conceal)
 
 ACMD(do_sacrifice)
 {
+	Creature *load_corpse_owner(obj_data *obj);
+
+	Creature *orig_char;
 	struct obj_data *obj;
-	int exp;
+	int mana;
 	string sbuf;
 
 	skip_spaces(&argument);
@@ -3888,14 +3891,22 @@ ACMD(do_sacrifice)
 
 	act("$n sacrifices $p.", FALSE, ch, obj, 0, TO_ROOM);
 	act("You sacrifice $p.", FALSE, ch, obj, 0, TO_CHAR);
-	if (IS_CORPSE(obj))
-		exp = (GET_LEVEL(ch) << 1);
-	else
-		exp = MAX(0, GET_OBJ_COST(obj) >> 10);
+	if (IS_CORPSE(obj)) {
+		orig_char = load_corpse_owner(obj);
+		if (orig_char) {
+			mana = number(1, orig_char->getLevelBonus(true));
+			if (IS_PC(orig_char))
+				delete orig_char;
+		} else
+			mana = 0;
+	} else
+		mana = MAX(0, GET_OBJ_COST(obj) / 100000);
 
-	if (exp) {
+	if (mana) {
 		send_to_char(ch, "You sense your deity's favor upon you.\r\n");
-		gain_exp(ch, exp);
+		GET_MANA(ch) += mana;
+		if (GET_MANA(ch) > GET_MAX_MANA(ch))
+			GET_MANA(ch) = GET_MAX_MANA(ch);
 	}
 	extract_obj(obj);
 }
