@@ -5766,6 +5766,7 @@ ACMD(do_xlist)
     // can this person actually look at this zones searches?
 	if ( !OLCIMP(ch) 
 		&& !(zone->owner_idnum == GET_IDNUM(ch))
+		&& !(zone->co_owner_idnum == GET_IDNUM(ch))
 		&& !OLCGOD(ch) 
 		&& (GET_LEVEL(ch) < LVL_FORCE) ) {
 		send_to_char("You aren't godly enough to do that here.\r\n",ch);
