@@ -3944,7 +3944,7 @@ void
 perform_violence( void )
 {
     register struct char_data *ch;
-    int prob, i, weap_weight;
+    int prob, i, weap_weight,die_roll;
     void mobile_battle_activity( struct char_data *ch );
 
     for ( ch = combat_list; ch; ch = next_combat_list ) {
@@ -4065,17 +4065,19 @@ perform_violence( void )
 	prob -=
 	    ( ( ( ( IS_CARRYING_W( ch ) + IS_WEARING_W( ch ) ) << 5 ) * prob ) / 
 	      ( CAN_CARRY_W( ch ) * 85 ) );
+		  
+	die_roll = number( 0, 300);
 
 	if ( PRF2_FLAGGED( ch, PRF2_FIGHT_DEBUG ) ) {
-	    sprintf( buf, "Attack speed: %d.\r\n", prob );
+	    sprintf( buf, "Attack speed: %d. Die roll: %d.\r\n", prob,die_roll );
 	    send_to_char( buf, ch );
 	}
 	if ( PRF2_FLAGGED( FIGHTING( ch ), PRF2_FIGHT_DEBUG ) ) {
-	    sprintf( buf, "Enemy Attack speed: %d.\r\n", prob );
+	    sprintf( buf, "Enemy Attack speed: %d. Enemy Die roll %d.\r\n", prob,die_roll );
 	    send_to_char( buf, FIGHTING( ch ) );
 	}
     
-	if ( MIN( 100, prob+15 ) >= number( 0, 300 ) ) {
+	if ( MIN( 100, prob+15 ) >= die_roll ) {
 	    for ( i = 0; i < 4; i++ ) {
 			if ( !FIGHTING( ch ) || GET_LEVEL( ch ) < ( i << 3 ) )
 				break;
@@ -4084,8 +4086,8 @@ perform_violence( void )
 				send_to_char( "You can't fight while sitting!!\r\n", ch );
 				break;
 			}
-		if ( prob >= number( ( i << 4 ) + ( i << 3 ), ( i << 5 ) + ( i << 3 ) ) )
-			hit( ch, FIGHTING( ch ), TYPE_UNDEFINED );
+			if ( prob >= number( ( i << 4 ) + ( i << 3 ), ( i << 5 ) + ( i << 3 ) ) )
+				hit( ch, FIGHTING( ch ), TYPE_UNDEFINED );
 		}
 		if ( IS_CYBORG( ch ) ) {
 			int implant_prob;
