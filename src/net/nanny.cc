@@ -200,9 +200,10 @@ handle_input(struct descriptor_data *d, char *arg)
 			} else if (!d->account->invalid_char_index(1)) {
 				char_id = d->account->get_char_by_index(1);
 				d->creature = new Creature;
-				if (d->creature->loadFromXML(char_id))
+				if (d->creature->loadFromXML(char_id)) {
 					set_desc_state(CXN_DELETE_PW, d);
-				else {
+				} else {
+                    slog("Error loading character %d to delete.", char_id);
 					send_to_desc(d, "\r\nThere was an error loading the character.\r\n\r\n");
 					delete d->creature;
 					d->creature = NULL;
@@ -220,6 +221,7 @@ handle_input(struct descriptor_data *d, char *arg)
 					d->creature->desc = d;
 					set_desc_state(CXN_EDIT_DESC, d);
 				} else {
+                    slog("Error loading character %d to edit it's description.", char_id);
 					send_to_desc(d, "\r\nThere was an error loading the character.\r\n\r\n");
 					delete d->creature;
 					d->creature = NULL;
@@ -239,6 +241,7 @@ handle_input(struct descriptor_data *d, char *arg)
 					delete d->creature;
 					d->creature = NULL;
 				} else {
+                    slog("Error loading character %d to show statistics.", char_id);
 					send_to_desc(d, "\r\nThere was an error loading the character.\r\n\r\n");
 					delete d->creature;
 					d->creature = NULL;
@@ -295,7 +298,7 @@ handle_input(struct descriptor_data *d, char *arg)
 			d->creature->account = d->account;
 
 			if (!d->creature->loadFromXML(char_id)) {
-				mudlog(LVL_IMMORT, CMP, true, "Player creature %d didn't load from account '%s'", char_id, d->account->get_name());
+				mudlog(LVL_IMMORT, CMP, true, "Character %d didn't load from account '%s'", char_id, d->account->get_name());
 				send_to_desc(d, "Sorry.  There was an error processing your request.\r\n");
 				send_to_desc(d, "The gods are not ignorant of your plight.\r\n\r\n");
 				delete d->creature;
