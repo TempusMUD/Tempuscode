@@ -254,6 +254,7 @@
 #define PLR_NOPK        (1 << 30)  /* player cannot pk */
 // Player Flags Mark II
 #define PLR2_SOULLESS	(1 << 0)	// Signing the Unholy Compact.
+#define PLR2_BURIED		(1 << 1)	// Player has died way too many times.
 
 /* Mobile flags: used by char_data.char_specials.act */
 #define MOB_SPEC         (1 << 0)  /* Mob has a callable spec-proc	*/

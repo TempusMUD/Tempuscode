@@ -3013,7 +3013,17 @@ nanny(struct descriptor_data * d, char *arg)
 
         // if we're not a new char, check loadroom and rent
         if (GET_LEVEL(d->character)) {
+		// If we're buried, tell em and drop link.
+		if (PLR2_FLAGGED(d->character, PLR2_BURIED)) {
+			sprintf(buf,"You lay fresh flowers on the grave of %s.\r\n",GET_NAME(d->character));
+			SEND_TO_Q( buf, d);
+			sprintf(buf,"%s hit died with no maxhit and no life points. Burying.",GET_NAME(d->character));
+			mudlog(buf, NRM, LVL_GOD, TRUE);
 
+			STATE(d) = CON_CLOSE;
+			return;
+		}
+		
         d->character->in_room = real_room(GET_LOADROOM(d->character));
 
         if (PLR_FLAGGED(d->character, PLR_INVSTART))

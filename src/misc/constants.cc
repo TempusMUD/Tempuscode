@@ -667,6 +667,7 @@ extern const char *position_types[] = {
 // PLR2_x
 extern const char *player2_bits[] = {
 	"SOULLESS",
+	"BURIED",
 	"\n"
 };
 /* PLR_x */

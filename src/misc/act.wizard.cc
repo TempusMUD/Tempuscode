@@ -4941,6 +4941,7 @@ ACMD(do_set)
 	{ "qpoints",         LVL_GRGOD,        PC,   NUMBER },
 	{ "qpallow",         LVL_GRGOD,        PC,   NUMBER},   /*  95 */
 	{ "soulless",        LVL_GRGOD,        BOTH, BINARY }, 
+	{ "buried",			 LVL_ENTITY,	   PC, 	BINARY },
 	{ "\n", 0, BOTH, MISC }
     };
 
@@ -5576,6 +5577,13 @@ ACMD(do_set)
 		SET_OR_REMOVE(PLR2_FLAGS(vict), PLR2_SOULLESS);
 	}
 	break;
+	case 97:
+	if(IS_NPC(vict)) {
+		send_to_char("Just kill the bugger!\r\n",ch);
+		break;
+	} else {
+		SET_OR_REMOVE(PLR2_FLAGS(vict), PLR2_BURIED);
+	}
 
     default:
 	sprintf(buf, "Can't set that!");

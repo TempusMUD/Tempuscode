@@ -1635,20 +1635,22 @@ void mobile_activity(void) {
         !ROOM_FLAGGED(ch->in_room, ROOM_PEACEFUL) && random_fractional_4() ) {
         found = FALSE;
         for (vict=ch->in_room->people;vict&&!found; vict = vict->next_in_room) {
-        if ((IS_NPC(vict) && !MOB2_FLAGGED(ch, MOB2_ATK_MOBS))
-            || !CAN_SEE(ch, vict) || PRF_FLAGGED(vict, PRF_NOHASSLE) ||
-            IS_AFFECTED_2(vict, AFF2_PETRIFIED))
-            continue;
-        if (GET_MORALE(ch) + GET_LEVEL(ch) < 
-            number(GET_LEVEL(vict),  (GET_LEVEL(vict) << 2) + 
-               ((GET_HIT(vict) * GET_LEVEL(vict)) / GET_MAX_HIT(vict))) &&
-            AWAKE(vict))
-            continue;
-        else if (RACIAL_ATTACK(ch, vict) &&
-             (!IS_NPC(vict) || MOB2_FLAGGED(ch, MOB2_ATK_MOBS))) {
-            best_attack(ch, vict);
-            found = TRUE;
-        }
+			if ((IS_NPC(vict) && !MOB2_FLAGGED(ch, MOB2_ATK_MOBS))
+				|| !CAN_SEE(ch, vict) || PRF_FLAGGED(vict, PRF_NOHASSLE) ||
+				IS_AFFECTED_2(vict, AFF2_PETRIFIED))
+				continue;
+
+				// DIVIDE BY ZERO ERROR! FPE!
+			if (GET_MORALE(ch) + GET_LEVEL(ch) < 
+				number(GET_LEVEL(vict),  (GET_LEVEL(vict) << 2) + 
+				   ((GET_HIT(vict) * GET_LEVEL(vict)) / GET_MAX_HIT(vict))) &&
+				AWAKE(vict))
+				continue;
+			else if (RACIAL_ATTACK(ch, vict) &&
+				 (!IS_NPC(vict) || MOB2_FLAGGED(ch, MOB2_ATK_MOBS))) {
+				best_attack(ch, vict);
+				found = TRUE;
+			}
         }
     }
 

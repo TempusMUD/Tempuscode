@@ -209,24 +209,23 @@ load_messages( void )
 }
 
 
-void 
+inline void 
 update_pos( struct char_data * victim )
 {
-
     if ( GET_HIT( victim ) > 0 && GET_POS( victim ) == POS_SLEEPING )
-	GET_POS( victim ) = POS_RESTING;
+		GET_POS( victim ) = POS_RESTING;
     else if ( ( GET_HIT( victim ) > 0 ) && ( GET_POS( victim ) > POS_STUNNED ) &&
 	      FIGHTING( victim ) ) {
-	if ( ( victim->desc && victim->desc->wait <= 0 ) ||
-	     ( IS_NPC( victim ) && GET_MOB_WAIT( victim ) <= 0 ) )
-	    GET_POS( victim ) = POS_FIGHTING;
-	else
-	    return;
+		if ( ( victim->desc && victim->desc->wait <= 0 ) ||
+			 ( IS_NPC( victim ) && GET_MOB_WAIT( victim ) <= 0 ) )
+			GET_POS( victim ) = POS_FIGHTING;
+		else
+			return;
     } else if ( GET_HIT( victim ) > 0 ) {
-	if ( victim->in_room->isOpenAir() )
-	    GET_POS( victim ) = POS_FLYING;
-	else
-	    GET_POS( victim ) = POS_STANDING;
+		if ( victim->in_room->isOpenAir() )
+			GET_POS( victim ) = POS_FLYING;
+		else
+			GET_POS( victim ) = POS_STANDING;
     }
     else if ( GET_HIT( victim ) <= -11 )
 	GET_POS( victim ) = POS_DEAD;
@@ -234,8 +233,9 @@ update_pos( struct char_data * victim )
 	GET_POS( victim ) = POS_MORTALLYW;
     else if ( GET_HIT( victim ) <= -3 )
 	GET_POS( victim ) = POS_INCAP;
-    else
-	GET_POS( victim ) = POS_STUNNED;
+    else {
+		GET_POS( victim ) = POS_STUNNED;
+	}
 }
 
 void
@@ -1397,33 +1397,39 @@ die( struct char_data *ch, struct char_data *killer,
 	gain_exp( ch, -( GET_EXP( ch ) >> 3 ) );
   
     if ( PLR_FLAGGED( ch, PLR_KILLER ) && GET_LEVEL( ch ) < LVL_AMBASSADOR ) {
-	GET_EXP( ch ) = MAX( 0, MIN( GET_EXP( ch ) - ( GET_LEVEL( ch ) * GET_LEVEL( ch ) ),
-				     exp_scale[GET_LEVEL( ch ) - 2] ) );
-    
-	GET_LEVEL( ch ) = MAX( 1, GET_LEVEL( ch ) - 1 );
-	GET_CHA( ch ) = MAX( 3, GET_CHA( ch ) -2 );
-	GET_MAX_HIT( ch ) = MAX( 0, GET_MAX_HIT( ch ) - GET_LEVEL( ch ) );
+		GET_EXP( ch ) = MAX( 0, MIN( GET_EXP( ch ) - ( GET_LEVEL( ch ) * GET_LEVEL( ch ) ),
+						 exp_scale[GET_LEVEL( ch ) - 2] ) );
+		
+		GET_LEVEL( ch ) = MAX( 1, GET_LEVEL( ch ) - 1 );
+		GET_CHA( ch ) = MAX( 3, GET_CHA( ch ) -2 );
+		GET_MAX_HIT( ch ) = MAX( 0, GET_MAX_HIT( ch ) - GET_LEVEL( ch ) );
     }
   
     if ( !IS_NPC( ch ) && !ROOM_FLAGGED( ch->in_room, ROOM_ARENA ) ) {
-	if ( ch != killer )
-	    REMOVE_BIT( PLR_FLAGS( ch ), PLR_KILLER | PLR_THIEF );
-    
-	if ( GET_LEVEL( ch ) > 10 ) {
-	    if ( GET_LIFE_POINTS( ch ) > 0 ) {
-		GET_LIFE_POINTS( ch ) = 
-		    MAX( 0, GET_LIFE_POINTS( ch ) - number( 1, ( GET_LEVEL( ch ) >> 3 ) ) );
-	    }
-	    else if ( !number( 0, 3 ) )
-		GET_CON( ch ) = MAX( 3, GET_CON( ch ) - 1 );
-	    else if ( GET_LEVEL( ch ) > number( 20, 50 ) )
-		GET_MAX_HIT( ch ) = MAX( 0, GET_MAX_HIT( ch ) - dice( 3, 5 ) );
-	}
-	if ( IS_CYBORG( ch ) ) {
-	    GET_TOT_DAM( ch ) = 0;
-	    GET_BROKE( ch ) = 0;
-	}
-	GET_PC_DEATHS( ch )++;
+		if ( ch != killer )
+			REMOVE_BIT( PLR_FLAGS( ch ), PLR_KILLER | PLR_THIEF );
+		
+		if ( GET_LEVEL( ch ) > 10 ) {
+			if ( GET_LIFE_POINTS( ch ) <= 0 && GET_MAX_HIT( ch ) <= 1) {
+				if(IS_EVIL(ch) || IS_NEUTRAL(ch))
+				send_to_char("Your soul screaches in agony as it's torn from the mortal realms... forever.\r\n",ch);
+				else if(IS_GOOD(ch))
+				send_to_char("The righteous rejoice as your soul departs the mortal realms... forever.\r\n",ch);
+				SET_BIT(PLR2_FLAGS(ch), PLR2_BURIED);
+			} else if ( GET_LIFE_POINTS( ch ) > 0 ) {
+				GET_LIFE_POINTS( ch ) = 
+					MAX( 0, GET_LIFE_POINTS( ch ) - number( 1, ( GET_LEVEL( ch ) >> 3 ) ) );
+			} else if ( !number( 0, 3 ) ) {
+				GET_CON( ch ) = MAX( 3, GET_CON( ch ) - 1 );
+			} else if ( GET_LEVEL( ch ) > number( 20, 50 ) ) {
+				GET_MAX_HIT( ch ) = MAX( 1, GET_MAX_HIT( ch ) - dice( 3, 5 ) );
+			}
+		}
+		if ( IS_CYBORG( ch ) ) {
+			GET_TOT_DAM( ch ) = 0;
+			GET_BROKE( ch ) = 0;
+		}
+		GET_PC_DEATHS( ch )++;
     }
 
     REMOVE_BIT( AFF2_FLAGS( ch ), AFF2_ABLAZE );
@@ -4053,8 +4059,12 @@ perform_violence( void )
 		continue;
 	}
 
+	// Make sure they're fighting before they fight.
+	if (GET_POS(ch) != POS_FIGHTING) {
+		GET_POS(ch) = POS_FIGHTING;
+		continue;
+	}
 	prob = 1 + ( GET_LEVEL( ch ) / 7 ) + ( GET_DEX( ch ) << 1 );
-
 	if ( IS_RANGER( ch ) && ( !GET_EQ( ch, WEAR_BODY ) || 
 				  !OBJ_TYPE( GET_EQ( ch, WEAR_BODY ), ITEM_ARMOR ) ||
 				  !IS_METAL_TYPE( GET_EQ( ch, WEAR_BODY ) ) ) )

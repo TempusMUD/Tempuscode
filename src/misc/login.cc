@@ -53,10 +53,12 @@ show_menu(struct descriptor_data *d)
 	    CCYEL(d->character, C_NRM), CCRED(d->character, C_NRM),
 	    CCGRN(d->character, C_NRM), CCNRM(d->character, C_NRM));
 
-      
-    if ( PLR_FLAGGED( d->character, PLR_CRYO ) ) {
-	sprintf(buf, "%s\r\n                      %sYou are currently cryo rented.%s\r\n", buf,
-		CCCYN( d->character, C_NRM ), CCNRM( d->character, C_NRM ) );
+    if ( PLR2_FLAGGED( d->character, PLR2_BURIED ) ) {
+		sprintf(buf, "%s\r\n\r\n\r\n        %sYou have passed on, and been given a proper burial.%s",buf
+			,CCYEL( d->character, C_NRM ), CCNRM(d->character, C_NRM ) );
+	} else if ( PLR_FLAGGED( d->character, PLR_CRYO ) ) {
+		sprintf(buf, "%s\r\n                      %sYou are currently cryo rented.%s\r\n", buf,
+			CCCYN( d->character, C_NRM ), CCNRM( d->character, C_NRM ) );
     }
     
 
