@@ -1292,7 +1292,7 @@ advance_level(struct char_data *ch, byte keep_internal)
 		switch (char_class) {
 		case CLASS_MAGIC_USER:
 			add_hp[i] /= 5;
-			add_hp[i] += number(3, 8);
+			add_hp[i] += number(3, 10);
 			add_mana[i] += number(1, 11) + (GET_LEVEL(ch) / 3);
 			add_move[i] += number(1, 3);
 			break;
@@ -1333,7 +1333,7 @@ advance_level(struct char_data *ch, byte keep_internal)
 			add_move[i] += number(3, 8);
 			break;
 		case CLASS_RANGER:
-			add_hp[i] += number(5, 13);
+			add_hp[i] += number(4, 12);
 			add_mana[i] = (int)(add_mana[i] * 0.6);
 			add_mana[i] += number(1, 6) + (GET_LEVEL(ch) / 8);
 			add_move[i] += number(6, 14);
