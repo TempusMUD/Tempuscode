@@ -551,12 +551,17 @@ void
 Account::move_char(long id, Account *dest)
 {
 	vector<long>::iterator it;
+	char *name;
 
 	// Remove character from account
 	it = lower_bound(_chars.begin(), _chars.end(), id);
 	if (it != _chars.end())
 		_chars.erase(it);
 
+	// Get the player's name before we delete from player table
+	name = tmp_strdup(playerIndex.getName(*it));
+	playerIndex.remove(*it);
+	playerIndex.add(*it, name, dest->_id );
 	dest->_chars.push_back(id);
 	save_to_xml();
 	dest->save_to_xml();
