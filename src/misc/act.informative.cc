@@ -3235,7 +3235,8 @@ ACMD(do_who)
 				{
 				++num_can_see;
 				sprintf(buf2, "%s%s%s%s%s%s", buf2,
-						CCNRM(ch, C_NRM), PLR_FLAGGED(tch, PLR_TESTER) ?
+                        (GET_LEVEL(tch) >= LVL_AMBASSADOR ? CCNRM_GRN(ch, C_NRM) : ""),
+						PLR_FLAGGED(tch, PLR_TESTER) ?
 						tester_buf : PRF2_FLAGGED(tch, PRF2_NOWHO) ? nowho_buf :"",  
 						GET_NAME(tch), GET_TITLE(tch), CCNRM(ch, C_NRM));
 				if (!who_i && 
