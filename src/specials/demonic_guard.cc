@@ -188,7 +188,6 @@ SPECIAL(demonic_guard)
 {
 	Creature *self = (Creature *)me;
 	obj_data *brain;
-	criminal_rec *cur_rec;
 	int vict_id;
 
 	if (spec_mode != SPECIAL_TICK && spec_mode != SPECIAL_DEATH)
@@ -199,29 +198,27 @@ SPECIAL(demonic_guard)
 		return false;
 	vict_id = GET_OBJ_VAL(brain, 3);
 
-	for (cur_rec = criminal_list;cur_rec;cur_rec = cur_rec->next)
-		if (cur_rec->idnum == vict_id)
-			break;
 	if (spec_mode == SPECIAL_DEATH) {
 		brain = unequip_char(self, WEAR_HEAD, MODE_IMPLANT);
 		extract_obj(brain);
 		return false;
 	}
 
-	if (!HUNTING(self) || GET_REPUTATION(ch) < 700) {
+	ch = get_char_in_world_by_idnum(vict_id);
+	if (!ch || !HUNTING(self) || GET_REPUTATION(ch) < 700) {
 		act("$n vanishes into the mouth of an interplanar conduit.",
-			FALSE, ch, 0, 0, TO_ROOM);
+			FALSE, self, 0, 0, TO_ROOM);
 		self->purge(true);
 		return false;
 	}
 
 	if (HUNTING(self)->in_room->zone != self->in_room->zone) {
 		act("$n vanishes into the mouth of an interplanar conduit.",
-			FALSE, ch, 0, 0, TO_ROOM);
+			FALSE, self, 0, 0, TO_ROOM);
 		char_from_room(self);
 		char_to_room(self, HUNTING(self)->in_room);
 		act("The air suddenly cracks open and $n steps out!",
-			FALSE, ch, 0, 0, TO_ROOM);
+			FALSE, self, 0, 0, TO_ROOM);
 		return true;
 	}
 
