@@ -50,6 +50,7 @@
 #define SRCH_NOHOOD             (1 << 23)
 #define SRCH_NOABBREV           (1 << 24)
 #define SRCH_NOAFFMOB           (1 << 25)
+#define SRCH_NOPLAYER           (1 << 26)
 
 
 #define NUM_SRCH_BITS           26

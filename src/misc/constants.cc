@@ -117,6 +117,7 @@ extern const char *search_bits[] = {
   "NOHOOD",
   "NOABBREV",
   "NOAFFMOB",
+  "NOPLAYER",
   "\n"
 };
 
