@@ -558,10 +558,9 @@ ASPELL(song_exposure_overture)
 {
     int prob;
     int percent;
-    char *to_char;
-    char *to_vict;
-    char *to_room;
-    bool found = false;
+    const char *to_char = NULL;
+    const char *to_vict = NULL;
+    const char *to_room = NULL;
 
     if (!ch)
         return;
@@ -580,44 +579,40 @@ ASPELL(song_exposure_overture)
         if (prob < percent)
             continue;
         
-        found = false;
         if (affected_by_spell(tch, SPELL_INVISIBLE)) {
-            found = true;
             affect_from_char(tch, SPELL_INVISIBLE);
-            to_char = tmp_sprintf("Your music causes $N to fade into view!");
-            to_vict = tmp_sprintf("$n's music causes you to fade into view!");
-            to_room = tmp_sprintf("$n's music causes $N to fade into view!");
+            to_char = "Your music causes $N to fade into view!";
+            to_vict = "$n's music causes you to fade into view!";
+            to_room = "$n's music causes $N to fade into view!";
         }
 
         if (affected_by_spell(tch, SPELL_GREATER_INVIS)) {
-            found = true;
             affect_from_char(tch, SPELL_GREATER_INVIS);
-            to_char = tmp_sprintf("Your music causes $N to fade into view!");
-            to_vict = tmp_sprintf("$n's music causes you to fade into view!");
-            to_room = tmp_sprintf("$n's music causes $N to fade into view!");
+            to_char = "Your music causes $N to fade into view!";
+            to_vict = "$n's music causes you to fade into view!";
+            to_room = "$n's music causes $N to fade into view!";
         }
 
         if (affected_by_spell(tch, SPELL_TRANSMITTANCE)) {
-            found = true;
             affect_from_char(tch, SPELL_TRANSMITTANCE);
-            to_char = tmp_sprintf("$N is no longer transparent!");
-            to_vict = tmp_sprintf("You are no longer transparent!!");
-            to_room = tmp_sprintf("$N is no longer transparent!");
+            to_char = "$N is no longer transparent!";
+            to_vict = "You are no longer transparent!!";
+            to_room = "$N is no longer transparent!";
         }
 
         if (IS_AFFECTED(tch, AFF_HIDE)) {
-            found = true;
             REMOVE_BIT(AFF_FLAGS(tch), AFF_HIDE);
-            to_char = tmp_sprintf("$N is no longer hidden!");
-            to_vict = tmp_sprintf("You are no longer hidden!!");
-            to_room = tmp_sprintf("$N is no longer hidden!");
+            to_char = "$N is no longer hidden!";
+            to_vict = "You are no longer hidden!!";
+            to_room = "$N is no longer hidden!";
         }
 
-        if (found) {
+		if (to_char)
             act(to_char, false, ch, NULL, tch, TO_CHAR);
+		if (to_room)
             act(to_room, false, ch, NULL, tch, TO_NOTVICT);
+		if (to_vict)
             act(to_vict, false, ch, NULL, tch, TO_VICT);
-        }
     }
 
     gain_skill_prof(ch, SONG_EXPOSURE_OVERTURE);
