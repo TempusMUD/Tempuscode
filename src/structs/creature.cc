@@ -33,6 +33,7 @@ Creature::~Creature(void)
 {
 	clear();
 	delete player_specials;
+	free(player.title);
 }
 
 bool
@@ -840,6 +841,8 @@ Creature::clear(void)
 
 	player_specials = new player_special_data;
 	memset((char *)player_specials, 0, sizeof(player_special_data));
+
+	set_title(this, "");
 }
 
 #undef __Creature_cc__

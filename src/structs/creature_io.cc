@@ -832,7 +832,12 @@ Creature::loadFromXML( const char *path )
 				}
 			}
         } else if ( xmlMatches(node->name, "title") ) {
-			GET_TITLE(this) = (char*)xmlNodeGetContent( node );
+			char *txt;
+			
+			txt = (char*)xmlNodeGetContent( node );
+			set_title(this, txt);
+			if (txt)
+				free(txt);
         } else if ( xmlMatches(node->name, "affect") ) {
 			affected_type af;
 			af.type = xmlGetIntProp( node, "type" );
