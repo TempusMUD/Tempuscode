@@ -397,23 +397,40 @@ namespace Security {
         return false;
      }
 
+    /**
+     * Returns an iterator pointing to the named group
+     * in the groups list or groups.end() if not found.
+    **/
+    list<Group>::iterator findGroup( const char* name ) {
+        list<Group>::iterator it = groups.begin(); 
+        for( ; it != groups.end(); ++it ) {
+            if( (*it) == name )
+                break;
+        }
+        return it;
+    }
 
     /*
      * Check membership in a particular group by name.
+     * Comma delimited names are also accepted.
      */
      bool isMember( char_data *ch, const char* group_name ) {
         if( ch->getLevel() == LVL_GRIMP )
             return true;
         if( group_name == NULL || *group_name == '\0' )
             return false;
-        list<Group>::iterator it = groups.begin(); 
-        for( ; it != groups.end(); ++it ) {
-            if( (*it) == group_name )
-                return (*it).member(ch);
+
+        Tokenizer tokens(group_name,',');
+        char token[strlen(group_name) + 1];
+
+        while( tokens.next(token) ) {
+            list<Group>::iterator it = findGroup(token);
+            if( it != groups.end() && (*it).member(ch) )
+                return true;
         }
-        trace("isMember check: false");
         return false;
     }
+
     /*
      * send a list of the current groups to a character
      */

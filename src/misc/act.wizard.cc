@@ -5217,68 +5217,68 @@ ACMD(do_set)
         { "thirst",          LVL_IMMORT,  BOTH, MISC,   "WizardFull" },
         { "killer",          LVL_IMMORT,    PC,   BINARY, "AdminFull" },
         { "thief",           LVL_IMMORT,    PC,   BINARY, "AdminFull" },
-        { "level",           LVL_IMMORT,  BOTH, NUMBER, "WizardFull" },
-        { "room",            LVL_IMMORT,  BOTH, NUMBER, "WizardFull" },  /* 35 */
-        { "roomflag",        LVL_IMMORT,  PC,   BINARY, "WizardFull" },
+        { "level",           LVL_IMMORT,    BOTH, NUMBER, "WizardFull" },
+        { "room",            LVL_IMMORT,    BOTH, NUMBER, "WizardFull" },  /* 35 */
+        { "roomflag",        LVL_IMMORT,    PC,   BINARY, "WizardFull" },
         { "siteok",          LVL_IMMORT,    PC,   BINARY, "AdminFull" },
-        { "deleted",         LVL_IMMORT,  PC,   BINARY, "AdminFull" },
+        { "deleted",         LVL_IMMORT,    PC,   BINARY, "AdminFull" },
         { "class",           LVL_IMMORT,    BOTH, MISC,   "WizardFull" },
-        { "nowizlist",       LVL_IMMORT,  PC,   BINARY, "WizardAdmin" },  /* 40 */
+        { "nowizlist",       LVL_IMMORT,    PC,   BINARY, "WizardAdmin" },  /* 40 */
         { "quest",           LVL_IMMORT,    PC,   BINARY, "Coder" },
         { "loadroom",        LVL_IMMORT,    PC,   MISC,   "Coder" },
         { "color",           LVL_IMMORT,    PC,   BINARY, "Coder" },
-        { "idnum",           LVL_GRIMP,    PC,   NUMBER, "Coder" },
-        { "passwd",          LVL_LUCIFER,  PC,   MISC,   "Coder" },    /* 45 */
+        { "idnum",           LVL_GRIMP,     PC,   NUMBER, "Coder" },
+        { "passwd",          LVL_LUCIFER,   PC,   MISC,   "Coder" },    /* 45 */
         { "nodelete",        LVL_IMMORT,    PC,   BINARY, "WizardFull" },
-        { "cha",             LVL_IMMORT,  BOTH, NUMBER, "WizardFull" },
+        { "cha",             LVL_IMMORT,    BOTH, NUMBER, "WizardFull" },
         { "hometown",        LVL_IMMORT,    PC,   NUMBER, "WizardFull" },
         { "race",            LVL_IMMORT,    BOTH, MISC,   "WizardFull" },
-        { "height",          LVL_IMMORT,  BOTH, NUMBER, "WizardFull" },   /* 50 */
+        { "height",          LVL_IMMORT,    BOTH, NUMBER, "WizardFull" },   /* 50 */
         { "weight",          LVL_IMMORT,    BOTH, NUMBER, "WizardFull" },
-        { "nosnoop",         LVL_ENTITY,   PC,   BINARY, "WizardAdmin" },
+        { "nosnoop",         LVL_ENTITY,    PC,   BINARY, "WizardAdmin" },
         { "clan",            LVL_IMMORT,    PC,   MISC,   "WizardFull" },
         { "leader",          LVL_IMMORT,    PC,   BINARY, "WizardFull" },
-        { "life",            LVL_IMMORT,  PC,   NUMBER, "AdminFull" },  /* 55 */
-        { "debug",           LVL_IMMORT,      PC,   BINARY, "WizardBasic" },
+        { "life",            LVL_IMMORT,    PC,   NUMBER, "AdminFull" },  /* 55 */
+        { "debug",           LVL_IMMORT,    PC,   BINARY, "WizardBasic" },
         { "page",            LVL_IMMORT,    PC,   NUMBER, "WizardFull" },
         { "screen",          LVL_IMMORT,    PC,   NUMBER, "Coder" },
         { "remort_class",    LVL_IMMORT,    BOTH, MISC,   "WizardFull" },    
-        { "hunting",         LVL_IMMORT,  NPC,  MISC,   "Coder" },    /* 60 */
-        { "fighting",        LVL_IMMORT,  BOTH, MISC,   "Coder" },
-        { "mobkills",        LVL_IMMORT,  PC,   NUMBER, "Coder" },
-        { "pkills",          LVL_IMMORT,  PC,   NUMBER, "AdminFull" },
-        { "newbiehelper",    LVL_ETERNAL,  PC,   BINARY, "Coder" },
-        { "holylight",       LVL_IMMORT,  PC,   BINARY, "Coder" },  /* 65 */
+        { "hunting",         LVL_IMMORT,    NPC,  MISC,   "Coder" },    /* 60 */
+        { "fighting",        LVL_IMMORT,    BOTH, MISC,   "Coder" },
+        { "mobkills",        LVL_IMMORT,    PC,   NUMBER, "Coder" },
+        { "pkills",          LVL_IMMORT,    PC,   NUMBER, "AdminFull" },
+        { "newbiehelper",    LVL_ETERNAL,   PC,   BINARY, "Coder" },
+        { "holylight",       LVL_IMMORT,    PC,   BINARY, "Coder" },  /* 65 */
         { "notitle",         LVL_IMMORT,    PC,   BINARY, "AdminFull" },
-        { "remortinvis",     LVL_IMMORT,   PC,   NUMBER, "AdminBasic" },
+        { "remortinvis",     LVL_IMMORT,    PC,   NUMBER, "AdminBasic" },
         { "toughguy",        LVL_IMMORT,    PC,   BINARY, "AdminFull" },
-        { "nointwiz",        LVL_ELEMENT,  PC,   BINARY, "WizardFull" },
-        { "halted",          LVL_IMMORT,   PC,   BINARY, "WizardFull" },   /* 70 */
-        { "syslog",          LVL_IMMORT,  PC,   MISC,   "WizardFull" },
-        { "broken",          LVL_IMMORT,  PC,   NUMBER, "WizardFull" },
-        { "totaldamage",     LVL_IMMORT,  PC,   NUMBER, "Coder" },
-        { "oldchar_class",   LVL_IMMORT,  PC,   MISC,   "WizardFull" },
-        { "olcgod",          LVL_IMMORT,  PC,   BINARY, "OLCAdmin" },   /* 75 */
-        { "tester",          LVL_IMMORT,  PC,   BINARY, "OlcWorldWrite" },
-        { "mortalized",      LVL_IMPL,     PC,   BINARY, "Coder" },
-        { "noaffects",       LVL_IMMORT,  PC,   BINARY, "Coder" },
-        { "questor",         LVL_ELEMENT,  PC,   BINARY, "Coder" },
-        { "age_adjust",      LVL_IMMORT,  PC,   NUMBER, "Coder" },   /* 80 */
-        { "cash",            LVL_IMMORT,  BOTH, NUMBER, "AdminFull" },
-        { "generation",      LVL_IMMORT,  PC,   NUMBER, "WizardFull" },
-        { "path",            LVL_LUCIFER,  NPC,  MISC,   "Coder" },
+        { "nointwiz",        LVL_ELEMENT,   PC,   BINARY, "WizardFull" },
+        { "halted",          LVL_IMMORT,    PC,   BINARY, "WizardFull" },   /* 70 */
+        { "syslog",          LVL_IMMORT,    PC,   MISC,   "WizardFull" },
+        { "broken",          LVL_IMMORT,    PC,   NUMBER, "WizardFull" },
+        { "totaldamage",     LVL_IMMORT,    PC,   NUMBER, "Coder" },
+        { "oldchar_class",   LVL_IMMORT,    PC,   MISC,   "WizardFull" },
+        { "olcgod",          LVL_IMMORT,    PC,   BINARY, "OLCAdmin" },   /* 75 */
+        { "tester",          LVL_IMMORT,    PC,   BINARY, "OlcWorldWrite" },
+        { "mortalized",      LVL_IMPL,      PC,   BINARY, "Coder" },
+        { "noaffects",       LVL_IMMORT,    PC,   BINARY, "Coder" },
+        { "questor",         LVL_ELEMENT,   PC,   BINARY, "Coder" },
+        { "age_adjust",      LVL_IMMORT,    PC,   NUMBER, "Coder" },   /* 80 */
+        { "cash",            LVL_IMMORT,    BOTH, NUMBER, "AdminFull" },
+        { "generation",      LVL_IMMORT,    PC,   NUMBER, "WizardFull" },
+        { "path",            LVL_LUCIFER,   NPC,  MISC,   "Coder" },
         { "lightread",       LVL_IMMORT,    PC,   BINARY, "Coder" },
         { "remort_tough",    LVL_IMMORT,    PC,   BINARY, "AdminFull" },  /* 85 */
         { "council",         LVL_IMMORT,    PC,   BINARY, "WizardFull" }, 
         { "nopost",          LVL_IMMORT,    PC,   BINARY, "AdminBasic" },
         { "logging",         LVL_CREATOR,   PC,   BINARY, "WizardAdmin" },
-        { "noshout",         LVL_IMMORT,   PC,   BINARY, "WizardFull" },
-        { "nopk",            LVL_IMMORT,  PC,   BINARY, "AdminFull" },   /* 90 */
-        { "soilage",         LVL_IMMORT,      PC,   MISC,   "WizardBasic" },
-        { "econet",          LVL_IMMORT,  BOTH, NUMBER, "AdminFull" },
+        { "noshout",         LVL_IMMORT,    PC,   BINARY, "WizardFull" },
+        { "nopk",            LVL_IMMORT,    PC,   BINARY, "AdminFull" },   /* 90 */
+        { "soilage",         LVL_IMMORT,    PC,   MISC,   "WizardBasic" },
+        { "econet",          LVL_IMMORT,    BOTH, NUMBER, "AdminFull" },
         { "specialization",  LVL_IMMORT,    PC,   MISC,   "AdminFull" },
-        { "qpoints",         LVL_IMMORT,    PC,   NUMBER, "QuestAdmin" },
-        { "qpallow",         LVL_IMMORT,    PC,   NUMBER, "QuestAdmin" },   /*  95 */
+        { "qpoints",         LVL_IMMORT,    PC,   NUMBER, "QuestorAdmin,WizardFull" },
+        { "qpallow",         LVL_IMMORT,    PC,   NUMBER, "QuestorAdmin,WizardFull" },   /*  95 */
         { "soulless",        LVL_IMMORT,    BOTH, BINARY, "WizardFull" }, 
         { "buried",          LVL_IMMORT,    PC,   BINARY, "AdminFull" },
         { "speed",           LVL_IMMORT,    PC,   NUMBER, "Coder" },
