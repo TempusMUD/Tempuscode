@@ -3324,6 +3324,9 @@ extern const char *spell_bits[] = {
 	"!WTR",
 	"ZAP",
 	"!SUN",
+	"ZEN",
+	"MERC",
+	"SONG",
 	"\n"
 };
 
