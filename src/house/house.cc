@@ -294,13 +294,12 @@ House_load(int atrium)
 		return 0;
 	if (!House_get_filename(atrium, fname))
 		return 0;
-	if (!(fl = fopen(fname, "r"))) {
-		/* no file found */
+	fl = fopen(fname, "r");
+
+	if (!fl)
 		return 0;
-	}
 
 	while (!feof(fl)) {
-
 		tmpo = Obj_from_store(fl, true);
 
 		if (!tmpo || !(rnum = tmpo->in_room))
@@ -344,7 +343,8 @@ HouseDoor_load(int atrium)
 		return 0;
 	if (!HouseDoor_get_filename(atrium, fname))
 		return 0;
-	if (!(fl = fopen(fname, "r")))	// file does not exist, no problem
+	fl = fopen(fname, "r");
+	if (!fl)
 		return 0;
 
 	while (!feof(fl)) {
@@ -383,7 +383,7 @@ house_no_rent(struct obj_data *obj)
 }
 
 int
-House_save(struct obj_data *obj, FILE * fp)
+House_save(struct obj_data *obj, FILE *fp)
 {
 	if (obj) {
 		House_save(obj->next_content, fp);
@@ -453,7 +453,9 @@ House_crashsave(int vnum)
 	// open house object file
 	if (!House_get_filename(atrium, buf))
 		return;
-	if (!(fp = fopen(buf, "wb"))) {
+
+	fp = fopen(buf, "wb");
+	if (!fp) {
 		perror("SYSERR: Error saving house file");
 		return;
 	}
