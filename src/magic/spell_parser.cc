@@ -690,7 +690,7 @@ say_spell(struct char_data * ch, int spellnum, struct char_data * tch,
 
     while (*(lbuf + ofs)) {
         for (j = 0; *(syls[j].org); j++) {
-            if (!strncmp(syls[j].org, lbuf + ofs, strlen(syls[j].org))) {
+            if (!strncasecmp(syls[j].org, lbuf + ofs, strlen(syls[j].org))) {
                 strcat(buf, syls[j].new_syl);
                 ofs += strlen(syls[j].org);
             }
