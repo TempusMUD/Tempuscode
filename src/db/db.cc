@@ -408,6 +408,14 @@ boot_db(void)
 		slog("Done.");
 	}
 
+    if( mini_mud ) {
+        slog("HOUSE: Mini-mud detected. Houses not loading.");
+	} else {
+		slog("HOUSE: Booting houses.");
+		Housing.load();
+		Housing.countObjects();
+	}
+
 	if (!no_initial_zreset) {
 		for (zone = zone_table; zone; zone = zone->next) {
 			sprintf(buf2, "Resetting %s (rms %d-%d).",
@@ -425,14 +433,6 @@ boot_db(void)
 		slog("SYSERR: Help System Boot FAILED.");
 
 	reset_q.head = reset_q.tail = NULL;
-
-    if( mini_mud ) {
-        slog("HOUSE: Mini-mud detected. Houses not loading.");
-	} else {
-		slog("HOUSE: Booting houses.");
-		Housing.load();
-		Housing.countObjects();
-	}
 
 	boot_time = time(0);
 
