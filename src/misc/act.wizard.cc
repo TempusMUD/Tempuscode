@@ -593,18 +593,20 @@ ACMD(do_teleport)
 
 ACMD(do_vnum)
 {
-    two_arguments(argument, buf, buf2);
+	const char *mode;
 
-    if (!*buf || !*buf2 || (!is_abbrev(buf, "mob") && !is_abbrev(buf, "obj"))) {
+    mode = tmp_getword(&argument);
+    if (!*mode || !*argument ||
+		(!is_abbrev(mode, "mob") && !is_abbrev(mode, "obj"))) {
         send_to_char(ch, "Usage: vnum { obj | mob } <name>\r\n");
         return;
     }
-    if (is_abbrev(buf, "mob"))
-        if (!vnum_mobile(buf2, ch))
+    if (is_abbrev(mode, "mob"))
+        if (!vnum_mobile(argument, ch))
             send_to_char(ch, "No mobiles by that name.\r\n");
 
-    if (is_abbrev(buf, "obj"))
-        if (!vnum_object(buf2, ch))
+    if (is_abbrev(mode, "obj"))
+        if (!vnum_object(argument, ch))
             send_to_char(ch, "No objects by that name.\r\n");
 }
 
