@@ -54,6 +54,7 @@ void prog_do_echo(prog_env *env, prog_evt *evt, char *args);
 void prog_do_mobflag(prog_env *env, prog_evt *evt, char *args);
 void prog_do_ldesc(prog_env *env, prog_evt *evt, char *args);
 void prog_do_damage(prog_env *env, prog_evt *evt, char *args);
+void prog_do_doorset(prog_env *env, prog_evt *evt, char *args);
 
 //external prototypes
 struct Creature *real_mobile_proto(int vnum);
@@ -94,6 +95,7 @@ prog_command prog_cmds[] = {
 	{ "mobflag",	true,	prog_do_mobflag },
 	{ "ldesc",      true,   prog_do_ldesc },
 	{ "damage",     true,   prog_do_damage },
+	{ "doorset",    true,   prog_do_doorset },
 	{ NULL,		false,	prog_do_halt }
 };
 
@@ -631,7 +633,7 @@ prog_do_mobflag(prog_env *env, prog_evt *evt, char *args)
 
 	args += 1;
 	skip_spaces(&args);
-	while ((arg = tmp_getword(&args)) != NULL) {
+	while (*(arg = tmp_getword(&args))) {
 		flag_idx = search_block(arg, action_bits_desc, false);
 		if (flag_idx != -1)
 			flags |= (1 << flag_idx);
@@ -751,6 +753,51 @@ prog_do_damage(prog_env *env, prog_evt *evt, char *args)
 				(!mobs || IS_NPC(*it)))
 		  damage(NULL, *it, damage_amt, damage_type, WEAR_RANDOM);
 	search_nomessage = false;
+}
+
+void
+prog_do_doorset(prog_env *env, prog_evt *evt, char *args)
+{
+  // *doorset <room vnum> <direction> +/- <doorflags>
+	bool op;
+	char *arg;
+	room_data *room;
+	int dir, flag_idx = 0, flags = 0;
+
+	arg = tmp_getword(&args);
+	room = real_room(atoi(arg));
+	if (!room)
+	  return;
+
+	arg = tmp_getword(&args);
+	dir = search_block(arg, dirs, false);
+	if (dir < 0)
+	  return;
+
+	if (*args == '+')
+		op = true;
+	else if (*args == '-')
+		op = false;
+	else
+		return;
+
+	args += 1;
+	skip_spaces(&args);
+	while (*(arg = tmp_getword(&args))) {
+		flag_idx = search_block(arg, exit_bits, false);
+		if (flag_idx != -1)
+			flags |= (1 << flag_idx);
+	}
+
+	if (!ABS_EXIT(room, dir)) {
+	  CREATE(ABS_EXIT(room, dir), struct room_direction_data, 1);
+	  ABS_EXIT(room, dir)->to_room = NULL;
+	}
+
+	if (op) 
+	  ABS_EXIT(room, dir)->exit_info |= flags;
+	else
+	  ABS_EXIT(room, dir)->exit_info &= ~flags;
 }
 
 void
