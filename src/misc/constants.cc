@@ -639,7 +639,7 @@ extern const char *planes[] =
   "Costal",
   "42",
   "Heaven",
-  "44",
+  "Elysium",
   "45",
   "46",
   "47",
@@ -717,7 +717,7 @@ extern const char *position_types[] = {
 extern const char *player2_bits[] = {
 	"SOULLESS",
 	"BURIED",
-        "IN_COMBAT",
+    "IN_COMBAT",
 	"\n"
 };
 /* PLR_x */
