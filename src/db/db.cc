@@ -2238,6 +2238,12 @@ load_zones(FILE * fl, char *zonename)
 		line_num += get_line(fl, buf);
 	} else
 		new_zone->co_owner_idnum = -1;
+	
+	if (!strncmp(buf, "RP ", 3)) {
+		new_zone->respawn_pt = atoi(buf + 3);
+		line_num += get_line(fl, buf);
+	} else
+		new_zone->respawn_pt = 0;
 
 	if (sscanf(buf, " %d %d %d %d %d %s %d %d", &new_zone->top,
 			&new_zone->lifespan, &new_zone->reset_mode,
