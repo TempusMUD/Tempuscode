@@ -129,6 +129,11 @@ namespace Security {
             bool operator>( const Group& g )  
                 { return ( strcasecmp(_name, g._name) > 0 ); }
 
+            /* 
+			 * Sends a list of this group's members to the given character. 
+			 * without player id's etc.
+			 */
+            bool sendPublicMemberList( char_data *ch );
             /* Sends a list of this group's members to the given character. */
             bool sendMemberList( char_data *ch );
             /* Sends a list of this group's members to the given character. */
