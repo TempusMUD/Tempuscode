@@ -1814,6 +1814,12 @@ skip_spaces(char **string)
 	for (; **string && isspace(**string); (*string)++);
 }
 
+void
+skip_spaces(const char **string)
+{
+	for (; **string && isspace(**string); (*string)++);
+}
+
 
 char *
 delete_doubledollar(char *string)
