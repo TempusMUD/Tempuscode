@@ -525,8 +525,9 @@ namespace Security {
         int n = 0;
         out_buf[0] = '\0';
         list<Group>::iterator it = groups.begin();
-        for( ; it != groups.end(); ++it,++n ) {
+        for( ; it != groups.end(); ++it ) {
             if( (*it).member(id) && (*it).getCommandCount() > 0 ) {
+                ++n;
                 send_to_char(ch, "%s%s%s\r\n", CCYEL(ch,C_NRM),
                         (*it).getName(), CCNRM(ch,C_NRM) );
                 (*it).sendCommandList( ch, false );
