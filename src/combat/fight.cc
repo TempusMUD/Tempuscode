@@ -4052,6 +4052,10 @@ perform_violence( void )
 	if ( CHECK_SKILL( ch, SKILL_DBL_ATTACK ) ) 
 	    prob += ( int ) ( ( CHECK_SKILL( ch, SKILL_DBL_ATTACK ) * 0.15 ) +
 			      ( CHECK_SKILL( ch, SKILL_TRIPLE_ATTACK ) * 0.17 ) );
+	//if ( CHECK_SKILL(ch, SKILL_MELEE_COMBAT_TAC) &&
+	//	affected_by_spell(ch, SKILL_MELEE_COMBAT_TAC))
+	//	prob += (int) ( CHECK_SKILL(ch, SKILL_MELEE_COMBAT_TAC) * 1.10;
+		
 	
 	if ( IS_AFFECTED( ch, AFF_ADRENALINE ) )
 	    prob = ( int ) ( prob * 1.10 );
