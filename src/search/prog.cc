@@ -715,8 +715,10 @@ prog_do_damage(prog_env *env, prog_evt *evt, char *args)
 	return;
   } else if (!strcmp(target_arg, "target")) {
 	// Transport the target, which is always a creature
-	if (!env->target)
+	if (!env->target) {
+	  search_nomessage = false;
 	  return;
+	}
 	damage(NULL, env->target, damage_amt, damage_type, WEAR_RANDOM);
 	search_nomessage = false;
 	return;
