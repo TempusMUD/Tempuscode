@@ -194,15 +194,18 @@ malovent_holy_touch(Creature * ch, Creature * vict)
 void
 healing_holytouch(Creature * ch, Creature * vict)
 {
-	int mod;
-	mod = (GET_LEVEL(ch) + (CHECK_SKILL(ch, SKILL_HOLY_TOUCH) >> 4));
+	int mod, gen;
+
+	gen = GET_REMORT_GEN(ch);
+	mod = (GET_LEVEL(ch) + gen + CHECK_SKILL(ch, SKILL_HOLY_TOUCH) / 16);
+
 	if (GET_MOVE(ch) > mod) {
 		if (GET_MANA(ch) < 5) {
 			send_to_char(ch, "You are too spiritually exhausted.\r\n");
 			return;
 		}
 		GET_HIT(vict) = MIN(GET_MAX_HIT(vict), GET_HIT(vict) + mod);
-		GET_MANA(ch) = MAX(0, GET_MANA(ch) - 5);
+		GET_MANA(ch) = MAX(0, GET_MANA(ch) - (mod / 2));
 		GET_MOVE(ch) = MAX(GET_MOVE(ch) - mod, 0);
 		if (ch == vict) {
 			send_to_char(ch, "You cover your head with your hands and pray.\r\n");
@@ -217,12 +220,34 @@ healing_holytouch(Creature * ch, Creature * vict)
 		}
 		if (GET_LEVEL(ch) < LVL_AMBASSADOR)
 			WAIT_STATE(ch, PULSE_VIOLENCE);
-		if (IS_SICK(vict)
-			&& CHECK_SKILL(ch, SKILL_CURE_DISEASE) > number(30, 100)) {
-			if (affected_by_spell(vict, SPELL_SICKNESS))
-				affect_from_char(vict, SPELL_SICKNESS);
-			else
-				REMOVE_BIT(AFF3_FLAGS(vict), AFF3_SICKNESS);
+
+		if (IS_GOOD(ch)) {
+			if (gen > 0 && affected_by_spell(vict, TYPE_MALOVENT_HOLYTOUCH))
+				affect_from_char(vict, TYPE_MALOVENT_HOLYTOUCH);
+			if (gen > 1) {
+				if (affected_by_spell(vict, SPELL_SICKNESS))
+					affect_from_char(vict, SPELL_SICKNESS);
+				REMOVE_BIT(AFF2_FLAGS(vict), AFF3_SICKNESS);
+			}
+			if (gen > 2 && affected_by_spell(vict, SPELL_POISON))
+				affect_from_char(vict, SPELL_POISON);
+			if (gen > 3 && affected_by_spell(vict, TYPE_RAD_SICKNESS))
+				affect_from_char(vict, TYPE_RAD_SICKNESS);
+			if (gen > 4 && affected_by_spell(vict, SPELL_BLINDNESS))
+				affect_from_char(vict, SPELL_BLINDNESS);
+			if (gen > 5 && affected_by_spell(vict, SKILL_GOUGE))
+				affect_from_char(vict, SKILL_GOUGE);
+			if (gen > 6 && affected_by_spell(vict, SKILL_HAMSTRING))
+				affect_from_char(vict, SKILL_HAMSTRING);
+			if (gen > 7 && affected_by_spell(vict, SPELL_CURSE))
+				affect_from_char(vict, SPELL_CURSE);
+			if (gen > 8 && affected_by_spell(vict, SPELL_MOTOR_SPASM))
+				affect_from_char(vict, SPELL_MOTOR_SPASM);
+			if (gen > 9) {
+				if (affected_by_spell(vict, SPELL_PETRIFY))
+					affect_from_char(vict, SPELL_PETRIFY);
+				REMOVE_BIT(AFF2_FLAGS(vict), AFF2_PETRIFIED);
+			}
 		}
 	} else {
 		send_to_char(ch, "You must rest awhile before doing this again.\r\n");
