@@ -4,10 +4,10 @@ CCFLAGS=-g -Wall -Winline -Wcast-qual -I/usr/include/libxml2
 CXXFLAGS=$(CCFLAGS) -I$(INCLUDE)
 
 SUBDIRS= \
-	ban boards bomb clan classes combat db dyntext editor elevators \
-	events flow_room guns help house intermud interpreter iscript magic mail \
-	misc mobiles net objsave olc paths quest search shop \
-	smokes social specials util vehicle weather structs map
+	clan classes combat db dyntext editor elevators \
+	events flow_room help house intermud interpreter iscript magic \
+	misc mobiles net objects olc quest search \
+	social specials util weather structs map
 
 MAKEFLAGS=-s -k 4 -j 4
 OBJ=ObjFiles

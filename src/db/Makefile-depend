@@ -1,4 +1,10 @@
+$(OBJ)/constants.o : constants.cc \
+	$(INCLUDE)/structs.h $(INCLUDE)/spells.h 
+	$(CXX) -c $(CXXFLAGS) constants.cc         -o $(OBJ)/constants.o
 $(OBJ)/db.o : db.cc \
 	$(INCLUDE)/structs.h $(INCLUDE)/utils.h $(INCLUDE)/db.h $(INCLUDE)/comm.h $(INCLUDE)/handler.h $(INCLUDE)/spells.h $(INCLUDE)/mail.h $(INCLUDE)/interpreter.h $(INCLUDE)/house.h $(INCLUDE)/screen.h $(INCLUDE)/flow_room.h $(INCLUDE)/clan.h $(INCLUDE)/paths.h $(INCLUDE)/quest.h $(INCLUDE)/char_class.h $(INCLUDE)/security.h $(INCLUDE)/olc.h $(INCLUDE)/shop.h $(INCLUDE)/help.h $(INCLUDE)/combat.h $(INCLUDE)/iscript.h 
 	$(CXX) -c $(CXXFLAGS) db.cc                -o $(OBJ)/db.o
-OBJFILES= $(OBJ)/db.o
+$(OBJ)/objsave.o : objsave.cc \
+	$(INCLUDE)/structs.h $(INCLUDE)/comm.h $(INCLUDE)/handler.h $(INCLUDE)/db.h $(INCLUDE)/interpreter.h $(INCLUDE)/utils.h $(INCLUDE)/spells.h $(INCLUDE)/screen.h $(INCLUDE)/vehicle.h $(INCLUDE)/house.h $(INCLUDE)/bomb.h 
+	$(CXX) -c $(CXXFLAGS) objsave.cc           -o $(OBJ)/objsave.o
+OBJFILES= $(OBJ)/constants.o $(OBJ)/db.o $(OBJ)/objsave.o
