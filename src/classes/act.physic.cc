@@ -496,12 +496,10 @@ ASPELL(spell_quantum_rift)
     for (o = object_list; o; o = o->next) {
         if( GET_OBJ_VNUM(o) == QUANTUM_RIFT_VNUM 
         && GET_OBJ_VAL(o,2) == GET_IDNUM(ch)) {
-            if(o->action_description) {
-                act(o->action_description,
-                    TRUE, o->in_room->people, o, 0, TO_CHAR);
-                act(o->action_description,
-                    TRUE, o->in_room->people, o, 0, TO_ROOM);
-            }
+            act("$p collapses in on itself.",
+                TRUE, o->in_room->people, o, 0, TO_CHAR);
+            act("$p collapses in on itself.",
+                TRUE, o->in_room->people, o, 0, TO_ROOM);
             extract_obj(o);
         }
     }

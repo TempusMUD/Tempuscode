@@ -813,9 +813,9 @@ point_update(void)
 	    GET_OBJ_TIMER(j)--;
 	    if (GET_OBJ_TIMER(j) <= 0) {
             if(j->action_description) {
-                act(j->action_description,
+                act("$p collapses in on itself.",
                     TRUE, j->in_room->people, j, 0, TO_CHAR);
-                act(j->action_description,
+                act("$p collapses in on itself.",
                     TRUE, j->in_room->people, j, 0, TO_ROOM);
             }
             extract_obj(j);
