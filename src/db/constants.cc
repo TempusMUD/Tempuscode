@@ -2863,7 +2863,7 @@ extern const char *soilage_bits[] = {
 	"wet",
 	"bloody",
 	"muddy",
-	"covered with shit",
+	"covered with feces",
 	"dripping with urine",
 	"smeared with mucus",
 	"spattered with saliva",
