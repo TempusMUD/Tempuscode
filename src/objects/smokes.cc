@@ -380,12 +380,19 @@ ACMD(do_convert)
 ACMD(do_light)
 {
 	ACMD(do_grab);
-	struct obj_data *obj;
+	struct obj_data *obj = NULL;
 	char arg1[MAX_INPUT_LENGTH];
 
 	one_argument(argument, arg1);
 
-	if (!(obj = get_obj_in_list_vis(ch, arg1, ch->carrying)))
+	if (GET_EQ(ch, WEAR_HOLD) &&
+			isname(arg1, GET_EQ(ch, WEAR_HOLD)->name))
+		obj = GET_EQ(ch, WEAR_HOLD);
+
+	if (!obj)
+		obj = get_obj_in_list_vis(ch, arg1, ch->carrying);
+
+	if (!obj)
 		send_to_char(ch, "Light what?\r\n");
 	else if (GET_OBJ_TYPE(obj) == ITEM_LIGHT)
 		do_grab(ch, fname(obj->name), 0, 0, 0);
