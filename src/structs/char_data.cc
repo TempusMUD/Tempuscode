@@ -548,13 +548,14 @@ void
 			obj_from_char(obj);
 			obj_to_room(obj, in_room);
 		}
-
+/*
 		// transfer gold to room
 		if (GET_GOLD(this) > 0)
 			obj_to_room(create_money(GET_GOLD(this), 0), in_room);
 		if (GET_CASH(this) > 0)
 			obj_to_room(create_money(GET_CASH(this), 1), in_room);
 		GET_GOLD(this) = GET_CASH(this) = 0;
+*/
 	}
 
 	if (FIGHTING(this))
