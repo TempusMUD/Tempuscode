@@ -85,7 +85,7 @@ class AccountIndex : public vector<Account *>
 			bool operator()(const Account *s1, int id) const
 				{ return s1->get_idnum() < id; }
             bool operator()(int id,const Account *s1) const
-                { return s1->get_idnum() < id; }
+                { return id < s1->get_idnum(); }
 	};
 	public:
 		AccountIndex() : vector<Account *>(), _top_id(0) {}
