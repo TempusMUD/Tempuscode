@@ -3614,6 +3614,7 @@ ACMD(do_empty)
     int bits2;
     char arg1[MAX_INPUT_LENGTH];
     char arg2[MAX_INPUT_LENGTH];
+	int objs_moved = 0;
 
     two_arguments(argument, arg1, arg2 );
 
@@ -3648,26 +3649,26 @@ ACMD(do_empty)
 
     if( obj->contains ) {
 		for ( next_obj = obj->contains; next_obj; next_obj = o ){   
-		
-		
 			if ( next_obj->in_obj ) {
 				o = next_obj->next_content;
-				if( ! ( IS_OBJ_STAT( next_obj, ITEM_NODROP ) ) ) { 
+				if( ! ( IS_OBJ_STAT( next_obj, ITEM_NODROP ) ) &&
+					( IS_SET(GET_OBJ_WEAR(next_obj), ITEM_WEAR_TAKE)) ) { 
 					obj_from_obj( next_obj );
 					obj_to_room( next_obj, ch->in_room );
+					objs_moved++;
 				}
 		   } else {
 				o = NULL;
 		   }
 		}
-
+	}
+	if(objs_moved) {
 		act( "$n empties the contents of $p.", FALSE, ch, obj, 0, TO_ROOM );
 		act( "You carefully empty the contents of $p.", FALSE, ch, obj, 0, TO_CHAR );
-    } else {
+	} else {
 		sprintf( buf, "%s is already empty idiot!\r\n", obj->short_description );
 		send_to_char( buf, ch );
-		return;
-    }
+	}
 }
 
 
@@ -3684,8 +3685,7 @@ empty_to_obj( struct obj_data *obj, struct obj_data *container, struct char_data
     struct obj_data *o = NULL;
     struct obj_data *next_obj = NULL;
     bool can_fit = true;
-
-
+	int objs_moved = 0;
 
     if ( ! ( obj ) || ! ( container ) || ! ( ch ) ) {
 	sprintf( buf, "Null value passed into empty_to_obj.\r\n" );
@@ -3709,37 +3709,35 @@ empty_to_obj( struct obj_data *obj, struct obj_data *container, struct char_data
     }
     
     if( obj->contains ) {
-	
-	for ( next_obj = obj->contains; next_obj; next_obj = o ) {   
-	    
-	    if ( next_obj->in_obj && next_obj ) {
- 
-                o = next_obj->next_content; 
-		    
-
-		if( ! ( IS_OBJ_STAT( next_obj, ITEM_NODROP ) ) ) {
-		    
-		    if ( container->getWeight() + next_obj->getWeight()   > GET_OBJ_VAL( container, 0 ) ) {
-			can_fit = false;
-		    }
-		    
-		    if ( can_fit ) {
-			obj_from_obj( next_obj );
-			obj_to_obj( next_obj, container );
-		    }
-		    
-		    can_fit = true;
+		for ( next_obj = obj->contains; next_obj; next_obj = o ) {   
+			if ( next_obj->in_obj && next_obj ) {
+				o = next_obj->next_content; 
+				if( ! ( IS_OBJ_STAT( next_obj, ITEM_NODROP ) ) && 
+					( IS_SET(GET_OBJ_WEAR(next_obj), ITEM_WEAR_TAKE)) ) { 
+					if ( container->getWeight() + next_obj->getWeight() > 
+						GET_OBJ_VAL( container, 0 ) ) {
+					can_fit = false;
+					}
+					if ( can_fit ) {
+						obj_from_obj( next_obj );
+						obj_to_obj( next_obj, container );
+						objs_moved++;
+					}
+					can_fit = true;
+				}
+			}
 		}
-		
-	    }
-	    
-	}
-	
-	sprintf( buf, "$n carefully empties the contents of $p into %s.", container->short_description );
-	act( buf, FALSE, ch, obj, 0, TO_ROOM );
-	sprintf(buf, "You carefully empty the contents of $p into %s.", container->short_description );
-	act( buf, FALSE, ch, obj, 0, TO_CHAR );
-	
+		if(objs_moved) {	
+			sprintf( buf, "$n carefully empties the contents of $p into %s.", 
+				container->short_description );
+			act( buf, FALSE, ch, obj, 0, TO_ROOM );
+			sprintf(buf, "You carefully empty the contents of $p into %s.", 
+				container->short_description );
+			act( buf, FALSE, ch, obj, 0, TO_CHAR );
+		} else {
+			act( "There's nothing in it!", FALSE, ch, obj, 0, TO_CHAR );
+			return 0;
+		}
 	
     }
     
