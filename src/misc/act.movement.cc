@@ -2246,6 +2246,11 @@ ACMD(do_mount)
 		send_to_char(ch, "Are you some kind of fool, or what!?\r\n");
 		return;
 	}
+	if( MOUNTED(ch) != NULL ) {
+		send_to_char(ch, "You'll have to dismount first.\r\n");
+		return;
+	}
+
 	if (!(MOB2_FLAGGED(vict, MOB2_MOUNT))) {
 		act("You cannot mount $M.", FALSE, ch, 0, vict, TO_CHAR);
 		return;
