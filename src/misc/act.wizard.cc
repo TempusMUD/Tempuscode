@@ -3589,7 +3589,8 @@ show_player(CHAR *ch, char * value)
     char birth[80];
     char remort_desc[80];
     char fname[ MAX_INPUT_LENGTH ];
-    bool cryo = false;
+	char rent_type[80];
+	long idnum = 0;
     
     if (!*value) {
 	send_to_char("A name would help.\r\n", ch);
@@ -3597,51 +3598,73 @@ show_player(CHAR *ch, char * value)
     }
   
     /* added functionality for show player by idnum */
-    if (is_number(value) && get_name_by_id(atoi(value)))
-	strcpy(value, get_name_by_id(atoi(value)));
-  
+    if (is_number(value) && get_name_by_id(atoi(value))) {
+		strcpy(value, get_name_by_id(atoi(value)));
+  	}
     if (load_char(value, &vbuf) < 0) {
-	send_to_char("There is no such player.\r\n", ch);
-	return;
+		send_to_char("There is no such player.\r\n", ch);
+		return;
     }
 
+	idnum = vbuf.char_specials_saved.idnum;
     // Load up the players rent info and check whether or not he is cryo'd
 
     if ( ! get_filename( vbuf.name, fname, CRASH_FILE ) ) { 
-	slog( "Failed get_filename() in show_player().\r\n" );
+		slog( "Failed get_filename() in show_player().\r\n" );
     }
 	
     if ( ! ( fl = fopen( fname, "rb" ) ) ) {
-	sprintf( buf1, "%s has no rent file!\r\n", vbuf.name );
-	slog( buf1 );
+		sprintf( buf1, "%s has no rent file!\r\n", vbuf.name );
+		slog( buf1 );
     }
 	
 	
     if( fl != NULL ) {
-	if ( ! feof( fl ) ) {
-	    fread( &rent, sizeof( struct rent_info ), 1, fl );
-	}
-	    
-	if ( &rent != NULL ) {	
-	
-            if ( rent.rentcode == RENT_CRYO ) {
-		    cryo = true;
-            }
-        }
-	    
-	    fclose( fl );
+		if ( ! feof( fl ) ) {
+			fread( &rent, sizeof( struct rent_info ), 1, fl );
+		}
+		fclose( fl );
     }
     
-
+	if (get_char_in_world_by_idnum(idnum)) {
+		strcpy(rent_type,CCYEL( ch, C_NRM ));
+		strcat(rent_type, "In Game.");
+	} else {
+		switch(rent.rentcode) {
+			case RENT_CRASH:
+				strcpy(rent_type,CCRED( ch, C_NRM ));
+				strcat(rent_type,"Crash");
+				break;
+			case RENT_RENTED:
+				strcpy(rent_type,"Rented");
+				break;
+			case RENT_CRYO:
+				strcpy(rent_type,CCCYN( ch, C_NRM ));
+				strcat(rent_type,"Cryo'd");
+				break;
+			case RENT_FORCED:
+				strcpy(rent_type,CCGRN( ch, C_NRM ));
+				strcat(rent_type,"Force");
+				break;
+			case RENT_TIMEDOUT:
+				strcpy(rent_type,CCGRN( ch, C_NRM ));
+				strcat(rent_type,"Timed Out");
+				break;
+			default:
+				strcpy(rent_type,CCRED( ch, C_NRM ));
+				strcat(rent_type,"Undefined");
+		}
+	}
 
 	if (vbuf.player_specials_saved.remort_generation <= 0) {
 	strcpy(remort_desc,"");
 	} else {
 	sprintf(remort_desc,"/%s",char_class_abbrevs[(int) vbuf.remort_char_class]);
 	}
-    sprintf(buf, "Player: %-12s (%s) [%2d %s %s%s]  Gen: %d\r\n", vbuf.name,
+    sprintf(buf, "Player: %-12s (%s) [%2d %s %s%s]  Gen: %d", vbuf.name,
 	    genders[(int) vbuf.sex], vbuf.level, player_race[(int)vbuf.race],
 	    char_class_abbrevs[(int) vbuf.char_class],remort_desc,vbuf.player_specials_saved.remort_generation);
+	sprintf( buf, "%s  Rent: %s%s\r\n", buf, rent_type, CCNRM( ch, C_NRM ) );
     sprintf(buf,
 	    "%sAu: %-8d  Bal: %-8d  Exp: %-8d  Align: %-5d  Lessons: %-3d\r\n",
 	    buf, vbuf.points.gold, vbuf.points.bank_gold, vbuf.points.exp,
@@ -3652,10 +3675,9 @@ show_player(CHAR *ch, char * value)
 	    "%sStarted: %-20.16s  Last: %-20.16s  Played: %3dh %2dm\r\n",
 	    buf, birth, vbuf.level > GET_LEVEL(ch) ? "Unknown" : ctime(&vbuf.last_logon), (int) (vbuf.played / 3600),
 	    (int) (vbuf.played / 60 % 60));
-    
-    if ( cryo == true ) {
-	sprintf( buf, "%s%sCryo rented%s\r\n", buf, CCCYN( ch, C_NRM ), CCNRM( ch, C_NRM ) );
-    } 
+
+	if(IS_SET(vbuf.char_specials_saved.act,PLR_FROZEN))
+		sprintf( buf, "%s%s%s is FROZEN!%s\r\n", buf, CCCYN( ch, C_NRM ),vbuf.name, CCNRM( ch, C_NRM ) );
 
     send_to_char(buf, ch);
 }
@@ -4904,6 +4926,7 @@ ACMD(do_set)
 	{ "specialization",  LVL_GRGOD,        PC,   MISC },
 	{ "qpoints",         LVL_GRGOD,        PC,   NUMBER },
 	{ "qpallow",         LVL_GRGOD,        PC,   NUMBER},   /*  95 */
+	{ "soulless",        LVL_GRGOD,        BOTH, BINARY }, 
 	{ "\n", 0, BOTH, MISC }
     };
 
@@ -5530,6 +5553,14 @@ ACMD(do_set)
 
     case 95:
 	GET_QUEST_ALLOWANCE(vict) = RANGE(0, 100);
+	break;
+	
+	case 96:
+	if(IS_NPC(vict)) {
+		SET_OR_REMOVE(MOB_FLAGS(vict), MOB_SOULLESS);
+	} else {
+		SET_OR_REMOVE(PLR2_FLAGS(vict), PLR2_SOULLESS);
+	}
 	break;
 
     default:

@@ -730,6 +730,7 @@ extern const char *action_bits[] = {
   "!TURN",
   "!PETRI",
   "PET",
+  "SOULLESS",
   "\n"
 };
 

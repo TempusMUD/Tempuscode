@@ -277,7 +277,8 @@
 #define MOB_NOPETRI      (1 << 19) // Cannot be petrified
 #define MOB_PET			(1 << 20)	// Mob is a conjured pet and shouldn't
 									// get nor give any xp in any way.
-#define NUM_MOB_FLAGS    21
+#define MOB_SOULLESS	(1 << 21)	// Mobile is Soulless - Unholy compact.
+#define NUM_MOB_FLAGS    22
 
 #define MOB2_SCRIPT     (1 << 0)
 #define MOB2_MOUNT      (1 << 1)
