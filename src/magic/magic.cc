@@ -2854,22 +2854,7 @@ mag_unaffects(int level, struct Creature *ch, struct Creature *victim,
 		break;
 	case SPELL_REMOVE_CURSE:
 		spell = SPELL_CURSE;
-		to_vict = "You don't feel so unlucky.";
-		break;
-	case SPELL_DISPEL_MAGIC:
-		if (victim->affected) {
-			for (aff = victim->affected; aff; aff = next_aff) {
-				next_aff = aff->next;
-				if (SPELL_IS_MAGIC(aff->type) || SPELL_IS_DIVINE(aff->type)) {
-					if (aff->level < number(level >> 1, level << 1))
-						affect_remove(victim, aff);
-				}
-			}
-			send_to_char(victim, "Your suddenly feel your magic fade!\r\n");
-			act("The magic of $n flows into the universe.", TRUE, victim, 0, 0,
-				TO_ROOM);
-
-		}
+		to_vict = "You don't feel quite so unlucky.";
 		break;
 	case SPELL_STONE_TO_FLESH:
 		REMOVE_BIT(AFF2_FLAGS(victim), AFF2_PETRIFIED);
@@ -3042,62 +3027,6 @@ mag_alter_objs(int level, struct Creature *ch, struct obj_data *obj,
         } else if (IS_OBJ_STAT(obj, ITEM_NODROP)) {
             REMOVE_BIT(obj->obj_flags.extra_flags, ITEM_NODROP);
             to_char = "$p briefly glows blue.";
-        }
-        break;
-    case SPELL_DISPEL_MAGIC:
-        if (!IS_OBJ_STAT(obj, ITEM_MAGIC)) {
-            act("$p is not magical.", FALSE, ch, obj, 0, TO_CHAR);
-            return;
-        }
-
-        if ((!IS_OBJ_STAT(obj, ITEM_MAGIC_NODISPEL) &&
-                !IS_OBJ_STAT2(obj, ITEM2_CURSED_PERM)) ||
-            GET_LEVEL(ch) > LVL_ELEMENT) {
-            if (IS_OBJ_STAT(obj, ITEM_MAGIC) && (IS_MAGE(ch)
-                    || IS_VAMPIRE(ch)))
-                REMOVE_BIT(obj->obj_flags.extra_flags, ITEM_MAGIC);
-            if (IS_OBJ_STAT(obj, ITEM_BLESS) && IS_CLERIC(ch))
-                REMOVE_BIT(obj->obj_flags.extra_flags, ITEM_BLESS);
-            if (IS_OBJ_STAT(obj, ITEM_EVIL_BLESS) && IS_CLERIC(ch))
-                REMOVE_BIT(obj->obj_flags.extra_flags, ITEM_EVIL_BLESS);
-            for (i = 0; i < MAX_OBJ_AFFECT; i++)
-                if ((level + GET_INT(ch)) > number(0, 100)) {
-                    obj->affected[i].location = APPLY_NONE;
-                    obj->affected[i].modifier = 0;
-                }
-
-            if (IS_OBJ_TYPE(obj, ITEM_WEAPON) &&
-                IS_OBJ_STAT2(obj, ITEM2_CAST_WEAPON) &&
-                (GET_OBJ_VAL(obj, 0) > 0 &&
-                    GET_OBJ_VAL(obj, 0) < MAX_SPELLS) &&
-                (SPELL_IS_MAGIC(GET_OBJ_VAL(obj, 0)) ||
-                    SPELL_IS_DIVINE(GET_OBJ_VAL(obj, 0))) &&
-                number(level, level << 1) >
-                spell_info[GET_OBJ_VAL(obj,
-                        0)].min_level[(int)GET_CLASS(ch)]) {
-                REMOVE_BIT(GET_OBJ_EXTRA2(obj), ITEM2_CAST_WEAPON);
-                GET_OBJ_VAL(obj, 0) = 0;
-            }
-
-            for (i = 0; i < 32; i++) {
-                if (IS_SET(obj->obj_flags.bitvector[0], (1 << i)) &&
-                    level > number(0, 100))
-                    REMOVE_BIT(obj->obj_flags.bitvector[0], (1 << i));
-                if (IS_SET(obj->obj_flags.bitvector[1], (1 << i)) &&
-                    level > number(0, 100))
-                    REMOVE_BIT(obj->obj_flags.bitvector[1], (1 << i));
-                if (IS_SET(obj->obj_flags.bitvector[2], (1 << i)) &&
-                    level > number(0, 100))
-                    REMOVE_BIT(obj->obj_flags.bitvector[2], (1 << i));
-            }
-
-            if (GET_OBJ_SIGIL_IDNUM(obj) == GET_IDNUM(ch) ||
-                level > GET_OBJ_SIGIL_LEVEL(obj)) {
-                GET_OBJ_SIGIL_IDNUM(obj) = 0;
-                GET_OBJ_SIGIL_LEVEL(obj) = 0;
-            }
-
-            to_char = "All the magic that $p ever had is gone.";
         }
         break;
     case SPELL_ENCHANT_WEAPON:
