@@ -1924,7 +1924,7 @@ obj_data *
 get_next_weap(struct Creature *ch)
 {
 	obj_data *cur_weap;
-	int dual_prob;
+	int dual_prob = 0;
 
 	if (GET_EQ(ch, WEAR_WIELD_2) && GET_EQ(ch, WEAR_WIELD)) {
 		dual_prob = (GET_EQ(ch, WEAR_WIELD)->getWeight() -
