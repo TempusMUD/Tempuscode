@@ -983,7 +983,8 @@ ACMD(do_gen_write)
 		return;
 	}
 	mudlog(MAX(LVL_AMBASSADOR, GET_INVIS_LVL(ch)), NRM, false,
-		"%s %s: %s", GET_NAME(ch), CMD_NAME, argument);
+		"%s %s [%d]: %s", GET_NAME(ch), CMD_NAME, ch->in_room->number,
+		argument);
 
 	if (stat(filename, &fbuf) < 0) {
 		perror("Error statting file");
