@@ -5360,6 +5360,12 @@ ACMD(do_set)
         return;
     }
 
+    if(! Security::canAccess( ch, fields[l] ) ) {
+        send_to_char("You do not have that power.\r\n", ch);
+        return;
+    }
+
+
     if (IS_NPC(vict) && !(fields[l].pcnpc & NPC)) {
         send_to_char("You can't do that to a beast!\r\n", ch);
         return;
@@ -5564,12 +5570,18 @@ ACMD(do_set)
         SET_OR_REMOVE(PLR_FLAGS(vict), PLR_THIEF);
         break;
     case 34:
-        if ((value > GET_LEVEL(ch) && GET_IDNUM(ch) != 1)
-            || value > LVL_GRIMP) {
+        if ((value > GET_LEVEL(ch) && GET_IDNUM(ch) != 1) || value > LVL_GRIMP) {
             send_to_char("You can't do that.\r\n", ch);
             return;
         }
+        
         RANGE(0, LVL_GRIMP);
+        
+        if( value >= 50 && !Security::isMember(ch, "AdminFull") ) {
+            send_to_char("That should be done with advance.\r\n", ch);
+            return;
+        }
+
         vict->player.level = (byte) value;
         break;
     case 35:
