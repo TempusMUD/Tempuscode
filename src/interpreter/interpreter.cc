@@ -1075,6 +1075,7 @@ struct command_info cmd_info[] = {
 	{"run", POS_STANDING, do_action, 0, 0, 0, 0},
 
 	{"say", POS_RESTING, do_say, 0, SCMD_SAY, 0, 0},
+	{"sayto", POS_RESTING, do_say, 0, SCMD_SAY_TO, 0, 0},
 	{"'", POS_RESTING, do_say, 0, SCMD_SAY, 0, 0},
 	{">", POS_RESTING, do_say, 0, SCMD_SAY_TO, 0, 0},
 	{"sacrifice", POS_RESTING, do_sacrifice, 0, 0, 0, 0},
@@ -1154,6 +1155,7 @@ struct command_info cmd_info[] = {
 	{"sob", POS_RESTING, do_action, 0, 0, 0, 0},
 	{"socials", POS_DEAD, do_commands, 0, SCMD_SOCIALS, 0, 0},
 	{"soilage", POS_SLEEPING, do_soilage, 0, 0, 0, 0},
+	{"speak", POS_RESTING, do_say, 0, SCMD_SAY, 0, 0},
 	{"specials", POS_DEAD, do_special, LVL_IMPL, 0, 0, 0},
 	{"specializations", POS_DEAD, do_specializations, 0, 0, 0, 0},
 	{"spells", POS_SLEEPING, do_skills, 0, SCMD_SPELLS_ONLY, 0, 0},
