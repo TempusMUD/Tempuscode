@@ -336,6 +336,7 @@ extern const char *search_commands[] =
   "Spell",
   "Damage",
   "Spawn",
+  "Loadroom",
   "\n"
 };
 extern const char *home_town_abbrevs[] =
