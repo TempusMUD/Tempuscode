@@ -80,7 +80,7 @@ void CTextEditor::Process( char *inStr ) {
 void CTextEditor::List( unsigned int startline=1 ) {
     list<string>::iterator itr;
     int i;
-    int num_lines;
+    int num_lines = 0;
     strcpy(editbuf,"\r\n");
     
     itr = theText.begin();
@@ -91,7 +91,7 @@ void CTextEditor::List( unsigned int startline=1 ) {
             itr++;
     }
     
-    for(i = startline;itr != theText.end();i++, itr++) {
+    for(i = startline;itr != theText.end();i++, itr++,num_lines++) {
         sprintf(buf, "%-2d%s%s]%s ",i ,
             CCBLD(desc->character,C_CMP),
             CCBLU(desc->character,C_NRM),
@@ -99,11 +99,16 @@ void CTextEditor::List( unsigned int startline=1 ) {
         strcat(editbuf,buf);
         strcat(editbuf,itr->c_str());
         strcat(editbuf,"\r\n");
+        // Overflowing the LARGE_BUF desc buffer.
         if(strlen(editbuf) > 10240) {
-            
+            break;
         }
     }
     SendMessage(editbuf);
+    if(strlen(editbuf) > 10240) {
+        sprintf(editbuf,"Output buffer limit reached. Use \"&r <line number>\" to specify starting line.\r\n");
+        SendMessage(editbuf);
+    }
 }
 
 void CTextEditor::SaveText( char *inStr) {
@@ -379,6 +384,9 @@ bool CTextEditor::FindReplace(char *args) {
             if(pos < line->length()) {
                 if((curSize - findit.length() + replaceit.length()) +
                   ((theText.size() + 1) * 2 ) > maxSize) {
+                    SendMessage("Error: The buffer is full.\r\n");
+                    overflow = true;
+                    break;
                 }
                 *line = line->replace(pos,findit.length(),replaceit);
                 replaced++;
@@ -391,11 +399,11 @@ bool CTextEditor::FindReplace(char *args) {
             }
 		}
 	}
-	if(replaced > 0) {
+	if(replaced > 0 && !overflow) {
         sprintf(buf,"%d occurances of [%s] replaced with [%s].\r\n",
             replaced,findit.c_str(),replaceit.c_str());
         SendMessage(buf);
-    } else {
+    } else if (!overflow) {
         SendMessage("Search string not found.\r\n");
     }
     Wrap();
@@ -533,7 +541,7 @@ void CTextEditor::SendStartupMessage( void ) {
     for (int x=0;x < 7;x++) {
         sprintf(buf,"%s%s%d%s---------",buf,CCCYN(ch,C_NRM),x,CCBLU(ch,C_NRM));
     }
-    sprintf(buf,"%s%s7%s\r\n",buf,CCCYN(ch,C_NRM),CCNRM(ch,C_NRM));
+    sprintf(buf,"%s%s7%s",buf,CCCYN(ch,C_NRM),CCNRM(ch,C_NRM));
     SEND_TO_Q(buf,desc);
 }
 
@@ -709,7 +717,17 @@ bool CTextEditor::ProcessCommand(char *inStr) {
             return Remove((unsigned int)line);
             break;
         case 'r':   // Refresh Screen
-            List();
+            inStr = one_argument(inStr,command);
+            if(!isdigit(*command)) {
+                List();
+                return true;
+            }
+            line = atoi(command);
+            if(line < 0) {
+                SendMessage("Format for refresh command is: &r <starting line #>\r\n");
+                return false;
+            }
+            List((unsigned int)line);
             break;
         case 'u':   // Undo Changes
             UndoChanges(inStr);
