@@ -2967,8 +2967,8 @@ ACMD(do_load)
 				return;
 			}
 		} else if (IS_CHIP(obj1) && IS_INTERFACE(obj2) &&
-			INTERFACE_TYPE(obj2) == INTERFACE_CHIPS) {
-			if (INTERFACE_CUR(obj2) >= INTERFACE_MAX(obj2)) {
+				INTERFACE_TYPE(obj2) == INTERFACE_CHIPS) {
+			if (obj2->getNumContained() >= INTERFACE_MAX(obj2)) {
 				act("$P is already loaded with microchips.",
 					FALSE, ch, obj1, obj2, TO_CHAR);
 				return;
