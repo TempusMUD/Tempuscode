@@ -207,7 +207,7 @@ void get_stats( char *filename )
     //
     
     for ( int i = 0; i < NUM_USED_CLASSES; ++i ) {
-	for ( int j = i+1; j <= NUM_USED_CLASSES; j++ ) {
+	for ( int j = 0; j <= NUM_USED_CLASSES; j++ ) {
 	    player_classes[ ALIGN_ALL ][ i ][ j ] = 
 		player_classes[ ALIGN_GOOD ][ i ][ j ] +
 		player_classes[ ALIGN_EVIL ][ i ][ j ] +
@@ -276,9 +276,9 @@ void get_stats( char *filename )
 
 	    for ( int j = i+1; j < NUM_USED_CLASSES * NUM_USED_CLASSES; j++ ) {
 	    
-		if ( remort_class_data[j].count[ align_sort ] > remort_class_data[i].count[ align_sort ] ) {
+		if ( remort_class_data[ j ].count[ align_sort ] > remort_class_data[ i ].count[ align_sort ] ) {
 		
-		    class_combo tmp_c = remort_class_data[j];
+		    class_combo tmp_c = remort_class_data[ j ];
 		    remort_class_data[j] = remort_class_data[ i ];
 		    remort_class_data[i] = tmp_c;
 		}
