@@ -1563,7 +1563,7 @@ make_corpse(struct char_data *ch, struct char_data *killer, int attacktype)
 		// Save the char to prevent duping of eq.
 		save_char(ch, NULL);
 		Crash_crashsave(ch);
-
+        Crash_delete_crashfile(ch);
 	} else {					// arena kills do not drop EQ
 		rentcost = Crash_rentcost(ch, FALSE, 1);
 		if (rentcost < 0)
