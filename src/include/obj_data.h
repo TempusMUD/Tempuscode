@@ -29,6 +29,7 @@
 
 /* object-related defines ********************************************/
 struct Creature;
+class room_data;
 
 
 /* Item types: used by obj_data.obj_flags.type_flag */
@@ -290,7 +291,6 @@ struct obj_affected_type {
 	byte location;				/* Which ability to change (APPLY_XXX) */
 	sbyte modifier;				/* How much it changes by              */
 };
-
 /* ================== Memory Structure for Objects ================== */
 struct obj_data {
 	bool isUnrentable();
@@ -313,10 +313,14 @@ struct obj_data {
 
 	void clear();
 	
-	bool loadFromXML(obj_data *container, Creature *victim, xmlNodePtr node);
+	bool loadFromXML( obj_data *container, 
+				 	  Creature *victim, 
+					  room_data *room, 
+					  xmlNodePtr node);
+
 	void saveToXML( FILE* ouf );
 
-	struct room_data *in_room;	/* In what room -1 when conta/carr    */
+	room_data *in_room;	/* In what room -1 when conta/carr    */
 	int cur_flow_pulse;			/* Keep track of flowing pulse        */
 
 	struct obj_flag_data obj_flags;	/* Object information               */
