@@ -321,7 +321,7 @@ check_thief(struct Creature *ch, struct Creature *vict,
 	const char *debug_msg)
 {
 	Creature *perp;
-	int gain;
+	int gain = 0;
 
 	// First we need to find the perp
 	perp = ch;
@@ -341,7 +341,7 @@ check_thief(struct Creature *ch, struct Creature *vict,
 		return;
 	
 	// adjust for level/gen difference
-	gain += ((GET_LEVEL(perp) + GET_REMORT_GEN(perp) * 50)
+	gain = ((GET_LEVEL(perp) + GET_REMORT_GEN(perp) * 50)
 		- (GET_LEVEL(vict) + GET_REMORT_GEN(vict) * 50)) / 5;
 
 	// Additional adjustment for killing an innocent
