@@ -55,6 +55,7 @@ void prog_do_mobflag(prog_env *env, prog_evt *evt, char *args);
 void prog_do_ldesc(prog_env *env, prog_evt *evt, char *args);
 void prog_do_damage(prog_env *env, prog_evt *evt, char *args);
 void prog_do_doorset(prog_env *env, prog_evt *evt, char *args);
+void prog_do_selfpurge(prog_env *env, prog_evt *evt, char *args);
 
 //external prototypes
 struct Creature *real_mobile_proto(int vnum);
@@ -96,6 +97,7 @@ prog_command prog_cmds[] = {
   { "ldesc",      true,   prog_do_ldesc },
   { "damage",     true,   prog_do_damage },
   { "doorset",    true,   prog_do_doorset },
+  { "selfpurge",    true,   prog_do_selfpurge },
   { NULL,		false,	prog_do_halt }
 };
 
@@ -851,6 +853,16 @@ prog_do_doorset(prog_env *env, prog_evt *evt, char *args)
 	ABS_EXIT(room, dir)->exit_info |= flags;
   else
 	ABS_EXIT(room, dir)->exit_info &= ~flags;
+}
+
+void
+prog_do_selfpurge(prog_env *env, prog_evt *evt, char *args) {
+    if (env->owner_type == PROG_TYPE_MOBILE) {
+        prog_do_nuke(env, evt, args);
+        env->exec_pt = -1;
+        ((Creature*)env->owner)->purge(true);
+        env->owner=NULL;
+    }
 }
 
 void
