@@ -231,7 +231,7 @@ nanny(struct descriptor_data * d, char *arg)
 			}
 			break;
 		case CON_NAME_CNFRM:        // wait for conf. of new name
-			if (UPPER(*arg) == 'Y') {
+			if (tolower(*arg) == 'y') {
 				if (isbanned(d->host, buf2) >= BAN_NEW) {
 					sprintf(buf, "Request for new char %s denied from [%s] (siteban)",
 							GET_NAME(d->character), d->host);

@@ -117,7 +117,7 @@ isname(const char *str, const char *namelist)
 			if (!*curstr || *curname == ' ')
 				break;
 
-			if (LOWER(*curstr) != LOWER(*curname))
+			if (tolower(*curstr) != tolower(*curname))
 				break;
 		}
 
@@ -154,7 +154,7 @@ isname_exact(const char *str, const char *namelist)
 			if (!*curstr || *curname == ' ')
 				break;
 
-			if (LOWER(*curstr) != LOWER(*curname))
+			if (tolower(*curstr) != tolower(*curname))
 				break;
 		}
 
@@ -1872,38 +1872,41 @@ update_char_objects(struct char_data *ch)
 struct char_data *
 get_player_vis(struct char_data *ch, char *name, int inroom)
 {
-	struct char_data *i;
-	unsigned int len = strlen(name);
-	int exact = FALSE;
+	struct char_data *i, *match;
 	char tmpname[MAX_INPUT_LENGTH];
+	CharacterList::iterator cit;
+	char *write_pt;
 
-	strcpy(tmpname, name);
+	// remove leading spaces
+	while (*name && (isspace(*name) || '.' == *name))
+		name++;
 
-	// peel off any trailing spaces
-	while (len && tmpname[len - 1] == ' ')
-		tmpname[--len] = '\0';
+	write_pt = tmpname;
+	while (*name && !isspace(*name))
+		*write_pt++ = *name++;
 
-	// see if this name should be matched exactly
-	if (tmpname[len - 1] == '"') {
-		exact = TRUE;
-		tmpname[--len] = '\0';
-	}
+	*write_pt = '\0';
 
-	CharacterList::iterator cit = characterList.begin();
+	match = NULL;
+	cit = characterList.begin();
 	for (; cit != characterList.end(); ++cit) {
 		i = *cit;
 		if ((!IS_NPC(i) || i->desc) &&
-			(!inroom || i->in_room == ch->in_room) &&
-			CAN_SEE(ch, i) &&
-			((!exact && !strncasecmp(i->player.name, tmpname, len)) ||
-				(exact && len == strlen(i->player.name) &&
-					!strcasecmp(i->player.name, tmpname)))) {
-			return i;
+				(!inroom || i->in_room == ch->in_room) &&
+				CAN_SEE(ch, i)) {
+			switch (is_abbrev(tmpname, i->player.name)) {
+				case 1:		// abbreviated match
+					if (!match)
+						match = i;
+				case 2:		// exact match
+					return i;
+				default:
+					break;
+			}
 		}
-
 	}
 
-	return NULL;
+	return match;
 }
 
 

@@ -576,7 +576,7 @@ build_player_index(void)
 			nr++;
 			CREATE(player_table[nr].name, char, strlen(dummy.name) + 1);
 			for (i = 0;
-				(*(player_table[nr].name + i) = LOWER(*(dummy.name + i)));
+				(*(player_table[nr].name + i) = tolower(*(dummy.name + i)));
 				i++);
 			player_table[nr].id = dummy.char_specials_saved.idnum;
 			top_idnum = MAX(top_idnum, dummy.char_specials_saved.idnum);
@@ -1987,7 +1987,7 @@ parse_mobile(FILE * mob_f, int nr)
 	if (tmpptr && *tmpptr)
 		if (!str_cmp(fname(tmpptr), "a") || !str_cmp(fname(tmpptr), "an") ||
 			!str_cmp(fname(tmpptr), "the"))
-			*tmpptr = LOWER(*tmpptr);
+			*tmpptr = tolower(*tmpptr);
 	mobile->player.long_descr = fread_string(mob_f, buf2);
 	mobile->player.description = fread_string(mob_f, buf2);
 	mobile->player.title = NULL;
@@ -2088,11 +2088,11 @@ parse_object(FILE * obj_f, int nr)
 	if (*tmpptr)
 		if (!str_cmp(fname(tmpptr), "a") || !str_cmp(fname(tmpptr), "an") ||
 			!str_cmp(fname(tmpptr), "the"))
-			*tmpptr = LOWER(*tmpptr);
+			*tmpptr = tolower(*tmpptr);
 
 	tmpptr = obj->description = fread_string(obj_f, buf2);
 	if (tmpptr && *tmpptr)
-		*tmpptr = UPPER(*tmpptr);
+		*tmpptr = toupper(*tmpptr);
 	obj->action_description = fread_string(obj_f, buf2);
 
 	/* *** numeric data *** */
@@ -3492,7 +3492,7 @@ create_entry(char *name)
 
 	/* copy lowercase equivalent of name to table field */
 	for (i = 0;
-		(*(player_table[top_of_p_table].name + i) = LOWER(*(name + i))); i++);
+		(*(player_table[top_of_p_table].name + i) = tolower(*(name + i))); i++);
 
 	return (top_of_p_table);
 }
@@ -4052,6 +4052,7 @@ init_char(struct char_data *ch)
 
 	for (i = 0; i < 3; i++)
 		GET_COND(ch, i) = (GET_LEVEL(ch) == LVL_GRIMP ? -1 : 24);
+	GET_COND(ch, DRUNK) = 0;
 
 	POOFIN(ch) = NULL;
 	POOFOUT(ch) = NULL;

@@ -90,7 +90,7 @@ isbanned(char *hostname, char *blocking_hostname)
 
 	i = 0;
 	for (nextchar = hostname; *nextchar; nextchar++)
-		*nextchar = LOWER(*nextchar);
+		*nextchar = tolower(*nextchar);
 
 	for (banned_node = ban_list; banned_node; banned_node = banned_node->next)
 		if (strstr(hostname, banned_node->site)) {	/* if hostname is a substring */
@@ -196,7 +196,7 @@ ACMD(do_ban)
 	CREATE(ban_node, struct ban_list_element, 1);
 	strncpy(ban_node->site, site, BANNED_SITE_LENGTH);
 	for (nextchar = ban_node->site; *nextchar; nextchar++)
-		*nextchar = LOWER(*nextchar);
+		*nextchar = tolower(*nextchar);
 	ban_node->site[BANNED_SITE_LENGTH] = '\0';
 	strncpy(ban_node->name, GET_NAME(ch), MAX_NAME_LENGTH);
 	ban_node->name[MAX_NAME_LENGTH] = '\0';
@@ -282,7 +282,7 @@ Valid_Name(char *newname)
 	/* change to lowercase */
 	strcpy(tempname, newname);
 	for (i = 0; tempname[i]; i++)
-		tempname[i] = LOWER(tempname[i]);
+		tempname[i] = tolower(tempname[i]);
 
 	/* Does the desired name contain a string in the invalid list? */
 	for (i = 0; i < num_invalid; i++)
@@ -304,7 +304,7 @@ Nasty_Words(char *words)
 	/* change to lowercase */
 	strcpy(tempword, words);
 	for (i = 0; tempword[i]; i++)
-		tempword[i] = LOWER(tempword[i]);
+		tempword[i] = tolower(tempword[i]);
 
 	for (i = 0; i < num_nasty; i++)
 		if (strstr(tempword, nasty_list[i]))

@@ -927,7 +927,7 @@ ACMD(do_display)
 		REMOVE_BIT(PRF2_FLAGS(ch), PRF2_DISPALIGN);
 
 		for (i = 0; i < strlen(arg1); i++) {
-			switch (LOWER(arg1[i])) {
+			switch (tolower(arg1[i])) {
 			case 'h':
 				SET_BIT(PRF_FLAGS(ch), PRF_DISPHP);
 				break;

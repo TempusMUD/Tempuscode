@@ -128,14 +128,9 @@ void WAIT_STATE(struct char_data *ch, int cycle);
 #define ABS(a)  MAX(a, -a)
 /* string utils **********************************************************/
 
-
-
-#define LOWER(c)   (((c)>='A'  && (c) <= 'Z') ? ((c)+('a'-'A')) : (c))
-#define UPPER(c)   (((c)>='a'  && (c) <= 'z') ? ((c)+('A'-'a')) : (c) )
-
 #define ISNEWL(ch) ((ch) == '\n' || (ch) == '\r')
 #define IF_STR(st) ((st) ? (st) : "\0")
-#define CAP(st)  (*(st) = UPPER(*(st)), st)
+#define CAP(st)  (*(st) = toupper(*(st)), st)
 
 char *YESNO(bool a);
 char *ONOFF(bool a);

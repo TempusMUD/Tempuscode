@@ -1,5 +1,5 @@
 $(OBJ)/char_data.o : char_data.cc \
-	$(INCLUDE)/structs.h $(INCLUDE)/comm.h $(INCLUDE)/character_list.h $(INCLUDE)/interpreter.h $(INCLUDE)/utils.h $(INCLUDE)/spells.h $(INCLUDE)/handler.h $(INCLUDE)/db.h $(INCLUDE)/help.h $(INCLUDE)/paths.h $(INCLUDE)/login.h 
+	$(INCLUDE)/structs.h $(INCLUDE)/comm.h $(INCLUDE)/character_list.h $(INCLUDE)/interpreter.h $(INCLUDE)/utils.h $(INCLUDE)/spells.h $(INCLUDE)/handler.h $(INCLUDE)/db.h $(INCLUDE)/help.h $(INCLUDE)/paths.h $(INCLUDE)/login.h $(INCLUDE)/house.h $(INCLUDE)/clan.h 
 	$(CXX) -c $(CXXFLAGS) char_data.cc         -o $(OBJ)/char_data.o
 $(OBJ)/character_list.o : character_list.cc \
 	$(INCLUDE)/structs.h $(INCLUDE)/character_list.h 

@@ -8,6 +8,6 @@ $(OBJ)/gnetsys.o : gnetsys.cc \
 	$(INCLUDE)/structs.h $(INCLUDE)/comm.h $(INCLUDE)/interpreter.h $(INCLUDE)/db.h $(INCLUDE)/utils.h $(INCLUDE)/spells.h $(INCLUDE)/handler.h $(INCLUDE)/mail.h $(INCLUDE)/screen.h $(INCLUDE)/help.h $(INCLUDE)/char_class.h $(INCLUDE)/clan.h $(INCLUDE)/vehicle.h $(INCLUDE)/house.h $(INCLUDE)/login.h $(INCLUDE)/matrix.h $(INCLUDE)/bomb.h 
 	$(CXX) -c $(CXXFLAGS) gnetsys.cc           -o $(OBJ)/gnetsys.o
 $(OBJ)/nanny.o : nanny.cc \
-	$(INCLUDE)/structs.h $(INCLUDE)/comm.h $(INCLUDE)/interpreter.h $(INCLUDE)/db.h $(INCLUDE)/utils.h $(INCLUDE)/spells.h $(INCLUDE)/handler.h $(INCLUDE)/mail.h $(INCLUDE)/screen.h $(INCLUDE)/help.h $(INCLUDE)/char_class.h $(INCLUDE)/clan.h $(INCLUDE)/vehicle.h $(INCLUDE)/house.h $(INCLUDE)/login.h $(INCLUDE)/matrix.h $(INCLUDE)/bomb.h 
+	$(INCLUDE)/structs.h $(INCLUDE)/comm.h $(INCLUDE)/interpreter.h $(INCLUDE)/db.h $(INCLUDE)/utils.h $(INCLUDE)/spells.h $(INCLUDE)/handler.h $(INCLUDE)/mail.h $(INCLUDE)/screen.h $(INCLUDE)/help.h $(INCLUDE)/char_class.h $(INCLUDE)/clan.h $(INCLUDE)/vehicle.h $(INCLUDE)/house.h $(INCLUDE)/login.h $(INCLUDE)/matrix.h $(INCLUDE)/bomb.h $(INCLUDE)/security.h 
 	$(CXX) -c $(CXXFLAGS) nanny.cc             -o $(OBJ)/nanny.o
 OBJFILES= $(OBJ)/ban.o $(OBJ)/comm.o $(OBJ)/gnetsys.o $(OBJ)/nanny.o

@@ -91,15 +91,15 @@ extern const int prac_params[4][NUM_CLASSES] = {
 
 extern const char race_restr[NUM_PC_RACES][NUM_CLASSES + 1] = {
 	//                 MG CL TH WR BR PS PH CY KN RN HD MN VP MR S1 S2 S3
-	{ RACE_HUMAN,		1, 1, 1, 0, 1, 1, 1, 1, 1, 1, 1, 1, 0, 0, 0, 0, 0 },
-	{ RACE_ELF,			1, 1, 1, 0, 0, 1, 1, 1, 1, 1, 1, 1, 0, 0, 0, 0, 0 },
-	{ RACE_DWARF,		0, 1, 1, 0, 1, 1, 1, 1, 1, 0, 1, 0, 0, 0, 0, 0, 0 },
-	{ RACE_HALF_ORC,	0, 0, 1, 0, 1, 0, 1, 1, 0, 0, 1, 0, 0, 0, 0, 0, 0 },
-	{ RACE_HALFLING,	1, 1, 1, 0, 1, 1, 1, 1, 1, 1, 1, 1, 0, 0, 0, 0, 0 },
-	{ RACE_TABAXI,		1, 1, 1, 0, 1, 1, 1, 1, 0, 1, 1, 1, 0, 0, 0, 0, 0 },
-	{ RACE_DROW,		1, 1, 1, 0, 0, 1, 1, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0 },
-	{ RACE_MINOTAUR,	1, 1, 0, 0, 1, 1, 1, 1, 0, 1, 1, 0, 0, 0, 0, 0, 0 },
-	{ RACE_ORC,			0, 0, 1, 0, 1, 0, 0, 1, 0, 0, 1, 0, 0, 0, 0, 0, 0 },
+	{ RACE_HUMAN,		1, 1, 1, 0, 1, 1, 1, 1, 1, 1, 1, 1, 0, 1, 0, 0, 0 },
+	{ RACE_ELF,			1, 1, 1, 0, 0, 1, 1, 1, 1, 1, 1, 1, 0, 1, 0, 0, 0 },
+	{ RACE_DWARF,		0, 1, 1, 0, 1, 1, 1, 1, 1, 0, 1, 0, 0, 1, 0, 0, 0 },
+	{ RACE_HALF_ORC,	0, 0, 1, 0, 1, 0, 1, 1, 0, 0, 1, 0, 0, 1, 0, 0, 0 },
+	{ RACE_HALFLING,	1, 1, 1, 0, 1, 1, 1, 1, 1, 1, 1, 1, 0, 1, 0, 0, 0 },
+	{ RACE_TABAXI,		1, 1, 1, 0, 1, 1, 1, 1, 0, 1, 1, 1, 0, 1, 0, 0, 0 },
+	{ RACE_DROW,		1, 1, 1, 0, 0, 1, 1, 1, 1, 1, 1, 0, 0, 1, 0, 0, 0 },
+	{ RACE_MINOTAUR,	1, 1, 0, 0, 1, 1, 1, 1, 0, 1, 1, 0, 0, 1, 0, 0, 0 },
+	{ RACE_ORC,			0, 0, 1, 0, 1, 0, 0, 1, 0, 0, 1, 0, 0, 1, 0, 0, 0 },
 };
 
 
@@ -635,7 +635,7 @@ parse_char_class(char *arg)
 long
 find_char_class_bitvector(char arg)
 {
-	arg = LOWER(arg);
+	arg = tolower(arg);
 
 	switch (arg) {
 	case 'm':

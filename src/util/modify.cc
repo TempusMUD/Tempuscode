@@ -122,7 +122,7 @@ ACMD(do_skillset)
 	/* Locate the last quote && lowercase the magic words (if any) */
 
 	for (qend = 1; *(argument + qend) && (*(argument + qend) != '\''); qend++)
-		*(argument + qend) = LOWER(*(argument + qend));
+		*(argument + qend) = tolower(*(argument + qend));
 
 	if (*(argument + qend) != '\'') {
 		send_to_char("Skill must be enclosed in: ''\r\n", ch);
@@ -188,7 +188,7 @@ one_word(char *argument, char *first_arg)
 
 			for (look_at = 0; (*(argument + begin + look_at) >= ' ') &&
 				(*(argument + begin + look_at) != '\"'); look_at++)
-				*(first_arg + look_at) = LOWER(*(argument + begin + look_at));
+				*(first_arg + look_at) = tolower(*(argument + begin + look_at));
 
 			if (*(argument + begin + look_at) == '\"')
 				begin++;
@@ -196,7 +196,7 @@ one_word(char *argument, char *first_arg)
 		} else {
 
 			for (look_at = 0; *(argument + begin + look_at) > ' '; look_at++)
-				*(first_arg + look_at) = LOWER(*(argument + begin + look_at));
+				*(first_arg + look_at) = tolower(*(argument + begin + look_at));
 
 		}
 

@@ -1019,7 +1019,7 @@ do_auto_exits(struct char_data *ch, struct room_data *room)
 	for (door = 0; door < NUM_OF_DIRS; door++)
 		if (ABS_EXIT(room, door) && ABS_EXIT(room, door)->to_room != NULL &&
 			!IS_SET(ABS_EXIT(room, door)->exit_info, EX_CLOSED | EX_NOPASS))
-			sprintf(buf, "%s%c ", buf, LOWER(*dirs[door]));;
+			sprintf(buf, "%s%c ", buf, tolower(*dirs[door]));;
 
 	sprintf(buf2, "%s[ Exits: %s]%s   ", CCCYN(ch, C_NRM),
 		*buf ? buf : "None obvious ", CCNRM(ch, C_NRM));
@@ -1033,7 +1033,7 @@ do_auto_exits(struct char_data *ch, struct room_data *room)
 			if (ABS_EXIT(room, door) && ABS_EXIT(room, door)->to_room != NULL
 				&& IS_SET(ABS_EXIT(room, door)->exit_info,
 					EX_CLOSED | EX_NOPASS))
-				sprintf(buf, "%s%c ", buf, LOWER(*dirs[door]));
+				sprintf(buf, "%s%c ", buf, tolower(*dirs[door]));
 
 		sprintf(buf2, "%s[ Closed Doors: %s]%s\r\n", CCCYN(ch, C_NRM),
 			*buf ? buf : "None ", CCNRM(ch, C_NRM));

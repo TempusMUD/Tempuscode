@@ -170,7 +170,7 @@ str_cmp(const char *arg1, const char *arg2)
 	int chk, i;
 
 	for (i = 0; *(arg1 + i) || *(arg2 + i); i++)
-		if ((chk = LOWER(*(arg1 + i)) - LOWER(*(arg2 + i))))
+		if ((chk = tolower(*(arg1 + i)) - tolower(*(arg2 + i))))
 			if (chk < 0)
 				return (-1);
 			else
@@ -188,7 +188,7 @@ strn_cmp(char *arg1, char *arg2, int n)
 	int chk, i;
 
 	for (i = 0; (*(arg1 + i) || *(arg2 + i)) && (n > 0); i++, n--)
-		if ((chk = LOWER(*(arg1 + i)) - LOWER(*(arg2 + i))))
+		if ((chk = tolower(*(arg1 + i)) - tolower(*(arg2 + i))))
 			if (chk < 0)
 				return (-1);
 			else
@@ -612,9 +612,9 @@ get_filename(char *orig_name, char *filename, int mode)
 
 	strcpy(name, orig_name);
 	for (ptr = name; *ptr; ptr++)
-		*ptr = LOWER(*ptr);
+		*ptr = tolower(*ptr);
 
-	switch (LOWER(*name)) {
+	switch (tolower(*name)) {
 	case 'a':
 	case 'b':
 	case 'c':
