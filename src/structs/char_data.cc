@@ -177,14 +177,26 @@ float char_data::getDamReduction(char_data *attacker = NULL)
 */
 int char_data::getLevelBonus ( bool primary ) {
     int bonus = MIN(50,player.level + 1);
+    short gen;
 
-    if(player_specials->saved.remort_generation == 0) {
+    if(IS_NPC(this)) {
+        if( (player.remort_char_class % NUM_CLASSES) == 0) {
+            gen = 0;
+        } else {
+            gen = (aff_abils.intel + aff_abils.str + aff_abils.wis) / 3;
+            gen = MAX( 0, gen - 18 );
+       }
+    } else {
+        gen = player_specials->saved.remort_generation; // Player generation
+    }
+
+    if(gen == 0) {
         return bonus;
     } else {
         if(primary) { // Primary. Give full remort bonus per gen.
-            return bonus + (MIN(player_specials->saved.remort_generation,10)) * 5;
+            return bonus + (MIN(gen,10)) * 5;
         } else { // Secondary. Give less level bonus and less remort bonus.
-            return (bonus * 3 / 4) + (MIN(player_specials->saved.remort_generation,10) * 3);
+            return (bonus * 3 / 4) + (MIN(gen,10) * 3);
         }
     }
 }
@@ -204,7 +216,18 @@ int char_data::getLevelBonus( int skill ) {
 
     unsigned short pclass = player.char_class % NUM_CLASSES; // Primary class
     short sclass = player.remort_char_class % NUM_CLASSES; // Secondary class
-    short gen = player_specials->saved.remort_generation; // Player generation
+    short gen;
+    // If a mob is an NPC, assume that it's attributes figure it's gen
+    if(IS_NPC(this)) {
+        if(sclass == 0) {
+            gen = 0;
+        } else {
+            gen = (aff_abils.intel + aff_abils.str + aff_abils.wis) / 3;
+            gen = MAX( 0, gen - 18 );
+       }
+    } else {
+        gen = player_specials->saved.remort_generation; // Player generation
+    }
     short pLevel = spell_info[skill].min_level[pclass]; // Level primary class gets "skill"
     short sLevel; // Level secondary class gets "skill"
     bool primary; // whether skill is learnable by primary class. (false == secondary)
