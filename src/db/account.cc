@@ -133,6 +133,8 @@ Account::load(long idnum)
 		this->add_trusted(atol(PQgetvalue(res, idx, 0)));
 	PQclear(res);
 
+	slog("Account %d loaded from database", _id);
+	_cache.push_back(this);
 	std::sort(_cache.begin(),_cache.end(), Account::cmp());
 	return true;
 }
@@ -197,11 +199,9 @@ Account::retrieve(int id)
 	
 	// Apprently, we don't, so look it up on the db
 	acct = new Account;
-	if (acct->load(id)) {
-		_cache.push_back(acct);
-		std::sort(_cache.begin(),_cache.end(), Account::cmp());
+	if (acct->load(id))
 		return acct;
-	}
+	delete acct;
 	return NULL;
 }
 
@@ -243,11 +243,10 @@ Account::retrieve(const char *name)
 
 	// Now try to load it
 	acct = new Account;
-	if (acct->load(acct_id)) {
-		_cache.push_back(acct);
-		std::sort(_cache.begin(),_cache.end(), Account::cmp());
+	if (acct->load(acct_id))
 		return acct;
-	}
+
+	delete acct;
 	return NULL;
 }
 
