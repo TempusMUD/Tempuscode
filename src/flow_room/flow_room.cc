@@ -203,7 +203,8 @@ flow_room(int pulse)
 				if (zone->flags & ZONE_EVIL_AMBIENCE) {
 					it = rnum->people.begin();
 					while (it != rnum->people.end()) {
-						if (GET_ALIGNMENT(*it) > -1000) {
+						if (GET_ALIGNMENT(*it) > -1000 &&
+							!affected_by_spell(*it, SPELL_SHIELD_OF_RIGHTEOUSNESS)) {
 							GET_ALIGNMENT(*it) -= 1;
 							check_eq_align(*it);
 						}
@@ -213,7 +214,8 @@ flow_room(int pulse)
 				if (zone->flags & ZONE_GOOD_AMBIENCE) {
 					it = rnum->people.begin();
 					while (it != rnum->people.end()) {
-						if (GET_ALIGNMENT(*it) < 1000) {
+						if (GET_ALIGNMENT(*it) < 1000 &&
+						!affected_by_spell(*it, SPELL_SPHERE_OF_DESECRATION)) {
 							GET_ALIGNMENT(*it) += 1;
 							check_eq_align(*it);
 						}
