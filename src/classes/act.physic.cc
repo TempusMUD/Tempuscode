@@ -253,21 +253,20 @@ ACMD(do_lecture)
 		return;
 	}
 
-	if (peaceful_room_ok(ch, vict, false)) {
-		if (!ok_damage_shopkeeper(ch, vict))
-			return;
+	if (!peaceful_room_ok(ch, vict, false))
+		return;
+	if (!ok_damage_shopkeeper(ch, vict))
+		return;
 
-		appear(ch, vict);
+	appear(ch, vict);
 
-		if (IS_PC(vict)) {
-			check_toughguy(ch, vict, 1);
-			check_killer(ch, vict);
-		}
-		prob = ch->getLevelBonus(SKILL_LECTURE) + (GET_INT(ch) << 1) - GET_CHA(ch);
-		if( AFF_FLAGGED(ch, AFF_CONFUSION) )
-			percent -= 60;
-	} else
-		prob = 0;
+	if (IS_PC(vict)) {
+		check_toughguy(ch, vict, 1);
+		check_killer(ch, vict);
+	}
+	prob = ch->getLevelBonus(SKILL_LECTURE) + (GET_INT(ch) << 1) - GET_CHA(ch);
+	if( AFF_FLAGGED(ch, AFF_CONFUSION) )
+		percent -= 60;
 
 	index = number(0, NUM_TOPICS - 1);
 
