@@ -384,6 +384,7 @@ Creature::saveToXML()
 	// Save vital statistics
 	obj_data *saved_eq[NUM_WEARS];
 	obj_data *saved_impl[NUM_WEARS];
+	affected_type *saved_affs;
 	FILE *ouf;
 	char *path;
 	struct alias_data *cur_alias;
@@ -420,14 +421,16 @@ Creature::saveToXML()
 			saved_impl[pos] = NULL;
 	}
 
+	// Remove all spell affects without deleting them
+	saved_affs = affected;
+	affected = NULL;
+	for (cur_aff = saved_affs;cur_aff;cur_aff = cur_aff->next)
+		affect_modify(this, cur_aff->location, cur_aff->modifier,
+			cur_aff->bitvector, cur_aff->aff_index, false);
+
 	// we need to update time played every time we save...
 	player.time.played += time(0) - player.time.logon;
 	player.time.logon = time(0);
-
-	// Remove all spell affects without deleting them
-	for (cur_aff = affected;cur_aff;cur_aff = cur_aff->next)
-		affect_modify(this, cur_aff->location, cur_aff->modifier,
-			cur_aff->bitvector, cur_aff->aff_index, false);
 
 	fprintf(ouf, "<creature name=\"%s\" idnum=\"%ld\">\n",
 		GET_NAME(ch), ch->char_specials.saved.idnum);
@@ -582,9 +585,8 @@ Creature::saveToXML()
 		if (saved_impl[pos])
 			equip_char(this, saved_impl[pos], pos, MODE_IMPLANT);
 	}
-	for (cur_aff = affected;cur_aff;cur_aff = cur_aff->next)
-		affect_modify(this, cur_aff->location, cur_aff->modifier,
-			cur_aff->bitvector, cur_aff->aff_index, true);
+	affected = saved_affs;
+	affect_total(this);
 
 	GET_HIT(this) = MIN(GET_MAX_HIT(ch), hit);
 	GET_MANA(this) = MIN(GET_MAX_MANA(ch), mana);
