@@ -77,7 +77,10 @@ ACMD(do_holytouch)
 int
 holytouch_after_effect(Creature * vict, int level)
 {
-	struct affected_type af;
+	affected_type af;
+	af.location = APPLY_NONE;
+	af.is_instant = 0;
+	af.next = NULL;
 	int dam = level * 2;
 
 	send_to_char(vict, "Visions of pure evil sear through your mind!\r\n");
@@ -92,8 +95,6 @@ holytouch_after_effect(Creature * vict, int level)
 		obj_to_char(unequip_char(vict, WEAR_FACE, MODE_EQ), vict);
 	if (GET_EQ(vict, WEAR_EYES))
 		obj_to_char(unequip_char(vict, WEAR_EYES, MODE_EQ), vict);
-
-
 
 	if (damage(vict, vict, dam, TYPE_MALOVENT_HOLYTOUCH, WEAR_EYES))
 		return 1;
@@ -116,8 +117,12 @@ holytouch_after_effect(Creature * vict, int level)
 void
 malovent_holy_touch(Creature * ch, Creature * vict)
 {
-	struct affected_type af;
 	int chance = 0;
+	struct affected_type af;
+	af.type = af.duration = af.modifier = af.location = 0;
+	af.level = af.is_instant = af.aff_index = 0;
+	af.next = NULL;
+
 
 	if (GET_LEVEL(vict) > LVL_AMBASSADOR) {
 		send_to_char(ch, "Aren't they evil enough already?\r\n");
