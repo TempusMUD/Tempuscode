@@ -604,6 +604,8 @@ const bool CURSE_BAD = true;
 const bool CURSE_OK = false;
 const bool INTERPLANAR = false;
 const bool PLANAR = true;
+const bool NOT_EMOTE = false;
+const bool IS_EMOTE = true;
 
 struct channel_info_t {
 	char *name;
@@ -611,6 +613,7 @@ struct channel_info_t {
 	int deaf_flag;
 	bool check_curse;
 	bool check_plane;
+	bool is_emote;
 	char *desc_color;
 	char *text_color;
 	char *msg_noton;
@@ -618,42 +621,58 @@ struct channel_info_t {
 };
 
 static const channel_info_t channels[] = {
-	{ "holler", 2, PRF2_NOHOLLER, CURSE_BAD, INTERPLANAR, KYEL_BLD, KRED,
+	{ "holler", 2, PRF2_NOHOLLER, CURSE_BAD, INTERPLANAR, NOT_EMOTE,
+		KYEL_BLD, KRED,
 		"Ha!  You are noholler buddy.",
 		"You find yourself unable to holler!" },
-	{ "shout", 1, PRF_DEAF, CURSE_BAD, PLANAR, KYEL, KCYN,
+	{ "shout", 1, PRF_DEAF, CURSE_BAD, PLANAR, NOT_EMOTE,
+		KYEL, KCYN,
 		"Turn off your noshout flag first!",
 		"You cannot shout!!" },
-	{ "gossip", 1, PRF_NOGOSS, CURSE_BAD, PLANAR, KGRN, KNRM,
+	{ "gossip", 1, PRF_NOGOSS, CURSE_BAD, PLANAR, NOT_EMOTE,
+		KGRN, KNRM,
 		"You aren't even on the channel!",
 		"You cannot gossip!!" },
-	{ "auction", 1, PRF_NOAUCT, CURSE_BAD, PLANAR, KMAG, KNRM,
+	{ "auction", 1, PRF_NOAUCT, CURSE_BAD, PLANAR, NOT_EMOTE,
+		KMAG, KNRM,
 		"You aren't even on the channel!",
 		"You cannot auction!!" },
-	{ "congrat", 1, PRF_NOGRATZ, CURSE_BAD, PLANAR, KGRN, KMAG,
+	{ "congrat", 1, PRF_NOGRATZ, CURSE_BAD, PLANAR, NOT_EMOTE,
+		KGRN, KMAG,
 		"You aren't even on the channel!",
 		"You cannot congratulate!!" },
-	{ "sing", 1, PRF_NOMUSIC, CURSE_BAD, PLANAR, KCYN, KYEL,
+	{ "sing", 1, PRF_NOMUSIC, CURSE_BAD, PLANAR, NOT_EMOTE,
+		KCYN, KYEL,
 		"You aren't even on the channel!",
 		"You cannot sing!!" },
-	{ "spew", 1, PRF_NOSPEW, CURSE_OK, PLANAR, KRED, KYEL,
+	{ "spew", 1, PRF_NOSPEW, CURSE_OK, PLANAR, NOT_EMOTE,
+		KRED, KYEL,
 		"You aren't even on the channel!",
 		"You cannot spew!!" },
-	{ "dream", 1, PRF_NODREAM, CURSE_BAD, PLANAR, KCYN, KNRM_BLD,
+	{ "dream", 1, PRF_NODREAM, CURSE_BAD, PLANAR, NOT_EMOTE,
+		KCYN, KNRM_BLD,
 		"You aren't even on the channel!",
 		"You cannot dream!!" },
-	{ "project", 1, PRF_NOPROJECT, CURSE_BAD, INTERPLANAR, KNRM_BLD, KCYN,
+	{ "project", 1, PRF_NOPROJECT, CURSE_BAD, INTERPLANAR, NOT_EMOTE,
+		KNRM_BLD, KCYN,
 		"You are not open to projections yourself...",
 		"You cannot project.  The gods have muted you." },
-	{ "newbie", -2, PRF2_NEWBIE_HELPER, CURSE_BAD, PLANAR, KYEL, KNRM,
+	{ "newbie", -2, PRF2_NEWBIE_HELPER, CURSE_BAD, PLANAR, NOT_EMOTE,
+		KYEL, KNRM,
 		"You aren't on the illustrious newbie channel.",
 		"The gods have muted you for bad behavior!" },
-	{ "clan-say", 1, PRF_NOCLANSAY, CURSE_OK, PLANAR, KCYN, KNRM,
+	{ "clan-say", 1, PRF_NOCLANSAY, CURSE_OK, PLANAR, NOT_EMOTE,
+		KCYN, KNRM,
 		"You aren't listening to the words of your clan.",
 		"The gods have muted you.  You may not clan say." },
-	{ "guild-say", 2, PRF2_NOGUILDSAY, CURSE_BAD, PLANAR, KMAG, KYEL,
+	{ "guild-say", 2, PRF2_NOGUILDSAY, CURSE_BAD, PLANAR, NOT_EMOTE,
+		KMAG, KYEL,
 		"You aren't listening to the rumors of your guild.",
 		"You may not guild-say, for the gods have muted you." },
+	{ "clan-emote", 1, PRF_NOCLANSAY, CURSE_OK, PLANAR, IS_EMOTE,
+		KCYN, KNRM,
+		"You aren't listening to the words of your clan.",
+		"The gods have muted you.  You may not clan emote." },
 };
 
 ACMD(do_gen_comm)
@@ -662,10 +681,12 @@ ACMD(do_gen_comm)
 	extern int holler_move_cost;
 	const channel_info_t *chan;
 	struct descriptor_data *i;
+	struct clan_data *clan;
 	char *plain_emit, *color_emit;
 	char *imm_plain_emit, *imm_color_emit;
-	const char *str, *gs_channel_desc;
-	int eff_is_neutral, eff_is_good, eff_is_evil, eff_class;
+	const char *str, *sub_channel_desc;
+	int eff_is_neutral, eff_is_good, eff_is_evil, eff_class, eff_clan;
+	bool is_admin;
 
 	chan = &channels[subcmd];
 
@@ -680,15 +701,12 @@ ACMD(do_gen_comm)
 			chan->name);
 		return;
 	}
-	// NPCs and non-clan members don't get to clan-say
-	if (subcmd == SCMD_CLANSAY && (IS_NPC(ch) || !GET_CLAN(ch))) {
-		send_to_char(ch, "You aren't even a member of a clan!\r\n");
-		return;
-	}
 	if (PLR_FLAGGED(ch, PLR_NOSHOUT)) {
 		send_to_char(ch, chan->msg_noton);
 		return;
 	}
+
+	is_admin = Security::isMember(ch, "AdminBasic");
 
 	// These are all restrictions, to which immortals and npcs are uncaring
 	if (!IS_NPC(ch) && !IS_IMMORT(ch)) {
@@ -779,7 +797,9 @@ ACMD(do_gen_comm)
 	eff_is_evil = IS_EVIL(ch);
 	eff_is_good = IS_GOOD(ch);
 	eff_class = GET_CLASS(ch);
-	if (IS_IMMORT(ch) && *argument == '>') {
+	eff_clan = GET_CLAN(ch);
+
+	if (subcmd == SCMD_GUILDSAY && is_admin && *argument == '>') {
 		char *class_str, *tmp_arg;
 
 		tmp_arg = argument + 1;
@@ -819,7 +839,28 @@ ACMD(do_gen_comm)
 
 		argument = tmp_arg;
 	}
-	
+
+	if (subcmd == SCMD_CLANSAY || subcmd == SCMD_CLANEMOTE) {
+		if (is_admin && *argument == '>') {
+			char *tmp_arg;
+
+			tmp_arg = argument + 1;
+			clan = clan_by_name(tmp_getword(&tmp_arg));
+			if (!clan) {
+				send_to_char(ch, "That clan does not exist.\r\n");
+				return;
+			}
+
+			eff_clan = clan->number;
+			argument = tmp_arg;
+		}
+
+		if (IS_NPC(ch) || !eff_clan) {
+			send_to_char(ch, "You aren't a member of a clan!\r\n");
+			return;
+		}
+	}
+
 	/* see if it's dirty! */
 	if (chan->check_curse && !IS_MOB(ch) && GET_LEVEL(ch) < LVL_GRGOD &&
 		Nasty_Words(argument)) {
@@ -847,28 +888,66 @@ ACMD(do_gen_comm)
 			str = tmp_sprintf("#%d", eff_class);
 		if (eff_class == CLASS_CLERIC || eff_class == CLASS_KNIGHT)
 			str = tmp_sprintf("%s-%s", (eff_is_good ? "g":"e"), str);
-		gs_channel_desc = tmp_strcat(" [", str, "]", NULL);
+		sub_channel_desc = tmp_strcat("[", str, "]", NULL);
+	} else if (subcmd == SCMD_CLANSAY || subcmd == SCMD_CLANEMOTE) {
+		clan = real_clan(eff_clan);
+
+		if (eff_clan >= 0 && eff_clan < TOP_CLASS)
+			str = tmp_tolower(clan->name);
+		else
+			str = tmp_sprintf("#%d", eff_clan);
+		sub_channel_desc = tmp_strcat("[", str, "]", NULL);
 	} else {
-		gs_channel_desc = "";
+		sub_channel_desc = "";
 	}
 
 	argument = tmp_gsub(argument, "$$", "$");
 
-	plain_emit = tmp_sprintf("%%s %ss, '%s'\r\n", chan->name, argument);
-	color_emit = tmp_sprintf("%s%%s %ss,%s%s '%s'%s\r\n", chan->desc_color,
-		chan->name, KNRM, chan->text_color, argument, KNRM);
-	imm_plain_emit = tmp_sprintf("%%s %ss%s, '%s'\r\n", chan->name,
-		gs_channel_desc, argument);
-	imm_color_emit = tmp_sprintf("%s%%s %ss%s,%s%s '%s'%s\r\n",
-		chan->desc_color, chan->name, gs_channel_desc, KNRM, chan->text_color,
-		argument, KNRM);
-	if (COLOR_LEV(ch) >= C_NRM)
-		send_to_char(ch, "%sYou %s%s,%s%s '%s'%s\r\n", chan->desc_color,
-			chan->name, (IS_IMMORT(ch) ? gs_channel_desc:""), KNRM,
-			chan->text_color, argument, KNRM);
-	else
-		send_to_char(ch, "You %s%s, '%s'\r\n", chan->name,
-			(IS_IMMORT(ch) ? gs_channel_desc:""), argument);
+	// Construct all the emits ahead of time.
+	if (chan->is_emote) {
+		plain_emit = tmp_sprintf("%%s %s\r\n", argument);
+		color_emit = tmp_sprintf("%s%%s %s%s%s%s\r\n", chan->desc_color,
+			KNRM, chan->text_color, argument, KNRM);
+		imm_plain_emit = tmp_sprintf("%s%s%%s %s\r\n", sub_channel_desc,
+			(*sub_channel_desc) ? " ":"", argument);
+		imm_color_emit = tmp_sprintf("%s%s%s%%s%s%s %s%s\r\n",
+			chan->desc_color, sub_channel_desc, (*sub_channel_desc) ? " ":"",
+			KNRM, chan->text_color,
+			argument, KNRM);
+		if (COLOR_LEV(ch) >= C_NRM)
+			send_to_char(ch, "%s%s%s%s%s %s%s%s\r\n", chan->desc_color,
+				(IS_IMMORT(ch) ? sub_channel_desc:""),
+				(IS_IMMORT(ch) ? " ":""),
+				GET_NAME(ch),
+				KNRM, chan->text_color, argument, KNRM);
+		else
+			send_to_char(ch, "%s%s%s %s\r\n",
+				(IS_IMMORT(ch) ? sub_channel_desc:""),
+				(IS_IMMORT(ch) ? " ":""),
+				GET_NAME(ch),
+				argument);
+	} else {
+		plain_emit = tmp_sprintf("%%s %ss, '%s'\r\n", chan->name, argument);
+		color_emit = tmp_sprintf("%s%%s %ss,%s%s '%s'%s\r\n", chan->desc_color,
+			chan->name, KNRM, chan->text_color, argument, KNRM);
+		imm_plain_emit = tmp_sprintf("%%s %ss%s%s, '%s'\r\n", chan->name,
+			(*sub_channel_desc) ? " ":"", sub_channel_desc, argument);
+		imm_color_emit = tmp_sprintf("%s%%s %ss%s%s,%s%s '%s'%s\r\n",
+			chan->desc_color, chan->name, (*sub_channel_desc) ? " ":"",
+			sub_channel_desc, KNRM, chan->text_color, argument, KNRM);
+		if (COLOR_LEV(ch) >= C_NRM)
+			send_to_char(ch, "%sYou %s%s%s,%s%s '%s'%s\r\n", chan->desc_color,
+				chan->name,
+				(IS_IMMORT(ch) ? " ":""),
+				(IS_IMMORT(ch) ? sub_channel_desc:""),
+				KNRM,
+				chan->text_color, argument, KNRM);
+		else
+			send_to_char(ch, "You %s%s%s, '%s'\r\n", chan->name,
+				(IS_IMMORT(ch) ? " ":""),
+				(IS_IMMORT(ch) ? sub_channel_desc:""),
+				argument);
+	}
 
 	/* now send all the strings out */
 	for (i = descriptor_list; i; i = i->next) {
@@ -887,10 +966,10 @@ ACMD(do_gen_comm)
 				!PRF2_FLAGGED(i->creature, chan->deaf_flag))
 			continue;
 
-		// Must be in same clan to hear clansay - even immortals
+		// Must be in same clan or an admin to hear clansay
 		if (subcmd == SCMD_CLANSAY &&
-				(!GET_CLAN(i->creature) ||
-					GET_CLAN(i->creature) != GET_CLAN(ch)))
+				GET_CLAN(i->creature) != eff_clan &&
+				!Security::isMember(i->creature, "AdminBasic"))
 			continue;
 
 		// Must be in same guild or an admin to hear guildsay
@@ -939,6 +1018,7 @@ ACMD(do_gen_comm)
 
 			if (chan->check_plane && COMM_NOTOK_ZONES(ch, i->creature))
 				continue;
+
 		}
 
 		if (IS_IMMORT(i->creature))
@@ -1022,51 +1102,6 @@ ACMD(do_qcomm)
 					send_to_char(i->creature, "%s", CCNRM(i->creature, C_NRM));
 				}
 		}
-	}
-}
-
-ACMD(do_clan_comm)
-{
-	struct descriptor_data *i;
-
-	if (!GET_CLAN(ch)) {
-		send_to_char(ch, "You aren't even a member of a clan!\r\n");
-		return;
-	}
-	skip_spaces(&argument);
-
-	if (!*argument) {
-		send_to_char(ch, "%s?  Yes, fine, %s we must, but WHAT??\r\n", CMD_NAME,
-			CMD_NAME);
-		CAP(buf);
-	} else {
-		if (ROOM_FLAGGED(ch->in_room, ROOM_SOUNDPROOF) &&
-			GET_LEVEL(ch) < LVL_AMBASSADOR)
-			send_to_char(ch, "The walls absorb the sound of your voice.\r\n");
-		else {
-			if (subcmd == SCMD_CLAN_SAY) {
-				delete_doubledollar(buf);
-				send_to_char(ch, "%sYou clan-say, %s'%s'\r\n", CCCYN(ch, C_NRM),
-					CCNRM(ch, C_NRM), argument);
-			} else
-				send_to_char(ch, "%s%s %s%s\r\n", CCCYN(ch, C_NRM),
-					GET_NAME(ch), CCNRM(ch, C_NRM), argument);
-		}
-
-		for (i = descriptor_list; i; i = i->next)
-			if (STATE(i) == CXN_PLAYING && i != ch->desc && i->creature &&
-				GET_CLAN(i->creature) &&
-				GET_CLAN(i->creature) == GET_CLAN(ch) &&
-				!PRF_FLAGGED(i->creature, PRF_NOCLANSAY) &&
-				i->creature->in_room != NULL &&
-				!COMM_NOTOK_ZONES(ch, i->creature) &&
-				!PLR_FLAGGED(i->creature,
-					PLR_MAILING | PLR_WRITING | PLR_OLC)) {
-				sprintf(buf, "$n%s %s", CCNRM(i->creature, C_NRM),
-					argument);
-				send_to_char(i->creature, CCCYN(i->creature, C_NRM));
-				act(buf, 0, ch, 0, i->creature, TO_VICT | TO_SLEEP);
-			}
 	}
 }
 
