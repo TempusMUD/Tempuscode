@@ -953,7 +953,8 @@ damage(struct Creature *ch, struct Creature *victim, int dam,
     }
 
     // Dimensional Shift
-    if (ch && attacktype != SKILL_ENERGY_WEAPONS &&
+    if (ch && attacktype >= TYPE_EGUN_LASER && attacktype <= TYPE_EGUN_TOP &&
+    attacktype != SKILL_ENERGY_WEAPONS &&
     attacktype != SKILL_ARCHERY &&
     attacktype != SKILL_PROJ_WEAPONS &&
     !SPELL_IS_PSIONIC(attacktype) &&
@@ -1195,6 +1196,7 @@ damage(struct Creature *ch, struct Creature *victim, int dam,
 			damage_eq(ch, impl, impl_dam, attacktype);
 
 		if (weap && (attacktype != SKILL_PROJ_WEAPONS) &&
+            attacktype >= TYPE_EGUN_LASER && attacktype <= TYPE_EGUN_TOP &&
 			attacktype != SKILL_ENERGY_WEAPONS)
 			damage_eq(ch, weap, MAX(weap_dam, dam >> 6), attacktype);
 		return 0;
@@ -1786,6 +1788,7 @@ damage(struct Creature *ch, struct Creature *victim, int dam,
 			damage_eq(ch, impl, impl_dam, attacktype);
 
 		if (weap && (attacktype != SKILL_PROJ_WEAPONS) &&
+            attacktype >= TYPE_EGUN_LASER && attacktype <= TYPE_EGUN_TOP &&
 			attacktype != SKILL_ENERGY_WEAPONS)
 			damage_eq(ch, weap, MAX(weap_dam, dam >> 6), attacktype);
 
@@ -2018,6 +2021,7 @@ damage(struct Creature *ch, struct Creature *victim, int dam,
                             // mages casting spells and shooters should be able to attack
                             // without initiating melee ( on their part at least )
                             if (attacktype != SKILL_ENERGY_WEAPONS &&
+                                attacktype >= TYPE_EGUN_LASER && attacktype <= TYPE_EGUN_TOP &&
                                 attacktype != SKILL_PROJ_WEAPONS &&
                                 ch->in_room == victim->in_room &&
                                 (!IS_MAGE(ch) || attacktype > MAX_SPELLS ||
@@ -2439,7 +2443,7 @@ hit(struct Creature *ch, struct Creature *victim, int type)
                 || IS_GUN(cur_weap)) {
 				w_type = TYPE_BLUDGEON;
             } else if (IS_ENERGY_GUN(cur_weap) && cur_weap->contains) {
-                w_type = SKILL_ENERGY_WEAPONS;
+                w_type = GUN_TYPE(cur_weap) + TYPE_EGUN_LASER;
                 int cost = MIN(CUR_ENERGY(cur_weap->contains), GUN_DISCHARGE(cur_weap));
                 CUR_ENERGY(cur_weap->contains) -= cost;
                 if (CUR_ENERGY(cur_weap->contains) <= 0) {
@@ -2513,7 +2517,7 @@ hit(struct Creature *ch, struct Creature *victim, int type)
 		limb = WEAR_NECK_1;
 
 	/* okay, we know the guy has been hit.  now calculate damage. */
-	if (cur_weap && w_type == SKILL_ENERGY_WEAPONS) {
+	if (cur_weap && w_type >= TYPE_EGUN_LASER && w_type <= TYPE_EGUN_TOP) {
         dam = dex_app[GET_DEX(ch)].todam;
         dam += GET_HITROLL(ch);
 	} else {
@@ -2632,7 +2636,8 @@ hit(struct Creature *ch, struct Creature *victim, int type)
                 }
             }
 		}
-        if (w_type == SKILL_ENERGY_WEAPONS && GET_SKILL(ch, SKILL_ENERGY_WEAPONS) > 60) {
+        if (w_type >= TYPE_EGUN_LASER && w_type <= TYPE_EGUN_TOP
+            && GET_SKILL(ch, SKILL_ENERGY_WEAPONS) > 60) {
             gain_skill_prof(ch, SKILL_ENERGY_WEAPONS);
         }
         
@@ -2788,6 +2793,25 @@ do_casting_weapon(Creature *ch, obj_data *weap)
 			TO_ROOM);
 	}
 	return 0;
+}
+
+//this function only determines whether a gun special should be performed
+//actual performance code is in damage because the different special types
+//require access to different damage variables at different times
+bool
+do_gun_special(Creature *ch, obj_data *obj) {
+    if (!IS_ENERGY_GUN(obj) || !EGUN_CUR_ENERGY(obj)) {
+        return false;
+    }
+    
+    //calculation code here, future skills could and should affect this
+    
+    if (number(0, MAX(2, LVL_GRIMP + 28 - GET_LEVEL(ch) - GET_DEX(ch) -
+    (CHECK_SKILL(ch, SKILL_ENERGY_WEAPONS) >> 3)))) {
+        return false;
+    }
+    
+    return true;
 }
 
 /* control the fights.  Called every 0.SEG_VIOLENCE sec from comm.c. */

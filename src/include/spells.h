@@ -760,6 +760,18 @@ static const int TYPE_SHOOT = 818;
 
 static const int TOP_ATTACKTYPE = 819;
 /* new attack types can be added here - up to TYPE_SUFFERING */
+
+//energy weapon attack types
+static const int TYPE_EGUN_LASER = 820;
+static const int TYPE_EGUN_PLASMA = 821;
+static const int TYPE_EGUN_ION = 822;
+static const int TYPE_EGUN_PHOTON = 823;
+static const int TYPE_EGUN_SONIC = 824;
+static const int TYPE_EGUN_PARTICLE = 825;
+static const int TYPE_EGUN_GAMMA = 826;
+static const int TYPE_EGUN_LIGHTNING = 827;
+static const int TYPE_EGUN_TOP = 828;
+
 static const int TYPE_CRUSHING_DEPTH = 892;	// in deep ocean without vehicle
 static const int TYPE_TAINT_BURN = 893;	// casting while tainted
 static const int TYPE_PRESSURE = 894;

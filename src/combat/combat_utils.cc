@@ -1083,6 +1083,7 @@ make_corpse(struct Creature *ch, struct Creature *killer, int attacktype)
 
 	case TYPE_PIERCE:
 	case TYPE_STAB:
+    case TYPE_EGUN_PARTICLE:
 		sprintf(buf2, "The bloody %s of %s %s lying here, full of holes.",
 			typebuf, GET_NAME(ch), isare);
 		corpse->line_desc = str_dup(buf2);
@@ -1130,7 +1131,8 @@ make_corpse(struct Creature *ch, struct Creature *killer, int attacktype)
 	case SPELL_DISRUPTION:
 	case SPELL_PRISMATIC_SPRAY:
 	case SKILL_DISCHARGE:
-		sprintf(buf2, "The blasted %s of %s %s lying here.",
+    case TYPE_EGUN_LASER:
+        sprintf(buf2, "The blasted %s of %s %s lying here.",
 			typebuf, GET_NAME(ch), isare);
 		corpse->line_desc = str_dup(buf2);
 		strcpy(adj, "blasted");
@@ -1165,6 +1167,7 @@ make_corpse(struct Creature *ch, struct Creature *killer, int attacktype)
 	case SPELL_HELL_FIRE:
 	case TYPE_FLAMETHROWER:
     case SPELL_ELECTRIC_ARC:
+    case TYPE_EGUN_PLASMA:
 		sprintf(buf2, "The charred %s of %s %s lying here.",
 			typebuf, GET_NAME(ch), isare);
 		corpse->line_desc = str_dup(buf2);
@@ -1173,6 +1176,7 @@ make_corpse(struct Creature *ch, struct Creature *killer, int attacktype)
 
 	case SKILL_ENERGY_FIELD:
 	case SKILL_SELF_DESTRUCT:
+    case TYPE_EGUN_ION:
 		sprintf(buf2, "The smoking %s of %s %s lying here,",
 			typebuf, GET_NAME(ch), isare);
 		corpse->line_desc = str_dup(buf2);
@@ -1194,6 +1198,7 @@ make_corpse(struct Creature *ch, struct Creature *killer, int attacktype)
 		break;
 
 	case JAVELIN_OF_LIGHTNING:
+    case EGUN_LIGHTNING:
 		sprintf(buf2, "The %s of %s %s lying here, blasted and smoking.",
 			typebuf, GET_NAME(ch), isare);
 		corpse->line_desc = str_dup(buf2);
@@ -1236,6 +1241,7 @@ make_corpse(struct Creature *ch, struct Creature *killer, int attacktype)
 
 	case SPELL_GAMMA_RAY:
 	case SPELL_HALFLIFE:
+    case TYPE_EGUN_GAMMA:
 		sprintf(buf2, "The radioactive %s of %s %s lying here.",
 			typebuf, GET_NAME(ch), isare);
 		corpse->line_desc = str_dup(buf2);

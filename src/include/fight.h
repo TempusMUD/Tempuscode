@@ -18,6 +18,7 @@
 			 type == SKILL_SECOND_WEAPON || \
 			 type == SKILL_ENERGY_WEAPONS || \
 			 type == SKILL_ARCHERY        || \
+             (((type) >= TYPE_EGUN_LASER) && ((type) <= TYPE_EGUN_TOP)) || \
 			 type == SKILL_PROJ_WEAPONS)
 
 #define SLASHING(weap) (GET_OBJ_VAL(weap, 3) == (TYPE_SLASH-TYPE_HIT))
@@ -44,7 +45,7 @@
  i == TYPE_MAUL ? 7 : i == TYPE_PIERCE ? 3 :\
  i == TYPE_BLAST ? 2 : i == TYPE_PUNCH ? 1 :\
  i == TYPE_STAB ? 3 : i == TYPE_RIP ? 8 :\
- i == TYPE_CHOP ? 7 : 0)\
+ i == TYPE_CHOP ? 7 : i == TYPE_EGUN_PARTICLE ? 3 : 0)\
 
 #define BLOODLET(ch, dam, attacktype) \
  (MIN(BLOODLET_FACTOR(attacktype) * dam, 10000) > number(0, 20000))

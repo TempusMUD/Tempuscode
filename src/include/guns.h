@@ -67,7 +67,7 @@ void show_gun_status(struct Creature *ch, struct obj_data *gun);
 #define NUM_GUN_TYPES   31
 
 static const int EGUN_LASER = 0;
-static const int EGUN_PLASA = 1;
+static const int EGUN_PLASMA = 1;
 static const int EGUN_ION = 2;
 static const int EGUN_PHOTON = 3;
 static const int EGUN_SONIC = 4;

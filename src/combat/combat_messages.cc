@@ -1118,7 +1118,7 @@ dam_message(int dam, struct Creature *ch, struct Creature *victim,
 	if (search_nomessage)
 		return;
 
-	if (w_type == SKILL_ENERGY_WEAPONS)
+	if (w_type >= TYPE_EGUN_LASER && w_type <= TYPE_EGUN_TOP)
 		w_type = TYPE_ENERGY_GUN;
 
 	if (w_type == SKILL_PROJ_WEAPONS)

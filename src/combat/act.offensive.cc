@@ -2390,7 +2390,7 @@ ACMD(do_shoot)
         if (number(0, 121) > prob) {
             check_killer(ch, vict);
             my_return_flags =
-            damage(ch, vict, 0, SKILL_ENERGY_WEAPONS, number(0,
+            damage(ch, vict, 0, GUN_TYPE(gun)+TYPE_EGUN_LASER, number(0,
             NUM_WEARS - 1));
         }
         //
@@ -2400,7 +2400,7 @@ ACMD(do_shoot)
         else {
             check_killer(ch, vict);
             my_return_flags =
-            damage(ch, vict, dam, SKILL_ENERGY_WEAPONS, number(0,
+            damage(ch, vict, dam, GUN_TYPE(gun)+TYPE_EGUN_LASER, number(0,
             NUM_WEARS - 1));
         }
         //
