@@ -606,7 +606,7 @@ HouseControl::load()
 
 	for( int i = 0; i <= 9; i++ ) {
 		// If we don't have
-		dirname = tmp_sprintf("housing/%d", i);
+		dirname = tmp_sprintf("players/housing/%d", i);
 		dir = opendir(dirname);
 		if (!dir) {
 			mkdir(dirname, 0644);
