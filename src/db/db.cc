@@ -1467,7 +1467,11 @@ set_physical_attribs(struct char_data *ch)
 	ch->player.weight = number(110, 150) + (GET_STR(ch) << 1);
 	ch->player.height = number(100, 125) + (GET_WEIGHT(ch) >> 3);
 	ch->real_abils.dex = 15;
+    } 
+    else if ( GET_RACE( ch ) == RACE_WEMIC ) {
+	ch->player.weight = number( 500, 560 ) + (GET_STR(ch) << 1);
     }
+
     if (ch->player.sex == SEX_FEMALE) {
 	ch->player.weight = (int) ( ch->player.weight * 0.75 );
 	ch->player.height = (int) ( ch->player.weight * 0.75 );
@@ -1762,7 +1766,7 @@ interpret_espec(char *keyword, char *value, struct char_data *mobile, int nr)
     }
     CASE("Weight") {
 	RANGE(1, 10000);
-	mobile->player.height = num_arg;
+	mobile->player.weight = num_arg;
     }
     CASE("RemortClass") {
 	RANGE(0, 1000);

@@ -2144,6 +2144,60 @@ mobile_battle_activity(struct char_data *ch)
 
     /** RACIAL ATTACKS FIRST **/
 
+    // wemics 'leap' out of battle, only to return via the hunt for the kill
+    if ( IS_RACE( ch, RACE_WEMIC ) &&
+	 GET_MOVE( ch ) > ( GET_MAX_MOVE( ch ) >> 1 ) ) {
+	
+	// leap
+	if ( !number( 0, 2 ) ) {
+	    if ( GET_HIT( ch ) > ( GET_MAX_HIT( ch ) >> 1 ) &&
+		 !ROOM_FLAGGED( ch->in_room, ROOM_NOTRACK ) ) {
+		
+		for ( int dir = 0; dir < NUM_DIRS; ++dir ) {
+		    if ( CAN_GO( ch, dir ) &&
+			 !ROOM_FLAGGED(EXIT(ch, dir)->to_room,
+				       ROOM_DEATH | ROOM_NOMOB |
+				       ROOM_PEACEFUL | ROOM_NOTRACK ) &&
+			 EXIT(ch, dir)->to_room != ch->in_room &&
+			 CHAR_LIKES_ROOM(ch, EXIT(ch, dir)->to_room) &&
+			 !number( 0 , 1 ) ) {
+		
+			struct char_data *was_fighting = FIGHTING( ch );
+
+			stop_fighting( FIGHTING( ch ) );
+			stop_fighting( ch );
+			
+			//
+			// leap in this direction
+			//
+			sprintf( buf, "$n leaps over you to the %s!", dirs[ dir ] );
+			act( buf, FALSE, ch, 0, 0, TO_ROOM );
+		
+			struct room_data *to_room = EXIT(ch, dir)->to_room;
+			char_from_room( ch );
+			char_to_room( ch, to_room );
+		
+			sprintf( buf, "$n leaps in from %s!", from_dirs[ dir ] );
+			act( buf, FALSE, ch, 0, 0, TO_ROOM );
+		
+			HUNTING( ch ) = was_fighting;
+			return;
+		    }
+		}
+	    }
+	}
+
+	// paralyzing scream
+
+	else if ( !number( 0, 1 ) ) {
+	    act( "$n releases a deafening scream!!", FALSE, ch, 0, 0, TO_ROOM );
+	    call_magic( ch, FIGHTING( ch ), 0, SPELL_FEAR, GET_LEVEL( ch ), CAST_BREATH );
+	    WAIT_STATE( FIGHTING( ch ), 3 RL_SEC );
+	    return;
+	}
+    }
+	    
+	    
     if (IS_RACE(ch, RACE_UMBER_HULK)) {
 	if (!number(0, 2) &&
 	    !AFF_FLAGGED(FIGHTING(ch), AFF_CONFUSION)) {
