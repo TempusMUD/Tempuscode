@@ -65,14 +65,14 @@ const struct qcontrol_option {
     { "minlev",   "<vnum> <minlev>",                            LVL_AMBASSADOR }, // 15
     { "maxlev",   "<vnum> <maxlev>",                            LVL_AMBASSADOR },
     { "award",    "<player> <vnum> <pts> [comments]",           LVL_AMBASSADOR },
-    { "penalize", "<player> <vnum> <pts> <reason>",             LVL_LUMINARY },
-    { "mload",     "<mobile vnum> <vnum>",                      LVL_SPIRIT  },
-    { "purge",    "<vnum> <mobile name>",                       LVL_SPIRIT  }, // 20
-    { "save",     "",                                           LVL_GRGOD  },
+    { "penalize", "<player> <vnum> <pts> <reason>",             LVL_AMBASSADOR },
+    { "mload",     "<mobile vnum> <vnum>",                      LVL_BUILDER },
+    { "purge",    "<vnum> <mobile name>",                       LVL_BUILDER }, // 20
+    { "save",     "",                                           73         },
     { "help",     "<topic>",                                    LVL_AMBASSADOR },
     { "switch",   "<mobile name>",                              LVL_IMMORT },
-    { "rename",   "<obj name> <new obj name>",                  LVL_SPIRIT },
-    { "oload",          "<item num> <vnum>",                    LVL_AMBASSADOR},
+    { "rename",   "<obj name> <new obj name>",                  73         },
+    { "oload",          "<item num> <vnum>",                    LVL_AMBASSADOR },
     { NULL, NULL, 0 }                // list terminator
 };
 
@@ -139,6 +139,11 @@ ACMD(do_qcontrol)
         do_qcontrol_options(ch);
         return;
     }
+    /*
+    if(! Security::isMember( ch, "Questors" ) ) {
+        send_to_char( "You're not a questor!\r\n", ch );
+        return;
+    }*/
     for (com = 0;;com++) {
         if (!qc_options[com].keyword) {
             sprintf(buf, "Unknown qcontrol option, '%s'.\r\n", arg1);
