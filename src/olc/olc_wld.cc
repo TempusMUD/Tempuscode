@@ -1102,16 +1102,6 @@ do_olc_rexdesc(struct Creature *ch, char *argument, bool is_hedit)
 
 ACMD(do_hedit)
 {
-	send_to_char(ch, "Disabled until further notice.\r\n");
-	return;
-	/*
-	char arg[MAX_INPUT_LENGTH];
-	int command, j, cost = 0, num = 0, tot_cost = 0, tot_num = 0;
-	bool local = false, brief = false;
-	struct room_data *rm = NULL;
-	struct obj_data *o = NULL;
-	struct house_control_rec *h = 0;
-
 	const char *hedit_options[] = {
 		"title",
 		"desc",
@@ -1119,14 +1109,13 @@ ACMD(do_hedit)
 		"sound",
 		"save",
 		"show",
-		"owner",
 		"\n"
 	};
+	char arg[MAX_INPUT_LENGTH];
 
-	if (olc_lock || (IS_SET(ch->in_room->zone->flags, ZONE_LOCKED))) {
+	if( olc_lock || (IS_SET(ch->in_room->zone->flags, ZONE_LOCKED)) ) {
 		if (GET_LEVEL(ch) >= LVL_IMPL) {
-			send_to_char(ch,
-				"\007\007\007\007%sWARNING.%s  Overriding olc %s lock.\r\n",
+			send_to_char(ch, "\007\007\007\007%sWARNING.%s  Overriding olc %s lock.\r\n",
 				CCRED_BLD(ch, C_NRM), CCNRM(ch, C_NRM),
 				olc_lock ? "global" : "discrete zone");
 		} else {
@@ -1135,35 +1124,35 @@ ACMD(do_hedit)
 		}
 	}
 
-	if (!IS_SET(ROOM_FLAGS(ch->in_room), ROOM_HOUSE)) {
+	if( !IS_SET(ROOM_FLAGS(ch->in_room), ROOM_HOUSE) ) {
 		send_to_char(ch, "You have to be in your house to edit it.\r\n");
 		return;
 	}
-	if (!(h = real_house(ch->in_room->number))) {
+
+    House *house = Housing.findHouseByRoom(ch->in_room->number);
+	if( house == NULL ) {
 		send_to_char(ch, "Um.. this house seems to be screwed up.\r\n");
+        slog("HEDIT: Unable to find house for room %d.",ch->in_room->number);
 		return;
 	}
-	if ((GET_IDNUM(ch) != h->owner1) &&
-		(GET_IDNUM(ch) != h->owner2) && GET_LEVEL(ch) < LVL_GRGOD) {
+
+	if( !house->isOwner(ch) && !Security::isMember(ch, "House") ) {
 		send_to_char(ch, "Only the owner can edit the house.\r\n");
 		return;
 	}
-	if (h->mode == HOUSE_RENTAL) {
+
+	if( house->getType() == House::RENTAL ) {
 		send_to_char(ch, "You cannot edit rental houses.\r\n");
 		return;
 	}
 
 	argument = one_argument(argument, arg);
 	skip_spaces(&argument);
-
-	if ((command = search_block(arg, hedit_options, 0)) < 0) {
-		send_to_char(ch, HEDIT_USAGE);
-		return;
-	}
+    int command = search_block(arg, hedit_options, 0);
 
 	switch (command) {
 	case 0:					// title
-		if (strlen(argument) > 80) {
+		if( strlen(argument) > 80 ) {
 			send_to_char(ch, "That's a bit long. Dont you think?\r\n");
 			return;
 		}
@@ -1182,16 +1171,19 @@ ACMD(do_hedit)
 		do_olc_rexdesc(ch, argument, true);
 		break;
 	case 4:					// save
-		if (save_wld(ch, ch->in_room->zone))
+		if( save_wld(ch, ch->in_room->zone) ) {
 			send_to_char(ch, "Your house modifications have been saved.\r\n");
-		else {
+		} else {
 			send_to_char(ch, "An error occured while saving your house modifications.\r\n");
-			slog("SYSERR: Error hedit save in house room %d.",
-				ch->in_room->number);
+			slog("SYSERR: Error hedit save in house room %d.", ch->in_room->number);
 		}
 		WAIT_STATE(ch, 8 RL_SEC);
 		break;
-	case 5:					// show 
+
+	case 5:	{ // show 
+        int tot_cost = 0, tot_num = 0;
+        bool local = false;
+        bool brief = false;
 		char tmpbuf[1024];
 		tmpbuf[0] = '\0';
 		buf[0] = '\0';
@@ -1205,26 +1197,31 @@ ACMD(do_hedit)
 			(*argument && !strncmp(argument, ".", 1))) {
 			local = true;
 		}
+
 		if (brief) {
 			strcpy(buf,
 				"-- House Room --------------------- Items ------- Cost\r\n");
-			for (j = 0; j < h->num_of_rooms; j++, num = 0, cost = 0) {
-				if (local && h->house_rooms[j] != ch->in_room->number)
+            for( unsigned int i = 0; i < house->getRoomCount(); i++ ) 
+            {
+                int cost = 0;
+                int num = 0;
+				if (local && house->getRoom(i) != ch->in_room->number)
 					continue;
-				if (!(rm = real_room(h->house_rooms[j]))) {
+                room_data* room = real_room( house->getRoom(i) );
+				if( room == NULL ) {
 					slog("SYSERR:  house room does not exist!");
 					continue;
 				}
 
-				for (o = rm->contents; o; o = o->next_content) {
+				for( obj_data *o = room->contents; o; o = o->next_content) {
 					num += recurs_obj_contents(o, NULL);
 					cost += recurs_obj_cost(o, false, NULL);
 				}
 				tot_cost += cost;
 				tot_num += num;
 				sprintf(tmpbuf, "%s%-30s%s       %s%3d%s        %5d\r\n",
-					CCCYN(ch, C_NRM), rm->name, CCNRM(ch, C_NRM),
-					(num > MAX_HOUSE_ITEMS) ? CCRED(ch, C_NRM) : "",
+					CCCYN(ch, C_NRM), room->name, CCNRM(ch, C_NRM),
+					(num > House::MAX_ITEMS) ? CCRED(ch, C_NRM) : "",
 					num, CCNRM(ch, C_NRM), cost);
 
 				if (strlen(buf) + strlen(tmpbuf) > MAX_STRING_LENGTH - 256) {
@@ -1246,52 +1243,14 @@ ACMD(do_hedit)
 		}
 		// not brief mode
 		if (local) {
-			*buf = 0;
-			print_room_contents_to_buf(ch, buf, ch->in_room);
-			page_string(ch->desc, buf);
-		} else
-			h->listRooms(ch);
+			page_string(ch->desc, print_room_contents(ch,ch->in_room));
+		} else {
+			house->listRooms(ch);
+        }
 		break;
-
-		// owner
-	case 6:
-		{
-			long idnum;
-			argument = one_argument(argument, arg);
-			idnum = playerIndex.getID(arg);
-
-			if (GET_IDNUM(ch) != h->owner1) {
-				send_to_char(ch, "Sorry, only the primary owner can do this.\r\n");
-				return;
-			}
-			if (idnum <= 0) {
-				send_to_char(ch, "There is no player named '%s'.\r\n", arg);
-				return;
-			}
-
-			if (GET_IDNUM(ch) == idnum) {
-				send_to_char(ch, "You cannot Co-own with yourself.\r\n");
-				return;
-			}
-
-			if (h->owner2 == idnum) {
-				h->owner2 = 0;
-				House_save_control();
-				send_to_char(ch, "Co-owner removed.\r\n");
-				WAIT_STATE(ch, 2 RL_SEC);
-				return;
-			}
-
-			h->owner2 = idnum;
-			House_save_control();
-			send_to_char(ch, "Co-owner added.\r\n");
-			WAIT_STATE(ch, 2 RL_SEC);
-			return;
-			break;
-		}
-
+    }
 	default:
-		send_to_char(ch, "Error code <69> -- fatal allocation in do_hedit.\r\n");
-		break;
-	} */
+		send_to_char(ch, HEDIT_USAGE);
+		return;
+	}
 }
