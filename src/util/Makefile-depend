@@ -2,7 +2,7 @@ $(OBJ)/accstr.o : accstr.cc \
 	$(INCLUDE)/interpreter.h $(INCLUDE)/utils.h $(INCLUDE)/db.h 
 	$(CXX) -c $(CXXFLAGS) accstr.cc            -o $(OBJ)/accstr.o
 $(OBJ)/graph.o : graph.cc \
-	$(INCLUDE)/structs.h $(INCLUDE)/utils.h $(INCLUDE)/comm.h $(INCLUDE)/interpreter.h $(INCLUDE)/handler.h $(INCLUDE)/db.h $(INCLUDE)/spells.h $(INCLUDE)/vehicle.h $(INCLUDE)/fight.h $(INCLUDE)/char_class.h 
+	$(INCLUDE)/structs.h $(INCLUDE)/utils.h $(INCLUDE)/comm.h $(INCLUDE)/interpreter.h $(INCLUDE)/handler.h $(INCLUDE)/db.h $(INCLUDE)/spells.h $(INCLUDE)/vehicle.h $(INCLUDE)/fight.h $(INCLUDE)/char_class.h $(INCLUDE)/accstr.h 
 	$(CXX) -c $(CXXFLAGS) graph.cc             -o $(OBJ)/graph.o
 $(OBJ)/handler.o : handler.cc \
 	$(INCLUDE)/structs.h $(INCLUDE)/utils.h $(INCLUDE)/comm.h $(INCLUDE)/db.h $(INCLUDE)/handler.h $(INCLUDE)/interpreter.h $(INCLUDE)/spells.h $(INCLUDE)/screen.h $(INCLUDE)/vehicle.h $(INCLUDE)/vendor.h $(INCLUDE)/clan.h $(INCLUDE)/smokes.h $(INCLUDE)/materials.h $(INCLUDE)/login.h $(INCLUDE)/char_class.h $(INCLUDE)/help.h $(INCLUDE)/fight.h $(INCLUDE)/security.h $(INCLUDE)/tmpstr.h $(INCLUDE)/utils.h $(INCLUDE)/vendor.h 
