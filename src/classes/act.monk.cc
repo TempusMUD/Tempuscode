@@ -371,8 +371,8 @@ ACMD(do_combo)
         if( obj == NULL ) 
             continue;
 		if( GET_OBJ_TYPE(obj) == ITEM_ARMOR ) {
-            if(IS_METAL_TYPE(ovict) || IS_STONE_TYPE(ovict) || IS_WOOD_TYPE(ovict)) {
-                percent += ovict->getWeight();
+            if(IS_METAL_TYPE(obj) || IS_STONE_TYPE(obj) || IS_WOOD_TYPE(obj)) {
+                percent += obj->getWeight();
             }
         }
     }
