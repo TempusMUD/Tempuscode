@@ -528,8 +528,8 @@ build_old_player_index(void)
 	char dirname[256];
     char filename[256];
 	char inbuf[131072];
+    ifstream inf;
     slog("Building old character index...");
-	ifstream inf;
 
 	for( int i = 0; i <= 9; i++ ) {
 		// If we don't have
@@ -547,27 +547,34 @@ build_old_player_index(void)
 			// Check for correct filename (*.dat)
 			if (!rindex(file->d_name, '.'))
 				continue;
-			if (strcmp(rindex(file->d_name, '.'), ".dat"))
+			if (strcmp(rindex(file->d_name, '.'), ".dat")) {
 				continue;
+            }
 
-			inf.open(filename, ios::in);
-			// Open up the file and scan through it, looking for name and idnum
+            // Open up the file and scan through it, looking for name and idnum
 			// parameters
             sprintf(filename,"%s/%s", dirname, file->d_name);
-			inf.read(inbuf, sizeof(inbuf));
+			inf.open(filename, ios::in);
+			inf.read(inbuf, 100);
+            inf.close();
 			char *name = strstr(inbuf, "name=" );
 			char *idnum = strstr(inbuf, "idnum=" );
-
-			if(!name || !idnum)
+            
+			if(!name) {
+                slog("...name not found for file '%s'\n",filename);
 				continue;
-
+            }
+            if(!idnum) {
+                slog("...idnum not found for file '%s'\n",filename);
+				continue;
+            }
 			name += 5;
 			name = tmp_getquoted(&name);
 			idnum += 6;
 			idnum = tmp_getquoted(&idnum);
 
 			long id = atol( idnum );
-			oldPlayerIndex.add( id, name, false );
+            oldPlayerIndex.add( id, name, false );
 		}
 		closedir(dir);
 	}
