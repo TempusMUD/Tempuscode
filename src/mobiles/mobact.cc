@@ -1447,9 +1447,11 @@ mobile_activity(void)
 		ch = *cit;
 		found = FALSE;
  
-     if (!ch->in_room && !ch->player.name && !ch->player.short_descr
-         && !ch->player.description) {
-         errlog("SYSERR: Skipping null mobile in mobile_activity");
+         if (!ch->in_room && !ch->player.name && !ch->player.short_descr
+             && !ch->player.description) {
+             errlog("SYSERR: Skipping null mobile in mobile_activity");
+             continue;
+         }
 		//
 		// Check for mob spec
 		//
