@@ -9,6 +9,7 @@ SPECIAL(ogre1)
   struct char_data *vict;
   if (cmd || FIGHTING(ch))
     return 0;
+  if( spec_mode == SPECIAL_DEATH ) return 0;
   for (vict = ch->in_room->people;vict;vict = vict->next_in_room)
     if (IS_ORC(vict) && CAN_SEE(ch, vict)) {
       act("$n roars, 'Now I've got $N, you!", FALSE, ch, 0, vict, TO_ROOM);

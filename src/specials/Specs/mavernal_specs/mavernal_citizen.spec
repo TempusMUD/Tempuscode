@@ -6,7 +6,7 @@
 
 SPECIAL(maveral_citizen)
 {
-
+  if( spec_mode == SPECIAL_DEATH ) return 0;
   if (cmd || FIGHTING(ch) || !AWAKE(ch))
     return (0);
 

@@ -8,6 +8,7 @@ SPECIAL(carrion_crawler)
 {
   if (cmd || !FIGHTING(ch))
     return 0;
+  if( spec_mode == SPECIAL_DEATH ) return 0;
   if (!number(0, 3)) {
     if (mag_savingthrow(FIGHTING(ch), GET_LEVEL(ch), SAVING_PARA)) {
       if (number(0, 1)) {

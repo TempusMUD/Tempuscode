@@ -10,7 +10,7 @@ SPECIAL(mob_helper)
 
   if (cmd || FIGHTING(ch))
     return 0;
-  
+  if( spec_mode == SPECIAL_DEATH ) return 0;  
   for (vict=ch->in_room->people;vict != NULL;vict=vict->next_in_room) {
     if (FIGHTING(vict) && IS_MOB(vict) && IS_MOB(FIGHTING(vict)))
       if (((IS_GOOD(ch) && IS_GOOD(vict)) || (IS_EVIL(ch) && IS_EVIL(vict)))

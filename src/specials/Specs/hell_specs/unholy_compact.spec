@@ -12,43 +12,44 @@ SPECIAL(unholy_compact)
   int con_cost = 5;
   char buf[MAX_STRING_LENGTH];
   int min_gen=0;
+  if( spec_mode == SPECIAL_DEATH ) return 0;
   if (!CMD_IS("sell"))
     return 0;
   skip_spaces(&argument);
   if (IS_NPC(ch)) {
-  	send_to_char("Mobiles have no soul.\r\n",ch);
-	return 1;
+          send_to_char("Mobiles have no soul.\r\n",ch);
+        return 1;
   }
   life_cost = 25;
   gold = 10000*GET_LEVEL(ch);
   if ( IS_KNIGHT(ch) )
-  	min_gen = 6;
+          min_gen = 6;
   if ( IS_CLERIC(ch) )
-  	min_gen = 4;
-  	
+          min_gen = 4;
+          
   if (!*argument) {
     sprintf(buf, "Go sell your crap elsewhere! I only buy souls!\r\n");
     send_to_char(buf, ch);
-	return 1;
+        return 1;
   } else if ( GET_CLASS(ch) != CLASS_CLERIC && GET_CLASS(ch) != CLASS_KNIGHT ) {
      perform_tell(dude, ch, "You really have no idea, do you.");
-	 return 1;
+         return 1;
   } else if (GET_LEVEL(ch) < LVL_CAN_SELL_SOUL || GET_REMORT_GEN(ch) < min_gen ) {
     send_to_char("Your soul is worthless to me.\r\n", ch);
-	return 1;
+        return 1;
   } else if ( GET_ALIGNMENT(ch) > 0 ) {
      perform_tell(dude, ch, "Your soul is tainted. It cannot be sold.");
-	 return 1;
+         return 1;
   } else if (!is_abbrev(argument, "soul")) {
-	  perform_tell(dude, ch, "Go sell your crap elsewhere! I only buy souls!");
-	  return 1;
+          perform_tell(dude, ch, "Go sell your crap elsewhere! I only buy souls!");
+          return 1;
   } 
-	if(PLR2_FLAGGED(ch, PLR2_SOULLESS)) {
+        if(PLR2_FLAGGED(ch, PLR2_SOULLESS)) {
       sprintf(buf, "I appreciate your devotion sir. But you only had one soul to sell.");
       perform_tell(dude,ch, buf);
       return 1;
     }
-	if (GET_GOLD(ch) < gold) {
+        if (GET_GOLD(ch) < gold) {
       perform_tell(dude, ch, "You think I work for free?!?");
       sprintf(buf, "Bring me %d gold coins and I will make the compact.", gold);
       perform_tell(dude, ch, buf);
@@ -59,14 +60,14 @@ SPECIAL(unholy_compact)
       perform_tell(dude, ch, buf);
     } else {
       act("$n burns the mark of evil into $N's forehead.", TRUE, dude, 0, ch, TO_NOTVICT);
-	  act("$n burns the mark of evil in your forehead.  All hope is lost...", TRUE, dude, 0, ch, TO_VICT);
+          act("$n burns the mark of evil in your forehead.  All hope is lost...", TRUE, dude, 0, ch, TO_VICT);
       act("$N screams in agony as $S soul is ripped from $S body!", TRUE, dude, 0, ch, TO_NOTVICT);
-	  ch->setPosition( POS_SLEEPING );
+          ch->setPosition( POS_SLEEPING );
       GET_LIFE_POINTS(ch) -= life_cost;
       GET_GOLD(ch) -= gold;
-	  SET_BIT(PLR2_FLAGS(ch), PLR2_SOULLESS);
-	  ch->real_abils.con -= con_cost;
-	  save_char( ch, NULL );
+          SET_BIT(PLR2_FLAGS(ch), PLR2_SOULLESS);
+          ch->real_abils.con -= con_cost;
+          save_char( ch, NULL );
       sprintf(buf, "The torturous cries of hell haunt your dreams.\r\n");
       send_to_char(buf, ch);
       sprintf(buf, "%s sign's the unholy compact, joining the soulless masses.", GET_NAME(ch));

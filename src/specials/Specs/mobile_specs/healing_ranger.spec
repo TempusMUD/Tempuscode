@@ -13,6 +13,7 @@ SPECIAL(healing_ranger)
   ACMD(do_medic);
   if (cmd || FIGHTING(ch))
     return FALSE;
+  if( spec_mode == SPECIAL_DEATH ) return 0;
 
   switch (number(0,25)) {
     case 0:

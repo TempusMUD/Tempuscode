@@ -14,6 +14,7 @@ SPECIAL(moloch)
 
   if (cmd)
     return 0;
+  if( spec_mode == SPECIAL_DEATH ) return 0;
 
   if (FIGHTING(moloch) && GET_MOB_WAIT(moloch) <= 0) {
     if (!number(0, 10)) {

@@ -8,7 +8,7 @@ SPECIAL(insane_merchant)
 {
   if (cmd)
     return 0;
-
+  if( spec_mode == SPECIAL_DEATH ) return 0;
   if (ch->in_room->people == ch && !ch->next_in_room)
     return 0;
 

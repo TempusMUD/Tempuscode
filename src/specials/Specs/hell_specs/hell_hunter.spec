@@ -87,7 +87,7 @@ SPECIAL(hell_hunter_brain)
     struct char_data *mob = NULL, *vict = NULL;
     int i, j;
     int num_devils = 0, regulator = 0;
-
+    if( spec_mode == SPECIAL_DEATH ) return 0;
     if (cmd) {
         if (CMD_IS("status")) {
             sprintf(buf, "Counter is at %d, freq %d.\r\n", counter, freq);

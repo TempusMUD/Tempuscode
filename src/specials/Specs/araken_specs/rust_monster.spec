@@ -12,6 +12,7 @@ SPECIAL(rust_monster)
 
   if (cmd)
     return 0;
+  if( spec_mode == SPECIAL_DEATH ) return 0;
 
   if (!FIGHTING(ch)) {
 

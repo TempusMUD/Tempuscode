@@ -33,7 +33,6 @@ tarrasque_jump(struct char_data *tarr, int jump_mode)
 
   struct room_data *up_room = NULL;
   int i;
-
   act("$n takes a flying leap upwards into the chasm!",
       FALSE, tarr, 0, 0, TO_ROOM);
 
@@ -207,7 +206,7 @@ SPECIAL(tarrasque)
       return 1;
     }
   }
-
+  if( spec_mode == SPECIAL_DEATH ) return 0;
   if (cmd) {
     if (CMD_IS("status") && GET_LEVEL(ch) >= LVL_IMMORT) {
       sprintf(buf, "Tarrasque status: mode (%d), timer (%d), tframe (%d)\r\n",

@@ -11,6 +11,7 @@ SPECIAL(new_mavernal_talker)
 
   if (cmd || FIGHTING(ch) || !AWAKE(ch))
     return 0;
+  if( spec_mode == SPECIAL_DEATH ) return 0;
   
   switch (number(0, 40)) {
   case 0:

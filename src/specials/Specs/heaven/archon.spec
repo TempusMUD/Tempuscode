@@ -12,7 +12,7 @@ SPECIAL(archon)
 
   if (cmd)
     return 0;
-
+  if( spec_mode == SPECIAL_DEATH ) return 0;
   if (!FIGHTING(ch) && ch->in_room->zone->plane != PLANE_HEAVEN) {
     for (vict = ch->in_room->people; vict; vict = vict->next_in_room)
       if (vict != ch && IS_ARCHON(vict) && FIGHTING(vict)) {

@@ -7,7 +7,7 @@
 SPECIAL(life_bldg_guard)
 {
   struct char_data *guard = (struct char_data *) me;
-
+  if( spec_mode == SPECIAL_DEATH ) return 0;
   if (cmd != EAST + 1 || GET_LEVEL(ch) > 25)
     return FALSE;
 

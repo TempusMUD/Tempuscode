@@ -12,7 +12,7 @@ SPECIAL(spinal)
   
   if (FIGHTING(spinal))
     return 0;
-
+  if( spec_mode == SPECIAL_DEATH ) return 0;
   if (!cmd && spinal->in_room != r_home_pad &&
       r_home_pad != NULL && !FIGHTING(ch)) {
     act("$n departs suddenly into the deeper ethereal.", 

@@ -8,7 +8,7 @@ SPECIAL(hell_hound)
 {
   if (cmd)
     return 0;
-  
+  if( spec_mode == SPECIAL_DEATH ) return 0;  
   if (FIGHTING(ch) && !number(0, 6))
     damage(ch, FIGHTING(ch), 
 	   mag_savingthrow(FIGHTING(ch), GET_LEVEL(ch), SAVING_BREATH) ? 

@@ -11,7 +11,7 @@ SPECIAL(phantasmic_sword)
 
   if (cmd) 
     return 0;
-
+  if( spec_mode == SPECIAL_DEATH ) return 0;
   if (FIGHTING(ch)) {
     if (!number(0, 8)) {
       act("$n starts to emit a piercing whine!", FALSE, ch, 0, 0, TO_ROOM);

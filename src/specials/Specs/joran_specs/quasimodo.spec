@@ -7,6 +7,7 @@
 
 SPECIAL(quasimodo)
 {
+  if( spec_mode == SPECIAL_DEATH ) return 0;
   if (cmd)
    return 0;
   
@@ -17,20 +18,20 @@ SPECIAL(quasimodo)
     break;
   case 1:
     act("$n goes about his bell-ringing duties.", FALSE, ch, 0, 0, 
-	TO_ROOM);
+        TO_ROOM);
     do_say(ch, "Cannot be late ringing the bells.", 0, 0);    
     break;
   case 2:
     act("$n widens his grin, through rotten teeth.", FALSE, ch, 0, 0, 
-	TO_ROOM);
+        TO_ROOM);
     break;
   case 3:
     do_say(ch, "Master has been most generous by giving me a place to live.",
-	   0, 0);
+           0, 0);
     break;
   case 4: 
     act("$n grips the bell rope tightly and says a prayer.", FALSE, 
-	ch, 0, 0, TO_ROOM);
+        ch, 0, 0, TO_ROOM);
     do_say(ch, "May the next hour bring us hope.", 0, 0);
     break;
   case 5:

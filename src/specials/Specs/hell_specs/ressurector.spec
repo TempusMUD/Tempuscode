@@ -11,9 +11,10 @@ SPECIAL(hell_ressurector)
 
     struct obj_data *corpse = NULL, *obj = NULL;
     struct char_data *vict = NULL;
+    if( spec_mode == SPECIAL_DEATH ) return 0;
 
     if ( cmd || GET_MANA(ch) < 200 )
-	return 0;
+        return 0;
 
     //
     // check the room for corpses
@@ -21,10 +22,10 @@ SPECIAL(hell_ressurector)
 
     for ( corpse = ch->in_room->contents; corpse; corpse = corpse->next_content ) {
 
-	if ( !IS_CORPSE(corpse) ||
-	     !RESS_IS_DEVIL_VNUM( - CORPSE_IDNUM(corpse) ) ) {
-	    continue;
-	}
+        if ( !IS_CORPSE(corpse) ||
+             !RESS_IS_DEVIL_VNUM( - CORPSE_IDNUM(corpse) ) ) {
+            continue;
+        }
         
         vict = real_mobile_proto( - CORPSE_IDNUM( corpse ) );
 
@@ -45,48 +46,48 @@ SPECIAL(hell_ressurector)
             return 1;
         }
 
-	//
-	// ressurect the corpse by loading a new mobile
-	//
+        //
+        // ressurect the corpse by loading a new mobile
+        //
 
-	if ( ! ( vict = read_mobile( - CORPSE_IDNUM(corpse) ) ) ) {
-	    sprintf(buf, "SYSERR:  hell ressurector unable to read_mobile(%d).", - CORPSE_IDNUM(corpse) );
-	    slog(buf);
-	    return 0;
-	}
+        if ( ! ( vict = read_mobile( - CORPSE_IDNUM(corpse) ) ) ) {
+            sprintf(buf, "SYSERR:  hell ressurector unable to read_mobile(%d).", - CORPSE_IDNUM(corpse) );
+            slog(buf);
+            return 0;
+        }
 
         GET_MANA( ch ) -= 150;
 
-	//
-	// put the vict (ressurected mob) in the room to be safe
-	//
+        //
+        // put the vict (ressurected mob) in the room to be safe
+        //
 
-	char_to_room(vict, ch->in_room);
+        char_to_room(vict, ch->in_room);
 
-	//
-	// transfer EQ from corpse to ressurected body
-	//
+        //
+        // transfer EQ from corpse to ressurected body
+        //
 
-	while ( ( obj = corpse->contains ) ) {
-	    obj_from_obj(obj);
-	    obj_to_char(obj, vict);
-	}
+        while ( ( obj = corpse->contains ) ) {
+            obj_from_obj(obj);
+            obj_to_char(obj, vict);
+        }
 
-	//
-	// messages
-	//
+        //
+        // messages
+        //
 
-	act("$n slams $s hands together, accompanied by a deafening thunderclap!\n"
-	    " ... An aura of flame appears around $p...\n"
+        act("$n slams $s hands together, accompanied by a deafening thunderclap!\n"
+            " ... An aura of flame appears around $p...\n"
             " ... You watch in terror as $N slowly rises from the dead.", FALSE, ch, corpse, vict, TO_ROOM);
 
-	//
-	// get rid of the corpse
-	//
-	
-	extract_obj(corpse);
-	    
-	return 1;
+        //
+        // get rid of the corpse
+        //
+        
+        extract_obj(corpse);
+            
+        return 1;
     }
 
     //
