@@ -26,7 +26,8 @@ enum prog_evt_kind {
 	PROG_EVT_ENTER,
 	PROG_EVT_LEAVE,
 	PROG_EVT_LOAD,
-	PROG_EVT_TICK
+	PROG_EVT_TICK,
+    PROG_EVT_SPELL
 };
 
 struct prog_evt {
@@ -65,6 +66,7 @@ struct prog_env {
 
 void destroy_attached_progs(void *self);
 bool trigger_prog_cmd(void *owner, int owner_type, Creature *ch, int cmd, char *argument);
+bool trigger_prog_spell(void *owner, int owner_type, Creature *ch, int cmd);
 bool trigger_prog_move(void *owner, int owner_type, Creature *ch, special_mode mode);
 void trigger_progs_after(Creature *ch, int cmd, char *argument);
 void trigger_prog_idle(void *owner, int owner_type);

@@ -33,6 +33,7 @@
 #include "screen.h"
 #include "tmpstr.h"
 #include "vendor.h"
+#include "prog.h"
 
 struct spell_info_type spell_info[TOP_SPELL_DEFINE + 1];
 struct room_direction_data *knock_door = NULL;
@@ -951,7 +952,22 @@ call_magic(struct Creature *caster, struct Creature *cvict,
 	if (spellnum < 1 || spellnum > TOP_SPELL_DEFINE)
 		return 0;
 
-	if ((ROOM_FLAGGED(caster->in_room, ROOM_NOMAGIC)) &&
+	if (GET_ROOM_PROG(caster->in_room) != NULL) {
+	    if (trigger_prog_spell(caster->in_room, PROG_TYPE_ROOM, caster, spellnum)) {
+            return 0; //handled
+        }
+    }
+    
+    CreatureList::iterator it = caster->in_room->people.begin();
+	for (; it != caster->in_room->people.end(); ++it) {
+		if (GET_MOB_PROG((*it)) != NULL) {
+			if (trigger_prog_spell(*it, PROG_TYPE_MOBILE, caster, spellnum)) {
+                return 0;
+            }
+        }
+	}
+    
+    if ((ROOM_FLAGGED(caster->in_room, ROOM_NOMAGIC)) &&
 		GET_LEVEL(caster) < LVL_TIMEGOD && (SPELL_IS_MAGIC(spellnum) ||
 			SPELL_IS_DIVINE(spellnum))) {
 		send_to_char(caster, "Your magic fizzles out and dies.\r\n");

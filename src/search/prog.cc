@@ -203,6 +203,18 @@ prog_trigger_handler(prog_env *env, prog_evt *evt, int phase, char *args)
 	  }
 	  arg = tmp_getword(&args);
 	}
+  } else if (!strcmp("spell", arg)) {
+      arg = tmp_getword(&args);
+      while (*arg) {
+          if (evt->kind == PROG_EVT_SPELL
+              && evt->cmd >= 0
+              && is_number(arg)
+              && atoi(arg) == evt->cmd) {
+                  matched = true;
+                  break;
+          }
+          arg = tmp_getword(&args);
+      }
   } else if (!strcmp("idle", arg)) {
 	matched = (evt->kind == PROG_EVT_IDLE);
   } else if (!strcmp("fight", arg)) {
@@ -1405,6 +1417,54 @@ trigger_prog_cmd(void *owner, int owner_type, Creature *ch, int cmd, char *argum
 
   return handled;
 }
+
+bool
+trigger_prog_spell(void *owner, int owner_type, Creature *ch, int cmd)
+{
+  prog_env *env, *handler_env;
+  prog_evt evt;
+  bool handled = false;
+
+  if (ch == owner)
+	return false;
+	
+  // We don't want an infinite loop with triggered progs that
+  // trigger a prog, etc.
+  if (loop_fence >= 20) {
+	mudlog(LVL_IMMORT, NRM, true, "Infinite prog loop halted.");
+	return false;
+  }
+	
+  loop_fence++;
+
+  evt.phase = PROG_EVT_BEGIN;
+  evt.kind = PROG_EVT_SPELL;
+  evt.cmd = cmd;
+  evt.subject = ch;
+  evt.object = NULL;
+  evt.object_type = PROG_TYPE_NONE;
+  evt.args = strdup("");
+  env = prog_start(owner_type, owner, ch, &evt);
+  prog_execute(env);
+	
+  evt.phase = PROG_EVT_HANDLE;
+  evt.args = strdup("");
+  handler_env = prog_start(owner_type, owner, ch, &evt);
+  prog_execute(handler_env);
+
+  evt.phase = PROG_EVT_AFTER;
+  evt.args = strdup("");
+  env = prog_start(owner_type, owner, ch, &evt);
+  // note that we don't start executing yet...
+
+  loop_fence -= 1;
+
+  if (handler_env && handler_env->executed)
+	return true;
+
+  return handled;
+}
+
 
 bool
 trigger_prog_move(void *owner, int owner_type, Creature *ch, special_mode mode)
