@@ -133,6 +133,10 @@ do_olc_xset(struct Creature *ch, char *argument)
 			send_to_char(ch, "Set the value to what?\r\n");
 			return;
 		}
+        if(!is_digit(*arg2)) {
+            send_to_char(ch, "The value must be an integer.\r\n");
+            return;
+        }
 		srch_p->arg[i] = atoi(arg2);
 		send_to_char(ch, "Ok, value set.\r\n");
 		break;
