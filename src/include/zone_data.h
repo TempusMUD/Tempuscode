@@ -32,7 +32,8 @@
 #define ZONE_PAUSED             (1 << 13)
 #define ZONE_EVIL_AMBIENCE		(1 << 14)
 #define ZONE_GOOD_AMBIENCE		(1 << 15)
-#define NUM_ZONE_FLAGS          15
+#define ZONE_NORECALC			(1 << 16)
+#define NUM_ZONE_FLAGS          17
 #define ZONE_SEARCH_APPROVED    (1 << 19)
 #define ZONE_MOBS_APPROVED      (1 << 20)
 #define ZONE_OBJS_APPROVED      (1 << 21)
