@@ -268,42 +268,46 @@ do_destroy_search(struct char_data *ch, char *arg)
     arg = two_arguments(arg, triggers, keywords);
   
     if (!*triggers ) {
-	send_to_char("USAGE: destroy search <trigger word> [keyword]\r\n", ch);
-	return 0;
+        send_to_char("USAGE: destroy search <trigger word> [keyword]\r\n", ch);
+        return 0;
+    }
+    if(ch->in_room->search == NULL) {
+        send_to_char("There would have to be a search to destroy first, dUfAz!\r\n", ch);
+        return 0;
     }
 
     for (srch = ch->in_room->search; srch; srch = srch->next) {
-	if (isname(triggers, srch->command_keys) &&
-	    ( !keywords || (!srch->keywords || isname(keywords, srch->keywords))) ) {
-	    break;
-	}
-	if (!srch->next) {
-	    send_to_char("There is no such search here.\r\n", ch);
-	    return 0;
-	}
+        if (isname(triggers, srch->command_keys) &&
+            ( !keywords || (!srch->keywords || isname(keywords, srch->keywords))) ) {
+            break;
+        }
+        if (!srch->next) {
+            send_to_char("There is no such search here.\r\n", ch);
+            return 0;
+        }
     }
   
     if ( ! OLC_EDIT_OK( ch, ch->in_room->zone, ZONE_ROOMS_APPROVED ) ) {
-	send_to_char("World olc is not approved for this zone.\r\n", ch);
-	return 0;
+        send_to_char("World olc is not approved for this zone.\r\n", ch);
+        return 0;
     }
 
     for (vict = character_list; vict; vict = vict->next)
-	if (GET_OLC_SRCH(vict) == srch)
-	    GET_OLC_SRCH(vict) = NULL;
+        if (GET_OLC_SRCH(vict) == srch)
+            GET_OLC_SRCH(vict) = NULL;
 
     REMOVE_FROM_LIST(srch, ch->in_room->search, next);
 #ifdef DMALLOC
     dmalloc_verify(0);
 #endif
     if (srch->command_keys)
-	free(srch->command_keys);
+        free(srch->command_keys);
     if (srch->keywords)
-	free(srch->keywords);
+        free(srch->keywords);
     if (srch->to_vict)
-	free(srch->to_vict);
+        free(srch->to_vict);
     if (srch->to_room)
-	free(srch->to_room);
+        free(srch->to_room);
     free(srch);
 #ifdef DMALLOC
     dmalloc_verify(0);
