@@ -686,9 +686,11 @@ STRENGTH_APPLY_INDEX(Creature *ch)
 #define RAW_CARRY_W(ch) (IS_AFFECTED_2(ch, AFF2_TELEKINESIS) ? \
                          (str_app[STRENGTH_APPLY_INDEX(ch)].carry_w << 1) : \
                          str_app[STRENGTH_APPLY_INDEX(ch)].carry_w + \
-                         ((GET_LEVEL(ch) >= LVL_GOD) ? 10000 : 0))
+                         ((GET_LEVEL(ch) >= LVL_GOD) ? 100000 : 0) + \
+						 ((GET_LEVEL(ch) >= LVL_IMMORT) ? 1000 : 0))
 #define CAN_CARRY_N(ch) (1 + GET_DEX(ch) + \
-                         ((GET_LEVEL(ch) >= LVL_GOD) ? 1000 : 0) + \
+                         ((GET_LEVEL(ch) >= LVL_GOD) ? 100000 : 0) + \
+						 ((GET_LEVEL(ch) >= LVL_IMMORT) ? 1000 : 0) + \
                          (IS_AFFECTED_2(ch, AFF2_TELEKINESIS) ? \
                           (GET_LEVEL(ch) >> 2) : 0))
 
