@@ -177,8 +177,16 @@ do_olc_xset(struct Creature *ch, char *argument)
 			argument = one_argument(argument, arg1);
 		}
 
-		if (state == 1)
+		if (state == 1) {
+            if (((cur_flags | tmp_flags) & SRCH_REPEATABLE) &&
+                ((cur_flags | tmp_flags) & SRCH_FAIL_TRIP)) {
+                send_to_char(ch, "A search can't be repeatable and "
+                                 "fail_trip, wackjob!  Where did we "
+                                 "find you?\r\n");
+                return;
+            }
 			cur_flags = cur_flags | tmp_flags;
+        }
 		else {
 			tmp_flags = cur_flags & tmp_flags;
 			cur_flags = cur_flags ^ tmp_flags;

@@ -166,6 +166,7 @@ extern const char *search_bits[] = {
 	"REMORT_ONLY",
 	"MATCH_ALL",
     "NOLOOK",
+    "FAIL_TRIP",
 	"\n"
 };
 

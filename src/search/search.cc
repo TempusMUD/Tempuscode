@@ -147,8 +147,11 @@ general_search(struct Creature *ch, struct special_search_data *srch,
 		return 1;
 	}
 
-	if (srch->fail_chance && number(0, 100) < srch->fail_chance)
+	if (srch->fail_chance && number(0, 100) < srch->fail_chance) {
+        if (SRCH_FLAGGED(srch, SRCH_FAIL_TRIP))
+		    SET_BIT(srch->flags, SRCH_TRIPPED);
 		return 1;
+    }
 
 	switch (srch->command) {
 	case (SEARCH_COM_OBJECT):

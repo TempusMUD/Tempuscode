@@ -54,9 +54,10 @@
 #define SRCH_REMORT_ONLY        (1 << 27)
 #define SRCH_MATCH_ALL          (1 << 28)
 #define SRCH_NO_LOOK            (1 << 29)
+#define SRCH_FAIL_TRIP          (1 << 30)
 
 
-#define NUM_SRCH_BITS           30
+#define NUM_SRCH_BITS           31
 
 struct special_search_data {
 	char *command_keys;			/* which command activates          */
