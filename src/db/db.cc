@@ -709,9 +709,11 @@ index_boot(int mode)
     sprintf(buf2, "%s/%s", prefix, index_filename);
 
     if (!(index = fopen(buf2, "r"))) {
-        sprintf(buf1, "Error opening index file '%s'", buf2);
-        perror(buf1);
-        safe_exit(1);
+        if (!(index = fopen(buf2, "a+"))) {
+        	sprintf(buf1, "Error opening index file '%s'", buf2);
+        	perror(buf1);
+        	safe_exit(1);
+        }
     }
 
     /* first, count the number of records in the file so we can malloc */
