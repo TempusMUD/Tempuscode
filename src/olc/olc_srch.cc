@@ -439,6 +439,11 @@ print_search_data_to_buf(struct char_data *ch, struct room_data *room,
 		buf, cur_search->arg[0], 
 		cur_search->arg[1], cur_search->arg[2]);
 	break;
+    case SEARCH_COM_LOADROOM:
+        sprintf(buf, "%s LOADROOM  NewLoad: %5d    MaxLevel:%5d    %5d\r\n",
+                buf, cur_search->arg[0],
+                cur_search->arg[1], cur_search->arg[2]);
+        break;
 
     default:
 	sprintf(buf, "%s ERROR (%d)  %5d        %5d        %5d\r\n",
