@@ -3033,12 +3033,12 @@ import_old_character(descriptor_data *d)
 
     // stat adjust
     char_ability_data *abils = &d->creature->real_abils;
-    abils->str =   ( get_max_str( d->creature ) - 4) + number(1,4);
-    abils->intel = ( get_max_int( d->creature ) - 4) + number(1,4);
-    abils->con =   ( get_max_con( d->creature ) - 4) + number(1,4);
-    abils->dex =   ( get_max_dex( d->creature ) - 4) + number(1,4);
-    abils->cha =   ( get_max_cha( d->creature ) - 4) + number(1,4);
-    abils->wis =   ( get_max_wis( d->creature ) - 4) + number(1,4);
+    abils->str =   ( get_max_str( d->creature ) - 5) + number(0,5);
+    abils->intel = ( get_max_int( d->creature ) - 5) + number(0,5);
+    abils->con =   ( get_max_con( d->creature ) - 5) + number(0,5);
+    abils->dex =   ( get_max_dex( d->creature ) - 5) + number(0,5);
+    abils->cha =   ( get_max_cha( d->creature ) - 5) + number(0,5);
+    abils->wis =   ( get_max_wis( d->creature ) - 5) + number(0,5);
 
     d->creature->aff_abils = d->creature->real_abils;    
     calculate_height_weight( d->creature );
@@ -3047,11 +3047,9 @@ import_old_character(descriptor_data *d)
     d->account->save_to_xml();
     id = GET_IDNUM(d->creature);
     d->creature->desc = NULL;
-    delete d->creature;
-    d->creature = NULL;
 
-    Creature *ch = d->original;
-    d->original = NULL;
+    Creature *ch = d->creature;
+    d->creature = NULL;
     // destroy all that equipment
 	for (int i = 0; i < NUM_WEARS; i++) {
 		if (GET_EQ(ch, i))
@@ -3065,6 +3063,10 @@ import_old_character(descriptor_data *d)
 		obj_from_char(obj);
 		extract_obj(obj);
 	}
+    delete ch;
+
+    ch = d->original;
+    d->original = NULL;
     delete ch;
     return id;
 }

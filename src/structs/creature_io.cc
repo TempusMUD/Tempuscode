@@ -531,7 +531,7 @@ Creature::saveToXML()
 	}
 	for (cur_alias = ch->player_specials->aliases; cur_alias; cur_alias = cur_alias->next)
 		fprintf(ouf, "<alias type=\"%d\" alias=\"%s\" replace=\"%s\"/>\n",
-			cur_alias->type, cur_alias->alias, cur_alias->replacement);
+			cur_alias->type, xmlEncodeTmp(cur_alias->alias), xmlEncodeTmp(cur_alias->replacement) );
 	for (cur_aff = ch->affected;cur_aff; cur_aff = cur_aff->next)
 		fprintf(ouf, "<affect type=\"%d\" duration=\"%d\" modifier=\"%d\" location=\"%d\" level=\"%d\" instant=\"%s\" affbits=\"%lx\" index=\"%d\" />\n",
 			cur_aff->type, cur_aff->duration, cur_aff->modifier,

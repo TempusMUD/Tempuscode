@@ -2080,7 +2080,7 @@ hit(struct Creature *ch, struct Creature *victim, int type)
 
 
 	if ((type != SKILL_BACKSTAB && type != SKILL_CIRCLE &&
-			type != SKILL_BEHEAD) || !cur_weap) {
+			type != SKILL_BEHEAD && type != SKILL_CLEAVE) || !cur_weap) {
 		if (type == SKILL_IMPLANT_W || type == SKILL_ADV_IMPLANT_W)
 			cur_weap = get_random_uncovered_implant(ch, ITEM_WEAPON);
 		else
@@ -2121,7 +2121,7 @@ hit(struct Creature *ch, struct Creature *victim, int type)
 			((diceroll == 1) || ((calc_thaco - diceroll)) > victim_ac))) {
 
 		if (type == SKILL_BACKSTAB || type == SKILL_CIRCLE ||
-            type == SKILL_SECOND_WEAPON)
+			type == SKILL_SECOND_WEAPON || type == SKILL_CLEAVE )
 			return (damage(ch, victim, 0, type, -1));
 		else
 			return (damage(ch, victim, 0, w_type, -1));
