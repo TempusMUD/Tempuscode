@@ -2006,7 +2006,7 @@ ACMD(do_drink)
 	struct obj_data *temp;
 	struct affected_type af;
 	int amount, weight;
-	int drunk, full, thirst;
+	int drunk = 0, full = 0, thirst = 0;
 	int on_ground = 0;
 
 	one_argument(argument, arg);

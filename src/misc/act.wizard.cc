@@ -796,9 +796,8 @@ do_stat_memory(struct Creature *ch)
         //chars = chars->next;
     }
     total += sum;
+
     send_to_char(ch, "%s        players: %9d  (%d)\r\n", buf, sum, i);
-
-
     send_to_char(ch, "%s               ___________\r\n", buf);
     send_to_char(ch, "%s         total   %9d\r\n", buf, total);
 }
@@ -2429,7 +2428,7 @@ ACMD(do_mload)
 
 ACMD(do_oload)
 {
-    struct obj_data *obj;
+    struct obj_data *obj = NULL;
     int number, quantity;
     char *temp, *temp2;
 
@@ -2498,7 +2497,7 @@ ACMD(do_oload)
 ACMD(do_pload)
 {
     struct Creature *vict = NULL;
-    struct obj_data *obj;
+    struct obj_data *obj = NULL;
     int number, quantity;
     char *temp, *temp2;
 
