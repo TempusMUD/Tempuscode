@@ -578,18 +578,22 @@ SPECIAL(vehicle_console)
 	engine = NULL;
 
     if (V_CONSOLE_IDNUM(console)) {
-	for (driver = console->in_room->people; driver; 
-	     driver = driver->next_in_room) {
-	    if ((V_CONSOLE_IDNUM(console) > 0 &&
-		 GET_IDNUM(driver) == V_CONSOLE_IDNUM(console)) ||
-		(V_CONSOLE_IDNUM(console) < 0 &&
-		 GET_MOB_VNUM(driver) == -V_CONSOLE_IDNUM(console)))
-		break;
-	    if (!driver->next) {
-		driver = NULL;
-		break;
-	    }
-	}
+        if(!console->in_room) {
+            send_to_char("You have to put the console IN the vehicle to use it.\r\n",ch);
+            return 1;
+        }
+        for (driver = console->in_room->people; driver; 
+             driver = driver->next_in_room) {
+            if ((V_CONSOLE_IDNUM(console) > 0 &&
+             GET_IDNUM(driver) == V_CONSOLE_IDNUM(console)) ||
+            (V_CONSOLE_IDNUM(console) < 0 &&
+             GET_MOB_VNUM(driver) == -V_CONSOLE_IDNUM(console)))
+            break;
+            if (!driver->next) {
+                driver = NULL;
+                break;
+            }
+        }
     } else
 	driver = NULL;
 
