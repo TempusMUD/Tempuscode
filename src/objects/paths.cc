@@ -16,7 +16,6 @@
 #include "paths.h"
 #include "comm.h"
 #include "screen.h"
-#include "elevators.h"
 #include "player_table.h"
 
 int move_car(struct Creature *ch, struct obj_data *car, int dir);
@@ -671,9 +670,6 @@ path_activity(void)
 
 				if ((dir = find_first_step(obj->in_room, room, GOD_TRACK)) >= 0)
 					move_car(NULL, obj, dir);
-				if (GET_OBJ_VNUM(obj) == 1530)
-					if (handle_elevator_position(obj, room))
-						break;
 				if ((obj->in_room == room) && (o->phead->length != 1))
 					PATH_MOVE(o);
 			}

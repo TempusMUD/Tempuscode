@@ -94,8 +94,7 @@ static const int ITEM_CLIP = 58;
 static const int ITEM_MICROCHIP = 59;
 static const int ITEM_COMMUNICATOR = 60;
 static const int ITEM_SCRIPT = 61;
-static const int ITEM_ELEVATOR_PANEL = 62;
-static const int NUM_ITEM_TYPES = 63;
+static const int NUM_ITEM_TYPES = 62;
 
 
 /* Take/Wear flags: used by obj_data.obj_flags.wear_flags */

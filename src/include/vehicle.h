@@ -48,8 +48,7 @@ struct obj_data *find_vehicle(struct obj_data *v_door);
 #define VEHICLE_SKYCAR		(1 << 2)
 #define VEHICLE_BOAT		(1 << 3)
 #define VEHICLE_SPACESHIP	(1 << 4)
-#define VEHICLE_ELEVATOR        (1 << 5)
-#define NUM_VEHICLE_TYPES        6
+#define NUM_VEHICLE_TYPES        5
 
 #define IS_VEHICLE(obj)         (GET_OBJ_TYPE(obj) == ITEM_VEHICLE)
 #define IS_ATV(car)		(IS_SET(CAR_FLAGS(car), VEHICLE_ATV))
@@ -57,7 +56,6 @@ struct obj_data *find_vehicle(struct obj_data *v_door);
 #define IS_SKYCAR(car)		(IS_SET(CAR_FLAGS(car), VEHICLE_SKYCAR))
 #define IS_BOAT(car)		(IS_SET(CAR_FLAGS(car), VEHICLE_BOAT))
 #define IS_SPACESHIP(car)	(IS_SET(CAR_FLAGS(car), VEHICLE_SPACESHIP))
-#define IS_ELEVATOR(car)	(IS_SET(CAR_FLAGS(car), VEHICLE_ELEVATOR))
 
 #define IS_V_WINDOW(obj)        (GET_OBJ_TYPE(obj) == ITEM_V_WINDOW)
 #define IS_V_DOOR(obj)          (GET_OBJ_TYPE(obj) == ITEM_V_DOOR)

@@ -44,7 +44,6 @@ using namespace std;
 #include "login.h"
 #include "bomb.h"
 #include "guns.h"
-#include "elevators.h"
 #include "fight.h"
 #include "defs.h"
 #include "tokenizer.h"
@@ -68,7 +67,6 @@ extern int top_of_mobt;
 extern int top_of_objt;
 extern int log_cmds;
 extern int olc_lock;
-extern struct elevator_data *elevators;
 extern int lunar_stage;
 extern int lunar_phase;
 extern int quest_status;
@@ -4363,8 +4361,6 @@ ACMD(do_show)
     struct descriptor_data *tmp_d = NULL;
     char field[MAX_INPUT_LENGTH], value[MAX_INPUT_LENGTH];
     extern char *quest_guide;
-    struct elevator_data *e_head = NULL;
-    struct elevator_elem *e_elem = NULL;
     struct Creature *mob = NULL;
     CreatureList::iterator cit;
     CreatureList::iterator mit;
@@ -4841,14 +4837,7 @@ ACMD(do_show)
         page_string(ch->desc, buf);
         break;
     case 37:
-        strcpy(buf, "Elevator list:\r\n");
-        for (e_head = elevators; e_head; e_head = e_head->next) {
-            sprintf(buf, "%s#%d\r\n", buf, e_head->vnum);
-            for (e_elem = e_head->list; e_elem; e_elem = e_elem->next)
-                sprintf(buf, "%s Room:[%5d] Key:[%5d] [%s]\r\n", buf,
-                    e_elem->rm_vnum, e_elem->key, e_elem->name);
-        }
-        page_string(ch->desc, buf);
+		send_to_char(ch, "This command has been disabled.\r\n");
         break;
 
     case 38:

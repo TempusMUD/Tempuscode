@@ -262,8 +262,6 @@ SPECIAL(fountain_good);
 SPECIAL(fountain_evil);
 SPECIAL(life_point_potion);
 
-SPECIAL(elevator_panel);
-
 SPECIAL(unholy_square);
 SPECIAL(unholy_stalker);
 SPECIAL(voting_booth);

@@ -162,7 +162,6 @@ void load_ticl(FILE * ticl_f, int nr);
 char *parse_object(FILE * obj_f, int nr);
 void load_zones(FILE * fl, char *zonename);
 void Load_paths(void);
-int load_elevators();
 void assign_mobiles(void);
 void assign_objects(void);
 void assign_rooms(void);
@@ -272,14 +271,11 @@ ACMD(do_reboot)
     } else if( !str_cmp(arg, "xml") ) {
         xml_reload(ch);
         return;
-	} else if (!str_cmp(arg, "elevators")) {
-		if (!load_elevators())
-			send_to_char(ch, "There was an error.\r\n");
 	} else {
 		send_to_char(ch, "Unknown reboot option.\r\n");
         send_to_char(ch, "Options: all    *         credits     motd     imotd      info\r\n");
         send_to_char(ch, "         areas  olc_guide quest_guide handbook background paths\r\n");
-        send_to_char(ch, "         trails timewarps elevators   xml      socials\r\n");
+        send_to_char(ch, "         trails timewarps xml      socials\r\n");
 		return;
 	}
 	send_to_char(ch, OK);
@@ -375,9 +371,6 @@ boot_db(void)
 
 	slog("Booting quests.");
 	boot_quests();
-
-	slog("Loading elevator data.");
-	load_elevators();
 
 	slog("Loading fight messages.");
 	load_messages();

@@ -4,7 +4,7 @@ CCFLAGS=-g -Wall -Winline -Wcast-qual -I/usr/include/libxml2
 CXXFLAGS=$(CCFLAGS) -I$(INCLUDE)
 
 SUBDIRS= \
-	clan classes combat db dyntext editor elevators \
+	clan classes combat db dyntext editor \
 	events flow_room help house intermud interpreter iscript magic \
 	misc mobiles net objects olc quest search \
 	social specials util weather structs map

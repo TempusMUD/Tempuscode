@@ -91,7 +91,6 @@ const char *vehicle_types[] = {
 	"skycar",
 	"boat",
 	"spaceship",
-	"elevator",
 	"\n"
 };
 

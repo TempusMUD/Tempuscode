@@ -8,7 +8,7 @@ $(OBJ)/guns.o : guns.cc \
 	$(INCLUDE)/structs.h $(INCLUDE)/utils.h $(INCLUDE)/comm.h $(INCLUDE)/interpreter.h $(INCLUDE)/handler.h $(INCLUDE)/db.h $(INCLUDE)/spells.h $(INCLUDE)/screen.h $(INCLUDE)/vehicle.h $(INCLUDE)/materials.h $(INCLUDE)/char_class.h $(INCLUDE)/guns.h 
 	$(CXX) -c $(CXXFLAGS) guns.cc              -o $(OBJ)/guns.o
 $(OBJ)/paths.o : paths.cc \
-	$(INCLUDE)/structs.h $(INCLUDE)/utils.h $(INCLUDE)/db.h $(INCLUDE)/vehicle.h $(INCLUDE)/interpreter.h $(INCLUDE)/handler.h $(INCLUDE)/paths.h $(INCLUDE)/comm.h $(INCLUDE)/screen.h $(INCLUDE)/elevators.h $(INCLUDE)/player_table.h 
+	$(INCLUDE)/structs.h $(INCLUDE)/utils.h $(INCLUDE)/db.h $(INCLUDE)/vehicle.h $(INCLUDE)/interpreter.h $(INCLUDE)/handler.h $(INCLUDE)/paths.h $(INCLUDE)/comm.h $(INCLUDE)/screen.h $(INCLUDE)/player_table.h 
 	$(CXX) -c $(CXXFLAGS) paths.cc             -o $(OBJ)/paths.o
 $(OBJ)/smokes.o : smokes.cc \
 	$(INCLUDE)/structs.h $(INCLUDE)/utils.h $(INCLUDE)/comm.h $(INCLUDE)/interpreter.h $(INCLUDE)/handler.h $(INCLUDE)/db.h $(INCLUDE)/spells.h $(INCLUDE)/screen.h $(INCLUDE)/house.h $(INCLUDE)/vehicle.h $(INCLUDE)/materials.h $(INCLUDE)/smokes.h $(INCLUDE)/clan.h $(INCLUDE)/char_class.h $(INCLUDE)/bomb.h 

@@ -34,7 +34,6 @@
 #include "specs.h"
 #include "login.h"
 #include "matrix.h"
-#include "elevators.h"
 #include "house.h"
 #include "fight.h"
 #include "tmpstr.h"
@@ -1867,7 +1866,6 @@ SPECIAL(cave_bear)
 #include "Specs/utility_specs/enhancer.spec"
 #include "Specs/utility_specs/magic_books.spec"
 #include "Specs/utility_specs/communicator.spec"
-#include "Specs/utility_specs/elevator.spec"
 #include "Specs/utility_specs/shade_zone.spec"
 
 /* SPECS BY SARFLIN */

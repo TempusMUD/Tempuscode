@@ -1292,7 +1292,6 @@ extern const char *item_types[] = {
 	"MICROCHIP",
 	"COMMUNICATOR",
 	"SCRIPT",
-	"ELEVATOR_PANEL",
 	"\n"
 };
 
@@ -1359,7 +1358,6 @@ extern const char *item_value_types[][4] = {
 	{"Type", "Data", "Max", "UNDEFINED"},	/* chip */
 	{"Max Charge", "Curr Charge", "State", "Channel"},	/* Communicator  */
 	{"Top Message", "Mode", "Wait Time", "Counter"},	/* Script  */
-	{"Elev.Num", "Un", "Un", "Un"},	// elevator panel
 	{"UNDEFINED", "UNDEFINED", "UNDEFINED", "UNDEFINED"}
 };
 
