@@ -9,6 +9,7 @@
 #include <stdlib.h>
 #include <ctype.h>
 #include <string.h>
+#include <errno.h>
 #include "structs.h"
 #include "creature_list.h"
 #include "utils.h"
