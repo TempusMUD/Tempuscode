@@ -2341,7 +2341,7 @@ hit(struct Creature *ch, struct Creature *victim, int type)
 			CCNRM(ch, C_NRM));
 
     if ((diceroll == 1)
-			&& AWAKE(victim)
+			&& victim->getPosition() >= POS_FIGHTING
 			&& CHECK_SKILL(victim, SKILL_COUNTER_ATTACK) > 70) {
         act("You lauch a counter attack!", false, victim, NULL, ch, TO_CHAR);
         return hit(victim, ch, TYPE_UNDEFINED);
