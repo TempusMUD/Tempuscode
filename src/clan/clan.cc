@@ -22,7 +22,6 @@
 #include "security.h"
 #include "handler.h"
 #include "db.h"
-#include "spells.h"
 #include "screen.h"
 #include "house.h"
 #include "clan.h"
