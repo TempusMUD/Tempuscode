@@ -1682,6 +1682,20 @@ damage(struct Creature *ch, struct Creature *victim, int dam,
         if (attacktype == TYPE_EGUN_ION && dam) {
             if (do_gun_special(ch,weap)) {
                 do_emp_pulse_char(ch, victim);
+                act("$n's body suddenly ignites into flame!",
+					FALSE, victim, 0, 0, TO_ROOM);
+				act("Your body suddenly ignites into flame!",
+					FALSE, victim, 0, 0, TO_CHAR);
+            }
+        }
+        //gamma special
+        if (attacktype == TYPE_EGUN_GAMMA && dam) {
+            if (do_gun_special(ch,weap) && !CHAR_WITHSTANDS_RAD(victim)) {
+                add_rad_sickness(victim, GET_LEVEL(ch));
+                act("$n begins to look sick.",
+					FALSE, victim, 0, 0, TO_ROOM);
+				act("You start to feel sick.",
+					FALSE, victim, 0, 0, TO_CHAR);
             }
         }
         //sonic special
