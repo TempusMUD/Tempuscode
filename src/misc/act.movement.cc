@@ -966,10 +966,6 @@ int do_simple_move(struct char_data * ch, int dir, int mode, int need_specials_c
 	send_to_char("You are enveloped by darkness.\r\n", ch );
     }
 
-    if( LIGHT_OK(ch) && !LIGHT_OK_ROOM(ch, was_in) ) {
-	send_to_char("You squint as the light hits your eyes.\r\n", ch );
-    }
-
     for (obj = ch->in_room->contents; obj; obj = obj->next_content)
 	if (GET_OBJ_VNUM(obj) == BLOOD_VNUM)
 	    break;
