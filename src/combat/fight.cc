@@ -55,6 +55,7 @@ obj_data *get_random_uncovered_implant(char_data * ch, int type = -1);
 int calculate_weapon_probability(struct char_data *ch, int prob,
 	struct obj_data *weap);
 int do_combat_fire(struct char_data *ch, struct char_data *vict, int weap_pos);
+int do_casting_weapon(char_data *ch, obj_data *weap);
 
 /* start one char fighting another ( yes, it is horrible, I know... )  */
 void
@@ -1911,7 +1912,8 @@ hit(struct char_data *ch, struct char_data *victim, int type)
 	int w_type = 0, victim_ac, calc_thaco, dam, tmp_dam, diceroll, skill = 0;
 	int i, metal_wt, dual_prob = 0;
 	byte limb;
-	struct obj_data *weap = NULL, *weap2 = NULL;
+	struct obj_data *weap = NULL;
+	int retval;
 
 	if (ch->in_room != victim->in_room) {
 		if (FIGHTING(ch) && FIGHTING(ch) == victim)
@@ -2154,7 +2156,7 @@ hit(struct char_data *ch, struct char_data *victim, int type)
 						SKILL_BACKSTAB) - LEARNED(ch)) >> 1);
 		}
 
-		int retval = damage(ch, victim, dam, SKILL_BACKSTAB, WEAR_BACK);
+		retval = damage(ch, victim, dam, SKILL_BACKSTAB, WEAR_BACK);
 
 		if (retval) {
 			return retval;
@@ -2168,7 +2170,7 @@ hit(struct char_data *ch, struct char_data *victim, int type)
 		}
 		gain_skill_prof(ch, type);
 
-		int retval = damage(ch, victim, dam, SKILL_CIRCLE, WEAR_BACK);
+		retval = damage(ch, victim, dam, SKILL_CIRCLE, WEAR_BACK);
 
 		if (retval) {
 			return retval;
@@ -2183,7 +2185,7 @@ hit(struct char_data *ch, struct char_data *victim, int type)
 			if (skill)
 				gain_skill_prof(ch, skill);
 		}
-		int retval = damage(ch, victim, dam, w_type, limb);
+		retval = damage(ch, victim, dam, w_type, limb);
 
 		if (retval) {
 			return retval;
@@ -2210,85 +2212,16 @@ hit(struct char_data *ch, struct char_data *victim, int type)
 		}
 
 		if (weap && IS_OBJ_TYPE(weap, ITEM_WEAPON) &&
-			IS_OBJ_STAT2(weap, ITEM2_CAST_WEAPON) &&
-			weap == GET_EQ(ch, weap->worn_on) &&
-			//This line no longer needed  =>  victim != ch->next &&
-			GET_OBJ_VAL(weap, 0) > 0 &&
-			GET_OBJ_VAL(weap, 0) < MAX_SPELLS &&
-			(((!SPELL_IS_MAGIC(GET_OBJ_VAL(weap, 0)) &&
-						!SPELL_IS_DIVINE(GET_OBJ_VAL(weap, 0))) ||
-					!IS_OBJ_STAT(weap, ITEM_MAGIC) ||
-					!ROOM_FLAGGED(ch->in_room, ROOM_NOMAGIC)) &&
-				(!SPELL_IS_PHYSICS(GET_OBJ_VAL(weap, 0)) ||
-					!ROOM_FLAGGED(ch->in_room, ROOM_NOSCIENCE)) &&
-				(!SPELL_IS_PSIONIC(GET_OBJ_VAL(weap, 0)) ||
-					!ROOM_FLAGGED(ch->in_room, ROOM_NOPSIONICS))) &&
-			!number(0, MAX(2,
-					LVL_GRIMP + 28 - GET_LEVEL(ch) - GET_INT(ch) -
-					(CHECK_SKILL(ch, GET_OBJ_VAL(weap, 0)) >> 3)))) {
-			if (weap->action_description)
-				strcpy(buf, weap->action_description);
-			else
-				sprintf(buf, "$p begins to hum and shake%s!",
-					weap->worn_on == WEAR_WIELD ||
-					weap->worn_on == WEAR_WIELD_2 ? " in your hand" : "");
-			sprintf(buf2, "$p begins to hum and shake%s!",
-				weap->worn_on == WEAR_WIELD ||
-				weap->worn_on == WEAR_WIELD_2 ? " in $n's hand" : "");
-			send_to_char(CCCYN(ch, C_NRM), ch);
-			act(buf, FALSE, ch, weap, 0, TO_CHAR);
-			send_to_char(CCNRM(ch, C_NRM), ch);
-			act(buf2, TRUE, ch, weap, 0, TO_ROOM);
-			if ((((!IS_DWARF(ch) && !IS_CYBORG(ch)) ||
-						!IS_OBJ_STAT(weap, ITEM_MAGIC) ||
-						!SPELL_IS_MAGIC(GET_OBJ_VAL(weap, 0))) &&
-					number(0, GET_INT(ch) + 3)) || GET_LEVEL(ch) > LVL_GRGOD) {
-				if (IS_SET(spell_info[GET_OBJ_VAL(weap, 0)].routines,
-						MAG_DAMAGE)
-					|| spell_info[GET_OBJ_VAL(weap, 0)].violent)
-					call_magic(ch, victim, 0, GET_OBJ_VAL(weap, 0),
-						GET_LEVEL(ch), CAST_WAND);
-				else if (!affected_by_spell(ch, GET_OBJ_VAL(weap, 0)))
-					call_magic(ch, ch, 0, GET_OBJ_VAL(weap, 0), GET_LEVEL(ch),
-						CAST_WAND);
-			} else {
-				// drop the weapon
-				if ((weap->worn_on == WEAR_WIELD ||
-						weap->worn_on == WEAR_WIELD_2) &&
-					GET_EQ(ch, weap->worn_on) == weap) {
-					act("$p shocks you!  You are forced to drop it!",
-						FALSE, ch, weap, 0, TO_CHAR);
-
-					// weapon is the 1st of 2 wielded
-					if (weap->worn_on == WEAR_WIELD &&
-						GET_EQ(ch, WEAR_WIELD_2)) {
-						weap2 = unequip_char(ch, WEAR_WIELD_2, MODE_EQ);
-						obj_to_room(unequip_char(ch, weap->worn_on, MODE_EQ),
-							ch->in_room);
-						if (equip_char(ch, weap2, WEAR_WIELD, MODE_EQ))
-							return DAM_ATTACKER_KILLED;
-					}
-					// weapon should fall to ground
-					else if (number(0, 20) > GET_DEX(ch))
-						obj_to_room(unequip_char(ch, weap->worn_on, MODE_EQ),
-							ch->in_room);
-					// weapon should drop to inventory
-					else
-						obj_to_char(unequip_char(ch, weap->worn_on, MODE_EQ),
-							ch);
-
-				}
-				// just shock the victim
-				else {
-					act("$p blasts the hell out of you!  OUCH!!",
-						FALSE, ch, weap, 0, TO_CHAR);
-					GET_HIT(ch) -= dice(3, 4);
-				}
-				act("$n cries out as $p shocks $m!", FALSE, ch, weap, 0,
-					TO_ROOM);
-			}
+			weap == GET_EQ(ch, weap->worn_on)) {
+			if (GET_OBJ_SPEC(weap)) {
+				GET_OBJ_SPEC(weap) (ch, weap, 0, NULL, SPECIAL_FIGHT);
+			} else if (IS_OBJ_STAT2(weap, ITEM2_CAST_WEAPON))
+				retval = do_casting_weapon(ch, weap);
+				if (retval)
+					return retval;
 		}
 	}
+	
 	if (!IS_NPC(ch) && GET_MOVE(ch) > 20) {
 		GET_MOVE(ch)--;
 		if (IS_DROW(ch) && OUTSIDE(ch) && PRIME_MATERIAL_ROOM(ch->in_room) &&
@@ -2298,6 +2231,93 @@ hit(struct char_data *ch, struct char_data *victim, int type)
 			GET_MOVE(ch)--;
 	}
 
+	return 0;
+}
+
+int
+do_casting_weapon(char_data *ch, obj_data *weap)
+{
+	obj_data *weap2;
+
+	if (GET_OBJ_VAL(weap, 0) < 0 || GET_OBJ_VAL(weap, 0) > MAX_SPELLS) {
+		slog("Invalid spell number detected on weapon %d", GET_OBJ_VNUM(weap));
+		return 0;
+	}
+
+	if ((SPELL_IS_MAGIC(GET_OBJ_VAL(weap, 0)) ||
+			IS_OBJ_STAT(weap, ITEM_MAGIC)) &&
+			ROOM_FLAGGED(ch->in_room, ROOM_NOMAGIC))
+		return 0;
+	if (SPELL_IS_PHYSICS(GET_OBJ_VAL(weap, 0)) &&
+			ROOM_FLAGGED(ch->in_room, ROOM_NOSCIENCE))
+		return 0;
+	if (SPELL_IS_PSIONIC(GET_OBJ_VAL(weap, 0)) &&
+			ROOM_FLAGGED(ch->in_room, ROOM_NOPSIONICS))
+		return 0;
+	if (number(0, MAX(2, LVL_GRIMP + 28 - GET_LEVEL(ch) - GET_INT(ch) -
+			(CHECK_SKILL(ch, GET_OBJ_VAL(weap, 0)) >> 3))))
+		return 0;
+	if (weap->action_description)
+		strcpy(buf, weap->action_description);
+	else
+		sprintf(buf, "$p begins to hum and shake%s!",
+			weap->worn_on == WEAR_WIELD ||
+			weap->worn_on == WEAR_WIELD_2 ? " in your hand" : "");
+	sprintf(buf2, "$p begins to hum and shake%s!",
+		weap->worn_on == WEAR_WIELD ||
+		weap->worn_on == WEAR_WIELD_2 ? " in $n's hand" : "");
+	send_to_char(CCCYN(ch, C_NRM), ch);
+	act(buf, FALSE, ch, weap, 0, TO_CHAR);
+	send_to_char(CCNRM(ch, C_NRM), ch);
+	act(buf2, TRUE, ch, weap, 0, TO_ROOM);
+	if ((((!IS_DWARF(ch) && !IS_CYBORG(ch)) ||
+				!IS_OBJ_STAT(weap, ITEM_MAGIC) ||
+				!SPELL_IS_MAGIC(GET_OBJ_VAL(weap, 0))) &&
+			number(0, GET_INT(ch) + 3)) || GET_LEVEL(ch) > LVL_GRGOD) {
+		if (IS_SET(spell_info[GET_OBJ_VAL(weap, 0)].routines,
+				MAG_DAMAGE)
+			|| spell_info[GET_OBJ_VAL(weap, 0)].violent)
+			call_magic(ch, FIGHTING(ch), 0, GET_OBJ_VAL(weap, 0),
+				GET_LEVEL(ch), CAST_WAND);
+		else if (!affected_by_spell(ch, GET_OBJ_VAL(weap, 0)))
+			call_magic(ch, ch, 0, GET_OBJ_VAL(weap, 0), GET_LEVEL(ch),
+				CAST_WAND);
+	} else {
+		// drop the weapon
+		if ((weap->worn_on == WEAR_WIELD ||
+				weap->worn_on == WEAR_WIELD_2) &&
+			GET_EQ(ch, weap->worn_on) == weap) {
+			act("$p shocks you!  You are forced to drop it!",
+				FALSE, ch, weap, 0, TO_CHAR);
+
+			// weapon is the 1st of 2 wielded
+			if (weap->worn_on == WEAR_WIELD &&
+				GET_EQ(ch, WEAR_WIELD_2)) {
+				weap2 = unequip_char(ch, WEAR_WIELD_2, MODE_EQ);
+				obj_to_room(unequip_char(ch, weap->worn_on, MODE_EQ),
+					ch->in_room);
+				if (equip_char(ch, weap2, WEAR_WIELD, MODE_EQ))
+					return DAM_ATTACKER_KILLED;
+			}
+			// weapon should fall to ground
+			else if (number(0, 20) > GET_DEX(ch))
+				obj_to_room(unequip_char(ch, weap->worn_on, MODE_EQ),
+					ch->in_room);
+			// weapon should drop to inventory
+			else
+				obj_to_char(unequip_char(ch, weap->worn_on, MODE_EQ),
+					ch);
+
+		}
+		// just shock the victim
+		else {
+			act("$p blasts the hell out of you!  OUCH!!",
+				FALSE, ch, weap, 0, TO_CHAR);
+			GET_HIT(ch) -= dice(3, 4);
+		}
+		act("$n cries out as $p shocks $m!", FALSE, ch, weap, 0,
+			TO_ROOM);
+	}
 	return 0;
 }
 

@@ -1862,6 +1862,7 @@ SPECIAL(cave_bear)
 /* OBJECT SPECIALS */
 #include "Specs/object_specs/loudspeaker.spec"
 #include "Specs/object_specs/voting_booth.spec"
+#include "Specs/object_specs/ancient_artifact.spec"
 
 /* HILL GIANT STEADING */
 #include "Specs/giants_specs/javelin_of_lightning.spec"

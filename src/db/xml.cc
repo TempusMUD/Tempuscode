@@ -4,6 +4,8 @@
 #include "xml_utils.h"
 #include "db.h"
 
+void craftshop_load(xmlNodePtr node);
+
 void
 xml_boot(void)
 {
@@ -42,7 +44,10 @@ xml_boot(void)
 
 		while (node) {
 			// Parse different nodes here.
-			slog("SYSERR: Invalid XML object '%s' in %s", node->name, path);
+			if (xmlMatches(node->name, "craftshop"))
+				craftshop_load(node);
+			else
+				slog("SYSERR: Invalid XML object '%s' in %s", node->name, path);
 			node = node->next;
 		}
 

@@ -315,7 +315,7 @@ namespace Security {
         // commands & members
         node = node->xmlChildrenNode;
         while (node != NULL) {
-            if ((!xmlStrcmp(node->name, (const xmlChar*)"Member"))) {
+            if ((xmlMatches(node->name, "Member"))) {
                 member = xmlGetLongProp(node, "ID");
                 if( member == 0 || get_name_by_id(member) == NULL ) {
                     log("Invalid PID not loaded.",member);
@@ -323,7 +323,7 @@ namespace Security {
                     addMember(member);
                 }
             }
-            if ((!xmlStrcmp(node->name, (const xmlChar*)"Command"))) {
+            if ((xmlMatches(node->name, "Command"))) {
                 command = xmlGetProp(node, "Name");
                 int index = find_command( command );
                 if( index == -1 ) {

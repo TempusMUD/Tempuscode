@@ -99,16 +99,16 @@ load_hunter_data()
 	freq = xmlGetIntProp(cur, "Frequency");
 	cur = cur->xmlChildrenNode;
 	while (cur != NULL) {
-		if ((!xmlStrcmp(cur->name, (const xmlChar *)"TARGET"))) {
+		if ((xmlMatches(cur->name, "TARGET"))) {
 			targets.push_back(Target(cur));
 		}
-		if ((!xmlStrcmp(cur->name, (const xmlChar *)"DEVIL"))) {
+		if ((xmlMatches(cur->name, "DEVIL"))) {
 			devils.push_back(Devil(cur));
 		}
-		if ((!xmlStrcmp(cur->name, (const xmlChar *)"HUNTGROUP"))) {
+		if ((xmlMatches(cur->name, "HUNTGROUP"))) {
 			hunters.push_back(HuntGroup(cur, devils));
 		}
-		if ((!xmlStrcmp(cur->name, (const xmlChar *)"BLINDSPOT"))) {
+		if ((xmlMatches(cur->name, "BLINDSPOT"))) {
 			blindSpots.push_back( xmlGetIntProp(cur,"ID") );
 		}
 		cur = cur->next;
@@ -453,6 +453,9 @@ SPECIAL(arioch)
 	struct room_data *rm = NULL;
 	struct char_data *vict = NULL;
 	unsigned int i;
+
+	if (spec_mode == SPECIAL_DEATH)
+		return 0;
 
 	if (cmd)
 		return 0;

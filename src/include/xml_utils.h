@@ -73,4 +73,10 @@ xmlSetProp(xmlNodePtr node, const char *name, const int value)
 		(const xmlChar *)xmlSetPropBuf);
 }
 
+static inline bool
+xmlMatches(const xmlChar *str_a, const char *str_b)
+{
+	return !strcmp((const char *)str_a, str_b);
+}
+
 #endif							// __TEMPUS_XML_UTILS_H

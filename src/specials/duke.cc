@@ -635,11 +635,12 @@ SPECIAL(cleaning)
 {
 	struct obj_data *i, *next;
 
-	if (cmd || !AWAKE(ch))
-		return (FALSE);
-
 	if (spec_mode == SPECIAL_DEATH)
 		return 0;
+
+	if (cmd || !AWAKE(ch))
+		return 0;
+
 	for (i = ch->in_room->contents; i; i = next) {
 		next = i->next_content;
 		if (is_trash(i)) {

@@ -50,13 +50,6 @@ const char *fuse_types[] = {
 // bomb_radius_list and bomb_rooms are internally used in this file only
 //
 
-struct bomb_radius_list {
-	struct room_data *room;
-	struct bomb_radius_list *next;
-	uint power;
-};
-
-
 struct bomb_radius_list *bomb_rooms = NULL;
 
 //
@@ -220,6 +213,11 @@ bomb_damage_room(char *bomb_name, int bomb_type, int bomb_power,
 			dam = 0;
 			damage_type = 0;
 			break;
+		case BOMB_ARTIFACT:
+			sprintf(buf, "%s unfolds itself with a screaming roar!\nYou are engulfed in a bright blue light...", bomb_name);
+			dam = (dam > 0) ? 30000:0;
+			damage_type = 0;
+			break;
 		default:
 			sprintf(buf, "%s explodes!!", bomb_name);
 			damage_type = TYPE_CRUSH;
@@ -301,6 +299,11 @@ bomb_damage_room(char *bomb_name, int bomb_type, int bomb_power,
 				dam = MAX(1, dam);
 				damage_type = 0;
 				break;
+			case BOMB_ARTIFACT:	
+				strcpy(buf, "You are engulfed by a blinding bright blue light");
+				dam = (dam > 0) ? 30000:0;
+				damage_type = 0;
+				break;
 			case SKILL_SELF_DESTRUCT:
 				strcpy(buf, "You are showered with a rain of fiery debris!");
 				damage_type = TYPE_RIP;
@@ -336,8 +339,8 @@ bomb_damage_room(char *bomb_name, int bomb_type, int bomb_power,
 			!CHAR_WITHSTANDS_FIRE(vict) && !AFF2_FLAGGED(vict, AFF2_ABLAZE))
 			SET_BIT(AFF2_FLAGS(vict), AFF2_ABLAZE);
 
-		if (bomb_type == BOMB_FLASH && AWAKE(vict) &&
-			GET_LEVEL(vict) < LVL_AMBASSADOR &&
+		if ((bomb_type == BOMB_ARTIFACT || bomb_type == BOMB_FLASH) &&
+			AWAKE(vict) && GET_LEVEL(vict) < LVL_AMBASSADOR &&
 			!mag_savingthrow(vict, 40, SAVING_PETRI) &&
 			!AFF_FLAGGED(vict, AFF_BLIND) && !MOB_FLAGGED(vict, MOB_NOBLIND)) {
 			af.type = SPELL_BLINDNESS;
@@ -389,6 +392,13 @@ bomb_damage_room(char *bomb_name, int bomb_type, int bomb_power,
 				GET_LEVEL(vict) < LVL_AMBASSADOR)
 				vict->setPosition(POS_STUNNED);
 		}
+	}
+
+	// Objects in an explosion should also be damaged
+	obj_data *obj, *next_obj;
+	for (obj = room->contents;obj; obj = next_obj) {
+		next_obj = obj->next_content;
+		damage_eq(NULL, obj, dam, damage_type);
 	}
 
 	// room affects here

@@ -12,6 +12,7 @@
 
 ACMD(do_gen_comm);
 ACMD(do_drag_char);
+ACMD(do_say);
 ACMD(do_action);
 ASPELL(spell_nuclear_wasteland);
 ASPELL(spell_spacetime_imprint);

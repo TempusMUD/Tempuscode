@@ -95,7 +95,7 @@ class HuntGroup:public
 			n->
 			xmlChildrenNode;
 		while (n != NULL) {
-			if ((!xmlStrcmp(n->name, (const xmlChar *)"HUNTER"))) {
+			if ((xmlMatches(n->name, "HUNTER"))) {
 				push_back(Hunter(n, devils));
 			}
 			n =

@@ -634,7 +634,7 @@ namespace Security {
         // Load all the nodes in the file
         while (cur != NULL) {
             // But only question nodes
-            if ((!xmlStrcmp(cur->name, (const xmlChar *)"Group"))) {
+            if ((xmlMatches(cur->name, "Group"))) {
                 groups.push_back(Group(cur));
             }
             cur = cur->next;

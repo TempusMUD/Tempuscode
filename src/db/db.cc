@@ -167,6 +167,7 @@ void assign_mobiles(void);
 void assign_objects(void);
 void assign_rooms(void);
 void assign_the_shopkeepers(void);
+void assign_artisans(void);
 void build_player_index(void);
 void boot_dynamic_text(void);
 void load_iscripts(char fname[MAX_INPUT_LENGTH]);
@@ -402,6 +403,8 @@ boot_db(void)
 		assign_objects();
 		slog("   Rooms.");
 		assign_rooms();
+		slog("   Artisans.");
+		assign_artisans();
 	}
 	slog("   Spells.");
 	mag_assign_spells();

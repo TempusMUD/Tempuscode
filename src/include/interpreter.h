@@ -22,7 +22,7 @@
    void (name)(struct char_data *ch, char *argument, int cmd, int subcmd, int *return_flags = 0 )
 
 void command_interpreter(struct char_data *ch, char *argument);
-int search_block(char *arg, const char **list, bool exact);
+int search_block(const char *arg, const char **list, bool exact);
 char lower(char c);
 char *one_argument(char *argument, char *first_arg);
 void one_argument(const char *argument, char *first_arg);

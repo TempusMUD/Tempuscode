@@ -1771,18 +1771,14 @@ perform_alias(struct descriptor_data *d, char *orig)
  * must be terminated with a '\n' so it knows to stop searching.
  */
 int
-search_block(char *arg, const char **list, bool exact)
+search_block(const char *arg, const char **list, bool exact)
 {
 	register int i, l;
 	int count = 0;
 
-	/* Make into lower case, and get length of string */
-	for (l = 0; *(arg + l); l++)
-		*(arg + l) = tolower(*(arg + l));
-
 	if (exact) {
 		for (i = 0; **(list + i) != '\n'; i++)
-			if (!strcmp(arg, *(list + i)))
+			if (!strcasecmp(arg, *(list + i)))
 				return (i);
 	} else {
 		if (!l)

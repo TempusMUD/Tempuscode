@@ -15,6 +15,7 @@
 
 #define SPECIAL_NONE   0
 #define SPECIAL_DEATH  1
+#define SPECIAL_FIGHT  2
 
 /* other miscellaneous defines *******************************************/
 

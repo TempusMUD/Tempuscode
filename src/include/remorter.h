@@ -100,25 +100,25 @@ Question::Question(xmlNodePtr n, xmlDocPtr doc)
 
 	xmlNodePtr cur = n->xmlChildrenNode;
 	while (cur != NULL) {
-		if ((!xmlStrcmp(cur->name, (const xmlChar *)"Text"))) {
+		if ((xmlMatches(cur->name, "Text"))) {
 			s = xmlNodeListGetString(doc, cur->xmlChildrenNode, 1);
 			if (s != NULL) {
 				question = (const char *)s;
 				free(s);
 			}
-		} else if ((!xmlStrcmp(cur->name, (const xmlChar *)"Answer"))) {
+		} else if ((xmlMatches(cur->name, "Answer"))) {
 			s = xmlNodeListGetString(doc, cur->xmlChildrenNode, 1);
 			if (s != NULL) {
 				answers.push_back(string((const char *)s));
 				free(s);
 			}
-		} else if ((!xmlStrcmp(cur->name, (const xmlChar *)"Choice"))) {
+		} else if ((xmlMatches(cur->name, "Choice"))) {
 			s = xmlNodeListGetString(doc, cur->xmlChildrenNode, 1);
 			if (s != NULL) {
 				choices.push_back(string((const char *)s));
 				free(s);
 			}
-		} else if ((!xmlStrcmp(cur->name, (const xmlChar *)"Hint"))) {
+		} else if ((xmlMatches(cur->name, "Hint"))) {
 			s = xmlNodeListGetString(doc, cur->xmlChildrenNode, 1);
 			if (s != NULL) {
 				hints.push_back(string((const char *)s));
@@ -171,7 +171,7 @@ load_remort_questions()
 	// Load all the nodes in the file
 	while (cur != NULL) {
 		// But only question nodes
-		if ((!xmlStrcmp(cur->name, (const xmlChar *)"Question"))) {
+		if ((xmlMatches(cur->name, "Question"))) {
 			remortQuestions.push_back(Question(cur, doc));
 		}
 		cur = cur->next;
@@ -184,7 +184,7 @@ load_remort_questions()
 	   int id = 0;
 	   while (cur != NULL) {
 	   sprintf(buf,"%d",id);
-	   if ((!xmlStrcmp(cur->name, (const xmlChar *)"Question"))) {
+	   if ((xmlMatches(cur->name, "Question"))) {
 	   xmlSetProp(cur,(const xmlChar *)"ID", (const xmlChar *)buf);
 	   ++id;
 	   }
