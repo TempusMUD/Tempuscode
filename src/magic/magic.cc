@@ -791,7 +791,8 @@ mag_damage(int level, struct Creature *ch, struct Creature *victim,
 		break;
 	case SPELL_FROST_BREATH:
 		audible = TRUE;
-		dam = dice(level, 15) + level;
+		dam = dice(level, 7) + level;
+		ice_room(ch->in_room, level);
 		break;
 	case SPELL_ACID_BREATH:
 		dam = dice(level, 15) + level;
@@ -3517,6 +3518,35 @@ mag_alter_objs(int level, struct Creature *ch, struct obj_data *obj,
         }
         break;
     }
+    case SPELL_FLAME_OF_FAITH:
+        if (GET_OBJ_TYPE(obj) != ITEM_WEAPON) {
+            to_char = "The flame of faith will only burn on a weapon.";
+            break;
+        }
+
+        if (IS_OBJ_STAT2(obj, ITEM2_ABLAZE) ) {
+            to_char = "That weapon is already burning!";
+            break;
+        }
+        oaf[0].level = oaf[0].duration = 20 + (ch->getLevelBonus(SPELL_FLAME_OF_FAITH)/10);
+        oaf[0].type = SPELL_FLAME_OF_FAITH;
+        oaf[0].extra_mod = ITEM2_ABLAZE;
+        oaf[0].extra_index = 2;
+
+        oaf[1].level = oaf[0].level;
+        oaf[1].type = oaf[0].type;
+        oaf[1].duration = oaf[0].duration;
+        oaf[1].extra_mod = ITEM_MAGIC;
+        oaf[1].extra_index = 1;
+
+        aff_mode = AFF_ADD;
+        if( IS_EVIL(ch) ) {
+            to_char = "A sickening red flame engulfs $p.";
+        } else {
+            to_char = "$p begins to burn brightly.";
+        }
+        break;
+
     default:
         slog("SYSERR: Unknown spellnum in mag_alter_objs.");
         break;

@@ -217,9 +217,9 @@ const char *spells[] = {
     "envenom",	/* 155 */
 	"elemental branding", 
     "thorn skin casting",
-	"fire breath", 
-    "frost breath", 
-    "!UNUSED!",	/* 160 */
+	"fire breathing", 
+    "frost breathing", 
+    "flame of faith",	/* 160 */
 	"!UNUSED!", "!UNUSED!", "!UNUSED!", "!UNUSED!", "!UNUSED!",	/* 165 */
 	"!UNUSED!", "!UNUSED!", "!UNUSED!", "!UNUSED!", "!UNUSED!",	/* 170 */
 	"!UNUSED!", "!UNUSED!", "!UNUSED!", "!UNUSED!", "!UNUSED!",	/* 175 */
@@ -2881,9 +2881,10 @@ mag_assign_spells(void)
 		60, 40, 2,
 		POS_STANDING, TAR_CHAR_ROOM, FALSE, MAG_MAGIC | MAG_AFFECTS);
 
-	spello(SPELL_FLAME_STRIKE, X, 33, X, X, X, X, X, X, 35, X, X, X, X, X, X,
-		X, X, 60, 40, 2, POS_FIGHTING, TAR_CHAR_ROOM | TAR_FIGHT_VICT, TRUE,
-		MAG_DIVINE | MAG_DAMAGE | MAG_NOWATER);
+	spello(SPELL_FLAME_OF_FAITH, X, 12, X, X, X, X, X, X, X, X, X, X, X, X, X,
+		X, X, 60, 40, 2, POS_STANDING, 
+        TAR_OBJ_EQUIP | TAR_OBJ_ROOM | TAR_OBJ_INV , FALSE,
+		MAG_DIVINE | MAG_ALTER_OBJS | MAG_NOWATER);
 
 	/* C L A S S E S      M A N A   */
 	/* Ma Cl Th Wa Bar Syk Ph Cyb Kni Ran Hood Bnt Max Min Chn */

@@ -2494,19 +2494,41 @@ hit(struct Creature *ch, struct Creature *victim, int type)
 		}
 
 	} else {
-		if (cur_weap && IS_OBJ_TYPE(cur_weap, ITEM_WEAPON) &&
-			GET_OBJ_VAL(cur_weap, 3) >= 0 &&
-			GET_OBJ_VAL(cur_weap, 3) < TOP_ATTACKTYPE - TYPE_HIT &&
-			IS_MONK(ch)) {
-			skill = weapon_proficiencies[GET_OBJ_VAL(cur_weap, 3)];
-			if (skill)
-				gain_skill_prof(ch, skill);
+        int ablaze_level = 0;
+		if (cur_weap && IS_OBJ_TYPE(cur_weap, ITEM_WEAPON) ) {
+			if( GET_OBJ_VAL(cur_weap, 3) >= 0 &&
+                GET_OBJ_VAL(cur_weap, 3) < TOP_ATTACKTYPE - TYPE_HIT &&
+                IS_MONK(ch)) {
+                skill = weapon_proficiencies[GET_OBJ_VAL(cur_weap, 3)];
+                if (skill)
+                    gain_skill_prof(ch, skill);
+            }
+            if( IS_OBJ_STAT2(cur_weap, ITEM2_ABLAZE) ) {
+                tmp_obj_affect *af = cur_weap->affectedBySpell(SPELL_FLAME_OF_FAITH);
+                if( af != NULL ) {
+                    dam += number(1,10);
+                    ablaze_level = af->level;
+                }
+            }
 		}
 		retval = damage(ch, victim, dam, w_type, limb);
 
 		if (retval) {
 			return retval;
 		}
+
+        // ignite the victim if applicable
+        if( ablaze_level > 0 && !IS_AFFECTED_2(victim, AFF2_ABLAZE) ) {
+            if (!mag_savingthrow(victim, 10, SAVING_SPELL) 
+             && !CHAR_WITHSTANDS_FIRE(victim)) 
+            {
+                act("$n's body suddenly ignites into flame!",
+                    FALSE, victim, 0, 0, TO_ROOM);
+                act("Your body suddenly ignites into flame!",
+                    FALSE, victim, 0, 0, TO_CHAR);
+                SET_BIT(AFF2_FLAGS(victim), AFF2_ABLAZE);
+            }
+        }
 
 		if (weap && IS_FERROUS(weap) && IS_NPC(victim)
 			&& GET_MOB_SPEC(victim) == rust_monster) {

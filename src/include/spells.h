@@ -278,6 +278,7 @@ static const int SPELL_THORN_SKIN_CASTING = 157;
 
 static const int SPELL_FIRE_BREATHING = 158;
 static const int SPELL_FROST_BREATHING = 159;
+static const int SPELL_FLAME_OF_FAITH = 160;
 
   /************************** Psionic Triggers ***************/
 static const int SPELL_POWER = 201;	/* Strength                */
