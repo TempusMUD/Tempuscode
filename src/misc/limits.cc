@@ -534,7 +534,7 @@ point_update(void)
 		/* rooms */
 		for (room_data *room = zone->world;room;room = room->next)
 		  if (GET_ROOM_PROG(room))
-			trigger_prog_idle(room, PROG_TYPE_ROOM);
+			trigger_prog_tick(room, PROG_TYPE_ROOM);
 	}
 
 	/* characters */
