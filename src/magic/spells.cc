@@ -91,6 +91,17 @@ ASPELL(spell_create_water)
 	}
 }
 
+bool
+teleport_not_ok(Creature *ch, Creature *vict, int level)
+{
+	if (PLR_FLAGGED(vict, PLR_KILLER))
+		return false;
+
+	if (vict->trusts(ch))
+		return false;
+	
+	return mag_savingthrow(vict, level, SAVING_SPELL);
+}
 
 ASPELL(spell_recall)
 {
@@ -101,7 +112,7 @@ ASPELL(spell_recall)
 		if (!IS_OBJ_TYPE(obj, ITEM_VSTONE) || !GET_OBJ_VAL(obj, 2))
 			send_to_char(ch, NOEFFECT);
 		if (IS_OBJ_TYPE(obj, ITEM_VSTONE))
-			act("Your devine magic has no effect on $p.", FALSE, ch, obj, 0,
+			act("Your divine magic has no effect on $p.", FALSE, ch, obj, 0,
 				TO_CHAR);
 		return;
 	}
@@ -131,11 +142,11 @@ ASPELL(spell_recall)
 		}
 	}
 
-	if (victim->distrusts(ch) &&
-		mag_savingthrow(victim, level, SAVING_SPELL)) {
-		act("$N resists the spell!", FALSE, ch, 0, victim, TO_CHAR);
-		send_to_char(victim, 
-			"You resist the recall because your summon protection is on.\r\n");
+	if (teleport_not_ok(ch, victim, level)) {
+		act("$N resists your attempt to recall $M home!",
+			true, ch, 0, victim, TO_CHAR);
+		act("You resist $n's attempt to recall you home!",
+			true, ch, 0, victim, TO_VICT);
 		return;
 	}
 
@@ -231,19 +242,12 @@ ASPELL(spell_local_teleport)
 			TO_VICT);
 		return;
 	}
-	if (victim->distrusts(ch)) {
-		if (mag_savingthrow(victim, level, SAVING_SPELL)
-			&& !PLR_FLAGGED(victim, PLR_KILLER)) {
-
-			send_to_char(victim, "%s just tried to teleport you to... %s.\r\n"
-				"%s failed because you have summon protection on.\r\n"
-				"Type NOSUMMON to allow other characters to teleport you.\r\n",
-				GET_NAME(ch), ch->in_room->name,
-				(ch->player.sex == SEX_MALE) ? "He" : "She");
-
-			send_to_char(ch, "%s resists your attempt!\r\n", GET_NAME(victim));
-			return;
-		}
+	if (teleport_not_ok(ch, victim, level)) {
+		act("$N resists your attempt to teleport $M!",
+			true, ch, 0, victim, TO_CHAR);
+		act("You resist $n's attempt to teleport you!",
+			true, ch, 0, victim, TO_VICT);
+		return;
 	}
 
 	if (MOB_FLAGGED(victim, MOB_NOSUMMON) ||
@@ -429,19 +433,12 @@ ASPELL(spell_teleport)
 			TO_VICT);
 		return;
 	}
-	if (victim->distrusts(ch)) {
-		if (mag_savingthrow(victim, level, SAVING_SPELL)
-			&& !PLR_FLAGGED(victim, PLR_KILLER)) {
-
-			send_to_char(victim, "%s just tried to teleport you... %s.\r\n"
-				"%s failed because you have summon protection on.\r\n"
-				"Type NOSUMMON to allow other players to teleport you.\r\n",
-				GET_NAME(ch), ch->in_room->name,
-				(ch->player.sex == SEX_MALE) ? "He" : "She");
-
-			send_to_char(ch, "%s resists your attempt!\r\n", GET_NAME(victim));
-			return;
-		}
+	if (teleport_not_ok(ch, victim, level)) {
+		act("$N resists your attempt to teleport $M!",
+			true, ch, 0, victim, TO_CHAR);
+		act("You resist $n's attempt to teleport you!",
+			true, ch, 0, victim, TO_VICT);
+		return;
 	}
 
 	if (MOB_FLAGGED(victim, MOB_NOSUMMON) ||
@@ -552,22 +549,15 @@ ASPELL(spell_astral_spell)
 			TO_VICT);
 		return;
 	}
-	if (victim->distrusts(ch)) {
-		if (mag_savingthrow(victim, level, SAVING_SPELL)
-			&& !PLR_FLAGGED(victim, PLR_KILLER)) {
 
-			sprintf(buf,
-				"%s just tried to send you into the astral plane... %s.\r\n"
-				"%s failed because you have summon protection on.\r\n"
-				"Type NOSUMMON to allow other players to teleport you.\r\n",
-				GET_NAME(ch), ch->in_room->name,
-				(ch->player.sex == SEX_MALE) ? "He" : "She");
-			send_to_char(victim, "%s", buf);
-
-			send_to_char(ch, "%s resists your attempt!\r\n", GET_NAME(victim));
-			return;
-		}
+	if (teleport_not_ok(ch, victim, level)) {
+		act("$N resists your attempt to send $m into the astral plane!",
+			true, ch, 0, victim, TO_CHAR);
+		act("You resist $n's attempt to send you into the astral plane!",
+			true, ch, 0, victim, TO_VICT);
+		return;
 	}
+
 
 	if (MOB_FLAGGED(victim, MOB_NOSUMMON) ||
 		(IS_NPC(victim) && mag_savingthrow(victim, level, SAVING_SPELL))) {
@@ -672,21 +662,14 @@ ASPELL(spell_summon)
 		return;
 	}
 
-	if (victim->distrusts(ch)) {
-		if (mag_savingthrow(victim, level, SAVING_SPELL) &&
-			!PLR_FLAGGED(victim, PLR_KILLER)) {
-
-			send_to_char(victim, "%s just tried to summon you to %s,\r\n"
-				"and failed because you have summon protection on.\r\n"
-				"Type NOSUMMON to allow other players to summon you.\r\n",
-				PERS(ch, victim), tmp_tolower(ch->in_room->name));
-
-			send_to_char(ch, "You failed because %s has summon protection on.\r\n",
-				GET_NAME(victim));
-			slog("%s failed summoning %s to %s[%d]", GET_NAME(ch),
-				GET_NAME(victim), ch->in_room->name, ch->in_room->number);
-			return;
-		}
+	if (teleport_not_ok(ch, victim, level)) {
+		act("$N resists your attempt to summon $M!",
+			true, ch, 0, victim, TO_CHAR);
+		act("You resist $n's attempt to summon you!",
+			true, ch, 0, victim, TO_VICT);
+		slog("%s failed summoning %s to %s[%d]", GET_NAME(ch),
+			GET_NAME(victim), ch->in_room->name, ch->in_room->number);
+		return;
 	}
 
 	if (MOB_FLAGGED(victim, MOB_NOSUMMON) ||
@@ -1255,11 +1238,10 @@ ASPELL(spell_identify)
 		}
 
 	} else if (victim) {		/* victim */
-		if (victim->distrusts(ch)) {
-			if (mag_savingthrow(victim, level, SAVING_SPELL)) {
-				act("$N resists your spell!", FALSE, ch, 0, victim, TO_CHAR);
-				return;
-			}
+		if (victim->distrusts(ch) &&
+				mag_savingthrow(victim, level, SAVING_SPELL)) {
+			act("$N resists your spell!", FALSE, ch, 0, victim, TO_CHAR);
+			return;
 		}
 		send_to_char(ch, "Name: %s\r\n", GET_NAME(victim));
 		if (!IS_NPC(victim)) {
@@ -1375,11 +1357,10 @@ ASPELL(spell_minor_identify)
 			}
 		}
 	} else if (victim) {		/* victim */
-		if (victim->distrusts(ch)) {
-			if (mag_savingthrow(victim, level, SAVING_SPELL)) {
-				act("$N resists your spell!", FALSE, ch, 0, victim, TO_CHAR);
-				return;
-			}
+		if (victim->distrusts(ch) &&
+				mag_savingthrow(victim, level, SAVING_SPELL)) {
+			act("$N resists your spell!", FALSE, ch, 0, victim, TO_CHAR);
+			return;
 		}
 		send_to_char(ch, "Name: %s\r\n", GET_NAME(victim));
 		if (!IS_NPC(victim)) {
