@@ -765,11 +765,11 @@ damage( struct char_data * ch, struct char_data * victim, int dam,
     if ( ch && ch != victim && !IS_NPC( ch ) && !IS_NPC( victim ) ) {
         if ( PLR_FLAGGED( ch, PLR_NOPK ) ) {
             send_to_char( "A small dark shape flies in from the future and sticks to your eyebrow.\r\n", ch );
-            DAM_RETURN( 0 );
+            DAM_RETURN( DAM_ATTACK_FAILED );
         }
         if ( PLR_FLAGGED( victim, PLR_NOPK ) ) {
             send_to_char( "A small dark shape flies in from the future and sticks to your nose.\r\n", ch );
-            DAM_RETURN( 0 );
+            DAM_RETURN( DAM_ATTACK_FAILED );
         }
         
         if ( GET_LEVEL( victim ) <= LVL_PROTECTED && 
@@ -786,7 +786,7 @@ damage( struct char_data * ch, struct char_data * victim, int dam,
                 stop_fighting( ch );
             if ( ch == FIGHTING( victim ) )
                 stop_fighting( victim );
-            DAM_RETURN( 0 );
+            DAM_RETURN( DAM_ATTACK_FAILED );
         }
 
         if ( GET_LEVEL( ch ) <= LVL_PROTECTED && !PLR_FLAGGED( ch, PLR_TOUGHGUY ) ) {

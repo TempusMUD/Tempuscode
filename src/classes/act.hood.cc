@@ -144,12 +144,12 @@ ACMD(do_hamstring)
             affect_to_char(vict, &af);
             WAIT_STATE(vict, 4 RL_SEC);
             retval = damage(ch, vict, dam, SKILL_HAMSTRING, WEAR_LEGS);
-            if ( ! IS_SET( retval, DAM_VICT_KILLED ) )
+            if ( ! IS_SET( retval, DAM_VICT_KILLED ) && ! IS_SET(retval, DAM_ATTACK_FAILED ))
                 vict->setPosition( POS_RESTING );
         } else {
             WAIT_STATE(vict, 3 RL_SEC);
             retval = damage(ch, vict, dam/2, SKILL_HAMSTRING, WEAR_LEGS);
-            if ( ! IS_SET( retval, DAM_VICT_KILLED ) )
+            if ( ! IS_SET( retval, DAM_VICT_KILLED ) && ! IS_SET(retval, DAM_ATTACK_FAILED ))
                 vict->setPosition( POS_SITTING );
         }
         gain_skill_prof(ch, SKILL_HAMSTRING);
