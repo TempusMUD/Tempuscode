@@ -804,7 +804,7 @@ desc_one_char(Creature *ch, Creature *i, bool is_group)
 		if (i->player.long_descr)
 			desc = i->player.long_descr;
 		else
-			desc = tmp_strcat(desc, " exists here.");
+			desc = tmp_strcat(tmp_capitalize(desc), " exists here.");
 	} else if (i->getPosition() == POS_FIGHTING) {
 		if (!i->getFighting())
 			desc = tmp_sprintf("%s is here, fighting thin air!", desc);
@@ -889,7 +889,7 @@ list_char_to_char(struct Creature *list, struct Creature *ch)
 {
 	struct Creature *i;
 	bool is_group = false;
-	char *msg = "";
+	char *msg = "", *desc;
 	int unseen = 0;
 	int hide_prob, hide_roll;
 
@@ -924,6 +924,11 @@ list_char_to_char(struct Creature *list, struct Creature *ch)
 			continue;
 		}
 
+		// skip those with no ldesc
+		if (!IS_IMMORT(ch) && IS_NPC(i) && !i->player.long_descr)
+			continue;
+
+		// skip those you can't see for in-game reasons
 		if (!CAN_SEE(ch, i)) {
 			if (!IS_IMMORT(i))
 				unseen++;
@@ -951,9 +956,12 @@ list_char_to_char(struct Creature *list, struct Creature *ch)
 				(ch->master && i->master == ch->master);
 		}
 
-		msg = tmp_strcat(msg, desc_one_char(ch, i, is_group));
-		if (!PRF2_FLAGGED(ch, PRF2_NOTRAILERS) && ch->in_room == i->in_room)
-			msg = tmp_strcat(msg, desc_char_trailers(ch, i));
+		desc = desc_one_char(ch, i, is_group);
+		if (*desc) {
+			msg = tmp_strcat(msg, desc);
+			if (!PRF2_FLAGGED(ch, PRF2_NOTRAILERS) && ch->in_room == i->in_room)
+				msg = tmp_strcat(msg, desc_char_trailers(ch, i));
+		}
 	}
 
 	if( unseen && 
