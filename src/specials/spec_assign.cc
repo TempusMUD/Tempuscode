@@ -113,8 +113,6 @@ const struct spec_func_data spec_list[] = {
 	{"dwarven_hermit", dwarven_hermit, SPEC_MOB | SPEC_RES},
 	{"gunnery_device", gunnery_device, SPEC_MOB | SPEC_RES},
 	{"aziz_canon", aziz_canon, SPEC_MOB | SPEC_RES},
-	{"guard_east", guard_east, SPEC_MOB},
-	{"guard_up", guard_up, SPEC_MOB},
 	{"guard_north", guard_north, SPEC_MOB},
 	{"safiir", safiir, SPEC_MOB},
 	{"spinal", spinal, SPEC_MOB | SPEC_RES},
