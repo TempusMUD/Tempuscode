@@ -8072,6 +8072,7 @@ static const char* ACCOUNT_USAGE =
 					"      enable <id>\r\n"
 					"      movechar <Char ID> <to ID>\r\n"
 					"      exhume <account ID> <Character ID>\r\n"
+					"      reload <account ID>\r\n"
                     ;
 ACMD(do_account)
 {
@@ -8142,6 +8143,24 @@ ACMD(do_account)
 			return;
 		}
 		account->exhume_char(ch, vict_id);
+	} else if (strcmp(token, "reload") == 0) {
+		if(!tokens.next(token) ) {
+			send_to_char(ch, "Specify an account id.\r\n");
+			return;
+		}
+
+		account_id = atoi(token);
+		account = Account::retrieve(account_id);
+		if (!account) {
+			send_to_char(ch, "No such account: %s\r\n", token);
+			return;
+		}
+
+		if (account->reload())
+			send_to_char(ch, "Account successfully reloaded from db\r\n");
+		else
+			send_to_char(ch, "Error: Account could not be reloaded\r\n");
+		return;
 	} else {
 		send_to_char(ch, ACCOUNT_USAGE);
 	}
