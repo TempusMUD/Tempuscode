@@ -47,6 +47,7 @@ void prog_do_opurge(prog_env *env, prog_evt *evt, char *args);
 void prog_do_randomly(prog_env *env, prog_evt *evt, char *args);
 void prog_do_or(prog_env *env, prog_evt *evt, char *args);
 void prog_do_resume(prog_env *env, prog_evt *evt, char *args);
+void prog_do_echo(prog_env *env, prog_evt *evt, char *args);
 
 char *prog_get_statement(char **prog, int linenum);
 
@@ -75,6 +76,8 @@ prog_command prog_cmds[] = {
 	{ "set",		true,	prog_do_set },
 	{ "oload",		true,	prog_do_oload },
 	{ "opurge",		true,	prog_do_opurge },
+	{ "echo",		true,	prog_do_echo },
+	{ "halt",		false,	prog_do_halt },
 	{ NULL,		false,	prog_do_halt }
 };
 
@@ -411,7 +414,7 @@ prog_do_pause(prog_env *env, prog_evt *evt, char *args)
 void
 prog_do_halt(prog_env *env, prog_evt *evt, char *args)
 {
-	env->wait = -1;
+	env->exec_pt = -1;
 }
 
 void
@@ -551,7 +554,10 @@ prog_do_oload(prog_env *env, prog_evt *evt, char *args)
 		}
 		obj_to_room(obj, room);
 	} else if (!strcasecmp(arg, "target")) {
-		obj_to_char(obj, env->target);
+		if (env->target)
+			obj_to_char(obj, env->target);
+		else
+			extract_obj(obj);
 	} else if (!strcasecmp(arg, "self")) {
 		switch (env->owner_type) {
 		case PROG_TYPE_MOBILE:
@@ -613,6 +619,31 @@ void
 prog_do_resume(prog_env *env, prog_evt *evt, char *args)
 {
 	// literally does nothing
+}
+
+void
+prog_do_echo(prog_env *env, prog_evt *evt, char *args)
+{
+	room_data *room;
+	char *arg;
+
+	arg = tmp_getword(&args);
+	if (!strcasecmp(arg, "room")) {
+		switch (env->owner_type) {
+		case PROG_TYPE_MOBILE:
+			room = ((Creature *)env->owner)->in_room; break;
+		case PROG_TYPE_OBJECT:
+			room = ((obj_data *)env->owner)->find_room(); break;
+		case PROG_TYPE_ROOM:
+			room = ((room_data *)env->owner);
+		default:
+			slog("SYSERR: Can't happen at %s:%d", __FILE__, __LINE__);
+		}
+		send_to_room(tmp_sprintf("%s\r\n", args), room);
+	} else if (!strcasecmp(arg, "target")) {
+		if (env->target)
+			send_to_char(env->target, "%s\r\n", args);
+	}
 }
 
 char *
