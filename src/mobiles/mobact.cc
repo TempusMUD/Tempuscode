@@ -414,7 +414,7 @@ void burn_update(void) {
 
         if ( affected_by_spell(ch, SKILL_RADIONEGATION) ) {
         
-        GET_HIT(ch) = MAX(0, GET_HIT(ch) - dice(1, 7));
+        GET_HIT(ch) = MAX(1, GET_HIT(ch) - dice(1, 7));
 
         if ( GET_MOVE(ch) > 10 ) {
             GET_MOVE(ch) = MAX(10, GET_MOVE(ch) - dice(2, 7));
@@ -427,7 +427,7 @@ void burn_update(void) {
 
         else {
 
-        GET_HIT(ch)  = MAX(0, GET_HIT(ch) - dice(2, 7));
+        GET_HIT(ch)  = MAX(1, GET_HIT(ch) - dice(2, 7));
         
         if (GET_MOVE(ch) > 5)
             GET_MOVE(ch) = MAX(5, GET_MOVE(ch) - dice(2, 7));
