@@ -106,7 +106,7 @@ bool can_travel_sector(struct char_data *ch, int sector_type, bool active)
     if ( sector_type == SECT_UNDERWATER ||
          sector_type == SECT_PITCH_SUB ||
          sector_type == SECT_WATER_NOSWIM ||
-         //sector_type == SECT_ELEMENTAL_EARTH ||
+         sector_type == SECT_ELEMENTAL_OOZE ||
          sector_type == SECT_FREESPACE ) {
    
         if (IS_RACE(ch, RACE_FISH))
@@ -639,12 +639,15 @@ int do_simple_move(struct char_data * ch, int dir, int mode, int need_specials_c
         send_to_char(buf, ch);
     }
 
-    if ((ch->in_room->sector_type == SECT_UNDERWATER &&
+    if ( (ch->in_room->sector_type == SECT_ELEMENTAL_OOZE &&
+         was_in->sector_type != SECT_ELEMENTAL_OOZE ) ||
+         (ch->in_room->sector_type == SECT_UNDERWATER &&
          was_in->sector_type != SECT_UNDERWATER) ||
         (ch->in_room->sector_type == SECT_PITCH_SUB &&
          was_in->sector_type != SECT_PITCH_SUB)) {
         sprintf(buf, "You submerge in the %s.\r\n", 
                 ch->in_room->sector_type == SECT_UNDERWATER ? "water" : 
+                ch->in_room->sector_type == SECT_ELEMENTAL_OOZE ? "ooze" : 
                 "boiling pitch");
         send_to_char(buf, ch);
     }
@@ -2617,6 +2620,7 @@ int drag_object(CHAR* ch, struct obj_data *obj, char* argument )
 
     if ( SECT_TYPE( ch->in_room ) == SECT_WATER_SWIM ||
          SECT_TYPE( ch->in_room ) == SECT_UNDERWATER ||
+         SECT_TYPE( ch->in_room ) == SECT_ELEMENTAL_OOZE ||
          SECT_TYPE( ch->in_room ) == SECT_ELEMENTAL_WATER ){
         
         mvm_cost = mvm_cost * 2;

@@ -76,6 +76,7 @@
 #define PLANE_ELEM_POS      74
 #define PLANE_ELEM_NEG      75
 #define PLANE_PELEM_MAGMA   76
+#define PLANE_PELEM_OOZE    77
 
 #define TIME_TIMELESS       0
 #define TIME_MODRIAN        1
