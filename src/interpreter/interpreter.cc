@@ -16,6 +16,9 @@
 //
 
 #define __interpreter_c__
+#include <iostream>
+#include <fstream>
+using namespace std;
 
 #include "structs.h"
 #include "comm.h"
@@ -51,6 +54,29 @@ extern int log_cmds;
 
 int general_search(struct char_data *ch, struct special_search_data *srch, int mode);
 int special(struct char_data * ch, int cmd, int subcmd, char *arg);
+
+
+/* writes a string to the command log */
+void
+cmdlog(char *str)
+{
+    static char logbuf[16000];
+    static ofstream commandLog;
+    time_t ct;
+    char *tmstr; 
+
+    if(! commandLog ) {
+        cerr << "Opening log/command.log" << endl;
+        commandLog.open("log/command.log",ios::app);
+    }
+    ct = time(0);
+    tmstr = asctime(localtime(&ct));
+    *(tmstr + strlen(tmstr) - 1) = '\0';
+    sprintf(logbuf, "%-19.19s :: %s", tmstr, str);
+    commandLog << logbuf << endl;
+    commandLog.flush();
+}
+
 
 ACMD(do_zcom);
 ACMD(do_objupdate);
@@ -1389,8 +1415,7 @@ command_interpreter(struct char_data * ch, char *argument)
         /* log cmds */
         if (log_cmds || PLR_FLAGGED(ch, PLR_LOG)) {
             sprintf(buf, "CMD: %s ::%s '%s'", GET_NAME(ch), cmd_info[cmd].command, line);
-            slog(buf);
-      
+            cmdlog(buf);
         }
         /* end log cmds */
     }
