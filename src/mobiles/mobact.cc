@@ -1868,7 +1868,9 @@ void mobile_activity(void) {
 	    } else if (IS_AFFECTED(ch, AFF_CURSE) && GET_LEVEL(ch) > 26) {
 		cast_spell(ch, ch, 0, SPELL_REMOVE_CURSE);
 	    } else if (GET_MANA(ch) > (GET_MAX_MANA(ch) * 0.75) && 
-		       GET_LEVEL(ch) >= 28 && !AFF_FLAGGED(ch, AFF_SANCTUARY))
+		       GET_LEVEL(ch) >= 28 && 
+			   !AFF_FLAGGED(ch, AFF_SANCTUARY) &&
+			   !AFF_FLAGGED(ch, AFF_NOPAIN) )
 		cast_spell(ch, ch, 0, SPELL_SANCTUARY);
 	} else if (IS_KNIGHT(ch) && random_binary()) {
 	    if (GET_HIT(ch) < GET_MAX_HIT(ch)*0.80) {
@@ -1891,6 +1893,10 @@ void mobile_activity(void) {
 		cast_spell(ch, ch, 0, SPELL_REMOVE_POISON);
 	    } else if (IS_AFFECTED(ch, AFF_CURSE) && GET_LEVEL(ch) > 30) {
 		cast_spell(ch, ch, 0, SPELL_REMOVE_CURSE);
+	    } else if (!affected_by_spell( ch, SPELL_SANCTIFICATION ) && 
+					GET_LEVEL(ch) > 32 &&
+					GET_REMORT_CLASS(ch) ){
+		cast_spell(ch, ch, 0, SPELL_SANCTIFICATION);
 	    }
 	} else if (IS_RANGER(ch) && random_binary()) {
 	    if (GET_HIT(ch) < GET_MAX_HIT(ch)*0.80) {
@@ -1912,8 +1918,8 @@ void mobile_activity(void) {
 			if( GET_LEVEL(ch) > 11) {
 				if( !affected_by_spell(ch,SKILL_DAMAGE_CONTROL) ) {
 					if( GET_LEVEL(ch) >= 12 )
-						do_activate(ch,"damage control",0,1); // 12
-					if( GET_LEVEL(ch) >= 17 )
+						do_activate(ch,"damage control", 0, 1); // 12
+					if( GET_LEVEL(ch) >= 17 && GET_REMORT_CLASS(ch) )
 						do_activate(ch,"radionegation",0,1);  // 17
 					if( GET_LEVEL(ch) >= 18 )
 						do_activate(ch,"power boost",0,1);    // 18
@@ -1934,13 +1940,6 @@ void mobile_activity(void) {
 		 GET_MANA(ch) > mag_manacost(ch, SPELL_ARMOR) &&
 		!CAN_SEE_IN_DARK(ch) && GET_LEVEL(ch) > 5) {
 			cast_spell(ch, ch, 0, SPELL_INFRAVISION);
-		} else if ( !IS_AFFECTED(ch, AFF_INVISIBLE) ) {
-			if ( GET_LEVEL(ch) > 37 && 
-				GET_MANA(ch) > mag_manacost(ch, SPELL_GREATER_INVIS) )
-				cast_spell(ch, ch, 0, SPELL_GREATER_INVIS);
-			else if ( (GET_LEVEL(ch) > 3) &&
-				GET_MANA(ch) > mag_manacost(ch, SPELL_INVISIBLE) )
-				cast_spell(ch, ch, 0, SPELL_INVISIBLE);
 		} else if ( GET_LEVEL(ch) > 12 && !IS_AFFECTED(ch, AFF_BLUR) &&
 			 GET_MANA(ch) > mag_manacost(ch, SPELL_BLUR) ) {
 			cast_spell(ch, ch, 0, SPELL_BLUR);
@@ -1972,7 +1971,8 @@ void mobile_activity(void) {
 		else 
 		    cast_spell(ch, ch, 0, SPELL_WOUND_CLOSURE);
 	    }
-	    else if (GET_LEVEL(ch) >= 42 && !AFF_FLAGGED(ch, AFF_NOPAIN))
+	    else if (GET_LEVEL(ch) >= 42 && !AFF_FLAGGED(ch, AFF_NOPAIN) && 
+			!AFF_FLAGGED(ch, AFF_SANCTUARY))
 		cast_spell(ch, ch, 0, SPELL_NOPAIN);
 	    else if (GET_LEVEL(ch) >= 21 &&
 		     (ch->in_room->sector_type == SECT_UNDERWATER   ||
