@@ -272,7 +272,7 @@ affect_update(void)
 
     for (i = character_list; i; i = i->next) {
 
-	kata_found = beserk_found = assimilate_found = 0;
+	hamstring_found = kata_found = beserk_found = assimilate_found = 0;
 
 	if (affected_by_spell(i, SPELL_METABOLISM))
 	    METABOLISM = 1;
