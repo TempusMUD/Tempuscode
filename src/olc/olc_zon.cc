@@ -1953,7 +1953,7 @@ do_zset_command(struct Creature *ch, char *argument)
 		return;
 		break;
 	case 2:					/*  top   */
-		if (GET_LEVEL(ch) < LVL_CREATOR) {
+		if(! Security::isMember(ch, "OLCWorldWrite") ) {
 			send_to_char(ch, "You cannot alter zones in this way.\r\n");
 			return;
 		}
