@@ -262,7 +262,7 @@ mudlog(sbyte level, log_type type, bool file, const char *fmt, ...)
 
 	ct = time(NULL);
 	ctm = localtime(&ct);
-	strftime(timebuf, 24, "%b %d %T - ", ctm);
+	strftime(timebuf, 24, "- %b %d %T", ctm);
 
 	if (file) {
 		char *tm_str;
