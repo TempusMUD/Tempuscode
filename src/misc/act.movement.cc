@@ -434,6 +434,11 @@ int do_simple_move(struct char_data * ch, int dir, int mode, int need_specials_c
         !ROOM_FLAGGED(ch->in_room, ROOM_INDOORS))
         need_movement >>= 1;
 
+	if (ch->getPosition() != POS_FLYING &&
+		SECT_TYPE(ch->in_room) == SECT_MOUNTAIN &&
+		(dir == UP || dir == DOWN))
+		need_movement <<= 1;
+
     if (GET_MOVE(ch) < need_movement && !IS_NPC(ch)) {
         if (need_specials_check && ch->master)
             send_to_char("You are too exhausted to follow.\r\n", ch);
