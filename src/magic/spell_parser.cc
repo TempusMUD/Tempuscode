@@ -2094,6 +2094,7 @@ ACMD(do_alter)
 	    WAIT_STATE(ch, PULSE_VIOLENCE);
 	    if (mana > 0)
 		GET_MANA(ch) = MAX(0, MIN(GET_MAX_MANA(ch), GET_MANA(ch) - mana));
+        gain_skill_prof(ch, spellnum); 
 	}
     }
 }
