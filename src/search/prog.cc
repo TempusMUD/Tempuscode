@@ -72,13 +72,19 @@ prog_find_idle_handler(char *prog)
 	}
 	return -1;
 }
+
 void
 execute_prog(Creature *ch)
 {
 	char *prog, *line, *str;
 	int linenum;
 
-	if (ch->mob_specials.prog_wait> 0) {
+	// blocking indefinitely
+	if (ch->mob_specials.prog_wait == -1)
+		return;
+
+	// waiting for a period of time
+	if (ch->mob_specials.prog_wait > 0) {
 		ch->mob_specials.prog_wait -= 1;
 		return;
 	}
@@ -108,8 +114,11 @@ execute_prog(Creature *ch)
 					return;
 				}
 				ch->mob_specials.prog_wait = 0;
+			} else if (!strcmp("*wait", str)) {
+				ch->mob_specials.prog_wait = -1;
+				ch->mob_specials.prog_exec++;
+				return;
 			}
-				
 		} else {
 			if (ch->mob_specials.prog_target)
 				line = tmp_gsub(line, "$N", fname(ch->mob_specials.prog_target->player.name));
