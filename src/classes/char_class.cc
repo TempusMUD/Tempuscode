@@ -1275,9 +1275,9 @@ advance_level(struct char_data * ch, byte keep_internal)
 	    add_move[i] += number(2, 6);
 	    break;
 	case CLASS_MERCENARY:
-	    add_hp[i]   += number(5, 10);
-	    add_mana[i] = (int) ( add_mana[i] * 0.3 );
-	    add_mana[i] += number(0, 3);
+	    add_hp[i]   += number(6, 14);
+	    add_mana[i] = (int) ( add_mana[i] * 0.5 );
+	    add_mana[i] += number(1, 5) + GET_LEVEL(ch) / 10;
 	    add_move[i] += number(3, 9);
 	    break;
 	case CLASS_WARRIOR:
