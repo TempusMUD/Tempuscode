@@ -46,7 +46,7 @@ void raw_kill(struct char_data *ch, struct char_data *killer, int attacktype);
 void appear(struct char_data * ch, struct char_data *vict);
 int find_door(struct char_data *ch, char *type, char *dir, const char *cmdname);
 void update_pos( struct char_data * victim );
-
+int do_combat_fire(struct char_data *ch, struct char_data *vict, int weap_pos, int prob);
 
 int 
 check_mob_reaction(struct char_data *ch, struct char_data *vict)
@@ -2838,4 +2838,327 @@ ACMD(do_beguile)
   
     WAIT_STATE(ch, 2 RL_SEC);
 
+}
+
+//This function assumes that ch is a merc.  It provides for  mercs
+//shooting wielded guns in combat instead of bludgeoning with them
+
+int do_combat_fire(struct char_data *ch, struct char_data *vict, int weap_pos)
+{
+    struct char_data *tmp_vict = NULL;
+    struct obj_data *bullet = NULL, *gun = NULL;
+    sh_int  prob, dam, cost;
+    int i, dum_ptr = 0, dum_move = 0;
+    bool dead = false;
+    struct affected_type *af = NULL;
+    int my_return_flags = 0;
+
+    if (!(gun = GET_EQ(ch, weap_pos)))
+      return 0;
+    else if (!IS_ENERGY_GUN(gun) && !IS_GUN(gun))
+      return 0;
+
+    //if our victim is NULL we simply return;
+    if (vict == NULL) {
+        return 0;
+    }    
+    
+    // This should never happen 
+    if (vict == ch)  {
+        mudlog("ERROR: ch == vict in do_combat_fire()!", NRM, LVL_AMBASSADOR, TRUE);
+        return 0;
+    }
+
+    if (ch->getPosition() < POS_FIGHTING) {
+        send_to_char("You can't fight while sitting!\r\n", ch);
+        return 1;
+   } 
+
+    // And since ch and vict should already be fighting this should never happen either
+    if (!peaceful_room_ok(ch, vict, true))
+        return 0;
+
+    //
+    // The Energy Gun block
+    //
+
+    if (IS_ENERGY_GUN(gun)) {
+
+        if (!gun->contains || !IS_ENERGY_CELL(gun->contains)) {
+            return 0;
+        }
+        if (CUR_ENERGY(gun->contains) <= 0) {
+            return 0;
+        }
+
+        cost = MIN(CUR_ENERGY(gun->contains), GUN_DISCHARGE(gun));
+
+        prob = calc_skill_prob(ch, vict, SKILL_SHOOT,
+                               &dum_ptr, &dum_ptr, &dum_move, &dum_move, &dum_ptr,
+                               &dum_ptr, &dum_ptr, &dum_ptr, af, &my_return_flags );
+
+        prob += CHECK_SKILL(ch, SKILL_ENERGY_WEAPONS) >> 2;
+
+        for (tmp_vict = ch->in_room->people; tmp_vict;
+             tmp_vict = tmp_vict->next_in_room)
+            if (tmp_vict != ch && ch == FIGHTING(tmp_vict))
+                prob -= (GET_LEVEL(tmp_vict) >> 3);
+
+        if (FIGHTING(vict) && FIGHTING(vict) != ch && number(1, 121) > prob)
+            vict = FIGHTING(vict);
+        else if (FIGHTING(vict) && number(1, 101) > prob) {
+            for (tmp_vict = ch->in_room->people; tmp_vict;
+                 tmp_vict = tmp_vict->next_in_room)
+                if (tmp_vict != ch  && tmp_vict != vict && vict == FIGHTING(tmp_vict) &&
+                    !number(0, 2)) {
+                    vict = tmp_vict;
+                    break;
+                }
+        } else if (number(1, 81) > prob) {
+            for (tmp_vict = ch->in_room->people; tmp_vict;
+                 tmp_vict = tmp_vict->next_in_room)
+                if (tmp_vict != ch  && tmp_vict != vict && !number(0, 2)) {
+                    vict = tmp_vict;
+                    break;
+                }
+        }
+
+        if (CUR_R_O_F(gun) <= 0)
+            CUR_R_O_F(gun) = 1;
+
+        for (i = 0, dead = false; i < CUR_R_O_F(gun); i++) {
+
+            prob -= (i * 4);
+            cost = MIN(CUR_ENERGY(gun->contains), GUN_DISCHARGE(gun));
+
+            dam = dice(GUN_DISCHARGE(gun), (cost >> 1));
+
+            CUR_ENERGY(gun->contains) -= cost;
+
+            cur_weap = gun;
+
+            if ( dead == false  ) {
+
+                //
+                // miss
+                //
+
+                if ( number(0, 121) > prob ) {
+                    check_toughguy(ch, vict, 0);
+                    check_killer(ch, vict);
+                    my_return_flags = damage(ch, vict , 0, SKILL_ENERGY_WEAPONS, number(0, NUM_WEARS-1) );
+                }
+
+                //
+                // hit
+                //
+
+                else {
+                    check_toughguy(ch, vict, 0);
+                    check_killer(ch, vict);
+                    my_return_flags = damage(ch, vict,dam,SKILL_ENERGY_WEAPONS, number(0, NUM_WEARS-1) );
+                }
+            }
+
+            //
+            // vict is dead, blast the corpse
+            //
+
+            else {
+                if (ch->in_room->contents && IS_CORPSE(ch->in_room->contents) &&
+                    CORPSE_KILLER(ch->in_room->contents) ==
+                    (IS_NPC(ch) ? - GET_MOB_VNUM(ch) : GET_IDNUM(ch))) {
+                    act("You blast $p with $P!!",
+                        FALSE, ch, ch->in_room->contents, gun, TO_CHAR);
+                    act("$n blasts $p with $P!!",
+                        FALSE, ch, ch->in_room->contents, gun, TO_ROOM);
+                    if (damage_eq(ch, ch->in_room->contents, dam))
+                        break;
+                } else {
+                    act("You fire off a round from $P.",
+                        FALSE, ch, ch->in_room->contents, gun, TO_ROOM);
+                    act("$n fires off a round from $P.",
+                        FALSE, ch, ch->in_room->contents, gun, TO_ROOM);
+                }
+            }
+
+            //
+            // if the attacker was somehow killed, return immediately
+            //
+
+            if ( IS_SET( my_return_flags, DAM_ATTACKER_KILLED ) ) {
+                return 1;
+            }
+
+            if ( IS_SET( my_return_flags, DAM_VICT_KILLED ) ) {
+                dead = true;
+                return DAM_VICT_KILLED;
+            }
+
+            if (!CUR_ENERGY(gun->contains)) {
+                act("$p has been depleted of fuel.  Auto switching off.",
+                    FALSE, ch, gun, 0, TO_CHAR);
+                act("$p makes a clicking noise in the hard of $n.",
+                    TRUE, ch, gun, 0, TO_ROOM);
+                break;
+            }
+        }
+        cur_weap = NULL;
+        return 1;
+    }
+
+    //
+    // The Projectile Gun block
+    //
+
+    if (GUN_TYPE(gun) < 0 || GUN_TYPE(gun) >= NUM_GUN_TYPES) {
+        act("$p is a bogus gun.  extracting.", FALSE, ch, gun, 0, TO_CHAR);
+        extract_obj(gun);
+        return 0;
+    }
+    if (!(bullet = gun->contains)) {
+        act("$p is not loaded.", FALSE, ch, gun, 0, TO_CHAR);
+        return 0;
+    }
+
+    if (!MAX_LOAD(gun) && !(bullet = gun->contains->contains)) {
+        act("$P is not loaded.", FALSE, ch, gun, gun->contains, TO_CHAR);
+        return 0;
+    }
+
+    prob = calc_skill_prob(ch, vict,
+                           (SKILL_SHOOT),
+                           &dum_ptr, &dum_ptr, &dum_move, &dum_move, &dum_ptr,
+                           &dum_ptr, &dum_ptr, &dum_ptr, af, &my_return_flags );
+
+
+    prob += CHECK_SKILL(ch, SKILL_PROJ_WEAPONS) >> 3;
+
+    for (tmp_vict = ch->in_room->people; tmp_vict;
+         tmp_vict = tmp_vict->next_in_room)
+        if (tmp_vict != ch && ch == FIGHTING(tmp_vict))
+            prob -= (GET_LEVEL(tmp_vict) >> 3);
+
+    if (FIGHTING(vict) && FIGHTING(vict) != ch && number(1, 121) > prob)
+        vict = FIGHTING(vict);
+    else if (FIGHTING(vict) && number(1, 101) > prob) {
+        for (tmp_vict = ch->in_room->people; tmp_vict;
+             tmp_vict = tmp_vict->next_in_room)
+            if (tmp_vict != ch  && tmp_vict != vict && vict == FIGHTING(tmp_vict) &&
+                !number(0, 2)) {
+                vict = tmp_vict;
+                break;
+            }
+    } else if (number(1, 81) > prob) {
+        for (tmp_vict = ch->in_room->people; tmp_vict;
+             tmp_vict = tmp_vict->next_in_room)
+            if (tmp_vict != ch  && tmp_vict != vict && !number(0, 2)) {
+                vict = tmp_vict;
+                break;
+            }
+    }
+
+    if (CUR_R_O_F(gun) <= 0)
+        CUR_R_O_F(gun) = 1;
+
+    // loop through ROF of the gun for burst fire
+
+    for (i = 0, dead = 0; i < CUR_R_O_F(gun); i++) {
+
+        if (!bullet) {
+            return 0;
+        }
+
+        prob -= (i * 4);
+
+        dam = dice(gun_damage[GUN_TYPE(gun)][0], gun_damage[GUN_TYPE(gun)][1]);
+        dam += BUL_DAM_MOD(bullet);
+
+        if (IS_ARROW(gun)) {
+            obj_from_obj(bullet);
+            obj_to_room(bullet, ch->in_room);
+            strcpy(buf2, bullet->short_description);
+            damage_eq(NULL, bullet, dam >> 2);
+        }
+        else {
+            if (!i && !IS_FLAMETHROWER(gun))
+                sound_gunshots(ch->in_room, SKILL_PROJ_WEAPONS,
+                               dam, CUR_R_O_F(gun));
+
+            extract_obj(bullet);
+        }
+        // we /must/ have a clip in a clipped gun at this point!
+        bullet = MAX_LOAD(gun) ? gun->contains : gun->contains->contains;
+
+        cur_weap = gun;
+
+        if ( dead == false ) {
+
+            //
+            // miss
+            //
+
+            if ( number(0, 121) > prob ) {
+                my_return_flags =
+                    damage(ch, vict , 0,
+                           IS_FLAMETHROWER(gun) ? TYPE_FLAMETHROWER : SKILL_PROJ_WEAPONS,
+                           number(0, NUM_WEARS-1));
+            }
+
+            //
+            // hit
+            //
+
+            else if (!dead) {
+                my_return_flags =
+                    damage(ch, vict, dam,
+                           IS_FLAMETHROWER(gun) ? TYPE_FLAMETHROWER : SKILL_PROJ_WEAPONS,
+                           number(0, NUM_WEARS-1));
+            }
+        }
+
+        //
+        // vict is dead, blast the corpse
+        //
+
+        else {
+            if (ch->in_room->contents && IS_CORPSE(ch->in_room->contents) &&
+                CORPSE_KILLER(ch->in_room->contents) ==
+                (IS_NPC(ch) ? - GET_MOB_VNUM(ch) : GET_IDNUM(ch))) {
+                if (IS_ARROW(gun)) {
+                    act("You shoot $p with $P!!",
+                        FALSE, ch, ch->in_room->contents, gun, TO_CHAR);
+                    act("$n shoots $p with $P!!",
+                        FALSE, ch, ch->in_room->contents, gun, TO_ROOM);
+                } else {
+                    act("You blast $p with $P!!",
+                        FALSE, ch, ch->in_room->contents, gun, TO_CHAR);
+                    act("$n blasts $p with $P!!",
+                        FALSE, ch, ch->in_room->contents, gun, TO_ROOM);
+                }
+                if (damage_eq(ch, ch->in_room->contents, dam))
+                    break;
+            } else {
+                act("You fire off a round from $P.",
+                    FALSE, ch, ch->in_room->contents, gun, TO_ROOM);
+                act("$n fires off a round from $P.",
+                    FALSE, ch, ch->in_room->contents, gun, TO_ROOM);
+            }
+        }
+
+        //
+        // if the attacker was somehow killed, return immediately
+        //
+
+        if ( IS_SET( my_return_flags, DAM_ATTACKER_KILLED ) ) {
+            return 1;
+        }
+
+        if ( IS_SET( my_return_flags, DAM_VICT_KILLED ) ) {
+            dead = true;
+            return DAM_VICT_KILLED;
+        }
+
+    }
+    return 1;
 }
