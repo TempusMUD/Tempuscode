@@ -43,14 +43,16 @@ using namespace std;
 #include "remorter.h"
 
 void Crash_save_implants(struct Creature *ch, bool extract = true);
+int do_fail_remort_test(Quiz *quiz, struct Creature *ch);
+int do_pass_remort_test(Quiz *quiz, struct Creature *ch);
+int do_pre_test(struct Creature *ch);
 
 
 SPECIAL(remorter)
 {
 	static Quiz quiz;
-	int i;
 	int value, level;
-	struct obj_data *obj = NULL, *next_obj = NULL;
+    char arg2[128];
 
 	if (spec_mode != SPECIAL_CMD)
 		return FALSE;
@@ -103,8 +105,9 @@ SPECIAL(remorter)
 	}
 
 	skip_spaces(&argument);
+    argument = two_arguments(argument, arg1, arg2);
 
-	if (!*argument) {
+	if (!*arg1) {
 		if (quiz.inProgress()) {
 			if (quiz.isStudent(ch)) {
 				send_to_char(ch, "Please speak clearly.\r\n");
@@ -119,7 +122,7 @@ SPECIAL(remorter)
 		}
 		return 1;
 	}
-	if (!quiz.inProgress() && isname_exact(argument, "goodbye")) {
+	if (!quiz.inProgress() && isname_exact(arg1, "goodbye")) {
 		room_data *room = ch->getLoadroom();
         if( room == NULL )
             room = real_room(3061);// modrian dump
@@ -137,12 +140,29 @@ SPECIAL(remorter)
 			look_at_room(ch, room, 0);
 			return 1;
 		}
-	} else if (isname_exact(argument, "remort")) {
+	} else if (isname_exact(arg1, "remort")) {
 		if (quiz.inProgress()) {
 			send_to_char(ch, "This test is already in progress.\r\n");
 			quiz.sendQuestion(ch);
 			return 1;
 		}
+        else if (isname_exact(arg2, "bribe")) {
+            value = GET_GOLD(ch);
+            level = MIN(10, 3 + GET_REMORT_GEN(ch));
+            if (value < level * 7000000) {
+                send_to_char(ch, "The remorter laughs and spits on your shoes!\r\n"
+                                 "Try a real bribe next time!\r\n");
+                return 1;
+            }
+            
+            GET_GOLD(ch) = 0;
+            do_pre_test(ch);
+            
+            send_to_char(ch, "The remorter looks around skeptically.\r\n"
+                             "Ok, but if you tell anyone I did this for you\r\n"
+                             "I'll hunt you down like the cheating dog you are!\r\n");
+            return do_pass_remort_test(&quiz, ch);
+        }
 	} else if (!quiz.inProgress()) {
 		send_to_char(ch, 
 			"You must say 'remort' to begin or 'goodbye' to leave.\r\n");
@@ -168,31 +188,8 @@ SPECIAL(remorter)
 		value = MIN(level * 5000000, GET_GOLD(ch));
 		GET_GOLD(ch) -= value;
 
-		for (obj = ch->carrying; obj; obj = next_obj) {
-			next_obj = obj->next_content;
-			extract_obj(obj);
-		}
+        do_pre_test(ch);
 
-		for (i = 0; i < NUM_WEARS; i++) {
-			if ((obj = GET_EQ(ch, i))) {
-				extract_obj(GET_EQ(ch, i));
-			}
-		}
-
-		while (ch->affected)
-			affect_remove(ch, ch->affected);
-
-		for (obj = ch->in_room->contents; obj; obj = next_obj) {
-			next_obj = obj->next_content;
-			extract_obj(obj);
-		}
-
-		if (GET_COND(ch, FULL) >= 0)
-			GET_COND(ch, FULL) = 24;
-		if (GET_COND(ch, THIRST) >= 0)
-			GET_COND(ch, THIRST) = 24;
-
-		SET_BIT(ch->in_room->room_flags, ROOM_NORECALL);
 		send_to_char(ch, "Your sacrifice has been accepted.\r\n"
 			"You must now answer as many questions as possible.\r\n"
 			"The first word of your answer is the one that counts.\r\n"
@@ -203,11 +200,11 @@ SPECIAL(remorter)
 		return 1;
 	}
 
-	argument = one_argument(argument, arg1);
 	if (quiz.makeGuess(ch, arg1)) {
 		send_to_char(ch, "%s%sThat is correct.%s\r\n",
 			CCBLD(ch, C_NRM), CCBLU(ch, C_NRM), CCNRM(ch, C_NRM));
-	} else {
+	}
+    else {
 		send_to_char(ch, "%sThat is incorrect.%s\r\n",
 			CCRED(ch, C_NRM), CCNRM(ch, C_NRM));
 	}
@@ -217,91 +214,129 @@ SPECIAL(remorter)
 		//quiz.sendStatus(ch);
 		quiz.sendQuestion(ch);
 		return 1;
-	} else {					// *******    TEST COMPLETE.  YAY.
-		// remove all eq and affects here, just in case
-		for (i = 0; i < NUM_WEARS; i++) {
-			if ((obj = GET_EQ(ch, i))) {
-				extract_obj(GET_EQ(ch, i));
-			}
-		}
-
-		while (ch->affected)
-			affect_remove(ch, ch->affected);
-
+	} 
+    else {					
+        // *******    TEST COMPLETE.  YAY.
 		// Save the char and its implants but not its eq
 		save_char(ch, NULL);
 
-		if (!quiz.isPassing()) {
-			send_to_char(ch, "The test is over.\r\n");
-			send_to_char(ch, "Your answers were only %d percent correct.\r\n"
-				//"You must be able to answer %d percent correctly.\r\n"
-				"You are unable to remort at this time.\r\n", quiz.getScore());
-			mudlog(LVL_ELEMENT, NRM, false,
-				"%s has failed remort test at gen %d.", GET_NAME(ch),
-				GET_REMORT_GEN(ch));
-			quiz.log(buf);
-			quiz.logScore();
-			REMOVE_BIT(ch->in_room->room_flags, ROOM_NORECALL);
-			quiz.reset();
+		if (!quiz.isPassing())
+            return do_fail_remort_test(&quiz, ch);
+        else
+            return do_pass_remort_test(&quiz, ch);
+	}
+}
 
-            room_data *load_room = ch->getLoadroom();
-            if( load_room == NULL )
-                load_room = real_room(3061);//modrian dumps
+int do_fail_remort_test(Quiz *quiz, struct Creature *ch)
+{
+	send_to_char(ch, "The test is over.\r\n");
+	send_to_char(ch, "Your answers were only %d percent correct.\r\n"
+		         //"You must be able to answer %d percent correctly.\r\n"
+		         "You are unable to remort at this time.\r\n", quiz->getScore());
+	mudlog(LVL_ELEMENT, NRM, false,
+		   "%s has failed remort test at gen %d.", GET_NAME(ch),
+		   GET_REMORT_GEN(ch));
+	quiz->log(buf);
+	quiz->logScore();
+	REMOVE_BIT(ch->in_room->room_flags, ROOM_NORECALL);
+	quiz->reset();
 
-            send_to_char(ch, "You have been banished from the chamber!\r\n");
-            act("$n is banished from the chamber!", FALSE, ch, 0, 0, TO_ROOM);
-            ch->setPosition(POS_RESTING);
-            char_from_room(ch,false);
-            char_to_room(ch, load_room,false);
-            act("$n appears with a bright flash of light!", FALSE, ch, 0, 0, TO_ROOM);
+    room_data *load_room = ch->getLoadroom();
+    if( load_room == NULL )
+        load_room = real_room(3061);//modrian dumps
 
-			//ch->extract(false, false, CON_MENU);
-			//ch->extract(true, true, CON_MENU);
-			return 1;
-		} else {
-			// Wipe thier skills
-			for (i = 1; i <= MAX_SKILLS; i++)
-				SET_SKILL(ch, i, 0);
+    send_to_char(ch, "You have been banished from the chamber!\r\n");
+    act("$n is banished from the chamber!", FALSE, ch, 0, 0, TO_ROOM);
+    ch->setPosition(POS_RESTING);
+    char_from_room(ch,false);
+    char_to_room(ch, load_room,false);
+    act("$n appears with a bright flash of light!", FALSE, ch, 0, 0, TO_ROOM);
 
-			do_start(ch, FALSE);
+    //ch->extract(false, false, CON_MENU);
+	//ch->extract(true, true, CON_MENU);
+	return 1;
+}
 
-			REMOVE_BIT(PRF_FLAGS(ch),
-				PRF_NOPROJECT | PRF_ROOMFLAGS | PRF_HOLYLIGHT | PRF_NOHASSLE |
-				PRF_LOG1 | PRF_LOG2 | PRF_NOWIZ);
-			REMOVE_BIT(PLR_FLAGS(ch),
-				PLR_HALT | PLR_INVSTART | PLR_QUESTOR | PLR_MORTALIZED |
-				PLR_OLCGOD);
+int do_pass_remort_test(Quiz *quiz, struct Creature *ch)
+{
+	int i;
 
-			GET_INVIS_LVL(ch) = 0;
-			GET_COND(ch, DRUNK) = 0;
-			GET_COND(ch, FULL) = 0;
-			GET_COND(ch, THIRST) = 0;
+	// Wipe thier skills
+	for (i = 1; i <= MAX_SKILLS; i++)
+		SET_SKILL(ch, i, 0);
 
-			// Give em another gen
-			if (GET_REMORT_GEN(ch) < 10)
-				GET_REMORT_GEN(ch)++;
-			// Whack thier remort invis
-			GET_WIMP_LEV(ch) = 0;	// wimpy
-			GET_TOT_DAM(ch) = 0;	// cyborg damage 
+	do_start(ch, FALSE);
 
-			// Tell everyone that they remorted
-			mudlog(LVL_IMMORT, BRF, false,
-				"%s completed gen %d remort test with score %d",
-				GET_NAME(ch), GET_REMORT_GEN(ch),
-				quiz.getScore());
-			quiz.log(buf);
-			quiz.logScore();
+	REMOVE_BIT(PRF_FLAGS(ch),
+		       PRF_NOPROJECT | PRF_ROOMFLAGS | PRF_HOLYLIGHT | PRF_NOHASSLE |
+		       PRF_LOG1 | PRF_LOG2 | PRF_NOWIZ);
 
-			REMOVE_BIT(ch->in_room->room_flags, ROOM_NORECALL);
-			quiz.reset();
+	REMOVE_BIT(PLR_FLAGS(ch),
+			   PLR_HALT | PLR_INVSTART | PLR_QUESTOR | PLR_MORTALIZED |
+			   PLR_OLCGOD);
 
-			// Save the char and its implants but not its eq
-			save_char(ch, NULL);
-			Crash_crashsave(ch);
-			Crash_save_implants(ch);
-			ch->extract(true, false, CON_QCLASS_REMORT);
+	GET_INVIS_LVL(ch) = 0;
+	GET_COND(ch, DRUNK) = 0;
+	GET_COND(ch, FULL) = 0;
+	GET_COND(ch, THIRST) = 0;
 
-			return 1;
+	// Give em another gen
+	if (GET_REMORT_GEN(ch) < 10)
+		GET_REMORT_GEN(ch)++;
+	// Whack thier remort invis
+	GET_WIMP_LEV(ch) = 0;	// wimpy
+	GET_TOT_DAM(ch) = 0;	// cyborg damage 
+
+	// Tell everyone that they remorted
+	mudlog(LVL_IMMORT, BRF, false,
+		   "%s completed gen %d remort test with score %d",
+			GET_NAME(ch), GET_REMORT_GEN(ch), quiz->getScore());
+	quiz->log(buf);
+	quiz->logScore();
+
+	REMOVE_BIT(ch->in_room->room_flags, ROOM_NORECALL);
+	quiz->reset();
+
+	// Save the char and its implants but not its eq
+	save_char(ch, NULL);
+	Crash_crashsave(ch);
+	Crash_save_implants(ch);
+	ch->extract(true, false, CON_QCLASS_REMORT);
+
+	return 1;
+}
+
+int do_pre_test(Creature *ch)
+{
+    int i;
+
+	struct obj_data *obj = NULL, *next_obj = NULL;
+
+	for (obj = ch->carrying; obj; obj = next_obj) {
+		next_obj = obj->next_content;
+		extract_obj(obj);
+	}
+
+	for (i = 0; i < NUM_WEARS; i++) {
+		if ((obj = GET_EQ(ch, i))) {
+			extract_obj(GET_EQ(ch, i));
 		}
 	}
+
+	while (ch->affected)
+		   affect_remove(ch, ch->affected);
+
+	for (obj = ch->in_room->contents; obj; obj = next_obj) {
+		 next_obj = obj->next_content;
+		 extract_obj(obj);
+	}
+
+	if (GET_COND(ch, FULL) >= 0)
+		GET_COND(ch, FULL) = 24;
+	if (GET_COND(ch, THIRST) >= 0)
+		GET_COND(ch, THIRST) = 24;
+
+	SET_BIT(ch->in_room->room_flags, ROOM_NORECALL);
+
+    return 1;
 }
