@@ -230,7 +230,7 @@ die( struct char_data *ch, struct char_data *killer,
         if ( ch != killer )
             REMOVE_BIT( PLR_FLAGS( ch ), PLR_KILLER | PLR_THIEF );
                 
-        if ( GET_LEVEL( ch ) > 10 ) {
+        if ( GET_LEVEL( ch ) > 10 && !IS_NPC( ch )) {
             if ( GET_LIFE_POINTS( ch ) <= 0 && GET_MAX_HIT( ch ) <= 1) {
 
                 if(IS_EVIL(ch) || IS_NEUTRAL(ch))
