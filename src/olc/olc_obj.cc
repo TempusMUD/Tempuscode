@@ -23,6 +23,7 @@
 #include "spells.h"
 #include "materials.h"
 #include "specs.h"
+#include "player_table.h"
 
 extern struct room_data *world;
 extern struct obj_data *obj_proto;
@@ -75,6 +76,7 @@ const char *olc_oset_keys[] = {
 	"extra3",
 	"timer",
 	"specparam",
+	"owner",
 	"\n"
 };
 
@@ -291,6 +293,10 @@ save_objs(struct Creature *ch, struct zone_data *zone)
 			str = tmp_gsub(GET_OBJ_PARAM(obj), "\r", "");
 			str = tmp_gsub(str, "~", "!");
 			fprintf(file, "P\n%s~\n", str);
+		}
+		// player id that owns the obj
+		if( obj->shared->owner_id != 0 ) {
+			fprintf(file, "O %ld \n", obj->shared->owner_id);
 		}
 		low++;
 	}
@@ -554,10 +560,6 @@ perform_oset(struct Creature *ch, struct obj_data *obj_p,
 	}
 
 	proto = obj_p->shared->proto;
-
-#ifdef DMALLOC
-	dmalloc_verify(0);
-#endif
 
 	switch (oset_command) {
 	case 0:				/******** aliases *************/
@@ -1119,6 +1121,24 @@ perform_oset(struct Creature *ch, struct obj_data *obj_p,
 		SET_BIT(PLR_FLAGS(ch), PLR_OLC);
 		act("$n begins to write a object spec param.", TRUE, ch, 0, 0,
 			TO_ROOM);
+		break;
+	case 25:
+		if (!is_number(arg2)) {
+			send_to_char(ch, "The argument must be a number.\r\n");
+			return;
+		} else {
+			long id = atol(arg2);
+			if( id == 0 ) {
+				obj_p->shared->owner_id = 0;
+				send_to_char(ch, "Owner removed.\r\n");
+			} else if(! playerIndex.exists(id) ) {
+				send_to_char(ch,"There is no player with id %ld.\r\n",id);
+			} else {
+				obj_p->shared->owner_id = id;
+				send_to_char(ch, "Object %d owner set to %s[%ld].\r\n",
+					obj_p->shared->vnum, playerIndex.getName(id), id);
+			}
+		}
 		break;
 
 	default:
