@@ -236,7 +236,8 @@ SPECIAL(gollum)
      and to release players when riddle is answered */
 
   /* im making this into a mob special */
-
+  if( spec_mode == SPECIAL_DEATH )
+    return 0;
   struct char_data *gollum = (struct char_data *) me;
   struct room_data *to_room = NULL;
 
