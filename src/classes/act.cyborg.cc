@@ -1701,15 +1701,19 @@ ACMD(do_repair)
 		send_to_char("You have no idea how to repair yourself.\r\n", ch);
 	    else if (GET_HIT(ch) == GET_MAX_HIT(ch))
 		send_to_char("You are not damaged, no repair needed.\r\n", ch);
-	    else if (number(12, 150) > CHECK_SKILL(ch, SKILL_SELFREPAIR) +
+	    else if ( !IS_NPC(ch) && number(12, 150) > CHECK_SKILL(ch, SKILL_SELFREPAIR) +
 		     TOOL_MOD(tool) +
 		     (CHECK_SKILL(ch, SKILL_ELECTRONICS) >> 1) + GET_INT(ch))
 		send_to_char("You fail to repair yourself.\r\n", ch);
 	    else {
-		dam = (GET_LEVEL(ch) >> 1) + 
-		    ((CHECK_SKILL(ch, SKILL_SELFREPAIR) + TOOL_MOD(tool)) >> 2) +
-		    number(0, GET_LEVEL(ch)) +
-			dice(GET_REMORT_GEN(ch),10);
+		if (IS_NPC(ch)) {
+			dam = 2 * GET_LEVEL(ch);
+		} else {
+			dam = (GET_LEVEL(ch) >> 1) + 
+				((CHECK_SKILL(ch, SKILL_SELFREPAIR) + TOOL_MOD(tool)) >> 2) +
+				number(0, GET_LEVEL(ch)) +
+				dice(GET_REMORT_GEN(ch),10);
+		}
 		dam = MIN(GET_MAX_HIT(ch) - GET_HIT(ch), dam);
 		cost = dam >> 1;
 		if ((GET_MANA(ch) + GET_MOVE(ch)) < cost)

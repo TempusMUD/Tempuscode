@@ -74,6 +74,7 @@ ACMD(do_pinch);
 ACMD(do_combo);
 
 // for mobile_activity
+ACMD(do_repair);
 ACMD(do_get);
 ACMD(do_wear);
 ACMD(do_wield);
@@ -1887,7 +1888,12 @@ mobile_activity(void)
 	    } else if (IS_AFFECTED(ch, AFF_POISON) && GET_LEVEL(ch) > 11) {
 		cast_spell(ch, ch, 0, SPELL_REMOVE_POISON);
 	    }
-	} 
+	} else if (IS_CYBORG(ch)) {
+	    if (GET_HIT(ch) < GET_MAX_HIT(ch)*0.80
+			&& GET_MOVE(ch) > 100) {
+			do_repair(ch,"",0,0);
+		}
+	}
 
 	if (IS_MAGE(ch) && !ROOM_FLAGGED(ch->in_room, ROOM_NOMAGIC)) {
 	    if (IS_DARK(ch->in_room) && 
