@@ -337,11 +337,11 @@ ACMD(do_snatch)
     one_argument(argument, vict_name);
 
     if (!(vict = get_char_room_vis(ch, vict_name))) {
-	send_to_char("Snatch something away from who?\r\n", ch);
-	return;
+		send_to_char("Snatch something away from who?\r\n", ch);
+		return;
     } else if (vict == ch) {
-	send_to_char("Come on now, that's rather stupid!\r\n", ch);
-	return;
+		send_to_char("Come on now, that's rather stupid!\r\n", ch);
+		return;
     }
 
     if (CHECK_SKILL(ch, SKILL_SNATCH) < 50) {
@@ -351,27 +351,27 @@ ACMD(do_snatch)
 
     if (IS_SET(ROOM_FLAGS(ch->in_room), ROOM_PEACEFUL) && 
 	!PLR_FLAGGED(vict, PLR_THIEF) && GET_LEVEL(ch) < LVL_AMBASSADOR) {
-	send_to_char("You can't do that here!\r\n", ch);
-	act("$n looks really aggrivated.", FALSE, ch, 0, vict, TO_ROOM);
-	return;
+		send_to_char("You can't do that here!\r\n", ch);
+		act("$n looks really aggrivated.", FALSE, ch, 0, vict, TO_ROOM);
+		return;
     }
     if (!IS_MOB(vict) && !vict->desc && GET_LEVEL(ch) < LVL_ELEMENT) {
-	send_to_char("You cannot snatch from linkless players!!!\r\n", ch);
-	sprintf(buf, "%s attemted to snatch from linkless %s.", GET_NAME(ch),
-		GET_NAME(vict));
-	mudlog(buf, CMP, GET_LEVEL(ch), TRUE);
-	return;
+		send_to_char("You cannot snatch from linkless players!!!\r\n", ch);
+		sprintf(buf, "%s attemted to snatch from linkless %s.", GET_NAME(ch),
+			GET_NAME(vict));
+		mudlog(buf, CMP, GET_LEVEL(ch), TRUE);
+		return;
     }
 	// Give the punk a THIEF flag
     if ((GET_LEVEL(vict) + 5) < GET_LEVEL(ch) && !IS_MOB(vict) &&
 	!PLR_FLAGGED(vict, PLR_THIEF) && !PLR_FLAGGED(vict, PLR_KILLER) &&
 	!PLR_FLAGGED(vict, PLR_TOUGHGUY) &&
 	!PLR_FLAGGED(ch, PLR_THIEF) && GET_LEVEL(ch) < LVL_AMBASSADOR) {
-	send_to_char("Okay... You will now be a THIEF!\r\n", ch);
-	SET_BIT(PLR_FLAGS(ch), PLR_THIEF);
-	sprintf(buf, "PC THIEF bit set on %s for trying to snatch from %s.", GET_NAME(ch),
-		GET_NAME(vict));
-	mudlog(buf, NRM, MAX(GET_INVIS_LEV(ch), GET_INVIS_LEV(vict)), TRUE);
+		send_to_char("Okay... You will now be a THIEF!\r\n", ch);
+		SET_BIT(PLR_FLAGS(ch), PLR_THIEF);
+		sprintf(buf, "PC THIEF bit set on %s for trying to snatch from %s.", 
+			GET_NAME(ch), GET_NAME(vict));
+		mudlog(buf, NRM, MAX(GET_INVIS_LEV(ch), GET_INVIS_LEV(vict)), TRUE);
     }
 
 	// Innocence is fleeting, flag the bastard.
@@ -388,7 +388,7 @@ ACMD(do_snatch)
 	!PLR_FLAGGED(vict, PLR_KILLER | PLR_THIEF) &&
 	(!PLR_FLAGGED(vict, PLR_TOUGHGUY) || 
 	 !PLR_FLAGGED(vict, PLR_REMORT_TOUGHGUY)))
-	check_toughguy(ch, vict, 1);
+		check_toughguy(ch, vict, 1);
 
 
 	// Figure out what we're gonna snatch from them.
@@ -437,7 +437,10 @@ ACMD(do_snatch)
 	percent = number( 1, 100);
 
     if (GET_POS(vict) < POS_SLEEPING)
-	percent = -15;		// ALWAYS SUCCESS
+		percent = -150;		// ALWAYS SUCCESS
+
+	if (FIGHTING(ch)) 
+		percent +=30;
 
 	if (GET_POS(vict) < POS_FIGHTING)
 		percent -= 30;
@@ -622,11 +625,11 @@ ACMD(do_snatch)
 			dam = dice( str_app[GET_STR(ch)].todam,str_app[GET_STR(vict)].todam);
 			damage_eq(NULL,obj,dam);
 			GET_EXP(ch) += MIN(1000, GET_OBJ_COST(obj));
-			gain_skill_prof(ch, SKILL_STEAL);
+			gain_skill_prof(ch, SKILL_SNATCH);
 			WAIT_STATE(vict,2 RL_SEC);
 		}
 	}
-	if (IS_NPC(vict) && AWAKE(vict) && check_mob_reaction(ch, vict))
+	if (IS_NPC(vict) && AWAKE(vict))
 		hit(vict, ch, TYPE_UNDEFINED);
 	WAIT_STATE(ch,4 RL_SEC);
 }
