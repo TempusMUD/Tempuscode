@@ -38,6 +38,10 @@
 #include "screen.h"
 #include "accstr.h"
 
+#include <vector>
+#include <string>
+
+using namespace std;
 /* External Variables */
 
 extern char *news;
@@ -232,8 +236,6 @@ build_help_index(FILE * fl, int *num)
 void
 show_file(struct Creature *ch, char *fname, int lines)
 {
-	char *logbuf = NULL;
-	int size;
 	fstream file;
 
 	file.open(fname, ios::in);
@@ -248,55 +250,31 @@ show_file(struct Creature *ch, char *fname, int lines)
 		return;
 	}
 	file.seekg(0, ios::beg);
-	if (lines > 0) {
-		if (lines > 100) {
-			send_to_char(ch, 
-				"If you want that many lines, you might as well read the whole thing.\r\n");
-			return;
-		}
-		int tot, i;
-		int x = MAX_RAW_INPUT_LENGTH + 1;
-		tot = i = 0;
+    
+    if (lines > 100) {
+        send_to_char(ch, 
+            "If you want that many lines, you might as well read the whole thing.\r\n");
+        return;
+    }
+	
+    char buff[2048];
+    vector<string> oLines;
 
-		logbuf = new char[(lines + 1) * x];
-		if (!logbuf) {
-			slog("Memory not allocated in show_file.");
-			return;
-		}
+    do {
+        file.getline(buff, sizeof(buff));
+        oLines.push_back(string(buff));
+    } while (!file.eof());
 
-		for (i = 0; i < lines; i++)
-			strcpy((logbuf + (i * x)), "");
+    if (lines == 0)
+       lines = oLines.size() -1; 
 
-		i = 0;
-		while (!file.eof()) {
-			file.getline((logbuf + (i * x)), x - 1, '\n');
-			tot++;
-			i == lines ? i = 0 : i++;
-		}
+    acc_string_clear();
+    vector<string>::reverse_iterator ri = oLines.rbegin();
+    for (int x = 0; x <= lines; ++x, ++ri) {
+        if (*ri != "\r\n")
+            acc_strcat(ri->c_str(), "\r\n", NULL);
+    }
 
-		acc_string_clear();
-		if (tot < lines) {
-			for (i = 0; i < tot; i++) {
-				acc_strcat( (logbuf + (i * x)), "\r\n", NULL );
-			}
-		} else {
-			for (tot = lines; tot; i == lines ? i = 0 : i++) {
-				acc_strcat( (logbuf + (i * x)), "\r\n", NULL );
-				tot--;
-			}
-		}
-	} else {
-		file.seekg(0, ios::end);
-		size = (int)file.tellg() + 1;
-		logbuf = new char[MAX_RAW_INPUT_LENGTH + 1];
-		file.seekg(0, ios::beg);
-		acc_string_clear();
-		while (!file.eof()) {
-			file.getline(logbuf, MAX_RAW_INPUT_LENGTH, '\n');
-			acc_strcat(logbuf, "\r\n", NULL);
-		}
-	}
-    delete [] logbuf;
 	file.close();
 	page_string(ch->desc, acc_get_string());
 }
