@@ -2025,6 +2025,7 @@ SPECIAL(cave_bear)
 #include "Specs/mobile_specs/duke_nukem.spec"
 #include "Specs/mobile_specs/script_reader.spec"
 #include "Specs/mobile_specs/gen_guard.spec"
+#include "Specs/mobile_specs/guard.spec"
 #include "Specs/mobile_specs/tarrasque.spec"
 #include "Specs/mobile_specs/weaponsmaster.spec"
 #include "Specs/mobile_specs/morkoth.spec"
