@@ -373,12 +373,12 @@ handle_input(struct descriptor_data *d)
 				return;
 			}
             
-            if (GET_LEVEL(d->creature) >= 50 && GET_LEVEL(d->creature) < 60) {
+            if (GET_LEVEL(d->creature) >= LVL_AMBASSADOR && GET_LEVEL(d->creature) < LVL_POWER) {
                 Creature *tmp_ch = tmp_ch = new Creature(true);
                 for (int idx=1; !d->account->invalid_char_index(idx); idx++) {
                     tmp_ch->clear();
                     tmp_ch->loadFromXML(d->account->get_char_by_index(idx));
-                    if (GET_LEVEL(tmp_ch) < 60 && GET_QUEST(tmp_ch) &&
+                    if (GET_LEVEL(tmp_ch) < LVL_POWER && GET_QUEST(tmp_ch) &&
                        GET_IDNUM(d->creature) != GET_IDNUM(tmp_ch)) {
                         send_to_desc(d, "You can't log on an immortal while %s is in a quest.\r\n", GET_NAME(tmp_ch));
                         delete d->creature;
