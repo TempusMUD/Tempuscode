@@ -1306,7 +1306,7 @@ ACMD(do_gen_tog)
 			return;
 		}
 		if (ch->isFighting()) {
-			send_to_char(ch, "You can't change your mind about playerkiller while you're fighting!\r\n");
+			send_to_char(ch, "You can't change your mind about playerkilling while you're fighting!\r\n");
 			return;
 		}
 		result = PRF2_TOG_CHK(ch, PRF2_PKILLER);
