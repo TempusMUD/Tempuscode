@@ -3845,6 +3845,11 @@ mob_fight_devil(struct Creature *ch, struct Creature *precious_vict)
 					do_flee(vict, "", 0, 0, 0);
 			}
 
+        }else if( GET_MOB_VNUM(ch) == 16142 ){ // Sekolah
+            if( random_number_zero_low(12) > num ){
+                new_mob = read_mobile( 16165 ); // DEVIL FISH
+            }
+
 		} else if (random_number_zero_low(12) > num) {
 			if (random_binary())
 				new_mob = read_mobile(16118);	// Pit Fiend 
@@ -3863,8 +3868,14 @@ mob_fight_devil(struct Creature *ch, struct Creature *precious_vict)
 		WAIT_STATE(new_mob, 3 RL_SEC);
 		act("$n gestures, a glowing portal appears with a whine!",
 			FALSE, ch, 0, 0, TO_ROOM);
-		act("$n steps out of the portal with a crack of lightning!",
-			FALSE, new_mob, 0, 0, TO_ROOM);
+
+        if( GET_MOB_VNUM(ch) == 16142 ){ // SEKOLAH
+            act("$n swims out from the submerged portal in a jet of bubbles.", 
+                FALSE, new_mob, 0, 0, TO_ROOM );
+        } else{
+		    act("$n steps out of the portal with a crack of lightning!",
+			    FALSE, new_mob, 0, 0, TO_ROOM);
+        }
 		if (FIGHTING(ch) && IS_MOB(FIGHTING(ch)))
 			return (hit(new_mob, FIGHTING(ch),
 					TYPE_UNDEFINED) & DAM_VICT_KILLED);
@@ -4167,7 +4178,7 @@ mob_fight_guardinal(struct Creature *ch, struct Creature *precious_vict)
                     new_mob = read_mobile(HAWCINE_GUARDINAL);
                 }
                 
-            } else if( !random_fractional_3()){
+            } else if( !random_fractional_3() || ch->in_room->zone->number == 481){
                 new_mob = read_mobile(PANTHRAL_GUARDINAL);
             } else {
                 new_mob = read_mobile(LEONAL_GUARDINAL);
@@ -4176,8 +4187,8 @@ mob_fight_guardinal(struct Creature *ch, struct Creature *precious_vict)
 		break;
     case CLASS_GODLING:
 		if (random_number_zero_low(12) > num) {
-			if (random_binary())
-				new_mob = read_mobile(PANTHRAL_GUARDINAL);	
+			if (random_binary() || ch->in_room->zone->number == 481 )
+				new_mob = read_mobile(PANTHRAL_GUARDINAL);
 			else
 				new_mob = read_mobile(LEONAL_GUARDINAL);
 
@@ -4185,7 +4196,7 @@ mob_fight_guardinal(struct Creature *ch, struct Creature *precious_vict)
 		break;
 	case CLASS_DIETY:
 		if (random_number_zero_low(15) > num) {
-			if (random_binary())
+			if (random_binary() || ch->in_room->zone->number == 481)
 				new_mob = read_mobile(PANTHRAL_GUARDINAL);
 			else
 				new_mob = read_mobile(LEONAL_GUARDINAL);
@@ -4224,7 +4235,7 @@ mob_fight_demon(struct Creature *ch, struct Creature *precious_vict)
 {
 
     //Uncoment when world updated
-   /* const int DRETCH_DEMON = 28200;
+    const int DRETCH_DEMON = 28200;
     const int BABAU_DEMON = 28201;
     const int VROCK_DEMON = 28202;
     const int HEZROU_DEMON = 28203;
@@ -4234,11 +4245,11 @@ mob_fight_demon(struct Creature *ch, struct Creature *precious_vict)
     const int SUCCUBUS_DEMON = 28207;
     const int GORISTRO_DEMON = 28208;
     const int BALOR_DEMON  = 28209;
-    const int NALFESHNEE_DEMON = 28210; */
+    const int NALFESHNEE_DEMON = 28210;
     
 	int prob = 0;
     //Uncomment when world updated
-	//Creature *new_mob = NULL;
+	Creature *new_mob = NULL;
 	Creature *vict = NULL;
 	int num = 0;
 	int return_flags = 0;
@@ -4297,7 +4308,7 @@ mob_fight_demon(struct Creature *ch, struct Creature *precious_vict)
 	if (IS_PSIONIC(ch) && GET_MANA(ch) > 100)
 		num += 3;
 	// gating results depend on demon char_class
-    /*
+    
 	switch (GET_CLASS(ch)) {
 	case CLASS_DEMON_II:
 		if (random_number_zero_low(8) > num) {
@@ -4316,7 +4327,7 @@ mob_fight_demon(struct Creature *ch, struct Creature *precious_vict)
 		break;
 	case CLASS_DEMON_III:
 		if (random_number_zero_low(10) > num) {
-			if (!random_fractional_3()){	
+			if (random_fractional_3()){	
                 if( random_binary() ){
                     new_mob = read_mobile(DRETCH_DEMON);
                 }else{
@@ -4337,13 +4348,7 @@ mob_fight_demon(struct Creature *ch, struct Creature *precious_vict)
 		break;
 	case CLASS_DEMON_IV:
 		if (random_number_zero_low(12) > num) {
-			if (random_binary()){	
-                if( random_binary() ){
-                    new_mob = read_mobile(DRETCH_DEMON);
-                }else{
-				    new_mob = read_mobile(BABAU_DEMON);
-                }
-            } else if (random_binary()){	
+            if (random_fractional_3() ){
                 if( random_binary() ){
                     new_mob = read_mobile(HEZROU_DEMON);
                 }else{
@@ -4365,26 +4370,14 @@ mob_fight_demon(struct Creature *ch, struct Creature *precious_vict)
 		}
 		break;
 	case CLASS_DEMON_V:
-		if (random_number_zero_low(14) > num) {
-			if (random_fractional_3() ){
-                if( random_binary() ){
-                    new_mob = read_mobile(DRETCH_DEMON);
-                }else{
-				    new_mob = read_mobile(BABAU_DEMON);
-                }
-            } else if (random_fractional_5() < 2){	
-                if( random_binary() ){
-                    new_mob = read_mobile(HEZROU_DEMON);
-                }else{
-                    new_mob = read_mobile(VROCK_DEMON);
-                }
-            } else if ( random_binary()){
+		if (random_number_zero_low(13) > num) {
+            if ( random_binary()){
                 if( random_binary() ){
                     new_mob = read_mobile(GLABREZU_DEMON);
                 }else{
                     new_mob = read_mobile(ARMANITE_DEMON);
                 }
-            } else if ( random_fractional_5() < 3 ){
+            } else if ( !random_fractional_3() ){
                 if( random_fractional_3() ){
                     new_mob = read_mobile(KNECHT_DEMON);
                 }else if( random_binary() ){
@@ -4400,20 +4393,17 @@ mob_fight_demon(struct Creature *ch, struct Creature *precious_vict)
 		}
 		break;
     case CLASS_DEMON_LORD:
-		if (random_number_zero_low(16) > num) {
-            if (random_fractional_5() < 2){	
+	case CLASS_SLAAD_LORD:
+        if( GET_MOB_VNUM(ch) == 42819 ){ // Pigeon God
+            if( random_number_zero_low(14) > num ){
                 if( random_binary() ){
-                    new_mob = read_mobile(HEZROU_DEMON);
-                }else{
-                    new_mob = read_mobile(VROCK_DEMON);
+                    new_mob = read_mobile( 42875 ); // grey pigeion
+                } else {
+                    new_mob = read_mobile( 42888 ); // roosting pigeon
                 }
-            } else if ( random_binary()){
-                if( random_binary() ){
-                    new_mob = read_mobile(GLABREZU_DEMON);
-                }else{
-                    new_mob = read_mobile(ARMANITE_DEMON);
-                }
-            } else if ( random_fractional_5() < 3 ){
+            }
+		} else if (random_number_zero_low(14) > num) {
+            if ( !random_fractional_3() ){
                 if( random_fractional_3() ){
                     new_mob = read_mobile(KNECHT_DEMON);
                 }else if( random_binary() ){
@@ -4430,27 +4420,7 @@ mob_fight_demon(struct Creature *ch, struct Creature *precious_vict)
 		break;
 	case CLASS_DEMON_PRINCE:
 		if (random_number_zero_low(15) > num) {
-            if (random_fractional_5() ){	
-                if( random_binary() ){
-                    new_mob = read_mobile(HEZROU_DEMON);
-                }else{
-                    new_mob = read_mobile(VROCK_DEMON);
-                }
-            } else if ( random_fractional_3()){
-                if( random_binary() ){
-                    new_mob = read_mobile(GLABREZU_DEMON);
-                }else{
-                    new_mob = read_mobile(ARMANITE_DEMON);
-                }
-            } else if ( random_fractional_4() ){
-                if( random_fractional_3() ){
-                    new_mob = read_mobile(KNECHT_DEMON);
-                }else if( random_binary() ){
-                    new_mob = read_mobile(SUCCUBUS_DEMON);
-                }else{
-                    new_mob = read_mobile( NALFESHNEE_DEMON );
-                }
-			} else if ( random_binary() ){                  
+			if ( random_binary() ){                  
 				new_mob = read_mobile( GORISTRO_DEMON );
             } else {
 				new_mob = read_mobile( BALOR_DEMON );
@@ -4467,13 +4437,19 @@ mob_fight_demon(struct Creature *ch, struct Creature *precious_vict)
 		WAIT_STATE(new_mob, 3 RL_SEC);
 		act("$n gestures, a glowing yellow portal appears with a hum!",
 			FALSE, ch, 0, 0, TO_ROOM);
-		act("$n steps out of the portal with a clap of thunder!",
-			FALSE, new_mob, 0, 0, TO_ROOM);
+
+        if( GET_MOB_VNUM(ch) == 42819 ){ // Pigeon god!
+		    act("$n flys out of the portal with a clap of thunder!",
+			    FALSE, new_mob, 0, 0, TO_ROOM);
+        }else{
+		    act("$n steps out of the portal with a clap of thunder!",
+			    FALSE, new_mob, 0, 0, TO_ROOM);
+        }
 		if (FIGHTING(ch) && IS_MOB(FIGHTING(ch)))
 			return (hit(new_mob, FIGHTING(ch),
 					TYPE_UNDEFINED) & DAM_VICT_KILLED);
 		return 0;
-	}  */
+	}
 	return -1;
 }
 
