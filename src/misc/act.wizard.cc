@@ -7345,6 +7345,8 @@ static const char* CODER_UTIL_USAGE =
 
 ACMD(do_coderutil)
 {
+	void convert_all_shops(Creature *);
+
     Tokenizer tokens(argument);
 	int idx, cmd_num, len = 0;
     char token[MAX_INPUT_LENGTH];
@@ -7362,6 +7364,8 @@ ACMD(do_coderutil)
 	} else if (strcmp(token, "recalc") == 0) {
 		tokens.next(token);
 		recalc_all_mobs(ch, token);
+	} else if (strcmp(token, "vendorize") == 0) {
+		convert_all_shops(ch);
 	} else if (strcmp(token, "cmdusage") == 0) {
 		for (idx = 1;idx < num_of_cmds;idx++) {
 			cmd_num = cmd_sort_info[idx].sort_pos;
