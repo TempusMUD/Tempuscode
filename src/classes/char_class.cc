@@ -2949,7 +2949,7 @@ extern const char *evil_knight_titles[LVL_GRIMP + 1] = {
 void
 import_old_character(descriptor_data *d)
 {
-    long id = oldPlayerIndex.getID( arg );
+    long id = GET_IDNUM(d->original);
     char* filename = tmp_sprintf("oldplayers/%ld/%ld.dat", (id%10), id );
     unlink(filename);
     
@@ -2960,6 +2960,16 @@ import_old_character(descriptor_data *d)
     d->creature->player_specials->rentcode = RENT_NEW_CHAR;
     d->account->save_to_xml();
     
+    
+    // race
+    GET_RACE(d->creature) = GET_RACE(d->original);
+    // sex
+    GET_SEX(d->creature) = GET_SEX(d->original);
+    // class
+    GET_CLASS(d->creature) = GET_CLASS(d->original);
+    do_start(d->creature, 0);
+
+
     // Immortal level adjustment
     if( GET_LEVEL(d->original) >= LVL_IMMORT ) 
     {
@@ -2984,13 +2994,7 @@ import_old_character(descriptor_data *d)
     // title
     GET_TITLE(d->creature) = GET_TITLE(d->original);
     GET_TITLE(d->original) = NULL;
-    // race
-    GET_RACE(d->creature) = GET_RACE(d->original);
-    // sex
-    GET_SEX(d->creature) = GET_SEX(d->original);
-    // class
-    GET_CLASS(d->creature) = GET_CLASS(d->original);
-
+    
     // description
     if( d->creature->player.description != NULL )
         free( d->creature->player.description );
@@ -3009,10 +3013,11 @@ import_old_character(descriptor_data *d)
     abils->dex =   ( get_max_dex( d->creature ) - 4) + number(1,4);
     abils->cha =   ( get_max_cha( d->creature ) - 4) + number(1,4);
     abils->wis =   ( get_max_wis( d->creature ) - 4) + number(1,4);
+
+    d->creature->aff_abils = d->creature->real_abils;    
     calculate_height_weight( d->creature );
 
     d->creature->saveToXML();
-
     delete d->original;
     d->original = NULL;
 }
