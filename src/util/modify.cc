@@ -76,157 +76,6 @@ int length[] =
 };
 
 
-/* ************************************************************************
-*  modification of malloc'ed strings                                      *
-************************************************************************ */
-/*
-// Add user input to the 'current' string (as defined by d->str) *
-void string_add(struct descriptor_data *d, char *str)
-{
-    int    terminator = 0;
-    struct descriptor_data *r_d;
-    struct mail_recipient_data *mail_rcpt = NULL;
-    char  *buffer_to_write;
-    char   filebuf[512], filename[64];
-    int    file_to_write;
-    int    backup_file,nread;
-    char   *cc_list = NULL;
-    int    stored_mail=0;
-  
-    // determine if this is the terminal string, and truncate if so 
-    // changed to only accept '@' at the beginning of line - J. Elson 1/17/94 
-
-    delete_doubledollar(str);
-
-    if ((terminator = (*str == '@')) || (terminator = (*str == '+')))
-        *str = '\0';
-
-    if (!(*d->str)) {
-        if ( (int) strlen(str) > d->max_str) {
-            send_to_char("String too long - Truncated.\r\n",
-                 d->character);
-            *(str + d->max_str) = '\0';
-            terminator = 1;
-        }
-        CREATE(*d->str, char, strlen(str) + 3);
-        strcpy(*d->str, str);
-    } else {
-        if ( (int) ( strlen(str) + strlen(*d->str) ) > d->max_str) {
-            send_to_char("String too long.  Last line skipped.\r\n", d->character);
-            terminator = 1;
-        } else {
-            if (!(*d->str = (char *) realloc(*d->str, strlen(*d->str) +
-                             strlen(str) + 3))) {
-            perror("string_add");
-            safe_exit(1);
-            }
-            strcat(*d->str, str);
-        }
-    }
-
-    if (terminator) {
-        d->editor_cur_lnum = 0;
-        // Save File
-        if (!d->connected && (d->editor_file != NULL)) {
-            buffer_to_write = *d->str;
-          
-            sprintf(filename,"%s", d->editor_file);
-            if ((file_to_write = open(filename,O_RDWR, 0666)) == -1) {
-                sprintf(buf, "Could not open file %s, buffer not saved!\r\n", filename);
-                mudlog(buf, NRM, LVL_AMBASSADOR, TRUE);
-            } else {
-                sprintf(filename,"%s.bak",d->editor_file);
-                if ((backup_file = open(filename, O_RDWR|O_CREAT|O_TRUNC, 0666)) == -1) {
-                    sprintf(buf, "Could not open file %s, buffer not saved!\r\n", filename);
-                    mudlog(buf, NRM, LVL_AMBASSADOR, TRUE);
-                    close(file_to_write);
-                } else {
-                    while ((nread = read(file_to_write, filebuf, sizeof(filebuf))) > 0) {
-                        if (write(backup_file, filebuf, nread) != nread) {
-                            send_to_char("Could not save backup file!!\r\n", d->character);
-                            break;
-                        }
-                    }
-                    close(backup_file);
-                    lseek(file_to_write, 0, 0);
-              
-                    write(file_to_write, buffer_to_write, strlen(buffer_to_write));
-                    close(file_to_write);
-                }
-                free(d->editor_file);
-                d->editor_file = NULL;
-            }
-        }
-
-        // Save Mail
-        if (!d->connected && (PLR_FLAGGED(d->character, PLR_MAILING))) {
-            if(d->mail_to->next) {
-                cc_list = new char[MAX_INPUT_LENGTH * 3 + 7];
-                strcpy(cc_list,"  CC: ");
-                for(mail_rcpt = d->mail_to; mail_rcpt; mail_rcpt = mail_rcpt->next){
-                    strcat(cc_list, get_name_by_id(mail_rcpt->recpt_idnum));
-                    if (mail_rcpt->next)
-                        strcat(cc_list, ", ");
-                    else
-                        strcat(cc_list, "\r\n");
-                }
-            }
-            mail_rcpt = d->mail_to;
-            while (mail_rcpt) {
-                if((stored_mail = store_mail(mail_rcpt->recpt_idnum,GET_IDNUM(d->character),*d->str,cc_list)))
-                    for (r_d = descriptor_list; r_d; r_d = r_d->next)
-                        if (!r_d->connected && r_d->character && 
-                        r_d->character != d->character && 
-                        GET_IDNUM(r_d->character) == d->mail_to->recpt_idnum &&
-                        !PLR_FLAGGED(r_d->character,PLR_WRITING|PLR_MAILING|PLR_OLC)) 
-                            send_to_char("A strange voice in your head says, 'You have new mail.'\r\n", r_d->character);
-
-                mail_rcpt = mail_rcpt->next;
-    #ifdef DMALLOC
-                dmalloc_verify(0);
-    #endif
-                free(d->mail_to);
-    #ifdef DMALLOC
-                dmalloc_verify(0);
-    #endif     
-                d->mail_to = mail_rcpt;
-            }
-            if(cc_list)
-                delete cc_list;
-    #ifdef DMALLOC
-            dmalloc_verify(0);
-    #endif
-            free(*d->str);
-            free(d->str);
-    #ifdef DMALLOC
-            dmalloc_verify(0);
-    #endif
-            if(stored_mail)
-                SEND_TO_Q("Message sent!\r\n", d);
-            if (!IS_NPC(d->character))
-            REMOVE_BIT(PLR_FLAGS(d->character), PLR_MAILING | PLR_WRITING|PLR_OLC);
-       
-        }
-        d->str = NULL;
-
-        if (d->mail_to && d->mail_to->recpt_idnum >= BOARD_MAGIC) {
-            Board_save_board(d->mail_to->recpt_idnum - BOARD_MAGIC);
-            d->mail_to = d->mail_to->next;
-        }
-        if (d->connected == CON_EXDESC) {
-            SEND_TO_Q("\033[H\033[J", d);
-            show_menu(d);
-            d->connected = CON_MENU;
-        }
-        if (!d->connected && d->character && !IS_NPC(d->character))
-            REMOVE_BIT(PLR_FLAGS(d->character), PLR_WRITING | PLR_OLC);
-    } else { // if terminator
-        strcat(*d->str, "\r\n");
-   }
-}
-*/
-
-
 /* **********************************************************************
 *  Modification of character skills                                     *
 ********************************************************************** */
@@ -468,7 +317,7 @@ void show_file(struct char_data *ch, char *fname,int lines) {
                 tot--;
             }
         }
-        delete logbuf;
+        delete [] logbuf;
     } else {
         file.seekg( 0,ios::end );
         size = file.tellg() + 1;
@@ -480,7 +329,7 @@ void show_file(struct char_data *ch, char *fname,int lines) {
             strcat(buf,logbuf);
             strcat(buf,"\r\n");
         }
-        delete logbuf;
+        delete [] logbuf;
     }
     file.close();
     page_string(ch->desc,buf,0);
