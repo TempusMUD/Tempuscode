@@ -300,14 +300,17 @@ burn_update(void)
 		    FALSE, ch, 0, 0, TO_ROOM);
 		REMOVE_BIT(AFF2_FLAGS(ch), AFF2_ABLAZE);
 	    } else if (number(0, 2)) {
-		if (damage(ch, ch, 
-			   CHAR_WITHSTANDS_FIRE(ch) ? 0 :
-			   ROOM_FLAGGED(ch->in_room, ROOM_FLAME_FILLED) ? dice (8, 7) : 
-			   dice(5, 5), TYPE_ABLAZE, -1))
-		    continue;
-		if (IS_MOB(ch) && GET_POS(ch) >= POS_RESTING &&
-		    !GET_MOB_WAIT(ch) && !CHAR_WITHSTANDS_FIRE(ch)) 
-		    do_extinguish(ch, "", 0, 0);
+			if(CHAR_WITHSTANDS_FIRE(ch)) {
+				continue;
+			}
+			if (damage(ch, ch, 
+				   CHAR_WITHSTANDS_FIRE(ch) ? 0 :
+				   ROOM_FLAGGED(ch->in_room, ROOM_FLAME_FILLED) ? dice (8, 7) : 
+				   dice(5, 5), TYPE_ABLAZE, -1))
+				continue;
+			if (IS_MOB(ch) && GET_POS(ch) >= POS_RESTING &&
+				!GET_MOB_WAIT(ch) && !CHAR_WITHSTANDS_FIRE(ch)) 
+				do_extinguish(ch, "", 0, 0);
 	    }      
 	}
 	// burning rooms
