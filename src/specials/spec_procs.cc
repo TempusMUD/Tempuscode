@@ -1274,7 +1274,7 @@ SPECIAL(bank)
 	const char *vict_name;
 	Account *acct;
 	char *arg;
-	int amount;
+	int amount = 0;
 
 	if (spec_mode != SPECIAL_CMD)
 		return 0;
