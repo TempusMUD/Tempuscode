@@ -14,12 +14,55 @@ using namespace std;
 namespace Security {
     list<Group> groups;
 
+    void updateSecurity(command_info *command) {
+
+        list<Group>::iterator it = groups.begin(); 
+        for( ; it != groups.end(); ++it ) {
+            if( (*it).member( command ) )
+                return;
+        }
+        command->security &= ~(GROUP);
+    }
+
     bool Group::addCommand( command_info *command ) {
         if( member( command ) )
             return false;
         command->security |= GROUP;
         commands.push_back(command);
         sort( commands.begin(), commands.end() );
+        return true;
+    }
+
+    bool Group::removeCommand( command_info *command ) {
+        vector<command_info *>::iterator it;
+        it = find(commands.begin(), commands.end(), command);
+        if( it == commands.end() )
+            return false;
+
+        // Remove the command
+        commands.erase(it);
+
+        // Remove the group bit from the command
+        updateSecurity(command);
+
+        sort( commands.begin(), commands.end() );
+        return true;
+    }
+
+    bool Group::removeMember( const char *name ) {
+        long id = get_id_by_name(name);
+        if( id < 0 ) 
+            return false;
+        return removeMember(id);
+    }
+
+    bool Group::removeMember( long player ) {
+        vector<long>::iterator it;
+        it = find( members.begin(), members.end(), player );
+        if( it == members.end() )
+            return false;
+        members.erase(it);
+        sort( members.begin(), members.end() );
         return true;
     }
 
@@ -55,7 +98,7 @@ namespace Security {
     bool Group::sendMemberList( char_data *ch ) {
         int pos = 1;
         vector<long>::iterator it = members.begin();
-        strcpy(buf,"");
+        strcpy(buf,"Members:\r\n");
         for( ; it != members.end(); ++it ) {
             sprintf(buf,"%s %20ld",buf,(*it));
             if( pos % 4 == 0 ) {
@@ -75,14 +118,12 @@ namespace Security {
     bool Group::sendCommandList( char_data *ch ) {
         int pos = 1;
         vector<command_info*>::iterator it = commands.begin();
+        strcpy(buf,"Commands:\r\n");
         for( ; it != commands.end(); ++it ) {
-            sprintf(buf,"%s %20s",buf,(*it)->command);
-            if( pos % 4 == 0 ) {
+            sprintf(buf,"%s   %10s",buf,(*it)->command);
+            if( pos++ % 3 == 0 ) {
                 pos = 1;
                 strcat(buf,"\r\n");
-            } else {
-                pos++;
-                strcat(buf,",");
             }
         }
         if( pos != 1 )
@@ -90,10 +131,19 @@ namespace Security {
         send_to_char(buf,ch);
         return true;
     }
-
     
+    Group::~Group() {
+        while( commands.begin() != commands.end() ) {
+            removeCommand( *( commands.begin() ) );
+        }
+        if( _description != NULL ) delete _description;
+        if( _name != NULL ) delete _name;
+    }
 }
  /**
+  *
+  * The command struct for access commands
+  * 
   * access list
   * access create pissers
   * access remove pissers
@@ -111,21 +161,23 @@ const struct {
     char *command;
     char *usage;
 } access_cmds[] = {
-    { "list",      "" },
-    { "create",    "<group name>" },
-    { "remove",    "<group name>" },
-    { "memberlist" "<group name>" },
-    { "addmember", "<group name> <member> [<member>...]" },
-    { "remmember", "<group name> <member> [<member>...]" },
-    { "cmdlist",   "<group name>"},
-    { "addcmd",    "<group name> <command> [<command>...]" },
-    { "remcmd",    "<group name> <command> [<command>...]" },
-    { NULL, NULL }
+    { "list",       "" },
+    { "create",     "<group name>" },
+    { "remove",     "<group name>" },
+    { "memberlist", "<group name>" },
+    { "addmember",  "<group name> <member> [<member>...]" },
+    { "remmember",  "<group name> <member> [<member>...]" },
+    { "cmdlist",    "<group name>"},
+    { "addcmd",     "<group name> <command> [<command>...]" },
+    { "remcmd",     "<group name> <command> [<command>...]" },
+    { NULL,         NULL }
 };
 
+/**
+ *  Sends usage info to the given character
+ */
 void send_access_options( char_data *ch ) {
     int i = 0; 
-        
     strcpy(buf, "access usage :\r\n");
     while (1) {
         if (!access_cmds[i].command)
@@ -136,17 +188,24 @@ void send_access_options( char_data *ch ) {
     page_string(ch->desc, buf, 1);
 }
 
+/**
+ *  Find the proper 'access' subcommand
+ */
 int find_access_command( char *command ) {
     if( command == NULL || *command == '\0' )
         return -1;
     for( int i = 0; access_cmds[i].command != NULL ; i++ ) {
-        if( strcmp( access_cmds[i].command, command ) == 0 ) 
+        if( strncmp( access_cmds[i].command, command, strlen(command) ) == 0 ) 
             return i;
     }
     return -1;
 }
 
-//   void (name)(struct char_data *ch, char *argument, int cmd, int subcmd, int *r
+/**
+ *  The access command itself. 
+ *  Used as an interface for the modification of security settings
+ *  from within the mud.
+ */
 ACCMD(do_access) {
     if( argument == NULL || *argument == '\0' ) {
         send_access_options(ch);
@@ -156,6 +215,7 @@ ACCMD(do_access) {
     Tokenizer tokens(argument, ' ');
     char token1[256];
     char token2[256];
+    static char linebuf[8192];
 
     tokens.next(token1);
 
@@ -175,7 +235,15 @@ ACCMD(do_access) {
             }
             break;
         case 2: // remove
-            send_to_char("Unimplemented.\r\n",ch);
+            if( tokens.next(token1) ) {
+                if( Security::removeGroup( token1 ) ) {
+                    send_to_char( "Group removed.\r\n",ch);
+                } else {
+                    send_to_char( "Group removal failed.\r\n",ch);
+                }
+            } else {
+                send_to_char("Remove which group?\r\n",ch);
+            }
             break;
         case 3: // memberlist
             if( tokens.next(token1) ) {
@@ -187,18 +255,40 @@ ACCMD(do_access) {
             }
             break;
         case 4: // addmember
-            if( tokens.next(token1) && tokens.next(token2) ) {
-                if( Security::addMember( token2, token1 ) ) {
-                    send_to_char( "Member added.\r\n",ch);
-                } else {
-                    send_to_char( "Member addition failed.\r\n",ch);
+            if( tokens.next(token1) ) {
+                if(! tokens.hasNext() ) {
+                    send_to_char("Add what member?\r\n",ch);
+                }
+                while( tokens.next(token2) ) {
+                    if( Security::addMember( token2, token1 ) ) {
+                        sprintf(linebuf, "Member added : %s\r\n", token2);
+                        send_to_char( linebuf, ch );
+                    } else {
+                        sprintf(linebuf, "Unable to add member: %s\r\n", token2);
+                        send_to_char( linebuf, ch );
+                    }
                 }
             } else {
-                send_to_char("Add who to what group?\r\n",ch);
+                send_to_char("Add what member to what group?\r\n",ch);
             }
             break;
         case 5: // remmember
-            send_to_char("Unimplemented.\r\n",ch);
+            if( tokens.next(token1) ) {
+                if(! tokens.hasNext() ) {
+                    send_to_char("Remove what member?\r\n",ch);
+                }
+                while( tokens.next(token2) ) {
+                    if( Security::removeMember( token2, token1 ) ) {
+                        sprintf(linebuf, "Member removed : %s\r\n", token2);
+                        send_to_char( linebuf, ch );
+                    } else {
+                        sprintf(linebuf, "Unable to remove member: %s\r\n", token2);
+                        send_to_char( linebuf, ch );
+                    }
+                }
+            } else {
+                send_to_char("Remove what member from what group?\r\n",ch);
+            }
             break;
         case 6: // cmdlist
             if( tokens.next(token1) ) {
@@ -210,27 +300,43 @@ ACCMD(do_access) {
             }
             break;
         case 7: // addcmd
-            if( tokens.next(token1) && tokens.next(token2) ) {
-                if( Security::addCommand( token2, token1 ) ) {
-                    send_to_char( "Command added.\r\n",ch);
-                } else {
-                    send_to_char( "Command addition failed.\r\n",ch);
+            if( tokens.next(token1) ) {
+                if(! tokens.hasNext() ) {
+                    send_to_char("Add what command?\r\n",ch);
+                }
+                while( tokens.next(token2) ) {
+                    if( Security::addCommand( token2, token1 ) ) {
+                        sprintf(linebuf, "Command added : %s\r\n", token2);
+                        send_to_char( linebuf, ch );
+                    } else {
+                        sprintf(linebuf, "Unable to add command: %s\r\n", token2);
+                        send_to_char( linebuf, ch );
+                    }
                 }
             } else {
                 send_to_char("Add what command to what group?\r\n",ch);
             }
             break;
         case 8: // remcmd
-            send_to_char("Unimplemented.\r\n",ch);
+            if( tokens.next(token1) ) {
+                if(! tokens.hasNext() ) {
+                    send_to_char("Remove what command?\r\n",ch);
+                }
+                while( tokens.next(token2) ) {
+                    if( Security::removeCommand( token2, token1 ) ) {
+                        sprintf(linebuf, "Command removed : %s\r\n", token2);
+                        send_to_char( linebuf, ch );
+                    } else {
+                        sprintf(linebuf, "Unable to remove command: %s\r\n", token2);
+                        send_to_char( linebuf, ch );
+                    }
+                }
+            } else {
+                send_to_char("Remove what command from what group?\r\n",ch);
+            }
             break;
         default:
             send_access_options(ch);
             break;
     }
 }
-
-
-
-
-
-

@@ -47,30 +47,30 @@ namespace Security {
              * Makes a copy of name
              */
             Group( const char *name ) : commands(), members() {
-                trace("Group: Creating new group with name", name);
                 _name = new char[strlen(name) + 1];
                 strcpy(_name, name);
 
                 _description = new char[40];
                 strcpy(_description, "No Description");
-                trace("Group: Created new group with name", _name);
             }
+            /*
+             * Makes a complete copy of teh Group
+             */
             Group( const Group &g ) {
                 this->_name = strdup(g._name);
                 this->_description = strdup(g._description);
                 this->members = g.members;
                 this->commands = g.commands;
-                trace("Group: Created via copy constructor.", _name);
-            }
-            ~Group() {
-                if( _description != NULL ) delete _description;
-                if( _name != NULL ) delete _name;
             }
 
             bool addCommand( command_info *command );
             bool addMember( const char *name );
             bool addMember( long player );
             
+            bool removeCommand( command_info *command );
+            bool removeMember( const char *name );
+            bool removeMember( long player );
+
             // These membership checks should be binary searches.
             bool member( long player );
             bool member( const char_data *ch );
@@ -85,6 +85,8 @@ namespace Security {
 
             bool sendMemberList( char_data *ch );
             bool sendCommandList( char_data *ch );
+
+            ~Group();
         private:
             char *_description;
             char *_name;
@@ -160,6 +162,15 @@ namespace Security {
         return true;
     }
 
+    inline bool removeGroup( char *name ) {
+        list<Group>::iterator it = find( groups.begin(), groups.end(), name );
+        if( it == groups.end() ) {
+            return false;
+        }
+        groups.erase(it);
+        return true;
+    }
+
     inline bool sendMemberList( char_data *ch, char *group_name ) {
         list<Group>::iterator it = find( groups.begin(), groups.end(), group_name );
         if( it == groups.end() ) {
@@ -201,5 +212,27 @@ namespace Security {
         return (*it).addMember( member );
     }
 
+    inline bool removeCommand( char *command, char *group_name ) {
+        list<Group>::iterator it = find( groups.begin(), groups.end(), group_name );
+        if( it == groups.end() ) {
+            trace("removeCommand: group not found");
+            return false;
+        }
+        int index = find_command( command );
+        if( index == -1 ) {
+            trace("removeCommand: command not found");
+            return false;
+        }
+        return (*it).removeCommand( &cmd_info[index] );
+    }
+    inline bool removeMember( const char *member, const char *group_name ) {
+        list<Group>::iterator it = find( groups.begin(), groups.end(), group_name );
+        if( it == groups.end() ) {
+            trace("removeMember: group not found");
+            return false;
+        }
+
+        return (*it).removeMember( member );
+    }
 }
 #endif

@@ -39,7 +39,7 @@ class Tokenizer {
             if( index >= length )
                 return false;
             // bypass all delimiters
-            while( data[index] && data[index] != delim )
+            while( data[index] && data[index] == delim )
                 index++;
             return ( index < length );
         }
