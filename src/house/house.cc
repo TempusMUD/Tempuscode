@@ -703,10 +703,19 @@ House::calcRentCost() const
 int
 House::calcRentCost( room_data *room ) const 
 {
+	//TODO: Keep track of rent charged?
 	if( room == NULL )
 		return 0;
 	int room_count = calcObjectCount( room );
 	int room_sum = 0;
+	
+	CreatureList::iterator it = room->people.begin();
+	for (; it != room->people.end(); ++it) {
+		if( IS_PC(*it) ) {
+			return 0;
+		}
+	}
+	
 	for( obj_data* obj = room->contents; obj; obj = obj->next_content ) {
 		room_sum += recurs_obj_cost(obj, false, NULL);
 	}
