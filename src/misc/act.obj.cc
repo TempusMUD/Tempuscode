@@ -2539,11 +2539,11 @@ wear_message(struct Creature *ch, struct obj_data *obj, int where)
 		{"$n wears $p around $s waist.",
 			"You wear $p around your waist."},
 
-		{"$n puts $p on around $s right wrist.",
-			"You put $p on around your right wrist."},
+		{"$n puts $p around $s right wrist.",
+			"You put $p around your right wrist."},
 
-		{"$n puts $p on around $s left wrist.",
-			"You put $p on around your left wrist."},
+		{"$n puts $p around $s left wrist.",
+			"You put $p around your left wrist."},
 
 		{"$n wields $p.",
 			"You wield $p."},
