@@ -8,6 +8,9 @@
 
 extern int no_plrtext;
 
+struct extra_descr_data *locate_exdesc(char *word,
+    struct extra_descr_data *list);
+
 /**
  * Stores this object and it's contents into the given file.
  */
@@ -141,6 +144,12 @@ obj_data::saveToXML(FILE *ouf)
         fprintf( ouf, "%s<long_desc>%s</long_desc>\n", indent.c_str(),  xmlEncodeTmp(s) );
     }
 
+	if (!proto || ex_description != proto->ex_description) {
+		extra_descr_data *desc;
+
+		for (desc = ex_description;desc;desc = desc->next)
+			fprintf(ouf, "%s<extra_desc keywords=\"%s\">%s</extra_desc>\n", indent.c_str(),  xmlEncodeTmp(desc->keyword), xmlEncodeTmp(desc->description) );
+	}
 
     s = action_description;
     if( s != NULL && 
@@ -222,6 +231,7 @@ obj_data::loadFromXML(obj_data *container, Creature *victim, room_data* room, xm
 	name = shared->proto->name;
 	description = shared->proto->description;
 	action_description  = shared->proto->action_description;
+	ex_description = shared->proto->ex_description;
 
 	for( xmlNodePtr cur = node->xmlChildrenNode; cur; cur = cur->next) {
 		if( xmlMatches( cur->name, "name" ) ) {
@@ -234,6 +244,24 @@ obj_data::loadFromXML(obj_data *container, Creature *victim, room_data* room, xm
 			str = (char *)xmlNodeGetContent(cur);
 			description = strdup(tmp_gsub(str, "\n", "\r\n"));
 			free(str);
+		} else if (xmlMatches(cur->name, "extra_desc")) {
+			struct extra_descr_data *desc;
+			char *keyword;
+
+			if (ex_description == shared->proto->ex_description)
+				ex_description = exdesc_list_dup(shared->proto->ex_description);
+			
+			keyword = xmlGetProp(cur, "keywords");
+			desc = locate_exdesc(fname(keyword), ex_description);
+			if (!desc) {
+				desc = new extra_descr_data;
+				desc->keyword = keyword;
+				desc->description = (char *)xmlNodeGetContent(cur);
+			} else {
+				free(desc->description);
+				desc->description = (char *)xmlNodeGetContent(cur);
+			}
+
 		} else if( xmlMatches( cur->name, "action_desc" ) ) {
 			str = (char *)xmlNodeGetContent(cur);
 			action_description = strdup(tmp_gsub(str, "\n", "\r\n"));
