@@ -3471,11 +3471,10 @@ notify_cleric_moon(struct Creature *ch)
 	if (!IS_CLERIC(ch) || !ch->in_room || !PRIME_MATERIAL_ROOM(ch->in_room))
 		return;
 
-	if (lunar_stage == MOON_FULL) {
+	switch (get_lunar_phase(lunar_day)) {
+	case MOON_FULL:
 		send_to_char(ch, "The moon is full.\r\n");
-	}
-
-	else if (lunar_stage == MOON_NEW) {
+	case MOON_NEW:
 		send_to_char(ch, "The moon is new.\r\n");
 	}
 }

@@ -213,9 +213,11 @@ Creature::getDamReduction(Creature *attacker)
 	float dam_reduction = 0;
 
 	if (GET_CLASS(ch) == CLASS_CLERIC && IS_GOOD(ch)) {
-		if (lunar_stage == MOON_FULL)	// full moon gives protection up to 30%
+		// good clerics get an alignment-based protection, up to 30% in the
+		// full moon, up to 10% otherwise
+		if (get_lunar_phase(lunar_day) == MOON_FULL)
 			dam_reduction += GET_ALIGNMENT(ch) / 30;
-		else					// good clerics get an alignment-based protection, up to 10%
+		else
 			dam_reduction += GET_ALIGNMENT(ch) / 100;
 	}
 	//*************************** Sanctuary ****************************

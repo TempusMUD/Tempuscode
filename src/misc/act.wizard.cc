@@ -67,8 +67,7 @@ extern int top_of_mobt;
 extern int top_of_objt;
 extern int log_cmds;
 extern int olc_lock;
-extern int lunar_stage;
-extern int lunar_phase;
+extern int lunar_day;
 extern int quest_status;
 extern struct Creature *combat_list;    /* head of list of fighting chars */
 extern int shutdown_count;
@@ -3880,8 +3879,9 @@ do_show_stats(struct Creature *ch)
         buf_switches, buf_overflows);
     sprintf(buf, "%s  %5lu tmp max used     %5lu tmp overruns\r\n", buf,
         tmp_max_used, tmp_overruns);
-    sprintf(buf, "%s  Lunar stage: %2d, phase: %s (%d)\r\n", buf,
-        lunar_stage, lunar_phases[lunar_phase], lunar_phase);
+    sprintf(buf, "%s  Lunar day: %2d, phase: %s (%d)\r\n", buf,
+        lunar_day, lunar_phases[get_lunar_phase(lunar_day)],
+		get_lunar_phase(lunar_day));
     if (quest_status)
         sprintf(buf, "%s   %sQUEST_STATUS is ON.%s\r\n",
             buf, CCREV(ch, C_NRM), CCNRM(ch, C_NRM));

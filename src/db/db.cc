@@ -87,8 +87,7 @@ int restrict = 0;				/* level of game restriction         */
 int olc_lock = 0;
 int no_initial_zreset = 0;
 int quest_status = 0;
-int lunar_stage = 0;
-int lunar_phase = MOON_NEW;
+int lunar_day = 0;
 
 struct room_data *r_mortal_start_room;	/* rnum of mortal start room   */
 struct room_data *r_electro_start_room;	/* Electro Centralis start room  */
@@ -456,13 +455,17 @@ boot_db(void)
 void
 reset_time(void)
 {
-	long beginning_of_time = 650336715;
-	struct time_info_data mud_time_passed(time_t t2, time_t t1);
+	long epoch = 650336715;
+	time_t now = time(0);
 
-	time_info = mud_time_passed(time(0), beginning_of_time);
+	time_info = mud_time_passed(now, epoch);
 
 	slog("   Current Gametime (global): %dH %dD %dM %dY.",
 		time_info.hours, time_info.day, time_info.month, time_info.year);
+
+	lunar_day = ((now - epoch) / SECS_PER_MUD_DAY) % 24;;
+	slog("   Current lunar day: %d (%s)",
+		lunar_day, lunar_phases[get_lunar_phase(lunar_day)]);
 }
 
 void

@@ -26,8 +26,7 @@
 #include "db.h"
 
 extern struct time_info_data time_info;
-extern int lunar_stage;
-extern int lunar_phase;
+extern int lunar_day;
 
 void weather_and_time(int mode);
 void another_hour(int mode);
@@ -79,34 +78,28 @@ another_hour(int mode)
 	struct zone_data *zone = NULL;
 	struct time_info_data local_time;
 	int LUNAR_RISE_TIME;
+	int lunar_phase;
 
 	time_info.hours++;
 
 	while (time_info.hours > 23) {
 		time_info.hours -= 24;
 		time_info.day++;
-		lunar_stage++;
-		if (lunar_stage > 23)
-			lunar_stage = 0;
+		lunar_day++;
+		if (lunar_day > 23)
+			lunar_day = 0;
 
-		lunar_phase = (((lunar_stage == 0) || (lunar_stage == 23)) ? MOON_NEW :
-			(lunar_stage < 5) ? MOON_WAX_CRESCENT :
-			(lunar_stage < 7) ? MOON_FIRST_QUARTER :
-			(lunar_stage < 11) ? MOON_WAX_GIBBOUS :
-			(lunar_stage < 13) ? MOON_FULL :
-			(lunar_stage < 17) ? MOON_WANE_GIBBOUS :
-			(lunar_stage < 19) ? MOON_LAST_QUARTER : MOON_WANE_CRESCENT);
-
-		if (lunar_stage == MOON_FULL) {
-			send_to_clerics("The time of full moon has begun.\r\n");
-		} else if (lunar_stage == MOON_WANE_GIBBOUS) {
-			send_to_clerics("The time of full moon has passed.\r\n");
-		} else if (lunar_stage == MOON_NEW) {
-			send_to_clerics("The dark time of new moon has begun.\r\n");
-		} else if (lunar_stage == MOON_WAX_CRESCENT) {
-			send_to_clerics("The dark time of new moon has passed.\r\n");
+		lunar_phase = get_lunar_phase(lunar_day);
+		switch (lunar_phase) {
+		case MOON_FULL:
+			send_to_clerics("The time of full moon has begun.\r\n"); break;
+		case MOON_WANE_GIBBOUS:
+			send_to_clerics("The time of full moon has passed.\r\n"); break;
+		case MOON_NEW:
+			send_to_clerics("The dark time of new moon has begun.\r\n"); break;
+		case MOON_WAX_CRESCENT:
+			send_to_clerics("The dark time of new moon has passed.\r\n"); break;
 		}
-
 	}
 	while (time_info.day > 34) {
 		time_info.day -= 35;
@@ -243,13 +236,13 @@ another_hour(int mode)
 		if (lunar_phase == MOON_NEW)
 			return;
 
-		LUNAR_RISE_TIME = lunar_stage + 5;
+		LUNAR_RISE_TIME = lunar_day + 5;
 		if (LUNAR_RISE_TIME > 23)
 			LUNAR_RISE_TIME -= 24;
 
 		if (local_time.hours == LUNAR_RISE_TIME) {
 			zone->weather->moonlight = MOON_SKY_RISE;
-			if (zone->weather->sky || !lunar_stage)
+			if (zone->weather->sky || !lunar_day)
 				return;
 			sprintf(buf, "The %s moon rises in the east.\r\n",
 				lunar_phases[lunar_phase]);
@@ -263,7 +256,7 @@ another_hour(int mode)
 			local_time.hours == LUNAR_RISE_TIME - 17) {
 			zone->weather->moonlight = MOON_SKY_HIGH;
 
-			if (zone->weather->sky || !lunar_stage)
+			if (zone->weather->sky || !lunar_day)
 				return;
 			sprintf(buf, "The %s moon is directly overhead.\r\n",
 				lunar_phases[lunar_phase]);
@@ -285,7 +278,7 @@ another_hour(int mode)
 		if (local_time.hours == LUNAR_RISE_TIME + 14 ||
 			local_time.hours == LUNAR_RISE_TIME - 10) {
 			zone->weather->moonlight = MOON_SKY_NONE;
-			if (zone->weather->sky || !lunar_stage)
+			if (zone->weather->sky || !lunar_day)
 				return;
 			sprintf(buf, "The %s moon sets in the west.\r\n",
 				lunar_phases[lunar_phase]);

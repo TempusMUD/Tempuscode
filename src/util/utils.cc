@@ -355,7 +355,11 @@ real_time_passed(time_t t2, time_t t1)
 	return now;
 }
 
-
+int
+calc_lunar_day(time_t secs, time_t epoch)
+{
+	return ((secs - epoch) / SECS_PER_MUD_DAY) % 24;
+}
 
 /* Calculate the MUD time passed over the last t2-t1 centuries (secs) */
 struct time_info_data
@@ -368,6 +372,8 @@ mud_time_passed(time_t t2, time_t t1)
 
 	now.hours = (secs / SECS_PER_MUD_HOUR) % 24;	/* 0..23 hours */
 	secs -= SECS_PER_MUD_HOUR * now.hours;
+
+	now.lunar_day = (secs / SECS_PER_MUD_DAY) % 24;
 
 	now.day = (secs / SECS_PER_MUD_DAY) % 35;	/* 0..34 days  */
 	secs -= SECS_PER_MUD_DAY * now.day;

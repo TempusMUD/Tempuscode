@@ -2898,7 +2898,8 @@ ACMD(do_time)
 		ch->in_room->zone->time_frame == TIME_ELECTRO ? local_time.year +
 		3567 : local_time.year);
 
-	send_to_char(ch, "The moon is currently %s.\r\n", lunar_phases[lunar_phase]);
+	send_to_char(ch, "The moon is currently %s.\r\n",
+		lunar_phases[get_lunar_phase(lunar_day)]);
 }
 
 void
@@ -2957,7 +2958,7 @@ ACMD(do_weather)
 				"your foot tells you bad weather is due"));
 		if (ch->in_room->zone->weather->sky < SKY_RAINING) {
 			send_to_char(ch, "The %s moon is %s%s.\r\n",
-				lunar_phases[lunar_phase],
+				lunar_phases[get_lunar_phase(lunar_day)],
 				(ch->in_room->zone->weather->moonlight &&
 					ch->in_room->zone->weather->moonlight < MOON_SKY_SET) ?
 				"visible " : "",

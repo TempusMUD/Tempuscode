@@ -1199,9 +1199,11 @@ damage(struct Creature *ch, struct Creature *victim, int dam,
 	}
 
 	if (ch && GET_CLASS(ch) == CLASS_CLERIC && IS_EVIL(ch)) {
-		if (lunar_stage == MOON_NEW)	// new moon gives extra damage up to 30%
+		// evil clerics get an alignment-based damage bonus, up to 30% on
+		// new moons, %10 otherwise
+		if (get_lunar_phase(lunar_day) == MOON_NEW)
 			dam += (int)((dam * GET_ALIGNMENT(ch)) / 3000);
-		else					// evil clerics get an alignment-based damage bonus, up to 10%
+		else
 			dam += (int)((dam * GET_ALIGNMENT(ch)) / 10000);
 	}
 

@@ -49,4 +49,25 @@ struct weather_data {
 	byte humid;					/* humidity */
 };
 
+inline int
+get_lunar_phase(int day)
+{
+	if (day == 0 || day == 23)
+		return MOON_NEW;
+	if (day < 5)
+		return MOON_WAX_CRESCENT;
+	if (day < 7)
+		return MOON_FIRST_QUARTER;
+	if (day < 11)
+		return MOON_WAX_GIBBOUS;
+	if (day < 13)
+		return MOON_FULL;
+	if (day < 17)
+		return MOON_WANE_GIBBOUS;
+	if (day < 19)
+		return MOON_LAST_QUARTER;
+
+	return MOON_WANE_CRESCENT;
+}
+
 #endif
