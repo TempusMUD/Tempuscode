@@ -341,7 +341,7 @@ SPECIAL(artisan)
 
 	if (!shop || shop->room != keeper->in_room->number) {
 		msg = tmp_sprintf("%s Sorry!  I don't have my tools!", GET_NAME(ch));
-		do_say(keeper, buf, 0, SCMD_SAY_TO, NULL);
+		do_say(keeper, msg, 0, SCMD_SAY_TO, NULL);
 		do_action(keeper, "", cmd_cry, 0);
 		return true;
 	}
@@ -361,7 +361,7 @@ SPECIAL(artisan)
 		shop->buy(keeper, ch, argument);
 	else if (CMD_IS("sell")) {
 		msg = tmp_sprintf("%s I don't sell things, I make them.", GET_NAME(ch));
-		do_say(keeper, buf, 0, SCMD_SAY_TO, NULL);
+		do_say(keeper, msg, 0, SCMD_SAY_TO, NULL);
 	} else
 		return false;
 	
