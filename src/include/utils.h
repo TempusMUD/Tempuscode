@@ -808,21 +808,6 @@ inline bool INVIS_OK(char_data * sub, char_data * obj);
                                 (!obj->isTester()  || \
                                  sub->isTester() || \
                                  IS_NPC(sub)))
-/*
-static inline bool MORT_CAN_SEE(char_data * sub, char_data * obj){
-	if(! LIGHT_OK(sub) )
-		return false;
-	if(! ROOM_OK(sub) )
-		return false;
-	if(! INVIS_OK(sub,obj) )
-		return false;
-	if( IS_NPC(sub) )
-		return true;
-	if( obj->isTester() || !sub->isTester() )
-		return false;
-	return true;
-}
-*/
 
 #define IMM_CAN_SEE(sub, obj) \
      (MORT_CAN_SEE(sub, obj) || PRF_FLAGGED(sub, PRF_HOLYLIGHT))
@@ -837,12 +822,17 @@ static inline bool MORT_CAN_SEE(char_data * sub, char_data * obj){
 
 /* End of CAN_SEE */
 
+#define MOB_UNAPPROVED(ch)       (MOB2_FLAGGED(ch, MOB2_UNAPPROVED))
 
-#define APPROVED_OK_OBJ(sub, obj)   \
-     (OBJ_APPROVED(obj) ||                     \
-      GET_LEVEL(sub) >= LVL_IMMORT ||          \
-      PLR_FLAGGED(sub, PLR_TESTER) ||          \
-	  MOB_UNAPPROVED(sub))
+static inline bool APPROVED_OK_OBJ( char_data *sub, obj_data *obj )  {
+	if(OBJ_APPROVED(obj) )
+		return true;
+	if( sub->getLevel() >= LVL_IMMORT || sub->isTester() )
+		return true;
+	if( MOB_UNAPPROVED(sub) )
+		return true;
+	return false;
+}
 
 #define INVIS_OK_OBJ(sub, obj) \
      ((((!IS_OBJ_STAT((obj), ITEM_INVISIBLE) ||   \
@@ -1015,7 +1005,6 @@ bool CAN_GO(obj_data * obj, int door);
 
 #define LIFE_FORM(ch)           (!IS_ROBOT(ch) && !IS_UNDEAD(ch))
 
-#define MOB_UNAPPROVED(ch)       (MOB2_FLAGGED(ch, MOB2_UNAPPROVED))
 
 #define OUTSIDE(ch) (!ROOM_FLAGGED((ch)->in_room, ROOM_INDOORS) && \
                                         (ch)->in_room->sector_type != SECT_INSIDE )
