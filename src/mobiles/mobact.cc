@@ -1350,7 +1350,7 @@ void mobile_activity(void) {
         if (GET_HIT(ch) && 
             CHAR_HAS_BLOOD(ch) &&
             GET_HIT(ch) < ((GET_MAX_HIT(ch) >> 3) + 
-                           random_number_zero_low( GET_MAX_HIT( ch ) >> 4 ) ) )
+                           random_number_zero_low( MAX( 1, GET_MAX_HIT( ch ) >> 4 ) ) ) )
             add_blood_to_room(ch->in_room, 1); 
         
         //
@@ -1360,7 +1360,7 @@ void mobile_activity(void) {
         if (IS_NEUTRAL(ch) && affected_by_spell(ch, ZEN_MOTION))
             GET_MOVE(ch) = MIN(GET_MAX_MOVE(ch), 
                                GET_MOVE(ch) + 
-                               random_number_zero_low( CHECK_SKILL( ch, ZEN_MOTION ) >> 3 ) );
+                               random_number_zero_low( MAX( 1, CHECK_SKILL( ch, ZEN_MOTION ) >> 3 ) ) );
         
         //
         // Deplete scuba tanks
