@@ -387,6 +387,9 @@ Account::delete_char(Creature *ch)
 	vector<long>::iterator it;
 	clan_data *clan;
 	Creature *real_ch;
+	int idx, count;
+	PGresult *res;
+	Account *acct;
 
 	// Remove character from game
 	real_ch = get_char_in_world_by_idnum(GET_IDNUM(ch));
@@ -412,6 +415,17 @@ Account::delete_char(Creature *ch)
 	for (group = Security::groups.begin();group != Security::groups.end();group++)
 		group->removeMember(GET_IDNUM(ch));
 	Security::saveGroups();
+
+	// Remove character from trusted lists - we have to take the accounts
+	// in memory into consideration when we do this, so we have to go
+	// through each account
+	res = sql_query("select account from trusted where player=%ld", GET_IDNUM(ch));
+	count = PQntuples(res);
+	for (idx = 0;idx < count;idx++) {
+		acct = Account::retrieve(atoi(PQgetvalue(res, idx, 0)));
+		if (acct)
+			acct->distrust(GET_IDNUM(ch));
+	}
 
 	// Remove character from account
 	it = lower_bound(_chars.begin(), _chars.end(), GET_IDNUM(ch));
