@@ -324,13 +324,13 @@ ACMD(do_title)
     delete_doubledollar(argument);
 
     if (IS_NPC(ch))
-	send_to_char("Your title is fine... go away.\r\n", ch);
+		send_to_char("Your title is fine... go away.\r\n", ch);
     else if (PLR_FLAGGED(ch, PLR_NOTITLE))
-	send_to_char("You can't title yourself -- you shouldn't have abused it!\r\n", ch);
+		send_to_char("You can't title yourself -- you shouldn't have abused it!\r\n", ch);
     else if (strstr(argument, "(") || strstr(argument, ")"))
-	send_to_char("Titles can't contain the ( or ) characters.\r\n", ch);
+		send_to_char("Titles can't contain the ( or ) characters.\r\n", ch);
     else if (strlen(argument) > MAX_TITLE_LENGTH) {
-	sprintf(buf, "Sorry, titles can't be longer than %d characters.\r\n",
+		sprintf(buf, "Sorry, titles can't be longer than %d characters.\r\n",
 		MAX_TITLE_LENGTH);
 	send_to_char(buf, ch);
     } else {

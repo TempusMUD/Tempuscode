@@ -3132,7 +3132,7 @@ ACMD(do_who)
 					 !strncmp(GET_NAME(tch), "Trouble", 7)  ? " ADMIN " :
 					 !strncmp(GET_NAME(tch), "Darth", 5)    ? " ADMIN " :
 					 !strncmp(GET_NAME(tch), "Nothing", 7)  ? "THECODE" :
-					 !strncmp(GET_NAME(tch), "Babylon", 7)  ? " CODER " :
+					 !strncmp(GET_NAME(tch), "Ashe", 4)     ? " C0DER " :
 					 !strncmp(GET_NAME(tch), "Reptile", 7)  ? "BUILDER" :
 					 !strncmp(GET_NAME(tch), "Fortune", 7)  ? "BUILDER" :
 					 !strncmp(GET_NAME(tch), "Storm"  , 5)  ? "BUILDER" :
