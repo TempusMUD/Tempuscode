@@ -195,6 +195,7 @@ obj_data::loadFromXML(obj_data *container, Creature *victim, room_data* room, xm
 {
 	int vnum = xmlGetIntProp(node, "vnum");
 	bool placed;
+	char *str;
 
 	placed = false;
 	
@@ -223,11 +224,17 @@ obj_data::loadFromXML(obj_data *container, Creature *victim, room_data* room, xm
 		if( xmlMatches( cur->name, "name" ) ) {
 			name = (char*)xmlNodeGetContent( cur );
 		} else if( xmlMatches( cur->name, "short_desc" ) ) {
-			short_description = (char*)xmlNodeGetContent( cur );
+			str = (char *)xmlNodeGetContent(cur);
+			short_description = strdup(tmp_gsub(str, "\n", "\r\n"));
+			free(str);
 		} else if( xmlMatches( cur->name, "long_desc" ) ) {
-			description = (char*)xmlNodeGetContent( cur );
+			str = (char *)xmlNodeGetContent(cur);
+			description = strdup(tmp_gsub(str, "\n", "\r\n"));
+			free(str);
 		} else if( xmlMatches( cur->name, "action_desc" ) ) {
-			action_description = (char*)xmlNodeGetContent( cur );
+			str = (char *)xmlNodeGetContent(cur);
+			action_description = strdup(tmp_gsub(str, "\n", "\r\n"));
+			free(str);
 		} else if( xmlMatches( cur->name, "points" ) ) {
 			 obj_flags.type_flag = xmlGetIntProp( cur, "type");
 			 soilage = xmlGetIntProp( cur, "soilage");
