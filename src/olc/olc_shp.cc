@@ -1011,7 +1011,7 @@ do_destroy_shop(struct Creature *ch, int vnum)
 		return 1;
 	}
 
-	if (GET_IDNUM(ch) != zone->owner_idnum && GET_LEVEL(ch) < LVL_LUCIFER) {
+	if (!CAN_EDIT_ZONE(ch, zone)) {
 		send_to_char(ch, "Oh, no you dont!!!\r\n");
 		mudlog(GET_INVIS_LVL(ch), BRF, true,
 			"OLC: %s failed attempt to DESTROY shop %d.",
