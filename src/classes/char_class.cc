@@ -1003,63 +1003,6 @@ roll_real_abils(struct Creature *ch)
 	ch->aff_abils = ch->real_abils;
 }
 
-const int newbie_equipment[NUM_CLASSES][NUM_NEWBIE_EQ] = {
-	{214, 241, 237, 201, 202, 204, 206, 208, 200, 207},	/* mage */
-	{209, 205, 234, 201, 202, 204, 206, 208, 200, 207},	/* cleric */
-	{217, 244, 237, 201, 202, 204, 206, 208, 200, 207},	/* thief  */
-	{-1, -1, -1, -1, -1, -1, -1, -1, -1, -1},	/* warrior */
-	{212, 239, 235, 201, 202, 204, 206, 208, 200, 207},	/* barbarian */
-	{215, 225, 247, 232, 222, 233, 230, 231, 203, 229},	/* psionic */
-	{219, 224, 246, 232, 222, 233, 230, 231, 203, 229},	/* physic */
-	{218, 223, 245, 232, 222, 233, 230, 231, 203, 229},	/* cyborg */
-	{213, 240, 236, 201, 202, 204, 206, 208, 200, 207},	/* knight */
-	{216, 243, 237, 201, 202, 204, 206, 208, 200, 207},	/* ranger */
-	{220, 226, 248, 232, 222, 233, 230, 231, 203, 229},	/* hood */
-	{210, 242, 238, 201, 202, 206, 208, 200, 207, -1},	/* monk */
-	{-1, -1, -1, -1, -1, -1, -1, -1, -1, -1},	/* vampire */
-	{221, 228, 250, 232, 233, 230, 231, 203, 229, 222},	/* mercenary */
-	{-1, -1, -1, -1, -1, -1, -1, -1, -1, -1},	/* padding */
-	{-1, -1, -1, -1, -1, -1, -1, -1, -1, -1},	/* padding */
-	{-1, -1, -1, -1, -1, -1, -1, -1, -1, -1}	/* padding */
-};
-
-void
-newbie_equip(struct Creature *ch)
-{
-
-	int i, vnum;
-	struct obj_data *obj = NULL;
-
-	if (GET_CLASS(ch) < NUM_CLASSES) {
-		for (i = 0; i < NUM_NEWBIE_EQ; i++) {
-			if ((vnum = newbie_equipment[(int)GET_CLASS(ch)][i]) >= 0)
-				if ((obj = read_object(vnum)))
-					obj_to_char(obj, ch);
-		}
-	}
-
-	switch (GET_CLASS(ch)) {			   /** special objects **/
-	case CLASS_CLERIC:
-		if (IS_GOOD(ch))
-			obj = read_object(1280);
-		else
-			obj = read_object(1260);
-
-		if (obj)
-			obj_to_char(obj, ch);
-		break;
-	case CLASS_KNIGHT:
-		if (IS_GOOD(ch))
-			obj = read_object(1287);
-		else
-			obj = read_object(1270);
-		if (obj)
-			obj_to_char(obj, ch);
-		break;
-	}
-}
-
-
 /* Some initializations for characters, including initial skills */
 void
 do_start(struct Creature *ch, int mode)
@@ -1156,7 +1099,6 @@ do_start(struct Creature *ch, int mode)
 	}
 
 	if (new_player) {
-		newbie_equip(ch);
 		if (PAST_CLASS(GET_CLASS(ch))) {
 			ch->desc->account->deposit_past_bank(
 				8192 + number(256, 2048) + GET_INT(ch) + GET_WIS(ch));
