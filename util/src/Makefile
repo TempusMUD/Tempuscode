@@ -21,3 +21,6 @@ scan_rent: scan_rent.cc
 
 purgeplay: purgeplay.cc
 	$(CXX) purgeplay.cc -o $@
+
+makearray: makearray.cc
+	$(CXX) makearray.cc -o $@
