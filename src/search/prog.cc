@@ -148,8 +148,7 @@ prog_next_handler(prog_env *env, bool use_resume)
 	char *prog, *line, *cmd;
 
 	// find our current execution point
-	prog = prog_get_text(env);
-	prog = advance_statements(prog, env->exec_pt);
+	prog = advance_statements(prog_get_text(env), env->exec_pt);
 
 	// skip over lines until we find another handler (or bust)
 	while ((line = prog_get_statement(&prog, 0)) != NULL) {
@@ -812,7 +811,10 @@ prog_do_echo(prog_env *env, prog_evt *evt, char *args)
 	case PROG_TYPE_OBJECT:
 		obj = ((obj_data *)env->owner);
 	case PROG_TYPE_ROOM:
-		// we just pick the top guy off the people list for rooms.
+	  // if there's noone in the room, no point in echoing
+	  if (((room_data *)env->owner)->people.empty())
+		return;
+	  // we just pick the top guy off the people list for rooms.
 	  ch = *(((room_data *)env->owner)->people.begin());
 	  break;
 	default:
@@ -1011,7 +1013,7 @@ trigger_prog_cmd(void *owner, int owner_type, Creature *ch, int cmd, char *argum
 	if (ch == owner)
 		return false;
 	
-	// We don't want an infinite loop with mobs triggering progs that
+	// We don't want an infinite loop with triggered progs that
 	// trigger a prog, etc.
 	if (loop_fence >= 20) {
 		mudlog(LVL_IMMORT, NRM, true, "Infinite prog loop halted.");
@@ -1085,7 +1087,9 @@ trigger_prog_move(void *owner, int owner_type, Creature *ch, special_mode mode)
 	evt.phase = PROG_EVT_AFTER;
 	evt.args = NULL;
 	env = prog_start(owner_type, owner, ch, &evt);
-	// note that we don't start executing yet...
+	// note that we don't start executing yet...  prog_update_pending()
+	// gets called by interpret_command(), after all command processing
+	// takes place
 
 	loop_fence -= 1;
 
@@ -1141,7 +1145,7 @@ trigger_prog_idle(void *owner, int owner_type)
 	prog_env *env;
 	prog_evt evt;
 
-	// Are we already running a prog?
+	// Are we already running a prog?  We're not idle if we are.
 	if (find_prog_by_owner(owner))
 		return;
 	
