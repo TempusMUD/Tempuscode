@@ -52,22 +52,10 @@ int search_trans_character( char_data *ch,
            GET_LEVEL( ch ) < LVL_GRGOD ) )
         return 0;
 
-    if ( srch->to_room )
-        act( srch->to_room, FALSE, ch, obj, mob, TO_ROOM );
-    if ( srch->to_vict )
-        act( srch->to_vict, FALSE, ch, obj, mob, TO_CHAR );
-    else
-        send_to_char( "Okay.\r\n", ch );
-
-    //SRCH_LOG( ch, srch );     // don't log trans searches for now
-
     char_from_room( ch );
     char_to_room( ch, targ_room );
     ch->in_room->zone->enter_count++;
     look_at_room( ch, ch->in_room, 0 );
-
-    if ( srch->to_remote )
-        act( srch->to_remote, FALSE, ch, obj, mob, TO_ROOM );
 
     if ( GET_LEVEL( ch ) < LVL_ETERNAL && !SRCH_FLAGGED( srch, SRCH_REPEATABLE ) )
         SET_BIT( srch->flags, SRCH_TRIPPED );
@@ -312,9 +300,25 @@ general_search( struct char_data *ch, struct special_search_data *srch,int mode 
         
             return 1;
         } else if( srch->arg[1] == 1 ) {
-            room_data *src_room = ch->in_room;
-            CharacterList::iterator it = src_room->people.begin();
+
+            if ( srch->to_vict )
+                act( srch->to_vict, FALSE, ch, obj, mob, TO_CHAR );
+            else
+                send_to_char( "Okay.\r\n", ch );
+            
+            if ( srch->to_remote )
+                act( srch->to_remote, FALSE, targ_room->people, obj, mob, TO_ROOM );
+            
             int rc = 1;
+            room_data *src_room = ch->in_room;
+            rc = search_trans_character( ch, srch, targ_room,obj,mob );
+            
+            if ( srch->to_room ) {
+                act( srch->to_room, FALSE, src_room->people , obj, mob, TO_ROOM );
+                act( srch->to_room, FALSE, src_room->people , obj, mob, TO_CHAR );
+            }
+            
+            CharacterList::iterator it = src_room->people.begin();
             for( ; it != src_room->people.end(); ++it  ) {
                 int r = search_trans_character( *it, srch, targ_room,obj,mob );
                 if( rc != 2 ) rc = r;
