@@ -2961,7 +2961,7 @@ extern const char *material_names[] = {
 	"shadow",
 	"gelatin",
 	"light",
-	"*",
+	"dreams",
 	"*",
 	"*",
 	"*",
