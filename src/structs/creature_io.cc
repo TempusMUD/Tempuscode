@@ -473,6 +473,8 @@ Creature::loadObjects()
 		}
 	}
 
+    xmlFreeDoc(doc);
+
 	if (payRent(rent.time, rent.rentcode, rent.currency))
 		return 2;
 	return 0;
