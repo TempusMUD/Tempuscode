@@ -679,12 +679,12 @@ game_loop(int mother_desc)
 
 		/* give each descriptor an appropriate prompt */
 		for (d = descriptor_list; d; d = d->next) {
+			// New output crlf
+			if (d->creature
+					&& d->output[0]
+					&& d->account->get_compact_level() < 2)
+				SEND_TO_Q("\r\n", d);
 			if (d->need_prompt) {
-				// Before prompt crlf
-				if (d->creature
-						&& d->output[0]
-						&& d->account->get_compact_level() < 2)
-					SEND_TO_Q("\r\n", d);
 				send_prompt(d);
 				// After prompt crlf
 				if (d->creature
