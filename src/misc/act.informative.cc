@@ -4509,7 +4509,33 @@ ACMD(do_specializations)
     send_to_char(buf, ch);
 }
       
-    
+
+ACMD(do_alignment)     
+{
+
+    char cbuf[ MAX_INPUT_LENGTH ];
+
+
+
+    if ( GET_ALIGNMENT( ch ) < -300 ) {
+	sprintf( cbuf, "%s", CCRED( ch, C_NRM ) );
+    }
+
+    else if (GET_ALIGNMENT( ch ) > 300 ) {
+	sprintf( cbuf, "%s", CCCYN( ch, C_NRM ) );
+    }
+
+    else {
+	sprintf( cbuf, "%s", CCYEL( ch, C_NRM ) );
+    }
+
+    sprintf( buf, "%sYour alignment is%s %s%d%s.\r\n",CCWHT( ch, C_NRM), CCNRM( ch, C_NRM ),  cbuf, GET_ALIGNMENT( ch ),
+	     CCNRM( ch, C_NRM ) ); 
+
+    send_to_char( buf, ch );
+
+}
+
 
 
 

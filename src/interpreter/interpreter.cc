@@ -87,6 +87,7 @@ ACMD(do_addpos);
 ACMD(do_advance);
 ACMD(do_affects);
 ACMD(do_alias);
+ACMD(do_alignment);
 ACMD(do_alter);
 ACMD(do_analyze);
 ACMD(do_approve);
@@ -419,6 +420,7 @@ extern const struct command_info cmd_info[] = {
     { "advance"  , POS_DEAD    , do_advance  , LVL_GRGOD, 0 },
     { "ahem"     , POS_RESTING , do_action   , 0, 0 },
     { "alias"    , POS_DEAD    , do_alias    , 0, 0 },
+    { "alignment", POS_DEAD    , do_alignment, 0, 0 },
     { "alter"    , POS_SITTING , do_alter    , 0, 0 },
     { "alterations", POS_SLEEPING, do_skills   , 0, SCMD_SPELLS_ONLY },
     { "activate" , POS_SITTING , do_activate , 0, SCMD_ON },
