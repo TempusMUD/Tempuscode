@@ -95,7 +95,10 @@ PlayerTable::getName(long id)
 	res = sql_query("select name from players where idnum=%ld", id);
 	if (PQresultStatus(res) != PGRES_TUPLES_OK)
 		return NULL;
-	result = tmp_strdup(PQgetvalue(res, 0, 0));
+	if (PQntuples(res) == 1)
+		result = tmp_strdup(PQgetvalue(res, 0, 0));
+	else
+		return NULL;
 	PQclear(res);
 
     return result;
