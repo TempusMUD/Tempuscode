@@ -45,6 +45,27 @@ gen_board_save(int idnum, char *str)
 }
 
 void
+gen_board_show(Creature *ch)
+{
+	PGresult *res;
+	int idx, count;
+
+	res = sql_query("select board, COUNT(*) from board_messages group by board order by board desc");
+	count = PQntuples(res);
+	if (count == 0) {
+		send_to_char(ch, "There are no messages on any board.\r\n");
+		return;
+	}
+
+	acc_string_clear();
+	acc_sprintf("Board                Count\r\n--------------------------\r\n");
+	for (idx = 0;idx < count;idx++)
+		acc_sprintf("%-20s %5s\r\n", PQgetvalue(res, idx, 0), PQgetvalue(res, idx, 1));
+	
+	page_string(ch->desc, acc_get_string());
+}
+
+void
 gen_board_write(board_data *board, Creature *ch, char *argument)
 {
 	Creature *player;
@@ -215,7 +236,7 @@ gen_board_list(board_data *board, Creature *ch)
 	int idx, count;
 	time_t post_time;
 
-	res = sql_query("select extract(epoch from post_time), name, subject from board_messages where board='%s' order by post_time desc", tmp_sqlescape(board->name));
+	res = sql_query("select extract(epoch from post_time), name, subject from board_messages where board='%s' order by post_time", tmp_sqlescape(board->name));
 	count = PQntuples(res);
 	if (count == 0) {
 		send_to_char(ch, "This board is empty.\r\n");

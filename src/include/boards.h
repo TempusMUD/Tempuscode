@@ -5,6 +5,7 @@
 #define VOTING_MAGIC 1048574	/* equally arbitrary, but must be lower */
 #define MAX_MESSAGE_LENGTH 16384
 
+void gen_board_show(Creature *ch);
 void gen_board_save(int idnum, char *body);
 
 #endif
