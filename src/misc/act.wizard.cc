@@ -7421,9 +7421,11 @@ ACMD(do_coderutil)
 			export_player_table(ch);
 		}
 	} else if( strcmp( token, "osave" )  == 0 ) {
-		send_to_char(ch, "osave not implemented.\r\n");
+		ch->saveObjects();
+		send_to_char(ch, "Saved.\r\n");
 	} else if( strcmp( token, "oload" )  == 0 ) {
-		send_to_char(ch, "oload not implemented.\r\n");
+		ch->loadObjects();
+		send_to_char(ch, "Loaded.\r\n");
 	} else {
 		send_to_char( ch, CODER_UTIL_USAGE );
 	}
