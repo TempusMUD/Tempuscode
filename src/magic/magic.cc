@@ -2227,7 +2227,7 @@ mag_masses(byte level, struct char_data * ch, int spellnum, int savetype)
  *  area spells have limited targets within the room.
 */
 
-void 
+int
 mag_areas(byte level, struct char_data * ch, int spellnum, int savetype)
 {
     struct char_data *tch, *next_tch;
@@ -2237,9 +2237,10 @@ mag_areas(byte level, struct char_data * ch, int spellnum, int savetype)
     struct room_data *was_in = NULL, *adjoin_room = NULL;
     int door;
     byte count;
+    int return_value = 0;
 
     if (ch == NULL)
-    return;
+    return 0;
 
     if (spellnum == SPELL_MASS_HYSTERIA) {
     for (tch = ch->in_room->people, count = 0; tch; tch = tch->next_in_room)
@@ -2247,7 +2248,7 @@ mag_areas(byte level, struct char_data * ch, int spellnum, int savetype)
         count++;
     if (!count) {
         send_to_char("You need some people present to make that effective.\r\n", ch);
-        return;
+        return 0;
     }
     }
     /*
@@ -2284,15 +2285,15 @@ mag_areas(byte level, struct char_data * ch, int spellnum, int savetype)
 
     if (spellnum == SPELL_EARTHQUAKE && 
     (SECT_TYPE(ch->in_room) == SECT_UNDERWATER || ch->in_room->isOpenAir() ) )
-    return;
+        return 0;
     if (spellnum == SPELL_METEOR_STORM &&
     SECT_TYPE(ch->in_room) == SECT_UNDERWATER)
-    return;
+    return 0;
 
     if (ROOM_FLAGGED(ch->in_room, ROOM_PEACEFUL) &&
     GET_LEVEL(ch) < LVL_GOD) {
     send_to_char("This is a non-violence zone!\r\n", ch);
-    return;
+    return 0;
     }
 
     // check for players if caster is not a pkiller
@@ -2305,7 +2306,7 @@ mag_areas(byte level, struct char_data * ch, int spellnum, int savetype)
         act( "You cannot do this, because this action might cause harm to $N,\r\n"
              "and you have not chosen to be a Pkiller.\r\n"
              "You can toggle this with the command 'pkiller'.", FALSE, ch, 0, tch, TO_CHAR );
-        return;
+        return 0;
         }
     }
     }
@@ -2338,15 +2339,15 @@ mag_areas(byte level, struct char_data * ch, int spellnum, int savetype)
               add_rad_sickness( tch, level );
            }
         }
-     
-        if (!mag_damage(level, ch, tch, spellnum, 1)) {
+        int retval = mag_damage(level, ch, tch, spellnum, 1); 
+        return_value |= retval;
+        if(retval == 0) {
             if (spellnum == SPELL_EARTHQUAKE && number(10, 20) > GET_DEX(ch)) {
-            send_to_char("You stumble and fall to the ground!\r\n", ch);
-            ch->setPosition( POS_SITTING );
+                send_to_char("You stumble and fall to the ground!\r\n", ch);
+                ch->setPosition( POS_SITTING );
             }
         }
     }
-
     if (to_next_room) {
     was_in = ch->in_room;
     for (door = 0; door < NUM_OF_DIRS; door++) {
@@ -2374,7 +2375,7 @@ mag_areas(byte level, struct char_data * ch, int spellnum, int savetype)
         }
     }
     }
-
+    return return_value;
 }
 
 

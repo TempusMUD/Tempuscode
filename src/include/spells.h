@@ -775,7 +775,7 @@ void mag_groups(int level, struct char_data *ch, int spellnum, int savetype);
 
 void mag_masses(byte level, struct char_data *ch, int spellnum, int savetype);
 
-void mag_areas(byte level, struct char_data *ch, int spellnum, int savetype);
+int mag_areas(byte level, struct char_data *ch, int spellnum, int savetype);
 
 void mag_summons(int level, struct char_data *ch, struct obj_data *obj,
 		 int spellnum, int savetype);

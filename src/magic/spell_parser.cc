@@ -1021,20 +1021,6 @@ call_magic( struct char_data * caster, struct char_data * cvict,
             if ( return_flags ) {
                 *return_flags = retval;
             }
-
-            /*
-             * WHY IS THIS HERE?
-             *
-             
-            if ( casttype == CAST_SPELL ) {
-                WAIT_STATE(caster, 2 RL_SEC);
-                mana = mag_manacost(caster, spellnum);
-                if (mana > 0)
-                    GET_MANA(caster) = 
-                        MAX(0, MIN(GET_MAX_MANA(caster), GET_MANA(caster) - mana));
-            }
-            */
-            
             return 1;
         }
     }
@@ -1060,9 +1046,21 @@ call_magic( struct char_data * caster, struct char_data * cvict,
     if (IS_SET(SINFO.routines, MAG_MASSES))
 	mag_masses(level, caster, spellnum, savetype);
 
-    if (IS_SET(SINFO.routines, MAG_AREAS))
-	mag_areas(level, caster, spellnum, savetype);
-
+    if (IS_SET(SINFO.routines, MAG_AREAS)){
+	    int retval = mag_areas(level, caster, spellnum, savetype);
+        if ( retval ) {
+            if ( IS_SET( retval, DAM_ATTACKER_KILLED ) || ( IS_SET( retval, DAM_VICT_KILLED ) && same_vict ) ) {
+                if ( return_flags ) {
+                    *return_flags = retval | DAM_ATTACKER_KILLED;
+                }
+                return 1;
+            }
+            if ( return_flags ) {
+                *return_flags = retval;
+            }
+            return 1;
+        }
+    }
     if (IS_SET(SINFO.routines, MAG_SUMMONS))
 	mag_summons(level, caster, ovict, spellnum, savetype);
 
