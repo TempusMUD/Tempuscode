@@ -90,7 +90,7 @@ void CTextEditor::Process( char *inStr ) {
 void CTextEditor::List( void ) {
     list<string>::iterator itr;
     int i;
-    strcpy(editbuf,"");
+    strcpy(editbuf,"\r\n");
     for(i = 1,itr = theText.begin();itr != theText.end();i++, itr++) {
         sprintf(buf, "%-2d%s%s]%s ",i ,
             CCBLD(desc->character,C_CMP),
@@ -246,6 +246,9 @@ bool CTextEditor::Insert(unsigned int line, char *inStr) {
     list<string>::iterator s;
     unsigned int i = 1;
 
+    if(*inStr) {
+        inStr++;
+    }
     text = inStr;
     if(line > theText.size()) {
         SendMessage("You can't insert before a line that doesn't exist.\r\n");
@@ -630,12 +633,12 @@ bool CTextEditor::ProcessCommand(char *inStr) {
         case 'i':   // Insert Line
             inStr = one_argument(inStr,command);
             if(!isdigit(*command)) {
-                SendMessage("Format for insert command is: &insert <line #>\r\n");
+                SendMessage("Format for insert command is: &insert <line #> <text>\r\n");
                 return false;
             }
             line = atoi(command);
             if(line < 0) {
-                SendMessage("Format for insert command is: &insert <line #>\r\n");
+                SendMessage("Format for insert command is: &insert <line #><text>\r\n");
                 return false;
             }
             return Insert((unsigned int)line,inStr);
