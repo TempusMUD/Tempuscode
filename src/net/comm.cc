@@ -1665,7 +1665,7 @@ send_to_outdoor(char *messg,int isecho=0)
 
     for (i = descriptor_list; i; i = i->next)
 	if (!i->connected && i->character && AWAKE(i->character) &&
-		( !isecho || !PRF2_FLAGGED(i->character, PRF2_NOECHO)) &&
+		( !isecho || !PRF2_FLAGGED(i->character, PRF2_NOGECHO)) &&
 	    !PLR_FLAGGED(i->character, PLR_OLC | PLR_WRITING | PLR_MAILING) &&
 	    OUTSIDE(i->character) && PRIME_MATERIAL_ROOM(i->character->in_room))
 	    SEND_TO_Q(messg, i);

@@ -231,12 +231,10 @@ ACMD(do_echo)
 	}
 	else {
 	    for (vict = ch->in_room->people; vict; vict = vict->next_in_room) {
-			if(ch == vict || !PRF2_FLAGGED(vict, PRF2_NOECHO)) {
-				if (GET_LEVEL(vict) > GET_LEVEL(ch))
-					act(buf2, FALSE, ch, 0, vict, TO_VICT);
-				else
-					act(buf, FALSE, ch, 0, vict, TO_VICT);
-			}
+			if (GET_LEVEL(vict) > GET_LEVEL(ch))
+				act(buf2, FALSE, ch, 0, vict, TO_VICT);
+			else
+				act(buf, FALSE, ch, 0, vict, TO_VICT);
 	    }
 	}
     }
@@ -2802,7 +2800,7 @@ ACMD(do_gecho)
 	sprintf(buf2, "[%s-g] %s\r\n", GET_NAME(ch), argument);
 	for (pt = descriptor_list; pt; pt = pt->next) {
 	    if (!pt->connected && pt->character && pt->character != ch &&
-		!PRF2_FLAGGED(pt->character, PRF2_NOECHO) ) {
+		!PRF2_FLAGGED(pt->character, PRF2_NOGECHO) ) {
 			if (GET_LEVEL(pt->character) > GET_LEVEL(ch))
 				send_to_char(buf2, pt->character);
 			else

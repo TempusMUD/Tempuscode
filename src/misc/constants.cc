@@ -849,7 +849,7 @@ extern const char *preference2_bits[] = {
   "AUTOSPLIT",
   "AUTOLOOT",
   "PK",
-  "NOECHO",
+  "NOGECHO",
   "\n"
 };
 

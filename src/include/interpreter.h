@@ -149,7 +149,7 @@ struct alias {
 #define SCMD_AUTOSPLIT  44
 #define SCMD_AUTOLOOT   45
 #define SCMD_PKILLER    46
-#define SCMD_NOECHO		47
+#define SCMD_NOGECHO	47
 
 /* do_wizutil */
 #define SCMD_REROLL	0

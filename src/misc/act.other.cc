@@ -1198,8 +1198,8 @@ ACMD(do_gen_tog)
 	result = PRF2_TOG_CHK( ch, PRF2_PKILLER );
 	break;
 
-	case SCMD_NOECHO:
-	result = PRF2_TOG_CHK( ch, PRF2_NOECHO );
+	case SCMD_NOGECHO:
+	result = PRF2_TOG_CHK( ch, PRF2_NOGECHO );
 	break;
 
     default:
