@@ -42,10 +42,7 @@ inline char *tmp_strcat(const char *src_a, const char *src_b)
 }
 
 // creates a copy of the given str as a temp str
-inline char *tmp_strdup(const char *src)
-{
-	return tmp_strcat(src, NULL);
-}
+char *tmp_strdup(const char *src, const char *term = NULL);
 
 // returns a string, in which every needle in haystack is substituted with sub
 char *tmp_gsub(const char *haystack, const char *needle, const char *sub);

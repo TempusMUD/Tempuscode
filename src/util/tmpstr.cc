@@ -402,3 +402,38 @@ tmp_capitalize(const char *str)
 		*result = toupper(*result);
 	return result;
 }
+
+char *
+tmp_strdup(const char *src, const char *term_str)
+{
+	struct tmp_str_pool *cur_buf;
+	char *write_pt, *result;
+	const char *read_pt;
+	size_t len;
+
+	// Figure out how much space we'll need
+	read_pt = term_str ? strstr(src, term_str):NULL;
+	if (read_pt)
+		len = read_pt - src + 1;
+	else
+		len = strlen(src) + 1;
+
+	// If we don't have the space, we allocate another pool
+	if (len > tmp_list_tail->space - tmp_list_tail->used)
+		cur_buf = tmp_alloc_pool(len);
+	else
+		cur_buf = tmp_list_tail;
+
+	result = cur_buf->data + cur_buf->used;
+	write_pt = result;
+	cur_buf->used += len;
+
+	// Copy in the first string
+	read_pt = src;
+	write_pt = result;
+	while (--len)
+		*write_pt++ = *read_pt++;
+	*write_pt = '\0';
+
+	return result;
+}
