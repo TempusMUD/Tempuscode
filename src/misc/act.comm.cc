@@ -885,7 +885,7 @@ ACMD(do_gen_comm)
 			str = tmp_sprintf("#%d", eff_class);
 		if (eff_class == CLASS_CLERIC || eff_class == CLASS_KNIGHT)
 			str = tmp_sprintf("%s-%s", (eff_is_good ? "g":"e"), str);
-		sub_channel_desc = tmp_strcat("[", str, "]", NULL);
+		sub_channel_desc = tmp_strcat("[", str, "] ", NULL);
 	} else if (subcmd == SCMD_CLANSAY || subcmd == SCMD_CLANEMOTE) {
 		clan = real_clan(eff_clan);
 
@@ -893,7 +893,7 @@ ACMD(do_gen_comm)
 			str = tmp_tolower(clan->name);
 		else
 			str = tmp_sprintf("#%d", eff_clan);
-		sub_channel_desc = tmp_strcat("[", str, "]", NULL);
+		sub_channel_desc = tmp_strcat("[", str, "] ", NULL);
 	} else {
 		sub_channel_desc = "";
 	}
@@ -903,8 +903,6 @@ ACMD(do_gen_comm)
 
 	// Construct all the emits ahead of time.
 	if (chan->is_emote) {
-		if (*sub_channel_desc)
-			sub_channel_desc = tmp_strcat(sub_channel_desc, " ");
 		if (COLOR_LEV(ch) >= C_NRM)
 			send_to_char(ch, "%s%s%s%s %s%s%s\r\n", chan->desc_color,
 				(IS_IMMORT(ch) ? sub_channel_desc:""),
@@ -930,17 +928,16 @@ ACMD(do_gen_comm)
 			chan->desc_color, sub_channel_desc, KNRM, chan->text_color,
 			argument, KNRM);
 	} else {
-		if (*sub_channel_desc)
-			sub_channel_desc = tmp_strcat(" ", sub_channel_desc);
 		if (COLOR_LEV(ch) >= C_NRM)
-			send_to_char(ch, "%sYou %s%s,%s%s '%s'%s\r\n", chan->desc_color,
-				chan->name,
+			send_to_char(ch, "%s%sYou %s,%s%s '%s'%s\r\n", chan->desc_color,
 				(IS_IMMORT(ch) ? sub_channel_desc:""),
+				chan->name,
 				KNRM,
 				chan->text_color, argument, KNRM);
 		else
-			send_to_char(ch, "You %s%s, '%s'\r\n", chan->name,
+			send_to_char(ch, "%sYou %s, '%s'\r\n",
 				(IS_IMMORT(ch) ? sub_channel_desc:""),
+				chan->name,
 				argument);
 		// The emits are passed directly as the format string to
 		// send_to_char, so the argument must have its percent signs
@@ -950,10 +947,12 @@ ACMD(do_gen_comm)
 		plain_emit = tmp_sprintf("%%s %ss, '%s'\r\n", chan->name, argument);
 		color_emit = tmp_sprintf("%s%%s %ss,%s%s '%s'%s\r\n", chan->desc_color,
 			chan->name, KNRM, chan->text_color, argument, KNRM);
-		imm_plain_emit = tmp_sprintf("%%s %ss%s, '%s'\r\n", chan->name,
-			sub_channel_desc, argument);
-		imm_color_emit = tmp_sprintf("%s%%s %ss%s,%s%s '%s'%s\r\n",
-			chan->desc_color, chan->name, sub_channel_desc, KNRM,
+		imm_plain_emit = tmp_sprintf("%s%%s %ss, '%s'\r\n",
+			sub_channel_desc,
+			chan->name,
+			argument);
+		imm_color_emit = tmp_sprintf("%s%s%%s %ss,%s%s '%s'%s\r\n",
+			chan->desc_color, sub_channel_desc, chan->name, KNRM,
 			chan->text_color, argument, KNRM);
 	}
 
