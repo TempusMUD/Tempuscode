@@ -3474,10 +3474,9 @@ ACMD(do_zreset)
     if (zone) {
         reset_zone(zone);
         send_to_char(ch, "Reset zone %d : %s.\r\n", zone->number, zone->name);
-        mudlog(MAX(LVL_GRGOD, GET_INVIS_LVL(ch)),
-            subcmd == SCMD_OLC ? CMP : NRM,
-            true,
-            "(GC) %s %sreset zone %d (%s)", GET_NAME(ch),
+		act("$n waves $s hand.", false, ch, 0, 0, TO_ROOM);
+		send_to_zone("You feel a strangely refreshing breeze.\r\n", zone, 0);
+        slog("(GC) %s %sreset zone %d (%s)", GET_NAME(ch),
             subcmd == SCMD_OLC ? "olc-" : "", zone->number, zone->name);
 
     } else
