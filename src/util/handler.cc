@@ -39,7 +39,7 @@
 #include "tmpstr.h"
 #include "utils.h"
 #include "vendor.h"
-
+#include "flow_room.h"
 
 /* external vars */
 extern struct descriptor_data *descriptor_list;
@@ -1167,6 +1167,18 @@ char_to_room(Creature *ch, room_data *room, bool check_specials)
         ch->ignite(NULL);
 	}
 
+    struct room_affect_data *raff;
+    if ((raff = room_affected_by(ch->in_room, SONG_RHYTHM_OF_ALARM)) &&
+        GET_LEVEL(ch) < LVL_AMBASSADOR && 
+        raff->owner->in_room != ch->in_room && 
+        !IS_NPC(ch)) {
+        if ((GET_LEVEL(ch) + number(1, 70)) < 
+            raff->owner->getLevelBonus(SONG_RHYTHM_OF_ALARM))
+            raff->duration--;
+            send_to_char(raff->owner, "%s has just entered %s.\r\n", GET_NAME(ch),
+                         ch->in_room->name);
+    }
+    
 	long spec_rc = 0;
     if( check_specials ) {
 		spec_rc = special(ch, 0, 0, "", SPECIAL_ENTER);

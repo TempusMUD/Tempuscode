@@ -23,6 +23,7 @@
 #include "security.h"
 #include "clan.h"
 #include "specs.h"
+#include "flow_room.h"
 
 extern const char *instrument_types[];
 
@@ -158,7 +159,7 @@ struct bard_song songs[] = {
       ITEM_PERCUSSION
     },
     { "Aria of Asylum", // 369
-      "",
+      "No fortress can hide, no army provide,\nLike the comfort of Asylum!",
       false,
       ITEM_STRING
     },
@@ -213,12 +214,12 @@ struct bard_song songs[] = {
       ITEM_PERCUSSION
     },
     { "Rhythm of Alarm", // 380
-      "",
+      "Warn me, protect me, by singing this song,\nAlert me should anyone come along.",
       false,
       ITEM_PERCUSSION
     },
     { "Rhapsody of Remedy", // 381
-      "Your wounds are deep, your scars are true,\nMy song can restore you through and through",
+      "Your wounds are deep, your scars are true,\nMy song can restore you through and through.",
       false,
       ITEM_STRING
     },
@@ -233,7 +234,7 @@ struct bard_song songs[] = {
       ITEM_STRING
     },
     { "Weight of the World", // 384
-      "The weight on my shoulders is heavy and cumbrous,\nWe'll lighten the load with the light of this chorus",
+      "The weight on my shoulders is heavy and cumbrous,\nWe'll lighten the load with the light of this chorus.",
       false,
       ITEM_PERCUSSION
     },
@@ -243,7 +244,7 @@ struct bard_song songs[] = {
       ITEM_STRING
     },
     { "Wounding Whispers", // 386
-      "So soft, so close, so sharp and so free,\nThe Whispers of Wounding, they gather 'round me",
+      "So soft, so close, so sharp and so free,\nThe Whispers of Wounding, they gather 'round me.",
       false,
       ITEM_PERCUSSION
     },
@@ -303,18 +304,16 @@ struct bard_song songs[] = {
 /*
     static const int SKILL_VENTRILOQUISM = 673; // makes objects talk
     static const int SONG_WALL_OF_SOUND = 347; // seals an exit, broken by shatter
-    static const int SKILL_VENTRILOQUISM = 348; // makes objects talk
     static const int SONG_MISDIRECTION_MELISMA = 350; // misleads a tracker
     static const int SONG_LULLABY = 352; // puts a room to sleep
     static const int SONG_VERSE_OF_VIBRATION = 355; // motor spasm++
     static const int SONG_SONG_SHIELD = 361; // self only, like psi shield
     static const int SONG_HYMN_OF_PEACE = 363; // stops fighting in room, counters req of rage
     static const int SONG_SONG_OF_SILENCE = 364; // Area, disallow speaking, casting. singing
-    static const int SONG_RHAPSODY_OF_DEPRESSION = 367; // Area, slow all but grouped
+    static const int SONG_RHAPSODY_OF_DEPRESSION = 367; // slow a target
     static const int SONG_SIRENS_SONG = 374; // single target, charm
     static const int SONG_SONIC_DISRUPTION = 375; // area, medium damage
     static const int SONG_MIRROR_IMAGE_MELODY = 376; // causes multiple images of the singer
-    static const int SONG_RHYTHM_OF_ALARM = 380; // room affect, notifies the bard of person entering room
     static const int SONG_SHATTER = 382; // target; damage persons/objects, penetrate WALL O SOUND
     static const int SONG_PURPLE_HAZE = 385; // area, pauses fighting for short time
     static const int SONG_DIRGE = 387; // area, high damage, undead only
@@ -348,6 +347,7 @@ struct bard_song songs[] = {
     static const int SONG_CLARIFYING_HARMONIES = 377; // identify
     static const int SONG_UNLADEN_SWALLOW_SONG = 378; // group flight
     static const int SONG_IRRESISTABLE_DANCE = 379; // Target, -hitroll
+    static const int SONG_RHYTHM_OF_ALARM = 380; // room affect, notifies the bard of person entering room
     static const int SONG_RHAPSODY_OF_REMEDY = 381; // self/target, heal
     static const int SONG_HOME_SWEET_HOME = 383; // recall
     static const int SONG_WEIGHT_OF_THE_WORLD = 384; // self/group/target, like telekinesis
@@ -734,4 +734,29 @@ ASPELL(song_lament_of_longing)
     }
 
     gain_skill_prof(ch, SONG_LAMENT_OF_LONGING);
+}
+
+ASPELL(song_rhythm_of_alarm)
+{
+    struct room_affect_data rm_aff;
+    struct room_affect_data *rm_aff_ptr;
+
+    memset(&rm_aff, 0x0, sizeof(struct room_affect_data));
+    rm_aff.type = -1;
+
+    if ((rm_aff_ptr = room_affected_by(ch->in_room, SONG_RHYTHM_OF_ALARM)) &&
+         rm_aff_ptr->owner == ch) {
+        send_to_char(ch, "Your song fades leaving no affect.\r\n");
+        return;
+    }
+
+    send_to_room("The music summons a large symbol which "
+                 "dissapears into the ground.\r\n", ch->in_room);
+
+    rm_aff.level = level;
+    rm_aff.spell_type = SONG_RHYTHM_OF_ALARM;
+    rm_aff.duration = number(1, 100) + (ch->getLevelBonus(SONG_RHYTHM_OF_ALARM) * 2);
+    rm_aff.owner = ch;
+    affect_to_room(ch->in_room, &rm_aff);
+
 }

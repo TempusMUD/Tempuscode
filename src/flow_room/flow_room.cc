@@ -502,7 +502,7 @@ affect_to_room(struct room_data *room, struct room_affect_data *aff)
 	struct room_affect_data *tmp_aff;
 	int i;
 
-	if (aff->type < NUM_DIRS) {
+	if (aff->type < NUM_DIRS && aff->type > -1) {
 		if (room->dir_option[(int)aff->type]) {
 			for (i = 0; i < 32; i++)
 				if (IS_SET(aff->flags, (1 << i)) &&
@@ -526,7 +526,9 @@ affect_to_room(struct room_data *room, struct room_affect_data *aff)
 			SET_BIT(room->room_flags, aff->flags);
 		else
 			return;
-	} else {
+	} else if (aff->spell_type) {
+    }
+    else if (!(aff->type == -1) && aff->spell_type ) {
 		errlog("Invalid aff->type passed to affect_to_room.");
 		return;
 	}
@@ -539,6 +541,10 @@ affect_to_room(struct room_data *room, struct room_affect_data *aff)
 	tmp_aff->flags = aff->flags;
 	tmp_aff->level = aff->level;
 	tmp_aff->type = aff->type;
+    tmp_aff->owner = aff->owner;
+    tmp_aff->spell_type = aff->spell_type; 
+    for (int i = 0; i < 4; i++)
+        tmp_aff->val[i] = aff->val[i];
 	room->affects = tmp_aff;
 
 }
@@ -583,7 +589,7 @@ room_affected_by(struct room_data *room, int type)
     struct room_affect_data *aff;
 
     for (aff = room->affects; aff; aff = aff->next) {
-        if (aff->type == type)
+        if (aff->spell_type == type)
             return aff;
     }
 

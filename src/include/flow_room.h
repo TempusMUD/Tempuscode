@@ -37,7 +37,7 @@
 
 void affect_to_room(struct room_data *room, struct room_affect_data *aff);
 void affect_from_room(struct room_data *room, struct room_affect_data *aff);
-
+struct room_affect_data *room_affected_by(struct room_data *room, int type);
 #ifndef __flow_room_c__
 
 extern const char *flow_types[];

@@ -909,6 +909,7 @@ ASPELL(song_exposure_overture);
 ASPELL(song_lament_of_longing);
 ASPELL(song_unravelling_diapason);
 ASPELL(song_instant_audience);
+ASPELL(song_rhythm_of_alarm);
 
 /* basic magic calling functions */
 

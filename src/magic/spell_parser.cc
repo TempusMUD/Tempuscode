@@ -362,7 +362,7 @@ const char *spells[] = {
     "clarifying harmonies", 
     "unladen swallow song", 
     "irresistable dance", 
-    "rythm of alarm",	/* 380 */
+    "rhythm of alarm",	/* 380 */
 	"rhapsody of remedy", 
     "shatter", 
     "home sweet home", 
@@ -1347,6 +1347,8 @@ call_magic(struct Creature *caster, struct Creature *cvict,
             MANUAL_SPELL(spell_dispel_magic); break;
         case SONG_INSTANT_AUDIENCE:
             MANUAL_SPELL(song_instant_audience); break;
+        case SONG_RHYTHM_OF_ALARM:
+            MANUAL_SPELL(song_rhythm_of_alarm); break;
 		}
 
 	knock_door = NULL;
@@ -3804,6 +3806,10 @@ mag_assign_spells(void)
 
 	spello(SONG_WOUNDING_WHISPERS, X, X, X, X, X, X, X, X, X, X, 36, X, X, X, X, X,
 		X, 120, 60, 3, POS_STANDING, TAR_CHAR_ROOM, FALSE, MAG_BARD | MAG_AFFECTS);
+
+	spello(SONG_RHYTHM_OF_ALARM, X, X, X, X, X, X, X, X, X, X, 41, X, X, X,
+		X, X, X, 100, 75, 1, POS_SITTING, TAR_IGNORE, TRUE,
+		MAG_BARD | MAG_MANUAL);
 
 	spello(SKILL_TUMBLING, X, X, X, X, X, X, X, X, X, X, 30, X, X, X, X, X, X,
 		0, 0, 0, 0, 0, 0, 0);
