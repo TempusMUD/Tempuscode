@@ -1353,25 +1353,24 @@ char_to_game(descriptor_data *d)
 	if (GET_LEVEL(d->character)) {
 		// Figure out the room the player is gonna start in
 		room = real_room(GET_LOADROOM(d->character));
-		if (room) {
-			if (!House_can_enter(d->character, room->number)) {
-				mudlog(LVL_DEMI, NRM, true,
-					"%s unable to load in house room %d. Loadroom unset.",
-					GET_NAME(d->character),GET_LOADROOM(d->character));
-				room = NULL;
-				GET_LOADROOM(d->character) = -1;
-			}
-
-			if (!clan_house_can_enter(d->character, room)) {
-				mudlog(LVL_DEMI, NRM, true,
-					"%s unable to load in clanhouse room %d. Loadroom unset.",
-					GET_NAME(d->character),GET_LOADROOM(d->character));
-				room = NULL;
-				GET_LOADROOM(d->character) = -1;
-			}
-
-			d->character->in_room = room;
+		if (room && !House_can_enter(d->character, room->number)) {
+			mudlog(LVL_DEMI, NRM, true,
+				"%s unable to load in house room %d. Loadroom unset.",
+				GET_NAME(d->character),GET_LOADROOM(d->character));
+			room = NULL;
+			GET_LOADROOM(d->character) = -1;
 		}
+
+		if (room && !clan_house_can_enter(d->character, room)) {
+			mudlog(LVL_DEMI, NRM, true,
+				"%s unable to load in clanhouse room %d. Loadroom unset.",
+				GET_NAME(d->character),GET_LOADROOM(d->character));
+			room = NULL;
+			GET_LOADROOM(d->character) = -1;
+		}
+
+		if (room)
+			d->character->in_room = room;
 
 		if(GET_LOADROOM(d->character) == -1 &&
 			   GET_HOLD_LOADROOM(d->character) == -1)
@@ -1398,7 +1397,7 @@ char_to_game(descriptor_data *d)
 
 	characterList.add(d->character);
 
-	if( d->character->in_room == NULL )
+	if(!d->character->in_room)
 		load_room = d->character->getLoadroom();
 	else
 		load_room = d->character->in_room;
@@ -1407,8 +1406,8 @@ char_to_game(descriptor_data *d)
 	load_room->zone->enter_count++;
 
 	if (!(PLR_FLAGGED(d->character, PLR_LOADROOM)) &&
-		GET_HOLD_LOADROOM(d->character) > 0 &&
-		real_room(GET_HOLD_LOADROOM(d->character))) {
+			GET_HOLD_LOADROOM(d->character) > 0 &&
+			real_room(GET_HOLD_LOADROOM(d->character))) {
 		GET_LOADROOM(d->character) = GET_HOLD_LOADROOM(d->character);
 		SET_BIT(PLR_FLAGS(d->character), PLR_LOADROOM);
 		GET_HOLD_LOADROOM(d->character) = NOWHERE;
