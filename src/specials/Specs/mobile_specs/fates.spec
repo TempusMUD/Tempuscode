@@ -4,7 +4,6 @@
 // Copyright 1999 by John Watson & John Rothe, all rights reserved.
 //
 
-//#define FATE_TEST 1
 
 struct room_list_struct {
 	struct room_data *room;
@@ -24,7 +23,6 @@ SPECIAL(fate)
 	char s[1024];
 	struct room_list_struct *roomlist = NULL, *cur_room_list_item=NULL;
 	char *roomlist_buf=NULL; 
-//	char roomlist_buf_top[MAX_STRING_LENGTH];
 	char *roomlist_buf_top = NULL;
 	struct room_data *temp_room = NULL;
 	int num_rooms = 0, the_room = 0;

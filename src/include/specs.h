@@ -3,10 +3,18 @@
 //
 // Copyright 1998 by John Watson, all rights reserved.
 //
+#define FATE_TEST 1
+#define FATE_PORTAL_VNUM 1217
+#ifndef FATE_TEST
+#define FATE_VNUM_LOW 1526
+#define FATE_VNUM_MID 1527
+#define FATE_VNUM_HIGH 1528
+#endif
+#ifdef FATE_TEST
 #define FATE_VNUM_LOW 1205
 #define FATE_VNUM_MID 1206
 #define FATE_VNUM_HIGH 1207
-
+#endif
 
 #ifndef __specs_h__
 #define __specs_h__
@@ -199,6 +207,7 @@ SPECIAL(horn_of_geryon);
 SPECIAL(unholy_compact);
 SPECIAL(telescope);
 SPECIAL(fate_cauldron);
+SPECIAL(fate_portal);
 SPECIAL(tester_util);
 SPECIAL(questor_util);
 SPECIAL(labyrinth_clock);

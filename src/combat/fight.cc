@@ -33,6 +33,7 @@
 #include "bomb.h"
 #include "shop.h"
 #include "guns.h"
+#include "specs.h"
 
 #include <iostream>
 
@@ -521,7 +522,23 @@ make_corpse( struct char_data *ch,struct char_data *killer,int attacktype )
     extern int max_npc_corpse_time, max_pc_corpse_time;
 
     *adj = '\0';
-
+	// The Fate's corpses are portals to the remorter.
+	if ( GET_MOB_SPEC(ch) == fate ) { // GetMobSpec checks IS_NPC
+		struct obj_data *portal = NULL;
+	    if ( ( portal = read_object( FATE_PORTAL_VNUM ) ) ) {
+			GET_OBJ_TIMER( portal ) = max_npc_corpse_time;
+			if(GET_MOB_VNUM(ch) == FATE_VNUM_LOW )
+				GET_OBJ_VAL( portal, 2 ) = 1;
+			else if(GET_MOB_VNUM(ch) == FATE_VNUM_MID )
+				GET_OBJ_VAL( portal, 2 ) = 2;
+			else if(GET_MOB_VNUM(ch) == FATE_VNUM_HIGH)
+				GET_OBJ_VAL( portal, 2 ) = 3;
+			else
+				GET_OBJ_VAL( portal, 2 ) = 12;
+			obj_to_room( portal, ch->in_room );
+		}
+	}
+	// End Fate
     if ( corpse_state ) {
 	attacktype = corpse_state;
 	corpse_state = 0;
@@ -1234,7 +1251,7 @@ make_corpse( struct char_data *ch,struct char_data *killer,int attacktype )
     }
 
     // leave no corpse behind
-    if ( NON_CORPOREAL_UNDEAD( ch ) ) {
+    if ( NON_CORPOREAL_UNDEAD( ch ) || GET_MOB_SPEC(ch) == fate) {
 	while ( ( o = corpse->contains ) ) {
 	    obj_from_obj( o );
 	    obj_to_room( o, ch->in_room );

@@ -1,5 +1,5 @@
 //
-// File: telepot.spec                     -- Part of TempusMUD
+// File: fate_cauldron.spec                     -- Part of TempusMUD
 //
 // Copyright 1999 by John Watson & John Rothe, all rights reserved.
 //
@@ -24,7 +24,7 @@ SPECIAL(fate_cauldron)
 		FALSE, ch, pot, 0, TO_ROOM);
 	// Is he ready to remort? Or level 49 at least?
 	if(GET_LEVEL(ch) < 49) {
-		act("You gaze deep into $pbut learn nothing\r\n",
+		act("You gaze deep into $p but learn nothing.",
 			FALSE, ch, pot, 0, TO_CHAR);
 		return 1;
 	}
