@@ -31,6 +31,7 @@ SPECIAL(fountain_youth)
 		return 0;
 
 	if (affected_by_spell(ch, SPELL_YOUTH)) {
+		act("You drink from $p.", TRUE, ch, fountain, 0, TO_CHAR);
 		act("$n drinks from $p.", TRUE, ch, fountain, 0, TO_ROOM);
 		return 1;
 	}
@@ -75,7 +76,9 @@ SPECIAL(fountain_youth)
 	af.is_instant = FALSE;
 	affect_to_char(ch, &af3);
 
-	act("As $n drinks from the pool, $e becomes visibly younger!", TRUE, ch, 0,
-		ch, TO_ROOM);
+	act("As you drink from the pool, your reflection becomes visibly younger!",
+		true, ch, 0, 0, TO_CHAR);
+	act("As $n drinks from the pool, $e becomes visibly younger!",
+		true, ch, 0, 0, TO_ROOM);
 	return 1;
 }
