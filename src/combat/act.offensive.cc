@@ -1215,8 +1215,18 @@ ACMD(do_flee)
     send_to_char("PANIC!  You couldn't escape!\r\n", ch);
 }
 
-#define FLEE_SPEED(ch) (GET_DEX(ch) + (AFF2_FLAGGED(ch, AFF2_HASTE) ? 20 : 0) + (AFF_FLAGGED(ch, AFF_ADRENALINE) ? 10 : 0) + (AFF2_FLAGGED(ch, AFF2_SLOW ? -20 : 0)))
-
+static inline int FLEE_SPEED(char_data *ch) {
+    int speed = GET_DEX(ch);
+    if( AFF2_FLAGGED(ch, AFF2_HASTE) )
+        speed += 20;
+    if( AFF_FLAGGED(ch, AFF_ADRENALINE) )
+        speed += 10;
+    if( AFF2_FLAGGED(ch, AFF2_SLOW) )
+        speed -= 20;
+    if( SECT(ch->in_room) == SECT_ELEMENTAL_OOZE )
+        speed -= 20;
+    return speed;
+}
 //
 // if this case, if return_flags has DAM_ATTACKER_KILLED set, it is not absolutely
 // certain that he is dead, but you better damn well not mess with his pointer afterwards
