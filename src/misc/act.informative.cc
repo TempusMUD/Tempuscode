@@ -3200,7 +3200,7 @@ ACMD(do_who)
 				effective_char_class = GET_CLASS(tch);
             strcpy(c_buf, get_char_class_color( ch, tch, effective_char_class ) );
 			if (PRF2_FLAGGED(tch, PRF2_ANONYMOUS) &&
-				!PRF_FLAGGED(ch, PRF_HOLYLIGHT))
+					!Security::isMember(ch, Security::ADMINBASIC))
 				sprintf(buf2, "%s%s[%s-- %s%s%s%s]%s ", buf2,
 					CCGRN(ch, C_NRM), CCCYN(ch, C_NRM),
 					c_buf, char_class_abbrevs[(int)effective_char_class],
@@ -3248,7 +3248,7 @@ ACMD(do_who)
 					sprintf(buf2, "%s %s%s%s", buf2,
 						CCCYN(ch, C_NRM), real_clan(GET_CLAN(tch))->badge,
 						CCNRM(ch, C_NRM));
-				else if (GET_LEVEL(ch) > LVL_AMBASSADOR)
+				else if (Security::isMember(ch, Security::ADMINBASIC))
 					sprintf(buf2, "%s %s)%s(%s", buf2,
 						CCCYN(ch, C_NRM), real_clan(GET_CLAN(tch))->name,
 						CCNRM(ch, C_NRM));
