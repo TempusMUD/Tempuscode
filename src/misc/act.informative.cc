@@ -2804,98 +2804,26 @@ ACMD(do_weather)
 	"rainy",
 	"lit by flashes of lightning"};
 
-    if (OUTSIDE(ch)) {
-	sprintf(buf, "The sky is %s and %s.\r\n", 
-		sky_look[(int)ch->in_room->zone->weather->sky],
-		(ch->in_room->zone->weather->change >= 0 ? 
-		 "you feel a warm wind from the south" :
-		 "your foot tells you bad weather is due"));
-	send_to_char(buf, ch);
-	if (ch->in_room->zone->weather->sky < SKY_RAINING) {
-	    sprintf(buf, "The %s moon is %s%s.\r\n",
-		    lunar_phases[lunar_phase],
-		    (ch->in_room->zone->weather->moonlight && 
-		     ch->in_room->zone->weather->moonlight < MOON_SKY_SET) ? 
-		    "visible " : "",
-		    moon_sky_types[(int)ch->in_room->zone->weather->moonlight]);
-	    send_to_char(buf, ch);
-	}
-    } else
-	send_to_char("You have no feeling about the weather at all.\r\n", ch);
-}
-
-/* Old Help System
-ACMD(do_help)
-{
-    extern int top_of_helpt;
-    extern struct help_index_element *help_index;
-    extern FILE *help_fl;
-    extern char *help;
-
-    int chk, bot, top, mid, minlen;
-
-    if (!ch->desc)
-	return;
-    if (subcmd == SCMD_MODRIAN) {
-	do_help(ch, "modrian", 0, 0);
-	return;
-    } else if (subcmd == SCMD_CITIES) {
-	do_help(ch, "cities", 0, 0);
-	return;
-    } else if (subcmd == SCMD_SKILLS) {
-	sprintf(buf, "Type 'Help %s' to see the skills available to your char_class.\r\n",
-		pc_char_class_types[(int)GET_CLASS(ch)]);
-	send_to_char(buf, ch);
-	return;
-    }
-
-    skip_spaces(&argument);
-
-    if (!*argument) {
-	send_to_char(CCYEL(ch, C_NRM), ch);
-	page_string(ch->desc, help, 0);
-	send_to_char(CCNRM(ch, C_NRM), ch);
-	return;
-    }
-
-    if (!help_index) {
-	send_to_char("No help available.\r\n", ch);
-	return;
-    }
-    bot = 0;
-    top = top_of_helpt;
-  
-    for (;;) {
-	mid = (bot + top) >> 1;
-	minlen = strlen(argument);
-  
-	if (!(chk = strn_cmp(argument, help_index[mid].keyword, minlen))) {
-  
-	    // trace backwards to find first matching entry. Thanks Jeff Fink! 
-	    while ((mid > 0) &&
-		   (!(chk = strn_cmp(argument, help_index[mid - 1].keyword, minlen))))
-		mid--;
-	    fseek(help_fl, help_index[mid].pos, SEEK_SET);
-	    *buf2 = '\0';
-	    for (;;) {
-		fgets(buf, 128, help_fl);
-		if (*buf == '#')
-		    break;
-		buf[strlen(buf) - 1] = '\0';	// cleave off the trailing \n
-		strcat(buf2, strcat(buf, "\r\n"));
-	    }
-	    page_string(ch->desc, buf2, 1);
-	    return;
-	} else if (bot >= top) {
-	    send_to_char("There is no help on that word.\r\n", ch);
-	    return;
-	} else if (chk > 0)
-	    bot = ++mid;
-	else
-	    top = --mid;
+    if (OUTSIDE(ch) && !ZONE_FLAGGED(ch->in_room->zone,ZONE_NOWEATHER)) {
+        sprintf(buf, "The sky is %s and %s.\r\n", 
+            sky_look[(int)ch->in_room->zone->weather->sky],
+            (ch->in_room->zone->weather->change >= 0 ? 
+             "you feel a warm wind from the south" :
+             "your foot tells you bad weather is due"));
+        send_to_char(buf, ch);
+        if (ch->in_room->zone->weather->sky < SKY_RAINING) {
+            sprintf(buf, "The %s moon is %s%s.\r\n",
+                lunar_phases[lunar_phase],
+                (ch->in_room->zone->weather->moonlight && 
+                 ch->in_room->zone->weather->moonlight < MOON_SKY_SET) ? 
+                "visible " : "",
+                moon_sky_types[(int)ch->in_room->zone->weather->moonlight]);
+            send_to_char(buf, ch);
+        }
+    } else {
+        send_to_char("You have no feeling about the weather at all.\r\n", ch);
     }
 }
-*/
 
 void 
 perform_net_who(struct char_data *ch, char *arg)
