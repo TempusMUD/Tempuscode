@@ -499,18 +499,7 @@ check_idling(struct Creature *ch)
 		if (ch->desc && STATE(ch->desc) == CXN_NETWORK) {
 			send_to_char(ch, "Idle limit reached.  Connection reset by peer.\r\n");
 			set_desc_state(CXN_PLAYING, ch->desc);
-		} else if (GET_WAS_IN(ch) == NULL && ch->in_room != NULL) {
-			GET_WAS_IN(ch) = ch->in_room;
-			if (FIGHTING(ch)) {
-				stop_fighting(FIGHTING(ch));
-				stop_fighting(ch);
-			}
-			act("$n disappears into the void.", TRUE, ch, 0, 0, TO_ROOM);
-			send_to_char(ch, "You have been idle, and are pulled into a void.\r\n");
-			ch->saveToXML();
-			char_from_room(ch,false);
-			char_to_room(ch, real_room(1),true);
-		} else if (ch->char_specials.timer > 60) {
+		} else if (ch->char_specials.timer > 60 && GET_LEVEL(ch) < 50) {
 			if (ch->in_room != NULL)
 				char_from_room(ch,false);
 			char_to_room(ch, real_room(3),true);
