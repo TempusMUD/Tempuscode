@@ -2274,6 +2274,15 @@ ACMD(do_analyze)
             obj->contains->short_description,
             FUSE_STATE(obj->contains) ? "" : "in");
         break;
+	case ITEM_MICROCHIP:
+		if(SKILLCHIP(obj)) {
+			if(CHIP_DATA(obj) > 0 && CHIP_DATA(obj) < MAX_SKILLS) {
+				sprintf(buf,"%s%sData Contained: %s\'%s\'%s\r\n",
+					buf, CCNRM(ch, C_NRM), CCCYN(ch, C_NRM), spells[CHIP_DATA(obj)],
+					CCNRM(ch,C_NRM));
+			}
+		}
+		break;
       
     }
 
