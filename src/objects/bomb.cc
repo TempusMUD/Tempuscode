@@ -364,8 +364,7 @@ bomb_damage_room(char *bomb_name, int bomb_type, int bomb_power,
 			(bomb_type == BOMB_CONCUSSION || power > number(2, 12)) &&
 			number(5, 5 + power) > GET_CON(vict)) {
 
-			if (!ROOM_FLAGGED(room, ROOM_PEACEFUL) &&
-				(dir >= 0 || (dir = number(0, NUM_DIRS - 1)) >= 0) &&
+			if ((dir >= 0 || (dir = number(0, NUM_DIRS - 1)) >= 0) &&
 				room->dir_option[rev_dir[dir]] &&
 				room->dir_option[rev_dir[dir]]->to_room &&
 				!IS_SET(room->dir_option[rev_dir[dir]]->exit_info, EX_CLOSED)
@@ -386,8 +385,7 @@ bomb_damage_room(char *bomb_name, int bomb_type, int bomb_power,
 				vict->setPosition(POS_RESTING);
 			}
 
-			if (!ROOM_FLAGGED(room, ROOM_PEACEFUL) &&
-					!mag_savingthrow(vict, 40, SAVING_ROD))
+			if (!mag_savingthrow(vict, 40, SAVING_ROD))
 				vict->setPosition(POS_STUNNED);
 		}
 	}
@@ -493,15 +491,11 @@ detonate_bomb(struct obj_data *bomb)
 			cont ? fname(cont->aliases) : "hands");
 		act(buf, FALSE, ch, bomb, cont, TO_ROOM);
 		room = ch->in_room;
-		if (room && ROOM_FLAGGED(room, ROOM_PEACEFUL))
-			BOMB_POWER(bomb) = 1;
 		damage(NULL, ch,
 			dice(MIN(100, BOMB_POWER(bomb) +
 					(internal ? BOMB_POWER(bomb) : 0)),
 				MIN(500, BOMB_POWER(bomb))), TYPE_BLAST, WEAR_HANDS);
 	}
-	if (room && ROOM_FLAGGED(room, ROOM_PEACEFUL))
-		BOMB_POWER(bomb) = 1;
 
 	if (cont)
 		damage_eq(NULL, cont, dice(MIN(100, BOMB_POWER(bomb)),
