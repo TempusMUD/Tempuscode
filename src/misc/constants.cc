@@ -1966,7 +1966,7 @@ extern const char *spell_wear_off_msg[] = {
   "!Locate object!",
   "!Magic Missile!",
   "You feel less sick.",
-  "You feel less protected.",
+  "The feeling of invulnerability fades.",
   "!Remove Curse!",		/* 35 */
   "The white aura around your body fades.",
   "!Shocking Grasp!",
