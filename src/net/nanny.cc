@@ -928,7 +928,7 @@ send_menu(descriptor_data *d)
 	case CXN_EMAIL_PROMPT:
 		send_to_desc(d, "\e[H\e[J");
 		send_to_desc(d,"&c\r\n                                 EMAIL ADDRESS\r\n*******************************************************************************&n\r\n");
-		send_to_desc(d, "\r\n\r\n    You may elect to associate an email address wtih this account.  This\r\nis entirely optional, and will not be sold to anyone.  Its primary use is\r\npassword reminders but may soon be used for Realm board login.\r\n\r\n");
+		send_to_desc(d, "\r\n\r\n    You may elect to associate an email address with this account.  This\r\nis entirely optional, and will not be sold to anyone.  Its primary use is\r\npassword reminders but may soon be used for Realm board login.\r\n\r\n");
 		break;
 	case CXN_NAME_PROMPT:
 		send_to_desc(d, "\e[H\e[J");
