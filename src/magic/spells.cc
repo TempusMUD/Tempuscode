@@ -1900,6 +1900,7 @@ ASPELL(spell_conjure_elemental)
 			false, ch, 0, elemental, TO_CHAR);
 		act("$N doesn't look too happy at $n!",
 			false, ch, 0, elemental, TO_ROOM);
+		HUNTING(elemental) = ch;
 		remember(elemental, ch);
 		return;
 	} else {
@@ -2623,6 +2624,7 @@ ASPELL(spell_summon_legion)
 			false, ch, 0, devil, TO_CHAR);
 		act("$N doesn't look too happy at $n!",
 			false, ch, 0, devil, TO_ROOM);
+		HUNTING(devil) = ch;
 		remember(devil, ch);
 		return;
 	}
