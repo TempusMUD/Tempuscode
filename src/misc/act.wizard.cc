@@ -18,6 +18,7 @@
 #include <iostream>
 #include <fstream>
 #include <slist>
+#include <string.h>
 using namespace std;
 
 #include "structs.h"
@@ -47,6 +48,7 @@ using namespace std;
 #include "fight.h"
 #include "defs.h"
 #include "tokenizer.h"
+
 
 /*   external vars  */
 extern FILE *player_fl;
@@ -813,7 +815,7 @@ do_stat_zone(struct char_data *ch, struct zone_data *zone)
     sprintf(buf, "Owner: %s  ", buf2);
     strcat(out_buf, buf);
     
-        strcpy(buf2, (get_name_by_id(zone->co_owner_idnum) ? 
+    strcpy(buf2, (get_name_by_id(zone->co_owner_idnum) ? 
                   get_name_by_id(zone->co_owner_idnum) : "None"));
 
     sprintf(buf, "Co-Owner: %s\r\n", buf2);
@@ -4300,14 +4302,18 @@ ACMD(do_show)
     switch (l) {
     case 1: /* zone */
     {  
-        if (self) {
+        static const char *usage = "Usage: show zone [ all | <begin#> <end#> | name <partial name> | fullcontrol | owner | co-owner ]\r\n";
+        Tokenizer tokens(arg);
+        if( value[0] == '\0' ) {
+            send_to_char( usage, ch );
+            return;
+        } else if (self) {
             print_zone_to_buf(ch, buf, ch->in_room->zone);
-        } else if ( value[0] != '\0' && is_number(value) ) {
-            Tokenizer t(arg);
+        } else if ( is_number(value) ) { // show a range ( from a to b )
             int a = atoi(value);
             int b = a;
             slist<zone_data*> zone_list;
-            if( t.next(value) )
+            if( tokens.next(value) )
                 b = atoi(value);
             for (zone = zone_table; zone ; zone = zone->next) {
                 if( zone->number >= a && zone->number <= b ) {
@@ -4323,17 +4329,39 @@ ACMD(do_show)
             for( ; it != zone_list.end(); it++ ) {
                 print_zone_to_buf(ch, buf, *it);
             }
-        } else if (*value && !is_number(value)) {
+        } else if ( strcasecmp("owner",value) == 0 && tokens.next(value) ) { // Show by name
+            for (zone = zone_table; zone; zone = zone->next) {
+                char *ownerName = get_name_by_id(zone->owner_idnum);
+                if( ownerName && strcasecmp( value, ownerName ) == 0 ) {
+                    print_zone_to_buf(ch, buf, zone);
+                }
+            }
+        } else if ( strcasecmp("co-owner",value) == 0 && tokens.next(value) ) { // Show by name
+            for (zone = zone_table; zone; zone = zone->next) {
+                char *ownerName = get_name_by_id(zone->co_owner_idnum);
+                if( ownerName && strcasecmp( value, ownerName ) == 0 ) {
+                    print_zone_to_buf(ch, buf, zone);
+                }
+            }
+        } else if ( strcasecmp("name",value) == 0 && tokens.next(value) ) { // Show by name
             for (zone = zone_table;zone;zone = zone->next)
                 if ( stristr( zone->name,value ) )
                     print_zone_to_buf( ch,buf,zone );
-        } else {
+        } else if( strcasecmp(value,"all") == 0 ) {
             for (zone = zone_table; zone; zone = zone->next)
                 print_zone_to_buf(ch, buf, zone);
+        } else if( strcasecmp(value,"fullcontrol") == 0 ) {
+            for (zone = zone_table; zone; zone = zone->next)
+                if( ZONE_FLAGGED( zone, ZONE_FULLCONTROL ) )
+                    print_zone_to_buf(ch, buf, zone);
+        } else {
+            send_to_char( usage, ch );
+            return;
         }
         page_string(ch->desc, buf, 0);
         break;
     }
+
     case 2:                        /* player */
         show_player(ch, value);
         break;
