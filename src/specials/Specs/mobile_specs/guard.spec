@@ -12,8 +12,7 @@ const char *GUARD_HELP =
 "\r\n" 
 "    The directives are listed here:\r\n"
 "\r\n"
-"                dir <direction to block> [<more directions>...]\r\n"
-"                roomnum <room number to guard in>\r\n"
+"                guard <direction to block> <room number>\r\n"
 "                allow [not] <class>|<align>|<race>|<clan>|all\r\n"
 "                deny [not] <class>|<align>|<race>|<clan>|all\r\n"
 "                tovict <message sent to blocked creature>\r\n"
@@ -39,8 +38,8 @@ SPECIAL(guard)
 	Reaction reaction;
 	char *to_vict = "You are blocked by $n.";
 	char *to_room = "$N is blocked by $n.";
-	char *dir_str, *str, *line, *param_key;
-	bool got_dir = false, attack = false;
+	char *str, *line, *param_key, *dir_str, *room_str;
+	bool attack = false;
 	char *err = NULL;
 	long room_num = -1;
 
@@ -61,25 +60,34 @@ SPECIAL(guard)
 			continue;
 
 		param_key = tmp_getword(&line);
-		if (!strcmp(param_key, "dir")) {
+		if (!strcmp(param_key, "dir") || !strcmp(param_key, "guard")) {
+			if (!strcmp(param_key, "dir"))
+				slog("WARNING: Directive 'dir' deprecated in mob %d",
+					GET_MOB_VNUM(self));
 			dir_str = tmp_getword(&line);
-			while (dir == -1 && *dir_str) {
-				cmd_idx = find_command(dir_str, true);
-				if (cmd_idx == -1 || !IS_MOVE(cmd_idx)) {
-					err = "a bad direction";
+			room_str = tmp_getword(&line);
+			room_num = 0;
+			if (*room_str) {
+				// Ignore directions that don't pertain to the room
+				room_num = atoi(room_str);
+				if (!room_num || !real_room(room_num)) {
+					err = "a bad room number";
 					break;
 				}
-				got_dir = true;
-				if (cmd_idx == cmd)
-					dir = cmd_idx;
-				dir_str = tmp_getword(&line);
 			}
+			cmd_idx = find_command(dir_str, true);
+			if (cmd_idx == -1 || !IS_MOVE(cmd_idx)) {
+				err = "a bad direction";
+				break;
+			}
+			if (room_num != ch->in_room->number)
+				continue;
+			if (cmd_idx == cmd)
+				dir = cmd_idx;
 		} else if (!strcmp(param_key, "tovict")) {
 			to_vict = line;
 		} else if (!strcmp(param_key, "toroom")) {
 			to_room = line;
-		} else if (!strcmp(param_key, "roomnum")) {
-			room_num = atoi(line);
 		} else if (!strcmp(param_key, "attack")) {
 			attack = (is_abbrev(line, "yes") || is_abbrev(line, "on") ||
 				is_abbrev(line, "1") || is_abbrev(line, "true"));
@@ -88,13 +96,7 @@ SPECIAL(guard)
 			break;
 		}
 	}
-	if (!got_dir)
-		err = "no direction";
-	else if (room_num != -1 && self->in_room->number != room_num)
-		return false;
-	else if (dir == -1)
-		return false;
-	else if (!EXIT(ch, dir-1) || !EXIT(ch, dir-1)->to_room)
+	if (dir == -1)
 		return false;
 
 	if (err) {
