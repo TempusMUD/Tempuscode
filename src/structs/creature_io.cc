@@ -792,8 +792,7 @@ Creature::loadFromXML( const char *path )
                 player_specials->desc_mode = (cxn_state)search_block(txt, desc_modes, FALSE);
 		} else if( xmlMatches(node->name, "account") ) { // Legacy for old char database
             char *pw = xmlGetProp( node, "password" );
-            strncpy( GET_PASSWD(this), pw, MAX_PWD_LENGTH );
-            GET_PASSWD(this)[MAX_PWD_LENGTH] = '\0';
+            strcpy( GET_PASSWD(this), pw );
             if( pw != NULL )
                 free(pw);
         }
