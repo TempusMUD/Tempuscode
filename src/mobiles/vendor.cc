@@ -959,7 +959,6 @@ SPECIAL(vendor)
 		vendor_list(ch, argument, self, &shop);
 	} else if (CMD_IS("value") || CMD_IS("offer")) {
 		vendor_value(ch, argument, self, &shop);
-	} else if (CMD_IS("appraise")) {
 	} else {
 		mudlog(LVL_IMPL, CMP, true, "Can't happen at %s:%d", __FILE__,
 			__LINE__);
