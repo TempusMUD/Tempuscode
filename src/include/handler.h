@@ -40,6 +40,7 @@ char *money_desc(int amount, int mode);
 struct obj_data *create_money(int amount, int mode);
 int isname(const char *str, const char *namelist);
 int isname_exact(const char *str, const char *namelist);
+bool namelist_match(const char *sub_list, const char *super_list);
 char *fname(const char *namelist);
 int get_number(char **name);
 
