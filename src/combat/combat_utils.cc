@@ -262,16 +262,46 @@ ok_to_damage(struct Creature *ch, struct Creature *vict)
 	if (ch == vict)
 		return true;
 
-	// We don't worry about arena combat
-	if (is_arena_combat(ch, vict))
-		return true;
-
 	// We don't care if the victim is a killer or thief
 	if (PLR_FLAGGED(vict, PLR_KILLER | PLR_THIEF))
 		return true;
 
 	// We can't really penalize them if victim is disguised
 	if (affected_by_spell(vict, SKILL_DISGUISE))
+		return true;
+
+	// If they're in a quest and they attack someone outside of
+	// the quest, this drops them out of the quest.  Normal rules
+	// then apply
+	if (GET_QUEST(ch) && GET_QUEST(ch) != GET_QUEST(vict)) {
+		Quest *quest = quest_by_vnum(GET_QUEST(ch));
+
+		if (!quest->canLeave(ch)) {
+			qlog(ch,
+				tmp_sprintf("%s has attacked non-questing PC %s",
+					GET_NAME(ch), GET_NAME(vict)),
+				QLOG_BRIEF,
+				MAX(GET_INVIS_LVL(ch), LVL_AMBASSADOR),
+				true);
+			return false;
+		}
+
+		quest->removePlayer(GET_IDNUM(ch));
+		qlog(ch,
+			tmp_sprintf("%s kicked out of quest for attacking %s",
+				GET_NAME(ch), GET_NAME(vict)),
+			QLOG_BRIEF,
+			MAX(GET_INVIS_LVL(ch), LVL_AMBASSADOR),
+			true);
+	}
+
+	// It's not ok to hit someone in a quest if you're not in the
+	// quest, either.
+	if (GET_QUEST(vict) && GET_QUEST(vict) != GET_QUEST(ch))
+		return false;
+
+	// We don't worry about arena combat
+	if (is_arena_combat(ch, vict))
 		return true;
 
 	// You don't get a killer for attacking someone with a higher
