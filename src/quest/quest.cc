@@ -31,6 +31,7 @@
 #include "screen.h"
 #include "tmpstr.h"
 #include "utils.h"
+#include "security.h"
 
 // external funcs here
 int find_name(char *name);
@@ -841,7 +842,8 @@ do_qcontrol_create(Creature *ch, char *argument, int com)
 	Quest quest(ch,type,argument);
 	quests.add(quest);
 
-	char *msg = tmp_sprintf("created quest type %s, '%s'", qtypes[type], argument);
+	char *msg = tmp_sprintf( "created quest [%d] type %s, '%s'", 
+							 quest.getVnum(), qtypes[type], argument );
 	qlog(ch, msg, QLOG_BRIEF, LVL_AMBASSADOR, TRUE);
 	send_to_char(ch, "Quest %d created.\r\n", quest.getVnum());
 	save_quests();
@@ -890,7 +892,7 @@ do_qcontrol_end(Creature *ch, char *argument, int com)
 	}
 
 	quest->setEnded(time(0));
-	sprintf(buf, "ended quest '%s'", quest->name);
+	sprintf(buf, "ended quest %d '%s'", quest->getVnum(),quest->name);
 	qlog(ch, buf, QLOG_BRIEF, 0, TRUE);
 	send_to_char(ch, "Quest ended.\r\n");
 	save_quests();
@@ -944,7 +946,8 @@ do_qcontrol_add(Creature *ch, char *argument, int com)
 	}
 	GET_QUEST(vict) = quest->getVnum();
 
-	sprintf(buf, "added %s to quest '%s'.", GET_NAME(vict), quest->name);
+	sprintf(buf, "added %s to quest %d '%s'.", 
+			GET_NAME(vict), quest->getVnum(),quest->name);
 	qlog(ch, buf, QLOG_COMP, GET_INVIS_LVL(vict), TRUE);
 
 	send_to_char(ch, "%s added to quest %d.\r\n", GET_NAME(vict), quest->getVnum());
@@ -1033,7 +1036,8 @@ do_qcontrol_kick(Creature *ch, char *argument, int com)
 
 	send_to_char(ch, "%s kicked from quest %d.\r\n", arg1, quest->getVnum());
 	if (vict) {
-		sprintf(buf, "kicked %s from quest '%s'.", arg1, quest->name);
+		sprintf(buf, "kicked %s from quest %d '%s'.", 
+				arg1, quest->getVnum(),quest->name);
 		qlog(ch, buf, QLOG_BRIEF, MAX(GET_INVIS_LVL(vict), LVL_AMBASSADOR),
 			TRUE);
 
@@ -1044,7 +1048,8 @@ do_qcontrol_kick(Creature *ch, char *argument, int com)
 		send_to_quest(NULL, buf, quest, MAX(GET_INVIS_LVL(vict),
 				LVL_AMBASSADOR), QCOMM_ECHO);
 	} else {
-		sprintf(buf, "kicked %s from quest '%s'.", arg1, quest->name);
+		sprintf(buf, "kicked %s from quest %d '%s'.", 
+				arg1, quest->getVnum(),quest->name);
 		qlog(ch, buf, QLOG_BRIEF, LVL_AMBASSADOR, TRUE);
 
 		sprintf(buf, "%s has been kicked from the quest.", arg1);
@@ -1133,8 +1138,9 @@ do_qcontrol_flags(Creature *ch, char *argument, int com)
 		send_to_char(ch, "[%s] flags %s for quest %d.\r\n", buf2,
 			state == 1 ? "added" : "removed", quest->getVnum());
 
-		sprintf(buf, "%s [%s] flags for quest '%s'.",
-			state == 1 ? "added" : "removed", buf2, quest->name);
+		sprintf(buf, "%s [%s] flags for quest %d '%s'.",
+			state == 1 ? "added" : "removed", 
+			buf2, quest->getVnum(), quest->name);
 		qlog(ch, buf, QLOG_COMP, LVL_AMBASSADOR, TRUE);
 	}
 	save_quests();
@@ -1159,8 +1165,10 @@ do_qcontrol_comment(Creature *ch, char *argument, int com)
 	if (!quest->canEdit(ch)) 
 		return;
 
-	sprintf(buf, "comment on quest '%s': %s", quest->name, argument);
+	sprintf(buf, "comments on quest %d '%s': %s", 
+			quest->getVnum(), quest->name, argument);
 	qlog(ch, buf, QLOG_NORM, LVL_AMBASSADOR, TRUE);
+	send_to_char(ch, "Comment logged as '%s'", argument);
 
 	save_quests();
 }
@@ -1299,8 +1307,8 @@ do_qcontrol_ban(Creature *ch, char *argument, int com)
 		} else {
 			send_to_char(ch, "%s auto-kicked from quest.\r\n", arg1);
 
-			sprintf(buf, "auto-kicked %s from quest '%s'.",
-				vict ? GET_NAME(vict) : arg1, quest->name);
+			sprintf(buf, "auto-kicked %s from quest %d '%s'.",
+				vict ? GET_NAME(vict) : arg1, quest->getVnum(), quest->name);
 			qlog(ch, buf, QLOG_COMP, 0, TRUE);
 		}
 	}
@@ -1314,8 +1322,8 @@ do_qcontrol_ban(Creature *ch, char *argument, int com)
 		send_to_char(ch, "You have been banned from quest '%s'.\r\n", quest->name);
 	}
 
-	sprintf(buf, "banned %s from quest '%s'.",
-		vict ? GET_NAME(vict) : arg1, quest->name);
+	sprintf(buf, "banned %s from quest %d '%s'.",
+		vict ? GET_NAME(vict) : arg1, quest->getVnum(), quest->name);
 	qlog(ch, buf, QLOG_COMP, 0, TRUE);
 
 	send_to_char(ch, "%s banned from quest %d.\r\n",
@@ -1390,8 +1398,8 @@ do_qcontrol_unban(Creature *ch, char *argument, int com)
 		return;
 	}
 
-	sprintf(buf, "unbanned %s from quest '%s'.",
-		vict ? GET_NAME(vict) : arg1, quest->name);
+	sprintf(buf, "unbanned %s from %d quest '%s'.",
+		vict ? GET_NAME(vict) : arg1,quest->getVnum(), quest->name);
 	qlog(ch, buf, QLOG_COMP, 0, TRUE);
 
 	send_to_char(ch, "%s unbanned from quest %d.\r\n",
@@ -1420,8 +1428,8 @@ do_qcontrol_level(Creature *ch, char *argument, int com)
 
 	quest->owner_level = atoi(arg2);
 
-	sprintf(buf, "set quest '%s' access level to %d",
-		quest->name, quest->owner_level);
+	sprintf(buf, "set quest %d '%s' access level to %d",
+		quest->getVnum(),quest->name, quest->owner_level);
 	qlog(ch, buf, QLOG_NORM, LVL_AMBASSADOR, TRUE);
 
 }
@@ -1446,8 +1454,8 @@ do_qcontrol_minlev(Creature *ch, char *argument, int com)
 
 	quest->minlevel = MIN(LVL_GRIMP, MAX(0, atoi(arg2)));
 
-	sprintf(buf, "set quest '%s' minimum level to %d",
-		quest->name, quest->minlevel);
+	sprintf(buf, "set quest %d '%s' minimum level to %d",
+		quest->getVnum(),quest->name, quest->minlevel);
 
 	qlog(ch, buf, QLOG_NORM, LVL_AMBASSADOR, TRUE);
 
@@ -1473,8 +1481,8 @@ do_qcontrol_maxlev(Creature *ch, char *argument, int com)
 
 	quest->maxlevel = MIN(LVL_GRIMP, MAX(0, atoi(arg2)));
 
-	sprintf(buf, "set quest '%s' maximum level to %d",
-		quest->name, quest->maxlevel);
+	sprintf(buf, "set quest %d '%s' maximum level to %d",
+		quest->getVnum(),quest->name, quest->maxlevel);
 	qlog(ch, buf, QLOG_NORM, LVL_AMBASSADOR, TRUE);
 }
 
@@ -1499,8 +1507,8 @@ do_qcontrol_mingen(Creature *ch, char *argument, int com)
 
 	quest->mingen = MIN(10, MAX(0, atoi(arg2)));
 
-	sprintf(buf, "set quest '%s' minimum gen to %d",
-		quest->name, quest->mingen );
+	sprintf(buf, "set quest %d '%s' minimum gen to %d",
+		quest->getVnum(),quest->name, quest->mingen );
 	qlog(ch, buf, QLOG_NORM, LVL_AMBASSADOR, TRUE);
 }
 
@@ -1524,8 +1532,8 @@ do_qcontrol_maxgen(Creature *ch, char *argument, int com)
 
 	quest->maxgen = MIN(10, MAX(0, atoi(arg2)));
 
-	sprintf(buf, "set quest '%s' maximum gen to %d",
-		quest->name, quest->maxgen);
+	sprintf(buf, "set quest %d '%s' maximum gen to %d",
+		quest->getVnum(),quest->name, quest->maxgen);
 	qlog(ch, buf, QLOG_NORM, LVL_AMBASSADOR, TRUE);
 }
 
@@ -1572,7 +1580,7 @@ do_qcontrol_mute(Creature *ch, char *argument, int com)
 
 	quest->getPlayer(idnum).setFlag(QP_MUTE);
 
-	sprintf(buf, "muted %s in quest '%s'.", arg1, quest->name);
+	sprintf(buf, "muted %s in %d quest '%s'.", arg1, quest->getVnum(),quest->name);
 	qlog(ch, buf, QLOG_COMP, 0, TRUE);
 
 	send_to_char(ch, "%s muted for quest %d.\r\n", arg1, quest->getVnum());
@@ -1622,7 +1630,7 @@ do_qcontrol_unmute(Creature *ch, char *argument, int com)
 
 	quest->getPlayer(idnum).removeFlag(QP_MUTE);
 
-	sprintf(buf, "unmuted %s in quest '%s'.", arg1, quest->name);
+	sprintf(buf, "unmuted %s in quest %d '%s'.", arg1, quest->getVnum(), quest->name);
 	qlog(ch, buf, QLOG_COMP, 0, TRUE);
 
 	send_to_char(ch, "%s unmuted for quest %d.\r\n", arg1, quest->getVnum());
@@ -2097,7 +2105,7 @@ do_quest_join(Creature *ch, char *argument)
 
 	GET_QUEST(ch) = quest->getVnum();
 
-	sprintf(buf, "joined quest '%s'.", quest->name);
+	sprintf(buf, "joined quest %d '%s'.", quest->getVnum(),quest->name);
 	qlog(ch, buf, QLOG_COMP, 0, TRUE);
 
 	send_to_char(ch, "You have joined quest '%s'.\r\n", quest->name);
@@ -2147,7 +2155,7 @@ do_quest_leave(Creature *ch, char *argument)
 		return;
 	}
 
-	sprintf(buf, "left quest '%s'.", quest->name);
+	sprintf(buf, "left quest %d '%s'.", quest->getVnum(),quest->name);
 	qlog(ch, buf, QLOG_COMP, 0, TRUE);
 
 	send_to_char(ch, "You have left quest '%s'.\r\n", quest->name);
@@ -2954,6 +2962,9 @@ qplayer_data& qplayer_data::operator=( const qplayer_data &q )
 
 bool Quest::canEdit(Creature *ch)
 {
+	if( Security::isMember(ch, "QuestorAdmin") )
+		return true;
+
 	if (GET_LEVEL(ch) <= owner_level &&
 		GET_IDNUM(ch) != owner_id && GET_IDNUM(ch) != 1) {
 		send_to_char(ch, "You cannot do that to this quest.\r\n");
