@@ -3626,7 +3626,8 @@ show_player(CHAR *ch, char * value)
 		fclose( fl );
     }
     
-	if (get_char_in_world_by_idnum(idnum)) {
+	if (get_char_in_world_by_idnum(idnum) && 
+		GET_INVIS_LEV(get_char_in_world_by_idnum(idnum)) < GET_LEVEL(ch)) {
 		strcpy(rent_type,CCYEL( ch, C_NRM ));
 		strcat(rent_type, "In Game.");
 	} else {
