@@ -310,6 +310,7 @@ die(struct Creature *ch, struct Creature *killer, int attacktype,
 		GET_LIFE_POINTS(ch) = 0;
 		GET_PRACTICES(ch) = 0;
 		GET_SEVERITY(ch) = 0;
+		GET_INVIS_LVL(ch) = MIN(GET_LEVEL(ch), GET_INVIS_LVL(ch));
 
 		// And they get uglier, too!
 		GET_CHA(ch) = MAX(3, GET_CHA(ch) - 2);
