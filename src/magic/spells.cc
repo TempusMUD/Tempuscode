@@ -3620,6 +3620,8 @@ load_familiar(Creature *ch, int sect_type, int type)
 bool
 perform_call_familiar(Creature *ch, int level, int type)
 {
+	extern int familiar_div;
+
 	struct affected_type af;
 	struct Creature *pet = NULL;
 	struct follow_type *cur_fol;
@@ -3650,7 +3652,7 @@ perform_call_familiar(Creature *ch, int level, int type)
 
 	// Scale the pet to the caster's level
 	GET_LEVEL(pet) = GET_LEVEL(ch) / 2 + 1;
-	mult = GET_LEVEL(pet) / 2;
+	mult = GET_LEVEL(pet) / familiar_div;
 	GET_EXP(pet) = 0;
 	GET_MAX_HIT(pet) *= mult;
 	GET_HIT(pet) = GET_MAX_HIT(pet);
