@@ -2605,7 +2605,7 @@ ACMD(do_score)
 
 		msg = tmp_sprintf("%sYou are known as %s%s%s.%s\r\n",
 			msg, CCYEL(ch, C_NRM), GET_NAME(ch), GET_TITLE(ch), CCNRM(ch, C_NRM));
-		msg = tmp_strcat(msg, "Your have a reputation of being -",
+		msg = tmp_strcat(msg, "You have a reputation of being -",
 			reputation_msg[GET_REPUTATION(ch) / 100], "-\r\n", NULL);
 	}
 	msg = tmp_sprintf(
