@@ -13,8 +13,12 @@
 #include "login.h"
 #include "char_class.h"
 #include "creature.h"
+#include "help.h"
+
+ACMD(do_hcollect_help);
 
 void show_race_help(struct descriptor_data *d, int race);
+int parse_player_class(char *arg);
 
 //
 // show_char_class_menu is for choosing a char_class when you remort
@@ -237,67 +241,11 @@ show_home_help_past(struct descriptor_data *d, int home)
 	SEND_TO_Q("\r\n", d);
 }
 
-//
-// parse_past_home
-//
-
-int
-parse_past_home(struct descriptor_data *d, char *arg)
-{
-	int home = -1;
-
-	skip_spaces(&arg);
-	half_chop(arg, buf, buf2);
-
-	if (is_abbrev(buf, "help")) {
-		if (!*buf2)
-			SEND_TO_Q("Help on what hometown?\r\n", d);
-		else {
-			home = parse_past_home(d, buf2);
-			show_home_help_past(d, home);
-		}
-		return (-2);
-	}
-	if (is_abbrev(buf, "new thalos"))
-		return (HOME_NEW_THALOS);
-	else if (is_abbrev(buf, "istan"))
-		return (HOME_ISTAN);
-	else if (is_abbrev(buf, "elven village"))
-		return (HOME_ELVEN_VILLAGE);
-	else if (is_abbrev(buf, "solace cove"))
-		return (HOME_SOLACE_COVE);
-	else if (is_abbrev(buf, "modrian"))
-		return (HOME_MODRIAN);
-	else if (is_abbrev(buf, "tower"))
-		return (HOME_NEWBIE_TOWER);
-	else if (is_abbrev(buf, "skullport"))
-		return (HOME_SKULLPORT);
-	else
-		return (-1);
-	return (-1);
-}
-
-//
-// show_time_menu
-//
-
 int
 parse_pc_race(struct descriptor_data *d, char *arg)
 {
-	int race = -1;
-
 	skip_spaces(&arg);
 	half_chop(arg, buf, buf2);
-
-	if (!str_cmp(buf, "help")) {
-		if (!*buf2)
-			SEND_TO_Q("Help on what race?\r\n", d);
-		else {
-			race = parse_pc_race(d, buf2);
-			show_race_help(d, race);
-		}
-		return (-2);
-	}
 
 	if (is_abbrev(buf, "human"))
 		return RACE_HUMAN;
@@ -319,6 +267,52 @@ parse_pc_race(struct descriptor_data *d, char *arg)
 		return RACE_ORC;
 
 	return (-1);
+}
+
+void
+show_pc_race_help(descriptor_data *d, char *arg)
+{
+	char *race_str;
+
+	race_str = tmp_getword(&arg);	// throw away
+	race_str = tmp_getword(&arg);	// actual race
+	
+	if (!*race_str) {
+		send_to_desc(d,
+			"\r\n&gTry specifying the race you want information on.&n\r\n\r\n");
+		return;
+	}
+
+	if (parse_pc_race(d, race_str) == RACE_UNDEFINED) {
+		send_to_desc(d, "\r\n&rThat's not a character race!&n\r\n");
+		return;
+	}
+
+	do_hcollect_help(d->creature, race_str, 0, 0, NULL);
+	set_desc_state(CXN_RACE_HELP, d);
+}
+
+void
+show_pc_class_help(descriptor_data *d, char *arg)
+{
+	char *class_str;
+
+	class_str = tmp_getword(&arg);	// throw away
+	class_str = tmp_getword(&arg);	// actual class
+	
+	if (!*class_str) {
+		send_to_desc(d,
+			"\r\n&gTry specifying the class you want information on.&n\r\n");
+		return;
+	}
+
+	if (parse_player_class(class_str) == CLASS_UNDEFINED) {
+		send_to_desc(d, "\r\n&rThat's not a character class!&n\r\n\r\n");
+		return;
+	}
+
+	do_hcollect_help(d->creature, class_str, 0, 0, NULL);
+	set_desc_state(CXN_CLASS_HELP, d);
 }
 
 void
