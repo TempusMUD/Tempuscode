@@ -298,7 +298,12 @@ count_pkill(Creature *killer, Creature *victim)
 			if (IS_CRIMINAL(victim))
 				gain /= 4;
 
-			perp->gain_reputation(MAX(1, gain));
+			gain = MAX(1, gain);
+
+			mudlog(LVL_IMMORT, CMP, true,
+				"%s gained %d reputation for pkilling %s", GET_NAME(perp),
+				gain, GET_NAME(victim));
+			perp->gain_reputation(gain);
         }
 	}
 }
@@ -327,7 +332,7 @@ check_thief(struct Creature *ch, struct Creature *vict,
 		return;
 
 	// We don't care about NPCs
-	if (IS_NPC(perp))
+	if (IS_NPC(perp) || IS_NPC(vict))
 		return;
 
 	// Criminals have NO protection vs psteal
@@ -348,7 +353,12 @@ check_thief(struct Creature *ch, struct Creature *vict,
 	
 	gain /= 10;
 
-	perp->gain_reputation(MAX(1, gain));
+	gain = MAX(1, gain);
+
+	mudlog(LVL_IMMORT, CMP, true,
+		"%s gained %d reputation for pstealing from %s",
+		GET_NAME(perp), gain, GET_NAME(vict));
+	perp->gain_reputation(gain);
 }
 
 void
