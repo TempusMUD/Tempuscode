@@ -41,6 +41,9 @@ struct char_data;
 #define MAX_HELP_NAME_LENGTH 128
 #define MAX_HELP_TEXT_LENGTH 16384
 class HelpItem {
+    // Swap two items where they sit in the items list.
+    friend void SwapItems(HelpItem *A, HelpItem *Ap, HelpItem *B, HelpItem *Bp);
+
 	// Most of this should be protected with help_collection as a friend class
     public:
     // Member Funcs
@@ -66,6 +69,7 @@ class HelpItem {
     bool CanEditItem( char_data *ch );
     bool Save( void );// Save the current entry to file.
     bool IsInGroup( int thegroup );
+    
     // Show the entry. 
     // 0 == One Line Listing.
     // 1 == One Line Stat
@@ -113,6 +117,8 @@ class HelpGroup {
 };
 
 class HelpCollection {
+
+    friend void SwapItems(HelpItem *A,HelpItem *Ap, HelpItem *B, HelpItem *Bp);
 	// Christ, most of this should probably be private...
     public:
     // Member Funcs

@@ -47,6 +47,7 @@ static const struct hcollect_command {
     { "unapprove","<topic #>",             LVL_GOD },
     { "immhelp",  "<keyword>",             LVL_IMMORT },
     { "olchelp",  "<keyword>",             LVL_IMMORT },
+    { "swap",   "<topic #> <topic #>",     LVL_GOD },
     { NULL, NULL, 0 }       // list terminator
 };
 static const struct group_command {
@@ -778,6 +779,41 @@ ACMD(do_help_collection_command) {
         case 13: // olchelp
             Help->GetTopic(ch,argument,2,false,HGROUP_OLC);
             break;
+        case 14: { // Swap 2 topics
+            HelpItem *A=NULL;
+            HelpItem *Ap=NULL;
+            HelpItem *B=NULL;
+            HelpItem *Bp=NULL;
+            int idA,idB;
+            idA = idB = -1;
+            argument = one_argument(argument,linebuf);
+            if(*linebuf && isdigit(linebuf[0])) 
+                idA = atoi(linebuf);
+
+            argument = one_argument(argument,linebuf);
+            if(*linebuf && isdigit(linebuf[0]))
+                idB = atoi(linebuf);
+
+            if(idA == idB || idA < 0 || idA > Help->GetTop() || idB < 0 || idB > Help->GetTop()) {
+                send_to_char("Invalid item numbers.\r\n",ch);
+                break;
+            }
+            if(idB < idA) {
+                send_to_char("Please put the lower # first.\r\n",ch);
+                break;
+            }
+            for(A = Help->items; A && A->idnum != idA;Ap = A,A = A->Next());
+            for(B = Help->items; B && B->idnum != idB;Bp = B,B = B->Next());
+            if(!A || !B || !Bp) {
+                send_to_char("Invalid item numbers.\r\n",ch);
+                break;
+            }
+            SwapItems(A,Ap,B,Bp);
+            send_to_char("Okay.\r\n",ch);
+            sprintf(buf,"Bottom pointer set to item %d.\r\n",Help->bottom->idnum);
+            send_to_char(buf,ch);
+            break;
+        }// case 14
         default:
             do_hcollect_cmds(ch);
             break;

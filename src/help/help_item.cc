@@ -183,6 +183,61 @@ HelpItem::~HelpItem(){
     delete [] name;
 }
 
+void SwapItems(HelpItem *A,HelpItem *Ap, HelpItem *B, HelpItem *Bp) {
+    // Anext and Bnext.
+    HelpItem *An = NULL, *Bn = NULL;
+    int id;
+
+    A->LoadText();
+    B->LoadText();
+    A->editor = B->editor = NULL;
+
+    // Grab next pointers
+    An = A->Next();
+    Bn = B->Next();
+    // Swap the idnums
+    id = A->idnum;
+    A->idnum = B->idnum;
+    B->idnum = id;
+
+    if(A->Next() == B) {
+        if(Ap == NULL) {
+            Help->items = B;
+            A->SetNext(Bn);
+            B->SetNext(A);
+        } else {
+            A->SetNext(B->Next());
+            Ap->SetNext(B);
+            B->SetNext(A);
+        }
+        return;
+    }
+
+    // Remove the first then insert it, 
+    if(Ap == NULL) {
+        Help->items = B;
+        A->SetNext(B->Next());
+        Bp->SetNext(A);
+    } else {
+        Ap->SetNext(A->Next());
+        A->SetNext(B->Next());
+        Bp->SetNext(A);
+    }
+
+    // then remove the second and insert it.
+    if(Ap != NULL) {
+        B->SetNext(Ap->Next());
+        Ap->SetNext(B);
+    } else {
+        B->SetNext(An);
+    }
+    // Reset the bottom pointer.
+    if(Bn == NULL) {
+        Help->bottom = NULL;
+        for(Bn = Help->items;Bn;Help->bottom = Bn, Bn = Bn->Next());
+    }
+}
+
 // Clear out the item.
 bool HelpItem::Clear( void ) {
     counter = 0;
