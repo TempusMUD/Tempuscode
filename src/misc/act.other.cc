@@ -1006,6 +1006,7 @@ ACMD(do_gen_write)
 #define PRF_TOG_CHK(ch,flag) ((TOGGLE_BIT(PRF_FLAGS(ch), (flag))) & (flag))
 #define PRF2_TOG_CHK(ch,flag) ((TOGGLE_BIT(PRF2_FLAGS(ch), (flag))) & (flag))
 
+bool LOG_DEATHS = false;
 ACMD(do_gen_tog)
 {
 	long result;
@@ -1109,6 +1110,8 @@ ACMD(do_gen_tog)
 			"TEDII will not wrap your text at 76 colums next time.\r\n"},
 		{"Your world writing ability is now deactivated.\r\n",
 			"Your world writing ability is now activated.\r\n" },
+		{"Deaths will not be logged.\r\n",
+			"All deaths will now be logged.\r\n"},
 		{"\n", "\n"}
 	};
 
@@ -1320,6 +1323,11 @@ ACMD(do_gen_tog)
 		break;
 	case SCMD_WORLDWRITE:
 		result = PRF2_TOG_CHK(ch, PRF2_WORLDWRITE);
+		break;
+	case SCMD_DEATHLOG:
+		result = ( LOG_DEATHS = !LOG_DEATHS );
+		slog("%s has toggled jet_stream_state %s.", GET_NAME(ch), 
+				ONOFF(LOG_DEATHS));
 		break;
 
 	default:

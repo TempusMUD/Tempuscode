@@ -197,6 +197,7 @@ struct set_struct {
 #define SCMD_NOGECHO	47
 #define SCMD_AUTOWRAP   48
 #define SCMD_WORLDWRITE 49
+#define SCMD_DEATHLOG   50
 
 /* do_wizutil */
 #define SCMD_REROLL	0

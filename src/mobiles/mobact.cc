@@ -1748,6 +1748,7 @@ mobile_activity(void)
 			//
 
 			else if (!FIGHTING(ch) && !HUNTING(ch)) {
+				vict = NULL;
 				CharacterList::iterator it = ch->in_room->people.begin();
 				for (; it != ch->in_room->people.end(); ++it) {
 					vict = *it;
@@ -2047,6 +2048,7 @@ mobile_activity(void)
 			found = FALSE;
 			int fvict_retval = 0;
 			int vict_retval = 0;
+			vict = NULL;
 			//struct char_data *tmp_next_ch = 0;
 
 			if (IS_AFFECTED(ch, AFF_CHARM))
@@ -2128,8 +2130,10 @@ mobile_activity(void)
 			!ROOM_FLAGGED(ch->in_room, ROOM_PEACEFUL)
 			&& random_fractional_4()) {
 			found = FALSE;
-			CharacterList::iterator it = ch->in_room->people.begin();
-			for (; it != ch->in_room->people.end() && !found; ++it) {
+			vict = NULL;
+			room_data *room = ch->in_room;
+			CharacterList::iterator it = room->people.begin();
+			for (; it != room->people.end() && !found; ++it) {
 				vict = *it;
 				if ((IS_NPC(vict) && !MOB2_FLAGGED(ch, MOB2_ATK_MOBS))
 					|| !CAN_SEE(ch, vict) || PRF_FLAGGED(vict, PRF_NOHASSLE) ||
@@ -2166,6 +2170,7 @@ mobile_activity(void)
 				MOB_FLAGGED(ch, MOB_AGGR_TO_ALIGN)) &&
 			!ROOM_FLAGGED(ch->in_room, ROOM_PEACEFUL)) {
 			found = FALSE;
+			vict = NULL;
 			CharacterList::iterator it = ch->in_room->people.begin();
 			CharacterList::iterator nit = ch->in_room->people.begin();
 			for (; it != ch->in_room->people.end() && !found; ++it) {
@@ -2242,9 +2247,9 @@ mobile_activity(void)
 				}
 
 				if (dir < NUM_DIRS) {
+					vict = NULL;
 					room_data *tmp_room = EXIT(ch, dir)->to_room;
 					CharacterList::iterator it = tmp_room->people.begin();
-
 					for (; it != tmp_room->people.end() && !found; ++it) {
 						vict = *it;
 						if (CAN_SEE(ch, vict)

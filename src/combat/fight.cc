@@ -241,11 +241,13 @@ raw_kill(struct char_data *ch, struct char_data *killer, int attacktype)
 	ch->extract(true, false, CON_AFTERLIFE);
 }
 
+
+extern bool LOG_DEATHS;
+
 void
 die(struct char_data *ch, struct char_data *killer, int attacktype,
 	int is_humil)
 {
-
 	if (IS_NPC(ch) && GET_MOB_SPEC(ch)) {
 		if (GET_MOB_SPEC(ch) (killer, ch, 0, NULL, SPECIAL_DEATH)) {
 			sprintf(buf,
@@ -253,6 +255,15 @@ die(struct char_data *ch, struct char_data *killer, int attacktype,
 				GET_NAME(ch));
 			mudlog(buf, NRM, LVL_CREATOR, TRUE);
 			return;
+		}
+	} 
+	if( LOG_DEATHS ) {
+		if( IS_NPC(ch) ) {
+			slog("DEATH: %s killed by %s. attacktype: %d SPEC[%d]\r\n",
+					ch,killer,attacktype, GET_MOB_SPEC(ch));
+		} else {
+			slog("DEATH: %s killed by %s. attacktype: %d PC\r\n",
+					ch,killer,attacktype);
 		}
 	}
 	if (!ROOM_FLAGGED(ch->in_room, ROOM_ARENA) && killer &&
