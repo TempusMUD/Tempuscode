@@ -197,9 +197,18 @@ obj_data::loadFromXML(obj_data *container, Creature *victim, xmlNodePtr node)
 	clear();
 	int vnum = xmlGetIntProp(node, "vnum");
 	
-	obj_data* prototype = real_object_proto( vnum );
-	if( prototype == NULL )
+	if( vnum < 0 ) {
+		slog("obj_data->loadFromXML found vnum %d in %s's file. Junking.",
+			  vnum, GET_NAME(victim) );
 		return false;
+	}
+
+	obj_data* prototype = real_object_proto( vnum );
+	if( prototype == NULL ) {
+		slog("Object %d no longer in database.", vnum );
+		return false;
+	} 
+
 	shared = prototype->shared;
 
 	short_description = shared->proto->short_description;
@@ -286,6 +295,11 @@ obj_data::loadFromXML(obj_data *container, Creature *victim, xmlNodePtr node)
 			obj->clear();
 			obj->loadFromXML(this,victim,cur);
 		} 
+	}
+	if (!OBJ_APPROVED(obj)) {
+		slog("Unapproved object %d being junked from %s's rent.", 
+			 vnum, GET_NAME(victim) );
+		return false;
 	}
 
 	if( container ) {
