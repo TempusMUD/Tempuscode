@@ -419,40 +419,34 @@ void burn_update(void) {
 	// underwater (underliquid)
 	if ((SECT_TYPE(ch->in_room) == SECT_UNDERWATER ||
 	     SECT_TYPE(ch->in_room) == SECT_PITCH_SUB ||
-	     SECT_TYPE(ch->in_room) == SECT_WATER_NOSWIM) &&
+	     SECT_TYPE(ch->in_room) == SECT_WATER_NOSWIM || 
+	     SECT_TYPE(ch->in_room) == SECT_FREESPACE ||
+	     SECT_TYPE(ch->in_room) == SECT_ELEMENTAL_EARTH) &&
 	    !can_travel_sector(ch, SECT_TYPE(ch->in_room), 1) &&
 	    !ROOM_FLAGGED(ch->in_room, ROOM_DOCK) && 
 	    GET_LEVEL(ch) < LVL_AMBASSADOR) {
 	    
 	    int drown_factor = ch->getBreathCount() - ch->getBreathThreshold();
-	    
+	    int type = 0;
+
 	    drown_factor = MAX( 0, drown_factor );
 	    
-	    if (damage(ch, ch, dice(4, 5), TYPE_DROWNING, -1))
+
+	    if( SECT_TYPE(ch->in_room) == SECT_FREESPACE ||
+		SECT_TYPE(ch->in_room) == SECT_ELEMENTAL_EARTH ) {
+		type = TYPE_SUFFOCATING;
+	    }
+
+	    else {
+		type = TYPE_DROWNING;
+	    }
+	    if (damage(ch, ch, dice(4, 5), type, -1))
 		continue;
 	    
 	    if (AFF_FLAGGED(ch, AFF_INFLIGHT) && 
 		GET_POS(ch) < POS_FLYING &&
 		SECT_TYPE(ch->in_room) == SECT_WATER_NOSWIM)
 		do_fly(ch, "", 0, 0);
-	}
-
-
-	//
-	// Space and other sectors where you can't breathe!
-	//
-
-	if ( ( SECT_TYPE( ch->in_room ) == SECT_ELEMENTAL_EARTH ||
-	       SECT_TYPE( ch->in_room ) == SECT_FREESPACE ) && 
-	     ! AFF3_FLAGGED( ch, AFF3_NOBREATHE ) ) {
-
-	    int suffocate_factor = ch->getBreathCount() - ch->getBreathThreshold();
-	    
-	    suffocate_factor = MAX( 0, suffocate_factor );
-
-	    if( damage( ch, ch, dice( 4, 5 ), TYPE_SUFFOCATING, -1 ) ) {
-		continue;
-	    }
 	}
 
 	// sleeping gas

@@ -851,7 +851,7 @@ make_prompt(struct descriptor_data * d)
 	if ( PRF2_FLAGGED( d->character, PRF2_DISPALIGN ) ) {
              
 	    if( GET_ALIGNMENT( d->character ) > 300 ) {
-		sprintf( colorbuf, "%s", CCBLU( d->character, C_SPR ) );
+		sprintf( colorbuf, "%s", CCCYN( d->character, C_SPR ) );
             }
 
 	    else if ( GET_ALIGNMENT( d->character ) < -300 ) {
