@@ -614,6 +614,8 @@ ACMD(do_hcollect_help) {
     } else if( subcmd == SCMD_SKILLS ) {
         sprintf(buf, "Type 'Help %s' to see the skills available to your char_class.\r\n", pc_char_class_types[(int)GET_CLASS(ch)]);
         send_to_char(buf, ch);
+    } else if( subcmd == SCMD_POLICIES ) {
+        cur = Help->find_item_by_id(667);
     // Default help file
     } else if(!argument || !*argument) {
         cur = Help->find_item_by_id(666);
