@@ -8,7 +8,6 @@ using namespace std;
 #include "structs.h"
 #include "char_data.h"
 #include "utils.h"
-#include "defs.h"
 #include "help.h"
 #include "interpreter.h"
 #include "db.h"

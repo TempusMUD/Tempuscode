@@ -224,7 +224,7 @@ int CHECK_SKILL(struct char_data *ch, int i);
 
 #define NOGRAV_ZONE(zone) ((zone->plane >= PLANE_ELEM_WATER && \
 			     zone->plane <= PLANE_ELEM_NEG) || \
-			    zone->plane == PLANE_ASTRAL)
+			    zone->plane == PLANE_ASTRAL || zone->plane == PLANE_PELEM_MAGMA)
 
 /*  character utils ******************************************************/
 #define MOB_FLAGS(ch)  ((ch)->char_specials.saved.act)

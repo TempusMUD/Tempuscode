@@ -657,6 +657,7 @@ extern const char *planes[] =
   "Elemental Earth",
   "Elemental Positive",  
   "Elemental Negative",
+  "Paraelemental Magma",
   "\n"
 };
 
