@@ -1196,7 +1196,7 @@ char_to_room(Creature *ch, room_data *room, bool check_specials)
 
 /* give an object to a char   */
 void
-obj_to_char(struct obj_data *object, struct Creature *ch)
+obj_to_char(struct obj_data *object, struct Creature *ch, bool sorted)
 {
 	struct obj_data *o = NULL;
 	int found;
@@ -1206,39 +1206,48 @@ obj_to_char(struct obj_data *object, struct Creature *ch)
 		slog("SYSERR: NULL obj or char passed to obj_to_char");
 		return;
 	}
-	found = 0;
-	if (ch->carrying && ch->carrying->shared->vnum ==
-		object->shared->vnum &&
-		((object->shared->proto &&
-				object->name == ch->carrying->name)
-			|| !str_cmp(object->name,
-				ch->carrying->name))
-		&& GET_OBJ_EXTRA(ch->carrying) == GET_OBJ_EXTRA(object)
-		&& GET_OBJ_EXTRA2(ch->carrying) == GET_OBJ_EXTRA2(object)) {
-		object->next_content = ch->carrying;
+	if (!ch->carrying) {
 		ch->carrying = object;
-		found = 1;
-	}
-
-	for (o = ch->carrying; !found && o && o->next_content; o = o->next_content) {
-		if (o->next_content->shared->vnum ==
+		object->next_content = NULL;
+	} else if (sorted) {
+		found = 0;
+		if (ch->carrying && ch->carrying->shared->vnum ==
 			object->shared->vnum &&
-			((object->shared->proto &&
-					object->name ==
-					o->next_content->name)
-				|| !str_cmp(object->name,
-					o->next_content->name))
-			&& GET_OBJ_EXTRA(o->next_content) == GET_OBJ_EXTRA(object)
-			&& GET_OBJ_EXTRA2(o->next_content) == GET_OBJ_EXTRA2(object)) {
-			object->next_content = o->next_content;
-			o->next_content = object;
+			((object->shared->proto && object->name == ch->carrying->name)
+				|| !str_cmp(object->name, ch->carrying->name))
+			&& GET_OBJ_EXTRA(ch->carrying) == GET_OBJ_EXTRA(object)
+			&& GET_OBJ_EXTRA2(ch->carrying) == GET_OBJ_EXTRA2(object)) {
+			object->next_content = ch->carrying;
+			ch->carrying = object;
 			found = 1;
-			break;
 		}
-	}
-	if (!found) {
-		object->next_content = ch->carrying;
-		ch->carrying = object;
+
+		for (o = ch->carrying; !found && o && o->next_content; o = o->next_content) {
+			if (o->next_content->shared->vnum ==
+				object->shared->vnum &&
+				((object->shared->proto &&
+						object->name ==
+						o->next_content->name)
+					|| !str_cmp(object->name,
+						o->next_content->name))
+				&& GET_OBJ_EXTRA(o->next_content) == GET_OBJ_EXTRA(object)
+				&& GET_OBJ_EXTRA2(o->next_content) == GET_OBJ_EXTRA2(object)) {
+				object->next_content = o->next_content;
+				o->next_content = object;
+				found = 1;
+				break;
+			}
+		}
+		if (!found) {
+			object->next_content = ch->carrying;
+			ch->carrying = object;
+		}
+	} else {
+		// Unsorted gets put at the end
+		for (o = ch->carrying; o->next_content; o = o->next_content)
+			;
+		o->next_content = object;
+		object->next_content = NULL;
 	}
 	object->carried_by = ch;
 	object->in_room = NULL;
@@ -1662,7 +1671,7 @@ get_char_in_world_by_idnum(int nr)
 
 /* put an object in a room */
 void
-obj_to_room(struct obj_data *object, struct room_data *room)
+obj_to_room(struct obj_data *object, struct room_data *room, bool sorted)
 {
 	struct obj_data *o = NULL, *last_o = NULL;
 	int found;
@@ -1674,23 +1683,33 @@ obj_to_room(struct obj_data *object, struct room_data *room)
 		return;
 	}
 
-	found = 0;
-	for (o = room->contents; o; last_o = o, o = o->next_content) {
-
-		if (same_obj(o, object)) {
-			object->next_content = o;
-			if (last_o)
-				last_o->next_content = object;
-			else
-				room->contents = object;
-			found = 1;
-			break;
-		}
-	}
-	/* prettier if new objects go to top of  room */
-	if (!found) {
-		object->next_content = room->contents;
+	if (!room->contents) {
 		room->contents = object;
+		object->next_content = NULL;
+	} else if (sorted) {
+		found = 0;
+		for (o = room->contents; o; last_o = o, o = o->next_content) {
+
+			if (same_obj(o, object)) {
+				object->next_content = o;
+				if (last_o)
+					last_o->next_content = object;
+				else
+					room->contents = object;
+				found = 1;
+				break;
+			}
+		}
+		/* prettier if new objects go to top of  room */
+		if (!found) {
+			object->next_content = room->contents;
+			room->contents = object;
+		}
+	} else {
+		for (o = room->contents;o->next_content;o = o->next_content)
+			;
+		o->next_content = object;
+		object->next_content = NULL;
 	}
 	object->in_room = room;
 	object->carried_by = NULL;
@@ -1752,7 +1771,7 @@ obj_from_room(struct obj_data *object)
 
 /* put an object in an object (quaint)  */
 void
-obj_to_obj(struct obj_data *obj, struct obj_data *obj_to)
+obj_to_obj(struct obj_data *obj, struct obj_data *obj_to, bool sorted)
 {
 	struct obj_data *o = NULL;
 	struct Creature *vict = NULL;
@@ -1762,39 +1781,35 @@ obj_to_obj(struct obj_data *obj, struct obj_data *obj_to)
 		slog("SYSERR: NULL object or same src and targ obj passed to obj_to_obj");
 		return;
 	}
-	found = 0;
-	for (o = obj_to->contains; o && o->next_content; o = o->next_content) {
-		if (o->next_content->shared->vnum == obj->shared->vnum &&
-			obj->shared->vnum >= 0 &&
-			GET_OBJ_EXTRA(o->next_content) == GET_OBJ_EXTRA(obj) &&
-			GET_OBJ_EXTRA2(o->next_content) == GET_OBJ_EXTRA2(obj)) {
-			obj->next_content = o->next_content;
-			o->next_content = obj;
-
-			found = 1;
-			break;
-		}
-	}
-	if (!found) {
-		obj->next_content = obj_to->contains;
+	if (!obj_to->contains) {
 		obj_to->contains = obj;
+		obj->next_content = NULL;
+	} else if (sorted) {
+		found = 0;
+		for (o = obj_to->contains; o && o->next_content; o = o->next_content) {
+			if (o->next_content->shared->vnum == obj->shared->vnum &&
+				obj->shared->vnum >= 0 &&
+				GET_OBJ_EXTRA(o->next_content) == GET_OBJ_EXTRA(obj) &&
+				GET_OBJ_EXTRA2(o->next_content) == GET_OBJ_EXTRA2(obj)) {
+				obj->next_content = o->next_content;
+				o->next_content = obj;
+
+				found = 1;
+				break;
+			}
+		}
+		if (!found) {
+			obj->next_content = obj_to->contains;
+			obj_to->contains = obj;
+		}
+	} else {
+		for (o = obj_to->contains; o->next_content; o = o->next_content)
+			;
+		o->next_content = obj;
+		obj->next_content = NULL;
 	}
+
 	obj->in_obj = obj_to;
-
-	/* 
-	   obsolete
-
-	   for (tmp_obj = obj->in_obj; tmp_obj->in_obj; tmp_obj = tmp_obj->in_obj) {
-
-	   tmp_obj->modifyWeight( obj->getWeight() );
-
-	   // if the item is contained within an implant, increase character's weight
-	   // if applicable
-	   if (tmp_obj->worn_by && tmp_obj == 
-	   GET_IMPLANT(tmp_obj->worn_by, tmp_obj->worn_on))
-	   GET_WEIGHT(tmp_obj->worn_by) += obj->getWeight();
-	   }
-	 */
 
 	/* top level object.  Subtract weight from inventory if necessary. */
 	obj_to->modifyWeight(obj->getWeight());

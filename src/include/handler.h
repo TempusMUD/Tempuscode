@@ -46,9 +46,6 @@ int get_number(char **name);
 
 /* ******** objects *********** */
 
-void obj_to_char(struct obj_data *object, struct Creature *ch);
-void obj_from_char(struct obj_data *object);
-
 int equip_char(struct Creature *ch, struct obj_data *obj, int pos, int mode);
 struct obj_data *unequip_char(struct Creature *ch, int pos, int mode, bool disable_checks = false);
 int check_eq_align(struct Creature *ch);
@@ -58,9 +55,11 @@ struct obj_data *get_obj_in_list_num(int num, struct obj_data *list);
 struct obj_data *get_obj(char *name);
 struct obj_data *get_obj_num(int nr);
 
-void obj_to_room(struct obj_data *object, struct room_data *room);
+void obj_to_char(struct obj_data *object, struct Creature *ch, bool sorted = true);
+void obj_from_char(struct obj_data *object);
+void obj_to_room(struct obj_data *object, struct room_data *room, bool sorted = true);
 void obj_from_room(struct obj_data *object);
-void obj_to_obj(struct obj_data *obj, struct obj_data *obj_to);
+void obj_to_obj(struct obj_data *obj, struct obj_data *obj_to, bool sorted = true);
 void obj_from_obj(struct obj_data *obj);
 void object_list_new_owner(struct obj_data *list, struct Creature *ch);
 
