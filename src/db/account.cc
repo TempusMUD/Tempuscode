@@ -77,6 +77,8 @@ boot_accounts(void)
 			accountIndex.add(new_acct);
 			acct_count++;
 		}
+
+		closedir(dir);
 	}
 	if (accountIndex.size())
 		slog("... %d account%s loaded", accountIndex.size(), (accountIndex.size() == 1) ? "":"s");
@@ -162,6 +164,7 @@ Account::load_from_xml(xmlDocPtr doc, xmlNodePtr root)
 			str = xmlGetProp(node, "name");
 			_chars.push_back(num);
 			playerIndex.add(num, str, _id, false);
+			free(str);
 		} else if (!xmlMatches(node->name, "text")) {
 			slog("Can't happen at %s:%d", __FILE__, __LINE__);
 			return false;
