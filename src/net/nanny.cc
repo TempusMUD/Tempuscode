@@ -265,6 +265,8 @@ handle_input(struct descriptor_data *d, char *arg)
 			set_desc_state(CXN_OLDPW_PROMPT, d); break;
 		case 'v':
 			set_desc_state(CXN_VIEW_BG, d); break;
+        case 'i':
+			set_desc_state(CXN_IMPORT_NAME_PROMPT, d); break;
 		case '?':
 		case '\0':
 			send_menu(d);
@@ -692,10 +694,12 @@ handle_input(struct descriptor_data *d, char *arg)
 
         if(! oldPlayerIndex.exists(arg) ) {
             send_to_desc(d, "\r\nThat character does not exist.\r\n\r\n");
+            set_desc_state(CXN_WAIT_MENU, d);
 			return;
         }
 		if( playerIndex.exists(arg) ) {
 			send_to_desc(d, "\r\nThat character is already imported.\r\n\r\n");
+            set_desc_state(CXN_WAIT_MENU, d);
 			return;
 		}
 
@@ -723,11 +727,18 @@ handle_input(struct descriptor_data *d, char *arg)
         if( strcmp( GET_PASSWD(d->original), crypt(arg, GET_PASSWD(d->original)) ) ) {
             delete d->original;
             d->original = NULL;
-            send_to_desc(d, "\r\nInvalid password.\r\n\r\n");
+            send_to_desc(d, "\r\nIncorrect password.\r\n\r\n");
 			set_desc_state(CXN_WAIT_MENU, d);
             return;
         }
+
         import_old_character(d);
+        mudlog(LVL_GOD, NRM, true,
+                "%s[%d] has imported old character %s[%ld]",
+                d->account->get_name(), d->account->get_idnum(),
+                GET_NAME(d->creature), GET_IDNUM(d->creature) );
+        send_to_desc(d, "\r\nCharacter %s imported.\r\n\r\n", GET_NAME(d->creature) );
+        set_desc_state(CXN_WAIT_MENU, d);
         break;
 	}
 }
@@ -1160,10 +1171,10 @@ send_menu(descriptor_data *d)
 
 		send_to_desc(d, "\r\n             Past bank: %-12lld      Future Bank: %-12lld\r\n\r\n",
 			d->account->get_past_bank(), d->account->get_future_bank());
-
+        send_to_desc(d, "                            &b[&yI&b] &NImport an old character\r\n\r\n");
 		send_to_desc(d, "    &b[&yP&b] &cChange your account password     &b[&yV&b] &cView the background story\r\n");
 	    send_to_desc(d, "    &b[&yC&b] &cCreate a new character           &b[&yS&b] &cShow character details\r\n");
-		if (!d->account->invalid_char_index(1))
+        if (!d->account->invalid_char_index(1))
 			send_to_desc(d, "    &b[&yE&b] &cEdit a character's description   &b[&yD&b] &cDelete an existing character\r\n");
 		send_to_desc(d, "\r\n                            &b[&yL&b] &cLog out of the game&n\r\n");
 		break;
