@@ -1453,7 +1453,7 @@ ACCMD(do_drop)
 		obj = next_obj;
 	}
 
-	if (subcmd == SCMD_JUNK && amount) {
+	if (subcmd == SCMD_JUNK && amount && !IS_IMMORT(ch)) {
 		send_to_char(ch, "You have been rewarded by the gods!\r\n");
 		act("$n has been rewarded by the gods!", TRUE, ch, 0, 0, TO_ROOM);
 		GET_GOLD(ch) += amount;

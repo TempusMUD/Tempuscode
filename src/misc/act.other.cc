@@ -2164,7 +2164,7 @@ ACMD(do_clean)
 			pos == WEAR_FEET ? "are" : ISARE(wear_description[pos]), buf);
 		act(buf2, TRUE, ch, obj, vict, TO_NOTVICT);
 		if (ch != vict)
-			act(buf, TRUE, ch, obj, vict, TO_CHAR);
+			act(buf2, TRUE, ch, obj, vict, TO_CHAR);
 
 		CHAR_SOILAGE(vict, pos) = 0;
 		return;
