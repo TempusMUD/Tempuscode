@@ -177,6 +177,17 @@ angel_do_action(Creature *self, Creature *charge, angel_data *data)
     else if (!strcmp(cmd, "dismiss")) {
 		act("$n shrugs $s shoulders and disappears!", false,
 			self, 0, 0, TO_ROOM);
+
+        list<angel_data *>::iterator li = angels.begin();
+        for (; li != angels.end(); ++li) {
+            if (data->charge_id == (*li)->charge_id) {
+                // We have to do something after this because we're about to
+                // fux0r this iterator.  So, since we already know there can
+                // only be one matching entry, let's just end the loop.
+                angels.erase(li);
+                li = angels.end();
+            }
+        }
 		self->purge(true);
 		return 1;
 	}
@@ -302,7 +313,7 @@ SPECIAL(guardian_angel)
 	
 	charge = get_char_in_world_by_idnum(data->charge_id);
 	if (!charge && data->counter < 0) {
-		data->action = "dismissed";
+		data->action = "dismiss";
 	}
 
 	if (spec_mode == SPECIAL_TICK) {
