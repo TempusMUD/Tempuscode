@@ -2203,7 +2203,7 @@ perform_analyze( Creature *ch, obj_data *obj, bool checklev=true )
 
 	acc_sprintf("Intrinsic Properties: %s", CCCYN(ch, C_NRM));
     if( GET_OBJ_EXTRA(obj) == 0 && GET_OBJ_EXTRA2(obj) == 0 ) {
-        acc_strcat( "None", CCNRM(ch, C_NRM), NULL );
+        acc_strcat( "None", CCNRM(ch, C_NRM), "\r\n", NULL );
     } else {
         acc_strcat(tmp_printbits(GET_OBJ_EXTRA(obj), extra_bits),
 			" ",
@@ -3168,8 +3168,6 @@ ACMD(do_transmit)
 	int i;
 	char *arg1, *arg2;
 
-	skip_spaces(&argument);
-
 	arg1 = tmp_getword(&argument);
 	arg2 = tmp_getword(&argument);
 
@@ -3180,6 +3178,7 @@ ACMD(do_transmit)
 
 	if (!strncmp(arg1, "internal", 8)) {
 
+		arg1 = arg2;
 		arg2 = tmp_getword(&argument);
 
 		if (!*arg2) {
