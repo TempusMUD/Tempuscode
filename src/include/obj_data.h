@@ -261,6 +261,18 @@ static const int LIQ_CHOCOLATE_MILK = 37;
 static const int LIQ_JUICE = 38;
 static const int NUM_LIQUID_TYPES = 39;
 
+inline const char *
+liquid_to_str(int liquid)
+{
+	extern const char *drinks[];
+
+	if (liquid < 0 || liquid > NUM_LIQUID_TYPES) {
+		return tmp_sprintf("!ILLEGAL(%d)!", liquid);
+	}
+
+	return drinks[liquid];
+}
+
 
 /* object-related structures ******************************************/
 
