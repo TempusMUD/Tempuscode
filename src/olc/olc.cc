@@ -1111,7 +1111,10 @@ ACMD(do_olc)
 					send_to_char("No allocatable rooms found in zone.\r\n",ch);
 			}
 	    } else if (is_abbrev(arg1, "zone")) {
-		if (GET_LEVEL(ch) < LVL_ENTITY) {
+		if ((GET_LEVEL(ch) < LVL_ENTITY) && 
+        !(GET_LEVEL(ch) >= LVL_CREATOR && OLCGOD(ch))) {
+            // not an ancient+ and
+            // not a creator+ with olc god
 		    send_to_char("You cannot create zones.\r\n", ch);
 		    return;
 		}
