@@ -3601,6 +3601,9 @@ mag_objects(int level, struct Creature *ch, struct obj_data *obj,
 			send_to_char(ch, "Your deity fills it with crytal clear water.\r\n");
 			GET_OBJ_VAL(obj, 1) = GET_OBJ_VAL(obj, 0);
 			GET_OBJ_VAL(obj, 2) = LIQ_CLEARWATER;
+            int weight = real_object_proto(GET_OBJ_VNUM(obj))->getWeight();
+            weight += GET_OBJ_VAL(obj, 1) / 10;
+            obj->obj_flags.setWeight(weight);
 			break;
 		}
 		break;

@@ -1917,7 +1917,7 @@ ACMD(do_plant)
 void
 weight_change_object(struct obj_data *obj, int weight)
 {
-	struct obj_data *tmp_obj;
+/*	struct obj_data *tmp_obj;
 	struct Creature *tmp_ch;
 
 	if (obj->in_room != NULL) {
@@ -1938,7 +1938,7 @@ weight_change_object(struct obj_data *obj, int weight)
 
 	else {
 		errlog("Unknown attempt to subtract weight from an object.");
-	}
+	}*/
 }
 
 
@@ -2066,14 +2066,11 @@ ACMD(do_drink)
 		amount = 1;
 	}
 
-	if (GET_OBJ_VAL(temp, 1) != -1)
-		amount = MIN(amount, GET_OBJ_VAL(temp, 1));
-
-	/* You can't subtract more than the object weighs */
-	weight = MIN(amount, temp->getWeight());
-
-	if (GET_OBJ_VAL(temp, 1) != -1)
-		weight_change_object(temp, -weight);	/* Subtract amount */
+	if (GET_OBJ_VAL(temp, 1) != -1) {
+        weight = real_object_proto(GET_OBJ_VNUM(temp))->getWeight();
+        weight += GET_OBJ_VAL(temp, 1) / 10;
+        temp->obj_flags.setWeight(weight);
+    }
 
 	drunk = (int)drink_aff[GET_OBJ_VAL(temp, 2)][DRUNK] * amount;
 	drunk /= 4;
@@ -2318,7 +2315,7 @@ ACMD(do_pour)
 	char arg2[MAX_INPUT_LENGTH];
 	struct obj_data *from_obj = NULL;
 	struct obj_data *to_obj = NULL;
-	int amount;
+	int amount, weight;
 
 	two_arguments(argument, arg1, arg2);
 
@@ -2390,10 +2387,14 @@ ACMD(do_pour)
 			act("$n empties $p.", TRUE, ch, from_obj, 0, TO_ROOM);
 			act("You empty $p.", FALSE, ch, from_obj, 0, TO_CHAR);
 
-			weight_change_object(from_obj, -(GET_OBJ_VAL(from_obj, 1)/8));	/* Empty */
+            // Set the weight of the from obj to wehatever the weight of the
+            // prototype is to avoid errors.
 			GET_OBJ_VAL(from_obj, 1) = 0;
 			GET_OBJ_VAL(from_obj, 2) = 0;
 			GET_OBJ_VAL(from_obj, 3) = 0;
+            weight = real_object_proto(GET_OBJ_VNUM(from_obj))->getWeight();
+            weight += GET_OBJ_VAL(from_obj, 1) / 10;
+            from_obj->obj_flags.setWeight(weight);
 
 			name_from_drinkcon(from_obj);
 
@@ -2466,8 +2467,13 @@ ACMD(do_pour)
 		(GET_OBJ_VAL(to_obj, 3) || GET_OBJ_VAL(from_obj, 3));
 
 	/* And the weight boogie */
-	weight_change_object(from_obj, -(amount/8));
-	weight_change_object(to_obj, (amount/8));	/* Add weight */
+    weight = real_object_proto(GET_OBJ_VNUM(from_obj))->getWeight();
+    weight += GET_OBJ_VAL(from_obj, 1) / 10;
+    from_obj->obj_flags.setWeight(weight);
+
+    weight = real_object_proto(GET_OBJ_VNUM(to_obj))->getWeight();
+    weight += GET_OBJ_VAL(to_obj, 1) / 10;
+    to_obj->obj_flags.setWeight(weight);
 
 	return;
 }
