@@ -889,7 +889,7 @@ point_update(void)
 		} else if (GET_OBJ_VNUM(j) == QUANTUM_RIFT_VNUM) {
 			GET_OBJ_TIMER(j)--;
 			if (GET_OBJ_TIMER(j) <= 0) {
-				if (j->action_description) {
+				if (j->action_description && j->in_room) {
 					act("$p collapses in on itself.",
 						TRUE, j->in_room->people, j, 0, TO_CHAR);
 					act("$p collapses in on itself.",
