@@ -275,7 +275,7 @@ Board_write_message(int board_type, struct char_data * ch, struct obj_data *obj,
     delete_doubledollar(arg);
 
     /* Truncate to 80 characters. */
-    arg[81] = '0';
+    arg[81] = '\0';
 
     if (!*arg) {
 	send_to_char("We must have a headline!\r\n", ch);

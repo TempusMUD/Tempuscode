@@ -2086,6 +2086,8 @@ ACMD(do_shoot)
                 //
 
                 if ( number(0, 121) > prob ) {
+                    check_toughguy(ch, vict, 0);
+                    check_killer(ch, vict);
                     my_return_flags = damage(ch, vict , 0, SKILL_ENERGY_WEAPONS, number(0, NUM_WEARS-1) );
                 } 
 
@@ -2094,6 +2096,8 @@ ACMD(do_shoot)
                 //
 
                 else {
+                    check_toughguy(ch, vict, 0);
+                    check_killer(ch, vict);
                     my_return_flags = damage(ch, vict,dam,SKILL_ENERGY_WEAPONS, number(0, NUM_WEARS-1) );
                 } 
             }

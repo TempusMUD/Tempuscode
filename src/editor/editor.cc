@@ -679,7 +679,7 @@ bool CTextEditor::ProcessCommand(char *inStr) {
                 return false;
             }
             line = atoi(command);
-            if(line < 0) {
+            if(line < 1) {
                 SendMessage("Format for Replace Line is: &l <line #> <text>\r\n");
                 return false;
             }
@@ -688,12 +688,12 @@ bool CTextEditor::ProcessCommand(char *inStr) {
         case 'i':   // Insert Line
             inStr = one_argument(inStr,command);
             if(!isdigit(*command)) {
-                SendMessage("Format for insert command is: &insert <line #> <text>\r\n");
+                SendMessage("Format for insert command is: &i <line #> <text>\r\n");
                 return false;
             }
             line = atoi(command);
-            if(line < 0) {
-                SendMessage("Format for insert command is: &insert <line #><text>\r\n");
+            if(line < 1) {
+                SendMessage("Format for insert command is: &i <line #><text>\r\n");
                 return false;
             }
             return Insert((unsigned int)line,inStr);
@@ -714,7 +714,7 @@ bool CTextEditor::ProcessCommand(char *inStr) {
                 return false;
             }
             line = atoi(command);
-            if(line < 0) {
+            if(line < 1) {
                 SendMessage("Format for delete command is: &d <line #>\r\n");
                 return false;
             }
@@ -727,7 +727,7 @@ bool CTextEditor::ProcessCommand(char *inStr) {
                 return true;
             }
             line = atoi(command);
-            if(line < 0) {
+            if(line < 1) {
                 SendMessage("Format for refresh command is: &r <starting line #>\r\n");
                 return false;
             }
