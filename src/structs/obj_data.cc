@@ -228,11 +228,11 @@ obj_data::loadFromXML(obj_data *container, Creature *victim, room_data* room, xm
 				} else if( strcmp(type,"implanted") == 0 ) {
 					equip_char( victim, this, position, MODE_IMPLANT );
 				} else if (container) {
-					obj_to_obj(this, container);
+					obj_to_obj(this, container, false);
 				} else if (victim) {
-					obj_to_char(this, victim);
+					obj_to_char(this, victim, false);
 				} else if (room) {
-					obj_to_room(this, room);
+					obj_to_room(this, room, false);
 				} else {
 					slog("SYSERR: Don't know where to put object!");
 					return false;
@@ -282,11 +282,11 @@ obj_data::loadFromXML(obj_data *container, Creature *victim, room_data* room, xm
 	}
 	if (!placed) {
 		if(victim) {
-			obj_to_char(this, victim);
+			obj_to_char(this, victim, false);
 		} else if(container) {
-			obj_to_obj(this, container);
+			obj_to_obj(this, container, false);
 		} else if( room != NULL ) {
-			obj_to_room(this, room);
+			obj_to_room(this, room, false);
 		}
 	}
 	return true;
