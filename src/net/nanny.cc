@@ -1501,7 +1501,7 @@ show_account_chars(descriptor_data *d, Account *acct, bool immort, bool brief)
 {
 	const char *class_str, *status_str, *mail_str;
 	char *sex_color = "";
-	char *sex_str;
+	char *sex_str, *name_str;
 	Creature *tmp_ch, *real_ch;
 	char laston_str[40];
 	int idx;
@@ -1548,6 +1548,8 @@ show_account_chars(descriptor_data *d, Account *acct, bool immort, bool brief)
 		sex_str = tmp_sprintf("%s%c&n",
 				sex_color, toupper(genders[(int)GET_SEX(tmp_ch)][0]) );
 				
+		name_str = tmp_strdup(GET_NAME(tmp_ch));
+		name_str[(brief) ? 8:13] = '\0';
 
 		// Construct compact menu entry for each character
 		if (IS_REMORT(tmp_ch)) {
@@ -1611,37 +1613,46 @@ show_account_chars(descriptor_data *d, Account *acct, bool immort, bool brief)
 		if (immort) {
 			send_to_desc(d,
 				"&y%5ld &n%-13s %s&n %s\r\n",
-				GET_IDNUM(tmp_ch), GET_NAME(tmp_ch), status_str, laston_str);
+				GET_IDNUM(tmp_ch), name_str, status_str, laston_str);
 		} else if (tmp_ch->player_specials->rentcode == RENT_CREATING) {
 			if (brief)
 				send_to_desc(d,
-					"&b[&y%2d&b] &n%-8s     &yNever  Creating&n  --  ",
-					idx, GET_NAME(tmp_ch));
+					"&b[&y%2d&b] &n%-8s     &yNever  Creating&n  -- ",
+					idx, name_str);
 			else
 				send_to_desc(d,
 					"&b[&y%2d&b] &n%-13s   &y-   -  -         -         -         Never  Creating&n  --\r\n",
-					idx, GET_NAME(tmp_ch));
+					idx, name_str);
 		} else {
 			if (brief)
 				send_to_desc(d,
-					"&b[&y%2d&b] &n%-8s %10s %s %s&n ",
-					idx, GET_NAME(tmp_ch),
+					"&b[&y%2d&b] &n%-8s %10s %s %s&n",
+					idx, name_str,
 					laston_str, status_str, mail_str);
 			else
 				send_to_desc(d,
 					"&b[&y%2d&b] &n%-13s %3d %3d  %s  %8s %s %13s %s %s&n\r\n",
-					idx, GET_NAME(tmp_ch),
+					idx, name_str,
 					GET_LEVEL(tmp_ch), GET_REMORT_GEN(tmp_ch),
 					sex_str,
 					player_race[(int)GET_RACE(tmp_ch)],
 					class_str, laston_str, status_str, mail_str);
 		}
 		idx++;
-		if (brief && (idx & 1))
-			send_to_desc(d, "\r\n");
+		if (brief) {
+			if (idx & 1)
+				send_to_desc(d, "\r\n");
+			else
+				send_to_desc(d, " ");
+		}
+
 	}
-	if (brief && (idx & 1))
-		send_to_desc(d, "\r\n");
+	if (brief) {
+		if (idx & 1)
+			send_to_desc(d, "\r\n");
+		else
+			send_to_desc(d, " ");
+	}
 	delete tmp_ch;
 }
 
