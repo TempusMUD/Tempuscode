@@ -6,7 +6,7 @@
 #include <algorithm>
 using namespace std;
 
-
+struct Creature;
 
 /**
  * A class representing the "name" half of a player table entry.
@@ -117,7 +117,7 @@ class PlayerTable
         /** returns the char's name or NULL if not found. **/
         const char *getName( long id );
         /** returns chars id or 0 if not found **/
-        long getID( const char *name );
+        long getID( const char *name ) const;
 
         /** returns chars id or 0 if not found **/
         long operator[](const char *name){ return getID(name); }
@@ -135,6 +135,9 @@ class PlayerTable
         void sort();
         /** Retrieves the largest player id in the table **/
         int getTopIDNum();
+		
+		/** loads the named victim into the provided Creature **/
+		bool loadPlayer( const char* name, Creature *victim ) const;
 };
 
 

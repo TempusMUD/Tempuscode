@@ -51,6 +51,7 @@ using namespace std;
 #include "tmpstr.h"
 #include "interpreter.h"
 #include "utils.h"
+#include "player_table.h"
 
 
 /*   external vars  */
@@ -2010,9 +2011,11 @@ ACMD(do_stat)
 			CREATE(victim, struct Creature, 1);
 			clear_char(victim);
 			if( mini_mud ) {
-				int id = get_id_by_name(buf2);
-				victim->loadFromXML(id);
-				do_stat_character(ch, victim);
+				if( playerIndex.loadPlayer(buf2, victim) ) {
+					do_stat_character(ch, victim);
+				} else {
+					send_to_char(ch, "Error loading character '%s'\r\n",buf2);
+				}
 			} else if (load_char(buf2, &tmp_store) > -1) {
 				store_to_char(&tmp_store, victim);
 				if (GET_LEVEL(victim) > GET_LEVEL(ch) && GET_IDNUM(ch) != 1) {
@@ -7393,6 +7396,7 @@ static const char *tester_cmds[] = {
   "\n"
 };
 
+void export_player_table();
 
 ACMD(do_tester)
 {
@@ -7402,12 +7406,19 @@ ACMD(do_tester)
 	byte tcmd;
 	int i;
 
+	two_arguments(argument, arg1, arg2);
+
+	if( strcmp( arg1, "export" )  == 0 ) {
+		if(ch->getLevel() < 72 ){
+			send_to_char(ch, "No.\r\n");
+		}
+		export_player_table();
+	}
+
 	if( ! ch->isTester() || GET_LEVEL(ch) >= LVL_AMBASSADOR ) {
 		send_to_char(ch, "You are not a tester.\r\n");
 		return;
 	}
-
-	two_arguments(argument, arg1, arg2);
 
 	if (!*arg1) {
 		send_to_char(ch, "Test what?\r\n");

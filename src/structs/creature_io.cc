@@ -189,6 +189,10 @@ bool
 Creature::loadFromXML( long id )
 {
     char *path = getPlayerfilePath( id );
+	if( access(path, W_OK) ) {
+		slog("SYSERR: Unable to open xml player file '%s': %s", path, strerror(errno) );
+		return false;
+	}
     xmlDocPtr doc = xmlParseFile(path);
     if (!doc) {
         slog("SYSERR: XML parse error while loading %s", path);

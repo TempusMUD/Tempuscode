@@ -560,7 +560,6 @@ build_player_table()
 				if( s ) *s = '\0';
 
 				long id = atol( idnum );
-				printf( "Adding %s[%ld] to player table.\n", name, id );
 				playerIndex.add( id, name, false );
 			}
 		}
@@ -3088,6 +3087,22 @@ get_name_by_id(long id)
 			return ((player_table + i)->name);
 
 	return NULL;
+}
+
+void
+export_player_table() 
+{
+	char_file_u file_e;
+	Creature *vict;
+	CREATE(vict, Creature, 1);
+	clear_char(vict);
+
+	for( int i = 0; i <= top_of_p_table; i++ ) {
+		load_char( player_table[i].name, &file_e );
+		store_to_char( &file_e, vict );
+		vict->saveToXML();
+		clear_char(vict);
+	}
 }
 
 // Load a char, pfile index if loaded, -1 if not

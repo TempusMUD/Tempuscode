@@ -17,6 +17,17 @@ int PlayerTable::getTopIDNum() {
     return top_id;
 }
 
+/** loads the named victim into the provided Creature **/
+bool PlayerTable::loadPlayer( const char* name, Creature *victim ) const 
+{
+	long id = getID( name );
+	if( id <= 0 ) {
+		return false;
+	}
+	return victim->loadFromXML( id );
+}
+
+
 /**
  * Returns true if and only if the given id is present in the player table.
 **/
@@ -50,9 +61,9 @@ const char *PlayerTable::getName( long id )
  * returns chars id or 0 if not found
  *
 **/
-long PlayerTable::getID( const char *name ) 
+long PlayerTable::getID( const char *name ) const 
 {
-    NameTable::iterator it;
+    NameTable::const_iterator it;
     it = lower_bound( nameTable.begin(), nameTable.end(), name );
     if( it != nameTable.end() && (*it) == name ) {
         return (*it).second;
