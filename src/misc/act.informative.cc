@@ -3537,12 +3537,6 @@ ACMD(do_gen_ps)
         else
             page_string(ch->desc, immlist, 0);
         break;
-    case SCMD_HANDBOOK:
-        page_string(ch->desc, handbook, 0);
-        break;
-    case SCMD_POLICIES:
-        page_string(ch->desc, policies, 0);
-        break;
     case SCMD_MOTD:
         if (clr(ch, C_NRM))
             page_string(ch->desc, ansi_motd, 0);

@@ -129,18 +129,16 @@ struct set_struct {
 
 /* do_gen_ps */
 #define SCMD_INFO       0
-#define SCMD_HANDBOOK   1 
-#define SCMD_CREDITS    2
-#define SCMD_NEWS       3
-#define SCMD_WIZLIST    4
-#define SCMD_POLICIES   5
-#define SCMD_VERSION    6
-#define SCMD_IMMLIST    7
-#define SCMD_MOTD	8
-#define SCMD_IMOTD	9
-#define SCMD_CLEAR	10
-#define SCMD_WHOAMI	11
-#define SCMD_AREAS	12
+#define SCMD_CREDITS    1
+#define SCMD_NEWS       2
+#define SCMD_WIZLIST    3
+#define SCMD_VERSION    4
+#define SCMD_IMMLIST    5
+#define SCMD_MOTD	6
+#define SCMD_IMOTD	7
+#define SCMD_CLEAR	8
+#define SCMD_WHOAMI	9
+#define SCMD_AREAS	10
 
 /* do_gen_tog */
 #define SCMD_NOSUMMON   0
@@ -303,6 +301,8 @@ struct set_struct {
 #define SCMD_MODRIAN    1
 #define SCMD_SKILLS     2
 #define SCMD_CITIES     3
+#define SCMD_HANDBOOK   4
+#define SCMD_POLICIES   5
 
 /* do_send_color  */
 #define SCMD_KRED	1
