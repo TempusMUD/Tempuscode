@@ -5908,7 +5908,7 @@ ACMD(do_olist)
 		    CCGRN(ch, C_NRM), CCNRM(ch, C_NRM), obj->shared->vnum,
 		    CCGRN(ch, C_NRM), CCGRN(ch, C_NRM),
 		    obj->short_description, CCNRM(ch, C_NRM),
-		    !P_OBJ_APPROVED(obj) ? "(!aprpvd)" : "");
+		    !P_OBJ_APPROVED(obj) ? "(!aprvd)" : "");
 	    if ((strlen(out_list) + strlen(buf)) < MAX_STRING_LENGTH - 20)
 		strcat(out_list, buf);
 	    else if (strlen(out_list) < (MAX_STRING_LENGTH - 20)) {
