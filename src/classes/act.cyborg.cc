@@ -1808,11 +1808,13 @@ ACMD(do_repair)
 		if (IS_NPC(ch)) {
 			dam = 2 * GET_LEVEL(ch);
 		} else {
-			dam = (GET_LEVEL(ch) >> 1) + 
+			dam = (GET_LEVEL(ch)) + 
 				((CHECK_SKILL(ch, SKILL_SELFREPAIR) + TOOL_MOD(tool)) >> 2) +
 				number(0, GET_LEVEL(ch));
 			if(GET_CLASS(ch) == CLASS_CYBORG)
 				dam += dice(GET_REMORT_GEN(ch),10);
+			else
+				dam += dice(GET_REMORT_GEN(ch),5);
 		}
 		dam = MIN(GET_MAX_HIT(ch) - GET_HIT(ch), dam);
 		cost = dam >> 1;
