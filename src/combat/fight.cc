@@ -2321,13 +2321,14 @@ void perform_violence( void ) {
 	die_roll = number( 0, 300);
 
 	if ( PRF2_FLAGGED( ch, PRF2_FIGHT_DEBUG ) ) {
-	    sprintf( buf, "Attack speed: %d. Die roll: %d.\r\n", prob,die_roll );
+	    sprintf( buf, "Attack speed: %d. Die roll: %d. Wait State %d.\r\n", prob,die_roll,
+                     IS_NPC(ch) ? GET_MOB_WAIT(ch) : (CHECK_WAIT(ch) ? ch->desc->wait : 0 ));
 	    send_to_char( buf, ch );
 	}
 	if ( PRF2_FLAGGED( FIGHTING( ch ), PRF2_FIGHT_DEBUG ) ) {
 	    sprintf( buf, "Enemy: Attack speed: %d. Die roll %d. Wait State: %d.\r\n", 
                      prob,die_roll, 
-                     IS_NPC(FIGHTING(ch)) ? GET_MOB_WAIT(FIGHTING(ch)) : CHECK_WAIT(FIGHTING(ch)));
+                     IS_NPC(ch) ? GET_MOB_WAIT(ch) : (CHECK_WAIT(ch) ? ch->desc->wait : 0 ));
 	    send_to_char( buf, FIGHTING( ch ) );
 	}
 
