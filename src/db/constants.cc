@@ -2475,7 +2475,7 @@ extern const char *spell_wear_off_msg[] = {
     "Time speeds back up to normal.",
     "Time seems to slow down as your movements return to normal.", 
     "!UNUSED!",	/* 335 */
-	"!UNUSED!",
+	"Your albedo shield flickers and dissipates.",
 	"!UNUSED!",
 	"Your radioimmunity has worn off.",
 	"!UNUSED!",

@@ -118,7 +118,7 @@
   incomplete
 
   #define SPELL_ALBEDO_SHIELD        336  // reflects e/m attacks
-  incomplete
+  complete
 
   #define SPELL_THERMOSTATIC_FIELD   337  // sets prot_heat + end_cold
 

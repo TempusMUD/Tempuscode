@@ -309,7 +309,7 @@ const char *spells[] = {
     "temporal compression",     /* 333 */
     "temporal dilation", 
     "!UNUSED!",	/* 335 */
-	"!UNUSED!",
+	"albedo shield",
 	"!UNUSED!",
 	"radioimmunity",
 	"!UNUSED!",
@@ -3401,6 +3401,10 @@ mag_assign_spells(void)
 
 	spello(SPELL_VACUUM_SHROUD, X, X, X, X, X, X, 31, X, X, X, X, X, X, X, X,
 		X, X, 60, 40, 1, POS_SITTING, TAR_CHAR_ROOM, FALSE,
+		MAG_PHYSICS | MAG_AFFECTS);
+
+	spello(SPELL_ALBEDO_SHIELD, X, X, X, X, X, X, 34, X, X, X, X, X, X, X, X,
+		X, X, 90, 50, 1, POS_SITTING, TAR_CHAR_ROOM, FALSE,
 		MAG_PHYSICS | MAG_AFFECTS);
 
 	spello(SPELL_TRANSMITTANCE, X, X, X, X, X, X, 14, X, X, X, X, X, X, X, X,

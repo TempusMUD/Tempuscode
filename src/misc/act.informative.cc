@@ -645,6 +645,10 @@ desc_char_trailers(Creature *ch, Creature *i)
     if (affected_by_spell(i, SPELL_VACUUM_SHROUD))
         desc = tmp_strcat(desc, "...", HSSH(i), " is existing in a total ",
                           "vacuum.\r\n", NULL);
+    if (affected_by_spell(i, SPELL_ALBEDO_SHIELD)) {
+        desc = tmp_strcat(desc, "...", HSHR(i), " body is surrounded by a ",
+                          "reflective shield.\r\n", NULL);
+    }
 	return desc;
 }
 

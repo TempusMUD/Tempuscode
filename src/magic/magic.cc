@@ -1811,6 +1811,7 @@ mag_affects(int level, struct Creature *ch, struct Creature *victim,
 		to_vict = "You feel your energy capacity rise.";
 		accum_duration = 1;
 		break;
+        
 	case SPELL_VACUUM_SHROUD:
         af.type = SPELL_VACUUM_SHROUD;
 		af.bitvector = AFF3_NOBREATHE;
@@ -1825,6 +1826,15 @@ mag_affects(int level, struct Creature *ch, struct Creature *victim,
 		to_vict = "A total vacuum springs into existance around your body.";
         accum_affect = TRUE;
 		break;
+
+	case SPELL_ALBEDO_SHIELD:
+        af.type = SPELL_ALBEDO_SHIELD;
+        af.bitvector = AFF3_EMP_SHIELD;
+        af.aff_index = 3;
+		af.duration = level;
+		to_vict = "You feel protected from electromagnetic attacks.";
+		break;
+
 	case SPELL_CHEMICAL_STABILITY:
 		af.duration = (level >> 2);
 		to_room = "$n begins looking more chemically inert.";
