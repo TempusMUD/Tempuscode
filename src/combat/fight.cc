@@ -1218,6 +1218,12 @@ damage(struct Creature *ch, struct Creature *victim, int dam,
 						SPELL_BLADE_BARRIER, -1);
 
 				}
+
+                else if (affected_by_spell(victim, SONG_WOUNDING_WHISPERS)) {
+					retval = damage_attacker(victim, ch,
+						(victim->getLevelBonus(SONG_WOUNDING_WHISPERS) / 2) + (dam / 20),
+						SONG_WOUNDING_WHISPERS, -1);
+                }
 				//
 				// vict has fire shield
 				//

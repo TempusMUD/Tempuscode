@@ -1344,9 +1344,9 @@ call_magic(struct Creature *caster, struct Creature *cvict,
         case SONG_LAMENT_OF_LONGING:
             MANUAL_SPELL(song_lament_of_longing); break;
         case SONG_UNRAVELLING_DIAPASON:
-            MANUAL_SPELL(spell_dispel_magic);
+            MANUAL_SPELL(spell_dispel_magic); break;
         case SONG_INSTANT_AUDIENCE:
-            MANUAL_SPELL(song_instant_audience);
+            MANUAL_SPELL(song_instant_audience); break;
 		}
 
 	knock_door = NULL;
@@ -3801,6 +3801,9 @@ mag_assign_spells(void)
 
 	spello(SONG_INSTANT_AUDIENCE, X, X, X, X, X, X, X, X, X, X, 26, X, X, X, X, X,
 		X, 190, 100, 5, POS_STANDING, TAR_IGNORE, FALSE, MAG_BARD | MAG_MANUAL);
+
+	spello(SONG_WOUNDING_WHISPERS, X, X, X, X, X, X, X, X, X, X, 36, X, X, X, X, X,
+		X, 120, 60, 3, POS_STANDING, TAR_CHAR_ROOM, FALSE, MAG_BARD | MAG_AFFECTS);
 
 	spello(SKILL_TUMBLING, X, X, X, X, X, X, X, X, X, X, 30, X, X, X, X, X, X,
 		0, 0, 0, 0, 0, 0, 0);

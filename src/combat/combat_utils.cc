@@ -929,7 +929,14 @@ make_corpse(struct Creature *ch, struct Creature *killer, int attacktype)
 		corpse->line_desc = str_dup(buf2);
 		strcpy(adj, "chopped up");
 		break;
-
+        
+	case SONG_WOUNDING_WHISPERS:
+		sprintf(buf2, "The perforated %s of %s %s lying here.",
+			typebuf, GET_NAME(ch), isare);
+		corpse->line_desc = str_dup(buf2);
+		strcpy(adj, "perforated");
+		break;
+        
 	case SKILL_HAMSTRING:
 		sprintf(buf2, "The legless %s of %s %s lying here.",
 			typebuf, GET_NAME(ch), isare);

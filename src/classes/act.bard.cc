@@ -243,7 +243,7 @@ struct bard_song songs[] = {
       ITEM_STRING
     },
     { "Wounding Whispers", // 386
-      "",
+      "So soft, so close, so sharp and so free,\nThe Whispers of Wounding, they gather 'round me",
       false,
       ITEM_PERCUSSION
     },

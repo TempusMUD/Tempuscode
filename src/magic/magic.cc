@@ -2594,6 +2594,17 @@ Fireball: like harder bones, skin, organ membranecs
         to_vict = "Your strength seems to grow as the song swells.";
         break;
 
+    case SONG_WOUNDING_WHISPERS:
+        if (ch != victim) {
+            send_to_char(ch, "Nothing seems to happen.\r\n");
+            send_to_char(victim, "Nothing seems to happen.\r\n");
+            return;
+        }
+        aff_array[0].duration = 5 + ch->getLevelBonus(SONG_WOUNDING_WHISPERS) >> 2;
+        to_vict = "Whispers of your song begin whirling around you!";
+        to_room = "Whispers of $n's song begin whirling around $m!";
+        break;
+
     case SONG_RHYTHM_OF_RAGE: {
         if (ch != victim) {
             send_to_char(ch, "Your tune fails to enrage %s.\r\n", GET_NAME(victim));

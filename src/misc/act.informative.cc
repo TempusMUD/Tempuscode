@@ -640,6 +640,9 @@ desc_char_trailers(Creature *ch, Creature *i)
     if (affected_by_spell(i, SPELL_THORN_SKIN))
         acc_strcat("...thorns protrude painfully from ",
                           HSHR(i), " skin.\r\n", NULL);
+    if (affected_by_spell(i, SONG_WOUNDING_WHISPERS))
+        acc_strcat("...", HSSH(i), 
+                   " is surrounded by whirling slivers of sound.\r\n", NULL);
 	return acc_get_string();
 }
 
@@ -2507,7 +2510,8 @@ acc_append_affects(struct Creature *ch, byte mode)
 		acc_strcat("Your implants are undergoing nanite reconstruction\r\n", NULL);
 	if (IS_AFFECTED_2(ch, AFF2_PROT_RAD))
 		acc_strcat("You are immune to the effects of radiation.\r\n", NULL);
-
+	if (affected_by_spell(ch, SONG_WOUNDING_WHISPERS))
+		acc_strcat("You are surrounded by whirling slivers of sound.\r\n", NULL);
 	// vampiric regeneration
 
 	if ((af = affected_by_spell(ch, SPELL_VAMPIRIC_REGENERATION))) {

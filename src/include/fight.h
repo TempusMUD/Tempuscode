@@ -56,7 +56,7 @@
  location != WEAR_WIELD && location != WEAR_WIELD_2 && \
  location != WEAR_ASS)
 
-#define IS_DEFENSE_ATTACK(attacktype)   (attacktype == SPELL_FIRE_SHIELD || attacktype == SPELL_BLADE_BARRIER  || attacktype == SPELL_PRISMATIC_SPHERE || attacktype == SKILL_ENERGY_FIELD)
+#define IS_DEFENSE_ATTACK(attacktype)   (attacktype == SPELL_FIRE_SHIELD || attacktype == SPELL_BLADE_BARRIER  || attacktype == SPELL_PRISMATIC_SPHERE || attacktype == SKILL_ENERGY_FIELD || attacktype == SPELL_THORN_SKIN || attacktype == SONG_WOUNDING_WHISPERS)
 
 static inline bool
 CANNOT_DAMAGE(Creature *ch, Creature *vict, obj_data *weap, int attacktype) {
