@@ -362,7 +362,9 @@ general_search( struct char_data *ch, struct special_search_data *srch,int mode 
 	if ( targ_room ) {
 
 	    if ( srch->to_remote && ch->in_room != targ_room && targ_room->people ) {
-		act( srch->to_remote, FALSE, targ_room->people, obj, ch, TO_NOTVICT );
+		act( srch->to_remote, FALSE, targ_room->people, obj, mob, TO_ROOM );
+		act( srch->to_remote, FALSE, targ_room->people, obj, mob, TO_CHAR );
+		//act( srch->to_remote, FALSE, targ_room->people, obj, ch, TO_NOTVICT );
 	    }
 
 	    for ( mob = targ_room->people; mob; mob = next_mob ) {
