@@ -3868,7 +3868,7 @@ perform_immort_where(struct Creature *ch, char *arg, bool show_morts)
     house_only = no_house = no_mob = no_object = false;
 
 	arg1[0] = '\0';
-	if (!arguments.hasNext()) {
+	if (!arguments.hasNext() || !show_morts) {
 		strcpy(main_buf, "Players\r\n-------\r\n");
 		for (d = descriptor_list; d; d = d->next) {
 			if (STATE(d) == CXN_PLAYING) {
