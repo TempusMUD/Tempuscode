@@ -675,7 +675,7 @@ Creature::loadFromXML( const char *path )
 			GET_QUEST(this) = xmlGetIntProp(node, "current");
 			GET_QUEST_POINTS(this) = xmlGetIntProp(node, "points");
 			GET_QUEST_ALLOWANCE(this) = xmlGetIntProp(node, "allowance");
-        } else if ( xmlMatches(node->name, "account") ) {
+        } else if ( xmlMatches(node->name, "bits") ) {
 			char* flag = xmlGetProp( node, "flag1" );
 			char_specials.saved.act = hex2dec(flag);
 			free(flag);
@@ -683,11 +683,6 @@ Creature::loadFromXML( const char *path )
 			flag = xmlGetProp( node, "flag2" );
 			player_specials->saved.plr2_bits = hex2dec(flag);
 			free(flag);
-
-			char *pw = xmlGetProp( node, "password" );
-			strncpy( GET_PASSWD( this ), pw, MAX_PWD_LENGTH );
-			GET_PASSWD(this)[MAX_PWD_LENGTH] = '\0';
-			player_specials->saved.bad_pws = xmlGetIntProp( node, "bad_pws" );
         } else if (xmlMatches(node->name, "frozen")) {
             this->player_specials->thaw_time = xmlGetIntProp(node, "thaw_time");
             this->player_specials->freezer_id = xmlGetIntProp(node, "freezer_id");
