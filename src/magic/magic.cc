@@ -748,7 +748,8 @@ mag_damage(int level, struct Creature *ch, struct Creature *victim,
 
 		/* psionic attacks */
 	case SPELL_PSYCHIC_SURGE:
-		dam = dice(3, 7) + (level << 2);
+		if (!affected_by_spell(victim, SPELL_PSYCHIC_SURGE))
+			dam = dice(3, 7) + (level << 2);
 		break;
 
 	case SPELL_EGO_WHIP:
@@ -842,15 +843,23 @@ mag_damage(int level, struct Creature *ch, struct Creature *victim,
 			act("The gravity around $n suddenly increases, slamming $m to the ground!", TRUE, victim, 0, ch, TO_ROOM);
 		}
 	}
-	if (spellnum == SPELL_PSYCHIC_SURGE &&
-		!mag_savingthrow(victim, level, SAVING_PSI) &&
-		(!IS_NPC(victim) || !MOB2_FLAGGED(victim, MOB2_NOSTUN)) &&
-		victim->getPosition() > POS_STUNNED) {
-		victim->setPosition(POS_STUNNED);
-		WAIT_STATE(victim, 5 RL_SEC);
-		if (victim == FIGHTING(ch))
-			stop_fighting(ch);
+	if (spellnum == SPELL_PSYCHIC_SURGE) {
+		if (!affected_by_spell(victim, SPELL_PSYCHIC_SURGE) &&
+				!mag_savingthrow(victim, level, SAVING_PSI) &&
+				(!IS_NPC(victim) || !MOB2_FLAGGED(victim, MOB2_NOSTUN)) &&
+				victim->getPosition() > POS_STUNNED) {
+			affected_type af;
 
+			victim->setPosition(POS_STUNNED);
+			WAIT_STATE(victim, 5 RL_SEC);
+			if (victim == FIGHTING(ch))
+				stop_fighting(ch);
+			memset(&af, 0, sizeof(af));
+			af.type = SPELL_PSYCHIC_SURGE;
+			af.duration = 1;
+			af.level = level;
+			affect_to_char(victim, &af);
+		}
 	} else if (spellnum == SPELL_EGO_WHIP
 		&& victim->getPosition() > POS_SITTING) {
 		if (number(5, 25) > GET_DEX(victim)) {

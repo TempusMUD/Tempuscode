@@ -69,6 +69,7 @@ SPECIAL(newbie_improve);
 SPECIAL(newbie_fly);
 SPECIAL(gen_locker);
 SPECIAL(gen_guard);
+SPECIAL(guard);
 SPECIAL(newbie_gold_coupler);
 SPECIAL(maze_switcher);
 SPECIAL(maze_cleaner);
@@ -276,6 +277,7 @@ SPECIAL(fountain_youth);
 SPECIAL(clone_lab);
 SPECIAL(ancient_artifact);
 SPECIAL(finger_of_death);
+SPECIAL(vendor);
 
 #define SPEC_MOB 1
 #define SPEC_OBJ 2

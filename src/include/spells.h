@@ -17,6 +17,7 @@
 
 #ifndef __spells_h__
 #define __spells_h__
+#include "creature.h"
 #include "tmpstr.h"
 
 extern int max_spell_num;

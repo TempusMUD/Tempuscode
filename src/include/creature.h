@@ -477,7 +477,6 @@ static const int AFF3_GRAVITY_WELL = (1 << 22);	// Pissed off a phyz and got hit
 static const int AFF3_SYMBOL_OF_PAIN = (1 << 23);	// Char's mind is burning with pain
 static const int AFF3_EMP_SHIELD = (1 << 24);	// EMP SHIELDING
 static const int AFF3_INST_AFF = (1 << 25);	// Affected by an instant affect
-static const int AFF3_SNIPED = (1 << 26);
 static const int AFF3_TAINTED = (1 << 27);	// Knight spell, "taint"
 static const int AFF3_INFILTRATE = (1 << 28);	// Merc skill infiltrate
 static const int AFF3_DIVINE_POWER = (1 << 29);

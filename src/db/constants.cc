@@ -1107,7 +1107,7 @@ extern const char *affected3_bits[] = {
 	"SMBL PAIN",
 	"EMP_SHLD",
 	"IAFF",
-	"SNIPED",
+	"!UNUSED!",
 	"TAINTED",
 	"INFIL",
 	"DivPwR",

@@ -20,6 +20,10 @@ ASPELL(spell_spacetime_recall);
 ASPELL(spell_time_warp);
 ASPELL(spell_area_stasis);
 
+// giving money
+void perform_give_gold(Creature *ch, Creature *vict, int amount);
+void perform_give_credits(Creature *ch, Creature *vict, int amount);
+
 #define TIMEWARP_FILE "etc/timewarps"
 
 int perform_barb_berserk(struct Creature *ch,

@@ -651,7 +651,6 @@ char *CURRENCY(Creature * ch);
 #define IS_NEUTRAL(ch) (!IS_GOOD(ch) && !IS_EVIL(ch))
 #define IS_SICK(ch)    (IS_AFFECTED_3(ch, AFF3_SICKNESS))
 #define IS_HAMSTRUNG(ch)    (IS_AFFECTED_3(ch, AFF3_HAMSTRUNG))
-#define IS_SNIPED(ch)    (IS_AFFECTED_3(ch, AFF3_SNIPED))
 #define HAS_POISON_1(ch) (IS_AFFECTED(ch, AFF_POISON))
 #define HAS_POISON_2(ch) (IS_AFFECTED_3(ch, AFF3_POISON_2))
 #define HAS_POISON_3(ch) (IS_AFFECTED_3(ch, AFF3_POISON_3))
