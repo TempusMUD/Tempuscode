@@ -758,10 +758,13 @@ ASPELL(song_rhythm_of_alarm)
 ASPELL(song_wall_of_sound)
 {
     struct room_affect_data rm_aff;
-    struct room_affect_data *rm_aff_ptr;
+    struct room_affect_data *rm_aff_ptr, *next_aff;
     const char *dir_str;
 
-    dir_str = dirs[*dir]; 
+    if (!EXIT(ch, *dir)) {
+        send_to_char(ch, "There's no exit in that direction!\r\n");
+        return;
+    }
 
     if ((rm_aff_ptr = room_affected_by(ch->in_room, SONG_WALL_OF_SOUND)) &&
         rm_aff_ptr->type == *dir) {
@@ -769,22 +772,23 @@ ASPELL(song_wall_of_sound)
         return;
     }
 
-    if (!EXIT(ch, *dir)) {
-        send_to_char(ch, "There's no exit in that direction!\r\n");
-        return;
-    }
+	for (rm_aff_ptr = ch->in_room->affects; rm_aff_ptr; rm_aff_ptr = next_aff) {
+	  next_aff = rm_aff_ptr->next;
+	  if (rm_aff_ptr->spell_type == SONG_WALL_OF_SOUND) {
+		send_to_room(tmp_sprintf("The wall of sound to the %s falters and fades.\r\n",
+								 dirs[(int)rm_aff_ptr->type]),
+					 ch->in_room);
+		affect_from_room(ch->in_room, rm_aff_ptr);
+	  }
+	}
 
-    if (ch->in_room->number == 3013 || ch->in_room->number == 30013) {
-        send_to_char(ch, "That's really not a good idea.  Jerk...\r\n");
-        return;
-    }
+    dir_str = dirs[*dir]; 
+	if (*dir == FUTURE || *dir == PAST)
+	  dir_str = tmp_sprintf("to the %s", dir_str);
 
-    char *buff = tmp_sprintf("A wall of sound appears, sealing the exit ");
-    if (!strcmp(dir_str, "future") || !strcmp(dir_str, "past"))
-        buff = tmp_strcat(buff, "to the ", NULL);
-    buff = tmp_strcat(buff, dir_str, "!\r\n", NULL);
-
-    send_to_room(buff, ch->in_room);
+    send_to_room(tmp_sprintf("A wall of sound appears, sealing the exit %s!\r\n",
+							 dir_str),
+				 ch->in_room);
 
     rm_aff.level = level;
     rm_aff.spell_type = SONG_WALL_OF_SOUND;
@@ -792,13 +796,8 @@ ASPELL(song_wall_of_sound)
     rm_aff.duration = number(1, 50) + (ch->getLevelBonus(SONG_WALL_OF_SOUND));
     rm_aff.flags = EX_NOPASS;
     rm_aff.owner = ch;
-
-    buff = tmp_sprintf("   There is a wall of sound blocking the exit ");
-    if (!strcmp(dir_str, "future") || !strcmp(dir_str, "past"))
-        buff = tmp_strcat(buff, "to the ", NULL);
-    buff = tmp_strcat(buff, dir_str, ".\r\n", NULL);
-
-    rm_aff.description = str_dup(buff);
+	rm_aff.description = str_dup(tmp_sprintf("A wall of sound appears, sealing the exit %s.\r\n",
+											 dir_str));
     affect_to_room(ch->in_room, &rm_aff);
 
     gain_skill_prof(ch, SONG_WALL_OF_SOUND);
