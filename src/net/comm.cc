@@ -988,16 +988,20 @@ new_descriptor(int s)
     }
 
     /* determine if the site is banned */
-    if (isbanned(newd->host, buf2) == BAN_ALL) {
+    int bantype = isbanned(newd->host, buf2);
+    if( bantype == BAN_ALL) {
         close(desc);
         sprintf(buf2, "Connection attempt denied from [%s]", newd->host);
         mudlog(buf2, CMP, LVL_GOD, TRUE);
         free(newd);
         return 0;
-    }
+    } 
 
     /* Log new connections - probably unnecessary, but you may want it */
-    sprintf(buf2, "New connection from [%s]", newd->host);
+    sprintf(buf2, "New connection from [%s]%s%s", 
+            newd->host, 
+            (bantype == BAN_SELECT) ? "(SELECT BAN)" : "", 
+            (bantype == BAN_NEW) ? "(NEWBIE BAN)" : "");
     slog(buf2);
 
     /* initialize descriptor data */
