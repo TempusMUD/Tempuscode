@@ -150,12 +150,15 @@ void save_all_players();
 int
 main(int argc, char **argv)
 {
+	void dbg_enable_tracking(void);
 	int port;
 	int pos = 1;
 	char *dir;
 
 	port = DFLT_PORT;
 	dir = DFLT_DIR;
+
+	dbg_enable_tracking();
 
 	tmp_string_init();
 
@@ -1341,7 +1344,7 @@ close_socket(struct descriptor_data *d)
                 "%s[%d] logging off from %s", 
                 d->account->get_name(), d->account->get_idnum(), d->host);
 	} else {
-		mudlog(LVL_AMBASSADOR, CMP, true, "Losing descriptor without account");
+		slog("Losing descriptor without account");
     }
 
 	/* JE 2/22/95 -- part of my enending quest to make switch stable */
