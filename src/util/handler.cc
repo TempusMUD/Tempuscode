@@ -1901,7 +1901,7 @@ extract_obj(struct obj_data *obj)
 	while (obj->contains)
 		extract_obj(obj->contains);
 
-	if (obj->shared->vnum >= 0)
+	if (obj->shared && obj->shared->vnum >= 0)
 		obj->shared->number--;
 
 	REMOVE_FROM_LIST(obj, object_list, next);
