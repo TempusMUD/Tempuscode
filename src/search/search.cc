@@ -269,7 +269,7 @@ general_search(struct Creature *ch, struct special_search_data *srch,
 				act(srch->to_room, FALSE, ch, obj, mob, TO_ROOM);
 			if (srch->to_vict)
 				act(srch->to_vict, FALSE, ch, obj, mob, TO_CHAR);
-			else
+			else if (!SRCH_FLAGGED(srch, SRCH_NOMESSAGE))
 				send_to_char(ch, "Okay.\r\n");
 
 			SRCH_LOG(ch, srch);	// don't log trans searches for now
@@ -325,7 +325,7 @@ general_search(struct Creature *ch, struct special_search_data *srch,
 
 			if (srch->to_vict)
 				act(srch->to_vict, FALSE, ch, obj, mob, TO_CHAR);
-			else
+			else if (!SRCH_FLAGGED(srch, SRCH_NOMESSAGE))
 				send_to_char(ch, "Okay.\r\n");
 
 			if (srch->to_remote && targ_room->people) {
@@ -469,7 +469,7 @@ general_search(struct Creature *ch, struct special_search_data *srch,
 			act(srch->to_room, FALSE, ch, obj, mob, TO_ROOM);
 		if (srch->to_vict)
 			act(srch->to_vict, FALSE, ch, obj, mob, TO_CHAR);
-		else
+		else if (!SRCH_FLAGGED(srch, SRCH_NOMESSAGE))
 			send_to_char(ch, "Okay.\r\n");
 
 		if (GET_LEVEL(ch) < LVL_ETERNAL
@@ -559,7 +559,7 @@ general_search(struct Creature *ch, struct special_search_data *srch,
 			act(srch->to_room, FALSE, ch, obj, mob, TO_ROOM);
 		if (srch->to_vict)
 			act(srch->to_vict, FALSE, ch, obj, mob, TO_CHAR);
-		else
+		else if (!SRCH_FLAGGED(srch, SRCH_NOMESSAGE))
 			send_to_char(ch, "Okay.\r\n");
 
 		if (GET_LEVEL(ch) < LVL_ETERNAL
@@ -702,7 +702,7 @@ general_search(struct Creature *ch, struct special_search_data *srch,
 		act(srch->to_room, FALSE, ch, obj, mob, TO_ROOM);
 	if (srch->to_vict)
 		act(srch->to_vict, FALSE, ch, obj, mob, TO_CHAR);
-	else
+	else if (!SRCH_FLAGGED(srch, SRCH_NOMESSAGE))
 		send_to_char(ch, "Okay.\r\n");
 
 	if (GET_LEVEL(ch) < LVL_ETERNAL && !SRCH_FLAGGED(srch, SRCH_REPEATABLE))
