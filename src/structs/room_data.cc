@@ -37,6 +37,7 @@ room_data::room_data(room_num n, zone_data *z)
 	flow_speed = 0;
 	flow_type = 0;
 	func = NULL;
+	func_param = NULL;
 	light = 0;
 	max_occupancy = 256;
 	name = NULL;
