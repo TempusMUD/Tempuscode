@@ -270,6 +270,9 @@ SPECIAL(gen_board)
 	static int loaded = 0;
 	struct obj_data *obj = (struct obj_data *)me;
 
+	if (spec_mode != SPECIAL_CMD)
+		return 0;
+
 	if (!loaded) {
 		init_boards();
 		loaded = 1;

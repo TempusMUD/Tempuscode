@@ -424,6 +424,9 @@ SPECIAL(vehicle_door)
 	struct obj_data *v_door = (struct obj_data *)me;
 	struct obj_data *vehicle = NULL;
 
+	if (spec_mode != SPECIAL_CMD)
+		return 0;
+
 	if (!(vehicle = find_vehicle(v_door)))
 		return 0;
 
