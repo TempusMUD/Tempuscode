@@ -38,6 +38,8 @@ extern struct descriptor_data *descriptor_list;
 // internal funcs here
 void do_qcontrol_help(struct char_data *ch, char *argument);
 void do_qcontrol_switch( struct char_data *ch, char* argument, int com );
+void do_qcontrol_oload_list(char_data *ch);
+void do_qcontrol_oload(CHAR *ch, char *argument, int com);
 
 // internal vars here
 
@@ -69,6 +71,8 @@ const struct qcontrol_option {
     { "save",     "",                                           LVL_GRGOD  },
     { "help",     "<topic>",                                    LVL_IMMORT },
     { "switch",   "<mobile name>",                              LVL_IMMORT },
+    { "rename",   "<obj name> <new obj name>",					LVL_POWER},
+    { "oload",	  "<item num> <vnum>",							LVL_LUMINARY},
     { NULL, NULL, 0 }		// list terminator
 };
 
@@ -111,6 +115,16 @@ const char *qp_bits[] = {
     "DEAF",
     "MUTE",
     "\n"
+};
+
+const int qc_valid_oloads[][2] = {
+	{92206,0},
+	{92208,0},
+	{21057,2},
+	{90215,1},
+	{90217,1},
+	{123,150},
+	{0,0}
 };
 
 quest_data *quests = NULL;
@@ -210,6 +224,13 @@ ACMD(do_qcontrol)
     case 22:
 	do_qcontrol_switch( ch, argument, com );
 	break;
+	case 23:			// rename
+	//do_qcontrol_rename( ch, argument ,com );
+	send_to_char("Not Implemented\r\n",ch);
+	break;
+	case 24:			// oload
+	do_qcontrol_oload( ch, argument ,com );
+	break;
 	
     default:
 	send_to_char("Sorry, this qcontrol option is not implemented.\r\n", ch);
@@ -265,11 +286,11 @@ do_qcontrol_load    (CHAR *ch, char *argument, int com) {
 
     int number;
 
-    if ( ! ( quest = quest_by_vnum( GET_QUEST( ch ) ) ) ||
-                ! ( qp = idnum_in_quest( GET_IDNUM( ch ), quest ) ) ) {
-                send_to_char( "You are not currently active on any quest.\r\n", ch );
-                return;
-        }
+	if ( ! ( quest = quest_by_vnum( GET_QUEST( ch ) ) ) ||
+		! ( qp = idnum_in_quest( GET_IDNUM( ch ), quest ) ) ) {
+		send_to_char( "You are not currently active on any quest.\r\n", ch );
+		return;
+	}
 
     one_argument(argument, buf);
 
@@ -293,6 +314,99 @@ do_qcontrol_load    (CHAR *ch, char *argument, int com) {
     act("You create $N.", FALSE, ch, 0, mob, TO_CHAR);
 
     sprintf(buf, "loaded %s at %d.", GET_NAME(mob), ch->in_room->number);
+	qlog(ch,buf, QLOG_BRIEF, LVL_DEMI, TRUE);
+
+}
+void 
+do_qcontrol_oload_list(char_data *ch) {
+	int i=0;
+	char main_buf[MAX_STRING_LENGTH];
+	obj_data *obj;
+	strcpy(main_buf,"Valid Quest Objects:\r\n");
+	while(qc_valid_oloads[i][0]) {
+		obj = read_object(qc_valid_oloads[i][0]);
+		if(!obj) {
+		sprintf(buf,"    %s%d. %s%s %s: %d qps \r\n",CCNRM(ch, C_NRM),
+			i, CCRED(ch,C_NRM),"!INVALID OBJECT!" ,CCNRM(ch, C_NRM), qc_valid_oloads[i][1]);
+			strcat(main_buf,buf);
+			i++;
+			continue;
+		}
+		sprintf(buf,"    %s%d. %s%s %s: %d qps ",CCNRM(ch,C_NRM),
+			i, CCGRN(ch,C_NRM),obj->short_description,CCNRM(ch,C_NRM), 
+			qc_valid_oloads[i][1]);
+		if(IS_OBJ_STAT2(obj, ITEM2_UNAPPROVED))
+			strcat(buf,"(!ap)\r\n");
+		else
+			strcat(buf,"\r\n");
+		strcat(main_buf,buf);
+		extract_obj(obj);
+		i++;
+	}
+	send_to_char(main_buf,ch);
+}
+// Load Quest Object
+void
+do_qcontrol_oload(CHAR *ch, char *argument, int com) {
+    struct obj_data *obj;
+    struct quest_data *quest = NULL;
+	int i = 0;
+	int objnum = 0;
+    int number;
+	char arg2[MAX_INPUT_LENGTH];
+
+    argument = two_arguments(argument, buf, arg2);
+
+
+    if (!*buf || !isdigit(*buf)) {
+		do_qcontrol_oload_list(ch);
+		do_qcontrol_usage(ch, com);
+		return;
+    }
+
+	if ( !(quest = find_quest( ch, arg2) ) ){
+		return;
+	}
+	if ( !quest_edit_ok( ch, quest) ){
+		return;
+	}
+	if( quest->ended ){
+		send_to_char( "Pay attentionu dummy! That quest is over!\r\n", ch);
+		return;
+	}
+
+    if ((number = atoi(buf)) < 0) {
+		send_to_char("A NEGATIVE number??\r\n", ch);
+		return;
+    }
+	while(qc_valid_oloads[i][0]) {
+		if (number == i)
+			objnum = qc_valid_oloads[i][0];
+		i++;
+	}
+	if (!objnum) {
+		do_qcontrol_oload_list(ch);
+		return;
+	}
+    if( ( qc_valid_oloads[number][1] > GET_QUEST_POINTS( ch ) ) ){
+	send_to_char( "You do not have the required quest points.\r\n", ch);
+	return;
+    }
+     
+	GET_QUEST_POINTS( ch ) -= qc_valid_oloads[number][1];
+	save_char( ch, NULL );
+	obj = read_object(objnum);
+	if(!obj) {
+		send_to_char("Error, no object loaded\r\n",ch);
+		return;
+	}
+	obj_to_char(obj,ch);
+	act("$n makes a quaint, magical gesture with one hand.", TRUE, ch,
+	0, 0, TO_ROOM);
+    act("$n has created $M!", FALSE, ch, 0, obj, TO_ROOM);
+    act("You create $M.", FALSE, ch, 0, obj, TO_CHAR);
+
+    sprintf(buf, "loaded %s at %d.", obj->short_description, ch->in_room->number);
 	qlog(ch,buf, QLOG_BRIEF, LVL_DEMI, TRUE);
 
 }
