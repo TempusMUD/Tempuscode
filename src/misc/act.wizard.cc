@@ -3913,8 +3913,9 @@ show_player(CHAR * ch, char *value)
 			vbuf.name, CCNRM(ch, C_NRM));
 
 	if (IS_SET(vbuf.char_specials_saved.act, PLR_DELETED))
-		send_to_char(ch, "%s%s%s is DELETED!%s\r\n", buf, CCRED(ch, C_NRM),
+		sprintf(buf, "%s%s%s is DELETED!%s\r\n", buf, CCRED(ch, C_NRM),
 			vbuf.name, CCNRM(ch, C_NRM));
+	send_to_char(ch,buf);
 }
 
 void
