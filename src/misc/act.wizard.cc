@@ -8207,8 +8207,13 @@ ACMD(do_account)
 			
 		account_id = playerIndex.getAccountID(vict_id);
 		account = Account::retrieve(account_id);
-		account_id = atoi(token);
-		dst_account = Account::retrieve(account_id);
+		
+        account_id = atoi(token);
+		if (!Account::exists(account_id)) {
+            send_to_char(ch, "That account does not exist.\r\n");
+            return;
+        }
+        dst_account = Account::retrieve(account_id);
 		account->move_char(vict_id, dst_account);
 
 		// Update descriptor
