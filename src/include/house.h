@@ -4,9 +4,6 @@
 #include <vector>
 #include "tmpstr.h"
 
-static const int MAX_HOUSE_TITLE = 79;
-static const unsigned int MAX_GUESTS = 50;
-static const int MAX_HOUSE_ITEMS = 50;
 
 /*
 <houses>
@@ -34,31 +31,15 @@ enum HC_SearchModes { INVALID=0, HC_OWNER, HC_LANDLORD, HC_GUEST };
 class House 
 {
 	public:
-		enum Type { INVALID = 0, PRIVATE, PUBLIC, RENTAL };
-		static const char* getTypeName( Type type ) {
-			switch( type ) {
-				case PRIVATE:
-					return "Private";
-				case PUBLIC:
-					return "Public";
-				case RENTAL:
-					return "Rental";
-				default:
-					return "Invalid";
-			}
-		}
+		static const unsigned int MAX_GUESTS = 50;
+		static const int MAX_ITEMS = 50;
 
-		Type getTypeFromName( const char* name ) {
-			if( name == NULL )
-				return INVALID;
-			if( strcmp(name, "Private" ) == 0 )
-				return PRIVATE;
-			if( strcmp(name, "Public" ) == 0 )
-				return PUBLIC;
-			if( strcmp(name, "Rental") == 0 )
-				return RENTAL;
-			return INVALID;
-		}
+		enum Type { INVALID = 0, PRIVATE, PUBLIC, RENTAL };
+
+		const char* getTypeName();
+		const char* getTypeShortName();
+		Type getTypeFromName( const char* name );
+
 	private:
 		// unique identifier of this house
 		int id;
@@ -145,7 +126,7 @@ class House
 		// counts the objects contained in this house
 		int calcObjectCount();
 
-		void listRooms( Creature *ch );
+		void listRooms( Creature *ch, bool showContents = false );
 		void listGuests( Creature *ch );
 		void display( Creature *ch );
 		
@@ -158,12 +139,18 @@ class House
 };
 
 
-class HouseControl : private std::vector<House> 
+class HouseControl : private std::vector<House*> 
 {
 	private:
 		// the last time rent was paid.
 		time_t lastCollection;
 		int topId;
+		class HouseComparator { 
+			public:
+				bool operator()( House *a, House *b ) {
+					return a->getID() < b->getID();
+				}
+		};
 		
 	public:
 		HouseControl() : lastCollection(0), topId(0) { }
