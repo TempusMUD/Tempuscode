@@ -817,7 +817,7 @@ best_attack(struct char_data *ch, struct char_data *vict)
         if (GET_LEVEL(ch) >= 36 &&
         (IS_MAGE(vict) || IS_PSIONIC(vict) || IS_CLERIC(vict) ||
          IS_KNIGHT(vict) || IS_PHYSIC(vict)) &&
-        !AFF_FLAGGED(vict, AFF_CONFUSION) &&
+        !IS_CONFUSED(vict) &&
         GET_MANA(ch) > mag_manacost(ch, SPELL_CONFUSION))
         cast_spell(ch, vict, NULL, SPELL_CONFUSION);
         else if (GET_LEVEL(ch) >= 31 &&

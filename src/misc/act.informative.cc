@@ -533,7 +533,9 @@ show_trailers_to_char(struct char_data *ch, struct char_data *i)
     if (IS_AFFECTED(i, AFF_CONFUSION))
 	act("...$e is looking around in confusion!", 
 	    FALSE, i, 0, ch, TO_VICT);
-  
+    if (IS_AFFECTED_3(i, AFF3_SYMBOL_OF_PAIN))
+	act("...a symbol of pain burns bright on $s forehead!", 
+	    FALSE, i, 0, ch, TO_VICT);
     if (IS_AFFECTED(i, AFF_BLUR))
 	act("...$s form appears to be blurry and shifting.", 
 	    FALSE, i, 0, ch, TO_VICT);
@@ -2235,6 +2237,8 @@ print_affs_to_string(struct char_data *ch, char *str, byte mode)
 	strcat(str, "Your mind is ignoring pain.\r\n");
     if (IS_AFFECTED(ch, AFF_RETINA))
 	strcat(str, "Your retina is especially sensitive.\r\n");
+    if (IS_AFFECTED_3(ch, AFF3_SYMBOL_OF_PAIN))
+    strcat(str, "Your mind burns with the symbol of pain!\r\n");
     if (IS_AFFECTED(ch, AFF_CONFUSION))
 	strcat(str, "You are very confused.\r\n");
 	if ( affected_by_spell(ch, SKILL_ADRENAL_MAXIMIZER) )

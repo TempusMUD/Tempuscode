@@ -691,8 +691,13 @@ damage( struct char_data * ch, struct char_data * victim, int dam,
         dam = 0;
 
     /* need magic weapons to damage undead */
-    if ( IS_WEAPON( attacktype ) && weap && IS_OBJ_TYPE( weap, ITEM_WEAPON ) &&
-	( NON_CORPOREAL_UNDEAD( victim ) || IS_RAKSHASA( victim ) ) && !IS_OBJ_STAT( weap, ITEM_MAGIC ) )
+    if ( IS_WEAPON( attacktype ) 
+        && weap 
+        && IS_OBJ_TYPE( weap, ITEM_WEAPON ) 
+        && ( NON_CORPOREAL_UNDEAD( victim ) 
+             || IS_RAKSHASA( victim ) 
+             || IS_GREATER_DEVIL( victim )) 
+        && !IS_OBJ_STAT( weap, ITEM_MAGIC ) )
         dam = 0;
 
     /* shopkeeper protection */

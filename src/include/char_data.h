@@ -446,7 +446,8 @@
 #define AFF3_ACIDITY            (1 << 20)
 #define AFF3_HAMSTRUNG		    (1 << 21)    /* Bleeding badly from the leg */
 #define AFF3_GRAVITY_WELL       (1 << 22)    /* Pissed off a phyz and got hit by gravity well */
-#define NUM_AFF3_FLAGS          23
+#define AFF3_SYMBOL_OF_PAIN     (1 << 23)    /* Char's mind is burning with pain */
+#define NUM_AFF3_FLAGS          24
 
 #define ARRAY_AFF_1        1
 #define ARRAY_AFF_2        2

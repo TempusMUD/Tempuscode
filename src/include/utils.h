@@ -293,7 +293,8 @@ int CHECK_SKILL(struct char_data *ch, int i);
 
 #define IS_PET(ch)       (MOB_FLAGGED(ch, MOB_PET))
 #define IS_SOULLESS(ch) (MOB_FLAGGED(ch, MOB_SOULLESS) || PLR2_FLAGGED(ch, PLR2_SOULLESS))
-
+#define HAS_SYMBOL(ch) (IS_SOULLESS(ch) || affected_by_spell(ch, SPELL_STIGMATA) \
+                        || affected_by_spell(ch, SPELL_SYMBOL_OF_PAIN))
 /* IS_AFFECTED for backwards compatibility */
 #define IS_AFFECTED(ch, skill) (AFF_FLAGGED((ch), (skill))) 
 #define IS_AFFECTED_2(ch, skill) (AFF2_FLAGGED((ch), (skill))) 
@@ -574,7 +575,8 @@ int CHECK_SKILL(struct char_data *ch, int i);
 #define HAS_POISON_3(ch) (IS_AFFECTED_3(ch, AFF3_POISON_3))
 #define IS_POISONED(ch) (HAS_POISON_1(ch) || HAS_POISON_2(ch) || \
                          HAS_POISON_3(ch))
-#define IS_CONFUSED(ch)  (IS_AFFECTED(ch, AFF_CONFUSION)) 
+#define IS_CONFUSED(ch)  (IS_AFFECTED(ch, AFF_CONFUSION) \
+                          || IS_AFFECTED_3(ch, AFF3_SYMBOL_OF_PAIN)) 
 #define THACO(char_class, level) \
      ((char_class < 0) ? 20 :                             \
       ((char_class < NUM_CLASSES) ?                       \
@@ -908,6 +910,11 @@ void WAIT_STATE(struct char_data *ch, int cycle);
 #define IS_FISH(ch)             (GET_RACE(ch) == RACE_FISH)
 #define IS_RAKSHASA(ch)         (GET_RACE(ch) == RACE_RAKSHASA)
 #define IS_RACE(ch, race)       (GET_RACE(ch) == race)
+
+#define IS_GREATER_DEVIL(ch) (IS_DEVIL(ch) \
+                              && (GET_CLASS(ch) == CLASS_GREATER \
+                                  || GET_CLASS(ch) == CLASS_ARCH \
+                                  || GET_CLASS(ch) == CLASS_DUKE))
 
 #define HUMANOID_TYPE(ch)       ((GET_RACE(ch) <= RACE_DEVIL && \
 				  !IS_RACE(ch, RACE_ANIMAL) &&     \

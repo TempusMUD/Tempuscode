@@ -657,12 +657,17 @@ mag_damage(int level, struct char_data * ch, struct char_data * victim,
 	break;
 
     case SPELL_SYMBOL_OF_PAIN:
-	dam = dice(level, 14) + (level * 5);
-    if(IS_GOOD(victim)) {
-        dam += 2000;
+    if(HAS_SYMBOL(victim)) {
+        return 0;
+    } else {
+        if(IS_GOOD(victim)) 
+            dam = dice(level, 12) + (level * 5);
+        else
+            dam = dice(level - GET_LEVEL(victim), 7) + level;
+        if(IS_EVIL(victim))
+            dam >>= 2;
     }
 	break;
-
     case SPELL_ICE_STORM:
 	spellnum = SPELL_ICY_BLAST;
     case SPELL_ICY_BLAST:
@@ -1788,14 +1793,23 @@ mag_affects(int level, struct char_data * ch, struct char_data * victim,
 	to_vict = "You feel positively repulsive to attacks.";
 	break;
     case SPELL_SYMBOL_OF_PAIN:
-	af.location = APPLY_DEX;
-	af.modifier = -2;
-	af.duration = number(1, 3);
-	af2.location = APPLY_HITROLL;
-	af2.modifier = -(1 + level/6);
-	af2.duration = af.duration;
-	to_vict = "You shudder and shake in pain!";
-	to_room = "$n shudders and shakes in pain!";
+    if(HAS_SYMBOL(victim)) {
+        send_to_char("Your symbol of pain fails.\r\n",ch);
+        act( "$N's symbol of pain fails to mark you!",
+            FALSE, victim, 0, ch, TO_CHAR);
+        return;
+    } else {
+        af.bitvector = AFF3_SYMBOL_OF_PAIN;
+        af.aff_index = 3;
+        af.location = APPLY_DEX;
+        af.modifier = - (level / 7);
+        af.duration = number(1, 3);
+        af2.location = APPLY_HITROLL;
+        af2.modifier = -(1 + level/4);
+        af2.duration = af.duration;
+        to_vict = "You shudder and shake as your mind burns!";
+        to_room = "$n shudders and shakes in pain!";
+    }
 	break;
     case SPELL_TIME_WARP:
 	af.duration = 3 + level;
@@ -1898,7 +1912,7 @@ mag_affects(int level, struct char_data * ch, struct char_data * victim,
 	    send_to_char("You cannot stigmatize good characters.\r\n", ch);
 	    return;
 	}
-    if ( IS_SOULLESS(victim)) {
+    if ( HAS_SYMBOL(victim)) {
         send_to_char("Your stigmata fails.\r\n",ch);
         return;
     }

@@ -1428,7 +1428,7 @@ cast_spell(struct char_data * ch, struct char_data * tch,
 	send_to_char(buf, ch);
 	return 0;
     }
-    if (IS_AFFECTED(ch, AFF_CONFUSION) && 
+    if (IS_CONFUSED(ch) && 
 	CHECK_SKILL(ch, spellnum) + GET_INT(ch) < number(90, 180)) {
 	sprintf(buf, "You are too confused to %s\r\n",
 		SPELL_IS_PHYSICS(spellnum) ? "alter any reality!" :
