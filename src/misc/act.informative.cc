@@ -3058,7 +3058,7 @@ whoString(Creature *ch, Creature *target) {
 		out << ' ' << get_char_class_color(ch, target, GET_CLASS(target));
 		out << char_class_abbrevs[(int)GET_CLASS(target)];
 	}
-	out << CCGRN(ch, C_NRM) << ']';
+	out << CCNRM(ch, C_NRM) << CCGRN(ch, C_NRM) << ']';
 	
 	
 	//name
@@ -3077,7 +3077,7 @@ whoFlagsString(Creature *ch, Creature *target) {
 
 	//nowho
 	if (PRF2_FLAGGED(target, PRF2_NOWHO)) {
-		out << CCRED(ch, C_NRM) << "(nowho)"  << CCNRM(ch, C_NRM);
+		out << CCRED(ch, C_NRM) << " (nowho)"  << CCNRM(ch, C_NRM);
 	}
 	
 	//clan badge
@@ -3245,10 +3245,14 @@ ACMD(do_who)
 	}
 	if (args.find("clan") != string::npos) {
 		clan = true;
-		int start = args.find(' ', args.find("clan"));
-		int end = args.find(' ', start);
-		char *clanName = tmp_strdup(args.substr(start, end).c_str());
-		realClan = clan_by_name(clanName);
+		unsigned int start = args.find(' ', args.find("clan"));
+		unsigned int end = args.find(' ', start);
+        if (start == string::npos || start == end) {
+            realClan = NULL;
+        } else {
+            char *clanName = tmp_strdup(args.substr(start, end).c_str());
+            realClan = clan_by_name(clanName);
+        }
 	}
 	
 	
@@ -3262,6 +3266,11 @@ ACMD(do_who)
 			continue;
 		}
 		
+        //Must be in the game.
+        if (!curr || !curr->in_room) {
+            continue;
+        }
+        
 		//update the total number of players first
 		if (GET_LEVEL(curr) < LVL_AMBASSADOR && !curr->isTester()) {
 			playerTotal++;
@@ -3317,6 +3326,14 @@ ACMD(do_who)
 				continue;
 			}
 		}
+        //nowho
+        if (PRF2_FLAGGED(curr, PRF2_NOWHO) && GET_LEVEL(curr) >= LVL_AMBASSADOR) {
+            continue;
+        }
+        //imm invis
+        if (GET_INVIS_LVL(curr) > GET_LEVEL(ch)) {
+            continue;
+        }
 		/////////////////END CONDITIONS/////////////////////////
 		
 		
