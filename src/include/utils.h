@@ -871,6 +871,7 @@ static inline bool IS_REMORT( const Creature *ch )
 #define IS_ROBOT(ch)            (GET_RACE(ch) == RACE_ROBOT)
 #define IS_PLANT(ch)            (GET_RACE(ch) == RACE_PLANT)
 #define IS_ARCHON(ch)           (GET_RACE(ch) == RACE_ARCHON)
+#define IS_GUARDINAL(ch)           (GET_RACE(ch) == RACE_GUARDINAL)
 #define IS_PUDDING(ch)          (GET_RACE(ch) == RACE_PUDDING)
 #define IS_SLIME(ch)            (GET_RACE(ch) == RACE_SLIME)
 #define IS_BUGBEAR(ch)          (GET_RACE(ch) == RACE_BUGBEAR)
@@ -879,6 +880,7 @@ static inline bool IS_REMORT( const Creature *ch )
 #define IS_RAKSHASA(ch)         (GET_RACE(ch) == RACE_RAKSHASA)
 #define IS_RACE(ch, race)       (GET_RACE(ch) == race)
 
+#define IS_CELESTIAL(ch)		(IS_ARCHON(ch) || IS_GUARDINAL(ch))
 #define IS_GREATER_DEVIL(ch) (IS_DEVIL(ch) \
                               && (GET_CLASS(ch) == CLASS_GREATER \
                                   || GET_CLASS(ch) == CLASS_ARCH \
