@@ -5919,7 +5919,8 @@ ACMD(do_set)
 		GET_ECONET(vict) = RANGE(0, 1000000000);
 		break;
 	case 93:					// specialization
-		two_arguments(argument, arg1, arg2);
+		arg1 = tmp_getword(&argument);
+		arg2 = tmp_getword(&argument);
 		if (!*arg1 || !*arg2) {
 			send_to_char(ch, "Usage: set <vict> spec <vnum> <level>\r\n");
 			return;
