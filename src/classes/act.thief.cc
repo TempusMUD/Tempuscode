@@ -346,7 +346,7 @@ ACMD(do_sneak)
     struct affected_type af;
 
     if (IS_AFFECTED(ch, AFF_SNEAK)) {
-	send_to_char("Okay, you will now walk attempt to walk normally.\r\n",ch);
+	send_to_char("Okay, you will now attempt to walk normally.\r\n",ch);
 	affect_from_char(ch, SKILL_SNEAK);
 	return;
     }
