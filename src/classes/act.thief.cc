@@ -78,6 +78,10 @@ ACMD(do_steal)
 	if (CHECK_SKILL(ch, SKILL_STEAL) < 50)
 		percent >>= 1;
 
+    if (!IS_THIEF(ch)) {
+        percent = (int)(percent * 0.65);
+    }
+
 	if (vict->getPosition() < POS_SLEEPING)
 		percent = -15;			/* ALWAYS SUCCESS */
 
