@@ -3945,9 +3945,10 @@ show_account(Creature *ch, char *value)
 		localtime(&last));
     send_to_desc(ch->desc, "&y  Started: &n%s   &yLast login: &n%s\r\n", created_buf, last_buf);
 	if( Security::isMember(ch, "AdminFull") ) {
-		send_to_desc(ch->desc, "&y  Created: &n%s   &yLast: &n%s\r\n", 
+		send_to_desc(ch->desc, "&y  Created: &n%s   &yLast: &n%s   &yReputation: &n%d\r\n", 
 					 account->get_login_addr(), 
-					 account->get_creation_addr() );
+					 account->get_creation_addr(),
+					 account->get_reputation());
 	}
 	send_to_desc(ch->desc, "&y  Past bank: &n%-12lld    &yFuture Bank: &n%-12lld\r\n",
 		account->get_past_bank(), account->get_future_bank());
@@ -6452,7 +6453,7 @@ ACMD(do_set)
         break;
 
     case 101:
-        GET_REPUTATION(vict) = RANGE(0, 1000);
+        vict->set_reputation(RANGE(0, 1000));
         break;
     case 102:
         arg1 = tmp_getword(&argument);
