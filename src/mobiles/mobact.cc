@@ -2247,8 +2247,9 @@ mobile_activity(void)
 		}
 
 		/* Mob Movement */
-		if (!MOB_FLAGGED(ch, MOB_SENTINEL | MOB_PET)
-			&& !MOB2_FLAGGED(ch, MOB2_FAMILIAR)
+		if (!MOB_FLAGGED(ch, MOB_SENTINEL)
+			&& !((MOB_FLAGGED(ch, MOB_PET) || MOB2_FLAGGED(ch, MOB2_FAMILIAR))
+				&& ch->master)
 			&& ch->getPosition() >= POS_STANDING 
 			&& !IS_AFFECTED_2(ch, AFF2_MOUNTED) ){
 
