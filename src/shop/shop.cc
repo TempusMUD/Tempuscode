@@ -717,16 +717,15 @@ slide_obj(struct obj_data * obj, struct char_data * keeper,
 
     /* Extract the object if it is identical to one produced */
     if (shop_producing(obj, shop) || shop_inventory(keeper, obj) >= 5) {
-
-	if (SHOP_CURRENCY(shop) == CURRENCY_CREDITS)
-	    GET_CASH(keeper) += GET_OBJ_COST(obj);
-	else
-	    GET_GOLD(keeper) += GET_OBJ_COST(obj);
-
-	temp = GET_OBJ_VNUM(obj);
-	extract_obj(obj);
-
-	return (real_object_proto(temp));
+		/*
+		if (SHOP_CURRENCY(shop) == CURRENCY_CREDITS)
+			GET_CASH(keeper) += GET_OBJ_COST(obj);
+		else
+			GET_GOLD(keeper) += GET_OBJ_COST(obj);
+		*/
+		temp = GET_OBJ_VNUM(obj);
+		extract_obj(obj);
+		return (real_object_proto(temp));
     }
   
     obj_to_char(obj, keeper);
@@ -770,59 +769,59 @@ shopping_sell(char *arg, struct char_data * ch,
     int sellnum, sold = 0, goldamt = 0;
 
     if (!(is_ok(keeper, ch, shop)))
-	return;
+		return;
 
     if ((sellnum = transaction_amt(arg)) < 0) {
-	strcpy(buf, "A negative amount?  Try buying something.");
-	perform_tell(keeper, ch, buf);
-	return;
+		strcpy(buf, "A negative amount?  Try buying something.");
+		perform_tell(keeper, ch, buf);
+		return;
     }
     if (!(*arg) || !(sellnum)) {
-	strcpy(buf, "What do you want to sell??");
-	perform_tell(keeper, ch, buf);
-	return;
+		strcpy(buf, "What do you want to sell??");
+		perform_tell(keeper, ch, buf);
+		return;
     }
     one_argument(arg, name);
     if (!(obj = get_selling_obj(ch, name, keeper, shop, TRUE)))
-	return;
+		return;
 
     if (GET_MONEY(keeper, shop) + SHOP_BANK(shop) < 
-	sell_price(ch, obj, shop)) {
-	strcpy(buf, shop->missing_cash1);
-	perform_tell(keeper, ch, buf);
-	return;
+		sell_price(ch, obj, shop)) {
+		strcpy(buf, shop->missing_cash1);
+		perform_tell(keeper, ch, buf);
+		return;
     }
     while ((obj) && (GET_MONEY(keeper, shop) + SHOP_BANK(shop) >=
 		     sell_price(ch, obj, shop)) && (sold < sellnum)) {
-	sold++;
+		sold++;
 
-	obj_from_char(obj);
-	tag = slide_obj(obj, keeper, shop);
+		obj_from_char(obj);
+		tag = slide_obj(obj, keeper, shop);
 
-	goldamt += sell_price(ch, obj, shop);
-	if (SHOP_CURRENCY(shop) == CURRENCY_CREDITS)
-	    GET_CASH(keeper) -= sell_price(ch, obj, shop);
-	else
-	    GET_GOLD(keeper) -= sell_price(ch, obj, shop);
+		goldamt += sell_price(ch, obj, shop);
+		if (SHOP_CURRENCY(shop) == CURRENCY_CREDITS)
+			GET_CASH(keeper) -= sell_price(ch, obj, shop);
+		else
+			GET_GOLD(keeper) -= sell_price(ch, obj, shop);
 
-	obj = get_selling_obj(ch, name, keeper, shop, FALSE);
+		obj = get_selling_obj(ch, name, keeper, shop, FALSE);
     }
 
     if (sold < sellnum) {
-	if (!obj)
-	    sprintf(buf, "You only have %d of those.", sold);
-	else if (GET_MONEY(keeper, shop) + SHOP_BANK(shop) <
-		 sell_price(ch, obj, shop))
-	    sprintf(buf, "I can only afford to buy %d of those.",  sold);
-	else
-	    sprintf(buf, "Something really screwy made me buy %d.", sold);
+		if (!obj)
+			sprintf(buf, "You only have %d of those.", sold);
+		else if (GET_MONEY(keeper, shop) + SHOP_BANK(shop) <
+			 sell_price(ch, obj, shop))
+			sprintf(buf, "I can only afford to buy %d of those.",  sold);
+		else
+			sprintf(buf, "Something really screwy made me buy %d.", sold);
 
-	perform_tell(keeper, ch, buf);
+		perform_tell(keeper, ch, buf);
     }
     if (SHOP_CURRENCY(shop) == CURRENCY_CREDITS)
-	GET_CASH(ch) += goldamt;
+		GET_CASH(ch) += goldamt;
     else
-	GET_GOLD(ch) += goldamt;
+		GET_GOLD(ch) += goldamt;
     strcpy(tempstr, times_message(0, name, sold));
     sprintf(buf, "$n sells %s.", tempstr);
     act(buf, FALSE, ch, obj, 0, TO_ROOM);
@@ -833,13 +832,13 @@ shopping_sell(char *arg, struct char_data * ch,
     act(buf, FALSE, ch, 0, keeper, TO_CHAR | TO_SLEEP);
 
     if (GET_MONEY(keeper, shop) < MIN_OUTSIDE_BANK) {
-	goldamt = MIN(MAX_OUTSIDE_BANK - GET_MONEY(keeper, shop), 
-		      SHOP_BANK(shop));
-	SHOP_BANK(shop) -= goldamt;
-	if (SHOP_CURRENCY(shop) == CURRENCY_CREDITS)
-	    GET_CASH(keeper) += goldamt;
-	else
-	    GET_GOLD(keeper) += goldamt;
+		goldamt = MIN(MAX_OUTSIDE_BANK - GET_MONEY(keeper, shop), 
+				  SHOP_BANK(shop));
+		SHOP_BANK(shop) -= goldamt;
+		if (SHOP_CURRENCY(shop) == CURRENCY_CREDITS)
+			GET_CASH(keeper) += goldamt;
+		else
+			GET_GOLD(keeper) += goldamt;
     }
 }
 
