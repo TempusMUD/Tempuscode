@@ -117,12 +117,11 @@ SPECIAL(improve_prac_book)
     GET_MANA(ch) = 1;
     GET_MOVE(ch) = 1;
     GET_PRACTICES(ch) = MAX(0, GET_PRACTICES(ch) - 1);
-  } else if (GET_OBJ_VAL(obj, 0) != GET_CLASS(ch) &&
-	     GET_OBJ_VAL(obj, 0) != GET_REMORT_CLASS(ch)) {
+  } else if (invalid_char_class(ch, obj)) {
     send_to_char("You feel no different than before.\r\n", ch);
   } else {
     send_to_char("You feel an increased ability to learn new skills.\r\n", ch);
-    GET_PRACTICES(ch) += MIN(10, GET_OBJ_VAL(obj, 1));
+    GET_PRACTICES(ch) += MIN(10, GET_OBJ_VAL(obj, 0));
   }
   extract_obj(obj);
   save_char(ch, NULL);
