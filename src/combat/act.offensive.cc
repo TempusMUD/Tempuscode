@@ -450,7 +450,7 @@ calc_skill_prob(struct char_data *ch, struct char_data *vict, int skillnum,
 	*dam = dice(2, GET_LEVEL(ch) >> 3);
 	*wait = 5 RL_SEC;
 	*vict_pos = POS_SITTING;
-	*vict_wait = 1 RL_SEC;
+	*vict_wait = 2 RL_SEC;
 	break;
   
     case SKILL_BEARHUG:
