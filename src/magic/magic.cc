@@ -2886,6 +2886,7 @@ mag_groups(int level, struct Creature *ch, int spellnum, int savetype)
 
 	if (!IS_AFFECTED(ch, AFF_GROUP) && !SPELL_IS_BARD(spellnum))
 		return;
+
 	if (ch->master != NULL)
 		k = ch->master;
 	else
@@ -2899,6 +2900,9 @@ mag_groups(int level, struct Creature *ch, int spellnum, int savetype)
 			continue;
 		if (ch == tch)
 			continue;
+        if (ch->in_room != tch->in_room)
+            continue;
+
 		perform_mag_groups(level, ch, tch, &tdir, spellnum, savetype);
 	}
 
