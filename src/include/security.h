@@ -191,10 +191,10 @@ namespace Security {
     **/
     bool canAccess( char_data *ch, const board_info_type &board );
     /* Check membership in a particular group by name.**/
-    bool isMember( char_data *ch, const char* group_name );
+	bool isMember( char_data *ch, const char* group_name, bool substitute=true );
 
 	static inline bool isTester( char_data *ch ) {
-		return isMember( ch, "Testers" );
+		return isMember( ch, "Testers", false );
 	}
 	
     /* can this character add/remove characters from this group. **/

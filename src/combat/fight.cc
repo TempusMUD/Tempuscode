@@ -895,11 +895,11 @@ damage(struct char_data *ch, struct char_data *victim, int dam,
 
 	if (ch) {
 		if (MOB2_FLAGGED(ch, MOB2_UNAPPROVED)
-			&& !Security::isTester(ch))
+			&& !Security::isTester(victim))
 			dam = 0;
 
 		if (Security::isTester(ch) && !IS_MOB(victim) &&
-			!Security::isTester(ch))
+			!Security::isTester(victim))
 			dam = 0;
 
 		if (IS_MOB(victim) && GET_LEVEL(ch) >= LVL_AMBASSADOR &&

@@ -414,8 +414,8 @@ namespace Security {
      * Check membership in a particular group by name.
      * Comma delimited names are also accepted.
      */
-     bool isMember( char_data *ch, const char* group_name ) {
-        if( ch->getLevel() == LVL_GRIMP )
+     bool isMember( char_data *ch, const char* group_name, bool substitute=true ) {
+        if( substitute && ch->getLevel() == LVL_GRIMP )
             return true;
         if( group_name == NULL || *group_name == '\0' )
             return false;
