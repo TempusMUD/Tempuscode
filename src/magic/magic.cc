@@ -2696,9 +2696,9 @@ Fireball: like harder bones, skin, organ membranecs
 			|| accum_affect))
 		return;
 
-    if (af.bitvector || af.location)
+    if (af.bitvector || af.location || af.duration)
 	    affect_join(victim, &af, accum_duration, FALSE, accum_affect, FALSE);
-	if (af2.bitvector || af2.location)
+	if (af2.bitvector || af2.location || af.duration)
 		affect_join(victim, &af2, accum_duration, FALSE, accum_affect, FALSE);
 
 	int x = 0;
