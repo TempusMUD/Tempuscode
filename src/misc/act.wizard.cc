@@ -3864,15 +3864,13 @@ do_show_stats(struct Creature *ch)
         buf_switches, buf_overflows);
     send_to_char(ch, "  %5u tmpstr space     %5u accstr space\r\n",
         tmp_max_used, acc_str_space);
+    send_to_char(ch, "  %5d trail count      %dMB total memory\r\n",
+		tr_count, dbg_memory_used() / (1024 * 1024));
     send_to_char(ch, "  %5u running progs\r\n",
         prog_count());
     send_to_char(ch, "  Lunar day: %2d, phase: %s (%d)\r\n",
         lunar_day, lunar_phases[get_lunar_phase(lunar_day)],
 		get_lunar_phase(lunar_day));
-    if (quest_status)
-        send_to_char(ch, "   %sQUEST_STATUS is ON.%s\r\n",
-            CCREV(ch, C_NRM), CCNRM(ch, C_NRM));
-    send_to_char(ch, "  Trail count: %d\r\n", tr_count);
 
     if (GET_LEVEL(ch) >= LVL_LOGALL && log_cmds) {
         send_to_char(ch, "  Logging all commands :: file is %s.\r\n",
