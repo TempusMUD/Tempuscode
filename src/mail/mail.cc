@@ -161,6 +161,7 @@ recieve_mail(char_data *ch) {
     char fname[256];
     char *text,*time_str;
     mail_data *letter = NULL;
+    bool backup_file = false;
 
     get_filename(GET_NAME(ch), fname, PLAYER_MAIL_FILE);
 
@@ -178,8 +179,9 @@ recieve_mail(char_data *ch) {
         text = NULL;
         if(letter->msg_size && !mail_file.eof() && (obj = read_object(MAIL_OBJ_VNUM))) { 
 			if(letter->msg_size > 2 * MAX_MAIL_SIZE) {
-				sprintf(buf,"Invalid mail size in mail file.(%s) Removing.", fname);
+				sprintf(buf,"Invalid mail size(%ld) in mail file.(%s).", letter->msg_size,fname);
 				mudlog(buf,CMP,LVL_GRGOD,TRUE);
+                backup_file = true;
 				break;
 			}
             num_letters++;
@@ -212,7 +214,13 @@ recieve_mail(char_data *ch) {
 		}
     }
     mail_file.close();
-    remove(fname);
+    if(backup_file) {
+        char fname_err[256];
+        sprintf(fname_err, "%s.err",fname);
+        rename(fname,fname_err);
+    } else {
+        remove(fname);
+    }
     delete letter;
     while (list) {
         obj = list;
