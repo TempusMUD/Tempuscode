@@ -3280,7 +3280,7 @@ ACMD(do_who)
 				sprintf(buf2, "%s %s<COUNCIL>%s",
 					buf2, CCBLU_BLD(ch, C_NRM), CCNRM(ch, C_NRM));
 			}
-			if ((outlaws || who_pkills) && GET_PKILLS(tch)) {
+			if ((outlaws || who_pkills) && (GET_PKILLS(tch) || GET_REPUTATION(tch))) {
 				sprintf(buf2, "%s %s*%d KILLS* -%s-%s",
 					buf2, CCRED_BLD(ch, C_NRM), GET_PKILLS(tch),
 					reputation_msg[GET_REPUTATION_RANK(tch)],
