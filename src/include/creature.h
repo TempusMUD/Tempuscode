@@ -902,6 +902,7 @@ struct mob_special_data {
 	int wait_state;				/* Wait state for bashed mobs           */
 	byte last_direction;		/* The last direction the monster went     */
 	unsigned int mob_idnum;		/* mobile's unique idnum */
+	struct prog_state_data *prog_state;
 };
 
 

@@ -34,6 +34,10 @@ struct prog_evt {
 	int object_type;
 };
 
+struct prog_state_data {
+	char *state_str;
+};
+
 struct prog_env {
 	struct prog_env *next;	// next prog environment
 	int exec_pt;				// the line number we're executing
@@ -56,5 +60,6 @@ void prog_free(struct prog_env *prog);
 void prog_update(void);
 void prog_update_pending(void);
 int prog_count(void);
+void prog_state_free(prog_state_data *state);
 
 #endif

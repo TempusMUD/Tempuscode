@@ -639,6 +639,7 @@ static inline bool IS_REMORT( const Creature *ch )
 #define GET_MOB_VNUM(mob)        (IS_MOB(mob) ? \
                                       mob->mob_specials.shared->vnum : -1)
 
+#define GET_MOB_STATE(ch)       ((ch)->mob_specials.prog_state)
 #define GET_MOB_WAIT(ch)        ((ch)->mob_specials.wait_state)
 #define GET_MOB_LAIR(ch)        ((ch)->mob_specials.shared->lair)
 #define GET_MOB_LEADER(ch)        ((ch)->mob_specials.shared->leader)

@@ -40,6 +40,7 @@ void prog_do_halt(prog_env *env, prog_evt *evt, char *args);
 void prog_do_target(prog_env *env, prog_evt *evt, char *args);
 void prog_do_nuke(prog_env *env, prog_evt *evt, char *args);
 void prog_do_trans(prog_env *env, prog_evt *evt, char *args);
+void prog_do_state(prog_env *env, prog_evt *evt, char *args);
 void prog_do_randomly(prog_env *env, prog_evt *evt, char *args);
 void prog_do_or(prog_env *env, prog_evt *evt, char *args);
 void prog_do_resume(prog_env *env, prog_evt *evt, char *args);
@@ -66,6 +67,7 @@ prog_command prog_cmds[] = {
 	{ "target",		true,	prog_do_target },
 	{ "nuke",		true,	prog_do_nuke },
 	{ "trans",		true,	prog_do_trans },
+	{ "state",		true,	prog_do_state },
 	{ "resume",		false,	prog_do_resume },
 	{ NULL,		false,	prog_do_halt }
 };
@@ -222,8 +224,20 @@ prog_eval_condition(prog_env *env, prog_evt *evt, char *args)
 	} else if (!strcmp(arg, "fighting")) {
 		result = (env->owner_type == PROG_TYPE_MOBILE
 				&& ((Creature *)env->owner)->isFighting());
-	} else if (!strcmp(arg, "randomly"))
+	} else if (!strcmp(arg, "randomly")) {
 		result = number(0, 100) < atoi(args);
+	} else if (!strcmp(arg, "state")) {
+		if (env->owner_type == PROG_TYPE_MOBILE) {
+			if (GET_MOB_STATE((Creature *)env->owner)
+					&& GET_MOB_STATE((Creature *)env->owner)->state_str
+					&& *(GET_MOB_STATE((Creature *)env->owner)->state_str)) {
+				result = !strcasecmp(args,
+					GET_MOB_STATE((Creature *)env->owner)->state_str);
+			} else {
+				result = !(*args);
+			}
+		}
+	}
 
 	return (not_flag) ? (!result):result;
 }
@@ -422,6 +436,29 @@ prog_do_trans(prog_env *env, prog_evt *evt, char *args)
 				GET_NAME(env->target), targ_room->number);
 		}
 	}
+}
+
+void
+prog_do_state(prog_env *env, prog_evt *evt, char *args)
+{
+	Creature *ch;
+	prog_state_data *state;
+
+	if (env->owner_type != PROG_TYPE_MOBILE)
+		return;
+
+	ch = (Creature *)env->owner;
+	state = GET_MOB_STATE(ch);
+	if (!state) {
+		CREATE(ch->mob_specials.prog_state, prog_state_data, 1);
+		state = GET_MOB_STATE(ch);
+	} else if (state->state_str)
+		free(state->state_str);
+
+	if (*args)
+		state->state_str = strdup(args);
+	else
+		state->state_str = NULL;
 }
 
 void
@@ -709,4 +746,12 @@ prog_count(void)
 		if (cur_env->exec_pt > 0)
 			result++;
 	return result;
+}
+
+void
+prog_state_free(prog_state_data *state)
+{
+	if (state->state_str)
+		free(state->state_str);
+	free(state);
 }

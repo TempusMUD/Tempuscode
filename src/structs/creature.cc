@@ -788,6 +788,8 @@ Creature::clear(void)
 			free(this->player.description);
 		if (this->mob_specials.func_data)
 			free(this->mob_specials.func_data);
+		if (this->mob_specials.prog_state)
+			prog_state_free(this->mob_specials.prog_state);
 	} else {
 		//
 		// otherwise this is a player, so free all
