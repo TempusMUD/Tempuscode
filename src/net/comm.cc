@@ -1638,31 +1638,42 @@ void
 send_to_comm_channel(struct Creature *ch, char *buf, int chan, int mode,
 	int hide_invis)
 {
-
-	struct obj_data *obj = NULL;
+	Creature *receiver;
+	obj_data *obj = NULL;
 
 	for (obj = object_list; obj; obj = obj->next) {
-		if (IS_COMMUNICATOR(obj) && COMM_CHANNEL(obj) == chan &&
-			!obj->in_obj && ENGINE_STATE(obj)) {
-			if (obj->carried_by && (!mode || obj->carried_by != ch) &&
-				(!hide_invis || can_see_creature(obj->carried_by, ch))) {
-				if (COMM_UNIT_SEND_OK(ch, obj->carried_by)) {
-					send_to_char(obj->carried_by, "%s::%s::%s ", CCYEL(obj->carried_by, C_NRM),
-						OBJS(obj, obj->carried_by), CCNRM(obj->carried_by,
-							C_NRM));
-					act(buf, TRUE, ch, obj, obj->carried_by, TO_VICT);
-				}
-			} else if (obj->worn_by && (!mode || obj->worn_by != ch) &&
-				(!hide_invis || can_see_creature(obj->worn_by, ch))) {
-				if (COMM_UNIT_SEND_OK(ch, obj->worn_by)) {
-					send_to_char(obj->worn_by, "%s::%s::%s ", CCYEL(obj->worn_by, C_NRM),
-						OBJS(obj, obj->worn_by), CCNRM(obj->worn_by, C_NRM));
-					act(buf, TRUE, ch, obj, obj->worn_by, TO_VICT);
-				}
-			} else if (obj->in_room) {
-				act("$p makes some noises.", FALSE, 0, obj, 0, TO_ROOM);
-			}
+		if (obj->in_obj || !IS_COMMUNICATOR(obj))
+			continue;
+
+		if (!ENGINE_STATE(obj) || COMM_CHANNEL(obj) != chan)
+			continue;
+
+		if (obj->in_room) {
+			act("$p makes some noises.", FALSE, 0, obj, 0, TO_ROOM);
+			continue;
 		}
+
+		receiver = obj->carried_by ? obj->carried_by:obj->worn_by;
+		if (!receiver)
+			continue;
+		
+		if (!IS_PLAYING(receiver->desc) || !receiver->desc ||
+				PLR_FLAGGED(receiver, PLR_WRITING) ||
+				PLR_FLAGGED(receiver, PLR_OLC))
+			continue;
+			
+		if (!COMM_UNIT_SEND_OK(ch, receiver))
+			continue;
+
+		if (mode && receiver == ch)
+			continue;
+
+		if (hide_invis && !can_see_creature(receiver, ch))
+			continue;
+
+		send_to_char(receiver, "%s::%s::%s ", CCYEL(receiver, C_NRM),
+			OBJS(obj, receiver), CCNRM(receiver, C_NRM));
+		act(buf, true, ch, obj, receiver, TO_VICT);
 	}
 }
 
