@@ -4809,10 +4809,16 @@ ACMD(do_wizlist)
     send_wizlist_section_splitter(ch);
 
     getGroup("Wizlist_Grimps").sendPublicMemberList(ch, buf);
+
     send_wizlist_section_title("Administrators",ch);
     getGroup("Wizlist_Admins").sendPublicMemberList(ch, buf,"WizardAdmin");
+
     send_wizlist_section_title("Foreman",ch);
-    getGroup("Wizlist_Foreman").sendPublicMemberList(ch, buf, "WorldAdmin" );
+    getGroup("Wizlist_Foreman").sendPublicMember(ch, buf);
+
+    send_wizlist_section_title("Advisors",ch);
+    getGroup("Wizlist_Advisors").sendPublicMember(ch, buf);
+
     send_wizlist_section_title("Architects",ch);
 	strcat(buf, "        ");
     getGroup("Wizlist_Arch_P").sendPublicMember(ch, buf, "Past: " );
@@ -4820,14 +4826,22 @@ ACMD(do_wizlist)
     getGroup("Wizlist_ArchEC").sendPublicMember(ch, buf, "Future: " );
 	strcat(buf,"   ");
     getGroup("Wizlist_ArchOP").sendPublicMember(ch, buf, "Outer Planes: " );
+
     send_wizlist_section_title("Builders",ch);
     getGroup("Wizlist_Blders").sendPublicMemberList(ch, buf);
+
     send_wizlist_section_title("Coders",ch);
     getGroup("Wizlist_Coders").sendPublicMemberList(ch, buf);
+
     send_wizlist_section_title("Questors",ch);
     getGroup("Wizlist_Quests").sendPublicMemberList(ch, buf, "QuestorAdmin" );
+
     send_wizlist_section_title("Elder Gods",ch);
     getGroup("Wizlist_Elders").sendPublicMemberList(ch, buf, "GroupsAdmin" );
+
+    send_wizlist_section_title("Founders",ch);
+    getGroup("Wizlist_Founders").sendPublicMemberList(ch, buf);
+
 	strcat(buf, "\r\n\r\n");
 	page_string(ch->desc, buf);
 }
