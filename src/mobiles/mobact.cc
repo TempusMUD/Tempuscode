@@ -1510,33 +1510,41 @@ void mobile_activity(void) {
     /* Looter */
 
     if (MOB2_FLAGGED(ch, MOB2_LOOTER)) {
+        struct obj_data *o = NULL;
         if (ch->in_room->contents && random_fractional_3() ) {
-        for (i = ch->in_room->contents; i; i = i->next_content) {
-            if ((GET_OBJ_TYPE(i) == ITEM_CONTAINER && GET_OBJ_VAL(i, 3))) {
-            if (!i->contains) continue;
-            for (obj = i->contains; obj; obj = obj->next_content) {
-                if (!(obj->in_obj))
-                continue;
-    
-                // skip sigil-ized items, simplest way to deal with it
-                if (GET_OBJ_SIGIL_IDNUM(obj))
-                continue;
- 
-                if (CAN_GET_OBJ(ch, obj)) {
-                obj_from_obj(obj);
-                obj_to_char(obj, ch); 
-                act("$n gets $p from $P.", FALSE, ch, obj, i, TO_ROOM);
-                if (GET_OBJ_TYPE(obj) == ITEM_MONEY) {
-                    if (GET_OBJ_VAL(obj, 1)) // credits
-                    GET_CASH(ch) += GET_OBJ_VAL(obj, 0);
-                    else
-                    GET_GOLD(ch) += GET_OBJ_VAL(obj, 0);
-                    extract_obj(obj);
-                }
-                }
+            for (i = ch->in_room->contents; i; i = i->next_content) {
+                if ((GET_OBJ_TYPE(i) == ITEM_CONTAINER && GET_OBJ_VAL(i, 3))) {
+                    if (!i->contains) continue;
+                    for (obj = i->contains; obj; obj = obj->next_content) {
+                        if(o) {
+                            extract_obj(o);
+                            o = NULL;
+                        }
+                        if (!(obj->in_obj))
+                            continue;
+            
+                        // skip sigil-ized items, simplest way to deal with it
+                        if (GET_OBJ_SIGIL_IDNUM(obj))
+                            continue;
+         
+                        if (CAN_GET_OBJ(ch, obj)) {
+                            obj_from_obj(obj);
+                            obj_to_char(obj, ch); 
+                            act("$n gets $p from $P.", FALSE, ch, obj, i, TO_ROOM);
+                            if (GET_OBJ_TYPE(obj) == ITEM_MONEY) {
+                                if (GET_OBJ_VAL(obj, 1)) // credits
+                                    GET_CASH(ch) += GET_OBJ_VAL(obj, 0);
+                                else
+                                    GET_GOLD(ch) += GET_OBJ_VAL(obj, 0);
+                                o = obj;
+                            }
+                        }
+                    }
+                    if(o) {
+                        extract_obj(o);
+                    }
+                } 
             }
-            } 
-        }
         }
     }
     /* Helper Mobs */

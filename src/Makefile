@@ -10,8 +10,7 @@ SUBDIRS= \
 
 MAKEFLAGS=-s -k 4
 OBJ=ObjFiles
-LIBS=-lcrypt
-#-lefence
+LIBS=-lcrypt -lefence
 EXE=../bin/circle
 
 default all:
