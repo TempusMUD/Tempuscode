@@ -347,6 +347,17 @@ ACMD(do_track)
 		return;
 	}
 
+	if (IS_AFFECTED(vict, AFF_NOTRACK)
+		|| (affected_by_spell(vict, SKILL_ELUSION)
+			&& !(IS_NPC(ch) && MOB_FLAGGED(ch, MOB_SPIRIT_TRACKER))
+			&& number(0, CHECK_SKILL(ch, SKILL_TRACK))
+				> (number(0, CHECK_SKILL(vict, SKILL_ELUSION))
+					+ (IS_RANGER(vict) && SECT_TYPE(vict->in_room) == SECT_FOREST) ? 20 : 0))) {
+		send_to_char(ch, "You sense no trail.\r\n");
+		if (GET_LEVEL(ch) < LVL_IMPL)
+			return;
+	}
+
 	dir = find_first_step(ch->in_room, vict->in_room,
 		GET_LEVEL(ch) > LVL_TIMEGOD ? GOD_TRACK : STD_TRACK );
 
