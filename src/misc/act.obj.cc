@@ -1162,7 +1162,7 @@ perform_drop(struct char_data * ch, struct obj_data * obj,
         GET_LEVEL(ch) < LVL_SPIRIT) {
         if (!junkable(obj)) {
            if (IS_CONTAINER(obj)) {
-               string containerName(obj->name);
+               string containerName(obj->short_description);
                sbuf = AN(obj->name) + string(" ") + containerName + 
                       " contains, or is, a renamed object.\r\n";
            }
