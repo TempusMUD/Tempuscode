@@ -2644,9 +2644,9 @@ void
 mag_unaffects(int level, struct char_data * ch, struct char_data * victim,
           int spellnum, int type)
 {
-    int spell = 0, spell2 = 0, spell3 = 0;
+    int spell = 0, spell2 = 0, spell3 = 0, spell4 = 0;
     char *to_vict = NULL, *to_room = NULL, *to_vict2 = NULL, *to_room2 = NULL,
-    *to_vict3 = NULL, *to_room3 = NULL;
+    *to_vict3 = NULL, *to_room3 = NULL, *to_vict4 = NULL, *to_room4 = NULL;
     struct affected_type *aff = NULL, *next_aff = NULL;
 
     if (victim == NULL)
@@ -2669,6 +2669,9 @@ mag_unaffects(int level, struct char_data * ch, struct char_data * victim,
     spell2 = SKILL_GOUGE;
     to_vict2 = "Your vision returns!";
     to_room2 = "There's a momentary gleam in $n's eyes.";
+    spell4 = TYPE_MALOVENT_HOLYTOUCH;
+    to_vict4 = "Your vision returns!";
+    to_room4 = "There's a momentary gleam in $n's eyes.";
     spell3 = SKILL_HAMSTRING;
     to_vict3 = "The wound on your leg closes!";
     to_room3 = "The gaping wound on $n's leg closes.";
@@ -2797,6 +2800,7 @@ mag_unaffects(int level, struct char_data * ch, struct char_data * victim,
 
     if ((spell != 0 && !affected_by_spell(victim, spell)) && 
     (spell2 != 0 && !affected_by_spell(victim, spell2)) &&
+    (spell4 != 0 && !affected_by_spell(victim, spell4)) &&
     (spell3 != 0 && !affected_by_spell(victim, spell3))) {
     if (!(spell_info[spellnum].routines - MAG_UNAFFECTS))
         send_to_char(NOEFFECT, ch);
@@ -2822,6 +2826,13 @@ mag_unaffects(int level, struct char_data * ch, struct char_data * victim,
         act(to_vict3, FALSE, victim, 0, ch, TO_CHAR);
     if (to_room3 != NULL)
         act(to_room3, TRUE, victim, 0, ch, TO_ROOM);
+    }
+    if (spell4 && affected_by_spell(victim, spell4)) {
+    affect_from_char(victim, spell4);
+    if (to_vict4 != NULL)
+        act(to_vict4, FALSE, victim, 0, ch, TO_CHAR);
+    if (to_room4 != NULL)
+        act(to_room4, TRUE, victim, 0, ch, TO_ROOM);
     }
 }
 

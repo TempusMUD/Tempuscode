@@ -31,7 +31,7 @@ short char_player_data::modifyWeight( short mod_weight ) {
            (use_remort + primary for level 49 gen 10 returns 100)
 */
 int char_data::getLevelBonus ( bool use_remort, bool primary ) {
-    int bonus = player.level + 1;
+    int bonus = MIN(50,player.level + 1);
 
     if(! use_remort ) {// Without remort calc, simply use the mort calc in its' place.
         return 2 * bonus;
@@ -61,7 +61,7 @@ int char_data::getLevelBonus( int skill ) {
     //       To compensate for this, level 50+ get the full bonus of 100.
 
     // Immorts get full bonus. 
-    if(player.level == 50) return 100; 
+    if(player.level >= 50) return 100; 
     // Irregular skill #s get 1
     if(skill > TOP_SPELL_DEFINE || skill < 0) return 1; 
 

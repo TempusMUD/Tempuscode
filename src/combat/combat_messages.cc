@@ -955,7 +955,6 @@ skill_message( int dam, struct char_data * ch, struct char_data * vict,
 
     if ( search_nomessage )
 	return 1;
-
     for ( i = 0; i < MAX_MESSAGES; i++ ) {
         if ( fight_messages[i].a_type == attacktype ) {
             nr = dice( 1, fight_messages[i].number_of_attacks );

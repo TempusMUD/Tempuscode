@@ -671,12 +671,13 @@ affect_to_char(struct char_data * ch, struct affected_type * af)
  * affect_location_apply
  */
  int
- holytouch_after_effect(char_data *vict );
+ holytouch_after_effect(char_data *vict,int level );
 void
 affect_remove(struct char_data * ch, struct affected_type * af)
 {
     struct affected_type *temp;
     int type = af->type;
+    int level = af->level;
     short is_instant = af->is_instant;
 
     if (!ch->affected) {
@@ -696,8 +697,9 @@ affect_remove(struct char_data * ch, struct affected_type * af)
     REMOVE_FROM_LIST(af, ch->affected, next);
     free(af);
     affect_total(ch);
-    if(type == TYPE_MALOVENT_HOLYTOUCH && is_instant && ch->in_room)
-        holytouch_after_effect(ch);
+
+    if(type == SKILL_HOLY_TOUCH && is_instant && ch->in_room)
+        holytouch_after_effect(ch,level);
 }
 
 
@@ -710,11 +712,11 @@ affect_from_char(struct char_data * ch, sh_int type)
     int found = 0;
 
     for (hjp = ch->affected; hjp; hjp = next_hjp) {
-	next_hjp = hjp->next;
-	if (hjp->type == type) {
-	    affect_remove(ch, hjp);
-	    found = 1;
-	}
+        next_hjp = hjp->next;
+        if (hjp->type == type) {
+            affect_remove(ch, hjp);
+            found = 1;
+        }
     }
     return found;
 }

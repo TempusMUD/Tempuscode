@@ -39,6 +39,10 @@ ACMD(do_holytouch)
         send_to_char("You are unable to call upon the powers necessary.\r\n", ch);
         return;
     }
+    if(NON_CORPOREAL_MOB(vict) || NULL_PSI(vict)) {
+        send_to_char("That is unlikely to work.\r\n",ch);
+        return;
+    }
 
     if (!*vict_name)
         vict = ch;
@@ -49,12 +53,14 @@ ACMD(do_holytouch)
 
     if (vict == NULL) return;
 
-    if(true || !IS_EVIL(ch) || !IS_GOOD(vict)) {
-        healing_holytouch(ch,vict);
+    if(IS_EVIL(ch)) {
+        if(!IS_GOOD(vict)) 
+            healing_holytouch(ch,vict);
+        else
+            malovent_holy_touch(ch,vict);
     } else {
-        malovent_holy_touch(ch,vict);
+        healing_holytouch(ch,vict);
     }
-
 }
 /*
     Called when holytouch "wears off"
@@ -66,9 +72,9 @@ ACMD(do_holytouch)
         - eyeballs appear on death
 */
 int
-holytouch_after_effect(char_data *vict ) {
+holytouch_after_effect(char_data *vict,int level ) {
     struct affected_type af;
-    int dam = af.level * 2;
+    int dam = level * 2;
 
     send_to_char("Visions of pure evil sear through your mind!\r\n",vict);
     if(vict->getPosition() > POS_SITTING) {
@@ -77,46 +83,93 @@ holytouch_after_effect(char_data *vict ) {
     } else {
         act("$n begins to scream!", TRUE, vict, 0, 0, TO_ROOM);
     }
-    if(damage( NULL, vict, dam, TYPE_MALOVENT_HOLYTOUCH,WEAR_EYES))
+    WAIT_STATE(vict,1 RL_SEC);
+    if(damage( vict, vict, dam, TYPE_MALOVENT_HOLYTOUCH,WEAR_EYES))
         return 1;
-    
-    //obj_to_char(unequip_char(vict, WEAR_FACE, MODE_EQ), vict);
-    unequip_char(vict, WEAR_FACE, MODE_EQ);
-    unequip_char(vict, WEAR_EYES, MODE_EQ);
-    //obj_to_char(unequip_char(vict, WEAR_EYES, MODE_EQ), vict);
+   
+    if(GET_EQ(vict,WEAR_FACE))
+        unequip_char(vict, WEAR_FACE, MODE_EQ);
+    if(GET_EQ(vict,WEAR_EYES))
+        unequip_char(vict, WEAR_EYES, MODE_EQ);
 
     if (!IS_NPC(vict) || !MOB_FLAGGED(vict, MOB_NOBLIND)) {
         af.type = TYPE_MALOVENT_HOLYTOUCH;
-        af.duration = af.level/10;
-        af.modifier = -(af.level/10);
+        af.duration = level/10;
+        af.modifier = -(level/5);
         af.location = APPLY_HITROLL;
         af.bitvector = AFF_BLIND;
+        af.is_instant = 0;
     }
     affect_to_char(vict, &af);
     
     return 0;
 }
+/*
+    Initial "bad" holytouch effect.  Happens when evil holytouch's good.
+ */
 void
 malovent_holy_touch(char_data *ch,char_data *vict) {
+    struct affected_type af;
+    int chance = 0;
+    char buf[256];
+
     if(GET_LEVEL(vict) > LVL_AMBASSADOR) {
         send_to_char("Aren't they evil enough already?\r\n",ch);
         return;
     }
-    struct affected_type af;
-    af.type = TYPE_MALOVENT_HOLYTOUCH;
+    
+    if(affected_by_spell(vict, SKILL_HOLY_TOUCH) 
+        || affected_by_spell(vict, TYPE_MALOVENT_HOLYTOUCH)) {
+            act("There is nothing more you can show $N.", FALSE, ch, 0, vict, TO_CHAR);
+            return;
+    }
+    
+    if (!peaceful_room_ok(ch, vict, FALSE))
+        return;
+    
+    chance = GET_ALIGNMENT(vict)/10;
+    if(GET_WIS(vict) > 20)
+        chance -= GET_WIS(vict) * 5;
+    if(AFF_FLAGGED(vict,AFF_PROTECT_EVIL))
+        chance -= 20;
+    if(affected_by_spell(vict,SPELL_BLESS))
+        chance -= 10;
+    if(affected_by_spell(vict,SPELL_PRAY))
+        chance -= 20;
+
+    if(IS_SOULLESS(ch))
+        chance += 20;
+
+    WAIT_STATE(ch, 2 RL_SEC);
+    check_toughguy(ch, vict, 0);
+    check_killer(ch, vict);
+
+    if(number(0,99) > chance) {
+        damage( ch, vict, 0, SKILL_HOLY_TOUCH,0);
+        return;
+    }
+
+    af.type = SKILL_HOLY_TOUCH;
     af.is_instant = 1;
     af.level = ch->getLevelBonus(SKILL_HOLY_TOUCH);
-    if(IS_SOULLESS(ch)) 
-        af.level *= 2;
     af.duration = number(1,3);
     af.aff_index = 3;
     af.bitvector = AFF3_INST_AFF;
+
+    if(IS_SOULLESS(ch)) 
+        af.level += 20;
+    if(PRF2_FLAGGED(ch,PRF2_FIGHT_DEBUG)){
+        sprintf(buf,"HolyTouch: chance[%d] level[%d]\r\n",chance,af.level);
+        send_to_char(buf,ch);
+    }
+        
     affect_to_char(vict, &af);
 
     if (GET_LEVEL(ch) < LVL_AMBASSADOR)
         WAIT_STATE(ch, PULSE_VIOLENCE);
             
-    if(damage( ch, vict, ch->getLevelBonus(SKILL_HOLY_TOUCH) * 2, TYPE_MALOVENT_HOLYTOUCH,WEAR_EYES))
+    gain_skill_prof(ch, SKILL_HOLY_TOUCH);
+    if(damage( ch, vict, ch->getLevelBonus(SKILL_HOLY_TOUCH) * 2, SKILL_HOLY_TOUCH,WEAR_EYES))
         return;
 
 }
@@ -135,7 +188,7 @@ healing_holytouch(char_data *ch, char_data *vict) {
         GET_MOVE(ch) = MAX(GET_MOVE(ch) - mod, 0);
         if (ch == vict) {
             send_to_char("You cover your head with your hands and pray.\r\n", ch);
-            act("$n covers $s head with $s hands and prays.", TRUE, ch, 0, 0, TO_ROOM);
+            act("$n covers $s head with $s hands and prays.", true, ch, 0, 0, TO_ROOM);
         } else {
             act("$N places $S hands on your head and prays.", FALSE, vict, 0, ch, TO_CHAR);
             act("$n places $s hands on the head of $N.", FALSE, ch, 0, vict, TO_NOTVICT);

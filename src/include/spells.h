@@ -606,7 +606,7 @@ extern const char *spells[];
 #define TYPE_RAD_SICKNESS            765
 #define TYPE_FLAMETHROWER            766
 #define TYPE_MALOVENT_HOLYTOUCH      767 // When holytouch wears off.
-#define TOP_NPC_SPELL                767
+#define TOP_NPC_SPELL                768
 
 #define TOP_SPELL_DEFINE	     799
 /* NEW NPC/OBJECT SPELLS can be inserted here up to 799 */
