@@ -1168,21 +1168,27 @@ char_to_room(Creature *ch, room_data *room, bool check_specials)
 	}
 
     struct room_affect_data *raff;
-    if ((raff = room_affected_by(ch->in_room, SONG_RHYTHM_OF_ALARM)) &&
-        GET_LEVEL(ch) < LVL_AMBASSADOR && 
-        raff->owner->in_room != ch->in_room && 
-        !IS_NPC(ch)) {
-        if ((GET_LEVEL(ch) + number(1, 70)) < 
-            raff->owner->getLevelBonus(SONG_RHYTHM_OF_ALARM))
+	Creature *raff_owner;
+
+	raff = room_affected_by(ch->in_room, SONG_RHYTHM_OF_ALARM);
+    if (raff && GET_LEVEL(ch) < LVL_AMBASSADOR && !IS_NPC(ch)) {
+	  raff_owner = get_char_in_world_by_idnum(raff->owner);
+
+	  if (raff_owner &&
+		  raff_owner->in_room != ch->in_room &&
+		  (GET_LEVEL(ch) + number(1, 70)) < 
+		  raff_owner->getLevelBonus(SONG_RHYTHM_OF_ALARM)) {
+
             raff->duration--;
-            send_to_char(raff->owner, "%s has just entered %s.\r\n", GET_NAME(ch),
+            send_to_char(raff_owner, "%s has just entered %s.\r\n",
+						 GET_NAME(ch),
                          ch->in_room->name);
+	  }
     }
     
 	long spec_rc = 0;
-    if( check_specials ) {
+    if( check_specials )
 		spec_rc = special(ch, 0, 0, "", SPECIAL_ENTER);
-	}
 
 	if( spec_rc != 0 ) {
 		CreatureList::iterator it = 

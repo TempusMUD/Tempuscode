@@ -177,7 +177,7 @@ struct room_affect_data {
 	byte type;
 	int duration;
     int val[4];
-    Creature *owner;
+  int owner;
     int spell_type;
 	struct room_affect_data *next;
 };

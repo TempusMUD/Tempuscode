@@ -422,7 +422,7 @@ bomb_damage_room(Creature *damager, char *bomb_name, int bomb_type, int bomb_pow
 		rm_aff.level = MIN(power >> 1, LVL_AMBASSADOR);
 		rm_aff.type = RM_AFF_FLAGS;
 		rm_aff.flags = ROOM_FLAME_FILLED;
-        rm_aff.owner = damager;
+        rm_aff.owner = damager->getIdNum();
 		affect_to_room(room, &rm_aff);
 	} else if (bomb_type == BOMB_NUCLEAR &&
 		!ROOM_FLAGGED(room, ROOM_RADIOACTIVE)) {
@@ -432,7 +432,7 @@ bomb_damage_room(Creature *damager, char *bomb_name, int bomb_type, int bomb_pow
 		rm_aff.type = RM_AFF_FLAGS;
 		rm_aff.level = MIN(power >> 1, LVL_AMBASSADOR);
 		rm_aff.flags = ROOM_RADIOACTIVE;
-        rm_aff.owner = damager;
+        rm_aff.owner = damager->getIdNum();
 		affect_to_room(room, &rm_aff);
 	} else if (bomb_type == BOMB_SMOKE &&
 		!ROOM_FLAGGED(room, ROOM_SMOKE_FILLED)) {
