@@ -298,7 +298,7 @@ postmaster_send_mail(struct char_data * ch, struct char_data *mailman,
                         sprintf(buf2, "%s's mailbox is frozen shut!",buf);
                         break;
                     case 2:
-                        sprintf(buf2, "%s is buried! Go put it on thier grave!",buf);
+                        sprintf(buf2, "%s is buried! Go put it on their grave!",buf);
                         break;
                     case 3:
                         sprintf(buf2, "No one by the name '%s' is registered here!", buf);
