@@ -53,6 +53,7 @@ using namespace std;
 #include "player_table.h"
 #include "account.h"
 #include "specs.h"
+#include "language.h"
 
 /**************************************************************************
 *  declarations of most of the 'global' variables                         *
@@ -1626,13 +1627,13 @@ parse_simple_mob(FILE * mob_f, struct Creature *mobile, int nr)
 void
 interpret_espec(char *keyword, char *value, struct Creature *mobile, int nr)
 {
-	int num_arg, matched = 0;
+	long long num_arg, matched = 0;
 
-	num_arg = atoi(value);
+	num_arg = atoll(value);
 
 	CASE("BareHandAttack") {
 		RANGE(0, 99);
-		mobile->mob_specials.shared->attack_type = num_arg;
+		mobile->mob_specials.shared->attack_type = (int)num_arg;
 	}
 
 	CASE("Move_buf") {
@@ -1641,95 +1642,101 @@ interpret_espec(char *keyword, char *value, struct Creature *mobile, int nr)
 
 	CASE("Str") {
 		RANGE(3, 25);
-		mobile->real_abils.str = num_arg;
+		mobile->real_abils.str = (int)num_arg;
 	}
 
 	CASE("StrAdd") {
 		RANGE(0, 100);
-		mobile->real_abils.str_add = num_arg;
+		mobile->real_abils.str_add = (int)num_arg;
 	}
 
 	CASE("Int") {
 		RANGE(3, 25);
-		mobile->real_abils.intel = num_arg;
+		mobile->real_abils.intel = (int)num_arg;
 	}
 
 	CASE("Wis") {
 		RANGE(3, 25);
-		mobile->real_abils.wis = num_arg;
+		mobile->real_abils.wis = (int)num_arg;
 	}
 
 	CASE("Dex") {
 		RANGE(3, 25);
-		mobile->real_abils.dex = num_arg;
+		mobile->real_abils.dex = (int)num_arg;
 	}
 
 	CASE("Con") {
 		RANGE(3, 25);
-		mobile->real_abils.con = num_arg;
+		mobile->real_abils.con = (int)num_arg;
 	}
 
 	CASE("Cha") {
 		RANGE(3, 25);
-		mobile->real_abils.cha = num_arg;
+		mobile->real_abils.cha = (int)num_arg;
 	}
 
 	CASE("MaxMana") {
 		RANGE(0, 4000);
-		mobile->points.max_mana = num_arg;
+		mobile->points.max_mana = (int)num_arg;
 	}
 	CASE("MaxMove") {
 		RANGE(0, 2000);
-		mobile->points.max_move = num_arg;
+		mobile->points.max_move = (int)num_arg;
 	}
 	CASE("Height") {
 		RANGE(1, 10000);
-		mobile->player.height = num_arg;
+		mobile->player.height = (int)num_arg;
 	}
 	CASE("Weight") {
 		RANGE(1, 10000);
-		mobile->player.weight = num_arg;
+		mobile->player.weight = (int)num_arg;
 	}
 	CASE("RemortClass") {
 		RANGE(0, 1000);
-		mobile->player.remort_char_class = num_arg;
+		mobile->player.remort_char_class = (int)num_arg;
         if( GET_REMORT_GEN(mobile) == 0 )
             GET_REMORT_GEN(mobile) = 1;
 	}
 	CASE("Class") {
 		RANGE(0, 1000);
-		mobile->player.char_class = num_arg;
+		mobile->player.char_class = (int)num_arg;
 	}
 	CASE("Race") {
 		RANGE(0, 1000);
-		mobile->player.race = num_arg;
+		mobile->player.race = (int)num_arg;
 	}
 	CASE("Credits") {
 		RANGE(0, 1000000);
-		mobile->points.cash = num_arg;
+		mobile->points.cash = (int)num_arg;
 	}
 	CASE("Cash") {
 		RANGE(0, 1000000);
-		mobile->points.cash = num_arg;
+		mobile->points.cash = (int)num_arg;
 	}
 	CASE("Econet") {
 		RANGE(0, 1000000);
 	}
 	CASE("Morale") {
 		RANGE(0, 120);
-		mobile->mob_specials.shared->morale = num_arg;
+		mobile->mob_specials.shared->morale = (int)num_arg;
 	}
 	CASE("Lair") {
 		RANGE(-99999, 99999);
-		mobile->mob_specials.shared->lair = num_arg;
+		mobile->mob_specials.shared->lair = (int)num_arg;
 	}
 	CASE("Leader") {
 		RANGE(-99999, 99999);
-		mobile->mob_specials.shared->leader = num_arg;
+		mobile->mob_specials.shared->leader = (int)num_arg;
 	}
     CASE("Generation") {
         RANGE(0,10);
-        GET_REMORT_GEN(mobile) = num_arg;
+        GET_REMORT_GEN(mobile) = (int)num_arg;
+    }
+    CASE("KnownLang") {
+        KNOWN_LANGUAGES(mobile) = num_arg;
+    }
+    CASE("CurLang") {
+        GET_LANGUAGE(mobile) = num_arg;
     }
 	if (!matched) {
 		fprintf(stderr, "Warning: unrecognized espec keyword %s in mob #%d\n",
@@ -1879,6 +1886,8 @@ parse_mobile(FILE * mob_f, int nr)
 		mobile->equipment[j] = NULL;
 
 	mobile->desc = NULL;
+
+    set_initial_language(mobile);
 
 	mobilePrototypes.add(mobile);
 	top_of_mobt = i++;

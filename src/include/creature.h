@@ -924,6 +924,10 @@ struct follow_type {
 	struct follow_type *next;
 };
 
+struct char_language_data {
+    long long known_languages;
+    char current_language;
+};
 
 /* ================== Structure for player/non-player ===================== */
 struct Creature {
@@ -1073,6 +1077,7 @@ struct Creature {
 	struct char_ability_data aff_abils;	/* Abils with spells/stones/etc  */
 	struct char_point_data points;	/* Points                        */
 	struct char_special_data char_specials;	/* PC/NPC specials      */
+    struct char_language_data language_data;
 	struct player_special_data *player_specials;	/* PC specials          */
 	struct mob_special_data mob_specials;	/* NPC specials          */
 

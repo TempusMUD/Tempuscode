@@ -41,8 +41,10 @@
 #include "guns.h"
 #include "char_class.h"
 #include "events.h"
+#include "language.h"
 
-
+extern const char *language_names[];
+extern const char *race_language[][2];
 bool
 OLCIMP(Creature * ch)
 {
@@ -1675,11 +1677,11 @@ const char *olc_help_keys[] = {
 	"microchips",
 	"searchflags",
 	"oextra3",
-	"ihandler",
+	"languages",
 	"\n"
 };
 
-#define NUM_OLC_HELPS   41
+#define NUM_OLC_HELPS   42
 #define NUM_SHOP_TEMPER 6
 #define NUM_SHOP_FLAGS 4
 
@@ -2171,6 +2173,27 @@ show_olc_help(struct Creature *ch, char *arg)
 		}
 		page_string(ch->desc, buf);
 		break;
+    case 41: {
+        strcpy(buf, "LANGUAGES:\r\n");
+        for (i = 0; i < NUM_LANGUAGES; i++) {
+			sprintf(buf2, "%2d         %s%-10s     [ %s",
+				i, CCCYN(ch, C_NRM), language_names[i], CCNRM(ch, C_NRM));
+            bool printed = false;
+            for (int y = 0; *race_language[y][0] != '\n'; y++) {
+                if (!strcmp(race_language[y][1], language_names[i])) {
+                    if (printed)
+                        strcat(buf2, ", ");
+                    strcat(buf2, race_language[y][0]);
+                    printed = true;
+                }
+            }
+			strcat(buf, buf2);
+            sprintf(buf2, " %s]%s\r\n", CCCYN(ch, C_NRM), CCNRM(ch, C_NRM));
+            strcat(buf, buf2);
+        }
+        page_string(ch->desc, buf);
+        break;
+    }
 	default:
 		send_to_char(ch, 
 			"There is no help on this word yet.  Maybe you should write it.\r\n");

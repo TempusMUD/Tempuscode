@@ -38,6 +38,7 @@
 #include "security.h"
 #include "quest.h"
 #include "player_table.h"
+#include "language.h"
 
 extern char *motd;
 extern char *ansi_motd;
@@ -57,6 +58,7 @@ extern int log_cmds;
 extern struct spell_info_type spell_info[];
 extern struct house_control_rec house_control[];
 extern int shutdown_count;
+extern const char *language_names[];
 
 
 // external functions
@@ -1443,7 +1445,9 @@ char_to_game(descriptor_data *d)
 			}
 		}
 	}
-	
+    
+    // Set thier languages here to make sure they speak their race language
+    set_initial_language(d->creature);
 	if (shutdown_count > 0)
 		SEND_TO_Q(tmp_sprintf(
 				"\r\n\007\007:: NOTICE :: Tempus will be rebooting in [%d] second%s ::\r\n",

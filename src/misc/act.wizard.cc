@@ -56,7 +56,7 @@ using namespace std;
 #include "ban.h"
 #include "memtrack.h"
 #include "boards.h"
-
+#include "language.h"
 
 /*   external vars  */
 extern struct obj_data *object_list;
@@ -79,6 +79,7 @@ extern int shutdown_mode;
 extern int mini_mud;
 extern int current_mob_idnum;
 extern struct last_command_data last_cmd[NUM_SAVE_CMDS];
+extern const char *language_names[];
 
 
 char *how_good(int percent);
@@ -1910,7 +1911,28 @@ do_stat_character(struct Creature *ch, struct Creature *k)
             strcat(outbuf, buf);
         }
     }
-
+    sprintf(buf, "Currently speaking: %s%s%s\r\n", CCCYN(ch, C_NRM),
+            ((GET_LANGUAGE(k) > LANGUAGE_COMMON) ?
+             tmp_capitalize(language_names[GET_LANGUAGE(k)]) :
+             "Common"), CCNRM(ch, C_NRM));
+    strcat(outbuf, buf);
+    sprintf(buf, "Known languages:\r\n");
+    strcat(outbuf, buf);
+    sprintf(buf, "%s%-15s%s", CCCYN(ch, C_NRM), "Common", CCNRM(ch, C_NRM));
+    strcat(outbuf, buf);
+    int num_languages = 1;
+    for (int x = 0; x < NUM_LANGUAGES; x++) {
+        if (can_speak_language(k, x)) {
+            num_languages++;
+            sprintf(buf, "%s%-15s%s", CCCYN(ch, C_NRM),
+                    tmp_capitalize(language_names[x]), CCNRM(ch, C_NRM));
+            if (num_languages % 4 == 0)
+                strcat(buf, "\r\n");
+            strcat(outbuf, buf);
+        }
+    }
+    sprintf(buf, "\r\n");
+    strcat(outbuf, buf);
     /* Routine to show what spells a char is affected by */
     if (k->affected) {
         for (aff = k->affected; aff; aff = aff->next) {
@@ -5592,6 +5614,7 @@ ACMD(do_set)
     char is_file = 0, is_mob = 0, is_player = 0;
     int parse_char_class(char *arg);
     int parse_race(char *arg);
+    int mode, idx = 0;
 
     static struct set_struct fields[] = {
         {"brief", LVL_IMMORT, PC, BINARY, "WizardFull"},    /* 0 */
@@ -5696,6 +5719,7 @@ ACMD(do_set)
         {"badge", LVL_IMMORT, PC, MISC, "AdminFull"},
         {"skill", LVL_IMMORT, PC, MISC, "WizardFull"},
         {"reputation", LVL_IMMORT, PC, NUMBER, "AdminFull"},
+        {"language", LVL_IMMORT, BOTH, MISC, "AdminFull"},
         {"\n", 0, BOTH, MISC, ""}
     };
 
@@ -6393,6 +6417,43 @@ ACMD(do_set)
 
     case 101:
         GET_REPUTATION(vict) = RANGE(0, 1000);
+        break;
+    case 102:
+        arg1 = tmp_getword(&argument);
+        arg2 = tmp_getword(&argument);
+
+        if (((*arg1 != '+') && (*arg1 != '-')) || !*arg2) {
+            send_to_char(ch, "Usage: set <vict> language [+/-] [LANG ...]\r\n");
+            return;
+        }
+
+        if (*arg1 == '+') {
+            mode = 0;
+        }
+        else if (*arg1 == '-') {
+            mode = 1;
+        }
+        else {
+            send_to_char(ch, "Usage: set <vict> language [+/-] [LANG ...]\r\n");
+            return;
+        }
+
+        while (*arg2) {
+           idx = search_block(arg2, language_names, FALSE);
+
+           if (idx < 0) {
+               send_to_char(ch, "Invalid language.  Skipping...\r\n");
+               arg2 = tmp_getword(&argument);
+               continue;
+           }
+
+           if (mode == 0)
+               KNOWN_LANGUAGES(vict) |= ((long long)1 << idx);
+           else
+               KNOWN_LANGUAGES(vict) &= ~((long long)1 << idx);
+
+            arg2 = tmp_getword(&argument);
+        }
         break;
     default:
         sprintf(buf, "Can't set that!");

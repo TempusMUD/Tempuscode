@@ -256,6 +256,7 @@ ACMD(do_mload);
 ACMD(do_mood);
 ACMD(do_mount);
 ACMD(do_show_more);
+ACMD(do_show_language);
 ACMD(do_move);
 ACMD(do_mshield);
 ACMD(do_not_here);
@@ -339,6 +340,7 @@ ACMD(do_snatch);
 ACMD(do_sneak);
 ACMD(do_snipe);
 ACMD(do_snoop);
+ACMD(do_speak_language);
 ACMD(do_spec_comm);
 ACMD(do_specializations);
 ACMD(do_special);
@@ -1161,7 +1163,8 @@ struct command_info cmd_info[] = {
 	{"sob", POS_RESTING, do_action, 0, 0, 0, 0},
 	{"socials", POS_DEAD, do_commands, 0, SCMD_SOCIALS, 0, 0},
 	{"soilage", POS_SLEEPING, do_soilage, 0, 0, 0, 0},
-	{"speak", POS_RESTING, do_say, 0, SCMD_SAY, 0, 0},
+//	{"speak", POS_RESTING, do_say, 0, SCMD_SAY, 0, 0},
+	{"speak", POS_RESTING, do_speak_language, 0, 0, 0, 0},
 	{"specials", POS_DEAD, do_special, LVL_IMPL, 0, 0, 0},
 	{"specializations", POS_DEAD, do_specializations, 0, 0, 0, 0},
 	{"spells", POS_SLEEPING, do_skills, 0, SCMD_SPELLS_ONLY, 0, 0},
@@ -1385,6 +1388,7 @@ struct command_info cmd_info[] = {
 	{"innocently", POS_DEAD, do_mood, 0, 0, 0, 0},
 	{"kindly", POS_DEAD, do_mood, 0, 0, 0, 0},
 	{"knowingly", POS_DEAD, do_mood, 0, 0, 0, 0},
+	{"language", POS_DEAD, do_show_language, 0, 0, 0, 0},
 	{"lazily", POS_DEAD, do_mood, 0, 0, 0, 0},
 	{"loudly", POS_DEAD, do_mood, 0, 0, 0, 0},
 	{"lovingly", POS_DEAD, do_mood, 0, 0, 0, 0},

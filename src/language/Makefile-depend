@@ -1,0 +1,4 @@
+$(OBJ)/language.o : language.cc \
+	$(INCLUDE)/interpreter.h $(INCLUDE)/constants.h $(INCLUDE)/language.h $(INCLUDE)/utils.h $(INCLUDE)/creature.h $(INCLUDE)/comm.h $(INCLUDE)/screen.h 
+	$(CXX) -c $(CXXFLAGS) language.cc          -o $(OBJ)/language.o
+OBJFILES= $(OBJ)/language.o

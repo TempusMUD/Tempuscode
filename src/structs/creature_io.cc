@@ -15,8 +15,7 @@
 #include "creature.h"
 #include "char_class.h"
 #include "handler.h"
-
-
+#include "language.h"
 
 void obj_to_room(struct obj_data *object, struct room_data *room);
 void add_alias(struct Creature *ch, struct alias_data *a);
@@ -461,6 +460,8 @@ Creature::saveToXML()
 		GET_LEVEL(ch), genders[GET_SEX(ch)], player_race[GET_RACE(ch)],
 		GET_HEIGHT(ch), GET_WEIGHT(ch), GET_ALIGNMENT(ch));
 	
+    fprintf(ouf, "<languages known=\"%lld\" current=\"%lld\"/>\n",
+            KNOWN_LANGUAGES(ch), GET_LANGUAGE(ch));
 	fprintf(ouf, "<class name=\"%s\"", pc_char_class_types[GET_CLASS(ch)]);
 	if( IS_REMORT(ch) ) {
 		fprintf(ouf, " remort=\"%s\" gen=\"%d\"",
@@ -676,6 +677,10 @@ Creature::loadFromXML( const char *path )
             points.gold = xmlGetIntProp(node, "gold");
             points.cash = xmlGetIntProp(node, "cash");
             points.exp = xmlGetIntProp(node, "xp");
+        } else if (xmlMatches(node->name, "languages")) {
+            GET_LANGUAGE(this) = xmlGetLongLongProp(node, "current");
+            KNOWN_LANGUAGES(this) = xmlGetLongLongProp(node, "known");
+
         } else if ( xmlMatches(node->name, "stats") ) {
             player.level = xmlGetIntProp(node, "level");
             player.height = xmlGetIntProp(node, "height");
