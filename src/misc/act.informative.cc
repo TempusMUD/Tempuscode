@@ -46,6 +46,7 @@ using namespace std;
 #include "security.h"
 #include "char_class.h"
 #include "tmpstr.h"
+#include "tokenizer.h"
 
 /* extern variables */
 extern struct room_data *world;
@@ -3745,6 +3746,55 @@ print_object_location(int num, struct obj_data *obj,
 }
 
 
+/**
+ * Checks to see that the given object matches the search criteria
+ * @param req The list of required search parameters
+ * @param exc The list of excluded search parameters
+ * @param thing The obj_data of the object to be reviewed
+ *
+ * @return a boolean value representing if the object passed the search criteria
+ *
+**/ 
+
+bool isWhereMatch( const list<char *> &req, const list<char *> &exc, obj_data *thing) {
+    list<char *>::const_iterator reqit, excit;
+    
+    for(reqit = req.begin(); reqit != req.end(); reqit++) {
+        if(!isname(*reqit, thing->name)) 
+            return false;
+    }
+    for(excit = exc.begin(); excit != exc.end(); excit++) {
+        if(isname(*excit, thing->name)) 
+            return false;
+    }
+    return true;
+}
+
+/**
+ * Checks to see that the given object matches the search criteria
+ * @param req The list of required search parameters
+ * @param exc The list of excluded search parameters
+ * @param mob The Creature struct of the mobile to be reviewed
+ *
+ * @return a boolean value representing if the object passed the search criteria
+ *
+**/ 
+bool isWhereMatch( const list<char *> &req, const list<char *> &exc, Creature *mob) {
+    list<char *>::const_iterator reqit, excit;
+
+    for(reqit = req.begin(); reqit != req.end(); reqit++) {
+        if(!isname(*reqit, mob->player.name)) {
+            return false;
+        }
+    }
+    for(excit = exc.begin(); excit != exc.end(); excit++) {
+        if(isname(*excit, mob->player.name)) {
+            return false;
+        }
+    }
+    return true;
+}
+
 
 void
 perform_immort_where(struct Creature *ch, char *arg)
@@ -3754,10 +3804,12 @@ perform_immort_where(struct Creature *ch, char *arg)
 	struct descriptor_data *d;
 	int num = 0, found = 0;
 	char main_buf[MAX_STRING_LENGTH];
-	char arg1[MAX_INPUT_LENGTH], arg2[MAX_INPUT_LENGTH];
+	char arg1[MAX_INPUT_LENGTH];
+    Tokenizer arguments(arg);
+    list<char *> required, excluded;
 
-	arg1[0] = arg2[0] = '\0';
-	if (!*arg) {
+	arg1[0] = '\0';
+	if (!arguments.hasNext()) {
 		strcpy(main_buf, "Players\r\n-------\r\n");
 		for (d = descriptor_list; d; d = d->next) {
 			if (STATE(d) == CON_PLAYING) {
@@ -3790,16 +3842,28 @@ perform_immort_where(struct Creature *ch, char *arg)
 		}
 		page_string(ch->desc, main_buf);
 	} else {
-		main_buf[0] = '\0';
+        while(arguments.next(arg1)) {
+            if(arg1[0] == '!') {
+                excluded.push_back(tmp_strdup(arg1 + 1));
+            }
+            else {
+                required.push_back(tmp_strdup(arg1));
+            }
+        }
+        
+	    if(required.empty()) { //if there are no required fields don't search
+            send_to_char(ch, "You're going to have to be a bit more specific than that.\r\n");
+            return;
+        }
+        
+        main_buf[0] = '\0';
 		list <string> outList;
 
-		two_arguments(arg, arg1, arg2);
 		CreatureList::iterator cit = characterList.begin();
 		for (; cit != characterList.end(); ++cit) {
 			i = *cit;
-			if (CAN_SEE(ch, i) && i->in_room && isname(arg1, i->player.name) &&
+			if (CAN_SEE(ch, i) && i->in_room && isWhereMatch(required, excluded, i) &&
 				(++num) &&
-				(!*arg2 || isname(arg2, i->player.name)) &&
 				(GET_MOB_SPEC(i) != fate || GET_LEVEL(ch) >= LVL_SPIRIT)) {
 				found = 1;
 				sprintf(buf, "%sM%s%3d. %s%-25s%s - %s[%s%5d%s]%s %s%s%s\r\n",
@@ -3812,8 +3876,7 @@ perform_immort_where(struct Creature *ch, char *arg)
 			}
 		}
 		for (num = 0, k = object_list; k; k = k->next) {
-			if (CAN_SEE_OBJ(ch, k) && isname(arg1, k->name) && ++num && (!*arg2
-					|| isname(arg2, k->name))) {
+			if (CAN_SEE_OBJ(ch, k) && isWhereMatch(required, excluded, k) && ++num) {
 				found = 1;
 				main_buf[0] = '\0';
 				print_object_location(num, k, ch, TRUE, main_buf);
@@ -3839,9 +3902,6 @@ perform_immort_where(struct Creature *ch, char *arg)
 		}
 	}
 }
-
-
-
 
 ACMD(do_where)
 {
