@@ -1278,6 +1278,15 @@ ACMD(do_discharge)
     return;
     }
 
+    if ( (SECT_TYPE(ch->in_room) == SECT_UNDERWATER ||
+	  SECT_TYPE(ch->in_room) == SECT_WATER_SWIM ||
+	  SECT_TYPE(ch->in_room) == SECT_WATER_NOSWIM ||
+          SECT_TYPE(ch->in_room) == SECT_ELEMENTAL_WATER ) )
+    {
+	send_to_char("ERROR: Systems halted a process that would have caused a short circuit.\r\n", ch );
+	return;
+    }
+
     if (!*arg1) {
     send_to_char("Usage: discharge <energy discharge amount> <victim>\r\n",ch);
     return;
