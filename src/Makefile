@@ -38,6 +38,6 @@ $(SUBDIRS) : FORCE
 $(EXE): $(OBJ)/*.o
 	@printf "[33m :: linking...[0m\n"
 	$(CXX) $(CCFLAGS) $(OBJ)/*.o $(LIBS) -o $@ $(LDFLAGS)
-
+ 
 FORCE :
 # DO NOT DELETE
