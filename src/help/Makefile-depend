@@ -1,0 +1,7 @@
+$(OBJ)/help_collection.o : help_collection.cc \
+	$(INCLUDE)/structs.h $(INCLUDE)/char_data.h $(INCLUDE)/utils.h $(INCLUDE)/defs.h $(INCLUDE)/help.h $(INCLUDE)/interpreter.h $(INCLUDE)/db.h $(INCLUDE)/comm.h $(INCLUDE)/screen.h $(INCLUDE)/handler.h 
+	$(CXX) -c $(CXXFLAGS) help_collection.cc   -o $(OBJ)/help_collection.o
+$(OBJ)/help_group.o : help_group.cc \
+	$(INCLUDE)/structs.h $(INCLUDE)/char_data.h $(INCLUDE)/utils.h $(INCLUDE)/defs.h $(INCLUDE)/help.h $(INCLUDE)/interpreter.h $(INCLUDE)/db.h $(INCLUDE)/comm.h $(INCLUDE)/screen.h $(INCLUDE)/handler.h 
+	$(CXX) -c $(CXXFLAGS) help_group.cc        -o $(OBJ)/help_group.o
+OBJFILES= $(OBJ)/help_collection.o $(OBJ)/help_group.o
