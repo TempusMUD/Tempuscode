@@ -2571,7 +2571,7 @@ ACMD(do_defend)
 		if (DEFENDING(ch))
 			stop_defending(ch);
 		else
-			send_to_char(ch, "You aren't defending anyone excep tyourself.\r\n");
+			send_to_char(ch, "You aren't defending anyone except yourself.\r\n");
 		return;
 	}
 
