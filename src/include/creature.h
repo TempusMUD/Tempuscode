@@ -641,10 +641,10 @@ typedef struct memory_rec_struct memory_rec;
 
 /* These data contain information about a players time data */
 struct time_data {
-	time_t birth;				/* This represents the characters age                */
-	time_t death;				// when did we die
-	time_t logon;				/* Time of the last logon (used to calculate played) */
-	int played;					/* This is the total accumulated time played in secs */
+	time_t birth;//This represents the characters age
+	time_t death;// when did we die
+	time_t logon;// Time of the last logon (used to calculate played)
+	time_t played;// This is the total accumulated time played in secs
 };
 
 static const int MAX_WEAPON_SPEC = 6;

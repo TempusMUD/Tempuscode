@@ -1587,7 +1587,11 @@ do_stat_character(struct Creature *ch, struct Creature *k)
         strcpy(buf2, (char *)asctime(localtime(&(k->player.time.logon))));
         buf1[10] = buf2[10] = '\0';
 
-        sprintf(buf, "Created: [%s], Last Logon: [%s], Played [%dh %dm], Age [%d]\r\n", buf1, buf2, k->player.time.played / 3600, ((k->player.time.played / 3600) % 60), GET_AGE(k));    //age(k).year);
+        sprintf(buf, "Created: [%s], Last Logon: [%s], Played [%ldh %ldm], Age [%d]\r\n", 
+                buf1, buf2, 
+                k->player.time.played / 3600, 
+                ((k->player.time.played / 3600) % 60), 
+                GET_AGE(k) );
         strcat(outbuf, buf);
 
         sprintf(buf,

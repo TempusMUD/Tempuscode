@@ -543,7 +543,7 @@ Creature::saveToXML()
 	fprintf(ouf, "/>\n");
 
 
-	fprintf(ouf, "<time birth=\"%ld\" death=\"%ld\" played=\"%d\" last=\"%ld\"/>\n",
+	fprintf(ouf, "<time birth=\"%ld\" death=\"%ld\" played=\"%ld\" last=\"%ld\"/>\n",
 		ch->player.time.birth, ch->player.time.death, ch->player.time.played,
 		ch->player.time.logon);
 
@@ -734,7 +734,7 @@ Creature::loadFromXML( long id )
         } else if ( xmlMatches(node->name, "time") ) {
             player.time.birth = xmlGetLongProp(node, "birth");
             player.time.death = xmlGetLongProp(node, "death");
-            player.time.played = xmlGetIntProp(node, "played");
+            player.time.played = xmlGetLongProp(node, "played");
             player.time.logon = xmlGetLongProp(node, "last");
         } else if ( xmlMatches(node->name, "carnage") ) {
             GET_PKILLS(this) = xmlGetIntProp(node, "pkills");
