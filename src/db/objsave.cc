@@ -357,6 +357,8 @@ Crash_listrent(struct Creature *ch, char *name)
 		case RENT_FORCED:
 			strcat(buf, "TimedOut");
 			break;
+        case RENT_NEW_CHAR:
+            strcat(buf, "New");
 		default:
 			strcat(buf, "Undef");
 			break;
