@@ -590,8 +590,18 @@ void CTextEditor::ProcessHelp(char *inStr) {
         sprintf(buf,"%sC%s - %sClear Buffer     ",buf,CCYEL(ch,C_NRM),CCNRM(ch,C_NRM));
         sprintf(buf,"%s    %s%s",buf,CCBLD(ch,C_CMP),CCYEL(ch,C_NRM));
         sprintf(buf,"%sU%s - %sUndo Changes  \r\n",buf,CCYEL(ch,C_NRM),CCNRM(ch,C_NRM));
+	if(PLR_FLAGGED(ch, PLR_MAILING)) {
+	    sprintf(buf,"%s%s%s            ",buf,CCBLD(ch,C_CMP),CCYEL(ch,C_NRM));
+	    sprintf(buf,"%sT%s - %sList Recipients",buf,CCYEL(ch,C_NRM),CCNRM(ch,C_NRM));
+	    sprintf(buf,"%s      %s%s",buf,CCBLD(ch,C_CMP),CCYEL(ch,C_NRM));
+	    sprintf(buf,"%sA%s - %sAdd Recipient\r\n",buf,CCYEL(ch,C_NRM),CCNRM(ch,C_NRM));
+	    sprintf(buf,"%s%s%s            ",buf,CCBLD(ch,C_CMP),CCYEL(ch,C_NRM));
+	    sprintf(buf,"%sE%s - %sRemove Recipient",buf,CCYEL(ch,C_NRM),CCNRM(ch,C_NRM));
+	}
         sprintf(buf,"%s%s%s     *",buf,CCBLD(ch,C_CMP),CCCYN(ch,C_NRM));
-        sprintf(buf,"%s%s-------------------------------------------------------",buf,CCBLU(ch,C_NRM));
+     
+ 
+	sprintf(buf,"%s%s-------------------------------------------------------",buf,CCBLU(ch,C_NRM));
         sprintf(buf,"%s%s*%s\r\n",buf,CCCYN(ch,C_NRM),CCNRM(ch,C_NRM));
         SendMessage(buf);
     } else {
@@ -738,8 +748,193 @@ bool CTextEditor::ProcessCommand(char *inStr) {
         case 'u':   // Undo Changes
             UndoChanges(inStr);
             break;
+        case 't':
+	    if(PLR_FLAGGED(desc->character, PLR_MAILING)) {
+		ListRecipients(desc);
+	    }
+	    break;
+        case 'a':
+	    if(PLR_FLAGGED(desc->character, PLR_MAILING)) {
+		inStr = one_argument(inStr, command);
+		AddRecipient(desc, command);
+	    }
+	    break;
+        case 'e':
+	    if(PLR_FLAGGED(desc->character, PLR_MAILING)) {
+		inStr = one_argument(inStr, command);
+		RemRecipient(desc, command);
+	    }
+	    break;
+
     }
 
     return false;
 }
+
+void CTextEditor::ListRecipients(struct descriptor_data *desc) {
+    char   *cc_list = NULL;
+    struct mail_recipient_data *mail_rcpt = NULL;
+
+    cc_list = new char[MAX_INPUT_LENGTH * 3 + 7];
+    
+    if(desc->mail_to) {
+	sprintf(cc_list, "%sTo%s:%s ", CCYEL(desc->character, C_NRM), CCBLU(desc->character, C_NRM), CCCYN(desc->character, C_NRM));
+        for(mail_rcpt = desc->mail_to; mail_rcpt;){
+	    strcat(cc_list, CAP(get_name_by_id(mail_rcpt->recpt_idnum)));
+            if (mail_rcpt->next) {
+                strcat(cc_list, ", ");
+		mail_rcpt = mail_rcpt->next;
+	    }
+            else {
+                strcat(cc_list, "\r\n");
+		break;
+	    }
+	}
+    }   
+
+    sprintf(cc_list, "%s%s", cc_list, CCNRM(desc->character, C_NRM));
+    SendMessage(cc_list);
+
+    if(cc_list){
+	delete cc_list;
+    }
+
+}
+
+void CTextEditor::AddRecipient(struct descriptor_data *desc, char* name) {
+    long new_id_num = 0;
+    struct mail_recipient_data *recipient = NULL;
+    struct mail_recipient_data *added_pointer = NULL;
+    char buf[MAX_INPUT_LENGTH];
+    int x = 0;
+
+   
+
+    new_id_num = get_id_by_name(name);
+    if ( ( new_id_num ) < 0 ) {
+	SendMessage("Cannot find anyone by that name.\r\n");
+	return;
+    }
+
+    added_pointer = (struct mail_recipient_data *)malloc(sizeof(struct mail_recipient_data));
+    added_pointer->recpt_idnum = new_id_num;
+    added_pointer->next = NULL;
+
+    // Now find the end of the current list and add the new recipient
+    
+    // First case, originally just one recipient
+    if(desc->mail_to) {
+	
+	if(desc->mail_to->recpt_idnum == new_id_num) {
+	    sprintf(buf, "%s is already on the recipient list.\r\n", CAP(get_name_by_id(new_id_num)));
+	    SendMessage(buf);
+	    free(added_pointer);
+	    return;
+	}
+
+	else if(desc->mail_to->next == NULL) {
+	    desc->mail_to->next = added_pointer;
+	    sprintf(buf, "%s added to recipient list.\r\n", CAP(get_name_by_id(new_id_num)));
+	    SendMessage(buf);
+	    ListRecipients(desc);
+	    return;
+	}
+    }
+    
+    for(recipient = desc->mail_to; recipient;){
+	if (recipient->next && x < 90) {
+		recipient = recipient->next;
+
+		if(recipient->recpt_idnum == new_id_num) {
+		    sprintf(buf, "%s is already on the recipient list.\r\n", CAP(get_name_by_id(new_id_num)));
+		    SendMessage(buf);
+		    free(added_pointer);
+		    return;
+		}
+		x++;
+	}
+            else {
+                recipient->next = added_pointer;
+		sprintf(buf, "%s added to recipient list.\r\n", CAP(get_name_by_id(new_id_num)));
+		SendMessage(buf);
+		ListRecipients(desc);
+		 return;
+	    }
+    }
+
+}
+
+void CTextEditor::RemRecipient(struct descriptor_data *desc, char* name) {
+	int removed_idnum = -1;
+	struct mail_recipient_data *tmp_recipient = NULL;
+	struct mail_recipient_data *previous_recipient = NULL;
+	struct mail_recipient_data *next_recipient = NULL;
+	char buf[MAX_INPUT_LENGTH];
+	
+	removed_idnum = get_id_by_name(name);
+
+	if(removed_idnum < 0 ) {
+	    SendMessage("Cannot find anyone by that name.\r\n");
+	    return;
+	}
+
+	// Step through the tree and compare the removed idnum with the idnums in the list
+
+	// First case...the mail only has one recipient
+
+	if(desc->mail_to) {
+	   
+	    if(!desc->mail_to->next) {
+		
+		if(desc->mail_to->recpt_idnum == removed_idnum) {
+		    SendMessage("You cannot remove the last recipient of the letter.\r\n");
+		}
+		return;
+	    }
+
+	    else if(desc->mail_to->recpt_idnum == removed_idnum) {
+		desc->mail_to = desc->mail_to->next;
+		sprintf(buf, "%s removed from recipient list.\r\n", CAP(get_name_by_id(removed_idnum)));
+		SendMessage(buf);
+		return;
+	    }
+	}
+
+  
+
+
+
+	for(tmp_recipient = desc->mail_to; tmp_recipient;) {
+	 
+	    previous_recipient = tmp_recipient;
+	    tmp_recipient = tmp_recipient->next;
+	    next_recipient = tmp_recipient->next;
+	   
+	    if( tmp_recipient->recpt_idnum == removed_idnum ) {
+		previous_recipient->next = next_recipient;
+		free(tmp_recipient);
+		sprintf(buf, "%s removed from recipient list.\r\n", CAP(get_name_by_id(removed_idnum)));
+		SendMessage(buf);
+		return;
+	    }
+	}
+	
+	return;
+	
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 

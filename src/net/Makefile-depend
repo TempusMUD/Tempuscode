@@ -1,4 +1,4 @@
 $(OBJ)/comm.o : comm.cc \
-	$(INCLUDE)/structs.h $(INCLUDE)/spells.h $(INCLUDE)/utils.h $(INCLUDE)/comm.h $(INCLUDE)/interpreter.h $(INCLUDE)/handler.h $(INCLUDE)/db.h $(INCLUDE)/house.h $(INCLUDE)/screen.h $(INCLUDE)/intermud.h $(INCLUDE)/vehicle.h $(INCLUDE)/help.h 
+	$(INCLUDE)/structs.h $(INCLUDE)/spells.h $(INCLUDE)/utils.h $(INCLUDE)/comm.h $(INCLUDE)/interpreter.h $(INCLUDE)/handler.h $(INCLUDE)/db.h $(INCLUDE)/house.h $(INCLUDE)/screen.h $(INCLUDE)/intermud.h $(INCLUDE)/vehicle.h $(INCLUDE)/help.h $(INCLUDE)/desc_data.h 
 	$(CXX) -c $(CXXFLAGS) comm.cc              -o $(OBJ)/comm.o
 OBJFILES= $(OBJ)/comm.o
