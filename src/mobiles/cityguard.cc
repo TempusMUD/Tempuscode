@@ -10,6 +10,7 @@
 #include "tmpstr.h"
 #include "screen.h"
 #include "utils.h"
+#include "specs.h"
 
 struct cityguard_data {
 	int targ_room;
@@ -210,7 +211,7 @@ throw_char_in_jail(struct Creature *ch, struct Creature *vict)
 
 	locker_room = real_room(ch->in_room->number + 1);
 	if (locker_room)
-		locker = read_object(3178);
+		locker = read_object(JAIL_LOCKER_VNUM);
 	if (locker && locker_room) {
 		obj_to_room(locker, locker_room);
 
@@ -318,7 +319,7 @@ drag_char_to_jail(Creature *ch, Creature *vict, room_data *jail_room)
 
 	act(tmp_sprintf("You drag a semi-conscious $N %s.", to_dirs[dir]), false,
 		ch, 0, vict, TO_CHAR);
-	if (!number(0, 2))
+	if (!number(0, 1))
 		act("You dimly feel yourself being dragged down the street.", false,
 			ch, 0, vict, TO_VICT | TO_SLEEP);
 	act(tmp_sprintf("$n drags a semi-conscious $N %s.", to_dirs[dir]), false,
@@ -468,12 +469,12 @@ SPECIAL(cityguard)
 			return true;
 		}
 
+		char_under_arrest(tch);
+
 		if (!number(0, 3)) {
 			call_for_help(self, tch);
 			return true;
 		}
-
-		char_under_arrest(tch);
 
 		return false;
 	}
@@ -518,7 +519,7 @@ SPECIAL(cityguard)
 			target = tch;
 		}
 		if (action < 4
-				&& ((lawful && GET_REPUTATION(tch) >= CRIMINAL_REP)
+				&& ((lawful && IS_CRIMINAL(tch))
 						|| char_is_arrested(tch))
 				&& can_see_creature(self, tch)
 				&& !PRF_FLAGGED(tch, PRF_NOHASSLE)
@@ -528,7 +529,8 @@ SPECIAL(cityguard)
 			target = tch;
 		}
 		if (action < 3
-				&& char_is_arrested(tch)
+				&& ((lawful && IS_CRIMINAL(tch))
+						|| char_is_arrested(tch))
 				&& tch->getPosition() <= POS_SLEEPING
 				&& (GET_LEVEL(tch) >= 20 || GET_REMORT_GEN(tch) > 0)) {
 			action = 3;
