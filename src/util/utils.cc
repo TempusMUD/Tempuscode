@@ -31,6 +31,7 @@
 #include "screen.h"
 #include "spells.h"
 #include "handler.h"
+#include "interpreter.h"
 #include "security.h"
 #include "db.h"
 
