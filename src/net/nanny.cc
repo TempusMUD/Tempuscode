@@ -569,12 +569,14 @@ handle_input(struct descriptor_data *d)
 		}
 
 		char_id = d->account->get_char_by_index(atoi(arg));
-		d->creature = new Creature(true);
-		d->creature->desc = d;
-		if (!d->creature->loadFromXML(char_id)) {
-			send_to_desc(d, "Sorry.  That character could not be loaded.\r\n");
-			set_desc_state(CXN_WAIT_MENU, d);
-			return;
+		d->creature = get_char_in_world_by_idnum(char_id);
+		if (!d->creature) {
+			d->creature = new Creature(true);
+			if (!d->creature->loadFromXML(char_id)) {
+				send_to_desc(d, "Sorry.  That character could not be loaded.\r\n");
+				set_desc_state(CXN_WAIT_MENU, d);
+				return;
+			}
 		}
 
 		set_desc_state(CXN_DELETE_PW, d);
@@ -605,14 +607,20 @@ handle_input(struct descriptor_data *d)
 		}
 
 		send_to_desc(d, "Wrong password!  Delete cancelled.\r\n");
+		if (!d->creature->in_room) {
+			delete d->creature;
+			d->creature = NULL;
+		}
 		set_desc_state(CXN_WAIT_MENU, d);
 		break;
 	case CXN_DELETE_VERIFY:
 		if (strcmp(arg, "yes")) {
 			send_to_desc(d, "\r\nDelete cancelled.  %s will not be deleted.\r\n\r\n",
 				GET_NAME(d->creature));
-			delete d->creature;
-			d->creature = NULL;
+			if (!d->creature->in_room) {
+				delete d->creature;
+				d->creature = NULL;
+			}
 			set_desc_state(CXN_WAIT_MENU, d);
 			break;
 		}
@@ -621,9 +629,16 @@ handle_input(struct descriptor_data *d)
 		slog("%s[%d] has deleted character %s[%ld]",
 				d->account->get_name(), d->account->get_idnum(),
 				GET_NAME(d->creature), GET_IDNUM(d->creature) );
-		d->account->delete_char(d->creature);
-		delete d->creature;
-		d->creature = NULL;
+		if (d->creature->in_room) {
+			// if the character is already in the game, delete_char will
+			// handle it
+			d->account->delete_char(d->creature);
+		} else {
+			// if the character was loaded, we need to delete it "manually"
+			d->account->delete_char(d->creature);
+			delete d->creature;
+			d->creature = NULL;
+		}
 		set_desc_state(CXN_WAIT_MENU, d);
 		break;
 	case CXN_AFTERLIFE:
