@@ -1661,7 +1661,7 @@ do_destroy_mobile(struct Creature *ch, int vnum)
 }
 
 int
-mobile_experience( Creature *mob, FILE *outfile /*= NULL*/ )
+newmobile_experience( Creature *mob, FILE *outfile /*= NULL*/ )
 {
 	int levelBonus = mob->getLevelBonus(true);
 	int factor = 100;
@@ -1849,6 +1849,137 @@ mobile_experience( Creature *mob, FILE *outfile /*= NULL*/ )
 							GET_LEVEL(mob), GET_REMORT_GEN(mob),
 							oldexp, exp, base, factor, percent);
 	}
+	return exp;
+}
+int
+mobile_experience(struct Creature *mob, FILE *outfile)
+{
+	int exp = 0, tmp = 0;
+	exp = 13 * ((GET_LEVEL(mob) * GET_LEVEL(mob) + 24) >> 3);
+	tmp = exp_scale[(int)MIN(GET_LEVEL(mob) + 1, LVL_GRIMP)];
+	tmp += (tmp * GET_LEVEL(mob)) / 100;
+	exp = tmp / MAX(1, exp);
+	exp = MAX(10, exp);
+
+	if (GET_MAX_HIT(mob))
+		exp += (exp * GET_MAX_HIT(mob)) /
+			MAX(1, GET_LEVEL(mob) * GET_LEVEL(mob) * 50);
+	else
+		exp +=
+			(exp * (((GET_HIT(mob) * (GET_MANA(mob) + 1)) / 2) +
+				GET_MOVE(mob))) / MAX(1, GET_LEVEL(mob) * GET_LEVEL(mob) * 50);
+
+	exp += (exp * mob->mob_specials.shared->damnodice *
+		(mob->mob_specials.shared->damsizedice + 1)) / 120;
+
+	if (IS_MAGE(mob) || IS_CLERIC(mob) || IS_LICH(mob))
+		exp += (exp * GET_MAX_MANA(mob)) / 15000;
+	if (IS_KNIGHT(mob) || IS_BARB(mob) || IS_RANGER(mob) || IS_WARRIOR(mob))
+		exp += (exp * GET_MAX_MOVE(mob)) / 15000;
+	if (IS_THIEF(mob))
+		exp += (exp * GET_LEVEL(mob)) / 150;
+	if (GET_CLASS(mob) == CLASS_ARCH || IS_DRAGON(mob))
+		exp = (int)(exp * 1.7);
+	else if (IS_DEVIL(mob) || IS_DEMON(mob) || IS_SLAAD(mob) || IS_CELESTIAL(mob))
+		exp = (int)(exp * 1.5);
+	else if (NON_CORPOREAL_UNDEAD(mob))
+		exp = (int)(exp * 1.3);
+	else if (IS_GIANT(mob))
+		exp = (int)(exp * 1.2);
+	else if (IS_TROLL(mob))
+		exp *= 2;
+
+	exp += (exp * (GET_STR(mob) - 11)) / 20;
+	exp += (exp * (GET_DEX(mob) - 11)) / 23;
+	exp += (exp * (GET_INT(mob) - 11)) / 27;
+	exp += (exp * (GET_WIS(mob) - 11)) / 29;
+
+	exp += (exp * (GET_DAMROLL(mob))) / 200;
+	exp += (exp * (GET_HITROLL(mob))) / 300;
+
+	exp -= (exp * (MAX(-200, GET_AC(mob)) - 100)) / 200;
+	exp += (exp * GET_MORALE(mob)) / 300;
+
+	if (AFF2_FLAGGED(mob, AFF2_SLOW)) {
+		exp = (int)(exp * 0.7);
+	}
+
+	const int MAXAFF = 4;
+	int affs = 0;
+	
+	if (affs < MAXAFF && AFF3_FLAGGED(mob, AFF3_DOUBLE_DAMAGE)) {
+		exp = (int)(exp * 1.5);
+		++affs;
+	}
+	if (affs < MAXAFF && AFF2_FLAGGED(mob, AFF2_HASTE)) {
+		exp = (int)(exp * 1.4);
+		++affs;
+	}
+	if (affs < MAXAFF && AFF2_FLAGGED(mob, AFF2_TRUE_SEEING)) {
+		exp = (int)(exp * 1.3);
+		++affs;
+	}
+	if (affs < MAXAFF && AFF2_FLAGGED(mob, AFF2_BLADE_BARRIER)) {
+		exp = (int)(exp * 1.3);
+		++affs;
+	}
+	if (affs < MAXAFF && AFF_FLAGGED(mob, AFF_REGEN) || IS_TROLL(mob)) {
+		exp = (int)(exp * 1.3);
+		++affs;
+	}
+	if (affs < MAXAFF && AFF_FLAGGED(mob, AFF_SANCTUARY | AFF_NOPAIN)) {
+		exp = (int)(exp * 1.3);
+		++affs;
+	}
+	if (affs < MAXAFF && AFF3_FLAGGED(mob, AFF3_PRISMATIC_SPHERE)) {
+		exp = (int)(exp * 1.3);
+		++affs;
+	}
+	if (affs < MAXAFF && AFF2_FLAGGED(mob, AFF2_FIRE_SHIELD)) {
+		exp = (int)(exp * 1.25);
+		++affs;
+	}
+	if (affs < MAXAFF && AFF_FLAGGED(mob, AFF_INVISIBLE)) {
+		exp = (int)(exp * 1.25);
+		++affs;
+	}
+	if (affs < MAXAFF && AFF2_FLAGGED(mob, AFF2_DISPLACEMENT)) {
+		exp = (int)(exp * 1.25);
+		++affs;
+	}
+	if (affs < MAXAFF && AFF_FLAGGED(mob, AFF_BLUR)) {
+		exp = (int)(exp * 1.2);
+		++affs;
+	}
+	if (MOB_FLAGGED(mob, MOB_NOBASH)) {
+		exp = (int)(exp * 1.2);
+		++affs;
+	}
+	if (affs < MAXAFF && AFF2_FLAGGED(mob, AFF2_TRANSPARENT)) {
+		exp = (int)(exp * 1.2);
+		++affs;
+	}
+	if (affs < MAXAFF && AFF2_FLAGGED(mob, AFF2_ENERGY_FIELD)) {
+		exp = (int)(exp * 1.15);
+		++affs;
+	}
+	if (affs < MAXAFF && AFF_FLAGGED(mob, AFF_SENSE_LIFE)) {
+		exp = (int)(exp * 1.1);
+		++affs;
+	}
+	if (affs < MAXAFF && AFF_FLAGGED(mob, AFF_ADRENALINE)) {
+		exp = (int)(exp * 1.1);
+		++affs;
+	}
+	if (affs < MAXAFF && AFF_FLAGGED(mob, AFF_CONFIDENCE)) {
+		exp = (int)(exp * 1.1);
+		++affs;
+	}
+	
+	exp = (int)(exp * 1.2); // arbitrary exp bonus. :)
+	
+	exp = (exp / 10) * 10;
+	exp = MAX(0, exp);
 	return exp;
 }
 
