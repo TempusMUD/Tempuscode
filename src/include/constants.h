@@ -13,13 +13,15 @@
 #define NOTHING           -1	/* nil reference for objects                */
 #define NOBODY           -1		/* nil reference for mobiles                */
 
-#define SPECIAL_CMD    0		// special command response
-#define SPECIAL_TICK   1		// special periodic action
-#define SPECIAL_DEATH  1		// special death notification
-#define SPECIAL_FIGHT  2		// special fight starting
-#define SPECIAL_COMBAT 3		// special in-combat ability
-#define SPECIAL_ENTER  4		// special upon entrance
-#define SPECIAL_LEAVE  5		// special upon exit
+enum special_mode {
+	SPECIAL_CMD =    0,	// special command response
+	SPECIAL_TICK =   1,	// special periodic action
+	SPECIAL_DEATH =  2,	// special death notification
+	SPECIAL_FIGHT =  3,	// special fight starting
+	SPECIAL_COMBAT = 4,	// special in-combat ability
+	SPECIAL_ENTER =  5,	// special upon entrance
+	SPECIAL_LEAVE =  6,	// special upon exit
+};
 
 /* other miscellaneous defines *******************************************/
 

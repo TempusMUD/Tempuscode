@@ -40,7 +40,7 @@
 extern struct descriptor_data *descriptor_list;
 
 /* external functions */
-int special(struct char_data *ch, int cmd, int subcmd, char *arg, int spec_mode);
+int special(struct char_data *ch, int cmd, int subcmd, char *arg, special_mode spec_mode);
 void stop_fighting(CharacterList::iterator & cit);
 void remove_follower(struct char_data *ch);
 void path_remove_object(void *object);

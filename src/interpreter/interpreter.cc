@@ -54,7 +54,7 @@ extern int log_cmds;
 
 int general_search(struct char_data *ch, struct special_search_data *srch,
 	int mode);
-int special(struct char_data *ch, int cmd, int subcmd, char *arg, int spec_mode);
+int special(struct char_data *ch, int cmd, int subcmd, char *arg, special_mode spec_mode);
 
 
 /* writes a string to the command log */
@@ -2020,7 +2020,7 @@ find_command(char *command)
 
 
 int
-special(struct char_data *ch, int cmd, int subcmd, char *arg, int spec_mode)
+special(struct char_data *ch, int cmd, int subcmd, char *arg, special_mode spec_mode)
 {
 	struct obj_data *i;
 	struct special_search_data *srch = NULL;

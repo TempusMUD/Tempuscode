@@ -2060,6 +2060,12 @@ hit(struct char_data *ch, struct char_data *victim, int type)
 
 	diceroll = number(1, 20);
 
+	if (PRF2_FLAGGED(ch, PRF2_FIGHT_DEBUG)) {
+		sprintf(buf, "Thac0: %3d. Die Roll: %3d. AC: %3d\r\n",
+			calc_thaco, diceroll, victim_ac);
+		send_to_char(buf, ch);
+	}
+
 	/* decide whether this is a hit or a miss */
 	if (((diceroll < 20) && AWAKE(victim) &&
 			((diceroll == 1) || ((calc_thaco - diceroll)) > victim_ac))) {
@@ -2585,7 +2591,7 @@ perform_violence(void)
 				// precious_vict pointer next
 				//
 
-				(ch->mob_specials.shared->func) (ch, ch, 0, "", 0);
+				(ch->mob_specials.shared->func) (ch, ch, 0, "", SPECIAL_TICK);
 
 				continue;
 			}

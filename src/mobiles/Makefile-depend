@@ -1,5 +1,5 @@
 $(OBJ)/artisan.o : artisan.cc \
-	$(INCLUDE)/db.h $(INCLUDE)/structs.h $(INCLUDE)/xml_utils.h $(INCLUDE)/utils.h $(INCLUDE)/interpreter.h $(INCLUDE)/actions.h 
+	$(INCLUDE)/db.h $(INCLUDE)/structs.h $(INCLUDE)/xml_utils.h $(INCLUDE)/utils.h $(INCLUDE)/interpreter.h $(INCLUDE)/actions.h $(INCLUDE)/char_class.h $(INCLUDE)/comm.h 
 	$(CXX) -c $(CXXFLAGS) artisan.cc           -o $(OBJ)/artisan.o
 $(OBJ)/mail.o : mail.cc \
 	$(INCLUDE)/structs.h $(INCLUDE)/utils.h $(INCLUDE)/comm.h $(INCLUDE)/db.h $(INCLUDE)/interpreter.h $(INCLUDE)/handler.h $(INCLUDE)/mail.h $(INCLUDE)/screen.h $(INCLUDE)/clan.h $(INCLUDE)/materials.h 

@@ -578,7 +578,7 @@ point_update(void)
 	for (zone = zone_table; zone; zone = zone->next) {
 		if (SHADOW_ZONE(zone)) {
 			if (ZONE_IS_SHADE(zone)) {
-				shade_zone(NULL, zone, 0, NULL, 0);
+				shade_zone(NULL, zone, 0, NULL, SPECIAL_TICK);
 			}
 			// Add future shadow zone specs here shadow zone spec should work for all
 			// shadow zones so long as you create an integer array with the number for
@@ -911,7 +911,7 @@ point_update(void)
 				}
 			}
 		} else if (GET_OBJ_SPEC(j) == roaming_portal) {
-			roaming_portal(NULL, j, 0, NULL, 0);
+			roaming_portal(NULL, j, 0, NULL, SPECIAL_TICK);
 		} else if (IS_OBJ_STAT2(j, ITEM2_UNAPPROVED) ||
 			(IS_OBJ_TYPE(j, ITEM_KEY) && GET_OBJ_TIMER(j)) ||
 			(GET_OBJ_SPEC(j) == fate_portal) ||

@@ -1819,106 +1819,124 @@ perform_plant_credits(struct char_data *ch, struct char_data *vict, int amount)
 
 ACMD(do_give)
 {
-	int amount, dotmode, found, counter = 0;
+	int amount, dotmode, counter = 0;
 	struct char_data *vict;
 	struct obj_data *obj, *next_obj, *save_obj = NULL;
 	char cntbuf[80];
 
 	argument = one_argument(argument, arg);
 
-	if (!*arg)
+	if (!*arg) {
 		send_to_char("Give what to who?\r\n", ch);
-	else if (is_number(arg)) {
+		return;
+	}
+
+	if (is_number(arg)) {
 		amount = atoi(arg);
 		argument = one_argument(argument, arg);
-		if (!str_cmp("coins", arg) || !str_cmp("coin", arg)) {
+
+		if (!is_abbrev("coins", arg)) {
 			argument = one_argument(argument, arg);
 			if ((vict = give_find_vict(ch, arg)))
 				perform_give_gold(ch, vict, amount);
 			return;
-		} else if (!str_cmp("credits", arg) || !str_cmp("cash", arg) ||
-			!str_cmp("credit", arg)) {
+		} else if (!is_abbrev("credits", arg) || !is_abbrev("cash", arg)) {
 			argument = one_argument(argument, arg);
 			if ((vict = give_find_vict(ch, arg)))
 				perform_give_credits(ch, vict, amount);
 			return;
-		} else {
-			/* code to give multiple items.  anyone want to write it? -je */
-			send_to_char("You can't give more than one item at a time.\r\n",
-				ch);
-			return;
 		}
-	} else {
-		one_argument(argument, buf1);
-		if (!(vict = give_find_vict(ch, buf1)))
-			return;
-		dotmode = find_all_dots(arg);
-		if (dotmode == FIND_INDIV) {
-			if (!(obj = get_obj_in_list_vis(ch, arg, ch->carrying))) {
-				sprintf(buf, "You don't seem to have %s %s.\r\n", AN(arg),
-					arg);
-				send_to_char(buf, ch);
-			} else
-				perform_give(ch, vict, obj, TRUE);
-		} else {
-			if (dotmode == FIND_ALLDOT && !*arg) {
-				send_to_char("All of what?\r\n", ch);
-				return;
-			}
-			if (!ch->carrying)
-				send_to_char("You don't seem to be holding anything.\r\n", ch);
-			else {
-				for (obj = ch->carrying; obj; obj = next_obj) {
-					next_obj = obj->next_content;
-					if (INVIS_OK_OBJ(ch, obj) &&
-						((dotmode == FIND_ALL || isname(arg, obj->name)))) {
-						perform_give(ch, vict, obj, FALSE);
-						if (save_obj != NULL &&
-							str_cmp(save_obj->short_description,
-								obj->short_description) != 0) {
-							if (counter == 1)
-								sprintf(cntbuf, "You give $p to $N.");
-							else
-								sprintf(cntbuf, "You give $p to $N. (x%d)",
-									counter);
-							act(cntbuf, FALSE, ch, save_obj, vict, TO_CHAR);
-							if (counter == 1)
-								sprintf(cntbuf, "$n gives you $p.");
-							else
-								sprintf(cntbuf, "$n gives you $p. (x%d)",
-									counter);
-							act(cntbuf, FALSE, ch, save_obj, vict, TO_VICT);
-							if (counter == 1)
-								sprintf(cntbuf, "$n gives $p to $N.");
-							else
-								sprintf(cntbuf, "$n gives $p to $N. (x%d)",
-									counter);
-							act(cntbuf, TRUE, ch, save_obj, vict, TO_NOTVICT);
-							counter = 0;
-						}
-						found = 1;
-						save_obj = obj;
-						counter++;
-					}
-				}
+
+		/* code to give multiple items.  anyone want to write it? -je */
+		send_to_char("You can't give more than one item at a time.\r\n",
+			ch);
+		return;
+	}
+
+	one_argument(argument, buf1);
+	if (!(vict = give_find_vict(ch, buf1)))
+		return;
+
+	dotmode = find_all_dots(arg);
+
+	// Most common case - give an individual item
+	if (dotmode == FIND_INDIV) {
+		if (!(obj = get_obj_in_list_vis(ch, arg, ch->carrying))) {
+			sprintf(buf, "You don't seem to have %s %s.\r\n", AN(arg),
+				arg);
+			send_to_char(buf, ch);
+		} else
+			perform_give(ch, vict, obj, TRUE);
+		return;
+	}
+
+	// Give all.whatever
+	if (dotmode == FIND_ALLDOT && !*arg) {
+		send_to_char("All of what?\r\n", ch);
+		return;
+	}
+
+	if (!ch->carrying) {
+		send_to_char("You don't seem to be holding anything.\r\n", ch);
+		return;
+	}
+
+	for (obj = ch->carrying; obj; obj = next_obj) {
+		next_obj = obj->next_content;
+
+		if (INVIS_OK_OBJ(ch, obj) &&
+			((dotmode == FIND_ALL || isname(arg, obj->name)))) {
+			perform_give(ch, vict, obj, FALSE);
+			if (save_obj &&
+					str_cmp(save_obj->short_description,
+					obj->short_description) != 0) {
 				if (counter == 1)
 					sprintf(cntbuf, "You give $p to $N.");
 				else
-					sprintf(cntbuf, "You give $p to $N. (x%d)", counter);
+					sprintf(cntbuf, "You give $p to $N. (x%d)",
+						counter);
 				act(cntbuf, FALSE, ch, save_obj, vict, TO_CHAR);
 				if (counter == 1)
 					sprintf(cntbuf, "$n gives you $p.");
 				else
-					sprintf(cntbuf, "$n gives you $p. (x%d)", counter);
+					sprintf(cntbuf, "$n gives you $p. (x%d)",
+						counter);
 				act(cntbuf, FALSE, ch, save_obj, vict, TO_VICT);
 				if (counter == 1)
 					sprintf(cntbuf, "$n gives $p to $N.");
 				else
-					sprintf(cntbuf, "$n gives $p to $N. (x%d)", counter);
+					sprintf(cntbuf, "$n gives $p to $N. (x%d)",
+						counter);
 				act(cntbuf, TRUE, ch, save_obj, vict, TO_NOTVICT);
+				counter = 0;
 			}
+			save_obj = obj;
+			counter++;
 		}
 	}
+
+	if (!counter) {
+		sprintf(buf, "You don't seem to have %s %s.\r\n", AN(arg),
+			arg);
+		send_to_char(buf, ch);
+		return;
+	}
+
+	if (counter == 1)
+		sprintf(cntbuf, "You give $p to $N.");
+	else
+		sprintf(cntbuf, "You give $p to $N. (x%d)", counter);
+	act(cntbuf, FALSE, ch, save_obj, vict, TO_CHAR);
+	if (counter == 1)
+		sprintf(cntbuf, "$n gives you $p.");
+	else
+		sprintf(cntbuf, "$n gives you $p. (x%d)", counter);
+	act(cntbuf, FALSE, ch, save_obj, vict, TO_VICT);
+	if (counter == 1)
+		sprintf(cntbuf, "$n gives $p to $N.");
+	else
+		sprintf(cntbuf, "$n gives $p to $N. (x%d)", counter);
+	act(cntbuf, TRUE, ch, save_obj, vict, TO_NOTVICT);
 }
 
 

@@ -47,7 +47,7 @@ extern const byte movement_loss[];
 extern struct obj_data *object_list;
 
 /* external functs */
-int special(struct char_data *ch, int cmd, int subcmd, char *arg, int spec_mode);
+int special(struct char_data *ch, int cmd, int subcmd, char *arg, special_mode spec_mode);
 int find_eq_pos(struct char_data *ch, struct obj_data *obj, char *arg);
 int clan_house_can_enter(struct char_data *ch, struct room_data *room);
 int general_search(struct char_data *ch, struct special_search_data *srch,

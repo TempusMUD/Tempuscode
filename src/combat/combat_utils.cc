@@ -578,7 +578,7 @@ calculate_thaco(struct char_data *ch, struct char_data *victim,
 
 	calc_thaco -= char_class_race_hit_bonus(ch, victim);
 
-	return (calc_thaco);
+	return MAX(calc_thaco, 1);
 }
 
 void

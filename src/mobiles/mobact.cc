@@ -1584,7 +1584,7 @@ mobile_activity(void)
 
 		if (MOB2_FLAGGED(ch, MOB2_SCRIPT) && GET_IMPLANT(ch, WEAR_HOLD) &&
 			OBJ_TYPE(GET_IMPLANT(ch, WEAR_HOLD), ITEM_SCRIPT)) {
-			if (mob_read_script(ch, NULL, 0, NULL, 0))
+			if (mob_read_script(ch, NULL, 0, NULL, SPECIAL_TICK))
 				continue;
 		}
 
@@ -2444,7 +2444,7 @@ mobile_activity(void)
 		//
 
 		if (GET_CLASS(ch) == CLASS_THIEF && random_binary()) {
-			if (thief(ch, ch, 0, "", 0))
+			if (thief(ch, ch, 0, "", SPECIAL_TICK))
 				continue;
 		}
 		//
