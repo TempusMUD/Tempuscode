@@ -11,6 +11,7 @@
 #include "tmpstr.h"
 #include "account.h"
 #include "comm.h"
+#include "security.h"
 
 const char *ansi_levels[] = {
 	"none",
@@ -104,6 +105,8 @@ Account::Account(void)
 	_creation_addr = NULL;
 	_login_addr = NULL;
 	_ansi_level = 0;
+    _bank_past = 0;
+    _bank_future = 0;
 	_term_height = DEFAULT_TERM_HEIGHT;
 	_term_width = DEFAULT_TERM_WIDTH;
 }
@@ -209,6 +212,12 @@ AccountIndex::find_account( int id )
 	return NULL;
 }
 
+bool 
+AccountIndex::exists( int accountID ) const
+{
+    return binary_search( begin(), end(), accountID, AccountIndex::cmp() );
+}
+
 Account* 
 AccountIndex::find_account(const char *name) 
 {
@@ -282,8 +291,12 @@ Account::create_char(const char *name)
 	// create a player_special structure
 	ch = new Creature;
 
-	// *** if this is our first player --- he be God ***
-	if (!playerIndex.exists(1)) {
+    GET_NAME(ch) = strdup(tmp_capitalize(tmp_tolower(name)));
+    ch->char_specials.saved.idnum = playerIndex.getTopIDNum() + 1;
+	_chars.push_back(GET_IDNUM(ch));
+	
+    // *** if this is our first player --- he be God ***
+	if( GET_IDNUM(ch) == 1) {
 		GET_EXP(ch) = 160000000;
 		GET_LEVEL(ch) = LVL_GRIMP;
 
@@ -301,11 +314,7 @@ Account::create_char(const char *name)
 		GET_HOME(ch) = HOME_NEWBIE_SCHOOL;
 		ch->player_specials->saved.load_room = -1;
 	}
-
-	GET_NAME(ch) = strdup(tmp_capitalize(tmp_tolower(name)));
-
-	ch->char_specials.saved.idnum = playerIndex.getTopIDNum() + 1;
-	_chars.push_back(GET_IDNUM(ch));
+    ch->rent.rentcode = RENT_NEW_CHAR;
 
 	set_title(ch, NULL);
 
@@ -432,7 +441,7 @@ Account::authenticate(const char *pw)
 void
 Account::login(descriptor_data *d)
 {
-	slog("login: %s from %s", _name, _login_addr);
+	slog("login: %s from %s", _name, d->host);
 	set_desc_state(CXN_MENU, d);
 /*	if (_active_cxn) {
 		slog("login: %s from %s, disconnecting %s",
@@ -492,7 +501,7 @@ Account::initialize(const char *name, descriptor_data *d, int idnum)
 {
 	_id = idnum;
 	_name = strdup(name);
-	slog("new account: #%d (%s) from %s", idnum, _name, _login_addr);
+	slog("new account: #%d (%s) from %s", idnum, _name, d->host);
 }
 
 void
@@ -568,16 +577,30 @@ Account::invalid_char_index(int idx)
 }
 
 bool
-Account::deny_char_entry(void)
+Account::deny_char_entry(Creature *ch)
 {
 	descriptor_data *d;
 	int remorts = 0, mortals = 0;
-	
+
+    // Admins and full wizards can multi-play all they want
+    if (Security::isMember(ch, "WizardFull"))
+        return false;
+    if (Security::isMember(ch, "AdminFull"))
+        return false;	
+
 	for (d = descriptor_list;d;d = d->next) {
 		if (d->account == this &&
 				d->input_mode == CXN_PLAYING &&
 				d->creature) {
-			if (GET_LEVEL(d->creature) > 65)
+            // Admins and full wizards can multi-play all they want
+			if (Security::isMember(d->creature, "WizardFull"))
+				return false;
+            if (Security::isMember(d->creature, "AdminFull"))
+				return false;
+            // builder can have on a tester and vice versa.
+            if (Security::isMember(d->creature, "OLC") && ch->isTester())
+				return false;
+            if (ch->isTester() && Security::isMember(d->creature, "OLC"))
 				return false;
 			if (IS_REMORT(d->creature))
 				remorts++;
