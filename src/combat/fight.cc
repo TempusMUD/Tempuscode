@@ -839,27 +839,16 @@ damage(struct Creature *ch, struct Creature *victim, int dam,
 		dam += (dam * (POS_FIGHTING - victim->getPosition())) / 3;
 
 	if (ch) {
-		if (MOB2_FLAGGED(ch, MOB2_UNAPPROVED)
-			&& !victim->isTester())
+		if (MOB2_FLAGGED(ch, MOB2_UNAPPROVED) && !victim->isTester())
 			dam = 0;
 
-		if (ch->isTester() && !IS_MOB(victim) &&
-			!victim->isTester())
+		if (ch->isTester() && !IS_MOB(victim) && !victim->isTester())
 			dam = 0;
 
 		if (IS_MOB(victim) && GET_LEVEL(ch) >= LVL_AMBASSADOR &&
-			GET_LEVEL(ch) < LVL_TIMEGOD && !mini_mud)
+				GET_LEVEL(ch) < LVL_TIMEGOD && !mini_mud)
 			dam = 0;
 
-		if (victim != ch && IS_NPC(ch) && IS_NPC(victim) && victim->master &&
-			GET_MOB_WAIT(ch) < 10 && ch->master != victim->master &&
-			!number(0, 10) && IS_AFFECTED(victim, AFF_CHARM) &&
-			(victim->master->in_room == ch->in_room)) {
-			if (FIGHTING(ch))
-				stop_fighting(ch);
-			int retval = hit(ch, victim->master, TYPE_UNDEFINED);
-			DAM_RETURN(retval);
-		}
 		if (victim->master == ch)
 			stop_follower(victim);
 		appear(ch, victim);
