@@ -1,5 +1,5 @@
 $(OBJ)/magic.o : magic.cc \
-	$(INCLUDE)/structs.h $(INCLUDE)/utils.h $(INCLUDE)/comm.h $(INCLUDE)/spells.h $(INCLUDE)/handler.h $(INCLUDE)/db.h $(INCLUDE)/interpreter.h $(INCLUDE)/char_class.h $(INCLUDE)/flow_room.h $(INCLUDE)/fight.h 
+	$(INCLUDE)/structs.h $(INCLUDE)/utils.h $(INCLUDE)/comm.h $(INCLUDE)/spells.h $(INCLUDE)/handler.h $(INCLUDE)/db.h $(INCLUDE)/interpreter.h $(INCLUDE)/char_class.h $(INCLUDE)/flow_room.h $(INCLUDE)/fight.h $(INCLUDE)/obj_data.h 
 	$(CXX) -c $(CXXFLAGS) magic.cc             -o $(OBJ)/magic.o
 $(OBJ)/spell_parser.o : spell_parser.cc \
 	$(INCLUDE)/structs.h $(INCLUDE)/utils.h $(INCLUDE)/interpreter.h $(INCLUDE)/spells.h $(INCLUDE)/handler.h $(INCLUDE)/comm.h $(INCLUDE)/db.h $(INCLUDE)/materials.h $(INCLUDE)/char_class.h $(INCLUDE)/fight.h $(INCLUDE)/screen.h $(INCLUDE)/tmpstr.h $(INCLUDE)/vendor.h 

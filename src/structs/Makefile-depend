@@ -1,5 +1,5 @@
 $(OBJ)/creature.o : creature.cc \
-	$(INCLUDE)/structs.h $(INCLUDE)/comm.h $(INCLUDE)/creature_list.h $(INCLUDE)/interpreter.h $(INCLUDE)/utils.h $(INCLUDE)/spells.h $(INCLUDE)/handler.h $(INCLUDE)/db.h $(INCLUDE)/help.h $(INCLUDE)/paths.h $(INCLUDE)/login.h $(INCLUDE)/house.h $(INCLUDE)/clan.h $(INCLUDE)/security.h $(INCLUDE)/fight.h $(INCLUDE)/player_table.h 
+	$(INCLUDE)/structs.h $(INCLUDE)/comm.h $(INCLUDE)/creature_list.h $(INCLUDE)/interpreter.h $(INCLUDE)/utils.h $(INCLUDE)/spells.h $(INCLUDE)/handler.h $(INCLUDE)/db.h $(INCLUDE)/help.h $(INCLUDE)/paths.h $(INCLUDE)/login.h $(INCLUDE)/house.h $(INCLUDE)/clan.h $(INCLUDE)/security.h $(INCLUDE)/fight.h $(INCLUDE)/player_table.h $(INCLUDE)/prog.h 
 	$(CXX) -c $(CXXFLAGS) creature.cc          -o $(OBJ)/creature.o
 $(OBJ)/creature_io.o : creature_io.cc \
 	$(INCLUDE)/constants.h $(INCLUDE)/utils.h $(INCLUDE)/xml_utils.h $(INCLUDE)/db.h $(INCLUDE)/tmpstr.h $(INCLUDE)/comm.h $(INCLUDE)/creature.h $(INCLUDE)/char_class.h $(INCLUDE)/handler.h $(INCLUDE)/language.h 
