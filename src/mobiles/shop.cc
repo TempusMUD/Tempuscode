@@ -304,7 +304,7 @@ trade_with(struct obj_data *item, struct shop_data *shop)
 	if (GET_OBJ_COST(item) < 1)
 		return (OBJECT_NOTOK);
 
-	if (IS_OBJ_STAT(item, ITEM_NOSELL) || !OBJ_APPROVED(item))
+	if (IS_OBJ_STAT(item, ITEM_NOSELL) || !OBJ_APPROVED(item) || item->shared->owner_id != 0)
 		return (OBJECT_NOSELL);
 
 	if (IS_OBJ_STAT2(item, ITEM2_BROKEN))
