@@ -100,26 +100,26 @@ ACMD(do_empower)
     af3.location = APPLY_MOVE;
     af3.modifier = -(val2);
     affect_join(ch, &af, 0, 0, 1, 0);
-    affect_join(ch, &af2, 0, 0, 1, 0);
-    affect_join(ch, &af3, 0, 0, 1, 0);
 
-    if (GET_MAX_MANA(ch) > old_maxmana) {
-	GET_MANA(ch) = MIN((old_mana + val2 + val1), GET_MAX_MANA(ch));
-	send_to_char("You redirect your energies!\r\n", ch);
+    if (GET_MAX_MANA(ch) > old_maxmana) { // Success!
+        GET_MANA(ch) = MIN((old_mana + val2 + val1), GET_MAX_MANA(ch));
+        send_to_char("You redirect your energies!\r\n", ch);
+        affect_join(ch, &af2, 0, 0, 1, 0);
+        affect_join(ch, &af3, 0, 0, 1, 0);
 
-	if ( ( GET_MAX_HIT( ch ) >> 1 ) < GET_WIMP_LEV( ch ) ) {
-	    sprintf( buf, "Your wimpy level has been changed from %d to %d ... wimp!\r\n",
-		     GET_WIMP_LEV( ch ), GET_MAX_HIT( ch) >> 1 );
-	    send_to_char( buf, ch );
-	    GET_WIMP_LEV( ch ) = GET_MAX_HIT( ch ) >> 1;
-	}
-    } else {
-	GET_MANA(ch) = old_mana;
-	send_to_char("You are already fully empowered.\r\n", ch);
+        if ( ( GET_MAX_HIT( ch ) >> 1 ) < GET_WIMP_LEV( ch ) ) {
+            sprintf( buf, "Your wimpy level has been changed from %d to %d ... wimp!\r\n",
+                 GET_WIMP_LEV( ch ), GET_MAX_HIT( ch) >> 1 );
+            send_to_char( buf, ch );
+            GET_WIMP_LEV( ch ) = GET_MAX_HIT( ch ) >> 1;
+        }
+    } else { // hrm. OOps.. Ran outta gas.
+        GET_MANA(ch) = old_mana;
+        send_to_char("You are already fully empowered.\r\n", ch);
     }
     act("$n concentrates deeply.", TRUE, ch, 0, 0, TO_ROOM);
     if (GET_LEVEL(ch) < LVL_GRGOD)
-	WAIT_STATE(ch, PULSE_VIOLENCE*(1 + ((val1 + val2) > 100)));
+        WAIT_STATE(ch, PULSE_VIOLENCE*(1 + ((val1 + val2) > 100)));
 }
 
 #undef __act_mage_c__
