@@ -1896,29 +1896,28 @@ two_arguments(const char *argument, char *first_arg, char *second_arg)
     char *begin = first_arg;
     const char *s = argument;
     do {
-    while (isspace(*s))
-        s++;
-
-    first_arg = begin;
-    while (*s && !isspace(*s)) {
-        *(first_arg++) = LOWER(*s);
-        s++;
-    }
-
-    *first_arg = '\0';
+        while (isspace(*s))
+            s++;
+        // Yank out the first arg
+        first_arg = begin;
+        while (*s && !isspace(*s)) {
+            *(first_arg++) = LOWER(*s);
+            s++;
+        }
+        *first_arg = '\0';
     } while (fill_word(begin));
-    do {
-    while (isspace(*s))
-        s++;
 
+    // Now the second arg
     begin = second_arg;
-    first_arg = begin;
-    while (*s && !isspace(*s)) {
-        *(second_arg++) = LOWER(*s);
-        s++;
-    }
-
-    *second_arg= '\0';
+    do {
+        while (isspace(*s))
+            s++;
+        second_arg = begin;
+        while (*s && !isspace(*s)) {
+            *(second_arg++) = LOWER(*s);
+            s++;
+        }
+        *second_arg= '\0';
     } while (fill_word(begin));
 }
 
