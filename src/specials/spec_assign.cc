@@ -165,8 +165,6 @@ const struct spec_func_data spec_list[] = {
 	{"peter", peter, SPEC_MOB | SPEC_RES},
 	{"jerry", jerry, SPEC_MOB | SPEC_RES},
 	{"lounge_soldier", lounge_soldier, SPEC_MOB | SPEC_RES},
-	{"chess_guard_no_east", chess_guard_no_east, SPEC_MOB | SPEC_RES},
-	{"chess_guard_no_west", chess_guard_no_west, SPEC_MOB | SPEC_RES},
 	{"armory_guard", armory_guard, SPEC_MOB | SPEC_RES},
 	{"armory_person", armory_person, SPEC_MOB | SPEC_RES},
 	{"underworld_goddess", underworld_goddess, SPEC_MOB | SPEC_RES},

@@ -748,41 +748,6 @@ SPECIAL(lounge_soldier)
 }
 
 
-SPECIAL(chess_guard_no_west)
-{
-
-	struct Creature *guard = (struct Creature *)me;
-
-	if (spec_mode != SPECIAL_TICK)
-		return 0;
-	if (!AWAKE(ch))
-		return FALSE;
-	if (!cmd && ch->getPosition() != POS_FIGHTING)
-		banzaii(ch);
-
-	if (GET_LEVEL(ch) > 39)
-		return (block_way(ch, guard, cmd, arg, 15240, 3));
-	else
-		return FALSE;
-}
-
-SPECIAL(chess_guard_no_east)
-{
-
-	struct Creature *guard = (struct Creature *)me;
-	if (spec_mode != SPECIAL_TICK)
-		return 0;
-	if (!AWAKE(ch))
-		return FALSE;
-	if (!cmd && ch->getPosition() != POS_FIGHTING)
-		banzaii(ch);
-
-	if (GET_LEVEL(ch) > 39)
-		return (block_way(ch, guard, cmd, arg, 15248, 1));
-	else
-		return FALSE;
-}
-
 SPECIAL(armory_guard)
 {
 
