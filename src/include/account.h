@@ -76,34 +76,6 @@ class Account {
 		long long _bank_future;
 };
 
-class AccountRef {
-	public:
-		AccountRef(Account *acct) : _id(acct->get_idnum()), _account(acct) {}
-		AccountRef(const AccountRef &orig) { *this = orig; }
-
-		inline AccountRef &operator=(const AccountRef &b)
-		{
-			_id = b._id;
-			_account = _account;
-			return *this;
-		}
-		inline bool operator==(const AccountRef &b) const { return _id == b._id; }
-		inline bool operator>(const AccountRef &b) const { return _id > b._id; }
-		inline bool operator<(const AccountRef &b) const { return _id < b._id; }
-
-		int _id;
-		Account *_account;
-};
-
-
-inline bool operator==(const AccountRef &a, int id ) { return a._id == id; }
-inline bool operator<(const AccountRef &a, int id ) { return a._id < id; }
-inline bool operator>(const AccountRef &a, int id ) { return a._id > id; }
-inline bool operator==(int id , const AccountRef &b) { return id == b._id; }
-inline bool operator<(int id, const AccountRef &b) { return id < b._id; }
-inline bool operator>(int id, const AccountRef &b) { return id > b._id; }
-
-
 class AccountIndex : public vector<Account *> 
 {
 	class cmp {
