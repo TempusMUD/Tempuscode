@@ -1,6 +1,3 @@
-$(OBJ)/RandomFactory.o : RandomFactory.cc \
-	$(INCLUDE)/RandomFactory.h 
-	$(CXX) -c $(CXXFLAGS) RandomFactory.cc     -o $(OBJ)/RandomFactory.o
 $(OBJ)/graph.o : graph.cc \
 	$(INCLUDE)/structs.h $(INCLUDE)/utils.h $(INCLUDE)/comm.h $(INCLUDE)/interpreter.h $(INCLUDE)/handler.h $(INCLUDE)/db.h $(INCLUDE)/spells.h $(INCLUDE)/vehicle.h $(INCLUDE)/fight.h $(INCLUDE)/char_class.h 
 	$(CXX) -c $(CXXFLAGS) graph.cc             -o $(OBJ)/graph.o
@@ -16,4 +13,4 @@ $(OBJ)/random.o : random.cc \
 $(OBJ)/utils.o : utils.cc \
 	$(INCLUDE)/structs.h $(INCLUDE)/utils.h $(INCLUDE)/comm.h $(INCLUDE)/screen.h $(INCLUDE)/spells.h $(INCLUDE)/handler.h $(INCLUDE)/db.h 
 	$(CXX) -c $(CXXFLAGS) utils.cc             -o $(OBJ)/utils.o
-OBJFILES= $(OBJ)/RandomFactory.o $(OBJ)/graph.o $(OBJ)/handler.o $(OBJ)/modify.o $(OBJ)/random.o $(OBJ)/utils.o
+OBJFILES= $(OBJ)/graph.o $(OBJ)/handler.o $(OBJ)/modify.o $(OBJ)/random.o $(OBJ)/utils.o
