@@ -1007,7 +1007,7 @@ SPECIAL(garbage_pile)
 		if (GET_OBJ_VNUM(i) == QUAD_VNUM)
 			continue;
 
-		// dont get sigilized items
+		// don't get sigilized items
 		if (GET_OBJ_SIGIL_IDNUM(i))
 			continue;
 
@@ -1069,7 +1069,7 @@ SPECIAL(janitor)
 			(GET_OBJ_TYPE(i) != ITEM_DRINKCON && GET_OBJ_COST(i) >= 150))
 			continue;
 
-		// dont get sigilized items
+		// don't get sigilized items
 		if (GET_OBJ_SIGIL_IDNUM(i))
 			continue;
 
@@ -1115,7 +1115,7 @@ SPECIAL(elven_janitor)
 			IS_OBJ_STAT(i, ITEM_NODROP))
 			continue;
 
-		// dont get sigilized items
+		// don't get sigilized items
 		if (GET_OBJ_SIGIL_IDNUM(i))
 			continue;
 
@@ -1143,7 +1143,7 @@ SPECIAL(gelatinous_blob)
 			(GET_OBJ_TYPE(i) != ITEM_DRINKCON && GET_OBJ_COST(i) >= 50))
 			continue;
 
-		// dont get sigilized items
+		// don't get sigilized items
 		if (GET_OBJ_SIGIL_IDNUM(i))
 			continue;
 

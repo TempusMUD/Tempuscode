@@ -134,7 +134,7 @@ mag_savingthrow(struct Creature *ch, int level, int type)
 	if (GET_LEVEL(ch) > LVL_GOD) {
 		return 1;
 	}
-	// If its > 100 its obviously a search and doesnt need to be saveable.
+	// If its > 100 its obviously a search and doesn't need to be saveable.
 	if (level > 100) {
 		return 0;
 	}
@@ -1949,9 +1949,9 @@ mag_affects(int level, struct Creature *ch, struct Creature *victim,
 
 			// see if we have chemical stability
 			if (af_ptr) {
-				act("$n's chemical stability prevents further acidification from occuring!", FALSE, victim, 0, 0, TO_ROOM);
+				act("$n's chemical stability prevents further acidification from occurring!", FALSE, victim, 0, 0, TO_ROOM);
 				send_to_char(victim, 
-					"You chemical stability prevents further acidification from occuring!\r\n");
+					"You chemical stability prevents further acidification from occurring!\r\n");
 				af_ptr->duration -= (level >> 3);
 
 				if (af_ptr->duration <= 0) {
@@ -2018,7 +2018,7 @@ mag_affects(int level, struct Creature *ch, struct Creature *victim,
 		af.bitvector = AFF2_FLUORESCENT;
 		af.aff_index = 2;
 		to_vict = "The area around you is illuminated with fluorescent atoms.";
-		to_room = "The light of fluorescing atoms surrounds $n.";
+		to_room = "The light of fluorescent atoms surrounds $n.";
 		break;
     
 	case SPELL_TEMPORAL_COMPRESSION:
@@ -3203,7 +3203,7 @@ mag_alter_objs(int level, struct Creature *ch, struct obj_data *obj,
     case SPELL_REMOVE_CURSE:
         if (IS_OBJ_STAT2(obj, ITEM2_CURSED_PERM) &&
             GET_LEVEL(ch) < LVL_ELEMENT) {
-            to_char = "$p vibrates fiercly, then stops.";
+            to_char = "$p vibrates fiercely, then stops.";
         } else if (IS_OBJ_STAT(obj, ITEM_NODROP)) {
             REMOVE_BIT(obj->obj_flags.extra_flags, ITEM_NODROP);
             to_char = "$p briefly glows blue.";

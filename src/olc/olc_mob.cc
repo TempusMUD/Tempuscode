@@ -1693,7 +1693,7 @@ do_destroy_mobile(struct Creature *ch, int vnum)
 	}
 
 	if (!CAN_EDIT_ZONE(ch, zone)) {
-		send_to_char(ch, "Oh, no you dont!!!\r\n");
+		send_to_char(ch, "Oh, no you don't!!!\r\n");
 		mudlog(GET_INVIS_LVL(ch), BRF, true,
 			"OLC: %s failed attempt to DESTROY mobile %d.",
 			GET_NAME(ch), GET_MOB_VNUM(mob));

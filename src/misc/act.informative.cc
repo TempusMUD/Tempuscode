@@ -2354,7 +2354,7 @@ acc_append_affects(struct Creature *ch, byte mode)
 	if (IS_AFFECTED_3(ch, AFF3_PRISMATIC_SPHERE))
 		acc_strcat("You are surrounded by a prismatic sphere of light.\r\n", NULL);
 	if (IS_AFFECTED_2(ch, AFF2_FLUORESCENT))
-		acc_strcat("The atoms in your vicinity are fluorescing.\r\n", NULL);
+		acc_strcat("The atoms in your vicinity are fluorescent.\r\n", NULL);
 	if (IS_AFFECTED_2(ch, AFF2_DIVINE_ILLUMINATION)) {
 		if (IS_EVIL(ch))
 			acc_strcat("An unholy light is following you.\r\n", NULL);

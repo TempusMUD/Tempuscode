@@ -133,7 +133,7 @@ template <class T> class SafeList:protected list <T> {
 	// Upgrades from list<T>
 	list <T>::size;
 	list <T>::insert;
-	// list<T>'s begin and end dont work quite right
+	// list<T>'s begin and end don't work quite right
 	iterator begin() {
 		return iterator(this);
 	}

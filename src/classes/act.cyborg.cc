@@ -233,7 +233,7 @@ perform_recharge(struct Creature *ch, struct obj_data *battery,
 			act("$n recharges $mself from $p.",
 				FALSE, ch, battery, vict, TO_ROOM);
 		else
-			send_to_room("BING!  Something wierd just happened.\r\n",
+			send_to_room("BING!  Something weird just happened.\r\n",
 				ch->in_room);
 	} else if (engine) {
 		if (battery)
@@ -677,7 +677,7 @@ perform_cyborg_activate(Creature *ch, int mode, int subcmd)
 						0, 0, TO_ROOM);
 				}
 			} else {		   /************ deactivate ****************/
-				send_to_char(ch, "An error has occured.\r\n");
+				send_to_char(ch, "An error has occurred.\r\n");
 			}
 			return;
 			break;
@@ -753,7 +753,7 @@ perform_cyborg_activate(Creature *ch, int mode, int subcmd)
 			to_char[0] = "Nanite reconstruction halted.\r\n";
 			break;
 		default:
-			send_to_char(ch, "ERROR: Unknown mode occured in switch.\r\n");
+			send_to_char(ch, "ERROR: Unknown mode occurred in switch.\r\n");
 			return;
 			break;
 		}
@@ -1940,7 +1940,7 @@ ACMD(do_repair)
 				if (number(12, 150) > CHECK_SKILL(ch, SKILL_CYBOREPAIR) +
 					TOOL_MOD(tool) +
 					(CHECK_SKILL(ch, SKILL_ELECTRONICS) >> 1) + GET_INT(ch)) {
-					act("$n attemps to repair you, but fails.", FALSE, ch, 0,
+					act("$n attempts to repair you, but fails.", FALSE, ch, 0,
 						vict, TO_VICT);
 					act("You fail to repair $M.\r\n", FALSE, ch, 0, vict,
 						TO_CHAR);

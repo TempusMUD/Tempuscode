@@ -174,7 +174,7 @@ namespace Security {
             char *_description;
             /* The one word name for this group */
             char *_name;
-            /* The name of the group whos members can administrate this group */
+            /* The name of the group whose members can administrate this group */
             char *_adminGroup;
 
 			int _id;

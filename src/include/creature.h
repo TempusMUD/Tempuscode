@@ -336,7 +336,7 @@ static const int MOB2_SELLER = (1 << 7);	/* If shopkeeper, sells anywhere. */
 static const int MOB2_WONT_WEAR = (1 << 8);	/* Wont wear shit it picks up (SHPKPER) */
 static const int MOB2_SILENT_HUNTER = (1 << 9);
 static const int MOB2_FAMILIAR = (1 << 10);	/* mages familiar */
-static const int MOB2_NO_FLOW = (1 << 11);	/* Mob doesnt flow */
+static const int MOB2_NO_FLOW = (1 << 11);	/* Mob doesn't flow */
 static const int MOB2_UNAPPROVED = (1 << 12);	/* Mobile not approved for game play */
 static const int MOB2_RENAMED = (1 << 13);	/* Mobile renamed */
 static const int MOB2_NOAGGRO_RACE = (1 << 14);	/* wont attack members of own race */
@@ -389,7 +389,7 @@ static const int PRF2_CLAN_HIDE = (1 << 8);	/* don't show badge in who list */
 static const int PRF2_UNUSED_2 = (1 << 9);	/* interrupts while d->showstr_point */
 static const int PRF2_AUTOPROMPT = (1 << 10);	/* always draw new prompt */
 static const int PRF2_NOWHO = (1 << 11);	/* don't show in who */
-static const int PRF2_ANONYMOUS = (1 << 12);	/* dont show char_class, level */
+static const int PRF2_ANONYMOUS = (1 << 12);	/* don't show char_class, level */
 static const int PRF2_NOTRAILERS = (1 << 13);	/* don't show trailer affects */
 static const int PRF2_VT100 = (1 << 14);	/* Players uses VT100 inferface */
 static const int PRF2_AUTOSPLIT = (1 << 15);
@@ -917,7 +917,7 @@ struct player_special_data_saved {
 	room_num home_room;
 	long pref;					/* preference flags for PC's.        */
 	long pref2;					/* 2nd pref flag                        */
-	ubyte bad_pws;				/* number of bad password attemps    */
+	ubyte bad_pws;				/* number of bad password attempts    */
 	sbyte conditions[3];		/* Drunk, full, thirsty            */
 
 	/* spares below for future expansion.  You can change the names from

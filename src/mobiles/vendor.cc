@@ -844,7 +844,7 @@ vendor_parse_param(Creature *self, char *param, ShopData *shop, int *err_line)
 		} else if (!strcmp(param_key, "produce")) {
 			val = atoi(line);
 			if (val <= 0 || !real_object_proto(val)) {
-				err = "non-existant produced item";
+				err = "nonexistent produced item";
 				break;
 			}
 			shop->item_list.push_back(atoi(line));

@@ -2274,7 +2274,7 @@ ACMD(do_snoop)
     else if (victim == ch)
         stop_snooping(ch);
     else if (PRF_FLAGGED(victim, PRF_NOSNOOP) && GET_LEVEL(ch) < LVL_ENTITY)
-        send_to_char(ch, "The gods say I dont think so!\r\n");
+        send_to_char(ch, "The gods say I don't think so!\r\n");
     else if (victim->desc->snoop_by)
         if (ch == victim->desc->snoop_by->creature)
             act("You're already snooping $M.", FALSE, ch, 0, victim, TO_CHAR);

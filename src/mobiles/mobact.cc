@@ -148,8 +148,8 @@ burn_update(void)
 				|| IS_SET(ch->in_room->dir_option[DOWN]->exit_info, EX_CLOSED))
 			&& !NOGRAV_ZONE(ch->in_room->zone)) {
 			send_to_char(ch, 
-				"You are slammed to the ground by the inexhorable force of gravity!\r\n");
-			act("$n is slammed to the ground by the inexhorable force of gravity!\r\n", TRUE, ch, 0, 0, TO_ROOM);
+				"You are slammed to the ground by the inexorable force of gravity!\r\n");
+			act("$n is slammed to the ground by the inexorable force of gravity!\r\n", TRUE, ch, 0, 0, TO_ROOM);
 			ch->setPosition(POS_RESTING);
 			WAIT_STATE(ch, 1);
             damager = NULL;
@@ -326,7 +326,7 @@ burn_update(void)
 		if (PLR2_FLAGGED(ch, PLR2_SOULLESS) &&
 			ch->getPosition() == POS_SLEEPING && !random_fractional_5()) {
 			send_to_char(ch, 
-				"The torturous cries of hell wake you from your dreams.\r\n");
+				"The tortured cries of hell wake you from your dreams.\r\n");
 			act("$n bolts upright, screaming in agony!", TRUE, ch, 0, 0,
 				TO_ROOM);
 			ch->setPosition(POS_SITTING);
@@ -825,7 +825,7 @@ helper_attack_probability(struct Creature *ch, struct Creature *vict)
 		return 0;
 
 	//
-	// dont attack same race if prohibited
+	// don't attack same race if prohibited
 	//
 
 	if (MOB2_FLAGGED(ch, MOB2_NOAGGRO_RACE) && GET_RACE(ch) == GET_RACE(vict))
@@ -1597,7 +1597,7 @@ mobile_activity(void)
 			}
 		}
 		//
-		// TODO: fix this so it doesnt potentially cause a crash
+		// TODO: fix this so it doesn't potentially cause a crash
 		// mob_read_script() can potentially cause the mob to kill the character
 		// which happens to be pointed to by next_ch, which will be disastrous
 		// at the top of the loop
@@ -4483,7 +4483,7 @@ mob_fight_demon(struct Creature *ch, struct Creature *precious_vict)
 			FALSE, ch, 0, 0, TO_ROOM);
 
         if( GET_MOB_VNUM(ch) == 42819 ){ // Pigeon god!
-		    act("$n flys out of the portal with a clap of thunder!",
+		    act("$n flies out of the portal with a clap of thunder!",
 			    FALSE, new_mob, 0, 0, TO_ROOM);
         }else{
 		    act("$n steps out of the portal with a clap of thunder!",

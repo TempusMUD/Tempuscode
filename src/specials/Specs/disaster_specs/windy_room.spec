@@ -258,12 +258,12 @@ immort_windy_command(Creature *ch, windy_room_data * windy, char *argument)
 			slog(" === disabling spec in room %d.", ch->in_room->number);
 			ch->in_room->func = NULL;	// disable in this room only
 			send_to_char(ch,
-				"An error occured.  Disabling spec in this room.\r\n");
+				"An error occurred.  Disabling spec in this room.\r\n");
 		} else
 			send_to_char(ch, "Windy rooms loaded successfully.\r\n");
 	} else if (!strcmp(arg1, "save")) {
 		if (!save_windy_rooms())
-			send_to_char(ch, "An error occured while saving.\r\n");
+			send_to_char(ch, "An error occurred while saving.\r\n");
 		else
 			send_to_char(ch, "Windy room data save successful.\r\n");
 	} else if (!strcmp(arg1, "reset")) {

@@ -160,12 +160,12 @@ general_search(struct Creature *ch, struct special_search_data *srch,
 	switch (srch->command) {
 	case (SEARCH_COM_OBJECT):
 		if (!(obj = real_object_proto(srch->arg[0]))) {
-			zerrlog(rm->zone, "search in room %d, object %d nonexistant.",
+			zerrlog(rm->zone, "search in room %d, object %d nonexistent.",
 				rm->number, srch->arg[0]);
 			return 0;
 		}
 		if ((targ_room = real_room(srch->arg[1])) == NULL) {
-			zerrlog(rm->zone, "search in room %d, targ room %d nonexistant.",
+			zerrlog(rm->zone, "search in room %d, targ room %d nonexistent.",
 				rm->number, srch->arg[1]);
 			return 0;
 		}
@@ -191,12 +191,12 @@ general_search(struct Creature *ch, struct special_search_data *srch,
 
 	case SEARCH_COM_MOBILE:
 		if (!(mob = real_mobile_proto(srch->arg[0]))) {
-			zerrlog(rm->zone, "search in room %d, mobile %d nonexistant.",
+			zerrlog(rm->zone, "search in room %d, mobile %d nonexistent.",
 				rm->number, srch->arg[0]);
 			return 0;
 		}
 		if ((targ_room = real_room(srch->arg[1])) == NULL) {
-			zerrlog(rm->zone, "search in room %d, targ room %d nonexistant.",
+			zerrlog(rm->zone, "search in room %d, targ room %d nonexistent.",
 				rm->number, srch->arg[1]);
 			return 0;
 		}
@@ -222,7 +222,7 @@ general_search(struct Creature *ch, struct special_search_data *srch,
 
 	case SEARCH_COM_EQUIP:
 		if (!(obj = real_object_proto(srch->arg[1]))) {
-			zerrlog(rm->zone, "search in room %d, equip object %d nonexistant.",
+			zerrlog(rm->zone, "search in room %d, equip object %d nonexistent.",
 				rm->number, srch->arg[1]);
 			return 0;
 		}
@@ -277,7 +277,7 @@ general_search(struct Creature *ch, struct special_search_data *srch,
 
 	case SEARCH_COM_TRANSPORT:
 		if ((targ_room = real_room(srch->arg[0])) == NULL) {
-			zerrlog(rm->zone, "search in room %d, targ room %d nonexistant.",
+			zerrlog(rm->zone, "search in room %d, targ room %d nonexistent.",
 				rm->number, srch->arg[0]);
 			return 0;
 		}
@@ -378,14 +378,14 @@ general_search(struct Creature *ch, struct special_search_data *srch,
 			return rc;
 		}
 	case SEARCH_COM_DOOR:
-		/************  Targ Room nonexistant ************/
+		/************  Targ Room nonexistent ************/
 		if ((targ_room = real_room(srch->arg[0])) == NULL) {
-			zerrlog(rm->zone, "search in room %d, targ room %d nonexistant.",
+			zerrlog(rm->zone, "search in room %d, targ room %d nonexistent.",
 				rm->number, srch->arg[0]);
 			return 0;
 		}
 		if (srch->arg[1] >= NUM_DIRS || !targ_room->dir_option[srch->arg[1]]) {
-			zerrlog(rm->zone, "search in room %d, direction nonexistant.",
+			zerrlog(rm->zone, "search in room %d, direction nonexistent.",
 				rm->number);
 			return 0;
 		}

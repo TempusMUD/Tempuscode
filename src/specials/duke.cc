@@ -244,7 +244,7 @@ block_way(struct Creature *ch, struct Creature *guard, int cmd,
 int
 is_trash(struct obj_data *i)
 {
-	// dont get sigilized items
+	// don't get sigilized items
 	if (GET_OBJ_SIGIL_IDNUM(i))
 		return FALSE;
 	else if (GET_OBJ_VNUM(i) == QUAD_VNUM)

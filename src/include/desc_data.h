@@ -92,7 +92,7 @@ struct descriptor_data {
 	time_t login_time;			/* when the person connected        */
 	char *showstr_head;			/* for paging through texts     */
 	char *showstr_point;		/*      -           */
-	byte bad_pws;				/* number of bad pw attemps this login  */
+	byte bad_pws;				/* number of bad pw attempts this login  */
 	byte need_prompt;			/* control of prompt-printing       */
 	int max_str;				/*      -           */
 	int repeat_cmd_count;		/* how many times has this command been */

@@ -30,7 +30,7 @@ using namespace Security;
   * access list
   * access create pissers
   * access remove pissers
-  * access description pissers The wierdos that piss a lot
+  * access description pissers The weirdos that piss a lot
   * access admingroup pissers PisserAdmins
   *
   * access memberlist pissers

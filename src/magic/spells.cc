@@ -1668,7 +1668,7 @@ ASPELL(spell_magical_vestment)
 
 	if (GET_OBJ_TYPE(obj) == ITEM_ARMOR) {
 		if (GET_OBJ_VAL(obj, 0) > (GET_LEVEL(ch) / 10 + 2)) {
-			act("$p is not a suitable vestment because it is already a formidible armor.", FALSE, ch, obj, 0, TO_CHAR);
+			act("$p is not a suitable vestment because it is already a formidable armor.", FALSE, ch, obj, 0, TO_CHAR);
 			return;
 		}
 	} else if (GET_OBJ_TYPE(obj) != ITEM_WORN) {
@@ -1739,7 +1739,7 @@ ASPELL(spell_clairvoyance)
 	if (GET_LEVEL(victim) >= LVL_AMBASSADOR &&
 		GET_LEVEL(ch) < GET_LEVEL(victim)) {
 		send_to_char(ch, "That is impossible.\r\n");
-		act("$n has just attemped to get clairvoyant on your ass.",
+		act("$n has just attempted to get clairvoyant on your ass.",
 			FALSE, ch, 0, victim, TO_VICT);
 		return;
 	}
@@ -2211,7 +2211,7 @@ ASPELL(spell_gust_of_wind)
 		if (!obj->in_room) {
 			errlog("%s tried to gust %s at %d.",
 				GET_NAME(ch), obj->name, ch->in_room->number);
-			act("$p doesnt budge.", FALSE, ch, obj, 0, TO_CHAR);
+			act("$p doesn't budge.", FALSE, ch, obj, 0, TO_CHAR);
 			return;
 		}
 		if (GET_LEVEL(ch) + number(10, GET_DEX(ch) + 40) +
@@ -3608,7 +3608,7 @@ load_familiar(Creature *ch, int sect_type, int type)
 		break;
 	case SECT_JUNGLE:
 		result = read_mobile(60 + type);
-		to_room = "$n emerges from the thick jungle overgrowth.";
+		to_room = "$n emerges from the thick jungle undergrowth.";
 		break;
 	case SECT_SWAMP:
 		result = read_mobile(70 + type);

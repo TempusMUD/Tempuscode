@@ -18,7 +18,7 @@ SPECIAL(fountain_good)
 		return 0;
 
 	act("$n drinks from $p.", TRUE, ch, obj, 0, TO_ROOM);
-	WAIT_STATE(ch, 2 RL_SEC);	// dont let them spam drink
+	WAIT_STATE(ch, 2 RL_SEC);	// don't let them spam drink
 	call_magic(ch, ch, 0, SPELL_ESSENCE_OF_GOOD, 25, CAST_SPELL);
 	// everything you need is handled in call_magic(), damage, etc...
 	return 1;

@@ -172,7 +172,7 @@ extern const char *searchflag_help[] = {
 	"(RESERVED) search has been tripped.  internal use.",
 	"process tripping command after search.",
 	"this is a clan password search, do not display.",
-	"tripped when someone walks/runs/flys into a room.",
+	"tripped when someone walks/runs/flies into a room.",
 	"tripped when falling into a room (e.g. spike pit).",
 	"will not be tripped if the player is flying.",
 	"cannot be tripped by mobs.",
@@ -1890,7 +1890,7 @@ extern const char *drinks[] = {
 	"whiskey",
 	"lemonade",
 	"firebreather",
-	"local speciality",
+	"local specialty",
 	"slime",
 	"milk",
 	"tea",
@@ -2284,13 +2284,13 @@ extern const char *spell_wear_off_msg[] = {
 	"!Group Heal!",
 	"!Group Recall!",
 	"Your night vision seems to fade.",	/* 50 */
-	"Your feet seem less bouyant.",
+	"Your feet seem less buoyant.",
 	"!UNUSED!",
 	"!identify!",
 	"The ghostly light around you fades.",
 	"Your image is no longer blurred and shifting.",	/* 55 */
 	"!knock!",
-	"!dispel magik",
+	"!dispel magic!",
 	"!UNUSED!",
 	"!dimension door",
 	"!minor creation!",			/* 60 */
@@ -2317,7 +2317,7 @@ extern const char *spell_wear_off_msg[] = {
 	"flame strike",
 	"You are no longer able to endure the cold.",
 	"magical vest",
-	"You are no longer rejuvenating.",
+	"You no longer heal so much from sleep.",
 	"Your body stops regenerating.",
 	"command",
 	"Your feet are no longer able to walk on the air.",
@@ -2335,7 +2335,7 @@ extern const char *spell_wear_off_msg[] = {
 	"You no longer feel safe from lightning.",
 	"You are no longer protected from fire.",	/*100 */
 	"!restoration!",
-	"You feel your heightened intellegence fade.",
+	"You feel your heightened intelligence fade.",
 	"!gust of wind!",
 	"!retrieve corpse!",
 	"!local teleport!",			/* 105 */
@@ -2481,7 +2481,7 @@ extern const char *spell_wear_off_msg[] = {
     "You feel less protected from metal",	/* 335 */
 	"Your albedo shield flickers and dissipates.",
 	"!UNUSED!",
-	"Your radioimmunity has worn off.",
+	"Your radio-immunity has worn off.",
 	"!UNUSED!",
 	"!UNUSED!",					/* 340 */
 	"Your electrostatic field dissipates.",

@@ -547,7 +547,7 @@ CTextEditor::Wrap(void)
 	for (line = theText.begin(); line != theText.end(); line++) {
 		linebreak = 76;
 		tempstr = "";
-		// If its less than 77 chars, it dont need ta be wrapped.
+		// If its less than 77 chars, it don't need ta be wrapped.
 		if (line->length() <= 76)
 			continue;
 

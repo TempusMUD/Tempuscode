@@ -552,7 +552,7 @@ prog_do_trans(prog_env *env, prog_evt *evt, char *args)
 	
 	targ_num = atoi(tmp_getword(&args));
 	if ((targ_room = real_room(targ_num)) == NULL) {
-		errlog("prog trans targ room %d nonexistant.", targ_num);
+		errlog("prog trans targ room %d nonexistent.", targ_num);
 		return;
 	}
 

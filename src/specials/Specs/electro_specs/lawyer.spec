@@ -26,7 +26,7 @@ SPECIAL(lawyer)
 		if (!*arg1)
 			send_to_char(ch, "Value what?  A pardon?\r\n");
 		else if (!is_abbrev(arg1, "pardon")) {
-			send_to_char(ch, "We dont sell any '%s'.\r\n", argument);
+			send_to_char(ch, "We don't sell any '%s'.\r\n", argument);
 		} else {
 			send_to_char(ch,
 				"For you, I'll make you a deal for %d credits.\r\n"
@@ -41,7 +41,7 @@ SPECIAL(lawyer)
 			send_to_char(ch, "Buy what?  A pardon?\r\n");
 			return 1;
 		} else if (!is_abbrev(arg1, "pardon")) {
-			send_to_char(ch, "We dont sell any '%s'.\r\n", argument);
+			send_to_char(ch, "We don't sell any '%s'.\r\n", argument);
 			return 1;
 		}
 

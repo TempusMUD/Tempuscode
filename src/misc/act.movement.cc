@@ -553,7 +553,7 @@ do_simple_move(struct Creature *ch, int dir, int mode,
 		return 1;
 	}
 
-	/*  if we are mounted and the exit is a doorway, dont let it happen. */
+	/*  if we are mounted and the exit is a doorway, don't let it happen. */
 	if (mount && (GET_WEIGHT(mount) > 500 || GET_HEIGHT(mount) > 100) &&
 		IS_SET(EXIT(ch, dir)->exit_info, EX_ISDOOR) &&
 		IS_SET(ROOM_FLAGS(EXIT(ch, dir)->to_room), ROOM_INDOORS)) {

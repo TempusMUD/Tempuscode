@@ -238,7 +238,7 @@ ACMD(do_gunset)
 			send_to_char(ch, "The maximum rate of fire of %s is %d.\r\n",
 				gun->name, MAX_R_O_F(gun));
 		} else if (!number) {
-			send_to_char(ch, "A zero rate of fire doesnt make much sense.\r\n");
+			send_to_char(ch, "A zero rate of fire doesn't make much sense.\r\n");
 		} else {
 			act("$n adjusts the configuration of $p.", TRUE, ch, gun, 0,
 				TO_ROOM);

@@ -83,7 +83,7 @@ SPECIAL(holodeck_rm)
 	if (holo_savezone(ch,zone))
 	  sprintf(buf,"HC tells you, 'Program %d saved.'\r\n",zone->zonenum);
 	else
-	  sprintf(buf,"HC tells you, 'Error occured while saving program %d.'\r\n",zone->zonenum);
+	  sprintf(buf,"HC tells you, 'Error occurred while saving program %d.'\r\n",zone->zonenum);
 	send_to_char(buf,ch);
 	return TRUE;
       }
@@ -110,7 +110,7 @@ SPECIAL(holodeck_rm)
 	  holo_freezone(zone->zonenum);
 	}
 	else
-	  sprintf(buf,"HC tells you, 'Error occured while saving program %d.'\r\n",zone->zonenum);
+	  sprintf(buf,"HC tells you, 'Error occurred while saving program %d.'\r\n",zone->zonenum);
 	send_to_char(buf,ch);
 	return TRUE;
       }
@@ -361,7 +361,7 @@ int holo_delzone (struct char_data *ch, int num)
 
   sprintf(buf2,"world/holodeck/%d.holo.bak",num);
   if (rename(buf,buf2))
-    return FALSE;				/* Error occured while trying to rename it.	*/
+    return FALSE;				/* Error occurred while trying to rename it.	*/
 
   holo_freezone(num);
 

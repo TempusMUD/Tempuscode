@@ -43,7 +43,7 @@ ACMD(do_map)
 			send_to_char(ch, 
 				"Room mapping limit reached. Some rooms not mapped.\r\n");
 		}
-		send_to_char(ch, "%d room's processed.\r\n", theMap.processed);
+		send_to_char(ch, "%d rooms processed.\r\n", theMap.processed);
 	}
 	WAIT_STATE(ch, 1 RL_SEC);
 }
@@ -372,7 +372,7 @@ Mapper::drawLink(room_data * s,	// Source Room
 			mapDisplay[(r * columns) + c].exits = 0;
 		}
 	}
-	// Here starts the wierd links. (round rooms and the like)
+	// Here starts the weird links. (round rooms and the like)
 	//    **    One way exits with no return to any room    **
 	//
 	// Note : This does not apply to a room that has a

@@ -207,7 +207,7 @@ class HouseControl : private std::vector<House*>
 		unsigned int getHouseCount() const ;
 		// returns the house at the given index
 		House* getHouse( int index );
-		// attemps to create a house owned by owner with the given room range
+		// attempts to create a house owned by owner with the given room range
 		bool createHouse( int owner, room_num firstRoom, room_num lastRoom );
 		// destroys the house with the given id
 		bool destroyHouse( int id );

@@ -954,7 +954,7 @@ call_magic(struct Creature *caster, struct Creature *cvict,
 				send_to_char(caster, 
 					"The Supernatural Reality prevents you from twisting "
 					"nature in that way!\r\n");
-				act("$n attemps to violently alter reality, but is restrained "
+				act("$n attempts to violently alter reality, but is restrained "
 					"by the whole of the universe.", FALSE, caster, 0, 0,
 					TO_ROOM);
 				return 0;

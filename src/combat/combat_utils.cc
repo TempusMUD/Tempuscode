@@ -536,7 +536,8 @@ calculate_thaco(struct Creature *ch, struct Creature *victim,
 			calc_thaco += (LEARNED(ch) - weapon_prof(ch, weap)) / 8;
 
 		if (GET_EQ(ch, WEAR_WIELD_2)) {
-			// They dont know how to second wield and they dont have neural bridging
+			// They don't know how to second wield and
+			// they dont have neural bridging
 			if (CHECK_SKILL(ch, SKILL_SECOND_WEAPON) < LEARNED(ch)
 				&& !affected_by_spell(ch, SKILL_NEURAL_BRIDGING)) {
 				if (weap == GET_EQ(ch, WEAR_WIELD_2))
@@ -914,10 +915,10 @@ make_corpse(struct Creature *ch, struct Creature *killer, int attacktype)
 		break;
 
 	case TYPE_WHIP:
-		sprintf(buf2, "The welted %s of %s %s lying here.",
+		sprintf(buf2, "The scarred %s of %s %s lying here.",
 			typebuf, GET_NAME(ch), isare);
 		corpse->line_desc = str_dup(buf2);
-		strcpy(adj, "whipped");
+		strcpy(adj, "scarred");
 		break;
 
 	case TYPE_SLASH:

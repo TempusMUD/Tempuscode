@@ -2979,7 +2979,7 @@ ACMD(do_intimidate)
 			affect_to_char(vict, &af);
 
 		} else {
-			act("$N glarse at $n with contempt.", TRUE, ch, 0, vict,
+			act("$N glares at $n with contempt.", TRUE, ch, 0, vict,
 				TO_NOTVICT);
 			act("$N glares at you with contempt!", TRUE, ch, 0, vict, TO_CHAR);
 			send_to_char(vict, "You glare back with contempt!\r\n");
@@ -3041,7 +3041,7 @@ ACMD(do_drain)
 			send_to_char(ch, "You can't drain objects!\r\n");
 			return;
 		} else {
-			send_to_char(ch, "Drain whos life force?\r\n");
+			send_to_char(ch, "Drain whose life force?\r\n");
 			WAIT_STATE(ch, 4);
 			return;
 		}

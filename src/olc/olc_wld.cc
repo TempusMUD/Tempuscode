@@ -475,7 +475,7 @@ do_destroy_room(struct Creature *ch, int vnum)
 	}
 
 	if (!CAN_EDIT_ZONE(ch, rm->zone)) {
-		send_to_char(ch, "Oh, no you dont!!!\r\n");
+		send_to_char(ch, "Oh, no you don't!!!\r\n");
 		mudlog(GET_INVIS_LVL(ch), BRF, true,
 			"OLC: %s failed attempt to DESTROY room %d.",
 			GET_NAME(ch), rm->number);
@@ -1174,7 +1174,7 @@ ACMD(do_hedit)
 		if( save_wld(ch, ch->in_room->zone) ) {
 			send_to_char(ch, "Your house modifications have been saved.\r\n");
 		} else {
-			send_to_char(ch, "An error occured while saving your house modifications.\r\n");
+			send_to_char(ch, "An error occurred while saving your house modifications.\r\n");
 			errlog("Error hedit save in house room %d.", ch->in_room->number);
 		}
 		WAIT_STATE(ch, 8 RL_SEC);

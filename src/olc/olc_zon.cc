@@ -2288,7 +2288,7 @@ do_zset_command(struct Creature *ch, char *argument)
 				send_to_char(ch, "Zone respawn point set to room #%d (%s)\r\n",
 					zone->respawn_pt, real_room(zone->respawn_pt)->name);
 			else
-				send_to_char(ch, "Zone respawn point set to nonexistant room #%d\r\n",
+				send_to_char(ch, "Zone respawn point set to nonexistent room #%d\r\n",
 					zone->respawn_pt);
 		} else
 			send_to_char(ch, "You must supply a room number or 'none'.\r\n");

@@ -2502,9 +2502,9 @@ create_money(int amount, int mode)
 /* The routine returns a pointer to the next word in *arg (just like the  */
 /* one_argument routine).                                                 */
 
-// is_wierd helps to ignore 'special' items that shouldnt be there
+// is_weird helps to ignore 'special' items that shouldnt be there
 int
-is_wierd(Creature *ch, struct obj_data *obj, Creature *vict)
+is_weird(Creature *ch, struct obj_data *obj, Creature *vict)
 {
 	if (PRF_FLAGGED(ch, PRF_HOLYLIGHT))
 		return 0;
@@ -2581,7 +2581,7 @@ generic_find(char *arg, int bitvector, struct Creature *ch,
 		*tar_obj = get_obj_in_list_vis(ch, name, ch->in_room->contents);
 		while (*tar_obj) {
 			if (IS_SET(bitvector, FIND_IGNORE_WIERD)
-				&& is_wierd(ch, *tar_obj, NULL)) {
+				&& is_weird(ch, *tar_obj, NULL)) {
 				*tar_obj =
 					get_obj_in_list_vis(ch, name, (*tar_obj)->next_content);
 				continue;

@@ -173,7 +173,7 @@ ACMD(do_point)
 
 	skip_spaces(&argument);
 	if (!*argument) {
-		send_to_char(ch, "You point whereto?\r\n");
+		send_to_char(ch, "You point everywhere!\r\n");
 		act("$n points in all directions, seemingly confused.",
 			TRUE, ch, 0, 0, TO_ROOM);
 		return;

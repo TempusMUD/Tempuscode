@@ -352,7 +352,7 @@ set_dyntext(Creature *ch, dynamic_text_file * dyntext, char *argument)
 	}
 
 	if (save_dyntext_control(dyntext))
-		send_to_char(ch, "An error occured while saving the control file.\r\n");
+		send_to_char(ch, "An error occurred while saving the control file.\r\n");
 	else
 		send_to_char(ch, "Control file saved.\r\n");
 }
@@ -526,7 +526,7 @@ ACMD(do_dynedit)
 
 				if (save_dyntext_control(dyntext))
 					send_to_char(ch, 
-						"An error occured while saving the control file.\r\n");
+						"An error occurred while saving the control file.\r\n");
 				else
 					send_to_char(ch, "Control file saved.\r\n");
 
@@ -566,7 +566,7 @@ ACMD(do_dynedit)
 
 			if (save_dyntext_control(dyntext))
 				send_to_char(ch, 
-					"An error occured while saving the control file.\r\n");
+					"An error occurred while saving the control file.\r\n");
 			else
 				send_to_char(ch, "Control file saved.\r\n");
 
@@ -644,7 +644,7 @@ ACMD(do_dynedit)
 		}
 		// make the backup
 		if (create_dyntext_backup(dyntext)) {
-			send_to_char(ch, "An error occured while backing up.\r\n");
+			send_to_char(ch, "An error occurred while backing up.\r\n");
 			return;
 		}
 
@@ -678,7 +678,7 @@ ACMD(do_dynedit)
 		// save the new file
 		if (save_dyntext_buffer(dyntext)) {
 
-			send_to_char(ch, "An error occured while saving.\r\n");
+			send_to_char(ch, "An error occurred while saving.\r\n");
 
 		} else {
 
@@ -693,7 +693,7 @@ ACMD(do_dynedit)
 
 
 		if (save_dyntext_control(dyntext))
-			send_to_char(ch, "An error occured while saving the control file.\r\n");
+			send_to_char(ch, "An error occurred while saving the control file.\r\n");
 		else
 			send_to_char(ch, "Control file saved.\r\n");
 

@@ -1814,7 +1814,7 @@ int check_newbie_ban(struct descriptor_data *desc)
                            "IP address.\r\n\tIf you have never played here "
                            "before, or you feel we have made\r\n\ta mistake, or "
                            "perhaps you just got caught in the wake of\r\n\tsomeone "
-                           "elses trouble making, please mail "
+                           "else's trouble making, please mail "
                            "unban@tempusmud.com.\r\n\tPlease include your account "
                            "name and your character name(s)\r\n\tso we can siteok "
                            "your IP.  We apologize for the inconvenience,\r\n\tand "

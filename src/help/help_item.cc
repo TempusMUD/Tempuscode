@@ -323,7 +323,7 @@ HelpItem::Save()
 	char fname[256];
 	ofstream file;
 	sprintf(fname, "%s/%04d.topic", Help_Directory, idnum);
-	// If we dont have the text to edit, get from the file.
+	// If we don't have the text to edit, get from the file.
 	if (!text)
 		LoadText();
 	remove(fname);
@@ -378,7 +378,7 @@ HelpItem::LoadText()
 
 	help_file >> di >> di;
 	help_file.getline(fname, 256, '\n');	// eat the \r\n at the end of the #s
-	help_file.getline(fname, 256, '\n');	// then burn up the name since we dont really need it.
+	help_file.getline(fname, 256, '\n');	// then burn up the name since we don't really need it.
 	if (di > MAX_HELP_TEXT_LENGTH - 1)
 		di = MAX_HELP_TEXT_LENGTH - 1;
 	if (di > 0) {

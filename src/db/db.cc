@@ -454,7 +454,7 @@ boot_db(void)
 	slog("Booting help system.");
 	Help = new HelpCollection;
 	if (Help->LoadIndex())
-		slog("Help system boot succeded.");
+		slog("Help system boot succeeded.");
 	else
 		errlog("Help System Boot FAILED.");
 
@@ -1937,7 +1937,7 @@ parse_object(FILE * obj_f, int nr)
 	// wrong number of fields
 	else {
 		fprintf(stderr,
-			"Format error in first nmric line (expctng 4 or 5 args, got %d), %s\n",
+			"Format error in first numeric line (expecting 4 or 5 args, got %d), %s\n",
 			retval, buf2);
 		safe_exit(1);
 	}
@@ -2437,7 +2437,7 @@ on_load_equip( Creature *ch, int vnum, char* position, int maxload, int percent 
 {
     obj_data *obj = real_object_proto(vnum);
     if( obj == NULL ) {
-        errlog("Mob num %d: equip object %d nonexistant.",
+        errlog("Mob num %d: equip object %d nonexistent.",
 			ch->mob_specials.shared->vnum, vnum );
 		if( MOB2_FLAGGED(ch, MOB2_UNAPPROVED) ) {
 			char* msg = tmp_sprintf("Object %d doesn't exist!",vnum);
@@ -2960,7 +2960,7 @@ reset_zone(struct zone_data *zone)
 		case 'G':				/* obj_to_char */
 			if (!mob) {
 				if (last_cmd == 1)
-					ZONE_ERROR("attempt to give obj to non-existant mob");
+					ZONE_ERROR("attempt to give obj to nonexistent mob");
 				break;
 			}
 			tobj = real_object_proto(zonecmd->arg1);
@@ -2985,7 +2985,7 @@ reset_zone(struct zone_data *zone)
 		case 'E':				/* object to equipment list */
 			if (!mob) {
 				if (last_cmd)
-					ZONE_ERROR("trying to equip non-existant mob");
+					ZONE_ERROR("trying to equip nonexistent mob");
 				break;
 			}
 			last_cmd = 0;
@@ -3020,7 +3020,7 @@ reset_zone(struct zone_data *zone)
 		case 'I':				/* object to equipment list */
 			if (!mob) {
 				if (last_cmd)
-					ZONE_ERROR("trying to implant non-existant mob");
+					ZONE_ERROR("trying to implant nonexistent mob");
 				break;
 			}
 			last_cmd = 0;
@@ -3054,7 +3054,7 @@ reset_zone(struct zone_data *zone)
 		case 'W':
 			if (!mob) {
 				if (last_cmd)
-					ZONE_ERROR("trying to assign path to non-existant mob");
+					ZONE_ERROR("trying to assign path to nonexistent mob");
 				last_cmd = 0;
 				break;
 			}
@@ -3451,42 +3451,6 @@ real_object_proto(int vnum)
 	return (NULL);*/
 
     return objectPrototypes.find(vnum);
-}
-
-#include <dirent.h>
-void
-update_alias_dirs(void)
-{
-	slog("Alias directory update disabled.");
-	/*
-	DIR *dir;
-	struct dirent *dirp;
-	char dlist[7][4] = { "A-E", "F-J", "K-O", "P-T", "U-Z", "ZZZ" };
-	char name[1024], name2[1024];
-	int i;
-
-	for (i = 0; i < 6; i++) {
-		sprintf(buf, "plralias/%s", dlist[i]);
-		if (!(dir = opendir(buf))) {
-			errlog("Incorrect plralias directory structure.");
-			safe_exit(1);
-		}
-		while ((dirp = readdir(dir))) {
-			if ((strlen(dirp->d_name) > 3) &&
-				!strcmp(dirp->d_name + strlen(dirp->d_name) - 3, ".al")) {
-				strncpy(name, dirp->d_name, strlen(dirp->d_name) - 3);
-				name[strlen(dirp->d_name) - 3] = 0;
-				if (playerIndex.getID(name) < 0) {
-					sprintf(name2, "%s/%s", buf, dirp->d_name);
-					unlink(name2);
-					sprintf(buf2, "    Deleting %s's alias file.", name);
-					slog(buf2);
-				}
-			}
-		}
-		closedir(dir);
-	}
-	*/
 }
 
 void

@@ -580,7 +580,7 @@ House::save()
 		fprintf( ouf, "    <guest id=\"%ld\"></guest>\n", getGuest(i) );
 	}
 	for( unsigned int i = 0; i < getRepoNoteCount(); i++ ) {
-		fprintf( ouf, "    <reposession note=\"%s\"></reposession>\n", 
+		fprintf( ouf, "    <repossession note=\"%s\"></repossession>\n", 
                  xmlEncodeSpecialTmp(getRepoNote(i).c_str()) );
 	}
 	fprintf( ouf, "</house>");
@@ -658,7 +658,7 @@ House::load( const char* filename )
 //			} else {
 //				errlog("House %d had invalid guest: %d.", getID(), id);
 //			}
-		} else if( xmlMatches(node->name, "reposession")) {
+		} else if( xmlMatches(node->name, "repossession")) {
 			char* note = xmlGetProp( node, "note" );
 			repoNotes.push_back( note );
 			free(note);
@@ -1018,7 +1018,7 @@ House::collectRent( int cost )
 {
 
 	if( cost < rentOverflow ) {
-		slog("HOUSE: [%d] Previous reposessions covering %d rent.", getID(),cost );
+		slog("HOUSE: [%d] Previous repossessions covering %d rent.", getID(),cost );
 		rentOverflow -= cost;
 		cost = 0;
 		return false;

@@ -117,7 +117,7 @@ ACMD(do_enroll)
 		send_to_char(ch, 
 			"Players must be level 10 before being inducted into the clan.\r\n");
 	else if ((member = real_clanmember(GET_IDNUM(vict), clan))) {
-		send_to_char(ch, "Something wierd just happened... try again.\r\n");
+		send_to_char(ch, "Something weird just happened... try again.\r\n");
 		REMOVE_MEMBER_FROM_CLAN(member, clan);
 		free(member);
 	} else {
@@ -201,7 +201,7 @@ ACMD(do_dismiss)
 	else if (!PLR_FLAGGED(ch, PLR_CLAN_LEADER) && !IS_IMMORT(ch))
 		send_to_char(ch, "You are not the leader of the clan!\r\n");
 	else if (GET_CLAN(vict) != GET_CLAN(ch) && !Security::isMember(ch, "Clan"))
-		send_to_char(ch, "Umm, why dont you check the clan list, okay?\r\n");
+		send_to_char(ch, "Umm, why don't you check the clan list, okay?\r\n");
 	else if (!Security::isMember(ch, "Clan") &&
 			(member = real_clanmember(GET_IDNUM(ch), clan)) &&
 			(member2 = real_clanmember(GET_IDNUM(vict), clan)) &&
@@ -848,7 +848,7 @@ ACMD(do_cedit)
 				send_to_char(ch, "Clan deleted.  Sucked anyway.\r\n");
 				slog("(cedit) %s deleted clan %d.", GET_NAME(ch), i);
 			} else
-				send_to_char(ch, "ERROR occured while deleting clan.\r\n");
+				send_to_char(ch, "ERROR occurred while deleting clan.\r\n");
 		}
 		break;
 

@@ -436,7 +436,7 @@ eqdam_extract_obj(struct obj_data *obj)
 		else if (obj->in_obj)
 			obj_to_obj(inobj, obj->in_obj);
 		else {
-			errlog("wierd bogus shit.");
+			errlog("weird bogus shit.");
 			extract_obj(inobj);
 		}
 	}
@@ -1539,7 +1539,7 @@ damage(struct Creature *ch, struct Creature *victim, int dam,
 		}
 		// remove stasis even on a miss
 		if (AFF3_FLAGGED(victim, AFF3_STASIS)) {
-			send_to_char(victim, "Emergency restart of system procesess...\r\n");
+			send_to_char(victim, "Emergency restart of system processes...\r\n");
 			REMOVE_BIT(AFF3_FLAGS(victim), AFF3_STASIS);
 			WAIT_STATE(victim, (5 - (CHECK_SKILL(victim,
 							SKILL_FASTBOOT) >> 5)) RL_SEC);
@@ -2255,7 +2255,7 @@ hit(struct Creature *ch, struct Creature *victim, int type)
     if ((diceroll == 1)
 			&& victim->getPosition() >= POS_FIGHTING
 			&& CHECK_SKILL(victim, SKILL_COUNTER_ATTACK) > 70) {
-        act("You lauch a counter attack!", false, victim, NULL, ch, TO_CHAR);
+        act("You launch a counter attack!", false, victim, NULL, ch, TO_CHAR);
         return hit(victim, ch, TYPE_UNDEFINED);
     }
 	/* decide whether this is a hit or a miss */

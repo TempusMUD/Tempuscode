@@ -1058,7 +1058,7 @@ ASPELL(spell_emp_pulse)
 			"You are unable to alter physical reality in this space.\r\n");
 		return;
 	}
-	// Make sure non-pkillers dont get killer flags.
+	// Make sure non-pkillers don't get killer flags.
 	CreatureList::iterator it = ch->in_room->people.begin();
 	for (; it != ch->in_room->people.end(); ++it) {
 		if ((*it) != ch) {
