@@ -20,6 +20,11 @@ char *tmp_getword(const char **src);
 inline char *tmp_getword(char **src)
 	{ return tmp_getword((const char **)src); }
 
+// get the next word, copied into a temp pool but don't remove it
+// from src
+char *tmp_peekword(const char **src);
+inline char *tmp_peekword(char **src)
+    { return tmp_peekword((const char **)src); }
 // like tmp_getword, except it pulls out an entire string, if delimited by
 // quotation marks.  Otherwise, acts just like tmp_getword.
 char *tmp_getquoted(const char **src);

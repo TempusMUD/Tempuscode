@@ -222,6 +222,41 @@ tmp_getword(const char **src)
 	return result;
 }
 
+// get the next word, copied into a temp pool, but don't remove
+// it from src
+char *
+tmp_peekword(const char **src)
+{
+	struct tmp_str_pool *cur_buf;
+	const char *read_pt;
+	char *result, *write_pt;
+	size_t len = 0;
+
+	skip_spaces(src);
+
+	read_pt = *src;
+	while (*read_pt && !isspace(*read_pt))
+		read_pt++;
+	len = (read_pt - *src) + 1;
+
+	if (len > tmp_list_tail->space - tmp_list_tail->used)
+		cur_buf = tmp_alloc_pool(len);
+	else
+		cur_buf = tmp_list_tail;
+
+	result = cur_buf->data + cur_buf->used;
+	read_pt = *src;
+	write_pt = result;
+
+	while (*read_pt && !isspace(*read_pt))
+		*write_pt++ = tolower(*read_pt++);
+	*write_pt = '\0';
+
+	cur_buf->used += len;
+
+	return result;
+}
+
 char *
 tmp_getquoted(const char **src)
 {
