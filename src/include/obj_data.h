@@ -314,6 +314,16 @@ struct obj_data {
 	inline int getObjWeight(void) {
 		return getWeight() - getContainedWeight();
 	}
+	inline int getNumContained(void) {
+		obj_data *cur_obj;
+		int result= 0;
+
+		if (!contains)
+			return 0;
+		for (cur_obj = contains; cur_obj; cur_obj = cur_obj->next_content)
+			result++;
+		return result;
+	}
 
 	void clear();
 	
