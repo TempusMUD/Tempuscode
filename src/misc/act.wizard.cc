@@ -857,8 +857,8 @@ do_stat_zone(struct Creature *ch, struct zone_data *zone)
 		zone->lifespan, zone->age);
 
     send_to_char(ch,
-        "Sun: [%s (%d)] Sky: [%s (%d)] Moon: [%s (%d)]\r\n"
-        "Pres: [%3d] Chng: [%3d]\r\n\r\n",
+        "Sun: [%s (%d)] Sky: [%s (%d)] Moon: [%s (%d)] "
+        "Pres: [%3d] Chng: [%3d]\r\n",
         sun_types[(int)zone->weather->sunlight],
         zone->weather->sunlight, sky_types[(int)zone->weather->sky],
         zone->weather->sky,
@@ -869,9 +869,15 @@ do_stat_zone(struct Creature *ch, struct zone_data *zone)
     sprintbit(zone->flags, zone_flags, buf2);
     send_to_char(ch, "Flags: %s%s%s\r\n", CCGRN(ch, C_NRM), buf2, CCNRM(ch,
             C_NRM));
+	
+	if (zone->target_lvl)
+		send_to_char(ch, "Target lvl/gen: [% 2d/% 2d]\r\n",
+			zone->target_lvl, zone->target_gen);
 
-    send_to_char(ch, "Created: N/A\r\nLast Updated at: N/A\r\n\r\n"
-        "Zone special procedure: N/A\r\nZone reset special procedure: N/A\r\n\r\n");
+	if (zone->public_desc)
+		send_to_char(ch, "Public Description:\r\n%s", zone->public_desc);
+	if (zone->private_desc)
+		send_to_char(ch, "Private Description:\r\n%s", zone->private_desc);
 
     for (obj = object_list; obj; obj = obj->next)
         if (obj->in_room && obj->in_room->zone == zone)
@@ -893,7 +899,7 @@ do_stat_zone(struct Creature *ch, struct zone_data *zone)
         for (srch = rm->search; srch; nums++, srch = srch->next);
     }
 
-    send_to_char(ch, "Zone Stats :-\r\n"
+    send_to_char(ch, "\r\nZone Stats :-\r\n"
         "  mobs in zone : %-3d, %-3d protos;   objs in zone  : %-3d, %-3d protos;\r\n"
         "  players in zone: (%3d) %3d   rooms in zone: %-3d   undescripted rooms: %-3d\r\n"
         "  search in zone: %d\r\n  usage count: %d\r\n"
