@@ -264,8 +264,8 @@ ACMD(do_lecture)
 		check_killer(ch, vict);
 	}
 	prob = ch->getLevelBonus(SKILL_LECTURE) + (GET_INT(ch) << 1) - GET_CHA(ch);
-	if( AFF_FLAGGED(ch, AFF_CONFUSION) )
-		percent -= 60;
+	if(AFF_FLAGGED(ch, AFF_CONFUSION))
+		prob -= 60;
 
 	index = number(0, NUM_TOPICS - 1);
 
