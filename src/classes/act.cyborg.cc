@@ -742,6 +742,12 @@ perform_cyborg_activate(Creature *ch, int mode, int subcmd)
 			to_char[0] = "Defensive posturing disabled.\r\n";
 			opposite_mode = SKILL_OFFENSIVE_POS;
 			break;
+		case SKILL_NANITE_RECONSTRUCTION:
+			af[0].location = APPLY_MOVE;
+			af[0].modifier = -300;
+			to_char[1] = "Nanite reconstruction in progress.\r\n";
+			to_char[0] = "Nanite reconstruction halted.\r\n";
+			break;
 		default:
 			send_to_char(ch, "ERROR: Unknown mode occured in switch.\r\n");
 			return;

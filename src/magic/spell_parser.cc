@@ -526,7 +526,8 @@ const char *spells[] = {
 	"!UNUSED!",					/* 660 */
 	"!UNUSED!", "!UNUSED!", "!UNUSED!", "!UNUSED!", "!UNUSED!",	/* 665 */
 	"hamstring", "snatch", "drag", "snipe", "infiltrate",	/* 670 */
-	"shoulderthrow", "!UNUSED!", "!UNUSED!", "!UNUSED!", "!UNUSED!",	/* 675 */
+	"shoulderthrow", "!UNUSED!", "!UNUSED!", "!UNUSED!",
+	"nanite reconstruction",	/* 675 */
 	"arterial flow enhancement",
 	"genetek optimmunal response",
 	"shukutei adrenal maximizations",
@@ -4087,6 +4088,9 @@ mag_assign_spells(void)
 
 	spello(SKILL_NEURAL_BRIDGING, X, X, X, X, X, X, X, 35, X, X, X, X, X, X, X,
 		X, X, 0, 0, 0, 0, 0, 0, CYB_ACTIVATE);
+
+	spello(SKILL_NANITE_RECONSTRUCTION, X, X, X, X, X, X, X, 33, X, X, X, X, X, X, X, X,
+		X, 0, 0, 0, 0, 0, 0, CYB_ACTIVATE);
 
 	spello(SKILL_ARTERIAL_FLOW, X, X, X, X, X, X, X, X, X, X, X, X, X, X, X, X,
 		X, 0, 0, 0, 0, 0, 0, CYB_ACTIVATE);

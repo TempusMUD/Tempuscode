@@ -566,6 +566,7 @@ static const int SKILL_SHOULDER_THROW = 671;	// grounding skill between hiptoss
 										 // and sweepkick
 
 // Overflow Cyborg
+static const int SKILL_NANITE_RECONSTRUCTION = 675;	// repairs implants
 static const int SKILL_ARTERIAL_FLOW = 676;	// Arterial Flow Enhancement
 static const int SKILL_OPTIMMUNAL_RESP = 677;	// Genetek Optimmunal Nodes
 static const int SKILL_ADRENAL_MAXIMIZER = 678;	// Shukutei Adrenal Maximizer

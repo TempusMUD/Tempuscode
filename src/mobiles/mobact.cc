@@ -116,6 +116,7 @@ burn_update(void)
 	struct special_search_data *srch = NULL;
 	int dam = 0;
 	int found = 0;
+	int idx = 0;
 	struct affected_type *af;
 	CreatureList::iterator cit = characterList.begin();
 	for (; cit != characterList.end(); ++cit) {
@@ -284,6 +285,15 @@ burn_update(void)
 		if (AFF3_FLAGGED(ch, AFF3_ENERGY_LEAK))
 			GET_MOVE(ch) = MAX(0, GET_MOVE(ch) - 
                                (1 + random_number_zero_low(GET_CON(ch) >> 2)));
+
+		// nanite reconstruction
+		if (affected_by_spell(ch, SKILL_NANITE_RECONSTRUCTION))
+			for (idx = 0;idx < NUM_WEARS;idx++) {
+				obj = GET_IMPLANT(ch, idx);
+				if (obj)
+					GET_OBJ_DAM(obj) = MIN(GET_OBJ_MAX_DAM(obj),
+						GET_OBJ_DAM(obj) + number(0, 1));
+			}
 
 		// Signed the Unholy Compact - Soulless
 		if (PLR2_FLAGGED(ch, PLR2_SOULLESS) &&
