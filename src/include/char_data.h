@@ -594,7 +594,7 @@
 #define LVL_FREEZE    LVL_ENERGY
 #define LVL_CAN_BAN     LVL_GOD
 #define LVL_VIOLENCE    LVL_POWER
-#define LVL_LOGALL      LVL_ENTITY
+#define LVL_LOGALL      LVL_CREATOR
 
 
 /* char-related structures ************************************************/
