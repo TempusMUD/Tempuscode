@@ -96,7 +96,7 @@ number(int from, int to)
 {
 	if (to <= from)
 		return (from);
-	return (int)((long long)my_rand() * (long long)(to - from) / INT_MAX + from);
+	return (int)(((long long)my_rand() * (long long)(to - from) / INT_MAX) + from);
 }
 
 double
@@ -111,7 +111,7 @@ rand_float(void)
 bool
 random_binary()
 {
-	return number(0,1) == 0;
+	return !number(0,1);
 }
 
 //
@@ -122,7 +122,7 @@ random_fractional(unsigned int num)
 {
 	if (num == 0)
 		return true;
-	return !number(0, num);
+	return !number(0, num - 1);
 }
 
 //
@@ -194,7 +194,7 @@ random_fractional_100()
 int
 random_percentage()
 {
-	return !number(0, 100);
+	return number(1, 100);
 }
 
 //
@@ -203,7 +203,7 @@ random_percentage()
 int
 random_percentage_zero_low()
 {
-	return !number(0, 99);
+	return number(0, 99);
 }
 
 //
@@ -214,7 +214,7 @@ random_number_zero_low(unsigned int num)
 {
 	if (num == 0)
 		return 0;
-	return !number(0, num);
+	return number(0, num);
 }
 
 //
