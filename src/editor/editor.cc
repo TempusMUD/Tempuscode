@@ -596,7 +596,7 @@ void CTextEditor::ProcessHelp(char *inStr) {
 	    sprintf(buf,"%s      %s%s",buf,CCBLD(ch,C_CMP),CCYEL(ch,C_NRM));
 	    sprintf(buf,"%sA%s - %sAdd Recipient\r\n",buf,CCYEL(ch,C_NRM),CCNRM(ch,C_NRM));
 	    sprintf(buf,"%s%s%s            ",buf,CCBLD(ch,C_CMP),CCYEL(ch,C_NRM));
-	    sprintf(buf,"%sE%s - %sRemove Recipient",buf,CCYEL(ch,C_NRM),CCNRM(ch,C_NRM));
+	    sprintf(buf,"%sE%s - %sRemove Recipient\r\n",buf,CCYEL(ch,C_NRM),CCNRM(ch,C_NRM));
 	}
         sprintf(buf,"%s%s%s     *",buf,CCBLD(ch,C_CMP),CCCYN(ch,C_NRM));
      
