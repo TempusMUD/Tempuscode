@@ -1003,9 +1003,9 @@ House::collectRent( int cost )
 {
 
 	if( cost < rentOverflow ) {
+		slog("HOUSE: [%d] Previous reposessions covering %d rent.", getID(),cost );
 		rentOverflow -= cost;
 		cost = 0;
-		slog("HOUSE: [%d] Previous reposessions covering %d rent.", getID(),cost );
 		return false;
 	} else {
 		cost -= rentOverflow;
