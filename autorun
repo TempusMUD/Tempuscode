@@ -17,13 +17,11 @@ PORT=2020
 OLDFLAGS=''
 FLAGS=''
 DM_LOGFILE='/home0/TempusMUD/log/dm-logfile'
+ulimit -c unlimited
 
 while /bin/true; do
 
     DATE=`date`
-
-    echo "lib/core set readable for group." >> syslog
-    chmod g+r lib/core
 
     echo "autoscript starting game $DATE" >> syslog
 
@@ -78,11 +76,12 @@ while /bin/true; do
     fgrep "MONEY"         syslog >> log/cash_transfer
     fgrep "CLAN:"         syslog >> log/clan_accounts
     fgrep "SRCH:"         syslog >> log/searches
-    fgrep "CMD:"          syslog >> log/cmd_log
     fgrep "(cedit)"       syslog >> log/cedit_log
     fgrep "increased"     syslog >> log/increase_log
     fgrep "improved"      syslog >> log/improve_log
     fgrep "siteok'd"      syslog >> log/siteok_log
+    fgrep "joining the soulless masses."      syslog >> log/soulless
+
     
     rm log/syslog.1
     mv log/syslog.2 log/syslog.1
@@ -92,6 +91,7 @@ while /bin/true; do
     mv log/syslog.6 log/syslog.5
     mv syslog       log/syslog.6
     touch syslog
+
   
 # rm log/prof_log.1
 # mv log/prof_log.2 log/prof_log.1
@@ -109,28 +109,46 @@ while /bin/true; do
         ( [ ! -r ./lib/core.timestamp ] || [ ./lib/core -nt ./lib/core.timestamp ] ); then
         touch ./lib/core.timestamp
         ./bin/crash_report.sh
+    else
+        TAG=`date +tempus-%Y-%m-%d-%H`
+        echo "Reboot requested." | mail -s "TempusMUD Reboot Notification" coders
     fi    
         
     cp lib/etc/players lib/etc/backup_players
     rm lib/etc/backup_players.gz
     gzip -3 lib/etc/backup_players &
-    chmod g+r lib/core
+
+    rm lib/core.1.timestamp
+    mv lib/core.2.timestamp lib/core.1.timestamp
+    mv lib/core.3.timestamp lib/core.2.timestamp
+    mv lib/core.4.timestamp lib/core.3.timestamp
+    mv lib/core.5.timestamp lib/core.4.timestamp
+    mv lib/core.6.timestamp lib/core.5.timestamp
+    mv lib/core.timestamp   lib/core.6.timestamp
+
+    rm lib/core.1.timestamp
+    mv lib/core.2 lib/core.1
+    mv lib/core.3 lib/core.2
+    mv lib/core.4 lib/core.3
+    mv lib/core.5 lib/core.4
+    mv lib/core.6 lib/core.5
+    mv lib/core   lib/core.6
     
     if [ ! -r .fastboot ]; then
-	sleep 40
+        sleep 40
     else
-	sleep 5
+        sleep 5
     fi
 
     if [ -r .killscript ]; then
-	DATE=`date`
-	echo "autoscript killed $DATE"  >> syslog
-	rm .killscript
-	exit
+        DATE=`date`
+        echo "autoscript killed $DATE"  >> syslog
+        rm .killscript
+        exit
     fi
     
     while [ -r pause ]; do
-	sleep 60
+        sleep 60
     done
     
 done
