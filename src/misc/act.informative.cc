@@ -2113,8 +2113,9 @@ ACMD(do_examine)
 			act("$p looks like it has been enhanced.",
 				FALSE, ch, tmp_object, 0, TO_CHAR);
 
-		obj_cond_color(tmp_object, ch);
-		sprintf(buf, "$p seems to be in %s condition.", buf2);
+		
+		sprintf(buf, "$p seems to be in %s condition.", 
+                obj_cond_color(tmp_object, ch) );
 		act(buf, FALSE, ch, tmp_object, 0, TO_CHAR);
 
 		if (IS_OBJ_TYPE(tmp_object, ITEM_CIGARETTE)) {
