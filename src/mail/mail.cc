@@ -365,9 +365,9 @@ postmaster_receive_mail(struct char_data * ch, struct char_data *mailman,
     num_mails = recieve_mail(ch);
     
     if(num_mails) {
-        sprintf(buf2,"$n gives you %d pieces of mail.",num_mails);
+        sprintf(buf2,"$n gives you %d piece%s of mail.",num_mails, (num_mails > 1 ? "s" : "" ) );
         act(buf2, FALSE, mailman, 0, ch, TO_VICT);
-        sprintf(buf2,"$N gives $n %d pieces of mail.",num_mails);
+        sprintf(buf2,"$N gives $n %d piece%s of mail.",num_mails, (num_mails > 1 ? "s" : "" ) );
         act(buf2, FALSE, ch, 0, mailman, TO_ROOM);
     } else {
         strcpy(buf2, "Sorry, you don't have any mail waiting.");
