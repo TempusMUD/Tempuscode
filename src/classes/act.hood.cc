@@ -166,7 +166,7 @@ ACMD(do_drag_char)
     struct room_data *location = NULL;
 
     int percent, prob;
-
+	int found = 0;
     char arg2[ MAX_INPUT_LENGTH ];
 
     int dir = -1;
@@ -176,98 +176,60 @@ ACMD(do_drag_char)
     two_arguments( argument, arg, arg2 );
 
     if ( !( vict = get_char_room_vis( ch, arg ) ) ) {
-	send_to_char( "Who do you want to drag?\r\n", ch );
-	WAIT_STATE( ch, 3 );
-	return;
+		send_to_char( "Who do you want to drag?\r\n", ch );
+		WAIT_STATE( ch, 3 );
+		return;
     }
 
     if ( vict == ch ) {
-	send_to_char( "You can't drag yourself!\r\n", ch );
+		send_to_char( "You can't drag yourself!\r\n", ch );
         return;
     }
 
     if ( ! *arg2 ) {
-	send_to_char( "Which direction do you wish to drag them?\r\n", ch );
-	WAIT_STATE( ch, 3 );
+		send_to_char( "Which direction do you wish to drag them?\r\n", ch );
+		WAIT_STATE( ch, 3 );
         return;
      }
 
- 
-
-
     if ( ! peaceful_room_ok( ch, vict, true ) ) {
-	return;
+		return;
     }
 
 // Find out which direction the player wants to drag in	
-    if ( is_abbrev( arg2, "north" ) ) {
-        dir = 0;
+	for(dir = 0; dir < NUM_DIRS && !found; dir++) {
+		if ( is_abbrev( arg2, dirs[dir] ) ) {
+			found = 1;
+			break;
+		}
     }
+	if(!found) {
+		send_to_char( "Sorry, that's not a valid direction.\r\n", ch );
+		return;
+	} 
 
-    else if ( is_abbrev( arg2, "east" ) ) {
-        dir = 1;
-    }
-
-    else if ( is_abbrev( arg2, "south" ) ) {
-        dir = 2;
-    }
-
-    else if ( is_abbrev( arg2, "west" ) ) {
-	dir = 3;
-    }	
- 
-    else if ( is_abbrev( arg2, "up" ) ) {
-	dir = 4;
-    }
-
-    else if ( is_abbrev( arg2, "down" ) ) {
-	dir = 5;
-    }
-    
-    else if ( is_abbrev( arg2, "future" ) ) {
-	dir = 6;
-    }
-    
-    else if ( is_abbrev( arg2, "past" ) ) {
-	dir = 7;
-    }
-    
-    else {
-	send_to_char( "Sorry, that's not a valid direction.\r\n", ch );
-	return;
-    }
-
-    
     if (EXIT(ch, dir) &&  (target_room = EXIT( ch, dir )->to_room ) != NULL ) {
-	
-	if ( CAN_GO( ch, dir ) && ( ROOM_FLAGGED( target_room, ROOM_HOUSE ) && 
-				    ! House_can_enter( ch, target_room->number ) ) ||
-	     ( ROOM_FLAGGED( target_room, ROOM_CLAN_HOUSE ) && ! clan_house_can_enter( ch, target_room ) ) || 
-	     ( ROOM_FLAGGED( target_room, ROOM_DEATH ) ) ){
-	    act( "You are unable to drag $M there.", FALSE, ch, 0, vict, TO_CHAR );
-	    return;
-	}
+		if ( CAN_GO( ch, dir ) && ( ROOM_FLAGGED( target_room, ROOM_HOUSE ) && 
+						! House_can_enter( ch, target_room->number ) ) ||
+			 ( ROOM_FLAGGED( target_room, ROOM_CLAN_HOUSE ) && ! clan_house_can_enter( ch, target_room ) ) || 
+			 ( ROOM_FLAGGED( target_room, ROOM_DEATH ) ) ){
+			act( "You are unable to drag $M there.", FALSE, ch, 0, vict, TO_CHAR );
+			return;
+		}
     }
-    
-    
-    
-    if ( ! CAN_GO( ch, dir ) || ! can_travel_sector( ch, SECT_TYPE(EXIT(ch, dir)->to_room ), 0) || ! CAN_GO( vict, dir ) ) {
-	send_to_char( "Sorry you can't go in that direction.\r\n", ch );  
-	return;
+    if ( !CAN_GO( ch, dir ) || 
+		 !can_travel_sector( ch, SECT_TYPE(EXIT(ch, dir)->to_room ), 0) || 
+		 !CAN_GO( vict, dir ) ) {
+		send_to_char( "Sorry you can't go in that direction.\r\n", ch );  
+		return;
     }
- 
-	    
-
-    
     percent = ( ( GET_LEVEL( vict ) ) + number( 1, 101 ) );
     percent -= ( GET_WEIGHT( ch ) - GET_WEIGHT( vict ) )/5;
     
     if ( GET_STR( ch ) >= 19 ) {	
-	percent -= (GET_STR(ch) * 2);
-    } 
-    
-    else { 
-	percent -= ( GET_STR( ch ) );	
+		percent -= (GET_STR(ch) * 2);
+    } else { 
+		percent -= ( GET_STR( ch ) );	
     }
     
     
@@ -275,7 +237,7 @@ ACMD(do_drag_char)
     prob = MIN( prob, 100 );	         
 
     if ( MOB_FLAGGED( vict, MOB_SENTINEL ) ) {
-	percent = 101;
+		percent = 101;
     }
  
     if ( CHECK_SKILL( ch, SKILL_DRAG ) < 30 ) {
@@ -283,43 +245,40 @@ ACMD(do_drag_char)
     }	
     
     if ( AFF_FLAGGED( ch, AFF_CHARM ) && ch->master ) {
-	percent = 101;
+		percent = 101;
     }
 
     if ( prob > percent ) {
-	sprintf( buf, "You drag $N to the %s.", to_dirs[ dir ] );
-	act( buf, FALSE, ch, 0, vict, TO_CHAR );
-	sprintf( buf, "$n grabs you and drags you %s.", to_dirs[ dir ] );
-	act( buf, FALSE, ch, 0, vict, TO_VICT );
-	sprintf( buf, "$n drags $N to the %s.", to_dirs[ dir ] );
-	act( buf, FALSE, ch, 0, vict, TO_NOTVICT );
+		sprintf( buf, "You drag $N to the %s.", to_dirs[ dir ] );
+		act( buf, FALSE, ch, 0, vict, TO_CHAR );
+		sprintf( buf, "$n grabs you and drags you %s.", to_dirs[ dir ] );
+		act( buf, FALSE, ch, 0, vict, TO_VICT );
+		sprintf( buf, "$n drags $N to the %s.", to_dirs[ dir ] );
+		act( buf, FALSE, ch, 0, vict, TO_NOTVICT );
+		
+		perform_move( ch, dir, MOVE_NORM, 1 );
+		perform_move( vict, dir, MOVE_DRAG, 1 );
+		
+		WAIT_STATE( ch, ( PULSE_VIOLENCE * 2 ) );
+		WAIT_STATE( vict, PULSE_VIOLENCE );
 	
-	perform_move( ch, dir, MOVE_NORM, 1 );
-	perform_move( vict, dir, MOVE_DRAG, 1 );
-	
-	WAIT_STATE( ch, ( PULSE_VIOLENCE * 2 ) );
-	WAIT_STATE( vict, PULSE_VIOLENCE );
-	
-        if ( IS_NPC( vict ) && AWAKE( vict ) && check_mob_reaction( ch, vict ) ){
-         hit( vict, ch, TYPE_UNDEFINED );
-         WAIT_STATE( ch, 2 RL_SEC );
+		if ( IS_NPC( vict ) && AWAKE( vict ) && check_mob_reaction( ch, vict ) ){
+			hit( vict, ch, TYPE_UNDEFINED );
+			WAIT_STATE( ch, 2 RL_SEC );
         }
-	return;
-    }
-    
-    else {
-	act( "$n grabs $N but fails to move $m.", FALSE, ch, 0, vict, TO_NOTVICT );
-	act( "You attempt to man-handle $N but you fail!", FALSE, ch, 0, vict, TO_CHAR );
-	act( "$n attempts to drag you, but you hold your ground.", FALSE, ch, 0, vict, TO_VICT );	 
-	WAIT_STATE( ch, PULSE_VIOLENCE );
+		return;
+    } else {
+		act( "$n grabs $N but fails to move $m.", FALSE, ch, 0, vict, TO_NOTVICT );
+		act( "You attempt to man-handle $N but you fail!", FALSE, ch, 0, vict, TO_CHAR );
+		act( "$n attempts to drag you, but you hold your ground.", FALSE, ch, 0, vict, TO_VICT );	 
+		WAIT_STATE( ch, PULSE_VIOLENCE );
         
         if ( IS_NPC( vict ) && AWAKE( vict ) && check_mob_reaction( ch, vict ) ){
-         hit( vict, ch, TYPE_UNDEFINED );
-         WAIT_STATE( ch, 2 RL_SEC );
+			hit( vict, ch, TYPE_UNDEFINED );
+			WAIT_STATE( ch, 2 RL_SEC );
         }
-	return;
+		return;
     }
-   
 }
 
 ACMD(do_snatch)
