@@ -25,7 +25,7 @@
 
 struct room_data *belly_rm = NULL;
 
-static unsigned int dinurnal_timer = 0;
+static unsigned int diurnal_timer = 0;
 static unsigned int poop_timer = 0;
 static bool pursuit = false;
 
@@ -346,14 +346,31 @@ SPECIAL(tarrasque)
 
 	if (spec_mode == SPECIAL_CMD) {
 		if (CMD_IS("status") && GET_LEVEL(ch) >= LVL_IMMORT) {
+			char *mode_str;
+
+			switch (mode) {
+			case T_SLEEP:
+				mode_str = tmp_sprintf("Asleep (%d/%d)", diurnal_timer,
+					T_SLEEP_LEN);
+				break;
+			case T_ACTIVE:
+				mode_str = tmp_sprintf("Active (%d/%d)", diurnal_timer,
+					T_ACTIVE_LEN);
+				break;
+			case T_RETURN:
+				mode_str = "Returning to lair";
+				break;
+			default:
+				slog("Can't happen in tarrasque()");
+			}
 			send_to_char(ch,
-				"Tarrasque status: mode (%d), dinurnal (%d), poop (%d)\r\n",
-				mode, dinurnal_timer, poop_timer);
+				"Tarrasque status: %s,  poop (%d/%d)\r\n",
+				mode_str, poop_timer, T_POOP_LEN);
 			return 1;
 		}
 		if (CMD_IS("reload") && GET_LEVEL(ch) > LVL_DEMI) {
 			mode = T_SLEEP;
-			dinurnal_timer = 0;
+			diurnal_timer = 0;
 			if ((rm = real_room(LAIR_RM))) {
 				char_from_room(tarr, false);
 				char_to_room(tarr, rm, false);
@@ -398,7 +415,7 @@ SPECIAL(tarrasque)
 			return 1;
 		}
 		if (mode == T_SLEEP && !AWAKE(tarr))
-			dinurnal_timer += T_SLEEP_LEN / 10;
+			diurnal_timer += T_SLEEP_LEN / 10;
 		return 0;
 	}
 	
@@ -425,7 +442,7 @@ SPECIAL(tarrasque)
 	}
 
 	tarrasque_digest(tarr);
-	dinurnal_timer++;
+	diurnal_timer++;
 	poop_timer++;
 
 	// If someone flees, we go after em immediately
@@ -442,7 +459,7 @@ SPECIAL(tarrasque)
 
 	switch (mode) {
 	case T_SLEEP:
-		if (dinurnal_timer > T_SLEEP_LEN) {
+		if (diurnal_timer > T_SLEEP_LEN) {
 			tarr->setPosition(POS_STANDING);
 			if (!add_path_to_mob(tarr, "tarr_exit_mod")) {
 				slog("SYSERR: error assigning tarr_exit_mod path to tarrasque.");
@@ -451,7 +468,7 @@ SPECIAL(tarrasque)
 			}
 
 			mode = T_ACTIVE;
-			dinurnal_timer = 0;
+			diurnal_timer = 0;
 		} else if (tarr->in_room->number == LAIR_RM && AWAKE(tarr) &&
 			tarr->in_room->people.size() < 2) {
 			act("$n goes to sleep.", FALSE, tarr, 0, 0, TO_ROOM);
@@ -460,9 +477,9 @@ SPECIAL(tarrasque)
 		break;
 
 	case T_ACTIVE:
-		if (dinurnal_timer > T_ACTIVE_LEN) {
+		if (diurnal_timer > T_ACTIVE_LEN) {
 			mode = T_RETURN;
-			dinurnal_timer = 0;
+			diurnal_timer = 0;
 
 			if (!add_path_to_mob(tarr, "tarr_return_mod")) {
 				slog("SYSERR: error assigning tarr_return_mod path to tarrasque.");
@@ -499,7 +516,7 @@ SPECIAL(tarrasque)
 				tarr->setPosition(POS_SLEEPING);
 				act("$n lies down and falls asleep.", FALSE, tarr, 0, 0,
 					TO_ROOM);
-				dinurnal_timer = 0;
+				diurnal_timer = 0;
 				return 1;
 			}
 
