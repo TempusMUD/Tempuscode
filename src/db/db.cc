@@ -78,12 +78,12 @@ int top_of_p_file = 0;                /* ref of size of p file         */
 long top_idnum = 0;                /* highest idnum in use                 */
 int no_plrtext = 0;             /* player text disabled?         */
 
-int no_mail = 0;        	/* mail disabled?		 */
-int mini_mud = 0;        	/* mini-mud mode?		 */
+int no_mail = 0;                /* mail disabled?                 */
+int mini_mud = 0;                /* mini-mud mode?                 */
 int mud_moved = 0;
-int no_rent_check = 0;        	/* skip rent check on boot?	 */
-time_t boot_time = 0;        	/* time of mud boot		 */
-int restrict = 0;        	/* level of game restriction	 */
+int no_rent_check = 0;                /* skip rent check on boot?         */
+time_t boot_time = 0;                /* time of mud boot                 */
+int restrict = 0;                /* level of game restriction         */
 int olc_lock = 0;
 int no_initial_zreset = 0;
 int quest_status = 0;
@@ -2364,26 +2364,6 @@ load_zones(FILE * fl, char *zonename)
                     error = 1;
             }
         }
-        /*
-          if (strchr("MOEPDIV", new_zonecmd->command) == NULL) { 
-          if (sscanf(ptr, " %d %d %d ", &tmp, &new_zonecmd->arg1, 
-          &new_zonecmd->arg2) != 3)
-          error = 1;
-          } else {
-          if (new_zonecmd->command == 'D') {
-          if (sscanf(ptr, " %d %d %d %s ", &tmp, &new_zonecmd->arg1,
-          &new_zonecmd->arg2, flags) != 4)
-          error = 1;
-          if (error != 1)
-          new_zonecmd->arg3 = asciiflag_conv(flags);
-      
-          } else {
-          if (sscanf(ptr, " %d %d %d %d ", &tmp, &new_zonecmd->arg1, 
-          &new_zonecmd->arg2, &new_zonecmd->arg3) != 4)
-          error = 1;
-          }
-          }
-        */
         new_zonecmd->if_flag = tmp;
         new_zonecmd->prob    = tmp2;
 
@@ -2729,54 +2709,48 @@ reset_zone(struct zone_data *zone)
     struct room_data *room;
     struct special_search_data *srch = NULL;
     PHead *p_head = NULL;
-        struct shop_data *shop;
-        struct char_data *keeper = NULL;
-        struct char_data *vkeeper = NULL;
+    struct shop_data *shop;
+    struct char_data *vkeeper = NULL;
 
-        SPECIAL(shop_keeper);
-        //extern struct char_data *character_list;
-        extern struct shop_data *shop_index;
+    SPECIAL(shop_keeper);
+    //extern struct char_data *character_list;
+    extern struct shop_data *shop_index;
 
-        // Find all the shops in this zone and reset them.
-        CharacterList::iterator cit = characterList.begin();
-        for( ; cit != characterList.end(); ++cit ) {
-        //for(keeper = character_list;keeper; keeper = keeper->next) {
-            keeper = *cit;
-                // Wrong zone
-                if(keeper->in_room->zone != zone)
+    // Find all the shops in this zone and reset them.
+    CharacterList::iterator cit = characterList.begin();
+    for( ; cit != characterList.end(); ++cit ) {
+        // Wrong zone
+        if((*cit)->in_room->zone != zone)
+                continue;
+        // No special
+        if(!MOB_FLAGGED((*cit),MOB_SPEC))
+                continue;
+        // Wrong special
+        if(GET_MOB_SPEC((*cit)) != shop_keeper)
+                continue;
+        // Run through the shop list and find the right one
+        for (shop = shop_index; shop; shop = shop->next) {
+                // Do they have revenue set on the shop?
+                if(SHOP_REVENUE(shop) <= 0 )
                         continue;
-                // No special
-                if(!MOB_FLAGGED(keeper,MOB_SPEC))
+                // Make sure its the right shop keeper.
+                if (GET_MOB_VNUM((*cit)) != shop->keeper)
                         continue;
-                // Wrong special
-                if(GET_MOB_SPEC(keeper) != shop_keeper)
+                // Make sure the shop is in this zone;
+                if (shop->vnum < (zone->number * 100) || shop->vnum > zone->top)
                         continue;
-                // Run through the shop list and find the right one
-                for (shop = shop_index; shop; shop = shop->next) {
-                        // Do they have revenue set on the shop?
-                        if(SHOP_REVENUE(shop) <= 0 )
-                                continue;
-                        // Make sure its the right shop keeper.
-                        if (GET_MOB_VNUM(keeper) != shop->keeper)
-                                continue;
-                        // Make sure the shop is in this zone;
-                        if (shop->vnum < (zone->number * 100) || shop->vnum > zone->top)
-                                continue;
-                        // Assume at this point that we've found the proper keeper
-                        // and shop pair.
+                // Assume at this point that we've found the proper keeper
+                // and shop pair.
 
-                        // if the vnum's gold is less than his current gold
-                        // add the revenue up to the vnum's gold.
-                        vkeeper = real_mobile_proto(shop->keeper);
-                        if(GET_MONEY(keeper,shop) < GET_MONEY(vkeeper,shop))
-                                GET_MONEY(keeper,shop) = 
-                                        MIN(GET_MONEY(vkeeper,shop), GET_MONEY(keeper,shop) + SHOP_REVENUE(shop));
-                        break;// should break out of shop for loop.
-                }
+                // if the vnum's gold is less than his current gold
+                // add the revenue up to the vnum's gold.
+                vkeeper = real_mobile_proto(shop->keeper);
+                if(GET_MONEY((*cit),shop) < GET_MONEY(vkeeper,shop))
+                        GET_MONEY((*cit),shop) = 
+                                MIN(GET_MONEY(vkeeper,shop), GET_MONEY((*cit),shop) + SHOP_REVENUE(shop));
+                break;// should break out of shop for loop.
         }
-
-
-
+    }
 
     for (zonecmd = zone->cmd; zonecmd && zonecmd->command != 'S'; 
          zonecmd = zonecmd->next, cmd_no++) {
@@ -2789,19 +2763,19 @@ reset_zone(struct zone_data *zone)
     // 0 == "Last command had an error"
     //-1 == "Last command's percentage failed"
 
-        if (zonecmd->if_flag == 1 && last_cmd != 1)
-            continue;
+    if (zonecmd->if_flag == 1 && last_cmd != 1)
+        continue;
     else if (zonecmd->if_flag == -1 && last_cmd != -1)
         continue;
 
-        if (!prob_override && number(1, 100) > zonecmd->prob) {
-            last_cmd = -1;
-            continue;
-        } else {
-            prob_override = 0;
+    if (!prob_override && number(1, 100) > zonecmd->prob) {
+        last_cmd = -1;
+        continue;
+    } else {
+        prob_override = 0;
     }
-
-        switch (zonecmd->command) {
+// WARNING: FUNKY INDENTATION
+    switch (zonecmd->command) {
         case '*':                        /* ignore command */
             last_cmd = -1;
             break;
@@ -4204,7 +4178,7 @@ boot_remort_quiz()
             free(remort_quiz[i]);
             remort_quiz[i] = NULL;
         }
-	int line_no = 0;
+        int line_no = 0;
     for (i = 0, top_of_remort_quiz = 0; i < MAX_REMORT_QUESTIONS; i++) {
         if (!get_line(file, buf) || *buf == '$')
             break;
@@ -4220,7 +4194,7 @@ boot_remort_quiz()
             free(newq);
             break;
         }
-		line_no++;
+                line_no++;
         newq->answer   =  str_dup(buf);
 
         if (!get_line(file, buf) || sscanf(buf, "%d", &level) != 1) {
@@ -4232,7 +4206,7 @@ boot_remort_quiz()
             free(newq);
             break;
         }
-		line_no++;
+                line_no++;
 
         newq->points = level;
 

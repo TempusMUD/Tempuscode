@@ -133,17 +133,23 @@ static inline bool load_remort_questions() {
 
     // discard root node
     xmlNodePtr cur = xmlDocGetRootElement(doc);
-    if( cur == NULL )
+    if( cur == NULL ) {
+        xmlFreeDoc(doc);
         return false;
+    }
 
     cur = cur->xmlChildrenNode;
+    // Load all the nodes in the file
     while (cur != NULL) {
+        // But only question nodes
         if ((!xmlStrcmp(cur->name, (const xmlChar *)"Question"))) {
             remortQuestions.push_back(Question(cur,doc));
         }
         cur = cur->next;
     }
+    // Sort them by gen
     sort(remortQuestions.begin(),remortQuestions.end());
+    xmlFreeDoc(doc);
     return true;
 }
 
@@ -224,6 +230,8 @@ Question *Quiz::nextQuestion() {
 Question *Quiz::getQuestion() {
     return (*this)[current];
 }
+
+    // Print the current question to the character
 void Quiz::sendQuestion(char_data *ch) { 
     Question *q = getQuestion();
     if( q == NULL ) {
@@ -246,6 +254,7 @@ void Quiz::sendQuestion(char_data *ch) {
 }
 
   // Returns true if the given guess is an answer to the current Question
+  // Updates lostPoints and earnedPoints.
 bool Quiz::makeGuess(const char* guess) {
     Question *q = getQuestion();
     if( q->isAnswer(guess) ) {
@@ -257,10 +266,10 @@ bool Quiz::makeGuess(const char* guess) {
     }
 }
 
-
+    // Sends the current status of this quiz to the given char.
 void Quiz::sendStatus(char_data *ch) {
     if( GET_LEVEL(ch) >= LVL_IMMORT ) {
-        sprintf(buf,"Currently Testing: %s (%d)\r\n", 
+        sprintf(buf,"Quiz Subject: %s (%d)\r\n", 
            studentID > 0 ? get_name_by_id(studentID) : "NONE", studentID);
         send_to_char(buf,ch);
         sprintf(buf,"Ready [%s] Complete[%s] In Progress[%s]\r\n", 
@@ -273,7 +282,8 @@ void Quiz::sendStatus(char_data *ch) {
              earnedPoints,lostPoints, neededPoints , maximumPoints , getScore() );
     send_to_char(buf,ch);             
 }
-// Sets up the quiz for this character.
+
+    // Sets up the quiz for this character.
 void Quiz::reset(char_data *ch) {
     int level = MIN(10, 3 + GET_REMORT_GEN(ch));
     maximumPoints = 18*level;// ave 4 per question:  72->240
@@ -286,7 +296,8 @@ void Quiz::reset(char_data *ch) {
     nextQuestion();
 }
 
-
+    // Clears and resets the quiz.
+    // Reloads quiz data from file
 void Quiz::reset() {
     if( remortQuestions.size() >= 0 ) {
         remortQuestions.erase(remortQuestions.begin(), remortQuestions.end());
@@ -303,6 +314,9 @@ void Quiz::reset() {
     lostPoints = 0;
     passes = 0;
 }
+
+    // Determines if this is a valid question for the given
+    // character.  i.e. within ch's gen tolerance etc.
 static inline bool validQuestion( char_data *ch, Question &q ) {
     if( GET_REMORT_GEN(ch) < q.getGen() )
         return false;

@@ -59,7 +59,7 @@ extern int top_of_mobt;
 extern int top_of_objt;
 extern int top_of_p_table;
 extern int log_cmds;
-extern byte olc_lock;
+extern int olc_lock;
 extern struct elevator_data *elevators;
 extern struct player_index_element *player_table;
 extern int lunar_stage;

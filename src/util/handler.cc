@@ -433,8 +433,8 @@ affect_modify(struct char_data * ch, sh_int loc, sh_int mod, long bitv,
 
     default:
         sprintf( buf, 
-                 "SYSERR: Unknown apply adjust attempt on %20s %3d + %3d in affect_modify. add=%d",
-                 GET_NAME( ch ), loc, mod, add);
+                 "SYSERR: Unknown apply adjust attempt on %20s %3d + %3d in affect_modify. add=%s",
+                 GET_NAME( ch ), loc, mod, add ? "true" : "false" );
         slog(buf);
         break;
 

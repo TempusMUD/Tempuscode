@@ -76,7 +76,7 @@ class SafeList : protected list<T> {
              *    than incremented again.
              *  Segfaults if no list to iterate through
             **/
-            inline iterator& operator++() {// preincrement
+            iterator& operator++() {// preincrement
                 // this iterator has been saved and shouldn't move yet.
                 if( _saved ) { 
                     _saved = false; 
@@ -87,15 +87,15 @@ class SafeList : protected list<T> {
                 return *this;
             }
             /** InEquality **/
-            inline bool operator!=(const iterator &it) { 
+            bool operator!=(const iterator &it) { 
                 return ( list<T>::iterator::operator!=(it) ); // different node
             }
             /** Equality **/
-            inline bool operator==(const iterator &it) const { 
+            bool operator==(const iterator &it) const { 
                 return ( list<T>::iterator::operator==(it) ); // same node
             }
             /** Derefencing **/
-            inline T operator*() const {
+            T operator*() const {
                 return list<T>::iterator::operator*();
             }
             /**  Assignment **/
@@ -142,7 +142,7 @@ class SafeList : protected list<T> {
         /**
          * Adds a node to the SafeList either by prepending or appending.
         **/
-        inline void add(T c) { 
+        void add(T c) { 
             if(_prepend) push_front(c);
             else push_back(c);
         }
@@ -175,7 +175,7 @@ class SafeList : protected list<T> {
     private:
         // "saves" all iterators pointing at ths given position <it>
         // temps - the number of temp iterators used before calling removeUpdate
-        inline void removeUpdate( iterator &it, unsigned int temps = 0 ) {
+        void removeUpdate( iterator &it, unsigned int temps = 0 ) {
             // No need to notify if there's only one iterator.
             if( _iterators.size() <= (1 + temps) ) { return; }
             

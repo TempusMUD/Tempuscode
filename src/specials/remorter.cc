@@ -71,7 +71,7 @@ SPECIAL(remorter)
         return 1;
     }
     if( CMD_IS("reload") && GET_LEVEL(ch) >= LVL_IMMORT ) {
-        act("$n looks confused for a moment.", TRUE, (char_data*)me, 0, 0, TO_ROOM);
+        act("$n conjures a new remort test from thin air!", TRUE, (char_data*)me, 0, 0, TO_ROOM);
         quiz.reset();
         send_to_char("Remort test reset.\r\n",ch);
         return 1;

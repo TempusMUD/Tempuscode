@@ -94,9 +94,10 @@ bool load_hunter_data() {
 
     // discard root node
     xmlNodePtr cur = xmlDocGetRootElement(doc);
-    if( cur == NULL )
+    if( cur == NULL ) {
+        xmlFreeDoc(doc);
         return false;
-
+    }
     freq = xmlGetIntProp(cur,"Frequency");
     cur = cur->xmlChildrenNode;
     while (cur != NULL) {
@@ -117,6 +118,7 @@ bool load_hunter_data() {
     //cerr << "Hunters: " << hunters<<endl;
     //cerr << "Devils:" <<endl<< devils<<endl;
     //cerr << "Hell Hunter Data Load Complete:"<<endl;
+    xmlFreeDoc(doc);
     return true;
 }
 
