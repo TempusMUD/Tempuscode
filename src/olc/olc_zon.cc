@@ -2712,6 +2712,8 @@ do_zone_cmdlist(struct char_data *ch, struct zone_data *zone, char *arg)
 	send_to_char("Improper zone error.\r\n", ch);
 	return;
     }
+    arg1[0]='\0';
+    out_buf[0]='\0';
 
     arg = one_argument(arg, arg1);   
     if (!*arg1){

@@ -159,11 +159,17 @@ general_search( struct char_data *ch, struct special_search_data *srch,int mode 
 	    SET_BIT( GET_OBJ_EXTRA2( obj ), ITEM2_UNAPPROVED );
 
 //    SRCH_LOG( ch, srch );
-	if ( ch->equipment[srch->arg[2]] )
-	    obj_to_char( obj, ch );
-	else if ( equip_char( ch, obj, srch->arg[2], MODE_EQ ) )
-	    return 2;
-
+    if(IS_IMPLANT(obj)) {
+        if ( ch->implants[srch->arg[2]] )
+            obj_to_char( obj, ch );
+        else if ( equip_char( ch, obj, srch->arg[2], MODE_IMPLANT) )
+            return 2;
+    } else {
+        if ( ch->equipment[srch->arg[2]] )
+            obj_to_char( obj, ch );
+        else if ( equip_char( ch, obj, srch->arg[2], MODE_EQ ) )
+            return 2;
+    }
 	break;
 
     case SEARCH_COM_GIVE:
