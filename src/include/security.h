@@ -68,6 +68,7 @@ namespace Security {
             
             /* Adds a command to this group. Fails if already added. */
             bool addCommand( command_info *command );
+            int getCommandCount() { return commands.size(); }
             /* Adds a member to this group by name. Fails if already added. */
             bool addMember( const char *name );
             /* Adds a member to this group by player id. Fails if already added. */
@@ -131,7 +132,7 @@ namespace Security {
             /* Sends a list of this group's members to the given character. */
             bool sendMemberList( char_data *ch );
             /* Sends a list of this group's members to the given character. */
-            bool sendCommandList( char_data *ch );
+            bool sendCommandList( char_data *ch, bool prefix = true );
             
             /* Create the required xmlnodes to recreate this group; */
             bool save( xmlNodePtr parent );
@@ -143,7 +144,7 @@ namespace Security {
 
             /* Clear out this group's data for shutdown. */
             void clear();
-            
+
             ~Group();
         private:
             /* A one line description of this group */
@@ -158,8 +159,8 @@ namespace Security {
              * Pointers sorted as if they're ints.
              **/
              vector<command_info *> commands;
-            // player ids, sorted
-            vector<long> members;
+             // player ids, sorted
+             vector<long> members;
     };
     /* The list of existing groups (group.cc) */
     extern list<Group> groups;
@@ -212,7 +213,11 @@ namespace Security {
     bool sendCommandList( char_data *ch, char *group_name );
     /** sends a list of the groups that the id is a member if. **/
     bool sendMembership( char_data *ch, long id );
-    
+    /* 
+     * sends a list of the commands a char has access to and the
+     * groups that contain them.
+     **/
+    bool sendAvailableCommands( char_data *ch, long id );
     /** 
      * adds the named command to the named group.  
      * returns false if either doesn't exist. 

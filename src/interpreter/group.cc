@@ -221,10 +221,13 @@ namespace Security {
     }
 
     /* Sends a list of this group's members to the given character. */
-    bool Group::sendCommandList( char_data *ch ) {
+    bool Group::sendCommandList( char_data *ch, bool prefix = true ) {
         int pos = 1;
         vector<command_info*>::iterator it = commands.begin();
-        strcpy(buf,"Commands:\r\n");
+        if( prefix )
+            strcpy(buf,"Commands:\r\n");
+        else
+            strcpy(buf,"");
         for( int i=1 ; it != commands.end(); ++it, ++i ) {
             sprintf(buf,
                     "%s%s[%s%4d%s] %s%-15s",

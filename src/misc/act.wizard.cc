@@ -3735,6 +3735,11 @@ do_show_stats(struct char_data *ch)
 void
 show_wizcommands(CHAR *ch)
 {
+    if( IS_PC(ch) )
+        Security::sendAvailableCommands(ch, GET_IDNUM(ch) );
+    else
+        send_to_char("You are a mobile. Deal with it.\r\n",ch);
+    /*
     char outbuf[MAX_STRING_LENGTH];
 
     int lev;
@@ -3760,6 +3765,7 @@ show_wizcommands(CHAR *ch)
             strcat(outbuf, "\r\n");
     }
     page_string(ch->desc, outbuf, 1);
+    */
 }
   
 void

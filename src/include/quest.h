@@ -31,8 +31,8 @@
 #define QUEST_FLAGGED(quest, bits)  (IS_SET(quest->flags, bits))
 
 #define MAX_QUEST_NAME   31
-#define MAX_QUEST_DESC   8096
-#define MAX_QUEST_UPDATE 2048
+#define MAX_QUEST_DESC   32768
+#define MAX_QUEST_UPDATE 32768
 #define MAX_QUEST_OBJ_VNUM 92299
 #define MIN_QUEST_OBJ_VNUM 92270
 

@@ -66,8 +66,8 @@ const struct qcontrol_option {
     { "maxlev",   "<vnum> <maxlev>",                            LVL_AMBASSADOR },
     { "award",    "<player> <vnum> <pts> [comments]",           LVL_AMBASSADOR },
     { "penalize", "<player> <vnum> <pts> <reason>",             LVL_AMBASSADOR },
-    { "mload",     "<mobile vnum> <vnum>",                      LVL_BUILDER },
-    { "purge",    "<vnum> <mobile name>",                       LVL_BUILDER }, // 20
+    { "mload",     "<mobile vnum> <vnum>",                      LVL_IMMORT },
+    { "purge",    "<vnum> <mobile name>",                       LVL_IMMORT }, // 20
     { "save",     "",                                           73         },
     { "help",     "<topic>",                                    LVL_AMBASSADOR },
     { "switch",   "<mobile name>",                              LVL_IMMORT },

@@ -500,7 +500,29 @@ namespace Security {
         send_to_char(out_buf,ch);
         return true;
     }
-
+    
+    /* sends a list of the commands a char has access to and the
+     * groups that contain them.
+    **/
+    bool sendAvailableCommands( char_data *ch, long id ) {
+        char linebuf[MAX_INPUT_LENGTH];
+        int n = 0;
+        out_buf[0] = '\0';
+        list<Group>::iterator it = groups.begin();
+        for( ; it != groups.end(); ++it,++n ) {
+            if( (*it).member(id) && (*it).getCommandCount() > 0 ) {
+                sprintf( linebuf, "%s%s%s\r\n", CCYEL(ch,C_NRM),
+                        (*it).getName(), CCNRM(ch,C_NRM) );
+                send_to_char(linebuf,ch);
+                (*it).sendCommandList( ch, false );
+            }
+        }
+        if( n <= 0 ) {
+            send_to_char("That player is not in any groups.\r\n",ch);
+            return false;
+        }
+        return true;
+    }
     
     bool addCommand( char *command, char *group_name ) {
         list<Group>::iterator it = find( groups.begin(), groups.end(), group_name );
