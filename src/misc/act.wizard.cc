@@ -924,11 +924,11 @@ do_stat_room(struct char_data * ch,char *roomstr)
 	    spec_list[i].tag, buf2);
     strcat(out_buf, buf);
 
-    if (FLOW_SPEED(ch->in_room)) {
+    if (FLOW_SPEED(rm)) {
 	sprintf(buf, "Flow (Direction: %s, Speed: %d, Type: %s (%d)).\r\n", 
-		dirs[(int)FLOW_DIR(ch->in_room)], FLOW_SPEED(ch->in_room),
-		flow_types[(int)FLOW_TYPE(ch->in_room)], 
-		(int)FLOW_TYPE(ch->in_room));
+		dirs[(int)FLOW_DIR(rm)], FLOW_SPEED(rm),
+		flow_types[(int)FLOW_TYPE(rm)], 
+		(int)FLOW_TYPE(rm));
 	strcat(out_buf, buf);
     }
 
