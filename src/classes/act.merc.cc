@@ -433,14 +433,15 @@ ACMD(do_snipe)
 	}
 	
 	if (nvz_room) {
-		send_to_char(ch, "You watch in shock as your bullet stops in mid-air and drops to the ground\r\n");
+		send_to_char(ch, "You watch in shock as your bullet stops in mid-air and drops to the ground.\r\n");
 		act("$n takes careful aim, fires, and gets a shocked look on $s face.",
 			false, ch, 0, 0, TO_ROOM);
 		send_to_room(tmp_sprintf(
-			"%s screams in from %s and harmlessly falls to the ground",
+			"%s screams in from %s and harmlessly falls to the ground.",
 				bullet->short_description, from_dirs[snipe_dir]), nvz_room);
 		obj_from_obj(bullet);
 		obj_to_room(bullet, nvz_room);
+		return;
 	} else {
 		extract_obj(bullet);
 	}
