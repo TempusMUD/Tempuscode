@@ -79,8 +79,8 @@ int length[] =
 /* ************************************************************************
 *  modification of malloc'ed strings                                      *
 ************************************************************************ */
-
-/* Add user input to the 'current' string (as defined by d->str) */
+/*
+// Add user input to the 'current' string (as defined by d->str) *
 void string_add(struct descriptor_data *d, char *str)
 {
     int    terminator = 0;
@@ -93,8 +93,8 @@ void string_add(struct descriptor_data *d, char *str)
     char   *cc_list = NULL;
     int    stored_mail=0;
   
-    /* determine if this is the terminal string, and truncate if so */
-    /* changed to only accept '@' at the beginning of line - J. Elson 1/17/94 */
+    // determine if this is the terminal string, and truncate if so 
+    // changed to only accept '@' at the beginning of line - J. Elson 1/17/94 
 
     delete_doubledollar(str);
 
@@ -224,7 +224,7 @@ void string_add(struct descriptor_data *d, char *str)
         strcat(*d->str, "\r\n");
    }
 }
-
+*/
 
 
 /* **********************************************************************
