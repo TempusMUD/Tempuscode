@@ -11,7 +11,7 @@ SUBDIRS= \
 
 MAKEFLAGS=-s -k 4 -j 4
 OBJ=ObjFiles
-LIBS=-lcrypt
+LIBS=-lcrypt -lxml2
 EXE=../bin/circle
 
 default all:

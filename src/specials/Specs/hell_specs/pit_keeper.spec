@@ -1,6 +1,6 @@
 SPECIAL( pit_keeper )
 {
-    CHAR * vict = 0;
+    char_data* vict = 0;
 
     if( spec_mode == SPECIAL_DEATH ) return 0;
     if ( cmd )

@@ -292,6 +292,11 @@ show_obj_to_char(struct obj_data * object, struct char_data * ch,
             strcat(buf, buf2);
             found = true;
         }
+        if (IS_OBJ_STAT3(object, ITEM3_HUNTED)) {
+            sprintf(buf2, " %s(hunted)%s", CCRED(ch, C_NRM), CCNRM(ch, C_NRM));
+            strcat(buf, buf2);
+            found = true;
+        }
         if (OBJ_SOILED(object, SOIL_BLOOD)) {
             sprintf(buf2, " %s(bloody)%s", CCRED(ch, C_NRM), CCNRM(ch, C_NRM));
             strcat(buf, buf2);

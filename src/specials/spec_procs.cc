@@ -1840,7 +1840,6 @@ SPECIAL(cave_bear)
 #include "Specs/hell_specs/dangerous_climb.spec"
 #include "Specs/hell_specs/bearded_devil.spec"
 #include "Specs/hell_specs/cyberfiend.spec"
-#include "Specs/hell_specs/hell_hunter.spec"
 #include "Specs/hell_specs/maladomini_jailer.spec"
 #include "Specs/hell_specs/regulator.spec"
 #include "Specs/hell_specs/ressurector.spec"
