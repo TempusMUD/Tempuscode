@@ -29,7 +29,8 @@ static char editbuf[MAX_STRING_LENGTH * 2];
 static char tedii_out_buf[MAX_STRING_LENGTH];
 extern struct descriptor_data *descriptor_list;
 
-void set_desc_state( int state,struct descriptor_data *d );
+void set_desc_state(int state,struct descriptor_data *d);
+void voting_add_poll(void);
 
 /* Sets up text editor params and echo's passed in message.
 */
@@ -157,7 +158,7 @@ void CTextEditor::SaveText( char *inStr) {
         }
     }   
     // If they're in the game
-    if(desc->connected == CON_PLAYING) {
+    if(IS_PLAYING(desc)) {
         // Saving a file
         if ((desc->editor_file != NULL)) {
             SaveFile();
@@ -175,18 +176,25 @@ void CTextEditor::SaveText( char *inStr) {
            desc->character->player_specials->olc_handler->getTheLines() = theText; 
         }
     } 
-    // WTF is this?
+    // Save the board if we were writing to a board
     if (desc->mail_to && desc->mail_to->recpt_idnum >= BOARD_MAGIC) {
         Board_save_board(desc->mail_to->recpt_idnum - BOARD_MAGIC);
         desc->mail_to = desc->mail_to->next;
     }
+
+	// Add the poll if we were adding to a poll
+	if (desc->mail_to && desc->mail_to->recpt_idnum == VOTING_MAGIC) {
+		voting_add_poll();
+		desc->mail_to = desc->mail_to->next;
+	}
+
     // If editing thier description.
-    if (desc->connected == CON_EXDESC) {
+    if (STATE(desc) == CON_EXDESC) {
         SEND_TO_Q("\033[H\033[J", desc);
 		set_desc_state( CON_MENU,desc );
     }
     // Remove the "using the editor" bits.
-    if (desc->connected == CON_PLAYING && desc->character && !IS_NPC(desc->character)) {
+    if (IS_PLAYING(desc) && desc->character && !IS_NPC(desc->character)) {
         tedii_out_buf[0] = '\0';
         // Decide what to say to the room since they're done
         if( PLR_FLAGGED(desc->character, PLR_WRITING) ) {
@@ -256,7 +264,7 @@ void CTextEditor::ExportMail( void ) {
         stored_mail = store_mail(mail_rcpt->recpt_idnum,GET_IDNUM(desc->character),*target, cc_list);
         if( stored_mail == 1 ) {
             for (r_d = descriptor_list; r_d; r_d = r_d->next) {
-                if (r_d->connected == CON_PLAYING && r_d->character && r_d->character != desc->character &&
+                if (IS_PLAYING(r_d) && r_d->character && r_d->character != desc->character &&
                 GET_IDNUM(r_d->character) == desc->mail_to->recpt_idnum &&
                 !PLR_FLAGGED(r_d->character,PLR_WRITING|PLR_MAILING|PLR_OLC)) {
                     send_to_char("A strange voice in your head says, 'You have new mail.'\r\n", r_d->character);

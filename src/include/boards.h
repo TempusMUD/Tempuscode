@@ -23,6 +23,7 @@
 #define INDEX_SIZE	   ((NUM_OF_BOARDS*MAX_BOARD_MESSAGES) + 5)
 
 #define BOARD_MAGIC	1048575	/* arbitrary number - see modify.c */
+#define VOTING_MAGIC 1048574 /* equally arbitrary, but must be lower */
 
 #define LVL_CAN_POST  5
 

@@ -273,6 +273,7 @@ SPECIAL(elevator_panel);
 
 SPECIAL(unholy_square);
 SPECIAL(unholy_stalker);
+SPECIAL(voting_booth);
 
 #define SPEC_MOB 1
 #define SPEC_OBJ 2

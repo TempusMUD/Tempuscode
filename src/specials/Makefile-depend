@@ -16,4 +16,7 @@ $(OBJ)/spec_procs.o : spec_procs.cc \
 $(OBJ)/styx.o : styx.cc \
 	$(INCLUDE)/structs.h $(INCLUDE)/utils.h $(INCLUDE)/comm.h $(INCLUDE)/interpreter.h $(INCLUDE)/handler.h $(INCLUDE)/db.h $(INCLUDE)/spells.h 
 	$(CXX) -c $(CXXFLAGS) styx.cc              -o $(OBJ)/styx.o
-OBJFILES= $(OBJ)/duke.o $(OBJ)/hell_hunter_spec.o $(OBJ)/remorter.o $(OBJ)/spec_assign.o $(OBJ)/spec_procs.o $(OBJ)/styx.o
+$(OBJ)/voting_booth.o : voting_booth.cc \
+	$(INCLUDE)/structs.h $(INCLUDE)/utils.h $(INCLUDE)/comm.h $(INCLUDE)/db.h $(INCLUDE)/boards.h $(INCLUDE)/interpreter.h $(INCLUDE)/handler.h $(INCLUDE)/screen.h 
+	$(CXX) -c $(CXXFLAGS) voting_booth.cc      -o $(OBJ)/voting_booth.o
+OBJFILES= $(OBJ)/duke.o $(OBJ)/hell_hunter_spec.o $(OBJ)/remorter.o $(OBJ)/spec_assign.o $(OBJ)/spec_procs.o $(OBJ)/styx.o $(OBJ)/voting_booth.o

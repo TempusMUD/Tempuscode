@@ -194,18 +194,17 @@ void perform_net_finger(struct char_data *ch, char *arg)
     }
 
     if (!(vict = get_char_vis(ch, arg)) || !vict->desc ||
-        STATE(vict->desc) != CON_NETWORK || GET_LEVEL(vict) >= LVL_AMBASSADOR) {
+        STATE(vict->desc) != CON_NETWORK || (GET_LEVEL(ch) < LVL_AMBASSADOR && GET_LEVEL(vict) >= LVL_AMBASSADOR)) {
         send_to_char("No such user detected.\r\n", ch);
         return;
     }
     sprintf(buf, "Finger results:\r\n"
             "Name:  %s, Level %d %s %s.\r\n"
-            "Logged in at: %s.\r\n"
+            "Logged in at: %s.\r\n",
             GET_NAME(vict), GET_LEVEL(vict), 
             player_race[(int)GET_RACE(vict)], 
             pc_char_class_types[(int)GET_CLASS(vict)], 
-            vict->in_room != NULL ?ch->in_room->name: "NOWHERE", 
-            connected_types[STATE(vict->desc)]);
+            vict->in_room != NULL ?ch->in_room->name: "NOWHERE");
     send_to_char(buf, ch);
 }
 
