@@ -215,6 +215,8 @@ prog_var_equal(prog_state_data *state, char *key, char *arg)
 bool
 prog_eval_condition(prog_env *env, prog_evt *evt, char *args)
 {
+	obj_data *obj;
+	int vnum;
 	char *arg, *str;
 	bool result = false, not_flag = false;
 
@@ -249,6 +251,21 @@ prog_eval_condition(prog_env *env, prog_evt *evt, char *args)
 			result = prog_var_equal(env->state, arg, args);
 		} else if (!*args)
 			result = true;
+	} else if (!strcasecmp(arg, "holding")) {
+		vnum = atoi(tmp_getword(&args));
+		switch (env->owner_type) {
+		case PROG_TYPE_MOBILE:
+			obj = ((Creature *)env->owner)->carrying; break;
+		case PROG_TYPE_OBJECT:
+			obj = ((obj_data *)env->owner)->contains; break;
+		case PROG_TYPE_ROOM:
+			obj = ((room_data *)env->owner)->contents; break;
+		}
+		while (obj) {
+			if (GET_OBJ_VNUM(obj) == vnum)
+				result = true;
+			obj = obj->next_content;
+		}
 	}
 
 	return (not_flag) ? (!result):result;
