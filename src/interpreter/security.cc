@@ -386,20 +386,6 @@ namespace Security {
      }
 
     /**
-     * Returns true if the character is the proper level AND is in
-     * one of the required groups (if any)
-     **/
-     bool canAccess( Creature *ch, const board_info_type &board ) {
-        if( board.read_lvl > GET_LEVEL(ch) )
-            return false;
-        if( *(board.groupname) =='\0')
-            return true;
-        if( isMember(ch, board.groupname) ) 
-            return true;
-        return false;
-     }
-
-    /**
      * Returns an iterator pointing to the named group
      * in the groups list or groups.end() if not found.
     **/

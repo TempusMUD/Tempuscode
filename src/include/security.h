@@ -16,7 +16,6 @@ using namespace std;
 // Interpreter command structure
 extern struct command_info cmd_info[];
 // Forward references to various clients.
-struct board_info_type;
 struct command_info;
 struct show_struct;
 struct set_struct;
@@ -194,11 +193,6 @@ namespace Security {
      * one of the required groups (if any)
     **/
     bool canAccess( Creature *ch, const set_struct &command );
-    /**
-     * Returns true if the character is the proper level AND is in
-     * one of the required groups (if any)
-    **/
-    bool canAccess( Creature *ch, const board_info_type &board );
     /* Check membership in a particular group by name.**/
 	bool isMember( Creature *ch, const char* group_name, bool substitute=true );
 
