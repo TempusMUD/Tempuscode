@@ -611,7 +611,7 @@ perform_cyborg_activate(Creature *ch, int mode, int subcmd)
 			af[1].modifier = 1 + (GET_LEVEL(ch) >> 4);
 
 			to_char[1] = "Power boost enabled.\r\n";
-			to_room[1] = "$n boosts power levels -- ohhh shit!";
+			to_room[1] = "$n boosts $s power levels!  Look out!";
 
 			to_char[0] = "Unboosting power.\r\n";
 			to_room[0] = "$n reduces power.";
