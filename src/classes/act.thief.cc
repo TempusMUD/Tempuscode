@@ -62,7 +62,7 @@ ACMD(do_steal)
         act("$n looks kinda sketchy for a moment.", FALSE, ch, 0, vict, TO_ROOM);
         return;
     }
-    if(vict->isNewbie()) {
+    if(vict->isNewbie() && GET_LEVEL(ch) < LVL_IMMORT ) {
         send_to_char("You cannot steal from newbies!\r\n",ch);
         return;
     }

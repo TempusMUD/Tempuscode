@@ -3791,6 +3791,12 @@ ACMD(do_empty)
         send_to_char( "You can't empty that.\r\n", ch );
         return;
     }
+    if( IS_SET(GET_OBJ_VAL(obj,1),CONT_CLOSEABLE) && 
+    IS_SET(GET_OBJ_VAL(obj,1),CONT_CLOSED)) {
+        send_to_char( "It seems to be closed.\r\n", ch );
+        return;
+
+    }
 
     if ( *arg2 && obj ) {
 

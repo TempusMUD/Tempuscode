@@ -324,7 +324,7 @@ ACMD(do_snatch)
         act("$n looks really aggrivated.", FALSE, ch, 0, vict, TO_ROOM);
         return;
     }
-    if(vict->isNewbie()) {
+    if(vict->isNewbie() && GET_LEVEL(ch) < LVL_IMMORT) {
         send_to_char("You cannot snatch from newbies!\r\n",ch);
         return;
     }

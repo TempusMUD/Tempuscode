@@ -182,6 +182,7 @@ SPECIAL(hell_hunter_brain)
 
 		if (vict) {
 		    HUNTING(mob) = vict;
+            SET_BIT(MOB_FLAGS(mob),MOB_SPIRIT_TRACKER);
 	
 		    if (!IS_NPC(vict) && GET_REMORT_GEN(vict)) {
 			
