@@ -3406,7 +3406,7 @@ damage( struct char_data * ch, struct char_data * victim, int dam,
 		if(GET_HIT(victim) > 0) {
 			do_flee( victim, "", 0, 0 );
 		} else {
-			sprintf(buf,"%s was at position %d with %d hit points and tried to flee.",GET_NAME(victim),GET_POS(victim),GET_HIT(victim));
+			sprintf(buf,"ERROR: %s was at position %d with %d hit points and tried to flee.",GET_NAME(victim),GET_POS(victim),GET_HIT(victim));
 			mudlog( buf, BRF, LVL_DEMI, TRUE );
 		}
 	}
@@ -3675,8 +3675,28 @@ hit( struct char_data * ch, struct char_data * victim, int type )
 	    dual_prob = ( GET_EQ( ch, WEAR_WIELD )->getWeight() - 
 			  GET_EQ( ch, WEAR_WIELD_2 )->getWeight() ) * 2;
 	}
-
-	if ( !( ( ( cur_weap = GET_EQ( ch, WEAR_WIELD_2 ) ) && 
+	if (type == SKILL_IMPLANT_W || type == SKILL_ADV_IMPLANT_W) {
+		if ( number(0,3) && (cur_weap = GET_IMPLANT(ch, WEAR_HANDS)) && !GET_EQ(ch,WEAR_HANDS) ) {
+		} else if ( number(0,2) && (cur_weap = GET_IMPLANT(ch, WEAR_WIELD)) && 
+			IS_OBJ_TYPE( cur_weap, ITEM_WEAPON ) && !GET_EQ(ch, WEAR_WIELD)) {
+		} else if ( number(0,3) && (cur_weap = GET_IMPLANT(ch, WEAR_ARMS)) && 
+			IS_OBJ_TYPE( cur_weap, ITEM_WEAPON ) && !GET_EQ(ch,WEAR_ARMS) ) {
+		} else if ( number(0,5) && (cur_weap = GET_IMPLANT(ch, WEAR_WRIST_L)) && 
+			IS_OBJ_TYPE( cur_weap, ITEM_WEAPON ) && !GET_EQ(ch, WEAR_WRIST_L) ) {
+		} else if ( number(0,5) && (cur_weap = GET_IMPLANT(ch, WEAR_WRIST_R)) && 
+			IS_OBJ_TYPE( cur_weap, ITEM_WEAPON ) && !GET_EQ(ch,WEAR_WRIST_R) ) {
+		} else if ( number(0,4) && (cur_weap = GET_IMPLANT(ch, WEAR_FINGER_L)) && 
+			IS_OBJ_TYPE( cur_weap, ITEM_WEAPON ) && !GET_EQ(ch, WEAR_FINGER_L) ) {
+		} else if ( number(0,4) && (cur_weap = GET_IMPLANT(ch, WEAR_FINGER_R)) && 
+			IS_OBJ_TYPE( cur_weap, ITEM_WEAPON ) && !GET_EQ(ch, WEAR_FINGER_R) ) {
+		} else if ( number(0,3) && (cur_weap = GET_IMPLANT(ch, WEAR_FEET)) && 
+			IS_OBJ_TYPE( cur_weap, ITEM_WEAPON ) && !GET_EQ(ch, WEAR_FEET) ) {
+		} else if ( number(0,4) && (cur_weap = GET_IMPLANT(ch, WEAR_LEGS)) && 
+			IS_OBJ_TYPE( cur_weap, ITEM_WEAPON ) && !GET_EQ(ch, WEAR_LEGS) ) {
+		} else if ( number(0,5) && (cur_weap = GET_IMPLANT(ch, WEAR_HEAD)) && 
+			IS_OBJ_TYPE( cur_weap, ITEM_WEAPON ) && !GET_EQ(ch, WEAR_HEAD) ) {
+		} else { return 0; }
+	} else if ( !( ( ( cur_weap = GET_EQ( ch, WEAR_WIELD_2 ) ) && 
 		  IS_OBJ_TYPE( cur_weap, ITEM_WEAPON ) &&
 		  ( CHECK_SKILL( ch, SKILL_SECOND_WEAPON ) + dual_prob ) > 
 		  number( 50, 150 ) ) ||
@@ -4066,18 +4086,38 @@ perform_violence( void )
     
 	if ( MIN( 100, prob+15 ) >= number( 0, 300 ) ) {
 	    for ( i = 0; i < 4; i++ ) {
-		if ( !FIGHTING( ch ) || GET_LEVEL( ch ) < ( i << 3 ) )
-		    break;
-		if ( GET_POS( ch ) < POS_FIGHTING ) {
-		    if ( CHECK_WAIT( ch ) < 10 )
-			send_to_char( "You can't fight while sitting!!\r\n", ch );
-		    break;
-		}
+			if ( !FIGHTING( ch ) || GET_LEVEL( ch ) < ( i << 3 ) )
+				break;
+			if ( GET_POS( ch ) < POS_FIGHTING ) {
+				if ( CHECK_WAIT( ch ) < 10 )
+				send_to_char( "You can't fight while sitting!!\r\n", ch );
+				break;
+			}
 
-		if ( prob >= number( ( i << 4 ) + ( i << 3 ), ( i << 5 ) + ( i << 3 ) ) )
-		    hit( ch, FIGHTING( ch ), TYPE_UNDEFINED );
+			if ( prob >= number( ( i << 4 ) + ( i << 3 ), ( i << 5 ) + ( i << 3 ) ) )
+				hit( ch, FIGHTING( ch ), TYPE_UNDEFINED );
 	    }
+		// Insert implant weaponry and adv implant weaponry here.
+		if ( IS_CYBORG(ch) ) {
+			int prob;
+			prob = 25;
+			if (CHECK_SKILL(ch, SKILL_IMPLANT_W) > 100)
+				prob += GET_REMORT_GEN(ch) + (CHECK_SKILL(ch, SKILL_IMPLANT_W) - 100)/2;
+			if(  number( 0 ,100 ) < prob ) {
+				if ( PRF2_FLAGGED( ch, PRF2_FIGHT_DEBUG ) ) 
+					send_to_char("Attempting implant weapon attack.\r\n",ch);
+				hit( ch, FIGHTING(ch), SKILL_IMPLANT_W);
+			} 
+			prob = 25;
+			if (CHECK_SKILL(ch, SKILL_ADV_IMPLANT_W) > 100)
+				prob += GET_REMORT_GEN(ch) + (CHECK_SKILL(ch, SKILL_ADV_IMPLANT_W) - 100)/2;
+			if(  number( 0 ,100 ) < prob ) {
+				if ( PRF2_FLAGGED( ch, PRF2_FIGHT_DEBUG ) ) 
+					send_to_char("Attempting advanced implant weapon attack.\r\n",ch);
+				hit( ch, FIGHTING(ch), SKILL_ADV_IMPLANT_W);
+			}
 
+		}
 	} else if ( IS_NPC( ch ) && ch->in_room && 
 		    GET_POS( ch ) == POS_FIGHTING && 
 		    GET_MOB_WAIT( ch ) <= 0 &&
