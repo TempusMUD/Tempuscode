@@ -278,7 +278,7 @@ obj_data::loadFromXML(obj_data *container, Creature *victim, room_data* room, xm
 
 	if (!OBJ_APPROVED(this)) {
 		slog("Unapproved object %d being junked from %s's rent.", 
-			 vnum, GET_NAME(victim) );
+			 vnum, GET_NAME(victim) ? GET_NAME(victim):"(none)");
 		return false;
 	}
 	if (!placed) {
