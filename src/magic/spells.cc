@@ -94,8 +94,9 @@ ASPELL(spell_create_water)
 bool
 teleport_not_ok(Creature *ch, Creature *vict, int level)
 {
-	if (PLR_FLAGGED(vict, PLR_KILLER))
-		return false;
+	// Immortals may not be ported or summoned by mortals
+	if (!IS_IMMORT(ch) && IS_IMMORT(vict))
+		return true;
 
 	if (vict->trusts(ch))
 		return false;
