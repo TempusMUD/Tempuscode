@@ -625,7 +625,7 @@ desc_char_trailers(Creature *ch, Creature *i)
 	if (IS_AFFECTED_2(i, AFF2_DISPLACEMENT) &&
 			IS_AFFECTED_2(ch, AFF2_TRUE_SEEING))
 		desc = tmp_strcat(desc, "...the image of ", HSHR(i),
-			" body is strangly displaced.\r\n", NULL);
+			" body is strangely displaced.\r\n", NULL);
 
 	if (IS_AFFECTED(i, AFF_INVISIBLE))
 		desc = tmp_strcat(desc, "...", HSSH(i),
