@@ -462,7 +462,7 @@ Crash_listrent( struct char_data * ch, char *name )
             if(strlen(buf) + strlen(linebuf) - 100 < MAX_STRING_LENGTH) {
                 strcat(buf,linebuf);
             } else {
-                if(strlen(buf) + strlen(linebuf) + 50 <= MAX_STRING_LENGTH) {
+                if(strlen(buf) + strlen(linebuf) - 50 <= MAX_STRING_LENGTH) {
                     strcat(buf,"*** OVERFLOW ***");
                 }
                 break;
