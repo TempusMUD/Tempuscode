@@ -665,9 +665,9 @@ ACMD(do_gen_comm)
     };
 
     /* to keep pets, etc from being ordered to shout  */
-
-    if (!ch->desc && (subcmd == SCMD_PROJECT ||
-		      subcmd == SCMD_HOLLER))
+    
+    if ( ! ch->desc && ch->master && (subcmd == SCMD_PROJECT ||
+                                      subcmd == SCMD_HOLLER))
 	return;
   
     if (subcmd == SCMD_PROJECT && !IS_NPC(ch) && CHECK_REMORT_CLASS(ch) < 0 && 
