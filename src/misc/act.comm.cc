@@ -360,33 +360,43 @@ ACMD(do_reply)
 	CreatureList::iterator tch = characterList.begin();
 	skip_spaces(&argument);
 
-	if (GET_LAST_TELL(ch) == NOBODY)
+	if (GET_LAST_TELL(ch) == NOBODY) {
 		send_to_char(ch, "You have no-one to reply to!\r\n");
-	else if (!*argument)
+		return;
+	}
+	if (!*argument) {
 		send_to_char(ch, "What is your reply?\r\n");
+		return;
+	}
+	/*
+	 * Make sure the person you're replying to is still playing by searching
+	 * for them.  Note, now last tell is stored as player IDnum instead of
+	 * a pointer, which is much better because it's safer, plus will still
+	 * work if someone logs out and back in again.
+	 */
+
+	while (tch != characterList.end() && GET_IDNUM(*tch) != GET_LAST_TELL(ch))
+		++tch;
+
+	if (tch == characterList.end())
+		send_to_char(ch, "They are no longer playing.\r\n");
+	else if (!IS_NPC(*tch) && (*tch)->desc == NULL)
+		send_to_char(ch, "They are linkless at the moment.\r\n");
+	else if (PLR_FLAGGED(*tch, PLR_WRITING | PLR_MAILING | PLR_OLC))
+		send_to_char(ch, "They are writing at the moment.\r\n");
 	else {
-		/*
-		 * Make sure the person you're replying to is still playing by searching
-		 * for them.  Note, now last tell is stored as player IDnum instead of
-		 * a pointer, which is much better because it's safer, plus will still
-		 * work if someone logs out and back in again.
-		 */
+		if (COMM_NOTOK_ZONES(ch, (*tch)) && COMM_NOTOK_ZONES((*tch), ch)) {
+			if (!(affected_by_spell(ch, SPELL_TELEPATHY) ||
+					affected_by_spell((*tch), SPELL_TELEPATHY))) {
+				act("Your telepathic voice cannot reach $M.",
+					FALSE, ch, 0, (*tch), TO_CHAR);
+				return;
+			}
 
-		while (tch != characterList.end()
-			&& GET_IDNUM(*tch) != GET_LAST_TELL(ch))
-			++tch;
+			WAIT_STATE(ch, 1 RL_SEC);
+		}
 
-		if (tch == characterList.end())
-			send_to_char(ch, "They are no longer playing.\r\n");
-		else if (!IS_NPC(*tch) && (*tch)->desc == NULL)
-			send_to_char(ch, "They are linkless at the moment.\r\n");
-		else if (PLR_FLAGGED(*tch, PLR_WRITING | PLR_MAILING | PLR_OLC))
-			send_to_char(ch, "They are writing at the moment.\r\n");
-		else if (COMM_NOTOK_ZONES(ch, (*tch)) && COMM_NOTOK_ZONES((*tch), ch))
-			act("Your telepathic voice cannot reach $M.",
-				FALSE, ch, 0, (*tch), TO_CHAR);
-		else
-			perform_tell(ch, (*tch), argument);
+		perform_tell(ch, (*tch), argument);
 	}
 }
 
