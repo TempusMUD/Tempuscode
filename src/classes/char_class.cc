@@ -138,8 +138,24 @@ gain_skill_prof(struct Creature *ch, int skl)
 	else
 		learned = LEARNED(ch);
 
+	// NPCs don't learn
 	if (IS_NPC(ch))
 		return;
+	
+
+	// You can't gain in a skill that you don't really know
+	if (GET_LEVEL(ch) < SPELL_LEVEL(skl, GET_CLASS(ch))) {
+		if (!IS_REMORT(ch))
+			return;
+		if (GET_LEVEL(ch) < SPELL_LEVEL(skl, GET_REMORT_CLASS(ch)))
+			return;
+	}
+
+	// Check for remort classes too
+	if (SPELL_GEN(skl, GET_CLASS(ch)) > 0 &&
+			GET_REMORT_GEN(ch) < SPELL_GEN(skl, GET_CLASS(ch)))
+		return;
+
 	if (GET_SKILL(ch, skl) >= (learned - 10))
 		if ((GET_SKILL(ch, skl) - GET_LEVEL(ch)) <= 60
 			&& !number(0, GET_LEVEL(ch)))
