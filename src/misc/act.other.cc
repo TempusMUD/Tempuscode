@@ -409,9 +409,9 @@ print_group(struct Creature *ch)
 
 		if (IS_AFFECTED(k, AFF_GROUP)) {
 			sprintf(buf,
-				"     %s[%s%4dH %4dM %4dV%s]%s %s[%s%2d %s%s]%s $N %s(%sHead of group%s)%s",
+				"     %s[%s%4dH %4dM %4dV %4dA%s]%s %s[%s%2d %s%s]%s $N %s(%sHead of group%s)%s",
 				CCGRN(ch, C_NRM), CCNRM(ch, C_NRM), GET_HIT(k), GET_MANA(k),
-				GET_MOVE(k), CCGRN(ch, C_NRM), CCNRM(ch, C_NRM), CCRED(ch,
+				GET_MOVE(k), GET_ALIGNMENT(k), CCGRN(ch, C_NRM), CCNRM(ch, C_NRM), CCRED(ch,
 					C_NRM), CCNRM(ch, C_NRM), GET_LEVEL(k), CLASS_ABBR(k),
 				CCRED(ch, C_NRM), CCNRM(ch, C_NRM), CCBLU(ch, C_NRM), CCCYN(ch,
 					C_NRM), CCBLU(ch, C_NRM), CCNRM(ch, C_NRM));
@@ -422,10 +422,11 @@ print_group(struct Creature *ch)
 			if (!IS_AFFECTED(f->follower, AFF_GROUP))
 				continue;
 
-			sprintf(buf, "     %s[%s%4dH %4dM %4dV%s]%s %s[%s%2d %s%s]%s $N",
+			sprintf(buf, "     %s[%s%4dH %4dM %4dV %4dA%s]%s %s[%s%2d %s%s]%s $N",
 				CCGRN(ch, C_NRM), CCNRM(ch, C_NRM),
 				GET_HIT(f->follower), GET_MANA(f->follower),
-				GET_MOVE(f->follower), CCGRN(ch, C_NRM), CCNRM(ch, C_NRM),
+				GET_MOVE(f->follower), GET_ALIGNMENT(f->follower),
+				CCGRN(ch, C_NRM), CCNRM(ch, C_NRM),
 				CCRED(ch, C_NRM), CCNRM(ch, C_NRM), GET_LEVEL(f->follower),
 				CLASS_ABBR(f->follower), CCRED(ch, C_NRM), CCNRM(ch, C_NRM));
 			act(buf, FALSE, ch, 0, f->follower, TO_CHAR | TO_SLEEP);
