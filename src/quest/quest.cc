@@ -81,6 +81,9 @@ const char *qtypes[] = {
     "scavenger",
     "hide-and-seek",
     "roleplay",
+	"pkill",
+	"award/payment",
+	"misc",
     "\n"
 };
 
@@ -89,6 +92,9 @@ const char *qtype_abbrevs[] = {
     "scav",
     "h&s",
     "RP",
+	"pkill",
+	"A/P",
+	"misc",
     "\n"
 };
 
