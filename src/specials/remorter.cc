@@ -248,6 +248,8 @@ SPECIAL(remorter)
             ch->setPosition(POS_RESTING);
             char_from_room(ch);
             char_to_room(ch, load_room);
+            act("$n appears with a bright flash of light!", FALSE, ch, 0, 0, TO_ROOM);
+
 			//ch->extract(false, false, CON_MENU);
 			//ch->extract(true, true, CON_MENU);
 			return 1;
