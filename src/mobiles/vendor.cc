@@ -17,6 +17,7 @@ const int MAX_ITEMS = 10;
 int same_obj(obj_data *, obj_data *);
 // From act.comm.cc
 void perform_tell(struct Creature *ch, struct Creature *vict, char *arg);
+void perform_analyze( Creature *ch, obj_data *obj, bool checklev );
 
 static bool
 vendor_is_produced(obj_data *obj, ShopData *shop)
@@ -584,6 +585,98 @@ vendor_list(Creature *ch, char *arg, Creature *self, ShopData *shop)
 	page_string(ch->desc, msg);
 }
 
+
+static void
+vendor_appraise(Creature *ch, char *arg, Creature *self, ShopData *shop)
+{
+	obj_data *obj;
+	char *obj_str, *currency_str, *msg;
+	const unsigned long cost = 2000;
+	unsigned long amt_carried;
+		
+	if (!*arg) {
+		send_to_char(ch, "What do you wish to have me appraise?\r\n");
+		return;
+	}
+
+	obj_str = tmp_getword(&arg);
+
+	// Check for hash mark
+	if (*obj_str == '#') {
+		obj = vendor_resolve_hash(self, obj_str);
+		if (!obj) {
+			do_say(self,
+				tmp_sprintf("%s Sorry, but I don't carry that item.",
+				GET_NAME(ch)), 0, SCMD_SAY_TO, NULL);
+			return;
+		}
+	} else {
+		obj = get_obj_in_list_all(ch, obj_str, ch->carrying);
+		if (!obj) {
+			obj = vendor_resolve_name(self, obj_str);
+		}
+	}
+
+	if (!obj) {
+		do_say(self,
+			tmp_sprintf("%s Sorry, but I can't seem to find any %s.",
+			GET_NAME(ch), obj_str ), 0, SCMD_SAY_TO, NULL);
+		return;
+	}
+
+	switch (shop->currency) {
+	case 0:	
+		amt_carried = GET_GOLD(ch); break;
+	case 1:	
+		amt_carried = GET_CASH(ch); break;
+	case 2:	
+		amt_carried = GET_QUEST_POINTS(ch); break;
+	default:
+		slog("Can't happen at %s:%d", __FILE__, __LINE__);
+		amt_carried = 0;
+		break;
+	}
+	if ( cost > amt_carried) {
+		do_say(self, tmp_sprintf("%s %s",
+			GET_NAME(ch), shop->msg_buyerbroke), 0, SCMD_SAY_TO, NULL);
+		if (shop->cmd_temper)
+			command_interpreter(self, shop->cmd_temper);
+		return;
+	}
+	
+	msg = tmp_sprintf("%s That will cost you %lu %s.", GET_NAME(ch),
+		cost, shop->currency ? "creds":"gold");
+	do_say(self, msg, 0, SCMD_SAY_TO, NULL);
+
+	switch (shop->currency) {
+		case 0:
+			GET_GOLD(ch) -= cost;
+			GET_GOLD(self) += cost;
+			currency_str = "gold";
+			break;
+		case 1:
+			GET_CASH(ch) -= cost;
+			GET_CASH(self) += cost;
+			currency_str = "creds";
+			break;
+		case 2:
+			GET_QUEST_POINTS(ch) -= cost;
+			currency_str = "quest points";
+			break;
+		default:
+			slog("Can't happen at %s:%d", __FILE__, __LINE__);
+			currency_str = "-BUGS-";
+	}
+
+	if( IS_MAGE(self) ) {
+		spell_identify(50, ch, NULL, obj );
+	} else if( IS_PHYSIC(self) || IS_CYBORG(self) ) {
+		perform_analyze(ch,obj,false);
+	} else {
+		//perform_appraise(ch,obj);
+	}
+}
+
 static void
 vendor_value(Creature *ch, char *arg, Creature *self, ShopData *shop)
 {
@@ -791,8 +884,11 @@ SPECIAL(vendor)
 	if (spec_mode != SPECIAL_CMD)
 		return 0;	
 
-	if (!(CMD_IS("buy") || CMD_IS("sell") || CMD_IS("list") || CMD_IS("value") || CMD_IS("offer") || CMD_IS("steal")))
+	if (!(CMD_IS("buy")   || CMD_IS("sell")  || CMD_IS("list")  || 
+		  CMD_IS("value") || CMD_IS("offer") || CMD_IS("steal") ||
+		  CMD_IS("appraise") )) {
 		return 0;
+	}
 
 	if (err) {
 		// Specparam error
@@ -851,17 +947,20 @@ SPECIAL(vendor)
 		return true;
 	}
 
-	if (CMD_IS("buy"))
+	if (CMD_IS("buy")) {
 		vendor_sell(ch, argument, self, &shop);
-	else if (CMD_IS("sell"))
+	} else if (CMD_IS("sell")) {
 		vendor_buy(ch, argument, self, &shop);
-	else if (CMD_IS("list"))
+	} else if (CMD_IS("list")) {
 		vendor_list(ch, argument, self, &shop);
-	else if (CMD_IS("value") || CMD_IS("offer"))
+	} else if (CMD_IS("value") || CMD_IS("offer")) {
 		vendor_value(ch, argument, self, &shop);
-	else
+	} else if (CMD_IS("appraise")) {
+		vendor_appraise(ch, argument, self, &shop);
+	} else {
 		mudlog(LVL_IMPL, CMP, true, "Can't happen at %s:%d", __FILE__,
 			__LINE__);
+	}
 	
 	return true;
 }
