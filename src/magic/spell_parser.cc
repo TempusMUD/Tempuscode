@@ -299,7 +299,8 @@ const char *spells[] =
     "area stasis",	/* 340 */
     "electrostatic field",
     "emp pulse", 
-    "!UNUSED!", "!UNUSED!", "!UNUSED!",	/* 345 */
+    "quantum rift", 
+    "!UNUSED!", "!UNUSED!",	/* 345 */
     "!UNUSED!", "!UNUSED!", "!UNUSED!", "!UNUSED!", "!UNUSED!",	/* 350 */
     "!UNUSED!", "!UNUSED!", "!UNUSED!", "!UNUSED!", "!UNUSED!",	/* 355 */
     "!UNUSED!", "!UNUSED!", "!UNUSED!", "!UNUSED!", "!UNUSED!",	/* 360 */
@@ -1079,6 +1080,7 @@ call_magic(struct char_data * caster, struct char_data * cvict,
     case SPELL_AREA_STASIS:     MANUAL_SPELL(spell_area_stasis); break;     
     case SPELL_SUN_RAY:         MANUAL_SPELL(spell_sun_ray); break;
     case SPELL_EMP_PULSE:       MANUAL_SPELL(spell_emp_pulse);break;
+    case SPELL_QUANTUM_RIFT:    MANUAL_SPELL(spell_quantum_rift);break;
 	}
   
     knock_door = NULL;
@@ -3003,6 +3005,10 @@ mag_assign_spells(void)
 	   MAG_PHYSICS | MAG_AFFECTS);
 
     /* ALL REMORT SKILLS HERE */
+    remort_spello(SPELL_QUANTUM_RIFT, 
+        CLASS_PHYSIC, 45, 5,
+        400,300,5, POS_SITTING, TAR_IGNORE , FALSE, 
+        MAG_PHYSICS | MAG_MANUAL);
     remort_spello(SPELL_STONESKIN, 
 		CLASS_RANGER, 20,4,
 		60,25,1, POS_FIGHTING, TAR_CHAR_ROOM | TAR_SELF_ONLY, FALSE, 

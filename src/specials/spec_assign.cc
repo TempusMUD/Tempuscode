@@ -221,6 +221,7 @@ const struct spec_func_data spec_list[] = {
     {"telescope",       telescope,             SPEC_OBJ},
 	{"fate_cauldron",	fate_cauldron,		   SPEC_OBJ | SPEC_RES},
 	{"fate_portal",		fate_portal,		   SPEC_OBJ | SPEC_RES},
+	{"quantum_rift",    quantum_rift,		   SPEC_OBJ | SPEC_RES},
     {"tester_util",     tester_util,           SPEC_OBJ | SPEC_RES},
     {"questor_util",    questor_util ,         SPEC_OBJ | SPEC_RES},
     {"labyrinth_clock", labyrinth_clock ,      SPEC_OBJ | SPEC_RES},

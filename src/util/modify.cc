@@ -91,6 +91,7 @@ void string_add(struct descriptor_data *d, char *str)
     int    file_to_write;
     int    backup_file,nread;
     char   *cc_list = NULL;
+    int    stored_mail=0;
   
     /* determine if this is the terminal string, and truncate if so */
     /* changed to only accept '@' at the beginning of line - J. Elson 1/17/94 */
@@ -179,7 +180,7 @@ void string_add(struct descriptor_data *d, char *str)
         }
 	    mail_rcpt = d->mail_to;
 	    while (mail_rcpt) {
-            if(store_mail(mail_rcpt->recpt_idnum,GET_IDNUM(d->character),*d->str,cc_list))
+            if((stored_mail = store_mail(mail_rcpt->recpt_idnum,GET_IDNUM(d->character),*d->str,cc_list)))
                 for (r_d = descriptor_list; r_d; r_d = r_d->next)
                     if (!r_d->connected && r_d->character && 
                     r_d->character != d->character && 
@@ -207,7 +208,8 @@ void string_add(struct descriptor_data *d, char *str)
 #ifdef DMALLOC
 	    dmalloc_verify(0);
 #endif
-	    SEND_TO_Q("Message sent!\r\n", d);
+        if(stored_mail)
+            SEND_TO_Q("Message sent!\r\n", d);
 	    if (!IS_NPC(d->character))
 		REMOVE_BIT(PLR_FLAGS(d->character), PLR_MAILING | PLR_WRITING|PLR_OLC);
    

@@ -175,6 +175,7 @@
 #include "fight.h"
 #include "bomb.h"
 #include "shop.h"
+#include "specs.h"
 
 void appear(struct char_data *ch, struct char_data *vict);
 
@@ -466,13 +467,11 @@ ASPELL(spell_spacetime_imprint)
     send_to_char("A spacetime imprint has been made of this place.\r\n", ch);
     //  show_imprint_rooms(ch);
 }
-#define QUANTUM_RIFT_VNUM 1217
 ASPELL(spell_quantum_rift)
 {
     int rnum;
     struct room_data *room = NULL;
 	obj_data *rift = NULL;
-
     rnum = pop_imprint(ch);
 
     //  show_imprint_rooms(ch);
@@ -495,16 +494,16 @@ ASPELL(spell_quantum_rift)
     }
     // Quantum Rift
 	if ( ( rift = read_object( QUANTUM_RIFT_VNUM ) ) ) {
-		GET_OBJ_TIMER( rift ) = max_npc_corpse_time;
+		GET_OBJ_TIMER( rift ) = (int)(GET_REMORT_GEN(ch)/2);
 		obj_to_room( rift, ch->in_room );
 		// Set the target room number.
 		// Note: Add in some random change of going to the wrong place.
 		GET_OBJ_VAL(rift,0) = rnum;
 
 		act("$n shreads the fabric of space and time creating $p!", 
-			TRUE, ch, 0, rift, TO_ROOM);
-		act("You shreads the fabric of space and time creating $p!", 
-			TRUE, ch, 0, rift, TO_CHAR);
+			TRUE, ch, rift,0, TO_ROOM);
+		act("You shread the fabric of space and time creating $p!", 
+			TRUE, ch, rift,0, TO_CHAR);
 	} else {
 		send_to_char("The rift has failed to form.  Something is terribly wrong.\r\n",ch);
 		return;
@@ -1004,6 +1003,7 @@ ASPELL(spell_area_stasis)
 {
     
     struct room_affect_data rm_aff;
+    struct obj_data *o;
 
     if ( ROOM_FLAGGED( ch->in_room, ROOM_NOPHYSIC ) ) {
 	send_to_char( "The surrounding construct of spacetime is already stable.\r\n", ch );
@@ -1012,7 +1012,16 @@ ASPELL(spell_area_stasis)
 
     send_to_room( "A shockwave ripples through the room stableizing spacetime.\r\n", ch->in_room );
 
-    rm_aff.description = str_dup( "The room seems to be physically stable.\r\n" );
+    // Destroy all quantum rifts.
+    for(o = ch->in_room->contents;o;o = o->next) {
+        if(GET_OBJ_VNUM(o) == QUANTUM_RIFT_VNUM) {
+            act("$p collapses in on itself.",
+                TRUE, o->in_room->people, o, 0, TO_NOTVICT);
+            extract_obj(o);
+        }
+    }
+
+    rm_aff.description = str_dup( "    The room seems to be physically stable.\r\n" );
     rm_aff.level = level;
     rm_aff.type = RM_AFF_FLAGS;
     rm_aff.flags = ROOM_NOPHYSIC;

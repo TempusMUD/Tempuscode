@@ -329,7 +329,7 @@ extern const char *spells[];
 #define SPELL_EMP_PULSE            342  // Shuts off devices, communicators
                                         // deactivats all cyborg programs
                                         // blocked by emp shield
-
+#define SPELL_QUANTUM_RIFT         343  // Shuts off devices, communicators
   /*********************  MONK ZENS  *******************/
 #define ZEN_HEALING                401
 #define ZEN_AWARENESS              402
@@ -749,6 +749,7 @@ ASPELL(spell_inferno);
 ASPELL(spell_banishment);
 ASPELL(spell_sun_ray);
 ASPELL(spell_emp_pulse);
+ASPELL(spell_quantum_rift);
 
 /* basic magic calling functions */
 

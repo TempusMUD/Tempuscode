@@ -809,8 +809,14 @@ point_update(void)
 	    if (GET_OBJ_TIMER(j) <= 0) {
 		extract_obj(j);
 	    }
-	}      
-	else if (IS_OBJ_STAT2(j, ITEM2_UNAPPROVED) ||
+	} else if( GET_OBJ_VNUM(j) == QUANTUM_RIFT_VNUM) {
+	    GET_OBJ_TIMER(j)--;
+	    if (GET_OBJ_TIMER(j) <= 0) {
+		    act("$p collapses in on itself.",
+			TRUE, j->in_room->people, j, 0, TO_NOTVICT);
+            extract_obj(j);
+        }
+    } else if (IS_OBJ_STAT2(j, ITEM2_UNAPPROVED) ||
 		 (IS_OBJ_TYPE(j, ITEM_KEY) && GET_OBJ_TIMER(j)) ||
 		 (GET_OBJ_SPEC(j) == fate_portal)) { // keys, unapp && fate portals
 	    if (IS_OBJ_TYPE(j, ITEM_KEY)) { // skip keys still in zone
