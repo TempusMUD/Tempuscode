@@ -853,13 +853,14 @@ do_stat_zone(struct Creature *ch, struct zone_data *zone)
         av_lev /= numm;
     MobileMap::iterator mit = mobilePrototypes.begin();
     Creature *mob;
-    for (; mit != mobilePrototypes.end(); ++mit)
+    for (; mit != mobilePrototypes.end(); ++mit) {
         mob = mit->second;
         if (GET_MOB_VNUM(mob) >= zone->number * 100 &&
             GET_MOB_VNUM(mob) <= zone->top && IS_NPC(mob)) {
             numm_proto++;
             av_lev_proto += GET_LEVEL(mob);
         }
+	}
 
     if (numm_proto)
         av_lev_proto /= numm_proto;
@@ -6568,9 +6569,9 @@ ACMD(do_aset)
         {"password", LVL_IMMORT, PC, MISC, "AdminFull"},
         {"\n", 0, BOTH, MISC, ""} };
 	char *name, *field;
-	int i, l, value;
+	int i, l, value = 0;
 	Account *account;
-	bool on, off;
+	bool on = false, off = false;
 	
     name = tmp_getword(&argument);
     field = tmp_getword(&argument);
