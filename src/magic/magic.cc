@@ -1635,6 +1635,7 @@ mag_affects(int level, struct Creature *ch, struct Creature *victim,
 		af.duration = (level >> 2) + 4;
 		af.modifier = 1 + dice(1, (level >> 4));
 		af.location = APPLY_INT;
+		to_vict = "Your mental faculties improve!";
 		break;
 
 	case SPELL_CONFUSION:
