@@ -859,10 +859,11 @@ point_update(void)
 		    extract_obj(j);
 		}
 	    }	 
-	}   
-	else if (IS_OBJ_STAT2(j, ITEM2_UNAPPROVED) ||
+	} else if (GET_OBJ_SPEC(j) == roaming_portal ) {
+        roaming_portal(NULL,j,0,NULL,0);
+    } else if (IS_OBJ_STAT2(j, ITEM2_UNAPPROVED) ||
 		 (IS_OBJ_TYPE(j, ITEM_KEY) && GET_OBJ_TIMER(j)) ||
-		 (GET_OBJ_SPEC(j) == fate_portal)) { // keys, unapp && fate portals
+		 (GET_OBJ_SPEC(j) == fate_portal) ) { // keys, unapp && fate portals
 	    if (IS_OBJ_TYPE(j, ITEM_KEY)) { // skip keys still in zone
 		z = zone_number(GET_OBJ_VNUM(j));
 		if (((rm = where_obj(j)) && rm->zone->number == z) ||

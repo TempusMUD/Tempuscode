@@ -45,6 +45,8 @@ extern struct zone_data *zone_table;
 extern struct char_data *mob_proto;
 extern struct spell_info_type spell_info[];
 void safe_exit(int mode);
+int player_in_room ( struct room_data *room );
+
 
 /* undefine MAX and MIN so that our functions are used instead */
 #ifdef MAX

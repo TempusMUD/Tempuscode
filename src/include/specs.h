@@ -210,6 +210,7 @@ SPECIAL(telescope);
 SPECIAL(fate_cauldron);
 SPECIAL(fate_portal);
 SPECIAL(quantum_rift);
+SPECIAL(roaming_portal);
 SPECIAL(tester_util);
 SPECIAL(questor_util);
 SPECIAL(labyrinth_clock);

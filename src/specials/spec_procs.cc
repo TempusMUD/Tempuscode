@@ -1727,6 +1727,7 @@ SPECIAL(cave_bear)
 #include "Specs/utility_specs/fate_cauldron.spec"
 #include "Specs/utility_specs/fate_portal.spec"
 #include "Specs/utility_specs/quantum_rift.spec"
+#include "Specs/utility_specs/roaming_portal.spec"
 #include "Specs/utility_specs/astral_portal.spec"
 #include "Specs/utility_specs/reinforcer.spec"
 #include "Specs/utility_specs/enhancer.spec"

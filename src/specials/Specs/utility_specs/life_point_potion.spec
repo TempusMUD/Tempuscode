@@ -22,7 +22,8 @@ SPECIAL(life_point_potion)
 		      FALSE, ch, potion, 0, TO_ROOM);
 	if ((IS_OBJ_STAT(potion, ITEM_ANTI_EVIL) && IS_EVIL(ch)) ||
 		(IS_OBJ_STAT(potion, ITEM_ANTI_GOOD) && IS_GOOD(ch)) ||
-		(IS_OBJ_STAT(potion, ITEM_ANTI_NEUTRAL) && IS_NEUTRAL(ch))) {
+		(IS_OBJ_STAT(potion, ITEM_ANTI_NEUTRAL) && IS_NEUTRAL(ch))
+        || GET_LEVEL(ch) < 10 ) {
 		send_to_char("\r\nYou feel you have just done something very, very wrong.\r\n", ch);
 		ch->setPosition( POS_STUNNED );
 	} else {

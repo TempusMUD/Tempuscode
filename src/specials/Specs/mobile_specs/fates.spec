@@ -9,15 +9,6 @@ struct room_list_struct {
 	struct room_data *room;
 	struct room_list_struct *next;
 };
-int
-player_in_room ( struct room_data *room ) {
-	struct char_data *c;
-	for(c = room->people;c;c = c->next_in_room) {
-		if(!IS_NPC(c) && GET_LEVEL(c) < LVL_AMBASSADOR)
-			return 1;
-	}
-	return 0;
-}
 
 int fate_timers[3] = {0,0,0};
 SPECIAL(fate)

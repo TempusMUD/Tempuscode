@@ -516,6 +516,15 @@ die_follower(struct char_data * ch)
 	stop_follower(k->follower);
     }
 }
+int
+player_in_room ( struct room_data *room ) {
+    struct char_data *c;
+    for(c = room->people;c;c = c->next_in_room) {
+        if(!IS_NPC(c) && GET_LEVEL(c) < LVL_AMBASSADOR)
+            return 1;
+    }
+    return 0;
+}   
 
 
 
