@@ -1300,7 +1300,7 @@ void
 char_to_game(descriptor_data *d)
 {
 	struct descriptor_data *k, *next;
-	struct room_data *load_room;
+	struct room_data *load_room = NULL;
 	int load_result;
 
 	// this code is to prevent people from multiply logging in
