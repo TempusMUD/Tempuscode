@@ -43,6 +43,9 @@ enum cxn_state {
 	CXN_CLASS_FUTURE,			// Class? (timeframe-based)
 	CXN_ALIGN_PROMPT,			// Align? (race/class may restrict)
 	CXN_STATISTICS_ROLL,		// Statistics rolling
+    // Old character importing
+    CXN_IMPORT_NAME_PROMPT,     // Get old name for import
+    CXN_IMPORT_PW_PROMPT,       // Verify old password
 	// Other, miscellaneous states
 	CXN_MENU,					// Your choice: (main menu) 
 	CXN_WAIT_MENU,				// Press return to go back to the main menu
