@@ -3094,7 +3094,7 @@ ACMD(do_who)
 	sprintf(buf2,
 		"%s**************       %sVisible Players of TEMPUS%s%s       **************%s\r\n%s",
 		CCBLD(ch, C_CMP), CCGRN(ch, C_NRM), CCNRM(ch, C_NRM), CCBLD(ch, C_CMP),
-		CCNRM(ch, C_SPR), (ch->account->get_compact_level() > 1) ? "" : "\r\n");
+		CCNRM(ch, C_SPR), (IS_NPC(ch) ? "" : (ch->account->get_compact_level() > 1) ? "" : "\r\n"));
 
 	for (d = descriptor_list; d; d = d->next) {
 		if (!IS_PLAYING(d))
@@ -4437,7 +4437,8 @@ show_all_toggles(Creature *ch)
 		ONOFF(PRF2_FLAGGED(ch, PRF2_AUTO_DIAGNOSE)),
 		YESNO(PRF2_FLAGGED(ch, PRF2_AUTOPROMPT)),
 		ONOFF(PRF_FLAGGED(ch, PRF_BRIEF)),
-		compact_levels[ch->account->get_compact_level()],
+        (IS_NPC(ch) ? "mob" :
+		compact_levels[ch->account->get_compact_level()]),
 		YESNO(!PRF_FLAGGED(ch, PRF_GAGMISS)),
 		GET_PAGE_LENGTH(ch),
 		ONOFF(PRF2_FLAGGED(ch, PRF2_NOTRAILERS)),
