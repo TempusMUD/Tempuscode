@@ -839,7 +839,6 @@ SPECIAL(peter)
 
 SPECIAL(jerry)
 {
-
 	struct Creature *gambler1, *gambler2, *tch;
 
 	if (spec_mode != SPECIAL_TICK)
@@ -1009,45 +1008,4 @@ SPECIAL(wiz_library)
 		return 1;
 	}
 	return 0;
-}
-
-SPECIAL(book_int)
-{
-	int book_number = 15250;
-	struct obj_data *book;
-
-	if (!CMD_IS("read"))
-		return 0;
-
-	for (book = ch->carrying; book; book = book->next_content)
-		if (GET_OBJ_VNUM(book) == book_number)
-			break;
-
-	if (!book || GET_OBJ_VNUM(book) != book_number)
-		return 0;
-
-	skip_spaces(&argument);
-
-	if (strncasecmp(argument, "book", 4) &&
-		strncasecmp(argument, "cognizance", 10))
-		return 0;
-
-	send_to_char(ch, "You study the pages of the ancient book.\r\n");
-	act("$n reads $p.", TRUE, ch, book, 0, TO_ROOM);
-
-	if (ch->real_abils.intel >= 19)
-		send_to_char(ch, "You do not feel enlightened.\r\n");
-	else {
-		send_to_char(ch, "A wave of enlightenment passes over you.\r\n");
-		act("A bright light appears above the head of $n", FALSE, ch, 0, 0,
-			TO_ROOM);
-		ch->real_abils.intel++;
-		ch->saveToXML();
-		WAIT_STATE(ch, PULSE_VIOLENCE * 2);
-	}
-	act("$p fades into a different reality, and is gone.", FALSE, ch, book, 0,
-		TO_CHAR);
-	obj_from_char(book);
-	extract_obj(book);
-	return 1;
 }

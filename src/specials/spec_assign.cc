@@ -224,7 +224,6 @@ const struct spec_func_data spec_list[] = {
 	{"astral_portal", astral_portal, SPEC_OBJ},
 	{"vr_arcade_game", vr_arcade_game, SPEC_OBJ},
 	{"astrolabe", astrolabe, SPEC_OBJ | SPEC_RES},
-	{"book_int", book_int, SPEC_OBJ},
 	{"black_rose", black_rose, SPEC_OBJ},
 	{"vehicle_console", vehicle_console, SPEC_OBJ},
 	{"vehicle_door", vehicle_door, SPEC_OBJ},
@@ -241,7 +240,6 @@ const struct spec_func_data spec_list[] = {
 	{"finger_of_death", finger_of_death, SPEC_OBJ | SPEC_RES},
 
 	{"dukes_chamber", dukes_chamber, SPEC_RM | SPEC_RES},
-	{"wiz_library", wiz_library, SPEC_RM | SPEC_RES},
 	{"dump", dump, SPEC_RM | SPEC_RES},
 	{"pet_shops", pet_shops, SPEC_RM},
 	{"wagon_room", wagon_room, SPEC_RM | SPEC_RES},
