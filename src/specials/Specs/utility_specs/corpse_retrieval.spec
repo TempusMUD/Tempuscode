@@ -37,6 +37,11 @@ SPECIAL(corpse_retrieval)
         sprintf(buf2, "You don't have enough gold.  It costs %d coins.", price);
         perform_tell(retriever, ch, buf2);
       } else {
+        if (corpse->carried_by && corpse->carried_by == ch) {
+            perform_tell(retriever, ch, 
+			 "You already have it you dolt!");
+            return 1;
+        }
         if (corpse->in_room) {
           if (corpse->in_room == retriever->in_room) {
             perform_tell(retriever, ch, 
@@ -76,10 +81,9 @@ SPECIAL(corpse_retrieval)
         perform_tell(retriever, ch, buf2);
         GET_GOLD(ch) -= price;
         act("$n makes some strange gestures and howls at $s head!", 
-	    FALSE, retriever, 0, 0, TO_ROOM);
-        act("$p appears at the center of the room!", 
-	    FALSE, retriever, corpse, 0, TO_ROOM);
-        obj_to_room(corpse, ch->in_room);
+            FALSE, retriever, 0, 0, TO_ROOM);
+        act("$p appears in your hands!", FALSE, ch, corpse, 0, TO_CHAR);
+        obj_to_char(corpse, ch);
       } 
       return 1;
     }
