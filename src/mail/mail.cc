@@ -101,6 +101,7 @@ store_mail( long to_id, long from_id, char *txt , char *cc_list, time_t *cur_tim
 	}
     if(cc_list) {
         strcpy(buf,cc_list);
+		strcat(buf,"\r\n");
         strcat(buf,txt);
         txt = buf;
     }
