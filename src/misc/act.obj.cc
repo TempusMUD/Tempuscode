@@ -279,7 +279,7 @@ activate_char_quad(struct Creature *ch)
 }
 
 
-void
+bool
 perform_put(struct Creature *ch, struct obj_data *obj,
 	struct obj_data *cont, int display)
 {
@@ -288,7 +288,7 @@ perform_put(struct Creature *ch, struct obj_data *obj,
 
 	if (GET_OBJ_TYPE(cont) == ITEM_PIPE) {
 		if (GET_OBJ_TYPE(obj) != ITEM_TOBACCO) {
-			sprintf(buf, "SYSERR: obj %d '%s' attempted to pack.",
+			slog("SYSERR: obj %d '%s' attempted to pack.",
 				GET_OBJ_VNUM(obj), obj->short_description);
 			send_to_char(ch, "Sorry, there is an error here.\r\n");
 		} else if (CUR_DRAGS(cont) && SMOKE_TYPE(cont) != SMOKE_TYPE(obj))
@@ -299,21 +299,26 @@ perform_put(struct Creature *ch, struct obj_data *obj,
 			capacity = MIN(MAX_DRAGS(obj), capacity);
 			if (MAX_DRAGS(obj) <= 0) {
 				send_to_char(ch, "Tobacco error: please report.\r\n");
-				return;
+				return false;
 			}
-			if (capacity <= 0)
+			if (capacity <= 0) {
 				act("Sorry, $p is fully packed.", FALSE, ch, cont, 0, TO_CHAR);
-			else {
+				return false;
+			} else {
 
 				GET_OBJ_VAL(cont, 0) += capacity;
 				GET_OBJ_VAL(cont, 2) = GET_OBJ_VAL(obj, 0);	/* Type of tobacco */
 				MAX_DRAGS(obj) -= capacity;
 
-				act("You pack $p in $P.", FALSE, ch, obj, cont, TO_CHAR);
-				act("$n packs $p in $P.", TRUE, ch, obj, cont, TO_ROOM);
+				if (display) {
+					act("You pack $p in $P.", FALSE, ch, obj, cont, TO_CHAR);
+					act("$n packs $p in $P.", TRUE, ch, obj, cont, TO_ROOM);
+				}
 
-				if (MAX_DRAGS(obj) <= 0)
-					extract_obj(obj);
+				obj_from_char(obj);
+				obj_to_obj(obj, cont);
+
+				return true;
 			}
 		}
 	} else if (GET_OBJ_TYPE(cont) == ITEM_VEHICLE) {
@@ -323,13 +328,21 @@ perform_put(struct Creature *ch, struct obj_data *obj,
 			act("Sorry, $p doesn't seem to have an interior right now.",
 				FALSE, ch, cont, 0, TO_CHAR);
 		else {
-			act("You toss $P into $p.", FALSE, ch, cont, obj, TO_CHAR);
-			act("$n tosses $P into $p.", FALSE, ch, cont, obj, TO_ROOM);
+			if (display) {
+				act("You toss $P into $p.", FALSE, ch, cont, obj, TO_CHAR);
+				act("$n tosses $P into $p.", FALSE, ch, cont, obj, TO_ROOM);
+			}
+
 			obj_from_char(obj);
 			obj_to_room(obj, to_room);
-			act("$p is tossed into the car by $N.", FALSE, 0, obj, ch,
-				TO_ROOM);
+
+			if (display)
+				act("$p is tossed into the car by $N.", FALSE, 0, obj, ch,
+					TO_ROOM);
+			return true;
 		}
+
+		return false;
 	} else {
 
 		if (cont->getContainedWeight() + obj->getWeight() > GET_OBJ_VAL(cont,
@@ -345,8 +358,10 @@ perform_put(struct Creature *ch, struct obj_data *obj,
 				act("You put $p in $P.", FALSE, ch, obj, cont, TO_CHAR);
 				act("$n puts $p in $P.", TRUE, ch, obj, cont, TO_ROOM);
 			}
+			return true;
 		}
 	}
+	return false;
 }
 
 
@@ -411,7 +426,7 @@ ACMD(do_put)
 					send_to_char(ch, 
 						"It would really be best if you didn't do that.\r\n");
 				else
-					perform_put(ch, obj, cont, TRUE);
+					perform_put(ch, obj, cont, true);
 			} else {
 				for (obj = ch->carrying; obj; obj = next_obj) {
 					next_obj = obj->next_content;
@@ -451,11 +466,11 @@ ACMD(do_put)
 						counter = 0;
 					}
 					found = 1;
-					counter++;
 					save_obj = obj;
-					perform_put(ch, obj, cont, FALSE);
+					if (perform_put(ch, obj, cont, false))
+						counter++;
 				}
-				if (found == 1) {
+				if (found && counter > 0) {
 					if (counter == 1)
 						sprintf(cntbuf, "You put $p in $P.");
 					else
@@ -477,6 +492,11 @@ ACMD(do_put)
 					}
 				}
 			}
+			// If the object is a pipe, extract all objects within it -
+			// pipes don't have objects
+			if (GET_OBJ_TYPE(cont) == ITEM_PIPE)
+				while (cont->contains)
+					extract_obj(cont->contains);
 		}
 	}
 }
