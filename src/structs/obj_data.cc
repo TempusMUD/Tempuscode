@@ -40,13 +40,14 @@ get_worn_type( obj_data *obj )
 void
 obj_data::saveToXML(FILE *ouf)
 {
+    struct tmp_obj_affect *af = NULL; 
+    struct tmp_obj_affect *af_head = NULL;
 	static string indent = "\t";
 	fprintf( ouf, "%s<object vnum=\"%d\">\n", 
 			indent.c_str(), shared->vnum );
 	indent += "\t";
 
     obj_data *proto = shared->proto;
-
 
     char *s = name;
     if( s != NULL && 
@@ -88,6 +89,11 @@ obj_data::saveToXML(FILE *ouf)
         fprintf(ouf, "%s<action_desc>%s</action_desc>\n", indent.c_str(), xmlEncodeTmp(tmp_gsub(tmp_gsub(s, "\r\n", "\n"), "\r", "")));
     }
 
+    // Detach the list of temp affects from the object and remove them
+    // with deleteing them
+    af_head = this->tmp_affects;
+    for (af = af_head; af; af = af->next)
+        this->affectModify(af, false);
 
 	fprintf( ouf, "%s<points type=\"%d\" soilage=\"%d\" weight=\"%d\" material=\"%d\" timer=\"%d\"/>\n",
 			  indent.c_str(), obj_flags.type_flag, soilage, 
@@ -114,6 +120,25 @@ obj_data::saveToXML(FILE *ouf)
 					  indent.c_str(), affected[i].modifier, affected[i].location );
 		}
 	}
+    // Write the temp affects out to the file
+    for (af = af_head; af; af = af->next) {
+        fprintf(ouf, "%s<tmpaffect level=\"%d\" type=\"%d\" duration=\"%d\" "
+                "dam_mod=\"%d\" maxdam_mod=\"%d\" val_mod1=\"%d\" "
+                "val_mod2=\"%d\" val_mod3=\"%d\" val_mod4=\"%d\" "
+                "type_mod=\"%d\" old_type=\"%d\" worn_mod=\"%d\" "
+                "extra_mod=\"%d\" extra_index=\"%d\" weight_mod=\"%d\" ", 
+                indent.c_str(), af->level, af->type, af->duration,
+                af->dam_mod, af->maxdam_mod, af->val_mod[0], af->val_mod[1],
+                af->val_mod[2], af->val_mod[3], af->type_mod, af->old_type,
+                af->worn_mod, af->extra_mod, af->extra_index, af->weight_mod);
+
+        for (int i = 0; i < MAX_OBJ_AFFECT; i++) {
+            fprintf(ouf, "affect_loc%d=\"%d\" affect_mod%d=\"%d\" ",
+                    i, af->affect_loc[i], i, af->affect_mod[i]);
+        }
+
+        fprintf(ouf, "/>\n");
+    }
 	// Contained objects
 	indent += "\t";
 	for( obj_data *obj = contains; obj != NULL; obj = obj->next_content ) {
@@ -125,7 +150,11 @@ obj_data::saveToXML(FILE *ouf)
 	fprintf( ouf, "%s<worn possible=\"%x\" pos=\"%d\" type=\"%s\"/>\n", 
 			 indent.c_str(), obj_flags.wear_flags, worn_on, get_worn_type(this) );
 
-
+    // Ok, we'll restore the affects to the object right here
+    this->tmp_affects = af_head;
+    for (af = af_head; af; af = af->next)
+        this->affectModify(af, true);
+    
 	indent.erase(indent.size() - 1);
 	fprintf( ouf, "%s</object>\n", indent.c_str() );
 	return;
@@ -288,7 +317,36 @@ obj_data::loadFromXML(obj_data *container, Creature *victim, room_data* room, xm
 			if(! obj->loadFromXML(this,victim,room,cur) ) {
 				extract_obj(obj);
 			}
-		} 
+		} else if (xmlMatches(cur->name, "tmpaffect")) {
+            struct tmp_obj_affect af;
+            char *prop;
+
+            memset(&af, 0x0, sizeof(af));
+            af.level = xmlGetIntProp(cur, "level");
+            af.type = xmlGetIntProp(cur, "type");
+            af.duration = xmlGetIntProp(cur, "duration");
+            af.dam_mod = xmlGetIntProp(cur, "dam_mod");
+            af.maxdam_mod = xmlGetIntProp(cur, "maxdam_mod");
+            af.val_mod[0] = xmlGetIntProp(cur, "val_mod1");
+            af.val_mod[1] = xmlGetIntProp(cur, "val_mod2");
+            af.val_mod[2] = xmlGetIntProp(cur, "val_mod3");
+            af.val_mod[3] = xmlGetIntProp(cur, "val_mod4");
+            af.type_mod = xmlGetIntProp(cur, "type_mod");
+            af.old_type = xmlGetIntProp(cur, "old_type");
+            af.worn_mod = xmlGetIntProp(cur, "worn_mod");
+            af.extra_mod = xmlGetIntProp(cur, "extra_mod");
+            af.extra_index = xmlGetIntProp(cur, "extra_index");
+            af.weight_mod = xmlGetIntProp(cur, "weight_mod");
+            for (int i = 0; i < MAX_OBJ_AFFECT; i++) {
+                prop = tmp_sprintf("affect_loc%d", i);
+                af.affect_loc[i] = xmlGetIntProp(cur, prop);
+                prop = tmp_sprintf("affect_mod%d", i);
+                af.affect_mod[i] = xmlGetIntProp(cur, prop);
+            }
+
+            this->addAffect(&af);
+        }
+
 	}
 
 	if (!OBJ_APPROVED(this)) {
@@ -417,6 +475,8 @@ obj_data::removeAffect(struct tmp_obj_affect *af)
     }
 }
 
+// NEVER call this function directly.  Use addAffect(), removeAffect(),
+// or affectJoin() instead.
 // add == true adds the affect, add == false deletes the affect
 void
 obj_data::affectModify(struct tmp_obj_affect *af, bool add)
