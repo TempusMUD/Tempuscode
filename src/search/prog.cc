@@ -679,7 +679,7 @@ prog_do_opurge(prog_env *env, prog_evt *evt, char *args)
 	if (!obj_list)
 		return;
 
-	while (GET_OBJ_VNUM(obj_list) == vnum) {
+	while (obj_list && GET_OBJ_VNUM(obj_list) == vnum) {
 		next_obj = obj_list->next_content;
 		extract_obj(obj_list);
 		obj_list = next_obj;
