@@ -4861,10 +4861,10 @@ ACMD(do_areas)
         if (!zone->public_desc || !zone->min_lvl)
             continue;
         if (IS_IMMORT(ch) ||
-                (zone->min_lvl >= GET_LEVEL(ch)
-                    && zone->max_lvl <= GET_LEVEL(ch)
-                    && zone->min_gen >= GET_REMORT_GEN(ch)
-                    && zone->max_gen <= GET_REMORT_GEN(ch))) {
+                (zone->min_lvl <= GET_LEVEL(ch)
+                    && zone->max_lvl >= GET_LEVEL(ch)
+                    && zone->min_gen <= GET_REMORT_GEN(ch)
+                    && zone->max_gen >= GET_REMORT_GEN(ch))) {
             msg = tmp_strcat(msg, (found_one) ? "\r\n":"", CCMAG(ch, C_NRM), zone->name,
                 CCNRM(ch, C_NRM), "\r\n", zone->public_desc, NULL);
             found_one = true;
