@@ -363,6 +363,8 @@ Creature::loadFromXML( long id )
 			char* instant = xmlGetProp( node, "INSTANT" );
 			if( instant != NULL && strcmp( instant, "yes" ) == 0 ) {
 				af.is_instant = 1;
+			} else {
+				af.is_instant = 0;
 			}
 			free(instant);
 
@@ -415,22 +417,8 @@ Creature::loadFromXML( long id )
 
     xmlFreeDoc(doc);
 
-	/*
-	ch->player.short_descr = NULL;
-	ch->player.long_descr = NULL;
-	set_title(ch, st->title);
-	ch->player.description = str_dup(st->description);
-	ch->player.hometown = st->hometown;
-
-	st->pwd[MAX_PWD_LENGTH] = '\0';
-	strcpy(ch->player.passwd, st->pwd);
-
-	// Add all spell effects 
-	for (i = 0; i < MAX_AFFECT; i++) {
-		if (st->affected[i].type)
-			affect_to_char(ch, &st->affected[i]);
-	}
-    */
+	player.short_descr = NULL;
+	player.long_descr = NULL;
 
 	if (points.max_mana < 100)
 		points.max_mana = 100;
