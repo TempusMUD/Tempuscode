@@ -2142,11 +2142,21 @@ struct obj_data *
 get_object_in_equip_vis(struct char_data * ch,
 			char *arg, struct obj_data * equipment[], int *j)
 {
-    for ((*j) = 0; (*j) < NUM_WEARS; (*j)++)
-	if (equipment[(*j)])
-	    if (CAN_SEE_OBJ(ch, equipment[(*j)]))
-		if (isname(arg, equipment[(*j)]->name))
-		    return (equipment[(*j)]);
+	int x = 0;
+	int number = 0;
+	char tmpname[MAX_INPUT_LENGTH];
+	char *tmp = tmpname;
+
+    strcpy(tmp, arg);
+	if (!(number = get_number(&tmp)))
+		return NULL;
+
+    for ((*j) = 0; (*j) < NUM_WEARS && x <= number; (*j)++)
+		if (equipment[(*j)])
+			if (CAN_SEE_OBJ(ch, equipment[(*j)]))
+				if (isname(tmp, equipment[(*j)]->name))
+					if (++x == number)
+						return (equipment[(*j)]);
 
     return NULL;
 }
@@ -2155,12 +2165,21 @@ struct obj_data *
 get_object_in_equip_all(struct char_data * ch,
 			char *arg, struct obj_data * equipment[], int *j)
 {
-    for ((*j) = 0; (*j) < NUM_WEARS; (*j)++)
-	if (equipment[(*j)])
-	    if (INVIS_OK_OBJ(ch, equipment[(*j)]))
-		if (isname(arg, equipment[(*j)]->name))
-		    return (equipment[(*j)]);
+	int x = 0;
+	int number = 0;
+	char tmpname[MAX_INPUT_LENGTH];
+	char *tmp = tmpname;
 
+    strcpy(tmp, arg);
+	if (!(number = get_number(&tmp)))
+		return NULL;
+
+    for ((*j) = 0; (*j) < NUM_WEARS && x <= number; (*j)++)
+		if (equipment[(*j)])
+			if (INVIS_OK_OBJ(ch, equipment[(*j)]))
+				if (isname(tmp, equipment[(*j)]->name))
+					if (++x == number)
+						return (equipment[(*j)]);
     return NULL;
 }
 
