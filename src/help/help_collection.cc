@@ -457,6 +457,7 @@ void HelpCollection::ApproveItem( char_data *ch, char *argument) {
         for(cur = items;cur && cur->idnum != idnum;cur = cur->Next());
         if(cur) {
             REMOVE_BIT(cur->flags,HFLAG_UNAPPROVED);
+            SET_BIT(cur->flags,HFLAG_MODIFIED);
             sprintf(buf,"Item #%d approved.\r\n",cur->idnum);
             send_to_char(buf,ch);
         } else {
@@ -479,6 +480,7 @@ void HelpCollection::UnApproveItem( char_data *ch, char *argument) {
         }
         for(cur = items;cur && cur->idnum != idnum;cur = cur->Next());
         if(cur) {
+            SET_BIT(cur->flags,HFLAG_MODIFIED);
             SET_BIT(cur->flags,HFLAG_UNAPPROVED);
             sprintf(buf,"Item #%d unapproved.\r\n",cur->idnum);
             send_to_char(buf,ch);

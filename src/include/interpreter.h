@@ -69,6 +69,7 @@ struct command_info {
     //        (struct char_data *ch, char * argument, int cmd, int subcmd);
     sh_int minimum_level;
     int	subcmd;
+    int security;
 };
 
 /* necessary for CMD_IS macro */
