@@ -1610,7 +1610,7 @@ do_stat_character(struct Creature *ch, struct Creature *k)
 
         sprintf(buf,
             "Hometown:[%s%s%s (%d)], Loadroom: [%d], Clan: %s%s%s\r\n",
-            CCCYN(ch, C_NRM), home_town_abbrevs[(int)GET_HOME(k)], CCNRM(ch,
+            CCCYN(ch, C_NRM), get_hometown_abbrev((int)GET_HOME(k)), CCNRM(ch,
                 C_NRM), GET_HOMEROOM(k), k->player_specials->saved.home_room,
             CCCYN(ch, C_NRM),
             real_clan(GET_CLAN(k)) ? real_clan(GET_CLAN(k))->name : "NONE",
@@ -1865,7 +1865,7 @@ do_stat_character(struct Creature *ch, struct Creature *k)
     }
     if (IS_CYBORG(k)) {
         sprintf(buf, "Broken component: [%s (%d)], Dam Count: %d/%d.\r\n",
-            component_names[(int)GET_BROKE(k)][GET_OLD_CLASS(k)],
+			get_component_name(GET_BROKE(k), GET_OLD_CLASS(k)),
             GET_BROKE(k), GET_TOT_DAM(k), max_component_dam(k));
         strcat(outbuf, buf);
 
