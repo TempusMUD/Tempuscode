@@ -174,6 +174,8 @@ general_search(struct Creature *ch, struct special_search_data *srch,
 				srch->arg[0], ch->in_room->number);
 			return 0;
 		}
+		obj->creation_method = CREATED_SEARCH;
+		obj->creator = ch->in_room->number;
 		if (ZONE_FLAGGED(ch->in_room->zone, ZONE_ZCMDS_APPROVED))
 			SET_BIT(GET_OBJ_EXTRA2(obj), ITEM2_UNAPPROVED);
 		obj_to_room(obj, targ_room);
@@ -231,6 +233,8 @@ general_search(struct Creature *ch, struct special_search_data *srch,
 				srch->arg[0], ch->in_room->number);
 			return 0;
 		}
+		obj->creation_method = CREATED_SEARCH;
+		obj->creator = ch->in_room->number;
 		if (ZONE_FLAGGED(ch->in_room->zone, ZONE_ZCMDS_APPROVED))
 			SET_BIT(GET_OBJ_EXTRA2(obj), ITEM2_UNAPPROVED);
 
@@ -258,6 +262,8 @@ general_search(struct Creature *ch, struct special_search_data *srch,
 		if (!(obj = read_object(srch->arg[1])))
 			return 0;
 
+		obj->creation_method = CREATED_SEARCH;
+		obj->creator = ch->in_room->number;
 		if (ZONE_FLAGGED(ch->in_room->zone, ZONE_ZCMDS_APPROVED))
 			SET_BIT(GET_OBJ_EXTRA2(obj), ITEM2_UNAPPROVED);
 		obj_to_char(obj, ch);
