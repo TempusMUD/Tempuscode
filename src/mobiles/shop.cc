@@ -553,6 +553,7 @@ shopping_buy(char *arg, struct Creature *ch,
 	char tempstr[200], buf[MAX_STRING_LENGTH];
 	struct obj_data *obj, *last_obj = NULL;
 	int goldamt = 0, buynum, bought = 0;
+	int price;
 
 	if (!(is_ok(keeper, ch, shop)))
 		return;
@@ -571,7 +572,9 @@ shopping_buy(char *arg, struct Creature *ch,
 	if (!(obj = get_purchase_obj(ch, arg, keeper, shop, TRUE)))
 		return;
 
-	if ((buy_price(obj, shop, keeper) > GET_MONEY(ch, shop)) && !IS_GOD(ch)) {
+	price = buy_price(obj, shop, keeper);
+
+	if (price > GET_MONEY(ch, shop) && !IS_GOD(ch)) {
 		strcpy(buf, shop->missing_cash2);
 		perform_tell(keeper, ch, buf);
 
@@ -616,7 +619,7 @@ shopping_buy(char *arg, struct Creature *ch,
 				fname(obj->name));
 		return;
 	}
-	while ((obj) && ((GET_MONEY(ch, shop) >= buy_price(obj, shop, keeper)) ||
+	while ((obj) && ((GET_MONEY(ch, shop) >= price) ||
 			IS_GOD(ch))
 		&& (IS_CARRYING_N(ch) < CAN_CARRY_N(ch)) && (bought < buynum)
 		&& (IS_CARRYING_W(ch) + obj->getWeight() <= CAN_CARRY_W(ch))) {
@@ -630,12 +633,12 @@ shopping_buy(char *arg, struct Creature *ch,
 		}
 		obj_to_char(obj, ch);
 
-		goldamt += buy_price(obj, shop, keeper);
+		goldamt += price;
 		if (!IS_GOD(ch)) {
 			if (SHOP_CURRENCY(shop) == 1)
-				GET_CASH(ch) -= buy_price(obj, shop, keeper);
+				GET_CASH(ch) -= price;
 			else
-				GET_GOLD(ch) -= buy_price(obj, shop, keeper);
+				GET_GOLD(ch) -= price;
 		}
 
 		last_obj = obj;
@@ -647,7 +650,7 @@ shopping_buy(char *arg, struct Creature *ch,
 	if (bought < buynum) {
 		if (!obj || !same_obj(last_obj, obj))
 			sprintf(buf, "I only have %d to sell you.", bought);
-		else if (GET_MONEY(ch, shop) < buy_price(obj, shop, keeper))
+		else if (GET_MONEY(ch, shop) < price)
 			sprintf(buf, "You can only afford %d.", bought);
 		else if (IS_CARRYING_N(ch) >= CAN_CARRY_N(ch))
 			sprintf(buf, "You can only hold %d.", bought);
