@@ -75,7 +75,10 @@ class Account {
 		void withdraw_future_bank(long long amt);
 
 		void set_password(const char *password);
-
+		
+		inline const char* get_login_addr() { return _login_addr; }
+		inline const char* get_creation_addr() { return _creation_addr; }
+		
         inline time_t get_login_time() { return _login_time; }
         inline time_t get_creation_time() { return _creation_time; }
 		inline time_t get_entry_time() { return _entry_time; }
