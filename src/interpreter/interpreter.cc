@@ -3029,12 +3029,17 @@ nanny(struct descriptor_data * d, char *arg)
 			return;
 		}
         theroom = real_room(GET_LOADROOM(d->character));
-        if(theroom && House_can_enter(d->character,theroom->number)) {
+        if(theroom && House_can_enter(d->character,theroom->number)
+           && clan_house_can_enter(d->character, theroom) ) {
             d->character->in_room = theroom;
         } else {
-            REMOVE_BIT(PLR_FLAGS(d->character), PLR_LOADROOM);
             GET_LOADROOM(d->character) = -1;
         }
+        if(GET_LOADROOM(d->character) == -1 &&
+           GET_HOLD_LOADROOM(d->character) == -1) {
+            REMOVE_BIT(PLR_FLAGS(d->character), PLR_LOADROOM);
+           }
+            
         if (PLR_FLAGGED(d->character, PLR_INVSTART))
             GET_INVIS_LEV(d->character) = (GET_LEVEL(d->character) > LVL_LUCIFER ?
                            LVL_LUCIFER : GET_LEVEL(d->character));
@@ -3062,22 +3067,22 @@ nanny(struct descriptor_data * d, char *arg)
 
         load_room = NULL;
         if (PLR_FLAGGED(d->character, PLR_FROZEN))
-        load_room = r_frozen_start_room;
+            load_room = r_frozen_start_room;
         else if (PLR_FLAGGED(d->character, PLR_LOADROOM)) {
-        if ((load_room = real_room(GET_LOADROOM(d->character))) == NULL)
-            load_room = NULL;
-        else if (!House_can_enter(d->character, load_room->number) ||
-             !clan_house_can_enter(d->character, load_room))
-            load_room = NULL;
+            if ((load_room = real_room(GET_LOADROOM(d->character))) == NULL)
+                load_room = NULL;
+            //else if (!House_can_enter(d->character, load_room->number) ||
+            //     !clan_house_can_enter(d->character, load_room))
+            //    load_room = NULL;
         } 
         if (load_room == NULL)  {
         if (GET_LEVEL(d->character) >= LVL_IMMORT) {
             if (d->character->in_room == NULL)
-            load_room = r_immort_start_room;
-            else if ((load_room = real_room(d->character->in_room->number)) == 
-                 NULL || !House_can_enter(d->character, load_room->number) ||
-                 !clan_house_can_enter(d->character, load_room))
-            load_room = r_immort_start_room;
+                load_room = r_immort_start_room;
+            //else if ((load_room = real_room(d->character->in_room->number)) == 
+            //     NULL || !House_can_enter(d->character, load_room->number) ||
+            //     !clan_house_can_enter(d->character, load_room))
+            //load_room = r_immort_start_room;
         } else {
             if (d->character->in_room == NULL || 
             (load_room = real_room(d->character->in_room->number)) == NULL) {
@@ -3136,12 +3141,12 @@ nanny(struct descriptor_data * d, char *arg)
         char_to_room(d->character, load_room);
         load_room->zone->enter_count++;
 
-        if (!PLR_FLAGGED(d->character, PLR_LOADROOM) &&
+        if (!(PLR_FLAGGED(d->character, PLR_LOADROOM)) &&
         GET_HOLD_LOADROOM(d->character) > 0 &&
         real_room(GET_HOLD_LOADROOM(d->character))) {
-        GET_LOADROOM(d->character) = GET_HOLD_LOADROOM(d->character);
-        SET_BIT(PLR_FLAGS(d->character), PLR_LOADROOM);
-        GET_HOLD_LOADROOM(d->character) = NOWHERE;
+            GET_LOADROOM(d->character) = GET_HOLD_LOADROOM(d->character);
+            SET_BIT(PLR_FLAGS(d->character), PLR_LOADROOM);
+            GET_HOLD_LOADROOM(d->character) = NOWHERE;
         }
         show_mud_date_to_char(d->character);
         send_to_char("\r\n", d->character);

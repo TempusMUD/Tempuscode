@@ -193,11 +193,7 @@ die( struct char_data *ch, struct char_data *killer,
       }
       }
     */
-    if (!ch->in_room){
-        sprintf(buf,"SYSERR: %s dying with null room pointer.",GET_NAME(ch));
-        mudlog(buf, NRM, LVL_GOD, TRUE);
-        slog
-    } else if ( !ROOM_FLAGGED( ch->in_room, ROOM_ARENA ) && killer &&
+    if ( !ROOM_FLAGGED( ch->in_room, ROOM_ARENA ) && killer &&
 	 !PLR_FLAGGED( killer, PLR_KILLER ) )
         gain_exp( ch, -( GET_EXP( ch ) >> 3 ) );
   
@@ -1588,31 +1584,18 @@ damage( struct char_data * ch, struct char_data * victim, int dam,
             if ( !IS_NPC( victim ) ) {
                 if ( victim != ch ) {
                     GET_PKILLS( ch ) += 1;
-                    if(victim->in_room) {
-                        sprintf( buf2, "%s %skilled by %s at %s ( %d )", GET_NAME( victim ), 
-                             !IS_NPC( ch ) ? "p" : "", GET_NAME( ch ),
-                             victim->in_room->name, victim->in_room->number );
+                    sprintf( buf2, "%s %skilled by %s at %s ( %d )", GET_NAME( victim ), 
+                         !IS_NPC( ch ) ? "p" : "", GET_NAME( ch ),
+                         victim->in_room->name, victim->in_room->number );
 
-                        if ( ROOM_FLAGGED( victim->in_room, ROOM_ARENA ) ) {
-                            strcat( buf2, " [ARENA]" );
-                        }
-                    } else {
-                        sprintf( buf2, "SYSERR: %s %skilled by %s at %s ( %s )", GET_NAME( victim ), 
-                             !IS_NPC( ch ) ? "p" : "", GET_NAME( ch ),
-                             "(NULL)", "Extracted before death" );
+                    if ( ROOM_FLAGGED( victim->in_room, ROOM_ARENA ) ) {
+                        strcat( buf2, " [ARENA]" );
                     }
-
                 } else {
-                    if(ch->in_room)
-                        sprintf( buf2, "%s died%s%s at %s ( %d )", GET_NAME( ch ),
-                             ( attacktype <= TOP_NPC_SPELL ) ? " by " : "",
-                             ( attacktype <= TOP_NPC_SPELL ) ? spells[attacktype] : "",
-                             ch->in_room->name, ch->in_room->number );
-                    else
-                        sprintf( buf2, "SYSERR: %s died%s%s at %s ( %s )", GET_NAME( ch ),
-                             ( attacktype <= TOP_NPC_SPELL ) ? " by " : "",
-                             ( attacktype <= TOP_NPC_SPELL ) ? spells[attacktype] : "",
-                             "(NULL)", "Extracted before death" );
+                    sprintf( buf2, "%s died%s%s at %s ( %d )", GET_NAME( ch ),
+                         ( attacktype <= TOP_NPC_SPELL ) ? " by " : "",
+                         ( attacktype <= TOP_NPC_SPELL ) ? spells[attacktype] : "",
+                         ch->in_room->name, ch->in_room->number );
                 }
                 mudlog( buf2, BRF, GET_INVIS_LEV( victim ), TRUE );
                 if ( MOB_FLAGGED( ch, MOB_MEMORY ) )
@@ -2041,15 +2024,15 @@ perform_violence( void )
 	    if ( GET_MOB_WAIT( ch ) > 0 ) {
 			GET_MOB_WAIT( ch ) -= SEG_VIOLENCE;
 	    } else if ( GET_MOB_WAIT( ch ) < SEG_VIOLENCE ) {
-		GET_MOB_WAIT( ch ) = 0;
-		if ( GET_POS( ch ) < POS_FIGHTING && GET_POS( ch ) > POS_STUNNED ) {
-		    GET_POS( ch ) = POS_FIGHTING;
-		    act( "$n scrambles to $s feet!", TRUE, ch, 0, 0, TO_ROOM );
-		    GET_MOB_WAIT( ch ) += PULSE_VIOLENCE;
-		}
+            GET_MOB_WAIT( ch ) = 0;
+            if ( GET_POS( ch ) < POS_FIGHTING && GET_POS( ch ) > POS_STUNNED ) {
+                GET_POS( ch ) = POS_FIGHTING;
+                act( "$n scrambles to $s feet!", TRUE, ch, 0, 0, TO_ROOM );
+                GET_MOB_WAIT( ch ) += PULSE_VIOLENCE;
+            }
 	    }
 	    if ( GET_POS( ch ) <= POS_SITTING )
-		continue;
+            continue;
 	}
 
 	// Make sure they're fighting before they fight.
@@ -2114,23 +2097,23 @@ perform_violence( void )
 	    bool stop = false;
 
 	    for ( i = 0; i < 4; i++ ) {
-		if ( !FIGHTING( ch ) || GET_LEVEL( ch ) < ( i << 3 ) )
-		    break;
-		if ( GET_POS( ch ) < POS_FIGHTING ) {
-		    if ( CHECK_WAIT( ch ) < 10 )
-			send_to_char( "You can't fight while sitting!!\r\n", ch );
-		    break;
-		}
-		if ( prob >= number( ( i << 4 ) + ( i << 3 ), ( i << 5 ) + ( i << 3 ) ) ) {
-		    if ( hit( ch, FIGHTING( ch ), TYPE_UNDEFINED ) ) {
-			stop = true;
-			break;
-		    }
-		}
+            if ( !FIGHTING( ch ) || GET_LEVEL( ch ) < ( i << 3 ) )
+                break;
+            if ( GET_POS( ch ) < POS_FIGHTING ) {
+                if ( CHECK_WAIT( ch ) < 10 )
+                send_to_char( "You can't fight while sitting!!\r\n", ch );
+                break;
+            }
+            if ( prob >= number( ( i << 4 ) + ( i << 3 ), ( i << 5 ) + ( i << 3 ) ) ) {
+                if ( hit( ch, FIGHTING( ch ), TYPE_UNDEFINED ) ) {
+                stop = true;
+                break;
+                }
+            }
 	    }
 
 	    if ( stop )
-		continue;
+            continue;
 
 	    if ( IS_CYBORG( ch ) ) {
 		int implant_prob;
