@@ -2075,8 +2075,10 @@ perform_violence( void )
             GET_MOB_WAIT( ch ) = 0;
             if ( ch->getPosition() < POS_FIGHTING 
             && ch->getPosition() > POS_STUNNED ) {
-                ch->setPosition( POS_FIGHTING );
-                act( "$n scrambles to $s feet!", TRUE, ch, 0, 0, TO_ROOM );
+                if(!IS_AFFECTED_3(ch,AFF3_GRAVITY_WELL) || number(1,20) < GET_STR(ch)) {
+                    ch->setPosition( POS_FIGHTING );
+                    act( "$n scrambles to $s feet!", TRUE, ch, 0, 0, TO_ROOM );
+                }
                 GET_MOB_WAIT( ch ) += PULSE_VIOLENCE;
             }
 	    }

@@ -736,8 +736,11 @@ best_attack(struct char_data *ch, struct char_data *vict)
     int found = 0;
     int cur_class = 0;
     if (ch->getPosition() < POS_STANDING) {
-    act("$n jumps to $s feet!", TRUE, ch, 0, 0, TO_ROOM);
-    ch->setPosition(POS_STANDING);
+        if(!IS_AFFECTED_3(ch,AFF3_GRAVITY_WELL) || number(1,20) < GET_STR(ch)) {
+            act("$n jumps to $s feet!", TRUE, ch, 0, 0, TO_ROOM);
+            ch->setPosition(POS_STANDING);
+        }
+        GET_MOB_WAIT( ch ) += PULSE_VIOLENCE;
     }
     if(GET_REMORT_CLASS(ch) != CLASS_UNDEFINED && !random_fractional_3())
         cur_class = GET_REMORT_CLASS(ch);
@@ -1141,8 +1144,10 @@ void mobile_activity(void) {
         ch->setPosition(POS_SITTING);
         break;
         default:
-        act("$n stands up.", TRUE, ch, 0, 0, TO_ROOM);
-        ch->setPosition(POS_STANDING);
+        if(!IS_AFFECTED_3(ch,AFF3_GRAVITY_WELL) || number(1,20) < GET_STR(ch)) {
+            act("$n stands up.", TRUE, ch, 0, 0, TO_ROOM);
+            ch->setPosition(POS_STANDING);
+        }
         break;
         }
         continue;
@@ -2156,7 +2161,7 @@ void mobile_activity(void) {
         if (ch->getPosition() == POS_FLYING && random_fractional_5() ) {
             act("$n flutters to the ground.", TRUE, ch, 0, 0, TO_ROOM);
             ch->setPosition(POS_STANDING);
-        } else if (ch->getPosition() == POS_STANDING) {
+        } else if (ch->getPosition() == POS_STANDING && !IS_AFFECTED_3(ch, AFF3_GRAVITY_WELL)) {
             act("$n flaps $s wings and takes flight.", TRUE, ch, 0, 0, TO_ROOM);
             ch->setPosition(POS_FLYING);
         }
@@ -2174,6 +2179,7 @@ void mobile_activity(void) {
             act("$n settles to the ground.", TRUE, ch, 0, 0, TO_ROOM);
 
         } else if (ch->getPosition() == POS_STANDING && random_fractional_4() ) {
+
             act("$n begins to hover in midair.", TRUE, ch, 0, 0, TO_ROOM);
             ch->setPosition(POS_FLYING);
         }
