@@ -47,7 +47,6 @@ has_mail ( long id ) {
 	fstream mail_file;
 
 	get_filename( get_name_by_id(id), fname, PLAYER_MAIL_FILE);
-	printf("trying to open file %s\r\n",fname);
 	mail_file.open(fname, ios::in || ios::ate);
 
 	if (!mail_file || mail_file.eof())
@@ -73,17 +72,19 @@ store_mail( long to_id, long from_id, char *txt , time_t *cur_time = NULL) {
 	char *to_name = get_name_by_id( to_id );
 
 	if ( to_name == 0 ) {
-	    sprintf( buf, "Error, recipient idnum %ld invalid.\n", to_id );
+	    sprintf( buf, "Toss_Mail Error, recipient idnum %ld invalid.", to_id );
 	    slog( buf );
+        delete letter;
 	    return 0;
 	}
 	
 	get_filename( to_name, fname, PLAYER_MAIL_FILE);
 	mail_file.open(fname,ios::out | ios::app | ios::ate );
 	if(!mail_file) {
-		sprintf(buf,"Error, mailfile (%s) not opened.\r\n",fname);
+		sprintf(buf,"Error, mailfile (%s) not opened.",fname);
 		slog(buf);
 		send_to_char(buf, get_char_in_world_by_idnum(from_id));
+        delete letter;
 		return 0;
 	}
 
@@ -91,6 +92,7 @@ store_mail( long to_id, long from_id, char *txt , time_t *cur_time = NULL) {
 	mail_file.write((char *)letter,sizeof(mail_data));
 	mail_file.write(txt, letter->msg_size + 1);
 	mail_file.close();
+    delete letter;
 	return 1;
 }
 
@@ -159,6 +161,7 @@ recieve_mail(char_data *ch) {
 		obj_to_char(obj, ch);
 		delete text;
 	}
+    delete letter;
 	return num_letters;
 }
 
@@ -449,6 +452,7 @@ ACMD(do_toss_mail)
 	long to_id=0,from_id=0;
 	int letters_tossed = 0;
 	int letters_ignored = 0;
+	int letters_failed = 0;
 
     if (!(mail_file = fopen(MAIL_FILE, "r"))) {
 		slog("Mail file non-existant... creating new file.");
@@ -473,7 +477,6 @@ ACMD(do_toss_mail)
 				strcpy(txt,next_block.txt);
 				
 				following_block = next_block.header_data.next_block;
-				fseek(mail_file, position, SEEK_SET);
 				while (following_block != LAST_BLOCK) {
 					fseek(mail_file, following_block, SEEK_SET);
 					fread(&data, BLOCK_SIZE, 1, mail_file);
@@ -481,8 +484,10 @@ ACMD(do_toss_mail)
 					following_block = data.block_type;
 					strcat(txt,data.txt);
 				}
+				fseek(mail_file, position + BLOCK_SIZE, SEEK_SET);
 				if(!store_mail(to_id, from_id, txt, &mail_time)) {
-					send_to_char("ERROR: Unable to store mail!\r\n",ch);
+				//	send_to_char("ERROR: Unable to store mail!\r\n",ch);
+                    letters_failed++;
 					delete txt;
 					continue;
 				}
@@ -494,8 +499,8 @@ ACMD(do_toss_mail)
     }
 
     fclose(mail_file);
-	sprintf(buf,"Mail tossed.\r\n    %d letters tossed.\r\n    %d letters ignored.\r\n",
-		letters_tossed, letters_ignored);
+	sprintf(buf, "Mail tossed.\r\n    %d letters tossed.\r\n    %d letters ignored.\r\n    %d letters failed\r\n",
+		letters_tossed, letters_ignored,letters_failed);
 	send_to_char(buf,ch);
     return;
 }
