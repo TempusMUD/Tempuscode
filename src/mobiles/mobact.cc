@@ -2067,6 +2067,10 @@ mobile_activity(void)
 
 			if (IS_AFFECTED(ch, AFF_CHARM))
 				continue;
+
+			if (IS_AFFECTED(ch, AFF_BLIND))
+				continue;
+
 			CharacterList::iterator it = ch->in_room->people.begin();
 			for (; it != ch->in_room->people.end() && !found; ++it) {
 				vict = *it;
