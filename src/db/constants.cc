@@ -950,7 +950,7 @@ extern const char *preference_bits[] = {
 	"D_MV",
 	"AEX",
 	"!HaSS",
-	"QUEST",
+	"NASTY",
 	"SUMN",
 	"!REP",
 	"HLGHT",

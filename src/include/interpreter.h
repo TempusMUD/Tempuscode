@@ -208,6 +208,7 @@ struct set_struct {
 #define SCMD_DEATHLOG   45
 #define SCMD_NOGUILDSAY 46
 #define SCMD_NOPETITION 47
+#define SCMD_NASTY      48
 
 /* do_wizutil */
 #define SCMD_REROLL	0

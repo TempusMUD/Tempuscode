@@ -902,6 +902,8 @@ struct command_info cmd_info[] = {
 	{"mute", POS_DEAD, do_wizutil, LVL_IMMORT, SCMD_SQUELCH, 0, 0},
 	{"mutter", POS_RESTING, do_action, 0, 0, 0, 0},
 	{"murder", POS_FIGHTING, do_hit, 0, SCMD_MURDER, 0, 0},
+
+	{"nasty", POS_SLEEPING, do_gen_tog, 0, SCMD_NASTY, 0, 0},
 	{"news", POS_SLEEPING, do_dyntext_show, 0, SCMD_DYNTEXT_NEWS, 0, 0},
 	{"nervepinch", POS_FIGHTING, do_pinch, 0, 0, 0, 0},
 	{"newbie", POS_RESTING, do_gen_comm, 0, SCMD_NEWBIE, 0, 0},

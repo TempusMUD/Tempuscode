@@ -9,6 +9,9 @@
 
 #define BANNED_SITE_LENGTH    50
 #define BANNED_REASON_LENGTH  80
+
+typedef char namestring[MAX_NAME_LENGTH];
+
 struct ban_list_element {
 	char site[BANNED_SITE_LENGTH + 1];
 	int type;
@@ -17,6 +20,9 @@ struct ban_list_element {
 	char reason[BANNED_REASON_LENGTH + 1];
 	struct ban_list_element *next;
 };
+
+extern namestring *nasty_list;
+extern int num_nasty;
 
 int isbanned(char *hostname, char *blocking_hostname);
 int Valid_Name(char *newname);

@@ -267,8 +267,6 @@ ACMD(do_unban)
  *  Written by Sharon P. Goza                                                  *
  **************************************************************************/
 
-typedef char namestring[MAX_NAME_LENGTH];
-
 namestring *invalid_list = NULL;
 namestring *nasty_list = NULL;
 int num_invalid = 0;

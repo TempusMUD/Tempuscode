@@ -34,6 +34,7 @@
 #include "clan.h"
 #include "security.h"
 #include "tmpstr.h"
+#include "ban.h"
 
 /* extern variables */
 extern const char *pc_char_class_types[];
@@ -629,8 +630,6 @@ ACMD(do_page)
 /**********************************************************************
  * generalized communication func, originally by Fred C. Merkel (Torg) *
   *********************************************************************/
-const bool CURSE_BAD = true;
-const bool CURSE_OK = false;
 const bool INTERPLANAR = false;
 const bool PLANAR = true;
 const bool NOT_EMOTE = false;
@@ -640,7 +639,6 @@ struct channel_info_t {
 	char *name;
 	int deaf_vector;
 	int deaf_flag;
-	bool check_curse;
 	bool check_plane;
 	bool is_emote;
 	char *desc_color;
@@ -650,63 +648,79 @@ struct channel_info_t {
 };
 
 static const channel_info_t channels[] = {
-	{ "holler", 2, PRF2_NOHOLLER, CURSE_BAD, INTERPLANAR, NOT_EMOTE,
+	{ "holler", 2, PRF2_NOHOLLER, INTERPLANAR, NOT_EMOTE,
 		KYEL_BLD, KRED,
 		"Ha!  You are noholler buddy.",
 		"You find yourself unable to holler!" },
-	{ "shout", 1, PRF_DEAF, CURSE_BAD, PLANAR, NOT_EMOTE,
+	{ "shout", 1, PRF_DEAF, PLANAR, NOT_EMOTE,
 		KYEL, KCYN,
 		"Turn off your noshout flag first!",
 		"You cannot shout!!" },
-	{ "gossip", 1, PRF_NOGOSS, CURSE_BAD, PLANAR, NOT_EMOTE,
+	{ "gossip", 1, PRF_NOGOSS, PLANAR, NOT_EMOTE,
 		KGRN, KNRM,
 		"You aren't even on the channel!",
 		"You cannot gossip!!" },
-	{ "auction", 1, PRF_NOAUCT, CURSE_BAD, PLANAR, NOT_EMOTE,
+	{ "auction", 1, PRF_NOAUCT, PLANAR, NOT_EMOTE,
 		KMAG, KNRM,
 		"You aren't even on the channel!",
 		"You cannot auction!!" },
-	{ "congrat", 1, PRF_NOGRATZ, CURSE_BAD, PLANAR, NOT_EMOTE,
+	{ "congrat", 1, PRF_NOGRATZ, PLANAR, NOT_EMOTE,
 		KGRN, KMAG,
 		"You aren't even on the channel!",
 		"You cannot congratulate!!" },
-	{ "sing", 1, PRF_NOMUSIC, CURSE_BAD, PLANAR, NOT_EMOTE,
+	{ "sing", 1, PRF_NOMUSIC, PLANAR, NOT_EMOTE,
 		KCYN, KYEL,
 		"You aren't even on the channel!",
 		"You cannot sing!!" },
-	{ "spew", 1, PRF_NOSPEW, CURSE_OK, PLANAR, NOT_EMOTE,
+	{ "spew", 1, PRF_NOSPEW, PLANAR, NOT_EMOTE,
 		KRED, KYEL,
 		"You aren't even on the channel!",
 		"You cannot spew!!" },
-	{ "dream", 1, PRF_NODREAM, CURSE_BAD, PLANAR, NOT_EMOTE,
+	{ "dream", 1, PRF_NODREAM, PLANAR, NOT_EMOTE,
 		KCYN, KNRM_BLD,
 		"You aren't even on the channel!",
 		"You cannot dream!!" },
-	{ "project", 1, PRF_NOPROJECT, CURSE_BAD, INTERPLANAR, NOT_EMOTE,
+	{ "project", 1, PRF_NOPROJECT, INTERPLANAR, NOT_EMOTE,
 		KNRM_BLD, KCYN,
 		"You are not open to projections yourself...",
 		"You cannot project.  The immortals have muted you." },
-	{ "newbie", -2, PRF2_NEWBIE_HELPER, CURSE_BAD, PLANAR, NOT_EMOTE,
+	{ "newbie", -2, PRF2_NEWBIE_HELPER, PLANAR, NOT_EMOTE,
 		KYEL, KNRM,
 		"You aren't on the illustrious newbie channel.",
 		"The immortals have muted you for bad behavior!" },
-	{ "clan-say", 1, PRF_NOCLANSAY, CURSE_OK, PLANAR, NOT_EMOTE,
+	{ "clan-say", 1, PRF_NOCLANSAY, PLANAR, NOT_EMOTE,
 		KCYN, KNRM,
 		"You aren't listening to the words of your clan.",
 		"The immortals have muted you.  You may not clan say." },
-	{ "guild-say", 2, PRF2_NOGUILDSAY, CURSE_BAD, PLANAR, NOT_EMOTE,
+	{ "guild-say", 2, PRF2_NOGUILDSAY, PLANAR, NOT_EMOTE,
 		KMAG, KYEL,
 		"You aren't listening to the rumors of your guild.",
 		"You may not guild-say, for the immortals have muted you." },
-	{ "clan-emote", 1, PRF_NOCLANSAY, CURSE_OK, PLANAR, IS_EMOTE,
+	{ "clan-emote", 1, PRF_NOCLANSAY, PLANAR, IS_EMOTE,
 		KCYN, KNRM,
 		"You aren't listening to the words of your clan.",
 		"The immortals have muted you.  You may not clan emote." },
-	{ "petition", 1, PRF_NOPETITION, CURSE_OK, INTERPLANAR, NOT_EMOTE,
+	{ "petition", 1, PRF_NOPETITION, INTERPLANAR, NOT_EMOTE,
 		KMAG, KCYN,
 		"You aren't listening to petitions at this time.",
 		"The immortals have turned a deaf ear to your petitions." },
 };
+
+const char *
+random_curses(void)
+{
+	char curse_map[] = "!@#$%^&*()";
+	char curse_buf[7];
+	int curse_len, map_len, idx;
+
+	curse_len = number(4, 6);
+	map_len = strlen(curse_map);
+	for (idx = 0;idx < curse_len;idx++)
+		curse_buf[idx] = curse_map[number(0, map_len - 1)];
+	curse_buf[curse_len] = '\0';
+
+	return tmp_strdup(curse_buf);
+}
 
 ACMD(do_gen_comm)
 {
@@ -719,6 +733,8 @@ ACMD(do_gen_comm)
 	char *imm_plain_emit, *imm_color_emit;
 	const char *str, *sub_channel_desc, *mood_str;
 	int eff_is_neutral, eff_is_good, eff_is_evil, eff_class, eff_clan;
+	char *filtered_msg;
+	int idx;
 
 	chan = &channels[subcmd];
 
@@ -891,38 +907,6 @@ ACMD(do_gen_comm)
 		}
 	}
 
-	/* see if it's dirty! */
-	if (chan->check_curse && !IS_MOB(ch) && GET_LEVEL(ch) < LVL_GRGOD &&
-		Nasty_Words(argument)) {
-		switch (number(0, 2)) {
-		case 0:
-			send_to_char(ch, 
-				"Unless you like being muted, use SPEW for profanity.\r\n");
-			break;
-		case 1:
-			send_to_char(ch, 
-				"Why don't you keep that smut on the spew channel, eh?\r\n");
-			break;
-		case 2:
-			send_to_char(ch, 
-				"I don't think everyone wants to hear that.  SPEW it!\r\n");
-			break;
-		}
-		if (GET_INT(ch) > 3) {
-			switch (number(0, 1)) {
-			case 0:
-				send_to_char(ch, "You no longer feel quite so smart...\r\n");
-				break;
-			case 1:
-				send_to_char(ch, "You feel a little more stupid...\r\n");
-				break;
-			}
-			ch->real_abils.intel--;
-			ch->saveToXML();
-		}
-		slog("%s warned for nasty public communication.", GET_NAME(ch));
-	}
-
 	if (subcmd == SCMD_GUILDSAY) {
 		if (eff_class >= 0 && eff_class < TOP_CLASS)
 			str = tmp_tolower(pc_char_class_types[eff_class]);
@@ -992,21 +976,27 @@ ACMD(do_gen_comm)
 		// doubled
 		argument = tmp_gsub(argument, "%", "%%");
 
-		plain_emit = tmp_sprintf("%%s%s %ss, '%s'\r\n", mood_str, chan->name,
-			argument);
-		color_emit = tmp_sprintf("%s%%s%s %ss,%s%s '%s'%s\r\n",
+		plain_emit = tmp_sprintf("%%s%s %ss, '%%s'\r\n", mood_str, chan->name);
+		color_emit = tmp_sprintf("%s%%s%s %ss,%s%s '%%s'%s\r\n",
 			chan->desc_color,
 			mood_str,
-			chan->name, KNRM, chan->text_color, argument, KNRM);
-		imm_plain_emit = tmp_sprintf("%s%%s%s %ss, '%s'\r\n",
+			chan->name, KNRM, chan->text_color, KNRM);
+		imm_plain_emit = tmp_sprintf("%s%%s%s %ss, '%%s'\r\n",
 			sub_channel_desc,
 			mood_str,
-			chan->name,
-			argument);
-		imm_color_emit = tmp_sprintf("%s%s%%s%s %ss,%s%s '%s'%s\r\n",
+			chan->name);
+		imm_color_emit = tmp_sprintf("%s%s%%s%s %ss,%s%s '%%s'%s\r\n",
 			chan->desc_color, sub_channel_desc, mood_str, chan->name, KNRM,
-			chan->text_color, argument, KNRM);
+			chan->text_color, KNRM);
 	}
+
+	// Check to see if we have naughty words!
+	filtered_msg = argument;
+	if (Nasty_Words(argument))
+		for (idx = 0;idx < num_nasty;idx++)
+			if (strstr(argument, nasty_list[idx]))
+				filtered_msg = tmp_gsub(filtered_msg, nasty_list[idx], random_curses());
+
 
 	/* now send all the strings out */
 	for (i = descriptor_list; i; i = i->next) {
@@ -1080,17 +1070,18 @@ ACMD(do_gen_comm)
 
 			if (chan->check_plane && COMM_NOTOK_ZONES(ch, i->creature))
 				continue;
-
 		}
 
 		if (IS_IMMORT(i->creature))
 			send_to_char(i->creature,
 				COLOR_LEV(i->creature) >= C_NRM ? imm_color_emit : imm_plain_emit,
-				tmp_capitalize(PERS(ch, i->creature)));
+				tmp_capitalize(PERS(ch, i->creature)),
+				(PRF_FLAGGED(i->creature, PRF_NASTY)) ? argument:filtered_msg);
 		else
 			send_to_char(i->creature,
 				COLOR_LEV(i->creature) >= C_NRM ? color_emit : plain_emit,
-				tmp_capitalize(PERS(ch, i->creature)));
+				tmp_capitalize(PERS(ch, i->creature)),
+				(PRF_FLAGGED(i->creature, PRF_NASTY)) ? argument:filtered_msg);
 	}
 
 	if (ROOM_FLAGGED(ch->in_room, ROOM_SOUNDPROOF) && !IS_IMMORT(ch))

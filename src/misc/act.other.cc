@@ -1107,6 +1107,8 @@ ACMD(do_gen_tog)
 			"You are now deaf to the rumors of your guild members.\r\n"},
 		{"You can now hear the petitions of mortals.\r\n",
 			"You are now deaf to the petitions of mortals.\r\n"},
+		{"You are now protected from the nasty words of your peers.\r\n",
+			"You are now subjected to the nastiness of your peers.\r\n"},
 		{"\n", "\n"}
 	};
 
@@ -1312,6 +1314,9 @@ ACMD(do_gen_tog)
 		break;
 	case SCMD_NOPETITION:
 		result = PRF_TOG_CHK(ch, PRF_NOPETITION);
+		break;
+	case SCMD_NASTY:
+		result = PRF_TOG_CHK(ch, PRF_NASTY);
 		break;
 	default:
 		slog("SYSERR: Unknown subcmd in do_gen_toggle");

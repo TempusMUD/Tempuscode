@@ -346,7 +346,7 @@ static const int PRF_DISPMANA = (1 << 5);	/* Display mana points in prompt    */
 static const int PRF_DISPMOVE = (1 << 6);	/* Display move points in prompt    */
 static const int PRF_AUTOEXIT = (1 << 7);	/* Display exits in a room        */
 static const int PRF_NOHASSLE = (1 << 8);	/* Aggr mobs won't attack        */
-static const int PRF_UNUSED_1 = (1 << 9);	/* On quest                */
+static const int PRF_NASTY = (1 << 9);	/* Can hear nasty words on channel */
 static const int PRF_SUMMONABLE = (1 << 10);	/* Can be summoned            */
 static const int PRF_UNUSED_2 = (1 << 11);	/* No repetition of comm commands    */
 static const int PRF_HOLYLIGHT = (1 << 12);	/* Can see in dark            */
@@ -765,7 +765,7 @@ struct char_special_data {
 
 	struct Creature *fighting;	/* Opponent                */
 	struct Creature *hunting;	/* Char hunted by this char        */
-	struct Creature *mounted;	/* MOB mounted by this char        */
+	struct Creature *mounted;	/* creatures mounted ON this char        */
 
 	int carry_weight;			/* Carried weight                     */
 	int worn_weight;			/* Total weight equipped                */
