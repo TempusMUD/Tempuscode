@@ -1190,62 +1190,30 @@ check_start_rooms(void)
 void
 renum_world(void)
 {
-	register int door, found;
-	int vnum;
-	struct room_data *room = NULL, *room1 = NULL;
-	struct zone_data *zone = NULL, *zone1 = NULL;
-
-	for (zone = zone_table; zone; zone = zone->next)
-		for (room = zone->world; room; room = room->next)
-			for (door = 0; door < NUM_OF_DIRS; door++)
-				if (room->dir_option[door])
-					if ((room_num) room->dir_option[door]->to_room != NOWHERE) {
-						vnum = (room_num) room->dir_option[door]->to_room;
-						room->dir_option[door]->to_room = NULL;
-						for (found = 0, room1 = zone->world;
-							room1 && found != 1; room1 = room1->next)
-							if (room1->number == vnum) {
-								room->dir_option[door]->to_room =
-									(struct room_data *)room1;
-								found = 1;
-							}
-						if (found == 0) {
-							zone1 = real_zone(vnum / 100);
-							if (zone1 == NULL) {
-								for (zone1 = zone_table; zone1;
-									zone1 = zone1->next)
-									for (found = 0, room1 = zone1->world;
-										room1 && found != 1;
-										room1 = room1->next)
-										if (room1->number == vnum) {
-											room->dir_option[door]->to_room =
-												(struct room_data *)room1;
-											found = 1;
-										}
-							} else
-								for (found = 0, room1 = zone1->world;
-									room1 && found != 1; room1 = room1->next)
-									if (room1->number == vnum) {
-										room->dir_option[door]->to_room =
-											(struct room_data *)room1;
-										found = 1;
-									}
-							if (found == 0) {
-								for (zone1 = zone_table; zone1;
-									zone1 = zone1->next)
-									for (found = 0, room1 = zone1->world;
-										room1 && found != 1;
-										room1 = room1->next)
-										if (room1->number == vnum) {
-											room->dir_option[door]->to_room =
-												(struct room_data *)room1;
-											found = 1;
-										}
-							}
-						}
-					} else
-						room->dir_option[door]->to_room = NULL;
-
+    map<int,room_data*> rooms;
+    // store the rooms in a map temoporarily for use in lookups
+	for( zone_data* zone = zone_table; zone; zone = zone->next) {
+		for( room_data* room = zone->world; room; room = room->next) {
+            rooms[room->number] = room;
+        }
+    }
+    
+    // lookup each room's doors and reconnect the to_room pointers
+    for( zone_data* zone = zone_table; zone; zone = zone->next) {
+		for( room_data* room = zone->world; room; room = room->next) {
+			for (int door = 0; door < NUM_OF_DIRS; ++door) {
+				if (room->dir_option[door]) {
+                    // the to_room pointer has the room # stored in it during bootup
+                    int vnum = (room_num)room->dir_option[door]->to_room;
+                    room->dir_option[door]->to_room = NULL;
+                    // if it points somewhere and is in the map
+					if( vnum != NOWHERE && rooms.count(vnum) > 0 ) {
+                        room->dir_option[door]->to_room = rooms[vnum];
+                    }
+                }
+            }
+        }
+    }
 }
 
 
