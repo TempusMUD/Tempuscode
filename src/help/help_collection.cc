@@ -312,9 +312,7 @@ bool HelpCollection::LoadIndex() {
     int num_items = 0;
     s = fname;
     sprintf(fname,"%s/%s",Help_Directory,"index");
-	fprintf(stderr,"About to\r\n");
-    index_file.open(fname,ios::in);
-	fprintf(stderr,"Just did\r\n");
+    index_file.open(fname,ios::in | ios::nocreate);
     if(!index_file){
         slog("SYSERR: Cannot open help index.");
         return false;
@@ -334,10 +332,9 @@ bool HelpCollection::LoadIndex() {
             s = fname;
             index_file.getline(fname,100,'\n');
             n->SetKeyWords(s);
-
+            REMOVE_BIT(n->flags,HFLAG_MODIFIED);
             Push(n);
             num_items++;
-            REMOVE_BIT(n->flags,HFLAG_MODIFIED);
     }
     index_file.close();
     if(num_items == 0){

@@ -150,7 +150,8 @@ void HelpItem::SetGroups(char *argument) {
 // Don't call me Roger.
 void HelpItem::SetName(char *argument) {
     skip_spaces(&argument);
-    delete name;
+    if(name)
+        delete name;
     name = new char[strlen(argument) + 1];
     strcpy(name, argument);
     SET_BIT(flags,HFLAG_MODIFIED);
@@ -161,7 +162,8 @@ void HelpItem::SetName(char *argument) {
 // Set the...um. keywords and stuff.
 void HelpItem::SetKeyWords(char *argument) {
     skip_spaces(&argument);
-    delete keys;
+    if(keys)
+        delete keys;
     keys = new char[strlen(argument) + 1];
     strcpy(keys, argument);
     SET_BIT(flags,HFLAG_MODIFIED);
@@ -264,6 +266,7 @@ bool HelpItem::Save(){
     if(text) {
         file.write(text,strlen(text));
         delete text;
+        text = NULL;
     }
     file.close();
     REMOVE_BIT(flags,HFLAG_MODIFIED);
