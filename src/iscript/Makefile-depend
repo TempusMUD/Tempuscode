@@ -1,0 +1,4 @@
+$(OBJ)/iscript.o : iscript.cc \
+
+	$(CXX) -c $(CXXFLAGS) iscript.cc           -o $(OBJ)/iscript.o
+OBJFILES= $(OBJ)/iscript.o

@@ -1,0 +1,4 @@
+$(OBJ)/events.o : events.cc \
+	$(INCLUDE)/structs.h $(INCLUDE)/events.h $(INCLUDE)/defs.h $(INCLUDE)/iscript.h $(INCLUDE)/utils.h 
+	$(CXX) -c $(CXXFLAGS) events.cc            -o $(OBJ)/events.o
+OBJFILES= $(OBJ)/events.o
