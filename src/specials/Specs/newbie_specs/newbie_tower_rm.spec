@@ -3,7 +3,8 @@
 //
 // Copyright 1998 by John Watson, all rights reserved.
 //
-
+#include "help.h"
+extern HelpCollection *Help;
 SPECIAL(newbie_tower_rm)
 {
   HelpItem *cur = NULL;
