@@ -756,6 +756,8 @@ do_qcontrol_add(CHAR * ch, char *argument, int com)
 		send_to_char("Error adding char to quest.\r\n", ch);
 		return;
 	}
+	GET_QUEST(vict) = quest->vnum;
+
 	sprintf(buf, "added %s to quest '%s'.", GET_NAME(vict), quest->name);
 	qlog(ch, buf, QLOG_COMP, GET_INVIS_LEV(vict), TRUE);
 
@@ -2049,6 +2051,7 @@ do_quest_join(CHAR * ch, char *argument)
 	}
 
 }
+
 void
 do_quest_leave(CHAR * ch, char *argument)
 {
