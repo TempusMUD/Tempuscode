@@ -253,7 +253,7 @@ ACMD(do_echo)
     }
 
     if (subcmd == SCMD_EMOTE) {
-        mort_see = tmp_sprintf(" $n%s%s", (*argument == '\'') ? "":" ",
+        mort_see = tmp_sprintf("$n%s%s", (*argument == '\'') ? "":" ",
 			argument);
 
 		act(mort_see, FALSE, ch, 0, 0, TO_CHAR);
