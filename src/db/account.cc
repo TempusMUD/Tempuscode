@@ -170,10 +170,10 @@ bool
 Account::save_to_xml(void)
 {
 	vector<int>::iterator cur_pc;
-	char *path;
+	char *path = get_account_file_path(_id);
 	FILE *ouf;
 
-	ouf = fopen(get_account_file_path(_id), "w");
+	ouf = fopen(path, "w");
 
 	if (!ouf) {
 		slog("Unable to open XML account file '%s' for writing: %s", path,
