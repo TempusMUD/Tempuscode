@@ -3657,9 +3657,10 @@ ACMD(do_empty)
 	for ( next_obj = obj->contains; next_obj; next_obj = o ){   
     
 	   if ( next_obj->in_obj && next_obj ) {
+
+               o = next_obj->next_content;
 	
-	       if( ! ( IS_OBJ_STAT( next_obj, ITEM_NODROP ) ) ) {
-		   o = next_obj->next_content; 
+	       if( ! ( IS_OBJ_STAT( next_obj, ITEM_NODROP ) ) ) { 
 		   obj_from_obj( next_obj );
 		   obj_to_room( next_obj, ch->in_room );
 	       }
@@ -3724,10 +3725,11 @@ empty_to_obj( struct obj_data *obj, struct obj_data *container, struct char_data
 	for ( next_obj = obj->contains; next_obj; next_obj = o ) {   
 	    
 	    if ( next_obj->in_obj && next_obj ) {
-		
-		if( ! ( IS_OBJ_STAT( next_obj, ITEM_NODROP ) ) ) {
+ 
+                o = next_obj->next_content; 
 		    
-		    o = next_obj->next_content; 
+
+		if( ! ( IS_OBJ_STAT( next_obj, ITEM_NODROP ) ) ) {
 		    
 		    if ( container->getWeight() + next_obj->getWeight()   > GET_OBJ_VAL( container, 0 ) ) {
 			can_fit = false;
