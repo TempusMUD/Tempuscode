@@ -660,7 +660,7 @@ Account::exhume_char( Creature *exhumer, long id )
 	Creature* victim = new Creature(true);
 	if( victim->loadFromXML(id) ) {
 		sql_exec("insert into players (idnum, account, name) values (%ld, %d, '%s')",
-			GET_IDNUM(victim), _id, GET_NAME(victim));
+			GET_IDNUM(victim), _id, tmp_sqlescape(GET_NAME(victim)));
 		this->load_players();
 		send_to_char(exhumer, "%s exhumed.\r\n", 
 					tmp_capitalize( GET_NAME(victim) ) );
