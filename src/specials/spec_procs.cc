@@ -894,7 +894,6 @@ SPECIAL(puff)
 
 SPECIAL(fido)
 {
-	struct obj_data *i, *temp, *next_obj;
 	struct Creature *vict;
 
 	if (spec_mode != SPECIAL_TICK)
@@ -902,32 +901,7 @@ SPECIAL(fido)
 	if (cmd || !AWAKE(ch) || FIGHTING(ch))
 		return (FALSE);
 
-	for (i = ch->in_room->contents; i; i = i->next_content) {
-		if (GET_OBJ_TYPE(i) == ITEM_CONTAINER && GET_OBJ_VAL(i, 3)) {
-			act("$n savagely devours $p.", FALSE, ch, i, 0, TO_ROOM);
-			for (temp = i->contains; temp; temp = next_obj) {
-				next_obj = temp->next_content;
-				if (IS_IMPLANT(temp)) {
-					SET_BIT(GET_OBJ_WEAR(temp), ITEM_WEAR_TAKE);
-					if (GET_OBJ_DAM(temp) > 0)
-						GET_OBJ_DAM(temp) >>= 1;
-				}
-				obj_from_obj(temp);
-				obj_to_room(temp, ch->in_room);
-			}
-			extract_obj(i);
-			return true;
-		}
-	}
-
-	vict = NULL;
-	CreatureList::iterator it = ch->in_room->people.begin();
-	for (; it != ch->in_room->people.end(); ++it) {
-		if (FIGHTING((*it)) != ch && can_see_creature(ch, (*it)) && number(0, 3)) {
-			vict = (*it);
-			break;
-		}
-	}
+	vict = get_char_random_vis(ch, ch->in_room);
 	if (!vict || vict == ch)
 		return 0;
 
@@ -945,8 +919,10 @@ SPECIAL(fido)
 		act("$n pukes all over the place.", FALSE, ch, 0, 0, TO_ROOM);
 		break;
 	case 4:
-		act("$n takes a leak on $N's shoes.", FALSE, ch, 0, vict, TO_NOTVICT);
-		act("$n takes a leak on your shoes.", FALSE, ch, 0, vict, TO_VICT);
+		if (!IS_NPC(vict) || GET_MOB_SPEC(vict) != fido) {
+			act("$n takes a leak on $N's shoes.", FALSE, ch, 0, vict, TO_NOTVICT);
+			act("$n takes a leak on your shoes.", FALSE, ch, 0, vict, TO_VICT);
+		}
 		break;
 	case 5:
 		if (IS_MALE(ch) && !number(0, 1))
@@ -959,11 +935,13 @@ SPECIAL(fido)
 		act("$n sniffs $N's crotch.", TRUE, ch, 0, vict, TO_NOTVICT);
 		break;
 	case 7:
-		act("$n slobbers on your hand.", TRUE, ch, 0, vict, TO_VICT);
-		act("$n slobbers on $N's hand.", TRUE, ch, 0, vict, TO_NOTVICT);
+		if (!IS_NPC(vict) || GET_MOB_SPEC(vict) != fido) {
+			act("$n slobbers on your hand.", TRUE, ch, 0, vict, TO_VICT);
+			act("$n slobbers on $N's hand.", TRUE, ch, 0, vict, TO_NOTVICT);
+		}
 		break;
 	case 8:
-		act("$n starts chewing on $s leg.", TRUE, ch, 0, 0, TO_ROOM);
+		act("$n starts biting on $s leg.", TRUE, ch, 0, 0, TO_ROOM);
 		break;
 	default:
 		return FALSE;
