@@ -70,6 +70,8 @@ ACMD(do_battlecry);
 ACMD(do_psidrain);
 ACMD(do_fly);
 ACMD(do_extinguish);
+ACMD(do_pinch);
+ACMD(do_combo);
 
 // for mobile_activity
 ACMD(do_get);
@@ -666,7 +668,6 @@ best_attack(struct char_data *ch, struct char_data *vict)
 {
     struct obj_data *gun = GET_EQ(ch, WEAR_WIELD);
     int found = 0;
-
     if (GET_POS(ch) < POS_STANDING) {
 	act("$n jumps to $s feet!", TRUE, ch, 0, 0, TO_ROOM);
 	GET_POS(ch) = POS_STANDING;
@@ -800,7 +801,39 @@ best_attack(struct char_data *ch, struct char_data *vict)
 	}	    
 	return;
     } 
-
+	if (IS_MONK(ch)) {
+		if (GET_LEVEL(ch) >= 39 && GET_POS(vict) > POS_STUNNED) {
+			sprintf(buf,"%s omega",fname(vict->player.name));
+			do_pinch(ch,buf,0,0);
+			return;
+		}
+		// Screw them up.
+		if (GET_POS(vict) <= POS_STUNNED) {
+			if(!affected_by_spell(vict,SKILL_PINCH_GAMMA) && (GET_LEVEL(ch) > 35)) {
+				sprintf(buf,"%s gamma",fname(vict->player.name));
+				do_pinch(ch,buf,0,0);
+			} else if(!affected_by_spell(vict,SKILL_PINCH_EPSILON) && (GET_LEVEL(ch) > 26)) {
+				sprintf(buf,"%s epsilon",fname(vict->player.name));
+				do_pinch(ch,buf,0,0);
+			} else if(!affected_by_spell(vict,SKILL_PINCH_DELTA) && (GET_LEVEL(ch) > 19)) {
+				sprintf(buf,"%s delta",fname(vict->player.name));
+				do_pinch(ch,buf,0,0);
+			} else if(!affected_by_spell(vict,SKILL_PINCH_BETA) && (GET_LEVEL(ch) > 12)) {
+				sprintf(buf,"%s beta",fname(vict->player.name));
+				do_pinch(ch,buf,0,0);
+			} else if(!affected_by_spell(vict,SKILL_PINCH_ALPHA) && (GET_LEVEL(ch) > 6)) {
+				sprintf(buf,"%s alpha",fname(vict->player.name));
+				do_pinch(ch,buf,0,0);
+			} else if (GET_LEVEL(ch) >= 33) {
+				do_combo(ch,fname(vict->player.name),0,0);
+			} else if (GET_LEVEL(ch) >= 30) {
+				do_offensive_skill(ch, fname(vict->player.name),0,SKILL_RIDGEHAND);
+			} else {
+				hit(ch, vict, TYPE_UNDEFINED);
+			}
+		}
+		return;
+	}
     if (IS_DRAGON(ch) && !number(0, 3)) {
 	switch (GET_CLASS(ch)) {
 	case CLASS_GREEN:
@@ -2038,25 +2071,25 @@ struct char_data * choose_opponent(struct char_data *ch)
     // first look for someone who is fighting us
     for ( vict = ch->in_room->people; vict; vict = vict->next_in_room ) {
 
-	// ignore bystanders
-	if ( ch != FIGHTING(vict) )
-	    continue;
+		// ignore bystanders
+		if ( ch != FIGHTING(vict) )
+			continue;
 
-	// look for opposite/neutral aligns only
-	if ( SAME_ALIGN(ch, vict) )
-	    continue;
+		// look for opposite/neutral aligns only
+		if ( SAME_ALIGN(ch, vict) )
+			continue;
 
-	// pick the weakest victim in hopes of killing one
-	if ( !best_vict || GET_HIT(vict) < GET_HIT(best_vict) ) {
-	    best_vict = vict;
-	    continue;
-	}
+		// pick the weakest victim in hopes of killing one
+		if ( !best_vict || GET_HIT(vict) < GET_HIT(best_vict) ) {
+			best_vict = vict;
+			continue;
+		}
 
-	// if victim's AC is worse, prefer to attack him
-	if ( !best_vict || GET_AC(vict) > GET_AC(best_vict) ) {
-	    best_vict = vict;
-	    continue;
-	}
+		// if victim's AC is worse, prefer to attack him
+		if ( !best_vict || GET_AC(vict) > GET_AC(best_vict) ) {
+			best_vict = vict;
+			continue;
+		}
     }
 	
     // default to fighting opponent
@@ -2082,69 +2115,69 @@ mobile_battle_activity(struct char_data *ch)
 	return;
 
     if (GET_MOB_VNUM(ch) == 24800) { /* tarrasque */
-	tarrasque_fight(ch);
-	return;
+		tarrasque_fight(ch);
+		return;
     }
 
     if (GET_HIT(ch) < GET_MAX_HIT(ch) >> 7 && !IS_ANIMAL(ch) &&
 	!number(0, 30)) {
-	sprintf(buf, "%s you bastard!", PERS(FIGHTING(ch), ch));
-	do_say(ch, buf, 0, 0);
-	return;
+		sprintf(buf, "%s you bastard!", PERS(FIGHTING(ch), ch));
+		do_say(ch, buf, 0, 0);
+		return;
     }
  
     if (!IS_ANIMAL(ch) && 
-	GET_HIT(FIGHTING(ch)) < GET_MAX_HIT(FIGHTING(ch)) >> 7 &&
-	GET_HIT(ch) > GET_MAX_HIT(ch) >> 4 && !number(0, 30)) {
-	if (!number(0, 30)) {
-	    do_say(ch, "Let this be a lesson to you!", 0, 0);
-	    return;
-	} else if (!number(0, 30)) {
-	    do_say(ch, "Oh, you thought you were a toughguy, eh?", 0, 0);
-	    return;
-	} else if (!number(0, 30)) {
-	    sprintf(buf, "Kiss my ass, %s!", PERS(ch, FIGHTING(ch)));
-	    do_say(ch, buf, 0, 0);
-	    return;
-	}
+		GET_HIT(FIGHTING(ch)) < GET_MAX_HIT(FIGHTING(ch)) >> 7 &&
+		GET_HIT(ch) > GET_MAX_HIT(ch) >> 4 && !number(0, 30)) {
+		if (!number(0, 30)) {
+			do_say(ch, "Let this be a lesson to you!", 0, 0);
+			return;
+		} else if (!number(0, 30)) {
+			do_say(ch, "Oh, you thought you were a toughguy, eh?", 0, 0);
+			return;
+		} else if (!number(0, 30)) {
+			sprintf(buf, "Kiss my ass, %s!", PERS(ch, FIGHTING(ch)));
+			do_say(ch, buf, 0, 0);
+			return;
+		}
     }
 
     /* Here go the fighting Routines */
 
     if (CHECK_SKILL(ch, SKILL_SHOOT) > number(30, 40)) {
 
-	if (((gun = GET_EQ(ch, WEAR_WIELD)) && 
-	     ((IS_GUN(gun) && GUN_LOADED(gun)) || 
-	      (IS_ENERGY_GUN(gun) && EGUN_CUR_ENERGY(gun)))) ||
-	    ((gun = GET_EQ(ch, WEAR_WIELD_2)) && 
-	     ((IS_GUN(gun) && GUN_LOADED(gun)) || 
-	      (IS_ENERGY_GUN(gun) && EGUN_CUR_ENERGY(gun)))) ||
-	    ((gun = GET_IMPLANT(ch, WEAR_WIELD)) && 
-	     ((IS_GUN(gun) && GUN_LOADED(gun)) || 
-	      (IS_ENERGY_GUN(gun) && EGUN_CUR_ENERGY(gun)))) ||
-	    ((gun = GET_IMPLANT(ch, WEAR_WIELD_2)) && 
-	     ((IS_GUN(gun) && GUN_LOADED(gun)) || 
-	      (IS_ENERGY_GUN(gun) && EGUN_CUR_ENERGY(gun))))) {
+		if (((gun = GET_EQ(ch, WEAR_WIELD)) && 
+			 ((IS_GUN(gun) && GUN_LOADED(gun)) || 
+			  (IS_ENERGY_GUN(gun) && EGUN_CUR_ENERGY(gun)))) ||
+			((gun = GET_EQ(ch, WEAR_WIELD_2)) && 
+			 ((IS_GUN(gun) && GUN_LOADED(gun)) || 
+			  (IS_ENERGY_GUN(gun) && EGUN_CUR_ENERGY(gun)))) ||
+			((gun = GET_IMPLANT(ch, WEAR_WIELD)) && 
+			 ((IS_GUN(gun) && GUN_LOADED(gun)) || 
+			  (IS_ENERGY_GUN(gun) && EGUN_CUR_ENERGY(gun)))) ||
+			((gun = GET_IMPLANT(ch, WEAR_WIELD_2)) && 
+			 ((IS_GUN(gun) && GUN_LOADED(gun)) || 
+			  (IS_ENERGY_GUN(gun) && EGUN_CUR_ENERGY(gun))))) {
 
-	    CUR_R_O_F(gun) = MAX_R_O_F(gun);      
+			CUR_R_O_F(gun) = MAX_R_O_F(gun);      
 
-	    sprintf(buf, "%s ", fname(gun->name));
-	    strcat(buf, fname(FIGHTING(ch)->player.name));
-	    do_shoot(ch, buf, 0, 0);
-	    return;
-	}
+			sprintf(buf, "%s ", fname(gun->name));
+			strcat(buf, fname(FIGHTING(ch)->player.name));
+			do_shoot(ch, buf, 0, 0);
+			return;
+		}
     }
 
     if (GET_CLASS(ch) == CLASS_SNAKE) {
-	if (FIGHTING(ch)->in_room == ch->in_room &&
-	    (number(0, 42 - GET_LEVEL(ch)) == 0)) {
-	    act("$n bites $N!", 1, ch, 0, FIGHTING(ch), TO_NOTVICT);
-	    act("$n bites you!", 1, ch, 0, FIGHTING(ch), TO_VICT);
-	    if (number(0, 10) == 0)
-		call_magic(ch, FIGHTING(ch),0,SPELL_POISON,GET_LEVEL(ch),CAST_CHEM);
-	    return;
-	}
-	return;
+		if (FIGHTING(ch)->in_room == ch->in_room &&
+			(number(0, 42 - GET_LEVEL(ch)) == 0)) {
+			act("$n bites $N!", 1, ch, 0, FIGHTING(ch), TO_NOTVICT);
+			act("$n bites you!", 1, ch, 0, FIGHTING(ch), TO_VICT);
+			if (number(0, 10) == 0)
+			call_magic(ch, FIGHTING(ch),0,SPELL_POISON,GET_LEVEL(ch),CAST_CHEM);
+			return;
+		}
+		return;
     }  
 
     /** RACIAL ATTACKS FIRST **/
@@ -2152,82 +2185,82 @@ mobile_battle_activity(struct char_data *ch)
     // wemics 'leap' out of battle, only to return via the hunt for the kill
     if ( IS_RACE( ch, RACE_WEMIC ) &&
 	 GET_MOVE( ch ) > ( GET_MAX_MOVE( ch ) >> 1 ) ) {
-	
-	// leap
-	if ( !number( 0, 2 ) ) {
-	    if ( GET_HIT( ch ) > ( GET_MAX_HIT( ch ) >> 1 ) &&
-		 !ROOM_FLAGGED( ch->in_room, ROOM_NOTRACK ) ) {
 		
-		for ( int dir = 0; dir < NUM_DIRS; ++dir ) {
-		    if ( CAN_GO( ch, dir ) &&
-			 !ROOM_FLAGGED(EXIT(ch, dir)->to_room,
-				       ROOM_DEATH | ROOM_NOMOB |
-				       ROOM_PEACEFUL | ROOM_NOTRACK ) &&
-			 EXIT(ch, dir)->to_room != ch->in_room &&
-			 CHAR_LIKES_ROOM(ch, EXIT(ch, dir)->to_room) &&
-			 !number( 0 , 1 ) ) {
-		
-			struct char_data *was_fighting = FIGHTING( ch );
-
-			stop_fighting( FIGHTING( ch ) );
-			stop_fighting( ch );
+		// leap
+		if ( !number( 0, 2 ) ) {
+			if ( GET_HIT( ch ) > ( GET_MAX_HIT( ch ) >> 1 ) &&
+			 !ROOM_FLAGGED( ch->in_room, ROOM_NOTRACK ) ) {
 			
-			//
-			// leap in this direction
-			//
-			sprintf( buf, "$n leaps over you to the %s!", dirs[ dir ] );
-			act( buf, FALSE, ch, 0, 0, TO_ROOM );
-		
-			struct room_data *to_room = EXIT(ch, dir)->to_room;
-			char_from_room( ch );
-			char_to_room( ch, to_room );
-		
-			sprintf( buf, "$n leaps in from %s!", from_dirs[ dir ] );
-			act( buf, FALSE, ch, 0, 0, TO_ROOM );
-		
-			HUNTING( ch ) = was_fighting;
-			return;
-		    }
+			for ( int dir = 0; dir < NUM_DIRS; ++dir ) {
+				if ( CAN_GO( ch, dir ) &&
+				 !ROOM_FLAGGED(EXIT(ch, dir)->to_room,
+						   ROOM_DEATH | ROOM_NOMOB |
+						   ROOM_PEACEFUL | ROOM_NOTRACK ) &&
+				 EXIT(ch, dir)->to_room != ch->in_room &&
+				 CHAR_LIKES_ROOM(ch, EXIT(ch, dir)->to_room) &&
+				 !number( 0 , 1 ) ) {
+			
+					struct char_data *was_fighting = FIGHTING( ch );
+
+					stop_fighting( FIGHTING( ch ) );
+					stop_fighting( ch );
+					
+					//
+					// leap in this direction
+					//
+					sprintf( buf, "$n leaps over you to the %s!", dirs[ dir ] );
+					act( buf, FALSE, ch, 0, 0, TO_ROOM );
+				
+					struct room_data *to_room = EXIT(ch, dir)->to_room;
+					char_from_room( ch );
+					char_to_room( ch, to_room );
+				
+					sprintf( buf, "$n leaps in from %s!", from_dirs[ dir ] );
+					act( buf, FALSE, ch, 0, 0, TO_ROOM );
+				
+					HUNTING( ch ) = was_fighting;
+					return;
+					}
+				}
+			}
 		}
-	    }
-	}
 
-	// paralyzing scream
+		// paralyzing scream
 
-	else if ( !number( 0, 1 ) ) {
-	    act( "$n releases a deafening scream!!", FALSE, ch, 0, 0, TO_ROOM );
-	    call_magic( ch, FIGHTING( ch ), 0, SPELL_FEAR, GET_LEVEL( ch ), CAST_BREATH );
-	    if ( FIGHTING( ch ) )
-		WAIT_STATE( FIGHTING( ch ), 3 RL_SEC );
-	    return;
-	}
+		else if ( !number( 0, 1 ) ) {
+			act( "$n releases a deafening scream!!", FALSE, ch, 0, 0, TO_ROOM );
+			call_magic( ch, FIGHTING( ch ), 0, SPELL_FEAR, GET_LEVEL( ch ), CAST_BREATH );
+			if ( FIGHTING( ch ) )
+			WAIT_STATE( FIGHTING( ch ), 3 RL_SEC );
+			return;
+		}
     }
 	    
 	    
     if (IS_RACE(ch, RACE_UMBER_HULK)) {
-	if (!number(0, 2) &&
-	    !AFF_FLAGGED(FIGHTING(ch), AFF_CONFUSION)) {
-	    call_magic(ch,FIGHTING(ch),0,SPELL_CONFUSION,GET_LEVEL(ch),CAST_ROD);
-	}
+		if (!number(0, 2) &&
+			!AFF_FLAGGED(FIGHTING(ch), AFF_CONFUSION)) {
+			call_magic(ch,FIGHTING(ch),0,SPELL_CONFUSION,GET_LEVEL(ch),CAST_ROD);
+		}
     }
 
     if (IS_RACE(ch, RACE_DAEMON)) {
-	if (GET_CLASS(ch) == CLASS_DAEMON_PYRO) {
-	    if (!number(0, 2)) {
-		call_magic(ch,FIGHTING(ch),0,SPELL_FIRE_BREATH,GET_LEVEL(ch),CAST_BREATH);
-		WAIT_STATE(ch, 3 RL_SEC);
-		return;
-	    }
-	}
+		if (GET_CLASS(ch) == CLASS_DAEMON_PYRO) {
+			if (!number(0, 2)) {
+			call_magic(ch,FIGHTING(ch),0,SPELL_FIRE_BREATH,GET_LEVEL(ch),CAST_BREATH);
+			WAIT_STATE(ch, 3 RL_SEC);
+			return;
+			}
+		}
     } 
   
     if (IS_RACE(ch, RACE_MEPHIT)) {
-	if (GET_CLASS(ch) == CLASS_MEPHIT_LAVA) {
-	    if (!number(0, 1)) {
-		damage(ch, FIGHTING(ch), dice(20, 20), TYPE_LAVA_BREATH, WEAR_RANDOM);
-		return;
-	    }
-	}
+		if (GET_CLASS(ch) == CLASS_MEPHIT_LAVA) {
+			if (!number(0, 1)) {
+			damage(ch, FIGHTING(ch), dice(20, 20), TYPE_LAVA_BREATH, WEAR_RANDOM);
+			return;
+			}
+		}
     }
 
     if (IS_MANTICORE(ch)) {
@@ -2272,146 +2305,145 @@ mobile_battle_activity(struct char_data *ch)
 		num++;
 
 	switch (GET_CLASS(ch)) {
-	case CLASS_SLAAD_BLUE:
-	    if (!number(0, 3*num) && ch->mob_specials.shared->number > 1)
-		new_mob = read_mobile(GET_MOB_VNUM(ch));
-	    else if (!number(0, 3*num))     	    /* red saad */
-		new_mob = read_mobile (42000);
-	    break;
-	case CLASS_SLAAD_GREEN:
-	    if (!number(0, 4*num) && ch->mob_specials.shared->number > 1)
-		new_mob = read_mobile(GET_MOB_VNUM(ch));
-	    else if (!number(0, 3*num))     	    /* blue slaad */
-		new_mob = read_mobile (42001);
-	    else if (!number(0, 2*num))     	    /* red slaad */
-		new_mob = read_mobile (42000);
-	    break;
-	case CLASS_SLAAD_GREY:
-	    if (GET_EQ(ch, WEAR_WIELD) && 
-		(IS_OBJ_TYPE(GET_EQ(ch, WEAR_WIELD), ITEM_WEAPON) &&
-		 (GET_OBJ_VAL(GET_EQ(ch, WEAR_WIELD), 3) ==
-		  TYPE_SLASH-TYPE_HIT) && !number(0, 3)) &&
-		GET_MOVE(ch) > 20)      {
-		do_offensive_skill(ch, fname(vict->player.name), 0, SKILL_BEHEAD);
-		return;
-	    }
-	    if (!number(0, 4*num) && ch->mob_specials.shared->number > 1)
-		new_mob = read_mobile(GET_MOB_VNUM(ch));
-	    else if (!number(0, 4*num))     	    /* green slaad */
-		new_mob = read_mobile (42002);
-	    else if (!number(0, 3*num))     	    /* blue slaad */
-		new_mob = read_mobile (42001);
-	    else if (!number(0, 2*num))     	    /* red slaad */
-		new_mob = read_mobile (42000);
-	    break;     
-	case CLASS_SLAAD_DEATH:
-	case CLASS_SLAAD_LORD:
-	    if (!number(0, 4*num))     	    /* grey slaad */
-		new_mob = read_mobile (42003);
-	    else if (!number(0, 3*num))     	    /* green slaad */
-		new_mob = read_mobile (42002);
-	    else if (!number(0, 3*num))     	    /* blue slaad */
-		new_mob = read_mobile (42001);
-	    else if (!number(0, 4*num))     	    /* red slaad */
-		new_mob = read_mobile (42000);
-	    break;     
-	}
-	if (new_mob) {
-	    char_to_room(new_mob, ch->in_room);
-	    act("$n gestures, a glowing portal appears with a whine!", 
-		FALSE, ch, 0, 0, TO_ROOM);
-	    act("$n steps out of the portal with a crack of lightning!", 
-		FALSE, new_mob, 0, 0, TO_ROOM);
-	    if (FIGHTING(ch) && IS_MOB(FIGHTING(ch)))
-		hit(new_mob, FIGHTING(ch), TYPE_UNDEFINED);
-	    return;
-	}
+		case CLASS_SLAAD_BLUE:
+			if (!number(0, 3*num) && ch->mob_specials.shared->number > 1)
+			new_mob = read_mobile(GET_MOB_VNUM(ch));
+			else if (!number(0, 3*num))     	    /* red saad */
+			new_mob = read_mobile (42000);
+			break;
+		case CLASS_SLAAD_GREEN:
+			if (!number(0, 4*num) && ch->mob_specials.shared->number > 1)
+			new_mob = read_mobile(GET_MOB_VNUM(ch));
+			else if (!number(0, 3*num))     	    /* blue slaad */
+			new_mob = read_mobile (42001);
+			else if (!number(0, 2*num))     	    /* red slaad */
+			new_mob = read_mobile (42000);
+			break;
+		case CLASS_SLAAD_GREY:
+			if (GET_EQ(ch, WEAR_WIELD) && 
+			(IS_OBJ_TYPE(GET_EQ(ch, WEAR_WIELD), ITEM_WEAPON) &&
+			 (GET_OBJ_VAL(GET_EQ(ch, WEAR_WIELD), 3) ==
+			  TYPE_SLASH-TYPE_HIT) && !number(0, 3)) &&
+			GET_MOVE(ch) > 20)      {
+			do_offensive_skill(ch, fname(vict->player.name), 0, SKILL_BEHEAD);
+			return;
+			}
+			if (!number(0, 4*num) && ch->mob_specials.shared->number > 1)
+			new_mob = read_mobile(GET_MOB_VNUM(ch));
+			else if (!number(0, 4*num))     	    /* green slaad */
+			new_mob = read_mobile (42002);
+			else if (!number(0, 3*num))     	    /* blue slaad */
+			new_mob = read_mobile (42001);
+			else if (!number(0, 2*num))     	    /* red slaad */
+			new_mob = read_mobile (42000);
+			break;     
+		case CLASS_SLAAD_DEATH:
+		case CLASS_SLAAD_LORD:
+			if (!number(0, 4*num))     	    /* grey slaad */
+			new_mob = read_mobile (42003);
+			else if (!number(0, 3*num))     	    /* green slaad */
+			new_mob = read_mobile (42002);
+			else if (!number(0, 3*num))     	    /* blue slaad */
+			new_mob = read_mobile (42001);
+			else if (!number(0, 4*num))     	    /* red slaad */
+			new_mob = read_mobile (42000);
+			break;     
+		}
+		if (new_mob) {
+			char_to_room(new_mob, ch->in_room);
+			act("$n gestures, a glowing portal appears with a whine!", 
+			FALSE, ch, 0, 0, TO_ROOM);
+			act("$n steps out of the portal with a crack of lightning!", 
+			FALSE, new_mob, 0, 0, TO_ROOM);
+			if (FIGHTING(ch) && IS_MOB(FIGHTING(ch)))
+			hit(new_mob, FIGHTING(ch), TYPE_UNDEFINED);
+			return;
+		}
     }
     if (IS_TROG(ch)) {
-	if (!number(0, 6)) {
-	    act("$n begins to secrete a disgustingly malodorous oil!", 
-		FALSE, ch, 0, 0, TO_ROOM);
-	    for (vict = ch->in_room->people; vict;vict=vict->next_in_room)
-		if (!IS_TROG(vict) && 
-		    !IS_UNDEAD(vict) && !IS_ELEMENTAL(vict) && !IS_DRAGON(vict))
-		    call_magic(ch, vict, 0, SPELL_TROG_STENCH,GET_LEVEL(ch),CAST_POTION);
-	    return;
-	}
+		if (!number(0, 6)) {
+			act("$n begins to secrete a disgustingly malodorous oil!", 
+			FALSE, ch, 0, 0, TO_ROOM);
+			for (vict = ch->in_room->people; vict;vict=vict->next_in_room)
+			if (!IS_TROG(vict) && 
+				!IS_UNDEAD(vict) && !IS_ELEMENTAL(vict) && !IS_DRAGON(vict))
+				call_magic(ch, vict, 0, SPELL_TROG_STENCH,GET_LEVEL(ch),CAST_POTION);
+			return;
+		}
     }
     if (IS_UNDEAD(ch)) {
-	if (GET_CLASS(ch) == CLASS_GHOUL) {
-	    if (!number(0, 10))
-		act(" $n emits a terrible shriek!!", FALSE, ch, 0, 0, TO_ROOM);
-	    else if (!number(0, 4))
-		call_magic(ch, vict, 0, SPELL_CHILL_TOUCH, GET_LEVEL(ch), CAST_SPELL);
-	}
+		if (GET_CLASS(ch) == CLASS_GHOUL) {
+			if (!number(0, 10))
+			act(" $n emits a terrible shriek!!", FALSE, ch, 0, 0, TO_ROOM);
+			else if (!number(0, 4))
+			call_magic(ch, vict, 0, SPELL_CHILL_TOUCH, GET_LEVEL(ch), CAST_SPELL);
+		}
     }
 
     if (IS_DRAGON(ch)) {
+		if (number(0, GET_LEVEL(ch)) > 40) {
+			act("You feel a wave of sheer terror wash over you as $n approaches!", FALSE, ch, 0, 0, TO_ROOM);
+			for (vict = ch->in_room->people;vict && vict != ch; 
+			 vict = next_vict) {
+			next_vict = vict->next_in_room;
+			if (FIGHTING(vict) && FIGHTING(vict) == ch && 
+				!mag_savingthrow(vict, GET_LEVEL(ch), SAVING_SPELL) &&
+				!IS_AFFECTED(vict, AFF_CONFIDENCE)) 
+				do_flee(vict, "", 0, 0);
+			}
+			return;
+		}
+		for (vict = ch->in_room->people;vict;vict=vict->next_in_room)
+			if (FIGHTING(vict) == ch && !number(0, 4))
+			break;
+		if (vict == NULL)
+			vict = FIGHTING(ch);
+		if (!number(0, 3)) {
+			damage(ch, vict, number(0, GET_LEVEL(ch)), TYPE_CLAW, WEAR_RANDOM);
+			return;
+		} else if (!number(0, 3) && vict == FIGHTING(ch)) {
+			damage(ch, vict, number(0, GET_LEVEL(ch)), TYPE_CLAW, WEAR_RANDOM);
+			return;
+		} else if (!number(0, 2)) {
+			damage(ch, vict, number(0, GET_LEVEL(ch)), TYPE_BITE, WEAR_RANDOM);
+			WAIT_STATE(ch, PULSE_VIOLENCE);
+			return;
+		} else if (!number(0, 2)) {
+			switch (GET_CLASS(ch)) {
+			case CLASS_GREEN:
+			call_magic(ch, vict, 0, SPELL_GAS_BREATH,GET_LEVEL(ch),CAST_BREATH);
+			WAIT_STATE(ch, PULSE_VIOLENCE*2);
+			break;
 
-	if (number(0, GET_LEVEL(ch)) > 40) {
-	    act("You feel a wave of sheer terror wash over you as $n approaches!", FALSE, ch, 0, 0, TO_ROOM);
-	    for (vict = ch->in_room->people;vict && vict != ch; 
-		 vict = next_vict) {
-		next_vict = vict->next_in_room;
-		if (FIGHTING(vict) && FIGHTING(vict) == ch && 
-		    !mag_savingthrow(vict, GET_LEVEL(ch), SAVING_SPELL) &&
-		    !IS_AFFECTED(vict, AFF_CONFIDENCE)) 
-		    do_flee(vict, "", 0, 0);
-	    }
-	    return;
-	}
-	for (vict = ch->in_room->people;vict;vict=vict->next_in_room)
-	    if (FIGHTING(vict) == ch && !number(0, 4))
-		break;
-	if (vict == NULL)
-	    vict = FIGHTING(ch);
-	if (!number(0, 3)) {
-	    damage(ch, vict, number(0, GET_LEVEL(ch)), TYPE_CLAW, WEAR_RANDOM);
-	    return;
-	} else if (!number(0, 3) && vict == FIGHTING(ch)) {
-	    damage(ch, vict, number(0, GET_LEVEL(ch)), TYPE_CLAW, WEAR_RANDOM);
-	    return;
-	} else if (!number(0, 2)) {
-	    damage(ch, vict, number(0, GET_LEVEL(ch)), TYPE_BITE, WEAR_RANDOM);
-	    WAIT_STATE(ch, PULSE_VIOLENCE);
-	    return;
-	} else if (!number(0, 2)) {
-	    switch (GET_CLASS(ch)) {
-	    case CLASS_GREEN:
-		call_magic(ch, vict, 0, SPELL_GAS_BREATH,GET_LEVEL(ch),CAST_BREATH);
-		WAIT_STATE(ch, PULSE_VIOLENCE*2);
-		break;
-
-	    case CLASS_BLACK:
-		call_magic(ch, vict, 0,SPELL_ACID_BREATH,GET_LEVEL(ch),CAST_BREATH);
-		WAIT_STATE(ch, PULSE_VIOLENCE*2);
-		break;
-	    case CLASS_BLUE:
-		call_magic(ch, vict, 0, 
-			   SPELL_LIGHTNING_BREATH, GET_LEVEL(ch), CAST_BREATH);
-		WAIT_STATE(ch, PULSE_VIOLENCE*2);
-		break;
-	    case CLASS_WHITE:
-	    case CLASS_SILVER:
-		call_magic(ch, vict, 0,SPELL_FROST_BREATH,GET_LEVEL(ch),CAST_BREATH);
-		WAIT_STATE(ch, PULSE_VIOLENCE*2);
-		break;
-	    case CLASS_RED:
-		call_magic(ch, vict, 0,SPELL_FIRE_BREATH,GET_LEVEL(ch),CAST_BREATH);
-		WAIT_STATE(ch, PULSE_VIOLENCE*2);
-		break;
-	    case CLASS_SHADOW_D:
-		call_magic(ch,vict,0,SPELL_SHADOW_BREATH,GET_LEVEL(ch),CAST_BREATH);
-		WAIT_STATE(ch, PULSE_VIOLENCE*2);
-		break;
-	    case CLASS_TURTLE:
-		call_magic(ch, vict, 0,SPELL_STEAM_BREATH,GET_LEVEL(ch),CAST_BREATH);
-		WAIT_STATE(ch, PULSE_VIOLENCE*2);
-		break;
-	    }
-	    return;
-	}
+			case CLASS_BLACK:
+			call_magic(ch, vict, 0,SPELL_ACID_BREATH,GET_LEVEL(ch),CAST_BREATH);
+			WAIT_STATE(ch, PULSE_VIOLENCE*2);
+			break;
+			case CLASS_BLUE:
+			call_magic(ch, vict, 0, 
+				   SPELL_LIGHTNING_BREATH, GET_LEVEL(ch), CAST_BREATH);
+			WAIT_STATE(ch, PULSE_VIOLENCE*2);
+			break;
+			case CLASS_WHITE:
+			case CLASS_SILVER:
+			call_magic(ch, vict, 0,SPELL_FROST_BREATH,GET_LEVEL(ch),CAST_BREATH);
+			WAIT_STATE(ch, PULSE_VIOLENCE*2);
+			break;
+			case CLASS_RED:
+			call_magic(ch, vict, 0,SPELL_FIRE_BREATH,GET_LEVEL(ch),CAST_BREATH);
+			WAIT_STATE(ch, PULSE_VIOLENCE*2);
+			break;
+			case CLASS_SHADOW_D:
+			call_magic(ch,vict,0,SPELL_SHADOW_BREATH,GET_LEVEL(ch),CAST_BREATH);
+			WAIT_STATE(ch, PULSE_VIOLENCE*2);
+			break;
+			case CLASS_TURTLE:
+			call_magic(ch, vict, 0,SPELL_STEAM_BREATH,GET_LEVEL(ch),CAST_BREATH);
+			WAIT_STATE(ch, PULSE_VIOLENCE*2);
+			break;
+			}
+			return;
+		}
     }
     if (GET_RACE(ch) == RACE_ELEMENTAL && !number(0, 3)) {
 
@@ -2426,35 +2458,35 @@ mobile_battle_activity(struct char_data *ch)
 	else
 	    dam = 0;
 	switch (GET_CLASS(ch)) {
-	case CLASS_EARTH:
-	    if (!number(0, 2)) {
-		damage(ch, vict, dam, SPELL_EARTH_ELEMENTAL, WEAR_RANDOM);
-		WAIT_STATE(ch, PULSE_VIOLENCE);
-	    } else if (!number(0, 4)) {
-		damage(ch, vict, dam, SKILL_BODYSLAM, WEAR_BODY);
-		WAIT_STATE(ch, PULSE_VIOLENCE);
-	    }
-	    break;
-	case CLASS_FIRE:
-	    if (!number(0, 2)) {
-		damage(ch, vict, dam, SPELL_FIRE_ELEMENTAL, WEAR_RANDOM);
-		WAIT_STATE(ch, PULSE_VIOLENCE);
-	    }
-	    break;
-	case CLASS_WATER:
-	    if (!number(0, 2)) {
-		damage(ch, vict, dam, SPELL_WATER_ELEMENTAL, WEAR_RANDOM);
-		WAIT_STATE(ch, PULSE_VIOLENCE);
-	    }
-	    break;
-	case CLASS_AIR:
-	    if (!number(0, 2)) {
-		damage(ch, vict, dam, SPELL_AIR_ELEMENTAL, WEAR_RANDOM);
-		WAIT_STATE(ch, PULSE_VIOLENCE);
-	    }
-	    break;
-	}
-	return;
+		case CLASS_EARTH:
+			if (!number(0, 2)) {
+			damage(ch, vict, dam, SPELL_EARTH_ELEMENTAL, WEAR_RANDOM);
+			WAIT_STATE(ch, PULSE_VIOLENCE);
+			} else if (!number(0, 4)) {
+			damage(ch, vict, dam, SKILL_BODYSLAM, WEAR_BODY);
+			WAIT_STATE(ch, PULSE_VIOLENCE);
+			}
+			break;
+		case CLASS_FIRE:
+			if (!number(0, 2)) {
+			damage(ch, vict, dam, SPELL_FIRE_ELEMENTAL, WEAR_RANDOM);
+			WAIT_STATE(ch, PULSE_VIOLENCE);
+			}
+			break;
+		case CLASS_WATER:
+			if (!number(0, 2)) {
+			damage(ch, vict, dam, SPELL_WATER_ELEMENTAL, WEAR_RANDOM);
+			WAIT_STATE(ch, PULSE_VIOLENCE);
+			}
+			break;
+		case CLASS_AIR:
+			if (!number(0, 2)) {
+			damage(ch, vict, dam, SPELL_AIR_ELEMENTAL, WEAR_RANDOM);
+			WAIT_STATE(ch, PULSE_VIOLENCE);
+			}
+			break;
+		}
+		return;
     }
 
 
@@ -2468,462 +2500,527 @@ mobile_battle_activity(struct char_data *ch)
 
     if ((IS_MAGE(ch) || IS_LICH(ch)) && 
 	!ROOM_FLAGGED(ch->in_room, ROOM_NOMAGIC)) {
-	/* pseudo-randomly choose someone in the room who is fighting me */
-	for (vict = ch->in_room->people; vict; vict = vict->next_in_room)
-	    if (FIGHTING(vict) == ch && !number(0, 2))
-		break;
-	/* if I didn't pick any of those, then just slam the guy I'm fighting */
-	if (vict == NULL)
-	    vict = FIGHTING(ch);
-	if (vict == FIGHTING(ch) &&
-	    GET_HIT(ch) < (GET_MAX_HIT(ch) >> 2) &&
-	    GET_HIT(vict) > (GET_MAX_HIT(vict) >> 1)) {
-	    if (GET_LEVEL(ch) >= 33 && !number(0, 2) &&
-		GET_MANA(ch) > mag_manacost(ch, SPELL_TELEPORT)) {
-		cast_spell(ch, vict, NULL, SPELL_TELEPORT);
-		return;
-	    } else if (GET_LEVEL(ch) >= 18 &&
-		       GET_MANA(ch) > mag_manacost(ch, SPELL_LOCAL_TELEPORT)) {
-		cast_spell(ch, vict, NULL, SPELL_LOCAL_TELEPORT);
-		return;
-	    }
-	}
+		/* pseudo-randomly choose someone in the room who is fighting me */
+		for (vict = ch->in_room->people; vict; vict = vict->next_in_room)
+			if (FIGHTING(vict) == ch && !number(0, 2))
+			break;
+		/* if I didn't pick any of those, then just slam the guy I'm fighting */
+		if (vict == NULL)
+			vict = FIGHTING(ch);
+		if (vict == FIGHTING(ch) &&
+			GET_HIT(ch) < (GET_MAX_HIT(ch) >> 2) &&
+			GET_HIT(vict) > (GET_MAX_HIT(vict) >> 1)) {
+			if (GET_LEVEL(ch) >= 33 && !number(0, 2) &&
+			GET_MANA(ch) > mag_manacost(ch, SPELL_TELEPORT)) {
+			cast_spell(ch, vict, NULL, SPELL_TELEPORT);
+			return;
+			} else if (GET_LEVEL(ch) >= 18 &&
+				   GET_MANA(ch) > mag_manacost(ch, SPELL_LOCAL_TELEPORT)) {
+			cast_spell(ch, vict, NULL, SPELL_LOCAL_TELEPORT);
+			return;
+			}
+		}
 
-	if ((GET_LEVEL(ch) > 18) && !number(0, 4) && 
-	    !IS_AFFECTED_2(ch, AFF2_FIRE_SHIELD)) {
-	    cast_spell(ch, ch, NULL, SPELL_FIRE_SHIELD);
-	    return;
-	} else if ((GET_LEVEL(ch) > 14) && !number(0, 4) && 
-		   !IS_AFFECTED(ch, AFF_BLUR)) {
-	    cast_spell(ch, ch, NULL, SPELL_BLUR);
-	    return;
-	} else if ((GET_LEVEL(ch) > 5) && !number(0, 4) &&
-		   !affected_by_spell(ch, SPELL_ARMOR)) {
-	    cast_spell(ch, ch, NULL, SPELL_ARMOR);
-	    return;
-	} else if ((GET_LEVEL(ch) >= 38) && !AFF2_FLAGGED(vict, AFF2_SLOW) &&
-		   !number(0, 1)) {
-	    cast_spell(ch, vict, NULL, SPELL_SLOW);
-	    return;
-	} else if ((GET_LEVEL(ch) > 12) && !number(0, 12)) {
-	    if (IS_EVIL(ch)) {
-		cast_spell(ch, vict, NULL, SPELL_ENERGY_DRAIN);
-		return;
-	    } else if (IS_GOOD(ch) && IS_EVIL(vict)) {
-		cast_spell(ch, vict, NULL, SPELL_DISPEL_EVIL);
-		return;
-	    }
-	} else if (!number(0, 3))
-	    command_interpreter(ch, "cackle"); 
-    
-	if (!number(0, 4)) {
-      
-	    if (GET_LEVEL(ch) < 6) {
-		cast_spell(ch, vict, NULL, SPELL_MAGIC_MISSILE);
-	    } else if (GET_LEVEL(ch) < 8) {
-		cast_spell(ch, vict, NULL, SPELL_CHILL_TOUCH);
-	    } else if (GET_LEVEL(ch) < 12) {
-		cast_spell(ch, vict, NULL, SPELL_SHOCKING_GRASP);
-	    } else if (GET_LEVEL(ch) < 15) {
-		cast_spell(ch, vict, NULL, SPELL_BURNING_HANDS);
-	    } else if (GET_LEVEL(ch) < 20) {
-		cast_spell(ch, vict, NULL, SPELL_LIGHTNING_BOLT);
-	    } else if (GET_LEVEL(ch) < 33) {
-		cast_spell(ch, vict, NULL, SPELL_COLOR_SPRAY);
-	    } else if (GET_LEVEL(ch) < 43) {
-		cast_spell(ch, vict, NULL, SPELL_FIREBALL);
-	    } else {
-		cast_spell(ch, vict, NULL, SPELL_PRISMATIC_SPRAY);
-	    }
-	    return;
-	}
+		if ((GET_LEVEL(ch) > 18) && !number(0, 4) && 
+			!IS_AFFECTED_2(ch, AFF2_FIRE_SHIELD)) {
+			cast_spell(ch, ch, NULL, SPELL_FIRE_SHIELD);
+			return;
+		} else if ((GET_LEVEL(ch) > 14) && !number(0, 4) && 
+			   !IS_AFFECTED(ch, AFF_BLUR)) {
+			cast_spell(ch, ch, NULL, SPELL_BLUR);
+			return;
+		} else if ((GET_LEVEL(ch) > 5) && !number(0, 4) &&
+			   !affected_by_spell(ch, SPELL_ARMOR)) {
+			cast_spell(ch, ch, NULL, SPELL_ARMOR);
+			return;
+		} else if ((GET_LEVEL(ch) >= 38) && !AFF2_FLAGGED(vict, AFF2_SLOW) &&
+			   !number(0, 1)) {
+			cast_spell(ch, vict, NULL, SPELL_SLOW);
+			return;
+		} else if ((GET_LEVEL(ch) > 12) && !number(0, 12)) {
+			if (IS_EVIL(ch)) {
+			cast_spell(ch, vict, NULL, SPELL_ENERGY_DRAIN);
+			return;
+			} else if (IS_GOOD(ch) && IS_EVIL(vict)) {
+			cast_spell(ch, vict, NULL, SPELL_DISPEL_EVIL);
+			return;
+			}
+		} else if (!number(0, 3))
+			command_interpreter(ch, "cackle"); 
+		
+		if (!number(0, 4)) {
+		  
+			if (GET_LEVEL(ch) < 6) {
+			cast_spell(ch, vict, NULL, SPELL_MAGIC_MISSILE);
+			} else if (GET_LEVEL(ch) < 8) {
+			cast_spell(ch, vict, NULL, SPELL_CHILL_TOUCH);
+			} else if (GET_LEVEL(ch) < 12) {
+			cast_spell(ch, vict, NULL, SPELL_SHOCKING_GRASP);
+			} else if (GET_LEVEL(ch) < 15) {
+			cast_spell(ch, vict, NULL, SPELL_BURNING_HANDS);
+			} else if (GET_LEVEL(ch) < 20) {
+			cast_spell(ch, vict, NULL, SPELL_LIGHTNING_BOLT);
+			} else if (GET_LEVEL(ch) < 33) {
+			cast_spell(ch, vict, NULL, SPELL_COLOR_SPRAY);
+			} else if (GET_LEVEL(ch) < 43) {
+			cast_spell(ch, vict, NULL, SPELL_FIREBALL);
+			} else {
+			cast_spell(ch, vict, NULL, SPELL_PRISMATIC_SPRAY);
+			}
+			return;
+		}
     }    
   
     if (IS_CLERIC(ch) &&
 	!ROOM_FLAGGED(ch->in_room, ROOM_NOMAGIC)) {
-	/* pseudo-randomly choose someone in the room who is fighting me */
-	for (vict = ch->in_room->people; vict; vict = vict->next_in_room)
-	    if (FIGHTING(vict) == ch && !number(0, 3))
-		break;
-	/* if I didn't pick any of those, then just slam the guy I'm fighting */
-	if (vict == NULL)
-	    vict = FIGHTING(ch);
-    
-	if ((GET_LEVEL(ch) > 2) && (number(0, 8) == 0) &&
-	    !affected_by_spell(ch, SPELL_ARMOR)) {
-	    cast_spell(ch, ch, NULL, SPELL_ARMOR);
-	    return;
-	} else if ((GET_HIT(ch) / GET_MAX_HIT(ch)) < (GET_MAX_HIT(ch) >> 2)) {
-	    if ((GET_LEVEL(ch) < 12) && (number(0, 10) == 0)) {
-		cast_spell(ch, ch, NULL, SPELL_CURE_LIGHT);
-		return;
-	    } else if ((GET_LEVEL(ch) < 24) && (number(0, 10) == 0)) {
-		cast_spell(ch, ch, NULL, SPELL_CURE_CRITIC);
-		return;
-	    } else if ((GET_LEVEL(ch) <= 34) && (number(0, 10) == 0)) {
-		cast_spell(ch, ch, NULL, SPELL_HEAL);
-		return;
-	    } else if ((GET_LEVEL(ch) > 34) && (number(0, 10) == 0)) {
-		cast_spell(ch, ch, NULL, SPELL_GREATER_HEAL);
-		return;
-	    }
-	} 
-	if ((GET_LEVEL(ch) > 12) && (number(0, 16) == 0)) {
-	    if (IS_EVIL(ch))
-		cast_spell(ch, vict, NULL, SPELL_DISPEL_GOOD);
-	    else if (IS_GOOD(ch))
-		cast_spell(ch, vict, NULL, SPELL_DISPEL_EVIL);
-	    return;
-	}
+		/* pseudo-randomly choose someone in the room who is fighting me */
+		for (vict = ch->in_room->people; vict; vict = vict->next_in_room)
+			if (FIGHTING(vict) == ch && !number(0, 3))
+			break;
+		/* if I didn't pick any of those, then just slam the guy I'm fighting */
+		if (vict == NULL)
+			vict = FIGHTING(ch);
+		
+		if ((GET_LEVEL(ch) > 2) && (number(0, 8) == 0) &&
+			!affected_by_spell(ch, SPELL_ARMOR)) {
+			cast_spell(ch, ch, NULL, SPELL_ARMOR);
+			return;
+		} else if ((GET_HIT(ch) / GET_MAX_HIT(ch)) < (GET_MAX_HIT(ch) >> 2)) {
+			if ((GET_LEVEL(ch) < 12) && (number(0, 10) == 0)) {
+			cast_spell(ch, ch, NULL, SPELL_CURE_LIGHT);
+			return;
+			} else if ((GET_LEVEL(ch) < 24) && (number(0, 10) == 0)) {
+			cast_spell(ch, ch, NULL, SPELL_CURE_CRITIC);
+			return;
+			} else if ((GET_LEVEL(ch) <= 34) && (number(0, 10) == 0)) {
+			cast_spell(ch, ch, NULL, SPELL_HEAL);
+			return;
+			} else if ((GET_LEVEL(ch) > 34) && (number(0, 10) == 0)) {
+			cast_spell(ch, ch, NULL, SPELL_GREATER_HEAL);
+			return;
+			}
+		} 
+		if ((GET_LEVEL(ch) > 12) && (number(0, 16) == 0)) {
+			if (IS_EVIL(ch))
+			cast_spell(ch, vict, NULL, SPELL_DISPEL_GOOD);
+			else if (IS_GOOD(ch))
+			cast_spell(ch, vict, NULL, SPELL_DISPEL_EVIL);
+			return;
+		}
 
-	if (!number(0, 4)) {
+		if (!number(0, 4)) {
 
-	    if (GET_LEVEL(ch) < 10) 
-		return;
-	    if (GET_LEVEL(ch) < 26) {
-		cast_spell(ch, vict, NULL, SPELL_SPIRIT_HAMMER);
-	    } else if (GET_LEVEL(ch) < 31) {
-		cast_spell(ch, vict, NULL, SPELL_CALL_LIGHTNING);
-	    } else if (GET_LEVEL(ch) < 36) {
-		cast_spell(ch, vict, NULL, SPELL_HARM);
-	    } else {
-		cast_spell(ch, vict, NULL, SPELL_FLAME_STRIKE);
-	    }
-	    return;
-	}
+			if (GET_LEVEL(ch) < 10) 
+			return;
+			if (GET_LEVEL(ch) < 26) {
+			cast_spell(ch, vict, NULL, SPELL_SPIRIT_HAMMER);
+			} else if (GET_LEVEL(ch) < 31) {
+			cast_spell(ch, vict, NULL, SPELL_CALL_LIGHTNING);
+			} else if (GET_LEVEL(ch) < 36) {
+			cast_spell(ch, vict, NULL, SPELL_HARM);
+			} else {
+			cast_spell(ch, vict, NULL, SPELL_FLAME_STRIKE);
+			}
+			return;
+		}
     }
   
     if (IS_BARB(ch) || IS_GIANT(ch)) {
-	if (IS_BARB(ch) && GET_LEVEL(ch) >= 42 &&
-	    GET_HIT(ch) < (GET_MAX_HIT(ch) >> 1) && GET_MANA(ch) > 30 &&
-	    !number(0, 3)) {
-	    do_battlecry(ch, "", 0, SCMD_CRY_FROM_BEYOND);
-	    return;
-	}
-	/* pseudo-randomly choose someone in the room who is fighting me */
-	for (vict = ch->in_room->people; vict; vict = vict->next_in_room)
-	    if (FIGHTING(vict) == ch && !number(0, 4))
-		break;
-	/* Else check for mages to bash */
-	if (vict == NULL)
-	    for (vict = ch->in_room->people; vict; vict = vict->next_in_room)
-		if (FIGHTING(vict) == ch && !number(0, 1) && 
-		    (IS_MAGE(vict) || IS_CLERIC(vict)))
-		    break;
-	/* if I didn't pick any of those, then just slam the guy I'm fighting */
-	if (vict == NULL)
-	    vict = FIGHTING(ch);
-	if (!number(0,2) && (GET_CLASS(vict) == CLASS_MAGIC_USER ||
-			     GET_CLASS(vict) == CLASS_CLERIC)) {
-	    do_offensive_skill(ch, GET_NAME(vict), 0, SKILL_BASH);
-	    return;
-	}
-	if ((GET_LEVEL(ch) > 32) && (!number(0, 4) || 
-				     GET_POS(vict) < POS_FIGHTING)) {
-	    do_offensive_skill(ch, GET_NAME(vict), 0, SKILL_PILEDRIVE);
-	    return;
-	} else if ((GET_LEVEL(ch) > 27) && !number(0, 6)
-		   && GET_POS(vict) > POS_SLEEPING) {
-	    do_sleeper(ch, GET_NAME(vict), 0, 0);
-	    return;
-	} else if ((GET_LEVEL(ch) > 22) && !number(0, 6)) {
-	    do_offensive_skill(ch, GET_NAME(vict), 0, SKILL_BODYSLAM);
-	    return;
-	} else if ((GET_LEVEL(ch) > 20) && !number(0, 6)) {
-	    do_offensive_skill(ch, GET_NAME(vict), 0, SKILL_CLOTHESLINE);
-	    return;
-	} else if ((GET_LEVEL(ch) > 16) && !number(0, 6)) {
-	    do_offensive_skill(ch, GET_NAME(vict), 0, SKILL_CHOKE);
-	    return;
-	} else if ((GET_LEVEL(ch) > 9) && !number(0, 6)) {
-	    do_offensive_skill(ch, GET_NAME(vict), 0, SKILL_ELBOW);
-	    return;
-	} else if ((GET_LEVEL(ch) > 5) && !number(0, 6)) {
-	    do_offensive_skill(ch, GET_NAME(vict), 0, SKILL_STOMP);
-	    return;
-	} else if ((GET_LEVEL(ch) > 2) && (number(0, 4) == 0)) {
-	    do_offensive_skill(ch, GET_NAME(vict), 0, SKILL_PUNCH);
-	    return;
-	}
-  
-	if (!number(0, 4)) {
-  
-	    if (GET_LEVEL(ch) < 5) {
-		do_offensive_skill(ch, GET_NAME(vict), 0, SKILL_PUNCH);
-	    } else if (GET_LEVEL(ch) < 7) {
-		do_offensive_skill(ch, GET_NAME(vict), 0, SKILL_STOMP);
-	    } else if (GET_LEVEL(ch) < 9) {
-		do_offensive_skill(ch, GET_NAME(vict), 0, SKILL_KNEE);
-	    } else if (GET_LEVEL(ch) < 16) {
-		do_offensive_skill(ch, GET_NAME(vict), 0, SKILL_ELBOW);
-	    } else if (GET_LEVEL(ch) < 19) {
-		do_offensive_skill(ch, GET_NAME(vict), 0, SKILL_CHOKE);
-	    } else if (GET_LEVEL(ch) < 25) {
-		do_offensive_skill(ch, GET_NAME(vict), 0, SKILL_CLOTHESLINE);
-	    } else if (GET_LEVEL(ch) < 30) {
-		do_offensive_skill(ch, GET_NAME(vict), 0, SKILL_BODYSLAM);
-	    } else {
-		do_offensive_skill(ch, GET_NAME(vict), 0, SKILL_PILEDRIVE);
-	    }
-	    return;
-	}
+		if (IS_BARB(ch) && GET_LEVEL(ch) >= 42 &&
+			GET_HIT(ch) < (GET_MAX_HIT(ch) >> 1) && GET_MANA(ch) > 30 &&
+			!number(0, 3)) {
+			do_battlecry(ch, "", 0, SCMD_CRY_FROM_BEYOND);
+			return;
+		}
+		/* pseudo-randomly choose someone in the room who is fighting me */
+		for (vict = ch->in_room->people; vict; vict = vict->next_in_room)
+			if (FIGHTING(vict) == ch && !number(0, 4))
+			break;
+		/* Else check for mages to bash */
+		if (vict == NULL)
+			for (vict = ch->in_room->people; vict; vict = vict->next_in_room)
+			if (FIGHTING(vict) == ch && !number(0, 1) && 
+				(IS_MAGE(vict) || IS_CLERIC(vict)))
+				break;
+		/* if I didn't pick any of those, then just slam the guy I'm fighting */
+		if (vict == NULL)
+			vict = FIGHTING(ch);
+		if (!number(0,2) && (GET_CLASS(vict) == CLASS_MAGIC_USER ||
+					 GET_CLASS(vict) == CLASS_CLERIC)) {
+			do_offensive_skill(ch, GET_NAME(vict), 0, SKILL_BASH);
+			return;
+		}
+		if ((GET_LEVEL(ch) > 32) && (!number(0, 4) || 
+						 GET_POS(vict) < POS_FIGHTING)) {
+			do_offensive_skill(ch, GET_NAME(vict), 0, SKILL_PILEDRIVE);
+			return;
+		} else if ((GET_LEVEL(ch) > 27) && !number(0, 6)
+			   && GET_POS(vict) > POS_SLEEPING) {
+			do_sleeper(ch, GET_NAME(vict), 0, 0);
+			return;
+		} else if ((GET_LEVEL(ch) > 22) && !number(0, 6)) {
+			do_offensive_skill(ch, GET_NAME(vict), 0, SKILL_BODYSLAM);
+			return;
+		} else if ((GET_LEVEL(ch) > 20) && !number(0, 6)) {
+			do_offensive_skill(ch, GET_NAME(vict), 0, SKILL_CLOTHESLINE);
+			return;
+		} else if ((GET_LEVEL(ch) > 16) && !number(0, 6)) {
+			do_offensive_skill(ch, GET_NAME(vict), 0, SKILL_CHOKE);
+			return;
+		} else if ((GET_LEVEL(ch) > 9) && !number(0, 6)) {
+			do_offensive_skill(ch, GET_NAME(vict), 0, SKILL_ELBOW);
+			return;
+		} else if ((GET_LEVEL(ch) > 5) && !number(0, 6)) {
+			do_offensive_skill(ch, GET_NAME(vict), 0, SKILL_STOMP);
+			return;
+		} else if ((GET_LEVEL(ch) > 2) && (number(0, 4) == 0)) {
+			do_offensive_skill(ch, GET_NAME(vict), 0, SKILL_PUNCH);
+			return;
+		}
+	  
+		if (!number(0, 4)) {
+	  
+			if (GET_LEVEL(ch) < 5) {
+			do_offensive_skill(ch, GET_NAME(vict), 0, SKILL_PUNCH);
+			} else if (GET_LEVEL(ch) < 7) {
+			do_offensive_skill(ch, GET_NAME(vict), 0, SKILL_STOMP);
+			} else if (GET_LEVEL(ch) < 9) {
+			do_offensive_skill(ch, GET_NAME(vict), 0, SKILL_KNEE);
+			} else if (GET_LEVEL(ch) < 16) {
+			do_offensive_skill(ch, GET_NAME(vict), 0, SKILL_ELBOW);
+			} else if (GET_LEVEL(ch) < 19) {
+			do_offensive_skill(ch, GET_NAME(vict), 0, SKILL_CHOKE);
+			} else if (GET_LEVEL(ch) < 25) {
+			do_offensive_skill(ch, GET_NAME(vict), 0, SKILL_CLOTHESLINE);
+			} else if (GET_LEVEL(ch) < 30) {
+			do_offensive_skill(ch, GET_NAME(vict), 0, SKILL_BODYSLAM);
+			} else {
+			do_offensive_skill(ch, GET_NAME(vict), 0, SKILL_PILEDRIVE);
+			}
+			return;
+		}
     }    
 
     if (IS_WARRIOR(ch)) {
-	/* pseudo-randomly choose someone in the room who is fighting me */
-	for (vict = ch->in_room->people; vict; vict = vict->next_in_room)
-	    if (FIGHTING(vict) == ch && CAN_SEE(ch, vict) && !number(0, 2))
-		break;
-	/* if I didn't pick any of those, then just slam the guy I'm fighting */
-	if (vict == NULL)
-	    vict = FIGHTING(ch);
+		/* pseudo-randomly choose someone in the room who is fighting me */
+		for (vict = ch->in_room->people; vict; vict = vict->next_in_room)
+			if (FIGHTING(vict) == ch && CAN_SEE(ch, vict) && !number(0, 2))
+			break;
+		/* if I didn't pick any of those, then just slam the guy I'm fighting */
+		if (vict == NULL)
+			vict = FIGHTING(ch);
 
-	if (CAN_SEE(ch, vict) && 
-	    (IS_MAGE(vict) || IS_CLERIC(vict)) && GET_POS(vict) > POS_SITTING) {
-	    do_offensive_skill(ch, GET_NAME(vict), 0, SKILL_BASH);
-	    return;
-	}
+		if (CAN_SEE(ch, vict) && 
+			(IS_MAGE(vict) || IS_CLERIC(vict)) && GET_POS(vict) > POS_SITTING) {
+			do_offensive_skill(ch, GET_NAME(vict), 0, SKILL_BASH);
+			return;
+		}
 
-	if ((GET_LEVEL(ch) > 37) && (number(0, 6) == 0) && 
-	    GET_POS(vict) > POS_SLEEPING) {
-	    do_sleeper(ch, GET_NAME(vict), 0, 0);
-	    return;
-	} else if ((GET_LEVEL(ch) >= 20) && (number(0, 6) == 0) &&
-		   GET_EQ(ch, WEAR_WIELD) && GET_EQ(vict, WEAR_WIELD)) {
-	    do_disarm(ch, PERS(vict, ch), 0, 0);
-	    return;
-	} else if ((GET_LEVEL(ch) > 9) && (number(0, 6) == 0)) {
-	    do_offensive_skill(ch, GET_NAME(vict), 0, SKILL_ELBOW);
-	    return;
-	} else if ((GET_LEVEL(ch) > 5) && (number(0, 6) == 0)) {
-	    do_offensive_skill(ch, GET_NAME(vict), 0, SKILL_STOMP);
-	    return;
-	} else if ((GET_LEVEL(ch) > 2) && (number(0, 4) == 0)) {
-	    do_offensive_skill(ch, GET_NAME(vict), 0, SKILL_PUNCH);
-	    return;
-	}
-  
-	if (!number(0, 4)) {
-  
-	    if (GET_LEVEL(ch) < 3) {
-		do_offensive_skill(ch, GET_NAME(vict), 0, SKILL_PUNCH);
-	    } else if (GET_LEVEL(ch) < 5) {
-		do_offensive_skill(ch, GET_NAME(vict), 0, SKILL_KICK);
-	    } else if (GET_LEVEL(ch) < 7) {
-		do_offensive_skill(ch, GET_NAME(vict), 0, SKILL_STOMP);
-	    } else if (GET_LEVEL(ch) < 9) {
-		do_offensive_skill(ch, GET_NAME(vict), 0, SKILL_KNEE);
-	    } else if (GET_LEVEL(ch) < 14) {
-		do_offensive_skill(ch, GET_NAME(vict), 0, SKILL_UPPERCUT);
-	    } else if (GET_LEVEL(ch) < 16) {
-		do_offensive_skill(ch, GET_NAME(vict), 0, SKILL_ELBOW);
-	    } else if (GET_LEVEL(ch) < 24) {
-		do_offensive_skill(ch, GET_NAME(vict), 0, SKILL_HOOK);
-	    } else if (GET_LEVEL(ch) < 36) {
-		do_offensive_skill(ch, GET_NAME(vict), 0, SKILL_SIDEKICK);
-	    }
-	    return;
-	}
+		if ((GET_LEVEL(ch) > 37) && (number(0, 6) == 0) && 
+			GET_POS(vict) > POS_SLEEPING) {
+			do_sleeper(ch, GET_NAME(vict), 0, 0);
+			return;
+		} else if ((GET_LEVEL(ch) >= 20) && (number(0, 6) == 0) &&
+			   GET_EQ(ch, WEAR_WIELD) && GET_EQ(vict, WEAR_WIELD)) {
+			do_disarm(ch, PERS(vict, ch), 0, 0);
+			return;
+		} else if ((GET_LEVEL(ch) > 9) && (number(0, 6) == 0)) {
+			do_offensive_skill(ch, GET_NAME(vict), 0, SKILL_ELBOW);
+			return;
+		} else if ((GET_LEVEL(ch) > 5) && (number(0, 6) == 0)) {
+			do_offensive_skill(ch, GET_NAME(vict), 0, SKILL_STOMP);
+			return;
+		} else if ((GET_LEVEL(ch) > 2) && (number(0, 4) == 0)) {
+			do_offensive_skill(ch, GET_NAME(vict), 0, SKILL_PUNCH);
+			return;
+		}
+	  
+		if (!number(0, 4)) {
+	  
+			if (GET_LEVEL(ch) < 3) {
+			do_offensive_skill(ch, GET_NAME(vict), 0, SKILL_PUNCH);
+			} else if (GET_LEVEL(ch) < 5) {
+			do_offensive_skill(ch, GET_NAME(vict), 0, SKILL_KICK);
+			} else if (GET_LEVEL(ch) < 7) {
+			do_offensive_skill(ch, GET_NAME(vict), 0, SKILL_STOMP);
+			} else if (GET_LEVEL(ch) < 9) {
+			do_offensive_skill(ch, GET_NAME(vict), 0, SKILL_KNEE);
+			} else if (GET_LEVEL(ch) < 14) {
+			do_offensive_skill(ch, GET_NAME(vict), 0, SKILL_UPPERCUT);
+			} else if (GET_LEVEL(ch) < 16) {
+			do_offensive_skill(ch, GET_NAME(vict), 0, SKILL_ELBOW);
+			} else if (GET_LEVEL(ch) < 24) {
+			do_offensive_skill(ch, GET_NAME(vict), 0, SKILL_HOOK);
+			} else if (GET_LEVEL(ch) < 36) {
+			do_offensive_skill(ch, GET_NAME(vict), 0, SKILL_SIDEKICK);
+			}
+			return;
+		}
     }    
 
     if (IS_THIEF(ch)) {
-	/* pseudo-randomly choose someone in the room who is fighting me */
-	for (vict = ch->in_room->people; vict; vict = vict->next_in_room)
-	    if (FIGHTING(vict) == ch && !number(0, 2))
-		break;
-	/* if I didn't pick any of those, then just slam the guy I'm fighting */
-	if (vict == NULL)
-	    vict = FIGHTING(ch);
-	if (GET_LEVEL(ch) > 18 && GET_POS(vict) >= POS_FIGHTING && 
-	    number(0, 3) == 0) {
-	    do_offensive_skill(ch, GET_NAME(vict), 0, SKILL_TRIP);
-	    return;
-	} else if ((GET_LEVEL(ch) >= 20) && !number(0, 4) && 
-		   GET_EQ(ch, WEAR_WIELD) && GET_EQ(vict, WEAR_WIELD)) {
-	    do_disarm(ch, PERS(vict, ch), 0, 0);
-	    return;
-	} else if (GET_LEVEL(ch) > 29 && !number(0, 3)) {
-	    do_offensive_skill(ch, PERS(vict, ch), 0, SKILL_GOUGE);
-	    return;
-	} else if (GET_LEVEL(ch) > 24 && !number(0, 3)) {
-	    do_feign(ch, "", 0, 0);
-	    do_hide(ch, "", 0, 0);
-	    SET_BIT(MOB_FLAGS(ch), MOB_MEMORY);
-	    remember(ch, vict);
-	    return;
-	} else if (weap &&
-		   ((GET_OBJ_VAL(weap, 3) == TYPE_PIERCE - TYPE_HIT) ||
-		    (GET_OBJ_VAL(weap, 3) == TYPE_STAB - TYPE_HIT)) &&
-		   CHECK_SKILL(ch, SKILL_CIRCLE) > 40) {
-	    do_circle(ch, fname(vict->player.name), 0, 0);
-	    return;
-	} else if ((GET_LEVEL(ch) > 9) && (number(0, 6) == 0)) {
-	    do_offensive_skill(ch, GET_NAME(vict), 0, SKILL_ELBOW);
-	    return;
-	} else if ((GET_LEVEL(ch) > 5) && (number(0, 6) == 0)) {
-	    do_offensive_skill(ch, GET_NAME(vict), 0, SKILL_STOMP);
-	    return;
-	} else if ((GET_LEVEL(ch) > 2) && (number(0, 4) == 0)) {
-	    do_offensive_skill(ch, GET_NAME(vict), 0, SKILL_PUNCH);
-	    return;
-	}
-  
-	if (!number(0, 4)) {
-  
-	    if (GET_LEVEL(ch) < 3) {
-		do_offensive_skill(ch, GET_NAME(vict), 0, SKILL_PUNCH);
-	    } else if (GET_LEVEL(ch) < 7) {
-		do_offensive_skill(ch, GET_NAME(vict), 0, SKILL_STOMP);
-	    } else if (GET_LEVEL(ch) < 9) {
-		do_offensive_skill(ch, GET_NAME(vict), 0, SKILL_KNEE);
-	    } else if (GET_LEVEL(ch) < 16) {
-		do_offensive_skill(ch, GET_NAME(vict), 0, SKILL_ELBOW);
-	    } else if (GET_LEVEL(ch) < 24) {
-		do_offensive_skill(ch, GET_NAME(vict), 0, SKILL_HOOK);
-	    } else if (GET_LEVEL(ch) < 36) {
-		do_offensive_skill(ch, GET_NAME(vict), 0, SKILL_SIDEKICK);
-	    }
-	    return;
-	}
+		/* pseudo-randomly choose someone in the room who is fighting me */
+		for (vict = ch->in_room->people; vict; vict = vict->next_in_room)
+			if (FIGHTING(vict) == ch && !number(0, 2))
+			break;
+		/* if I didn't pick any of those, then just slam the guy I'm fighting */
+		if (vict == NULL)
+			vict = FIGHTING(ch);
+		if (GET_LEVEL(ch) > 18 && GET_POS(vict) >= POS_FIGHTING && 
+			number(0, 3) == 0) {
+			do_offensive_skill(ch, GET_NAME(vict), 0, SKILL_TRIP);
+			return;
+		} else if ((GET_LEVEL(ch) >= 20) && !number(0, 4) && 
+			   GET_EQ(ch, WEAR_WIELD) && GET_EQ(vict, WEAR_WIELD)) {
+			do_disarm(ch, PERS(vict, ch), 0, 0);
+			return;
+		} else if (GET_LEVEL(ch) > 29 && !number(0, 3)) {
+			do_offensive_skill(ch, PERS(vict, ch), 0, SKILL_GOUGE);
+			return;
+		} else if (GET_LEVEL(ch) > 24 && !number(0, 3)) {
+			do_feign(ch, "", 0, 0);
+			do_hide(ch, "", 0, 0);
+			SET_BIT(MOB_FLAGS(ch), MOB_MEMORY);
+			remember(ch, vict);
+			return;
+		} else if (weap &&
+			   ((GET_OBJ_VAL(weap, 3) == TYPE_PIERCE - TYPE_HIT) ||
+				(GET_OBJ_VAL(weap, 3) == TYPE_STAB - TYPE_HIT)) &&
+			   CHECK_SKILL(ch, SKILL_CIRCLE) > 40) {
+			do_circle(ch, fname(vict->player.name), 0, 0);
+			return;
+		} else if ((GET_LEVEL(ch) > 9) && (number(0, 6) == 0)) {
+			do_offensive_skill(ch, GET_NAME(vict), 0, SKILL_ELBOW);
+			return;
+		} else if ((GET_LEVEL(ch) > 5) && (number(0, 6) == 0)) {
+			do_offensive_skill(ch, GET_NAME(vict), 0, SKILL_STOMP);
+			return;
+		} else if ((GET_LEVEL(ch) > 2) && (number(0, 4) == 0)) {
+			do_offensive_skill(ch, GET_NAME(vict), 0, SKILL_PUNCH);
+			return;
+		}
+	  
+		if (!number(0, 4)) {
+	  
+			if (GET_LEVEL(ch) < 3) {
+			do_offensive_skill(ch, GET_NAME(vict), 0, SKILL_PUNCH);
+			} else if (GET_LEVEL(ch) < 7) {
+			do_offensive_skill(ch, GET_NAME(vict), 0, SKILL_STOMP);
+			} else if (GET_LEVEL(ch) < 9) {
+			do_offensive_skill(ch, GET_NAME(vict), 0, SKILL_KNEE);
+			} else if (GET_LEVEL(ch) < 16) {
+			do_offensive_skill(ch, GET_NAME(vict), 0, SKILL_ELBOW);
+			} else if (GET_LEVEL(ch) < 24) {
+			do_offensive_skill(ch, GET_NAME(vict), 0, SKILL_HOOK);
+			} else if (GET_LEVEL(ch) < 36) {
+			do_offensive_skill(ch, GET_NAME(vict), 0, SKILL_SIDEKICK);
+			}
+			return;
+		}
     }    
     if (IS_RANGER(ch)) {
-	/* pseudo-randomly choose someone in the room who is fighting me */
-	for (vict = ch->in_room->people; vict; vict = vict->next_in_room)
-	    if (FIGHTING(vict) == ch && !number(0, 4))
-		break;
-	/* if I didn't pick any of those, then just slam the guy I'm fighting */
-	if (vict == NULL)
-	    vict = FIGHTING(ch);
-    
-	if ((GET_LEVEL(ch) > 4) && (number(0, 8) == 0) &&
-	    !affected_by_spell(ch, SPELL_BARKSKIN)) {
-	    cast_spell(ch, ch, NULL, SPELL_BARKSKIN);
-	    WAIT_STATE(ch, PULSE_VIOLENCE);
-	    return;
-	} else if ((GET_LEVEL(ch) > 21) && (number(0, 8) == 0) &&
-		   GET_RACE(vict) == RACE_UNDEAD && 
-		   !affected_by_spell(ch, SPELL_INVIS_TO_UNDEAD)) {
-	    cast_spell(ch, ch, NULL, SPELL_INVIS_TO_UNDEAD);
-	    WAIT_STATE(ch, PULSE_VIOLENCE);
-	    return;
-	}
+		/* pseudo-randomly choose someone in the room who is fighting me */
+		for (vict = ch->in_room->people; vict; vict = vict->next_in_room)
+			if (FIGHTING(vict) == ch && !number(0, 4))
+			break;
+		/* if I didn't pick any of those, then just slam the guy I'm fighting */
+		if (vict == NULL)
+			vict = FIGHTING(ch);
+		
+		if ((GET_LEVEL(ch) > 4) && (number(0, 8) == 0) &&
+			!affected_by_spell(ch, SPELL_BARKSKIN)) {
+			cast_spell(ch, ch, NULL, SPELL_BARKSKIN);
+			WAIT_STATE(ch, PULSE_VIOLENCE);
+			return;
+		} else if ((GET_LEVEL(ch) > 21) && (number(0, 8) == 0) &&
+			   GET_RACE(vict) == RACE_UNDEAD && 
+			   !affected_by_spell(ch, SPELL_INVIS_TO_UNDEAD)) {
+			cast_spell(ch, ch, NULL, SPELL_INVIS_TO_UNDEAD);
+			WAIT_STATE(ch, PULSE_VIOLENCE);
+			return;
+		}
 
-	if (!number(0,1) && GET_LEVEL(ch) >= 27 && 
-	    (GET_CLASS(vict) == CLASS_MAGIC_USER || 
-	     GET_CLASS(vict) == CLASS_CLERIC)) {
-	    do_offensive_skill(ch, GET_NAME(vict), 0, SKILL_SWEEPKICK);
-	    return;
-	}
-	if ((GET_LEVEL(ch) > 42) && (number(0, 4) == 0)) {
-	    do_offensive_skill(ch, GET_NAME(vict), 0, SKILL_LUNGE_PUNCH);
-	    return;
-	} else if ((GET_LEVEL(ch) > 25) && (number(0, 6) == 0)) {
-	    do_offensive_skill(ch, GET_NAME(vict), 0, SKILL_BEARHUG);
-	    return;
-	} else if ((GET_LEVEL(ch) >= 20) && (number(0, 6) == 0) &&
-		   GET_EQ(ch, WEAR_WIELD) && GET_EQ(vict, WEAR_WIELD)) {
-	    do_disarm(ch, PERS(vict, ch), 0, 0);
-	    return;
-	}
+		if (!number(0,1) && GET_LEVEL(ch) >= 27 && 
+			(GET_CLASS(vict) == CLASS_MAGIC_USER || 
+			 GET_CLASS(vict) == CLASS_CLERIC)) {
+			do_offensive_skill(ch, GET_NAME(vict), 0, SKILL_SWEEPKICK);
+			return;
+		}
+		if ((GET_LEVEL(ch) > 42) && (number(0, 4) == 0)) {
+			do_offensive_skill(ch, GET_NAME(vict), 0, SKILL_LUNGE_PUNCH);
+			return;
+		} else if ((GET_LEVEL(ch) > 25) && (number(0, 6) == 0)) {
+			do_offensive_skill(ch, GET_NAME(vict), 0, SKILL_BEARHUG);
+			return;
+		} else if ((GET_LEVEL(ch) >= 20) && (number(0, 6) == 0) &&
+			   GET_EQ(ch, WEAR_WIELD) && GET_EQ(vict, WEAR_WIELD)) {
+			do_disarm(ch, PERS(vict, ch), 0, 0);
+			return;
+		}
 
-	if (!number(0, 3)) {
+		if (!number(0, 3)) {
 
-	    if (GET_LEVEL(ch) < 3) {
-		do_offensive_skill(ch, GET_NAME(vict), 0, SKILL_KICK);
-	    } else if (GET_LEVEL(ch) < 6) {
-		do_offensive_skill(ch, GET_NAME(vict), 0, SKILL_BITE);
-	    } else if (GET_LEVEL(ch) < 14) {
-		do_offensive_skill(ch, GET_NAME(vict), 0, SKILL_UPPERCUT);
-	    } else if (GET_LEVEL(ch) < 17) {
-		do_offensive_skill(ch, GET_NAME(vict), 0, SKILL_HEADBUTT);
-	    } else if (GET_LEVEL(ch) < 22) {
-		do_offensive_skill(ch, GET_NAME(vict), 0, SKILL_ROUNDHOUSE);
-	    } else if (GET_LEVEL(ch) < 24) {
-		do_offensive_skill(ch, GET_NAME(vict), 0, SKILL_HOOK);
-	    } else if (GET_LEVEL(ch) < 36) {
-		do_offensive_skill(ch, GET_NAME(vict), 0, SKILL_SIDEKICK);
-	    } else {
-		do_offensive_skill(ch, GET_NAME(vict), 0, SKILL_LUNGE_PUNCH);
-	    }
-	    return;
-	}
+			if (GET_LEVEL(ch) < 3) {
+			do_offensive_skill(ch, GET_NAME(vict), 0, SKILL_KICK);
+			} else if (GET_LEVEL(ch) < 6) {
+			do_offensive_skill(ch, GET_NAME(vict), 0, SKILL_BITE);
+			} else if (GET_LEVEL(ch) < 14) {
+			do_offensive_skill(ch, GET_NAME(vict), 0, SKILL_UPPERCUT);
+			} else if (GET_LEVEL(ch) < 17) {
+			do_offensive_skill(ch, GET_NAME(vict), 0, SKILL_HEADBUTT);
+			} else if (GET_LEVEL(ch) < 22) {
+			do_offensive_skill(ch, GET_NAME(vict), 0, SKILL_ROUNDHOUSE);
+			} else if (GET_LEVEL(ch) < 24) {
+			do_offensive_skill(ch, GET_NAME(vict), 0, SKILL_HOOK);
+			} else if (GET_LEVEL(ch) < 36) {
+			do_offensive_skill(ch, GET_NAME(vict), 0, SKILL_SIDEKICK);
+			} else {
+			do_offensive_skill(ch, GET_NAME(vict), 0, SKILL_LUNGE_PUNCH);
+			}
+			return;
+		}
     }    
 
     if (IS_KNIGHT(ch)) {
-	/* pseudo-randomly choose someone in the room who is fighting me */
-	for (vict = ch->in_room->people; vict; vict = vict->next_in_room)
-	    if (FIGHTING(vict) == ch && !number(0, 4))
-		break;
-	/* if I didn't pick any of those, then just slam the guy I'm fighting */
-	if (vict == NULL)
-	    vict = FIGHTING(ch);
+		/* pseudo-randomly choose someone in the room who is fighting me */
+		for (vict = ch->in_room->people; vict; vict = vict->next_in_room)
+			if (FIGHTING(vict) == ch && !number(0, 4))
+			break;
+		/* if I didn't pick any of those, then just slam the guy I'm fighting */
+		if (vict == NULL)
+			vict = FIGHTING(ch);
 
-	if (CAN_SEE(ch, vict) && 
-	    (IS_MAGE(vict) || IS_CLERIC(vict)) && GET_POS(vict) > POS_SITTING) {
-	    do_offensive_skill(ch, GET_NAME(vict), 0, SKILL_BASH);
-	    return;
-	}
-     
-	if (GET_LEVEL(ch) > 4 && (number(0, 8) == 0) &&
-	    !affected_by_spell(ch, SPELL_ARMOR)) {
-	    cast_spell(ch, ch, NULL, SPELL_ARMOR);
-	    return;
-	} else if ((GET_HIT(ch) / GET_MAX_HIT(ch)) < (GET_MAX_HIT(ch) >> 2)) {
-	    if ((GET_LEVEL(ch) < 14) && (number(0, 10) == 0)) {
-		cast_spell(ch, ch, NULL, SPELL_CURE_LIGHT);
-		return;
-	    } else if ((GET_LEVEL(ch) < 28) && (number(0, 10) == 0)) {
-		cast_spell(ch, ch, NULL, SPELL_CURE_CRITIC);
-		return;
-	    } else if (!number(0, 8)){
-		cast_spell(ch, ch, NULL, SPELL_HEAL);
-		return;
-	    } 
-	} else if (IS_GOOD(ch) && IS_EVIL(FIGHTING(ch)) && 
-		   !number(0, 2) &&!affected_by_spell(ch, SPELL_PROT_FROM_EVIL)) {
-	    cast_spell(ch, ch, NULL, SPELL_PROT_FROM_EVIL);
-	    return;
-	} else if (IS_EVIL(ch) && IS_GOOD(FIGHTING(ch)) && 
-		   !number(0, 2) && !affected_by_spell(ch,SPELL_PROT_FROM_GOOD)) {
-	    cast_spell(ch, ch, NULL, SPELL_PROT_FROM_GOOD);
-	    return;
-	} else if ((GET_LEVEL(ch) > 21) && (number(0, 8) == 0) &&
-		   GET_RACE(vict) == RACE_UNDEAD && 
-		   !affected_by_spell(ch, SPELL_INVIS_TO_UNDEAD)) {
-	    cast_spell(ch, ch, NULL, SPELL_INVIS_TO_UNDEAD);
-	    return;
-	} else if ((GET_LEVEL(ch) > 15) && (number(0, 5) == 0)) {
-	    cast_spell(ch, vict, NULL, SPELL_SPIRIT_HAMMER);
-	    return;
-	} else if ((GET_LEVEL(ch) > 35) && (number(0, 5) == 0)) {
-	    cast_spell(ch, vict, NULL, SPELL_FLAME_STRIKE);
-	    return;
-	} else if ((GET_LEVEL(ch) >= 20) && (number(0, 6) == 0) &&
-		   GET_EQ(ch, WEAR_WIELD) && GET_EQ(vict, WEAR_WIELD)) {
-	    do_disarm(ch, PERS(vict, ch), 0, 0);
-	    return;
-	}
+		if (CAN_SEE(ch, vict) && 
+			(IS_MAGE(vict) || IS_CLERIC(vict)) && GET_POS(vict) > POS_SITTING) {
+			do_offensive_skill(ch, GET_NAME(vict), 0, SKILL_BASH);
+			return;
+		}
+		 
+		if (GET_LEVEL(ch) > 4 && (number(0, 8) == 0) &&
+			!affected_by_spell(ch, SPELL_ARMOR)) {
+			cast_spell(ch, ch, NULL, SPELL_ARMOR);
+			return;
+		} else if ((GET_HIT(ch) / GET_MAX_HIT(ch)) < (GET_MAX_HIT(ch) >> 2)) {
+			if ((GET_LEVEL(ch) < 14) && (number(0, 10) == 0)) {
+			cast_spell(ch, ch, NULL, SPELL_CURE_LIGHT);
+			return;
+			} else if ((GET_LEVEL(ch) < 28) && (number(0, 10) == 0)) {
+			cast_spell(ch, ch, NULL, SPELL_CURE_CRITIC);
+			return;
+			} else if (!number(0, 8)){
+			cast_spell(ch, ch, NULL, SPELL_HEAL);
+			return;
+			} 
+		} else if (IS_GOOD(ch) && IS_EVIL(FIGHTING(ch)) && 
+			   !number(0, 2) &&!affected_by_spell(ch, SPELL_PROT_FROM_EVIL)) {
+			cast_spell(ch, ch, NULL, SPELL_PROT_FROM_EVIL);
+			return;
+		} else if (IS_EVIL(ch) && IS_GOOD(FIGHTING(ch)) && 
+			   !number(0, 2) && !affected_by_spell(ch,SPELL_PROT_FROM_GOOD)) {
+			cast_spell(ch, ch, NULL, SPELL_PROT_FROM_GOOD);
+			return;
+		} else if ((GET_LEVEL(ch) > 21) && (number(0, 8) == 0) &&
+			   GET_RACE(vict) == RACE_UNDEAD && 
+			   !affected_by_spell(ch, SPELL_INVIS_TO_UNDEAD)) {
+			cast_spell(ch, ch, NULL, SPELL_INVIS_TO_UNDEAD);
+			return;
+		} else if ((GET_LEVEL(ch) > 15) && (number(0, 5) == 0)) {
+			cast_spell(ch, vict, NULL, SPELL_SPIRIT_HAMMER);
+			return;
+		} else if ((GET_LEVEL(ch) > 35) && (number(0, 5) == 0)) {
+			cast_spell(ch, vict, NULL, SPELL_FLAME_STRIKE);
+			return;
+		} else if ((GET_LEVEL(ch) >= 20) && (number(0, 6) == 0) &&
+			   GET_EQ(ch, WEAR_WIELD) && GET_EQ(vict, WEAR_WIELD)) {
+			do_disarm(ch, PERS(vict, ch), 0, 0);
+			return;
+		}
 
-	if (!number(0, 3)) {
-  
-	    if (GET_LEVEL(ch) < 7) {
-		do_offensive_skill(ch, GET_NAME(vict), 0, SKILL_SPINFIST);
-	    } else if (GET_LEVEL(ch) < 16) {
-		do_offensive_skill(ch, GET_NAME(vict), 0, SKILL_UPPERCUT);
-	    } else if (GET_LEVEL(ch) < 23) {
-		do_offensive_skill(ch, GET_NAME(vict), 0, SKILL_HOOK);
-	    } else if (GET_LEVEL(ch) < 35) {
-		do_offensive_skill(ch, GET_NAME(vict), 0, SKILL_LUNGE_PUNCH);
-	    } else if (GET_EQ(ch, WEAR_WIELD) && 
-		       GET_OBJ_VAL(GET_EQ(ch, WEAR_WIELD), 3) == 3) {
-		do_offensive_skill(ch, GET_NAME(vict), 0, SKILL_BEHEAD);
-	    }
-	    return;
-	}
+		if (!number(0, 3)) {
+	  
+			if (GET_LEVEL(ch) < 7) {
+			do_offensive_skill(ch, GET_NAME(vict), 0, SKILL_SPINFIST);
+			} else if (GET_LEVEL(ch) < 16) {
+			do_offensive_skill(ch, GET_NAME(vict), 0, SKILL_UPPERCUT);
+			} else if (GET_LEVEL(ch) < 23) {
+			do_offensive_skill(ch, GET_NAME(vict), 0, SKILL_HOOK);
+			} else if (GET_LEVEL(ch) < 35) {
+			do_offensive_skill(ch, GET_NAME(vict), 0, SKILL_LUNGE_PUNCH);
+			} else if (GET_EQ(ch, WEAR_WIELD) && 
+				   GET_OBJ_VAL(GET_EQ(ch, WEAR_WIELD), 3) == 3) {
+			do_offensive_skill(ch, GET_NAME(vict), 0, SKILL_BEHEAD);
+			}
+			return;
+		}
     }    
 
 
     /* add new mobile fight routines here. */
+    if (IS_MONK(ch)) {
+		if (GET_LEVEL(ch) >= 23 &&
+			GET_MOVE(ch) < (GET_MAX_MOVE(ch) >> 1) && GET_MANA(ch) > 100 &&
+			!number(0, 4)) {
+			do_battlecry(ch, "", 1, SCMD_KIA);
+			return;
+		}
+		// Monks are way to nasty. Make them twiddle thier thumbs a tad bit.
+		if(!number(0,4))
+			return;
+		// pseudo-randomly choose someone in the room who is fighting me
+		for (vict = ch->in_room->people; vict; vict = vict->next_in_room)
+			if (FIGHTING(vict) == ch && !number(0, 4))
+			break;
+		/* if I didn't pick any of those, then just slam the guy I'm fighting */
+		if (vict == NULL)
+			vict = FIGHTING(ch);
+		if (!number(0,2) && (GET_CLASS(vict) == CLASS_MAGIC_USER ||
+					 GET_CLASS(vict) == CLASS_CLERIC)) {
+			if(GET_LEVEL(ch) >=27) 
+				do_offensive_skill(ch, GET_NAME(vict), 0, SKILL_HIP_TOSS);
+			else if (GET_LEVEL(ch) >= 25)
+				do_offensive_skill(ch, GET_NAME(vict), 0, SKILL_SWEEPKICK);
+			return;
+		}
+		if ((GET_LEVEL(ch) >= 49) && (!number(0, 6) || 
+						 GET_POS(vict) < POS_FIGHTING)) {
+			do_offensive_skill(ch, GET_NAME(vict), 0, SKILL_DEATH_TOUCH);
+			return;
+		} else if ((GET_LEVEL(ch) > 33) && !number(0, 6)) {
+			do_combo(ch,GET_NAME(vict),0,0);
+			return;
+		} else if ((GET_LEVEL(ch) > 27) && !number(0, 6)) {
+			do_offensive_skill(ch, GET_NAME(vict), 0, SKILL_HIP_TOSS);
+			return;
+		} else if(!number(0, 6) && !affected_by_spell(vict,SKILL_PINCH_EPSILON) && (GET_LEVEL(ch) > 26)) {
+			sprintf(buf,"%s epsilon",GET_NAME(vict));
+			do_pinch(ch,buf,0,0);
+			return;
+		} else if(!number(0, 6) && !affected_by_spell(vict,SKILL_PINCH_DELTA) && (GET_LEVEL(ch) > 19)) {
+			sprintf(buf,"%s delta",GET_NAME(vict));
+			do_pinch(ch,buf,0,0);
+			return;
+		} else if(!number(0, 6) && !affected_by_spell(vict,SKILL_PINCH_BETA) && (GET_LEVEL(ch) > 12)) {
+			sprintf(buf,"%s beta",GET_NAME(vict));
+			do_pinch(ch,buf,0,0);
+			return;
+		} else if(!number(0, 6) && !affected_by_spell(vict,SKILL_PINCH_ALPHA) && (GET_LEVEL(ch) > 6)) {
+			sprintf(buf,"%s alpha",GET_NAME(vict));
+			do_pinch(ch,buf,0,0);
+			return;
+		} else if ((GET_LEVEL(ch) > 30) && !number(0, 6)) {
+			do_offensive_skill(ch, GET_NAME(vict), 0, SKILL_RIDGEHAND);
+			return;
+		} else if ((GET_LEVEL(ch) > 25) && !number(0, 6)) {
+			do_offensive_skill(ch, GET_NAME(vict), 0, SKILL_SWEEPKICK);
+			return;
+		} else if ((GET_LEVEL(ch) > 36) && !number(0, 6)) {
+			do_offensive_skill(ch, GET_NAME(vict), 0, SKILL_GOUGE);
+			return;
+		} else if ((GET_LEVEL(ch) > 10) && (number(0, 4) == 0)) {
+			do_offensive_skill(ch, GET_NAME(vict), 0, SKILL_THROAT_STRIKE);
+			return;
+		}
+    }    
 }
 
 /* Mob Memory Routines */

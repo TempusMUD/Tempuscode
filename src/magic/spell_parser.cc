@@ -494,7 +494,7 @@ const char *spells[] =
     "!UNUSED!", 
     "!UNUSED!",	/* 660 */
     "!UNUSED!", "!UNUSED!", "!UNUSED!", "!UNUSED!", "!UNUSED!",	/* 665 */
-    "hamstring", "!UNUSED!", "!UNUSED!", "!UNUSED!", "!UNUSED!",	/* 670 */
+    "hamstring", "snatch", "!UNUSED!", "!UNUSED!", "!UNUSED!",	/* 670 */
     "!UNUSED!", "!UNUSED!", "!UNUSED!", "!UNUSED!", "!UNUSED!",	/* 675 */
     "!UNUSED!", "!UNUSED!", "!UNUSED!",
     "energy conversion",
@@ -3055,6 +3055,8 @@ mag_assign_spells(void)
                         /* Ma Cl Th Wa Br Ps Ph Cyb Kni Rn Hd Mnk vm mr 1 2 3*/
     spello(SKILL_HAMSTRING, X, X, X, X, X, X, X, X, X,  X, 32, X, X,X,X,X,X,
 	   0, 0, 0, 0, 0, 0, 0);
+    spello(SKILL_SNATCH, X, X, X, X, X, X, X, X, X,  X,  X, X, X,X,X,X,X,
+	   0, 0, 0, 0, 0, 0, 0);
     spello(SKILL_ARCHERY, X, X, 14, 5, 24, X, X,  X,  X,  9, X, X, X, 10,X,X, X,
 	   0, 0, 0, 0, 0, 0, 0);
 
@@ -3342,8 +3344,8 @@ mag_assign_spells(void)
     spello(SKILL_ELUSION, X, X, X, X, X, X, X, X,X, X, X, X, X,9, X,X,X,
 	   0, 0, 0, 0, 0, 0, 0);
 
-    /* M  C Th Wa Ba Sy Ph C  Kn Rn Hd Mk Vm  Mr 1 2 3 */
-    spello(SKILL_RETREAT, X, X,16,16, X, X, X, X, X,18, X,33, X, 20, X,X,X,
+                       /* M  C Th Wa Ba Sy Ph C Kn Rn Hd Mk Vm  Mr 1 2 3 */
+    spello(SKILL_RETREAT, X, X,16,16, X, X, X,X,X, 18,17,33, X, 20, X,X,X,
 	   0, 0, 0, 0, 0, 0, 0);
 
 /**********************   CYBORG SKILLS  *********************/

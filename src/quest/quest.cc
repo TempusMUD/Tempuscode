@@ -126,16 +126,20 @@ ACMD(do_qcontrol)
 	return;
     }
     for (com = 0;;com++) {
-	if (!qc_options[com].keyword) {
-	    sprintf(buf, "Unknown qcontrol option, '%s'.\r\n", arg1);
-	    send_to_char(buf, ch);
-	    return;
-	}
-	if (is_abbrev(arg1, qc_options[com].keyword))
-	    break;
+		if (!qc_options[com].keyword) {
+			sprintf(buf, "Unknown qcontrol option, '%s'.\r\n", arg1);
+			send_to_char(buf, ch);
+			return;
+		}
+		if (is_abbrev(arg1, qc_options[com].keyword))
+			break;
     }
-  
-    switch (com) {
+  	if(qc_options[com].level > GET_LEVEL(ch)) {
+		send_to_char("You are not godly enough to do this!\r\n",ch);
+		return;
+	}
+    
+	switch (com) {
     case 0:			// show
 	do_qcontrol_show(ch, argument);
 	break;

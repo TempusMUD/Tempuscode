@@ -283,14 +283,6 @@ ASPELL(spell_local_teleport)
     if (victim == NULL) {
 	return;
     }
-    if (ROOM_FLAGGED(victim->in_room, ROOM_NORECALL)) {
-	send_to_char("You fade out for a moment...\r\n"
-		     "You are caught up in an energy vortex and thrown to the ground!\r\n", victim);
-	act("$n is knocked to the ground by a blinding flash of light!", 
-	    FALSE, victim, 0, 0, TO_ROOM);
-	GET_POS(victim) = POS_RESTING;
-	return;
-    }
 
     if (AFF_FLAGGED(ch, AFF_CHARM) && ch->master && 
 	ch->master->in_room == ch->in_room) {
@@ -341,6 +333,15 @@ ASPELL(spell_local_teleport)
 	(IS_NPC(victim) && mag_savingthrow(victim, level, SAVING_SPELL))) {
 	send_to_char("You fail.\r\n", ch);
 	return;
+    }
+    
+	if (ROOM_FLAGGED(victim->in_room, ROOM_NORECALL)) {
+		send_to_char("You fade out for a moment...\r\n"
+				 "You are caught up in an energy vortex and thrown to the ground!\r\n", victim);
+		act("$n is knocked to the ground by a blinding flash of light!", 
+			FALSE, victim, 0, 0, TO_ROOM);
+		GET_POS(victim) = POS_RESTING;
+		return;
     }
 
     do {

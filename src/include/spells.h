@@ -494,7 +494,9 @@ extern const char *spells[];
 #define SKILL_TERRORIZE             658
 
   /***************  Hood Skill... yeah. Just one ********/
+  /***************   Ok. now they have 2.  *****/
 #define SKILL_HAMSTRING				666
+#define SKILL_SNATCH				667
 
 #define SKILL_ENERGY_CONVERSION     679 // physic's energy conversion
 

@@ -41,7 +41,7 @@ void perform_monk_meditate(struct char_data *ch)
 	    af.type = ZEN_OBLIVITY;
 	    af.bitvector = AFF2_OBLIVITY;
 	    af.aff_index     = 2;
-	    af.duration = af.level / 10;
+	    af.duration = af.level / 5;
 	    af.location = APPLY_NONE;
 	    af.modifier = 0;
 	    affect_to_char(ch, &af);
@@ -67,7 +67,7 @@ void perform_monk_meditate(struct char_data *ch)
 		af.bitvector = AFF2_TRUE_SEEING; 
 		af.aff_index = 2;
 	    }
-	    af.duration = af.level / 10;
+	    af.duration = af.level / 5;
 	    af.modifier = 0;
 	    af.location = APPLY_NONE;
 	    affect_to_char(ch, &af);
@@ -87,7 +87,7 @@ void perform_monk_meditate(struct char_data *ch)
 	    af.type = ZEN_MOTION;
 	    af.bitvector = 0;
 	    af.aff_index = 0;
-	    af.duration = af.level / 8;
+	    af.duration = af.level / 4;
 	    af.location = APPLY_NONE;
 	    af.modifier = 0;
 	    affect_to_char(ch, &af);
@@ -106,7 +106,7 @@ void perform_monk_meditate(struct char_data *ch)
 	    af.type = ZEN_TRANSLOCATION;
 	    af.bitvector = 0;
 	    af.aff_index = 0;
-	    af.duration = af.level / 8;
+	    af.duration = af.level / 4;
 	    af.location = APPLY_NONE;
 	    af.modifier = 0;
 	    affect_to_char(ch, &af);
@@ -124,7 +124,7 @@ void perform_monk_meditate(struct char_data *ch)
 	    af.type = ZEN_CELERITY;
 	    af.bitvector = 0;
 	    af.aff_index = 0;
-	    af.duration = af.level / 10;
+	    af.duration = af.level / 5;
 	    af.location = APPLY_SPEED;
 	    af.modifier = af.level / 4;
 	    affect_to_char(ch, &af);

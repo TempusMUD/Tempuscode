@@ -747,6 +747,7 @@ point_update(void)
 	    }
 	} else if (GET_OBJ_VNUM(j) < 0 &&
 		   ((IS_OBJ_TYPE(j, ITEM_DRINKCON) && isname("head", j->name)) ||
+		    (IS_OBJ_TYPE(j, ITEM_DRINKCON) && isname("leg", j->name)) ||
 		    (IS_OBJ_TYPE(j, ITEM_FOOD) && isname("heart", j->name)))) {
 	    // body parts
 	    if (GET_OBJ_TIMER(j) > 0)

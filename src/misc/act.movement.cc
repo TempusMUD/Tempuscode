@@ -858,7 +858,7 @@ do_simple_move(struct char_data * ch, int dir, int mode, int need_specials_check
     if (ch->desc)
 	look_at_room(ch, ch->in_room, 0);
 	if (GET_POS(ch) == POS_STANDING && IS_AFFECTED_3(ch, AFF3_HAMSTRUNG)) {
-		damage(0,ch,dice(2,8),TYPE_BLEED,0);
+		damage(0,ch,dice(5,9),TYPE_BLEED,0);
 		send_to_char("The gash in your leg opens up, bleeding everywhere!\r\n",ch);
 	}
     if (ch->in_room->sector_type == SECT_UNDERWATER) {

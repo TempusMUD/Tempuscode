@@ -580,7 +580,7 @@ make_corpse( struct char_data *ch,struct char_data *killer,int attacktype )
     if ( IS_AFFECTED_2( ch, AFF2_PETRIFIED ) )
         leg->name = str_dup( "blood leg stone" );
     else
-        leg->name = str_dup( "blood leg" );
+        leg->name = str_dup( "blood leg amputated" );
   
     sprintf( buf2, "The amputated %sleg of %s %s lying here.",
          IS_AFFECTED_2( ch, AFF2_PETRIFIED ) ? "stone " : "",GET_NAME( ch ), isare );
@@ -592,7 +592,7 @@ make_corpse( struct char_data *ch,struct char_data *killer,int attacktype )
     GET_OBJ_WEAR( leg ) = ITEM_WEAR_TAKE;
     GET_OBJ_EXTRA( leg ) = ITEM_NODONATE;
     GET_OBJ_EXTRA2( leg ) = ITEM2_BODY_PART;
-    GET_OBJ_VAL( leg, 0 ) = 5;  /* Head full of blood */
+    GET_OBJ_VAL( leg, 0 ) = 5;  /* Leg full of blood */
     GET_OBJ_VAL( leg, 1 ) = 5;
     GET_OBJ_VAL( leg, 2 ) = 13;
     leg->setWeight( 10 );
