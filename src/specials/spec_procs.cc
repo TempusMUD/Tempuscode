@@ -2010,6 +2010,7 @@ SPECIAL(cave_bear)
 #include "Specs/mobile_specs/unholy_stalker.spec"
 #include "Specs/mobile_specs/oedit_reloader.spec"
 #include "Specs/mobile_specs/town_crier.spec"
+#include "Specs/mobile_specs/mage_teleporter.spec"
 
 /* RADFORD's SPECS */
 #include "Specs/rad_specs/labyrinth.spec"

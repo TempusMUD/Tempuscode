@@ -278,6 +278,7 @@ SPECIAL(demonic_overmind);
 SPECIAL(demonic_guard);
 SPECIAL(mugger);
 SPECIAL(guardian_angel);
+SPECIAL(mage_teleporter);
 
 #define SPEC_MOB 1
 #define SPEC_OBJ 2
