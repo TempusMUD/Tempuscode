@@ -40,6 +40,7 @@ SPECIAL(javelin_of_lightning)
 		if (!peaceful_room_ok(ch, vict, false))
 			return 1;
 
+		cur_weap = jav;
 		if ((GET_SKILL(ch, SKILL_SHOOT) >> 4) +
 			GET_INT(ch) + GET_DEX(ch) + number(0, GET_LEVEL(ch) + 5) >
 			(-(GET_AC(vict) >> 3) + GET_DEX(vict) + number(10,
