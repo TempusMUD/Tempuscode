@@ -1085,6 +1085,7 @@ perform_drop_credits(struct char_data * ch, int amount,
     case SCMD_DROP:
 	obj_to_room(obj, ch->in_room);
 	if ( ch->in_room->isOpenAir() &&
+         EXIT(ch, DOWN) &&
 	     EXIT(ch, DOWN)->to_room && 
 	     !IS_SET(EXIT(ch, DOWN)->exit_info, EX_CLOSED)) {
 	    act("$p falls downward through the air, out of sight!", 
