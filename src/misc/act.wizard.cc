@@ -2963,7 +2963,40 @@ ACMD(do_dc)
     slog(buf);
 }
 
+ACMD(do_wizcut)
+{
+    int level;
+    struct descriptor_data *d;
 
+
+    one_argument( argument, arg );
+
+    if( *arg ){
+	level = atoi( arg );
+	
+	if (level <= 0 || level >= LVL_IMMORT ) {
+	    send_to_char("You can only use wizcut on mortals.\r\n", ch );
+	    return;
+	}
+
+
+	for (d = descriptor_list; d; d = d->next) {
+	
+	    if( d->character ) {
+		
+		if( GET_LEVEL( d->character ) <= level ) {
+		    close_socket( d );
+		}
+	    }
+	}
+	sprintf(buf, "All players level %d and below have been disconnected.\r\n", level );
+	send_to_char( buf, ch );
+	sprintf(buf, "(GC) %s wizcut everyone level %d and below.\r\n", GET_NAME(ch), level );
+	slog(buf);
+
+    }
+
+}
 
 ACMD(do_wizlock)
 {

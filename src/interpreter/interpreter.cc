@@ -370,6 +370,7 @@ ACMD(do_whirlwind);
 ACMD(do_who);
 ACCMD(do_wield);
 ACMD(do_wimpy);
+ACMD(do_wizcut);
 ACMD(do_wizlock);
 ACMD(do_wiznet);
 ACMD(do_wizutil);
@@ -1258,6 +1259,7 @@ extern const struct command_info cmd_info[] = {
     { "wizflex"  , POS_RESTING , do_action   , LVL_IMMORT, 0 },
     { "wizpiss"  , POS_RESTING , do_action   , LVL_GRGOD, 0 },
     { "wizpants" , POS_RESTING , do_action   , LVL_TIMEGOD, 0 },
+    { "wizcut"   , POS_DEAD    , do_wizcut   , LVL_CREATOR, 0 },
     { "wonder"   , POS_RESTING , do_action   , 0, 0 },
     { "woowoo"   , POS_RESTING , do_action   , 0, 0 },
     { "wormhole" , POS_STANDING, do_translocate, 0, SKILL_WORMHOLE },
