@@ -2701,9 +2701,14 @@ reset_zone(struct zone_data *zone)
 
     for (zonecmd = zone->cmd; zonecmd && zonecmd->command != 'S'; 
 	 zonecmd = zonecmd->next, cmd_no++) {
-
-	if (zonecmd->if_flag && !last_cmd)
+    // if_flag 
+    // 0 == "Do regardless of previous"
+    // 1 == "Do if previous succeded"
+    // 2 == "Do if previous failed"
+	if (zonecmd->if_flag == 1 && !last_cmd)
 	    continue;
+    else if (zonecmd->if_flag == 2 && last_cmd)
+        continue;
 
 	if (!prob_override && number(1, 100) > zonecmd->prob) {
 	    last_cmd = 0;

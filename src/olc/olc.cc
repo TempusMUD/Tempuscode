@@ -110,13 +110,14 @@
 "olc zcmd [zone] cmdremove <number>\r\n" \
 "olc zcmd [zone] cmdrenumber\r\n" \
 "olc zcmd move   <original num> <target num>\r\n" \
-"olc zcmd [zone] <M> <if_flag> <mob> <num> <room>\r\n" \
-"olc zcmd [zone] <O> <if_flag> <obj> <num> <room>\r\n" \
-"olc zcmd [zone] <P> <if_flag> <obj> <num> <obj>\r\n"  \
+"olc zcmd [zone] <M> <if_flag> <mob> <num> <room> <prob>\r\n" \
+"olc zcmd [zone] <O> <if_flag> <obj> <num> <room> <prob>\r\n" \
+"olc zcmd [zone] <P> <if_flag> <obj> <num> <obj> <prob>\r\n"  \
 "olc zcmd [zone] <R> <if_flag> <obj> <room>\r\n"       \
-"olc zcmd [zone] <E> <if_flag> <obj> <num> <pos> <mob>\r\n" \
-"olc zcmd [zone] <G> <if_flag> <obj> <num> <mob>\r\n"  \
+"olc zcmd [zone] <E> <if_flag> <obj> <num> <pos> <mob> <prob>\r\n" \
+"olc zcmd [zone] <G> <if_flag> <obj> <num> <mob> <prob>\r\n"  \
 "olc zcmd [zone] <D> <if_flag> <room> <door> <state>\r\n" \
+"olc zcmd [zone] <I> <if_flag> <obj> <num> <pos> <mob> <prob>\r\n" 
 
 
 #define SEARCH_USAGE "Values:\r\n"  \

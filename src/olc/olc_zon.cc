@@ -78,7 +78,7 @@ do_zcmd(struct char_data *ch, char *argument)
     struct room_data *room;
     char   command[2];
     int cur_door_flags, tmp_door_flags, tmp_flag;
-    int i, line, found, if_flag, int_arg1, int_arg2, int_arg3;
+    int i, line, found, if_flag, int_arg1, int_arg2, int_arg3, int_arg4;
   
     argument = one_argument(argument, arg1);
   
@@ -147,18 +147,19 @@ do_zcmd(struct char_data *ch, char *argument)
     else switch (*arg2) {
     case 'm':
     case 'M':
+#define ZCMD_M_USAGE "Usage: olc zcmd [zone] M <if_flag> <mob vnum> <max loaded> <room vnum> <prob>\r\n"
 	argument = two_arguments(argument, arg1, arg2);
       
 	if (!*arg1 || !*arg2) {
-	    send_to_char("Usage: olc zcmd [zone] M <if_flag> <mob vnum> <max loaded> <room vnum>\r\n", ch);
+	    send_to_char(ZCMD_M_USAGE,ch);
 	    return;
 	}
     
 	if (is_number(arg1) && is_number(arg2)) {
 	    if_flag = atoi(arg1);
-	    if (if_flag != 0 && if_flag != 1) {
-		send_to_char("if_flag dependancy flag must be either 0 or 1\r\n",ch);
-		return;
+	    if (if_flag != 0 && if_flag != 1 && if_flag != 2 ) {
+            send_to_char("if_flag dependancy flag must be 0, 1  or 2\r\n",ch);
+            return;
 	    }
 	    int_arg1 = atoi(arg2);
 	    if (!real_mobile_proto(int_arg1)) {
@@ -166,16 +167,15 @@ do_zcmd(struct char_data *ch, char *argument)
 		send_to_char(buf, ch);
 		return;
 	    }
-	}
-	else {
-	    send_to_char("Usage: olc zcmd [zone] M <if_flag> <mob vnum> <max loaded> <room vnum>\r\n", ch);
+	} else {
+	    send_to_char(ZCMD_M_USAGE,ch);
 	    return;
 	}
 	  
-	two_arguments(argument, arg1, arg2);
+	argument = two_arguments(argument, arg1, arg2);
       
 	if (!*arg1 || !*arg2) {
-	    send_to_char("Usage: olc zcmd [zone] M <if_flag> <mob vnum> <max loaded> <room vnum>\r\n", ch);
+	    send_to_char(ZCMD_M_USAGE,ch);
 	    return;
 	}
 	
@@ -195,9 +195,26 @@ do_zcmd(struct char_data *ch, char *argument)
 		send_to_char("Let's not load mobs in other ppl's zones, shall we?\r\n", ch);
 		return;
 	    }
+	} else {
+	    send_to_char(ZCMD_M_USAGE,ch);
+	    return;
 	}
-	else {
-	    send_to_char("Usage: olc zcmd [zone] M <if_flag> <mob vnum> <max loaded> <room vnum>\r\n", ch);
+    // Probability
+	argument = one_argument(argument, arg1);
+	if (!*arg1) {
+	    send_to_char(ZCMD_M_USAGE, ch);
+	    return;
+	}
+	if (is_number(arg1)) {
+	    i = atoi(arg1);
+        if(i > 100 || i < 0) {
+            sprintf(buf,"Invalid probability: %d\r\n",i);
+            send_to_char(buf,ch);
+            return;
+        }
+        int_arg4 = i;
+	} else {
+        send_to_char(ZCMD_M_USAGE, ch);
 	    return;
 	}
       
@@ -208,7 +225,7 @@ do_zcmd(struct char_data *ch, char *argument)
 	zonecmd->arg1 = int_arg1;
 	zonecmd->arg2 = int_arg2;
 	zonecmd->arg3 = int_arg3;
-	zonecmd->prob = 100;
+	zonecmd->prob = int_arg4;
 	zonecmd->next = NULL;
 
 	if (zone->cmd) {
@@ -233,14 +250,15 @@ do_zcmd(struct char_data *ch, char *argument)
     case 'O':
 	argument = two_arguments(argument, arg1, arg2);
 
+#define ZCMD_O_USAGE "Usage: olc zcmd [zone] O <if_flag> <obj vnum> <max loaded> <room vnum> <prob>\r\n"
 	if (!*arg1 || !*arg2) {
-	    send_to_char("Usage: olc zcmd [zone] O <if_flag> <obj vnum> <max loaded> <room vnum>\r\n", ch);
+	    send_to_char(ZCMD_O_USAGE, ch);
 	    return;
 	}
       
 	if (is_number(arg1) && is_number(arg2)) {
 	    if_flag = atoi(arg1);
-	    if (if_flag != 0 && if_flag != 1) {
+	    if (if_flag != 0 && if_flag != 1 && if_flag != 2 ) {
 		send_to_char("if_flag dependancy flag must be either 0 or 1\r\n", ch);
 		return;
 	    }
@@ -250,16 +268,15 @@ do_zcmd(struct char_data *ch, char *argument)
 		send_to_char(buf, ch);
 		return;
 	    }
-	}
-	else {
-	    send_to_char("Usage: olc zcmd [zone] O <if_flag> <obj vnum> <max loaded> <room vnum>\r\n", ch);
+	} else {
+	    send_to_char(ZCMD_O_USAGE, ch);
 	    return;
 	}
 	  
-	two_arguments(argument, arg1, arg2);
+	argument = two_arguments(argument, arg1, arg2);
       
 	if (!*arg1 || !*arg2) {
-	    send_to_char("Usage: olc zcmd [zone] O <if_flag> <obj vnum> <max loaded> <room vnum>\r\n", ch);
+	    send_to_char(ZCMD_O_USAGE, ch);
 	    return;
 	}
 	
@@ -279,9 +296,26 @@ do_zcmd(struct char_data *ch, char *argument)
 		send_to_char("Let's not load objs in other ppl's zones, shall we?\r\n", ch);
 		return;
 	    }
+	} else {
+	    send_to_char(ZCMD_O_USAGE, ch);
+	    return;
 	}
-	else {
-	    send_to_char("Usage: olc zcmd [zone] O <if_flag> <obj vnum> <max loaded> <room vnum>\r\n", ch);
+    // Probability
+	argument = one_argument(argument, arg1);
+	if (!*arg1) {
+	    send_to_char(ZCMD_O_USAGE, ch);
+	    return;
+	}
+	if (is_number(arg1)) {
+	    i = atoi(arg1);
+        if(i > 100 || i < 0) {
+            sprintf(buf,"Invalid probability: %d\r\n",i);
+            send_to_char(buf,ch);
+            return;
+        }
+        int_arg4 = i;
+	} else {
+        send_to_char(ZCMD_O_USAGE, ch);
 	    return;
 	}
       
@@ -292,7 +326,7 @@ do_zcmd(struct char_data *ch, char *argument)
 	zonecmd->arg1 = int_arg1;
 	zonecmd->arg2 = int_arg2;
 	zonecmd->arg3 = int_arg3;
-	zonecmd->prob = 100;
+	zonecmd->prob = int_arg4;
   
 	zonecmd->next = NULL;
 
@@ -318,15 +352,16 @@ do_zcmd(struct char_data *ch, char *argument)
     case 'P':
 	argument = two_arguments(argument, arg1, arg2);
 
+#define ZCMD_P_USAGE "Usage: olc zcmd [zone] P <if_flag> <obj vnum> <max loaded> <obj vnum> <prob>\r\n"
 	if (!*arg1 || !*arg2) {
-	    send_to_char("Usage: olc zcmd [zone] P <if_flag> <obj vnum> <max loaded> <obj vnum>\r\n", ch);
+	    send_to_char(ZCMD_P_USAGE, ch);
 	    return;
 	}	
 	
 	if (is_number(arg1) && is_number(arg2)) {
 	    if_flag = atoi(arg1);
-	    if (if_flag != 0 && if_flag != 1) {
-		send_to_char("if_flag dependancy flag must be either 0 or 1\r\n", ch);
+	    if (if_flag != 0 && if_flag != 1 && if_flag != 2 ) {
+		send_to_char("if_flag dependancy flag must be 0, 1 or 2\r\n", ch);
 		return;
 	    }
 	    int_arg1 = atoi(arg2);
@@ -337,32 +372,49 @@ do_zcmd(struct char_data *ch, char *argument)
 	    }
 	}
 	else {
-	    send_to_char("Usage: olc zcmd [zone] P <if_flag> <obj vnum> <max loaded> <obj vnum>\r\n", ch);
+	    send_to_char(ZCMD_P_USAGE, ch);
 	    return;
 	}
 	  
-	two_arguments(argument, arg1, arg2);
+	argument = two_arguments(argument, arg1, arg2);
       
 	if (!*arg1 || !*arg2) {
-	    send_to_char("Usage: olc zcmd [zone] P <if_flag> <obj vnum> <max loaded> <obj vnum>\r\n", ch);
+	    send_to_char(ZCMD_P_USAGE, ch);
 	    return;
 	}
 	
 	if (is_number(arg1) && is_number(arg2)) {
 	    int_arg2 = atoi(arg1);
 	    if (int_arg2 < 1 || int_arg2 > 1000) {
-		send_to_char("Number loaded must be between 1 and 1000.\r\n", ch);
-		return;
+            send_to_char("Number loaded must be between 1 and 1000.\r\n", ch);
+            return;
 	    }
 	    int_arg3 = atoi(arg2);
 	    if (!real_object_proto(int_arg3)) {
-		sprintf(buf, "Object (V) %d does not exist, buttmunch.\r\n", int_arg3);
-		send_to_char(buf, ch);
-		return;
+            sprintf(buf, "Object (V) %d does not exist, buttmunch.\r\n", int_arg3);
+            send_to_char(buf, ch);
+            return;
 	    }
+	} else {
+	    send_to_char(ZCMD_P_USAGE, ch);
+	    return;
 	}
-	else {
-	    send_to_char("Usage: olc zcmd [zone] P <if_flag> <obj vnum> <max loaded> <obj vnum>\r\n", ch);
+    // Probability
+	argument = one_argument(argument, arg1);
+	if (!*arg1) {
+	    send_to_char(ZCMD_P_USAGE, ch);
+	    return;
+	}
+	if (is_number(arg1)) {
+	    i = atoi(arg1);
+        if(i > 100 || i < 0) {
+            sprintf(buf,"Invalid probability: %d\r\n",i);
+            send_to_char(buf,ch);
+            return;
+        }
+        int_arg4 = i;
+	} else {
+        send_to_char(ZCMD_P_USAGE, ch);
 	    return;
 	}
       
@@ -373,7 +425,7 @@ do_zcmd(struct char_data *ch, char *argument)
 	zonecmd->arg1 = int_arg1;
 	zonecmd->arg2 = int_arg2;
 	zonecmd->arg3 = int_arg3;
-	zonecmd->prob = 100;
+	zonecmd->prob = int_arg4;
   
 	zonecmd->next = NULL;
     
@@ -399,14 +451,15 @@ do_zcmd(struct char_data *ch, char *argument)
     case 'G':
 	argument = two_arguments(argument, arg1, arg2);
 
+#define ZCMD_G_USAGE "Usage: olc zcmd [zone] G <if_flag> <obj vnum> <max loaded> <mob vnum> <prob>\r\n"
 	if (!*arg1 || !*arg2) {
-	    send_to_char("Usage: olc zcmd [zone] G <if_flag> <obj vnum> <max loaded> <mob vnum>\r\n", ch);
+	    send_to_char(ZCMD_G_USAGE, ch);
 	    return;
 	}	
 	
 	if (is_number(arg1) && is_number(arg2)) {
 	    if_flag = atoi(arg1);
-	    if (if_flag != 0 && if_flag != 1) {
+	    if (if_flag != 0 && if_flag != 1 && if_flag != 2 ) {
 		send_to_char("if_flag dependancy flag must be either 0 or 1\r\n",ch);
 		return;
 	    }
@@ -416,16 +469,15 @@ do_zcmd(struct char_data *ch, char *argument)
 		send_to_char(buf, ch);
 		return;
 	    }
-	}
-	else {
-	    send_to_char("Usage: olc zcmd [zone] G <if_flag> <obj vnum> <max loaded> <mob vnum>\r\n", ch);
+	} else {
+	    send_to_char(ZCMD_G_USAGE, ch);
 	    return;
 	}
 	  
-	two_arguments(argument, arg1, arg2);
+	argument = two_arguments(argument, arg1, arg2);
       
 	if (!*arg1 || !*arg2) {
-	    send_to_char("Usage: olc zcmd [zone] G <if_flag> <obj vnum> <max loaded> <mob vnum>\r\n", ch);
+	    send_to_char(ZCMD_G_USAGE, ch);
 	    return;
 	}
 	
@@ -441,9 +493,26 @@ do_zcmd(struct char_data *ch, char *argument)
 		send_to_char(buf, ch);
 		return;
 	    }
+	} else {
+	    send_to_char(ZCMD_G_USAGE, ch);
+	    return;
 	}
-	else {
-	    send_to_char("Usage: olc zcmd [zone] G <if_flag> <obj vnum> <max loaded> <mob vnum>\r\n", ch);
+    // Probability
+	argument = one_argument(argument, arg1);
+	if (!*arg1) {
+	    send_to_char(ZCMD_G_USAGE, ch);
+	    return;
+	}
+	if (is_number(arg1)) {
+	    i = atoi(arg1);
+        if(i > 100 || i < 0) {
+            sprintf(buf,"Invalid probability: %d\r\n",i);
+            send_to_char(buf,ch);
+            return;
+        }
+        int_arg4 = i;
+	} else {
+        send_to_char(ZCMD_G_USAGE, ch);
 	    return;
 	}
       
@@ -454,7 +523,7 @@ do_zcmd(struct char_data *ch, char *argument)
 	zonecmd->arg1 = int_arg1;
 	zonecmd->arg2 = int_arg2;
 	zonecmd->arg3 = int_arg3;
-	zonecmd->prob = 100;
+	zonecmd->prob = int_arg4;
   
 	zonecmd->next = NULL;
     
@@ -478,77 +547,89 @@ do_zcmd(struct char_data *ch, char *argument)
 	break;
     case 'e':
     case 'E':
+#define ZCMD_E_USAGE "Usage: olc zcmd [zone] E <if_flag> <obj vnum> <max loaded> <wear pos> <mob vnum> <prob>\r\n"
 	argument = two_arguments(argument, arg1, arg2);
       
 	if (!*arg1 || !*arg2) {
-	    send_to_char("Usage: olc zcmd [zone] E <if_flag> <obj vnum> <max loaded> <wear pos> <mob vnum>\r\n", ch);
+	    send_to_char(ZCMD_E_USAGE, ch);
 	    return;
 	}	
 	
 	if (is_number(arg1) && is_number(arg2)) {
 	    if_flag = atoi(arg1);
-	    if (if_flag != 0 && if_flag != 1) {
-		send_to_char("if_flag dependancy flag must be either 0 or 1\r\n", ch);
-		return;
+	    if (if_flag != 0 && if_flag != 1 && if_flag != 2 ) {
+            send_to_char("if_flag dependancy flag must be 0, 1 or 2\r\n", ch);
+            return;
 	    }
 	    int_arg1 = atoi(arg2);
 	    if (!real_object_proto(int_arg1)) {
-		sprintf(buf, "Object (V) %d does not exist.\r\n", int_arg1);
-		send_to_char(buf, ch);
-		return;
+            sprintf(buf, "Object (V) %d does not exist.\r\n", int_arg1);
+            send_to_char(buf, ch);
+            return;
 	    }
-	}
-	else {
-	    send_to_char("Usage: olc zcmd [zone] E <if_flag> <obj vnum> <max loaded> <wear pos> <mob vnum>\r\n", ch);
+	} else {
+	    send_to_char(ZCMD_E_USAGE, ch);
 	    return;
 	}
-	  
+	// Maxload and Wear Position 
 	argument = two_arguments(argument, arg1, arg2);
-      
 	if (!*arg1 || !*arg2) {
-	    send_to_char("Usage: olc zcmd [zone] E <if_flag> <obj vnum> <max loaded> <wear pos> <mob vnum>\r\n", ch);
+	    send_to_char(ZCMD_E_USAGE, ch);
 	    return;
 	}
-	
 	if (is_number(arg1) && is_number(arg2)) {
 	    int_arg2 = atoi(arg1);
 	    if (int_arg2 < 1 || int_arg2 > 1000) {
-		send_to_char("Number loaded must be between 1 and 1000.\r\n", ch);
-		return;
+            send_to_char("Number loaded must be between 1 and 1000.\r\n", ch);
+            return;
 	    }
 	    int_arg3 = atoi(arg2);
 	    if (int_arg3 < 0 || int_arg3 > NUM_WEARS) {
-		sprintf(buf, "Invalid wear position, %d, must be 0-27\r\n", int_arg3);
-		send_to_char(buf, ch);
-		return;
+            sprintf(buf, "Invalid wear position, %d, must be 0-27\r\n", int_arg3);
+            send_to_char(buf, ch);
+            return;
 	    }
 	}
 	else {
-	    send_to_char("Usage: olc zcmd [zone] E <if_flag> <obj vnum> <max loaded> <wear pos> <mob vnum>\r\n", ch);
+	    send_to_char(ZCMD_E_USAGE, ch);
 	    return;
 	}
     
-	one_argument(argument, arg1);
-    
+    // Target Mobile
+	argument = one_argument(argument, arg1);
 	if (!*arg1) {
-	    send_to_char("Usage: olc zcmd [zone] E <if_flag> <obj vnum> <max loaded> <wear pos> <mob vnum>\r\n", ch);
+	    send_to_char(ZCMD_E_USAGE, ch);
 	    return;
 	}
-	
 	if (is_number(arg1)) {
 	    i = atoi(arg1);
 	    if (!real_mobile_proto(i)) {
-		sprintf(buf, "Mobile (V) %d does not exist.\r\n", i);
-		send_to_char(buf, ch);
-		return;  
+            sprintf(buf, "Mobile (V) %d does not exist.\r\n", i);
+            send_to_char(buf, ch);
+            return;  
 	    }
-	
-	}
-	else {
-	    send_to_char("Usage: olc zcmd [zone] E <if_flag> <obj vnum> <max loaded> <wear pos> <mob vnum>\r\n", ch);
+	} else {
+	    send_to_char(ZCMD_E_USAGE, ch);
 	    return;
 	}
-      
+    // Probability
+	argument = one_argument(argument, arg1);
+	if (!*arg1) {
+	    send_to_char(ZCMD_E_USAGE, ch);
+	    return;
+	}
+	if (is_number(arg1)) {
+	    i = atoi(arg1);
+        if(i > 100 || i < 0) {
+            sprintf(buf,"Invalid probability: %d\r\n",i);
+            send_to_char(buf,ch);
+            return;
+        }
+        int_arg4 = i;
+	} else {
+        send_to_char(ZCMD_E_USAGE, ch);
+	    return;
+	}
 	CREATE(zonecmd, struct reset_com, 1);
     
 	zonecmd->command = 'E';
@@ -556,7 +637,7 @@ do_zcmd(struct char_data *ch, char *argument)
 	zonecmd->arg1 = int_arg1;
 	zonecmd->arg2 = int_arg2;
 	zonecmd->arg3 = int_arg3;
-	zonecmd->prob = 100;
+	zonecmd->prob = int_arg4;
   
 	zonecmd->next = NULL;
 
@@ -582,14 +663,15 @@ do_zcmd(struct char_data *ch, char *argument)
     case 'I':
 	argument = two_arguments(argument, arg1, arg2);
       
+#define ZCMD_I_USAGE "Usage: olc zcmd [zone] I <if_flag> <obj vnum> <max loaded> <implant pos> <mob vnum><prob>\r\n"
 	if (!*arg1 || !*arg2) {
-	    send_to_char("Usage: olc zcmd [zone] I <if_flag> <obj vnum> <max loaded> <implant pos> <mob vnum>\r\n", ch);
+	    send_to_char(ZCMD_I_USAGE, ch);
 	    return;
 	}	
 	
 	if (is_number(arg1) && is_number(arg2)) {
 	    if_flag = atoi(arg1);
-	    if (if_flag != 0 && if_flag != 1) {
+	    if (if_flag != 0 && if_flag != 1 && if_flag != 2 ) {
 		send_to_char("if_flag dependancy flag must be either 0 or 1\r\n", ch);
 		return;
 	    }
@@ -599,16 +681,15 @@ do_zcmd(struct char_data *ch, char *argument)
 		send_to_char(buf, ch);
 		return;
 	    }
-	}
-	else {
-	    send_to_char("Usage: olc zcmd [zone] I <if_flag> <obj vnum> <max loaded> <implant pos> <mob vnum>\r\n", ch);
+	} else {
+	    send_to_char(ZCMD_I_USAGE, ch);
 	    return;
 	}
 	  
 	argument = two_arguments(argument, arg1, arg2);
       
 	if (!*arg1 || !*arg2) {
-	    send_to_char("Usage: olc zcmd [zone] I <if_flag> <obj vnum> <max loaded> <implant pos> <mob vnum>\r\n", ch);
+	    send_to_char(ZCMD_I_USAGE, ch);
 	    return;
 	}
 	
@@ -624,16 +705,15 @@ do_zcmd(struct char_data *ch, char *argument)
 		send_to_char(buf, ch);
 		return;
 	    }
-	}
-	else {
-	    send_to_char("Usage: olc zcmd [zone] I <if_flag> <obj vnum> <max loaded> <implant pos> <mob vnum>\r\n", ch);
+	} else {
+	    send_to_char(ZCMD_I_USAGE, ch);
 	    return;
 	}
     
-	one_argument(argument, arg1);
+	argument = one_argument(argument, arg1);
     
 	if (!*arg1) {
-	    send_to_char("Usage: olc zcmd [zone] I <if_flag> <obj vnum> <max loaded> <implant pos> <mob vnum>\r\n", ch);
+	    send_to_char(ZCMD_I_USAGE, ch);
 	    return;
 	}
 	
@@ -645,9 +725,26 @@ do_zcmd(struct char_data *ch, char *argument)
 		return;  
 	    }
 	
+	} else {
+	    send_to_char(ZCMD_I_USAGE, ch);
+	    return;
 	}
-	else {
-	    send_to_char("Usage: olc zcmd [zone] I <if_flag> <obj vnum> <max loaded> <implant pos> <mob vnum>\r\n", ch);
+    // Probability
+	argument = one_argument(argument, arg1);
+	if (!*arg1) {
+	    send_to_char(ZCMD_I_USAGE, ch);
+	    return;
+	}
+	if (is_number(arg1)) {
+	    i = atoi(arg1);
+        if(i > 100 || i < 0) {
+            sprintf(buf,"Invalid probability: %d\r\n",i);
+            send_to_char(buf,ch);
+            return;
+        }
+        int_arg4 = i;
+	} else {
+        send_to_char(ZCMD_I_USAGE, ch);
 	    return;
 	}
       
@@ -658,7 +755,7 @@ do_zcmd(struct char_data *ch, char *argument)
 	zonecmd->arg1 = int_arg1;
 	zonecmd->arg2 = int_arg2;
 	zonecmd->arg3 = int_arg3;
-	zonecmd->prob = 100;
+	zonecmd->prob = int_arg4;
   
 	zonecmd->next = NULL;
     
@@ -684,15 +781,16 @@ do_zcmd(struct char_data *ch, char *argument)
     case 'R':
 	argument = two_arguments(argument, arg1, arg2);
       
+#define ZCMD_R_USAGE "Usage: olc zcmd [zone] R <if_flag> <obj vnum> <room vnum>\r\n"
 	if (!*arg1 || !*arg2) {
-	    send_to_char("Usage: olc zcmd [zone] R <if_flag> <obj vnum> <room vnum>\r\n", ch);
+        send_to_char(ZCMD_R_USAGE, ch);
 	    return;
 	}	
 	
 	if (is_number(arg1) && is_number(arg2)) {
 	    if_flag = atoi(arg1);
-	    if (if_flag != 0 && if_flag != 1) {
-		send_to_char("if_flag dependancy flag must be either 0 or 1\r\n", ch);
+	    if (if_flag != 0 && if_flag != 1 && if_flag != 2 ) {
+		send_to_char("if_flag dependancy flag must be 0, 1 or 2\r\n", ch);
 		return;
 	    }
 	    int_arg1 = atoi(arg2);
@@ -703,14 +801,14 @@ do_zcmd(struct char_data *ch, char *argument)
 	    }
 	}
 	else {
-	    send_to_char("Usage: olc zcmd [zone] R <if_flag> <obj vnum> <room vnum>\r\n", ch);
+        send_to_char(ZCMD_R_USAGE, ch);
 	    return;
 	}
 	  
-	one_argument(argument, arg1);
+	argument = one_argument(argument, arg1);
       
 	if (!*arg1) {
-	    send_to_char("Usage: olc zcmd [zone] R <if_flag> <obj vnum> <room vnum>\r\n", ch);
+        send_to_char(ZCMD_R_USAGE, ch);
 	    return;
 	}
 	
@@ -725,10 +823,8 @@ do_zcmd(struct char_data *ch, char *argument)
 		send_to_char("Let's not remove objs from other ppl's zones, asshole.\r\n", ch);
 		return;
 	    }
-	}
-
-	else {
-	    send_to_char("Usage: olc zcmd [zone] R <if_flag> <obj vnum> <room vnum>\r\n", ch);
+	} else {
+        send_to_char(ZCMD_R_USAGE, ch);
 	    return;
 	}
       
@@ -772,7 +868,7 @@ do_zcmd(struct char_data *ch, char *argument)
 	
 	if (is_number(arg1) && is_number(arg2)) {
 	    if_flag = atoi(arg1);
-	    if (if_flag != 0 && if_flag != 1) {
+	    if (if_flag != 0 && if_flag != 1 && if_flag != 2 ) {
 		send_to_char("if_flag dependancy flag must be either 0 or 1\r\n", ch);
 		return;
 	    }
@@ -1296,8 +1392,7 @@ do_zgive_cmd(struct char_data *ch, char *argument)
 
 
 
-#define ZIMPLANT_USAGE "Usage: olc zimplant <mob name> <obj vnum> <max loaded>"\
-" <implant pos> [prob]\r\n"
+#define ZIMPLANT_USAGE "Usage: olc zimplant <mob name> <obj vnum> <max loaded> <implant pos> [prob]\r\n"
 
 void 
 do_zimplant_cmd(struct char_data *ch, char *argument)
