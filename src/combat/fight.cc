@@ -407,32 +407,8 @@ perform_gain_kill_exp(struct char_data *ch, struct char_data *victim,
 				exp >>= 8;
 		}
 	}
-    // This code doesn't make sense anymore.  Get rid of it for now... LK 1/22/02
-/*	if (IS_THIEF(ch))			// thieves gain more exp
-		exp += (exp * 25) / 100;
-	if (IS_CLERIC(ch) && !IS_GOOD(ch))
-		exp -= (exp * 15) / 100;
-	if (IS_KNIGHT(ch) && IS_GOOD(ch))
-		exp -= (exp * 25) / 100; */
 
-
-	if (!IS_NPC(ch) && IS_REMORT(ch))
-//		exp -= (exp * GET_REMORT_GEN(ch)) / (GET_REMORT_GEN(ch) + 2);
-        // Slow remorts down a little.  This algorithm should yied 60 percent gain at gen 1
-        // and 10 percent gain at gen 10. LK 1/22/02
-		
-       exp -= (exp * (ch->getLevelBonus(true) - 10)) / 100;         
-     
-	if (IS_GOOD(ch) && (IS_CLERIC(ch) || IS_KNIGHT(ch)) && IS_GOOD(victim)) {	// good clerics & knights penalized
-        // I've never liked this...it's unfair...lets change it 1/22/02
-        exp /= 2;
-/*		exp = -exp;
-		act("You feel a sharp pang of remorse for $N's death.",
-			FALSE, ch, 0, victim, TO_CHAR); */
-	}
-
-	if (GET_LEVEL(victim) >= LVL_AMBASSADOR || GET_LEVEL(ch) >= LVL_AMBASSADOR)
-		exp = 0;
+	exp = ch->getPenalizedExperience( exp, victim );
 
 	if (IS_NPC(victim) && !IS_NPC(ch) &&
 		(GET_EXP(victim) < 0 || exp > 5000000)) {
@@ -1461,19 +1437,10 @@ damage(struct char_data *ch, struct char_data *victim, int dam,
 		&& !(MOB2_FLAGGED(victim, MOB2_UNAPPROVED) ||
 			ch->isTester() || IS_PET(ch) || IS_PET(victim))) {
 		// Gaining XP for damage dealt.
-		int exp;
-		exp = MIN(GET_LEVEL(ch) * GET_LEVEL(ch) * GET_LEVEL(ch),
-			GET_LEVEL(victim) * dam);
-		if (!IS_NPC(ch) && IS_REMORT(ch))
-		   exp -= (exp * (ch->getLevelBonus(true) - 10)) / 100;         
-        /* I missed this one    
-		if (IS_CLERIC(ch) && !IS_GOOD(ch))
-			exp -= (exp * 15) / 100;
-		if (IS_KNIGHT(ch) && IS_GOOD(ch))
-			exp -= (exp * 25) / 100; */
-		if (IS_GOOD(ch) && (IS_CLERIC(ch) || IS_KNIGHT(ch)) && IS_GOOD(victim)) {	// good clerics & knights penalized
-			exp /= 2;
-		}
+		int exp = MIN(GET_LEVEL(ch) * GET_LEVEL(ch) * GET_LEVEL(ch), GET_LEVEL(victim) * dam);
+
+		exp = ch->getPenalizedExperience( exp, victim );
+
 		gain_exp(ch, exp);
 	}
 	// check for killer flags and remove sleep/etc...

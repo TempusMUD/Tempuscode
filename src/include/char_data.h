@@ -934,6 +934,13 @@ struct char_data {
 		return player.level;
 	}
 	bool isTester();
+
+	/**
+	 * Modifies the given experience to be appropriate for this character's
+	 *  level/gen and class.
+	 * If victim != NULL, assume that this char is fighting victim to gain experience.
+	 **/
+	int getPenalizedExperience( int experience, char_data *victim = NULL );
 	
 	short modifyWeight(short mod_weight) {
 		return player.modifyWeight(mod_weight);

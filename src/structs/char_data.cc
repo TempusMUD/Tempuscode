@@ -31,9 +31,47 @@ char_data::getFighting()
 {
 	return (char_specials.fighting);
 }
-bool
-char_data::isTester(){
+/**
+ * Returns true if this character is in the Testers access group.
+**/
+bool char_data::isTester(){
 	return Security::isMember( this, "Testers", false );
+}
+
+/**
+ * Modifies the given experience to be appropriate for this character's
+ *  level/gen and class.
+ * if victim != NULL, assume that this char is fighting victim to gain
+ *  experience.
+**/
+int char_data::getPenalizedExperience( int experience, char_data *victim = NULL ) 
+{
+
+	if( IS_NPC(this) || !IS_REMORT(this) )
+		return experience;
+
+	if( player_specials->saved.remort_generation <= 0
+	||  player_specials->saved.remort_generation > 10 ) {
+		return experience;
+	}
+	// Slow remorts down a little.  
+	// This algorithm should yied 60 percent gain at gen 1
+	// and 10 percent gain at gen 10. LK 1/22/02
+	int modified_xp = (experience * (getLevelBonus(true) - 10)) / 100;
+
+	// good clerics & knights penalized for killing good
+	if (victim != NULL) {
+
+		if( IS_GOOD(this) && IS_GOOD(victim)
+		&& (IS_CLERIC(this) || IS_KNIGHT(this)) ) {
+			modified_xp /= 2;
+		}
+		if( victim->getLevel() >= LVL_AMBASSADOR 
+		||  getLevel() >= LVL_AMBASSADOR ) {
+			modified_xp = 0;
+		}
+	}
+	return modified_xp;
 }
 
 void
