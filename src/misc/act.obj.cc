@@ -2061,9 +2061,6 @@ ACMD(do_drink)
 		else
 			send_to_char(ch, "You drink the %s.\r\n", drinks[GET_OBJ_VAL(temp, 2)]);
 
-		if (IS_VAMPIRE(ch) && GET_OBJ_VAL(temp, 2) == LIQ_BLOOD)
-			send_to_char(ch, "Ack!  It is cold!\r\n");
-
 		if (drink_aff[GET_OBJ_VAL(temp, 2)][DRUNK] > 0)
 			amount =
 				(25 - GET_COND(ch, THIRST)) / drink_aff[GET_OBJ_VAL(temp,
@@ -2086,14 +2083,12 @@ ACMD(do_drink)
 	if (GET_OBJ_VAL(temp, 1) != -1)
 		weight_change_object(temp, -weight);	/* Subtract amount */
 
-	if (!IS_VAMPIRE(ch)) {
-		drunk = (int)drink_aff[GET_OBJ_VAL(temp, 2)][DRUNK] * amount;
-		drunk /= 4;
-		if (IS_MONK(ch))
-			drunk >>= 2;
-		full = (int)drink_aff[GET_OBJ_VAL(temp, 2)][FULL] * amount / 4;
-		thirst = (int)drink_aff[GET_OBJ_VAL(temp, 2)][THIRST] * amount / 4;
-	}
+	drunk = (int)drink_aff[GET_OBJ_VAL(temp, 2)][DRUNK] * amount;
+	drunk /= 4;
+	if (IS_MONK(ch))
+		drunk >>= 2;
+	full = (int)drink_aff[GET_OBJ_VAL(temp, 2)][FULL] * amount / 4;
+	thirst = (int)drink_aff[GET_OBJ_VAL(temp, 2)][THIRST] * amount / 4;
 
 	if (PRF2_FLAGGED(ch, PRF2_DEBUG))
 		send_to_char(ch,
