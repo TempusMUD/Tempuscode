@@ -981,13 +981,13 @@ char_from_room(struct char_data *ch)
 	affect_from_char(ch, SPELL_ENTANGLE);	// remove entanglement (summon etc)
 
 	//REMOVE_FROM_LIST(ch, ch->in_room->people, next_in_room);
-	special(ch, 0, 0, "", SPECIAL_LEAVE);
-
-	ch->in_room->people.remove(ch);
-	ch->in_room = NULL;
-	//ch->next_in_room = NULL;
-	if (GET_OLC_SRCH(ch))
-		GET_OLC_SRCH(ch) = NULL;
+	if(! special(ch, 0, 0, "", SPECIAL_LEAVE) ) {
+		ch->in_room->people.remove(ch);
+		ch->in_room = NULL;
+		//ch->next_in_room = NULL;
+		if (GET_OLC_SRCH(ch))
+			GET_OLC_SRCH(ch) = NULL;
+	}
 
 }
 
