@@ -2653,9 +2653,10 @@ ACMD(do_advance)
 
 	send_to_char(ch, OK);
 
-	sprintf(buf, "(GC) %s has advanced %s to level %d (from %d)",
-		GET_NAME(ch), GET_NAME(victim), newlevel, GET_LEVEL(victim));
-	mudlog(buf, NRM, MAX(GET_INVIS_LEV(ch), GET_INVIS_LEV(victim)), TRUE);
+	char *msg = tmp_sprintf("(GC) %s has advanced %s to level %d (from %d)",
+				GET_NAME(ch), GET_NAME(victim), 
+				newlevel, GET_LEVEL(victim) );
+	mudlog(msg, NRM, MAX(GET_INVIS_LEV(ch), GET_INVIS_LEV(victim)), TRUE);
 	gain_exp_regardless(victim, exp_scale[newlevel] - GET_EXP(victim));
 	save_char(victim, NULL);
 }
@@ -3061,14 +3062,12 @@ ACMD(do_wizcut)
 				}
 			}
 		}
-		sprintf(buf,
-			"All players level %d and below have been disconnected.\r\n",
+		send_to_char(ch,
+				"All players level %d and below have been disconnected.\r\n",
+				level );
+		slog("(GC) %s wizcut everyone level %d and below.\r\n",
+			GET_NAME(ch), 
 			level);
-		send_to_char(ch, "%s", buf);
-		sprintf(buf, "(GC) %s wizcut everyone level %d and below.\r\n",
-			GET_NAME(ch), level);
-		slog(buf);
-
 	}
 
 }
@@ -3092,10 +3091,10 @@ ACMD(do_wizlock)
 
 	switch (restrict) {
 	case 0:
-		sprintf(buf, "The game is %s completely open.\r\n", when);
+		send_to_char(ch, "The game is %s completely open.\r\n", when);
 		break;
 	case 1:
-		sprintf(buf, "The game is %s closed to new players.\r\n", when);
+		send_to_char(ch, "The game is %s closed to new players.\r\n", when);
 		break;
 	default:
 		send_to_char(ch, "Only level %d and above may enter the game %s.\r\n",
@@ -3479,35 +3478,50 @@ ACMD(do_wizutil)
 				GET_NAME(ch));
 			mudlog(buf, BRF, MAX(LVL_GOD, GET_INVIS_LEV(ch)), TRUE);
 			break;
-		case SCMD_NOTITLE:
+		case SCMD_NOTITLE: {
 			result = PLR_TOG_CHK(vict, PLR_NOTITLE);
-			send_to_char(ch, "(GC) Notitle %s for %s by %s.", ONOFF(result),
-				GET_NAME(vict), GET_NAME(ch));
-			mudlog(buf, NRM, MAX(LVL_GOD, GET_INVIS_LEV(ch)), TRUE);
-			strcat(buf, "\r\n");
+			char *msg = tmp_sprintf("Notitle %s for %s by %s.", 
+									ONOFF(result),
+									GET_NAME(vict), 
+									GET_NAME(ch));
+			send_to_char(ch,"%s\r\n",msg);
+			msg = tmp_strcat("(GC) ",msg, NULL );
+			mudlog(msg, NRM, MAX(LVL_GOD, GET_INVIS_LEV(ch)), TRUE);
 			break;
-		case SCMD_NOPOST:
+		}
+		case SCMD_NOPOST: {
 			result = PLR_TOG_CHK(vict, PLR_NOPOST);
-			send_to_char(ch, "(GC) Nopost %s for %s by %s.", ONOFF(result),
-				GET_NAME(vict), GET_NAME(ch));
-			mudlog(buf, NRM, MAX(LVL_GOD, GET_INVIS_LEV(ch)), TRUE);
-			strcat(buf, "\r\n");
+			char *msg = tmp_sprintf("Nopost %s for %s by %s.", 
+									ONOFF(result),
+									GET_NAME(vict), 
+									GET_NAME(ch));
+			send_to_char(ch,"%s\r\n",msg);
+			msg = tmp_strcat("(GC) ",msg, NULL );
+			mudlog(msg, NRM, MAX(LVL_GOD, GET_INVIS_LEV(ch)), TRUE);
 			break;
-		case SCMD_COUNCIL:
+	    }
+		case SCMD_COUNCIL: {
 			result = PLR_TOG_CHK(vict, PLR_COUNCIL);
-			send_to_char(ch, "(GC) Council %s for %s by %s.", ONOFF(result),
-				GET_NAME(vict), GET_NAME(ch));
-			mudlog(buf, NRM, MAX(LVL_GOD, GET_INVIS_LEV(ch)), TRUE);
-			strcat(buf, "\r\n");
+			char *msg = tmp_sprintf("Council %s for %s by %s.", 
+									ONOFF(result),
+									GET_NAME(vict), 
+									GET_NAME(ch));
+			send_to_char(ch,"%s\r\n",msg);
+			msg = tmp_strcat("(GC) ",msg, NULL );
+			mudlog(msg, NRM, MAX(LVL_GOD, GET_INVIS_LEV(ch)), TRUE);
 			break;
-		case SCMD_SQUELCH:
+	    }
+		case SCMD_SQUELCH: {
 			result = PLR_TOG_CHK(vict, PLR_NOSHOUT);
-			send_to_char(ch, "(GC) Squelch %s for %s by %s.", ONOFF(result),
-				GET_NAME(vict), GET_NAME(ch));
-			mudlog(buf, BRF, MAX(GET_INVIS_LEV(ch), GET_INVIS_LEV(vict)),
-				TRUE);
-			strcat(buf, "\r\n");
+			char *msg = tmp_sprintf("Squelch %s for %s by %s.", 
+									ONOFF(result),
+									GET_NAME(vict), 
+									GET_NAME(ch) );
+			send_to_char(ch,"%s\r\n",msg);
+			msg = tmp_strcat("(GC) ",msg, NULL );
+			mudlog(msg, BRF, MAX(GET_INVIS_LEV(ch), GET_INVIS_LEV(vict)), TRUE);
 			break;
+		}
 		case SCMD_FREEZE:
 			if (ch == vict) {
 				send_to_char(ch, "Oh, yeah, THAT'S real smart...\r\n");
@@ -5859,11 +5873,12 @@ ACMD(do_set)
 		SET_OR_REMOVE(PLR_FLAGS(vict), PLR_NOPOST);
 		break;
 	case 88:
-		sprintf(buf, "(GC) %s %slogall'd %s.", 
-				GET_NAME(ch), 
-				PLR_FLAGGED(vict, PLR_LOG) ? "" : "UN-", GET_NAME(vict));
-		slog(buf);
 		SET_OR_REMOVE(PLR_FLAGS(vict), PLR_LOG);
+		sprintf(buf, "(GC) Logging %sactivated for %s by %s.", 
+				PLR_FLAGGED(vict, PLR_LOG) ? "" : "de-", 
+				GET_NAME(ch), 
+				GET_NAME(vict) );
+		slog(buf);
 		break;
 	case 89:
 		SET_OR_REMOVE(PLR_FLAGS(vict), PLR_NOSHOUT);
@@ -5930,11 +5945,11 @@ ACMD(do_set)
 			send_to_char(ch, "Just kill the bugger!\r\n");
 			break;
 		} else {
-			sprintf(buf, "(GC) %s set %s %sburied.", 
+			SET_OR_REMOVE(PLR2_FLAGS(vict), PLR2_BURIED);
+			slog("(GC) %s set %s %sburied.", 
 					GET_NAME(ch), 
 					GET_NAME(vict),
 					PLR2_FLAGGED(vict, PLR2_BURIED) ? "" : "UN-"); 
-			SET_OR_REMOVE(PLR2_FLAGS(vict), PLR2_BURIED);
 		}
 	case 98:					// Set Speed
 		vict->setSpeed(RANGE(0, 100));
@@ -6604,12 +6619,15 @@ ACMD(do_zonepurge)
 
 		sprintf(buf, "(GC) %s %spurged zone %d (%s)", GET_NAME(ch),
 			subcmd == SCMD_OLC ? "olc-" : "", zone->number, zone->name);
-		if (subcmd != SCMD_OLC)
-			mudlog(buf, subcmd == SCMD_OLC ? CMP : NRM, GET_INVIS_LEV(ch),
-				TRUE);
+		if (subcmd != SCMD_OLC) {
+			mudlog(buf, subcmd == SCMD_OLC ? CMP : NRM, GET_INVIS_LEV(ch), TRUE);
+		} else {
+			slog(buf);
+		}
 
-	} else
+	} else {
 		send_to_char(ch, "Invalid zone number.\r\n");
+	}
 }
 
 
