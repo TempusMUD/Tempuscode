@@ -2003,6 +2003,147 @@ void show_olc_help(struct char_data *ch, char *arg)
     return;
 }
 
+#define UNAPPR_USE       "Usage: approve <obj | mob | zone> <vnum>\r\n"
+
+ACMD(do_unapprove)
+{
+
+    int rnum = NOTHING;
+    char arg1[MAX_INPUT_LENGTH], arg2[MAX_INPUT_LENGTH];
+    byte o_m = 0, zn = 0;
+    struct obj_data *obj = NULL;
+    struct zone_data *zone = NULL;
+    struct char_data *mob = NULL;
+
+    half_chop(argument, arg1, arg2);
+
+    if (*arg1) {
+	if (is_abbrev(arg1, "object"))
+	    o_m = 0;
+	else if (is_abbrev(arg1, "mobile"))
+	    o_m = 1;
+	else if (is_abbrev(arg1, "zone"))
+	    zn = 1;
+	else {
+	    send_to_char(UNAPPR_USE, ch);
+	    return;
+	}
+    } else {
+	send_to_char(UNAPPR_USE, ch);
+	return;
+    }
+  
+    if (*arg2) 
+	rnum = atoi(arg2);
+    else {
+	send_to_char(UNAPPR_USE, ch);
+	return;
+    }
+
+    if (zn) {       /********* unapprove zone *********/
+	if (!strncmp(arg2, ".", 1))
+	    zone = ch->in_room->zone;
+	else if (!(zone = real_zone(rnum))) {
+	    send_to_char("No such zone.\r\n", ch);
+	    return;
+	}
+
+	send_to_char("Zone approved for olc.\r\n", ch);
+	sprintf(buf, "%s approved zone [%d] %s for OLC.", GET_NAME(ch),
+		zone->number, zone->name);
+	slog(buf);
+
+	SET_BIT(zone->flags, ZONE_MOBS_APPROVED |
+		   ZONE_OBJS_APPROVED |
+		   ZONE_ROOMS_APPROVED |
+		   ZONE_ZCMDS_APPROVED |
+		   ZONE_SEARCH_APPROVED |
+		   ZONE_SHOPS_APPROVED);
+	save_zone(ch, zone);
+	return;
+    }
+    
+    if (!o_m) {     /********* unapprove objects ******/
+	obj = real_object_proto(rnum);
+    
+	if (!obj) {
+	    send_to_char("There exists no object with that number, slick.\r\n", ch);
+	    return;
+	}
+
+	for (zone = zone_table; zone; zone = zone->next) {
+	    if (obj->shared->vnum >= (zone->number * 100) &&
+		obj->shared->vnum <= zone->top)
+		break;
+	}
+
+	if (!zone) {
+	    send_to_char("ERROR: That object does not belong to any zone.\r\n", ch);
+	    return;
+	}
+
+	if (!CAN_EDIT_ZONE(ch, zone) && !OLCIMP(ch) && !OLCGOD( ch )) {
+	    send_to_char("You can't unapprove this, BEANHEAD!\r\n", ch);
+	    return;
+	}
+    
+	if (IS_SET(obj->obj_flags.extra2_flags, ITEM2_UNAPPROVED)) {
+	    send_to_char("That item is already unapproved.\r\n", ch);
+	    return;
+	}
+
+	SET_BIT(obj->obj_flags.extra2_flags, ITEM2_UNAPPROVED);
+	send_to_char("Object unapproved.\r\n", ch);
+	sprintf(buf, "%s unapproved object [%d] %s.", GET_NAME(ch),
+		obj->shared->vnum, obj->short_description);
+	slog(buf);
+
+	GET_OLC_OBJ(ch) = obj;
+	save_objs(ch);
+	GET_OLC_OBJ(ch) = NULL;
+
+    } else {     /** approve mobs */
+	mob = real_mobile_proto(rnum);
+    
+	if (!mob) {
+	    send_to_char("There exists no mobile with that number, slick.\r\n", ch);
+	    return;
+	}
+
+	for (zone = zone_table; zone; zone = zone->next) {
+	    if (GET_MOB_VNUM(mob) >= (zone->number * 100) &&
+		GET_MOB_VNUM(mob) <= zone->top)
+		break;
+	}
+
+	if (!zone) {
+	    send_to_char("ERROR: That object does not belong to any zone.\r\n", ch);
+	    return;
+	}
+
+	if (!CAN_EDIT_ZONE(ch, zone) && !OLCIMP(ch) && !OLCGOD( ch ) ) {
+	    send_to_char("You can't unapprove this, BEANHEAD!\r\n", ch);
+	    return;
+	}
+    
+	if (IS_SET(MOB2_FLAGS(mob), MOB2_UNAPPROVED)) {
+	    send_to_char("That mobile is already unapproved.\r\n", ch);
+	    return;
+	}
+
+	SET_BIT(MOB2_FLAGS(mob), MOB2_UNAPPROVED);
+	send_to_char("Mobile unapproved.\r\n", ch);
+	sprintf(buf, "%s unapproved mobile [%d] %s.", GET_NAME(ch),
+		rnum, GET_NAME(mob));
+	slog(buf);
+
+	GET_OLC_MOB(ch) = mob;
+	save_mobs(ch);
+	GET_OLC_MOB(ch) = NULL;
+    }
+}
+
+
 #define APPR_USE       "Usage: approve <obj | mob | zone> <vnum>\r\n"
 ACMD(do_approve)
 {

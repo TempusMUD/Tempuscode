@@ -90,6 +90,7 @@ ACMD(do_alias);
 ACMD(do_alter);
 ACMD(do_analyze);
 ACMD(do_approve);
+ACMD(do_unapprove);
 ACMD(do_assist);
 ACMD(do_assimilate);
 ACMD(do_deassimilate);
@@ -433,6 +434,7 @@ extern const struct command_info cmd_info[] = {
     { "apologize", POS_RESTING , do_action   , 0, 0 },
     { "applaud"  , POS_RESTING , do_action   , 0, 0 },
     { "approve"  , POS_DEAD,     do_approve  , LVL_GOD, 0 },
+    { "unapprove", POS_DEAD,     do_unapprove  , LVL_GOD, 0 },
     { "assist"   , POS_FIGHTING, do_assist   , 1, 0 },
     { "assimilate",POS_RESTING , do_assimilate, 0, 0 },
     { "ask"      , POS_RESTING , do_spec_comm, 0, SCMD_ASK },
