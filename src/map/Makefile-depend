@@ -1,4 +1,4 @@
 $(OBJ)/Mapper.o : Mapper.cc \
-	$(INCLUDE)/Mapper.h 
+	$(INCLUDE)/Mapper.h $(INCLUDE)/tokenizer.h 
 	$(CXX) -c $(CXXFLAGS) Mapper.cc            -o $(OBJ)/Mapper.o
 OBJFILES= $(OBJ)/Mapper.o

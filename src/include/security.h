@@ -12,10 +12,18 @@ using namespace std;
 #undef CHAR 
 #include "xml_utils.h"
 
-
+// Interpreter command structure
 extern struct command_info cmd_info[];
+
+/**
+ * A namespace for isolating the access security functionality of
+ * the interpreter.
+ *
+**/
 namespace Security {
-    static const bool TRACE = true;
+    /** The name of the file to store security data in. **/
+    static const char SECURITY_FILE[] = "etc/security.dat";
+    static const bool TRACE = false;
     static inline void trace( const char *msg, const char *name = "system" ) {
         if( TRACE )
             fprintf( stderr,"TRACE: %s : %s\r\n", msg, name );
@@ -51,33 +59,51 @@ namespace Security {
             Group( const Group &g );
             /* Loads a group from it's xmlnode */
             Group( xmlNodePtr node );
-
+            
+            /* Adds a command to this group. Fails if already added. */
             bool addCommand( command_info *command );
+            /* Adds a member to this group by name. Fails if already added. */
             bool addMember( const char *name );
+            /* Adds a member to this group by player id. Fails if already added. */
             bool addMember( long player );
             
+            /* Removes a command from this group. Fails if not a member. */
             bool removeCommand( command_info *command );
+            /* Removes a member from this group by player name. Fails if not a member. */ 
             bool removeMember( const char *name );
+            /* Removes a member from this group by player id. Fails if not a member. */
             bool removeMember( long player );
 
-            // These membership checks should be binary searches.
+            /* membership check for players by player id */
             bool member( long player );
+            /* membership check for a given player */
             bool member( const char_data *ch );
+            /* membership check for a given command */
             bool member( const command_info *command );
+            
+            /* membership check for players by player id */
             bool givesAccess( const char_data *ch, const command_info *command );
             
+            /* Retrieves this group's description */
             const char *getDescription() { return _description; }
+            /* Retrieves this group's name */
             const char *getName() { return _name; }
-
+            
             bool operator==( const char *name ) { return ( strcmp(_name,name) == 0 ); }
             bool operator!=( const char *name ) { return !(*this == name); }
-
+            
+            /* Sends a list of this group's members to the given character. */
             bool sendMemberList( char_data *ch );
+            /* Sends a list of this group's members to the given character. */
             bool sendCommandList( char_data *ch );
             
-            // Create the required xmlnodes to recreate this group
-            bool save( xmlNodePtr node );
-
+            /* Create the required xmlnodes to recreate this group; */
+            bool save( xmlNodePtr parent );
+            
+            
+            void toString( char *out ) {
+                sprintf( out, "%15s [%4d] [%4d]\r\n", _name, commands.size(),members.size());
+            }
             ~Group();
         private:
             char *_description;
@@ -94,155 +120,46 @@ namespace Security {
     /*
      * Returns true if the character is the proper level AND is in
      * one of the required groups (if any)
-     */
-    inline bool canAccess( const char_data *ch, const command_info *command ) {
-        if(! command->security & GROUP ) {
-            return (GET_LEVEL(ch) >= command->minimum_level || GET_IDNUM(ch) == 1);
-        } else {
-            if( GET_LEVEL(ch) < command->minimum_level ) {
-                trace("canAcess failed: level < min_level");
-                return false;
-            }
-        }
-
-        list<Group>::iterator it = groups.begin(); 
-        for( ; it != groups.end(); ++it ) {
-            if( (*it).givesAccess(ch, command) )
-                return true;
-        }
-        return false;
-        trace("canAcess failed: no group gives access");
-    }
-
-    /*
-     * Check membership in a particular group by name.
-     */
-    inline bool isMember( char_data *ch, const char* group_name ) {
-        list<Group>::iterator it = groups.begin(); 
-        for( ; it != groups.end(); ++it ) {
-            if( (*it) == group_name )
-                return (*it).member(ch);
-        }
-        trace("isMember check: false");
-        return false;
-    }
-    /*
-     * send a list of the current groups to a character
-     */
-    inline void sendGroupList( char_data *ch ) {
-        static char linebuf[256];
-        int i = 0;
-        buf[0] = '\0';
-
-        sprintf(buf, "Security Groups: \r\n");
-        list<Group>::iterator it = groups.begin();
-        for( ; it != groups.end(); ++it ) {
-            sprintf(linebuf," %3d, %s\r\n",i++, (*it).getName());
-            fprintf(stderr,(*it).getName());
-            strcat(buf,linebuf);
-        }
-        send_to_char(buf,ch);
-    }
-
-    inline bool createGroup( char *name ) {
-        list<Group>::iterator it = find( groups.begin(), groups.end(), name );
-        if( it != groups.end() ) {
-            trace("createGroup: group exists");
-            return false;
-        }
-        groups.push_back(name);
-        return true;
-    }
-
-    inline bool removeGroup( char *name ) {
-        list<Group>::iterator it = find( groups.begin(), groups.end(), name );
-        if( it == groups.end() ) {
-            return false;
-        }
-        groups.erase(it);
-        return true;
-    }
-
-    inline bool sendMemberList( char_data *ch, char *group_name ) {
-        list<Group>::iterator it = find( groups.begin(), groups.end(), group_name );
-        if( it == groups.end() ) {
-            trace("sendMemberList : group not found");
-            return false;
-        }
-        return (*it).sendMemberList(ch);
-    }
+    **/
+    bool canAccess( const char_data *ch, const command_info *command );
+    /* Check membership in a particular group by name.**/
+    bool isMember( char_data *ch, const char* group_name );
     
-    inline bool sendCommandList( char_data *ch, char *group_name ) {
-        list<Group>::iterator it = find( groups.begin(), groups.end(), group_name );
-        if( it == groups.end() ) {
-            trace("sendCommandList : group not found");
-            return false;
-        }
-        return (*it).sendCommandList(ch);
-    }
+    /* send a list of the current groups to a character */
+    void sendGroupList( char_data *ch );
+    /** creates a new group with the given name.  returns false if the name is taken. **/
+    bool createGroup( char *name );
+    /** removes the group with the given name. returns false if there is no such group. **/
+    bool removeGroup( char *name );
     
-    inline bool addCommand( char *command, char *group_name ) {
-        list<Group>::iterator it = find( groups.begin(), groups.end(), group_name );
-        if( it == groups.end() ) {
-            trace("addCommand: group not found");
-            return false;
-        }
-        int index = find_command( command );
-        if( index == -1 ) {
-            trace("addCommand: command not found");
-            return false;
-        }
-        /* otherwise, find the command */
-
-        return (*it).addCommand( &cmd_info[index] );
-    }
+    /** returns true if the named group exists. **/
+    bool isGroup( const char* name );
     
-    inline bool addMember( const char *member, const char *group_name ) {
-        list<Group>::iterator it = find( groups.begin(), groups.end(), group_name );
-        if( it == groups.end() ) {
-            trace("addMember: group not found");
-            return false;
-        }
-
-        return (*it).addMember( member );
-    }
-
-    inline bool removeCommand( char *command, char *group_name ) {
-        list<Group>::iterator it = find( groups.begin(), groups.end(), group_name );
-        if( it == groups.end() ) {
-            trace("removeCommand: group not found");
-            return false;
-        }
-        int index = find_command( command );
-        if( index == -1 ) {
-            trace("removeCommand: command not found");
-            return false;
-        }
-        return (*it).removeCommand( &cmd_info[index] );
-    }
+    /** sends the member list of the named group to the given character. **/
+    bool sendMemberList( char_data *ch, char *group_name );
+    /** sends the command list of the named group to the given character. **/
+    bool sendCommandList( char_data *ch, char *group_name );
     
-    inline bool removeMember( const char *member, const char *group_name ) {
-        list<Group>::iterator it = find( groups.begin(), groups.end(), group_name );
-        if( it == groups.end() ) {
-            trace("removeMember: group not found");
-            return false;
-        }
-
-        return (*it).removeMember( member );
-    }
+    /** adds the named command to the named group.  returns false if either doesn't exist. **/
+    bool addCommand( char *command, char *group_name );
+    /** adds the named character to the named group.  returns false if either doesn't exist. **/
+    bool addMember( const char *member, const char *group_name );
     
-    inline bool saveGroups( const char *filenamme ) {
-        xmlDocPtr doc;
-        doc = xmlNewDoc((const xmlChar*)"1.0");
-        doc->children = xmlNewDocNode(doc, NULL, (const xmlChar *)"Security", NULL);
-        
-        list<Group>::iterator it = groups.begin();
-        for( ; it != groups.end(); ++it ) {
-            (*it).save(doc->children);
-        }
-
-        xmlSaveFile( "lib/security.dat" , doc );
-    }
+    /** removes the named command from the named group.  returns false if either doesn't exist. **/
+    bool removeCommand( char *command, char *group_name );
+    /** removes the named character from the named group.  returns false if either doesn't exist. **/
+    bool removeMember( const char *member, const char *group_name );
+    
+    /** stores the security groups in the given file in XML format. **/
+    bool saveGroups( const char *filename = SECURITY_FILE );
+    /** 
+     * clears the current security groups and loads new groups and 
+     * membership from the given filename 
+     **/
+    bool loadGroups( const char *filename = SECURITY_FILE );
+    
+    void log( const char* msg, const char* name );
+    void log( const char* msg, const long id );
 }
 
 /*  <Security> 

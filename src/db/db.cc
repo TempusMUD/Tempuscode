@@ -45,6 +45,7 @@
 #include "help.h"
 #include "combat.h"
 #include "iscript.h"
+#include "security.h"
 
 /**************************************************************************
 *  declarations of most of the 'global' variables                         *
@@ -447,6 +448,7 @@ boot_db(void)
     sort_commands();
     sort_spells();
     sort_skills();
+    Security::loadGroups();
 
     slog("Reading banned site, invalid-name, and NASTY word lists.");
     load_banned();

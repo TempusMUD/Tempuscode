@@ -16,223 +16,9 @@ using namespace std;
 #include "security.h"
 #include "tokenizer.h"
 
-
-namespace Security {
-    list<Group> groups;
-
-    void updateSecurity(command_info *command) {
-
-        list<Group>::iterator it = groups.begin(); 
-        for( ; it != groups.end(); ++it ) {
-            if( (*it).member( command ) )
-                return;
-        }
-        command->security &= ~(GROUP);
-    }
-
-    bool Group::addCommand( command_info *command ) {
-        if( member( command ) )
-            return false;
-        command->security |= GROUP;
-        commands.push_back(command);
-        sort( commands.begin(), commands.end() );
-        return true;
-    }
-
-    bool Group::removeCommand( command_info *command ) {
-        vector<command_info *>::iterator it;
-        it = find(commands.begin(), commands.end(), command);
-        if( it == commands.end() )
-            return false;
-
-        // Remove the command
-        commands.erase(it);
-
-        // Remove the group bit from the command
-        updateSecurity(command);
-
-        sort( commands.begin(), commands.end() );
-        return true;
-    }
-
-    bool Group::removeMember( const char *name ) {
-        long id = get_id_by_name(name);
-        if( id < 0 ) 
-            return false;
-        return removeMember(id);
-    }
-
-    bool Group::removeMember( long player ) {
-        vector<long>::iterator it;
-        it = find( members.begin(), members.end(), player );
-        if( it == members.end() )
-            return false;
-        members.erase(it);
-        sort( members.begin(), members.end() );
-        return true;
-    }
-
-    bool Group::addMember( const char *name ) {
-        long id = get_id_by_name(name);
-        if( id < 0 ) 
-            return false;
-        return addMember(id);
-    }
-
-    bool Group::addMember( long player ) {
-        if( member(player) )
-            return false;
-        members.push_back(player);
-        sort( members.begin(), members.end() );
-        return true;
-    }
-
-    // These membership checks should be binary searches.
-    bool Group::member( long player ) { 
-        return ( find(members.begin(), members.end(), player) != members.end() ); 
-    }
-    bool Group::member( const char_data *ch ) { 
-        return member(GET_IDNUM(ch)); 
-    }
-    bool Group::member( const command_info *command ) { 
-        return ( find(commands.begin(), commands.end(), command) != commands.end() ); 
-    }
-    bool Group::givesAccess( const char_data *ch, const command_info *command ) {
-        return ( member(ch) && member(command) );
-    }
-
-    bool Group::sendMemberList( char_data *ch ) {
-        int pos = 1;
-        vector<long>::iterator it = members.begin();
-        strcpy(buf,"Members:\r\n");
-        for( ; it != members.end(); ++it ) {
-            sprintf(buf,"%s %20ld",buf,(*it));
-            if( pos % 4 == 0 ) {
-                pos = 1;
-                strcat(buf,"\r\n");
-            } else {
-                pos++;
-                strcat(buf,",");
-            }
-        }
-        if( pos != 1 )
-            strcat(buf,"\r\n");
-        send_to_char(buf,ch);
-        return true;
-    }
-
-    bool Group::sendCommandList( char_data *ch ) {
-        int pos = 1;
-        vector<command_info*>::iterator it = commands.begin();
-        strcpy(buf,"Commands:\r\n");
-        for( ; it != commands.end(); ++it ) {
-            sprintf(buf,"%s   %10s",buf,(*it)->command);
-            if( pos++ % 3 == 0 ) {
-                pos = 1;
-                strcat(buf,"\r\n");
-            }
-        }
-        if( pos != 1 )
-            strcat(buf,"\r\n");
-        send_to_char(buf,ch);
-        return true;
-    }
-    
-    /*
-     * does not make a copy of name or desc.
-     */
-    Group::Group( char *name, char *description ) : commands(), members() {
-        _name = name;
-        _description = description;
-    }
-
-    /*
-     *  Loads a group from the given xmlnode;
-     *  Intended for reading from a file
-     */
-    Group::Group( xmlNodePtr node ) {
-        // properties
-        _name = xmlGetProp(node, "Name");
-        _description = xmlGetProp(node, "Description");
-        long member;
-        char *command;
-        // commands & members
-        node = node->xmlChildrenNode;
-        while (node != NULL) {
-            if ((!xmlStrcmp(node->name, (const xmlChar*)"Member"))) {
-                member = xmlGetLongProp(node, "ID");
-                if( member == 0 )
-                    continue;
-                members.push_back(member);
-            }
-            if ((!xmlStrcmp(node->name, (const xmlChar*)"Command"))) {
-                command = xmlGetProp(node, "Name");
-                int index = find_command( command );
-                if( index == -1 ) {
-                    trace("Group(xmlNodePtr): command not found", command);
-                } else {
-                    addCommand( &cmd_info[index] );
-                }
-            }
-            node = node->next;
-        }
-    }
-    
-    /*
-     * Makes a copy of name
-     */
-    Group::Group( const char *name ) : commands(), members() {
-        _name = new char[strlen(name) + 1];
-        strcpy(_name, name);
-
-        _description = new char[40];
-        strcpy(_description, "No Description");
-    }
-
-    /*
-     * Makes a complete copy of teh Group
-     */
-    Group::Group( const Group &g ) {
-        this->_name = strdup(g._name);
-        this->_description = strdup(g._description);
-        this->members = g.members;
-        this->commands = g.commands;
-    }
-
-    /*
-     * Create the required xmlnodes to recreate this group
-     */
-    bool Group::save( xmlNodePtr parent ) {
-        xmlNodePtr node = NULL;
-        
-        xmlNewChild( parent, NULL, (const xmlChar *)"Group", NULL );
-        xmlSetProp( parent, "Name", _name ); 
-       
-        vector<command_info*>::iterator cit = commands.begin();
-        for( ; cit != commands.end(); ++cit ) {
-            node = xmlNewChild( parent, NULL, (const xmlChar *)"Command", NULL );
-            xmlSetProp( parent, "Name", (*cit)->command );
-        }
-        vector<long>::iterator mit = members.begin();
-        for( ; mit != members.end(); ++mit ) {
-            node = xmlNewChild( parent, NULL, (const xmlChar *)"Member", NULL );
-            xmlSetProp( parent, "ID", *mit );
-        }
-        return true;
-    }
+using namespace Security;
 
 
-    /*
-     *
-     */
-    Group::~Group() {
-        while( commands.begin() != commands.end() ) {
-            removeCommand( *( commands.begin() ) );
-        }
-        if( _description != NULL ) delete _description;
-        if( _name != NULL ) delete _name;
-    }
-}
  /**
   *
   * The command struct for access commands
@@ -263,6 +49,9 @@ const struct {
     { "cmdlist",    "<group name>"},
     { "addcmd",     "<group name> <command> [<command>...]" },
     { "remcmd",     "<group name> <command> [<command>...]" },
+    { "grouplist",  "<player name>" },
+    { "load",       ""},
+    { "save",       ""},
     { NULL,         NULL }
 };
 
@@ -314,7 +103,7 @@ ACCMD(do_access) {
 
     switch( find_access_command(token1) ) {
         case 0: // list
-            Security::sendGroupList(ch);
+            sendGroupList(ch);
             break;
         case 1: // create
             if( tokens.next(token1) ) {
@@ -328,8 +117,8 @@ ACCMD(do_access) {
             }
             break;
         case 2: // remove
-            if( tokens.next(token1) ) {
-                if( Security::removeGroup( token1 ) ) {
+            if( tokens.next(token1) && isGroup(token1) ) {
+                if( removeGroup( token1 ) ) {
                     send_to_char( "Group removed.\r\n",ch);
                 } else {
                     send_to_char( "Group removal failed.\r\n",ch);
@@ -339,8 +128,8 @@ ACCMD(do_access) {
             }
             break;
         case 3: // memberlist
-            if( tokens.next(token1) ) {
-                if(! Security::sendMemberList( ch, token1 ) ) {
+            if( tokens.next(token1) && isGroup(token1) ) {
+                if(! sendMemberList( ch, token1 ) ) {
                     send_to_char("No such group.\r\n",ch);
                 }
             } else {
@@ -348,12 +137,12 @@ ACCMD(do_access) {
             }
             break;
         case 4: // addmember
-            if( tokens.next(token1) ) {
+            if( tokens.next(token1) && isGroup(token1) ) {
                 if(! tokens.hasNext() ) {
                     send_to_char("Add what member?\r\n",ch);
                 }
                 while( tokens.next(token2) ) {
-                    if( Security::addMember( token2, token1 ) ) {
+                    if( addMember( token2, token1 ) ) {
                         sprintf(linebuf, "Member added : %s\r\n", token2);
                         send_to_char( linebuf, ch );
                     } else {
@@ -366,12 +155,12 @@ ACCMD(do_access) {
             }
             break;
         case 5: // remmember
-            if( tokens.next(token1) ) {
+            if( tokens.next(token1) && isGroup(token1) ) {
                 if(! tokens.hasNext() ) {
                     send_to_char("Remove what member?\r\n",ch);
                 }
                 while( tokens.next(token2) ) {
-                    if( Security::removeMember( token2, token1 ) ) {
+                    if( removeMember( token2, token1 ) ) {
                         sprintf(linebuf, "Member removed : %s\r\n", token2);
                         send_to_char( linebuf, ch );
                     } else {
@@ -384,8 +173,8 @@ ACCMD(do_access) {
             }
             break;
         case 6: // cmdlist
-            if( tokens.next(token1) ) {
-                if(! Security::sendCommandList( ch, token1 ) ) {
+            if( tokens.next(token1) && isGroup(token1) ) {
+                if(! sendCommandList( ch, token1 ) ) {
                     send_to_char("No such group.\r\n",ch);
                 }
             } else {
@@ -393,12 +182,12 @@ ACCMD(do_access) {
             }
             break;
         case 7: // addcmd
-            if( tokens.next(token1) ) {
+            if( tokens.next(token1) && isGroup(token1) ) {
                 if(! tokens.hasNext() ) {
                     send_to_char("Add what command?\r\n",ch);
                 }
                 while( tokens.next(token2) ) {
-                    if( Security::addCommand( token2, token1 ) ) {
+                    if( addCommand( token2, token1 ) ) {
                         sprintf(linebuf, "Command added : %s\r\n", token2);
                         send_to_char( linebuf, ch );
                     } else {
@@ -411,12 +200,12 @@ ACCMD(do_access) {
             }
             break;
         case 8: // remcmd
-            if( tokens.next(token1) ) {
+            if( tokens.next(token1) && isGroup(token1) ) {
                 if(! tokens.hasNext() ) {
                     send_to_char("Remove what command?\r\n",ch);
                 }
                 while( tokens.next(token2) ) {
-                    if( Security::removeCommand( token2, token1 ) ) {
+                    if( removeCommand( token2, token1 ) ) {
                         sprintf(linebuf, "Command removed : %s\r\n", token2);
                         send_to_char( linebuf, ch );
                     } else {
@@ -428,8 +217,219 @@ ACCMD(do_access) {
                 send_to_char("Remove what command from what group?\r\n",ch);
             }
             break;
+        case 9: // grouplist
+            if( tokens.next(token1) ) {
+                send_to_char("Unimplemented.");
+            } else {
+                send_to_char("List group membership for what player?");
+            }
+        case 10: // Load
+            if( loadGroups() ) {
+                send_to_char("Access groups loaded.\r\n",ch);
+            } else {
+                send_to_char("Error loading access groups.\r\n",ch);
+            }
+            break;
+        case 11: // save
+            if( saveGroups() ) {
+                send_to_char("Access groups saved.\r\n",ch);
+            } else {
+                send_to_char("Error saving access groups.\r\n",ch);
+            }
+            break;
         default:
             send_access_options(ch);
             break;
+    }
+}
+
+/*
+ * The Security Namespace function definitions
+ */
+namespace Security {
+    /**
+     * Returns true if the character is the proper level AND is in
+     * one of the required groups (if any)
+     */
+     bool canAccess( const char_data *ch, const command_info *command ) {
+        if(! command->security & GROUP ) {
+            return (GET_LEVEL(ch) >= command->minimum_level || GET_IDNUM(ch) == 1);
+        } else {
+            if( GET_LEVEL(ch) < command->minimum_level ) {
+                trace("canAcess failed: level < min_level");
+                return false;
+            }
+        }
+
+        list<Group>::iterator it = groups.begin(); 
+        for( ; it != groups.end(); ++it ) {
+            if( (*it).givesAccess(ch, command) )
+                return true;
+        }
+        return false;
+        trace("canAcess failed: no group gives access");
+    }
+
+    /*
+     * Check membership in a particular group by name.
+     */
+     bool isMember( char_data *ch, const char* group_name ) {
+        list<Group>::iterator it = groups.begin(); 
+        for( ; it != groups.end(); ++it ) {
+            if( (*it) == group_name )
+                return (*it).member(ch);
+        }
+        trace("isMember check: false");
+        return false;
+    }
+    /*
+     * send a list of the current groups to a character
+     */
+     void sendGroupList( char_data *ch ) {
+        static char linebuf[256];
+
+        sprintf(linebuf,"%15s [cmds] [mbrs]\r\n","Group");
+        strcat(buf,linebuf);
+
+        list<Group>::iterator it = groups.begin();
+        for( ; it != groups.end(); ++it ) {
+            (*it).toString(linebuf);
+            fprintf(stderr,linebuf);
+            strcat(buf,linebuf);
+        }
+        send_to_char(buf,ch);
+    }
+
+     bool createGroup( char *name ) {
+        list<Group>::iterator it = find( groups.begin(), groups.end(), name );
+        if( it != groups.end() ) {
+            trace("createGroup: group exists");
+            return false;
+        }
+        groups.push_back(name);
+        return true;
+    }
+
+     bool removeGroup( char *name ) {
+        list<Group>::iterator it = find( groups.begin(), groups.end(), name );
+        if( it == groups.end() ) {
+            return false;
+        }
+        groups.erase(it);
+        return true;
+    }
+
+     bool sendMemberList( char_data *ch, char *group_name ) {
+        list<Group>::iterator it = find( groups.begin(), groups.end(), group_name );
+        if( it == groups.end() ) {
+            trace("sendMemberList : group not found");
+            return false;
+        }
+        return (*it).sendMemberList(ch);
+    }
+    
+     bool sendCommandList( char_data *ch, char *group_name ) {
+        list<Group>::iterator it = find( groups.begin(), groups.end(), group_name );
+        if( it == groups.end() ) {
+            trace("sendCommandList : group not found");
+            return false;
+        }
+        return (*it).sendCommandList(ch);
+    }
+    
+     bool addCommand( char *command, char *group_name ) {
+        list<Group>::iterator it = find( groups.begin(), groups.end(), group_name );
+        if( it == groups.end() ) {
+            trace("addCommand: group not found");
+            return false;
+        }
+        int index = find_command( command );
+        if( index == -1 ) {
+            trace("addCommand: command not found");
+            return false;
+        }
+        /* otherwise, find the command */
+
+        return (*it).addCommand( &cmd_info[index] );
+    }
+    
+     bool addMember( const char *member, const char *group_name ) {
+        list<Group>::iterator it = find( groups.begin(), groups.end(), group_name );
+        if( it == groups.end() ) {
+            trace("addMember: group not found");
+            return false;
+        }
+
+        return (*it).addMember( member );
+    }
+
+     bool removeCommand( char *command, char *group_name ) {
+        list<Group>::iterator it = find( groups.begin(), groups.end(), group_name );
+        if( it == groups.end() ) {
+            trace("removeCommand: group not found");
+            return false;
+        }
+        int index = find_command( command );
+        if( index == -1 ) {
+            trace("removeCommand: command not found");
+            return false;
+        }
+        return (*it).removeCommand( &cmd_info[index] );
+    }
+    
+     bool removeMember( const char *member, const char *group_name ) {
+        list<Group>::iterator it = find( groups.begin(), groups.end(), group_name );
+        if( it == groups.end() ) {
+            trace("removeMember: group not found");
+            return false;
+        }
+        return (*it).removeMember( member );
+    }
+    
+    /** returns true if the named group exists. **/
+    bool isGroup( const char* name ) {
+        list<Group>::iterator it = find( groups.begin(), groups.end(), name );
+        return( it != groups.end() );
+    }
+    
+    bool saveGroups( const char *filename = SECURITY_FILE ) {
+        xmlDocPtr doc;
+        doc = xmlNewDoc((const xmlChar*)"1.0");
+        doc->children = xmlNewDocNode(doc, NULL, (const xmlChar *)"Security", NULL);
+        
+        list<Group>::iterator it = groups.begin();
+        for( ; it != groups.end(); ++it ) {
+            (*it).save(doc->children);
+        }
+        int rc = xmlSaveFormatFile( filename, doc, 1 );
+        xmlFreeDoc(doc);
+        slog("Security:  Access group data saved.");
+        return( rc != -1 );
+    }
+
+    bool loadGroups( const char *filename = SECURITY_FILE ) {
+        groups.erase(groups.begin(),groups.end());
+        xmlDocPtr doc = xmlParseFile(filename);
+        if( doc == NULL ) {
+            return true;
+        }
+        // discard root node
+        xmlNodePtr cur = xmlDocGetRootElement(doc);
+        if( cur == NULL ) {
+            xmlFreeDoc(doc);
+            return false;
+        }
+        cur = cur->xmlChildrenNode;
+        // Load all the nodes in the file
+        while (cur != NULL) {
+            // But only question nodes
+            if ((!xmlStrcmp(cur->name, (const xmlChar *)"Group"))) {
+                groups.push_back(Group(cur));
+            }
+            cur = cur->next;
+        }
+        xmlFreeDoc(doc);
+        slog("Security:  Access group data loaded.");
+        return true;
     }
 }
