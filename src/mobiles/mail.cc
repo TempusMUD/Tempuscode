@@ -24,6 +24,7 @@ Rewritten by John Rothe (forget@tempusmud.com)
 #include <string.h>
 #include <time.h>
 #include <fstream>
+#include <stack>
 
 #include "actions.h"
 #include "structs.h"
@@ -38,163 +39,179 @@ Rewritten by John Rothe (forget@tempusmud.com)
 #include "materials.h"
 #include "player_table.h"
 
+using namespace std;
+
+list<obj_data *> load_mail(char *path);
+
 void
 show_mail_stats(Creature * ch)
 {
-	send_to_char(ch, "This has been removed.\r\n");
-	return;
+    send_to_char(ch, "This has been removed.\r\n");
+    return;
 }
 
 // returns 0 for no mail. 1 for mail.
 int
 has_mail(long id)
 {
-	fstream mail_file;
-	if(! playerIndex.exists(id) )
-		return 0;
-	mail_file.open(get_mail_file_path(id), ios::in);
+    fstream mail_file;
 
-	if (!mail_file.is_open())
-		return 0;
-	return 1;
+    if(! playerIndex.exists(id) )
+        return 0;
+    mail_file.open(get_mail_file_path(id), ios::in);
+
+    if (!mail_file.is_open())
+        return 0;
+    return 1;
 }
 
 int
 can_recieve_mail(long id)
 {
-	long length = 0;
-	fstream mail_file;
-	if(! playerIndex.exists(id) )
-		return 0;
-	mail_file.open(get_mail_file_path(id), ios::in);
+    long length = 0;
+    fstream mail_file;
+    if(! playerIndex.exists(id) )
+        return 0;
+    mail_file.open(get_mail_file_path(id), ios::in);
 
-	if (!mail_file.is_open())
-		return 1;
-	mail_file.seekg(0, ios::end);
-	length = mail_file.tellg();
-	mail_file.close();
-	if (length >= MAX_MAILFILE_SIZE)
-		return 0;
-	return 1;
+    if (!mail_file.is_open())
+        return 1;
+    mail_file.seekg(0, ios::end);
+    length = mail_file.tellg();
+    mail_file.close();
+    if (length >= MAX_MAILFILE_SIZE)
+        return 0;
+    return 1;
 }
 
 int
 mail_box_status(long id)
 {
-	// 0 is normal
-	// 1 is frozen
-	// 2 is buried
-	// 3 is deleted
-	// 4 is failure
+    // 0 is normal
+    // 1 is frozen
+    // 2 is buried
+    // 3 is deleted
+    // 4 is failure
 
-	struct Creature *victim;
-	int flag = 0;
+    struct Creature *victim;
+    int flag = 0;
 
-	victim = new Creature;
-	if (!victim->loadFromXML(id)) {
-		delete victim;
-		return 4;
-	}
+    victim = new Creature;
+    if (!victim->loadFromXML(id)) {
+        delete victim;
+        return 4;
+    }
 
-	if (PLR_FLAGGED(victim, PLR_FROZEN))
-		flag = 1;
-	if (PLR2_FLAGGED(victim, PLR2_BURIED))
-		flag = 2;
-	if (PLR_FLAGGED(victim, PLR_DELETED))
-		flag = 3;
+    if (PLR_FLAGGED(victim, PLR_FROZEN))
+        flag = 1;
+    if (PLR2_FLAGGED(victim, PLR2_BURIED))
+        flag = 2;
+    if (PLR_FLAGGED(victim, PLR_DELETED))
+        flag = 3;
 
-	delete victim;
-	return flag;
+    delete victim;
+    return flag;
 }
 
 // Like it says, store the mail.  
 // Returns 0 if mail not stored.
 int
 store_mail(long to_id, long from_id, char *txt, char *cc_list,
-	time_t *cur_time)
+    time_t *cur_time)
 {
-	fstream mail_file;
-	mail_data *letter;
-	char fname[256];
-	// NO zero length mail!
-	// This should never happen.
-	if (!txt || !strlen(txt)) {
-		send_to_char(get_char_in_world_by_idnum(from_id), "Why would you send a blank message?\r\n");
-		return 0;
-	}
-	if (!can_recieve_mail(to_id)) {
-		send_to_char(get_char_in_world_by_idnum(from_id), "%s doesn't seem to be able to recieve mail.\r\n",
-			playerIndex.getName(to_id));
-		return 0;
-	}
-	if (strlen(txt) > MAX_MAIL_SIZE) {
-		send_to_char(get_char_in_world_by_idnum(from_id), "Something is very wrong.\r\n");
-		send_to_char(get_char_in_world_by_idnum(from_id), 
-			"Mail Forget a description of exactly what you just did.\r\n");
-		mudlog(LVL_GRGOD, CMP, true,
-			"SYSERR: Mail size larger than max_mail size. From: %ld To: %ld Length: %d.",
-			from_id, to_id, strlen(txt));
-		return 0;
-	}
-	if (cc_list) {
-		if (strlen(txt) + strlen(cc_list) >= MAX_MAIL_SIZE) {
-			int index = MAX_MAIL_SIZE - strlen(cc_list) - 1 - 2 - 1;	// array, \r\n\0
-			if (index >= 0 && index < MAX_MAIL_SIZE) {
-				txt[index] = '\0';
-				strcpy(buf, txt);
-				strcpy(txt, buf);
-				mudlog(LVL_GRGOD, CMP, true,
-					"SYSERR: Mail size + CC list larger than max_mail size. From: %ld To: %ld Length: %d/%d.",
-					from_id, to_id, strlen(txt), strlen(cc_list));
+    int buf_size = 0;
+    char *mail_file_path;
+    FILE *ofile;
+    char *time_str;
+    char buf[MAX_MAIL_SIZE];
+    struct obj_data *obj;
+    struct stat stat_buf;
+    time_t now = time(NULL);
+    list<obj_data*> mailBag;
+    
+    // NO zero length mail!
+    // This should never happen.
+    if (!txt || !strlen(txt)) {
+        send_to_char(get_char_in_world_by_idnum(from_id), 
+                     "Why would you send a blank message?\r\n");
+        return 0;
+    }
+    
+    // Recipient is frozen, buried, or deleted
+    if (!can_recieve_mail(to_id)) {
+        send_to_char(get_char_in_world_by_idnum(from_id), 
+                     "%s doesn't seem to be able to recieve mail.\r\n",
+            playerIndex.getName(to_id));
+        return 0;
+    }
 
-			}
-		}
-		strcpy(buf, cc_list);
-		strcat(buf, "\r\n");
-		strcat(buf, txt);
-		txt = buf;
-	}
-	letter = new mail_data;
-	letter->to = to_id;
-	letter->from = from_id;
-	letter->time = time(cur_time);
-	letter->msg_size = strlen(txt);
-	letter->spare = 0;
+    if(! playerIndex.exists(to_id) ) {
+        slog("Toss_Mail Error, recipient idnum %ld invalid.", to_id);
+        return 0;
+    }
 
-	if(! playerIndex.exists(to_id) ) {
-		slog("Toss_Mail Error, recipient idnum %ld invalid.", to_id);
-		delete letter;
-		return 0;
-	}
+    mail_file_path = get_mail_file_path(to_id);
 
-	mail_file.open(get_mail_file_path(to_id), ios::out | ios::app | ios::ate);
-	if (!mail_file.is_open()) {
-		sprintf(buf, "Error, mailfile (%s) not opened.", fname);
-		send_to_char(get_char_in_world_by_idnum(from_id), buf);
-		slog(buf);
-		delete letter;
-		return 0;
-	}
+    // If we already have a mail file then we have to read in the mail and write it all back out.
+    if (stat(mail_file_path, &stat_buf) == 0)
+        mailBag = load_mail(mail_file_path);
 
-	mail_file.seekp(0, ios::end);
-	mail_file.write((char *)letter, sizeof(mail_data));
-	mail_file.write(txt, letter->msg_size + 1);
-	mail_file.close();
-	delete letter;
-	return 1;
+
+    obj = read_object(MAIL_OBJ_VNUM);
+    time_str = asctime(localtime(&now));
+    *(time_str + strlen(time_str) - 1) = '\0';
+     
+    sprintf(buf, " * * * *  Tempus Mail System  * * * *\r\n"
+                 "Date: %s\r\n"
+                 "  To: %s\r\n"
+                 "From: %s\r\n", time_str, playerIndex.getName(to_id), 
+            playerIndex.getName(from_id));
+
+    buf_size = strlen(txt) + strlen(buf);
+    if (cc_list)
+        buf_size += strlen(cc_list);
+        
+    obj->action_description = (char*)malloc(sizeof(char) * buf_size + 2); // for the extra /n
+    
+    strcpy(obj->action_description, buf);
+    if (cc_list)
+        strcat(obj->action_description, cc_list);
+    strcat(obj->action_description, "\n");
+    strcat(obj->action_description, txt);
+    obj->plrtext_len = strlen(obj->action_description) + 1;
+    mailBag.push_back(obj);
+    
+    if ((ofile = fopen(mail_file_path, "w")) == NULL) {
+        slog("SYSERR: Unable to open xml mail file '%s': %s", 
+             mail_file_path, strerror(errno) );
+        return 0;
+    }
+    else {
+        list<obj_data*>::iterator oi;
+
+        fprintf(ofile, "<objects>");
+        for (oi = mailBag.begin(); oi != mailBag.end(); oi++) {
+            (*oi)->saveToXML(ofile);
+            extract_obj(*oi);
+        }
+        fprintf(ofile, "</objects>");
+        fclose(ofile);
+    }
+    
+    return 1;
 }
 
 int
 purge_mail(long idnum)
 {
-	fstream mail_file;
-	mail_file.open(get_mail_file_path(idnum), ios::in);
-	if (!mail_file.is_open()) {
-		return 0;
-	}
-	mail_file.close();
-	remove(get_mail_file_path(idnum));
-	return 1;
+    fstream mail_file;
+    mail_file.open(get_mail_file_path(idnum), ios::in);
+    if (!mail_file.is_open()) {
+        return 0;
+    }
+    mail_file.close();
+    remove(get_mail_file_path(idnum));
+    return 1;
 }
 
 // Pull the mail out of the players mail file if he has one.
@@ -204,84 +221,69 @@ purge_mail(long idnum)
 int
 recieve_mail(Creature * ch)
 {
-	obj_data *obj = NULL;
-	obj_data *list = NULL;
-	int num_letters = 0;
-	fstream mail_file;
-	char fname[256];
-	char *text, *time_str;
-	mail_data *letter = NULL;
-	bool backup_file = false;
+    int num_letters = 0;
+    char *path = get_mail_file_path( GET_IDNUM(ch) );
+    list<obj_data *> mailBag;
 
-	mail_file.open(get_mail_file_path(GET_IDNUM(ch)), ios::in);
+    mailBag = load_mail(path);
 
-	if (!mail_file.is_open()) {
-		return 0;
-	}
-	// Seek to the beginning and setup for reading.
-	mail_file.seekg(0, ios::beg);
-	letter = new mail_data;
-	while (!mail_file.eof()) {
-		mail_file.read((char *)letter, sizeof(mail_data));
-		text = NULL;
-		if (letter->msg_size && !mail_file.eof()
-			&& (obj = read_object(MAIL_OBJ_VNUM))) {
-			if (letter->msg_size > 2 * MAX_MAIL_SIZE) {
-				mudlog(LVL_GRGOD, CMP, true,
-					"Invalid mail size(%ld) in mail file.(%s).",
-					letter->msg_size, fname);
-				backup_file = true;
-				break;
-			}
-			num_letters++;
-			text = (char*)malloc( sizeof(char) * ( letter->msg_size + 1 ) );
-			//text = new char[letter->msg_size + 1];
-			mail_file.read(text, letter->msg_size + 1);
-			// Actually build the mail object and give it to the player.    
-			time_str = asctime(localtime(&letter->time));
-			*(time_str + strlen(time_str) - 1) = '\0';
+    list<obj_data *>::iterator oi;
 
-			sprintf(buf, " * * * *  Tempus Mail System  * * * *\r\n"
-				"Date: %s\r\n"
-				"  To: %s\r\n"
-				"From: %s\r\n", time_str, GET_NAME(ch),
-				playerIndex.getName(letter->from));
-			
-			obj->action_description =//= new char[strlen(text) + strlen(buf) + 1];
-					(char*)malloc( sizeof(char) * (strlen(text) + strlen(buf) + 1) );
-			strcpy(obj->action_description, buf);
-			strcat(obj->action_description, text);
-			obj->plrtext_len = strlen(obj->action_description) + 1;
+    for (oi = mailBag.begin(); oi != mailBag.end(); oi++) {
+        num_letters++;
+        obj_to_char(*oi, ch);
+    }
 
-			if (list) {
-				obj->next_content = list;
-				list = obj;
-			} else {
-				list = obj;
-			}
-			free(text);
-		} else {
-			break;
-		}
-	}
-	mail_file.close();
-	if (backup_file) {
-		char fname_err[256];
-		sprintf(fname_err, "%s.err", fname);
-		rename(fname, fname_err);
-	} else {
-		remove(fname);
-	}
-	delete letter;
-	while (list) {
-		obj = list;
-		list = obj->next_content;
-		obj->next_content = NULL;
-		obj_to_char(obj, ch);
-	}
-	return num_letters;
+    unlink(path);
+    return num_letters;
 }
 
+
+list<obj_data *> load_mail(char *path)
+{
+	int axs = access(path, W_OK);
+    list<obj_data *> mailBag;
+
+	if( axs != 0 ) {
+		if( errno != ENOENT ) {
+			slog("SYSERR: Unable to open xml mail file '%s': %s", 
+				 path, strerror(errno) );
+			return mailBag;
+		} else {
+			return mailBag; // normal no eq file
+		}
+	}
+    xmlDocPtr doc = xmlParseFile(path);
+    if (!doc) {
+        slog("SYSERR: XML parse error while loading %s", path);
+        return mailBag;
+    }
+
+    xmlNodePtr root = xmlDocGetRootElement(doc);
+    if (!root) {
+        xmlFreeDoc(doc);
+        slog("SYSERR: XML file %s is empty", path);
+        return mailBag;
+    }
+
+	for ( xmlNodePtr node = root->xmlChildrenNode; node; node = node->next ) {
+        if ( xmlMatches(node->name, "object") ) {
+			obj_data *obj;
+			CREATE(obj, obj_data, 1);
+			obj->clear();
+			if(! obj->loadFromXML(NULL, NULL, NULL, node) ) {
+				extract_obj(obj);
+			}
+            else {
+                mailBag.push_back(obj);
+            }
+        }
+	}
+
+    xmlFreeDoc(doc);
+
+    return mailBag;
+}
 
 /*****************************************************************
 ** Below is the spec_proc for a postmaster using the above       **
@@ -292,203 +294,203 @@ recieve_mail(Creature * ch)
 
 SPECIAL(postmaster)
 {
-	if( spec_mode != SPECIAL_CMD ) 
-		return 0;
+    if( spec_mode != SPECIAL_CMD ) 
+        return 0;
 
-	if (!ch || !ch->desc || IS_NPC(ch))
-		return 0;				/* so mobs don't get caught here */
+    if (!ch || !ch->desc || IS_NPC(ch))
+        return 0;                /* so mobs don't get caught here */
 
-	if (!(CMD_IS("mail") || CMD_IS("check") || CMD_IS("receive")))
-		return 0;
+    if (!(CMD_IS("mail") || CMD_IS("check") || CMD_IS("receive")))
+        return 0;
 
-	if (CMD_IS("mail")) {
-		postmaster_send_mail(ch, (struct Creature *)me, cmd, argument);
-		return 1;
-	} else if (CMD_IS("check")) {
-		postmaster_check_mail(ch, (struct Creature *)me, cmd, argument);
-		return 1;
-	} else if (CMD_IS("receive")) {
-		postmaster_receive_mail(ch, (struct Creature *)me, cmd, argument);
-		return 1;
-	} else
-		return 0;
+    if (CMD_IS("mail")) {
+        postmaster_send_mail(ch, (struct Creature *)me, cmd, argument);
+        return 1;
+    } else if (CMD_IS("check")) {
+        postmaster_check_mail(ch, (struct Creature *)me, cmd, argument);
+        return 1;
+    } else if (CMD_IS("receive")) {
+        postmaster_receive_mail(ch, (struct Creature *)me, cmd, argument);
+        return 1;
+    } else
+        return 0;
 }
 
 
 void
 postmaster_send_mail(struct Creature *ch, struct Creature *mailman,
-	int cmd, char *arg)
+    int cmd, char *arg)
 {
-	long recipient;
-	char buf[MAX_STRING_LENGTH];
-	struct mail_recipient_data *n_mail_to;
-	int total_cost = 0;
-	struct clan_data *clan = NULL;
-	struct clanmember_data *member = NULL;
-	int status = 0;
-	char **tmp_char = NULL;
+    long recipient;
+    char buf[MAX_STRING_LENGTH];
+    struct mail_recipient_data *n_mail_to;
+    int total_cost = 0;
+    struct clan_data *clan = NULL;
+    struct clanmember_data *member = NULL;
+    int status = 0;
+    char **tmp_char = NULL;
 
-	if (GET_LEVEL(ch) < MIN_MAIL_LEVEL) {
-		sprintf(buf2, "Sorry, you have to be level %d to send mail!",
-			MIN_MAIL_LEVEL);
-		perform_tell(mailman, ch, buf2);
-		return;
-	}
-	arg = one_argument(arg, buf);
+    if (GET_LEVEL(ch) < MIN_MAIL_LEVEL) {
+        sprintf(buf2, "Sorry, you have to be level %d to send mail!",
+            MIN_MAIL_LEVEL);
+        perform_tell(mailman, ch, buf2);
+        return;
+    }
+    arg = one_argument(arg, buf);
 
-	if (!*buf) {				/* you'll get no argument from me! */
-		strcpy(buf2, "You need to specify an addressee!");
-		perform_tell(mailman, ch, buf2);
-		return;
-	}
+    if (!*buf) {                /* you'll get no argument from me! */
+        strcpy(buf2, "You need to specify an addressee!");
+        perform_tell(mailman, ch, buf2);
+        return;
+    }
 
-	ch->desc->mail_to = NULL;
+    ch->desc->mail_to = NULL;
 
-	if (!str_cmp(buf, "clan")) {
-		if (!(clan = real_clan(GET_CLAN(ch)))) {
-			perform_tell(mailman, ch, "You are not a member of any clan!");
-			return;
-		}
-		for (member = clan->member_list; member; member = member->next) {
-			total_cost += STAMP_PRICE;
-			CREATE(n_mail_to, struct mail_recipient_data, 1);
-			n_mail_to->next = ch->desc->mail_to;
-			n_mail_to->recpt_idnum = member->idnum;
-			ch->desc->mail_to = n_mail_to;
-		}
-	} else {
+    if (!str_cmp(buf, "clan")) {
+        if (!(clan = real_clan(GET_CLAN(ch)))) {
+            perform_tell(mailman, ch, "You are not a member of any clan!");
+            return;
+        }
+        for (member = clan->member_list; member; member = member->next) {
+            total_cost += STAMP_PRICE;
+            CREATE(n_mail_to, struct mail_recipient_data, 1);
+            n_mail_to->next = ch->desc->mail_to;
+            n_mail_to->recpt_idnum = member->idnum;
+            ch->desc->mail_to = n_mail_to;
+        }
+    } else {
 
-		while (*buf) {
-			if ((recipient = playerIndex.getID(buf)) < 0) {
-				sprintf(buf2, "No one by the name '%s' is registered here!",
-					buf);
-				perform_tell(mailman, ch, buf2);
-			} else if ((status = mail_box_status(recipient)) > 0) {
-				// 0 is normal
-				// 1 is frozen
-				// 2 is buried
-				// 3 is deleted
-				switch (status) {
-				case 1:
-					sprintf(buf2, "%s's mailbox is frozen shut!", buf);
-					break;
-				case 2:
-					sprintf(buf2, "%s is buried! Go put it on their grave!",
-						buf);
-					break;
-				case 3:
-					sprintf(buf2,
-						"No one by the name '%s' is registered here!", buf);
-					break;
-				default:
-					sprintf(buf2,
-						"I don't have an address for %s. Try back later!",
-						buf);
-				}
-				perform_tell(mailman, ch, buf2);
-			} else {
-				if (recipient == 1)	// fireball
-					total_cost += 1000000;
-				else
-					total_cost += STAMP_PRICE;
+        while (*buf) {
+            if ((recipient = playerIndex.getID(buf)) < 0) {
+                sprintf(buf2, "No one by the name '%s' is registered here!",
+                    buf);
+                perform_tell(mailman, ch, buf2);
+            } else if ((status = mail_box_status(recipient)) > 0) {
+                // 0 is normal
+                // 1 is frozen
+                // 2 is buried
+                // 3 is deleted
+                switch (status) {
+                case 1:
+                    sprintf(buf2, "%s's mailbox is frozen shut!", buf);
+                    break;
+                case 2:
+                    sprintf(buf2, "%s is buried! Go put it on their grave!",
+                        buf);
+                    break;
+                case 3:
+                    sprintf(buf2,
+                        "No one by the name '%s' is registered here!", buf);
+                    break;
+                default:
+                    sprintf(buf2,
+                        "I don't have an address for %s. Try back later!",
+                        buf);
+                }
+                perform_tell(mailman, ch, buf2);
+            } else {
+                if (recipient == 1)    // fireball
+                    total_cost += 1000000;
+                else
+                    total_cost += STAMP_PRICE;
 
-				CREATE(n_mail_to, struct mail_recipient_data, 1);
-				n_mail_to->next = ch->desc->mail_to;
-				n_mail_to->recpt_idnum = recipient;
-				ch->desc->mail_to = n_mail_to;
-			}
-			arg = one_argument(arg, buf);
-		}
-	}
-	if (!total_cost || !ch->desc->mail_to) {
-		perform_tell(mailman, ch,
-			"Sorry, you're going to have to specify some valid recipients!");
-		return;
-	}
-	// deduct cost of mailing
-	if (GET_LEVEL(ch) < LVL_AMBASSADOR) {
+                CREATE(n_mail_to, struct mail_recipient_data, 1);
+                n_mail_to->next = ch->desc->mail_to;
+                n_mail_to->recpt_idnum = recipient;
+                ch->desc->mail_to = n_mail_to;
+            }
+            arg = one_argument(arg, buf);
+        }
+    }
+    if (!total_cost || !ch->desc->mail_to) {
+        perform_tell(mailman, ch,
+            "Sorry, you're going to have to specify some valid recipients!");
+        return;
+    }
+    // deduct cost of mailing
+    if (GET_LEVEL(ch) < LVL_AMBASSADOR) {
 
-		// gold
-		if (ch->in_room->zone->time_frame != TIME_ELECTRO) {
-			if (GET_GOLD(ch) < total_cost) {
-				sprintf(buf2, "The postage will cost you %d coins.",
-					total_cost);
-				perform_tell(mailman, ch, buf2);
-				strcpy(buf2, "...which I see you can't afford.");
-				perform_tell(mailman, ch, buf2);
-				while ((n_mail_to = ch->desc->mail_to)) {
-					ch->desc->mail_to = n_mail_to->next;
-					free(n_mail_to);
-				}
-				return;
-			}
-			GET_GOLD(ch) -= total_cost;
-		} else {				// credits
-			if (GET_CASH(ch) < total_cost) {
-				sprintf(buf2, "The postage will cost you %d credits.",
-					total_cost);
-				perform_tell(mailman, ch, buf2);
-				strcpy(buf2, "...which I see you can't afford.");
-				perform_tell(mailman, ch, buf2);
-				while ((n_mail_to = ch->desc->mail_to)) {
-					ch->desc->mail_to = n_mail_to->next;
-					free(n_mail_to);
-				}
-				return;
-			}
-			GET_CASH(ch) -= total_cost;
-		}
-	}
+        // gold
+        if (ch->in_room->zone->time_frame != TIME_ELECTRO) {
+            if (GET_GOLD(ch) < total_cost) {
+                sprintf(buf2, "The postage will cost you %d coins.",
+                    total_cost);
+                perform_tell(mailman, ch, buf2);
+                strcpy(buf2, "...which I see you can't afford.");
+                perform_tell(mailman, ch, buf2);
+                while ((n_mail_to = ch->desc->mail_to)) {
+                    ch->desc->mail_to = n_mail_to->next;
+                    free(n_mail_to);
+                }
+                return;
+            }
+            GET_GOLD(ch) -= total_cost;
+        } else {                // credits
+            if (GET_CASH(ch) < total_cost) {
+                sprintf(buf2, "The postage will cost you %d credits.",
+                    total_cost);
+                perform_tell(mailman, ch, buf2);
+                strcpy(buf2, "...which I see you can't afford.");
+                perform_tell(mailman, ch, buf2);
+                while ((n_mail_to = ch->desc->mail_to)) {
+                    ch->desc->mail_to = n_mail_to->next;
+                    free(n_mail_to);
+                }
+                return;
+            }
+            GET_CASH(ch) -= total_cost;
+        }
+    }
 
-	act("$n starts to write some mail.", TRUE, ch, 0, 0, TO_ROOM);
-	sprintf(buf2, "I'll take %d coins for the postage.", total_cost);
-	perform_tell(mailman, ch, buf2);
+    act("$n starts to write some mail.", TRUE, ch, 0, 0, TO_ROOM);
+    sprintf(buf2, "I'll take %d coins for the postage.", total_cost);
+    perform_tell(mailman, ch, buf2);
 
-	tmp_char = (char **)malloc(sizeof(char *));
-	*(tmp_char) = NULL;
+    tmp_char = (char **)malloc(sizeof(char *));
+    *(tmp_char) = NULL;
 
-	SET_BIT(PLR_FLAGS(ch), PLR_MAILING | PLR_WRITING);
-	start_text_editor(ch->desc, tmp_char, true, MAX_MAIL_SIZE - 1);
+    SET_BIT(PLR_FLAGS(ch), PLR_MAILING | PLR_WRITING);
+    start_text_editor(ch->desc, tmp_char, true, MAX_MAIL_SIZE - 1);
 }
 
 void
 postmaster_check_mail(struct Creature *ch, struct Creature *mailman,
-	int cmd, char *arg)
+    int cmd, char *arg)
 {
-	char buf2[256];
+    char buf2[256];
 
-	if (has_mail(GET_IDNUM(ch))) {
-		strcpy(buf2, "You have mail waiting.");
-	} else
-		strcpy(buf2, "Sorry, you don't have any mail waiting.");
-	perform_tell(mailman, ch, buf2);
+    if (has_mail(GET_IDNUM(ch))) {
+        strcpy(buf2, "You have mail waiting.");
+    } else
+        strcpy(buf2, "Sorry, you don't have any mail waiting.");
+    perform_tell(mailman, ch, buf2);
 }
 
 void
 postmaster_receive_mail(struct Creature *ch, struct Creature *mailman,
-	int cmd, char *arg)
+    int cmd, char *arg)
 {
-	char buf2[256];
-	int num_mails = 0;
+    char buf2[256];
+    int num_mails = 0;
 
-	if (!has_mail(GET_IDNUM(ch))) {
-		strcpy(buf2, "Sorry, you don't have any mail waiting.");
-		perform_tell(mailman, ch, buf2);
-		return;
-	}
+    if (!has_mail(GET_IDNUM(ch))) {
+        strcpy(buf2, "Sorry, you don't have any mail waiting.");
+        perform_tell(mailman, ch, buf2);
+        return;
+    }
 
-	num_mails = recieve_mail(ch);
+    num_mails = recieve_mail(ch);
 
-	if (num_mails) {
-		sprintf(buf2, "$n gives you %d piece%s of mail.", num_mails,
-			(num_mails > 1 ? "s" : ""));
-		act(buf2, FALSE, mailman, 0, ch, TO_VICT);
-		sprintf(buf2, "$N gives $n %d piece%s of mail.", num_mails,
-			(num_mails > 1 ? "s" : ""));
-		act(buf2, FALSE, ch, 0, mailman, TO_ROOM);
-	} else {
-		strcpy(buf2, "Sorry, you don't have any mail waiting.");
-		perform_tell(mailman, ch, buf2);
-	}
-	ch->saveToXML();
+    if (num_mails) {
+        sprintf(buf2, "$n gives you %d piece%s of mail.", num_mails,
+            (num_mails > 1 ? "s" : ""));
+        act(buf2, FALSE, mailman, 0, ch, TO_VICT);
+        sprintf(buf2, "$N gives $n %d piece%s of mail.", num_mails,
+            (num_mails > 1 ? "s" : ""));
+        act(buf2, FALSE, ch, 0, mailman, TO_ROOM);
+    } else {
+        strcpy(buf2, "Sorry, you don't have any mail waiting.");
+        perform_tell(mailman, ch, buf2);
+    }
+    ch->saveToXML();
 }
