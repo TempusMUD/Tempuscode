@@ -617,8 +617,7 @@ handle_input(struct descriptor_data *d, char *arg)
 		set_desc_state(CXN_WAIT_MENU, d);
 		break;
 	case CXN_AFTERLIFE:
-		char_to_game(d);
-		break;
+		char_to_game(d); break;
 	case CXN_WAIT_MENU:
 		set_desc_state(CXN_MENU, d); break;
 	case CXN_REMORT_AFTERLIFE:
@@ -1246,6 +1245,7 @@ send_menu(descriptor_data *d)
 		SEND_TO_Q("GLOBAL NETWORK SYSTEMS CLI\r\n",d);
 		SEND_TO_Q("-------------------------------------------------------------------------------\r\n",d);
 		SEND_TO_Q("Enter commands at prompt.  Use '@' to escape.  Use '?' for help.\r\n",d);
+		break;
 	case CXN_VIEW_BG:
 		send_to_desc(d, "\e[H\e[J");
 		page_string(d, tmp_sprintf("%s\r\n                                   BACKGROUND\r\n*******************************************************************************%s\r\n%s",
