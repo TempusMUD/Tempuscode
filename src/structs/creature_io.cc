@@ -861,7 +861,11 @@ Creature::loadFromXML( long id )
 				add_alias(this,alias);
 			}
 		} else if ( xmlMatches(node->name, "description" ) ) {
-			player.description = (char*)xmlNodeGetContent( node );
+			char *txt;
+
+			txt = (char *)xmlNodeGetContent(node);
+			player.description = strdup(tmp_gsub(txt, "\n", "\r\n"));
+			free(txt);
         } else if ( xmlMatches(node->name, "poofin") ) {
 			POOFIN(this) = (char*)xmlNodeGetContent( node );
         } else if ( xmlMatches(node->name, "poofout") ) {
