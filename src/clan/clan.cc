@@ -77,7 +77,7 @@ ACMD(do_enroll)
 		send_to_char(ch, "Enroll who?\r\n");
 	else if (vict == ch)
 		send_to_char(ch, "Yeah, yeah, yeah... enroll yourself, huh?\r\n");
-	else if (GET_LEVEL(ch) < LVL_IMMORT && !PLR_FLAGGED(ch, PLR_CLAN_LEADER))
+	else if (!IS_IMMORT(ch) && !PLR_FLAGGED(ch, PLR_CLAN_LEADER))
 		send_to_char(ch, "You are not the leader of the clan!\r\n");
 	else if (IS_MOB(vict) && GET_LEVEL(ch) < LVL_CREATOR)
 		send_to_char(ch, "What's the point of that?\r\n");
@@ -182,7 +182,7 @@ ACMD(do_dismiss)
 	}
 	if (vict == ch)
 		send_to_char(ch, "Thats real damn funny.\r\n");
-	else if (!PLR_FLAGGED(ch, PLR_CLAN_LEADER) && GET_LEVEL(ch) < LVL_IMMORT)
+	else if (!PLR_FLAGGED(ch, PLR_CLAN_LEADER) && !IS_IMMORT(ch))
 		send_to_char(ch, "You are not the leader of the clan!\r\n");
 	else if (GET_LEVEL(vict) >= LVL_GRGOD && GET_LEVEL(ch) < LVL_GRGOD)
 		send_to_char(ch, "I don't think you should do that.\r\n");

@@ -481,6 +481,8 @@ IS_LIGHT(room_data * room)
 #define IS_MALE(ch)     ((ch)->player.sex == SEX_MALE)
 #define IS_FEMALE(ch)   ((ch)->player.sex == SEX_FEMALE)
 #define IS_REMORT(ch)   ((ch) && (CHECK_REMORT_CLASS(ch) >= 0))
+#define IS_IMMORT(ch)	((ch) && (GET_LEVEL(ch) >= LVL_AMBASSADOR))
+#define IS_MORT(ch)		((ch) && !IS_REMORT(ch) && !IS_IMMORT(ch))
 
 #define GET_STR(ch)     ((ch)->aff_abils.str)
 #define GET_ADD(ch)     ((ch)->aff_abils.str_add)

@@ -3333,7 +3333,7 @@ ACMD(do_who)
 						CCCYN(ch, C_NRM), real_clan(GET_CLAN(tch))->name,
 						CCNRM(ch, C_NRM));
 			}
-			if (GET_INVIS_LVL(tch))
+			if (GET_INVIS_LVL(tch) && !IS_MORT(ch))
 				sprintf(buf2, "%s %s(%si%d%s)%s",
 					buf2, CCMAG(ch, C_NRM), CCRED(ch, C_NRM),
 					GET_INVIS_LVL(tch), CCMAG(ch, C_NRM), CCNRM(ch, C_NRM));
