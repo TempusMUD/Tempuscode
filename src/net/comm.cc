@@ -1431,13 +1431,14 @@ close_socket(struct descriptor_data * d)
 	if (d->connected == CON_PLAYING || d->connected > CON_NET_MENU1) {
 	    save_char(d->character, NULL);
 	    act("$n has lost $s link.", TRUE, d->character, 0, 0, TO_ROOM);
-	    sprintf(buf, "Closing link to: %s.", GET_NAME(d->character));
+	    sprintf(buf, "Closing link to: %s. [%s] ", GET_NAME(d->character),d->host);
 	    mudlog(buf, NRM, MAX(LVL_AMBASSADOR, GET_INVIS_LEV(d->character)), TRUE);
 	    d->character->desc = NULL;
 	    GET_OLC_OBJ(d->character) = NULL;
 	} else {
-	    sprintf(buf, "Losing player: %s.",
-		    GET_NAME(d->character) ? GET_NAME(d->character) : "<null>");
+	    sprintf(buf, "Losing player: %s. [%s] ",
+		    GET_NAME(d->character) ? GET_NAME(d->character) : "<null>",
+            d->host);
 	    mudlog(buf, CMP, MAX(LVL_AMBASSADOR, GET_INVIS_LEV(d->character)), TRUE);
 #ifdef DMALLOC
 	    dmalloc_verify(0);
