@@ -14,7 +14,7 @@ struct tmp_str_pool {
 	char data[0];					// The actual data
 };
 
-const size_t DEFAULT_POOL_SIZE = 32767;	// 32k to start with
+const size_t DEFAULT_POOL_SIZE = 65536;	// 64k to start with
 unsigned long tmp_max_used = 0;			// Tracks maximum tmp str space used
 unsigned long tmp_overruns = 0;			// Tracks number of times the initial
 										// pool has been insufficient

@@ -19,6 +19,7 @@
 #include "bomb.h"
 #include "fight.h"
 #include "house.h"
+#include "utils.h"
 
 /* extern variables */
 extern struct room_data *world;
@@ -1338,10 +1339,10 @@ ACMD(do_discharge)
 
 	if (amount < 0) {
 		send_to_char(ch, "Discharge into who?\r\n");
-		sprintf(buf, "%s neg-discharge %d %s at %d", GET_NAME(ch),
-			amount, vict ? GET_NAME(vict) : ovict->short_description,
+		mudlog(LVL_GRGOD, NRM, true, "%s neg-discharge %d %s at %d",
+			GET_NAME(ch), amount,
+			vict ? GET_NAME(vict) : ovict->short_description,
 			ch->in_room->number);
-		mudlog(buf, NRM, LVL_GRGOD, TRUE);
 		return;
 	}
 	if (vict == ch) {

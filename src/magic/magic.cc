@@ -3109,9 +3109,9 @@ mag_alter_objs(int level, struct char_data *ch, struct obj_data *obj,
 				strcpy(buf2, obj->name);
 				strcat(buf2, buf);
 				obj->name = str_dup(buf2);
-				sprintf(buf, "ENCHANT: %s attraction fielded by %s.",
+				mudlog(GET_LEVEL(ch), CMP, true,
+					"ENCHANT: %s attraction fielded by %s.",
 					obj->short_description, GET_NAME(ch));
-				mudlog(buf, CMP, GET_LEVEL(ch), TRUE);
 			}
 		} else {
 			for (i = 0, j = -1; i < MAX_OBJ_AFFECT; i++) {
@@ -3179,9 +3179,9 @@ mag_alter_objs(int level, struct char_data *ch, struct obj_data *obj,
 			strcpy(buf2, obj->name);
 			strcat(buf2, buf);
 			obj->name = str_dup(buf2);
-			sprintf(buf, "ENCHANT: %s lattice hardened by %s.",
+			mudlog(GET_LEVEL(ch), CMP, true,
+				"ENCHANT: %s lattice hardened by %s.",
 				obj->short_description, GET_NAME(ch));
-			mudlog(buf, CMP, GET_LEVEL(ch), TRUE);
 		}
 		break;
 
@@ -3301,9 +3301,9 @@ mag_objects(int level, struct char_data *ch, struct obj_data *obj,
 			strcpy(buf2, obj->name);
 			strcat(buf2, buf);
 			obj->name = str_dup(buf2);
-			sprintf(buf, "ENCHANT: Bless. %s by %s.", obj->short_description,
+			mudlog(GET_INVIS_LEV(ch), CMP, true,
+				"ENCHANT: Bless. %s by %s.", obj->short_description,
 				GET_NAME(ch));
-			mudlog(buf, CMP, GET_INVIS_LEV(ch), TRUE);
 		}
 		break;
 	case SPELL_POISON:

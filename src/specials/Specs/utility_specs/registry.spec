@@ -134,8 +134,7 @@ SPECIAL(registry)
     obj_to_char(cert, ch);
   }
 
-  sprintf(buf, "%s has registered at %s.", GET_NAME(ch), 
-                       	home_towns[(int)GET_HOME(ch)]);
-  mudlog(buf, CMP, GET_INVIS_LEV(ch), TRUE);
+  mudlog(GET_INVIS_LEV(ch), CMP, true,
+  	"%s has registered at %s.", GET_NAME(ch), home_towns[(int)GET_HOME(ch)]);
   return 1;
 }

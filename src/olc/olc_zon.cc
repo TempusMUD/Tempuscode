@@ -2564,8 +2564,8 @@ autosave_zones(int SAVE_TYPE)
 		if (!ZONE_FLAGGED(zone, ZONE_LOCKED) &&
 			ZONE_FLAGGED(zone, SAVE_TYPE & ZONE_ZONE_MODIFIED))
 			if (save_zone(NULL, zone) == 0) {
-				sprintf(buf, "SYSERR: Could not save zone : %s\n", zone->name);
-				mudlog(buf, NRM, LVL_IMMORT, TRUE);
+				mudlog(LVL_IMMORT, NRM, true,
+					"SYSERR: Could not save zone : %s\n", zone->name);
 			}
 /*
   if (ZONE_FLAGGED(zone, SAVE_TYPE&ZONE_ROOMS_MODIFIED))

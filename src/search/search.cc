@@ -66,9 +66,9 @@ search_trans_character(char_data * ch,
 			ch->extract(false, true, CON_AFTERLIFE);
 			return 2;
 		} else {
-			sprintf(buf, "(GC) %s trans-searched into deathtrap %d.",
+			mudlog(LVL_GOD, NRM, true,
+				"(GC) %s trans-searched into deathtrap %d.",
 				GET_NAME(ch), ch->in_room->number);
-			mudlog(buf, NRM, LVL_GOD, TRUE);
 		}
 	}
 	// can't double trans, to prevent loops
@@ -291,9 +291,9 @@ general_search(struct char_data *ch, struct special_search_data *srch,
 					ch->extract(false, true, CON_AFTERLIFE);
 					return 2;
 				} else {
-					sprintf(buf, "( GC ) %s trans-searched into deathtrap %d.",
+					mudlog(LVL_GOD, NRM, true,
+						"(GC) %s trans-searched into deathtrap %d.",
 						GET_NAME(ch), ch->in_room->number);
-					mudlog(buf, NRM, LVL_GOD, TRUE);
 				}
 			}
 			// can't double trans, to prevent loops

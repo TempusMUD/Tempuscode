@@ -23,7 +23,8 @@ SPECIAL(wagon_driver)
       break;
 
   if (!i) {
-    mudlog(" WARNING:  Wagon driver cannot find his wagon (object 10)!", BRF, LVL_DEMI, TRUE);
+    mudlog(LVL_DEMI, BRF, true,
+		"WARNING:  Wagon driver cannot find his wagon (object 10)!");
     driver->mob_specials.shared->func = NULL;
     REMOVE_BIT(MOB_FLAGS(driver), MOB_SPEC);
     return 0;

@@ -28,9 +28,9 @@ SPECIAL(questor_util)
 
   TOGGLE_BIT(PLR_FLAGS(ch), PLR_QUESTOR);
   
-  sprintf(buf, "(GC) %s has %s QUESTOR flag.", GET_NAME(ch), 
-          PLR_FLAGGED(ch, PLR_QUESTOR) ? "obtained" : "removed");
-  mudlog(buf, NRM, GET_INVIS_LEV(ch), TRUE);
+  mudlog(GET_INVIS_LEV(ch), NRM, true,
+  	"(GC) %s has %s QUESTOR flag.", GET_NAME(ch), 
+	  PLR_FLAGGED(ch, PLR_QUESTOR) ? "obtained" : "removed");
   
   send_to_char(ch, "Questor flag toggled.\r\n");
   act("$n flips some switches on $p.", FALSE, ch, obj, 0, TO_ROOM);
@@ -44,11 +44,11 @@ SPECIAL(questor_util)
             }
         }
         if (!found) {
-            mudlog("Quest_status disabled.", NRM, GET_INVIS_LEV(ch), TRUE);
+            mudlog(GET_INVIS_LEV(ch), NRM, true, "Quest_status disabled.");
             quest_status = 0;
         }
     } else if (!quest_status) {
-        mudlog("Quest_status enabled.", NRM, GET_INVIS_LEV(ch), TRUE);
+		mudlog(GET_INVIS_LEV(ch), NRM, true, "Quest_status enabled.");
         quest_status =1 ;
     }
     return 1;

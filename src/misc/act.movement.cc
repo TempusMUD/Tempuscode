@@ -2475,10 +2475,10 @@ ACMD(do_translocate)
 			ch->carrying = obj->next_content;
 			extract_obj(obj);
 		}
-		sprintf(buf, "%s died %s into solid matter from %d.", GET_NAME(ch),
+		mudlog(GET_INVIS_LEV(ch), NRM, true,
+			"%s died %s into solid matter from %d.", GET_NAME(ch),
 			subcmd == SKILL_WORMHOLE ? "wormholed" : "translocated",
 			ch->in_room->number);
-		mudlog(buf, NRM, GET_INVIS_LEV(ch), TRUE);
 
 		send_to_char(ch, 
 			"You go too far, rematerializing inside solid matter!!\r\n"

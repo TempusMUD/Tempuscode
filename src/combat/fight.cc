@@ -250,10 +250,9 @@ die(struct char_data *ch, struct char_data *killer, int attacktype,
 {
 	if (IS_NPC(ch) && GET_MOB_SPEC(ch)) {
 		if (GET_MOB_SPEC(ch) (killer, ch, 0, NULL, SPECIAL_DEATH)) {
-			sprintf(buf,
+			mudlog(LVL_CREATOR, NRM, true,
 				"ERROR: Mobile special for %s run in place of standard extraction.\n",
 				GET_NAME(ch));
-			mudlog(buf, NRM, LVL_CREATOR, TRUE);
 			return;
 		}
 	} 
@@ -311,10 +310,9 @@ die(struct char_data *ch, struct char_data *killer, int attacktype,
 						"The righteous rejoice as your soul departs the mortal realms... forever.\r\n");
 
 				SET_BIT(PLR2_FLAGS(ch), PLR2_BURIED);
-				sprintf(buf,
+				mudlog(LVL_GOD, NRM, true,
 					"%s died with no maxhit and no life points. Burying.",
 					GET_NAME(ch));
-				mudlog(buf, NRM, LVL_GOD, TRUE);
 
 			} else if (GET_LIFE_POINTS(ch) > 0) {
 				GET_LIFE_POINTS(ch) =
@@ -782,9 +780,9 @@ damage(struct char_data *ch, struct char_data *victim, int dam,
 	if (ch && (PLR_FLAGGED(victim, PLR_MAILING) ||
 			PLR_FLAGGED(victim, PLR_WRITING) ||
 			PLR_FLAGGED(victim, PLR_OLC)) && ch != victim) {
-		sprintf(buf, "%s has attacked %s while writing at %d.", GET_NAME(ch),
+		mudlog(GET_INVIS_LEV(ch), BRF, true,
+			"%s has attacked %s while writing at %d.", GET_NAME(ch),
 			GET_NAME(victim), ch->in_room->number);
-		mudlog(buf, BRF, GET_INVIS_LEV(ch), TRUE);
 		stop_fighting(ch);
 		stop_fighting(victim);
 		send_to_char(ch, "NO!  Do you want to be ANNIHILATED by the gods?!\r\n");
@@ -1668,11 +1666,10 @@ damage(struct char_data *ch, struct char_data *victim, int dam,
 					}
 
 				} else {
-					sprintf(buf,
+					mudlog(LVL_DEMI, BRF, true,
 						"ERROR: %s was at position %d with %d hit points and tried to flee.",
 						GET_NAME(victim), victim->getPosition(),
 						GET_HIT(victim));
-					mudlog(buf, BRF, LVL_DEMI, TRUE);
 				}
 			}
 			//
@@ -1868,7 +1865,7 @@ damage(struct char_data *ch, struct char_data *victim, int dam,
 					//mudlog(buf2, CMP, GET_INVIS_LEV(victim), TRUE);
 					qlog(NULL, buf2, QLOG_COMP, GET_INVIS_LEV(victim), TRUE);
 				} else {
-					mudlog(buf2, BRF, GET_INVIS_LEV(victim), TRUE);
+					mudlog(GET_INVIS_LEV(victim), BRF, true, "%s", buf2);
 				}
 				if (MOB_FLAGGED(ch, MOB_MEMORY))
 					forget(ch, victim);
@@ -1886,14 +1883,14 @@ damage(struct char_data *ch, struct char_data *victim, int dam,
 		}
 
 		if (!IS_NPC(victim)) {
-			sprintf(buf, "%s killed by NULL-char ( type %d ( %s ) ) at %d.",
+			mudlog(LVL_AMBASSADOR, BRF, true,
+				"%s killed by NULL-char ( type %d ( %s ) ) at %d.",
 				GET_NAME(victim), attacktype,
 				(attacktype > 0 && attacktype < TOP_NPC_SPELL) ?
 				spell_to_str(attacktype) :
 				(attacktype >= TYPE_HIT && attacktype <= TOP_ATTACKTYPE) ?
 				attack_type[attacktype - TYPE_HIT] : "bunk",
 				victim->in_room->number);
-			mudlog(buf, BRF, LVL_AMBASSADOR, TRUE);
 		}
 		die(victim, NULL, attacktype, is_humil);
 		DAM_RETURN(DAM_VICT_KILLED);

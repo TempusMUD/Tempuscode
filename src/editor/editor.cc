@@ -43,17 +43,16 @@ start_text_editor(struct descriptor_data *d, char **dest, bool sendmessage =
 	 */
 	// There MUST be a destination!
 	if (!dest) {
-		mudlog
-			("SYSERR: NULL destination pointer passed into start_text_editor!!",
-			BRF, LVL_IMMORT, TRUE);
+		mudlog(LVL_IMMORT, BRF, true,
+			"SYSERR: NULL destination pointer passed into start_text_editor!!");
 		send_to_char(d->character, "This command seems to be broken. Bug this.\r\n");
 		REMOVE_BIT(PLR_FLAGS(d->character),
 			PLR_WRITING | PLR_OLC | PLR_MAILING);
 		return;
 	}
 	if (d->text_editor) {
-		mudlog("SYSERR: Text editor object not null in start_text_editor.",
-			BRF, LVL_IMMORT, TRUE);
+		mudlog(LVL_IMMORT, BRF, true,
+			"SYSERR: Text editor object not null in start_text_editor.");
 		REMOVE_BIT(PLR_FLAGS(d->character),
 			PLR_WRITING | PLR_OLC | PLR_MAILING);
 		return;
@@ -73,17 +72,16 @@ start_script_editor(struct descriptor_data *d, list <string> dest,
 	bool isscript)
 {
 	if (&dest == NULL) {
-		mudlog
-			("SYSERR: NULL destination pointer passed into start_text_editor!!",
-			BRF, LVL_IMMORT, TRUE);
+		mudlog(LVL_IMMORT, BRF, true,
+			"SYSERR: NULL destination pointer passed into start_text_editor!!");
 		send_to_char(d->character, "This command seems to be broken. Bug this.\r\n");
 		REMOVE_BIT(PLR_FLAGS(d->character),
 			PLR_WRITING | PLR_OLC | PLR_MAILING);
 		return;
 	}
 	if (d->text_editor) {
-		mudlog("SYSERR: Text editor object not null in start_text_editor.",
-			BRF, LVL_IMMORT, TRUE);
+		mudlog(LVL_IMMORT, BRF, true,
+			"SYSERR: Text editor object not null in start_text_editor.");
 		REMOVE_BIT(PLR_FLAGS(d->character),
 			PLR_WRITING | PLR_OLC | PLR_MAILING);
 		return;
@@ -315,16 +313,14 @@ CTextEditor::SaveFile(void)
 
 	sprintf(filename, "%s", desc->editor_file);
 	if ((file_to_write = open(filename, O_RDWR, 0666)) == -1) {
-		sprintf(tedii_out_buf, "Could not open file %s, buffer not saved!\r\n",
-			filename);
-		mudlog(tedii_out_buf, NRM, LVL_AMBASSADOR, TRUE);
+		mudlog(LVL_AMBASSADOR, NRM, true,
+			"Could not open file %s, buffer not saved!\r\n", filename);
 	} else {
 		sprintf(filename, "%s.bak", desc->editor_file);
 		if ((backup_file =
 				open(filename, O_RDWR | O_CREAT | O_TRUNC, 0666)) == -1) {
-			sprintf(tedii_out_buf,
+			mudlog(LVL_AMBASSADOR, NRM, true,
 				"Could not open file %s, buffer not saved!\r\n", filename);
-			mudlog(tedii_out_buf, NRM, LVL_AMBASSADOR, TRUE);
 			close(file_to_write);
 		} else {
 			while ((nread = read(file_to_write, filebuf, sizeof(filebuf))) > 0) {

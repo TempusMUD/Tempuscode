@@ -70,9 +70,9 @@ ACMD(do_steal)
 	}
 	if (!IS_MOB(vict) && !vict->desc && GET_LEVEL(ch) < LVL_ELEMENT) {
 		send_to_char(ch, "You cannot steal from linkless players!!!\r\n");
-		sprintf(buf, "%s attempted to steal from linkless %s.", GET_NAME(ch),
+		mudlog(GET_LEVEL(ch), CMP, true,
+			"%s attempted to steal from linkless %s.", GET_NAME(ch),
 			GET_NAME(vict));
-		mudlog(buf, CMP, GET_LEVEL(ch), TRUE);
 		return;
 	}
 	if (!IS_MOB(vict) && ch->isNewbie()) {
@@ -86,9 +86,9 @@ ACMD(do_steal)
 		!PLR_FLAGGED(ch, PLR_THIEF) && GET_LEVEL(ch) < LVL_AMBASSADOR) {
 		send_to_char(ch, "Okay... You will now be a THIEF!\r\n");
 		SET_BIT(PLR_FLAGS(ch), PLR_THIEF);
-		sprintf(buf, "PC THIEF bit set on %s for robbing %s.", GET_NAME(ch),
+		mudlog(MAX(GET_INVIS_LEV(ch), GET_INVIS_LEV(vict)), NRM, true,
+			"PC THIEF bit set on %s for robbing %s.", GET_NAME(ch),
 			GET_NAME(vict));
-		mudlog(buf, NRM, MAX(GET_INVIS_LEV(ch), GET_INVIS_LEV(vict)), TRUE);
 	}
 
 

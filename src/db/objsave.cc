@@ -490,8 +490,8 @@ Crash_load(struct char_data *ch)
 				"There was a problem loading your objects from disk.\r\n"
 				"Contact a God for assistance.\r\n");
 		}
-		sprintf(buf, "%s entering game with no equipment.", GET_NAME(ch));
-		mudlog(buf, NRM, MAX(LVL_AMBASSADOR, GET_INVIS_LEV(ch)), TRUE);
+		mudlog(MAX(LVL_AMBASSADOR, GET_INVIS_LEV(ch)), NRM, true,
+			"%s entering game with no equipment.", GET_NAME(ch));
 		return 1;
 	}
 	if (!feof(fl))
@@ -513,11 +513,9 @@ Crash_load(struct char_data *ch)
 					cost = 0;
 					save_char(ch, NULL);
 				} else {
-					sprintf(buf,
+					mudlog(MAX(LVL_AMBASSADOR, GET_INVIS_LEV(ch)), BRF, true,
 						"%s entering game, some rented eq lost ( no creds ). -- %d/day, %f days",
 						GET_NAME(ch), rent.net_cost_per_diem, num_of_days);
-					mudlog(buf, BRF, MAX(LVL_AMBASSADOR, GET_INVIS_LEV(ch)),
-						TRUE);
 				}
 			} else {			// default costs gold
 				if (cost < GET_GOLD(ch) + GET_BANK_GOLD(ch)) {
@@ -526,11 +524,9 @@ Crash_load(struct char_data *ch)
 					save_char(ch, NULL);
 					cost = 0;
 				} else {
-					sprintf(buf,
+					mudlog(MAX(LVL_AMBASSADOR, GET_INVIS_LEV(ch)), BRF, true,
 						"%s entering game, some rented eq lost ( no gold ). -- %d/day, %f days",
 						GET_NAME(ch), rent.net_cost_per_diem, num_of_days);
-					mudlog(buf, BRF, MAX(LVL_AMBASSADOR, GET_INVIS_LEV(ch)),
-						TRUE);
 				}
 			}					// Currency
 		}
@@ -568,7 +564,7 @@ Crash_load(struct char_data *ch)
 
 	}
 	if (*buf)
-		mudlog(buf, BRF, MAX(LVL_AMBASSADOR, GET_INVIS_LEV(ch)), TRUE);
+		mudlog(MAX(LVL_AMBASSADOR, GET_INVIS_LEV(ch)), BRF, true, "%s", buf);
 
 	// load objects from file
 	while (!feof(fl)) {
@@ -1270,7 +1266,7 @@ gen_receptionist(struct char_data *ch, struct char_data *recep,
 			SET_BIT(PLR_FLAGS(ch), PLR_CRYO);
 		}
 
-		mudlog(buf, NRM, MAX(LVL_AMBASSADOR, GET_INVIS_LEV(ch)), TRUE);
+		mudlog(MAX(LVL_AMBASSADOR, GET_INVIS_LEV(ch)), NRM, true, "%s", buf);
 		act("$n helps $N into $S private chamber.",
 			FALSE, recep, 0, ch, TO_NOTVICT);
 		save_room = ch->in_room;

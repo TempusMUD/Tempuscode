@@ -136,10 +136,9 @@ store_mail(long to_id, long from_id, char *txt, char *cc_list,
 		send_to_char(get_char_in_world_by_idnum(from_id), "Something is very wrong.\r\n");
 		send_to_char(get_char_in_world_by_idnum(from_id), 
 			"Mail Forget a description of exactly what you just did.\r\n");
-		sprintf(buf,
+		mudlog(LVL_GRGOD, CMP, true,
 			"SYSERR: Mail size larger than max_mail size. From: %ld To: %ld Length: %d.",
 			from_id, to_id, strlen(txt));
-		mudlog(buf, CMP, LVL_GRGOD, TRUE);
 		return 0;
 	}
 	if (cc_list) {
@@ -149,10 +148,9 @@ store_mail(long to_id, long from_id, char *txt, char *cc_list,
 				txt[index] = '\0';
 				strcpy(buf, txt);
 				strcpy(txt, buf);
-				sprintf(buf,
+				mudlog(LVL_GRGOD, CMP, true,
 					"SYSERR: Mail size + CC list larger than max_mail size. From: %ld To: %ld Length: %d/%d.",
 					from_id, to_id, strlen(txt), strlen(cc_list));
-				mudlog(buf, CMP, LVL_GRGOD, TRUE);
 
 			}
 		}
@@ -241,9 +239,9 @@ recieve_mail(char_data * ch)
 		if (letter->msg_size && !mail_file.eof()
 			&& (obj = read_object(MAIL_OBJ_VNUM))) {
 			if (letter->msg_size > 2 * MAX_MAIL_SIZE) {
-				sprintf(buf, "Invalid mail size(%ld) in mail file.(%s).",
+				mudlog(LVL_GRGOD, CMP, true,
+					"Invalid mail size(%ld) in mail file.(%s).",
 					letter->msg_size, fname);
-				mudlog(buf, CMP, LVL_GRGOD, TRUE);
 				backup_file = true;
 				break;
 			}

@@ -179,9 +179,9 @@ save_objs(struct char_data *ch)
 
 	sprintf(fname, "world/obj/%d.obj", zone->number);
 	if ((access(fname, F_OK) >= 0) && (access(fname, W_OK) < 0)) {
-		sprintf(buf, "OLC: ERROR - Main object file for zone %d is read-only.",
+		mudlog(0, BRF, true,
+			"OLC: ERROR - Main object file for zone %d is read-only.",
 			zone->number);
-		mudlog(buf, BRF, 0, TRUE);
 	}
 
 	sprintf(fname, "world/obj/olc/%d.obj", zone->number);
@@ -365,9 +365,9 @@ do_create_obj(struct char_data *ch, int vnum)
 
 	if (!CAN_EDIT_ZONE(ch, zone)) {
 		send_to_char(ch, "Try creating objects in your own zone, luser.\r\n");
-		sprintf(buf, "OLC: %s failed attempt to CREATE obj %d.",
+		mudlog(GET_INVIS_LEV(ch), BRF, true,
+			"OLC: %s failed attempt to CREATE obj %d.",
 			GET_NAME(ch), vnum);
-		mudlog(buf, BRF, GET_INVIS_LEV(ch), TRUE);
 		return NULL;
 	}
 
@@ -461,9 +461,9 @@ do_destroy_object(struct char_data *ch, int vnum)
 
 	if (GET_IDNUM(ch) != zone->owner_idnum && GET_LEVEL(ch) < LVL_LUCIFER) {
 		send_to_char(ch, "Oh, no you dont!!!\r\n");
-		sprintf(buf, "OLC: %s failed attempt to DESTROY object %d.",
+		mudlog(GET_INVIS_LEV(ch), BRF, true,
+			"OLC: %s failed attempt to DESTROY object %d.",
 			GET_NAME(ch), obj->shared->vnum);
-		mudlog(buf, BRF, GET_INVIS_LEV(ch), TRUE);
 		return 1;
 	}
 

@@ -140,8 +140,8 @@ SPECIAL(unholy_square)
 
     extract_obj(obj);
 
-    sprintf(buf, "US: %s has re-sanctified Holy Square.", GET_NAME(ch));
-    mudlog(buf, BRF, LVL_AMBASSADOR, TRUE);
+    mudlog(LVL_AMBASSADOR, BRF, true,
+		"US: %s has re-sanctified Holy Square.", GET_NAME(ch));
 
     return 1;
   }
@@ -194,8 +194,8 @@ SPECIAL(unholy_square)
 
     send_to_char(ch, "Holy Square defiled.\r\n");
 
-    sprintf(buf, "US: %s has defiled Holy Square.", GET_NAME(ch));
-    mudlog(buf, BRF, LVL_AMBASSADOR, TRUE);
+    mudlog(LVL_AMBASSADOR, BRF, true,
+    	"US: %s has defiled Holy Square.", GET_NAME(ch));
    
     return 1;
   }
@@ -211,8 +211,8 @@ SPECIAL(unholy_square)
 
     send_to_char(ch, "Holy Square resanctified.\r\n");
 
-    sprintf(buf, "US: %s has ended the defilement of Holy Square.", GET_NAME(ch));
-    mudlog(buf, BRF, LVL_AMBASSADOR, TRUE);
+    mudlog(LVL_AMBASSADOR, BRF, true,
+    	"US: %s has ended the defilement of Holy Square.", GET_NAME(ch));
 
     return 1;
   }

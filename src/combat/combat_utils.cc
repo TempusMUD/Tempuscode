@@ -238,7 +238,6 @@ check_killer(struct char_data *ch, struct char_data *vict,
 			(IS_REMORT(ch) && !IS_REMORT(vict))) &&
 		!affected_by_spell(vict, SKILL_DISGUISE) &&
 		(ch != vict) && !ROOM_FLAGGED(ch->in_room, ROOM_ARENA)) {
-		char buf[256];
 		if (GET_LEVEL(ch) >= LVL_POWER)
 			return;
 		// Lawless... Not wrong to pk in lawless zones.
@@ -250,14 +249,13 @@ check_killer(struct char_data *ch, struct char_data *vict,
 		}
 
 		SET_BIT(PLR_FLAGS(ch), PLR_KILLER);
-		sprintf(buf, "PC KILLER set on %s for attack on %s at %d. %s",
+		mudlog(LVL_AMBASSADOR, BRF, true,
+			"PC KILLER set on %s for attack on %s at %d. %s",
 			GET_NAME(ch), GET_NAME(vict), vict->in_room->number,
 			PRF2_FLAGGED(ch, PRF2_PKILLER) ? "PK(ON)" : "PK(OFF)");
-		mudlog(buf, BRF, LVL_AMBASSADOR, TRUE);
 		send_to_char(ch, "If you want to be a PLAYER KILLER, so be it...\r\n");
 
-		sprintf(buf, "KILLER set from: %s", debug_msg ? debug_msg : "unknown");
-		slog(buf);
+		slog("KILLER set from: %s", debug_msg ? debug_msg : "unknown");
 	}
 }
 
@@ -275,26 +273,22 @@ check_toughguy(struct char_data *ch, struct char_data *vict, int mode)
 
 	if ((!PLR_FLAGGED(ch, PLR_TOUGHGUY) ||
 			(!PLR_FLAGGED(ch, PLR_REMORT_TOUGHGUY) && IS_REMORT(vict)))) {
-		char buf[256];
-
 		if (!PLR_FLAGGED(ch, PLR_TOUGHGUY)) {
 			SET_BIT(PLR_FLAGS(ch), PLR_TOUGHGUY);
-			sprintf(buf,
+			mudlog(LVL_AMBASSADOR, BRF, true,
 				"PC Tough bit set on %s for %s %s at %d. PK(%s)",
 				GET_NAME(ch), mode ? "robbing" : "attack on",
 				GET_NAME(vict), vict->in_room->number,
 				PRF2_FLAGGED(ch, PRF2_PKILLER) ? "ON" : "OFF");
-			mudlog(buf, BRF, LVL_AMBASSADOR, TRUE);
 		}
 		if (IS_REMORT(vict) && !IS_REMORT(ch) &&
 			!PLR_FLAGGED(ch, PLR_REMORT_TOUGHGUY)) {
 			SET_BIT(PLR_FLAGS(ch), PLR_REMORT_TOUGHGUY);
-			sprintf(buf,
+			mudlog(LVL_AMBASSADOR, BRF, true,
 				"PC remort_Tough bit set on %s for %s %s at %d. PK(%s)",
 				GET_NAME(ch), mode ? "robbing" : "attack on",
 				GET_NAME(vict), vict->in_room->number,
 				PRF2_FLAGGED(ch, PRF2_PKILLER) ? "ON" : "OFF");
-			mudlog(buf, BRF, LVL_AMBASSADOR, TRUE);
 		}
 	}
 }
@@ -399,13 +393,12 @@ check_object_killer(struct obj_data *obj, struct char_data *vict)
 			return;
 		}
 		SET_BIT(PLR_FLAGS(killer), PLR_KILLER);
-		sprintf(buf,
+		mudlog(LVL_AMBASSADOR, BRF, true,
 			"PC KILLER bit set on %s %sfor damaging %s at %s with %s.",
 			GET_NAME(killer),
 			is_file ? "( file ) " : is_desc ? "( desc ) " : "", GET_NAME(vict),
 			(vict->in_room) ? vict->in_room->name : "DEAD",
 			obj->short_description);
-		mudlog(buf, BRF, LVL_AMBASSADOR, TRUE);
 
 		if (is_desc) {
 			sprintf(buf, "KILLER bit set for damaging %s with %s.!\r\n",

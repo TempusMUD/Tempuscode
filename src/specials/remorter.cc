@@ -226,9 +226,9 @@ SPECIAL(remorter)
 			send_to_char(ch, "Your answers were only %d percent correct.\r\n"
 				//"You must be able to answer %d percent correctly.\r\n"
 				"You are unable to remort at this time.\r\n", quiz.getScore());
-			sprintf(buf, "%s has failed remort test at gen %d.", GET_NAME(ch),
+			mudlog(LVL_ELEMENT, NRM, false,
+				"%s has failed remort test at gen %d.", GET_NAME(ch),
 				GET_REMORT_GEN(ch));
-			mudlog(buf, NRM, LVL_ELEMENT, FALSE);
 			quiz.log(buf);
 			quiz.logScore();
 			REMOVE_BIT(ch->in_room->room_flags, ROOM_NORECALL);
@@ -277,10 +277,10 @@ SPECIAL(remorter)
 			GET_TOT_DAM(ch) = 0;	// cyborg damage 
 
 			// Tell everyone that they remorted
-			sprintf(buf, "%s completed gen %d remort test with score %d",
+			mudlog(LVL_IMMORT, BRF, false,
+				"%s completed gen %d remort test with score %d",
 				GET_NAME(ch), GET_REMORT_GEN(ch),
 				quiz.getScore());
-			mudlog(buf, BRF, LVL_IMMORT, FALSE);
 			quiz.log(buf);
 			quiz.logScore();
 

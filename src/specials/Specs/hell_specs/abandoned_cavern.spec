@@ -46,9 +46,9 @@ SPECIAL( abandoned_cavern )
                      "You die a horrible death!!", 
                      FALSE, vict, 0, 0, TO_CHAR | TO_SLEEP );
 
-                sprintf( buf, "%s killed in a cave-in at %d", 
-                         GET_NAME( vict ), cavern->number );
-                mudlog( buf, BRF, GET_INVIS_LEV( vict ), TRUE );
+                mudlog(GET_INVIS_LEV(vict), BRF, true,
+					"%s killed in a cave-in at %d", 
+					 GET_NAME( vict ), cavern->number );
 
                 if ( ( rubble = read_object( RUBBLE_VNUM ) ) ) {
                     for ( i = 0; i < NUM_WEARS; i++ ) {

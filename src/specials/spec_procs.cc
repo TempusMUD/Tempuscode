@@ -1288,9 +1288,9 @@ throw_char_in_jail(struct char_data *ch, struct char_data *vict)
 	if ((torch = read_object(3030)))
 		obj_to_char(torch, vict);
 
-	sprintf(buf, "%s has been thrown into jail by %s at %d.", GET_NAME(vict),
+	mudlog(GET_INVIS_LEV(vict), NRM, true,
+		"%s has been thrown into jail by %s at %d.", GET_NAME(vict),
 		GET_NAME(ch), ch->in_room->number);
-	mudlog(buf, NRM, GET_INVIS_LEV(vict), TRUE);
 	return 1;
 }
 
@@ -1643,7 +1643,7 @@ SPECIAL(bank)
 {
 	struct clan_data *clan = NULL;
 	struct clanmember_data *member;
-	char *log, *arg1, *arg2;
+	char *arg1, *arg2;
 	int amount;
 
 	if (spec_mode != SPECIAL_CMD)
@@ -1704,9 +1704,9 @@ SPECIAL(bank)
 			send_to_char(ch, "You deposit %d %s%s.\r\n", amount, CURRENCY(ch),
 				PLURAL(amount));
 			if (amount > 50000000) {
-				log = tmp_sprintf("%s deposited %d into the bank",
+				mudlog(LVL_IMMORT, NRM, true,
+					"%s deposited %d into the bank",
 					GET_NAME(ch), amount);
-				mudlog(log, NRM, GET_INVIS_LEV(ch), TRUE);
 			}
 		}
 
@@ -1769,9 +1769,9 @@ SPECIAL(bank)
 		save_char(ch, NULL);
 
 		if (amount > 50000000) {
-			log = tmp_sprintf("%s withdrew %d from %s",
+			mudlog(LVL_IMMORT, NRM, true,
+				"%s withdrew %d from %s",
 				GET_NAME(ch), amount, (clan) ? "clan account":"bank");
-			mudlog(log, NRM, GET_INVIS_LEV(ch), TRUE);
 		}
 
 	} else

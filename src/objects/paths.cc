@@ -569,7 +569,7 @@ Load_paths(void)
 			fprintf(stderr, "paths error:%s\n", buf);
 			safe_exit(0);
 		} else if (fail) {
-			mudlog(buf, NRM, LVL_CREATOR, FALSE);
+			mudlog(LVL_CREATOR, NRM, false, "%s", buf);
 		}
 	}
 

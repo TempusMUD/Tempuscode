@@ -688,9 +688,9 @@ ASPELL(spell_summon)
 			send_to_char(ch, "You failed because %s has summon protection on.\r\n",
 				GET_NAME(victim));
 
-			sprintf(buf, "%s failed summoning %s to %s.",
+			mudlog(LVL_AMBASSADOR, BRF, true,
+				"%s failed summoning %s to %s.",
 				GET_NAME(ch), GET_NAME(victim), ch->in_room->name);
-			mudlog(buf, BRF, LVL_AMBASSADOR, TRUE);
 			return;
 		}
 	}
@@ -717,9 +717,9 @@ ASPELL(spell_summon)
 		send_to_char(ch, "You cannot summon non-members into the clan house.\r\n");
 		act("$n has attempted to summon you to $s clan house!!", FALSE, ch, 0,
 			victim, TO_VICT);
-		sprintf(buf, "%s has attempted to summon %s into %s (clan).",
+		mudlog(MAX(GET_INVIS_LEV(ch), GET_INVIS_LEV(victim)), CMP, true,
+			"%s has attempted to summon %s into %s (clan).",
 			GET_NAME(ch), GET_NAME(victim), ch->in_room->name);
-		mudlog(buf, CMP, MAX(GET_INVIS_LEV(ch), GET_INVIS_LEV(victim)), TRUE);
 		return;
 	}
 	if (ch != victim && ROOM_FLAGGED(victim->in_room, ROOM_CLAN_HOUSE) &&
@@ -732,9 +732,9 @@ ASPELL(spell_summon)
 			"$e failed because you are in your clan house.\r\n",
 			ch->in_room->name);
 		act(buf, FALSE, ch, 0, victim, TO_VICT);
-		sprintf(buf, "%s has attempted to summon %s from %s (clan).",
+		mudlog(MAX(GET_INVIS_LEV(ch), GET_INVIS_LEV(victim)), CMP, true,
+			"%s has attempted to summon %s from %s (clan).",
 			GET_NAME(ch), GET_NAME(victim), victim->in_room->name);
-		mudlog(buf, CMP, MAX(GET_INVIS_LEV(ch), GET_INVIS_LEV(victim)), TRUE);
 
 		return;
 	}
@@ -877,9 +877,9 @@ ASPELL(spell_locate_object)
 		rm = where_obj(i);
 
 		if (!rm) {
-			sprintf(buf3, "SYSERR: %s is nowhere? Moving to The Void.",
+			mudlog(LVL_CREATOR, BRF, true,
+				"SYSERR: %s is nowhere? Moving to The Void.",
 				i->short_description);
-			mudlog(buf3, BRF, LVL_CREATOR, TRUE);
 			rm = real_room(0);
 			SET_BIT(GET_OBJ_EXTRA2(i), ITEM2_BROKEN);
 			SET_BIT(GET_OBJ_EXTRA3(i), ITEM3_HUNTED);
@@ -1474,9 +1474,9 @@ ASPELL(spell_enchant_weapon)
 			strcpy(buf2, obj->name);
 			strcat(buf2, buf);
 			obj->name = str_dup(buf2);
-			sprintf(buf, "ENCHANT: %s by %s.", obj->short_description,
+			mudlog(GET_LEVEL(ch), CMP, true,
+				"ENCHANT: %s by %s.", obj->short_description,
 				GET_NAME(ch));
-			mudlog(buf, CMP, GET_LEVEL(ch), TRUE);
 		}
 	}
 }
@@ -1584,9 +1584,9 @@ ASPELL(spell_enchant_armor)
 			strcpy(buf2, obj->name);
 			strcat(buf2, buf);
 			obj->name = str_dup(buf2);
-			sprintf(buf, "ENCHANT: %s by %s.", obj->short_description,
+			mudlog(GET_LEVEL(ch), CMP, true,
+				"ENCHANT: %s by %s.", obj->short_description,
 				GET_NAME(ch));
-			mudlog(buf, CMP, GET_LEVEL(ch), TRUE);
 		}
 	} else
 		send_to_char(ch, NOEFFECT);
@@ -1699,9 +1699,9 @@ ASPELL(spell_greater_enchant)
 		strcpy(buf2, obj->name);
 		strcat(buf2, buf);
 		obj->name = str_dup(buf2);
-		sprintf(buf, "ENCHANT: %s by %s.", obj->short_description,
+		mudlog(GET_LEVEL(ch), CMP, true,
+			"ENCHANT: %s by %s.", obj->short_description,
 			GET_NAME(ch));
-		mudlog(buf, CMP, GET_LEVEL(ch), TRUE);
 	}
 }
 

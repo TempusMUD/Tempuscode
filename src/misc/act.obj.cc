@@ -568,9 +568,9 @@ perform_get_from_container(struct char_data * ch,
 		if (GET_OBJ_VAL(cont, 3) && CORPSE_IDNUM(cont) > 0 &&
 			CORPSE_IDNUM(cont) <= top_of_p_table &&
 			CORPSE_IDNUM(cont) != GET_IDNUM(ch)) {
-			sprintf(buf, "%s looted %s from %s.", GET_NAME(ch),
+			mudlog(LVL_DEMI, CMP, true,
+				"%s looted %s from %s.", GET_NAME(ch),
 				obj->short_description, cont->short_description);
-			mudlog(buf, CMP, LVL_DEMI, TRUE);
 		}
 	}
 

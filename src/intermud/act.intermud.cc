@@ -38,6 +38,7 @@
 #include "handler.h"
 #include "intermud.h"
 #include "screen.h"
+#include "utils.h"
 
 /* Structures */
 
@@ -293,12 +294,12 @@ ACMD(do_intermud)
 
 				if (connect(intermud_desc, (struct sockaddr *)&serv_addr,
 						servlen) == -1) {
-					mudlog("WARNING: Could not connect to intermud server.",
-						BRF, LVL_DEMI, TRUE);
+					mudlog(LVL_DEMI, BRF, true,
+						"WARNING: Could not connect to intermud server.");
 					connected_to_intermud = 0;
 				} else {
-					mudlog("Established link to intermud server", BRF,
-						LVL_DEMI, TRUE);
+					mudlog(LVL_DEMI, BRF, true,
+						"Established link to intermud server");
 					connected_to_intermud = 1;
 				}
 			}
@@ -307,9 +308,9 @@ ACMD(do_intermud)
 			if (connected_to_intermud == 0)
 				send_to_char(ch, "Already disconnected from intermud server.\r\n");
 			else {
-				sprintf(buf, "WARNING: %s forced intermud server disconnect.",
+				mudlog(LVL_DEMI, BRF, true,
+					"WARNING: %s forced intermud server disconnect.",
 					GET_NAME(ch));
-				mudlog(buf, BRF, LVL_DEMI, TRUE);
 				close(intermud_desc);
 				connected_to_intermud = 0;
 				return;
@@ -320,9 +321,8 @@ ACMD(do_intermud)
 			else {
 				sprintf(buf, "4000|%s|", GET_NAME(ch));
 				mud_send_data(intermud_desc, buf);
-				sprintf(buf, "WARNING: %s forced a mudlist purge.",
-					GET_NAME(ch));
-				mudlog(buf, BRF, LVL_DEMI, TRUE);
+				mudlog(LVL_DEMI, BRF, true,
+					"WARNING: %s forced a mudlist purge.", GET_NAME(ch));
 			}
 			return;
 		} else if (str_cmp(arg, "reget") == 0) {
@@ -331,10 +331,9 @@ ACMD(do_intermud)
 			else {
 				sprintf(buf, "4020|%s|", GET_NAME(ch));
 				mud_send_data(intermud_desc, buf);
-				sprintf(buf,
+				mudlog(LVL_DEMI, BRF, true,
 					"WARNING: %s issued mudlist request from bootmaster",
 					GET_NAME(ch));
-				mudlog(buf, BRF, LVL_DEMI, TRUE);
 			}
 			return;
 		} else if (str_cmp(arg, "stats") == 0) {
@@ -357,9 +356,9 @@ ACMD(do_intermud)
 					skip_spaces(&argument);
 					sprintf(buf, "4060|%s|", argument);
 					mud_send_data(intermud_desc, buf);
-					sprintf(buf, "WARNING: %s toggled mute for %s",
+					mudlog(LVL_DEMI, BRF, true,
+						"WARNING: %s toggled mute for %s",
 						GET_NAME(ch), argument);
-					mudlog(buf, BRF, LVL_DEMI, TRUE);
 				}
 			}
 			return;
@@ -369,9 +368,9 @@ ACMD(do_intermud)
 			else {
 				sprintf(buf, "4070|%s|", GET_NAME(ch));
 				mud_send_data(intermud_desc, buf);
-				sprintf(buf, "INFO: %s toggled intermud debugging.\r\n",
+				mudlog(LVL_DEMI, BRF, true,
+					"INFO: %s toggled intermud debugging.\r\n",
 					GET_NAME(ch));
-				mudlog(buf, BRF, LVL_DEMI, TRUE);
 			}
 		}
 	}
@@ -388,9 +387,8 @@ incoming_intermud_message(int intermud_desc)
 	numbytes = mud_recv_data(intermud_desc, message);
 
 	if (numbytes <= 0) {
-		sprintf(message,
+		mudlog(LVL_DEMI, BRF, true,
 			"WARNING: Link dropped to intermud server, use connect to re-establish");
-		mudlog(message, BRF, LVL_DEMI, TRUE);
 		close(intermud_desc);
 		connected_to_intermud = 0;
 	} else
@@ -445,7 +443,7 @@ serv_recv_info(char *serv_message)
 	Service = strtok(serv_message, "|");
 	Info = strtok(NULL, "|");
 
-	mudlog(Info, BRF, LVL_AMBASSADOR, TRUE);
+	mudlog(LVL_DEMI, BRF, true, Info);
 }
 
 void

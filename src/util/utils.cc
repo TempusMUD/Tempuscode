@@ -201,11 +201,9 @@ strn_cmp(char *arg1, char *arg2, int n)
 void
 log_death_trap(struct char_data *ch)
 {
-	char buf[150];
-
-	sprintf(buf, "%s hit death trap #%d (%s)", GET_NAME(ch),
+	mudlog(LVL_AMBASSADOR, BRF, true,
+		"%s hit death trap #%d (%s)", GET_NAME(ch),
 		ch->in_room->number, ch->in_room->name);
-	mudlog(buf, BRF, LVL_AMBASSADOR, TRUE);
 }
 
 
@@ -249,23 +247,28 @@ touch(char *path)
  * based on syslog by Fen Jul 3, 1992
  */
 void
-mudlog(char *str, char type, sbyte level, byte file)
+mudlog(sbyte level, log_type type, bool file, const char *fmt, ...)
 {
 	extern struct descriptor_data *descriptor_list;
 	struct descriptor_data *i;
-	char *tmp, tp;
+	va_list args;
+	char *msg, tp;
 	time_t ct;
 
-	ct = time(0);
-	tmp = asctime(localtime(&ct));
+	va_start(args, fmt);
+	msg = tmp_vsprintf(fmt, args);
+	va_end(args);
 
-	if (file)
-		fprintf(stderr, "%-19.19s :: %s\n", tmp, str);
+	if (file) {
+		char *tm_str;
+
+		ct = time(0);
+		tm_str = asctime(localtime(&ct));
+		fprintf(stderr, "%-19.19s :: %s\n", tm_str, msg);
+	}
+
 	if (level < 0)
 		return;
-
-	if (strlen(str) > (MAX_INPUT_LENGTH * 2))
-		str[(MAX_INPUT_LENGTH * 2)] = '\0';
 
 	for (i = descriptor_list; i; i = i->next)
 		if (!i->connected && !PLR_FLAGGED(i->character, PLR_WRITING) &&
@@ -276,7 +279,7 @@ mudlog(char *str, char type, sbyte level, byte file)
 			if ((GET_LEVEL(i->character) >= level) && (tp >= type)) {
 				send_to_char(i->character, "%s[ %s ]%s\r\n",
 					CCGRN(i->character, C_NRM),
-					str,
+					msg,
 					CCNRM(i->character, C_NRM));
 			}
 		}

@@ -157,10 +157,9 @@ do_olc_isave(struct char_data *ch)
 
 	sprintf(fname, "world/iscr/%d.iscr", zone->number);
 	if ((access(fname, F_OK) >= 0) && (access(fname, W_OK) < 0)) {
-		sprintf(buf,
+		mudlog(0, BRF, true,
 			"OLC: ERROR - Main iscript file for zone %d is read-only.",
 			zone->number);
-		mudlog(buf, BRF, 0, TRUE);
 	}
 	sprintf(fname, "world/iscr/olc/%d.iscr", zone->number);
 	ofstream ofile(fname);
@@ -280,9 +279,8 @@ do_olc_ihandler(struct char_data *ch, char *arg)
 				return;
 			}
 		} else {
-			mudlog
-				("OLC: Error converting arg2 to an integer in do_olc_ihandler.\r\n",
-				BRF, 0, TRUE);
+			mudlog(0, BRF, true,
+				"OLC: Error converting arg2 to an integer in do_olc_ihandler.\r\n");
 		}
 	}
 
@@ -453,12 +451,10 @@ do_olc_idelete(struct char_data *ch, char *argument)
 	send_to_char(ch, found ? "IScript successfully deleted.\r\n" :
 		"Could not find that IScript.  Bug this.\r\n");
 	if (!found) {
-		sprintf(buf,
+		mudlog(0, BRF, true,
 			"OLC: Error in do_olc_idelete.  prototype exists for script "
 			"[%5d] [%s] but it's not in the list!\r\n", (*script).getVnum(),
 			(*script).getName().c_str());
-		mudlog(buf, BRF, 0, TRUE);
-		slog(buf);
 	}
 }
 
@@ -607,9 +603,9 @@ do_create_iscr(struct char_data *ch, int vnum)
 
 	if (!CAN_EDIT_ZONE(ch, zone)) {
 		send_to_char(ch, "Try again in your own zone, pissant.\r\n");
-		sprintf(buf, "OLC: %s failed attempt to CREATE iscript %d.",
+		mudlog(GET_INVIS_LEV(ch), BRF, true,
+			"OLC: %s failed attempt to CREATE iscript %d.",
 			GET_NAME(ch), vnum);
-		mudlog(buf, BRF, GET_INVIS_LEV(ch), TRUE);
 		return NULL;
 	}
 

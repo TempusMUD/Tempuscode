@@ -93,8 +93,11 @@ SPECIAL(lawyer)
     else if (mode == KILLER)
       REMOVE_BIT(PLR_FLAGS(ch), PLR_KILLER);
 
-    sprintf(buf,"%s paid %d credits to pardon a %s.",GET_NAME(ch),cost,mode == KILLER ? "KILLER" : "THIEF");
-    mudlog(buf,NRM,LVL_IMMORT,TRUE);
+    mudlog(LVL_IMMORT, NRM, true,
+		"%s paid %d credits to pardon a %s.",
+		GET_NAME(ch),
+		cost,
+		mode == KILLER ? "KILLER" : "THIEF");
     return 1;
     
   }

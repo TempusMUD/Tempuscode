@@ -367,7 +367,7 @@ check_autowiz(struct char_data *ch)
 	if (use_autowiz && GET_LEVEL(ch) >= LVL_AMBASSADOR) {
 		sprintf(buf, "nice ../bin/autowiz %d %s %d %s %d &", min_wizlist_lev,
 			WIZLIST_FILE, LVL_AMBASSADOR, IMMLIST_FILE, (int)getpid());
-		mudlog("Initiating autowiz.", CMP, LVL_AMBASSADOR, FALSE);
+		mudlog(LVL_AMBASSADOR, CMP, false, "Initiating autowiz.");
 		system(buf);
 	}
 }
@@ -544,9 +544,9 @@ check_idling(struct char_data *ch)
 				close_socket(ch->desc);
 			ch->desc = NULL;
 			Crash_idlesave(ch);
-			sprintf(buf, "%s force-rented and extracted (idle).",
+			mudlog(LVL_GOD, CMP, true,
+				"%s force-rented and extracted (idle).",
 				GET_NAME(ch));
-			mudlog(buf, CMP, LVL_GOD, TRUE);
 			ch->extract(true, false, CON_MENU);
 			return TRUE;
 		}

@@ -381,9 +381,9 @@ ACMD(do_olc)
 	if (olc_command != 8 && olc_command != 10) {	/* help? */
 		if (!CAN_EDIT_ZONE(ch, ch->in_room->zone)) {
 			send_to_char(ch, "Piss off Beanhead.  Permission DENIED.\r\n");
-			sprintf(buf, "Failed attempt for %s to edit zone %d.",
+			mudlog(GET_INVIS_LEV(ch), NRM, true,
+				"Failed attempt for %s to edit zone %d.",
 				GET_NAME(ch), ch->in_room->zone->number);
-			mudlog(buf, NRM, GET_INVIS_LEV(ch), TRUE);
 			return;
 		}
 	}
@@ -569,9 +569,9 @@ ACMD(do_olc)
 			else if (GET_LEVEL(ch) >= olc_lock) {
 				send_to_char(ch, "Unlocking olc (global).\r\n");
 				olc_lock = 0;
-				sprintf(buf, "OLC: %s has unlocked global access.",
+				mudlog(MAX(LVL_IMMORT, GET_INVIS_LEV(ch)), NRM, true,
+					"OLC: %s has unlocked global access.",
 					GET_NAME(ch));
-				mudlog(buf, BRF, MAX(LVL_IMMORT, GET_INVIS_LEV(ch)), TRUE);
 			} else
 				send_to_char(ch, "Olc unlock:  Permission denied.\r\n");
 		} else if (!is_number(argument))
@@ -588,9 +588,9 @@ ACMD(do_olc)
 							REMOVE_BIT(zone->flags, ZONE_LOCKED);
 							send_to_char(ch, 
 								"Zone unlocked for online creation.\r\n");
-							sprintf(buf, "OLC: %s has unlocked zone %d (%s).",
+							mudlog(GET_INVIS_LEV(ch), NRM, true,
+								"OLC: %s has unlocked zone %d (%s).",
 								GET_NAME(ch), zone->number, zone->name);
-							mudlog(buf, BRF, GET_INVIS_LEV(ch), TRUE);
 						}
 						return;
 					} else {
@@ -609,9 +609,9 @@ ACMD(do_olc)
 			else if (OLCIMP(ch)) {
 				send_to_char(ch, "Locking olc.\r\n");
 				olc_lock = GET_LEVEL(ch);
-				sprintf(buf, "OLC: %s has locked global access to olc.",
+				mudlog(GET_INVIS_LEV(ch), BRF, true,
+					"OLC: %s has locked global access to olc.",
 					GET_NAME(ch));
-				mudlog(buf, BRF, MAX(LVL_IMMORT, GET_INVIS_LEV(ch)), TRUE);
 			} else
 				send_to_char(ch, "Olc lock:  Permission denied.\r\n");
 		} else if (!is_number(argument))
@@ -626,9 +626,9 @@ ACMD(do_olc)
 						else {
 							SET_BIT(zone->flags, ZONE_LOCKED);
 							send_to_char(ch, "Zone locked to online creation.\r\n");
-							sprintf(buf, "OLC: %s has locked zone %d (%s).",
+							mudlog(GET_INVIS_LEV(ch), BRF, true,
+								"OLC: %s has locked zone %d (%s).",
 								GET_NAME(ch), zone->number, zone->name);
-							mudlog(buf, BRF, GET_INVIS_LEV(ch), TRUE);
 						}
 						return;
 					} else {

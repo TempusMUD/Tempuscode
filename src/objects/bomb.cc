@@ -589,9 +589,9 @@ engage_self_destruct(struct char_data *ch)
 	}
 
 	gain_skill_prof(ch, SKILL_SELF_DESTRUCT);
-	sprintf(buf, "%s self-destructed at room #%d, level %d.", GET_NAME(ch),
+	mudlog(GET_INVIS_LEV(ch), BRF, true,
+		"%s self-destructed at room #%d, level %d.", GET_NAME(ch),
 		ch->in_room->number, level);
-	mudlog(buf, BRF, GET_INVIS_LEV(ch), TRUE);
 	die(ch, ch, SKILL_SELF_DESTRUCT, FALSE);
 
 	// now kill everyone else

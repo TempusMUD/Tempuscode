@@ -125,17 +125,17 @@ ACMD(do_quit)
 		if ((free_rent) || GET_LEVEL(ch) >= LVL_AMBASSADOR ||
 			ch->isTester()) {
 			if (GET_LEVEL(ch) >= LVL_AMBASSADOR) {
-				sprintf(buf, "%s has departed from the known multiverse.",
+				mudlog(MAX(LVL_AMBASSADOR, GET_INVIS_LEV(ch)), NRM, true,
+					"%s has departed from the known multiverse.",
 					GET_NAME(ch));
-				mudlog(buf, NRM, MAX(LVL_AMBASSADOR, GET_INVIS_LEV(ch)), TRUE);
 				act("$n steps out of the universe.", TRUE, ch, 0, 0, TO_ROOM);
 				send_to_char(ch, "Goodbye.  We will be awaiting your return.\r\n");
 			} else {
 				send_to_char(ch, "\r\nYou flicker out of reality...\r\n");
 				act("$n flickers out of reality.", TRUE, ch, 0, 0, TO_ROOM);
-				sprintf(buf, "%s has left the game%s.", GET_NAME(ch),
-						ch->isTester() ? " (tester)" : " naked");
-				mudlog(buf, NRM, MAX(LVL_AMBASSADOR, GET_INVIS_LEV(ch)), TRUE);
+				mudlog(MAX(LVL_AMBASSADOR, GET_INVIS_LEV(ch)), NRM, true,
+					"%s has left the game%s.", GET_NAME(ch),
+					ch->isTester() ? " (tester)" : " naked");
 			}
 			Crash_rentsave(ch, 0, RENT_RENTED);
 			destroy = true;
@@ -167,9 +167,9 @@ ACMD(do_quit)
 
 
 
-				sprintf(buf, "%s has left the game from Houseroom %d.",
+				mudlog(MAX(LVL_AMBASSADOR, GET_INVIS_LEV(ch)), NRM, true,
+					"%s has left the game from Houseroom %d.",
 					GET_NAME(ch), ch->in_room->number);
-				mudlog(buf, NRM, MAX(LVL_AMBASSADOR, GET_INVIS_LEV(ch)), TRUE);
 				send_to_char(ch, "You smoothly slip out of existence.\r\n");
 				act("$n smoothly slips out of existence and is gone.",
 					TRUE, ch, 0, 0, TO_ROOM);
@@ -184,17 +184,17 @@ ACMD(do_quit)
 				Crash_cursesave(ch);	// saves !remove items
 				act("$n disappears, leaving all $s equipment behind!",
 					TRUE, ch, 0, 0, TO_ROOM);
-				sprintf(buf, "%s (%d) has quit the game, EQ drop at %d.",
+				mudlog(MAX(LVL_AMBASSADOR, GET_INVIS_LEV(ch)), NRM, true,
+					"%s (%d) has quit the game, EQ drop at %d.",
 					GET_NAME(ch), GET_LEVEL(ch), ch->in_room->number);
-				mudlog(buf, NRM, MAX(LVL_AMBASSADOR, GET_INVIS_LEV(ch)), TRUE);
 				save = destroy = false;
 			}
 		} else {
 			Crash_cursesave(ch);
 			send_to_char(ch, "\r\nYou flicker out of reality...\r\n");
 			act("$n flickers out of reality.", TRUE, ch, 0, 0, TO_ROOM);
-			sprintf(buf, "%s has left the game naked.", GET_NAME(ch));
-			mudlog(buf, NRM, MAX(LVL_AMBASSADOR, GET_INVIS_LEV(ch)), TRUE);
+			mudlog(MAX(LVL_AMBASSADOR, GET_INVIS_LEV(ch)), NRM, true,
+				"%s has left the game naked.", GET_NAME(ch));
 			save = destroy = false;
 		}
 
@@ -975,8 +975,8 @@ ACMD(do_gen_write)
 		send_to_char(ch, "That must be a mistake...\r\n");
 		return;
 	}
-	sprintf(buf, "%s %s: %s", GET_NAME(ch), CMD_NAME, argument);
-	mudlog(buf, NRM, MAX(GET_INVIS_LEV(ch), LVL_AMBASSADOR), FALSE);
+	mudlog(MAX(LVL_AMBASSADOR, GET_INVIS_LEV(ch)), NRM, false,
+		"%s %s: %s", GET_NAME(ch), CMD_NAME, argument);
 
 	if (stat(filename, &fbuf) < 0) {
 		perror("Error statting file");
@@ -1165,9 +1165,9 @@ ACMD(do_gen_tog)
 		break;
 	case SCMD_SLOWNS:
 		result = (nameserver_is_slow = !nameserver_is_slow);
-		sprintf(buf, "%s has turned name server %s.", GET_NAME(ch),
+		mudlog(MAX(LVL_IMMORT, GET_INVIS_LEV(ch)), NRM, true,
+			"%s has turned name server %s.", GET_NAME(ch),
 			ONOFF(!nameserver_is_slow));
-		mudlog(buf, NRM, MAX(LVL_IMMORT, GET_INVIS_LEV(ch)), TRUE);
 		break;
 	case SCMD_AUTOEXIT:
 		result = PRF_TOG_CHK(ch, PRF_AUTOEXIT);
@@ -1220,9 +1220,9 @@ ACMD(do_gen_tog)
 			return;
 		}
 		result = PLR_TOG_CHK(ch, PLR_MORTALIZED);
-		sprintf(buf, "(GC): %s has %smortalized at %d.", GET_NAME(ch),
+		mudlog(GET_INVIS_LEV(ch), NRM, true,
+			"(GC): %s has %smortalized at %d.", GET_NAME(ch),
 			PLR_FLAGGED(ch, PLR_MORTALIZED) ? "" : "im", ch->in_room->number);
-		mudlog(buf, NRM, GET_INVIS_LEV(ch), TRUE);
 
 		if (PLR_FLAGGED(ch, PLR_MORTALIZED)) {
 			GET_MAX_HIT(ch) = (GET_LEVEL(ch) * 100) +
@@ -1279,7 +1279,7 @@ ACMD(do_gen_tog)
 		TOGGLE_BIT(log_cmds, 1);
 		sprintf(buf, "%s has toggled logall %s.", GET_NAME(ch),
 			ONOFF(log_cmds));
-		mudlog(buf, BRF, MAX(LVL_LOGALL, GET_INVIS_LEV(ch)), TRUE);
+		mudlog(MAX(LVL_LOGALL, GET_INVIS_LEV(ch)), BRF, true, "%s", buf);
 		send_to_char(ch, strcat(buf, "\r\n"));
 		/*
 		   if (log_cmds && !cmd_log_fl && 
@@ -1294,7 +1294,7 @@ ACMD(do_gen_tog)
 		TOGGLE_BIT(jet_stream_state, 1);
 		sprintf(buf, "%s has toggled jet_stream_state %s.", GET_NAME(ch),
 			ONOFF(jet_stream_state));
-		mudlog(buf, BRF, GET_INVIS_LEV(ch), TRUE);
+		mudlog(GET_INVIS_LEV(ch), BRF, true, "%s", buf);
 		send_to_char(ch, strcat(buf, "\r\n"));
 		return;
 

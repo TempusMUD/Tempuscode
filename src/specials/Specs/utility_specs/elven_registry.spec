@@ -70,7 +70,7 @@ SPECIAL(elven_registry)
     act("$n presents you with $p.", FALSE, reg, cert, ch, TO_VICT);
     obj_to_char(cert, ch);
   }
-  sprintf(buf, "%s has registered at the Elven Village.", GET_NAME(ch));
-  mudlog(buf, CMP, GET_INVIS_LEV(ch), TRUE);
+mudlog(GET_INVIS_LEV(ch), CMP, true,
+	"%s has registered at the Elven Village.", GET_NAME(ch));
   return 1;
 }

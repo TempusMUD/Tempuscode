@@ -18,6 +18,7 @@
 #include "fight.h"
 #include "guns.h"
 #include "bomb.h"
+#include "utils.h"
 
 
 SPECIAL(shop_keeper);
@@ -347,9 +348,9 @@ ACMD(do_snatch)
 
 	if (!IS_MOB(vict) && !vict->desc && GET_LEVEL(ch) < LVL_ELEMENT) {
 		send_to_char(ch, "You cannot snatch from linkless players!!!\r\n");
-		sprintf(buf, "%s attemted to snatch from linkless %s.", GET_NAME(ch),
-			GET_NAME(vict));
-		mudlog(buf, CMP, GET_LEVEL(ch), TRUE);
+		mudlog(GET_LEVEL(ch), CMP, true,
+			"%s attempted to snatch from linkless %s.",
+			GET_NAME(ch), GET_NAME(vict));
 		return;
 	}
 	// Give the punk a THIEF flag
@@ -360,17 +361,17 @@ ACMD(do_snatch)
 		!PLR_FLAGGED(ch, PLR_THIEF) && GET_LEVEL(ch) < LVL_AMBASSADOR) {
 		send_to_char(ch, "Okay... You will now be a THIEF!\r\n");
 		SET_BIT(PLR_FLAGS(ch), PLR_THIEF);
-		sprintf(buf, "PC THIEF bit set on %s for trying to snatch from %s.",
+		mudlog(MAX(GET_INVIS_LEV(ch), GET_INVIS_LEV(vict)), NRM, true,
+			"PC THIEF bit set on %s for trying to snatch from %s.",
 			GET_NAME(ch), GET_NAME(vict));
-		mudlog(buf, NRM, MAX(GET_INVIS_LEV(ch), GET_INVIS_LEV(vict)), TRUE);
 	}
 	// Innocence is fleeting, flag the bastard.
 	if (!IS_NPC(ch) && !IS_NPC(vict) && !PLR_FLAGGED(vict, PLR_TOUGHGUY)
 		&& !PLR_FLAGGED(vict, PLR_THIEF) && !PLR_FLAGGED(ch, PLR_TOUGHGUY)) {
 		SET_BIT(PLR_FLAGS(ch), PLR_TOUGHGUY);
-		sprintf(buf, "PC Toughguy bit set on %s for robbing %s at %s.",
+		mudlog(LVL_AMBASSADOR, BRF, true,
+			"PC Toughguy bit set on %s for robbing %s at %s.",
 			GET_NAME(ch), GET_NAME(vict), vict->in_room->name);
-		mudlog(buf, BRF, LVL_AMBASSADOR, TRUE);
 	}
 
 

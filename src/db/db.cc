@@ -291,8 +291,8 @@ ACMD(do_reboot)
 		return;
 	}
 	send_to_char(ch, OK);
-	sprintf(buf, "%s has reloaded %s text file.", GET_NAME(ch), arg);
-	mudlog(CAP(buf), NRM, GET_INVIS_LEV(ch), FALSE);
+	mudlog(GET_INVIS_LEV(ch), NRM, false,
+		"%s has reloaded %s text file.", GET_NAME(ch), arg);
 }
 
 
@@ -2603,7 +2603,6 @@ zone_update(void)
 	struct reset_q_element *update_u, *temp;
 	struct zone_data *zone;
 	static int timer = 0;
-	char buf[128];
 
 	/* jelson 10/22/92 */
 	if (((++timer * PULSE_ZONE) / PASSES_PER_SEC) >= 60) {
@@ -2656,8 +2655,8 @@ zone_update(void)
 			!update_u->zone_to_reset->num_players) {
 			/*        is_empty(update_u->zone_to_reset)) { */
 			reset_zone(update_u->zone_to_reset);
-			sprintf(buf, "Auto zone reset: %s", update_u->zone_to_reset->name);
-			mudlog(buf, CMP, LVL_GOD, FALSE);
+			mudlog(LVL_GOD, CMP, false,
+				"Auto zone reset: %s", update_u->zone_to_reset->name);
 			/* dequeue */
 			if (update_u == reset_q.head)
 				reset_q.head = reset_q.head->next;
@@ -2685,14 +2684,11 @@ void
 log_zone_error(struct zone_data *zone, struct reset_com *zonecmd,
 	char *message)
 {
-	char buf[256];
-
-	sprintf(buf, "SYSERR: error in zone file: %s", message);
-	mudlog(buf, (mini_mud) ? CMP : NRM, LVL_IMMORT, TRUE);
-
-	sprintf(buf, "SYSERR: ...offending cmd: '%c' cmd in zone #%d, line %d",
+	mudlog(LVL_IMMORT, (mini_mud) ? CMP : NRM, true,
+		"SYSERR: error in zone file: %s", message);
+	mudlog(LVL_IMMORT, (mini_mud) ? CMP : NRM, true,
+		"SYSERR: ...offending cmd: '%c' cmd in zone #%d, line %d",
 		zonecmd->command, zone->number, zonecmd->line);
-	mudlog(buf, (mini_mud) ? CMP : NRM, LVL_IMMORT, TRUE);
 }
 
 #define ZONE_ERROR(message) \

@@ -103,9 +103,9 @@ do_create_shop(struct char_data *ch, int vnum)
 
 	if (!CAN_EDIT_ZONE(ch, zone)) {
 		send_to_char(ch, "Try creating shops in your own zone, luser.\r\n");
-		sprintf(buf, "OLC: %s failed attempt to CREATE shop %d.",
+		mudlog(GET_INVIS_LEV(ch), BRF, true,
+			"OLC: %s failed attempt to CREATE shop %d.",
 			GET_NAME(ch), vnum);
-		mudlog(buf, BRF, GET_INVIS_LEV(ch), TRUE);
 		return NULL;
 	}
 
@@ -866,9 +866,9 @@ save_shops(struct char_data *ch)
 	}
 	sprintf(fname, "world/shp/%d.shp", zone->number);
 	if ((access(fname, F_OK) >= 0) && (access(fname, W_OK) < 0)) {
-		sprintf(buf, "OLC: ERROR - Main shop file for zone %d is read-only.",
+		mudlog(0, BRF, true,
+			"OLC: ERROR - Main shop file for zone %d is read-only.",
 			ch->in_room->zone->number);
-		mudlog(buf, BRF, 0, TRUE);
 	}
 
 
@@ -1014,9 +1014,9 @@ do_destroy_shop(struct char_data *ch, int vnum)
 
 	if (GET_IDNUM(ch) != zone->owner_idnum && GET_LEVEL(ch) < LVL_LUCIFER) {
 		send_to_char(ch, "Oh, no you dont!!!\r\n");
-		sprintf(buf, "OLC: %s failed attempt to DESTROY shop %d.",
+		mudlog(GET_INVIS_LEV(ch), BRF, true,
+			"OLC: %s failed attempt to DESTROY shop %d.",
 			GET_NAME(ch), SHOP_NUM(shop));
-		mudlog(buf, BRF, GET_INVIS_LEV(ch), TRUE);
 		return 1;
 	}
 

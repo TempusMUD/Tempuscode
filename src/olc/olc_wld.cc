@@ -320,9 +320,9 @@ save_wld(struct char_data *ch)
 
 	sprintf(temp_fname, "world/wld/%d.wld", zone->number);
 	if ((access(temp_fname, F_OK) >= 0) && (access(temp_fname, W_OK) < 0)) {
-		sprintf(buf, "OLC: ERROR - Main world file for zone %d is read-only.",
+		mudlog(0, BRF, true,
+			"OLC: ERROR - Main world file for zone %d is read-only.",
 			zone->number);
-		mudlog(buf, BRF, 0, TRUE);
 	}
 
 	sprintf(real_fname, "world/wld/%d.wld", zone->number);
@@ -386,9 +386,9 @@ do_create_room(struct char_data *ch, int vnum)
 
 	if (!CAN_EDIT_ZONE(ch, zone)) {
 		send_to_char(ch, "Try creating rooms in your own zone, luser.\r\n");
-		sprintf(buf, "OLC: %s failed attempt to CREATE room %d.",
+		mudlog(GET_INVIS_LEV(ch), BRF, true,
+			"OLC: %s failed attempt to CREATE room %d.",
 			GET_NAME(ch), vnum);
-		mudlog(buf, BRF, GET_INVIS_LEV(ch), TRUE);
 		return NULL;
 	}
 
@@ -471,9 +471,9 @@ do_destroy_room(struct char_data *ch, int vnum)
 
 	if (GET_IDNUM(ch) != zone->owner_idnum && GET_LEVEL(ch) < LVL_LUCIFER) {
 		send_to_char(ch, "Oh, no you dont!!!\r\n");
-		sprintf(buf, "OLC: %s failed attempt to DESTROY room %d.",
+		mudlog(GET_INVIS_LEV(ch), BRF, true,
+			"OLC: %s failed attempt to DESTROY room %d.",
 			GET_NAME(ch), rm->number);
-		mudlog(buf, BRF, GET_INVIS_LEV(ch), TRUE);
 		return 1;
 	}
 

@@ -11,7 +11,7 @@ $(OBJ)/random.o : random.cc \
 
 	$(CXX) -c $(CXXFLAGS) random.cc            -o $(OBJ)/random.o
 $(OBJ)/tmpstr.o : tmpstr.cc \
-	$(INCLUDE)/interpreter.h 
+	$(INCLUDE)/interpreter.h $(INCLUDE)/utils.h 
 	$(CXX) -c $(CXXFLAGS) tmpstr.cc            -o $(OBJ)/tmpstr.o
 $(OBJ)/utils.o : utils.cc \
 	$(INCLUDE)/structs.h $(INCLUDE)/utils.h $(INCLUDE)/comm.h $(INCLUDE)/screen.h $(INCLUDE)/spells.h $(INCLUDE)/handler.h $(INCLUDE)/interpreter.h $(INCLUDE)/security.h $(INCLUDE)/db.h $(INCLUDE)/char_class.h $(INCLUDE)/tmpstr.h 

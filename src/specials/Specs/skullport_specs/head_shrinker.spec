@@ -59,8 +59,9 @@ SPECIAL(head_shrinker)
 	}
 	
 	if (!(head = read_object(PROTOHEAD))) {
-		sprintf(buf,"Error: Head Shrinker cannot find proto head vnum %d.\r\n",PROTOHEAD);
-		mudlog(buf,BRF,LVL_POWER,TRUE);
+		mudlog(LVL_POWER, BRF, true,
+			"Error: Head Shrinker cannot find proto head vnum %d.\r\n",
+			PROTOHEAD);
 		return 1;
 	}
 

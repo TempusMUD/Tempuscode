@@ -2441,9 +2441,9 @@ qp_reload(int sig = 0)
 			online++;
 		}
 	}
-	sprintf(buf, "QP's have been reloaded.  %d offline and %d online reset.",
+	mudlog(LVL_GRGOD, NRM, true,
+		"QP's have been reloaded.  %d offline and %d online reset.",
 		offline, online);
-	mudlog(buf, NRM, LVL_GRGOD, TRUE);
 }
 
 

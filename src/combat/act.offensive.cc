@@ -1043,10 +1043,9 @@ ACMD(do_kill)
 				TO_CHAR);
 			act("$N chops you to pieces!", FALSE, vict, 0, ch, TO_CHAR);
 			act("$n brutally slays $N!", FALSE, ch, 0, vict, TO_NOTVICT);
-			sprintf(buf, "%s killed %s with a wiz-slay at %s.",
+			mudlog(MAX(GET_INVIS_LEV(ch), GET_INVIS_LEV(vict)), NRM, true,
+				"%s killed %s with a wiz-slay at %s.",
 				GET_NAME(ch), GET_NAME(vict), ch->in_room->name);
-			mudlog(buf, NRM, MAX(GET_INVIS_LEV(ch), GET_INVIS_LEV(vict)),
-				TRUE);
 
 			raw_kill(vict, ch, TYPE_SLASH);	// Wiz-slay
 		}
@@ -1398,9 +1397,9 @@ ACMD(do_bash)
 							EXIT(ch, door)->keyword ?
 							fname(EXIT(ch, door)->keyword) : "door");
 						if (!IS_NPC(ch)) {
-							sprintf(buf, "%s killed self bashing door at %d.",
+							mudlog(GET_INVIS_LEV(ch), NRM, true,
+								"%s killed self bashing door at %d.",
 								GET_NAME(ch), ch->in_room->number);
-							mudlog(buf, NRM, GET_INVIS_LEV(ch), TRUE);
 						}
 						raw_kill(ch, ch, SKILL_BASH);	// Bashing a door to death
 						return;
@@ -1439,9 +1438,9 @@ ACMD(do_bash)
 
 					if (GET_HIT(ch) < -10) {
 						if (!IS_NPC(ch)) {
-							sprintf(buf, "%s killed self bashing door at %d.",
+							mudlog(GET_INVIS_LEV(ch), NRM, true,
+								"%s killed self bashing door at %d.",
 								GET_NAME(ch), ch->in_room->number);
-							mudlog(buf, NRM, GET_INVIS_LEV(ch), TRUE);
 						}
 						raw_kill(ch, ch, SKILL_BASH);	// Bash Door to death
 						return;
@@ -2677,9 +2676,9 @@ ACMD(do_impale)
 					TO_CHAR);
 				act("$n suddenly impales $mself with $p!", TRUE, ch, weap, 0,
 					TO_ROOM);
-				sprintf(buf, "%s killed self with an impale at %d.",
+				mudlog(GET_INVIS_LEV(ch), NRM, true,
+					"%s killed self with an impale at %d.",
 					GET_NAME(ch), ch->in_room->number);
-				mudlog(buf, NRM, GET_INVIS_LEV(ch), TRUE);
 				gain_exp(ch, -(GET_LEVEL(ch) * 1000));
 				raw_kill(ch, ch, SKILL_IMPALE);	// Impaling yourself
 				return;
@@ -3005,8 +3004,8 @@ do_combat_fire(struct char_data *ch, struct char_data *vict, int weap_pos)
 	}
 	// This should never happen 
 	if (vict == ch) {
-		mudlog("ERROR: ch == vict in do_combat_fire()!", NRM, LVL_AMBASSADOR,
-			TRUE);
+		mudlog(LVL_AMBASSADOR, NRM, true,
+			"ERROR: ch == vict in do_combat_fire()!");
 		return 0;
 	}
 

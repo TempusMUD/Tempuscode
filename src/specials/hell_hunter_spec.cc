@@ -297,14 +297,14 @@ SPECIAL(hell_hunter_brain)
 			}
 		}
 
-		sprintf(buf, "HELL: %d Devils%s sent after obj %s (%s@%d)",
+		mudlog(vict ? GET_INVIS_LEV(vict) : 0, CMP, true,
+			"HELL: %d Devils%s sent after obj %s (%s@%d)",
 			num_devils,
 			regulator ? " (+reg)" : "",
 			obj->short_description,
 			vict ? GET_NAME(vict) : "Nobody",
 			obj->in_room ? obj->in_room->number :
 			(vict && vict->in_room) ? vict->in_room->number : -1);
-		mudlog(buf, CMP, vict ? GET_INVIS_LEV(vict) : 0, TRUE);
 		sprintf(buf, "%d Devils%s sent after obj %s (%s@%d)",
 			num_devils,
 			regulator ? " (+reg)" : "",
@@ -347,9 +347,9 @@ SPECIAL(hell_hunter)
 					if (targets[i].o_vnum == GET_OBJ_VNUM(t_obj)) {
 						act("$n takes $p from $P.", FALSE, ch, t_obj, obj,
 							TO_ROOM);
-						sprintf(buf, "HELL: %s looted %s at %d.", GET_NAME(ch),
+						mudlog(0, CMP, true,
+							"HELL: %s looted %s at %d.", GET_NAME(ch),
 							t_obj->short_description, ch->in_room->number);
-						mudlog(buf, CMP, 0, TRUE);
 						extract_obj(t_obj);
 						return 1;
 					}
@@ -360,9 +360,9 @@ SPECIAL(hell_hunter)
 		for (i = 0; i < targets.size(); i++) {
 			if (targets[i].o_vnum == GET_OBJ_VNUM(obj)) {
 				act("$n takes $p.", FALSE, ch, obj, t_obj, TO_ROOM);
-				sprintf(buf, "HELL: %s retrieved %s at %d.", GET_NAME(ch),
+				mudlog(0, CMP, true,
+					"HELL: %s retrieved %s at %d.", GET_NAME(ch),
 					obj->short_description, ch->in_room->number);
-				mudlog(buf, CMP, 0, TRUE);
 				extract_obj(obj);
 				return 1;
 			}
@@ -464,10 +464,10 @@ SPECIAL(arioch)
 							if (BLADE_VNUM == GET_OBJ_VNUM(blade)) {
 								act("$n takes $p from $P.", FALSE, ch, blade,
 									obj, TO_ROOM);
-								sprintf(buf, "HELL: %s looted %s at %d.",
+								mudlog(0, CMP, true,
+									"HELL: %s looted %s at %d.",
 									GET_NAME(ch), blade->short_description,
 									ch->in_room->number);
-								mudlog(buf, CMP, 0, TRUE);
 								if (!GET_EQ(ch, WEAR_WIELD)) {
 									obj_from_obj(blade);
 									obj_to_char(blade, ch);
@@ -480,9 +480,9 @@ SPECIAL(arioch)
 				}
 				if (BLADE_VNUM == GET_OBJ_VNUM(obj)) {
 					act("$n takes $p.", FALSE, ch, obj, obj, TO_ROOM);
-					sprintf(buf, "HELL: %s retrieved %s at %d.", GET_NAME(ch),
+					mudlog(0, CMP, true,
+						"HELL: %s retrieved %s at %d.", GET_NAME(ch),
 						obj->short_description, ch->in_room->number);
-					mudlog(buf, CMP, 0, TRUE);
 					if (!GET_EQ(ch, WEAR_WIELD)) {
 						obj_from_room(obj);
 						obj_to_char(obj, ch);
@@ -525,9 +525,9 @@ SPECIAL(arioch)
 			char_from_room(ch,false);
 			char_to_room(ch, rm,false);
 			act(ARIOCH_ARRIVE_MSG, FALSE, ch, 0, 0, TO_ROOM);
-			sprintf(buf, "HELL: Arioch ported to %s@%d",
+			mudlog(0, CMP, true,
+				"HELL: Arioch ported to %s@%d",
 				vict ? GET_NAME(vict) : "Nobody", rm->number);
-			mudlog(buf, CMP, 0, TRUE);
 			return 1;
 		}
 	}

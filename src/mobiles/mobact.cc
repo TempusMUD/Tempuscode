@@ -286,10 +286,10 @@ burn_update(void)
 				MEDITATE_TIMER(ch)--;
 			} else {
 				if (!IS_CYBORG(ch)) {
-					sprintf(buf, "SYSERR: %s tried to self destruct at [%d].",
+					mudlog(GET_INVIS_LEV(ch), NRM, true,
+						"SYSERR: %s tried to self destruct at [%d].",
 						GET_NAME(ch), ch->in_room->number);
 					REMOVE_BIT(AFF3_FLAGS(ch), AFF3_SELF_DESTRUCT);
-					mudlog(buf, NRM, GET_INVIS_LEV(ch), TRUE);
 				} else {
 					engage_self_destruct(ch);
 					continue;
@@ -1012,9 +1012,8 @@ int
 check_infiltrate(struct char_data *ch, struct char_data *vict)
 {
 	if (!ch || !vict) {
-		slog("ERROR: <NULL> char in check_infiltrate()!");
-		mudlog("ERROR:<NULL> char in check_infiltrate()!", CMP, LVL_IMMORT,
-			TRUE);
+		mudlog(LVL_IMMORT, CMP, true,
+			"ERROR:<NULL> char in check_infiltrate()!");
 		return 0;
 	}
 
@@ -1950,14 +1949,13 @@ mobile_activity(void)
 								strcmp(obj->short_description,
 								original->short_description);
 						if (renamed || isname_exact("imm", obj->name)) {
-							sprintf(buf,
+							mudlog(LVL_IMMORT, CMP, true,
 								"%s [%d] junked by %s at %s [%d]. ( %s %s )",
 								obj->short_description, GET_OBJ_VNUM(obj),
 								GET_NAME(ch), ch->in_room->name,
 								ch->in_room->number, renamed ? "R3nAm3" : "",
 								isname_exact("imm",
 									obj->name) ? "|mM3nChAnT" : "");
-							mudlog(buf, CMP, LVL_IMMORT, TRUE);
 						}
 						act("$n junks $p.", TRUE, ch, obj, 0, TO_ROOM);
 						extract_obj(obj);

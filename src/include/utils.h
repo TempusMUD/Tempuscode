@@ -28,10 +28,20 @@
 char *str_dup(const char *source);
 int str_cmp(const char *arg1, const char *arg2);
 int strn_cmp(char *arg1, char *arg2, int n);
+int touch(char *path);
+
+enum log_type
+{
+	OFF = 0,
+	BRF = 1,
+	NRM = 2,
+	CMP = 3
+};
+void mudlog(sbyte level, log_type type, bool file, const char *fmt, ...)
+	__attribute__ ((format (printf, 4, 5))); 
 void slog(char *str, ...)
 	__attribute__ ((format (printf, 1, 2))); 
-int touch(char *path);
-void mudlog(char *str, char type, sbyte level, byte file);
+
 void log_death_trap(struct char_data *ch);
 void show_string(struct descriptor_data *desc);
 int number(int from, int to);
@@ -106,12 +116,6 @@ char *PERS(char_data * ch, char_data * sub);
 void WAIT_STATE(struct char_data *ch, int cycle);
 /* various constants *****************************************************/
 
-
-/* defines for mudlog() */
-#define OFF        0
-#define BRF        1
-#define NRM        2
-#define CMP        3
 
 /* get_filename() */
 #define CRASH_FILE        0

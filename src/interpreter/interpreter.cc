@@ -1796,10 +1796,9 @@ search_block(const char *arg, const char **list, bool exact)
 			if (strncasecmp(arg, list[i], len) == 0)
 				return i;
 			if (i > 1000) {
-				sprintf(buf,
-				"SYSERR: search_block in unterminated list. arg = %s [0] = '%s'.",
+				mudlog(LVL_AMBASSADOR, BRF, true,
+					"SYSERR: search_block in unterminated list. arg = %s [0] = '%s'.",
 				arg,list[0]);
-				mudlog(buf, BRF, LVL_AMBASSADOR, TRUE);
 				return -1;
 			}
 		}

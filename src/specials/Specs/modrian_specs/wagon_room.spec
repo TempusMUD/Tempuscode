@@ -19,13 +19,14 @@ SPECIAL(wagon_room)
       break;
 
   if (!i) {
-    mudlog("WARNING: Chars may be trapped in wagon (room 10)!", BRF,LVL_DEMI, TRUE);
+    mudlog(LVL_DEMI, BRF, true,
+		"WARNING: Chars may be trapped in wagon (room 10)!");
     act("You suddenly realize that reality is not what it seems to be...", FALSE, ch, 0, 0, TO_CHAR); 
     return 1;
   }
 
   if (i->in_room < 0)  {
-    mudlog("ERROR: Wagon_obj(10)->in_room < 0!!!  Aww shit!", BRF, LVL_DEMI, TRUE);
+    mudlog(LVL_DEMI, BRF, true, "ERROR: Wagon_obj(10)->in_room < 0!!!  Aww shit!");
     act("You suddenly realize that reality is not what it seems to be...", FALSE, ch, 0, 0, TO_CHAR); 
     return 1;
   }

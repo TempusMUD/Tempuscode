@@ -82,7 +82,7 @@ int length[] = {
 ACMD(do_skillset)
 {
 	struct char_data *vict;
-	char name[MAX_INPUT_LENGTH], buf2[100], buf[100], help[MAX_STRING_LENGTH];
+	char name[MAX_INPUT_LENGTH], buf[100], help[MAX_STRING_LENGTH];
 	int skill, value, i, qend;
 
 	argument = one_argument(argument, name);
@@ -155,9 +155,9 @@ ACMD(do_skillset)
 		send_to_char(ch, "You can't set NPC skills.\r\n");
 		return;
 	}
-	sprintf(buf2, "%s changed %s's %s to %d.", GET_NAME(ch), GET_NAME(vict),
+	mudlog(0, BRF, true,
+		"%s changed %s's %s to %d.", GET_NAME(ch), GET_NAME(vict),
 		spell_to_str(skill), value);
-	mudlog(buf2, BRF, -1, TRUE);
 
 	SET_SKILL(vict, skill, value);
 

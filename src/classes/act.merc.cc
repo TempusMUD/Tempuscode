@@ -18,6 +18,7 @@
 #include "fight.h"
 #include "guns.h"
 #include "bomb.h"
+#include "tmpstr.h"
 
 #define PISTOL(gun)  ((IS_GUN(gun) || IS_ENERGY_GUN(gun)) && !IS_TWO_HAND(gun))
 #define LARGE_GUN(gun) ((IS_GUN(gun) || IS_ENERGY_GUN(gun)) && IS_TWO_HAND(gun))
@@ -261,11 +262,10 @@ ACMD(do_snipe)
 	obj_data *bullet, *armor;
 	int retval, prob, percent, damage_loc, dam = 0;
 	int snipe_dir = -1;
-	char arg1[MAX_INPUT_LENGTH], arg2[MAX_INPUT_LENGTH], buf[75];
-	char buff[255];
+	char *arg1, *arg2, *msg;
 
-	two_arguments(argument, arg1, arg2);
-
+	arg1 = tmp_getword(&argument);
+	arg2 = tmp_getword(&argument);
 
 	// ch is blind?
 	if (IS_AFFECTED(ch, AFF_BLIND) && !AFF3_FLAGGED(ch, AFF3_SONIC_IMAGERY)) {
@@ -458,10 +458,11 @@ ACMD(do_snipe)
 			send_to_char(ch, "Damn!  You missed!\r\n");
 			act("$n tries to snipe $N, but misses!", TRUE, ch, NULL, vict,
 				TO_ROOM);
-			sprintf(buf, "A bullet screams past your head from the %s!",
+				
+			msg = tmp_sprintf("A bullet screams past your head from the %s!",
 				from_dirs[snipe_dir]);
 			act(buf, TRUE, ch, NULL, vict, TO_VICT);
-			sprintf(buf, "A bullet screams past $n's head from the %s!",
+			msg = tmp_sprintf("A bullet screams past $n's head from the %s!",
 				from_dirs[snipe_dir]);
 			act(buf, TRUE, vict, NULL, ch, TO_ROOM);
 			WAIT_STATE(ch, 3 RL_SEC);
@@ -519,7 +520,7 @@ ACMD(do_snipe)
 			if (GET_LEVEL(vict) > 6) {
 				act("You smirk with satisfaction as your bullet rips into $N.",
 					FALSE, ch, NULL, vict, TO_CHAR);
-				sprintf(buf, "A bullet rips into your flesh from the %s!\r\n",
+				msg = tmp_sprintf("A bullet rips into your flesh from the %s!\r\n",
 					dirs[snipe_dir]);
 				act(buf, TRUE, ch, NULL, vict, TO_VICT);
 				act("A bullet rips into $n's flesh!", TRUE, vict, NULL, ch,
@@ -535,9 +536,8 @@ ACMD(do_snipe)
 			if (!(temp =
 					(struct char_data *)malloc(sizeof(struct char_data) +
 						1))) {
-				mudlog
-					("SYSERR: Not enough memory to allocate for struct char_data *\r\n        in function do_snipe!",
-					NRM, LVL_AMBASSADOR, TRUE);
+				mudlog(LVL_AMBASSADOR, NRM, true,
+					"SYSERR: Out of memory in do_snipe!");
 			}
 			memcpy(temp, vict, sizeof(struct char_data));
 			retval = damage(ch, vict, dam, SKILL_SNIPE, damage_loc);
@@ -561,20 +561,20 @@ ACMD(do_snipe)
 			WAIT_STATE(ch, 5 RL_SEC);
 		}
 	} else {
-		mudlog("ERROR: Null vict at end of do_snipe!", NRM, LVL_AMBASSADOR,
-			TRUE);
+		mudlog(LVL_AMBASSADOR, NRM, true,
+			"ERROR: Null vict at end of do_snipe!");
 	}
 	if (!IS_SET(retval, DAM_VICT_KILLED))
-		sprintf(buff, "INFO: %s has sniped %s from room %d to room %d",
+		mudlog(LVL_AMBASSADOR, NRM, true,
+			"INFO: %s has sniped %s from room %d to room %d",
 			GET_NAME(ch), GET_NAME(vict),
 			ch->in_room->number, vict->in_room->number);
 	else
-		sprintf(buff,
+		mudlog(LVL_AMBASSADOR, NRM, true,
 			"INFO: %s has killed %s with snipe from room %d to room %d",
 			GET_NAME(ch), GET_NAME(temp), ch->in_room->number,
 			temp->in_room->number);
 
-	mudlog(buff, NRM, LVL_AMBASSADOR, TRUE);
 	free(temp);
 }
 

@@ -38,6 +38,7 @@
 #include "vehicle.h"
 #include "handler.h"
 #include "security.h"
+#include "tmpstr.h"
 
 extern struct room_data *world;
 
@@ -1274,6 +1275,7 @@ void
 advance_level(struct char_data *ch, byte keep_internal)
 {
 	int add_hp[2], add_mana[2], add_move[2], i, char_class;
+	char *msg;
 
 	add_hp[0] = add_hp[1] = con_app[GET_CON(ch)].hitp;
 	add_mana[0] = add_mana[1] = mana_bonus[GET_WIS(ch)];
@@ -1430,13 +1432,13 @@ advance_level(struct char_data *ch, byte keep_internal)
 
 	save_char(ch, NULL);
 
-	sprintf(buf, "%s advanced to level %d in room %d %s",
+	msg = tmp_sprintf("%s advanced to level %d in room %d %s",
 		GET_NAME(ch), GET_LEVEL(ch), ch->in_room->number,
 		ch->isTester() ? "<TESTER>" : "");
 	if (keep_internal)
-		slog(buf);
+		slog(msg);
 	else
-		mudlog(buf, BRF, GET_INVIS_LEV(ch), TRUE);
+		mudlog(GET_INVIS_LEV(ch), BRF, true, "%s", msg);
 }
 
 

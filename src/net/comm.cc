@@ -1009,8 +1009,8 @@ new_descriptor(int s)
 	int bantype = isbanned(newd->host, buf2);
 	if (bantype == BAN_ALL) {
 		close(desc);
-		sprintf(buf2, "Connection attempt denied from [%s]", newd->host);
-		mudlog(buf2, CMP, LVL_GOD, TRUE);
+		mudlog(LVL_GOD, CMP, true,
+			"Connection attempt denied from [%s]", newd->host);
 		free(newd);
 		return 0;
 	}
@@ -1336,7 +1336,6 @@ void
 close_socket(struct descriptor_data *d)
 {
 	struct descriptor_data *temp;
-	char buf[128];
 	long target_idnum = -1;
 
 	close(d->descriptor);
@@ -1355,18 +1354,16 @@ close_socket(struct descriptor_data *d)
 		if (IS_PLAYING(d)) {
 			save_char(d->character, NULL);
 			act("$n has lost $s link.", TRUE, d->character, 0, 0, TO_ROOM);
-			sprintf(buf, "Closing link to: %s. [%s] ", GET_NAME(d->character),
+			mudlog(MAX(LVL_AMBASSADOR, GET_INVIS_LEV(d->character)), NRM, true,
+				"Closing link to: %s. [%s] ", GET_NAME(d->character),
 				d->host);
-			mudlog(buf, NRM, MAX(LVL_AMBASSADOR, GET_INVIS_LEV(d->character)),
-				TRUE);
 			d->character->desc = NULL;
 			GET_OLC_OBJ(d->character) = NULL;
 		} else {
-			sprintf(buf, "Losing player: %s. [%s]",
+			mudlog(MAX(LVL_AMBASSADOR, GET_INVIS_LEV(d->character)), NRM, true,
+				"Losing player: %s. [%s]",
 				GET_NAME(d->character) ? GET_NAME(d->character) : "<null>",
 				d->host);
-			mudlog(buf, CMP, MAX(LVL_AMBASSADOR, GET_INVIS_LEV(d->character)),
-				TRUE);
 #ifdef DMALLOC
 			dmalloc_verify(0);
 #endif
@@ -1376,7 +1373,7 @@ close_socket(struct descriptor_data *d)
 #endif
 		}
 	} else
-		mudlog("Losing descriptor without char.", CMP, LVL_AMBASSADOR, TRUE);
+		mudlog(LVL_AMBASSADOR, CMP, true, "Losing descriptor without char.");
 	/* JE 2/22/95 -- part of my enending quest to make switch stable */
 	if (d->original && d->original->desc)
 		d->original->desc = NULL;
@@ -1464,8 +1461,8 @@ unrestrict_game(int sig = 0)
 	extern struct ban_list_element *ban_list;
 	extern int num_invalid;
 
-	mudlog("Received SIGUSR2 - completely unrestricting game (emergent)",
-		BRF, LVL_AMBASSADOR, TRUE);
+	mudlog(LVL_AMBASSADOR, BRF, true,
+		"Received SIGUSR2 - completely unrestricting game (emergent)");
 	ban_list = NULL;
 	restrict = 0;
 	num_invalid = 0;
@@ -1477,8 +1474,8 @@ hupsig(int sig = 0)
 {
 	slog("Received SIGHUP, SIGINT, or SIGTERM.  Shutting down...");
 
-	mudlog("Received external signal - shutting down for reboot in 60 sec..",
-		BRF, LVL_AMBASSADOR, TRUE);
+	mudlog(LVL_AMBASSADOR, BRF, true,
+		"Received external signal - shutting down for reboot in 60 sec..");
 
 	send_to_all("\007\007:: Tempus REBOOT in 60 seconds ::\r\n");
 	shutdown_idnum = -1;
@@ -2102,8 +2099,7 @@ descriptor_update(void)
 
 		if (d->idle >= 10 && STATE(d) != CON_PLAYING
 			&& STATE(d) != CON_NETWORK) {
-			mudlog("Descriptor idling out after 10 minutes.", CMP, LVL_IMMORT,
-				TRUE);
+			mudlog(LVL_IMMORT, CMP, true, "Descriptor idling out after 10 minutes.");
 			SEND_TO_Q("Idle time limit reached, disconnecting.\r\n", d);
 			set_desc_state(CON_CLOSE, d);
 		}

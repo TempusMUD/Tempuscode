@@ -2568,9 +2568,9 @@ ACMD(do_purge)
 			act("$n disintegrates $N.", FALSE, ch, 0, vict, TO_NOTVICT);
 
 			if (!IS_NPC(vict)) {
-				sprintf(buf, "(GC) %s has purged %s at %d.",
+				mudlog(LVL_POWER, BRF, true,
+					"(GC) %s has purged %s at %d.",
 					GET_NAME(ch), GET_NAME(vict), vict->in_room->number);
-				mudlog(buf, BRF, LVL_POWER, TRUE);
 			}
 			vict->extract(false, true, CON_CLOSE);
 		} else if ((obj = get_obj_in_list_vis(ch, buf, ch->in_room->contents))) {
@@ -2672,10 +2672,10 @@ ACMD(do_advance)
 
 	send_to_char(ch, OK);
 
-	char *msg = tmp_sprintf("(GC) %s has advanced %s to level %d (from %d)",
-				GET_NAME(ch), GET_NAME(victim), 
-				newlevel, GET_LEVEL(victim) );
-	mudlog(msg, NRM, MAX(GET_INVIS_LEV(ch), GET_INVIS_LEV(victim)), TRUE);
+	mudlog(MAX(GET_INVIS_LEV(ch), GET_INVIS_LEV(victim)), NRM, true,
+		"(GC) %s has advanced %s to level %d (from %d)",
+		GET_NAME(ch), GET_NAME(victim), 
+		newlevel, GET_LEVEL(victim) );
 	gain_exp_regardless(victim, exp_scale[newlevel] - GET_EXP(victim));
 	save_char(victim, NULL);
 }
@@ -2711,8 +2711,8 @@ ACMD(do_restore)
 				TO_CHAR);
 		}
 		send_to_char(ch, OK);
-		sprintf(buf, "The mud has been restored by %s.", GET_NAME(ch));
-		mudlog(buf, CMP, GET_INVIS_LEV(ch), TRUE);
+		mudlog(GET_INVIS_LEV(ch), CMP, true,
+			"The mud has been restored by %s.", GET_NAME(ch));
 	} else if (!(vict = get_char_vis(ch, buf))) {
 		send_to_char(ch, NOPERSON);
 	} else {
@@ -2743,9 +2743,8 @@ ACMD(do_restore)
 		update_pos(vict);
 		send_to_char(ch, OK);
 		act("You have been fully healed by $N!", FALSE, vict, 0, ch, TO_CHAR);
-		sprintf(buf, "%s has been restored by %s.", GET_NAME(vict),
-			GET_NAME(ch));
-		mudlog(buf, CMP, GET_LEVEL(ch), TRUE);
+		mudlog(GET_LEVEL(ch), CMP, true,
+			"%s has been restored by %s.", GET_NAME(vict), GET_NAME(ch));
 	}
 }
 
@@ -3120,8 +3119,8 @@ ACMD(do_wizlock)
 			restrict, when);
 		break;
 	}
-	sprintf(buf, "(GC) %s has set wizlock to %d.", GET_NAME(ch), restrict);
-	mudlog(buf, CMP, MAX(LVL_AMBASSADOR, GET_INVIS_LEV(ch)), FALSE);
+	mudlog(MAX(LVL_AMBASSADOR, GET_INVIS_LEV(ch)), CMP, false,
+		"(GC) %s has set wizlock to %d.", GET_NAME(ch), restrict);
 }
 
 
@@ -3207,16 +3206,14 @@ ACMD(do_force)
 		else {
 			send_to_char(ch, OK);
 			act(buf1, TRUE, ch, NULL, vict, TO_VICT);
-			sprintf(buf, "(GC) %s forced %s to %s",
+			mudlog(GET_LEVEL(ch), NRM, true, "(GC) %s forced %s to %s",
 				GET_NAME(ch), GET_NAME(vict), to_force);
-			mudlog(buf, NRM, GET_LEVEL(ch), TRUE);
 			command_interpreter(vict, to_force);
 		}
 	} else if (!str_cmp("room", arg)) {
 		send_to_char(ch, OK);
-		sprintf(buf, "(GC) %s forced room %d to %s",
+		mudlog(GET_LEVEL(ch), NRM, true, "(GC) %s forced room %d to %s",
 			GET_NAME(ch), ch->in_room->number, to_force);
-		mudlog(buf, NRM, GET_LEVEL(ch), TRUE);
 		CharacterList::iterator it = ch->in_room->people.begin();
 		for (; it != ch->in_room->people.end(); ++it) {
 			if (GET_LEVEL((*it)) >= GET_LEVEL(ch) ||
@@ -3227,8 +3224,8 @@ ACMD(do_force)
 		}
 	} else if (GET_LEVEL(ch) >= LVL_GRGOD) {	/* force all */
 		send_to_char(ch, OK);
-		sprintf(buf, "(GC) %s forced all to %s", GET_NAME(ch), to_force);
-		mudlog(buf, NRM, GET_LEVEL(ch), TRUE);
+		mudlog(GET_LEVEL(ch), NRM, true,
+			"(GC) %s forced all to %s", GET_NAME(ch), to_force);
 
 		for (i = descriptor_list; i; i = next_desc) {
 			next_desc = i->next;
@@ -3428,8 +3425,8 @@ ACMD(do_zreset)
 			reset_zone(zone);
 
 		send_to_char(ch, "Reset world.\r\n");
-		sprintf(buf, "(GC) %s reset entire world.", GET_NAME(ch));
-		mudlog(buf, NRM, MAX(LVL_GRGOD, GET_INVIS_LEV(ch)), TRUE);
+		mudlog(MAX(LVL_GRGOD, GET_INVIS_LEV(ch)), NRM, true,
+			"(GC) %s reset entire world.", GET_NAME(ch));
 		return;
 	} else if (*arg == '.')
 		zone = ch->in_room->zone;
@@ -3442,10 +3439,11 @@ ACMD(do_zreset)
 	if (zone) {
 		reset_zone(zone);
 		send_to_char(ch, "Reset zone %d : %s.\r\n", zone->number, zone->name);
-		sprintf(buf, "(GC) %s %sreset zone %d (%s)", GET_NAME(ch),
+		mudlog(MAX(LVL_GRGOD, GET_INVIS_LEV(ch)),
+			subcmd == SCMD_OLC ? CMP : NRM,
+			true,
+			"(GC) %s %sreset zone %d (%s)", GET_NAME(ch),
 			subcmd == SCMD_OLC ? "olc-" : "", zone->number, zone->name);
-		mudlog(buf, subcmd == SCMD_OLC ? CMP : NRM,
-			MAX(LVL_GRGOD, GET_INVIS_LEV(ch)), TRUE);
 
 	} else
 		send_to_char(ch, "Invalid zone number.\r\n");
@@ -3493,9 +3491,9 @@ ACMD(do_wizutil)
 			REMOVE_BIT(PLR_FLAGS(vict), PLR_THIEF | PLR_KILLER);
 			send_to_char(ch, "Pardoned.\r\n");
 			send_to_char(vict, "You have been pardoned by the Gods!\r\n");
-			sprintf(buf, "(GC) %s pardoned by %s", GET_NAME(vict),
+			mudlog(MAX(LVL_GOD, GET_INVIS_LEV(ch)), NRM, true,
+				"(GC) %s pardoned by %s", GET_NAME(vict),
 				GET_NAME(ch));
-			mudlog(buf, BRF, MAX(LVL_GOD, GET_INVIS_LEV(ch)), TRUE);
 			break;
 		case SCMD_NOTITLE: {
 			result = PLR_TOG_CHK(vict, PLR_NOTITLE);
@@ -3504,8 +3502,7 @@ ACMD(do_wizutil)
 									GET_NAME(vict), 
 									GET_NAME(ch));
 			send_to_char(ch,"%s\r\n",msg);
-			msg = tmp_strcat("(GC) ",msg, NULL );
-			mudlog(msg, NRM, MAX(LVL_GOD, GET_INVIS_LEV(ch)), TRUE);
+			mudlog(MAX(LVL_GOD, GET_INVIS_LEV(ch)), NRM, true, "(GC) %s", msg);
 			break;
 		}
 		case SCMD_NOPOST: {
@@ -3515,8 +3512,7 @@ ACMD(do_wizutil)
 									GET_NAME(vict), 
 									GET_NAME(ch));
 			send_to_char(ch,"%s\r\n",msg);
-			msg = tmp_strcat("(GC) ",msg, NULL );
-			mudlog(msg, NRM, MAX(LVL_GOD, GET_INVIS_LEV(ch)), TRUE);
+			mudlog(MAX(LVL_GOD, GET_INVIS_LEV(ch)), NRM, true, "(GC) %s", msg);
 			break;
 	    }
 		case SCMD_COUNCIL: {
@@ -3526,8 +3522,7 @@ ACMD(do_wizutil)
 									GET_NAME(vict), 
 									GET_NAME(ch));
 			send_to_char(ch,"%s\r\n",msg);
-			msg = tmp_strcat("(GC) ",msg, NULL );
-			mudlog(msg, NRM, MAX(LVL_GOD, GET_INVIS_LEV(ch)), TRUE);
+			mudlog(MAX(LVL_GOD, GET_INVIS_LEV(ch)), NRM, true, "(GC) %s", msg);
 			break;
 	    }
 		case SCMD_SQUELCH: {
@@ -3537,8 +3532,7 @@ ACMD(do_wizutil)
 									GET_NAME(vict), 
 									GET_NAME(ch) );
 			send_to_char(ch,"%s\r\n",msg);
-			msg = tmp_strcat("(GC) ",msg, NULL );
-			mudlog(msg, BRF, MAX(GET_INVIS_LEV(ch), GET_INVIS_LEV(vict)), TRUE);
+			mudlog(MAX(LVL_GOD, GET_INVIS_LEV(ch)), NRM, true, "(GC) %s", msg);
 			break;
 		}
 		case SCMD_FREEZE:
@@ -3557,9 +3551,9 @@ ACMD(do_wizutil)
 			send_to_char(ch, "Frozen.\r\n");
 			act("A sudden cold wind conjured from nowhere freezes $n!", FALSE,
 				vict, 0, 0, TO_ROOM);
-			sprintf(buf, "(GC) %s frozen by %s.", GET_NAME(vict),
+			mudlog(MAX(LVL_POWER, GET_INVIS_LEV(ch)), BRF, true,
+				"(GC) %s frozen by %s.", GET_NAME(vict),
 				GET_NAME(ch));
-			mudlog(buf, BRF, MAX(LVL_POWER, GET_INVIS_LEV(ch)), TRUE);
 			break;
 		case SCMD_THAW:
 			if (!PLR_FLAGGED(vict, PLR_FROZEN)) {
@@ -3574,9 +3568,9 @@ ACMD(do_wizutil)
 				send_to_char(ch, "%s", buf);
 				return;
 			}
-			sprintf(buf, "(GC) %s un-frozen by %s.", GET_NAME(vict),
+			mudlog(MAX(LVL_POWER, GET_INVIS_LEV(ch)), BRF, true,
+				"(GC) %s un-frozen by %s.", GET_NAME(vict),
 				GET_NAME(ch));
-			mudlog(buf, BRF, MAX(LVL_POWER, GET_INVIS_LEV(ch)), TRUE);
 			REMOVE_BIT(PLR_FLAGS(vict), PLR_FROZEN);
 			send_to_char(vict, 
 				"A fireball suddenly explodes in front of you, melting the ice!\r\nYou feel thawed.\r\n");
@@ -6344,7 +6338,7 @@ ACMD(do_rename)
 		vict->player.long_descr = str_dup(buf);
 	}
 	send_to_char(ch, "Okay, you do it.\r\n");
-	mudlog(logbuf, CMP, MAX(LVL_ETERNAL, GET_INVIS_LEV(ch)), TRUE);
+	mudlog(MAX(LVL_ETERNAL, GET_INVIS_LEV(ch)), CMP, true, "%s", logbuf);
 	return;
 }
 
@@ -6536,7 +6530,7 @@ ACMD(do_mudwipe)
 			"objects, mobiles, fullmobs, or clean.\r\n");
 		return;
 	}
-	mudlog(buf, BRF, GET_INVIS_LEV(ch), TRUE);
+	mudlog(GET_INVIS_LEV(ch), BRF, true, "%s", buf);
 
 	if (mode == 4) {
 		retire_trails();
@@ -6639,9 +6633,11 @@ ACMD(do_zonepurge)
 		sprintf(buf, "(GC) %s %spurged zone %d (%s)", GET_NAME(ch),
 			subcmd == SCMD_OLC ? "olc-" : "", zone->number, zone->name);
 		if (subcmd != SCMD_OLC) {
-			mudlog(buf, subcmd == SCMD_OLC ? CMP : NRM, GET_INVIS_LEV(ch), TRUE);
+			mudlog(GET_INVIS_LEV(ch),
+				subcmd == SCMD_OLC ? CMP : NRM,
+				true, "%s", buf);
 		} else {
-			slog(buf);
+			slog("%s", buf);
 		}
 
 	} else {
@@ -7031,8 +7027,7 @@ ACMD(do_qpreload)
 
 	qp_reload();
 	send_to_char(ch, "Reloading Quest Points.\r\n");
-	sprintf(buf, "(GC) %s has reloaded QP.", GET_NAME(ch));
-	mudlog(buf, NRM, LVL_GRGOD, TRUE);
+	mudlog(LVL_GRGOD, NRM, true, "(GC) %s has reloaded QP.", GET_NAME(ch));
 
 }
 

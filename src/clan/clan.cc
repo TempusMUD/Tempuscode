@@ -119,7 +119,7 @@ ACMD(do_enroll)
 			clan->name, GET_NAME(ch));
 		msg = tmp_sprintf("%s has been inducted into clan %s by %s!",
 			GET_NAME(vict), clan->name, GET_NAME(ch));
-		mudlog(msg, NRM, MAX(LVL_IMMORT, GET_INVIS_LEV(ch)), 1);
+		mudlog(GET_INVIS_LEV(ch), NRM, true, "%s", msg);
 		msg = tmp_strcat(msg, "\r\n",NULL);
 		send_to_clan(msg, GET_CLAN(ch));
 		GET_CLAN(vict) = clan->number;
@@ -205,7 +205,7 @@ ACMD(do_dismiss)
 		GET_CLAN(vict) = 0;
 		msg = tmp_sprintf("%s has been dismissed from clan %s by %s!",
 			GET_NAME(vict), clan->name, GET_NAME(ch));
-		mudlog(msg, NRM, MAX(LVL_IMMORT, GET_INVIS_LEV(ch)), 1);
+		mudlog(GET_INVIS_LEV(ch), NRM, true, "%s", msg);
 		msg = tmp_strcat(msg, "\r\n",NULL);
 		send_to_clan(msg, GET_CLAN(ch));
 		if ((member = real_clanmember(GET_IDNUM(vict), clan))) {
@@ -239,7 +239,7 @@ ACMD(do_resign)
 		send_to_char(ch, "You have resigned from clan %s.\r\n", clan->name);
 		msg = tmp_sprintf("%s has resigned from clan %s.", GET_NAME(ch),
 			clan->name);
-		mudlog(msg, NRM, MAX(LVL_IMMORT, GET_INVIS_LEV(ch)), 1);
+		mudlog(GET_INVIS_LEV(ch), NRM, true, "%s", msg);
 		msg = tmp_strcat(msg, "\r\n",NULL);
 		send_to_clan(msg, GET_CLAN(ch));
 		GET_CLAN(ch) = 0;

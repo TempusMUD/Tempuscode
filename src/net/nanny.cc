@@ -226,24 +226,24 @@ nanny(struct descriptor_data * d, char *arg)
 		case CON_NAME_CNFRM:        // wait for conf. of new name
 			if (tolower(*arg) == 'y') {
 				if (isbanned(d->host, buf2) >= BAN_NEW) {
-					sprintf(buf, "Request for new char %s denied from [%s] (siteban)",
-							GET_NAME(d->character), d->host);
-					mudlog(buf, NRM, LVL_GOD, TRUE);
+					mudlog(LVL_GOD, NRM, true,
+						"Request for new char %s denied from [%s] (siteban)",
+						GET_NAME(d->character), d->host);
 					SEND_TO_Q("Sorry, new characters are not allowed from your site!\r\n", d);
 					set_desc_state( CON_CLOSE,d );
 					return;
 				}
 				if (restrict) {
 					SEND_TO_Q("Sorry, new players can't be created at the moment.\r\n", d);
-					sprintf(buf, "Request for new char %s denied from %s (wizlock)",
-							GET_NAME(d->character), d->host);
-					mudlog(buf, NRM, LVL_GOD, TRUE);
+					mudlog(LVL_GOD, NRM, true,
+						"Request for new char %s denied from %s (wizlock)",
+						GET_NAME(d->character), d->host);
 					set_desc_state( CON_CLOSE,d );
 					return;
 				}
-				sprintf(buf, "New player [%s] connect from %s.", GET_NAME(d->character),
-						d->host);
-				mudlog(buf, CMP, LVL_GOD, TRUE);
+				mudlog(LVL_GOD, NRM, true,
+					"New player [%s] connect from %s.", GET_NAME(d->character),
+					d->host);
 
 				sprintf(buf,"Creating new character '%s'.\r\n\r\n",
 						GET_NAME(d->character));
@@ -266,11 +266,12 @@ nanny(struct descriptor_data * d, char *arg)
 			else {
 				if (strncmp(CRYPT(arg, GET_PASSWD(d->character)),
 							GET_PASSWD(d->character), MAX_PWD_LENGTH)) {
-					sprintf(buf, "Bad PW: %s [%s]", GET_NAME(d->character), d->host);
-					mudlog(buf, CMP,
-						   MAX(LVL_GOD, PLR_FLAGGED(d->character, PLR_INVSTART) ?
-							   GET_LEVEL(d->character) :
-							   GET_INVIS_LEV(d->character)), TRUE);
+					mudlog(MAX(LVL_GOD,
+							PLR_FLAGGED(d->character, PLR_INVSTART) ?
+							GET_LEVEL(d->character) :
+							GET_INVIS_LEV(d->character)), CMP, true,
+						"Bad PW: %s [%s]", GET_NAME(d->character), d->host);
+
 					GET_BAD_PWS(d->character)++;
 					save_char(d->character, real_room(GET_LOADROOM(d->character)));
 					if (++(d->bad_pws) >= max_bad_pws) {    // 3 strikes and you're out.
@@ -295,18 +296,18 @@ nanny(struct descriptor_data * d, char *arg)
 					!PLR_FLAGGED(d->character, PLR_SITEOK)) {
 					SEND_TO_Q("Sorry, this char has not been cleared for login from your site!\r\n", d);
 					set_desc_state( CON_CLOSE,d );
-					sprintf(buf, "Connection attempt for %s denied from %s",
-							GET_NAME(d->character), d->host);
-					mudlog(buf, NRM, LVL_GOD, TRUE);
+					mudlog(LVL_GOD, NRM, true,
+						"Connection attempt for %s denied from %s",
+						GET_NAME(d->character), d->host);
 					return;
 				}
 				if (GET_LEVEL(d->character) < restrict &&
 					(d->character->isTester() || restrict > LVL_ETERNAL)) {
 					SEND_TO_Q("The game is temporarily restricted.. try again later.\r\n", d);
 					set_desc_state( CON_CLOSE,d );
-					sprintf(buf, "Request for login denied for %s [%s] (wizlock)",
-							GET_NAME(d->character), d->host);
-					mudlog(buf, NRM, LVL_GOD, TRUE);
+					mudlog(LVL_GOD, NRM, true,
+						"Request for login denied for %s [%s] (wizlock)",
+						GET_NAME(d->character), d->host);
 					return;
 				}
 				// first, check for other logins
@@ -357,9 +358,10 @@ nanny(struct descriptor_data * d, char *arg)
 
 						notify_cleric_moon(d->character);
 
-						sprintf(buf, "%s [%s] has reconnected.",
-								GET_NAME(d->character), d->host);
-						mudlog(buf, NRM, MAX(LVL_GOD, GET_INVIS_LEV(d->character)), TRUE);
+						mudlog(MAX(LVL_GOD, GET_INVIS_LEV(d->character)), NRM,
+							true,
+							"%s [%s] has reconnected.",
+							GET_NAME(d->character), d->host);
 						return;
 					}
 				}
@@ -382,10 +384,9 @@ nanny(struct descriptor_data * d, char *arg)
 								send_to_char(d->character, "%s", buf);
 							}
 
-							sprintf(buf, "%s [%s] has reconnected.", GET_NAME(d->character),
-									d->host);
-							mudlog(buf, NRM, MAX(LVL_GOD, GET_INVIS_LEV(d->character)),
-								   TRUE);
+							mudlog(MAX(LVL_GOD, GET_INVIS_LEV(d->character)), NRM, true,
+								"%s [%s] has reconnected.", GET_NAME(d->character),
+								d->host);
 							if (!polc_char) {
 								if (GET_WAS_IN(tmp_ch)) {
 									if (tmp_ch->in_room) {
@@ -408,9 +409,10 @@ nanny(struct descriptor_data * d, char *arg)
 
 
 						} else {
-							sprintf(buf, "%s has re-logged:[%s]. disconnecting old socket.",
-									GET_NAME(tmp_ch), d->host);
-							mudlog(buf, NRM, MAX(LVL_GOD, GET_INVIS_LEV(tmp_ch)), TRUE);
+							mudlog(MAX(LVL_GOD, GET_INVIS_LEV(tmp_ch)),
+								NRM, true,
+								"%s has re-logged:[%s]. disconnecting old socket.",
+								GET_NAME(tmp_ch), d->host);
 							SEND_TO_Q("This body has been usurped!\r\n", tmp_ch->desc);
 							STATE(tmp_ch->desc) = CON_CLOSE;
 							tmp_ch->desc->character = NULL;
@@ -464,12 +466,12 @@ nanny(struct descriptor_data * d, char *arg)
 					}
 				}
 
-				sprintf(buf, "%s [%s] has connected.", GET_NAME(d->character), d->host);
-				mudlog(buf, CMP, MAX(LVL_GOD,
-									 PLR_FLAGGED(d->character, PLR_INVSTART) ?
-									 GET_LEVEL(d->character) :
-									 GET_INVIS_LEV(d->character)), TRUE);
-
+				
+				mudlog(MAX(LVL_GOD,
+					 PLR_FLAGGED(d->character, PLR_INVSTART) ?
+					 GET_LEVEL(d->character) :
+					 GET_INVIS_LEV(d->character)), CMP, true,
+					"%s [%s] has connected.", GET_NAME(d->character), d->host);
 				if (polc_char) {
 					set_desc_state( CON_PORT_OLC,d );
 				}
@@ -700,11 +702,11 @@ nanny(struct descriptor_data * d, char *arg)
 			} else {
 				if (GET_CLASS(d->character) == CLASS_VAMPIRE)
 					GET_CLASS(d->character) = GET_OLD_CLASS(d->character);
-				sprintf(buf, "%s has remorted to gen %d as a %s/%s",
+				mudlog(LVL_IMMORT, BRF, true,
+					"%s has remorted to gen %d as a %s/%s",
 					GET_NAME(d->character), GET_REMORT_GEN(d->character),
 					pc_char_class_types[(int)GET_CLASS(d->character)],
 					pc_char_class_types[(int)GET_REMORT_CLASS(d->character)]);
-				mudlog(buf, BRF, LVL_IMMORT, TRUE);
 				set_desc_state( CON_MENU,d );
 			}
 			break;
@@ -760,8 +762,8 @@ nanny(struct descriptor_data * d, char *arg)
 				break;
 			} else if (is_abbrev(arg, "keep")) {
 				save_char(d->character, NULL);
-				sprintf(buf, "%s [%s] new player.", GET_NAME(d->character), d->host);
-				mudlog(buf, NRM, LVL_GOD, TRUE);
+				mudlog(LVL_GOD, NRM, true,
+					"%s [%s] new player.", GET_NAME(d->character), d->host);
 				GET_HOME(d->character) = HOME_NEWBIE_SCHOOL;
 				population_record[HOME_NEWBIE_SCHOOL]++;
 
@@ -812,8 +814,9 @@ nanny(struct descriptor_data * d, char *arg)
 					if (PLR2_FLAGGED(d->character, PLR2_BURIED)) {
 						sprintf(buf,"You lay fresh flowers on the grave of %s.\r\n",GET_NAME(d->character));
 						SEND_TO_Q( buf, d);
-						sprintf(buf,"Disconnecting %s. - Character is buried.",GET_NAME(d->character));
-						mudlog(buf, NRM, LVL_GOD, TRUE);
+						mudlog(LVL_GOD, NRM, true,
+							"Disconnecting %s. - Character is buried.",
+							GET_NAME(d->character));
 						set_desc_state( CON_CLOSE,d );
 						return;
 					}
@@ -823,9 +826,9 @@ nanny(struct descriptor_data * d, char *arg)
 						d->character->in_room = theroom;
 					} else {
 						if(theroom) {
-							sprintf(buf,"%s unable to load in <clan>house room %d. Loadroom unset.",
-									GET_NAME(d->character),GET_LOADROOM(d->character));
-							mudlog(buf, NRM, LVL_DEMI, TRUE);
+							mudlog(LVL_DEMI, NRM, true,
+								"%s unable to load in <clan>house room %d. Loadroom unset.",
+								GET_NAME(d->character),GET_LOADROOM(d->character));
 						}
 						GET_LOADROOM(d->character) = -1;
 					}
@@ -1118,9 +1121,9 @@ nanny(struct descriptor_data * d, char *arg)
 				sprintf(buf, "Character '%s' deleted!\r\n"
 						"Goodbye.\r\n", GET_NAME(d->character));
 				SEND_TO_Q(buf, d);
-				sprintf(buf, "%s (lev %d) has self-deleted.", GET_NAME(d->character),
-						GET_LEVEL(d->character));
-				mudlog(buf, NRM, LVL_GOD, TRUE);
+				mudlog(LVL_GOD, NRM, true,
+					"%s (lev %d) has self-deleted.", GET_NAME(d->character),
+					GET_LEVEL(d->character));
 				set_desc_state( CON_CLOSE,d );
 				return;
 			} else {
