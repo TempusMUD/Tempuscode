@@ -1428,6 +1428,7 @@ char_to_game(descriptor_data *d)
 	}
 
 	REMOVE_BIT(PLR_FLAGS(d->creature), PLR_CRYO);
+	REMOVE_BIT(PLR_FLAGS(d->creature), PLR_WRITING | PLR_OLC);
 
 	if (has_mail(GET_IDNUM(d->creature)))
 		send_to_char(d->creature, "You have mail waiting.\r\n");
