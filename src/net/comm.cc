@@ -150,15 +150,12 @@ void save_all_players();
 int
 main(int argc, char **argv)
 {
-	void dbg_enable_tracking(void);
 	int port;
 	int pos = 1;
 	char *dir;
 
 	port = DFLT_PORT;
 	dir = DFLT_DIR;
-
-	dbg_enable_tracking();
 
 	tmp_string_init();
 
