@@ -1724,6 +1724,60 @@ ACMD(do_olc)
 	}
 }
 
+void
+recalc_all_mobs(Creature *ch, const char *argument)
+{
+	struct Creature *mob;
+	struct zone_data *zone;
+	CreatureList::iterator mit = mobilePrototypes.begin();
+	int count = 0;
+
+	if (strcmp(argument, "aA43215nfiss")) {
+		// Safe version reports non-recalculated zones and returns
+		for (zone = zone_table;zone;zone = zone->next)
+			if (ZONE_FLAGGED(zone, ZONE_NORECALC))
+				send_to_char(ch, "Zone #%d would not be recalculated.\r\n",
+					zone->number);
+		return;
+	}
+
+	// Warn about unincluded zones
+	for (zone = zone_table;zone;zone = zone->next)
+		if (ZONE_FLAGGED(zone, ZONE_NORECALC))
+			send_to_char(ch, "Zone #%d is not being recalculated.\r\n",
+				zone->number);
+
+	// Iterate through mobiles
+	for (;mit != mobilePrototypes.end(); ++mit) {
+		mob = *mit;
+		for (zone = zone_table;zone;zone = zone->next)
+			if (GET_MOB_VNUM(mob) >= zone->number * 100 &&
+					GET_MOB_VNUM(mob) <= zone->top)
+				break;
+		if (!zone) {
+			send_to_char(ch, "WARNING: No zone found for mobile %d.\r\n",
+				GET_MOB_VNUM(mob));
+			continue;
+		}
+
+		if (ZONE_FLAGGED(zone, ZONE_NORECALC))
+			continue;
+
+		recalculate_based_on_level(mob);
+		GET_EXP(mob) = mobile_experience(mob);
+		count++;
+	}
+
+	// Save all the zones
+	for (zone = zone_table;zone;zone = zone->next)
+		if (!ZONE_FLAGGED(zone, ZONE_NORECALC))
+			if (!save_mobs(ch, zone))
+				send_to_char(ch, "WARNING: Zone %d was not saved.\r\n",
+					zone->number);
+
+	send_to_char(ch, "%d mobiles recalculated.\r\n", count);
+}
+
 
 const char *olc_help_keys[] = {
 	"rflags",

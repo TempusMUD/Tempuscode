@@ -60,7 +60,8 @@ struct ticl_data {
 #define MOB_MOD(lev)   (((lev*lev*lev*lev*lev) >> 15) + lev + 6)
 void set_physical_attribs(struct Creature *ch);
 //recalculates the given mob prototype's statistics based on it's current level.
-void recalculate_based_on_level( Creature *mob_p );
+void recalculate_based_on_level(Creature *mob_p);
+void recalc_all_mobs(Creature *ch, const char *argument);
 
 
 bool CAN_EDIT_ZONE(Creature *ch, struct zone_data *zone);
