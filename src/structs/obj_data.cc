@@ -111,24 +111,40 @@ obj_data::saveToXML(FILE *ouf)
 			indent.c_str(), shared->vnum );
 	indent += "\t";
 
-	if( strcmp( short_description, shared->proto->short_description ) ) {
-		fprintf( ouf, "%s<short_desc>%s</short_desc>\n",
-				indent.c_str(), xmlEncodeTmp(short_description) );
-	}
-	if( strcmp( name, shared->proto->name ) ) {
-		fprintf( ouf, "%s<name>%s</name>\n",
-				indent.c_str(), xmlEncodeTmp(name) );
-	}
-	if( strcmp( description, shared->proto->description ) ) {
-		fprintf( ouf, "%s<long_desc>%s</long_desc>\n",
-				 indent.c_str(),  xmlEncodeTmp(description) );
-	}
-	if( action_description != NULL ) {
-		if( strcmp( action_description, shared->proto->action_description ) ) {
+	if( shared->proto != NULL ) 
+	{
+		obj_data *proto = shared->proto;
+		if( short_description != NULL &&
+		( proto->short_description == NULL ||
+		  strcmp( short_description, proto->short_description ) ) ) 
+		{
+			fprintf( ouf, "%s<short_desc>%s</short_desc>\n",
+					indent.c_str(), xmlEncodeTmp(short_description) );
+		}
+
+		if( name != NULL &&
+		( shared->proto->name == NULL || strcmp( name, proto->name ) ) ) {
+			fprintf( ouf, "%s<name>%s</name>\n",
+					indent.c_str(), xmlEncodeTmp(name) );
+		}
+
+		if( description != NULL &&
+		( proto->description == NULL ||
+		  strcmp( description, proto->description ) ) ) 
+		{
+			fprintf( ouf, "%s<long_desc>%s</long_desc>\n",
+					 indent.c_str(),  xmlEncodeTmp(description) );
+		}
+
+		if( action_description != NULL &&
+		( proto->action_description == NULL ||
+		  strcmp( action_description, proto->action_description ) ) ) 
+		{
 			fprintf( ouf, "%s<action_desc>%s</action_desc>\n",
 					  indent.c_str(), xmlEncodeTmp(action_description));
 		}
 	}
+
 	fprintf( ouf, "%s<points type=\"%d\" soilage=\"%d\" weight=\"%d\" material=\"%d\" timer=\"%d\"/>\n",
 			  indent.c_str(), obj_flags.type_flag, soilage, 
 			 obj_flags.getWeight(), obj_flags.material, obj_flags.timer );
