@@ -2703,7 +2703,7 @@ extern const char *material_names[] = {
   "wax",
   "phenolic",
   "latex",
-  "*",
+  "enamel",
   "*",                   /** 150 **/
   "*",
   "*",

@@ -235,7 +235,7 @@ void
 handle_network(descriptor_data *d,char *arg) {
 	char arg1[MAX_INPUT_LENGTH];
 
-	if (!*arg1)
+	if (!*arg)
 		return;
 	arg = one_argument(arg, arg1);
 	if ( is_abbrev( arg1,"who" ) ) {

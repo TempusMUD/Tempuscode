@@ -559,6 +559,7 @@ struct command_info cmd_info[] = {
     { "cities"   , POS_SLEEPING, do_hcollect_help     , 0, SCMD_CITIES , 0 },
     { "clanlist" , POS_MORTALLYW, do_clanlist, LVL_CAN_CLAN, 0 , 0 },
     { "claw"     , POS_FIGHTING, do_offensive_skill, 0, SKILL_CLAW , 0 },
+    { "climb"    , POS_RESTING , do_action   , 0, 0 , 0 },
     { "cling"    , POS_RESTING , do_action   , 0, 0 , 0 },
     { "clothesline", POS_FIGHTING, do_offensive_skill, 0, SKILL_CLOTHESLINE , 0 },
     { "chuckle"  , POS_RESTING , do_action   , 0, 0 , 0 },

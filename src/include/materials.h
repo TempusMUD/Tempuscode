@@ -168,6 +168,7 @@
 #define MAT_WAX           146
 #define MAT_PHENOLIC      147
 #define MAT_LATEX         148
+#define MAT_ENAMEL        149
  
 #define MAT_GLASS         160
 #define MAT_CRYSTAL       161
