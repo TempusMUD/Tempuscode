@@ -430,7 +430,7 @@ SPECIAL(arioch)
 	    char_from_room(ch);
 	    char_to_room(ch, rm);
 	    act(ARIOCH_ARRIVE_MSG, FALSE, ch, 0, 0, TO_ROOM);
-	    sprintf(buf, "HELL: Arioch ported to %s@%d\n",
+	    sprintf(buf, "HELL: Arioch ported to %s@%d",
 		    vict ? GET_NAME(vict) : "Nobody", rm->number);
 	    mudlog(buf, CMP, 0, TRUE);
 	    return 1;
