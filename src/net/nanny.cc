@@ -1377,7 +1377,6 @@ char_to_game(descriptor_data *d)
 {
 	struct descriptor_data *k, *next;
 	struct room_data *load_room = NULL;
-	int load_result;
 
 	// this code is to prevent people from multiply logging in
 	for (k = descriptor_list; k; k = next) {
@@ -1452,7 +1451,8 @@ char_to_game(descriptor_data *d)
                 // no eq file or file empty. no worries.
 				break;
 			case 2:
-				send_to_desc(d, "You should have lost equipment.\r\n");
+				send_to_char(d->creature, "\r\n\007You could not afford your rent!\r\n"
+					 "Some of your possessions have been sold to cover your bill!\r\n");
 				break;
 			default:
 				slog("Can't happen at %s:%d", __FILE__, __LINE__);
@@ -1499,18 +1499,14 @@ char_to_game(descriptor_data *d)
 		}
 
 	} else {
-		mudlog(LVL_IMMORT, NRM, true, "%s has entered the game.",
-			GET_NAME(d->creature));
-		act("$n has entered the game.", TRUE, d->creature, 0, 0, TO_ROOM);
+		mudlog(GET_INVIS_LVL(d->creature), NRM, true,
+			"%s has entered the game.", GET_NAME(d->creature));
+		act("$n has entered the game.", false, d->creature, 0, 0, TO_ROOM);
 	}
 
 	look_at_room(d->creature, d->creature->in_room, 0);
 
 	
-	if (load_result == 2) {    // rented items lost
-		send_to_char(d->creature, "\r\n\007You could not afford your rent!\r\n"
-					 "Some of your possessions have been sold to cover your bill!\r\n");
-	}
 	// Remove the quest prf flag (for who list) if they're
 	// not in an active quest.
 	if (PRF_FLAGGED(d->creature, PRF_QUEST) || GET_QUEST(d->creature) != 0) {
