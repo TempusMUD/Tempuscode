@@ -470,6 +470,7 @@ Board_remove_msg(int board_type, struct char_data * ch, struct obj_data *obj, ch
 	return 1;
     }
     if (GET_LEVEL(ch) < LVL_LUCIFER &&
+	!(strstr(MSG_HEADING(board_type, ind), buf)) &&
 	GET_LEVEL(ch) < MSG_LEVEL(board_type, ind)) {
 	send_to_char("You can't remove a message holier than yourself.\r\n", ch);
 	return 1;
