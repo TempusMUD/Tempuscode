@@ -147,7 +147,7 @@ trigger_prog_cmd(Creature *ch, Creature *self, int cmd, char *argument)
 {
 	int line;
 
-	if (!GET_MOB_PROG(self))
+	if (!GET_MOB_PROG(self) || ch == self)
 		return false;
 	
 	line = prog_find_cmd_handler(GET_MOB_PROG(self), "*before", cmd, argument);
