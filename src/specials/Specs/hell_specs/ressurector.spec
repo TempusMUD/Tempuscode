@@ -12,7 +12,7 @@ SPECIAL(hell_ressurector)
     struct obj_data *corpse = NULL, *obj = NULL;
     struct char_data *vict = NULL;
 
-    if ( cmd || FIGHTING(ch) || GET_MANA(ch) < 200 )
+    if ( cmd || GET_MANA(ch) < 200 )
 	return 0;
 
     //
@@ -25,6 +25,25 @@ SPECIAL(hell_ressurector)
 	     !RESS_IS_DEVIL_VNUM( - CORPSE_IDNUM(corpse) ) ) {
 	    continue;
 	}
+        
+        vict = real_mobile_proto( - CORPSE_IDNUM( corpse ) );
+
+        if ( !vict ) {
+            sprintf( buf, "SYSERR: hell resurrector unable to real_mobile_proto(%d).", -CORPSE_IDNUM( corpse ) );
+            slog( buf );
+            continue;
+        }
+
+        //
+        // remove stray corpses to prevent bogusness
+        //
+
+        if ( !IS_DEVIL( vict ) ) {
+            act( "$n disintegrates $p in a flash of light!", FALSE, ch, corpse, NULL, TO_ROOM );
+            extract_obj( corpse );
+            GET_MANA( ch ) = MIN( GET_MAX_MANA( ch ), GET_MANA( ch ) + ( GET_LEVEL( vict ) << 1 ) );
+            return 1;
+        }
 
 	//
 	// ressurect the corpse by loading a new mobile
@@ -35,6 +54,8 @@ SPECIAL(hell_ressurector)
 	    slog(buf);
 	    return 0;
 	}
+
+        GET_MANA( ch ) -= 150;
 
 	//
 	// put the vict (ressurected mob) in the room to be safe
@@ -78,3 +99,4 @@ SPECIAL(hell_ressurector)
 
 
 #undef RESS_IS_DEVIL_VNUM
+
