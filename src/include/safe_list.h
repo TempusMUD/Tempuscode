@@ -64,7 +64,7 @@ template <class T> class SafeList:protected list <T> {
 		**/
 		~iterator() {
 			if (_list != NULL)
-				_list->removeIterator(this);
+				_list->removeIterator(*this);
 			_list = NULL;
 		}
 		/** 
@@ -104,7 +104,7 @@ template <class T> class SafeList:protected list <T> {
 			list <T>::iterator::operator = (it);
 			// If pointing to a list, unregister
 			if (_list != NULL)
-				_list->removeIterator(this);
+				_list->removeIterator(*this);
 			_list = it._list;
 			// If pointing to a list, register
 			if (_list != NULL)
@@ -175,11 +175,18 @@ template <class T> class SafeList:protected list <T> {
 	void addIterator(iterator * it) {
 		_iterators.push_front(it);
 	}
-	void removeIterator(iterator * it) {
-		//confirm that the iterator is there before removing it
+	void removeIterator(iterator & it) {
+		/*//confirm that the iterator is there before removing it
         if (find(_iterators.begin(), _iterators.end(), it) != _iterators.end()) {
             _iterators.remove(it);
-        }
+        }*/
+        typename list <iterator *>::iterator sit = _iterators.begin();
+		for (; sit != _iterators.end(); ++sit) {
+			if (*sit == &it && *(*sit) == it) {
+				_iterators.erase(sit);
+                break;
+			}
+		}
 	}
 
   protected:
