@@ -1212,9 +1212,13 @@ damage(struct Creature *ch, struct Creature *victim, int dam,
 	//******************* Reduction based on the attacker ********************/
 	//************ Knights, Clerics, and Monks out of alignment **************/
 	if (ch) {
-		if (((IS_KNIGHT(ch) || IS_CLERIC(ch)) && IS_NEUTRAL(ch)) ||
-			IS_MONK(ch) && !IS_NEUTRAL(ch))
-			dam = (dam * abs(GET_ALIGNMENT(ch)) / 2000);
+		if (IS_NEUTRAL(ch)) {
+			if (IS_KNIGHT(ch) || IS_CLERIC(ch))
+				dam = dam / 4;
+		} else {
+			if (IS_MONK(ch))
+				dam = dam / 4;
+		}
 	}
 	// ALL previous damage reduction code that was based off of character 
 	// attributes has been moved to the function below.  See structs/Creature.cc
