@@ -58,7 +58,7 @@ int calculate_weapon_probability(struct Creature *ch, int prob,
 int do_combat_fire(struct Creature *ch, struct Creature *vict);
 int do_casting_weapon(Creature *ch, obj_data *weap);
 int calculate_attack_probability(struct Creature *ch);
-
+void do_emp_pulse_char(Creature *ch, Creature *vict);
 /* 
    corrects position and removes combat related bits.
    Call ONLY from removeCombat()/removeAllCombat() 
@@ -1547,6 +1547,7 @@ damage(struct Creature *ch, struct Creature *victim, int dam,
 	case SKILL_ENERGY_FIELD:
 	case SKILL_DISCHARGE:
     case SPELL_ELECTRIC_ARC:
+    case TYPE_EGUN_LIGHTNING:
 		if (IS_VAMPIRE(victim))
 			dam >>= 1;
 		if (OUTSIDE(victim)
@@ -1572,6 +1573,7 @@ damage(struct Creature *ch, struct Creature *victim, int dam,
 	case TYPE_ABLAZE:
 	case SPELL_FIRE_SHIELD:
 	case TYPE_FLAMETHROWER:
+    case TYPE_EGUN_PLASMA:
 		if (IS_VAMPIRE(victim) && OUTSIDE(victim) &&
 			victim->in_room->zone->weather->sunlight == SUN_LIGHT &&
 			GET_PLANE(victim->in_room) < PLANE_ASTRAL)
@@ -1665,6 +1667,7 @@ damage(struct Creature *ch, struct Creature *victim, int dam,
                 mag_affects(ch->getLevelBonus(SKILL_ENERGY_WEAPONS), ch, victim, NULL, SPELL_BLINDNESS, SAVING_ROD);
             }    
         }
+        //plasma special
         if (attacktype == TYPE_EGUN_PLASMA && dam) {
             if (do_gun_special(ch, weap) && !CHAR_WITHSTANDS_FIRE(victim) && 
                 !IS_AFFECTED_2(victim, AFF2_ABLAZE)) {
@@ -1675,7 +1678,30 @@ damage(struct Creature *ch, struct Creature *victim, int dam,
                 victim->ignite(ch);
             }  
         }
-			
+        //ion special
+        if (attacktype == TYPE_EGUN_ION && dam) {
+            if (do_gun_special(ch,weap)) {
+                do_emp_pulse_char(ch, victim);
+            }
+        }
+        //sonic special
+        if (attacktype == TYPE_EGUN_SONIC && dam) {
+            if (do_gun_special(ch,weap)) {
+                struct affected_type sonicAf;
+                sonicAf.is_instant = 0;
+                sonicAf.bitvector = 0;
+                sonicAf.location = APPLY_DEX;
+                sonicAf.modifier = -1;
+                sonicAf.aff_index = 0;
+                sonicAf.owner = ch->getIdNum();
+                sonicAf.duration = 1;
+                sonicAf.level = ch->getLevelBonus(SKILL_ENERGY_WEAPONS);
+                sonicAf.type = TYPE_EGUN_SPEC_SONIC;
+                act("You become disoriented!", false, ch, NULL, victim, TO_VICT);
+                act("$N becomes disoriented!", false, ch, NULL, victim, TO_NOTVICT);
+                affect_join(victim, &sonicAf, false, false, true, false);
+            }
+        }       
     }
 	//
 	// characters under the effects of vampiric regeneration

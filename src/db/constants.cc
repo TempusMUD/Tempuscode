@@ -2483,7 +2483,7 @@ extern const char *spell_wear_off_msg[] = {
 	"!UNUSED!", "!UNUSED!", 
     "Time speeds back up to normal.",
     "Time seems to slow down as your movements return to normal.", 
-    "You feel less protected from metal",	/* 335 */
+    "You feel less protected from metal.",	/* 335 */
 	"Your albedo shield flickers and dissipates.",
 	"!UNUSED!",
 	"Your radio-immunity has worn off.",
@@ -2646,6 +2646,23 @@ extern const char *spell_wear_off_msg[] = {
 	"!UNUSED!", "!UNUSED!", "!UNUSED!", "!UNUSED!", "!UNUSED!",	/* 760 */
 	"Your bright blue glow fades away.",
 	"!UNUSED!", "!UNUSED!", "!UNUSED!", "!UNUSED!",	/* 765 */
+    "!UNUSED!", "!UNUSED!", "!UNUSED!", "!UNUSED!", "!UNUSED!",	/* 770 */
+    "!UNUSED!", "!UNUSED!", "!UNUSED!", "!UNUSED!", "!UNUSED!",	/* 775 */
+    "!UNUSED!", "!UNUSED!", "!UNUSED!", "!UNUSED!", "!UNUSED!",	/* 780 */
+    "!UNUSED!", "!UNUSED!", "!UNUSED!", "!UNUSED!", "!UNUSED!",	/* 785 */
+    "!UNUSED!", "!UNUSED!", "!UNUSED!", "!UNUSED!", "!UNUSED!",	/* 790 */
+    "!UNUSED!", "!UNUSED!", "!UNUSED!", "!UNUSED!", "!UNUSED!",	/* 795 */
+    "!UNUSED!", "!UNUSED!", "!UNUSED!", "!UNUSED!", "!UNUSED!",	/* 800 */
+    "!UNUSED!", "!UNUSED!", "!UNUSED!", "!UNUSED!", "!UNUSED!",	/* 805 */
+    "!UNUSED!", "!UNUSED!", "!UNUSED!", "!UNUSED!", "!UNUSED!",	/* 810 */
+    "!UNUSED!", "!UNUSED!", "!UNUSED!", "!UNUSED!", "!UNUSED!",	/* 815 */
+    "!UNUSED!", "!UNUSED!", "!UNUSED!", "!UNUSED!", "!UNUSED!",	/* 820 */
+    "!UNUSED!", "!UNUSED!", "!UNUSED!", "!UNUSED!", "!UNUSED!",	/* 825 */
+    "!UNUSED!", "!UNUSED!", "!UNUSED!", "!UNUSED!", "!UNUSED!",	/* 830 */
+    "!LIGHTNING GUN SPEC!", 
+    "You feel less disoriented.", 
+    "!UNUSED!", "!UNUSED!", "!UNUSED!",	/* 835 */
+    "!UNUSED!", "!UNUSED!", "!UNUSED!", "!UNUSED!", "!UNUSED!",	/* 840 */
 	"\n"
 };
 

@@ -659,7 +659,7 @@ const char *spells[] = {
 	"holyocean",
 	"freezing",
 	"drowning",
-	"burning",
+	"burning", /*760*/
 	"quad damage",
 	"vader choke",
 	"acid burn",
@@ -668,6 +668,22 @@ const char *spells[] = {
 	"flamethrower",
 	"gouged his own eyes out",
 	"youth",
+    "!UNUSED!",
+    "!UNUSED!", /*770*/
+    "!UNUSED!","!UNUSED!","!UNUSED!","!UNUSED!","!UNUSED!", /*775*/
+    "!UNUSED!", "!UNUSED!", "!UNUSED!", "!UNUSED!", "!UNUSED!",	/* 780 */
+    "!UNUSED!", "!UNUSED!", "!UNUSED!", "!UNUSED!", "!UNUSED!",	/* 785 */
+    "!UNUSED!", "!UNUSED!", "!UNUSED!", "!UNUSED!", "!UNUSED!",	/* 790 */
+    "!UNUSED!", "!UNUSED!", "!UNUSED!", "!UNUSED!", "!UNUSED!",	/* 795 */
+    "!UNUSED!", "!UNUSED!", "!UNUSED!", "!UNUSED!", "!UNUSED!",	/* 800 */
+    "!UNUSED!", "!UNUSED!", "!UNUSED!", "!UNUSED!", "!UNUSED!",	/* 805 */
+    "!UNUSED!", "!UNUSED!", "!UNUSED!", "!UNUSED!", "!UNUSED!",	/* 810 */
+    "!UNUSED!", "!UNUSED!", "!UNUSED!", "!UNUSED!", "!UNUSED!",	/* 815 */
+    "!UNUSED!", "!UNUSED!", "!UNUSED!", "!UNUSED!", "!UNUSED!",	/* 820 */
+    "!UNUSED!", "!UNUSED!", "!UNUSED!", "!UNUSED!", "!UNUSED!",	/* 825 */
+    "!UNUSED!", "!UNUSED!", "!UNUSED!", "!UNUSED!", "!UNUSED!",	/* 830 */
+    "lightning gun special", 
+    "sonic gun special", 
 	"\n"						/* the end */
 };
 

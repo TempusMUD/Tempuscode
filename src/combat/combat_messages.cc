@@ -1033,84 +1033,84 @@ dam_message(int dam, struct Creature *ch, struct Creature *victim,
 	static struct dam_weapon_type dam_energyguns3[] = {
 
 		{   // 0: 0
-			"$n misses $N with $p #S.",
-			"You miss $N with $p #S.",
-			"$n misses you with $p #S."
+			"$n misses $N with $p's #S.",
+			"You miss $N with $p's #S.",
+			"$n misses you with $p's #S."
         },
 		{   // 1: 1 - 4
-			"$n grazes $N with $p #S.",
-			"You graze $N with $p #S.",
-			"$n grazes you with $p #S."
+			"$n grazes $N with $p's #S.",
+			"You graze $N with $p's #S.",
+			"$n grazes you with $p's #S."
         },
 		{   // 2: 3 - 6
-			"$n barely marks $N with $p #S.",
-			"You barely mark $N with $p #S.",
-			"$n barely marks you with $p #S."
+			"$n barely marks $N with $p's #S.",
+			"You barely mark $N with $p's #S.",
+			"$n barely marks you with $p's #S."
         },
 		{   // 3: 5 - 10
-			"$n hurts $N with $p #S.",
-			"You hurt $N with $p #S.",
-			"$n hurts you with $p #S."
+			"$n hurts $N with $p's #S.",
+			"You hurt $N with $p's #S.",
+			"$n hurts you with $p's #S."
         },
 		{   // 4: 7 - 14
-			"$n hurts $N badly with $p #S.",
-			"You hurt $N badly with $p #S.",
-			"$n hurts you badly with $p #S."
+			"$n hurts $N badly with $p's #S.",
+			"You hurt $N badly with $p's #S.",
+			"$n hurts you badly with $p's #S."
         },
 		{   // 5: 11 - 19
-			"$n hurts $N very badly with $p #S.",
-			"You hurt $N very badly with $p #S.",
-			"$n hurts you very badly with $p #S."
+			"$n hurts $N very badly with $p's #S.",
+			"You hurt $N very badly with $p's #S.",
+			"$n hurts you very badly with $p's #S."
         },
 		{  // 6: 15 - 23
-            "$n ravages $N with $p #S.",
-			"You ravage $N with $p #S.",
-			"$n ravages you with $p #S."
+            "$n ravages $N with $p's #S.",
+			"You ravage $N with $p's #S.",
+			"$n ravages you with $p's #S."
         },
 		{   // 7: 19 - 27
-			"$n massacres $N with $p #S.",
-			"You massacre $N with $p #S.",
-			"$n massacres you with $p #S."
+			"$n massacres $N with $p's #S.",
+			"You massacre $N with $p's #S.",
+			"$n massacres you with $p's #S."
         },
 		{   // 8: 23 - 32
-			"$n devastates $N with $p #S!",
-			"You devastate $N with $p #S!",
-			"$n devastates you with $p #S!"
+			"$n devastates $N with $p's #S!",
+			"You devastate $N with $p's #S!",
+			"$n devastates you with $p's #S!"
         },
 		{   // 9: 32 - 37
-			"$n OBLITERATES $N with $p #S!",
-			"You OBLITERATE $N with $p #S!",
-			"$n OBLITERATES you with $p #S!"
+			"$n OBLITERATES $N with $p's #S!",
+			"You OBLITERATE $N with $p's #S!",
+			"$n OBLITERATES you with $p's #S!"
         },
 		{   // 10: 37 - 45
-			"$n DEMOLISHES $N with $p #S!",
-			"You DEMOLISH $N with $p #S!",
-			"$n DEMOLISHES you with $p #S!"
+			"$n DEMOLISHES $N with $p's #S!",
+			"You DEMOLISH $N with $p's #S!",
+			"$n DEMOLISHES you with $p's #S!"
         },
 		{   // 11: 46 - 79
-			"$n PULVERIZES $N with $p #S!",
-			"You PULVERIZE $N with $p #S!",
-			"$n PULVERIZES you with $p #S!"
+			"$n PULVERIZES $N with $p's #S!",
+			"You PULVERIZE $N with $p's #S!",
+			"$n PULVERIZES you with $p's #S!"
         },
 		{   // 12: 80 - 99
-			"$n **DECIMATES** $N with $p #S!",
-			"You **DECIMATE** $N with $p #S!",
-			"$n **DECIMATES** you with $p #S!"
+			"$n **DECIMATES** $N with $p's #S!",
+			"You **DECIMATE** $N with $p's #S!",
+			"$n **DECIMATES** you with $p's #S!"
         },
 		{   // 13: 100 - 139
-			"$n **LIQUIFIES** $N with $p #S!!",
-			"You **LIQUIFY** $N with $p #S!!",
-			"$n **LIQUIFIES** you with $p #S!!"
+			"$n **LIQUIFIES** $N with $p's #S!!",
+			"You **LIQUIFY** $N with $p's #S!!",
+			"$n **LIQUIFIES** you with $p's #S!!"
         },
 		{   // 14: 140 - 189
-			"$n **VAPORIZES** $N with $p #S!!",
-			"You **VAPORIZE** $N with $p #S!!",
-			"$n **VAPORIZES** you with $p #S!!"
+			"$n **VAPORIZES** $N with $p's #S!!",
+			"You **VAPORIZE** $N with $p's #S!!",
+			"$n **VAPORIZES** you with $p's #S!!"
         },
 		{   // 15: >189
-			"$n **ANNIHILATES** $N with $p #S!!",
-			"You **ANNIHILATE** $N with $p #S!!",
-			"$n **ANNIHILATES** you with $p #S!!"
+			"$n **ANNIHILATES** $N with $p's #S!!",
+			"You **ANNIHILATE** $N with $p's #S!!",
+			"$n **ANNIHILATES** you with $p's #S!!"
         }
 
 	};
@@ -1263,15 +1263,15 @@ dam_message(int dam, struct Creature *ch, struct Creature *victim,
             if (guntype > EGUN_TOP)
                 guntype = EGUN_TOP;
             if (!number(0,2))
-                buf = replace_string(dam_energyguns[msgnum].to_char,
+                buf = replace_string(dam_energyguns[msgnum].to_victim,
 			    gun_hit_text[guntype].singular, gun_hit_text[guntype].plural,
 		    	NULL, gun_hit_text[guntype].substance);
             else if (!number(0,1))
-                buf = replace_string(dam_energyguns2[msgnum].to_char,
+                buf = replace_string(dam_energyguns2[msgnum].to_victim,
 			    gun_hit_text[guntype].singular, gun_hit_text[guntype].plural,
 		    	NULL, gun_hit_text[guntype].substance);
             else
-                buf = replace_string(dam_energyguns3[msgnum].to_char,
+                buf = replace_string(dam_energyguns3[msgnum].to_victim,
 			    gun_hit_text[guntype].singular, gun_hit_text[guntype].plural,
 		    	NULL, gun_hit_text[guntype].substance);
         }

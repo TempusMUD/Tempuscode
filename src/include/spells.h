@@ -774,6 +774,7 @@ static const int TYPE_EGUN_TOP = 828;
 
 //energy weapon spec types
 static const int TYPE_EGUN_SPEC_LIGHTNING = 831;
+static const int TYPE_EGUN_SPEC_SONIC = 832;
 
 
 static const int TYPE_CRUSHING_DEPTH = 892;	// in deep ocean without vehicle
