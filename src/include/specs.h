@@ -67,7 +67,6 @@ SPECIAL(newbie_healer);
 SPECIAL(newbie_improve);
 SPECIAL(newbie_fly);
 SPECIAL(gen_locker);
-SPECIAL(gen_guard);
 SPECIAL(guard);
 SPECIAL(newbie_gold_coupler);
 SPECIAL(maze_switcher);
