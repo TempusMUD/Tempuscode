@@ -246,7 +246,7 @@ handle_input(struct descriptor_data *d, char *arg)
 				return;
 			}
 
-			if (GET_LEVEL(d->creature) < 65 && d->account->deny_char_entry()) {
+			if (d->account->deny_char_entry(d->creature)) {
 				send_to_desc(d, "You can't have another character in the game right now.\r\n");
 				delete d->creature;
 				d->creature = NULL;
@@ -824,11 +824,11 @@ send_menu(descriptor_data *d)
 
 		send_to_desc(d, "\e[H\e[J");
 		send_to_desc(d,
-			"&c*&b-----------------------------------------------------------------------------&c*\r\n"
-			"&b|                                 &YT E M P U S                                 &b|\r\n"
+			"&c*&n&b-----------------------------------------------------------------------------&c*\r\n"
+			"&n&b|                                 &YT E M P U S                                 &b|\r\n"
 			"&c*&b-----------------------------------------------------------------------------&c*&n\r\n\r\n"
 			"&y  # Name           Lvl Gen Sex     Race     Class      Last on    Status   Mail\r\n"
-			"&b -- -------------- --- --- --- -------- --------- ------------ --------- ------\r\n");
+			"&b -- -------------- --- --- --- -------- --------- ------------- --------- -----\r\n");
 
 		idx = 1;
 		tmp_ch = new Creature;
@@ -858,27 +858,29 @@ send_menu(descriptor_data *d)
 				else
 					status_str = "&c linkless";
 			} else switch (tmp_ch->rent.rentcode) {
-			case RENT_UNDEF:
-				status_str = "&r    undef"; break;
-			case RENT_CRYO:
-				status_str = "&c   cryoed"; break;
-			case RENT_CRASH:
-				status_str = "&ycrashsave"; break;
-			case RENT_RENTED:
-				status_str = "&m   rented"; break;
-			case RENT_FORCED:
-				status_str = "&yforcerent"; break;
-			case RENT_TIMEDOUT:
-				status_str = "&yforcerent"; break;
-			default:
-				status_str = "&R REPORTME"; break;
+                case RENT_NEW_CHAR:
+                    status_str = "&Y      New"; break;
+                case RENT_UNDEF:
+                    status_str = "&r    undef"; break;
+                case RENT_CRYO:
+                    status_str = "&c   Cryoed"; break;
+                case RENT_CRASH:
+                    status_str = "&yCrashsave"; break;
+                case RENT_RENTED:
+                    status_str = "&m   Rented"; break;
+                case RENT_FORCED:
+                    status_str = "&yForcerent"; break;
+                case RENT_TIMEDOUT:
+                    status_str = "&yForcerent"; break;
+                default:
+                    status_str = "&R REPORTME"; break;
 			}
 			if (has_mail(GET_IDNUM(tmp_ch)))
-				mail_str = "&Y   *  ";
+				mail_str = "&Y  Yes";
 			else
-				mail_str = "&n  none";
+				mail_str = "&n   No";
 			send_to_desc(d,
-				"&b[&y%2d&b] &c%-13s %3d %3d  %c  %8s %9s %12s %s %s&n\r\n",
+				"&b[&y%2d&b] &n%-13s %3d %3d  %c  %8s %9s %13s %s %s&n\r\n",
 				idx, GET_NAME(tmp_ch),
 				GET_LEVEL(tmp_ch), GET_REMORT_GEN(tmp_ch),
 				toupper(genders[(int)GET_SEX(tmp_ch)][0]),
@@ -888,7 +890,7 @@ send_menu(descriptor_data *d)
 		}
 		delete tmp_ch;
 
-		send_to_desc(d, "             Past bank: %-12lld      Future Bank: %-12lld\r\n",
+		send_to_desc(d, "\r\n             Past bank: %-12lld      Future Bank: %-12lld\r\n",
 			d->account->get_past_bank(), d->account->get_future_bank());
 
 		send_to_desc(d, "\r\n                     &b[&yC&b] &cCreate a new character\r\n");
@@ -1066,16 +1068,16 @@ char_to_game(descriptor_data *d)
 		// Now load objects onto character
 		switch (d->creature->loadObjects()) {
 			case -1:
-				slog("Dangerous failure!  Crashing mud.");
-				raise(SIGSEGV);
+				send_to_desc(d, "Your equipment could not be loaded.\r\n\r\n");
+				mudlog(LVL_IMMORT, CMP, true, "%s's equipment could not be loaded.",
+					GET_NAME(d->creature));
 				break;
 			case 0:
 				// Everything ok
 				break;
 			case 1:
-				send_to_desc(d, "Your equipment could not be loaded.\r\n\r\n");
-				mudlog(LVL_IMMORT, CMP, true, "%s's equipment could not be loaded",
-					GET_NAME(d->creature));
+                // no eq file or file empty. no worries.
+				break;
 			case 2:
 				send_to_desc(d, "You should have lost equipment.\r\n");
 				break;
