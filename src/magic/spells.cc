@@ -3192,7 +3192,7 @@ ASPELL(spell_inferno)
 		for (; it != ch->in_room->people.end(); ++it) {
 			if (ch == *it)
 				continue;
-			if (!IS_NPC((*it))) {
+			if (!is_arena_combat(ch, (*it)) && !IS_NPC((*it))) {
 				act("You cannot do this, because this action might cause harm to $N,\r\n"
                     "and you have not chosen to be a Pkiller.\r\n"
                     "You can toggle this with the command 'pkiller'.", 
