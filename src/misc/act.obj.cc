@@ -1126,23 +1126,17 @@ perform_drop_credits(struct char_data * ch, int amount,
 
 bool junkable(struct obj_data *obj)
 {
-    if (IS_CONTAINER(obj))
-    {
-        if (strcmp(obj->short_description, PROTO_SDESC(obj->shared->vnum)))
-            return false;
-        
+    if ( obj->shared && obj->shared->vnum >= 0 &&
+    strcmp(obj->short_description, PROTO_SDESC(obj->shared->vnum)))
+        return false;
+
+    if (IS_CONTAINER(obj)) {
         for(obj = obj->contains; obj; obj = obj->next_content) {
             if (!junkable(obj))
                 return false;
         }
-  
-        return true;
     }
-
-    if (strcmp(obj->short_description, PROTO_SDESC(obj->shared->vnum)))
-        return false;
-    else
-        return true;
+    return true;
 }
 
 int 
