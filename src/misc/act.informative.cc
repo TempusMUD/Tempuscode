@@ -3115,228 +3115,212 @@ ACMD(do_who)
             continue;
         if (who_tester && !PLR_FLAGGED(tch, PLR_TESTER))
             continue;
-        if (short_list) {
-            if (PRF2_FLAGGED(tch, PRF2_ANONYMOUS) && 
-                !PRF_FLAGGED(ch, PRF_HOLYLIGHT))
-                sprintf(buf2, "%s%s[%s-- ----%s]%s %-12.12s%s%s", buf2,
-                        CCGRN(ch, C_NRM), CCCYN(ch, C_NRM), CCGRN(ch, C_NRM),
-                        PRF2_FLAGGED(tch, PRF2_NOWHO) ? CCRED(ch, C_NRM) : 
-                        CCNRM(ch, C_NRM), GET_NAME(tch), CCNRM(ch, C_NRM),
-                        ((!(++num_can_see % 3)) ? "\r\n" : ""));
-            else 
-                sprintf(buf2, "%s%s%s[%s%2d%s%s%s]%s %-12.12s%s%s", buf2,
-                        (GET_LEVEL(tch) >= LVL_AMBASSADOR ? CCGRN(ch, C_SPR) : 
-                         PRF2_FLAGGED(tch, PRF2_NOWHO) ? CCRED(ch, C_NRM) : ""),
-                        (GET_LEVEL(tch) >= LVL_AMBASSADOR ? CCYEL_BLD(ch, C_NRM) : ""),
-                        (GET_LEVEL(tch) >= LVL_AMBASSADOR ? CCNRM_GRN(ch, C_NRM) : ""),
-                        GET_LEVEL(tch), 
-                        (PRF2_FLAGGED(tch, PRF2_ANONYMOUS) && 
-                         PRF_FLAGGED(ch, PRF_HOLYLIGHT)) ? "-" : " ",
-                        CLASS_ABBR(tch), 
-                        (GET_LEVEL(tch) >= LVL_AMBASSADOR ? CCYEL_BLD(ch, C_NRM) : ""),
+		
+		if (GET_LEVEL(tch) >= LVL_AMBASSADOR) {
+			sprintf(buf2, "%s%s%s[%s%s%s]%s ", buf2,
+					CCGRN(ch, C_SPR), CCYEL_BLD(ch, C_NRM), CCNRM_GRN(ch, C_NRM),
+					(PLR_FLAGGED(tch, PLR_QUESTOR)          ? "QUESTOR" :
+					 !strncmp(GET_NAME(tch), "Fishbone", 8) ? "BONEMAN" : 
+					 !strncmp(GET_NAME(tch), "Tricky", 6)   ? "!WANTED" : 
+					 !strncmp(GET_NAME(tch), "Generic", 7)  ? "GENERIC" : 
+					 !strncmp(GET_NAME(tch), "Ska", 3)      ? "  LADY " : 
+					 !strncmp(GET_NAME(tch), "Shiva", 5)    ? " DEATH " : 
+					 !strncmp(GET_NAME(tch), "Smitty", 6)   ? "FOREMAN" :
+					 !strncmp(GET_NAME(tch), "Stryker", 7)  ? "CODEMAN" :
+					 !strncmp(GET_NAME(tch), "Hubris", 6)   ? "EC ARCH" :
+					 !strncmp(GET_NAME(tch), "Tigger", 6)   ? "OP ARCH" :
+					 !strncmp(GET_NAME(tch), "Trouble", 7)  ? " ADMIN " :
+					 !strncmp(GET_NAME(tch), "Darth", 5)    ? " ADMIN " :
+					 !strncmp(GET_NAME(tch), "Nothing", 7)  ? "THECODE" :
+					 !strncmp(GET_NAME(tch), "Babylon", 7)  ? " CODER " :
+					 !strncmp(GET_NAME(tch), "Reptile", 7)  ? "BUILDER" :
+					 !strncmp(GET_NAME(tch), "Fortune", 7)  ? "BUILDER" :
+					 !strncmp(GET_NAME(tch), "Storm"  , 5)  ? "BUILDER" :
+					 !strncmp(GET_NAME(tch), "Raza"   , 4)  ? "BUILDER" :
+					 !strncmp(GET_NAME(tch), "Taurean", 7)  ? "BUILDER" :
+					 !strncmp(GET_NAME(tch), "Javelin", 7)  ? "BUILDER" :
+					 !strncmp(GET_NAME(tch), "Wolfe"  , 5)  ? "BUILDER" :
+					 !strncmp(GET_NAME(tch), "Renaissance",11)  ? "BUILDER" :
+					 !strncmp(GET_NAME(tch), "Countdown", 9)  ? "BUILDER" :
+					 !strncmp(GET_NAME(tch), "Evangeline", 10)  ? "QUESTOR" :
+					 !strncmp(GET_NAME(tch), "Dissonance", 10)  ? "QUESTOR" :
+					 !strncmp(GET_NAME(tch), "Failure", 7)  ? "QUESTOR" :
+					 !strncmp(GET_NAME(tch), "Joran", 5)    ? " LOWER ":
+					 LEV_ABBR(tch)),  CCYEL_BLD(ch, C_NRM), CCNRM(ch, C_NRM));
+		} else {
+			if (IS_VAMPIRE(tch))
+				effective_char_class = GET_OLD_CLASS(tch);
+			else
+				effective_char_class = GET_CLASS(tch);
+	
+			switch (effective_char_class) {
+			case CLASS_MAGIC_USER:
+				strcpy(c_buf, CCMAG(ch, C_NRM));
+				break;
+			case CLASS_CLERIC:
+				if (IS_GOOD(tch)) {
+					strcpy(c_buf, CCYEL_BLD(ch, C_NRM));
+				} else if (IS_EVIL(tch)) {
+					strcpy(c_buf, CCRED_BLD(ch, C_NRM));
+				} else
+					strcpy(c_buf, CCYEL(ch, C_NRM));
+				break;
+			case CLASS_KNIGHT:
+				if (IS_GOOD(tch)) {
+					strcpy(c_buf, CCBLU_BLD(ch, C_NRM));
+				} else if (IS_EVIL(tch)) {
+					strcpy(c_buf, CCRED(ch, C_NRM));
+				} else
+					strcpy(c_buf, CCYEL(ch, C_NRM));
+				break;
+			case CLASS_RANGER:
+				strcpy(c_buf, CCGRN(ch, C_NRM));
+				break;
+			case CLASS_BARB:
+				strcpy(c_buf, CCCYN(ch, C_NRM));
+				break;
+			case CLASS_THIEF:
+				strcpy(c_buf, CCNRM_BLD(ch, C_NRM));
+				break;
+			case CLASS_CYBORG:
+				strcpy(c_buf, CCCYN(ch, C_NRM));
+				break;
+			case CLASS_PSIONIC:
+				strcpy(c_buf, CCMAG(ch, C_NRM));
+				break;
+			case CLASS_PHYSIC:
+				strcpy(c_buf, CCNRM_BLD(ch, C_NRM));
+				break;
+			case CLASS_HOOD:
+				strcpy(c_buf, CCRED(ch, C_NRM));
+				break;
+			case CLASS_MONK:
+				strcpy(c_buf, CCGRN(ch, C_NRM));
+				break;
+			case CLASS_MERCENARY:
+				strcpy(c_buf, CCYEL(ch, C_NRM));
+				break;
+			default:
+				strcpy(c_buf, CCNRM(ch, C_NRM));
+				break;
+			}
+			if (PRF2_FLAGGED(tch, PRF2_ANONYMOUS) && 
+				!PRF_FLAGGED(ch, PRF_HOLYLIGHT))
+				sprintf(buf2, "%s%s[%s-- %s%s%s%s]%s ", buf2,
+						CCGRN(ch, C_NRM), CCCYN(ch, C_NRM),
+						c_buf, char_class_abbrevs[(int)effective_char_class],
+						CCNRM(ch, C_NRM), CCGRN(ch, C_NRM), 
+						CCNRM(ch, C_NRM));
+			else
+				sprintf(buf2, "%s%s[%s%2d%s%s%s%s%s]%s ", buf2,
+						CCGRN(ch, C_NRM), 
+						(PRF2_FLAGGED(tch, PRF2_ANONYMOUS) && 
+						 PRF_FLAGGED(ch, PRF_HOLYLIGHT)) ? CCRED(ch, C_NRM) :
+						CCNRM(ch, C_NRM), GET_LEVEL(tch), 
+						(PRF2_FLAGGED(tch, PRF2_ANONYMOUS) && 
+						 PRF_FLAGGED(ch, PRF_HOLYLIGHT)) ? "-" : " ",
+						c_buf, char_class_abbrevs[(int)effective_char_class],
+						CCNRM(ch, C_NRM), CCGRN(ch, C_NRM), 
+						CCNRM(ch, C_NRM));
+		}
+
+        if (short_list)
+                sprintf(buf2, "%s%s%-12.12s%s%s", buf2,
                         (GET_LEVEL(tch) >= LVL_AMBASSADOR ? CCNRM_GRN(ch, C_NRM) : ""),
                         GET_NAME(tch),
                         (GET_LEVEL(tch) >= LVL_AMBASSADOR ? CCNRM(ch, C_SPR) : 
                          PRF2_FLAGGED(tch, PRF2_NOWHO) ? CCNRM(ch, C_NRM) : ""),
                         ((!(++num_can_see % 3)) ? "\r\n" : ""));
-        } else {
-            num_can_see++;
-            if (GET_LEVEL(tch) >= LVL_AMBASSADOR) {
-                sprintf(buf2, "%s%s%s[%s%s%s]%s %s%s%s%s%s", buf2,
-                        CCGRN(ch, C_SPR), CCYEL_BLD(ch, C_NRM), CCNRM_GRN(ch, C_NRM),
-                        (PLR_FLAGGED(tch, PLR_QUESTOR)          ? "QUESTOR" :
-                         !strncmp(GET_NAME(tch), "Fishbone", 8) ? "BONEMAN" : 
-                         !strncmp(GET_NAME(tch), "Tricky", 6)   ? "!WANTED" : 
-                         !strncmp(GET_NAME(tch), "Generic", 7)  ? "GENERIC" : 
-                         !strncmp(GET_NAME(tch), "Ska", 3)      ? "  LADY " : 
-                         !strncmp(GET_NAME(tch), "Shiva", 5)    ? " DEATH " : 
-                         !strncmp(GET_NAME(tch), "Smitty", 6)   ? "FOREMAN" :
-                         !strncmp(GET_NAME(tch), "Stryker", 7)  ? "CODEMAN" :
-                         !strncmp(GET_NAME(tch), "Hubris", 6)   ? "EC ARCH" :
-                         !strncmp(GET_NAME(tch), "Tigger", 6)   ? "OP ARCH" :
-                         !strncmp(GET_NAME(tch), "Trouble", 7)  ? " ADMIN " :
-                         !strncmp(GET_NAME(tch), "Darth", 5)    ? " ADMIN " :
-                         !strncmp(GET_NAME(tch), "Nothing", 7)  ? "THECODE" :
-                         !strncmp(GET_NAME(tch), "Babylon", 7)  ? " CODER " :
-                         !strncmp(GET_NAME(tch), "Reptile", 7)  ? "BUILDER" :
-                         !strncmp(GET_NAME(tch), "Fortune", 7)  ? "BUILDER" :
-                         !strncmp(GET_NAME(tch), "Storm"  , 5)  ? "BUILDER" :
-                         !strncmp(GET_NAME(tch), "Raza"   , 4)  ? "BUILDER" :
-                         !strncmp(GET_NAME(tch), "Taurean", 7)  ? "BUILDER" :
-                         !strncmp(GET_NAME(tch), "Javelin", 7)  ? "BUILDER" :
-                         !strncmp(GET_NAME(tch), "Wolfe"  , 5)  ? "BUILDER" :
-                         !strncmp(GET_NAME(tch), "Renaissance",11)  ? "BUILDER" :
-                         !strncmp(GET_NAME(tch), "Countdown", 9)  ? "BUILDER" :
-                         !strncmp(GET_NAME(tch), "Evangeline", 10)  ? "QUESTOR" :
-                         !strncmp(GET_NAME(tch), "Dissonance", 10)  ? "QUESTOR" :
-                         !strncmp(GET_NAME(tch), "Failure", 7)  ? "QUESTOR" :
-                         !strncmp(GET_NAME(tch), "Joran", 5)    ? " LOWER ":
-                         LEV_ABBR(tch)),  CCYEL_BLD(ch, C_NRM), CCNRM(ch, C_NRM),
-                        PRF2_FLAGGED(tch, PRF2_NOWHO) ? nowho_buf : "",
-                        CCGRN(ch, C_NRM), 
-                        GET_NAME(tch), GET_TITLE(tch), CCNRM(ch, C_SPR));
-            } else {
-                if (IS_VAMPIRE(tch))
-                    effective_char_class = GET_OLD_CLASS(tch);
-                else
-                    effective_char_class = GET_CLASS(tch);
-        
-                switch (effective_char_class) {
-                case CLASS_MAGIC_USER:
-                    strcpy(c_buf, CCMAG(ch, C_NRM));
-                    break;
-                case CLASS_CLERIC:
-                    if (IS_GOOD(tch)) {
-                        strcpy(c_buf, CCYEL_BLD(ch, C_NRM));
-                    } else if (IS_EVIL(tch)) {
-                        strcpy(c_buf, CCRED_BLD(ch, C_NRM));
-                    } else
-                        strcpy(c_buf, CCYEL(ch, C_NRM));
-                    break;
-                case CLASS_KNIGHT:
-                    if (IS_GOOD(tch)) {
-                        strcpy(c_buf, CCBLU_BLD(ch, C_NRM));
-                    } else if (IS_EVIL(tch)) {
-                        strcpy(c_buf, CCRED(ch, C_NRM));
-                    } else
-                        strcpy(c_buf, CCYEL(ch, C_NRM));
-                    break;
-                case CLASS_RANGER:
-                    strcpy(c_buf, CCGRN(ch, C_NRM));
-                    break;
-                case CLASS_BARB:
-                    strcpy(c_buf, CCCYN(ch, C_NRM));
-                    break;
-                case CLASS_THIEF:
-                    strcpy(c_buf, CCNRM_BLD(ch, C_NRM));
-                    break;
-                case CLASS_CYBORG:
-                    strcpy(c_buf, CCCYN(ch, C_NRM));
-                    break;
-                case CLASS_PSIONIC:
-                    strcpy(c_buf, CCMAG(ch, C_NRM));
-                    break;
-                case CLASS_PHYSIC:
-                    strcpy(c_buf, CCNRM_BLD(ch, C_NRM));
-                    break;
-                case CLASS_HOOD:
-                    strcpy(c_buf, CCRED(ch, C_NRM));
-                    break;
-                case CLASS_MONK:
-                    strcpy(c_buf, CCGRN(ch, C_NRM));
-                    break;
-                case CLASS_MERCENARY:
-                    strcpy(c_buf, CCYEL(ch, C_NRM));
-                    break;
-                default:
-                    strcpy(c_buf, CCNRM(ch, C_NRM));
-                    break;
-                }
-                if (PRF2_FLAGGED(tch, PRF2_ANONYMOUS) && 
-                    !PRF_FLAGGED(ch, PRF_HOLYLIGHT))
-                    sprintf(buf2, "%s%s[%s-- ----%s]%s %s%s%s%s", buf2,
-                            CCGRN(ch, C_NRM), CCCYN(ch, C_NRM),
-                            CCGRN(ch, C_NRM), 
-                            CCNRM(ch, C_NRM), PLR_FLAGGED(tch, PLR_TESTER) ?
-                            tester_buf : PRF2_FLAGGED(tch, PRF2_NOWHO) ? nowho_buf :"",  
-                            GET_NAME(tch), GET_TITLE(tch), CCNRM(ch, C_NRM));
-                else
-                    sprintf(buf2, "%s%s[%s%2d%s%s%s%s%s]%s %s%s%s%s", buf2,
-                            CCGRN(ch, C_NRM), 
-                            (PRF2_FLAGGED(tch, PRF2_ANONYMOUS) && 
-                             PRF_FLAGGED(ch, PRF_HOLYLIGHT)) ? CCRED(ch, C_NRM) :
-                            CCNRM(ch, C_NRM), GET_LEVEL(tch), 
-                            (PRF2_FLAGGED(tch, PRF2_ANONYMOUS) && 
-                             PRF_FLAGGED(ch, PRF_HOLYLIGHT)) ? "-" : " ",
-                            c_buf, char_class_abbrevs[(int)effective_char_class],
-                            CCNRM(ch, C_NRM), CCGRN(ch, C_NRM), 
-                            CCNRM(ch, C_NRM), PLR_FLAGGED(tch, PLR_TESTER) ?
-                            tester_buf : PRF2_FLAGGED(tch, PRF2_NOWHO) ? nowho_buf :"",  
-                            GET_NAME(tch), GET_TITLE(tch), CCNRM(ch, C_NRM));
-            }
-            if (!who_i && 
-                real_clan(GET_CLAN(tch))) {
-                if (!PRF2_FLAGGED(tch, PRF2_CLAN_HIDE))
-                    sprintf(buf2, "%s %s%s%s", buf2,
-                            CCCYN(ch, C_NRM), real_clan(GET_CLAN(tch))->badge,
-                            CCNRM(ch, C_NRM));
-                else if (GET_LEVEL(ch) > LVL_AMBASSADOR)
-                    sprintf(buf2, "%s %s)%s(%s", buf2,
-                            CCCYN(ch, C_NRM), real_clan(GET_CLAN(tch))->name,
-                            CCNRM(ch, C_NRM));
-            }
-            if (GET_INVIS_LEV(tch))
-                sprintf(buf2, "%s %s(%si%d%s)%s", 
-                        buf2, CCMAG(ch, C_NRM), CCRED(ch, C_NRM),
-                        GET_INVIS_LEV(tch), CCMAG(ch, C_NRM), CCNRM(ch, C_NRM));
-            else if (GET_REMORT_INVIS(tch) && GET_LEVEL(tch) < LVL_AMBASSADOR &&
-                     (IS_REMORT(ch) || GET_LEVEL(ch) >= LVL_AMBASSADOR))
-                sprintf(buf2, "%s %s(%si%d%s)%s", 
-                        buf2, CCBLU(ch, C_NRM), CCMAG(ch, C_NRM),
-                        GET_REMORT_INVIS(tch), CCBLU(ch, C_NRM), CCNRM(ch, C_NRM));
-            else if (!who_i &&
-                     IS_AFFECTED(tch, AFF_INVISIBLE)) {
-                sprintf(buf2, "%s %s(invis)%s", 
-                        buf2, CCCYN(ch, C_NRM), CCNRM(ch, C_NRM));
-            } else if (!who_i &&
-                       IS_AFFECTED_2(tch, AFF2_TRANSPARENT)) {
-                sprintf(buf2, "%s %s(transp)%s", 
-                        buf2, CCCYN(ch, C_NRM), CCNRM(ch, C_NRM));
-            }
-            if (PLR_FLAGGED(tch, PLR_MAILING)) {
-                sprintf(buf2, "%s %s(mailing)%s", 
-                        buf2, CCGRN(ch, C_NRM), CCNRM(ch, C_NRM));
-            } else if (PLR_FLAGGED(tch, PLR_WRITING)) {
-                sprintf(buf2, "%s %s(writing)%s", 
-                        buf2, CCGRN(ch, C_NRM), CCNRM(ch, C_NRM));
-            } else if (PLR_FLAGGED(tch, PLR_OLC)) {
-                sprintf(buf2, "%s %s(creating)%s", 
-                        buf2, CCGRN(ch, C_NRM), CCNRM(ch, C_NRM));
-            } else if (tch->desc && tch->desc->showstr_point && 
-                       !PRF2_FLAGGED(tch, PRF2_LIGHT_READ)) {
-                sprintf(buf2, "%s %s(reading)%s", 
-                        buf2, CCGRN(ch, C_NRM), CCNRM(ch, C_NRM));
-            }
-            if (!who_i) {
-                if (PRF_FLAGGED(tch, PRF_DEAF)) {
-                    sprintf(buf2, "%s %s(deaf)%s", 
-                            buf2, CCBLU(ch, C_NRM), CCNRM(ch, C_NRM));
-                }
-                if (PRF_FLAGGED(tch, PRF_NOTELL)) {
-                    sprintf(buf2, "%s %s(notell)%s", 
-                            buf2, CCBLU(ch, C_NRM), CCNRM(ch, C_NRM));
-                }
-                if (PRF_FLAGGED(tch, PRF_QUEST)) {
-                    sprintf(buf2, "%s %s(quest)%s", 
-                            buf2, CCYEL_BLD(ch, C_NRM), CCNRM(ch, C_NRM));
-                }
-            }
-            if (PLR_FLAGGED(tch, PLR_AFK)) {
-                sprintf(buf2, "%s %s(afk)%s", 
-                        buf2, CCGRN(ch, C_NRM), CCNRM(ch, C_NRM));
-            }
-            if (PLR_FLAGGED(tch, PLR_THIEF)) {
-                sprintf(buf2, "%s %s(THIEF)%s", 
-                        buf2, CCRED(ch, C_NRM), CCNRM(ch, C_NRM));
-            }
-            if (PLR_FLAGGED(tch, PLR_KILLER)) {
-                sprintf(buf2, "%s %s(KILLER)%s", 
-                        buf2, CCRED(ch, C_NRM), CCNRM(ch, C_NRM));
-            }
-            if (!who_i &&
-                PLR_FLAGGED(tch, PLR_COUNCIL)) {
-                //          (PRF_FLAGGED(ch, PRF_HOLYLIGHT) || PLR_FLAGGED(ch, PLR_COUNCIL))) {
-                sprintf(buf2, "%s %s<COUNCIL>%s", 
-                        buf2, CCBLU_BLD(ch, C_NRM), CCNRM(ch, C_NRM));
-            }
-            if ((outlaws || who_pkills) && GET_PKILLS(tch)) {
-                sprintf(buf2, "%s %s*%d KILLS*%s", 
-                        buf2, CCRED_BLD(ch, C_NRM), GET_PKILLS(tch), CCNRM(ch, C_NRM));
-            }
-            if (GET_LEVEL(tch) >= LVL_AMBASSADOR)
-                strcat(buf2, CCNRM(ch, C_SPR));
-            strcat(buf2, "\r\n");
-        }                                /* endif shortlist */
+            else 
+				{
+				++num_can_see;
+				sprintf(buf2, "%s%s%s%s%s%s", buf2,
+						CCNRM(ch, C_NRM), PLR_FLAGGED(tch, PLR_TESTER) ?
+						tester_buf : PRF2_FLAGGED(tch, PRF2_NOWHO) ? nowho_buf :"",  
+						GET_NAME(tch), GET_TITLE(tch), CCNRM(ch, C_NRM));
+				if (!who_i && 
+					real_clan(GET_CLAN(tch))) {
+					if (!PRF2_FLAGGED(tch, PRF2_CLAN_HIDE))
+						sprintf(buf2, "%s %s%s%s", buf2,
+								CCCYN(ch, C_NRM), real_clan(GET_CLAN(tch))->badge,
+								CCNRM(ch, C_NRM));
+					else if (GET_LEVEL(ch) > LVL_AMBASSADOR)
+						sprintf(buf2, "%s %s)%s(%s", buf2,
+								CCCYN(ch, C_NRM), real_clan(GET_CLAN(tch))->name,
+								CCNRM(ch, C_NRM));
+				}
+				if (GET_INVIS_LEV(tch))
+					sprintf(buf2, "%s %s(%si%d%s)%s", 
+							buf2, CCMAG(ch, C_NRM), CCRED(ch, C_NRM),
+							GET_INVIS_LEV(tch), CCMAG(ch, C_NRM), CCNRM(ch, C_NRM));
+				else if (GET_REMORT_INVIS(tch) && GET_LEVEL(tch) < LVL_AMBASSADOR &&
+						 (IS_REMORT(ch) || GET_LEVEL(ch) >= LVL_AMBASSADOR))
+					sprintf(buf2, "%s %s(%si%d%s)%s", 
+							buf2, CCBLU(ch, C_NRM), CCMAG(ch, C_NRM),
+							GET_REMORT_INVIS(tch), CCBLU(ch, C_NRM), CCNRM(ch, C_NRM));
+				else if (!who_i &&
+						 IS_AFFECTED(tch, AFF_INVISIBLE)) {
+					sprintf(buf2, "%s %s(invis)%s", 
+							buf2, CCCYN(ch, C_NRM), CCNRM(ch, C_NRM));
+				} else if (!who_i &&
+						   IS_AFFECTED_2(tch, AFF2_TRANSPARENT)) {
+					sprintf(buf2, "%s %s(transp)%s", 
+							buf2, CCCYN(ch, C_NRM), CCNRM(ch, C_NRM));
+				}
+				if (PLR_FLAGGED(tch, PLR_MAILING)) {
+					sprintf(buf2, "%s %s(mailing)%s", 
+							buf2, CCGRN(ch, C_NRM), CCNRM(ch, C_NRM));
+				} else if (PLR_FLAGGED(tch, PLR_WRITING)) {
+					sprintf(buf2, "%s %s(writing)%s", 
+							buf2, CCGRN(ch, C_NRM), CCNRM(ch, C_NRM));
+				} else if (PLR_FLAGGED(tch, PLR_OLC)) {
+					sprintf(buf2, "%s %s(creating)%s", 
+							buf2, CCGRN(ch, C_NRM), CCNRM(ch, C_NRM));
+				} else if (tch->desc && tch->desc->showstr_point && 
+						   !PRF2_FLAGGED(tch, PRF2_LIGHT_READ)) {
+					sprintf(buf2, "%s %s(reading)%s", 
+							buf2, CCGRN(ch, C_NRM), CCNRM(ch, C_NRM));
+				}
+				if (!who_i) {
+					if (PRF_FLAGGED(tch, PRF_DEAF)) {
+						sprintf(buf2, "%s %s(deaf)%s", 
+								buf2, CCBLU(ch, C_NRM), CCNRM(ch, C_NRM));
+					}
+					if (PRF_FLAGGED(tch, PRF_NOTELL)) {
+						sprintf(buf2, "%s %s(notell)%s", 
+								buf2, CCBLU(ch, C_NRM), CCNRM(ch, C_NRM));
+					}
+					if (PRF_FLAGGED(tch, PRF_QUEST)) {
+						sprintf(buf2, "%s %s(quest)%s", 
+								buf2, CCYEL_BLD(ch, C_NRM), CCNRM(ch, C_NRM));
+					}
+				}
+				if (PLR_FLAGGED(tch, PLR_AFK)) {
+					sprintf(buf2, "%s %s(afk)%s", 
+							buf2, CCGRN(ch, C_NRM), CCNRM(ch, C_NRM));
+				}
+				if (PLR_FLAGGED(tch, PLR_THIEF)) {
+					sprintf(buf2, "%s %s(THIEF)%s", 
+							buf2, CCRED(ch, C_NRM), CCNRM(ch, C_NRM));
+				}
+				if (PLR_FLAGGED(tch, PLR_KILLER)) {
+					sprintf(buf2, "%s %s(KILLER)%s", 
+							buf2, CCRED(ch, C_NRM), CCNRM(ch, C_NRM));
+				}
+				if (!who_i &&
+					PLR_FLAGGED(tch, PLR_COUNCIL)) {
+					//          (PRF_FLAGGED(ch, PRF_HOLYLIGHT) || PLR_FLAGGED(ch, PLR_COUNCIL))) {
+					sprintf(buf2, "%s %s<COUNCIL>%s", 
+							buf2, CCBLU_BLD(ch, C_NRM), CCNRM(ch, C_NRM));
+				}
+				if ((outlaws || who_pkills) && GET_PKILLS(tch)) {
+					sprintf(buf2, "%s %s*%d KILLS*%s", 
+							buf2, CCRED_BLD(ch, C_NRM), GET_PKILLS(tch), CCNRM(ch, C_NRM));
+				}
+				if (GET_LEVEL(tch) >= LVL_AMBASSADOR)
+					strcat(buf2, CCNRM(ch, C_SPR));
+				strcat(buf2, "\r\n");
+			}                                /* endif shortlist */
     }                                /* end of for */
     if (short_list && (num_can_see % 4))
         strcat(buf2, "\r\n");

@@ -341,8 +341,10 @@ set_title(struct char_data * ch, char *title)
 #ifdef DMALLOC
     dmalloc_verify(0);
 #endif
+	while ( *title && ' ' == *title )
+		title++;
 	GET_TITLE(ch) = (char *)malloc( strlen( title ) + 2 );
-	if ( *title && ' ' != *title )
+	if ( *title )
 		{
 		strcpy( GET_TITLE(ch)," " );
 		strcat( GET_TITLE(ch),title );
