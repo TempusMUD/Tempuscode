@@ -7,7 +7,7 @@ using namespace std;
 #define HFLAG_UNAPPROVED (1 << 0)  // Help topic cannot be found by searching
 #define HFLAG_IMMHELP    (1 << 1)  // Help topic can only be found by gods
 #define HFLAG_MODIFIED   (1 << 2)  // Help topic has been changed or is being
-                                   //    edited now.
+                                   //     edited now.
 #define HGROUP_OLC       (1 << 0)
 #define HGROUP_MISC      (1 << 1)
 #define HGROUP_NEWBIE    (1 << 2)
