@@ -141,13 +141,14 @@ show_obj_to_char(struct obj_data *object, struct Creature *ch,
 	bool found = false;
 
 	msg = "";
-	if ((mode == SHOW_OBJ_ROOM) && object->description)
-		msg = tmp_strdup(object->description);
-	else if (!object->description && GET_LEVEL(ch) >= LVL_AMBASSADOR)
-		msg = tmp_sprintf("%s exists here.\r\n", object->short_description);
-	else if (object->short_description &&
-		((mode == 1) || (mode == 2) || (mode == 3) || (mode == 4)))
-		msg = tmp_strdup(object->short_description);
+	if (mode == SHOW_OBJ_ROOM) {
+		if (object->description)
+			msg = tmp_strdup(object->description);
+		else if (IS_IMMORT(ch))
+			msg = tmp_sprintf("%s exists here.\r\n", object->short_description);
+	} else if (mode == 1 || mode == 2 || mode == 3 || mode == 4)
+		if (object->short_description)
+			msg = tmp_strdup(object->short_description);
 	else if (mode == 5) {
 		if (GET_OBJ_TYPE(object) == ITEM_NOTE) {
 			if (object->action_description) {
@@ -256,7 +257,7 @@ show_obj_to_char(struct obj_data *object, struct Creature *ch,
 		}
 
 		if (IS_AFFECTED(ch, AFF_DETECT_ALIGN) ||
-			IS_AFFECTED_2(ch, AFF2_TRUE_SEEING)) {
+			(IS_CLERIC(ch) && IS_AFFECTED_2(ch, AFF2_TRUE_SEEING))) {
 			if (IS_OBJ_STAT(object, ITEM_BLESS)) {
 				msg = tmp_sprintf("%s %s(holy aura)%s", msg,
 					CCBLU_BLD(ch, C_SPR), CCNRM(ch, C_SPR));
