@@ -4094,7 +4094,7 @@ mag_assign_spells(void)
 
 	spello(SPELL_GAS_BREATH, X, X, X, X, X, X, X, X, X, X, X, X, X, X, X, X, X,
 		30, 15, 1, POS_FIGHTING, TAR_CHAR_ROOM | TAR_FIGHT_VICT, TRUE,
-		MAG_DAMAGE);
+		MAG_DAMAGE | MAG_AFFECTS);
 
 	spello(SPELL_ACID_BREATH, X, X, X, X, X, X, X, X, X, X, X, X, X, X, X, X,
 		X, 30, 15, 1, POS_FIGHTING, TAR_CHAR_ROOM | TAR_FIGHT_VICT, TRUE,

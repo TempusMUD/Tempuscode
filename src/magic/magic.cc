@@ -1285,6 +1285,7 @@ mag_affects(int level, struct Creature *ch, struct Creature *victim,
 		accum_duration = FALSE;
 		accum_affect = FALSE;
 		break;
+	case SPELL_GAS_BREATH:
 	case SPELL_POISON:
 		if (IS_UNDEAD(victim))
 			return;
