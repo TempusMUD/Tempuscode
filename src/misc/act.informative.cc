@@ -767,6 +767,7 @@ desc_one_char(Creature *ch, Creature *i, bool is_group)
 	};
 	char *align = "";
 	char *desc = "";
+	char *appr = "";
 
 	if (AFF2_FLAGGED(i, AFF2_MOUNTED))
 		return "";
@@ -860,8 +861,13 @@ desc_one_char(Creature *ch, Creature *i, bool is_group)
 				CCBLU(ch, C_NRM), CCBLD(ch, C_CMP), CCNRM(ch, C_NRM));
 	}
 
+	// If they can see it, they probably need to know it's unapproved
+	if (MOB_UNAPPROVED(i))
+		appr = tmp_sprintf(" %s(!appr)%s", CCRED(ch, C_NRM),
+			CCNRM(ch, C_NRM));
+		
 	desc = tmp_strcat(CCYEL(ch, C_NRM), (is_group) ? CCBLD(ch, C_CMP):"",
-		desc, align, CCNRM(ch, C_NRM), "\r\n", NULL);
+		desc, align, appr, CCNRM(ch, C_NRM), "\r\n", NULL);
 
 	return desc;
 }
