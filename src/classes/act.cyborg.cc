@@ -262,123 +262,118 @@ ACMD(do_recharge)
     argument = two_arguments(one_argument(argument, arg1), arg2, arg3);
 
     if ((!*arg1 || ch == get_char_room_vis(ch, arg1)) && IS_CYBORG(ch)) {
-	if (!(battery = GET_EQ(ch, WEAR_HOLD)) || !IS_BATTERY(battery)) {
-	    send_to_char("You need to be holding a battery to do that.\r\n", ch);
-	    return;
-	}
+		if (!(battery = GET_EQ(ch, WEAR_HOLD)) || !IS_BATTERY(battery)) {
+			send_to_char("You need to be holding a battery to do that.\r\n", ch);
+			return;
+		}
 
-	if (CUR_ENERGY(battery) <= 0) {
-	    act("$p is depleted of energy.", FALSE, ch, battery, 0, TO_CHAR);
-	    return;
-	}
+		if (CUR_ENERGY(battery) <= 0) {
+			act("$p is depleted of energy.", FALSE, ch, battery, 0, TO_CHAR);
+			return;
+		}
 
-	if (GET_MOVE(ch) == GET_MAX_MOVE(ch)) {
-	    send_to_char("You are already operating at maximum energy.\r\n", ch);
-	    return;
-	}
+		if (GET_MOVE(ch) == GET_MAX_MOVE(ch)) {
+			send_to_char("You are already operating at maximum energy.\r\n", ch);
+			return;
+		}
 
-	perform_recharge(ch, battery, ch, NULL, 0);
-	return;
+		perform_recharge(ch, battery, ch, NULL, 0);
+		return;
     }
 
     if (*arg1 && !str_cmp(arg1, "internal")) {
-	if (!*arg2 || !*arg3) {
-	    send_to_char("USAGE:  Recharge internal <component> energy_source\r\n",
-			 ch);
-	    return;
-	}
-
-	if (!(target = get_object_in_equip_vis(ch, arg2, ch->implants, &i))) {
-	    sprintf(buf, "You are not implanted with %s '%s'.\r\n",
-		    AN(arg2), arg2);
-	    send_to_char(buf, ch);
-	    return;
-	}
-
-	if (strncmp(arg3, "self", 4) &&
-	    strncmp(arg3, "me", 2) &&
-	    !(battery = get_obj_in_list_vis(ch, arg3, ch->carrying)) &&
-	    !(battery = get_object_in_equip_vis(ch, arg3, ch->equipment, &i)) &&
-	    !(battery = get_obj_in_list_vis(ch, arg3, ch->in_room->contents))) {
-	    sprintf(buf, "You can't find any '%s' to recharge from.\r\n", arg3);
-	    send_to_char(buf, ch);
-	    return;
-	}
-
-	if (battery) {
-	    if (!IS_BATTERY(battery)) {
-		act("$p is not a battery.", FALSE, ch, battery, 0, TO_CHAR);
-		return;
-	    }
-      
-	    if (CUR_ENERGY(battery) <= 0) {
-		act("$p is depleted of energy.", FALSE, ch, battery, 0, TO_CHAR);
-		return;
-
-		if (IS_IMPLANT(battery) 
-			&& battery != get_object_in_equip_vis(ch, arg2, ch->implants, &i)) {
-		act ("ERROR: $p not installed properly.", FALSE,ch,battery,0,TO_CHAR);
-		return;
+		if (!*arg2 || !*arg3) {
+			send_to_char("USAGE:  Recharge internal <component> energy_source\r\n", ch);
+			return;
 		}
-	    }
-	} else {
-	    if (!IS_CYBORG(ch)) {
-		send_to_char("You cannot recharge things from yourself.\r\n", ch);
+
+		if (!(target = get_object_in_equip_vis(ch, arg2, ch->implants, &i))) {
+			sprintf(buf, "You are not implanted with %s '%s'.\r\n", AN(arg2), arg2);
+			send_to_char(buf, ch);
+			return;
+		}
+
+		if (strncmp(arg3, "self", 4) &&
+			strncmp(arg3, "me", 2) &&
+			!(battery = get_obj_in_list_vis(ch, arg3, ch->carrying)) &&
+			!(battery = get_object_in_equip_vis(ch, arg3, ch->equipment, &i)) &&
+			!(battery = get_obj_in_list_vis(ch, arg3, ch->in_room->contents))) {
+			sprintf(buf, "You can't find any '%s' to recharge from.\r\n", arg3);
+			send_to_char(buf, ch);
+			return;
+		}
+
+		if (battery) {
+			if (!IS_BATTERY(battery)) {
+				act("$p is not a battery.", FALSE, ch, battery, 0, TO_CHAR);
+				return;
+			}
+		  
+			if (CUR_ENERGY(battery) <= 0) {
+				act("$p is depleted of energy.", FALSE, ch, battery, 0, TO_CHAR);
+				return;
+			}
+
+			if (IS_IMPLANT(battery) &&
+				battery != get_object_in_equip_vis(ch, arg2, ch->implants, &i)) {
+				act ("ERROR: $p not installed properly.", FALSE,ch,battery,0,TO_CHAR);
+				return;
+			}
+		} else {
+			if (!IS_CYBORG(ch)) {
+				send_to_char("You cannot recharge things from yourself.\r\n", ch);
+				return;
+			}
+			if (GET_MOVE(ch) <= 0) {
+				send_to_char("You do not have any energy to transfer.\r\n", ch);
+				return;
+			}
+		}
+
+		if (!IS_CYBORG(ch)) {
+			for (i = 0; i < NUM_WEARS; i ++)
+				if ((GET_IMPLANT(ch, i) && IS_INTERFACE(GET_IMPLANT(ch, i)) &&
+					 INTERFACE_TYPE(GET_IMPLANT(ch, i)) == INTERFACE_POWER) ||
+					(GET_EQ(ch, i) && IS_INTERFACE(GET_EQ(ch, i)) &&
+					 INTERFACE_TYPE(GET_EQ(ch, i)) == INTERFACE_POWER))
+					break;
+
+			if (i >= NUM_WEARS) {
+				send_to_char("You are not using an appropriate power interface.\r\n", ch);
+				return;
+			}
+		}
+
+		if (IS_ENERGY_GUN(target)) {
+			send_to_char("You can only restore the energy gun cells.\r\n", ch);
+			return;
+		}
+		if (!RECHARGABLE(target)) {
+			send_to_char("You can't recharge that!\r\n", ch);
+			return;
+		}
+		if (CUR_ENERGY(target) >= MAX_ENERGY(target)) {
+			act("$p is already fully energized.", FALSE, ch, target, 0, TO_CHAR);
+			return;
+		}
+
+
+		perform_recharge(ch, battery, NULL, target, 0);
 		return;
-	    }
-	    if (GET_MOVE(ch) <= 0) {
-		send_to_char("You do not have any energy to transfer.\r\n", ch);
-		return;
-	    }
-	}
-
-	if (!IS_CYBORG(ch)) {
-	    for (i = 0; i < NUM_WEARS; i ++)
-		if ((GET_IMPLANT(ch, i) && IS_INTERFACE(GET_IMPLANT(ch, i)) &&
-		     INTERFACE_TYPE(GET_IMPLANT(ch, i)) == INTERFACE_POWER) ||
-		    (GET_EQ(ch, i) && IS_INTERFACE(GET_EQ(ch, i)) &&
-		     INTERFACE_TYPE(GET_EQ(ch, i)) == INTERFACE_POWER))
-		    break;
-
-	    if (i >= NUM_WEARS) {
-		send_to_char("You are not using an appropriate power interface.\r\n", 
-			     ch);
-		return;
-	    }
-	}
-
-	if (IS_ENERGY_GUN(target)) {
-	    send_to_char("You can only restore the energy gun cells.\r\n", ch);
-	    return;
-	}
-	if (!RECHARGABLE(target)) {
-	    send_to_char("You can't recharge that!\r\n", ch);
-	    return;
-	}
-	if (CUR_ENERGY(target) >= MAX_ENERGY(target)) {
-	    act("$p is already fully energized.", FALSE, ch, target, 0, TO_CHAR);
-	    return;
-	}
-
-
-	perform_recharge(ch, battery, NULL, target, 0);
-	return;
     }  
     
     if (!*arg1 || !*arg2) {
-	send_to_char("USAGE:  Recharge <component> energy_source\r\n",
-		     ch);
-	return;
+		send_to_char("USAGE:  Recharge <component> energy_source\r\n", ch);
+		return;
     }
 
     if (!(target = get_obj_in_list_vis(ch, arg1, ch->carrying)) &&
 	!(target = get_object_in_equip_vis(ch, arg1, ch->equipment, &i)) &&
 	!(target = get_obj_in_list_vis(ch, arg1, ch->in_room->contents)) &&
 	!(vict = get_char_room_vis(ch, arg1))) {
-	sprintf(buf, "You can't find %s '%s' here to recharge.\r\n", 
-		AN(arg1), arg1);
-	send_to_char(buf, ch);
-	return;
+		sprintf(buf, "You can't find %s '%s' here to recharge.\r\n", AN(arg1), arg1);
+		send_to_char(buf, ch);
+		return;
     }
 
     if (strncmp(arg2, "self", 4) &&
@@ -386,70 +381,70 @@ ACMD(do_recharge)
 	!(battery = get_obj_in_list_vis(ch, arg2, ch->carrying)) &&
 	!(battery = get_object_in_equip_vis(ch, arg2, ch->equipment, &i)) &&
 	!(battery = get_obj_in_list_vis(ch, arg2, ch->in_room->contents))) {
-	sprintf(buf, "You can't find %s '%s' here to recharge from.\r\n", 
-		AN(arg2), arg2);
-	send_to_char(buf, ch);
-	return;
+		sprintf(buf, "You can't find %s '%s' here to recharge from.\r\n", 
+			AN(arg2), arg2);
+		send_to_char(buf, ch);
+		return;
     }
 
     if (battery) {
-	if (!IS_BATTERY(battery)) {
-	    act("$p is not a battery.", FALSE, ch, battery, 0, TO_CHAR);
-	    return;
-	}
-    
-	if (CUR_ENERGY(battery) <= 0) {
-	    act("$p is depleted of energy.", FALSE, ch, battery, 0, TO_CHAR);
-	    return;
-	}
+		if (!IS_BATTERY(battery)) {
+			act("$p is not a battery.", FALSE, ch, battery, 0, TO_CHAR);
+			return;
+		}
+		
+		if (CUR_ENERGY(battery) <= 0) {
+			act("$p is depleted of energy.", FALSE, ch, battery, 0, TO_CHAR);
+			return;
+		}
     } else {
-	if (!IS_CYBORG(ch)) {
-	    send_to_char("You cannot recharge things from yourself.\r\n", ch);
-	    return;
-	}
-	if (GET_MOVE(ch) <= 0) {
-	    send_to_char("You do not have any energy to transfer.\r\n", ch);
-	    return;
-	}
+		if (!IS_CYBORG(ch)) {
+			send_to_char("You cannot recharge things from yourself.\r\n", ch);
+			return;
+		}
+		if (GET_MOVE(ch) <= 0) {
+			send_to_char("You do not have any energy to transfer.\r\n", ch);
+			return;
+		}
     }
   
     if (vict) {
-	if (!IS_CYBORG(vict)) {
-	    act("You cannot recharge $M.", FALSE, ch, 0, vict, TO_CHAR);
-	    return;
-	}
-	if (GET_MOVE(vict) >= GET_MAX_MOVE(vict)) {
-	    act("$N is fully charged.", FALSE, ch, 0, vict, TO_CHAR);
-	    return;
-	}
-	perform_recharge(ch, battery, vict, NULL, 0);
-	return;
+		if (!IS_CYBORG(vict)) {
+			act("You cannot recharge $M.", FALSE, ch, 0, vict, TO_CHAR);
+			return;
+		}
+		if (GET_MOVE(vict) >= GET_MAX_MOVE(vict)) {
+			act("$N is fully charged.", FALSE, ch, 0, vict, TO_CHAR);
+			return;
+		}
+		perform_recharge(ch, battery, vict, NULL, 0);
+		return;
     }
 
     if (IS_VEHICLE(target)) {
-	if (!target->contains || !IS_ENGINE(target->contains))
-	    act("$p is not operational.", FALSE, ch, target, 0, TO_CHAR);
-	else if (CUR_ENERGY(target->contains) == MAX_ENERGY(target->contains)) 
-	    act("$p is fully energized.", FALSE, ch, target->contains, 0, TO_CHAR);
-	else {
-	    perform_recharge(ch, battery, NULL, target->contains, 0);
-	}
-	return;
+		if (!target->contains || !IS_ENGINE(target->contains))
+			act("$p is not operational.", FALSE, ch, target, 0, TO_CHAR);
+		else if (CUR_ENERGY(target->contains) == MAX_ENERGY(target->contains)) 
+			act("$p is fully energized.", FALSE, ch, target->contains, 0, TO_CHAR);
+		else {
+			perform_recharge(ch, battery, NULL, target->contains, 0);
+		}
+		return;
     }
 
     if (IS_ENERGY_GUN(target)) {
-	send_to_char("You can only restore the energy gun cells.\r\n", ch);
-	return;
+		send_to_char("You can only restore the energy gun cells.\r\n", ch);
+		return;
     }
     if (!RECHARGABLE(target)) {
-	send_to_char("You can't recharge that!\r\n", ch);
-	return;
+		send_to_char("You can't recharge that!\r\n", ch);
+		return;
     }
   
     if (CUR_ENERGY(target) == MAX_ENERGY(target)) 
-	act("$p is fully energized.", FALSE, ch, target, 0, TO_CHAR);
+		act("$p is fully energized.", FALSE, ch, target, 0, TO_CHAR);
     else {
-	perform_recharge(ch, battery, NULL, target, 0);
+		perform_recharge(ch, battery, NULL, target, 0);
     }
     return;
 }  
