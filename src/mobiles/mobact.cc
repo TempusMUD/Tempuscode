@@ -1019,6 +1019,10 @@ check_infiltrate(struct Creature *ch, struct Creature *vict)
 	int prob = ch->getLevelBonus(SKILL_INFILTRATE);
 	int percent = number(1, 115);
 
+    if (PLR_FLAGGED(ch, PLR_KILLER)) {
+        return false;
+    }
+    
 	if (IS_NPC(vict) && MOB_FLAGGED(vict, MOB_SPIRIT_TRACKER) &&
 		char_in_memory(ch, vict))
 		return false;

@@ -118,7 +118,7 @@ ACMD(do_skillset)
 	vict_name = tmp_getword(&argument);
 	skill = tmp_getquoted(&argument);
 	val_str = tmp_getword(&argument);
-	if (!vict_name || !skill || !val_str) {
+	if ((!vict_name || !skill || !val_str) || !isdigit(*val_str)) {
 		send_to_char(ch, "skillset <name> '<skill>' <value>\n");
 		return;
 	}
