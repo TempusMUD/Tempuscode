@@ -1126,6 +1126,12 @@ Creature::trusts(long idnum)
 	if (IS_NPC(this))
 		return false;
 	
+	if (GET_CLAN(this)) {
+		clan_data *clan = real_clan(GET_CLAN(this));
+		if (clan && real_clanmember(idnum, clan))
+			return true;
+	}
+
 	return account->isTrusted(idnum);
 }
 
@@ -1142,6 +1148,9 @@ Creature::trusts(Creature *ch)
 		return false;
 	
 	if (IS_AFFECTED(this, AFF_CHARM) && master == ch)
+		return true;
+
+	if (GET_CLAN(this) && GET_CLAN(this) == GET_CLAN(ch))
 		return true;
 
 	return trusts(GET_IDNUM(ch));
