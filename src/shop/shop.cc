@@ -1045,6 +1045,8 @@ SPECIAL(shop_keeper)
     void perform_tell(struct char_data *ch, struct char_data *vict, char *messg);
 
 
+    if( spec_mode == SPECIAL_DEATH ) return 0;
+
     if (!MOB2_FLAGGED(keeper, MOB2_WONT_WEAR) && !MOB2_FLAGGED(keeper, MOB2_SELLER))
         SET_BIT(MOB2_FLAGS(keeper), MOB2_WONT_WEAR);
   
