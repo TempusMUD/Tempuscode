@@ -327,14 +327,12 @@ Creature::getDamReduction(Creature *attacker)
 
 	//********************** Shield of Righteousness *******************
 	//******************************************************************
-	if ((af = affected_by_spell(ch, SPELL_SHIELD_OF_RIGHTEOUSNESS))
-			&& IS_GOOD(ch)
-			&& !IS_NPC(ch)) {
+	if ((af = affected_by_spell(ch, SPELL_SHIELD_OF_RIGHTEOUSNESS))) {
 
 		// Find the caster apply for the shield of righteousness spell
         while (af) {
 			if (af->type == SPELL_SHIELD_OF_RIGHTEOUSNESS
-					&& af->modifier == APPLY_CASTER)
+					&& af->location == APPLY_CASTER)
 				break;
 			af = af->next;
 		}

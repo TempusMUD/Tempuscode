@@ -2169,10 +2169,10 @@ Fireball: like harder bones, skin, organ membranecs
 		af.duration = level >> 2;
 		af.location = APPLY_CASTER;
 		af.modifier = !IS_NPC(ch) ? GET_IDNUM(ch) : -MOB_IDNUM(ch);
+		af2.duration = af.duration;
+		af2.location = APPLY_AC;
+		af2.modifier = -10;
 		if (ch == victim) {
-			af2.duration = af.duration;
-			af2.location = APPLY_AC;
-			af2.modifier = -10;
 			to_vict = "A shield of righteousness appears around you.";
 			to_room = "A shield of righteousness expands around $N.";
 		} else
