@@ -4120,8 +4120,6 @@ perform_violence( void )
 		}
 	return;
 	}
-	// Insert implant weaponry and adv implant weaponry here.
-	
 	if ( IS_NPC( ch ) && ch->in_room && 
 	     GET_POS( ch ) == POS_FIGHTING && 
 	     GET_MOB_WAIT( ch ) <= 0 &&
