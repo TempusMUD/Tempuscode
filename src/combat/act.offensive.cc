@@ -867,7 +867,8 @@ ACCMD(do_offensive_skill)
         // set waits, position, and affects on victim if they are still alive
         //
         
-        if ( ! IS_SET( my_return_flags, DAM_VICT_KILLED ) ) {
+        if ( (! IS_SET( my_return_flags, DAM_ATTACK_FAILED) )  
+            && ( ! IS_SET( my_return_flags, DAM_VICT_KILLED ) ) ) {
             if (vict_pos)
                 vict->setPosition( vict_pos );
             if (vict_wait)
