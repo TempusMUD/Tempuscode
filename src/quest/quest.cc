@@ -644,7 +644,7 @@ do_qcontrol_create(CHAR *ch, char *argument, int com)
 void
 do_qcontrol_end(CHAR *ch, char *argument, int com)
 {
-  
+    CHAR *vict;
     quest_data *quest = NULL;
 
     if (!*argument) {
@@ -665,11 +665,17 @@ do_qcontrol_end(CHAR *ch, char *argument, int com)
     qlog(ch, "Purging players from quest...", QLOG_COMP, 0, TRUE);
 
     while ( quest->num_players ) {
-	
-	if ( ! remove_idnum_from_quest( quest->players[0].idnum, quest) ) {
-	    send_to_char("Error removing char from quest.\r\n", ch);
-	    break;
-	}
+        // Go back when you get time and make this set in the player file.
+        vict = get_char_in_world_by_idnum(quest->players[0].idnum);
+        if (vict) {
+            if( GET_LEVEL(vict) < LVL_AMBASSADOR && PRF_FLAGGED(vict, PRF_QUEST)) {
+                REMOVE_BIT(PRF_FLAGS(vict), PRF_QUEST);
+            }
+        }
+        if ( ! remove_idnum_from_quest( quest->players[0].idnum, quest) ) {
+            send_to_char("Error removing char from quest.\r\n", ch);
+            break;
+        }
 
     }
 	
@@ -735,6 +741,10 @@ do_qcontrol_add(CHAR *ch, char *argument, int com)
     sprintf(buf, "%s is now part of the quest.", GET_NAME(vict));
     send_to_quest(NULL, buf, quest, LVL_IMMORT, QCOMM_ECHO);
     
+    if( GET_LEVEL(vict) < LVL_AMBASSADOR && !PRF_FLAGGED(vict, PRF_QUEST)) {
+        SET_BIT(PRF_FLAGS(vict), PRF_QUEST);
+    }
+    
 }
 
 void
@@ -750,50 +760,48 @@ do_qcontrol_kick(CHAR *ch, char *argument, int com)
     argument = two_arguments(argument, arg1, arg2);
   
     if (!*arg1 || !*arg2) {
-	do_qcontrol_usage(ch, com);
-	return;
+        do_qcontrol_usage(ch, com);
+        return;
     }
 
     if (!(quest = find_quest(ch, arg2)))
-	return;
+        return;
 
     if ((idnum = get_id_by_name(arg1)) < 0) {
-	send_to_char("There is no character named '%s'\r\n", ch);
-	return;
+        send_to_char("There is no character named '%s'\r\n", ch);
+        return;
     }
   
     if (quest->ended) {
-	send_to_char("That quest has already ended.. there are no players in it.\r\n", ch);
-	return;
+        send_to_char("That quest has already ended.. there are no players in it.\r\n", ch);
+        return;
     }
 
     if (!quest_edit_ok(ch, quest))
-	return;
+        return;
 
     if (!idnum_in_quest(idnum, quest)) {
-	send_to_char("That person not participating in this quest.\r\n", ch);
-	return;
+        send_to_char("That person not participating in this quest.\r\n", ch);
+        return;
     }
 
     if (!(vict = get_char_in_world_by_idnum(idnum))) {
-
-	// load the char from file
-	CREATE(vict, CHAR, 1);
-	clear_char(vict);
-	if (load_char(arg1, &tmp_store) > -1) {
-	    store_to_char(&tmp_store, vict);
-	    level = GET_LEVEL(vict);
-	    free_char(vict);
-	    vict = NULL;
-	}
-	else {
-	    send_to_char("Error loading char from file.\r\n", ch);
-	    return;
-	}
+        // load the char from file
+        CREATE(vict, CHAR, 1);
+        clear_char(vict);
+        if (load_char(arg1, &tmp_store) > -1) {
+            store_to_char(&tmp_store, vict);
+            level = GET_LEVEL(vict);
+            free_char(vict);
+            vict = NULL;
+        } else {
+            send_to_char("Error loading char from file.\r\n", ch);
+            return;
+        }
     
-    } 
-    else
-	level = GET_LEVEL(vict);
+    } else {
+        level = GET_LEVEL(vict);
+    }
   
 
     if (level >= GET_LEVEL(ch) && vict && ch != vict) {
@@ -814,6 +822,14 @@ do_qcontrol_kick(CHAR *ch, char *argument, int com)
 
     sprintf(buf, "%s has been kicked from the quest.", arg1);
     send_to_quest(NULL, buf, quest, LVL_IMMORT, QCOMM_ECHO);
+
+
+    // Go back and set this in the player file when you get time!
+    if (vict) {
+        if( GET_LEVEL(vict) < LVL_AMBASSADOR && PRF_FLAGGED(vict, PRF_QUEST)) {
+            REMOVE_BIT(PRF_FLAGS(vict), PRF_QUEST);
+        }
+    }
 
 }
 
@@ -1209,8 +1225,8 @@ do_qcontrol_minlev(CHAR *ch, char *argument, int com)
 
     quest->minlev = MAX(0, atoi(arg2));
   
-    sprintf(buf, "set quest '%s' minimum level to %d", 
-	    quest->name, quest->minlev);
+    sprintf(buf, "set quest '%s' minimum level to gen %-2d level %2d", 
+	    quest->name, quest->minlev/50, quest->minlev%50);
     qlog(ch, buf, QLOG_NORM, LVL_IMMORT, TRUE);
   
 }
@@ -1234,8 +1250,8 @@ do_qcontrol_maxlev(CHAR *ch, char *argument, int com)
 
     quest->maxlev = MAX(0, atoi(arg2));
   
-    sprintf(buf, "set quest '%s' maximum level to %d", 
-	    quest->name, quest->maxlev);
+    sprintf(buf, "set quest '%s' maximum level to gen %-2d level %2d", 
+	    quest->name, quest->maxlev/50, quest->maxlev%50);
     qlog(ch, buf, QLOG_NORM, LVL_IMMORT, TRUE);
   
 }
@@ -1866,6 +1882,9 @@ char *quest_commands[][2] = {
     { "info",   "get info about a specific quest"},
     { "join",   "join an active quest"},
     { "leave",  "leave a quest"},
+
+
+    // Go back and set this in the player file when you get time!
     { "status", "list the quests you are participating in"},
     { "who",    "list all players in a specific quest"},
     { "current","specify which quest you are currently active in"},
@@ -1990,6 +2009,9 @@ do_quest_join(CHAR *ch, char *argument)
 
     sprintf(buf, "%s has joined the quest.", GET_NAME(ch));
     send_to_quest(NULL, buf, quest, LVL_IMMORT, QCOMM_ECHO);
+    if( GET_LEVEL(ch) < LVL_AMBASSADOR && !PRF_FLAGGED(ch, PRF_QUEST)) {
+        SET_BIT(PRF_FLAGS(ch), PRF_QUEST);
+    }
 
 }
 void
@@ -2037,6 +2059,9 @@ do_quest_leave(CHAR *ch, char *argument)
     sprintf(buf, "%s has left the quest.", GET_NAME(ch));
     send_to_quest(NULL, buf, quest, LVL_IMMORT, QCOMM_ECHO);
 
+    if( GET_LEVEL(ch) < LVL_AMBASSADOR && PRF_FLAGGED(ch, PRF_QUEST)) {
+        REMOVE_BIT(PRF_FLAGS(ch), PRF_QUEST);
+    }
 
 }
 
@@ -2219,10 +2244,10 @@ do_quest_ignore(CHAR *ch, char *argument)
     skip_spaces(&argument);
 
     if (!*argument) {
-	if (!(quest = quest_by_vnum(GET_QUEST(ch)))) {
-	    send_to_char("Ignore which quest?\r\n", ch);
-	    return;
-	}
+        if (!(quest = quest_by_vnum(GET_QUEST(ch)))) {
+            send_to_char("Ignore which quest?\r\n", ch);
+            return;
+        }
     }
 
     else if (!(quest = find_quest(ch, argument)))
@@ -2279,13 +2304,15 @@ quest_leave_ok(CHAR *ch, quest_data *quest)
 int
 quest_level_ok(CHAR *ch, quest_data *quest)
 {
+    if (GET_LEVEL(ch) >= LVL_AMBASSADOR)
+        return 1;
     if (GET_REMORT_GEN(ch)*50 + GET_LEVEL(ch) > quest->maxlev) {
-	send_to_char("Your level is too high for this quest.\r\n", ch);
-	return 0;
+        send_to_char("Your level is too high for this quest.\r\n", ch);
+        return 0;
     }
     if (GET_REMORT_GEN(ch)*50 + GET_LEVEL(ch) < quest->minlev) {
-	send_to_char("Your level is too low for this quest.\r\n", ch);
-	return 0;
+        send_to_char("Your level is too low for this quest.\r\n", ch);
+        return 0;
     }
     return 1;
 }
@@ -2298,18 +2325,18 @@ send_to_quest(CHAR *ch, char *str, quest_data *quest, int level, int mode)
     char buf[MAX_STRING_LENGTH];
 
     for (i = 0; i < quest->num_players; i++) {
-	if (QP_FLAGGED((quest->players+i), QP_IGNORE) && (level < LVL_IMMORT))
-	    continue;
+        if (QP_FLAGGED((quest->players+i), QP_IGNORE) && (level < LVL_IMMORT))
+            continue;
     
-	if ((vict = get_char_in_world_by_idnum(quest->players[i].idnum))) {
-	    if (!PLR_FLAGGED(vict, PLR_MAILING | PLR_WRITING | PLR_OLC) &&
-		vict->desc &&
-		(!vict->desc->showstr_point || 
-		 PRF2_FLAGGED(vict, PRF2_LIGHT_READ))) {
-		compose_qcomm_string(ch, vict, quest, mode, str, buf);
-		send_to_char(buf, vict);
-	    }
-	}
+        if ((vict = get_char_in_world_by_idnum(quest->players[i].idnum))) {
+            if (!PLR_FLAGGED(vict, PLR_MAILING | PLR_WRITING | PLR_OLC) &&
+            vict->desc &&
+            (!vict->desc->showstr_point || 
+             PRF2_FLAGGED(vict, PRF2_LIGHT_READ))) {
+            compose_qcomm_string(ch, vict, quest, mode, str, buf);
+            send_to_char(buf, vict);
+            }
+        }
     }
 }
 
