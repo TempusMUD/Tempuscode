@@ -387,7 +387,7 @@ do_mob_mset(struct Creature *ch, char *argument)
 		return;
 	}
 	// Check for desc and specparam setting, both of which use tedii
-	if (mset_command != 3 && mset_command != 48 && !*arg2) {
+	if (mset_command != 3 && mset_command != 47 && !*arg2) {
 		send_to_char(ch, "Set %s to what??\r\n", olc_mset_keys[mset_command]);
 		return;
 	}
