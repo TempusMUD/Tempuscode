@@ -761,9 +761,10 @@ Crash_calculate_rent( struct obj_data * obj, int *cost )
 
 /*
  * Stores implants into the player's IMPLANT_FILE and extracts them.
+ * if extract is true, extract implants after saving them.
  */
 void
-Crash_save_implants( struct char_data *ch )
+Crash_save_implants( struct char_data *ch, bool extract = true )
 {
 
     FILE *fp = 0;
@@ -775,7 +776,8 @@ Crash_save_implants( struct char_data *ch )
     for ( int j = 0; j < NUM_WEARS; j++ )
         if ( GET_IMPLANT( ch, j ) ) {
             if ( store_obj_list( GET_IMPLANT( ch, j ), fp ) ) {
-                extract_object_list( GET_IMPLANT( ch, j ) );
+                if( extract )
+                    extract_object_list( GET_IMPLANT( ch, j ) );
             } else {
                 fclose( fp );
                 return;
@@ -784,6 +786,10 @@ Crash_save_implants( struct char_data *ch )
     fclose( fp );
 }
 
+/** 
+ * Saves the given character and it's equipment to a file. 
+ * Does not extract any eq or implants. 
+ **/
 void 
 Crash_crashsave( struct char_data * ch )
 {
@@ -822,7 +828,7 @@ Crash_crashsave( struct char_data * ch )
         }
     fclose( fp );
 
-    Crash_save_implants( ch );
+    Crash_save_implants( ch, false );
 
     REMOVE_BIT( PLR_FLAGS( ch ), PLR_CRASH );
 }

@@ -890,21 +890,22 @@ make_corpse( struct char_data *ch,struct char_data *killer,int attacktype )
         GET_OBJ_TIMER( leg ) = max_pc_corpse_time;
     }   
     obj_to_room( leg, ch->in_room );
-    if ( !ROOM_FLAGGED( ch->in_room, ROOM_ARENA ) &&
-         GET_LEVEL( ch ) <= LVL_AMBASSADOR ) {                                          /* transfer character's leg EQ to room, if applicable */
+    if ( !ROOM_FLAGGED( ch->in_room, ROOM_ARENA ) && GET_LEVEL( ch ) <= LVL_AMBASSADOR ) { 
+
+        /* transfer character's leg EQ to room, if applicable */
         if ( GET_EQ( ch, WEAR_LEGS) )
-        obj_to_room( unequip_char( ch, WEAR_LEGS, MODE_EQ ), ch->in_room );
+            obj_to_room( unequip_char( ch, WEAR_LEGS, MODE_EQ ), ch->in_room );
         if ( GET_EQ( ch, WEAR_FEET) )
-        obj_to_room( unequip_char( ch, WEAR_FEET, MODE_EQ ), ch->in_room );
+            obj_to_room( unequip_char( ch, WEAR_FEET, MODE_EQ ), ch->in_room );
         
         /** transfer implants to leg or corpse randomly**/
         if ( GET_IMPLANT( ch, WEAR_LEGS) && number(0,1)) {
-        obj_to_obj( unequip_char( ch, WEAR_LEGS, MODE_IMPLANT ), leg );
-        REMOVE_BIT( GET_OBJ_WEAR( leg ), ITEM_WEAR_TAKE );
+            obj_to_obj( unequip_char( ch, WEAR_LEGS, MODE_IMPLANT ), leg );
+            REMOVE_BIT( GET_OBJ_WEAR( leg ), ITEM_WEAR_TAKE );
         }
         if ( GET_IMPLANT( ch, WEAR_FEET) && number(0,1)) {
-        obj_to_obj( unequip_char( ch, WEAR_FACE, MODE_IMPLANT ), leg );
-        REMOVE_BIT( GET_OBJ_WEAR( leg ), ITEM_WEAR_TAKE );
+            obj_to_obj( unequip_char( ch, WEAR_FACE, MODE_IMPLANT ), leg );
+            REMOVE_BIT( GET_OBJ_WEAR( leg ), ITEM_WEAR_TAKE );
         }
     } // end if !arena room
     break;

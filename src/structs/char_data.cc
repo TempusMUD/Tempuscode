@@ -469,6 +469,11 @@ char_data::extract(bool destroy_objs, bool save, int con_state) {
         }
     }
 
+    if ( IS_PC(this) && save ) {
+        save_char(this, NULL);
+        Crash_crashsave(this);
+        Crash_delete_crashfile(this);
+    }
     if (desc && desc->original) {
         do_return(this, "", 0, SCMD_NOEXTRACT);
     }
@@ -481,12 +486,7 @@ char_data::extract(bool destroy_objs, bool save, int con_state) {
     // remove any paths
     path_remove_object(this);
 
-    if (!IS_NPC(this)) {
-		if (save) {
-			save_char(this, NULL);
-			Crash_delete_crashfile(this);
-		}
-    } else {
+    if (IS_NPC(this)) {
         if (GET_MOB_VNUM(this) > -1)                // if mobile
             mob_specials.shared->number--;
         clearMemory();                // Only NPC's can have memory
