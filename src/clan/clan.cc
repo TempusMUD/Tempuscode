@@ -1485,7 +1485,7 @@ save_clans()
 		fprintf( ouf, "        <data owner=\"%ld\" top_rank=\"%d\" bank=\"%d\" flags=\"%d\" />\n",
 					clan->owner, clan->top_rank, clan->bank_account, clan->flags );
 
-		for( int i = 0; i < clan->top_rank; i++ ) {
+		for( int i = 0; i <= clan->top_rank; i++ ) {
 			if (clan->ranknames[i]) {
 				char *rank = xmlEncodeTmp(clan->ranknames[i]);
 				fprintf( ouf, "        <rank name=\"%s\"/>\n", rank );
