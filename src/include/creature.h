@@ -298,7 +298,6 @@ static const int PLR_NOPK = (1 << 30);	/* player cannot pk */
 static const int PLR2_SOULLESS = (1 << 0);	// Signing the Unholy Compact.
 static const int PLR2_BURIED = (1 << 1);	// Player has died way too many times.
 static const int PLR2_IN_COMBAT = (1 << 2);
-static const int PLR2_QUEST_BAN = (1 << 3); // Player is banned from all quests
 
 /* Mobile flags: used by Creature.char_specials.act */
 static const int MOB_SPEC = (1 << 0);	/* Mob has a callable spec-proc    */
