@@ -49,6 +49,23 @@ Creature::isFighting()
 	return (char_specials.fighting != NULL);
 }
 
+void
+Creature::checkPosition(void)
+{
+	if (GET_HIT(this) > 0) {
+		if (getPosition() < POS_STUNNED)
+			setPosition(POS_RESTING);
+		return;
+	}
+
+	if (GET_HIT(this) > -3)
+		setPosition(POS_STUNNED);
+	else if (GET_HIT(this) > -6)
+		setPosition(POS_INCAP);
+	else
+		setPosition(POS_MORTALLYW);
+}
+
 /**
  * Returns true if this character is in the Testers access group.
 **/
