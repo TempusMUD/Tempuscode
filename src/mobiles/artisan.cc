@@ -10,8 +10,8 @@
 #include "tmpstr.h"
 #include "screen.h"
 #include "handler.h"
-#include "shop.h"
 #include "security.h"
+#include "vendor.h"
 
 SPECIAL(artisan);
 

@@ -30,9 +30,9 @@
 #include "materials.h"
 #include "char_class.h"
 #include "fight.h"
-#include "shop.h"
 #include "screen.h"
 #include "tmpstr.h"
+#include "vendor.h"
 
 struct spell_info_type spell_info[TOP_SPELL_DEFINE + 1];
 struct room_direction_data *knock_door = NULL;
@@ -952,7 +952,7 @@ call_magic(struct Creature *caster, struct Creature *cvict,
 		}
 
 		if ((SINFO.violent || IS_SET(SINFO.routines, MAG_DAMAGE)) &&
-			!ok_damage_shopkeeper(caster, cvict))
+			!ok_damage_vendor(caster, cvict))
 			return 0;
 
 		if ((SINFO.violent || IS_SET(SINFO.routines, MAG_DAMAGE))) {

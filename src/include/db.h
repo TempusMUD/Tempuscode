@@ -30,7 +30,6 @@
 #define DB_BOOT_MOB	 1
 #define DB_BOOT_OBJ	 2
 #define DB_BOOT_ZON	 3
-#define DB_BOOT_SHP	 4
 
 /* names of various files and directories */
 #define INDEX_FILE	"index"		/* index of world files        */
@@ -40,7 +39,6 @@
 #define MOB_PREFIX	"world/mob"	/* monster prototypes      */
 #define OBJ_PREFIX	"world/obj"	/* object prototypes       */
 #define ZON_PREFIX	"world/zon"	/* zon defs & command tables   */
-#define SHP_PREFIX	"world/shp"	/* shop definitions        */
 #define XML_PREFIX  "world/xml"
 
 #define CREDITS_FILE	"text/credits"	/* for the 'credits' command    */

@@ -66,10 +66,6 @@ ACMD(do_rescue);
 ACMD(do_steal);
 ACCMD(do_get);
 
-
-SPECIAL(shop_keeper);
-
-
 vector <Devil> devils;
 vector <Target> targets;
 vector <HuntGroup> hunters;
@@ -211,7 +207,7 @@ SPECIAL(hell_hunter_brain)
 				// can't go to isolated zones
 				ZONE_FLAGGED(vict->in_room->zone, ZONE_ISOLATED) ||
 				// ignore shopkeepers
-				(IS_NPC(vict) && shop_keeper == GET_MOB_SPEC(vict)) ||
+				(IS_NPC(vict) && vendor == GET_MOB_SPEC(vict)) ||
 				// don't go to heaven
                 isBlindSpot( vict->in_room->zone))) {
 			continue;
@@ -514,7 +510,7 @@ SPECIAL(arioch)
 			(((rm = blade->in_room) && !ROOM_FLAGGED(rm, SAFE_ROOM_BITS)) ||
 				(((vict = blade->carried_by) || (vict = blade->worn_by)) &&
 					!ROOM_FLAGGED(vict->in_room, SAFE_ROOM_BITS) &&
-					(!IS_NPC(vict) || shop_keeper != GET_MOB_SPEC(vict)) &&
+					(!IS_NPC(vict) || vendor != GET_MOB_SPEC(vict)) &&
 					!PRF_FLAGGED(vict, PRF_NOHASSLE) && can_see_creature(ch, vict)))) {
 			if (vict) {
 				HUNTING(ch) = vict;

@@ -27,7 +27,7 @@
 #include "spells.h"
 #include "screen.h"
 #include "vehicle.h"
-#include "shop.h"
+#include "vendor.h"
 #include "clan.h"
 #include "smokes.h"
 #include "materials.h"
@@ -38,6 +38,7 @@
 #include "security.h"
 #include "tmpstr.h"
 #include "utils.h"
+#include "vendor.h"
 
 
 /* external vars */
@@ -55,7 +56,6 @@ void free_ptable();
 void free_fight();
 void free_socials();
 void print_attributes_to_buf(struct Creature *ch, char *buff);
-int same_obj(struct obj_data *o1, struct obj_data *o2);
 extern struct clan_data *clan_list;
 
 char *

@@ -10,7 +10,6 @@
 #include "utils.h"
 #include "xml_utils.h"
 #include "db.h"
-#include "shop.h"
 #include "tmpstr.h"
 #include "comm.h"
 #include "creature.h"

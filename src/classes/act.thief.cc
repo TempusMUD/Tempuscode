@@ -26,8 +26,8 @@
 #include "fight.h"
 #include "constants.h"
 #include "events.h"
+#include "vendor.h"
 
-SPECIAL(shop_keeper);
 int check_mob_reaction(struct Creature *ch, struct Creature *vict);
 
 ACMD(do_steal)
@@ -36,7 +36,7 @@ ACMD(do_steal)
 	struct obj_data *obj;
 	char vict_name[MAX_INPUT_LENGTH];
 	char obj_name[MAX_INPUT_LENGTH];
-	int percent, gold, eq_pos, pcsteal = 0;
+	int percent, gold, eq_pos;
 	bool ohoh = false;
 
 	argument = one_argument(argument, obj_name);
@@ -94,8 +94,7 @@ ACMD(do_steal)
 		percent = 121;
 
 	/* NO NO With Imp's and Shopkeepers! */
-	if ((GET_LEVEL(vict) >= LVL_AMBASSADOR) || pcsteal ||
-		GET_MOB_SPEC(vict) == shop_keeper)
+	if (!ok_damage_vendor(ch, vict))
 		percent = 121;			/* Failure */
 
 	if (str_cmp(obj_name, "coins") && str_cmp(obj_name, "gold")) {

@@ -1,5 +1,5 @@
 $(OBJ)/artisan.o : artisan.cc \
-	$(INCLUDE)/db.h $(INCLUDE)/structs.h $(INCLUDE)/xml_utils.h $(INCLUDE)/utils.h $(INCLUDE)/interpreter.h $(INCLUDE)/actions.h $(INCLUDE)/char_class.h $(INCLUDE)/comm.h $(INCLUDE)/tmpstr.h $(INCLUDE)/screen.h $(INCLUDE)/handler.h $(INCLUDE)/shop.h $(INCLUDE)/security.h 
+	$(INCLUDE)/db.h $(INCLUDE)/structs.h $(INCLUDE)/xml_utils.h $(INCLUDE)/utils.h $(INCLUDE)/interpreter.h $(INCLUDE)/actions.h $(INCLUDE)/char_class.h $(INCLUDE)/comm.h $(INCLUDE)/tmpstr.h $(INCLUDE)/screen.h $(INCLUDE)/handler.h $(INCLUDE)/security.h $(INCLUDE)/vendor.h 
 	$(CXX) -c $(CXXFLAGS) artisan.cc           -o $(OBJ)/artisan.o
 $(OBJ)/guard.o : guard.cc \
 	$(INCLUDE)/actions.h $(INCLUDE)/db.h $(INCLUDE)/comm.h $(INCLUDE)/fight.h $(INCLUDE)/handler.h $(INCLUDE)/interpreter.h $(INCLUDE)/tmpstr.h $(INCLUDE)/screen.h $(INCLUDE)/utils.h 
@@ -10,10 +10,7 @@ $(OBJ)/mail.o : mail.cc \
 $(OBJ)/mobact.o : mobact.cc \
 	$(INCLUDE)/structs.h $(INCLUDE)/utils.h $(INCLUDE)/db.h $(INCLUDE)/comm.h $(INCLUDE)/interpreter.h $(INCLUDE)/handler.h $(INCLUDE)/spells.h $(INCLUDE)/char_class.h $(INCLUDE)/vehicle.h $(INCLUDE)/flow_room.h $(INCLUDE)/guns.h $(INCLUDE)/bomb.h $(INCLUDE)/mobact.h $(INCLUDE)/fight.h $(INCLUDE)/actions.h $(INCLUDE)/creature.h $(INCLUDE)/screen.h $(INCLUDE)/tmpstr.h 
 	$(CXX) -c $(CXXFLAGS) mobact.cc            -o $(OBJ)/mobact.o
-$(OBJ)/shop.o : shop.cc \
-	$(INCLUDE)/structs.h $(INCLUDE)/comm.h $(INCLUDE)/handler.h $(INCLUDE)/db.h $(INCLUDE)/interpreter.h $(INCLUDE)/spells.h $(INCLUDE)/utils.h $(INCLUDE)/shop.h $(INCLUDE)/screen.h $(INCLUDE)/fight.h $(INCLUDE)/vendor.h 
-	$(CXX) -c $(CXXFLAGS) shop.cc              -o $(OBJ)/shop.o
 $(OBJ)/vendor.o : vendor.cc \
-	$(INCLUDE)/actions.h $(INCLUDE)/db.h $(INCLUDE)/comm.h $(INCLUDE)/handler.h $(INCLUDE)/interpreter.h $(INCLUDE)/tmpstr.h $(INCLUDE)/screen.h $(INCLUDE)/weather.h $(INCLUDE)/utils.h $(INCLUDE)/vendor.h 
+	$(INCLUDE)/actions.h $(INCLUDE)/db.h $(INCLUDE)/comm.h $(INCLUDE)/handler.h $(INCLUDE)/interpreter.h $(INCLUDE)/tmpstr.h $(INCLUDE)/screen.h $(INCLUDE)/weather.h $(INCLUDE)/utils.h $(INCLUDE)/vendor.h $(INCLUDE)/specs.h 
 	$(CXX) -c $(CXXFLAGS) vendor.cc            -o $(OBJ)/vendor.o
-OBJFILES= $(OBJ)/artisan.o $(OBJ)/guard.o $(OBJ)/mail.o $(OBJ)/mobact.o $(OBJ)/shop.o $(OBJ)/vendor.o
+OBJFILES= $(OBJ)/artisan.o $(OBJ)/guard.o $(OBJ)/mail.o $(OBJ)/mobact.o $(OBJ)/vendor.o

@@ -21,13 +21,13 @@
 #include "tmpstr.h"
 #include "smokes.h"
 #include "player_table.h"
+#include "vendor.h"
 
 #define PISTOL(gun)  ((IS_GUN(gun) || IS_ENERGY_GUN(gun)) && !IS_TWO_HAND(gun))
 #define LARGE_GUN(gun) ((IS_GUN(gun) || IS_ENERGY_GUN(gun)) && IS_TWO_HAND(gun))
 
 int apply_soil_to_char(struct Creature *ch, struct obj_data *obj, int type,
 	int pos);
-int ok_damage_shopkeeper(struct Creature *ch, struct Creature *victim);
 
 ACMD(do_pistolwhip)
 {
@@ -133,7 +133,7 @@ ACMD(do_crossface)
 	if (!peaceful_room_ok(ch, vict, true))
 		return;
 
-	if (!ok_damage_shopkeeper(ch, vict) && GET_LEVEL(ch) < LVL_ELEMENT) {
+	if (!ok_damage_vendor(ch, vict) && GET_LEVEL(ch) < LVL_ELEMENT) {
 		WAIT_STATE(ch, PULSE_VIOLENCE * 8);
 		return;
 	}
@@ -394,7 +394,7 @@ ACMD(do_snipe)
 		return;
 
 	//Ok, last check...is some asshole trying to damage a shop keeper
-	if (!ok_damage_shopkeeper(ch, vict) && GET_LEVEL(ch) < LVL_ELEMENT) {
+	if (!ok_damage_vendor(ch, vict) && GET_LEVEL(ch) < LVL_ELEMENT) {
 		WAIT_STATE(ch, PULSE_VIOLENCE * 3);
 		send_to_char(ch, "You can't seem to get a clean line-of-sight.\r\n");
 		return;

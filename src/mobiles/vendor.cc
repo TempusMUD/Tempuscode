@@ -10,17 +10,87 @@
 #include "weather.h"
 #include "utils.h"
 #include "vendor.h"
-#include "shop.h"
 #include "specs.h"
 
 const int MAX_ITEMS = 10;
 
-// From shop.cc
-int same_obj(obj_data *, obj_data *);
 // From act.comm.cc
 void perform_tell(struct Creature *ch, struct Creature *vict, char *arg);
 void perform_analyze( Creature *ch, obj_data *obj, bool checklev );
 void perform_appraise( Creature *ch, obj_data *obj, int skill_lvl);
+
+bool
+same_obj(obj_data *obj1, obj_data *obj2)
+{
+	int index;
+
+	if (!obj1 || !obj2)
+		return (obj1 == obj2);
+
+	if (GET_OBJ_VNUM(obj1) != GET_OBJ_VNUM(obj2))
+		return (FALSE);
+
+	if (GET_OBJ_SIGIL_IDNUM(obj1) != GET_OBJ_SIGIL_IDNUM(obj2) ||
+		GET_OBJ_SIGIL_LEVEL(obj1) != GET_OBJ_SIGIL_LEVEL(obj2))
+		return FALSE;
+
+	if ((obj1->shared->proto &&
+			(obj1->name != obj1->shared->proto->name
+				|| obj1->line_desc != obj1->shared->proto->line_desc))
+		|| (obj2->shared->proto
+			&& (obj2->name !=
+				obj2->shared->proto->name
+				|| obj2->line_desc != obj2->shared->proto->line_desc)))
+		return FALSE;
+
+	if ((obj1->name != obj2->name ||
+			obj1->line_desc != obj2->line_desc) &&
+		(str_cmp(obj1->name, obj2->name) ||
+			!obj1->line_desc || !obj2->line_desc ||
+			str_cmp(obj1->line_desc, obj2->line_desc)))
+		return (FALSE);
+
+	if (GET_OBJ_COST(obj1) != GET_OBJ_COST(obj2) ||
+		GET_OBJ_EXTRA(obj1) != GET_OBJ_EXTRA(obj2) ||
+		GET_OBJ_EXTRA2(obj1) != GET_OBJ_EXTRA2(obj2))
+		return (FALSE);
+
+	for (index = 0; index < MAX_OBJ_AFFECT; index++)
+		if ((obj1->affected[index].location != obj2->affected[index].location)
+			|| (obj1->affected[index].modifier !=
+				obj2->affected[index].modifier))
+			return (FALSE);
+
+	if (obj1->getWeight() != obj2->getWeight())
+		return FALSE;
+
+	return (TRUE);
+}
+
+bool
+ok_damage_vendor(struct Creature *ch, struct Creature *victim)
+{
+	ShopData shop;
+
+	if (ch && GET_LEVEL(ch) > LVL_CREATOR)
+		return true;
+	if (victim && GET_LEVEL(victim) > LVL_IMMORT)
+		return false;
+	
+	if (IS_NPC(victim) && victim->mob_specials.shared->func == vendor) {
+
+		if (!GET_MOB_PARAM(victim))
+			return false;
+
+		vendor_parse_param(victim, GET_MOB_PARAM(victim), &shop, NULL);
+
+		return shop.attack_ok;
+	}
+
+	return true;
+}
+
+
 
 static bool
 vendor_is_produced(obj_data *obj, ShopData *shop)
@@ -966,134 +1036,4 @@ SPECIAL(vendor)
 	}
 	
 	return true;
-}
-
-void
-convert_all_shops(Creature *ch)
-{
-	bool save_mobs(struct Creature *ch, struct zone_data *zone);
-
-	Creature *keeper;
-	shop_data *shop;
-	zone_data *zone;
-	shop_buy_data *buy_data;
-	const char *temper;
-	char *specp;
-	int *product;
-
-	for (shop = shop_index;shop;shop = shop->next) {
-		keeper = real_mobile_proto(shop->keeper);
-		if (!keeper)
-			continue;
-		specp = "";
-		if (shop->in_room[1] != NOWHERE)
-			specp = tmp_sprintf("room %d\r\n", *shop->in_room);
-		specp = tmp_sprintf("markup %d\r\nmarkdown %d\r\n",
-			(int)(shop->profit_buy * 100), (int)(shop->profit_sell * 100));
-		for (product = shop->producing;*product != NOTHING;product++)
-			specp = tmp_sprintf("%sproduce %d\r\n", specp, *product);
-		for (buy_data = shop->type;buy_data->type != NOTHING;buy_data = buy_data++)
-			specp = tmp_sprintf("%saccept %s\r\n", specp,
-				tmp_tolower(item_types[buy_data->type]));
-		switch (shop->temper1) {
-		case 0: temper = "puke"; break;
-		case 1: temper = ": smokes on a fat joint."; break;
-		case 2: temper = "spit"; break;
-		case 3: temper = "fart"; break;
-		case 4: temper = ": tokes on a golden hookah."; break;
-		case 5: temper = ": inserts a microsoft behind an ear and zones out."; break;
-		default: temper = NULL; break;
-		}
-		if (temper)
-			specp = tmp_strcat(specp, "temper-cmd ", temper, "\r\n", NULL);
-		specp = tmp_strcat(specp, "buy-msg ", shop->message_buy, "\r\n", NULL);
-		specp = tmp_strcat(specp, "sell-msg ", shop->message_sell, "\r\n", NULL);
-		specp = tmp_strcat(specp, "no-buy-msg ", shop->do_not_buy, "\r\n", NULL);
-		specp = tmp_strcat(specp, "keeper-broke-msg ", shop->missing_cash1, "\r\n", NULL);
-		specp = tmp_strcat(specp, "buyer-broke-msg ", shop->missing_cash2, "\r\n", NULL);
-		specp = tmp_strcat(specp, "sell-noobj-msg ", shop->no_such_item1, "\r\n", NULL);
-		specp = tmp_strcat(specp, "buy-noobj-msg ", shop->no_such_item2, "\r\n", NULL);
-		if (SHOP_KILL_CHARS(shop))
-			specp = tmp_strcat(specp, "attack-ok yes\r\n");
-		if (shop->revenue > 0)
-			specp = tmp_sprintf("%srevenue %d\r\n", specp, shop->revenue);
-		if (shop->currency)
-			specp = tmp_strcat(specp, "currency future\r\n");
-		else
-			specp = tmp_strcat(specp, "currency past\r\n");
-		if (shop->open1 > 0)
-			specp = tmp_sprintf("%sclosed-hours 0 %d\r\n", specp,
-				shop->open1 - 1);
-		if (shop->close1 < 24) {
-			if (shop->open2 > shop->close1) {
-				specp = tmp_sprintf("%sclosed-hours %d %d\r\n", specp,
-					shop->close1, shop->open2 - 1);
-				specp = tmp_sprintf("%sclosed-hours %d 23\r\n", specp,
-					shop->close2);
-			} else
-				specp = tmp_sprintf("%sclosed-hours %d 23\r\n", specp,
-					shop->close1);
-		}
-		if (NOTRADE_GOOD(shop))
-			specp = tmp_strcat(specp, "deny good\r\n");
-		if (NOTRADE_EVIL(shop))
-			specp = tmp_strcat(specp, "deny evil\r\n");
-		if (NOTRADE_NEUTRAL(shop))
-			specp = tmp_strcat(specp, "deny neutral\r\n");
-		if (NOTRADE_MAGIC_USER(shop))
-			specp = tmp_strcat(specp, "deny mage\r\n");
-		if (NOTRADE_CLERIC(shop))
-			specp = tmp_strcat(specp, "deny cleric\r\n");
-		if (NOTRADE_THIEF(shop))
-			specp = tmp_strcat(specp, "deny thief\r\n");
-		if (NOTRADE(shop, TRADE_NORANGER))
-			specp = tmp_strcat(specp, "deny ranger\r\n");
-		if (NOTRADE(shop, TRADE_NOMONK))
-			specp = tmp_strcat(specp, "deny monk\r\n");
-		if (NOTRADE(shop, TRADE_NOMERC))
-			specp = tmp_strcat(specp, "deny mercenary\r\n");
-		if (NOTRADE(shop, TRADE_NOBARB))
-			specp = tmp_strcat(specp, "deny barbarian\r\n");
-		if (NOTRADE(shop, TRADE_NOKNIGHT))
-			specp = tmp_strcat(specp, "deny knight\r\n");
-		if (NOTRADE(shop, TRADE_NOPHYSIC))
-			specp = tmp_strcat(specp, "deny physic\r\n");
-		if (NOTRADE(shop, TRADE_NOPSIONIC))
-			specp = tmp_strcat(specp, "deny psionic\r\n");
-		if (NOTRADE(shop, TRADE_NOCYBORG))
-			specp = tmp_strcat(specp, "deny cyborg\r\n");
-
-		if (NOTRADE(shop, TRADE_NOHUMAN))
-			specp = tmp_strcat(specp, "deny human\r\n");
-		if (NOTRADE(shop, TRADE_NOELF))
-			specp = tmp_strcat(specp, "deny elf\r\n");
-		if (NOTRADE(shop, TRADE_NODWARF))
-			specp = tmp_strcat(specp, "deny dwarf\r\n");
-		if (NOTRADE(shop, TRADE_NOHALF_ORC))
-			specp = tmp_strcat(specp, "deny half-orc\r\n");
-		if (NOTRADE(shop, TRADE_NOTABAXI))
-			specp = tmp_strcat(specp, "deny tabaxi\r\n");
-		if (NOTRADE(shop, TRADE_NOMINOTAUR))
-			specp = tmp_strcat(specp, "deny minotaur\r\n");
-		if (NOTRADE(shop, TRADE_NOORC))
-			specp = tmp_strcat(specp, "deny orc\r\n");
-
-		specp = tmp_strcat(specp, "allow all\r\n");		
-
-		if (shop->func && shop->func != vendor)
-			specp = tmp_strcat(specp, "special ",
-				spec_list[find_spec_index_ptr(shop->func)].tag, NULL);
-
-		if (GET_MOB_PARAM(keeper))
-			free(GET_MOB_PARAM(keeper));
-		keeper->mob_specials.shared->func_param = strdup(specp);
-		keeper->mob_specials.shared->func = vendor;
-	}
-
-
-	for (zone = zone_table;zone;zone = zone->next)
-		if (!save_mobs(ch, zone))
-			send_to_char(ch, "WARNING: Zone %d was not saved.\r\n", zone->number);
-
-	send_to_char(ch, "Shops converted.\r\n");
 }

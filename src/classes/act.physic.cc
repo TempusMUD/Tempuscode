@@ -174,8 +174,8 @@
 #include "char_class.h"
 #include "fight.h"
 #include "bomb.h"
-#include "shop.h"
 #include "specs.h"
+#include "vendor.h"
 
 static timewarp_data *timewarp_list = NULL;
 static int num_timewarp_data = 0;
@@ -255,7 +255,7 @@ ACMD(do_lecture)
 
 	if (!peaceful_room_ok(ch, vict, false))
 		return;
-	if (!ok_damage_shopkeeper(ch, vict))
+	if (!ok_damage_vendor(ch, vict))
 		return;
 
 	appear(ch, vict);

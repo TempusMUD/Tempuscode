@@ -110,7 +110,6 @@ void save_all_players();
 int do_freeze_char(char *argument, Creature *vict, Creature *ch);
 
 ACMD(do_equipment);
-SPECIAL(shop_keeper);
 
 static const char *logtypes[] = {
     "off", "brief", "normal", "complete", "\n"
@@ -4424,8 +4423,7 @@ ACMD(do_show)
                         room->name);
         break;
     case 8:
-        show_shops(ch, argument);
-        break;
+        send_to_char(ch, "Disabled.\r\n"); break;
     case 9:
         if (*value && isdigit(*value)) {
             j = atoi(value);
@@ -6752,7 +6750,7 @@ do_show_mobiles(struct Creature *ch, char *value, char *arg)
             if (MOB2_FLAGGED(mob, MOB2_UNAPPROVED))
                 continue;
             if (GET_GOLD(mob) >= k &&
-                (!j || shop_keeper != mob->mob_specials.shared->func))
+                (!j || vendor != mob->mob_specials.shared->func))
                 sprintf(buf,
                     "%s %3d. [%5d] %-30s (%2d) %2d\r\n",
                     buf, ++i, GET_MOB_VNUM(mob), GET_NAME(mob), GET_LEVEL(mob),
@@ -6836,8 +6834,7 @@ do_show_mobiles(struct Creature *ch, char *value, char *arg)
         mit = mobilePrototypes.begin();
         for (k = 0; mit != mobilePrototypes.end(); ++mit) {
             mob = *mit;
-            if (shop_keeper == mob->mob_specials.shared->func ||
-                MOB2_FLAGGED(mob, MOB2_UNAPPROVED))
+            if (MOB2_FLAGGED(mob, MOB2_UNAPPROVED))
                 continue;
 
             if (i && (GET_CASH(mob) > (GET_LEVEL(mob) * l))) {
@@ -7345,8 +7342,6 @@ static const char* CODER_UTIL_USAGE =
 
 ACMD(do_coderutil)
 {
-	void convert_all_shops(Creature *);
-
     Tokenizer tokens(argument);
 	int idx, cmd_num, len = 0;
     char token[MAX_INPUT_LENGTH];
@@ -7364,8 +7359,6 @@ ACMD(do_coderutil)
 	} else if (strcmp(token, "recalc") == 0) {
 		tokens.next(token);
 		recalc_all_mobs(ch, token);
-	} else if (strcmp(token, "vendorize") == 0) {
-		convert_all_shops(ch);
 	} else if (strcmp(token, "cmdusage") == 0) {
 		for (idx = 1;idx < num_of_cmds;idx++) {
 			cmd_num = cmd_sort_info[idx].sort_pos;

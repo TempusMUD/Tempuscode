@@ -32,7 +32,6 @@
 #include "flow_room.h"
 #include "fight.h"
 #include "bomb.h"
-#include "shop.h"
 #include "guns.h"
 #include "specs.h"
 #include "security.h"

@@ -46,7 +46,6 @@ using namespace std;
 #include "char_class.h"
 #include "security.h"
 #include "olc.h"
-#include "shop.h"
 #include "help.h"
 #include "combat.h"
 #include "tmpstr.h"
@@ -116,7 +115,6 @@ struct zone_data *default_quad_zone = NULL;
 
 int *obj_index = NULL;			/* object index                  */
 int *mob_index = NULL;			/* mobile index                  */
-int *shp_index = NULL;			/* shop index                    */
 int *wld_index = NULL;			/* world index                   */
 
 char *credits = NULL;			/* game credits                         */
@@ -160,7 +158,6 @@ void Load_paths(void);
 void assign_mobiles(void);
 void assign_objects(void);
 void assign_rooms(void);
-void assign_the_shopkeepers(void);
 void assign_artisans(void);
 void boot_dynamic_text(void);
 
@@ -193,7 +190,6 @@ void sort_skills(void);
 void load_banned(void);
 void Read_Invalid_List(void);
 void Read_Nasty_List(void);
-void boot_the_shops(FILE * shop_f, char *filename, int rec_count);
 //struct help_index_element *build_help_index(FILE * fl, int *num);
 void add_alias(struct Creature *ch, struct alias_data *a);
 void boot_clans(void);
@@ -365,8 +361,6 @@ boot_db(void)
 	if (!no_specials) {
 		slog("   Mobiles.");
 		assign_mobiles();
-		slog("   Shopkeepers.");
-		assign_the_shopkeepers();
 		slog("   Objects.");
 		assign_objects();
 		slog("   Rooms.");
@@ -541,9 +535,6 @@ index_boot(int mode)
 	case DB_BOOT_ZON:
 		prefix = ZON_PREFIX;
 		break;
-	case DB_BOOT_SHP:
-		prefix = SHP_PREFIX;
-		break;
 	default:
 		slog("SYSERR: Unknown subcommand to index_boot!");
 		safe_exit(1);
@@ -625,8 +616,6 @@ index_boot(int mode)
 			CREATE(obj_index, int, index_count + 1);
 		else if (mode == DB_BOOT_MOB)
 			CREATE(mob_index, int, index_count + 1);
-		else if (mode == DB_BOOT_SHP)
-			CREATE(shp_index, int, index_count + 1);
 		else if (mode == DB_BOOT_WLD)
 			CREATE(wld_index, int, index_count + 1);
 
@@ -637,9 +626,6 @@ index_boot(int mode)
 			} else if (mode == DB_BOOT_MOB) {
 				fscanf(index, "%d.mob\n", &number);
 				mob_index[i] = number;
-			} else if (mode == DB_BOOT_SHP) {
-				fscanf(index, "%d.shp\n", &number);
-				shp_index[i] = number;
 			} else if (mode == DB_BOOT_WLD) {
 				fscanf(index, "%d.wld\n", &number);
 				wld_index[i] = number;
@@ -650,8 +636,6 @@ index_boot(int mode)
 			obj_index[index_count] = -1;
 		else if (mode == DB_BOOT_MOB)
 			mob_index[index_count] = -1;
-		else if (mode == DB_BOOT_SHP)
-			shp_index[index_count] = -1;
 		else if (mode == DB_BOOT_WLD)
 			wld_index[index_count] = -1;
 	}
@@ -673,9 +657,6 @@ index_boot(int mode)
 			break;
 		case DB_BOOT_ZON:
 			load_zones(db_file, buf2);
-			break;
-		case DB_BOOT_SHP:
-			boot_the_shops(db_file, buf2, rec_count);
 			break;
 		}
 
@@ -2717,14 +2698,9 @@ reset_zone(struct zone_data *zone)
 	struct room_data *room;
 	struct special_search_data *srch = NULL;
 	PHead *p_head = NULL;
-	struct shop_data *shop;
 	struct Creature *vkeeper = NULL;
 
-	SPECIAL(shop_keeper);
-	extern struct shop_data *shop_index;
-
-	// Find all the shops in this zone and reset them.
-	// Also, send SPECIAL_RESET notification to all mobiles with specials
+	// Send SPECIAL_RESET notification to all mobiles with specials
 	CreatureList::iterator cit = characterList.begin();
 	for (; cit != characterList.end(); ++cit) {
 		// Wrong zone
@@ -2733,34 +2709,10 @@ reset_zone(struct zone_data *zone)
 		// No special
 		if (!MOB_FLAGGED((*cit), MOB_SPEC))
 			continue;
-		// Wrong special
-		if (GET_MOB_SPEC((*cit)) != shop_keeper) {
-			if (GET_MOB_SPEC((*cit)))
-				GET_MOB_SPEC((*cit))((*cit), (*cit), 0, "", SPECIAL_RESET);
+		// Mobile with special gets a reset notice
+		if (GET_MOB_SPEC((*cit))) {
+			GET_MOB_SPEC((*cit))((*cit), (*cit), 0, "", SPECIAL_RESET);
 			continue;
-		}
-		// Run through the shop list and find the right one
-		for (shop = shop_index; shop; shop = shop->next) {
-			// Do they have revenue set on the shop?
-			if (SHOP_REVENUE(shop) <= 0)
-				continue;
-			// Make sure its the right shop keeper.
-			if (GET_MOB_VNUM((*cit)) != shop->keeper)
-				continue;
-			// Make sure the shop is in this zone;
-			if (shop->vnum < (zone->number * 100) || shop->vnum > zone->top)
-				continue;
-			// Assume at this point that we've found the proper keeper
-			// and shop pair.
-
-			// if the vnum's gold is less than his current gold
-			// add the revenue up to the vnum's gold.
-			vkeeper = real_mobile_proto(shop->keeper);
-			if (GET_MONEY((*cit), shop) < GET_MONEY(vkeeper, shop))
-				GET_MONEY((*cit), shop) =
-					MIN(GET_MONEY(vkeeper, shop), GET_MONEY((*cit),
-						shop) + SHOP_REVENUE(shop));
-			break;				// should break out of shop for loop.
 		}
 	}
 

@@ -35,7 +35,6 @@
 #include "flow_room.h"
 #include "fight.h"
 #include "bomb.h"
-#include "shop.h"
 #include "guns.h"
 #include "specs.h"
 #include "mobact.h"
@@ -43,6 +42,7 @@
 #include "events.h"
 #include "security.h"
 #include "quest.h"
+#include "vendor.h"
 
 #include <iostream>
 #include <algorithm>
@@ -828,8 +828,8 @@ damage(struct Creature *ch, struct Creature *victim, int dam,
 	if (CANNOT_DAMAGE(ch, victim, weap, attacktype))
 		dam = 0;
 
-	/* shopkeeper protection */
-	if (!ok_damage_shopkeeper(ch, victim)) {
+	/* vendor protection */
+	if (!ok_damage_vendor(ch, victim)) {
 		DAM_RETURN(0);
 	}
 

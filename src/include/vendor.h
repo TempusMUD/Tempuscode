@@ -1,6 +1,36 @@
 #ifndef _VENDOR_H_
 #define _VENDOR_H_
 
+class CraftItem;
+
+class Craftshop {
+	public:
+		Craftshop(xmlNodePtr node);
+        ~Craftshop();
+		static Craftshop *find(Creature *keeper);
+        //Loads the Craftshop described by the given xml node.
+		void load(xmlNodePtr node);
+        // sends a simple status message to the given Creature.
+        void sendStatus( Creature *ch );
+        //Loads the Craftitem described by the given xml node.
+		void parse_item(xmlNodePtr node);
+        // Lists the items for sale.
+		void list(Creature *keeper, Creature *ch);
+        // Attempts to purchase an item from keeper for ch.
+		void buy(Creature *keeper, Creature *ch, char *args);
+        int getID() { return id; }
+    public:
+        
+		int room;
+		int keeper_vnum;
+		vector<CraftItem *> items;
+    private:
+        int id;
+};
+
+/** Loads and/or creates the Craftshop described by the given node. **/
+void load_craft_shop(xmlNodePtr node);
+
 struct ShopTime {
 	int start, end;
 };
@@ -34,5 +64,7 @@ struct ShopData {
 
 SPECIAL(vendor);
 char *vendor_parse_param(Creature *self, char *param, ShopData *shop, int *err_line);
+bool ok_damage_vendor(Creature *ch, Creature *victim);
+bool same_obj(obj_data *obj1, obj_data *obj2);
 
 #endif

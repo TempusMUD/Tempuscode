@@ -47,8 +47,6 @@ struct extra_descr_data *locate_exdesc(char *word,
 void set_move_buffer(struct Creature *ch);
 char *find_exdesc(char *word, struct extra_descr_data *list, int find_exact = 0);
 
-SPECIAL(shop_keeper);
-
 // locals
 static char arg1[MAX_INPUT_LENGTH], arg2[MAX_INPUT_LENGTH];
 
@@ -2180,10 +2178,8 @@ olc_mimic_mob(struct Creature *ch,
 		}
 	}
 
-	if (targ->mob_specials.shared->func != shop_keeper) {
-		targ->mob_specials.shared->func = orig->mob_specials.shared->func;
-		do_specassign_save(ch, SPEC_MOB);
-	}
+	targ->mob_specials.shared->func = orig->mob_specials.shared->func;
+	do_specassign_save(ch, SPEC_MOB);
 
 	if (targ->player.name)
 		free(targ->player.name);

@@ -31,7 +31,6 @@
 #include "screen.h"
 #include "vehicle.h"
 #include "char_class.h"
-#include "shop.h"
 #include "fight.h"
 #include "materials.h"
 #include "tokenizer.h"
@@ -39,6 +38,7 @@
 #include "house.h"
 #include "player_table.h"
 #include "events.h"
+#include "vendor.h"
 
 extern struct obj_data *object_list;
 
@@ -951,7 +951,7 @@ ASPELL(spell_charm)
 		send_to_char(ch, "You like yourself even better!\r\n");
 	else if (!IS_NPC(victim) && !(victim->desc))
 		send_to_char(ch, "You cannot charm linkless players!\r\n");
-	else if (!ok_damage_shopkeeper(ch, victim)) {
+	else if (!ok_damage_vendor(ch, victim)) {
 		act("$N falls down laughing at you!", FALSE, ch, 0, victim, TO_CHAR);
 		act("$N peers deeply into your eyes...", FALSE, ch, 0, victim,
 			TO_CHAR);
@@ -2978,7 +2978,7 @@ ASPELL(spell_control_undead)
 		}
 	}
 
-	else if (!ok_damage_shopkeeper(ch, victim)) {
+	else if (!ok_damage_vendor(ch, victim)) {
 
 		act("$N falls down laughing at you!", FALSE, ch, 0, victim, TO_CHAR);
 		act("$N peers deeply into your eyes...", FALSE, ch, 0, victim,

@@ -4,14 +4,13 @@
 #include "utils.h"
 #include "xml_utils.h"
 #include "db.h"
-#include "shop.h"
+#include "vendor.h"
 #include "tmpstr.h"
 #include "comm.h"
 
 void load_xml_object(xmlNodePtr node);
 void load_xml_mobile(xmlNodePtr node);
 void load_xml_zone(xmlNodePtr node);
-void load_xml_shop(xmlNodePtr node);
 void load_xml_room(xmlNodePtr node);
 
 // Needed from db.cc
@@ -66,8 +65,6 @@ xml_boot(void)
 				load_xml_mobile(node);
 			else if (xmlMatches(node->name, "zone"))
 				load_xml_zone(node);
-			else if (xmlMatches(node->name, "shop"))
-				load_xml_shop(node);
 			else if (xmlMatches(node->name, "room"))
 				load_xml_room(node);
 			else
@@ -456,10 +453,5 @@ load_xml_room(xmlNodePtr node)
 
 void
 load_xml_zone(xmlNodePtr node)
-{
-}
-
-void
-load_xml_shop(xmlNodePtr node)
 {
 }

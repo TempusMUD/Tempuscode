@@ -20,9 +20,9 @@
 #include "bomb.h"
 #include "utils.h"
 #include "house.h"
+#include "vendor.h"
 
 
-SPECIAL(shop_keeper);
 int check_mob_reaction(Creature *ch, Creature *vict);
 int apply_soil_to_char(Creature *ch, obj_data *obj, int type, int pos);
 int clan_house_can_enter(Creature *ch, struct room_data *room);
@@ -440,8 +440,7 @@ ACMD(do_snatch)
 
 
 	// NO NO With Imp's and Shopkeepers!
-	if ((GET_LEVEL(vict) >= LVL_AMBASSADOR) ||
-		GET_MOB_SPEC(vict) == shop_keeper)
+	if (!ok_damage_vendor(ch, vict))
 		percent = 121;			// Failure
 
 	// Mod the percentage based on position and flags

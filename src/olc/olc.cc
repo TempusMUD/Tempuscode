@@ -35,7 +35,6 @@
 #include "materials.h"
 #include "vehicle.h"
 #include "specs.h"
-#include "shop.h"
 #include "smokes.h"
 #include "paths.h"
 #include "bomb.h"
@@ -61,7 +60,7 @@ OLCIMP(Creature * ch)
 "olc exit <direction> <parameter> <value> ['one-way']\r\n" \
 "olc rexdesc <create | remove | edit | addkey> <keywords> [new keywords\r\n"  \
 "olc clear <room | obj | mob>\r\n"           \
-"olc create/destroy <room|zone|obj|mob|shop|search> <number>\r\n" \
+"olc create/destroy <room|zone|obj|mob|search> <number>\r\n" \
 "olc help [keyword]\r\n"               \
 "olc osave\r\n"                        \
 "olc oedit [number | 'exit']\r\n"               \
@@ -176,17 +175,14 @@ bool save_wld(struct Creature *ch, struct zone_data *zone);
 bool save_mobs(struct Creature *ch, struct zone_data *zone);
 bool save_zone(struct Creature *ch, struct zone_data *zone);
 
-int save_shops(struct Creature *ch);
 struct room_data *do_create_room(struct Creature *ch, int vnum);
 struct obj_data *do_create_obj(struct Creature *ch, int vnum);
 struct Creature *do_create_mob(struct Creature *ch, int vnum);
-struct shop_data *do_create_shop(struct Creature *ch, int vnum);
 struct help_index_element *do_create_help(struct Creature *ch);
 
 int do_destroy_room(struct Creature *ch, int vnum);
 int do_destroy_object(struct Creature *ch, int vnum);
 int do_destroy_mobile(struct Creature *ch, int vnum);
-int do_destroy_shop(struct Creature *ch, int vnum);
 int do_create_zone(struct Creature *ch, int num);
 int olc_mimic_mob(struct Creature *ch, struct Creature *orig,
 	struct Creature *targ, int mode);
@@ -208,9 +204,6 @@ void do_zpath_cmd(struct Creature *ch, char *argument);
 void do_mob_medit(struct Creature *ch, char *argument);
 void do_mob_mstat(struct Creature *ch);
 void do_mob_mset(struct Creature *ch, char *argument);
-void do_shop_sedit(struct Creature *ch, char *argument);
-void do_shop_sstat(struct Creature *ch);
-void do_shop_sset(struct Creature *ch, char *argument);
 void do_olc_xset(struct Creature *ch, char *argument);
 void do_olc_rset(struct Creature *ch, char *argument);
 void do_olc_xstat(struct Creature *ch);
@@ -313,7 +306,6 @@ ACMD(do_olc)
 	struct obj_data *tmp_obj = NULL, *obj = NULL;
 	struct descriptor_data *d = NULL;
 	struct zone_data *zone = NULL;
-	struct shop_data *shop = NULL;
 	struct Creature *mob = NULL;
 	struct Creature *tmp_mob = NULL;
 	struct special_search_data *tmp_search;
@@ -1039,17 +1031,6 @@ ACMD(do_olc)
 				(i == 1) ? "":"s");
 			return;
 
-		} else if (is_abbrev(argument, "shops")) {
-			room = ch->in_room;
-			for (zone = zone_table, i = 0; zone; zone = zone->next, i++)
-				if (zone->world) {
-					ch->in_room = zone->world;
-					save_shops(ch);
-				}
-			ch->in_room = room;
-			send_to_char(ch, "shops saved.\r\n");
-			return;
-
 		} else if (is_abbrev(argument, "mobiles")) {
 			for (zone = zone_table, i = 1; zone; zone = zone->next, i++)
 				save_mobs(ch, zone);
@@ -1066,7 +1047,7 @@ ACMD(do_olc)
 	case 20:  /*** create ***/
 		if (!*argument)
 			send_to_char(ch, 
-				"Usage: olc create <room|zone|obj|mob|shop|help> <vnum|next>\r\n");
+				"Usage: olc create <room|zone|obj|mob|help> <vnum|next>\r\n");
 		else {
 			int tmp_vnum = 0;
 			argument = two_arguments(argument, arg1, arg2);
@@ -1147,14 +1128,6 @@ ACMD(do_olc)
 				} else if (!tmp_vnum && *arg2) {
 					send_to_char(ch, "No allocatable mobiles found in zone.\r\n");
 				}
-			} else if (is_abbrev(arg1, "shop")) {
-				if (!*arg2)
-					send_to_char(ch, "Create a shop with what vnum?\r\n");
-				else {
-					i = atoi(arg2);
-					if (do_create_shop(ch, i))
-						send_to_char(ch, "Shop succesfully created.\r\n");
-				}
 			} else if (is_abbrev(arg1, "search")) {
 				if ((tmp_search =
 						do_create_search(ch, strcat(arg2, argument)))) {
@@ -1168,14 +1141,14 @@ ACMD(do_olc)
 					send_to_char(ch, "Path added.\r\n");
 			} else
 				send_to_char(ch, 
-					"Usage: olc create <room|zone|obj|mob|shop> <vnum>\r\n");
+					"Usage: olc create <room|zone|obj|mob> <vnum>\r\n");
 		}
 		break;
 
 	case 21:/**** destroy ****/
 		if (!*argument) {
 			send_to_char(ch, 
-				"Usage: olc destroy <room|zone|obj|mob|shop> <vnum>\r\n");
+				"Usage: olc destroy <room|zone|obj|mob> <vnum>\r\n");
 			return;
 		}
 		argument = two_arguments(argument, arg1, arg2);
@@ -1224,20 +1197,6 @@ ACMD(do_olc)
 
 			if (!do_destroy_mobile(ch, i))
 				send_to_char(ch, "Mobile eliminated.\r\n");
-
-		} else if (is_abbrev(arg1, "shop")) {
-			if (!*arg2) {
-				if (!GET_OLC_SHOP(ch)) {
-					send_to_char(ch, "Destroy what shop prototype?\r\n");
-					return;
-				}
-				shop = GET_OLC_SHOP(ch);
-				i = shop->vnum;
-			} else
-				i = atoi(arg2);
-
-			if (!do_destroy_shop(ch, i))
-				send_to_char(ch, "Shop eliminated.\r\n");
 
 		} else if (is_abbrev(arg1, "zone")) {
 			send_to_char(ch, "Command not imped yet.\r\n");
@@ -1342,19 +1301,16 @@ ACMD(do_olc)
 				zone->number, zone->name);
 		break;
 	case 37:					/* sedit */
-		do_shop_sedit(ch, argument);
+		send_to_char(ch, "Disabled.\r\n");
 		break;
 	case 38:					/* sstat */
-		do_shop_sstat(ch);
+		send_to_char(ch, "Disabled.\r\n");
 		break;
 	case 39:					/* sset */
-		do_shop_sset(ch, argument);
+		send_to_char(ch, "Disabled.\r\n");
 		break;
 	case 40:
-		if (!save_shops(ch))
-			send_to_char(ch, "Shop file saved.\r\n");
-		else
-			send_to_char(ch, "An error occured while saving.\r\n");
+		send_to_char(ch, "Disabled.\r\n");
 		break;
 	case 41:					/* zimplant */
 		do_zimplant_cmd(ch, argument);
@@ -2099,26 +2055,10 @@ show_olc_help(struct Creature *ch, char *arg)
 		page_string(ch->desc, buf);
 		break;
 	case 28:		   /** sflags **/
-		strcpy(buf, "SHOP FLAGS:\r\n");
-		for (i = 0; i < NUM_SHOP_FLAGS; i++) {
-			if (str_cmp(shop_bits[i], "ILL")) {
-				sprintf(buf2, "%2d         %s%s%s\r\n",
-					i, CCCYN(ch, C_NRM), shop_bits[i], CCNRM(ch, C_NRM));
-				strcat(buf, buf2);
-			}
-		}
-		page_string(ch->desc, buf);
+		send_to_char(ch, "Disabled.\r\n");
 		break;
 	case 29:		   /** tradewith **/
-		strcpy(buf, "TRADE WITH:\r\n");
-		for (i = 0; i < NUM_TRADE_WITH; i++) {
-			sprintf(buf2, "%2d         %s%s%s\r\n",
-				i, CCCYN(ch, C_NRM), trade_letters[i], CCNRM(ch, C_NRM));
-			strcat(buf, buf2);
-		}
-		page_string(ch->desc, buf);
-		break;
-
+		send_to_char(ch, "Disabled.\r\n");
 	case 30: /** implantpos **/
 		strcpy(buf, "IMPLANT POSITIONS:\r\n");
 		for (i = 0; i < NUM_WEARS; i++) {

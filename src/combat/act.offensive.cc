@@ -29,7 +29,7 @@
 #include "fight.h"
 #include "guns.h"
 #include "bomb.h"
-#include "shop.h"
+#include "vendor.h"
 #include "events.h"
 
 /* extern variables */
@@ -1574,7 +1574,7 @@ ACMD(do_stun)
 	if (!peaceful_room_ok(ch, vict, true))
 		return;
 
-	if (!ok_damage_shopkeeper(ch, vict) && GET_LEVEL(ch) < LVL_ELEMENT) {
+	if (!ok_damage_vendor(ch, vict) && GET_LEVEL(ch) < LVL_ELEMENT) {
 		act("$N stuns you with a swift blow!", FALSE, ch, 0, vict, TO_CHAR);
 		act("$N stuns $n with a swift blow to the neck!",
 			FALSE, ch, 0, vict, TO_ROOM);
@@ -2833,7 +2833,7 @@ ACMD(do_intimidate)
 		(IS_NPC(vict) ? (GET_MORALE(vict) >> 1) : GET_LEVEL(vict)) +
 		(AFF_FLAGGED(vict, AFF_CONFIDENCE) ? GET_LEVEL(vict) : 0);
 
-	if (!ok_damage_shopkeeper(ch, vict))
+	if (!ok_damage_vendor(ch, vict))
 		return;
 
 	if (subcmd == SKILL_TERRORIZE) {

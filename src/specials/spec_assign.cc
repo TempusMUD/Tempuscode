@@ -25,7 +25,7 @@
 #include "specs.h"
 #include "screen.h"
 #include "comm.h"
-#include "shop.h"
+#include "vendor.h"
 #include "tmpstr.h"
 
 extern int mini_mud;
@@ -33,8 +33,6 @@ extern struct obj_data *obj_proto;
 extern struct zone_data *zone_table;
 extern struct Creature *mob_proto;
 extern struct shop_data *shop_index;
-
-SPECIAL(shop_keeper);
 
 // weapon_lister is a transient
 SPECIAL(weapon_lister);
@@ -270,7 +268,6 @@ const struct spec_func_data spec_list[] = {
 	{"killzone_room", killzone_room, SPEC_RM | SPEC_RES},
 	{"hell_domed_chamber", hell_domed_chamber, SPEC_RM | SPEC_RES},
 	{"malagard_lightning_room", malagard_lightning_room, SPEC_RM | SPEC_RES},
-	{"shop_keeper", shop_keeper, SPEC_MOB},
 	{"vendor", vendor, SPEC_MOB},
 	{"voting_booth", voting_booth, SPEC_OBJ},
 	{"fountain_youth", fountain_youth, SPEC_OBJ},
@@ -333,7 +330,6 @@ do_specassign_save(struct Creature *ch, int mode)
 	struct Creature *mob = NULL;
 	struct room_data *room = NULL;
 	struct zone_data *zone = NULL;
-	struct shop_data *shop = NULL;
 
 	if (!mode || IS_SET(mode, SPEC_MOB)) {
 		if (!(file = fopen(SPEC_FILE_MOB, "w"))) {
@@ -345,28 +341,12 @@ do_specassign_save(struct Creature *ch, int mode)
 			mob = *mit;
 			//for (mob = mob_proto; mob; mob = mob->next) {
 			if (mob->mob_specials.shared->func) {
-				if (mob->mob_specials.shared->func == shop_keeper) {
-					for (shop = shop_index; shop; shop = shop->next)
-						if (SHOP_KEEPER(shop) == GET_MOB_VNUM(mob)) {
-							if (SHOP_FUNC(shop)) {
-								if ((index =
-										find_spec_index_ptr(SHOP_FUNC(shop))) <
-									0)
-									break;
-								fprintf(file, "%-6d %-20s ## %s\n",
-									GET_MOB_VNUM(mob), spec_list[index].tag,
-									GET_NAME(mob));
-							}
-						}
-				} else {
-					if ((index =
-							find_spec_index_ptr(mob->mob_specials.shared->
-								func)) < 0)
-						continue;
-					fprintf(file, "%-6d %-20s ## %s\n",
-						GET_MOB_VNUM(mob), spec_list[index].tag,
-						GET_NAME(mob));
-				}
+				if ((index = find_spec_index_ptr(mob->mob_specials.shared->
+							func)) < 0)
+					continue;
+				fprintf(file, "%-6d %-20s ## %s\n",
+					GET_MOB_VNUM(mob), spec_list[index].tag,
+					GET_NAME(mob));
 			}
 		}
 		fclose(file);

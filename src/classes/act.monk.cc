@@ -22,7 +22,7 @@
 #include "house.h"
 #include "char_class.h"
 #include "fight.h"
-#include "shop.h"
+#include "vendor.h"
 
 void
 perform_monk_meditate(struct Creature *ch)
@@ -602,7 +602,7 @@ ACMD(do_pinch)
 		to_room = "$n staggers weakly.";
 		break;
 	case SKILL_PINCH_OMEGA:
-		if (!ok_damage_shopkeeper(ch, vict) && GET_LEVEL(ch) < LVL_ELEMENT) {
+		if (!ok_damage_vendor(ch, vict) && GET_LEVEL(ch) < LVL_ELEMENT) {
 			act("$N stuns you with a swift blow!", FALSE, ch, 0, vict,
 				TO_CHAR);
 			act("$N stuns $n with a swift blow to the neck!", FALSE, ch, 0,
