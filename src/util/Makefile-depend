@@ -17,7 +17,7 @@ $(OBJ)/random.o : random.cc \
 
 	$(CXX) -c $(CXXFLAGS) random.cc            -o $(OBJ)/random.o
 $(OBJ)/sight.o : sight.cc \
-	$(INCLUDE)/defs.h $(INCLUDE)/creature.h $(INCLUDE)/utils.h $(INCLUDE)/spells.h 
+	$(INCLUDE)/defs.h $(INCLUDE)/creature.h $(INCLUDE)/utils.h $(INCLUDE)/spells.h $(INCLUDE)/handler.h 
 	$(CXX) -c $(CXXFLAGS) sight.cc             -o $(OBJ)/sight.o
 $(OBJ)/tmpstr.o : tmpstr.cc \
 	$(INCLUDE)/interpreter.h $(INCLUDE)/utils.h $(INCLUDE)/db.h 
