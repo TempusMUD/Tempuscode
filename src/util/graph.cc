@@ -269,7 +269,23 @@ show_trails_to_char(Creature *ch, char *str)
 			prob = (10 - trail->track) * 10;
 			if (str)
 				prob += 20;
-			if (number(0, CHECK_SKILL(ch, SKILL_TRACK)) < prob)
+			if (GET_CLASS(ch) == CLASS_RANGER) {
+				if ((ch->in_room->sector_type == SECT_FOREST) ||
+					(ch->in_room->sector_type == SECT_FIELD) ||
+					(ch->in_room->sector_type == SECT_HILLS) ||
+					(ch->in_room->sector_type == SECT_MOUNTAIN) ||
+					(ch->in_room->sector_type == SECT_TRAIL) ||
+					(ch->in_room->sector_type == SECT_ROCK) ||
+					(ch->in_room->sector_type == SECT_MUDDY))
+					prob = 20;
+				else
+					prob = 10;
+				if (!OUTSIDE(ch))
+					prob -= 40;
+			}
+			if (IS_TABAXI(ch))
+				prob += GET_LEVEL(ch) >> 1;
+			if (number(0, 101) < MIN(100, prob))
 				continue;
 		}
 
@@ -317,25 +333,20 @@ show_trails_to_char(Creature *ch, char *str)
 ACMD(do_track)
 {
 	struct Creature *vict;
-	int dir, num, bonus = 0;
-	byte count = 0;
+	int dir;
+	bool spirit = affected_by_spell(ch, SPELL_SPIRIT_TRACK);
 
-	if (!GET_SKILL(ch, SKILL_TRACK)) {
+	
+	if (!GET_SKILL(ch, SKILL_TRACK) && !spirit) {
 		send_to_char(ch, "You have no idea how.\r\n");
 		return;
 	}
 	one_argument(argument, arg);
-/*	---- Add this back in when we want trail-based tracking
-	if (!*arg) {
+	if (!*arg || !spirit) {
 		show_trails_to_char(ch, NULL);
 		return;
 	}
 
-	if (!affected_by_spell(ch, SPELL_SPIRIT_TRACK)) {
-		show_trails_to_char(ch, arg);
-		return;
-	}
-*/
 	vict = get_char_vis(ch, arg);
 
 	if (!vict || !can_see_creature(ch, vict)) {
@@ -346,17 +357,6 @@ ACMD(do_track)
 	if (vict->in_room == ch->in_room) {
 		send_to_char(ch, "You're already in the same room!\r\n");
 		return;
-	}
-
-	if (IS_AFFECTED(vict, AFF_NOTRACK)
-		|| (affected_by_spell(vict, SKILL_ELUSION)
-			&& !(IS_NPC(ch) && MOB_FLAGGED(ch, MOB_SPIRIT_TRACKER))
-			&& number(0, CHECK_SKILL(ch, SKILL_TRACK))
-				> (number(0, CHECK_SKILL(vict, SKILL_ELUSION))
-					+ (IS_RANGER(vict) && SECT_TYPE(vict->in_room) == SECT_FOREST) ? 20 : 0))) {
-		send_to_char(ch, "You sense no trail.\r\n");
-		if (GET_LEVEL(ch) < LVL_IMPL)
-			return;
 	}
 
 	dir = find_first_step(ch->in_room, vict->in_room,
@@ -374,31 +374,7 @@ ACMD(do_track)
 			HMHR(vict));
 		break;
 	default:
-		num = number(0, 101);	/* 101% is a complete failure */
-		if (GET_CLASS(ch) == CLASS_RANGER) {
-			if ((ch->in_room->sector_type == SECT_FOREST) ||
-				(ch->in_room->sector_type == SECT_FIELD) ||
-				(ch->in_room->sector_type == SECT_HILLS) ||
-				(ch->in_room->sector_type == SECT_MOUNTAIN) ||
-				(ch->in_room->sector_type == SECT_TRAIL) ||
-				(ch->in_room->sector_type == SECT_ROCK) ||
-				(ch->in_room->sector_type == SECT_MUDDY))
-				bonus = 20;
-			else
-				bonus = -10;
-			if (!OUTSIDE(ch))
-				bonus -= 40;
-		}
-		if (IS_TABAXI(ch))
-			bonus += GET_LEVEL(ch) >> 1;
-		if ((GET_SKILL(ch, SKILL_TRACK) + bonus) < num)
-			do {
-				dir = number(0, NUM_OF_DIRS - 1);
-				count++;
-			} while ((!CAN_GO(ch, dir) ||
-					ROOM_FLAGGED(EXIT(ch, dir)->to_room, ROOM_DEATH)) &&
-				count < 30);
-		else if (GET_LEVEL(vict) > GET_LEVEL(ch) + number(0, 10))
+		if (!number(0, 99))
 			gain_skill_prof(ch, SKILL_TRACK);
 		send_to_char(ch, "You sense a trail %s from here!\r\n", dirs[dir]);
 		WAIT_STATE(ch, 6);
