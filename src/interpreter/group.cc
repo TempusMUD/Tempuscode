@@ -189,8 +189,8 @@ namespace Security {
     /* Sends a list of this group's members to the given character. */
     bool Group::sendPublicMemberList( Creature *ch, char *str, char* adminGroup ) {
         vector<long>::iterator it = members.begin();
-        int pos = 1;
-        char namebuf[80];
+        int pos = 0;
+		const char *name;
 		Group* group = NULL;
 		bool admin = false;
 		if( Security::isGroup(adminGroup) )
@@ -198,16 +198,18 @@ namespace Security {
 
         strcat(str, "        ");
         for( ; it != members.end(); ++it ) {
+			name = playerIndex.getName(*it);
+			if (!name)
+				continue;
 			admin = (group != NULL) && (group->member(*it));
-            strcpy(namebuf, playerIndex.getName(*it));
-            namebuf[0] = toupper(namebuf[0]);
-            sprintf(buf2, "%s%-15s%s", 
+            strcat(str,
+				tmp_sprintf("%s%-15s%s", 
 					admin ? CCYEL_BLD(ch,C_NRM) : "", 
-					namebuf,
-					admin ? CCNRM(ch,C_NRM) : "");
-			strcat(str, buf2);
-            if( pos++ % 4 == 0 ) {
-                pos = 1;
+					tmp_capitalize(name),
+					admin ? CCNRM(ch,C_NRM) : ""));
+			pos++;
+            if (pos > 3 ) {
+                pos = 0;
                 strcat(str,"\r\n        ");
             } 
         }
