@@ -14,6 +14,8 @@ struct tmp_str_buffer {
 };
 
 const size_t INITIAL_POOL_SIZE = 32767;	// 32k to start with
+unsigned long tmp_max_used = 0;
+unsigned long tmp_overruns = 0;
 
 static tmp_str_buffer *tmp_list_head;
 static tmp_str_buffer *tmp_list_tail;
@@ -36,12 +38,18 @@ tmp_gc_strings(void)
 	struct tmp_str_buffer *cur_buf, *next_buf;
 	size_t wanted = tmp_list_head->used;
 
+	if (tmp_list_head->next)
+		tmp_overruns++;
+
 	for(cur_buf = tmp_list_head->next;cur_buf;cur_buf = next_buf) {
 		next_buf = cur_buf->next;
 
 		wanted += cur_buf->used;
 		free(cur_buf);
 	}
+
+	if (wanted > tmp_max_used)
+		tmp_max_used = wanted;
 
 	tmp_list_head->next = NULL;
 	tmp_list_head->used = 0;
@@ -60,36 +68,6 @@ tmp_alloc_buf(int size)
 	new_buf->used = 0;
 
 	return new_buf;
-}
-
-// returns amount of memory used by the temporary string mechanism
-size_t
-tmp_storage_space(void)
-{
-	tmp_str_buffer *cur_buf = tmp_list_head;
-	size_t result = 0;
-	
-	while (cur_buf) {
-		result += cur_buf->space;
-		cur_buf = cur_buf->next;
-	}
-
-	return result;
-}
-
-// returns amount of memory used by the temporary string mechanism
-size_t
-tmp_storage_used(void)
-{
-	tmp_str_buffer *cur_buf = tmp_list_head;
-	size_t result = 0;
-	
-	while (cur_buf) {
-		result += cur_buf->used;
-		cur_buf = cur_buf->next;
-	}
-
-	return result;
 }
 
 // sprintf into a temp str

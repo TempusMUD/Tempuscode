@@ -6,8 +6,6 @@
 
 void tmp_string_init(void);
 void tmp_gc_strings(void);
-size_t tmp_storage_space(void);
-size_t tmp_storage_used(void);
 char *tmp_vsprintf(const char *fmt, va_list args); 
 char *tmp_sprintf(const char *fmt, ...);
 char *tmp_strcat(char *src, ...);
@@ -17,5 +15,8 @@ inline char *tmp_strdup(char *src)
 {
 	return tmp_strcat(src, NULL);
 }
+
+extern unsigned long tmp_max_used;
+extern unsigned long tmp_overruns;
 
 #endif
