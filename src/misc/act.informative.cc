@@ -2988,7 +2988,8 @@ ACMD(do_who)
 		who_female = false,
 		who_male = false,
 		who_remort = false,
-		who_tester = false, who_pkills = false, who_i = false;
+		who_tester = false, who_pkills = false, who_i = false,
+        who_gen = false;
 	int effective_char_class;
 
 	skip_spaces(&argument);
@@ -3072,6 +3073,14 @@ ACMD(do_who)
 				who_tester = true;
 				strcpy(buf, buf1);
 				break;
+            case 'g':
+                if (GET_LEVEL(ch) < LVL_AMBASSADOR) {
+                    send_to_char(ch, WHO_FORMAT);
+                    return;
+                }
+                who_gen = true;
+                strcpy(buf, buf1);
+                break;
 			default:
 				send_to_char(ch, WHO_FORMAT);
 				return;
@@ -3190,11 +3199,7 @@ ACMD(do_who)
 				strcpy(badge, "OP ARCH");
 				break;
 			case 8:			// Custom
-				if (!strncmp(GET_NAME(tch), "Nothing", 7)) {
-					strcpy(badge, "THECODE");
-				} else {
-					strcpy(badge, LEV_ABBR(tch));
-				}
+				strcpy(badge, LEV_ABBR(tch));
 				break;
 			case 9:
 				strcpy(badge, " ELDER ");
@@ -3209,9 +3214,16 @@ ACMD(do_who)
 				strcpy(badge, LEV_ABBR(tch));
 			}
 
-			sprintf(buf2, "%s%s%s[%s%s%s]%s ", buf2,
-				CCGRN(ch, C_SPR), CCYEL_BLD(ch, C_NRM), CCNRM_GRN(ch, C_NRM),
-				badge, CCYEL_BLD(ch, C_NRM), CCNRM(ch, C_NRM));
+            if (who_gen) {
+                sprintf(buf2, "%s%s%s[%s%s%s%s%s]%s ", buf2, 
+                        CCGRN(ch, C_SPR), CCYEL_BLD(ch, C_NRM), "  ",
+                        CCNRM_GRN(ch, C_NRM), badge, CCYEL_BLD(ch, C_NRM), "  ", CCNRM(ch, C_NRM));
+            }
+            else {
+                sprintf(buf2, "%s%s%s[%s%s%s]%s ", buf2,
+                    CCGRN(ch, C_SPR), CCYEL_BLD(ch, C_NRM), CCNRM_GRN(ch, C_NRM),
+                    badge, CCYEL_BLD(ch, C_NRM), CCNRM(ch, C_NRM));
+            }
 		} else {
 			if (IS_VAMPIRE(tch))
 				effective_char_class = GET_OLD_CLASS(tch);
@@ -3224,6 +3236,19 @@ ACMD(do_who)
 					CCGRN(ch, C_NRM), CCCYN(ch, C_NRM),
 					c_buf, char_class_abbrevs[(int)effective_char_class],
 					CCNRM(ch, C_NRM), CCGRN(ch, C_NRM), CCNRM(ch, C_NRM));
+            else if(who_gen) {
+                sprintf(buf2, "%s%s[%s%2d%s(%s%02d%s)%s%s%s%s%s%s]%s ", buf2,
+                        CCGRN(ch, C_NRM), 
+                        (PRF2_FLAGGED(tch, PRF2_ANONYMOUS) &&
+                         PRF_FLAGGED(ch, PRF_HOLYLIGHT)) ? CCRED(ch, C_NRM) :
+                         CCNRM(ch, C_NRM), GET_LEVEL(tch), 
+                         CCCYN(ch, C_NRM), CCNRM(ch, C_NRM), (GET_REMORT_GEN(tch) > 0) ? GET_REMORT_GEN(tch) : 0,
+                         CCCYN(ch, C_NRM), CCNRM(ch, C_NRM),
+                         (PRF2_FLAGGED(tch, PRF2_ANONYMOUS) &&
+                          PRF_FLAGGED(ch, PRF_HOLYLIGHT)) ? "-" : " ",
+                         c_buf, char_class_abbrevs[(int)effective_char_class],
+                         CCNRM(ch, C_NRM), CCGRN(ch, C_NRM), CCNRM(ch, C_NRM));
+            }
 			else
 				sprintf(buf2, "%s%s[%s%2d%s%s%s%s%s]%s ", buf2,
 					CCGRN(ch, C_NRM),

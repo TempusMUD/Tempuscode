@@ -1,6 +1,6 @@
 CXX=g++
 INCLUDE=include
-CCFLAGS=-g -Wall -Winline -Wcast-qual -I/usr/include/libxml2 -I/usr/local/pgsql/include
+CCFLAGS=-g -Wall -Winline -Wcast-qual -I/usr/include/libxml2 -I/usr/local/pgsql/include -I/usr/include/pgsql
 CXXFLAGS=$(CCFLAGS) -I$(INCLUDE)
 
 SUBDIRS= \
