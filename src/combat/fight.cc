@@ -134,7 +134,7 @@ set_fighting(struct Creature *ch, struct Creature *vict, int aggr)
 		stop_defending(vict);
 
     ch->addCombat(vict, aggr);
-    vict->addCombat(ch, false);
+//    vict->addCombat(ch, false);
 	update_pos(ch);
 
 	trigger_prog_fight(ch, vict);

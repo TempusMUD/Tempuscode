@@ -2303,7 +2303,7 @@ ACMD(do_trigger)
 
 	prob -= ((IS_CARRYING_W(ch) + IS_WEARING_W(ch)) << 3) / CAN_CARRY_W(ch);
 
-	if (tch->getPosition() == POS_FIGHTING)
+	if (tch && tch->getPosition() == POS_FIGHTING)
 		prob -= (GET_LEVEL(tch) >> 3);
 
 	/**** casting probability ends here *****/
