@@ -1454,10 +1454,8 @@ char_to_game(descriptor_data *d)
 
 	characterList.add(d->creature);
 
-	if(!d->creature->in_room)
+	if(!load_room)
 		load_room = d->creature->getLoadroom();
-	else
-		load_room = d->creature->in_room;
 
 	char_to_room(d->creature, load_room);
 	load_room->zone->enter_count++;
