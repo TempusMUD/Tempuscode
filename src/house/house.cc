@@ -709,14 +709,6 @@ HouseControl::save()
 	}
 }
 
-bool
-House::load()
-{
- 	char *path = get_house_file_path(getID());
-
-    return this->load(path);
-}
-
 void
 HouseControl::load()
 {
@@ -1250,7 +1242,7 @@ void
 set_house_clan_owner( Creature *ch, House *house, char *arg )
 {
 	int clanID = 0;
-	if( isdigit(*arg) ) { // to clan id
+	if( is_number(arg) ) { // to clan id
 		clan_data *clan = real_clan( atoi(arg) );
 		if( clan != NULL ) {
 			clanID = atoi(arg);
@@ -1303,7 +1295,7 @@ set_house_account_owner( Creature *ch, House *house, char *arg )
 		return;
 	}
 
-	house->setOwnerID( atoi(arg) );
+	house->setOwnerID( accountID );
 	send_to_char(ch, "Owner set to account %d.\r\n", house->getOwnerID() );
 	slog("HOUSE: Owner of house %d set to account %d by %s.", 
 			house->getID(), house->getOwnerID(), GET_NAME(ch) );
@@ -1403,7 +1395,7 @@ hcontrol_set_house( Creature *ch, char *arg)
 		return;
 	} else if (is_abbrev(arg2, "owner")) {
 		if (!*arg) {
-			send_to_char(ch, "Set who as the owner?\r\n");
+			send_to_char(ch, "Set owner of what house?\r\n");
 			return;
 		}
 		char *owner = tmp_getword(&arg);
@@ -1444,10 +1436,11 @@ hcontrol_where_house( Creature *ch, char *arg)
 		CCGRN(ch, C_NRM), CCNRM(ch, C_NRM), h->getOwnerID() );
 }
 
-void hcontrol_reload_house(Creature *ch, char *arg) 
+void 
+hcontrol_reload_house(Creature *ch, char *arg) 
 {
-    struct room_data *room = NULL;
-    struct obj_data *obj = NULL, *next_o = NULL;
+    //struct room_data *room = NULL;
+    //struct obj_data *obj = NULL, *next_o = NULL;
     const char *arg1 = tmp_getword(&arg);
     House *h = NULL; 
 
@@ -1456,8 +1449,7 @@ void hcontrol_reload_house(Creature *ch, char *arg)
             send_to_char(ch, "You are not in a house.\r\n");
             return;
         }
-    }
-    else {
+    } else {
         if (!atoi(arg1)) {
 		    send_to_char(ch, HCONTROL_FORMAT);
             return;
@@ -1467,22 +1459,60 @@ void hcontrol_reload_house(Creature *ch, char *arg)
             return;
         }
     }
-
-    if (h == NULL) {
-        send_to_char(ch, "Bad things just happened.  Please report\r\n");
-        return;
+    if( Housing.reload( h ) ) {
+        send_to_char(ch, "Reload complete. It might even have worked.\r\n");
+    } else {
+        send_to_char(ch, "Reload failed. Figure it out yourself oh great coder.\r\n");
     }
+}
 
-    for( unsigned int i = 1; i < h->getRoomCount(); i++ ) {
-        int room_num = h->getRoom(i);
-        room = real_room(room_num); 
-        for (obj = room->contents; obj; obj = next_o) {
-            next_o = obj->next_content;
+bool
+HouseControl::reload( House *house )
+{
+    if( house == NULL )
+        return false;
+
+ 	char *path = tmp_strcat( get_house_file_path(house->getID()), ".backup", NULL );
+	int axs = access(path, R_OK);
+	if( axs != 0 ) {
+		if( errno != ENOENT ) {
+			errlog("Unable to open xml house file '%s' for reload: %s", 
+                   path, strerror(errno) );
+			return false;
+		} else {
+			errlog("Unable to open xml house file '%s' for reload.", path );
+			return false;
+		}
+	}
+
+    for( unsigned int i = 1; i < house->getRoomCount(); i++ ) {
+        int room_num = house->getRoom(i);
+        room_data* room = real_room(room_num); 
+        for( obj_data* obj = room->contents; obj; ) {
+            obj_data* next_o = obj->next_content;
             extract_obj(obj);
+            obj = next_o;
         }
     }
 
-    h->load();
+    //h->load();
+    //todo check for existance
+    
+    Housing.destroyHouse( house );
+    house = new House();
+    if( house->load( path ) ) {
+        push_back(house);
+        std::sort( begin(), end(), HouseComparator() );
+        topId = 1;
+        if( getHouseCount() > 0 ) {
+            topId = getHouse( getHouseCount() -1 )->getID();
+        }
+        slog("HOUSE: Reloaded house %d", house->getID() );
+        return true;
+    } else {
+        errlog("Failed to reload house file: %s ", path );
+        return false;
+    }
 }
 /* Misc. administrative functions */
 
@@ -1769,6 +1799,12 @@ ACMD(do_hcontrol)
 		}
 	} 
     else if (is_abbrev(action_str, "reload")) {
+
+        if (!Security::isMember(ch, "Coder")) {
+            send_to_char(ch, "What are you thinking? You don't even _LOOK_ like a coder.\r\n");
+            return;
+        }
+
         hcontrol_reload_house(ch, argument);
     } else {
 		send_to_char(ch,HCONTROL_FORMAT);

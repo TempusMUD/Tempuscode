@@ -84,7 +84,6 @@ class House
 		bool save();
 		// initializes this house from the given file
 		bool load( const char* filename );
-	    bool load();	
 		// retrieves this house's unique identifier
 		int getID() const { return id; }
 		// retrieves the unique id of the account that owns this house
@@ -185,6 +184,8 @@ class HouseControl : private std::vector<House*>
 		void save();
 		// loads all house contents
 		void load();
+        // reloads the given house
+        bool reload( House *house );
 		// charges rent on each house
 		void collectRent();
 		// Updates the prototype object's "number in houses" counts
