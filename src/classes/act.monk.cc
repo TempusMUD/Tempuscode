@@ -45,7 +45,9 @@ perform_monk_meditate(struct Creature *ch)
 		int test   =  (mag_manacost(ch, ZEN_OBLIVITY) + number(20, 40));
 
 		if (PRF2_FLAGGED(ch, PRF2_DEBUG)) 
-			send_to_char(ch, "<meditate> OBLIV: test[%d] target[%d] \r\n", test, target );
+			send_to_char(ch,
+				"%s[MEDITATE] Oblivity   test:%d   target:%d%s\r\n",
+				CCCYN(ch, C_NRM), test, target, CCNRM(ch, C_NRM));
 					
 		if( target > test ) 
 		{
@@ -70,7 +72,9 @@ perform_monk_meditate(struct Creature *ch)
 		int test   = (mag_manacost(ch, ZEN_AWARENESS) + number(6, 40) - GET_WIS(ch));
 
 		if (PRF2_FLAGGED(ch, PRF2_DEBUG)) 
-			send_to_char(ch, "<meditate> AWARE: test[%d] target[%d] \r\n", test, target );
+			send_to_char(ch,
+				"%s[MEDITATE] Awareness   test:%d   target:%d%s\r\n",
+				CCCYN(ch, C_NRM), test, target, CCNRM(ch, C_NRM));
 
 		if( target > test ) 
 		{
@@ -101,7 +105,9 @@ perform_monk_meditate(struct Creature *ch)
 		int test   = (mag_manacost(ch, ZEN_MOTION) + number(10, 40) - GET_WIS(ch));
 
 		if (PRF2_FLAGGED(ch, PRF2_DEBUG)) 
-			send_to_char(ch, "<meditate> MOTION: test[%d] target[%d] \r\n", test, target );
+			send_to_char(ch,
+				"%s[MEDITATE] Motion   test:%d   target:%d%s\r\n",
+				CCCYN(ch, C_NRM), test, target, CCNRM(ch, C_NRM));
 
 		if( target > test )
 		{
@@ -128,7 +134,9 @@ perform_monk_meditate(struct Creature *ch)
 		int test   = number(20, 25);
 
 		if (PRF2_FLAGGED(ch, PRF2_DEBUG)) 
-			send_to_char(ch, "<meditate> TRANSL: test[%d] target[%d] \r\n", test, target );
+			send_to_char(ch,
+				"%s[MEDITATE] Translocation   test:%d   target:%d%s\r\n",
+				CCCYN(ch, C_NRM), test, target, CCNRM(ch, C_NRM));
 
 		if( target > test )
 		{
@@ -153,7 +161,9 @@ perform_monk_meditate(struct Creature *ch)
 		int test   = number(20, 25);
 
 		if (PRF2_FLAGGED(ch, PRF2_DEBUG)) 
-			send_to_char(ch, "<meditate> TRANSL: test[%d] target[%d] \r\n", test, target );
+			send_to_char(ch,
+				"%s[MEDITATE] Celerity   test:%d   target:%d%s\r\n",
+				CCCYN(ch, C_NRM), test, target, CCNRM(ch, C_NRM));
 
 		if( target > test )
 		{
