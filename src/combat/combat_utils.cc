@@ -1634,7 +1634,7 @@ make_corpse(struct Creature *ch, struct Creature *killer, int attacktype)
                 fclose(corpse_file);
             }
             else  {
-	            slog("ERROR: Failed to open corpse file [%s] (%s)", fname,
+	            errlog("Failed to open corpse file [%s] (%s)", fname,
                      strerror(errno));
             }
         }

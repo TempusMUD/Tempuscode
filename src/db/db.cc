@@ -1011,17 +1011,9 @@ setup_dir(FILE * fl, struct room_data *room, int dir)
 	sprintf(buf2, "room #%d, direction D%d", room->number, dir);
 
 	if (dir >= NUM_DIRS) {
-		slog("ERROR!! 666!! (%d)", room->number);
+		errlog("Room direction > NUM_DIRS in room #%d", room->number);
 		safe_exit(1);
 	}
-	/*
-	   if (dir >= FORWARD && dir <= LEFT) {
-	   if (!room->dir_option[dir-FORWARD])
-	   dir -= FORWARD;
-	   } else if (dir == FUTURE || dir == PAST) {
-	   if (!room->dir_option[dir-4])
-	   dir -= 4;
-	   } */
 
 	CREATE(room->dir_option[dir], struct room_direction_data, 1);
 	room->dir_option[dir]->general_description = fread_string(fl, buf2);

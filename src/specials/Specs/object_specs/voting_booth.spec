@@ -436,7 +436,7 @@ voting_add_poll(void)
 	PGresult *res;
 
 	if (!voting_new_poll->descrip) {
-		slog("ERROR: voting_add_poll called with NULL buffer");
+		errlog("voting_add_poll called with NULL buffer");
 		return;
 	}
 
