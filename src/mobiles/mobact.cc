@@ -2219,29 +2219,32 @@ mobile_activity(void)
 				continue;
 
 			/** scan surrounding rooms **/
-			if (!found && !HUNTING(ch) && ch->getPosition() > POS_FIGHTING && !MOB_FLAGGED(ch, MOB_SENTINEL) && (GET_LEVEL(ch) + GET_MORALE(ch) > (random_number_zero_low(120) + 50) || GET_MOB_VNUM(ch) == 24800)) {	/* tarrasque 24800 */
+			if (!found && !HUNTING(ch) && ch->getPosition() > POS_FIGHTING && 
+			!MOB_FLAGGED(ch, MOB_SENTINEL) && 
+			(GET_LEVEL(ch) + GET_MORALE(ch) > (random_number_zero_low(120) + 50) 
+			 || GET_MOB_VNUM(ch) == 24800)) // tarrasque 24800 
+			{	
 				found = 0;
 
 				for (dir = 0; dir < NUM_DIRS && !found; dir++) {
-					if (CAN_GO(ch, dir) &&
-						!ROOM_FLAGGED(EXIT(ch, dir)->to_room,
-							ROOM_DEATH | ROOM_NOMOB | ROOM_PEACEFUL) &&
-						EXIT(ch, dir)->to_room != ch->in_room &&
-						CHAR_LIKES_ROOM(ch, EXIT(ch, dir)->to_room) &&
-						EXIT(ch, dir)->to_room->people.size() > 0 &&
-						CAN_SEE(ch, (*(EXIT(ch, dir)->to_room)->people.begin()))
-						&& EXIT(ch,
-							dir)->to_room->people.size() < (unsigned)EXIT(ch,
-							dir)->to_room->max_occupancy)
+					room_data *tmp_room = EXIT(ch, dir)->to_room;
+					if (CAN_GO(ch, dir) 
+						&& !ROOM_FLAGGED(tmp_room, ROOM_DEATH | ROOM_NOMOB | ROOM_PEACEFUL) 
+						&& tmp_room != ch->in_room 
+						&& CHAR_LIKES_ROOM(ch, tmp_room) 
+						&& tmp_room->people.size() > 0 
+						&& CAN_SEE( ch, (*(tmp_room->people.begin()) ) )
+						&& tmp_room->people.size() < (unsigned)tmp_room->max_occupancy ) 
+					{
 						break;
+					}
 				}
 
 				if (dir < NUM_DIRS) {
-					CharacterList::iterator it =
-						EXIT(ch, dir)->to_room->people.begin();
-					for (;
-						it != EXIT(ch, dir)->to_room->people.end() && !found;
-						++it) {
+					room_data *tmp_room = EXIT(ch, dir)->to_room;
+					CharacterList::iterator it = tmp_room->people.begin();
+
+					for (; it != tmp_room->people.end() && !found; ++it) {
 						vict = *it;
 						if (CAN_SEE(ch, vict)
 							&& !PRF_FLAGGED(vict, PRF_NOHASSLE)
@@ -2269,10 +2272,10 @@ mobile_activity(void)
 						if (IS_PSIONIC(ch) && GET_LEVEL(ch) > 23 &&
 							GET_MOVE(ch) > 100 && GET_MANA(vict) > 100) {
 							int retval = 0;
-							do_psidrain(ch, fname(vict->player.name), 0, 0,
-								&retval);
-						} else
+							do_psidrain(ch, fname(vict->player.name), 0, 0, &retval);
+						} else {
 							perform_move(ch, dir, MOVE_NORM, 1);
+						}
 					}
 				}
 			}
