@@ -1220,7 +1220,6 @@ set_desc_state(cxn_state state,struct descriptor_data *d)
 		start_text_editor(d,&d->creature->player.description,true, MAX_CHAR_DESC-1);
 	}
 
-    send_menu(d);
 	d->need_prompt = true;
 }
 
