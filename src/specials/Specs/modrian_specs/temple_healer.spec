@@ -6,39 +6,40 @@
 
 SPECIAL(temple_healer)
 {
-	Creature *self = (Creature *)me, *target;
+	Creature *self = (Creature *)me;
 	struct Creature *vict;
 	int found = 0;
 
 	if (spec_mode != SPECIAL_TICK)
 		return false;
 
-    if (self->numCombatants())
-       target = self->findRandomCombat();
+    if (self->numCombatants()) {
+		vict = self->findRandomCombat();
         
-	if (target->in_room == self->in_room) {
-		switch (number(0, 20)) {
-		case 0:
-			do_say(self, "Now you pay!!", 0, 0, 0);
-			cast_spell(self, target, NULL, SPELL_FLAME_STRIKE);
-			return true;
-		case 1:
-		case 2:
-		case 3:
-		case 4:
-		case 5:
-		case 6:
-		case 7:
-			if (!IS_AFFECTED(self, AFF_SANCTUARY)) {
-				do_say(self, "Guiharia, aid me now!!", 0, 0, 0);
-				call_magic(self, self, NULL, SPELL_SANCTUARY, 50, CAST_SPELL);
+		if (vict->in_room == self->in_room) {
+			switch (number(0, 20)) {
+			case 0:
+				do_say(self, "Now you pay!!", 0, 0, 0);
+				cast_spell(self, vict, NULL, SPELL_FLAME_STRIKE);
+				return true;
+			case 1:
+			case 2:
+			case 3:
+			case 4:
+			case 5:
+			case 6:
+			case 7:
+				if (!IS_AFFECTED(self, AFF_SANCTUARY)) {
+					do_say(self, "Guiharia, aid me now!!", 0, 0, 0);
+					call_magic(self, self, NULL, SPELL_SANCTUARY, 50, CAST_SPELL);
+					return true;
+				}
+			case 8:
+				cast_spell(self, self, NULL, SPELL_GREATER_HEAL);
 				return true;
 			}
-		case 8:
-			cast_spell(self, self, NULL, SPELL_GREATER_HEAL);
-			return true;
+			return false;
 		}
-		return false;
 	}
 
 	if (self->getPosition() != POS_FIGHTING && !self->numCombatants()) {
