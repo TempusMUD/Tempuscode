@@ -504,6 +504,16 @@ Account::initialize(const char *name, descriptor_data *d, int idnum)
 {
 	_id = idnum;
 	_name = strdup(name);
+	_password = NULL;
+	_creation_time = _login_time = time(0);
+	_creation_addr = strdup(d->host);
+	_login_addr = strdup(d->host);
+	_ansi_level = 0;
+	_term_height = 22;
+	_term_width = 80;
+	_bank_past = 0;
+	_bank_future = 0;
+
 	slog("new account: %s[%d] from %s", _name, idnum, d->host);
 }
 
@@ -540,25 +550,29 @@ Account::set_password(const char *pw)
 void
 Account::deposit_past_bank(long long amt)
 {
-    _bank_past += amt;
+	if (amt > 0)
+		_bank_past += amt;
 }
 
 void
 Account::deposit_future_bank(long long amt)
 {
-	_bank_future += amt;
+	if (amt > 0)
+		_bank_future += amt;
 }
 
 void
 Account::withdraw_past_bank(long long amt)
 {
-	_bank_past -= amt;
+	if (amt > 0)
+		_bank_past -= amt;
 }
 
 void
 Account::withdraw_future_bank(long long amt)
 {
-	_bank_future -= amt;
+	if (amt > 0)
+		_bank_future -= amt;
 }
 
 void
