@@ -980,8 +980,8 @@ ACMD(do_gen_comm)
 		// doubled
 		argument = tmp_gsub(argument, "%", "%%");
 
-		plain_emit = tmp_sprintf("%%s%s %ss, '%s'\r\n", chan->name,
-			mood_str, argument);
+		plain_emit = tmp_sprintf("%%s%s %ss, '%s'\r\n", mood_str, chan->name,
+			argument);
 		color_emit = tmp_sprintf("%s%%s%s %ss,%s%s '%s'%s\r\n",
 			chan->desc_color,
 			mood_str,
