@@ -549,7 +549,7 @@ mag_damage(int level, struct Creature *ch, struct Creature *victim,
 		if (HAS_SYMBOL(victim)) {
 			return 0;
 		} else {
-			dam = dice(ch->getLevelBonus(SPELL_TAINT), 20);
+			dam = dice(ch->getLevelBonus(SPELL_TAINT), 15);
 		}
 		break;
 	case SPELL_BURNING_HANDS:
@@ -576,38 +576,38 @@ mag_damage(int level, struct Creature *ch, struct Creature *victim,
 	case SPELL_COLOR_SPRAY:
 		audible = TRUE;
 		if (is_mage)
-			dam = dice(level, 12) + (level >> 1);
+			dam = dice(level, 8) + (level >> 1);
 		else
 			dam = dice(9, 6) + 9;
 		break;
 	case SPELL_FIREBALL:
 		audible = TRUE;
 		if (is_mage)
-			dam = dice(level, 16) + (level >> 1);
+			dam = dice(level, 10) + (level >> 1);
 		else
-			dam = dice(level, 10) + 11;
+			dam = dice(level, 7) + 11;
 		break;
 	case SPELL_CONE_COLD:
 		audible = TRUE;
 		if (is_mage)
-			dam = dice(level, 18) + (level >> 1);
+			dam = dice(level, 12) + (level >> 1);
 		else
-			dam = dice(level, 12) + 16;
+			dam = dice(level, 8) + 16;
 
 		ice_room(ch->in_room, level);
 		break;
 	case SPELL_PRISMATIC_SPRAY:
 		audible = TRUE;
 		if (is_mage)
-			dam = dice(level, 20) + (level >> 1);
+			dam = dice(level, 16) + (level >> 1);
 		else
-			dam = dice(level, 14) + 20;
+			dam = dice(level, 10) + 20;
 		break;
 	case SPELL_METEOR_STORM:
 		if (is_mage)
-			dam = dice(level, 12) + (level >> 1);
+			dam = dice(level, 10) + (level >> 1);
 		else
-			dam = dice(level, 10) + 20;
+			dam = dice(level, 8) + 20;
 		break;
 	case SPELL_HAILSTORM:
 		dam = dice(level, 9) + 10;
@@ -669,7 +669,7 @@ mag_damage(int level, struct Creature *ch, struct Creature *victim,
 		break;
 
 	case SPELL_DISRUPTION:
-		dam = dice(level, 8) + (level << 1);
+		dam = dice(level, 6) + (level << 1);
 		break;
 
 	case SPELL_CALL_LIGHTNING:
@@ -678,7 +678,7 @@ mag_damage(int level, struct Creature *ch, struct Creature *victim,
 		break;
 
 	case SPELL_HARM:
-		dam = dice(level, 6) + (level >> 1);
+		dam = dice(level, 6) + (level << 1);
 		if (IS_GOOD(ch) && IS_GOOD(victim))
 			dam >>= 1;
 		break;
@@ -692,11 +692,11 @@ mag_damage(int level, struct Creature *ch, struct Creature *victim,
 
 	case SPELL_FLAME_STRIKE:
 		audible = TRUE;
-		dam = dice(level, 8) + (level << 1);
+		dam = dice(level, 8) + level;
 		break;
 
 	case SPELL_SPIRIT_HAMMER:
-		dam = dice(level, 4) + (level << 1);
+		dam = dice(level, 4) + level;
 		break;
 
 	case SPELL_SYMBOL_OF_PAIN:
@@ -716,9 +716,9 @@ mag_damage(int level, struct Creature *ch, struct Creature *victim,
 	case SPELL_ICY_BLAST:
 		audible = TRUE;
 		if (is_cleric || is_ranger || is_knight)
-			dam = dice(level, 12) + (level >> 1);
+			dam = dice(level, 10) + (level >> 1);
 		else
-			dam = dice(level, 9) + 16;
+			dam = dice(level, 7) + 16;
 		ice_room(ch->in_room, level);
 		break;
 	case SPELL_GAS_BREATH:
@@ -770,29 +770,27 @@ mag_damage(int level, struct Creature *ch, struct Creature *victim,
 		break;
 
 	case SPELL_FISSION_BLAST:
-		if (GET_CLASS(ch) == CLASS_PHYSIC) {
-			dam = dice(level + GET_REMORT_GEN(ch), 15) + level;
-		} else {
-			dam = dice(level, 13) + level;
-		}
+        dam =  dice(level, 8) + level;
+        dam = (ch->getLevelBonus(SPELL_FISSION_BLAST) * dam)/100;
 		break;
 
 	}							/* switch(spellnum) */
 
-	// this if statement
+	
 	if (spellnum < MAX_SPELLS && CHECK_SKILL(ch, spellnum) >= 50) {
-		// 1.5x dam for 120 skill level, fuck the LEARNED(ch) shit
-		dam += (dam * (CHECK_SKILL(ch, spellnum) - 50)) / 140;
+		// 1.2x dam for 120 skill level, fuck the LEARNED(ch) shit
+        if( CHECK_SKILL(ch, spellnum) > 100 ) {
+            dam += (dam * ( CHECK_SKILL(ch, spellnum) - 100 ))/100;
+        }
 
 		// int bonus for mages
-
-		if (SPELL_IS_MAGIC(spellnum) && is_mage)
-			dam += (dam * (GET_INT(ch) - 10)) / 30;	// 1.5 dam at full int
+		if (SPELL_IS_MAGIC(spellnum) && is_mage) {
+			dam += (dam * (GET_INT(ch) - 10)) / 45;	// 1.25 dam at full int
 
 		// wis bonus for clerics
-
-		else if (SPELL_IS_DIVINE(spellnum) && is_cleric)
-			dam += (dam * (GET_WIS(ch) - 10)) / 30;	// 1.5 dam at full wis
+		} else if (SPELL_IS_DIVINE(spellnum) && is_cleric) {
+			dam += (dam * (GET_WIS(ch) - 10)) / 45;	// 1.25 dam at full wis
+        }
 	}
 	//
 	// divine attacks get modified
@@ -800,14 +798,14 @@ mag_damage(int level, struct Creature *ch, struct Creature *victim,
 
 	if (savetype == SAVING_SPELL && SPELL_IS_DIVINE(spellnum)) {
 		if (IS_GOOD(ch)) {
-			dam >>= 1;
+			dam = (int)(dam * 0.75);
 		} else if (IS_EVIL(ch)) {
 			dam += dam * abs(GET_ALIGNMENT(ch)) / 4000;
 			if (IS_SOULLESS(ch))
-				dam += dam * 1 / 4;
+				dam += (int)(dam * 0.25);
 
 			if (IS_GOOD(victim)) {
-				dam += dam * abs(GET_ALIGNMENT(victim)) / 2000;
+				dam += dam * abs(GET_ALIGNMENT(victim)) / 4000;
 			}
 		}
 	}
@@ -820,20 +818,11 @@ mag_damage(int level, struct Creature *ch, struct Creature *victim,
 
 	// Do spell damage of type spellnum
 	// unless its gravity well which does pressure damage.
-	if (spellnum != SPELL_GRAVITY_WELL) {
-		int retval = damage(ch, victim, dam, spellnum, WEAR_RANDOM);
-
-		if (retval) {
-			return retval;
-		}
-
-	} else {
+	if (spellnum == SPELL_GRAVITY_WELL) {
 		int retval = damage(ch, victim, dam, TYPE_PRESSURE, WEAR_RANDOM);
-
 		if (retval) {
 			return retval;
 		}
-
 		WAIT_STATE(victim, 2 RL_SEC);
 		if (!IS_AFFECTED_3(victim, AFF3_GRAVITY_WELL) &&
 			(victim->getPosition() > POS_STANDING
@@ -841,6 +830,11 @@ mag_damage(int level, struct Creature *ch, struct Creature *victim,
 			victim->setPosition(POS_RESTING);
 			act("The gravity around you suddenly increases, slamming you to the ground!", FALSE, victim, 0, ch, TO_CHAR);
 			act("The gravity around $n suddenly increases, slamming $m to the ground!", TRUE, victim, 0, ch, TO_ROOM);
+		}
+	} else { // normal spell damage type
+		int retval = damage(ch, victim, dam, spellnum, WEAR_RANDOM);
+		if (retval) {
+			return retval;
 		}
 	}
 	if (spellnum == SPELL_PSYCHIC_SURGE) {
@@ -2671,28 +2665,22 @@ mag_points(int level, struct Creature *ch, struct Creature *victim,
 	switch (spellnum) {
 	case SPELL_CURE_LIGHT:
 		hit = dice(1, 8) + 1 + (level >> 2);
-		hit += GET_REMORT_GEN(ch) << 2;
-		hit += ((CHECK_SKILL(ch, SPELL_CURE_LIGHT) - LEARNED(ch)) * hit) / 100;
+        hit = ((CHECK_SKILL(ch, spellnum)) * hit) / 100;
 		to_vict = "You feel better.";
 		break;
 	case SPELL_CURE_CRITIC:
 		hit = dice(3, 8) + 3 + (level >> 2);
-		hit += GET_REMORT_GEN(ch) << 3;
-		hit +=
-			((CHECK_SKILL(ch, SPELL_CURE_CRITIC) - LEARNED(ch)) * hit) / 100;
+        hit = ((CHECK_SKILL(ch, spellnum)) * hit) / 100;
 		to_vict = "You feel a lot better!";
 		break;
 	case SPELL_HEAL:
 		hit = 50 + dice(3, level);
-		hit += GET_REMORT_GEN(ch) << 3;
-		hit += ((CHECK_SKILL(ch, SPELL_HEAL) - LEARNED(ch)) * hit) / 100;
+		hit = ((CHECK_SKILL(ch, spellnum)) * hit) / 100;
 		to_vict = "A warm feeling floods your body.";
 		break;
 	case SPELL_GREATER_HEAL:
 		hit = 100 + dice(5, level);
-		hit += GET_REMORT_GEN(ch) << 3;
-		hit +=
-			((CHECK_SKILL(ch, SPELL_GREATER_HEAL) - LEARNED(ch)) * hit) / 100;
+        hit = ((CHECK_SKILL(ch, spellnum)) * hit) / 100;
 		to_vict = "A supreme warm feeling floods your body.";
 		break;
 	case SPELL_RESTORATION:
@@ -2705,8 +2693,7 @@ mag_points(int level, struct Creature *ch, struct Creature *victim,
 		break;
 	case SPELL_REFRESH:
 		move = 50 + number(0, level) + GET_WIS(ch);
-		move += GET_REMORT_GEN(ch) << 2;
-		hit += ((CHECK_SKILL(ch, SPELL_REFRESH) - LEARNED(ch)) * hit) / 100;
+		move = ((CHECK_SKILL(ch, spellnum)) * hit) / 100;
 		to_vict = "You feel refreshed!.";
 		break;
 	case SPELL_MANA_RESTORE:
@@ -2717,7 +2704,7 @@ mag_points(int level, struct Creature *ch, struct Creature *victim,
 		/* psionic triggers */
 	case SPELL_PSYCHIC_CONDUIT:
 		mana = level + (CHECK_SKILL(ch, SPELL_PSYCHIC_CONDUIT) / 20) +
-			number(0, GET_WIS(ch)) + (GET_REMORT_GEN(ch) << 2);;
+			number(0, GET_WIS(ch)) + (GET_REMORT_GEN(ch) << 2);
 		break;
 
 	case SPELL_SATIATION:
@@ -2746,8 +2733,7 @@ mag_points(int level, struct Creature *ch, struct Creature *victim,
 	case SPELL_CELL_REGEN:
 		hit = dice(4, 6 + (CHECK_SKILL(ch, SPELL_CELL_REGEN) >> 4)) +
 			number(level >> 1, level << 1);
-		hit += GET_REMORT_GEN(ch) << 3;
-		hit += ((CHECK_SKILL(ch, SPELL_CELL_REGEN) - LEARNED(ch)) * hit) / 100;
+		hit = ((CHECK_SKILL(ch, spellnum)) * hit) / 100;
 		break;
 
 	/** non-pc spells **/
@@ -3127,15 +3113,27 @@ mag_alter_objs(int level, struct Creature *ch, struct obj_data *obj,
         break;
 
 
-    case SPELL_ATTRACTION_FIELD:
+    case SPELL_ATTRACTION_FIELD: {
+        int levelBonus = ch->getLevelBonus(SPELL_ATTRACTION_FIELD);
+        int hitroll = dice( 3, 2 );
+        int armor = (level / 8) + number(1,2);
+
+        if( levelBonus > 50 && random_binary() ) {
+            hitroll += 1;
+        }
+        if( levelBonus > 75 && random_binary() ) {
+            hitroll += 1;
+        }
+        if( levelBonus > 95 && random_binary() ) {
+            hitroll += 1;
+        }
+
         if (IS_OBJ_TYPE(obj, ITEM_WEAPON)) {
             for (i = 0, j = -1; i < MAX_OBJ_AFFECT; i++) {
                 if (!obj->affected[i].location && j < 0)
                     j = i;
                 if (obj->affected[i].location == APPLY_HITROLL) {
-                    obj->affected[i].modifier =
-                        MAX(obj->affected[i].modifier, (level / 6) + number(1,
-                            2));
+                    obj->affected[i].modifier = MAX(obj->affected[i].modifier, hitroll );
                     break;
                 }
             }
@@ -3143,8 +3141,7 @@ mag_alter_objs(int level, struct Creature *ch, struct obj_data *obj,
                 if (j < 0)
                     j = 0;
                 obj->affected[j].location = APPLY_HITROLL;
-                obj->affected[j].modifier =
-                    MAX(obj->affected[j].modifier, (level / 6) + number(1, 2));
+                obj->affected[j].modifier = MAX(obj->affected[j].modifier, hitroll);
             }
             if (GET_LEVEL(ch) >= LVL_AMBASSADOR && !isname("imm", obj->name)) {
                 sprintf(buf, " imm %sattract", GET_NAME(ch));
@@ -3160,9 +3157,7 @@ mag_alter_objs(int level, struct Creature *ch, struct obj_data *obj,
                 if (!obj->affected[i].location && j < 0)
                     j = i;
                 if (obj->affected[i].location == APPLY_AC) {
-                    obj->affected[i].modifier =
-                        MAX(obj->affected[i].modifier, (level >> 3) + number(1,
-                            2));
+                    obj->affected[i].modifier = MAX(obj->affected[i].modifier, armor );
                     break;
                 }
             }
@@ -3170,13 +3165,12 @@ mag_alter_objs(int level, struct Creature *ch, struct obj_data *obj,
                 if (j < 0)
                     j = 0;
                 obj->affected[j].location = APPLY_AC;
-                obj->affected[j].modifier =
-                    MAX(obj->affected[j].modifier, (level >> 3) + number(1,
-                        2));
+                obj->affected[j].modifier = MAX(obj->affected[j].modifier, armor );
             }
         }
         to_char = "$p begins to emit an attraction field.";
         break;
+    }
     case SPELL_TRANSMITTANCE:
         if (!IS_OBJ_STAT(obj,
                 ITEM_NOINVIS | ITEM_INVISIBLE | ITEM_TRANSPARENT)) {

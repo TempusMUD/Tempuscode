@@ -297,7 +297,7 @@ calc_skill_prob(struct Creature *ch, struct Creature *vict, int skillnum,
 		}
 
 		*move = 20;
-		*dam = dice(10 + GET_LEVEL(ch), GET_STR(ch));
+		*dam = dice(GET_LEVEL(ch), GET_STR(ch));
 		if (!IS_BARB(ch) && GET_LEVEL(ch) < LVL_IMMORT)
 			*dam = *dam >> 2;
 		ADD_EQ_DAM(ch, WEAR_CROTCH);
@@ -362,7 +362,7 @@ calc_skill_prob(struct Creature *ch, struct Creature *vict, int skillnum,
 
 	case SKILL_PELE_KICK:
 
-		*dam = dice(8, GET_LEVEL(ch));
+		*dam = dice(7, GET_LEVEL(ch));
 		ADD_EQ_DAM(ch, WEAR_FEET);
 		*wait = 6 RL_SEC;
 		*fail_pos = POS_SITTING;
@@ -564,7 +564,7 @@ calc_skill_prob(struct Creature *ch, struct Creature *vict, int skillnum,
 		}
 
 		*dam = (dice(GET_OBJ_VAL(weap, 1), GET_OBJ_VAL(weap, 2)) * 6);
-		*dam += dice(GET_LEVEL(ch), 5);
+		*dam += dice( (int)(GET_LEVEL(ch)*0.75), 5);
 		if (IS_OBJ_STAT2(weap, ITEM2_TWO_HANDED)
 			&& weap->worn_on == WEAR_WIELD)
 			*dam <<= 1;
@@ -609,30 +609,6 @@ calc_skill_prob(struct Creature *ch, struct Creature *vict, int skillnum,
 				if( damage_eq(ch, neck, *dam) != NULL )
 					*dam >>= 1;
 			}
-			/*
-			if (((neck = GET_EQ(vict, WEAR_NECK_1)) &&
-					NOBEHEAD_EQ(neck)) ||
-				((neck = GET_EQ(vict, WEAR_NECK_2)) && NOBEHEAD_EQ(neck))) {
-				act("$n swings at your neck, but the blow is deflected by $p!",
-					FALSE, ch, neck, vict, TO_VICT);
-				act("$n swings at $N's neck, but the blow is deflected by $p!",
-					FALSE, ch, neck, vict, TO_NOTVICT);
-				act("You swing at $N's neck, but the blow is deflected by $p!",
-					FALSE, ch, neck, vict, TO_CHAR);
-				check_killer(ch, vict);
-				damage_eq(ch, neck, *dam);
-				WAIT_STATE(ch, 2 RL_SEC);
-				prob = 0;
-				return -1;
-			}
-			if (((neck = GET_IMPLANT(vict, WEAR_NECK_1)) &&
-					NOBEHEAD_EQ(neck)) ||
-				((neck = GET_IMPLANT(vict, WEAR_NECK_2)) &&
-					NOBEHEAD_EQ(neck))) {
-				damage_eq(ch, neck, *dam);
-				*dam >>= 1;
-			}
-			*/
 		}
 
 		if (IS_PUDDING(vict) || IS_SLIME(vict) || IS_RACE(vict, RACE_BEHOLDER))
@@ -673,7 +649,7 @@ calc_skill_prob(struct Creature *ch, struct Creature *vict, int skillnum,
 
 		need_hand = 1;
 		*loc = WEAR_NECK_1;
-		*dam = dice(GET_LEVEL(ch), 6);
+		*dam = dice(GET_LEVEL(ch), 5);
 		ADD_EQ_DAM(ch, WEAR_HANDS);
 		*wait = 4 RL_SEC;
 		*vict_wait = 2 RL_SEC;
@@ -709,7 +685,7 @@ calc_skill_prob(struct Creature *ch, struct Creature *vict, int skillnum,
 
 		need_hand = 1;
 		*loc = WEAR_NECK_1;
-		*dam = dice(GET_LEVEL(ch), 11);
+		*dam = dice(GET_LEVEL(ch), 9);
 		ADD_EQ_DAM(ch, WEAR_HANDS);
 		*wait = 4 RL_SEC;
 		*vict_wait = 1 RL_SEC;
@@ -723,7 +699,7 @@ calc_skill_prob(struct Creature *ch, struct Creature *vict, int skillnum,
 
 		need_hand = 1;
 		*loc = WEAR_NECK_1;
-		*dam = dice(GET_LEVEL(ch), 15);
+		*dam = dice(GET_LEVEL(ch), 13);
 		*wait = 7 RL_SEC;
 		*vict_wait = (2 + number(0, GET_LEVEL(ch) >> 3)) RL_SEC;
 		*move = 35;
@@ -750,7 +726,7 @@ calc_skill_prob(struct Creature *ch, struct Creature *vict, int skillnum,
 			prob = 0;
 
 		need_hand = 1;
-		*dam = dice(3, (GET_LEVEL(ch) >> 1) + GET_STR(ch));
+		*dam = dice(3, (GET_LEVEL(ch) >> 2) + GET_STR(ch));
 		*wait = 6 RL_SEC;
 		*vict_wait = 2 RL_SEC;
 		*vict_pos = POS_RESTING;
@@ -763,8 +739,7 @@ calc_skill_prob(struct Creature *ch, struct Creature *vict, int skillnum,
 		if (NULL_PSI(vict))
 			prob = 0;
 
-		*dam =
-			dice(ch->getLevelBonus(SKILL_PSIBLAST) * 2 / 3, GET_INT(ch) + 1);
+		*dam = dice(ch->getLevelBonus(SKILL_PSIBLAST) / 2, GET_INT(ch) + 1);
 
 		*dam += CHECK_SKILL(ch, SKILL_PSIBLAST);
 
@@ -1841,7 +1816,7 @@ ACMD(do_tornado_kick)
 		prob += 30;
 	prob -= GET_DEX(vict);
 
-	dam = dice(GET_LEVEL(ch), 6) +
+	dam = dice(GET_LEVEL(ch), 5) +
 		(str_app[STRENGTH_APPLY_INDEX(ch)].todam) + GET_DAMROLL(ch);
 	if (!IS_NPC(ch))
 		dam += (dam * GET_REMORT_GEN(ch)) / 10;
@@ -2729,18 +2704,10 @@ ACMD(do_impale)
 		prob = 0;
 
 	cur_weap = weap;
-	dam = (dice(GET_OBJ_VAL(weap, 1), GET_OBJ_VAL(weap, 2)) << 1) +
-		(weap->getWeight() << 2) +
-		(str_app[STRENGTH_APPLY_INDEX(ch)].todam << 2) + GET_DAMROLL(ch);
-	if (!IS_NPC(ch))
-		dam += (dam * GET_REMORT_GEN(ch)) / 10;
-
-	if (CHECK_SKILL(ch, SKILL_IMPALE) > LEARNED(ch))
-		dam *= (CHECK_SKILL(ch, SKILL_IMPALE) +
-			((CHECK_SKILL(ch, SKILL_IMPALE) - LEARNED(ch)) >> 1));
-	else
-		dam *= CHECK_SKILL(ch, SKILL_IMPALE);
-	dam /= LEARNED(ch);
+	dam = dice(GET_OBJ_VAL(weap, 1), GET_OBJ_VAL(weap, 2)) << 1 +
+          weap->getWeight() << 2 +
+          GET_DAMROLL(ch);
+    dam += dam * ch->getLevelBonus(SKILL_IMPALE) / 200;
 
 	if (IS_OBJ_STAT2(weap, ITEM2_TWO_HANDED) && weap->worn_on == WEAR_WIELD)
 		dam <<= 1;

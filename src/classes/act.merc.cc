@@ -74,7 +74,7 @@ ACMD(do_pistolwhip)
 
 	cur_weap = weap;
 	if (percent > prob) {
-		damage(ch, vict, 0, SKILL_IMPALE, WEAR_BODY);
+		damage(ch, vict, 0, SKILL_PISTOLWHIP, WEAR_BODY);
 	} else {
 		dam = dice(GET_LEVEL(ch), str_app[STRENGTH_APPLY_INDEX(ch)].todam) +
 			dice(4, weap->getWeight());
@@ -559,9 +559,7 @@ ACMD(do_wrench)
 	struct obj_data *ovict = NULL;
 	struct obj_data *neck = NULL;
 	int two_handed = 0;
-	int prob, percent, dam, genmult;
-
-	genmult = GET_REMORT_GEN(ch);
+	int prob, percent, dam;
 
 	one_argument(argument, arg);
 
@@ -609,7 +607,7 @@ ACMD(do_wrench)
 		prob += 10;
 	}
 
-	dam = dice(genmult + GET_LEVEL(ch), dice(2, GET_STR(ch)));
+	dam = dice(GET_LEVEL(ch), GET_STR(ch));
 
 	if (two_handed) {
 		dam += dam / 2;

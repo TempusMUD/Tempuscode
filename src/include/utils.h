@@ -359,7 +359,7 @@ PRF2_FLAGGED( Creature *ch, int flag )
 
 #define WIS_APP(k)         (k >> 1)
 #define INT_APP(k)         (k << 1)
-#define BACKSTAB_MULT(ch)  (((GET_LEVEL(ch) + 1) / 5) + GET_REMORT_GEN(ch))
+#define BACKSTAB_MULT(ch)  ( ((GET_LEVEL(ch) + 1) / 6) + (GET_REMORT_GEN(ch)/2) )
 #define GET_MORALE(ch)     (ch->mob_specials.shared->morale)
 #define MOB_SHARED(ch)     (ch->mob_specials.shared)
 

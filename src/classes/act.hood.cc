@@ -136,7 +136,7 @@ ACMD(do_hamstring)
 		int level = 0, gen = 0;
 		level = GET_LEVEL(ch);
 		gen = GET_REMORT_GEN(ch);
-		dam = dice(level, 20 + gen / 2);
+		dam = dice(level, 15 + gen / 2);
 		add_blood_to_room(vict->in_room, 1);
 		apply_soil_to_char(vict, GET_EQ(vict, WEAR_LEGS), SOIL_BLOOD,
 			WEAR_LEGS);
@@ -167,7 +167,7 @@ ACMD(do_hamstring)
 		}
 		gain_skill_prof(ch, SKILL_HAMSTRING);
 	}
-	WAIT_STATE(ch, 4 RL_SEC);
+	WAIT_STATE(ch, 5 RL_SEC);
 }
 
 

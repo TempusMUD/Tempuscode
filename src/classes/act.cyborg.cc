@@ -1355,8 +1355,7 @@ ACMD(do_discharge)
 	level = GET_LEVEL(ch);
 	level += GET_REMORT_GEN(ch);
 	// Tolerance is the amount they can safely discharge.
-	//tolerance = ( level / 6 ) + ( dice( level / 8, 4) );
-	tolerance = 10 + (ch->getLevelBonus(SKILL_DISCHARGE) / 4);
+	tolerance = 5 + (ch->getLevelBonus(SKILL_DISCHARGE) / 4);
 
 
 	if (amount > tolerance) {
@@ -1421,9 +1420,9 @@ ACMD(do_discharge)
 	prob = CHECK_SKILL(ch, SKILL_DISCHARGE);
 
 	if (GET_CLASS(ch) == CLASS_CYBORG)
-		dam = dice(amount * 3, 20 + GET_REMORT_GEN(ch));
+		dam = dice(amount * 3, 16 + GET_REMORT_GEN(ch));
 	else
-		dam = dice(amount * 3, 20);
+		dam = dice(amount * 3, 12);
 
 	wait = (1 + amount / 5) RL_SEC;
 	WAIT_STATE(ch, wait);
@@ -3124,21 +3123,9 @@ ACMD(do_refill)
 
 		sprintf(buf, "%s %s", fname(vial->name), syr->name);
 		if (!syr->shared->proto || syr->shared->proto->name != syr->name) {
-#ifdef DMALLOC
-			dmalloc_verify(0);
-#endif
 			free(syr->name);
-#ifdef DMALLOC
-			dmalloc_verify(0);
-#endif
 		}
-#ifdef DMALLOC
-		dmalloc_verify(0);
-#endif
 		syr->name = str_dup(buf);
-#ifdef DMALLOC
-		dmalloc_verify(0);
-#endif
 		if (IS_POTION(vial)) {
 			act("$P dissolves before your eyes.", FALSE, ch, syr, vial,
 				TO_CHAR);

@@ -1537,13 +1537,15 @@ ASPELL(spell_enchant_armor)
 				obj->affected[i].modifier = 0;
 			}
 		}
-
+        int saveMod = -(1 + (level >= 20) + (level >= 35) + 
+                            (level >= 45) + (level > 69) + 
+                            (level > 75) );
+                            
 		obj->affected[0].location = APPLY_AC;
 		obj->affected[0].modifier = -((level >> 3) + 1);
 
 		obj->affected[1].location = APPLY_SAVING_BREATH;
-		obj->affected[1].modifier = -(1 + (level >= 20) + (level >= 35)
-			+ (level >= 50) + (level >= 54) + (level >= 56));
+		obj->affected[1].modifier = saveMod;
 
 		if (IS_IMPLANT(obj)) {
 			obj->affected[0].modifier >>= 1;
@@ -1552,12 +1554,10 @@ ASPELL(spell_enchant_armor)
 
 		if (!IS_IMPLANT(obj)) {
 			obj->affected[2].location = APPLY_SAVING_SPELL;
-			obj->affected[2].modifier = -(1 + (level >= 20) + (level >= 40)
-				+ (level >= 50) + (level >= 56) + (level >= 66));
+			obj->affected[2].modifier = saveMod;
 
 			obj->affected[3].location = APPLY_SAVING_PARA;
-			obj->affected[3].modifier = -(1 + (level >= 20) + (level >= 35)
-				+ (level >= 50) + (level >= 56) + (level >= 66));
+			obj->affected[3].modifier = saveMod;
 		}
 
 		if (IS_GOOD(ch)) {
@@ -1626,14 +1626,12 @@ ASPELL(spell_greater_enchant)
 
 		obj->affected[0].location = APPLY_HITROLL;
 		obj->affected[0].modifier = MAX(2, number(max >> 1, max)) +
-			(GET_LEVEL(ch) >= 50) + (GET_LEVEL(ch) >= 56) + (GET_LEVEL(ch) >=
-			60)
-			+ (GET_LEVEL(ch) >= 67);
+                                    (GET_LEVEL(ch) >= 50) + (GET_LEVEL(ch) >= 56) + 
+                                    (GET_LEVEL(ch) >= 60) + (GET_LEVEL(ch) >= 67);
 		obj->affected[1].location = APPLY_DAMROLL;
 		obj->affected[1].modifier = MAX(2, number(max >> 1, max)) +
-			(GET_LEVEL(ch) >= 50) + (GET_LEVEL(ch) >= 56) + (GET_LEVEL(ch) >=
-			60)
-			+ (GET_LEVEL(ch) >= 67);
+                                    (GET_LEVEL(ch) >= 50) + (GET_LEVEL(ch) >= 56) + 
+                                    (GET_LEVEL(ch) >= 60) + (GET_LEVEL(ch) >= 67);
 
 		if (IS_GOOD(ch)) {
 			SET_BIT(GET_OBJ_EXTRA(obj), ITEM_ANTI_EVIL);
@@ -1659,20 +1657,20 @@ ASPELL(spell_greater_enchant)
 			}
 		}
 
+        int saveMod  = -( 2 + (level >= 40) + (level >= 50) );
+        int armorMod = -( level / 7 );
+
 		obj->affected[0].location = APPLY_AC;
-		obj->affected[0].modifier = -(level >> 3) - 5;
+		obj->affected[0].modifier = armorMod;
 
 		obj->affected[1].location = APPLY_SAVING_PARA;
-		obj->affected[1].modifier = -(2 + (level >= 40) + (level >= 45)
-			+ (level >= 53));
+		obj->affected[1].modifier = saveMod;
 
 		obj->affected[2].location = APPLY_SAVING_BREATH;
-		obj->affected[2].modifier = -(2 + (level >= 40) + (level >= 45)
-			+ (level >= 53));
+		obj->affected[2].modifier = saveMod;
 
 		obj->affected[3].location = APPLY_SAVING_SPELL;
-		obj->affected[3].modifier = -(2 + (level >= 40) + (level >= 45)
-			+ (level >= 53));
+		obj->affected[3].modifier = saveMod;
 
 		if (IS_GOOD(ch)) {
 			SET_BIT(GET_OBJ_EXTRA(obj), ITEM_ANTI_EVIL);
@@ -3107,7 +3105,10 @@ ASPELL(spell_sun_ray)
 			if (ch == *it)
 				continue;
 			if (!IS_NPC((*it)) && IS_UNDEAD((*it))) {
-				act("You cannot do this, because this action might cause harm to $N,\r\n" "and you have not chosen to be a Pkiller.\r\n" "You can toggle this with the command 'pkiller'.", FALSE, ch, 0, *it, TO_CHAR);
+				act("You cannot do this, because this action might cause harm to $N,\r\n"
+                    "and you have not chosen to be a Pkiller.\r\n"
+                    "You can toggle this with the command 'pkiller'.", 
+                    FALSE, ch, 0, *it, TO_CHAR );
 				return;
 			}
 		}
@@ -3119,12 +3120,11 @@ ASPELL(spell_sun_ray)
 		if (PRF_FLAGGED((*it), PRF_NOHASSLE))
 			continue;
 		if (IS_UNDEAD((*it))) {
-			dam = dice(GET_LEVEL(ch) + GET_REMORT_GEN(ch), 40)
-				+ ((GET_LEVEL(ch) + GET_REMORT_GEN(ch)) * 5);
-			if (IS_EVIL((*it))) {
-				dam += GET_ALIGNMENT(ch);
+			dam = dice(level, 18) + level;
+			if( IS_EVIL((*it)) ) {
+				dam += ( GET_ALIGNMENT(ch) - GET_ALIGNMENT((*it)) )/4;
 			}
-			if (!damage(ch, (*it), dam, TYPE_ABLAZE, -1)) {
+			if( !damage(ch, (*it), dam, TYPE_ABLAZE, -1) ) {
 				if (!IS_AFFECTED(*it, AFF_BLIND) &&
 					!MOB_FLAGGED(*it, MOB_NOBLIND)) {
 
@@ -3135,6 +3135,7 @@ ASPELL(spell_sun_ray)
 					af.modifier = -4;
 					af.duration = 2;
 					af.bitvector = AFF_BLIND;
+                    af.level = af2.level = level;
 					af2.location = APPLY_AC;
 					af2.modifier = 40;
 					af2.duration = 2;
@@ -3145,11 +3146,13 @@ ASPELL(spell_sun_ray)
 
 					act("$n cries out in pain, clutching $s eyes!",
 						FALSE, (*it), NULL, ch, TO_ROOM);
-					act("You begin to scream as the flames of light sear out your eyes!", FALSE, ch, NULL, (*it), TO_VICT);
+					act("You begin to scream as the flames of light sear out your eyes!", 
+                        FALSE, ch, NULL, (*it), TO_VICT);
 				} else {
 					act("$n screams in agony!",
 						FALSE, (*it), NULL, ch, TO_ROOM);
-					act("You cry out in pain as the flames of light consume your body!", FALSE, ch, NULL, (*it), TO_VICT);
+					act("You cry out in pain as the flames of light consume your body!", 
+                        FALSE, ch, NULL, (*it), TO_VICT);
 				}
 			}
 		}
@@ -3162,9 +3165,8 @@ ASPELL(spell_inferno)
 	struct room_affect_data rm_aff;
 	struct Creature *vict = NULL;
 
-	send_to_room
-		("A raging firestorm fills the room with a hellish inferno!\r\n",
-		ch->in_room);
+	send_to_room("A raging firestorm fills the room with a hellish inferno!\r\n",
+                    ch->in_room);
 
 	if (ROOM_FLAGGED(ch->in_room, ROOM_PEACEFUL)) {
 		return;
@@ -3176,16 +3178,17 @@ ASPELL(spell_inferno)
 			if (ch == *it)
 				continue;
 			if (!IS_NPC((*it))) {
-				act("You cannot do this, because this action might cause harm to $N,\r\n" "and you have not chosen to be a Pkiller.\r\n" "You can toggle this with the command 'pkiller'.", FALSE, ch, 0, vict, TO_CHAR);
+				act("You cannot do this, because this action might cause harm to $N,\r\n"
+                    "and you have not chosen to be a Pkiller.\r\n"
+                    "You can toggle this with the command 'pkiller'.", 
+                    FALSE, ch, 0, vict, TO_CHAR);
 				return;
 			}
 		}
 	}
 
 	if (!ROOM_FLAGGED(ch->in_room, ROOM_FLAME_FILLED)) {
-		rm_aff.description =
-			str_dup
-			("   The room is ablaze in a hellish inferno of flame!\r\n");
+		rm_aff.description = str_dup("   The room is ablaze in a hellish inferno of flame!\r\n");
 		rm_aff.level = level;
 		rm_aff.type = RM_AFF_FLAGS;
 		rm_aff.flags = ROOM_FLAME_FILLED;

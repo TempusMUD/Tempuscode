@@ -366,13 +366,18 @@ ACMD(do_combo)
 
 	percent = ((40 - (GET_AC(vict) / 10)) >> 1) + number(1, 86);	/* 101% is a complete
 																	 * failure */
-	for (i = 0; i < NUM_WEARS; i++)
-		if ((ovict = GET_EQ(ch, i)) && GET_OBJ_TYPE(ovict) == ITEM_ARMOR &&
-			(IS_METAL_TYPE(ovict) || IS_STONE_TYPE(ovict) ||
-				IS_WOOD_TYPE(ovict)))
-			percent += ovict->getWeight();
+	for (i = 0; i < NUM_WEARS; i++) {
+        obj_data* obj = GET_EQ(ch, i);
+        if( obj == NULL ) 
+            continue;
+		if( GET_OBJ_TYPE(obj) == ITEM_ARMOR ) {
+            if(IS_METAL_TYPE(ovict) || IS_STONE_TYPE(ovict) || IS_WOOD_TYPE(ovict)) {
+                percent += ovict->getWeight();
+            }
+        }
+    }
 
-	if (GET_EQ(ch, WEAR_WIELD))
+	if( GET_EQ(ch, WEAR_WIELD) )
 		percent += (LEARNED(ch) - weapon_prof(ch, GET_EQ(ch, WEAR_WIELD))) / 2;
 
 
@@ -392,9 +397,10 @@ ACMD(do_combo)
 	if (NON_CORPOREAL_UNDEAD(vict))
 		prob = 0;
 
-	dam = dice(4, (GET_LEVEL(ch) + GET_REMORT_GEN(ch))) +
-		CHECK_SKILL(ch, SKILL_COMBO) - LEARNED(ch) + GET_DAMROLL(ch);
 
+
+	dam = dice(6, GET_LEVEL(ch)/2 ) + GET_DAMROLL(ch);
+    dam = (dam * CHECK_SKILL(ch, SKILL_COMBO)) / 100; 
 	GET_MOVE(ch) -= 20;
 
 	//
