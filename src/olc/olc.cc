@@ -2527,7 +2527,7 @@ CAN_EDIT_ZONE(CHAR *ch, struct zone_data *zone)
 int OLC_EDIT_OK( CHAR *ch, struct zone_data *zone, int bits )
 {
 
-    if ( OLCIMP( ch ) )
+    if( Security::isMember( ch, "OLCWorldWrite" ) )
         return 1;
     
     if ( ZONE_FLAGGED( zone, ZONE_FULLCONTROL ) )

@@ -1937,7 +1937,7 @@ do_zset_command(struct char_data *ch, char *argument)
     } 
 
     if ( ! OLC_EDIT_OK( ch, zone, ZONE_ZCMDS_APPROVED ) ) {
-        send_to_char("Nope.\r\n", ch);
+        send_to_char("You are currently unable to set flags on this zone.\r\n", ch);
         return;
     }
    
