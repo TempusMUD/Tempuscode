@@ -70,6 +70,7 @@ void roll_real_abils(struct Creature * ch);
 void print_attributes_to_buf(struct Creature *ch, char *buff);
 void polc_input(struct descriptor_data * d, char *str);
 void show_character_detail(descriptor_data *d);
+void import_old_character(descriptor_data *d);
 
 int isbanned(char *hostname, char *blocking_hostname);
 int Valid_Name(char *newname);
@@ -390,7 +391,7 @@ handle_input(struct descriptor_data *d, char *arg)
 		break;
 	case CXN_RACE_PAST:
 		GET_RACE(d->creature) = parse_pc_race(d, arg, TIME_PAST);
-		if (GET_RACE(d->creature) == CLASS_UNDEFINED) {
+		if (GET_RACE(d->creature) == RACE_UNDEFINED) {
 			SEND_TO_Q(CCRED(d->creature, C_NRM), d);
 			SEND_TO_Q("\r\nThat's not a choice.\r\n\r\n", d);
 			SEND_TO_Q(CCNRM(d->creature, C_NRM), d);
@@ -401,7 +402,7 @@ handle_input(struct descriptor_data *d, char *arg)
 		break;
 	case CXN_RACE_FUTURE:
 		GET_RACE(d->creature) = parse_pc_race(d, arg, TIME_FUTURE);
-		if (GET_RACE(d->creature) == CLASS_UNDEFINED) {
+		if (GET_RACE(d->creature) == RACE_UNDEFINED) {
 			SEND_TO_Q(CCRED(d->creature, C_NRM), d);
 			SEND_TO_Q("\r\nThat's not a choice.\r\n\r\n", d);
 			SEND_TO_Q(CCNRM(d->creature, C_NRM), d);
@@ -542,6 +543,7 @@ handle_input(struct descriptor_data *d, char *arg)
 					d->account->get_name(), d->account->get_idnum(),
                     GET_NAME(d->creature), GET_IDNUM(d->creature) );
 			d->creature->player_specials->rentcode = RENT_NEW_CHAR;
+            calculate_height_weight( d->creature );
 			d->creature->saveToXML();
 		} else
 			SEND_TO_Q("\r\nYou must type 'reroll' or 'keep'.\r\n\r\n", d);
@@ -680,8 +682,54 @@ handle_input(struct descriptor_data *d, char *arg)
 		d->creature = NULL;
 		set_desc_state(CXN_WAIT_MENU, d);
         break;
+    case CXN_IMPORT_NAME_PROMPT: {
+        if (!arg[0]) {
+			set_desc_state(CXN_MENU, d);
+			return;
+		}
+
+        if(! oldPlayerIndex.exists(arg) ) {
+            send_to_desc(d, "\r\nThat character does not exist.\r\n\r\n");
+			return;
+        }
+		if( playerIndex.exists(arg) ) {
+			send_to_desc(d, "\r\nThat character is already imported.\r\n\r\n");
+			return;
+		}
+
+        long id = oldPlayerIndex.getID( arg );
+        char* filename = tmp_sprintf("oldplayers/%ld/%ld.dat", (id%10), id );
+        d->original = new Creature;
+        if( !d->original->loadFromXML( filename ) ) {
+            delete d->original;
+            d->original = NULL;
+            send_to_desc(d, "\r\nUnable to import old character.\r\n\r\n");
+            set_desc_state(CXN_WAIT_MENU, d);
+            return;
+        }
+        set_desc_state(CXN_IMPORT_PW_PROMPT,d);
+        break;
+    }
+    case CXN_IMPORT_PW_PROMPT:
+        if (!arg[0]) {
+            delete d->original;
+            d->original = NULL;
+			set_desc_state(CXN_MENU, d);
+			return;
+		}
+
+        if( strcmp( GET_PASSWD(d->original), crypt(arg, GET_PASSWD(d->original)) ) ) {
+            delete d->original;
+            d->original = NULL;
+            send_to_desc(d, "\r\nInvalid password.\r\n\r\n");
+			set_desc_state(CXN_WAIT_MENU, d);
+            return;
+        }
+        import_old_character(d);
+        break;
 	}
 }
+
 
 void
 send_prompt(descriptor_data *d)
@@ -851,6 +899,10 @@ send_prompt(descriptor_data *d)
 	case CXN_NETWORK:
 		send_to_desc(d, "> "); break;
 		break;
+    case CXN_IMPORT_PW_PROMPT:
+        send_to_desc(d, "Password: "); break;
+    case CXN_IMPORT_NAME_PROMPT:
+        send_to_desc(d, "Enter the name of the character you wish to import: "); break;
 	}
 	d->need_prompt = false;
 }
@@ -873,8 +925,13 @@ send_menu(descriptor_data *d)
 	case CXN_AFTERLIFE:
 	case CXN_REMORT_AFTERLIFE:
 	case CXN_DELETE_PW:
+    case CXN_IMPORT_PW_PROMPT:
 		// These states don't have menus
 		break;
+    case CXN_IMPORT_NAME_PROMPT:
+        send_to_desc(d, "\e[H\e[J");
+		send_to_desc(d,"&c\r\n                                IMPORT CHARACTER\r\n*******************************************************************************\r\n\r\n&n");
+        break;
 	case CXN_OLDPW_PROMPT:
 		send_to_desc(d, "\e[H\e[J");
 		send_to_desc(d,"&c\r\n                                 CHANGE PASSWORD\r\n*******************************************************************************\r\n\r\n&n");
@@ -911,7 +968,7 @@ send_menu(descriptor_data *d)
 	case CXN_EMAIL_PROMPT:
 		send_to_desc(d, "\e[H\e[J");
 		send_to_desc(d,"&c\r\n                                 EMAIL ADDRESS\r\n*******************************************************************************&n\r\n");
-		send_to_desc(d, "\r\n\r\n    You may elect to associate an email address wtih this account.  This\r\nis entirely optional, and will not be sold to anyone.  Its primary use is for\r\nas-of-yet unimplemented future features, such as password reminders and\r\nautomatic news updates.\r\n\r\n");
+		send_to_desc(d, "\r\n\r\n    You may elect to associate an email address wtih this account.  This\r\nis entirely optional, and will not be sold to anyone.  Its primary use is\r\npassword reminders but may soon be used for Realm board login.\r\n\r\n");
 		break;
 	case CXN_NAME_PROMPT:
 		send_to_desc(d, "\e[H\e[J");
