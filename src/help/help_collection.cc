@@ -55,11 +55,11 @@ static const struct group_command {
     char *usage;
     int level;
 } grp_cmds[] = {
-    { "adduser", "<username> <groupnames>",     LVL_GRGOD },
-    { "create",  "",                           LVL_GRGOD },
+    { "adduser", "<username> <groupnames>",     LVL_GOD },
+    { "create",  "",                           LVL_GOD },
     { "list",    "",                           LVL_IMMORT },
     { "members", "<groupname>",                LVL_IMMORT },
-    { "remuser", "<username> <groupnames>",     LVL_GRGOD },
+    { "remuser", "<username> <groupnames>",     LVL_GOD },
     { NULL, NULL, 0 }       // list terminator
 };
 const char *help_group_names[] = {
