@@ -45,8 +45,13 @@ angel_chat_data angel_chat[] = {
 	{ CLASS_NONE, 100, "where buy", "respond You buy things at shops in cities." },
 	{ CLASS_NONE, 100, "where go fight", "respond You should try the cock fighting arena, the training grounds, or the holodeck.  You could try the halflings, but it might be dangerous." },
 	{ CLASS_NONE, 100, "where level", "respond You should try the cock fighting arena, the training grounds, or the holodeck" },
-	{ CLASS_NONE, 100, "where cock", "directions 047" },
-	{ CLASS_NONE, 100, "where training", "directions 3283" },
+	{ CLASS_NONE, 100, "where cock", "directions 3047" },
+	{ CLASS_NONE, 100, "where train", "respond Try \"help guild\"." },
+	{ CLASS_NONE, 100, "where training", "respond Try \"help guild\"." },
+	{ CLASS_NONE, 100, "where learn spells", "respond Try \"help guild\"." },
+	{ CLASS_NONE, 100, "where learn skills", "respond Try \"help guild\"." },
+	{ CLASS_NONE, 100, "cast spells", "respond Fear not!  I will cast spells on you as you need them." },
+	{ CLASS_NONE, 100, "cast spell", "respond Fear not!  I will cast spells on you as you need them." },
 	{ CLASS_NONE, 100, "where bakery", "directions 3028" },
 	{ CLASS_NONE, 100, "where hs", "directions 3013" },
 	{ CLASS_NONE, 100, "where holy square", "directions 3013" },
@@ -54,17 +59,25 @@ angel_chat_data angel_chat[] = {
 	{ CLASS_NONE, 100, "where star plaza", "directions 30013" },
 	{ CLASS_NONE, 100, "where halfling", "directions 13325" },
 	{ CLASS_NONE, 100, "where halflings", "directions 13325" },
+	{ CLASS_NONE, 100, "where aquafitters", "directions 3015" },
+	{ CLASS_NONE, 100, "where aquafitter's", "directions 3015" },
+	{ CLASS_NONE, 100, "where aquafitter", "directions 3015" },
 	{ CLASS_NONE, 100, "where modrian", "directions 3013" },
 	{ CLASS_NONE, 100, "where holodeck", "directions 2322 then enter rift and go south" },
-	{ CLASS_NONE, 100, "where food", "respond You can find food at the bakery" },
-	{ CLASS_NONE, 100, "where things eat", "respond You can find food at the bakery" },
+	{ CLASS_NONE, 100, "where get food", "respond You can find food at the bakery" },
+	{ CLASS_NONE, 100, "where get things eat", "respond You can find food at the bakery" },
+	{ CLASS_NONE, 100, "where get something eat", "respond You can find food at the bakery" },
 	{ CLASS_NONE, 100, "where eat", "respond You can find food at the bakery" },
-	{ CLASS_NONE,  50, "where drink", "respond You can get some water at the aquafitter's" },
-	{ CLASS_NONE, 100, "where drink", "respond You could drink out of the fountain in a city square." },
+	{ CLASS_NONE,  50, "where get drink", "respond You can get some water at the aquafitter's" },
+	{ CLASS_NONE,  50, "where get water", "respond You can get some water at the aquafitter's" },
+	{ CLASS_NONE, 100, "where get drink", "respond You could drink out of the fountain in a city square." },
+	{ CLASS_NONE, 100, "where get drink", "respond You could drink out of the fountain in a city square." },
 	{ CLASS_NONE, 100, "why hungry", "respond You need to get some food to eat." },
 	{ CLASS_NONE, 100, "why thirsty", "respond You need to get something to drink.  There are fountains to drink from or you can buy drinks at shops." },
 	{ CLASS_NONE, 100, "why naked", "respond You should find things to wear!" },
 	{ CLASS_NONE, 100, "where things wear", "respond You can buy equipment or loot it from corpses" },
+	{ CLASS_NONE, 100, "where get eq", "respond You can buy equipment or loot it from corpses" },
+	{ CLASS_NONE, 100, "where get equipment", "respond You can buy equipment or loot it from corpses" },
 	{ CLASS_NONE, 100, "who someone", "respond Invisible people are referred to as 'someone.'  You can't tell who they are." },
 	{ CLASS_NONE, 100, "what hitpoints", "respond Hitpoints are a measure of how much punishment you can take before you die.  When your hitpoints hit zero, you go unconscious and are easily slain." },
 
@@ -308,12 +321,12 @@ SPECIAL(guardian_angel)
 		data->angel = self;
 		data->charge_id = 0;
 		data->counter = -1;
-		data->action = "none";
+		data->action = str_dup("none");
 	}
 	
 	charge = get_char_in_world_by_idnum(data->charge_id);
 	if (!charge && data->counter < 0) {
-		data->action = "dismiss";
+		data->action = str_dup("dismiss");
 	}
 
 	if (spec_mode == SPECIAL_TICK) {
@@ -324,7 +337,7 @@ SPECIAL(guardian_angel)
 		else {
 			result = angel_do_action(self, charge, data);
 			data->counter = -1;
-			data->action = "none";
+			data->action = str_dup("none");
 			return result;
 		}
 	}
@@ -391,7 +404,7 @@ SPECIAL(guardian_angel)
 
 	// Nothing matched - log the question and produce a lame response
     slog("ANGEL:  Unknown Question: \"%s\"", argument);
-    data->action = "respond I'm sorry, I don't understand that question.";
+    data->action = str_dup("respond I'm sorry, I don't understand that question.");
     data->counter = 0;
 
 	return 0;
@@ -426,7 +439,7 @@ angel_to_char(Creature *ch)
     data->angel = angel;
     data->charge_id = ch->getIdNum();
     data->counter = -1;
-    data->action = "none";
+    data->action = str_dup("none");
 
     char_to_room(angel, ch->in_room, false);
 
