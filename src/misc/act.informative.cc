@@ -2055,8 +2055,6 @@ print_affs_to_string(struct char_data *ch, char *str, byte mode)
 	strcat(str, "You are radioactive.\r\n");
     if ( affected_by_spell( ch, SPELL_GAMMA_RAY ) )
 	strcat( str, "You have been irradiated.\r\n" );
-    if ( affected_by_spell( ch, SPELL_ELECTROSTATIC_FIELD ) )
-	strcat( str, "You are surrounded by an electrostatic field.\r\n" );
     if (IS_AFFECTED_2(ch, AFF2_ABLAZE)) {
 	sprintf(buf2,"You are %s%sON FIRE!!%s\r\n", CCRED_BLD(ch, C_SPR), 
 		CCBLK(ch, C_CMP), CCNRM(ch, C_SPR)); 
@@ -2143,6 +2141,8 @@ print_affs_to_string(struct char_data *ch, char *str, byte mode)
 	else
 	    strcat(str, "Your image is displaced.\r\n");
     }
+    if ( affected_by_spell( ch, SPELL_ELECTROSTATIC_FIELD ) )
+	strcat( str, "You are surrounded by an electrostatic field.\r\n" );
     if (IS_AFFECTED_2(ch, AFF2_FIRE_SHIELD))
 	strcat(str, "You are protected by a shield of fire.\r\n");
     if (IS_AFFECTED_2(ch, AFF2_BLADE_BARRIER))
