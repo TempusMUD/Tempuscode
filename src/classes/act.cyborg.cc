@@ -2537,6 +2537,19 @@ ACMD(do_insert)
 			}
 		}
 	}
+
+	if (IS_OBJ_STAT2(obj, ITEM2_SINGULAR)) {
+		for (i = 0; i < NUM_WEARS; i++) {
+			if( GET_IMPLANT(vict, i) != NULL &&
+			    GET_OBJ_VNUM(GET_IMPLANT(vict, i)) == GET_OBJ_VNUM(obj) )
+			{
+				act("$p conflicts with an existing device.",
+					FALSE, ch, obj, vict, TO_CHAR);
+				return;
+			}
+		}
+	}
+
 	if (!IS_WEAR_EXTREMITY(pos)) {
 		if (GET_LEVEL(ch) < LVL_IMMORT && vict == ch) {
 			send_to_char

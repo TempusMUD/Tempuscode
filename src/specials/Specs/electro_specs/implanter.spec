@@ -70,6 +70,8 @@ SPECIAL(implanter)
 	    perform_tell(implanter, ch, buf);
 		return 1;
 	}
+
+
 	if (!CAN_WEAR(implant, wear_bitvectors[pos])) {
 	    sprintf(buf, "%s cannot be implanted there.", 
 		    implant->short_description);
@@ -105,14 +107,29 @@ SPECIAL(implanter)
 
 	if (IS_INTERFACE(implant) && INTERFACE_TYPE(implant) == INTERFACE_CHIPS) {
 	    for (i = 0; i < NUM_WEARS; i++) {
-		if ((GET_EQ(ch, i) && IS_INTERFACE(GET_EQ(ch, i)) &&
-		     INTERFACE_TYPE(GET_EQ(ch, i)) == INTERFACE_CHIPS) ||
-		    (GET_IMPLANT(ch, i) && IS_INTERFACE(GET_IMPLANT(ch, i)) &&
-		     INTERFACE_TYPE(GET_IMPLANT(ch, i)) == INTERFACE_CHIPS)) {
-		    send_to_char("You are already using an interface.\r\n", ch);
-		    return 1;
-		}
+			if( (GET_EQ(ch, i) && IS_INTERFACE(GET_EQ(ch, i)) &&
+				 INTERFACE_TYPE(GET_EQ(ch, i)) == INTERFACE_CHIPS) ||
+				(GET_IMPLANT(ch, i) && IS_INTERFACE(GET_IMPLANT(ch, i)) &&
+				 INTERFACE_TYPE(GET_IMPLANT(ch, i)) == INTERFACE_CHIPS) ) 
+			{
+				perform_tell(implanter, ch, "You are already using an interface.\r\n");
+				return 1;
+			}
 	    }
+	}
+
+	if (IS_OBJ_STAT2(implant, ITEM2_SINGULAR)) {
+		for (i = 0; i < NUM_WEARS; i++) {
+			if( GET_IMPLANT(ch, i) != NULL &&
+			    GET_OBJ_VNUM(GET_IMPLANT(ch, i)) == GET_OBJ_VNUM(implant) )
+			{
+				sprintf(buf, 
+					"You'll have to get %s removed if you want that put in.",
+					GET_IMPLANT(ch, i)->short_description);
+				perform_tell(implanter, ch, buf);
+				return 1;
+			}
+		}
 	}
 	    
 	cost = GET_OBJ_COST(implant);
