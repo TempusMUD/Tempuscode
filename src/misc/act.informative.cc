@@ -25,6 +25,7 @@
 
 #include <list>
 #include <string>
+#include <sstream>
 using namespace std;
 
 #include "structs.h"
@@ -3012,337 +3013,384 @@ ACMD(do_weather)
 #define WHO_FORMAT \
 "format: who [minlev[-maxlev]] [-n name] [-a clan] [-<soqmfx>]\r\n"
 
+
+//generates a formatted string representation of a player for the who list
+string
+whoString(Creature *ch, Creature *target) {
+	ostringstream out;
+	out << CCGRN(ch, C_NRM) << '[';
+	int len = strlen(BADGE(target));
+	
+	//show badge
+	if (GET_LEVEL(target) >= LVL_AMBASSADOR) {
+		out << tmp_pad(' ', (MAX_BADGE_LENGTH - len) / 2);
+		out << BADGE(target);
+		out << tmp_pad(' ', (MAX_BADGE_LENGTH - len + 1) / 2);
+	} else { //show level/class
+		if (PRF2_FLAGGED(target, PRF2_ANONYMOUS) && !Security::isMember(ch, Security::ADMINBASIC)) {
+			out << CCCYN(ch, C_NRM) << "--";
+		} else if (Security::isMember(ch, Security::ADMINBASIC)) {
+			if (PRF2_FLAGGED(target, PRF2_ANONYMOUS)) {
+				out << CCRED(ch, C_NRM);
+			} else {
+				out << CCNRM(ch, C_NRM);
+			}
+			if (GET_LEVEL(target) < 10) {
+				out << ' ';
+			}
+			out << (int)GET_LEVEL(target) << CCCYN(ch, C_NRM) << '(' << CCNRM(ch, C_NRM);
+			if (GET_REMORT_GEN(target) < 10) {
+				out << ' ';
+			}
+			out << (int)GET_REMORT_GEN(target) << CCCYN(ch, C_NRM) << ')' << CCNRM(ch, C_NRM);
+		} else {
+			out << CCNRM(ch, C_NRM); 
+			if (GET_LEVEL(target) < 10) {
+				out << ' ';
+			}
+			out << (int)GET_LEVEL(target);
+		}
+		out << ' ' << get_char_class_color(ch, target, GET_CLASS(target));
+		out << char_class_abbrevs[(int)GET_CLASS(target)];
+	}
+	out << CCGRN(ch, C_NRM) << ']';
+	
+	
+	//name
+	out << CCNRM(ch, C_NRM) << ' ' << GET_NAME(target);
+	
+	//title
+	out << GET_TITLE(target);
+
+	return out.str();
+}
+	
+//generates a formatted string representation of a player for the who list
+string
+whoFlagsString(Creature *ch, Creature *target) {
+	ostringstream out;
+
+	//nowho
+	if (PRF2_FLAGGED(target, PRF2_NOWHO)) {
+		out << CCRED(ch, C_NRM) << "(nowho)"  << CCNRM(ch, C_NRM);
+	}
+	
+	//clan badge
+	if (real_clan(GET_CLAN(target))) {
+		if (PRF2_FLAGGED(target, PRF2_CLAN_HIDE)) {
+			if (Security::isMember(ch, Security::ADMINBASIC)) {
+				out << CCCYN(ch, C_NRM) << " )" << real_clan(GET_CLAN(target))->name;
+				out << '(' << CCNRM(ch, C_NRM);
+			}
+		} else {
+			out << CCCYN(ch, C_NRM) << ' ' << real_clan(GET_CLAN(target))->badge << CCNRM(ch, C_NRM);
+		}
+	}
+	
+	//imm invis
+	if (GET_INVIS_LVL(target) && IS_IMMORT(ch)) {
+		out << ' ' << CCBLU(ch, C_NRM) << '(' << CCMAG(ch, C_NRM) << 'i' << GET_INVIS_LVL(target);
+		out << CCBLU(ch, C_NRM) << ')' << CCNRM(ch, C_NRM);
+	}
+	
+	//invis
+	if (IS_AFFECTED(target, AFF_INVISIBLE)) {
+		out << CCCYN(ch, C_NRM) << " (invis)" << CCNRM(ch, C_NRM);
+	}
+	
+	//trans
+	if (IS_AFFECTED(target, AFF2_TRANSPARENT)) {
+		out << CCCYN(ch, C_NRM) << " (transp)" << CCNRM(ch, C_NRM);
+	}
+	
+	//mailing
+	if (PLR_FLAGGED(target, PLR_MAILING)) {
+		out << CCGRN(ch, C_NRM) << " (mailing)" << CCNRM(ch, C_NRM);
+	} else if (PLR_FLAGGED(target, PLR_WRITING)) { //writing
+		out << CCGRN(ch, C_NRM) << " (writing)" << CCNRM(ch, C_NRM);
+	}
+	
+	//creating
+	if (PLR_FLAGGED(target, PLR_OLC)) {
+		out << CCGRN(ch, C_NRM) << " (creating)" << CCNRM(ch, C_NRM);
+	}
+	
+	//deaf
+	if (PRF_FLAGGED(target, PRF_DEAF)) {
+		out << CCBLU(ch, C_NRM) << " (deaf)" << CCNRM(ch, C_NRM);
+	}
+	
+	//notell
+	if (PRF_FLAGGED(target, PRF_NOTELL)) {
+		out << CCBLU(ch, C_NRM) << " (notell)" << CCNRM(ch, C_NRM);
+	}
+	
+	//questing
+	if (GET_QUEST(target)) {
+		out << CCYEL_BLD(ch, C_NRM) << " (quest)" << CCNRM(ch, C_NRM);
+	}
+	
+	//afk
+	if (PLR_FLAGGED(target, PLR_AFK)) {
+		out << CCGRN(ch, C_NRM) << " (afk)" << CCNRM(ch, C_NRM);
+	}
+	
+	//thief
+	if (PLR_FLAGGED(target, PLR_THIEF)) {
+		out << CCRED(ch, C_NRM) << " (THIEF)" << CCNRM(ch, C_NRM);
+	}
+	
+	//killer
+	if (PLR_FLAGGED(target, PLR_KILLER)) {
+		out << CCRED(ch, C_NRM) << " (KILLER)" << CCNRM(ch, C_NRM);
+	}
+	
+	//council
+	if (PLR_FLAGGED(target, PLR_COUNCIL)) {
+		out << CCBLU_BLD(ch, C_NRM) << " <COUNCIL>" << CCNRM(ch, C_NRM);
+	}
+	
+	return out.str();
+}
+
+string
+whoKillsString(Creature *ch, Creature *target) {
+	ostringstream out;
+
+	out << CCRED_BLD(ch, C_NRM) << " *" << GET_PKILLS(target) << " KILLS* -";
+	out << reputation_msg[GET_REPUTATION_RANK(target)] << "-" << CCNRM(ch, C_NRM);
+	
+	return out.str();
+}
+
 ACMD(do_who)
 {
+	
 	struct descriptor_data *d;
-	struct Creature *tch;
-	struct clan_data *clan = NULL;
-	char name_search[MAX_INPUT_LENGTH];
-	char buf2[MAX_STRING_LENGTH];
-	char c_buf[MAX_STRING_LENGTH];
-	char tester_buf[64], nowho_buf[64];
-	char mode;
-	int low = -1, high = -1;
-	int showchar_class = 0, short_list = 0, num_can_see = 0, tot_num = 0;
-	bool questwho = false,
-		outlaws = false,
-		who_female = false,
-		who_male = false,
-		who_tester = false,
-		who_pkills = false,
-		who_i = false,
-        who_gen = false;
-	int effective_char_class;
-
-	skip_spaces(&argument);
-	strcpy(buf, argument);
-	name_search[0] = '\0';
-
-	sprintf(tester_buf, "%s#TESTER#%s ", CCCYN(ch, C_NRM), CCNRM(ch, C_NRM));
-	sprintf(nowho_buf, "%s(nowho)%s ", CCRED(ch, C_NRM), CCNRM(ch, C_NRM));
-
-	while (*buf) {
-		half_chop(buf, arg, buf1);
-		if (isdigit(*arg)) {
-			sscanf(arg, "%d-%d", &low, &high);
-			strcpy(buf, buf1);
-		} else if (*arg == '-') {
-			mode = *(arg + 1);	/* just in case;we destroy arg in the switch */
-			switch (mode) {
-			case 'o':
-				outlaws = true;
-				strcpy(buf, buf1);
-				break;
-			case 'i':
-				who_i = true;
-				strcpy(buf, buf1);
-				break;
-			case 'k':
-				who_pkills = true;
-				strcpy(buf, buf1);
-				break;
-			case 's':
-				short_list = true;
-				strcpy(buf, buf1);
-				break;
-			case 'q':
-				questwho = true;
-				strcpy(buf, buf1);
-				break;
-			case 'l':
-				half_chop(buf1, arg, buf);
-				sscanf(arg, "%d-%d", &low, &high);
-				break;
-			case 'n':
-				half_chop(buf1, name_search, buf);
-				break;
-			case 'a':
-				half_chop(buf1, name_search, buf);
-				if (!(clan = clan_by_name(name_search)))
-					send_to_char(ch, "No such clan!\r\n");
-				*name_search = '\0';
-				break;
-			case 'f':
-				who_female = true;
-				strcpy(buf, buf1);
-				break;
-			case 'm':
-				who_male = true;
-				strcpy(buf, buf1);
-				break;
-			case 'e':
-				who_tester = true;
-				strcpy(buf, buf1);
-				break;
-            case 'g':
-                if (GET_LEVEL(ch) < LVL_AMBASSADOR) {
-                    send_to_char(ch, WHO_FORMAT);
-                    return;
-                }
-                who_gen = true;
-                strcpy(buf, buf1);
-                break;
-			default:
-				send_to_char(ch, WHO_FORMAT);
-				return;
-				break;
-			}					/* end of switch */
-
-		} else {				/* endif */
-			send_to_char(ch, WHO_FORMAT);
-			return;
+	ostringstream out, imms, testers, players;
+	int immCount=0, testerCount=0, playerCount=0, playerTotal=0;
+	char *imm_s="s", *tester_s="s";
+	bool zone=false, plane=false, time=false, kills=false, noflags=false;
+	bool classes=false, clan=false;
+	bool mage=false, thief=false, ranger=false, knight=false, cleric=false, barbarian=false;
+	bool bard=false, monk=false, physic=false, cyborg=false, psionic=false, mercenary=false;
+	int low=-1, high=-1;
+	clan_data *realClan;
+	
+	string args = argument;
+	
+	unsigned int dashPos = string::npos;
+	if ((dashPos = args.find("-")) != string::npos) {
+		string levelRange = args.substr(args.rfind(' ', dashPos), args.find(' ', dashPos));
+		sscanf(levelRange.c_str(), "%d-%d", &low, &high);
+	}
+	if (args.find("zone") != string::npos) {
+		zone = true;
+	}
+	if (args.find("plane") != string::npos) {
+		plane = true;
+	}
+	if (args.find("time") != string::npos) {
+		time = true;
+	}
+	if (args.find("kills") != string::npos) {
+		kills = true;
+	}
+	if (args.find("noflags") != string::npos) {
+		noflags = true;
+	}
+	if (args.find("class") != string::npos) {
+		classes = true;
+		if (args.find("mag") != string::npos) {
+			mage = true;
 		}
-	}							/* end while (parser) */
-
-	sprintf(buf2,
-		"%s**************       %sVisible Players of TEMPUS%s%s       **************%s\r\n%s",
-		CCBLD(ch, C_CMP), CCGRN(ch, C_NRM), CCNRM(ch, C_NRM), CCBLD(ch, C_CMP),
-		CCNRM(ch, C_SPR), (IS_NPC(ch) ? "" : (ch->account->get_compact_level() > 1) ? "" : "\r\n"));
-
+		if (args.find("thi") != string::npos) {
+			thief = true;
+		}
+		if (args.find("ran") != string::npos) {
+			ranger = true;
+		}
+		if (args.find("kni") != string::npos) {
+			knight = true;
+		}
+		if (args.find("cle") != string::npos) {
+			cleric = true;
+		}
+		if (args.find("barb") != string::npos) {
+			barbarian = true;
+		}
+		if (args.find("bard") != string::npos) {
+			bard = true;
+		}
+		if (args.find("mon") != string::npos) {
+			monk = true;
+		}
+		if (args.find("phy") != string::npos) {
+			physic = true;
+		}
+		if (args.find("cyb") != string::npos || args.find("borg") != string::npos) {
+			cyborg = true;
+		}
+		if (args.find("psi") != string::npos) {
+			psionic = true;
+		}
+		if (args.find("mer") != string::npos) {
+			mercenary = true;
+		}
+	}
+	if (args.find("clan") != string::npos) {
+		clan = true;
+		int start = args.find(' ', args.find("clan"));
+		int end = args.find(' ', start);
+		char *clanName = tmp_strdup(args.substr(start, end).c_str());
+		realClan = clan_by_name(clanName);
+	}
+	
+	
 	for (d = descriptor_list; d; d = d->next) {
-		if (!IS_PLAYING(d))
-			continue;
-
-		if (d->original)
-			tch = d->original;
-		else if (!(tch = d->creature))
-			continue;
-
-		// skip imms now, before the tot_num gets incremented
-		if (ch != tch && GET_LEVEL(tch) >= LVL_AMBASSADOR && !can_see_creature(ch, tch))
-			continue;
-
-		if (ch != tch && PRF2_FLAGGED(tch, PRF2_NOWHO) &&
-				GET_LEVEL(tch) >= LVL_IMMORT && !IS_IMMORT(ch)  )
-			continue;
-
-		tot_num++;
-
-		if (!can_see_creature(ch, tch))
-			continue;
-
-		if (*name_search && str_cmp(GET_NAME(tch), name_search) &&
-			!strstr(GET_TITLE(tch), name_search))
-			continue;
-		if (clan && (clan->number != GET_CLAN(tch) ||
-				(PRF2_FLAGGED(tch, PRF2_CLAN_HIDE) &&
-					!PRF_FLAGGED(ch, PRF_HOLYLIGHT))))
-			continue;
-
-		// If we're limiting levels, exclude anonymous players unless we're
-		// an immortal
-		if ((low != -1 || high != -1) &&
-				!IS_IMMORT(ch) && PRF2_FLAGGED(tch, PRF2_ANONYMOUS))
-			continue;
-
-		if (low != -1 && GET_LEVEL(tch) < MAX(low, 0))
-			continue;
-
-		if (high != -1 && GET_LEVEL(tch) > MIN(high, LVL_GRIMP))
-			continue;
-
-		if (outlaws && !PLR_FLAGGED(tch, PLR_KILLER) &&
-				!PLR_FLAGGED(tch, PLR_THIEF))
-			continue;
-		if (who_pkills && !GET_PKILLS(tch))
-			continue;
-		if (questwho)
-			continue;
-		if (showchar_class &&
-			((!(showchar_class & (1 << GET_CLASS(tch))) &&
-					(GET_LEVEL(ch) < LVL_AMBASSADOR ||
-						!(showchar_class & (1 << GET_REMORT_CLASS(tch))))) ||
-				(!PRF_FLAGGED(ch, PRF_HOLYLIGHT) && ch != tch &&
-					PRF2_FLAGGED(tch, PRF2_ANONYMOUS))))
-			continue;
-		if (who_female && !IS_FEMALE(tch))
-			continue;
-		if (who_male && !IS_MALE(tch))
-			continue;
-		if (who_tester && !tch->isTester())
-			continue;
-
-		if (GET_LEVEL(tch) >= LVL_AMBASSADOR) {
-			char badge[256];
-			int len;
-
-			len = strlen(BADGE(tch));
-			sprintf(badge, "%s%s%s",
-				tmp_pad(' ', (MAX_BADGE_LENGTH - len) / 2),
-				BADGE(tch),
-				tmp_pad(' ', (MAX_BADGE_LENGTH - len + 1) / 2));
-            if (who_gen) {
-                sprintf(buf2, "%s%s%s[  %s%s%s  ]%s ", buf2, 
-                        CCGRN(ch, C_SPR), CCYEL_BLD(ch, C_NRM),
-                        CCNRM_GRN(ch, C_NRM), badge, CCYEL_BLD(ch, C_NRM),
-						CCNRM(ch, C_NRM));
-            } else {
-                sprintf(buf2, "%s%s%s[%s%s%s]%s ", buf2,
-                    CCGRN(ch, C_SPR), CCYEL_BLD(ch, C_NRM),
-					CCNRM_GRN(ch, C_NRM), badge, CCYEL_BLD(ch, C_NRM),
-					CCNRM(ch, C_NRM));
-            }
+		Creature *curr;
+		if (d->original) {
+			curr = d->original;
+		} else if (d->creature) {
+			curr = d->creature;
 		} else {
-			if (IS_VAMPIRE(tch))
-				effective_char_class = GET_OLD_CLASS(tch);
-			else
-				effective_char_class = GET_CLASS(tch);
-            strcpy(c_buf, get_char_class_color( ch, tch, effective_char_class ) );
-			if (PRF2_FLAGGED(tch, PRF2_ANONYMOUS) &&
-					!Security::isMember(ch, Security::ADMINBASIC))
-				sprintf(buf2, "%s%s[%s-- %s%s%s%s]%s ", buf2,
-					CCGRN(ch, C_NRM), CCCYN(ch, C_NRM),
-					c_buf, char_class_abbrevs[(int)effective_char_class],
-					CCNRM(ch, C_NRM), CCGRN(ch, C_NRM), CCNRM(ch, C_NRM));
-            else if (who_gen)
-                sprintf(buf2, "%s%s[%s%2d%s(%s%02d%s)%s%s%s%s%s%s]%s ", buf2,
-                        CCGRN(ch, C_NRM), 
-                        (PRF2_FLAGGED(tch, PRF2_ANONYMOUS) &&
-                         PRF_FLAGGED(ch, PRF_HOLYLIGHT)) ? CCRED(ch, C_NRM) :
-                         CCNRM(ch, C_NRM), GET_LEVEL(tch), 
-                         CCCYN(ch, C_NRM), CCNRM(ch, C_NRM), (GET_REMORT_GEN(tch) > 0) ? GET_REMORT_GEN(tch) : 0,
-                         CCCYN(ch, C_NRM), CCNRM(ch, C_NRM),
-                         (PRF2_FLAGGED(tch, PRF2_ANONYMOUS) &&
-                          PRF_FLAGGED(ch, PRF_HOLYLIGHT)) ? "-" : " ",
-                         c_buf, char_class_abbrevs[(int)effective_char_class],
-                         CCNRM(ch, C_NRM), CCGRN(ch, C_NRM), CCNRM(ch, C_NRM));
-            else
-				sprintf(buf2, "%s%s[%s%2d%s%s%s%s%s]%s ", buf2,
-					CCGRN(ch, C_NRM),
-					(PRF2_FLAGGED(tch, PRF2_ANONYMOUS) &&
-						PRF_FLAGGED(ch, PRF_HOLYLIGHT)) ? CCRED(ch, C_NRM) :
-					CCNRM(ch, C_NRM), GET_LEVEL(tch),
-					(PRF2_FLAGGED(tch, PRF2_ANONYMOUS) &&
-						PRF_FLAGGED(ch, PRF_HOLYLIGHT)) ? "-" : " ",
-					c_buf, char_class_abbrevs[(int)effective_char_class],
-					CCNRM(ch, C_NRM), CCGRN(ch, C_NRM), CCNRM(ch, C_NRM));
+			continue;
 		}
-
-		if (short_list)
-			sprintf(buf2, "%s%s%-12.12s%s%s", buf2,
-				(GET_LEVEL(tch) >= LVL_AMBASSADOR ? CCNRM_GRN(ch, C_NRM) : ""),
-				GET_NAME(tch),
-				(GET_LEVEL(tch) >= LVL_AMBASSADOR ? CCNRM(ch, C_SPR) :
-					PRF2_FLAGGED(tch, PRF2_NOWHO) ? CCNRM(ch, C_NRM) : ""),
-				((!(++num_can_see % 3)) ? "\r\n" : ""));
-		else {
-			++num_can_see;
-			sprintf(buf2, "%s%s%s%s%s%s", buf2,
-					tch->isTester() ?
-				tester_buf : PRF2_FLAGGED(tch, PRF2_NOWHO) ? nowho_buf : "",
-				(GET_LEVEL(tch) >= LVL_AMBASSADOR ? CCNRM_GRN(ch, C_NRM) : ""),
-				GET_NAME(tch), GET_TITLE(tch), CCNRM(ch, C_NRM));
-			if (!who_i && real_clan(GET_CLAN(tch))) {
-				if (!PRF2_FLAGGED(tch, PRF2_CLAN_HIDE))
-					sprintf(buf2, "%s %s%s%s", buf2,
-						CCCYN(ch, C_NRM), real_clan(GET_CLAN(tch))->badge,
-						CCNRM(ch, C_NRM));
-				else if (Security::isMember(ch, Security::ADMINBASIC))
-					sprintf(buf2, "%s %s)%s(%s", buf2,
-						CCCYN(ch, C_NRM), real_clan(GET_CLAN(tch))->name,
-						CCNRM(ch, C_NRM));
+		
+		//update the total number of players first
+		if (GET_LEVEL(curr) < LVL_AMBASSADOR && !curr->isTester()) {
+			playerTotal++;
+		}
+		
+		/////////////////BEGIN CONDITION CHECKING//////////////////////
+		//zone
+		if (zone && ch->in_room->zone != curr->in_room->zone) {
+			continue;
+		}
+		//plane
+		if (plane && ch->in_room->zone->plane != curr->in_room->zone->plane) {
+			continue;
+		}
+		//time
+		if (time && ch->in_room->zone->time_frame != curr->in_room->zone->time_frame) {
+			continue;
+		}
+		//kills
+		if (kills && GET_PKILLS(ch) == 0) {
+			continue;
+		}
+		//classes
+		if (classes && !((mage && GET_CLASS(curr) == CLASS_MAGE) ||
+						 (thief && GET_CLASS(curr) == CLASS_THIEF) ||
+					 	 (ranger && GET_CLASS(curr) == CLASS_RANGER) ||
+					 	 (knight && GET_CLASS(curr) == CLASS_KNIGHT) ||
+					 	 (barbarian && GET_CLASS(curr) == CLASS_BARB) ||
+					 	 (bard && GET_CLASS(curr) == CLASS_BARD) ||
+					 	 (cleric && GET_CLASS(curr) == CLASS_CLERIC) ||
+					 	 (monk && GET_CLASS(curr) == CLASS_MONK) ||
+					 	 (physic && GET_CLASS(curr) == CLASS_PHYSIC) ||
+						 (cyborg && GET_CLASS(curr) == CLASS_CYBORG) ||
+						 (psionic && GET_CLASS(curr) == CLASS_PSIONIC) ||
+					 	 (mercenary && GET_CLASS(curr) == CLASS_MERCENARY))) {
+			continue;
+		}
+		//levels
+		if (low >=0 && high >=0) { //perform a level check
+			//character is outside of level range
+			if (GET_LEVEL(curr) > high || GET_LEVEL(curr) < low ||
+			//character's level is hidden
+			(PRF2_FLAGGED(curr, PRF2_ANONYMOUS) && !Security::isMember(ch, Security::ADMINBASIC))) {
+				continue;
 			}
-			if (GET_INVIS_LVL(tch) && IS_IMMORT(ch))
-				sprintf(buf2, "%s %s(%si%d%s)%s",
-					buf2, CCBLU(ch, C_NRM), CCMAG(ch, C_NRM),
-					GET_INVIS_LVL(tch), CCBLU(ch, C_NRM), CCNRM(ch, C_NRM));
-			else if (!who_i && IS_AFFECTED(tch, AFF_INVISIBLE)) {
-				sprintf(buf2, "%s %s(invis)%s",
-					buf2, CCCYN(ch, C_NRM), CCNRM(ch, C_NRM));
-			} else if (!who_i && IS_AFFECTED_2(tch, AFF2_TRANSPARENT)) {
-				sprintf(buf2, "%s %s(transp)%s",
-					buf2, CCCYN(ch, C_NRM), CCNRM(ch, C_NRM));
+		}
+		//clans
+		if (clan && (realClan != NULL)) {
+			//not in clan
+			if (realClan->number != GET_CLAN(curr) ||
+			//not able to see the clan
+			(PRF2_FLAGGED(curr, PRF2_CLAN_HIDE) && !Security::isMember(ch, Security::ADMINBASIC))) {
+				continue;
 			}
-			if (PLR_FLAGGED(tch, PLR_MAILING)) {
-				sprintf(buf2, "%s %s(mailing)%s",
-					buf2, CCGRN(ch, C_NRM), CCNRM(ch, C_NRM));
-			} else if (PLR_FLAGGED(tch, PLR_WRITING)) {
-				sprintf(buf2, "%s %s(writing)%s",
-					buf2, CCGRN(ch, C_NRM), CCNRM(ch, C_NRM));
-			} else if (PLR_FLAGGED(tch, PLR_OLC)) {
-				sprintf(buf2, "%s %s(creating)%s",
-					buf2, CCGRN(ch, C_NRM), CCNRM(ch, C_NRM));
+		}
+		/////////////////END CONDITIONS/////////////////////////
+		
+		
+		if (GET_LEVEL(curr) >= LVL_AMBASSADOR) {
+			immCount++;
+			imms << whoString(ch, curr);
+			if (!noflags) {
+				imms << whoFlagsString(ch, curr);
 			}
-			if (!who_i) {
-				if (PRF_FLAGGED(tch, PRF_DEAF)) {
-					sprintf(buf2, "%s %s(deaf)%s",
-						buf2, CCBLU(ch, C_NRM), CCNRM(ch, C_NRM));
-				}
-				if (PRF_FLAGGED(tch, PRF_NOTELL)) {
-					sprintf(buf2, "%s %s(notell)%s",
-						buf2, CCBLU(ch, C_NRM), CCNRM(ch, C_NRM));
-				}
-				if (GET_QUEST(tch)) {
-					sprintf(buf2, "%s %s(quest)%s",
-						buf2, CCYEL_BLD(ch, C_NRM), CCNRM(ch, C_NRM));
-				}
+			if (kills) {
+				imms << whoKillsString(ch, curr);
 			}
-			if (PLR_FLAGGED(tch, PLR_AFK)) {
-				sprintf(buf2, "%s %s(afk)%s",
-					buf2, CCGRN(ch, C_NRM), CCNRM(ch, C_NRM));
+			imms << "\r\n";
+		} else if (curr->isTester()) {
+			testerCount++;
+			testers << whoString(ch, curr);
+			if (!noflags) {
+				testers << whoFlagsString(ch, curr);
 			}
-			if (PLR_FLAGGED(tch, PLR_THIEF)) {
-				sprintf(buf2, "%s %s(THIEF)%s",
-					buf2, CCRED(ch, C_NRM), CCNRM(ch, C_NRM));
+			if (kills) {
+				testers << whoKillsString(ch, curr);
 			}
-			if (PLR_FLAGGED(tch, PLR_KILLER)) {
-				sprintf(buf2, "%s %s(KILLER)%s",
-					buf2, CCRED(ch, C_NRM), CCNRM(ch, C_NRM));
+			testers << "\r\n";
+		} else {
+			playerCount++;
+			players << whoString(ch, curr);
+			if (!noflags) {
+				players << whoFlagsString(ch, curr);
 			}
-			if (!who_i && PLR_FLAGGED(tch, PLR_COUNCIL)) {
-				//          (PRF_FLAGGED(ch, PRF_HOLYLIGHT) || PLR_FLAGGED(ch, PLR_COUNCIL))) {
-				sprintf(buf2, "%s %s<COUNCIL>%s",
-					buf2, CCBLU_BLD(ch, C_NRM), CCNRM(ch, C_NRM));
+			if (kills) {
+				players << whoKillsString(ch, curr);
 			}
-			if ((outlaws || who_pkills) && (GET_PKILLS(tch) || GET_REPUTATION(tch))) {
-				sprintf(buf2, "%s %s*%d KILLS* -%s-%s",
-					buf2, CCRED_BLD(ch, C_NRM), GET_PKILLS(tch),
-					reputation_msg[GET_REPUTATION_RANK(tch)],
-					CCNRM(ch, C_NRM));
-			}
-			if (GET_LEVEL(tch) >= LVL_AMBASSADOR)
-				strcat(buf2, CCNRM(ch, C_SPR));
-			strcat(buf2, "\r\n");
-		}						/* endif shortlist */
-	}							/* end of for */
-	if (short_list && (num_can_see % 4))
-		strcat(buf2, "\r\n");
-	strcat(buf2, CCBLD(ch, C_CMP));
-	if (num_can_see == 0)
-		strcat(buf2, "\r\nNo-one at all!  ");
-	else if (num_can_see == 1)
-		strcat(buf2, "\r\nOne lonely player is visible.  ");
-	else
-		sprintf(buf2, "%s\r\n%d characters are visible.  ", buf2, num_can_see);
-
-	if (tot_num == 1)
-		strcat(buf2, "Only one player is logged in.\r\n");
-	else
-		sprintf(buf2, "%s%d players are logged into the game.\r\n", buf2, tot_num);
-
-	strcat(buf2, CCNRM(ch, C_CMP));
-	page_string(ch->desc, buf2);
+			players << "\r\n";
+		}
+	}
+	
+	
+	//List the immortals
+	if (immCount > 0) {
+		out << CCBLD(ch, C_CMP) << "**************     " << CCGRN(ch, C_NRM);
+		out << "Visible Immortals of TEMPUS" << CCNRM(ch, C_NRM) << CCBLD(ch, C_CMP);
+		out << "     **************" << CCNRM(ch, C_SPR) << "\r\n";
+		out << (IS_NPC(ch) ? "" : (ch->account->get_compact_level() > 1) ? "" : "\r\n");
+		out << imms.str();
+		out << (IS_NPC(ch) ? "" : (ch->account->get_compact_level() > 1) ? "" : "\r\n");
+	}
+	//testers
+	if ((GET_LEVEL(ch) >= LVL_AMBASSADOR || ch->isTester()) && testerCount > 0) {
+		out << CCBLD(ch, C_CMP) << "**************      " << CCGRN(ch, C_NRM);
+		out << "Visible Testers of TEMPUS" << CCNRM(ch, C_NRM) << CCBLD(ch, C_CMP);
+		out << "      **************" << CCNRM(ch, C_SPR) << "\r\n";
+		out << (IS_NPC(ch) ? "" : (ch->account->get_compact_level() > 1) ? "" : "\r\n");
+		out << testers.str();
+		out << (IS_NPC(ch) ? "" : (ch->account->get_compact_level() > 1) ? "" : "\r\n");
+	}
+	//players
+	if (playerCount > 0) {
+		out << CCBLD(ch, C_CMP) << "**************      " << CCGRN(ch, C_NRM);
+		out << "Visible Players of TEMPUS" << CCNRM(ch, C_NRM) << CCBLD(ch, C_CMP);
+		out << "      **************" << CCNRM(ch, C_SPR) << "\r\n";
+		out << (IS_NPC(ch) ? "" : (ch->account->get_compact_level() > 1) ? "" : "\r\n");
+		out << players.str();
+		out << (IS_NPC(ch) ? "" : (ch->account->get_compact_level() > 1) ? "" : "\r\n");
+	}
+	
+	//determine plurality of nouns
+	if (immCount == 1)
+		imm_s="";
+	if (testerCount == 1)
+		tester_s="";
+	
+	out << immCount << " immortal" << imm_s;
+	if (GET_LEVEL(ch) >= LVL_AMBASSADOR || ch->isTester()) {
+		out << ", " << testerCount << " tester" << tester_s << ",";
+	}
+	out << " and " << playerCount << " of " << playerTotal << " players displayed.\r\n";
+	page_string(ch->desc, out.str().c_str());
 }
+
 
 
 #define USERS_FORMAT \
