@@ -1792,11 +1792,14 @@ damage( struct char_data * ch, struct char_data * victim, int dam,
     }
 
     /* debugging message */
+    sprintf( buf, "<%s> ( dam:%4d ) ( Wait: %2d ) ( Pos: %d )\r\n", GET_NAME( victim ),
+             dam, IS_NPC( victim ) ? GET_MOB_WAIT( victim ) :
+             victim->desc ? victim->desc->wait : 0, victim->getPosition() );
     if ( ch && PRF2_FLAGGED( ch, PRF2_FIGHT_DEBUG ) ) {
-        sprintf( buf, "<%s> ( dam:%4d ) ( Wait: %2d ) ( Pos: %d )\r\n", GET_NAME( victim ),
-                 dam, IS_NPC( victim ) ? GET_MOB_WAIT( victim ) :
-                 victim->desc ? victim->desc->wait : 0, victim->getPosition() );
         send_to_char( buf, ch );
+    }
+    if ( victim && PRF2_FLAGGED( victim, PRF2_FIGHT_DEBUG ) ) {
+        send_to_char( buf, victim );
     }
 
     //

@@ -369,8 +369,12 @@ int calc_skill_prob( struct char_data *ch, struct char_data *vict, int skillnum,
     
 	need_hand = 1;
 	prob += GET_DEX(ch);
-	*dam = dice(1, GET_LEVEL(ch) >> 3);
-	ADD_EQ_DAM(ch, WEAR_HANDS);
+    if(GET_LEVEL(ch) >= 67) {
+        *dam = 1000;
+    } else {
+        *dam = dice(1, GET_LEVEL(ch) >> 3);
+        ADD_EQ_DAM(ch, WEAR_HANDS);
+    }
 	*wait = 3 RL_SEC;
 	break;
 
