@@ -3733,8 +3733,7 @@ ACMD(do_sacrifice)
         return;
     }
       if (GET_LEVEL(ch) < LVL_SPIRIT) {
-          if (strcmp(obj->short_description, PROTO_SDESC(obj->shared->vnum)) ||
-              (IS_CONTAINER(obj) && !junkable(obj))) {
+          if (  !junkable(obj) ) {
               if (IS_CONTAINER(obj)) {
                   string containerName(obj->name);
                   sbuf = AN(obj->short_description) + string(" ") + containerName +
