@@ -4898,3 +4898,36 @@ ACMD(do_wizlist)
 	strcat(buf, "\r\n\r\n");
 	page_string(ch->desc, buf);
 }
+
+ACMD(do_areas)
+{
+    zone_data *zone;
+    bool found_one = false;
+    char *msg;
+
+    msg = tmp_sprintf("%s%s                    --- Areas appropriate for your level ---%s\r\n",
+        CCYEL(ch, C_NRM), CCBLD(ch, C_CMP), CCNRM(ch, C_NRM));
+    
+    for (zone = zone_table;zone;zone = zone->next) {
+        if (!zone->public_desc || !zone->min_lvl)
+            continue;
+        if (IS_IMMORT(ch) ||
+                (zone->min_lvl >= GET_LEVEL(ch)
+                    && zone->max_lvl <= GET_LEVEL(ch)
+                    && zone->min_gen >= GET_REMORT_GEN(ch)
+                    && zone->max_gen <= GET_REMORT_GEN(ch))) {
+            msg = tmp_strcat(msg, (found_one) ? "\r\n":"", CCMAG(ch, C_NRM), zone->name,
+                CCNRM(ch, C_NRM), "\r\n", zone->public_desc, NULL);
+            found_one = true;
+        }
+    }
+
+    if (found_one)
+        page_string(ch->desc, msg);
+    else {
+        send_to_char(ch, "Bug the immortals about adding zones appropriate for your level!\r\n");
+		mudlog(GET_INVIS_LVL(ch), NRM, true,
+			"%s (%d:%d) didn't have any appropriate areas listed.\r\n",
+			GET_NAME(ch), GET_LEVEL(ch), GET_REMORT_GEN(ch));
+	}
+}

@@ -426,7 +426,7 @@ struct command_info cmd_info[] = {
 	{"past", POS_STANDING, do_move, 0, SCMD_PAST, 0},
 
 	/* now, the main list */
-	{"areas", POS_DEAD, do_gen_ps, 0, SCMD_AREAS, 0},
+	{"areas", POS_DEAD, do_areas, 0, 0, 0},
 	{"at", POS_DEAD, do_at, LVL_IMMORT, 0, 0},
 	{"attributes", POS_SLEEPING, do_attributes, 0, 0, 0},
 	{"attack", POS_RESTING, do_kill, 0, 0, 0},

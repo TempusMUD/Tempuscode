@@ -15,6 +15,7 @@ ACMD(do_drag_char);
 ACMD(do_say);
 ACMD(do_action);
 ACMD(do_mood);
+ACMD(do_areas);
 ASPELL(spell_nuclear_wasteland);
 ASPELL(spell_spacetime_imprint);
 ASPELL(spell_spacetime_recall);
