@@ -3319,70 +3319,79 @@ remove_random_obj_affect(Creature *ch, obj_data *obj, int level)
 
 ASPELL(spell_dispel_magic)
 {
-		int aff_to_remove;
-		bool affs_all_gone;
+    int aff_to_remove;
+	bool affs_all_gone;
+    int my_return_flags = 0;
 
-		if (victim) {
-			// Cast on creature
-			if (victim->affected) {
-				affected_type *aff, *next_aff;
+    if (victim) {
+        // Cast on creature
+        if (victim->affected) {
+            affected_type *aff, *next_aff;
 
-				for (aff = victim->affected;aff;aff = next_aff) {
-					next_aff = aff->next;
-					if (SPELL_IS_MAGIC(aff->type) ||
-							SPELL_IS_DIVINE(aff->type)) {
-						if (aff->level < number(level / 2, level * 2))
-							affect_remove(victim, aff);
-					}
-				}
-				send_to_char(victim, "You feel your magic fading away!\r\n");
-				act("The magic of $n flows out into the universe.", true,
-					victim, 0, 0, TO_ROOM);
-			} else {
-				send_to_char(ch, "Nothing seems to happen.\r\n");
-			}
-
-			return;
-		}
-
-		// Cast on object
-        if (!IS_OBJ_STAT(obj, ITEM_MAGIC)) {
-            act("$p is not magical.", FALSE, ch, obj, 0, TO_CHAR);
-            return;
+            for (aff = victim->affected;aff;aff = next_aff) {
+                next_aff = aff->next;
+                if (SPELL_IS_MAGIC(aff->type) ||
+                        SPELL_IS_DIVINE(aff->type)) {
+                    if (aff->level < number(level / 2, level * 2))
+                        affect_remove(victim, aff);
+                }
+            }
+            send_to_char(victim, "You feel your magic fading away!\r\n");
+            act("The magic of $n flows out into the universe.", true,
+                victim, 0, 0, TO_ROOM);
+        } else {
+            send_to_char(ch, "Nothing seems to happen.\r\n");
         }
 
-		if (!IS_IMMORT(ch) && 
-				(IS_OBJ_STAT(obj, ITEM_MAGIC_NODISPEL) ||
-				IS_OBJ_STAT2(obj, ITEM2_CURSED_PERM))) {
-			send_to_char(ch, "Nothing seems to happen.\r\n");
-			return;
-		}
+        return;
+    }
 
-		// removes up to ten affects
-		aff_to_remove = 10 - ch->getLevelBonus(IS_MAGE(ch) || IS_CLERIC(ch)) / 10;
-		if (!aff_to_remove)
-			aff_to_remove = 1;
-		aff_to_remove += number(0, 1);
+    // Cast on object
+    if (!IS_OBJ_STAT(obj, ITEM_MAGIC)) {
+        act("$p is not magical.", FALSE, ch, obj, 0, TO_CHAR);
+        return;
+    }
 
-		affs_all_gone = false;
-		while (aff_to_remove-- && !affs_all_gone)
-			affs_all_gone = remove_random_obj_affect(ch, obj, level);
+    if (!IS_IMMORT(ch) && 
+            (IS_OBJ_STAT(obj, ITEM_MAGIC_NODISPEL) ||
+            IS_OBJ_STAT2(obj, ITEM2_CURSED_PERM))) {
+        send_to_char(ch, "Nothing seems to happen.\r\n");
+        return;
+    }
 
-		if (affs_all_gone) {
-			if (IS_OBJ_STAT(obj, ITEM_MAGIC) && IS_MAGE(ch))
-				REMOVE_BIT(obj->obj_flags.extra_flags, ITEM_MAGIC);
+    if (IS_MAGE(ch) && 
+        (IS_OBJ_STAT(obj, ITEM_BLESS) || IS_OBJ_STAT(obj, ITEM_DAMNED))) {
+        send_to_char(ch, "Nothing seems to happen.\r\n");
+        return;
+    }
 
-			if (IS_OBJ_STAT(obj, ITEM_BLESS) && IS_CLERIC(ch))
-				REMOVE_BIT(obj->obj_flags.extra_flags, ITEM_BLESS);
+    if (IS_OBJ_STAT(obj, ITEM_BLESS)) {
+        call_magic(ch, ch, 0, SPELL_ESSENCE_OF_GOOD, GET_LEVEL(ch), CAST_SPELL, &my_return_flags);
+    }
+    if (IS_OBJ_STAT(obj, ITEM_DAMNED)) {
+        call_magic(ch, ch, 0, SPELL_ESSENCE_OF_EVIL, GET_LEVEL(ch), CAST_SPELL, &my_return_flags);
+    }
 
-			if (IS_OBJ_STAT(obj, ITEM_DAMNED) && IS_CLERIC(ch))
-				REMOVE_BIT(obj->obj_flags.extra_flags, ITEM_DAMNED);
-			act("All the magic that $p ever had is gone.", true,
-				ch, obj, 0, TO_CHAR);
-		} else {
-			act("Your spell unravels some of the magic of $p!", true,
-				ch, obj, 0, TO_CHAR);
-		}
+    // removes up to ten affects
+    aff_to_remove = 10 - ch->getLevelBonus(IS_MAGE(ch) || IS_CLERIC(ch)) / 10;
+    if (!aff_to_remove)
+        aff_to_remove = 1;
+    aff_to_remove += number(0, 1);
+
+    affs_all_gone = false;
+    while (aff_to_remove-- && !affs_all_gone)
+        affs_all_gone = remove_random_obj_affect(ch, obj, level);
+
+    if (affs_all_gone) {
+        if (IS_OBJ_STAT(obj, ITEM_MAGIC))
+            REMOVE_BIT(obj->obj_flags.extra_flags, ITEM_MAGIC);
+
+        act("All the magic that $p ever had is gone.", true,
+            ch, obj, 0, TO_CHAR);
+    } else {
+        act("Your spell unravels some of the magic of $p!", true,
+            ch, obj, 0, TO_CHAR);
+    }
 }
 
 ASPELL(spell_distraction)
