@@ -3222,6 +3222,7 @@ ACMD(do_wiznet)
     char emote = FALSE;
     char any = FALSE;
     int level = LVL_AMBASSADOR;
+	char *subcmd_str, *subcmd_desc;
 
     skip_spaces(&argument);
     delete_doubledollar(argument);
@@ -3321,21 +3322,36 @@ ACMD(do_wiznet)
         send_to_char("Don't bother the gods like that!\r\n", ch);
         return;
     }
+
+	switch (subcmd) {
+		case SCMD_IMMCHAT:
+			subcmd_str = "imm";
+			subcmd_desc = " imms";
+			break;
+		case SCMD_WIZNET:
+			subcmd_str = "wiz";
+			subcmd_desc = "";
+			break;
+	}
+
     if ((subcmd == SCMD_IMMCHAT && level > LVL_AMBASSADOR) ||
         (subcmd == SCMD_WIZNET && level > LVL_IMMORT)) {
-        sprintf(buf1, "%s%s: <%d> %s%s\r\n", GET_NAME(ch), 
-                subcmd == SCMD_IMMCHAT ? " imms" : "", level, 
-                emote ? "<--- " : "", argument);
-        sprintf(buf2, "Someone%s: <%d> %s%s\r\n", 
-                subcmd == SCMD_IMMCHAT ? " imms" : "", level, 
-                emote ? "<--- " : "", argument);
+		sprintf(buf1, "%s%s: <%d> %s\r\n", GET_NAME(ch), 
+				subcmd_desc, level, argument);
+		sprintf(buf2, "Someone%s: <%d> %s\r\n", 
+				subcmd_desc, level, argument);
     } else {
-        sprintf(buf1, "%s%s: %s%s\r\n", GET_NAME(ch), 
-                subcmd == SCMD_IMMCHAT ? " imms" : "", 
-                emote ? "<--- " : "", argument);
-        sprintf(buf2, "Someone%s: %s%s\r\n", 
-                subcmd == SCMD_IMMCHAT ? " imms" : "", 
-                emote ? "<--- " : "", argument);
+		if (emote) {
+			sprintf(buf1, "<%s> %s %s\r\n",
+					subcmd_str, GET_NAME(ch), argument);
+			sprintf(buf2, "<%s> Someone %s\r\n", 
+					subcmd_str, argument);
+		} else {
+			sprintf(buf1, "%s%s: %s\r\n", GET_NAME(ch), 
+					subcmd_desc, argument);
+			sprintf(buf2, "Someone%s: %s\r\n", 
+					subcmd_desc, argument);
+		}
     }
 
     for (d = descriptor_list; d; d = d->next) {
