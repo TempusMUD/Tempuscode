@@ -70,7 +70,7 @@ void purge( char *filename, int tmud ) {
 	    sprintf(reason, "Invalid level (%d)", player.level);
 	}
 
-	if ( player.char_specials_saved.idnum > 50000 ) {
+	if ( player.char_specials_saved.idnum > 100000 ) {
 	okay = 0;
 		sprintf( reason, "Invalid idnum %ld level %2d", player.char_specials_saved.idnum, player.level );
 }

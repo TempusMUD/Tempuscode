@@ -104,6 +104,7 @@ int main(int argc, char **argv)
     mode = 0;
     if (argc != 5) {
         fprintf(stderr, "Usage: %s playerfile <mode> character-name <argument>\n", argv[0]);
+        fprintf(stderr, "       modes [ passwd | level ]\n");
         return 1;
     }
     if(strcmp(argv[2],"level") == 0 ){

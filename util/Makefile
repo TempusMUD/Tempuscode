@@ -1,8 +1,8 @@
-UTILS=hcontrol-view showplay economic_stats demographic_stats scan_rent purgeplay \
-                    newdyncontrol clanview playerutil
+UTILS=intermud_server  showplay economic_stats demographic_stats scan_rent \
+        purgeplay  newdyncontrol clanview playerutil listrent hcontrol-view
 SUBDIRS=hed ped oed
 INCLUDE=../src/include
-CXX=g++ -lcrypt -lxml2 -Wall -O3 -I$(INCLUDE)
+CXX=g++ -fpermissive -lcrypt -lxml2 -Wall -g -I$(INCLUDE)
 
 default all:
 	$(MAKE) $(UTILS) TARGET=$@
