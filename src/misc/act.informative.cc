@@ -3135,7 +3135,6 @@ ACMD(do_who)
                          !strncmp(GET_NAME(tch), "Generic", 7)  ? "GENERIC" : 
                          !strncmp(GET_NAME(tch), "Ska", 3)      ? "  LADY " : 
                          !strncmp(GET_NAME(tch), "Shiva", 5)    ? " DEATH " : 
-                         !strncmp(GET_NAME(tch), "Joran", 5)    ? "OVRLORD" :
                          !strncmp(GET_NAME(tch), "Smitty", 6)   ? "FOREMAN" :
                          !strncmp(GET_NAME(tch), "Dogma", 5)    ? " CHIEF " :
                          !strncmp(GET_NAME(tch), "Stryker", 7)  ? "CODEMAN" :
