@@ -28,11 +28,14 @@ get_house_file_path( int id )
 	return tmp_sprintf( "housing/%d/%04d.xml", (id % 10), id );
 }
 
+// Modes used for match_houses
+enum HC_SearchModes { INVALID=0, HC_OWNER, HC_LANDLORD, HC_GUEST };
+
 class House 
 {
 	public:
 		enum Type { INVALID = 0, PRIVATE, PUBLIC, RENTAL };
-		const char* getTypeName( Type type ) {
+		static const char* getTypeName( Type type ) {
 			switch( type ) {
 				case PRIVATE:
 					return "Private";
@@ -144,7 +147,7 @@ class House
 
 		void listRooms( Creature *ch );
 		void listGuests( Creature *ch );
-		
+		void display( Creature *ch );
 		
 		House& operator=( const House &h );
 		// Comparators for sorting
