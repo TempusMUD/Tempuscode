@@ -1308,8 +1308,7 @@ damage( struct char_data * ch, struct char_data * victim, int dam,
             check_toughguy( ch, victim, 0 );
         }
     }
-    if(ch && victim && ch != victim)
-        update_pos( victim );
+    update_pos( victim );
 
     /*
      * skill_message sends a message from the messages file in lib/misc.
