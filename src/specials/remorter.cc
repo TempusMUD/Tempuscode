@@ -41,7 +41,6 @@ using namespace std;
 #include "xml_utils.h"
 #include "remorter.h"
 
-void Crash_save_implants(struct Creature *ch, bool extract = true);
 int do_fail_remort_test(Quiz *quiz, struct Creature *ch);
 int do_pass_remort_test(Quiz *quiz, struct Creature *ch);
 int do_pre_test(struct Creature *ch);
