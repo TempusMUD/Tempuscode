@@ -215,7 +215,12 @@ ACCMD(do_access) {
             break;
         case 6: // grouplist
             if( tokens.next(token1) ) {
-                send_to_char("Unimplemented.\r\n",ch);
+                long id = get_id_by_name(token1);
+                if( id <= 0 ) {
+                    send_to_char("No such player.\r\n",ch);
+                    return;
+                }
+                Security::sendMembership(ch, id);
             } else {
                 send_to_char("List group membership for what player?\r\n",ch);
             }
@@ -456,8 +461,29 @@ namespace Security {
         }
         return (*it).sendCommandList(ch);
     }
+    /** sends a list of the groups that the id is a member if. **/
+    bool sendMembership( char_data *ch, long id ) {
+        char linebuf[MAX_INPUT_LENGTH];
+        int n = 0;
+        out_buf[0] = '\0';
+        list<Group>::iterator it = groups.begin();
+        for( ; it != groups.end(); ++it ) {
+            if( (*it).member(id) ) {
+                (*it).toString(linebuf,ch);
+                strcat(out_buf,linebuf);
+                n++;
+            }
+        }
+        if( n <= 0 ) {
+            send_to_char("That player is not in any groups.\r\n",ch);
+            return false;
+        }
+        send_to_char(out_buf,ch);
+        return true;
+    }
+
     
-     bool addCommand( char *command, char *group_name ) {
+    bool addCommand( char *command, char *group_name ) {
         list<Group>::iterator it = find( groups.begin(), groups.end(), group_name );
         if( it == groups.end() ) {
             trace("addCommand: group not found");

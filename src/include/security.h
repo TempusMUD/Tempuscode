@@ -199,6 +199,8 @@ namespace Security {
     bool sendMemberList( char_data *ch, char *group_name );
     /** sends the command list of the named group to the given character. **/
     bool sendCommandList( char_data *ch, char *group_name );
+    /** sends a list of the groups that the id is a member if. **/
+    bool sendMembership( char_data *ch, long id );
     
     /** 
      * adds the named command to the named group.  
