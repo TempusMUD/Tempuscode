@@ -256,7 +256,7 @@ handle_network(descriptor_data *d,char *arg) {
 		if (d->showstr_head)
 			show_string(d);
 		else
-			SEND_TO_Q("Error: Resource not available", d);
+			SEND_TO_Q("Error: Resource not available\r\n", d);
 	} else if ( *arg1 == '@' || is_abbrev( arg1,"exit" ) || is_abbrev(arg1, "logout") ) {
 		slog("User %s disconnecting from net.", GET_NAME(d->character));
 		set_desc_state( CON_PLAYING,d );
