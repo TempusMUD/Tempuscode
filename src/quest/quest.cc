@@ -2640,9 +2640,7 @@ send_to_quest(Creature *ch, char *str, Quest * quest, int level, int mode)
 
 		if ((vict = get_char_in_world_by_idnum(quest->getPlayer(i).idnum))) {
 			if (!PLR_FLAGGED(vict, PLR_MAILING | PLR_WRITING | PLR_OLC) &&
-			vict->desc &&
-			(!vict->desc->showstr_point || PRF2_FLAGGED(vict, PRF2_LIGHT_READ))
-			&& GET_LEVEL(vict) >= level) 
+			vict->desc && GET_LEVEL(vict) >= level) 
 			{
 				send_to_char(vict, compose_qcomm_string(ch, vict, quest, mode, str) );
 			}
