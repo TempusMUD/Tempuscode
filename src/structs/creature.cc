@@ -1507,7 +1507,7 @@ Creature::initiatedCombat(Creature *ch)
 int
 Creature::numCombatants()
 {
-    if (!this)
+    if (!this || !getCombatList())
         return 0;
 
     return getCombatList()->size();
