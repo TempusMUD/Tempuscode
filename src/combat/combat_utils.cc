@@ -275,6 +275,9 @@ check_killer(struct Creature *ch, struct Creature *vict,
 	if (ok_to_damage(ch, vict))
 		return;
 
+	if (PLR_FLAGGED(ch, PLR_KILLER | PLR_THIEF))
+		return;
+
 	// You don't get a killer for attacking someone with a higher
 	// reputation than you, but you do get a reputation...
 	if (GET_REPUTATION_RANK(ch) < GET_REPUTATION_RANK(vict)) {
@@ -304,6 +307,9 @@ check_thief(struct Creature *ch, struct Creature *vict,
 	const char *debug_msg)
 {
 	if (ok_to_damage(ch, vict))
+		return;
+
+	if (PLR_FLAGGED(ch, PLR_KILLER | PLR_THIEF))
 		return;
 
 	// You don't get a killer for attacking someone with a higher
