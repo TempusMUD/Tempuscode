@@ -1495,6 +1495,7 @@ damage(struct Creature *ch, struct Creature *victim, int dam,
 	case JAVELIN_OF_LIGHTNING:
 	case SKILL_ENERGY_FIELD:
 	case SKILL_DISCHARGE:
+    case SPELL_ELECTRIC_ARC:
 		if (IS_VAMPIRE(victim))
 			dam >>= 1;
 		if (OUTSIDE(victim)

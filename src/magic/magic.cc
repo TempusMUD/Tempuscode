@@ -686,7 +686,7 @@ mag_damage(int level, struct Creature *ch, struct Creature *victim,
 		break;
 
 	case SPELL_ELECTRIC_ARC:
-		dam = dice(ch->getLevelBonus(SPELL_ELECTRIC_ARC), 7);
+		dam = dice(ch->getLevelBonus(SPELL_ELECTRIC_ARC), 5) + (level << 3);
 		break;
 
 	case SPELL_DISRUPTION:
