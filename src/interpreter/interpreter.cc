@@ -749,7 +749,7 @@ struct command_info cmd_info[] = {
     { "hedit"    , POS_RESTING , do_hedit    , 1, 0 , 0 },
     { "hack"     , POS_STANDING, do_gen_door , 1, SCMD_HACK , 0 },
     { "halt"     , POS_DEAD    , do_gen_tog  , LVL_AMBASSADOR, SCMD_HALT , 0 },
-    { "handbook" , POS_DEAD    , do_gen_ps   , LVL_AMBASSADOR, SCMD_HANDBOOK , 0 },
+    { "handbook" , POS_DEAD    , do_hcollect_help, LVL_AMBASSADOR, SCMD_HANDBOOK , 0 },
     { "handshake", POS_RESTING , do_action   , 0, 0 , 0 },
     { "hangover" , POS_RESTING , do_action   , 0, 0 , 0 },
     { "happy"    , POS_RESTING , do_action   , 0, 0 , 0 },

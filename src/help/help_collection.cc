@@ -646,6 +646,8 @@ ACMD(do_hcollect_help) {
         send_to_char(buf, ch);
     } else if( subcmd == SCMD_POLICIES ) {
         cur = Help->find_item_by_id(667);
+    } else if( subcmd == SCMD_HANDBOOK ) {
+        cur = Help->find_item_by_id(999);
     // Default help file
     } else if(!argument || !*argument) {
         cur = Help->find_item_by_id(666);
