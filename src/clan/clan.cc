@@ -576,7 +576,7 @@ ACMD(do_promote)
 					TO_CHAR);
 			else {
 				SET_BIT(PLR_FLAGS(vict), PLR_CLAN_LEADER);
-				tmp_sprintf("%s has promoted %s to clan leader status.",
+				msg = tmp_sprintf("%s has promoted %s to clan leader status.",
 					GET_NAME(ch), GET_NAME(vict));
 				slog("%s", msg);
 				msg = tmp_strcat(msg, "\r\n",NULL);
