@@ -840,12 +840,31 @@ send_menu(descriptor_data *d)
 			tmp_ch->clear();
 			tmp_ch->loadFromXML(d->account->get_char_by_index(idx));
 
+            char* sex_color = "";
+            switch( GET_SEX(tmp_ch) ) {
+                case SEX_MALE:
+                    sex_color = "&b";
+                    break;
+                case SEX_FEMALE:
+                    sex_color = "&m";
+                    break;
+            }
+            char* sex_str = tmp_sprintf("%s%c&n",
+                    sex_color, toupper(genders[(int)GET_SEX(tmp_ch)][0]) );
+                    
+
 			// Construct compact menu entry for each character
-			if (IS_REMORT(tmp_ch))
-				class_str = tmp_strcat(char_class_abbrevs[GET_CLASS(tmp_ch)],
-					"/", char_class_abbrevs[GET_REMORT_CLASS(tmp_ch)], NULL);
-			else
-				class_str = pc_char_class_types[GET_CLASS(tmp_ch)];
+			if (IS_REMORT(tmp_ch)) {
+                class_str = tmp_sprintf( "%s%4s&n/%s%4s&n",
+                    get_char_class_color( tmp_ch, GET_CLASS(tmp_ch) ),
+                    char_class_abbrevs[GET_CLASS(tmp_ch)],
+                    get_char_class_color( tmp_ch, GET_REMORT_CLASS(tmp_ch) ),
+                    char_class_abbrevs[GET_REMORT_CLASS(tmp_ch)] );
+			} else {
+                class_str = tmp_sprintf( "%s%9s&n",
+                    get_char_class_color( tmp_ch, GET_CLASS(tmp_ch) ),
+                    pc_char_class_types[GET_CLASS(tmp_ch)] );
+            }
 			strftime(laston_str, sizeof(laston_str), "%b %d, %Y",
 				localtime(&tmp_ch->player.time.logon));
 			if (PLR_FLAGGED(tmp_ch, PLR_FROZEN))
@@ -880,10 +899,10 @@ send_menu(descriptor_data *d)
 			else
 				mail_str = "&n   No";
 			send_to_desc(d,
-				"&b[&y%2d&b] &n%-13s %3d %3d  %c  %8s %9s %13s %s %s&n\r\n",
+				"&b[&y%2d&b] &n%-13s %3d %3d  %s  %8s %s %13s %s %s&n\r\n",
 				idx, GET_NAME(tmp_ch),
 				GET_LEVEL(tmp_ch), GET_REMORT_GEN(tmp_ch),
-				toupper(genders[(int)GET_SEX(tmp_ch)][0]),
+				sex_str,
 				player_race[(int)GET_RACE(tmp_ch)],
 				class_str, laston_str, status_str, mail_str);
 			idx++;
