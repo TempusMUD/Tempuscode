@@ -2351,8 +2351,7 @@ ACMD(do_return)
     struct Creature *orig = NULL;
     bool cloud_found = false;
 
-    if (!IS_NPC(ch) && (CHECK_REMORT_CLASS(ch) < 0)
-        && (GET_LEVEL(ch) < LVL_IMMORT)) {
+    if (!IS_NPC(ch) && !IS_REMORT(ch) && (GET_LEVEL(ch) < LVL_IMMORT)) {
         if (FIGHTING(ch)) {
             send_to_char(ch, "No way!  You're fighting for your life!\r\n");
         } else if (GET_LEVEL(ch) <= 10) {
