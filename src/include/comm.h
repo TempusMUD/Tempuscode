@@ -53,6 +53,7 @@ int	write_to_descriptor(int desc, char *txt);
 void	write_to_q(char *txt, struct txt_q *queue, int aliased);
 void	write_to_output(const char *txt, struct descriptor_data *d);
 void	page_string(struct descriptor_data *d, char *str, int keep_internal);
+void    show_file(struct char_data *ch, char *fname,int lines);
 
 #define SEND_TO_Q(messg, desc)  write_to_output((messg), desc)
 

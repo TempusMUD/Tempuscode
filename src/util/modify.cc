@@ -23,6 +23,7 @@
 #include <sys/types.h>
 #include <sys/stat.h>
 #include <fcntl.h>
+#include <fstream>
 
 #include "structs.h"
 #include "utils.h"
@@ -403,6 +404,78 @@ struct help_index_element *build_help_index(FILE * fl, int *num)
     return (list);
 }
 
+void show_file(struct char_data *ch, char *fname,int lines) {
+    char *logbuf = NULL;
+    int size;
+    fstream file;
+
+    file.open(fname,ios::in);
+    if(!file) {
+        send_to_char("It seems to be empty.\r\n",ch);
+        return;
+    }
+        
+    file.seekg( 0,ios::end );
+    if(!file.tellg()) {
+        send_to_char("It seems to be empty.\r\n",ch);
+        return;
+    }
+    file.seekg( 0,ios::beg);
+    if(lines > 0) {
+        if (lines > 100) {
+            send_to_char("If you want that many lines, you might as well read the whole thing.\r\n",ch);
+            return;
+        }
+        int tot,i;
+        int x = MAX_RAW_INPUT_LENGTH + 1;
+        tot = i = 0;
+        strcpy(buf,"");
+
+        logbuf = new char[(lines + 1) * x];
+        if (!logbuf) {
+            slog("Memory not allocated in show_file.");
+            return;
+        }
+
+
+        for(i=0;i<lines;i++)
+            strcpy((logbuf + (i * x)),"");
+
+        i = 0;
+        while(!file.eof()) {
+            file.getline((logbuf + (i * x)),x - 1,'\n');
+            tot++;
+            i==lines ? i=0 : i++;
+        }
+        if(tot < lines) {
+            for(i=0;i < tot; i++) {
+                strcat(buf,(logbuf + (i * x)));
+                strcat(buf,"\r\n");
+            }
+        } else {
+            for(tot = lines;tot; i == lines ? i = 0: i++) {
+                strcat(buf,(logbuf + (i * x)));
+                strcat(buf,"\r\n");
+                tot--;
+            }
+        }
+        delete logbuf;
+    } else {
+        file.seekg( 0,ios::end );
+        size = file.tellg() + 1;
+        logbuf = new char[MAX_RAW_INPUT_LENGTH + 1];
+        file.seekg( 0,ios::beg );
+        strcpy(buf,"");
+        while(!file.eof()) {
+            file.getline(logbuf,MAX_RAW_INPUT_LENGTH,'\n');
+            strcat(buf,logbuf);
+            strcat(buf,"\r\n");
+        }
+        delete logbuf;
+    }
+    file.close();
+    page_string(ch->desc,buf,0);
+}
 
 void page_string(struct descriptor_data *d, char *str, int keep_internal)
 {

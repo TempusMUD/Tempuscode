@@ -250,9 +250,6 @@ ACMD(do_reboot)
 	file_to_string_alloc(AREAS_MID_FILE, &areas_mid);
 	file_to_string_alloc(AREAS_HIGH_FILE, &areas_high);
 	file_to_string_alloc(AREAS_REMORT_FILE, &areas_remort);
-	file_to_string_alloc(BUG_FILE, &bugs);
-	file_to_string_alloc(IDEA_FILE, &ideas);
-	file_to_string_alloc(TYPO_FILE, &typos);
 	file_to_string_alloc(OLC_GUIDE_FILE, &olc_guide);
 	file_to_string_alloc(QUEST_GUIDE_FILE, &quest_guide);
 	boot_remort_quiz();
@@ -287,13 +284,8 @@ ACMD(do_reboot)
 	file_to_string_alloc(AREAS_MID_FILE, &areas_mid);
 	file_to_string_alloc(AREAS_HIGH_FILE, &areas_high);
 	file_to_string_alloc(AREAS_REMORT_FILE, &areas_remort);
-    } else if (!str_cmp(arg, "bugs"))
-	file_to_string_alloc(BUG_FILE, &bugs);
-    else if (!str_cmp(arg, "ideas"))
-	file_to_string_alloc(IDEA_FILE, &ideas);
-    else if (!str_cmp(arg, "typos"))
-	file_to_string_alloc(TYPO_FILE, &typos);
-    else if (!str_cmp(arg, "olc_guide"))
+	file_to_string_alloc(TYPO_FILE, &typos); 
+    } else if (!str_cmp(arg, "olc_guide"))
 	file_to_string_alloc(OLC_GUIDE_FILE, &olc_guide);
     else if (!str_cmp(arg, "quest_guide"))
 	file_to_string_alloc(QUEST_GUIDE_FILE, &quest_guide);
@@ -404,9 +396,6 @@ boot_db(void)
     file_to_string_alloc(AREAS_MID_FILE, &areas_mid);
     file_to_string_alloc(AREAS_HIGH_FILE, &areas_high);
     file_to_string_alloc(AREAS_REMORT_FILE, &areas_remort);
-    file_to_string_alloc(BUG_FILE, &bugs);
-    file_to_string_alloc(IDEA_FILE, &ideas);
-    file_to_string_alloc(TYPO_FILE, &typos);
     file_to_string_alloc(OLC_GUIDE_FILE, &olc_guide);
     file_to_string_alloc(QUEST_GUIDE_FILE, &quest_guide);
 

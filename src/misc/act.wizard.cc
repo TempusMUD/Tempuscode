@@ -16,6 +16,7 @@
 //
 
 #include <iostream>
+#include <fstream>
 
 #include "structs.h"
 #include "utils.h"
@@ -4019,9 +4020,6 @@ ACMD(do_show)
     struct room_data       *room = NULL, *tmp_room = NULL;
     struct descriptor_data *tmp_d = NULL;
     char                    field[MAX_INPUT_LENGTH], value[MAX_INPUT_LENGTH];
-    extern char *bugs;
-    extern char *ideas;
-    extern char *typos;
     extern char *quest_guide;
     extern struct remort_question_data *remort_quiz[];
     extern int top_of_remort_quiz;
@@ -4125,22 +4123,31 @@ ACMD(do_show)
 	show_shops(ch, argument);
 	break;
     case 9:
-	if (bugs)
-	    page_string(ch->desc, bugs, 0);
-	else
-	    send_to_char("This file is in OVERFLOW state, sorry.\r\n", ch);
+        if(*value && isdigit(*value)){
+            j = atoi(value);
+            if(j > 0)
+                show_file(ch,BUG_FILE,j);
+        } else {
+            show_file(ch,BUG_FILE,0);
+        }
 	break;
     case 10:
-	if (typos)
-	    page_string(ch->desc, typos, 0);
-	else
-	    send_to_char("This file is in OVERFLOW state, sorry.\r\n", ch);
+        if(*value && isdigit(*value)){
+            j = atoi(value);
+            if(j > 0)
+                show_file(ch,TYPO_FILE,j);
+        } else {
+            show_file(ch,TYPO_FILE,0);
+        }
 	break;
     case 11:
-	if (ideas)
-	    page_string(ch->desc, ideas, 0);
-	else 
-	    send_to_char("This file is in OVERFLOW state, sorry.\r\n", ch);
+        if(*value && isdigit(*value)){
+            j = atoi(value);
+            if(j > 0)
+                show_file(ch, IDEA_FILE,j);
+        } else {
+            show_file(ch,IDEA_FILE,0);
+        }
 	break;
     case 12:
 	if (!*value)

@@ -15,8 +15,6 @@ SPECIAL(life_point_potion)
 		send_to_char(buf,ch);
 		return 0;
 	}
-	send_to_char("bob\r\n",ch);
-
 	//Format : <number of life points> 
 	act("You hungrily consume $p, careful not to miss a single drop.",
 		      FALSE, ch, potion, 0, TO_CHAR);
