@@ -587,6 +587,7 @@ ACMD(do_pinch)
 	case SKILL_PINCH_ZETA:
 		happened = false;
 		af.type = 0;
+		// Remove all biological affects
 		if (vict->affected) {
 			struct affected_type *doomed_aff, *next_aff;
 			int level;
@@ -609,8 +610,15 @@ ACMD(do_pinch)
 
 		if (vict->getPosition() == POS_STUNNED
 			|| vict->getPosition() == POS_SLEEPING) {
+			// Revive from sleeping
 			REMOVE_BIT(AFF_FLAGS(vict), AFF_SLEEP);
+			// Wake them up
 			vict->setPosition(POS_RESTING);
+			// stun also has a wait-state which must be removed
+			if (ch->desc)
+				ch->desc->wait = 0;
+			else if (IS_NPC(ch))
+				GET_MOB_WAIT(ch) = 0;
 			to_vict = "You feel a strange sensation as $N wakes you.";
 			to_room = "$n is revived.";
 			happened = true;

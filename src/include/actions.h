@@ -110,5 +110,6 @@ typedef struct timewarp_data {
 //extern int num_timewarp_data;
 
 int mob_fight_psionic(struct char_data *ch, struct char_data *precious_vict);
+void perform_goto(char_data *ch, room_data *room, bool allow_follow);
 
 #endif

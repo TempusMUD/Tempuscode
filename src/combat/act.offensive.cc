@@ -1571,11 +1571,10 @@ ACMD(do_stun)
 		FALSE, vict, 0, ch, TO_CHAR);
 	act("$n stuns $N with a swift blow!", FALSE, ch, 0, vict, TO_NOTVICT);
 	send_to_char(ch, "You succeed!\r\n");
-	if FIGHTING
-		(vict) {
+	if FIGHTING(vict) {
 		stop_fighting(vict);
 		stop_fighting(ch);
-		}
+	}
 	if (IS_MOB(vict)) {
 		SET_BIT(MOB_FLAGS(vict), MOB_MEMORY);
 		remember(vict, ch);

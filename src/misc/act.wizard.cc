@@ -408,12 +408,63 @@ ACMD(do_distance)
 
 }
 
+void
+perform_goto(char_data *ch, room_data *room, bool allow_follow)
+{
+	room_data *was_in = NULL;
+	char *msg;
+	struct follow_type *k, *next;
+
+	if (!House_can_enter(ch, room->number) ||
+		!clan_house_can_enter(ch, room) ||
+		(GET_LEVEL(ch) < LVL_SPIRIT && ROOM_FLAGGED(room, ROOM_DEATH))) {
+		send_to_char(ch, "You cannot enter there.\r\n");
+		return;
+	}
+
+	was_in = ch->in_room;
+
+	if (POOFOUT(ch))
+		msg = tmp_sprintf("$n %s", POOFOUT(ch));
+	else
+		msg = "$n disappears in a puff of smoke.";
+
+	act(msg, TRUE, ch, 0, 0, TO_ROOM);
+	char_from_room(ch,false);
+	char_to_room(ch, room,false);
+	if (room->isOpenAir())
+		ch->setPosition(POS_FLYING);
+
+	if (POOFIN(ch))
+		msg = tmp_sprintf("$n %s", POOFIN(ch));
+	else
+		msg = "$n appears with an ear-splitting bang.";
+
+
+	act(msg, TRUE, ch, 0, 0, TO_ROOM);
+	look_at_room(ch, ch->in_room, 0);
+
+	if (allow_follow && ch->followers) {
+		for (k = ch->followers; k; k = next) {
+			next = k->next;
+			if (was_in == k->follower->in_room &&
+					GET_LEVEL(k->follower) >= LVL_AMBASSADOR &&
+					!PLR_FLAGGED(k->follower, PLR_OLC | PLR_WRITING | PLR_MAILING) &&
+					CAN_SEE(k->follower, ch))
+				perform_goto(k->follower, room, true);
+		}
+	}
+
+	if (ROOM_FLAGGED(ch->in_room, ROOM_DEATH) && GET_LEVEL(ch) < LVL_IMPL) {
+		slog("(GC) %s goto deathtrap [%d] %s.", GET_NAME(ch),
+			ch->in_room->number, ch->in_room->name);
+	}
+}
+
 
 ACMD(do_goto)
 {
-	struct room_data *location = NULL, *was_in = NULL;
-	struct char_data *vict = NULL;
-	char buf[MAX_STRING_LENGTH];
+	struct room_data *location = NULL;
 
 	if PLR_FLAGGED
 		(ch, PLR_AFK)
@@ -422,53 +473,7 @@ ACMD(do_goto)
 	if ((location = find_target_room(ch, argument)) == NULL)
 		return;
 
-	if (!House_can_enter(ch, location->number) ||
-		!clan_house_can_enter(ch, location) ||
-		(GET_LEVEL(ch) < LVL_SPIRIT && ROOM_FLAGGED(location, ROOM_DEATH))) {
-		send_to_char(ch, "You cannot enter there.\r\n");
-		return;
-	}
-
-	was_in = ch->in_room;
-
-	if (POOFOUT(ch))
-		sprintf(buf, "$n %s", POOFOUT(ch));
-	else
-		strcpy(buf, "$n disappears in a puff of smoke.");
-
-	act(buf, TRUE, ch, 0, 0, TO_ROOM);
-	char_from_room(ch,false);
-	char_to_room(ch, location,false);
-	if (location->isOpenAir())
-		ch->setPosition(POS_FLYING);
-
-	if (POOFIN(ch))
-		sprintf(buf, "$n %s", POOFIN(ch));
-	else
-		strcpy(buf, "$n appears with an ear-splitting bang.");
-
-
-	act(buf, TRUE, ch, 0, 0, TO_ROOM);
-	look_at_room(ch, ch->in_room, 0);
-
-	if (subcmd != -1) {
-		CharacterList::iterator it = was_in->people.begin();
-		for (; it != was_in->people.end(); ++it) {
-			vict = *it;
-			if (vict->master && vict->master == ch &&
-				GET_LEVEL(vict) >= LVL_AMBASSADOR
-				&& !PLR_FLAGGED(vict, PLR_OLC | PLR_WRITING | PLR_MAILING)
-				&& CAN_SEE(vict, ch)) {
-				sprintf(buf, ".%s", GET_NAME(ch));
-				do_goto(vict, buf, 0, -1);
-			}
-		}
-	}
-
-	if (ROOM_FLAGGED(ch->in_room, ROOM_DEATH) && GET_LEVEL(ch) < LVL_IMPL) {
-		slog("(GC) %s goto deathtrap [%d] %s.", GET_NAME(ch),
-			ch->in_room->number, ch->in_room->name);
-	}
+	perform_goto(ch, location, true);
 }
 
 

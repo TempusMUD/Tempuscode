@@ -1614,7 +1614,8 @@ ACMD(do_enter)
 {
 	int door;
 	struct obj_data *car = NULL;
-	struct room_data *room = NULL;
+	struct room_data *room = NULL, *was_in = NULL;
+	struct follow_type *k, *next;
 
 	one_argument(argument, buf);
 
@@ -1691,6 +1692,7 @@ ACMD(do_enter)
 						if (!IS_NPC(ch) && ch->in_room->zone != room->zone)
 							room->zone->enter_count++;
 
+						was_in = ch->in_room;
 						char_from_room(ch);
 						char_to_room(ch, room);
 						look_at_room(ch, ch->in_room, 0);
@@ -1716,6 +1718,19 @@ ACMD(do_enter)
 							GET_OBJ_VAL(car, 3) -= 1;
 
 						WAIT_STATE(ch, 2 RL_SEC);
+
+						// Imms should be able to follow
+						for (k = ch->followers; k; k = next) {
+							next = k->next;
+							if (was_in == k->follower->in_room &&
+									GET_LEVEL(k->follower) >= LVL_AMBASSADOR &&
+									!PLR_FLAGGED(k->follower, PLR_OLC | PLR_WRITING | PLR_MAILING) &&
+									CAN_SEE(k->follower, ch)) {
+								act("You follow $N.\r\n", FALSE, k->follower, 0, ch, TO_CHAR);
+								perform_goto(k->follower, room, true);
+							}
+						}
+
 						return;
 					} else
 						act("You are unable to enter $p!", FALSE, ch, car, 0,
