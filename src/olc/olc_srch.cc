@@ -224,8 +224,8 @@ do_create_search(struct char_data *ch, char *arg)
     }
 
     for (srch = ch->in_room->search; srch; srch = srch->next) {
-	if (isname(triggers, srch->command_keys) &&
-	    *keywords && srch->keywords && isname(keywords, srch->keywords)) {
+	if (isname_exact(triggers, srch->command_keys) &&
+	    *keywords && srch->keywords && isname_exact(keywords, srch->keywords)) {
 	    send_to_char("There is already a search here on that trigger.\r\n",ch);
 	    return NULL;
 	}
@@ -273,8 +273,8 @@ do_destroy_search(struct char_data *ch, char *arg)
     }
 
     for (srch = ch->in_room->search; srch; srch = srch->next) {
-	if (isname(triggers, srch->command_keys) &&
-	    ( !keywords || (!srch->keywords || isname(keywords, srch->keywords))) ) {
+	if (isname_exact(triggers, srch->command_keys) &&
+	    ( !keywords || (!srch->keywords || isname_exact(keywords, srch->keywords))) ) {
 	    break;
 	}
     }
@@ -332,8 +332,8 @@ set_char_xedit(struct char_data *ch, char *argument)
     }
 
     for (srch = ch->in_room->search; srch; srch = srch->next)
-	if (isname(arg1, srch->command_keys) &&
-	    (!*arg2 || !srch->keywords || isname(arg2, srch->keywords))) {
+	if (isname_exact(arg1, srch->command_keys) &&
+	    (!*arg2 || !srch->keywords || isname_exact(arg2, srch->keywords))) {
 	    GET_OLC_SRCH(ch) = srch;
 	    sprintf(buf,
 		    "You are now editing a search that triggers on:\r\n"
