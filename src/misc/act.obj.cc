@@ -2685,6 +2685,17 @@ perform_wear(struct Creature *ch, struct obj_data *obj, int where)
 		send_to_char(ch, "You cannot wield non-weapons.\r\n");
 		return 0;
 	}
+
+	if( IS_PC(ch) && obj->shared->owner_id != 0 && 
+				obj->shared->owner_id != GET_IDNUM(ch) ) 
+	{
+		const char* name = playerIndex.getName(obj->shared->owner_id);
+		char *msg = tmp_sprintf("$p can only be used by %s.", 
+								name ? name : "someone else" );
+		act(msg, FALSE, ch, obj, 0, TO_CHAR);
+		return 0;
+	}
+
 	if (IS_OBJ_STAT2(obj, ITEM2_NO_MORT) && GET_LEVEL(ch) < LVL_AMBASSADOR &&
 		!IS_REMORT(ch)) {
 		act("You feel a strange sensation as you attempt to use $p.\r\n"
@@ -2719,7 +2730,7 @@ perform_wear(struct Creature *ch, struct obj_data *obj, int where)
 				obj_to_char(unequip_char(ch, i, MODE_EQ), ch);
 			}
 		}
-	}
+	} 
 
 	wear_message(ch, obj, where);
 	if ((IS_OBJ_TYPE(obj, ITEM_WORN) ||
