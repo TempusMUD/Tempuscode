@@ -4,6 +4,7 @@
 // Copyright 1998 by John Watson, all rights reserved.
 //
 
+
 SPECIAL(beer_tree)
 {
   struct obj_data *obj = NULL;
