@@ -68,12 +68,16 @@ set_fighting( struct char_data * ch, struct char_data * vict, int aggr )
 	if ( IS_NPC( ch ) ) {
 	    if ( AFF_FLAGGED( ch, AFF_CHARM ) && ch->master && !IS_NPC( ch->master ) &&
 		 ( !MOB_FLAGGED( ch, MOB_MEMORY ) || !char_in_memory( vict, ch ) ) ) {
-		if ( !PLR_FLAGGED( ch->master, PLR_TOUGHGUY ) )
+		if ( !PLR_FLAGGED( ch->master, PLR_TOUGHGUY ) ) {
+            if(!(MOB_FLAGGED(ch, MOB_PET) 
+                || !(ch->master && ch->master->in_room == ch->in_room)))
 		    check_toughguy( ch->master, vict, 0 );
-		else if ( ( GET_LEVEL( ch->master ) > GET_LEVEL( vict ) ) ||
+        } else if ( ( GET_LEVEL( ch->master ) > GET_LEVEL( vict ) ) ||
 			  ( GET_LEVEL( vict ) < 4 ) || 
 			  ( IS_REMORT( ch->master ) && !IS_REMORT( vict ) ) )
-		    check_killer( ch->master, vict, "charmie" );
+                if(!(MOB_FLAGGED(ch, MOB_PET) 
+                    || !(ch->master && ch->master->in_room == ch->in_room)))
+                check_killer( ch->master, vict, "charmie" );
 	    }
 	}
 	else { /*if ( !IS_NPC( ch ) ) {*/
