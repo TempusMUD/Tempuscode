@@ -2591,7 +2591,7 @@ Fireball: like harder bones, skin, organ membranecs
         aff_array[1].modifier = aff_array[0].modifier + number(0, 5);
         aff_array[1].location = APPLY_HITROLL;
 
-        to_vict = "Your strength seems to grow as the song swells,";
+        to_vict = "Your strength seems to grow as the song swells.";
         break;
 
     case SONG_RHYTHM_OF_RAGE: {
