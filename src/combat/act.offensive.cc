@@ -588,8 +588,28 @@ calc_skill_prob(struct Creature *ch, struct Creature *vict, int skillnum,
 			}
 		}
 
-		if (IS_AFFECTED_2(vict, AFF2_NECK_PROTECTED) &&
-			number(0, GET_LEVEL(vict) * 4) > number(0, (GET_LEVEL(ch) >> 1))) {
+		if( IS_AFFECTED_2(vict, AFF2_NECK_PROTECTED) 
+			&& number(0, GET_LEVEL(vict) * 4) > number(0, (GET_LEVEL(ch) >> 1))) 
+		{
+			// Try to find the nobehead eq.
+			neck = GET_EQ(vict, WEAR_NECK_1);
+			if( neck == NULL || !NOBEHEAD_EQ(neck) ) {
+				neck = GET_EQ(vict, WEAR_NECK_2);
+			}
+			if( neck == NULL || !NOBEHEAD_EQ(neck) ) {
+				neck = GET_IMPLANT(vict, WEAR_NECK_1);
+			}
+			if( neck == NULL || !NOBEHEAD_EQ(neck) ) {
+				neck = GET_IMPLANT(vict, WEAR_NECK_2);
+			}
+
+			if( neck != NULL ) {
+				// half the damage only if the eq survives.
+				// ( damage_eq returns the mangled object, not the original )
+				if( damage_eq(ch, neck, *dam) != NULL )
+					*dam >>= 1;
+			}
+			/*
 			if (((neck = GET_EQ(vict, WEAR_NECK_1)) &&
 					NOBEHEAD_EQ(neck)) ||
 				((neck = GET_EQ(vict, WEAR_NECK_2)) && NOBEHEAD_EQ(neck))) {
@@ -613,6 +633,7 @@ calc_skill_prob(struct Creature *ch, struct Creature *vict, int skillnum,
 				damage_eq(ch, neck, *dam);
 				*dam >>= 1;
 			}
+			*/
 		}
 
 		if (IS_PUDDING(vict) || IS_SLIME(vict) || IS_RACE(vict, RACE_BEHOLDER))
