@@ -205,7 +205,7 @@ gen_board_read(board_data *board, Creature *ch, char *argument)
 		send_to_char(ch, "That is not a valid message.\r\n");
 		return;
 	}
-	res = sql_query("select extract(epoch from post_time), name, subject, body from board_messages where board='%s' order by post_time limit 1 offset %d",
+	res = sql_query("select extract(epoch from post_time), name, subject, body from board_messages where board='%s' order by post_time desc limit 1 offset %d",
 		tmp_sqlescape(board->name), idx);
 	if (PQntuples(res) == 0) {
 		send_to_char(ch, "That message does not exist on this board.\r\n");
