@@ -153,15 +153,6 @@ ACMD(do_steal)
 					WAIT_STATE(ch, PULSE_VIOLENCE);
 				}
 			}
-			/*
-			   if (!IS_NPC(ch) && !IS_NPC(vict) && !PLR_FLAGGED(vict, PLR_TOUGHGUY)
-			   && !PLR_FLAGGED(vict,PLR_THIEF) && !PLR_FLAGGED(ch,PLR_TOUGHGUY)){
-			   SET_BIT(PLR_FLAGS(ch), PLR_TOUGHGUY);
-			   sprintf(buf, "PC Toughguy bit set on %s for robbing %s at %s.",
-			   GET_NAME(ch), GET_NAME(vict), vict->in_room->name);
-			   mudlog(buf, BRF, LVL_AMBASSADOR, TRUE);
-			   }
-			 */
 		} else {				/* obj found in inventory */
 
 			percent += obj->getWeight();	/* Make heavy harder */
