@@ -2677,9 +2677,9 @@ ACMD(do_cyberscan)
         return;
     }
 
-    if (ch != vict) {
-        act("$n scans $N.", TRUE, ch, 0, vict, TO_NOTVICT);
-        act("$n scans you.", TRUE, ch, 0, vict, TO_VICT);
+    if (ch != vict && CAN_SEE(vict, ch) ) {
+        act("$n scans $N.", FALSE, ch, 0, vict, TO_NOTVICT);
+        act("$n scans you.", FALSE, ch, 0, vict, TO_VICT);
     }
 
     send_to_char("CYBERSCAN RESULTS:\r\n", ch);
