@@ -1412,6 +1412,20 @@ char_to_game(descriptor_data *d)
 	// check for dynamic text updates (news, inews, etc...)
 	check_dyntext_updates(d->creature, CHECKDYN_UNRENT);
 
+	House *house = Housing.findHouseByOwner( d->creature->getAccountID() );
+	if( house != NULL && house->getRepoNoteCount() > 0 ) {
+		obj_data *note =  read_object(MAIL_OBJ_VNUM);
+		char *msg = tmp_sprintf( "The following items were sold at auction to cover your back rent:\r\n\r\n");
+		for( unsigned int i = 0; i < house->getRepoNoteCount(); ++i ) {
+			msg = tmp_strcat( msg, house->getRepoNote(i).c_str() );
+		}
+		msg = tmp_strcat( msg, "\r\n\r\nSincerely,\r\n    The Management\r\n");
+		note->action_description = strdup(msg);
+		note->plrtext_len = strlen(note->action_description) + 1;
+		obj_to_char( note, d->creature );
+		send_to_char(d->creature, "The TempusMUD Landlord gives you a letter detailing your bill.\r\n");
+	}
+
 	if (shutdown_count > 0)
 		SEND_TO_Q(tmp_sprintf(
 				"\r\n\007\007:: NOTICE :: Tempus will be rebooting in [%d] second%s ::\r\n",
