@@ -2423,8 +2423,6 @@ void perform_violence( void ) {
         //
         // it's an attack!
         //
-        if (IS_MERC(ch))
-            prob = 301;
         if ( MIN( 100, prob+15 ) >= die_roll ) {
 
             bool stop = false;
