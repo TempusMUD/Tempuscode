@@ -361,6 +361,8 @@ Creature::getDamReduction(Creature *attacker)
 			dam_reduction += 8;
 	}
 
+    
+    dam_reduction += abs(MIN(0, GET_AC(ch) + 300) / 5);
 	dam_reduction = MIN(dam_reduction, 75);
 
 	return (dam_reduction / 100);
