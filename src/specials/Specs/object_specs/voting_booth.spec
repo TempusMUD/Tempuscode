@@ -89,6 +89,8 @@ voting_booth_load(void)
 		new_opt->count = atoi(PQgetvalue(res, idx, 2));
 		new_opt->next = NULL;
 
+		new_poll->count += new_opt->count;
+
 		if (new_poll->options) {
 			prev_opt = new_poll->options;
 			while (prev_opt->next)
@@ -122,7 +124,6 @@ voting_booth_read(Creature * ch, struct obj_data *obj, char *argument)
 	struct voting_option *opt;
 	struct memory_rec_struct *memory;
 	int poll_num;
-	char *msg;
 
 	skip_spaces(&argument);
 
@@ -146,33 +147,34 @@ voting_booth_read(Creature * ch, struct obj_data *obj, char *argument)
 	while (memory && memory->next && memory->id != ch->account->get_idnum())
 		memory = memory->next;
 
-	send_to_char(ch, "%s", poll->descrip);
+	acc_string_clear();
+
+	acc_strcat(poll->descrip, NULL);
 
 	for (opt = poll->options; opt; opt = opt->next) {
-		if (GET_LEVEL(ch) >= LVL_AMBASSADOR) {
+		if (GET_LEVEL(ch) >= LVL_POWER
+				|| (memory
+					&& memory->id == ch->account->get_idnum()
+					&& !poll->secret)) {
 			if (opt->count != poll->count)
-				msg = tmp_sprintf("%3d (%2d%%) %c) %s",
+				acc_sprintf("%3d (%2d%%) %c) %s",
 					opt->count,
 					((poll->count) ? ((opt->count * 100) / poll->count) : 0),
 					opt->idx, opt->descrip);
 			else
-				msg = tmp_sprintf("%3d (all) %c) %s",
+				acc_sprintf("%3d (all) %c) %s",
 					opt->count, opt->idx, opt->descrip);
-		} else if (memory
-				&& memory->id == ch->account->get_idnum()
-				&& !poll->secret) {
-			if (opt->count != poll->count)
-				msg = tmp_sprintf("(%2d%%) %c) %s",
-					((poll->count) ? ((opt->count * 100) / poll->count) : 0),
-					opt->idx, opt->descrip);
-			else
-				msg = tmp_sprintf("(all) %c) %s", opt->idx, opt->descrip);
-		} else
-			msg = tmp_sprintf("      %c) %s", opt->idx, opt->descrip);
-		send_to_char(ch, "%s", msg);
+		} else {
+			acc_sprintf("      %c) %s", opt->idx, opt->descrip);
+		}
 	}
-	if (poll->secret && GET_LEVEL(ch) < LVL_AMBASSADOR)
-		send_to_char(ch, "This is a secret poll.  You will not be able to see the results after\r\nyou vote.\r\n");
+	if (memory && memory->id == ch->account->get_idnum()) {
+		acc_strcat("\r\nYou have already voted.\r\n", NULL);
+		if (poll->secret && GET_LEVEL(ch) < LVL_POWER)
+			acc_sprintf("You are not able to see the results because this is a secret poll.\r\n");
+	}
+
+	page_string(ch->desc, acc_get_string());
 }
 
 void
@@ -327,7 +329,7 @@ voting_booth_change_view(Creature * ch, char *argument, bool secret)
 	cur_poll->secret = secret;
 	sql_exec("update voting_polls set secret=%s where idnum=%d",
 		secret ? "true":"false", cur_poll->idnum);
-	send_to_char(ch, "Poll %d is now %s.\r\n", poll_num,
+	send_to_char(ch, "Poll %s is now %s.\r\n", argument,
 		secret ? "secret":"no longer secret");
 }
 
