@@ -588,14 +588,15 @@ make_corpse( struct char_data *ch,struct char_data *killer,int attacktype )
     sprintf( buf2, "the severed %sleg of %s",
          IS_AFFECTED_2( ch, AFF2_PETRIFIED ) ? "stone " : "",GET_NAME( ch ) );
     leg->short_description = str_dup( buf2 );
-    GET_OBJ_TYPE( leg ) = ITEM_DRINKCON;
-    GET_OBJ_WEAR( leg ) = ITEM_WEAR_TAKE;
-    GET_OBJ_EXTRA( leg ) = ITEM_NODONATE;
+    GET_OBJ_TYPE( leg ) = ITEM_WEAPON;
+    GET_OBJ_WEAR( leg ) = ITEM_WEAR_TAKE + ITEM_WEAR_WIELD;
+    GET_OBJ_EXTRA( leg ) = ITEM_NODONATE + ITEM_NOSELL;
     GET_OBJ_EXTRA2( leg ) = ITEM2_BODY_PART;
-    GET_OBJ_VAL( leg, 0 ) = 5;  /* Leg full of blood */
-    GET_OBJ_VAL( leg, 1 ) = 5;
-    GET_OBJ_VAL( leg, 2 ) = 13;
-    leg->setWeight( 10 );
+    GET_OBJ_VAL( leg, 0 ) = 0;  
+    GET_OBJ_VAL( leg, 1 ) = 2;
+	GET_OBJ_VAL( leg, 2 ) = 9;
+    GET_OBJ_VAL( leg, 3 ) = 7;
+    leg->setWeight( 7 );
     leg->worn_on = -1;
     if ( IS_NPC( ch ) )
         GET_OBJ_TIMER( leg ) = max_npc_corpse_time;
