@@ -829,6 +829,9 @@ do_qcontrol_create(CHAR * ch, char *argument, int com)
 	send_to_char(ch, "Quest %d created.\r\n", quest.getVnum());
 }
 
+/*
+ * Callisto tells you, 'we had to join a different quest... get kicked from it, and then he closed that quest and it was fine'
+ */
 void
 do_qcontrol_end(CHAR * ch, char *argument, int com)
 {
@@ -2808,18 +2811,21 @@ bool Quest::removePlayer( long id ) {
 
 	if (!(vict = get_char_in_world_by_idnum(id))) {
 		// load the char from file
-		CREATE(vict, CHAR, 1);
+		CREATE(vict, struct char_data, 1);
 		clear_char(vict);
-		if (load_char(arg1, &tmp_store) > -1) {
+		long player_i = load_char(arg1, &tmp_store);
+		if( player_i > -1 ) {
 			store_to_char(&tmp_store, vict);
 			//HERE
 			if (GET_LEVEL(vict) < LVL_AMBASSADOR && PRF_FLAGGED(vict, PRF_QUEST)) {
 				REMOVE_BIT(PRF_FLAGS(vict), PRF_QUEST);
 				vict->player_specials->saved.quest_id = -1;
 			}
-			save_char(vict,NULL);
+
+			char_to_store(vict, &tmp_store);
+			fseek(player_fl, (player_i) * sizeof(struct char_file_u), SEEK_SET);
+			fwrite(&tmp_store, sizeof(struct char_file_u), 1, player_fl);
 			free_char(vict);
-			vict = NULL;
 		} else {
 			//send_to_char(ch, "Error loading char from file.\r\n");
 			slog("Error loading player id %ld from file for removal from quest %ld.\r\n",
@@ -2830,6 +2836,7 @@ bool Quest::removePlayer( long id ) {
 		if (GET_LEVEL(vict) < LVL_AMBASSADOR && PRF_FLAGGED(vict, PRF_QUEST)) {
 			REMOVE_BIT(PRF_FLAGS(vict), PRF_QUEST);
 			vict->player_specials->saved.quest_id = -1;
+			save_char(vict,NULL);
 		}
 	}
 	
