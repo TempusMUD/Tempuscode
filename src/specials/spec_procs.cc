@@ -870,7 +870,7 @@ SPECIAL(fido)
 				obj_to_room(temp, ch->in_room);
 			}
 			extract_obj(i);
-			return (TRUE);
+			return true;
 		}
 	}
 
@@ -949,7 +949,7 @@ SPECIAL(buzzard)
 				obj_to_room(temp, ch->in_room);
 			}
 			extract_obj(i);
-			return (TRUE);
+			return true;
 		}
 	}
 	vict = NULL;
@@ -1025,7 +1025,7 @@ SPECIAL(garbage_pile)
 				obj_to_room(temp, ch->in_room);
 			}
 			extract_obj(i);
-			return (TRUE);
+			return true;
 		} else if (CAN_WEAR(i, ITEM_WEAR_TAKE) && i->getWeight() < 5) {
 			act("$n assimilates $p.", FALSE, ch, i, 0, TO_ROOM);
 			if (GET_OBJ_VNUM(i) == 3365)
@@ -1393,7 +1393,7 @@ SPECIAL(cityguard)
 			else
 				act("$n screams 'HEY!!!  You're one of those PLAYER THIEVES!!!!!!'", FALSE, ch, 0, 0, TO_ROOM);
 			hit(ch, tch, TYPE_UNDEFINED);
-			return (TRUE);
+			return true;
 		} else if (!number(0, 3)) {
 			act("$n growls at you.", FALSE, ch, 0, tch, TO_VICT);
 			act("$n growls at $N.", FALSE, ch, 0, tch, TO_NOTVICT);
@@ -1494,7 +1494,7 @@ SPECIAL(cityguard)
 		} else {
 			act("$n screams 'PROTECT THE INNOCENT!  BANZAI!  CHARGE!  ARARARAGGGHH!'", FALSE, ch, 0, 0, TO_ROOM);
 			hit(ch, evil, TYPE_UNDEFINED);
-			return (TRUE);
+			return true;
 		}
 	}
 	return (FALSE);
@@ -1507,6 +1507,9 @@ SPECIAL(pet_shops)
 	struct room_data *pet_room;
 	char *pet_name, *pet_kind;
 	int cost;
+
+	if (SPECIAL_CMD != spec_mode)
+		return false;
 
 	pet_room = real_room(ch->in_room->number + 1);
 
@@ -1526,12 +1529,12 @@ SPECIAL(pet_shops)
 
 		if (!(pet = get_char_room(pet_kind, pet_room))) {
 			send_to_char(ch, "There is no such pet!\r\n");
-			return (TRUE);
+			return true;
 		}
 
-		if( pet == ch ) {
+		if (pet == ch) {
 			send_to_char(ch, "You buy yourself. Yay. Are you happy now?\r\n");
-			return (TRUE);
+			return true;
 		}
 
 		if (IS_NPC(ch))
@@ -1541,7 +1544,7 @@ SPECIAL(pet_shops)
 
 		if (GET_GOLD(ch) < cost) {
 			send_to_char(ch, "You don't have enough gold!\r\n");
-			return (TRUE);
+			return true;
 		}
 
 		if (ch->followers) {
@@ -1564,16 +1567,13 @@ SPECIAL(pet_shops)
 			if (*pet_name) {
 				char *tmp;
 
-				tmp = pet->player.name;
-				pet->player.name = str_dup( tmp_strcat(pet->player.name, " ", pet_name, NULL));
-				free(tmp);
+				tmp = tmp_strcat(pet->player.name, " ", pet_name, NULL);
+				pet->player.name = str_dup(tmp);
 
 				tmp = tmp_sprintf( "A small sign on a chain around the neck says 'My name is %s\r\n'", pet_name );
-				if( pet->player.description != NULL ) {
+				if( pet->player.description != NULL )
 					tmp = tmp_strcat( pet->player.description, tmp );
-					free(pet->player.description);
-				}
-				pet->player.description = str_dup( tmp );
+				pet->player.description = str_dup(tmp);
 			}
 			char_to_room(pet, ch->in_room,false);
 
@@ -1583,10 +1583,8 @@ SPECIAL(pet_shops)
 				IS_CARRYING_N(pet) = 100;
 			}
 		} else {				/* player characters */
-
 			char_from_room(pet,false);
 			char_to_room(pet, ch->in_room,false);
-
 		}
 
 		SET_BIT(AFF_FLAGS(pet), AFF_CHARM);
@@ -1599,10 +1597,10 @@ SPECIAL(pet_shops)
 			send_to_char(ch, "May you enjoy your slave.\r\n");
 			act("$n buys $N as a slave.", FALSE, ch, 0, pet, TO_ROOM);
 		}
-		return 1;
+		return true;
 	}
 
-	return 0;
+	return false;
 }
 
 /* ********************************************************************
