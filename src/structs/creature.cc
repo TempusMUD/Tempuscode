@@ -70,6 +70,8 @@ Creature::checkPosition(void)
  * Returns true if this character is in the Testers access group.
 **/
 bool Creature::isTester(){
+	if( IS_NPC(this) )
+		return false;
 	return Security::isMember( this, "Testers", false );
 }
 
