@@ -31,7 +31,8 @@ using namespace std;
 #define HGROUP_MERCENARY (1 << 20)
 #define HGROUP_HELP_EDIT (1 << 21)
 #define HGROUP_HELP_GODS (1 << 22)
-#define HGROUP_MAX        23
+#define HGROUP_IMMHELP   (1 << 23)
+#define HGROUP_MAX        24
 
 
 
@@ -59,6 +60,7 @@ class HelpItem {
     void EditText( void );
     bool CanEditItem( char_data *ch );
     bool Save( void );// Save the current entry to file.
+    bool IsInGroup( int thegroup );
     // Show the entry. 
     // 0 == One Line Listing.
     // 1 == One Line Stat
@@ -110,7 +112,7 @@ class HelpCollection {
     HelpCollection();
     ~HelpCollection();
         // Calls FindItems then Show
-    void GetTopic(char_data *ch, char *args, int mode=2,bool show_no_app=false);
+    void GetTopic(char_data *ch, char *args, int mode=2,bool show_no_app=false,int type=0);
     void List( char_data *ch, char *args ); // Show all the items
     // Create an item. (calls EditItem && SaveIndex)
     bool CreateItem( char_data *ch ); 
@@ -136,7 +138,7 @@ class HelpCollection {
 
     private:
     // Returns a show list of items it found
-    HelpItem *FindItems( char *args, bool find_no_approve=false ); 
+    HelpItem *FindItems( char *args, bool find_no_approve=false,int thegroup=0 ); 
     int top_id;
     bool need_save;
 };

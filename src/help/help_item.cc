@@ -147,6 +147,11 @@ void HelpItem::SetGroups(char *argument) {
     REMOVE_BIT(groups,HGROUP_HELP_EDIT);
     SET_BIT(flags,HFLAG_MODIFIED);
 }
+bool HelpItem::IsInGroup(int thegroup) {
+    if(IS_SET(groups,thegroup))
+        return true;
+    return false;
+}
 // Don't call me Roger.
 void HelpItem::SetName(char *argument) {
     skip_spaces(&argument);

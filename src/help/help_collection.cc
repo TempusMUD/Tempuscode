@@ -45,6 +45,7 @@ static const struct hcollect_command {
     { "sync",    "",                       LVL_GRGOD  },
     { "search",  "<keyword>",              LVL_IMMORT },
     { "unapprove","<topic #>",             LVL_GOD },
+    { "immhelp",  "<keyword>",             LVL_IMMORT },
     { NULL, NULL, 0 }       // list terminator
 };
 static const struct group_command {
@@ -83,6 +84,7 @@ const char *help_group_names[] = {
     "mercenary",
     "helpeditors",
     "helpgods",
+    "immhelp",
     "\n"
 };
 const char *help_group_bits[] = {
@@ -109,6 +111,7 @@ const char *help_group_bits[] = {
     "MERC",
     "HEDT",
     "HGOD",
+    "IMM",
     "\n"
 };
 const char *help_bit_descs[] = {
@@ -153,7 +156,9 @@ int HelpCollection::GetTop( void ) {
     return top_id;
 }
 // Calls FindItems 
-void HelpCollection::GetTopic(char_data *ch, char *args,int mode=2,bool show_no_app=false) {
+// Mode is how to show the item.
+// Type: 0==normal help, 1==immhelp, 2==olchelp
+void HelpCollection::GetTopic(char_data *ch, char *args,int mode=2,bool show_no_app=false, int thegroup=0) {
 
     HelpItem *cur = NULL;
     gHelpbuf[0] = '\0';
@@ -161,7 +166,7 @@ void HelpCollection::GetTopic(char_data *ch, char *args,int mode=2,bool show_no_
         send_to_char("You must enter search criteria.\r\n",ch);
         return;
     }
-    cur = FindItems( args, show_no_app );
+    cur = FindItems( args, show_no_app, thegroup);
     if(!cur) {
         send_to_char("No items were found matching your search criteria.\r\n",ch);
         return;
@@ -253,7 +258,7 @@ bool HelpCollection::SaveItem( char_data *ch ) {
 // Find an Item in the index 
 // This should take an optional "mode" argument to specify groups the
 //  returned topic can be part of. e.g. (FindItems(argument,FIND_MODE_OLC))
-HelpItem *HelpCollection::FindItems( char *args, bool find_no_approve=false ) {
+HelpItem *HelpCollection::FindItems( char *args, bool find_no_approve=false, int thegroup) {
     HelpItem *cur = NULL;
     char stack[256];
     char *b;// beginning of stack
@@ -264,6 +269,8 @@ HelpItem *HelpCollection::FindItems( char *args, bool find_no_approve=false ) {
     length = strlen(args);
     for(cur = items; cur; cur = cur->Next()) {
         if(IS_SET(cur->flags,HFLAG_UNAPPROVED) && !find_no_approve)
+            continue;
+        if(thegroup && !cur->IsInGroup(thegroup))
             continue;
         strcpy(stack,cur->keys);
         b = stack;
@@ -666,6 +673,9 @@ ACMD(do_help_collection_command) {
             break;
         case 11: // UnApprove
             Help->UnApproveItem( ch, argument );
+            break;
+        case 12: // Immhelp
+            Help->GetTopic(ch,argument,2,false,HGROUP_IMMHELP);
             break;
         default:
             do_hcollect_cmds(ch);
