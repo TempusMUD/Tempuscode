@@ -116,6 +116,7 @@ const struct spec_func_data spec_list[] = {
     {"guard_north",     guard_north ,          SPEC_MOB},
     {"safiir",          safiir,                SPEC_MOB},
     {"spinal",          spinal,                SPEC_MOB | SPEC_RES},
+    {"fate",          	fate,	               SPEC_MOB | SPEC_RES},
     {"red_highlord",    red_highlord,          SPEC_MOB | SPEC_RES},
     {"tiamat",          tiamat,                SPEC_MOB | SPEC_RES},
     {"beer_tree",       beer_tree,             SPEC_MOB | SPEC_RES},

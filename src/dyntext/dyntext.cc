@@ -414,13 +414,14 @@ int
 dynedit_check_dyntext(CHAR *ch, dynamic_text_file *dyntext, char *arg)
 {
     if (!dyntext) {
-	if (*arg)
-	    sprintf(buf, "No such filename, '%s'\r\n", arg);
-	else
-	    send_to_char("Which dynamic text file?\r\n", ch);
-	return 1;
-    }
-    
+		if (*arg) {
+			sprintf(buf, "No such filename, '%s'\r\n", arg);
+			send_to_char(buf,ch);
+		} else {
+			send_to_char("Which dynamic text file?\r\n", ch);
+		}
+		return 1;
+	}
     return 0;
 }
 
@@ -834,19 +835,21 @@ check_dyntext_updates(CHAR *ch, int mode)
     dynamic_text_file *dyntext = NULL;
 
     for (dyntext = dyntext_list; dyntext; dyntext = dyntext->next) {
-	if (dyntext->last_edit[0].tEdit > ch->desc->old_login_time) {
-	    if (!strcmp(dyntext->filename, "inews") && GET_LEVEL(ch) < LVL_AMBASSADOR)
-		continue;
+		if (dyntext->last_edit[0].tEdit > ch->desc->old_login_time) {
+			if (!strcmp(dyntext->filename, "inews") && GET_LEVEL(ch) < LVL_AMBASSADOR)
+				continue;
+			if (!strncmp(dyntext->filename,"fate",4))
+				continue;
 
-	    if (mode == CHECKDYN_RECONNECT)
-		sprintf(buf, "%s [ The %s file was updated while you were disconnected. ]%s\r\n", 
-			CCYEL(ch, C_NRM), dyntext->filename, CCNRM(ch, C_NRM));
-	    else
-		sprintf(buf, "%s [ The %s file has been updated since your last visit. ]%s\r\n", 
-			CCYEL(ch, C_NRM), dyntext->filename, CCNRM(ch, C_NRM));
+			if (mode == CHECKDYN_RECONNECT)
+			sprintf(buf, "%s [ The %s file was updated while you were disconnected. ]%s\r\n", 
+				CCYEL(ch, C_NRM), dyntext->filename, CCNRM(ch, C_NRM));
+			else
+			sprintf(buf, "%s [ The %s file has been updated since your last visit. ]%s\r\n", 
+				CCYEL(ch, C_NRM), dyntext->filename, CCNRM(ch, C_NRM));
 
-	    send_to_char(buf, ch);
-	}
+			send_to_char(buf, ch);
+		}
     }
 }
 
@@ -859,6 +862,9 @@ dynedit_update_string(dynamic_text_file *d)
     static char buffer[1024];
     int len;
 
+	if(!strncmp(d->filename,"fate",4))
+		return "";
+	printf("Updating File: %s\r\n",d->filename);
     t = time(0);
     tmTime = *(localtime(&t));
 

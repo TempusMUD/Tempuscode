@@ -380,6 +380,7 @@ ACMD(do_rlist);
 ACMD(do_olist);
 ACMD(do_mlist);
 ACMD(do_xlist);
+//ACMD(do_coderbs);
 
 
 /* This is the Master Command List(tm).
@@ -1276,6 +1277,7 @@ extern const struct command_info cmd_info[] = {
     { "olist"    , POS_DEAD    , do_olist    , LVL_IMMORT, 0 },
     { "mlist"    , POS_DEAD    , do_mlist    , LVL_IMMORT, 0 },
     { "xlist"    , POS_DEAD    , do_xlist    , LVL_IMMORT, 0 },
+//    { "coderbs"  , POS_DEAD    , do_coderbs	 , LVL_GOD, 0 },
 
     { "\n", 0, 0, 0, 0 }
 };    /* this must be last */

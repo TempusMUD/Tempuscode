@@ -1838,6 +1838,7 @@ SPECIAL(cave_bear)
 #include "Specs/mobile_specs/guard_north.spec"
 #include "Specs/mobile_specs/guard_up.spec"
 #include "Specs/mobile_specs/spinal.spec"
+#include "Specs/mobile_specs/fates.spec"
 #include "Specs/mobile_specs/astral_deva.spec"
 #include "Specs/mobile_specs/junker.spec"
 #include "Specs/mobile_specs/duke_nukem.spec"

@@ -352,4 +352,7 @@ struct alias_data {
 // do_dyntext_show
 #define SCMD_DYNTEXT_NEWS  1
 #define SCMD_DYNTEXT_INEWS 2
+#define SCMD_DYNTEXT_FAIT_1 3
+#define SCMD_DYNTEXT_FAIT_2 4
+#define SCMD_DYNTEXT_FAIT_3 5
 

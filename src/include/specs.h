@@ -81,6 +81,7 @@ SPECIAL(guard_up);
 SPECIAL(guard_north);
 SPECIAL(safiir);
 SPECIAL(spinal);
+SPECIAL(fate);
 SPECIAL(red_highlord);
 SPECIAL(tiamat);
 SPECIAL(beer_tree);
