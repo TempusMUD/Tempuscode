@@ -2955,6 +2955,14 @@ mag_alter_objs(int level, struct char_data * ch, struct obj_data * obj,
         obj->affected[j].modifier = 
             MAX(obj->affected[j].modifier, (level / 6) + number(1, 2));
         }
+        if (GET_LEVEL(ch) >= LVL_AMBASSADOR && !isname("imm", obj->name)) {
+            sprintf(buf, " imm %sattract", GET_NAME(ch));
+            strcpy(buf2, obj->name);
+            strcat(buf2, buf);
+            obj->name = str_dup(buf2);
+            sprintf(buf, "ENCHANT: %s attraction fielded by %s.", obj->short_description, GET_NAME(ch));
+            mudlog(buf, CMP, GET_LEVEL(ch), TRUE);
+        }
     }
     else {
         for (i = 0, j = -1; i < MAX_OBJ_AFFECT; i++) {
@@ -3013,6 +3021,14 @@ mag_alter_objs(int level, struct char_data * ch, struct obj_data * obj,
         MIN(obj->obj_flags.damage + increase, obj->obj_flags.max_dam);
     SET_BIT(obj->obj_flags.extra3_flags, ITEM3_LATTICE_HARDENED);
     to_char = "$p's molecular lattice strengthens.";
+    if (GET_LEVEL(ch) >= LVL_AMBASSADOR && !isname("imm", obj->name)) {
+        sprintf(buf, " imm %shardening", GET_NAME(ch));
+        strcpy(buf2, obj->name);
+        strcat(buf2, buf);
+        obj->name = str_dup(buf2);
+        sprintf(buf, "ENCHANT: %s lattice hardened by %s.", obj->short_description, GET_NAME(ch));
+        mudlog(buf, CMP, GET_LEVEL(ch), TRUE);
+    }
     break;
 
     case SPELL_WARDING_SIGIL:
