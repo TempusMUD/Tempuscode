@@ -1189,10 +1189,11 @@ do_stat_object(struct char_data *ch, struct obj_data *j)
 			((!j->worn_by || j == GET_EQ(j->worn_by, j->worn_on)) ?
 				"" : " (impl)"), CCNRM(ch, C_NRM));
 		strcat(buf, ", Aux: ");
-		send_to_char(ch, "%s%s%s%s", buf, CCGRN(ch, C_NRM),
+		sprintf(buf, "%s%s%s%s", buf, CCGRN(ch, C_NRM),
 			j->aux_obj ? j->aux_obj->short_description : "N", CCNRM(ch,
 				C_NRM));
 		strcat(buf, "\r\n");
+		send_to_char(ch, "%s", buf);
 	}
 	sprintf(buf,
 		"Material: [%s%s%s (%d)], Maxdamage: [%d (%d)], Damage: [%d]\r\n",
@@ -1362,13 +1363,15 @@ do_stat_object(struct char_data *ch, struct obj_data *j)
 		break;
 
 	default:
-		send_to_char(ch, "Values 0-3: %s:[%d] %s:[%d] %s:[%d] %s:[%d]",
+		sprintf(buf, "Values 0-3: %s:[%d] %s:[%d] %s:[%d] %s:[%d]",
 			item_value_types[(int)GET_OBJ_TYPE(j)][0], GET_OBJ_VAL(j, 0),
 			item_value_types[(int)GET_OBJ_TYPE(j)][1], GET_OBJ_VAL(j, 1),
 			item_value_types[(int)GET_OBJ_TYPE(j)][2], GET_OBJ_VAL(j, 2),
 			item_value_types[(int)GET_OBJ_TYPE(j)][3], GET_OBJ_VAL(j, 3));
 		break;
 	}
+
+	send_to_char(ch, "%s", buf);
 
 	if (j->contains) {
 
@@ -1402,12 +1405,10 @@ do_stat_object(struct char_data *ch, struct obj_data *j)
 				strcat(buf2, soilage_bits[i]);
 			}
 		}
-		send_to_char(ch, "%s", buf2);
-		send_to_char(ch, "\r\n");
+		send_to_char(ch, "%s\r\n", buf2);
 	}
 
 	if (GET_OBJ_SIGIL_IDNUM(j)) {
-
 		send_to_char(ch, "Warding Sigil: %s (%d), level %d.\r\n",
 			get_name_by_id(GET_OBJ_SIGIL_IDNUM(j)), GET_OBJ_SIGIL_IDNUM(j),
 			GET_OBJ_SIGIL_LEVEL(j));

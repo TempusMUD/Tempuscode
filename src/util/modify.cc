@@ -357,51 +357,44 @@ page_string(struct descriptor_data *d, char *str)
 void
 show_string(struct descriptor_data *d)
 {
-	char buffer[MAX_STRING_LENGTH];
-	register char *scan, *chk;
-	int lines = 0, toggle = 1, page_length;
+	register char *read_pt;
+	int page_length;
+	int pt_save;
 
 	if (IS_NPC(d->character))
 		page_length = 22;
 	else
 		page_length = GET_PAGE_LENGTH(d->character);
 
-	/* show a chunk */
-	for (scan = buffer;; scan++, d->showstr_point++) {
-		if ((((*scan = *d->showstr_point) == '\n') || (*scan == '\r')) &&
-			((toggle = -toggle) < 0))
-			lines++;
-		else if (!*scan || (lines >= page_length)) {
-			if (lines >= page_length) {
-				/* We need to make sure that if we're breaking the input here, we
-				 * must set showstr_point to the right place and null terminate the
-				 * character after the last '\n' or '\r' so we don't lose it.
-				 * -- Michael Buselli
-				 */
-				d->showstr_point++;
-				*(++scan) = '\0';
-			}
-			SEND_TO_Q(buffer, d);
-
-			/* see if this is the end (or near the end) of the string */
-			for (chk = d->showstr_point; isspace(*chk); chk++);
-			if (!*chk) {
-				if (d->showstr_head) {
-					free(d->showstr_head);
-					d->showstr_head = 0;
-				}
-				d->showstr_point = 0;
-			} else {
-				if( d->character != NULL ) {
-					send_to_char(d->character,
-						"%s**** %sUse the 'more' command to view more. %s****%s\r\n",
-						CCRED(d->character, C_NRM), CCNRM(d->character, C_NRM),
-						CCRED(d->character, C_NRM), CCNRM(d->character, C_NRM));
-				} else {
-					SEND_TO_Q("**** Use the 'more' command to view more. ****\r\n", d);
-				}
-			}
-			return;
+	read_pt = d->showstr_point;
+	while (*read_pt && page_length) {
+		while (*read_pt && '\n' != *read_pt && '\r' != *read_pt)
+			read_pt++;
+		if (*read_pt) {
+			page_length--;
+			read_pt++;
+			if ('\n' == *read_pt || '\r' == *read_pt)
+				read_pt++;
 		}
+	}
+
+	pt_save = *read_pt;
+	*read_pt = '\0';
+
+	SEND_TO_Q(d->showstr_point, d);
+
+	if (pt_save) {
+		*read_pt = pt_save;
+		d->showstr_point = read_pt;
+		if(d->character)
+			send_to_char(d->character,
+				"%s**** %sUse the 'more' command to view more. %s****%s\r\n",
+				CCRED(d->character, C_NRM), CCNRM(d->character, C_NRM),
+				CCRED(d->character, C_NRM), CCNRM(d->character, C_NRM));
+		else
+			SEND_TO_Q("**** Press return to continue, 'q' to quit ****\r\n", d);
+	} else {
+		free(d->showstr_head);
+		d->showstr_head = d->showstr_point = NULL;
 	}
 }
