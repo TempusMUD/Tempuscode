@@ -2984,7 +2984,6 @@ import_old_character(descriptor_data *d)
     d->creature = d->account->create_char( GET_NAME(d->original) );
     d->creature->desc = d;
     d->creature->player_specials->rentcode = RENT_NEW_CHAR;
-    d->account->save_to_xml();
 
     // race
     GET_RACE(d->creature) = correct_race(GET_RACE(d->original));
@@ -2993,7 +2992,6 @@ import_old_character(descriptor_data *d)
     GET_SEX(d->creature) = GET_SEX(d->original);
     // class
     GET_CLASS(d->creature) = GET_CLASS(d->original);
-    do_start(d->creature, 0);
 
 
     // Immortal level adjustment
@@ -3018,7 +3016,7 @@ import_old_character(descriptor_data *d)
     PRF2_FLAGS(d->creature) = PRF2_FLAGS(d->original);
 
     // title
-    GET_TITLE(d->creature) = GET_TITLE(d->original);
+	set_title(d->creature, GET_TITLE(d->original));
     GET_TITLE(d->original) = NULL;
     
     // description
@@ -3048,26 +3046,8 @@ import_old_character(descriptor_data *d)
     id = GET_IDNUM(d->creature);
     d->creature->desc = NULL;
 
-    Creature *ch = d->creature;
-    d->creature = NULL;
-    // destroy all that equipment
-	for (int i = 0; i < NUM_WEARS; i++) {
-		if (GET_EQ(ch, i))
-			extract_obj(unequip_char(ch, i, MODE_EQ, true));
-		if (GET_IMPLANT(ch, i))
-			extract_obj(unequip_char(ch, i, MODE_IMPLANT, true));
-	}
-	// transfer inventory to room, if any
-	while (ch->carrying) {
-		obj_data *obj = ch->carrying;
-		obj_from_char(obj);
-		extract_obj(obj);
-	}
-    delete ch;
-
-    ch = d->original;
-    d->original = NULL;
-    delete ch;
+	delete d->original;
+	d->original = NULL;
     return id;
 }
 
