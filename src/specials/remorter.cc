@@ -42,6 +42,8 @@ using namespace std;
 #include "xml_utils.h"
 #include "remorter.h"
 
+void Crash_save_implants( struct char_data *ch, bool extract = true );
+
 
 SPECIAL(remorter)
 {
@@ -162,12 +164,11 @@ SPECIAL(remorter)
             quiz.reset();
 
             // Save the char and its implants but not its eq
-            // save_char(ch, NULL);
-            // Crash_save_implants( ch );
-            // Crash_delete_crashfile(ch);
-            // ch->extract( false, false, CON_MENU);
+            save_char(ch, NULL);
+            Crash_save_implants( ch );
+            ch->extract( false, false, CON_MENU);
 
-            ch->extract(true, true, CON_MENU);
+            //ch->extract(true, true, CON_MENU);
         }  
         return 1;
     }
@@ -290,7 +291,11 @@ SPECIAL(remorter)
             while ( ch->affected )
                 affect_remove( ch, ch->affected );
 
-            ch->extract(true, true, CON_MENU);
+            // Save the char and its implants but not its eq
+            save_char(ch, NULL);
+            Crash_save_implants( ch );
+            ch->extract( false, false, CON_MENU);
+            //ch->extract(true, true, CON_MENU);
             quiz.reset();
             return 1;
         }
