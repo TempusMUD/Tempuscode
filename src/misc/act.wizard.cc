@@ -6034,69 +6034,45 @@ ACMD(do_rename)
     delete_doubledollar(new_desc);
 
     if (!new_desc) {
-	send_to_char("What do you want to call it?\r\b", ch);
-	return;
+        send_to_char("What do you want to call it?\r\b", ch);
+        return;
     }
     if (!arg) {
-	send_to_char("Rename usage: rename <target> <string>\r\n", ch);
-	return;
+        send_to_char("Rename usage: rename <target> <string>\r\n", ch);
+        return;
     }
     if (strlen(new_desc) >= MAX_INPUT_LENGTH) {
-	send_to_char("Desript too long.\r\n", ch);
-	return;
+        send_to_char("Desript too long.\r\n", ch);
+        return;
     }
 
     if (!(obj = get_obj_in_list_all(ch, arg, ch->carrying))) {
-	if (!(vict = get_char_room_vis(ch, arg))) {
-	    if (!(obj = get_obj_in_list_vis(ch, arg, ch->in_room->contents))) {
-		send_to_char("No such object or mobile around.\r\n", ch);
-		return;
-	    }
-	} else if (!IS_NPC(vict)) {
-	    send_to_char("You can do this only with NPC's.\r\n", ch);
-	    return;
-	} 
+        if (!(vict = get_char_room_vis(ch, arg))) {
+            if (!(obj = get_obj_in_list_vis(ch, arg, ch->in_room->contents))) {
+            send_to_char("No such object or mobile around.\r\n", ch);
+            return;
+            }
+        } else if (!IS_NPC(vict)) {
+            send_to_char("You can do this only with NPC's.\r\n", ch);
+            return;
+        } 
     }
     
     if (obj) {
-	sprintf(logbuf, "%s has renamed %s '%s'.", GET_NAME(ch), obj->short_description, new_desc);
-#ifdef DMALLOC
-	dmalloc_verify(0);
-#endif
-	obj->short_description = str_dup(new_desc);
-#ifdef DMALLOC
-	dmalloc_verify(0);
-#endif
-	sprintf(buf, "%s has been left here.", new_desc);
-	strcpy(buf, CAP(buf));
-#ifdef DMALLOC
-	dmalloc_verify(0);
-#endif
-	obj->description = str_dup(buf);
-#ifdef DMALLOC
-	dmalloc_verify(0);
-#endif
+        sprintf(logbuf, "%s has renamed %s '%s'.", GET_NAME(ch), obj->short_description, new_desc);
+        obj->short_description = str_dup(new_desc);
+        sprintf(buf, "%s has been left here.", new_desc);
+        strcpy(buf, CAP(buf));
+        obj->description = str_dup(buf);
     } else if (vict) {
-	sprintf(logbuf, "%s has renamed %s '%s'.", GET_NAME(ch), GET_NAME(vict), new_desc);
-#ifdef DMALLOC
-	dmalloc_verify(0);
-#endif
-	vict->player.short_descr = str_dup(new_desc);
-#ifdef DMALLOC
-	dmalloc_verify(0);
-#endif
-	if (vict->getPosition() == POS_FLYING)
-	    sprintf(buf, "%s is hovering here.\r\n", new_desc);
-	else
-	    sprintf(buf, "%s is standing here.\r\n", new_desc);
-	strcpy(buf, CAP(buf));
-#ifdef DMALLOC
-	dmalloc_verify(0);
-#endif
-	vict->player.long_descr = str_dup(buf);
-#ifdef DMALLOC
-	dmalloc_verify(0);
-#endif
+        sprintf(logbuf, "%s has renamed %s '%s'.", GET_NAME(ch), GET_NAME(vict), new_desc);
+        vict->player.short_descr = str_dup(new_desc);
+        if (vict->getPosition() == POS_FLYING)
+            sprintf(buf, "%s is hovering here.\r\n", new_desc);
+        else
+            sprintf(buf, "%s is standing here.\r\n", new_desc);
+        strcpy(buf, CAP(buf));
+        vict->player.long_descr = str_dup(buf);
     }
     send_to_char("Okay, you do it.\r\n", ch);
     mudlog(logbuf, CMP, MAX(LVL_ETERNAL, GET_INVIS_LEV(ch)), TRUE);

@@ -241,7 +241,7 @@ touch(char *path)
 void 
 mudlog(char *str, char type, sbyte level, byte file)
 {
-    char buf[MAX_INPUT_LENGTH + 96];
+    char buf[MAX_INPUT_LENGTH * 3];
     extern struct descriptor_data *descriptor_list;
     struct descriptor_data *i;
     char *tmp, tp;
@@ -254,6 +254,9 @@ mudlog(char *str, char type, sbyte level, byte file)
 	fprintf(stderr, "%-19.19s :: %s\n", tmp, str);
     if (level < 0)
 	return;
+    
+    if(strlen(str) > (MAX_INPUT_LENGTH * 2))
+        str[(MAX_INPUT_LENGTH * 2)] = '\0';
 
     sprintf(buf, "[ %s ]\r\n", str);
 
