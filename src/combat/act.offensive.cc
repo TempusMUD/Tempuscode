@@ -707,7 +707,22 @@ int calc_skill_prob( struct char_data *ch, struct char_data *vict, int skillnum,
         *vict_pos = POS_RESTING;
         *move = 10;
         break;
+    
+         /** merc offensive skills **/
+     case SKILL_SHOULDER_THROW:
+        if (IS_PUDDING(vict) || IS_SLIME(vict) || bad_sect
+            || NON_CORPOREAL_MOB(vict) ||
+            MOB_FLAGGED(vict, MOB_NOBASH))
+            prob = 0;
 
+        need_hand = 1;
+        *dam = dice(3, (GET_LEVEL(ch) >> 1) + GET_STR(ch));
+        *wait = 6 RL_SEC;
+        *vict_wait = 2 RL_SEC;
+        *vict_pos = POS_RESTING;
+        *move = 15;
+        break;
+        
         /** psionic skillz **/
     case SKILL_PSIBLAST:
     

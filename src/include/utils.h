@@ -714,7 +714,7 @@ void WAIT_STATE(struct char_data *ch, int cycle);
 	   i == SKILL_PILEDRIVE   || i == SKILL_BODYSLAM ||      \
 	   i == SKILL_LUNGE_PUNCH || i == SKILL_CLOTHESLINE ||   \
 	   i == SKILL_SWEEPKICK   || i == SKILL_TRIP ||          \
-	   i == SKILL_HIP_TOSS)
+	   i == SKILL_HIP_TOSS    || i == SKILL_SHOULDER_THROW)
 
 /*#define SKILL_NIGHT_VISION  	605   (in spells.h) */
 #define NIGHT_VIS(ch) 	(CHECK_SKILL(ch, 605) >= 70)

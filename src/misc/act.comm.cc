@@ -815,6 +815,45 @@ ACMD(do_gen_comm)
     }
 }
 
+ACMD(do_auction)
+{
+    extern int level_can_shout;
+
+    // Is this a mob?
+    if (IS_NPC(ch))
+        return;
+    
+    // Is the player muted?
+    if (PLR_FLAGGED(ch, PLR_NOSHOUT)) {
+        send_to_char("You cannot auction!!\r\n", ch);
+        return;
+    }
+    
+    // Is the room soundproof?  Not sure how valid this check is now, but I don't
+    // see any good reason not to use it.
+    if (ROOM_FLAGGED(ch->in_room, ROOM_SOUNDPROOF) && GET_LEVEL(ch) < LVL_GRGOD) {
+        send_to_char("The walls seem to absorb your words.\r\n", ch);
+        return;
+    }
+    
+    // level_can_shout defined in config.c
+    // Is ch over level_can_shout
+    if (!IS_NPC(ch) && GET_LEVEL(ch) < level_can_shout && subcmd != SCMD_NEWBIE) {
+        sprintf(buf1, "You must be at least level %d before you can auction.\r\n",
+                level_can_shout);
+        send_to_char(buf1, ch);
+        return;
+    }
+    
+    skip_spaces(&argument);
+
+    if (!*argument) {
+        sprintf(buf, "Auction?  Yes, fine, auction we must, but WHAT??\r\n");
+        CAP(buf);
+        send_to_char(buf, ch);
+    }
+    return;
+}
 
 ACMD(do_qcomm)
 {

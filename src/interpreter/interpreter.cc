@@ -1081,6 +1081,7 @@ extern const struct command_info cmd_info[] = {
     { "shin"     , POS_RESTING , do_action   , 0, 0 },
     { "shiver"   , POS_RESTING , do_action   , 0, 0 },
     { "shudder"   , POS_RESTING , do_action  , 0, 0 },
+    { "shoulderthrow"  , POS_FIGHTING, do_offensive_skill , 0, SKILL_SHOULDER_THROW },
     { "show"     , POS_DEAD    , do_show     , LVL_AMBASSADOR, 0 },
     { "shower"   , POS_RESTING,  do_action   , 0, 0 },
     { "shoot"    , POS_SITTING , do_shoot    , 0, 0 },

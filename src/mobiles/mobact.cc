@@ -3319,7 +3319,7 @@ int mobile_battle_activity( struct char_data *ch,
               
     if (cur_class == CLASS_BARB || IS_GIANT(ch)) {
         if (IS_BARB(ch) && GET_LEVEL(ch) >= 42 &&
-            GET_HIT(ch) < (GET_MAX_HIT(ch) >> 1) && GET_MANA(ch) > 30 && random_fractional_4 ) {
+            GET_HIT(ch) < (GET_MAX_HIT(ch) >> 1) && GET_MANA(ch) > 30 && random_fractional_4() ) {
             do_battlecry(ch, "", 0, SCMD_CRY_FROM_BEYOND);
             return 0;
         }

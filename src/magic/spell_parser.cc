@@ -504,7 +504,7 @@ const char *spells[] =
     "!UNUSED!",        /* 660 */
     "!UNUSED!", "!UNUSED!", "!UNUSED!", "!UNUSED!", "!UNUSED!",        /* 665 */
     "hamstring", "snatch", "drag", "snipe", "infiltrate",        /* 670 */
-    "!UNUSED!", "!UNUSED!", "!UNUSED!", "!UNUSED!", "!UNUSED!",        /* 675 */
+    "shoulderthrow", "!UNUSED!", "!UNUSED!", "!UNUSED!", "!UNUSED!",        /* 675 */
     "arterial flow enhancement", 
         "genetek optimmunal response", 
         "shukutei adrenal maximizations",
@@ -3670,6 +3670,9 @@ mag_assign_spells(void)
            0, 0, 0, 0, 0, 0, 0);
 
     spello(SKILL_INFILTRATE, X, X, X, X, X, X, X, X, X, X, X, X, X, 27, X, X, X,
+           0, 0, 0, 0, 0, 0, 0);
+    
+    spello(SKILL_SHOULDER_THROW, X, X, X, X, X, X, X, X, X, X, X, X, X, 39, X, X, X,
            0, 0, 0, 0, 0, 0, 0);
 
 /**********************   MERC DEVICES   *********************/

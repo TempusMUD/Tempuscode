@@ -1739,7 +1739,7 @@ damage( struct char_data * ch, struct char_data * victim, int dam,
                 if ( !IS_NPC( victim ) &&
                      GET_HIT( victim ) < GET_WIMP_LEV( victim )  && GET_HIT(victim) > 0) {
                     send_to_char( "You wimp out, and attempt to flee!\r\n", victim );
-                    if ( KNOCKDOWN_SKILL( attacktype ) && damage )
+                    if ( KNOCKDOWN_SKILL( attacktype ) && dam )
                         victim->setPosition( POS_SITTING );
 
                     int retval = 0;
@@ -1757,7 +1757,7 @@ damage( struct char_data * ch, struct char_data * victim, int dam,
 
                 else if ( affected_by_spell( victim, SPELL_FEAR ) && 
                             !number( 0, ( GET_LEVEL( victim ) >> 3 ) + 1 )  && GET_HIT(victim) > 0) {
-                    if ( KNOCKDOWN_SKILL( attacktype ) && damage )
+                    if ( KNOCKDOWN_SKILL( attacktype ) && dam )
                         victim->setPosition( POS_SITTING );
 
                     int retval = 0;
