@@ -1399,16 +1399,15 @@ mobile_activity(void)
 		ch = *cit;
 		found = FALSE;
 
-
 	    if (GET_REMORT_CLASS(ch) != CLASS_UNDEFINED && !random_fractional_3())
             cur_class = GET_REMORT_CLASS(ch);
         else
             cur_class = GET_CLASS(ch);
 
 		//
-		// Check for valid mob
+		// Mobs in idle zones don't do anything
 		//
-		if (!ch->in_room || !IS_NPC(ch) || IS_AFFECTED_2(ch, AFF2_PETRIFIED))
+		if( IS_NPC(ch) && ch->in_room->zone->idle_time >= ZONE_IDLE_TIME)
 			continue;
 
 		//
@@ -1428,11 +1427,6 @@ mobile_activity(void)
 			}
 		}
 
-		//
-		// Mobs in idle zones don't do anything
-		//
-		if (ch->in_room->zone->idle_time >= ZONE_IDLE_TIME)
-			continue;
 
 		//
 		// poison 2 tick
@@ -1488,18 +1482,20 @@ mobile_activity(void)
 		// nothing below this conditional affects FIGHTING characters
 		//
 
-		if (FIGHTING(ch) || ch->getPosition() == POS_FIGHTING)
+		if (FIGHTING(ch) || ch->getPosition() == POS_FIGHTING) {
 			continue;
+		}
 
 		//
 		// meditate
 		// 
-
+		
 		if (IS_NEUTRAL(ch) && ch->getPosition() == POS_SITTING
-			&& IS_AFFECTED_2(ch, AFF2_MEDITATE)) {
-
+		&& IS_AFFECTED_2(ch, AFF2_MEDITATE)) 
+		{
 			perform_monk_meditate(ch);
-		}
+		} 
+
 		//
 		// Check if we've gotten knocked down.
 		//

@@ -30,21 +30,30 @@ perform_monk_meditate(struct Creature *ch)
 	struct affected_type af;
 
 	af.level = GET_LEVEL(ch) + (GET_REMORT_GEN(ch) << 2);
+	af.is_instant = 0;
+	af.location = APPLY_NONE;
 	MEDITATE_TIMER(ch)++;
+	if (PRF2_FLAGGED(ch, PRF2_FIGHT_DEBUG)) {
+		send_to_char(ch, "<meditate>: Timer %d\r\n", MEDITATE_TIMER(ch));
+	}
 
 	// oblivity
-	if (!IS_AFFECTED_2(ch, AFF2_OBLIVITY)
-		&& CHECK_SKILL(ch, ZEN_OBLIVITY) >= LEARNED(ch)) {
-		if (MEDITATE_TIMER(ch) + (CHECK_SKILL(ch,
-					ZEN_OBLIVITY) >> 2) + GET_WIS(ch) > (mag_manacost(ch,
-					ZEN_OBLIVITY) + number(20, 40))) {
+	if (!IS_AFFECTED_2(ch, AFF2_OBLIVITY) 
+	&& CHECK_SKILL(ch, ZEN_OBLIVITY) >= LEARNED(ch)) 
+	{
+		int target = MEDITATE_TIMER(ch) + (CHECK_SKILL(ch, ZEN_OBLIVITY) >> 2) + GET_WIS(ch);
+		int test   =  (mag_manacost(ch, ZEN_OBLIVITY) + number(20, 40));
+
+		if (PRF2_FLAGGED(ch, PRF2_FIGHT_DEBUG)) 
+			send_to_char(ch, "<meditate> OBLIV: test[%d] target[%d] \r\n", test, target );
+					
+		if( target > test ) 
+		{
 			send_to_char(ch, "You begin to perceive the zen of oblivity.\r\n");
 			af.type = ZEN_OBLIVITY;
-			af.is_instant = 0;
 			af.bitvector = AFF2_OBLIVITY;
 			af.aff_index = 2;
 			af.duration = af.level / 5;
-			af.location = APPLY_NONE;
 			af.modifier = 0;
 			affect_to_char(ch, &af);
 			if (GET_LEVEL(ch) < LVL_AMBASSADOR)
@@ -54,10 +63,17 @@ perform_monk_meditate(struct Creature *ch)
 		}
 	}
 	// awareness
-	if (!affected_by_spell(ch, ZEN_AWARENESS) &&
-		CHECK_SKILL(ch, ZEN_AWARENESS) >= LEARNED(ch)) {
-		if (MEDITATE_TIMER(ch) + (CHECK_SKILL(ch, ZEN_AWARENESS) >> 2) >
-			(mag_manacost(ch, ZEN_AWARENESS) + number(6, 40) - GET_WIS(ch))) {
+	if (!affected_by_spell(ch, ZEN_AWARENESS) 
+	&& CHECK_SKILL(ch, ZEN_AWARENESS) >= LEARNED(ch)) 
+	{
+		int target = MEDITATE_TIMER(ch) + (CHECK_SKILL(ch, ZEN_AWARENESS) >> 2);
+		int test   = (mag_manacost(ch, ZEN_AWARENESS) + number(6, 40) - GET_WIS(ch));
+
+		if (PRF2_FLAGGED(ch, PRF2_FIGHT_DEBUG)) 
+			send_to_char(ch, "<meditate> AWARE: test[%d] target[%d] \r\n", test, target );
+
+		if( target > test ) 
+		{
 			send_to_char(ch, "You become one with the zen of awareness.\r\n");
 			af.type = ZEN_AWARENESS;
 			af.level = GET_LEVEL(ch) + GET_REMORT_GEN(ch);
@@ -70,7 +86,6 @@ perform_monk_meditate(struct Creature *ch)
 			}
 			af.duration = af.level / 5;
 			af.modifier = 0;
-			af.location = APPLY_NONE;
 			affect_to_char(ch, &af);
 			if (GET_LEVEL(ch) < LVL_AMBASSADOR)
 				WAIT_STATE(ch, PULSE_VIOLENCE * 2);
@@ -79,16 +94,22 @@ perform_monk_meditate(struct Creature *ch)
 		}
 	}
 	// motion
-	if (!affected_by_spell(ch, ZEN_MOTION) &&
-		CHECK_SKILL(ch, ZEN_MOTION) >= LEARNED(ch)) {
-		if (MEDITATE_TIMER(ch) + (CHECK_SKILL(ch, ZEN_MOTION) >> 2) >
-			(mag_manacost(ch, ZEN_MOTION) + number(10, 40) - GET_WIS(ch))) {
+	if (!affected_by_spell(ch, ZEN_MOTION) 
+	&& CHECK_SKILL(ch, ZEN_MOTION) >= LEARNED(ch)) 
+	{
+		int target = MEDITATE_TIMER(ch) + (CHECK_SKILL(ch, ZEN_MOTION) >> 2);
+		int test   = (mag_manacost(ch, ZEN_MOTION) + number(10, 40) - GET_WIS(ch));
+
+		if (PRF2_FLAGGED(ch, PRF2_FIGHT_DEBUG)) 
+			send_to_char(ch, "<meditate> MOTION: test[%d] target[%d] \r\n", test, target );
+
+		if( target > test )
+		{
 			send_to_char(ch, "You have attained the zen of motion.\r\n");
 			af.type = ZEN_MOTION;
 			af.bitvector = 0;
 			af.aff_index = 0;
 			af.duration = af.level / 4;
-			af.location = APPLY_NONE;
 			af.modifier = 0;
 			affect_to_char(ch, &af);
 			if (GET_LEVEL(ch) < LVL_AMBASSADOR)
@@ -97,17 +118,25 @@ perform_monk_meditate(struct Creature *ch)
 			return;
 		}
 	}
+
 	// translocation
-	if (!affected_by_spell(ch, ZEN_TRANSLOCATION) &&
-		CHECK_SKILL(ch, ZEN_TRANSLOCATION) >= LEARNED(ch)) {
-		if (MEDITATE_TIMER(ch) + (CHECK_SKILL(ch, ZEN_TRANSLOCATION) >> 2) >
-			number(20, 25)) {
+	if (!affected_by_spell(ch, ZEN_TRANSLOCATION) 
+	&& CHECK_SKILL(ch, ZEN_TRANSLOCATION) >= LEARNED(ch)) 
+	{
+
+		int target = MEDITATE_TIMER(ch) + (CHECK_SKILL(ch, ZEN_TRANSLOCATION) >> 2);
+		int test   = number(20, 25);
+
+		if (PRF2_FLAGGED(ch, PRF2_FIGHT_DEBUG)) 
+			send_to_char(ch, "<meditate> TRANSL: test[%d] target[%d] \r\n", test, target );
+
+		if( target > test )
+		{
 			send_to_char(ch, "You have achieved the zen of translocation.\r\n");
 			af.type = ZEN_TRANSLOCATION;
 			af.bitvector = 0;
 			af.aff_index = 0;
 			af.duration = af.level / 4;
-			af.location = APPLY_NONE;
 			af.modifier = 0;
 			affect_to_char(ch, &af);
 			WAIT_STATE(ch, PULSE_VIOLENCE * 2);
@@ -115,11 +144,19 @@ perform_monk_meditate(struct Creature *ch)
 			return;
 		}
 	}
+
 	// celerity
 	if (!affected_by_spell(ch, ZEN_CELERITY)
-		&& CHECK_SKILL(ch, ZEN_CELERITY) >= LEARNED(ch)) {
-		if (MEDITATE_TIMER(ch) + (CHECK_SKILL(ch,
-					ZEN_CELERITY) >> 2) > number(20, 25)) {
+	&& CHECK_SKILL(ch, ZEN_CELERITY) >= LEARNED(ch)) 
+	{
+		int target = MEDITATE_TIMER(ch) + (CHECK_SKILL(ch, ZEN_CELERITY) >> 2);
+		int test   = number(20, 25);
+
+		if (PRF2_FLAGGED(ch, PRF2_FIGHT_DEBUG)) 
+			send_to_char(ch, "<meditate> TRANSL: test[%d] target[%d] \r\n", test, target );
+
+		if( target > test )
+		{
 			send_to_char(ch, "You have reached the zen of celerity.\r\n");
 			af.type = ZEN_CELERITY;
 			af.bitvector = 0;

@@ -1599,14 +1599,15 @@ SPECIAL(pet_shops)
 				char *tmp;
 
 				tmp = pet->player.name;
-				pet->player.name = str_dup(
-					tmp_strcat(pet->player.name, " ", pet_name, NULL));
+				pet->player.name = str_dup( tmp_strcat(pet->player.name, " ", pet_name, NULL));
 				free(tmp);
 
-				tmp = pet->player.description;
-				pet->player.description = str_dup(
-					tmp_strcat(pet->player.description, "A small sign on a chain around the neck says 'My name is ", pet_name, "'\r\n", NULL));
-				free(tmp);
+				tmp = tmp_sprintf( "A small sign on a chain around the neck says 'My name is %s\r\n'", pet_name );
+				if( pet->player.description != NULL ) {
+					tmp = tmp_strcat( pet->player.description, tmp );
+					free(pet->player.description);
+				}
+				pet->player.description = str_dup( tmp );
 			}
 			char_to_room(pet, ch->in_room,false);
 
