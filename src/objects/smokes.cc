@@ -76,7 +76,7 @@ ACMD(do_roll)
 	} else if (!(tobac = get_obj_in_list_vis(ch, arg1, ch->carrying))) {
 		if ((vict = get_char_room_vis(ch, arg1))) {
 			act("You roll your eyes at $M.", FALSE, ch, 0, vict, TO_CHAR);
-			act("$n rolls $s eyes at $M.", TRUE, ch, 0, vict, TO_NOTVICT);
+			act("$n rolls $s eyes at $N.", TRUE, ch, 0, vict, TO_NOTVICT);
 			act("$n rolls $s eyes at you.", TRUE, ch, 0, vict, TO_VICT);
 		} else {
 			send_to_char(ch, "You don't seem to have %s %s.\r\n", AN(arg1), arg1);
