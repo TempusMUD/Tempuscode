@@ -82,7 +82,7 @@ SPECIAL(guard)
 	}
 
 	if (spec_mode == SPECIAL_TICK) {
-		if (callsforhelp && !number(0, 10)) {
+		if (callsforhelp && !number(0, 10) && self->numCombatants()) {
 			call_for_help(self, self->findRandomCombat());
 			return true;
 		}

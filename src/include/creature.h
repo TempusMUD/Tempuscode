@@ -808,7 +808,6 @@ struct char_special_data {
 	}
 
 //	struct Creature *fighting;	/* Opponent                */
-    list<CharCombat>*fighting; /* list of combats for this char */
 	struct Creature *defending;	/* Char defended by this char */
 	struct Creature *hunting;	/* Char hunted by this char        */
 	struct Creature *mounted;	/* creatures mounted ON this char        */
@@ -1128,10 +1127,10 @@ struct Creature {
 	void extract(cxn_state con_state);
     
   public:						// ******  Data ****
-	struct char_special_data char_specials;	/* PC/NPC specials      */
 	int pfilepos;				/* playerfile pos          */
 	struct room_data *in_room;	/* Location (real room number)      */
 
+    list<CharCombat>*fighting; /* list of combats for this char */
 	struct char_player_data player;	/* Normal data                   */
 	struct char_ability_data real_abils;	/* Abilities without modifiers   */
 	struct char_ability_data aff_abils;	/* Abils with spells/stones/etc  */
@@ -1140,6 +1139,7 @@ struct Creature {
 	struct player_special_data *player_specials;	/* PC specials          */
 	struct mob_special_data mob_specials;	/* NPC specials          */
 
+	struct char_special_data char_specials;	/* PC/NPC specials      */
 	struct affected_type *affected;	/* affected by what spells       */
 	struct obj_data *equipment[NUM_WEARS];	/* Equipment array               */
 	struct obj_data *implants[NUM_WEARS];

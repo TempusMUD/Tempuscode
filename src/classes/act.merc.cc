@@ -101,7 +101,7 @@ ACMD(do_crossface)
 	one_argument(argument, arg);
 
 	if (!(vict = get_char_room_vis(ch, arg))) {
-		if (ch->findRandomCombat()) {
+		if (ch->numCombatants()) {
 			vict = ch->findRandomCombat();
 		} else if ((ovict =
 				get_obj_in_list_vis(ch, arg, ch->in_room->contents))) {

@@ -276,8 +276,7 @@ ACMD(do_whirlwind)
 			i = 0;				/* will get 4 hits total */
 			CreatureList::iterator it = ch->in_room->people.begin();
 			for (; it != ch->in_room->people.end(); ++it) {
-				if ((*it) == ch || ch != (*it)->findRandomCombat()
-					|| !can_see_creature(ch, (*it)))
+				if ((*it) == ch || !can_see_creature(ch, (*it)))
 					continue;
 				damage(ch, (*it), (CHECK_SKILL(ch, SKILL_WHIRLWIND) >
 						number(50, 100) + GET_DEX((*it))) ?

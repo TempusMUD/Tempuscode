@@ -1,5 +1,6 @@
 #include <vector>
 
+#include "creature.h"
 #include "house.h"
 #include "actions.h"
 #include "db.h"
@@ -637,7 +638,7 @@ SPECIAL(cityguard)
 				false, self, GET_EQ(self, WEAR_WIELD), tch, TO_VICT);
 		}
 		return true;
-	case 2:
+	case 2: {
 		// stopping fight
 		switch (number(0, 2)) {
 		case 0:
@@ -647,8 +648,11 @@ SPECIAL(cityguard)
 		case 2:
 			do_say(self, "Here now, here now!  Stop that!", 0, SCMD_BELLOW, 0); break;
 		}
-		breakup_fight(self, target, target->findRandomCombat());
+        Creature *vict = target->findRandomCombat();
+        if (vict)
+		    breakup_fight(self, target, vict);
 		return true;
+    }
 	case 3:
 		// drag criminal to jail
 		if (!affected_by_spell(target, SKILL_SLEEPER))

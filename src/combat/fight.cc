@@ -2579,9 +2579,13 @@ do_casting_weapon(Creature *ch, obj_data *weap)
 		if (IS_SET(spell_info[GET_OBJ_VAL(weap, 0)].routines, MAG_DAMAGE) ||
 				spell_info[GET_OBJ_VAL(weap, 0)].violent ||
 				IS_SET(spell_info[GET_OBJ_VAL(weap, 0)].targets,
-					TAR_UNPLEASANT))
-			call_magic(ch, ch->findRandomCombat(), 0, GET_OBJ_VAL(weap, 0),
-				GET_LEVEL(ch), CAST_WAND);
+					TAR_UNPLEASANT)) {
+            if (ch->numCombatants()) {
+                Creature *vict = ch->findRandomCombat();
+			    call_magic(ch, vict, 0, GET_OBJ_VAL(weap, 0),
+				           GET_LEVEL(ch), CAST_WAND);
+            }
+        }
 		else if (!affected_by_spell(ch, GET_OBJ_VAL(weap, 0)))
 			call_magic(ch, ch, 0, GET_OBJ_VAL(weap, 0), GET_LEVEL(ch),
 				CAST_WAND);
@@ -2842,15 +2846,14 @@ perform_violence(void)
 			// rarely enough that nobody should notice
 			//
 
-			if (ch->findRandomCombat() == next_combat_list) {
-				//int retval = 
-				hit(ch, ch->findRandomCombat(), TYPE_UNDEFINED);
-				/*
-				   if ( IS_SET( retval, DAM_VICT_KILLED ) )
-				   next_combat_list = tmp_next_combat_list;
-				 */
-				continue;
-			}
+            list<CharCombat>::iterator li;
+            li = ch->getCombatList()->begin();
+            for (; li != ch->getCombatList()->end(); ++li) {
+                if (li->getOpponent() == next_combat_list) {
+                    hit(ch, li->getOpponent(), TYPE_UNDEFINED);
+                    continue;
+                }
+            }
 
 
 			if (MOB_FLAGGED(ch, MOB_SPEC) && ch->in_room &&

@@ -1046,9 +1046,11 @@ ACMD(do_hit)
 	} else if (vict == ch) {
 		send_to_char(ch, "You hit yourself...OUCH!.\r\n");
 		act("$n hits $mself, and says OUCH!", FALSE, ch, 0, vict, TO_ROOM);
-    } else if (ch->findCombat(vict))
+    } else if (ch->findCombat(vict)) {
 		act("Ok, you will now concentrate your attacks on $N!", 
             0, ch, 0, vict, TO_CHAR);
+        ch->addCombat(vict, true);
+    }
 	else if (IS_AFFECTED(ch, AFF_CHARM) && (ch->master == vict))
 		act("$N is just such a good friend, you simply can't hit $M.", FALSE,
 			ch, 0, vict, TO_CHAR);
@@ -1262,6 +1264,12 @@ ACMD(do_flee)
 					continue;
 			}
 
+            CreatureList::iterator ci;
+            ci = ch->in_room->people.begin();
+            for (; ci != ch->in_room->people.end(); ++ci) {
+                if ((*ci)->findCombat(ch))
+                    (*ci)->removeCombat(ch);
+            }
 			int move_result = do_simple_move(ch, attempt, MOVE_FLEE, TRUE);
 
 			//

@@ -2385,7 +2385,7 @@ read_mobile(int vnum)
 	mob->player.time.death = 0;
 	mob->player.time.played = 0;
 	mob->player.time.logon = mob->player.time.birth;
-	mob->char_specials.fighting = new list<CharCombat>;
+	mob->fighting = new list<CharCombat>;
 
 	MOB_IDNUM(mob) = (++current_mob_idnum);
 

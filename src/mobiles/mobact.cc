@@ -667,7 +667,7 @@ helper_help_probability(struct Creature *ch, struct Creature *vict)
 
 	int prob = GET_MORALE(ch);
 
-	if (!IS_MOB(ch))
+	if (!IS_MOB(ch) || !vict)
 		return 0;
 
 	//
@@ -2773,7 +2773,7 @@ mobile_battle_activity(struct Creature *ch, struct Creature *precious_vict)
 				act("$n grits $s teeth as $e begins to weaken.", false,
 					ch, 0, 0, TO_ROOM);
 			} else {
-				if (can_see_creature(target, ch))
+				if (target && can_see_creature(target, ch))
 					do_say(ch,
 						tmp_sprintf("%s you bastard!", PERS(target, ch)),
 						0, 0, 0);
@@ -2784,7 +2784,7 @@ mobile_battle_activity(struct Creature *ch, struct Creature *precious_vict)
 			return 0;
 		}
 
-		if (GET_HIT(target) < GET_MAX_HIT(target) >> 7 &&
+		if (target && GET_HIT(target) < GET_MAX_HIT(target) >> 7 &&
 			GET_HIT(ch) > GET_MAX_HIT(ch) >> 4 && random_fractional_20()) {
 
 			int pct = random_percentage_zero_low();
@@ -2804,8 +2804,11 @@ mobile_battle_activity(struct Creature *ch, struct Creature *precious_vict)
 		}
 	}
 
-	if (detect_opponent_master(ch, ch->findRandomCombat()))
-		return 0;
+    list <CharCombat>::iterator li;
+    li = ch->getCombatList()->begin();
+    for (; li != ch->getCombatList()->end(); ++li)
+	    if (detect_opponent_master(ch, li->getOpponent()))
+		    return 0;
 
 	/* Here go the fighting Routines */
 
@@ -2826,16 +2829,17 @@ mobile_battle_activity(struct Creature *ch, struct Creature *precious_vict)
 
 			CUR_R_O_F(gun) = MAX_R_O_F(gun);
 
-			do_shoot(ch, tmp_sprintf("%s %s",
-				fname(gun->aliases), ch->findRandomCombat()->player.name),
-				0, 0, &return_flags);
+            if (ch->numCombatants())
+			    do_shoot(ch, tmp_sprintf("%s %s",
+				         fname(gun->aliases), ch->findRandomCombat()->player.name),
+				         0, 0, &return_flags);
 			return return_flags;
 		}
 	}
 
 	if (GET_CLASS(ch) == CLASS_SNAKE) {
         Creature *target = ch->findRandomCombat();
-		if (target->in_room == ch->in_room &&
+		if (target && target->in_room == ch->in_room &&
 			(random_number_zero_low(42 - GET_LEVEL(ch)) == 0)) {
 			act("$n bites $N!", 1, ch, 0, target, TO_NOTVICT);
 			act("$n bites you!", 1, ch, 0, target, TO_VICT);
@@ -2866,7 +2870,7 @@ mobile_battle_activity(struct Creature *ch, struct Creature *precious_vict)
 						CHAR_LIKES_ROOM(ch, EXIT(ch, dir)->to_room)
 						&& random_binary()) {
 
-						struct Creature *was_fighting = ch->findRandomCombat();
+						Creature *was_fighting = ch->findRandomCombat();
 
                         ch->removeAllCombat();
                         CreatureList::iterator ci = ch->in_room->people.begin();
@@ -2891,7 +2895,8 @@ mobile_battle_activity(struct Creature *ch, struct Creature *precious_vict)
 								from_dirs[dir]),
 							false, ch, 0, 0, TO_ROOM);
 
-						HUNTING(ch) = was_fighting;
+                        if (was_fighting)
+						    HUNTING(ch) = was_fighting;
 						return 0;
 					}
 				}
@@ -2913,7 +2918,7 @@ mobile_battle_activity(struct Creature *ch, struct Creature *precious_vict)
 
 	if (IS_RACE(ch, RACE_UMBER_HULK)) {
         Creature *target = ch->findRandomCombat();
-		if (random_fractional_3() && !AFF_FLAGGED(target, AFF_CONFUSION)) {
+		if (target && random_fractional_3() && !AFF_FLAGGED(target, AFF_CONFUSION)) {
 			call_magic(ch, target, 0, SPELL_CONFUSION, GET_LEVEL(ch),
 				CAST_ROD, &return_flags);
 			return return_flags;
@@ -2922,7 +2927,8 @@ mobile_battle_activity(struct Creature *ch, struct Creature *precious_vict)
 
 	if (IS_RACE(ch, RACE_DAEMON)) {
 		if (GET_CLASS(ch) == CLASS_DAEMON_PYRO) {
-			if (random_fractional_3()) {
+            Creature *target = ch->findRandomCombat();
+			if (target && random_fractional_3()) {
 				WAIT_STATE(ch, 3 RL_SEC);
 				call_magic(ch, ch->findRandomCombat(), 0, SPELL_FIRE_BREATH,
 					GET_LEVEL(ch), CAST_BREATH, &return_flags);
@@ -2933,7 +2939,8 @@ mobile_battle_activity(struct Creature *ch, struct Creature *precious_vict)
 
 	if (IS_RACE(ch, RACE_MEPHIT)) {
 		if (GET_CLASS(ch) == CLASS_MEPHIT_LAVA) {
-			if (random_binary()) {
+            Creature *target = ch->findRandomCombat();
+			if (target && random_binary()) {
 				return damage(ch, ch->findRandomCombat(), 
                               dice(20, 20), TYPE_LAVA_BREATH,
 					          WEAR_RANDOM);

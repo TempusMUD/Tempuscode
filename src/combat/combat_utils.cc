@@ -1647,6 +1647,9 @@ int calculate_attack_probability(struct Creature *ch)
     int prob;
     struct obj_data *weap = NULL;
 
+    if (!ch->numCombatants())
+        return 0;
+
     prob = 1 + (GET_LEVEL(ch) / 7) + (GET_DEX(ch) << 1);
 
     if (IS_RANGER(ch) && (!GET_EQ(ch, WEAR_BODY) ||
@@ -1662,6 +1665,7 @@ int calculate_attack_probability(struct Creature *ch)
 
     if (GET_EQ(ch, WEAR_HANDS))
         prob = calculate_weapon_probability(ch, prob, GET_EQ(ch, WEAR_HANDS));
+
 
     prob += (POS_FIGHTING - (ch->findRandomCombat()->getPosition()) << 1);
 

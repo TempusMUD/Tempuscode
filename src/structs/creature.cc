@@ -38,7 +38,7 @@ Creature::Creature(bool pc)
 		SET_BIT(MOB_FLAGS(this), MOB_ISNPC);
 	}
 
-    char_specials.fighting = new list<CharCombat>();
+    this->fighting = new list<CharCombat>();
 
 	clear();
 }
@@ -50,8 +50,8 @@ Creature::~Creature(void)
 		delete player_specials;
 		free(player.title);
 	}
-    delete char_specials.fighting;
-    char_specials.fighting = NULL;
+    delete this->fighting;
+    this->fighting = NULL;
 }
 
 void
@@ -821,13 +821,13 @@ Creature::clear(void)
     // next remove all the combat this creature might be involved in
     //
     removeAllCombat();
-    delete this->char_specials.fighting;
+    delete this->fighting;
 
 	// At this point, everything should be freed, so we null the entire
 	// structure just to be sure
 	memset((char *)this, 0, sizeof(Creature));
 
-    this->char_specials.fighting = new list<CharCombat>();
+    this->fighting = new list<CharCombat>();
 	// And we reset all the values to their initial settings
 	this->setPosition(POS_STANDING);
 	GET_CLASS(this) = -1;
@@ -1217,7 +1217,7 @@ Creature::set_reputation(int amt)
 list<CharCombat>* 
 Creature::getCombatList()
 {
-    return char_specials.fighting;
+    return fighting;
 }
 
 void

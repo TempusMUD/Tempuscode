@@ -511,6 +511,10 @@ char *
 diag_conditions(struct Creature *ch)
 {
 
+    if (!ch) {
+        strcpy(buf, "(NULL)");
+        return buf;
+    }
 	int percent;
 	if (GET_MAX_HIT(ch) > 0)
 		percent = (100 * GET_HIT(ch)) / GET_MAX_HIT(ch);
