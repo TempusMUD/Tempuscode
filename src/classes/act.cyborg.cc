@@ -94,6 +94,19 @@ const char *vehicle_types[] = {
 	"\n"
 };
 
+const char *
+get_component_name(int comp, int sub_class)
+{
+	int idx = 0;
+
+	if (sub_class < 0 || sub_class > 2)
+		sub_class = 0;
+	while (idx < comp && component_names[idx][0][0] != '\n')
+		idx++;
+	
+	return component_names[idx][sub_class];
+}
+
 int
 max_component_dam(struct Creature *ch)
 {
