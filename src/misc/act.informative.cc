@@ -873,6 +873,7 @@ list_char_to_char(struct Creature *list, struct Creature *ch)
 	bool is_group = false;
 	char *msg = "";
 	int unseen = 0;
+	int hide_prob, hide_roll;
 
 	if (list == NULL)
 		return;
@@ -911,8 +912,12 @@ list_char_to_char(struct Creature *list, struct Creature *ch)
 		}
 
 		if (AFF_FLAGGED(i, AFF_HIDE) && !AFF3_FLAGGED(ch, AFF3_SONIC_IMAGERY)) {
-			if (number(0, ch->getLevelBonus(true)) <
-					number(0, i->getLevelBonus(SKILL_HIDE))) {
+			hide_prob = number(0, i->getLevelBonus(SKILL_HIDE));
+			hide_roll = number(0, ch->getLevelBonus(true));
+			if (affected_by_spell(ch, ZEN_AWARENESS))
+				hide_roll += ch->getLevelBonus(ZEN_AWARENESS) / 4;
+
+			if (hide_prob > hide_roll) {
 				unseen++;
 				continue;
 			} else if (CAN_SEE(i, ch))
