@@ -4559,9 +4559,9 @@ ACMD(do_specializations)
     for (obj = NULL, i = 0; i < MAX_WEAPON_SPEC;obj = NULL) {
         if (GET_WEAP_SPEC(ch, i).level &&
             GET_WEAP_SPEC(ch, i).vnum > 0 &&
-            (obj = real_object_proto(GET_WEAP_SPEC(ch, i).vnum)))
-            sprintf(buf, "%s %2d. %-30s [%d]\r\n", buf, ++i, obj->short_description,
-                    GET_WEAP_SPEC(ch, i).level);
+            (obj = real_object_proto((GET_WEAP_SPEC(ch, i)).vnum)))
+            sprintf(buf, "%s %2d. %-30s [%d]\r\n", buf, ++i, 
+                         obj->short_description, (GET_WEAP_SPEC(ch, i)).level);
         else
             break;
     }
