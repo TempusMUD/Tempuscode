@@ -263,7 +263,82 @@ ACMD(do_battlecry)
 
 ACMD(do_cleave)
 {
-	send_to_char(ch, "It's not written yet.  Don't bug me about it.\r\n   Love, Azimuth\r\n");
+    Creature *vict = NULL;
+	obj_data *weap = GET_EQ(ch, WEAR_WIELD);
+    int percent = 0;
+    int skill = MAX( GET_SKILL(ch, SKILL_CLEAVE), GET_SKILL(ch, SKILL_GREAT_CLEAVE) );
+    bool great = ( GET_SKILL(ch, SKILL_GREAT_CLEAVE) > 50 );
+    
+
+	ACMD_set_return_flags(0);
+	one_argument(argument, buf);
+
+	if( weap == NULL || !IS_TWO_HAND(weap) ) {
+		send_to_char(ch, "You need to be wielding a good two handed weapon to cleave!\r\n");
+		return;
+	}
+
+    if( !*buf ) {
+        vict = FIGHTING(ch);
+    } else {
+        vict = get_char_room_vis(ch, buf);
+    }
+
+	if( vict == NULL ) {
+		send_to_char(ch, "Cleave who?\r\n");
+		WAIT_STATE(ch, 2);
+		return;
+	}
+
+	if( vict == ch ) {
+		send_to_char(ch, "You cannot cleave yourself.\r\n");
+		return;
+	}
+
+	if (!peaceful_room_ok(ch, vict, true))
+		return;
+        
+    int maxWhack;
+    if( great ) {
+        maxWhack = MAX( 3, GET_REMORT_GEN(ch)-3 );
+    } else {
+        maxWhack = 2;
+    }
+
+    for( int i = 0; i < maxWhack && vict != NULL; i++ ) 
+    {
+        percent = number(1, 101) + GET_DEX(vict);
+        cur_weap = weap;
+        if( AWAKE(vict) && percent > skill ) {
+            WAIT_STATE(ch, 2 RL_SEC);
+            int retval = damage(ch, vict, 0, SKILL_CLEAVE, WEAR_RANDOM);
+            ACMD_set_return_flags(retval);
+            return;
+        } else {
+            WAIT_STATE(vict, 1 RL_SEC);
+            WAIT_STATE(ch, 3 RL_SEC);
+            if( great )
+                gain_skill_prof(ch, SKILL_GREAT_CLEAVE);
+            gain_skill_prof(ch, SKILL_CLEAVE);
+            int retval = hit(ch, vict, SKILL_CLEAVE);
+            ACMD_set_return_flags(retval);
+            if( IS_SET( retval, DAM_ATTACKER_KILLED ) ) {
+                return;
+            } else if(! IS_SET( retval, DAM_VICT_KILLED ) ) {
+                return;
+            }
+            vict = NULL;
+            // find a new victim
+            CreatureList::iterator it = ch->in_room->people.begin();
+			for( ; it != ch->in_room->people.end(); ++it ) {
+				if( (*it) == ch || ch != (*it)->getFighting() || !can_see_creature(ch, (*it)))
+                    continue;
+                vict = *it;
+                break;
+            }
+            
+        }
+    }
 }
 
 #undef __act_barb_c__
