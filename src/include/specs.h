@@ -266,6 +266,7 @@ SPECIAL(life_point_potion);
 SPECIAL(unholy_square);
 SPECIAL(unholy_stalker);
 SPECIAL(oedit_reloader);
+SPECIAL(town_crier);
 SPECIAL(voting_booth);
 SPECIAL(fountain_youth);
 SPECIAL(clone_lab);
