@@ -1293,7 +1293,6 @@ do_stat_object(struct Creature *ch, struct obj_data *j)
             GET_OBJ_VAL(j, 0), GET_OBJ_VAL(j, 1), GET_OBJ_VAL(j, 2),
             spell_to_str((int)GET_OBJ_VAL(j, 3)));
         break;
-    case ITEM_FIREWEAPON:
     case ITEM_WEAPON:
         sprintf(buf,
             "Spell: %s (%d), Todam: %dd%d (av %d), Damage Type: %s (%d)",
@@ -1307,6 +1306,9 @@ do_stat_object(struct Creature *ch, struct obj_data *j)
                     3) < 19) ? attack_hit_text[(int)GET_OBJ_VAL(j,
                     3)].plural : "bunk", GET_OBJ_VAL(j, 3));
         break;
+    case ITEM_CAMERA:
+        sprintf(buf, "Targ room: %d", GET_OBJ_VAL(j, 0));
+		break;
     case ITEM_MISSILE:
         sprintf(buf, "Tohit: %d, Todam: %d, Type: %d", GET_OBJ_VAL(j, 0),
             GET_OBJ_VAL(j, 1), GET_OBJ_VAL(j, 3));
@@ -7107,7 +7109,6 @@ stat_obj_to_file(struct obj_data *j, ofstream & out)
             GET_OBJ_VAL(j, 0), GET_OBJ_VAL(j, 1), GET_OBJ_VAL(j, 2),
             spell_to_str((int)GET_OBJ_VAL(j, 3)));
         break;
-    case ITEM_FIREWEAPON:
     case ITEM_WEAPON:
         sprintf(buf,
             "Spell: %s (%d), Todam: %dd%d (av %d), Damage Type: %s (%d)",
@@ -7121,6 +7122,9 @@ stat_obj_to_file(struct obj_data *j, ofstream & out)
                     3) < 19) ? attack_hit_text[(int)GET_OBJ_VAL(j,
                     3)].plural : "bunk", GET_OBJ_VAL(j, 3));
         break;
+    case ITEM_CAMERA:
+        sprintf(buf, "Targ room: %d", GET_OBJ_VAL(j, 0));
+		break;
     case ITEM_MISSILE:
         sprintf(buf, "Tohit: %d, Todam: %d, Type: %d", GET_OBJ_VAL(j, 0),
             GET_OBJ_VAL(j, 1), GET_OBJ_VAL(j, 3));

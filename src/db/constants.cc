@@ -1306,7 +1306,7 @@ extern const char *item_types[] = {
 	"WAND",
 	"STAFF",
 	"WEAPON",
-	"FIRE WEAPON",
+	"CAMERA",
 	"MISSILE",
 	"TREASURE",
 	"ARMOR",
@@ -1373,7 +1373,7 @@ extern const char *item_type_descs[] = {
 	"a magic wand",
 	"a magical staff",
 	"a weapon",
-	"a fired weapon",
+	"a camera",
 	"a missile",
 	"treasure",
 	"a piece of armor",
@@ -1438,7 +1438,7 @@ extern const char *item_value_types[][4] = {
 	{"Level", "Max Charg", "Cur Chrg", "Spell"},	/* wand       */
 	{"Level", "Max Charg", "Cur Chrg", "Spell"},	/* staff      */
 	{"Spell", "Dam dice1", "Dam dice ", "Atck type"},	/* weapon     */
-	{"UNDEFINED", "UNDEFINED", "UNDEFINED", "UNDEFINED"},	/* fireweapon */
+	{"Targ room", "UNDEFINED", "UNDEFINED", "UNDEFINED"},	/* camera*/
 	{"UNDEFINED", "UNDEFINED", "UNDEFINED", "UNDEFINED"},	/* missile    */
 	{"UNDEFINED", "UNDEFINED", "UNDEFINED", "UNDEFINED"},	/* treasure   */
 	{"AC-Apply", "UNDEFINED", "UNDEFINED", "UNDEFINED"},	/* armor      */

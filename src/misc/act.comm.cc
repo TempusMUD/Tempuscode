@@ -51,8 +51,10 @@ ACMD(do_say)
 	struct Creature *vict = NULL;
 	char name[MAX_INPUT_LENGTH], buf3[MAX_INPUT_LENGTH],
 		buf[MAX_STRING_LENGTH];
-	struct room_data *was_in = NULL;
+	static room_data *was_in;
+	struct room_data *to_room;
 	static byte recurs_say = 0;
+	char *remote_str;
 	int j;
 	struct obj_data *o = NULL;
 	const char *cur_mood;
@@ -99,7 +101,12 @@ ACMD(do_say)
 		return;
 	}
 
-	if (!recurs_say) {
+	if (recurs_say == 2)
+		remote_str = tmp_sprintf("(%s) ", was_in->name);
+	else if (recurs_say == 1)
+		remote_str = tmp_sprintf("(remote) ");
+	else {
+		remote_str = "";
 		strcpy(arg, argument);
 
 		for (o = ch->in_room->contents; o; o = o->next_content)
@@ -127,6 +134,23 @@ ACMD(do_say)
 
 			recurs_say = 0;
 		}
+
+		for (o = ch->in_room->contents; o; o = o->next_content)
+			if (GET_OBJ_TYPE(o) == ITEM_CAMERA) {
+				to_room = real_room(GET_OBJ_VAL(o, 0));
+				if (to_room) {
+					was_in = ch->in_room;
+					char_from_room(ch, false);
+					char_to_room(ch, to_room, false);
+
+					recurs_say = 2;
+					do_say(ch, arg, cmd, subcmd, 0);
+					recurs_say = 0;
+
+					char_from_room(ch, false);
+					char_to_room(ch, was_in, false);
+				}
+			}
 	}
 
 	if (subcmd != SCMD_SAY_TO)
@@ -153,6 +177,7 @@ ACMD(do_say)
 			if (!o)
 				o = get_obj_in_list_vis(ch, name, ch->in_room->contents);
 		}
+
 		if (!vict && !o) {
 			if (!recurs_say)
 				send_to_char(ch, "No-one by that name here.\r\n");
@@ -174,8 +199,9 @@ ACMD(do_say)
 					strcat(buf3, "self");
 				} else
 					strcpy(buf3, PERS(vict, (*it)));
+
 				send_to_char(*it, "%s%s%s%s%s says to %s,%s %s'%s'%s\r\n",
-					recurs_say ? "(remote) " : "", CCBLD((*it), C_NRM),
+					remote_str, CCBLD((*it), C_NRM),
 					CCBLU((*it), C_SPR), buf2, cur_mood, buf3,
 					CCNRM((*it), C_SPR), CCCYN((*it), C_NRM), argument,
 					CCNRM((*it), C_NRM));
@@ -205,7 +231,7 @@ ACMD(do_say)
 		strcpy(buf, PERS(ch, (*it)));
 		strcpy(buf2, CAP(buf));
 		sprintf(buf, "%s%s%s%s %s%s,%s %s'%s'%s\r\n",
-			recurs_say ? "(remote) " : "", CCBLD((*it), C_NRM), CCBLU((*it),
+			remote_str, CCBLD((*it), C_NRM), CCBLU((*it),
 				C_SPR), buf2,
 			(subcmd == SCMD_UTTER ? "utters" : subcmd ==
 				SCMD_EXPOSTULATE ? "expostulates" : subcmd ==

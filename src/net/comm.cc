@@ -1726,8 +1726,9 @@ void
 send_to_room(char *messg, struct room_data *room)
 {
 	struct Creature *i;
+	room_data *to_room;
 	struct obj_data *o, *obj = NULL;
-	char buf[MAX_STRING_LENGTH];
+	char *str;
 	int j;
 
 	if (!room || !messg)
@@ -1739,7 +1740,7 @@ send_to_room(char *messg, struct room_data *room)
 			SEND_TO_Q(messg, i->desc);
 	}
 	/** check for vehicles in the room **/
-	sprintf(buf, "(outside) %s", messg);
+	str = tmp_sprintf("(outside) %s", messg);
 	for (o = room->contents; o; o = o->next_content) {
 		if (IS_OBJ_TYPE(o, ITEM_VEHICLE)) {
 			for (obj = object_list; obj; obj = obj->next) {
@@ -1753,7 +1754,7 @@ send_to_room(char *messg, struct room_data *room)
 						if (i->desc
 							&& !PLR_FLAGGED(i,
 								PLR_OLC | PLR_WRITING | PLR_MAILING))
-							SEND_TO_Q(buf, i->desc);
+							SEND_TO_Q(str, i->desc);
 					}
 				}
 			}
@@ -1761,25 +1762,34 @@ send_to_room(char *messg, struct room_data *room)
 	}
 
 	/* see if there is a podium in the room */
-	sprintf(buf, "(remote) %s", messg);
 	for (o = room->contents; o; o = o->next_content)
 		if (GET_OBJ_TYPE(o) == ITEM_PODIUM)
 			break;
 
-	if (!o)
-		return;
+	if (o) {
+		str = tmp_sprintf("(remote) %s", messg);
+		for (j = 0; j < NUM_OF_DIRS; j++)
+			if (ABS_EXIT(room, j) && ABS_EXIT(room, j)->to_room &&
+				room != ABS_EXIT(room, j)->to_room &&
+				!IS_SET(ABS_EXIT(room, j)->exit_info, EX_ISDOOR | EX_CLOSED)) {
+				it = ABS_EXIT(room, j)->to_room->people.begin();
+				for (; it != ABS_EXIT(room, j)->to_room->people.end(); ++it) {
+					i = *it;
+					if (i->desc && !PLR_FLAGGED(i, PLR_OLC))
+						SEND_TO_Q(str, i->desc);
+				}
+			}
+	}
 
-	for (j = 0; j < NUM_OF_DIRS; j++)
-		if (ABS_EXIT(room, j) && ABS_EXIT(room, j)->to_room &&
-			room != ABS_EXIT(room, j)->to_room &&
-			!IS_SET(ABS_EXIT(room, j)->exit_info, EX_ISDOOR | EX_CLOSED)) {
-			it = ABS_EXIT(room, j)->to_room->people.begin();
-			for (; it != ABS_EXIT(room, j)->to_room->people.end(); ++it) {
-				i = *it;
-				if (i->desc && !PLR_FLAGGED(i, PLR_OLC))
-					SEND_TO_Q(buf, i->desc);
+	for (o = room->contents; o; o = o->next_content) {
+		if (GET_OBJ_TYPE(o) == ITEM_CAMERA && o->in_room) {
+			to_room = real_room(GET_OBJ_VAL(o, 0));
+			if (to_room) {
+				send_to_room(tmp_sprintf("(%s) %s", o->in_room->name, messg),
+					to_room);
 			}
 		}
+	}
 }
 
 void
@@ -1912,6 +1922,10 @@ perform_act(const char *orig, struct Creature *ch, struct obj_data *obj,
 		sprintf(outbuf, "(outside) %s", CAP(lbuf));
 	else if (mode == 2)
 		sprintf(outbuf, "(remote) %s", CAP(lbuf));
+	else if (mode == 3)
+		sprintf(outbuf, "(%s) %s",
+			(ch->in_room) ? ch->in_room->name:"remote",
+			CAP(lbuf));
 	else
 		strcpy(outbuf, CAP(lbuf));
 
@@ -2010,21 +2024,35 @@ act(const char *str, int hide_invisible, struct Creature *ch,
 		if (GET_OBJ_TYPE(o) == ITEM_PODIUM)
 			break;
 
-	if (!o)
-		return;
-
-	for (j = 0; j < NUM_OF_DIRS; j++) {
-		if (ABS_EXIT(room, j) && ABS_EXIT(room, j)->to_room &&
-			room != ABS_EXIT(room, j)->to_room &&
-			!IS_SET(ABS_EXIT(room, j)->exit_info, EX_ISDOOR | EX_CLOSED)) {
+	if (o) {
+		for (j = 0; j < NUM_OF_DIRS; j++) {
+			if (ABS_EXIT(room, j) && ABS_EXIT(room, j)->to_room &&
+				room != ABS_EXIT(room, j)->to_room &&
+				!IS_SET(ABS_EXIT(room, j)->exit_info, EX_ISDOOR | EX_CLOSED)) {
 
 
-			it = ABS_EXIT(room, j)->to_room->people.begin();
-			for (; it != ABS_EXIT(room, j)->to_room->people.end(); ++it) {
-				if (SENDOK((*it)) &&
-					!(hide_invisible && ch && !can_see_creature((*it), ch)) &&
-					((*it) != ch) && (type == TO_ROOM || ((*it) != vict_obj)))
-					perform_act(str, ch, obj, vict_obj, (*it), 2);
+				it = ABS_EXIT(room, j)->to_room->people.begin();
+				for (; it != ABS_EXIT(room, j)->to_room->people.end(); ++it) {
+					if (SENDOK((*it)) &&
+						!(hide_invisible && ch && !can_see_creature((*it), ch)) &&
+						((*it) != ch) && (type == TO_ROOM || ((*it) != vict_obj)))
+						perform_act(str, ch, obj, vict_obj, (*it), 2);
+				}
+			}
+		}
+	}
+
+	for (o = room->contents; o; o = o->next_content) {
+		if (GET_OBJ_TYPE(o) == ITEM_CAMERA && o->in_room) {
+			room = real_room(GET_OBJ_VAL(o, 0));
+			if (room) {
+				it = room->people.begin();
+				for (; it != room->people.end(); ++it) {
+					if (SENDOK((*it)) &&
+						!(hide_invisible && ch && !can_see_creature((*it), ch)) &&
+						((*it) != ch) && ((*it) != vict_obj))
+						perform_act(str, ch, obj, vict_obj, (*it), 3);
+				}
 			}
 		}
 	}
