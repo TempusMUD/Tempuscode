@@ -28,7 +28,7 @@
 
 #define MAX_CLAN_NAME      24
 #define MAX_CLAN_BADGE     16
-#define MAX_CLAN_MEMBERS   75
+#define MAX_CLAN_MEMBERS  200
 #define MAX_CLAN_ROOMS    200
 #define MAX_CLAN_RANKNAME  48
 #define NUM_CLAN_RANKS     11
