@@ -1942,7 +1942,7 @@ ACMD(do_loadroom)
 
 	} else if (is_abbrev(argument, "set")) {
 
-		if ((ROOM_FLAGGED(ch->in_room, ROOM_HOUSE | ROOM_CLAN_HOUSE) ||
+		if ((ROOM_FLAGGED(ch->in_room, ROOM_HOUSE | ROOM_CLAN_HOUSE | ROOM_COMFORT) ||
 				GET_LEVEL(ch) >= LVL_AMBASSADOR) &&
 			House_can_enter(ch, ch->in_room->number) &&
 			clan_house_can_enter(ch, ch->in_room)) {
