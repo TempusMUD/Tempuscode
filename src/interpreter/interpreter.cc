@@ -1947,9 +1947,11 @@ search_block(const char *arg, const char **list, bool exact)
 }
 
 
-int
+bool
 is_number(const char *str)
 {
+	if (!*str)
+		return 0;
 
 	if (str[0] == '-' || str[0] == '+')
 		str++;

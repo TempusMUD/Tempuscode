@@ -35,7 +35,7 @@ int fill_word(char *argument);
 void half_chop(char *string, char *arg1, char *arg2);
 void handle_input(struct descriptor_data *d);
 int is_abbrev(const char *arg1, const char *arg2);
-int is_number(const char *str);
+bool is_number(const char *str);
 int find_command(char *command, bool abbrev = false);
 void skip_spaces(char **string);
 void skip_spaces(const char **string);
