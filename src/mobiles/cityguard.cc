@@ -315,8 +315,9 @@ drag_char_to_jail(Creature *ch, Creature *vict, room_data *jail_room)
 
 	act(tmp_sprintf("You drag a semi-conscious $N %s.", to_dirs[dir]), false,
 		ch, 0, vict, TO_CHAR);
-	act("You dimly feel yourself being dragged down the street.", false,
-		ch, 0, vict, TO_VICT | TO_SLEEP);
+	if (!number(0, 2))
+		act("You dimly feel yourself being dragged down the street.", false,
+			ch, 0, vict, TO_VICT | TO_SLEEP);
 	act(tmp_sprintf("$n drags a semi-conscious $N %s.", to_dirs[dir]), false,
 		ch, 0, vict, TO_NOTVICT);
 	
