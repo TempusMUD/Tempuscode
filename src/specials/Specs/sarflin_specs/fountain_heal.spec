@@ -25,17 +25,18 @@ SPECIAL(fountain_heal)
     return 0;
 
   if (GET_HIT(ch) < GET_MAX_HIT(ch)) {
-    act("You drink from $p, it tastes oddly refreshing!", 
-        TRUE, ch, fountain, 0, TO_CHAR);
+      sprintf(buf, "You drink %s from $p. It tastes oddly refreshing!",     
+        drinks[GET_OBJ_VAL(fountain, 2)]);
       num = dice(3,8);
       WAIT_STATE(ch,1 RL_SEC);
       GET_HIT(ch) = MIN(GET_HIT(ch)+num,GET_MAX_HIT(ch));
   } else {
-    act("You drink from $p.", 
-        TRUE, ch, fountain, 0, TO_CHAR);
+      sprintf(buf, "You drink %s from $p.",     
+          drinks[GET_OBJ_VAL(fountain, 2)]);
   }
-  act("$n drinks from $p.", TRUE, ch, fountain, 0, TO_ROOM);
-
+  act(buf, TRUE, ch, fountain, 0, TO_CHAR);
+  sprintf(buf, "$n drinks %s from $p.", drinks[GET_OBJ_VAL(fountain, 2)]);
+  act(buf, TRUE, ch, fountain, 0, TO_ROOM);
   return 1;
 }
 
