@@ -2185,6 +2185,7 @@ hit(struct Creature *ch, struct Creature *victim, int type)
               
             if( type == SKILL_CLEAVE ) {
                 dam *= 4;
+				w_type = SKILL_CLEAVE;
             }
 		} else if (IS_OBJ_TYPE(cur_weap, ITEM_ARMOR)) {
 			dam += (GET_OBJ_VAL(cur_weap, 0) / 3);
