@@ -3694,6 +3694,7 @@ empty_to_obj( struct obj_data *obj, struct obj_data *container, struct char_data
 
     struct obj_data *o = NULL;
     struct obj_data *next_obj = NULL;
+    bool can_fit = true;
 
 
 
@@ -3707,44 +3708,49 @@ empty_to_obj( struct obj_data *obj, struct obj_data *container, struct char_data
 	send_to_char( "Why would you want to empty something into itself?\r\n", ch );
 	return 0;
     }
-
-     if ( GET_OBJ_TYPE( container ) != ITEM_CONTAINER ) {
+    
+    if ( GET_OBJ_TYPE( container ) != ITEM_CONTAINER ) {
 	send_to_char( "You can't put anything in that.\r\n", ch );
 	return 0;
     }
 
+    if ( ! obj->contains ) {
+	send_to_char( "There is nothing to empty!\r\n", ch );
+	return 0;
+    }
+    
     if( obj->contains ) {
 	
 	for ( next_obj = obj->contains; next_obj; next_obj = o ) {   
-    
-	   if ( next_obj->in_obj && next_obj ) {
-	
-	       if( ! ( IS_OBJ_STAT( next_obj, ITEM_NODROP ) ) ) {
-		   
-		       o = next_obj->next_content; 
+	    
+	    if ( next_obj->in_obj && next_obj ) {
 		
-		       if ( container->getWeight() + next_obj->getWeight()   > GET_OBJ_VAL( container, 0 ) ) {
-			   act( "You fill $p up to the brim.", FALSE, ch, container, 0, TO_CHAR );
-			   sprintf( buf, "$n carefully empties the contents of $p into %s.", container->short_description );
-			   act( buf, FALSE, ch, obj, 0, TO_ROOM );
-			   return 0;
-		       }
-		       
-		       obj_from_obj( next_obj );
-		       obj_to_obj( next_obj, container );
-		       
-	       }
-	       
-	   }
-	   
+		if( ! ( IS_OBJ_STAT( next_obj, ITEM_NODROP ) ) ) {
+		    
+		    o = next_obj->next_content; 
+		    
+		    if ( container->getWeight() + next_obj->getWeight()   > GET_OBJ_VAL( container, 0 ) ) {
+			can_fit = false;
+		    }
+		    
+		    if ( can_fit ) {
+			obj_from_obj( next_obj );
+			obj_to_obj( next_obj, container );
+		    }
+		    
+		    can_fit = true;
+		}
+		
+	    }
+	    
 	}
-
+	
 	sprintf( buf, "$n carefully empties the contents of $p into %s.", container->short_description );
 	act( buf, FALSE, ch, obj, 0, TO_ROOM );
 	sprintf(buf, "You carefully empty the contents of $p into %s.", container->short_description );
 	act( buf, FALSE, ch, obj, 0, TO_CHAR );
-       
-
+	
+	
     }
     
     return 1;
