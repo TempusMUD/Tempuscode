@@ -1643,7 +1643,8 @@ void mobile_activity(void) {
 
                 if (!ROOM_FLAGGED(ch->in_room, ROOM_PEACEFUL) &&
                     random_fractional_4() &&
-                    room_count(ch, ch->in_room) < random_number_zero_low( GET_LEVEL(ch) >> 3 ) + 1 ) {
+                    ch->in_room->people.size() < 
+                    (unsigned)random_number_zero_low( GET_LEVEL(ch) >> 3 ) + 1) {
                     tmp_vict = NULL;
                     max = 0;
                     CharacterList::iterator it = ch->in_room->people.begin();
@@ -2173,8 +2174,8 @@ void mobile_activity(void) {
                         CHAR_LIKES_ROOM(ch, EXIT(ch, dir)->to_room) &&
                         EXIT(ch, dir)->to_room->people.size() > 0 &&
                         CAN_SEE(ch, *(EXIT(ch, dir)->to_room)->people.begin()) &&
-                        room_count(ch, EXIT(ch, dir)->to_room) <
-                            EXIT(ch, dir)->to_room->max_occupancy)
+                        EXIT(ch, dir)->to_room->people.size() <
+                            (unsigned)EXIT(ch, dir)->to_room->max_occupancy)
                         break;
                 }
     

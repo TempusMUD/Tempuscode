@@ -705,7 +705,8 @@ ASPELL(spell_summon)
         return;
     }
 
-    if (room_count(ch, ch->in_room) >= ch->in_room->max_occupancy) {
+//    if (room_count(ch, ch->in_room) >= ch->in_room->max_occupancy) {
+    if (ch->in_room->people.size() >= ch->in_room->max_occupancy) {
         send_to_char("This room is too crowded to summon anyone!\r\n", ch);
         return;
     }
@@ -2433,7 +2434,8 @@ ASPELL(spell_id_insinuation)
         return;
     }
 
-    total = room_count(victim, victim->in_room);
+//    total = room_count(victim, victim->in_room);
+    total = victim->in_room->people.size();
 
     total = MAX(1, total >> 2);
     CharacterList::iterator nit = victim->in_room->people.begin();

@@ -187,9 +187,9 @@ int
 room_count(struct char_data *ch, struct room_data *room)
 {
     int i = 0;
-    CharacterList::iterator it = ch->in_room->people.begin();
-    for (; it != ch->in_room->people.end(); ++it ) {
-        if (IS_NPC((*it)) || GET_INVIS_LEV((*it)) <= GET_LEVEL(ch)) {
+    CharacterList::iterator it = room->people.begin();
+    for (; it != room->people.end(); ++it ) {
+        if (IS_NPC((*it)) || (GET_INVIS_LEV((*it)) <= GET_LEVEL(ch))) {
             if (GET_HEIGHT((*it)) > 1000)
                 i += 3;
             else if (GET_HEIGHT((*it)) > 500)
@@ -384,7 +384,8 @@ int do_simple_move(struct char_data * ch, int dir, int mode, int need_specials_c
     }
 
     /* check room count */
-    if ((i = room_count(ch, EXIT(ch, dir)->to_room))
+/*    if ((i = room_count(ch, EXIT(ch, dir)->to_room))*/
+    if ((i = EXIT(ch, dir)->to_room->people.size())
         >= MAX_OCCUPANTS(EXIT(ch, dir)->to_room) || 
         (mount &&
          (i >= MAX_OCCUPANTS(EXIT(ch, dir)->to_room) - 2))) {
@@ -1638,7 +1639,8 @@ ACMD(do_enter)
             if (GET_OBJ_TYPE(car) == ITEM_VEHICLE) {
                 if (!CAR_CLOSED(car)) {
                     if ((room = real_room(ROOM_NUMBER(car))) != NULL) {
-                        if (room_count(ch, room) < MAX_OCCUPANTS(room)) {
+//if (room_count(ch, room) < MAX_OCCUPANTS(room)) {
+                        if (room->people.size() < (unsigned)MAX_OCCUPANTS(room)) {
                             act("$n climbs into $p.", TRUE, ch, car, 0, TO_ROOM);
                             act("You climb into $p.", TRUE, ch, car, 0, TO_CHAR);
                             char_from_room(ch);
@@ -1672,8 +1674,8 @@ ACMD(do_enter)
                         act("$p repulses you.", FALSE, ch, car, 0, TO_CHAR);
                         act("$n is repulsed by $p as he tries to enter it.",
                             TRUE, ch, car, 0, TO_ROOM);
-                    } else if (room_count(ch, room) < MAX_OCCUPANTS(room)) {
-
+                    } //else if (room_count(ch, room) < MAX_OCCUPANTS(room)) {
+                      else if (room->people.size() < (unsigned)MAX_OCCUPANTS(room)) {
                         // charmed check
                         if (AFF_FLAGGED(ch, AFF_CHARM) && ch->master &&
                             ch->master->in_room == ch->in_room) {
@@ -2193,7 +2195,8 @@ ACMD(do_mount)
         send_to_char("You cannot mount up indoors.\r\n", ch);
         return;
     }
-    if (room_count(ch, ch->in_room) >= ch->in_room->max_occupancy) {
+//    if (room_count(ch, ch->in_room) >= ch->in_room->max_occupancy) {
+    if (ch->in_room->people.size() >= (unsigned)ch->in_room->max_occupancy) {
         send_to_char("It is to crowded here to mount up.\r\n", ch);
         return;
     }
