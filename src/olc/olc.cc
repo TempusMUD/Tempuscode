@@ -1602,10 +1602,11 @@ const char *olc_help_keys[] = {
     "interfaces",
     "microchips",
     "searchflags",
+    "oextra3",
     "\n"
 };
 
-#define NUM_OLC_HELPS   40
+#define NUM_OLC_HELPS   41
 #define NUM_SHOP_TEMPER 6
 #define NUM_SHOP_FLAGS 4
 
@@ -2100,6 +2101,17 @@ void show_olc_help(struct char_data *ch, char *arg)
 	for (i = 0; i < NUM_SRCH_BITS; i++) {
 	    sprintf(buf2, "%8d         %s%s%s\r\n", 
 		    (1 << i), CCCYN(ch, C_NRM), search_bits[i], CCNRM(ch, C_NRM));
+	    strcat(buf, buf2);
+	}
+	page_string(ch->desc, buf, 1);
+	break;
+    case 40:
+	strcpy(buf, "OBJ EXTRA3 FLAGS:\r\n");
+	for (i = 0; i < NUM_EXTRA3_FLAGS; i++) {
+	    num2str(smallbuf, (1 << i));
+	    sprintf(buf2, "  %s         %s%-10s %-10s%s\r\n", 
+		    smallbuf, CCCYN(ch, C_NRM),
+		    extra3_bits[i], extra3_names[i], CCNRM(ch, C_NRM));
 	    strcat(buf, buf2);
 	}
 	page_string(ch->desc, buf, 1);

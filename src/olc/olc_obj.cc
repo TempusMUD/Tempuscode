@@ -74,7 +74,7 @@ const char *olc_oset_keys[] = {
     "\n"
 };
 
-#define NUM_OSET_COMMANDS 22
+#define NUM_OSET_COMMANDS 23
 
 
 int write_obj_index(struct char_data *ch, struct zone_data *zone)
