@@ -521,7 +521,7 @@ int hunt_victim( struct char_data * ch ) {
 	!PLR_FLAGGED(HUNTING(ch), PLR_WRITING | PLR_OLC) &&
 	(!(af_ptr = affected_by_spell(HUNTING(ch), SKILL_DISGUISE)) ||
 	 CAN_DETECT_DISGUISE(ch, HUNTING(ch), af_ptr->duration))) {
-	if (peaceful_room_ok(ch, HUNTING(ch), false)) {
+	if (peaceful_room_ok(ch, HUNTING(ch), false) && !check_infiltrate(HUNTING(ch), ch)) {
 	    return best_attack(ch, HUNTING(ch));
         }
 	return 0;
@@ -538,7 +538,8 @@ int hunt_victim( struct char_data * ch ) {
         }
     }
 
-    if(!IS_AFFECTED(HUNTING(ch),AFF_NOTRACK))
+    if(!IS_AFFECTED(HUNTING(ch),AFF_NOTRACK) || 
+       (IS_NPC(ch) && MOB_FLAGGED(ch,MOB_SPIRIT_TRACKER)))
         dir = find_first_step(ch->in_room, HUNTING(ch)->in_room, 0);
     else
         dir = -1;
@@ -554,9 +555,10 @@ int hunt_victim( struct char_data * ch ) {
 
 	if ((ch->in_room == HUNTING(ch)->in_room) && CAN_SEE(ch, HUNTING(ch)) &&
 	    (!(af_ptr = affected_by_spell(HUNTING(ch), SKILL_DISGUISE)) ||
-	     CAN_DETECT_DISGUISE(ch, HUNTING(ch), af_ptr->duration))) {
+	     CAN_DETECT_DISGUISE(ch, HUNTING(ch), af_ptr->duration)) &&
+         !check_infiltrate(HUNTING(ch), ch)) {
 	    if (peaceful_room_ok(ch, HUNTING(ch), false) &&
-		!PLR_FLAGGED(HUNTING(ch), PLR_OLC | PLR_WRITING)) {
+		    !PLR_FLAGGED(HUNTING(ch), PLR_OLC | PLR_WRITING)) {
             if (ch->getPosition() >= POS_STANDING && !FIGHTING(ch)) {
                 if (IS_ANIMAL(ch)) {
                     act("$n snarls and attacks $N!!!",

@@ -990,6 +990,59 @@ mob_reload_gun(struct char_data *ch, struct obj_data *gun)
 //
 //
 
+int check_infiltrate(struct char_data *ch, struct char_data *vict)
+{
+    if (!ch || !vict) {
+        slog("ERROR: <NULL> char in check_infiltrate()!");
+        mudlog("ERROR:<NULL> char in check_infiltrate()!",CMP,LVL_IMMORT,TRUE);
+        return 0;
+    }
+    
+    int prob = ch->getLevelBonus(SKILL_INFILTRATE);
+    int percent = number(1, 115);
+    char buf1[128];
+
+    if (IS_NPC(vict) && MOB_FLAGGED(vict, MOB_SPIRIT_TRACKER) &&
+        char_in_memory(ch, vict))
+        return 0;
+
+    if (!IS_AFFECTED_3(ch, AFF3_INFILTRATE))
+        return 0;
+
+    if (affected_by_spell(vict, ZEN_AWARENESS) ||
+        IS_AFFECTED_2(vict, AFF2_TRUE_SEEING))
+        percent += 17;
+
+    if (IS_AFFECTED_2(ch, AFF2_TRUE_SEEING))
+        prob += 17;
+
+    if (vict->getPosition() <= POS_FIGHTING)
+        prob += 10;
+    
+    if (IS_AFFECTED_2(ch, AFF2_HASTE))
+        prob += 15;
+
+    if (IS_AFFECTED_2(vict, AFF2_HASTE))
+        percent += 15;
+
+    percent += (vict->getLevelBonus(SKILL_INFILTRATE) / 2);
+
+    if (prob > percent) {
+        if (ch && PRF2_FLAGGED(ch, PRF2_FIGHT_DEBUG)) {
+            sprintf(buf1, "Infiltrate Success: Chance: [%4d] Roll: [%4d]\r\n", prob, percent);
+            send_to_char(buf1, ch);
+        }
+        return 1;
+    }
+    else {
+        if (ch && PRF2_FLAGGED(ch, PRF2_FIGHT_DEBUG)) {
+            sprintf(buf1, "Infiltrate Failure: Chance: [%4d] Roll: [%4d]\r\n", prob, percent);
+            send_to_char(buf1, ch);
+        }
+        return 0;
+    }
+}
+
 int best_attack(struct char_data *ch, struct char_data *vict) {
 
     struct obj_data *gun = GET_EQ(ch, WEAR_WIELD);
@@ -1009,33 +1062,6 @@ int best_attack(struct char_data *ch, struct char_data *vict) {
     else
         cur_class = GET_CLASS(ch);
 
-    if (IS_AFFECTED_3(vict, AFF3_INFILTRATE)) {
-        //we need to determine if victs infiltration techniques are up to
-        //challenge
-        int prob = vict->getLevelBonus(SKILL_INFILTRATE);
-        int percent = number(0, 125);
-       
-        if (affected_by_spell(ch, ZEN_AWARENESS) ||
-            IS_AFFECTED_2(ch, AFF2_TRUE_SEEING)) {
-            percent += 17;
-        }
-        
-        if (IS_AFFECTED_2(vict, AFF2_TRUE_SEEING))
-            prob += 17;
-            
-        if (ch->getPosition() < POS_FIGHTING)
-            prob += 10;
-            
-        if (IS_AFFECTED_2(vict, AFF2_HASTE))
-            prob += 15; 
-            
-        if (IS_AFFECTED_2(ch, AFF2_HASTE))
-            percent += 15;
-            
-        percent += (GET_LEVEL(ch) / 2);
-        if (prob > percent)
-            return 0;
-    }
     //
     //
     //
@@ -1625,6 +1651,8 @@ void mobile_activity(void) {
 
                     for (vict = ch->in_room->people, tmp_vict = NULL, max = 0; vict; 
                          vict = vict->next_in_room) {
+                        if (check_infiltrate(vict, ch))
+                            continue;
                         if (IS_NPC(vict) && CAN_SEE(ch, vict) &&
                             (cityguard == vict->mob_specials.shared->func)) {
                             act("$n glances at $N.", TRUE, ch, 0, vict, TO_ROOM);
@@ -1773,7 +1801,6 @@ void mobile_activity(void) {
                         
                         struct char_data *tmp_next_ch = 
                             ( vict == next_ch ) ? ( next_ch ? next_ch->next : 0 ) : next_ch;
-
                         int retval = best_attack(ch, vict);
                         if ( IS_SET( retval, DAM_VICT_KILLED ) ) {
                             next_ch = tmp_next_ch;
@@ -2046,12 +2073,15 @@ void mobile_activity(void) {
         /*Racially aggressive Mobs */
 
         if (IS_RACIALLY_AGGRO(ch) && 
-            !ROOM_FLAGGED(ch->in_room, ROOM_PEACEFUL) && random_fractional_4() ) {
+            !ROOM_FLAGGED(ch->in_room, ROOM_PEACEFUL) && random_fractional_4()) { 
             found = FALSE;
             for (vict=ch->in_room->people;vict; vict = vict->next_in_room) {
                 if ((IS_NPC(vict) && !MOB2_FLAGGED(ch, MOB2_ATK_MOBS))
                     || !CAN_SEE(ch, vict) || PRF_FLAGGED(vict, PRF_NOHASSLE) ||
                     IS_AFFECTED_2(vict, AFF2_PETRIFIED))
+                    continue;
+
+                if (check_infiltrate(vict, ch))
                     continue;
                 
                 // DIVIDE BY ZERO ERROR! FPE!
@@ -2093,6 +2123,9 @@ void mobile_activity(void) {
                     (!IS_NPC(vict) && !vict->desc)) {
                     continue;
                 }
+                if (check_infiltrate(vict, ch))
+                    continue;
+
                 if ((IS_NPC(vict) && !MOB2_FLAGGED(ch, MOB2_ATK_MOBS))
                     || !CAN_SEE(ch, vict) || PRF_FLAGGED(vict, PRF_NOHASSLE) ||
                     IS_AFFECTED_2(vict, AFF2_PETRIFIED)) {
@@ -2200,7 +2233,7 @@ void mobile_activity(void) {
             !AFF_FLAGGED(ch, AFF_CHARM)) {
             found = FALSE;
             for (vict=ch->in_room->people;vict&&!found;vict = vict->next_in_room) {
-                if (IS_AFFECTED_3(vict, AFF3_INFILTRATE))
+                if (check_infiltrate(vict, ch))
                     continue;
 
                 if ((IS_NPC(vict) && !MOB2_FLAGGED(ch, MOB2_ATK_MOBS)) || 
