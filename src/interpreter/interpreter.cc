@@ -680,6 +680,7 @@ struct command_info cmd_info[] = {
 	{"faint", POS_RESTING, do_action, 0, 0, 0},
 	{"fakerep", POS_RESTING, do_action, 0, 0, 0},
 	{"fatality", POS_RESTING, do_action, 0, 0, 0},
+	{"fidget", POS_RESTING, do_action, 0, 0, 0},
 	{"fill", POS_STANDING, do_pour, 0, SCMD_FILL, 0},
 	{"firstaid", POS_STANDING, do_firstaid, 0, 0, 0},
 	{"five", POS_STANDING, do_action, 0, 0, 0},
