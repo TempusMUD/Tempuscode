@@ -12,6 +12,7 @@
 #include "account.h"
 #include "comm.h"
 #include "security.h"
+#include "clan.h"
 
 const char *ansi_levels[] = {
 	"none",
@@ -383,10 +384,33 @@ void
 Account::delete_char(Creature *ch)
 {
 	vector<long>::iterator it;
+	clan_data *clan;
 
+	// Remove character from clan
+	clan = real_clan(GET_CLAN(ch));
+	if (clan) {
+		struct clanmember_data *member, *temp;
+		
+		member = real_clanmember(GET_IDNUM(ch), clan);
+		if (member) {
+			REMOVE_FROM_LIST(member, clan->member_list, next);
+			save_clans();
+		}
+	}
+
+	// Remove character from any access groups
+	list<Security::Group>::iterator group;
+
+	for (group = Security::groups.begin();group != Security::groups.end();group++)
+		group->removeMember(GET_IDNUM(ch));
+	Security::saveGroups();
+
+	// Remove character from account
 	it = lower_bound(_chars.begin(), _chars.end(), GET_IDNUM(ch));
 	if (it != _chars.end())
 		_chars.erase(it);
+
+	// Remove character from player index
 	playerIndex.remove(GET_IDNUM(ch));
 }
 
