@@ -107,7 +107,7 @@ struct board_info_type board_info[NUM_OF_BOARDS] = {
     {{1299, -1, -1, -1,-1,-1,-1,-1,-1,-1},           LVL_AMBASSADOR, LVL_DEMI, LVL_TIMEGOD, "etc/board.imp"},
     {{63047, -1, -1, -1,-1,-1,-1,-1,-1,-1},          0, 0, LVL_GOD, "etc/board.council"}, 
     {{30089, -1, -1, -1,-1,-1,-1,-1,-1,-1},          0, LVL_CAN_POST, LVL_DEMI, "etc/board.char_classified"},
-    {{1250, -1, -1, -1,-1,-1,-1,-1,-1,-1},           LVL_IMMORT, LVL_IMMORT, LVL_LUCIFER, "etc/board.rulings"},
+    {{1250, -1, -1, -1,-1,-1,-1,-1,-1,-1},           LVL_IMMORT, LVL_IMMORT, LVL_GOD, "etc/board.rulings"},
     {{72801,-1,-1, -1,-1,-1,-1,-1,-1,-1},            LVL_CAN_CLAN, LVL_CAN_CLAN,LVL_AMBASSADOR, "etc/board.toreador_clan"},
     {{72099,-1,-1, -1,-1,-1,-1,-1,-1,-1},            LVL_CAN_CLAN, LVL_CAN_CLAN,LVL_AMBASSADOR, "etc/board.jerrytown_clan"},
     {{72517,-1,-1, -1,-1,-1,-1,-1,-1,-1},            LVL_CAN_CLAN, LVL_CAN_CLAN,LVL_AMBASSADOR, "etc/board.deathleague_clan"},
