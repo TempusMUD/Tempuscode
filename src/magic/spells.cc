@@ -1843,6 +1843,15 @@ ASPELL(spell_conjure_elemental)
 		send_to_char(ch, "You are unable to make the conjuration.\r\n");
 		return;
 	}
+    float mult = MAX(0.5,
+                     (float)((ch->getLevelBonus(SONG_INSTANT_AUDIENCE)) * 1.5) / 100);
+
+    // tweak them out
+    GET_HITROLL(elemental) = MIN((int)(GET_HITROLL(elemental) * mult), 60);
+    GET_DAMROLL(elemental) = MIN((int)(GET_DAMROLL(elemental) * mult), 75);
+    GET_MAX_HIT(elemental) = MIN((int)(GET_MAX_HIT(elemental) * mult), 30000);
+    GET_HIT(elemental) = GET_MAX_HIT(elemental);
+
 	char_to_room(elemental, ch->in_room);
 	act("You have conjured $N from $S home plane!",
 		FALSE, ch, 0, elemental, TO_CHAR);
