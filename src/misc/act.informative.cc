@@ -3399,7 +3399,7 @@ ACMD(do_who)
 	}
 	//testers
 	if ((GET_LEVEL(ch) >= LVL_AMBASSADOR || ch->isTester()) && testerCount > 0) {
-		out << CCBLD(ch, C_CMP) << "**************      " << CCGRN(ch, C_NRM);
+		out << CCNRM(ch, C_SPR) << CCBLD(ch, C_CMP) << "**************      " << CCGRN(ch, C_NRM);
 		out << "Visible Testers of TEMPUS" << CCNRM(ch, C_NRM) << CCBLD(ch, C_CMP);
 		out << "      **************" << CCNRM(ch, C_SPR) << "\r\n";
 		out << (IS_NPC(ch) ? "" : (ch->account->get_compact_level() > 1) ? "" : "\r\n");
@@ -3409,7 +3409,7 @@ ACMD(do_who)
 	}
 	//players
 	if (playerCount > 0) {
-		out << CCBLD(ch, C_CMP) << "**************      " << CCGRN(ch, C_NRM);
+		out << CCNRM(ch, C_SPR) << CCBLD(ch, C_CMP) << "**************      " << CCGRN(ch, C_NRM);
 		out << "Visible Players of TEMPUS" << CCNRM(ch, C_NRM) << CCBLD(ch, C_CMP);
 		out << "      **************" << CCNRM(ch, C_SPR) << "\r\n";
 		out << (IS_NPC(ch) ? "" : (ch->account->get_compact_level() > 1) ? "" : "\r\n");
