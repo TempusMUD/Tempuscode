@@ -954,6 +954,8 @@ struct char_data {
 
     int char_data::getLevelBonus( int skill );
     int char_data::getLevelBonus (bool primary );
+    bool char_data::affBySanc(char_data *attacker = NULL);
+    float char_data::getDamReduction(char_data *attacker = NULL);
 
     int pfilepos;             /* playerfile pos          */
     struct room_data *in_room;            /* Location (real room number)      */
