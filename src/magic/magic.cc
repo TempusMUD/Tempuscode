@@ -1320,7 +1320,7 @@ mag_affects(int level, struct char_data * ch, struct char_data * victim,
 	break;
 
     case SPELL_REGENERATE:
-	af.duration = 2;
+	af.duration = (GET_LEVEL(ch)/10 + GET_REMORT_GEN(ch)/2);
 	af.bitvector = AFF_REGEN;
 	accum_duration = TRUE;
 	to_vict = "Your body begins to regenerate at an accelerated rate.";
