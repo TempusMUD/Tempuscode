@@ -47,8 +47,7 @@
  i == TYPE_CHOP ? 7 : 0)\
 
 #define BLOODLET(ch, dam, attacktype) \
-(!IS_UNDEAD(ch) && \
- (MIN(BLOODLET_FACTOR(attacktype) * dam, 10000) > number(0, 20000)))
+ (MIN(BLOODLET_FACTOR(attacktype) * dam, 10000) > number(0, 20000))
 
 
 #define POS_DAMAGE_OK(location) \

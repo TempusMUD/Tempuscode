@@ -269,6 +269,10 @@ blood_spray(struct Creature *ch, struct Creature *victim,
 	int pos, found = 0;
 	struct Creature *nvict;
 
+	// some creatures don't have blood
+	if (!CHAR_HAS_BLOOD(victim))
+		return;
+
 	switch (number(0, 6)) {
 	case 0:
 		to_char = "Your terrible %s sends a spray of $N's blood into the air!";
@@ -985,7 +989,7 @@ dam_message(int dam, struct Creature *ch, struct Creature *victim,
 		send_to_char(victim, CCNRM(victim, C_NRM));
 	}
 
-	if (CHAR_HAS_BLOOD(victim) && BLOODLET(victim, dam, w_type + TYPE_HIT))
+	if (BLOODLET(victim, dam, w_type + TYPE_HIT))
 		blood_spray(ch, victim, dam, w_type + TYPE_HIT);
 }
 
