@@ -1713,8 +1713,8 @@ ACMD(do_throw)
 					if (CHECK_SKILL(ch, SKILL_THROWING) < 60)
 						WAIT_STATE(ch, PULSE_VIOLENCE * 1);
 
-					if (IS_MOB(target_vict) && !target_vict->numCombatants())
-						hit(target_vict, ch, TYPE_UNDEFINED);
+					//if (IS_MOB(target_vict) && !target_vict->numCombatants())
+					//	hit(target_vict, ch, TYPE_UNDEFINED);
 
 					obj_from_char(obj);
 					obj_to_room(obj, ch->in_room);
