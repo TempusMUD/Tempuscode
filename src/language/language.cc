@@ -1609,7 +1609,7 @@ set_initial_language(Creature * ch)
 {
 	int language_idx;
 
-	language_idx = find_language_idx_by_race(player_race[GET_RACE(ch)]);
+	language_idx = find_language_idx_by_race(player_race[(int)GET_RACE(ch)]);
 
 	if (language_idx != LANGUAGE_NONE) {
 		learn_language(ch, language_idx);
