@@ -174,11 +174,10 @@ consolidate_char_money(struct Creature *ch)
 
 		if (IS_OBJ_TYPE(obj, ITEM_MONEY)) {
 
-			if (GET_OBJ_VAL(obj, 1) == 1) {
+			if (GET_OBJ_VAL(obj, 1) == 1)
 				num_credits += GET_OBJ_VAL(obj, 0);
-			} else {
+			else
 				num_gold += GET_OBJ_VAL(obj, 0);
-			}
 
 			extract_obj(obj);
 		}
@@ -186,7 +185,10 @@ consolidate_char_money(struct Creature *ch)
 
 	if (num_gold) {
 		GET_GOLD(ch) += num_gold;
-		send_to_char(ch, "There were %d coins.\r\n", num_gold);
+		if (num_gold == 1)
+			send_to_char(ch, "There was only a single gold coin.\r\n");
+		else
+			send_to_char(ch, "There were %d coins.\r\n", num_gold);
 
 		if (AFF_FLAGGED(ch, AFF_GROUP) && PRF2_FLAGGED(ch, PRF2_AUTOSPLIT)) {
 			sprintf(buf2, "%d", num_gold);
@@ -196,7 +198,10 @@ consolidate_char_money(struct Creature *ch)
 
 	if (num_credits) {
 		GET_CASH(ch) += num_credits;
-		send_to_char(ch, "There were %d credits.\r\n", num_credits);
+		if (num_credits == 1)
+			send_to_char(ch, "There was only a single credit.\r\n");
+		else
+			send_to_char(ch, "There were %d credits.\r\n", num_credits);
 
 		if (AFF_FLAGGED(ch, AFF_GROUP) && PRF2_FLAGGED(ch, PRF2_AUTOSPLIT)) {
 			sprintf(buf2, "%d credits", num_credits);
