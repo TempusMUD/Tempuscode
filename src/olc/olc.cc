@@ -82,7 +82,6 @@
 "olc sstat\r\n" \
 "olc sset\r\n"  \
 "olc ssave\r\n" \
-"olc fedit <news|motd|imotd|info|wizlist|immlist|background|handbook|policy|areas>\r\n" \
 "olc hlist\r\n" \
 "olc hedit [number | 'exit']\r\n" \
 "olc hstat\r\n" \

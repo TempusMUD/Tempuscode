@@ -322,6 +322,9 @@ struct help_index_element *do_create_help(struct char_data *ch)
 
 void do_help_fedit(struct char_data *ch, char *argument)
 {
+    send_to_char("You probably shouldn't be doing this.\r\n",ch);
+    return;
+/*
     char *buffer, message[80];
     struct descriptor_data *d;
   
@@ -390,4 +393,5 @@ void do_help_fedit(struct char_data *ch, char *argument)
     ch->desc->editor_cur_lnum = get_line_count(buffer)+1;
     SET_BIT(PLR_FLAGS(ch), PLR_OLC);
     act("$n begins to modify a help file.", TRUE, ch, 0, 0, TO_ROOM);
+*/
 }
