@@ -80,6 +80,7 @@ void HelpItem::SetFlags( char *argument ) {
 // Crank up the text editor and lets hit it.
 void HelpItem::EditText( void ) {
 
+    LoadText();
     start_text_editor(editor->desc, &text, true, MAX_HELP_TEXT_LENGTH);
     SET_BIT(PLR_FLAGS(editor), PLR_OLC);
 
