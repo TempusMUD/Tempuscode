@@ -1208,7 +1208,7 @@ ACMD(do_exits)
 			send_to_char(ch, "%s%s%-8s%s - Closed %s\r\n",
 				CCBLD(ch, C_SPR), CCBLU(ch, C_NRM),
 				tmp_capitalize(dirs[door]),
-				fname(EXIT(ch, door)->keyword),
+				(EXIT(ch, door)->keyword) ? fname(EXIT(ch, door)->keyword):"TYPO ME>",
 				CCNRM(ch, C_SPR));
 		} else if ((IS_AFFECTED(ch, AFF_BLIND) ||
 				ROOM_FLAGGED(ch->in_room, ROOM_SMOKE_FILLED)) &&
@@ -1227,7 +1227,7 @@ ACMD(do_exits)
 				tmp_capitalize(dirs[door]), CCNRM(ch, C_SPR),
 				CCCYN(ch, C_NRM),
 				(EXIT(ch, door)->to_room->name) ?
-					(EXIT(ch, door)->to_room->name):"(null)",
+					(EXIT(ch, door)->to_room->name):"<TYPO ME>",
 				CCNRM(ch, C_SPR));
 		}
 	}
