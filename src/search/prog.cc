@@ -42,6 +42,7 @@ void prog_do_nuke(prog_env *env, prog_evt *evt, char *args);
 void prog_do_trans(prog_env *env, prog_evt *evt, char *args);
 void prog_do_set(prog_env *env, prog_evt *evt, char *args);
 void prog_do_oload(prog_env *env, prog_evt *evt, char *args);
+void prog_do_opurge(prog_env *env, prog_evt *evt, char *args);
 void prog_do_randomly(prog_env *env, prog_evt *evt, char *args);
 void prog_do_or(prog_env *env, prog_evt *evt, char *args);
 void prog_do_resume(prog_env *env, prog_evt *evt, char *args);
@@ -71,6 +72,7 @@ prog_command prog_cmds[] = {
 	{ "resume",		false,	prog_do_resume },
 	{ "set",		true,	prog_do_set },
 	{ "oload",		true,	prog_do_oload },
+	{ "opurge",		true,	prog_do_opurge },
 	{ NULL,		false,	prog_do_halt }
 };
 
@@ -547,6 +549,49 @@ prog_do_oload(prog_env *env, prog_evt *evt, char *args)
 		default:
 			slog("SYSERR: Can't happen at %s:%d", __FILE__, __LINE__);
 		}
+	}
+}
+
+void
+prog_do_opurge(prog_env *env, prog_evt *evt, char *args)
+{
+	obj_data *obj, *obj_list, *next_obj;
+	int vnum;
+
+	vnum = atoi(tmp_getword(&args));
+	if (vnum <= 0)
+		return;
+	
+	switch (env->owner_type) {
+	case PROG_TYPE_MOBILE:
+		obj_list = ((Creature *)env->owner)->carrying; break;
+	case PROG_TYPE_OBJECT:
+		obj_list = ((obj_data *)env->owner)->contains; break;
+	case PROG_TYPE_ROOM:
+		obj_list = ((room_data *)env->owner)->contents; break;
+	}
+	
+	while (GET_OBJ_VNUM(obj_list) == vnum) {
+		next_obj = obj_list->next_content;
+		extract_obj(obj_list);
+		obj_list = next_obj;
+	}
+
+	for (obj = obj_list->next_content;obj->next_content;obj = next_obj) {
+		if (GET_OBJ_VNUM(obj->next_content) == vnum) {
+			next_obj = obj->next_content->next_content;
+			extract_obj(obj->next_content);
+		} else
+			next_obj = obj->next_content;
+	}
+
+	switch (env->owner_type) {
+	case PROG_TYPE_MOBILE:
+		((Creature *)env->owner)->carrying = obj_list; break;
+	case PROG_TYPE_OBJECT:
+		((obj_data *)env->owner)->contains = obj_list; break;
+	case PROG_TYPE_ROOM:
+		((room_data *)env->owner)->contents = obj_list; break;
 	}
 }
 
