@@ -828,6 +828,29 @@ send_prompt(descriptor_data *d)
 					GET_ALIGNMENT( d->creature ), CCNRM( d->creature, C_SPR ),
 					CCYEL_BLD( d->creature, C_CMP ), CCNRM( d->creature,C_SPR ) );
 		}
+        
+        if ( PRF2_FLAGGED( d->creature, PRF2_DISPTIME ) ) {
+            if (d->creature->in_room->zone->time_frame == TIME_TIMELESS) {
+                sprintf(prompt, "%s%s%s%s", prompt, CCYEL_BLD(d->creature, C_CMP),
+                "!TIME", CCNRM(d->creature, C_SPR));
+            } else {
+                struct time_info_data local_time;
+                set_local_time(d->creature->in_room->zone, &local_time);
+                sprintf(colorbuf, "%s%s", CCNRM(d->creature, C_SPR), CCYEL( d->creature, C_NRM));
+                if (local_time.hours > 8 && local_time.hours < 18) { //day
+                    sprintf(colorbuf, "%s%s%s", colorbuf, CCWHT(d->creature, C_CMP), CCBLD(d->creature, C_CMP));
+                } else if (local_time.hours >= 6 && local_time.hours <= 20) { //dawn/dusk
+                    sprintf(colorbuf, "%s%s", colorbuf, CCCYN_BLD(d->creature, C_CMP));
+                } else { //night
+                    sprintf(colorbuf, "%s%s", colorbuf, CCBLU_BLD(d->creature, C_CMP));
+                }
+                
+                sprintf(prompt, "%s%s%d%s%s%s%s ", prompt, colorbuf,
+                ((local_time.hours % 12 == 0) ? 12 : ((local_time.hours) % 12)), 
+                CCNRM(d->creature, C_SPR), CCYEL_BLD(d->creature, C_CMP),
+                ((local_time.hours >= 12) ? "PM" : "AM"), CCNRM(d->creature, C_SPR));
+            }
+        }
 
 		if (d->creature->numCombatants() &&
 			PRF2_FLAGGED(d->creature, PRF2_AUTO_DIAGNOSE))

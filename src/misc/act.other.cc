@@ -856,7 +856,7 @@ ACMD(do_display)
 
 	if (!*arg1) {
 		send_to_char(ch, 
-			"Usage: prompt { H | M | V | A | all | normal | none }\r\n");
+			"Usage: prompt { H | M | V | A | T | all | normal | none }\r\n");
 		return;
 	}
 	if (arg2 != NULL) {
@@ -911,12 +911,12 @@ ACMD(do_display)
 
 	else if ((!str_cmp(arg1, "all"))) {
 		SET_BIT(PRF_FLAGS(ch), PRF_DISPHP | PRF_DISPMANA | PRF_DISPMOVE);
-		SET_BIT(PRF2_FLAGS(ch), PRF2_DISPALIGN);
+		SET_BIT(PRF2_FLAGS(ch), PRF2_DISPALIGN | PRF2_DISPTIME);
 	}
 
 	else {
 		REMOVE_BIT(PRF_FLAGS(ch), PRF_DISPHP | PRF_DISPMANA | PRF_DISPMOVE);
-		REMOVE_BIT(PRF2_FLAGS(ch), PRF2_DISPALIGN);
+		REMOVE_BIT(PRF2_FLAGS(ch), PRF2_DISPALIGN | PRF2_DISPTIME);
 
 		for (i = 0; i < strlen(arg1); i++) {
 			switch (tolower(arg1[i])) {
@@ -932,6 +932,9 @@ ACMD(do_display)
 			case 'a':
 				SET_BIT(PRF2_FLAGS(ch), PRF2_DISPALIGN);
 				break;
+            case 't':
+                SET_BIT(PRF2_FLAGS(ch), PRF2_DISPTIME);
+                break;
 			}
 		}
 	}
