@@ -942,18 +942,22 @@ SPECIAL(vendor)
 	Creature *self = (Creature *)me;
 	char *config, *err;
 	int err_line;
-	ShopData shop;
+	ShopData *shop;
 
 	config = GET_MOB_PARAM(self);
 	if (!config)
 		return 0;
 
-	err = vendor_parse_param(self, config, &shop, &err_line);
-	if (shop.func && shop.func(ch, me, cmd, argument, spec_mode))
-		return 1;
+	shop = (ShopData *)self->mob_specials.func_data;
+	if (!shop) {
+		CREATE(shop, ShopData, 1);
+		err = vendor_parse_param(self, config, shop, &err_line);
+		if (shop->func && shop->func(ch, me, cmd, argument, spec_mode))
+			return 1;
+	}
 
 	if (spec_mode == SPECIAL_RESET) {
-		vendor_revenue(self, &shop);
+		vendor_revenue(self, shop);
 		return 0;
 	}
 
@@ -984,7 +988,7 @@ SPECIAL(vendor)
 	}
 
 	if (CMD_IS("steal")) {
-		if (shop.steal_ok && GET_LEVEL(ch) < LVL_IMMORT)
+		if (shop->steal_ok && GET_LEVEL(ch) < LVL_IMMORT)
 			return false;
 		do_gen_comm(self, tmp_sprintf("%s is a bloody thief!", GET_NAME(ch)),
 			0, SCMD_SHOUT, 0);
@@ -997,39 +1001,39 @@ SPECIAL(vendor)
 		return true;
 	}
 
-	if (shop.room != -1 && shop.room != self->in_room->number) {
+	if (shop->room != -1 && shop->room != self->in_room->number) {
 		do_say(self, tmp_sprintf("%s Catch me when I'm in my store.",
 			GET_NAME(ch)), 0, SCMD_SAY_TO, 0);
 		return true;
 	}
 
-	if (!shop.closed_hours.empty()) {
+	if (!shop->closed_hours.empty()) {
 		vector<ShopTime>::iterator shop_time;
 		struct time_info_data local_time;
 
 		set_local_time(self->in_room->zone, &local_time);
-		for (shop_time = shop.closed_hours.begin();shop_time != shop.closed_hours.end();shop_time++)
+		for (shop_time = shop->closed_hours.begin();shop_time != shop->closed_hours.end();shop_time++)
 			if (local_time.hours >= shop_time->start &&
 					local_time.hours < shop_time->end ) {
-				do_say(self, tmp_sprintf("%s %s", GET_NAME(ch), shop.msg_closed), 0, SCMD_SAY_TO, 0);
+				do_say(self, tmp_sprintf("%s %s", GET_NAME(ch), shop->msg_closed), 0, SCMD_SAY_TO, 0);
 				return true;
 			}
 	}
 
-	if (shop.reaction.react(ch) != ALLOW) {
-		do_say(self, tmp_sprintf("%s %s", GET_NAME(ch), shop.msg_denied),
+	if (shop->reaction.react(ch) != ALLOW) {
+		do_say(self, tmp_sprintf("%s %s", GET_NAME(ch), shop->msg_denied),
 			0, SCMD_SAY_TO, 0);
 		return true;
 	}
 
 	if (CMD_IS("buy")) {
-		vendor_sell(ch, argument, self, &shop);
+		vendor_sell(ch, argument, self, shop);
 	} else if (CMD_IS("sell")) {
-		vendor_buy(ch, argument, self, &shop);
+		vendor_buy(ch, argument, self, shop);
 	} else if (CMD_IS("list")) {
-		vendor_list(ch, argument, self, &shop);
+		vendor_list(ch, argument, self, shop);
 	} else if (CMD_IS("value") || CMD_IS("offer")) {
-		vendor_value(ch, argument, self, &shop);
+		vendor_value(ch, argument, self, shop);
 	} else {
 		mudlog(LVL_IMPL, CMP, true, "Can't happen at %s:%d", __FILE__,
 			__LINE__);
