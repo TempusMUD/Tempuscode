@@ -377,7 +377,7 @@ die(struct Creature *ch, struct Creature *killer, int attacktype,
 		if (ch != killer)
 			REMOVE_BIT(PLR_FLAGS(ch), PLR_KILLER | PLR_THIEF);
 
-		if (GET_LEVEL(ch) > 10 && !IS_NPC(ch) && IS_NPC(killer)) {
+		if (GET_LEVEL(ch) > 10 && !IS_NPC(ch) && (!killer || IS_NPC(killer))) {
 			if (GET_LIFE_POINTS(ch) <= 0 && GET_MAX_HIT(ch) <= 1) {
 
 				if (IS_EVIL(ch) || IS_NEUTRAL(ch))
