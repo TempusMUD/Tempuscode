@@ -38,7 +38,7 @@ Creature::Creature(bool pc)
 		SET_BIT(MOB_FLAGS(this), MOB_ISNPC);
 	}
 
-    this->fighting = new list<CharCombat>();
+    this->fighting = new CombatDataList();
     this->fighting->clear();
 
 	clear();
@@ -68,6 +68,8 @@ Creature::Creature(const Creature &c)
 {
     memset((char *)this, 0, sizeof(Creature));
 
+    // Far as I'm concerned there is NEVER a good reason to copy a player
+    // this way
     if (!IS_NPC(&c)) {
 		slog("Creature::Creature(const Creature &c) called on a player!");
         raise(SIGSEGV);
@@ -81,7 +83,7 @@ Creature::Creature(const Creature &c)
     
     //todo: duplicate equipment?
 
-    this->fighting = new list<CharCombat>(*(c.fighting));
+    this->fighting = new CombatDataList(*(c.fighting));
     this->fighting->clear();
 
     this->player = c.player;
@@ -887,7 +889,7 @@ Creature::clear(void)
 	// structure just to be sure
 	memset((char *)this, 0, sizeof(Creature));
 
-    this->fighting = new list<CharCombat>();
+    this->fighting = new CombatDataList();
     this->fighting->clear();
 	// And we reset all the values to their initial settings
 	this->setPosition(POS_STANDING);
@@ -1275,7 +1277,7 @@ Creature::set_reputation(int amt)
 	player_specials->saved.reputation = MIN(1000, MAX(0, amt));
 }
 
-list<CharCombat>* 
+CombatDataList *
 Creature::getCombatList()
 {
     return fighting;
@@ -1313,17 +1315,17 @@ Creature::addCombat(Creature *ch, bool initiated)
         
     // If we're already in combat with the victim, move him
     // to the front of the list
-    list<CharCombat>::iterator li = getCombatList()->begin();
+    CombatDataList::iterator li = getCombatList()->begin();
     for (; li != getCombatList()->end(); ++li) {
         if (li->getOpponent() == ch) {
             bool ini = li->getInitiated();
-            getCombatList()->erase(li);
-            getCombatList()->push_front(CharCombat(ch, ini)); 
+            getCombatList()->remove(li);
+            getCombatList()->add_front(CharCombat(ch, ini)); 
             return;
         }
     }
 
-    getCombatList()->push_back(CharCombat(ch, initiated));
+    getCombatList()->add_back(CharCombat(ch, initiated));
 
     update_pos(this);
     trigger_prog_fight(this, ch);
@@ -1341,10 +1343,10 @@ Creature::removeCombat(Creature *ch)
     if (getCombatList()->empty())
         return;
 
-    list<CharCombat>::iterator li = getCombatList()->begin();
+    CombatDataList::iterator li = getCombatList()->begin();
     for (; li != getCombatList()->end(); ++li) {
         if (li->getOpponent() && li->getOpponent() == ch) {
-            getCombatList()->erase(li);
+            getCombatList()->remove(li);
             break;
         }
     }
@@ -1361,7 +1363,7 @@ Creature::removeAllCombat()
     if (getCombatList()->empty())
         return;
 
-    list<CharCombat>::iterator li = getCombatList()->begin();
+    CombatDataList::iterator li = getCombatList()->begin();
     for(; li != getCombatList()->end(); ++li) {
         if (li->getOpponent())
             li->getOpponent()->removeCombat(this);
@@ -1378,7 +1380,7 @@ Creature::findCombat(Creature *ch)
     if (!ch)
         return NULL;
 
-    list<CharCombat>::iterator li = getCombatList()->begin();
+    CombatDataList::iterator li = getCombatList()->begin();
     for (; li != getCombatList()->end(); ++li) {
         if (li->getOpponent() == ch)
             return (li->getOpponent());
@@ -1395,7 +1397,7 @@ Creature::initiatedCombat(Creature *ch)
     if (ch == NULL)
         return false;
 
-    list<CharCombat>::iterator li = getCombatList()->begin();
+    CombatDataList::iterator li = getCombatList()->begin();
     for (; li != getCombatList()->end(); ++li) {
         if (li->getOpponent() == ch)
             return (li->getInitiated());
@@ -1420,15 +1422,15 @@ Creature::findRandomCombat()
     // Most of the time fighting will be one on one so let's save
     // the iterator creation and the call to random_fractional_10
     if (numCombatants() == 1)
-        return getCombatList()->front().getOpponent();
+        return getCombatList()->begin()->getOpponent();
 
-    list<CharCombat>::iterator li = getCombatList()->begin();
+    CombatDataList::iterator li = getCombatList()->begin();
     for (; li != getCombatList()->end(); ++li) {
        if (!random_fractional_10())
            return (li->getOpponent()); 
     }
 
-    return getCombatList()->front().getOpponent();
+    return getCombatList()->begin()->getOpponent();
 }
 
 bool

@@ -146,6 +146,7 @@ template <class T> class SafeList:protected list <T> {
 		else
 			push_back(c);
 	}
+
 	/**
 	 *  Overridden to avoid an odd bug in list<T>::empty()
 	**/
@@ -174,6 +175,7 @@ template <class T> class SafeList:protected list <T> {
 	void removeIterator(iterator * it) {
 		_iterators.remove(it);
 	}
+
   protected:
 	// If true, push_front to add a node.
 	// If false, push_back to add a node

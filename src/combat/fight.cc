@@ -2651,8 +2651,8 @@ perform_violence(void)
 
 	register struct Creature *ch;
 	int prob, i, die_roll;
-    list<CharCombat>::iterator li;
-    list<CharCombat>::iterator temp_li;
+    SafeList<CharCombat>::iterator li;
+    SafeList<CharCombat>::iterator temp_li;
 
 	CreatureList::iterator cit = combatList.begin();
 	for (; cit != combatList.end(); ++cit) {

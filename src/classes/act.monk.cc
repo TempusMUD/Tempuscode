@@ -320,8 +320,8 @@ ACMD(do_whirlwind)
 		GET_MOVE(ch) -= 3;
 		
 		//attack up to hits-1 more victims at random
-		list<CharCombat> *combatList = ch->getCombatList();
-		list<CharCombat>::iterator combatIter;
+		CombatDataList *combatList = ch->getCombatList();
+		CombatDataList::iterator combatIter;
 		int i=1;
         combatIter=combatList->begin();
 		while ((i < hits) && (combatIter != combatList->end())) {

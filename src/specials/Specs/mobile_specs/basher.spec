@@ -16,7 +16,7 @@ SPECIAL(basher)
 	if (number(0, 81) > GET_LEVEL(ch))
 		return 0;
 
-    list<CharCombat>::iterator li = ch->getCombatList()->begin();
+    CombatDataList::iterator li = ch->getCombatList()->begin();
     for (; li != ch->getCombatList()->end(); ++li) {
         if (IS_MAGE(li->getOpponent()) && number(0, 1)) {
             vict = li->getOpponent();

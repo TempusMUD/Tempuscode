@@ -15,7 +15,7 @@
 #include "macros.h"
 #include "account.h"
 #include "desc_data.h"
-#include "safe_list.h"
+#include "creature_list.h"
 #include "interpreter.h"
 
 /* char and mob-related defines *****************************************/
@@ -1300,7 +1300,7 @@ struct Creature {
     int numCombatants();
     Creature *findCombat(Creature *ch);
     Creature *findRandomCombat();
-    list<CharCombat>*getCombatList();
+    CombatDataList *getCombatList();
     
     room_data *getLoadroom(); // Retrieves the characters appropriate loadroom.
 
@@ -1364,7 +1364,7 @@ struct Creature {
   public:						// ******  Data ****
 	struct room_data *in_room;	/* Location (real room number)      */
 
-    list<CharCombat>*fighting; /* list of combats for this char */
+    CombatDataList *fighting; /* list of combats for this char */
 	struct char_player_data player;	/* Normal data                   */
 	struct char_ability_data real_abils;	/* Abilities without modifiers   */
 	struct char_ability_data aff_abils;	/* Abils with spells/stones/etc  */

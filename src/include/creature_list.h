@@ -9,7 +9,8 @@ class CreatureList:public SafeList <Creature *> {
   public:
 	CreatureList(bool prepend = false)
 	:SafeList <Creature *>(prepend) {
-	} ~CreatureList() {
+	} 
+    ~CreatureList() {
 	}
 	inline operator bool() {
 		return size() > 0;
@@ -27,6 +28,34 @@ class CreatureList:public SafeList <Creature *> {
 		raise(SIGSEGV);
 		return -1;
 	}
+};
+
+class CombatDataList : public SafeList <CharCombat> {
+    public:
+        CombatDataList(bool prepend = false) : SafeList <CharCombat>(prepend) {
+        }
+        ~CombatDataList() {
+        }
+
+        void clear() {
+            while (size > 0) {
+                remove(*(begin()));
+            }
+        }
+
+        void add_front(CharCombat c) {
+            push_front(c);
+        }
+
+        void add_back(CharCombat c) {
+            push_back(c);
+        }
+
+    private:
+        inline operator int () {
+            raise(SIGSEGV);
+            return -1;
+        }
 };
 
 /* prototypes for mobs		 */

@@ -397,7 +397,7 @@ knock_unconscious(Creature *ch, Creature *target)
 bool 
 is_fighting_cityguard(Creature *ch)
 {
-    list<CharCombat>::iterator li;
+    SafeList<CharCombat>::iterator li;
     
     if (ch == NULL)
         return false;
