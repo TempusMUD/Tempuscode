@@ -678,8 +678,7 @@ Creature::loadFromXML( const char *path )
 				}
 			}
 
-			if (GET_CLASS(this) == CLASS_MAGE &&
-					GET_SKILL(this, SPELL_MANA_SHIELD) > 0) {
+			if (GET_CLASS(this) == CLASS_MAGE ) {
 				player_specials->saved.mana_shield_low =
 					xmlGetLongProp(node, "manash_low");
 				player_specials->saved.mana_shield_pct =
