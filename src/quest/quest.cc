@@ -844,6 +844,7 @@ do_qcontrol_create(Creature *ch, char *argument, int com)
 	char *msg = tmp_sprintf("created quest type %s, '%s'", qtypes[type], argument);
 	qlog(ch, msg, QLOG_BRIEF, LVL_AMBASSADOR, TRUE);
 	send_to_char(ch, "Quest %d created.\r\n", quest.getVnum());
+	save_quests();
 }
 
 /*
@@ -892,6 +893,7 @@ do_qcontrol_end(Creature *ch, char *argument, int com)
 	sprintf(buf, "ended quest '%s'", quest->name);
 	qlog(ch, buf, QLOG_BRIEF, 0, TRUE);
 	send_to_char(ch, "Quest ended.\r\n");
+	save_quests();
 }
 
 void
@@ -1049,6 +1051,7 @@ do_qcontrol_kick(Creature *ch, char *argument, int com)
 		send_to_quest(NULL, buf, quest, LVL_AMBASSADOR, QCOMM_ECHO);
 	}
 
+	save_quests();
 }
 
 void
@@ -1134,6 +1137,7 @@ do_qcontrol_flags(Creature *ch, char *argument, int com)
 			state == 1 ? "added" : "removed", buf2, quest->name);
 		qlog(ch, buf, QLOG_COMP, LVL_AMBASSADOR, TRUE);
 	}
+	save_quests();
 }
 
 void
@@ -1158,6 +1162,7 @@ do_qcontrol_comment(Creature *ch, char *argument, int com)
 	sprintf(buf, "comment on quest '%s': %s", quest->name, argument);
 	qlog(ch, buf, QLOG_NORM, LVL_AMBASSADOR, TRUE);
 
+	save_quests();
 }
 
 void
