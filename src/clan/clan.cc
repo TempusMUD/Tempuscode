@@ -700,7 +700,7 @@ typedef struct cedit_command_data {
 cedit_command_data cedit_keys[] = {
     {"save",    LVL_GRGOD},
     {"create",  LVL_GRGOD},
-    {"delete",  LVL_CREATOR},
+    {"delete",  LVL_GRGOD},
     {"set",     LVL_GRGOD},
     {"show",    LVL_GRGOD},
     {"add",     LVL_GRGOD},
@@ -945,12 +945,12 @@ ACMD(do_cedit)
 	// cedit set bank
 	else if (is_abbrev(arg2, "bank")) {
 	    if (!*argument) {
-		send_to_char("Set the bank account of the clan to what?\r\n", ch);
-		return;
+            send_to_char("Set the bank account of the clan to what?\r\n", ch);
+            return;
 	    }
 	    if (!is_number(argument) || (i = atoi(argument)) < 0) {
-		send_to_char("Try setting the bank account to an appropriate number asswipe.\r\n", ch);
-		return;
+            send_to_char("Try setting the bank account to an appropriate number asswipe.\r\n", ch);
+            return;
 	    }
 	    clan->bank_account = i;
 	    send_to_char("Clan bank account set.\r\n", ch);
@@ -964,12 +964,12 @@ ACMD(do_cedit)
 	// cedit set owner
 	else if (is_abbrev(arg2, "owner")) {
 	    if (!*argument) {
-		send_to_char("Set the owner of the clan to what?\r\n", ch);
-		return;
+            send_to_char("Set the owner of the clan to what?\r\n", ch);
+            return;
 	    }
 	    if ((i = get_id_by_name(argument)) < 0) {
-		send_to_char("No such person.\r\n", ch);
-		return;
+            send_to_char("No such person.\r\n", ch);
+            return;
 	    }
 	    clan->owner = i;
 	    send_to_char("Clan owner set.\r\n", ch);
