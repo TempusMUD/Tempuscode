@@ -221,19 +221,10 @@ ACMD(do_psidrain)
 
 		if (IS_NPC(vict) && !FIGHTING(vict)) {
 			if (ch->in_room == vict->in_room) {
-
-				int retval = hit(vict, ch, TYPE_UNDEFINED);
-				retval = SWAP_DAM_RETVAL(retval);
-
-				ACMD_set_return_flags(retval);
-
-				if (IS_SET(retval, DAM_ATTACKER_KILLED))
-					return;
-
-			} else {
 				remember(vict, ch);
 				if (MOB2_FLAGGED(vict, MOB2_HUNT))
 					HUNTING(vict) = ch;
+				set_fighting(vict, ch, 0);
 			}
 		}
 	}
