@@ -261,6 +261,12 @@ static const int LIQ_CHOCOLATE_MILK = 37;
 static const int LIQ_JUICE = 38;
 static const int NUM_LIQUID_TYPES = 39;
 
+static const int CREATED_UNKNOWN = 0;
+static const int CREATED_IMM = 2;
+static const int CREATED_SEARCH = 3;
+static const int CREATED_ZONE = 4;
+static const int CREATED_MOB = 5;
+
 inline const char *
 liquid_to_str(int liquid)
 {
@@ -366,6 +372,10 @@ struct obj_data {
 	sh_int worn_on;				/* Worn where?              */
 	unsigned int soilage;
 	void *func_data;
+	long unique_id;
+	time_t creation_time;
+	int creation_method;
+	long int creator;
 
 	struct obj_data *in_obj;	/* In what object NULL when none    */
 	struct obj_data *contains;	/* Contains objects                 */
