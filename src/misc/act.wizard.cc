@@ -97,7 +97,7 @@ void retire_trails(void);
 float prac_gain(struct char_data *ch, int mode);
 int skill_gain(struct char_data *ch, int mode);
 void qp_reload( int sig = 0 );
-
+void list_obj_to_char(struct obj_data * list, struct char_data * ch, int mode, bool show);
 
 ACMD(do_equipment);
 SPECIAL(shop_keeper);
@@ -1058,7 +1058,6 @@ void
 do_stat_object(struct char_data * ch, struct obj_data * j)
 {
     int i, found;
-    struct obj_data *j2;
     struct extra_descr_data *desc;
     extern struct attack_hit_type attack_hit_text[];
     struct room_data *rm = NULL;
@@ -1360,22 +1359,10 @@ do_stat_object(struct char_data * ch, struct obj_data * j)
     send_to_char(buf, ch);
 
     if (j->contains) {
-	sprintf(buf, "\r\nContents:%s", CCGRN(ch, C_NRM));
-	for (found = 0, j2 = j->contains; j2; j2 = j2->next_content) {
-	    sprintf(buf2, "%s %s", found++ ? "," : "", j2->short_description);
-	    strcat(buf, buf2);
-	    if (strlen(buf) >= 62) {
-		if (j2->next_content)
-		    send_to_char(strcat(buf, ",\r\n"), ch);
-		else
-		    send_to_char(strcat(buf, "\r\n"), ch);
-		*buf = found = 0;
-	    }
-	}
 
-	if (*buf)
-	    send_to_char(strcat(buf, "\r\n"), ch);
-	send_to_char(CCNRM(ch, C_NRM), ch);
+        send_to_char("\r\nContents:\r\n", ch);
+        list_obj_to_char(j->contains, ch, 2, TRUE);
+
     } else send_to_char("\r\n", ch);
     found = 0;
     send_to_char("Affections:", ch);
