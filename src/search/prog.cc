@@ -122,7 +122,7 @@ prog_get_text(prog_env *env)
 	case PROG_TYPE_ROOM:
 		break;
 	}
-	slog("Can't happen at %s:%d", __FILE__, __LINE__);
+	errlog("Can't happen at %s:%d", __FILE__, __LINE__);
 	return NULL;
 }
 

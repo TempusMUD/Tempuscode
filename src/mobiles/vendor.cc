@@ -222,7 +222,7 @@ vendor_resolve_hash(Creature *self, char *obj_str)
 	int num;
 
 	if (*obj_str != '#') {
-		slog("Can't happen in vendor_resolve_hash()");
+		errlog("Can't happen in vendor_resolve_hash()");
 		return NULL;
 	}
 
@@ -270,7 +270,7 @@ vendor_appraise(Creature *ch, obj_data *obj, Creature *self, ShopData *shop)
 	case 1:	
 		amt_carried = GET_CASH(ch); break;
 	default:
-		slog("Can't happen at %s:%d", __FILE__, __LINE__);
+		errlog("Can't happen at %s:%d", __FILE__, __LINE__);
 		amt_carried = 0;
 		break;
 	}
@@ -298,7 +298,7 @@ vendor_appraise(Creature *ch, obj_data *obj, Creature *self, ShopData *shop)
 			currency_str = "quest points";
 			break;
 		default:
-			slog("Can't happen at %s:%d", __FILE__, __LINE__);
+			errlog("Can't happen at %s:%d", __FILE__, __LINE__);
 			currency_str = "-BUGS-";
 	}
 
@@ -410,7 +410,7 @@ vendor_sell(Creature *ch, char *arg, Creature *self, ShopData *shop)
 	case 2:	
 		amt_carried = ch->account->get_quest_points(); break;
 	default:
-		slog("Can't happen at %s:%d", __FILE__, __LINE__);
+		errlog("Can't happen at %s:%d", __FILE__, __LINE__);
 		amt_carried = 0;
 		break;
 	}
@@ -485,7 +485,7 @@ vendor_sell(Creature *ch, char *arg, Creature *self, ShopData *shop)
 		currency_str = "quest points";
 		break;
 	default:
-		slog("Can't happen at %s:%d", __FILE__, __LINE__);
+		errlog("Can't happen at %s:%d", __FILE__, __LINE__);
 		currency_str = "-BUGS-";
 	}
 
@@ -705,7 +705,7 @@ vendor_list(Creature *ch, char *arg, Creature *self, ShopData *shop)
 	case 2:
 		msg = "Quest Points"; break;
 	default:
-		slog("Can't happen at %s:%d", __FILE__, __LINE__);
+		errlog("Can't happen at %s:%d", __FILE__, __LINE__);
 		msg = "PleaseReport";
 	}
 

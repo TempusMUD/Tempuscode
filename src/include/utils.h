@@ -1112,8 +1112,7 @@ inline const char *
 SAFETY(const char *str)
 {
 	if (!str) {
-		slog("Attempt to print null string at 0x%lx",
-			(long)__builtin_return_address(0));
+		errlog("Attempt to print null string");
 		return "<NULLS>";
 	}
 	return str;

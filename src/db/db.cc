@@ -3670,15 +3670,15 @@ sql_exec(const char *str, ...)
 
 	res = PQexec(sql_cxn, query);
 	if (!res) {
-		slog("FATAL: Couldn't allocate sql result");
+		errlog("FATAL: Couldn't allocate sql result");
 		safe_exit(1);
 	}
 	result = PQresultStatus(res) == PGRES_COMMAND_OK
 		|| PQresultStatus(res) == PGRES_TUPLES_OK;
 	if (!result) {
-		slog("FATAL: sql command generated error: %s",
+		errlog("FATAL: sql command generated error: %s",
 			PQresultErrorMessage(res));
-		slog("FROM SQL: %s", query);
+		errlog("FROM SQL: %s", query);
 		raise(SIGSEGV);
 	}
 	PQclear(res);
@@ -3702,7 +3702,7 @@ sql_insert(const char *str, ...)
 
 	res = PQexec(sql_cxn, query);
 	if (!res) {
-		slog("FATAL: Couldn't allocate sql result");
+		errlog("FATAL: Couldn't allocate sql result");
 		safe_exit(1);
 	}
 	result = PQoidValue(res);
@@ -3726,7 +3726,7 @@ sql_query(const char *str, ...)
 
 	res = PQexec(sql_cxn, query);
 	if (!res) {
-		slog("FATAL: Couldn't allocate sql result");
+		errlog("FATAL: Couldn't allocate sql result");
 		safe_exit(1);
 	}
 

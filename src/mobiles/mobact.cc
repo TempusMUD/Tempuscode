@@ -891,7 +891,7 @@ helper_assist(struct Creature *ch, struct Creature *vict,
 	struct obj_data *weap = GET_EQ(ch, WEAR_WIELD);
 
 	if (!ch || !vict || !fvict) {
-		slog("Illegal value(s) passed to helper_assist().");
+		errlog("Illegal value(s) passed to helper_assist().");
 		return 0;
 	}
 
@@ -1457,8 +1457,7 @@ mobile_activity(void)
 		if (!no_specials && MOB_FLAGGED(ch, MOB_SPEC) &&
 			GET_MOB_WAIT(ch) <= 0 && !ch->desc && (count % 2)) {
 			if (ch->mob_specials.shared->func == NULL) {
-				slog(
-					"%s (#%d): Attempting to call non-existing mob func",
+				errlog("%s (#%d): Attempting to call non-existing mob func",
 					GET_NAME(ch), GET_MOB_VNUM(ch));
 				REMOVE_BIT(MOB_FLAGS(ch), MOB_SPEC);
 			} else {

@@ -689,7 +689,7 @@ choose_random_limb(Creature *victim)
 	}
 
 	if (!POS_DAMAGE_OK(i)) {
-		slog("SYSERR improper pos %d leaving choose_random_limb.", i);
+		errlog("improper pos %d leaving choose_random_limb.", i);
 		return WEAR_BODY;
 	}
 

@@ -3269,7 +3269,7 @@ remove_random_obj_affect(Creature *ch, obj_data *obj, int level)
 		GET_OBJ_SIGIL_IDNUM(obj) = 0;
 		GET_OBJ_SIGIL_LEVEL(obj) = 0;
 	} else {
-		slog("Can't happen at %s:%d", __FILE__, __LINE__);
+		errlog("Can't happen at %s:%d", __FILE__, __LINE__);
 	}
 
 	return (total_affs - 1 == 0);

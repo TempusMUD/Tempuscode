@@ -1474,7 +1474,7 @@ ACCMD(do_drop)
 			case FIND_INDIV:
 				next_obj = NULL; break;
 			default:
-				slog("Can't happen at %s:%d", __FILE__, __LINE__);
+				errlog("Can't happen at %s:%d", __FILE__, __LINE__);
 		}
 
 		oldmode = mode;
@@ -1818,7 +1818,7 @@ ACMD(do_give)
 			case FIND_INDIV:
 				next_obj = NULL; break;
 			default:
-				slog("Can't happen at %s:%d", __FILE__, __LINE__);
+				errlog("Can't happen at %s:%d", __FILE__, __LINE__);
 		}
 
 		found = perform_give(ch, vict, obj, false);
@@ -2993,7 +2993,7 @@ perform_remove(struct Creature *ch, int pos)
 	struct obj_data *obj;
 
 	if (!(obj = GET_EQ(ch, pos))) {
-		slog("Error in perform_remove: bad pos passed.");
+		errlog("Error in perform_remove: bad pos passed.");
 		return;
 	}
 	if (IS_CARRYING_N(ch) >= CAN_CARRY_N(ch))
@@ -4012,7 +4012,7 @@ empty_to_obj(struct obj_data *obj, struct obj_data *container,
 	int objs_moved = 0;
 
 	if (!(obj) || !(container) || !(ch)) {
-		slog("Null value passed into empty_to_obj.\r\n");
+		errlog("Null value passed into empty_to_obj.\r\n");
 		return 0;
 	}
 

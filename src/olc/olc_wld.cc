@@ -1023,12 +1023,12 @@ do_olc_rexdesc(struct Creature *ch, char *argument, bool is_hedit)
 			if (desc->keyword)
 				free(desc->keyword);
 			else
-				slog("WTF?? !desc->keyword??");
+				errlog("WTF?? !desc->keyword??");
 
 			if (desc->description)
 				free(desc->description);
 			else
-				slog("WTF?? !desc->description??");
+				errlog("WTF?? !desc->description??");
 
 			free(desc);
 			send_to_char(ch, "Description removed.\r\n");

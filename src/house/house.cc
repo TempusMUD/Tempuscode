@@ -905,7 +905,7 @@ House::listRooms(Creature *ch, bool showContents )
 			char *line = print_room_contents( ch, room,showContents );
 			buf = tmp_strcat(buf,line);
 		} else {
-			slog( "SYSERR: Room [%5d] of House [%5d] does not exist.",
+			errlog("SYSERR: Room [%5d] of House [%5d] does not exist.",
 					getRoom(i), getID() );
 		}
 	}

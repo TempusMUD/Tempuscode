@@ -4495,7 +4495,8 @@ show_rooms_in_zone(Creature *ch, zone_data *zone, int pos, int mode, char *args)
 			}
 			break;
 		default:
-			send_to_char(ch, "Can't happen at %s:%d", __FILE__, __LINE__);
+			errlog("Can't happen at %s:%d", __FILE__, __LINE__);
+			send_to_char(ch, "Uh, oh... Bad juju...\r\n");
 		break;
 	}
 	return found;

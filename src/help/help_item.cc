@@ -366,7 +366,7 @@ HelpItem::LoadText()
 	}
 
 	if ((access(fname, F_OK) >= 0) && (access(fname, W_OK) < 0)) {
-		mudlog(0, BRF, true, "SYSERR - Help file (%s) is read-only.", fname );
+		errlog("Help file (%s) is read-only.", fname);
 		return false;
 	}
 

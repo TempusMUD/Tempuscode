@@ -350,7 +350,7 @@ boot_social_messages(void)
 		social_count++;
 
 		if (social_count >= MAX_SOCIALS) {
-			slog("Too many socials.  Increase MAX_SOCIALS in act.social.c");
+			errlog("Too many socials.  Increase MAX_SOCIALS in act.social.c");
 			safe_exit(1);
 		}
 	}

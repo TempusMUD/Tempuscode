@@ -248,7 +248,7 @@ handle_input(struct descriptor_data *d)
 				if (d->creature->loadFromXML(char_id)) {
 					set_desc_state(CXN_DELETE_PW, d);
 				} else {
-                    slog("Error loading character %d to delete.", char_id);
+                    errlog("loading character %d to delete.", char_id);
 					send_to_desc(d, "\r\nThere was an error loading the character.\r\n\r\n");
 					delete d->creature;
 					d->creature = NULL;
@@ -266,7 +266,7 @@ handle_input(struct descriptor_data *d)
 				if (d->creature->loadFromXML(char_id)) {
 					set_desc_state(CXN_EDIT_DESC, d);
 				} else {
-                    slog("Error loading character %d to edit it's description.", char_id);
+                    errlog("loading character %d to edit it's description.", char_id);
 					send_to_desc(d, "\r\nThere was an error loading the character.\r\n\r\n");
 					delete d->creature;
 					d->creature = NULL;
@@ -288,7 +288,7 @@ handle_input(struct descriptor_data *d)
 					d->creature = NULL;
 					set_desc_state(CXN_WAIT_MENU, d);
 				} else {
-                    slog("Error loading character %d to show statistics.", char_id);
+                    errlog("loading character %d to show statistics.", char_id);
 					send_to_desc(d, "\r\nThere was an error loading the character.\r\n\r\n");
 					delete d->creature;
 					d->creature = NULL;
@@ -1397,7 +1397,7 @@ char_to_game(descriptor_data *d)
 				notes = tmp_strcat(notes, "\r\nYou were unable to pay your rent and have been put in JAIL!\r\n");
 				break;
 			default:
-				slog("Can't happen at %s:%d", __FILE__, __LINE__);
+				errlog("Can't happen at %s:%d", __FILE__, __LINE__);
 		}
 
         // Do we need to load up his corpse?

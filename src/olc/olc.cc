@@ -759,12 +759,12 @@ ACMD(do_olc)
 				if (desc->keyword)
 					free(desc->keyword);
 				else
-					slog("WTF?? !desc->keyword??");
+					errlog("WTF?? !desc->keyword??");
 
 				if (desc->description)
 					free(desc->description);
 				else
-					slog("WTF?? !desc->description??");
+					errlog("WTF?? !desc->description??");
 
 				free(desc);
 				send_to_char(ch, "Description removed.\r\n");
@@ -1586,7 +1586,7 @@ recalc_all_mobs(Creature *ch, const char *argument)
 	if( exptest ) {
 		outfile = fopen("recalc.log","w");
 		if( outfile == NULL ) {
-			slog("Unable to open recalculation log file.");
+			errlog("Unable to open recalculation log file.");
 			send_to_char(ch, "Cannot open recalc log file. Failing.\r\n");
 			return;
 		}

@@ -1082,21 +1082,11 @@ char_from_room( Creature *ch, bool check_specials)
 			find(tmp_room->people.begin(),tmp_room->people.end(), ch);
 		if( it == tmp_room->people.end() ) {
 			if( spec_rc == 1 ) {
-				slog("SRCH: Creature died in search room(0x%lx)[%d]",
+				errlog("SRCH: Creature died in search room(0x%lx)[%d]",
 					 (long)tmp_room, tmp_room->number);
-				slog( "        Trace: (0x%lx)->(0x%lx)->(0x%lx)->(0x%lx)",
-					  (long)__builtin_return_address(2),
-					  (long)__builtin_return_address(1),
-					  (long)__builtin_return_address(0), spec_rc);
 			} else {
-				mudlog( LVL_CREATOR, NRM, true, 
-						"ERROR: CFRMRM: Creature died in spec(0x%lx) room(0x%lx)[%d]",
+				errlog("ERROR: CFRMRM: Creature died in spec(0x%lx) room(0x%lx)[%d]",
 						spec_rc,(long)tmp_room, tmp_room->number);
-				mudlog( LVL_CREATOR, NRM, true,
-						"        Trace: (0x%lx)->(0x%lx)->(0x%lx)->(0x%lx)",
-						(long)__builtin_return_address(2),
-						(long)__builtin_return_address(1),
-						(long)__builtin_return_address(0), spec_rc);
 			}
 			return false;
 		} 
@@ -1184,21 +1174,11 @@ char_to_room(Creature *ch, room_data *room, bool check_specials)
 			find(room->people.begin(),room->people.end(), ch);
 		if( it == room->people.end() ) {
 			if( spec_rc == 1 ) {
-				slog("SRCH: Creature died in search room(0x%lx)[%d]",
+				errlog("SRCH: Creature died in search room(0x%lx)[%d]",
 					 (long)room, room->number);
-				slog( "        Trace: (0x%lx)->(0x%lx)->(0x%lx)->(0x%lx)",
-					  (long)__builtin_return_address(2),
-					  (long)__builtin_return_address(1),
-					  (long)__builtin_return_address(0), spec_rc);
 			} else {
-				mudlog( LVL_CREATOR, NRM, true, 
-						"ERROR: C2RM: Creature died in spec(0x%lx) room(0x%lx)[%d]",
+				errlog("ERROR: C2RM: Creature died in spec(0x%lx) room(0x%lx)[%d]",
 						spec_rc,(long)room, room->number);
-				mudlog( LVL_CREATOR, NRM, true,
-						"      Trace: (0x%lx)->(0x%lx)->(0x%lx)->(0x%lx)",
-						(long)__builtin_return_address(2),
-						(long)__builtin_return_address(1),
-						(long)__builtin_return_address(0), spec_rc);
 			}
 
 			return false;
@@ -1865,7 +1845,7 @@ obj_from_obj(struct obj_data *obj)
 	int j;
 
 	if (obj->in_obj == NULL) {
-		slog("SYSERR (handler.c): trying to illegally extract obj from obj");
+		errlog("(handler.c): trying to illegally extract obj from obj");
 		raise(SIGSEGV);
 	}
 #ifdef TRACK_OBJS

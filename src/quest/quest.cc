@@ -2892,8 +2892,7 @@ bool Quest::removePlayer( long id ) {
 			vict->saveToXML();
 			delete vict;
 		} else {
-			//send_to_char(ch, "Error loading char from file.\r\n");
-			slog("Error loading player id %ld from file for removal from quest %d.\r\n",
+			errlog("Error loading player id %ld from file for removal from quest %d.\r\n",
 					id, vnum );
 			return false;
 		}

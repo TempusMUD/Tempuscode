@@ -151,7 +151,7 @@ store_mail(long to_id, long from_id, char *txt, list<string> cc_list,
     }
 
     if(! playerIndex.exists(to_id) ) {
-        slog("Toss_Mail Error, recipient idnum %ld invalid.", to_id);
+        errlog("Toss_Mail Error, recipient idnum %ld invalid.", to_id);
         return 0;
     }
 
