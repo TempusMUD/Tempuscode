@@ -12,6 +12,9 @@ SPECIAL(javelin_of_lightning)
 	int dam;
 	void update_pos(struct Creature *victim);
 
+	if (spec_mode != SPECIAL_CMD)
+		return 0;
+
 	two_arguments(argument, arg1, arg2);
 
 	if (!CMD_IS("throw") && !CMD_IS("hurl") && !CMD_IS("sling"))
