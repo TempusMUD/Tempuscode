@@ -12,6 +12,8 @@ void show_gun_status(struct char_data *ch, struct obj_data *gun);
      /*** energy gun utils ***/
 #define IS_ENERGY_GUN(obj)      (GET_OBJ_TYPE(obj) == ITEM_ENERGY_GUN)
 
+#define IS_RIFLE(obj)           ((GET_OBJ_TYPE(obj) == ITEM_GUN) \
+                                  && (GUN_TYPE(obj) == GUN_7mm_mag))
 #define EGUN_MAX_ENERGY(obj)     ((obj->contains &&                 \
 				   IS_ENERGY_CELL(obj->contains)) ?  \
 				  MAX_ENERGY(obj->contains) : 0) 
@@ -57,6 +59,7 @@ void show_gun_status(struct char_data *ch, struct obj_data *gun);
 #define GUN_762_mm      19
 #define GUN_9_mm        20
 #define GUN_10_mm       21
+#define GUN_7mm_mag     22
 #define GUN_BOW         25
 #define GUN_XBOW        26
 #define GUN_FLAMETHROWER 30
