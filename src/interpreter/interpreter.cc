@@ -3548,6 +3548,10 @@ nanny(struct descriptor_data * d, char *arg)
                     SEND_TO_Q("Unknown program.\r\n", d);
                     return;
                 }
+                if( SPELL_GEN(skill_num, CLASS_CYBORG) > 0 && GET_CLASS(d->character) != CLASS_CYBORG) {
+                    SEND_TO_Q("That program is unavailable.\r\n", d);
+                    return;
+                }
                 if( GET_REMORT_GEN(d->character) < SPELL_GEN(skill_num, CLASS_CYBORG) || 
                     GET_LEVEL(d->character) < SPELL_LEVEL(skill_num, CLASS_CYBORG) ){
                     SEND_TO_Q("That program is unavailable.\r\n", d);
