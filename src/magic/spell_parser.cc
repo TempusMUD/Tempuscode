@@ -308,7 +308,7 @@ const char *spells[] = {
 	"!UNUSED!", "!UNUSED!", 
     "temporal compression",     /* 333 */
     "temporal dilation", 
-    "!UNUSED!",	/* 335 */
+    "gauss shield",	/* 335 */
 	"albedo shield",
 	"!UNUSED!",
 	"radioimmunity",
@@ -3601,6 +3601,10 @@ mag_assign_spells(void)
 		MAG_DIVINE | MAG_AFFECTS | MAG_GOOD);
 
 	remort_spello(SKILL_WORMHOLE, CLASS_PHYSIC, 30, 1, 50, 20, 2, 0, 0, 0, 0);
+
+    remort_spello(SPELL_GAUSS_SHIELD, CLASS_PHYSIC, 32, 3, 90, 70, 1,
+                  POS_STANDING, TAR_CHAR_ROOM | TAR_SELF_ONLY, FALSE,
+                  MAG_PHYSICS | MAG_AFFECTS);
 
 	remort_spello(SPELL_UNHOLY_STALKER, CLASS_CLERIC, 25, 3,
 		100, 50, 5, POS_STANDING, TAR_CHAR_WORLD, TRUE,

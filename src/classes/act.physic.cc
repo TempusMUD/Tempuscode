@@ -115,7 +115,7 @@
   complete
 
   #define SPELL_GAUSS_SHIELD         335  // half damage from metal
-  incomplete
+  complete
 
   #define SPELL_ALBEDO_SHIELD        336  // reflects e/m attacks
   complete

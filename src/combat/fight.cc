@@ -1576,6 +1576,11 @@ damage(struct Creature *ch, struct Creature *victim, int dam,
 		}
 	}
 
+    if (weap && affected_by_spell(victim, SPELL_GAUSS_SHIELD) && dam > 0) {
+        if (IS_METAL_TYPE(weap))
+            dam -= (dam * (MAX(20, victim->getLevelBonus(SPELL_GAUSS_SHIELD) / 3)) / 100);
+    }
+
 	GET_HIT(victim) -= dam;
 	if (!IS_NPC(victim))
 		GET_TOT_DAM(victim) += dam;

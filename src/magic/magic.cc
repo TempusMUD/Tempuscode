@@ -1835,6 +1835,12 @@ mag_affects(int level, struct Creature *ch, struct Creature *victim,
 		to_vict = "You feel protected from electromagnetic attacks.";
 		break;
 
+    case SPELL_GAUSS_SHIELD:
+        af.type = SPELL_GAUSS_SHIELD;
+        af.duration = ch->getLevelBonus(SPELL_GAUSS_SHIELD) >> 1;
+        to_vict = "You feel protected from metal.";
+        break;
+
 	case SPELL_CHEMICAL_STABILITY:
 		af.duration = (level >> 2);
 		to_room = "$n begins looking more chemically inert.";

@@ -645,10 +645,12 @@ desc_char_trailers(Creature *ch, Creature *i)
     if (affected_by_spell(i, SPELL_VACUUM_SHROUD))
         desc = tmp_strcat(desc, "...", HSSH(i), " is existing in a total ",
                           "vacuum.\r\n", NULL);
-    if (affected_by_spell(i, SPELL_ALBEDO_SHIELD)) {
+    if (affected_by_spell(i, SPELL_ALBEDO_SHIELD))
         desc = tmp_strcat(desc, "...", HSHR(i), " body is surrounded by a ",
                           "reflective shield.\r\n", NULL);
-    }
+    if (affected_by_spell(i, SPELL_GAUSS_SHIELD))
+        desc = tmp_strcat(desc, "...", HSSH(i), " is protected by a swirling ",
+                          "shield of energy.\r\n", NULL);
 	return desc;
 }
 
@@ -2476,7 +2478,10 @@ acc_append_affects(struct Creature *ch, byte mode)
         acc_strcat("You are existing in a total vacuum.\r\n", NULL);
 	if (affected_by_spell(ch, SPELL_CHEMICAL_STABILITY))
 		acc_strcat("You feel chemically inert.\r\n", NULL);
-
+    if (affected_by_spell(ch, SPELL_ALBEDO_SHIELD))
+        acc_strcat("You are protected from electromagnetic attacks.\r\n", NULL);
+    if (affected_by_spell(ch, SPELL_GAUSS_SHIELD))
+        acc_strcat("You feel somewhat protected from metal.\r\n", NULL);
 
 	if (IS_AFFECTED_3(ch, AFF3_DAMAGE_CONTROL))
 		acc_strcat("Your Damage Control process is running.\r\n", NULL);
