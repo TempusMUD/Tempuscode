@@ -400,7 +400,7 @@ Account::create_char(const char *name)
     // this character in the academey.
     struct clanmember_data *member = NULL;
     struct clan_data *clan = real_clan(TEMPUS_ACADEMY);
-    if (!this->hasCharLevel(45) || !this->hasCharGen(1)) {
+    if (!this->hasCharLevel(45) && !this->hasCharGen(1)) {
         GET_CLAN(ch) = TEMPUS_ACADEMY;
         CREATE(member, struct clanmember_data, 1);
         member->idnum = GET_IDNUM(ch);
