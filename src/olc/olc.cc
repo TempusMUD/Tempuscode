@@ -49,7 +49,7 @@
 "olc rset <parameter> <arguments>\r\n"           \
 "olc exit <direction> <parameter> <value> ['one-way']\r\n" \
 "olc rexdesc <create | remove | edit | addkey> <keywords> [new keywords\r\n"  \
-"olc clear <room | obj>\r\n"           \
+"olc clear <room | obj | mob>\r\n"           \
 "olc create/destroy <room|zone|obj|mob|shop|search|ticl> <number>\r\n" \
 "olc help [keyword]\r\n"               \
 "olc osave\r\n"                        \
@@ -209,6 +209,7 @@ int do_destroy_search(struct char_data *ch, char *arg);
 int set_char_xedit(struct char_data *ch, char *argument);
 void do_clear_room(struct char_data *ch);
 void do_clear_olc_object(struct char_data *ch);
+void do_clear_olc_mob(struct char_data *ch);
 void do_ticl_tedit(struct char_data *ch, char *argument);
 void do_ticl_tstat(struct char_data *ch);
 
@@ -973,7 +974,7 @@ ACMD(do_olc)
 
     case 18:     /************** clear ****************/
 	if (!*argument) {
-	    send_to_char("Usage: olc clear <room | obj>\r\n", ch);
+	    send_to_char("Usage: olc clear <room | obj | mob>\r\n", ch);
 	    return;
 	}
 	if (is_abbrev(argument, "room")) { 
@@ -983,7 +984,11 @@ ACMD(do_olc)
 		send_to_char("You are not currently editing an object.\r\n", ch);
 	    } else 
 		do_clear_olc_object(ch);
-	} else
+	} 
+        else if(is_abbrev(argument, "mobile")) {
+          do_clear_olc_mob(ch);
+        }
+        else
 	    send_to_char("Olc clear what???!!\r\n", ch);
 	break;
 

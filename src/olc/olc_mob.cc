@@ -1657,8 +1657,97 @@ mobile_experience(struct char_data *mob)
     return (exp);
 }
   
-int
-olc_mimic_mob(struct char_data *ch, 
+int do_clear_olc_mob(struct char_data *ch) 
+{
+    struct char_data *targ = GET_OLC_MOB(ch); 
+    
+    targ->mob_specials.shared->number = 0;
+    targ->mob_specials.shared->func = NULL;
+    targ->mob_specials.shared->proto = targ;
+
+#ifdef DMALLOC
+    dmalloc_verify(0);
+#endif
+    targ->player.name = str_dup("Fresh Blank Mobile");
+    targ->player.short_descr = str_dup("a Fresh Blank Mobile");
+    targ->player.long_descr = str_dup("A Fresh Blank Mobile is here waiting to be violated.\r\n");
+    targ->player.description = NULL;
+    targ->player.title = NULL;
+
+#ifdef DMALLOC
+    dmalloc_verify(0);
+#endif
+    MOB_FLAGS(targ)     = 0;
+    MOB2_FLAGS(targ)    = 0;
+    SET_BIT(MOB_FLAGS(targ), MOB_ISNPC);
+    AFF_FLAGS(targ)     = 0;
+    AFF2_FLAGS(targ)    = 0;
+    AFF3_FLAGS(targ)    = 0;
+    GET_ALIGNMENT(targ) = 0;
+
+    targ->real_abils.str = 11;
+    targ->real_abils.intel = 11;
+    targ->real_abils.wis = 11;
+    targ->real_abils.dex = 11;
+    targ->real_abils.con = 11;
+    targ->real_abils.cha = 11;
+
+    GET_LEVEL(targ) = 1;
+    targ->points.hitroll = 0;
+    targ->points.armor = 0;
+
+    targ->points.max_hit = 0;
+    targ->points.hit = 10;
+    targ->points.mana = 10;
+    targ->points.move = 50;
+
+    targ->points.max_mana = 10;
+    targ->points.max_move = 50;
+
+    targ->mob_specials.shared->damnodice = 5;
+    targ->mob_specials.shared->damsizedice = 2; 
+    targ->points.damroll = 0;
+
+    targ->player.char_class = CLASS_NORMAL;
+    targ->player.race  = RACE_MOBILE;
+
+    GET_GOLD(targ) = 0;
+    GET_EXP(targ) = 100;
+    GET_MORALE(targ) = 100;
+    GET_MOB_LAIR(targ) = -1;
+    GET_MOB_LEADER(targ) = -1;
+
+    targ->mob_specials.shared->attack_type = 0; 
+
+    targ->char_specials.position = POS_STANDING;
+    targ->mob_specials.shared->default_pos = POS_STANDING; 
+    targ->player.sex = SEX_NEUTRAL;
+
+    targ->player.weight = 130;
+    targ->player.height = 166;
+    
+    targ->player.remort_char_class = -1;
+
+    targ->aff_abils.str = 11;
+    targ->aff_abils.str_add = 0;
+    targ->aff_abils.intel = 11;
+    targ->aff_abils.wis = 11;
+    targ->aff_abils.dex = 11;
+    targ->aff_abils.con = 11;
+    targ->aff_abils.cha = 11;
+
+    targ->real_abils.str = 11;
+    targ->real_abils.str_add = 0;
+    targ->real_abils.intel = 11;
+    targ->real_abils.wis = 11;
+    targ->real_abils.dex = 11;
+    targ->real_abils.con = 11;
+    targ->real_abils.cha = 11;
+
+    return 0;
+
+}
+int olc_mimic_mob(struct char_data *ch, 
 	      struct char_data *orig, struct char_data *targ, int mode)
 {
   
@@ -1768,3 +1857,4 @@ olc_mimic_mob(struct char_data *ch,
     return 0;
 
 }
+
