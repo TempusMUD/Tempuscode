@@ -1161,7 +1161,7 @@ boot_combat(void)
 {
     if (!(combatfile = fopen(COMBATFILENAME, "a+"))) {
         slog("SYSERR: unable to open combat file.");
-        safe_exit(1);
+        return 0;
     }
 
     num_arenas = build_arena_list();

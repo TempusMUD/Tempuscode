@@ -2328,8 +2328,12 @@ void perform_violence( void ) {
             prob += ( int ) ( ( CHECK_SKILL( ch, SKILL_DBL_ATTACK ) * 0.15 ) +
                               ( CHECK_SKILL( ch, SKILL_TRIPLE_ATTACK ) * 0.17 ) );
         if ( CHECK_SKILL(ch, SKILL_MELEE_COMBAT_TAC) &&
-             affected_by_spell(ch, SKILL_MELEE_COMBAT_TAC))
+        affected_by_spell(ch, SKILL_MELEE_COMBAT_TAC))
             prob += (int) ( CHECK_SKILL(ch, SKILL_MELEE_COMBAT_TAC) * 0.10);
+        if ( affected_by_spell( ch, SKILL_OFFENSIVE_POS ) )
+            prob += (int) ( CHECK_SKILL(ch, SKILL_OFFENSIVE_POS ) * 0.10);
+        else if ( affected_by_spell( ch, SKILL_DEFENSIVE_POS ) )
+            prob -= (int) ( CHECK_SKILL(ch, SKILL_DEFENSIVE_POS ) * 0.05);
         if ( IS_MERC(ch) && ((((weap = GET_EQ(ch, WEAR_WIELD)) && IS_GUN(weap)) ||
                                ((weap = GET_EQ(ch, WEAR_WIELD_2)) && IS_GUN(weap))) &&
                                 CHECK_SKILL(ch, SKILL_SHOOT) > 50))
