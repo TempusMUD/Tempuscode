@@ -777,6 +777,8 @@ struct char_special_data {
 	byte carry_items;			/* Number of items carried        */
 	byte weapon_proficiency;	/* Scale of learnedness of weapon prof.   */
 
+	const char *mood_str;		/* Sets mood for $a in act() */
+
 	struct char_special_data_saved saved;	/* constants saved in plrfile    */
 };
 
