@@ -259,7 +259,6 @@ prog_do_randomly(prog_env *env, prog_evt *evt, char *args)
 	line = prog_get_statement(&exec, env->exec_pt);
 	num_paths = 0;
 	while (line) {
-		cur_line++;
 		if (last_line > 0 && cur_line >= last_line)
 			break;
 		if (*line == '*') {
@@ -267,9 +266,10 @@ prog_do_randomly(prog_env *env, prog_evt *evt, char *args)
 			if (!strcasecmp(cmd, "or")) {
 				num_paths += 1;
 				if (!number(0, num_paths))
-					env->exec_pt = cur_line;
+					env->exec_pt = cur_line + 1;
 			}
 		}
+		cur_line++;
 		line = prog_get_statement(&exec, 0);
 	}
 
