@@ -57,7 +57,7 @@ const struct spec_func_data spec_list[] = {
 	{"janitor", janitor, SPEC_MOB},
 	{"elven_janitor", elven_janitor, SPEC_MOB},
 	{"gelatinous_blob", gelatinous_blob, SPEC_MOB},
-	{"snake", snake, SPEC_MOB},
+	{"venom_attack", venom_attack, SPEC_MOB},
 	{"thief", thief, SPEC_MOB},
 	{"magic_user", magic_user, SPEC_MOB},
 	{"asp", asp, SPEC_MOB},

@@ -474,18 +474,58 @@ npc_steal(struct Creature *ch, struct Creature *victim)
 }
 
 
-SPECIAL(snake)
+SPECIAL(venom_attack)
 {
+	char *act_toroom = "$n bites $N!";
+	char *act_tovict = "$n bites you!";
+	char *str, *err = NULL;
+	int lineno, perc_damaged;
+	char *line, *param_key;
+
 	if (spec_mode != SPECIAL_TICK)
 		return 0;
 
 	if (ch->getPosition() != POS_FIGHTING)
 		return FALSE;
+	
+	if (GET_MOB_PARAM(ch)) {
+		str = GET_MOB_PARAM(ch);
+		for (line = tmp_getline(&str), lineno = 1; line;
+				line = tmp_getline(&str), lineno++) {
+			param_key = tmp_getword(&line);
+			if (!strcmp(param_key, "toroom"))
+				act_toroom = line;
+			else if (!strcmp(param_key, "tovict"))
+				act_tovict = line;
+			else
+				err = "first word in param must be toroom or tovict";
+		}
+		if (err) {
+			if (IS_PC(FIGHTING(ch))) {
+				if (IS_IMMORT(FIGHTING(ch)))
+					perform_tell(ch, FIGHTING(ch), tmp_sprintf(
+						"%s in line %d of my specparam", err, lineno));
+				else
+					mudlog(LVL_IMMORT, NRM, true,
+						"ERR: Mobile %d has %s in line %d of specparam",
+							GET_MOB_VNUM(ch), err, lineno);
+			}
+
+			return 1;
+		}
+	}
+
+	// As with real creatures, become more likely to use poison
+	// as threat to survival increases
+	if (GET_MAX_HIT(ch) && GET_HIT(ch) > 0)
+		perc_damaged = 100 - GET_HIT(ch) * 100 / GET_MAX_HIT(ch);
+	else
+		return false;
 
 	if (FIGHTING(ch) && (FIGHTING(ch)->in_room == ch->in_room) &&
-		(number(0, 57 - GET_LEVEL(ch)) == 0)) {
-		act("$n bites $N!", 1, ch, 0, FIGHTING(ch), TO_NOTVICT);
-		act("$n bites you!", 1, ch, 0, FIGHTING(ch), TO_VICT);
+		number(0, 75) < perc_damaged) {
+		act(act_tovict, 1, ch, 0, FIGHTING(ch), TO_VICT);
+		act(act_toroom, 1, ch, 0, FIGHTING(ch), TO_NOTVICT);
 		call_magic(ch, FIGHTING(ch), 0, SPELL_POISON, GET_LEVEL(ch),
 			CAST_SPELL);
 		return TRUE;

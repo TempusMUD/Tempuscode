@@ -32,7 +32,7 @@ SPECIAL(garbage_pile);
 SPECIAL(janitor);
 SPECIAL(elven_janitor);
 SPECIAL(gelatinous_blob);
-SPECIAL(snake);
+SPECIAL(venom_attack);
 SPECIAL(thief);
 SPECIAL(magic_user);
 SPECIAL(asp);
