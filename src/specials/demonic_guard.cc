@@ -45,7 +45,8 @@ struct criminal_rec {
 	int idnum;
 	int grace;
 };
-#define DEMONIC_BASE 1530
+#define DEMONIC_BASE 90
+#define ARCHONIC_BASE 100
 #define KILLER_GRACE	5
 
 criminal_rec *criminal_list = NULL;
@@ -60,12 +61,12 @@ bool
 summon_criminal_demons(Creature *vict)
 {
 	Creature *mob;
-	obj_data *brain;
+	int vnum_base = (IS_EVIL(vict)) ? ARCHONIC_BASE:DEMONIC_BASE;;
 	int demon_num = GET_REMORT_GEN(vict) / 2 + 1;
 	int idx;
 
 	for (idx = 0;idx < demon_num;idx++) {
-		mob = read_mobile(DEMONIC_BASE + MIN(4, (GET_LEVEL(vict) / 9))
+		mob = read_mobile(vnum_base + MIN(4, (GET_LEVEL(vict) / 9))
 			+ number(0,1));
 		if (!mob) {
 			slog("SYSERR: Unable to load mob in demonic_overmind");
@@ -73,22 +74,22 @@ summon_criminal_demons(Creature *vict)
 		}
 		HUNTING(mob) = vict;
 		SET_BIT(MOB_FLAGS(mob), MOB_SPIRIT_TRACKER);
-		brain = read_object(DEMONIC_BASE);
-		if (!brain) {
-			slog("SYSERR: Couldn't get hunter's brain!");
-			return false;
-		}
-		GET_OBJ_VAL(brain, 3) = GET_IDNUM(vict);
-		equip_char(mob, brain, WEAR_HEAD, MODE_IMPLANT);
+		CREATE(mob->mob_specials.func_data, int, 1);
+		*((int *)mob->mob_specials.func_data) = GET_IDNUM(vict);
 
 		char_to_room(mob, vict->in_room);
 		act("The air suddenly cracks open and $n steps out!", false,
 			mob, 0, 0, TO_ROOM);
 	}
 
-	mudlog(GET_INVIS_LVL(vict), NRM, true,
-		"%d demons dispatched to hunt down %s",
-		demon_num, GET_NAME(vict));
+	if (IS_EVIL(vict))
+		mudlog(GET_INVIS_LVL(vict), NRM, true,
+			"%d archons dispatched to hunt down %s",
+			demon_num, GET_NAME(vict));
+	else
+		mudlog(GET_INVIS_LVL(vict), NRM, true,
+			"%d demons dispatched to hunt down %s",
+			demon_num, GET_NAME(vict));
 
 	return true;
 }
@@ -187,22 +188,14 @@ SPECIAL(demonic_overmind)
 SPECIAL(demonic_guard)
 {
 	Creature *self = (Creature *)me;
-	obj_data *brain;
 	int vict_id;
 
-	if (spec_mode != SPECIAL_TICK && spec_mode != SPECIAL_DEATH)
+	if (spec_mode != SPECIAL_TICK)
 		return false;
 
-	brain = GET_IMPLANT(self, WEAR_HEAD);
-	if (!brain)
+	if (!self->mob_specials.func_data)
 		return false;
-	vict_id = GET_OBJ_VAL(brain, 3);
-
-	if (spec_mode == SPECIAL_DEATH) {
-		brain = unequip_char(self, WEAR_HEAD, MODE_IMPLANT);
-		extract_obj(brain);
-		return false;
-	}
+	vict_id = *((int *)self->mob_specials.func_data);
 
 	ch = get_char_in_world_by_idnum(vict_id);
 	if (!ch || !HUNTING(self) || GET_REPUTATION(ch) < 700) {
