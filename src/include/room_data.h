@@ -234,8 +234,6 @@ extern struct room_data *r_new_thalos_start_room;
 extern struct room_data *r_elven_start_room;
 extern struct room_data *r_istan_start_room;
 extern struct room_data *r_arena_start_room;
-extern struct room_data *r_city_start_room;
-extern struct room_data *r_doom_start_room;
 extern struct room_data *r_monk_start_room;
 extern struct room_data *r_tower_modrian_start_room;
 extern struct room_data *r_solace_start_room;

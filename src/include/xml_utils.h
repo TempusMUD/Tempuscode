@@ -1,6 +1,12 @@
 #ifndef __TEMPUS_XML_UTILS_H
 #define __TEMPUS_XML_UTILS_H
 
+#include <libxml/parser.h>
+#include <libxml/tree.h>
+#include <stdlib.h>
+
+void xml_boot(void);
+
 /** 
  * Parses an integer from a named property in the given node
  **/

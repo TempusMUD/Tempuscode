@@ -681,10 +681,6 @@ room_data *char_data::getLoadroom() {
 			load_room = r_istan_start_room;
 		} else if (GET_HOME(this) == HOME_ARENA){
 			load_room = r_arena_start_room;
-		} else if (GET_HOME(this) == HOME_DOOM){
-			load_room = r_doom_start_room;
-		} else if (GET_HOME(this) == HOME_CITY){
-			load_room = r_city_start_room;
 		} else if (GET_HOME(this) == HOME_MONK){
 			load_room = r_monk_start_room;
 		} else if (GET_HOME(this) == HOME_SKULLPORT_NEWBIE) {

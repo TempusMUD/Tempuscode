@@ -17,6 +17,7 @@
 
 #include <stdio.h>
 #include <stdlib.h>
+#include <stdarg.h>
 #include <string.h>
 #include <signal.h>
 #include <limits.h>
@@ -212,15 +213,20 @@ log_death_trap(struct char_data *ch)
 
 /* writes a string to the log */
 void
-slog(char *str)
+slog(char *str, ...)
 {
+	va_list args;
 	time_t ct;
 	char *tmstr;
+	char buf[1024];
 
 	ct = time(0);
 	tmstr = asctime(localtime(&ct));
 	*(tmstr + strlen(tmstr) - 1) = '\0';
-	fprintf(stderr, "%-19.19s :: %s\n", tmstr, str);
+	va_start(args, str);
+	vsnprintf(buf, 1023, str, args);
+	va_end(args);
+	fprintf(stderr, "%-19.19s :: %s\n", tmstr, buf);
 }
 
 

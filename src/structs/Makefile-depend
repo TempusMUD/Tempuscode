@@ -1,13 +1,13 @@
+$(OBJ)/char_data.o : char_data.cc \
+	$(INCLUDE)/structs.h $(INCLUDE)/comm.h $(INCLUDE)/character_list.h $(INCLUDE)/interpreter.h $(INCLUDE)/utils.h $(INCLUDE)/spells.h $(INCLUDE)/handler.h $(INCLUDE)/db.h $(INCLUDE)/help.h $(INCLUDE)/paths.h $(INCLUDE)/login.h $(INCLUDE)/house.h $(INCLUDE)/clan.h $(INCLUDE)/security.h 
+	$(CXX) -c $(CXXFLAGS) char_data.cc         -o $(OBJ)/char_data.o
 $(OBJ)/character_list.o : character_list.cc \
 	$(INCLUDE)/structs.h $(INCLUDE)/character_list.h 
 	$(CXX) -c $(CXXFLAGS) character_list.cc    -o $(OBJ)/character_list.o
-$(OBJ)/char_data.o : char_data.cc \
-	$(INCLUDE)/structs.h $(INCLUDE)/comm.h $(INCLUDE)/character_list.h $(INCLUDE)/interpreter.h $(INCLUDE)/utils.h $(INCLUDE)/spells.h $(INCLUDE)/handler.h $(INCLUDE)/db.h $(INCLUDE)/help.h $(INCLUDE)/paths.h $(INCLUDE)/login.h $(INCLUDE)/house.h $(INCLUDE)/clan.h 
-	$(CXX) -c $(CXXFLAGS) char_data.cc         -o $(OBJ)/char_data.o
 $(OBJ)/obj_data.o : obj_data.cc \
 	$(INCLUDE)/structs.h $(INCLUDE)/utils.h 
 	$(CXX) -c $(CXXFLAGS) obj_data.cc          -o $(OBJ)/obj_data.o
 $(OBJ)/room_data.o : room_data.cc \
 	$(INCLUDE)/structs.h $(INCLUDE)/room_data.h 
 	$(CXX) -c $(CXXFLAGS) room_data.cc         -o $(OBJ)/room_data.o
-OBJFILES= $(OBJ)/character_list.o $(OBJ)/char_data.o $(OBJ)/obj_data.o $(OBJ)/room_data.o
+OBJFILES= $(OBJ)/char_data.o $(OBJ)/character_list.o $(OBJ)/obj_data.o $(OBJ)/room_data.o

@@ -100,8 +100,6 @@ struct room_data *r_elven_start_room;
 struct room_data *r_istan_start_room;
 struct room_data *r_arena_start_room;
 struct room_data *r_tower_modrian_start_room;
-struct room_data *r_city_start_room;
-struct room_data *r_doom_start_room;
 struct room_data *r_monk_start_room;
 struct room_data *r_solace_start_room;
 struct room_data *r_mavernal_start_room;
@@ -309,6 +307,9 @@ boot_world(void)
 
 	slog("Loading rooms.");
 	index_boot(DB_BOOT_WLD);
+
+	slog("Loading XML data.");
+	xml_boot();
 
 	slog("Renumbering rooms.");
 	renum_world();
@@ -1185,8 +1186,6 @@ check_start_rooms(void)
 	extern room_num arena_start_room;
 	extern room_num tower_modrian_start_room;
 	extern room_num electro_start_room;
-	extern room_num city_start_room;
-	extern room_num doom_start_room;
 	extern room_num monk_start_room;
 	extern room_num solace_start_room;
 	extern room_num mavernal_start_room;
@@ -1244,16 +1243,6 @@ check_start_rooms(void)
 		if (!mini_mud)
 			slog("SYSERR:  Warning: Arena start room does not exist.");
 		r_tower_modrian_start_room = r_mortal_start_room;
-	}
-	if ((r_city_start_room = real_room(city_start_room)) == NULL) {
-		if (!mini_mud)
-			slog("SYSERR:  Warning: Arena start room does not exist.");
-		r_city_start_room = r_mortal_start_room;
-	}
-	if ((r_doom_start_room = real_room(doom_start_room)) == NULL) {
-		if (!mini_mud)
-			slog("SYSERR:  Warning: Doom start room does not exist.");
-		r_doom_start_room = r_mortal_start_room;
 	}
 	if ((r_monk_start_room = real_room(monk_start_room)) == NULL) {
 		if (!mini_mud)

@@ -2305,10 +2305,8 @@ ACMD(do_rswitch)
                             GET_HOME(ch) == HOME_NEW_THALOS ? r_new_thalos_start_room :\
                             GET_HOME(ch) == HOME_ELVEN_VILLAGE ? r_elven_start_room :\
                             GET_HOME(ch) == HOME_ISTAN ? r_istan_start_room :\
-                            GET_HOME(ch) == HOME_ARENA ? r_arena_start_room :\
-                            GET_HOME(ch) == HOME_CITY ? r_city_start_room :\
-                            GET_HOME(ch) == HOME_DOOM ? r_doom_start_room :\
                             GET_HOME(ch) == HOME_MONK ? r_monk_start_room :\
+							GET_HOME(ch) == HOME_ARENA ? r_arena_start_room :\
                             GET_HOME(ch) == HOME_SKULLPORT ? r_skullport_start_room :\
                             GET_HOME(ch) == HOME_SOLACE_COVE ? r_solace_start_room :\
                             GET_HOME(ch) == HOME_MAVERNAL ? r_mavernal_start_room :\

@@ -41,6 +41,7 @@
 #define SHP_PREFIX	"world/shp"	/* shop definitions        */
 #define TICL_PREFIX "world/ticl"	/* ticl procs                   */
 #define ISCR_PREFIX "world/iscr"	/* iscripts */
+#define XML_PREFIX  "world/xml"
 
 #define CREDITS_FILE	"text/credits"	/* for the 'credits' command    */
 #define MOTD_FILE	"text/motd"	/* messages of the day / mortal */

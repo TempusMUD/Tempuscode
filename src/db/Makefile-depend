@@ -7,4 +7,7 @@ $(OBJ)/db.o : db.cc \
 $(OBJ)/objsave.o : objsave.cc \
 	$(INCLUDE)/structs.h $(INCLUDE)/comm.h $(INCLUDE)/handler.h $(INCLUDE)/db.h $(INCLUDE)/interpreter.h $(INCLUDE)/utils.h $(INCLUDE)/spells.h $(INCLUDE)/screen.h $(INCLUDE)/vehicle.h $(INCLUDE)/house.h $(INCLUDE)/bomb.h 
 	$(CXX) -c $(CXXFLAGS) objsave.cc           -o $(OBJ)/objsave.o
-OBJFILES= $(OBJ)/constants.o $(OBJ)/db.o $(OBJ)/objsave.o
+$(OBJ)/xml.o : xml.cc \
+	$(INCLUDE)/xml_utils.h 
+	$(CXX) -c $(CXXFLAGS) xml.cc               -o $(OBJ)/xml.o
+OBJFILES= $(OBJ)/constants.o $(OBJ)/db.o $(OBJ)/objsave.o $(OBJ)/xml.o
