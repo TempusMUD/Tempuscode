@@ -545,6 +545,7 @@ char *CURRENCY(Creature * ch);
 #define MEDITATE_TIMER(ch)  (ch->char_specials.meditate_timer)
 #define CHAR_CUR_PULSE(ch)  (ch->char_specials.cur_flow_pulse)
 #define GET_FALL_COUNT(ch)     ((ch)->char_specials.fall_count)
+#define GET_MOOD(ch)		(ch->char_specials.mood_str)
 
 #define FIGHTING(ch)          (ch->getFighting())
 #define HUNTING(ch)          ((ch)->char_specials.hunting)
