@@ -2402,6 +2402,8 @@ ASPELL(spell_id_insinuation)
 
 	if (!victim)
 		return;
+	if (victim->isFighting())
+		return;
 
 	send_to_char(victim, "You feel an intense desire to KILL someone!!\r\n");
 	act("$n looks around frantically!", TRUE, victim, 0, 0, TO_ROOM);
@@ -2424,7 +2426,7 @@ ASPELL(spell_id_insinuation)
 			continue;
 		if (PRF_FLAGGED(pulv, PRF_NOHASSLE))
 			continue;
-		// prevent all reputation adjustments and killer flags as a result
+		// prevent all reputation adjustments as a result
 		// of id insinuation
 		if (!ok_to_damage(pulv, victim))
 			continue;
