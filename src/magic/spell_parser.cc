@@ -938,7 +938,7 @@ call_magic(struct Creature *caster, struct Creature *cvict,
 				send_to_char(caster, 
 					"The Supernatural Reality prevents you from twisting "
 					"nature in that way!\r\n");
-				act("$n attemps to violently alter reality, but is restained "
+				act("$n attemps to violently alter reality, but is restrained "
 					"by the whole of the universe.", FALSE, caster, 0, 0,
 					TO_ROOM);
 				return 0;
@@ -971,7 +971,8 @@ call_magic(struct Creature *caster, struct Creature *cvict,
 					FALSE, caster, 0, cvict, TO_VICT);
 				return 0;
 			}*/
-            if (AFF3_FLAGGED(cvict, AFF3_PSISHIELD) && 
+            if (cvict->distrusts(caster) &&
+				AFF3_FLAGGED(cvict, AFF3_PSISHIELD) && 
                 (SPELL_IS_PSIONIC(spellnum) || casttype == CAST_PSIONIC)) {
                 bool failed = false;
                 int prob, percent;
@@ -1006,43 +1007,44 @@ call_magic(struct Creature *caster, struct Creature *cvict,
                 }
             }
 		}
+		if (cvict->distrusts(caster)) {
+			af_ptr = NULL;
+			if (SPELL_IS_MAGIC(spellnum) && !SPELL_IS_DIVINE(spellnum))
+				af_ptr = affected_by_spell(cvict, SPELL_ANTI_MAGIC_SHELL);
+			if (!af_ptr && IS_EVIL(caster) && SPELL_IS_DIVINE(spellnum))
+				af_ptr = affected_by_spell(cvict, SPELL_DIVINE_INTERVENTION);
+			if (!af_ptr && IS_GOOD(caster) && SPELL_IS_DIVINE(spellnum))
+				af_ptr = affected_by_spell(cvict, SPELL_SPHERE_OF_DESECRATION);
 
-		if (((af_ptr = affected_by_spell(cvict, SPELL_ANTI_MAGIC_SHELL)) &&
-				SPELL_IS_MAGIC(spellnum) &&
-				!SPELL_IS_DIVINE(spellnum) &&
-				(spellnum != SPELL_SUMMON ||
-					(IS_NPC(cvict) && MOB_FLAGGED(cvict, MOB_NOSUMMON)) ||
-					(!IS_NPC(cvict) && !PRF_FLAGGED(cvict, PRF_SUMMONABLE))) &&
-				number(0, af_ptr->level) > number(0, level)) ||
-			((af_ptr = affected_by_spell(cvict, SPELL_DIVINE_INTERVENTION)) &&
-				SPELL_IS_DIVINE(spellnum) && IS_EVIL(caster) &&
-				number(0, af_ptr->level) > number(0, level)) ||
-			((af_ptr = affected_by_spell(cvict, SPELL_SPHERE_OF_DESECRATION))
-				&& SPELL_IS_DIVINE(spellnum) && IS_GOOD(caster)
-				&& number(0, af_ptr->level) > number(0, level))) {
-			sprintf(buf, "$N's %s absorbs $n's %s!", spell_to_str(af_ptr->type),
-				spell_to_str(spellnum));
-			act(buf, FALSE, caster, 0, cvict, TO_NOTVICT);
-			sprintf(buf, "Your %s absorbs $n's %s!", spell_to_str(af_ptr->type),
-				spell_to_str(spellnum));
-			act(buf, FALSE, caster, 0, cvict, TO_VICT);
-			sprintf(buf, "$N's %s absorbs your %s!", spell_to_str(af_ptr->type),
-				spell_to_str(spellnum));
-			act(buf, FALSE, caster, 0, cvict, TO_CHAR);
-			GET_MANA(cvict) = MIN(GET_MAX_MANA(cvict),
-				GET_MANA(cvict) + (level >> 1));
-			if (casttype == CAST_SPELL) {
-				mana = mag_manacost(caster, spellnum);
-				if (mana > 0)
-					GET_MANA(caster) =
-						MAX(0, MIN(GET_MAX_MANA(caster),
-							GET_MANA(caster) - mana));
+			if (af_ptr && number(0, af_ptr->level) > number(0, level)) {
+				act(tmp_sprintf("$N's %s absorbs $n's %s!",
+						spell_to_str(af_ptr->type),
+						spell_to_str(spellnum)),
+					false, caster, 0, cvict, TO_NOTVICT);
+				act(tmp_sprintf("Your %s absorbs $n's %s!",
+						spell_to_str(af_ptr->type),
+						spell_to_str(spellnum)),
+					false, caster, 0, cvict, TO_VICT);
+				act(tmp_sprintf("$N's %s absorbs your %s!",
+						spell_to_str(af_ptr->type),
+						spell_to_str(spellnum)),
+					false, caster, 0, cvict, TO_CHAR);
+				GET_MANA(cvict) = MIN(GET_MAX_MANA(cvict),
+					GET_MANA(cvict) + (level >> 1));
+				if (casttype == CAST_SPELL) {
+					mana = mag_manacost(caster, spellnum);
+					if (mana > 0)
+						GET_MANA(caster) =
+							MAX(0, MIN(GET_MAX_MANA(caster),
+								GET_MANA(caster) - mana));
+				}
+				if ((af_ptr->duration -= (level >> 2)) <= 0) {
+					send_to_char(cvict, "Your %s dissolves.\r\n", spell_to_str(af_ptr->type));
+					affect_remove(cvict, af_ptr);
+				}
+				return 0;
+				
 			}
-			if ((af_ptr->duration -= (level >> 2)) <= 0) {
-				send_to_char(cvict, "Your %s dissolves.\r\n", spell_to_str(af_ptr->type));
-				affect_remove(cvict, af_ptr);
-			}
-			return 0;
 		}
 	}
 	/* determine the type of saving throw */
