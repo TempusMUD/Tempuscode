@@ -603,8 +603,10 @@ Crash_load( struct char_data * ch )
         break;
     case RENT_FORCED:
     case RENT_TIMEDOUT:
-        sprintf(buf,"%sWARNING:%s Failure to rent before disconnecting has tripled your rent.\r\n",CCRED(ch,C_NRM),CCNRM(ch,C_NRM));
-        sprintf( buf, "%s retrieving force-saved items and entering game.", GET_NAME( ch ) );
+        sprintf(buf,"%sWARNING:%s Failure to rent before disconnecting has tripled your rent.\r\n",
+            CCRED(ch,C_NRM),CCNRM(ch,C_NRM));
+        sprintf( buf, "%s retrieving force-saved items and entering game.", 
+            GET_NAME( ch ) );
         break;
     default:
         sprintf( buf, "WARNING: %s entering game with undefined rent code.", GET_NAME( ch ) );
@@ -873,7 +875,7 @@ Crash_idlesave( struct char_data * ch )
     if(GET_LEVEL(ch) >= LVL_AMBASSADOR) {
         cost = 0;
     }
-
+    // INCREASE
     Crash_rentsave( ch, ( cost * 3 ), RENT_FORCED );
 }
 

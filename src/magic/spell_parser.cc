@@ -3020,7 +3020,7 @@ mag_assign_spells(void)
            60, 40, 1, POS_STANDING, TAR_CHAR_ROOM, FALSE, 
            MAG_PSIONIC | MAG_AFFECTS | MAG_UNAFFECTS);
 
-    spello(SPELL_NOPAIN, X, X, X, X, X, 42, X, X, X, X, X, X, X, X,X,X,X,
+    spello(SPELL_NOPAIN, X, X, X, X, X, 30, X, X, X, X, X, X, X, X,X,X,X,
            130, 100, 5, POS_STANDING, TAR_CHAR_ROOM, FALSE, 
            MAG_PSIONIC | MAG_AFFECTS);
 
