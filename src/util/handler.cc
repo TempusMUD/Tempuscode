@@ -1583,19 +1583,19 @@ check_eq_align(Creature *ch)
 int
 get_number(char **name)
 {
+	char *ppos;
 	int i;
-	char *ppos, *number;
 
 	if ((ppos = strchr(*name, '.'))) {
 		*ppos++ = '\0';
-		number = tmp_strdup(*name);
-		strcpy(*name, ppos);
+		if (!is_number(*name))
+			return 0;
 
-		for (i = 0; *(number + i); i++)
-			if (!isdigit(*(number + i)))
-				return 0;
+		i = atoi(*name);
 
-		return (atoi(number));
+		while (*ppos)
+			*(*name++) = *ppos++;
+		return i;
 	}
 	return 1;
 }
