@@ -2006,11 +2006,22 @@ ACMD(do_sleeper)
 			return;
 
 		if (!IS_SET(retval, DAM_VICT_KILLED)) {
+			struct affected_type af;
 
 			if (FIGHTING(vict))
 				stop_fighting(vict);
 			WAIT_STATE(vict, 4 RL_SEC);
 			vict->setPosition(POS_SLEEPING);
+			
+			af.is_instant = false;
+			af.duration = 2;
+			af.bitvector = AFF_SLEEP;
+			af.type = SKILL_SLEEPER;
+			af.modifier = 0;
+			af.aff_index = 0;
+			af.location = APPLY_NONE;
+			af.level = GET_LEVEL(ch);
+			affect_join(vict, &af, false, false, false, false);
 
 			if (IS_SET(retval, DAM_ATTACKER_KILLED))
 				return;
