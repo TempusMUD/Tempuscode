@@ -1010,6 +1010,9 @@ struct Creature {
     bool loadFromXML( const char *path );
     void saveToXML();
 
+	void set(const char *key, const char *val);
+	bool loadFromDB(long id);
+
 	int loadObjects();
     room_data *getLoadroom(); // Retrieves the characters appropriate loadroom.
 

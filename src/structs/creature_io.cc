@@ -879,3 +879,124 @@ Creature::loadFromXML( const char *path )
 	//read_alias(ch);
     return true;
 }
+
+void
+Creature::set(const char *key, const char *val)
+{
+	if (!strcmp(key, "race"))
+		GET_RACE(this) = atoi(val);
+	else if (!strcmp(key, "class"))
+		GET_CLASS(this) = atoi(val);
+	else if (!strcmp(key, "remort"))
+		GET_REMORT_CLASS(this) = atoi(val);
+	else if (!strcmp(key, "name"))
+		GET_NAME(this) = strdup(val);
+	else if (!strcmp(key, "title"))
+		GET_TITLE(this) = strdup(val);
+	else if (!strcmp(key, "poofin"))
+		POOFIN(this) = strdup(val);
+	else if (!strcmp(key, "poofout"))
+		POOFOUT(this) = strdup(val);
+	else if (!strcmp(key, "immbadge"))
+		strcpy(BADGE(this), val);
+	else if (!strcmp(key, "sex"))
+		GET_SEX(this) = atoi(val);
+	else if (!strcmp(key, "hitp"))
+		GET_HIT(this) = atoi(val);
+	else if (!strcmp(key, "mana"))
+		GET_MANA(this) = atoi(val);
+	else if (!strcmp(key, "move"))
+		GET_MOVE(this) = atoi(val);
+	else if (!strcmp(key, "maxhitp"))
+		GET_MAX_HIT(this) = atoi(val);
+	else if (!strcmp(key, "maxmana"))
+		GET_MAX_MANA(this) = atoi(val);
+	else if (!strcmp(key, "maxmove"))
+		GET_MAX_MOVE(this) = atoi(val);
+	else if (!strcmp(key, "gold"))
+		GET_GOLD(this) = atol(val);
+	else if (!strcmp(key, "cash"))
+		GET_CASH(this) = atol(val);
+	else if (!strcmp(key, "exp"))
+		GET_EXP(this) = atol(val);
+	else if (!strcmp(key, "level"))
+		GET_LEVEL(this) = atol(val);
+	else if (!strcmp(key, "height"))
+		GET_HEIGHT(this) = atol(val);
+	else if (!strcmp(key, "weight"))
+		GET_WEIGHT(this) = atol(val);
+	else if (!strcmp(key, "align"))
+		GET_ALIGNMENT(this) = atoi(val);
+	else if (!strcmp(key, "gen"))
+		GET_REMORT_GEN(this) = atoi(val);
+	else if (!strcmp(key, "birth_time"))
+		player.time.birth = atol(val);
+	else if (!strcmp(key, "death_time"))
+		player.time.death = atol(val);
+	else if (!strcmp(key, "played_time"))
+		player.time.played = atol(val);
+	else if (!strcmp(key, "login_time"))
+		player.time.logon = atol(val);
+	else if (!strcmp(key, "pkills"))
+		GET_PKILLS(this) = atol(val);
+	else if (!strcmp(key, "mkills"))
+		GET_MOBKILLS(this) = atol(val);
+	else if (!strcmp(key, "akills"))
+		GET_ARENAKILLS(this) = atol(val);
+	else if (!strcmp(key, "deaths"))
+		GET_PC_DEATHS(this) = atol(val);
+	else if (!strcmp(key, "reputation"))
+		GET_REPUTATION(this) = atoi(val);
+	else if (!strcmp(key, "str"))
+		aff_abils.str = real_abils.str = atoi(val);
+	else if (!strcmp(key, "int"))
+		aff_abils.intel = real_abils.intel = atoi(val);
+	else if (!strcmp(key, "wis"))
+		aff_abils.wis = real_abils.wis = atoi(val);
+	else if (!strcmp(key, "dex"))
+		aff_abils.dex = real_abils.dex = atoi(val);
+	else if (!strcmp(key, "con"))
+		aff_abils.con = real_abils.con = atoi(val);
+	else if (!strcmp(key, "cha"))
+		aff_abils.cha = real_abils.cha = atoi(val);
+	else if (!strcmp(key, "hunger"))
+		GET_COND(this, FULL) = atoi(val);
+	else if (!strcmp(key, "thirst"))
+		GET_COND(this, THIRST) = atoi(val);
+	else if (!strcmp(key, "drunk"))
+		GET_COND(this, DRUNK) = atoi(val);
+	else
+		slog("Invalid player field %s set to %s", key, val);
+}
+
+bool
+Creature::loadFromDB(long idnum)
+{
+	const char **fields;
+	PGresult *res;
+	int res_count, acct_count, field_count, field_idx;
+
+	res = sql_query("select race, class, remort, name, title, poofin, poofout, imm_badge, sex, hitp, mana, move, maxhitp, maxmana, maxmove, gold, cash, exp, level, height, weight, align, gen, birth_time, death_time, played_time, login_time, pkills, mkills, akills, deaths, reputation, flag_severity, str, int, wis, dex, con, cha, hunger, thirst, drunk, invis_lvl, wimpy, lifepoints, rent_kind, rent_per_day, currency, cxn_mode, home_town, home_room, load_room, prefs_1, prefs_2, affects_1, affects_2, affects_3, descrip from accounts where idnum=%ld", idnum);
+	res_count = PQntuples(res);
+	if (res_count > 1) {
+		slog("SYSERR: search for player %ld returned more than one match", idnum);
+		return false;
+	}
+	
+	if (acct_count < 1)
+		return false;
+	
+	GET_IDNUM(this) = idnum;
+
+	field_count = PQnfields(res);
+	fields = new (const char *)[field_count];
+	for (field_idx = 0;field_idx < field_count;field_idx++)
+		fields[field_idx] = PQfname(res, field_idx);
+	
+	for (field_idx = 0;field_idx < field_count;field_idx++)
+		this->set(fields[field_idx], PQgetvalue(res, 0, field_idx));
+	delete [] fields;
+	PQclear(res);
+	return true;
+}
+
