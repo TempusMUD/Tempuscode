@@ -10,10 +10,10 @@
 
 #define __MKIMMLIST_C__
 
-#include "../structs.h"
-#include "../utils.h"
-#include "../db.h"
-#include "../screen.h"
+#include "structs.h"
+#include "utils.h"
+#include "db.h"
+#include "screen.h"
 
 int noAnsi = 0;
 
