@@ -1325,6 +1325,7 @@ struct command_info cmd_info[] = {
 	{"unalias", POS_DEAD, do_unalias, 0, 0, 0, 0},
 	{"uppercut", POS_FIGHTING, do_offensive_skill, 0, SKILL_UPPERCUT, 0, 0},
 	{"uptime", POS_DEAD, do_date, LVL_AMBASSADOR, SCMD_UPTIME, 0, 0},
+	{"unwield", POS_RESTING, do_remove, 0, 0, 0, 0},
 	{"use", POS_SITTING, do_use, 1, SCMD_USE, 0, 0},
 	{"users", POS_DEAD, do_users, LVL_IMMORT, 0, 0, 0},
 	{"utter", POS_RESTING, do_say, 0, SCMD_UTTER, 0, 0},
