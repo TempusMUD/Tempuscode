@@ -2059,50 +2059,43 @@ ACMD(do_stand)
 	}
 }
 
+bool
+creature_can_fly(Creature *ch)
+{
+	int i;
+
+	if (GET_LEVEL(ch) >= LVL_AMBASSADOR)
+		return true;
+
+	for (i = 0; i < NUM_WEARS; i++) {
+		if (ch->equipment[i]) {
+			if (GET_OBJ_TYPE(ch->equipment[i]) == ITEM_WINGS)
+				return true;
+		}
+	}
+	if (IS_AFFECTED(ch, AFF_INFLIGHT))
+		return true;
+	return false;
+}
+
 ACMD(do_fly)
 {
 
-	int i, can_fly = 0;
+	int can_fly = creature_can_fly(ch);
+
+	if (!can_fly) {
+		send_to_char(ch, "You are not currently able to fly.\r\n");
+		return;
+	}
 
 	switch (ch->getPosition()) {
 	case POS_STANDING:
-		for (i = 0; i < NUM_WEARS; i++) {
-			if (ch->equipment[i]) {
-				if (GET_OBJ_TYPE(ch->equipment[i]) == ITEM_WINGS)
-					can_fly = TRUE;
-			}
-		}
-		if (IS_AFFECTED(ch, AFF_INFLIGHT))
-			can_fly = TRUE;
-		if (!can_fly && IS_VAMPIRE(ch)) {
-			if (CHECK_SKILL(ch, SKILL_FLYING) <
-				(number(10,
-						30) + (IS_CARRYING_W(ch) + IS_WEARING_W(ch)) / 10)) {
-				send_to_char(ch, "You are unable to fly.\r\n");
-				return;
-			} else if ((120 - CHECK_SKILL(ch, SKILL_FLYING)) > GET_MOVE(ch)) {
-				send_to_char(ch, "You are too exhausted to fly.\r\n");
-				return;
-			} else {
-				can_fly = TRUE;
-				GET_MOVE(ch) -= (120 - CHECK_SKILL(ch, SKILL_FLYING));
-			}
-		}
-		if ((!can_fly) && (GET_LEVEL(ch) < LVL_AMBASSADOR))
-			send_to_char(ch, "You are not currently able to fly.\r\n");
-		else {
-			act("Your feet lift from the ground.", FALSE, ch, 0, 0, TO_CHAR);
-			act("$n begins to float above the ground.", TRUE, ch, 0, 0,
-				TO_ROOM);
-			ch->setPosition(POS_FLYING);
-		}
-		break;
-
 	case POS_SITTING:
-		act("Why don't you stand up first?", FALSE, ch, 0, 0, TO_CHAR);
-		break;
 	case POS_RESTING:
-		act("Why don't you stand up first?", FALSE, ch, 0, 0, TO_CHAR);
+		act("Your feet lift from the ground.", FALSE, ch, 0, 0, TO_CHAR);
+		act("$n begins to float above the ground.", TRUE, ch, 0, 0,
+			TO_ROOM);
+		ch->setPosition(POS_FLYING);
 		break;
 	case POS_SLEEPING:
 		act("You have to wake up first!", FALSE, ch, 0, 0, TO_CHAR);
@@ -2113,6 +2106,14 @@ ACMD(do_fly)
 		break;
 	case POS_FLYING:
 		act("You are already in flight.", FALSE, ch, 0, 0, TO_CHAR);
+		break;
+	case POS_MOUNTED:
+		act("You rise off of $N.", false, ch, 0, MOUNTED(ch), TO_CHAR);
+		act("$n rises off of you.", false, ch, 0, MOUNTED(ch), TO_VICT);
+		act("$n rises off of $N.", false, ch, 0, MOUNTED(ch), TO_NOTVICT);
+		ch->setPosition(POS_FLYING);
+		REMOVE_BIT(AFF2_FLAGS(MOUNTED(ch)), AFF2_MOUNTED);
+		MOUNTED(ch) = NULL;
 		break;
 	default:
 		act("You stop floating around, and put your feet on the ground.",
@@ -2151,6 +2152,9 @@ ACMD(do_sit)
 		act("That's probably not a good idea while flying.", FALSE, ch, 0, 0,
 			TO_CHAR);
 		break;
+	case POS_MOUNTED:
+		act("You are already sitting on $N.", false, ch, 0, MOUNTED(ch), TO_CHAR);
+		break;
 	default:
 		act("You stop floating around, and sit down.", FALSE, ch, 0, 0,
 			TO_CHAR);
@@ -2188,6 +2192,9 @@ ACMD(do_rest)
 		break;
 	case POS_FLYING:
 		act("You better not try that while flying.", FALSE, ch, 0, 0, TO_CHAR);
+		break;
+	case POS_MOUNTED:
+		act("You had better get off of $N first.", false, ch, 0, MOUNTED(ch), TO_CHAR);
 		break;
 	default:
 		act("You stop floating around, and stop to rest your tired bones.",
