@@ -49,6 +49,7 @@ extern const char *language_names[];
 
 int parse_player_class(char *arg);
 //extern struct command_info cmd_info[];
+void summon_cityguards(room_data *room);
 
 ACMD(do_say)
 {
@@ -1089,6 +1090,14 @@ ACMD(do_gen_comm)
 	if (Nasty_Words(argument))
 		for (idx = 0;idx < num_nasty;idx++)
 			filtered_msg = tmp_gsubi(filtered_msg, nasty_list[idx], random_curses());
+	
+	// Check to see if they're calling for help
+	if (subcmd == SCMD_SHOUT
+			&& IS_NPC(ch)
+			&& !IS_AFFECTED(ch, AFF_CHARM)
+			&& strstr(argument, "help")
+			&& strstr(argument, "!"))
+		summon_cityguards(ch->in_room);
 
 
 	/* now send all the strings out */
