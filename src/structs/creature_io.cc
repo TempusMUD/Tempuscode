@@ -44,23 +44,11 @@ obj_data *
 Creature::findCostliestObj(void)
 {
  	obj_data *cur_obj, *result;
-	int pos;
 
 	if (GET_LEVEL(this) >= LVL_AMBASSADOR)
 		return false;
 
 	result = NULL;
-
-	for (pos = 0;pos < NUM_WEARS;pos++) {
-		cur_obj = GET_EQ(this, pos);
-		if (cur_obj &&
-				(!result || GET_OBJ_COST(result) < GET_OBJ_COST(cur_obj)))
-			result = cur_obj;
-		cur_obj = GET_IMPLANT(this, pos);
-		if (cur_obj &&
-				(!result || GET_OBJ_COST(result) < GET_OBJ_COST(cur_obj)))
-			result = cur_obj;
-	}
 
 	cur_obj = carrying;
 	while (cur_obj) {
