@@ -6,8 +6,8 @@
 
 #include <stdio.h>
 #include <stdlib.h>
-#include "../structs.h"
-#include "../utils.h"
+#include "structs.h"
+#include "utils.h"
 
 void	
 get_stats( char *filename )

@@ -11,9 +11,9 @@
 #include <sys/time.h>
 #include <strings.h>
 
-#include "../structs.h"
-#include "../utils.h"
-#include "../interpreter.h"
+#include "structs.h"
+#include "utils.h"
+#include "interpreter.h"
 
 
 void
@@ -28,7 +28,7 @@ purge(char *filename, int tmud)
 
    if (!(fl = fopen(filename, "r+"))) {
       printf("Can't open %s.", filename);
-      exit();
+      exit(1);
    }
 
    if (tmud)
@@ -43,7 +43,7 @@ purge(char *filename, int tmud)
        fclose(fl);
        fclose(outfile);
        puts("Done.");
-       exit();
+       exit(1);
      }
 
      okay = 1;
@@ -70,7 +70,7 @@ purge(char *filename, int tmud)
 
      if (okay && ((player.level <= 40 &&
 		   !(player.char_specials_saved.act & PLR_CRYO) &&
-		   player.remort_class < 0) || tmud)) {
+		   player.remort_char_class < 0) || tmud)) {
        timeout =  player.level * 5;
        timeout = timeout < 14 ? 14 : timeout;
 
@@ -111,7 +111,7 @@ purge(char *filename, int tmud)
 }
 
 
-void
+int
 main(int argc, char *argv[])
 {
   int tmud = 0;
