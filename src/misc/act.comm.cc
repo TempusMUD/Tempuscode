@@ -994,8 +994,7 @@ ACMD(do_gen_comm)
 	filtered_msg = argument;
 	if (Nasty_Words(argument))
 		for (idx = 0;idx < num_nasty;idx++)
-			if (strstr(argument, nasty_list[idx]))
-				filtered_msg = tmp_gsub(filtered_msg, nasty_list[idx], random_curses());
+			filtered_msg = tmp_gsubi(filtered_msg, nasty_list[idx], random_curses());
 
 
 	/* now send all the strings out */
