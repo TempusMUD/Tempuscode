@@ -341,6 +341,7 @@ handle_input(struct descriptor_data *d, char *arg)
 
 		if (Valid_Name(arg)) {
 			d->creature = d->account->create_char(arg);
+            d->creature->desc = d;
 			set_desc_state(CXN_NAME_VERIFY, d);
 		} else {
             send_to_desc(d, "\r\nThat character name is invalid.\r\n\r\n");
@@ -970,7 +971,11 @@ send_menu(descriptor_data *d)
 		send_to_desc(d, "\r\n\r\n    Other players will usually be able to determine your general\r\n"
 				  "size, as well as your race and gender, by looking at you.  What\r\n"
 				  "else is noticable about your character?\r\n\r\n");
-		break;
+        if( d->text_editor ) {
+            d->text_editor->SendStartupMessage();
+            send_to_desc(d, "\r\n");
+        }
+            
 		break;
 	case CXN_MENU:
 		// If we have a creature, save and offload
@@ -1185,8 +1190,7 @@ set_desc_state(cxn_state state,struct descriptor_data *d)
 		d->inbuf[0] = '\0';
 		d->wait = 5 RL_SEC;
 	}
-    send_menu(d);
-
+    
 	if (CXN_EDIT_DESC == state) {
 		if (!d->creature) {
 			slog("SYSERR: set_desc_state called with CXN_EDIT_DESC with no creature.");
@@ -1197,8 +1201,9 @@ set_desc_state(cxn_state state,struct descriptor_data *d)
 		start_text_editor(d,&d->creature->player.description,true, MAX_CHAR_DESC-1);
 	}
 
+    send_menu(d);
 	d->need_prompt = true;
-	}
+}
 
 /*
  * Turn off echoing (specific to telnet client)
