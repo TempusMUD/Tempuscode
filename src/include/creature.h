@@ -1021,9 +1021,6 @@ struct Creature {
     room_data *getLoadroom(); // Retrieves the characters appropriate loadroom.
 
 	bool displayUnrentables(void);
-	long calcDailyRent(int factor,
-		bool display = false,
-		const char *currency_str = NULL);
 	obj_data *findCostliestObj(void);
 	bool payRent(time_t last_time, int code, int currency);
     // Saves the given characters equipment to a file. Intended for use while 
