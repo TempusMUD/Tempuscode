@@ -325,6 +325,23 @@ show_obj_to_char(struct obj_data *object, struct Creature *ch,
 				CCYEL_BLD(ch, C_SPR), CCNRM(ch, C_SPR));
 			found = true;
 		}
+        if( object->tmp_affects != NULL ) {
+            if( object->affectedBySpell(SPELL_ITEM_REPULSION_FIELD) != NULL ) {
+                msg = tmp_sprintf("%s %s(repulsive)%s", msg,
+                                  CCCYN(ch, C_SPR), CCNRM(ch, C_SPR));
+            } else if( object->affectedBySpell(SPELL_ITEM_ATTRACTION_FIELD) != NULL ) {
+                msg = tmp_sprintf("%s %s(attractive)%s", msg,
+                                  CCCYN(ch, C_SPR), CCNRM(ch, C_SPR));
+            }
+            if( object->affectedBySpell(SPELL_ENVENOM) != NULL ) {
+                msg = tmp_sprintf("%s %s(venom)%s", msg,
+                                  CCGRN(ch, C_SPR), CCNRM(ch, C_SPR));
+            }
+            if( object->affectedBySpell(SPELL_ELEMENTAL_BRAND) != NULL ) {
+                msg = tmp_sprintf("%s %s(branded)%s", msg,
+                                  CCRED(ch, C_SPR), CCNRM(ch, C_SPR));
+            }
+        }
 		if (mode == 0)
 			msg = tmp_strcat(msg, CCGRN(ch, C_NRM), NULL);
 	}
