@@ -619,6 +619,11 @@ ASPELL(spell_summon)
 	if (ch == NULL || victim == NULL || ch == victim)
 		return;
 
+	if (ch->in_room == victim->in_room) {
+		send_to_char(ch, "Nothing happens.\r\n");
+		return;
+	}
+		
 	if (ROOM_FLAGGED(victim->in_room, ROOM_NORECALL)) {
 		send_to_char(victim, "You fade out for a moment...\r\n"
 			"The magic quickly dissipates!\r\n");
@@ -660,8 +665,8 @@ ASPELL(spell_summon)
 
 	if (ROOM_FLAGGED(victim->in_room, ROOM_PEACEFUL) &&
 		!PLR_FLAGGED(victim, PLR_KILLER) && GET_LEVEL(ch) < LVL_GRGOD) {
-		act("A strange vortex of energy opens up but fails to draw you in.\r\n"
-			"$n has attempted to summon you!", FALSE, ch, 0, victim, TO_VICT);
+		send_to_char(victim, "A strange vortex of energy opens up but fails to draw you in.\r\n");
+		act("$n has attempted to summon you!", FALSE, ch, 0, victim, TO_VICT);
 		act("You fail.  $N is in a non-violence zone!.", FALSE, ch, 0, victim,
 			TO_CHAR);
 		return;
@@ -678,11 +683,10 @@ ASPELL(spell_summon)
 		if (mag_savingthrow(victim, level, SAVING_SPELL) &&
 			!PLR_FLAGGED(victim, PLR_KILLER)) {
 
-			send_to_char(victim, "%s just tried to summon you to: %s.\r\n"
-				"%s failed because you have summon protection on.\r\n"
+			send_to_char(victim, "%s just tried to summon you to %s,\r\n"
+				"and failed because you have summon protection on.\r\n"
 				"Type NOSUMMON to allow other players to summon you.\r\n",
-				GET_NAME(ch), ch->in_room->name,
-				(ch->player.sex == SEX_MALE) ? "He" : "She");
+				PERS(ch, victim), tmp_tolower(ch->in_room->name));
 
 			send_to_char(ch, "You failed because %s has summon protection on.\r\n",
 				GET_NAME(victim));
@@ -726,11 +730,9 @@ ASPELL(spell_summon)
 		!PLR_FLAGGED(victim, PLR_KILLER)) {
 		send_to_char(ch, 
 			"You cannot summon clan members from their clan house.\r\n");
-		sprintf(buf,
-			"$n has attempted to summon you to %s!!\r\n"
+		act(tmp_sprintf("$n has attempted to summon you to %s!!\r\n"
 			"$e failed because you are in your clan house.\r\n",
-			ch->in_room->name);
-		act(buf, FALSE, ch, 0, victim, TO_VICT);
+			ch->in_room->name), FALSE, ch, 0, victim, TO_VICT);
 		mudlog(MAX(GET_INVIS_LVL(ch), GET_INVIS_LVL(victim)), CMP, true,
 			"%s has attempted to summon %s from %s (clan).",
 			GET_NAME(ch), GET_NAME(victim), victim->in_room->name);
