@@ -3737,7 +3737,7 @@ ACMD(do_sacrifice)
               (IS_CONTAINER(obj) && !junkable(obj))) {
               if (IS_CONTAINER(obj)) {
                   string containerName(obj->name);
-                  sbuf = AN(obj->name) + string(" ") + containerName +
+                  sbuf = AN(obj->short_description) + string(" ") + containerName +
                          " contains, or is, a renamed object.\r\n";
               }
               else
