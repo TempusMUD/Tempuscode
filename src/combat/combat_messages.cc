@@ -1359,7 +1359,7 @@ skill_message(int dam, struct Creature *ch, struct Creature *vict,
 						TO_VICT | TO_SLEEP);
 					send_to_char(vict, CCNRM(vict, C_NRM));
 
-				} else {
+				} else if (msg) {
 					if (ch) {
 						act(msg->hit_msg.room_msg, FALSE, ch, weap, vict,
 							TO_NOTVICT | TO_VICT_RM);
