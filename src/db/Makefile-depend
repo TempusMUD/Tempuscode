@@ -14,6 +14,6 @@ $(OBJ)/objsave.o : objsave.cc \
 	$(INCLUDE)/structs.h $(INCLUDE)/comm.h $(INCLUDE)/handler.h $(INCLUDE)/db.h $(INCLUDE)/interpreter.h $(INCLUDE)/utils.h $(INCLUDE)/spells.h $(INCLUDE)/screen.h $(INCLUDE)/vehicle.h $(INCLUDE)/house.h $(INCLUDE)/bomb.h 
 	$(CXX) -c $(CXXFLAGS) objsave.cc           -o $(OBJ)/objsave.o
 $(OBJ)/xml.o : xml.cc \
-	$(INCLUDE)/utils.h $(INCLUDE)/xml_utils.h $(INCLUDE)/db.h 
+	$(INCLUDE)/constants.h $(INCLUDE)/utils.h $(INCLUDE)/xml_utils.h $(INCLUDE)/db.h 
 	$(CXX) -c $(CXXFLAGS) xml.cc               -o $(OBJ)/xml.o
 OBJFILES= $(OBJ)/analysis.o $(OBJ)/constants.o $(OBJ)/db.o $(OBJ)/obj_matcher.o $(OBJ)/objsave.o $(OBJ)/xml.o
