@@ -34,7 +34,7 @@ SPECIAL( hell_domed_chamber ) {
     sprintf( buf, "the Anti-%s", GET_NAME( ch ) );
     cloned_char->player.short_descr = str_dup( buf );
 
-    sprintf( buf, "%s stands before you.\n", buf );
+    sprintf( buf, "%s stands before you.\n", CAP( buf ) );
     cloned_char->player.long_descr = str_dup( buf );
 
     cloned_char->player.description = NULL;
@@ -63,6 +63,8 @@ SPECIAL( hell_domed_chamber ) {
     char_to_room( cloned_char, ch->in_room );
     send_to_room( "With the sound of a great exhaling of breath, a dark figure steps into the room...\n", 
 		  ch->in_room );
+
+    HUNTING( cloned_char ) = ch;
 
     return 1;
 }
