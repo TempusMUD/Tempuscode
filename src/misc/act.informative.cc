@@ -524,102 +524,119 @@ diag_conditions(struct Creature *ch)
 	return (buf);
 }
 
-void
-show_trailers_to_char(struct Creature *ch, struct Creature *i)
+char *
+desc_char_trailers(Creature *ch, Creature *i)
 {
+	char *desc = "";
 
 	if (affected_by_spell(i, SPELL_QUAD_DAMAGE))
-		act("...$e is glowing with a bright blue light!",
-			FALSE, i, 0, ch, TO_VICT);
+		desc = tmp_strcat(desc, "...", HSSH(i),
+			" is glowing with a bright blue light!\r\n", NULL);
 
 	if (IS_AFFECTED_2(i, AFF2_ABLAZE))
-		act("...$s body is blazing like a bonfire!", FALSE, i, 0, ch, TO_VICT);
+		desc = tmp_strcat(desc, "...", HSHR(i),
+			" body is blazing like a bonfire!\r\n", NULL);
 	if (IS_AFFECTED(i, AFF_BLIND))
-		act("...$e is groping around blindly!", FALSE, i, 0, ch, TO_VICT);
-/*
-if (IS_AFFECTED(i, AFF_NOPAIN))
-        act("...$e looks like $e could take on anything!", 
-            FALSE, i, 0, ch, TO_VICT);
-*/
+		desc = tmp_strcat(desc, "...", HSSH(i),
+			" is groping around blindly!\r\n", NULL);
+
 	if (IS_AFFECTED(i, AFF_SANCTUARY)) {
 		if (IS_EVIL(i))
-			act("...$e glows with a dark light!", FALSE, i, 0, ch, TO_VICT);
+			desc = tmp_strcat(desc, "...", HSSH(i),
+				" is surrounded by darkness!\r\n", NULL);
 		else
-			act("...$e glows with a bright light!", FALSE, i, 0, ch, TO_VICT);
-	} else if (IS_AFFECTED(i, AFF_GLOWLIGHT)) {
-		act("...$e is followed by a ghostly light.", FALSE, i, 0, ch, TO_VICT);
+			desc = tmp_strcat(desc, "...", HSSH(i),
+				" glows with a bright light!\r\n", NULL);
+	}
+	
+	if (IS_AFFECTED(i, AFF_GLOWLIGHT)) {
+		desc = tmp_strcat(desc, "...", HSSH(i),
+			" is followed by a ghostly light.\r\n", NULL);
 	} else if (IS_AFFECTED_2(i, AFF2_DIVINE_ILLUMINATION)) {
 		if (IS_EVIL(i))
-			act("...$e is followed by an unholy light.",
-				FALSE, i, 0, ch, TO_VICT);
+			desc = tmp_strcat(desc, "...", HSSH(i),
+				" is followed by an unholy light.\r\n", NULL);
 		else if (IS_GOOD(i))
-			act("...$e is followed by a holy light.",
-				FALSE, i, 0, ch, TO_VICT);
+			desc = tmp_strcat(desc, "...", HSSH(i),
+				" is followed by a holy light.\r\n", NULL);
 		else
-			act("...$e is followed by a sickly light.",
-				FALSE, i, 0, ch, TO_VICT);
-	} else if (IS_AFFECTED_2(i, AFF2_FLUORESCENT)) {
-		act("...$e is followed by a fluorescent light.",
-			FALSE, i, 0, ch, TO_VICT);
-	}
+			desc = tmp_strcat(desc, "...", HSSH(i),
+				" is followed by a sickly light.\r\n", NULL);
+	} else if (IS_AFFECTED_2(i, AFF2_FLUORESCENT))
+		desc = tmp_strcat(desc, "...", HSSH(i),
+			" is followed by a humming light.\r\n", NULL);
+
 	if (IS_AFFECTED(i, AFF_CONFUSION))
-		act("...$e is looking around in confusion!", FALSE, i, 0, ch, TO_VICT);
+		desc = tmp_strcat(desc, "...", HSSH(i),
+			" is looking around in confusion!\r\n", NULL);
 	if (IS_AFFECTED_3(i, AFF3_SYMBOL_OF_PAIN))
-		act("...a symbol of pain burns bright on $s forehead!",
-			FALSE, i, 0, ch, TO_VICT);
+		desc = tmp_strcat(desc, "...a symbol of pain burns bright on ",
+			HSHR(i), " forehead!\r\n", NULL);
 	if (IS_AFFECTED(i, AFF_BLUR))
-		act("...$s form appears to be blurry and shifting.",
-			FALSE, i, 0, ch, TO_VICT);
+		desc = tmp_strcat(desc, "...", HSHR(i),
+			" form appears to be blurry and shifting.\r\n", NULL);
 	if (IS_AFFECTED_2(i, AFF2_FIRE_SHIELD))
-		act("...a blazing sheet of fire floats before $s body!",
-			FALSE, i, 0, ch, TO_VICT);
+		desc = tmp_strcat(desc, "...a blazing sheet of fire floats before ",
+			HSHR(i), " body!\r\n", NULL);
 	if (IS_AFFECTED_2(i, AFF2_BLADE_BARRIER))
-		act("...$e is surrounded by whirling blades!",
-			FALSE, i, 0, ch, TO_VICT);
+		desc = tmp_strcat(desc, "...", HSSH(i),
+			" is surrounded by whirling blades!\r\n", NULL);
 	if (IS_AFFECTED_2(i, AFF2_ENERGY_FIELD))
-		act("...$e is covered by a crackling field of energy!",
-			FALSE, i, 0, ch, TO_VICT);
+		desc = tmp_strcat(desc, "...", HSSH(i),
+			" is covered by a crackling field of energy!\r\n", NULL);
 
 	if (IS_SOULLESS(i))
-		act("...a deep red pentagram has been burned into $s forehead!",
-			FALSE, i, 0, ch, TO_VICT);
+		desc = tmp_strcat(desc, "...a deep red pentagram has been burned into ",
+			HSHR(i), " forehead!\r\n", NULL);
 	else if (IS_AFFECTED_3(i, AFF3_TAINTED))
-		act("...the mark of the tainted has been burned into $s forehead!",
-			FALSE, i, 0, ch, TO_VICT);
+		desc = tmp_strcat(desc, "...the mark of the tainted has been burned into ",
+			HSHR(i), " forehead!\r\n", NULL);
 
 	if (IS_AFFECTED_3(i, AFF3_PRISMATIC_SPHERE))
-		act("...$e is surrounded by a prismatic sphere of light!",
-			FALSE, i, 0, ch, TO_VICT);
+		desc = tmp_strcat(desc, "...", HSSH(i),
+			" is surrounded by a prismatic sphere of light!\r\n", NULL);
 
 	if (affected_by_spell(i, SPELL_ELECTROSTATIC_FIELD))
-		act("...$e is surrounded by a swarming sea of electrons!",
-			FALSE, i, 0, ch, TO_VICT);
+		desc = tmp_strcat(desc, "...", HSSH(i),
+			" is surrounded by a swarming sea of electrons!\r\n", NULL);
 
 	if (affected_by_spell(i, SPELL_SKUNK_STENCH) ||
-		affected_by_spell(i, SPELL_TROG_STENCH))
-		act("...$e is followed by a malodorous stench...",
-			FALSE, i, 0, ch, TO_VICT);
+			affected_by_spell(i, SPELL_TROG_STENCH))
+		desc = tmp_strcat(desc, "...", HSSH(i),
+			" is followed by a malodorous stench...\r\n", NULL);
+
 	if (IS_AFFECTED_2(i, AFF2_PETRIFIED))
-		act("...$e is petrified into solid stone.", FALSE, i, 0, ch, TO_VICT);
+		desc = tmp_strcat(desc, "...", HSSH(i),
+			" is petrified into solid stone.\r\n", NULL);
 
 	if (affected_by_spell(i, SPELL_ENTANGLE)) {
 		if (i->in_room->sector_type == SECT_CITY
 			|| i->in_room->sector_type == SECT_CRACKED_ROAD)
-			act("...$e is hopelessly entangled in the weeds and sparse vegetation!", FALSE, i, 0, ch, TO_VICT);
+			desc = tmp_strcat(desc, "...", HSSH(i),
+				" is hopelessly tangled in the weeds and sparse vegetation.\r\n", NULL);
 		else
-			act("...$e is hopelessly entangled in the undergrowth!",
-				FALSE, i, 0, ch, TO_VICT);
-	}
-	if (IS_AFFECTED_3(i, AFF3_GRAVITY_WELL)) {
-		act("...spacetime bends around $m in a powerful gravity well!",
-			FALSE, i, 0, ch, TO_VICT);
+			desc = tmp_strcat(desc, "...", HSSH(i),
+				" is hopelessly tangled in the undergrowth.\r\n", NULL);
 	}
 
-	if (IS_AFFECTED_2(i, AFF2_DISPLACEMENT)) {
-		if (affected_by_spell(i, SPELL_REFRACTION))
-			act("...$s body is strangely refractive.", FALSE, i, 0, ch,
-				TO_VICT);
-	}
+	if (IS_AFFECTED_3(i, AFF3_GRAVITY_WELL))
+		desc = tmp_strcat(desc, "...spacetime bends around ", HMHR(i),
+			" in a powerful gravity well!\r\n", NULL);
+
+	if (IS_AFFECTED_2(i, AFF2_DISPLACEMENT) &&
+			IS_AFFECTED_2(ch, AFF2_TRUE_SEEING))
+		desc = tmp_strcat(desc, "...the image of ", HSHR(i),
+			" body is strangly displaced.\r\n", NULL);
+
+	if (IS_AFFECTED(i, AFF_INVISIBLE))
+		desc = tmp_strcat(desc, "...", HSSH(i),
+			" is invisible to the unaided eye.\r\n", NULL);
+
+	if (IS_AFFECTED_2(i, AFF2_TRANSPARENT))
+		desc = tmp_strcat(desc, "...", HSHR(i),
+			" body is completely transparent.\r\n", NULL);
+
+	return desc;
 }
 
 void
@@ -654,7 +671,7 @@ look_at_char(struct Creature *i, struct Creature *ch, int cmd)
 	diag_char_to_char(i, ch);
 
 	if (CMD_IS("look"))
-		show_trailers_to_char(ch, i);
+		send_to_char(ch, "%s", desc_char_trailers(ch, i));
 
 	if (!CMD_IS("glance") && !IS_NPC(i)) {
 
@@ -731,8 +748,8 @@ look_at_char(struct Creature *i, struct Creature *ch, int cmd)
 }
 
 
-void
-list_one_char(struct Creature *i, struct Creature *ch, byte is_group)
+char *
+desc_one_char(Creature *ch, Creature *i, bool is_group)
 {
 	char *positions[] = {
 		" is lying here, dead.",
@@ -748,239 +765,186 @@ list_one_char(struct Creature *i, struct Creature *ch, byte is_group)
 		"!MOUNTED!",
 		" is swimming here."
 	};
+	char *align = "";
+	char *desc = "";
 
-	if (AFF2_FLAGGED(i, AFF2_MOUNTED) ||
-		(MOB2_FLAGGED(i, MOB2_UNAPPROVED) && !PRF_FLAGGED(ch, PRF_HOLYLIGHT) &&
-			!IS_NPC(ch) && !ch->isTester()))
-		return;
+	if (AFF2_FLAGGED(i, AFF2_MOUNTED))
+		return "";
 
-	if (AFF_FLAGGED(i, AFF_HIDE)) {
-
-		if (!AFF2_FLAGGED(ch, AFF2_TRUE_SEEING) &&
-			!PRF_FLAGGED(ch, PRF_HOLYLIGHT)) {
-			if (AFF_FLAGGED(ch, AFF_SENSE_LIFE) ||
-				affected_by_spell(ch, SKILL_HYPERSCAN)) {
-				send_to_char(ch, "You sense a hidden life form.\r\n");
-				if (CAN_SEE(i, ch) && AWAKE(i) &&
-					CHECK_SKILL(i, SKILL_HIDE) > number(30, 120))
-					act("$n seems to suspect your presence.", TRUE, ch, 0, i,
-						TO_VICT);
-			}
-			return;
-		} else if (CAN_SEE(i, ch))
-			act("$n seems to have seen you.", TRUE, ch, 0, i, TO_VICT);
-	}
-
-	if (IS_NPC(i) && i->getPosition() == GET_DEFAULT_POS(i)) {
-
-		if (!i->player.long_descr) {
-			if (GET_LEVEL(ch) >= LVL_AMBASSADOR) {
-				send_to_char(ch, "%s exists here.\r\n", i->player.short_descr);
-			}
-			return;
-		}
-
-		if (IS_AFFECTED(i, AFF_INVISIBLE))
-			send_to_char(ch, "*");
-		else if (IS_AFFECTED_2(i, AFF2_TRANSPARENT))
-			send_to_char(ch, "/*");
-
-		send_to_char(ch, "%s%s%s",
-			CCYEL(ch, C_NRM),
-			(is_group) ? CCBLD(ch, C_CMP):"",
-			i->player.long_descr);
-
-		if (IS_AFFECTED(ch, AFF_DETECT_ALIGN) ||
-			IS_AFFECTED_2(ch, AFF2_TRUE_SEEING)) {
-			if (IS_EVIL(i))
-				send_to_char(ch, " %s%s(Red Aura)%s",
-					CCBLD(ch, C_CMP), CCRED(ch, C_NRM), CCNRM(ch, C_NRM));
-			else if (IS_GOOD(i))
-				send_to_char(ch, " %s%s(Blue Aura)%s",
-					CCBLD(ch, C_CMP), CCBLU(ch, C_NRM), CCNRM(ch, C_NRM));
-		}
-
-		send_to_char(ch, "%s\r\n", CCNRM(ch, C_NRM));
-
-		if (IN_ROOM(ch) != IN_ROOM(i))
-			return;
-
-		if (!PRF2_FLAGGED(ch, PRF2_NOTRAILERS))
-			show_trailers_to_char(ch, i);
-		send_to_char(ch, CCNRM(ch, C_NRM));
-		return;
-	}
-
-	strcpy(buf, CCYEL(ch, C_NRM));
-	if (is_group)
-		strcat(buf, CCBLD(ch, C_CMP));
+	if (!IS_NPC(ch) && MOB2_FLAGGED(i, MOB2_UNAPPROVED) &&
+			!(PRF_FLAGGED(ch, PRF_HOLYLIGHT) || ch->isTester()))
+		return "";
 
 	if (IS_NPC(i)) {
-		strcpy(buf2, i->player.short_descr);
-		CAP(buf2);
-		strcat(buf, buf2);
+		desc = i->player.short_descr;
 	} else if (affected_by_spell(i, SKILL_DISGUISE)) {
-		strcpy(buf2, GET_DISGUISED_NAME(ch, i));
-		CAP(buf2);
-		sprintf(buf, "%s%s", buf, buf2);
+		desc = tmp_capitalize(GET_DISGUISED_NAME(ch, i));
 	} else
-		sprintf(buf, "%s%s%s", buf, i->player.name, GET_TITLE(i));
+		desc = tmp_strcat(i->player.name, GET_TITLE(i));
 
-	if (is_group)
-		strcat(buf, CCNRM(ch, C_CMP));
-
-	if (IS_AFFECTED(i, AFF_INVISIBLE)) {
-		sprintf(buf2, " %s(invisible)%s", CCCYN(ch, C_NRM), CCNRM(ch, C_NRM));
-		strcat(buf, buf2);
-	} else if (IS_AFFECTED_2(i, AFF2_TRANSPARENT)) {
-		sprintf(buf2, " %s(transparent)%s", CCCYN(ch, C_NRM), CCNRM(ch,
-				C_NRM));
-		strcat(buf, buf2);
-	}
-	if (IS_AFFECTED(i, AFF_HIDE)) {
-		sprintf(buf2, " %s(hidden)%s", CCRED(ch, C_NRM), CCNRM(ch, C_NRM));
-		strcat(buf, buf2);
-	}
-	if (!IS_NPC(i) && !i->desc) {
-		sprintf(buf2, " %s(linkless)%s", CCMAG(ch, C_NRM), CCNRM(ch, C_NRM));
-		strcat(buf, buf2);
-	}
-	if (PLR_FLAGGED(i, PLR_WRITING)) {
-		sprintf(buf2, " %s(writing)%s", CCGRN(ch, C_NRM), CCNRM(ch, C_NRM));
-		strcat(buf, buf2);
-	} else if (PLR_FLAGGED(i, PLR_OLC)) {
-		sprintf(buf2, " %s(creating)%s", CCGRN(ch, C_NRM), CCNRM(ch, C_NRM));
-		strcat(buf, buf2);
-	}
-	if (PLR_FLAGGED(i, PLR_AFK)) {
-		sprintf(buf2, " %s(afk)%s", CCGRN(ch, C_NRM), CCNRM(ch, C_NRM));
-		strcat(buf, buf2);
+	if (!IS_NPC(i)) {
+		if (!i->desc)
+			desc = tmp_sprintf("%s %s(linkless)%s", desc,
+				CCMAG(ch, C_NRM), CCNRM(ch, C_NRM));
+		if (PLR_FLAGGED(i, PLR_WRITING))
+			desc = tmp_sprintf("%s %s(writing)%s", desc,
+				CCGRN(ch, C_NRM), CCNRM(ch, C_NRM));
+		if (PLR_FLAGGED(i, PLR_OLC))
+			desc = tmp_sprintf("%s %s(creating)%s", desc,
+				CCGRN(ch, C_NRM), CCNRM(ch, C_NRM));
+		if (PLR_FLAGGED(i, PLR_AFK))
+			desc = tmp_sprintf("%s %s(afk)%s", desc,
+				CCGRN(ch, C_NRM), CCNRM(ch, C_NRM));
 	}
 
-	strcat(buf, CCNRM(ch, C_CMP));
-	strcat(buf, CCYEL(ch, C_NRM));	/* This is a Fireball hack. */
-	if (is_group)
-		strcat(buf, CCBLD(ch, C_CMP));
 
-
-	if ((i->getPosition() != POS_FIGHTING)
-		&& (i->getPosition() != POS_MOUNTED)) {
-		if (IS_AFFECTED_2(i, AFF2_MEDITATE) && i->getPosition() == POS_SITTING)
-			strcat(buf, " is meditating here.");
-		else if (AFF3_FLAGGED(i, AFF3_STASIS)
-			&& i->getPosition() == POS_SLEEPING)
-			strcat(buf, " is lying here in a static state.");
-		else if ((SECT_TYPE(i->in_room) == SECT_WATER_NOSWIM ||
-				SECT_TYPE(i->in_room) == SECT_WATER_SWIM ||
-				SECT_TYPE(i->in_room) == SECT_FIRE_RIVER) &&
-			(!IS_AFFECTED(i, AFF_WATERWALK)
-				|| ch->getPosition() < POS_STANDING))
-			strcat(buf, " is swimming here.");
-		else if (SECT_TYPE(i->in_room) == SECT_UNDERWATER
-			&& i->getPosition() > POS_RESTING)
-			strcat(buf, " is swimming here.");
-		else if (SECT_TYPE(i->in_room) == SECT_PITCH_PIT
-			&& i->getPosition() < POS_FLYING)
-			strcat(buf, " is struggling in the pitch.");
-		else if (SECT_TYPE(i->in_room) == SECT_PITCH_SUB)
-			strcat(buf, " is struggling blindly in the pitch.");
+	if (IS_NPC(i) && i->getPosition() == GET_DEFAULT_POS(i)) {
+		if (i->player.long_descr)
+			desc = i->player.long_descr;
 		else
-			strcat(buf, positions[(int)MAX(0, MIN(i->getPosition(),
-							POS_SWIMMING))]);
-	} else {
-		if (i->isFighting()) {
-			strcat(buf, " is here, fighting ");
-			if (i->getFighting() == ch)
-				strcat(buf, "YOU!");
-			else {
-				if (i->in_room == i->getFighting()->in_room)
-					strcat(buf, PERS(i->getFighting(), ch));
-				else
-					strcat(buf, "someone who has already left");
-				strcat(buf, "!");
-			}
-		} else if (MOUNTED(i)) {
-			strcat(buf, " is here, mounted on ");
-			if (MOUNTED(i) == ch)
-				strcat(buf, "YOU!, heheheh...");
-			else {
-				if (i->in_room == MOUNTED(i)->in_room)
-					strcat(buf, PERS(MOUNTED(i), ch));
-				else {
-					strcat(buf, "someone who has already left");
-					i->setPosition(POS_STANDING);
-					MOUNTED(i) = NULL;
-				}
-				strcat(buf, ".");
-			}
-		} else
-			strcat(buf, " is here struggling with thin air.");
-	}
+			desc = tmp_strcat(desc, " exists here.");
+	} else if (i->getPosition() == POS_FIGHTING) {
+		if (!i->getFighting())
+			desc = tmp_sprintf("%s is here, fighting thin air!", desc);
+		else if (i->getFighting() == ch)
+			desc = tmp_sprintf("%s is here, fighting YOU!", desc);
+		else if (i->getFighting()->in_room == i->in_room)
+			desc = tmp_sprintf("%s is here, fighting %s!", desc,
+				PERS(i->getFighting(), ch));
+		else
+			desc = tmp_sprintf("%s is here, fighting someone who already left!",
+				desc);
+	} else if (i->getPosition() == POS_MOUNTED) {
+		if (!MOUNTED(i))
+			desc = tmp_sprintf("%s is here, mounted on thin air!", desc);
+		else if (MOUNTED(i) == ch)
+			desc = tmp_sprintf("%s is here, mounted on YOU.  Heh heh...", desc);
+		else if (MOUNTED(i)->in_room == i->in_room)
+			desc = tmp_sprintf("%s is here, mounted on %s!", desc,
+				PERS(MOUNTED(i), ch));
+		else
+			desc = tmp_sprintf("%s is here, mounted on someone who already left!",
+				desc);
+	} else if (IS_AFFECTED_2(i, AFF2_MEDITATE) && i->getPosition() == POS_SITTING)
+		desc = tmp_strcat(desc, " is meditating here.");
+	else if (AFF_FLAGGED(i, AFF_HIDE))
+		desc = tmp_strcat(desc, " is hiding here.");
+	else if (AFF3_FLAGGED(i, AFF3_STASIS)
+		&& i->getPosition() == POS_SLEEPING)
+		desc = tmp_strcat(desc, " is lying here in a static state.");
+	else if ((SECT_TYPE(i->in_room) == SECT_WATER_NOSWIM ||
+			SECT_TYPE(i->in_room) == SECT_WATER_SWIM ||
+			SECT_TYPE(i->in_room) == SECT_FIRE_RIVER) &&
+		(!IS_AFFECTED(i, AFF_WATERWALK)
+			|| ch->getPosition() < POS_STANDING))
+		desc = tmp_strcat(desc, " is swimming here.");
+	else if (SECT_TYPE(i->in_room) == SECT_UNDERWATER
+		&& i->getPosition() > POS_RESTING)
+		desc = tmp_strcat(desc, " is swimming here.");
+	else if (SECT_TYPE(i->in_room) == SECT_PITCH_PIT
+		&& i->getPosition() < POS_FLYING)
+		desc = tmp_strcat(desc, " is struggling in the pitch.");
+	else if (SECT_TYPE(i->in_room) == SECT_PITCH_SUB)
+		desc = tmp_strcat(desc, " is struggling blindly in the pitch.");
+	else
+		desc = tmp_strcat(desc, positions[(int)MAX(0, MIN(i->getPosition(),
+						POS_SWIMMING))]);
 
 	if (IS_AFFECTED(ch, AFF_DETECT_ALIGN) ||
-		IS_AFFECTED_2(ch, AFF2_TRUE_SEEING)) {
+		(IS_CLERIC(ch) && IS_AFFECTED_2(ch, AFF2_TRUE_SEEING))) {
 		if (IS_EVIL(i))
-			sprintf(buf, "%s %s%s(Red Aura)%s", buf,
+			align = tmp_sprintf("%s%s(Red Aura)%s",
 				CCRED(ch, C_NRM), CCBLD(ch, C_CMP), CCNRM(ch, C_NRM));
 		else if (IS_GOOD(i))
-			sprintf(buf, "%s %s%s(Blue Aura)%s", buf,
+			align = tmp_sprintf("%s%s(Blue Aura)%s",
 				CCBLU(ch, C_NRM), CCBLD(ch, C_CMP), CCNRM(ch, C_NRM));
 	}
 
-	strcat(buf, CCNRM(ch, C_NRM));
-	strcat(buf, "\r\n");
+	desc = tmp_strcat(CCYEL(ch, C_NRM), (is_group) ? CCBLD(ch, C_CMP):"",
+		desc, align, CCNRM(ch, C_NRM), "\r\n", NULL);
 
-	send_to_char(ch, "%s", buf);
-	if (!PRF2_FLAGGED(ch, PRF2_NOTRAILERS))
-		show_trailers_to_char(ch, i);
-
-/*
-	send_to_char(ch, CCNRM(ch, C_NRM));
-	send_to_char(ch, CCYEL(ch, C_NRM));
-*/
+	return desc;
 }
 
 void
 list_char_to_char(struct Creature *list, struct Creature *ch)
 {
 	struct Creature *i;
-	byte is_group = FALSE;
+	bool is_group = false;
+	char *msg = "";
+	int unseen = 0;
+
 	if (list == NULL)
 		return;
+
 	CreatureList::iterator it = list->in_room->people.begin();
 	for (; it != list->in_room->people.end(); ++it) {
 		i = *it;
-		is_group = 0;
-		if (ch != i &&
-			INVIS_OK(ch, i) &&
-			!IS_AFFECTED_2(i, AFF2_MOUNTED) &&
-			(ch->in_room == i->in_room || PRF_FLAGGED(ch, PRF_HOLYLIGHT) ||
-				AFF2_FLAGGED(ch, AFF2_TRUE_SEEING) ||
-				!AFF_FLAGGED(i, AFF_HIDE | AFF_SNEAK))) {
-			if (CAN_SEE(ch, i)) {
-				if (IS_AFFECTED(ch, AFF_GROUP) && IS_AFFECTED(i, AFF_GROUP)) {
-					if (ch->master) {
-						if (i == ch->master || (i->master
-								&& i->master == ch->master))
-							is_group = 1;
-					} else {
-						if (i->master && i->master == ch)
-							is_group = 1;
-					}
-				}
-				list_one_char(i, ch, is_group);
+		is_group = false;
+		if (ch == i)
+			continue;
+		
+		if (ch->in_room != i->in_room && AFF_FLAGGED(i, AFF_HIDE | AFF_SNEAK))
+			continue;
 
-			} else if (IS_DARK(ch->in_room) && !CAN_SEE_IN_DARK(ch) &&
-				IS_AFFECTED(i, AFF_INFRAVISION)) {
-				if (!number(0, 1))
-					send_to_char(ch, 
-						"You see a pair of glowing red eyes looking your way.\r\n");
-				else
-					send_to_char(ch, 
-						"A pair of eyes glow red in the darkness.\r\n");
+		if (IS_DARK(ch->in_room) && !CAN_SEE_IN_DARK(ch) &&
+			IS_AFFECTED(i, AFF_INFRAVISION)) {
+			switch (number(0, 2)) {
+			case 0:
+				msg = tmp_strcat(msg,
+					"You see a pair of glowing red eyes looking your way.\r\n");
+				break;
+			case 1:
+				msg = tmp_strcat(msg, 
+					"A pair of eyes glow red in the darkness.\r\n");
+				break;
+			case 2:
+				unseen++; break;
 			}
+
+			continue;
 		}
+
+		if (!CAN_SEE(ch, i)) {
+			unseen++;
+			continue;
+		}
+
+		if (AFF_FLAGGED(i, AFF_HIDE) && !AFF3_FLAGGED(ch, AFF3_SONIC_IMAGERY)) {
+			if (number(0, ch->getLevelBonus(true)) <
+					number(0, i->getLevelBonus(SKILL_HIDE))) {
+				unseen++;
+				continue;
+			} else if (CAN_SEE(i, ch))
+				send_to_char(i, "%s seems to have seen you.\r\n",
+					GET_NAME(ch));
+		}
+
+		if (IS_AFFECTED(ch, AFF_GROUP) && IS_AFFECTED(i, AFF_GROUP)) {
+			if (i->master && i->master == ch || i->master == ch->master)
+				is_group = true;
+		}
+
+		msg = tmp_strcat(msg, desc_one_char(ch, i, is_group));
+		if (!PRF2_FLAGGED(ch, PRF2_NOTRAILERS) && ch->in_room == i->in_room)
+			msg = tmp_strcat(msg, desc_char_trailers(ch, i));
 	}
+
+	if (unseen && AFF_FLAGGED(ch, AFF_SENSE_LIFE) ||
+			affected_by_spell(ch, SKILL_HYPERSCAN)) {
+		send_to_char(ch, "%s", CCMAG(ch, C_NRM));
+		if (unseen == 1)
+			send_to_char(ch, "You sense an unseen presence.\r\n");
+		else if (unseen < 4)
+			send_to_char(ch, "You sense a few unseen presences.\r\n");
+		else if (unseen < 7)
+			send_to_char(ch, "You sense many unseen presences.\r\n");
+		else
+			send_to_char(ch, "You sense a crowd of unseen presences.\r\n");
+		send_to_char(ch, "%s", CCNRM(ch, C_NRM));
+	}
+
+	send_to_char(ch, "%s", msg);
 }
 
 
