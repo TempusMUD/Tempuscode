@@ -870,9 +870,9 @@ do_stat_zone(struct Creature *ch, struct zone_data *zone)
     send_to_char(ch, "Flags: %s%s%s\r\n", CCGRN(ch, C_NRM), buf2, CCNRM(ch,
             C_NRM));
 	
-	if (zone->target_lvl)
-		send_to_char(ch, "Target lvl/gen: [% 2d/% 2d]\r\n",
-			zone->target_lvl, zone->target_gen);
+	if (zone->min_lvl)
+		send_to_char(ch, "Target lvl/gen: [% 2d/% 2d - % 2d/% 2d]\r\n",
+			zone->min_lvl, zone->min_gen, zone->max_lvl, zone->max_gen);
 
 	if (zone->public_desc)
 		send_to_char(ch, "Public Description:\r\n%s", zone->public_desc);

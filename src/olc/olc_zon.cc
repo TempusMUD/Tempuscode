@@ -49,10 +49,12 @@ const char *olc_zset_keys[] = {
 	"co-owner",
 	"blanket_flags",
 	"respawn_pt",
-	"target_lvl",		 /** 15 **/
-	"target_gen",
+	"min_lvl",		 /** 15 **/
+	"min_gen",
+	"max_lvl",
+	"max_gen",
 	"public_desc",
-	"private_desc",
+	"private_desc", /** 20 **/
 	"\n"
 };
 
@@ -1933,7 +1935,7 @@ do_zset_command(struct Creature *ch, char *argument)
 
 	skip_spaces(&argument);
 
-	if (!*argument && zset_command != 17 && zset_command != 18) {
+	if (!*argument && zset_command != 19 && zset_command != 20) {
 		send_to_char(ch, "You must supply a value to %s\r\n",
 			olc_zset_keys[zset_command]);
 		if (zset_command == 8)
@@ -2293,7 +2295,7 @@ do_zset_command(struct Creature *ch, char *argument)
 	default:
 		send_to_char(ch, "Unsupported olc zset command.\r\n");
 		break;
-	case 15:	// target level
+	case 15:	// minimum target level
 		if (!is_number(argument)) {
 			send_to_char(ch, "You must supply a numerical argument from 1 to 49.\r\n");
 			return;
@@ -2303,10 +2305,10 @@ do_zset_command(struct Creature *ch, char *argument)
 			send_to_char(ch, "You must supply a numerical argument from 1 to 49.\r\n");
 			return;
 		}
-		zone->target_lvl = atoi(argument);
-		send_to_char(ch, "Target player level of zone set.\r\n");
+		zone->min_lvl = atoi(argument);
+		send_to_char(ch, "Minimum target player level of zone set.\r\n");
 		break;
-	case 16:	// target gen
+	case 16:	// minimum target gen
 		if (!is_number(argument)) {
 			send_to_char(ch, "You must supply a numerical argument from 0 to 10.\r\n");
 			return;
@@ -2316,10 +2318,36 @@ do_zset_command(struct Creature *ch, char *argument)
 			send_to_char(ch, "You must supply a numerical argument from 0 to 10.\r\n");
 			return;
 		}
-		zone->target_gen = atoi(argument);
-		send_to_char(ch, "Target gen level of zone set.\r\n");
+		zone->min_gen = atoi(argument);
+		send_to_char(ch, "Minimum target gen of zone set.\r\n");
 		break;
-	case 17:	// public description
+	case 17:	// maximum target level
+		if (!is_number(argument)) {
+			send_to_char(ch, "You must supply a numerical argument from 1 to 49.\r\n");
+			return;
+		}
+		num = atoi(argument);
+		if (num < 1 || num > 49) {
+			send_to_char(ch, "You must supply a numerical argument from 1 to 49.\r\n");
+			return;
+		}
+		zone->max_lvl = atoi(argument);
+		send_to_char(ch, "Maximum target player level of zone set.\r\n");
+		break;
+	case 18:	// maximum target gen
+		if (!is_number(argument)) {
+			send_to_char(ch, "You must supply a numerical argument from 0 to 10.\r\n");
+			return;
+		}
+		num = atoi(argument);
+		if (num < 0 || num > 10) {
+			send_to_char(ch, "You must supply a numerical argument from 0 to 10.\r\n");
+			return;
+		}
+		zone->max_gen = atoi(argument);
+		send_to_char(ch, "Maximum target gen of zone set.\r\n");
+		break;
+	case 19:	// public description
 		if (zone->public_desc)
 			act("$n begins to edit a zone description.", TRUE, ch, 0, 0,
 				TO_ROOM);
@@ -2329,7 +2357,7 @@ do_zset_command(struct Creature *ch, char *argument)
 		start_text_editor(ch->desc, &zone->public_desc, true);
 		SET_BIT(PLR_FLAGS(ch), PLR_OLC);
 		break;
-	case 18:	// private description
+	case 20:	// private description
 		if (zone->private_desc)
 			act("$n begins to edit a zone description.", TRUE, ch, 0, 0,
 				TO_ROOM);
@@ -2498,9 +2526,14 @@ save_zone(struct Creature *ch, struct zone_data *zone)
 	if (zone->respawn_pt)
 		fprintf(zone_file, "respawn-pt: %d\n", zone->respawn_pt);
 
-	if (zone->target_lvl)
-		fprintf(zone_file, "target-power: %d/%d~\n",
-			zone->target_lvl, zone->target_gen);
+	if (zone->min_lvl)
+		fprintf(zone_file, "minimum-level: %d\n", zone->min_lvl);
+	if (zone->min_gen)
+		fprintf(zone_file, "minimum-gen: %d\n", zone->min_gen);
+	if (zone->max_lvl)
+		fprintf(zone_file, "maximum-level: %d\n", zone->max_lvl);
+	if (zone->max_gen)
+		fprintf(zone_file, "maximum-gen: %d\n", zone->max_gen);
 		
 	if (zone->public_desc)
 		fprintf(zone_file, "public-desc:\n%s~\n",

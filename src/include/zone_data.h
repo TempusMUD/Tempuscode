@@ -109,8 +109,10 @@ struct zone_data {
 	int hour_mod;				/* */
 	int year_mod;
 	int lattitude;				/* geographic */
-	int target_lvl;				// Target player level of zone
-	int target_gen;				// Target player remort gen of zone
+	int min_lvl;				// Minimum target player level of zone
+	int min_gen;				// Minimum target player remort gen of zone
+	int max_lvl;				// Maximum target player level of zone
+	int max_gen;				// Maximum target player remort gen of zone
 	char *public_desc;			// Public description of zone
 	char *private_desc;			// Private description of zone
 	unsigned char num_players;	/* number of players in zone */

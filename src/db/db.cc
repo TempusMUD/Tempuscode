@@ -2140,16 +2140,19 @@ load_zones(FILE * fl, char *zonename)
 			new_zone->co_owner_idnum = atoi(arg2);
 		else if (!strcmp(arg1, "respawn-pt:"))
 			new_zone->respawn_pt = atoi(arg2);
-		else if (!strcmp(arg1, "target-power:")) {
-			if (sscanf(arg2, "%d/%d", &new_zone->target_lvl, &new_zone->target_gen) != 2) {
-				slog("SYSERR: Invalid target power '%s'", arg2);
-				safe_exit(0);
-			}
-		} else if (!strcmp(arg1, "public-desc:")) {
+		else if (!strcmp(arg1, "minimum-level:"))
+			new_zone->min_lvl = atoi(arg2);
+		else if (!strcmp(arg1, "minimum-gen:"))
+			new_zone->min_gen = atoi(arg2);
+		else if (!strcmp(arg1, "maximum-level:"))
+			new_zone->max_lvl = atoi(arg2);
+		else if (!strcmp(arg1, "maximum-gen:"))
+			new_zone->max_gen = atoi(arg2);
+		else if (!strcmp(arg1, "public-desc:"))
 			new_zone->public_desc = fread_string(fl, buf2);
-		} else if (!strcmp(arg1, "private-desc:")) {
+		else if (!strcmp(arg1, "private-desc:"))
 			new_zone->private_desc = fread_string(fl, buf2);
-		} else
+		else
 			break;
 
 		line_num += get_line(fl, buf);
