@@ -537,8 +537,7 @@ prog_do_walkto(prog_env *env, prog_evt *evt, char *args)
   if (room && room != ch->in_room) {
 	dir = find_first_step(ch->in_room, room, STD_TRACK);
 	if (dir != -1)
-	  if (!smart_mobile_move(ch, dir))
-		return;
+	  smart_mobile_move(ch, dir);
 		
 	// we have to wait at least one second
 	pause = atoi(tmp_getword(&args));
