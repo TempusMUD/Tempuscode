@@ -955,31 +955,45 @@ void CTextEditor::AddRecipient(char* name) {
                 }
             } else {
                 if(new_id_num == 1) { //mailing fireball, charge em out the ass
-                    if(GET_CASH(desc->character) < 1000000) {
-                        sprintf(tedii_out_buf, "You don't have enough credits to add %s.\r\n",
-                            CAP(get_name_by_id(new_id_num)));
-                        free(new_rcpt);
-                        SendMessage(tedii_out_buf);
-                        return;
+                    if(GET_LEVEL(desc->character) < LVL_AMBASSADOR) {
+                        //if the character doesn't have enough gold to add someone else
+                        if(GET_CASH(desc->character) < 1000000) {
+                            sprintf(tedii_out_buf, "You don't have enough credits to add %s.\r\n",
+                                CAP(get_name_by_id(new_id_num)));
+                            free(new_rcpt);
+                            SendMessage(tedii_out_buf);
+                            return;
+                        }
+                        //everythings all good.  Message to add person and charge em.
+                        else {
+                            sprintf(tedii_out_buf, "%s added to recipient list.  %d credits have been charged.\r\n",
+                                CAP(get_name_by_id(new_id_num)), 1000000);
+                            GET_CASH(desc->character) -= 1000000;
+                        }
                     }
-                    else {
-                        sprintf(tedii_out_buf, "%s added to recipient list.  %d credits have been charged.\r\n",
-                            CAP(get_name_by_id(new_id_num)), 1000000);
-                        GET_CASH(desc->character) -= 1000000;
+                    else { //it's an imm, don't check the cash
+                        sprintf(tedii_out_buf, "%s added to recipient list.\r\n",
+                            CAP(get_name_by_id(new_id_num)));
                     }
                 }
                 else {
-                    if(GET_CASH(desc->character) < STAMP_PRICE) {
-                        sprintf(tedii_out_buf, "You don't have enough credits to add %s.\r\n",
-                            CAP(get_name_by_id(new_id_num)));
-                        free(new_rcpt);
-                        SendMessage(tedii_out_buf);
-                        return;
+                    if(GET_LEVEL(desc->character) < LVL_AMBASSADOR) {
+                        if(GET_CASH(desc->character) < STAMP_PRICE) {
+                            sprintf(tedii_out_buf, "You don't have enough credits to add %s.\r\n",
+                                CAP(get_name_by_id(new_id_num)));
+                            free(new_rcpt);
+                            SendMessage(tedii_out_buf);
+                            return;
+                        }
+                        else {
+                            sprintf(tedii_out_buf, "%s added to recipient list.  %d credits have been charged.\r\n",
+                                CAP(get_name_by_id(new_id_num)), STAMP_PRICE);
+                            GET_CASH(desc->character) -= STAMP_PRICE;
+                        }
                     }
-                    else {
-                        sprintf(tedii_out_buf, "%s added to recipient list.  %d credits have been charged.\r\n",
-                            CAP(get_name_by_id(new_id_num)), STAMP_PRICE);
-                        GET_CASH(desc->character) -= STAMP_PRICE;
+                    else { //imms again :)  
+                        sprintf(tedii_out_buf, "%s added to recipient list.\r\n",
+                            CAP(get_name_by_id(new_id_num)));
                     }
                 }
                 cur->next = new_rcpt;
@@ -1002,31 +1016,43 @@ void CTextEditor::AddRecipient(char* name) {
             }
         } else {
             if(new_id_num == 1) { //mailing fireball, charge em out the ass
-                if(GET_GOLD(desc->character) < 1000000) {
-                    sprintf(tedii_out_buf, "You don't have enough gold to add %s.\r\n",
-                        CAP(get_name_by_id(new_id_num)));
-                    free(new_rcpt);
-                    SendMessage(tedii_out_buf);
-                    return;
+                if(GET_LEVEL(desc->character) < LVL_AMBASSADOR) {
+                    if(GET_GOLD(desc->character) < 1000000) {
+                        sprintf(tedii_out_buf, "You don't have enough gold to add %s.\r\n",
+                            CAP(get_name_by_id(new_id_num)));
+                        free(new_rcpt);
+                        SendMessage(tedii_out_buf);
+                        return;
+                    }
+                    else {
+                        sprintf(tedii_out_buf, "%s added to recipient list.  %d gold has been charged.\r\n",
+                            CAP(get_name_by_id(new_id_num)), 1000000);
+                        GET_GOLD(desc->character) -= 1000000;
+                    }
                 }
                 else {
-                    sprintf(tedii_out_buf, "%s added to recipient list.  %d gold has been charged.\r\n",
-                        CAP(get_name_by_id(new_id_num)), 1000000);
-                    GET_GOLD(desc->character) -= 1000000;
+                    sprintf(tedii_out_buf, "%s added to recipient list.\r\n",
+                        CAP(get_name_by_id(new_id_num)));
                 }
             }
             else {
-                if(GET_GOLD(desc->character) < STAMP_PRICE) {
-                    sprintf(tedii_out_buf, "You don't have enough gold to add %s.\r\n",
-                        CAP(get_name_by_id(new_id_num)));
-                    free(new_rcpt);
-                    SendMessage(tedii_out_buf);
-                    return;
+                if(GET_LEVEL(desc->character) < LVL_AMBASSADOR) {
+                    if(GET_GOLD(desc->character) < STAMP_PRICE) {
+                        sprintf(tedii_out_buf, "You don't have enough gold to add %s.\r\n",
+                            CAP(get_name_by_id(new_id_num)));
+                        free(new_rcpt);
+                        SendMessage(tedii_out_buf);
+                        return;
+                    }
+                    else {
+                        sprintf(tedii_out_buf, "%s added to recipient list.  %d gold has been charged.\r\n",
+                            CAP(get_name_by_id(new_id_num)), STAMP_PRICE);
+                        GET_GOLD(desc->character) -= STAMP_PRICE;
+                    }
                 }
                 else {
-                    sprintf(tedii_out_buf, "%s added to recipient list.  %d gold has been charged.\r\n",
-                        CAP(get_name_by_id(new_id_num)), STAMP_PRICE);
-                    GET_GOLD(desc->character) -= STAMP_PRICE;
+                    sprintf(tedii_out_buf, "%s added to recipient list.\r\n",
+                        CAP(get_name_by_id(new_id_num)));
                 }
             }
             cur->next = new_rcpt;
@@ -1035,7 +1061,6 @@ void CTextEditor::AddRecipient(char* name) {
             return;
         }
     }
-
 }
 
 void CTextEditor::RemRecipient(char* name) {
@@ -1062,27 +1087,40 @@ void CTextEditor::RemRecipient(char* name) {
         desc->mail_to = desc->mail_to->next;
         free(cur);
         if(desc->character->in_room->zone->time_frame == TIME_ELECTRO) {
-            if(removed_idnum == 1) {  //fireball :P
-                sprintf(buf, "%s removed from recipient list.  %d credits have been refunded.\r\n", 
-                    CAP(get_name_by_id(removed_idnum)), 1000000);
-                GET_CASH(desc->character) += 1000000; //credit mailer for removed recipient 
+            if(GET_LEVEL(desc->character) < LVL_AMBASSADOR) {
+
+                if(removed_idnum == 1) {  //fireball :P
+                    sprintf(buf, "%s removed from recipient list.  %d credits have been refunded.\r\n", 
+                        CAP(get_name_by_id(removed_idnum)), 1000000);
+                    GET_CASH(desc->character) += 1000000; //credit mailer for removed recipient 
+                }
+                else {    
+                    sprintf(buf, "%s removed from recipient list.  %d credits have been refunded.\r\n", 
+                        CAP(get_name_by_id(removed_idnum)), STAMP_PRICE);
+                    GET_CASH(desc->character) += STAMP_PRICE; //credit mailer for removed recipient 
+                }
             }
-            else {    
-                sprintf(buf, "%s removed from recipient list.  %d credits have been refunded.\r\n", 
-                    CAP(get_name_by_id(removed_idnum)), STAMP_PRICE);
-                GET_CASH(desc->character) += STAMP_PRICE; //credit mailer for removed recipient 
+            else {
+                sprintf(buf, "%s removed from recipient list.\r\n",
+                    CAP(get_name_by_id(removed_idnum)));
             }
         }
         else { //not in the future, refund gold
-            if(removed_idnum == 1) {  //fireball :P
-                sprintf(buf, "%s removed from recipient list.  %d gold has been refunded.\r\n", 
-                    CAP(get_name_by_id(removed_idnum)), 1000000);
-                GET_GOLD(desc->character) += 1000000; //credit mailer for removed recipient 
+            if(GET_LEVEL(desc->character) < LVL_AMBASSADOR) {    
+                if(removed_idnum == 1) {  //fireball :P
+                    sprintf(buf, "%s removed from recipient list.  %d gold has been refunded.\r\n", 
+                        CAP(get_name_by_id(removed_idnum)), 1000000);
+                    GET_GOLD(desc->character) += 1000000; //credit mailer for removed recipient 
+                }
+                else {    
+                    sprintf(buf, "%s removed from recipient list.  %d gold has been refunded.\r\n", 
+                        CAP(get_name_by_id(removed_idnum)), STAMP_PRICE);
+                    GET_GOLD(desc->character) += STAMP_PRICE; //credit mailer for removed recipient 
+                }
             }
-            else {    
-                sprintf(buf, "%s removed from recipient list.  %d gold has been refunded.\r\n", 
-                    CAP(get_name_by_id(removed_idnum)), STAMP_PRICE);
-                GET_GOLD(desc->character) += STAMP_PRICE; //credit mailer for removed recipient 
+            else {
+                sprintf(buf, "%s removed from recipient list.\r\n",
+                    CAP(get_name_by_id(removed_idnum)));
             }
         }
         SendMessage(buf);
@@ -1105,27 +1143,39 @@ void CTextEditor::RemRecipient(char* name) {
     prev->next = cur->next;
     free(cur);
     if(desc->character->in_room->zone->time_frame == TIME_ELECTRO) {
-        if(removed_idnum == 1) {  //fireball :P
-            sprintf(buf, "%s removed from recipient list.  %d credits have been refunded.\r\n", 
-                CAP(get_name_by_id(removed_idnum)), 1000000);
-            GET_CASH(desc->character) += 1000000; //credit mailer for removed recipient 
+        if(GET_LEVEL(desc->character) < LVL_AMBASSADOR) {
+            if(removed_idnum == 1) {  //fireball :P
+                sprintf(buf, "%s removed from recipient list.  %d credits have been refunded.\r\n", 
+                    CAP(get_name_by_id(removed_idnum)), 1000000);
+                GET_CASH(desc->character) += 1000000; //credit mailer for removed recipient 
+            }
+            else {    
+                sprintf(buf, "%s removed from recipient list.  %d credits have been refunded.\r\n", 
+                    CAP(get_name_by_id(removed_idnum)), STAMP_PRICE);
+                GET_CASH(desc->character) += STAMP_PRICE; //credit mailer for removed recipient 
+            }
         }
-        else {    
-            sprintf(buf, "%s removed from recipient list.  %d credits have been refunded.\r\n", 
-                CAP(get_name_by_id(removed_idnum)), STAMP_PRICE);
-            GET_CASH(desc->character) += STAMP_PRICE; //credit mailer for removed recipient 
+        else {
+            sprintf(buf, "%s removed from recipient list.\r\n",
+                CAP(get_name_by_id(removed_idnum)));
         }
     }
     else { //not in future, refund gold
-        if(removed_idnum == 1) {  //fireball :P
-            sprintf(buf, "%s removed from recipient list.  %d gold has been refunded.\r\n", 
-                CAP(get_name_by_id(removed_idnum)), 1000000);
-            GET_GOLD(desc->character) += 1000000; //credit mailer for removed recipient 
+        if(GET_LEVEL(desc->character) < LVL_AMBASSADOR) {
+            if(removed_idnum == 1) {  //fireball :P
+                sprintf(buf, "%s removed from recipient list.  %d gold has been refunded.\r\n", 
+                    CAP(get_name_by_id(removed_idnum)), 1000000);
+                GET_GOLD(desc->character) += 1000000; //credit mailer for removed recipient 
+            }
+            else {    
+                sprintf(buf, "%s removed from recipient list.  %d gold has been refunded.\r\n", 
+                    CAP(get_name_by_id(removed_idnum)), STAMP_PRICE);
+                GET_GOLD(desc->character) += STAMP_PRICE; //credit mailer for removed recipient 
+            }
         }
-        else {    
-            sprintf(buf, "%s removed from recipient list.  %d gold has been refunded.\r\n", 
-                CAP(get_name_by_id(removed_idnum)), STAMP_PRICE);
-            GET_GOLD(desc->character) += STAMP_PRICE; //credit mailer for removed recipient 
+        else {
+            sprintf(buf, "%s removed from recipient list.\r\n",
+                CAP(get_name_by_id(removed_idnum)));
         }
     }
     SendMessage(buf);
