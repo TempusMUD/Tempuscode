@@ -274,7 +274,7 @@ void burn_update(void) {
         af = affected_by_spell(ch,SPELL_GRAVITY_WELL);
         if(!af)
             continue;
-        if(damage(ch,ch, number(0,af->level/4), TYPE_PRESSURE,-1))
+        if(damage(ch,ch, number(5,af->level/5), TYPE_PRESSURE,-1))
             continue;
     }
     // psychic crush
