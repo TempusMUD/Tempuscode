@@ -3867,7 +3867,8 @@ do_show_stats(struct Creature *ch)
 
     sprintf(buf, "Current statistics of Tempus:\r\n");
     sprintf(buf, "%s  %5d players in game  %5d connected\r\n", buf, i, con);
-    sprintf(buf, "%s  %5d registered\r\n", buf, playerIndex.size());
+    sprintf(buf, "%s  %5d accounts         %5d characters\r\n", buf,
+		accountIndex.size(), playerIndex.size());
     sprintf(buf, "%s  %5d mobiles          %5d prototypes (%d id'd)\r\n",
         buf, j, top_of_mobt + 1, current_mob_idnum);
     sprintf(buf, "%s  %5d objects          %5d prototypes\r\n",
