@@ -3577,7 +3577,7 @@ load_familiar(Creature *ch, int sect_type, int type)
 	switch (sect_type) {
 	case SECT_CITY:
 		result = read_mobile(20 + type);
-		to_room = "$n emerges from an dirty alley.";
+		to_room = "$n emerges from a dirty alley.";
 		break;
 	case SECT_MOUNTAIN:
 		result = read_mobile(30 + type);
