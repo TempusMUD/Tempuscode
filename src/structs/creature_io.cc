@@ -494,9 +494,7 @@ Creature::saveToXML()
 
 
 	fprintf(ouf, "<time birth=\"%ld\" death=\"%ld\" played=\"%d\"/>\n",
-		ch->player.time.birth,
-		ch->player.time.death,
-		ch->player.time.played);
+		ch->player.time.birth, ch->player.time.death, ch->player.time.played);
 
 	char *host = "";
 	if( desc != NULL ) {
@@ -511,17 +509,9 @@ Creature::saveToXML()
 	fprintf(ouf, "<attr str=\"%d\" int=\"%d\" wis=\"%d\" dex=\"%d\" con=\"%d\" cha=\"%d\" stradd=\"%d\"/>\n",
 		GET_STR(ch), GET_INT(ch), GET_WIS(ch), GET_DEX(ch), GET_CON(ch),
 		GET_CHA(ch), GET_ADD(ch));
-    /*  Calculated from eq and affects.
-	fprintf(ouf, "<save para=\"%d\" rod=\"%d\" petri=\"%d\" breath=\"%d\" spell=\"%d\" chem=\"%d\" psi=\"%d\" phy=\"%d\"/>\n",
-		GET_SAVE(ch, SAVING_PARA), GET_SAVE(ch, SAVING_ROD),
-		GET_SAVE(ch, SAVING_PETRI), GET_SAVE(ch, SAVING_BREATH),
-		GET_SAVE(ch, SAVING_SPELL), GET_SAVE(ch, SAVING_CHEM),
-		GET_SAVE(ch, SAVING_PSI), GET_SAVE(ch, SAVING_PHY));
-    */
+
 	fprintf(ouf, "<condition hunger=\"%d\" thirst=\"%d\" drunk=\"%d\"/>\n",
-		ch->player_specials->saved.conditions[0],
-		ch->player_specials->saved.conditions[1],
-		ch->player_specials->saved.conditions[2]);
+		GET_COND(ch, FULL), GET_COND(ch, THIRST), GET_COND(ch, DRUNK));
 
 	fprintf(ouf, "<player invis=\"%d\" wimpy=\"%d\" pracs=\"%d\" lp=\"%d\" clan=\"%d\"/>\n",
 		GET_INVIS_LVL(ch), GET_WIMP_LEV(ch), GET_PRACTICES(ch),

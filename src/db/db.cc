@@ -3251,8 +3251,26 @@ save_char(struct Creature *ch, struct room_data *load_room)
 {
 	struct char_file_u st;
 
-	if (IS_NPC(ch) || !ch->desc || GET_PFILEPOS(ch) < 0)
+	if (IS_NPC(ch) || !ch->desc)
 		return;
+
+	if (!USE_XML_FILES && GET_PFILEPOS(ch) < 0)
+		return;
+
+	if (load_room) {
+		if (PLR_FLAGGED(ch, PLR_LOADROOM) &&
+			GET_LOADROOM(ch) != load_room->number) {
+			REMOVE_BIT(PLR_FLAGS(ch), PLR_LOADROOM);
+			REMOVE_BIT(st.char_specials_saved.act, PLR_LOADROOM);
+			GET_HOLD_LOADROOM(ch) = GET_LOADROOM(ch);
+			st.player_specials_saved.hold_load_room = GET_LOADROOM(ch);
+		}
+		GET_LOADROOM(ch) = load_room->number;
+		st.player_specials_saved.load_room = load_room->number;
+	} else if (!PLR_FLAGGED(ch, PLR_LOADROOM)) {
+		GET_LOADROOM(ch) = -1;
+		st.player_specials_saved.load_room = -1;
+	}
 
     if( USE_XML_FILES ) {
         ch->saveToXML();
@@ -3271,21 +3289,6 @@ save_char(struct Creature *ch, struct room_data *load_room)
 
 	if (STATE(ch->desc) == CON_PLAYING)
 		save_aliases(ch);
-
-	if (load_room) {
-		if (PLR_FLAGGED(ch, PLR_LOADROOM) &&
-			GET_LOADROOM(ch) != load_room->number) {
-			REMOVE_BIT(PLR_FLAGS(ch), PLR_LOADROOM);
-			REMOVE_BIT(st.char_specials_saved.act, PLR_LOADROOM);
-			GET_HOLD_LOADROOM(ch) = GET_LOADROOM(ch);
-			st.player_specials_saved.hold_load_room = GET_LOADROOM(ch);
-		}
-		GET_LOADROOM(ch) = load_room->number;
-		st.player_specials_saved.load_room = load_room->number;
-	} else if (!PLR_FLAGGED(ch, PLR_LOADROOM)) {
-		GET_LOADROOM(ch) = -1;
-		st.player_specials_saved.load_room = -1;
-	}
 
 	fseek(player_fl, GET_PFILEPOS(ch) * sizeof(struct char_file_u), SEEK_SET);
 	fwrite(&st, sizeof(struct char_file_u), 1, player_fl);
