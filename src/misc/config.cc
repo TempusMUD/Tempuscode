@@ -237,7 +237,7 @@ int DFLT_PORT = 8888;
 char *DFLT_DIR = "lib";
 
 /* maximum number of players allowed before game starts to turn people away */
-int MAX_PLAYERS = 300;
+unsigned int MAX_PLAYERS = 300;
 
 /* maximum size of bug, typo and idea files (to prevent bombing) */
 int max_filesize = 50000;

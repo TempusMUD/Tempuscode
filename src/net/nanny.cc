@@ -1405,9 +1405,6 @@ make_prompt(struct descriptor_data * d)
 		case CON_PLAYING:			// Playing - Nominal state
 			*prompt = '\0';
 
-			if ( !PRF_FLAGGED(d->character,PRF_COMPACT) )
-				strcat( prompt,"\r\n" );
-
 			if (GET_INVIS_LEV(d->character))
 				sprintf(prompt,"%s%s(%si%d%s)%s ",prompt,CCMAG(d->character, C_NRM),
 					CCRED(d->character, C_NRM), GET_INVIS_LEV(d->character),
@@ -1755,5 +1752,41 @@ _parse_name(char *arg, char *name)
 }
 
 
+/* *************************************************************************
+*  Stuff for controlling the non-playing sockets (get name, pwd etc)       *
+************************************************************************* */
+
+
+/* locate entry in p_table with entry->name == name. -1 mrks failed search */
+int 
+find_name(char *name)
+{
+    int i;
+
+    for (i = 0; i <= top_of_p_table; i++) {
+        if (!str_cmp((player_table + i)->name, name))
+            return i;
+    }
+
+    return -1;
+}
+
+
+
+const char *reserved[] =
+{
+    "self",
+    "me",
+    "all",
+    "room",
+    "someone",
+    "something",
+    "\n"
+};
+
+int reserved_word(char *argument)
+{
+    return (search_block(argument, reserved, TRUE) >= 0);
+}
 
 #undef __interpreter_c__

@@ -59,7 +59,7 @@ extern int log_cmds;
 extern FILE *player_fl;
 extern int DFLT_PORT;
 extern char *DFLT_DIR;
-extern int MAX_PLAYERS;
+extern unsigned int MAX_PLAYERS;
 extern int MAX_DESCRIPTORS_AVAILABLE;
 extern struct obj_data *cur_car;
 extern struct zone_data *default_quad_zone;
@@ -598,6 +598,11 @@ game_loop(int mother_desc)
 
         /* give each descriptor an appropriate prompt */
         for (d = descriptor_list; d; d = d->next) {
+			if ( d->character &&
+				d->output[0] &&
+				( !PRF_FLAGGED(d->character,PRF_COMPACT) ) )
+				SEND_TO_Q( "\r\n",d );
+
             if (d->need_prompt)
                 make_prompt(d);
         }
@@ -876,7 +881,7 @@ write_to_output(const char *txt, struct descriptor_data * t)
     if (t->bufptr < 0)
         return;
 
-    if ( !t->need_prompt && ( !t->character || PRF2_FLAGGED(t->character,PRF2_AUTOPROMPT) ) ) {
+    if ( !t->need_prompt && ( !t->character || PRF2_FLAGGED(t->character,PRF2_AUTOPROMPT ) ) ) {
         t->need_prompt = true;
         write_to_output( "\r\n",t );
     }

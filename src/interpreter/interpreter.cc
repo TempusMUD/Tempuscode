@@ -35,48 +35,22 @@
 #include "matrix.h"
 #include "bomb.h"
 
-extern char *motd;
-extern char *ansi_motd;
-extern char *imotd;
-extern char *ansi_imotd;
-extern char *background;
-extern char *MENU;
-extern char *WELC_MESSG;
-extern char *START_MESSG;
-extern struct char_data *character_list;
-extern struct player_index_element *player_table;
-extern int top_of_p_table;
-extern int restrict;
-extern int num_of_houses;
-extern int mini_mud;
-extern int mud_moved;
+const char *fill_words[] =
+{
+    "in",
+    "from",
+    "with",
+    "the",
+    "on",
+    "at",
+    "to",
+    "\n"
+};
+
 extern int log_cmds;
-extern struct spell_info_type spell_info[];
-extern struct house_control_rec house_control[];
-extern int shutdown_count;
 
-
-/* external functions */
-void echo_on(struct descriptor_data * d);
-void echo_off(struct descriptor_data * d);
-void do_start(struct char_data * ch, int mode);
-void init_char(struct char_data * ch);
-void show_mud_date_to_char(struct char_data *ch);
-void show_programs_to_char(struct char_data *ch, int char_class);
-void perform_net_who(struct char_data *ch, char *arg);
-void perform_net_finger(struct char_data *ch, char *arg);
 int general_search(struct char_data *ch, struct special_search_data *srch, int mode);
-void roll_real_abils(struct char_data * ch);
-void print_attributes_to_buf(struct char_data *ch, char *buff);
-void polc_input(struct descriptor_data * d, char *str);
-
-int create_entry(char *name);
 int special(struct char_data * ch, int cmd, int subcmd, char *arg);
-int isbanned(char *hostname, char *blocking_hostname);
-int Valid_Name(char *newname);
-int House_can_enter(struct char_data *ch, room_num house);
-
-void notify_cleric_moon(struct char_data *ch);
 
 ACMD(do_zcom);
 ACMD(do_objupdate);
@@ -1318,30 +1292,6 @@ extern const struct command_info cmd_info[] = {
     { "\n", 0, 0, 0, 0 }
 };    /* this must be last */
 
-
-const char *fill_words[] =
-{
-    "in",
-    "from",
-    "with",
-    "the",
-    "on",
-    "at",
-    "to",
-    "\n"
-};
-
-const char *reserved[] =
-{
-    "self",
-    "me",
-    "all",
-    "room",
-    "someone",
-    "something",
-    "\n"
-};
-
 /*
  * This is the actual command interpreter called from game_loop() in comm.c
  * It makes sure you are the proper level and position to execute the command,
@@ -2097,33 +2047,6 @@ special(struct char_data * ch, int cmd, int subcmd,  char *arg)
     }
 
     return 0;
-}
-
-
-
-/* *************************************************************************
-*  Stuff for controlling the non-playing sockets (get name, pwd etc)       *
-************************************************************************* */
-
-
-/* locate entry in p_table with entry->name == name. -1 mrks failed search */
-int 
-find_name(char *name)
-{
-    int i;
-
-    for (i = 0; i <= top_of_p_table; i++) {
-        if (!str_cmp((player_table + i)->name, name))
-            return i;
-    }
-
-    return -1;
-}
-
-
-int reserved_word(char *argument)
-{
-    return (search_block(argument, reserved, TRUE) >= 0);
 }
 
 

@@ -89,7 +89,7 @@ struct descriptor_data {
    char	*showstr_point;		/*		-			*/
    char	**str;			/* for the modify-str system		*/
    byte	bad_pws;		/* number of bad pw attemps this login	*/
-   bool need_prompt;		/* control of prompt-printing		*/
+   byte need_prompt;		/* control of prompt-printing		*/
    int	max_str;		/*		-			*/
    int  repeat_cmd_count;       /* how many times has this command been */
    // We know if text_editor != NULL
