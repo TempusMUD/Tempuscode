@@ -179,9 +179,6 @@ nanny(struct descriptor_data * d, char *arg)
 					GET_PFILEPOS(d->character) = player_i;
 
 					if (PLR_FLAGGED(d->character, PLR_DELETED)) {
-	#ifdef DMALLOC
-						dmalloc_verify(0);
-	#endif
 						free_char(d->character);
 						CREATE(d->character, struct char_data, 1);
 						clear_char(d->character);
@@ -195,9 +192,6 @@ nanny(struct descriptor_data * d, char *arg)
 						Crash_delete_file(GET_NAME(d->character), IMPLANT_FILE);
 
 						set_desc_state( CON_NAME_CNFRM,d );
-	#ifdef DMALLOC
-						dmalloc_verify(0);
-	#endif
 					} else {
 						// undo it just in case they are set
 						REMOVE_BIT(PLR_FLAGS(d->character),
@@ -335,13 +329,7 @@ nanny(struct descriptor_data * d, char *arg)
 						(GET_IDNUM(k->original) == GET_IDNUM(d->character))) {
 						SEND_TO_Q("Disconnecting for return to unswitched char.\r\n", k);
 						STATE(k) = CON_CLOSE;
-	#ifdef DMALLOC
-						dmalloc_verify(0);
-	#endif
 						free_char(d->character);
-	#ifdef DMALLOC
-						dmalloc_verify(0);
-	#endif
 						d->character = k->original;
 						d->character->desc = d;
 						d->original = NULL;
@@ -998,10 +986,13 @@ nanny(struct descriptor_data * d, char *arg)
 										if ((h_rm = real_room(house_control[i].house_rooms[j]))) {
 											for (obj = h_rm->contents;
 												 obj && house_control[i].rent_sum > 0;
-												 obj = next_obj) {
+												 obj = next_obj) 
+											{
 												next_obj = obj->next_content;
-												house_control[i].rent_sum -=
-													recurs_obj_cost(obj, true, NULL);
+												int cost = recurs_obj_cost(obj, true, NULL);
+												slog( "Removing object: '", obj->short_description,
+													  "' [",GET_OBJ_VNUM(obj),"] (cost: ", cost, ")");
+												house_control[i].rent_sum -= cost;
 												extract_obj(obj);
 											}
 										}
@@ -1027,13 +1018,7 @@ nanny(struct descriptor_data * d, char *arg)
 				if (d->character->player.description) {
 					SEND_TO_Q("Old description:\r\n", d);
 					SEND_TO_Q(d->character->player.description, d);
-	#ifdef DMALLOC
-					dmalloc_verify(0);
-	#endif
 					free(d->character->player.description);
-	#ifdef DMALLOC
-					dmalloc_verify(0);
-	#endif
 					d->character->player.description = NULL;
 				}
 				start_text_editor(d, &d->character->player.description, true, MAX_CHAR_DESC-1);
@@ -1115,13 +1100,7 @@ nanny(struct descriptor_data * d, char *arg)
 					(member = real_clanmember(GET_IDNUM(d->character), clan))) {
 					REMOVE_MEMBER_FROM_CLAN(member, clan);
 
-	#ifdef DMALLOC
-					dmalloc_verify(0);
-	#endif
 					free(member);
-	#ifdef DMALLOC
-					dmalloc_verify(0);
-	#endif
 					save_clans();
 				}
 
