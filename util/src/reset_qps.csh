@@ -1,4 +1,4 @@
-#!/bin/csh
+#!/bin/csh -f
 
 # sleeptime is in units of seconds
 set sleeptime = 6
