@@ -866,7 +866,6 @@ ACMD(do_activate)
 					sprintf(buf, "$n deactivates $p%s.",
 						internal ? " (internal)" : "");
 					act(buf, TRUE, ch, obj, 0, TO_ROOM);
-					ENGINE_STATE(obj) = 0;
 					if (obj_gives_affects(obj, ch, internal)) {
 						for (i = 0; i < MAX_OBJ_AFFECT; i++)
 							affect_modify(obj->worn_by,
@@ -878,8 +877,12 @@ ACMD(do_activate)
 							obj->obj_flags.bitvector[1], 2, FALSE);
 						affect_modify(obj->worn_by, 0, 0,
 							obj->obj_flags.bitvector[2], 3, FALSE);
-						affect_total(obj->worn_by);
+
+						ENGINE_STATE(obj) = 0;
+						affect_total(ch);
 					}
+
+					ENGINE_STATE(obj) = 0;
 				}
 			} else {
 				if (ENGINE_STATE(obj))
