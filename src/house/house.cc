@@ -962,7 +962,8 @@ House::reconcileClanCollection( int cost )
 		cost -= clan->bank_account;
 		clan->bank_account = 0;
 	}
-	save_clans();
+	sql_exec("update clans set bank=%lld where idnum=%d",
+		clan->bank_account, clan->number);
 	return cost;
 }
 
