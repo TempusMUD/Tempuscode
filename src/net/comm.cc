@@ -556,6 +556,16 @@ game_loop(int mother_desc)
 			handle_input(d);
 		}
 
+		/* save all players that need to be immediately */
+		for (d = descriptor_list; d; d = next_d) {
+			next_d = d->next;
+			if (d->creature &&
+					IS_PLAYING(d) &&
+					IS_PC(d->creature) &&
+					PLR_FLAGGED(d->creature, PLR_CRASH))
+				d->creature->crashSave();
+		}
+
 		/* handle heartbeat stuff */
 		/* Note: pulse now changes every 0.10 seconds  */
 
