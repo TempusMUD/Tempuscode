@@ -129,7 +129,8 @@ another_hour(int mode)
 	    continue;
 
 	if (!PRIME_MATERIAL_ROOM(zone->world) || 
-	    zone->time_frame == TIME_TIMELESS)
+	    zone->time_frame == TIME_TIMELESS ||
+        GET_PLANE(zone->world)==PLANE_UNDERDARK)
 	    continue;
     
 	set_local_time(zone, &local_time);
