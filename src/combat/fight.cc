@@ -1839,10 +1839,38 @@ damage(struct Creature *ch, struct Creature *victim, int dam,
 						GET_PKILLS(ch) += 1;
 
 				} else {
-					sprintf(buf2, "%s died%s%s in room #%d (%s)", GET_NAME(ch),
-						(attacktype <= TOP_NPC_SPELL) ? " by " : "",
-						(attacktype <= TOP_NPC_SPELL) ? spell_to_str(attacktype) : "",
-						ch->in_room->number, ch->in_room->name);
+					const char *attack_desc;
+
+					if (attacktype <= TOP_NPC_SPELL)
+						attack_desc = spell_to_str(attacktype);
+					else {
+						switch (attacktype) {
+						case TYPE_TAINT_BURN:
+							attack_desc = "taint burn"; break;
+						case TYPE_PRESSURE:
+							attack_desc = "pressurization"; break;
+						case TYPE_SUFFOCATING:
+							attack_desc = "suffocation"; break;
+						case TYPE_ANGUISH:
+							attack_desc = "soulless anguish"; break;
+						case TYPE_BLEED:
+							attack_desc = "hamstring bleeding"; break;
+						case TYPE_OVERLOAD:
+							attack_desc = "cybernetic overload"; break;
+						case TYPE_SUFFERING:
+							attack_desc = "blood loss"; break;
+						default:
+							attack_desc = NULL; break;
+						}
+					}
+					if (attack_desc)
+						sprintf(buf2, "%s died by %s in room #%d (%s}",
+							GET_NAME(ch), attack_desc, ch->in_room->number,
+							ch->in_room->name);
+					else
+						sprintf(buf2, "%s died in room #%d (%s}",
+							GET_NAME(ch), ch->in_room->number,
+							ch->in_room->name);
 				}
 
 				// If it's arena, log it for complete only
