@@ -38,6 +38,7 @@ ACMD(do_hamstring)
     struct obj_data *ovict = NULL, *weap = NULL;
     int percent, prob, dam;
     struct affected_type af;
+    int retval = 0;
 
 
     one_argument(argument, arg);
@@ -90,12 +91,12 @@ ACMD(do_hamstring)
         return;
     }
     prob = CHECK_SKILL(ch,SKILL_HAMSTRING) + GET_REMORT_GEN(ch);
-    percent = number (0,101);
+    percent = number (0,125);
     if(affected_by_spell(vict,ZEN_AWARENESS)) {
-        percent += 20;
+        percent += 25;
     }
     if ( AFF2_FLAGGED(vict, AFF2_HASTE) && !AFF2_FLAGGED(ch, AFF2_HASTE) ) {
-        percent += 20;
+        percent += 30;
     }
 
     if ( GET_DEX(ch) > GET_DEX(vict) ) {
@@ -141,16 +142,15 @@ ACMD(do_hamstring)
             af.modifier = 0 - ( level/2 + dice( 7, 7 ) + dice( gen ,5 ) ) \
                               * ( CHECK_SKILL( ch ,SKILL_HAMSTRING ) )/1000;
             affect_to_char(vict, &af);
-            vict->setPosition( POS_RESTING );
             WAIT_STATE(vict, 4 RL_SEC);
-            if(!damage(ch, vict, dam, SKILL_HAMSTRING, WEAR_LEGS)) {
+            retval = damage(ch, vict, dam, SKILL_HAMSTRING, WEAR_LEGS);
+            if ( ! IS_SET( retval, DAM_VICT_KILLED ) )
                 vict->setPosition( POS_RESTING );
-            }
         } else {
             WAIT_STATE(vict, 3 RL_SEC);
-            if(!damage(ch, vict, dam/2, SKILL_HAMSTRING, WEAR_LEGS)) {
+            retval = damage(ch, vict, dam/2, SKILL_HAMSTRING, WEAR_LEGS);
+            if ( ! IS_SET( retval, DAM_VICT_KILLED ) )
                 vict->setPosition( POS_SITTING );
-            }
         }
         gain_skill_prof(ch, SKILL_HAMSTRING);
     }
