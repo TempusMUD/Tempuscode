@@ -1089,7 +1089,8 @@ ACMD(do_order)
 
             if (((vict->master != ch) || !IS_AFFECTED(vict, AFF_CHARM) ||
                  GET_CHA(ch) < number(0, GET_INT(vict))) &&
-                GET_LEVEL(ch) < LVL_CREATOR &&
+                (GET_LEVEL(ch) < LVL_CREATOR ||
+					GET_LEVEL(vict) > GET_LEVEL(ch)) &&
                 (!IS_VAMPIRE(ch) || !IS_EVIL(ch) || !IS_UNDEAD(vict) || 
                  !IS_NPC(vict) || 
                  (GET_LEVEL(ch) + CHECK_SKILL(ch, SKILL_CONTROL_UNDEAD)) < 
