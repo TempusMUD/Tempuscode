@@ -16,14 +16,20 @@ char *tmp_sprintf(const char *fmt, ...)
 char *tmp_pad(int c, size_t n);
 
 // get the next word, copied into a temp pool
-char *tmp_getword(char **src);
+char *tmp_getword(const char **src);
+inline char *tmp_getword(char **src)
+	{ return tmp_getword((const char **)src); }
 
 // like tmp_getword, except it pulls out an entire string, if delimited by
 // quotation marks.  Otherwise, acts just like tmp_getword.
-char *tmp_getquoted(char **src);
+char *tmp_getquoted(const char **src);
+inline char *tmp_getquoted(char **src)
+	{ return tmp_getquoted((const char **)src); }
 
 // like tmp_getword, except it pulls out a single line, broken with a CR or a LF
-char *tmp_getline(char **src);
+char *tmp_getline(const char **src);
+inline char *tmp_getline(char **src)
+	{ return tmp_getline((const char **)src); }
 
 // strcat into a temp str.  You must terminate the arguments with a NULL,
 // since the va_arg method is too stupid to give us the number of arguments.

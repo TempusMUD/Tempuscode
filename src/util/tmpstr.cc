@@ -193,10 +193,11 @@ tmp_strcat(const char *src, ...)
 
 // get the next word, copied into a temp pool
 char *
-tmp_getword(char **src)
+tmp_getword(const char **src)
 {
 	struct tmp_str_pool *cur_buf;
-	char *result, *read_pt, *write_pt;
+	const char *read_pt;
+	char *result, *write_pt;
 	size_t len = 0;
 
 	skip_spaces(src);
@@ -227,10 +228,11 @@ tmp_getword(char **src)
 }
 
 char *
-tmp_getquoted(char **src)
+tmp_getquoted(const char **src)
 {
 	struct tmp_str_pool *cur_buf;
-	char *result, *read_pt, *write_pt;
+	const char *read_pt;
+	char *result, *write_pt;
 	size_t len = 0;
 	int delim;
 
@@ -294,10 +296,11 @@ tmp_pad(int c, size_t len)
 
 // get the next line, copied into a temp pool
 char *
-tmp_getline(char **src)
+tmp_getline(const char **src)
 {
 	struct tmp_str_pool *cur_buf;
-	char *result, *read_pt, *write_pt;
+	const char *read_pt;
+	char *result, *write_pt;
 	size_t len = 0;
 
 	read_pt = *src;
