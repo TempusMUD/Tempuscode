@@ -1528,7 +1528,7 @@ command_interpreter(struct Creature *ch, char *argument)
 
 	if (PLR_FLAGGED(ch, PLR_FROZEN) && GET_LEVEL(ch) < LVL_GRIMP)
 		send_to_char(ch, "You try, but the mind-numbing cold prevents you...\r\n");
-	else if (IS_AFFECTED_2(ch, AFF2_PETRIFIED) && GET_LEVEL(ch) < LVL_ELEMENT
+	else if (IS_AFFECTED_2(ch, AFF2_PETRIFIED) && !IS_IMMORT(ch)
 		&& (!ch->desc || !ch->desc->original)) {
 		if (!number(0, 3))
 			send_to_char(ch, "You have been turned to stone!\r\n");
