@@ -600,6 +600,10 @@ get_filename(char *orig_name, char *filename, int mode)
     char *prefix, *middle, *suffix, *ptr, name[64];
 
     switch (mode) {
+	case PLAYER_MAIL_FILE:
+	prefix = "plrmail";
+	suffix = "mail";
+	break;
     case CRASH_FILE:
 	prefix = "plrobjs";
 	suffix = "objs";

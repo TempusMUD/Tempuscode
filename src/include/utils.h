@@ -99,6 +99,7 @@ int CHECK_SKILL(struct char_data *ch, int i);
 #define CRASH_FILE	0
 #define ETEXT_FILE	1
 #define IMPLANT_FILE    2
+#define PLAYER_MAIL_FILE 3
 
 /* breadth-first searching */
 #define BFS_ERROR		-1
