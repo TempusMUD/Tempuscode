@@ -1481,6 +1481,10 @@ char_to_game(descriptor_data *d)
 		}
 	}
     
+	if (d->account->get_reputation() <
+			d->creature->player_specials->saved.reputation)
+		d->account->gain_reputation(d->creature->player_specials->saved.reputation - d->account->get_reputation());
+
     // Set thier languages here to make sure they speak their race language
     set_initial_language(d->creature);
 	if (shutdown_count > 0)
