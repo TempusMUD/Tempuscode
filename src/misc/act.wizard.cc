@@ -4006,6 +4006,8 @@ show_player(Creature *ch, char *value)
     idnum = playerIndex.getID(value);
 	vict = new Creature(true);
 	vict->loadFromXML(idnum);
+    vict->account = Account::retrieve(playerIndex.getAccountID(idnum));
+
 
     if (GET_REMORT_GEN(vict) <= 0) {
         strcpy(remort_desc, "");
