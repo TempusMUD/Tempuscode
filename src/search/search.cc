@@ -73,10 +73,15 @@ general_search( struct char_data *ch, struct special_search_data *srch,int mode 
     }
 
     if ( SRCH_FLAGGED( srch, SRCH_NEWBIE_ONLY ) &&
-	 GET_LEVEL( ch ) > 6 && !NOHASS( ch ) ) {
-	send_to_char( "This can only be done here by players less than level 7.\r\n",ch );
-	return 1;
+         GET_LEVEL( ch ) > 6 && !NOHASS( ch ) ) {
+        send_to_char( "This can only be done here by players less than level 7.\r\n",ch );
+        return 1;
     }
+    if (SRCH_FLAGGED(srch, SRCH_REMORT_ONLY) && !IS_REMORT(ch) && !NOHASS(ch)) {
+        send_to_char("This can only be done here by remorts.\r\n", ch);
+        return 1;
+    }
+        
     switch ( srch->command ) {
     case ( SEARCH_COM_OBJECT ):
 	if ( !( obj = real_object_proto( srch->arg[0] ) ) ) {

@@ -118,6 +118,7 @@ extern const char *search_bits[] = {
   "NOABBREV",
   "NOAFFMOB",
   "NOPLAYER",
+  "REMORT_ONLY",
   "\n"
 };
 
@@ -149,6 +150,7 @@ extern const char *searchflag_help[] = {
     "abbreviated keywords will not work (prevent guessing.)",
     "spell and damage do not affect mobs in the room.",
     "NOPLAYER",	
+    "can only be tripped by remorts.",
     "\n"
 };
 
