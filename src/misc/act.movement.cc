@@ -2557,6 +2557,14 @@ ACMD(do_defend)
 		return;
 	}
 
+	if (targ == ch) {
+		if (DEFENDING(ch))
+			stop_defending(ch);
+		else
+			send_to_char(ch, "You aren't defending anyone excep tyourself.\r\n");
+		return;
+	}
+
 	if (DEFENDING(ch) == targ) {
 		act("You are already defending $M.", FALSE, ch, 0, targ, TO_CHAR);
 		return;
