@@ -178,56 +178,28 @@ vendor_resolve_name(Creature *self, char *obj_str)
 }
 
 static void
-vendor_appraise(Creature *ch, char *arg, Creature *self, ShopData *shop)
+vendor_appraise(Creature *ch, obj_data *obj, Creature *self, ShopData *shop)
 {
-	obj_data *obj;
-	char *obj_str, *currency_str, *msg;
+	char *currency_str, *msg;
 	const unsigned long cost = 2000;
 	unsigned long amt_carried;
 		
-	if (!*arg) {
-		send_to_char(ch, "What do you wish to have me appraise?\r\n");
+	if (shop->currency == 2) {
+		do_say(self, tmp_sprintf("%s I don't do appraisals.", GET_NAME(ch)),
+			0, SCMD_SAY_TO, NULL);
 		return;
 	}
-
-	obj_str = tmp_getword(&arg);
-
-	// Check for hash mark
-	if (*obj_str == '#') {
-		obj = vendor_resolve_hash(self, obj_str);
-		if (!obj) {
-			do_say(self,
-				tmp_sprintf("%s Sorry, but I don't carry that item.",
-				GET_NAME(ch)), 0, SCMD_SAY_TO, NULL);
-			return;
-		}
-	} else {
-		obj = get_obj_in_list_all(ch, obj_str, ch->carrying);
-		if (!obj) {
-			obj = vendor_resolve_name(self, obj_str);
-		}
-	}
-
-	if (!obj) {
-		do_say(self,
-			tmp_sprintf("%s Sorry, but I can't seem to find any %s.",
-			GET_NAME(ch), obj_str ), 0, SCMD_SAY_TO, NULL);
-		return;
-	}
-
 	switch (shop->currency) {
 	case 0:	
 		amt_carried = GET_GOLD(ch); break;
 	case 1:	
 		amt_carried = GET_CASH(ch); break;
-	case 2:	
-		amt_carried = GET_QUEST_POINTS(ch); break;
 	default:
 		slog("Can't happen at %s:%d", __FILE__, __LINE__);
 		amt_carried = 0;
 		break;
 	}
-	if ( cost > amt_carried) {
+	if (cost > amt_carried) {
 		do_say(self, tmp_sprintf("%s %s",
 			GET_NAME(ch), shop->msg_buyerbroke), 0, SCMD_SAY_TO, NULL);
 		if (shop->cmd_temper)
@@ -235,10 +207,6 @@ vendor_appraise(Creature *ch, char *arg, Creature *self, ShopData *shop)
 		return;
 	}
 	
-	msg = tmp_sprintf("%s That will cost you %lu %s.", GET_NAME(ch),
-		cost, shop->currency ? "creds":"gold");
-	do_say(self, msg, 0, SCMD_SAY_TO, NULL);
-
 	switch (shop->currency) {
 		case 0:
 			GET_GOLD(ch) -= cost;
@@ -259,6 +227,11 @@ vendor_appraise(Creature *ch, char *arg, Creature *self, ShopData *shop)
 			currency_str = "-BUGS-";
 	}
 
+	msg = tmp_sprintf("%s That will cost you %lu %s.", GET_NAME(ch),
+		cost, currency_str);
+	do_say(self, msg, 0, SCMD_SAY_TO, NULL);
+
+
 	if( IS_MAGE(self) ) {
 		spell_identify(50, ch, NULL, obj );
 	} else if( IS_PHYSIC(self) || IS_CYBORG(self) ) {
@@ -275,6 +248,7 @@ vendor_sell(Creature *ch, char *arg, Creature *self, ShopData *shop)
 	char *obj_str, *currency_str, *msg;
 	int num;
 	unsigned long cost, amt_carried;
+	bool appraisal_only = false;
 
 	if (!*arg) {
 		send_to_char(ch, "What do you wish to buy?\r\n");
@@ -282,11 +256,12 @@ vendor_sell(Creature *ch, char *arg, Creature *self, ShopData *shop)
 	}
 
 	obj_str = tmp_getword(&arg);
-	if (is_abbrev(obj_str, "appraise")) {
+	if (is_abbrev(obj_str, "appraise") || is_abbrev(obj_str, "appraisal")) {
 		obj_str = tmp_getword(&arg);
-		vendor_appraise(ch, obj_str, self, shop);
-		return;
-	} else if (is_number(obj_str)) {
+		appraisal_only = true;
+	}
+
+	if (is_number(obj_str)) {
 		num = atoi(obj_str);
 		if (num < 0) {
 			do_say(self,
@@ -318,6 +293,11 @@ vendor_sell(Creature *ch, char *arg, Creature *self, ShopData *shop)
 		do_say(self,
 			tmp_sprintf("%s Sorry, but I don't carry that item.",
 			GET_NAME(ch)), 0, SCMD_SAY_TO, NULL);
+		return;
+	}
+
+	if (appraisal_only) {
+		vendor_appraise(ch, obj, self, shop);
 		return;
 	}
 
