@@ -1668,6 +1668,8 @@ damage(struct Creature *ch, struct Creature *victim, int dam,
 					affect_from_char(victim, SPELL_SLEEP);
 				if (affected_by_spell(victim, SPELL_MELATONIC_FLOOD))
 					affect_from_char(victim, SPELL_MELATONIC_FLOOD);
+				if (affected_by_spell(victim, SKILL_SLEEPER))
+					affect_from_char(victim, SKILL_SLEEPER);
 			}
 		}
 		// remove stasis even on a miss
