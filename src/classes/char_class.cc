@@ -705,7 +705,7 @@ roll_real_abils(struct Creature *ch)
 	ubyte table[6];
 	// Zero out table
 	for (i = 0; i < 6; i++) {
-		table[i] = 11;
+		table[i] = 12;
 	}
 
 	// Increment and decrement randomly
