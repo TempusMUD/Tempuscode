@@ -118,7 +118,10 @@ PlayerTable::getID(const char *name) const
 		tmp_sqlescape(name));
 	if (PQresultStatus(res) != PGRES_TUPLES_OK)
 		return 0;
-	result = atol(PQgetvalue(res, 0, 0));
+	if (PQntuples(res) == 1)
+		result = atol(PQgetvalue(res, 0, 0));
+	else
+		result = 0;
 	PQclear(res);
 
     return result;
@@ -134,7 +137,10 @@ PlayerTable::getAccountID(const char *name) const
 		tmp_sqlescape(name));
 	if (PQresultStatus(res) != PGRES_TUPLES_OK)
 		return 0;
-	result = atol(PQgetvalue(res, 0, 0));
+	if (PQntuples(res) == 1)
+		result = atol(PQgetvalue(res, 0, 0));
+	else
+		result = 0;
 	PQclear(res);
 
     return result;
@@ -149,7 +155,10 @@ PlayerTable::getAccountID(long id) const
 	res = sql_query("select account from players where idnum=%ld", id);
 	if (PQresultStatus(res) != PGRES_TUPLES_OK)
 		return 0;
-	result = atol(PQgetvalue(res, 0, 0));
+	if (PQntuples(res) == 1)
+		result = atol(PQgetvalue(res, 0, 0));
+	else
+		result = 0;
 	PQclear(res);
 
     return result;
