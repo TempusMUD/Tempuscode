@@ -55,8 +55,8 @@ class CTextEditor {
         void SaveFile( void ); // Save edited files
         void UndoChanges( char *inStr ); // Um....
         // Below: Mail Specific methods
-        void ListRecipients(struct descriptor_data *desc);
-	void AddRecipient(struct descriptor_data *desc, char* name);       
-	void RemRecipient(struct descriptor_data *desc, char* name);
+        void ListRecipients(void);
+        void AddRecipient(char* name);       
+        void RemRecipient(char* name);
 };
 #endif

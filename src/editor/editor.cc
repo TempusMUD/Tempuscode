@@ -135,10 +135,13 @@ void CTextEditor::SaveText( char *inStr) {
         // Saving a file
         if ((desc->editor_file != NULL)) {
             SaveFile();
+			delete *target;
+			free(target);
         }
         // Sending Mail
         else if (PLR_FLAGGED(desc->character, PLR_MAILING)) {
             ExportMail();
+			delete *target;
             free(target);
         }
     } 
@@ -178,8 +181,6 @@ void CTextEditor::ExportMail( void ) {
             free(mail_rcpt);
             mail_rcpt = desc->mail_to;
         }
-        if(target)
-            free(target);
         return;
     }
 
@@ -211,9 +212,7 @@ void CTextEditor::ExportMail( void ) {
         desc->mail_to = mail_rcpt;
     }
     if(cc_list)
-        delete cc_list;
-    if(target)
-        free(target);
+        delete [] cc_list;
     if(stored_mail)
         SendMessage("Message sent!\r\n");
 }
@@ -769,19 +768,19 @@ bool CTextEditor::ProcessCommand(char *inStr) {
             return true;
         case 't':
             if(PLR_FLAGGED(desc->character, PLR_MAILING)) {
-                ListRecipients(desc);
+                ListRecipients();
                 return true;
             }
         case 'a':
             if(PLR_FLAGGED(desc->character, PLR_MAILING)) {
                 inStr = one_argument(inStr, command);
-                AddRecipient(desc, command);
+                AddRecipient(command);
                 return true;
             }
         case 'e':
             if(PLR_FLAGGED(desc->character, PLR_MAILING)) {
                 inStr = one_argument(inStr, command);
-                RemRecipient(desc, command);
+                RemRecipient(command);
                 return true;
             } 
         default:
@@ -792,39 +791,37 @@ bool CTextEditor::ProcessCommand(char *inStr) {
     return false;
 }
 
-void CTextEditor::ListRecipients(struct descriptor_data *desc) {
+void CTextEditor::ListRecipients( void ) {
     char   *cc_list = NULL;
     struct mail_recipient_data *mail_rcpt = NULL;
 
     cc_list = new char[MAX_INPUT_LENGTH * 3 + 7];
     
-    if(desc->mail_to) {
-        sprintf(cc_list, "%sTo%s:%s ", 
-            CCYEL(desc->character, C_NRM), 
-            CCBLU(desc->character, C_NRM), 
-            CCCYN(desc->character, C_NRM));
-        for(mail_rcpt = desc->mail_to; mail_rcpt;){
-            strcat(cc_list, CAP(get_name_by_id(mail_rcpt->recpt_idnum)));
-            if (mail_rcpt->next) {
-                strcat(cc_list, ", ");
-                mail_rcpt = mail_rcpt->next;
-            } else {
-                strcat(cc_list, "\r\n");
-                break;
-            }
-        }
-    }   
+	sprintf(cc_list, "%sTo%s:%s ", 
+		CCYEL(desc->character, C_NRM), 
+		CCBLU(desc->character, C_NRM), 
+		CCCYN(desc->character, C_NRM));
+	for(mail_rcpt = desc->mail_to; mail_rcpt;){
+		strcat(cc_list, CAP(get_name_by_id(mail_rcpt->recpt_idnum)));
+		if (mail_rcpt->next) {
+			strcat(cc_list, ", ");
+			mail_rcpt = mail_rcpt->next;
+		} else {
+			strcat(cc_list, "\r\n");
+			break;
+		}
+	}
 
     sprintf(cc_list, "%s%s", cc_list, CCNRM(desc->character, C_NRM));
     SendMessage(cc_list);
 
     if(cc_list){
-    delete cc_list;
+		delete [] cc_list;
     }
 
 }
 
-void CTextEditor::AddRecipient(struct descriptor_data *desc, char* name) {
+void CTextEditor::AddRecipient(char* name) {
     long new_id_num = 0;
     struct mail_recipient_data *recipient = NULL;
     struct mail_recipient_data *added_pointer = NULL;
@@ -853,7 +850,7 @@ void CTextEditor::AddRecipient(struct descriptor_data *desc, char* name) {
         desc->mail_to->next = added_pointer;
         sprintf(buf, "%s added to recipient list.\r\n", CAP(get_name_by_id(new_id_num)));
         SendMessage(buf);
-        ListRecipients(desc);
+        ListRecipients();
         return;
     }
     
@@ -871,14 +868,14 @@ void CTextEditor::AddRecipient(struct descriptor_data *desc, char* name) {
             recipient->next = added_pointer;
             sprintf(buf, "%s added to recipient list.\r\n", CAP(get_name_by_id(new_id_num)));
             SendMessage(buf);
-            ListRecipients(desc);
+            ListRecipients();
             return;
         }
     }
 
 }
 
-void CTextEditor::RemRecipient(struct descriptor_data *desc, char* name) {
+void CTextEditor::RemRecipient(char* name) {
     int removed_idnum = -1;
     struct mail_recipient_data *cur = NULL;
     struct mail_recipient_data *prev = NULL;

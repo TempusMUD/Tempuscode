@@ -154,9 +154,6 @@ void HelpCollection::Push(HelpItem *n) {
         items = n;
     }
 }
-int HelpCollection::GetTop( void ) {
-    return top_id;
-}
 // Calls FindItems 
 // Mode is how to show the item.
 // Type: 0==normal help, 1==immhelp, 2==olchelp

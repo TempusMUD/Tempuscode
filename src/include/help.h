@@ -41,31 +41,26 @@ struct char_data;
 #define MAX_HELP_NAME_LENGTH 128
 #define MAX_HELP_TEXT_LENGTH 16384
 class HelpItem {
-
+	// Most of this should be protected with help_collection as a friend class
     public:
     // Member Funcs
     HelpItem();
     ~HelpItem();
-    
-    inline HelpItem *Next( void ) {// Returns the next HelpItem
-        return next;
-    }
-    inline void SetNext( HelpItem *n) {// Returns the next HelpItem
-        next = n;
-    }
-    inline HelpItem* NextShow ( void ) {// Next in show list
-        return next_show;
-    }
-    inline void SetNextShow( HelpItem *n) {// Set next show
-        next_show = n;
-    }
+
+    // Returns the next HelpItem
+    inline HelpItem *Next( void ) { return next; }
+	// Sets the next helpitem
+    inline void SetNext( HelpItem *n) { next = n; }
     // Returns the next HelpItem in the list to be shown
+    inline HelpItem* NextShow ( void ) { return next_show; }
+	// Set next item in the list to be shown
+    inline void SetNextShow( HelpItem *n) { next_show = n; }
     bool Edit( char_data *ch ); // Begin editing an item
     bool Clear();// Clear the item out.
     void SetName(char *argument);
     void SetKeyWords(char *argument);
     void SetGroups(char *argument);
-    void SetDesc(char *argument);
+    void SetDesc(char *argument); // Actually sets "text" (body of the message)
     void SetFlags(char *argument);
     void EditText( void );
     bool CanEditItem( char_data *ch );
@@ -80,8 +75,9 @@ class HelpItem {
 
     // Data
     int idnum;   // Unique Identifier
-    int groups;    // 
     int counter; // How many times has it been looked at
+	// Groups and flags are both bitvectors.
+    int groups;  //  The groups the item is in
     int flags;   // Approved/Unapproved etc.
     long owner; // Last person to edit the topic
     char *keys;  // Key Words
@@ -117,12 +113,19 @@ class HelpGroup {
 };
 
 class HelpCollection {
+	// Christ, most of this should probably be private...
     public:
     // Member Funcs
     HelpCollection();
     ~HelpCollection();
     // Calls FindItems then Show
-    void GetTopic(char_data *ch, char *args,int mode=2,bool show_no_app=false, int thegroup=HGROUP_PLAYER,bool searchmode=false);
+    void GetTopic(char_data *ch, // The character that wants the topic
+				  char *args, // the search arguments. (pattern)
+				  int mode=2, // How to show the item. (see HelpItem::Show())
+				  bool show_no_app=false, // Show Unapproved items?
+				  int thegroup=HGROUP_PLAYER, // Which help groups to search through
+				  bool searchmode=false);	// Should we search by keyword but still
+				  							// return a list?
 
     void List( char_data *ch, char *args ); // Show all the items
     // Create an item. (calls EditItem && SaveIndex)
@@ -133,28 +136,26 @@ class HelpCollection {
     bool ClearItem( char_data *ch ); // Clear an item
     bool SaveItem( char_data *ch );  // Duh?
     bool SaveIndex( char_data *ch ); // Save the entire index
-    bool SaveAll( char_data *ch );
+    bool SaveAll( char_data *ch ); // Save Everything. (cals saveitem and saveindex)
     bool Set( char_data *ch, char *argument);
-    bool LoadIndex( void ); 
-    void Sync( void );
-    bool AddUser( char *argument);
-    void Show(char_data *ch);
-    int GetTop(void);
-    void Push(HelpItem *n);
-    HelpItem *find_item_by_id(int id);
+    bool LoadIndex( void ); // Load help index (at startup)
+    void Sync( void ); // Delete unneeded item->text from memory.
+    bool AddUser( char *argument); // Add user to group
+    void Show(char_data *ch); // Show collection statistics
+    inline int GetTop(void) { return top_id; }
+    void Push(HelpItem *n); //Add topic to help_collection
+    HelpItem *find_item_by_id(int id); // Linear search of the help items
     
     // Data
-    HelpItem *items;
-    HelpItem *bottom;
-    HelpGroup Groups;
+    HelpItem *items;// The top of the list of help topics
+    HelpItem *bottom;// The bottom of the list of help topics
+    HelpGroup Groups;// The groups,menbers etc.
 
     private:
     // Returns a show list of items it found
     HelpItem *FindItems( char *args, bool find_no_approve=false,int thegroup=HGROUP_PLAYER,bool searchmode=false); 
-    int top_id;
-    bool need_save;
+    int top_id; // The highest id in use..
+    bool need_save;// Weather something has been changed or not.
 };
-
-
 
 #endif
