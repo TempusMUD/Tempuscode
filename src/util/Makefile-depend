@@ -11,7 +11,7 @@ $(OBJ)/memtrack.o : memtrack.cc \
 	$(INCLUDE)/memtrack.h 
 	$(CXX) -c $(CXXFLAGS) memtrack.cc          -o $(OBJ)/memtrack.o
 $(OBJ)/modify.o : modify.cc \
-	$(INCLUDE)/structs.h $(INCLUDE)/utils.h $(INCLUDE)/interpreter.h $(INCLUDE)/handler.h $(INCLUDE)/db.h $(INCLUDE)/comm.h $(INCLUDE)/spells.h $(INCLUDE)/mail.h $(INCLUDE)/boards.h $(INCLUDE)/login.h $(INCLUDE)/screen.h 
+	$(INCLUDE)/structs.h $(INCLUDE)/utils.h $(INCLUDE)/interpreter.h $(INCLUDE)/handler.h $(INCLUDE)/db.h $(INCLUDE)/comm.h $(INCLUDE)/spells.h $(INCLUDE)/mail.h $(INCLUDE)/boards.h $(INCLUDE)/login.h $(INCLUDE)/screen.h $(INCLUDE)/accstr.h 
 	$(CXX) -c $(CXXFLAGS) modify.cc            -o $(OBJ)/modify.o
 $(OBJ)/random.o : random.cc \
 
