@@ -78,7 +78,7 @@ int display_clan_info(FILE *fl, int type, int file) {
 	    sprintf(buf, "%d) Clan: %s    Badge: %s      Bank: %d \n", clan_hdr.number, clan_hdr.name, clan_hdr.badge, clan_hdr.bank_account );
 	    sprintf(buf, "%sTop Rank:  %d               Flags: %d\n", buf, clan_hdr.top_rank, clan_hdr.flags);
 	    sprintf(buf, "%sMembers:   %d               Rooms: %d\n", buf, clan_hdr.num_members, clan_hdr.num_rooms);
-	    sprintf(buf, "%sOwner: %d\n", buf, clan_hdr.owner);
+	    sprintf(buf, "%sOwner: %ldl\n", buf, clan_hdr.owner);
 	    cout << buf << "\n\n";
 	   
 	    if(file) {
@@ -95,7 +95,7 @@ int display_clan_info(FILE *fl, int type, int file) {
 	    sprintf(buf, "%d) Clan: %s    Badge: %s      Bank: %d \n", clan_hdr.number, clan_hdr.name, clan_hdr.badge, clan_hdr.bank_account );
 	    sprintf(buf, "%sTop Rank:  %d               Flags: %d\n", buf, clan_hdr.top_rank, clan_hdr.flags);
 	    sprintf(buf, "%sMembers:   %d               Rooms: %d\n", buf, clan_hdr.num_members, clan_hdr.num_rooms);
-	    sprintf(buf, "%sOwner: %d\n", buf, clan_hdr.owner);
+	    sprintf(buf, "%sOwner: %ld\n", buf, clan_hdr.owner);
 	    sprintf(buf, "%sClan Ranks:\n", buf);
 	    for(i = clan_hdr.top_rank; i >= 0; i--) {
 		sprintf(rank_buf, "(%1d) %s\n", i, clan_hdr.ranknames[i]);
