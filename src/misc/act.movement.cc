@@ -717,7 +717,8 @@ do_simple_move(struct Creature *ch, int dir, int mode,
 		if ((*it) == ch || !AWAKE((*it)))
 			continue;
 		if (check_sneak(ch, tch, true, true) == SNEAK_FAILED) {
-			if (blur_msg && !IS_AFFECTED_2(tch, AFF2_TRUE_SEEING))
+			if (blur_msg && !PRF_FLAGGED(tch, PRF_HOLYLIGHT) &&
+					!IS_AFFECTED_2(tch, AFF2_TRUE_SEEING))
 				perform_act(blur_msg, ch, 0, ch, tch, 0);
 			else if (mount)
 				perform_act(buf, mount, 0, ch, tch, 0);
@@ -744,7 +745,8 @@ do_simple_move(struct Creature *ch, int dir, int mode,
 						continue;
 
 					if (check_sneak(ch, tch, true, false) == SNEAK_FAILED) {
-						if (blur_msg && !IS_AFFECTED_2(tch, AFF2_TRUE_SEEING))
+						if (blur_msg && !PRF_FLAGGED(tch, PRF_HOLYLIGHT) &&
+								!IS_AFFECTED_2(tch, AFF2_TRUE_SEEING))
 							perform_act(blur_msg, ch, 0, ch, tch, 1);
 						else if (mount)
 							perform_act(buf, mount, 0, ch, tch, 1);
@@ -940,7 +942,8 @@ do_simple_move(struct Creature *ch, int dir, int mode,
 			continue;
 
 		if (check_sneak(ch, tch, false, true) == SNEAK_FAILED) {
-			if (blur_msg && !IS_AFFECTED_2(tch, AFF2_TRUE_SEEING))
+			if (blur_msg && !PRF_FLAGGED(tch, PRF_HOLYLIGHT) &&
+					!IS_AFFECTED_2(tch, AFF2_TRUE_SEEING))
 				perform_act(blur_msg, ch, 0, ch, tch, 0);
 			else if (mount)
 				perform_act(buf, mount, 0, ch, tch, 0);
@@ -971,7 +974,8 @@ do_simple_move(struct Creature *ch, int dir, int mode,
 						continue;
 
 					if (check_sneak(ch, tch, false, false) == SNEAK_FAILED) {
-						if (blur_msg && !IS_AFFECTED_2(tch, AFF2_TRUE_SEEING))
+						if (blur_msg && !PRF_FLAGGED(tch, PRF_HOLYLIGHT) &&
+								!IS_AFFECTED_2(tch, AFF2_TRUE_SEEING))
 							perform_act(blur_msg, ch, 0, ch, tch, 1);
 						else if (mount)
 							perform_act(buf, mount, 0, ch, tch, 1);
