@@ -6,6 +6,8 @@ High Priority
 * Add recalculate "zone" for mob/object.
 * Debug qcontrol system. ( doesn't save/load reliably )
 * Cleave/Great-Cleave damage is too low and too consistant.
+* Pretty up and pack functionality into show account, show player, and show
+  multi
 
 Low Priority
 -------------------------------------------------------------------------------
