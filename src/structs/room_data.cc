@@ -32,6 +32,7 @@ room_data::room_data(room_num n, zone_data *z)
 	contents = NULL;
 	description = NULL;
 	ex_description = NULL;
+    prog = NULL;
 	find_first_step_index = 0;
 	flow_dir = 0;
 	flow_speed = 0;
