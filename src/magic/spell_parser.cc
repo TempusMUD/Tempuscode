@@ -1927,8 +1927,8 @@ find_spell_targets(struct Creature *ch, char *argument,
 
 ACMD(do_cast)
 {
-	struct Creature *tch = NULL, *vict = NULL;
-	struct obj_data *tobj = NULL, *holy_symbol = NULL, *metal = NULL;
+	Creature *tch = NULL;
+	obj_data *tobj = NULL, *holy_symbol = NULL, *metal = NULL;
 
 	int mana, spellnum, i, target = 0, prob = 0, metal_wt = 0, num_eq =
 		0, temp = 0;
@@ -2115,7 +2115,7 @@ ACMD(do_cast)
 
 			if ((IS_SET(SINFO.routines, MAG_DAMAGE) || SINFO.violent) &&
 				!IS_SET(SINFO.routines, MAG_TOUCH) &&
-				ok_to_damage(ch, vict) &&
+				ok_to_damage(ch, tch) &&
 				(prob + number(0, 111)) > CHECK_SKILL(ch, spellnum)) {
 				/* misdirect */
 
