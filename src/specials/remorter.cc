@@ -269,9 +269,10 @@ SPECIAL(remorter)
                     //"You must be able to answer %d percent correctly.\r\n"
                     "You are unable to remort at this time.\r\n", quiz.getScore() );
             send_to_char(buf, ch);
-            sprintf(buf, "%s has failed (%d) remort test.", GET_NAME(ch),quiz.getScore());
+            sprintf(buf, "%s has failed remort test at gen %d.", GET_NAME(ch),GET_REMORT_GEN(ch));
             mudlog(buf, NRM, LVL_ELEMENT, FALSE);
             quiz.log(buf);
+            quiz.logScore();
             REMOVE_BIT(ch->in_room->room_flags, ROOM_NORECALL);
 
             // remove all eq and affects here, just in case

@@ -334,12 +334,12 @@ bool Quiz::makeGuess(char_data *ch, const char* guess) {
     Question *q = getQuestion();
     if( q->isAnswer(guess) ) {
         earnedPoints += q->getValue();
-        remortStatistics << q->getID() << " 1 " << GET_NAME(ch) << endl;
+        remortStatistics << GET_NAME(ch) << q->getID() << " 1 " << guess << endl;
         remortStatistics.flush();
         return true;
     } else {
         lostPoints += q->getValue();
-        remortStatistics << q->getID() << " 0 " << GET_NAME(ch) << endl;
+        remortStatistics << GET_NAME(ch) << q->getID() << " 0 " << guess << endl;
         remortStatistics.flush();
         return false;
     }
