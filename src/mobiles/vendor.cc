@@ -626,7 +626,9 @@ vendor_buy(Creature *ch, char *arg, Creature *self, ShopData *shop)
 
 		obj = next_obj;
 		}
-	ch->saveToXML();
+    if (GET_IDNUM(ch) > 0) {
+	    ch->saveToXML();
+    }
 }
 
 char *
