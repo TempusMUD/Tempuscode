@@ -164,6 +164,7 @@ extern const char *search_bits[] = {
 	"NOAFFMOB",
 	"NOPLAYER",
 	"REMORT_ONLY",
+	"MATCH_ALL",
 	"\n"
 };
 
@@ -196,6 +197,7 @@ extern const char *searchflag_help[] = {
 	"spell and damage do not affect mobs in the room.",
 	"NOPLAYER",
 	"can only be tripped by remorts.",
+	"all arguments must match"
 	"\n"
 };
 

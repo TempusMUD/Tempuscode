@@ -836,12 +836,17 @@ triggers_search(struct Creature *ch, int cmd, char *arg,
 	cur_arg= tmp_getword(&next_arg);
 
 	while (*cur_arg) {
-		if (CMD_IS(cur_arg))
-			return 1;
+		if (IS_SET(srch->flags, SRCH_MATCH_ALL)) {
+			if (!CMD_IS(cur_arg))
+				return 0;
+		} else {
+			if (CMD_IS(cur_arg))
+				return 1;
+		}
 		cur_arg = tmp_getword(&next_arg);
 	}
 
-	return 0;
+	return IS_SET(srch->flags, SRCH_MATCH_ALL) ? 1:0;
 }
 
 #undef __search_c__
