@@ -379,8 +379,9 @@ knock_unconscious(Creature *ch, Creature *target)
 			ch, 0, target, TO_NOTVICT);
 	}
 
+		
 	af.is_instant = 0;
-	af.duration = 20;
+	af.duration = MAX(5, target->get_reputation()/50);
 	af.bitvector = AFF_SLEEP;
 	af.type = SKILL_SLEEPER;
 	af.modifier = 0;
