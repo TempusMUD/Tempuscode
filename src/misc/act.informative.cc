@@ -2278,8 +2278,6 @@ affs_to_str(struct Creature *ch, byte mode)
 			"You are sensitive to the presence of invisible things.\r\n");
 	if (IS_AFFECTED_2(ch, AFF2_TRUE_SEEING))
 		str = tmp_strcat(str, "You are seeing truly.\r\n");
-	if (AFF3_FLAGGED(ch, AFF3_SONIC_IMAGERY))
-		str = tmp_strcat(str, "Your sonic imagers are active.\r\n");
 	if (IS_AFFECTED(ch, AFF_SANCTUARY))
 		str = tmp_strcat(str, "You are protected by Sanctuary.\r\n");
 	if (IS_AFFECTED(ch, AFF_CHARM))
