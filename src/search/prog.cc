@@ -48,6 +48,7 @@ void prog_do_randomly(prog_env *env, prog_evt *evt, char *args);
 void prog_do_or(prog_env *env, prog_evt *evt, char *args);
 void prog_do_resume(prog_env *env, prog_evt *evt, char *args);
 void prog_do_echo(prog_env *env, prog_evt *evt, char *args);
+void prog_do_mobflag(prog_env *env, prog_evt *evt, char *args);
 
 char *prog_get_statement(char **prog, int linenum);
 
@@ -78,6 +79,7 @@ prog_command prog_cmds[] = {
 	{ "opurge",		true,	prog_do_opurge },
 	{ "echo",		true,	prog_do_echo },
 	{ "halt",		false,	prog_do_halt },
+	{ "mobflag",	true,	prog_do_mobflag },
 	{ NULL,		false,	prog_do_halt }
 };
 
@@ -427,6 +429,39 @@ void
 prog_do_halt(prog_env *env, prog_evt *evt, char *args)
 {
 	env->exec_pt = -1;
+}
+
+void
+prog_do_mobflag(prog_env *env, prog_evt *evt, char *args)
+{
+	bool op;
+	char *arg;
+	int flag_idx, flags;
+
+	if (env->owner_type != PROG_TYPE_MOBILE)
+		return;
+	
+	if (*args == '+')
+		op = true;
+	else if (*args == '-')
+		op = false;
+	else
+		return;
+
+	args += 1;
+	skip_spaces(&args);
+	while ((arg = tmp_getword(&args)) != NULL) {
+		flag_idx = search_block(arg, action_bits_desc, false);
+		if (flag_idx != -1)
+			flags |= (1 << flag_idx);
+	}
+	// some flags can't change
+	flags &= ~(MOB_SPEC | MOB_ISNPC | MOB_PET);
+
+	if (op)
+		MOB_FLAGS(((Creature *)env->owner)) |= flags;
+	else
+		MOB_FLAGS(((Creature *)env->owner)) &= ~flags;
 }
 
 void
