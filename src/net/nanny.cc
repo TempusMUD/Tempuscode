@@ -48,6 +48,7 @@ extern char *MENU;
 extern char *WELC_MESSG;
 extern char *START_MESSG;
 extern struct player_index_element *player_table;
+extern struct descriptor_data *descriptor_list;
 extern int top_of_p_table;
 extern int restrict;
 extern int num_of_houses;
@@ -81,6 +82,7 @@ char *diag_conditions(struct Creature *ch);
 void set_desc_state(int state,struct descriptor_data *d );
 void echo_on(struct descriptor_data * d);
 void echo_off(struct descriptor_data * d);
+void char_to_game(descriptor_data *d);
 
 void notify_cleric_moon(struct Creature *ch);
 
@@ -90,17 +92,14 @@ nanny(struct descriptor_data * d, char *arg)
 {
     char buf[MAX_STRING_LENGTH];
 	char tmp_name[MAX_INPUT_LENGTH];
-    int player_i, load_result=0;
+    int player_i, bad_pws=0;
     struct char_file_u tmp_store;
     struct Creature *tmp_ch;
     struct descriptor_data *k, *next;
-    extern struct descriptor_data *descriptor_list;
     extern int max_bad_pws;
-    struct room_data *load_room = NULL, *h_rm = NULL, *rm = NULL;
     struct clan_data *clan = NULL;
     struct clanmember_data *member = NULL;
-    struct obj_data *obj = NULL, *next_obj;
-    int percent, i, j, cur, rooms;
+	int i;
     int polc_char = 0;
 
     int load_char(char *name, struct char_file_u * char_element);
@@ -307,7 +306,7 @@ nanny(struct descriptor_data * d, char *arg)
 					}
 					return;
 				}
-				load_result = GET_BAD_PWS(d->character);
+				bad_pws = GET_BAD_PWS(d->character);
 				GET_BAD_PWS(d->character) = 0;
 
 				if (!strncasecmp(GET_NAME(d->character),"polc-",5))
@@ -498,11 +497,11 @@ nanny(struct descriptor_data * d, char *arg)
 					set_desc_state( CON_PORT_OLC,d );
 				}
 				else {
-					if (load_result) {
+					if (bad_pws) {
 						sprintf(buf, "\r\n\r\n\007\007\007"
 								"%s%d LOGIN FAILURE%s SINCE LAST SUCCESSFUL LOGIN.%s\r\n",
-								CCRED(d->character, C_SPR), load_result,
-								(load_result > 1) ? "S" : "", CCNRM(d->character, C_SPR));
+								CCRED(d->character, C_SPR), bad_pws,
+								(bad_pws> 1) ? "S" : "", CCNRM(d->character, C_SPR));
 						SEND_TO_Q(buf, d);
 					}
 					set_desc_state( CON_RMOTD,d );
@@ -807,253 +806,7 @@ nanny(struct descriptor_data * d, char *arg)
 				break;
 
 			case '1':
-				// this code is to prevent people from multiply logging in
-				struct room_data *theroom;
-				for (k = descriptor_list; k; k = next) {
-					next = k->next;
-					if (!k->connected && k->character &&
-						!str_cmp(GET_NAME(k->character), GET_NAME(d->character))) {
-						SEND_TO_Q("Your character has been deleted.\r\n", d);
-						set_desc_state( CON_CLOSE,d );
-						return;
-					}
-				}
-				if (!mini_mud)    SEND_TO_Q("\033[H\033[J", d);
-
-				reset_char(d->character);
-
-				// if we're not a new char, check loadroom and rent
-				if (GET_LEVEL(d->character)) {
-					// If we're buried, tell em and drop link.
-					if (PLR2_FLAGGED(d->character, PLR2_BURIED)) {
-						sprintf(buf,"You lay fresh flowers on the grave of %s.\r\n",GET_NAME(d->character));
-						SEND_TO_Q( buf, d);
-						mudlog(LVL_GOD, NRM, true,
-							"Disconnecting %s. - Character is buried.",
-							GET_NAME(d->character));
-						set_desc_state( CON_CLOSE,d );
-						return;
-					}
-					theroom = real_room(GET_LOADROOM(d->character));
-					if(theroom && House_can_enter(d->character,theroom->number)
-					   && clan_house_can_enter(d->character, theroom) ) {
-						d->character->in_room = theroom;
-					} else {
-						if(theroom) {
-							mudlog(LVL_DEMI, NRM, true,
-								"%s unable to load in <clan>house room %d. Loadroom unset.",
-								GET_NAME(d->character),GET_LOADROOM(d->character));
-						}
-						GET_LOADROOM(d->character) = -1;
-					}
-					if(GET_LOADROOM(d->character) == -1 &&
-					   GET_HOLD_LOADROOM(d->character) == -1) {
-						REMOVE_BIT(PLR_FLAGS(d->character), PLR_LOADROOM);
-					}
-
-					if (PLR_FLAGGED(d->character, PLR_INVSTART))
-						GET_INVIS_LVL(d->character) = (GET_LEVEL(d->character) > LVL_LUCIFER ?
-													   LVL_LUCIFER : GET_LEVEL(d->character));
-
-					load_result = Crash_load(d->character);
-
-					// In case of error, break out
-					if (load_result == -1)
-						break;
-
-					if (load_result && d->character->in_room == NULL) {
-						d->character->in_room = NULL;
-					}
-				} else { // otherwise null the loadroom
-					d->character->in_room = NULL;
-				}
-
-				save_char(d->character, NULL);
-				send_to_char(d->character, CCRED(d->character, C_NRM));
-				send_to_char(d->character, CCBLD(d->character, C_NRM));
-				send_to_char(d->character, WELC_MESSG);
-				send_to_char(d->character, CCNRM(d->character, C_NRM));
-				characterList.add(d->character);
-
-				if( d->character->in_room == NULL )
-					load_room = d->character->getLoadroom();
-				else
-					load_room = d->character->in_room;
-
-				char_to_room(d->character, load_room);
-				load_room->zone->enter_count++;
-
-				if (!(PLR_FLAGGED(d->character, PLR_LOADROOM)) &&
-					GET_HOLD_LOADROOM(d->character) > 0 &&
-					real_room(GET_HOLD_LOADROOM(d->character))) {
-					GET_LOADROOM(d->character) = GET_HOLD_LOADROOM(d->character);
-					SET_BIT(PLR_FLAGS(d->character), PLR_LOADROOM);
-					GET_HOLD_LOADROOM(d->character) = NOWHERE;
-				}
-				show_mud_date_to_char(d->character);
-				send_to_char(d->character, "\r\n");
-
-				set_desc_state( CON_PLAYING,d );
-				if( GET_LEVEL(d->character) < LVL_IMMORT )
-					REMOVE_BIT(PRF2_FLAGS(d->character), PRF2_NOWHO);
-				if (!GET_LEVEL(d->character)) {
-					send_to_char(d->character, START_MESSG);
-					sprintf(buf,
-							" ***> New adventurer %s has entered the realm. <***\r\n",
-							GET_NAME(d->character));
-					send_to_newbie_helpers(buf);
-					do_start(d->character, 0);
-
-					d->old_login_time = time(0);  // clear login time so we dont get news updates
-					// New characters shouldn't get old mail.
-					if(has_mail(GET_IDNUM(d->character))) {
-					   if(purge_mail(GET_IDNUM(d->character))>0) {
-						   slog("SYSERR: Purging pre-existing mailfile for new character.(%s)",
-								GET_NAME(d->character));
-					   }
-					}
-
-				}
-				else if (load_result == 2) {    // rented items lost
-					send_to_char(d->character, "\r\n\007You could not afford your rent!\r\n"
-								 "Some of your possesions have been repossesed to cover your bill!\r\n");
-				}
-
-				act("$n has entered the game.", TRUE, d->character, 0, 0, TO_ROOM);
-				look_at_room(d->character, d->character->in_room, 0);
-
-				// Remove the quest prf flag (for who list) if they're
-				// not in an active quest.
-				if( PRF_FLAGGED(d->character, PRF_QUEST) 
-				|| GET_QUEST(d->character) != 0 )
-				{
-					Quest *quest = quest_by_vnum( GET_QUEST(d->character) );
-					if( GET_QUEST(d->character) == 0 || quest == NULL 
-					|| quest->getEnded() != 0 || !quest->isPlaying(GET_IDNUM(d->character)) ) 
-					{
-						slog( "%s being removed from quest %d.\r\n", 
-							  GET_NAME(d->character), GET_QUEST(d->character) );
-						REMOVE_BIT(PRF_FLAGS(d->character), PRF_QUEST );
-						GET_QUEST(d->character) = 0;
-					}
-				}
-
-				REMOVE_BIT( PLR_FLAGS( d->character), PLR_CRYO );
-
-				if (has_mail(GET_IDNUM(d->character)))
-					send_to_char(d->character, "You have mail waiting.\r\n");
-
-				notify_cleric_moon(d->character);
-
-				// check for dynamic text updates (news, inews, etc...)
-				check_dyntext_updates(d->character, CHECKDYN_UNRENT);
-
-				if (shutdown_count > 0) {
-					sprintf(buf,
-							"\r\n\007\007:: NOTICE :: Tempus will be rebooting in [%d] second%s ::\r\n",
-							shutdown_count, shutdown_count == 1 ? "" : "s");
-					send_to_char(d->character, "%s", buf);
-				}
-				if(GET_LEVEL(d->character) < LVL_GOD) {
-					for (i = 0; i < num_of_houses; i++) {
-						if (house_control[i].mode != HOUSE_PUBLIC &&
-							house_control[i].owner1 == GET_IDNUM(d->character) &&
-							house_control[i].rent_sum &&
-							(h_rm = real_room(house_control[i].house_rooms[0]))) {
-							for (j=0, percent=1, rooms=0; j < house_control[i].num_of_rooms; j++) {
-								if ((rm = real_room(house_control[i].house_rooms[j]))) {
-									for (cur=0, obj = rm->contents; obj; obj = obj->next_content)
-										cur += recurs_obj_contents(obj, NULL);
-									if (cur > MAX_HOUSE_ITEMS) {
-										sprintf(buf, "WARNING:  House room [%s%s%s] contains %d items.\r\n",
-												CCCYN(d->character, C_NRM), rm->name, CCNRM(d->character, C_NRM), cur);
-										SEND_TO_Q(buf, d);
-
-										// add one factor for every MAX_HOUSE_ITEMS over
-										percent += (cur / MAX_HOUSE_ITEMS);
-										rooms++;
-
-									}
-								}
-							}
-							if (percent > 1) {
-								sprintf(buf, "You exceeded the house limit in %d room%s.\n"
-										"Your house rent is multiplied by a factor of %d.\n",
-										rooms, percent > 1 ? "s" : "", percent);
-								SEND_TO_Q(buf, d);
-								slog("%s exceeded house limit in %d rooms, %d multiplier charged.",
-										GET_NAME(d->character), rooms, percent);
-
-								// actually multiply it
-								house_control[i].rent_sum *= percent;
-							}
-							sprintf(buf,
-									"You have accrued costs of %d %s on property: %s.\r\n",
-									house_control[i].rent_sum,
-									(cur = (h_rm->zone->time_frame == TIME_ELECTRO)) ?
-									"credits" : "coins", h_rm->name);
-							SEND_TO_Q(buf, d);
-							if (cur) {        // credits
-								if ((GET_ECONET(d->character) + GET_CASH(d->character))
-									< house_control[i].rent_sum) {
-									house_control[i].rent_sum -= GET_ECONET(d->character);
-									house_control[i].rent_sum -= GET_CASH(d->character);
-									GET_ECONET(d->character) = GET_CASH(d->character) = 0;
-								} else {
-									GET_CASH(d->character) -= house_control[i].rent_sum;
-									if (GET_CASH(d->character) < 0) {
-										GET_ECONET(d->character) += GET_CASH(d->character);
-										GET_CASH(d->character) = 0;
-									}
-									house_control[i].rent_sum = 0;
-								}
-							} else {          /** gold economy **/
-								if (GET_GOLD(d->character) < house_control[i].rent_sum) {
-									house_control[i].rent_sum -= GET_GOLD(d->character);
-									GET_GOLD(d->character) = 0;
-								} else {
-									GET_GOLD(d->character) -= house_control[i].rent_sum;
-									house_control[i].rent_sum = 0;
-								}
-							}
-
-							if (house_control[i].rent_sum > 0) {     // bank is universal
-								if (GET_BANK_GOLD(d->character) < house_control[i].rent_sum) {
-									house_control[i].rent_sum -= GET_BANK_GOLD(d->character);
-									GET_BANK_GOLD(d->character) = 0;
-									SEND_TO_Q("You could not afford the rent.\r\n"
-											  "Some of your items have been repossessed.\r\n", d);
-									slog("House-rent (%d) - equipment lost.",
-											house_control[i].house_rooms[0]);
-									for (j = 0;
-										 j < house_control[i].num_of_rooms &&
-											 house_control[i].rent_sum > 0; j++) {
-										if ((h_rm = real_room(house_control[i].house_rooms[j]))) {
-											for (obj = h_rm->contents;
-												 obj && house_control[i].rent_sum > 0;
-												 obj = next_obj) 
-											{
-												next_obj = obj->next_content;
-												int cost = recurs_obj_cost(obj, true, NULL);
-												slog( "Removing object: '%s' [%d] (cost: %d)", obj->short_description, GET_OBJ_VNUM(obj), cost);
-												house_control[i].rent_sum -= cost;
-												extract_obj(obj);
-											}
-										}
-									}
-								} else
-									GET_BANK_GOLD(d->character) -= house_control[i].rent_sum;
-							}
-
-							house_control[i].rent_sum = 0;
-							house_control[i].hourly_rent_sum = 0;
-							house_control[i].rent_time = 0;
-							House_crashsave(h_rm->number);
-						}
-					}
-				}
-				break;
-
+				char_to_game(d); break;
 			case '2':
 				SEND_TO_Q("\033[H\033[J", d);
 				SEND_TO_Q("Other players will be usually be able to determine your general\r\n"
@@ -1163,6 +916,10 @@ nanny(struct descriptor_data * d, char *arg)
 			break;
 
 		case CON_AFTERLIFE:
+			// Advance bottom of screen  so that the clear code won't erase
+			// important information (like what killed them)
+			for (i = 0;i < GET_PAGE_LENGTH(d->character) + 2;i++)
+				SEND_TO_Q("\r\n", d);
 			SEND_TO_Q("\033[H\033[J", d);
 			set_desc_state( CON_MENU,d );
 			break;
@@ -1554,6 +1311,273 @@ echo_on(struct descriptor_data *d)
     SEND_TO_Q(on_string, d);
 }
 
+void
+char_to_game(descriptor_data *d)
+{
+	struct descriptor_data *k, *next;
+    struct room_data *load_room = NULL, *h_rm = NULL, *rm = NULL;
+    struct obj_data *obj = NULL, *next_obj;
+	struct room_data *room;
+    int percent, i, j, cur, rooms;
+	int load_result;
+
+	// this code is to prevent people from multiply logging in
+	for (k = descriptor_list; k; k = next) {
+		next = k->next;
+		if (!k->connected && k->character &&
+			!str_cmp(GET_NAME(k->character), GET_NAME(d->character))) {
+			SEND_TO_Q("Your character has been deleted.\r\n", d);
+			set_desc_state( CON_CLOSE,d );
+			return;
+		}
+	}
+
+	if (!mini_mud)
+		SEND_TO_Q("\033[H\033[J", d);
+
+	reset_char(d->character);
+
+	// Report and drop link if buried
+	if (PLR2_FLAGGED(d->character, PLR2_BURIED)) {
+		SEND_TO_Q(tmp_sprintf(
+			"You lay fresh flowers on the grave of %s.\r\n",
+			GET_NAME(d->character)), d);
+		mudlog(LVL_GOD, NRM, true,
+			"Disconnecting %s. - Character is buried.",
+			GET_NAME(d->character));
+		set_desc_state( CON_CLOSE,d );
+		return;
+	}
+
+	// if we're not a new char, check loadroom and rent
+	if (GET_LEVEL(d->character)) {
+		// Figure out the room the player is gonna start in
+		room = real_room(GET_LOADROOM(d->character));
+		if (room) {
+			if (!House_can_enter(d->character, room->number)) {
+				mudlog(LVL_DEMI, NRM, true,
+					"%s unable to load in house room %d. Loadroom unset.",
+					GET_NAME(d->character),GET_LOADROOM(d->character));
+				room = NULL;
+				GET_LOADROOM(d->character) = -1;
+			}
+
+			if (!clan_house_can_enter(d->character, room)) {
+				mudlog(LVL_DEMI, NRM, true,
+					"%s unable to load in clanhouse room %d. Loadroom unset.",
+					GET_NAME(d->character),GET_LOADROOM(d->character));
+				room = NULL;
+				GET_LOADROOM(d->character) = -1;
+			}
+
+			d->character->in_room = room;
+		}
+
+		if(GET_LOADROOM(d->character) == -1 &&
+			   GET_HOLD_LOADROOM(d->character) == -1)
+			REMOVE_BIT(PLR_FLAGS(d->character), PLR_LOADROOM);
+
+		if (PLR_FLAGGED(d->character, PLR_INVSTART))
+			GET_INVIS_LVL(d->character) = (GET_LEVEL(d->character) > LVL_LUCIFER ?
+										   LVL_LUCIFER : GET_LEVEL(d->character));
+
+		// Load equipment
+		load_result = Crash_load(d->character);
+
+		// In case of error, break out - error message is already displayed
+		if (load_result == -1)
+			return;
+	} else { // otherwise null the loadroom
+		d->character->in_room = NULL;
+	}
+
+	save_char(d->character, NULL);
+	send_to_char(d->character, "%s%s%s%s",
+		CCRED(d->character, C_NRM), CCBLD(d->character, C_NRM), WELC_MESSG,
+		CCNRM(d->character, C_NRM));
+
+	characterList.add(d->character);
+
+	if( d->character->in_room == NULL )
+		load_room = d->character->getLoadroom();
+	else
+		load_room = d->character->in_room;
+
+	char_to_room(d->character, load_room);
+	load_room->zone->enter_count++;
+
+	if (!(PLR_FLAGGED(d->character, PLR_LOADROOM)) &&
+		GET_HOLD_LOADROOM(d->character) > 0 &&
+		real_room(GET_HOLD_LOADROOM(d->character))) {
+		GET_LOADROOM(d->character) = GET_HOLD_LOADROOM(d->character);
+		SET_BIT(PLR_FLAGS(d->character), PLR_LOADROOM);
+		GET_HOLD_LOADROOM(d->character) = NOWHERE;
+	}
+	show_mud_date_to_char(d->character);
+	SEND_TO_Q("\r\n", d);
+
+	set_desc_state( CON_PLAYING,d );
+
+	if( GET_LEVEL(d->character) < LVL_IMMORT )
+		REMOVE_BIT(PRF2_FLAGS(d->character), PRF2_NOWHO);
+
+	if (!GET_LEVEL(d->character)) {
+		send_to_char(d->character, START_MESSG);
+		send_to_newbie_helpers(tmp_sprintf(
+				" ***> New adventurer %s has entered the realm. <***\r\n",
+				GET_NAME(d->character)));
+		do_start(d->character, 0);
+
+		// clear login time so we dont get news updates
+		d->old_login_time = time(0);
+
+		// New characters shouldn't get old mail.
+		if(has_mail(GET_IDNUM(d->character))) {
+		   if(purge_mail(GET_IDNUM(d->character))>0) {
+			   slog("SYSERR: Purging pre-existing mailfile for new character.(%s)",
+					GET_NAME(d->character));
+		   }
+		}
+
+	} else
+
+	act("$n has entered the game.", TRUE, d->character, 0, 0, TO_ROOM);
+	look_at_room(d->character, d->character->in_room, 0);
+
+	
+	if (load_result == 2) {    // rented items lost
+		send_to_char(d->character, "\r\n\007You could not afford your rent!\r\n"
+					 "Some of your possessions have been sold to cover your bill!\r\n");
+	}
+	// Remove the quest prf flag (for who list) if they're
+	// not in an active quest.
+	if (PRF_FLAGGED(d->character, PRF_QUEST) || GET_QUEST(d->character) != 0) {
+		Quest *quest = quest_by_vnum( GET_QUEST(d->character) );
+		if (GET_QUEST(d->character) == 0 ||
+				quest == NULL ||
+				quest->getEnded() != 0 ||
+				!quest->isPlaying(GET_IDNUM(d->character))) {
+			slog("%s removed from quest %d", 
+				  GET_NAME(d->character), GET_QUEST(d->character) );
+			REMOVE_BIT(PRF_FLAGS(d->character), PRF_QUEST);
+			GET_QUEST(d->character) = 0;
+		}
+	}
+
+	REMOVE_BIT(PLR_FLAGS(d->character), PLR_CRYO);
+
+	if (has_mail(GET_IDNUM(d->character)))
+		send_to_char(d->character, "You have mail waiting.\r\n");
+
+	notify_cleric_moon(d->character);
+
+	// check for dynamic text updates (news, inews, etc...)
+	check_dyntext_updates(d->character, CHECKDYN_UNRENT);
+
+	if (shutdown_count > 0)
+		SEND_TO_Q(tmp_sprintf(
+				"\r\n\007\007:: NOTICE :: Tempus will be rebooting in [%d] second%s ::\r\n",
+				shutdown_count, shutdown_count == 1 ? "" : "s"), d);
+
+	if(GET_LEVEL(d->character) < LVL_GOD) {
+		for (i = 0; i < num_of_houses; i++) {
+			if (house_control[i].mode != HOUSE_PUBLIC &&
+				house_control[i].owner1 == GET_IDNUM(d->character) &&
+				house_control[i].rent_sum &&
+				(h_rm = real_room(house_control[i].house_rooms[0]))) {
+				for (j=0, percent=1, rooms=0; j < house_control[i].num_of_rooms; j++) {
+					if ((rm = real_room(house_control[i].house_rooms[j]))) {
+						for (cur=0, obj = rm->contents; obj; obj = obj->next_content)
+							cur += recurs_obj_contents(obj, NULL);
+						if (cur > MAX_HOUSE_ITEMS) {
+							sprintf(buf, "WARNING:  House room [%s%s%s] contains %d items.\r\n",
+									CCCYN(d->character, C_NRM), rm->name, CCNRM(d->character, C_NRM), cur);
+							SEND_TO_Q(buf, d);
+
+							// add one factor for every MAX_HOUSE_ITEMS over
+							percent += (cur / MAX_HOUSE_ITEMS);
+							rooms++;
+
+						}
+					}
+				}
+				if (percent > 1) {
+					sprintf(buf, "You exceeded the house limit in %d room%s.\n"
+							"Your house rent is multiplied by a factor of %d.\n",
+							rooms, percent > 1 ? "s" : "", percent);
+					SEND_TO_Q(buf, d);
+					slog("%s exceeded house limit in %d rooms, %d multiplier charged.",
+							GET_NAME(d->character), rooms, percent);
+
+					// actually multiply it
+					house_control[i].rent_sum *= percent;
+				}
+				sprintf(buf,
+						"You have accrued costs of %d %s on property: %s.\r\n",
+						house_control[i].rent_sum,
+						(cur = (h_rm->zone->time_frame == TIME_ELECTRO)) ?
+						"credits" : "coins", h_rm->name);
+				SEND_TO_Q(buf, d);
+				if (cur) {        // credits
+					if ((GET_ECONET(d->character) + GET_CASH(d->character))
+						< house_control[i].rent_sum) {
+						house_control[i].rent_sum -= GET_ECONET(d->character);
+						house_control[i].rent_sum -= GET_CASH(d->character);
+						GET_ECONET(d->character) = GET_CASH(d->character) = 0;
+					} else {
+						GET_CASH(d->character) -= house_control[i].rent_sum;
+						if (GET_CASH(d->character) < 0) {
+							GET_ECONET(d->character) += GET_CASH(d->character);
+							GET_CASH(d->character) = 0;
+						}
+						house_control[i].rent_sum = 0;
+					}
+				} else {          /** gold economy **/
+					if (GET_GOLD(d->character) < house_control[i].rent_sum) {
+						house_control[i].rent_sum -= GET_GOLD(d->character);
+						GET_GOLD(d->character) = 0;
+					} else {
+						GET_GOLD(d->character) -= house_control[i].rent_sum;
+						house_control[i].rent_sum = 0;
+					}
+				}
+
+				if (house_control[i].rent_sum > 0) {     // bank is universal
+					if (GET_BANK_GOLD(d->character) < house_control[i].rent_sum) {
+						house_control[i].rent_sum -= GET_BANK_GOLD(d->character);
+						GET_BANK_GOLD(d->character) = 0;
+						SEND_TO_Q("You could not afford the rent.\r\n"
+								  "Some of your items have been repossessed.\r\n", d);
+						slog("House-rent (%d) - equipment lost.",
+								house_control[i].house_rooms[0]);
+						for (j = 0;
+							 j < house_control[i].num_of_rooms &&
+								 house_control[i].rent_sum > 0; j++) {
+							if ((h_rm = real_room(house_control[i].house_rooms[j]))) {
+								for (obj = h_rm->contents;
+									 obj && house_control[i].rent_sum > 0;
+									 obj = next_obj) 
+								{
+									next_obj = obj->next_content;
+									int cost = recurs_obj_cost(obj, true, NULL);
+									slog( "Removing object: '%s' [%d] (cost: %d)", obj->short_description, GET_OBJ_VNUM(obj), cost);
+									house_control[i].rent_sum -= cost;
+									extract_obj(obj);
+								}
+							}
+						}
+					} else
+						GET_BANK_GOLD(d->character) -= house_control[i].rent_sum;
+				}
+
+				house_control[i].rent_sum = 0;
+				house_control[i].hourly_rent_sum = 0;
+				house_control[i].rent_time = 0;
+				House_crashsave(h_rm->number);
+			}
+		}
+	}
+}
 
 int 
 _parse_name(char *arg, char *name)

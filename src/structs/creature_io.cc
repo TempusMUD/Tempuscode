@@ -196,7 +196,7 @@ Creature::payRent(time_t last_time, int code, int currency)
 				GET_NAME(this));
 			send_to_char(this,
 				"%s has been sold to cover the cost of your rent.\r\n",
-				tmp_capitalize(OBJS(doomed_obj, this)));
+				tmp_capitalize(doomed_obj->short_description));
 
 			// Credit player with value of object
 			cost -= GET_OBJ_COST(doomed_obj);
