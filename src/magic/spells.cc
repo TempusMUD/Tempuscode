@@ -406,7 +406,7 @@ ASPELL(spell_teleport)
 	    return;
 	}
 
-	send_to_char("You flowly fade into nothingness.\r\n", ch);
+	send_to_char("You slowly fade into nothingness.\r\n", ch);
 	act("$p glows brightly as $n fades from view.", FALSE, ch,obj,0,TO_ROOM);
     
 	was_in = ch->in_room;
