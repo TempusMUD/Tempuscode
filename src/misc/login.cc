@@ -65,7 +65,6 @@ show_char_class_menu(struct descriptor_data *d)
     strcpy(buf, "\r\nSelect a char_class:\r\n");
     strcat(buf, "  Cleric\r\n");
     strcat(buf, "  Thief\r\n");
-    strcat(buf, "  Warrior\r\n");
     strcat(buf, "  Barbarian\r\n");
     strcat(buf, "  Mage\r\n");
     strcat(buf, "  Psionic\r\n");
