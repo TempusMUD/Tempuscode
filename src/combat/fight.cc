@@ -1221,7 +1221,12 @@ death_cry( struct char_data * ch )
     struct room_data *was_in = NULL;
     int found = 0;
 
-    if ( IS_GHOUL( ch ) || IS_WIGHT( ch ) || IS_MUMMY( ch ) )
+    if (IS_NPC( ch ) && MOB_SHARED( ch )->death_cry) {
+            sprintf(buf, "$n %s", MOB_SHARED( ch )->death_cry);
+	    act( buf, FALSE, ch, 0, 0, TO_ROOM );
+    }
+
+    else if ( IS_GHOUL( ch ) || IS_WIGHT( ch ) || IS_MUMMY( ch ) )
 	act( "$n falls lifeless to the floor with a shriek.", 
 	     FALSE, ch, 0, 0, TO_ROOM );
     else if ( IS_SKELETON( ch ) )
@@ -3565,6 +3570,11 @@ damage( struct char_data * ch, struct char_data * victim, int dam,
 		    sprintf( buf2, "%s %skilled by %s at %s ( %d )", GET_NAME( victim ), 
 			     !IS_NPC( ch ) ? "p" : "", GET_NAME( ch ),
 			     victim->in_room->name, victim->in_room->number );
+
+		    if ( ROOM_FLAGGED( victim->in_room, ROOM_ARENA ) ) {
+			strcat( buf2, " [ARENA]" );
+		    }
+
 		} else
 		    sprintf( buf2, "%s died%s%s at %s ( %d )", GET_NAME( ch ),
 			     ( attacktype <= TOP_NPC_SPELL ) ? " by " : "",
