@@ -27,6 +27,7 @@ struct room_data *belly_rm = NULL;
 
 static unsigned int dinurnal_timer = 0;
 static unsigned int poop_timer = 0;
+static bool pursuit = false;
 
 room_num inner_tunnel[] = { 24914, 24915, 24916, 24917 };
 room_num outer_tunnel[] = { 24903, 24902, 24901, 24900, 24878 };
@@ -96,10 +97,11 @@ tarrasque_gore(Creature *tarr, Creature *vict)
 bool
 tarrasque_trample(Creature *tarr, Creature *vict)
 {
-	if (vict && GET_DEX(vict) < number(5, 25))
+	if (vict && GET_DEX(vict) < number(5, 25)) {
+		vict->setPosition(POS_SITTING);
 		return damage(tarr, vict,
-			(GET_DEX(vict) < number(5, 28)) ?
-			(dice(20, 40) + 300) : 0, TYPE_TRAMPLING, WEAR_BODY);
+			dice(20, 40) + 300, TYPE_TRAMPLING, WEAR_BODY);
+	}
 
 	return 0;
 }
@@ -218,10 +220,11 @@ tarrasque_fight(struct Creature *tarr)
 	// this fighting pulse
 	vict = get_char_random_vis(tarr, tarr->in_room);
 	if (vict) {
-		if (vict == FIGHTING(tarr))
+		if (vict == FIGHTING(tarr) || PRF_FLAGGED(vict, PRF_NOHASSLE))
 			vict = NULL;
 		vict2 = get_char_random_vis(tarr, tarr->in_room);
-		if (vict2 == FIGHTING(tarr) || vict == vict2)
+		if (vict2 == FIGHTING(tarr) || vict == vict2 ||
+				PRF_FLAGGED(vict2, PRF_NOHASSLE))
 			vict2 = NULL;
 	}
 
@@ -293,6 +296,37 @@ tarrasque_fight(struct Creature *tarr)
 		}
 	}
 	return 1;
+}
+
+int
+tarrasque_follow(Creature *tarr)
+{
+	Creature *ch, *vict, *vict2; 
+	int dir;
+
+	pursuit = false;
+	ch = HUNTING(tarr);
+	if (!ch)
+		return 0;
+
+	vict = FIGHTING(tarr);
+	if (!vict)
+		vict = get_char_random_vis(tarr, tarr->in_room);
+	if (vict) {
+		vict2 = get_char_random_vis(tarr, tarr->in_room);
+		if (vict2 == FIGHTING(tarr) || vict == vict2)
+			vict2 = NULL;
+	}
+
+	if (vict)
+		tarrasque_trample(tarr, vict);
+	if (vict2)
+		tarrasque_trample(tarr, vict2);
+
+	dir = find_first_step(tarr->in_room, ch->in_room, STD_TRACK);
+	perform_move(tarr, dir, MOVE_NORM, true);
+
+	return 0;
 }
 
 SPECIAL(tarrasque)
@@ -370,6 +404,12 @@ SPECIAL(tarrasque)
 	if (spec_mode == SPECIAL_DEATH)
 		return tarrasque_die(tarr, ch);
 
+	if (spec_mode == SPECIAL_LEAVE && ch != tarr && !HUNTING(tarr)) {
+		HUNTING(tarr) = ch;
+		pursuit = true;
+		return 0;
+	}
+
 	if (spec_mode != SPECIAL_TICK)
 		return 0;
 
@@ -386,6 +426,10 @@ SPECIAL(tarrasque)
 	tarrasque_digest(tarr);
 	dinurnal_timer++;
 	poop_timer++;
+
+	// If someone flees, we go after em immediately
+	if (pursuit)
+		return tarrasque_follow(tarr);
 
 	if (FIGHTING(tarr))
 		return tarrasque_fight(tarr);
