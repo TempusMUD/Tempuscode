@@ -808,3 +808,16 @@ ASPELL(song_wall_of_sound)
 
     gain_skill_prof(ch, SONG_WALL_OF_SOUND);
 }
+
+ASPELL(song_hymn_of_peace)
+{
+    
+    CreatureList::iterator it = ch->in_room->people.begin();
+    for (; it != ch->in_room->people.end(); ++it) {
+        (*it)->removeAllCombat();
+        mag_unaffects(level, ch, *it, SONG_HYMN_OF_PEACE, 0);
+    }
+
+    send_to_char(ch, "Your song brings a feeling of peacefulness.\r\n");
+    act("A feeling of peacefulness is heralded by $n's song.", FALSE, ch, 0, 0, TO_ROOM);
+}

@@ -1351,6 +1351,8 @@ call_magic(struct Creature *caster, struct Creature *cvict,
             MANUAL_SPELL(song_rhythm_of_alarm); break;
         case SONG_WALL_OF_SOUND:
             MANUAL_SPELL(song_wall_of_sound); break;
+        case SONG_HYMN_OF_PEACE:
+            MANUAL_SPELL(song_hymn_of_peace); break;
 
 		}
 
@@ -3850,6 +3852,11 @@ mag_assign_spells(void)
 	spello(SONG_MIRROR_IMAGE_MELODY, X, X, X, X, X, X, X, X, X, X, 46, X, X, X,
            X, X, X, 75, 50, 2, POS_STANDING, TAR_CHAR_ROOM | TAR_SELF_ONLY, FALSE, 
            MAG_BARD | MAG_AFFECTS);
+           
+    spello(SONG_HYMN_OF_PEACE, X, X, X, X, X, X, X, X, X, X, 1, X, X, X,
+           X, X, X, 75, 50, 3, POS_STANDING, TAR_IGNORE, FALSE, MAG_BARD | 
+           MAG_MANUAL | MAG_UNAFFECTS);
+
 
     /* C L A S S E S      M A N A   */
 

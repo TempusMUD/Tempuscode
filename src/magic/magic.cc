@@ -3582,6 +3582,11 @@ mag_unaffects(int level, struct Creature *ch, struct Creature *victim,
         to_vict = "You feel cleansed of all your illnesses.";
         break;
 
+    case SONG_HYMN_OF_PEACE:
+        spell = SKILL_BERSERK;
+        to_vict = "You feel your rage calmed.";
+        break;
+        
 	default:
 		errlog("unknown spellnum %d passed to mag_unaffects",
 			spellnum);

@@ -912,6 +912,7 @@ ASPELL(song_unravelling_diapason);
 ASPELL(song_instant_audience);
 ASPELL(song_rhythm_of_alarm);
 ASPELL(song_wall_of_sound);
+ASPELL(song_hymn_of_peace);
 
 /* basic magic calling functions */
 
