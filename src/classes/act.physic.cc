@@ -802,12 +802,12 @@ ACMD( do_econvert ) {
     // how many points is this worth?
     num_points = recurs_econvert_points( obj, true );
 
-    // adjust it for skill level (  x ( skill lev / 120 ) )
-    num_points = ( num_points * CHECK_SKILL( ch, SKILL_ENERGY_CONVERSION ) ) / 120;
-    // adjust it for intelligence ( int x 2 )
-    num_points += GET_INT( ch ) << 1;
+    // adjust it for skill level (  x ( skill lev / 100 ) )
+    num_points = ( num_points * CHECK_SKILL( ch, SKILL_ENERGY_CONVERSION ) ) / 100;
+    // adjust it for exceptional intelligence ( int x 2 )
+    num_points += (GET_INT( ch ) - 18) << 1;
     // adjust it for remort gen ( gen x 2 )
-    num_points += GET_REMORT_GEN( ch ) << 1;
+    // num_points += GET_REMORT_GEN( ch ) << 1;
 
 
     act( "E=mc^2.... Voila!  You convert $p into raw energy.", FALSE, ch, obj, 0, TO_CHAR );
