@@ -107,7 +107,7 @@ Account::load(long idnum)
 	const char **fields;
 	PGresult *res;
 
-	res = sql_query("select idnum, name, password, email, date_part('epoch', creation_time) as creation_time, creation_addr, date_part('epoch', login_time) as login_time, login_addr, date_part('epoch', entry_time) as entry_time, ansi_level, compact_level, term_height, term_width, reputation, bank_past, bank_future from accounts where idnum=%ld", idnum);
+	res = sql_query("select idnum, name, password, email, date_part('epoch', creation_time) as creation_time, creation_addr, date_part('epoch', login_time) as login_time, login_addr, date_part('epoch', entry_time) as entry_time, ansi_level, compact_level, term_height, term_width, reputation, quest_points, bank_past, bank_future from accounts where idnum=%ld", idnum);
 	acct_count = PQntuples(res);
 
 	if (acct_count > 1) {
