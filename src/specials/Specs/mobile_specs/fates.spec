@@ -3,11 +3,8 @@
 //
 // Copyright 1999 by John Watson & John Rothe, all rights reserved.
 //
-#define FATE_VNUM_LOW 1205
-#define FATE_VNUM_MID 1206
-#define FATE_VNUM_HIGH 1207
 
-#define FATE_TEST 1
+//#define FATE_TEST 1
 
 struct room_list_struct {
 	struct room_data *room;
@@ -26,7 +23,9 @@ SPECIAL(fate)
 	char dyn_name[64];
 	char s[1024];
 	struct room_list_struct *roomlist = NULL, *cur_room_list_item=NULL;
-	char *roomlist_buf=NULL, roomlist_buf_top[MAX_STRING_LENGTH];
+	char *roomlist_buf=NULL; 
+//	char roomlist_buf_top[MAX_STRING_LENGTH];
+	char *roomlist_buf_top = NULL;
 	struct room_data *temp_room = NULL;
 	int num_rooms = 0, the_room = 0;
 	int which_fate;
@@ -90,6 +89,7 @@ SPECIAL(fate)
 	}
 	// Grab the rooms out of the buffer
 	if(dyntext->buffer) {
+		roomlist_buf_top = new char[strlen(dyntext->buffer + 1)];
 		roomlist_buf = roomlist_buf_top;
 		strcpy(roomlist_buf,dyntext->buffer);
 	} else {
@@ -116,6 +116,7 @@ SPECIAL(fate)
 		}
 		skip_spaces(&roomlist_buf);
 	}
+	delete roomlist_buf_top;
 	// Didnt find any rooms. :P
 	if(!roomlist) {
 		do_say(fate,"Hmm... Where should I go to next?",0,0);
