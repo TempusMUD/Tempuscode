@@ -618,14 +618,14 @@ room_data *Creature::getLoadroom() {
 
 	if (PLR_FLAGGED(this, PLR_FROZEN)) {
 		load_room = r_frozen_start_room;
-	} else if (GET_LOADROOM(this) != -1) {
+	} else if (GET_LOADROOM(this)) {
 		if ((load_room = real_room(GET_LOADROOM(this))) &&
 			(!House_can_enter(this, load_room->number) ||
 			!clan_house_can_enter(this, load_room))) 
 		{
 			load_room = NULL;
 		}
-	} else if (GET_HOMEROOM(this) != -1) {
+	} else if (GET_HOMEROOM(this)) {
 		if ((load_room = real_room(GET_HOMEROOM(this))) &&
 			(!House_can_enter(this, load_room->number) ||
 			!clan_house_can_enter(this, load_room))) 
@@ -814,7 +814,6 @@ Creature::clear(void)
 	player_specials = new player_special_data;
 	memset((char *)player_specials, 0, sizeof(player_special_data));
 	player_specials->desc_mode = CXN_UNKNOWN;
-	GET_LOADROOM(this) = GET_HOMEROOM(this) = -1;
 
 	set_title(this, "");
 }
@@ -914,7 +913,7 @@ Creature::quit(void)
 	player_specials->rent_per_day = calcDailyRent() * 3;
 	player_specials->desc_mode = CXN_UNKNOWN;
 	player_specials->rent_currency = in_room->zone->time_frame;
-	GET_LOADROOM(this) = in_room->number;
+	GET_LOADROOM(this) = 0;
 	player.time.logon = time(0);
 	saveObjects();
 	saveToXML();
@@ -932,7 +931,7 @@ Creature::idle(void)
 	player_specials->rent_per_day = calcDailyRent() * 3;
 	player_specials->desc_mode = CXN_UNKNOWN;
 	player_specials->rent_currency = in_room->zone->time_frame;
-	GET_LOADROOM(this) = in_room->number;
+	GET_LOADROOM(this) = 0;
 	player.time.logon = time(0);
 	saveObjects();
 	saveToXML();
@@ -952,7 +951,7 @@ Creature::die(void)
 		player_specials->rent_per_day = 0;
 		player_specials->desc_mode = CXN_AFTERLIFE;
 		player_specials->rent_currency = 0;
-		GET_LOADROOM(this) = -1;
+		GET_LOADROOM(this) = 0;
 		player.time.logon = time(0);
 		saveObjects();
 		saveToXML();
@@ -992,7 +991,7 @@ Creature::purge(bool destroy_obj)
 		player_specials->rent_per_day = 0;
 		player_specials->desc_mode = CXN_UNKNOWN;
 		player_specials->rent_currency = 0;
-		GET_LOADROOM(this) = -1;
+		GET_LOADROOM(this) = 0;
 		player.time.logon = time(0);
 		saveObjects();
 		saveToXML();
@@ -1011,7 +1010,7 @@ Creature::remort(void)
 	player_specials->rent_per_day = 0;
 	player_specials->desc_mode = CXN_UNKNOWN;
 	player_specials->rent_currency = 0;
-	GET_LOADROOM(this) = -1;
+	GET_LOADROOM(this) = 0;
 	player.time.logon = time(0);
 	saveObjects();
 	saveToXML();

@@ -1334,9 +1334,9 @@ char_to_game(descriptor_data *d)
 	// if we're not a new char, check loadroom and rent
 	if (GET_LEVEL(d->creature)) {
 		// Figure out the room the player is gonna start in
-		if (GET_LOADROOM(d->creature) != -1)
+		if (GET_LOADROOM(d->creature))
 			room = real_room(GET_LOADROOM(d->creature));
-		if (!room && GET_HOMEROOM(d->creature) != -1)
+		if (!room && GET_HOMEROOM(d->creature))
 			room = real_room(GET_HOMEROOM(d->creature));
 		if (!room)
 			room = d->creature->getLoadroom();
@@ -1359,7 +1359,7 @@ char_to_game(descriptor_data *d)
 			d->creature->in_room = room;
 
 		// Loadroom is only good for one go
-		GET_LOADROOM(d->creature) = -1;
+		GET_LOADROOM(d->creature) = 0;
 
 		if (PLR_FLAGGED(d->creature, PLR_INVSTART))
 			GET_INVIS_LVL(d->creature) = (GET_LEVEL(d->creature) > LVL_LUCIFER ?

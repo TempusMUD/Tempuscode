@@ -172,12 +172,12 @@ ACMD(do_quit)
 				send_to_char(ch,
 					"\r\nVery well %s.  You drop all your things and vanish!\r\n",
 					GET_NAME(ch));
-				ch->quit();
 				act("$n disappears, leaving all $s equipment behind!",
 					TRUE, ch, 0, 0, TO_ROOM);
 				mudlog(MAX(LVL_AMBASSADOR, GET_INVIS_LVL(ch)), NRM, true,
 					"%s (%d) has quit the game, EQ drop at %d",
 					GET_NAME(ch), GET_LEVEL(ch), ch->in_room->number);
+				ch->quit();
 			}
 		} else {
 			send_to_char(ch, "\r\nYou flicker out of reality...\r\n");
@@ -1981,7 +1981,7 @@ ACMD(do_loadroom)
 
 	if (!*argument) {
 
-		if (GET_HOMEROOM(ch) != -1 && (room = real_room(GET_HOMEROOM(ch)))) {
+		if (GET_HOMEROOM(ch) && (room = real_room(GET_HOMEROOM(ch)))) {
 			send_to_char(ch, "Your loadroom is currently set to: %s%s%s\r\n"
 				"Type 'loadroom off' to remove it or 'loadroom set' to set it.\r\n",
 				CCCYN(ch, C_NRM), room->name, CCNRM(ch, C_NRM));
@@ -1993,7 +1993,7 @@ ACMD(do_loadroom)
 
 	if (is_abbrev(argument, "off")) {
 
-		GET_HOMEROOM(ch) = -1;
+		GET_HOMEROOM(ch) = 0;
 		send_to_char(ch, "Loadroom disabled.\r\n");
 
 	} else if (is_abbrev(argument, "set")) {
