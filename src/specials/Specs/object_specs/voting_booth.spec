@@ -119,7 +119,7 @@ voting_booth_load(void)
 }
 
 void
-voting_booth_read(Creature * ch, struct obj_data *obj, char *argument)
+voting_booth_read(Creature * ch, char *argument)
 {
 	struct voting_poll *poll;
 	struct voting_option *opt;
@@ -263,7 +263,7 @@ voting_booth_vote(Creature * ch, struct obj_data *obj, char *argument)
 }
 
 void
-voting_booth_list(Creature * ch, struct obj_data *obj)
+voting_booth_list(Creature * ch)
 {
 	struct voting_poll *poll;
 	struct memory_rec_struct *memory;
@@ -338,7 +338,7 @@ voting_booth_change_view(Creature * ch, char *argument, bool secret)
 }
 
 void
-voting_booth_remove(Creature * ch, struct obj_data *obj, char *argument)
+voting_booth_remove(Creature * ch, char *argument)
 {
 	struct voting_poll *poll, *prev_poll;
 	struct voting_option *opt, *next_opt;
@@ -392,7 +392,7 @@ voting_booth_remove(Creature * ch, struct obj_data *obj, char *argument)
 }
 
 void
-voting_booth_write(Creature * ch, struct obj_data *obj, char *argument)
+voting_booth_write(Creature * ch, char *argument)
 {
 	struct mail_recipient_data *n_mail_to;
 
@@ -603,19 +603,19 @@ SPECIAL(voting_booth)
 		skip_spaces(&argument);
 		if (!isnumber(argument))
 			return 0;
-		voting_booth_read(ch, obj, argument);
+		voting_booth_read(ch, argument);
 	} else if (VOTING_CMD_LOOK == cmd || VOTING_CMD_EXAMINE == cmd) {
 		skip_spaces(&argument);
 		if (!isname(argument, obj->aliases) && !isname(argument, "voting booth"))
 			return 0;
-		voting_booth_list(ch, obj);
+		voting_booth_list(ch);
 	} else if (VOTING_CMD_REMOVE == cmd && GET_LEVEL(ch) >= LVL_AMBASSADOR) {
 		skip_spaces(&argument);
 		if (!isnumber(argument))
 			return 0;
-		voting_booth_remove(ch, obj, argument);
+		voting_booth_remove(ch, argument);
 	} else if (VOTING_CMD_WRITE == cmd && GET_LEVEL(ch) >= LVL_AMBASSADOR)
-		voting_booth_write(ch, obj, argument);
+		voting_booth_write(ch, argument);
 	else if (VOTING_CMD_SHOW == cmd && GET_LEVEL(ch) >= LVL_AMBASSADOR) {
 		skip_spaces(&argument);
 		if (!isnumber(argument))

@@ -6,14 +6,14 @@
 
 list < long >implanter_sessions;	// ids of players with implant sessions
 
-void implanter_implant(Creature * me, Creature * ch, char *args);
-void implanter_extract(Creature * me, Creature * ch, char *args);
-void implanter_repair(Creature * me, Creature * ch, char *args);
-void implanter_redeem(Creature * me, Creature * ch, char *args);
-bool implanter_in_session(Creature * ch);
-void implanter_end_sess(Creature * me, Creature * ch);
-void implanter_show_args(Creature * me, Creature * ch);
-void implanter_show_pos(Creature * me, Creature * ch, obj_data * obj);
+void implanter_implant(Creature *me, Creature *ch, char *args);
+void implanter_extract(Creature *me, Creature *ch, char *args);
+void implanter_repair(Creature *me, Creature *ch, char *args);
+void implanter_redeem(Creature *me, Creature *ch, char *args);
+bool implanter_in_session(Creature *ch);
+void implanter_end_sess(Creature *ch);
+void implanter_show_args(Creature *me, Creature *ch);
+void implanter_show_pos(Creature *me, Creature *ch, obj_data *obj);
 
 const long TICKET_VNUM = 92277;
 
@@ -50,7 +50,7 @@ SPECIAL(implanter)
 		}
 		return 0;
 	} else if (spec_mode == SPECIAL_LEAVE) {
-		implanter_end_sess(self, ch);
+		implanter_end_sess(ch);
 		return 0;
 	}
 
@@ -467,7 +467,7 @@ implanter_in_session(Creature * ch)
 }
 
 void
-implanter_end_sess(Creature * me, Creature * ch)
+implanter_end_sess(Creature * ch)
 {
 	implanter_sessions.remove(GET_IDNUM(ch));
 }
