@@ -6658,7 +6658,7 @@ ACMD(do_menu)
 		return;
 	}
 	if ((vict = get_char_vis(ch, argument))) {
-		if (vict->desc) {
+		if (vict->desc && GET_LEVEL(ch) > GET_LEVEL(vict) ) {
 			SEND_TO_Q("\033[H\033[J", vict->desc);
 			show_menu(vict->desc);
 			send_to_char(ch, "Okay.  Menu sent.\r\n");
