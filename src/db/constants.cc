@@ -2491,12 +2491,16 @@ extern const char *spell_wear_off_msg[] = {
 	"!UNUSED!",
 	"!UNUSED!",					/* 340 */
 	"Your electrostatic field dissipates.",
-	"!UNUSED!", "!UNUSED!",
+	"!UNUSED!", 
+    "!UNUSED!",
 	"The repulsion field of $p fades away.",
 	"The attraction field of $p fades away.",	/* 345 */
 	"!instant audience!", 
-    "!UNUSED!", "!UNUSED!", "!UNUSED!", "!lament of longing!",	/* 350 */
-	"The song armament fades.", 
+    "The wall of sound falters and fades.", 
+    "!UNUSED!", 
+    "!lament of longing!", 
+    "!UNUSED!",	/* 350 */
+	"The song of armament fades.", 
     "!UNUSED!", 
     "Your armor returns to normal harness.", 
     "!exposure overture!", 
@@ -2508,21 +2512,39 @@ extern const char *spell_wear_off_msg[] = {
     "You song bolstered confidence fades.",	/* 360 */
 	"!UNUSED!", 
     "The valor of fallen heros leaves you to your own devices.", 
-    "!UNUSED!", "!UNUSED!", 
+    "!UNUSED!", 
+    "!UNUSED!", 
     "You feel tired as the effect of the music leaves you.",	/* 365 */
 	"!unravelling diapason!", 
     "!UNUSED!", 
     "The light leaves the air around you.  A chill sets in.", 
-    "!UNUSED!", 
+    "Your musical asylum fades away.", 
     "The white noise finally leaves your ears.",	/* 370 */
 	"Your rage subsides.", 
     "Your strenth fails with your memory of the Power Overture.", 
-    "!UNUSED!", "!UNUSED!", "!UNUSED!",	/* 375 */
-	"!UNUSED!", "!UNUSED!", "!UNUSED!", "!UNUSED!", "!UNUSED!",	/* 380 */
-	"!UNUSED!", "!UNUSED!", 
-    "!home sweet home!", "!UNUSED!", "!UNUSED!",	/* 385 */
-	"!UNUSED!", "!UNUSED!", "!UNUSED!", "!UNUSED!", "!UNUSED!",	/* 390 */
-	"!UNUSED!", "!UNUSED!", "!UNUSED!", "!UNUSED!", "!UNUSED!",	/* 395 */
+    "The power of the dieties no longer flows in your veins.", 
+    "!UNUSED!", 
+    "!UNUSED!",	/* 375 */
+	"!UNUSED!", 
+    "!clarifying harmonies!", 
+    "The swallow's wings return you gently to the ground.", 
+    "You no longer feel compelled to dance.", 
+    "!rhythm of alarm!",	/* 380 */
+	"!Rhapsody of Remedy!", 
+    "!UNUSED!", 
+    "!home sweet home!", 
+    "The weight of the world decends upon your shoulders.", 
+    "!UNUSED!",	/* 385 */
+	"The slivers of music whirling around your body fade into nothingness.", 
+    "!UNUSED!", 
+    "You feel less charming.", 
+    "!UNUSED!", 
+    "!UNUSED!",	/* 390 */
+	"!UNUSED!", 
+    "The rhythm invading your brain dissipates.", 
+    "!UNUSED!", 
+    "!UNUSED!", 
+    "!UNUSED!",	/* 395 */
 	"!UNUSED!", "!UNUSED!", "!UNUSED!", "!UNUSED!", "!UNUSED!",	/* 400 */
 	"!zen healing!",
 	"You feel your heightened awareness fade.",
@@ -2706,26 +2728,11 @@ extern const char *item_wear_off_msg[] = {
 	"!UNUSED!", "!UNUSED!", "!UNUSED!", "!UNUSED!", "!UNUSED!",	/* 360 */
 	"!UNUSED!", "!UNUSED!", "!UNUSED!", "!UNUSED!", "!UNUSED!",	/* 365 */
 	"!UNUSED!", "!UNUSED!", "!UNUSED!", "!UNUSED!", "!UNUSED!",	/* 370 */
-	"!UNUSED!", "!UNUSED!", 
-    "The power of the dieties leaves you.", 
-    "!UNUSED!", 
-    "!UNUSED!",	/* 375 */
-	"!UNUSED!", 
-    "!clarifying harmonies!", 
-    "The swallows wings return you gently to the ground.", 
-    "Your desire to dance expires.", 
-    "!UNUSED!",	/* 380 */
-	"!rhapsody of remedy!", 
-    "!UNUSED!", 
-    "!UNUSED!", 
-    "The weight of the world decends upon your shoulders.", 
-    "!UNUSED!",	/* 385 */
-	"!UNUSED!", "!UNUSED!", 
-    "You feel less charming.", 
-    "!UNUSED!", "!UNUSED!",	/* 390 */
-	"!UNUSED!", 
-    "The rhythm invading your brain dissipates.", 
-    "!UNUSED!", "!UNUSED!", "!UNUSED!",	/* 395 */
+	"!UNUSED!", "!UNUSED!", "!UNUSED!", "!UNUSED!", "!UNUSED!",	/* 375 */
+	"!UNUSED!", "!UNUSED!", "!UNUSED!", "!UNUSED!", "!UNUSED!",	/* 380 */
+	"!UNUSED!", "!UNUSED!", "!UNUSED!", "!UNUSED!", "!UNUSED!",	/* 385 */
+	"!UNUSED!", "!UNUSED!", "!UNUSED!", "!UNUSED!", "!UNUSED!",	/* 390 */
+	"!UNUSED!", "!UNUSED!", "!UNUSED!", "!UNUSED!", "!UNUSED!",	/* 395 */
 	"!UNUSED!", "!UNUSED!", "!UNUSED!", "!UNUSED!", "!UNUSED!",	/* 400 */
 	"!UNUSED!", "!UNUSED!", "!UNUSED!", "!UNUSED!", "!UNUSED!",	/* 405 */
 	"!UNUSED!", "!UNUSED!", "!UNUSED!", "!UNUSED!", "!UNUSED!",	/* 410 */
@@ -2781,7 +2788,7 @@ extern const char *item_wear_off_msg[] = {
 	"!UNUSED!", "!UNUSED!", "!UNUSED!", "!UNUSED!", "!UNUSED!",	/* 660 */
 	"!UNUSED!", "!UNUSED!", "!UNUSED!", "!UNUSED!", "!UNUSED!",	/* 665 */
 	"!UNUSED!", "!UNUSED!", "!UNUSED!", "!UNUSED!", "!UNUSED!",	/* 670 */
-	"!UNUSED!", "!scream!", "!UNUSED!", "!UNUSED!", "!UNUSED!",	/* 675 */
+	"!UNUSED!", "!UNUSED!", "!UNUSED!", "!UNUSED!", "!UNUSED!",	/* 675 */
 	"!UNUSED!", "!UNUSED!", "!UNUSED!", "!UNUSED!", "!UNUSED!",	/* 680 */
 	"!UNUSED!", "!UNUSED!", "!UNUSED!", "!UNUSED!", "!UNUSED!",	/* 685 */
 	"!UNUSED!", "!UNUSED!", "!UNUSED!", "!UNUSED!", "!UNUSED!",	/* 690 */
