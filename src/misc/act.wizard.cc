@@ -2168,6 +2168,9 @@ ACMD(do_snoop)
         if (ch->desc->snooping)
             ch->desc->snooping->snoop_by = NULL;
 
+        slog("(GC) %s has begun to snoop %s.", 
+			 GET_NAME(ch), GET_NAME(victim) );
+
         ch->desc->snooping = victim->desc;
         victim->desc->snoop_by = ch->desc;
     }
