@@ -97,30 +97,30 @@ boot_dynamic_text(void)
 	    sprintf(buf2, "text/%s", newdyn->filename);
 	    
 	    if (!(fl = fopen(buf2, "r"))) {
-		sprintf(buf, "SYSERR: unable to open dynamic text file '%s'.", buf2);
-		slog(buf);
-		perror("dyntext fopen:");
+            sprintf(buf, "SYSERR: unable to open dynamic text file '%s'.", buf2);
+            slog(buf);
+            perror("dyntext fopen:");
 	    }
 	    
 	    if (fl) {
 		
-		*buf = '\0';
+            *buf = '\0';
 
-		// insert \r\n in the place of \n
-		for (i = 0, j = 0; j < MAX_STRING_LENGTH-1 && !feof(fl); i++) {
-		    c = fgetc(fl);
-		    if (c == '\n')
-			buf[j++] = '\r';
-		    buf[j++] = c;
-		}
+            // insert \r\n in the place of \n
+            for (i = 0, j = 0; j < MAX_STRING_LENGTH-1 && !feof(fl); i++) {
+                c = fgetc(fl);
+                if (c == '\n')
+                buf[j++] = '\r';
+                buf[j++] = c;
+            }
 
-		buf[j] = '\0';
+            buf[j] = '\0';
 
-		strcat(buf, "\r\n");
+            strcat(buf, "\r\n");
 
-		newdyn->buffer = strdup(buf);
-		
-		fclose(fl);
+            newdyn->buffer = strdup(buf);
+            
+            fclose(fl);
 	    }
 	    
 	    newdyn->next = dyntext_list;
@@ -153,17 +153,17 @@ create_dyntext_backup(dynamic_text_file *dyntext)
     // scan files in backup dir
     while((dirp=readdir(dir))) {
 
-	// looks like the right filename
-	if (!strncasecmp(dirp->d_name, dyntext->filename, len) &&
-	    *(dirp->d_name + len) && *(dirp->d_name + len) == '.' &&
-	    *(dirp->d_name + len + 1)) {
-	    
-	    num = atoi(dirp->d_name + len + 1);
-	    
-	    if (num > maxnum)
-		maxnum = num;
-	    
-	}
+        // looks like the right filename
+        if (!strncasecmp(dirp->d_name, dyntext->filename, len) &&
+            *(dirp->d_name + len) && *(dirp->d_name + len) == '.' &&
+            *(dirp->d_name + len + 1)) {
+            
+            num = atoi(dirp->d_name + len + 1);
+            
+            if (num > maxnum)
+                maxnum = num;
+            
+        }
     }	
 
     closedir(dir);
@@ -216,6 +216,42 @@ save_dyntext_buffer(dynamic_text_file *dyntext)
     return 0;
 
 }
+int
+reload_dyntext_buffer( dynamic_text_file *dyntext ) {
+    FILE *fl;
+    char filename[1024];
+    char c;
+    int i, j;
+
+    sprintf(filename, "text/%s", dyntext->filename);
+    
+    if (!(fl = fopen(filename, "r"))) {
+        sprintf(buf, "SYSERR: unable to open dynamic text file '%s'.", filename);
+        slog(buf);
+        perror("dyntext fopen:");
+    }
+    
+    if (fl) {
+        *buf = '\0';
+        // insert \r\n in the place of \n
+        for (i = 0, j = 0; j < MAX_STRING_LENGTH-1 && !feof(fl); i++) {
+            c = fgetc(fl);
+            if (c == '\n')
+            buf[j++] = '\r';
+            buf[j++] = c;
+        }
+
+        buf[j] = '\0';
+        strcat(buf, "\r\n");
+        if( dyntext->buffer != NULL ) {
+            free(dyntext->buffer);
+        }
+        dyntext->buffer = strdup(buf);
+        fclose(fl);
+        return 0;
+    }
+    return -1;
+}
 
 int
 save_dyntext_control(dynamic_text_file *dyntext)
@@ -266,6 +302,7 @@ char *dynedit_options[][2] = {
     {"update",   "<filename>"},
     {"prepend",  "<filename> (prepends the old text to the new)"},
     {"append",   "<filename> (appends the old text to the new)"},
+    {"reload",   "<filename>"},
     {NULL, NULL}
 };
 
@@ -750,7 +787,27 @@ ACMD(do_dynedit)
 	}
 	send_to_char("Old buffer appended to new buffer.\r\n", ch);
 	break;
-
+    case 9: {// reload
+        if (dynedit_check_dyntext(ch, dyntext, arg2))
+            return;
+        
+        if (dyntext->lock && dyntext->lock != GET_IDNUM(ch)) {
+            sprintf(buf, "That file is already locked by %s.\r\n", get_name_by_id(dyntext->lock));
+            send_to_char(buf, ch);
+            return;
+        }
+        if (!dyntext_edit_ok(ch, dyntext)) {
+            send_to_char("You cannot edit this file.\r\n", ch);
+            return;
+        }
+        int rc = reload_dyntext_buffer( dyntext );
+        if( rc == 0 ) {
+            send_to_char("Buffer reloaded.\r\n",ch);
+        } else {
+            send_to_char("Error reloading buffer.\r\n",ch);
+        }
+        break;
+    }
     default:			// default
 	break;
     }

@@ -3519,9 +3519,6 @@ ACMD(do_gen_ps)
     case SCMD_CREDITS:
         page_string(ch->desc, credits, 0);
         break;
-    case SCMD_NEWS:
-        page_string(ch->desc, news, 0);
-        break;
     case SCMD_INFO:
         page_string(ch->desc, info, 0);
         break;

@@ -268,7 +268,6 @@ flow_room(int pulse)
                         was_in = vict->in_room;
                         log_death_trap(vict);
                         death_cry(vict);
-                        //extract_char(vict, 1);
                         vict->extract( TRUE );
 
                         if (was_in->number == 34004) {

@@ -1486,11 +1486,7 @@ make_corpse( struct char_data *ch,struct char_data *killer,int attacktype )
                 obj_to_obj( unequip_char( ch, i, MODE_EQ ), corpse );
             if ( GET_IMPLANT( ch, i ) ) {
                 REMOVE_BIT( GET_OBJ_WEAR( GET_IMPLANT( ch, i ) ), ITEM_WEAR_TAKE );
-                if ( ch->in_room->zone->number == 400 ||
-                     ch->in_room->zone->number == 320 )
-                    extract_obj( unequip_char( ch, i, MODE_IMPLANT ) );
-                else
-                    obj_to_obj( unequip_char( ch, i, MODE_IMPLANT ), corpse );
+                obj_to_obj( unequip_char( ch, i, MODE_IMPLANT ), corpse );
             }
         }
     

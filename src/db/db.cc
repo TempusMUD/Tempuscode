@@ -126,7 +126,6 @@ int  *ticl_index = NULL;        /* ticl index                    */
 int  *iscr_index = NULL;        /* iscript index                 */
 
 char *credits = NULL;                /* game credits                         */
-char *news = NULL;                /* mud news                         */
 char *motd = NULL;                /* message of the day - mortals */
 char *ansi_motd = NULL;                /* message of the day - mortals */
 char *imotd = NULL;                /* message of the day - immorts */
@@ -238,7 +237,6 @@ ACMD(do_reboot)
     one_argument(argument, arg);
 
     if (!str_cmp(arg, "all") || *arg == '*') {
-        file_to_string_alloc(NEWS_FILE, &news);
         file_to_string_alloc(CREDITS_FILE, &credits);
         file_to_string_alloc(MOTD_FILE, &motd);
         file_to_string_alloc(ANSI_MOTD_FILE, &ansi_motd);
@@ -265,22 +263,16 @@ ACMD(do_reboot)
     } else if (!str_cmp(arg, "immlist")) {
         file_to_string_alloc(IMMLIST_FILE, &immlist);
         file_to_string_alloc(ANSI_IMMLIST_FILE, &ansi_immlist);
-    } else if (!str_cmp(arg, "news"))
-        file_to_string_alloc(NEWS_FILE, &news);
-    else if (!str_cmp(arg, "credits"))
+    } else if (!str_cmp(arg, "credits")) {
         file_to_string_alloc(CREDITS_FILE, &credits);
-    else if (!str_cmp(arg, "motd")) {
+    } else if (!str_cmp(arg, "motd")) {
         file_to_string_alloc(MOTD_FILE, &motd);
         file_to_string_alloc(ANSI_MOTD_FILE, &ansi_motd);
     } else if (!str_cmp(arg, "imotd")) {
         file_to_string_alloc(IMOTD_FILE, &imotd);
         file_to_string_alloc(ANSI_IMOTD_FILE, &ansi_imotd);
-//    } else if (!str_cmp(arg, "help"))
-//        file_to_string_alloc(HELP_PAGE_FILE, &help);
     } else if (!str_cmp(arg, "info"))
         file_to_string_alloc(INFO_FILE, &info);
-//    else if (!str_cmp(arg, "policy"))
-//        file_to_string_alloc(POLICIES_FILE, &policies);
     else if (!str_cmp(arg, "handbook"))
         file_to_string_alloc(HANDBOOK_FILE, &handbook);
     else if (!str_cmp(arg, "background"))
@@ -383,8 +375,7 @@ boot_db(void)
     slog("Resetting the game time:");
     reset_time();
 
-    slog("Reading news, credits, bground, info & motds.");
-    file_to_string_alloc(NEWS_FILE, &news);
+    slog("Reading credits, bground, info & motds.");
     file_to_string_alloc(CREDITS_FILE, &credits);
     file_to_string_alloc(MOTD_FILE, &motd);
     file_to_string_alloc(ANSI_MOTD_FILE, &ansi_motd);

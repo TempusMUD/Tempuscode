@@ -400,15 +400,15 @@ void char_data::extract( char mode ) {
         if (GET_EQ(this, i))
             obj_to_room(unequip_char(this, i, MODE_EQ), in_room);
         if (GET_IMPLANT(this, i))
-            extract_obj(unequip_char(this, i, MODE_IMPLANT));
+            obj_to_room(unequip_char(this, i, MODE_IMPLANT), in_room);
     }
 
 	// transfer gold to room
-//	if (GET_GOLD(this))
-//		obj_to_room(create_money(GET_GOLD(this), 0), in_room);
-//	if (GET_CASH(this))
-//		obj_to_room(create_money(GET_CASH(this), 1), in_room);
-//	GET_GOLD(this) = GET_CASH(this) = 0;
+	if ( GET_GOLD(this) > 0 )
+		obj_to_room(create_money(GET_GOLD(this), 0), in_room);
+	if ( GET_CASH(this) > 0 )
+		obj_to_room(create_money(GET_CASH(this), 1), in_room);
+	GET_GOLD(this) = GET_CASH(this) = 0;
 
     if (FIGHTING(this))
         stop_fighting(this);
@@ -448,7 +448,6 @@ void char_data::extract( char mode ) {
     char_from_room(this);
 
     // pull the char from the list
-    //REMOVE_FROM_LIST(ch, character_list, next);
     characterList.remove(this);
     combatList.remove(this);
     // remove any paths

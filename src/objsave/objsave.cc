@@ -672,13 +672,17 @@ Crash_load( struct char_data * ch )
         return 1;
 }
 
+/*
+ * Stores the given object list into the given file
+ * recursively via obj->next_content
+ */
 int 
-Crash_save( struct obj_data * obj, FILE * fp )
+store_obj_list( struct obj_data * obj, FILE * fp )
 {
     int result;
 
     if ( obj ) {
-        Crash_save( obj->next_content, fp );
+        store_obj_list( obj->next_content, fp );
         result = Obj_to_store( obj, fp );
 
         if ( !result )
@@ -756,6 +760,9 @@ Crash_calculate_rent( struct obj_data * obj, int *cost )
     }
 }
 
+/*
+ * Stores implants into the player's IMPLANT_FILE and extracts them.
+ */
 void
 Crash_save_implants( struct char_data *ch )
 {
@@ -768,13 +775,14 @@ Crash_save_implants( struct char_data *ch )
         return;
     for ( int j = 0; j < NUM_WEARS; j++ )
         if ( GET_IMPLANT( ch, j ) ) {
-            if ( !Crash_save( GET_IMPLANT( ch, j ), fp ) ) {
+            if ( store_obj_list( GET_IMPLANT( ch, j ), fp ) ) {
+                Crash_extract_objs( GET_IMPLANT( ch, j ) );
+            } else {
                 fclose( fp );
                 return;
             }
         }
     fclose( fp );
-  
 }
 
 void 
@@ -801,14 +809,14 @@ Crash_crashsave( struct char_data * ch )
         fclose( fp );
         return;
     }
-    if ( !Crash_save( ch->carrying, fp ) ) {
+    if ( !store_obj_list( ch->carrying, fp ) ) {
         fclose( fp );
         return;
     }
 
     for ( j = 0; j < NUM_WEARS; j++ )
         if ( GET_EQ( ch, j ) ) {
-            if ( !Crash_save( GET_EQ( ch, j ), fp ) ) {
+            if ( !store_obj_list( GET_EQ( ch, j ), fp ) ) {
                 fclose( fp );
                 return;
             }
@@ -856,10 +864,10 @@ Crash_rentsave( struct char_data * ch, int cost, int rentcode )
 
     for ( j = 0; j < NUM_WEARS; j++ )
         if ( GET_EQ( ch, j ) )
-            if( Crash_save( GET_EQ( ch, j ), fp ) )
+            if( store_obj_list( GET_EQ( ch, j ), fp ) )
                 Crash_extract_objs( GET_EQ( ch, j ) );
   
-    if ( Crash_save( ch->carrying, fp ) )
+    if ( store_obj_list( ch->carrying, fp ) )
         Crash_extract_objs( ch->carrying );
   
     fclose( fp );
@@ -918,7 +926,7 @@ Crash_cursesave( struct char_data * ch )
                 while ( GET_EQ( ch, j )->contains )
                     Crash_extract_objs( GET_EQ( ch, j )->contains );
                 
-                if ( Crash_save( GET_EQ( ch, j ), fp ) )
+                if ( store_obj_list( GET_EQ( ch, j ), fp ) )
                     Crash_extract_objs( GET_EQ( ch, j ) );
             }
         }
@@ -988,10 +996,10 @@ Crash_cryosave( struct char_data * ch, int cost )
 
     for ( j = 0; j < NUM_WEARS; j++ )
         if ( GET_EQ( ch, j ) )
-            if ( Crash_save( GET_EQ( ch, j ), fp ) )
+            if ( store_obj_list( GET_EQ( ch, j ), fp ) )
                 Crash_extract_objs( GET_EQ( ch, j ) );
 
-    if ( !Crash_save( ch->carrying, fp ) ) {
+    if ( !store_obj_list( ch->carrying, fp ) ) {
         fclose( fp );
         return;
     }

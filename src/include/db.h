@@ -43,7 +43,6 @@
 #define ISCR_PREFIX "world/iscr" /* iscripts */
 
 #define CREDITS_FILE	"text/credits"	/* for the 'credits' command	*/
-#define NEWS_FILE	"text/news"	/* for the 'news' command	*/
 #define MOTD_FILE	"text/motd"	/* messages of the day / mortal	*/
 #define ANSI_MOTD_FILE	"text/ansi_motd" /* messages of the day / mortal */
 #define IMOTD_FILE	"text/imotd"	/* messages of the day / immort */
