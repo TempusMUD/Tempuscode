@@ -2452,7 +2452,7 @@ ASPELL(spell_vestigial_rune)
 ASPELL(spell_id_insinuation)
 {
 
-	struct Creature *ulv = NULL;	/* un-lucky-vict */
+	struct Creature *pulv, *ulv = NULL;	/* un-lucky-vict */
 	int total = 0;
 
 	if (!victim)
@@ -2467,32 +2467,29 @@ ASPELL(spell_id_insinuation)
 		act("$n attacks $N in a rage!!\r\n", TRUE, victim, 0, ch, TO_NOTVICT);
 		act("$n attacks you in a rage!!\r\n", TRUE, victim, 0, ch, TO_VICT);
 		act("You attack $N in a rage!!\r\n", TRUE, victim, 0, ch, TO_CHAR);
-		victim->setFighting(ch);
+		set_fighting(victim, ch, true);
 		return;
 	}
-//    total = room_count(victim, victim->in_room);
-	total = victim->in_room->people.size();
 
-	total = MAX(1, total >> 2);
-	CreatureList::iterator nit = victim->in_room->people.begin();
+	ulv = NULL;
 	CreatureList::iterator it = victim->in_room->people.begin();
 	for (; it != victim->in_room->people.end(); ++it) {
-		++nit;
-		ulv = *it;
-		if (ulv == victim || ulv == ch)
+		pulv = *it;
+		if (pulv == victim || pulv == ch)
 			continue;
-		if (PRF_FLAGGED(ulv, PRF_NOHASSLE))
+		if (PRF_FLAGGED(pulv, PRF_NOHASSLE))
 			continue;
 		// prevent all reputation adjustments and killer flags as a result
 		// of id insinuation
-		if (!ok_to_damage(ulv, victim))
+		if (!ok_to_damage(pulv, victim))
 			continue;
 
 		if (!ok_to_damage(ch, victim))
 			continue;
-
-		if (!number(0, total) || nit == victim->in_room->people.end())
-			break;
+		
+		if (!number(0, total))
+			ulv = pulv;
+		total++;
 	}
 
 	if (!ulv) {
@@ -2506,9 +2503,9 @@ ASPELL(spell_id_insinuation)
 
 	act("$n attacks $N in a rage!!\r\n", TRUE, victim, 0, ulv, TO_NOTVICT);
 	act("$n attacks you in a rage!!\r\n", TRUE, victim, 0, ulv, TO_VICT);
-	act("You attack $n in a rage!!\r\n", TRUE, victim, 0, ulv, TO_CHAR);
+	act("You attack $N in a rage!!\r\n", TRUE, victim, 0, ulv, TO_CHAR);
 
-	ulv->setFighting(victim);
+	set_fighting(victim, ulv, false);
 	gain_skill_prof(ch, SPELL_ID_INSINUATION);
 }
 
