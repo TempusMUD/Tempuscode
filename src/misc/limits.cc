@@ -325,21 +325,17 @@ set_title(struct Creature *ch, char *title)
 			memb->rank < clan->top_rank && clan->ranknames[(int)memb->rank])
 			title = clan->ranknames[(int)memb->rank];
 	}
+
+    if( title == NULL ) {
+        title = strdup( "" );
+    }
+
 	if (strlen(title) > MAX_TITLE_LENGTH)
 		title[MAX_TITLE_LENGTH] = '\0';
 
 	if (GET_TITLE(ch) != NULL) {
-#ifdef DMALLOC
-		dmalloc_verify(0);
-#endif
 		free(GET_TITLE(ch));
-#ifdef DMALLOC
-		dmalloc_verify(0);
-#endif
 	}
-#ifdef DMALLOC
-	dmalloc_verify(0);
-#endif
 	while (*title && ' ' == *title)
 		title++;
 	GET_TITLE(ch) = (char *)malloc(strlen(title) + 2);
@@ -349,9 +345,6 @@ set_title(struct Creature *ch, char *title)
 	} else
 		*GET_TITLE(ch) = '\0';
 
-#ifdef DMALLOC
-	dmalloc_verify(0);
-#endif
 }
 
 
