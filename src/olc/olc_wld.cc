@@ -1189,6 +1189,7 @@ ACMD( do_hedit )
     case 5:   /* show */
     char tmpbuf[1024];
     tmpbuf[0] = '\0';
+    buf[0]='\0';
 	argument = one_argument( argument, arg );
 	skip_spaces( &argument );
 	if ( ( *arg && is_abbrev( arg, "brief" ) ) || 
