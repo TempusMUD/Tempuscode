@@ -834,7 +834,7 @@ calc_skill_prob(struct Creature *ch, struct Creature *vict, int skillnum,
 		//fortissimo makes scream more powerful
 		affected_type *fortissimoAff;
 		if ((fortissimoAff = affected_by_spell(ch, SONG_FORTISSIMO))) {
-			*dam += (*dam * fortissimoAff->level)/100; //up to 1.79 dam at gen 10/49
+			*dam = (*dam * fortissimoAff->level)/100; //up to 1.79 dam at gen 10/49
 		}
 	
 		if (mag_savingthrow(vict, GET_LEVEL(ch), SAVING_BREATH))
