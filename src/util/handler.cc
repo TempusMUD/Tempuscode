@@ -102,7 +102,7 @@ isname(const char *str, const char *namelist)
 	if (!*str)
 		return 0;
 
-	if (!*namelist) {
+	if ( namelist == NULL || *namelist == '\0' ) {
 		slog("SYSERR:  NULL namelist given to isname()");
 		return 0;
 	}
@@ -2006,7 +2006,6 @@ get_player_vis(struct Creature *ch, char *name, int inroom)
 struct Creature *
 get_char_room_vis(struct Creature *ch, char *name)
 {
-	struct Creature *i, *mob = NULL;
 	int j = 0, number;
 	char tmpname[MAX_INPUT_LENGTH];
 	char *tmp = tmpname;
@@ -2014,31 +2013,34 @@ get_char_room_vis(struct Creature *ch, char *name)
 
 	/* 0.<name> means PC with name */
 	strcpy(tmp, name);
-	if (!(number = get_number(&tmp)))
+	number = get_number(&tmp);
+
+	if( number == 0 )
 		return get_player_vis(ch, tmp, 1);
 
-	if (!str_cmp(name, "self"))
+	if( str_cmp(name, "self") == 0 )
 		return ch;
 
 	CreatureList::iterator it = ch->in_room->people.begin();
 	for (; it != ch->in_room->people.end() && j <= number; ++it) {
-		i = *it;
-		if ((af = affected_by_spell(i, SKILL_DISGUISE))) {
+		Creature *mob = NULL;
+		af = affected_by_spell( (*it), SKILL_DISGUISE );
+		if( af != NULL ) {
 			mob = real_mobile_proto(af->modifier);
-		}
+		} 
 
-		if ((mob && isname(tmp, mob->player.name)) ||
-			((!af || CAN_DETECT_DISGUISE(ch, i, af->duration))
-				&& isname(tmp, i->player.name))) {
-			if (CAN_SEE(ch, i)) {
+		if( (mob != NULL && isname(tmp, mob->player.name)) ||
+			(( af == NULL || CAN_DETECT_DISGUISE(ch, (*it), af->duration))
+				&& isname(tmp, (*it)->player.name))) {
+			if (CAN_SEE(ch, (*it))) {
 				if (++j == number) {
-					return i;
+					return *it;
 				}
 			}
 		}
 	}
 
-	if (!str_cmp(name, "me"))
+	if ( str_cmp(name, "me") == 0 )
 		return ch;
 
 	return NULL;
