@@ -61,7 +61,7 @@ vendor_invalid_buy(Creature *self, Creature *ch, ShopData *shop, obj_data *obj)
 {
 	if (GET_OBJ_COST(obj) < 1 || IS_OBJ_STAT(obj, ITEM_NOSELL) ||
 			!OBJ_APPROVED(obj)|| obj->shared->owner_id != 0 ) {
-		do_say(self, tmp_sprintf("%s I don't buy that sort of thing.", GET_NAME(ch)),
+		do_say(self, tmp_sprintf("%s %s", GET_NAME(ch), shop->msg_badobj),
 			0, SCMD_SAY_TO, NULL);
 		return true;
 	}
@@ -293,8 +293,8 @@ vendor_sell(Creature *ch, char *arg, Creature *self, ShopData *shop)
 
 	if (!obj) {
 		do_say(self,
-			tmp_sprintf("%s Sorry, but I don't carry that item.",
-			GET_NAME(ch)), 0, SCMD_SAY_TO, NULL);
+			tmp_sprintf("%s %s",
+			GET_NAME(ch), shop->msg_sell_noobj), 0, SCMD_SAY_TO, NULL);
 		return;
 	}
 
@@ -413,7 +413,7 @@ vendor_sell(Creature *ch, char *arg, Creature *self, ShopData *shop)
 
 	do_say(self,
 		tmp_sprintf("%s %s",
-			GET_NAME(ch), shop->msg_buy), 0, SCMD_SAY_TO, NULL);
+			GET_NAME(ch), tmp_sprintf(shop->msg_buy, cost * num)), 0, SCMD_SAY_TO, NULL);
 	msg = tmp_sprintf("You sell $p %sto $N for %lu %s.",
 		((num == 1) ? "":tmp_sprintf("(x%d) ", num)),
 		cost * num,
@@ -488,7 +488,9 @@ vendor_buy(Creature *ch, char *arg, Creature *self, ShopData *shop)
 
 	obj = get_obj_in_list_all(ch, obj_str, ch->carrying);
 	if (!obj) {
-		send_to_char(ch, "You don't seem to have any '%s'.\r\n", obj_str);
+		do_say(self,
+			tmp_sprintf("%s %s", GET_NAME(ch), shop->msg_buy_noobj), 
+			0, SCMD_SAY_TO, NULL);
 		return;
 	}
 
@@ -535,7 +537,7 @@ vendor_buy(Creature *ch, char *arg, Creature *self, ShopData *shop)
 			0, SCMD_SAY_TO, NULL);
 	}
 
-	do_say(self, tmp_sprintf("%s %s", GET_NAME(ch), shop->msg_sell),
+	do_say(self, tmp_sprintf("%s %s", GET_NAME(ch), tmp_sprintf(shop->msg_sell, cost * num)),
 		0, SCMD_SAY_TO, NULL);
 
 	transfer_money(self, ch, cost * num, shop->currency, false);
@@ -732,6 +734,8 @@ vendor_parse_param(Creature *self, char *param, ShopData *shop, int *err_line)
 	shop->msg_badobj = "I don't buy that sort of thing.";
 	shop->msg_selfbroke = "Sorry, but I don't have the cash.";
 	shop->msg_buyerbroke = "You don't have enough money to buy this!";
+	shop->msg_sell_noobj= "Sorry, but I don't carry that item.";
+	shop->msg_buy_noobj= "You don't have that item!";
 	shop->msg_buy = "Here you go.";
 	shop->msg_sell = "There you go.";
 	shop->msg_closed = "Come back later!";
@@ -791,6 +795,12 @@ vendor_parse_param(Creature *self, char *param, ShopData *shop, int *err_line)
 			shop->msg_sell = line;
 		} else if (!strcmp(param_key, "closed-msg")) {
 			shop->msg_closed = line;
+		} else if (!strcmp(param_key, "no-buy-msg")) {
+			shop->msg_badobj = line;
+		} else if (!strcmp(param_key, "sell-noobj-msg")) {
+			shop->msg_sell_noobj= line;
+		} else if (!strcmp(param_key, "buy-noobj-msg")) {
+			shop->msg_buy_noobj= line;
 		} else if (!strcmp(param_key, "temper-cmd")) {
 			shop->cmd_temper = line;
 		} else if (!strcmp(param_key, "closed-hours")) {
@@ -979,7 +989,7 @@ convert_all_shops(Creature *ch)
 		if (shop->in_room[1] != NOWHERE)
 			specp = tmp_sprintf("room %d\r\n", *shop->in_room);
 		specp = tmp_sprintf("markup %d\r\nmarkdown %d\r\n",
-			(int)(shop->profit_sell * 100), (int)(shop->profit_buy * 100));
+			(int)(shop->profit_buy * 100), (int)(shop->profit_sell * 100));
 		for (product = shop->producing;*product != NOTHING;product++)
 			specp = tmp_sprintf("%sproduce %d\r\n", specp, *product);
 		for (buy_data = shop->type;buy_data->type != NOTHING;buy_data = buy_data++)
@@ -996,8 +1006,13 @@ convert_all_shops(Creature *ch)
 		}
 		if (temper)
 			specp = tmp_strcat(specp, "temper-cmd ", temper, "\r\n", NULL);
+		specp = tmp_strcat(specp, "buy-msg ", shop->message_buy, "\r\n", NULL);
+		specp = tmp_strcat(specp, "sell-msg ", shop->message_sell, "\r\n", NULL);
+		specp = tmp_strcat(specp, "no-buy-msg ", shop->do_not_buy, "\r\n", NULL);
 		specp = tmp_strcat(specp, "keeper-broke-msg ", shop->missing_cash1, "\r\n", NULL);
 		specp = tmp_strcat(specp, "buyer-broke-msg ", shop->missing_cash2, "\r\n", NULL);
+		specp = tmp_strcat(specp, "sell-noobj-msg ", shop->no_such_item1, "\r\n", NULL);
+		specp = tmp_strcat(specp, "buy-noobj-msg ", shop->no_such_item2, "\r\n", NULL);
 		if (SHOP_KILL_CHARS(shop))
 			specp = tmp_strcat(specp, "attack-ok yes\r\n");
 		if (shop->revenue > 0)
