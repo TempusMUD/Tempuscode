@@ -1,0 +1,25 @@
+SETTING UP THE DATABASE
+
+Tempus uses postgresql.  First obtain the latest source from postgresql.org.
+Untar it and cd into the directory.  Then execute these lines as root:
+
+./configure
+make
+make install
+echo /usr/local/pgsql/lib >> /etc/ld.so.conf
+ldconfig
+useradd postgres -H /usr/local/pgsql
+mkdir /usr/local/pgsql/data
+chown postgres:sql /usr/local/pgsql/data
+su - postgres
+bin/initdb -D /usr/local/pgsql/data
+bin/postmaster -D /usr/local/pgsql/data &
+bin/createuser realm
+bin/createdb -U realm tempus
+
+Now you'll have a running instance of postgresql with a blank tempus database.
+Now execute:
+/usr/local/pgsql/bin/psql -U realm -d tempus -f lib/etc/tempus.sql
+
+The version of the database in the cvs repository will then be loaded
+into the database.  At this point, Tempus should build and run fine.
