@@ -565,8 +565,8 @@ perform_cyborg_activate(Creature *ch, int mode, int subcmd)
 			af[1].modifier =
 				1 + (GET_LEVEL(ch) >> 3) + (GET_REMORT_GEN(ch) >> 1);
 
-			to_char[1] = "Shukutei Adrenal Maximizations enabled.\r\n";
-			to_char[0] = "Shukutei Adrenal Maximizations disabled.\r\n";
+			to_char[1] = "Shukutei adrenal maximizations enabled.\r\n";
+			to_char[0] = "Shukutei adrenal maximizations disabled.\r\n";
 			break;
 
 			//    case SKILL_OPTIMMUNAL_RESP:
@@ -592,8 +592,8 @@ perform_cyborg_activate(Creature *ch, int mode, int subcmd)
 			af[0].location = APPLY_MOVE;
 			af[0].modifier = -40;
 
-			to_char[1] = "Activating Reflex Boosters.\r\n";
-			to_char[0] = "Deactivating Reflex Boosters.\r\n";
+			to_char[1] = "Activating reflex boosters.\r\n";
+			to_char[0] = "Deactivating reflex boosters.\r\n";
 			break;
 		case SKILL_MELEE_COMBAT_TAC:
 			af[0].bitvector = 0;
@@ -601,8 +601,8 @@ perform_cyborg_activate(Creature *ch, int mode, int subcmd)
 			af[0].location = APPLY_MOVE;
 			af[0].modifier = -30;
 
-			to_char[1] = "Activating Melee Combat Tactics.\r\n";
-			to_char[0] = "Deactivating Melee Combat Tactics.\r\n";
+			to_char[1] = "Activating melee combat tactics.\r\n";
+			to_char[0] = "Deactivating melee combat tactics.\r\n";
 			break;
 		case SKILL_POWER_BOOST:
 			af[0].bitvector = 0;
@@ -686,8 +686,8 @@ perform_cyborg_activate(Creature *ch, int mode, int subcmd)
 			af[0].location = APPLY_MOVE;
 			af[0].modifier = -37;
 
-			to_char[1] = "Activating Cogenic Neural Bridge.\r\n";
-			to_char[0] = "Deactivating Cogenic Neural Bridge.\r\n";
+			to_char[1] = "Activating cogenic neural bridge.\r\n";
+			to_char[0] = "Deactivating cogenic neural bridge.\r\n";
 			break;
 		case SKILL_OFFENSIVE_POS:	// Offensive Posturing
 			af[0].bitvector = 0;
@@ -707,8 +707,8 @@ perform_cyborg_activate(Creature *ch, int mode, int subcmd)
 			af[2].modifier = (GET_LEVEL(ch) + (2 * GET_REMORT_GEN(ch))) / 7;
 			af[2].type = SKILL_OFFENSIVE_POS;
 
-			to_char[1] = "Offensive Posturing enabled.\r\n";
-			to_char[0] = "Offensive Posturing disabled.\r\n";
+			to_char[1] = "Offensive posturing enabled.\r\n";
+			to_char[0] = "Offensive posturing disabled.\r\n";
 			opposite_mode = SKILL_DEFENSIVE_POS;
 			break;
 		case SKILL_DEFENSIVE_POS:	// Defensive Posturing
@@ -729,8 +729,8 @@ perform_cyborg_activate(Creature *ch, int mode, int subcmd)
 			af[2].modifier = -(GET_LEVEL(ch) + (2 * GET_REMORT_GEN(ch))) / 7;
 			af[2].type = SKILL_DEFENSIVE_POS;
 
-			to_char[1] = "Defensive Posturing enabled.\r\n";
-			to_char[0] = "Defensive Posturing disabled.\r\n";
+			to_char[1] = "Defensive posturing enabled.\r\n";
+			to_char[0] = "Defensive posturing disabled.\r\n";
 			opposite_mode = SKILL_OFFENSIVE_POS;
 			break;
 		default:
@@ -785,7 +785,7 @@ perform_cyborg_activate(Creature *ch, int mode, int subcmd)
 							SKILL_ENERGY_FIELD, -1);
 				}
 				send_to_char(ch, 
-					"ERROR: Dangerous short!!  Energy fields shutting down.\r\n");
+					"DANGER: Hazardous short detected!!  Energy fields shutting down.\r\n");
 				affect_from_char(ch, mode);
 
 			}
@@ -3584,7 +3584,7 @@ ACMD(do_deassimilate)
 	}
 
 	if (GET_MANA(ch) < 10) {
-		send_to_char(ch, "Your BioEnergy level is too low to deassimilate.\r\n");
+		send_to_char(ch, "Your bioenergy level is too low to deassimilate.\r\n");
 		return;
 	}
 
