@@ -3141,6 +3141,7 @@ ACMD(do_who)
                         CCGRN(ch, C_SPR), CCYEL_BLD(ch, C_NRM), CCNRM_GRN(ch, C_NRM),
                         (PLR_FLAGGED(tch, PLR_QUESTOR)          ? "QUESTOR" :
                          !strncmp(GET_NAME(tch), "Fishbone", 8) ? "BONEMAN" : 
+                         !strncmp(GET_NAME(tch), "Tricky", 6)   ? "!WANTED" : 
                          !strncmp(GET_NAME(tch), "Generic", 7)  ? "GENERIC" : 
                          !strncmp(GET_NAME(tch), "Ska", 3)      ? "  LADY " : 
                          !strncmp(GET_NAME(tch), "Shiva", 5)    ? " DEATH " : 
@@ -3151,9 +3152,16 @@ ACMD(do_who)
                          !strncmp(GET_NAME(tch), "Trouble", 7)  ? " ADMIN " :
                          !strncmp(GET_NAME(tch), "Darth", 5)    ? " ADMIN " :
                          !strncmp(GET_NAME(tch), "Nothing", 7)  ? "THECODE" :
-                         !strncmp(GET_NAME(tch), "Evangeline", 10)  ? "QUESTOR" :
+                         !strncmp(GET_NAME(tch), "Reptile", 7)  ? "BUILDER" :
+                         !strncmp(GET_NAME(tch), "Fortune", 7)  ? "BUILDER" :
+                         !strncmp(GET_NAME(tch), "Storm"  , 5)  ? "BUILDER" :
+                         !strncmp(GET_NAME(tch), "Raza"   , 4)  ? "BUILDER" :
+                         !strncmp(GET_NAME(tch), "Taurean", 7)  ? "BUILDER" :
+                         !strncmp(GET_NAME(tch), "Wolfe"  , 5)  ? "BUILDER" :
+                         !strncmp(GET_NAME(tch), "Evangeline",  10)  ? "QUESTOR" :
+                         !strncmp(GET_NAME(tch), "Dissonanace", 11)  ? "QUESTOR" :
+                         !strncmp(GET_NAME(tch), "Failure", 7)  ? "QUESTOR" :
                          !strncmp(GET_NAME(tch), "Joran", 5)    ? " LOWER ":
-                         !strncmp(GET_NAME(tch), "Forget", 5)   ? "CODEGOD":
                          LEV_ABBR(tch)),  CCYEL_BLD(ch, C_NRM), CCNRM(ch, C_NRM),
                         PRF2_FLAGGED(tch, PRF2_NOWHO) ? nowho_buf : "",
                         CCGRN(ch, C_NRM), 
