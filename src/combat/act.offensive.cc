@@ -2579,7 +2579,7 @@ ACMD(do_shoot)
 
 ACMD(do_ceasefire)
 {
-    Creature *f;
+    Creature *f = NULL;
 
     if (!ch->numCombatants()) {
 		send_to_char(ch, "But you aren't fighting anyone.\r\n");
