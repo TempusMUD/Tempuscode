@@ -3023,16 +3023,18 @@ ACMD(do_weather)
 string
 whoString(Creature *ch, Creature *target) {
 	ostringstream out;
-	out << CCYEL(ch, C_NRM) << '[' << CCGRN(ch, C_NRM);
 	int len = strlen(BADGE(target));
 	
 	//show badge
 	if (GET_LEVEL(target) >= LVL_AMBASSADOR) {
-		out << tmp_pad(' ', (MAX_BADGE_LENGTH - len) / 2);
+		out << CCBLD(ch, C_NRM) << CCYEL(ch, C_NRM) << '[' << CCGRN(ch, C_NRM);
+        out << tmp_pad(' ', (MAX_BADGE_LENGTH - len) / 2);
 		out << BADGE(target);
 		out << tmp_pad(' ', (MAX_BADGE_LENGTH - len + 1) / 2);
+        out << CCNRM(ch, C_NRM) << CCBLD(ch, C_NRM) << CCYEL(ch, C_NRM) << ']';
 	} else { //show level/class
-		if (PRF2_FLAGGED(target, PRF2_ANONYMOUS) && !Security::isMember(ch, Security::ADMINBASIC)) {
+		out << CCGRN(ch, C_NRM) << '[';
+        if (PRF2_FLAGGED(target, PRF2_ANONYMOUS) && !Security::isMember(ch, Security::ADMINBASIC)) {
 			out << CCCYN(ch, C_NRM) << "--";
 		} else if (Security::isMember(ch, Security::ADMINBASIC)) {
 			if (PRF2_FLAGGED(target, PRF2_ANONYMOUS)) {
@@ -3057,13 +3059,18 @@ whoString(Creature *ch, Creature *target) {
 		}
 		out << ' ' << get_char_class_color(ch, target, GET_CLASS(target));
 		out << char_class_abbrevs[(int)GET_CLASS(target)];
+        out << CCNRM(ch, C_NRM) << CCGRN(ch, C_NRM) << ']';
 	}
-	out << CCNRM(ch, C_NRM) << CCYEL(ch, C_NRM) << ']';
 	
 	
 	//name
+    if (GET_LEVEL(target) >= LVL_AMBASSADOR) {
+        out << CCNRM(ch, C_NRM) << CCGRN(ch, C_NRM);
+    } else {
+        out << CCNRM(ch, C_NRM);
+    }
 	if (can_see_creature(ch, target)) {
-        out << CCNRM(ch, C_NRM) << ' ' << GET_NAME(target);
+        out << ' ' << GET_NAME(target);
     } else {
         out << CCNRM(ch, C_NRM) << ' ' << "Someone";
     }
