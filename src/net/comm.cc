@@ -1654,7 +1654,7 @@ send_to_comm_channel(struct Creature *ch, char *buf, int chan, int mode,
 		}
 
 		receiver = obj->carried_by ? obj->carried_by:obj->worn_by;
-		if (!receiver)
+		if (!receiver || !receiver->desc)
 			continue;
 		
 		if (!IS_PLAYING(receiver->desc) || !receiver->desc ||
