@@ -1305,9 +1305,30 @@ end_read_list(struct shop_buy_data * list, int len, int error)
 
 
 void 
-read_line(FILE * shop_f, char *string, void *data, struct shop_data *shop)
+read_line(FILE * shop_f, byte *data, struct shop_data *shop)
 {
-    if (!get_line(shop_f, buf) || !sscanf(buf, string, data)) {
+	int i;
+
+    if (!get_line(shop_f, buf) || !sscanf(buf, "%d", &i)) {
+        fprintf(stderr, "Error in shop #%d\n", SHOP_NUM(shop));
+        safe_exit(1);
+    }
+	*data = i;
+}
+
+void 
+read_line(FILE * shop_f, int *data, struct shop_data *shop)
+{
+    if (!get_line(shop_f, buf) || !sscanf(buf, "%d", data)) {
+        fprintf(stderr, "Error in shop #%d\n", SHOP_NUM(shop));
+        safe_exit(1);
+    }
+}
+
+void 
+read_line(FILE * shop_f, float *data, struct shop_data *shop)
+{
+    if (!get_line(shop_f, buf) || !sscanf(buf, "%f", data)) {
         fprintf(stderr, "Error in shop #%d\n", SHOP_NUM(shop));
         safe_exit(1);
     }
@@ -1322,12 +1343,12 @@ read_list(FILE * shop_f, struct shop_buy_data * list, int new_format,
 
     if (new_format) {
         do {
-            read_line(shop_f, "%d", &temp, shop);
+            read_line(shop_f,&temp, shop);
             error += add_to_list(list, type, &len, &temp);
         } while (temp >= 0);
     } else
         for (count = 0; count < max; count++) {
-            read_line(shop_f, "%d", &temp, shop);
+            read_line(shop_f, &temp, shop);
             error += add_to_list(list, type, &len, &temp);
         }
     return (end_read_list(list, len, error));
@@ -1401,8 +1422,8 @@ boot_the_shops(FILE * shop_f, char *filename, int rec_count)
             for (count = 0; count < temp; count++)
                 SHOP_PRODUCT(new_shop, count) = BUY_TYPE(list[count]);
 
-            read_line(shop_f, "%f", &SHOP_BUYPROFIT(new_shop), new_shop);
-            read_line(shop_f, "%f", &SHOP_SELLPROFIT(new_shop), new_shop);
+            read_line(shop_f, &SHOP_BUYPROFIT(new_shop), new_shop);
+            read_line(shop_f, &SHOP_SELLPROFIT(new_shop), new_shop);
 
             temp = read_type_list(shop_f, list, new_format, MAX_TRADE, new_shop);
             CREATE(new_shop->type, struct shop_buy_data, temp);
@@ -1438,26 +1459,26 @@ boot_the_shops(FILE * shop_f, char *filename, int rec_count)
                 new_shop->message_sell = strdup( SHOP_DEFAULT_MESSAGE_SELL );
             }
                 
-            read_line(shop_f, "%d", &SHOP_BROKE_TEMPER(new_shop), new_shop);
-            read_line(shop_f, "%d", &SHOP_BITVECTOR(new_shop), new_shop);
-            read_line(shop_f, "%d", &SHOP_KEEPER(new_shop), new_shop);
+            read_line(shop_f, &SHOP_BROKE_TEMPER(new_shop), new_shop);
+            read_line(shop_f, &SHOP_BITVECTOR(new_shop), new_shop);
+            read_line(shop_f, &SHOP_KEEPER(new_shop), new_shop);
 
             if (!real_mobile_proto(SHOP_KEEPER(new_shop)))
                 SHOP_KEEPER(new_shop) = -1;
-            read_line(shop_f, "%d", &SHOP_TRADE_WITH(new_shop), new_shop);
+            read_line(shop_f, &SHOP_TRADE_WITH(new_shop), new_shop);
 
             temp = read_list(shop_f, list, new_format, 1, LIST_ROOM, new_shop);
             CREATE(new_shop->in_room, int, temp);
             for (count = 0; count < temp; count++)
                 SHOP_ROOM(new_shop, count) = BUY_TYPE(list[count]);
 
-            read_line(shop_f, "%d", &SHOP_OPEN1(new_shop), new_shop);
-            read_line(shop_f, "%d", &SHOP_CLOSE1(new_shop), new_shop);
-            read_line(shop_f, "%d", &SHOP_OPEN2(new_shop), new_shop);
-            read_line(shop_f, "%d", &SHOP_CLOSE2(new_shop), new_shop);
-            read_line(shop_f, "%d", &SHOP_CURRENCY(new_shop), new_shop);
+            read_line(shop_f, &SHOP_OPEN1(new_shop), new_shop);
+            read_line(shop_f, &SHOP_CLOSE1(new_shop), new_shop);
+            read_line(shop_f, &SHOP_OPEN2(new_shop), new_shop);
+            read_line(shop_f, &SHOP_CLOSE2(new_shop), new_shop);
+            read_line(shop_f, &SHOP_CURRENCY(new_shop), new_shop);
             if (new_format > 1)
-                read_line(shop_f, "%d", &SHOP_REVENUE(new_shop), new_shop);
+                read_line(shop_f, &SHOP_REVENUE(new_shop), new_shop);
       
             /*      if (new_shop->vnum >= 30000 && new_shop->vnum < 40000)
                     SHOP_CURRENCY(new_shop)  = CURRENCY_CREDITS; */

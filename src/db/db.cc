@@ -2337,7 +2337,10 @@ load_zones(FILE * fl, char *zonename)
 
         if (new_zonecmd->command == 'S' || new_zonecmd->command == '$') {
             new_zonecmd->command = 'S';
+			{
+			free( new_zonecmd );
             break;
+			}
         }
         error = 0;
         if (strchr("MOEPDIVW", new_zonecmd->command) == NULL) { 
