@@ -4441,10 +4441,10 @@ void knight_activity(struct Creature *ch){
                !has_dark_sight(ch) && GET_LEVEL(ch) > 6 &&
                !ROOM_FLAGGED(ch->in_room, ROOM_NOMAGIC)) {
         cast_spell(ch, ch, 0, SPELL_DIVINE_ILLUMINATION);
-    } else if ((affected_by_spell(ch, SPELL_BLINDNESS) ||
-                affected_by_spell(ch, SKILL_GOUGE)) &&
-                !ROOM_FLAGGED(ch->in_room, ROOM_NOMAGIC) &&
-                GET_LEVEL(ch) > 20) {
+    } else if ( !ROOM_FLAGGED(ch->in_room, ROOM_NOMAGIC) &&
+                GET_LEVEL(ch) > 20 &&
+                (affected_by_spell(ch, SPELL_BLINDNESS) ||
+                affected_by_spell(ch, SKILL_GOUGE)) ) {
         cast_spell(ch, ch, 0, SPELL_CURE_BLIND);
     } else if (IS_AFFECTED(ch, AFF_POISON) && GET_LEVEL(ch) > 18 &&
                !ROOM_FLAGGED(ch->in_room, ROOM_NOMAGIC)){
@@ -4452,23 +4452,21 @@ void knight_activity(struct Creature *ch){
     } else if (IS_AFFECTED(ch, AFF_CURSE) && GET_LEVEL(ch) > 30 &&
                !ROOM_FLAGGED(ch->in_room, ROOM_NOMAGIC)) {
         cast_spell(ch, ch, 0, SPELL_REMOVE_CURSE);
-    } else if (IS_GOOD(ch) &&
-               !affected_by_spell(ch, SPELL_SANCTIFICATION) &&
-               GET_LEVEL(ch) > 32 &&
+    } else if (IS_GOOD(ch) && GET_LEVEL(ch) > 32 &&
+               GET_REMORT_CLASS(ch) != CLASS_UNDEFINED &&
                !ROOM_FLAGGED(ch->in_room, ROOM_NOMAGIC) &&
-               GET_REMORT_CLASS(ch) != CLASS_UNDEFINED) {
+               !affected_by_spell(ch, SPELL_SANCTIFICATION)) {
         cast_spell(ch, ch, 0, SPELL_SANCTIFICATION);
-    } else if( !affected_by_spell(ch, SPELL_ARMOR) && 
-               GET_LEVEL(ch) > 4 &&
-               !ROOM_FLAGGED(ch->in_room, ROOM_NOMAGIC)){
+    } else if( GET_LEVEL(ch) > 4 && 
+               !ROOM_FLAGGED(ch->in_room, ROOM_NOMAGIC) &&
+               !affected_by_spell(ch, SPELL_ARMOR)){
         cast_spell(ch, ch, 0, SPELL_ARMOR);
-    } else if( !affected_by_spell(ch, SPELL_BLESS) && 
-               GET_LEVEL(ch) > 9 &&
+    } else if( IS_GOOD(ch) && GET_LEVEL(ch) > 9 && 
+               !affected_by_spell(ch, SPELL_BLESS) && 
                !ROOM_FLAGGED(ch->in_room, ROOM_NOMAGIC)){
         cast_spell(ch, ch, 0, SPELL_BLESS);
-    
-    } else if( !affected_by_spell(ch, SPELL_PRAY) && 
-               GET_LEVEL(ch) > 30 &&
+    } else if( GET_LEVEL(ch) > 30 &&
+               !affected_by_spell(ch, SPELL_PRAY) && 
                !ROOM_FLAGGED(ch->in_room, ROOM_NOMAGIC)){
         cast_spell(ch, ch, 0, SPELL_PRAY);
     }
@@ -4544,6 +4542,11 @@ int knight_battle_activity(struct Creature *ch, struct Creature *precious_vict){
                && !ROOM_FLAGGED(ch->in_room, ROOM_NOMAGIC)) {
         cast_spell(ch, vict, NULL, SPELL_FLAME_STRIKE);
         return 0;
+    } else if( IS_EVIL(ch) && !IS_EVIL(vict) && GET_LEVEL(ch) > 9 && 
+               !ROOM_FLAGGED(ch->in_room, ROOM_NOMAGIC) &&
+               random_fractional_4() &&
+               !affected_by_spell(vict, SPELL_DAMN) ){
+        cast_spell(ch, vict, NULL, SPELL_DAMN);
     } else if ((GET_LEVEL(ch) >= 20) &&
         GET_EQ(ch, WEAR_WIELD) && GET_EQ(vict, WEAR_WIELD) &&
         random_fractional_3()) {
