@@ -395,6 +395,11 @@ do_simple_move(struct Creature *ch, int dir, int mode,
 		return 1;
 	}
 
+	if (ch->getPosition() == POS_FLYING && mode == MOVE_CRAWL) {
+		send_to_char(ch, "Maybe you should return to the ground before crawling.\r\n");
+		return 1;
+	}
+
 	/* check room count */
 /*    if ((i = room_count(ch, EXIT(ch, dir)->to_room))*/
 	if ((i = EXIT(ch, dir)->to_room->people.size())
