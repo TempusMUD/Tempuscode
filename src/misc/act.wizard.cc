@@ -3991,7 +3991,7 @@ show_player(Creature *ch, char *value)
         sprintf(remort_desc, "/%s",
             char_class_abbrevs[(int)GET_REMORT_CLASS(vict)]);
     }
-    sprintf(buf, "Player: %-12s Act[%ld] (%s) [%2d %s %s%s]  Gen: %d", GET_NAME(vict),
+    sprintf(buf, "Player: [%ld] %-12s Act[%ld] (%s) [%2d %s %s%s]  Gen: %d", GET_IDNUM(vict), GET_NAME(vict),
         playerIndex.getAccountID(GET_IDNUM(vict)),
 		genders[GET_SEX(vict)], GET_LEVEL(vict), player_race[GET_RACE(vict)],
 		char_class_abbrevs[GET_CLASS(vict)], remort_desc, GET_REMORT_GEN(vict));
