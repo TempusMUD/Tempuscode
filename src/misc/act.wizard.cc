@@ -2762,6 +2762,8 @@ ACMD(do_purge)
                 i++;
                 if (trail->name)
                     free(trail->name);
+                if (trail->aliases)
+                    free(trail->aliases);
                 ch->in_room->trail = trail->next;
                 free(trail);
             }
