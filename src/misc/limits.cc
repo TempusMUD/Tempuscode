@@ -756,9 +756,6 @@ point_update(void)
 						(IS_OBJ_TYPE(j, ITEM_FOOD) && isname("heart", j->name))
 					)
 				) {
-		sprintf(buf,"Checking object %s.",j->name);
-		mudlog( buf, BRF, LVL_AMBASSADOR, TRUE );
-
 	    // body parts
 	    if (GET_OBJ_TIMER(j) > 0)
 		GET_OBJ_TIMER(j)--;
