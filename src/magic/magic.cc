@@ -3277,7 +3277,7 @@ mag_objects(int level, struct Creature *ch, struct obj_data *obj,
 		if (IS_GOOD(ch))
 			SET_BIT(GET_OBJ_EXTRA(obj), ITEM_BLESS);
 		else if (IS_EVIL(ch))
-			SET_BIT(GET_OBJ_EXTRA(obj), ITEM_EVIL_BLESS);
+			SET_BIT(GET_OBJ_EXTRA(obj), ITEM_DAMNED);
 		if (GET_OBJ_TYPE(obj) == ITEM_WEAPON) {
 			obj->affected[0].location = APPLY_HITROLL;
 			obj->affected[0].modifier = 1 + (level / 12) +

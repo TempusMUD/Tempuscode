@@ -15,7 +15,7 @@ SPECIAL(fountain_heal)
 		return 0;
 
 	if ((IS_OBJ_STAT(fountain, ITEM_BLESS | ITEM_ANTI_EVIL) && IS_EVIL(ch)) ||
-		(IS_OBJ_STAT(fountain, ITEM_EVIL_BLESS | ITEM_ANTI_GOOD)
+		(IS_OBJ_STAT(fountain, ITEM_DAMNED | ITEM_ANTI_GOOD)
 			&& IS_GOOD(ch)))
 		return 0;
 

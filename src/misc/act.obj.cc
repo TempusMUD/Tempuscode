@@ -2228,7 +2228,7 @@ ACMD(do_eat)
 		extract_ok = FALSE;		// sometimes a death extracts the char's objs too
 
 	if (IS_OBJ_TYPE(food, ITEM_FOOD)) {
-		if (IS_OBJ_STAT(food, ITEM_EVIL_BLESS)) {
+		if (IS_OBJ_STAT(food, ITEM_DAMNED)) {
 			if (!call_magic(ch, ch, 0, SPELL_ESSENCE_OF_EVIL, GET_OBJ_VAL(food, 1), CAST_SPELL, return_flags) ) {
 				if (extract_ok)
 					extract_obj(food);
@@ -3421,7 +3421,7 @@ set_maxdamage(struct obj_data *obj)
 		dam <<= 2;
 	if (IS_OBJ_STAT(obj, ITEM_BLESS))
 		dam <<= 1;
-	if (IS_OBJ_STAT(obj, ITEM_EVIL_BLESS))
+	if (IS_OBJ_STAT(obj, ITEM_DAMNED))
 		dam <<= 1;
 	if (IS_OBJ_STAT2(obj, ITEM2_CAST_WEAPON))
 		dam <<= 1;

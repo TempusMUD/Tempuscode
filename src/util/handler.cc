@@ -1535,7 +1535,7 @@ check_eq_align(Creature *ch)
 			continue;
 
 		if ((IS_OBJ_STAT(obj, ITEM_BLESS) && IS_EVIL(ch)) ||
-			(IS_OBJ_STAT(obj, ITEM_EVIL_BLESS) && IS_GOOD(ch))) {
+			(IS_OBJ_STAT(obj, ITEM_DAMNED) && IS_GOOD(ch))) {
 			int skill;
 
 			act("You are burned by $p and frantically take it off!", FALSE, ch, obj, 0, TO_CHAR);

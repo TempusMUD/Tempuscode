@@ -772,7 +772,7 @@ STRENGTH_APPLY_INDEX(Creature *ch)
 
 #define ANTI_ALIGN_OBJ(ch, obj) \
      ((IS_OBJ_STAT(obj, ITEM_ANTI_EVIL | ITEM_BLESS) && IS_EVIL(ch)) ||    \
-      (IS_OBJ_STAT(obj,ITEM_ANTI_GOOD | ITEM_EVIL_BLESS) && IS_GOOD(ch)) ||\
+      (IS_OBJ_STAT(obj,ITEM_ANTI_GOOD | ITEM_DAMNED) && IS_GOOD(ch)) ||\
       (IS_OBJ_STAT(obj, ITEM_ANTI_NEUTRAL) && IS_NEUTRAL(ch)))
 
 /* compound utilities and other macros **********************************/

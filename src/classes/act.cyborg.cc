@@ -3391,7 +3391,7 @@ ACMD(do_assimilate)
 
 	// see if it can be assimilated
 	if ((IS_OBJ_STAT(obj, ITEM_BLESS) && IS_EVIL(ch)) ||
-		(IS_OBJ_STAT(obj, ITEM_EVIL_BLESS) && IS_GOOD(ch))) {
+		(IS_OBJ_STAT(obj, ITEM_DAMNED) && IS_GOOD(ch))) {
 		act("You are burned by $p as you try to assimilate it!", FALSE, ch,
 			obj, 0, TO_CHAR);
 		act("$n screams in agony as $e tries to assimilate $p!", FALSE, ch,

@@ -1395,7 +1395,7 @@ ASPELL(spell_enchant_weapon)
 			!IS_SET(GET_OBJ_EXTRA(obj), ITEM_MAGIC) &&
 			!IS_SET(GET_OBJ_EXTRA(obj), ITEM_MAGIC_NODISPEL) &&
 			!IS_SET(GET_OBJ_EXTRA(obj), ITEM_BLESS) &&
-			!IS_SET(GET_OBJ_EXTRA(obj), ITEM_EVIL_BLESS)) ||
+			!IS_SET(GET_OBJ_EXTRA(obj), ITEM_DAMNED)) ||
 		GET_LEVEL(ch) > LVL_CREATOR) {
 
 		for (i = MAX_OBJ_AFFECT - 1; i >= 0; i--) {
@@ -1502,7 +1502,7 @@ ASPELL(spell_enchant_armor)
 			!IS_SET(GET_OBJ_EXTRA(obj), ITEM_MAGIC) &&
 			!IS_SET(GET_OBJ_EXTRA(obj), ITEM_MAGIC_NODISPEL) &&
 			!IS_SET(GET_OBJ_EXTRA(obj), ITEM_BLESS) &&
-			!IS_SET(GET_OBJ_EXTRA(obj), ITEM_EVIL_BLESS)) ||
+			!IS_SET(GET_OBJ_EXTRA(obj), ITEM_DAMNED)) ||
 		GET_LEVEL(ch) > LVL_GRGOD) {
 
 		for (i = 0; i < MAX_OBJ_AFFECT; i++) {
@@ -1581,7 +1581,7 @@ ASPELL(spell_greater_enchant)
 		((!IS_SET(GET_OBJ_EXTRA(obj), ITEM_MAGIC) &&
 				!IS_SET(GET_OBJ_EXTRA(obj), ITEM_MAGIC_NODISPEL) &&
 				!IS_SET(GET_OBJ_EXTRA(obj), ITEM_BLESS) &&
-				!IS_SET(GET_OBJ_EXTRA(obj), ITEM_EVIL_BLESS)) ||
+				!IS_SET(GET_OBJ_EXTRA(obj), ITEM_DAMNED)) ||
 			GET_LEVEL(ch) > LVL_GRGOD)) {
 
 		for (i = MAX_OBJ_AFFECT - 1; i >= 0; i--) {
@@ -1732,7 +1732,7 @@ ASPELL(spell_magical_vestment)
 
 	float multiplier = 1;
 
-	if (IS_OBJ_STAT(obj, ITEM_EVIL_BLESS)) {
+	if (IS_OBJ_STAT(obj, ITEM_DAMNED)) {
 		if (IS_EVIL(ch))
 			multiplier = 1.5;
 		else {
@@ -1751,7 +1751,7 @@ ASPELL(spell_magical_vestment)
 
 	SET_BIT(GET_OBJ_EXTRA(obj), ITEM_MAGIC);
 	if (IS_EVIL(ch)) {
-		SET_BIT(GET_OBJ_EXTRA(obj), ITEM_EVIL_BLESS);
+		SET_BIT(GET_OBJ_EXTRA(obj), ITEM_DAMNED);
 		act("$p glows red.", FALSE, ch, obj, 0, TO_CHAR);
 	} else {
 		SET_BIT(GET_OBJ_EXTRA(obj), ITEM_BLESS);
@@ -3375,8 +3375,8 @@ ASPELL(spell_dispel_magic)
 			if (IS_OBJ_STAT(obj, ITEM_BLESS) && IS_CLERIC(ch))
 				REMOVE_BIT(obj->obj_flags.extra_flags, ITEM_BLESS);
 
-			if (IS_OBJ_STAT(obj, ITEM_EVIL_BLESS) && IS_CLERIC(ch))
-				REMOVE_BIT(obj->obj_flags.extra_flags, ITEM_EVIL_BLESS);
+			if (IS_OBJ_STAT(obj, ITEM_DAMNED) && IS_CLERIC(ch))
+				REMOVE_BIT(obj->obj_flags.extra_flags, ITEM_DAMNED);
 			act("All the magic that $p ever had is gone.", true,
 				ch, obj, 0, TO_CHAR);
 		} else {

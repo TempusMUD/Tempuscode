@@ -998,7 +998,7 @@ damage(struct Creature *ch, struct Creature *victim, int dam,
 				if (IS_OBJ_STAT(obj, ITEM_MAGIC_NODISPEL))
 					eq_dam >>= 1;
 				if (IS_OBJ_STAT(obj,
-						ITEM_MAGIC | ITEM_BLESS | ITEM_EVIL_BLESS))
+						ITEM_MAGIC | ITEM_BLESS | ITEM_DAMNED))
 					eq_dam = (int)(eq_dam * 0.8);
 				if (IS_OBJ_STAT2(obj, ITEM2_GODEQ | ITEM2_CURSED_PERM))
 					eq_dam = (int)(eq_dam * 0.7);
@@ -1007,7 +1007,7 @@ damage(struct Creature *ch, struct Creature *victim, int dam,
 				if (IS_OBJ_STAT(impl, ITEM_MAGIC_NODISPEL))
 					impl_dam >>= 1;
 				if (IS_OBJ_STAT(impl,
-						ITEM_MAGIC | ITEM_BLESS | ITEM_EVIL_BLESS))
+						ITEM_MAGIC | ITEM_BLESS | ITEM_DAMNED))
 					impl_dam = (int)(impl_dam * 0.8);
 				if (IS_OBJ_STAT2(impl, ITEM2_GODEQ | ITEM2_CURSED_PERM))
 					impl_dam = (int)(impl_dam * 0.7);
@@ -1055,7 +1055,7 @@ damage(struct Creature *ch, struct Creature *victim, int dam,
 				if (IS_OBJ_STAT(weap, ITEM_MAGIC_NODISPEL))
 					weap_dam >>= 1;
 				if (IS_OBJ_STAT(weap,
-						ITEM_MAGIC | ITEM_BLESS | ITEM_EVIL_BLESS))
+						ITEM_MAGIC | ITEM_BLESS | ITEM_DAMNED))
 					weap_dam = (int)(weap_dam * 0.8);
 				if (IS_OBJ_STAT2(weap, ITEM2_CAST_WEAPON | ITEM2_GODEQ |
 						ITEM2_CURSED_PERM))

@@ -658,7 +658,7 @@ vendor_list_obj(Creature *ch, obj_data *obj, int cnt, int idx, int cost)
 	if (IS_AFFECTED(ch, AFF_DETECT_ALIGN)) {
 		if (IS_OBJ_STAT(obj, ITEM_BLESS))	
 			obj_desc = tmp_strcat(obj_desc, " (holy aura)");
-		if (IS_OBJ_STAT(obj, ITEM_EVIL_BLESS))
+		if (IS_OBJ_STAT(obj, ITEM_DAMNED))
 			obj_desc = tmp_strcat(obj_desc, " (unholy aura)");
 	}
 

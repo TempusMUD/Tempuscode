@@ -191,7 +191,7 @@ SPECIAL(quest_sphere)
 				IS_OBJ_STAT(targ_obj, ITEM_MAGIC) ||
 				IS_OBJ_STAT(targ_obj, ITEM_MAGIC_NODISPEL) ||
 				IS_OBJ_STAT(targ_obj, ITEM_BLESS) ||
-				IS_OBJ_STAT(targ_obj, ITEM_EVIL_BLESS) ||
+				IS_OBJ_STAT(targ_obj, ITEM_DAMNED) ||
 				(GET_OBJ_TYPE(targ_obj) != ITEM_WEAPON &&
 					GET_OBJ_TYPE(targ_obj) != ITEM_ARMOR)) {
 			send_to_char(ch, "You can't enchant that!\r\n");

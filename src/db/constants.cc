@@ -1632,7 +1632,7 @@ extern const char *extra_bits[] = {
 	"unused138",
 	"REP_FLD",
 	"TRANSP",
-	"EVIL_BLESS",
+	"DAMNED",
 	"\n"
 };
 extern const char *extra_names[] = {

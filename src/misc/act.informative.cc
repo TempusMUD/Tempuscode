@@ -258,7 +258,7 @@ show_obj_to_char(struct obj_data *object, struct Creature *ch,
 				msg = tmp_sprintf("%s %s(holy aura)%s", msg,
 					CCBLU_BLD(ch, C_SPR), CCNRM(ch, C_SPR));
 				found = true;
-			} else if (IS_OBJ_STAT(object, ITEM_EVIL_BLESS)) {
+			} else if (IS_OBJ_STAT(object, ITEM_DAMNED)) {
 				msg = tmp_sprintf("%s %s(unholy aura)%s", msg,
 					CCRED_BLD(ch, C_SPR), CCNRM(ch, C_SPR));
 				found = true;

@@ -154,7 +154,7 @@ static const int ITEM_MAGIC_NODISPEL = (1 << 26);
 static const int ITEM_UNUSED = (1 << 27);
 static const int ITEM_REPULSION_FIELD = (1 << 28);
 static const int ITEM_TRANSPARENT = (1 << 29);
-static const int ITEM_EVIL_BLESS = (1 << 30);	/* Evil equivalent to Bless */
+static const int ITEM_DAMNED = (1 << 30);	/* Evil equivalent to Bless */
 static const int NUM_EXTRA_FLAGS = 31;
 
 static const int ITEM2_RADIOACTIVE = (1 << 0);

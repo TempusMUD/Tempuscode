@@ -708,7 +708,7 @@ perform_appraise(Creature *ch, obj_data *obj, int skill_lvl)
 			ITEM_ANTI_WARRIOR | ITEM_NOSELL | ITEM_ANTI_BARB |
 			ITEM_ANTI_PSYCHIC | ITEM_ANTI_PHYSIC | ITEM_ANTI_CYBORG |
 			ITEM_ANTI_KNIGHT | ITEM_ANTI_RANGER | ITEM_ANTI_HOOD |
-			ITEM_ANTI_MONK | ITEM_BLURRED | ITEM_EVIL_BLESS;
+			ITEM_ANTI_MONK | ITEM_BLURRED | ITEM_DAMNED;
 		if (GET_OBJ_EXTRA(obj) & eq_req_flags) {
 			sprintbit(GET_OBJ_EXTRA(obj) & eq_req_flags, extra_bits, buf);
 			send_to_char(ch, "Item is: %s\r\n", buf);
