@@ -441,53 +441,55 @@ detonate_bomb(struct obj_data *bomb)
     bool internal = false;
 
     if (!ch) {
-	ch = bomb->worn_by;
-	if (ch && GET_IMPLANT(ch, bomb->worn_on) &&
-	    GET_IMPLANT(ch, bomb->worn_on) == bomb)
-	    internal = true;
+        ch = bomb->worn_by;
+        if (ch && GET_IMPLANT(ch, bomb->worn_on) &&
+            GET_IMPLANT(ch, bomb->worn_on) == bomb)
+            internal = true;
     }
 
     if (cont) {
-	while (cont->in_obj)
-	    cont = cont->in_obj;
+        while (cont->in_obj)
+            cont = cont->in_obj;
 
-	ch = (cont->worn_by ? cont->worn_by : cont->carried_by);
-	room = cont->in_room;
-	obj_from_obj(bomb);
+        ch = (cont->worn_by ? cont->worn_by : cont->carried_by);
+        room = cont->in_room;
+        obj_from_obj(bomb);
     }
 
+    if(ch && (bomb->carried_by || bomb->worn_on) ){
+        obj_from_char(bomb);
+    }
     dam_object = bomb;
 
     if (ch) {
-	sprintf(buf, "$p goes off in %s!!!", (internal ? "body!" : 
-					      (cont ? "$P" : "your inventory")));
-	act(buf, FALSE, ch, bomb, cont, TO_CHAR);
-	sprintf(buf, "$p goes off $n's %s!!!", cont ? fname(cont->name):"hands");
-	act(buf, FALSE, ch, bomb, cont, TO_ROOM);
-	room = ch->in_room;
-	if (room && ROOM_FLAGGED(room, ROOM_PEACEFUL))
-	    BOMB_POWER(bomb) = 1;
-	damage(NULL, ch, 
-	       dice(MIN(100, BOMB_POWER(bomb) + 
-			(internal ? BOMB_POWER(bomb) : 0)), 
-		    MIN(500, BOMB_POWER(bomb))), 
-	       TYPE_BLAST, WEAR_HANDS);
-
+        sprintf(buf, "$p goes off in %s!!!", (internal ? "body!" : 
+                              (cont ? "$P" : "your inventory")));
+        act(buf, FALSE, ch, bomb, cont, TO_CHAR);
+        sprintf(buf, "$p goes off $n's %s!!!", cont ? fname(cont->name):"hands");
+        act(buf, FALSE, ch, bomb, cont, TO_ROOM);
+        room = ch->in_room;
+        if (room && ROOM_FLAGGED(room, ROOM_PEACEFUL))
+            BOMB_POWER(bomb) = 1;
+        damage(NULL, ch, 
+               dice(MIN(100, BOMB_POWER(bomb) + 
+                (internal ? BOMB_POWER(bomb) : 0)), 
+                MIN(500, BOMB_POWER(bomb))), 
+               TYPE_BLAST, WEAR_HANDS);
     }
     if (room && ROOM_FLAGGED(room, ROOM_PEACEFUL))
-	BOMB_POWER(bomb) = 1;
+        BOMB_POWER(bomb) = 1;
 
     if (cont)
-	damage_eq(NULL, cont, dice(MIN(100, BOMB_POWER(bomb)), BOMB_POWER(bomb)));
+        damage_eq(NULL, cont, dice(MIN(100, BOMB_POWER(bomb)), BOMB_POWER(bomb)));
 
     if ((cont || internal) && BOMB_IS_FLASH(bomb))
-	add_bomb_room(room, -1, BOMB_POWER(bomb) >> 4);
+        add_bomb_room(room, -1, BOMB_POWER(bomb) >> 4);
     else if (internal)
-	add_bomb_room(room, -1, MIN(500, BOMB_POWER(bomb) >> 2));
+        add_bomb_room(room, -1, MIN(500, BOMB_POWER(bomb) >> 2));
     else if (!bomb->in_room)
-	add_bomb_room(room, -1, MIN(500, BOMB_POWER(bomb) >> 1));
+        add_bomb_room(room, -1, MIN(500, BOMB_POWER(bomb) >> 1));
     else
-	add_bomb_room(room, -1, MIN(500, BOMB_POWER(bomb)));
+        add_bomb_room(room, -1, MIN(500, BOMB_POWER(bomb)));
 
     sort_rooms();
 
