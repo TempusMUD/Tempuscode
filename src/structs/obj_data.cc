@@ -92,6 +92,8 @@ obj_data::saveToXML(FILE *ouf)
 	fprintf( ouf, "%s<points type=\"%d\" soilage=\"%d\" weight=\"%d\" material=\"%d\" timer=\"%d\"/>\n",
 			  indent.c_str(), obj_flags.type_flag, soilage, 
 			 getObjWeight(), obj_flags.material, obj_flags.timer );
+	fprintf(ouf, "%s<tracking id=\"%ld\" method=\"%d\" creator=\"%ld\" time=\"%ld\"/>\n",
+		indent.c_str(), unique_id, creation_method, creator, creation_time);
 	fprintf( ouf, "%s<damage current=\"%d\" max=\"%d\" sigil_id=\"%d\" sigil_level=\"%d\" />\n",
 			 indent.c_str(), obj_flags.damage, obj_flags.max_dam, 
 			obj_flags.sigil_idnum, obj_flags.sigil_level );
@@ -208,6 +210,11 @@ obj_data::loadFromXML(obj_data *container, Creature *victim, room_data* room, xm
 			 obj_flags.setWeight(xmlGetIntProp( cur, "weight"));
 			 obj_flags.material = xmlGetIntProp( cur, "material");
 			 obj_flags.timer = xmlGetIntProp( cur, "timer");
+		} else if( xmlMatches( cur->name, "tracking" ) ) {
+			unique_id = xmlGetIntProp( cur, "id" );
+			creation_method = xmlGetIntProp( cur, "method" );
+			creator = xmlGetIntProp( cur, "creator" );
+			creation_time = xmlGetIntProp( cur, "time" );
 		} else if( xmlMatches( cur->name, "damage" ) ) {
 			obj_flags.damage = xmlGetIntProp( cur, "current");
 			obj_flags.max_dam = xmlGetIntProp( cur, "max");
