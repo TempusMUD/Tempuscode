@@ -6,7 +6,7 @@ CXXFLAGS=$(CCFLAGS) -I$(INCLUDE)
 SUBDIRS= \
 	ban boards bomb clan classes combat db dyntext editor elevators \
 	events flow_room guns help house intermud interpreter iscript magic mail \
-	matrix misc mobiles net objsave olc paths quest search shop \
+	misc mobiles net objsave olc paths quest search shop \
 	smokes social specials util vehicle weather structs map
 
 MAKEFLAGS=-s -k 4 -j 4
