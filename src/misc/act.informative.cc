@@ -3272,14 +3272,14 @@ ACMD(do_who)
 					strcpy(badge, "THECODE");
 				} else if (!strncmp(GET_NAME(tch), "Cedric", 6)) {
 					strcpy(badge, "ARBITER");
-				} else if (!strncmp(GET_NAME(tch), "Darth", 5)) {
-					strcpy(badge, " CHAOS ");
-				} else if (!strncmp(GET_NAME(tch), "Trouble", 7)) {
-					strcpy(badge, " DEVIL ");
 				} else {
 					strcpy(badge, LEV_ABBR(tch));
 				}
 				break;
+			case 9:
+				strcpy(badge, " ELDER ");
+			case 10:
+				strcpy(badge, "ARBITER");
 			default:
 				strcpy(badge, LEV_ABBR(tch));
 			}
