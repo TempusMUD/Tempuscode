@@ -1279,7 +1279,8 @@ look_at_room(struct Creature *ch, struct room_data *room, int ignore_brief)
 		// We need to show them something...
 		if (ROOM_FLAGGED(room, ROOM_SMOKE_FILLED) &&
 				!(PRF_FLAGGED(ch, PRF_HOLYLIGHT) ||
-				ROOM_FLAGGED(room, ROOM_DEATH)))
+				ROOM_FLAGGED(room, ROOM_DEATH)) && 
+                !AFF3_FLAGGED(ch, AFF3_SONIC_IMAGERY))
 			send_to_char(ch, "The smoke swirls around you...\r\n");
 		else if (room->description)
 			send_to_char(ch, "%s", room->description);
