@@ -1,5 +1,6 @@
 #include <string.h>
 #include "player_table.h"
+#include "utils.h"
 
 /**                 PLAYER TABLE                **/
 
@@ -7,7 +8,14 @@
  *  Creates a blank PlayerTable
 **/
 PlayerTable::PlayerTable() 
-: idTable(), nameTable() { }
+: idTable(), nameTable() 
+{ 
+    top_id = 0;
+}
+
+int PlayerTable::getTopIDNum() {
+    return top_id;
+}
 
 /**
  * Returns true if and only if the given id is present in the player table.
@@ -61,7 +69,7 @@ bool PlayerTable::add( long id, const char* name )
 {
     if( exists(id) )
         return false;
-
+    top_id = MAX(id, top_id);
     idTable.push_back(IDEntry(id,strdup(name)));
     nameTable.push_back(NameEntry(id,strdup(name)));
     sort();
@@ -85,6 +93,7 @@ bool PlayerTable::remove( long id )
     {
         nameTable.erase(nit);
         idTable.erase(iit);
+        top_id = idTable[ idTable.size() -1 ].getID();
         return true;
     }
     return false; 
@@ -158,6 +167,13 @@ NameEntry::~NameEntry() {
     free(first);
 }
 
+long NameEntry::getID() {
+    return second;
+}
+const char* NameEntry::getName() {
+    return first;
+}
+
 bool NameEntry::operator==(long id) const { 
     return second == id; 
 }
@@ -208,6 +224,13 @@ IDEntry::~IDEntry() {
     free(second);
 }
 
+
+long IDEntry::getID() {
+    return first;
+}
+const char* IDEntry::getName() {
+    return second;
+}
 bool IDEntry::operator==(long id) const { 
     return first == id; 
 }

@@ -37,6 +37,7 @@ xmlGetIntProp(xmlNodePtr n, const char *name, int defValue = 0)
 	return prop;
 }
 
+
 /** 
  * Parses a character from a named property in the given node
  **/

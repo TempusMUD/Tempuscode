@@ -128,6 +128,8 @@ struct Creature *obj_owner(struct obj_data *obj);
 
 #define ZONE_IDLE_TIME 5
 
+char* getPlayerfilePath( long id );
+
 /* structure for the reset commands */
 struct reset_com {
 	char command;				/* current command                      */

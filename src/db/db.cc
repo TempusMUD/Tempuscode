@@ -562,26 +562,10 @@ build_player_index(void)
 		if (!feof(player_fl)) {	/* new record */
 			nr++;
 			CREATE(player_table[nr].name, char, strlen(dummy.name) + 1);
-			for (i = 0;
-				(*(player_table[nr].name + i) = tolower(*(dummy.name + i)));
-				i++);
+			for (i = 0;(*(player_table[nr].name + i) = tolower(*(dummy.name + i)));i++);
 			player_table[nr].id = dummy.char_specials_saved.idnum;
 			top_idnum = MAX(top_idnum, dummy.char_specials_saved.idnum);
 			population_record[dummy.hometown]++;
-
-			/*
-			   if ((clan = real_clan(dummy.player_specials_saved.clan))) {
-			   if (!(member = 
-			   real_clanmember(dummy.char_specials_saved.idnum,clan))) {
-			   CREATE(member, struct clanmember_data, 1);
-			   member->idnum = dummy.char_specials_saved.idnum;
-			   member->rank  = 0;
-			   member->next = clan->member_list;
-			   clan->member_list = member;
-			   slog("Player <%s> added to clan <%s>.",
-			   dummy.name, clan->name);
-			   }
-			   } */
 		}
 	}
 
@@ -3227,7 +3211,8 @@ save_char(struct Creature *ch, struct room_data *load_room)
 	struct affected_type *cur_aff;
 	int idx;
 
-	path = tmp_sprintf("plrxml/%d.char", GET_PFILEPOS(ch));
+	//path = tmp_sprintf("plrxml/%d.dat", GET_PFILEPOS(ch));
+    path = getPlayerfilePath( GET_IDNUM(ch) );
 	ouf = fopen(path, "w");
 
 	if( ouf == NULL ) {
@@ -3241,6 +3226,9 @@ save_char(struct Creature *ch, struct room_data *load_room)
 	fprintf(ouf, "<POINTS HIT=\"%d\" MANA=\"%d\" MOVE=\"%d\" MAXHIT=\"%d\" MAXMANA=\"%d\" MAXMOVE=\"%d\"/>\n",
 		ch->points.hit, ch->points.mana, ch->points.move,
 		ch->points.max_hit, ch->points.max_mana, ch->points.max_move);
+
+    fprintf(ouf, "<MONEY GOLD=\"%d\" BANK=\"%d\" CASH=\"%d\" CREDITS=\"%d\" />\n",
+        ch->points.gold, ch->points.bank_gold, ch->points.cash, ch->points.credits );
 
 	fprintf(ouf, "<STATS LEVEL=\"%d\" SEX=\"%s\" RACE=\"%s\" HEIGHT=\"%d\" WEIGHT=\"%d\" ALIGN=\"%d\"/>\n",
 		GET_LEVEL(ch), genders[GET_SEX(ch)], player_race[GET_RACE(ch)],
@@ -3278,15 +3266,16 @@ save_char(struct Creature *ch, struct room_data *load_room)
 	fprintf(ouf, "<CARNAGE PKILLS=\"%d\" MKILLS=\"%d\" DEATHS=\"%d\"/>\n",
 		GET_PKILLS(ch), GET_MOBKILLS(ch), GET_PC_DEATHS(ch));
 
-	fprintf(ouf, "<ATTR STR=\"%d\" INT=\"%d\" WIS=\"%d\" DEX=\"%d\" CON=\"%d\" CHA=\"%d\" SPEED=\"%d\"/>\n",
+	fprintf(ouf, "<ATTR STR=\"%d\" INT=\"%d\" WIS=\"%d\" DEX=\"%d\" CON=\"%d\" CHA=\"%d\" STRADD=\"%d\"/>\n",
 		GET_STR(ch), GET_INT(ch), GET_WIS(ch), GET_DEX(ch), GET_CON(ch),
-		GET_CHA(ch), ch->getSpeed());
-
+		GET_CHA(ch), GET_ADD(ch));
+    /*  Calculated from eq and affects.
 	fprintf(ouf, "<SAVE PARA=\"%d\" ROD=\"%d\" PETRI=\"%d\" BREATH=\"%d\" SPELL=\"%d\" CHEM=\"%d\" PSI=\"%d\" PHY=\"%d\"/>\n",
 		GET_SAVE(ch, SAVING_PARA), GET_SAVE(ch, SAVING_ROD),
 		GET_SAVE(ch, SAVING_PETRI), GET_SAVE(ch, SAVING_BREATH),
 		GET_SAVE(ch, SAVING_SPELL), GET_SAVE(ch, SAVING_CHEM),
 		GET_SAVE(ch, SAVING_PSI), GET_SAVE(ch, SAVING_PHY));
+    */
 	fprintf(ouf, "<CONDITION HUNGER=\"%d\" THIRST=\"%d\" DRUNK=\"%d\"/>\n",
 		ch->player_specials->saved.conditions[0],
 		ch->player_specials->saved.conditions[1],
@@ -3304,10 +3293,11 @@ save_char(struct Creature *ch, struct room_data *load_room)
 	fprintf(ouf, "<QUEST");
 	if (GET_QUEST(ch))
 		fprintf(ouf, " JOINED=\"%d\"", GET_QUEST(ch));
-	if (GET_LEVEL(ch) < LVL_IMMORT)
-		fprintf(ouf, " POINTS=\"%d\"", GET_QUEST_POINTS(ch));
-	else
+	if (GET_LEVEL(ch) >= LVL_IMMORT)
 		fprintf(ouf, " ALLOWANCE=\"%d\"", GET_QUEST_ALLOWANCE(ch));
+    if( GET_QUEST_POINTS(ch) != 0 )
+        fprintf(ouf, " POINTS=\"%d\"", GET_QUEST_POINTS(ch));
+    
 	fprintf(ouf, "/>\n");
 		
 	fprintf(ouf, "<ACCOUNT FLAG1=\"%ld\" FLAG2=\"%d\" PASSWORD=\"%s\" BAD_PWS=\"%d\"",
@@ -4395,5 +4385,13 @@ obj_owner(struct obj_data *obj)
 		return (obj_owner(obj->in_obj));
 	return NULL;
 }
+
+char*
+getPlayerfilePath( long id ) 
+{
+    return tmp_sprintf( "plrxml/%0ld/%ld.dat", (id % 10), id );
+}
+
+
 
 #undef __db_c__

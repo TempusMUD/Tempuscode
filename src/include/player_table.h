@@ -48,6 +48,7 @@ class PlayerTable
     private:
         IDTable idTable;
         NameTable nameTable;
+        int top_id;
     public:
         /** Creates a blank PlayerTable  **/
         PlayerTable();
@@ -76,6 +77,8 @@ class PlayerTable
         
         /** Sorts the player table. **/
         void sort();
+        /** Retrieves the largest player id in the table **/
+        int getTopIDNum();
 };
 
 
@@ -96,6 +99,9 @@ class NameEntry : public pair<char*, long> {
         NameEntry( long id, char* name );
         NameEntry( const NameEntry &n );
         ~NameEntry();
+
+        long getID();
+        const char* getName();
         bool operator==(long id) const;
         bool operator==( const char *name) const;
         bool operator==(NameEntry &e) const;
@@ -146,7 +152,8 @@ class IDEntry : public pair<long, char*> {
         // Destructory does NOT free name.
         ~IDEntry();
         
-        
+        long getID();
+        const char* getName();
         bool operator==(IDEntry &e) const;
         bool operator!=(IDEntry &e) const;
         bool operator<(IDEntry &e) const;
