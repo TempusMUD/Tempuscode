@@ -855,29 +855,29 @@ bool CTextEditor::ProcessCommand(char *inStr) {
             UndoChanges(inStr);
             return true;
         case 't':
-            if(GET_LEVEL(desc->character) < 72) {
+            /*if(GET_LEVEL(desc->character) < 72) {
                 SendMessage ("This command removed until further notice.\r\n");
                 return false;
-            }
+            }*/
             if(PLR_FLAGGED(desc->character, PLR_MAILING)) {
                 ListRecipients();
                 return true;
             }
         case 'a':
-            if(GET_LEVEL(desc->character) < 72) {
+            /*if(GET_LEVEL(desc->character) < 72) {
                 SendMessage ("This command removed until further notice.\r\n");
                 return false;
-            }
+            }*/
             if(PLR_FLAGGED(desc->character, PLR_MAILING)) {
                 inStr = one_argument(inStr, command);
                 AddRecipient(command);
                 return true;
             }
         case 'e':
-            if(GET_LEVEL(desc->character) < 72) {
+            /*if(GET_LEVEL(desc->character) < 72) {
                 SendMessage ("This command removed until further notice.\r\n");
                 return false;
-            }
+            }*/
             if(PLR_FLAGGED(desc->character, PLR_MAILING)) {
                 inStr = one_argument(inStr, command);
                 RemRecipient(command);
