@@ -302,7 +302,7 @@ obj_data::loadFromXML(obj_data *container, Creature *victim, room_data* room, xm
 			}
 		} else if( xmlMatches( cur->name, "object" ) ) {
 			obj_data *obj;
-			CREATE(obj, struct obj_data, 1);
+			obj = create_obj();
 			if(! obj->loadFromXML(this,victim,room,cur) ) {
 				extract_obj(obj);
 			}
