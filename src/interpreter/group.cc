@@ -59,13 +59,16 @@ namespace Security {
 
     // These membership checks should be binary searches.
     bool Group::member( long player ) { 
-        return ( find(members.begin(), members.end(), player) != members.end() ); 
+        vector<long>::iterator it = lower_bound(members.begin(), members.end(), player);
+        return ( it != members.end() && *it == player ); 
     }
     bool Group::member(  char_data *ch ) { 
         return member(GET_IDNUM(ch)); 
     }
     bool Group::member( const command_info *command ) { 
-        return ( find(commands.begin(), commands.end(), command) != commands.end() ); 
+        vector<command_info*>::iterator it;
+        it = lower_bound(commands.begin(), commands.end(), command);
+        return ( it != commands.end() && *it == command ); 
     }
     bool Group::givesAccess(  char_data *ch, const command_info *command ) {
         return ( member(ch) && member(command) );
