@@ -33,11 +33,10 @@ boot_accounts(void)
 	xmlDocPtr doc;
 	xmlNodePtr node;
 	Account *new_acct;
-	int num;
 
 	slog("Reading player accounts");
 
-	for (num = 1;num < 10;num++) {
+	for (int num = 0;num < 10;num++) {
 		snprintf(dir_path, 255, "players/accounts/%d", num);
 		dir = opendir(dir_path);
 		if (!dir) {
