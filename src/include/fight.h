@@ -56,7 +56,8 @@
 
 #define IS_DEFENSE_ATTACK(attacktype)   (attacktype == SPELL_FIRE_SHIELD || attacktype == SPELL_BLADE_BARRIER  || attacktype == SPELL_PRISMATIC_SPHERE || attacktype == SKILL_ENERGY_FIELD)
 
-static inline bool CANNOT_DAMAGE(Creature *ch, Creature *vict, obj_data *weap, int attacktype) {
+static inline bool
+CANNOT_DAMAGE(Creature *ch, Creature *vict, obj_data *weap, int attacktype) {
     if (ch && ch != vict && !PLR_FLAGGED(vict, PLR_KILLER | PLR_THIEF) &&
 			GET_LEVEL(ch) < LVL_VIOLENCE &&
 			!(PLR_FLAGGED(ch, PLR_KILLER) && FIGHTING(vict) == ch) &&
@@ -68,16 +69,20 @@ static inline bool CANNOT_DAMAGE(Creature *ch, Creature *vict, obj_data *weap, i
 			!PLR_FLAGGED(vict, PLR_MORTALIZED))
 		return true;
 
-	if (IS_WEAPON(attacktype)
-			&& weap && IS_OBJ_TYPE(weap, ITEM_WEAPON)
-			&& (NON_CORPOREAL_UNDEAD(vict)
-			|| IS_RAKSHASA(vict)
-			|| IS_GREATER_DEVIL(vict))
-			&& !IS_OBJ_STAT(weap, ITEM_MAGIC))
-		return true;
+	if (NON_CORPOREAL_UNDEAD(vict) ||
+			IS_RAKSHASA(vict) ||
+			IS_GREATER_DEVIL(vict)) {
+		if (IS_WEAPON(attacktype) && weap && IS_OBJ_TYPE(weap, ITEM_WEAPON) &&
+				!IS_OBJ_STAT(weap, ITEM_MAGIC))
+			return true;
+		if (!weap && !(affected_by_spell(ch, SKILL_KATA) &&	
+				ch->getLevelBonus(SKILL_KATA) >= 50))
+			return true;
+	}
 
 	return false;
 }
+
 class CallerDiedException {
 };
 
