@@ -4225,7 +4225,7 @@ struct show_struct {
     { "wizcommands",    LVL_IMMORT },
     { "timewarps",      LVL_IMMORT },        // 55
     { "zonecommands",         LVL_IMMORT },
-	{ "multi",          LVL_ETERNAL },
+//	{ "multi",          LVL_ETERNAL },
     { "\n", 0 }
 };
 
