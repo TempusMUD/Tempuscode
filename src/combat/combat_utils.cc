@@ -814,6 +814,9 @@ make_corpse(struct Creature *ch, struct Creature *killer, int attacktype)
 	} else if (attacktype == SKILL_DRAIN) {
 		strcpy(typebuf, "husk");
 		strcpy(namestr, typebuf);
+	} else if (attacktype == TYPE_SWALLOW) {
+		strcpy(typebuf, "bones");
+		strcpy(namestr, typebuf);
 	} else {
 		strcpy(typebuf, "corpse");
 		strcpy(namestr, typebuf);
@@ -1021,6 +1024,12 @@ make_corpse(struct Creature *ch, struct Creature *killer, int attacktype)
 			typebuf, GET_NAME(ch), isare);
 		corpse->description = str_dup(buf2);
 		strcpy(adj, "lashed");
+		break;
+
+	case TYPE_SWALLOW:
+		strcpy(buf2, "A bloody pile of bones is lying here.");
+		corpse->description = str_dup(buf2);
+		strcpy(adj, "bloody pile bones");
 		break;
 
 	case SKILL_FEED:
@@ -1472,8 +1481,11 @@ make_corpse(struct Creature *ch, struct Creature *killer, int attacktype)
 	}
 
 	//  make the short description
-	sprintf(buf2, "the %s%s%s of %s", adj, *adj ? " " : "", typebuf,
-		GET_NAME(ch));
+	if (attacktype != TYPE_SWALLOW)
+		sprintf(buf2, "the %s%s%s of %s", adj, *adj ? " " : "", typebuf,
+			GET_NAME(ch));
+	else
+		strcpy(buf2, "a bloody pile of bones");
 	corpse->short_description = str_dup(buf2);
 
 	// make the alias list
@@ -1492,6 +1504,7 @@ make_corpse(struct Creature *ch, struct Creature *killer, int attacktype)
 	GET_OBJ_VAL(corpse, 3) = 1;	/* corpse identifier */
 	corpse->setWeight(GET_WEIGHT(ch) + IS_CARRYING_W(ch));
 	corpse->contains = NULL;
+	corpse->obj_flags.max_dam = corpse->obj_flags.damage = 100;
 
 	if (IS_NPC(ch)) {
 		GET_OBJ_TIMER(corpse) = max_npc_corpse_time;

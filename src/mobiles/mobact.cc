@@ -1398,11 +1398,33 @@ mobile_activity(void)
 		ch = *cit;
 		found = FALSE;
 
-		if (!ch->in_room ||
-			(IS_NPC(ch) &&
-				(ch->in_room->zone->idle_time >= ZONE_IDLE_TIME ||
-					ZONE_FLAGGED(ch->in_room->zone, ZONE_FROZEN))) ||
-			IS_AFFECTED_2(ch, AFF2_PETRIFIED))
+		//
+		// Check for valid mob
+		//
+		if (!ch->in_room || !IS_NPC(ch) || IS_AFFECTED_2(ch, AFF2_PETRIFIED))
+			continue;
+
+		//
+		// Check for mob spec
+		//
+		if (!no_specials && MOB_FLAGGED(ch, MOB_SPEC) &&
+			GET_MOB_WAIT(ch) <= 0 && !ch->desc && (count % 2)) {
+			if (ch->mob_specials.shared->func == NULL) {
+				slog(
+					"%s (#%d): Attempting to call non-existing mob func",
+					GET_NAME(ch), GET_MOB_VNUM(ch));
+				REMOVE_BIT(MOB_FLAGS(ch), MOB_SPEC);
+			} else {
+				if ((ch->mob_specials.shared->func) (ch, ch, 0, "", SPECIAL_TICK)) {
+					continue;	/* go to next char */
+				}
+			}
+		}
+
+		//
+		// Mobs in idle zones don't do anything
+		//
+		if (ch->in_room->zone->idle_time >= ZONE_IDLE_TIME)
 			continue;
 
 		//
@@ -1453,23 +1475,6 @@ mobile_activity(void)
 				else if (GET_OBJ_VAL(obj->aux_obj, 1) == 5)
 					act("A warning indicator reads: $p air level low.",
 						FALSE, ch, obj->aux_obj, 0, TO_CHAR);
-			}
-		}
-		//
-		// Check for mob spec
-		//
-
-		if (!no_specials && MOB_FLAGGED(ch, MOB_SPEC) &&
-			GET_MOB_WAIT(ch) <= 0 && !ch->desc && (count % 2)) {
-			if (ch->mob_specials.shared->func == NULL) {
-				slog(
-					"%s (#%d): Attempting to call non-existing mob func",
-					GET_NAME(ch), GET_MOB_VNUM(ch));
-				REMOVE_BIT(MOB_FLAGS(ch), MOB_SPEC);
-			} else {
-				if ((ch->mob_specials.shared->func) (ch, ch, 0, "", SPECIAL_TICK)) {
-					continue;	/* go to next char */
-				}
 			}
 		}
 		//

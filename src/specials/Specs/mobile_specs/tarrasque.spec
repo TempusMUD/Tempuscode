@@ -52,20 +52,95 @@ tarrasque_jump(struct Creature *tarr, int jump_mode)
 				FALSE, tarr, 0, 0, TO_ROOM);
 	}
 }
+
+void
+tarrasque_swallow(Creature *tarr, Creature *vict)
+{
+	act("You suddenly pounce and devour $N whole!", 0, tarr, 0, vict, TO_CHAR);
+	act("$n suddenly pounces and devours $N whole!", 0, tarr, 0, vict, TO_NOTVICT);
+	send_to_char(vict, "The tarrasque suddenly leaps into the the air,\r\n"); 
+	send_to_char(vict, "The last thing you hear is the bloody crunch of your body.\r\n");
+	death_cry(vict);
+	char_from_room(vict);
+	char_to_room(vict, belly_rm);
+	act("The chewed body of $n flies in from the mouth.", 1, vict, 0, 0, TO_ROOM);
+	die(vict, tarr, TYPE_SWALLOW, false);
+}
+
+void
+tarrasque_digest(Creature *tarr)
+{
+	obj_data *obj, *next_obj;
+	bool pooped = false;
+
+	if (!belly_rm) {
+		slog("Tarrasque can't find his belly in digest()!");
+		return;
+	}
+	if (!belly_rm->contents)
+		return;
+
+	for (obj = belly_rm->contents;obj;obj = next_obj) {
+		next_obj = obj->next_content;
+		if (GET_OBJ_TYPE(obj) != ITEM_TRASH)
+			obj = damage_eq(NULL, obj, 20, SPELL_ACIDITY);
+
+		// If we have an object at this point, it needs to be excreted.  But..
+		// don't poop more than once at a time, and the tarr doesn't excrete
+		// while fighting, sleeping, or in its lair
+		if (obj &&
+				!pooped &&
+				!FIGHTING(tarr) &&
+				tarr->getPosition() != POS_FIGHTING &&
+				tarr->getPosition() >= POS_STANDING &&
+				tarr->in_room->number != LAIR_RM) {
+			pooped = true;
+			act("$p is pooped out of the belly.", 0, NULL, obj, NULL, TO_ROOM);
+			obj_from_room(obj);
+			obj_to_room(obj, tarr->in_room);
+			act("You strain a bit, and $p plops out.", 0, tarr, obj, NULL, TO_CHAR);
+			act("$n strains a bit, and $p plops out.", 0, tarr, obj, NULL, TO_ROOM);
+		}
+	}
+}
+
+int
+tarrasque_die(Creature *tarr)
+{
+	obj_data *obj, *next_obj;
+	// When the tarrasque dies, everything in its belly must be put in its
+	// corpse.  Acidified, of course.
+	for (obj = belly_rm->contents;obj;obj = next_obj) {
+		next_obj = obj->next_content;
+		obj_from_room(obj);
+		obj_to_char(obj, tarr);
+	}
+
+	// We wnat everything else to be normal
+	return 0;
+}
+
 int
 tarrasque_fight(struct Creature *tarr)
 {
 	struct Creature *vict = NULL, *vict2 = NULL;
+	CreatureList::iterator it;
+	bool is_dead;
 
 	if (!FIGHTING(tarr)) {
 		slog("SYSERR: FIGHTING(tarr) == NULL in tarrasque_fight!!");
 		return 0;
 	}
-	CreatureList::iterator it = tarr->in_room->people.begin();
+
+	// Select two lucky individuals who will be our random target dummies
+	// this fighting pulse
+	it = tarr->in_room->people.begin();
 	for (; it != tarr->in_room->people.end(); ++it)
-		if ((*it) != tarr && (*it) != FIGHTING(tarr) &&
-			tarr == FIGHTING((*it)) &&
-			CAN_SEE(tarr, (*it)) && !PRF_FLAGGED((*it), PRF_NOHASSLE)) {
+		if ((*it) != tarr &&
+				(*it) != FIGHTING(tarr) &&
+				tarr == FIGHTING((*it)) &&
+				CAN_SEE(tarr, (*it)) &&
+				!PRF_FLAGGED((*it), PRF_NOHASSLE)) {
 			vict = (*it);
 			break;
 		}
@@ -80,106 +155,129 @@ tarrasque_fight(struct Creature *tarr)
 				break;
 			}
 	}
-	if (!number(0, 2)) {		/* charge */
+
+	// In a tarrasquian charge, the person whom the tarrasque is fighting
+	// is hit first, then two other random people (if any).  As an added
+	// bonus, the tarrasque will then be attacking the last person hit
+	if (!number(1, 10)) {
 		act("$n charges forward!!", FALSE, tarr, 0, 0, TO_ROOM);
 		WAIT_STATE(tarr, 2 RL_SEC);
 
-		if (damage(tarr, FIGHTING(tarr),
+		is_dead = damage(tarr, FIGHTING(tarr),
 				(GET_DEX(FIGHTING(tarr)) < number(5, 28)) ?
-				(dice(30, 20) + 300) : 0, TYPE_GORE_HORNS, WEAR_BODY))
-			return 1;
+				(dice(30, 20) + 300) : 0, TYPE_GORE_HORNS, WEAR_BODY);
+		if (is_dead) {
+			tarr->setFighting(vict);
+			vict = vict2;
+			vict2 = NULL;
+		}
 
-		if (vict && GET_DEX(vict) < number(5, 25) &&
-			damage(tarr, vict,
+		if (vict && GET_DEX(vict) < number(5, 25)) {
+			is_dead = damage(tarr, vict,
 				(GET_DEX(vict) < number(5, 28)) ?
-				(dice(20, 40) + 300) : 0, TYPE_TRAMPLING, WEAR_BODY))
-			return 1;
-		if (vict2 && GET_DEX(vict2) < number(5, 25) &&
-			damage(tarr, vict2,
-				(GET_DEX(vict2) < number(5, 28)) ?
-				(dice(20, 40) + 300) : 0, TYPE_TRAMPLING, WEAR_BODY))
-			return 1;
+				(dice(20, 40) + 300) : 0, TYPE_TRAMPLING, WEAR_BODY);
+			if (is_dead)
+				vict = NULL;
+			else
+				tarr->setFighting(vict);
+		}
 
+		if (vict2 && GET_DEX(vict2) < number(5, 25)) {
+			is_dead = damage(tarr, vict2,
+				(GET_DEX(vict2) < number(5, 28)) ?
+				(dice(20, 40) + 300) : 0, TYPE_TRAMPLING, WEAR_BODY);
+			if (!is_dead)
+				vict2 = NULL;
+			else
+				tarr->setFighting(vict2);
+		}
+		return 1;
 	}
 
-	if (!FIGHTING(tarr))
-		return 1;
-
-	if (!number(0, 1)) {		/* tail lash */
+	// Tarrasquian tail lashing involves knocking down and damaging the
+	// intrepid adventurer the tarr is fighting, plus the two random
+	// individuals.
+	if (!number(1, 10)) {
 		act("$n lashes out with $s tail!!", FALSE, tarr, 0, 0, TO_ROOM);
 		WAIT_STATE(tarr, 3 RL_SEC);
-		if (!damage(tarr, FIGHTING(tarr),
-				GET_DEX(FIGHTING(tarr)) < number(5, 28) ?
-				(dice(20, 20) + 100) : 0,
-				TYPE_TAIL_LASH, WEAR_LEGS) &&
-			FIGHTING(tarr) &&
-			(FIGHTING(tarr))->getPosition() == POS_FIGHTING &&
-			GET_DEX(FIGHTING(tarr)) < number(10, 18) &&
-			!PRF_FLAGGED(FIGHTING(tarr), PRF_NOHASSLE))
+		is_dead = damage(tarr, FIGHTING(tarr),
+					GET_DEX(FIGHTING(tarr)) < number(5, 28) ?
+					(dice(20, 20) + 100) : 0,
+					TYPE_TAIL_LASH, WEAR_LEGS);
+		if (!is_dead &&
+				FIGHTING(tarr) &&
+				(FIGHTING(tarr))->getPosition() == POS_FIGHTING &&
+				GET_DEX(FIGHTING(tarr)) < number(10, 18) &&
+				!PRF_FLAGGED(FIGHTING(tarr), PRF_NOHASSLE))
 			(FIGHTING(tarr))->setPosition(POS_RESTING);
-		else
-			return 1;
+		if (is_dead) {
+			tarr->setFighting(vict);
+			vict = vict2;
+			vict2 = NULL;
+		}
 
 		if (vict) {
-			if (!damage(tarr, vict,
+			is_dead = damage(tarr, vict,
 					GET_DEX(vict) < number(5, 28) ?
 					(dice(20, 20) + 100) : 0,
-					TYPE_TAIL_LASH, WEAR_LEGS) &&
-				vict->getPosition() == POS_FIGHTING
-				&& GET_DEX(vict) < number(10, 18)
-				&& !PRF_FLAGGED(vict, PRF_NOHASSLE))
+					TYPE_TAIL_LASH, WEAR_LEGS);
+			if (!is_dead &&
+					vict->getPosition() == POS_FIGHTING
+					&& GET_DEX(vict) < number(10, 18)
+					&& !PRF_FLAGGED(vict, PRF_NOHASSLE))
 				vict->setPosition(POS_RESTING);
-			else
-				return 1;
+			if (is_dead)
+				vict = NULL;
 		}
 
 		if (vict2) {
-			if (!damage(tarr, vict2,
+			is_dead = damage(tarr, vict2,
 					GET_DEX(vict2) < number(5, 28) ?
 					(dice(20, 20) + 100) : 0,
-					TYPE_TAIL_LASH, WEAR_LEGS) &&
-				vict2->getPosition() == POS_FIGHTING
-				&& GET_DEX(vict2) < number(10, 18)
-				&& !PRF_FLAGGED(vict2, PRF_NOHASSLE))
+					TYPE_TAIL_LASH, WEAR_LEGS);
+			if (!is_dead &&
+					vict2->getPosition() == POS_FIGHTING
+					&& GET_DEX(vict2) < number(10, 18)
+					&& !PRF_FLAGGED(vict2, PRF_NOHASSLE))
 				vict2->setPosition(POS_RESTING);
-			else
-				return 1;
+			if (is_dead)
+				vict2 = NULL;
 		}
+		return 1;
 	}
 
-	if (!FIGHTING(tarr))
-		return 1;
+	if (number(0, 20))
+		return 0;
 
-	/* biting attacks */
-	if (vict) {
+	// There's a chance, however small, that the tarrasque is going to swallow
+	// the character whole, no matter how powerful.  If they make their saving
+	// throw, they just get hurt.  The player being fought is most likely to
+	// get swallowed.
+	if (FIGHTING(tarr) || number(1,4)) {
+		if (GET_DEX(FIGHTING(tarr)) < number(5, 23) &&
+			!mag_savingthrow(FIGHTING(tarr), 50, SAVING_ROD)) {
+			tarrasque_swallow(tarr, FIGHTING(tarr));
+		} else {
+			damage(tarr,
+				FIGHTING(tarr), GET_DEX(FIGHTING(tarr)) < number(5, 28) ?
+				(dice(40, 20) + 200) : 0, TYPE_BITE, WEAR_BODY);
+		}
+	} else if (vict) {
 		if (GET_DEX(vict) < number(5, 23) &&
 			!mag_savingthrow(vict, 50, SAVING_ROD)) {
-			/* swallow */
-			//      send_to_char("swallow.\r\n", vict);
-		} else
-			if (damage(tarr, vict,
-				GET_DEX(vict) < number(5, 28) ?
-				(dice(40, 20) + 200) : 0, TYPE_BITE, WEAR_BODY))
-			return 1;
+			tarrasque_swallow(tarr, vict);
+		} else {
+			damage(tarr, vict, GET_DEX(vict) < number(5, 28) ?
+				(dice(40, 20) + 200) : 0, TYPE_BITE, WEAR_BODY);
+		}
 	} else if (vict2) {
 		if (GET_DEX(vict2) < number(5, 23) &&
 			!mag_savingthrow(vict2, 50, SAVING_ROD)) {
-			/* swallow */
-			//      send_to_char("swallow.\r\n", vict2);
-		} else
-			if (damage(tarr, vict2,
-				GET_DEX(vict2) < number(5, 28) ?
-				(dice(40, 20) + 200) : 0, TYPE_BITE, WEAR_BODY))
-			return 1;
-	} else {
-		if (GET_DEX(FIGHTING(tarr)) < number(5, 23) &&
-			!mag_savingthrow(FIGHTING(tarr), 50, SAVING_ROD)) {
-			/* swallow */
-			//      send_to_char("swallow.\r\n", FIGHTING(tarr));
-		} else
-			damage(tarr, FIGHTING(tarr),
-				GET_DEX(FIGHTING(tarr)) < number(5, 28) ?
+			tarrasque_swallow(tarr, vict2);
+		} else {
+			damage(tarr, vict2, GET_DEX(vict2) < number(5, 28) ?
 				(dice(40, 20) + 200) : 0, TYPE_BITE, WEAR_BODY);
+		}
 	}
 	return 1;
 }
@@ -192,20 +290,14 @@ SPECIAL(tarrasque)
 	struct Creature *tarr = (struct Creature *)me;
 	struct room_data *rm = NULL;
 
-	if (spec_mode != SPECIAL_CMD && spec_mode != SPECIAL_TICK)
+	if (tarr->mob_specials.shared->vnum != 24800) {
+		tarr->mob_specials.shared->func = NULL;
+		REMOVE_BIT(MOB_FLAGS(tarr), MOB_SPEC);
+		slog("SYSERR: There is only one true tarrasque");
 		return 0;
-
-	if (!checked) {
-		checked = TRUE;
-		if (!(belly_rm = real_room(24878))) {
-			slog("SYSERR: bunk room in tarrasque spec.");
-			/*
-			   tarr->mob_specials.shared->func = NULL;
-			   REMOVE_BIT(MOB_FLAGS(tarr), MOB_SPEC); */
-			return 1;
-		}
 	}
-	if (cmd) {
+
+	if (spec_mode == SPECIAL_CMD) {
 		if (CMD_IS("status") && GET_LEVEL(ch) >= LVL_IMMORT) {
 			send_to_char(ch,
 				"Tarrasque status: mode (%d), timer (%d), tframe (%d)\r\n",
@@ -226,26 +318,33 @@ SPECIAL(tarrasque)
 			timer += T_SLEEP_LEN / 10;
 		return 0;
 	}
+	
+	if (spec_mode == SPECIAL_DEATH)
+		return tarrasque_die(tarr);
 
-	if (FIGHTING(tarr) && tarr->getPosition() == POS_FIGHTING)
-		return (tarrasque_fight(tarr));
+	if (spec_mode != SPECIAL_TICK)
+		return 0;
 
+	if (!checked) {
+		checked = TRUE;
+		if (!(belly_rm = real_room(BELLY_RM))) {
+			slog("SYSERR: Tarrasque can't find his belly!");
+			tarr->mob_specials.shared->func = NULL;
+			REMOVE_BIT(MOB_FLAGS(tarr), MOB_SPEC);
+			return 1;
+		}
+	}
+
+	tarrasque_digest(tarr);
 	timer++;
+
+	if (FIGHTING(tarr))
+		return tarrasque_fight(tarr);
 
 	switch (mode) {
 	case T_SLEEP:
 		if (timer > T_SLEEP_LEN) {
-
 			tarr->setPosition(POS_STANDING);
-
-			/*      if (tframe == TIME_MODRIAN) {
-			   tframe = TIME_ELECTRO;
-			   if (!add_path_to_mob(tarr, "tarr_exit_ec")) {
-			   slog("SYSERR: error assigning tarr_exit_ec path to tarrasque.");
-			   mode = T_ERROR;
-			   return 1;
-			   }
-			   } else { */
 			tframe = TIME_MODRIAN;
 			if (!add_path_to_mob(tarr, "tarr_exit_mod")) {
 				slog("SYSERR: error assigning tarr_exit_mod path to tarrasque.");

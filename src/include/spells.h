@@ -629,7 +629,8 @@ static const int TYPE_RAD_SICKNESS = 765;
 static const int TYPE_FLAMETHROWER = 766;
 static const int TYPE_MALOVENT_HOLYTOUCH = 767;	// When holytouch wears off.
 static const int SPELL_YOUTH = 768;
-static const int TOP_NPC_SPELL = 769;
+static const int TYPE_SWALLOW = 769;
+static const int TOP_NPC_SPELL = 770;
 
 static const int TOP_SPELL_DEFINE = 799;
 /* NEW NPC/OBJECT SPELLS can be inserted here up to 799 */
