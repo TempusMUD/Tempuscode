@@ -1846,7 +1846,8 @@ void
 perform_act(char *orig, struct char_data * ch, struct obj_data * obj,
 	    void *vict_obj, struct char_data * to, int mode)
 {
-    register char *i=0, *buf;
+    register const char *i=0;
+    register char *buf;
     static char lbuf[MAX_STRING_LENGTH];
     char outbuf[MAX_STRING_LENGTH];
   
@@ -1946,7 +1947,7 @@ perform_act(char *orig, struct char_data * ch, struct obj_data * obj,
 		     PRF2_FLAGGED(ch, PRF2_LIGHT_READ)))
 
 void 
-act(char *str, int hide_invisible, struct char_data * ch,
+act(const char *str, int hide_invisible, struct char_data * ch,
     struct obj_data * obj, void *vict_obj, int type)
 {
     struct char_data *to;
