@@ -1113,6 +1113,9 @@ ACMD(do_gen_comm)
 				PLR_FLAGGED(i->creature, PLR_OLC))
 			continue;
 
+		translated = translate_string(argument, GET_LANGUAGE(ch));
+		language_idx = GET_LANGUAGE(ch);
+
         if (GET_LANGUAGE(i->creature) != GET_LANGUAGE(ch)) {
             if (GET_LANGUAGE(ch) == LANGUAGE_COMMON)
                 language_str = tmp_sprintf(" in common");
@@ -1123,12 +1126,9 @@ ACMD(do_gen_comm)
 
         if ((!can_speak_language(i->creature, GET_LANGUAGE(ch)))
 				&& strcmp(chan->name, "newbie"))
-            buf4 = tmp_sprintf("%s", translated);
-
-		if (!PRF_FLAGGED(i->creature, PRF_NASTY))
+            buf4 = translated;
+		else if (!PRF_FLAGGED(i->creature, PRF_NASTY))
             buf4 = filtered_msg;
-		translated = translate_string(argument, GET_LANGUAGE(ch));
-		language_idx = GET_LANGUAGE(ch);
 
 		if (chan->deaf_vector == 1 &&
 				PRF_FLAGGED(i->creature, chan->deaf_flag))
