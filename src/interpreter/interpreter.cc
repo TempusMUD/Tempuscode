@@ -3017,7 +3017,7 @@ nanny(struct descriptor_data * d, char *arg)
 		if (PLR2_FLAGGED(d->character, PLR2_BURIED)) {
 			sprintf(buf,"You lay fresh flowers on the grave of %s.\r\n",GET_NAME(d->character));
 			SEND_TO_Q( buf, d);
-			sprintf(buf,"%s hit died with no maxhit and no life points. Burying.",GET_NAME(d->character));
+			sprintf(buf,"Disconnecting %s. - Character is buried.",GET_NAME(d->character));
 			mudlog(buf, NRM, LVL_GOD, TRUE);
 
 			STATE(d) = CON_CLOSE;
