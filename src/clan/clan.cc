@@ -196,7 +196,9 @@ ACMD(do_dismiss)
 	}
 
 	clan = real_clan(GET_CLAN(vict));
-	if (vict == ch)
+	if (!clan)
+		send_to_char(ch, "They aren't in the clan.\r\n");
+	else if (vict == ch)
 		send_to_char(ch, "Try resigning if you want to leave the clan.\r\n");
 	else if (!PLR_FLAGGED(ch, PLR_CLAN_LEADER) && !IS_IMMORT(ch))
 		send_to_char(ch, "You are not the leader of the clan!\r\n");
@@ -1448,6 +1450,14 @@ delete_clan(struct clan_data *clan)
 	sql_exec("delete from clan_members where clan=%d", clan->number);
 	sql_exec("delete from clan_ranks where clan=%d", clan->number);
 	sql_exec("delete from clans where idnum=%d", clan->number);
+
+	CreatureList::iterator cit = characterList.begin();
+	for (; cit != characterList.end(); ++cit) {
+		if (IS_PC(*cit) && GET_CLAN(*cit) == clan->number) {
+			GET_CLAN(*cit) = 0;
+			send_to_char(*cit, "Your clan has been disbanded!\r\n");
+		}
+	}
 
 	free(clan);
 
