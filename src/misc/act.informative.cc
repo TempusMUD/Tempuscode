@@ -3299,7 +3299,7 @@ ACMD(do_who)
                 PLR_FLAGGED(tch, PLR_COUNCIL)) {
                 //          (PRF_FLAGGED(ch, PRF_HOLYLIGHT) || PLR_FLAGGED(ch, PLR_COUNCIL))) {
                 sprintf(buf2, "%s %s<COUNCIL>%s", 
-                        buf2, CCYEL(ch, C_NRM), CCNRM(ch, C_NRM));
+                        buf2, CCBLU_BLD(ch, C_NRM), CCNRM(ch, C_NRM));
             }
             if ((outlaws || who_pkills) && GET_PKILLS(tch)) {
                 sprintf(buf2, "%s %s*%d KILLS*%s", 
