@@ -1525,7 +1525,7 @@ perform_gain_kill_exp( struct char_data *ch, struct char_data *victim, float mul
 	exp += ( exp * 25 ) / 100;
     if ( IS_CLERIC( ch ) && !IS_GOOD( ch ) )
 	exp -= ( exp * 15 ) / 100;
-    if ( IS_KNIGHT( ch ) && !IS_GOOD( ch ) ) 
+    if ( IS_KNIGHT( ch ) && IS_GOOD( ch ) ) 
 	exp -= ( exp * 25 ) / 100;
 
   
@@ -3295,7 +3295,7 @@ damage( struct char_data * ch, struct char_data * victim, int dam,
 			exp -= ( exp * GET_REMORT_GEN( ch ) ) / ( GET_REMORT_GEN( ch ) + 2 );
 		if ( IS_CLERIC( ch ) && !IS_GOOD( ch ) )
 			exp -= ( exp * 15 ) / 100;
-		if ( IS_KNIGHT( ch ) && !IS_GOOD( ch ) )
+		if ( IS_KNIGHT( ch ) && IS_GOOD( ch ) )
 			exp -= ( exp * 25 ) / 100;
 		if ( IS_GOOD( ch ) && 
 			( IS_CLERIC( ch ) || IS_KNIGHT( ch ) ) && 
