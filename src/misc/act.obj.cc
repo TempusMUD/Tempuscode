@@ -58,6 +58,8 @@ ACMD(do_extinguish);
 ACMD(do_say);
 ACMD(do_split);
 
+const long MONEY_LOG_LIMIT = 50000000;
+
 obj_data *
 get_random_uncovered_implant(Creature * ch, int type = -1)
 {
@@ -183,9 +185,8 @@ consolidate_char_money(struct Creature *ch)
 	}
 
 	if (num_gold) {
-		if (num_gold > 50000000)
-			mudlog(65, NRM, true,
-				"MONEY: %s picked up %ld gold in room #%d (%s)",
+		if (num_gold > MONEY_LOG_LIMIT)
+			slog("MONEY: %s picked up %ld gold in room #%d (%s)",
 				GET_NAME(ch), num_gold, ch->in_room->number,
 				ch->in_room->name);
 		GET_GOLD(ch) += num_gold;
@@ -199,9 +200,8 @@ consolidate_char_money(struct Creature *ch)
 	}
 
 	if (num_credits) {
-		if (num_credits > 50000000)
-			mudlog(65, NRM, true,
-				"MONEY: %s picked up %ld credits in room #%d (%s)",
+		if (num_credits > MONEY_LOG_LIMIT)
+			slog("MONEY: %s picked up %ld credits in room #%d (%s)",
 				GET_NAME(ch), num_gold, ch->in_room->number,
 				ch->in_room->name);
 		GET_CASH(ch) += num_credits;
@@ -515,12 +515,13 @@ get_check_money(struct Creature *ch, struct obj_data **obj_p, int display)
 				GET_OBJ_VAL(obj, 1) ? "credits" : "coins");
 		}
 		if (!IS_OBJ_STAT2(obj, ITEM2_UNAPPROVED)) {
-			if (GET_OBJ_VAL(obj, 0) > 1000000) {
-				slog("MONEY: %s obtained %d %s at %d.",
+			if (GET_OBJ_VAL(obj, 0) > MONEY_LOG_LIMIT)
+				slog("MONEY: %s picked up %d %s in room #%d (%s)",
 					GET_NAME(ch), GET_OBJ_VAL(obj, 0),
 					GET_OBJ_VAL(obj, 1) ? "credits" : "coins",
-					ch->in_room->number);
-			}
+					ch->in_room->number,
+					ch->in_room->name);
+
 			if (GET_OBJ_VAL(obj, 1)) {
 				GET_CASH(ch) += GET_OBJ_VAL(obj, 0);
 				total_credits += GET_OBJ_VAL(obj, 0);
@@ -1105,11 +1106,24 @@ perform_drop_gold(struct Creature *ch, int amount,
 				"You drop some gold which disappears in a puff of smoke!\r\n");
 		}
 		GET_GOLD(ch) -= amount;
-		if (mode != SCMD_DONATE && GET_LEVEL(ch) >= LVL_AMBASSADOR &&
-			GET_LEVEL(ch) < LVL_GOD) {
-			slog("MONEY: %s has dropped %d coins at %d.", GET_NAME(ch),
-				amount, ch->in_room->number);
-		}
+		if (amount >= MONEY_LOG_LIMIT)
+			switch (mode) {
+			case SCMD_DONATE:
+				slog("MONEY: %s has donated %d coins in room #%d (%s)",
+					GET_NAME(ch), amount, ch->in_room->number,
+					ch->in_room->name);
+				break;
+			case SCMD_JUNK:
+				slog("MONEY: %s has junked %d coins in room #%d (%s)",
+					GET_NAME(ch), amount, ch->in_room->number,
+					ch->in_room->name);
+				break;
+			default:
+				slog("MONEY: %s has dropped %d coins in room #%d (%s)",
+					GET_NAME(ch), amount, ch->in_room->number,
+					ch->in_room->name);
+				break;
+			}
 	}
 }
 void
@@ -1146,9 +1160,10 @@ perform_drop_credits(struct Creature *ch, int amount,
 				"You drop some cash which disappears in a puff of smoke!\r\n");
 		}
 		GET_CASH(ch) -= amount;
-		if (GET_LEVEL(ch) >= LVL_AMBASSADOR && GET_LEVEL(ch) < LVL_GOD) {
-			slog("MONEY: %s has dropped %d credits at %d.",
-				GET_NAME(ch), amount, ch->in_room->number);
+		if (amount >= MONEY_LOG_LIMIT) {
+			slog("MONEY: %s has dropped %d credits in room #%d (%s)",
+				GET_NAME(ch), amount, ch->in_room->number,
+				ch->in_room->name);
 		}
 	}
 }
@@ -1531,12 +1546,11 @@ perform_give(struct Creature *ch, struct Creature *vict,
 		vict->mob_specials.mug = NULL;
 		return 1;
 	}
-	if (IS_OBJ_TYPE(obj, ITEM_MONEY) &&
-		GET_LEVEL(ch) >= LVL_AMBASSADOR && GET_LEVEL(vict) < LVL_AMBASSADOR &&
-		GET_LEVEL(ch) < LVL_GOD) {
-		slog("MONEY: %s has given %s (%d) to %s.", GET_NAME(ch),
-			obj->short_description, GET_OBJ_VAL(obj, 0), GET_NAME(vict));
-	}
+	if (IS_OBJ_TYPE(obj, ITEM_MONEY) && GET_OBJ_VAL(obj, 0) > MONEY_LOG_LIMIT)
+		slog("MONEY: %s has given obj #%d (%s) worth %d %s to %s in room #%d (%s)",
+			GET_NAME(ch), GET_OBJ_VNUM(obj), obj->short_description,
+			GET_OBJ_VAL(obj, 0), GET_OBJ_VAL(obj, 1) ? "credits":"gold",
+			GET_NAME(vict), vict->in_room->number, vict->in_room->name);
 
 	if (IS_NPC(vict) && AWAKE(vict) && !AFF_FLAGGED(vict, AFF_CHARM) &&
 		can_see_object(vict, obj)) {
@@ -1651,11 +1665,10 @@ perform_give_gold(struct Creature *ch, struct Creature *vict, int amount)
 		GET_GOLD(ch) -= amount;
 	GET_GOLD(vict) += amount;
 
-	if (GET_LEVEL(ch) >= LVL_AMBASSADOR && GET_LEVEL(vict) < LVL_AMBASSADOR &&
-		GET_LEVEL(ch) < LVL_GOD) {
-		slog("MONEY: %s has given %d coins to %s.", GET_NAME(ch),
-			amount, GET_NAME(vict));
-	}
+	if (amount >= MONEY_LOG_LIMIT)
+		slog("MONEY: %s has given %d coins to %s in room #%d (%s)",
+			GET_NAME(ch), amount, GET_NAME(vict),
+			vict->in_room->number, vict->in_room->name);
 
 	save_char(ch, NULL);
 	save_char(vict, NULL);
@@ -1683,11 +1696,11 @@ perform_plant_gold(struct Creature *ch, struct Creature *vict, int amount)
 	if (IS_NPC(ch) || (GET_LEVEL(ch) < LVL_GOD))
 		GET_GOLD(ch) -= amount;
 	GET_GOLD(vict) += amount;
-	if (GET_LEVEL(ch) >= LVL_AMBASSADOR && GET_LEVEL(vict) < LVL_AMBASSADOR &&
-		GET_LEVEL(ch) < LVL_GOD) {
-		slog("MONEY: %s has planted %d coins on %s.", GET_NAME(ch),
-			amount, GET_NAME(vict));
-	}
+
+	if (amount >= MONEY_LOG_LIMIT)
+		slog("MONEY: %s has planted %d coins on %s in room #%d (%s)",
+			GET_NAME(ch), amount, GET_NAME(vict),
+			vict->in_room->number, vict->in_room->name);
 
 	save_char(ch, NULL);
 	save_char(vict, NULL);
@@ -1717,11 +1730,10 @@ perform_give_credits(struct Creature *ch, struct Creature *vict, int amount)
 		GET_CASH(ch) -= amount;
 	GET_CASH(vict) += amount;
 
-	if (GET_LEVEL(ch) >= LVL_AMBASSADOR &&
-			GET_LEVEL(vict) < LVL_AMBASSADOR &&
-			GET_LEVEL(ch) < LVL_GOD)
-		slog("MONEY: %s has given %d credits to %s.", GET_NAME(ch),
-			amount, GET_NAME(vict));
+	if (amount >= MONEY_LOG_LIMIT)
+		slog("MONEY: %s has given %d credits to %s in room #%d (%s)",
+			GET_NAME(ch), amount, GET_NAME(vict),
+			vict->in_room->number, vict->in_room->name);
 
 	save_char(ch, NULL);
 	save_char(vict, NULL);
@@ -1749,11 +1761,11 @@ perform_plant_credits(struct Creature *ch, struct Creature *vict, int amount)
 	if (IS_NPC(ch) || (GET_LEVEL(ch) < LVL_GOD))
 		GET_CASH(ch) -= amount;
 	GET_CASH(vict) += amount;
-	if (GET_LEVEL(ch) >= LVL_AMBASSADOR && GET_LEVEL(vict) < LVL_AMBASSADOR &&
-		GET_LEVEL(ch) < LVL_GOD) {
-		slog("MONEY: %s has planted %d credits on %s.", GET_NAME(ch),
-			amount, GET_NAME(vict));
-	}
+
+	if (amount >= MONEY_LOG_LIMIT)
+		slog("MONEY: %s has planted %d credits on %s in room #%d (%s)",
+			GET_NAME(ch), amount, GET_NAME(vict),
+			vict->in_room->number, vict->in_room->name);
 
 	save_char(ch, NULL);
 	save_char(vict, NULL);
