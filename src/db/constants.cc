@@ -2221,7 +2221,8 @@ extern const char *spell_wear_off_msg[] = {
 	"!UNUSED!",
 	"The power of Guiharia leaves you to your own devices.",
 	"The effects of your death knell fade away.",	/* 150 */
-	"!UNUSED!", "!UNUSED!", "!UNUSED!", "!UNUSED!", "!UNUSED!",	/* 155 */
+	"You are no longer as telepathic",
+	"!UNUSED!", "!UNUSED!", "!UNUSED!", "!UNUSED!",	/* 155 */
 	"!UNUSED!", "!UNUSED!", "!UNUSED!", "!UNUSED!", "!UNUSED!",	/* 160 */
 	"!UNUSED!", "!UNUSED!", "!UNUSED!", "!UNUSED!", "!UNUSED!",	/* 165 */
 	"!UNUSED!", "!UNUSED!", "!UNUSED!", "!UNUSED!", "!UNUSED!",	/* 170 */

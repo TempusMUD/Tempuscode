@@ -206,8 +206,11 @@ const char *spells[] = {
 	"stoneskin",				/* 145 */
 	"sun ray",
 	"taint",
-	"locust regeneration", "divine power", "death knell",	/* 150 */
-	"!UNUSED!", "!UNUSED!", "!UNUSED!", "!UNUSED!", "!UNUSED!",	/* 155 */
+	"locust regeneration",
+	"divine power",
+	"death knell",	/* 150 */
+	"telepathy",
+	"!UNUSED!", "!UNUSED!", "!UNUSED!", "!UNUSED!",	/* 155 */
 	"!UNUSED!", "!UNUSED!", "!UNUSED!", "!UNUSED!", "!UNUSED!",	/* 160 */
 	"!UNUSED!", "!UNUSED!", "!UNUSED!", "!UNUSED!", "!UNUSED!",	/* 165 */
 	"!UNUSED!", "!UNUSED!", "!UNUSED!", "!UNUSED!", "!UNUSED!",	/* 170 */
@@ -3280,6 +3283,10 @@ mag_assign_spells(void)
 	spello(SPELL_NULLPSI, X, X, X, X, X, 17, X, X, X, X, X, X, X, X, X, X, X,
 		90, 50, 1, POS_STANDING, TAR_CHAR_ROOM, FALSE,
 		MAG_PSIONIC | MAG_UNAFFECTS);
+
+	spello(SPELL_TELEPATHY, X, X, X, X, X, 41, X, X, X, X, X, X, X, X, X, X, X,
+		95, 62, 4, POS_FIGHTING, TAR_CHAR_ROOM | TAR_SELF_ONLY, false,
+		MAG_PSIONIC | MAG_AFFECTS);
 
 	spello(SKILL_PSIBLAST, X, X, X, X, X, 5, X, X, X, X, X, X, X, X, X, X, X,
 		50, 50, 1, 0, 0, 0, MAG_DAMAGE | MAG_PSIONIC);

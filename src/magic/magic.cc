@@ -1644,6 +1644,11 @@ mag_affects(int level, struct Creature *ch, struct Creature *victim,
 		to_room = "$n looks very afraid!";
 		break;
 
+	case SPELL_TELEPATHY:
+		af.duration = 1 + (level >> 4);
+		to_vict = "Your telepathic senses are greatly heightened.";
+		break;
+
 	case SPELL_CONFIDENCE:
 		af.modifier = dice(2, (level >> 3) + 1);
 		af.duration = 3 + (level >> 2);

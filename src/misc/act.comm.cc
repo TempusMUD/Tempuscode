@@ -338,11 +338,20 @@ ACMD(do_tell)
 				ch->in_room != vict->in_room)) &&
 		!(GET_LEVEL(ch) >= LVL_GRGOD && GET_LEVEL(ch) > GET_LEVEL(vict)))
 		act("$E can't hear you.", FALSE, ch, 0, vict, TO_CHAR | TO_SLEEP);
-	else if (COMM_NOTOK_ZONES(ch, vict))
-		act("Your telepathic voice cannot reach $M.",
-			FALSE, ch, 0, vict, TO_CHAR);
-	else
+	else {
+		if (COMM_NOTOK_ZONES(ch, vict)) {
+			if (!(affected_by_spell(ch, SPELL_TELEPATHY) ||
+					affected_by_spell(vict, SPELL_TELEPATHY))) {
+				act("Your telepathic voice cannot reach $M.",
+					FALSE, ch, 0, vict, TO_CHAR);
+				return;
+			}
+
+			WAIT_STATE(ch, 1 RL_SEC);
+		}
+
 		perform_tell(ch, vict, buf2);
+	}
 }
 
 

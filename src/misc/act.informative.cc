@@ -2492,6 +2492,8 @@ affs_to_str(struct Creature *ch, byte mode)
 				C_SPR), CCNRM(ch, C_SPR));
 	if (affected_by_spell(ch, SKILL_ELUSION))
 		str = tmp_strcat(str, "You are attempting to hide your tracks.\r\n");
+	if (affected_by_spell(ch, SPELL_TELEPATHY))
+		str = tmp_strcat(str, "Your telepathic abilities are greatly enhanced.\r\n");
 
 	return str;
 }
