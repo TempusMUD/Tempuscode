@@ -45,12 +45,12 @@ class HelpItem {
     HelpItem();
     ~HelpItem();
     
-    inline HelpItem *Next( void ); // Returns the next HelpItem
+    HelpItem *Next( void ); // Returns the next HelpItem
     // Returns the next HelpItem in the list to be shown
-    inline HelpItem *NextShow( void ); 
-    inline void BlankShow( void ); // null the next_show pointer
-    inline HelpItem *Push( HelpItem *head );// Add the item to the list.
-    inline HelpItem *PushShow( HelpItem *head );// Add item to show list.
+    HelpItem *NextShow( void ); 
+    void BlankShow( void ); // null the next_show pointer
+    HelpItem *Push( HelpItem *head );// Add the item to the list.
+    HelpItem *PushShow( HelpItem *head );// Add item to show list.
     bool Edit( char_data *ch ); // Begin editing an item
     bool Clear();// Clear the item out.
     void SetName(char *argument);
