@@ -2330,9 +2330,10 @@ do_casting_weapon(Creature *ch, obj_data *weap)
 				!IS_OBJ_STAT(weap, ITEM_MAGIC) ||
 				!SPELL_IS_MAGIC(GET_OBJ_VAL(weap, 0))) &&
 			number(0, GET_INT(ch) + 3)) || GET_LEVEL(ch) > LVL_GRGOD) {
-		if (IS_SET(spell_info[GET_OBJ_VAL(weap, 0)].routines,
-				MAG_DAMAGE)
-			|| spell_info[GET_OBJ_VAL(weap, 0)].violent)
+		if (IS_SET(spell_info[GET_OBJ_VAL(weap, 0)].routines, MAG_DAMAGE) ||
+				spell_info[GET_OBJ_VAL(weap, 0)].violent ||
+				IS_SET(spell_info[GET_OBJ_VAL(weap, 0)].targets,
+					TAR_UNPLEASANT))
 			call_magic(ch, FIGHTING(ch), 0, GET_OBJ_VAL(weap, 0),
 				GET_LEVEL(ch), CAST_WAND);
 		else if (!affected_by_spell(ch, GET_OBJ_VAL(weap, 0)))
