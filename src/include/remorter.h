@@ -403,8 +403,6 @@ void Quiz::reset() {
 static inline bool validQuestion( char_data *ch, Question &q ) {
     if( GET_REMORT_GEN(ch) < q.getGen() )
         return false;
-    if( GET_REMORT_GEN(ch) - 9 > q.getGen() )
-        return false;
     return true;
 }
 void Quiz::selectQuestions(char_data *ch) {
