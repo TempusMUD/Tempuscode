@@ -28,23 +28,38 @@ class House
 	private:
 		// unique identifier of this house
 		int id;
-		// vnum house rooms
-		typedef std::vector<room_num> RoomList;
-		RoomList rooms;
 		// date this house was built
 		time_t created;
 		// type of ownership: personal, public, rental
 		Type type;
 		// idnum of house owner's account
 		int ownerID;
-		// idnums of house's guests
-		typedef std::vector<long> GuestList;
-		GuestList guests;
 		// The slumlord that built the house.
 		long landlord;
 		// the rate per date of rent charged on this house
 		int rentalRate;
-		bool loadRoom( xmlNodePtr node );
+		// The left over gold amount from selling off items to
+		// cover unpaid rent.  This is never given to the char.
+		long rentOverflow;
+
+		// idnums of house's guests
+		typedef std::vector<long> GuestList;
+		// The list of id's of characters allowed to enter this house
+		GuestList guests;
+		// vnum house rooms
+		typedef std::vector<room_num> RoomList;
+		// The list of room numbers that make up this house
+		RoomList rooms;
+
+		// Loads a room and it's contents from the given node
+		bool loadRoom( xmlNodePtr node ); 
+		// Finds the most expensive object in the house.
+		obj_data* findCostliestObj();
+		// Finds the most expensive object in the given room
+		obj_data* findCostliestObj(room_data *room);
+		// the reposession notices created when objects are sold
+		// to cover rent cost.
+		vector<string> repoNotes;
 	public:
 
 		House( int idnum, int owner, room_num first );
@@ -100,6 +115,13 @@ class House
 		bool hasRoom( room_num room ) const;
 		// returns true if the given room is part of this house
 		bool hasRoom( room_data *room ) const;
+		
+		// retrieves the number of repo notes currently stored in this house
+		unsigned int getRepoNoteCount() const { return repoNotes.size(); }
+		// retrieves the given repo note
+		string getRepoNote( int index ) const { return repoNotes[index]; }
+		// removes all repo notes
+		void clearRepoNotes() { repoNotes.erase( repoNotes.begin(), repoNotes.end() ); }
 
 		// retrieves the rent charged per day on this house
 		int getRentalRate() const { return rentalRate; }
@@ -108,6 +130,8 @@ class House
 
 		// calculates the daily rent cost for this house
 		int calcRentCost() const;
+		int calcRentCost( room_data *room ) const;
+		bool collectRent( int cost );
 		// counts the objects contained in this house
 		int calcObjectCount() const;
         // counts the objects contained in the given room
@@ -160,6 +184,8 @@ class HouseControl : private std::vector<House*>
 		House* findHouseByRoom( room_num room );
 		// retrieves the house with the given unique id
 		House* findHouseById( int id );
+		// retrieves the house with the given owner (account id)
+		House* findHouseByOwner( int accountID );
 		// returns the number of houses in this house control
 		unsigned int getHouseCount() const ;
 		// returns the house at the given index

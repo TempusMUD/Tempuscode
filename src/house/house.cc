@@ -148,22 +148,24 @@ House::getTypeFromName( const char* name ) {
 }
 
 House::House( int idnum, int owner, room_num first ) 
-	: id(idnum), rooms(), created( time(0) ), 
-	  type( PRIVATE ), ownerID(owner), guests(), 
-	  landlord(0), rentalRate(0)
+	: id(idnum), created( time(0) ),
+	  type( PRIVATE ), ownerID(owner),
+	  landlord(0), rentalRate(0), rentOverflow(0), guests(), rooms(),
+	  repoNotes()
 {
 	addRoom( first );
 }
 
 House::House() 
-	: id(0), rooms(), created( time(0) ), 
-	  type( PRIVATE ), ownerID(0), guests(), 
-	  landlord(0), rentalRate(0)
+	: id(0), created( time(0) ),
+	  type( PRIVATE ), ownerID(0),
+	  landlord(0), rentalRate(0), rentOverflow(0), guests(), rooms(),
+	  repoNotes()
 {
 }
 
 House::House( const House &h )
-	: rooms(), guests()
+	: guests(), rooms(), repoNotes()
 {
 	*this = h;
 }
@@ -172,16 +174,17 @@ House&
 House::operator=( const House &h )
 {
 	id = h.id;
-	rooms = h.rooms;
 
 	created = h.created;
 	type = h.type;
 	ownerID = h.ownerID;
-
-	guests = h.guests;
-
 	landlord = h.landlord;
 	rentalRate = h.rentalRate;
+	rentOverflow = h.rentOverflow;
+
+	guests = h.guests;
+	rooms = h.rooms;
+	repoNotes = h.repoNotes;
 
 	return *this;
 }
@@ -307,6 +310,16 @@ HouseControl::findHouseById( int id )
 {
 	for( unsigned int i = 0; i < getHouseCount(); i++ ) {
 		if( getHouse(i)->getID() == id )
+			return getHouse(i);
+	}
+	return NULL;
+}
+
+House* 
+HouseControl::findHouseByOwner( int accountID )
+{
+	for( unsigned int i = 0; i < getHouseCount(); i++ ) {
+		if( getHouse(i)->getOwnerID() == accountID )
 			return getHouse(i);
 	}
 	return NULL;
@@ -475,6 +488,9 @@ House::save()
 	for( unsigned int i = 0; i < getGuestCount(); i++ ) {
 		fprintf( ouf, "    <guest id=\"%ld\"></guest>\n", getGuest(i) );
 	}
+	for( unsigned int i = 0; i < getRepoNoteCount(); i++ ) {
+		fprintf( ouf, "    <reposession note=\"%s\"></reposession>\n", getRepoNote(i).c_str() );
+	}
 	fprintf( ouf, "</house>");
 	fprintf( ouf, "</housefile>\n");
 	fclose(ouf);
@@ -549,6 +565,10 @@ House::load( const char* filename )
 			} else {
 				slog("SYSERR: House %d had invalid guest: %d.", getID(), id);
 			}
+		} else if( xmlMatches(node->name, "reposession")) {
+			char* note = xmlGetProp( node, "note" );
+			repoNotes.push_back( note );
+			free(note);
 		}
 	}
 
@@ -654,14 +674,13 @@ HouseControl::collectRent()
 			continue;
 		// If the player is online, do not charge rent.
 		Account *account = accountIndex.find_account( house->getOwnerID() );
-        //TODO: uncomment this
 		if( account == NULL  || account->is_logged_in() )
 			continue;
-
-        //TODO: charge rent to account and reposess items.
-		//int cost = (int) ( ( house->calcRentCost() / 24.0 ) / 60 );
-        //int count = house->calcObjectCount();
-		//slog("HOUSE: Collecting %d rent on house %d.", cost, house->getID() );
+		
+		// Cost per minute
+		int cost = (int) ( ( house->calcRentCost() / 24.0 ) / 60 );
+		house->collectRent(cost);
+		house->save();
 	}
 }
 
@@ -672,23 +691,29 @@ House::calcRentCost() const
 	for( unsigned int i = 0; i < getRoomCount(); i++ ) 
     {
 		room_data *room = real_room( getRoom(i) );
-        if( room == NULL )
-            continue;
-        int room_count = calcObjectCount( room );
-        int room_sum = 0;
-		for( obj_data* obj = room->contents; obj; obj = obj->next_content ) {
-			room_sum += recurs_obj_cost(obj, false, NULL);
-		}
-        if( room_count > House::MAX_ITEMS ) {
-            room_sum *= (room_count/House::MAX_ITEMS) + 1;
-        }   
-        sum += room_sum;
+		sum += calcRentCost( room );
 	}
 	
 	if( getType() == RENTAL )
 		sum += getRentalRate() * getRoomCount();
 
 	return sum;
+}
+
+int
+House::calcRentCost( room_data *room ) const 
+{
+	if( room == NULL )
+		return 0;
+	int room_count = calcObjectCount( room );
+	int room_sum = 0;
+	for( obj_data* obj = room->contents; obj; obj = obj->next_content ) {
+		room_sum += recurs_obj_cost(obj, false, NULL);
+	}
+	if( room_count > House::MAX_ITEMS ) {
+		room_sum *= (room_count/House::MAX_ITEMS) + 1;
+	}   
+	return room_sum;
 }
 
 void
@@ -777,6 +802,143 @@ House::listGuests( Creature *ch )
 	page_string(ch->desc, buf);
 }
 
+// collects the house's rent, selling off items to meet the
+// bill, if necessary.
+bool
+House::collectRent( int cost )
+{
+	Account *account = accountIndex.find_account(ownerID);
+	if( account == NULL ) {
+		return false;
+	}
+
+
+	if( cost < rentOverflow ) {
+		rentOverflow -= cost;
+		cost = 0;
+		slog("HOUSE: [%d] Previous reposessions covering %d rent.", getID(),cost );
+		return false;
+	} else {
+		cost -= rentOverflow;
+	}
+
+	slog("HOUSE: [%d] Collecting %d rent.", getID(), cost );
+
+	// First we get as much gold as we can
+	if (cost < account->get_past_bank() ) {
+		account->withdraw_past_bank(cost);
+		cost = 0;
+	} else {
+		cost -= account->get_past_bank();
+		account->set_past_bank(0);
+	}
+
+	// If they didn't have enough, try credits
+	if (cost > 0) {
+		if (cost < account->get_future_bank() ) {
+			account->withdraw_future_bank(cost);
+			cost = 0;
+		} else {
+			cost -= account->get_future_bank();
+			account->set_future_bank(0);
+		}
+	}
+
+	// If they still don't have enough, start selling stuff
+	if (cost > 0) {
+		obj_data *doomed_obj, *tmp_obj;
+		
+		while (cost > 0) {
+			doomed_obj = findCostliestObj();
+			if (!doomed_obj)
+				break;
+			time_t ct = time(0);
+			char* tm_str = asctime(localtime(&ct));
+			*(tm_str + strlen(tm_str) - 1) = '\0';
+			
+			char *s = tmp_sprintf("%s : %s sold for %d.\r\n",
+				tm_str, tmp_capitalize(doomed_obj->short_description),
+				GET_OBJ_COST(doomed_obj));
+			repoNotes.push_back(s);
+
+			slog("HOUSE: [%d] Repossesing [%d]%s for %d to cover rent.",
+				getID(), GET_OBJ_VNUM(doomed_obj), 
+				tmp_capitalize(doomed_obj->short_description),
+				GET_OBJ_COST(doomed_obj));
+
+			
+			// Credit player with value of object
+			cost -= GET_OBJ_COST(doomed_obj);
+			
+			obj_data *destObj = doomed_obj->in_obj;
+			room_data *destRoom = doomed_obj->in_room;
+			// Remove objects within doomed object, if any
+			while (doomed_obj->contains) {
+				tmp_obj = doomed_obj->contains;
+				obj_from_obj(tmp_obj);
+				if( destObj != NULL ) {
+					obj_to_obj( tmp_obj, destObj );
+				} else { //if( destRoom != NULL ) {
+					obj_to_room( tmp_obj, destRoom );
+				}
+			}
+
+			// Remove doomed object
+			if( destRoom != NULL ) {
+				act("$p vanishes in a puff of smoke!", 
+					FALSE, 0, doomed_obj, 0, TO_ROOM);
+			}
+			extract_obj(doomed_obj);
+		}
+
+		if (cost < 0) {
+			// If there's any money left over, store it for the next tick
+			rentOverflow = -cost;
+		}
+		account->save_to_xml();
+		return true;
+	}
+	account->save_to_xml();
+	return false;
+}
+
+obj_data *
+House::findCostliestObj(void)
+{
+ 	obj_data *result = NULL;
+	
+	for( unsigned int i = 0; i < getRoomCount(); ++i ) {
+		room_data *room = real_room( getRoom(i) );
+		if( room != NULL ) {
+			obj_data *o = findCostliestObj(room);
+			if( result == NULL || GET_OBJ_COST(o) > GET_OBJ_COST(result) ) {
+				result = o;
+			}
+		}
+	}
+	return result;
+}
+
+obj_data* 
+House::findCostliestObj( room_data* room )
+{
+	obj_data *result = NULL;
+	obj_data *cur_obj = room->contents;
+	while (cur_obj) {
+		if (cur_obj && (!result || GET_OBJ_COST(result) < GET_OBJ_COST(cur_obj)))
+			result = cur_obj;
+
+		if (cur_obj->contains)
+			cur_obj = cur_obj->contains;	// descend into obj
+		else if (!cur_obj->next_content && cur_obj->in_obj)
+			cur_obj = cur_obj->in_obj->next_content; // ascend out of obj
+		else
+			cur_obj = cur_obj->next_content; // go to next obj
+	}
+
+	return result;
+}
+
 void
 hcontrol_build_house( Creature *ch, char *arg)
 {
@@ -791,11 +953,22 @@ hcontrol_build_house( Creature *ch, char *arg)
 		send_to_char(ch, HCONTROL_FORMAT);
 		return;
 	}
-	if (!playerIndex.exists(str)) {
-		send_to_char(ch, "Unknown player '%s'.\r\n", str);
-		return;
+	if( isdigit(*str) ) {
+		int id = atoi(str);
+		if( id == 0 ) {
+			send_to_char(ch, "Warning, creating house with no owner.\r\n" );
+		} else if( !accountIndex.exists(id) ) {
+			send_to_char(ch, "Invalid account id '%d'.\r\n", id );
+			return;
+		}
+		owner = id;
+	} else {
+		if (!playerIndex.exists(str)) {
+			send_to_char(ch, "Unknown player '%s'.\r\n", str);
+			return;
+		}
+		owner = playerIndex.getAccountID(str);
 	}
-	owner = playerIndex.getID(str);
 
 	// SECOND arg: the first room of the house
 	str = tmp_getword(&arg);
@@ -826,13 +999,14 @@ hcontrol_build_house( Creature *ch, char *arg)
 		send_to_char(ch, "Top room number is less than Atrium room number.\r\n");
 		return;
 	}
-	//TODO: uncomment this
-	int accountID = playerIndex.getAccountID( owner );
-	if( Housing.createHouse( accountID, virt_atrium, virt_top_room ) ) {
+	House *h = Housing.findHouseByOwner( owner );
+	if( h != NULL ) {
+		send_to_char(ch, "Account %d already owns house %d.\r\n", owner, h->getID() );
+	} else if( Housing.createHouse( owner, virt_atrium, virt_top_room ) ) {
 		send_to_char(ch, "House built.  Mazel tov!\r\n");
 		House *house = Housing.getHouse( Housing.getHouseCount() - 1 );
-		slog("HOUSE: %s created house %d with first room %d.", 
-			GET_NAME(ch), house->getID(), house->getRoom(0) );
+		slog("HOUSE: %s created house %d for account %d with first room %d.", 
+			GET_NAME(ch), house->getID(), owner, house->getRoom(0) );
 	} else {
 		send_to_char(ch, "House build failed.\r\n");
 	}
@@ -942,6 +1116,7 @@ hcontrol_set_house( Creature *ch, char *arg)
 				house->getID(), playerIndex.getName(house->getLandlord()), GET_NAME(ch) );
 		return;
 	} else if (is_abbrev(arg2, "owner")) {
+		int accountID = 0;
 		if (!*arg) {
 			send_to_char(ch, "Set who as the owner?\r\n");
 			return;
@@ -949,20 +1124,28 @@ hcontrol_set_house( Creature *ch, char *arg)
 
 		if( isdigit(*arg) ) { // to an account id
 			if( accountIndex.exists( atoi(arg) ) ) {
-				house->setOwnerID( atoi(arg) );
+				accountID = atoi(arg);
 			} else {
 				send_to_char(ch, "Account %d doesn't exist.\r\n", atoi(arg));
 				return;
 			}
 		} else { // to a player name
 			if( playerIndex.exists(arg) ) {
-				house->setOwnerID( playerIndex.getAccountID(arg) );
+				accountID = playerIndex.getAccountID(arg);
 			} else {
 				send_to_char(ch, "There is no such player, '%s'\r\n", arg);
 				return;
 			}
 		}
+		// An account may only own one house
+		House *h = Housing.findHouseByOwner( accountID );
+		if( h != NULL ) {
+			send_to_char(ch, "Account %d already owns house %d.\r\n", 
+						 accountID, h->getID() );
+			return;
+		}
 
+		house->setOwnerID( atoi(arg) );
 		send_to_char(ch, "Owner set to account %d.\r\n", house->getOwnerID() );
 		slog("HOUSE: Owner of house %d set to %d by %s.", 
 				house->getID(), house->getOwnerID(), GET_NAME(ch) );
@@ -1405,5 +1588,4 @@ HouseControl::displayHouses( list<House*> houses, Creature *ch )
 					  roomlist );
     }
 }
-
 
