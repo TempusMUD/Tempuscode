@@ -16,6 +16,7 @@ using namespace std;
 #include "tokenizer.h"
 #include "screen.h"
 #include "security.h"
+#include "boards.h"
 
 using namespace Security;
 
@@ -378,6 +379,20 @@ namespace Security {
         if( *(command.group) =='\0')
             return true;
         if( isMember(ch, command.group) ) 
+            return true;
+        return false;
+     }
+
+    /**
+     * Returns true if the character is the proper level AND is in
+     * one of the required groups (if any)
+     **/
+     bool canAccess( char_data *ch, const board_info_type &board ) {
+        if( board.read_lvl > GET_LEVEL(ch) )
+            return false;
+        if( *(board.groupname) =='\0')
+            return true;
+        if( isMember(ch, board.groupname) ) 
             return true;
         return false;
      }

@@ -37,13 +37,13 @@ TO ADD A NEW BOARD, simply follow our easy 4-step program:
 
 3 - Add a new line to the board_info array below.  The fields, in order, are:
 
-	Board's vnum number.
-	Min level one must be to look at this board or read messages on it.
-	Min level one must be to post a message to the board.
-	Min level one must be to remove other people's messages from this
-		board (but you can always remove your own message).
-	Filename of this board, in quotes.
-	Last field must always be 0.
+        Board's vnum number.
+        Min level one must be to look at this board or read messages on it.
+        Min level one must be to post a message to the board.
+        Min level one must be to remove other people's messages from this
+                board (but you can always remove your own message).
+        Filename of this board, in quotes.
+        Last field must always be 0.
 
 4 - In spec_assign.c, find the section which assigns the special procedure
     gen_board to the other bulletin boards, and add your new one in a
@@ -67,69 +67,70 @@ TO ADD A NEW BOARD, simply follow our easy 4-step program:
 #include "handler.h"
 #include "screen.h"
 #include "clan.h"
+#include "security.h"
 
 extern struct room_data *world;
 extern struct descriptor_data *descriptor_list;
 extern int mini_mud;
 
 /*
-format:	vnum, read lvl, write lvl, remove lvl, filename, 0 at end
+format:        vnum, read lvl, write lvl, remove lvl, filename, 0 at end
 Be sure to also change NUM_OF_BOARDS in board.h
 */
 struct board_info_type board_info[NUM_OF_BOARDS] = {
-    {{3099, 22920, 22613, 72333,-1,-1,-1,-1,-1,-1},  0, LVL_CAN_POST, LVL_GOD, "etc/board.mort"},
-    {{3098, -1, -1, -1, -1, -1, -1, -1, -1, -1},LVL_AMBASSADOR, LVL_AMBASSADOR, LVL_GRGOD, "etc/board.immort"},
-    {{3097, -1, -1, -1,-1,-1,-1,-1,-1,-1},           0, LVL_FREEZE, LVL_CREATOR, "etc/board.freeze"},
-    {{3096, 22921, 22614, 72334,-1,-1,-1,-1,-1,-1},  0, LVL_CAN_POST, LVL_DEMI, "etc/board.social"},
-    {{3094, -1, -1, -1,-1,-1,-1,-1,-1,-1},           0, LVL_CAN_POST, LVL_ELEMENT, "etc/board.obscene"},
-    {{3095, 53322, -1, -1,-1,-1,-1,-1,-1,-1},        0, 0, LVL_ELEMENT, "etc/board.newbie"},
-    {{3192, -1, -1, -1,-1,-1,-1,-1,-1,-1},           0, 0, LVL_ETERNAL, "etc/board.guild_cleric"},
-    {{3193, 22893, -1, -1,-1,-1,-1,-1,-1,-1},        0, 0, LVL_ETERNAL, "etc/board.guild_pain"},
-    {{3194, -1, -1, -1,-1,-1,-1,-1,-1,-1},           0, 0, LVL_ETERNAL, "etc/board.guild_justice"},
-    {{3195, 22894, -1, -1,-1,-1,-1,-1,-1,-1},        0, 0, LVL_ETERNAL, "etc/board.guild_ares"},
-    {{3196, 22895, -1, -1,-1,-1,-1,-1,-1,-1},        0, 0, LVL_ETERNAL, "etc/board.guild_thief"},
-    {{3197, 22618, 22614, -1,-1,-1,-1,-1,-1,-1},     0, 0, LVL_ETERNAL, "etc/board.guild_mage"},
-    {{3198, 22892, -1, -1,-1,-1,-1,-1,-1,-1},        0, 0, LVL_ETERNAL, "etc/board.guild_barb"},
-    {{3199, 72220, -1, -1,-1,-1,-1,-1,-1,-1},           0, 0, LVL_ETERNAL, "etc/board.guild_ranger"},
-    {{1294, 22919, -1, -1,-1,-1,-1,-1,-1,-1},        0, LVL_CAN_POST, LVL_DEMI,  "etc/board.clan_public"},
-    {{1293, -1, -1, -1,-1,-1,-1,-1,-1,-1},           0, LVL_CAN_POST, LVL_ETERNAL,  "etc/board.quest"},
+    {{3099, 22920, 22613, 72333,-1,-1,-1,-1,-1,-1},  0, LVL_CAN_POST, LVL_GOD, "etc/board.mort",""},
+    {{3098, -1, -1, -1, -1, -1, -1, -1, -1, -1},     LVL_AMBASSADOR, LVL_AMBASSADOR, LVL_GRGOD, "etc/board.immort",""},
+    {{3097, -1, -1, -1,-1,-1,-1,-1,-1,-1},           0, LVL_FREEZE, LVL_TIMEGOD, "etc/board.freeze","AdminBasic"},
+    {{3096, 22921, 22614, 72334,-1,-1,-1,-1,-1,-1},  0, LVL_CAN_POST, LVL_DEMI, "etc/board.social",""},
+    {{3094, -1, -1, -1,-1,-1,-1,-1,-1,-1},           0, LVL_CAN_POST, LVL_ELEMENT, "etc/board.obscene",""},
+    {{3095, 53322, -1, -1,-1,-1,-1,-1,-1,-1},        0, 0, LVL_ELEMENT, "etc/board.newbie",""},
+    {{3192, -1, -1, -1,-1,-1,-1,-1,-1,-1},           0, 0, LVL_ETERNAL, "etc/board.guild_cleric",""},
+    {{3193, 22893, -1, -1,-1,-1,-1,-1,-1,-1},        0, 0, LVL_ETERNAL, "etc/board.guild_pain",""},
+    {{3194, -1, -1, -1,-1,-1,-1,-1,-1,-1},           0, 0, LVL_ETERNAL, "etc/board.guild_justice",""},
+    {{3195, 22894, -1, -1,-1,-1,-1,-1,-1,-1},        0, 0, LVL_ETERNAL, "etc/board.guild_ares",""},
+    {{3196, 22895, -1, -1,-1,-1,-1,-1,-1,-1},        0, 0, LVL_ETERNAL, "etc/board.guild_thief",""},
+    {{3197, 22618, 22614, -1,-1,-1,-1,-1,-1,-1},     0, 0, LVL_ETERNAL, "etc/board.guild_mage",""},
+    {{3198, 22892, -1, -1,-1,-1,-1,-1,-1,-1},        0, 0, LVL_ETERNAL, "etc/board.guild_barb",""},
+    {{3199, 72220, -1, -1,-1,-1,-1,-1,-1,-1},           0, 0, LVL_ETERNAL, "etc/board.guild_ranger",""},
+    {{1294, 22919, -1, -1,-1,-1,-1,-1,-1,-1},        0, LVL_CAN_POST, LVL_DEMI,  "etc/board.clan_public",""},
+    {{1293, -1, -1, -1,-1,-1,-1,-1,-1,-1},           0, LVL_CAN_POST, LVL_ETERNAL,  "etc/board.quest",""},
     {{30091, -1, -1, -1,-1,-1,-1,-1,-1,-1},          0, 0, LVL_ETERNAL, "etc/board.guild_hoodlum"}, 
     {{30092, -1, -1, -1,-1,-1,-1,-1,-1,-1},          0, 0, LVL_ETERNAL, "etc/board.guild_monk"}, 
     {{30093, -1, -1, -1,-1,-1,-1,-1,-1,-1},          0, 0, LVL_ETERNAL, "etc/board.guild_psychic"}, 
-    {{30094, -1, -1, -1,-1,-1,-1,-1,-1,-1},          0, 0, LVL_ETERNAL, "etc/board.guild_physic"},
-    {{30095, -1, -1, -1,-1,-1,-1,-1,-1,-1},          0, 0, LVL_ETERNAL, "etc/board.guild_cyborg"},
+    {{30094, -1, -1, -1,-1,-1,-1,-1,-1,-1},          0, 0, LVL_ETERNAL, "etc/board.guild_physic",""},
+    {{30095, -1, -1, -1,-1,-1,-1,-1,-1,-1},          0, 0, LVL_ETERNAL, "etc/board.guild_cyborg",""},
     {{30088, -1, -1, -1,-1,-1,-1,-1,-1,-1},          0, 0, LVL_ETERNAL, "etc/board.guild_merc"}, 
-    {{1296, -1, -1, -1,-1,-1,-1,-1,-1,-1},           LVL_IMMORT, LVL_IMMORT, LVL_GOD,     "etc/board.world_general"},
-    {{1295, 22651, -1, -1,-1,-1,-1,-1,-1,-1},        0, LVL_CAN_POST, LVL_GOD,     "etc/board.ideas"},
+    {{1296, -1, -1, -1,-1,-1,-1,-1,-1,-1},           LVL_IMMORT, LVL_IMMORT, LVL_GOD,     "etc/board.world_general",""},
+    {{1295, 22651, -1, -1,-1,-1,-1,-1,-1,-1},        0, LVL_CAN_POST, LVL_GOD,     "etc/board.ideas",""},
     {{1298, -1, -1, -1,-1,-1,-1,-1,-1,-1},           0, LVL_AMBASSADOR, LVL_ETERNAL, "etc/board.to_do_list"}, 
-    {{72309,-1,-1, -1,-1,-1,-1,-1,-1,-1},            LVL_CAN_CLAN,LVL_CAN_CLAN,LVL_AMBASSADOR,"etc/board.dagger_clan"},
-    {{72401,-1,-1, -1,-1,-1,-1,-1,-1,-1},            LVL_CAN_CLAN, LVL_CAN_CLAN,LVL_AMBASSADOR, "etc/board.fa_clan"},
-    {{1299, -1, -1, -1,-1,-1,-1,-1,-1,-1},           LVL_AMBASSADOR, LVL_DEMI, LVL_TIMEGOD, "etc/board.imp"},
+    {{72309,-1,-1, -1,-1,-1,-1,-1,-1,-1},            LVL_CAN_CLAN,LVL_CAN_CLAN,LVL_AMBASSADOR,"etc/board.dagger_clan",""},
+    {{72401,-1,-1, -1,-1,-1,-1,-1,-1,-1},            LVL_CAN_CLAN, LVL_CAN_CLAN,LVL_AMBASSADOR, "etc/board.fa_clan",""},
+    {{1299, -1, -1, -1,-1,-1,-1,-1,-1,-1},           LVL_AMBASSADOR, LVL_DEMI, LVL_TIMEGOD, "etc/board.imp",""},
     {{63047, -1, -1, -1,-1,-1,-1,-1,-1,-1},          0, 0, LVL_GOD, "etc/board.council"}, 
-    {{30089, -1, -1, -1,-1,-1,-1,-1,-1,-1},          0, LVL_CAN_POST, LVL_DEMI, "etc/board.char_classified"},
-    {{1250, -1, -1, -1,-1,-1,-1,-1,-1,-1},           LVL_IMMORT, LVL_IMMORT, LVL_GOD, "etc/board.rulings"},
-    {{72801,-1,-1, -1,-1,-1,-1,-1,-1,-1},            LVL_CAN_CLAN, LVL_CAN_CLAN,LVL_AMBASSADOR, "etc/board.toreador_clan"},
-    {{72099,-1,-1, -1,-1,-1,-1,-1,-1,-1},            LVL_CAN_CLAN, LVL_CAN_CLAN,LVL_AMBASSADOR, "etc/board.jerrytown_clan"},
-    {{72517,-1,-1, -1,-1,-1,-1,-1,-1,-1},            LVL_CAN_CLAN, LVL_CAN_CLAN,LVL_AMBASSADOR, "etc/board.deathleague_clan"},
-    {{73010,-1,-1, -1,-1,-1,-1,-1,-1,-1},            LVL_CAN_CLAN, LVL_CAN_CLAN,LVL_AMBASSADOR, "etc/board.quiet_storm_clan"},
-    {{73400,-1,-1, -1,-1,-1,-1,-1,-1,-1},            LVL_CAN_CLAN, LVL_CAN_CLAN,LVL_AMBASSADOR, "etc/board.regime_clan"},
-    {{73603,-1,-1, -1,-1,-1,-1,-1,-1,-1},            LVL_CAN_CLAN,LVL_CAN_CLAN,LVL_AMBASSADOR, "etc/board.coven_clan"},
-    {{72601,-1,-1, -1,-1,-1,-1,-1,-1,-1},            LVL_CAN_CLAN,LVL_CAN_CLAN,LVL_AMBASSADOR, "etc/board.venom_clan"},
-    {{74102,-1,-1, -1,-1,-1,-1,-1,-1,-1},            LVL_CAN_CLAN,LVL_CAN_CLAN,LVL_AMBASSADOR, "etc/board.blacksun_clan"},
-    {{74007,-1,-1, -1,-1,-1,-1,-1,-1,-1},            LVL_CAN_CLAN,LVL_CAN_CLAN,LVL_AMBASSADOR, "etc/board.family_clan"},
-    {{72212,-1,-1, -1,-1,-1,-1,-1,-1,-1},            LVL_CAN_CLAN,LVL_CAN_CLAN,LVL_AMBASSADOR, "etc/board.brethren_clan"},
-    {{75010,-1,-1, -1,-1,-1,-1,-1,-1,-1},            LVL_CAN_CLAN,LVL_CAN_CLAN,LVL_AMBASSADOR, "etc/board.blade_clan"},
-    {{72411,-1,-1, -1,-1,-1,-1,-1,-1,-1},            LVL_CAN_CLAN,LVL_CAN_CLAN,LVL_AMBASSADOR, "etc/board.arcane"},
-    {{73902,-1,-1, -1,-1,-1,-1,-1,-1,-1},            LVL_CAN_CLAN,LVL_CAN_CLAN,LVL_AMBASSADOR, "etc/board.genocide"},
-    {{72708,-1,-1, -1,-1,-1,-1,-1,-1,-1},            LVL_CAN_CLAN,LVL_CAN_CLAN,LVL_AMBASSADOR, "etc/board.pandora"},
-    {{76000,-1,-1, -1,-1,-1,-1,-1,-1,-1},            LVL_CAN_CLAN,LVL_CAN_CLAN,LVL_AMBASSADOR, "etc/board.hooch"},
-    {{73107,-1,-1, -1,-1,-1,-1,-1,-1,-1},            LVL_CAN_CLAN,LVL_CAN_CLAN,LVL_AMBASSADOR, "etc/board.yakuza"},
-    {{1290,-1,-1, -1,-1,-1,-1,-1,-1,-1},            LVL_IMMORT,LVL_IMMORT,LVL_DEMI, "etc/board.questor"},
+    {{30089, -1, -1, -1,-1,-1,-1,-1,-1,-1},          0, LVL_CAN_POST, LVL_DEMI, "etc/board.char_classified",""},
+    {{1250, -1, -1, -1,-1,-1,-1,-1,-1,-1},           LVL_IMMORT, LVL_IMMORT, LVL_GOD, "etc/board.rulings",""},
+    {{72801,-1,-1, -1,-1,-1,-1,-1,-1,-1},            LVL_CAN_CLAN, LVL_CAN_CLAN,LVL_AMBASSADOR, "etc/board.toreador_clan",""},
+    {{72099,-1,-1, -1,-1,-1,-1,-1,-1,-1},            LVL_CAN_CLAN, LVL_CAN_CLAN,LVL_AMBASSADOR, "etc/board.jerrytown_clan",""},
+    {{72517,-1,-1, -1,-1,-1,-1,-1,-1,-1},            LVL_CAN_CLAN, LVL_CAN_CLAN,LVL_AMBASSADOR, "etc/board.deathleague_clan",""},
+    {{73010,-1,-1, -1,-1,-1,-1,-1,-1,-1},            LVL_CAN_CLAN, LVL_CAN_CLAN,LVL_AMBASSADOR, "etc/board.quiet_storm_clan",""},
+    {{73400,-1,-1, -1,-1,-1,-1,-1,-1,-1},            LVL_CAN_CLAN, LVL_CAN_CLAN,LVL_AMBASSADOR, "etc/board.regime_clan",""},
+    {{73603,-1,-1, -1,-1,-1,-1,-1,-1,-1},            LVL_CAN_CLAN,LVL_CAN_CLAN,LVL_AMBASSADOR, "etc/board.coven_clan",""},
+    {{72601,-1,-1, -1,-1,-1,-1,-1,-1,-1},            LVL_CAN_CLAN,LVL_CAN_CLAN,LVL_AMBASSADOR, "etc/board.venom_clan",""},
+    {{74102,-1,-1, -1,-1,-1,-1,-1,-1,-1},            LVL_CAN_CLAN,LVL_CAN_CLAN,LVL_AMBASSADOR, "etc/board.blacksun_clan",""},
+    {{74007,-1,-1, -1,-1,-1,-1,-1,-1,-1},            LVL_CAN_CLAN,LVL_CAN_CLAN,LVL_AMBASSADOR, "etc/board.family_clan",""},
+    {{72212,-1,-1, -1,-1,-1,-1,-1,-1,-1},            LVL_CAN_CLAN,LVL_CAN_CLAN,LVL_AMBASSADOR, "etc/board.brethren_clan",""},
+    {{75010,-1,-1, -1,-1,-1,-1,-1,-1,-1},            LVL_CAN_CLAN,LVL_CAN_CLAN,LVL_AMBASSADOR, "etc/board.blade_clan",""},
+    {{72411,-1,-1, -1,-1,-1,-1,-1,-1,-1},            LVL_CAN_CLAN,LVL_CAN_CLAN,LVL_AMBASSADOR, "etc/board.arcane",""},
+    {{73902,-1,-1, -1,-1,-1,-1,-1,-1,-1},            LVL_CAN_CLAN,LVL_CAN_CLAN,LVL_AMBASSADOR, "etc/board.genocide",""},
+    {{72708,-1,-1, -1,-1,-1,-1,-1,-1,-1},            LVL_CAN_CLAN,LVL_CAN_CLAN,LVL_AMBASSADOR, "etc/board.pandora",""},
+    {{76000,-1,-1, -1,-1,-1,-1,-1,-1,-1},            LVL_CAN_CLAN,LVL_CAN_CLAN,LVL_AMBASSADOR, "etc/board.hooch",""},
+    {{73107,-1,-1, -1,-1,-1,-1,-1,-1,-1},            LVL_CAN_CLAN,LVL_CAN_CLAN,LVL_AMBASSADOR, "etc/board.yakuza",""},
+    {{1290,-1,-1, -1,-1,-1,-1,-1,-1,-1},            LVL_IMMORT,LVL_IMMORT,LVL_DEMI, "etc/board.questor",""},
 
-    {{42503,-1,-1,-1,-1,-1,-1,-1,-1,-1},             0, 0, LVL_IMMORT, "etc/board.astral_mase"},
-    {{1292,-1,-1,-1,-1,-1,-1,-1,-1,-1},              0, LVL_CAN_POST, LVL_FREEZE, "etc/board.real_estate"},
-    {{1291,-1,-1,-1,-1,-1,-1,-1,-1,-1},              0, LVL_CAN_POST, LVL_IMMORT, "etc/board.story"},
-    {{1200,-1,-1,-1,-1,-1,-1,-1,-1,-1},              LVL_GOD, LVL_GOD, LVL_GOD, "etc/board.admin"}
+    {{42503,-1,-1,-1,-1,-1,-1,-1,-1,-1},             0, 0, LVL_IMMORT, "etc/board.astral_mase",""},
+    {{1292,-1,-1,-1,-1,-1,-1,-1,-1,-1},              0, LVL_CAN_POST, LVL_FREEZE, "etc/board.real_estate",""},
+    {{1291,-1,-1,-1,-1,-1,-1,-1,-1,-1},              0, LVL_CAN_POST, LVL_IMMORT, "etc/board.story",""},
+    {{1200,-1,-1,-1,-1,-1,-1,-1,-1,-1},              LVL_GOD, LVL_GOD, LVL_GOD, "etc/board.admin",""}
 };
 
 
@@ -146,10 +147,10 @@ find_slot(void)
     int i;
 
     for (i = 0; i < INDEX_SIZE; i++)
-	if (!msg_storage_taken[i]) {
-	    msg_storage_taken[i] = 1;
-	    return i;
-	}
+        if (!msg_storage_taken[i]) {
+            msg_storage_taken[i] = 1;
+            return i;
+        }
     return -1;
 }
 
@@ -161,11 +162,11 @@ find_board(struct obj_data *obj)
     int i, j;
 
     for (i = 0; i < NUM_OF_BOARDS; i++) {
-		for (j = 0; j < NUM_OF_BOARD_VNUMS; j++) {
-			if (BOARD_VNUM(i, j) != -1 && BOARD_VNUM(i, j) == GET_OBJ_VNUM(obj)) {
-				return i;
-			}
-		}
+                for (j = 0; j < NUM_OF_BOARD_VNUMS; j++) {
+                        if (BOARD_VNUM(i, j) != -1 && BOARD_VNUM(i, j) == GET_OBJ_VNUM(obj)) {
+                                return i;
+                        }
+                }
     }
   
     return -1;
@@ -178,23 +179,23 @@ init_boards(void)
     int i, j, fatal_error = 0;
 
     for (i = 0; i < INDEX_SIZE; i++) {
-	msg_storage[i] = 0;
-	msg_storage_taken[i] = 0;
+        msg_storage[i] = 0;
+        msg_storage_taken[i] = 0;
     }
 
     for (i = 0; i < NUM_OF_BOARDS; i++) {
-	/*    if (!real_object_proto(BOARD_VNUM(i, 0))) {
-	      sprintf(buf, "SYSERR: Fatal board error: board vnum %d does not exist!",
-	      BOARD_VNUM(i, 0));
-	      slog(buf);
-	      fatal_error = 1;
-	      }*/
-	num_of_msgs[i] = 0;
-	for (j = 0; j < MAX_BOARD_MESSAGES; j++) {
-	    memset((char *) &(msg_index[i][j]), 0, sizeof(struct board_msginfo));
-	    msg_index[i][j].slot_num = -1;
-	}
-	Board_load_board(i);
+        /*    if (!real_object_proto(BOARD_VNUM(i, 0))) {
+              sprintf(buf, "SYSERR: Fatal board error: board vnum %d does not exist!",
+              BOARD_VNUM(i, 0));
+              slog(buf);
+              fatal_error = 1;
+              }*/
+        num_of_msgs[i] = 0;
+        for (j = 0; j < MAX_BOARD_MESSAGES; j++) {
+            memset((char *) &(msg_index[i][j]), 0, sizeof(struct board_msginfo));
+            msg_index[i][j].slot_num = -1;
+        }
+        Board_load_board(i);
     }
 
     CMD_READ = find_command("read");
@@ -204,7 +205,7 @@ init_boards(void)
     CMD_EXAMINE = find_command("examine");
 
     if (fatal_error)
-	safe_exit(1);
+        safe_exit(1);
 }
 
 
@@ -215,32 +216,32 @@ SPECIAL(gen_board)
     struct obj_data *obj = (struct obj_data *) me;
 
     if (!loaded) {
-	init_boards();
-	loaded = 1;
+        init_boards();
+        loaded = 1;
     }
     if (!ch->desc)
-	return 0;
+        return 0;
 
     if (cmd != CMD_WRITE && cmd != CMD_LOOK && cmd != CMD_EXAMINE &&
-	cmd != CMD_READ && cmd != CMD_REMOVE)
-	return 0;
+        cmd != CMD_READ && cmd != CMD_REMOVE)
+        return 0;
 
     if ((board_type = find_board(obj)) == -1) {
-	sprintf(buf, "SYSERR: board vnum %d is degenerate.", GET_OBJ_VNUM(obj));
-	slog(buf);
-	return 0;
+        sprintf(buf, "SYSERR: board vnum %d is degenerate.", GET_OBJ_VNUM(obj));
+        slog(buf);
+        return 0;
     }
     if (cmd == CMD_WRITE) {
-	Board_write_message(board_type, ch, obj, argument);
-	return 1;
+        Board_write_message(board_type, ch, obj, argument);
+        return 1;
     } else if (cmd == CMD_LOOK || cmd == CMD_EXAMINE)
-	return (Board_show_board(board_type, ch, obj, argument));
+        return (Board_show_board(board_type, ch, obj, argument));
     else if (cmd == CMD_READ)
-	return (Board_display_msg(board_type, ch, obj, argument));
+        return (Board_display_msg(board_type, ch, obj, argument));
     else if (cmd == CMD_REMOVE)
-	return (Board_remove_msg(board_type, ch, obj, argument));
+        return (Board_remove_msg(board_type, ch, obj, argument));
     else
-	return 0;
+        return 0;
 }
 
 
@@ -254,27 +255,32 @@ Board_write_message(int board_type, struct char_data * ch, struct obj_data *obj,
     struct mail_recipient_data *n_mail_to;
 
     if (PLR_FLAGGED(ch, PLR_NOPOST)) {
-	send_to_char("You cannot post.\r\n", ch);
-	return;
+        send_to_char("You cannot post.\r\n", ch);
+        return;
     }
 
     if (!obj->in_room) {
-	act("You cannot write on $p unless it is in a room.", FALSE, ch, obj, 0, TO_CHAR);
-	return;
+        act("You cannot write on $p unless it is in a room.", FALSE, ch, obj, 0, TO_CHAR);
+        return;
+    }
+
+    if(! Security::canAccess( ch, board_info[board_type] ) ) {
+        send_to_char("You do not have the power to write on this board.\r\n", ch);
+        return;
     }
 
     if (GET_LEVEL(ch) < WRITE_LVL(board_type)) {
-	send_to_char("You cannot write on this board yet.\r\n", ch);
-	return;
+        send_to_char("You cannot write on this board yet.\r\n", ch);
+        return;
     }
     if (num_of_msgs[board_type] >= MAX_BOARD_MESSAGES) {
-	send_to_char("The board is full.\r\n", ch);
-	return;
+        send_to_char("The board is full.\r\n", ch);
+        return;
     }
     if ((NEW_MSG_INDEX(board_type).slot_num = find_slot()) == -1) {
-	send_to_char("The board is malfunctioning - sorry.\r\n", ch);
-	slog("SYSERR: Board: failed to find empty slot on write.");
-	return;
+        send_to_char("The board is malfunctioning - sorry.\r\n", ch);
+        slog("SYSERR: Board: failed to find empty slot on write.");
+        return;
     }
     /* skip blanks */
     skip_spaces(&arg);
@@ -284,8 +290,8 @@ Board_write_message(int board_type, struct char_data * ch, struct obj_data *obj,
     arg[81] = '\0';
 
     if (!*arg) {
-	send_to_char("We must have a headline!\r\n", ch);
-	return;
+        send_to_char("We must have a headline!\r\n", ch);
+        return;
     }
     ct = time(0);
     tmstr = (char *) asctime(localtime(&ct));
@@ -298,8 +304,8 @@ Board_write_message(int board_type, struct char_data * ch, struct obj_data *obj,
     dmalloc_verify(0);
 #endif
     if (!(NEW_MSG_INDEX(board_type).heading = (char *) malloc(sizeof(char) * len))) {
-	send_to_char("The board is malfunctioning - sorry.\r\n", ch);
-	return;
+        send_to_char("The board is malfunctioning - sorry.\r\n", ch);
+        return;
     }
 #ifdef DMALLOC
     dmalloc_verify(0);
@@ -312,7 +318,7 @@ Board_write_message(int board_type, struct char_data * ch, struct obj_data *obj,
         &(msg_storage[NEW_MSG_INDEX(board_type).slot_num]),
         true,
         MAX_MESSAGE_LENGTH);
-	SET_BIT(PLR_FLAGS(ch), PLR_WRITING);
+        SET_BIT(PLR_FLAGS(ch), PLR_WRITING);
 
     act("$n starts to write a message.", TRUE, ch, 0, 0, TO_ROOM);
 
@@ -332,44 +338,44 @@ Board_show_board(int board_type, struct char_data * ch, struct obj_data *obj, ch
     char tmp[MAX_STRING_LENGTH], buf[MAX_STRING_LENGTH];
 
     if (!ch->desc)
-	return 0;
+        return 0;
 
     one_argument(arg, tmp);
 
     if (!*tmp || !isname(tmp, "board bulletin"))
-	return 0;
+        return 0;
 
     if (!obj->in_room) {
-	act("You cannot look at $p unless it is in a room.", FALSE, ch, obj, 0, TO_CHAR);
-	return 1;
+        act("You cannot look at $p unless it is in a room.", FALSE, ch, obj, 0, TO_CHAR);
+        return 1;
     }
 
     if (GET_LEVEL(ch) < READ_LVL(board_type)) {
-	send_to_char("You try but fail to understand the words.\r\n", ch);
-	return 1;
+        send_to_char("You try but fail to understand the words.\r\n", ch);
+        return 1;
     }
     act("$n studies the board.", TRUE, ch, 0, 0, TO_ROOM);
   
     strcpy(buf,
-	   "This is a bulletin board.  Usage: READ/REMOVE <messg #>, WRITE <header>.\r\n"
-	   "You will need to look at the board to save your message.\r\n");
+           "This is a bulletin board.  Usage: READ/REMOVE <messg #>, WRITE <header>.\r\n"
+           "You will need to look at the board to save your message.\r\n");
     if (!num_of_msgs[board_type]) 
-	sprintf(buf, "%s%s%sThe board is empty.%s\r\n", buf, CCRED(ch, C_NRM), 
-		CCBLD(ch, C_NRM), CCNRM(ch, C_NRM));
+        sprintf(buf, "%s%s%sThe board is empty.%s\r\n", buf, CCRED(ch, C_NRM), 
+                CCBLD(ch, C_NRM), CCNRM(ch, C_NRM));
     else {
-	sprintf(buf + strlen(buf), "%sThere are %d messages on the board.%s\r\n",
-		CCGRN(ch, C_NRM), num_of_msgs[board_type], CCNRM(ch, C_NRM));
-	/*    for (i = 0; i < num_of_msgs[board_type]; i++) { */
-	for (i = num_of_msgs[board_type] - 1; i >= 0; i--) {
-	    if (MSG_HEADING(board_type, i))
-		sprintf(buf + strlen(buf), "%s%-2d %s:%s %s\r\n", CCGRN(ch, C_NRM), 
-			i + 1, CCRED(ch, C_NRM), CCNRM(ch, C_NRM), MSG_HEADING(board_type, i));
-	    else {
-		slog("SYSERR: The board is fubar'd.");
-		send_to_char("Sorry, the board isn't working.\r\n", ch);
-		return 1;
-	    }
-	}
+        sprintf(buf + strlen(buf), "%sThere are %d messages on the board.%s\r\n",
+                CCGRN(ch, C_NRM), num_of_msgs[board_type], CCNRM(ch, C_NRM));
+        /*    for (i = 0; i < num_of_msgs[board_type]; i++) { */
+        for (i = num_of_msgs[board_type] - 1; i >= 0; i--) {
+            if (MSG_HEADING(board_type, i))
+                sprintf(buf + strlen(buf), "%s%-2d %s:%s %s\r\n", CCGRN(ch, C_NRM), 
+                        i + 1, CCRED(ch, C_NRM), CCNRM(ch, C_NRM), MSG_HEADING(board_type, i));
+            else {
+                slog("SYSERR: The board is fubar'd.");
+                send_to_char("Sorry, the board isn't working.\r\n", ch);
+                return 1;
+            }
+        }
     }
     page_string(ch->desc, buf, 1);
 
@@ -385,48 +391,48 @@ Board_display_msg(int board_type, struct char_data * ch, struct obj_data *obj, c
 
     one_argument(arg, number);
     if (!*number)
-	return 0;
-    if (isname(number, "board bulletin"))	/* so "read board" works */
-	return (Board_show_board(board_type, ch, obj, arg));
+        return 0;
+    if (isname(number, "board bulletin"))        /* so "read board" works */
+        return (Board_show_board(board_type, ch, obj, arg));
     if (!isdigit(*number) || (!(msg = atoi(number))))
-	return 0;
+        return 0;
 
     if (!obj->in_room) {
-	act("You cannot look at $p unless it is in a room.", FALSE, ch, obj, 0, TO_CHAR);
-	return 1;
+        act("You cannot look at $p unless it is in a room.", FALSE, ch, obj, 0, TO_CHAR);
+        return 1;
     }
 
     if (GET_LEVEL(ch) < READ_LVL(board_type)) {
-	send_to_char("You try but fail to understand the words.\r\n", ch);
-	return 1;
+        send_to_char("You try but fail to understand the words.\r\n", ch);
+        return 1;
     }
     if (!num_of_msgs[board_type]) {
-	send_to_char("The board is empty!\r\n", ch);
-	return (1);
+        send_to_char("The board is empty!\r\n", ch);
+        return (1);
     }
     if (msg < 1 || msg > num_of_msgs[board_type]) {
-	send_to_char("That message exists only in your imagination.\r\n",
-		     ch);
-	return (1);
+        send_to_char("That message exists only in your imagination.\r\n",
+                     ch);
+        return (1);
     }
     ind = msg - 1;
     if (MSG_SLOTNUM(board_type, ind) < 0 ||
-	MSG_SLOTNUM(board_type, ind) >= INDEX_SIZE) {
-	send_to_char("Sorry, the board is not working.\r\n", ch);
-	slog("SYSERR: Board is screwed up.");
-	return 1;
+        MSG_SLOTNUM(board_type, ind) >= INDEX_SIZE) {
+        send_to_char("Sorry, the board is not working.\r\n", ch);
+        slog("SYSERR: Board is screwed up.");
+        return 1;
     }
     if (!(MSG_HEADING(board_type, ind))) {
-	send_to_char("That message appears to be screwed up.\r\n", ch);
-	return 1;
+        send_to_char("That message appears to be screwed up.\r\n", ch);
+        return 1;
     }
     if (!(msg_storage[MSG_SLOTNUM(board_type, ind)])) {
-	send_to_char("That message seems to be empty.\r\n", ch);
-	return 1;
+        send_to_char("That message seems to be empty.\r\n", ch);
+        return 1;
     }
     sprintf(buffer, "%sMessage %d : %s%s\r\n\r\n%s\r\n", CCBLD(ch, C_CMP), msg,
-	    MSG_HEADING(board_type, ind), CCNRM(ch, C_CMP),
-	    msg_storage[MSG_SLOTNUM(board_type, ind)]); 
+            MSG_HEADING(board_type, ind), CCNRM(ch, C_CMP),
+            msg_storage[MSG_SLOTNUM(board_type, ind)]); 
 
     page_string(ch->desc, buffer, 1);
 
@@ -444,76 +450,82 @@ Board_remove_msg(int board_type, struct char_data * ch, struct obj_data *obj, ch
     one_argument(arg, number);
 
     if (!*number || !isdigit(*number))
-	return 0;
+        return 0;
     if (!(msg = atoi(number)))
-	return (0);
+        return (0);
 
     if (!obj->in_room) {
-	act("You cannot edit $p unless it is in a room.", FALSE, ch, obj, 0, TO_CHAR);
-	return 1;
+        act("You cannot edit $p unless it is in a room.", FALSE, ch, obj, 0, TO_CHAR);
+        return 1;
     }
 
     if (!num_of_msgs[board_type]) {
-	send_to_char("The board is empty!\r\n", ch);
-	return 1;
+        send_to_char("The board is empty!\r\n", ch);
+        return 1;
     }
     if (msg < 1 || msg > num_of_msgs[board_type]) {
-	send_to_char("That message exists only in your imagination.\r\n", ch);
-	return 1;
+        send_to_char("That message exists only in your imagination.\r\n", ch);
+        return 1;
     }
     ind = msg - 1;
     if (!MSG_HEADING(board_type, ind)) {
-	send_to_char("That message appears to be screwed up.\r\n", ch);
-	return 1;
+        send_to_char("That message appears to be screwed up.\r\n", ch);
+        return 1;
     }
     sprintf(buf, "(%s)", GET_NAME(ch));
     if (GET_LEVEL(ch) < REMOVE_LVL(board_type) &&
-	!(strstr(MSG_HEADING(board_type, ind), buf))) {
-	send_to_char("You are not holy enough to remove other people's messages.\r\n", ch);
-	return 1;
+        !(strstr(MSG_HEADING(board_type, ind), buf))) {
+        send_to_char("You are not holy enough to remove other people's messages.\r\n", ch);
+        return 1;
     }
     if (GET_LEVEL(ch) < LVL_LUCIFER &&
-	!(strstr(MSG_HEADING(board_type, ind), buf)) &&
-	GET_LEVEL(ch) < MSG_LEVEL(board_type, ind)) {
-	send_to_char("You can't remove a message holier than yourself.\r\n", ch);
-	return 1;
+        !(strstr(MSG_HEADING(board_type, ind), buf)) &&
+        GET_LEVEL(ch) < MSG_LEVEL(board_type, ind)) {
+        send_to_char("You can't remove a message holier than yourself.\r\n", ch);
+        return 1;
     }
+
+    if(! Security::canAccess( ch, board_info[board_type] ) ) {
+        send_to_char("You do not have the power to alter this board.\r\n", ch);
+        return 1;
+    }
+
     slot_num = MSG_SLOTNUM(board_type, ind);
     if (slot_num < 0 || slot_num >= INDEX_SIZE) {
-	slog("SYSERR: The board is seriously screwed up.");
-	send_to_char("That message is majorly screwed up.\r\n", ch);
-	return 1;
+        slog("SYSERR: The board is seriously screwed up.");
+        send_to_char("That message is majorly screwed up.\r\n", ch);
+        return 1;
     }
     for (d = descriptor_list; d; d = d->next)
-	if (IS_PLAYING(d) && d->str == &(msg_storage[slot_num])) {
-	    send_to_char("At least wait until the author is finished before removing it!\r\n", ch);
-	    return 1;
-	}
+        if (IS_PLAYING(d) && d->str == &(msg_storage[slot_num])) {
+            send_to_char("At least wait until the author is finished before removing it!\r\n", ch);
+            return 1;
+        }
     if (msg_storage[slot_num]) {
 #ifdef DMALLOC
-	dmalloc_verify(0);
+        dmalloc_verify(0);
 #endif
-	free(msg_storage[slot_num]);
+        free(msg_storage[slot_num]);
 #ifdef DMALLOC
-	dmalloc_verify(0);
+        dmalloc_verify(0);
 #endif
     }
     msg_storage[slot_num] = 0;
     msg_storage_taken[slot_num] = 0;
     if (MSG_HEADING(board_type, ind)) {
 #ifdef DMALLOC
-	dmalloc_verify(0);
+        dmalloc_verify(0);
 #endif
-	free(MSG_HEADING(board_type, ind));
+        free(MSG_HEADING(board_type, ind));
 #ifdef DMALLOC
-	dmalloc_verify(0);
+        dmalloc_verify(0);
 #endif
     }
 
     for (; ind < num_of_msgs[board_type] - 1; ind++) {
-	MSG_HEADING(board_type, ind) = MSG_HEADING(board_type, ind + 1);
-	MSG_SLOTNUM(board_type, ind) = MSG_SLOTNUM(board_type, ind + 1);
-	MSG_LEVEL(board_type, ind) = MSG_LEVEL(board_type, ind + 1);
+        MSG_HEADING(board_type, ind) = MSG_HEADING(board_type, ind + 1);
+        MSG_SLOTNUM(board_type, ind) = MSG_SLOTNUM(board_type, ind + 1);
+        MSG_LEVEL(board_type, ind) = MSG_LEVEL(board_type, ind + 1);
     }
     num_of_msgs[board_type]--;
     send_to_char("Message removed.\r\n", ch);
@@ -533,33 +545,33 @@ Board_save_board(int board_type)
     char *tmp1 = 0, *tmp2 = 0;
 
     if (!num_of_msgs[board_type]) {
-	unlink(FILENAME(board_type));
-	return;
+        unlink(FILENAME(board_type));
+        return;
     }
     if (!(fl = fopen(FILENAME(board_type), "wb"))) {
-	perror("Error writing board");
-	return;
+        perror("Error writing board");
+        return;
     }
     fwrite(&(num_of_msgs[board_type]), sizeof(int), 1, fl);
 
     for (i = 0; i < num_of_msgs[board_type]; i++) {
-	if ((tmp1 = MSG_HEADING(board_type, i)))
-	    msg_index[board_type][i].heading_len = strlen(tmp1) + 1;
-	else
-	    msg_index[board_type][i].heading_len = 0;
+        if ((tmp1 = MSG_HEADING(board_type, i)))
+            msg_index[board_type][i].heading_len = strlen(tmp1) + 1;
+        else
+            msg_index[board_type][i].heading_len = 0;
 
-	if (MSG_SLOTNUM(board_type, i) < 0 ||
-	    MSG_SLOTNUM(board_type, i) >= INDEX_SIZE ||
-	    (!(tmp2 = msg_storage[MSG_SLOTNUM(board_type, i)])))
-	    msg_index[board_type][i].message_len = 0;
-	else
-	    msg_index[board_type][i].message_len = strlen(tmp2) + 1;
+        if (MSG_SLOTNUM(board_type, i) < 0 ||
+            MSG_SLOTNUM(board_type, i) >= INDEX_SIZE ||
+            (!(tmp2 = msg_storage[MSG_SLOTNUM(board_type, i)])))
+            msg_index[board_type][i].message_len = 0;
+        else
+            msg_index[board_type][i].message_len = strlen(tmp2) + 1;
 
-	fwrite(&(msg_index[board_type][i]), sizeof(struct board_msginfo), 1, fl);
-	if (tmp1)
-	    fwrite(tmp1, sizeof(char), msg_index[board_type][i].heading_len, fl);
-	if (tmp2)
-	    fwrite(tmp2, sizeof(char), msg_index[board_type][i].message_len, fl);
+        fwrite(&(msg_index[board_type][i]), sizeof(struct board_msginfo), 1, fl);
+        if (tmp1)
+            fwrite(tmp1, sizeof(char), msg_index[board_type][i].heading_len, fl);
+        if (tmp2)
+            fwrite(tmp2, sizeof(char), msg_index[board_type][i].message_len, fl);
     }
 
     fclose(fl);
@@ -575,57 +587,57 @@ Board_load_board(int board_type)
 
 
     if (!(fl = fopen(FILENAME(board_type), "rb"))) {
-	if (!mini_mud) {
-	    sprintf(buf, "Error reading board '%s'", FILENAME(board_type));
-	    perror(buf);
-	}
-	return;
+        if (!mini_mud) {
+            sprintf(buf, "Error reading board '%s'", FILENAME(board_type));
+            perror(buf);
+        }
+        return;
     }
     fread(&(num_of_msgs[board_type]), sizeof(int), 1, fl);
     if (num_of_msgs[board_type] < 1 || num_of_msgs[board_type] > MAX_BOARD_MESSAGES) {
-	slog("SYSERR: Board file corrupt.  Resetting.");
-	Board_reset_board(board_type);
-	return;
+        slog("SYSERR: Board file corrupt.  Resetting.");
+        Board_reset_board(board_type);
+        return;
     }
     for (i = 0; i < num_of_msgs[board_type]; i++) {
-	fread(&(msg_index[board_type][i]), sizeof(struct board_msginfo), 1, fl);
-	if (!(len1 = msg_index[board_type][i].heading_len)) {
-	    slog("SYSERR: Board file corrupt!  Resetting.");
-	    Board_reset_board(board_type);
-	    return;
-	}
+        fread(&(msg_index[board_type][i]), sizeof(struct board_msginfo), 1, fl);
+        if (!(len1 = msg_index[board_type][i].heading_len)) {
+            slog("SYSERR: Board file corrupt!  Resetting.");
+            Board_reset_board(board_type);
+            return;
+        }
 #ifdef DMALLOC
-	dmalloc_verify(0);
+        dmalloc_verify(0);
 #endif
-	if (!(tmp1 = (char *) malloc(sizeof(char) * len1))) {
-	    slog("SYSERR: Error - malloc failed for board header");
-	    safe_exit(1);
-	}
+        if (!(tmp1 = (char *) malloc(sizeof(char) * len1))) {
+            slog("SYSERR: Error - malloc failed for board header");
+            safe_exit(1);
+        }
 #ifdef DMALLOC
-	dmalloc_verify(0);
+        dmalloc_verify(0);
 #endif
-	fread(tmp1, sizeof(char), len1, fl);
-	MSG_HEADING(board_type, i) = tmp1;
+        fread(tmp1, sizeof(char), len1, fl);
+        MSG_HEADING(board_type, i) = tmp1;
 
-	if ((len2 = msg_index[board_type][i].message_len)) {
-	    if ((MSG_SLOTNUM(board_type, i) = find_slot()) == -1) {
-		slog("SYSERR: Out of slots booting board!  Resetting...");
-		Board_reset_board(board_type);
-		return;
-	    }
+        if ((len2 = msg_index[board_type][i].message_len)) {
+            if ((MSG_SLOTNUM(board_type, i) = find_slot()) == -1) {
+                slog("SYSERR: Out of slots booting board!  Resetting...");
+                Board_reset_board(board_type);
+                return;
+            }
 #ifdef DMALLOC
-	    dmalloc_verify(0);
+            dmalloc_verify(0);
 #endif
-	    if (!(tmp2 = (char *) malloc(sizeof(char) * len2))) {
-		slog("SYSERR: malloc failed for board text");
-		safe_exit(1);
-	    }
+            if (!(tmp2 = (char *) malloc(sizeof(char) * len2))) {
+                slog("SYSERR: malloc failed for board text");
+                safe_exit(1);
+            }
 #ifdef DMALLOC
-	    dmalloc_verify(0);
+            dmalloc_verify(0);
 #endif
-	    fread(tmp2, sizeof(char), len2, fl);
-	    msg_storage[MSG_SLOTNUM(board_type, i)] = tmp2;
-	}
+            fread(tmp2, sizeof(char), len2, fl);
+            msg_storage[MSG_SLOTNUM(board_type, i)] = tmp2;
+        }
     }
 
     fclose(fl);
@@ -638,27 +650,27 @@ Board_reset_board(int board_type)
     int i;
 
     for (i = 0; i < MAX_BOARD_MESSAGES; i++) {
-	if (MSG_HEADING(board_type, i)) {
+        if (MSG_HEADING(board_type, i)) {
 #ifdef DMALLOC
-	    dmalloc_verify(0);
+            dmalloc_verify(0);
 #endif
-	    free(MSG_HEADING(board_type, i));
+            free(MSG_HEADING(board_type, i));
 #ifdef DMALLOC
-	    dmalloc_verify(0);
+            dmalloc_verify(0);
 #endif    
-	}
-	if (msg_storage[MSG_SLOTNUM(board_type, i)]) {
+        }
+        if (msg_storage[MSG_SLOTNUM(board_type, i)]) {
 #ifdef DMALLOC
-	    dmalloc_verify(0);
+            dmalloc_verify(0);
 #endif    
-	    free(msg_storage[MSG_SLOTNUM(board_type, i)]);
+            free(msg_storage[MSG_SLOTNUM(board_type, i)]);
 #ifdef DMALLOC
-	    dmalloc_verify(0);
+            dmalloc_verify(0);
 #endif    
-	}
-	msg_storage_taken[MSG_SLOTNUM(board_type, i)] = 0;
-	memset((char *)&(msg_index[board_type][i]),0,sizeof(struct board_msginfo));
-	msg_index[board_type][i].slot_num = -1;
+        }
+        msg_storage_taken[MSG_SLOTNUM(board_type, i)] = 0;
+        memset((char *)&(msg_index[board_type][i]),0,sizeof(struct board_msginfo));
+        msg_index[board_type][i].slot_num = -1;
     }
     num_of_msgs[board_type] = 0;
     unlink(FILENAME(board_type));

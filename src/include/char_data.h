@@ -597,7 +597,7 @@ static const int LVL_BUILDER = 52;
 static const int LVL_IMMORT = 51;
 static const int LVL_AMBASSADOR = 50;
 
-static const int LVL_FREEZE = LVL_ENERGY;
+static const int LVL_FREEZE = LVL_IMMORT;
 static const int LVL_CAN_BAN = LVL_GOD;
 static const int LVL_VIOLENCE = LVL_POWER;
 static const int LVL_LOGALL = LVL_CREATOR;
