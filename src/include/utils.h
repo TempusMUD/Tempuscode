@@ -805,7 +805,8 @@ STRENGTH_APPLY_INDEX(Creature *ch)
            i == SKILL_PILEDRIVE   || i == SKILL_BODYSLAM ||      \
            i == SKILL_LUNGE_PUNCH || i == SKILL_CLOTHESLINE ||   \
            i == SKILL_SWEEPKICK   || i == SKILL_TRIP ||          \
-           i == SKILL_HIP_TOSS    || i == SKILL_SHOULDER_THROW)
+           i == SKILL_HIP_TOSS    || i == SKILL_SHOULDER_THROW ||\
+		   i == SKILL_SIDEKICK)
 
 #define CLASS_ABBR(ch) (char_class_abbrevs[(int)GET_CLASS(ch)])
 #define LEV_ABBR(ch) (IS_NPC(ch) ? "--" : level_abbrevs[(int)GET_LEVEL(ch)-50])
