@@ -1304,7 +1304,6 @@ mag_affects(int level, struct char_data * ch, struct char_data * victim,
     af.location = APPLY_DEX;
     af.modifier = - number(0, (level >> 4));
     to_vict = "Your movements slow to a torturous crawl.";
-    WAIT_STATE(victim, (level / 15) RL_SEC);
     break;
 
     case SPELL_PROT_FROM_EVIL:

@@ -828,7 +828,8 @@ find_skill_num(char *name)
  * return_flags has CALL_MAGIC_VICT_KILLED bit set if cvict dies
  *
  */
-int call_magic( struct char_data * caster, struct char_data * cvict,
+int 
+call_magic( struct char_data * caster, struct char_data * cvict,
                 struct obj_data * ovict, int spellnum, int level, int casttype, int *return_flags = 0 ) {
 
     int savetype, mana = -1;
@@ -1142,6 +1143,7 @@ mag_objectmagic(struct char_data * ch, struct obj_data * obj,
     int i, k, level;
     struct char_data *tch = NULL, *next_tch;
     struct obj_data *tobj = NULL;
+    int my_return_flags = 0;
 
     one_argument(argument, arg);
 
@@ -1277,12 +1279,13 @@ mag_objectmagic(struct char_data * ch, struct obj_data * obj,
 
 	WAIT_STATE(ch, PULSE_VIOLENCE);
 	gain_skill_prof(ch, SKILL_READ_SCROLLS);
-	for (i = 1; i < 4; i++)
-	    if (!(call_magic(ch, tch, tobj, GET_OBJ_VAL(obj, i),
-			     level, CAST_SCROLL))) {
-		extract_obj(obj);
-		return 0;
-	    }
+	for (i = 1; i < 4; i++) {
+	    call_magic(ch, tch, tobj, GET_OBJ_VAL(obj, i), 
+                 level, CAST_SCROLL, &my_return_flags);
+        if ( IS_SET( my_return_flags, DAM_ATTACKER_KILLED ) ||
+             IS_SET( my_return_flags, DAM_VICT_KILLED ) )
+            break;
+    }
 	extract_obj(obj);
 	break;
     case ITEM_FOOD:
@@ -1305,13 +1308,13 @@ mag_objectmagic(struct char_data * ch, struct obj_data * obj,
     
 	if (!ROOM_FLAGGED(ch->in_room, ROOM_NOMAGIC)) {
 	    for (i = 1; i < 4; i++) {
-		if (!ch->in_room)
-		    break;
-		if (!(call_magic(ch, ch, NULL, GET_OBJ_VAL(obj, i), 
-				 GET_OBJ_VAL(obj, 0), CAST_POTION))) {
-		    extract_obj(obj);
-		    return 0;
-		}
+            if (!ch->in_room)
+                break;
+            call_magic(ch, ch, NULL, GET_OBJ_VAL(obj, i), 
+                     GET_OBJ_VAL(obj, 0), CAST_POTION,&my_return_flags);
+            if ( IS_SET( my_return_flags, DAM_ATTACKER_KILLED ) ||
+                 IS_SET( my_return_flags, DAM_VICT_KILLED ) )
+                break;
 	    }
 	}
 	extract_obj(obj);
@@ -1344,15 +1347,13 @@ mag_objectmagic(struct char_data * ch, struct obj_data * obj,
 	WAIT_STATE(ch, PULSE_VIOLENCE);
     
 	for (i = 1; i < 4; i++) {
-	    if (!ch->in_room)
-		break;
-	    if (!(call_magic(ch, tch, NULL, GET_OBJ_VAL(obj, i),
+	    call_magic(ch, tch, NULL, GET_OBJ_VAL(obj, i),
 			     GET_OBJ_VAL(obj, 0), 
 			     IS_OBJ_STAT(obj, ITEM_MAGIC) ? CAST_SPELL :
-			     CAST_INTERNAL))) {
-		extract_obj(obj);
-		return 0;
-	    }
+			     CAST_INTERNAL,&my_return_flags);
+        if ( IS_SET( my_return_flags, DAM_ATTACKER_KILLED ) ||
+             IS_SET( my_return_flags, DAM_VICT_KILLED ) )
+            break;
 	}
 
 	extract_obj(obj);
@@ -1369,13 +1370,11 @@ mag_objectmagic(struct char_data * ch, struct obj_data * obj,
 	WAIT_STATE(ch, PULSE_VIOLENCE);
       
 	for (i = 1; i < 4; i++) {
-	    if (!ch->in_room)
-		break;
-	    if (!(call_magic(ch, ch, NULL, GET_OBJ_VAL(obj, i),
-			     GET_OBJ_VAL(obj, 0), CAST_INTERNAL))) {
-		extract_obj(obj);
-		return 0;
-	    }
+	    call_magic(ch, ch, NULL, GET_OBJ_VAL(obj, i),
+			     GET_OBJ_VAL(obj, 0), CAST_INTERNAL,&my_return_flags);
+        if ( IS_SET( my_return_flags, DAM_ATTACKER_KILLED ) ||
+             IS_SET( my_return_flags, DAM_VICT_KILLED ) )
+            break;
 	}
 	extract_obj(obj);
 	break;
