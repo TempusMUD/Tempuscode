@@ -1130,10 +1130,10 @@ ACMD(do_flee)
     }
     for (i = 0; i < 6; i++) {
 	attempt = number(0, NUM_OF_DIRS - 1);       /* Select a random direction */
-	if (CAN_GO(ch, attempt) &&
+	if (CAN_GO(ch, attempt) && !NOFLEE(EXIT(ch, attempt)->to_room) &&
 	    (!IS_NPC(ch) || !ROOM_FLAGGED(ch->in_room, ROOM_NOMOB)) &&
 	    !IS_SET(ROOM_FLAGS(EXIT(ch, attempt)->to_room), 
-		    ROOM_DEATH | ROOM_GODROOM)) {
+		    ROOM_DEATH | ROOM_GODROOM) ) {
 	    act("$n panics, and attempts to flee!", TRUE, ch, 0, 0, TO_ROOM);
 	    if ( ch->in_room->isOpenAir() || EXIT(ch, attempt)->to_room->isOpenAir() ) {
 		if (IS_AFFECTED(ch, AFF_INFLIGHT))

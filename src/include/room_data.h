@@ -46,7 +46,7 @@
 #define ROOM_HOUSE_CRASH	(1 << 12)  /* (R) House needs saving	*/
 #define ROOM_ATRIUM		(1 << 13)  /* (R) The door to a house	*/
 #define ROOM_SMOKE_FILLED	(1 << 14)  /* Room is filled with smoke */
-#define ROOM_BFS_MARK		(1 << 15)  /* (R) breath-first srch mrk	*/
+#define ROOM_NOFLEE         (1 << 15) // room resists fleeing
 #define ROOM_NOPSIONICS         (1 << 16)  /* No psionics allowed       */
 #define ROOM_NOSCIENCE          (1 << 17)  /* No physical alterations   */
 #define ROOM_NOPHYSIC           ROOM_NOSCIENCE
@@ -63,7 +63,7 @@
 #define ROOM_EXPLOSIVE_GAS      (1 << 28)  /* explodes */
 #define ROOM_POISON_GAS         (1 << 29)  /* poisons char */
 #define ROOM_VACUUM             (1 << 30) // no breathable air
-#define NUM_ROOM_FLAGS          30
+#define NUM_ROOM_FLAGS          32
 
 
 /* Exit info: used in room_data.dir_option.exit_info */

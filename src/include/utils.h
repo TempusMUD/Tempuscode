@@ -182,6 +182,8 @@ int CHECK_SKILL(struct char_data *ch, int i);
 
 /* room utils ************************************************************/
 #define ROOM_FLAGS(loc)           ((loc)->room_flags)
+#define NOFLEE(loc)          (ROOM_FLAGGED(loc,ROOM_NOFLEE) \
+                                && !(random_fractional_10()))
 #define SECT_TYPE(room)           ((room)->sector_type)
 #define GET_PLANE(room)           ((room)->zone->plane)
 #define GET_ZONE(room)            ((room)->zone->number)

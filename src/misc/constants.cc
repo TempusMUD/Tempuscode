@@ -447,7 +447,7 @@ extern const char *room_bits[] = {
   "HCR",
   "ATRM",
   "SMOKE",
-  "*",				/* BFS MARK */
+  "!FLEE",
   "!PSI",
   "!SCI",
   "!RCL",
@@ -463,7 +463,6 @@ extern const char *room_bits[] = {
   "EXPLOD",
   "POISON",
   "VACUUM",
-  "31",
   "\n"
 };
 
@@ -483,7 +482,7 @@ extern const char *roomflag_names[] = {
   "RES (house crash)",
   "RES (house atrium)",
   "smoke-filled",
-  "RES (bfs mark)",
+  "noflee",
   "nopsionics",
   "noscience",
   "norecall",
@@ -498,6 +497,7 @@ extern const char *roomflag_names[] = {
   "sleep gas",
   "explosive gas",
   "poison gas",
+  "vaccum",
   "\n"
 };
 

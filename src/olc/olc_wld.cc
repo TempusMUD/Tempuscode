@@ -181,8 +181,7 @@ int save_room( struct char_data *ch, struct room_data *room, FILE *file )
 
     fprintf( file, "~\n" );
     tmp = room->room_flags;
-    REMOVE_BIT( tmp, ROOM_HOUSE | ROOM_HOUSE_CRASH | ROOM_ATRIUM |
-		ROOM_BFS_MARK );
+    REMOVE_BIT( tmp, ROOM_HOUSE | ROOM_HOUSE_CRASH | ROOM_ATRIUM );
 
     for ( rm_aff = room->affects; rm_aff; rm_aff = rm_aff->next )
 	if ( rm_aff->type == RM_AFF_FLAGS )
