@@ -112,7 +112,7 @@
 #define SECT_FREESPACE      12             /* Out of the atmosphere     */
 #define SECT_ROAD           13                   /* On the road                       */
 #define SECT_VEHICLE        14                   /* In a car                        */
-#define SECT_CORNFIELD      15                   /* In the corn               */
+#define SECT_FARMLAND       15                   /* In the corn               */
 #define SECT_SWAMP          16                   /* Swamp                        */
 #define SECT_DESERT         17                   /* Sandy and hot                */
 #define SECT_FIRE_RIVER     18
@@ -140,7 +140,13 @@
 #define SECT_ELEMENTAL_ASH         40
 #define SECT_ELEMENTAL_DUST        41
 #define SECT_BLOOD          42
-#define NUM_SECT_TYPES      43
+#define SECT_ROCK                  43
+#define SECT_MUDDY                 44
+#define SECT_TRAIL                 45
+#define SECT_TUNDRA                46
+#define SECT_CATACOMBS             47
+#define SECT_CRACKED_ROAD          48
+#define NUM_SECT_TYPES      49
 
 
 

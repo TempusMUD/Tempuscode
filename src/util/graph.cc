@@ -289,7 +289,10 @@ ACMD(do_track)
 	    if ((ch->in_room->sector_type == SECT_FOREST) ||
 		(ch->in_room->sector_type == SECT_FIELD) ||
 		(ch->in_room->sector_type == SECT_HILLS) ||
-		(ch->in_room->sector_type == SECT_MOUNTAIN)) 
+		(ch->in_room->sector_type == SECT_MOUNTAIN) ||
+		(ch->in_room->sector_type == SECT_TRAIL) || 
+		(ch->in_room->sector_type == SECT_ROCK) ||
+		(ch->in_room->sector_type == SECT_MUDDY)) 
 		bonus = 20;
 	    else bonus = -10;
 	    if (!OUTSIDE(ch)) 

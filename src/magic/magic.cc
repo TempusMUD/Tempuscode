@@ -2008,9 +2008,11 @@ Fireball: like harder bones, skin, organ membranecs
         ch->in_room->sector_type != SECT_FOREST &&
         ch->in_room->sector_type != SECT_HILLS &&
         ch->in_room->sector_type != SECT_MOUNTAIN &&
-        ch->in_room->sector_type != SECT_CORNFIELD &&
+        ch->in_room->sector_type != SECT_FARMLAND &&
+        ch->in_room->sector_type != SECT_ROCK &&
         ch->in_room->sector_type != SECT_SWAMP &&
         ch->in_room->sector_type != SECT_CITY &&
+        ch->in_room->sector_type != SECT_CATACOMBS &&
         (ch->in_room->sector_type != SECT_ROAD || !OUTSIDE(ch)) &&
         ch->in_room->sector_type != SECT_JUNGLE) {
         send_to_char("There is not enough vegetation here for that.\r\n", ch);
@@ -2019,7 +2021,7 @@ Fireball: like harder bones, skin, organ membranecs
     af.location = APPLY_HITROLL;
     af2.location = APPLY_DEX;
     
-    if (ch->in_room->sector_type == SECT_CITY) {
+    if (ch->in_room->sector_type == SECT_CITY || ch->in_room->sector_type == SECT_CRACKED_ROAD) {
         af.duration = (level + (CHECK_SKILL(ch, SPELL_ENTANGLE) >> 2)) >> 2;
         to_room = "The grass and weeds growing through cracks in the pavement come alive, entangling $n where $e stands!";
         to_vict = "The grass and weeds growing through cracks in the pavement come alive, entangling you where you stands!";

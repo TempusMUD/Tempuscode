@@ -96,7 +96,7 @@ void Mapper::display(int bRows,int bCols) {
                  case SECT_FREESPACE: pen = 'O'; break;
                  case SECT_ROAD: pen = 'R'; break;
                  case SECT_VEHICLE: pen = 'I'; break;
-                 case SECT_CORNFIELD: pen = 'F'; break;
+                 case SECT_FARMLAND: pen = 'F'; break;
                  case SECT_SWAMP: pen = 'S'; break;
                  case SECT_DESERT: pen = 'D'; break;
                  case SECT_FIRE_RIVER: pen = 'R'; break;

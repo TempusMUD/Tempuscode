@@ -556,7 +556,7 @@ extern const char *sector_types[] = {
   "Outer Space",
   "Road",
   "Vehicle",
-  "Cornfield",
+  "Farmland",
   "Swamp",  
   "Desert",
   "Fire River",
@@ -584,6 +584,12 @@ extern const char *sector_types[] = {
   "Elemental Ash",
   "Elemental Dust",
   "Blood",
+  "Rock",
+  "Muddy",
+  "Trail",
+  "Tundra",
+  "Catacombs",
+  "Cracked Road",
   "\n"
 };
 
@@ -655,10 +661,10 @@ extern const char *planes[] =
   "63",
   "64",
   "65",
-  "66",
-  "67",
-  "68",
-  "69",
+  "Odyssey",
+  "Paraelemental Smoke",
+  "Paraelemental Ice",
+  "Paraelemental Magma",
   "Elemental Water",
   "Elemental Fire",
   "Elemental Air",
@@ -666,7 +672,7 @@ extern const char *planes[] =
   "Elemental Positive",  
   "Elemental Negative",
   "Paraelemental Magma",
-  "Paraelemental Oooze",
+  "Paraelemental Ooze",
   "\n"
 };
 
