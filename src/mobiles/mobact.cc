@@ -3803,7 +3803,7 @@ int mob_fight_devil( struct char_data * ch,
     }
     // pets shouldnt port, ever, not even once. not on a train. not on a plane
     // not even for green eggs and spam.
-    if(!IS_PET(ch)) {
+    if(IS_PET(ch)) {
         return 0;
     }
     // 100 move flat rate to gate, removed when the gating actually occurs
