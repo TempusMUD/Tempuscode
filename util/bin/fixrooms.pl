@@ -251,13 +251,14 @@ sub process_file
 			}
 		elsif ( $state eq "search-flags" )
 			{
-			if ( !/([-0-9]+) ([-0-9]+) ([-0-9]+) ([-0-9]+) ([-0-9]+)/ )
+			if ( !/^([-0-9]+) ([-0-9]+) ([-0-9]+) ([-0-9]+) ([-0-9]+) ([-0-9]+)$/ )
 				{ print STDERR "No match for search flags in $inf_name:$line_num\n"; exit }
 			$room{"searches"}[$sub_id]{"command"} .= $1;
 			$room{"searches"}[$sub_id]{"arg0"} .= $2;
 			$room{"searches"}[$sub_id]{"arg1"} .= $3;
 			$room{"searches"}[$sub_id]{"arg2"} .= $4;
 			$room{"searches"}[$sub_id]{"flags"} .= $5;
+			$room{"searches"}[$sub_id]{"prob"} .= $6;
 			$state = "optional";
 			}
 		else
@@ -315,7 +316,8 @@ sub output_room
 		print ${$search}{"arg0"} . " ";
 		print ${$search}{"arg1"} . " ";
 		print ${$search}{"arg2"} . " ";
-		print ${$search}{"flags"} . "\n";
+		print ${$search}{"flags"} . " ";
+		print ${$search}{"prob"} . "\n";
 		}
 	if ( $room{"sound"} )
 		{ print "L\n" . $room{"sound"} . "~\n" }
@@ -329,10 +331,15 @@ sub process_room
 	if ( $room{"flags"} !~ /[lmn]/ ) # Skip houses
 		{
 		$room{"title"} = capitalize( $room{"title"} );
+		$room{"sound"} = format_desc(" " . $room{"sound"});
 
 		if ( $room{"flags"} !~ /[b]/ ) # Skip DTs
 			{
 			$room{"fulldesc"} = format_desc( " " . $room{"fulldesc"} );
+			foreach $extradesc ( keys %{$room{"extradesc"}} )
+				{
+				$room{"extradesc"}{$extradesc} = format_desc( " " . $room{"extradesc"}{$extradesc} );
+				}
 			}
 		}
 
