@@ -560,6 +560,9 @@ game_loop(int mother_desc)
     
             next_d = d->next;
 
+																							// we need a prompt here
+			d->need_prompt = true;
+    
             if ((--(d->wait) <= 0) && get_from_q(&d->input, comm, &aliased)) {
                 if (d->character) {
                     d->character->char_specials.timer = 0;
@@ -1034,11 +1037,11 @@ process_output(struct descriptor_data * d)
     static int result;
 
 
-        result = write_to_descriptor( d->descriptor,d->output );
+	result = write_to_descriptor( d->descriptor,d->output );
 
     /* if we're in the overflow state, notify the user */
-        if ( !result && d->bufptr < 0 )
-                result = write_to_descriptor( d->descriptor,"**OVERFLOW**" );
+	if ( !result && d->bufptr < 0 )
+		result = write_to_descriptor( d->descriptor,"**OVERFLOW**" );
 
     /* handle snooping: prepend "% " and send to snooper */
     if (d->snoop_by && d->snoop_by->character) {
@@ -1172,9 +1175,6 @@ process_input(struct descriptor_data * t)
     
     read_point = t->inbuf;
 
-        // And since we have one newline, we're guaranteed to need a prompt
-        t->need_prompt = true;
-    
     while (nl_pos != NULL) {
         write_point = tmp;
         space_left = MAX_INPUT_LENGTH - 1;
