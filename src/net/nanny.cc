@@ -328,11 +328,13 @@ handle_input(struct descriptor_data *d)
 					d->creature->desc->creature = NULL;
 					d->creature->desc = d;
 					send_to_desc(d, "You take over your own body, already in use!\r\n");
-					mudlog(GET_INVIS_LVL(d->creature), NRM, true,
+					mlog(Security::ADMINBASIC, GET_INVIS_LVL(d->creature),
+						NRM, true,
 						"%s has reconnected", GET_NAME(d->creature));
 				} else {
 					d->creature->desc = d;
-					mudlog(GET_INVIS_LVL(d->creature), NRM, true,
+					mlog(Security::ADMINBASIC, GET_INVIS_LVL(d->creature),
+						NRM, true,
 						"%s has reconnected from linkless",
 						GET_NAME(d->creature));
 					send_to_desc(d, "You take over your own body!\r\n");
@@ -347,7 +349,10 @@ handle_input(struct descriptor_data *d)
 			d->creature->account = d->account;
 
 			if (!d->creature->loadFromXML(char_id)) {
-				mudlog(LVL_IMMORT, CMP, true, "Character %d didn't load from account '%s'", char_id, d->account->get_name());
+				mlog(Security::ADMINBASIC, LVL_IMMORT, CMP, true,
+					"Character %d didn't load from account '%s'",
+					char_id, d->account->get_name());
+
 				send_to_desc(d, "Sorry.  There was an error processing your request.\r\n");
 				send_to_desc(d, "The gods are not ignorant of your plight.\r\n\r\n");
 				delete d->creature;
@@ -549,7 +554,7 @@ handle_input(struct descriptor_data *d)
 			break;
 		} else if (is_abbrev(arg, "keep")) {
 			set_desc_state( CXN_EDIT_DESC,d );
-			mudlog(LVL_GOD, NRM, true,
+			mlog(Security::ADMINBASIC, LVL_IMMORT, NRM, true,
 				"%s[%d] has created new character %s[%ld]",
 					d->account->get_name(), d->account->get_idnum(),
                     GET_NAME(d->creature), GET_IDNUM(d->creature) );
@@ -1454,7 +1459,7 @@ char_to_game(descriptor_data *d)
 		}
 
 	} else {
-		mudlog(GET_INVIS_LVL(d->creature), NRM, true,
+		mlog(Security::ADMINBASIC, GET_INVIS_LVL(d->creature), NRM, true,
 			"%s has entered the game in room #%d",
 			GET_NAME(d->creature), d->creature->in_room->number);
 		act("$n has entered the game.", true, d->creature, 0, 0, TO_ROOM);

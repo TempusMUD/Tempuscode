@@ -898,7 +898,8 @@ Creature::rent(void)
 	saveObjects();
 	saveToXML();
 	if (GET_LEVEL(this) < 50)
-		mudlog(MAX(LVL_AMBASSADOR, GET_INVIS_LVL(this)), NRM, true,
+		mlog(Security::ADMINBASIC, MAX(LVL_AMBASSADOR, GET_INVIS_LVL(this)),
+			NRM, true,
 			"%s has rented (%d/day, %lld %s)", GET_NAME(this),
 			player_specials->rent_per_day, CASH_MONEY(this) + BANK_MONEY(this),
 			(player_specials->rent_currency == TIME_ELECTRO) ? "gold":"creds");
@@ -919,7 +920,8 @@ Creature::cryo(void)
 	saveObjects();
 	saveToXML();
 	
-	mudlog(MAX(LVL_AMBASSADOR, GET_INVIS_LVL(this)), NRM, true,
+	mlog(Security::ADMINBASIC, MAX(LVL_AMBASSADOR, GET_INVIS_LVL(this)),
+		NRM, true,
 		"%s has cryo-rented", GET_NAME(this));
 	extract(CXN_MENU);
 	return true;
@@ -1004,7 +1006,8 @@ Creature::idle(void)
 	saveObjects();
 	saveToXML();
 
-	mudlog(LVL_GOD, CMP, true, "%s force-rented and extracted (idle).",
+	mlog(Security::ADMINBASIC, LVL_GOD, CMP, true,
+		"%s force-rented and extracted (idle).",
 		GET_NAME(this));
 
 	extract(CXN_MENU);

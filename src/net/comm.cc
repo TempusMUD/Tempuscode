@@ -989,18 +989,18 @@ new_descriptor(int s)
 	int bantype = isbanned(newd->host, buf2);
 	if (bantype == BAN_ALL) {
 		close(desc);
-		mudlog(LVL_GOD, CMP, true,
+		mlog(Security::ADMINBASIC, LVL_GOD, CMP, true,
 			"Connection attempt denied from [%s]", newd->host);
 		free(newd);
 		return 0;
 	}
 
 	/* Log new connections - probably unnecessary, but you may want it */
-	sprintf(buf2, "New connection from [%s]%s%s",
+	mlog(Security::ADMINBASIC, LVL_GOD, CMP, true,
+		"New connection from [%s]%s%s",
 		newd->host,
 		(bantype == BAN_SELECT) ? "(SELECT BAN)" : "",
 		(bantype == BAN_NEW) ? "(NEWBIE BAN)" : "");
-	slog(buf2);
 
 	/* initialize descriptor data */
 	newd->descriptor = desc;
@@ -1353,7 +1353,7 @@ close_socket(struct descriptor_data *d)
 		d->creature->saveToXML();
 		d->creature->player.time.logon = time(0);
 		act("$n has lost $s link.", TRUE, d->creature, 0, 0, TO_ROOM);
-		mudlog(MAX(LVL_AMBASSADOR, GET_INVIS_LVL(d->creature)), NRM, true,
+		mlog(Security::ADMINBASIC, MAX(LVL_AMBASSADOR, GET_INVIS_LVL(d->creature)), NRM, true,
 			"Closing link to: %s [%s] ", GET_NAME(d->creature),
 			d->host);
 		d->creature->desc = NULL;
@@ -1364,7 +1364,7 @@ close_socket(struct descriptor_data *d)
 			delete d->creature;
 			d->creature = NULL;
 		}
-		mudlog(LVL_AMBASSADOR, NRM, true,
+		mlog(Security::ADMINBASIC, LVL_AMBASSADOR, NRM, true,
                 "%s[%d] logging off from %s", 
                 d->account->get_name(), d->account->get_idnum(), d->host);
 	} else {
@@ -2197,7 +2197,7 @@ descriptor_update(void)
 
 		if (d->idle >= 10 && STATE(d) != CXN_PLAYING
 			&& STATE(d) != CXN_NETWORK) {
-			mudlog(LVL_IMMORT, CMP, true, "Descriptor idling out after 10 minutes");
+			mlog(Security::ADMINBASIC, LVL_IMMORT, CMP, true, "Descriptor idling out after 10 minutes");
 			SEND_TO_Q("Idle time limit reached, disconnecting.\r\n", d);
 			set_desc_state(CXN_DISCONNECT, d);
 		}

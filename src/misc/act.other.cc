@@ -87,10 +87,6 @@ ACMD(do_quit)
 		return;
 	}
 
-	if PLR_FLAGGED
-		(ch, PLR_AFK)
-			REMOVE_BIT(PLR_FLAGS(ch), PLR_AFK);
-
 	if (PLR_FLAGGED(ch, PLR_KILLER | PLR_THIEF)) {
 		send_to_char(ch, "Outlaws cannot quit.\r\n");
 		return;
@@ -120,7 +116,7 @@ ACMD(do_quit)
 		if ((free_rent) || GET_LEVEL(ch) >= LVL_AMBASSADOR ||
 			ch->isTester()) {
 			if (GET_LEVEL(ch) >= LVL_AMBASSADOR) {
-				mudlog(MAX(LVL_AMBASSADOR, GET_INVIS_LVL(ch)), NRM, true,
+				mlog(Security::ADMINBASIC, GET_INVIS_LVL(ch), NRM, true,
 					"%s has departed from the known multiverse",
 					GET_NAME(ch));
 				act("$n steps out of the universe.", TRUE, ch, 0, 0, TO_ROOM);
@@ -128,7 +124,7 @@ ACMD(do_quit)
 			} else {
 				send_to_char(ch, "\r\nYou flicker out of reality...\r\n");
 				act("$n flickers out of reality.", TRUE, ch, 0, 0, TO_ROOM);
-				mudlog(MAX(LVL_AMBASSADOR, GET_INVIS_LVL(ch)), NRM, true,
+				mlog(Security::ADMINBASIC, GET_INVIS_LVL(ch), NRM, true,
 					"%s has left the game%s", GET_NAME(ch),
 					ch->isTester() ? " (tester)" : " naked");
 			}
@@ -161,7 +157,7 @@ ACMD(do_quit)
 					return;
 				}
 
-				mudlog(MAX(LVL_AMBASSADOR, GET_INVIS_LVL(ch)), NRM, true,
+				mlog(Security::ADMINBASIC, GET_INVIS_LVL(ch), NRM, true,
 					"%s has left the game from house, room %d",
 					GET_NAME(ch), ch->in_room->number);
 				send_to_char(ch, "You smoothly slip out of existence.\r\n");
@@ -174,7 +170,7 @@ ACMD(do_quit)
 					GET_NAME(ch));
 				act("$n disappears, leaving all $s equipment behind!",
 					TRUE, ch, 0, 0, TO_ROOM);
-				mudlog(MAX(LVL_AMBASSADOR, GET_INVIS_LVL(ch)), NRM, true,
+				mlog(Security::ADMINBASIC, GET_INVIS_LVL(ch), NRM, true,
 					"%s (%d) has quit the game, EQ drop at %d",
 					GET_NAME(ch), GET_LEVEL(ch), ch->in_room->number);
 				ch->quit();
@@ -182,7 +178,7 @@ ACMD(do_quit)
 		} else {
 			send_to_char(ch, "\r\nYou flicker out of reality...\r\n");
 			act("$n flickers out of reality.", TRUE, ch, 0, 0, TO_ROOM);
-			mudlog(MAX(LVL_AMBASSADOR, GET_INVIS_LVL(ch)), NRM, true,
+			mlog(Security::ADMINBASIC, GET_INVIS_LVL(ch), NRM, true,
 				"%s has left the game naked", GET_NAME(ch));
 			ch->quit();
 		}
