@@ -3188,6 +3188,14 @@ nanny(struct descriptor_data * d, char *arg)
                 do_start(d->character, 0);
 
                 d->old_login_time = time(0);  // clear login time so we dont get news updates
+                // New characters shouldn't get old mail.
+                if(has_mail(GET_IDNUM(d->character))) {
+                   if(purge_mail(GET_IDNUM(d->character))>0) {
+                       sprintf(buf,"SYSERR: Purging pre-existing mailfile for new character.(%s)",
+                            GET_NAME(d->character));
+                       slog(buf);
+                   }
+                }
     
             } 
             else if (load_result == 2) {    /* rented items lost */

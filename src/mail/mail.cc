@@ -147,6 +147,19 @@ store_mail( long to_id, long from_id, char *txt , char *cc_list, time_t *cur_tim
     return 1;
 }
 
+int
+purge_mail(long idnum) {
+    fstream mail_file;
+    char fname[256];
+    get_filename(get_name_by_id( idnum ) , fname, PLAYER_MAIL_FILE);
+    mail_file.open(fname, ios::in | ios::nocreate);
+    if (!mail_file.is_open()) {
+        return 0;
+    }
+    mail_file.close();
+    remove(fname);
+    return 1;
+}
 
 // Pull the mail out of the players mail file if he has one.
 // Create the "letters" from the file, and plant them on him without
