@@ -10,7 +10,8 @@ class Tokenizer {
          * Note:  input is copied into the Tokenizer rather than used
          * directly.
          */
-        Tokenizer(const char *input, char delimiter = ' ') {
+        Tokenizer(const char *input, char delimiter = ' ', bool trace = false) {
+			this->trace = trace;
             index = 0;
             if (input) {
                 length = strlen(input);
@@ -23,6 +24,7 @@ class Tokenizer {
                 data = NULL;
             }
         }
+
 
         /*
          * Frees the copy of the given input.
@@ -70,8 +72,26 @@ class Tokenizer {
             // Find the next non delimiter ( next token begin )
             while( data[index] && data[index] == delim )
                 index++;
+			if(trace)
+				fprintf(stderr,"Tokenizer.next() returning '%s'\r\n",out);
             return true;
         }
+
+		/**
+		 * Appends the given input to the token stream.
+		**/
+		void append( const char* input ) {
+			if( input == NULL )
+				return;
+			int total = (length - index) + strlen(input);
+			char *tmpData = new char[total + 1];
+			strcpy( tmpData, data+index );
+			strcat( tmpData, input );
+			length = total;
+			delete [] data;
+			data = tmpData;
+			index = 0;
+		}
         
         /*
          * Copies all remaining data into out
@@ -83,8 +103,13 @@ class Tokenizer {
             index = length;
             return true;
         }
+		
+		void setDelimiter( char delim ) {
+			this->delim = delim;
+		}
 
     private:
+		bool trace;
         char *data;
         int index;
         int length;

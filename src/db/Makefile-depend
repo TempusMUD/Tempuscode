@@ -1,3 +1,6 @@
+$(OBJ)/analysis.o : analysis.cc \
+	$(INCLUDE)/structs.h $(INCLUDE)/utils.h $(INCLUDE)/character_list.h $(INCLUDE)/comm.h $(INCLUDE)/interpreter.h $(INCLUDE)/handler.h $(INCLUDE)/db.h $(INCLUDE)/spells.h $(INCLUDE)/house.h $(INCLUDE)/screen.h $(INCLUDE)/char_class.h $(INCLUDE)/vehicle.h $(INCLUDE)/security.h $(INCLUDE)/olc.h $(INCLUDE)/materials.h $(INCLUDE)/clan.h $(INCLUDE)/specs.h $(INCLUDE)/flow_room.h $(INCLUDE)/smokes.h $(INCLUDE)/paths.h $(INCLUDE)/login.h $(INCLUDE)/bomb.h $(INCLUDE)/guns.h $(INCLUDE)/elevators.h $(INCLUDE)/fight.h $(INCLUDE)/defs.h $(INCLUDE)/tokenizer.h 
+	$(CXX) -c $(CXXFLAGS) analysis.cc          -o $(OBJ)/analysis.o
 $(OBJ)/constants.o : constants.cc \
 	$(INCLUDE)/structs.h $(INCLUDE)/spells.h 
 	$(CXX) -c $(CXXFLAGS) constants.cc         -o $(OBJ)/constants.o
@@ -10,4 +13,4 @@ $(OBJ)/objsave.o : objsave.cc \
 $(OBJ)/xml.o : xml.cc \
 	$(INCLUDE)/utils.h $(INCLUDE)/xml_utils.h $(INCLUDE)/db.h 
 	$(CXX) -c $(CXXFLAGS) xml.cc               -o $(OBJ)/xml.o
-OBJFILES= $(OBJ)/constants.o $(OBJ)/db.o $(OBJ)/objsave.o $(OBJ)/xml.o
+OBJFILES= $(OBJ)/analysis.o $(OBJ)/constants.o $(OBJ)/db.o $(OBJ)/objsave.o $(OBJ)/xml.o
