@@ -1218,7 +1218,9 @@ throw_char_in_jail(struct Creature *ch, struct Creature *vict)
 				GET_OBJ_VAL(locker, 0) = GET_IDNUM(vict);
 				act("$n removes all your gear and stores it in a strongbox.",
 					FALSE, ch, 0, vict, TO_VICT);
-				House_crashsave(locker->in_room->number);
+				House* house = Housing.findHouseByRoom( locker->in_room->number );
+				if( house != NULL )
+					house->save();
 				save_char(ch, NULL);
 			}
 			break;

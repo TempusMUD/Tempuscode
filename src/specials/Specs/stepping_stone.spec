@@ -151,7 +151,9 @@ SPECIAL(arena_locker)
 			act("$n opens a locker and gives $N all $S things.",
 				false, atten, 0, ch, TO_NOTVICT);
 
-			House_crashsave(r_locker_room->number);
+			House *house = Housing.findHouseByRoom( r_locker_room->number );
+			if( house != NULL )
+				house->save();
 			save_char(ch, NULL);
 
 			return true;

@@ -76,7 +76,10 @@ SPECIAL(jail_locker)
 					ch->in_room->number);
 			}
 
-			House_crashsave(ch->in_room->next->number);
+			House* house = Housing.findHouseByRoom( ch->in_room->next->number );
+			if( house != NULL )
+				house->save();
+
 			save_char(ch, NULL);
 
 			return 1;

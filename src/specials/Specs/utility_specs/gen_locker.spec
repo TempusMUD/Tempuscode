@@ -217,7 +217,9 @@ SPECIAL(gen_locker)
 		else
 			GET_GOLD(ch) -= cost_factor * 10;
 
-		House_crashsave(locker->in_room->number);
+		House* house = Housing.findHouseByRoom( locker->in_room->number );
+		if( house != NULL )
+			house->save();
 		save_char(ch, NULL);
 
 		act("$n takes all your things and locks them in a locker.", FALSE,
@@ -309,7 +311,9 @@ SPECIAL(gen_locker)
 		GET_OBJ_VAL(locker, 1) = 0;
 		GET_OBJ_VAL(locker, 2) = 0;
 
-		House_crashsave(locker->in_room->number);
+		House* house = Housing.findHouseByRoom( locker->in_room->number );
+		if( house != NULL )
+			house->save();
 		save_char(ch, NULL);
 
 		act("$n opens a locker and gives you all your things.",

@@ -81,8 +81,10 @@ SPECIAL(vr_arcade_game)
 	}
 
 	GET_OBJ_VAL(lckr, 0) = GET_IDNUM(ch);
-
-	House_crashsave(lckr->in_room->number);
+	
+	House* house = Housing.findHouseByRoom( lckr->in_room->number );
+	if( house != NULL )
+		house->save();
 	save_char(ch, NULL);
 
 	send_to_char(ch, "You insert %d coins in %s.\r\n", GET_OBJ_VAL(game, 1),
