@@ -50,7 +50,6 @@ int dice(int number, int size);
 void sprintbit(long vektor, const char *names[], char *result);
 void sprinttype(int type, const char *names[], char *result);
 int get_line(FILE * fl, char *buf);
-int get_filename(const char *orig_name, char *filename, int mode);
 int get_line_count(char *buffer);
 int remove_from_cstring(char *str, char c = '~', char c_to = '.');
 void perform_skillset(Creature *ch, Creature *vict, char *skill_str, int value);
@@ -133,12 +132,6 @@ char *PERS(Creature * ch, Creature * sub);
 void WAIT_STATE(struct Creature *ch, int cycle);
 /* various constants *****************************************************/
 
-
-/* get_filename() */
-#define CRASH_FILE        0
-#define ETEXT_FILE        1
-#define IMPLANT_FILE    2
-#define PLAYER_MAIL_FILE 3
 
 /* breadth-first searching */
 #define BFS_ERROR                -1
