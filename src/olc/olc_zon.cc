@@ -47,7 +47,8 @@ const char *olc_zset_keys[] = {
 	"years",
 	"blanket_exp",			 /** 11 **/
 	"co-owner",
-	"blanket_flags",		 /** 13 **/
+	"blanket_flags",
+	"respawn_pt",		 /** 14 **/
 	"\n"
 };
 
@@ -2269,6 +2270,21 @@ do_zset_command(struct Creature *ch, char *argument)
 
 		}
 
+	case 14:	// respawn point
+		if (is_abbrev("none", argument)) {
+			zone->respawn_pt = 0;
+			send_to_char(ch, "Zone respawn point cleared\r\n");
+		} else if (is_number(argument)) {
+			zone->respawn_pt = atoi(argument);
+			if (real_room(zone->respawn_pt))
+				send_to_char(ch, "Zone respawn point set to room #%d (%s)\r\n",
+					zone->respawn_pt, real_room(zone->respawn_pt)->name);
+			else
+				send_to_char(ch, "Zone respawn point set to nonexistant room #%d\r\n",
+					zone->respawn_pt);
+		} else
+			send_to_char(ch, "You must supply a room number or 'none'.\r\n");
+		break;
 	default:
 		send_to_char(ch, "Unsupported olc zset command.\r\n");
 		break;
@@ -2431,6 +2447,9 @@ save_zone(struct Creature *ch, struct zone_data *zone)
 
 	if (zone->co_owner_idnum != -1)
 		fprintf(zone_file, "C2 %d\n", zone->co_owner_idnum);
+	
+	if (zone->respawn_pt)
+		fprintf(zone_file, "RP %d\n", zone->respawn_pt);
 
 	tmp = zone->flags;
 
