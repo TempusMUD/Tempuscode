@@ -315,6 +315,8 @@ ACMD(do_olc)
     struct shop_data *shop = NULL;
     struct char_data *mob = NULL;
     struct char_data *tmp_mob = NULL;
+	struct special_search_data *tmp_search;
+
   
     if (olc_lock || (IS_SET(ch->in_room->zone->flags, ZONE_LOCKED)) ) {
 	if (GET_LEVEL(ch) >= LVL_IMPL) {
@@ -1070,20 +1072,29 @@ ACMD(do_olc)
 
     case 20:   /*** create ***/
 	if (!*argument)
-	    send_to_char("Usage: olc create <room|zone|obj|mob|shop|help|ticl> <vnum>\r\n", ch);
+	    send_to_char("Usage: olc create <room|zone|obj|mob|shop|help|ticl> <vnum|next>\r\n", ch);
 	else {
+	int tmp_vnum = 0;
 	    argument = two_arguments(argument, arg1, arg2);
-
 	    if (is_abbrev(arg1, "room")) {
-		if (!*arg2)
-		    send_to_char("Create a room with what vnum?\r\n", ch);
-		else {
-		    i = atoi(arg2);
-
-		    if (do_create_room(ch, i))
-			send_to_char("Room succesfully created.\r\n", ch);
-	  
-		}
+			if (!*arg2) {
+				send_to_char("Create a room with what vnum?\r\n", ch);
+			} else if (is_abbrev(arg2, "next")) {
+				for (i = ch->in_room->zone->number*100; i < ch->in_room->zone->top; i++) {
+					if(!real_room(i)) {
+						tmp_vnum = i;
+						break;
+					}
+				}
+			} else {
+				i = atoi(arg2);
+			}
+			if (tmp_vnum && do_create_room(ch, tmp_vnum)) {
+				sprintf(buf,"Room %d succesfully created.\r\n",tmp_vnum);
+				send_to_char(buf, ch);
+			} else if(!tmp_vnum && *arg2) {
+					send_to_char("No allocatable rooms found in zone.\r\n",ch);
+			}
 	    } else if (is_abbrev(arg1, "zone")) {
 		if (GET_LEVEL(ch) < LVL_IMPL) {
 		    send_to_char("You cannot create zones.\r\n", ch);
@@ -1097,22 +1108,47 @@ ACMD(do_olc)
 			send_to_char("Zone succesfully created.\r\n", ch);
 		}
 	    } else if (is_abbrev(arg1, "object")) {
-		if (!*arg2)
-		    send_to_char("Create an obj with what vnum?\r\n", ch);
-		else {
-		    i = atoi(arg2);
-
-		    if (do_create_obj(ch, i))
-			send_to_char("Object succesfully created.\r\n", ch);
-		}
+			if (!*arg2) {
+				send_to_char("Create an obj with what vnum?\r\n", ch);
+			} else if (is_abbrev(arg2, "next")) {
+				for (i = ch->in_room->zone->number*100; i < ch->in_room->zone->top; i++) {
+					if(!real_object_proto(i)) {
+						tmp_vnum = i;
+						break;
+					}
+				}
+			} else {
+				tmp_vnum = atoi(arg2);
+			}
+			if (tmp_vnum && (tmp_obj = do_create_obj(ch, tmp_vnum))) {
+				GET_OLC_OBJ(ch) = tmp_obj;
+				sprintf(buf,"Object %d succesfully created.\r\nNow editing object %d\r\n",
+					tmp_obj->shared->vnum,tmp_obj->shared->vnum);
+				send_to_char(buf,ch);
+			} else if (!tmp_vnum && *arg2) {
+				send_to_char("No allocatable objects found in zone.\r\n",ch);
+			}
 	    } else if (is_abbrev(arg1, "mobile")) {
-		if (!*arg2)
-		    send_to_char("Create a mob with what vnum?\r\n", ch);
-		else {
-		    i = atoi(arg2);
-		    if (do_create_mob(ch, i))
-			send_to_char("Mobile succesfully created.\r\n", ch);
-		}
+			if (!*arg2) {
+				send_to_char("Create a mob with what vnum?\r\n", ch);
+			} else if (is_abbrev(arg2, "next")) {
+				for (i = ch->in_room->zone->number*100; i < ch->in_room->zone->top; i++) {
+					if(!real_mobile_proto(i)) {
+						tmp_vnum = i;
+						break;
+					}
+				}
+			} else {
+				tmp_vnum = atoi(arg2);
+			}
+			if (tmp_vnum && (tmp_mob = do_create_mob(ch, i))) {
+				GET_OLC_MOB(ch) = tmp_mob;
+				sprintf(buf,"Mobile %d succesfully created.\r\nNow editing mobile %d\r\n",
+					tmp_vnum,tmp_vnum);
+				send_to_char(buf,ch);
+			} else if (!tmp_vnum && *arg2) {
+				send_to_char("No allocatable mobiles found in zone.\r\n",ch);
+			}
 	    } else if (is_abbrev(arg1, "shop")) {
 		if (!*arg2)
 		    send_to_char("Create a shop with what vnum?\r\n", ch);
@@ -1122,8 +1158,12 @@ ACMD(do_olc)
 			send_to_char("Shop succesfully created.\r\n", ch);
 		}
 	    } else if (is_abbrev(arg1, "search")) {
-		if (do_create_search(ch, strcat(arg2, argument)))
-		    send_to_char("Search creation successful.\r\n", ch);
+			if ((tmp_search = do_create_search(ch, strcat(arg2, argument)))) {
+				GET_OLC_SRCH(ch) = tmp_search;
+				send_to_char("Search creation successful.\r\n", ch);
+				sprintf(buf,"Now editing search (%s)/(%s)\r\n",tmp_search->command_keys,tmp_search->keywords);
+				send_to_char(buf,ch);
+			}
 	    } else if (is_abbrev(arg1, "path") && OLCIMP(ch)) {
 		if (!add_path(strcat(arg2, argument), TRUE))
 		    send_to_char("Path added.\r\n", ch);
