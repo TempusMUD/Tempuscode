@@ -176,6 +176,8 @@ struct room_affect_data {
 	int flags;
 	byte type;
 	byte duration;
+    int val[4];
+    Creature *owner;
 	struct room_affect_data *next;
 };
 

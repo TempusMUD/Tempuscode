@@ -311,7 +311,6 @@ struct bard_song songs[] = {
     static const int SONG_HYMN_OF_PEACE = 363; // stops fighting in room, counters req of rage
     static const int SONG_SONG_OF_SILENCE = 364; // Area, disallow speaking, casting. singing
     static const int SONG_RHAPSODY_OF_DEPRESSION = 367; // Area, slow all but grouped
-    static const int SONG_ARIA_OF_ASYLUM = 369; // self/group/target up to 25 percent dam reduction
     static const int SONG_SIRENS_SONG = 374; // single target, charm
     static const int SONG_SONIC_DISRUPTION = 375; // area, medium damage
     static const int SONG_MIRROR_IMAGE_MELODY = 376; // causes multiple images of the singer
@@ -341,6 +340,7 @@ struct bard_song songs[] = {
     static const int SONG_DRIFTERS_DITTY = 365; // self/group increases move
     static const int SONG_UNRAVELLING_DIAPASON = 366; //dispel magic
     static const int SONG_CHANT_OF_LIGHT = 368; // group, light and prot_cold
+    static const int SONG_ARIA_OF_ASYLUM = 369; // self/group/target up to 25 percent dam reduction
     static const int SONG_WHITE_NOISE = 370; // single target, confusion
     static const int SONG_RHYTHM_OF_RAGE = 371; // self only, berserk, counter = hymn of peace
     static const int SONG_POWER_OVERTURE = 372; // self only, increase strength and hitroll

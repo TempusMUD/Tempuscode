@@ -2602,7 +2602,7 @@ Fireball: like harder bones, skin, organ membranecs
         }
         aff_array[0].duration = 5 + ch->getLevelBonus(SONG_WOUNDING_WHISPERS) >> 2;
         to_vict = "Whispers of your song begin whirling around you!";
-        to_room = "Whispers of $n's song begin whirling around $m!";
+        to_room = "Whispers of $N's song begin whirling around $M!";
         break;
 
     case SONG_RHYTHM_OF_RAGE: {
@@ -2660,6 +2660,19 @@ Fireball: like harder bones, skin, organ membranecs
         }
         break;
     }
+
+    case SONG_ARIA_OF_ASYLUM:
+        aff_array[0].duration = 5 + ch->getLevelBonus(SONG_EAGLES_OVERTURE) >> 3; 
+        aff_array[0].location = APPLY_CASTER;
+        if (IS_NPC(ch))
+            aff_array[0].modifier = -(ch->getIdNum());
+        else
+            aff_array[0].modifier = ch->getIdNum();
+
+        to_vict = "A gissimer shield of music forms around you.";
+        to_room = "A gossimer shield of music forms around $n";
+    break;
+
 	default:
 		errlog("unknown spell %d in mag_affects.", spellnum);
 		break;
@@ -2809,6 +2822,9 @@ perform_mag_groups(int level, struct Creature *ch,
         break;
     case SONG_UNLADEN_SWALLOW_SONG:
         mag_affects(level, ch, tch, SONG_UNLADEN_SWALLOW_SONG, savetype);
+        break;
+    case SONG_ARIA_OF_ASYLUM:
+        mag_affects(level, ch, tch, SONG_ARIA_OF_ASYLUM, savetype);
         break;
 	default:
 		errlog("Unknown spellnum %d in perform_mag_groups()",

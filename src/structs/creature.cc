@@ -363,6 +363,41 @@ Creature::getDamReduction(Creature *attacker)
             }
 		}
 	}
+	//************************** Aria of Asylum ************************
+	//******************************************************************
+    // This should be very similar to Shield of Righteousness as it's also
+    // a group thing
+	if ((af = affected_by_spell(ch, SONG_ARIA_OF_ASYLUM))) {
+
+		// Find the caster apply
+        while (af) {
+			if (af->type == SONG_ARIA_OF_ASYLUM
+					&& af->location == APPLY_CASTER)
+				break;
+			af = af->next;
+		}
+
+        // We found the aria of asylum singer
+        if (af && af->modifier == GET_IDNUM(ch)) {
+            dam_reduction += 5 + (((1000 - GET_ALIGNMENT(ch)) / 100) + 
+                                  (ch->getLevelBonus(SONG_ARIA_OF_ASYLUM) / 10));
+        } else if (af && ch->in_room) {
+
+            CreatureList::iterator it = ch->in_room->people.begin();
+            for (; it != ch->in_room->people.end(); ++it) {
+                if (IS_NPC((*it))
+                    && af->modifier == (short int)-MOB_IDNUM((*it))) {
+                    dam_reduction += 5 + (((1000 - GET_ALIGNMENT((*it))) / 100) + 
+                                         ((*it)->getLevelBonus(SONG_ARIA_OF_ASYLUM) / 10));
+                    break;
+                } else if (!IS_NPC((*it)) && af->modifier == GET_IDNUM((*it))) {
+                    dam_reduction += 5 + (((1000 - GET_ALIGNMENT((*it))) / 100) + 
+                                         ((*it)->getLevelBonus(SONG_ARIA_OF_ASYLUM) / 10));
+                    break;
+                }
+            }
+		}
+	}
 	//*********************** Lattice Hardening *************************
 	//*******************************************************************
 	if (affected_by_spell(ch, SPELL_LATTICE_HARDENING))
