@@ -20,6 +20,9 @@
 #include <string.h>
 #include <time.h>
 #include <errno.h>
+#include <string>
+#include <list>
+using namespace std;
 
 
 #include "structs.h"
@@ -31,6 +34,7 @@
 #include "utils.h"
 #include "house.h"
 #include "screen.h"
+#include "tokenizer.h"
 
 #define NAME(x) ((temp = get_name_by_id(x)) == NULL ? "<UNDEF>" : temp)
 
@@ -616,6 +620,8 @@ House_boot(void)
 
 
 // usage message
+#define HCONTROL_FIND_FORMAT \
+"Usage: hcontrol find <owner|co-owner|landlord> <name>\r\n"
 #define HCONTROL_DESTROY_FORMAT \
 "Usage: hcontrol destroy <atrium vnum>\r\n"
 #define HCONTROL_ADD_FORMAT \
@@ -1306,6 +1312,129 @@ hcontrol_delete_from_house(struct char_data *ch, char *arg)
 	send_to_char(ch, HCONTROL_FORMAT);
 }
 
+list<house_control_rec*>::iterator
+remove_house(  list<house_control_rec*> &houses, 
+               list<house_control_rec*>::iterator h )
+{
+    if( h == houses.begin() ) {
+        houses.erase(h);
+        return houses.begin();
+    } else {
+        list<house_control_rec*>::iterator it = h;
+        --it;
+        houses.erase(h);
+        return ++it;
+    }
+}
+
+void 
+match_houses( list<house_control_rec*> &houses, int mode, const char *name )
+{
+    list<house_control_rec*>::iterator cur = houses.begin();
+    int id = (int) get_id_by_name(name);
+    while( cur != houses.end() ) {
+        switch( mode ) {
+            case HC_LIST_HOUSES_OWNER:
+                if( (*cur)->owner1 != id ) {
+                    cur = remove_house( houses, cur );
+                } else {
+                    cur++;
+                }
+                break;
+            case HC_LIST_HOUSES_LANDLORD:
+                if( (*cur)->landlord != id ) {
+                    cur = remove_house( houses, cur );
+                } else {
+                    cur++;
+                }
+                break;
+            case HC_LIST_HOUSES_CO_OWNER:
+                if( (*cur)->owner2 != id ) {
+                    cur = remove_house( houses, cur );
+                } else {
+                    cur++;
+                }
+                break;
+            default:
+                continue;
+        }
+    }
+}
+
+void 
+display_houses( list<house_control_rec*> &houses, char_data *ch ) 
+{
+    char owner[81];
+    char coowner[81];
+    char landlord[81];
+    const char *temp;
+    string output;
+    send_to_char(ch,"Atrium Rooms Owner         Co-Owner      Landlord\r\n");
+    send_to_char(ch,"------ ----- ------------- ------------- -------------\r\n");
+
+    list<house_control_rec*>::iterator cur = houses.begin();
+    
+
+    for(; cur != houses.end(); cur++) {
+        house_control_rec *curHouse = (*cur);
+
+        strncpy(owner, NAME(curHouse->owner1),80);
+        strncpy(owner,  CAP(owner),80);
+        strncpy(landlord, NAME(curHouse->landlord),80);
+        strncpy(landlord,  CAP(landlord),80);
+        if (curHouse->owner2 > 0) {
+            strncpy(coowner,  NAME(curHouse->owner2),80);
+            strncpy(coowner,  CAP(coowner),80);
+        } else {
+            coowner[0] = '\0';
+        }
+        send_to_char( ch, "%6d %5d %-13s %-13s %-13s\r\n",
+                      curHouse->house_rooms[0],curHouse->num_of_rooms, 
+                      owner, coowner, landlord );
+    }
+}
+
+void
+hcontrol_find_houses(struct char_data *ch, char *arg)
+{
+    char token[256];
+    
+    if( arg == NULL || *arg == '\0' ) {
+        send_to_char(ch,HCONTROL_FIND_FORMAT);
+        return;
+    }
+
+    Tokenizer tokens(arg);
+    list<house_control_rec*> houses;
+
+    for (int i = 0; i < num_of_houses; i++) {
+		houses.push_back(&house_control[i]);
+    }
+
+    while( tokens.hasNext() ) {
+        tokens.next(token);
+        if( strcmp(token,"owner") == 0 && tokens.hasNext()) {
+            tokens.next(token);
+            match_houses( houses, HC_LIST_HOUSES_OWNER, token);
+        } else if( strcmp(token,"co-owner") == 0 && tokens.hasNext()) {
+            tokens.next(token);
+            match_houses( houses, HC_LIST_HOUSES_CO_OWNER, token);
+        } else if( strcmp(token,"landlord") == 0 && tokens.hasNext() ) {
+            tokens.next(token);
+            match_houses( houses, HC_LIST_HOUSES_LANDLORD, token);
+        } else {
+            send_to_char(ch,HCONTROL_FIND_FORMAT);
+            return;
+        }
+    }
+    if( houses.size() <= 0 ) {
+        send_to_char(ch,"No houses found.\r\n");
+        return;
+    } 
+    display_houses(houses,ch);
+}
+
+
 void
 hcontrol_set_house(struct char_data *ch, char *arg)
 {
@@ -1446,26 +1575,27 @@ ACMD(do_hcontrol)
 		(GET_LEVEL(ch) >= LVL_GOD || Security::isMember(ch, "House"))) {
 		House_countobjs();
 		send_to_char(ch, "Objs recounted.\r\n");
-	} else if (is_abbrev(arg1, "build") && Security::isMember(ch, "House"))
+	} else if (is_abbrev(arg1, "build") && Security::isMember(ch, "House")) {
 		hcontrol_build_house(ch, arg2);
-	else if (is_abbrev(arg1, "destroy") && Security::isMember(ch, "House"))
+	} else if (is_abbrev(arg1, "destroy") && Security::isMember(ch, "House")) {
 		hcontrol_destroy_house(ch, arg2);
-	else if (is_abbrev(arg1, "pay") && Security::isMember(ch, "House"))
+	} else if (is_abbrev(arg1, "pay") && Security::isMember(ch, "House")) {
 		hcontrol_pay_house(ch, arg2);
-	else if (is_abbrev(arg1, "add") && Security::isMember(ch, "House"))
+	} else if (is_abbrev(arg1, "add") && Security::isMember(ch, "House")) {
 		hcontrol_add_to_house(ch, arg2);
-	else if (is_abbrev(arg1, "delete") && Security::isMember(ch, "House"))
+	} else if (is_abbrev(arg1, "delete") && Security::isMember(ch, "House")) {
 		hcontrol_delete_from_house(ch, arg2);
-	else if (is_abbrev(arg1, "set") && Security::isMember(ch, "House"))
+	} else if (is_abbrev(arg1, "set") && Security::isMember(ch, "House")) {
 		hcontrol_set_house(ch, arg2);
-	else if (is_abbrev(arg1, "where") && Security::isMember(ch, "House"))
+    } else if (is_abbrev(arg1, "find") && Security::isMember(ch, "House")) {
+        hcontrol_find_houses(ch, arg2);
+    } else if (is_abbrev(arg1, "where") && Security::isMember(ch, "House")) {
 		hcontrol_where_house(ch, arg2);
-	else if (is_abbrev(arg1, "show") &&
+	} else if (is_abbrev(arg1, "show") &&
 		(Security::isMember(ch, "House") || GET_LEVEL(ch) >= LVL_DEMI)) {
-		if (!*arg2 || *arg2 == '+' || *arg2 == '-'
-			|| !strncasecmp(arg2, "all", 3))
+		if (!*arg2 || *arg2 == '+' || *arg2 == '-'|| !strncasecmp(arg2, "all", 3)) {
 			hcontrol_list_houses(ch, arg2);
-		else {
+		} else {
 			argument = one_argument(arg2, arg1);
 			if (is_abbrev(arg1, "rooms")) {
 				argument = one_argument(argument, arg1);
@@ -1486,8 +1616,9 @@ ACMD(do_hcontrol)
 			} else
 				send_to_char(ch, HCONTROL_SHOW_FORMAT);
 		}
-	} else
-		send_to_char(ch, HCONTROL_FORMAT);
+	} else {
+		send_to_char(ch,HCONTROL_FORMAT);
+    }
 }
 
 /* The house command, used by mortal house owners to assign guests */
