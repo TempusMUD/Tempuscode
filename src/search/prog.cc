@@ -235,7 +235,7 @@ prog_var_equal(prog_state_data *state, char *key, char *arg)
 bool
 prog_eval_condition(prog_env *env, prog_evt *evt, char *args)
 {
-	obj_data *obj;
+	obj_data *obj = NULL;
 	int vnum;
 	char *arg, *str;
 	bool result = false, not_flag = false;
@@ -319,6 +319,8 @@ prog_eval_condition(prog_env *env, prog_evt *evt, char *args)
 			obj = ((obj_data *)env->owner)->contains; break;
 		case PROG_TYPE_ROOM:
 			obj = ((room_data *)env->owner)->contents; break;
+		default:
+			obj = NULL;
 		}
 		while (obj) {
 			if (GET_OBJ_VNUM(obj) == vnum)
@@ -474,7 +476,7 @@ prog_do_mobflag(prog_env *env, prog_evt *evt, char *args)
 {
 	bool op;
 	char *arg;
-	int flag_idx, flags;
+	int flag_idx = 0, flags = 0;
 
 	if (env->owner_type != PROG_TYPE_MOBILE)
 		return;
@@ -613,7 +615,7 @@ void
 prog_do_oload(prog_env *env, prog_evt *evt, char *args)
 {
 	obj_data *obj;
-	room_data *room;
+	room_data *room = NULL;
 	int vnum;
 	char *arg;
 
@@ -635,6 +637,7 @@ prog_do_oload(prog_env *env, prog_evt *evt, char *args)
 		case PROG_TYPE_ROOM:
 			room = ((room_data *)env->owner);
 		default:
+			room = NULL;
 			errlog("Can't happen at %s:%d", __FILE__, __LINE__);
 		}
 		obj_to_room(obj, room);
@@ -674,6 +677,9 @@ prog_do_opurge(prog_env *env, prog_evt *evt, char *args)
 		obj_list = ((obj_data *)env->owner)->contains; break;
 	case PROG_TYPE_ROOM:
 		obj_list = ((room_data *)env->owner)->contents; break;
+	default:
+		obj_list = NULL;
+		errlog("Can't happen at %s:%d", __FILE__, __LINE__);
 	}
 	
 	if (!obj_list)
@@ -725,6 +731,7 @@ prog_do_echo(prog_env *env, prog_evt *evt, char *args)
 		case PROG_TYPE_ROOM:
 			room = ((room_data *)env->owner);
 		default:
+			room = NULL;
 			errlog("Can't happen at %s:%d", __FILE__, __LINE__);
 		}
 		send_to_room(tmp_sprintf("%s\r\n", args), room);
