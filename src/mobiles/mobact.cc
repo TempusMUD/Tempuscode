@@ -83,7 +83,8 @@ ACMD(do_holytouch);
 ACMD(do_medic);
 ACMD(do_firstaid);
 ACMD(do_bandage);
-
+ACMD(do_activate);
+ACMD(do_discharge);
 
 SPECIAL(thief);
 SPECIAL(cityguard);
@@ -1887,8 +1888,27 @@ void mobile_activity(void) {
 	} else if (IS_CYBORG(ch)) {
 	    if (GET_HIT(ch) < GET_MAX_HIT(ch)*0.80
 		&& GET_MOVE(ch) > 100) {
-		do_repair(ch,"",0,0);
+			do_repair(ch,"",0,0);
 	    }
+		if( !random_percentage_zero_low() ) {
+			if( GET_LEVEL(ch) > 11) {
+				if( !affected_by_spell(ch,SKILL_DAMAGE_CONTROL) ) {
+					if( GET_LEVEL(ch) >= 12 )
+						do_activate(ch,"damage control",0,1); // 12
+					if( GET_LEVEL(ch) >= 17 )
+						do_activate(ch,"radionegation",0,1);  // 17
+					if( GET_LEVEL(ch) >= 18 )
+						do_activate(ch,"power boost",0,1);    // 18
+						do_activate(ch,"reflex boost",0,1);   // 18
+					if( GET_LEVEL(ch) >= 24 )
+						do_activate(ch,"melee weapons tactics",0,1);  // 24
+					if( GET_LEVEL(ch) >= 32 )
+						do_activate(ch,"energy field",0,1);   // 32
+					if( GET_LEVEL(ch) >= 37 )
+						do_activate(ch,"shukutei adrenal maximizations",1,0); // 37
+				}
+			}
+		}
 	}
 
 	if (IS_MAGE(ch) && !ROOM_FLAGGED(ch->in_room, ROOM_NOMAGIC)) {
@@ -2501,7 +2521,28 @@ mobile_battle_activity(struct char_data *ch)
 	    return;
     }
 
+	if(IS_CYBORG(ch)) {
+		/* pseudo-randomly choose someone in the room who is fighting me */
+		for (vict = ch->in_room->people; vict; vict = vict->next_in_room)
+			if (FIGHTING(vict) == ch && random_fractional_3() )
+			break;
+		/* if I didn't pick any of those, then just slam the guy I'm fighting */
+		if (vict == NULL)
+			vict = FIGHTING(ch);
+		if( !random_fractional_3() ) {
+			if( GET_LEVEL(ch) >= 14 && random_binary() ) {
+				if( random_fractional_10() ) {
+					sprintf(buf,"%d%s",GET_LEVEL(ch)/3,GET_NAME(vict));
+					do_discharge(ch,buf,0,0);
+					return;
+				}
+			} else if ( GET_LEVEL(ch) >= 9 ) {
+				do_offensive_skill(ch, GET_NAME(vict), 0, SKILL_KICK);
+				return;
+			}
+		}
 
+	}
     if ((IS_MAGE(ch) || IS_LICH(ch)) && 
 	!ROOM_FLAGGED(ch->in_room, ROOM_NOMAGIC)) {
 	/* pseudo-randomly choose someone in the room who is fighting me */
