@@ -205,7 +205,8 @@
 #define ITEM3_REQ_SPARE2        (1 << 15)
 #define ITEM3_REQ_SPARE3        (1 << 16)
 #define ITEM3_LATTICE_HARDENED  (1 << 17)
-#define NUM_EXTRA3_FLAGS         18
+#define ITEM3_STAY_ZONE         (1 << 18)
+#define NUM_EXTRA3_FLAGS         19
 
 
 /* Container flags - value[1] */
