@@ -250,7 +250,6 @@ ACMD(do_loadroom);
 ACMD(do_makemount);
 ACMD(do_medic);
 ACMD(do_meditate);
-ACMD(do_menu);
 ACMD(do_mload);
 ACMD(do_mount);
 ACMD(do_show_more);
@@ -879,7 +878,6 @@ struct command_info cmd_info[] = {
 	{"massage", POS_RESTING, do_action, 0, 0, 0},
 	{"medic", POS_STANDING, do_medic, 0, 0, 0},
 	{"meditate", POS_SITTING, do_meditate, 0, 0, 0},
-	{"menu", POS_DEAD, do_menu, LVL_IMMORT, 0, 0},
 	{"mischievous", POS_RESTING, do_action, 0, 0, 0},
 	{"miss", POS_RESTING, do_action, 0, 0, 0},
 	{"mount", POS_STANDING, do_mount, 0, 0, 0},

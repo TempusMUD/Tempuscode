@@ -6560,28 +6560,6 @@ ACMD(do_nolocate)
     return;
 }
 
-ACMD(do_menu)
-{
-    struct Creature *vict;
-
-    skip_spaces(&argument);
-
-    if (!*argument) {
-        send_to_char(ch, "Who would you like to send the menu to?\r\n");
-        return;
-    }
-    if ((vict = get_char_vis(ch, argument))) {
-        if (vict->desc && GET_LEVEL(ch) > GET_LEVEL(vict) ) {
-            SEND_TO_Q("\033[H\033[J", vict->desc);
-            show_menu(vict->desc);
-            send_to_char(ch, "Okay.  Menu sent.\r\n");
-        } else
-            send_to_char(ch, 
-                "There is no link from this character to a player.\r\n");
-    } else
-        send_to_char(ch, "Hmm... No one here seems to be going by that name.\r\n");
-}
-
 ACMD(do_mudwipe)
 {
     struct obj_data *obj, *obj_tmp;
