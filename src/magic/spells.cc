@@ -304,7 +304,9 @@ ASPELL(spell_teleport)
 // Start V-Stone code
 	struct room_data *load_room = NULL, *was_in = NULL;
 	if (obj) {
-		if (!IS_OBJ_TYPE(obj, ITEM_VSTONE) || !GET_OBJ_VAL(obj, 2)) {
+		if (!IS_OBJ_TYPE(obj, ITEM_VSTONE) ||
+				(GET_OBJ_VAL(obj, 2) != -1
+					&& !GET_OBJ_VAL(obj, 2))) {
 			send_to_char(ch, NOEFFECT);
 			return;
 		}
@@ -352,7 +354,7 @@ ASPELL(spell_teleport)
 			(ZONE_FLAGGED(was_in->zone, ZONE_ISOLATED) &&
 				was_in->zone != load_room->zone)) {
 			send_to_char(ch, 
-				"Your gut wrenches as your are slung violently through spacetime.\r\n");
+				"Your gut wrenches as you are slung violently through spacetime.\r\n");
 			act("$n is jerked violently back into the void!", FALSE, ch, 0, 0,
 				TO_ROOM);
 			char_from_room(ch,false);
