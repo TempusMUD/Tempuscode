@@ -4,8 +4,6 @@
 // Copyright 1998 by John Watson, all rights reserved.
 //
 
-void best_attack(struct char_data *ch, struct char_data *vict);
-
 SPECIAL(duke_nukem)
 {
 

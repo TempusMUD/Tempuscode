@@ -25,6 +25,8 @@
 #include "house.h"
 #include "char_class.h"
 #include "bomb.h"
+#include "fight.h"
+
 ACMD(do_charge)
 {
     struct affected_type af, af2;
@@ -63,11 +65,25 @@ ACMD(do_charge)
 	hit(ch, vict, TYPE_UNDEFINED);
 }
 
-int perform_barb_beserk(struct char_data *ch)
+//
+// perform_barb_beserk randomly selects and attacks somebody in the room
+// who_was attacked is used to return a pointer to the person attacked
+// precious_ch is never attacked
+// sets return_flags value like damage() retval
+// return value is 0 for failure, 1 for success
+//
+
+int perform_barb_beserk(struct char_data *ch, 
+                        struct char_data **who_was_attacked,
+                        struct char_data *precious_ch,
+                        int * return_flags )
 {
     static struct char_data *vict = NULL;
 
     for ( vict = ch->in_room->people; vict; vict = vict->next_in_room ) {
+
+        if ( vict == precious_ch )
+            continue;
 
 	if ( vict == ch || FIGHTING(ch) || 
 	     PRF_FLAGGED(vict, PRF_NOHASSLE) ||
@@ -91,9 +107,14 @@ int perform_barb_beserk(struct char_data *ch)
 	act("You go beserk and attack $N!", FALSE, ch, 0, vict, TO_CHAR);
 	act("$n attacks $N in a BESERK rage!!", FALSE, ch,0,vict,TO_NOTVICT);
 	act("$n attacks you in a BESERK rage!!", FALSE, ch,0,vict,TO_VICT);
-	hit(ch, vict, TYPE_UNDEFINED);
+	*return_flags = hit(ch, vict, TYPE_UNDEFINED);
+
+        if ( !IS_SET( *return_flags, DAM_VICT_KILLED ) && who_was_attacked )
+            *who_was_attacked = vict;
+        
 	return 1;
     }
+
     return 0;
 }
 

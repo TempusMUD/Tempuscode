@@ -609,8 +609,8 @@ ACMD(do_split)
 	    send_to_char(buf, f->follower);
 	}
     }
-    sprintf(buf, "You split %d %s among %d member -- %d each.\r\n",
-	    amount, mode ? "credits" : "coins", num, share);
+    sprintf(buf, "You split %d %s among %d member%s -- %d each.\r\n",
+	    amount, mode ? "credits" : "coins", num, ( num > 1 ? "s" : "" ), share);
     send_to_char(buf, ch);
 }
 
@@ -1927,52 +1927,14 @@ ACMD(do_loadroom)
 	send_to_char("Usage: loadroom [off | set]\r\n", ch);
 
 }
-/*
-char *
-build_hallucination(struct char_data *ch)
-{
-  static char buf[MAX_STRING_LENGTH];
-  char sub_buf[128], vrb_buf[128], ob1_buf[128], prep_buf[128],
-    ob2_buf[128];
-  struct char_data *mob = NULL;
-  struct obj_data *obj = NULL;
-  int sub_i = -1, vrb_i = -1, obj_i = -1, prp_i = -1, obj2_i = -1, i;
-
-  *sub_buf =  '\0';
-  *vrb_buf =  '\0';
-  *ob1_buf =  '\0';
-  *prep_buf = '\0';
-  *ob2_buf =  '\0';
-
-  for (i = 0; i < NUM_WEARS; i++) {
-    if (GET_EQ(ch, i) && CAN_SEE_OBJ(ch, GET_EQ(ch, i)) && !number(0, 100)) {
-      obj = GET_EQ(ch, i);
-      break;
-    }
-    if (GET_IMPLANT(ch, i) && 
-	CAN_SEE_OBJ(ch, GET_IMPLANT(ch, i)) && !number(0, 200)) {
-      obj = GET_IMPLANT(ch, i);
-      break;
-    }
-  }
-
-  if (!obj) {
-    for (obj = ch->in_room->contents; obj; obj = obj->next_content)
-      if (CAN_SEE_OBJ(ch, obj) && !number(0, 100))
-	break;
-  }
-
-  *buf = '\0';
-  sprintf(buf, "Ha.\r\n");
-  return (buf);
-}
-  
-*/
 
 ACMD(do_gasify)
 {
     struct char_data *gas = NULL;
     struct room_data *tank = real_room(13);
+
+    if ( !ch->desc )
+        return;
 
     if (ch->desc->original) {
 	send_to_char("You're already switched.\r\n", ch);

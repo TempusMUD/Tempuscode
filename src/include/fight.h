@@ -54,9 +54,9 @@
  location != WEAR_WIELD && location != WEAR_WIELD_2 && \
  location != WEAR_ASS)
 
-#define DAM_RETURN(i)   cur_weap=NULL;return(i)
-
 #define IS_DEFENSE_ATTACK(attacktype)   (attacktype == SPELL_FIRE_SHIELD || attacktype == SPELL_BLADE_BARRIER  || attacktype == SPELL_PRISMATIC_SPHERE || attacktype == SKILL_ENERGY_FIELD)
+
+class CallerDiedException {};
 
 //
 // internal functions
@@ -170,7 +170,6 @@ void House_crashsave(room_num vnum);
 int char_class_race_hit_bonus(struct char_data *ch, struct char_data *vict);
 void sound_gunshots(struct room_data *rm, int type, int power, int num);
 int apply_soil_to_char(struct char_data *ch,struct obj_data *obj,int type,int pos);
-void add_blood_to_room(struct room_data *rm, int amount);
 void Crash_rentsave(struct char_data * ch, int cost, int rentcode);
 int Crash_rentcost(struct char_data *ch, int display, int factor);
 
@@ -181,6 +180,7 @@ extern FILE *player_fl;
 #endif
 #ifdef __fight_c__
 /* Structures */
+ACCMD(do_offensive_skill);
 struct char_data *combat_list = NULL;  /* head of list of fighting chars */
 struct char_data *next_combat_list = NULL;
 struct obj_data *cur_weap = NULL;
@@ -190,6 +190,25 @@ extern struct char_data *next_combat_list;
 extern struct obj_data *cur_weap;
 #endif
 
-ACCMD(do_offensive_skill);
+/* prototypes from fight.c */
+void	set_fighting(struct char_data *ch, struct char_data *victim, int aggr);
+void	stop_fighting(struct char_data *ch);
+void	stop_follower(struct char_data *ch);
+int	hit(struct char_data *ch, struct char_data *victim, int type);
+void	forget(struct char_data *ch, struct char_data *victim);
+void	remember(struct char_data *ch, struct char_data *victim);
+int     char_in_memory(struct char_data *victim, struct char_data *rememberer);
+
+const int DAM_VICT_KILLED = 0x0001;     // the victim of damage() died
+const int DAM_ATTACKER_KILLED = 0x0002; // the caller of damage() died
+
+int     SWAP_DAM_RETVAL( int val );
+int	damage(struct char_data *ch, struct char_data *victim, int dam, 
+	       int attacktype, int location);
+int	skill_message(int dam, struct char_data *ch, struct char_data *vict,
+		      int attacktype);
+int best_attack(struct char_data *ch, struct char_data *vict);
+void add_blood_to_room(struct room_data *rm, int amount);
+
 
 #endif // __fight_h__

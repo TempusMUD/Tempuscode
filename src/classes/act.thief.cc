@@ -247,6 +247,8 @@ ACMD(do_backstab)
     int percent, prob;
     struct obj_data *weap = NULL;
 
+    ACMD_set_return_flags( 0 );
+
     one_argument(argument, buf);
 
     if (!(vict = get_char_room_vis(ch, buf))) {
@@ -280,13 +282,16 @@ ACMD(do_backstab)
 
     cur_weap = weap;
     if (AWAKE(vict) && (percent > prob)) {
-	damage(ch, vict, 0, SKILL_BACKSTAB, WEAR_BACK);
 	WAIT_STATE(ch, 2 RL_SEC);
-    } else {
+	int retval = damage(ch, vict, 0, SKILL_BACKSTAB, WEAR_BACK);
+        ACMD_set_return_flags( retval );
+    } 
+
+    else {
 	WAIT_STATE(vict, 1 RL_SEC);
 	WAIT_STATE(ch, 4 RL_SEC);
-	hit(ch, vict, SKILL_BACKSTAB);
-
+	int retval = hit(ch, vict, SKILL_BACKSTAB);
+        ACMD_set_return_flags( retval );
     }
 }
 
@@ -295,6 +300,8 @@ ACMD(do_circle)
     struct char_data *vict;
     int percent, prob;
     struct obj_data *weap = NULL;
+
+    ACMD_set_return_flags( 0 );
 
     one_argument(argument, buf);
 
@@ -330,15 +337,25 @@ ACMD(do_circle)
   
     cur_weap = weap;
     if (percent > prob) {
-	damage(ch, vict, 0, SKILL_CIRCLE, WEAR_BACK);
 	WAIT_STATE(ch, 2 RL_SEC);
-    } else {
+	int retval = damage(ch, vict, 0, SKILL_CIRCLE, WEAR_BACK);
+        ACMD_set_return_flags( retval );
+    } 
+
+    else {
 	gain_skill_prof(ch, SKILL_CIRCLE);
 	WAIT_STATE(ch, 5 RL_SEC);
-	if (hit(ch, vict, SKILL_CIRCLE))
-	    return;
-	if (vict && (number(1, 40) + GET_LEVEL(vict)) >
-	    CHECK_SKILL(ch, SKILL_CIRCLE)) {
+	int retval = hit(ch, vict, SKILL_CIRCLE);
+
+        if ( retval )
+            return;
+ 
+        //
+        // possibly make vict start attacking ch
+        //
+        
+	if ( ( number(1, 40) + GET_LEVEL(vict) ) >
+             CHECK_SKILL(ch, SKILL_CIRCLE ) ) {
 	    stop_fighting(vict);
 	    set_fighting(vict, ch, FALSE);
 	}

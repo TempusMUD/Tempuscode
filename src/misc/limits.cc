@@ -30,6 +30,7 @@
 #include "vehicle.h"
 #include "clan.h"
 #include "specs.h"
+#include "fight.h"
 
 #define READ_TITLE(ch) (GET_CLASS(ch) == CLASS_KNIGHT && IS_EVIL(ch) ?   \
 			evil_knight_titles[(int)GET_LEVEL(ch)] :         \

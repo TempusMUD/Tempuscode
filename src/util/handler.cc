@@ -33,6 +33,7 @@
 #include "login.h"
 #include "char_class.h"
 #include "help.h"
+#include "fight.h"
 
 /* external vars */
 extern struct descriptor_data *descriptor_list;
@@ -731,16 +732,16 @@ affected_by_spell(struct char_data * ch, sh_int type)
     return NULL;
 }
 
+//
+// add a new affect to a character, joining it with an existing one if possible
+//
 
-
-void 
-affect_join(struct char_data * ch, struct affected_type * af,
-	    bool add_dur, bool avg_dur, bool add_mod, bool avg_mod)
+void affect_join( struct char_data * ch, struct affected_type * af,
+                  bool add_dur, bool avg_dur, bool add_mod, bool avg_mod )
 {
     struct affected_type *hjp;
-    int found = 0;
 
-    for (hjp = ch->affected; !found && hjp; hjp = hjp->next) {
+    for (hjp = ch->affected; hjp; hjp = hjp->next) {
 
 	if ((hjp->type == af->type) && (hjp->location == af->location)) {
 	    if (add_dur)
@@ -755,12 +756,17 @@ affect_join(struct char_data * ch, struct affected_type * af,
 		af->modifier >>= 1;
 	    affect_remove(ch, hjp);
 	    affect_to_char(ch, af);
-	    ++found;
+            return;
 	}
     }
-    if (!found) {
-	affect_to_char(ch, af);
-    }
+
+    //
+    // if we get here, that means a pre-existing affect wasn't joined to,
+    // so just add it fresh
+    //
+
+    affect_to_char(ch, af);
+
 }
 
 void

@@ -22,6 +22,7 @@
 #include "spells.h"
 #include "screen.h"
 #include "vehicle.h"
+#include "fight.h"
 
 /* extern variables */
 extern struct room_data *world;
@@ -46,6 +47,10 @@ void death_cry( struct char_data * ch );
 								      srch->arg[0], srch->arg[1], srch->arg[2] );slog( buf );}}
 #define SRCH_DOOR ( targ_room->dir_option[srch->arg[1]]->exit_info )
 #define SRCH_REV_DOOR ( other_rm->dir_option[rev_dir[srch->arg[1]]]->exit_info )
+
+//
+//
+//
 
 int
 general_search( struct char_data *ch, struct special_search_data *srch,int mode )

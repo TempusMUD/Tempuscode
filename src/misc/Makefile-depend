@@ -8,13 +8,13 @@ $(OBJ)/act.movement.o : act.movement.cc \
 	$(INCLUDE)/structs.h $(INCLUDE)/utils.h $(INCLUDE)/comm.h $(INCLUDE)/interpreter.h $(INCLUDE)/handler.h $(INCLUDE)/db.h $(INCLUDE)/spells.h $(INCLUDE)/house.h $(INCLUDE)/vehicle.h $(INCLUDE)/materials.h $(INCLUDE)/fight.h 
 	$(CXX) -c $(CXXFLAGS) act.movement.cc      -o $(OBJ)/act.movement.o
 $(OBJ)/act.obj.o : act.obj.cc \
-	$(INCLUDE)/structs.h $(INCLUDE)/utils.h $(INCLUDE)/comm.h $(INCLUDE)/interpreter.h $(INCLUDE)/handler.h $(INCLUDE)/db.h $(INCLUDE)/spells.h $(INCLUDE)/char_class.h $(INCLUDE)/vehicle.h $(INCLUDE)/materials.h $(INCLUDE)/smokes.h $(INCLUDE)/bomb.h $(INCLUDE)/guns.h 
+	$(INCLUDE)/structs.h $(INCLUDE)/utils.h $(INCLUDE)/comm.h $(INCLUDE)/interpreter.h $(INCLUDE)/handler.h $(INCLUDE)/db.h $(INCLUDE)/spells.h $(INCLUDE)/char_class.h $(INCLUDE)/vehicle.h $(INCLUDE)/materials.h $(INCLUDE)/smokes.h $(INCLUDE)/bomb.h $(INCLUDE)/guns.h $(INCLUDE)/fight.h 
 	$(CXX) -c $(CXXFLAGS) act.obj.cc           -o $(OBJ)/act.obj.o
 $(OBJ)/act.other.o : act.other.cc \
 	$(INCLUDE)/structs.h $(INCLUDE)/utils.h $(INCLUDE)/comm.h $(INCLUDE)/interpreter.h $(INCLUDE)/handler.h $(INCLUDE)/db.h $(INCLUDE)/spells.h $(INCLUDE)/screen.h $(INCLUDE)/house.h $(INCLUDE)/vehicle.h $(INCLUDE)/materials.h $(INCLUDE)/smokes.h $(INCLUDE)/clan.h $(INCLUDE)/constants.h $(INCLUDE)/fight.h $(INCLUDE)/char_class.h 
 	$(CXX) -c $(CXXFLAGS) act.other.cc         -o $(OBJ)/act.other.o
 $(OBJ)/act.wizard.o : act.wizard.cc \
-	$(INCLUDE)/structs.h $(INCLUDE)/utils.h $(INCLUDE)/comm.h $(INCLUDE)/interpreter.h $(INCLUDE)/handler.h $(INCLUDE)/db.h $(INCLUDE)/spells.h $(INCLUDE)/house.h $(INCLUDE)/screen.h $(INCLUDE)/char_class.h $(INCLUDE)/vehicle.h $(INCLUDE)/olc.h $(INCLUDE)/materials.h $(INCLUDE)/clan.h $(INCLUDE)/specs.h $(INCLUDE)/flow_room.h $(INCLUDE)/smokes.h $(INCLUDE)/paths.h $(INCLUDE)/login.h $(INCLUDE)/bomb.h $(INCLUDE)/guns.h $(INCLUDE)/elevators.h 
+	$(INCLUDE)/structs.h $(INCLUDE)/utils.h $(INCLUDE)/comm.h $(INCLUDE)/interpreter.h $(INCLUDE)/handler.h $(INCLUDE)/db.h $(INCLUDE)/spells.h $(INCLUDE)/house.h $(INCLUDE)/screen.h $(INCLUDE)/char_class.h $(INCLUDE)/vehicle.h $(INCLUDE)/olc.h $(INCLUDE)/materials.h $(INCLUDE)/clan.h $(INCLUDE)/specs.h $(INCLUDE)/flow_room.h $(INCLUDE)/smokes.h $(INCLUDE)/paths.h $(INCLUDE)/login.h $(INCLUDE)/bomb.h $(INCLUDE)/guns.h $(INCLUDE)/elevators.h $(INCLUDE)/fight.h 
 	$(CXX) -c $(CXXFLAGS) act.wizard.cc        -o $(OBJ)/act.wizard.o
 $(OBJ)/config.o : config.cc \
 	$(INCLUDE)/structs.h $(INCLUDE)/spells.h $(INCLUDE)/char_class.h 
@@ -23,7 +23,7 @@ $(OBJ)/constants.o : constants.cc \
 	$(INCLUDE)/structs.h $(INCLUDE)/spells.h 
 	$(CXX) -c $(CXXFLAGS) constants.cc         -o $(OBJ)/constants.o
 $(OBJ)/limits.o : limits.cc \
-	$(INCLUDE)/structs.h $(INCLUDE)/utils.h $(INCLUDE)/spells.h $(INCLUDE)/comm.h $(INCLUDE)/db.h $(INCLUDE)/handler.h $(INCLUDE)/vehicle.h $(INCLUDE)/clan.h $(INCLUDE)/specs.h 
+	$(INCLUDE)/structs.h $(INCLUDE)/utils.h $(INCLUDE)/spells.h $(INCLUDE)/comm.h $(INCLUDE)/db.h $(INCLUDE)/handler.h $(INCLUDE)/vehicle.h $(INCLUDE)/clan.h $(INCLUDE)/specs.h $(INCLUDE)/fight.h 
 	$(CXX) -c $(CXXFLAGS) limits.cc            -o $(OBJ)/limits.o
 $(OBJ)/login.o : login.cc \
 	$(INCLUDE)/structs.h $(INCLUDE)/comm.h $(INCLUDE)/db.h $(INCLUDE)/screen.h $(INCLUDE)/interpreter.h $(INCLUDE)/utils.h $(INCLUDE)/login.h 

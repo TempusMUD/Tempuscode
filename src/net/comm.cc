@@ -60,7 +60,7 @@ extern char *DFLT_DIR;
 extern int MAX_PLAYERS;
 extern int MAX_DESCRIPTORS_AVAILABLE;
 extern struct obj_data *cur_car;
-extern struct zone_data *d_quad_zone;
+extern struct zone_data *default_quad_zone;
 extern char help[];
 extern struct obj_data *object_list;
 
@@ -1568,6 +1568,9 @@ hupsig( int sig = 0 )
 
 }
 
+void pipesig( int sig = 0 ) {
+    slog( "SYSERR:  Ignoring SIGPIPE signal." );
+}
 
 /*
  * This is an implementation of signal() using sigaction() for portability.
@@ -1583,9 +1586,6 @@ hupsig( int sig = 0 )
  * SunOS Release 4.0.2 (sun386) needs this too, according to Tim Aldric.
  */
 
-#if defined(NeXT) || defined(sun386)
-#define my_signal(signo, func) signal(signo, func)
-#else
 sigfunc *my_signal(int signo, sigfunc * func)
 {
     struct sigaction act, oact;
@@ -1593,16 +1593,12 @@ sigfunc *my_signal(int signo, sigfunc * func)
     act.sa_handler = func;
     sigemptyset(&act.sa_mask);
     act.sa_flags = 0;
-#ifdef SA_INTERRUPT
-    act.sa_flags |= SA_INTERRUPT;	/* SunOS */
-#endif
 
     if (sigaction(signo, &act, &oact) < 0)
 	return SIG_ERR;
 
     return oact.sa_handler;
 }
-#endif /* NeXT */
 
 void 
 signal_setup(void)
@@ -2057,9 +2053,12 @@ act(const char *str, int hide_invisible, struct char_data * ch,
     }
 }
 
-void
-bamf_quad_damage(void)
-{
+//
+// ramdomly move the quad damage, creating it if needed
+// bamf as in *>BAMF<* nightcrawler from X-Men
+//
+void bamf_quad_damage(void) {
+
     struct obj_data *quad = NULL;
     struct zone_data *zone = NULL;
     struct room_data *room = NULL, *orig_room = NULL;
@@ -2082,15 +2081,21 @@ bamf_quad_damage(void)
     if (orig_room)
 	zone = orig_room->zone;
     else 
-	zone = d_quad_zone;
+	zone = default_quad_zone;
 
     for (; zone; zone = zone->next) {
 	if (zone->number >= 700)
-	    zone = d_quad_zone;
+	    zone = default_quad_zone;
 	if (zone->world && zone->plane <= MAX_PRIME_PLANE && !number(0, 2))
 	    break;
     }
   
+    if ( !zone ) {
+        slog( "SYSERR:  Quad didn't find valid zone to bamf to in bamf_quad_damage." );
+        extract_obj( quad );
+        return;
+    }
+
     for (room = zone->world; room; room = room->next) {
 	if (ROOM_FLAGGED(room, ROOM_PEACEFUL | ROOM_DEATH | ROOM_HOUSE |
 			 ROOM_CLAN_HOUSE) ||

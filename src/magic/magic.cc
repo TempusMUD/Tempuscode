@@ -28,6 +28,7 @@
 #include "interpreter.h"
 #include "char_class.h"
 #include "flow_room.h"
+#include "fight.h"
 
 extern struct room_data *world;
 extern struct obj_data *object_list;
@@ -468,7 +469,9 @@ mag_materials(struct char_data * ch, int item0, int item1, int item2,
 /*
  * Every spell that does damage comes through here.  This calculates the
  * amount of damage, adds in any modifiers, determines what the saves are,
- * tests for save and calls damage().  returns 1 if kills.
+ * tests for save and calls damage(). 
+ * return values same as damage()
+ *
  */
 
 int 
@@ -479,8 +482,13 @@ mag_damage(int level, struct char_data * ch, struct char_data * victim,
 	is_ranger = 0, is_knight = 0, audible = 0;
     int dam = 0;
 
-    if (victim == NULL || ch == NULL || victim->getPosition() <= POS_DEAD)
+    if (victim == NULL || ch == NULL )
 	return 0;
+
+    if ( victim->getPosition() <= POS_DEAD ) {
+        slog( "SYSERR: vict is already dead in mag_damage." );
+        return DAM_VICT_KILLED;
+    }
 
     is_mage = (IS_MAGE(ch) || IS_VAMPIRE(ch));
     is_cleric = IS_CLERIC(ch);
@@ -788,11 +796,19 @@ mag_damage(int level, struct char_data * ch, struct char_data * victim,
     // Do spell damage of type spellnum
     // unless its gravity well which does pressure damage.
     if(spellnum != SPELL_GRAVITY_WELL) {
-        if (damage(ch, victim, dam, spellnum, WEAR_RANDOM))
-            return 1;
+        int retval = damage(ch, victim, dam, spellnum, WEAR_RANDOM );
+
+        if ( retval ) {
+            return retval;
+        }
+
     } else {
-        if (damage(ch, victim, dam, TYPE_PRESSURE, WEAR_RANDOM))
-            return 1;
+        int retval = damage(ch, victim, dam, TYPE_PRESSURE, WEAR_RANDOM);
+
+        if ( retval ) {
+            return retval;
+        }
+
         WAIT_STATE(victim,2 RL_SEC);
         if( !IS_AFFECTED_3(victim, AFF3_GRAVITY_WELL) &&
             (victim->getPosition() > POS_STANDING || number(1,level/2) > GET_STR(victim))) {

@@ -23,11 +23,15 @@
 #include "materials.h"
 #include "fight.h"
 
+ACCMD(do_offensive_skill);
+
 ACMD(do_psidrain) {
 
     struct char_data *vict = NULL;
     int dist, drain, prob;
     int find_distance(struct room_data *tmp, struct room_data *location);
+
+    ACMD_set_return_flags( 0 );
 
     skip_spaces(&argument);
   
@@ -134,20 +138,39 @@ ACMD(do_psidrain) {
     act("$n strains against an unseen force.",
 	FALSE, ch, 0, vict, TO_ROOM);
 
+    //
+    // failure
+    //
+
     if (number(0, 121) > prob) {
 	send_to_char("You are unable to create the drainage link!\r\n", ch);
+	WAIT_STATE(ch, 2 RL_SEC);
+        
 	if (IS_NPC(vict) && !FIGHTING(vict)) {
-	    if (ch->in_room == vict->in_room)
-		hit(vict, ch, TYPE_UNDEFINED);
-	    else {
+            
+	    if (ch->in_room == vict->in_room) {
+		int retval = hit(vict, ch, TYPE_UNDEFINED);
+                retval = SWAP_DAM_RETVAL( retval );
+
+                ACMD_set_return_flags( retval );
+
+                if ( IS_SET( retval, DAM_ATTACKER_KILLED ) )
+                    return;
+            }
+            
+            else {
 		remember(vict, ch);
 		if (MOB2_FLAGGED(vict, MOB2_HUNT))
 		    HUNTING(vict) = ch;
 	    }
 	}
-	WAIT_STATE(ch, 2 RL_SEC);
-    } else {
-
+    } 
+    
+    //
+    // success
+    //
+    else {
+        
 	act("A torrent of psychic energy is ripped out of $N's mind!",
 	    FALSE, ch, 0, vict, TO_CHAR);
 	if (ch->in_room != vict->in_room &&
@@ -166,8 +189,17 @@ ACMD(do_psidrain) {
 	gain_skill_prof(ch, SKILL_PSIDRAIN);
 
 	if (IS_NPC(vict) && !FIGHTING(vict)) {
-	    if (ch->in_room == vict->in_room)
-		hit(vict, ch, TYPE_UNDEFINED);
+	    if (ch->in_room == vict->in_room) {
+                
+                int retval = hit(vict, ch, TYPE_UNDEFINED);
+                retval = SWAP_DAM_RETVAL( retval );
+                
+                ACMD_set_return_flags( retval );
+
+                if ( IS_SET( retval, DAM_ATTACKER_KILLED ) )
+                    return;
+
+            }
 	    else {
 		remember(vict, ch);
 		if (MOB2_FLAGGED(vict, MOB2_HUNT))
@@ -177,15 +209,15 @@ ACMD(do_psidrain) {
     }
 }
 
-int mob_fight_psionic( CHAR *ch )
-{
+int mob_fight_psionic( struct char_data *ch, struct char_data * precious_vict ) {
+
     CHAR *vict = 0;
 
     if ( !FIGHTING( ch ) )
 	return 0;
 
     // pick an enemy
-    if ( ! ( vict = choose_opponent(ch) ) )
+    if ( ! ( vict = choose_opponent(ch, precious_vict ) ) )
 	return 0;
 
     // dermal hardening

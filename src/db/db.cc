@@ -23,6 +23,7 @@
 #include <ctype.h>
 #include <time.h>
 #include <errno.h>
+#include <signal.h>
 
 #include "structs.h"
 #include "utils.h"
@@ -110,7 +111,7 @@ struct room_data *r_astral_manse_start_room;
 struct room_data *r_zul_dane_start_room;
 struct room_data *r_zul_dane_newbie_start_room;
 
-struct zone_data *d_quad_zone = NULL;
+struct zone_data *default_quad_zone = NULL;
 
 int  *obj_index = NULL;         /* object index                  */
 int  *mob_index = NULL;         /* mobile index                  */
@@ -360,8 +361,8 @@ boot_world(void)
     }
   
     /* for quad damage bamfing */
-    if (!(d_quad_zone = real_zone(25)))
-	d_quad_zone = zone_table;
+    if (!(default_quad_zone = real_zone(25)))
+	default_quad_zone = zone_table;
 }
 
 
@@ -3536,58 +3537,55 @@ pread_string(FILE * fl, char *str, char *error)
     return 1;
 }
 
-/* release memory allocated for a char struct */
-void 
-free_char(struct char_data * ch)
-{
+//
+// release memory allocated for a char struct
+// char must be remove from the world _FIRST_
+//
+
+void free_char(struct char_data * ch) {
+
     int i;
     struct char_data *tmp_mob;
     struct alias_data *a;
 
     void free_alias(struct alias_data * a);
 
+    //
+    // first make sure the char is no longer in the world
+    //
+
+    if ( ch->in_room != 0 || ch->carrying != 0 || ch->next_in_room != 0 ||
+         ch->next_fighting != 0 || ch->followers != 0 || ch->master != 0  ) {
+        slog( "SYSERR: free_char() attempted to free a char who is still connected to the world." );
+        raise( SIGSEGV );
+    }
+
+    //
+    // first remove and free all alieases
+    //
+
     while ((a = GET_ALIASES(ch)) != NULL) {
 	GET_ALIASES(ch) = (GET_ALIASES(ch))->next;
-#ifdef DMALLOC
-	dmalloc_verify(0);
-#endif
 	free_alias(a);
-#ifdef DMALLOC
-	dmalloc_verify(0);
-#endif
     }
-  
-    if (ch->player_specials != NULL && ch->player_specials != &dummy_mob) {
-	if (ch->player_specials->poofin)
-	    free(ch->player_specials->poofin);
-	if (ch->player_specials->poofout)
-	    free(ch->player_specials->poofout);
 
-	free(ch->player_specials);
-#ifdef DMALLOC
-	dmalloc_verify(0);
-#endif
-	if (IS_NPC(ch))
-	    slog("SYSERR: Mob had player_specials allocated!");
-    }
-    if (!IS_NPC(ch) || (IS_NPC(ch) && GET_MOB_VNUM(ch) == -1)) {
-	/* if this is a player, or a non-prototyped non-player, free all */
-	if (GET_NAME(ch))
-	    free(GET_NAME(ch));
-	if (ch->player.title)
-	    free(ch->player.title);
-	if (ch->player.short_descr)
-	    free(ch->player.short_descr);
-	if (ch->player.long_descr)
-	    free(ch->player.long_descr);
-	if (ch->player.description)
-	    free(ch->player.description);
-#ifdef DMALLOC
-	dmalloc_verify(0);
-#endif
-    } else if ((i = GET_MOB_VNUM(ch)) > -1) {
-	/* otherwise, free strings only if the string is not pointing at proto */
-	tmp_mob = real_mobile_proto(GET_MOB_VNUM(ch));
+    //
+    // now remove all affects
+    //
+
+    while (ch->affected)
+	affect_remove(ch, ch->affected);
+
+  
+    //
+    // free mob strings:
+    // free strings only if the string is not pointing at proto
+    //
+    
+    if ( ( i = GET_MOB_VNUM( ch ) ) > -1 ) {
+
+	tmp_mob = real_mobile_proto( GET_MOB_VNUM( ch ) );
+
 	if (ch->player.name && ch->player.name != tmp_mob->player.name)
 	    free(ch->player.name);
 	if (ch->player.title && ch->player.title != tmp_mob->player.title)
@@ -3603,17 +3601,66 @@ free_char(struct char_data * ch)
 	    free(ch->player.description);
 	if (ch->mob_specials.mug)
 	    free(ch->mob_specials.mug);
-#ifdef DMALLOC
-	dmalloc_verify(0);
-#endif
+
+        ch->mob_specials.mug    = 0;
     }
-    while (ch->affected)
-	affect_remove(ch, ch->affected);
+
+    //
+    // otherwise this is a player, so free all
+    //
+    
+    else {
+        
+	if (GET_NAME(ch))
+	    free(GET_NAME(ch));
+	if (ch->player.title)
+	    free(ch->player.title);
+	if (ch->player.short_descr)
+	    free(ch->player.short_descr);
+	if (ch->player.long_descr)
+	    free(ch->player.long_descr);
+	if (ch->player.description)
+	    free(ch->player.description);
+    } 
+
+    //
+    // null all the fields so if (heaven forbid!) the free'd ch is used again, 
+    // it will hopefully cause a segv
+    //
+
+    ch->player.name         = 0;
+    ch->player.title        = 0;
+    ch->player.short_descr  = 0;
+    ch->player.long_descr   = 0;
+    ch->player.description  = 0;
+    
+    //
+    // remove player_specials:
+    // - poofin
+    // - poofout
+    //
+
+    if (ch->player_specials != NULL && ch->player_specials != &dummy_mob) {
+	if (ch->player_specials->poofin)
+	    free(ch->player_specials->poofin);
+	if (ch->player_specials->poofout)
+	    free(ch->player_specials->poofout);
+        
+	free(ch->player_specials);
+        
+	if (IS_NPC(ch)) {
+	    slog( "SYSERR: Mob had player_specials allocated!" );
+            raise( SIGSEGV );
+        }
+    }
+
+    //
+    // null the free'd player_specials field
+    //
+
+    ch->player_specials = 0;
 
     free(ch);
-#ifdef DMALLOC
-    dmalloc_verify(0);
-#endif
 }
 
 /* release memory allocated for an obj struct */

@@ -161,7 +161,8 @@ add_bomb_room(struct room_data *room, int fromdir, int p_factor)
 
 void
 bomb_damage_room(char *bomb_name, int bomb_type, int bomb_power, 
-		 struct room_data *room, int dir, int power)
+		 struct room_data *room, int dir, int power, 
+                 struct char_data *precious_vict = 0 )
 {
 
     struct char_data *vict = NULL, *next_vict = NULL;
@@ -324,7 +325,14 @@ bomb_damage_room(char *bomb_name, int bomb_type, int bomb_power,
 
     for (vict = room->people; vict; vict = next_vict) {
         next_vict = vict->next_in_room;
-      
+
+        //
+        // don't kill our precious!
+        //
+
+        if ( vict == precious_vict )
+            continue;
+
         if (damage(NULL, vict, dam, damage_type, WEAR_RANDOM))
             continue;
           
@@ -515,9 +523,8 @@ detonate_bomb(struct obj_data *bomb)
 // engage_self_destruct is THE function that actually BLOWS UP somebody (assumed to be borg)
 //
 
-void 
-engage_self_destruct(struct char_data *ch)
-{
+void engage_self_destruct( struct char_data *ch, 
+                           struct char_data *precious_vict ) {
   
     int level, i;
     struct obj_data *obj = NULL, *n_obj = NULL;
@@ -576,12 +583,13 @@ engage_self_destruct(struct char_data *ch)
     for (rad_elem = bomb_rooms; rad_elem; rad_elem = next_elem) {
 	next_elem = rad_elem->next;
 
-	bomb_damage_room(GET_NAME(ch),
-			 SKILL_SELF_DESTRUCT,
-			 level,
-			 rad_elem->room, 
-			 find_first_step(rad_elem->room, room, 1), 
-			 rad_elem->power);
+	bomb_damage_room( GET_NAME(ch),
+                          SKILL_SELF_DESTRUCT,
+                          level,
+                          rad_elem->room, 
+                          find_first_step(rad_elem->room, room, 1), 
+                          rad_elem->power,
+                          precious_vict );
 	free(rad_elem);
 	bomb_rooms = next_elem;
     

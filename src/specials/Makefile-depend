@@ -1,5 +1,5 @@
 $(OBJ)/duke.o : duke.cc \
-	$(INCLUDE)/structs.h $(INCLUDE)/utils.h $(INCLUDE)/comm.h $(INCLUDE)/interpreter.h $(INCLUDE)/handler.h $(INCLUDE)/db.h $(INCLUDE)/spells.h 
+	$(INCLUDE)/structs.h $(INCLUDE)/utils.h $(INCLUDE)/comm.h $(INCLUDE)/interpreter.h $(INCLUDE)/handler.h $(INCLUDE)/db.h $(INCLUDE)/spells.h $(INCLUDE)/fight.h 
 	$(CXX) -c $(CXXFLAGS) duke.cc              -o $(OBJ)/duke.o
 $(OBJ)/spec_assign.o : spec_assign.cc \
 	$(INCLUDE)/structs.h $(INCLUDE)/db.h $(INCLUDE)/interpreter.h $(INCLUDE)/utils.h $(INCLUDE)/specs.h $(INCLUDE)/screen.h $(INCLUDE)/comm.h $(INCLUDE)/shop.h 

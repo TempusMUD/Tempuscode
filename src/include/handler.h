@@ -128,19 +128,6 @@ void	Crash_crashsave(struct char_data *ch);
 void	Crash_idlesave(struct char_data *ch);
 void	Crash_save_all(void);
 
-/* prototypes from fight.c */
-void	set_fighting(struct char_data *ch, struct char_data *victim, int aggr);
-void	stop_fighting(struct char_data *ch);
-void	stop_follower(struct char_data *ch);
-int	hit(struct char_data *ch, struct char_data *victim, int type);
-void	forget(struct char_data *ch, struct char_data *victim);
-void	remember(struct char_data *ch, struct char_data *victim);
-int char_in_memory(struct char_data *victim, struct char_data *rememberer);
-int	damage(struct char_data *ch, struct char_data *victim, int dam, 
-	       int attacktype, int location);
-int	skill_message(int dam, struct char_data *ch, struct char_data *vict,
-		      int attacktype);
-
 #define TED_MESSAGE " Write the text.  Terminate with @ on a new line.\r\n"\
       " Enter a * on a new line to enter TED\r\n"  \
 	" [+--------+---------+---------+--------"  \

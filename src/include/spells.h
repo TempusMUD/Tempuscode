@@ -788,7 +788,7 @@ void mag_alter_objs(int level, struct char_data *ch, struct obj_data *obj,
 void mag_creations(int level, struct char_data *ch, int spellnum);
 
 int call_magic(struct char_data *caster, struct char_data *cvict,
-	       struct obj_data *ovict, int spellnum, int level, int casttype);
+	       struct obj_data *ovict, int spellnum, int level, int casttype, int *return_flags = 0 );
 
 int mag_objectmagic(struct char_data *ch, struct obj_data *obj,
 		    char *argument);
@@ -797,13 +797,7 @@ void mag_objects(int level, struct char_data *ch, struct obj_data *obj,
 		 int spellnum);
 
 int cast_spell(struct char_data *ch, struct char_data *tch,
-	       struct obj_data *tobj, int spellnum);
-
-int trig_psych(struct char_data *ch, struct char_data *tch,
-	       struct obj_data *tobj, int spellnum);
-
-int alter_reality(struct char_data *ch, struct char_data *tch,
-		  struct obj_data *tobj, int spellnum);
+	       struct obj_data *tobj, int spellnum, int *return_flags = 0 );
 
 int mag_savingthrow(struct char_data *ch, int level, int type);
 

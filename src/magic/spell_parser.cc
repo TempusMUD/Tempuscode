@@ -816,21 +816,27 @@ find_skill_num(char *name)
 }
 
 
-
 /*
  * This function is the very heart of the entire magic system.  All
  * invocations of all types of magic -- objects, spoken and unspoken PC
  * and NPC spells, the works -- all come through this function eventually.
  * This is also the entry point for non-spoken or unrestricted spells.
  * Spellnum 0 is legal but silently ignored here, to make callers simpler.
+ *
+ * returns 1 on success of casting, 0 on failure
+ *
+ * return_flags has CALL_MAGIC_VICT_KILLED bit set if cvict dies
+ *
  */
-int 
-call_magic(struct char_data * caster, struct char_data * cvict,
-	   struct obj_data * ovict, int spellnum, int level, int casttype)
-{
+int call_magic( struct char_data * caster, struct char_data * cvict,
+                struct obj_data * ovict, int spellnum, int level, int casttype, int *return_flags = 0 ) {
+
     int savetype, mana = -1;
     bool same_vict = false;
     struct affected_type *af_ptr = NULL;
+
+    if ( return_flags ) 
+        *return_flags = 0;
 
     if (spellnum < 1 || spellnum > TOP_SPELL_DEFINE)
 	return 0;
@@ -1025,18 +1031,45 @@ call_magic(struct char_data * caster, struct char_data * cvict,
 	mag_objects(level, caster, ovict, spellnum);
 
     if (IS_SET(SINFO.routines, MAG_DAMAGE)) {
-		if (caster == cvict)
-			same_vict = true;
-		if (mag_damage(level, caster, cvict, spellnum, savetype)) {
-			if (casttype == CAST_SPELL && !same_vict) {
-				WAIT_STATE(caster, 2 RL_SEC);
-			mana = mag_manacost(caster, spellnum);
-			if (mana > 0)
-				GET_MANA(caster) = 
-				MAX(0, MIN(GET_MAX_MANA(caster), GET_MANA(caster) - mana));
-			}
-			return 0;
-		}
+        if (caster == cvict)
+            same_vict = true;
+        
+        int retval = mag_damage(level, caster, cvict, spellnum, savetype);
+
+        //
+        // somebody died (either caster or cvict)
+        //
+        
+        if ( retval ) {
+            
+            if ( IS_SET( retval, DAM_ATTACKER_KILLED ) ||
+                 ( IS_SET( retval, DAM_VICT_KILLED ) && same_vict ) ) {
+                if ( return_flags ) {
+                    *return_flags = retval | DAM_ATTACKER_KILLED;
+                }
+
+                return 1;
+            }
+            
+            if ( return_flags ) {
+                *return_flags = retval;
+            }
+
+            /*
+             * WHY IS THIS HERE?
+             *
+             
+            if ( casttype == CAST_SPELL ) {
+                WAIT_STATE(caster, 2 RL_SEC);
+                mana = mag_manacost(caster, spellnum);
+                if (mana > 0)
+                    GET_MANA(caster) = 
+                        MAX(0, MIN(GET_MAX_MANA(caster), GET_MANA(caster) - mana));
+            }
+            */
+            
+            return 0;
+        }
     }
 
     if (IS_SET(SINFO.routines, MAG_MANUAL))
@@ -1366,11 +1399,16 @@ mag_objectmagic(struct char_data * ch, struct obj_data * obj,
 
 int 
 cast_spell(struct char_data * ch, struct char_data * tch,
-	   struct obj_data * tobj, int spellnum)
+	   struct obj_data * tobj, int spellnum, int *return_flags = 0 )
 {
 
-    bool ending = FALSE;
-	
+    if ( return_flags )
+        *return_flags = 0;
+
+    //
+    // subtract npc mana first, since this is the entry point for npc spells
+    // do_cast, do_trigger, do_alter are the entrypoints for PC spells
+    //
 
     if (IS_NPC(ch)) {
 	if (GET_MANA(ch) < mag_manacost(ch, spellnum))
@@ -1381,6 +1419,11 @@ cast_spell(struct char_data * ch, struct char_data * tch,
 		WAIT_STATE(ch, PULSE_VIOLENCE);
 	}
     }
+
+    //
+    // verify correct position
+    //
+
     if (ch->getPosition() < SINFO.min_position) {
 	switch (ch->getPosition()) {
 	case POS_SLEEPING:
@@ -1473,20 +1516,44 @@ cast_spell(struct char_data * ch, struct char_data * tch,
 	slog(buf);
     }
 
-    ending =  (call_magic(ch, tch, tobj, spellnum, 
-			  GET_LEVEL(ch) + (!IS_NPC(ch) ? 
-					   (GET_REMORT_GEN(ch) << 1):0), 
-			  (SPELL_IS_PSIONIC(spellnum) ? CAST_PSIONIC :
-			   (SPELL_IS_PHYSICS(spellnum) ? CAST_PHYSIC :
-			    CAST_SPELL))));
-	     
-    if (tch && ch != tch && IS_NPC(tch) && tch->in_room && 
-	ch->in_room == tch->in_room &&
-	SINFO.violent && !FIGHTING(tch) && tch->getPosition() > POS_SLEEPING && 
-	(!AFF_FLAGGED(tch, AFF_CHARM) || ch != tch->master))
-	hit(tch, ch, TYPE_UNDEFINED);
-  
-    return (ending);
+    int my_return_flags = 0;
+
+    int retval = call_magic(ch, tch, tobj, spellnum, 
+                            GET_LEVEL(ch) + ( ! IS_NPC(ch) ? ( GET_REMORT_GEN( ch ) << 1 ) : 0 ), 
+                            ( SPELL_IS_PSIONIC( spellnum ) ? CAST_PSIONIC :
+                              ( SPELL_IS_PHYSICS( spellnum ) ? CAST_PHYSIC : CAST_SPELL ) ),
+                            &my_return_flags);
+
+    if ( return_flags ) {
+        *return_flags = my_return_flags;
+    }
+
+    if ( IS_SET( my_return_flags, DAM_ATTACKER_KILLED ) ) {
+        return 0;
+    }
+    
+    if ( IS_SET( my_return_flags, DAM_VICT_KILLED ) ) {
+        return retval;
+    }
+    
+    if ( tch && ch != tch && IS_NPC(tch) && 
+         ch->in_room == tch->in_room &&
+         SINFO.violent && !FIGHTING(tch) && tch->getPosition() > POS_SLEEPING && 
+         (!AFF_FLAGGED(tch, AFF_CHARM) || ch != tch->master)) {
+	int my_return_flags = hit(tch, ch, TYPE_UNDEFINED);
+
+        my_return_flags = SWAP_DAM_RETVAL( my_return_flags );
+
+        if ( return_flags ) {
+            *return_flags = my_return_flags;
+        }
+        
+        if ( IS_SET( my_return_flags, DAM_ATTACKER_KILLED ) ) {
+            return 0;
+        }
+    }
+    
+    return (retval);
 }
 
 int

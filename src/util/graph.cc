@@ -41,9 +41,7 @@
 /* Externals */
 extern struct room_data *world;
 
-int mag_manacost(struct char_data *ch, int spellnum);
 int has_key(struct char_data *ch, obj_num key);
-void best_attack(struct char_data *ch, struct char_data *vict);
 
 ACMD(do_say);
 ACMD(do_gen_comm);
@@ -482,11 +480,11 @@ int smart_mobile_move(struct char_data *ch, int dir) {
 //
 // hunt_victim()
 //
+// has a return value like damage()
 //
 
-void 
-hunt_victim(struct char_data * ch)
-{
+int hunt_victim( struct char_data * ch ) {
+
     char buf2[MAX_STRING_LENGTH];
     extern struct char_data *character_list;
     void perform_tell(struct char_data *ch, struct char_data *vict, char *buf);
@@ -496,11 +494,11 @@ hunt_victim(struct char_data * ch)
     struct char_data *tmp;
 
     if (!ch || !HUNTING(ch))
-	return;
+	return 0;
 
     if ( ! HUNTING(ch)->in_room ) {
 	slog("SYSERR:  hunting ! HUNTING(ch)->in_room !!");
-	return;
+	return 0;
     }
 
     /* make sure the char still exists */
@@ -513,23 +511,24 @@ hunt_victim(struct char_data * ch)
 	    do_say(ch, "Damn!  My prey is gone!!", 0, 0);
 	    HUNTING(ch) = 0;
 	}
-	return;
+	return 0;
     }
     if (GET_LEVEL(HUNTING(ch)) >= LVL_AMBASSADOR) {
 	HUNTING(ch) = NULL;
-	return;
+	return 0;
     }
     if (HUNTING(ch) == FIGHTING(ch))
-	return;
+	return 0;
 
     if (ch->in_room == HUNTING(ch)->in_room &&
 	!FIGHTING(ch) && CAN_SEE(ch, HUNTING(ch)) &&
 	!PLR_FLAGGED(HUNTING(ch), PLR_WRITING | PLR_OLC) &&
 	(!(af_ptr = affected_by_spell(HUNTING(ch), SKILL_DISGUISE)) ||
 	 CAN_DETECT_DISGUISE(ch, HUNTING(ch), af_ptr->duration))) {
-	if (peaceful_room_ok(ch, HUNTING(ch), false))
-	    best_attack(ch, HUNTING(ch));
-	return;
+	if (peaceful_room_ok(ch, HUNTING(ch), false)) {
+	    return best_attack(ch, HUNTING(ch));
+        }
+	return 0;
     }
     if (IS_CLERIC(ch) || IS_MAGE(ch)) {
 	if (HUNTING(ch)->in_room && CAN_SEE(ch, HUNTING(ch)) && 
@@ -537,12 +536,12 @@ hunt_victim(struct char_data * ch)
 	    if ((IS_CLERIC(ch) && GET_LEVEL(ch) > 16) ||
 		(IS_MAGE(ch) && GET_LEVEL(ch) > 27)) { 
 		if (GET_MANA(ch) < mag_manacost(ch, SPELL_SUMMON)) {
-		    cast_spell(ch, HUNTING(ch), 0, SPELL_SUMMON);
-		    return;
+		    return cast_spell(ch, HUNTING(ch), 0, SPELL_SUMMON);
 		}
 	    }
 	}
     }
+
     if(!IS_AFFECTED(HUNTING(ch),AFF_NOTRACK))
         dir = find_first_step(ch->in_room, HUNTING(ch)->in_room, 0);
     else
@@ -550,11 +549,11 @@ hunt_victim(struct char_data * ch)
     if (dir < 0) {
 	act("$n says, 'Damn! Lost $M!'", FALSE, ch, 0, HUNTING(ch), TO_ROOM);
 	HUNTING(ch) = 0;
-	return;
+	return 0;
     } else {
 	if (smart_mobile_move(ch, dir) < 0) {
 	    HUNTING(ch) = NULL;
-	    return;
+	    return 0;
 	}
 
 	if ((ch->in_room == HUNTING(ch)->in_room) && CAN_SEE(ch, HUNTING(ch)) &&
@@ -568,12 +567,15 @@ hunt_victim(struct char_data * ch)
 			    FALSE, ch, 0, HUNTING(ch), TO_NOTVICT);
 			act("$n snarls and attacks you!!!", 
 			    FALSE, ch, 0, HUNTING(ch), TO_VICT);
-		    } else if (IS_RACE(ch, RACE_ARCHON)) {
+		    } 
+                    else if (IS_RACE(ch, RACE_ARCHON)) {
 			act("$n shouts, '$N you vile profaner of goodness!",
 			    FALSE, ch, 0, HUNTING(ch), TO_ROOM);		
-		    } else if ( GET_MOB_VNUM(ch) == UNHOLY_STALKER_VNUM ) {
+		    } 
+                    else if ( GET_MOB_VNUM(ch) == UNHOLY_STALKER_VNUM ) {
 			do_say(ch, "Time to die.", 0, SCMD_INTONE);
-		    } else {
+		    } 
+                    else {
 			if (!number(0, 3))
 			    act("$n screams, 'Gotcha, punk ass $N!!'.", 
 				FALSE, ch, 0, HUNTING(ch), TO_ROOM);
@@ -590,14 +592,16 @@ hunt_victim(struct char_data * ch)
 			    do_say(ch, buf2, 0, 0);
 			} 
 		    }
-		    best_attack(ch, HUNTING(ch));
+		    return best_attack(ch, HUNTING(ch));
 		}
 	    } 
-	} else if (ch->in_room == HUNTING(ch)->in_room) {
+	} 
+
+        else if (ch->in_room == HUNTING(ch)->in_room) {
 	    if (!number(0, 10))
 		act("$n says, 'I know that jerk $N is around here somewhere!", 
 		    FALSE, ch, 0, HUNTING(ch), TO_ROOM);
-	    return;
+	    return 0;
 	} else {
 	    if (!number(0, 64))
 		act("$n sniffs the ground.", FALSE, ch, 0, 0, TO_ROOM);
@@ -613,8 +617,7 @@ hunt_victim(struct char_data * ch)
 		case 1:
 		    sprintf(buf2, "I'm gonna find you, %s!", GET_NAME(HUNTING(ch)));
 		    perform_tell(ch, HUNTING(ch), buf2);
-		    return;
-		    break;
+		    return 0;
 		case 2:
 		    sprintf(buf2, "You can run, but you can't hide, %s you sissy!", 
 			    GET_NAME(HUNTING(ch)));
@@ -628,8 +631,7 @@ hunt_victim(struct char_data * ch)
 		    sprintf(buf2, "You're gonna learn better than to mess with me, %s!",
 			    GET_NAME(HUNTING(ch)));
 		    perform_tell(ch, HUNTING(ch), buf2);
-		    return;
-		    break;
+		    return 0;
 		case 5:
 		    strcpy(buf2, "One of these days, I'm gonna get a little respect!");
 		    break;
@@ -653,27 +655,27 @@ hunt_victim(struct char_data * ch)
 		    sprintf(buf2, "Don't worry %s... I'll find you!", 
 			    GET_NAME(HUNTING(ch)));
 		    perform_tell(ch, HUNTING(ch), buf2);
-		    return;
-		    break;
+		    return 0;
 		case 11:
 		    sprintf(buf2, "I'm practically on you, %s!", GET_NAME(HUNTING(ch)));
 		    do_gen_comm(ch, buf2, 0, SCMD_SHOUT);
-		    return;
+		    return 0;
 		case 12:
 		    sprintf(buf2, "Hey you momma's %s!  I'm coming for you.", 
 			    IS_FEMALE(HUNTING(ch)) ? "girl" : "boy");
 		    perform_tell(ch, HUNTING(ch), buf2);
-		    return;
+		    return 0;
 		case 13:
 		    sprintf(buf2, "Looks like I'm gonna have to hunt you down, %s!", 
 			    GET_NAME(HUNTING(ch)));
 		    if (number(0, 2)) {
 			perform_tell(ch, HUNTING(ch), buf2);
-			return;
+			return 0;
 		    } 
 		default:
-		    return;
+		    return 0;
 		}
+                
 		if (!number(0, 4))
 		    do_gen_comm(ch, buf2, 0, SCMD_SHOUT);
 		if (!number(0, 5))
@@ -685,9 +687,10 @@ hunt_victim(struct char_data * ch)
 		else
 		    do_gen_comm(ch, buf2, 0, SCMD_MUSIC);
 	    }
+            
 	    if (!number(0, 32))
 		do_say(ch, "One of these days..", 0, 0);
 	}
-	return;
     }
+    return 0;
 }

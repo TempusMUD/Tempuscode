@@ -96,12 +96,11 @@ inline int RAW_EQ_DAM( struct char_data *ch, int pos, int *var ) {
 #define NOBEHEAD_EQ(obj) \
 IS_SET(obj->obj_flags.bitvector[1], AFF2_NECK_PROTECTED)
   
-    int
-calc_skill_prob(struct char_data *ch, struct char_data *vict, int skillnum,
-		int *wait, int *vict_wait, int *move, int *mana, int *dam, 
-		int *fail_pos, int *vict_pos, int *loc, 
-		struct affected_type *af)
-{
+int calc_skill_prob( struct char_data *ch, struct char_data *vict, int skillnum,
+                     int *wait, int *vict_wait, int *move, int *mana, int *dam, 
+                     int *fail_pos, int *vict_pos, int *loc, 
+                     struct affected_type *af, int *return_flags ) {
+
     int prob = 0, eq_wt = 0, i;
     bool bad_sect = 0, need_hand = 0;
     struct obj_data *neck = NULL, *ovict = NULL;
@@ -270,9 +269,11 @@ calc_skill_prob(struct char_data *ch, struct char_data *vict, int skillnum,
 		FALSE,ch,0,vict,TO_VICT);
 	    act("$n tries to pick $N up and piledrive $M!",
 		FALSE,ch,0,vict,TO_NOTVICT);
-	    if (check_mob_reaction(ch, vict))
-		hit(vict, ch, TYPE_UNDEFINED);
-	    return -1;
+	    if (check_mob_reaction(ch, vict)) {
+                int retval = hit( vict, ch, TYPE_UNDEFINED );
+                *return_flags = SWAP_DAM_RETVAL( retval );
+                return -1;
+            }
 	}
     
 	*move = 20;
@@ -297,8 +298,10 @@ calc_skill_prob(struct char_data *ch, struct char_data *vict, int skillnum,
 		FALSE,ch,0,vict,TO_VICT);
 	    act("$n tries to pick $N up and bodyslam $M!",
 		FALSE,ch,0,vict,TO_NOTVICT);
-	    if (check_mob_reaction(ch, vict))
-		hit(vict, ch, TYPE_UNDEFINED);
+	    if (check_mob_reaction(ch, vict)) {
+		int retval = hit(vict, ch, TYPE_UNDEFINED);
+                *return_flags = SWAP_DAM_RETVAL( retval );
+            }
 	    return -1;
 	}
 
@@ -755,6 +758,9 @@ ACCMD(do_offensive_skill)
     struct affected_type af;
     int  prob = -1, wait = 0, vict_wait=0, dam=0, vict_pos=0, fail_pos=0, 
 	loc =-1, move = 0, mana = 0;
+    int my_return_flags;
+
+    ACMD_set_return_flags( 0 );
 
     one_argument(argument, arg);
 
@@ -794,12 +800,17 @@ ACCMD(do_offensive_skill)
 
     af.type = 0;
 
-    /* calc_skill_prob returns -1 if you cannot perform that skill. */
+    //
+    // calc_skill_prob returns -1 if you cannot perform that skill,
+    // or if somethine exceptional happened and we need to return
+    //
+
     if ((prob = 
 	 calc_skill_prob(ch, vict, subcmd, 
 			 &wait, &vict_wait, &move, &mana,
-			 &dam, &fail_pos, &vict_pos, &loc, &af)) < 0) {
+			 &dam, &fail_pos, &vict_pos, &loc, &af, &my_return_flags )) < 0) {
 	cur_weap = NULL;
+        ACMD_set_return_flags( my_return_flags );
 	return;
     }
   
@@ -807,47 +818,64 @@ ACCMD(do_offensive_skill)
 	prob -= (prob * (ABS(GET_ALIGNMENT(ch)))) / 1000;
 	dam -= (dam * (ABS(GET_ALIGNMENT(ch)))) / 2000;
     }
-      
+    
+    //
+    // skill failure
+    //
+
     if (prob < number(1, 120)) {
-		if (damage(ch, vict, 0, subcmd, loc))
-			return;
-		if (fail_pos) {
-			ch->setPosition( fail_pos );
-			if ( prob < 50 ) {
-			// 0.1 sec for every point below 50, up to 7 sec
-			int tmp_wait = 50 - prob;
-			tmp_wait = MAX( tmp_wait, 70 );
-			wait += tmp_wait;
-			sprintf( buf, "%s failed %s miserably, tacking on %d x0.1 sec", 
-				 GET_NAME(ch), spells[ subcmd ], tmp_wait );
-			slog(buf);
-			}
-		}
+        if (damage(ch, vict, 0, subcmd, loc))
+            return;
+        if (fail_pos) {
+            ch->setPosition( fail_pos );
+            if ( prob < 50 ) {
+                // 0.1 sec for every point below 50, up to 7 sec
+                int tmp_wait = 50 - prob;
+                tmp_wait = MAX( tmp_wait, 70 );
+                wait += tmp_wait;
+                sprintf( buf, "%s failed %s miserably, tacking on %d x0.1 sec", 
+                         GET_NAME(ch), spells[ subcmd ], tmp_wait );
+                slog(buf);
+            }
+        }
 			
-		if (move)
-			GET_MOVE(ch) -= (move >> 1);
-		if (mana)
-			GET_MANA(ch) -= (mana >> 1);
+        if (move)
+            GET_MOVE(ch) -= (move >> 1);
+        if (mana)
+            GET_MANA(ch) -= (mana >> 1);
 
-		WAIT_STATE(ch, (wait >> 1));
+        WAIT_STATE(ch, (wait >> 1));
 
-    } else {
-		if (move)
-			GET_MOVE(ch) -= move;
-		if (mana)
-			GET_MANA(ch) -= mana;
-		gain_skill_prof(ch, subcmd);
-		WAIT_STATE(ch, wait);
+    } 
 
-		if (!damage(ch, vict, dam, subcmd, loc)) {
-			if (vict_pos)
-			vict->setPosition( vict_pos );
-			if (vict_wait)
-			WAIT_STATE(vict, vict_wait);
-		  
-			if (af.type && !affected_by_spell(vict, af.type))
-			affect_to_char(vict, &af);
-		}
+    //
+    // skill success
+    //
+
+    else {
+        if (move)
+            GET_MOVE(ch) -= move;
+        if (mana)
+            GET_MANA(ch) -= mana;
+
+        gain_skill_prof(ch, subcmd);
+        WAIT_STATE(ch, wait);
+
+        my_return_flags = damage(ch, vict, dam, subcmd, loc );
+        
+        //
+        // set waits, position, and affects on victim if they are still alive
+        //
+        
+        if ( ! IS_SET( my_return_flags, DAM_VICT_KILLED ) ) {
+            if (vict_pos)
+                vict->setPosition( vict_pos );
+            if (vict_wait)
+                WAIT_STATE(vict, vict_wait);
+            
+            if (af.type && !affected_by_spell(vict, af.type))
+                affect_to_char(vict, &af);
+        }
     }
 }
 
@@ -1005,13 +1033,17 @@ ACMD(do_order)
 		act("$n has an indifferent look.", FALSE, vict, 0, 0, TO_ROOM);
 	    else {
 		if (!CHECK_WAIT(vict) && !GET_MOB_WAIT(vict)) {
+                    
+                    if ((vict->master != ch || !IS_AFFECTED(vict, AFF_CHARM)) &&
+                        GET_LEVEL(ch) < LVL_AMBASSADOR && IS_VAMPIRE(ch)) {
+                        gain_skill_prof(ch, SKILL_CONTROL_UNDEAD);
+                    }
+
 		    if (IS_NPC(vict) && GET_MOB_VNUM(vict) == 5318)
 			do_say(vict, "As you command, master.", 0, 0);
 		    command_interpreter(vict, message);
 		}
-		if ((vict->master != ch || !IS_AFFECTED(vict, AFF_CHARM)) &&
-		    GET_LEVEL(ch) < LVL_AMBASSADOR && IS_VAMPIRE(ch))
-		    gain_skill_prof(ch, SKILL_CONTROL_UNDEAD);
+
 	    }
 	} else {                    /* This is order "followers" */
 	    sprintf(buf, "$n issues the order '%s'.", message);
@@ -1048,10 +1080,17 @@ ACMD(do_order)
     }
 }
 
+//
+// if this case, if return_flags has DAM_ATTACKER_KILLED set, it is not absolutely
+// certain that he is dead, but you better damn well not mess with his pointer afterwards
+//
+
 ACMD(do_flee)
 {
     int i, attempt, loss = 0;
     struct char_data *fighting = FIGHTING(ch);
+
+    ACMD_set_return_flags( 0 );
 
     if (IS_AFFECTED_2(ch, AFF2_PETRIFIED)) {
 	send_to_char("You are solid stone!\r\n", ch);
@@ -1092,6 +1131,13 @@ ACMD(do_flee)
 	    }
 	    
 	    int move_result = do_simple_move( ch, attempt, MOVE_FLEE, TRUE );
+
+            //
+            // return of 2 indicates critical failure of do_simple_move
+            //
+
+            if ( move_result == 2 )
+                ACMD_set_return_flags( DAM_ATTACKER_KILLED );
 
 	    if ( move_result == 0 ) {
 		send_to_char("You flee head over heels.\r\n", ch);
@@ -1361,7 +1407,7 @@ ACMD(do_stun)
 	return;
     }
     if (!peaceful_room_ok(ch, vict, true))
-	return;
+        return;
   
     if (!ok_damage_shopkeeper(ch, vict) && GET_LEVEL(ch) < LVL_ELEMENT) {
         act("$N stuns you with a swift blow!", FALSE, ch, 0, vict, TO_CHAR);
@@ -1686,6 +1732,8 @@ ACMD(do_sleeper)
     struct obj_data *ovict = NULL;
     int  percent, prob;
 
+    ACMD_set_return_flags( 0 );
+
     one_argument(argument, arg);
 
     if (!(vict = get_char_room_vis(ch, arg))) {
@@ -1729,22 +1777,47 @@ ACMD(do_sleeper)
 
     if (IS_PUDDING(vict) || IS_SLIME(vict))
 	prob = 0;
+
+    WAIT_STATE(ch, 3 RL_SEC);
+
+    //
+    // failure
+    //
+
     if (percent > prob || MOB_FLAGGED(vict, MOB_NOSLEEP) || 
 	GET_LEVEL(vict) > LVL_CREATOR)  {
-	damage(ch, vict, 0, SKILL_SLEEPER, WEAR_NECK_1);
-    }  else {
+	int retval = damage(ch, vict, 0, SKILL_SLEEPER, WEAR_NECK_1);
+        ACMD_set_return_flags( retval );
+    }  
+    
+    //
+    // success
+    //
+
+    else {
 	gain_skill_prof(ch, SKILL_SLEEPER);
-	if (damage(ch, vict, 18, SKILL_SLEEPER, WEAR_NECK_1))
-	    return;
-	if (FIGHTING(vict))
-	    stop_fighting(vict); 
-	if (FIGHTING(ch))
-	    stop_fighting(ch);
-	vict->setPosition( POS_SLEEPING );
-	remember(vict, ch);
-	WAIT_STATE(vict, 4 RL_SEC);
+	int retval = damage(ch, vict, 18, SKILL_SLEEPER, WEAR_NECK_1);
+
+        ACMD_set_return_flags( retval );
+
+        //
+        // put the victim to sleep if he's still alive
+        //
+
+        if ( ! IS_SET( retval, DAM_VICT_KILLED ) ) {
+            vict->setPosition( POS_SLEEPING );
+            WAIT_STATE(vict, 4 RL_SEC);
+
+            if ( IS_SET( retval, DAM_ATTACKER_KILLED ) )
+                return;
+            
+            if (FIGHTING(vict))
+                stop_fighting(vict); 
+            if (FIGHTING(ch))
+                stop_fighting(ch);
+            remember(vict, ch);
+        }
     }
-    WAIT_STATE(ch, 3 RL_SEC);
 }
 
 ACMD(do_turn)
@@ -1834,9 +1907,12 @@ ACMD(do_shoot)
     struct obj_data *gun = NULL, *target = NULL, *bullet = NULL;
     sh_int  prob, dam, cost;
     int i, dum_ptr = 0, dum_move = 0;
-    bool dead = 0;
+    bool dead = false;
     struct affected_type *af = NULL;
     char arg[MAX_INPUT_LENGTH];
+    int my_return_flags = 0;
+
+    ACMD_set_return_flags( 0 );
 
     argument = one_argument(argument, arg);
   
@@ -1952,8 +2028,13 @@ ACMD(do_shoot)
 
 	prob = calc_skill_prob(ch, vict, SKILL_SHOOT,
 			       &dum_ptr, &dum_ptr, &dum_move, &dum_move, &dum_ptr,
-			       &dum_ptr, &dum_ptr, &dum_ptr, af);
+			       &dum_ptr, &dum_ptr, &dum_ptr, af, &my_return_flags );
     
+        if ( my_return_flags ) {
+            ACMD_set_return_flags( my_return_flags );
+            return;
+        }
+
 	prob += CHECK_SKILL(ch, SKILL_ENERGY_WEAPONS) >> 2;
 
 	for (tmp_vict = ch->in_room->people; tmp_vict; 
@@ -1983,7 +2064,7 @@ ACMD(do_shoot)
 	if (CUR_R_O_F(gun) <= 0)
 	    CUR_R_O_F(gun) = 1;
     
-	for (i = 0, dead = 0; i < CUR_R_O_F(gun); i++) {
+	for (i = 0, dead = false; i < CUR_R_O_F(gun); i++) {
 
 	    prob -= (i * 4);
 	    cost = MIN(CUR_ENERGY(gun->contains), GUN_DISCHARGE(gun));
@@ -1994,13 +2075,30 @@ ACMD(do_shoot)
 
 	    cur_weap = gun;
 
-	    if (!dead && number(0, 121) > prob) {
-		if (damage(ch, vict , 0, SKILL_ENERGY_WEAPONS, number(0, NUM_WEARS-1)))
-		    dead = 1;
-	    } else if (!dead) {
-		if (damage(ch, vict,dam,SKILL_ENERGY_WEAPONS, number(0, NUM_WEARS-1)))
-		    dead = 1;
-	    } else {
+	    if ( dead == false  ) {
+
+                //
+                // miss
+                //
+
+                if ( number(0, 121) > prob ) {
+                    my_return_flags = damage(ch, vict , 0, SKILL_ENERGY_WEAPONS, number(0, NUM_WEARS-1) );
+                } 
+
+                //
+                // hit
+                //
+
+                else {
+                    my_return_flags = damage(ch, vict,dam,SKILL_ENERGY_WEAPONS, number(0, NUM_WEARS-1) );
+                } 
+            }
+            
+            //
+            // vict is dead, blast the corpse
+            //
+            
+            else {
 		if (ch->in_room->contents && IS_CORPSE(ch->in_room->contents) &&
 		    CORPSE_KILLER(ch->in_room->contents) == 
 		    (IS_NPC(ch) ? - GET_MOB_VNUM(ch) : GET_IDNUM(ch))) {
@@ -2018,6 +2116,20 @@ ACMD(do_shoot)
 		}
 	    }
       
+            //
+            // if the attacker was somehow killed, return immediately
+            //
+
+            if ( IS_SET( my_return_flags, DAM_ATTACKER_KILLED ) ) {
+                ACMD_set_return_flags( my_return_flags );
+                return;
+            }
+
+            if ( IS_SET( my_return_flags, DAM_VICT_KILLED ) ) {
+                ACMD_set_return_flags( my_return_flags );
+                dead = true;
+            }
+
 	    if (!CUR_ENERGY(gun->contains)) {
 		act("$p has been depleted of fuel.  Auto switching off.", 
 		    FALSE, ch, gun, 0, TO_CHAR);
@@ -2078,7 +2190,13 @@ ACMD(do_shoot)
     prob = calc_skill_prob(ch, vict, 
 			   (IS_ARROW(gun) ? SKILL_ARCHERY : SKILL_SHOOT),
 			   &dum_ptr, &dum_ptr, &dum_move, &dum_move, &dum_ptr,
-			   &dum_ptr, &dum_ptr, &dum_ptr, af);
+			   &dum_ptr, &dum_ptr, &dum_ptr, af, &my_return_flags );
+
+    
+    if ( my_return_flags ) {
+        ACMD_set_return_flags( my_return_flags );
+        return;
+    }
 
 
     if (IS_ARROW(gun)) {
@@ -2155,33 +2273,52 @@ ACMD(do_shoot)
 
 	cur_weap = gun;
 
-	if (!dead && number(0, 121) > prob) {
-	    if (IS_ARROW(gun)) {
-		sprintf(buf, "$n fires %s at you from $p!", buf2);
-		act(buf, FALSE, ch, gun, vict, TO_VICT);
-		sprintf(buf, "You fire %s at $N from $p!", buf2);
-		act(buf, FALSE, ch, gun, vict, TO_CHAR);
-		sprintf(buf, "$n fires %s at $N from $p!", buf2);
-		act(buf, FALSE, ch, gun, vict, TO_NOTVICT);
-	    }
-	    if (damage(ch, vict , 0, 
-		       IS_FLAMETHROWER(gun) ? TYPE_FLAMETHROWER : (IS_ARROW(gun) ? SKILL_ARCHERY : SKILL_PROJ_WEAPONS), 
-		       number(0, NUM_WEARS-1)))
-		dead = 1;
-	} else if (!dead) {
-	    if (IS_ARROW(gun)) {
-		sprintf(buf, "$n fires %s into you from $p!  OUCH!!", buf2);
-		act(buf, FALSE, ch, gun, vict, TO_VICT);
-		sprintf(buf, "You fire %s into $N from $p!", buf2);
-		act(buf, FALSE, ch, gun, vict, TO_CHAR);
-		sprintf(buf, "$n fires %s into $N from $p!", buf2);
-		act(buf, FALSE, ch, gun, vict, TO_NOTVICT);
-	    }
-	    if (damage(ch, vict, dam, 
-		       IS_FLAMETHROWER(gun) ? TYPE_FLAMETHROWER : (IS_ARROW(gun) ? SKILL_ARCHERY : SKILL_PROJ_WEAPONS), 
-		       number(0, NUM_WEARS-1)))
-		dead = 1;
-	} else {
+	if ( dead == false ) {
+
+            //
+            // miss
+            //
+
+            if ( number(0, 121) > prob ) {
+                if (IS_ARROW(gun)) {
+                    sprintf(buf, "$n fires %s at you from $p!", buf2);
+                    act(buf, FALSE, ch, gun, vict, TO_VICT);
+                    sprintf(buf, "You fire %s at $N from $p!", buf2);
+                    act(buf, FALSE, ch, gun, vict, TO_CHAR);
+                    sprintf(buf, "$n fires %s at $N from $p!", buf2);
+                    act(buf, FALSE, ch, gun, vict, TO_NOTVICT);
+                }
+                my_return_flags = 
+                    damage(ch, vict , 0, 
+                           IS_FLAMETHROWER(gun) ? TYPE_FLAMETHROWER : (IS_ARROW(gun) ? SKILL_ARCHERY : SKILL_PROJ_WEAPONS), 
+                           number(0, NUM_WEARS-1));
+            } 
+
+            //
+            // hit
+            //
+
+            else if (!dead) {
+                if (IS_ARROW(gun)) {
+                    sprintf(buf, "$n fires %s into you from $p!  OUCH!!", buf2);
+                    act(buf, FALSE, ch, gun, vict, TO_VICT);
+                    sprintf(buf, "You fire %s into $N from $p!", buf2);
+                    act(buf, FALSE, ch, gun, vict, TO_CHAR);
+                    sprintf(buf, "$n fires %s into $N from $p!", buf2);
+                    act(buf, FALSE, ch, gun, vict, TO_NOTVICT);
+                }
+                my_return_flags = 
+                    damage(ch, vict, dam, 
+                           IS_FLAMETHROWER(gun) ? TYPE_FLAMETHROWER : (IS_ARROW(gun) ? SKILL_ARCHERY : SKILL_PROJ_WEAPONS), 
+                           number(0, NUM_WEARS-1));
+            } 
+        }
+
+        //
+        // vict is dead, blast the corpse
+        //
+        
+        else {
 	    if (ch->in_room->contents && IS_CORPSE(ch->in_room->contents) &&
 		CORPSE_KILLER(ch->in_room->contents) == 
 		(IS_NPC(ch) ? - GET_MOB_VNUM(ch) : GET_IDNUM(ch))) {
@@ -2205,12 +2342,31 @@ ACMD(do_shoot)
 		    FALSE, ch, ch->in_room->contents, gun, TO_ROOM);
 	    }
 	}
+        
+        //
+        // if the attacker was somehow killed, return immediately
+        //
+        
+        if ( IS_SET( my_return_flags, DAM_ATTACKER_KILLED ) ) {
+            if ( return_flags ) {
+                *return_flags = my_return_flags;
+            }
+            return;
+        }
+        
+        if ( IS_SET( my_return_flags, DAM_VICT_KILLED ) ) {
+            if ( return_flags ) {
+                *return_flags = my_return_flags;
+            }
+            dead = true;
+        }      
+        
     }
     if ( IS_ARROW( gun ) && IS_ELF( ch ) )
 	WAIT_STATE(ch, (((i << 1) + 6) >> 2) RL_SEC);
     else
 	WAIT_STATE(ch, (((i << 1) + 6) >> 1) RL_SEC);
-
+    
 } 
 
 ACMD(do_ceasefire)
@@ -2583,17 +2739,20 @@ ACMD(do_drain)
     if (IS_PUDDING(vict) || IS_SLIME(vict))
 	prob = 0;
 
+    WAIT_STATE(ch, PULSE_VIOLENCE * 3);
+
     if (percent > prob) {
 	damage(ch, vict, 0, SKILL_DRAIN, -1);
     } else {
-	damage(ch, vict, ((GET_LEVEL(ch) + GET_STR(ch)) >> 1), SKILL_DRAIN, -1);
-	mana = MIN(GET_MANA(vict), GET_LEVEL(ch) * 5);
-	GET_MANA(vict) -= mana;
-	GET_MANA(ch) = MAX(GET_MAX_MANA(ch), GET_MANA(ch) + mana);
 	gain_skill_prof(ch, SKILL_DRAIN);
-	WAIT_STATE(vict, PULSE_VIOLENCE);
+
+        WAIT_STATE(vict, PULSE_VIOLENCE);
+        mana = MIN(GET_MANA(vict), GET_LEVEL(ch) * 5);
+        GET_MANA(vict) -= mana;
+        GET_MANA(ch) = MAX(GET_MAX_MANA(ch), GET_MANA(ch) + mana);
+
+	damage(ch, vict, ((GET_LEVEL(ch) + GET_STR(ch)) >> 1), SKILL_DRAIN, -1);
     }
-    WAIT_STATE(ch, PULSE_VIOLENCE * 3);
 }
 
 ACMD(do_beguile)

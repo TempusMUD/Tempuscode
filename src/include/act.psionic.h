@@ -7,7 +7,7 @@
 #ifndef __act_psionic_h__
 #define __act_psionic_h__
 
-int mob_fight_psionic( CHAR *ch );
+int mob_fight_psionic( struct char_data *ch, struct char_data * precious_vict );
 
 
 #endif // #ifndef __act_psionic_h__

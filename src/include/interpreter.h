@@ -16,9 +16,9 @@
 //
 
 #define ACMD(name)  \
-   void (name)(struct char_data *ch, char *argument, int cmd, int subcmd)
+   void (name)(struct char_data *ch, char *argument, int cmd, int subcmd, int *return_flags = 0 )
 #define ACCMD(name)  \
-   void (name)(struct char_data *ch, const char *argument, int cmd, int subcmd)
+   void (name)(struct char_data *ch, const char *argument, int cmd, int subcmd, int *return_flags = 0 )
 
 void	command_interpreter(struct char_data *ch, char *argument);
 int	search_block(char *arg, const char **list, bool exact);
@@ -40,13 +40,34 @@ char	*delete_doubledollar(char *string);
 // from search.c
 int triggers_search(struct char_data *ch, int cmd, char *arg, struct special_search_data *srch);
 
+//
+// used by ACMD functinos to set return_flags if they exist
+//
+
+#define ACMD_set_return_flags( val ) {\
+    if ( return_flags ) { \
+        *return_flags = val; \
+    } \
+}
+
+//
+// used by any functions to set their return_flags if they exist
+//
+
+inline void set_return_flags( int *flags, int val ) {
+    if ( flags ) {
+        *flags = val;
+    }
+}
+
 struct command_info {
-   char *command;
-   byte minimum_position;
-   void	(*command_pointer)
-   (struct char_data *ch, char * argument, int cmd, int subcmd);
-   sh_int minimum_level;
-   int	subcmd;
+    char *command;
+    byte minimum_position;
+    ACMD(*command_pointer);
+    //    void	(*command_pointer)
+    //        (struct char_data *ch, char * argument, int cmd, int subcmd);
+    sh_int minimum_level;
+    int	subcmd;
 };
 
 /* necessary for CMD_IS macro */

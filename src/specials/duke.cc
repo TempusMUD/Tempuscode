@@ -24,7 +24,7 @@
 #include "handler.h"
 #include "db.h"
 #include "spells.h"
-
+#include "fight.h"
 
 /*   external vars  */
 extern struct room_data *world;

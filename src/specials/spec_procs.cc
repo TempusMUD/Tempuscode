@@ -49,7 +49,7 @@ void perform_tell(struct char_data *ch, struct char_data *vict, char *buf);
 extern int find_first_step(struct room_data *src, struct room_data *target, 
 			   byte mode);
 int mag_manacost(struct char_data *ch, int spellnum);
-int get_check_money(struct char_data * ch, struct obj_data * obj, int display);
+int get_check_money(struct char_data * ch, struct obj_data ** obj, int display);
 
 
 struct social_type {
@@ -401,14 +401,15 @@ SPECIAL(guild)
 }
 SPECIAL(dump)
 {
-    struct obj_data *k;
+    struct obj_data *k, *next_obj ;
     int value = 0;
 
     ACCMD(do_drop);
 
-    for (k = ch->in_room->contents; k; k = k->next_content) {
-	act("$p vanishes in a puff of smoke!", FALSE, 0, k, 0, TO_ROOM);
-	extract_obj(k);
+    for (k = ch->in_room->contents; k; k = next_obj ) {
+        next_obj = k->next_content;
+        act("$p vanishes in a puff of smoke!", FALSE, 0, k, 0, TO_ROOM);
+        extract_obj(k);
     }
 
     if (!CMD_IS("drop"))
@@ -416,7 +417,8 @@ SPECIAL(dump)
 
     do_drop(ch, argument, cmd, 0);
 
-    for (k = ch->in_room->contents; k; k = k->next_content) {
+    for (k = ch->in_room->contents; k; k = next_obj ) {
+        next_obj = k->next_content;
 	act("$p vanishes in a puff of smoke!", FALSE, 0, k, 0, TO_ROOM);
 	value += MAX(1, MIN(50, GET_OBJ_COST(k) / 10));
 	extract_obj(k);
@@ -1023,7 +1025,7 @@ SPECIAL(garbage_pile)
 	    else {
 		obj_from_room(i);
 		obj_to_char(i, ch);
-		get_check_money(ch, i, 0);
+		get_check_money(ch, &i, 0);
 	    }
 	    return 1;
 	}
@@ -1135,7 +1137,7 @@ SPECIAL(gelatinous_blob)
 	    act("$n absorbs $p into $s body.", FALSE, ch, i, 0, TO_ROOM);
 	obj_from_room(i);
 	obj_to_char(i, ch);
-	get_check_money(ch, i, 0);
+	get_check_money(ch, &i, 0);
 	return TRUE;
     }
 
@@ -1967,3 +1969,4 @@ SPECIAL(weapon_lister)
     page_string(ch->desc, buf3, 1);
     return 1;
 }
+

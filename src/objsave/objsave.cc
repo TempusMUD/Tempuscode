@@ -68,7 +68,8 @@ struct obj_data *Obj_from_store( FILE * fl, bool allow_inroom ) {
     }
     
     if ( object.item_number < 0 ) {
-        sprintf( buf, "Obj_from_store found object vnum %d in file.", object.item_number );
+        sprintf( buf, "Obj_from_store found object vnum %d in file.  short_desc=%s.", 
+                 object.item_number, object.short_desc );
         slog( buf );
         return NULL;
     }

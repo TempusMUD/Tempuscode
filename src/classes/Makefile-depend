@@ -1,5 +1,5 @@
 $(OBJ)/act.barb.o : act.barb.cc \
-	$(INCLUDE)/structs.h $(INCLUDE)/utils.h $(INCLUDE)/comm.h $(INCLUDE)/interpreter.h $(INCLUDE)/handler.h $(INCLUDE)/db.h $(INCLUDE)/spells.h $(INCLUDE)/screen.h $(INCLUDE)/vehicle.h $(INCLUDE)/materials.h $(INCLUDE)/flow_room.h $(INCLUDE)/house.h $(INCLUDE)/char_class.h $(INCLUDE)/bomb.h 
+	$(INCLUDE)/structs.h $(INCLUDE)/utils.h $(INCLUDE)/comm.h $(INCLUDE)/interpreter.h $(INCLUDE)/handler.h $(INCLUDE)/db.h $(INCLUDE)/spells.h $(INCLUDE)/screen.h $(INCLUDE)/vehicle.h $(INCLUDE)/materials.h $(INCLUDE)/flow_room.h $(INCLUDE)/house.h $(INCLUDE)/char_class.h $(INCLUDE)/bomb.h $(INCLUDE)/fight.h 
 	$(CXX) -c $(CXXFLAGS) act.barb.cc          -o $(OBJ)/act.barb.o
 $(OBJ)/act.cyborg.o : act.cyborg.cc \
 	$(INCLUDE)/structs.h $(INCLUDE)/utils.h $(INCLUDE)/comm.h $(INCLUDE)/interpreter.h $(INCLUDE)/handler.h $(INCLUDE)/db.h $(INCLUDE)/spells.h $(INCLUDE)/screen.h $(INCLUDE)/vehicle.h $(INCLUDE)/materials.h $(INCLUDE)/char_class.h $(INCLUDE)/guns.h $(INCLUDE)/bomb.h $(INCLUDE)/fight.h $(INCLUDE)/house.h 
@@ -20,7 +20,7 @@ $(OBJ)/act.monk.o : act.monk.cc \
 	$(INCLUDE)/structs.h $(INCLUDE)/utils.h $(INCLUDE)/comm.h $(INCLUDE)/interpreter.h $(INCLUDE)/handler.h $(INCLUDE)/db.h $(INCLUDE)/spells.h $(INCLUDE)/screen.h $(INCLUDE)/vehicle.h $(INCLUDE)/materials.h $(INCLUDE)/flow_room.h $(INCLUDE)/house.h $(INCLUDE)/char_class.h $(INCLUDE)/fight.h $(INCLUDE)/shop.h 
 	$(CXX) -c $(CXXFLAGS) act.monk.cc          -o $(OBJ)/act.monk.o
 $(OBJ)/act.physic.o : act.physic.cc \
-	$(INCLUDE)/structs.h $(INCLUDE)/utils.h $(INCLUDE)/comm.h $(INCLUDE)/interpreter.h $(INCLUDE)/handler.h $(INCLUDE)/db.h $(INCLUDE)/spells.h $(INCLUDE)/screen.h $(INCLUDE)/vehicle.h $(INCLUDE)/materials.h $(INCLUDE)/flow_room.h $(INCLUDE)/house.h $(INCLUDE)/char_class.h $(INCLUDE)/fight.h $(INCLUDE)/bomb.h $(INCLUDE)/shop.h 
+	$(INCLUDE)/structs.h $(INCLUDE)/utils.h $(INCLUDE)/comm.h $(INCLUDE)/interpreter.h $(INCLUDE)/handler.h $(INCLUDE)/db.h $(INCLUDE)/spells.h $(INCLUDE)/screen.h $(INCLUDE)/vehicle.h $(INCLUDE)/materials.h $(INCLUDE)/flow_room.h $(INCLUDE)/house.h $(INCLUDE)/char_class.h $(INCLUDE)/fight.h $(INCLUDE)/bomb.h $(INCLUDE)/shop.h $(INCLUDE)/specs.h 
 	$(CXX) -c $(CXXFLAGS) act.physic.cc        -o $(OBJ)/act.physic.o
 $(OBJ)/act.psionic.o : act.psionic.cc \
 	$(INCLUDE)/structs.h $(INCLUDE)/utils.h $(INCLUDE)/comm.h $(INCLUDE)/interpreter.h $(INCLUDE)/handler.h $(INCLUDE)/db.h $(INCLUDE)/spells.h $(INCLUDE)/screen.h $(INCLUDE)/char_class.h $(INCLUDE)/vehicle.h $(INCLUDE)/materials.h $(INCLUDE)/fight.h 

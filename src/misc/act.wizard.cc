@@ -40,6 +40,7 @@
 #include "bomb.h"
 #include "guns.h"
 #include "elevators.h"
+#include "fight.h"
 
 /*   external vars  */
 extern FILE *player_fl;

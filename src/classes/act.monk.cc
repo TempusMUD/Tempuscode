@@ -277,15 +277,16 @@ ACMD(do_combo)
 	SKILL_GROINKICK
     };
 
+    ACMD_set_return_flags( 0 );
     one_argument(argument, arg);
 
     if (!(vict = get_char_room_vis(ch, arg))) {
 	if (FIGHTING(ch)) {
 	    vict = FIGHTING(ch);
 	} else if ((ovict = get_obj_in_list_vis(ch, arg, ch->in_room->contents))) {
-	    act("You perform a devistating combo to the $p!", 
+	    act("You perform a devastating combo to the $p!", 
 		FALSE, ch, ovict, 0, TO_CHAR);
-	    act("$n performs a devistating combo on the $p!", 
+	    act("$n performs a devastating combo on the $p!", 
 		FALSE, ch, ovict, 0, TO_ROOM);
 	    return;
 	} else {
@@ -338,21 +339,57 @@ ACMD(do_combo)
 	CHECK_SKILL(ch, SKILL_COMBO) - LEARNED(ch) + 
 	GET_DAMROLL(ch);
 
-    if (percent > prob)  {
-	damage(ch, vict, 0, which_attack[number(0, HOW_MANY - 1)], -1);
-	GET_MOVE(ch) -=20;
-    }  else {
-	dead = damage(ch, vict, dam, SKILL_THROAT_STRIKE,WEAR_NECK_1);
-	for (i = 0, count = 0; i < 8 && !dead && vict->in_room == ch->in_room; 
-	     i++, count++)
-	    if (GET_LEVEL(ch) + CHECK_SKILL(ch, SKILL_COMBO) > 
-		number(100, 120 + (count << 3)))
-		dead = damage(ch, vict, dam + (count << 3),
-			      which_attack[number(0, HOW_MANY -1)], -1);
-    
-	gain_skill_prof(ch, SKILL_COMBO);
-    }
+    GET_MOVE(ch) -=20;
     WAIT_STATE(ch, (4 + count) RL_SEC);
+
+    //
+    // failure
+    //
+
+    if (percent > prob)  {
+	int retval = damage(ch, vict, 0, which_attack[number(0, HOW_MANY - 1)], -1);
+        ACMD_set_return_flags( retval );
+        return;
+    }  
+    
+    //
+    // success
+    //
+
+    else {
+        int retval = 0;
+
+        GET_MOVE( ch ) -= 20;
+	gain_skill_prof(ch, SKILL_COMBO);
+        
+        //
+        // lead with a throat strike
+        //
+
+	retval = damage(ch, vict, dam, SKILL_THROAT_STRIKE,WEAR_NECK_1);
+
+        if ( retval ) {
+            ACMD_set_return_flags( retval );
+            return;
+        }
+        
+        //
+        // try to throw up to 8 more attacks
+        //
+
+	for (i = 0, count = 0; i < 8 && !dead && vict->in_room == ch->in_room; 
+	     i++, count++) {
+	    if (GET_LEVEL(ch) + CHECK_SKILL(ch, SKILL_COMBO) > 
+		number(100, 120 + (count << 3))) {
+		retval = damage(ch, vict, dam + (count << 3),
+                                which_attack[number(0, HOW_MANY -1)], -1);
+                if ( retval ) {
+                    ACMD_set_return_flags( retval );
+                    return;
+                }
+            }
+        }
+    }
 }
 
 //
@@ -367,7 +404,9 @@ ACMD(do_pinch)
     int prob, percent, which_pinch, i;
     char arg1[MAX_INPUT_LENGTH], arg2[MAX_INPUT_LENGTH];
     char *to_vict = NULL, *to_room = NULL;
-  
+
+    ACMD_set_return_flags( 0 );
+
     half_chop(argument, arg1, arg2);
 
     if (!(vict = get_char_room_vis(ch, arg1))) {
@@ -558,12 +597,46 @@ ACMD(do_pinch)
     if (to_room)
 	act(to_room, FALSE, vict, 0, ch, TO_ROOM);
 
+
+    gain_skill_prof(ch, which_pinch);
+
+    if (GET_LEVEL(ch) < LVL_AMBASSADOR)
+	WAIT_STATE(ch, PULSE_VIOLENCE*2);
+
+    //
+    // NOTE: pinches always make it through these magical protections before
+    // the monk feels the effect
+    //
+    
+    //
+    // victim has fire on or around him
+    //
+
     if (!CHAR_WITHSTANDS_FIRE(ch) && !IS_AFFECTED_2(ch, AFF2_ABLAZE) &&
 	GET_LEVEL(ch) < LVL_AMBASSADOR) {
+        
+        //
+        // victim has fire shield
+        //
+
 	if (IS_AFFECTED_2(vict, AFF2_FIRE_SHIELD)) {
-	    damage(vict, ch, dice(3, 8), SPELL_FIRE_SHIELD, -1);
+	    int retval = damage(vict, ch, dice(3, 8), SPELL_FIRE_SHIELD, -1);
+            retval = SWAP_DAM_RETVAL( retval );
+            
+            ACMD_set_return_flags( retval );
+
+            if ( retval )
+                return;
+            
 	    SET_BIT(AFF2_FLAGS(ch), AFF2_ABLAZE);
-	} else if (IS_AFFECTED_2(vict, AFF2_ABLAZE) && !number(0, 3)) {
+            
+	} 
+        
+        //
+        // victim is simply on fire
+        //
+
+        else if (IS_AFFECTED_2(vict, AFF2_ABLAZE) && !number(0, 3)) {
 	    act("You burst into flames on contact with $N!", 
 		FALSE, ch, 0, vict, TO_CHAR);
 	    act("$n bursts into flames on contact with $N!", 
@@ -573,15 +646,28 @@ ACMD(do_pinch)
 	    SET_BIT(AFF2_FLAGS(ch), AFF2_ABLAZE);
 	}
     }
-    if (IS_AFFECTED_2(vict, AFF2_BLADE_BARRIER))
-	damage(vict, ch, GET_LEVEL(vict), SPELL_BLADE_BARRIER, -1);
 
-    gain_skill_prof(ch, which_pinch);
-    if (GET_LEVEL(ch) < LVL_AMBASSADOR)
-	WAIT_STATE(ch, PULSE_VIOLENCE*2);
+    //
+    // victim has blade barrier
+    //
 
-    if (IS_NPC(vict) && !FIGHTING(vict) && vict->getPosition() >= POS_FIGHTING)
-	hit(vict, ch, TYPE_UNDEFINED);
+    if (IS_AFFECTED_2(vict, AFF2_BLADE_BARRIER)) {
+	int retval = damage(vict, ch, GET_LEVEL(vict), SPELL_BLADE_BARRIER, -1);
+        retval = SWAP_DAM_RETVAL( retval );
+        ACMD_set_return_flags( retval );
+        if ( retval )
+            return;
+    }
+    
+    //
+    // the victim should attack the monk if they can
+    //
+
+    if (IS_NPC(vict) && !FIGHTING(vict) && vict->getPosition() >= POS_FIGHTING) {
+	int retval = hit(vict, ch, TYPE_UNDEFINED);
+        retval = SWAP_DAM_RETVAL( retval );
+        ACMD_set_return_flags( retval );
+    }        
 }
 
 ACMD(do_meditate)
