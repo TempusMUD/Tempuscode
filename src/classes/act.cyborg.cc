@@ -1951,30 +1951,30 @@ ACMD(do_repair)
 ACMD(do_overhaul)
 {
     struct char_data *vict = NULL;
-    int repair, i;
     struct obj_data *tool = NULL;
     skip_spaces(&argument);
 
-    if (!(vict = get_char_room_vis(ch, argument)))
+    if (!(vict = get_char_room_vis(ch, argument))) {
         send_to_char("Overhaul who?\r\n", ch);
-    else if (!IS_CYBORG(vict))
+    } else if (!IS_CYBORG(vict)) {
         send_to_char("You can only repair other borgs.\r\n", ch);
-    else if ((!(tool = GET_EQ(ch, WEAR_HOLD)) &&
+    } else if ((!(tool = GET_EQ(ch, WEAR_HOLD)) &&
               !(tool = GET_IMPLANT(ch, WEAR_HOLD))) ||
              !IS_TOOL(tool) ||
              TOOL_SKILL(tool) != SKILL_CYBOREPAIR) {
         send_to_char("You must be holding a cyber repair tool to do this.\r\n",ch);
-    }
-    else if (GET_TOT_DAM(vict) < (max_component_dam(vict) / 3))
+    } else if (GET_TOT_DAM(vict) < (max_component_dam(vict) / 3)) {
         act("You cannot make any significant improvements to $S systems.",
             FALSE, ch, 0, vict, TO_CHAR);
-    else if (vict->getPosition() > POS_SITTING)
+    } else if (vict->getPosition() > POS_SITTING) {
         send_to_char("Your subject must be sitting, at least.\r\n", ch);
-    else if (CHECK_SKILL(ch, SKILL_OVERHAUL) < 10)
+    } else if (CHECK_SKILL(ch, SKILL_OVERHAUL) < 10) {
         send_to_char("You have no idea how to perform an overhaul.\r\n", ch);
-    else if (!vict->master || vict->master != ch)
+    } else if (!vict->master || vict->master != ch) {
         send_to_char("Subjects must be following and grouped for you to perform an overhaul.\r\n", ch);
-    else {
+    } else if (!AFF3_FLAGGED(vict, AFF3_STASIS)) {
+        send_to_char("Error: Overhauling an active subject could lead to severe data loss.\r\n", ch);
+    } else {
         repair = GET_TOT_DAM(vict) - (max_component_dam(vict) / 3);
         repair = MIN(repair, GET_LEVEL(ch) * 800);
         repair = MIN(repair, (CHECK_SKILL(ch, SKILL_OVERHAUL) + TOOL_MOD(tool)) * 400);
@@ -1985,25 +1985,6 @@ ACMD(do_overhaul)
         act("$n begins to perform a system overhaul on you.",
             FALSE, ch, 0, vict, TO_VICT);
 
-        if (!AFF3_FLAGGED(vict, AFF3_STASIS)) {
-            act("Sparks fly from $N's body!!", FALSE, ch, 0, vict, TO_NOTVICT);
-            act("Sparks fly from $N's body!!", FALSE, ch, 0, vict, TO_CHAR);
-            act("Sparks fly from your body!!", FALSE, ch, 0, vict, TO_VICT);
-            if (!IS_NPC(vict)) {
-                for (i = 0; i < MAX_SKILLS; i++)
-                    if (GET_SKILL(vict, i) && !number(0, GET_LEVEL(vict) >> 3))
-                        GET_SKILL(vict, i) = MAX(0, GET_SKILL(vict, i) - number(1, 90));
-            }
-            GET_EXP(vict) = MAX(0, GET_EXP(vict) - 
-                                (GET_LEVEL(vict) * GET_LEVEL(vict) * 100));
-            sprintf(buf, "%sWarning%s:  Some data may be corrupted!!\r\n",
-                    CCRED(vict, C_NRM), CCNRM(vict, C_NRM));
-            send_to_char(buf, vict);
-            sprintf(buf,"%sWarning%s:  Subject's data storage may be corrupted!!\r\n",
-                    CCRED(ch, C_NRM), CCNRM(ch, C_NRM));
-            send_to_char(buf, ch);
-        }
-        
         GET_TOT_DAM(vict) -= repair;
         GET_MOVE(ch) -= (repair / 100);
         if (GET_MOVE(ch) < 0) {
