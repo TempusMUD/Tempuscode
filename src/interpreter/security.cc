@@ -56,7 +56,7 @@ const struct {
     { "memberlist", "<group name>" },
     { "remmember",  "<group name> <member> [<member>...]" },
     { "remcmd",     "<group name> <command> [<command>...]" },
-    { "remove",     "<group name>" },
+    { "destroy",     "<group name>" },
     { "stat",       "<group name>"}, 
     { "save",       ""},
     { NULL,         NULL }
@@ -284,19 +284,19 @@ ACCMD(do_access) {
                 send_to_char("Remove what command from what group?\r\n",ch);
             }
             break;
-        case 12: // remove
+        case 12: // destroy
             if(! isMember(ch, "GroupsAdmin") ) {
-                send_to_char("You cannot remove groups.\r\n",ch);
+                send_to_char("You cannot destroy groups.\r\n",ch);
                 return;
             }
             if( tokens.next(token1) && isGroup(token1) ) {
                 if( removeGroup( token1 ) ) {
-                    send_to_char( "Group removed.\r\n",ch);
+                    send_to_char( "Group destroyed.\r\n",ch);
                 } else {
-                    send_to_char( "Group removal failed.\r\n",ch);
+                    send_to_char( "Group destruction failed.\r\n",ch);
                 }
             } else {
-                send_to_char("Remove which group?\r\n",ch);
+                send_to_char("Destroy which group?\r\n",ch);
             }
             break;
         case 13: // Stat
