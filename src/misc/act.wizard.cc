@@ -2443,15 +2443,30 @@ ACMD(do_mload)
 ACMD(do_oload)
 {
 	struct obj_data *obj;
-	int number;
+	int number, quantity;
+    char *temp, *temp2;
 
-	one_argument(argument, buf);
+    temp = temp2 = NULL;
+	//one_argument(argument, buf);
 
-	if (!*buf || !isdigit(*buf)) {
-		send_to_char(ch, "Usage: oload <object vnum number>\r\n");
+    temp = tmp_getword(&argument);
+    temp2 = tmp_getword(&argument);
+    
+	if (!*temp || !isdigit(*temp)) {
+		send_to_char(ch, "Usage: oload [quantity] <object vnum>\r\n");
 		return;
 	}
-	if ((number = atoi(buf)) < 0) {
+	
+    if(!*temp2 || !isdigit(*temp2)) {
+        number = atoi(temp);
+        quantity = 1;
+    }
+    else {
+        quantity = atoi(temp);
+        number = atoi(temp2);
+    }
+
+    if (number < 0) {
 		send_to_char(ch, "A NEGATIVE number??\r\n");
 		return;
 	}
@@ -2459,15 +2474,38 @@ ACMD(do_oload)
 		send_to_char(ch, "There is no object with that number.\r\n");
 		return;
 	}
-	obj = read_object(number);
-	obj_to_room(obj, ch->in_room);
-	act("$n makes a strange magical gesture.", TRUE, ch, 0, 0, TO_ROOM);
-	act("$n has created $p!", FALSE, ch, obj, 0, TO_ROOM);
-	act("You create $p.", FALSE, ch, obj, 0, TO_CHAR);
+    if(quantity < 0) {
+        send_to_char(ch, "How do you expect to create negative objects?\r\n");
+        return;
+    }
+    if(quantity == 0) {
+        send_to_char(ch, "POOF!  Congratulations!  You've created nothing!\r\n");
+        return;
+    }
+    if(quantity > 100) {
+        send_to_char(ch, "You can't possibly need THAT many!\r\n");
+        return;
+    }
 
-	slog("(GC) %s loaded %s at %d.", GET_NAME(ch),
-		obj->short_description, ch->in_room->number);
-
+    for(int i = 0; i < quantity; i++) {
+	    obj = read_object(number);
+	    obj_to_room(obj, ch->in_room);
+    }
+    act("$n makes a strange magical gesture.", TRUE, ch, 0, 0, TO_ROOM);
+    if(quantity == 1) {
+        act("$n has created $p!", FALSE, ch, obj, 0, TO_ROOM);
+        act("You create $p.", FALSE, ch, obj, 0, TO_CHAR);
+        slog("(GC) %s loaded %s at %d.", GET_NAME(ch),
+            obj->short_description, ch->in_room->number);
+    }
+    else {
+        act(tmp_sprintf("%s has created %s! (x%d)", GET_NAME(ch), obj->short_description, 
+            quantity), FALSE, ch, obj, 0, TO_ROOM);
+        act(tmp_sprintf("You create %s. (x%d)", obj->short_description, quantity), FALSE,
+            ch, obj, 0, TO_CHAR);
+        slog("(GC) %s loaded %s at %d. (x%d)", GET_NAME(ch), obj->short_description, 
+            ch->in_room->number, quantity);
+    }
 }
 
 ACMD(do_pload)
@@ -2484,7 +2522,7 @@ ACMD(do_pload)
     temp2 = tmp_getword(&argument);
     
 	if (!*temp || !isdigit(*temp)) {
-		send_to_char(ch, "Usage: pload [quantity] <number> [target char]\r\n");
+		send_to_char(ch, "Usage: pload [quantity] <object vnum> [target char]\r\n");
 		return;
 	}
     if(!*temp2) {
