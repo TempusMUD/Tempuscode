@@ -3807,6 +3807,9 @@ perform_immort_where(struct Creature *ch, char *arg)
 	char arg1[MAX_INPUT_LENGTH];
     Tokenizer arguments(arg);
     list<char *> required, excluded;
+    bool house_only, no_house, no_mob, no_object;
+    
+    house_only = no_house = no_mob = no_object = false;
 
 	arg1[0] = '\0';
 	if (!arguments.hasNext()) {
@@ -3846,6 +3849,12 @@ perform_immort_where(struct Creature *ch, char *arg)
             if(arg1[0] == '!') {
                 excluded.push_back(tmp_strdup(arg1 + 1));
             }
+            else if(arg1[0] == '-') {
+                if(is_abbrev(arg1, "-nomob")) no_mob = true;
+                if(is_abbrev(arg1, "-noobject")) no_object = true;
+                if(is_abbrev(arg1, "-nohouse")) no_house = true;
+                if(is_abbrev(arg1, "-house")) house_only = true;
+            }
             else {
                 required.push_back(tmp_strdup(arg1));
             }
@@ -3855,34 +3864,49 @@ perform_immort_where(struct Creature *ch, char *arg)
             send_to_char(ch, "You're going to have to be a bit more specific than that.\r\n");
             return;
         }
+
+        if( house_only && no_house ) {
+            send_to_char(ch, "Nothing exists both inside and outside a house.\r\n");
+            return;
+        }
         
-        main_buf[0] = '\0';
 		list <string> outList;
 
-		CreatureList::iterator cit = characterList.begin();
-		for (; cit != characterList.end(); ++cit) {
-			i = *cit;
-			if (CAN_SEE(ch, i) && i->in_room && isWhereMatch(required, excluded, i) &&
-				(++num) &&
-				(GET_MOB_SPEC(i) != fate || GET_LEVEL(ch) >= LVL_SPIRIT)) {
-				found = 1;
-				sprintf(buf, "%sM%s%3d. %s%-25s%s - %s[%s%5d%s]%s %s%s%s\r\n",
-					CCRED_BLD(ch, NRM), CCNRM(ch, NRM), num,
-					CCYEL(ch, C_NRM), GET_NAME(i), CCNRM(ch, C_NRM),
-					CCGRN(ch, C_NRM), CCNRM(ch, C_NRM), i->in_room->number,
-					CCGRN(ch, C_NRM), CCNRM(ch, C_NRM), CCCYN(ch, C_NRM),
-					i->in_room->name, CCNRM(ch, C_NRM));
-				outList.push_back(buf);
-			}
-		}
-		for (num = 0, k = object_list; k; k = k->next) {
-			if (CAN_SEE_OBJ(ch, k) && isWhereMatch(required, excluded, k) && ++num) {
-				found = 1;
-				main_buf[0] = '\0';
-				print_object_location(num, k, ch, TRUE, main_buf);
-				outList.push_back(main_buf);
-			}
-		}
+		if(!no_mob) {
+            CreatureList::iterator cit = characterList.begin();
+            for (; cit != characterList.end(); ++cit) {
+                i = *cit;
+                if (CAN_SEE(ch, i) && i->in_room && isWhereMatch(required, excluded, i) &&
+                    (GET_MOB_SPEC(i) != fate || GET_LEVEL(ch) >= LVL_SPIRIT)) {
+                    found = 1;
+                    sprintf(buf, "%sM%s%3d. %s%-25s%s - %s[%s%5d%s]%s %s%s%s\r\n",
+                        CCRED_BLD(ch, NRM), CCNRM(ch, NRM), ++num,
+                        CCYEL(ch, C_NRM), GET_NAME(i), CCNRM(ch, C_NRM),
+                        CCGRN(ch, C_NRM), CCNRM(ch, C_NRM), i->in_room->number,
+                        CCGRN(ch, C_NRM), CCNRM(ch, C_NRM), CCCYN(ch, C_NRM),
+                        i->in_room->name, CCNRM(ch, C_NRM));
+                    outList.push_back(buf);
+                }
+            }
+        }
+
+        if(!no_object) {
+            for (num = 0, k = object_list; k; k = k->next) {
+                if(! CAN_SEE_OBJ(ch, k) )
+                    continue;
+                if( house_only && (k->in_room == NULL || !ROOM_FLAGGED(k->in_room, ROOM_HOUSE)) )
+                    continue;
+                if( no_house && k->in_room != NULL && ROOM_FLAGGED(k->in_room, ROOM_HOUSE) )
+                    continue;
+                if( isWhereMatch(required, excluded, k) ) {
+                    found = 1;
+                    main_buf[0] = '\0';
+                    print_object_location(++num, k, ch, TRUE, main_buf);
+                    outList.push_back(main_buf);
+                }
+            }
+        }
+
 		if (found) {
 			main_buf[0] = '\0';
 			list <string>::iterator it = outList.begin();
