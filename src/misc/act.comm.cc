@@ -690,11 +690,6 @@ ACMD(do_gen_comm)
 		send_to_char(ch, com_msgs[subcmd][0]);
 		return;
 	}
-	if (ROOM_FLAGGED(ch->in_room, ROOM_SOUNDPROOF)
-		&& GET_LEVEL(ch) < LVL_GRGOD) {
-		send_to_char(ch, "The walls seem to absorb your words.\r\n");
-		return;
-	}
 	/* level_can_shout defined in config.c */
 	if (!IS_NPC(ch) && GET_LEVEL(ch) < level_can_shout
 		&& subcmd != SCMD_NEWBIE && GET_REMORT_GEN(ch) <= 0 ) {
@@ -791,8 +786,15 @@ ACMD(do_gen_comm)
 		if (STATE(i) == CON_PLAYING && i != ch->desc && i->character &&
 			!PRF_FLAGGED(i->character, channels[subcmd]) &&
 			!PLR_FLAGGED(i->character, PLR_WRITING) &&
-			!PLR_FLAGGED(i->character, PLR_OLC) &&
-			!ROOM_FLAGGED(i->character->in_room, ROOM_SOUNDPROOF)) {
+			!PLR_FLAGGED(i->character, PLR_OLC)) {
+
+			if ((ROOM_FLAGGED(ch->in_room, ROOM_SOUNDPROOF) ||
+				ROOM_FLAGGED(i->character->in_room, ROOM_SOUNDPROOF)) &&
+				GET_LEVEL(ch) < LVL_IMMORT &&
+				GET_LEVEL(i->character) < LVL_IMMORT &&
+				i->character->in_room != ch->in_room) {
+				continue;
+			}
 
 			if (subcmd == SCMD_NEWBIE &&
 				!PRF2_FLAGGED(i->character, PRF2_NEWBIE_HELPER))
@@ -834,45 +836,10 @@ ACMD(do_gen_comm)
 				act(buf, FALSE, ch, 0, i->character, TO_VICT | TO_SLEEP);
 		}
 	}
-}
 
-ACMD(do_auction)
-{
-	extern int level_can_shout;
-
-	// Is this a mob?
-	if (IS_NPC(ch))
-		return;
-
-	// Is the player muted?
-	if (PLR_FLAGGED(ch, PLR_NOSHOUT)) {
-		send_to_char(ch, "You cannot auction!!\r\n");
-		return;
-	}
-	// Is the room soundproof?  Not sure how valid this check is now, but I don't
-	// see any good reason not to use it.
-	if (ROOM_FLAGGED(ch->in_room, ROOM_SOUNDPROOF)
-		&& GET_LEVEL(ch) < LVL_GRGOD) {
+	if (ROOM_FLAGGED(i->character->in_room, ROOM_SOUNDPROOF) &&
+			GET_LEVEL(ch) < LVL_IMMORT)
 		send_to_char(ch, "The walls seem to absorb your words.\r\n");
-		return;
-	}
-	// level_can_shout defined in config.c
-	// Is ch over level_can_shout
-	if (!IS_NPC(ch) && GET_LEVEL(ch) < level_can_shout
-		&& subcmd != SCMD_NEWBIE) {
-		send_to_char(ch,
-			"You must be at least level %d before you can auction.\r\n",
-			level_can_shout);
-		return;
-	}
-
-	skip_spaces(&argument);
-
-	if (!*argument) {
-		send_to_char(ch, "Auction?  Yes, fine, auction we must, but WHAT??\r\n");
-		CAP(buf);
-	}
-	return;
 }
 
 ACMD(do_qcomm)
