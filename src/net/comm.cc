@@ -217,8 +217,6 @@ main(int argc, char **argv)
 			   }
 			 */
 			break;
-		case 'x':				// Mud Moved
-			USE_XML_FILES = true; break;
 		default:
 			slog("SYSERR: Unknown option -%c in argument string.",
 				*(argv[pos] + 1));

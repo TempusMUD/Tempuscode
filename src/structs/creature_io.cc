@@ -30,25 +30,22 @@ void Crash_calculate_rent(struct obj_data *obj, int *cost);
 bool
 Creature::crashSave()
 {
-    rent_info rent;
     rent.rentcode = RENT_CRASH;
 	rent.time = time(0);
 	rent.currency = in_room->zone->time_frame;
 
-    if(!saveObjects(rent) ) {
+    if(!saveObjects() ) {
         return false;
     }
 
     REMOVE_BIT(PLR_FLAGS(this), PLR_CRASH);
-    //saveToXML(); // This should probably be here.
+    saveToXML(); // This should probably be here.
     return true;
 }
 
 bool
 Creature::rentSave(int cost, int rentcode)//= RENT_RENTED
 {
-    rent_info rent;
-
     rent.net_cost_per_diem = cost;
 	rent.rentcode = rentcode;
 	rent.time = time(0);
@@ -57,7 +54,7 @@ Creature::rentSave(int cost, int rentcode)//= RENT_RENTED
 
     extractUnrentables();
 
-    if(! saveObjects(rent) ) {
+    if(! saveObjects() ) {
         return false;
     }
     
@@ -381,7 +378,6 @@ Creature::cryoSave(int cost)
 	else
 		GET_GOLD(this) = MAX(0, GET_GOLD(this) - cost);
 
-    rent_info rent;
     rent.rentcode = RENT_CRYO;
 	rent.time = time(0);
 	rent.gold = GET_GOLD(this);
@@ -389,7 +385,7 @@ Creature::cryoSave(int cost)
 	rent.currency = in_room->zone->time_frame;
     extractUnrentables();
 
-    if(! saveObjects(rent) )
+    if(! saveObjects() )
         return false;
 
 	SET_BIT(PLR_FLAGS(this), PLR_CRYO);
@@ -397,7 +393,7 @@ Creature::cryoSave(int cost)
 }
 
 bool
-Creature::saveObjects( const rent_info &rent ) 
+Creature::saveObjects(void) 
 {
 	FILE *ouf;
 	char *path;
@@ -442,7 +438,6 @@ Creature::loadObjects()
 
     char *path = get_equipment_file_path( GET_IDNUM(this) );
 	int axs = access(path, W_OK);
-	rent_info rent;
 
 	if( axs != 0 ) {
 		if( errno != ENOENT ) {
@@ -475,12 +470,6 @@ Creature::loadObjects()
 				extract_obj(obj);
 			}
 			//obj_to_room(obj, in_room);
-		} else if (xmlMatches(node->name, "rent")) {
-			rent.time = xmlGetIntProp(node, "time");
-			rent.rentcode = xmlGetIntProp(node, "code");
-			rent.net_cost_per_diem = xmlGetIntProp(node, "perdiem");
-			rent.gold = xmlGetIntProp(node, "gold");
-			rent.currency = xmlGetIntProp(node, "currency");
 		}
 	}
 
@@ -552,8 +541,9 @@ Creature::saveToXML()
 	fprintf(ouf, "/>\n");
 
 
-	fprintf(ouf, "<time birth=\"%ld\" death=\"%ld\" played=\"%d\"/>\n",
-		ch->player.time.birth, ch->player.time.death, ch->player.time.played);
+	fprintf(ouf, "<time birth=\"%ld\" death=\"%ld\" played=\"%d\" last=\"%ld\"/>\n",
+		ch->player.time.birth, ch->player.time.death, ch->player.time.played,
+		ch->player.time.logon);
 
 	char *host = "";
 	if( desc != NULL ) {
@@ -574,6 +564,7 @@ Creature::saveToXML()
 		GET_INVIS_LVL(ch), GET_WIMP_LEV(ch), GET_PRACTICES(ch),
 		GET_LIFE_POINTS(ch), GET_CLAN(ch));
 
+	rent.saveToXML(ouf);
 	fprintf(ouf, "<home town=\"%d\" loadroom=\"%d\" held_town=\"%d\" held_loadroom=\"%d\"/>\n",
 		GET_HOME(ch), GET_LOADROOM(ch), GET_HOLD_HOME(ch),
 		GET_HOLD_LOADROOM(ch));
@@ -742,7 +733,7 @@ Creature::loadFromXML( long id )
             player.time.birth = xmlGetLongProp(node, "birth");
             player.time.death = xmlGetLongProp(node, "death");
             player.time.played = xmlGetIntProp(node, "played");
-            player.time.logon = xmlGetLongProp(node, "time");
+            player.time.logon = xmlGetLongProp(node, "last");
         } else if ( xmlMatches(node->name, "carnage") ) {
             GET_PKILLS(this) = xmlGetIntProp(node, "pkills");
             GET_MOBKILLS(this) = xmlGetIntProp(node, "mkills");
@@ -875,7 +866,13 @@ Creature::loadFromXML( long id )
 			POOFOUT(this) = (char*)xmlNodeGetContent( node );
         } else if ( xmlMatches(node->name, "immort") ) {
 			player_specials->saved.occupation = xmlGetIntProp(node,"badge");
-        }
+        } else if (xmlMatches(node->name, "rent")) {
+			rent.time = xmlGetIntProp(node, "time");
+			rent.rentcode = xmlGetIntProp(node, "code");
+			rent.net_cost_per_diem = xmlGetIntProp(node, "perdiem");
+			rent.gold = xmlGetIntProp(node, "gold");
+			rent.currency = xmlGetIntProp(node, "currency");
+		}
     }
 
     xmlFreeDoc(doc);

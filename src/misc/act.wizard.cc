@@ -3683,30 +3683,9 @@ ACMD(do_wizutil)
             break;
         }
         case SCMD_FREEZE:
-            if (USE_XML_FILES) {
-                do_freeze_char(argument, vict, ch);
-                return;
-            }
+			do_freeze_char(argument, vict, ch);
+			return;
             
-            if (ch == vict) {
-                send_to_char(ch, "Oh, yeah, THAT'S real smart...\r\n");
-                return;
-            }
-            if (PLR_FLAGGED(vict, PLR_FROZEN)) {
-                send_to_char(ch, "Your victim is already pretty cold.\r\n");
-                return;
-            }
-            SET_BIT(PLR_FLAGS(vict), PLR_FROZEN);
-            GET_FREEZE_LEV(vict) = GET_LEVEL(ch);
-            send_to_char(vict, 
-                "A bitter wind suddenly rises and drains every erg of heat from your body!\r\nYou feel frozen!\r\n");
-            send_to_char(ch, "Frozen.\r\n");
-            act("A sudden cold wind conjured from nowhere freezes $n!", FALSE,
-                vict, 0, 0, TO_ROOM);
-            mudlog(MAX(LVL_POWER, GET_INVIS_LVL(ch)), BRF, true,
-                "(GC) %s frozen by %s.", GET_NAME(vict),
-                GET_NAME(ch));
-            break;
         case SCMD_THAW:
             if (!PLR_FLAGGED(vict, PLR_FROZEN)) {
                 send_to_char(ch, 

@@ -89,7 +89,6 @@ int no_initial_zreset = 0;
 int quest_status = 0;
 int lunar_stage = 0;
 int lunar_phase = MOON_NEW;
-bool USE_XML_FILES = false;
 
 struct room_data *r_mortal_start_room;	/* rnum of mortal start room   */
 struct room_data *r_electro_start_room;	/* Electro Centralis start room  */

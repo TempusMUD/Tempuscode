@@ -430,198 +430,9 @@ Crash_load(struct Creature *ch)
         2 - rented equipment lost ( no $ )
 */
 {
-	if( USE_XML_FILES ) {
-		if (ch->loadObjects())
-			return 0;
-		return 1;
-	}
-	FILE *fl;
-	char fname[MAX_STRING_LENGTH];
-	struct obj_data *tmpo;
-	struct rent_info rent;
-	int cost = 0, orig_rent_code;
-	float num_of_days;
-	int tmpi;
-	int cont = 0;
-	int num_lost = 0;
-
-	if (get_filename(GET_NAME(ch), fname, IMPLANT_FILE)) {
-		fl = fopen(fname, "r+b");
-		if (fl) {
-			while (!feof(fl) || !cont) {
-				tmpo = Obj_from_store(fl, false);
-				if (tmpo && tmpo->worn_on >= 0) {
-					tmpi = tmpo->worn_on;
-					tmpo->worn_on = -1;
-					equip_char(ch, tmpo, tmpi, MODE_IMPLANT);
-				} else if (tmpo)
-					obj_to_char(tmpo, ch);
-				else
-					cont = 1;
-
-				if (ferror(fl)) {
-					perror("Reading implant file: Crash_load.");
-					fclose(fl);
-					cont = 1;
-				}
-			}
-			fclose(fl);
-		} else if (errno != ENOENT) {
-			sprintf(buf1, "SYSERR: READING IMPLANT FILE %s", fname);
-			perror(buf1);
-			send_to_char(ch, 
-				"\r\n********************* NOTICE *********************\r\n"
-				"There was a problem loading your objects from disk.  To protect your items,\r\n"
-				"you will not be allowed to enter the game.  If you can't get in after multiple\r\n"
-				"attempts, please mail ashe@tempusmud.com about the problem.\r\n");
-			return -1;
-		}
-	}
-
-	if (!get_filename(GET_NAME(ch), fname, CRASH_FILE))
-		return 1;
-
-	fl = fopen(fname, "r+b");
-	if (!fl) {
-		if (errno != ENOENT) {
-			sprintf(buf1, "SYSERR: READING OBJECT FILE %s", fname);
-			perror(buf1);
-			send_to_char(ch, 
-				"\r\n********************* NOTICE *********************\r\n"
-				"There was a problem loading your objects from disk.  To protect your items,\r\n"
-				"you will not be allowed to enter the game.  If you can't get in after multiple\r\n"
-				"attempts, please mail ashe@tempusmud.com about the problem.\r\n");
-			return -1;
-		}
-		mudlog(MAX(LVL_AMBASSADOR, GET_INVIS_LVL(ch)), NRM, true,
-			"%s entering game with no equipment", GET_NAME(ch));
-		return 1;
-	}
-
-	if (!feof(fl))
-		fread(&rent, sizeof(struct rent_info), 1, fl);
-
-	if (rent.rentcode == RENT_RENTED ||
-		rent.rentcode == RENT_TIMEDOUT || rent.rentcode == RENT_FORCED) {
-
-		num_of_days = (float)(time(0) - rent.time) / SECS_PER_REAL_DAY;
-		cost = (int)(rent.net_cost_per_diem * num_of_days);
-
-		// immortals dont have to pay rent
-		if (GET_LEVEL(ch) < LVL_IMMORT) {
-			// costs credits
-			if (rent.currency == TIME_ELECTRO) {
-				if (cost < GET_CASH(ch) + GET_FUTURE_BANK(ch)) {
-					ch->account->withdraw_future_bank(cost - GET_CASH(ch));
-					GET_CASH(ch) = MAX(GET_CASH(ch) - cost, 0);
-					cost = 0;
-					ch->saveToXML();
-				} else {
-					mudlog(MAX(LVL_AMBASSADOR, GET_INVIS_LVL(ch)), BRF, true,
-						"%s entering game, some rented eq lost ( no creds ). -- %d/day, %f days",
-						GET_NAME(ch), rent.net_cost_per_diem, num_of_days);
-				}
-			} else {			// default costs gold
-				if (cost < GET_GOLD(ch) + GET_PAST_BANK(ch)) {
-					ch->account->withdraw_past_bank(cost - GET_GOLD(ch));
-					GET_GOLD(ch) = MAX(GET_GOLD(ch) - cost, 0);
-					ch->saveToXML();
-					cost = 0;
-				} else {
-					mudlog(MAX(LVL_AMBASSADOR, GET_INVIS_LVL(ch)), BRF, true,
-						"%s entering game, some rented eq lost ( no gold ). -- %d/day, %f days",
-						GET_NAME(ch), rent.net_cost_per_diem, num_of_days);
-				}
-			}					// Currency
-		}
-	}
-	// set buf in the switch and log it at the end
-	switch (orig_rent_code = rent.rentcode) {
-	case RENT_RENTED:
-		if (!cost)				// rent is paid in full, normal un-rent status
-			sprintf(buf, "%s un-renting and entering game", GET_NAME(ch));
-		else
-			*buf = 0;
-		break;
-	case RENT_CRASH:
-		sprintf(buf, "%s retrieving crash-saved items and entering game",
-			GET_NAME(ch));
-		GET_HIT(ch) = GET_MAX_HIT(ch);	//  if it crashes, give them 
-		GET_MOVE(ch) = GET_MAX_MOVE(ch);	//  a break.
-		GET_MANA(ch) = GET_MAX_MANA(ch);
-		break;
-	case RENT_CRYO:
-		sprintf(buf, "%s un-cryo'ing and entering game", GET_NAME(ch));
-		break;
-	case RENT_FORCED:
-	case RENT_TIMEDOUT:
-		send_to_char(ch,
-			"%sWARNING:%s Failure to rent before disconnecting has tripled your rent.\r\n",
-			CCRED(ch, C_NRM), CCNRM(ch, C_NRM));
-		sprintf(buf, "%s retrieving force-saved items and entering game",
-			GET_NAME(ch));
-		break;
-	default:
-		sprintf(buf, "WARNING: %s entering game with undefined rent code",
-			GET_NAME(ch));
-		break;
-
-	}
-	if (*buf)
-		mudlog(MAX(LVL_AMBASSADOR, GET_INVIS_LVL(ch)), BRF, true, "%s", buf);
-
-	// load objects from file
-	while (!feof(fl)) {
-		tmpo = Obj_from_store(fl, false);
-
-		if (tmpo) {
-
-			//  if we still owe money, take the object as payment, if possible
-			if (cost > 0 && !IS_OBJ_STAT2(tmpo, ITEM2_NOREMOVE)
-				&& !IS_OBJ_STAT(tmpo, ITEM_NODROP)) {
-
-				// see if we're paying with credits
-				if (rent.currency == TIME_ELECTRO) {
-					slog("remobj( no creds ):%s, cost:%d, value:%d",
-						tmpo->short_description,
-						cost, recurs_obj_cost(tmpo, 1, NULL));
-					cost -= (recurs_obj_cost(tmpo, true, NULL));
-					extract_obj(tmpo);
-					num_lost++;
-				} else {		// default to gold
-					slog("remobj( no gold ):%s, cost:%d, value:%d",
-						tmpo->short_description,
-						cost, recurs_obj_cost(tmpo, true, NULL));
-
-					cost -= (recurs_obj_cost(tmpo, true, NULL));
-					extract_obj(tmpo);
-					num_lost++;
-				}
-			} else if (tmpo->worn_on >= 0) {	// object was stored as equipment, equip it on the char
-				tmpi = tmpo->worn_on;
-				tmpo->worn_on = -1;
-				equip_char(ch, tmpo, tmpi, MODE_EQ);
-			} else {			// object was stored as inventory, give it to the char
-				obj_to_char(tmpo, ch);
-			}
-		}
-
-		if (ferror(fl)) {
-			perror("Reading crash file: Crash_load.");
-			fclose(fl);
-			return 1;
-		}
-	}
-	fclose(fl);
-
-	ch->saveToXML();
-
-	if (num_lost)
-		return 2;
-	else if ((orig_rent_code == RENT_RENTED) || (orig_rent_code == RENT_CRYO))
+	if (ch->loadObjects())
 		return 0;
-	else
-		return 1;
+	return 1;
 }
 
 /*
@@ -727,48 +538,7 @@ Crash_save_implants(struct Creature *ch, bool extract = true)
 void
 Crash_crashsave(struct Creature *ch)
 {
-    if( USE_XML_FILES ) {
-        ch->crashSave();
-        return;
-    }
-	char buf[MAX_INPUT_LENGTH];
-	struct rent_info rent;
-	int j;
-	FILE *fp;
-
-	if (IS_NPC(ch))
-		return;
-
-	if (!get_filename(GET_NAME(ch), buf, CRASH_FILE))
-		return;
-	if (!(fp = fopen(buf, "wb")))
-		return;
-
-	rent.rentcode = RENT_CRASH;
-	rent.time = time(0);
-	rent.currency = ch->in_room->zone->time_frame;
-
-	if (!write_rentinfo(fp, &rent)) {
-		fclose(fp);
-		return;
-	}
-	if (!store_obj_list(ch->carrying, fp)) {
-		fclose(fp);
-		return;
-	}
-
-	for (j = 0; j < NUM_WEARS; j++)
-		if (GET_EQ(ch, j)) {
-			if (!store_obj_list(GET_EQ(ch, j), fp)) {
-				fclose(fp);
-				return;
-			}
-		}
-	fclose(fp);
-
-	Crash_save_implants(ch, false);
-
-	REMOVE_BIT(PLR_FLAGS(ch), PLR_CRASH);
+	ch->crashSave();
 }
 
 
@@ -782,68 +552,13 @@ void
 Crash_rentsave(struct Creature *ch, int cost, int rentcode)
 {
 
-    if( USE_XML_FILES ) {
-        ch->rentSave(cost,rentcode);
-        return;
-    }
-
-	char buf[MAX_INPUT_LENGTH];
-	struct rent_info rent;
-	int j;
-	FILE *fp;
-
-	if (IS_NPC(ch))
-		return;
-
-	if (!get_filename(GET_NAME(ch), buf, CRASH_FILE))
-		return;
-	if (!(fp = fopen(buf, "wb")))
-		return;
-
-	for (j = 0; j < NUM_WEARS; j++)
-		if (GET_EQ(ch, j))
-			Crash_extract_norents(GET_EQ(ch, j));
-
-	Crash_extract_norents(ch->carrying);
-
-	rent.net_cost_per_diem = cost;
-	rent.rentcode = rentcode;
-	rent.time = time(0);
-	rent.gold = GET_GOLD(ch);
-	rent.account = GET_PAST_BANK(ch);
-	rent.currency = ch->in_room->zone->time_frame;
-	if (!write_rentinfo(fp, &rent)) {
-		fclose(fp);
-		return;
-	}
-
-	for (j = 0; j < NUM_WEARS; j++)
-		if (GET_EQ(ch, j))
-			if (store_obj_list(GET_EQ(ch, j), fp))
-				extract_object_list(GET_EQ(ch, j));
-
-	if (store_obj_list(ch->carrying, fp))
-		extract_object_list(ch->carrying);
-
-	fclose(fp);
-
-	Crash_save_implants(ch, true);
+	ch->rentSave(cost,rentcode);
 }
 
 void
 Crash_idlesave(struct Creature *ch)
 {
-    if( USE_XML_FILES ) {
-        ch->idleSave();
-        return;
-    }
-	int cost = 0;
-	Crash_calculate_rent(ch->carrying, &cost);
-	if (GET_LEVEL(ch) >= LVL_AMBASSADOR) {
-		cost = 0;
-	}
-	// INCREASE
-	Crash_rentsave(ch, (cost * 3), RENT_FORCED);
+	ch->idleSave();
 }
 
 /**
@@ -853,143 +568,14 @@ Crash_idlesave(struct Creature *ch)
 void
 Crash_cursesave(struct Creature *ch)
 {
-    if( USE_XML_FILES ) {
-        ch->curseSave();
-        return;
-    }
-	char buf[MAX_INPUT_LENGTH];
-	struct rent_info rent;
-	int j;
-	FILE *fp;
-	struct obj_data *obj, *next_obj;
-
-	if (IS_NPC(ch))
-		return;
-
-	if (!get_filename(GET_NAME(ch), buf, CRASH_FILE))
-		return;
-	if (!(fp = fopen(buf, "wb")))
-		return;
-
-	rent.net_cost_per_diem = 0;
-	rent.rentcode = RENT_RENTED;
-	rent.time = time(0);
-	rent.gold = GET_GOLD(ch);
-	rent.account = GET_PAST_BANK(ch);
-	rent.currency = ch->in_room->zone->time_frame;
-
-	if (!write_rentinfo(fp, &rent)) {
-		fclose(fp);
-		return;
-	}
-
-	for (j = 0; j < NUM_WEARS; j++) {
-		if (GET_EQ(ch, j)) {
-			if (IS_OBJ_STAT(GET_EQ(ch, j), ITEM_NODROP) ||
-				IS_OBJ_STAT2(GET_EQ(ch, j), ITEM2_NOREMOVE)) {
-
-				// the item is cursed, but its contents cannot be (normally)
-				while (GET_EQ(ch, j)->contains)
-					extract_object_list(GET_EQ(ch, j)->contains);
-
-				if (store_obj_list(GET_EQ(ch, j), fp))
-					extract_object_list(GET_EQ(ch, j));
-			}
-		}
-		if (GET_IMPLANT(ch, j)) {
-			struct obj_data *obj;
-
-			// Break implants and put them on the floor
-			obj = unequip_char(ch, j, MODE_IMPLANT);
-			GET_OBJ_DAM(obj) = GET_OBJ_MAX_DAM(obj) >> 3 - 1;
-			SET_BIT(GET_OBJ_EXTRA2(obj), ITEM2_BROKEN);
-			obj_to_room(obj, ch->in_room);
-		}
-
-	}
-
-	for (obj = ch->carrying; obj; obj = next_obj) {
-		next_obj = obj->next_content;
-		if (IS_OBJ_STAT(obj, ITEM_NODROP)) {
-
-			// the item is cursed, but its contents cannot be (normally)
-			while (obj->contains)
-				extract_object_list(obj->contains);
-
-			if (obj->save(fp))
-				extract_obj(obj);
-		}
-
-	}
-
-	fclose(fp);
-
-	// save implants
-	Crash_save_implants(ch);
-	REMOVE_BIT(PLR_FLAGS(ch), PLR_CRASH);
+	ch->curseSave();
 }
 
 
 void
 Crash_cryosave(struct Creature *ch, int cost)
 {
-
-    if( USE_XML_FILES ) {
-        ch->cryoSave(cost);
-        return;
-    }
-	char buf[MAX_INPUT_LENGTH];
-	struct rent_info rent;
-	int j;
-	FILE *fp;
-
-	if (IS_NPC(ch))
-		return;
-
-	if (!get_filename(GET_NAME(ch), buf, CRASH_FILE))
-		return;
-	if (!(fp = fopen(buf, "wb")))
-		return;
-
-	for (j = 0; j < NUM_WEARS; j++)
-		if (GET_EQ(ch, j))
-			Crash_extract_norents(GET_EQ(ch, j));
-
-	Crash_extract_norents(ch->carrying);
-
-	if (ch->in_room->zone->time_frame == TIME_ELECTRO)
-		GET_CASH(ch) = MAX(0, GET_CASH(ch) - cost);
-	else
-		GET_GOLD(ch) = MAX(0, GET_GOLD(ch) - cost);
-
-	rent.rentcode = RENT_CRYO;
-	rent.time = time(0);
-	rent.gold = GET_GOLD(ch);
-	rent.account = GET_PAST_BANK(ch);
-	rent.net_cost_per_diem = 0;
-	rent.currency = ch->in_room->zone->time_frame;
-
-	if (!write_rentinfo(fp, &rent)) {
-		fclose(fp);
-		return;
-	}
-
-	for (j = 0; j < NUM_WEARS; j++)
-		if (GET_EQ(ch, j))
-			if (store_obj_list(GET_EQ(ch, j), fp))
-				extract_object_list(GET_EQ(ch, j));
-
-	if (!store_obj_list(ch->carrying, fp)) {
-		fclose(fp);
-		return;
-	}
-	fclose(fp);
-
-	extract_object_list(ch->carrying);
-
-	Crash_save_implants(ch);
-
-	SET_BIT(PLR_FLAGS(ch), PLR_CRYO);
+	ch->cryoSave(cost);
 }
 
 
@@ -1138,10 +724,7 @@ int
 Crash_offer_rent(struct Creature *ch, struct Creature *receptionist,
 	int display, int factor)
 {
-	extern int max_obj_save;	/* change in config.c */
-	char buf[MAX_INPUT_LENGTH];
-	int i;
-	long totalcost = 0, numitems = 0, norent = 0, total_money;
+	long totalcost = 0, total_money;
 	char curr[64];
 
 	if (receptionist->in_room->zone->time_frame == TIME_ELECTRO) {
@@ -1152,87 +735,25 @@ Crash_offer_rent(struct Creature *ch, struct Creature *receptionist,
 		total_money = GET_GOLD(ch) + GET_PAST_BANK(ch);
 	}
 
-	if (USE_XML_FILES) {
-		if (ch->displayUnrentables())
-			return 0;
-
-		totalcost = ch->calcDailyRent();
-
-		// receptionist's fee
-		totalcost = (int)(totalcost * (0.30) * ((10 + GET_LEVEL(ch)) / 10));
-
-		// level fee
-		totalcost += (min_rent_cost * GET_LEVEL(ch)) * factor;
-
-		if (display) {
-			perform_tell(receptionist, ch, tmp_sprintf(
-				"Rent will cost you %ld %s per day.", totalcost, curr));
-			perform_tell(receptionist, ch, tmp_sprintf(
-				"You can rent for %ld days with the money you have.",
-				total_money / totalcost));
-		}
-		return totalcost;
-	}
-
-	norent = Crash_report_unrentables(ch, receptionist, ch->carrying);
-	for (i = 0; i < NUM_WEARS; i++)
-		norent += Crash_report_unrentables(ch, receptionist, GET_EQ(ch, i));
-
-	if (norent)
+	if (ch->displayUnrentables())
 		return 0;
-	totalcost = 0;
 
-	Crash_report_rent(ch, receptionist, ch->carrying, &totalcost, &numitems,
-		display, factor);
+	totalcost = ch->calcDailyRent();
 
-	for (i = 0; i < NUM_WEARS; i++)
-		Crash_report_rent(ch, receptionist, GET_EQ(ch, i), &totalcost,
-			&numitems, display, factor);
-
+	// receptionist's fee
 	totalcost = (int)(totalcost * (0.30) * ((10 + GET_LEVEL(ch)) / 10));
 
-	/* adds in the receptionist's fee =  level*10     */
+	// level fee
 	totalcost += (min_rent_cost * GET_LEVEL(ch)) * factor;
 
-	totalcost += (totalcost * time_info.day) / 1000;
-	totalcost += (totalcost * time_info.month) / 200;
-
-	if (!numitems) {
-		perform_tell(receptionist, ch,
-			"But you are not carrying anything!  Just quit!");
-		return (0);
-	}
-	if (numitems > max_obj_save + GET_LEVEL(ch) + (GET_REMORT_GEN(ch) << 3)) {
-		sprintf(buf2, "Sorry, but I cannot store more than %d items.",
-			max_obj_save + GET_LEVEL(ch) + (GET_REMORT_GEN(ch) << 3));
-		perform_tell(receptionist, ch, buf2);
-		sprintf(buf2, "You are carrying %ld.", numitems);
-		perform_tell(receptionist, ch, buf2);
-		return (0);
-	}
 	if (display) {
-		sprintf(buf2, "Plus, my %d %s insurance fee..",
-			(min_rent_cost * GET_LEVEL(ch)) * factor, curr);
-		perform_tell(receptionist, ch, buf2);
-		strcpy(buf, CCRED(ch, C_NRM));
-		sprintf(buf2,
-			"%s tells you,%s%s 'I'll cut you a deal for %ld %s%s.'%s\r\n",
-			PERS(receptionist, ch), CCGRN(ch, C_NRM), CCBLD(ch, C_SPR),
-			totalcost, curr, (factor == RENT_FACTOR ? " per day" : ""),
-			CCNRM(ch, C_SPR));
-		strcat(buf, CAP(buf2));
-		send_to_char(ch, "%s", buf);
-
-		if ((receptionist->in_room->zone->time_frame == TIME_ELECTRO &&
-				totalcost > GET_CASH(ch)) ||
-			(receptionist->in_room->zone->time_frame != TIME_ELECTRO &&
-				totalcost > GET_GOLD(ch))) {
-			perform_tell(receptionist, ch, "...which I see you can't afford.");
-			return (0);
-		} else if (factor == RENT_FACTOR)
-			Crash_rent_deadline(ch, receptionist, totalcost);
+		perform_tell(receptionist, ch, tmp_sprintf(
+			"Rent will cost you %ld %s per day.", totalcost, curr));
+		perform_tell(receptionist, ch, tmp_sprintf(
+			"You can rent for %ld days with the money you have.",
+			total_money / totalcost));
 	}
-	return (totalcost);
+	return totalcost;
 }
 
 int

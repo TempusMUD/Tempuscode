@@ -928,6 +928,31 @@ struct follow_type {
 	struct follow_type *next;
 };
 
+struct rent_info {
+    rent_info() : time(0), rentcode(0), net_cost_per_diem(0), 
+                  gold(0), account(0), currency(0) {}
+	int time;
+	int rentcode;
+	int net_cost_per_diem;
+	int gold;
+	int account;
+	int spare0;
+	int spare1;
+	int currency;
+	int spare2;
+	int spare3;
+	int spare4;
+	int spare5;
+	int spare6;
+	int spare7;
+    
+    void saveToXML( FILE *ouf ) const {
+        fprintf( ouf, "<rent time=\"%d\" code=\"%d\" perdiem=\"%d\" "
+                      "gold=\"%d\" bank=\"%d\" currency=\"%d\"/>\n",
+                 time, rentcode, net_cost_per_diem, gold, account, currency );
+    }
+};
+
 
 /* ================== Structure for player/non-player ===================== */
 struct Creature {
@@ -1030,7 +1055,7 @@ struct Creature {
     bool curseSave();
     bool cryoSave(int cost);
   private:
-    bool saveObjects( const struct rent_info &rent );
+    bool saveObjects(void);
     /** Extracts all unrentable objects carried or worn by this creature **/
     void extractUnrentables();
   public:						// ******  Data ****
@@ -1055,6 +1080,7 @@ struct Creature {
 
 	struct follow_type *followers;	/* List of chars followers       */
 	struct Creature *master;	/* Who is char following?        */
+	rent_info rent;
 	char host[HOST_LENGTH + 1];	/* host of last logon */
 };
 

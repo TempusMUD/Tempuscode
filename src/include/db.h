@@ -34,8 +34,6 @@
 #define DB_BOOT_TICL 5
 #define DB_BOOT_ISCR 6
 
-extern bool USE_XML_FILES;
-
 /* names of various files and directories */
 #define INDEX_FILE	"index"		/* index of world files        */
 #define MINDEX_FILE	"index.mini"	/* ... and for mini-mud-mode   */

@@ -382,32 +382,6 @@ struct obj_file_elem {
 };
 
 
-/* header block for rent files.  BEWARE: Changing it will ruin rent files  */
-struct rent_info {
-    rent_info() : time(0), rentcode(0), net_cost_per_diem(0), 
-                  gold(0), account(0), currency(0) {}
-	int time;
-	int rentcode;
-	int net_cost_per_diem;
-	int gold;
-	int account;
-	int spare0;
-	int spare1;
-	int currency;
-	int spare2;
-	int spare3;
-	int spare4;
-	int spare5;
-	int spare6;
-	int spare7;
-    
-    void saveToXML( FILE *ouf ) const {
-        fprintf( ouf, "    <rent time=\"%d\" code=\"%d\" perdiem=\"%d\" "
-                      "gold=\"%d\" bank=\"%d\" currency=\"%d\"/>\n",
-                 time, rentcode, net_cost_per_diem, gold, account, currency );
-    }
-};
-
 /* shared data structs */
 struct obj_shared_data {
 	int vnum;

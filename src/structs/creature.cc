@@ -590,10 +590,8 @@ Creature::extract(bool destroy_objs, bool save, cxn_state con_state)
 
 
 	if (IS_PC(this) && save) {
-		this->saveToXML();
-		Crash_crashsave(this);	// Is there any eq to save?
-		Crash_save_implants(this, false);	// Are there any implants to save?
-		Crash_delete_crashfile(this);	// Should this be here?
+		this->player.time.logon = time(0);
+		this->crashSave();
 	}
 	if (desc && desc->original) {
 		do_return(this, "", 0, SCMD_NOEXTRACT, 0);

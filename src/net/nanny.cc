@@ -210,6 +210,9 @@ handle_input(struct descriptor_data *d, char *arg)
 
 			char_id = d->account->get_char_by_index(atoi(arg));
 			d->creature = new Creature;
+			d->creature->desc = d;
+			d->creature->account = d->account;
+
 			if (!d->creature->loadFromXML(char_id)) {
 				mudlog(LVL_IMMORT, CMP, true, "Player creature %d didn't load from account '%s'", char_id, d->account->get_name());
 				send_to_desc(d, "Sorry.  There was an error processing your request.\r\n");
@@ -219,15 +222,6 @@ handle_input(struct descriptor_data *d, char *arg)
 				return;
 			}
 
-			// Now load objects onto character
-			if (!d->creature->loadObjects()) {
-				send_to_desc(d, "Your equipment could not be loaded.\r\n\r\n");
-				mudlog(LVL_IMMORT, CMP, true, "%s's equipment could not be loaded",
-					GET_NAME(d->creature));
-			}
-
-			d->creature->desc = d;
-			d->creature->account = d->account;
 			char_to_game(d);
 			break;
 		}
@@ -799,24 +793,67 @@ send_menu(descriptor_data *d)
 		send_to_desc(d,
 			"&c*&b-----------------------------------------------------------------------------&c*\r\n"
 			"&b|                                 &YT E M P U S                                 &b|\r\n"
-			"&c*&b-----------------------------------------------------------------------------&c*&n\r\n\r\n");
-
+			"&c*&b-----------------------------------------------------------------------------&c*&n\r\n\r\n"
+			"&y  # Name           Lvl Gen Sex     Race     Class      Last on    Status   Mail\r\n"
+			"&b -- -------------- --- --- --- -------- --------- ------------ --------- ------\r\n");
 
 		idx = 1;
 		tmp_ch = new Creature;
 		while (!d->account->invalid_char_index(idx)) {
+			const char *class_str, *status_str, *mail_str;
+			char laston_str[15];
+
+
 			tmp_ch->clear();
 			tmp_ch->loadFromXML(d->account->get_char_by_index(idx));
-			send_to_desc(d, "    &b[&y%2d&b] &c%-20s %10s %10s %6s %s%s\r\n",
+
+			// Construct compact menu entry for each character
+			if (IS_REMORT(tmp_ch))
+				class_str = tmp_strcat(char_class_abbrevs[GET_CLASS(tmp_ch)],
+					"/", char_class_abbrevs[GET_REMORT_CLASS(tmp_ch)], NULL);
+			else
+				class_str = pc_char_class_types[GET_CLASS(tmp_ch)];
+			strftime(laston_str, sizeof(laston_str), "%b %d, %Y",
+				localtime(&tmp_ch->player.time.logon));
+			if (PLR_FLAGGED(tmp_ch, PLR_FROZEN))
+				status_str = "&cFROZEN!";
+			else if (PLR2_FLAGGED(tmp_ch, PLR2_BURIED))
+				status_str = "&gBURIED!";
+//			else if (d->account->is_active(GET_IDNUM(tmp_ch)))
+//				status_str = "&mlogged in";
+			else switch (tmp_ch->rent.rentcode) {
+			case RENT_UNDEF:
+				status_str = "&r    undef"; break;
+			case RENT_CRYO:
+				status_str = "&c   cryoed"; break;
+			case RENT_CRASH:
+				status_str = "&gcrashsave"; break;
+			case RENT_RENTED:
+				status_str = "&g   rented"; break;
+			case RENT_FORCED:
+				status_str = "&yforcerent"; break;
+			case RENT_TIMEDOUT:
+				status_str = "&yforcerent"; break;
+			default:
+				status_str = "&R REPORTME"; break;
+			}
+			if (has_mail(GET_IDNUM(tmp_ch)))
+				mail_str = "&Y   *  ";
+			else
+				mail_str = "&n  none";
+			send_to_desc(d,
+				"&b[&y%2d&b] &c%-13s %3d %3d  %c  %8s %9s %12s %s %s&n\r\n",
 				idx, GET_NAME(tmp_ch),
+				GET_LEVEL(tmp_ch), GET_REMORT_GEN(tmp_ch),
+				toupper(genders[(int)GET_SEX(tmp_ch)][0]),
 				player_race[(int)GET_RACE(tmp_ch)],
-				pc_char_class_types[GET_CLASS(tmp_ch)],
-				genders[(int)GET_SEX(tmp_ch)],
-				GET_LEVEL(tmp_ch) ? tmp_sprintf("lvl %d", GET_LEVEL(tmp_ch)):"&m new",
-				has_mail(GET_IDNUM(tmp_ch)) ? "&G mail!":"");
+				class_str, laston_str, status_str, mail_str);
 			idx++;
 		}
 		delete tmp_ch;
+
+		send_to_desc(d, "             Past bank: %-12lld      Future Bank: %-12lld\r\n",
+			d->account->get_past_bank(), d->account->get_future_bank());
 
 		send_to_desc(d, "\r\n                     &b[&yC&b] &cCreate a new character\r\n");
 		if (!d->account->invalid_char_index(1))
@@ -990,12 +1027,26 @@ char_to_game(descriptor_data *d)
 			GET_INVIS_LVL(d->creature) = (GET_LEVEL(d->creature) > LVL_LUCIFER ?
 										   LVL_LUCIFER : GET_LEVEL(d->creature));
 
-		// Load equipment
-		load_result = Crash_load(d->creature);
+		// Now load objects onto character
+		switch (d->creature->loadObjects()) {
+			case -1:
+				slog("Dangerous failure!  Crashing mud.");
+				raise(SIGSEGV);
+				break;
+			case 0:
+				// Everything ok
+				break;
+			case 1:
+				send_to_desc(d, "Your equipment could not be loaded.\r\n\r\n");
+				mudlog(LVL_IMMORT, CMP, true, "%s's equipment could not be loaded",
+					GET_NAME(d->creature));
+			case 2:
+				send_to_desc(d, "You should have lost equipment.\r\n");
+				break;
+			default:
+				slog("Can't happen at %s:%d", __FILE__, __LINE__);
+		}
 
-		// In case of error, break out - error message is already displayed
-		if (load_result == -1)
-			return;
 	} else { // otherwise null the loadroom
 		d->creature->in_room = NULL;
 	}
