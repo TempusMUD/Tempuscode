@@ -204,8 +204,8 @@ burn_update(void)
 						if (IS_AFFECTED_3(ch, AFF3_GRAVITY_WELL))
 							dam <<= 2;
 
-						act("$n lands hard!", TRUE, ch, 0, 0, TO_ROOM);
-						act("You land hard!", TRUE, ch, 0, 0, TO_CHAR);
+						act("$n makes an enormous splash!", TRUE, ch, 0, 0, TO_ROOM);
+						act("You make an enormous splash!", TRUE, ch, 0, 0, TO_CHAR);
 					} else {
 						act("$n hits the ground hard!", TRUE, ch, 0, 0,
 							TO_ROOM);
