@@ -1,0 +1,19 @@
+$(OBJ)/boards.o : boards.cc \
+	$(INCLUDE)/structs.h $(INCLUDE)/utils.h $(INCLUDE)/comm.h $(INCLUDE)/db.h $(INCLUDE)/boards.h $(INCLUDE)/interpreter.h $(INCLUDE)/handler.h $(INCLUDE)/screen.h $(INCLUDE)/clan.h $(INCLUDE)/security.h 
+	$(CXX) -c $(CXXFLAGS) boards.cc            -o $(OBJ)/boards.o
+$(OBJ)/bomb.o : bomb.cc \
+	$(INCLUDE)/structs.h $(INCLUDE)/utils.h $(INCLUDE)/comm.h $(INCLUDE)/interpreter.h $(INCLUDE)/handler.h $(INCLUDE)/db.h $(INCLUDE)/spells.h $(INCLUDE)/screen.h $(INCLUDE)/vehicle.h $(INCLUDE)/materials.h $(INCLUDE)/flow_room.h $(INCLUDE)/bomb.h $(INCLUDE)/fight.h $(INCLUDE)/house.h $(INCLUDE)/char_class.h 
+	$(CXX) -c $(CXXFLAGS) bomb.cc              -o $(OBJ)/bomb.o
+$(OBJ)/guns.o : guns.cc \
+	$(INCLUDE)/structs.h $(INCLUDE)/utils.h $(INCLUDE)/comm.h $(INCLUDE)/interpreter.h $(INCLUDE)/handler.h $(INCLUDE)/db.h $(INCLUDE)/spells.h $(INCLUDE)/screen.h $(INCLUDE)/vehicle.h $(INCLUDE)/materials.h $(INCLUDE)/char_class.h $(INCLUDE)/guns.h 
+	$(CXX) -c $(CXXFLAGS) guns.cc              -o $(OBJ)/guns.o
+$(OBJ)/paths.o : paths.cc \
+	$(INCLUDE)/structs.h $(INCLUDE)/utils.h $(INCLUDE)/db.h $(INCLUDE)/vehicle.h $(INCLUDE)/interpreter.h $(INCLUDE)/handler.h $(INCLUDE)/paths.h $(INCLUDE)/comm.h $(INCLUDE)/screen.h $(INCLUDE)/elevators.h 
+	$(CXX) -c $(CXXFLAGS) paths.cc             -o $(OBJ)/paths.o
+$(OBJ)/smokes.o : smokes.cc \
+	$(INCLUDE)/structs.h $(INCLUDE)/utils.h $(INCLUDE)/comm.h $(INCLUDE)/interpreter.h $(INCLUDE)/handler.h $(INCLUDE)/db.h $(INCLUDE)/spells.h $(INCLUDE)/screen.h $(INCLUDE)/house.h $(INCLUDE)/vehicle.h $(INCLUDE)/materials.h $(INCLUDE)/smokes.h $(INCLUDE)/clan.h $(INCLUDE)/char_class.h $(INCLUDE)/bomb.h 
+	$(CXX) -c $(CXXFLAGS) smokes.cc            -o $(OBJ)/smokes.o
+$(OBJ)/vehicle.o : vehicle.cc \
+	$(INCLUDE)/structs.h $(INCLUDE)/utils.h $(INCLUDE)/comm.h $(INCLUDE)/interpreter.h $(INCLUDE)/handler.h $(INCLUDE)/db.h $(INCLUDE)/spells.h $(INCLUDE)/screen.h $(INCLUDE)/vehicle.h $(INCLUDE)/house.h $(INCLUDE)/clan.h 
+	$(CXX) -c $(CXXFLAGS) vehicle.cc           -o $(OBJ)/vehicle.o
+OBJFILES= $(OBJ)/boards.o $(OBJ)/bomb.o $(OBJ)/guns.o $(OBJ)/paths.o $(OBJ)/smokes.o $(OBJ)/vehicle.o
