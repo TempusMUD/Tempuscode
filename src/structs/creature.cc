@@ -1422,6 +1422,7 @@ Creature::addCombat(Creature *ch, bool initiated)
         for (li = combatList.begin(); li != combatList.end(); ++li) {
             if (*li == this) {
                 found = true;
+                errlog("attempted to add a creature to combatList who was already in it.");
             }
         }
         if (!found) {
