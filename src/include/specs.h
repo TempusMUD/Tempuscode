@@ -275,6 +275,7 @@ SPECIAL(voting_booth);
 SPECIAL(fountain_youth);
 SPECIAL(clone_lab);
 SPECIAL(ancient_artifact);
+SPECIAL(finger_of_death);
 
 #define SPEC_MOB 1
 #define SPEC_OBJ 2
