@@ -729,6 +729,11 @@ void WAIT_STATE(struct char_data *ch, int cycle);
 			   CAN_SEE_IN_DARK(sub))) || \
 			 AFF3_FLAGGED(sub, AFF3_SONIC_IMAGERY))
 
+#define LIGHT_OK_ROOM(sub, room) ((!IS_AFFECTED(sub, AFF_BLIND) && \
+                                 (IS_LIGHT(room) ||  \
+                                 CAN_SEE_IN_DARK(sub))) || \
+                                 AFF3_FLAGGED(sub, AFF3_SONIC_IMAGERY))
+
 #define ROOM_OK(sub)    (!sub->in_room ||                   \
 			 !ROOM_FLAGGED(sub->in_room, ROOM_SMOKE_FILLED))
 

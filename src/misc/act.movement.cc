@@ -884,6 +884,56 @@ int do_simple_move(struct char_data * ch, int dir, int mode, int need_specials_c
 	}
     }
 
+    // 
+    // Mud application
+    //
+
+    if (ch->in_room->sector_type == SECT_SWAMP) {
+	
+	if (was_in->sector_type != SECT_SWAMP && ( ch->getPosition() ) != ( POS_FLYING ) ) {
+	    send_to_char("Your feet sink slightly into the swampy ground.\r\n", ch);
+	    apply_soil_to_char(ch, GET_EQ(ch, WEAR_FEET), SOIL_MUD, WEAR_FEET);
+	    apply_soil_to_char(ch, GET_EQ(ch, WEAR_LEGS), SOIL_MUD, WEAR_LEGS);
+	}
+	
+	if ( ch->getPosition() != POS_FLYING ) {
+	    obj = GET_EQ(ch, WEAR_FEET);
+	    if (obj) {
+		if( !OBJ_SOILED( GET_EQ(ch, WEAR_FEET), SOIL_MUD ) ) {
+		    apply_soil_to_char(ch, GET_EQ(ch, WEAR_FEET), SOIL_MUD, WEAR_FEET);
+		}
+	    }
+	    
+	    obj = GET_EQ(ch, WEAR_LEGS);
+	    if (obj) {
+		if ( !OBJ_SOILED( GET_EQ(ch, WEAR_LEGS), SOIL_MUD ) ) {
+		    apply_soil_to_char(ch, GET_EQ(ch, WEAR_LEGS), SOIL_MUD, WEAR_LEGS);
+		}
+	    }
+	    
+	    if (!CHAR_SOILED(ch, WEAR_FEET, SOIL_MUD) ) {
+		apply_soil_to_char(ch, NULL, SOIL_MUD, WEAR_FEET );
+	    }
+	    
+	    if ( !CHAR_SOILED(ch, WEAR_LEGS, SOIL_MUD) ) {
+		apply_soil_to_char(ch, NULL, SOIL_MUD, WEAR_LEGS );
+	    }
+	}
+	    
+   
+    }
+
+    //
+    // Light -> Darkness Emit
+    //
+    if( !LIGHT_OK(ch) && LIGHT_OK_ROOM(ch, was_in) ) {
+	send_to_char("You are enveloped by darkness.\r\n", ch );
+    }
+
+    if( LIGHT_OK(ch) && !LIGHT_OK_ROOM(ch, was_in) ) {
+	send_to_char("You squint as the light hits your eyes.\r\n", ch );
+    }
+
     for (obj = ch->in_room->contents; obj; obj = obj->next_content)
 	if (GET_OBJ_VNUM(obj) == BLOOD_VNUM)
 	    break;
