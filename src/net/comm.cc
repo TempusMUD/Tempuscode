@@ -399,7 +399,7 @@ int get_avail_descs(void)
         struct rlimit limit;
 
         getrlimit(RLIMIT_NOFILE, &limit);
-        max_descs = MIN((unsigned)MAX_PLAYERS + NUM_RESERVED_DESCS, limit.rlim_max);
+        max_descs = MIN(MAX_PLAYERS + NUM_RESERVED_DESCS, limit.rlim_max);
         limit.rlim_cur = max_descs;
         setrlimit(RLIMIT_NOFILE, &limit);
     }
