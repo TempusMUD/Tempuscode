@@ -2227,7 +2227,7 @@ nanny(struct descriptor_data * d, char *arg)
     
         else {
             if ( ( _parse_name(arg, tmp_name)) || strlen(tmp_name) < 2 ||
-                strlen(tmp_name) > MAX_NAME_LENGTH ) {
+                strlen(tmp_name) > MAX_NAME_LENGTH  || strlen(tmp_name) < 3 ) {
                 SEND_TO_Q("Invalid name, please try another.\r\n"
                           "Name: ", d);
                 return;
