@@ -573,6 +573,7 @@ CTextEditor::CTextEditor(struct descriptor_data *d,
    // Internal pointer to the destination
     target = dest;
 
+    scripting = false;
     // The maximum size of the buffer.
     maxSize = max;
 
