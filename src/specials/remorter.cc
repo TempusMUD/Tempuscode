@@ -145,8 +145,7 @@ SPECIAL(remorter)
 			send_to_char(ch, "This test is already in progress.\r\n");
 			quiz.sendQuestion(ch);
 			return 1;
-		}
-        else if (isname_exact(arg2, "bribe")) {
+		} else if (isname_exact(arg2, "bribe")) {
             value = GET_GOLD(ch);
             level = MIN(10, 3 + GET_REMORT_GEN(ch));
             if (value < level * 7000000) {
@@ -191,14 +190,18 @@ SPECIAL(remorter)
 
         do_pre_test(ch);
 
-		send_to_char(ch, "Your sacrifice has been accepted.\r\n"
+
+        send_to_char(ch, "Your sacrifice has been accepted.\r\n");
+        return do_pass_remort_test(&quiz, ch);
+		/*
+        send_to_char(ch, "Your sacrifice has been accepted.\r\n"
 			"You must now answer as many questions as possible.\r\n"
 			"The first word of your answer is the one that counts.\r\n"
 			"Answer me by using say <answer>\r\n"
 			"If you forget the question, type say, without an answer.\r\n");
 		quiz.reset(ch);
 		quiz.sendQuestion(ch);
-		return 1;
+		return 1;*/
 	}
 
 	if (quiz.makeGuess(ch, arg1)) {
