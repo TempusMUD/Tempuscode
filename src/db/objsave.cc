@@ -435,7 +435,12 @@ Crash_load(struct Creature *ch)
         2 - rented equipment lost ( no $ )
 */
 {
-
+	if( USE_XML_FILES ) {
+		if( ch->loadObjects() )
+			return 0;
+		fprintf(stderr, "loadObjects() doesn't check for equipment lost.\n");
+		return 1;
+	}
 	FILE *fl;
 	char fname[MAX_STRING_LENGTH];
 	struct obj_data *tmpo;

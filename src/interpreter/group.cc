@@ -186,16 +186,24 @@ namespace Security {
     }
 
     /* Sends a list of this group's members to the given character. */
-    bool Group::sendPublicMemberList( Creature *ch, char *str) {
+    bool Group::sendPublicMemberList( Creature *ch, char *str, char* adminGroup ) {
         vector<long>::iterator it = members.begin();
         int pos = 1;
         char namebuf[80];
+		Group* group = NULL;
+		bool admin = false;
+		if( Security::isGroup(adminGroup) )
+			group = &( Security::getGroup(adminGroup) );
 
         strcat(str, "        ");
         for( ; it != members.end(); ++it ) {
+			admin = (group != NULL) && (group->member(*it));
             strcpy(namebuf, get_name_by_id(*it));
             namebuf[0] = toupper(namebuf[0]);
-            sprintf(buf2, "%-15s", namebuf);
+            sprintf(buf2, "%s%-15s%s", 
+					admin ? CCYEL_BLD(ch,C_NRM) : "", 
+					namebuf,
+					admin ? CCNRM(ch,C_NRM) : "");
 			strcat(str, buf2);
             if( pos++ % 4 == 0 ) {
                 pos = 1;

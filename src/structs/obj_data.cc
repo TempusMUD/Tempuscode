@@ -245,24 +245,20 @@ obj_data::loadFromXML(obj_data *container, Creature *victim, xmlNodePtr node)
 
 			char *type = xmlGetProp(cur, "type");
 			if( type != NULL && victim != NULL ) {
-				if( strcmp(type,"none") ) {
+				if( strcmp(type,"equipped") == 0 ) {
+					equip_char( victim, this, position, MODE_EQ );
+				} else if( strcmp(type,"implanted") == 0 ) {
+					equip_char( victim, this, position, MODE_IMPLANT );
+				} else if( victim != NULL && container == NULL ) {
 					obj_to_char(this,victim);
-				} else if( strcmp(type,"equipped") ) {
-					if(! equip_char( victim, this, position, MODE_EQ ) ) {
-						obj_to_char(this, victim);
-					}
-				} else if( strcmp(type,"implanted") ) {
-					if(! equip_char( victim, this, position, MODE_IMPLANT ) ) {
-						obj_to_char(this, victim);
-					}
 				}
 			}
 			free(type);
 		} else if( xmlMatches( cur->name, "values" ) ) {
-			obj_flags.value[0] = xmlGetIntProp( cur, "V0" );
-			obj_flags.value[1] = xmlGetIntProp( cur, "V1" );
-			obj_flags.value[2] = xmlGetIntProp( cur, "V2" );
-			obj_flags.value[3] = xmlGetIntProp( cur, "V3" );
+			obj_flags.value[0] = xmlGetIntProp( cur, "v0" );
+			obj_flags.value[1] = xmlGetIntProp( cur, "v1" );
+			obj_flags.value[2] = xmlGetIntProp( cur, "v2" );
+			obj_flags.value[3] = xmlGetIntProp( cur, "v3" );
 		} else if( xmlMatches( cur->name, "affectbits" ) ) {
 			char* aff = xmlGetProp(cur,"aff1");
 			obj_flags.bitvector[0] = hex2dec(aff);
@@ -279,8 +275,8 @@ obj_data::loadFromXML(obj_data *container, Creature *victim, xmlNodePtr node)
 		} else if( xmlMatches( cur->name, "affect" ) ) {
 			for( int i = 0; i < MAX_OBJ_AFFECT; i++ ) {
 				if( affected[i].location == 0 && affected[i].modifier == 0 ) {
-					 affected[i].modifier = xmlGetIntProp( cur, "location");
-					 affected[i].location = xmlGetIntProp( cur, "modifier");
+					 affected[i].modifier = xmlGetIntProp( cur, "modifier");
+					 affected[i].location = xmlGetIntProp( cur, "location");
 					 break;
 				}
 			}

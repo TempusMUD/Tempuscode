@@ -171,8 +171,8 @@ Creature::saveObjects( const rent_info &rent )
 			path, strerror(errno) );
 		return false;
 	}
-    rent.saveToXML( ouf );
 	fprintf( ouf, "<objects>\n" );
+    rent.saveToXML( ouf );
 	// Save the inventory
 	for( obj_data *obj = carrying; obj != NULL; obj = obj->next_content ) {
 		obj->saveToXML(ouf);
@@ -216,8 +216,8 @@ Creature::loadObjects()
 			obj_data *obj;
 			CREATE(obj, obj_data, 1);
 			obj->clear();
-			obj->loadFromXML(NULL,NULL,node);
-			obj_to_room(obj, in_room);
+			obj->loadFromXML(NULL,this,node);
+			//obj_to_room(obj, in_room);
 		}
 	}
 	return true;

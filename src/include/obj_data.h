@@ -396,8 +396,8 @@ struct rent_info {
 	int spare7;
     
     void saveToXML( FILE *ouf ) const {
-        fprintf( ouf, "<rent time=\"%d\" code=\"%d\" perdiem=\"%d\" "
-                      "gold=\"%d\" bank=\"%d\" currency=\"%d\"/>",
+        fprintf( ouf, "    <rent time=\"%d\" code=\"%d\" perdiem=\"%d\" "
+                      "gold=\"%d\" bank=\"%d\" currency=\"%d\"/>\n",
                  time, rentcode, net_cost_per_diem, gold, account, currency );
     }
 };

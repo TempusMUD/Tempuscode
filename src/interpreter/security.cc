@@ -124,10 +124,13 @@ ACCMD(do_access) {
                     send_to_char(ch, "Add what member?\r\n");
 
                 while( tokens.next(token2) ) {
-                    if( addMember( token2, token1 ) )
+                    if( addMember( token2, token1 ) ) {
                         send_to_char(ch, "Member added : %s\r\n", token2);
-                    else
+						slog("Security:  %s added to group '%s' by %s.", 
+						      token2, token1, GET_NAME(ch) );
+					} else {
                         send_to_char(ch, "Unable to add member: %s\r\n", token2);
+					}
                 }
             } else
                 send_to_char(ch, "Add what member to what group?\r\n");
@@ -144,6 +147,8 @@ ACCMD(do_access) {
                 while( tokens.next(token2) ) {
                     if( addCommand( token2, token1 ) ) {
                         send_to_char(ch, "Command added : %s\r\n", token2);
+						slog("Security:  Command '%s' added to '%s' by %s.", 
+						      token2, token1, GET_NAME(ch) );
                     } else {
                         send_to_char(ch, "Unable to add command: %s\r\n", token2);
                     }
@@ -185,6 +190,8 @@ ACCMD(do_access) {
             if( tokens.next(token1) ) {
                 if( Security::createGroup( token1 ) ) {
                     send_to_char(ch,  "Group created.\r\n");
+					slog("Security:  Group '%s' created by %s.", 
+						  token1, GET_NAME(ch) );
                 } else {
                     send_to_char(ch,  "Group creation failed.\r\n");
                 }
@@ -201,6 +208,8 @@ ACCMD(do_access) {
                 if( tokens.remaining(linebuf) ) {
                     getGroup(token1).setDescription( linebuf );
                     send_to_char(ch, "Description set.\r\n");
+					slog("Security:  Group '%s' described by %s.", 
+						  token1, GET_NAME(ch) );
                 } else {
                     send_to_char(ch, "Set what description?\r\n",ch);        
                 }
@@ -255,6 +264,8 @@ ACCMD(do_access) {
                 while( tokens.next(token2) ) {
                     if( removeMember( token2, token1 ) ) {
                         send_to_char(ch, "Member removed : %s\r\n", token2);
+						slog("Security:  %s removed from group '%s' by %s.", 
+						      token2, token1, GET_NAME(ch) );
                     } else {
                         send_to_char(ch, "Unable to remove member: %s\r\n", token2);
                     }
@@ -275,6 +286,8 @@ ACCMD(do_access) {
                 while( tokens.next(token2) ) {
                     if( removeCommand( token2, token1 ) ) {
                         send_to_char(ch, "Command removed : %s\r\n", token2);
+						slog("Security:  Command '%s' removed from '%s' by %s.", 
+						      token2, token1, GET_NAME(ch) );
                     } else {
                         send_to_char(ch, "Unable to remove command: %s\r\n", token2);
                     }
@@ -308,6 +321,7 @@ ACCMD(do_access) {
         case 14: // save
             if( saveGroups() ) {
                 send_to_char(ch, "Access groups saved.\r\n");
+				slog("Security:  Access group data saved by %s.", GET_NAME(ch) );
             } else {
                 send_to_char(ch, "Error saving access groups.\r\n");
             }
@@ -575,6 +589,8 @@ namespace Security {
     
     /** returns true if the named group exists. **/
     bool isGroup( const char* name ) {
+		if( name == NULL )
+			return false;
         list<Group>::iterator it = find( groups.begin(), groups.end(), name );
         return( it != groups.end() );
     }
@@ -597,7 +613,6 @@ namespace Security {
         }
         int rc = xmlSaveFormatFile( filename, doc, 1 );
         xmlFreeDoc(doc);
-        slog("Security:  Access group data saved.");
         return( rc != -1 );
     }
 
