@@ -116,10 +116,17 @@ perform_monk_meditate(struct Creature *ch)
 			af.aff_index = 0;
 			af.duration = af.level / 4;
 			af.modifier = 0;
+			// make them able to fly at high power
+			if (GET_CLASS(ch) == CLASS_MONK
+					&& ch->getLevelBonus(ZEN_MOTION) >= 50) {
+				af.bitvector = AFF_INFLIGHT;
+				af.aff_index = 1;
+			}
 			affect_to_char(ch, &af);
 			if (GET_LEVEL(ch) < LVL_AMBASSADOR)
 				WAIT_STATE(ch, PULSE_VIOLENCE * 2);
 			gain_skill_prof(ch, ZEN_MOTION);
+
 			return;
 		}
 	}
