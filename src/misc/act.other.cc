@@ -2079,7 +2079,7 @@ ACMD(do_clean)
 		}
 		if (!CHAR_SOILAGE(vict, pos)) {
 			sprintf(buf, "%s not soiled there.",
-				ch == vict ? "You are" : "$e is");
+				ch == vict ? "You are" : "$E is");
 			act(buf, FALSE, ch, 0, vict, TO_CHAR);
 			return;
 		}
