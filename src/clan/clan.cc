@@ -99,6 +99,8 @@ ACMD(do_enroll)
 		send_to_char(ch, "You are not the leader of the clan!\r\n");
 	else if (IS_MOB(vict) && GET_LEVEL(ch) < LVL_CREATOR)
 		send_to_char(ch, "What's the point of that?\r\n");
+	else if (IS_AFFECTED(ch, AFF_CHARM))
+		send_to_char(ch, "You obviously aren't quite in your right mind.\r\n");
 	else if (real_clan(GET_CLAN(vict))) {
 		if (GET_CLAN(vict) == GET_CLAN(ch)) {
 			if (!(member = real_clanmember(GET_IDNUM(vict), clan))) {
@@ -212,6 +214,8 @@ ACMD(do_dismiss)
 			PLR_FLAGGED(vict, PLR_CLAN_LEADER) &&
 			(GET_IDNUM(ch) != clan->owner && GET_LEVEL(ch) < LVL_IMMORT))
 		send_to_char(ch, "You cannot dismiss co-leaders.\r\n");
+	else if (IS_AFFECTED(ch, AFF_CHARM))
+		send_to_char(ch, "You obviously aren't quite in your right mind.\r\n");
 	else {
 		send_to_char(vict, "You have been dismissed from clan %s by %s!\r\n",
 			clan->name, GET_NAME(ch));
@@ -248,6 +252,8 @@ ACMD(do_resign)
 		send_to_char(ch, "NPC's cannot resign...\r\n");
 	else if (!clan)
 		send_to_char(ch, "You need to be in a clan before you resign from it.\r\n");
+	else if (IS_AFFECTED(ch, AFF_CHARM))
+		send_to_char(ch, "You obviously aren't quite in your right mind.\r\n");
 	else if (strcmp(argument, "yes"))
 		send_to_char(ch,
 			"You must type 'resign yes' to leave your clan.\r\n");
@@ -484,6 +490,8 @@ ACMD(do_demote)
 		send_to_char(ch, "No-one around by that name.\r\n");
 	else if (!(member1 = real_clanmember(GET_IDNUM(ch), clan)))
 		send_to_char(ch, "You are not properly installed in the clan.\r\n");
+	else if (IS_AFFECTED(ch, AFF_CHARM))
+		send_to_char(ch, "You obviously aren't quite in your right mind.\r\n");
 	else if (ch == vict) {
 		if (!member1->rank)
 			send_to_char(ch, "You already at the bottom of the totem pole.\r\n");
@@ -554,6 +562,8 @@ ACMD(do_promote)
 	else if (!(member2 = real_clanmember(GET_IDNUM(vict), clan)))
 		act("$N is not properly installed in the clan.\r\n",
 			FALSE, ch, 0, vict, TO_CHAR);
+	else if (IS_AFFECTED(ch, AFF_CHARM))
+		send_to_char(ch, "You obviously aren't quite in your right mind.\r\n");
 	else if (!PLR_FLAGGED(ch, PLR_CLAN_LEADER)
 		&& !Security::isMember(ch, "Clan")) {
 		if (member2->rank >= member1->rank - 1 && GET_IDNUM(ch) != clan->owner) {
@@ -652,6 +662,10 @@ ACMD(do_clanpasswd)
 		return;
 	}
 
+	if (IS_AFFECTED(ch, AFF_CHARM)) {
+		send_to_char(ch, "You obviously aren't quite in your right mind.\r\n");
+		return;
+	}
 	free(srch->keywords);
 	srch->keywords = str_dup(argument);
 	if (!save_wld(ch, ch->in_room->zone))
