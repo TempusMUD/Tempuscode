@@ -4135,6 +4135,8 @@ perform_violence( void )
 		}
 		if ( !FIGHTING( ch ) )
 		    continue;
+		if ( IS_NPC(ch) && ( !GET_REMORT_CLASS(ch) || GET_CLASS(ch) != CLASS_CYBORG ) )
+			continue;
 		if ( number(1,100) < CHECK_SKILL(ch, SKILL_IMPLANT_W ) ) {
 		    implant_prob = 25;
 		    if (CHECK_SKILL(ch, SKILL_IMPLANT_W) > 100) {
