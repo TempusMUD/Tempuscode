@@ -468,8 +468,9 @@ handle_input(struct descriptor_data *d, char *arg)
 			set_desc_state( CXN_EDIT_DESC,d );
 			start_text_editor(d,&d->creature->player.description,true, MAX_CHAR_DESC-1);
 			mudlog(LVL_GOD, NRM, true,
-				"%s has created new character %s",
-					d->account->get_name(), GET_NAME(d->creature));
+				"%s[%d] has created new character %s[%ld]",
+					d->account->get_name(), d->account->get_idnum(),
+                    GET_NAME(d->creature), GET_IDNUM(d->creature) );
 			d->creature->saveToXML();
 		} else
 			SEND_TO_Q("You must type 'reroll' or 'keep'.\r\n", d);
