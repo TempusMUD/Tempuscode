@@ -199,6 +199,7 @@ Account::retrieve(int id)
 	acct = new Account;
 	if (acct->load(id)) {
 		_cache.push_back(acct);
+		std::sort(_cache.begin(),_cache.end(), Account::cmp());
 		return acct;
 	}
 	return NULL;
@@ -244,6 +245,7 @@ Account::retrieve(const char *name)
 	acct = new Account;
 	if (acct->load(acct_id)) {
 		_cache.push_back(acct);
+		std::sort(_cache.begin(),_cache.end(), Account::cmp());
 		return acct;
 	}
 	return NULL;
