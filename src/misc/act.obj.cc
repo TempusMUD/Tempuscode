@@ -52,6 +52,46 @@ ACMD(do_extinguish);
 ACMD(do_say);
 ACMD(do_split);
 
+obj_data *
+get_random_uncovered_implant ( char_data *ch, int type = -1 ) {
+int possibles = 0;
+int implant = 0;
+int pos_imp = 0;
+int i;
+obj_data *o = NULL;
+
+	if(!ch) 
+		return NULL;
+	for ( i = 0; i < NUM_WEARS; i++) {
+		if(IS_WEAR_EXTREMITY(i)) {
+			if ( (o = GET_IMPLANT(ch, i) ) ) {
+				if( type != -1 && !IS_OBJ_TYPE( o, type )) 
+					continue;
+				else
+					possibles++;
+			}
+		}
+	}
+	if ( possibles ) {
+		implant = number ( 1, possibles );
+		pos_imp = 0;
+		for ( i = 0; pos_imp < implant && i < NUM_WEARS; i++ ) {
+			if ( IS_WEAR_EXTREMITY(i) && !GET_EQ(ch,i) ) {
+				if ( (o = GET_IMPLANT(ch, i) ) ) {
+					if( type != -1 && !IS_OBJ_TYPE( o, type )) 
+						continue;
+					else 
+						pos_imp++;
+				}
+			}
+		}
+		if (pos_imp == implant) {
+			o = GET_IMPLANT(ch,i - 1);
+			return o;
+		}
+	} 
+	return NULL;
+}
 
 int
 explode_sigil(CHAR *ch, OBJ *obj)

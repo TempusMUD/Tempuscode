@@ -39,6 +39,8 @@
 int corpse_state = 0;
 
 /* The Fight related routines */
+obj_data * get_random_uncovered_implant ( char_data *ch, int type = -1 );
+
 
 void 
 appear( struct char_data * ch, struct char_data *vict )
@@ -3676,26 +3678,9 @@ hit( struct char_data * ch, struct char_data * victim, int type )
 			  GET_EQ( ch, WEAR_WIELD_2 )->getWeight() ) * 2;
 	}
 	if (type == SKILL_IMPLANT_W || type == SKILL_ADV_IMPLANT_W) {
-		if ( number(0,3) && (cur_weap = GET_IMPLANT(ch, WEAR_HANDS)) && !GET_EQ(ch,WEAR_HANDS) ) {
-		} else if ( number(0,2) && (cur_weap = GET_IMPLANT(ch, WEAR_WIELD)) && 
-			IS_OBJ_TYPE( cur_weap, ITEM_WEAPON ) && !GET_EQ(ch, WEAR_WIELD)) {
-		} else if ( number(0,3) && (cur_weap = GET_IMPLANT(ch, WEAR_ARMS)) && 
-			IS_OBJ_TYPE( cur_weap, ITEM_WEAPON ) && !GET_EQ(ch,WEAR_ARMS) ) {
-		} else if ( number(0,5) && (cur_weap = GET_IMPLANT(ch, WEAR_WRIST_L)) && 
-			IS_OBJ_TYPE( cur_weap, ITEM_WEAPON ) && !GET_EQ(ch, WEAR_WRIST_L) ) {
-		} else if ( number(0,5) && (cur_weap = GET_IMPLANT(ch, WEAR_WRIST_R)) && 
-			IS_OBJ_TYPE( cur_weap, ITEM_WEAPON ) && !GET_EQ(ch,WEAR_WRIST_R) ) {
-		} else if ( number(0,4) && (cur_weap = GET_IMPLANT(ch, WEAR_FINGER_L)) && 
-			IS_OBJ_TYPE( cur_weap, ITEM_WEAPON ) && !GET_EQ(ch, WEAR_FINGER_L) ) {
-		} else if ( number(0,4) && (cur_weap = GET_IMPLANT(ch, WEAR_FINGER_R)) && 
-			IS_OBJ_TYPE( cur_weap, ITEM_WEAPON ) && !GET_EQ(ch, WEAR_FINGER_R) ) {
-		} else if ( number(0,3) && (cur_weap = GET_IMPLANT(ch, WEAR_FEET)) && 
-			IS_OBJ_TYPE( cur_weap, ITEM_WEAPON ) && !GET_EQ(ch, WEAR_FEET) ) {
-		} else if ( number(0,4) && (cur_weap = GET_IMPLANT(ch, WEAR_LEGS)) && 
-			IS_OBJ_TYPE( cur_weap, ITEM_WEAPON ) && !GET_EQ(ch, WEAR_LEGS) ) {
-		} else if ( number(0,5) && (cur_weap = GET_IMPLANT(ch, WEAR_HEAD)) && 
-			IS_OBJ_TYPE( cur_weap, ITEM_WEAPON ) && !GET_EQ(ch, WEAR_HEAD) ) {
-		} else { return 0; }
+		cur_weap = get_random_uncovered_implant(ch, ITEM_WEAPON);
+		if(!cur_weap)
+			return 0;
 	} else if ( !( ( ( cur_weap = GET_EQ( ch, WEAR_WIELD_2 ) ) && 
 		  IS_OBJ_TYPE( cur_weap, ITEM_WEAPON ) &&
 		  ( CHECK_SKILL( ch, SKILL_SECOND_WEAPON ) + dual_prob ) > 
@@ -4090,58 +4075,64 @@ perform_violence( void )
     
 	if ( MIN( 100, prob+15 ) >= number( 0, 300 ) ) {
 	    for ( i = 0; i < 4; i++ ) {
-		if ( !FIGHTING( ch ) || GET_LEVEL( ch ) < ( i << 3 ) )
-		    break;
-		if ( GET_POS( ch ) < POS_FIGHTING ) {
-		    if ( CHECK_WAIT( ch ) < 10 )
-			send_to_char( "You can't fight while sitting!!\r\n", ch );
-		    break;
-		}
-		
+			if ( !FIGHTING( ch ) || GET_LEVEL( ch ) < ( i << 3 ) )
+				break;
+			if ( GET_POS( ch ) < POS_FIGHTING ) {
+				if ( CHECK_WAIT( ch ) < 10 )
+				send_to_char( "You can't fight while sitting!!\r\n", ch );
+				break;
+			}
 		if ( prob >= number( ( i << 4 ) + ( i << 3 ), ( i << 5 ) + ( i << 3 ) ) )
-		    hit( ch, FIGHTING( ch ), TYPE_UNDEFINED );
-	    }
-	    return;
+			hit( ch, FIGHTING( ch ), TYPE_UNDEFINED );
+		}
+		if ( IS_CYBORG( ch ) ) {
+			int implant_prob;
+
+			if ( !FIGHTING( ch ) || GET_LEVEL( ch ) < ( i << 3 ) )
+				return;
+			if ( GET_POS( ch ) < POS_FIGHTING ) {
+				if ( CHECK_WAIT( ch ) < 10 )
+				send_to_char( "You can't fight while sitting!!\r\n", ch );
+				return;
+			}
+			if ( number(1,100) < CHECK_SKILL(ch, SKILL_ADV_IMPLANT_W ) ) {
+				implant_prob = 25;
+				if (CHECK_SKILL(ch, SKILL_ADV_IMPLANT_W) > 100) {
+					implant_prob += GET_REMORT_GEN(ch) + (CHECK_SKILL(ch, SKILL_ADV_IMPLANT_W) - 100)/2;
+				}
+				if(  number( 0 ,100 ) < implant_prob ) {
+					if ( PRF2_FLAGGED( ch, PRF2_FIGHT_DEBUG ) ) 
+					send_to_char("Attempting advanced implant weapon attack.\r\n",ch);
+					hit( ch, FIGHTING(ch), SKILL_ADV_IMPLANT_W);
+				}
+			}
+			if ( number(1,100) < CHECK_SKILL(ch, SKILL_IMPLANT_W ) ) {
+				implant_prob = 25;
+				if (CHECK_SKILL(ch, SKILL_IMPLANT_W) > 100) {
+					implant_prob += GET_REMORT_GEN(ch) + (CHECK_SKILL(ch, SKILL_IMPLANT_W) - 100)/2;
+				}
+				if(  number( 0 ,100 ) < implant_prob ) {
+					if ( PRF2_FLAGGED( ch, PRF2_FIGHT_DEBUG ) ) 
+					send_to_char("Attempting implant weapon attack.\r\n",ch);
+					hit( ch, FIGHTING(ch), SKILL_IMPLANT_W);
+				} 
+			}
+		}
+	return;
 	}
 	// Insert implant weaponry and adv implant weaponry here.
-	else if ( IS_CYBORG( ch ) ) {
-	    int implant_prob;
-
-	    if ( number(1,100) < CHECK_SKILL(ch, SKILL_ADV_IMPLANT_W ) ) {
-		implant_prob = 25;
-		if (CHECK_SKILL(ch, SKILL_ADV_IMPLANT_W) > 100)
-		    implant_prob += GET_REMORT_GEN(ch) + (CHECK_SKILL(ch, SKILL_ADV_IMPLANT_W) - 100)/2;
-		if(  number( 0 ,100 ) < implant_prob ) {
-		    if ( PRF2_FLAGGED( ch, PRF2_FIGHT_DEBUG ) ) 
-			send_to_char("Attempting advanced implant weapon attack.\r\n",ch);
-		    hit( ch, FIGHTING(ch), SKILL_ADV_IMPLANT_W);
-		    return;
-		}
-	    }
-	    else if ( number(1,100) < CHECK_SKILL(ch, SKILL_IMPLANT_W ) ) {
-		implant_prob = 25;
-		if (CHECK_SKILL(ch, SKILL_IMPLANT_W) > 100)
-		    implant_prob += GET_REMORT_GEN(ch) + (CHECK_SKILL(ch, SKILL_IMPLANT_W) - 100)/2;
-		if(  number( 0 ,100 ) < implant_prob ) {
-		    if ( PRF2_FLAGGED( ch, PRF2_FIGHT_DEBUG ) ) 
-			send_to_char("Attempting implant weapon attack.\r\n",ch);
-		    hit( ch, FIGHTING(ch), SKILL_IMPLANT_W);
-		    return;
-		} 
-	    }
-	}
 	
 	if ( IS_NPC( ch ) && ch->in_room && 
 	     GET_POS( ch ) == POS_FIGHTING && 
 	     GET_MOB_WAIT( ch ) <= 0 &&
 	     ( MIN( 100, prob ) >= number( 0, 300 ) ) ) {
-	    if ( MOB_FLAGGED( ch, MOB_SPEC ) && ch->in_room &&
-		 ch->mob_specials.shared->func && !number( 0, 2 ) &&
-		 ( ch->mob_specials.shared->func ) ( ch, ch, 0, "", 0 ) )
-		return;
-	    if ( ch->in_room && GET_MOB_WAIT( ch ) <= 0 && FIGHTING( ch ) )
-		mobile_battle_activity( ch ); 
-	}
+			if ( MOB_FLAGGED( ch, MOB_SPEC ) && ch->in_room &&
+			 ch->mob_specials.shared->func && !number( 0, 2 ) &&
+			 ( ch->mob_specials.shared->func ) ( ch, ch, 0, "", 0 ) )
+			return;
+			if ( ch->in_room && GET_MOB_WAIT( ch ) <= 0 && FIGHTING( ch ) )
+			mobile_battle_activity( ch ); 
+		}
     }
 }
 
