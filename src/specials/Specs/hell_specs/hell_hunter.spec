@@ -65,6 +65,7 @@ Hunt_data items[] = {
     {16118, 6},   // whip of pain
     {16119, 6},   // bracelet of pain
     {16146, 6},   // spiked shin guards
+    {16510, 5},   // flesh bracelet
     {16147, 5},   // enchanted loincloth
     {16150, 5},   // claws of geryon
     {16149, 5},   // mode of degreelessness
