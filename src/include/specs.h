@@ -187,6 +187,7 @@ SPECIAL(windy_room);
 SPECIAL(gen_board);
 SPECIAL(wagon_obj);
 SPECIAL(fountain_heal);
+SPECIAL(fountain_restore);
 SPECIAL(loud_speaker);
 SPECIAL(library);
 SPECIAL(arena_object);

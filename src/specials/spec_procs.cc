@@ -1875,6 +1875,7 @@ SPECIAL(cave_bear)
 #include "Specs/sarflin_specs/puppet.spec"
 #include "Specs/sarflin_specs/oracle.spec"
 #include "Specs/sarflin_specs/fountain_heal.spec"
+#include "Specs/sarflin_specs/fountain_restore.spec"
 #include "Specs/sarflin_specs/library.spec"
 #include "Specs/sarflin_specs/arena.spec"
 #include "Specs/sarflin_specs/gingwatzim_rm.spec"
