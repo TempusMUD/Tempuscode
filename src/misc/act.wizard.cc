@@ -4313,7 +4313,7 @@ ACMD(do_show)
     case 1:                    /* zone */
         {
             static const char *usage =
-                "Usage: show zone [ . | all | <begin#> <end#> | name <partial name> | fullcontrol | owner | co-owner ]\r\n";
+                "Usage: show zone [ . | all | <begin#> <end#> | name <partial name> | fullcontrol | owner | co-owner | past | future | timeless ]\r\n";
             Tokenizer tokens(arg);
             if (value[0] == '\0') {
                 send_to_char(ch, usage);
@@ -4364,6 +4364,18 @@ ACMD(do_show)
             } else if (strcasecmp(value, "fullcontrol") == 0) {
                 for (zone = zone_table; zone; zone = zone->next)
                     if (ZONE_FLAGGED(zone, ZONE_FULLCONTROL))
+                        print_zone_to_buf(ch, buf, zone);
+            } else if (strcasecmp(value, "past") == 0) {
+				for (zone = zone_table; zone; zone = zone->next)
+					if (zone->time_frame == TIME_PAST)
+                        print_zone_to_buf(ch, buf, zone);
+            } else if (strcasecmp(value, "future") == 0) {
+				for (zone = zone_table; zone; zone = zone->next)
+					if (zone->time_frame == TIME_FUTURE)
+                        print_zone_to_buf(ch, buf, zone);
+            } else if (strcasecmp(value, "timeless") == 0) {
+				for (zone = zone_table; zone; zone = zone->next)
+					if (zone->time_frame == TIME_TIMELESS)
                         print_zone_to_buf(ch, buf, zone);
             } else {
                 send_to_char(ch, usage);
