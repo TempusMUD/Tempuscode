@@ -10,6 +10,8 @@ SPECIAL(quantum_rift)
 	struct obj_data *rift = (struct obj_data *) me;
 	char arg1[MAX_INPUT_LENGTH];
 
+    if( spec_mode != SPECIAL_CMD )
+        return 0;
 	if (!CMD_IS("enter") || !CAN_SEE_OBJ(ch, rift) || !AWAKE(ch))
 		return 0;
 	one_argument(argument,arg1);

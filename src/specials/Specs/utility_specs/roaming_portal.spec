@@ -20,6 +20,8 @@ SPECIAL(roaming_portal)
 	struct room_data *dest = NULL;
     int num_dests = 0;
 
+    if( spec_mode != SPECIAL_TICK )
+        return 0;
     // Don't do nuffin.
   	if (cmd)
 		return 0;

@@ -17,6 +17,8 @@ SPECIAL(master_communicator)
   struct char_data *vict = NULL;
   int i, num = 0, chan[MAX_CHAN];
 
+    if( spec_mode != SPECIAL_CMD )
+            return 0;
   if (!CMD_IS("use") || GET_LEVEL(ch) < LVL_TIMEGOD)
     return 0;
 

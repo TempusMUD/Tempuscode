@@ -259,11 +259,16 @@ die(struct char_data *ch, struct char_data *killer, int attacktype,
 	} 
 	if( LOG_DEATHS ) {
 		if( IS_NPC(ch) ) {
-			slog("DEATH: %s killed by %s. attacktype: %d SPEC[%d]\r\n",
-					GET_NAME(ch),GET_NAME(killer),attacktype, GET_MOB_SPEC(ch));
+			slog("DEATH: %s killed by %s. attacktype: %d SPEC[%p]",
+					GET_NAME(ch),
+                    killer ? GET_NAME(killer) : "(NULL)",
+                    attacktype, 
+                    GET_MOB_SPEC(ch));
 		} else {
-			slog("DEATH: %s killed by %s. attacktype: %d PC\r\n",
-					GET_NAME(ch),GET_NAME(killer),attacktype);
+			slog("DEATH: %s killed by %s. attacktype: %d PC",
+					GET_NAME(ch),
+                    killer ? GET_NAME(killer) : "(NULL)",
+                    attacktype);
 		}
 	}
 	if (!ROOM_FLAGGED(ch->in_room, ROOM_ARENA) && killer &&

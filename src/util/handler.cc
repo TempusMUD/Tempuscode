@@ -978,15 +978,29 @@ char_from_room( char_data *ch, bool check_specials = true )
 		ch->in_room->zone->num_players--;
 
 	update_trail(ch, ch->in_room, -1, TRAIL_EXIT);
-
 	affect_from_char(ch, SPELL_ENTANGLE);	// remove entanglement (summon etc)
 
-	if(!check_specials || !special(ch, 0, 0, "", SPECIAL_LEAVE) ) {
+    if (GET_OLC_SRCH(ch))
+        GET_OLC_SRCH(ch) = NULL;
+
+    // Some specials improperly deal with SPECIAL_LEAVE mode
+    // by returning a true value.  This should take care of that.
+    room_data *tmp_room = ch->in_room;
+    if( check_specials && special(ch, 0, 0, "", SPECIAL_LEAVE) ) 
+    {
+        CharacterList::iterator it = 
+                find(tmp_room->people.begin(),tmp_room->people.end(), ch);
+
+        if( it != tmp_room->people.end() ) {
+            tmp_room->people.remove(ch);
+            // This really shouldn't be here but it
+            // isn't likely to cause a crash.
+            ch->in_room = NULL;
+        }
+    } else {
 		ch->in_room->people.remove(ch);
 		ch->in_room = NULL;
-		if (GET_OLC_SRCH(ch))
-			GET_OLC_SRCH(ch) = NULL;
-	}
+    }
 }
 
 

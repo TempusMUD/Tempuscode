@@ -11,6 +11,8 @@ SPECIAL(fate_cauldron)
 	register struct char_data *fate = NULL;
 	int fateid = 0;
 
+    if( spec_mode != SPECIAL_CMD )
+        return 0;
 	if (!CMD_IS("look") || !CAN_SEE_OBJ(ch, pot) || !AWAKE(ch))
 		return 0;
 	one_argument(argument,arg1);

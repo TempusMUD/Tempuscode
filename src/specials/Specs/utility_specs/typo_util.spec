@@ -32,6 +32,9 @@ SPECIAL(typo_util)
     char arg1[MAX_INPUT_LENGTH];
     byte tcmd;
 
+    if( spec_mode != SPECIAL_CMD )
+        return 0;
+
     if (!cmd || GET_LEVEL(ch) < 51 || !CMD_IS("write"))
         return 0;
 

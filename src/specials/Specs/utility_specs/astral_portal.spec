@@ -9,6 +9,9 @@ SPECIAL(astral_portal)
   struct obj_data *portal = (struct obj_data *) me;
   skip_spaces(&argument); 
 
+    if( spec_mode != SPECIAL_CMD )
+        return 0;
+
   if (!CMD_IS("enter") || portal->worn_by || 
                      (portal->carried_by && portal->carried_by != ch))
     return 0;
