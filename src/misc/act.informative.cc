@@ -3758,6 +3758,12 @@ ACMD(do_where)
 		"You can't tell for sure." : 
 		ch->in_room->zone->name,  CCNRM(ch, C_NRM));
 	send_to_char(buf, ch);
+    if(ZONE_FLAGGED(ch->in_room->zone,ZONE_NOLAW))
+        send_to_char("This place is beyond the reach of law.\r\n",ch);
+    if(!IS_APPR(ch->in_room->zone)) {
+        sprintf(buf,"This zone is %sUNAPPROVED%s!\r\n",CCRED(ch,C_NRM),CCNRM(ch,C_NRM));
+        send_to_char(buf,ch);
+    }
 	act("$n ponders the implications of $s location.", TRUE, ch, 0, 0, TO_ROOM);
     }
 }
