@@ -1238,6 +1238,8 @@ char_to_game(descriptor_data *d)
 {
 	struct descriptor_data *k, *next;
 	struct room_data *load_room = NULL;
+	time_t now = time(0);
+	char *notes = "";
 
 	// this code is to prevent people from multiply logging in
 	for (k = descriptor_list; k; k = next) {
@@ -1301,7 +1303,7 @@ char_to_game(descriptor_data *d)
 		// Now load objects onto character
 		switch (d->creature->loadObjects()) {
 			case -1:
-				send_to_desc(d, "Your equipment could not be loaded.\r\n\r\n");
+				notes = tmp_strcat(notes, "Your equipment could not be loaded.\r\n\r\n");
 				mudlog(LVL_IMMORT, CMP, true, "%s's equipment could not be loaded.",
 					GET_NAME(d->creature));
 				break;
@@ -1312,7 +1314,7 @@ char_to_game(descriptor_data *d)
                 // no eq file or file empty. no worries.
 				break;
 			case 2:
-				send_to_char(d->creature, "\r\n\007You could not afford your rent!\r\n"
+				notes = tmp_strcat(notes, "\r\n\007You could not afford your rent!\r\n"
 					 "Some of your possessions have been sold to cover your bill!\r\n");
 				break;
 			default:
@@ -1323,7 +1325,19 @@ char_to_game(descriptor_data *d)
 		load_room = NULL;
 	}
 
-	d->creature->player.time.logon = time(0);
+	// Automatically reload their quest points if they haven't been on
+	// since the last reload.
+	if (GET_LEVEL(d->creature) >= LVL_AMBASSADOR && IS_PC(d->creature) &&
+			GET_QUEST_ALLOWANCE(d->creature) > 0 &&
+			d->creature->player.time.logon < last_sunday_time) {
+		slog("Reset %s to %d QPs from %d (login)",
+			GET_NAME(d->creature), GET_QUEST_ALLOWANCE(d->creature),
+			GET_QUEST_POINTS(d->creature));
+		GET_QUEST_POINTS(d->creature) = GET_QUEST_ALLOWANCE(d->creature);
+		notes = tmp_strcat(notes, "Your quest points have been restored!\r\n");
+	}
+		
+	d->creature->player.time.logon = now;
 	d->creature->saveToXML();
 	send_to_char(d->creature, "%s%s%s%s",
 		CCRED(d->creature, C_NRM), CCBLD(d->creature, C_NRM), WELC_MESSG,
@@ -1386,6 +1400,9 @@ char_to_game(descriptor_data *d)
 	REMOVE_BIT(PLR_FLAGS(d->creature), PLR_CRYO | PLR_WRITING | PLR_OLC |
 		PLR_MAILING | PLR_AFK);
 	REMOVE_BIT(PRF2_FLAGS(d->creature), PRF2_WORLDWRITE);
+
+	if (*notes)
+		send_to_char(d->creature, "%s", notes);
 
 	if (has_mail(GET_IDNUM(d->creature)))
 		send_to_char(d->creature, "You have mail waiting.\r\n");

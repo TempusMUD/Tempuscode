@@ -2396,31 +2396,8 @@ ACMD(do_qecho)
 void
 qp_reload(int sig)
 {
-	int x;
 	struct Creature *immortal;
-	int online = 0, offline = 0;
-
-	immortal = new Creature(true);
-	for (x = 0; x <= playerIndex.getTopIDNum(); ++x) {
-		if (playerIndex.exists(x) && !get_char_in_world_by_idnum(x)) {
-			immortal->clear();
-			immortal->loadFromXML(x);
-
-			if (GET_LEVEL(immortal) >= LVL_AMBASSADOR &&
-					GET_QUEST_ALLOWANCE(immortal) > 0) {
-				slog("QP_RELOAD: Reset %s to %d QPs from %d. ( file )",
-					GET_NAME(immortal),
-					GET_QUEST_ALLOWANCE(immortal),
-					GET_QUEST_POINTS(immortal));
-
-				GET_QUEST_POINTS(immortal) = GET_QUEST_ALLOWANCE(immortal);
-				immortal->crashSave();
-				offline++;
-			}
-		}
-	}
-
-	delete immortal;
+	int online = 0;
 
 	//
 	// Check if the imm is logged on
@@ -2441,8 +2418,7 @@ qp_reload(int sig)
 		}
 	}
 	mudlog(LVL_GRGOD, NRM, true,
-		"QP's have been reloaded.  %d offline and %d online reset.",
-		offline, online);
+		"QP's have been reloaded - %d reset online", online);
 }
 
 

@@ -24,6 +24,7 @@
 #include "handler.h"
 #include "interpreter.h"
 #include "db.h"
+#include "quest.h"
 
 extern struct time_info_data time_info;
 extern int lunar_day;
@@ -38,6 +39,14 @@ int jet_stream_state = TRUE;
 void
 weather_and_time(int mode)
 {
+	time_t now = time(0);
+
+	// Advance last sunday time
+	if (now - last_sunday_time > (7 * 24 * 60 * 60)) {
+		last_sunday_time += 7 * 24 * 60 * 60;
+		qp_reload();
+	}
+
 	another_hour(mode);
 	if (mode)
 		weather_change();

@@ -232,6 +232,8 @@ void check_dyntext_updates(Creature *ch, int mode);
 #ifndef __db_c__
 
 extern struct time_info_data time_info;
+extern time_t boot_time;
+extern time_t last_sunday_time;
 extern const int daylight_mod[];
 extern const char *lunar_phases[];
 extern int lunar_day;

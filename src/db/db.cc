@@ -83,6 +83,7 @@ int mini_mud = 0;				/* mini-mud mode?                 */
 int mud_moved = 0;
 int no_rent_check = 0;			/* skip rent check on boot?         */
 time_t boot_time = 0;			/* time of mud boot                 */
+time_t last_sunday_time = 0;	/* time of last sunday, for qp regen */
 int restrict = 0;				/* level of game restriction         */
 int olc_lock = 0;
 int no_initial_zreset = 0;
@@ -457,6 +458,16 @@ reset_time(void)
 {
 	long epoch = 650336715;
 	time_t now = time(0);
+	struct tm *sun_tm;
+	char sun_str[30];
+
+	sun_tm = localtime(&now);
+	sun_tm->tm_mday -= sun_tm->tm_wday;
+	sun_tm->tm_sec = sun_tm->tm_min = sun_tm->tm_hour = 0;
+	last_sunday_time = mktime(sun_tm);
+	strftime(sun_str, 55, "%c", localtime(&last_sunday_time));
+
+	slog("   Last Realtime Sunday: %s", sun_str);
 
 	time_info = mud_time_passed(now, epoch);
 
@@ -2428,7 +2439,6 @@ read_mobile(int vnum)
 	CreatureList::iterator mit = mobilePrototypes.begin();
 	for (; mit != mobilePrototypes.end(); ++mit) {
 		tmp_mob = *mit;
-		//for (tmp_mob = mob_proto; tmp_mob; tmp_mob = tmp_mob->next) {
 		if (tmp_mob->mob_specials.shared->vnum >= vnum) {
 			if (tmp_mob->mob_specials.shared->vnum == vnum) {
 				mob = new Creature(false);
