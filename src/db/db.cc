@@ -100,6 +100,7 @@ struct room_data *r_electro_start_room;	/* Electro Centralis start room  */
 struct room_data *r_immort_start_room;	/* rnum of immort start room   */
 struct room_data *r_frozen_start_room;	/* rnum of frozen start room   */
 struct room_data *r_new_thalos_start_room;
+struct room_data *r_kromguard_start_room;
 struct room_data *r_elven_start_room;
 struct room_data *r_istan_start_room;
 struct room_data *r_arena_start_room;
@@ -1218,6 +1219,7 @@ check_start_rooms(void)
 	extern room_num immort_start_room;
 	extern room_num frozen_start_room;
 	extern room_num new_thalos_start_room;
+	extern room_num kromguard_start_room;
 	extern room_num elven_start_room;
 	extern room_num istan_start_room;
 	extern room_num arena_start_room;
@@ -1259,6 +1261,11 @@ check_start_rooms(void)
 		if (!mini_mud)
 			slog("SYSERR:  Warning: New Thalos start room does not exist.");
 		r_new_thalos_start_room = r_mortal_start_room;
+	}
+	if ((r_kromguard_start_room = real_room(kromguard_start_room)) == NULL) {
+		if (!mini_mud)
+			slog("SYSERR:  Warning: Kromguard start room does not exist.");
+		r_kromguard_start_room = r_mortal_start_room;
 	}
 	if ((r_elven_start_room = real_room(elven_start_room)) == NULL) {
 		if (!mini_mud)

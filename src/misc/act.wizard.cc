@@ -2337,6 +2337,7 @@ ACMD(do_rswitch)
 #define GET_START_ROOM(ch) (GET_HOME(ch) == HOME_MODRIAN ? r_mortal_start_room :\
                             GET_HOME(ch) == HOME_ELECTRO ? r_electro_start_room :\
                             GET_HOME(ch) == HOME_NEW_THALOS ? r_new_thalos_start_room :\
+                            GET_HOME(ch) == HOME_KROMGUARD ? r_kromguard_start_room :\
                             GET_HOME(ch) == HOME_ELVEN_VILLAGE ? r_elven_start_room :\
                             GET_HOME(ch) == HOME_ISTAN ? r_istan_start_room :\
                             GET_HOME(ch) == HOME_MONK ? r_monk_start_room :\
@@ -4659,6 +4660,8 @@ ACMD(do_show)
 				list_residents_to_char(ch, HOME_ISTAN);
 			else if (is_abbrev(value, "arena"))
 				list_residents_to_char(ch, HOME_ARENA);
+			else if (is_abbrev(value, "kromguard"))
+				list_residents_to_char(ch, HOME_KROMGUARD);
 			else
 				send_to_char(ch, "Unrecognized City.\r\n");
 		}

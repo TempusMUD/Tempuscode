@@ -168,6 +168,10 @@ show_past_home_menu(struct descriptor_data *d)
 		buf, CCGRN(d->character, C_NRM), CCCYN(d->character, C_NRM),
 		population_record[HOME_NEW_THALOS]);
 	sprintf(buf,
+		"%s    %sKromguard%s        -- Guess it doesn't matter  Population [%d]\r\n",
+		buf, CCGRN(d->character, C_NRM), CCCYN(d->character, C_NRM),
+		population_record[HOME_KROMGUARD]);
+	sprintf(buf,
 		"%s    %sIstan%s            -- Northern Frontier City.  Population [%d]\r\n",
 		buf, CCGRN(d->character, C_NRM), CCCYN(d->character, C_NRM),
 		population_record[HOME_ISTAN]);
@@ -243,6 +247,11 @@ show_home_help_past(struct descriptor_data *d, int home)
 	case HOME_NEW_THALOS:
 		SEND_TO_Q
 			("\r\nSmitty appears and bellows, 'There is no help on New thalos!!\r\n",
+			d);
+		break;
+	case HOME_KROMGUARD:
+		SEND_TO_Q
+			("\r\nSmitty appears and bellows, 'There is no help on kromguard!!\r\n",
 			d);
 		break;
 	case HOME_NEWBIE_TOWER:

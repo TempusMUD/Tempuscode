@@ -686,6 +686,8 @@ room_data *Creature::getLoadroom() {
 				load_room = r_tower_modrian_start_room;
 		} else if (GET_HOME(this) == HOME_NEW_THALOS) {
 			load_room = r_new_thalos_start_room;
+		} else if (GET_HOME(this) == HOME_KROMGUARD) {
+			load_room = r_kromguard_start_room;
 		} else if (GET_HOME(this) == HOME_ELVEN_VILLAGE){
 			load_room = r_elven_start_room;
 		} else if (GET_HOME(this) == HOME_ISTAN){

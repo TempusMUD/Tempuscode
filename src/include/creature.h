@@ -215,7 +215,8 @@ static const int HOME_DROW_ISLE = 18;
 static const int HOME_ASTRAL_MANSE = 19;
 static const int HOME_SKULLPORT_NEWBIE = 20;
 static const int HOME_NEWBIE_SCHOOL = 21;
-static const int NUM_HOMETOWNS = 22;
+static const int HOME_KROMGUARD = 22;
+static const int NUM_HOMETOWNS = 23;
 
 /* Deity Defines                */
 static const int DEITY_NONE = 0;

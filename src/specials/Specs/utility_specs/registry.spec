@@ -47,6 +47,10 @@ SPECIAL(registry)
 		home = HOME_NEW_THALOS;
 		vcert = 5497;		/** Vnum of certificate **/
 		break;
+	case 391:
+		home = HOME_KROMGUARD;
+		vcert = 39199;
+		break;
 	case 30:
 	case 31:
 	case 32:

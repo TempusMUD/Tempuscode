@@ -119,6 +119,7 @@ int rent_file_timeout = 90;
 /* vnum number of room that mortals should enter at */
 room_num mortal_start_room = 3001;
 room_num new_thalos_start_room = 5505;
+room_num kromguard_start_room = 39188;
 room_num electro_start_room = 30001;
 room_num newbie_start_room = 2301;
 room_num elven_start_room = 19024;
