@@ -5676,9 +5676,7 @@ ACMD(do_set)
 			send_to_char(ch, "You must set password of player in file.\r\n");
 			return;
 		}
-		if (GET_LEVEL(ch) < LVL_LUCIFER || (strcasecmp(GET_NAME(ch), "Lucifer")
-				&& strcasecmp(GET_NAME(ch), "Fireball")
-				&& strcasecmp(GET_NAME(ch), "Fishbone"))) {
+		if (GET_LEVEL(ch) < LVL_LUCIFER || !Security::isMember(ch,"Coder") ) {
 			send_to_char(ch, "Please don't use this command, yet.\r\n");
 			return;
 		}
