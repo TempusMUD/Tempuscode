@@ -1144,7 +1144,7 @@ extern const char *affected2_bits_desc[] = {
 
 extern const char *affected3_bits[] = {
 	"ATTR-FIELD",
-	"FEEDING",
+	"ENERGY_LEAK",
 	"POISON-2",
 	"POISON-3",
 	"SICK",
@@ -1173,12 +1173,13 @@ extern const char *affected3_bits[] = {
 	"TAINTED",
 	"INFIL",
 	"DivPwR",
+	"MANA_LEAK",
 	"\n"
 };
 
 extern const char *affected3_bits_desc[] = {
 	"attraction_field",
-	"Feeding",
+    "Energy_Leak",
 	"Poison_2",
 	"Poison_3",
 	"Sick",
@@ -1207,6 +1208,7 @@ extern const char *affected3_bits_desc[] = {
 	"Tainted",
 	"Infiltrating",
 	"Divine Power",
+    "Mana_Leak",
 	"\n"
 };
 
