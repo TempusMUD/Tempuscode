@@ -323,8 +323,9 @@ ACMD(do_whirlwind)
 		CombatDataList *combatList = ch->getCombatList();
 		CombatDataList::iterator combatIter;
 		int i=1;
-        combatIter=combatList->begin();
-		while ((i < hits) && (combatIter != combatList->end())) {
+        for (combatIter=combatList->begin(); 
+                (i < hits) && (combatIter != combatList->end());
+                ++combatIter) {
 			int my_return_flags = 0;
             if (random_percentage() <= 75) {
 				struct Creature *newVict = combatIter->getOpponent();
@@ -338,14 +339,9 @@ ACMD(do_whirlwind)
 					GET_MOVE(ch) -= 3;
 				}
 			}
-            //increment this before possibly setting combatIter to combatList->begin()
-            ++combatIter; 
             if (IS_SET(my_return_flags, DAM_ATTACKER_KILLED)) {
                 return;
-            } else if (IS_SET(my_return_flags, DAM_VICT_KILLED)) {
-                combatIter = combatList->begin();
             }
-            
 		}
 		
 		//if we still haven't attacked hits times send the rest of them too
