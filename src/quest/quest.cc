@@ -1911,15 +1911,13 @@ ACMD(do_qlog)
 	}
 
 	if ((i = search_block(argument, qlog_types, FALSE)) < 0) {
-		send_to_char(ch, "Unknown qlog type '%s'.  Options are:\r\n", argument);
-		i = 0;
-		while (1) {
-			if (*qlog_types[i] == '\n')
-				break;
+		buf[0] = '\0';
+		for (i = 0;*qlog_types[i] != '\n';i++) {
 			strcat(buf, qlog_types[i]);
-			strcat(buf, "\n");
-			i++;
+			strcat(buf, " ");
 		}
+		send_to_char(ch, "Unknown qlog type '%s'.  Options are: %s\r\n",
+			argument, buf);
 		return;
 	}
 
