@@ -250,6 +250,8 @@ extern const char *spells[];
 #define SPELL_SUN_RAY                   146  // Good cleric remort, 
                                              // destroys undead.
 #define SPELL_TAINT                     147  // Evil knight remort spell, taint.
+#define SPELL_LOCUST_REGENERATION       148  // Mage remort skill, drains mana
+
   /************************** Psionic Triggers ***************/
 #define SPELL_POWER                201 /* Strength                */
 #define SPELL_INTELLECT            202

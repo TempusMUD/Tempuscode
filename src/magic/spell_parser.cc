@@ -203,7 +203,7 @@ const char *spells[] =
     "stoneskin",        /* 145 */
     "sun ray", 
     "taint", 
-    "!UNUSED!", "!UNUSED!", "!UNUSED!",        /* 150 */
+    "locust regeneration", "!UNUSED!", "!UNUSED!",        /* 150 */
     "!UNUSED!", "!UNUSED!", "!UNUSED!", "!UNUSED!", "!UNUSED!",        /* 155 */
     "!UNUSED!", "!UNUSED!", "!UNUSED!", "!UNUSED!", "!UNUSED!",        /* 160 */
     "!UNUSED!", "!UNUSED!", "!UNUSED!", "!UNUSED!", "!UNUSED!",        /* 165 */
@@ -3407,6 +3407,9 @@ mag_assign_spells(void)
     remort_spello(SKILL_DISCIPLINE_OF_STEEL, CLASS_BARB, 10, 1,
                   0, 0, 0, 0, 0, 0, 0);
 
+    remort_spello(SPELL_LOCUST_REGENERATION, CLASS_MAGE, 34, 5,
+                  150, 75, 5, POS_FIGHTING, TAR_CHAR_ROOM | TAR_FIGHT_VICT
+                  | TAR_NOT_SELF, TRUE, MAG_MAGIC | MAG_AFFECTS);
 
 
 /*

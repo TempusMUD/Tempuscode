@@ -2155,6 +2155,13 @@ print_affs_to_string(struct char_data *ch, char *str, byte mode)
 	    sprintf(str, "%sYou are under the effects of vampiric regeneration from an unknown source.\r\n", str);
     }
 
+    if ((af = affected_by_spell(ch, SPELL_LOCUST_REGENERATION))) {
+        if ((name = get_name_by_id(af->modifier)))
+            sprintf(str, "%sYou are under the effects of %s's locust regeneration.\r\n", str, name);
+        else
+            sprintf(str, "%sYou are under the effects of locust regeneration from an unknown source.\r\n", str);
+    }
+    
     if (mode)    /* Only asked for bad affs? */
 	return;
 	if (IS_SOULLESS(ch))
