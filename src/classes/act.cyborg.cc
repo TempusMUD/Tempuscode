@@ -2244,7 +2244,7 @@ ACMD(do_analyze)
 	    sprintf(buf, "%sPrimary Type:          %s%s%s\r\n", buf,CCCYN(ch, C_NRM),
 		    pc_char_class_types[(int)GET_CLASS(vict)], CCNRM(ch, C_NRM));
 	}
-	if (GET_REMORT_CLASS(vict) >= 0)
+	if (GET_REMORT_CLASS(vict) != CLASS_UNDEFINED)
 	    sprintf(buf, "%sSecondary Occupation:  %s%s%s\r\n", buf,
 		    CCCYN(ch, C_NRM),
 		    pc_char_class_types[(int)GET_REMORT_CLASS(vict)], CCNRM(ch, C_NRM));

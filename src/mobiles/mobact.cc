@@ -690,10 +690,15 @@ best_attack(struct char_data *ch, struct char_data *vict)
 {
     struct obj_data *gun = GET_EQ(ch, WEAR_WIELD);
     int found = 0;
+	int cur_class = 0;
     if (GET_POS(ch) < POS_STANDING) {
 	act("$n jumps to $s feet!", TRUE, ch, 0, 0, TO_ROOM);
 	GET_POS(ch) = POS_STANDING;
     }
+	if(GET_REMORT_CLASS(ch) != CLASS_UNDEFINED && !random_fractional_3())
+		cur_class = GET_REMORT_CLASS(ch);
+	else
+		cur_class = GET_CLASS(ch);
   
     if (CHECK_SKILL(ch, SKILL_SHOOT) + random_number_zero_low( 10 ) > 40 ) {
 
@@ -719,8 +724,7 @@ best_attack(struct char_data *ch, struct char_data *vict)
 	}
     }
 	
-    if (IS_THIEF(ch)) {
-
+    if (cur_class == CLASS_THIEF) {
 	if (GET_LEVEL(ch) >= 35 && GET_POS(vict) > POS_STUNNED) 
 	    do_stun(ch, fname(vict->player.name), 0, 0);
 	  
@@ -747,7 +751,7 @@ best_attack(struct char_data *ch, struct char_data *vict)
 	return;
     }
 
-    if (IS_PSIONIC(ch) && !ROOM_FLAGGED(ch->in_room, ROOM_NOMAGIC)) {
+    if (cur_class == CLASS_PSIONIC && !ROOM_FLAGGED(ch->in_room, ROOM_NOMAGIC)) {
 	if (GET_LEVEL(ch) >= 33 &&
 	    AFF3_FLAGGED(vict, AFF3_PSISHIELD) &&
 	    GET_MANA(ch) > mag_manacost(ch, SPELL_PSIONIC_SHATTER)) {
@@ -782,7 +786,7 @@ best_attack(struct char_data *ch, struct char_data *vict)
 	    return;
     }
 
-    if (IS_MAGE(ch) && GET_MANA(ch) > 100 && 
+    if (cur_class == CLASS_MAGE  && GET_MANA(ch) > 100 && 
 	!ROOM_FLAGGED(ch->in_room, ROOM_NOMAGIC)) {
 	if (GET_LEVEL(ch) >= 37 && GET_POS(vict) > POS_SLEEPING)
 	    cast_spell(ch, vict, NULL, SPELL_WORD_STUN);
@@ -808,8 +812,7 @@ best_attack(struct char_data *ch, struct char_data *vict)
 	return;
     }
    
-    if (IS_BARB(ch) || IS_WARRIOR(ch)) {
-	    
+    if (cur_class == CLASS_BARB || cur_class == CLASS_WARRIOR) {
 	if (GET_LEVEL(ch) >= 25 && GET_POS(vict) > POS_SLEEPING) 
 	    do_sleeper(ch, fname(vict->player.name), 0, 0);
 	else if (GET_LEVEL(ch) >= 35 && 
@@ -823,7 +826,7 @@ best_attack(struct char_data *ch, struct char_data *vict)
 	}	    
 	return;
     } 
-    if (IS_MONK(ch)) {
+    if (cur_class == CLASS_MONK) {
 	if (GET_LEVEL(ch) >= 39 && GET_POS(vict) > POS_STUNNED) {
 	    sprintf(buf,"%s omega",fname(vict->player.name));
 	    do_pinch(ch,buf,0,0);
@@ -1895,7 +1898,7 @@ void mobile_activity(void) {
 		cast_spell(ch, ch, 0, SPELL_REMOVE_CURSE);
 	    } else if (!affected_by_spell( ch, SPELL_SANCTIFICATION ) && 
 					GET_LEVEL(ch) > 32 &&
-					GET_REMORT_CLASS(ch) ){
+					GET_REMORT_CLASS(ch) != CLASS_UNDEFINED ){
 		cast_spell(ch, ch, 0, SPELL_SANCTIFICATION);
 	    }
 	} else if (IS_RANGER(ch) && random_binary()) {
@@ -1919,7 +1922,7 @@ void mobile_activity(void) {
 				if( !affected_by_spell(ch,SKILL_DAMAGE_CONTROL) ) {
 					if( GET_LEVEL(ch) >= 12 )
 						do_activate(ch,"damage control", 0, 1); // 12
-					if( GET_LEVEL(ch) >= 17 && GET_REMORT_CLASS(ch) )
+					if( GET_LEVEL(ch) >= 17 && GET_REMORT_CLASS(ch) != CLASS_UNDEFINED )
 						do_activate(ch,"radionegation",0,1);  // 17
 					if( GET_LEVEL(ch) >= 18 )
 						do_activate(ch,"power boost",0,1);    // 18
@@ -1953,7 +1956,9 @@ void mobile_activity(void) {
 			GET_MANA(ch) > mag_manacost(ch, SPELL_DISPLACEMENT) ) {
 			cast_spell(ch, ch, 0, SPELL_DISPLACEMENT);
 		} else if ( GET_LEVEL(ch) > 16 && !IS_AFFECTED_2(ch, AFF2_FIRE_SHIELD) &&
-			GET_MANA(ch) > mag_manacost(ch, SPELL_FIRE_SHIELD) ) {
+			GET_MANA(ch) > mag_manacost(ch, SPELL_FIRE_SHIELD) &&
+			SECT(ch->in_room) != SECT_UNDERWATER && 
+			SECT(ch->in_room) != SECT_ELEMENTAL_WATER) {
 				cast_spell(ch, ch, 0, SPELL_FIRE_SHIELD);
 		} else if ( GET_LEVEL(ch) > 48 && !IS_AFFECTED_3(ch, AFF3_PRISMATIC_SPHERE) &&
 			GET_MANA(ch) > mag_manacost(ch, SPELL_FIRE_SHIELD) ) {
@@ -2558,13 +2563,17 @@ mobile_battle_activity(struct char_data *ch)
 
 
     /** CLASS ATTACKS HERE **/
-
-    if ( IS_PSIONIC(ch) && !ROOM_FLAGGED(ch->in_room, ROOM_NOPSIONICS) ) {
+	int cur_class = 0;
+	if(GET_REMORT_CLASS(ch) != CLASS_UNDEFINED && !random_binary())
+		cur_class = GET_REMORT_CLASS(ch);
+	else
+		cur_class = GET_CLASS(ch);
+    if ( cur_class == CLASS_PSIONIC && !ROOM_FLAGGED(ch->in_room, ROOM_NOPSIONICS) ) {
 	if ( mob_fight_psionic( ch ) )
 	    return;
     }
 
-	if(IS_CYBORG(ch)) {
+	if(cur_class == CLASS_CYBORG) {
 		/* pseudo-randomly choose someone in the room who is fighting me */
 		for (vict = ch->in_room->people; vict; vict = vict->next_in_room)
 			if (FIGHTING(vict) == ch && random_fractional_3() )
@@ -2590,7 +2599,7 @@ mobile_battle_activity(struct char_data *ch)
 		}
 
 	}
-    if ((IS_MAGE(ch) || IS_LICH(ch)) && 
+    if ((cur_class == CLASS_MAGE || IS_LICH(ch)) && 
 	!ROOM_FLAGGED(ch->in_room, ROOM_NOMAGIC)) {
 	/* pseudo-randomly choose someone in the room who is fighting me */
 	for (vict = ch->in_room->people; vict; vict = vict->next_in_room)
@@ -2662,7 +2671,7 @@ mobile_battle_activity(struct char_data *ch)
 	    }
 	}    
   
-	if (IS_CLERIC(ch) &&
+	if (cur_class == CLASS_CLERIC &&
 	    !ROOM_FLAGGED(ch->in_room, ROOM_NOMAGIC)) {
 	    /* pseudo-randomly choose someone in the room who is fighting me */
 	    for (vict = ch->in_room->people; vict; vict = vict->next_in_room)
@@ -2716,7 +2725,7 @@ mobile_battle_activity(struct char_data *ch)
 	    }
 	}
   
-	if (IS_BARB(ch) || IS_GIANT(ch)) {
+	if (cur_class == CLASS_BARB || IS_GIANT(ch)) {
 	    if (IS_BARB(ch) && GET_LEVEL(ch) >= 42 &&
 		GET_HIT(ch) < (GET_MAX_HIT(ch) >> 1) && GET_MANA(ch) > 30 && random_fractional_4 ) {
 		do_battlecry(ch, "", 0, SCMD_CRY_FROM_BEYOND);
@@ -2791,7 +2800,7 @@ mobile_battle_activity(struct char_data *ch)
 	    }
 	}    
 
-	if (IS_WARRIOR(ch)) {
+	if (cur_class == CLASS_WARRIOR) {
 	    /* pseudo-randomly choose someone in the room who is fighting me */
 	    for (vict = ch->in_room->people; vict; vict = vict->next_in_room)
 		if (FIGHTING(vict) == ch && CAN_SEE(ch, vict) && random_fractional_3() )
@@ -2850,7 +2859,7 @@ mobile_battle_activity(struct char_data *ch)
 	    }
 	}    
 
-	if (IS_THIEF(ch)) {
+	if (cur_class == CLASS_THIEF) {
 	    /* pseudo-randomly choose someone in the room who is fighting me */
 	    for (vict = ch->in_room->people; vict; vict = vict->next_in_room)
 		if (FIGHTING(vict) == ch && random_fractional_3() )
@@ -2910,7 +2919,7 @@ mobile_battle_activity(struct char_data *ch)
 		return;
 	    }
 	}    
-	if (IS_RANGER(ch)) {
+	if (cur_class == CLASS_RANGER) {
 	    /* pseudo-randomly choose someone in the room who is fighting me */
 	    for (vict = ch->in_room->people; vict; vict = vict->next_in_room)
 		if (FIGHTING(vict) == ch && random_fractional_5() )
@@ -2975,7 +2984,7 @@ mobile_battle_activity(struct char_data *ch)
 	    }
 	}    
 
-	if (IS_KNIGHT(ch)) {
+	if (cur_class == CLASS_KNIGHT) {
 	    /* pseudo-randomly choose someone in the room who is fighting me */
 	    for (vict = ch->in_room->people; vict; vict = vict->next_in_room)
 		if (FIGHTING(vict) == ch && random_fractional_5() )
@@ -3052,7 +3061,7 @@ mobile_battle_activity(struct char_data *ch)
 
 
 	/* add new mobile fight routines here. */
-	if (IS_MONK(ch)) {
+	if (cur_class == CLASS_MONK) {
 	    if (GET_LEVEL(ch) >= 23 &&
 		GET_MOVE(ch) < (GET_MAX_MOVE(ch) >> 1) && GET_MANA(ch) > 100 && random_fractional_5() ) {
 		do_battlecry(ch, "", 1, SCMD_KIA);

@@ -207,6 +207,7 @@ SPECIAL(vehicle_door);
 SPECIAL(djinn_lamp);
 SPECIAL(improve_stat_book);
 SPECIAL(improve_prac_book);
+SPECIAL(life_point_potion);
 
 SPECIAL(chastity_belt);
 SPECIAL(anti_spank_device);
