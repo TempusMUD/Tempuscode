@@ -1539,7 +1539,7 @@ cast_spell(struct char_data * ch, struct char_data * tch,
             }
         }
         if( weenie == true ) {
-            act("$n screams and clutches at the run in $s forehead.", TRUE, ch, 0, 0, TO_ROOM);
+            act("$n screams and clutches at the rune in $s forehead.", TRUE, ch, 0, 0, TO_ROOM);
             send_to_char("Your concentration fails.\r\n",ch);
             return 0;
         }
