@@ -263,6 +263,7 @@ ACMD(do_battlecry)
 
 ACMD(do_cleave)
 {
+	send_to_char(ch, "It's not written yet.  Don't bug me about it.\r\n   Love, Azimuth\r\n");
 }
 
 #undef __act_barb_c__
