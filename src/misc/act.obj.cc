@@ -805,7 +805,10 @@ get_from_room(struct char_data * ch, char *arg)
 			end = 1;
 	    }
 
-	    if (next_obj && next_obj->short_description == obj->short_description)
+	    if (!money_found && next_obj && 
+			next_obj->short_description == obj->short_description)
+			counter++;
+	    else if (next_obj && !strcmp(next_obj->short_description,money_desc))
 			counter++;
 	    else {
 		if (counter == 1) {
