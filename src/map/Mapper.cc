@@ -124,6 +124,7 @@ Mapper::display(int bRows, int bCols)
 				pen = 'W';
 				break;
 			case SECT_UNDERWATER:
+			case SECT_DEEP_OCEAN:
 				pen = 'U';
 				break;
 			case SECT_FLYING:

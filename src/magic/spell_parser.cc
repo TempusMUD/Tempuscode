@@ -1671,8 +1671,9 @@ cast_spell(struct Creature *ch, struct Creature *tch,
 		send_to_char(ch, "You can't do this if you're not in a group!\r\n");
 		return 0;
 	}
-	if (SECT_TYPE(ch->in_room) == SECT_UNDERWATER &&
-		SPELL_FLAGGED(spellnum, MAG_NOWATER)) {
+	if ((SECT_TYPE(ch->in_room) == SECT_UNDERWATER
+				|| SECT_TYPE(ch->in_room) == SECT_DEEP_OCEAN)
+			&& SPELL_FLAGGED(spellnum, MAG_NOWATER)) {
 		send_to_char(ch, "This spell does not function underwater.\r\n");
 		return 0;
 	}
@@ -2280,12 +2281,12 @@ ACMD(do_trigger)
 		return;
 	}
 
-	if (SECT_TYPE(ch->in_room) == SECT_UNDERWATER &&
-		SPELL_FLAGGED(spellnum, MAG_NOWATER)) {
+	if ((SECT_TYPE(ch->in_room) == SECT_UNDERWATER
+				|| SECT_TYPE(ch->in_room) == SECT_DEEP_OCEAN)
+			&& SPELL_FLAGGED(spellnum, MAG_NOWATER)) {
 		send_to_char(ch, "This trigger will not function underwater.\r\n");
 		return;
 	}
-
 	/***** trigger probability calculation *****/
 	prob = CHECK_SKILL(ch, spellnum) + (GET_INT(ch) << 1) +
 		(GET_REMORT_GEN(ch) << 2);
@@ -2374,10 +2375,11 @@ ACMD(do_arm)
 		return;
 	}
 
-	if (SECT_TYPE(ch->in_room) == SECT_UNDERWATER &&
-		SPELL_FLAGGED(spellnum, MAG_NOWATER)) {
+	if ((SECT_TYPE(ch->in_room) == SECT_UNDERWATER
+				|| SECT_TYPE(ch->in_room) == SECT_DEEP_OCEAN)
+			&& SPELL_FLAGGED(spellnum, MAG_NOWATER)) {
 		send_to_char(ch, "This device will not function underwater.\r\n");
-		return;
+		return 0;
 	}
 
 	prob = CHECK_SKILL(ch, spellnum) + (GET_INT(ch) << 1) +
@@ -2511,8 +2513,9 @@ ACMD(do_alter)
 		return;
 	}
 
-	if (SECT_TYPE(ch->in_room) == SECT_UNDERWATER &&
-		SPELL_FLAGGED(spellnum, MAG_NOWATER)) {
+	if ((SECT_TYPE(ch->in_room) == SECT_UNDERWATER
+				|| SECT_TYPE(ch->in_room) == SECT_DEEP_OCEAN)
+			&& SPELL_FLAGGED(spellnum, MAG_NOWATER)) {
 		send_to_char(ch, "This alteration will not function underwater.\r\n");
 		return;
 	}

@@ -252,6 +252,7 @@ show_trails_to_char(Creature *ch, char *str)
 
 	if (GET_LEVEL(ch) < LVL_AMBASSADOR
 		&& (SECT_TYPE(ch->in_room) == SECT_UNDERWATER
+			|| SECT_TYPE(ch->in_room) == SECT_DEEP_OCEAN
 			|| SECT_TYPE(ch->in_room) == SECT_WATER_NOSWIM)) {
 		send_to_char(ch, 
 			"You find it difficult to follow the ripples of the water.\r\n");

@@ -690,6 +690,7 @@ static const int TYPE_SHOOT = 818;
 
 static const int TOP_ATTACKTYPE = 819;
 /* new attack types can be added here - up to TYPE_SUFFERING */
+static const int TYPE_CRUSHING_DEPTH = 892;	// in deep ocean without vehicle
 static const int TYPE_TAINT_BURN = 893;	// casting while tainted
 static const int TYPE_PRESSURE = 894;
 static const int TYPE_SUFFOCATING = 895;

@@ -1734,6 +1734,7 @@ obj_to_room(struct obj_data *object, struct room_data *room, bool sorted)
 
 	if (IS_CIGARETTE(object) && SMOKE_LIT(object) &&
 		(SECT(room) == SECT_UNDERWATER ||
+			SECT(room) == SECT_DEEP_OCEAN ||
 			SECT(room) == SECT_WATER_SWIM ||
 			SECT(room) == SECT_WATER_NOSWIM ||
 			SECT(room) == SECT_SWAMP ||

@@ -17,12 +17,15 @@ SPECIAL(underwater_predator)
 		AFF2_FLAGGED(pred, AFF2_PETRIFIED) || !AWAKE(pred))
 		return 0;
 
-	if ((vict = FIGHTING(pred)) &&
-		SECT_TYPE(pred->in_room) != SECT_UNDERWATER && !number(0, 3)) {
+	if ((vict = FIGHTING(pred))
+		&& SECT_TYPE(pred->in_room) != SECT_UNDERWATER
+		&& SECT_TYPE(pred->in_room) != SECT_DEEP_OCEAN
+		&& !number(0, 3)) {
 
 		if (EXIT(pred, DOWN) &&
 			((troom = EXIT(pred, DOWN)->to_room) != NULL) &&
-			SECT_TYPE(troom) == SECT_UNDERWATER &&
+			(SECT_TYPE(troom) == SECT_UNDERWATER
+				|| SECT_TYPE(troom) == SECT_DEEP_OCEAN) &&
 			!ROOM_FLAGGED(troom, ROOM_GODROOM | ROOM_DEATH | ROOM_PEACEFUL)) {
 
 			if ((STRENGTH_APPLY_INDEX(pred) + number(1, 6) >
@@ -44,7 +47,8 @@ SPECIAL(underwater_predator)
 			}
 		}
 	} else if (!FIGHTING(pred) && MOB_FLAGGED(pred, MOB_AGGRESSIVE) &&
-		SECT_TYPE(pred->in_room) == SECT_UNDERWATER &&
+		(SECT_TYPE(pred->in_room) == SECT_UNDERWATER
+			|| SECT_TYPE(pred->in_room) == SECT_DEEP_OCEAN) &&
 		EXIT(pred, UP) &&
 		((troom = EXIT(pred, UP)->to_room) != NULL) &&
 		!ROOM_FLAGGED(troom, ROOM_NOMOB | ROOM_PEACEFUL |

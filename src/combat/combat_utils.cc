@@ -651,7 +651,9 @@ calculate_thaco(struct Creature *ch, struct Creature *victim,
 	if (IS_AFFECTED_2(victim, AFF2_EVADE))
 		calc_thaco +=  victim->getLevelBonus(SKILL_EVASION) / 6;
 
-	if (SECT_TYPE(ch->in_room) == SECT_UNDERWATER && !IS_MOB(ch))
+	if ((SECT_TYPE(ch->in_room) == SECT_UNDERWATER ||
+				SECT_TYPE(ch->in_room) == SECT_DEEP_OCEAN)
+			&& !IS_MOB(ch))
 		calc_thaco += 4;
 
 	calc_thaco -= MIN(5, MAX(0, (POS_FIGHTING - victim->getPosition())));
@@ -1591,7 +1593,8 @@ make_corpse(struct Creature *ch, struct Creature *killer, int attacktype)
 	case TYPE_DROWNING:
 		if (SECT_TYPE(ch->in_room) == SECT_WATER_NOSWIM ||
 			SECT_TYPE(ch->in_room) == SECT_WATER_SWIM ||
-			SECT_TYPE(ch->in_room) == SECT_UNDERWATER)
+			SECT_TYPE(ch->in_room) == SECT_UNDERWATER ||
+			SECT_TYPE(ch->in_room) == SECT_DEEP_OCEAN)
 			sprintf(buf2, "The waterlogged %s of %s %s lying here.", typebuf,
 				GET_NAME(ch), ISARE(typebuf));
 		else

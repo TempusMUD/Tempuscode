@@ -146,7 +146,8 @@
 #define SECT_TUNDRA                46
 #define SECT_CATACOMBS             47
 #define SECT_CRACKED_ROAD          48
-#define NUM_SECT_TYPES      49
+#define SECT_DEEP_OCEAN            49
+#define NUM_SECT_TYPES      50
 
 
 

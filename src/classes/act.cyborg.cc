@@ -791,6 +791,7 @@ perform_cyborg_activate(Creature *ch, int mode, int subcmd)
 
 			if (mode == SKILL_ENERGY_FIELD &&
 				(SECT_TYPE(ch->in_room) == SECT_UNDERWATER ||
+					SECT_TYPE(ch->in_room) == SECT_DEEP_OCEAN ||
 					SECT_TYPE(ch->in_room) == SECT_WATER_SWIM ||
 					SECT_TYPE(ch->in_room) == SECT_WATER_NOSWIM)) {
 				CreatureList::iterator it = ch->in_room->people.begin();
@@ -1312,6 +1313,7 @@ ACMD(do_discharge)
 	}
 
 	if ((SECT_TYPE(ch->in_room) == SECT_UNDERWATER ||
+			SECT_TYPE(ch->in_room) == SECT_DEEP_OCEAN ||
 			SECT_TYPE(ch->in_room) == SECT_WATER_SWIM ||
 			SECT_TYPE(ch->in_room) == SECT_WATER_NOSWIM ||
 			SECT_TYPE(ch->in_room) == SECT_ELEMENTAL_WATER)) {

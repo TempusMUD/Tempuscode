@@ -681,6 +681,7 @@ extern const char *sector_types[] = {
 	"Tundra",
 	"Catacombs",
 	"Cracked Road",
+	"Deep Ocean",
 	"\n"
 };
 
@@ -2819,6 +2820,7 @@ extern const char movement_loss[] = {
 	3,							// trail
 	3,							// tundra
 	1,							// cracked_road
+	6,							// deep ocean
 };
 
 

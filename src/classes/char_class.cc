@@ -1471,7 +1471,8 @@ char_class_race_hit_bonus(struct Creature *ch, struct Creature *vict)
 	bonus -= (IS_DWARF(ch) && (SECT_TYPE(ch->in_room) == SECT_WATER_SWIM ||
 			SECT_TYPE(ch->in_room) == SECT_WATER_NOSWIM ||
 			ch->in_room->isOpenAir() ||
-			SECT_TYPE(ch->in_room) == SECT_UNDERWATER));
+			SECT_TYPE(ch->in_room) == SECT_UNDERWATER ||
+			SECT_TYPE(ch->in_room) == SECT_DEEP_OCEAN));
 	bonus += (IS_THIEF(ch) && room_is_dark(ch->in_room));
 	bonus += (IS_RANGER(ch) && (SECT_TYPE(ch->in_room) == SECT_FOREST ||
 			(SECT_TYPE(ch->in_room) != SECT_CITY &&

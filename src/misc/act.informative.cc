@@ -823,8 +823,9 @@ desc_one_char(Creature *ch, Creature *i, bool is_group)
 		(!IS_AFFECTED(i, AFF_WATERWALK)
 			|| ch->getPosition() < POS_STANDING))
 		desc = tmp_strcat(desc, " is swimming here.");
-	else if (SECT_TYPE(i->in_room) == SECT_UNDERWATER
-		&& i->getPosition() > POS_RESTING)
+	else if ((SECT_TYPE(i->in_room) == SECT_UNDERWATER
+				|| SECT_TYPE(i->in_room) == SECT_DEEP_OCEAN)
+			&& i->getPosition() > POS_RESTING)
 		desc = tmp_strcat(desc, " is swimming here.");
 	else if (SECT_TYPE(i->in_room) == SECT_PITCH_PIT
 		&& i->getPosition() < POS_FLYING)
@@ -1509,6 +1510,8 @@ look_in_direction(struct Creature *ch, int dir)
 				}
 			} else if ((ch->in_room->sector_type == SECT_UNDERWATER))
 				send_to_char(ch, "You see water above you.\r\n");
+			else if ((ch->in_room->sector_type == SECT_DEEP_OCEAN))
+				send_to_char(ch, "You see dark waters above you.\r\n");
 			else
 				send_to_char(ch, "Nothing special there...\r\n");
 			break;

@@ -166,6 +166,7 @@ calc_skill_prob(struct Creature *ch, struct Creature *vict, int skillnum,
 	}
 
 	if (ch->in_room->sector_type == SECT_UNDERWATER ||
+		ch->in_room->sector_type == SECT_DEEP_OCEAN ||
 		ch->in_room->sector_type == SECT_WATER_NOSWIM ||
 		ch->in_room->sector_type == SECT_WATER_SWIM ||
 		ch->in_room->sector_type == SECT_ASTRAL || ch->in_room->isOpenAir())

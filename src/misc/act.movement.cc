@@ -106,6 +106,7 @@ can_travel_sector(struct Creature *ch, int sector_type, bool active)
 		return true;
 
 	if (sector_type == SECT_UNDERWATER ||
+		sector_type == SECT_DEEP_OCEAN ||
 		sector_type == SECT_PITCH_SUB ||
 		sector_type == SECT_WATER_NOSWIM ||
 		sector_type == SECT_ELEMENTAL_OOZE || sector_type == SECT_FREESPACE) {
@@ -640,7 +641,8 @@ do_simple_move(struct Creature *ch, int dir, int mode,
 		SECT_TYPE(ch->in_room) == SECT_FIRE_RIVER ||
 		SECT_TYPE(ch->in_room) == SECT_PITCH_PIT ||
 		SECT_TYPE(ch->in_room) == SECT_PITCH_SUB ||
-		SECT_TYPE(ch->in_room) == SECT_UNDERWATER) {
+		SECT_TYPE(ch->in_room) == SECT_UNDERWATER ||
+		SECT_TYPE(ch->in_room) == SECT_DEEP_OCEAN) {
 		if (((SECT_TYPE(ch->in_room) != SECT_UNDERWATER &&
 					SECT_TYPE(EXIT(ch, dir)->to_room) == SECT_UNDERWATER)
 				|| (SECT_TYPE(ch->in_room) != SECT_PITCH_SUB
@@ -653,6 +655,7 @@ do_simple_move(struct Creature *ch, int dir, int mode,
 		} else {
 			if (AFF_FLAGGED(ch, AFF_WATERWALK) &&
 				SECT_TYPE(ch->in_room) != SECT_UNDERWATER &&
+				SECT_TYPE(ch->in_room) != SECT_DEEP_OCEAN &&
 				SECT_TYPE(ch->in_room) != SECT_PITCH_SUB) {
 				sprintf(buf, "$n walks %s across the %s.", to_dirs[dir],
 					SECT_TYPE(ch->in_room) == SECT_FIRE_RIVER ? "flames" :
@@ -783,6 +786,7 @@ do_simple_move(struct Creature *ch, int dir, int mode,
 		was_in->dir_option[dir]->keyword) {
 		send_to_char(ch, "You %s through the %s %s.\r\n",
 			(was_in->sector_type == SECT_UNDERWATER ||
+				was_in->sector_type == SECT_DEEP_OCEAN ||
 				(was_in->sector_type == SECT_WATER_NOSWIM &&
 					!AFF_FLAGGED(ch, AFF_WATERWALK)) ||
 				was_in->sector_type == SECT_PITCH_SUB) ? "swim" :
@@ -880,7 +884,8 @@ do_simple_move(struct Creature *ch, int dir, int mode,
 		|| SECT_TYPE(ch->in_room) == SECT_FIRE_RIVER
 		|| SECT_TYPE(ch->in_room) == SECT_PITCH_PIT
 		|| SECT_TYPE(ch->in_room) == SECT_PITCH_SUB
-		|| SECT_TYPE(ch->in_room) == SECT_UNDERWATER) {
+		|| SECT_TYPE(ch->in_room) == SECT_UNDERWATER
+		|| SECT_TYPE(ch->in_room) == SECT_DEEP_OCEAN) {
 		if (((SECT_TYPE(ch->in_room) != SECT_UNDERWATER
 					&& SECT_TYPE(was_in) == SECT_UNDERWATER)
 				|| (SECT_TYPE(ch->in_room) != SECT_PITCH_SUB
@@ -1108,6 +1113,7 @@ do_simple_move(struct Creature *ch, int dir, int mode,
 	if (obj) {					/* blood */
 
 		if (ch->in_room->sector_type == SECT_UNDERWATER ||
+			ch->in_room->sector_type == SECT_DEEP_OCEAN ||
 			ch->in_room->sector_type == SECT_WATER_NOSWIM ||
 			ch->in_room->sector_type == SECT_WATER_SWIM) {
 
@@ -2864,6 +2870,7 @@ drag_object(Creature *ch, struct obj_data *obj, char *argument)
 
 	if (SECT_TYPE(ch->in_room) == SECT_WATER_SWIM ||
 		SECT_TYPE(ch->in_room) == SECT_UNDERWATER ||
+		SECT_TYPE(ch->in_room) == SECT_DEEP_OCEAN ||
 		SECT_TYPE(ch->in_room) == SECT_ELEMENTAL_OOZE ||
 		SECT_TYPE(ch->in_room) == SECT_ELEMENTAL_WATER) {
 

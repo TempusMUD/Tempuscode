@@ -2537,11 +2537,13 @@ mag_areas(byte level, struct Creature *ch, int spellnum, int savetype)
 		act(to_room, FALSE, ch, 0, 0, TO_ROOM);
 
 	if (spellnum == SPELL_EARTHQUAKE &&
-		(SECT_TYPE(ch->in_room) == SECT_UNDERWATER ||
-			ch->in_room->isOpenAir()))
+		(SECT_TYPE(ch->in_room) == SECT_UNDERWATER
+				|| SECT_TYPE(ch->in_room) == SECT_DEEP_OCEAN
+				|| ch->in_room->isOpenAir()))
 		return 0;
-	if (spellnum == SPELL_METEOR_STORM &&
-		SECT_TYPE(ch->in_room) == SECT_UNDERWATER)
+	if (spellnum == SPELL_METEOR_STORM
+			&& (SECT_TYPE(ch->in_room) == SECT_UNDERWATER
+				|| SECT_TYPE(ch->in_room) == SECT_DEEP_OCEAN))
 		return 0;
 
 	if (ROOM_FLAGGED(ch->in_room, ROOM_PEACEFUL) && GET_LEVEL(ch) < LVL_GOD) {
