@@ -42,7 +42,7 @@ extern const char *gun_types[] = {
     "7.62 mm",
     "9 mm",
     "10 mm",
-    "unused - 22",
+    "7mm magnum",
     "unused - 23",
     "unused - 24",
     "bow",
@@ -90,7 +90,7 @@ extern const int gun_damage[][2] = {
     { 24, 11 },    /* 7.62 mm */
     { 20, 11 },    /* 9 mm  */
     { 24, 13 },    /* 10 mm */
-    { 0,   0 },
+    { 30, 12 },    /*7mm magnum*/
     { 0,   0 },
     { 0,   0 },
     { 8,  15 },     /* bow */
@@ -102,8 +102,7 @@ extern const int gun_damage[][2] = {
     { 0,   0 }     /* trailer */
 };
 
- 
-void 
+void
 show_gun_status(struct char_data *ch, struct obj_data *gun)
 {
     struct obj_data *bullet = NULL;
