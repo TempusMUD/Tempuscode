@@ -800,16 +800,7 @@ do_mob_mset(struct Creature *ch, char *argument)
 			else {
 				GET_LEVEL(mob_p) = i;
 				send_to_char(ch, "Mobile level set.\r\n");
-
-				set_physical_attribs(mob_p);
-				GET_HIT(mob_p) = MOB_D1(i);
-				GET_MANA(mob_p) = MOB_D2(i);
-				GET_MOVE(mob_p) = MOB_MOD(i);
-				GET_AC(mob_p) = (100 - (i * 3));
-				mob_p->mob_specials.shared->damnodice = ((i * i + 3) >> 7) + 1;
-				mob_p->mob_specials.shared->damsizedice = ((i + 1) >> 3) + 3;
-				GET_DAMROLL(mob_p) = i >> 1;
-
+                recalculate_based_on_level( mob_p );
 			}
 			break;
 		}
@@ -1242,6 +1233,7 @@ do_mob_mset(struct Creature *ch, char *argument)
 			} else {
                 GET_REMORT_GEN(mob_p) = i;
 				send_to_char(ch, "Mobile generation set.\r\n");
+                recalculate_based_on_level( mob_p );
 			}
 			break;
 
@@ -1263,6 +1255,8 @@ do_mob_mset(struct Creature *ch, char *argument)
 		SET_BIT(MOB2_FLAGS(mob_p), MOB2_UNAPPROVED);
 
 }
+
+
 
 int
 write_mob_index(struct Creature *ch, struct zone_data *zone)

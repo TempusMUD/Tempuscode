@@ -102,14 +102,14 @@ OLCIMP(Creature * ch)
 "olc xset <arg> <val>\r\n"  \
 "olc xstat\r\n" \
 "olc show\r\n" \
-    \
 "olc ilist\r\n" \
 "olc istat\r\n" \
 "olc iedit\r\n" \
 "olc iset\r\n"  \
 "olc ihandler <create | edit | delete> <event type>\r\n" \
 "olc isave\r\n" \
-"olc idelete\r\n"
+"olc idelete\r\n"\
+"olc recalculate { obj | mob } <vnum>\r\n"
 
 #define OLC_ZSET_USAGE "Usage:\r\n"                                  \
 "olc zset [zone] name <name>\r\n"                  \
@@ -306,6 +306,7 @@ const char *olc_commands[] = {
 	"ihandler",
 	"isave",
 	"idelete",
+    "recalculate",
 	"\n"						/* many more to be added */
 };
 
@@ -1672,6 +1673,40 @@ ACMD(do_olc)
 			do_olc_idelete(ch, argument);
 		}
 		break;
+    case 60: { // recalculate
+        struct Creature *mob;
+        struct obj_data *obj;
+        int number;
+        char* buf1 = tmp_getword(&argument);
+        char* buf2 = tmp_getword(&argument);
+
+        if (!*buf1 || !*buf2 || !isdigit(*buf2)) {
+            send_to_char(ch, "Usage: olc recalculate { obj | mob } <number>\r\n");
+            return;
+        }
+        if ((number = atoi(buf2)) < 0) {
+            send_to_char(ch, "A NEGATIVE number??\r\n");
+            return;
+        }
+        if (is_abbrev(buf1, "mob")) {
+            if (!(mob = real_mobile_proto(number))) {
+                send_to_char(ch, "There is no monster with that number.\r\n");
+            } else {
+                recalculate_based_on_level(mob);
+                send_to_char(ch,"Mobile %d statistics recalculated based on level.\r\n", number);
+            }
+        } else if (is_abbrev(buf1, "obj")) {
+            if (!(obj = real_object_proto(number))) {
+                send_to_char(ch, "There is no object with that number.\r\n");
+            } else {
+                //do something
+                send_to_char(ch, "Unimplemented.\r\n");
+            }
+        } else {
+            send_to_char(ch, "That'll have to be either 'obj' or 'mob'.\r\n");
+        }
+        break;
+    }
 	default:
 		send_to_char(ch, "This action is not supported yet.\r\n");
 	}

@@ -1450,7 +1450,7 @@ set_physical_attribs(struct Creature *ch)
 {
 	GET_MAX_MANA(ch) = MAX(100, (GET_LEVEL(ch) << 3));
 	GET_MAX_MOVE(ch) = MAX(100, (GET_LEVEL(ch) << 4));
-
+    
 	if (GET_RACE(ch) == RACE_HUMAN || IS_HUMANOID(ch) ||
 		GET_RACE(ch) == RACE_MOBILE) {
 		ch->player.weight = number(130, 180) + (GET_STR(ch) << 1);
@@ -1597,16 +1597,41 @@ set_physical_attribs(struct Creature *ch)
 			ch->real_abils.str = 18;
 		}
 	}
-	if (IS_CLERIC(ch) || IS_MAGE(ch) || IS_LICH(ch) || IS_PHYSIC(ch) ||
-		IS_PSYCHIC(ch))
-		GET_MAX_MANA(ch) += (GET_LEVEL(ch) << 2);
+	if (IS_CLERIC(ch) || IS_MAGE(ch) || IS_LICH(ch) || IS_PHYSIC(ch) || IS_PSYCHIC(ch))
+		GET_MAX_MANA(ch) += (GET_LEVEL(ch) << 4);
 	else if (IS_KNIGHT(ch) || IS_RANGER(ch))
 		GET_MAX_MANA(ch) += (GET_LEVEL(ch) << 1);
 
 	if (IS_RANGER(ch))
 		GET_MAX_MOVE(ch) += (GET_LEVEL(ch) << 3);
 
+    GET_MAX_MOVE(ch) += ( GET_REMORT_GEN(ch) * GET_MAX_MOVE(ch))/10;
+    GET_MAX_MANA(ch) += ( GET_REMORT_GEN(ch) * GET_MAX_MANA(ch))/10;
+
 	ch->aff_abils = ch->real_abils;
+}
+
+
+void recalculate_based_on_level( Creature *mob_p ) 
+{
+    int level = GET_LEVEL(mob_p);
+    int doubleLevel = level + (level * GET_REMORT_GEN(mob_p))/10;
+    int gen = GET_REMORT_GEN(mob_p);
+
+    set_physical_attribs(mob_p);
+
+    GET_HIT(mob_p) = MOB_D1(doubleLevel); // hitd_num
+    GET_MANA(mob_p) = MOB_D2(level);// hitd_size
+    GET_MOVE(mob_p) = MOB_MOD(level);// hitp_mod
+    GET_MOVE(mob_p) += (int) ( 3.26 * ( gen * gen ) * level );
+
+
+    GET_AC(mob_p) = (100 - (doubleLevel * 3));
+
+    mob_p->mob_specials.shared->damnodice = ((level * level + 3) >> 7) + 1;
+    mob_p->mob_specials.shared->damsizedice = ((level + 1) >> 3) + 3;
+    GET_DAMROLL(mob_p) = (level/2) + ((level/2) * GET_REMORT_GEN(mob_p)) / 10;
+    GET_HITROLL(mob_p) = (int)(GET_DAMROLL(mob_p) * 1.25);
 }
 
 void
@@ -3131,7 +3156,7 @@ free_obj(struct obj_data *obj)
 {
 	struct extra_descr_data *this_desc, *next_one;
 
-	if ((GET_OBJ_VNUM(obj)) == -1 || !obj->shared->proto) {
+	if (!obj->shared || GET_OBJ_VNUM(obj) == -1 || !obj->shared->proto) {
 		if (obj->name) {
 			free(obj->name);
 			obj->name = NULL;

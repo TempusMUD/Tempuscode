@@ -58,12 +58,15 @@ struct ticl_data {
 #define MOB_D1(lev)    (lev + 1)
 #define MOB_D2(lev)    (6 + (lev >> 1))
 #define MOB_MOD(lev)   (((lev*lev*lev*lev*lev) >> 15) + lev + 6)
+void set_physical_attribs(struct Creature *ch);
+//recalculates the given mob prototype's statistics based on it's current level.
+void recalculate_based_on_level( Creature *mob_p );
+
 
 bool CAN_EDIT_ZONE(Creature *ch, struct zone_data *zone);
 bool OLC_EDIT_OK(Creature *ch, struct zone_data *zone, int bits);
 
 #define OLCGOD(ch) ( PLR_FLAGGED(ch, PLR_OLCGOD) )
-//#define OLCIMP(ch) ( GET_LEVEL(ch) >= LVL_CREATOR )
 
 bool OLCIMP(Creature * ch);
 
