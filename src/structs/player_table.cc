@@ -73,8 +73,8 @@ bool PlayerTable::exists(const char* name)
 	PGresult *res;
 	bool result;
 
-	res = sql_query("select COUNT(*) from players where name ilike '%s'",
-		tmp_sqlescape(name));
+	res = sql_query("select COUNT(*) from players where lower(name)='%s'",
+		tmp_sqlescape(tmp_tolower(name)));
 	if (PQresultStatus(res) != PGRES_TUPLES_OK)
 		return 0;
 	result = (atoi(PQgetvalue(res, 0, 0)) == 1);
@@ -114,8 +114,8 @@ PlayerTable::getID(const char *name) const
 	PGresult *res;
 	long result;
 
-	res = sql_query("select idnum from players where name ilike '%s'",
-		tmp_sqlescape(name));
+	res = sql_query("select idnum from players where lower(name)='%s'",
+		tmp_sqlescape(tmp_tolower(name)));
 	if (PQresultStatus(res) != PGRES_TUPLES_OK)
 		return 0;
 	if (PQntuples(res) == 1)
@@ -133,8 +133,8 @@ PlayerTable::getAccountID(const char *name) const
 	PGresult *res;
 	long result;
 
-	res = sql_query("select account from players where name ilike '%s'",
-		tmp_sqlescape(name));
+	res = sql_query("select account from players where lower(name)='%s'",
+		tmp_sqlescape(tmp_tolower(name)));
 	if (PQresultStatus(res) != PGRES_TUPLES_OK)
 		return 0;
 	if (PQntuples(res) == 1)
