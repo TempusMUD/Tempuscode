@@ -788,7 +788,7 @@ mag_affects(int level, struct char_data * ch, struct char_data * victim,
 	    int spellnum, int savetype)
 {
 
-    struct affected_type af, af2;
+    struct affected_type af, af2, *afp;
     int is_mage = FALSE;
     int is_cleric = FALSE;
     int is_psychic = FALSE;
@@ -1938,10 +1938,34 @@ mag_affects(int level, struct char_data * ch, struct char_data * victim,
      * perform the affect.  This prevents people from un-sancting mobs
      * by sancting them and waiting for it to fade, for example.
      */
-    if (IS_NPC(victim) && IS_AFFECTED(victim, af.bitvector|af2.bitvector) &&
-        !affected_by_spell(victim, spellnum)) {
- 	send_to_char(NOEFFECT, ch);
- 	return;
+    if (IS_NPC(victim)){
+		int done = 0;
+		afp = &af;
+		while (!done) {
+			if(afp->aff_index == 0){
+				if( IS_AFFECTED(victim, afp->bitvector) && 
+				!affected_by_spell(victim, spellnum)) {
+					send_to_char(NOEFFECT, ch);
+					return;
+				}
+			} else if(afp->aff_index == 2){
+				if( IS_AFFECTED_2(victim, afp->bitvector) && 
+				!affected_by_spell(victim, spellnum)) {
+					send_to_char(NOEFFECT, ch);
+					return;
+				}
+			}else if(afp->aff_index == 3){
+				if( IS_AFFECTED_3(victim, afp->bitvector) && 
+				!affected_by_spell(victim, spellnum)) {
+					send_to_char(NOEFFECT, ch);
+					return;
+				}
+			}
+		if (afp == &af)
+			afp = &af2;
+		else
+			done = 1;
+		}
     }
  
     /* If the victim is already affected by this spell, and the spell does
