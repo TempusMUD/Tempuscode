@@ -14,10 +14,12 @@ struct voting_option {
 };
 
 struct voting_poll {
+	int idnum;
 	char *header;
 	char *descrip;
 	time_t creation_time;
 	int count;
+	bool secret;
 	struct voting_poll *next;
 	struct voting_option *options;
 	struct memory_rec_struct *memory;
@@ -31,88 +33,85 @@ static int VOTING_CMD_LOOK;
 static int VOTING_CMD_EXAMINE;
 static int VOTING_CMD_WRITE;
 static int VOTING_CMD_REMOVE;
+static int VOTING_CMD_HIDE;
+static int VOTING_CMD_SHOW;
 int voting_loaded = 0;
 
-void
-voting_booth_save(void)
+struct voting_poll *
+voting_poll_by_id(int id)
 {
-	FILE *ouf;
-	struct voting_poll *poll;
-	struct voting_option *opt;
-	struct memory_rec_struct *mem;
+	struct voting_poll *cur_poll;
 
-	if (!voting_poll_list)
-		return;
-
-	ouf = fopen("etc/voting.booth", "w");
-	for (poll = voting_poll_list; poll; poll = poll->next) {
-		fprintf(ouf, "# %ld %d\n",
-			poll->creation_time, poll->count);
-		fprintf(ouf, "%s~\n", poll->header);
-		fprintf(ouf, "%s~\n", poll->descrip);
-		for (opt = poll->options; opt; opt = opt->next) {
-			fprintf(ouf, "O %d\n", opt->count);
-			fprintf(ouf, "%s~\n", opt->descrip);
-		}
-		for (mem = poll->memory; mem; mem = mem->next) {
-			fprintf(ouf, "M %ld\n", mem->id);
-		}
-	}
-	fclose(ouf);
+	for (cur_poll = voting_poll_list;cur_poll;cur_poll = cur_poll->next)
+		if (cur_poll->idnum == id)
+			return cur_poll;
+	return NULL;
 }
 
 void
 voting_booth_load(void)
 {
-	struct voting_poll *prev_poll = NULL;
+	struct voting_poll *new_poll, *prev_poll = NULL;
 	struct voting_option *new_opt, *prev_opt = NULL;
-	struct memory_rec_struct *new_mem, *prev_mem = NULL;
-	FILE *inf;
-	char opt_idx = 'a';
+	struct memory_rec_struct *new_mem;
+	PGresult *res;
+	int idx, count;
 
-	inf = fopen("etc/voting.booth", "r");
-	if (!inf) {
-		slog("/etc/voting.booth not found.");
+	res = sql_query("select idnum, extract(epoch from creation_time), header, descrip, secret from voting_polls");
+	count = PQntuples(res);
+	if (!count) {
+		slog("No polls in voting booth");
 		return;
 	}
-	while (fgets(buf, MAX_INPUT_LENGTH, inf)) {
-		if ('#' == buf[0]) {
-			CREATE(voting_new_poll, struct voting_poll, 1);
-			sscanf(buf, "# %ld %d\n",
-				&voting_new_poll->creation_time,
-				&voting_new_poll->count);
-			voting_new_poll->header = fread_string(inf, buf2);
-			voting_new_poll->descrip = fread_string(inf, buf2);
-			prev_opt = NULL;
-			prev_mem = NULL;
-			opt_idx = 'a';
-			if (prev_poll)
-				prev_poll->next = voting_new_poll;
-			else
-				voting_poll_list = voting_new_poll;
-			prev_poll = voting_new_poll;
-		} else if ('O' == buf[0]) {
-			CREATE(new_opt, struct voting_option, 1);
-			sscanf(buf, "O %d", &new_opt->count);
-			new_opt->descrip = fread_string(inf, buf2);
-			new_opt->idx = opt_idx++;
-			if (prev_opt)
-				prev_opt->next = new_opt;
-			else
-				voting_new_poll->options = new_opt;
-			prev_opt = new_opt;
-		} else if ('M' == buf[0]) {
-			CREATE(new_mem, struct memory_rec_struct, 1);
-			sscanf(buf, "M %ld", &new_mem->id);
-			if (prev_mem)
-				prev_mem->next = new_mem;
-			else
-				voting_new_poll->memory = new_mem;
-			prev_mem = new_mem;
+
+	for (idx = 0;idx < count;idx++) {
+		CREATE(new_poll, struct voting_poll, 1);
+		new_poll->idnum = atoi(PQgetvalue(res, idx, 0));
+		new_poll->creation_time = atol(PQgetvalue(res, idx, 1));
+		new_poll->header = strdup(PQgetvalue(res, idx, 2));
+		new_poll->descrip = strdup(PQgetvalue(res, idx, 3));
+		new_poll->secret = PQgetvalue(res, idx, 4)[0] == 't';
+
+		if (prev_poll)
+			prev_poll->next = new_poll;
+		else
+			voting_poll_list = new_poll;
+	}
+
+	res = sql_query("select poll, descrip, count from voting_options order by poll, idx");
+	count = PQntuples(res);
+	for (idx = 0;idx < count;idx++) {
+		new_poll = voting_poll_by_id(atoi(PQgetvalue(res, idx, 0)));
+		if (!new_poll)
+			continue;
+		CREATE(new_opt, struct voting_option, 1);
+		new_opt->descrip = strdup(PQgetvalue(res, idx, 1));
+		new_opt->count = atoi(PQgetvalue(res, idx, 1));
+		new_opt->next = NULL;
+
+		if (new_poll->options) {
+			prev_opt = new_poll->options;
+			while (prev_opt->next)
+				prev_opt = prev_opt->next;
+			new_opt->idx = prev_opt->idx + 1;
+			prev_opt->next = new_opt;
 		} else {
-			slog("Invalid format for /etc/voting.booth");
-			return;
+			new_poll->options = new_opt;
+			new_opt->idx = 'a';
 		}
+	}
+
+
+	res = sql_query("select poll, account from voting_accounts");
+	count = PQntuples(res);
+	for (idx = 0;idx < count;idx++) {
+		new_poll = voting_poll_by_id(atoi(PQgetvalue(res, idx, 0)));
+		if (!new_poll)
+			continue;
+		CREATE(new_mem, struct memory_rec_struct, 1);
+		new_mem->id = atoi(PQgetvalue(res, idx, 1));
+		new_mem->next = new_poll->memory;
+		new_poll->memory = new_mem;
 	}
 }
 
@@ -159,7 +158,9 @@ voting_booth_read(Creature * ch, struct obj_data *obj, char *argument)
 			else
 				msg = tmp_sprintf("%3d (all) %c) %s",
 					opt->count, opt->idx, opt->descrip);
-		} else if (memory && memory->id == ch->account->get_idnum()) {
+		} else if (memory
+				&& memory->id == ch->account->get_idnum()
+				&& !poll->secret) {
 			if (opt->count != poll->count)
 				msg = tmp_sprintf("(%2d%%) %c) %s",
 					((poll->count) ? ((opt->count * 100) / poll->count) : 0),
@@ -170,6 +171,8 @@ voting_booth_read(Creature * ch, struct obj_data *obj, char *argument)
 			msg = tmp_sprintf("      %c) %s", opt->idx, opt->descrip);
 		send_to_char(ch, "%s", msg);
 	}
+	if (poll->secret && GET_LEVEL(ch) < LVL_AMBASSADOR)
+		send_to_char(ch, "This is a secret poll.  You will not be able to see the results after\r\nyou vote.\r\n");
 }
 
 void
@@ -255,7 +258,10 @@ voting_booth_vote(Creature * ch, struct obj_data *obj, char *argument)
 	new_memory->next = NULL;
 	new_memory->id = ch->account->get_idnum();
 
-	voting_booth_save();
+	sql_exec("update voting_options set count=%d where poll=%d and idx=%d",
+		opt->count, poll->idnum, opt->idx - 'a');
+	sql_exec("insert into voting_accounts (poll, account) values (%d, %d)",
+		poll->idnum, ch->account->get_idnum());
 }
 
 void
@@ -263,7 +269,10 @@ voting_booth_list(Creature * ch, struct obj_data *obj)
 {
 	struct voting_poll *poll;
 	int poll_count = 0;
+	char *secret_str;
 
+	secret_str = tmp_sprintf(" %s(secret)%s",
+		CCRED(ch, C_NRM), CCNRM(ch, C_NRM));
 	poll = voting_poll_list;
 	while (poll) {
 		poll_count++;
@@ -281,16 +290,45 @@ voting_booth_list(Creature * ch, struct obj_data *obj)
 		send_to_char(ch, "%s%sThere are no polls.%s\r\n", CCRED(ch, C_NRM),
 			CCBLD(ch, C_NRM), CCNRM(ch, C_NRM));
 	} else {
-		send_to_char(ch, "%sThere are %d issues to vote upon.%s\r\n",
-			CCGRN(ch, C_NRM), poll_count, CCNRM(ch, C_NRM));
+		if (poll_count == 1)
+			send_to_char(ch, "%sThere is 1 issue to vote upon.%s\r\n",
+				CCGRN(ch, C_NRM), CCNRM(ch, C_NRM));
+		else
+			send_to_char(ch, "%sThere are %d issues to vote upon.%s\r\n",
+				CCGRN(ch, C_NRM), poll_count, CCNRM(ch, C_NRM));
 		poll_count = 0;
 		while (poll) {
 			strftime(buf2, 2048, "%a %b %d", localtime(&poll->creation_time));
-			send_to_char(ch, "%2d : %s (%d responses) :: %s\r\n", ++poll_count,
-				buf2, poll->count, poll->header);
+			send_to_char(ch, "%2d : %s (%d responses) :: %s%s\r\n",
+				++poll_count, buf2, poll->count, poll->header,
+				poll->secret ? secret_str:"");
 			poll = poll->next;
 		}
 	}
+}
+
+void
+voting_booth_change_view(Creature * ch, char *argument, bool secret)
+{
+	struct voting_poll *cur_poll;
+	int poll_num;
+
+	poll_num = atoi(argument);
+	cur_poll = voting_poll_list;
+
+	while (cur_poll && --poll_num)
+		cur_poll = cur_poll->next;
+
+	if (!cur_poll) {
+		send_to_char(ch, "That poll does not exist.\r\n");
+		return;
+	}
+
+	cur_poll->secret = secret;
+	sql_exec("update voting_polls set secret=%s where idnum=%d",
+		secret ? "true":"false", cur_poll->idnum);
+	send_to_char(ch, "Poll %d is now %s.\r\n", poll_num,
+		secret ? "secret":"no longer secret");
 }
 
 void
@@ -342,7 +380,9 @@ voting_booth_remove(Creature * ch, struct obj_data *obj, char *argument)
 	free(poll->descrip);
 	free(poll);
 
-	voting_booth_save();
+	sql_exec("delete from voting_accounts where poll=%d", poll->idnum);
+	sql_exec("delete from voting_options where poll=%d", poll->idnum);
+	sql_exec("delete from voting_polls where idnum=%d", poll->idnum);
 }
 
 void
@@ -364,6 +404,7 @@ voting_booth_write(Creature * ch, struct obj_data *obj, char *argument)
 	voting_new_poll->count = 0;
 	voting_new_poll->options = NULL;
 	voting_new_poll->memory = NULL;
+	voting_new_poll->secret = true;
 
 	start_text_editor(ch->desc,
 		&(voting_new_poll->descrip), true, MAX_MESSAGE_LENGTH);
@@ -385,6 +426,8 @@ voting_add_poll(void)
 	int reading_desc = 1;
 	char opt_idx = 'a';
 	char *main_buf;
+	Oid poll_oid;
+	PGresult *res;
 
 	if (!voting_new_poll->descrip) {
 		slog("ERROR: voting_add_poll called with NULL buffer");
@@ -468,44 +511,63 @@ voting_add_poll(void)
 
 	free(main_buf);
 
-	voting_booth_save();
+	// Store new poll in database
+	poll_oid = sql_insert("insert into voting_polls (creation_time, header, descrip, secret) values (now(), '%s', '%s', true)",
+		tmp_sqlescape(voting_new_poll->header),
+		tmp_sqlescape(voting_new_poll->descrip));
+	res = sql_query("select idnum from voting_polls where oid=%u", poll_oid);
+	voting_new_poll->idnum = atoi(PQgetvalue(res, 0, 0));
+	PQclear(res);
+
+	// Now store new options for poll
+	for (new_option = voting_new_poll->options;new_option;new_option = new_option->next) {
+		sql_exec("insert into voting_options (poll, descrip, idx, count) values (%d, '%s', %d, 0)",
+			voting_new_poll->idnum,
+			tmp_sqlescape(new_option->descrip),
+			new_option->idx - 'a');
+
+	}
 }
 
 void
 voting_booth_init(void)
 {
-	struct voting_poll *cur_poll;
-	struct voting_option *cur_opt;
-	struct memory_rec_struct *cur_mem;
-	int vote_check;
-	int poll_idx;
-
 	VOTING_CMD_READ = find_command("read");
 	VOTING_CMD_LOOK = find_command("look");
 	VOTING_CMD_EXAMINE = find_command("examine");
 	VOTING_CMD_WRITE = find_command("write");
 	VOTING_CMD_REMOVE = find_command("remove");
 	VOTING_CMD_VOTE = find_command("vote");
+	VOTING_CMD_HIDE = find_command("hide");
+	VOTING_CMD_SHOW = find_command("show");
 
 	voting_booth_load();
+}
 
-	// integrity check
-	poll_idx = 0;
+void
+voting_booth_forget(int acct_id)
+{
+	struct voting_poll *cur_poll;
+	struct memory_rec_struct *cur_mem, *doomed_mem;
+	
+	// Remove account from all voting polls
 	for (cur_poll = voting_poll_list; cur_poll; cur_poll = cur_poll->next) {
-		poll_idx++;
-		vote_check = 0;
-		for (cur_mem = cur_poll->memory; cur_mem; cur_mem = cur_mem->next)
-			vote_check++;
-		if (vote_check != cur_poll->count) {
-			slog("ERROR: memory mismatch for voting booth %i", poll_idx);
-		}
-		vote_check = 0;
-		for (cur_opt = cur_poll->options; cur_opt; cur_opt = cur_opt->next)
-			vote_check += cur_opt->count;
-		if (vote_check != cur_poll->count) {
-			slog("ERROR: count mismatch for voting booth %i", poll_idx);
+		cur_mem = cur_poll->memory;
+		if (cur_mem->id == acct_id) {
+			doomed_mem = cur_mem;
+			cur_poll->memory = cur_poll->memory->next;
+		} else {
+			while (cur_mem->next && cur_mem->next->id != acct_id)
+				cur_mem = cur_mem->next;
+			if (cur_mem->next) {
+				doomed_mem = cur_mem->next;
+				cur_mem->next = cur_mem->next->next;
+			}
 		}
 	}
+
+	free(doomed_mem);
+	sql_exec("delete from voting_accounts where account=%d", acct_id);
 }
 
 SPECIAL(voting_booth)
@@ -522,7 +584,8 @@ SPECIAL(voting_booth)
 
 	if (cmd != VOTING_CMD_VOTE && cmd != VOTING_CMD_LOOK &&
 		cmd != VOTING_CMD_EXAMINE && cmd != VOTING_CMD_REMOVE &&
-		cmd != VOTING_CMD_READ && cmd != VOTING_CMD_WRITE)
+		cmd != VOTING_CMD_READ && cmd != VOTING_CMD_WRITE &&
+		cmd != VOTING_CMD_SHOW && cmd != VOTING_CMD_HIDE)
 		return 0;
 
 	if (VOTING_CMD_VOTE == cmd)
@@ -544,7 +607,17 @@ SPECIAL(voting_booth)
 		voting_booth_remove(ch, obj, argument);
 	} else if (VOTING_CMD_WRITE == cmd && GET_LEVEL(ch) >= LVL_AMBASSADOR)
 		voting_booth_write(ch, obj, argument);
-	else
+	else if (VOTING_CMD_SHOW == cmd && GET_LEVEL(ch) >= LVL_AMBASSADOR) {
+		skip_spaces(&argument);
+		if (!isnumber(argument))
+			return 0;
+		voting_booth_change_view(ch, argument, false);
+	} else if (VOTING_CMD_HIDE == cmd && GET_LEVEL(ch) >= LVL_AMBASSADOR) {
+		skip_spaces(&argument);
+		if (!isnumber(argument))
+			return 0;
+		voting_booth_change_view(ch, argument, true);
+	} else
 		return 0;
 
 	return 1;
