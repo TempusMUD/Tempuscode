@@ -1068,7 +1068,7 @@ void
 OLD_engage_self_destruct(struct char_data *ch)
 {
   
-    int level, rhit, dir, i;
+    int level, rhit, dir, i,ddice;
     struct char_data *vict = NULL, *n_vict = NULL;
     struct obj_data *obj = NULL, *n_obj = NULL;
     struct room_data * toroom = NULL;
@@ -1077,7 +1077,10 @@ OLD_engage_self_destruct(struct char_data *ch)
     act("$n suddenly explodes into a thousand fragments!", FALSE,ch,0,0,TO_ROOM);  
     level = GET_LEVEL(ch);
     rhit = (GET_HIT(ch) >> 1);
-
+	dice = 24;
+	if(GET_CLASS(ch) == CLASS_CYBORG)
+		dice += GET_REMORT_GEN(ch) * 2;
+	
     if (ROOM_FLAGGED(ch->in_room, ROOM_PEACEFUL)) {
 	act("You are showered with a rain of fiery debris!", FALSE,ch,0,0,TO_ROOM);
     } else {
@@ -1087,7 +1090,7 @@ OLD_engage_self_destruct(struct char_data *ch)
 	    if (ch == vict)
 		continue;
 
-	    damage(ch, vict, dice(level, 24) + rhit, SKILL_SELF_DESTRUCT,-1);
+	    damage(ch, vict, dice(level, ddice) + rhit, SKILL_SELF_DESTRUCT,-1);
 	    GET_POS(vict) = POS_SITTING;
 	}
     }
@@ -1794,8 +1797,9 @@ ACMD(do_repair)
 		} else {
 			dam = (GET_LEVEL(ch) >> 1) + 
 				((CHECK_SKILL(ch, SKILL_SELFREPAIR) + TOOL_MOD(tool)) >> 2) +
-				number(0, GET_LEVEL(ch)) +
-				dice(GET_REMORT_GEN(ch),10);
+				number(0, GET_LEVEL(ch));
+			if(GET_CLASS(ch) == CLASS_CYBORG)
+				dam += dice(GET_REMORT_GEN(ch),10);
 		}
 		dam = MIN(GET_MAX_HIT(ch) - GET_HIT(ch), dam);
 		cost = dam >> 1;
