@@ -2925,14 +2925,14 @@ mag_assign_spells(void)
            POS_SITTING, TAR_IGNORE, FALSE,
            MAG_PHYSICS | MAG_MANUAL);
     
-    spello(SPELL_FISSION_BLAST, X, 43, X, X, X, X, X, X, X, X, X, X,X,X,X,X,X,
+	 /* Ma Cl Th Wa Bar Sy Ph Cb Kn Rn Hd Mnk Max Min Chn */
+    spello(SPELL_FISSION_BLAST, X, X, X, X, X, X, 43, X, X, X, X, X,X,X,X,X,X,
            150, 70, 10,
            POS_FIGHTING, TAR_IGNORE, TRUE,
            MAG_PHYSICS | MAG_AREAS);
 
 
 
-    /* Ma Cl Th Wa Bar Sy Ph Cb Kn Rn Hd Mnk Max Min Chn */
     spello(ZEN_HEALING,X,X,X, X, X, X, X, X, X, X, X, 36, X,X,X,X,X, 30, 9, 2, 
 	   0, 0, 0, 0);
     spello(ZEN_AWARENESS,X,X,X,X, X, X, X, X, X, X, X, 21,X,X,X,X,X,30, 5, 1, 
