@@ -20,6 +20,8 @@ struct shop_data {
    byte currency;               /* What is legal tender ?               */
    float profit_buy;		/* Factor to multiply cost with		*/
    float profit_sell;		/* Factor to multiply cost with		*/
+   int	revenue;			// How much of thier original cash do they get back
+   							// Each zone reset?
    struct shop_buy_data *type;	/* Which items to trade			*/
    char	*no_such_item1;		/* Message if keeper hasn't got an item	*/
    char	*no_such_item2;		/* Message if player hasn't got an item	*/
@@ -45,6 +47,7 @@ struct shop_data {
 #define MAX_TRADE	5	/* List maximums for compatibility	*/
 #define MAX_PROD	5	/*	with shops before v3.0		*/
 #define VERSION3_TAG	"v3.0"	/* The file has v3.0 shops in it!	*/
+#define SHP_MOD_LEV		"pl"
 #define MAX_SHOP_OBJ	100	/* "Soft" maximum for list maximums	*/
 
 
@@ -160,6 +163,7 @@ struct stack_data {
 #define SHOP_KILL_CHARS(i)	(IS_SET(SHOP_BITVECTOR(i), WILL_START_FIGHT))
 #define SHOP_USES_BANK(i)	(IS_SET(SHOP_BITVECTOR(i), WILL_BANK_MONEY))
 
+#define SHOP_REVENUE(i) ((i)->revenue)
 #define MIN_OUTSIDE_BANK	10000
 #define MAX_OUTSIDE_BANK	35000
 

@@ -1396,6 +1396,8 @@ boot_the_shops(FILE * shop_f, char *filename, int rec_count)
 	    read_line(shop_f, "%d", &SHOP_OPEN2(new_shop), new_shop);
 	    read_line(shop_f, "%d", &SHOP_CLOSE2(new_shop), new_shop);
 	    read_line(shop_f, "%d", &SHOP_CURRENCY(new_shop), new_shop);
+		if (new_format > 1)
+			read_line(shop_f, "%d", &SHOP_REVENUE(new_shop), new_shop);
       
 	    /*      if (new_shop->vnum >= 30000 && new_shop->vnum < 40000)
 		    SHOP_CURRENCY(new_shop)  = CURRENCY_CREDITS; */
@@ -1426,8 +1428,19 @@ boot_the_shops(FILE * shop_f, char *filename, int rec_count)
 	} else {
 	    if (*buf == '$')		/* EOF */
 		done = TRUE;
-	    else if (strstr(buf, VERSION3_TAG))	/* New format marker */
-		new_format = 1;
+	    else if (strstr(buf, VERSION3_TAG)) {	/* New format marker */
+			new_format = 1;
+			char *r = NULL;
+			int patch_level = 0;
+			char temp[100];
+			sprintf(temp,"%s%s",VERSION3_TAG,SHP_MOD_LEV);
+			r = strstr(buf, temp);
+			if(r) {
+				r += strlen(temp);
+				sscanf(r,"%d",&patch_level);
+				new_format += patch_level;
+			}
+		}
 #ifdef DMALLOC
 	    dmalloc_verify(0);
 #endif
@@ -1637,8 +1650,9 @@ list_detailed_shop(struct char_data * ch, struct shop_data *shop)
     sprintbit((long) SHOP_BITVECTOR(shop), shop_bits, buf1);
     sprintf(buf, 
 	    "Bits:       %s\n\r" 
-	    "Temper:     %d\n\r", 
-	    buf1, SHOP_BROKE_TEMPER(shop));
+	    "Temper:     %d\n\r" 
+		"Revenue:    %d\n\r",
+	    buf1, SHOP_BROKE_TEMPER(shop),SHOP_REVENUE(shop));
     send_to_char(buf, ch);
   
     sprintf(buf, 

@@ -64,6 +64,7 @@ const char *olc_sset_keys[] = {
     "open2",
     "close2",
     "currency",
+	"revenue",
     "\n"
 };
 
@@ -120,6 +121,7 @@ struct shop_data *do_create_shop(struct char_data *ch, int vnum)
 
     SHOP_BUYPROFIT(new_shop)  = (float) 2.0;
     SHOP_SELLPROFIT(new_shop) = (float) 1.0;
+	SHOP_REVENUE(new_shop)    = 0;
 
     CREATE(new_shop->type, struct shop_buy_data, 1);
     SHOP_BUYTYPE(new_shop, 0) = (byte) -1;
@@ -784,7 +786,14 @@ void do_shop_sset(struct char_data *ch, char *argument)
 	}
 	send_to_char("Shop currency set.\r\n", ch);
 	break;
-    
+	case 24: // revenue
+		i = atoi(arg2);
+		if(i < 0) {
+			send_to_char("This value cannot be a negative number.\r\n",ch);
+		} else {
+			SHOP_REVENUE(shop_p) = i;
+			send_to_char("Shop revenue set.\r\n",ch);
+		}
     }
 }
 
@@ -898,16 +907,19 @@ save_shops(struct char_data *ch)
     }
 
     sprintf(fname,"world/shp/olc/%d.shp", zone->number);
-    if (!(file = fopen(fname,"w+")))
-	return 1;
-
-    if ((write_shp_index(ch, zone)) != 1)
-	return(1);
+    if (!(file = fopen(fname,"w+"))) {
+		send_to_char("Unable to open shop file.\r\n",ch);
+		return 1;
+	}
+    if ((write_shp_index(ch, zone)) != 1) {
+		send_to_char("write_shop_index() failed.\r\n",ch);
+		return(1);
+	}
   
     low  = zone->number * 100;
     high = zone->top;
 
-    fprintf(file, "CircleMUD v3.0 Shop File~\n");
+    fprintf(file, "CircleMUD v3.0pl1 Shop File~\n");
   
     for (shop = shop_index; shop; shop = shop->next) {
 	if (SHOP_NUM(shop) < low)
@@ -958,6 +970,7 @@ save_shops(struct char_data *ch)
 	fprintf(file, "%d\n", SHOP_OPEN2(shop));
 	fprintf(file, "%d\n", SHOP_CLOSE2(shop));
 	fprintf(file, "%d\n", SHOP_CURRENCY(shop));
+	fprintf(file, "%d\n", SHOP_REVENUE(shop));
     }
   
     fprintf(file,"$~\n");

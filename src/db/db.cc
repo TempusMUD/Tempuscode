@@ -40,6 +40,7 @@
 #include "quest.h"
 #include "char_class.h"
 #include "olc.h"
+#include "shop.h"
 
 /**************************************************************************
 *  declarations of most of the 'global' variables                         *
@@ -2664,6 +2665,50 @@ reset_zone(struct zone_data *zone)
     struct room_data *room;
     struct special_search_data *srch = NULL;
     PHead *p_head = NULL;
+	struct shop_data *shop;
+	struct char_data *keeper = NULL;
+	struct char_data *vkeeper = NULL;
+
+	SPECIAL(shop_keeper);
+	extern struct char_data *character_list;
+	extern struct shop_data *shop_index;
+	// Find all the shops in this zone and reset them.
+	for(keeper = character_list;keeper; keeper = keeper->next) {
+		// Wrong zone
+		if(keeper->in_room->zone != zone)
+			continue;
+		// No special
+		if(!MOB_FLAGGED(keeper,MOB_SPEC))
+			continue;
+		// Wrong special
+		if(GET_MOB_SPEC(keeper) != shop_keeper)
+			continue;
+		// Run through the shop list and find the right one
+		for (shop = shop_index; shop; shop = shop->next) {
+			// Do they have revenue set on the shop?
+			if(SHOP_REVENUE(shop) <= 0 )
+				continue;
+			// Make sure its the right shop keeper.
+			if (GET_MOB_VNUM(keeper) != shop->keeper)
+				continue;
+			// Make sure the shop is in this zone;
+			if (shop->vnum < (zone->number * 100) || shop->vnum > zone->top)
+				continue;
+			// Assume at this point that we've found the proper keeper
+			// and shop pair.
+
+			// if the vnum's gold is less than his current gold
+			// add the revenue up to the vnum's gold.
+			vkeeper = real_mobile_proto(shop->keeper);
+			if(GET_MONEY(keeper,shop) < GET_MONEY(vkeeper,shop))
+				GET_MONEY(keeper,shop) = 
+					MIN(GET_MONEY(vkeeper,shop), GET_MONEY(keeper,shop) + SHOP_REVENUE(shop));
+			break;// should break out of shop for loop.
+		}
+	}
+
+
+
 
     for (zonecmd = zone->cmd; zonecmd && zonecmd->command != 'S'; 
 	 zonecmd = zonecmd->next, cmd_no++) {
