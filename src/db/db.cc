@@ -58,9 +58,6 @@ int top_of_world = 0;                /* ref to top element of world         */
 int top_of_mobt = 0;                /* top of mobile index table         */
 int current_mob_idnum = 0;
 
-struct remort_question_data *remort_quiz[MAX_REMORT_QUESTIONS];
-int top_of_remort_quiz = -1;
-
 struct obj_data *object_list = NULL;        /* global linked list of objs         */
 struct obj_data *obj_proto;        /* prototypes for objs                 */
 struct obj_shared_data *null_obj_shared;
@@ -195,7 +192,6 @@ void reset_time(void);
 void reset_zone_weather(void);
 void set_local_time(struct zone_data *zone,struct time_info_data *local_time);
 void clear_char(struct char_data * ch);
-void boot_remort_quiz(void);
 void update_alias_dirs(void);
 void purge_trails(struct char_data *ch);
 
@@ -262,7 +258,6 @@ ACMD(do_reboot)
         file_to_string_alloc(AREAS_REMORT_FILE, &areas_remort);
         file_to_string_alloc(OLC_GUIDE_FILE, &olc_guide);
         file_to_string_alloc(QUEST_GUIDE_FILE, &quest_guide);
-        boot_remort_quiz();
     } else if (!str_cmp(arg, "wizlist")) {
         file_to_string_alloc(WIZLIST_FILE, &wizlist);
         file_to_string_alloc(ANSI_WIZLIST_FILE, &ansi_wizlist);
@@ -299,8 +294,6 @@ ACMD(do_reboot)
         file_to_string_alloc(OLC_GUIDE_FILE, &olc_guide);
     else if (!str_cmp(arg, "quest_guide"))
         file_to_string_alloc(QUEST_GUIDE_FILE, &quest_guide);
-    else if (!str_cmp(arg, "remort_quiz"))
-        boot_remort_quiz();
     else if (!str_cmp(arg, "paths"))
         Load_paths();
     else if (!str_cmp(arg, "trails"))
@@ -413,15 +406,6 @@ boot_db(void)
     file_to_string_alloc(QUEST_GUIDE_FILE, &quest_guide);
 
     boot_dynamic_text();
-
-    boot_remort_quiz();
-/*
-    slog("Opening help file.");
-    if (!(help_fl = fopen(HELP_KWRD_FILE, "r")))
-        slog("   Could not open help file.");
-    else
-        help_index = build_help_index(help_fl, &top_of_helpt);
-*/
     boot_world();
 
     reset_zone_weather();
@@ -4191,7 +4175,7 @@ real_object_proto(int vnum)
         }
     return (NULL);
 }
-
+/*
 void 
 boot_remort_quiz()
 {
@@ -4257,7 +4241,7 @@ boot_remort_quiz()
 
     fclose(file);
 }
-
+*/
 #include <dirent.h>
 void update_alias_dirs(void)
 {
