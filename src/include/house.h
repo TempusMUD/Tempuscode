@@ -7,7 +7,7 @@
 static inline char* 
 get_house_file_path( int id )
 {
-	return tmp_sprintf( "housing/%d/%04d.dat", (id % 10), id );
+	return tmp_sprintf( "players/housing/%d/%04d.dat", (id % 10), id );
 }
 
 // Modes used for match_houses
