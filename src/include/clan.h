@@ -71,17 +71,5 @@ struct clan_data {
 	struct clan_data *next;
 };
 
-struct clan_file_elem_hdr {
-	int number;
-	int bank_account;
-	char name[MAX_CLAN_NAME];
-	char badge[MAX_CLAN_BADGE];
-	char ranknames[NUM_CLAN_RANKS][MAX_CLAN_RANKNAME];
-	ubyte top_rank;
-	ubyte num_members;
-	ubyte num_rooms;
-	long owner;
-	int flags;
-	char cSpares[20];
-};
+extern struct clan_data *clan_list;
 #endif
