@@ -921,7 +921,7 @@ dam_message(int dam, struct Creature *ch, struct Creature *victim,
 	act(buf, FALSE, ch, weap, victim, TO_NOTVICT);
 	/* damage message to damager */
 	if ((msgnum || !PRF_FLAGGED(ch, PRF_GAGMISS)) && ch->desc) {
-        if (location < 0) // Mana shield hit
+        if (location == WEAR_MSHIELD) // Mana shield hit
             buf = replace_string(dam_mana_shield[msgnum].to_char,
                                  attack_hit_text[w_type].singular,
                                  attack_hit_text[w_type].plural, NULL);
@@ -944,7 +944,7 @@ dam_message(int dam, struct Creature *ch, struct Creature *victim,
 			buf = replace_string(dam_weapons[msgnum].to_char,
 				attack_hit_text[w_type].singular,
 				attack_hit_text[w_type].plural, NULL);
-        if (location < 0)
+        if (location == WEAR_MSHIELD)
             send_to_char(ch, CCMAG(ch, C_NRM));
         else
 		    send_to_char(ch, CCYEL(ch, C_NRM));
@@ -953,7 +953,7 @@ dam_message(int dam, struct Creature *ch, struct Creature *victim,
 	}
 	/* damage message to damagee */
 	if ((msgnum || !PRF_FLAGGED(victim, PRF_GAGMISS)) && victim->desc) {
-        if (location < 0) // Mana shield hit
+        if (location == WEAR_MSHIELD) // Mana shield hit
             buf = replace_string(dam_mana_shield[msgnum].to_victim,
                                  attack_hit_text[w_type].singular,
                                  attack_hit_text[w_type].plural, NULL);
@@ -977,7 +977,7 @@ dam_message(int dam, struct Creature *ch, struct Creature *victim,
 			buf = replace_string(dam_weapons[msgnum].to_victim,
 				attack_hit_text[w_type].singular,
 				attack_hit_text[w_type].plural, NULL);
-        if (location < 0)
+        if (location == WEAR_MSHIELD)
             send_to_char(victim, CCCYN(victim, C_NRM));
         else
 		    send_to_char(victim, CCRED(victim, C_NRM));
