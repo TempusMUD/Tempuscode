@@ -1592,8 +1592,9 @@ ACMD(do_stun)
 
 	if (!ok_damage_vendor(ch, vict) && GET_LEVEL(ch) < LVL_ELEMENT) {
 		act("$N stuns you with a swift blow!", FALSE, ch, 0, vict, TO_CHAR);
+		act("You stun $n with a swift blow!", FALSE, ch, 0, vict, TO_VICT);
 		act("$N stuns $n with a swift blow to the neck!",
-			FALSE, ch, 0, vict, TO_ROOM);
+			FALSE, ch, 0, vict, TO_NOTVICT);
 		WAIT_STATE(ch, PULSE_VIOLENCE * 3);
 		ch->setPosition(POS_STUNNED);
 		return;
