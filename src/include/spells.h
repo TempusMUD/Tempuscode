@@ -510,7 +510,7 @@ extern const char *spells[];
 
 // Overflow Cyborg
 #define SKILL_ARTERIAL_FLOW			676 // Arterial Flow Enhancement
-#define SKILL_OPTIMMUNAL_NODE		677 // Genetek Optimmunal Nodes
+#define SKILL_OPTIMMUNAL_RESP		677 // Genetek Optimmunal Nodes
 #define SKILL_ADRENAL_MAXIMIZER		678 // Shukutei Adrenal Maximizer
 
 #define SKILL_ENERGY_CONVERSION     679 // physic's energy conversion
