@@ -1416,6 +1416,9 @@ die( struct char_data *ch, struct char_data *killer,
 				else if(IS_GOOD(ch))
 				send_to_char("The righteous rejoice as your soul departs the mortal realms... forever.\r\n",ch);
 				SET_BIT(PLR2_FLAGS(ch), PLR2_BURIED);
+				sprintf(buf,"%s died with no maxhit and no life points. Burying.",GET_NAME(ch));
+				mudlog(buf, NRM, LVL_GOD, TRUE);
+
 			} else if ( GET_LIFE_POINTS( ch ) > 0 ) {
 				GET_LIFE_POINTS( ch ) = 
 					MAX( 0, GET_LIFE_POINTS( ch ) - number( 1, ( GET_LEVEL( ch ) >> 3 ) ) );
