@@ -152,9 +152,10 @@ burn_update(void)
 			act("$n is slammed to the ground by the inexhorable force of gravity!\r\n", TRUE, ch, 0, 0, TO_ROOM);
 			ch->setPosition(POS_RESTING);
 			WAIT_STATE(ch, 1);
-            damager = NULL;
             if ((af = affected_by_spell(ch, AFF3_GRAVITY_WELL)))
                 damager = get_char_in_world_by_idnum(af->owner);
+            if (!damager)
+                damager = ch;
 			if (damage(damager, ch, dice(6, 5), TYPE_FALLING, WEAR_RANDOM))
 				continue;
 		}
@@ -352,9 +353,10 @@ burn_update(void)
 		}
 		// character is poisoned (3)
 		if (HAS_POISON_3(ch) && GET_LEVEL(ch) < LVL_AMBASSADOR) {
-            damager = NULL;
             if ((af = affected_by_spell(ch, SPELL_POISON)))
                 damager = get_char_in_world_by_idnum(af->owner);
+            if (!damager)
+                damager = ch;
 			if (damage(damager, ch, dice(4, 3) + (affected_by_spell(ch,
 							SPELL_METABOLISM) ? dice(4, 11) : 0), SPELL_POISON,
 					-1))
@@ -364,9 +366,10 @@ burn_update(void)
 		if (IS_AFFECTED_3(ch, AFF3_GRAVITY_WELL)
 			&& !random_fractional_10()
 			&& !NOGRAV_ZONE(ch->in_room->zone)) {
-            damager = NULL;
             if ((af = affected_by_spell(ch, SPELL_GRAVITY_WELL)))
                 damager = get_char_in_world_by_idnum(af->owner);
+            if (!damager)
+                damager = ch;
 			if (mag_savingthrow(ch, af->level, SAVING_PHY))
 				continue;
 			if (damage(damager, ch, number(5, af->level / 5), TYPE_PRESSURE, -1))
@@ -374,9 +377,10 @@ burn_update(void)
 		}
 		// psychic crush
 		if (AFF3_FLAGGED(ch, AFF3_PSYCHIC_CRUSH)) {
-            damager = NULL;
             if ((af = affected_by_spell(ch, SPELL_PSYCHIC_CRUSH)))
                 damager = get_char_in_world_by_idnum(af->owner);
+            if (!damager)
+                damager = ch;
 			if (damage(damager, ch, mag_savingthrow(ch, 50,
 						SAVING_PSI) ? 0 : dice(4, 20), SPELL_PSYCHIC_CRUSH,
 					WEAR_HEAD))
@@ -384,9 +388,10 @@ burn_update(void)
 		}
 		// character has a stigmata
 		if ((af = affected_by_spell(ch, SPELL_STIGMATA))) {
-            damager = NULL;
             if ((af = affected_by_spell(ch, SPELL_STIGMATA)))
                 damager = get_char_in_world_by_idnum(af->owner);
+            if (!damager)
+                damager = ch;
 			if (damage(damager, ch, mag_savingthrow(ch, af->level,
 						SAVING_SPELL) ? 0 : dice(3, af->level), SPELL_STIGMATA,
 					WEAR_FACE))
@@ -397,9 +402,10 @@ burn_update(void)
 		if ((af = affected_by_spell(ch, SPELL_ENTROPY_FIELD))
 				&& !random_fractional_10()
 				&& !mag_savingthrow(ch, af->level, SAVING_PHY)) {
-            damager = NULL;
             if ((af = affected_by_spell(ch, SPELL_ENTROPY_FIELD)))
                 damager = get_char_in_world_by_idnum(af->owner);
+            if (!damager)
+                damager = ch;
 			GET_MANA(ch) = MAX(0, GET_MANA(ch) - 
 							   (13 - random_number_zero_low(GET_WIS(ch) >> 2)));
 			GET_MOVE(ch) = MAX(0, GET_MOVE(ch) - 
@@ -412,9 +418,10 @@ burn_update(void)
 
 		// character has acidity
 		if (AFF3_FLAGGED(ch, AFF3_ACIDITY)) {
-            damager = NULL;
             if ((af = affected_by_spell(ch, SPELL_ACIDITY)))
                 damager = get_char_in_world_by_idnum(af->owner);
+            if (!damager)
+                damager = ch;
 			if (damage(damager, ch, mag_savingthrow(ch, 50,
 						SAVING_PHY) ? 0 : dice(2, 10), TYPE_ACID_BURN, -1))
 				continue;
@@ -490,9 +497,10 @@ burn_update(void)
 			} 
             
             else if (!random_fractional_3() && !CHAR_WITHSTANDS_FIRE(ch)) {
-                damager = NULL;
                 if ((af = affected_by_spell(ch, AFF2_ABLAZE)))
                     damager = get_char_in_world_by_idnum(af->owner);
+                if (!damager)
+                    damager = ch;
 				if (damage(damager, ch,
 						CHAR_WITHSTANDS_FIRE(ch) ? 0 :
 						ROOM_FLAGGED(ch->in_room, ROOM_FLAME_FILLED) ? dice(8,
