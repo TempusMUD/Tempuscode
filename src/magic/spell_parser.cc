@@ -2508,7 +2508,7 @@ mag_assign_spells(void)
     spello(SPELL_CONE_COLD, 36, X, X, X, X, X, X, X, X, X, X, X, X,  X,X,X,X,
            140, 55, 4,
            POS_FIGHTING, TAR_CHAR_ROOM | TAR_FIGHT_VICT, TRUE, 
-           MAG_DIVINE | MAG_DAMAGE);
+           MAG_DIVINE | MAG_MAGIC | MAG_DAMAGE | MAG_AFFECTS );
 
     spello(SPELL_CONJURE_ELEMENTAL, 20, X, X, X, X, X, X, X, X,X,X,X,X,X,X,X,X,
            175,90,4,

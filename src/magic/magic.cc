@@ -913,6 +913,7 @@ mag_affects(int level, struct char_data * ch, struct char_data * victim,
     switch (spellnum) {
 
     case SPELL_CHILL_TOUCH:
+	case SPELL_CONE_COLD:
     af.location = APPLY_STR;
     if (mag_savingthrow(victim, level, savetype))
         af.duration = 1;
