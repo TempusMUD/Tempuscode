@@ -37,6 +37,7 @@
 #include "house.h"
 #include "fight.h"
 #include "tmpstr.h"
+#include "accstr.h"
 #include "tokenizer.h"
 #include "player_table.h"
 #include "events.h"
@@ -177,11 +178,9 @@ const char *prac_types[] = {
 void
 list_skills(struct Creature *ch, int mode, int type)
 {
-	char buf3[MAX_STRING_LENGTH], buf4[8];
 	int i, sortpos;
 
-	buf[0] = '\0';
-
+	acc_string_clear();
 	if ((type == 1 || type == 3) &&
 		((prac_params[PRAC_TYPE][(int)GET_CLASS(ch)] != 1 &&
 				prac_params[PRAC_TYPE][(int)GET_CLASS(ch)] != 4) ||
@@ -189,73 +188,71 @@ list_skills(struct Creature *ch, int mode, int type)
 				(prac_params[PRAC_TYPE][(int)GET_REMORT_CLASS(ch)] != 1 &&
 					prac_params[PRAC_TYPE][(int)GET_REMORT_CLASS(ch)] !=
 					1)))) {
-		sprintf(buf, "%s%s%sYou know %sthe following %ss:%s\r\n", buf,
+		acc_sprintf("%s%sYou know %sthe following %ss:%s\r\n",
 			CCYEL(ch, C_CMP), CCBLD(ch, C_SPR), mode ? "of " : "", SPLSKL(ch),
 			CCNRM(ch, C_SPR));
-		strcpy(buf2, buf);
 
 		for (sortpos = 1; sortpos < MAX_SPELLS; sortpos++) {
 			i = spell_sort_info[sortpos];
-			if (strlen(buf2) >= MAX_STRING_LENGTH - 32) {
-				strcat(buf2, "**OVERFLOW**\r\n");
-				break;
-			}
-			sprintf(buf3, "%s[%3d]", CCYEL(ch, C_NRM), CHECK_SKILL(ch, i));
-			sprintf(buf4, "%3d. ", i);
 			if ((CHECK_SKILL(ch, i) || ABLE_TO_LEARN(ch, i)) &&
 				SPELL_LEVEL(i, 0) <= LVL_GRIMP) {
 				if (!mode && !CHECK_SKILL(ch, i))	// !mode => list only learned
 					continue;
-				sprintf(buf, "%s%s%-30s %s%-17s%s %s(%3d mana)%s\r\n",
-					CCGRN(ch, C_NRM),
-					GET_LEVEL(ch) >= LVL_AMBASSADOR ? buf4 : "", spell_to_str(i),
-					CCBLD(ch, C_SPR), how_good(CHECK_SKILL(ch, i)),
-					GET_LEVEL(ch) > LVL_ETERNAL ? buf3 : "", CCRED(ch, C_SPR),
-					mag_manacost(ch, i), CCNRM(ch, C_SPR));
-				strcat(buf2, buf);
+				if (IS_IMMORT(ch))
+					acc_sprintf("%s%s%-30s %s%-17s%s %s(%3d mana)%s\r\n",
+						CCGRN(ch, C_NRM),
+						tmp_sprintf("%3d. ", i), spell_to_str(i),
+						CCBLD(ch, C_SPR), how_good(CHECK_SKILL(ch, i)),
+						tmp_sprintf("%s[%3d]", CCYEL(ch, C_NRM), CHECK_SKILL(ch, i)),
+						CCRED(ch, C_SPR), mag_manacost(ch, i), CCNRM(ch, C_SPR));
+				else
+					acc_sprintf("%s%-30s %s%-17s %s(%3d mana)%s\r\n",
+						CCGRN(ch, C_NRM), spell_to_str(i),
+						CCBLD(ch, C_SPR), how_good(CHECK_SKILL(ch, i)),
+						CCRED(ch, C_SPR), mag_manacost(ch, i),
+						CCNRM(ch, C_SPR));
 			}
 		}
 
 		if (type != 2 && type != 3) {
-			page_string(ch->desc, buf2);
+			page_string(ch->desc, acc_get_string());
 			return;
 		}
 
-		sprintf(buf3, "\r\n%s%sYou know %sthe following %s:%s\r\n",
+		acc_sprintf("\r\n%s%sYou know %sthe following %s:%s\r\n",
 			CCYEL(ch, C_CMP), CCBLD(ch, C_SPR),
 			mode ? "of " : "", IS_CYBORG(ch) ? "programs" :
 			"skills", CCNRM(ch, C_SPR));
-		strcat(buf2, buf3);
 	} else {
-		sprintf(buf, "%s%s%sYou know %sthe following %s:%s\r\n",
-			buf, CCYEL(ch, C_CMP), CCBLD(ch, C_SPR),
+		acc_sprintf("%s%sYou know %sthe following %s:%s\r\n",
+			CCYEL(ch, C_CMP), CCBLD(ch, C_SPR),
 			mode ? "of " : "", IS_CYBORG(ch) ? "programs"
 			: "skills", CCNRM(ch, C_SPR));
-		strcpy(buf2, buf);
 	}
 
 	for (sortpos = 1; sortpos < MAX_SKILLS - MAX_SPELLS; sortpos++) {
 		i = skill_sort_info[sortpos];
-		if (strlen(buf2) >= MAX_STRING_LENGTH - 32) {
-			strcat(buf2, "**OVERFLOW**\r\n");
-			break;
-		}
-		sprintf(buf3, "%s[%3d]%s", CCYEL(ch, C_NRM), CHECK_SKILL(ch, i),
-			CCNRM(ch, NRM));
-		sprintf(buf4, "%3d. ", i);
 		if ((CHECK_SKILL(ch, i) || ABLE_TO_LEARN(ch, i)) &&
 			SPELL_LEVEL(i, 0) <= LVL_GRIMP) {
 			if (!mode && !CHECK_SKILL(ch, i))	// !mode => list only learned
 				continue;
 
-			sprintf(buf, "%s%s%-30s %s%-17s%s%s\r\n",
-				CCGRN(ch, C_NRM), GET_LEVEL(ch) >= LVL_AMBASSADOR ? buf4 : "",
-				spell_to_str(i), CCBLD(ch, C_SPR), how_good(GET_SKILL(ch, i)),
-				GET_LEVEL(ch) > LVL_ETERNAL ? buf3 : "", CCNRM(ch, C_SPR));
-			strcat(buf2, buf);
+			if (IS_IMMORT(ch)) {
+				acc_sprintf(buf, "%s%s%-30s %s%-17s%s%s\r\n",
+					CCGRN(ch, C_NRM), tmp_sprintf("%3d. ", i),
+					spell_to_str(i), CCBLD(ch, C_SPR),
+					how_good(GET_SKILL(ch, i)),
+					tmp_sprintf("%s[%3d]%s", CCYEL(ch, C_NRM),
+						CHECK_SKILL(ch, i), CCNRM(ch, C_NRM)),
+					CCNRM(ch, C_SPR));
+			} else {
+				acc_sprintf("%s%-30s %s%s%s\r\n",
+					CCGRN(ch, C_NRM), spell_to_str(i), CCBLD(ch, C_SPR),
+					how_good(GET_SKILL(ch, i)), CCNRM(ch, C_SPR));
+			}
 		}
 	}
-	page_string(ch->desc, buf2);
+	page_string(ch->desc, acc_get_string());
 }
 
 SPECIAL(guild)
