@@ -124,7 +124,7 @@ static inline char*
 xmlEncodeSpecialTmp( const char* text ) 
 {
 	char *encoded = (char*)xmlEncodeSpecialChars(NULL, (const xmlChar*)text);
-	char *tmp_encoded = tmp_strdup(encoded);
+	char *tmp_encoded = tmp_gsub("\"", encoded, "&quot;");
 	free(encoded);
 	return tmp_encoded;
 }
