@@ -3,6 +3,7 @@
 #include <stdarg.h>
 #include <stdio.h>
 #include <ctype.h>
+#include <string.h>
 #include "interpreter.h"
 
 struct tmp_str_buffer {
