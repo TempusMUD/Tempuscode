@@ -1487,6 +1487,13 @@ do_stat_object(struct Creature *ch, struct obj_data *j)
             playerIndex.getName(GET_OBJ_SIGIL_IDNUM(j)), GET_OBJ_SIGIL_IDNUM(j),
             GET_OBJ_SIGIL_LEVEL(j));
     }
+
+	if( j->shared->proto == j
+			&& GET_OBJ_PARAM(j)
+			&& strlen( GET_OBJ_PARAM(j)) > 0 ) {
+		send_to_char(ch, "Spec_param: \r\n%s\r\n",
+			GET_OBJ_PARAM(j));
+	}
 }
 
 
