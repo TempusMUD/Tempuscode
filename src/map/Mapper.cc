@@ -475,7 +475,7 @@ recurse:
                                 recurse
                         else
                                 add corner
-                                add edge to corner
+                                add edge from this room to corner
                                 add edge from corner to other room
                                 recurse
                         fi

@@ -498,9 +498,6 @@ damage_eq( struct char_data *ch, struct obj_data *obj, int eq_dam, int type = -1
 
             damage_eq( NULL, inobj, ( eq_dam >> 1 ), type);
         }
-#ifdef DMALLOC
-        dmalloc_verify( 0 );
-#endif      
     if (  type == SPELL_OXIDIZE && IS_FERROUS(obj)) {
             strcpy( buf2, "$p dissolves into a pile of rust!!" );
             strcpy( buf, "a pile of rust");
@@ -563,11 +560,17 @@ damage_eq( struct char_data *ch, struct obj_data *obj, int eq_dam, int type = -1
                 GET_OBJ_VAL( new_obj, 2 ) = GET_OBJ_VAL( obj, 2 );
                 GET_OBJ_VAL( new_obj, 3 ) = GET_OBJ_VAL( obj, 3 );
                 GET_OBJ_TIMER( new_obj )  = GET_OBJ_TIMER( obj );
+                /* TODO: Make this work
+                if ( GET_OBJ_VAL( obj, 3 ) && CORPSE_IDNUM( obj ) > 0 &&
+                    CORPSE_IDNUM( obj ) <= top_of_p_table ){
+                    sprintf(buf, "%s destroyed by %s.", 
+                    obj->short_description, GET_NAME( ch ));
+                    mudlog(buf, CMP, LVL_DEMI, TRUE);
+                }
+                */
             }
         }
-#ifdef DMALLOC
-        dmalloc_verify( 0 );
-#endif
+
         if ( IS_OBJ_STAT2( obj, ITEM2_IMPLANT ) )
             SET_BIT( GET_OBJ_EXTRA2( new_obj ), ITEM2_IMPLANT );
 
