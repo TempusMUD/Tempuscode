@@ -27,7 +27,6 @@ using namespace std;
 static char editbuf[MAX_STRING_LENGTH * 2];
 extern struct descriptor_data *descriptor_list;
 
-// Muha. Call it Tine
 
 /* Sets up text editor params and echo's passed in message.
 */
@@ -315,12 +314,17 @@ bool CTextEditor::ReplaceLine(unsigned int line, char *inStr) {
     return true;
 }
 bool CTextEditor::FindReplace(char *args) {
-    // MAKE SURE YOU CHECK maxSize before inserting!
+	// Iterator to the current line in theText
 	list<string>::iterator line;
+	// The string containing the search pattern
 	string findit;
+	// String containing the replace pattern
 	string replaceit;
+	// Number of replacements made
     int replaced = 0;
+	// Temporary string.
 	char temp[MAX_INPUT_LENGTH];
+	// read pointer and write pointer.
 	char *r,*w;
 
 	for(r = args;*r == ' ';r++);
@@ -375,8 +379,8 @@ bool CTextEditor::FindReplace(char *args) {
 	replaceit = temp;
 	
 	// Find "findit" in theText a line at a time and replace each instance.
-    unsigned int pos;
-    bool overflow=false;
+    unsigned int pos;// Current position in the line
+    bool overflow=false;// Have we overflowed the buffer?
 	for(line = theText.begin();!overflow && line != theText.end();line++) {
         pos=0;
 		while(pos < line->length()) {
@@ -419,17 +423,17 @@ bool CTextEditor::Wrap( void ) {
     for(line = theText.begin();line != theText.end();line++) {
         linebreak = 76;
         tempstr = "";
-        // If its less than 80 chars, it dont need ta be wrapped.
+        // If its less than 77 chars, it dont need ta be wrapped.
         if(line->length() <= 76)
             continue;
 
         s = line->begin();
 
-        // Find the first space <= 80th char.
+        // Find the first space <= 76th char.
         for(s += 75;s != line->begin() && *s != ' ';s--)
             linebreak--;
 
-        if(linebreak == 1) { // Linebreak is at 80
+        if(linebreak == 1) { // Linebreak is at 76
             s = line->begin();
             s += 75;
         }
