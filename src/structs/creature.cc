@@ -603,10 +603,9 @@ Creature::extract(cxn_state con_state)
 
 
 	// remove fighters, defenders, hunters and mounters
-
     for (cit = defendingList.begin(); cit != defendingList.end(); ++cit) {
-        if (this == (*cit)->isDefending())
-            (*cit)->stopDefending();
+	  if (this == (*cit)->isDefending())
+		(*cit)->stopDefending();
     }
 
     for (cit = mountedList.begin(); cit != mountedList.end(); ++cit) {
@@ -1358,38 +1357,39 @@ Creature::addCombat(Creature *ch, bool initiated)
             (*cit)->getPosition() > POS_RESTING) {
             
             defender = *cit;
-            if (defender) {
-                if (findCombat(defender))
-                    return;
-                
-                send_to_char(defender, "You defend %s from %s's vicious attack!\r\n",
-                PERS(ch, defender), PERS(this, defender));
-                send_to_char(ch, "%s defends you from %s's vicious attack!\r\n",
-                PERS(defender, ch), PERS(this, ch));
-                act("$n comes to $N's defense!", false,
-                defender, 0, ch, TO_NOTVICT);
-                
-                if (defender->isDefending() == this)
-                    defender->stopDefending();
-                
-                // If we're already in combat with the victim, move him
-                // to the front of the list
-                CombatDataList::iterator li = getCombatList()->begin();
-                for (; li != getCombatList()->end(); ++li) {
-                    if (li->getOpponent() == ch) {
-                        bool ini = li->getInitiated();
-                        getCombatList()->remove(li);
-                        getCombatList()->add_front(CharCombat(defender, ini)); 
-                        return;
-                    }
-                }
-                
-                getCombatList()->add_back(CharCombat(defender, initiated));
-                
-                update_pos(this);
-                trigger_prog_fight(this, defender);
-                
-            }
+			if (findCombat(defender))
+				return;
+			
+			send_to_char(defender, "You defend %s from %s's vicious attack!\r\n",
+				PERS(ch, defender), PERS(this, defender));
+			send_to_char(ch, "%s defends you from %s's vicious attack!\r\n",
+				PERS(defender, ch), PERS(this, ch));
+			act("$n comes to $N's defense!", false, defender, 0,
+				ch, TO_NOTVICT);
+			
+			if (defender->isDefending() == this)
+				defender->stopDefending();
+			
+			// If we're already in combat with the victim, move him
+			// to the front of the list
+			CombatDataList::iterator li = getCombatList()->begin();
+			for (; li != getCombatList()->end(); ++li) {
+				if (li->getOpponent() == ch) {
+					bool ini = li->getInitiated();
+					getCombatList()->remove(li);
+					getCombatList()->add_front(CharCombat(defender, ini)); 
+					return;
+				}
+			}
+			
+			getCombatList()->add_back(CharCombat(defender, initiated));
+			
+			update_pos(this);
+			trigger_prog_fight(this, defender);
+
+			// only one defender at a time should defend the player,
+			// to protect against numerous mobs
+			break;
         }
     }
     
