@@ -1,3 +1,5 @@
+#ifndef _TOKENIZER_H
+#define _TOKENIZER_H
 /*
  *  A simple safe rip-off of java.util.StringTokenizer
  */
@@ -115,3 +117,5 @@ class Tokenizer {
         int length;
         char delim;
 };
+
+#endif

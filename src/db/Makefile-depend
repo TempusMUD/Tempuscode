@@ -1,5 +1,5 @@
 $(OBJ)/analysis.o : analysis.cc \
-	$(INCLUDE)/structs.h $(INCLUDE)/utils.h $(INCLUDE)/character_list.h $(INCLUDE)/comm.h $(INCLUDE)/interpreter.h $(INCLUDE)/handler.h $(INCLUDE)/db.h $(INCLUDE)/spells.h $(INCLUDE)/house.h $(INCLUDE)/screen.h $(INCLUDE)/char_class.h $(INCLUDE)/vehicle.h $(INCLUDE)/security.h $(INCLUDE)/olc.h $(INCLUDE)/materials.h $(INCLUDE)/clan.h $(INCLUDE)/specs.h $(INCLUDE)/flow_room.h $(INCLUDE)/smokes.h $(INCLUDE)/paths.h $(INCLUDE)/login.h $(INCLUDE)/bomb.h $(INCLUDE)/guns.h $(INCLUDE)/elevators.h $(INCLUDE)/fight.h $(INCLUDE)/defs.h $(INCLUDE)/tokenizer.h 
+	$(INCLUDE)/structs.h $(INCLUDE)/utils.h $(INCLUDE)/comm.h $(INCLUDE)/interpreter.h $(INCLUDE)/screen.h $(INCLUDE)/tokenizer.h $(INCLUDE)/obj_matcher.h $(INCLUDE)/tmpstr.h 
 	$(CXX) -c $(CXXFLAGS) analysis.cc          -o $(OBJ)/analysis.o
 $(OBJ)/constants.o : constants.cc \
 	$(INCLUDE)/structs.h $(INCLUDE)/spells.h 
@@ -7,10 +7,13 @@ $(OBJ)/constants.o : constants.cc \
 $(OBJ)/db.o : db.cc \
 	$(INCLUDE)/structs.h $(INCLUDE)/utils.h $(INCLUDE)/db.h $(INCLUDE)/comm.h $(INCLUDE)/handler.h $(INCLUDE)/spells.h $(INCLUDE)/mail.h $(INCLUDE)/interpreter.h $(INCLUDE)/house.h $(INCLUDE)/screen.h $(INCLUDE)/flow_room.h $(INCLUDE)/clan.h $(INCLUDE)/paths.h $(INCLUDE)/quest.h $(INCLUDE)/char_class.h $(INCLUDE)/security.h $(INCLUDE)/olc.h $(INCLUDE)/shop.h $(INCLUDE)/help.h $(INCLUDE)/combat.h $(INCLUDE)/iscript.h 
 	$(CXX) -c $(CXXFLAGS) db.cc                -o $(OBJ)/db.o
+$(OBJ)/obj_matcher.o : obj_matcher.cc \
+	$(INCLUDE)/structs.h $(INCLUDE)/specs.h $(INCLUDE)/comm.h $(INCLUDE)/materials.h $(INCLUDE)/obj_matcher.h $(INCLUDE)/interpreter.h 
+	$(CXX) -c $(CXXFLAGS) obj_matcher.cc       -o $(OBJ)/obj_matcher.o
 $(OBJ)/objsave.o : objsave.cc \
 	$(INCLUDE)/structs.h $(INCLUDE)/comm.h $(INCLUDE)/handler.h $(INCLUDE)/db.h $(INCLUDE)/interpreter.h $(INCLUDE)/utils.h $(INCLUDE)/spells.h $(INCLUDE)/screen.h $(INCLUDE)/vehicle.h $(INCLUDE)/house.h $(INCLUDE)/bomb.h 
 	$(CXX) -c $(CXXFLAGS) objsave.cc           -o $(OBJ)/objsave.o
 $(OBJ)/xml.o : xml.cc \
 	$(INCLUDE)/utils.h $(INCLUDE)/xml_utils.h $(INCLUDE)/db.h 
 	$(CXX) -c $(CXXFLAGS) xml.cc               -o $(OBJ)/xml.o
-OBJFILES= $(OBJ)/analysis.o $(OBJ)/constants.o $(OBJ)/db.o $(OBJ)/objsave.o $(OBJ)/xml.o
+OBJFILES= $(OBJ)/analysis.o $(OBJ)/constants.o $(OBJ)/db.o $(OBJ)/obj_matcher.o $(OBJ)/objsave.o $(OBJ)/xml.o
