@@ -718,11 +718,15 @@ nanny(struct descriptor_data * d, char *arg)
 				if (GET_CLASS(d->character) == CLASS_VAMPIRE)
 					GET_CLASS(d->character) = GET_OLD_CLASS(d->character);
 				mudlog(LVL_IMMORT, BRF, true,
-					"%s has remorted to gen %d as a %s/%s",
-					GET_NAME(d->character), GET_REMORT_GEN(d->character),
-					pc_char_class_types[(int)GET_CLASS(d->character)],
-					pc_char_class_types[(int)GET_REMORT_CLASS(d->character)]);
-				set_desc_state( CON_MENU,d );
+					   "%s has remorted to gen %d as a %s/%s",
+					   GET_NAME(d->character), GET_REMORT_GEN(d->character),
+					   pc_char_class_types[(int)GET_CLASS(d->character)],
+					   pc_char_class_types[(int)GET_REMORT_CLASS(d->character)]);
+                    if (USE_XML_FILES)
+                        d->character->saveToXML();
+                    else
+					    save_char(d->character, real_room(GET_LOADROOM(d->character)));
+				    set_desc_state( CON_MENU,d );
 			}
 			break;
 		case CON_QALIGN:
