@@ -388,6 +388,9 @@ calc_skill_prob(struct Creature *ch, struct Creature *vict, int skillnum,
 		*dam = dice(5, (GET_LEVEL(ch) >> 2));
 		ADD_EQ_DAM(ch, WEAR_FEET);
 		*wait = 5 RL_SEC;
+		*fail_pos = POS_SITTING;
+		*vict_pos = POS_SITTING;
+		*vict_wait = 2 RL_SEC;
 		break;
 
 	case SKILL_GROINKICK:
