@@ -873,14 +873,15 @@ mag_damage(int level, struct Creature *ch, struct Creature *victim,
 			dam += (dam * (GET_WIS(ch) - 10)) / 45;	// 1.25 dam at full wis
         } else if (SPELL_IS_BARD(spellnum) && is_bard) {
 			dam += (dam * (GET_CHA(ch) - 10)) / 45; // 1.25 dam at full cha
+            //fortissimo makes bard songs more powerful
+            affected_type *af = NULL;
+            if ((af = affected_by_spell(ch, SONG_FORTISSIMO))) {
+                dam += (dam * af->level)/100; //up to 1.79 dam at gen 10/49
+            }
 		}
 	}
 	
-	//fortissimo makes bard songs more powerful
-	affected_type *af = NULL;
-	if ((af = affected_by_spell(ch, SONG_FORTISSIMO))) {
-		dam += (dam * af->level)/100; //up to 1.79 dam at gen 10/49
-	}
+	
 	
 	//
 	// divine attacks get modified
