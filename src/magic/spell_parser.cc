@@ -1680,12 +1680,12 @@ cast_spell(struct Creature *ch, struct Creature *tch,
 		if (number(1, attribute) < number(mana / 2, mana)) {
 			weenie = true;
 		}
-		if (PRF2_FLAGGED(ch, PRF2_DEBUG))
+		if (ch && PRF2_FLAGGED(ch, PRF2_DEBUG))
 			send_to_char(ch,
 				"%s[TAINT] %s attribute:%d   weenie:%s   mana:%d   damage:%d%s\r\n",
 				CCCYN(ch, C_NRM), GET_NAME(ch), attribute,
 				weenie ? "t" : "f", mana, dam, CCNRM(ch, C_NRM));
-		if (PRF2_FLAGGED(tch, PRF2_DEBUG))
+		if (tch && PRF2_FLAGGED(tch, PRF2_DEBUG))
 			send_to_char(tch,
 				"%s[TAINT] %s attribute:%d   weenie:%s   mana:%d   damage:%d%s\r\n",
 				CCCYN(tch, C_NRM), GET_NAME(ch), attribute,
