@@ -658,6 +658,7 @@ extern const char *spells[];
 #define TAR_OBJ_WORLD   512
 #define TAR_OBJ_EQUIP  1024
 #define TAR_DOOR       2048
+#define TAR_UNPLEASANT 4096
 
 struct spell_info_type {
   char min_position;	/* Position for caster	 */

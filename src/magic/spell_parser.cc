@@ -1541,78 +1541,81 @@ find_spell_targets(struct char_data *ch, char *argument,struct char_data **tch,
     }
     /* Find the target */
     if (t != NULL) {
-	one_argument(strcpy(arg, t), t);
-	skip_spaces(&t);
+        one_argument(strcpy(arg, t), t);
+        skip_spaces(&t);
     }
     if (IS_SET(SINFO.targets, TAR_IGNORE)) {
-	*target = TRUE;
+        *target = TRUE;
     } else if (t != NULL && *t) {
-	if (!*target && (IS_SET(SINFO.targets, TAR_CHAR_ROOM))) {
-	    if ((*tch = get_char_room_vis(ch, t)) != NULL)
-		*target = TRUE;
-	}
-	if (!*target && IS_SET(SINFO.targets, TAR_CHAR_WORLD))
-	    if ((*tch = get_char_vis(ch, t)))
-		*target = TRUE;
+        if (!*target && (IS_SET(SINFO.targets, TAR_CHAR_ROOM))) {
+            if ((*tch = get_char_room_vis(ch, t)) != NULL)
+            *target = TRUE;
+        }
+        if (!*target && IS_SET(SINFO.targets, TAR_CHAR_WORLD))
+            if ((*tch = get_char_vis(ch, t)))
+            *target = TRUE;
 
-	if (!*target && IS_SET(SINFO.targets, TAR_OBJ_INV))
-	    if ((*tobj = get_obj_in_list_vis(ch, t, ch->carrying)))
-		*target = TRUE;
+        if (!*target && IS_SET(SINFO.targets, TAR_OBJ_INV))
+            if ((*tobj = get_obj_in_list_vis(ch, t, ch->carrying)))
+                *target = TRUE;
 
-	if (!*target && IS_SET(SINFO.targets, TAR_OBJ_EQUIP)) {
-	    for (i = 0; !*target && i < NUM_WEARS; i++)
-		if (GET_EQ(ch, i) && !str_cmp(t, GET_EQ(ch, i)->name)) {
-		    *tobj = GET_EQ(ch, i);
-		    *target = TRUE;
-		}
-	}
-	if (!*target && IS_SET(SINFO.targets, TAR_OBJ_ROOM))
-	    if ((*tobj = get_obj_in_list_vis(ch, t, ch->in_room->contents)))
-		*target = TRUE;
+        if (!*target && IS_SET(SINFO.targets, TAR_OBJ_EQUIP)) {
+            for (i = 0; !*target && i < NUM_WEARS; i++)
+                if (GET_EQ(ch, i) && !str_cmp(t, GET_EQ(ch, i)->name)) {
+                    *tobj = GET_EQ(ch, i);
+                    *target = TRUE;
+                }
+        }
+        if (!*target && IS_SET(SINFO.targets, TAR_OBJ_ROOM))
+            if ((*tobj = get_obj_in_list_vis(ch, t, ch->in_room->contents)))
+                *target = TRUE;
 
-	if (!*target && IS_SET(SINFO.targets, TAR_OBJ_WORLD))
-	    if ((*tobj = get_obj_vis(ch, t)))
-		*target = TRUE;
-    
-	if (!*target && IS_SET(SINFO.targets, TAR_DOOR)) {
-	    half_chop(arg, t2, t3);
-	    if ((i = find_door(ch, t2, t3, 
-			       spellnum == SPELL_KNOCK ? "knock" : "cast")) >= 0) {
-		knock_door = ch->in_room->dir_option[i];
-		*target = TRUE;
-	    } else
-		return 0;
-	}
+        if (!*target && IS_SET(SINFO.targets, TAR_OBJ_WORLD))
+            if ((*tobj = get_obj_vis(ch, t)))
+                *target = TRUE;
+        
+        if (!*target && IS_SET(SINFO.targets, TAR_DOOR)) {
+            half_chop(arg, t2, t3);
+            if ((i = find_door(ch, t2, t3, 
+            spellnum == SPELL_KNOCK ? "knock" : "cast")) >= 0) {
+                knock_door = ch->in_room->dir_option[i];
+                *target = TRUE;
+            } else {
+                return 0;
+            }
+        }
 
-	strncpy(locate_buf, t, 255);
-	locate_buf[255] = '\0';
+        strncpy(locate_buf, t, 255);
+        locate_buf[255] = '\0';
 
 
     } else {			/* if target string is empty */
-	if (!*target && IS_SET(SINFO.targets, TAR_FIGHT_SELF))
-	    if (FIGHTING(ch) != NULL) {
-		*tch = ch;
-		*target = TRUE;
-	    }
-	if (!*target && IS_SET(SINFO.targets, TAR_FIGHT_VICT))
-	    if (FIGHTING(ch) != NULL) {
-		*tch = FIGHTING(ch);
-		*target = TRUE;
-	    }
-	/* if no target specified, and the spell isn't violent, default to self */
-	if (!*target && IS_SET(SINFO.targets, TAR_CHAR_ROOM) &&
-	    !SINFO.violent) {
-	    *tch = ch;
-	    *target = TRUE;
-	}
+        if (!*target && IS_SET(SINFO.targets, TAR_FIGHT_SELF))
+            if (FIGHTING(ch) != NULL) {
+            *tch = ch;
+            *target = TRUE;
+            }
+        if (!*target && IS_SET(SINFO.targets, TAR_FIGHT_VICT))
+            if (FIGHTING(ch) != NULL) {
+            *tch = FIGHTING(ch);
+            *target = TRUE;
+            }
+        /* if no target specified, 
+            and the spell isn't violent, i
+            default to self */
+        if (!*target && IS_SET(SINFO.targets, TAR_CHAR_ROOM) &&
+            !SINFO.violent && !IS_SET(SINFO.targets, TAR_UNPLEASANT) ) {
+            *tch = ch;
+            *target = TRUE;
+        }
 
-	if (!*target) {
-	    sprintf(buf, "Upon %s should the spell be cast?\r\n",
-		    IS_SET(SINFO.targets, TAR_OBJ_ROOM | TAR_OBJ_INV | TAR_OBJ_WORLD) ?
-		    "what" : "who");
-	    send_to_char(buf, ch);
-	    return 0;
-	}
+        if (!*target) {
+            sprintf(buf, "Upon %s should the spell be cast?\r\n",
+                IS_SET(SINFO.targets, TAR_OBJ_ROOM | TAR_OBJ_INV | TAR_OBJ_WORLD) ?
+                "what" : "who");
+            send_to_char(buf, ch);
+            return 0;
+        }
     }
     return 1;
 }
@@ -2611,8 +2614,8 @@ mag_assign_spells(void)
 	   POS_STANDING, TAR_CHAR_ROOM, TRUE, MAG_MAGIC | MAG_AFFECTS);
 
     spello(SPELL_SLOW, 38, X, X, X, X, X, X, X, X, X, X, X, X, X,X,X,X,
-	   120, 60, 6, POS_FIGHTING, TAR_CHAR_ROOM | TAR_FIGHT_VICT, FALSE, 
-	   MAG_MAGIC | MAG_AFFECTS);
+	   120, 60, 6, POS_FIGHTING, TAR_UNPLEASANT | TAR_CHAR_ROOM | TAR_FIGHT_VICT,
+       FALSE, MAG_MAGIC | MAG_AFFECTS);
 
     spello(SPELL_SPIRIT_HAMMER, X, 10, X, X, X, X, X, X,15, X, X,X,X,X,X,X,X,
 	   40,10,1, POS_FIGHTING, TAR_CHAR_ROOM | TAR_FIGHT_VICT, TRUE, 
