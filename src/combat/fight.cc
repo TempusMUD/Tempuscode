@@ -257,9 +257,9 @@ die(struct Creature *ch, struct Creature *killer, int attacktype,
 		while (ch->affected)
 			affect_remove(ch, ch->affected);
 
-		GET_MAX_HIT(ch) -= MAX(5, (loss % 50) * 2);
-		GET_MAX_MANA(ch) -= MAX(5, (loss % 50) * 2);
-		GET_MAX_MOVE(ch) -= MAX(5, (loss % 50) * 2);
+		GET_MAX_HIT(ch) = MAX(20, GET_MAX_HIT(ch) - loss);
+		GET_MAX_MANA(ch) = MAX(20, GET_MAX_MANA(ch) - loss);
+		GET_MAX_MOVE(ch) = MAX(20, GET_MAX_MOVE(ch) - loss);
 
 		GET_REMORT_GEN(ch) -= MIN(GET_REMORT_GEN(ch), loss / 50);
 		GET_LEVEL(ch) = loss % 50;
