@@ -3323,6 +3323,7 @@ ASPELL(spell_dispel_magic)
 {
     int aff_to_remove;
 	bool affs_all_gone;
+    bool tmp_affected = false;
 
     if (victim) {
         // Cast on creature
@@ -3347,6 +3348,18 @@ ASPELL(spell_dispel_magic)
         return;
     }
 
+    // First things first, remove all temporary affects
+    struct tmp_obj_affect *af;
+    for (af = obj->tmp_affects; af != NULL; af = obj->tmp_affects) {
+        tmp_affected = true;
+        obj->removeAffect(af);
+    }
+
+    if (tmp_affected && !IS_OBJ_STAT(obj, ITEM_MAGIC)) {
+        act("All the magic that $p ever had is gone.", true,
+            ch, obj, 0, TO_CHAR);
+        return;
+    }
     // Cast on object
     if (!IS_OBJ_STAT(obj, ITEM_MAGIC)) {
         act("$p is not magical.", FALSE, ch, obj, 0, TO_CHAR);
