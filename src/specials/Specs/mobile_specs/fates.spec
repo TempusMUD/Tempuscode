@@ -91,7 +91,7 @@ SPECIAL(fate)
 	}
 	// Grab the rooms out of the buffer
 	if(dyntext->buffer) {
-		roomlist_buf_top = new char[strlen(dyntext->buffer + 1)];
+		roomlist_buf_top = new char[strlen(dyntext->buffer) + 1];
 		roomlist_buf = roomlist_buf_top;
 		strcpy(roomlist_buf,dyntext->buffer);
 	} else {
