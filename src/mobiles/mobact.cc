@@ -1831,8 +1831,7 @@ void mobile_activity(void) {
 	if (GET_CLASS(ch) == CLASS_THIEF && random_binary() ) {
 	    if (thief(ch, ch, 0, "", 0))
 		continue;
-
-	} else if (IS_CLERIC(ch)) {
+	} else if (IS_CLERIC(ch) && random_binary()) {
 	    if (GET_HIT(ch) < GET_MAX_HIT(ch)*0.80) {
 		if (GET_LEVEL(ch) > 23) 
 		    cast_spell(ch, ch, 0, SPELL_HEAL);
@@ -1854,7 +1853,7 @@ void mobile_activity(void) {
 	    } else if (GET_MANA(ch) > (GET_MAX_MANA(ch) * 0.75) && 
 		       GET_LEVEL(ch) >= 28 && !AFF_FLAGGED(ch, AFF_SANCTUARY))
 		cast_spell(ch, ch, 0, SPELL_SANCTUARY);
-	} else if (IS_KNIGHT(ch)) {
+	} else if (IS_KNIGHT(ch) && random_binary()) {
 	    if (GET_HIT(ch) < GET_MAX_HIT(ch)*0.80) {
 		if (GET_LEVEL(ch) > 27 && random_binary() )
 		    cast_spell(ch, ch, 0, SPELL_HEAL);
@@ -1876,7 +1875,7 @@ void mobile_activity(void) {
 	    } else if (IS_AFFECTED(ch, AFF_CURSE) && GET_LEVEL(ch) > 30) {
 		cast_spell(ch, ch, 0, SPELL_REMOVE_CURSE);
 	    }
-	} else if (IS_RANGER(ch)) {
+	} else if (IS_RANGER(ch) && random_binary()) {
 	    if (GET_HIT(ch) < GET_MAX_HIT(ch)*0.80) {
 		if (GET_LEVEL(ch) > 39)
 		    do_medic(ch, "self", 0, 0);
@@ -1887,7 +1886,7 @@ void mobile_activity(void) {
 	    } else if (IS_AFFECTED(ch, AFF_POISON) && GET_LEVEL(ch) > 11) {
 		cast_spell(ch, ch, 0, SPELL_REMOVE_POISON);
 	    }
-	} else if (IS_CYBORG(ch)) {
+	} else if (IS_CYBORG(ch) && random_binary()) {
 	    if (GET_HIT(ch) < GET_MAX_HIT(ch)*0.80
 		&& GET_MOVE(ch) > 100) {
 			do_repair(ch,"",0,0);
@@ -1911,15 +1910,40 @@ void mobile_activity(void) {
 				}
 			}
 		}
-	}
-
-	if (IS_MAGE(ch) && !ROOM_FLAGGED(ch->in_room, ROOM_NOMAGIC)) {
-	    if (IS_DARK(ch->in_room) && 
-		!CAN_SEE_IN_DARK(ch) && GET_LEVEL(ch) > 6)
-		cast_spell(ch, ch, 0, SPELL_INFRAVISION);
-	}
-
-	if (IS_PSIONIC(ch) && !ROOM_FLAGGED(ch->in_room, ROOM_NOPSIONICS)) {
+	} else if (IS_MAGE(ch) && !ROOM_FLAGGED(ch->in_room, ROOM_NOMAGIC) && random_binary()) {
+		if ( GET_LEVEL(ch) > 3 && !affected_by_spell(ch,SPELL_ARMOR) ) {
+			cast_spell(ch, ch, 0, SPELL_ARMOR);
+	    } else if (IS_DARK(ch->in_room) && 
+		 GET_MANA(ch) > mag_manacost(ch, SPELL_ARMOR) &&
+		!CAN_SEE_IN_DARK(ch) && GET_LEVEL(ch) > 5) {
+			cast_spell(ch, ch, 0, SPELL_INFRAVISION);
+		} else if ( !IS_AFFECTED(ch, AFF_INVISIBLE) ) {
+			if ( GET_LEVEL(ch) > 37 && 
+				GET_MANA(ch) > mag_manacost(ch, SPELL_GREATER_INVIS) )
+				cast_spell(ch, ch, 0, SPELL_GREATER_INVIS);
+			else if ( (GET_LEVEL(ch) > 3) &&
+				GET_MANA(ch) > mag_manacost(ch, SPELL_INVISIBLE) )
+				cast_spell(ch, ch, 0, SPELL_INVISIBLE);
+		} else if ( GET_LEVEL(ch) > 12 && !IS_AFFECTED(ch, AFF_BLUR) &&
+			 GET_MANA(ch) > mag_manacost(ch, SPELL_BLUR) ) {
+			cast_spell(ch, ch, 0, SPELL_BLUR);
+		} else if ( GET_LEVEL(ch) > 27 && !IS_AFFECTED_2(ch, AFF2_TELEKINESIS) &&
+			GET_MANA(ch) > mag_manacost(ch, SPELL_TELEKINESIS) ) {
+			cast_spell(ch, ch, 0, SPELL_TELEKINESIS);
+		} else if ( GET_LEVEL(ch) > 43 && !IS_AFFECTED_2(ch, AFF2_HASTE) &&
+			GET_MANA(ch) > mag_manacost(ch, SPELL_HASTE) ) {
+			cast_spell(ch, ch, 0, SPELL_HASTE);
+		} else if ( GET_LEVEL(ch) > 45 && !IS_AFFECTED_2(ch, AFF2_DISPLACEMENT) &&
+			GET_MANA(ch) > mag_manacost(ch, SPELL_DISPLACEMENT) ) {
+			cast_spell(ch, ch, 0, SPELL_DISPLACEMENT);
+		} else if ( GET_LEVEL(ch) > 16 && !affected_by_spell(ch, SPELL_FIRE_SHIELD) &&
+			GET_MANA(ch) > mag_manacost(ch, SPELL_FIRE_SHIELD) ) {
+			cast_spell(ch, ch, 0, SPELL_FIRE_SHIELD);
+		} else if ( GET_LEVEL(ch) > 48 && !IS_AFFECTED_3(ch, AFF3_PRISMATIC_SPHERE) &&
+			GET_MANA(ch) > mag_manacost(ch, SPELL_FIRE_SHIELD) ) {
+			cast_spell(ch, ch, 0, SPELL_PRISMATIC_SPHERE);
+		}
+	} else if (IS_PSIONIC(ch) && !ROOM_FLAGGED(ch->in_room, ROOM_NOPSIONICS) && random_binary()) {
 	    if (IS_DARK(ch->in_room) && 
 		!CAN_SEE_IN_DARK(ch) && GET_LEVEL(ch) >= 6)
 		cast_spell(ch, ch, 0, SPELL_INFRAVISION);
