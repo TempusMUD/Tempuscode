@@ -58,6 +58,8 @@ void weather_change(void);
 void Crash_rentsave(struct char_data * ch, int cost, int rentcode);
 int Crash_rentcost(struct char_data *ch, int display, int factor);
 void Crash_cursesave( struct char_data * ch );
+int drag_object(CHAR* ch, struct obj_data *obj, char* argument );
+ACMD(do_drag_char);
 
 ACMD(do_quit)
 {
@@ -2081,5 +2083,34 @@ ACMD(do_clean)
 	act(buf, FALSE, ch, obj, 0, TO_ROOM);
 	OBJ_SOILAGE(obj) = 0;
     }
+}
+
+ACMD(do_drag)
+{
+    struct char_data *found_char;
+    struct obj_data  *found_obj;
+    
+    int bits;
+ 
+    bits = generic_find(argument, FIND_OBJ_ROOM | FIND_CHAR_ROOM, ch, &found_char, &found_obj );
+
+
+    //Target is a character
+
+    if( found_char ) {
+	do_drag_char(ch, argument, 0, 0);
+	return;
+    }
+
+    else if( found_obj ) {
+	drag_object( ch, found_obj, argument );
+	return;
+    }
+
+    else {
+	send_to_char( "What do you want to drag?\r\n", ch );
+	return;
+    }
+	
 }
 

@@ -2253,3 +2253,190 @@ ACMD(do_follow)
 #undef TL_USAGE
 #undef TL_VANISH
 #undef TL_APPEAR
+
+
+int drag_object(CHAR* ch, struct obj_data *obj, char* argument )
+{
+    
+    int max_drag = 0;
+    int dir = -1;
+    int drag_wait = 0;
+    int mvm_cost = 0;
+    char arg1[MAX_INPUT_LENGTH];
+    char arg2[MAX_INPUT_LENGTH];
+    
+    struct room_data *theroom = NULL;
+
+    two_arguments(argument, arg1, arg2 );
+
+
+
+     // a character can drag an object twice the weight of his maximum encumberance + a little luck
+    drag_wait = MAX(1,  ( obj->getWeight() / 100 ) );
+    drag_wait = MIN(drag_wait, 3 );
+
+    mvm_cost = MAX(15, ( obj->getWeight() / 30 ) ) ;
+    mvm_cost = MIN( mvm_cost, 30 );
+
+    max_drag = ( 2 * str_app[ GET_STR( ch ) ].carry_w ) + ( dice (1, (2 * GET_LEVEL( ch ) ) ) );
+
+    if( CHECK_SKILL( ch, SKILL_DRAG ) > 30 ) {
+	max_drag += ( 3 * CHECK_SKILL(ch, SKILL_DRAG ) );
+    }
+
+    if( ( obj->getWeight() ) > max_drag  || ( GET_MOVE( ch ) < 50 ) ) {
+	sprintf(buf, "You don't have the strength to drag %s.\r\n", obj->short_description );
+	WAIT_STATE(ch, 1 RL_SEC );
+	send_to_char( buf, ch );
+	return 0;
+    }
+
+
+    // Find out which direction the player wants to drag in	
+    if( is_abbrev( arg2, "north" ) ) {
+        dir = 0;
+    }
+
+    else if( is_abbrev( arg2, "east" ) ) {
+        dir = 1;
+    }
+
+    else if( is_abbrev( arg2, "south" ) ) {
+        dir = 2;
+    }
+
+    else if( is_abbrev( arg2, "west" ) ) {
+	dir = 3;
+    }	
+ 
+    else if( is_abbrev( arg2, "up" ) ) {
+	dir = 4;
+    }
+
+    else if( is_abbrev( arg2, "down" ) ) {
+	dir = 5;
+    }
+    
+    else if( is_abbrev( arg2, "future" ) ) {
+	dir = 6;
+    }
+    
+    else if( is_abbrev( arg2, "past" ) ) {
+	dir = 7;
+    }
+    
+    else {
+	send_to_char( "Sorry, that's not a valid direction.\r\n", ch );
+	WAIT_STATE(ch, 1 RL_SEC );
+	return 0;
+    }
+
+    if( EXIT( ch, dir ) ) {
+	if(EXIT(ch , dir )->to_room ) {
+	    theroom = EXIT( ch, dir )->to_room;
+	}
+    }
+    
+    if ( !theroom ){
+	send_to_char( "You can't go in that direction.\r\n", ch );
+	WAIT_STATE(ch, 1 RL_SEC );
+	return 0;
+    }
+
+    if( ( obj->getWeight() ) > max_drag ) {
+	sprintf(buf, "You don't have the strength to drag %s.", obj->short_description );
+	send_to_char( buf, ch );
+	WAIT_STATE(ch, 1 RL_SEC );  
+	return 0;
+    }
+
+
+
+    //here is where we check for sectors
+
+
+
+    
+    if( SECT_TYPE( ch->in_room ) == SECT_FLYING  ||
+	SECT_TYPE( ch->in_room ) == SECT_WATER_NOSWIM ||
+	SECT_TYPE( ch->in_room ) == SECT_CLIMBING  ||
+	SECT_TYPE( ch->in_room ) == SECT_FREESPACE ||
+	SECT_TYPE( ch->in_room ) == SECT_FIRE_RIVER ||
+	SECT_TYPE( ch->in_room ) == SECT_PITCH_PIT ||
+	SECT_TYPE( ch->in_room ) == SECT_PITCH_SUB ||
+	SECT_TYPE( ch->in_room ) == SECT_ELEMENTAL_FIRE ) {
+	
+	send_to_char( "You are unable to drag objects here.\r\n", ch );
+	WAIT_STATE(ch, 1 RL_SEC );
+	return 0;
+    }
+
+    //now check to make sure the character can go in the specified direction
+
+    if (! CAN_GO(ch, dir ) || ! can_travel_sector(ch, SECT_TYPE( theroom ), 0 ) ) {
+	send_to_char( "Sorry you can't go in that direction.\r\n", ch );
+	WAIT_STATE(ch, 1 RL_SEC );
+	return 0;
+    }
+
+    if ( SECT_TYPE( ch->in_room ) == SECT_WATER_SWIM ||
+	 SECT_TYPE( ch->in_room ) == SECT_UNDERWATER ||
+	 SECT_TYPE( ch->in_room ) == SECT_ELEMENTAL_WATER ){
+	
+	mvm_cost = mvm_cost * 2;
+	drag_wait = drag_wait * 2;
+    }
+
+
+    if ( ( ROOM_FLAGGED( theroom, ROOM_HOUSE ) && ! House_can_enter( ch, theroom->number ) ) ||
+	 ( ROOM_FLAGGED( theroom, ROOM_CLAN_HOUSE ) && !clan_house_can_enter(ch, theroom ) ) ) {
+	
+	act ( "You are unable to drag $p there.\r\n", FALSE, ch, obj, 0, TO_CHAR );
+	WAIT_STATE(ch, 1 RL_SEC );
+	return 0;
+    }
+
+    if( ! CAN_WEAR( obj, ITEM_WEAR_TAKE ) || IS_OBJ_TYPE( obj, ITEM_MONEY ) ||
+	IS_OBJ_TYPE( obj, ITEM_MONEY )    || IS_OBJ_TYPE( obj, ITEM_VEHICLE ) ||
+	IS_OBJ_TYPE( obj, ITEM_PORTAL )   || IS_OBJ_TYPE( obj, ITEM_WINDOW ) ||
+	IS_OBJ_TYPE( obj, ITEM_V_WINDOW ) || IS_OBJ_TYPE( obj, ITEM_V_CONSOLE ) ||
+	IS_OBJ_TYPE( obj, ITEM_V_DOOR )   || IS_OBJ_TYPE( obj, ITEM_SCRIPT ) ||
+	! OBJ_APPROVED( obj ) )  {
+
+        act( "You can't drag $p you buffoon!", FALSE, ch, obj, 0, TO_CHAR );
+	WAIT_STATE(ch, 1 RL_SEC );
+	return 0;
+
+    }
+
+
+
+    // Now we're going to move the character and the object from the original room to the new one
+    
+    sprintf( buf, "You drag $p %s.", to_dirs[ dir ] ); 
+    act( buf, FALSE, ch, obj, 0, TO_CHAR );
+    sprintf( buf, "$n drags $p %s.", to_dirs[ dir ] );
+    act( buf, FALSE, ch, obj, 0, TO_ROOM );
+    char_from_room( ch );
+    char_to_room( ch, theroom );
+    obj_from_room( obj );
+    obj_to_room( obj, theroom );
+    look_at_room( ch, ch->in_room, 0 );
+    sprintf( buf, "$n drags $p in from %s.", from_dirs[ dir ] );
+    act( buf, FALSE, ch, obj, 0, TO_ROOM ); 
+    GET_MOVE( ch ) = MAX( 0, ( GET_MOVE( ch ) - mvm_cost ) );
+    WAIT_STATE( ch, ( drag_wait  RL_SEC ) );
+    return 1;
+
+}
+
+	
+
+
+
+    
+
+
+
+
+

@@ -159,7 +159,7 @@ ACMD(do_hamstring)
 
 
 
-ACMD(do_drag)
+ACMD(do_drag_char)
 {
     struct char_data *vict = NULL;
     struct room_data *target_room = NULL;
