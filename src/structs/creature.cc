@@ -427,10 +427,11 @@ Creature::getLevelBonus(int skill)
 
 		if( spell_lvl <= player.level && spell_gen <= GET_REMORT_GEN(this) ) {
 			return getLevelBonus(true);
-		} else if( sclass >= 0 && SPELL_LEVEL(skill, sclass <= player.level ) && 
-				   SPELL_GEN( skill, sclass ) < 0 ) {
+		} 
+        else if( sclass >= 0 && (SPELL_LEVEL(skill, sclass) <= player.level)) {
 			return getLevelBonus(false);
-		} else {
+		} 
+        else {
 			return player.level/2;
 		}
 	}
