@@ -54,7 +54,7 @@ Creature::~Creature(void)
     this->fighting = NULL;
 }
 
-Creature::Creature(const Creature &c)
+Creature::Creature(const Creature &c, bool is_npc)
 {
     memset((char *)this, 0, sizeof(Creature));
 
@@ -69,6 +69,9 @@ Creature::Creature(const Creature &c)
         this->implants[x] = c.implants[x];
     }
     */
+
+    if (is_npc)
+        SET_BIT(MOB_FLAGS(this), MOB_ISNPC);
 
     this->fighting = new list<CharCombat>( *(c.fighting) );
 
@@ -1050,13 +1053,14 @@ Creature::die(void)
     // Remove any combat this character might have been involved in
     // And make sure all defending creatures stop defending
     removeAllCombat();
+    combatList.remove(this);
 
     CreatureList::iterator ci = combatList.begin();
     for (; ci != combatList.end(); ++ci) {
         if ((*ci)->findCombat(this))
             (*ci)->removeCombat(this);
-        if (DEFENDING((*ci)) == this)
-            stop_defending((*ci));
+/*        if (DEFENDING((*ci)) == this)
+            stop_defending((*ci));*/
     }
 
 
@@ -1095,6 +1099,19 @@ Creature::die(void)
 bool
 Creature::arena_die(void)
 {
+    // Remove any combat this character might have been involved in
+    // And make sure all defending creatures stop defending
+    removeAllCombat();
+    combatList.remove(this);
+
+    CreatureList::iterator ci = combatList.begin();
+    for (; ci != combatList.end(); ++ci) {
+        if ((*ci)->findCombat(this))
+            (*ci)->removeCombat(this);
+/*        if (DEFENDING((*ci)) == this)
+            stop_defending((*ci)); */
+    }
+
 	// Rent them out
 	if (!IS_NPC(this)) {
 		player_specials->rentcode = RENT_RENTED;
@@ -1112,6 +1129,7 @@ Creature::arena_die(void)
 				player_specials->rent_per_day, CASH_MONEY(this) + BANK_MONEY(this),
 				(player_specials->rent_currency == TIME_ELECTRO) ? "gold":"creds");
 	}
+
 	// But extract them to afterlife
 	extract(CXN_AFTERLIFE);
 	return true;
@@ -1290,7 +1308,7 @@ Creature::addCombat(Creature *ch, bool initiated)
         if (li->getOpponent() == ch) {
             bool ini = li->getInitiated();
             getCombatList()->erase(li);
-            getCombatList()->push_front(CharCombat(ch, ini) ); 
+            getCombatList()->push_front(CharCombat(ch, ini)); 
             return;
         }
     } 
@@ -1309,14 +1327,12 @@ Creature::removeCombat(Creature *ch)
 {
     if (!ch)
         return;
+
     list<CharCombat>::iterator li = getCombatList()->begin();
     for (; li != getCombatList()->end(); ++li) {
         if (li->getOpponent() && li->getOpponent() == ch) {
             getCombatList()->erase(li);
             break;
-        }
-        else {
-            li = getCombatList()->erase(li);
         }
     }
 
