@@ -446,7 +446,8 @@ int calc_skill_prob( struct char_data *ch, struct char_data *vict, int skillnum,
 
     case SKILL_CLOTHESLINE:
     
-	if (IS_PUDDING(vict) || IS_SLIME(vict) || bad_sect)
+	if (IS_PUDDING(vict) || IS_SLIME(vict) || bad_sect
+        || NON_CORPOREAL_MOB(vict))
 	    prob = 0;
     
 	*loc = WEAR_NECK_1;
