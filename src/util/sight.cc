@@ -113,7 +113,7 @@ check_sight_object(Creature *self, obj_data *obj)
 		return false;
 
 	if (IS_OBJ_STAT(obj, ITEM_TRANSPARENT) &&
-			(!IS_AFFECTED_3(self, AFF3_SONIC_IMAGERY) ||
+			!(IS_AFFECTED_3(self, AFF3_SONIC_IMAGERY) ||
 				IS_AFFECTED(self, AFF_RETINA)))
 		return false;
 
