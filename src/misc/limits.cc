@@ -536,7 +536,18 @@ point_update(void)
 	CreatureList::iterator cit = characterList.begin();
 	for (; cit != characterList.end(); ++cit) {
 		i = *cit;
-
+        
+        //reputation should slowly decrease when not in a house, clan, arena, or afk
+        if (IS_PC(i) &&
+            !ROOM_FLAGGED(i->in_room, ROOM_ARENA) &&
+            !ROOM_FLAGGED(i->in_room, ROOM_CLAN_HOUSE) &&
+            !ROOM_FLAGGED(i->in_room, ROOM_HOUSE) &&
+            !PLR_FLAGGED(i, PLR_AFK) &&
+            GET_REPUTATION(i) > 1 &&
+            number(0, 99) < MAX(GET_REPUTATION(i)/100, 1))
+                i->gain_reputation(-1);
+        
+        
 		if (i->getPosition() >= POS_STUNNED) {
 			GET_HIT(i) = MIN(GET_HIT(i) + hit_gain(i), GET_MAX_HIT(i));
 			GET_MANA(i) = MIN(GET_MANA(i) + mana_gain(i), GET_MAX_MANA(i));
