@@ -3729,6 +3729,7 @@ do_show_stats(struct Creature *ch)
     struct zone_data *zone;
     extern int buf_switches, buf_largecount, buf_overflows;
     CreatureList::iterator cit = characterList.begin();
+
     for (; cit != characterList.end(); ++cit) {
         vict = *cit;
         if (IS_NPC(vict))
@@ -3752,41 +3753,40 @@ do_show_stats(struct Creature *ch)
         }
     }
 
-    sprintf(buf, "Current statistics of Tempus:\r\n");
-    sprintf(buf, "%s  %5d players in game  %5d connected\r\n", buf, i, con);
-    sprintf(buf, "%s  %5d accounts cached  %5d characters\r\n", buf,
+    send_to_char(ch, "Current statistics of Tempus:\r\n");
+    send_to_char(ch, "  %5d players in game  %5d connected\r\n", i, con);
+    send_to_char(ch, "  %5d accounts cached  %5d characters\r\n",
 		Account::cache_size(), playerIndex.size());
-    sprintf(buf, "%s  %5d mobiles          %5d prototypes (%d id'd)\r\n",
-        buf, j, top_of_mobt + 1, current_mob_idnum);
-    sprintf(buf, "%s  %5d objects          %5d prototypes\r\n",
-        buf, k, top_of_objt + 1);
-    sprintf(buf, "%s  %5d rooms            %5d zones (%d active)\r\n",
-        buf, top_of_world + 1, top_of_zone_table, num_active_zones);
-    sprintf(buf, "%s  %5d searches\r\n", buf, srch_count);
-    sprintf(buf, "%s  %5d large bufs\r\n", buf, buf_largecount);
-    sprintf(buf, "%s  %5d buf switches     %5d overflows\r\n", buf,
+    send_to_char(ch, "  %5d mobiles          %5d prototypes (%d id'd)\r\n",
+        j, top_of_mobt + 1, current_mob_idnum);
+    send_to_char(ch, "  %5d objects          %5d prototypes\r\n",
+        k, top_of_objt + 1);
+    send_to_char(ch, "  %5d rooms            %5d zones (%d active)\r\n",
+        top_of_world + 1, top_of_zone_table, num_active_zones);
+    send_to_char(ch, "  %5d searches\r\n", srch_count);
+    send_to_char(ch, "  %5d large bufs\r\n", buf_largecount);
+    send_to_char(ch, "  %5d buf switches     %5d overflows\r\n",
         buf_switches, buf_overflows);
-    sprintf(buf, "%s  %5lu tmp max used     %5lu tmp overruns\r\n", buf,
-        tmp_max_used, tmp_overruns);
-    sprintf(buf, "%s  Lunar day: %2d, phase: %s (%d)\r\n", buf,
+    send_to_char(ch, "  %5u tmpstr space     %5u accstr space\r\n",
+        tmp_max_used, acc_str_space);
+    send_to_char(ch, "  Lunar day: %2d, phase: %s (%d)\r\n",
         lunar_day, lunar_phases[get_lunar_phase(lunar_day)],
 		get_lunar_phase(lunar_day));
     if (quest_status)
-        sprintf(buf, "%s   %sQUEST_STATUS is ON.%s\r\n",
-            buf, CCREV(ch, C_NRM), CCNRM(ch, C_NRM));
-    send_to_char(ch, "%s  Trail count: %d\r\n", buf, tr_count);
+        send_to_char(ch, "   %sQUEST_STATUS is ON.%s\r\n",
+            CCREV(ch, C_NRM), CCNRM(ch, C_NRM));
+    send_to_char(ch, "  Trail count: %d\r\n", tr_count);
 
     if (GET_LEVEL(ch) >= LVL_LOGALL && log_cmds) {
         send_to_char(ch, "  Logging all commands :: file is %s.\r\n",
             1 ? "OPEN" : "NULL");
     }
     if (shutdown_count >= 0) {
-        sprintf(buf,
+        send_to_char(ch,
             "  Shutdown sequence ACTIVE.  Shutdown %s in [%d] seconds.\r\n",
             shutdown_mode == SHUTDOWN_DIE ? "DIE" :
             shutdown_mode == SHUTDOWN_PAUSE ? "PAUSE" : "REBOOT",
             shutdown_count);
-        send_to_char(ch, "%s", buf);
     }
 }
 

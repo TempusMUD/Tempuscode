@@ -17,9 +17,7 @@ struct tmp_str_pool {
 };
 
 const size_t DEFAULT_POOL_SIZE = 65536;	// 64k to start with
-unsigned long tmp_max_used = 0;			// Tracks maximum tmp str space used
-unsigned long tmp_overruns = 0;			// Tracks number of times the initial
-										// pool has been insufficient
+size_t tmp_max_used = 0;				// Tracks maximum tmp str space used
 
 static tmp_str_pool *tmp_list_head;	// Always points to the initial pool
 static tmp_str_pool *tmp_list_tail;	// Points to the end of the linked	
@@ -44,10 +42,6 @@ tmp_gc_strings(void)
 {
 	struct tmp_str_pool *cur_buf, *next_buf;
 	size_t wanted = tmp_list_head->used;
-
-	// If we needed more than the initial pool, count it as an overrun
-	if (tmp_list_head->next)
-		tmp_overruns++;
 
 	// Free the extra space (if any), adding up the amount we needed
 	for(cur_buf = tmp_list_head->next;cur_buf;cur_buf = next_buf) {

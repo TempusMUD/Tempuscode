@@ -67,7 +67,6 @@ void tmp_string_init(void);
 // invalid after this is called.
 void tmp_gc_strings(void);
 
-extern unsigned long tmp_max_used;
-extern unsigned long tmp_overruns;
+extern size_t tmp_max_used;
 
 #endif
