@@ -1604,31 +1604,29 @@ void
 do_stat_character(struct Creature *ch, struct Creature *k)
 {
     int i, num, num2, found = 0, rexp;
+	char *line_buf;
     struct follow_type *fol;
     struct affected_type *aff;
     extern struct attack_hit_type attack_hit_text[];
-    char outbuf[MAX_STRING_LENGTH];
 
     if (GET_MOB_SPEC(k) == fate && GET_LEVEL(ch) < LVL_SPIRIT) {
         send_to_char(ch, "You can't stat this mob.\r\n");
         return;
     }
+
+	acc_string_clear();
     switch (GET_SEX(k)) {
     case SEX_NEUTRAL:
-        strcpy(outbuf, "NEUTRAL-SEX");
-        break;
+        acc_strcat("NEUTER", NULL); break;
     case SEX_MALE:
-        strcpy(outbuf, "MALE");
-        break;
+        acc_strcat("MALE", NULL); break;
     case SEX_FEMALE:
-        strcpy(outbuf, "FEMALE");
-        break;
+        acc_strcat("FEMALE", NULL); break;
     default:
-        strcpy(outbuf, "ILLEGAL-SEX!!");
-        break;
+        acc_strcat("ILLEGAL-SEX!!", NULL); break;
     }
 
-    sprintf(buf2, " %s '%s%s%s'  IDNum: [%5ld], In room %s[%s%5d%s]%s",
+    acc_sprintf(" %s '%s%s%s'  IDNum: [%5ld], In room %s[%s%5d%s]%s",
         (!IS_NPC(k) ? "PC" : (!IS_MOB(k) ? "NPC" : "MOB")),
         CCYEL(ch, C_NRM), GET_NAME(k), CCNRM(ch, C_NRM),
         IS_NPC(k) ? MOB_IDNUM(k) : GET_IDNUM(k),
@@ -1636,62 +1634,50 @@ do_stat_character(struct Creature *ch, struct Creature *k)
         k->in_room->number : -1, CCGRN(ch, C_NRM), CCNRM(ch, C_NRM));
 
     if (!IS_MOB(k) && GET_LEVEL(k) >= LVL_AMBASSADOR)
-        sprintf(buf2, "%s, OlcObj: [%d], OlcMob: [%d]\r\n", buf2,
+        acc_sprintf(", OlcObj: [%d], OlcMob: [%d]\r\n",
             (GET_OLC_OBJ(k) ? GET_OLC_OBJ(k)->shared->vnum : (-1)),
             (GET_OLC_MOB(k) ?
                 GET_OLC_MOB(k)->mob_specials.shared->vnum : (-1)));
     else
-        strcat(buf2, "\r\n");
-
-    strcat(outbuf, buf2);
+        acc_strcat("\r\n", NULL);
 
     if (IS_MOB(k)) {
-        sprintf(buf,
+        acc_sprintf(
             "Alias: %s, VNum: %s[%s%5d%s]%s, Exist: [%3d], SVNum: %s[%s%5d%s]%s\r\n",
             k->player.name, CCGRN(ch, C_NRM), CCYEL(ch, C_NRM),
             GET_MOB_VNUM(k), CCGRN(ch, C_NRM), CCNRM(ch, C_NRM),
             k->mob_specials.shared->number, CCGRN(ch, C_NRM), CCYEL(ch, C_NRM),
             GET_SCRIPT_VNUM(k), CCGRN(ch, C_NRM), CCNRM(ch, C_NRM));
-        strcat(outbuf, buf);
-        sprintf(buf, "L-Des: %s%s%s\r\n", CCYEL(ch, C_NRM),
+        acc_sprintf("L-Des: %s%s%s\r\n", CCYEL(ch, C_NRM),
             (k->player.long_descr ? k->player.long_descr : "<None>"),
             CCNRM(ch, C_NRM));
-        strcat(outbuf, buf);
     } else {
-        sprintf(buf, "Title: %s\r\n",
+        acc_sprintf("Title: %s\r\n",
             (k->player.title ? k->player.title : "<None>"));
-        strcat(outbuf, buf);
     }
 
 /* Race, Class */
-    strcpy(buf, "Race: ");
-    sprinttype(k->player.race, player_race, buf2);
-    strcat(outbuf, strcat(buf, buf2));
-    strcpy(buf, ", Class: ");
-    sprinttype(k->player.char_class, pc_char_class_types, buf2);
-    strcat(buf, buf2);
-    sprintf(buf2, "/%s", IS_REMORT(k) ?
-        pc_char_class_types[(int)GET_REMORT_CLASS(k)] : "None");
-    strcat(buf, buf2);
-    sprintf(buf2, " Gen: %d,", GET_REMORT_GEN(k));
-    strcat(buf, buf2);
-    if (IS_VAMPIRE(k) || IS_CYBORG(k)) {
-        sprintf(buf2, " Subclass: %s", IS_CYBORG(k) ?
-            borg_subchar_class_names[GET_OLD_CLASS(k)] : IS_VAMPIRE(k) ?
-            pc_char_class_types[GET_OLD_CLASS(k)] : "None");
-        strcat(buf, buf2);
-    }
-    strcat(outbuf, strcat(buf, "\r\n"));
+    acc_sprintf("Race: %s, Class: %s%s/%s Gen: %d\r\n",
+		strlist_aref(k->player.race, player_race),
+		strlist_aref(k->player.char_class, pc_char_class_types),
+		(IS_CYBORG(k) ?
+			tmp_sprintf("(%s)",
+				strlist_aref(GET_OLD_CLASS(k), borg_subchar_class_names)) :
+			""),
+		(IS_REMORT(k) ?
+			strlist_aref(GET_REMORT_CLASS(k), pc_char_class_types) :
+			"None"),
+		GET_REMORT_GEN(k));
 
-    if (!IS_NPC(k))
-        sprintf(buf, "Lev: [%s%2d%s], XP: [%s%7d%s/%s%d%s], Align: [%4d]\r\n",
+    if (!IS_NPC(k)) {
+        acc_sprintf("Lev: [%s%2d%s], XP: [%s%7d%s/%s%d%s], Align: [%4d]\r\n",
             CCYEL(ch, C_NRM), GET_LEVEL(k), CCNRM(ch, C_NRM),
             CCYEL(ch, C_NRM), GET_EXP(k), CCNRM(ch, C_NRM),
             CCCYN(ch, C_NRM), exp_scale[GET_LEVEL(k) + 1] - GET_EXP(k),
             CCNRM(ch, C_NRM), GET_ALIGNMENT(k));
-    else {
+    } else {
         rexp = mobile_experience(k);
-        sprintf(buf,
+        acc_sprintf(
             "Lev: [%s%2d%s], XP: [%s%7d%s/%s%d%s] %s(%s%3d p%s)%s, Align: [%4d]\r\n",
             CCYEL(ch, C_NRM), GET_LEVEL(k), CCNRM(ch, C_NRM), CCYEL(ch, C_NRM),
             GET_EXP(k), CCNRM(ch, C_NRM), CCCYN(ch, C_NRM), rexp, CCNRM(ch,
@@ -1701,49 +1687,41 @@ do_stat_character(struct Creature *ch, struct Creature *k)
                     rexp)), CCRED(ch, C_NRM), CCNRM(ch, C_NRM),
             GET_ALIGNMENT(k));
     }
-    strcat(outbuf, buf);
 
-    sprintf(buf, "Height:  %d centimeters , Weight: %d pounds.\r\n",
+    acc_sprintf("Height:  %d centimeters , Weight: %d pounds.\r\n",
         GET_HEIGHT(k), GET_WEIGHT(k));
-    strcat(outbuf, buf);
 
     if (!IS_NPC(k)) {
         strcpy(buf1, (char *)asctime(localtime(&(k->player.time.birth))));
         strcpy(buf2, (char *)asctime(localtime(&(k->player.time.logon))));
         buf1[10] = buf2[10] = '\0';
 
-        sprintf(buf, "Created: [%s], Last Logon: [%s], Played [%ldh %ldm], Age [%d]\r\n", 
+        acc_sprintf("Created: [%s], Last Logon: [%s], Played [%ldh %ldm], Age [%d]\r\n", 
                 buf1, buf2, 
                 k->player.time.played / 3600, 
                 ((k->player.time.played / 3600) % 60), 
                 GET_AGE(k) );
-        strcat(outbuf, buf);
 
-        sprintf(buf,
-            "Hometown:[%s%s%s (%d)], Loadroom: [%d], Clan: %s%s%s\r\n",
-            CCCYN(ch, C_NRM), get_hometown_abbrev((int)GET_HOME(k)), CCNRM(ch,
-                C_NRM), GET_HOMEROOM(k), k->player_specials->saved.home_room,
+        acc_sprintf("Homeroom:[%d], Loadroom: [%d], Clan: %s%s%s\r\n",
+            GET_HOMEROOM(k), k->player_specials->saved.home_room,
             CCCYN(ch, C_NRM),
             real_clan(GET_CLAN(k)) ? real_clan(GET_CLAN(k))->name : "NONE",
             CCNRM(ch, C_NRM));
-        strcat(outbuf, buf);
 
-        sprintf(buf,
+        acc_sprintf(
             "Life[%d], Qpoints[%d/%d], Thac0[%d], Reputation: [%4d]\r\n",
             GET_LIFE_POINTS(k), GET_QUEST_POINTS(k), GET_QUEST_ALLOWANCE(k),
             (int)MIN(THACO(GET_CLASS(k), GET_LEVEL(k)), 
                      THACO(GET_REMORT_CLASS(k), GET_LEVEL(k))),
 			GET_REPUTATION(k));
-        strcat(outbuf, buf);
 
-        sprintf(buf,
+        acc_sprintf(
             "%sMobKills:%s [%4d], %sPKills:%s [%4d], %sDeaths:%s [%4d]\r\n",
             CCYEL(ch, C_NRM), CCNRM(ch, C_NRM), GET_MOBKILLS(k), CCRED(ch,
                 C_NRM), CCNRM(ch, C_NRM), GET_PKILLS(k), CCGRN(ch, C_NRM),
             CCNRM(ch, C_NRM), GET_PC_DEATHS(k));
-        strcat(outbuf, buf);
     }
-    sprintf(buf, "Str: [%s%d/%d%s]  Int: [%s%d%s]  Wis: [%s%d%s]  "
+    acc_sprintf("Str: [%s%d/%d%s]  Int: [%s%d%s]  Wis: [%s%d%s]  "
         "Dex: [%s%d%s]  Con: [%s%d%s]  Cha: [%s%d%s]\r\n",
         CCCYN(ch, C_NRM), GET_STR(k), GET_ADD(k), CCNRM(ch, C_NRM),
         CCCYN(ch, C_NRM), GET_INT(k), CCNRM(ch, C_NRM),
@@ -1751,36 +1729,32 @@ do_stat_character(struct Creature *ch, struct Creature *k)
         CCCYN(ch, C_NRM), GET_DEX(k), CCNRM(ch, C_NRM),
         CCCYN(ch, C_NRM), GET_CON(k), CCNRM(ch, C_NRM),
         CCCYN(ch, C_NRM), GET_CHA(k), CCNRM(ch, C_NRM));
-    strcat(outbuf, buf);
     if (k->in_room || !IS_NPC(k)) {    // Real Mob/Char
-        sprintf(buf,
+        acc_sprintf(
             "Hit p.:[%s%d/%d+%d%s]  Mana p.:[%s%d/%d+%d%s]  Move p.:[%s%d/%d+%d%s]\r\n",
             CCGRN(ch, C_NRM), GET_HIT(k), GET_MAX_HIT(k), hit_gain(k),
             CCNRM(ch, C_NRM), CCGRN(ch, C_NRM), GET_MANA(k), GET_MAX_MANA(k),
             mana_gain(k), CCNRM(ch, C_NRM), CCGRN(ch, C_NRM), GET_MOVE(k),
             GET_MAX_MOVE(k), move_gain(k), CCNRM(ch, C_NRM));
-        strcat(outbuf, buf);
     } else {                    // Virtual Mob
-        sprintf(buf,
+        acc_sprintf(
             "Hit p.:[%s%dd%d+%d (%d)%s]  Mana p.:[%s%d%s]  Move p.:[%s%d%s]\r\n",
             CCGRN(ch, C_NRM), GET_HIT(k), GET_MANA(k), GET_MOVE(k),
             (GET_HIT(k) * (GET_MANA(k) + 1) / 2) + GET_MOVE(k), CCNRM(ch,
                 C_NRM), CCGRN(ch, C_NRM), GET_MAX_MANA(k), CCNRM(ch, C_NRM),
             CCGRN(ch, C_NRM), GET_MAX_MOVE(k), CCNRM(ch, C_NRM));
-        strcat(outbuf, buf);
     }
 
-    sprintf(buf,
+    acc_sprintf(
         "AC: [%s%d/10%s], Hitroll: [%s%2d%s], Damroll: [%s%2d%s], Speed: [%s%2d%s], Damage Reduction: [%s%2d%s]\r\n",
         CCYEL(ch, C_NRM), GET_AC(k), CCNRM(ch, C_NRM), CCYEL(ch, C_NRM),
         k->points.hitroll, CCNRM(ch, C_NRM), CCYEL(ch, C_NRM),
         k->points.damroll, CCNRM(ch, C_NRM), CCYEL(ch, C_NRM), k->getSpeed(),
         CCNRM(ch, C_NRM), CCYEL(ch, C_NRM), (int)(k->getDamReduction() * 100),
         CCNRM(ch, C_NRM));
-    strcat(outbuf, buf);
 
     if (!IS_NPC(k) || k->in_room) {
-        sprintf(buf,
+        acc_sprintf(
             "Pr:[%s%2d%s],Rd:[%s%2d%s],Pt:[%s%2d%s],Br:[%s%2d%s],Sp:[%s%2d%s],Ch:[%s%2d%s],Ps:[%s%2d%s],Ph:[%s%2d%s]\r\n",
             CCYEL(ch, C_NRM), GET_SAVE(k, 0), CCNRM(ch, C_NRM),
             CCYEL(ch, C_NRM), GET_SAVE(k, 1), CCNRM(ch, C_NRM),
@@ -1790,89 +1764,74 @@ do_stat_character(struct Creature *ch, struct Creature *k)
             CCYEL(ch, C_NRM), GET_SAVE(k, 5), CCNRM(ch, C_NRM),
             CCYEL(ch, C_NRM), GET_SAVE(k, 6), CCNRM(ch, C_NRM),
             CCYEL(ch, C_NRM), GET_SAVE(k, 7), CCNRM(ch, C_NRM));
-        strcat(outbuf, buf);
     }
     if (IS_NPC(k))
-        sprintf(buf, "Gold:[%8d], Cash:[%8d], (Total: %d)\r\n",
+        acc_sprintf("Gold:[%8d], Cash:[%8d], (Total: %d)\r\n",
             GET_GOLD(k), GET_CASH(k), GET_GOLD(k) + GET_CASH(k));
     else
-        sprintf(buf,
+        acc_sprintf(
             "Au:[%8d], Bank:[%9lld], Cash:[%8d], Enet:[%9lld], (Total: %lld)\r\n",
             GET_GOLD(k), GET_PAST_BANK(k), GET_CASH(k), GET_FUTURE_BANK(k),
             GET_GOLD(k) + GET_PAST_BANK(k) + GET_FUTURE_BANK(k) + GET_CASH(k));
-    strcat(outbuf, buf);
 
     if (IS_NPC(k)) {
-        sprintf(buf, "Pos: %s, Dpos: %s, Attack: %s",
+        acc_sprintf("Pos: %s, Dpos: %s, Attack: %s",
             position_types[k->getPosition()],
             position_types[(int)k->mob_specials.shared->default_pos],
             attack_hit_text[k->mob_specials.shared->attack_type].singular);
         if (k->in_room)
-            sprintf(buf, "%s, %sFT%s: %s, %sHNT%s: %s, Timer: %d", buf,
+            acc_sprintf("%s, %sFT%s: %s, %sHNT%s: %s, Timer: %d", buf,
                 CCRED(ch, C_NRM), CCNRM(ch, C_NRM),
                 (FIGHTING(k) ? GET_NAME(FIGHTING(k)) : "N"),
                 CCYEL(ch, C_NRM), CCNRM(ch, C_NRM),
                 HUNTING(k) ? PERS(HUNTING(k), ch) : "N",
                 k->char_specials.timer);
-        strcat(strcat(outbuf, buf), "\r\n");
+		acc_strcat("\r\n", NULL);
     } else if (k->in_room) {
-        sprintf(buf, "Pos: %s, %sFT%s: %s, %sHNT%s: %s",
+        acc_sprintf("Pos: %s, %sFT%s: %s, %sHNT%s: %s",
             position_types[k->getPosition()],
             CCRED(ch, C_NRM), CCNRM(ch, C_NRM),
             (FIGHTING(k) ? GET_NAME(FIGHTING(k)) : "N"),
             CCYEL(ch, C_NRM), CCNRM(ch, C_NRM),
             HUNTING(k) ? PERS(HUNTING(k), ch) : "N");
-        strcat(outbuf, buf);
     }
-    if (k->desc) {
-        sprinttype((int)k->desc->input_mode, desc_modes, buf2);
-        sprintf(buf, "%sConnected: ", ", ");
-        strcat(buf, buf2);
-        sprintf(buf2, ", Idle [%d]\r\n", k->char_specials.timer);
-        strcat(outbuf, strcat(buf, buf2));
-    } else {
-        strcat( outbuf, "\r\n" );
-    }
+    if (k->desc)
+        acc_sprintf(", Connected: %s, Idle [%d]\r\n",
+			strlist_aref((int)k->desc->input_mode, desc_modes),
+			k->char_specials.timer);
+    else
+        acc_strcat("\r\n", NULL);
 
-    if (k->getPosition() == POS_MOUNTED && MOUNTED(k)) {
-        strcpy(buf, "Mount: ");
-        strcat(outbuf, strcat(strcat(buf, GET_NAME(MOUNTED(k))), "\r\n"));
-    }
+    if (k->getPosition() == POS_MOUNTED && MOUNTED(k))
+		acc_sprintf("Mount: %s\r\n", GET_NAME(MOUNTED(k)));
 
     if (IS_NPC(k)) {
-        sprintbit(MOB_FLAGS(k), action_bits, buf2);
-        sprintf(buf, "NPC flags: %s%s%s\r\n", CCCYN(ch, C_NRM), buf2, CCNRM(ch,
-                C_NRM));
-        strcat(outbuf, buf);
-        sprintbit(MOB2_FLAGS(k), action2_bits, buf2);
-        sprintf(buf, "NPC flags(2): %s%s%s\r\n", CCCYN(ch, C_NRM), buf2,
+        sprintbit(MOB_FLAGS(k), action_bits, buf);
+        acc_sprintf("NPC flags: %s%s%s\r\n", CCCYN(ch, C_NRM), buf,
+			CCNRM(ch, C_NRM));
+        sprintbit(MOB2_FLAGS(k), action2_bits, buf);
+        acc_sprintf("NPC flags(2): %s%s%s\r\n", CCCYN(ch, C_NRM), buf,
             CCNRM(ch, C_NRM));
-        strcat(outbuf, buf);
-
     } else {
         if (GET_LEVEL(ch) >= LVL_CREATOR)
-            sprintbit(PLR_FLAGS(k), player_bits, buf2);
+            sprintbit(PLR_FLAGS(k), player_bits, buf);
         else
-            sprintbit(PLR_FLAGS(k) & ~PLR_LOG, player_bits, buf2);
-        sprintf(buf, "PLR: %s%s%s\r\n", CCCYN(ch, C_NRM), buf2, CCNRM(ch,
-                C_NRM));
-        strcat(outbuf, buf);
-        sprintbit(PLR2_FLAGS(k), player2_bits, buf2);
-        sprintf(buf, "PLR2: %s%s%s\r\n", CCCYN(ch, C_NRM), buf2, CCNRM(ch,
-                C_NRM));
-        strcat(outbuf, buf);
-        sprintbit(PRF_FLAGS(k), preference_bits, buf2);
-        sprintf(buf, "PRF: %s%s%s\r\n", CCGRN(ch, C_NRM), buf2, CCNRM(ch,
-                C_NRM));
-        strcat(outbuf, buf);
-        sprintbit(PRF2_FLAGS(k), preference2_bits, buf2);
-        sprintf(buf, "PRF2: %s%s%s\r\n", CCGRN(ch, C_NRM), buf2, CCNRM(ch,
-                C_NRM));
-        strcat(outbuf, buf);
+            sprintbit(PLR_FLAGS(k) & ~PLR_LOG, player_bits, buf);
+        acc_sprintf("PLR: %s%s%s\r\n", CCCYN(ch, C_NRM), buf,
+			CCNRM(ch, C_NRM));
+        sprintbit(PLR2_FLAGS(k), player2_bits, buf);
+        acc_sprintf("PLR2: %s%s%s\r\n", CCCYN(ch, C_NRM), buf,
+			CCNRM(ch, C_NRM));
+        sprintbit(PRF_FLAGS(k), preference_bits, buf);
+        acc_sprintf("PRF: %s%s%s\r\n", CCGRN(ch, C_NRM), buf,
+			CCNRM(ch, C_NRM));
+        sprintbit(PRF2_FLAGS(k), preference2_bits, buf);
+        acc_sprintf("PRF2: %s%s%s\r\n", CCGRN(ch, C_NRM), buf,
+			CCNRM(ch, C_NRM));
     }
 
     if (IS_MOB(k)) {
-        sprintf(buf,
+        acc_sprintf(
             "Mob Spec: %s, NPC Dam: %dd%d, Morale: %d, Lair: %d, Ldr: %d\r\n",
             (k->mob_specials.shared->func ? ((i =
                         find_spec_index_ptr(k->mob_specials.shared->func)) <
@@ -1881,24 +1840,17 @@ do_stat_character(struct Creature *ch, struct Creature *k)
             k->mob_specials.shared->damsizedice,
             k->mob_specials.shared->morale, k->mob_specials.shared->lair,
             k->mob_specials.shared->leader);
-        strcat(outbuf, buf);
 
         if (MOB_SHARED(k)->move_buf)
-            sprintf(outbuf, "%sMove_buf: %s\r\n", outbuf,
+            acc_sprintf("Move_buf: %s\r\n",
                 MOB_SHARED(k)->move_buf);
-		if( k->mob_specials.shared->proto == k ) {
-			if (GET_MOB_PARAM(k) && strlen( GET_MOB_PARAM(k)) > 0 ) {
-				sprintf(outbuf, "%sSpec_param: \r\n%s\r\n", outbuf,
-					GET_MOB_PARAM(k));
-			}
-			if( GET_LOAD_PARAM(k) && strlen( GET_LOAD_PARAM(k) ) > 0 ) {
-				sprintf(outbuf, "%sLoad_param: \r\n%s\r\n", outbuf,
-					GET_LOAD_PARAM(k));
-			}
-			if( GET_MOB_PROG(k) && strlen( GET_MOB_PROG(k) ) > 0 ) {
-				sprintf(outbuf, "%sProg: \r\n%s\r\n", outbuf,
-					GET_MOB_PROG(k));
-			}
+		if (k->mob_specials.shared->proto == k) {
+			if (GET_MOB_PARAM(k) && strlen(GET_MOB_PARAM(k)) > 0 )
+				acc_sprintf("Spec_param: \r\n%s\r\n", GET_MOB_PARAM(k));
+			if( GET_LOAD_PARAM(k) && strlen( GET_LOAD_PARAM(k) ) > 0 )
+				acc_sprintf("Load_param: \r\n%s\r\n", GET_LOAD_PARAM(k));
+			if( GET_MOB_PROG(k) && strlen( GET_MOB_PROG(k) ) > 0 )
+				acc_sprintf("Prog: \r\n%s\r\n", GET_MOB_PROG(k));
 		}
     }
 
@@ -1911,145 +1863,129 @@ do_stat_character(struct Creature *ch, struct Creature *k)
 
     found = FALSE;
     if (k->in_room) {
-        sprintf(buf,
+        acc_sprintf(
             "Encum : (%d inv + %d eq) = (%d tot)/%d, Number: %d/%d inv, %d eq, %d imp\r\n",
             IS_CARRYING_W(k), IS_WEARING_W(k),
             (IS_CARRYING_W(k) + IS_WEARING_W(k)), CAN_CARRY_W(k),
             IS_CARRYING_N(k), (int)CAN_CARRY_N(k), num, num2);
         if (k->getBreathCount() || GET_FALL_COUNT(k)) {
-            sprintf(buf, "%sBreath_count: %d, Fall_count: %d", buf,
+            acc_sprintf("Breath_count: %d, Fall_count: %d",
                 k->getBreathCount(), GET_FALL_COUNT(k));
             found = TRUE;
         }
-        strcat(outbuf, buf);
     }
     if (!IS_MOB(k)) {
-        sprintf(outbuf, "%s%sHunger: %d, Thirst: %d, Drunk: %d\r\n", outbuf,
+        acc_sprintf("%sHunger: %d, Thirst: %d, Drunk: %d\r\n",
             found ? ", " : "",
             GET_COND(k, FULL), GET_COND(k, THIRST), GET_COND(k, DRUNK));
     } else if (found)
-        strcat(outbuf, "\r\n");
+		acc_strcat("\r\n", NULL);
 
     if (!IS_NPC(k) && GET_QUEST(k)) {
         char* name = "None";
         Quest *quest = quest_by_vnum( GET_QUEST(k) );
+
         if( quest != NULL && quest->isPlaying(GET_IDNUM(k)) )
             name = quest->name;
-        sprintf(outbuf, "%sQuest [%d]: \'%s\'\r\n", outbuf, GET_QUEST(k), name );
+        acc_sprintf("Quest [%d]: \'%s\'\r\n", GET_QUEST(k), name );
     }
 
     if (k->in_room && (k->master || k->followers)) {
-        sprintf(buf, "Master is: %s, Followers are:",
+        acc_sprintf("Master is: %s, Followers are:",
             ((k->master) ? GET_NAME(k->master) : "<none>"));
 
+		line_buf = "";
         for (fol = k->followers; fol; fol = fol->next) {
-            sprintf(buf2, "%s %s", found++ ? "," : "", PERS(fol->follower,
-                    ch));
-            strcat(buf, buf2);
-            if (strlen(buf) >= 62) {
-                if (fol->next)
-                    strcat(outbuf, strcat(buf, "\r\n"));
-                else
-                    strcat(outbuf, strcat(buf, "\r\n"));
-                *buf = found = 0;
+			line_buf = tmp_sprintf("%s %s",
+				(*line_buf) ? "," : "",
+				PERS(fol->follower, ch));
+            if (strlen(line_buf) >= 62) {
+				acc_strcat(line_buf, "\r\n");
+				line_buf = "";
             }
         }
 
-        if (*buf)
-            strcat(outbuf, strcat(buf, "\r\n"));
+		acc_strcat("\r\n", NULL);
     }
     /* Showing the bitvector */
-    sprintbit(AFF_FLAGS(k), affected_bits, buf2);
-    sprintf(buf, "AFF: %s%s%s\r\n", CCYEL(ch, C_NRM), buf2, CCNRM(ch, C_NRM));
-    strcat(outbuf, buf);
+	if (AFF_FLAGS(k)) {
+		sprintbit(AFF_FLAGS(k), affected_bits, buf);
+		acc_sprintf("AFF: %s%s%s\r\n", CCYEL(ch, C_NRM), buf,
+			CCNRM(ch, C_NRM));
+	}
     if (AFF2_FLAGS(k)) {
-        sprintbit(AFF2_FLAGS(k), affected2_bits, buf2);
-        sprintf(buf, "AFF2: %s%s%s\r\n", CCYEL(ch, C_NRM), buf2, CCNRM(ch,
-                C_NRM));
-        strcat(outbuf, buf);
+        sprintbit(AFF2_FLAGS(k), affected2_bits, buf);
+        acc_sprintf("AFF2: %s%s%s\r\n", CCYEL(ch, C_NRM), buf,
+			CCNRM(ch, C_NRM));
     }
     if (AFF3_FLAGS(k)) {
-        sprintbit(AFF3_FLAGS(k), affected3_bits, buf2);
-        sprintf(buf, "AFF3: %s%s%s\r\n", CCYEL(ch, C_NRM), buf2, CCNRM(ch,
-                C_NRM));
-        strcat(outbuf, buf);
+        sprintbit(AFF3_FLAGS(k), affected3_bits, buf);
+        acc_sprintf("AFF3: %s%s%s\r\n", CCYEL(ch, C_NRM), buf,
+			CCNRM(ch, C_NRM));
     }
-    if (k->getPosition() == POS_SITTING && IS_AFFECTED_2(k, AFF2_MEDITATE)) {
-        sprintf(buf, "Meditation Timer: [%d]\r\n", MEDITATE_TIMER(k));
-        strcat(outbuf, buf);
-    }
+    if (k->getPosition() == POS_SITTING && IS_AFFECTED_2(k, AFF2_MEDITATE))
+        acc_sprintf("Meditation Timer: [%d]\r\n", MEDITATE_TIMER(k));
+
     if (IS_CYBORG(k)) {
-        sprintf(buf, "Broken component: [%s (%d)], Dam Count: %d/%d.\r\n",
+        acc_sprintf("Broken component: [%s (%d)], Dam Count: %d/%d.\r\n",
 			get_component_name(GET_BROKE(k), GET_OLD_CLASS(k)),
             GET_BROKE(k), GET_TOT_DAM(k), max_component_dam(k));
-        strcat(outbuf, buf);
 
-        if (AFF3_FLAGGED(k, AFF3_SELF_DESTRUCT)) {
-            sprintf(buf, "Self-destruct Timer: [%d]\r\n", MEDITATE_TIMER(k));
-            strcat(outbuf, buf);
-        }
+        if (AFF3_FLAGGED(k, AFF3_SELF_DESTRUCT))
+            acc_sprintf("Self-destruct Timer: [%d]\r\n", MEDITATE_TIMER(k));
     }
 
 	if (GET_MOB_STATE(k) && GET_MOB_STATE(k)->var_list) {
 		prog_var *cur_var;
-		strcat(outbuf, "Mobile state variables:\r\n");
+		acc_strcat("Mobile state variables:\r\n");
 		for (cur_var = GET_MOB_STATE(k)->var_list;cur_var;cur_var = cur_var->next)
-			strcat(outbuf,
-				tmp_sprintf("     %s = '%s'\r\n",
-					cur_var->key,
-					cur_var->value));
+			acc_sprintf("     %s = '%s'\r\n", cur_var->key, cur_var->value);
 	}
-    sprintf(buf, "Currently speaking: %s%s%s\r\n", CCCYN(ch, C_NRM),
+    acc_sprintf("Currently speaking: %s%s%s\r\n", CCCYN(ch, C_NRM),
             ((GET_LANGUAGE(k) > LANGUAGE_COMMON) ?
              tmp_capitalize(language_names[(int)GET_LANGUAGE(k)]) :
              "Common"), CCNRM(ch, C_NRM));
-    strcat(outbuf, buf);
-    strcat(outbuf, "Known languages: ");
-    sprintf(buf, "%s%-17s%s", CCCYN(ch, C_NRM), "Common", CCNRM(ch, C_NRM));
-    strcat(outbuf, buf);
+    acc_sprintf("Known languages: %s%-17s", CCCYN(ch, C_NRM), "Common");
     int num_languages = 2;
     for (int x = 0; x < NUM_LANGUAGES; x++) {
         if (can_speak_language(k, x)) {
             num_languages++;
-            sprintf(buf, "%s%-17s%s", CCCYN(ch, C_NRM),
-                    tmp_capitalize(language_names[x]), CCNRM(ch, C_NRM));
+            acc_sprintf("%-17s", tmp_capitalize(language_names[x]));
             if (num_languages % 4 == 0)
-                strcat(buf, "\r\n");
-            strcat(outbuf, buf);
+                acc_strcat("\r\n", NULL);
         }
     }
 	if (num_languages % 4 != 0)
-		strcat(outbuf, "\r\n");
+		acc_strcat("\r\n", CCNRM(ch, C_NRM), NULL);
+	else
+		acc_strcat(CCNRM(ch, C_NRM), NULL);
 
     /* Routine to show what spells a char is affected by */
     if (k->affected) {
         for (aff = k->affected; aff; aff = aff->next) {
-            *buf2 = '\0';
-            sprintf(buf, "SPL: (%3d%s) [%2d] %s%-24s%s ", aff->duration + 1,
+            acc_sprintf("SPL: (%3d%s) [%2d] %s%-24s%s ", aff->duration + 1,
                 aff->is_instant ? "sec" : "hr", aff->level,
                 CCCYN(ch, C_NRM), spell_to_str(aff->type), CCNRM(ch, C_NRM));
             if (aff->modifier) {
-                sprintf(buf2, "%+d to %s", aff->modifier,
+                acc_sprintf("%+d to %s", aff->modifier,
                     apply_types[(int)aff->location]);
-                strcat(buf, buf2);
-            }
+				if (aff->bitvector)
+                    acc_strcat(", ", NULL);
+			}
+
             if (aff->bitvector) {
-                if (*buf2)
-                    strcat(buf, ", sets ");
-                else
-                    strcat(buf, "sets ");
                 if (aff->aff_index == 3)
-                    sprintbit(aff->bitvector, affected3_bits, buf2);
+                    sprintbit(aff->bitvector, affected3_bits, buf);
                 else if (aff->aff_index == 2)
-                    sprintbit(aff->bitvector, affected2_bits, buf2);
+                    sprintbit(aff->bitvector, affected2_bits, buf);
                 else
-                    sprintbit(aff->bitvector, affected_bits, buf2);
-                strcat(buf, buf2);
+                    sprintbit(aff->bitvector, affected_bits, buf);
+				acc_strcat("sets ", buf, NULL);
             }
-            strcat(outbuf, strcat(buf, "\r\n"));
+			acc_strcat("\r\n", NULL);
         }
     }
-    page_string(ch->desc, outbuf);
+    page_string(ch->desc, acc_get_string());
 }
 
 
