@@ -1691,7 +1691,7 @@ ACMD(do_olc)
             return;
         }
 		for (zone = zone_table;zone;zone = zone->next)
-			if (vnum >= zone->number * 100 && vnum <= zone->top)
+			if (number >= zone->number * 100 && number <= zone->top)
 				break;
 
 		if (!zone) {
