@@ -64,7 +64,6 @@ gen_board_write(board_data *board, Creature *ch, char *argument)
 		return;
 	}
 
-	skip_spaces(&argument);
 	if (!*argument) {
 		send_to_char(ch, "If you wish to post a message, write <subject of message>\r\n");
 		return;
@@ -109,6 +108,7 @@ gen_board_remove(board_data *board, Creature *ch, char *argument)
 {
 	Creature *player;
 	PGresult *res;
+	int idx;
 
 	if (IS_PC(ch))
 		player = ch;
@@ -119,9 +119,14 @@ gen_board_remove(board_data *board, Creature *ch, char *argument)
 		return;
 	}
 
+	idx = atoi(argument) - 1;
+	if (idx < 0) {
+		send_to_char(ch, "That is not a valid message.\r\n");
+		return;
+	}
 	// First we find the idnum of the thing we want to destroy
 	res = sql_query("select idnum, author from board_messages where board='%s' order by post_time limit 1 offset %d",
-		tmp_sqlescape(board->name), atoi(argument) - 1);
+		tmp_sqlescape(board->name), idx);
 	
 	if (PQntuples(res) != 1) {
 		send_to_char(ch, "That posting doesn't exist!\r\n");
@@ -154,6 +159,7 @@ gen_board_read(board_data *board, Creature *ch, char *argument)
 	PGresult *res;
 	time_t post_time;
 	char time_buf[30];
+	int idx;
 
 	if (IS_PC(ch))
 		player = ch;
@@ -169,8 +175,13 @@ gen_board_read(board_data *board, Creature *ch, char *argument)
 		return;
 	}
 	
+	idx = atoi(argument) - 1;
+	if (idx < 0) {
+		send_to_char(ch, "That is not a valid message.\r\n");
+		return;
+	}
 	res = sql_query("select extract(epoch from post_time), name, subject, body from board_messages where board='%s' order by post_time limit 1 offset %d",
-		tmp_sqlescape(board->name), atoi(argument) - 1);
+		tmp_sqlescape(board->name), idx);
 	if (PQntuples(res) == 0) {
 		send_to_char(ch, "That message does not exist on this board.\r\n");
 		PQclear(res);
@@ -297,6 +308,8 @@ SPECIAL(gen_board)
 	if (!(CMD_IS("write") || CMD_IS("read") || CMD_IS("remove") || CMD_IS("look") || CMD_IS("examine")))
 		return 0;
 	
+	skip_spaces(&argument);
+
 	if (!*argument)
 		return 0;
 
@@ -332,7 +345,6 @@ SPECIAL(gen_board)
 		board = (board_data *)GET_OBJ_DATA(self);
 	}
 	
-	skip_spaces(&argument);
 	if (CMD_IS("write"))
 		gen_board_write(board, ch, argument);
 	else if (CMD_IS("remove"))
