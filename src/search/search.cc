@@ -209,6 +209,7 @@ general_search( struct char_data *ch, struct special_search_data *srch,int mode 
 
 	char_from_room( ch );
 	char_to_room( ch, targ_room );
+    ch->in_room->zone->enter_count++;
 	look_at_room( ch, ch->in_room, 0 );
 
 	if ( srch->to_remote )
