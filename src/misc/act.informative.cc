@@ -46,6 +46,7 @@ using namespace std;
 #include "security.h"
 #include "char_class.h"
 #include "tmpstr.h"
+#include "accstr.h"
 #include "tokenizer.h"
 #include "player_table.h"
 
@@ -2188,8 +2189,8 @@ ACMD(do_encumbrance)
 }
 
 
-char *
-affs_to_str(struct Creature *ch, byte mode)
+void
+acc_append_affects(struct Creature *ch, byte mode)
 {
 
 	struct affected_type *af = NULL;
@@ -2198,299 +2199,298 @@ affs_to_str(struct Creature *ch, byte mode)
 	char *str = "";
 
 	if (IS_AFFECTED(ch, AFF_BLIND))
-		str = tmp_strcat(str, "You have been blinded!\r\n");
+		acc_strcat("You have been blinded!\r\n", NULL);
 	if (IS_AFFECTED(ch, AFF_POISON))
-		str = tmp_strcat(str, "You are poisoned!\r\n");
+		acc_strcat("You are poisoned!\r\n", NULL);
 	if (IS_AFFECTED_2(ch, AFF2_PETRIFIED))
-		str = tmp_strcat(str, "You have been turned to stone.\r\n");
+		acc_strcat("You have been turned to stone.\r\n", NULL);
 	if (IS_AFFECTED_3(ch, AFF3_RADIOACTIVE))
-		str = tmp_strcat(str, "You are radioactive.\r\n");
+		acc_strcat("You are radioactive.\r\n", NULL);
 	if (affected_by_spell(ch, SPELL_GAMMA_RAY))
-		str = tmp_strcat(str, "You have been irradiated.\r\n");
+		acc_strcat("You have been irradiated.\r\n", NULL);
 	if (IS_AFFECTED_2(ch, AFF2_ABLAZE))
-		str = tmp_sprintf("%sYou are %s%sON FIRE!!%s\r\n", str,
+		acc_sprintf("You are %s%sON FIRE!!%s\r\n",
 			CCRED_BLD(ch, C_SPR), CCBLK(ch, C_CMP), CCNRM(ch, C_SPR));
 	if (affected_by_spell(ch, SPELL_QUAD_DAMAGE))
-		str = tmp_sprintf("%sYou are dealing out %squad damage%s.\r\n", str,
+		acc_sprintf("You are dealing out %squad damage%s.\r\n",
 			CCCYN(ch, C_NRM), CCNRM(ch, C_NRM));
 	if (affected_by_spell(ch, SPELL_BLACKMANTLE))
-		str = tmp_strcat(str, "You are covered by the blackmantle.\r\n");
+		acc_strcat("You are covered by the blackmantle.\r\n", NULL);
 
 	if (affected_by_spell(ch, SPELL_ENTANGLE))
-		str = tmp_strcat(str, "You are entangled in the undergrowth!\r\n");
+		acc_strcat("You are entangled in the undergrowth!\r\n", NULL);
 
 	if ((af = affected_by_spell(ch, SKILL_DISGUISE))) {
 		if ((mob = real_mobile_proto(af->modifier)))
-			str = tmp_sprintf("%sYou are disguised as %s at a level of %d.\r\n",
-				str, GET_NAME(mob), af->duration);
+			acc_sprintf("You are disguised as %s at a level of %d.\r\n",
+				GET_NAME(mob), af->duration);
 	}
 	// radiation sickness
 
 	if ((af = affected_by_spell(ch, TYPE_RAD_SICKNESS))) {
 		if (!number(0, 2))
-			str = tmp_strcat(str, "You feel nauseous.\r\n");
+			acc_strcat("You feel nauseous.\r\n", NULL);
 		else if (!number(0, 1))
-			str = tmp_strcat(str, "You feel sick and your skin is dry.\r\n");
+			acc_strcat("You feel sick and your skin is dry.\r\n", NULL);
 		else
-			str = tmp_strcat(str, "You feel sick and your hair is falling out.\r\n");
+			acc_strcat("You feel sick and your hair is falling out.\r\n", NULL);
 	}
 	if (IS_AFFECTED_2(ch, AFF2_PROT_RAD))
-		str = tmp_strcat(str, "You are immune to the effects of radiation.\r\n");
+		acc_strcat("You are immune to the effects of radiation.\r\n", NULL);
 	if (IS_AFFECTED_3(ch, AFF3_TAINTED))
-		str = tmp_strcat(str, "The very essence of your being has been tainted.\r\n");
+		acc_strcat("The very essence of your being has been tainted.\r\n", NULL);
 
 	// vampiric regeneration
 
 	if ((af = affected_by_spell(ch, SPELL_VAMPIRIC_REGENERATION))) {
 		if ((name = playerIndex.getName(af->modifier)))
-			str = tmp_sprintf(
-				"%sYou are under the effects of %s's vampiric regeneration.\r\n",
-				str, name);
+			acc_sprintf(
+				"You are under the effects of %s's vampiric regeneration.\r\n",
+				name);
 		else
-			str = tmp_strcat(str, "You are under the effects of vampiric regeneration from an unknown source.\r\n");
+			acc_strcat("You are under the effects of vampiric regeneration from an unknown source.\r\n", NULL);
 	}
 
 	if ((af = affected_by_spell(ch, SPELL_LOCUST_REGENERATION))) {
 		if ((name = playerIndex.getName(af->modifier)))
-			str = tmp_sprintf(str, "You are under the effects of ", name,
+			acc_strcat("You are under the effects of ", name,
 				"'s locust regeneration.\r\n", NULL);
 		else
-			str = tmp_strcat(str,
-				"You are under the effects of locust regeneration from an unknown source.\r\n");
+			acc_strcat(str,
+				"You are under the effects of locust regeneration from an unknown source.\r\n", NULL);
 	}
 
 	if (mode)					/* Only asked for bad affs? */
-		return str;
+		return;
 	if (IS_SOULLESS(ch))
-		str = tmp_strcat(str, "A deep despair clouds your soulless mind.\r\n");
+		acc_strcat("A deep despair clouds your soulless mind.\r\n", NULL);
 	if (IS_AFFECTED(ch, AFF_SNEAK) && !IS_AFFECTED_3(ch, AFF3_INFILTRATE))
-		str = tmp_strcat(str, "You are sneaking.\r\n");
+		acc_strcat("You are sneaking.\r\n", NULL);
 	if (IS_AFFECTED_3(ch, AFF3_INFILTRATE))
-		str = tmp_strcat(str, "You are infiltrating.\r\n");
+		acc_strcat("You are infiltrating.\r\n", NULL);
 	if (IS_AFFECTED(ch, AFF_INVISIBLE))
-		str = tmp_strcat(str, "You are invisible.\r\n");
+		acc_strcat("You are invisible.\r\n", NULL);
 	if (IS_AFFECTED_2(ch, AFF2_TRANSPARENT))
-		str = tmp_strcat(str, "You are transparent.\r\n");
+		acc_strcat("You are transparent.\r\n", NULL);
 	if (IS_AFFECTED(ch, AFF_DETECT_INVIS))
-		str = tmp_strcat(str,
-			"You are sensitive to the presence of invisible things.\r\n");
+		acc_strcat(str,
+			"You are sensitive to the presence of invisible things.\r\n", NULL);
 	if (IS_AFFECTED_2(ch, AFF2_TRUE_SEEING))
-		str = tmp_strcat(str, "You are seeing truly.\r\n");
+		acc_strcat("You are seeing truly.\r\n", NULL);
 	if (IS_AFFECTED(ch, AFF_SANCTUARY))
-		str = tmp_strcat(str, "You are protected by Sanctuary.\r\n");
+		acc_strcat("You are protected by Sanctuary.\r\n", NULL);
 	if (IS_AFFECTED(ch, AFF_CHARM))
-		str = tmp_strcat(str, "You have been charmed!\r\n");
+		acc_strcat("You have been charmed!\r\n", NULL);
 	if (affected_by_spell(ch, SPELL_ARMOR))
-		str = tmp_strcat(str, "You feel protected.\r\n");
+		acc_strcat("You feel protected.\r\n", NULL);
 	if (affected_by_spell(ch, SPELL_BARKSKIN))
-		str = tmp_strcat(str, "Your skin is thick and tough like tree bark.\r\n");
+		acc_strcat("Your skin is thick and tough like tree bark.\r\n", NULL);
 	if (affected_by_spell(ch, SPELL_STONESKIN))
-		str = tmp_strcat(str, "Your skin is as hard as granite.\r\n");
+		acc_strcat("Your skin is as hard as granite.\r\n", NULL);
 	if (IS_AFFECTED(ch, AFF_INFRAVISION))
-		str = tmp_strcat(str, "Your eyes are glowing red.\r\n");
+		acc_strcat("Your eyes are glowing red.\r\n", NULL);
 	if (IS_AFFECTED(ch, AFF_REJUV))
-		str = tmp_strcat(str, "You feel like your body will heal with a good rest.\r\n");
+		acc_strcat("You feel like your body will heal with a good rest.\r\n", NULL);
 	if (IS_AFFECTED(ch, AFF_REGEN))
-		str = tmp_strcat(str, "Your body is regenerating itself rapidly.\r\n");
+		acc_strcat("Your body is regenerating itself rapidly.\r\n", NULL);
 	if (IS_AFFECTED(ch, AFF_GLOWLIGHT))
-		str = tmp_strcat(str, "You are followed by a ghostly illumination.\r\n");
+		acc_strcat("You are followed by a ghostly illumination.\r\n", NULL);
 	if (IS_AFFECTED(ch, AFF_BLUR))
-		str = tmp_strcat(str, "Your image is blurred and shifting.\r\n");
+		acc_strcat("Your image is blurred and shifting.\r\n", NULL);
 	if (IS_AFFECTED_2(ch, AFF2_DISPLACEMENT)) {
 		if (affected_by_spell(ch, SPELL_REFRACTION))
-			str = tmp_strcat(str, "Your body is irregularly refractive.\r\n");
+			acc_strcat("Your body is irregularly refractive.\r\n", NULL);
 		else
-			str = tmp_strcat(str, "Your image is displaced.\r\n");
+			acc_strcat("Your image is displaced.\r\n", NULL);
 	}
 	if (affected_by_spell(ch, SPELL_ELECTROSTATIC_FIELD))
-		str = tmp_strcat(str, "You are surrounded by an electrostatic field.\r\n");
+		acc_strcat("You are surrounded by an electrostatic field.\r\n", NULL);
 	if (IS_AFFECTED_2(ch, AFF2_FIRE_SHIELD))
-		str = tmp_strcat(str, "You are protected by a shield of fire.\r\n");
+		acc_strcat("You are protected by a shield of fire.\r\n", NULL);
 	if (IS_AFFECTED_2(ch, AFF2_BLADE_BARRIER))
-		str = tmp_strcat(str, "You are protected by whirling blades.\r\n");
+		acc_strcat("You are protected by whirling blades.\r\n", NULL);
 	if (IS_AFFECTED_2(ch, AFF2_ENERGY_FIELD))
-		str = tmp_strcat(str, "You are surrounded by a field of energy.\r\n");
+		acc_strcat("You are surrounded by a field of energy.\r\n", NULL);
 	if (IS_AFFECTED_3(ch, AFF3_PRISMATIC_SPHERE))
-		str = tmp_strcat(str, "You are surrounded by a prismatic sphere of light.\r\n");
+		acc_strcat("You are surrounded by a prismatic sphere of light.\r\n", NULL);
 	if (IS_AFFECTED_2(ch, AFF2_FLUORESCENT))
-		str = tmp_strcat(str, "The atoms in your vicinity are fluorescing.\r\n");
+		acc_strcat("The atoms in your vicinity are fluorescing.\r\n", NULL);
 	if (IS_AFFECTED_2(ch, AFF2_DIVINE_ILLUMINATION)) {
 		if (IS_EVIL(ch))
-			str = tmp_strcat(str, "An unholy light is following you.\r\n");
+			acc_strcat("An unholy light is following you.\r\n", NULL);
 		else if (IS_GOOD(ch))
-			str = tmp_strcat(str, "A holy light is following you.\r\n");
+			acc_strcat("A holy light is following you.\r\n", NULL);
 		else
-			str = tmp_strcat(str, "A sickly light is following you.\r\n");
+			acc_strcat("A sickly light is following you.\r\n", NULL);
 	}
 	if (IS_AFFECTED_2(ch, AFF2_BERSERK))
-		str = tmp_strcat(str, "You are BERSERK!\r\n");
+		acc_strcat("You are BERSERK!\r\n", NULL);
 	if (IS_AFFECTED(ch, AFF_PROTECT_GOOD))
-		str = tmp_strcat(str, "You are protected from good.\r\n");
+		acc_strcat("You are protected from good.\r\n", NULL);
 	if (IS_AFFECTED(ch, AFF_PROTECT_EVIL))
-		str = tmp_strcat(str, "You are protected from evil.\r\n");
+		acc_strcat("You are protected from evil.\r\n", NULL);
 	if (IS_AFFECTED_2(ch, AFF2_PROT_DEVILS))
-		str = tmp_strcat(str, "You are protected from devils.\r\n");
+		acc_strcat("You are protected from devils.\r\n", NULL);
 	if (IS_AFFECTED_2(ch, AFF2_PROT_DEMONS))
-		str = tmp_strcat(str, "You are protected from demons.\r\n");
+		acc_strcat("You are protected from demons.\r\n", NULL);
 	if (IS_AFFECTED_2(ch, AFF2_PROTECT_UNDEAD))
-		str = tmp_strcat(str, "You are protected from the undead.\r\n");
+		acc_strcat("You are protected from the undead.\r\n", NULL);
 	if (IS_AFFECTED_2(ch, AFF2_PROT_LIGHTNING))
-		str = tmp_strcat(str, "You are protected from lightning.\r\n");
+		acc_strcat("You are protected from lightning.\r\n", NULL);
 	if (IS_AFFECTED_2(ch, AFF2_PROT_FIRE))
-		str = tmp_strcat(str, "You are protected from fire.\r\n");
+		acc_strcat("You are protected from fire.\r\n", NULL);
 	if (affected_by_spell(ch, SPELL_MAGICAL_PROT))
-		str = tmp_strcat(str, "You are protected against magic.\r\n");
+		acc_strcat("You are protected against magic.\r\n", NULL);
 	if (IS_AFFECTED_2(ch, AFF2_ENDURE_COLD))
-		str = tmp_strcat(str, "You can endure extreme cold.\r\n");
+		acc_strcat("You can endure extreme cold.\r\n", NULL);
 	if (IS_AFFECTED(ch, AFF_SENSE_LIFE))
-		str = tmp_strcat(str,
-			"You are sensitive to the presence of living creatures\r\n");
+		acc_strcat(str,
+			"You are sensitive to the presence of living creatures\r\n", NULL);
 	if (affected_by_spell(ch, SKILL_EMPOWER))
-		str = tmp_strcat(str, "You are empowered.\r\n");
+		acc_strcat("You are empowered.\r\n", NULL);
 	if (IS_AFFECTED_2(ch, AFF2_TELEKINESIS))
-		str = tmp_strcat(str, "You are feeling telekinetic.\r\n");
+		acc_strcat("You are feeling telekinetic.\r\n", NULL);
 	if (affected_by_spell(ch, SKILL_MELEE_COMBAT_TAC))
-		str = tmp_strcat(str, "Melee Combat Tactics are in effect.\r\n");
+		acc_strcat("Melee Combat Tactics are in effect.\r\n", NULL);
 	if (affected_by_spell(ch, SKILL_REFLEX_BOOST))
-		str = tmp_strcat(str, "Your Reflex Boosters are active.\r\n");
+		acc_strcat("Your Reflex Boosters are active.\r\n", NULL);
 	else if (IS_AFFECTED_2(ch, AFF2_HASTE))
-		str = tmp_strcat(str, "You are moving very fast.\r\n");
+		acc_strcat("You are moving very fast.\r\n", NULL);
 	if (AFF2_FLAGGED(ch, AFF2_SLOW))
-		str = tmp_strcat(str, "You feel unnaturally slowed.\r\n");
+		acc_strcat("You feel unnaturally slowed.\r\n", NULL);
 	if (affected_by_spell(ch, SKILL_KATA))
-		str = tmp_strcat(str, "You feel focused from your kata.\r\n");
+		acc_strcat("You feel focused from your kata.\r\n", NULL);
 	if (IS_AFFECTED_2(ch, AFF2_OBLIVITY))
-		str = tmp_strcat(str, "You are oblivious to pain.\r\n");
+		acc_strcat("You are oblivious to pain.\r\n", NULL);
 	if (affected_by_spell(ch, ZEN_MOTION))
-		str = tmp_strcat(str, "The zen of motion is one with your body.\r\n");
+		acc_strcat("The zen of motion is one with your body.\r\n", NULL);
 	if (affected_by_spell(ch, ZEN_TRANSLOCATION))
-		str = tmp_strcat(str, "You are as one with the zen of translocation.\r\n");
+		acc_strcat("You are as one with the zen of translocation.\r\n", NULL);
 	if (affected_by_spell(ch, ZEN_CELERITY))
-		str = tmp_strcat(str, "You are under the effects of the zen of celerity.\r\n");
+		acc_strcat("You are under the effects of the zen of celerity.\r\n", NULL);
 	if (IS_AFFECTED_3(ch, AFF3_MANA_TAP))
-		str = tmp_strcat(str,
-			"You have a direct tap to the spiritual energies of the universe.\r\n");
+		acc_strcat(str,
+			"You have a direct tap to the spiritual energies of the universe.\r\n", NULL);
 	if (IS_AFFECTED_3(ch, AFF3_ENERGY_TAP))
-		str = tmp_strcat(str,
-			"Your body is absorbing physical energy from the universe.\r\n");
+		acc_strcat(str,
+			"Your body is absorbing physical energy from the universe.\r\n", NULL);
 	if (IS_AFFECTED_3(ch, AFF3_SONIC_IMAGERY))
-		str = tmp_strcat(str, "You are perceiving sonic images.\r\n");
+		acc_strcat("You are perceiving sonic images.\r\n", NULL);
 	if (IS_AFFECTED_3(ch, AFF3_PROT_HEAT))
-		str = tmp_strcat(str, "You are protected from heat.\r\n");
+		acc_strcat("You are protected from heat.\r\n", NULL);
 	if (affected_by_spell(ch, SPELL_RIGHTEOUS_PENETRATION))
-		str = tmp_strcat(str, "You feel overwhelmingly righteous!\r\n");
+		acc_strcat("You feel overwhelmingly righteous!\r\n", NULL);
 	if (affected_by_spell(ch, SPELL_PRAY))
-		str = tmp_strcat(str, "You feel extremely righteous.\r\n");
+		acc_strcat("You feel extremely righteous.\r\n", NULL);
 	else if (affected_by_spell(ch, SPELL_BLESS))
-		str = tmp_strcat(str, "You feel righteous.\r\n");
+		acc_strcat("You feel righteous.\r\n", NULL);
 	if (affected_by_spell(ch, SPELL_DEATH_KNELL))
-		str = tmp_strcat(str, "You feel giddy from the absorption of a life.\r\n");
+		acc_strcat("You feel giddy from the absorption of a life.\r\n", NULL);
 	if (affected_by_spell(ch, SPELL_MALEFIC_VIOLATION))
-		str = tmp_strcat(str, "You feel overwhelmingly wicked!\r\n");
+		acc_strcat("You feel overwhelmingly wicked!\r\n", NULL);
 	if (affected_by_spell(ch, SPELL_MANA_SHIELD))
-		str = tmp_strcat(str, "You are protected by a mana shield.\r\n");
+		acc_strcat("You are protected by a mana shield.\r\n", NULL);
 	if (affected_by_spell(ch, SPELL_SHIELD_OF_RIGHTEOUSNESS))
-		str = tmp_strcat(str, "You are surrounded by a shield of righteousness.\r\n");
+		acc_strcat("You are surrounded by a shield of righteousness.\r\n", NULL);
 	if (affected_by_spell(ch, SPELL_ANTI_MAGIC_SHELL))
-		str = tmp_strcat(str, "You are enveloped in an anti-magic shell.\r\n");
+		acc_strcat("You are enveloped in an anti-magic shell.\r\n", NULL);
 	if (affected_by_spell(ch, SPELL_SANCTIFICATION))
-		str = tmp_strcat(str, "You have been sanctified!\r\n");
+		acc_strcat("You have been sanctified!\r\n", NULL);
 	if (affected_by_spell(ch, SPELL_DIVINE_INTERVENTION))
-		str = tmp_strcat(str, "You are shielded by divine intervention.\r\n");
+		acc_strcat("You are shielded by divine intervention.\r\n", NULL);
 	if (affected_by_spell(ch, SPELL_SPHERE_OF_DESECRATION))
-		str = tmp_strcat(str,
-			"You are surrounded by a black sphere of desecration.\r\n");
+		acc_strcat(str,
+			"You are surrounded by a black sphere of desecration.\r\n", NULL);
 
 	/* psionic affections */
 	if (affected_by_spell(ch, SPELL_POWER))
-		str = tmp_strcat(str, "Your physical strength is augmented.\r\n");
+		acc_strcat("Your physical strength is augmented.\r\n", NULL);
 	if (affected_by_spell(ch, SPELL_INTELLECT))
-		str = tmp_strcat(str, "Your mental faculties are augmented.\r\n");
+		acc_strcat("Your mental faculties are augmented.\r\n", NULL);
 	if (IS_AFFECTED(ch, AFF_NOPAIN))
-		str = tmp_strcat(str, "Your mind is ignoring pain.\r\n");
+		acc_strcat("Your mind is ignoring pain.\r\n", NULL);
 	if (IS_AFFECTED(ch, AFF_RETINA))
-		str = tmp_strcat(str, "Your retina is especially sensitive.\r\n");
+		acc_strcat("Your retina is especially sensitive.\r\n", NULL);
 	if (IS_AFFECTED_3(ch, AFF3_SYMBOL_OF_PAIN))
-		str = tmp_strcat(str, "Your mind burns with the symbol of pain!\r\n");
+		acc_strcat("Your mind burns with the symbol of pain!\r\n", NULL);
 	if (IS_AFFECTED(ch, AFF_CONFUSION))
-		str = tmp_strcat(str, "You are very confused.\r\n");
+		acc_strcat("You are very confused.\r\n", NULL);
 	if (affected_by_spell(ch, SKILL_ADRENAL_MAXIMIZER))
-		str = tmp_strcat(str, "Shukutei Adrenal Maximizations are active.\r\n");
+		acc_strcat("Shukutei Adrenal Maximizations are active.\r\n", NULL);
 	else if (IS_AFFECTED(ch, AFF_ADRENALINE))
-		str = tmp_strcat(str, "Your adrenaline is pumping.\r\n");
+		acc_strcat("Your adrenaline is pumping.\r\n", NULL);
 	if (IS_AFFECTED(ch, AFF_CONFIDENCE))
-		str = tmp_strcat(str, "You feel very confident.\r\n");
+		acc_strcat("You feel very confident.\r\n", NULL);
 	if (affected_by_spell(ch, SPELL_DERMAL_HARDENING))
-		str = tmp_strcat(str, "Your dermal surfaces are hardened.\r\n");
+		acc_strcat("Your dermal surfaces are hardened.\r\n", NULL);
 	if (affected_by_spell(ch, SPELL_LATTICE_HARDENING))
-		str = tmp_strcat(str, "Your molecular lattice has been strengthened.\r\n");
+		acc_strcat("Your molecular lattice has been strengthened.\r\n", NULL);
 	if (AFF3_FLAGGED(ch, AFF3_NOBREATHE))
-		str = tmp_strcat(str, "You are not breathing.\r\n");
+		acc_strcat("You are not breathing.\r\n", NULL);
 	if (AFF3_FLAGGED(ch, AFF3_PSISHIELD))
-		str = tmp_strcat(str, "You are protected by a psionic shield.\r\n");
+		acc_strcat("You are protected by a psionic shield.\r\n", NULL);
 	if (affected_by_spell(ch, SPELL_METABOLISM))
-		str = tmp_strcat(str, "Your metabolism is racing.\r\n");
+		acc_strcat("Your metabolism is racing.\r\n", NULL);
 	else if (affected_by_spell(ch, SPELL_RELAXATION))
-		str = tmp_strcat(str, "You feel very relaxed.\r\n");
+		acc_strcat("You feel very relaxed.\r\n", NULL);
 	if (affected_by_spell(ch, SPELL_WEAKNESS))
-		str = tmp_strcat(str, "You feel unusually weakened.\r\n");
+		acc_strcat("You feel unusually weakened.\r\n", NULL);
 	if (affected_by_spell(ch, SPELL_MOTOR_SPASM))
-		str = tmp_strcat(str, "Your muscles are spasming uncontrollably!\r\n");
+		acc_strcat("Your muscles are spasming uncontrollably!\r\n", NULL);
 	if (affected_by_spell(ch, SPELL_ENDURANCE))
-		str = tmp_strcat(str, "Your endurance is increased.\r\n");
+		acc_strcat("Your endurance is increased.\r\n", NULL);
 	if (affected_by_spell(ch, SPELL_PSYCHIC_RESISTANCE))
-		str = tmp_strcat(str, "Your mind is resistant to external energies.\r\n");
+		acc_strcat("Your mind is resistant to external energies.\r\n", NULL);
 	if (AFF2_FLAGGED(ch, AFF2_VERTIGO))
-		str = tmp_strcat(str, "You are lost in a sea of vertigo.\r\n");
+		acc_strcat("You are lost in a sea of vertigo.\r\n", NULL);
 	if (AFF3_FLAGGED(ch, AFF3_PSYCHIC_CRUSH))
-		str = tmp_strcat(str, "You feel a psychic force crushing your mind!\r\n");
+		acc_strcat("You feel a psychic force crushing your mind!\r\n", NULL);
 	if (affected_by_spell(ch, SPELL_FEAR))
-		str = tmp_strcat(str, "The world is a terribly frightening place!\r\n");
+		acc_strcat("The world is a terribly frightening place!\r\n", NULL);
 
 	/* physic affects */
 	if (AFF3_FLAGGED(ch, AFF3_ACIDITY))
-		str = tmp_strcat(str, "Your body is producing self-corroding acids!\r\n");
+		acc_strcat("Your body is producing self-corroding acids!\r\n", NULL);
 	if (AFF3_FLAGGED(ch, AFF3_ATTRACTION_FIELD))
-		str = tmp_strcat(str, "You are emitting an an attraction field.\r\n");
+		acc_strcat("You are emitting an an attraction field.\r\n", NULL);
 	if (affected_by_spell(ch, SPELL_CHEMICAL_STABILITY))
-		str = tmp_strcat(str, "You feel chemically inert.\r\n");
+		acc_strcat("You feel chemically inert.\r\n", NULL);
 
 
 	if (IS_AFFECTED_3(ch, AFF3_DAMAGE_CONTROL))
-		str = tmp_strcat(str, "Your Damage Control process is running.\r\n");
+		acc_strcat("Your Damage Control process is running.\r\n", NULL);
 	if (IS_AFFECTED_3(ch, AFF3_SHROUD_OBSCUREMENT))
-		str = tmp_strcat(str,
-			"You are surrounded by an magical obscurement shroud.\r\n");
+		acc_strcat(str,
+			"You are surrounded by an magical obscurement shroud.\r\n", NULL);
 	if (affected_by_spell(ch, SPELL_DETECT_SCRYING))
-		str = tmp_strcat(str, "You are sensitive to attempts to magical scrying.\r\n");
+		acc_strcat("You are sensitive to attempts to magical scrying.\r\n", NULL);
 	if (IS_SICK(ch))
-		str = tmp_strcat(str, "You are afflicted with a terrible sickness!\r\n");
+		acc_strcat("You are afflicted with a terrible sickness!\r\n", NULL);
 	if (IS_AFFECTED_3(ch, AFF3_GRAVITY_WELL))
-		str = tmp_strcat(str,
-			"Spacetime is bent around you in a powerful gravity well!\r\n");
+		acc_strcat(
+			"Spacetime is bent around you in a powerful gravity well!\r\n", NULL);
 	if (IS_AFFECTED_3(ch, AFF3_HAMSTRUNG))
-		str = tmp_sprintf(
-			"%s%sThe gash on your leg is %sBLEEDING%s%s all over!!%s\r\n", str,
+		acc_sprintf(
+			"%sThe gash on your leg is %sBLEEDING%s%s all over!!%s\r\n",
 			CCRED(ch, C_SPR), CCBLD(ch, C_SPR), CCNRM(ch, C_SPR), CCRED(ch,
 				C_SPR), CCNRM(ch, C_SPR));
 	if (affected_by_spell(ch, SKILL_ELUSION))
-		str = tmp_strcat(str, "You are attempting to hide your tracks.\r\n");
+		acc_strcat("You are attempting to hide your tracks.\r\n", NULL);
 	if (affected_by_spell(ch, SPELL_TELEPATHY))
-		str = tmp_strcat(str, "Your telepathic abilities are greatly enhanced.\r\n");
+		acc_strcat("Your telepathic abilities are greatly enhanced.\r\n", NULL);
 	if (affected_by_spell(ch, SPELL_ANIMAL_KIN))
-		str = tmp_strcat(str, "You are feeling a strong bond with animals.\r\n");
-
-	return str;
+		acc_strcat("You are feeling a strong bond with animals.\r\n", NULL);
 }
 
 ACMD(do_affects)
 {
-	char *msg;
-	msg = affs_to_str(ch, 0);
-	if (*msg)
-		page_string(ch->desc, tmp_strcat("Current affects:\r\n", msg, NULL));
-	else
+	acc_string_clear();
+	acc_strcat("Current affects:\r\n", NULL);
+	acc_append_affects(ch, 0);
+	if (strlen(acc_get_string()) == 18)
 		send_to_char(ch, "You feel pretty normal.\r\n");
+	else
+		page_string(ch->desc, acc_get_string());
 }
 
 ACMD(do_experience)
@@ -2510,21 +2510,20 @@ ACMD(do_score)
 
 	struct time_info_data playing_time;
 	struct time_info_data real_time_passed(time_t t2, time_t t1);
-	char *msg, *msg2;
 
-	msg = tmp_sprintf(
+	acc_string_clear();
+	acc_sprintf(
 		"%s*****************************************************************\r\n",
 		CCRED(ch, C_NRM));
-	msg = tmp_sprintf(
-		"%s%s***************************%sS C O R E%s%s*****************************\r\n",
-		msg, CCYEL(ch, C_NRM), CCBLD(ch, C_SPR), CCNRM(ch, C_SPR),
+	acc_sprintf(
+		"%s***************************%sS C O R E%s%s*****************************\r\n",
+		CCYEL(ch, C_NRM), CCBLD(ch, C_SPR), CCNRM(ch, C_SPR),
 		CCYEL(ch, C_NRM));
-	msg = tmp_sprintf(
-		"%s%s*****************************************************************%s\r\n",
-		msg, CCGRN(ch, C_NRM), CCNRM(ch, C_NRM));
+	acc_sprintf(
+		"%s*****************************************************************%s\r\n",
+		CCGRN(ch, C_NRM), CCNRM(ch, C_NRM));
 
-	msg = tmp_sprintf("%s%s, %d year old %s %s %s.  Your level is %d.\r\n",
-		msg,
+	acc_sprintf("%s, %d year old %s %s %s.  Your level is %d.\r\n",
 		GET_NAME(ch),
 		GET_AGE(ch), genders[(int)GET_SEX(ch)],
 		(GET_RACE(ch) >= 0 && GET_RACE(ch) < NUM_RACES) ?
@@ -2532,179 +2531,177 @@ ACMD(do_score)
 		(GET_CLASS(ch) >= 0 && GET_CLASS(ch) < TOP_CLASS) ?
 		pc_char_class_types[(int)GET_CLASS(ch)] : "BAD CLASS", GET_LEVEL(ch));
 	if (!IS_NPC(ch) && IS_REMORT(ch))
-		msg = tmp_sprintf("%sYou have remortalized as a %s (generation %d).\r\n",
-			msg,
+		acc_sprintf("You have remortalized as a %s (generation %d).\r\n",
 			pc_char_class_types[(int)GET_REMORT_CLASS(ch)],
 			GET_REMORT_GEN(ch));
 	if ((age(ch).month == 0) && (age(ch).day == 0))
-		msg = tmp_strcat(msg, "  It's your birthday today!\r\n\r\n", NULL);
+		acc_strcat("  It's your birthday today!\r\n\r\n", NULL);
 	else
-		msg = tmp_strcat(msg, "\r\n", NULL);
+		acc_strcat("\r\n", NULL);
 
-	msg2 = tmp_sprintf("(%s%4d%s/%s%4d%s)", CCYEL(ch, C_NRM), GET_HIT(ch),
-		CCNRM(ch, C_NRM), CCGRN(ch, C_NRM), GET_MAX_HIT(ch), CCNRM(ch, C_NRM));
-	msg = tmp_sprintf("%sHit Points:  %11s           Armor Class: %s%d/10%s\r\n",
-		msg, msg2, CCGRN(ch, C_NRM), GET_AC(ch), CCNRM(ch, C_NRM));
-	msg2 = tmp_sprintf("(%s%4d%s/%s%4d%s)", CCYEL(ch, C_NRM), GET_MANA(ch),
-		CCNRM(ch, C_NRM), CCGRN(ch, C_NRM), GET_MAX_MANA(ch), CCNRM(ch,
-			C_NRM));
-	msg = tmp_sprintf("%sMana Points: %11s           Alignment: %s%d%s\r\n",
-		msg, msg2, CCGRN(ch, C_NRM), GET_ALIGNMENT(ch), CCNRM(ch, C_NRM));
-	msg2 = tmp_sprintf("(%s%4d%s/%s%4d%s)", CCYEL(ch, C_NRM), GET_MOVE(ch),
-		CCNRM(ch, C_NRM), CCGRN(ch, C_NRM), GET_MAX_MOVE(ch), CCNRM(ch,
-			C_NRM));
-	msg = tmp_sprintf("%sMove Points: %11s           Experience: %s%d%s\r\n",
-		msg, msg2, CCGRN(ch, C_NRM), GET_EXP(ch), CCNRM(ch, C_NRM));
-	msg = tmp_sprintf(
-		"%s                                   %sKills%s: %d, %sPKills%s: %d, %sArena%s: %d\r\n",
-		msg, CCYEL(ch, C_NRM), CCNRM(ch, C_NRM),
+	acc_sprintf("Hit Points:  %11s           Armor Class: %s%d/10%s\r\n",
+		tmp_sprintf("(%s%4d%s/%s%4d%s)", CCYEL(ch, C_NRM), GET_HIT(ch),
+			CCNRM(ch, C_NRM), CCGRN(ch, C_NRM), GET_MAX_HIT(ch),
+			CCNRM(ch, C_NRM)),
+		CCGRN(ch, C_NRM), GET_AC(ch), CCNRM(ch, C_NRM));
+	acc_sprintf("Mana Points: %11s           Alignment: %s%d%s\r\n",
+		tmp_sprintf("(%s%4d%s/%s%4d%s)", CCYEL(ch, C_NRM), GET_MANA(ch),
+			CCNRM(ch, C_NRM), CCGRN(ch, C_NRM), GET_MAX_MANA(ch),
+			CCNRM(ch, C_NRM)),
+		CCGRN(ch, C_NRM), GET_ALIGNMENT(ch), CCNRM(ch, C_NRM));
+	acc_sprintf("Move Points: %11s           Experience: %s%d%s\r\n",
+		tmp_sprintf("(%s%4d%s/%s%4d%s)", CCYEL(ch, C_NRM), GET_MOVE(ch),
+			CCNRM(ch, C_NRM), CCGRN(ch, C_NRM), GET_MAX_MOVE(ch),
+			CCNRM(ch, C_NRM)),
+		CCGRN(ch, C_NRM), GET_EXP(ch), CCNRM(ch, C_NRM));
+	acc_sprintf(
+		"                                   %sKills%s: %d, %sPKills%s: %d, %sArena%s: %d\r\n",
+		CCYEL(ch, C_NRM), CCNRM(ch, C_NRM),
 		(GET_MOBKILLS(ch) + GET_PKILLS(ch) + GET_ARENAKILLS(ch)),
 		CCRED(ch, C_NRM), CCNRM(ch, C_NRM), GET_PKILLS(ch),
 		CCGRN(ch, C_NRM), CCNRM(ch, C_NRM), GET_ARENAKILLS(ch));
 
-	msg = tmp_sprintf(
-		"%s%s*****************************************************************%s\r\n",
-		msg, CCRED(ch, C_NRM), CCNRM(ch, C_NRM));
-	msg = tmp_sprintf("%sYou have %s%d%s life points.\r\n",
-		msg, CCCYN(ch, C_NRM), GET_LIFE_POINTS(ch), CCNRM(ch, C_NRM));
-	msg = tmp_sprintf("%sYou are %s%d%s cm tall, and weigh %s%d%s pounds.\r\n",
-		msg, CCCYN(ch, C_NRM), GET_HEIGHT(ch), CCNRM(ch, C_NRM), CCCYN(ch, C_NRM),
+	acc_sprintf(
+		"%s*****************************************************************%s\r\n",
+		CCRED(ch, C_NRM), CCNRM(ch, C_NRM));
+	acc_sprintf("You have %s%d%s life points.\r\n",
+		CCCYN(ch, C_NRM), GET_LIFE_POINTS(ch), CCNRM(ch, C_NRM));
+	acc_sprintf("You are %s%d%s cm tall, and weigh %s%d%s pounds.\r\n",
+		CCCYN(ch, C_NRM), GET_HEIGHT(ch), CCNRM(ch, C_NRM), CCCYN(ch, C_NRM),
 		GET_WEIGHT(ch), CCNRM(ch, C_NRM));
 	if (!IS_NPC(ch)) {
 		if (GET_LEVEL(ch) < LVL_AMBASSADOR) {
-			msg = tmp_sprintf("%sYou need %s%d%s exp to reach your next level.\r\n",
-				msg,
+			acc_sprintf("You need %s%d%s exp to reach your next level.\r\n",
 				CCCYN(ch, C_NRM),
 				((exp_scale[GET_LEVEL(ch) + 1]) - GET_EXP(ch)), CCNRM(ch,
 					C_NRM));
 		} else {
 			if (ch->player_specials->poofout) {
-				msg = tmp_sprintf("%s%sPoofout:%s  %s\r\n",
-					msg, CCCYN(ch, C_NRM), CCNRM(ch, C_NRM),
+				acc_sprintf("%sPoofout:%s  %s\r\n",
+					CCCYN(ch, C_NRM), CCNRM(ch, C_NRM),
 					ch->player_specials->poofout);
 			}
 			if (ch->player_specials->poofin) {
-				msg = tmp_sprintf("%s%sPoofin :%s  %s\r\n",
-					msg, CCCYN(ch, C_NRM), CCNRM(ch, C_NRM),
+				acc_sprintf("%sPoofin :%s  %s\r\n",
+					CCCYN(ch, C_NRM), CCNRM(ch, C_NRM),
 					ch->player_specials->poofin);
 			}
 		}
 		playing_time = real_time_passed((time(0) - ch->player.time.logon) +
 			ch->player.time.played, 0);
-		msg = tmp_sprintf("%sYou have existed here for %d days and %d hours.\r\n",
-			msg, playing_time.day, playing_time.hours);
+		acc_sprintf("You have existed here for %d days and %d hours.\r\n",
+			playing_time.day, playing_time.hours);
 
-		msg = tmp_sprintf("%sYou are known as %s%s%s.%s\r\n",
-			msg, CCYEL(ch, C_NRM), GET_NAME(ch), GET_TITLE(ch), CCNRM(ch, C_NRM));
-		msg = tmp_strcat(msg, "You have a reputation of being -",
+		acc_sprintf("You are known as %s%s%s.%s\r\n",
+			CCYEL(ch, C_NRM), GET_NAME(ch), GET_TITLE(ch), CCNRM(ch, C_NRM));
+		acc_strcat("You have a reputation of being -",
 			reputation_msg[GET_REPUTATION_RANK(ch)], "-\r\n", NULL);
 	}
-	msg = tmp_sprintf(
-		"%sYou carry %s%d%s gold coins.  You have %s%d%s cash credits.\r\n",
-		msg, CCCYN(ch, C_NRM), GET_GOLD(ch), CCNRM(ch, C_NRM), CCCYN(ch,
+	acc_sprintf(
+		"You carry %s%d%s gold coins.  You have %s%d%s cash credits.\r\n",
+		CCCYN(ch, C_NRM), GET_GOLD(ch), CCNRM(ch, C_NRM), CCCYN(ch,
 			C_NRM), GET_CASH(ch), CCNRM(ch, C_NRM));
 
 	switch (ch->getPosition()) {
 	case POS_DEAD:
-		msg = tmp_strcat(msg, CCRED(ch, C_NRM),
+		acc_strcat(CCRED(ch, C_NRM),
 			"You are DEAD!\r\n", CCNRM(ch, C_NRM), NULL);
 		break;
 	case POS_MORTALLYW:
-		msg = tmp_strcat(msg, CCRED(ch, C_NRM),
+		acc_strcat(CCRED(ch, C_NRM),
 			"You are mortally wounded!  You should seek help!\r\n",
 			CCNRM(ch, C_NRM), NULL);
 		break;
 	case POS_INCAP:
-		msg = tmp_strcat(msg, CCRED(ch, C_NRM),
+		acc_strcat(CCRED(ch, C_NRM),
 			"You are incapacitated, slowly fading away...\r\n",
 			CCNRM(ch, C_NRM), NULL);
 		break;
 	case POS_STUNNED:
-		msg = tmp_strcat(msg, CCRED(ch, C_NRM),
+		acc_strcat(CCRED(ch, C_NRM),
 			"You are stunned!  You can't move!\r\n",
 			CCNRM(ch, C_NRM), NULL);
 		break;
 	case POS_SLEEPING:
 		if (AFF3_FLAGGED(ch, AFF3_STASIS))
-			msg = tmp_strcat(msg, CCGRN(ch, C_NRM),
+			acc_strcat(CCGRN(ch, C_NRM),
 				"You are inactive in a static state.\r\n",
 				CCNRM(ch, C_NRM), NULL);
 		else
-			msg = tmp_strcat(msg, CCGRN(ch, C_NRM),
+			acc_strcat(CCGRN(ch, C_NRM),
 				"You are sleeping.\r\n",
 				CCNRM(ch, C_NRM), NULL);
 		break;
 	case POS_RESTING:
-		msg = tmp_strcat(msg, CCGRN(ch, C_NRM),
+		acc_strcat(CCGRN(ch, C_NRM),
 			"You are resting.\r\n",
 			CCNRM(ch, C_NRM), NULL);
 		break;
 	case POS_SITTING:
 		if (IS_AFFECTED_2(ch, AFF2_MEDITATE))
-			msg = tmp_strcat(msg, CCGRN(ch, C_NRM),
+			acc_strcat(CCGRN(ch, C_NRM),
 				"You are meditating.\r\n",
 				CCNRM(ch, C_NRM), NULL);
 		else
-			msg = tmp_strcat(msg, CCGRN(ch, C_NRM),
+			acc_strcat(CCGRN(ch, C_NRM),
 				"You are sitting.\r\n",
 				CCNRM(ch, C_NRM), NULL);
 		break;
 	case POS_FIGHTING:
 		if ((ch->isFighting()))
-			msg = tmp_strcat(msg, CCYEL(ch, C_NRM),
+			acc_strcat(CCYEL(ch, C_NRM),
 				"You are fighting ", PERS(ch->getFighting(), ch), ".\r\n",
 				CCNRM(ch, C_NRM), NULL);
 		else
-			msg = tmp_strcat(msg, CCYEL(ch, C_NRM),
+			acc_strcat(CCYEL(ch, C_NRM),
 				"You are fighting thin air.\r\n",
 				CCNRM(ch, C_NRM), NULL);
 		break;
 	case POS_MOUNTED:
 		if (MOUNTED(ch))
-			msg = tmp_strcat(msg, CCGRN(ch, C_NRM),
+			acc_strcat(CCGRN(ch, C_NRM),
 				"You are mounted on ", PERS(MOUNTED(ch), ch), ".\r\n",
 				CCNRM(ch, C_NRM), NULL);
 		else
-			msg = tmp_strcat(msg, CCGRN(ch, C_NRM),
+			acc_strcat(CCGRN(ch, C_NRM),
 				"You are mounted on the thin air!?\r\n",
 				CCNRM(ch, C_NRM), NULL);
 		break;
 	case POS_STANDING:
-		msg = tmp_strcat(msg, CCGRN(ch, C_NRM),
+		acc_strcat(CCGRN(ch, C_NRM),
 			"You are standing\r\n",
 			CCNRM(ch, C_NRM), NULL);
 		break;
 	case POS_FLYING:
-		msg = tmp_strcat(msg, CCGRN(ch, C_NRM),
+		acc_strcat(CCGRN(ch, C_NRM),
 			"You are hovering in midair\r\n",
 			CCNRM(ch, C_NRM), NULL);
 		break;
 	default:
-		msg = tmp_strcat(msg, CCGRN(ch, C_NRM),
+		acc_strcat(CCGRN(ch, C_NRM),
 			"You are floating.\r\n",
 			CCNRM(ch, C_NRM), NULL);
 		break;
 	}
 
 	if (GET_COND(ch, DRUNK) > 10)
-		msg = tmp_strcat(msg, "You are intoxicated\r\n", NULL);
+		acc_strcat("You are intoxicated\r\n", NULL);
 	if (GET_COND(ch, FULL) == 0)
-		msg = tmp_strcat(msg, "You are hungry.\r\n", NULL);
+		acc_strcat("You are hungry.\r\n", NULL);
 	if (GET_COND(ch, THIRST) == 0) {
 		if (IS_VAMPIRE(ch))
-			msg = tmp_strcat(msg, "You have an intense thirst for blood.\r\n", NULL);
+			acc_strcat("You have an intense thirst for blood.\r\n", NULL);
 		else
-			msg = tmp_strcat(msg, "You are thirsty.\r\n", NULL);
+			acc_strcat("You are thirsty.\r\n", NULL);
 	} else if (IS_VAMPIRE(ch) && GET_COND(ch, THIRST) < 4)
-		msg = tmp_strcat(msg, "You feel the onset of your bloodlust.\r\n", NULL);
+		acc_strcat("You feel the onset of your bloodlust.\r\n", NULL);
 
 	if (GET_LEVEL(ch) >= LVL_AMBASSADOR && PLR_FLAGGED(ch, PLR_MORTALIZED))
-		msg = tmp_strcat(msg, "You are mortalized.\r\n", NULL);
+		acc_strcat("You are mortalized.\r\n", NULL);
 
-	msg = tmp_strcat(msg,
-		affs_to_str(ch, PRF2_FLAGGED(ch, PRF2_NOAFFECTS)), NULL);
+	acc_append_affects(ch, PRF2_FLAGGED(ch, PRF2_NOAFFECTS));
 
-	page_string(ch->desc, msg);
+	page_string(ch->desc, acc_get_string());
 }
 
 
