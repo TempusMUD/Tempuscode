@@ -572,7 +572,8 @@ hunt_victim(struct Creature *ch)
 		dir = find_first_step(ch->in_room, HUNTING(ch)->in_room, STD_TRACK);
 	else
 		dir = -1;
-	if (dir < 0) {
+	if (dir < 0 ||
+			find_distance(ch->in_room, HUNTING(ch)->in_room) > GET_INT(ch)) {
 		act("$n says, 'Damn! Lost $M!'", FALSE, ch, 0, HUNTING(ch), TO_ROOM);
 		HUNTING(ch) = 0;
 		return 0;
