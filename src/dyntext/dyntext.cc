@@ -175,17 +175,19 @@ create_dyntext_backup(dynamic_text_file *dyntext)
 	slog(buf);
 	return 1;
     }
-
-    if (dyntext->buffer && !(fwrite(dyntext->buffer, strlen(dyntext->buffer), 1, fl))) {
-	sprintf(buf, "SYSERR: Dyntext backup unable to write to '%s'.", filename);
-	slog(buf);
-	fclose(fl);
-	return 1;
+    
+    if (dyntext->buffer) {
+        for ( char *ptr = dyntext->buffer; *ptr; ptr++) {
+            if (*ptr == '\r')
+                continue;
+            fputc(*ptr, fl);
+        }
     }
 
     fclose(fl);
     return 0;
 }
+
 int
 save_dyntext_buffer(dynamic_text_file *dyntext)
 {
