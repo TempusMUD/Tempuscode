@@ -522,14 +522,155 @@ eqdam_extract_obj(struct obj_data *obj)
 	extract_obj(obj);
 }
 
+struct obj_data *
+destroy_object(Creature *ch, struct obj_data *obj, int type)
+{
+	struct obj_data *new_obj = NULL, *inobj = NULL;
+	struct room_data *room = NULL;
+	struct Creature *vict = NULL;
+	const char *mat_name;
+	char *msg = NULL;
+	int tmp;
+
+	if (GET_OBJ_MATERIAL(obj))
+		mat_name = material_names[GET_OBJ_MATERIAL(obj)];
+	else
+		mat_name = "material";
+
+	new_obj = create_obj();
+	new_obj->shared = null_obj_shared;
+	GET_OBJ_MATERIAL(new_obj) = GET_OBJ_MATERIAL(obj);
+	new_obj->setWeight(obj->getWeight());
+	GET_OBJ_TYPE(new_obj) = ITEM_TRASH;
+	GET_OBJ_WEAR(new_obj) = ITEM_WEAR_TAKE;
+	GET_OBJ_EXTRA(new_obj) = ITEM_NODONATE + ITEM_NOSELL;
+	GET_OBJ_VAL(new_obj, 0) = obj->shared->vnum;
+	GET_OBJ_MAX_DAM(new_obj) = 100;
+	GET_OBJ_DAM(new_obj) = 100;
+	if (type == SPELL_OXIDIZE && IS_FERROUS(obj)) {
+		msg = "$p dissolves into a pile of rust!!";
+		new_obj->aliases = str_dup("pile rust");
+		new_obj->name = str_dup("a pile of rust");
+		strcat(CAP(buf), " is lying here.");
+		new_obj->line_desc = str_dup(tmp_capitalize(tmp_strcat(new_obj->name, " is lying here.")));
+		GET_OBJ_MATERIAL(new_obj) = MAT_RUST;
+	} else if (type == SPELL_OXIDIZE && IS_BURNABLE_TYPE(obj)) {
+		msg = "$p is incinerated!!";
+		new_obj->aliases = str_dup("pile ash");
+		new_obj->name = str_dup("a pile of ash");
+		new_obj->line_desc = str_dup(tmp_capitalize(tmp_strcat(new_obj->name, " is lying here.")));
+		GET_OBJ_MATERIAL(new_obj) = MAT_ASH;
+
+	} else if (type == SPELL_BLESS) {
+		msg = "$p glows bright blue and shatters to pieces!!";
+		new_obj->aliases = str_dup(tmp_sprintf("%s %s shattered fragments",
+			material_names[GET_OBJ_MATERIAL(obj)],
+			obj->aliases));
+		new_obj->name = str_dup(tmp_strcat(
+			"shattered fragments of ", mat_name));
+		new_obj->line_desc = str_dup(tmp_capitalize(
+			tmp_strcat(new_obj->name, " are lying here.")));
+	} else if (type == SPELL_DAMN) {
+		msg = "$p glows bright red and shatters to pieces!!";
+		new_obj->aliases = str_dup(tmp_sprintf("%s %s shattered fragments",
+			material_names[GET_OBJ_MATERIAL(obj)],
+			obj->aliases));
+		new_obj->name = str_dup(tmp_strcat(
+			"shattered pieces of ", mat_name));
+		new_obj->line_desc = str_dup(tmp_capitalize(
+			tmp_strcat(new_obj->name, " are lying here.")));
+	} else if (IS_METAL_TYPE(obj)) {
+		msg = "$p is reduced to a mangled pile of scrap!!";
+		new_obj->aliases = str_dup(tmp_sprintf("%s %s mangled heap",
+			material_names[GET_OBJ_MATERIAL(obj)],
+			obj->aliases));
+		new_obj->name = str_dup(tmp_strcat("a mangled heap of ", mat_name));
+		new_obj->line_desc = str_dup(tmp_capitalize(tmp_strcat(new_obj->name, " is lying here.")));
+
+	} else if (IS_STONE_TYPE(obj) || IS_GLASS_TYPE(obj)) {
+		msg = "$p shatters into a thousand fragments!!";
+		new_obj->aliases = str_dup(tmp_sprintf("%s %s shattered fragments",
+			material_names[GET_OBJ_MATERIAL(obj)],
+			obj->aliases));
+		new_obj->name = str_dup(tmp_strcat(
+			"shattered fragments of ", mat_name));
+		new_obj->line_desc = str_dup(tmp_capitalize(
+			tmp_strcat(new_obj->name, " are lying here.")));
+
+	} else {
+		msg =  "$p has been destroyed!";
+		new_obj->aliases = str_dup(tmp_sprintf("%s %s mutilated heap",
+			material_names[GET_OBJ_MATERIAL(obj)],
+			obj->aliases));
+		new_obj->name = str_dup(tmp_strcat(
+			"a mutilated heap of ", mat_name));
+		new_obj->line_desc = str_dup(tmp_capitalize(
+			tmp_strcat(new_obj->name, " is lying here.")));
+
+		if (IS_CORPSE(obj)) {
+			GET_OBJ_TYPE(new_obj) = ITEM_CONTAINER;
+			GET_OBJ_VAL(new_obj, 0) = GET_OBJ_VAL(obj, 0);
+			GET_OBJ_VAL(new_obj, 1) = GET_OBJ_VAL(obj, 1);
+			GET_OBJ_VAL(new_obj, 2) = GET_OBJ_VAL(obj, 2);
+			GET_OBJ_VAL(new_obj, 3) = GET_OBJ_VAL(obj, 3);
+			GET_OBJ_TIMER(new_obj) = GET_OBJ_TIMER(obj);
+			/* TODO: Make this work
+			   if ( GET_OBJ_VAL( obj, 3 ) && CORPSE_IDNUM( obj ) > 0 &&
+			   CORPSE_IDNUM( obj ) <= top_of_p_table ){
+			   sprintf(buf, "%s destroyed by %s.", 
+			   obj->name, GET_NAME( ch ));
+			   mudlog(buf, CMP, LVL_DEMI, TRUE);
+			   }
+			 */
+		}
+	}
+
+	if (IS_OBJ_STAT2(obj, ITEM2_IMPLANT))
+		SET_BIT(GET_OBJ_EXTRA2(new_obj), ITEM2_IMPLANT);
+
+	if ((room = obj->in_room) && (vict = obj->in_room->people)) {
+		act(msg, FALSE, vict, obj, 0, TO_CHAR);
+		act(msg, FALSE, vict, obj, 0, TO_ROOM);
+	} else if ((vict = obj->worn_by))
+		act(msg, FALSE, vict, obj, 0, TO_CHAR);
+	else
+		act(msg, FALSE, ch, obj, 0, TO_CHAR);
+
+	if (!obj->shared->proto) {
+		eqdam_extract_obj(obj);
+		extract_obj(new_obj);
+		return NULL;
+	}
+
+	if ((vict = obj->worn_by) || (vict = obj->carried_by)) {
+		if (obj->worn_by && (obj != GET_EQ(obj->worn_by, obj->worn_on))) {
+			tmp = obj->worn_on;
+			eqdam_extract_obj(obj);
+			if (equip_char(vict, new_obj, tmp, MODE_IMPLANT))
+				return (new_obj);
+		} else {
+			eqdam_extract_obj(obj);
+			obj_to_char(new_obj, vict);
+		}
+	} else if (room) {
+		eqdam_extract_obj(obj);
+		obj_to_room(new_obj, room);
+	} else if ((inobj = obj->in_obj)) {
+		eqdam_extract_obj(obj);
+		obj_to_obj(new_obj, inobj);
+	} else {
+		slog("SYSERR: Improper location of obj and new_obj in damage_eq.");
+		eqdam_extract_obj(obj);
+	}
+	return (new_obj);
+}
+
 
 struct obj_data *
 damage_eq(struct Creature *ch, struct obj_data *obj, int eq_dam, int type)
 {
 	struct Creature *vict = NULL;
-	struct obj_data *new_obj = NULL, *inobj = NULL, *next_obj = NULL;
-	struct room_data *room = NULL;
-	int tmp;
+	struct obj_data *inobj = NULL, *next_obj = NULL;
 
     /* test to see if item should take damage */
 	if ((GET_OBJ_TYPE(obj) == ITEM_MONEY) || GET_OBJ_DAM(obj) < 0 || 
@@ -543,134 +684,14 @@ damage_eq(struct Creature *ch, struct obj_data *obj, int eq_dam, int type)
 
 	/** damage has destroyed object */
 	if ((GET_OBJ_DAM(obj) - eq_dam) < (GET_OBJ_MAX_DAM(obj) >> 5)) {
-		new_obj = create_obj();
-		new_obj->shared = null_obj_shared;
-		GET_OBJ_MATERIAL(new_obj) = GET_OBJ_MATERIAL(obj);
-		new_obj->setWeight(obj->getWeight());
-		GET_OBJ_TYPE(new_obj) = ITEM_TRASH;
-		GET_OBJ_WEAR(new_obj) = ITEM_WEAR_TAKE;
-		GET_OBJ_EXTRA(new_obj) = ITEM_NODONATE + ITEM_NOSELL;
-		GET_OBJ_VAL(new_obj, 0) = obj->shared->vnum;
-		GET_OBJ_MAX_DAM(new_obj) = 100;
-		GET_OBJ_DAM(new_obj) = 100;
-
 		/* damage interior items */
 		for (inobj = obj->contains; inobj; inobj = next_obj) {
 			next_obj = inobj->next_content;
 
 			damage_eq(NULL, inobj, (eq_dam >> 1), type);
 		}
-		if (type == SPELL_OXIDIZE && IS_FERROUS(obj)) {
-			strcpy(buf2, "$p dissolves into a pile of rust!!");
-			strcpy(buf, "pile rust");
-			new_obj->aliases = str_dup(buf);
-			sprintf(buf, "a pile of rust");
-			new_obj->name = str_dup(buf);
-			strcat(CAP(buf), " is lying here.");
-			new_obj->line_desc = str_dup(buf);
-			GET_OBJ_MATERIAL(new_obj) = MAT_RUST;
-		} else if (type == SPELL_OXIDIZE && IS_BURNABLE_TYPE(obj)) {
-			strcpy(buf2, "$p is incinerated!!");
-			strcpy(buf, "pile ash");
-			new_obj->aliases = str_dup(buf);
-			sprintf(buf, "a pile of ash");
-			new_obj->name = str_dup(buf);
-			strcat(CAP(buf), " is lying here.");
-			new_obj->line_desc = str_dup(buf);
-			GET_OBJ_MATERIAL(new_obj) = MAT_ASH;
-		} else if (IS_METAL_TYPE(obj)) {
-			strcpy(buf2, "$p is reduced to a mangled pile of scrap!!");
 
-			sprintf(buf, "%s heap mangled %s",
-				material_names[GET_OBJ_MATERIAL(obj)], obj->aliases);
-			new_obj->aliases = str_dup(buf);
-			sprintf(buf, "a mangled heap of %s",
-				material_names[GET_OBJ_MATERIAL(obj)]);
-			new_obj->name = str_dup(buf);
-			strcat(CAP(buf), " is lying here.");
-			new_obj->line_desc = str_dup(buf);
-
-		} else if (IS_STONE_TYPE(obj) || IS_GLASS_TYPE(obj)) {
-			strcpy(buf2, "$p shatters into a thousand fragments!!");
-
-			sprintf(buf, "%s shattered fragments %s",
-				material_names[GET_OBJ_MATERIAL(obj)], obj->aliases);
-			new_obj->aliases = str_dup(buf);
-			sprintf(buf, "shattered fragments of %s",
-				material_names[GET_OBJ_MATERIAL(obj)]);
-			new_obj->name = str_dup(buf);
-			strcat(CAP(buf), " are lying here.");
-			new_obj->line_desc = str_dup(buf);
-
-		} else {
-			strcpy(buf2, "$p has been destroyed!");
-
-			sprintf(buf, "%s mutilated heap %s%s",
-				material_names[GET_OBJ_MATERIAL(obj)],
-				GET_OBJ_MATERIAL(obj) ? "" : " material ", obj->aliases);
-			new_obj->aliases = str_dup(buf);
-			sprintf(buf, "a mutilated heap of %s%s",
-				material_names[GET_OBJ_MATERIAL(obj)],
-				!GET_OBJ_MATERIAL(obj) ? " material" : "");
-			new_obj->name = str_dup(buf);
-			strcat(CAP(buf), " is lying here.");
-			new_obj->line_desc = str_dup(buf);
-			if (IS_CORPSE(obj)) {
-				GET_OBJ_TYPE(new_obj) = ITEM_CONTAINER;
-				GET_OBJ_VAL(new_obj, 0) = GET_OBJ_VAL(obj, 0);
-				GET_OBJ_VAL(new_obj, 1) = GET_OBJ_VAL(obj, 1);
-				GET_OBJ_VAL(new_obj, 2) = GET_OBJ_VAL(obj, 2);
-				GET_OBJ_VAL(new_obj, 3) = GET_OBJ_VAL(obj, 3);
-				GET_OBJ_TIMER(new_obj) = GET_OBJ_TIMER(obj);
-				/* TODO: Make this work
-				   if ( GET_OBJ_VAL( obj, 3 ) && CORPSE_IDNUM( obj ) > 0 &&
-				   CORPSE_IDNUM( obj ) <= top_of_p_table ){
-				   sprintf(buf, "%s destroyed by %s.", 
-				   obj->name, GET_NAME( ch ));
-				   mudlog(buf, CMP, LVL_DEMI, TRUE);
-				   }
-				 */
-			}
-		}
-
-		if (IS_OBJ_STAT2(obj, ITEM2_IMPLANT))
-			SET_BIT(GET_OBJ_EXTRA2(new_obj), ITEM2_IMPLANT);
-
-		if ((room = obj->in_room) && (vict = obj->in_room->people)) {
-			act(buf2, FALSE, vict, obj, 0, TO_CHAR);
-			act(buf2, FALSE, vict, obj, 0, TO_ROOM);
-		} else if ((vict = obj->worn_by))
-			act(buf2, FALSE, vict, obj, 0, TO_CHAR);
-		else
-			act(buf2, FALSE, ch, obj, 0, TO_CHAR);
-
-		if (!obj->shared->proto) {
-			eqdam_extract_obj(obj);
-			extract_obj(new_obj);
-			return NULL;
-		}
-
-		if ((vict = obj->worn_by) || (vict = obj->carried_by)) {
-			if (obj->worn_by && (obj != GET_EQ(obj->worn_by, obj->worn_on))) {
-				tmp = obj->worn_on;
-				eqdam_extract_obj(obj);
-				if (equip_char(vict, new_obj, tmp, MODE_IMPLANT))
-					return (new_obj);
-			} else {
-				eqdam_extract_obj(obj);
-				obj_to_char(new_obj, vict);
-			}
-		} else if (room) {
-			eqdam_extract_obj(obj);
-			obj_to_room(new_obj, room);
-		} else if ((inobj = obj->in_obj)) {
-			eqdam_extract_obj(obj);
-			obj_to_obj(new_obj, inobj);
-		} else {
-			slog("SYSERR: Improper location of obj and new_obj in damage_eq.");
-			eqdam_extract_obj(obj);
-		}
-		return (new_obj);
+		return destroy_object(ch, obj, type);
 	}
 
 
