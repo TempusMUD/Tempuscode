@@ -604,10 +604,25 @@ point_update(void)
 		    break;
 		}
 	    }
-	} else if ((i->getPosition() == POS_INCAP && damage(i, i, 1, TYPE_SUFFERING, -1)) ||
-		   (i->getPosition() == POS_MORTALLYW && damage(i,i,2,TYPE_SUFFERING, -1)))
+	} else if ((i->getPosition() == POS_INCAP || i->getPosition() == POS_MORTALLYW )) {
+        // If they've been healed since they were incapacitated,
+        //  Update thier position appropriately.
+        if (GET_HIT(i) > -11) {
+            if(GET_HIT(i) > 0) {
+                i->setPosition(POS_RESTING);
+            } else if (GET_HIT(i) > -3) {
+                i->setPosition(POS_STUNNED);
+            } else if (GET_HIT(i) > -6) {
+                i->setPosition(POS_INCAP);
+            } else {
+                i->setPosition(POS_MORTALLYW);
+            }
+        }
+        // Blood! Blood makes the grass grow drill seargent!
+        if ((i->getPosition() == POS_INCAP && damage(i, i, 1, TYPE_SUFFERING, -1)) ||
+            (i->getPosition() == POS_MORTALLYW && damage(i,i,2,TYPE_SUFFERING, -1)))
 	    continue;
-
+    }
 	if (!IS_NPC(i)) {
 	    update_char_objects(i);
 	    if (GET_LEVEL(i) < LVL_GOD && check_idling(i))

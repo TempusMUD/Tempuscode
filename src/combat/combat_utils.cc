@@ -80,9 +80,18 @@ calculate_weapon_probability( struct char_data *ch, int prob, struct obj_data *w
 	weap_weight = MAX( ( weap->getWeight() >> 2 ), weap_weight );
 
 	if(weap->worn_on == WEAR_WIELD_2) {
-		prob -= ( prob * weap_weight ) / 
-				( str_app[STRENGTH_APPLY_INDEX( ch )].wield_w >> 1 );
-		prob += CHECK_SKILL( ch, SKILL_SECOND_WEAPON ) - 60;
+            prob -= ( prob * weap_weight ) / 
+                    ( str_app[STRENGTH_APPLY_INDEX( ch )].wield_w >> 1 );
+	    if ( !affected_by_spell(ch, SKILL_NEURAL_BRIDGING) ) {
+            prob += CHECK_SKILL( ch, SKILL_SECOND_WEAPON ) - 60;
+        } else {
+            if ( CHECK_SKILL( ch, SKILL_SECOND_WEAPON ) >= LEARNED( ch )) {
+                prob += CHECK_SKILL( ch, SKILL_SECOND_WEAPON ) - 60;
+            } else {
+                prob -= 20;
+            }
+            prob += CHECK_SKILL(ch, SKILL_NEURAL_BRIDGING) - 100;
+        }
 	} else {
 		prob -= ( prob * weap_weight ) / 
 				( str_app[STRENGTH_APPLY_INDEX( ch )].wield_w << 1 );
@@ -473,12 +482,14 @@ calculate_thaco( struct char_data *ch, struct char_data *victim,
 	    calc_thaco += ( LEARNED( ch ) - weapon_prof( ch, weap ) ) / 8;
 
 	if ( GET_EQ( ch, WEAR_WIELD_2 ) ) {
-	    if ( CHECK_SKILL( ch, SKILL_SECOND_WEAPON ) < LEARNED( ch ) ) {
-		if ( weap == GET_EQ( ch, WEAR_WIELD_2 ) )
-		    calc_thaco -= ( LEARNED( ch )-CHECK_SKILL( ch, SKILL_SECOND_WEAPON ) )/5;
-		else
-		    calc_thaco -= ( LEARNED( ch )-CHECK_SKILL( ch, SKILL_SECOND_WEAPON ) )/10;
-	    }
+        // They dont know how to second wield and they dont have neural bridging
+	    if ( CHECK_SKILL( ch, SKILL_SECOND_WEAPON ) < LEARNED( ch ) 
+            && !affected_by_spell(ch, SKILL_NEURAL_BRIDGING) ) {
+            if ( weap == GET_EQ( ch, WEAR_WIELD_2 ) )
+                calc_thaco -= ( LEARNED( ch )-CHECK_SKILL( ch, SKILL_SECOND_WEAPON ) )/5;
+            else
+                calc_thaco -= ( LEARNED( ch )-CHECK_SKILL( ch, SKILL_SECOND_WEAPON ) )/10;
+        }
 	}
     } /* end if ( weap ) */
 

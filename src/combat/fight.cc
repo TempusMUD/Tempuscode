@@ -2032,6 +2032,9 @@ int hit( struct char_data * ch, struct char_data * victim, int type ) {
         gain_skill_prof( ch, SKILL_DBL_ATTACK );
     if ( CHECK_SKILL( ch, SKILL_TRIPLE_ATTACK ) > 60 )
         gain_skill_prof( ch, SKILL_TRIPLE_ATTACK );
+    if ( affected_by_spell(ch, SKILL_NEURAL_BRIDGING)
+        && CHECK_SKILL(ch, SKILL_NEURAL_BRIDGING) > 60) 
+        gain_skill_prof(ch, SKILL_NEURAL_BRIDGING);
   
     /* okay, it's a hit.  calculate limb */
 

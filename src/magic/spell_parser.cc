@@ -3533,17 +3533,17 @@ mag_assign_spells(void)
     remort_spello(SKILL_ADV_IMPLANT_W, CLASS_CYBORG, 28, 5,
 		  0, 0, 0, 0, 0, 0, 0);
 
-	spello(SKILL_OFFENSIVE_POS,  X, X, X, X, X, X, X, X, X, X, X, X, X,X,X,X,X,
+	spello(SKILL_OFFENSIVE_POS,  X, X, X, X, X, X, X, 15, X, X, X, X, X,X,X,X,X,
 	   0, 0, 0, 0, 0, 0, CYB_ACTIVATE);
 
-	spello(SKILL_DEFENSIVE_POS,  X, X, X, X, X, X, X, X, X, X, X, X, X,X,X,X,X,
+	spello(SKILL_DEFENSIVE_POS,  X, X, X, X, X, X, X, 15, X, X, X, X, X,X,X,X,X,
 	   0, 0, 0, 0, 0, 0, CYB_ACTIVATE);
 
                               /* Ma Cl Th Wa Ba Sy Ph  C Kn  Rn Hd Mk Vm Mr 1 2 3 */
 	spello(SKILL_MELEE_COMBAT_TAC,X, X, X, X, X, X, X, 24, X, X, X, X, X,X,X,X,X,
 	   0, 0, 0, 0, 0, 0, CYB_ACTIVATE);
 
-	spello(SKILL_NEURAL_BRIDGING,  X, X, X, X, X, X, X, X, X, X, X, X, X,X,X,X,X,
+	spello(SKILL_NEURAL_BRIDGING, X, X, X, X, X, X, X, 35, X, X, X, X, X,X,X,X,X,
 	   0, 0, 0, 0, 0, 0, CYB_ACTIVATE);
 
 	spello(SKILL_ARTERIAL_FLOW,X,X, X, X, X, X,X, X, X, X, X, X, X,X,X,X,X,

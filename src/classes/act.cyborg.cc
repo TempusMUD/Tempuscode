@@ -641,6 +641,61 @@ void perform_cyborg_activate(CHAR *ch, int mode, int subcmd)
     
             break;
 
+        case SKILL_NEURAL_BRIDGING:// Cogenic Neural Bridging
+            af[0].bitvector = 0;
+            af[0].aff_index = 0;
+            af[0].location = APPLY_MOVE;
+            af[0].modifier = -37;
+      
+            to_char[1] = "Activating Cogenic Neural Bridge.\r\n";
+            to_char[0] = "Deactivating Cogenic Neural Bridge.\r\n";
+            break;
+        case SKILL_OFFENSIVE_POS:// Offensive Posturing
+            af[0].bitvector = 0;
+            af[0].aff_index = 0;
+            af[0].location = APPLY_AC;
+            af[0].modifier = (GET_LEVEL(ch) + (2 * GET_REMORT_GEN(ch) ));
+            
+            af[1].bitvector = 0;
+            af[1].aff_index = 0;
+            af[1].location = APPLY_DAMROLL;
+            af[1].modifier = (GET_LEVEL(ch) + (2 * GET_REMORT_GEN(ch) )) / 10;
+            af[1].type = SKILL_OFFENSIVE_POS;
+
+            af[2].bitvector = 0;
+            af[2].aff_index = 0;
+            af[2].location = APPLY_HITROLL;
+            af[2].modifier = (GET_LEVEL(ch) + (2 * GET_REMORT_GEN(ch) )) / 7;
+            af[2].type = SKILL_OFFENSIVE_POS;
+      
+            to_char[1] = "Offensive Posturing enabled.\r\n";
+            to_char[0] = "Offensive Posturing disabled.\r\n";
+            if(affected_by_spell(ch, SKILL_DEFENSIVE_POS))
+                mode = SKILL_DEFENSIVE_POS;
+            break;
+        case SKILL_DEFENSIVE_POS:// Defensive Posturing
+            af[0].bitvector = 0;
+            af[0].aff_index = 0;
+            af[0].location = APPLY_AC;
+            af[0].modifier = - (GET_LEVEL(ch) + (2 * GET_REMORT_GEN(ch) ));
+            
+            af[1].bitvector = 0;
+            af[1].aff_index = 0;
+            af[1].location = APPLY_DAMROLL;
+            af[1].modifier = -(GET_LEVEL(ch) + (2 * GET_REMORT_GEN(ch) )) / 10;
+            af[1].type = SKILL_DEFENSIVE_POS;
+
+            af[2].bitvector = 0;
+            af[2].aff_index = 0;
+            af[2].location = APPLY_HITROLL;
+            af[2].modifier = -(GET_LEVEL(ch) + (2 * GET_REMORT_GEN(ch) )) / 7;
+            af[2].type = SKILL_DEFENSIVE_POS;
+      
+            to_char[1] = "Defensive Posturing enabled.\r\n";
+            to_char[0] = "Defensive Posturing disabled.\r\n";
+            if(affected_by_spell(ch, SKILL_OFFENSIVE_POS))
+                mode = SKILL_OFFENSIVE_POS;
+            break;
         default:
             send_to_char("ERROR: Unknown mode occured in switch.\r\n", ch);
             return;
@@ -1512,8 +1567,15 @@ ACMD(do_status)
                 strcat(buf, "Melee Combat Tactics are in effect.\r\n");
             if ( affected_by_spell(ch, SKILL_RADIONEGATION) )
                 strcat(buf, "Radionegation device is operating.\r\n");
+            if (affected_by_spell(ch, SKILL_OFFENSIVE_POS))
+                strcat(buf, "Systems postured for offensive tactics.\r\n");
+            if (affected_by_spell(ch, SKILL_DEFENSIVE_POS ))
+                strcat(buf, "Systems postured for defensive tactics.\r\n");
+            if (affected_by_spell(ch, SKILL_NEURAL_BRIDGING ))
+                strcat(buf, "Cogenic Neural Bridging enabled.\r\n");
             if (affected_by_spell(ch, SKILL_ASSIMILATE)) {
                 sprintf(buf, "%s%sCurrently active assimilation affects:%s\r\n", buf, CCGRN(ch, C_NRM), CCNRM(ch, C_NRM));
+
 
                 for (i = 0, aff = ch->affected; aff; aff = aff->next) {
                     if (aff->type == SKILL_ASSIMILATE) {

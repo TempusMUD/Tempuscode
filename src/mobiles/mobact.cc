@@ -1843,6 +1843,19 @@ void mobile_activity(void) {
                     if (ANTI_ALIGN_OBJ(ch, obj) 
                         && ( random_number_zero_low( 15 ) + 6 ) < GET_INT(ch)
                         && !IS_NODROP(obj)) {
+                        // Check to see if the obj is renamed Or Imm Enchanted
+                        // Log it if it is.
+                        struct obj_data *original = real_object_proto(GET_OBJ_VNUM(obj));
+                        int renamed = 0;
+                        if(original)
+                            renamed = strcmp(obj->short_description, original->short_description);
+                        if(renamed || isname_exact("imm",obj->name)) {
+                            sprintf(buf,"%s [%d] junked by %s at %s [%d]. ( %s %s )",
+                                obj->short_description, GET_OBJ_VNUM(obj),
+                                GET_NAME(ch), ch->in_room->name, ch->in_room->number,
+                                renamed ? "R3nAm3" :"", isname_exact("imm",obj->name) ? "|mM3nChAnT" : "");
+                            mudlog(buf,CMP,LVL_IMMORT,TRUE);
+                        }
                         act("$n junks $p.",TRUE,ch,obj,0,TO_ROOM);
                         extract_obj(obj);
                         break;

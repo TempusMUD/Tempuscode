@@ -122,6 +122,8 @@ ACMD(do_wrench)
          return;
      }
 
+    if (!peaceful_room_ok(ch, vict, true))
+    return;
      // 
      // give a bonus if both hands are free
      //
