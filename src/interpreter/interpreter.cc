@@ -1773,32 +1773,32 @@ perform_alias(struct descriptor_data *d, char *orig)
 int
 search_block(const char *arg, const char **list, bool exact)
 {
-	register int i, l;
-	int count = 0;
+	if( *arg == '\0' )
+		return -1;
 
 	if (exact) {
-		for (i = 0; **(list + i) != '\n'; i++)
-			if (!strcasecmp(arg, *(list + i)))
-				return (i);
+		for( int i = 0; *(list[i]) != '\n'; i++ ) {
+			if( *(list[i]) == '!' ) // reserved
+				continue;
+			if( strcasecmp( arg, list[i] ) == 0 )
+				return i;
+		}
 	} else {
-		if (!l)
-			l = 1;				/* Avoid "" to match the first available
-								 * string */
-		for (i = 0; **(list + i) != '\n'; i++) {
-			count++;
-			if (!strncasecmp(arg, *(list + i), l))
-				return (i);
-			if (count > 1000) {
+		int len = strlen( arg );
+		for (int i = 0; *(list[i]) != '\n'; i++) {
+			if( *(list[i]) == '!' ) // reserved
+				continue;
+			if (strncasecmp(arg, list[i], len) == 0)
+				return i;
+			if (i > 1000) {
 				sprintf(buf,
-					"SYSERR: search_block in unterminated list. [0] = '%s'.",
-					list[0]);
-				slog(buf);
-				return (-1);
+				"SYSERR: search_block in unterminated list. arg = %s [0] = '%s'.",
+				arg,list[0]);
+				mudlog(buf, BRF, LVL_AMBASSADOR, TRUE);
+				return -1;
 			}
 		}
-
 	}
-
 	return -1;
 }
 
