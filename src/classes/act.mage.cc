@@ -100,23 +100,32 @@ ACMD(do_empower)
 	af3.duration = (GET_INT(ch) >> 1);
 	af3.location = APPLY_MOVE;
 	af3.modifier = -(val2);
+
+	struct affected_type *cur_aff;
+	int aff_power;
+
+	for (cur_aff = ch->affected;cur_aff;cur_aff = cur_aff->next) {
+		if (cur_aff->type == SKILL_EMPOWER
+				&& cur_aff->location == APPLY_MANA) {
+			aff_power = cur_aff->modifier + val1 + val2 - 5;
+			if (aff_power > 666) {
+				send_to_char(ch, "You are already fully empowered.\r\n");
+				return;
+			}
+		}
+	}
 	affect_join(ch, &af, 0, 0, 1, 0);
 
-	if (GET_MAX_MANA(ch) > old_maxmana) {	// Success!
-		GET_MANA(ch) = MIN((old_mana + val2 + val1), GET_MAX_MANA(ch));
-		send_to_char(ch, "You redirect your energies!\r\n");
-		affect_join(ch, &af2, 0, 0, 1, 0);
-		affect_join(ch, &af3, 0, 0, 1, 0);
+	GET_MANA(ch) = MIN((old_mana + val2 + val1), GET_MAX_MANA(ch));
+	send_to_char(ch, "You redirect your energies!\r\n");
+	affect_join(ch, &af2, 0, 0, 1, 0);
+	affect_join(ch, &af3, 0, 0, 1, 0);
 
-		if ((GET_MAX_HIT(ch) >> 1) < GET_WIMP_LEV(ch)) {
-			send_to_char(ch,
-				"Your wimpy level has been changed from %d to %d ... wimp!\r\n",
-				GET_WIMP_LEV(ch), GET_MAX_HIT(ch) >> 1);
-			GET_WIMP_LEV(ch) = GET_MAX_HIT(ch) >> 1;
-		}
-	} else {					// hrm. OOps.. Ran outta gas.
-		GET_MANA(ch) = old_mana;
-		send_to_char(ch, "You are already fully empowered.\r\n");
+	if ((GET_MAX_HIT(ch) >> 1) < GET_WIMP_LEV(ch)) {
+		send_to_char(ch,
+			"Your wimpy level has been changed from %d to %d ... wimp!\r\n",
+			GET_WIMP_LEV(ch), GET_MAX_HIT(ch) >> 1);
+		GET_WIMP_LEV(ch) = GET_MAX_HIT(ch) >> 1;
 	}
 	act("$n concentrates deeply.", TRUE, ch, 0, 0, TO_ROOM);
 	if (GET_LEVEL(ch) < LVL_GRGOD)
