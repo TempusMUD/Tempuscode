@@ -366,12 +366,12 @@ general_search(struct Creature *ch, struct special_search_data *srch,
 
 			CreatureList::iterator it = src_room->people.begin();
 			for (; it != src_room->people.end(); ++it) {
-
-				if (srch->to_room) {
-					act(srch->to_room, FALSE, ch, obj, *it, TO_VICT);
-				}
-
-				int r = search_trans_character(*it, srch, targ_room, obj, mob);
+				mob = *it;
+				if (srch->to_room)
+					act(srch->to_room, FALSE, ch, obj, mob, TO_VICT);
+				if (SRCH_FLAGGED(srch, SRCH_NOAFFMOB) && IS_NPC(mob))
+					continue;
+				int r = search_trans_character(mob, srch, targ_room, obj, mob);
 				if (rc != 2)
 					rc = r;
 			}
