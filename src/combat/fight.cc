@@ -2856,7 +2856,8 @@ damage( struct char_data * ch, struct char_data * victim, int dam,
 	 ( !ch || !IS_EVIL( victim ) || 
 	   !affected_by_spell( ch, SPELL_RIGHTEOUS_PENETRATION ) ) &&
 	 ( !ch || !IS_GOOD( victim ) || 
-	   !affected_by_spell( ch, SPELL_MALEFIC_VIOLATION ) ) ) {
+	   !affected_by_spell( ch, SPELL_MALEFIC_VIOLATION ) ) && 
+	 ( !(  attacktype == TYPE_BLEED ) && ! ( attacktype == SPELL_POISON ) ) ) {
 	if ( IS_VAMPIRE( victim ) || IS_CYBORG( victim ) || IS_PHYSIC( victim ) )
 	    dam = ( int ) ( dam * 0.80 );
 	else if ( IS_CLERIC( victim ) || IS_KNIGHT( victim ) ) {
@@ -3060,14 +3061,17 @@ damage( struct char_data * ch, struct char_data * victim, int dam,
 	break;
     }
 
-    if ( affected_by_spell( victim, SPELL_MANA_SHIELD ) ) {
+    if ( affected_by_spell( victim, SPELL_MANA_SHIELD ) &&  ( !  ( attacktype == TYPE_BLEED ) && 
+	 ! ( attacktype == SPELL_POISON ) ) ) { 
 	mana_loss = ( dam * GET_MSHIELD_PCT( victim ) ) / 100;
 	mana_loss = MAX( MIN( GET_MANA( victim ) - GET_MSHIELD_LOW( victim ), mana_loss ), 0 );
 	GET_MANA( victim ) -= mana_loss;
+	
 	if ( GET_MANA( victim ) <= GET_MSHIELD_LOW( victim ) ) {
 	    send_to_char( "Your mana shield has expired.\r\n", victim );
 	    affect_from_char( victim, SPELL_MANA_SHIELD );
 	}
+	
 	dam = MAX( 0, dam - mana_loss );
     }
 	

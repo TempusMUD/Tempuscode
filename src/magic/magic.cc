@@ -567,7 +567,7 @@ mag_damage(int level, struct char_data * ch, struct char_data * victim,
 	dam = dice(9, 8) + (level >> 1);
 	break;
     case SPELL_OXIDIZE:
-	dam = dice(4, 6) + (level << 1);
+	dam = dice(7, 8) + (level);
 	break;
 
 
