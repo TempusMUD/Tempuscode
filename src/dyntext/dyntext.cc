@@ -892,7 +892,7 @@ check_dyntext_updates(Creature *ch, int mode)
 	dynamic_text_file *dyntext = NULL;
 
 	for (dyntext = dyntext_list; dyntext; dyntext = dyntext->next) {
-		if (dyntext->last_edit[0].tEdit > ch->desc->old_login_time) {
+		if (dyntext->last_edit[0].tEdit > ch->account->get_entry_time()) {
 			if (!strcmp(dyntext->filename, "inews")
 				&& GET_LEVEL(ch) < LVL_AMBASSADOR)
 				continue;
