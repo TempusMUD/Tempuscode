@@ -1267,59 +1267,58 @@ ACMD(do_discharge)
 
     half_chop(argument, arg1, arg2);
   
-    if (!IS_CYBORG(ch)) {
-    send_to_char("You discharge some smelly gas.\r\n", ch);
-    act("$n discharges some smelly gas.",FALSE,ch,0,0,TO_ROOM);
-    return;
+    if (!IS_CYBORG(ch) && GET_LEVEL(ch) < LVL_DEMI) {
+        send_to_char("You discharge some smelly gas.\r\n", ch);
+        act("$n discharges some smelly gas.",FALSE,ch,0,0,TO_ROOM);
+        return;
     }
   
     if (CHECK_SKILL(ch, SKILL_DISCHARGE) < 20) {
-    send_to_char("You are unable to discharge.\r\n", ch);
-    return;
+        send_to_char("You are unable to discharge.\r\n", ch);
+        return;
     }
 
     if ( (SECT_TYPE(ch->in_room) == SECT_UNDERWATER ||
 	  SECT_TYPE(ch->in_room) == SECT_WATER_SWIM ||
 	  SECT_TYPE(ch->in_room) == SECT_WATER_NOSWIM ||
-          SECT_TYPE(ch->in_room) == SECT_ELEMENTAL_WATER ) )
-    {
-	send_to_char("ERROR: Systems halted a process that would have caused a short circuit.\r\n", ch );
-	return;
+      SECT_TYPE(ch->in_room) == SECT_ELEMENTAL_WATER ) ) {
+        send_to_char("ERROR: Systems halted a process that would have caused a short circuit.\r\n", ch );
+        return;
     }
 
     if (!*arg1) {
-    send_to_char("Usage: discharge <energy discharge amount> <victim>\r\n",ch);
-    return;
+        send_to_char("Usage: discharge <energy discharge amount> <victim>\r\n",ch);
+        return;
     }
 
     if (!(vict = get_char_room_vis(ch, arg2)) && 
     !(ovict = get_obj_in_list_vis(ch, arg2, ch->in_room->contents))) {
-    if (FIGHTING(ch)) {
-        vict = FIGHTING(ch);
-    } else {
-        send_to_char("Discharge into who?\r\n", ch);
-        return;
-    }
+        if (FIGHTING(ch)) {
+            vict = FIGHTING(ch);
+        } else {
+            send_to_char("Discharge into who?\r\n", ch);
+            return;
+        }
     }
 
     if (!is_number(arg1)) {
-    send_to_char("The discharge amount must be a number.\r\n", ch);
-    return;
+        send_to_char("The discharge amount must be a number.\r\n", ch);
+        return;
     }
     amount = atoi(arg1);
 
     if (amount > GET_MOVE(ch)) {
-    send_to_char("ERROR: Energy levels too low for requested discharge.\r\n", ch);
-    return;
+        send_to_char("ERROR: Energy levels too low for requested discharge.\r\n", ch);
+        return;
     }
 
     if (amount < 0) {
-    send_to_char("Discharge into who?\r\n", ch);
-    sprintf(buf, "%s neg-discharge %d %s at %d", GET_NAME(ch), 
+        send_to_char("Discharge into who?\r\n", ch);
+        sprintf(buf, "%s neg-discharge %d %s at %d", GET_NAME(ch), 
         amount, vict ? GET_NAME(vict) : ovict->short_description, 
         ch->in_room->number);
-    mudlog(buf, NRM, LVL_GRGOD, TRUE);
-    return;
+        mudlog(buf, NRM, LVL_GRGOD, TRUE);
+        return;
     }
 
     GET_MOVE(ch) -= amount;
@@ -1378,11 +1377,11 @@ ACMD(do_discharge)
     }
 
     if (vict == ch) {
-    send_to_char("Let's not try that shall we...\r\n", ch);
-    return;
+        send_to_char("Let's not try that shall we...\r\n", ch);
+        return;
     }
     if (!peaceful_room_ok(ch, vict, true))
-    return;
+        return;
 
     percent = 
     ((10 - (GET_AC(vict) / 10)) >> 1) + number(1, 91);
