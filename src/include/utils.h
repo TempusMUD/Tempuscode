@@ -625,19 +625,17 @@ static inline bool IS_REMORT( const Creature *ch )
 #define MEMORY(ch)                ((ch)->mob_specials.memory)
 #define MOB_IDNUM(ch)           ((ch)->mob_specials.mob_idnum)
 
-#define STRENGTH_APPLY_INDEX(ch) \
-        ( ((GET_ADD(ch)==0) || (GET_STR(ch) != 18)) ? GET_STR(ch) :\
-          (GET_ADD(ch) <= 10) ? 26 :( \
-          (GET_ADD(ch) <= 20) ? 27 :( \
-          (GET_ADD(ch) <= 30) ? 28 :( \
-          (GET_ADD(ch) <= 40) ? 29 :( \
-          (GET_ADD(ch) <= 50) ? 30 :( \
-          (GET_ADD(ch) <= 60) ? 31 :( \
-          (GET_ADD(ch) <= 70) ? 32 :( \
-          (GET_ADD(ch) <= 80) ? 33 :( \
-          (GET_ADD(ch) <= 90) ? 34 :( \
-          (GET_ADD(ch) <= 99) ? 35 :  36 ) ) ) ) ) ) ) ) )                    \
-       )
+inline int
+STRENGTH_APPLY_INDEX(Creature *ch)
+{
+	if (GET_STR(ch) < 0 || GET_STR(ch) > 25)
+		return 11;
+	if (GET_STR(ch) != 18)
+		return GET_STR(ch);
+	if (GET_ADD(ch) == 99)
+		return 35;
+	return GET_STR(ch) + GET_ADD(ch) / 10 + 1;
+}
 
 #define CAN_CARRY_W(ch) (MAX(10, RAW_CARRY_W(ch)))
 
