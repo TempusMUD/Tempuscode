@@ -183,7 +183,7 @@ handle_input(struct descriptor_data *d, char *arg)
 			set_desc_state(CXN_PW_PROMPT, d);
 		} else {
 			d->account->save_to_xml();
-			set_desc_state(CXN_NAME_PROMPT, d);
+			set_desc_state(CXN_MENU, d);
 		}
 		break;
 	case CXN_MENU:
@@ -607,6 +607,8 @@ handle_input(struct descriptor_data *d, char *arg)
 		set_desc_state(CXN_WAIT_MENU, d);
 		break;
 	case CXN_AFTERLIFE:
+		char_to_game(d);
+		break;
 	case CXN_WAIT_MENU:
 		set_desc_state(CXN_MENU, d); break;
 	case CXN_REMORT_AFTERLIFE:
@@ -871,9 +873,11 @@ send_menu(descriptor_data *d)
 		break;
 	case CXN_OLDPW_PROMPT:
 		send_to_desc(d, "\e[H\e[J");
-		send_to_desc(d,"&c\r\n                                  SET PASSWORD\r\n*******************************************************************************\r\n\r\n&n");
-		// fall through
+		send_to_desc(d,"&c\r\n                                 CHANGE PASSWORD\r\n*******************************************************************************\r\n\r\n&n");
+		break;
 	case CXN_PW_PROMPT:
+		send_to_desc(d, "\e[H\e[J");
+		send_to_desc(d,"&c\r\n                                  SET PASSWORD\r\n*******************************************************************************\r\n\r\n&n");
 		send_to_desc(d, "    In order to protect your character against intrusion, you must\r\nchoose a password to use on this system.\r\n\r\n");
 		break;
 	case CXN_ACCOUNT_PROMPT:
@@ -1251,6 +1255,41 @@ echo_on(struct descriptor_data *d)
     SEND_TO_Q(on_string, d);
 }
 
+/* clear some of the the working variables of a char */
+void
+reset_char(struct Creature *ch)
+{
+	int i;
+
+	for (i = 0; i < NUM_WEARS; i++) {
+		ch->equipment[i] = NULL;
+		ch->implants[i] = NULL;
+	}
+
+	ch->followers = NULL;
+	ch->master = NULL;
+	/* ch->in_room = NOWHERE; Used for start in room */
+	ch->carrying = NULL;
+	ch->setFighting(NULL);
+	ch->char_specials.position = POS_STANDING;
+	if (ch->mob_specials.shared)
+		ch->mob_specials.shared->default_pos = POS_STANDING;
+	ch->char_specials.carry_weight = 0;
+	ch->char_specials.carry_items = 0;
+	ch->player_specials->olc_obj = NULL;
+	ch->player_specials->olc_mob = NULL;
+	ch->player_specials->olc_ticl = NULL;
+
+	if (GET_HIT(ch) <= 0)
+		GET_HIT(ch) = 1;
+	if (GET_MOVE(ch) <= 0)
+		GET_MOVE(ch) = 1;
+	if (GET_MANA(ch) <= 0)
+		GET_MANA(ch) = 1;
+
+	GET_LAST_TELL(ch) = NOBODY;
+}
+
 void
 char_to_game(descriptor_data *d)
 {
@@ -1271,6 +1310,8 @@ char_to_game(descriptor_data *d)
 
 	if (!mini_mud)
 		SEND_TO_Q("\e[H\e[J", d);
+
+	reset_char(d->creature);
 
 	// Report and drop link if buried
 	if (PLR2_FLAGGED(d->creature, PLR2_BURIED)) {
@@ -1388,9 +1429,12 @@ char_to_game(descriptor_data *d)
 		   }
 		}
 
-	} else
+	} else {
+		mudlog(LVL_IMMORT, NRM, true, "%s has entered the game.",
+			GET_NAME(d->creature));
+		act("$n has entered the game.", TRUE, d->creature, 0, 0, TO_ROOM);
+	}
 
-	act("$n has entered the game.", TRUE, d->creature, 0, 0, TO_ROOM);
 	look_at_room(d->creature, d->creature->in_room, 0);
 
 	
@@ -1514,8 +1558,8 @@ show_character_detail(descriptor_data *d)
 	send_to_desc(d, "&BHit Points:&n  %-25s &BAlignment:&n  %d\r\n",
 		str, GET_ALIGNMENT(ch));
 	str = tmp_sprintf("%d/%d", GET_MANA(ch), GET_MAX_MANA(ch));
-	send_to_desc(d, "&BMana Points:&n %-25s &BReputation:&n %d\r\n",
-		str, GET_REPUTATION(ch));
+	send_to_desc(d, "&BMana Points:&n %-25s &BReputation:&n %s\r\n",
+		str, reputation_msg[GET_REPUTATION_RANK(ch)]);
 	str = tmp_sprintf("%d/%d", GET_MOVE(ch), GET_MAX_MOVE(ch));
 	send_to_desc(d, "&BMove Points:&n %-25s &BExperience:&n %d\r\n",
 		str, GET_EXP(ch));
