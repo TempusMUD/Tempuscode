@@ -3575,7 +3575,7 @@ mag_assign_spells(void)
  * 0's.
  */
 
-	spello(SKILL_HAMSTRING, X, X, X, X, X, X, X, X, X, X, 32, X, X, X, X, X, X,
+	spello(SKILL_HAMSTRING, X, X, X, X, X, X, X, X, X, X, 32, X, X, 32, X, X, X,
 		0, 0, 0, 0, 0, 0, 0);
 
 	spello(SKILL_DRAG, X, X, X, X, 40, X, X, X, X, X, 30, X, X, X, X, X, X,
@@ -3696,7 +3696,7 @@ mag_assign_spells(void)
 	spello(SKILL_CHOKE, X, X, 23, 1, 16, X, X, X, X, X, X, X, X, X, X, X, X,
 		0, 0, 0, 0, 0, 0, 0);
 
-	spello(SKILL_CLOTHESLINE, X, X, X, 1, 18, X, X, X, X, X, X, X, X, X, X, X,
+	spello(SKILL_CLOTHESLINE, X, X, X, 1, 18, X, X, X, X, X, X, X, X, 12, X, X,
 		X, 0, 0, 0, 0, 0, 0, 0);
 
 	/* Ma  Cl  Th  Wa Bar  Cyb Kni Ran Hood Bnt */
@@ -3883,6 +3883,20 @@ mag_assign_spells(void)
 	spello(SKILL_SHOULDER_THROW, X, X, X, X, X, X, X, X, X, X, X, X, X, 39, X,
 		X, X, 0, 0, 0, 0, 0, 0, 0);
 
+/*********************  BARB SKILLS ***********************/
+	spello(SKILL_PROF_POUND, X, X, X, X, 3, X, X, X, X, X, X, X, X, X, X, X, X,
+		0, 0, 0, 0, 0, 0, 0);
+	spello(SKILL_PROF_WHIP, X, X, X, X, 11, X, X, X, X, X, X, X, X, X, X, X, X,
+		0, 0, 0, 0, 0, 0, 0);
+	spello(SKILL_PROF_PIERCE, X, X, X, X, 18, X, X, X, X, X, X, X, X, X, X, X,
+		X, 0, 0, 0, 0, 0, 0, 0);
+	spello(SKILL_PROF_SLASH, X, X, X, X, 26, X, X, X, X, X, X, X, X, X, X, X,
+		X, 0, 0, 0, 0, 0, 0, 0);
+	spello(SKILL_PROF_CRUSH, X, X, X, X, 34, X, X, X, X, X, X, X, X, X, X, X,
+		X, 0, 0, 0, 0, 0, 0, 0);
+	spello(SKILL_PROF_BLAST, X, X, X, X, 42, X, X, X, X, X, X, X, X, X, X, X,
+		X, 0, 0, 0, 0, 0, 0, 0);
+
 /**********************   MERC DEVICES   *********************/
 	/*                                                               24 */
 	spello(SPELL_DECOY, X, X, X, X, X, X, X, X, X, X, X, X, X, X, X, X, X,
@@ -4043,19 +4057,7 @@ mag_assign_spells(void)
 	spello(SKILL_EVASION, X, X, X, X, X, X, X, X, X, X, X, 22, X, X, X, X, X,
 		0, 0, 0, 0, 0, 0, MAG_BIOLOGIC);
 
-	spello(SKILL_PROF_POUND, X, X, X, X, X, X, X, X, X, X, X, 3, X, X, X, X, X,
-		0, 0, 0, 0, 0, 0, 0);
-	spello(SKILL_PROF_WHIP, X, X, X, X, X, X, X, X, X, X, X, 11, X, X, X, X, X,
-		0, 0, 0, 0, 0, 0, 0);
-	spello(SKILL_PROF_PIERCE, X, X, X, X, X, X, X, X, X, X, X, 18, X, X, X, X,
-		X, 0, 0, 0, 0, 0, 0, 0);
-	spello(SKILL_PROF_SLASH, X, X, X, X, X, X, X, X, X, X, X, 26, X, X, X, X,
-		X, 0, 0, 0, 0, 0, 0, 0);
-	spello(SKILL_PROF_CRUSH, X, X, X, X, X, X, X, X, X, X, X, 34, X, X, X, X,
-		X, 0, 0, 0, 0, 0, 0, 0);
-	spello(SKILL_PROF_BLAST, X, X, X, X, X, X, X, X, X, X, X, 42, X, X, X, X,
-		X, 0, 0, 0, 0, 0, 0, 0);
-
+    
 	/*  ******************* VAMPIRE SKILLS ********************   */
 	spello(SKILL_FLYING, X, X, X, X, X, X, X, X, X, X, X, X, 33, X, X, X, X,
 		0, 0, 0, 0, 0, 0, 0);
