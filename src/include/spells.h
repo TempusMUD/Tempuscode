@@ -515,7 +515,11 @@ extern const char *spells[];
 #define SKILL_HAMSTRING				666
 #define SKILL_SNATCH				667
 #define SKILL_DRAG					668
-#define SKILL_TAUNT					669
+
+//#define SKILL_TAUNT					669
+
+#define SKILL_SNIPE                 669  // sniper skill for mercs
+
 
 // Overflow Cyborg
 #define SKILL_ARTERIAL_FLOW			676 // Arterial Flow Enhancement
