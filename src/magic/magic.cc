@@ -1244,12 +1244,12 @@ mag_affects(int level, struct Creature *ch, struct Creature *victim,
 		accum_duration = TRUE;
 		to_vict = "The undead can no longer see you.";
 		break;
-	case SPELL_INVIS_TO_ANIMALS:
+	case SPELL_ANIMAL_KIN:
 		af.duration = 12 + (level >> 2);
-		af.bitvector = AFF2_INVIS_TO_ANIMALS;
+		af.bitvector = AFF2_ANIMAL_KIN;
 		af.aff_index = 2;
 		accum_duration = TRUE;
-		to_vict = "The animals can no longer see you.";
+		to_vict = "You feel a strong kinship with animals.";
 		break;
 	case SPELL_MAGICAL_PROT:
 		af.duration = 3 + (level >> 2);

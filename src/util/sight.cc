@@ -179,10 +179,6 @@ check_sight_vict(Creature *self, Creature *vict)
 	if (IS_UNDEAD(self) && IS_AFFECTED_2(vict, AFF2_INVIS_TO_UNDEAD))
 		return false;
 
-	// Invis to animals
-	if (IS_ANIMAL(self) && IS_AFFECTED_2(vict, AFF2_INVIS_TO_ANIMALS))
-		return false;
-
 	return true;
 }
 

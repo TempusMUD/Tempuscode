@@ -325,9 +325,9 @@ ACMD(do_visible)
 		found = 1;
 		send_to_char(ch, "You are no longer transparent.\r\n");
 	}
-	if (affect_from_char(ch, SPELL_INVIS_TO_ANIMALS)) {
+	if (affect_from_char(ch, SPELL_ANIMAL_KIN)) {
 		found = 1;
-		send_to_char(ch, "You are no longer invisible to animals.\r\n");
+		send_to_char(ch, "You no longer feel a kinship with animals.\r\n");
 	}
 	if (affect_from_char(ch, SPELL_INVIS_TO_UNDEAD)) {
 		found = 1;

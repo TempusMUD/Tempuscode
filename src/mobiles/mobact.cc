@@ -683,6 +683,9 @@ helper_help_probability(struct Creature *ch, struct Creature *vict)
 		prob -= GET_LEVEL(vict);
 	}
 
+	if (IS_ANIMAL(ch) && affected_by_spell(vict, SPELL_ANIMAL_KIN))
+		prob += GET_LEVEL(vict);
+
 	return prob;
 }
 
@@ -804,6 +807,9 @@ helper_attack_probability(struct Creature *ch, struct Creature *vict)
 		prob += (GET_ALIGNMENT(vict) / 20);
 	}
 
+	if (IS_ANIMAL(ch) && affected_by_spell(vict, SPELL_ANIMAL_KIN))
+		prob -= GET_LEVEL(vict);
+
 	return prob;
 }
 
@@ -835,6 +841,8 @@ helper_assist(struct Creature *ch, struct Creature *vict,
 	else if (IS_DEVIL(ch) || IS_KNIGHT(ch) || IS_WARRIOR(ch) || IS_RANGER(ch))
 		prob += GET_LEVEL(ch);
 
+	if (IS_ANIMAL(ch) && affected_by_spell(fvict, SPELL_ANIMAL_KIN))
+		prob += GET_LEVEL(vict);
 
 	if (weap) {
 		if (IS_THIEF(ch) && GET_LEVEL(ch) > 43 &&
@@ -1956,6 +1964,9 @@ mobile_activity(void)
 				if (check_infiltrate(vict, ch))
 					continue;
 
+				if (IS_ANIMAL(ch) && affected_by_spell(vict, SPELL_ANIMAL_KIN))
+					continue;
+
 				// DIVIDE BY ZERO ERROR! FPE!
 				if (GET_MORALE(ch) + GET_LEVEL(ch) <
 					number(GET_LEVEL(vict), (GET_LEVEL(vict) << 2) +
@@ -2024,6 +2035,9 @@ mobile_activity(void)
 						(IS_NEUTRAL(vict)
 							&& !MOB_FLAGGED(ch, MOB_AGGR_NEUTRAL)))
 						continue;
+
+				if (IS_ANIMAL(ch) && affected_by_spell(vict, SPELL_ANIMAL_KIN))
+					continue;
 
 				best_attack(ch, vict);
 

@@ -2479,6 +2479,8 @@ affs_to_str(struct Creature *ch, byte mode)
 		str = tmp_strcat(str, "You are attempting to hide your tracks.\r\n");
 	if (affected_by_spell(ch, SPELL_TELEPATHY))
 		str = tmp_strcat(str, "Your telepathic abilities are greatly enhanced.\r\n");
+	if (affected_by_spell(ch, SPELL_ANIMAL_KIN))
+		str = tmp_strcat(str, "You are feeling a strong bond with animals.\r\n");
 
 	return str;
 }

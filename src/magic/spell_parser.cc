@@ -151,7 +151,7 @@ const char *spells[] = {
 	"barkskin",					/* 90 */
 	"invis to undead",
 	"haste",
-	"invis to animals",
+	"animal kin",
 	"charm animal",
 	"refresh",					/* 95 */
 	"breathe water",
@@ -2817,7 +2817,7 @@ mag_assign_spells(void)
 		X, X, X, 60, 40, 1, POS_STANDING, TAR_CHAR_ROOM | TAR_SELF_ONLY, FALSE,
 		MAG_MAGIC | MAG_AFFECTS | MAG_ALTER_OBJS);
 
-	spello(SPELL_INVIS_TO_ANIMALS, X, X, X, X, X, X, X, X, X, 17, X, X, X, X,
+	spello(SPELL_ANIMAL_KIN, X, X, X, X, X, X, X, X, X, 17, X, X, X, X,
 		X, X, X, 60, 40, 1, POS_STANDING, TAR_CHAR_ROOM | TAR_SELF_ONLY, FALSE,
 		MAG_MAGIC | MAG_AFFECTS | MAG_ALTER_OBJS);
 

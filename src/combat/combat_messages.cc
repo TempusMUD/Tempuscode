@@ -61,9 +61,9 @@ appear(struct Creature *ch, struct Creature *vict)
 		}
 	}
 
-	if (IS_ANIMAL(vict) && affected_by_spell(ch, SPELL_INVIS_TO_ANIMALS)) {
-		affect_from_char(ch, SPELL_INVIS_TO_ANIMALS);
-		send_to_char(ch, "Your animal invisibility has expired.\r\n");
+	if (IS_ANIMAL(vict) && affected_by_spell(ch, SPELL_ANIMAL_KIN)) {
+		affect_from_char(ch, SPELL_ANIMAL_KIN);
+		send_to_char(ch, "You no longer feel kinship with animals.\r\n");
 		found = 1;
 	}
 	if (IS_UNDEAD(vict) && affected_by_spell(ch, SPELL_INVIS_TO_UNDEAD)) {

@@ -1068,7 +1068,7 @@ extern const char *affected2_bits[] = {
 	"DIV_ILL",
 	"PROT_UND",
 	"INVS_UND",
-	"INVS_ANML",
+	"ANML_KIN",
 	"END_COLD",
 	"PARALYZ",
 	"PROT_LGTN",
@@ -2303,7 +2303,7 @@ extern const char *spell_wear_off_msg[] = {
 	"Your skin no longer feels hard like bark.",	/* 90 */
 	"You feel exposed to the undead.",
 	"You slow back down to normal.",
-	"You are no longer invisible to animals.",
+	"You no longer feel a kinship to animals.",
 	"!Charm animal!",
 	"!Refresh!",				/*95 */
 	"You are no longer able to breathe water.",
