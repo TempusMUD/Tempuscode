@@ -40,7 +40,7 @@ void prog_do_halt(prog_env *env, prog_evt *evt, char *args);
 void prog_do_target(prog_env *env, prog_evt *evt, char *args);
 void prog_do_nuke(prog_env *env, prog_evt *evt, char *args);
 void prog_do_trans(prog_env *env, prog_evt *evt, char *args);
-void prog_do_state(prog_env *env, prog_evt *evt, char *args);
+void prog_do_set(prog_env *env, prog_evt *evt, char *args);
 void prog_do_randomly(prog_env *env, prog_evt *evt, char *args);
 void prog_do_or(prog_env *env, prog_evt *evt, char *args);
 void prog_do_resume(prog_env *env, prog_evt *evt, char *args);
@@ -67,8 +67,8 @@ prog_command prog_cmds[] = {
 	{ "target",		true,	prog_do_target },
 	{ "nuke",		true,	prog_do_nuke },
 	{ "trans",		true,	prog_do_trans },
-	{ "state",		true,	prog_do_state },
 	{ "resume",		false,	prog_do_resume },
+	{ "set",		true,	prog_do_set },
 	{ NULL,		false,	prog_do_halt }
 };
 
@@ -196,6 +196,19 @@ prog_do_after(prog_env *env, prog_evt *evt, char *args)
 }
 
 bool
+prog_var_equal(prog_state_data *state, char *key, char *arg)
+{
+	struct prog_var *cur_var;
+
+	for (cur_var = state->var_list;cur_var;cur_var = cur_var->next)
+		if (!strcasecmp(cur_var->key, key))
+			break;
+	if (!cur_var->key)
+		return !(*arg);
+	return !strcasecmp(cur_var->value, arg);
+}
+
+bool
 prog_eval_condition(prog_env *env, prog_evt *evt, char *args)
 {
 	char *arg, *str;
@@ -226,17 +239,12 @@ prog_eval_condition(prog_env *env, prog_evt *evt, char *args)
 				&& ((Creature *)env->owner)->isFighting());
 	} else if (!strcmp(arg, "randomly")) {
 		result = number(0, 100) < atoi(args);
-	} else if (!strcmp(arg, "state")) {
-		if (env->owner_type == PROG_TYPE_MOBILE) {
-			if (GET_MOB_STATE((Creature *)env->owner)
-					&& GET_MOB_STATE((Creature *)env->owner)->state_str
-					&& *(GET_MOB_STATE((Creature *)env->owner)->state_str)) {
-				result = !strcasecmp(args,
-					GET_MOB_STATE((Creature *)env->owner)->state_str);
-			} else {
-				result = !(*args);
-			}
-		}
+	} else if (!strcmp(arg, "variable")) {
+		if (env->state) {
+			arg = tmp_getword(&args);
+			result = prog_var_equal(env->state, arg, args);
+		} else if (!*args)
+			result = true;
 	}
 
 	return (not_flag) ? (!result):result;
@@ -439,26 +447,41 @@ prog_do_trans(prog_env *env, prog_evt *evt, char *args)
 }
 
 void
-prog_do_state(prog_env *env, prog_evt *evt, char *args)
+prog_do_set(prog_env *env, prog_evt *evt, char *args)
 {
 	Creature *ch;
 	prog_state_data *state;
+	prog_var *cur_var;
+	char *key;
 
 	if (env->owner_type != PROG_TYPE_MOBILE)
 		return;
 
+	// Get the mob state.  If they don't have a mob state record,
+	// create one
 	ch = (Creature *)env->owner;
 	state = GET_MOB_STATE(ch);
 	if (!state) {
 		CREATE(ch->mob_specials.prog_state, prog_state_data, 1);
 		state = GET_MOB_STATE(ch);
-	} else if (state->state_str)
-		free(state->state_str);
+	}
 
-	if (*args)
-		state->state_str = strdup(args);
-	else
-		state->state_str = NULL;
+	// Now find the variable record.  If they don't have one
+	// with the right key, create one
+	key = tmp_getword(&args);
+	for (cur_var = state->var_list;cur_var;cur_var = cur_var->next)
+		if (!strcasecmp(cur_var->key, key))
+			break;
+	if (!cur_var) {
+		CREATE(cur_var, prog_var, 1);
+		cur_var->key = strdup(key);
+		cur_var->next = state->var_list;
+		state->var_list = cur_var;
+	}
+
+	if (cur_var->value)
+		free(cur_var->value);
+	cur_var->value = strdup(args);
 }
 
 void
@@ -573,6 +596,14 @@ prog_start(int owner_type, void *owner, Creature *target, char *prog, prog_evt *
 	new_prog->speed = 0;
 	new_prog->target = target;
 	new_prog->evt = *evt;
+
+	switch (owner_type) {
+	case PROG_TYPE_MOBILE:
+		new_prog->state = GET_MOB_STATE((Creature *)owner); break;
+	case PROG_TYPE_OBJECT:
+	case PROG_TYPE_ROOM:
+		new_prog->state = NULL; break;
+	}
 
 	prog_next_handler(new_prog, false);
 
@@ -751,7 +782,13 @@ prog_count(void)
 void
 prog_state_free(prog_state_data *state)
 {
-	if (state->state_str)
-		free(state->state_str);
+	struct prog_var *cur_var, *next_var;
+
+	for (cur_var = state->var_list;cur_var;cur_var = next_var) {
+		next_var = cur_var->next;
+		free(cur_var->key);
+		free(cur_var->value);
+		free(cur_var);
+	}
 	free(state);
 }

@@ -34,8 +34,14 @@ struct prog_evt {
 	int object_type;
 };
 
+struct prog_var {
+	struct prog_var *next;
+	char *key;
+	char *value;
+};
+
 struct prog_state_data {
-	char *state_str;
+	struct prog_var *var_list;
 };
 
 struct prog_env {
@@ -47,7 +53,8 @@ struct prog_env {
 	int owner_type;				// type of the owner
 	void *owner;				// pointer to the actual owner
 	Creature *target;			// target of prog
-	prog_evt evt;				// event that caused prog to trigger
+	prog_evt evt;				// copy of event that caused prog to trigger
+	prog_state_data *state;		// state record of owner
 };
 
 void destroy_attached_progs(void *self);

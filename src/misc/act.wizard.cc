@@ -1989,6 +1989,16 @@ do_stat_character(struct Creature *ch, struct Creature *k)
             strcat(outbuf, buf);
         }
     }
+
+	if (GET_MOB_STATE(k) && GET_MOB_STATE(k)->var_list) {
+		prog_var *cur_var;
+		strcat(outbuf, "Mobile state variables:\r\n");
+		for (cur_var = GET_MOB_STATE(k)->var_list;cur_var;cur_var = cur_var->next)
+			strcat(outbuf,
+				tmp_sprintf("     %s = '%s'\r\n",
+					cur_var->key,
+					cur_var->value));
+	}
     sprintf(buf, "Currently speaking: %s%s%s\r\n", CCCYN(ch, C_NRM),
             ((GET_LANGUAGE(k) > LANGUAGE_COMMON) ?
              tmp_capitalize(language_names[(int)GET_LANGUAGE(k)]) :
@@ -2011,9 +2021,6 @@ do_stat_character(struct Creature *ch, struct Creature *k)
 	if (num_languages % 4 != 0)
 		strcat(outbuf, "\r\n");
 
-	if (IS_NPC(k) && GET_MOB_STATE(k))
-		strcat(outbuf, tmp_sprintf("Prog state: [%s]\r\n",
-			GET_MOB_STATE(k)->state_str));
     /* Routine to show what spells a char is affected by */
     if (k->affected) {
         for (aff = k->affected; aff; aff = aff->next) {
