@@ -385,14 +385,16 @@ vendor_sell(Creature *ch, char *arg, Creature *self, ShopData *shop)
 	do_say(self,
 		tmp_sprintf("%s %s",
 			GET_NAME(ch), shop->msg_buy), 0, SCMD_SAY_TO, NULL);
-	msg = tmp_sprintf("You sell $p to $N for %d %s.",
-		cost * num, currency_str);
-	act((num == 1) ? msg:tmp_sprintf("%s (x%d)", msg, num),
-		false, self, obj, ch, TO_CHAR);
-	msg = tmp_sprintf("$n sells $p to you for %d %s.",
-		cost * num, currency_str);
-	act((num == 1) ? msg:tmp_sprintf("%s (x%d)", msg, num),
-		false, self, obj, ch, TO_VICT);
+	msg = tmp_sprintf("You sell $p %sto $N for %d %s.",
+		((num == 1) ? "":tmp_sprintf("(x%d) ", num)),
+		cost * num,
+		currency_str);
+	act(msg, false, self, obj, ch, TO_CHAR);
+	msg = tmp_sprintf("$n sells $p %sto you for %d %s.",
+		((num == 1) ? "":tmp_sprintf("(x%d) ", num)),
+		cost * num,
+		currency_str);
+	act(msg, false, self, obj, ch, TO_VICT);
 	act("$n sells $p to $N.", false, self, obj, ch, TO_NOTVICT);
 
 	if (vendor_is_produced(obj, shop)) {
@@ -416,7 +418,7 @@ vendor_sell(Creature *ch, char *arg, Creature *self, ShopData *shop)
 static void
 vendor_buy(Creature *ch, char *arg, Creature *self, ShopData *shop)
 {
-	obj_data *obj;
+	obj_data *obj, *next_obj;
 	char *obj_str;
 	long cost, amt_carried;
 	int num = 1;
@@ -504,18 +506,21 @@ vendor_buy(Creature *ch, char *arg, Creature *self, ShopData *shop)
 	else
 		perform_give_gold(self, ch, cost * num);
 
-	obj_from_char(obj);
-
-	save_char(ch, NULL);
-
-	if (vendor_is_produced(obj, shop))
-		extract_obj(obj);
-	else
+	// We've already verified that they have enough of the item via a
+	// call to vendor_inventory(), so we can just blindly transfer objects
+	while (num-- && obj) {
+		// transfer object
+		next_obj = obj->next_content;
+		obj_from_char(obj);
 		obj_to_char(obj, self);
 
-	// repair object
-	if (GET_OBJ_DAM(obj) != -1 && GET_OBJ_MAX_DAM(obj) != -1)
-		GET_OBJ_DAM(obj) = GET_OBJ_MAX_DAM(obj);
+		// repair object
+		if (GET_OBJ_DAM(obj) != -1 && GET_OBJ_MAX_DAM(obj) != -1)
+			GET_OBJ_DAM(obj) = GET_OBJ_MAX_DAM(obj);
+
+		obj = next_obj;
+		}
+	save_char(ch, NULL);
 }
 
 char *
