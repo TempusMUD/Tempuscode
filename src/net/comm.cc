@@ -266,14 +266,6 @@ init_game(int port)
 
     my_srand(time(0));
 
-    // Boot help system
-    slog("Booting help system.");
-    Help = new HelpCollection;
-    if(Help->LoadIndex()) 
-        slog("Help System Boot Succeded.");
-    else
-        slog("SYSERR: Help System Boot FAILED.");
-
     boot_db();
 
     slog("Opening mother connection.");

@@ -41,6 +41,7 @@
 #include "char_class.h"
 #include "olc.h"
 #include "shop.h"
+#include "help.h"
 
 /**************************************************************************
 *  declarations of most of the 'global' variables                         *
@@ -67,6 +68,7 @@ struct zone_data *zone_table;	/* zone table			 */
 int top_of_zone_table = 0;	/* top element of zone tab	 */
 struct message_list fight_messages[MAX_MESSAGES];    /* fighting messages  */
 struct player_index_element *player_table = NULL;     /* index to plr file */
+extern HelpCollection *Help;
 
 FILE *player_fl = NULL;		/* file desc of player file	 */
 
@@ -450,13 +452,7 @@ boot_db(void)
     sort_commands();
     sort_spells();
     sort_skills();
-/*
-    slog("Booting mail system.");
-    if (!scan_file()) {
-	slog("    Mail boot failed -- Mail system disabled");
-	no_mail = 1;
-    }
-*/
+
     slog("Reading banned site, invalid-name, and NASTY word lists.");
     load_banned();
     Read_Invalid_List();
@@ -485,6 +481,13 @@ boot_db(void)
 	    reset_zone(zone);
 	}
     }
+
+    slog("Booting help system.");
+    Help = new HelpCollection;
+    if(Help->LoadIndex())
+        slog("Help System Boot Succeded.");
+    else
+        slog("SYSERR: Help System Boot FAILED.");
 
     reset_q.head = reset_q.tail = NULL;
 

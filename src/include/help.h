@@ -30,7 +30,8 @@ using namespace std;
 #define HGROUP_MONK      (1 << 19)
 #define HGROUP_MERCENARY (1 << 20)
 #define HGROUP_HELP_EDIT (1 << 21)
-#define HGROUP_MAX        22
+#define HGROUP_HELP_GODS (1 << 22)
+#define HGROUP_MAX        23
 
 
 
