@@ -1221,12 +1221,7 @@ death_cry( struct char_data * ch )
     struct room_data *was_in = NULL;
     int found = 0;
 
-    if (IS_NPC( ch ) && MOB_SHARED( ch )->death_cry) {
-            sprintf(buf, "$n %s", MOB_SHARED( ch )->death_cry);
-	    act( buf, FALSE, ch, 0, 0, TO_ROOM );
-    }
-
-    else if ( IS_GHOUL( ch ) || IS_WIGHT( ch ) || IS_MUMMY( ch ) )
+    if ( IS_GHOUL( ch ) || IS_WIGHT( ch ) || IS_MUMMY( ch ) )
 	act( "$n falls lifeless to the floor with a shriek.", 
 	     FALSE, ch, 0, 0, TO_ROOM );
     else if ( IS_SKELETON( ch ) )
