@@ -439,7 +439,7 @@ static const int ZEN_OBLIVITY = 403;
 static const int ZEN_MOTION = 404;
 static const int ZEN_TRANSLOCATION = 405;
 static const int ZEN_CELERITY = 406;
-
+static const int ZEN_DISPASSION = 407;
 static const int MAX_SPELLS = 500;
 
 /* PLAYER SKILLS - Numbered from MAX_SPELLS+1 to MAX_SKILLS */

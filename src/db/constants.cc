@@ -634,7 +634,6 @@ extern const char *exit_bits[] = {
 	"\n"
 };
 
-
 /* SECT_ */
 extern const char *sector_types[] = {
 	"Inside",
@@ -2552,7 +2551,8 @@ extern const char *spell_wear_off_msg[] = {
 	"Your motions begin to feel less free.",
 	"You become separate from the zen of translocation.",	/* 405 */
 	"You lose the zen of celerity.",
-	"!UNUSED!", "!UNUSED!", "!UNUSED!", "!UNUSED!",	/* 410 */
+	"You have lost the zen of dispassion.",
+	"!UNUSED!", "!UNUSED!", "!UNUSED!",	/* 410 */
 	"!UNUSED!", "!UNUSED!", "!UNUSED!", "!UNUSED!", "!UNUSED!",	/* 415 */
 	"!UNUSED!", "!UNUSED!", "!UNUSED!", "!UNUSED!", "!UNUSED!",	/* 420 */
 	"!UNUSED!", "!UNUSED!", "!UNUSED!", "!UNUSED!", "!UNUSED!",	/* 425 */

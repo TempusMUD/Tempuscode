@@ -32,6 +32,13 @@ perform_monk_meditate(struct Creature *ch)
 	af.is_instant = 0;
 	af.location = APPLY_NONE;
 	MEDITATE_TIMER(ch)++;
+
+	// meditating makes a monk's alignment correct itself
+	if (GET_ALIGNMENT(ch) > 0)
+	  GET_ALIGNMENT(ch) -= number(0, affected_by_spell(ch, ZEN_DISPASSION) ? 10:1);
+	else if (GET_ALIGNMENT(ch) < 0)
+	  GET_ALIGNMENT(ch) += number(0, affected_by_spell(ch, ZEN_DISPASSION) ? 10:1);
+
 	if (PRF2_FLAGGED(ch, PRF2_DEBUG))
 		send_to_char(ch, "%s[MEDITATE] timer:%d%s\r\n",
 			CCCYN(ch, C_NRM), MEDITATE_TIMER(ch), CCNRM(ch, C_NRM));
@@ -192,6 +199,31 @@ perform_monk_meditate(struct Creature *ch)
 		}
 	}
 
+	if (!affected_by_spell(ch, ZEN_DISPASSION)
+	&& CHECK_SKILL(ch, ZEN_DISPASSION) >= LEARNED(ch)) 
+	{
+		int target = MEDITATE_TIMER(ch) + (CHECK_SKILL(ch, ZEN_DISPASSION) >> 2);
+		int test   = number(30, 50) - GET_WIS(ch) / 4;
+
+		if (PRF2_FLAGGED(ch, PRF2_DEBUG)) 
+			send_to_char(ch,
+				"%s[MEDITATE] Dispassion   test:%d   target:%d%s\r\n",
+				CCCYN(ch, C_NRM), test, target, CCNRM(ch, C_NRM));
+
+		if( target > test )
+		{
+			send_to_char(ch, "You have grasped the zen of dispassion.\r\n");
+			af.type = ZEN_DISPASSION;
+			af.bitvector = 0;
+			af.aff_index = 0;
+			af.duration = af.level / 5;
+            af.owner = ch->getIdNum();
+			affect_to_char(ch, &af);
+			WAIT_STATE(ch, PULSE_VIOLENCE * 2);
+			gain_skill_prof(ch, ZEN_DISPASSION);
+			return;
+		}
+	}
 }
 
 //

@@ -387,7 +387,7 @@ const char *spells[] = {
 	"zen of motion",
 	"zen of translocation",	/* 405 */
 	"zen of celerity",
-	"!UNUSED!",
+	"zen of dispassion",
 	"!UNUSED!", "!UNUSED!", "!UNUSED!",	/* 410 */
 	"!UNUSED!", "!UNUSED!", "!UNUSED!", "!UNUSED!", "!UNUSED!",	/* 415 */
 	"!UNUSED!", "!UNUSED!", "!UNUSED!", "!UNUSED!", "!UNUSED!",	/* 420 */
@@ -3728,6 +3728,8 @@ mag_assign_spells(void)
 		40, 10, 4, 0, 0, 0, MAG_ZEN);
 	spello(ZEN_MOTION, X, X, X, X, X, X, X, X, X, X, X, 28, X, X, X, X, X, 30,
 		7, 1, 0, 0, 0, MAG_ZEN);
+	spello(ZEN_DISPASSION, X, X, X, X, X, X, X, X, X, X, X, 45, X, X, X, X,
+		X, 30, 50, 30, 5, 0, 0, MAG_ZEN);
 
 // Bards...
 	spello(SONG_DRIFTERS_DITTY, X, X, X, X, X, X, X, X, X, X, 4, X, X, X,
