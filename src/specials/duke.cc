@@ -158,7 +158,7 @@ get_victim(struct Creature *chAtChar)
 
 /* Function banzaii */
 /* Makes a character banzaii on attackers of the castle staff */
-/* Used by Guards, Tim, Tom, Dick, David, Peter, Master, King and Guards */
+/* Used by Guards, Tim, Tom, Peter, Master, King and Guards */
 int
 banzaii(struct Creature *ch)
 {
@@ -214,7 +214,7 @@ do_npc_rescue(struct Creature *ch_hero, struct Creature *ch_victim)
 
 
 /* Procedure to block a person trying to enter a room. */
-/* Used by Tim/Tom at Kings bedroom and Dick/David at treasury */
+/* Used by Tim/Tom at Kings bedroom */
 int
 block_way(struct Creature *ch, struct Creature *guard, int cmd,
 	char *arg, int iIn_room, int iProhibited_direction)
@@ -747,23 +747,6 @@ SPECIAL(lounge_soldier)
 	return (banzaii(ch));
 }
 
-
-/* Routine DicknDave */
-/* Routine for the guards Dick and David */
-SPECIAL(DicknDavid)
-{
-
-	struct Creature *guard = (struct Creature *)me;
-	if (spec_mode != SPECIAL_TICK)
-		return 0;
-	if (!AWAKE(ch))
-		return (FALSE);
-
-	if (!cmd && ch->getPosition() != POS_FIGHTING)
-		banzaii(ch);
-
-	return (block_way(ch, guard, cmd, arg, 15453, 3));
-}
 
 SPECIAL(chess_guard_no_west)
 {

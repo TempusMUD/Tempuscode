@@ -819,57 +819,6 @@ SPECIAL(barbarian)
 
 int parse_player_class(char *arg, int timeframe);
 
-SPECIAL(guild_guard)
-{
-	struct Creature *guard = (struct Creature *)me;
-	char *buf = "$N humiliates you, and blocks your way.";
-	char *buf2 = "$N humiliates $n, and blocks $s way.";
-	int ch_class, align;
-	int idx;
-
-	if (spec_mode == SPECIAL_HELP) {
-		send_to_char(ch,
-"%sSpecial: guildguard%s\r\n\r\n"
-"    The guildguard mobile special is used to protect the entrances of class\r\n"
-"guilds from players and mobs not of a particular class.  The guard will\r\n"
-"humiliate and block any attempts to go in a specified direction by someone\r\n"
-"not of the appropriate class.  It is configured with an internal array.\r\n"
-"\r\n"
-"    The use of the guildguard special is deprecated and will be removed\r\n"
-"in the near future.  Please use the gen_guard special instead.\r\n",
-			CCCYN(ch, C_NRM), CCNRM(ch, C_NRM));
-		return 1;
-	} else if (spec_mode != SPECIAL_CMD)
-		return false;
-	if (!IS_MOVE(cmd) || !AWAKE(guard) || !LIGHT_OK(guard) ||
-		ch == guard || GET_LEVEL(ch) >= LVL_GRGOD)
-		return false;
-	
-	for (idx = 0; guild_info[idx][0] != -1; idx++)
-		if (ch->in_room->number == guild_info[idx][2] &&
-				cmd == guild_info[idx][3])
-			break;
-	if (guild_info[idx][0] == -1)
-		return false;
-	ch_class = guild_info[idx][0];
-	align = guild_info[idx][1];
-	
-	if (GET_CLASS(ch) != ch_class &&
-		CHECK_REMORT_CLASS(ch) != ch_class) {
-		act(buf, false, ch, 0, guard, TO_CHAR);
-		act(buf2, false, ch, 0, guard, TO_ROOM);
-		return true;
-	} else if ((align == EVIL && !IS_EVIL(ch)) ||
-		(align == GOOD && !IS_GOOD(ch)) ||
-		(align == NEUTRAL && !IS_NEUTRAL(ch))) {
-		act(buf, false, ch, 0, guard, TO_CHAR);
-		act(buf2, false, ch, 0, guard, TO_ROOM);
-		return true;
-	}
-	return false;
-}
-
-
 SPECIAL(puff)
 {
 	ACMD(do_say);
@@ -1317,7 +1266,7 @@ drag_char_to_jail(struct Creature *ch, struct Creature *evil,
 {
 	int dir;
 
-	if (IS_MOB(evil) && guild_guard == GET_MOB_SPEC(evil))
+	if (IS_MOB(evil) && guard == GET_MOB_SPEC(evil))
 		return 0;
 
 	if (ch->in_room == r_jail_room) {
