@@ -169,6 +169,7 @@ void do_qcontrol_save(Creature *ch, char *argument, int com);
 void do_qcontrol_mload(Creature *ch, char *argument, int com);	//Load mobile.
 void do_qcontrol_purge(Creature *ch, char *argument, int com);	//Purge mobile.
 void do_qcontrol_trans(Creature *ch, char *argument, int com);	//trans whole quest
+void do_qcontrol_title(Creature *ch, char *argument, int com);
 
 // utility functions
 void do_qcontrol_usage(Creature *ch, int com);
