@@ -52,7 +52,7 @@ enum cxn_state {
 	CXN_AFTERLIFE,				// After death, before menu
 	CXN_REMORT_AFTERLIFE,		// After death, before remort class
 	CXN_VIEW_BG,				// View background
-	CXN_STATS_PROMPT,			// View character statistics
+	CXN_DETAILS_PROMPT,			// View character statistics
 	CXN_EDIT_PROMPT,			// Which character do you want to describe
 	CXN_EDIT_DESC,				// Describe your char
 	CXN_NETWORK,				// Cyborg interfaced to network

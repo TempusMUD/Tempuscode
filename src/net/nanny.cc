@@ -69,6 +69,7 @@ int general_search(struct Creature *ch, struct special_search_data *srch, int mo
 void roll_real_abils(struct Creature * ch);
 void print_attributes_to_buf(struct Creature *ch, char *buff);
 void polc_input(struct descriptor_data * d, char *str);
+void show_character_detail(descriptor_data *d);
 
 int isbanned(char *hostname, char *blocking_hostname);
 int Valid_Name(char *newname);
@@ -228,13 +229,15 @@ handle_input(struct descriptor_data *d, char *arg)
 			break;
         case 's':
 			if (!d->account->invalid_char_index(2)) {
-				set_desc_state(CXN_STATS_PROMPT, d);
+				set_desc_state(CXN_DETAILS_PROMPT, d);
 			} else if (!d->account->invalid_char_index(1)) {
 				char_id = d->account->get_char_by_index(1);
 				d->creature = new Creature;
 				if (d->creature->loadFromXML(char_id)) {
 					d->creature->desc = d;
-					set_desc_state(CXN_STATS_PROMPT, d);
+					show_character_detail(d);
+					delete d->creature;
+					d->creature = NULL;
 				} else {
 					send_to_desc(d, "\r\nThere was an error loading the character.\r\n\r\n");
 					delete d->creature;
@@ -634,9 +637,26 @@ handle_input(struct descriptor_data *d, char *arg)
 		} else
 			set_desc_state(CXN_MENU, d);
 		break;
-    case CXN_STATS_PROMPT:
-        send_to_desc(d, "This isn't written yet.\r\n");
-        set_desc_state(CXN_WAIT_MENU, d);
+    case CXN_DETAILS_PROMPT:
+		if (d->account->invalid_char_index(atoi(arg))) {
+			send_to_desc(d, "\r\nThat character selection doesn't exist.\r\n\r\n");
+			set_desc_state(CXN_WAIT_MENU, d);
+			return;
+		}
+
+		char_id = d->account->get_char_by_index(atoi(arg));
+		d->creature = new Creature;
+		if (!d->creature->loadFromXML(char_id)) {
+			send_to_desc(d, "Sorry.  That character could not be loaded.\r\n");
+			set_desc_state(CXN_WAIT_MENU, d);
+			return;
+		}
+
+		d->creature->desc = d;
+		show_character_detail(d);
+		delete d->creature;
+		d->creature = NULL;
+		set_desc_state(CXN_WAIT_MENU, d);
         break;
 	}
 }
@@ -808,7 +828,7 @@ send_prompt(descriptor_data *d)
 	case CXN_VIEW_BG:
 		// Prompt sent by page_string
 		break;
-    case CXN_STATS_PROMPT:
+    case CXN_DETAILS_PROMPT:
         send_to_desc(d, "                      &cWhich character do you want to view:&n "); break;
 	case CXN_NETWORK:
 		send_to_desc(d, "> "); break;
@@ -1048,7 +1068,7 @@ send_menu(descriptor_data *d)
 			d->account->get_past_bank(), d->account->get_future_bank());
 
 		send_to_desc(d, "    &b[&yP&b] &cChange your account password     &b[&yV&b] &cView the background story\r\n");
-	    send_to_desc(d, "    &b[&yC&b] &cCreate a new character           &b[&yS&b] &cSee character stats\r\n");
+	    send_to_desc(d, "    &b[&yC&b] &cCreate a new character           &b[&yS&b] &cShow character details\r\n");
 		if (!d->account->invalid_char_index(1))
 			send_to_desc(d, "    &b[&yE&b] &cEdit a character's description   &b[&yD&b] &cDelete an existing character\r\n");
 		send_to_desc(d, "\r\n                            &b[&yL&b] &cLog out of the game&n\r\n");
@@ -1093,9 +1113,9 @@ send_menu(descriptor_data *d)
 		delete tmp_ch;
 		send_to_desc(d, "&n\r\n");
 		break;
-	case CXN_STATS_PROMPT:
+	case CXN_DETAILS_PROMPT:
 		send_to_desc(d, "\e[H\e[J");
-		send_to_desc(d, "&c\r\n                          VIEW CHARACTER STATISTICS\r\n*******************************************************************************&n\r\n\r\n");
+		send_to_desc(d, "&c\r\n                            VIEW CHARACTER DETAILS\r\n*******************************************************************************&n\r\n\r\n");
 
 		idx = 1;
 		tmp_ch = new Creature;
@@ -1131,12 +1151,6 @@ send_menu(descriptor_data *d)
 	default:
 		break;
 	}
-	return;
-}
-
-void
-send_desc_menu(descriptor_data *d)
-{
 	return;
 }
 
@@ -1429,6 +1443,59 @@ const char *reserved[] =
 int reserved_word(char *argument)
 {
     return (search_block(argument, reserved, TRUE) >= 0);
+}
+
+void
+show_character_detail(descriptor_data *d)
+{
+	Creature *ch = d->creature;
+	struct time_info_data playing_time;
+	struct time_info_data real_time_passed(time_t t2, time_t t1);
+	char *str;
+	char time_buf[30];
+
+	if (!ch) {
+		slog("SYSERR: show_player_detail() called without creature");
+		return;
+	}
+
+	send_to_desc(d, "\e[H\e[J");
+	send_to_desc(d, "&c\r\n                            VIEW CHARACTER DETAILS\r\n*******************************************************************************&n\r\n\r\n");
+
+	if (IS_REMORT(ch)) {
+		str = tmp_sprintf("%s%4s&n/%s%4s&n",
+			get_char_class_color(ch, GET_CLASS(ch)),
+			char_class_abbrevs[GET_CLASS(ch)],
+			get_char_class_color(ch, GET_REMORT_CLASS(ch)),
+			char_class_abbrevs[GET_REMORT_CLASS(ch)]);
+	} else {
+		str = tmp_sprintf("%s%9s&n",
+			get_char_class_color(ch, GET_CLASS(ch)),
+			pc_char_class_types[GET_CLASS(ch)]);
+	}
+	send_to_desc(d, "&BName:&n %-20s &BLvl:&n %2d &BGen:&n %2d     &BClass:&n %s\r\n",
+		GET_NAME(ch), GET_LEVEL(ch), GET_REMORT_GEN(ch), str);
+	strftime(time_buf, 29, "%a %b %d, %Y %H:%M:%S",
+		localtime(&ch->player.time.birth));
+	send_to_desc(d, "\r\n&BCreated on:&n %s\r\n", time_buf);
+	strftime(time_buf, 29, "%a %b %d, %Y %H:%M:%S",
+		localtime(&ch->player.time.logon));
+	send_to_desc(d, "&BLast logon:&n %s\r\n", time_buf);
+	playing_time = real_time_passed(ch->player.time.played, 0);
+	send_to_desc(d, "&BTime played:&n %d days, %d hours\r\n\r\n",
+		playing_time.day, playing_time.hours);
+
+	str = tmp_sprintf("%d/%d", GET_HIT(ch), GET_MAX_HIT(ch));
+	send_to_desc(d, "&BHit Points:&n  %-25s &BAlignment:&n  %d\r\n",
+		str, GET_ALIGNMENT(ch));
+	str = tmp_sprintf("%d/%d", GET_MANA(ch), GET_MAX_MANA(ch));
+	send_to_desc(d, "&BMana Points:&n %-25s &BReputation:&n %d\r\n",
+		str, GET_REPUTATION(ch));
+	str = tmp_sprintf("%d/%d", GET_MOVE(ch), GET_MAX_MOVE(ch));
+	send_to_desc(d, "&BMove Points:&n %-25s &BExperience:&n %d\r\n",
+		str, GET_EXP(ch));
+
+	send_to_desc(d, "\r\n");
 }
 
 #undef __interpreter_c__
