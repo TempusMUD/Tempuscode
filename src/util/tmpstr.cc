@@ -377,6 +377,58 @@ tmp_gsub(const char *haystack, const char *needle, const char *sub)
 }
 
 char *
+tmp_gsubi(const char *haystack, const char *needle, const char *sub)
+{
+	struct tmp_str_pool *cur_buf;
+	char *low_stack;
+	char *write_pt, *result;
+	const char *read_pt, *search_pt;
+	size_t len;
+	int matches;
+
+	// Count number of occurences of needle in haystack
+	matches = 0;
+	low_stack = tmp_tolower(haystack);
+	needle = tmp_tolower(needle);
+	read_pt = low_stack;
+	while ((read_pt = strstr(read_pt, needle)) != NULL) {
+		matches++;
+		read_pt += strlen(needle);
+	}
+
+	// Figure out how much space we'll need
+	len = strlen(haystack) + matches * (strlen(sub) - strlen(needle)) + 1;
+
+	// If we don't have the space, we allocate another pool
+	if (len > tmp_list_tail->space - tmp_list_tail->used)
+		cur_buf = tmp_alloc_pool(len);
+	else
+		cur_buf = tmp_list_tail;
+
+	result = cur_buf->data + cur_buf->used;
+	cur_buf->used += len;
+
+	// Now copy up to matches
+	read_pt = haystack;
+	search_pt = low_stack;
+	write_pt = result;
+	while ((search_pt = strstr(search_pt, needle)) != NULL) {
+		while (read_pt - haystack < search_pt - low_stack)
+			*write_pt++ = *read_pt++;
+		read_pt = sub;
+		while (*read_pt)
+			*write_pt++ = *read_pt++;
+		search_pt += strlen(needle);
+		read_pt = search_pt;
+	}
+
+	// Copy the rest of the string
+	strcpy(write_pt, read_pt);
+	return result;
+}
+
+
+char *
 tmp_tolower(const char *str)
 {
 	char *result, *c;

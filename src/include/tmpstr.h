@@ -47,6 +47,9 @@ char *tmp_strdup(const char *src, const char *term = NULL);
 // returns a string, in which every needle in haystack is substituted with sub
 char *tmp_gsub(const char *haystack, const char *needle, const char *sub);
 
+// case insensitive version of tmp_gsub
+char *tmp_gsubi(const char *haystack, const char *needle, const char *sub);
+
 // returns a copy of str with all characters converted to lowercase
 char *tmp_tolower(const char *str);
 
