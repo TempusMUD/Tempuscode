@@ -3282,11 +3282,6 @@ ACMD(do_who)
             continue;
         }
         
-        //imm invis
-        if (GET_INVIS_LVL(curr) > GET_LEVEL(ch)) {
-            continue;
-        }
-
 		//update the total number of players first
 		if (GET_LEVEL(curr) < LVL_AMBASSADOR && !curr->isTester()) {
 			playerTotal++;
@@ -3349,6 +3344,12 @@ ACMD(do_who)
             GET_LEVEL(ch) < LVL_AMBASSADOR) {
             continue;
         }
+
+        //imm invis
+        if (GET_INVIS_LVL(curr) > GET_LEVEL(ch)) {
+            continue;
+        }
+
 		/////////////////END CONDITIONS/////////////////////////
 		
 		
