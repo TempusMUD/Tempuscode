@@ -445,7 +445,8 @@ extern const char *spells[];
 #define SKILL_SWIMMING		    607
 #define SKILL_THROWING              608
 #define SKILL_RIDING                609
-#define SKILL_PIPEMAKING            610 /* Make a pipe!                */
+#define SKILL_PIPEMAKING            610 //Make a pipe!
+#define SKILL_CORNER				611 // Keep them from fleeing
 
 
   /*****************  CYBORG SKILLS  ********************/
@@ -478,13 +479,15 @@ extern const char *spells[];
 #define SKILL_DE_ENERGIZE           639 // drain energy from chars
 #define SKILL_ASSIMILATE            640 // assimilate objects
 #define SKILL_RADIONEGATION         641 // immunity to radiation
+#define SKILL_IMPLANT_W				642 // Extra attacks with implant weapons.
+#define SKILL_ADV_IMPLANT_W			643 // ""
 
 #define SKILL_RETREAT               648 // controlled flee
 #define SKILL_DISGUISE              649 // look like a mob
 #define SKILL_AMBUSH                650 /* surprise victim */
 
   /****************** VAMPIRE SKILLS  *******************/
-#define SKILL_FLYING		    651
+#define SKILL_FLYING		    	651
 #define SKILL_SUMMON                652
 #define SKILL_FEED                  653
 #define SKILL_DRAIN                 654
@@ -497,7 +500,8 @@ extern const char *spells[];
   /***************   Ok. now they have 2.  *****/
 #define SKILL_HAMSTRING				666
 #define SKILL_SNATCH				667
-#define SKILL_DRAG                              668
+#define SKILL_DRAG					668
+#define SKILL_TAUNT					669
 
 
 #define SKILL_ENERGY_CONVERSION     679 // physic's energy conversion
@@ -508,8 +512,8 @@ extern const char *spells[];
 #define SKILL_PROF_WHIP             682
 #define SKILL_PROF_PIERCE           683
 #define SKILL_PROF_SLASH            684
-#define SKILL_PROF_CRUSH	    685
-#define SKILL_PROF_BLAST	    686
+#define SKILL_PROF_CRUSH			685
+#define SKILL_PROF_BLAST			686
 #define SKILL_BREAK_DOOR            687
 #define SKILL_ARCHERY               688
 #define SKILL_BOW_FLETCH            689
@@ -537,7 +541,7 @@ extern const char *spells[];
 #define SPELL_EARTH_ELEMENTAL	     711
 #define SPELL_FIRE_ELEMENTAL	     712
 #define SPELL_WATER_ELEMENTAL        713
-#define SPELL_AIR_ELEMENTAL	     714
+#define SPELL_AIR_ELEMENTAL			714
 #define SPELL_HELL_FIRE		     717
 #define JAVELIN_OF_LIGHTNING         718
 #define SPELL_TROG_STENCH            719

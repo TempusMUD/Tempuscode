@@ -1656,7 +1656,7 @@ send_to_clerics(char *messg)
 }    
 
 void 
-send_to_outdoor(char *messg)
+send_to_outdoor(char *messg,int isecho=0)
 {
     struct descriptor_data *i;
 
@@ -1665,6 +1665,7 @@ send_to_outdoor(char *messg)
 
     for (i = descriptor_list; i; i = i->next)
 	if (!i->connected && i->character && AWAKE(i->character) &&
+		( !isecho || !PRF2_FLAGGED(i->character, PRF2_NOECHO)) &&
 	    !PLR_FLAGGED(i->character, PLR_OLC | PLR_WRITING | PLR_MAILING) &&
 	    OUTSIDE(i->character) && PRIME_MATERIAL_ROOM(i->character->in_room))
 	    SEND_TO_Q(messg, i);

@@ -994,6 +994,8 @@ ACMD(do_gen_tog)
 	 "Autoloot ON.\r\n"},
 	{"Pkiller OFF.\r\n",
 	 "Pkiller ON.\r\n" },
+	{"You open yourself to the echoing thoughts of the gods.\r\n",
+	 "You close your mind to the echoing thoughts of the gods.\r\n",},
 	{"\n","\n"}
     };
 
@@ -1194,6 +1196,10 @@ ACMD(do_gen_tog)
     
     case SCMD_PKILLER:
 	result = PRF2_TOG_CHK( ch, PRF2_PKILLER );
+	break;
+
+	case SCMD_NOECHO:
+	result = PRF2_TOG_CHK( ch, PRF2_NOECHO );
 	break;
 
     default:

@@ -22,7 +22,7 @@ void	send_to_all(char *messg);
 void	send_to_char(const char *messg, struct char_data *ch);
 void	send_to_room(char *messg, struct room_data *room);
 void    send_to_clerics(char *messg);
-void	send_to_outdoor(char *messg);
+void	send_to_outdoor(char *messg,int isecho=0);
 void    send_to_clan(char *messg, int clan);
 void    send_to_zone(char *messg, struct zone_data *zone, int outdoor);
 void    send_to_comm_channel(struct char_data *ch, char *buff, int chan, int mode, int hide_invis);

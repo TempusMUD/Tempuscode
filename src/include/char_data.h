@@ -346,6 +346,7 @@
 #define PRF2_AUTOSPLIT     (1 << 15)
 #define PRF2_AUTOLOOT      (1 << 16)
 #define PRF2_PKILLER       (1 << 17) // player can attack other players
+#define PRF2_NOECHO		   (1 << 18) // Silly Gecho things
 
 /* Affect bits: used in char_data.char_specials.saved.affected_by */
 /* WARNING: In the world files, NEVER set the bits marked "R" ("Reserved") */

@@ -231,10 +231,12 @@ ACMD(do_echo)
 	}
 	else {
 	    for (vict = ch->in_room->people; vict; vict = vict->next_in_room) {
-		if (GET_LEVEL(vict) > GET_LEVEL(ch))
-		    act(buf2, FALSE, ch, 0, vict, TO_VICT);
-		else
-		    act(buf, FALSE, ch, 0, vict, TO_VICT);
+			if(ch == vict || !PRF2_FLAGGED(vict, PRF2_NOECHO)) {
+				if (GET_LEVEL(vict) > GET_LEVEL(ch))
+					act(buf2, FALSE, ch, 0, vict, TO_VICT);
+				else
+					act(buf, FALSE, ch, 0, vict, TO_VICT);
+			}
 	    }
 	}
     }
@@ -2799,11 +2801,12 @@ ACMD(do_gecho)
 	sprintf(buf, "%s\r\n", argument);
 	sprintf(buf2, "[%s-g] %s\r\n", GET_NAME(ch), argument);
 	for (pt = descriptor_list; pt; pt = pt->next) {
-	    if (!pt->connected && pt->character && pt->character != ch) {
-		if (GET_LEVEL(pt->character) > GET_LEVEL(ch))
-		    send_to_char(buf2, pt->character);
-		else
-		    send_to_char(buf, pt->character);
+	    if (!pt->connected && pt->character && pt->character != ch &&
+		!PRF2_FLAGGED(pt->character, PRF2_NOECHO) ) {
+			if (GET_LEVEL(pt->character) > GET_LEVEL(ch))
+				send_to_char(buf2, pt->character);
+			else
+				send_to_char(buf, pt->character);
 	    }
 	}
 	if (PRF_FLAGGED(ch, PRF_NOREPEAT))
@@ -2822,7 +2825,7 @@ ACMD(do_oecho)
 	send_to_char("That must be a mistake...\r\n", ch);
     else {
 	sprintf(buf, "%s\r\n", argument);
-	send_to_outdoor(buf);
+	send_to_outdoor(buf, 1);
 
 	if (PRF_FLAGGED(ch, PRF_NOREPEAT))
 	    send_to_char(OK, ch);

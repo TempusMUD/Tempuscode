@@ -860,6 +860,7 @@ extern const struct command_info cmd_info[] = {
     { "noauction", POS_DEAD    , do_gen_tog  , 0, SCMD_NOAUCTION },
     { "noaffects", POS_DEAD    , do_gen_tog  , 0, SCMD_NOAFFECTS },
     { "noclansay", POS_DEAD    , do_gen_tog  , 0, SCMD_NOCLANSAY },
+    { "noecho"   , POS_DEAD    , do_gen_tog  , LVL_AMBASSADOR, SCMD_NOECHO},
     { "nogossip" , POS_DEAD    , do_gen_tog  , 0, SCMD_NOGOSSIP },
     { "nograts"  , POS_DEAD    , do_gen_tog  , 0, SCMD_NOGRATZ },
     { "nohassle" , POS_DEAD    , do_gen_tog  , LVL_AMBASSADOR, SCMD_NOHASSLE },
