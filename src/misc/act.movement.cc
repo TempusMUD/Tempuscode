@@ -1187,7 +1187,8 @@ perform_move(struct Creature *ch, int dir, int mode, int need_specials_check)
 			next = k->next;
 			if ((was_in == k->follower->in_room) &&
 				!PLR_FLAGGED(k->follower, PLR_OLC | PLR_WRITING | PLR_MAILING)
-				&& (k->follower->getPosition() >= POS_STANDING)) {
+				&& (k->follower->getPosition() >= POS_STANDING)
+				&& CAN_SEE(k->follower, ch)) {
 				act("You follow $N.\r\n", FALSE, k->follower, 0, ch, TO_CHAR);
 				perform_move(k->follower, dir, MOVE_NORM, 1);
 			}
