@@ -1,4 +1,4 @@
 $(OBJ)/db.o : db.cc \
-	$(INCLUDE)/structs.h $(INCLUDE)/utils.h $(INCLUDE)/db.h $(INCLUDE)/comm.h $(INCLUDE)/handler.h $(INCLUDE)/spells.h $(INCLUDE)/mail.h $(INCLUDE)/interpreter.h $(INCLUDE)/house.h $(INCLUDE)/screen.h $(INCLUDE)/flow_room.h $(INCLUDE)/clan.h $(INCLUDE)/paths.h $(INCLUDE)/quest.h $(INCLUDE)/char_class.h $(INCLUDE)/olc.h 
+	$(INCLUDE)/structs.h $(INCLUDE)/utils.h $(INCLUDE)/db.h $(INCLUDE)/comm.h $(INCLUDE)/handler.h $(INCLUDE)/spells.h $(INCLUDE)/mail.h $(INCLUDE)/interpreter.h $(INCLUDE)/house.h $(INCLUDE)/screen.h $(INCLUDE)/flow_room.h $(INCLUDE)/clan.h $(INCLUDE)/paths.h $(INCLUDE)/quest.h $(INCLUDE)/char_class.h $(INCLUDE)/olc.h $(INCLUDE)/shop.h 
 	$(CXX) -c $(CXXFLAGS) db.cc                -o $(OBJ)/db.o
 OBJFILES= $(OBJ)/db.o

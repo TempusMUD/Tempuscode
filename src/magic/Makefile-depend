@@ -5,6 +5,6 @@ $(OBJ)/spell_parser.o : spell_parser.cc \
 	$(INCLUDE)/structs.h $(INCLUDE)/utils.h $(INCLUDE)/interpreter.h $(INCLUDE)/spells.h $(INCLUDE)/handler.h $(INCLUDE)/comm.h $(INCLUDE)/db.h $(INCLUDE)/materials.h $(INCLUDE)/char_class.h $(INCLUDE)/fight.h $(INCLUDE)/shop.h 
 	$(CXX) -c $(CXXFLAGS) spell_parser.cc      -o $(OBJ)/spell_parser.o
 $(OBJ)/spells.o : spells.cc \
-	$(INCLUDE)/structs.h $(INCLUDE)/utils.h $(INCLUDE)/comm.h $(INCLUDE)/spells.h $(INCLUDE)/handler.h $(INCLUDE)/db.h $(INCLUDE)/interpreter.h $(INCLUDE)/flow_room.h $(INCLUDE)/smokes.h $(INCLUDE)/screen.h $(INCLUDE)/vehicle.h $(INCLUDE)/char_class.h $(INCLUDE)/shop.h $(INCLUDE)/fight.h 
+	$(INCLUDE)/structs.h $(INCLUDE)/utils.h $(INCLUDE)/comm.h $(INCLUDE)/spells.h $(INCLUDE)/handler.h $(INCLUDE)/db.h $(INCLUDE)/interpreter.h $(INCLUDE)/flow_room.h $(INCLUDE)/smokes.h $(INCLUDE)/screen.h $(INCLUDE)/vehicle.h $(INCLUDE)/char_class.h $(INCLUDE)/shop.h $(INCLUDE)/fight.h $(INCLUDE)/materials.h 
 	$(CXX) -c $(CXXFLAGS) spells.cc            -o $(OBJ)/spells.o
 OBJFILES= $(OBJ)/magic.o $(OBJ)/spell_parser.o $(OBJ)/spells.o

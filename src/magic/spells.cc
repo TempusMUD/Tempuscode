@@ -32,6 +32,7 @@
 #include "char_class.h"
 #include "shop.h"
 #include "fight.h"
+#include "materials.h"
 
 extern struct obj_data *object_list;
 extern struct char_data *character_list;
@@ -1718,49 +1719,107 @@ ASPELL(spell_magical_vestment)
     int i;
     if (ch == NULL || obj == NULL)
 	return;
-    if (!(CAN_WEAR(obj, ITEM_WEAR_ABOUT) ||
-	  CAN_WEAR(obj, ITEM_WEAR_BODY) ||
-	  CAN_WEAR(obj, ITEM_WEAR_CROTCH))) {
-	act("You consider $p a vestment?  I think not.\r\n", FALSE, ch, obj, 0, TO_CHAR);
-	return;
+
+    if ( IS_NEUTRAL( ch ) ) {
+        send_to_char( "You cannot cast this spell, you worthless excuse for a cleric!\n", ch );
+        return;
     }
-    for (i = 0; i < MAX_OBJ_AFFECT; i++)
-	if (obj->affected[i].location != APPLY_NONE) {
-	    send_to_char("This item already posseses special properties.\r\n", ch);
-	    return;
-	}
-    if ((GET_OBJ_TYPE(obj) == ITEM_WORN &&
-	 !IS_SET(GET_OBJ_EXTRA(obj), ITEM_MAGIC) &&
-	 !IS_SET(GET_OBJ_EXTRA(obj), ITEM_MAGIC_NODISPEL) &&
-	 !IS_SET(GET_OBJ_EXTRA(obj), ITEM_BLESS) &&
-	 !IS_SET(GET_OBJ_EXTRA(obj), ITEM_EVIL_BLESS)) || 
-	GET_LEVEL(ch) > LVL_GRGOD) {
-	SET_BIT(GET_OBJ_EXTRA(obj), ITEM_MAGIC);
-	obj->affected[0].location = APPLY_AC;
-	obj->affected[0].modifier = -(4 + ((level + GET_WIS(ch))>> 4));
 
-	obj->affected[1].location = APPLY_SAVING_PARA;
-	obj->affected[1].modifier = -(1 + (level >> 4));
+    if ( !IS_CLOTH_TYPE( obj ) && !IS_LEATHER_TYPE( obj ) ) {
+        
+        if ( IS_EVIL( ch ) && !IS_FLESH_TYPE( obj ) ) {
+            send_to_char( 
+                "The target of this spell must be made from a type of cloth, leather, or flesh.\n", ch );
+            return;
+        }
+        else if ( IS_GOOD( ch ) ) {
+            send_to_char( 
+                "The target of this spell must be made from a type of cloth or leather.\n", ch );
+            return;
+        }
+    }
 
-	obj->affected[2].location = APPLY_SAVING_SPELL;
-	obj->affected[2].modifier = -(1 + (level >> 4));
+    if ( CAN_WEAR( obj, ITEM_WEAR_FINGER ) ||
+         CAN_WEAR( obj, ITEM_WEAR_SHIELD ) ||
+         CAN_WEAR( obj, ITEM_WEAR_HOLD )   ||
+         CAN_WEAR( obj, ITEM_WEAR_ASS )    ||
+         CAN_WEAR( obj, ITEM_WEAR_EAR )    ||
+         CAN_WEAR( obj, ITEM_WEAR_WIELD ) ) {
+        act( "$p is not a suitable vestment due to the places where it can be worn.",
+             FALSE, ch, obj, 0, TO_CHAR );
+        return;
+    }
+    
+    if ( GET_OBJ_TYPE( obj ) == ITEM_ARMOR ) {
+        if ( GET_OBJ_VAL( obj, 0 ) > ( GET_LEVEL( ch ) / 10 + 2 ) ) {
+            act( "$p is not a suitable vestment because it is already a formidible armor.",
+                 FALSE, ch, obj, 0, TO_CHAR );
+            return;
+        }
+    }
+    else if ( GET_OBJ_TYPE( obj ) != ITEM_WORN ) {
+        act( "$p is not a typical worn item, and cannot be ths target of this spell.",
+             FALSE, ch, obj, 0, TO_CHAR );
+        return;
+    }
 
-	if (IS_GOOD(ch)) {
-	    SET_BIT(GET_OBJ_EXTRA(obj), ITEM_ANTI_EVIL);
-	    act("$p glows blue.", FALSE, ch, obj, 0, TO_CHAR);
-	} else if (IS_EVIL(ch)) {
-	    SET_BIT(GET_OBJ_EXTRA(obj), ITEM_ANTI_GOOD);
-	    act("$p glows red.", FALSE, ch, obj, 0, TO_CHAR);
-	} else {
-	    act("$p glows yellow.", FALSE, ch, obj, 0, TO_CHAR);
-	}
-	if (level > number(35, 53))
-	    SET_BIT(GET_OBJ_EXTRA(obj), ITEM_GLOW);
-	SET_BIT(GET_OBJ_EXTRA(obj), ITEM_MAGIC);
+    // silently remove the armor, save_para, save_spell affects
 
-	gain_skill_prof(ch, SPELL_MAGICAL_VESTMENT);
-    } else
-	act("$p is not a suitable vestment.\r\n", FALSE, ch, obj, 0, TO_CHAR);
+    for (i = 0; i < MAX_OBJ_AFFECT; i++) {
+	if ( obj->affected[i].location == APPLY_AC ||
+             obj->affected[i].location == APPLY_SAVING_PARA ||
+             obj->affected[i].location == APPLY_SAVING_SPELL ) {
+            obj->affected[i].location = APPLY_NONE;
+            obj->affected[i].modifier = 0;
+        }
+    }
+    
+    float multiplier = 1;
+
+    if ( IS_OBJ_STAT( obj, ITEM_EVIL_BLESS ) ) {
+        if ( IS_EVIL( ch ) )
+            multiplier = 1.5;
+        else {
+            act( "$p is an evil item.  You cannot endow it with your magic.",
+                 FALSE, ch, obj, 0, TO_CHAR );
+            return;
+        }
+    }
+    else if ( IS_OBJ_STAT( obj, ITEM_BLESS ) ) {
+        if ( IS_GOOD( ch ) )
+            multiplier = 1.5;
+        else {
+            act( "$p is a good item.  Burn it!!!",
+                 FALSE, ch, obj, 0, TO_CHAR );
+            return;
+        }
+    }
+    
+    SET_BIT( GET_OBJ_EXTRA( obj ), ITEM_MAGIC );
+    if ( IS_EVIL( ch ) ) {
+        SET_BIT( GET_OBJ_EXTRA( obj ), ITEM_EVIL_BLESS );
+        act("$p glows red.", FALSE, ch, obj, 0, TO_CHAR);
+    }
+    else {
+        SET_BIT( GET_OBJ_EXTRA( obj ), ITEM_BLESS );
+        act("$p glows blue.", FALSE, ch, obj, 0, TO_CHAR);
+    }
+    
+    obj->affected[0].location = APPLY_AC;
+    obj->affected[0].modifier = - (char) ( 2 + ( (int) ( level * multiplier + GET_WIS( ch ) ) >> 4 ) );
+    
+    obj->affected[1].location = APPLY_SAVING_PARA;
+    obj->affected[1].modifier = - (char) ( 1 + ( ( level * multiplier ) / 20  ) );
+    
+    obj->affected[2].location = APPLY_SAVING_SPELL;
+    obj->affected[2].modifier = - (char) ( 1 + ( ( level * multiplier ) / 20 ) );
+    
+    if ( level > number( 35, 53 ) )
+        SET_BIT(GET_OBJ_EXTRA(obj), ITEM_GLOW);
+
+    SET_BIT(GET_OBJ_EXTRA(obj), ITEM_MAGIC);
+    
+    gain_skill_prof(ch, SPELL_MAGICAL_VESTMENT);
 }
 
 ASPELL(spell_clairvoyance)
