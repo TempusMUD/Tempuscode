@@ -3468,12 +3468,6 @@ obj_owner(struct obj_data *obj)
 }
 
 char*
-get_alias_file_path( long id )
-{
-    return tmp_sprintf( "players/alias/%0ld/%ld.dat", (id % 10), id );
-}
-
-char*
 get_mail_file_path( long id )
 {
     return tmp_sprintf( "players/mail/%0ld/%ld.dat", (id % 10), id );
