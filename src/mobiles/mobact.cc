@@ -2716,9 +2716,9 @@ mobile_activity(void)
 			int sect;
 			sect = ch->in_room->sector_type;
 
-			if (((GET_MOB_VNUM(ch) >= 1280 &&
-						GET_MOB_VNUM(ch) <= 1283) ||
-					GET_MOB_VNUM(ch) == 5318) && !ch->master)
+			if (((GET_MOB_VNUM(ch) >= 1280 && GET_MOB_VNUM(ch) <= 1283) ||
+                GET_MOB_VNUM(ch) == 5318) && 
+                (!ch->master || ch->master->in_room->zone != ch->in_room->zone))
 				k = 1;
 			else
 				k = 0;
@@ -2794,6 +2794,20 @@ mobile_activity(void)
 			if (found)
 				continue;
 		}
+        
+        //
+        // unholy stalker's job finished
+        //
+        
+        if (GET_MOB_VNUM(ch) == UNHOLY_STALKER_VNUM) {
+            if (!ch->isHunting()) {
+                act("$n dematerializes, removing the chill from the air.",
+                    TRUE, ch, 0, 0, TO_ROOM);
+                ch->purge(true);
+            }
+        }
+        
+        
 		//
 		// birds fluttering around
 		//
