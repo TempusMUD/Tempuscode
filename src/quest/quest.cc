@@ -798,6 +798,11 @@ do_qcontrol_create(Creature *ch, char *argument, int com)
 							 quest.getVnum(), qtypes[type], argument );
 	qlog(ch, msg, QLOG_BRIEF, LVL_AMBASSADOR, TRUE);
 	send_to_char(ch, "Quest %d created.\r\n", quest.getVnum());
+	if (!quest_by_vnum(quest.getVnum())->addPlayer(GET_IDNUM(ch)) ) {
+		send_to_char(ch, "Error adding you to quest.\r\n");
+		return;
+	}
+	GET_QUEST(ch) = quest.getVnum();
 	save_quests();
 }
 
