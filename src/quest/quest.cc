@@ -1660,14 +1660,14 @@ list_active_quests(CHAR * ch, char* outbuf)
 									qtype_abbrevs[(int)quest->type], quest->name, 
 									timestr_a, quest->getNumPlayers());
 
-		msg = tmp_strcat(msg,line);
+		msg = tmp_strcat(msg,line,NULL);
 	}
 	char *s = tmp_sprintf("%d visible quest%s active.\r\n\r\n", 
 						  questCount, questCount == 1 ? "" : "s");
-	msg = tmp_strcat(msg,s);
+	msg = tmp_strcat(msg,s,NULL);
 
 	if (outbuf)
-		return tmp_strcat(outbuf,msg);
+		return tmp_strcat(outbuf,msg,NULL);
 	else
 		page_string(ch->desc, msg);
 	return "ERROR";
@@ -1696,14 +1696,14 @@ list_inactive_quests(CHAR * ch, char *outbuf)
 									qtype_abbrevs[(int)quest->type], quest->name, 
 									timestr_a, quest->getNumPlayers());
 
-		msg = tmp_strcat(msg,line);
+		msg = tmp_strcat(msg,line,NULL);
 	}
 	char *s = tmp_sprintf("%d visible quest%s finished.\r\n\r\n", 
 						  questCount, questCount == 1 ? "" : "s");
-	msg = tmp_strcat(msg,s);
+	msg = tmp_strcat(msg,s,NULL);
 
 	if (outbuf)
-		return tmp_strcat(outbuf,msg);
+		return tmp_strcat(outbuf,msg,NULL);
 	else
 		page_string(ch->desc, msg);
 	return "ERROR";
@@ -2179,12 +2179,12 @@ do_quest_status(CHAR * ch, char *argument)
 									quest->getVnum(), get_name_by_id(quest->getOwner()),
 									qtype_abbrevs[(int)quest->type],
 									quest->name, timestr_a, quest->getNumPlayers());
-			msg = tmp_strcat(msg,line);
+			msg = tmp_strcat(msg,line,NULL);
 			found = true;
 		}
 	}
 	if (!found)
-		msg = tmp_strcat(msg,"None.\r\n");
+		msg = tmp_strcat(msg,"None.\r\n",NULL);
 	page_string(ch->desc, msg);
 }
 
@@ -2650,10 +2650,10 @@ Quest::Quest( char_data *ch, int type, const char* name )
 	started = time(0);
 	ended = 0;
 
-	description = new char[1];
+	description = (char*) malloc(sizeof(char));
 	description[0] = '\0';
 
-	updates = new char[1];
+	updates = (char*) malloc(sizeof(char));
 	updates[0] = '\0';
 
 	max_players = 0;
