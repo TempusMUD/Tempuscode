@@ -363,7 +363,6 @@ int
 Creature::getLevelBonus(bool primary)
 {
 	int bonus = MIN(50, player.level + 1);
-	short gen;
 	short gen = char_specials.saved.remort_generation;
 
 	if( gen == 0 && IS_NPC(this) ) {
@@ -396,20 +395,41 @@ Creature::getLevelBonus(bool primary)
 int
 Creature::getLevelBonus(int skill)
 {
-	int skill_lvl;
-
 	// Immorts get full bonus. 
-	if (player.level >= 50)
+	if( player.level >= 50 )
 		return 100;
+
 	// Irregular skill #s get 1
-	if (skill > TOP_SPELL_DEFINE || skill < 0)
+	if( skill > TOP_SPELL_DEFINE || skill < 0 )
 		return 1;
-	// Check to make sure they have the skill
-	skill_lvl = CHECK_SKILL(this, skill);
-	if (!skill_lvl)
-		return 1;
-	// Average the basic level bonus and the skill level
-	return MIN(100, (getLevelBonus(true) + skill_lvl) / 2);
+
+	if( IS_NPC(this) && GET_CLASS(this) >= NUM_CLASSES ) {
+		// Check to make sure they have the skill
+		int skill_lvl = CHECK_SKILL(this, skill);
+		if (!skill_lvl)
+			return 1;
+		// Average the basic level bonus and the skill level
+		return MIN(100, (getLevelBonus(true) + skill_lvl) / 2);
+	} else {
+		int pclass = GET_CLASS(this);
+		int sclass = GET_REMORT_CLASS(this);
+
+		if( pclass < 0 || pclass >= NUM_CLASSES )
+			pclass = CLASS_WARRIOR;
+
+		if( sclass >= NUM_CLASSES )
+			sclass = CLASS_WARRIOR;
+
+		if( SPELL_LEVEL(skill, pclass) <= player.level &&
+			SPELL_GEN( skill, pclass <= GET_REMORT_GEN(this) ) ) {
+			return getLevelBonus(true);
+		} else if( sclass >= 0 && SPELL_LEVEL(skill, sclass <= player.level ) && 
+				   SPELL_GEN( skill, sclass ) < 0 ) {
+			return getLevelBonus(false);
+		} else {
+			return player.level/2;
+		}
+	}
 }
 
 /**
