@@ -706,7 +706,7 @@ ASPELL(spell_summon)
     }
 
 //    if (room_count(ch, ch->in_room) >= ch->in_room->max_occupancy) {
-    if (ch->in_room->people.size() >= ch->in_room->max_occupancy) {
+    if (ch->in_room->people.size() >= (unsigned)ch->in_room->max_occupancy) {
         send_to_char("This room is too crowded to summon anyone!\r\n", ch);
         return;
     }
