@@ -4466,7 +4466,7 @@ void knight_activity(struct Creature *ch){
 int knight_battle_activity(struct Creature *ch, struct Creature *precious_vict){
     ACCMD(do_disarm);
     struct Creature * vict;
-	int return_flags;
+	int return_flags = 0;
 
     if (!(vict = choose_opponent(ch, precious_vict)))
         return 0;
