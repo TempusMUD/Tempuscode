@@ -605,6 +605,9 @@ handle_input(struct descriptor_data *d)
 		}
 		
 		send_to_desc(d, "\r\n%s has been deleted.\r\n\r\n", GET_NAME(d->creature));
+		slog("%s[%d] has deleted character %s[%ld]",
+				d->account->get_name(), d->account->get_idnum(),
+				GET_NAME(d->creature), GET_IDNUM(d->creature) );
 		d->account->delete_char(d->creature);
 		delete d->creature;
 		d->creature = NULL;
