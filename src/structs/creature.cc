@@ -1144,9 +1144,6 @@ Creature::trusts(Creature *ch)
 	if (IS_AFFECTED(this, AFF_CHARM) && master == ch)
 		return true;
 
-	if (GET_CLAN(this) && GET_CLAN(this) == GET_CLAN(ch))
-		return true;
-
 	return trusts(GET_IDNUM(ch));
 }
 
