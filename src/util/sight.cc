@@ -107,8 +107,11 @@ CHAR_CAN_SEE(Creature *ch, room_data *room = NULL)
 bool
 INVIS_OK(Creature *sub, Creature *obj)
 {
-	// Can't see invis'd immortals
-	if (IS_IMMORT(obj) && GET_LEVEL(sub) < GET_INVIS_LVL(obj))
+	// Other players can't see invis'd immortals.  Also checks for switched
+	// mobiles
+	if (IS_PC(sub) && IS_PC(obj) && IS_IMMORT(obj) && 
+			!sub->desc &&
+			GET_LEVEL(sub) < GET_INVIS_LVL(obj))
 		return false;
 
 	// Holy is the light that shines on the chosen
@@ -116,7 +119,7 @@ INVIS_OK(Creature *sub, Creature *obj)
 		return true;
 
 	// Remort invis.  (mobs don't have it and aren't affected by it.)
-	if (!IS_NPC(sub) && !IS_NPC(obj) &&
+	if (IS_PC(sub) && IS_PC(obj) &&
 			GET_LEVEL(sub) < GET_INVIS_LVL(obj) &&
 			GET_REMORT_GEN(sub) < GET_REMORT_GEN(obj))
 		return false;
@@ -149,7 +152,7 @@ CAN_SEE(Creature *sub, Creature *obj)
 		return true;
 
 	// Nothing gets at all gets through immort invis
-	if (GET_LEVEL(sub) < GET_INVIS_LVL(obj))
+	if (IS_IMMORT(obj) && GET_LEVEL(sub) < GET_INVIS_LVL(obj))
 		return false;
 
 	// Mortals can't see unapproved mobs
