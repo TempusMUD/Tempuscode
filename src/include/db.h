@@ -238,7 +238,11 @@ extern struct room_data *world;
 extern struct obj_data *object_list;
 extern PGconn *sql_cxn;
 
-// Executes a SQL command, returns NULL if successful, an error string if not
+// Executes a SQL insertion, returning the Oid if successful
+Oid sql_insert(const char *str, ...)
+	__attribute__ ((format (printf, 1, 2))); 
+
+// Executes a SQL command, returns true if successful
 bool sql_exec(const char *str, ...)
 	__attribute__ ((format (printf, 1, 2))); 
 // Executes a SQL query.  Returns the result, which must be deallocated

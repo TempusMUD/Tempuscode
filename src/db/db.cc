@@ -3488,6 +3488,31 @@ sql_exec(const char *str, ...)
 	return result;
 }
 
+Oid
+sql_insert(const char *str, ...)
+{
+	PGresult *res;
+	char *query;
+	va_list args;
+	Oid result;
+
+	if (!str || !*str)
+		return InvalidOid;
+
+	va_start(args, str);
+	query = tmp_vsprintf(str, args);
+	va_end(args);
+
+	res = PQexec(sql_cxn, query);
+	if (!res) {
+		slog("FATAL: Couldn't allocate sql result");
+		safe_exit(1);
+	}
+	result = PQoidValue(res);
+	PQclear(res);
+	return result;
+}
+
 PGresult *
 sql_query(const char *str, ...)
 {
