@@ -21,8 +21,7 @@ enum special_mode {
 	SPECIAL_COMBAT = 4,	// special in-combat ability
 	SPECIAL_ENTER =  5,	// special upon entrance
 	SPECIAL_LEAVE =  6,	// special upon exit
-	SPECIAL_HELP =   7, // describe special to ch for documentation
-	SPECIAL_RESET =  8, // zone reset
+	SPECIAL_RESET =  7, // zone reset
 };
 
 /* other miscellaneous defines *******************************************/
