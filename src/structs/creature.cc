@@ -828,11 +828,11 @@ Creature::clear(void)
 		player_specials = new player_special_data;
 		memset((char *)player_specials, 0, sizeof(player_special_data));
 		player_specials->desc_mode = CXN_UNKNOWN;
+		set_title(this, "");
 	} else {
 		player_specials = &dummy_mob;
+		GET_TITLE(this) = NULL;
 	}
-
-	set_title(this, "");
 }
 
 bool
