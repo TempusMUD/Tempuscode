@@ -471,7 +471,8 @@ Creature::loadObjects()
 			obj_data *obj;
 			CREATE(obj, obj_data, 1);
 			obj->clear();
-			if(! obj->loadFromXML(NULL,this,NULL,node) ) {
+			CREATE(obj->shared, obj_shared_data, 1);
+			if(!obj->loadFromXML(NULL,this,NULL,node) ) {
 				extract_obj(obj);
 			}
 			//obj_to_room(obj, in_room);
