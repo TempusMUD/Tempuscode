@@ -219,7 +219,7 @@ AccountIndex::find_account(const char *name)
 
 	for (it = begin();it != end();it++) {
 		acct = *it;
-		if (!strcmp(acct->get_name(), name))
+		if (!strcasecmp(acct->get_name(), name))
 			return acct;
 	}
 	return NULL;
