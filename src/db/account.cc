@@ -476,30 +476,22 @@ Account::initialize(const char *name, descriptor_data *d, int idnum)
 void
 Account::set_password(const char *pw)
 {
-	char salt[3] = "**";
+	char salt[13] = "$1$........$";
+	int idx;
 
-	salt[0] = rand() & 63;
-	if (salt[0] < 10)
-		salt[0] += '0';
-	else if (salt[0] < 36)
-		salt[0] = salt[0] - 10 + 'A';
-	else if (salt[0] < 62)
-		salt[0] = salt[0] - 36 + 'a';
-	else if (salt[0] == 63)
-		salt[0] = '.';
-	else
-		salt[0] = '/';
-	salt[1] = rand() & 63;
-	if (salt[1] < 10)
-		salt[1] += '0';
-	else if (salt[1] < 36)
-		salt[1] = salt[1] - 10 + 'A';
-	else if (salt[1] < 62)
-		salt[1] = salt[1] - 36 + 'a';
-	else if (salt[1] == 63)
-		salt[1] = '.';
-	else
-		salt[1] = '/';
+	for (idx = 3; idx < 12; idx++) {
+		salt[idx] = rand() & 63;
+		if (salt[idx] < 10)
+			salt[idx] += '0';
+		else if (salt[idx] < 36)
+			salt[idx] = salt[idx] - 10 + 'A';
+		else if (salt[idx] < 62)
+			salt[idx] = salt[idx] - 36 + 'a';
+		else if (salt[idx] == 63)
+			salt[idx] = '.';
+		else
+			salt[idx] = '/';
+	}
 	_password = strdup(crypt(pw, salt));
 }
 
