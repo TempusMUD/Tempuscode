@@ -77,6 +77,46 @@ extern const char *trade_letters[] = {
 };
 
 
+const char *desc_modes[] = {
+	"playing",
+	"disconnect",
+	"account-login",
+	"account-pw",
+	"account-prompt",
+	"account-verify",
+	"password-prompt",
+	"password-verify",
+	"ansi-prompt",
+	"email-prompt",
+	"old-password-prompt",
+	"new-password-prompt",
+	"new-password-verify",
+	"name-prompt",
+	"name-verify",
+	"sex-prompt",
+	"time-prompt",
+	"past-race-prompt",
+	"future-race-prompt",
+	"past-class-prompt",
+	"future-class-prompt",
+	"align-prompt",
+	"statistics-roll",
+	"menu",
+	"wait-menu",
+	"class-remort",
+	"delete-prompt",
+	"delete-password",
+	"delete-verify",
+	"afterlife",
+	"remort-afterlife",
+	"view-background",
+	"details-prompt",
+	"edit-prompt",
+	"edit-description",
+	"network",
+	"\n"
+};
+
 extern const char *temper_str[] = {
 	"puke",
 	"joint",
@@ -1153,46 +1193,6 @@ extern const char *affected3_bits_desc[] = {
 	"Divine Power",
 	"\n"
 };
-
-/* CXN_x */
-extern const char *connected_types[] = {
-	"Playing",
-	"Disconnect",
-	"Get name",
-	"Conf name",
-	"Get passwd",
-	"Get new PW",
-	"Conf new PW",
-	"Slct sex",
-	"Slct class past",
-	"Slct class future",
-	"Read MOTD",
-	"Main Menu",
-	"Get desc",
-	"Chng PW 1",
-	"Chng PW 2",
-	"Chng PW 3",
-	"Self-Del 1",
-	"Self-Del 2",
-	"Past Race",
-	"Slct Align",
-	"Color Lev",
-	"Time Frame",
-	"Afterlife",
-	"Reroll",
-	"Race Help (P)",
-	"Class Help (P)",
-	"Past Homehelp",
-	"Future Homehelp",
-	"Future Race",
-	"Race Help (F)",
-	"Class Help (F)",
-	"Remort Reroll",
-	"Network",
-	"Port OLC",
-	"\n"
-};
-
 
 /* WEAR_x - for eq list */
 extern const char *where[] = {

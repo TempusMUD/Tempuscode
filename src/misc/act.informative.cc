@@ -84,7 +84,6 @@ extern const char *where[];
 extern const char *color_liquid[];
 extern const char *color_chemical[];
 extern const char *fullness[];
-extern const char *connected_types[];
 extern const char *char_class_abbrevs[];
 extern const char *level_abbrevs[];
 extern const char *player_race[];
@@ -3511,7 +3510,7 @@ ACMD(do_users)
 		if (STATE(d) == CXN_PLAYING && d->original)
 			strcpy(state, "Switched");
 		else
-			strcpy(state, connected_types[STATE(d)]);
+			strcpy(state, desc_modes[STATE(d)]);
 
 		if (d->creature && STATE(d) == CXN_PLAYING &&
 			(GET_LEVEL(d->creature) < GET_LEVEL(ch)

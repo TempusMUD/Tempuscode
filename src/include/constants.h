@@ -108,7 +108,6 @@ extern const char *affected2_bits[];
 extern const char *affected2_bits_desc[];
 extern const char *affected3_bits[];
 extern const char *affected3_bits_desc[];
-extern const char *connected_types[];
 extern const char *where[];
 extern const char *item_types[];
 extern const char *item_value_types[][4];
@@ -150,5 +149,6 @@ extern const char *spell_bits[];
 
 extern const char *ctypes[];
 extern const int wear_bitvectors[];
+extern const char *desc_modes[];
 #endif							// __extern constants_cc__
 #endif

@@ -1702,7 +1702,7 @@ do_stat_character(struct Creature *ch, struct Creature *k)
         strcat(outbuf, buf);
     }
     if (k->desc) {
-        sprinttype((int)k->desc->input_mode, connected_types, buf2);
+        sprinttype((int)k->desc->input_mode, desc_modes, buf2);
         sprintf(buf, "%sConnected: ", ", ");
         strcat(buf, buf2);
         sprintf(buf2, ", Idle [%d]\r\n", k->char_specials.timer);

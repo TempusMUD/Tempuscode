@@ -15,8 +15,10 @@
 struct Creature;
 class Account;
 
-/* Modes of connectedness: used by descriptor_data.state */
+// Modes of connectedness: used by descriptor_data.state
+// make sure changes to this are synced with desc_modes[] in db/constants.cc
 enum cxn_state {
+	CXN_UNKNOWN = -1,
 	CXN_PLAYING,				// Playing - Nominal state  
 	CXN_DISCONNECT,				// Disconnecting        
 	// Account states
@@ -33,9 +35,8 @@ enum cxn_state {
 	CXN_NEWPW_VERIFY,			// Verify new password for pw change
 	// Character creation
 	CXN_NAME_PROMPT,			// Enter a name for new character
-	CXN_NAME_VERIFY,			// Did I get that right, x? 
-	CXN_TIME_PROMPT,			// What timeframe?
 	CXN_SEX_PROMPT,				// Sex?             
+	CXN_TIME_PROMPT,			// What timeframe?
 	CXN_RACE_PAST,				// Race? (timeframe-based)
 	CXN_RACE_FUTURE,			// Race? (timeframe-based)
 	CXN_CLASS_PAST,				// Class? (timeframe-based)
