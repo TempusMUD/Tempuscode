@@ -18,13 +18,17 @@
 #include "fight.h"
 #include "player_table.h"
 #include "prog.h"
+#include "damage_object.h"
+#include "fight.h"
+#include "materials.h"
+#include "guns.h"
 
 void extract_norents(struct obj_data *obj);
 void char_arrest_pardoned(Creature *ch);
 void remove_fighting_affects(struct Creature *ch);
 extern struct descriptor_data *descriptor_list;
 struct player_special_data dummy_mob;	/* dummy spec area for mobs         */
-
+extern int mini_mud;
 
 Creature::Creature(bool pc)
 {
@@ -1485,6 +1489,275 @@ Creature::hasDefender(Creature *vict)
     return def;
 }
 
+extern int calculate_attack_probability(struct Creature *ch);
+extern obj_data *get_next_weap(struct Creature *ch);
+extern void gain_skill_prof(struct Creature *ch, int skl);
+extern int choose_random_limb(Creature *victim);
+extern int invalid_char_class(struct Creature *ch, struct obj_data *obj);
+extern int do_casting_weapon(Creature *ch, obj_data *weap);
+
+ExecutableVector *
+Creature::generateAttacks()
+{
+    int prob = calculate_attack_probability(this);
+    Creature *victim = findRandomCombat();
+    ExecutableVector *combatRound = new ExecutableVector();
+    
+    if (LVL_AMBASSADOR <= GET_LEVEL(this) && GET_LEVEL(this) < LVL_GOD && 
+        IS_NPC(victim) && !mini_mud) {
+        send_to_char(this, "You are not allowed to attack mobiles!\r\n");
+        return combatRound;
+    }
+    if (this->getPosition() < POS_FIGHTING) {
+        if (CHECK_WAIT(this) < 10)
+            send_to_char(this, "You can't fight while sitting!!\r\n");
+        return combatRound;
+    }
+    
+    if (IS_AFFECTED_2(this, AFF2_PETRIFIED) && GET_LEVEL(this) < LVL_ELEMENT) {
+        if (!number(0, 1))
+            send_to_char(this, "You have been turned to stone, and cannot fight!\r\n");
+        else
+            send_to_char(this, "You cannot fight back!!  You are petrified!\r\n");
+        return combatRound;
+    }
+    if (MOUNTED(this)) {
+        if (MOUNTED(this)->in_room != this->in_room) {
+            REMOVE_BIT(AFF2_FLAGS(MOUNTED(this)), AFF2_MOUNTED);
+            MOUNTED(this) = NULL;
+        } else
+        send_to_char(this, "You had better dismount first.\r\n");
+        return combatRound;
+    }
+    
+    /*if (victim->isNewbie() && !IS_NPC(ch) && !IS_NPC(victim) && 
+        !is_arena_combat(ch, victim) && GET_LEVEL(ch) < LVL_IMMORT) 
+    {
+        act("$N is currently under new character protection.",
+        FALSE, ch, 0, victim, TO_CHAR);
+        act("You are protected by the gods against $n's attack!",
+        FALSE, ch, 0, victim, TO_VICT);
+        slog("%s protected against %s ( hit ) at %d\n",
+        GET_NAME(victim), GET_NAME(ch), victim->in_room->number);
+        
+        ch->removeCombat(victim);
+        victim->removeCombat(ch);
+        return 0;
+    }
+    */
+    int die_roll = number(0, 300);
+    if (MIN(100, prob + 15) >= die_roll) {
+        for (int i = 0; i < 4; i++) {
+            if (!this->numCombatants() || GET_LEVEL(this) < (i << 3)) {
+                break;
+            }
+            if (prob >= number((i << 4) + (i << 3), (i << 5) + (i << 3))) {
+                DamageObject damage;
+                damage.setAttacker(this);
+                damage.setVictim(victim);
+                
+                int w_type = 0, victim_ac, calc_thaco, dam, tmp_dam, diceroll;
+                int i, metal_wt;
+                byte limb;
+                struct obj_data *weap = NULL;
+                
+                for (i = 0, metal_wt = 0; i < NUM_WEARS; i++) {
+                    if (this->equipment[i] && GET_OBJ_TYPE(this->equipment[i]) == ITEM_ARMOR &&
+                        (IS_METAL_TYPE(this->equipment[i]) || IS_STONE_TYPE(this->equipment[i])))
+                    {
+                        metal_wt += this->equipment[i]->getWeight();
+                    }
+                }
+                
+                //what kind of attack are we going to use?
+                weap = get_next_weap(this);
+                if (weap) {
+                    if (IS_ENERGY_GUN(weap) || IS_GUN(weap)) {
+                        w_type = TYPE_BLUDGEON;
+                    } else if (IS_OBJ_TYPE(weap, ITEM_WEAPON)) {
+                        w_type = GET_OBJ_VAL(weap, 3) + TYPE_HIT;
+                    } else {
+                        weap = NULL;
+                    }
+                }
+                
+                if (!weap) {
+                    if (IS_NPC(this) && (this->mob_specials.shared->attack_type != 0))
+                        w_type = this->mob_specials.shared->attack_type + TYPE_HIT;
+                    else if (IS_TABAXI(this) && number(0, 1))
+                        w_type = TYPE_CLAW;
+                    else
+                        w_type = TYPE_HIT;
+                }
+                
+                calc_thaco = calculate_thaco(this, victim, weap);
+                
+                victim_ac = MAX(GET_AC(victim), -(GET_LEVEL(this) << 2)) / 15;
+                
+                diceroll = number(1, 20);
+                
+                /* decide whether this is a hit or a miss */
+                if (diceroll < 20
+                    && AWAKE(victim)
+                    && ((diceroll == 1) || ((calc_thaco - diceroll)) > victim_ac)) 
+                {
+                    damage.setDamageType(w_type - TYPE_HIT);
+                    damage.setDamage(0);
+                    // LWK: Nathan, don't set the location to -1 here.  -1 is
+                    // a manashield hit :P  Location can be left alone.  I
+                    // default it in the constructor and since this is a 
+                    // miss it really doesn't matter what the location is.
+                    //damage.setDamageLocation(-1);
+                    continue; //we missed move on
+                }
+                
+                /* IT's A HIT! */
+                
+                // NHB: These should be moved to the appropriate skills
+                if (CHECK_SKILL(this, SKILL_DBL_ATTACK) > 60)
+                    gain_skill_prof(this, SKILL_DBL_ATTACK);
+                if (CHECK_SKILL(this, SKILL_TRIPLE_ATTACK) > 60)
+                    gain_skill_prof(this, SKILL_TRIPLE_ATTACK);
+                if (affected_by_spell(this, SKILL_NEURAL_BRIDGING) && CHECK_SKILL(this, SKILL_NEURAL_BRIDGING) > 60)
+                    gain_skill_prof(this, SKILL_NEURAL_BRIDGING);
+                        
+                /* okay, it's a hit.  calculate limb */
+                
+                limb = choose_random_limb(victim);
+                
+                /* okay, we know the guy has been hit.  now calculate damage. */
+                dam = str_app[STRENGTH_APPLY_INDEX(this)].todam;
+                dam += GET_DAMROLL(this);
+                tmp_dam = dam;
+                
+                if (weap) {
+                    if (IS_OBJ_TYPE(weap, ITEM_WEAPON)) {
+                        dam += dice(GET_OBJ_VAL(weap, 1), GET_OBJ_VAL(weap, 2));
+                        if (invalid_char_class(this, weap)) {
+                            dam >>= 1;
+                        }
+                        if (IS_NPC(this)) {
+                            tmp_dam += dice(this->mob_specials.shared->damnodice,
+                            this->mob_specials.shared->damsizedice);
+                            dam = MAX(tmp_dam, dam);
+                        }
+                        if (GET_OBJ_VNUM(weap) > 0) {
+                            for (i = 0; i < MAX_WEAPON_SPEC; i++) { 
+                                if (GET_WEAP_SPEC(this, i).vnum == GET_OBJ_VNUM(weap)) {
+                                    dam += GET_WEAP_SPEC(this, i).level;
+                                    break;
+                                }
+                            }
+                        }
+                    } 
+                    else if (IS_OBJ_TYPE(weap, ITEM_ARMOR)) {
+                        dam += (GET_OBJ_VAL(weap, 0) / 3);
+                    } 
+                    else {
+                        dam += dice(1, 4) + number(0, weap->getWeight());
+                    }
+                } 
+                // LWK:  I'd like to rethink barehand damage for all classes.
+                else if (IS_NPC(this)) {
+                    tmp_dam += dice(this->mob_specials.shared->damnodice,
+                    this->mob_specials.shared->damsizedice);
+                    dam = MAX(tmp_dam, dam);
+                } 
+                else {
+                    dam += number(0, 3);	/* Max. 3 dam with bare hands */
+                }
+                dam = MAX(1, dam);			/* at least 1 hp damage min per hit */
+                dam = MIN(dam, 30 + (GET_LEVEL(this) << 3));	/* level limit */
+                
+                // LWK: We need to figure out a way for shit like this to go away.
+                // It doesn't belong here
+                int ablaze_level = 0;
+                if (weap && IS_OBJ_TYPE(weap, ITEM_WEAPON) ) {
+                    if( IS_OBJ_STAT2(weap, ITEM2_ABLAZE) ) {
+                        tmp_obj_affect *af = weap->affectedBySpell(SPELL_FLAME_OF_FAITH);
+                        if( af != NULL ) {
+                            dam += number(1,10);
+                            ablaze_level = af->level;
+                        }
+                    }
+                }
+                
+                damage.setDamage(dam);
+                damage.setDamageType(w_type - TYPE_HIT);
+                damage.setDamageLocation(limb);
+                if (weap)
+                    damage.setWeapon(weap);
+                else
+                    damage.setWeapon(NULL);
+                
+                // ignite the victim if applicable
+                if( ablaze_level > 0 && !IS_AFFECTED_2(victim, AFF2_ABLAZE) ) {
+                    if (!mag_savingthrow(victim, 10, SAVING_SPELL) 
+                        && !CHAR_WITHSTANDS_FIRE(victim)) 
+                        {
+                            act("$n's body suddenly ignites into flame!",
+                            FALSE, victim, 0, 0, TO_ROOM);
+                            act("Your body suddenly ignites into flame!",
+                            FALSE, victim, 0, 0, TO_CHAR);
+                            victim->ignite(this);
+                        }
+                }
+    /*          // LWK: This needs to go into the rust monsters racial defend function
+                // once we get that far.  I moved this out of the way for now because
+                // I didn't want creature.cc to have to understand "rust_monster" when
+                // it's just going to get moved later.
+
+                if (weap && IS_FERROUS(weap) && IS_NPC(victim)
+                && GET_MOB_SPEC(victim) == rust_monster) {
+                    
+                    if ((!IS_OBJ_STAT(weap, ITEM_MAGIC) ||
+                        mag_savingthrow(this, GET_LEVEL(victim), SAVING_ROD)) &&
+                    (!IS_OBJ_STAT(weap, ITEM_MAGIC_NODISPEL) ||
+                    mag_savingthrow(this, GET_LEVEL(victim), SAVING_ROD))) {
+                        
+                        act("$p spontaneously oxidizes and crumbles into a pile of rust!", 
+                            FALSE, this, weap, 0, TO_CHAR);
+                        act("$p crumbles into rust on contact with $N!",
+                        FALSE, this, weap, victim, TO_ROOM);
+                        
+                        extract_obj(weap);
+                        
+                        if ((weap = read_object(RUSTPILE)))
+                            obj_to_room(weap, this->in_room);
+                        return 0;
+                    }
+                } */
+                
+                // LWK: Eventually this is the kind of thing that should be queued as
+                // an event to the weapon.
+                if (weap && IS_OBJ_TYPE(weap, ITEM_WEAPON) &&
+                    weap == GET_EQ(this, weap->worn_on)) {
+                    if (GET_OBJ_SPEC(weap)) {
+                        GET_OBJ_SPEC(weap) (this, weap, 0, NULL, SPECIAL_COMBAT);
+                    } 
+                    else if (IS_OBJ_STAT2(weap, ITEM2_CAST_WEAPON))
+                    do_casting_weapon(this, weap);
+                }
+                
+                
+                if (!IS_NPC(this) && GET_MOVE(this) > 20) {
+                    GET_MOVE(this)--;
+                }
+
+                combatRound->push_back(damage);
+                
+            }
+        }
+    }
+    // LWK: These comments are meant to critisize, some of them are
+    // so we'll remember stuff later, others are just about things
+    // you might not have known.  Great job so far man.
+
+    
+    return combatRound;
+}
+
+
 void
 Creature::ignite(Creature *ch)
 {
@@ -1506,5 +1779,30 @@ void
 Creature::extinguish()
 {
     affect_from_char(this, SPELL_ABLAZE);
+}
+
+void 
+Creature::attack()
+{
+    ExecutableVector *combatRound = generateAttacks();
+
+    //primary.modifyAttacks(combatRound);
+    //secondary.modifyAttacks(combatRound, false);
+    //race.modifyAttacks(combatRound);
+
+/*    for (unsigned int x = 0; x < combatRound->size(); x++)
+        (*combatRound)[x].getVictim()->defend(); */
+
+    combatRound->execute();
+}
+
+void
+Creature::defend()
+{
+    //primary.defend();
+    //secdary.defend();
+    //race.defend();
+
+    //for each affection on the char call SkillClass::defend();
 }
 #undef __Creature_cc__
