@@ -813,7 +813,7 @@ struct player_special_data_saved {
 	ubyte qlog_level;			// what level of awareness we have to qlog
 	ubyte speed;				// percentage of speedup
 	ubyte qp_allowance;			// Quest point allowance 
-	ubyte occupation;
+	char badge[MAX_BADGE_LENGTH+1];
 	int deity;
 	int life_points;
 	int pkills;

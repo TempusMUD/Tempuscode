@@ -3170,55 +3170,23 @@ ACMD(do_who)
 
 		if (GET_LEVEL(tch) >= LVL_AMBASSADOR) {
 			char badge[256];
-			switch (tch->player_specials->saved.occupation) {
-			case 0:
-				strcpy(badge, LEV_ABBR(tch));
-				break;
-			case 1:			// Builder
-				strcpy(badge, "BUILDER");
-				break;
-			case 2:			// Coder 
-				strcpy(badge, " CODER ");
-				break;
-			case 3:			// Admin
-				strcpy(badge, " ADMIN ");
-				break;
-			case 4:			// Questor 
-				strcpy(badge, "QUESTOR");
-				break;
-			case 5:			// Past Arch
-				strcpy(badge, " P ARCH");
-				break;
-			case 6:			// Future Arch
-				strcpy(badge, "EC ARCH");
-				break;
-			case 7:			// Planar Arch
-				strcpy(badge, "OP ARCH");
-				break;
-			case 8:			// Custom
-				strcpy(badge, LEV_ABBR(tch));
-				break;
-			case 9:
-				strcpy(badge, " ELDER ");
-				break;
-			case 10:
-				strcpy(badge, "ADVISOR");
-				break;
-			case 11:
-				strcpy(badge, "FOREMAN");
-				break;
-			default:
-				strcpy(badge, LEV_ABBR(tch));
-			}
+			int len;
 
+			len = strlen(BADGE(tch));
+			sprintf(badge, "%s%s%s",
+				tmp_pad(' ', (MAX_BADGE_LENGTH - len) / 2),
+				BADGE(tch),
+				tmp_pad(' ', (MAX_BADGE_LENGTH - len + 1) / 2));
             if (who_gen) {
-                sprintf(buf2, "%s%s%s[%s%s%s%s%s]%s ", buf2, 
-                        CCGRN(ch, C_SPR), CCYEL_BLD(ch, C_NRM), "  ",
-                        CCNRM_GRN(ch, C_NRM), badge, CCYEL_BLD(ch, C_NRM), "  ", CCNRM(ch, C_NRM));
+                sprintf(buf2, "%s%s%s[  %s%s%s  ]%s ", buf2, 
+                        CCGRN(ch, C_SPR), CCYEL_BLD(ch, C_NRM),
+                        CCNRM_GRN(ch, C_NRM), badge, CCYEL_BLD(ch, C_NRM),
+						CCNRM(ch, C_NRM));
             } else {
                 sprintf(buf2, "%s%s%s[%s%s%s]%s ", buf2,
-                    CCGRN(ch, C_SPR), CCYEL_BLD(ch, C_NRM), CCNRM_GRN(ch, C_NRM),
-                    badge, CCYEL_BLD(ch, C_NRM), CCNRM(ch, C_NRM));
+                    CCGRN(ch, C_SPR), CCYEL_BLD(ch, C_NRM),
+					CCNRM_GRN(ch, C_NRM), badge, CCYEL_BLD(ch, C_NRM),
+					CCNRM(ch, C_NRM));
             }
 		} else {
 			if (IS_VAMPIRE(tch))

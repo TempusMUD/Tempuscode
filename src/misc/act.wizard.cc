@@ -5654,7 +5654,7 @@ ACMD(do_set)
         {"soulless", LVL_IMMORT, BOTH, BINARY, "WizardFull"},
         {"buried", LVL_IMMORT, PC, BINARY, "AdminFull"},
         {"speed", LVL_IMMORT, PC, NUMBER, "Coder"},
-        {"badge", LVL_ENTITY, PC, NUMBER, "CoderAdmin,WorldAdmin"},
+        {"badge", LVL_ENTITY, PC, MISC, "CoderAdmin,WorldAdmin"},
         {"skill", LVL_ENTITY, PC, MISC, "WizardFull"},
         {"\n", 0, BOTH, MISC, ""}
     };
@@ -6323,17 +6323,26 @@ ACMD(do_set)
         vict->setSpeed(RANGE(0, 100));
         break;
     case 99:
-        if( !argument || !*argument ) {
-            send_to_char(ch, " 1. BUILDER\r\n 2. CODER\r\n 3. ADMIN\r\n 4. QUESTOR\r\n"
-                             " 5. P ARCH\r\n 6. EC ARCH\r\n 7. OP ARCH\r\n 8. <custom>\r\n"
-							 " 9. ELDER\r\n10. ARBITER\r\n11. FOREMAN\r\n");
+        if(!argument || !*argument) {
+            send_to_char(ch, "You have to specify the badge.\r\n");
             return;
-        } else if (IS_NPC(vict)) {
+        }
+		if (IS_NPC(vict)) {
             send_to_char( ch, "As good an idea as it might seem, it just won't work.\r\n");
             return;
-        } else {
-            vict->player_specials->saved.occupation = RANGE(0, 254);
         }
+		if (strlen(argument) > MAX_BADGE_LENGTH) {
+			send_to_char(ch, "The badge must not be more than seven characters.\r\n");
+			return;
+		}
+		strcpy(BADGE(vict), argument);
+		// Convert to uppercase
+		arg1 = BADGE(vict);
+		while (*arg1)
+			*arg1++ = toupper(*arg1);
+		sprintf(buf, "You set %s's badge to %s", GET_NAME(vict),
+			BADGE(vict));
+
         break;
 
     case 100:

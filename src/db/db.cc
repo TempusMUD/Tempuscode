@@ -2685,16 +2685,6 @@ log_zone_error(struct zone_data *zone, struct reset_com *zonecmd,
 		if (!display)
 			display = GET_IDNUM(d->creature) == zone->co_owner_idnum;
 
-		// Relevant architects also get to see them.
-		if (!display) {
-			if (zone->time_frame == TIME_MODRIAN)
-				display = d->creature->player_specials->saved.occupation == 5;
-			else if (zone->time_frame == TIME_ELECTRO)
-				display = d->creature->player_specials->saved.occupation == 6;
-			else
-				display = d->creature->player_specials->saved.occupation == 7;
-		}
-
 		// Immortals within the zone see them
 		if (!display && d->creature->in_room)
 			display = d->creature->in_room->zone == zone;

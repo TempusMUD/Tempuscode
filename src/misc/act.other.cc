@@ -336,7 +336,25 @@ ACMD(do_visible)
 		act("$n fades into view.", TRUE, ch, 0, 0, TO_ROOM);
 }
 
+ACMD(do_badge)
+{
+	char *write_pt;
+	skip_spaces(&argument);
+	delete_doubledollar(argument);
 
+	if (IS_NPC(ch))
+		send_to_char(ch, "Your badge is fine... go away.\r\n");
+	else if (strlen(argument) > MAX_BADGE_LENGTH) {
+		send_to_char(ch, "Sorry, badges can't be longer than seven characters.\r\n");
+	} else {
+		strcpy(BADGE(ch), argument);
+		// Convert to uppercase
+		for (write_pt = BADGE(ch);*write_pt;write_pt++)
+			*write_pt = toupper(*write_pt);
+		send_to_char(ch, "Okay, your badge is now %s.\r\n",
+			BADGE(ch));
+	}
+}
 
 ACMD(do_title)
 {

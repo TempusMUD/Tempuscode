@@ -41,6 +41,7 @@ const size_t MAX_POOF_LENGTH =   	256;
 const size_t MAX_NAME_LENGTH =   	20;
 const size_t MAX_PWD_LENGTH =    	10;
 const size_t MAX_TITLE_LENGTH =  	60;
+const size_t MAX_BADGE_LENGTH =		 7;
 const size_t HOST_LENGTH =       	63;
 
 const size_t SMALL_BUFSIZE =     		4096;

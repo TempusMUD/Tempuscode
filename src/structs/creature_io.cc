@@ -506,8 +506,8 @@ Creature::saveToXML()
 	}
 
 	if (GET_LEVEL(ch) >= LVL_IMMORT) {
-		fprintf(ouf, "<immort badge=\"%d\" qlog=\"%d\" invis=\"%d\"/>\n",
-			ch->player_specials->saved.occupation, GET_QLOG_LEVEL(this),
+		fprintf(ouf, "<immort badge=\"%s\" qlog=\"%d\" invis=\"%d\"/>\n",
+			BADGE(ch), GET_QLOG_LEVEL(ch),
 			GET_INVIS_LVL(ch));
 		if (POOFIN(ch) && *POOFIN(ch))
 			fprintf(ouf, "<poofin>%s</poofin>\n", xmlEncodeTmp(POOFIN(ch)));
@@ -568,6 +568,7 @@ Creature::loadFromXML( long id )
 bool
 Creature::loadFromXML( const char *path )
 {
+	char *txt; 
 	int idx;
     
 	if( access(path, W_OK) ) {
@@ -812,8 +813,6 @@ Creature::loadFromXML( const char *path )
 				add_alias(this,alias);
 			}
 		} else if ( xmlMatches(node->name, "description" ) ) {
-			char *txt;
-
 			txt = (char *)xmlNodeGetContent(node);
 			player.description = strdup(tmp_gsub(txt, "\n", "\r\n"));
 			free(txt);
@@ -822,7 +821,13 @@ Creature::loadFromXML( const char *path )
         } else if ( xmlMatches(node->name, "poofout") ) {
 			POOFOUT(this) = (char*)xmlNodeGetContent( node );
         } else if ( xmlMatches(node->name, "immort") ) {
-			player_specials->saved.occupation = xmlGetIntProp(node,"badge");
+			txt = xmlGetProp(node, "badge");
+			strncpy(BADGE(this), txt, 7);
+			BADGE(this)[7] = '\0';
+			if (is_number(player_specials->saved.badge))
+				strcpy(BADGE(this), LEV_ABBR(this));
+			free(txt);
+
 			GET_QLOG_LEVEL(this) = xmlGetIntProp(node, "qlog");
 			GET_INVIS_LVL(this) = xmlGetIntProp(node, "invis");
         } else if (xmlMatches(node->name, "rent")) {
