@@ -2162,8 +2162,8 @@ do_zset_command(struct char_data *ch, char *argument)
     
 	state = atoi(arg1);
     
-	if ((str_cmp(arg2, "if") == 0) && (state < 0 || state > 1)) {
-	    send_to_char("Value for if_flag must be either 0 or 1.\r\n", ch);
+	if ((str_cmp(arg2, "if") == 0) && (state != 0 && state != 1 && state != -1)) {
+	    send_to_char("Value for if_flag must be either -1, 0 or 1.\r\n", ch);
 	    return;
 	}
     
