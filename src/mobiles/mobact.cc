@@ -1894,7 +1894,7 @@ mobile_activity(void)
 		/* Animals devouring corpses and food */
 		if (cur_class == CLASS_PREDATOR) {
 			if (ch->in_room->contents &&
-				(random_fractional_4() || GET_MOB_VNUM(ch) == 24800)) {
+				(random_fractional_4() || IS_TARRASQUE(ch))) {
 				found = FALSE;
 				for (obj = ch->in_room->contents; obj; obj = obj->next_content) {
 					if (GET_OBJ_TYPE(obj) == ITEM_FOOD && !GET_OBJ_VAL(obj, 3)) {
@@ -2231,7 +2231,7 @@ mobile_activity(void)
 			if (!found && !HUNTING(ch) && ch->getPosition() > POS_FIGHTING && 
 			!MOB_FLAGGED(ch, MOB_SENTINEL) && 
 			(GET_LEVEL(ch) + GET_MORALE(ch) > (random_number_zero_low(120) + 50) 
-			 || GET_MOB_VNUM(ch) == 24800)) // tarrasque 24800 
+			 || IS_TARRASQUE(ch)))
 			{	
 				found = 0;
 
@@ -2418,10 +2418,12 @@ mobile_activity(void)
 			&& ch->getPosition() >= POS_STANDING 
 			&& !IS_AFFECTED_2(ch, AFF2_MOUNTED) ){
 
-			// tarrasque moves more.  maybe a flag is order?
-			int door =
-				random_number_zero_low(GET_MOB_VNUM(ch) ==
-				24800 ? NUM_OF_DIRS - 1 : 20);;
+			int door;
+			
+			if (IS_TARRASQUE(ch) || ch->in_room->people.size() > 10)
+				door = random_number_zero_low(NUM_OF_DIRS - 1);
+			else
+				door = random_number_zero_low(20);
 
 			if ((door < NUM_OF_DIRS) &&
 				(MOB_CAN_GO(ch, door)) &&
@@ -2437,7 +2439,8 @@ mobile_activity(void)
 					|| (EXIT(ch, door)->to_room->sector_type ==
 						ch->in_room->sector_type))
 				&& (!MOB_FLAGGED(ch, MOB_STAY_ZONE)
-					|| (EXIT(ch, door)->to_room->zone == ch->in_room->zone))) {
+					|| (EXIT(ch, door)->to_room->zone == ch->in_room->zone))
+				&& EXIT(ch, door)->to_room->people.size() < 10) {
 				if (perform_move(ch, door, MOVE_NORM, 1))
 					continue;
 			}
@@ -2868,7 +2871,7 @@ mobile_battle_activity(struct Creature *ch, struct Creature *precious_vict)
 	if (IS_AFFECTED_2(ch, AFF2_PETRIFIED))
 		return 0;
 
-	if (GET_MOB_VNUM(ch) == 24800) {	/* tarrasque */
+	if (IS_TARRASQUE(ch)) {	/* tarrasque */
 		tarrasque_fight(ch);
 		return 0;
 	}
