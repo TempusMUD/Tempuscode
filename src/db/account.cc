@@ -871,6 +871,8 @@ int Account::hasImmortal()
             delete tmp_ch;
             return idx;
         }
+
+        idx++;
     }
 
     delete tmp_ch;
