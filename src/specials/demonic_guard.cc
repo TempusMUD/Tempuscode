@@ -224,7 +224,7 @@ SPECIAL(demonic_guard)
 		act("$n vanishes into the mouth of an interplanar conduit.",
 			FALSE, self, 0, 0, TO_ROOM);
 		self->purge(true);
-		return false;
+		return true;
 	}
 
 	if (HUNTING(self)->in_room->zone != self->in_room->zone) {
