@@ -85,7 +85,7 @@ obj_data::saveToXML(FILE *ouf)
         ( proto == NULL || proto->action_desc == NULL || 
           strcmp(s, proto->action_desc) ) )
     {
-        fprintf( ouf, "%s<action_desc>%s</action_desc>\n", indent.c_str(), xmlEncodeTmp(s));
+        fprintf(ouf, "%s<action_desc>%s</action_desc>\n", indent.c_str(), xmlEncodeTmp(tmp_gsub(s, "\r\n", "\n")));
     }
 
 
