@@ -581,7 +581,7 @@ extern const struct command_info cmd_info[] = {
     { "convert"  , POS_RESTING , do_convert  , 0, 0 },
     { "corner"  ,  POS_FIGHTING, do_corner   , 0, 0 },
     { "cough"    , POS_RESTING , do_action   , 0, 0 },
-    { "council"  , POS_DEAD    , do_wizutil  , LVL_GOD, SCMD_COUNCIL },
+    { "council"  , POS_DEAD    , do_wizutil  , LVL_ENERGY, SCMD_COUNCIL },
     { "cover"    , POS_RESTING , do_action   , 0, 0 },
     { "cower"    , POS_RESTING , do_action   , 0, 0 },
     { "crack"    , POS_RESTING , do_action   , 0, 0 },
