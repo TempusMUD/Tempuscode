@@ -95,7 +95,7 @@ ACMD(do_alter);
 ACMD(do_analyze);
 ACMD(do_approve);
 ACMD(do_arm);
-//ACMD(do_auction);
+ACMD(do_access);
 ACMD(do_unapprove);
 ACMD(do_assist);
 ACMD(do_assimilate);
@@ -1316,6 +1316,7 @@ struct command_info cmd_info[] = {
     { "mlist"    , POS_DEAD    , do_mlist    , LVL_IMMORT, 0 , 0 },
     { "xlist"    , POS_DEAD    , do_xlist    , LVL_IMMORT, 0 , 0 },
     { "hcollection" , POS_DEAD    , do_help_collection_command, LVL_IMMORT, 0 , 0 },
+    { "access"   , POS_DEAD    , do_access   , LVL_GRIMP, 0 , 0 },
     { "\n", 0, 0, 0, 0, 0 }
 };    /* this must be last */
 

@@ -6,6 +6,7 @@
 #include <algorithm>
 using namespace std;
 
+extern struct command_info cmd_info[];
 namespace Security {
     /*
      * Preliminary group list:
@@ -26,13 +27,26 @@ namespace Security {
 
     class Group {
         public:
+            /*
+             * does not make a copy of name or desc.
+             */
             Group( char *name, char *description ) : commands(), members() {
-                this->name = name;
-                this->description = description;
+                _name = name;
+                _description = description;
+            }
+            /*
+             * Makes a copy of name
+             */
+            Group( char *name ) : commands(), members() {
+                _name = new char[strlen(name) + 1];
+                strcpy(_name, name);
+
+                _description = new char[40];
+                strcpy(_description, "No Description");
             }
             ~Group() {
-                if( description != NULL ) delete description;
-                if( name != NULL ) delete name;
+                if( _description != NULL ) delete _description;
+                if( _name != NULL ) delete _name;
             }
 
             bool addCommand( command_info *command );
@@ -45,13 +59,17 @@ namespace Security {
             bool member( const command_info *command );
             bool givesAccess( const char_data *ch, const command_info *command );
             
-            const char *getDescription() { return description; }
-            const char *getName() { return name; }
+            const char *getDescription() { return _description; }
+            const char *getName() { return _name; }
 
-            bool operator==( const char *name ) { return ( strcmp(this->name,name) == 0 ); }
+            bool operator==( const char *name ) { return ( strcmp(_name,name) == 0 ); }
+            bool operator!=( const char *name ) { return !(*this == name); }
+
+            bool sendMemberList( char_data *ch );
+            bool sendCommandList( char_data *ch );
         private:
-            char *description;
-            char *name;
+            char *_description;
+            char *_name;
             // resolved on group load/creation. 
             // Command names stored in file.
             // Pointers sorted as if they're ints.
@@ -93,5 +111,50 @@ namespace Security {
         }
         return false;
     }
+    /*
+     * send a list of the current groups to a character
+     */
+    inline void sendGroupList( char_data *ch ) {
+        int i = 0;
+        sprintf(buf, "Security Groups: \r\n");
+        list<Group>::iterator it = groups.begin();
+        for( ; it != groups.end(); ++it ) {
+            sprintf(buf,"%s %3d, %s\r\n",buf,i++, (*it).getName());
+        }
+        send_to_char(buf,ch);
+    }
+
+    inline bool createGroup( char *name ) {
+        list<Group>::iterator it = find( groups.begin(), groups.end(), name );
+        if( it != groups.end() )
+            return false;
+        groups.push_back(name);
+        return true;
+    }
+
+    inline bool sendMemberList( char_data *ch, char *group_name ) {
+        list<Group>::iterator it = find( groups.begin(), groups.end(), group_name );
+        if( it == groups.end() )
+            return false;
+        return (*it).sendMemberList(ch);
+    }
+    inline bool sendCommandList( char_data *ch, char *group_name ) {
+        list<Group>::iterator it = find( groups.begin(), groups.end(), group_name );
+        if( it == groups.end() )
+            return false;
+        return (*it).sendCommandList(ch);
+    }
+    inline bool addCommand( char *command, char *group_name ) {
+        list<Group>::iterator it = find( groups.begin(), groups.end(), group_name );
+        if( it == groups.end() )
+            return false;
+        int index = find_command( command );
+        if( index == -1 )
+            return false;
+        /* otherwise, find the command */
+
+        return (*it).addCommand( &cmd_info[index] );
+    }
+
 }
 #endif
