@@ -2541,6 +2541,15 @@ ASPELL(spell_animate_dead)
     struct obj_data *i = NULL;
     float  mult = (float) level / 70;
 
+    // Casting it on yourself. (potions etc)
+    if(ch && victim && ch == victim) {
+        if(IS_UNDEAD(ch)) { 
+            GET_HIT(ch) = MIN(GET_MAX_HIT(ch), GET_HIT(ch) + dice(4,level));
+            send_to_char("You feel a renual of your tainted form.\r\n",ch);
+        }
+        return;
+    }
+
     if ( ROOM_FLAGGED(ch->in_room, ROOM_PEACEFUL) ) {
 	send_to_char("You cannot cast that here.\r\n", ch);
 	return;
