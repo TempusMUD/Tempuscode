@@ -1113,10 +1113,6 @@ ACMD(do_activate)
 					act("$n switches $p on.", TRUE, ch, obj, 0, TO_ROOM);
 					act("You switch $p on.", TRUE, ch, obj, 0, TO_CHAR);
 					ENGINE_STATE(obj) = 1;
-					sprintf(buf, "$n has joined channel [%d].",
-						COMM_CHANNEL(obj));
-					send_to_comm_channel(ch, buf, COMM_CHANNEL(obj), TRUE,
-						TRUE);
 				}
 			} else {
 				if (!ENGINE_STATE(obj)) {
@@ -1126,10 +1122,6 @@ ACMD(do_activate)
 					act("$n switches $p off.", TRUE, ch, obj, 0, TO_ROOM);
 					act("You switch $p off.", TRUE, ch, obj, 0, TO_CHAR);
 					ENGINE_STATE(obj) = 0;
-					sprintf(buf, "$n has left channel [%d].",
-						COMM_CHANNEL(obj));
-					send_to_comm_channel(ch, buf, COMM_CHANNEL(obj), TRUE,
-						TRUE);
 				}
 			}
 			break;
@@ -1560,14 +1552,9 @@ ACMD(do_tune)
 					TO_CHAR);
 				break;
 			}
-			sprintf(buf, "$n has left channel [%d].", COMM_CHANNEL(obj));
-			send_to_comm_channel(ch, buf, COMM_CHANNEL(obj), TRUE, TRUE);
-
 			COMM_CHANNEL(obj) = i;
 			send_to_char(ch, "%s comm-channel set to [%d].\n",
 				obj->name, COMM_CHANNEL(obj));
-			sprintf(buf, "$n has joined channel [%d].", COMM_CHANNEL(obj));
-			send_to_comm_channel(ch, buf, COMM_CHANNEL(obj), TRUE, TRUE);
 		}
 		break;
 	default:
