@@ -51,6 +51,8 @@
 
 int corpse_state = 0;
 
+//extern CreatureList defendingList;
+
 /* The Fight related routines */
 obj_data *get_random_uncovered_implant(Creature * ch, int type = -1);
 int calculate_weapon_probability(struct Creature *ch, int prob,
@@ -182,6 +184,8 @@ set_defending(Creature *ch, Creature *target)
 		false, ch, 0, DEFENDING(ch), TO_VICT);
 	act("$n starts defending $N against attacks.",
 		false, ch, 0, DEFENDING(ch), TO_NOTVICT);
+
+//    defendingList.add(ch);
 }
 
 void
@@ -200,6 +204,8 @@ stop_defending(struct Creature *ch)
 	}
 
     DEFENDING(ch) = NULL;
+
+//    defendingList.remove(ch);
 }
 
 /* When ch kills victim */
@@ -2031,6 +2037,8 @@ damage(struct Creature *ch, struct Creature *victim, int dam,
 
 			if (!IS_NPC(victim)) {
 				// Log the death
+                char *buf3 = NULL;
+
 				if (victim != ch) {
 					char *room_str;
 
@@ -2050,6 +2058,23 @@ damage(struct Creature *ch, struct Creature *victim, int dam,
 							GET_REMORT_GEN(victim),
 							GET_NAME(ch), GET_LEVEL(ch), GET_REMORT_GEN(ch),
 							room_str);
+
+                        // If this account has had an imm logged on in the
+                        // last hour log it as such
+                        int imm_idx = ch->account->hasImmortal();
+                        if (imm_idx) {
+                            Creature *tmp_ch = new Creature(true);
+                            tmp_ch->loadFromXML(ch->account->get_char_by_index(imm_idx));
+                            if (tmp_ch->getLevel() < 70) {
+                                int now = time(NULL);
+                                int last_logon = tmp_ch->player.time.logon;
+                                if ((now - last_logon) <= 3600) {
+                                    buf3 = tmp_sprintf("CHEAT:  %s(%d) logged within an hour!",
+                                                       tmp_ch->player.name, tmp_ch->getLevel());
+                                }
+                            }
+                            delete tmp_ch;
+                        }
 					}
 
 					// If it's not arena, give em a pkill and adjust reputation
@@ -2106,6 +2131,8 @@ damage(struct Creature *ch, struct Creature *victim, int dam,
 					qlog(NULL, buf2, QLOG_COMP, GET_INVIS_LVL(victim), TRUE);
 				} else {
 					mudlog(GET_INVIS_LVL(victim), BRF, true, "%s", buf2);
+                    if (buf3)
+                        mudlog(GET_INVIS_LVL(victim), BRF, true, "%s", buf3);
 				}
 				if (MOB_FLAGGED(ch, MOB_MEMORY))
 					forget(ch, victim);

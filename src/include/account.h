@@ -96,6 +96,8 @@ class Account {
 		inline bool trustsNobody(void) { return _trusted.empty(); }
 		void displayTrusted(Creature *ch);
 
+        int hasImmortal();
+
 		class cmp {
 			public:
 				bool operator()(const Account *s1, const Account *s2) const

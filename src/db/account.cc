@@ -855,3 +855,25 @@ Account::set_quest_points(int qp)
 	sql_exec("update accounts set quest_points=%d where idnum=%d",
 		_quest_points, _id);
 }
+
+int Account::hasImmortal()
+{
+    int idx = 1;
+    Creature *tmp_ch = new Creature(true);
+
+    while (!this->invalid_char_index(idx)) {
+        tmp_ch->clear();
+
+        if (!tmp_ch->loadFromXML(this->get_char_by_index(idx)))
+            return 0;
+
+        if (tmp_ch->getLevel() >= LVL_IMMORT) {
+            delete tmp_ch;
+            return idx;
+        }
+    }
+
+    delete tmp_ch;
+
+    return 0;
+}
