@@ -1829,7 +1829,7 @@ ACMD(do_repair)
                     send_to_char("You skillfully repair yourself.\r\n", ch);
                     act("$n repairs $mself.", TRUE, ch, 0, 0, TO_ROOM);
                     gain_skill_prof(ch, SKILL_SELFREPAIR);
-                    WAIT_STATE(ch, PULSE_VIOLENCE * (1 + (dam >> 6)));
+                    WAIT_STATE(ch, PULSE_VIOLENCE * (1 + (dam >> 7)));
                 }
             }
         } else {
