@@ -54,7 +54,9 @@ int dice(int number, int size);
 extern struct spell_info_type spell_info[];
 ACMD(do_flee);
 void sound_gunshots(struct room_data *rm, int type, int power, int num);
+void ice_room(struct room_data *room, int amount);
 struct char_data *read_mobile(int);
+
 
 /*
  * Saving throws for:
@@ -574,6 +576,8 @@ mag_damage(int level, struct char_data * ch, struct char_data * victim,
 	    dam = dice(level, 18) + (level >> 1);
 	else
 	    dam = dice(level, 12) + 16;
+
+        ice_room(ch->in_room, level);
 	break;
     case SPELL_PRISMATIC_SPRAY:
 	audible = TRUE;
@@ -590,6 +594,7 @@ mag_damage(int level, struct char_data * ch, struct char_data * victim,
 	break;
     case SPELL_HAILSTORM:
 	dam = dice(level, 9) + 10;
+	ice_room(ch->in_room, 10);
 	break;
     case SPELL_ACIDITY:
 	if (is_physic)
@@ -697,6 +702,7 @@ mag_damage(int level, struct char_data * ch, struct char_data * victim,
 	    dam = dice(level, 12) + (level >> 1);
 	else
 	    dam = dice(level, 9) + 16;
+	ice_room(ch->in_room, level);
 	break;
     case SPELL_GAS_BREATH:
 	dam = dice(level, 15) + level;

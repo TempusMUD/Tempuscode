@@ -652,6 +652,7 @@ void WAIT_STATE(struct char_data *ch, int cycle);
 
 #define QUAD_VNUM  1578
 #define BLOOD_VNUM 1579
+#define ICE_VNUM   1576
 
 #define CHAR_HAS_BLOOD(ch)  (!IS_UNDEAD(ch) && !IS_ELEMENTAL(ch) && \
 			     !IS_GOLEM(ch) && !IS_ROBOT(ch) && \

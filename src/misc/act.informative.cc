@@ -346,7 +346,7 @@ list_obj_to_char(struct obj_data * list, struct char_data * ch, int mode,
 
     for (i = list; i; i = o) {
 	if (!INVIS_OK_OBJ(ch, i) ||
-	    GET_OBJ_VNUM(i) == BLOOD_VNUM ||
+	    GET_OBJ_VNUM(i) == BLOOD_VNUM || GET_OBJ_VNUM(i) == ICE_VNUM ||
 	    (IS_OBJ_STAT2(i, ITEM2_HIDDEN) && !PRF_FLAGGED(ch, PRF_HOLYLIGHT) &&
 	     number(50, 120) > HID_OBJ_PROB(ch, i))) {
 	    o = i->next_content;
@@ -1255,8 +1255,24 @@ look_at_room(struct char_data * ch, struct room_data *room, int ignore_brief)
 			    "Dark red blood covers everything in sight here",
 			    CCNRM(ch, C_NRM));
 		    send_to_char(buf, ch);
+		}
+	
+		if (GET_OBJ_VNUM(o) == ICE_VNUM) {
+		    sprintf(buf,
+			    "%s%s.%s\r\n",
+			    CCCYN(ch, C_NRM),
+			    GET_OBJ_TIMER(o) < 10 ?
+			    "A few patches of ice are scattered around here" :
+			    GET_OBJ_TIMER(o) < 20 ?
+                            "A thin coating of ice covers everything here" :
+                            GET_OBJ_TIMER(o) < 30 ?
+			    "A thick coating of ice covers everything here" : 
+			    "Everything is covered with a thick coating of ice",
+			    CCNRM(ch, C_NRM));
+		    send_to_char(buf, ch);
 		    break;
 		}
+		
 	    }
 	}		 
 	send_to_char(CCGRN(ch, C_NRM), ch);

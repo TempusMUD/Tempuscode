@@ -813,15 +813,39 @@ point_update(void)
 	} else if( GET_OBJ_VNUM(j) == QUANTUM_RIFT_VNUM) {
 	    GET_OBJ_TIMER(j)--;
 	    if (GET_OBJ_TIMER(j) <= 0) {
-            if(j->action_description) {
-                act("$p collapses in on itself.",
-                    TRUE, j->in_room->people, j, 0, TO_CHAR);
-                act("$p collapses in on itself.",
-                    TRUE, j->in_room->people, j, 0, TO_ROOM);
-            }
-            extract_obj(j);
-        }
-    } else if (IS_OBJ_STAT2(j, ITEM2_UNAPPROVED) ||
+		if(j->action_description) {
+		    act("$p collapses in on itself.",
+			TRUE, j->in_room->people, j, 0, TO_CHAR);
+		    act("$p collapses in on itself.",
+			TRUE, j->in_room->people, j, 0, TO_ROOM);
+		}
+		extract_obj(j);
+	    }
+	} else if( GET_OBJ_VNUM(j) == ICE_VNUM ) {
+	    if(j->in_room) {
+		if( SECT_TYPE(j->in_room) == SECT_DESERT ||
+		    SECT_TYPE(j->in_room) == SECT_FIRE_RIVER ||
+		    SECT_TYPE(j->in_room) == SECT_PITCH_PIT ||
+		    SECT_TYPE(j->in_room) == SECT_PITCH_SUB ||
+		    SECT_TYPE(j->in_room) == SECT_ELEMENTAL_FIRE ) {
+		    GET_OBJ_TIMER(j) = 0;
+		}
+		if (! ROOM_FLAGGED(j->in_room, ROOM_ICE_COLD ) ) {
+		    GET_OBJ_TIMER(j)--;
+		}
+		
+		if (GET_OBJ_TIMER(j) <= 0) {
+		    if(j->action_description) {
+			act("$p melts and is gone.",
+			    TRUE, j->in_room->people, j, 0, TO_CHAR);
+			act("$p melts and is gone.",
+			    TRUE, j->in_room->people, j, 0, TO_ROOM);
+		    }
+		    extract_obj(j);
+		}
+	    }	 
+	}   
+	else if (IS_OBJ_STAT2(j, ITEM2_UNAPPROVED) ||
 		 (IS_OBJ_TYPE(j, ITEM_KEY) && GET_OBJ_TIMER(j)) ||
 		 (GET_OBJ_SPEC(j) == fate_portal)) { // keys, unapp && fate portals
 	    if (IS_OBJ_TYPE(j, ITEM_KEY)) { // skip keys still in zone

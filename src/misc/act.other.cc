@@ -59,6 +59,7 @@ void Crash_rentsave(struct char_data * ch, int cost, int rentcode);
 int Crash_rentcost(struct char_data *ch, int display, int factor);
 void Crash_cursesave( struct char_data * ch );
 int drag_object(CHAR* ch, struct obj_data *obj, char* argument );
+void ice_room(struct room_data *room, int amount);
 ACMD(do_drag_char);
 
 ACMD(do_quit)
@@ -2125,3 +2126,36 @@ ACMD(do_drag)
 	
 }
 
+
+void
+ice_room(struct room_data *room,int amount)
+{
+    struct obj_data *ice;
+    int new_ice = FALSE;
+
+    if ( (! ( room )) || amount <= 0 ) {
+	return;
+    }
+    
+    for ( ice = room->contents; ice; ice = ice->next_content ) {
+        if ( GET_OBJ_VNUM( ice ) == ICE_VNUM ) {
+            break;
+	}
+    }
+   
+    if ( !ice && ( new_ice = TRUE ) && !( ice = read_object( ICE_VNUM ))){
+	slog( "SYSERR: Unable to load ice." );
+	return;
+    }
+
+
+    if ( GET_OBJ_TIMER( ice ) > 50 ) {
+	return;
+    }
+
+    GET_OBJ_TIMER( ice ) += amount;
+   
+    if ( new_ice ) {
+	obj_to_room( ice, room );
+    }
+}
