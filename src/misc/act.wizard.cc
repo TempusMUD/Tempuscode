@@ -2282,26 +2282,20 @@ ACMD(do_snoop)
         stop_snooping(ch);
     else if (PRF_FLAGGED(victim, PRF_NOSNOOP) && GET_LEVEL(ch) < LVL_ENTITY)
         send_to_char(ch, "The gods say I don't think so!\r\n");
-    else if (victim->desc->snoop_by.size())
-        for (unsigned x = 0; x < victim->desc->snoop_by.size(); x++) {
-            if (victim->desc->snoop_by[x] == ch->desc) {
-                act("You're already snooping $M.", FALSE, ch, 0, victim, TO_CHAR);
-                return;
-            }
-        }
-//        if (ch == victim->desc->snoop_by->creature)
-//            act("You're already snooping $M.", FALSE, ch, 0, victim, TO_CHAR);
-//        else if (GET_LEVEL(ch) > GET_LEVEL(victim->desc->snoop_by->creature)) {
-//            send_to_char(ch, "Busy already. (%s)\r\n",
-//                GET_NAME(victim->desc->snoop_by->creature));
-//        } else
-//            send_to_char(ch, "Busy already. \r\n");
     else if (victim->desc->snooping == ch->desc)
         send_to_char(ch, "Don't be stupid.\r\n");
     else if (ROOM_FLAGGED(victim->in_room, ROOM_GODROOM)
         && !Security::isMember(ch, "WizardFull")) {
         send_to_char(ch, "You cannot snoop into that place.\r\n");
     } else {
+        if (victim->desc->snoop_by.size()) {
+            for (unsigned x = 0; x < victim->desc->snoop_by.size(); x++) {
+                if (victim->desc->snoop_by[x] == ch->desc) {
+                    act("You're already snooping $M.", FALSE, ch, 0, victim, TO_CHAR);
+                    return;
+                }
+            }
+        }
         if (victim->desc->original)
             tch = victim->desc->original;
         else
@@ -2314,10 +2308,11 @@ ACMD(do_snoop)
         send_to_char(ch, OK);
 
         if (ch->desc->snooping) {
-            vector<descriptor_data *>::iterator vi = ch->desc->snooping->snoop_by.begin();
-            for (; vi != ch->desc->snooping->snoop_by.end(); ++vi) {
+            descriptor_data *tdesc = ch->desc->snooping;
+            vector<descriptor_data *>::iterator vi = tdesc->snoop_by.begin();
+            for (; vi != tdesc->snoop_by.end(); ++vi) {
                 if (*vi == ch->desc) {
-                    ch->desc->snooping->snoop_by.erase(vi);
+                    tdesc->snoop_by.erase(vi);
                     break;
                 }
             }
