@@ -854,25 +854,25 @@ vendor_parse_param(Creature *self, char *param, ShopData *shop, int *err_line)
 				val = 0;
 			shop->item_types.push_back( 0 << 8 | val);
 		} else if (!strcmp(param_key, "denied-msg")) {
-			shop->msg_denied = line;
+			shop->msg_denied = strdup(line);
 		} else if (!strcmp(param_key, "keeper-broke-msg")) {
-			shop->msg_selfbroke= line;
+			shop->msg_selfbroke= strdup(line);
 		} else if (!strcmp(param_key, "buyer-broke-msg")) {
-			shop->msg_buyerbroke = line;
+			shop->msg_buyerbroke = strdup(line);
 		} else if (!strcmp(param_key, "buy-msg")) {
-			shop->msg_buy = line;
+			shop->msg_buy = strdup(line);
 		} else if (!strcmp(param_key, "sell-msg")) {
-			shop->msg_sell = line;
+			shop->msg_sell = strdup(line);
 		} else if (!strcmp(param_key, "closed-msg")) {
-			shop->msg_closed = line;
+			shop->msg_closed = strdup(line);
 		} else if (!strcmp(param_key, "no-buy-msg")) {
-			shop->msg_badobj = line;
+			shop->msg_badobj = strdup(line);
 		} else if (!strcmp(param_key, "sell-noobj-msg")) {
-			shop->msg_sell_noobj= line;
+			shop->msg_sell_noobj = strdup(line);
 		} else if (!strcmp(param_key, "buy-noobj-msg")) {
-			shop->msg_buy_noobj= line;
+			shop->msg_buy_noobj = strdup(line);
 		} else if (!strcmp(param_key, "temper-cmd")) {
-			shop->cmd_temper = line;
+			shop->cmd_temper = strdup(line);
 		} else if (!strcmp(param_key, "closed-hours")) {
 			ShopTime time;
 
