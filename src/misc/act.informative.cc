@@ -2464,7 +2464,7 @@ affs_to_str(struct Creature *ch, byte mode)
 		str = tmp_strcat(str,
 			"You are surrounded by an magical obscurement shroud.\r\n");
 	if (affected_by_spell(ch, SPELL_DETECT_SCRYING))
-		str = tmp_strcat(str, "You are senstivite to attempts to magical scrying.\r\n");
+		str = tmp_strcat(str, "You are sensitive to attempts to magical scrying.\r\n");
 	if (IS_SICK(ch))
 		str = tmp_strcat(str, "You are afflicted with a terrible sickness!\r\n");
 	if (IS_AFFECTED_3(ch, AFF3_GRAVITY_WELL))
