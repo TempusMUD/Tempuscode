@@ -4,13 +4,18 @@
 // Copyright 1998 by John Watson, all rights reserved.
 //
 
+// Lady Sarah - Skullport Pt II
 #define SARAH 22803
+// Skullport Healer
 #define DARK  22807
+// Dr Cheetah - Family Clan Healer
+#define CHEETA 74003
+
 #define MOBV(mode)  (GET_MOB_VNUM(ch) == mode)
 
 #define MODE_OK(vict) \
-                ((MOBV(SARAH) && IS_GOOD(vict) && IS_HUMAN(vict)) ? 1 : \
-		 (MOBV(DARK) && !IS_GOOD(vict)) ? 1 : 0)
+                (MOBV(CHEETA) || ((MOBV(SARAH) && IS_GOOD(vict) && IS_HUMAN(vict)) ? 1 : \
+		 (MOBV(DARK) && !IS_GOOD(vict)) ? 1 : 0))
 
 SPECIAL(multi_healer)
 {
