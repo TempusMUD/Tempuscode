@@ -1493,21 +1493,21 @@ mobile_activity(void)
 		ch = *cit;
 		found = FALSE;
  
-         if (!ch) {
-             errlog("SYSERR: Skipping null mobile in mobile_activity");
-             continue;
-         }
+        if (!ch) {
+            errlog("SYSERR: Skipping null mobile in mobile_activity");
+            continue;
+        }
 
-	     if (!ch->in_room) {
-		 	 errlog("SYSERR: Skipping mobile in null room");
-			 continue;
-		 }
+	    if (!ch->in_room) {
+		    errlog("SYSERR: Skipping mobile in null room");
+		    continue;
+		}
 
-         if (!ch->in_room && !ch->player.name && !ch->player.short_descr
-             && !ch->player.description) {
-             errlog("SYSERR: Skipping null mobile in mobile_activity");
-             continue;
-         }
+        if (!ch->in_room && !ch->player.name && !ch->player.short_descr
+            && !ch->player.description) {
+            errlog("SYSERR: Skipping null mobile in mobile_activity");
+            continue;
+        }
 		//
 		// Check for mob spec
 		//
@@ -1524,7 +1524,11 @@ mobile_activity(void)
 			}
 		}
 
-
+        if (!ch->in_room && !ch->player.name && !ch->player.short_descr
+            && !ch->player.description) {
+            errlog("SYSERR: Skipping null mobile in mobile_activity");
+            continue;
+        }
 		//
 		// Non-special mobs in idle zones don't do anything
 		//
