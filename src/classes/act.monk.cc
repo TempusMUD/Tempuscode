@@ -457,9 +457,6 @@ ACMD(do_pinch)
 		}
 	}
 
-	if (!peaceful_room_ok(ch, vict, true))
-		return;
-
 	if (is_abbrev(arg2, "alpha"))
 		which_pinch = SKILL_PINCH_ALPHA;
 	else if (is_abbrev(arg2, "beta"))
@@ -478,6 +475,9 @@ ACMD(do_pinch)
 		send_to_char("You know of no such nerve.\r\n", ch);
 		return;
 	}
+
+	if (which_pinch != SKILL_PINCH_ZETA && !peaceful_room_ok(ch, vict, true))
+		return;
 
 	if (!CHECK_SKILL(ch, which_pinch)) {
 		send_to_char
