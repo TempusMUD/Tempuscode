@@ -318,13 +318,22 @@ count_pkill(Creature *killer, Creature *victim)
 
 		// Basic level/gen adjustment
         if (perp != victim) {
-			gain = MAX(1, CRIMINAL_REP - GET_REPUTATION(victim) / 10);
+			// Start with 10 for causing hassle
+			gain = 10;
+
+			// adjust for level/gen difference
+			gain += ((GET_LEVEL(perp) + GET_REMORT_GEN(perp) * 50)
+				- (GET_LEVEL(victim) + GET_REMORT_GEN(victim) * 50)) / 5;
+
+			// Additional adjustment for killing an innocent
+			if (GET_REPUTATION(victim) == 0)
+				gain *= 2;
 
             // Additional adjustment for killing a lower gen
             if (GET_REMORT_GEN(perp) > GET_REMORT_GEN(victim))
 				gain += (GET_REMORT_GEN(perp) - GET_REMORT_GEN(victim)) * 9;
 
-			if (GET_REPUTATION(victim) > CRIMINAL_REP)
+			if (IS_CRIMINAL(victim))
 				gain /= 4;
 
 			perp->gain_reputation(MAX(1, gain));
