@@ -30,31 +30,18 @@ vector <Account *> Account::_cache;
 void
 Account::boot(void)
 {
-	long count, idx;
 	PGresult *res;
 
 	slog("Reading player records");
-
-	// Add the players to the player index -- accounts are added to the
-	// account index as they are requested
-	res = sql_query("select idnum, name, account from players");
-	count = PQntuples(res);
-	for (idx = 0;idx < count;idx++)
-		playerIndex.add(atol(PQgetvalue(res, idx, 0)),
-			PQgetvalue(res, idx, 1),
-			atoi(PQgetvalue(res, idx, 2)),
-			false);
-	PQclear(res);
 
 	res = sql_query("select MAX(idnum) from accounts");
 	_top_id = atol(PQgetvalue(res, 0, 0));
 	PQclear(res);
 
 	if (playerIndex.size())
-		slog("... %d character%s loaded", playerIndex.size(), (playerIndex.size() == 1) ? "":"s");
+		slog("... %d character%s in db", playerIndex.size(), (playerIndex.size() == 1) ? "":"s");
 	else
 		slog("WARNING: No characters loaded");
-	playerIndex.sort();
 }
 
 size_t
@@ -363,8 +350,6 @@ Account::create_char(const char *name)
 	SET_BIT(PRF2_FLAGS(ch), PRF2_AUTO_DIAGNOSE | PRF2_AUTOPROMPT | PRF2_DISPALIGN | PRF2_NEWBIE_HELPER);
 
 	
-	playerIndex.add( ch->char_specials.saved.idnum, GET_NAME(ch), _id );
-
 	ch->char_specials.saved.affected_by = 0;
 	ch->char_specials.saved.affected2_by = 0;
 	ch->char_specials.saved.affected3_by = 0;
@@ -432,10 +417,6 @@ Account::delete_char(Creature *ch)
 	if (it != _chars.end())
 		_chars.erase(it);
 	sql_exec("delete from players where idnum=%ld", GET_IDNUM(ch));
-
-	// Remove character from player index
-	playerIndex.remove(GET_IDNUM(ch));
-
 }
 
 bool
@@ -580,7 +561,6 @@ void
 Account::move_char(long id, Account *dest)
 {
 	vector<long>::iterator it;
-	char *name;
 
 	// Remove character from account
 	it = lower_bound(_chars.begin(), _chars.end(), id);
@@ -588,9 +568,6 @@ Account::move_char(long id, Account *dest)
 		_chars.erase(it);
 
 	// Get the player's name before we delete from player table
-	name = tmp_strdup(playerIndex.getName(*it));
-	playerIndex.remove(*it);
-	playerIndex.add(*it, name, dest->_id );
 	dest->_chars.push_back(id);
 	sql_exec("update players set account=%d where idnum=%ld",
 		dest->_id, id);
@@ -607,7 +584,6 @@ Account::exhume_char( Creature *exhumer, long id )
 	// load char from file
 	Creature* victim = new Creature(true);
 	if( victim->loadFromXML(id) ) {
-		playerIndex.add(id, GET_NAME(victim), _id, true);
 		_chars.push_back( id );
 		send_to_char(exhumer, "%s exhumed.\r\n", 
 					tmp_capitalize( GET_NAME(victim) ) );

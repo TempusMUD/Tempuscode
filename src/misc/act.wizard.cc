@@ -5601,11 +5601,8 @@ ACMD(do_set)
 			long acct_id;
 
 			acct_id = playerIndex.getAccountID(GET_IDNUM(vict));
-			playerIndex.remove(GET_IDNUM(vict));
-			playerIndex.add(GET_IDNUM(vict),
-				GET_NAME(vict),
-				acct_id,
-				true);
+			sql_exec("update players set name='%s' where idnum=%ld",
+				tmp_sqlescape(argument), GET_IDNUM(vict));
 			vict->saveToXML();
 		}
 		break;
