@@ -77,6 +77,14 @@ SPECIAL(remorter)
 				GET_CLASS(ch) = GET_OLD_CLASS(ch);
 			}
 			GET_REMORT_CLASS(ch) = char_class_choice;
+
+            // Remove all affects
+            while (ch->affected)
+                affect_remove(ch, ch->affected);
+            // Wipe thier skills
+			for (i = 1; i <= MAX_SKILLS; i++)
+                SET_SKILL(ch, i, 0);
+
 			do_start(ch, FALSE);
 		  
 			REMOVE_BIT(PRF_FLAGS(ch), PRF_NOPROJECT | PRF_ROOMFLAGS | PRF_HOLYLIGHT |
@@ -93,18 +101,11 @@ SPECIAL(remorter)
 			// If they are no longer a cleric or knight, remove unholy compact.
 			
 			if ( IS_SOULLESS( ch ) ) {
-			    
 			    if ( !IS_CLERIC(ch) && !IS_KNIGHT(ch) ) {
-				send_to_char("You seem to have lost your soul.\r\n I'll give you a new one.\r\n",ch);
-				REMOVE_BIT( PLR2_FLAGS(ch), PLR2_SOULLESS );
+                    send_to_char("You seem to have lost your soul.\r\n I'll give you a new one.\r\n",ch);
+                    REMOVE_BIT( PLR2_FLAGS(ch), PLR2_SOULLESS );
 			    }
 			}
-            // Remove all affects
-            while (ch->affected)
-                affect_remove(ch, ch->affected);
-            // Wipe thier skills
-			for (i = 1; i <= MAX_SKILLS; i++)
-                SET_SKILL(ch, i, 0);
 		    // Give em another gen
 			if (GET_REMORT_GEN(ch) < 10)
                 GET_REMORT_GEN(ch)++;
