@@ -123,10 +123,13 @@ store_mail( long to_id, long from_id, char *txt , char *cc_list, time_t *cur_tim
         send_to_char(buf, get_char_in_world_by_idnum(from_id));
         return 0;
     }
-	if(strlen(txt) >= MAX_MAIL_SIZE) {
-        send_to_char("Something is very wrong.\r\n", get_char_in_world_by_idnum(from_id));
-        send_to_char("Mail Forget a description of exactly what you just did.\r\n", get_char_in_world_by_idnum(from_id));
-		sprintf(buf,"SYSERR: Mail size larger than max_mail size. f%ld t%ld l%d.\r\n",from_id,to_id,strlen(txt));
+	if(strlen(txt) > MAX_MAIL_SIZE) {
+        send_to_char("Something is very wrong.\r\n", 
+            get_char_in_world_by_idnum(from_id));
+        send_to_char("Mail Forget a description of exactly what you just did.\r\n", 
+            get_char_in_world_by_idnum(from_id));
+		sprintf(buf,"SYSERR: Mail size larger than max_mail size. From: %ld To: %ld Length: %d.",
+            from_id,to_id,strlen(txt));
 		mudlog(buf,CMP,LVL_GRGOD,TRUE);
         return 0;
 	}
