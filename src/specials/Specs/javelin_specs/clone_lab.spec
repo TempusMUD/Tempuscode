@@ -64,7 +64,7 @@ SPECIAL( clone_lab ) {
     GET_SEX( cloned_char )          = GET_SEX( ch );
 
     char_to_room( cloned_char, ch->in_room );
-    send_to_room( "Your vision dims as a piercing light appears and probes you.  A figure suddenly appears before you!\n", 
+    send_to_room( "Your vision dims as a piercing light appears and probes you.\r\nA figure suddenly appears before you!\r\n", 
 		  ch->in_room );
 
     HUNTING( cloned_char ) = ch;
