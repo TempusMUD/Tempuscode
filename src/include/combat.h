@@ -6,10 +6,10 @@
 #define COMBAT_OPEN    (1 << 1)  // People can still join
 #define COMBAT_INVITE  (1 << 2)  // Only invited people can join
 #define COMBAT_DRAW    (1 << 3)  // Combat was a draw(all players killed)
+#define COMBAT_LADDER  (1 << 4)  // Combat counts toward ladder ranking
 
-#define CTYPE_CLANWAR         0      // The fight is a clanwar
-#define CTYPE_ONE_ONE         1      // One on one combat
-#define CTYPE_FREE_FOR_ALL    2      // last man standing wins
+#define CTYPE_ONE_ONE         0     // One on one combat
+#define CTYPE_FREE_FOR_ALL    1      // last man standing wins
 
 #define COMBAT_FLAGGED(cm, bits) (IS_SET(cm->flags, bits))
 
@@ -66,6 +66,24 @@ typedef struct combat_data {
     struct combat_data *next;
 } combat_data;
 
+typedef struct ladder_data {
+    char *name;
+    int vnum;
+    long admin;
+    ubyte num_players;
+    struct ladder_player *players;  // Sorted into order from highest to lowest
+    struct ladder_data *next;
+} ladder_data;
+
+typedef struct ladder_player {
+    long idnum;
+    int ladder;
+    int rank;
+    int wins;
+    int losses;
+    struct ladder_player *next;
+} ladder_player;
+
 
 void list_combat_players(CHAR *ch, combat_data *combat, char *outbuf);
 void comlog(CHAR *ch, char *str, int file, int to_char);
@@ -100,6 +118,7 @@ void combat_loop(CHAR* ch, CHAR* killer);
 void random_arena(CHAR* ch, combat_data* combat);
 void combat_reimburse(CHAR *ch, combat_data* combat);
 void clear_booty_rooms(void);
+void remove_player_from_list(combat_data *combat, long idnum);
 
 void do_ccontrol_create (CHAR *ch, char *argument, int com);
 void do_ccontrol_usage(CHAR *ch, int com);
@@ -124,6 +143,12 @@ void do_ccontrol_wizoptions(CHAR* ch, char* argument);
 void do_ccontrol_destroy(CHAR* ch, char* argument);
 void do_ccontrol_lock(CHAR* ch);
 void do_ccontrol_stats(CHAR* ch);
+
+
+
+// Ladder functions
+void show_ladder(ladder_data *the_ladder);
+void move_player(CHAR *ch, ladder_data *the_ladder); // ch should be the winner of the combat
 
 
 
