@@ -169,6 +169,6 @@ inline bool operator==(const char* name, const IDEntry &e) {
     return e == name;
 }
 
-
+extern PlayerTable playerIndex;
 
 #endif // __PLAYER_TABLE_H__
