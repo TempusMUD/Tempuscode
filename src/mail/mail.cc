@@ -51,7 +51,7 @@ void string_add(struct descriptor_data *d, char *str);
 
 extern int no_mail;
 extern int no_plrtext;
-
+int num_deleted_mails;
 mail_index_type *mail_index = 0;/* list of recs in the mail file  */
 position_list_type *free_list = 0;	/* list of free positions in file */
 long file_end_pos = 0;		/* length of file */
@@ -167,9 +167,6 @@ read_from_file(void *buf, int size, long filepos)
     return;
 }
 
-
-
-
 void 
 index_mail(long id_to_index, long pos)
 {
@@ -207,21 +204,48 @@ scan_file(void)
     FILE *mail_file;
     header_block_type next_block;
     int total_messages = 0, block_num = 0;
+	data_block_type data;
     char buf[100];
-
+	time_t current_time = 0;
+	long following_block;
+	long position;
     if (!(mail_file = fopen(MAIL_FILE, "r"))) {
-	slog("Mail file non-existant... creating new file.");
-	mail_file = fopen(MAIL_FILE, "w");
-	fclose(mail_file);
-	return 1;
+		slog("Mail file non-existant... creating new file.");
+		mail_file = fopen(MAIL_FILE, "w");
+		fclose(mail_file);
+		return 1;
     }
+	num_deleted_mails = 0;
+	current_time = time(NULL);
     while (fread(&next_block, sizeof(header_block_type), 1, mail_file)) {
-	if (next_block.block_type == HEADER_BLOCK) {
-	    index_mail(next_block.header_data.to, block_num * BLOCK_SIZE);
-	    total_messages++;
-	} else if (next_block.block_type == DELETED_BLOCK)
-	    push_free_list(block_num * BLOCK_SIZE);
-	block_num++;
+		position = ftell(mail_file) - sizeof(header_block_type);
+		if (next_block.block_type == HEADER_BLOCK) {
+			if( PURGE_OLD_MAIL &&  
+				next_block.header_data.mail_time + MAX_MAIL_AGE < current_time) {
+				following_block = next_block.header_data.next_block;
+				num_deleted_mails++;
+				/* mark the block as deleted */
+				push_free_list(position);
+				next_block.block_type = DELETED_BLOCK;
+				fseek(mail_file, position, SEEK_SET);
+				fwrite(&next_block, BLOCK_SIZE, 1,mail_file);
+				while (following_block != LAST_BLOCK) {
+					fseek(mail_file, following_block, SEEK_SET);
+					fread(&data, BLOCK_SIZE, 1, mail_file);
+					fseek(mail_file, following_block, SEEK_SET);
+					push_free_list(following_block);
+					following_block = data.block_type;
+					data.block_type = DELETED_BLOCK;
+					fwrite(&data, BLOCK_SIZE, 1, mail_file);
+				}
+				fseek(mail_file, position + BLOCK_SIZE, SEEK_SET);
+			} else {
+				index_mail(next_block.header_data.to, block_num * BLOCK_SIZE);
+				total_messages++;
+			}
+		} else if (next_block.block_type == DELETED_BLOCK)
+			push_free_list(block_num * BLOCK_SIZE);
+		block_num++;
     }
 
     file_end_pos = ftell(mail_file);
@@ -233,7 +257,9 @@ scan_file(void)
 	slog("SYSERR: Mail disabled!");
 	return 0;
     }
-    sprintf(buf, "   Mail file read -- %d messages.", total_messages);
+    sprintf(buf, "   mail file read -- %d messages.", total_messages);
+    slog(buf);
+    sprintf(buf, "   %d messages purged from file.", num_deleted_mails);
     slog(buf);
     return 1;
 }				/* end of scan_file */

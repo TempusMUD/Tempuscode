@@ -61,6 +61,10 @@ char	*read_delete(long recipient);
 #define LAST_BLOCK    -2
 #define DELETED_BLOCK -3
 
+//#define MAX_MAIL_AGE 15552000 // should be 6 months.
+#define MAX_MAIL_AGE 30 // should be 6 months.
+#define PURGE_OLD_MAIL 0
+
 /*
  * note: next_block is part of header_blk in a data block; we can't combine
  * them here because we have to be able to differentiate a data block from a
