@@ -79,7 +79,7 @@ ACMD(do_psidrain)
 	}
 
 	if (ROOM_FLAGGED(vict->in_room, ROOM_PEACEFUL) && GET_LEVEL(ch) < LVL_GOD) {
-		act("Your psychic powers cannot hurt $M there!", FALSE, ch, 0, vict,
+		act("Your psychic powers cannot drain $M there!", FALSE, ch, 0, vict,
 			TO_CHAR);
 		return;
 	}
@@ -110,16 +110,7 @@ ACMD(do_psidrain)
 		return;
 	}
 
-	if (AFF3_FLAGGED(vict, AFF3_PSISHIELD)) { 
-/*		if (!mag_savingthrow(vict, GET_LEVEL(ch), SAVING_PSI)) {
-		    act("Your attack is deflected by $N's psishield!",
-			    FALSE, ch, 0, vict, TO_CHAR);
-		    act("$n's psychic attack is deflected by your psishield!",
-			    FALSE, ch, 0, vict, TO_VICT);
-		    act("$n staggers under an unseen force.",
-			    TRUE, ch, 0, vict, TO_NOTVICT);
-        }*/
-        
+	if (AFF3_FLAGGED(vict, AFF3_PSISHIELD) && vict->distrusts(ch)) { 
         prob = CHECK_SKILL(ch, SKILL_PSIDRAIN) + GET_INT(ch);
         prob += ch->getLevelBonus(SKILL_PSIDRAIN);
 
@@ -180,16 +171,8 @@ ACMD(do_psidrain)
 
 		if (IS_NPC(vict) && !FIGHTING(vict)) {
 
-			if (ch->in_room == vict->in_room) {
-				int retval = hit(vict, ch, TYPE_UNDEFINED);
-				retval = SWAP_DAM_RETVAL(retval);
-
-				ACMD_set_return_flags(retval);
-
-				if (IS_SET(retval, DAM_ATTACKER_KILLED))
-					return;
-			}
-
+			if (ch->in_room == vict->in_room)
+				set_fighting(vict, ch, 0);
 			else {
 				remember(vict, ch);
 				if (MOB2_FLAGGED(vict, MOB2_HUNT))
