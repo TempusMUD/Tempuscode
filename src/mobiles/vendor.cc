@@ -39,12 +39,22 @@ const char VENDOR_HELP[] =
 "        Percent to mark price up when selling to a player\r\n"
 "    markdown <percentage>\r\n"
 "        Percent to mark price down when buying from a player\r\n"
-"    currency gold|cash\r\n"
+"    currency past|future\r\n"
 "        Which currency to use\r\n"
 "    steal-ok yes|no\r\n"
 "        If this is set, stealing from the vendor is allowed\r\n"
-"    attack-ok yes|no\r\n";
+"    attack-ok yes|no\r\n"
 "        If this is set, attacking the vendor is allowed\r\n"
+"\r\n"
+"Once properly in place, the vendor will respond to the following\r\n"
+"commands:\r\n"
+"    buy [<amount>] (#<index>|<object alias> [<object alias> ...])\r\n"
+"    sell [<amount>] <object alias>\r\n"
+"    value <object alias>\r\n"
+"    offer <object alias>\r\n"
+"    list\r\n";
+
+const int MAX_ITEMS = 10;
 
 // From shop.cc
 int same_obj(obj_data *, obj_data *);
@@ -72,6 +82,18 @@ struct ShopData {
 	bool attack_ok;
 	Reaction reaction;
 };
+
+static bool
+vendor_is_produced(obj_data *obj, ShopData *shop)
+{
+	vector<int>::iterator it;
+
+	for (it = shop->item_list.begin();it != shop->item_list.end();it++)
+		if (GET_OBJ_VNUM(obj) == *it)
+			return same_obj(real_object_proto(*it), obj);
+
+	return false;
+}
 
 static int
 vendor_inventory(Creature *self, obj_data *obj)
@@ -138,7 +160,7 @@ vendor_invalid_buy(Creature *self, Creature *ch, ShopData *shop, obj_data *obj)
 		return true;
 	}
 
-	if (vendor_inventory(self, obj) >= 5) {
+	if (vendor_inventory(self, obj) >= MAX_ITEMS) {
 		do_say(self, tmp_sprintf("%s No thanks.  I've got too many of those in stock already.", GET_NAME(ch)),
 			0, SCMD_SAY_TO, NULL);
 		return true;
@@ -262,7 +284,7 @@ vendor_sell(Creature *ch, char *arg, Creature *self, ShopData *shop)
 
 	if (num > 1) {
 		int obj_cnt = vendor_inventory(self, obj);
-		if (num > obj_cnt) {
+		if (!vendor_is_produced(obj, shop) && num > obj_cnt) {
 			do_say(self,
 				tmp_sprintf("%s I only have %d to sell to you.",
 				GET_NAME(ch), obj_cnt), 0, SCMD_SAY_TO, NULL);
@@ -274,7 +296,7 @@ vendor_sell(Creature *ch, char *arg, Creature *self, ShopData *shop)
 	amt_carried = (shop->currency) ? GET_CASH(ch):GET_GOLD(ch);
 	
 	if (cost > amt_carried) {
-		do_say(self, tmp_sprintf("%s %s.",
+		do_say(self, tmp_sprintf("%s %s",
 			GET_NAME(ch), shop->msg_buyerbroke), 0, SCMD_SAY_TO, NULL);
 		if (shop->cmd_temper)
 			command_interpreter(self, shop->cmd_temper);
@@ -284,7 +306,7 @@ vendor_sell(Creature *ch, char *arg, Creature *self, ShopData *shop)
 	if (cost * num > amt_carried) {
 		num = amt_carried / cost;
 		do_say(self,
-			tmp_sprintf("%s You can only have enough to buy %d.",
+			tmp_sprintf("%s You only have enough to buy %d.",
 				GET_NAME(ch), num), 0, SCMD_SAY_TO, NULL);
 	}
 
@@ -350,12 +372,20 @@ vendor_sell(Creature *ch, char *arg, Creature *self, ShopData *shop)
 		false, self, obj, ch, TO_VICT);
 	act("$n sells $p to $N.", false, self, obj, ch, TO_NOTVICT);
 
-	while (num) {
-		next_obj = obj->next_content;
-		obj_from_char(obj);
-		obj_to_char(obj, ch);
-		obj = next_obj;
-		num--;
+	if (vendor_is_produced(obj, shop)) {
+		// Load all-new identical items
+		while (num--) {
+			obj = read_object(GET_OBJ_VNUM(obj));
+			obj_to_char(obj, ch);
+		}
+	} else {
+		// Actually move the items from vendor to player
+		while (num--) {
+			next_obj = obj->next_content;
+			obj_from_char(obj);
+			obj_to_char(obj, ch);
+			obj = next_obj;
+		}
 	}
 
 }
@@ -365,7 +395,7 @@ vendor_buy(Creature *ch, char *arg, Creature *self, ShopData *shop)
 {
 	obj_data *obj;
 	char *obj_str;
-	long cost;
+	long cost, amt_carried;
 	int num = 1;
 
 	if (!*arg) {
@@ -402,23 +432,54 @@ vendor_buy(Creature *ch, char *arg, Creature *self, ShopData *shop)
 	if (vendor_invalid_buy(self, ch, shop, obj))
 		return;
 
+	if (vendor_inventory(ch, obj) < num) {
+		send_to_char(ch, "You only have %d of those!\r\n",
+			vendor_inventory(ch, obj));
+		return;
+	}
+
+	if (vendor_is_produced(obj, shop)) {
+		do_say(self, tmp_sprintf("%s I make these.  Why should I buy it back from you?", GET_NAME(ch)),
+			0, SCMD_SAY_TO, NULL);
+		return;
+	}
 	cost = vendor_get_value(obj, shop->markdown);
-	if ((shop->currency) ? GET_CASH(self):GET_GOLD(self) < cost) {
+	amt_carried = (shop->currency) ? GET_CASH(self):GET_GOLD(self);
+
+	if (amt_carried < cost) {
 		do_say(self, tmp_sprintf("%s %s", GET_NAME(ch), shop->msg_selfbroke),
 			0, SCMD_SAY_TO, NULL);
 		return;
+	}
+
+	if (amt_carried < cost * num) {
+		num = amt_carried / cost;
+		do_say(self, tmp_sprintf("%s I can only afford to buy %d.",
+			GET_NAME(ch), num),
+			0, SCMD_SAY_TO, NULL);
+	}
+
+	if (vendor_inventory(self, obj) + num > MAX_ITEMS) {
+		num = MAX_ITEMS - vendor_inventory(self, obj);
+		do_say(self, tmp_sprintf("%s I only want to buy %d.",
+			GET_NAME(ch), num),
+			0, SCMD_SAY_TO, NULL);
 	}
 
 	do_say(self, tmp_sprintf("%s %s", GET_NAME(ch), shop->msg_sell),
 		0, SCMD_SAY_TO, NULL);
 
 	if (shop->currency)
-		perform_give_credits(self, ch, cost);
+		perform_give_credits(self, ch, cost * num);
 	else
-		perform_give_gold(self, ch, cost);
+		perform_give_gold(self, ch, cost * num);
 
 	obj_from_char(obj);
-	obj_to_char(obj, self);
+
+	if (vendor_is_produced(obj, shop))
+		extract_obj(obj);
+	else
+		obj_to_char(obj, self);
 
 	// repair object
 	if (GET_OBJ_DAM(obj) != -1 && GET_OBJ_MAX_DAM(obj) != -1)
@@ -433,7 +494,7 @@ vendor_list_obj(Creature *ch, obj_data *obj, int cnt, int idx, int cost)
 	obj_desc = obj->short_description;
 	if (GET_OBJ_TYPE(obj) == ITEM_DRINKCON && GET_OBJ_VAL(obj, 1))
 		obj_desc = tmp_strcat(obj_desc, " of %s", drinks[GET_OBJ_VAL(obj, 1)]);
-	if (GET_OBJ_TYPE(obj) == ITEM_WAND || GET_OBJ_TYPE(obj) == ITEM_STAFF &&
+	if ((GET_OBJ_TYPE(obj) == ITEM_WAND || GET_OBJ_TYPE(obj) == ITEM_STAFF) &&
 			GET_OBJ_VAL(obj, 2) < GET_OBJ_VAL(obj, 1))
 		obj_desc = tmp_strcat(obj_desc, " (partially used)");
 	if (OBJ_REINFORCED(obj))
@@ -458,6 +519,11 @@ vendor_list_obj(Creature *ch, obj_data *obj, int cnt, int idx, int cost)
 	}
 
 	obj_desc = tmp_capitalize(obj_desc);
+	if (cnt < 0)
+		return tmp_sprintf(" %2d%s)  %sUnlimited%s   %-48s %6d\r\n",
+			idx, CCRED(ch, C_NRM), CCGRN(ch, C_NRM), CCNRM(ch, C_NRM),
+			obj_desc, cost);
+
 	return tmp_sprintf(" %2d%s)  %s%5d%s       %-48s %6d\r\n",
 		idx, CCRED(ch, C_NRM), CCYEL(ch, C_NRM), cnt, CCNRM(ch, C_NRM),
 		obj_desc, cost);
@@ -489,6 +555,8 @@ vendor_list(Creature *ch, char *arg, Creature *self, ShopData *shop)
 		else if (same_obj(last_obj, cur_obj)) {
 			cnt++;
 		} else {
+			if (vendor_is_produced(last_obj, shop))
+				cnt = -1;
 			msg = tmp_strcat(msg, vendor_list_obj(ch, last_obj, cnt, idx,
 				vendor_get_value(last_obj, shop->markup)));
 			cnt = 1;
@@ -496,9 +564,12 @@ vendor_list(Creature *ch, char *arg, Creature *self, ShopData *shop)
 		}
 		last_obj = cur_obj;
 	}
-	if (last_obj)
+	if (last_obj) {
+		if (vendor_is_produced(last_obj, shop))
+			cnt = -1;
 		msg = tmp_strcat(msg, vendor_list_obj(ch, last_obj, cnt, idx,
 			vendor_get_value(last_obj, shop->markup)));
+	}
 
 	act("$n peruses the shop's wares.", false, ch, 0, 0, TO_ROOM);
 	page_string(ch->desc, msg);
@@ -624,9 +695,9 @@ SPECIAL(vendor)
 		} else if (!strcmp(param_key, "markdown")) {
 			shop.markdown= atoi(line);
 		} else if (!strcmp(param_key, "currency")) {
-			if (is_abbrev(line, "cash"))
+			if (is_abbrev(line, "future"))
 				shop.currency = true;
-			else if (is_abbrev(line, "gold"))
+			else if (is_abbrev(line, "past"))
 				shop.currency = false;
 			else {
 				err = "invalid currency";
