@@ -2159,8 +2159,10 @@ print_affs_to_string(struct char_data *ch, char *str, byte mode)
 	return;
 	if (IS_SOULLESS(ch))
 	strcat(str, "A deep despair clouds your soulless mind.\r\n");
-    if (IS_AFFECTED(ch, AFF_SNEAK))
+    if (IS_AFFECTED(ch, AFF_SNEAK) && !IS_AFFECTED_3(ch, AFF3_INFILTRATE))
 	strcat(str, "You are sneaking.\r\n");
+    if (IS_AFFECTED_3(ch, AFF3_INFILTRATE))
+        strcat(str, "You are infiltrating.\r\n");
     if (IS_AFFECTED(ch, AFF_INVISIBLE))
 	strcat(str, "You are invisible.\r\n");
     if (IS_AFFECTED_2(ch, AFF2_TRANSPARENT))
@@ -3130,6 +3132,7 @@ ACMD(do_who)
 			 !strncmp(GET_NAME(tch), "Stryker", 7)  ? "CODEMAN" :
 			 !strncmp(GET_NAME(tch), "Forget", 6)   ? " CODER " :
 			 !strncmp(GET_NAME(tch), "Hubris", 6)   ? "EC ARCH" :
+             !strncmp(GET_NAME(tch), "Nothing", 7)  ? "       " :
 			 LEV_ABBR(tch)),  CCYEL_BLD(ch, C_NRM), CCNRM(ch, C_NRM),
 			PRF2_FLAGGED(tch, PRF2_NOWHO) ? nowho_buf : "",
 			CCGRN(ch, C_NRM), 

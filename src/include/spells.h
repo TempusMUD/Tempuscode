@@ -523,7 +523,9 @@ extern const char *spells[];
 
 //#define SKILL_TAUNT					669
 
+//------------  Mercenary Skills -------------------
 #define SKILL_SNIPE                 669  // sniper skill for mercs
+#define SKILL_INFILTRATE            670  // merc skill, improvement on sneak
 
 
 // Overflow Cyborg
