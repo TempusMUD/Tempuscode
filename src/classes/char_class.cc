@@ -40,6 +40,7 @@
 #include "handler.h"
 #include "security.h"
 #include "tmpstr.h"
+#include "player_table.h"
 
 extern struct room_data *world;
 
@@ -2945,5 +2946,185 @@ extern const char *evil_knight_titles[LVL_GRIMP + 1] = {
 	"da GRIMP"
 };
 
+void
+import_old_character(descriptor_data *d)
+{
+    long id = oldPlayerIndex.getID( arg );
+    char* filename = tmp_sprintf("oldplayers/%ld/%ld.dat", (id%10), id );
+    unlink(filename);
+    
+    oldPlayerIndex.remove( GET_IDNUM(d->original) );
 
+    d->creature = d->account->create_char( GET_NAME(d->original) );
+    d->creature->desc = d;
+    d->creature->player_specials->rentcode = RENT_NEW_CHAR;
+    d->account->save_to_xml();
+    
+    // Immortal level adjustment
+    if( GET_LEVEL(d->original) >= LVL_IMMORT ) 
+    {
+        GET_LEVEL(d->creature) = GET_LEVEL(d->original);
+        POOFIN(d->creature) = POOFIN(d->original);
+        POOFIN(d->original) = NULL;
+        POOFOUT(d->creature) = POOFOUT(d->original);
+        POOFOUT(d->original) = NULL;
+
+        for( int i = 1; i <= MAX_SKILLS; i++) {
+			SET_SKILL(d->creature, i, 120);
+        }
+    }
+
+    // creation date
+    d->creature->player.time.birth = d->original->player.time.birth;
+
+    // perf bits
+    PRF_FLAGS(d->creature) = PRF_FLAGS(d->original);
+    PRF2_FLAGS(d->creature) = PRF2_FLAGS(d->original);
+
+    // title
+    GET_TITLE(d->creature) = GET_TITLE(d->original);
+    GET_TITLE(d->original) = NULL;
+    // race
+    GET_RACE(d->creature) = GET_RACE(d->original);
+    // sex
+    GET_SEX(d->creature) = GET_SEX(d->original);
+    // class
+    GET_CLASS(d->creature) = GET_CLASS(d->original);
+
+    // description
+    if( d->creature->player.description != NULL )
+        free( d->creature->player.description );
+    d->creature->player.description = d->original->player.description;
+    d->original->player.description = NULL;
+
+    // alias
+    GET_ALIASES(d->creature) = GET_ALIASES(d->original);
+    GET_ALIASES(d->original) = NULL;
+
+    // stat adjust
+    char_ability_data *abils = &d->creature->real_abils;
+    abils->str =   ( get_max_str( d->creature ) - 4) + number(1,4);
+    abils->intel = ( get_max_int( d->creature ) - 4) + number(1,4);
+    abils->con =   ( get_max_con( d->creature ) - 4) + number(1,4);
+    abils->dex =   ( get_max_dex( d->creature ) - 4) + number(1,4);
+    abils->cha =   ( get_max_cha( d->creature ) - 4) + number(1,4);
+    abils->wis =   ( get_max_wis( d->creature ) - 4) + number(1,4);
+    calculate_height_weight( d->creature );
+
+    d->creature->saveToXML();
+
+    delete d->original;
+    d->original = NULL;
+}
+
+
+int
+get_max_str( Creature *ch ) {
+    return MIN(GET_REMORT_GEN(ch) + 18 +
+                ((IS_NPC(ch) || GET_LEVEL(ch) >= LVL_AMBASSADOR) ? 8 : 0) +
+                (IS_MINOTAUR(ch) ? 2 : 0) +
+                (IS_DWARF(ch) ? 1 : 0) +
+                (IS_HALF_ORC(ch) ? 2 : 0) + (IS_ORC(ch) ? 1 : 0), 25);
+}
+
+int
+get_max_int( Creature *ch ) {
+    return (IS_NPC(ch) ? 25 :
+                MIN(25,
+                    18 + (IS_REMORT(ch) ? GET_REMORT_GEN(ch) : 0) +
+                    ((IS_ELF(ch) || IS_DROW(ch)) ? 1 : 0) +
+                    (IS_MINOTAUR(ch) ? -2 : 0) +
+                    (IS_TABAXI(ch) ? -1 : 0) +
+                    (IS_ORC(ch) ? -1 : 0) + (IS_HALF_ORC(ch) ? -1 : 0)));
+}
+
+int
+get_max_wis( Creature *ch ) {
+    return (IS_NPC(ch) ? 25 :
+                MIN(25, (18 + GET_REMORT_GEN(ch)) +
+                    (IS_MINOTAUR(ch) ? -2 : 0) + (IS_HALF_ORC(ch) ? -2 : 0) +
+                    (IS_TABAXI(ch) ? -2 : 0)));
+}
+
+int
+get_max_dex( Creature *ch ) {
+    return (IS_NPC(ch) ? 25 :
+                MIN(25,
+                    18 + (IS_REMORT(ch) ? GET_REMORT_GEN(ch) : 0) +
+                    (IS_TABAXI(ch) ? 2 : 0) +
+                    ((IS_ELF(ch) || IS_DROW(ch)) ? 1 : 0)));
+}
+
+int
+get_max_con( Creature *ch ) {
+    return (IS_NPC(ch) ? 25 :
+                MIN(25,
+                    18 + (IS_REMORT(ch) ? GET_REMORT_GEN(ch) : 0) +
+                    ((IS_MINOTAUR(ch) || IS_DWARF(ch)) ? 1 : 0) +
+                    (IS_TABAXI(ch) ? 1 : 0) +
+                    (IS_HALF_ORC(ch) ? 1 : 0) +
+                    (IS_ORC(ch) ? 2 : 0) +
+                    ((IS_ELF(ch) || IS_DROW(ch)) ? -1 : 0)));
+}
+
+int
+get_max_cha( Creature *ch ) {
+    return (IS_NPC(ch) ? 25 :
+                MIN(25,
+                    18 + (IS_REMORT(ch) ? GET_REMORT_GEN(ch) : 0) +
+                    (IS_HALF_ORC(ch) ? -3 : 0) +
+                    (IS_ORC(ch) ? -3 : 0) +
+                    (IS_DWARF(ch) ? -1 : 0) + (IS_TABAXI(ch) ? -2 : 0)));
+}
+
+
+void
+calculate_height_weight( Creature *ch ) 
+{
+    /* make favors for sex ... and race */ // after keep
+	if (ch->player.sex == SEX_MALE) {
+		if (GET_RACE(ch) == RACE_HUMAN) {
+			ch->player.weight = number(130, 180) + GET_STR(ch);
+			ch->player.height = number(140, 190) + (GET_WEIGHT(ch) >> 3);
+		} else if (GET_RACE(ch) == RACE_TABAXI) {
+			ch->player.weight = number(110, 160) + GET_STR(ch);
+			ch->player.height = number(160, 200) + (GET_WEIGHT(ch) >> 3);
+		} else if (GET_RACE(ch) == RACE_DWARF) {
+			ch->player.weight = number(120, 160) + GET_STR(ch);
+			ch->player.height = number(100, 125) + (GET_WEIGHT(ch) >> 4);
+		} else if (IS_ELF(ch) || IS_DROW(ch)) {
+			ch->player.weight = number(120, 180) + GET_STR(ch);
+			ch->player.height = number(140, 165) + (GET_WEIGHT(ch) >> 3);
+		} else if (GET_RACE(ch) == RACE_HALF_ORC) {
+			ch->player.weight = number(120, 180) + GET_STR(ch);
+			ch->player.height = number(120, 200) + (GET_WEIGHT(ch) >> 4);
+		} else if (GET_RACE(ch) == RACE_MINOTAUR) {
+			ch->player.weight = number(200, 360) + GET_STR(ch);
+			ch->player.height = number(140, 190) + (GET_WEIGHT(ch) >> 3);
+		} else {
+			ch->player.weight = number(130, 180) + GET_STR(ch);
+			ch->player.height = number(140, 190) + (GET_WEIGHT(ch) >> 3);
+		}
+	} else {
+		if (GET_RACE(ch) == RACE_HUMAN) {
+			ch->player.weight = number(90, 150) + GET_STR(ch);
+			ch->player.height = number(140, 170) + (GET_WEIGHT(ch) >> 3);
+		} else if (GET_RACE(ch) == RACE_TABAXI) {
+			ch->player.weight = number(80, 120) + GET_STR(ch);
+			ch->player.height = number(160, 190) + (GET_WEIGHT(ch) >> 3);
+		} else if (GET_RACE(ch) == RACE_DWARF) {
+			ch->player.weight = number(100, 140) + GET_STR(ch);
+			ch->player.height = number(90, 115) + (GET_WEIGHT(ch) >> 4);
+		} else if (IS_ELF(ch) || IS_DROW(ch)) {
+			ch->player.weight = number(90, 130) + GET_STR(ch);
+			ch->player.height = number(120, 155) + (GET_WEIGHT(ch) >> 3);
+		} else if (GET_RACE(ch) == RACE_HALF_ORC) {
+			ch->player.weight = number(110, 170) + GET_STR(ch);
+			ch->player.height = number(110, 190) + (GET_WEIGHT(ch) >> 3);
+		} else {
+			ch->player.weight = number(90, 150) + GET_STR(ch);
+			ch->player.height = number(140, 170) + (GET_WEIGHT(ch) >> 3);
+		}
+	}
+}
 #undef __char_class_c__
