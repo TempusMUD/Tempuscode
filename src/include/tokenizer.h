@@ -1,5 +1,15 @@
+/*
+ *  A simple safe rip-off of java.util.StringTokenizer
+ */
 class Tokenizer {
     public:
+        /*
+         * Creates a new tokenizer, using input as it's beginning data
+         * and delimiter as it's token delimiter.
+         *
+         * Note:  input is copied into the Tokenizer rather than used
+         * directly.
+         */
         Tokenizer( const char *input, char delimiter ) {
             index = 0;
             length = strlen(input);
@@ -8,11 +18,17 @@ class Tokenizer {
             strcpy( data, input );
         }
 
+        /*
+         * Frees the copy of the given input.
+         */
         ~Tokenizer() {
             delete data;
             data = NULL;
         }
-
+        /*
+         * copies the next token into the given char*
+         * returns true if a token is copied, false if not.
+         */
         bool next( char *out ) {
             if( index >= length )
                 return false;

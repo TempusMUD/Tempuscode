@@ -496,7 +496,7 @@ ACMD(do_trans)
         }
 
         for (i = descriptor_list; i; i = i->next)
-            if (STATE(i) == CON_PLAYING && i->character && i->character != ch) {
+            if (i->connected == CON_PLAYING && i->character && i->character != ch) {
                 victim = i->character;
                 if (GET_LEVEL(victim) >= GET_LEVEL(ch))
                     continue;
@@ -3206,7 +3206,7 @@ ACMD(do_force)
         for (i = descriptor_list; i; i = next_desc) {
             next_desc = i->next;
 
-            if (STATE(i) || !(vict = i->character) || 
+            if (i->connected || !(vict = i->character) || 
                 GET_LEVEL(vict) >= GET_LEVEL(ch))
                 continue;
             act(buf1, TRUE, ch, NULL, vict, TO_VICT);
@@ -3260,7 +3260,7 @@ ACMD(do_wiznet)
         break;
     case '@':
         for (d = descriptor_list; d; d = d->next) {
-            if (STATE(d) == CON_PLAYING && GET_LEVEL(d->character) >= 
+            if (d->connected == CON_PLAYING && GET_LEVEL(d->character) >= 
                 (subcmd == SCMD_IMMCHAT ? LVL_AMBASSADOR : LVL_DEMI) &&
                 ((subcmd == SCMD_IMMCHAT && 
                   !PRF2_FLAGGED(d->character, PRF2_NOIMMCHAT)) ||
@@ -3289,7 +3289,7 @@ ACMD(do_wiznet)
 
         any = FALSE;
         for (d = descriptor_list; d; d = d->next) {
-            if (STATE(d) == CON_PLAYING && GET_LEVEL(d->character) >= LVL_AMBASSADOR &&
+            if (d->connected == CON_PLAYING && GET_LEVEL(d->character) >= LVL_AMBASSADOR &&
                 ((subcmd == SCMD_IMMCHAT && 
                   PRF2_FLAGGED(d->character, PRF2_NOIMMCHAT)) ||
                  (subcmd == SCMD_WIZNET && 
@@ -3339,7 +3339,7 @@ ACMD(do_wiznet)
     }
 
     for (d = descriptor_list; d; d = d->next) {
-        if ((STATE(d) == CON_PLAYING) && (GET_LEVEL(d->character) >= level) &&
+        if ((d->connected == CON_PLAYING) && (GET_LEVEL(d->character) >= level) &&
             (subcmd != SCMD_WIZNET  || !PRF_FLAGGED(d->character, PRF_NOWIZ)) &&
             (subcmd != SCMD_IMMCHAT||!PRF2_FLAGGED(d->character,PRF2_NOIMMCHAT)) &&
             (!PLR_FLAGGED(d->character, PLR_WRITING | PLR_MAILING | PLR_OLC))
