@@ -292,12 +292,12 @@ Creature::getDamReduction(Creature *attacker)
 		IS_GOOD(ch) && !IS_NPC(ch)) {
 
 		// Find the caster apply for the shield of righteousness spell
-        while (af)
+        while (af) {
 			if (af->type == SPELL_SHIELD_OF_RIGHTEOUSNESS
 					&& af->modifier == APPLY_CASTER)
 				break;
-			else
-				af = af->next;
+			af = af->next;
+		}
 
 		if (af && af->modifier == GET_IDNUM(ch)) {
 			dam_reduction +=
