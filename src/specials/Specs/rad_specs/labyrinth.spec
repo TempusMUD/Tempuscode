@@ -307,11 +307,32 @@ SPECIAL(gollum)
 	return 0;
 }
 
-/*****************************************************/
+//*****************************************************
+// Pendulum description
+// There is a timer mob that does the actual swinging of the pendulum.  It 
+// is a mobile primarily because rooms don't receive special ticks.
+//
+// There is a room special that blocks the exits depending on the state of
+// the pendulum.  This special is set on the room containing the pendulum,
+// and the adjacent rooms.
+//
+// The pendulum itself is comprised of two objects, 60007 and 60011.  The
+// first blocks the way south, and the second blocks the northern exit.
+//
+//  room     #1   #2
+//			 +-+  +-+
+//	60126    |*|  | |
+//			 +-+  +-+
+//	60136    |*|  |*|
+//			 +-+  +-+
+//	60146    | |  |*|
+//			 +-+  +-+
+//
+
 SPECIAL(pendulum_timer_mob)
 {
-	/* mob vnum is 66010 */
-	/* procedure to make penddulum swing in room 66136 */
+	// mob vnum is 66010
+	// procedure to make penddulum swing in room 66136
 	if (spec_mode != SPECIAL_CMD && spec_mode != SPECIAL_TICK)
 		return 0;
 
@@ -354,7 +375,7 @@ SPECIAL(pendulum_timer_mob)
 					("The pendulum swings north, clearing the floor only by a foot or two.\r\n",
 					in_room);
 
-				room_data *theRoom = ch->in_room;
+				room_data *theRoom = in_room;
 				CreatureList::iterator it = theRoom->people.begin();
 				for (; it != theRoom->people.end(); ++it) {
 					vict = *it;
@@ -402,7 +423,7 @@ SPECIAL(pendulum_timer_mob)
 					("The pendulum swings south, clearing the floor only by a foot or two.\r\n",
 					in_room);
 
-				room_data *theRoom = ch->in_room;
+				room_data *theRoom = in_room;
 				CreatureList::iterator it = theRoom->people.begin();
 				for (; it != theRoom->people.end(); ++it) {
 					vict = *it;
