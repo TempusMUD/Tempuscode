@@ -923,10 +923,12 @@ do_stat_trails(struct Creature *ch)
     int i;
     time_t mytime, timediff;
 
+	if (!ch->in_room->trail) {
+		send_to_char(ch, "No trails exist within this room.\r\n");
+		return;
+	}
     mytime = time(0);
 	acc_string_clear();
-    acc_sprintf(buf, "Trail data for room [%6d]:\r\n", ch->in_room->number);
-
     for (i = 0, trail = ch->in_room->trail; trail; trail = trail->next) {
         timediff = mytime - trail->time;
         sprintbit(trail->flags, trail_flags, buf2);
