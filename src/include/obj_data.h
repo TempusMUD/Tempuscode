@@ -312,6 +312,9 @@ struct obj_data {
 			result += cur_obj->getWeight();
 		return result;
 	}
+	inline int getObjWeight(void) {
+		return getWeight() - getContainedWeight();
+	}
 
 	void clear();
 	

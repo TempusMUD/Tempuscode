@@ -152,7 +152,7 @@ obj_data::saveToXML(FILE *ouf)
 
 	fprintf( ouf, "%s<points type=\"%d\" soilage=\"%d\" weight=\"%d\" material=\"%d\" timer=\"%d\"/>\n",
 			  indent.c_str(), obj_flags.type_flag, soilage, 
-			 obj_flags.getWeight(), obj_flags.material, obj_flags.timer );
+			 getObjWeight(), obj_flags.material, obj_flags.timer );
 	fprintf( ouf, "%s<damage current=\"%d\" max=\"%d\" sigil_id=\"%d\" sigil_level=\"%d\" />\n",
 			 indent.c_str(), obj_flags.damage, obj_flags.max_dam, 
 			obj_flags.sigil_idnum, obj_flags.sigil_level );
