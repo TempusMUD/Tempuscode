@@ -1089,12 +1089,6 @@ parse_room(FILE * fl, int vnum_nr)
 		    safe_exit(1);
 		}
 	    }
-		if(	new_search->command == SEARCH_COM_NONE && new_search->to_remote) { 
-			if(new_search->arg[0] == -1 && new_search->arg[1] != -1) {
-				sprintf(buf,"SYSERR: Invalid Param to NONE: Room: %d, Search: [%s, %s].",room->number,new_search->command_keys,new_search->keywords);
-				slog(buf);
-			}
-		}
 	    break;
 
 	case 'S':			/* end of room */

@@ -527,7 +527,7 @@ general_search( struct char_data *ch, struct special_search_data *srch,int mode 
 
     case SEARCH_COM_NONE: /* simple echo search */
 
-	if ( ( targ_room = real_room( srch->arg[0] ) ) &&
+	if ( ( targ_room = real_room( srch->arg[1] ) ) &&
 	     srch->to_remote && ch->in_room != targ_room && targ_room->people ) {
 	    act( srch->to_remote, FALSE, targ_room->people, obj, mob, TO_ROOM );
 	    act( srch->to_remote, FALSE, targ_room->people, obj, mob, TO_CHAR );

@@ -126,7 +126,7 @@
 "EQUIP         -unused-      obj vnum      load pos\r\n"  \
 "GIVE          -unused-      obj vnum      max exist\r\n" \
 "DOOR          room vnum     direction     door flag\r\n" \
-"NONE          room vnum     unused        unused\r\n" \
+"NONE            unused      room vnum     unused\r\n" \
 "TRANS         room vnum     unused        unused\r\n" \
 "SPELL           level       room vnum     spellnum\r\n"  \
 "DAMAGE        dam dice      room vnum     damtype\r\n" \
