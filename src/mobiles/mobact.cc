@@ -1381,10 +1381,10 @@ void
 mobile_activity(void)
 {
 
-	struct Creature *ch, *vict = NULL;
+	struct Creature *ch, *vict = NULL, *tmp_vict = NULL;
 	struct obj_data *obj, *best_obj, *i;
 	struct affected_type *af_ptr = NULL;
-	struct Creature *tmp_vict = NULL;
+	CreatureList::iterator cit, it;
 	int dir, found, max, k;
 	static unsigned int count = 0;
 	struct mob_mugger_data *new_mug = NULL;
@@ -1393,7 +1393,7 @@ mobile_activity(void)
 
 	extern int no_specials;
 
-	CreatureList::iterator cit = characterList.begin();
+	cit = characterList.begin();
 	for (++count; cit != characterList.end(); ++cit) {
 		ch = *cit;
 		found = FALSE;
@@ -1621,7 +1621,7 @@ mobile_activity(void)
 
 		/* Mobiles looking at chars */
 		if (random_fractional_20()) {
-			CreatureList::iterator it = ch->in_room->people.begin();
+			it = ch->in_room->people.begin();
 			for (; it != ch->in_room->people.end(); ++it) {
 				vict = *it;
 				if (vict == ch)
@@ -1682,7 +1682,7 @@ mobile_activity(void)
 					(unsigned)random_number_zero_low(GET_LEVEL(ch) >> 3) + 1) {
 					tmp_vict = NULL;
 					max = 0;
-					CreatureList::iterator it = ch->in_room->people.begin();
+					it = ch->in_room->people.begin();
 					for (; it != ch->in_room->people.end(); ++it) {
 						vict = *it;
 						if (check_infiltrate(vict, ch))
@@ -1753,7 +1753,7 @@ mobile_activity(void)
 
 			else if (!FIGHTING(ch) && !HUNTING(ch)) {
 				vict = NULL;
-				CreatureList::iterator it = ch->in_room->people.begin();
+				it = ch->in_room->people.begin();
 				for (; it != ch->in_room->people.end(); ++it) {
 					vict = *it;
 					if (!IS_NPC(vict) && CAN_SEE(ch, vict) &&
@@ -2067,7 +2067,7 @@ mobile_activity(void)
 			if (IS_AFFECTED(ch, AFF_BLIND))
 				continue;
 
-			CreatureList::iterator it = ch->in_room->people.begin();
+			it = ch->in_room->people.begin();
 			for (; it != ch->in_room->people.end() && !found; ++it) {
 				vict = *it;
 				if (ch != vict && FIGHTING(vict) && ch != FIGHTING(vict) &&
@@ -2142,7 +2142,7 @@ mobile_activity(void)
 			found = FALSE;
 			vict = NULL;
 			room_data *room = ch->in_room;
-			CreatureList::iterator it = room->people.begin();
+			it = room->people.begin();
 			for (; it != room->people.end() && !found; ++it) {
 				vict = *it;
 				if ((IS_NPC(vict) && !MOB2_FLAGGED(ch, MOB2_ATK_MOBS))
@@ -2181,7 +2181,7 @@ mobile_activity(void)
 			!ROOM_FLAGGED(ch->in_room, ROOM_PEACEFUL)) {
 			found = FALSE;
 			vict = NULL;
-			CreatureList::iterator it = ch->in_room->people.begin();
+			it = ch->in_room->people.begin();
 			CreatureList::iterator nit = ch->in_room->people.begin();
 			for (; it != ch->in_room->people.end() && !found; ++it) {
 				++nit;
@@ -2259,7 +2259,7 @@ mobile_activity(void)
 				if (dir < NUM_DIRS) {
 					vict = NULL;
 					room_data *tmp_room = EXIT(ch, dir)->to_room;
-					CreatureList::iterator it = tmp_room->people.begin();
+					it = tmp_room->people.begin();
 					for (; it != tmp_room->people.end() && !found; ++it) {
 						vict = *it;
 						if (CAN_SEE(ch, vict)
@@ -2306,7 +2306,7 @@ mobile_activity(void)
 			!AFF_FLAGGED(ch, AFF_CHARM)) {
 			found = FALSE;
 			room_data *room = ch->in_room;
-			CreatureList::iterator it = room->people.begin();
+			it = room->people.begin();
 			for (; it != room->people.end() && !found; ++it) {
 				vict = *it;
 				if (check_infiltrate(vict, ch))
@@ -2431,16 +2431,16 @@ mobile_activity(void)
 
 			if ((door < NUM_OF_DIRS) &&
 				(MOB_CAN_GO(ch, door)) &&
-				(rev_dir[door] != ch->mob_specials.last_direction
-					|| random_binary())
+				(rev_dir[door] != ch->mob_specials.last_direction ||
+					ch->in_room->countExits() < 2 ||
+					random_binary())
 				&& (EXIT(ch, door)->to_room != ch->in_room)
 				&& (!ROOM_FLAGGED(EXIT(ch, door)->to_room,
 						ROOM_NOMOB | ROOM_DEATH)
 					&& !IS_SET(EXIT(ch, door)->exit_info, EX_NOMOB))
 				&& (CHAR_LIKES_ROOM(ch, EXIT(ch, door)->to_room))
 				&& (!MOB2_FLAGGED(ch, MOB2_STAY_SECT)
-					|| (EXIT(ch,
-							door)->to_room->sector_type ==
+					|| (EXIT(ch, door)->to_room->sector_type ==
 						ch->in_room->sector_type))
 				&& (!MOB_FLAGGED(ch, MOB_STAY_ZONE)
 					|| (EXIT(ch, door)->to_room->zone == ch->in_room->zone))) {
@@ -2448,6 +2448,7 @@ mobile_activity(void)
 					continue;
 			}
 		}
+
 		//
 		// thief tries to steal from others
 		//
