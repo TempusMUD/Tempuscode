@@ -101,12 +101,12 @@ vendor_is_produced(obj_data *obj, ShopData *shop)
 }
 
 static int
-vendor_inventory(Creature *self, obj_data *obj)
+vendor_inventory(Creature *self, obj_data *obj, obj_data *obj_list)
 {
 	obj_data *cur_obj;
 	int cnt = 0;
 
-	cur_obj = self->carrying;
+	cur_obj = obj_list;
 	while (cur_obj && GET_OBJ_VNUM(cur_obj) != GET_OBJ_VNUM(obj) &&
 			!same_obj(cur_obj, obj))
 		cur_obj = cur_obj->next_content;
@@ -166,7 +166,7 @@ vendor_invalid_buy(Creature *self, Creature *ch, ShopData *shop, obj_data *obj)
 		return true;
 	}
 
-	if (vendor_inventory(self, obj) >= MAX_ITEMS) {
+	if (vendor_inventory(self, obj, self->carrying) >= MAX_ITEMS) {
 		do_say(self, tmp_sprintf("%s No thanks.  I've got too many of those in stock already.", GET_NAME(ch)),
 			0, SCMD_SAY_TO, NULL);
 		return true;
@@ -271,7 +271,10 @@ vendor_sell(Creature *ch, char *arg, Creature *self, ShopData *shop)
 		}
 
 		obj_str = tmp_getword(&arg);
-	} else {
+	} else if (!strcmp(obj_str, "all")) {
+		num = -1;
+		obj_str = tmp_getword(&arg);
+	} else{
 		num = 1;
 	}
 
@@ -288,8 +291,18 @@ vendor_sell(Creature *ch, char *arg, Creature *self, ShopData *shop)
 		return;
 	}
 
+	if (num == -1) {
+		if (vendor_is_produced(obj, shop)) {
+			do_say(self,
+				tmp_sprintf("%s I can make these things all day!",
+				GET_NAME(ch)), 0, SCMD_SAY_TO, NULL);
+			return;
+		}
+		num = vendor_inventory(self, obj, obj);
+	}
+
 	if (num > 1) {
-		int obj_cnt = vendor_inventory(self, obj);
+		int obj_cnt = vendor_inventory(self, obj, self->carrying);
 		if (!vendor_is_produced(obj, shop) && num > obj_cnt) {
 			do_say(self,
 				tmp_sprintf("%s I only have %d to sell to you.",
@@ -451,9 +464,11 @@ vendor_buy(Creature *ch, char *arg, Creature *self, ShopData *shop)
 		}
 
 		obj_str = tmp_getword(&arg);
-	} else {
+	} else if (!strcmp(obj_str, "all")) {
+		num = -1;
+		obj_str = tmp_getword(&arg);
+	} else
 		num = 1;
-	}
 
 	obj = get_obj_in_list_all(ch, obj_str, ch->carrying);
 	if (!obj) {
@@ -464,9 +479,15 @@ vendor_buy(Creature *ch, char *arg, Creature *self, ShopData *shop)
 	if (vendor_invalid_buy(self, ch, shop, obj))
 		return;
 
-	if (vendor_inventory(ch, obj) < num) {
+	if (num == -1)
+		num = vendor_inventory(ch, obj, obj);
+
+	// We only check inventory after the object selected.  This allows people
+	// to sell 5 3.shirt if they have 2 shirts ahead of the one they want to
+	// sell
+	if (vendor_inventory(ch, obj, obj) < num) {
 		send_to_char(ch, "You only have %d of those!\r\n",
-			vendor_inventory(ch, obj));
+			vendor_inventory(ch, obj, ch->carrying));
 		return;
 	}
 
@@ -491,8 +512,8 @@ vendor_buy(Creature *ch, char *arg, Creature *self, ShopData *shop)
 			0, SCMD_SAY_TO, NULL);
 	}
 
-	if (vendor_inventory(self, obj) + num > MAX_ITEMS) {
-		num = MAX_ITEMS - vendor_inventory(self, obj);
+	if (vendor_inventory(self, obj, self->carrying) + num > MAX_ITEMS) {
+		num = MAX_ITEMS - vendor_inventory(self, obj, self->carrying);
 		do_say(self, tmp_sprintf("%s I only want to buy %d.",
 			GET_NAME(ch), num),
 			0, SCMD_SAY_TO, NULL);
