@@ -903,10 +903,11 @@ Creature::quit(void)
 
 		// Drop all implanted items, breaking them
 		if (GET_IMPLANT(this, pos)) {
-			obj = GET_IMPLANT(this, pos);
+			obj = unequip_char(this, pos, MODE_IMPLANT);
 			GET_OBJ_DAM(obj) = GET_OBJ_MAX_DAM(obj) >> 3 - 1;
 			SET_BIT(GET_OBJ_EXTRA2(obj), ITEM2_BROKEN);
 			obj_to_room(obj, in_room);
+			act("$p drops to the ground!", false, 0, obj, 0, TO_ROOM);
 		}
 	}
 
