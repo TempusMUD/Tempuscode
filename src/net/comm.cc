@@ -144,7 +144,6 @@ void save_all_players();
 int
 main(int argc, char **argv)
 {
-	void dbg_enable_tracking(bool dump_on_exit);
 	int port;
 	int pos = 1;
 	char *dir;
@@ -152,7 +151,6 @@ main(int argc, char **argv)
 	port = DFLT_PORT;
 	dir = DFLT_DIR;
 	
-	dbg_enable_tracking(false);
 	tmp_string_init();
 
 	while ((pos < argc) && (*(argv[pos]) == '-')) {

@@ -314,6 +314,10 @@ affect_update(void)
 						|| (af->type == SPELL_FLUORESCE))
 						send_to_char(i, 
 							"The light which surrounds you starts to fade.\r\n");
+                    else if (af->type == ZEN_OBLIVITY) {
+                        send_to_char(i, 
+                            "You feel your grip on the zen of oblivity slipping.\r\n");
+                    }
 					else if (af->type == SPELL_FLY
 						|| af->type == SPELL_TIDAL_SPACEWARP) {
 						send_to_char(i, 
