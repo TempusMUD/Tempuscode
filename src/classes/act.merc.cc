@@ -19,6 +19,8 @@
 #include "guns.h"
 #include "bomb.h"
 #include "tmpstr.h"
+#include "smokes.h"
+#include "player_table.h"
 
 #define PISTOL(gun)  ((IS_GUN(gun) || IS_ENERGY_GUN(gun)) && !IS_TWO_HAND(gun))
 #define LARGE_GUN(gun) ((IS_GUN(gun) || IS_ENERGY_GUN(gun)) && IS_TWO_HAND(gun))
@@ -686,4 +688,147 @@ ACMD(do_infiltrate)
 	af.bitvector = AFF3_INFILTRATE;
 	af.level = GET_LEVEL(ch) + ch->getLevelBonus(SKILL_INFILTRATE);
 	affect_to_char(ch, &af);
+}
+
+void
+perform_appraise(Creature *ch, obj_data *obj, int skill_lvl)
+{
+	int i;
+	int found;
+	long cost;
+
+	struct time_info_data age(struct Creature *ch);
+
+	sprinttype(GET_OBJ_TYPE(obj), item_type_descs, buf2);
+	send_to_char(ch, "%s is %s.\n", tmp_capitalize(obj->name), buf2); 
+
+	if (skill_lvl > 20) {
+		send_to_char(ch, "Item will give you following abilities:  ");
+		buf[0] = '\0';
+		if (obj->obj_flags.bitvector[0])
+			sprintbit(obj->obj_flags.bitvector[0], affected_bits, buf);
+		if (obj->obj_flags.bitvector[1])
+			sprintbit(obj->obj_flags.bitvector[1], affected2_bits, buf);
+		if (obj->obj_flags.bitvector[2])
+			sprintbit(obj->obj_flags.bitvector[2], affected3_bits, buf);
+		send_to_char(ch, "%s\r\n", buf);
+	}
+
+	if (skill_lvl > 30) {
+		send_to_char(ch, "Item is: ");
+		sprintbit(GET_OBJ_EXTRA(obj), extra_bits, buf);
+		sprintbit(GET_OBJ_EXTRA2(obj), extra2_bits, buf);
+		send_to_char(ch, "%s\r\n", buf);
+	}
+
+	send_to_char(ch, "Item weighs around %d lbs, and is made of %s.\n",
+		obj->getWeight(), material_names[GET_OBJ_MATERIAL(obj)]);
+	
+	if (skill_lvl > 100)
+		cost = 0;
+	else
+		cost = (100 - skill_lvl) * GET_OBJ_COST(obj) / 100;
+	cost = GET_OBJ_COST(obj) + number(0, cost) - cost / 2;
+
+	if (cost > 0)
+		send_to_char(ch, "Item looks to be worth about %ld.\r\n", cost);
+	else
+		send_to_char(ch, "Item doesn't look to be worth anything.\r\n");
+
+	switch (GET_OBJ_TYPE(obj)) {
+	case ITEM_SCROLL:
+	case ITEM_POTION:
+		if (skill_lvl > 80) {
+			send_to_char(ch, "This %s casts: ",
+				item_types[(int)GET_OBJ_TYPE(obj)]);
+
+			if (GET_OBJ_VAL(obj, 1) >= 1)
+				send_to_char(ch, "%s\r\n", spell_to_str(GET_OBJ_VAL(obj, 1)));
+			if (GET_OBJ_VAL(obj, 2) >= 1)
+				send_to_char(ch, "%s\r\n", spell_to_str(GET_OBJ_VAL(obj, 2)));
+			if (GET_OBJ_VAL(obj, 3) >= 1)
+				send_to_char(ch, "%s\r\n", spell_to_str(GET_OBJ_VAL(obj, 3)));
+		}
+		break;
+	case ITEM_WAND:
+	case ITEM_STAFF:
+		if (skill_lvl > 80) {
+			send_to_char(ch, "This %s casts: ",
+				item_types[(int)GET_OBJ_TYPE(obj)]);
+			send_to_char(ch, "%s\r\n", spell_to_str(GET_OBJ_VAL(obj, 3)));
+			if (skill_lvl > 90)
+				send_to_char(ch, "It has %d maximum charge%s and %d remaining.\r\n",
+					GET_OBJ_VAL(obj, 1), GET_OBJ_VAL(obj, 1) == 1 ? "" : "s",
+					GET_OBJ_VAL(obj, 2));
+		}
+		break;
+	case ITEM_WEAPON:
+		send_to_char(ch, "Damage Dice is '%dD%d'", GET_OBJ_VAL(obj, 1),
+			GET_OBJ_VAL(obj, 2));
+		send_to_char(ch, " for an average per-round damage of %.1f.\r\n",
+			(((GET_OBJ_VAL(obj, 2) + 1) / 2.0) * GET_OBJ_VAL(obj,
+					1)));
+		if (IS_OBJ_STAT2(obj, ITEM2_CAST_WEAPON))
+			send_to_char(ch, "This weapon casts an offensive spell.\r\n");
+		break;
+	case ITEM_ARMOR:
+		if (GET_OBJ_VAL(obj, 0) < 2)
+			send_to_char(ch, "This armor provides hardly any protection.\r\n");
+		else if (GET_OBJ_VAL(obj, 0) < 5)
+			send_to_char(ch, "This armor provides a little protection.\r\n");
+		else if (GET_OBJ_VAL(obj, 0) < 15)
+			send_to_char(ch, "This armor provides some protection.\r\n");
+		else if (GET_OBJ_VAL(obj, 0) < 20)
+			send_to_char(ch, "This armor provides a lot of protection.\r\n");
+		else if (GET_OBJ_VAL(obj, 0) < 25)
+			send_to_char(ch, "This armor provides a ridiculous amount of protection.\r\n");
+		else
+			send_to_char(ch, "This armor provides an insane amount of protection.\r\n");
+		break;
+	case ITEM_CONTAINER:
+		send_to_char(ch, "This container holds a maximum of %d pounds.\r\n",
+			GET_OBJ_VAL(obj, 0));
+		break;
+	case ITEM_FOUNTAIN:
+	case ITEM_DRINKCON:
+		send_to_char(ch, "This container holds some %s\r\n",
+			drinks[GET_OBJ_VAL(obj, 2)]);
+	}
+
+	for (i = 0;i < MIN(MAX_OBJ_AFFECT, skill_lvl / 25); i++) {
+		if (obj->affected[i].location != APPLY_NONE) {
+			sprinttype(obj->affected[i].location, apply_types, buf2);
+			if (obj->affected[i].modifier > 0)
+				send_to_char(ch, "Item increases %s\r\n", buf2);
+			else if (obj->affected[i].modifier < 0)
+				send_to_char(ch, "Item decreases %s\r\n", buf2);
+		}
+	}
+}
+
+ACMD(do_appraise)
+{
+	struct obj_data *obj = NULL;	// the object that will be emptied 
+	struct Creature *dummy = NULL;
+	int bits;
+	char *arg;
+
+	arg = tmp_getword(&argument);
+
+	if (!*arg) {
+		send_to_char(ch, "You have to appraise something.\r\n");
+		return;
+	}
+
+	if (CHECK_SKILL(ch, SKILL_APPRAISE) < 10) {
+		send_to_char(ch, "You have no idea how.\r\n");
+		return;
+	}
+
+	if (!(bits = generic_find(arg, FIND_OBJ_INV | FIND_OBJ_ROOM, ch, &dummy, &obj))) {
+		send_to_char(ch, "You can't find any %s to appraise\r\n.", arg);
+		return;
+	}
+
+	perform_appraise(ch, obj, CHECK_SKILL(ch, SKILL_APPRAISE));
 }

@@ -531,7 +531,8 @@ const char *spells[] = {
 	"strike",
 	"cleave",
 	"great cleave",	/* 695 */
-	"!UNUSED!", "!UNUSED!", "!UNUSED!", "!UNUSED!", "!UNUSED!",	/* 700 */
+	"appraise",
+	"!UNUSED!", "!UNUSED!", "!UNUSED!", "!UNUSED!",	/* 700 */
 
 	/* OBJECT SPELLS AND NPC SPELLS/SKILLS */
 
@@ -3866,6 +3867,9 @@ mag_assign_spells(void)
 		0, 0, 0, 0, 0, 0, 0);
 
 	spello(SKILL_RIDING, 1, 1, 1, 1, 1, X, X, X, 1, 1, X, X, X, X, X, X, X,
+		0, 0, 0, 0, 0, 0, 0);
+
+	spello(SKILL_APPRAISE, 10, 10, 10, 10, 10, 10, 10, X, 10, 10, X, 10, X, 10, X, X, X,
 		0, 0, 0, 0, 0, 0, 0);
 
 	spello(SKILL_PIPEMAKING, 40, X, X, 1, X, X, X, X, X, 15, 13, X, X, X, X, X,

@@ -94,6 +94,7 @@ ACMD(do_alter);
 ACMD(do_ambush);
 ACMD(do_analyze);
 ACMD(do_approve);
+ACMD(do_appraise);
 ACMD(do_arm);
 ACMD(do_access);
 ACMD(do_coderutil);
@@ -457,6 +458,7 @@ struct command_info cmd_info[] = {
 	{"apologize", POS_RESTING, do_action, 0, 0, 0, 0},
 	{"applaud", POS_RESTING, do_action, 0, 0, 0, 0},
 	{"approve", POS_DEAD, do_approve, LVL_IMMORT, 0, 0, 0},
+	{"appraise", POS_RESTING, do_appraise, 0, 0, 0, 0},
 	{"unapprove", POS_DEAD, do_unapprove, LVL_IMMORT, 0, 0, 0},
 	{"arm", POS_SITTING, do_arm, 1, 0, 0, 0},
 	{"assist", POS_FIGHTING, do_assist, 1, 0, 0, 0},

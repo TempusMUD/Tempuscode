@@ -575,6 +575,7 @@ static const int SKILL_DISCIPLINE_OF_STEEL = 692;
 static const int SKILL_STRIKE = 693;
 static const int SKILL_CLEAVE = 694;
 static const int SKILL_GREAT_CLEAVE = 695;
+static const int SKILL_APPRAISE = 696;
 /*
  *  NON-PLAYER AND OBJECT SPELLS AND SKILLS
  *  The practice levels for the spells and skills below are _not_ recorded
