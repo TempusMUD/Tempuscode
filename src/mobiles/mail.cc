@@ -86,8 +86,9 @@ can_receive_mail(long id)
     mail_file.seekg(0, ios::end);
     length = mail_file.tellg();
     mail_file.close();
-    if (length >= MAX_MAILFILE_SIZE)
-        return 0;
+    if (length >= MAX_MAILFILE_SIZE) {
+        purge_mail(id);
+    }
     return 1;
 }
 
