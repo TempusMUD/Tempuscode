@@ -1464,6 +1464,22 @@ mobile_activity(void)
 			}
 		}
 		//
+		// TODO: fix this so it doesnt potentially cause a crash
+		// mob_read_script() can potentially cause the mob to kill the character
+		// which happens to be pointed to by next_ch, which will be disastrous
+		// at the top of the loop
+		//
+
+		if (IS_NPC(ch)
+				&& MOB2_FLAGGED(ch, MOB2_SCRIPT)
+				&& GET_IMPLANT(ch, WEAR_HOLD)
+				&& OBJ_TYPE(GET_IMPLANT(ch, WEAR_HOLD), ITEM_SCRIPT)) {
+
+			if (mob_read_script(ch, NULL, 0, NULL, SPECIAL_TICK))
+				continue;
+		}
+
+		//
 		// nothing below this conditional affects FIGHTING characters
 		//
 
@@ -1558,19 +1574,6 @@ mobile_activity(void)
 
 
 		/** implicit awake && !fighting **/
-
-		//
-		// TODO: fix this so it doesnt potentially cause a crash
-		// mob_read_script() can potentially cause the mob to kill the character
-		// which happens to be pointed to by next_ch, which will be disastrous
-		// at the top of the loop
-		//
-
-		if (MOB2_FLAGGED(ch, MOB2_SCRIPT) && GET_IMPLANT(ch, WEAR_HOLD) &&
-			OBJ_TYPE(GET_IMPLANT(ch, WEAR_HOLD), ITEM_SCRIPT)) {
-			if (mob_read_script(ch, NULL, 0, NULL, SPECIAL_TICK))
-				continue;
-		}
 
 		/** mobiles re-hiding **/
 		if (!AFF_FLAGGED(ch, AFF_HIDE) &&

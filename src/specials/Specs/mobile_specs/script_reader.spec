@@ -6,6 +6,7 @@
 
 #define MODE_RANDOM      ( 1 << 0 )
 #define MODE_ALONE       ( 1 << 1 )
+#define MODE_FIGHTING    ( 1 << 2 )
 
 #define TOP_MESSAGE    ( GET_OBJ_VAL( obj, 0 ) )
 #define MESSAGE_MODE   ( GET_OBJ_VAL( obj, 1 ) )
@@ -40,6 +41,9 @@ SPECIAL(mob_read_script)
 	int found = 0;
 
 	if (spec_mode != SPECIAL_TICK)
+		return false;
+
+	if (FIGHTING(ch) && !SCRIPT_FLAGGED(MODE_FIGHTING))
 		return false;
 
 	if (!SCRIPT_FLAGGED(MODE_ALONE)) {
