@@ -202,15 +202,23 @@ ACMD(do_whirlwind)
 
 	one_argument(argument, arg);
 
-	if ((!*arg && (all = true) && !(vict = ch->findRandomCombat())) ||
-		(*arg && !(all = false) && !(vict = get_char_room_vis(ch, arg)) &&
-			!(ovict = get_obj_in_list_vis(ch, arg, ch->in_room->contents)))) {
+	if (!*arg) {
+		all = true;
+		vict = ch->findRandomCombat();
+	} else {
+		vict = get_char_room_vis(ch, arg);
+		ovict = get_obj_in_list_vis(ch, arg, ch->in_room->contents);
+	}
+	
+	//do we have a target?
+	if (!vict && !ovict) {
 		send_to_char(ch, "Whirlwind who?\r\n");
 		WAIT_STATE(ch, 4);
 		return;
 	}
 
-	if (ovict) {
+	//hit an object
+	if (ovict && !vict) {
 		act("You whirl through the air hitting $p!", FALSE, ch, ovict, 0,
 			TO_CHAR);
 		act("$n whirls through the air hitting $p!", FALSE, ch, ovict, 0,
@@ -218,6 +226,7 @@ ACMD(do_whirlwind)
 		return;
 	}
 
+	//can we perform an attack?
 	if (vict == ch) {
 		send_to_char(ch, "Aren't we funny today...\r\n");
 		return;
@@ -229,77 +238,115 @@ ACMD(do_whirlwind)
 		return;
 	}
 
-	percent = ((40 - (GET_AC(vict) / 10)) >> 1) + number(1, 86);
+	
+	//101% is a complete failure
+	percent = ((40 - (GET_AC(vict) / 10)) >> 1) + number(1, 86);	
+	
+	//adjust for equipment
+	for (i = 0; i < NUM_WEARS; i++) {
+        obj_data* obj = GET_EQ(ch, i);
+        if( obj == NULL ) 
+            continue;
+		if( GET_OBJ_TYPE(obj) == ITEM_ARMOR ) {
+            if(IS_METAL_TYPE(obj) || IS_STONE_TYPE(obj) || IS_WOOD_TYPE(obj)) {
+                percent += obj->getWeight();
+            }
+        }
+    }
 
-	for (i = 0; i < NUM_WEARS; i++)
-		if ((ovict = GET_EQ(ch, i)) && GET_OBJ_TYPE(ovict) == ITEM_ARMOR &&
-			(IS_METAL_TYPE(ovict) || IS_STONE_TYPE(ovict) ||
-				IS_WOOD_TYPE(ovict)))
-			percent += ovict->getWeight();
-
-	if (GET_EQ(ch, WEAR_WIELD))
+	//adjust for worn wield
+	if( GET_EQ(ch, WEAR_WIELD) )
 		percent += (LEARNED(ch) - weapon_prof(ch, GET_EQ(ch, WEAR_WIELD))) / 2;
 
-
-	prob =
-		CHECK_SKILL(ch, SKILL_WHIRLWIND) + ((GET_DEX(ch) + GET_STR(ch)) >> 1);
-	if (vict->getPosition() < POS_RESTING)
+	//check skill and stat modifiers for prob
+	prob = CHECK_SKILL(ch, SKILL_WHIRLWIND) + ((GET_DEX(ch) + GET_STR(ch)) >> 1);
+	
+	//adjust prob based on victims position
+	if (vict->getPosition() < POS_STANDING)
 		prob += 30;
-	prob -= GET_DEX(vict);
+	else
+		prob -= GET_DEX(vict);
 
+	//if alignment is messed up adjust
+	if (IS_MONK(ch) && !IS_NEUTRAL(ch))
+		prob -= (prob * (ABS(GET_ALIGNMENT(ch)))) / 1000;
+
+	//if we don't have kata and victim is of a non-solid nature we can't hit
+	if (	!affected_by_spell(ch, SKILL_KATA) && 
+	    	(IS_PUDDING(vict) || IS_SLIME(vict) || NON_CORPOREAL_UNDEAD(vict))
+		)
+		prob = 0;
+		
+
+	//do we fail outright?
 	if (percent > prob) {
 		damage(ch, vict, 0, SKILL_WHIRLWIND, -1);
+		//do we fall down too?
 		if (GET_LEVEL(ch) + GET_DEX(ch) < number(0, 77)) {
-			send_to_char(ch, "You fall on your ass!");
-			act("$n falls smack on $s ass!", TRUE, ch, 0, 0, TO_ROOM);
+			send_to_char(ch, "You fall on your ass!\r\n");
+			act("$n falls smack on $s ass!\r\n", TRUE, ch, 0, 0, TO_ROOM);
 			ch->setPosition(POS_SITTING);
 		}
-		GET_MOVE(ch) -= 10;
+		GET_MOVE(ch) -= 5;
 	} else {
-		if (!all) {
-			if (!damage(ch, vict, dice(GET_LEVEL(ch), 6), SKILL_WHIRLWIND, -1)) {
-				for (i = 0; i < 3; i++) {
-					GET_MOVE(ch) -= 7;
-					if (CHECK_SKILL(ch, SKILL_WHIRLWIND) > number(50,
-							50 + (10 << i))) {
-						if (damage(ch, vict, number(0,
-									1 +
-									GET_LEVEL(ch) / 10) ? (dice(GET_LEVEL(ch),
-										4) + GET_DAMROLL(ch)) : 0,
-								SKILL_WHIRLWIND, -1))
-							break;
+		//lets kick ass
+		
+		//how many times will we hit?
+		int hits = 0;
+		if (GET_CLASS(ch) == CLASS_MONK) {
+			hits = number(3,6);
+		} else {
+			hits = number(3,4);
+		}
+		
+		//attack our chosen victim first
+		int dam = 0;
+		if (CHECK_SKILL(ch, SKILL_WHIRLWIND) > number(40, 80)+GET_DEX(vict)) {
+			dam = dice(GET_LEVEL(ch), 5) + GET_DAMROLL(ch);
+		}
+		bool killedFirst = damage(ch, vict, dam, SKILL_WHIRLWIND, -1);
+		GET_MOVE(ch) -= 3;
+		
+		//attack up to hits-1 more victims at random
+		list<CharCombat> *combatList = ch->getCombatList();
+		list<CharCombat>::iterator combatIter;
+		int i;
+		for (i=1, combatIter=combatList->begin(); (i < hits) && 
+            (combatIter != combatList->end()); ++combatIter) {
+			if (random_percentage() <= 75) {
+				struct Creature *newVict = combatIter->getOpponent();
+				if (newVict && newVict->in_room == ch->in_room) {
+					dam = 0;
+					if (CHECK_SKILL(ch, SKILL_WHIRLWIND) > number(40, 80)+GET_DEX(vict)) {
+						dam = dice(GET_LEVEL(ch), 5) + GET_DAMROLL(ch);
 					}
+					
+					if (damage(ch, newVict, dam, SKILL_WHIRLWIND, -1)) {
+                        combatIter = combatList->begin();
+                    }
+					i++;
+					GET_MOVE(ch) -= 3;
 				}
 			}
-		} else {/** hit all **/
-
-			i = 0;				/* will get 4 hits total */
-			CreatureList::iterator it = ch->in_room->people.begin();
-			for (; it != ch->in_room->people.end(); ++it) {
-				if ((*it) == ch || !can_see_creature(ch, (*it)))
-					continue;
-				damage(ch, (*it), (CHECK_SKILL(ch, SKILL_WHIRLWIND) >
-						number(50, 100) + GET_DEX((*it))) ?
-					(dice(GET_LEVEL(ch), 4) + GET_DAMROLL(ch)) : 0,
-					SKILL_WHIRLWIND, -1);
-				i++;
-			}
-
-			if (i < 4 && (vict = ch->findRandomCombat())) {
-				for (; i < 4; i++) {
-					GET_MOVE(ch) -= 7;
-					if (CHECK_SKILL(ch, SKILL_WHIRLWIND) > number(50,
-							50 + (8 << i))) {
-						if (damage(ch, vict, number(0,
-									1 +
-									GET_LEVEL(ch) / 10) ? (dice(GET_LEVEL(ch),
-										4) + GET_DAMROLL(ch)) : 0,
-								SKILL_WHIRLWIND, -1))
-							break;
+		}
+		
+		//if we still haven't attacked hits times send the rest of them too
+		//our initially chosen victim as long as he's alive
+		if (!killedFirst) {
+			for ( ; i < hits; i++) {
+				if (vict && vict->in_room == ch->in_room) {
+					dam = 0;
+					if (CHECK_SKILL(ch, SKILL_WHIRLWIND) > number(40, 80)+GET_DEX(vict)) {
+						dam = dice(GET_LEVEL(ch), 5) + GET_DAMROLL(ch);
+					}
+					GET_MOVE(ch) -= 3;
+					if (damage(ch, vict, dam, SKILL_WHIRLWIND, -1)) {
+						break;
 					}
 				}
 			}
 		}
+		
 		gain_skill_prof(ch, SKILL_WHIRLWIND);
 	}
 	WAIT_STATE(ch, PULSE_VIOLENCE * 3);
