@@ -637,8 +637,8 @@ handle_input(struct descriptor_data *d)
 			// if the character was loaded, we need to delete it "manually"
 			d->account->delete_char(d->creature);
 			delete d->creature;
-			d->creature = NULL;
 		}
+		d->creature = NULL;
 		set_desc_state(CXN_WAIT_MENU, d);
 		break;
 	case CXN_AFTERLIFE:
