@@ -15,7 +15,7 @@
 
 PORT=2020 
 OLDFLAGS=''
-FLAGS='-z -m'
+FLAGS=''
 DM_LOGFILE='/home0/TempusMUD/log/dm-logfile'
 
 while /bin/true; do
