@@ -11,6 +11,8 @@ SPECIAL( killer_hunter )
     struct char_data *hunter = ( struct char_data * ) me;
     struct descriptor_data *d = NULL;
     
+    if( spec_mode == SPECIAL_DEATH ) 
+        return 0;
     if ( cmd || !hunter->in_room )
         return 0;
     

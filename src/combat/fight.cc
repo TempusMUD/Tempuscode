@@ -230,7 +230,10 @@ die( struct char_data *ch, struct char_data *killer, int attacktype, int is_humi
   
     if ( IS_NPC( ch ) && GET_MOB_SPEC( ch ) ) {
         if ( GET_MOB_SPEC( ch ) ( killer, ch, 0, NULL, SPECIAL_DEATH ) ) {
-            fprintf( stderr, "Mobile spec for %s run instead of normal die code.\n",GET_NAME(ch));
+            sprintf( buf, 
+                     "ERROR: Mobile special for %s run in place of standard extraction.\n",
+                     GET_NAME(ch));
+            mudlog(buf, NRM, LVL_CREATOR, TRUE);
             return;
         }
     }
