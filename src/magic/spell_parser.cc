@@ -46,7 +46,8 @@ extern struct room_data *world;
 int find_door(struct Creature *ch, char *type, char *dir,
 	const char *cmdname);
 void name_from_drinkcon(struct obj_data *obj);
-
+struct obj_data *find_item_kit(Creature *ch);
+int perform_taint_burn(Creature *ch, int spellnum);
 /*
  * This arrangement is pretty stupid, but the number of skills is limited by
  * the playerfile.  We can arbitrarily increase the number of skills by
@@ -770,9 +771,6 @@ say_spell(struct Creature *ch, int spellnum, struct Creature *tch,
 			send_to_char(ch, 
 				"You close your eyes and make a deep calculation.\r\n");
 		}
-	} else if (SPELL_IS_MERCENARY(spellnum)) {
-		sprintf(buf2, "$n searches through his backpack for materials.");
-		send_to_char(ch, "You search for the proper materials.\r\n");
 	} else {
 		if (tch != NULL && tch->in_room == ch->in_room) {
 			if (tch == ch) {
@@ -1687,51 +1685,9 @@ cast_spell(struct Creature *ch, struct Creature *tch,
 	// Evil Knight remort skill. 'Taint'
 	if (ch != NULL && GET_LEVEL(ch) < LVL_AMBASSADOR
 		&& AFF3_FLAGGED(ch, AFF3_TAINTED)) {
-		struct affected_type *af;
-		int mana = mag_manacost(ch, spellnum);
-		int dam = dice(mana, 14);
-		bool weenie = false;
-
-		// Grab the affect for affect level
-		af = affected_by_spell(ch, SPELL_TAINT);
-
-		// Max dam based on level and gen of caster. (getLevelBonus(taint))
-		if (af != NULL)
-			dam = dam * af->level / 100;
-
-		if (damage(ch, ch, dam, TYPE_TAINT_BURN, WEAR_HEAD)) {
-			return 0;
-		}
-		// fucking weaklings can't cast while tainted.
-		int attribute = MIN(GET_CON(ch), GET_WIS(ch));
-		if (number(1, attribute) < number(mana / 2, mana)) {
-			weenie = true;
-		}
-		if (ch && PRF2_FLAGGED(ch, PRF2_DEBUG))
-			send_to_char(ch,
-				"%s[TAINT] %s attribute:%d   weenie:%s   mana:%d   damage:%d%s\r\n",
-				CCCYN(ch, C_NRM), GET_NAME(ch), attribute,
-				weenie ? "t" : "f", mana, dam, CCNRM(ch, C_NRM));
-		if (tch && PRF2_FLAGGED(tch, PRF2_DEBUG))
-			send_to_char(tch,
-				"%s[TAINT] %s attribute:%d   weenie:%s   mana:%d   damage:%d%s\r\n",
-				CCCYN(tch, C_NRM), GET_NAME(ch), attribute,
-				weenie ? "t" : "f", mana, dam, CCNRM(tch, C_NRM));
-
-		if (af != NULL) {
-			af->duration -= mana;
-			af->duration = MAX(af->duration, 0);
-			if (af->duration == 0) {
-				affect_remove(ch, af);
-				act("Blood pours out of $n's forehead as the rune of taint dissolves.", TRUE, ch, 0, 0, TO_ROOM);
-			}
-		}
-		if (weenie == true) {
-			act("$n screams and clutches at the rune in $s forehead.", TRUE,
-				ch, 0, 0, TO_ROOM);
-			send_to_char(ch, "Your concentration fails.\r\n");
-			return 0;
-		}
+        int rflags;
+        if (!(rflags = perform_taint_burn(ch, spellnum)))
+            return rflags;
 	}
 
 	say_spell(ch, spellnum, tch, tobj);
@@ -1784,6 +1740,53 @@ cast_spell(struct Creature *ch, struct Creature *tch,
 	}
 
 	return (retval);
+}
+
+int perform_taint_burn(Creature *ch, int spellnum)
+{
+    struct affected_type *af;
+    int mana = mag_manacost(ch, spellnum);
+    int dam = dice(mana, 14);
+    bool weenie = false;
+
+    // Grab the affect for affect level
+    af = affected_by_spell(ch, SPELL_TAINT);
+
+    // Max dam based on level and gen of caster. (getLevelBonus(taint))
+    if (af != NULL)
+        dam = dam * af->level / 100;
+
+    if (damage(ch, ch, dam, TYPE_TAINT_BURN, WEAR_HEAD)) {
+        return 0;
+    }
+    // fucking weaklings can't cast while tainted.
+    int attribute = MIN(GET_CON(ch), GET_WIS(ch));
+    if (number(1, attribute) < number(mana / 2, mana)) {
+        weenie = true;
+    }
+    if (ch && PRF2_FLAGGED(ch, PRF2_DEBUG))
+        send_to_char(ch,
+            "%s[TAINT] %s attribute:%d   weenie:%s   mana:%d   damage:%d%s\r\n",
+            CCCYN(ch, C_NRM), GET_NAME(ch), attribute,
+            weenie ? "t" : "f", mana, dam, CCNRM(ch, C_NRM));
+
+    if (af != NULL) {
+        af->duration -= mana;
+        af->duration = MAX(af->duration, 0);
+        if (af->duration == 0) {
+            affect_remove(ch, af);
+            act("Blood pours out of $n's forehead as the rune of taint dissolves.", TRUE, ch, 0, 0, TO_ROOM);
+        }
+    }
+
+    if (weenie == true) {
+        act("$n screams and clutches at the rune in $s forehead.", TRUE,
+            ch, 0, 0, TO_ROOM);
+        send_to_char(ch, "Your concentration fails.\r\n");
+        return 0;
+    }
+    
+    return 1;
 }
 
 int
@@ -2322,9 +2325,9 @@ ACMD(do_trigger)
 
 ACMD(do_arm)
 {
-	struct Creature *tch = NULL;
-	struct obj_data *tobj = NULL;
-	int mana, spellnum, target = 0, prob = 0;
+/*	struct Creature *tch = NULL;
+	struct obj_data *tobj = NULL, *resource = NULL;
+	int rpints, spellnum, target = 0, prob = 0;
 
 	if (IS_NPC(ch))
 		return;
@@ -2336,7 +2339,7 @@ ACMD(do_arm)
 
 	if (IS_WEARING_W(ch) > (CAN_CARRY_W(ch) * 0.80)) {
 		send_to_char(ch, 
-			"Your equipment is too heavy and bulky to arm any devices!\r\n");
+			"Your equipment is too heavy and bulky to arm anything!\r\n");
 		return;
 	}
 
@@ -2345,19 +2348,26 @@ ACMD(do_arm)
 		return;
 
 	if (!SPELL_IS_MERCENARY(spellnum)) {
-		act("That is not a device.", FALSE, ch, 0, 0, TO_CHAR);
+		act("You don't seem to have that.", FALSE, ch, 0, 0, TO_CHAR);
 		return;
 	}
 
 	if (!target) {
-		send_to_char(ch, "Cannot find the target of your device!\r\n");
+		send_to_char(ch, "I cannot find your target!\r\n");
 		return;
 	}
 
-	mana = mag_manacost(ch, spellnum);
-	if ((mana > 0) && (GET_MANA(ch) < mana)
-		&& (GET_LEVEL(ch) < LVL_AMBASSADOR)) {
-		send_to_char(ch, "You haven't the energy to construct that device!\r\n");
+	rpoints = mag_manacost(ch, spellnum);
+    resource = find_item_kit(ch);
+    
+    if (!resource && ch->getLevel() < LVL_AMBASSADOR) {
+        send_to_char(ch, "But you don't have a resource kit!\r\n");
+        return;
+    }
+
+	if ((rpoints > 0) && (GET_RPOINTS(resource) < rpoints)
+		&& (ch->getLevel() < LVL_AMBASSADOR)) {
+		send_to_char(ch, "You haven't the resources!\r\n");
 		return;
 	}
 
@@ -2367,7 +2377,6 @@ ACMD(do_arm)
 		return;
 	}
 
-	/***** arm device probobility calculation *****/
 	prob = CHECK_SKILL(ch, spellnum) + (GET_INT(ch) << 1) +
 		(GET_REMORT_GEN(ch) << 2);
 
@@ -2385,31 +2394,56 @@ ACMD(do_arm)
 	if (FIGHTING(ch) && (FIGHTING(ch))->getPosition() == POS_FIGHTING)
 		prob -= (GET_LEVEL(FIGHTING(ch)) >> 3);
 
-	/**** arm device probability ends here *****/
 
 	if (number(0, 111) > prob) {
 		WAIT_STATE(ch, PULSE_VIOLENCE);
-		if (!tch || !skill_message(0, ch, tch, spellnum))
-			send_to_char(ch, "Your concentration was disturbed!\r\n");
+		if (!tch || !skill_message(0, ch, tch, spellnum)) {
+            act("You fumble around in $p and come up with nothing!", FALSE,
+                ch, resource, NULL, TO_CHAR);
+            return;
+        }
 
-		if (mana > 0)
-			GET_MANA(ch) =
-				MAX(0, MIN(GET_MAX_MANA(ch), GET_MANA(ch) - (mana >> 1)));
+		if (rpoints > 0)
+			GET_RPOINTS(obj) = MAX(0, GET_RPOINTS(obj) - (rpoints >> 1));
 
 		if (SINFO.violent && tch && IS_NPC(tch))
 			hit(tch, ch, TYPE_UNDEFINED);
 	} else {
 		if (cast_spell(ch, tch, tobj, spellnum)) {
 			WAIT_STATE(ch, PULSE_VIOLENCE);
-			if (mana > 0)
-				GET_MANA(ch) =
-					MAX(0, MIN(GET_MAX_MANA(ch), GET_MANA(ch) - mana));
+			if (rpoints > 0)
+				GET_RPOINTS(obj) = MAX(0, GET_RPOINTS(obj) - mana);
 			gain_skill_prof(ch, spellnum);
 		}
-	}
+	}*/
 }
 
 
+struct obj_data *find_item_kit(Creature *ch)
+{
+/*    struct obj_data *cur_obj;
+
+    for (int i = 0; i < NUM_WEARS; i++) {
+        cur_obj = ch->equipment[i];
+        if (cur_obj) {
+            if ((GET_OBJ_TYPE(cur_obj == ITEM_KIT)) &&
+                (ch->getLevel() > GET_OBJ_VAL(cur_obj, 0)) &&
+                (ch->getLevel() < GET_OBJ_VAL(cur_obj, 1))) {
+                return cur_obj;
+            }
+        }
+    }
+
+    for (obj_data = ch->carrying; obj_data; obj_data = obj_data->next) {
+        if ((GET_OBJ_TYPE(cur_obj == ITEM_KIT)) &&
+            (ch->getLevel() > GET_OBJ_VAL(cur_obj, 0)) &&
+            (ch->getLevel() < GET_OBJ_VAL(cur_obj, 1))) {
+            return cur_obj;
+        }
+    } */
+
+    return NULL;
+}
 
 ACMD(do_alter)
 {
