@@ -272,13 +272,15 @@ Valid_Name(char *newname)
 	int i;
 
 	char tempname[MAX_NAME_LENGTH];
+    if( strlen(newname) > MAX_NAME_LENGTH )
+        return 0;
 
 	/* return valid if list doesn't exist */
 	if (!invalid_list || num_invalid < 1)
 		return 1;
 
 	/* change to lowercase */
-	strcpy(tempname, newname);
+	strncpy(tempname, newname,MAX_NAME_LENGTH);
 	for (i = 0; tempname[i]; i++)
 		tempname[i] = tolower(tempname[i]);
 
