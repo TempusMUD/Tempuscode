@@ -286,13 +286,13 @@ die(struct Creature *ch, struct Creature *killer, int attacktype,
 		old_mana = GET_MANA(ch);
 		old_move = GET_MOVE(ch);
 
-		advance_level(ch, 0);
+		advance_level(ch, true);
 		GET_MAX_MOVE(ch) += GET_CON(ch);
 
 		// 
 		while (--lvl) {
 			GET_LEVEL(ch)++;
-			advance_level(ch, 0);
+			advance_level(ch, true);
 		}
 
 		GET_HIT(ch) = MIN(old_hit, GET_MAX_HIT(ch));
