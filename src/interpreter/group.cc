@@ -350,7 +350,7 @@ namespace Security {
         while (node != NULL) {
             if ((xmlMatches(node->name, "Member"))) {
                 member = xmlGetLongProp(node, "ID");
-                if( member == 0 || playerIndex.getName(member) == NULL ) {
+                if( member == 0 || !playerIndex.exists(member) ) {
                     log("Invalid PID not loaded.",member);
                 } else {
                     addMember(member);
