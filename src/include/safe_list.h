@@ -118,7 +118,7 @@ template <class T> class SafeList:protected list <T> {
 		void operator = (const typename list <T>::iterator & it){
 			// If pointing to a list, unregister
 			if (_list != NULL)
-				_list->removeIterator(*this);
+				_list->removeIterator(this);
 			_list = NULL;
 			list <T>::iterator::operator = (it);
 		}
