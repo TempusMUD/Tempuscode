@@ -98,7 +98,7 @@ set_fighting( struct char_data * ch, struct char_data * vict, int aggr )
                 send_to_char( "A small dark shape flies in from the future and sticks to your eye.\r\n", ch );
                 return;
             }
-            if ( GET_LEVEL( ch ) <= LVL_PROTECTED && !PLR_FLAGGED( ch, PLR_TOUGHGUY ) ) {
+            if ( ch->isNewbie() && !PLR_FLAGGED( ch, PLR_TOUGHGUY ) ) {
                 send_to_char( "You are currently under new player protection, which expires at level 6.\r\nYou cannot attack other players while under this protection.\r\n", ch );
                 return;
             }
@@ -110,7 +110,7 @@ set_fighting( struct char_data * ch, struct char_data * vict, int aggr )
                  ( GET_LEVEL( vict ) < 4 ) || ( IS_REMORT( ch ) && !IS_REMORT( vict ) ) )
                 check_killer( ch, vict, "normal" );
       
-            if ( GET_LEVEL( vict ) <= LVL_PROTECTED && 
+            if ( vict->isNewbie() &&
                  !PLR_FLAGGED( vict, PLR_TOUGHGUY ) &&
                  GET_LEVEL( ch ) < LVL_IMMORT ) {
                 act( "$N is currently under new character protection.",
@@ -791,7 +791,7 @@ damage( struct char_data * ch, struct char_data * victim, int dam,
             DAM_RETURN( DAM_ATTACK_FAILED );
         }
         
-        if ( GET_LEVEL( victim ) <= LVL_PROTECTED && 
+        if ( victim->isNewbie() &&
              !PLR_FLAGGED( victim, PLR_TOUGHGUY ) &&
              GET_LEVEL( ch ) < LVL_IMMORT ) {
             act( "$N is currently under new character protection.",
@@ -808,7 +808,7 @@ damage( struct char_data * ch, struct char_data * victim, int dam,
             DAM_RETURN( DAM_ATTACK_FAILED );
         }
 
-        if ( GET_LEVEL( ch ) <= LVL_PROTECTED && !PLR_FLAGGED( ch, PLR_TOUGHGUY ) ) {
+        if (ch->isNewbie() && !PLR_FLAGGED( ch, PLR_TOUGHGUY ) ) {
             send_to_char( "You are currently under new player protection, which expires at level 6.\r\n"
                           "You cannot attack other players while under this protection.\r\n", ch );
             DAM_RETURN( 0 );
@@ -1936,7 +1936,7 @@ int hit( struct char_data * ch, struct char_data * victim, int type ) {
         return 0;
     }
   
-    if ( GET_LEVEL( victim ) <= LVL_PROTECTED && !IS_NPC( ch ) && !IS_NPC( victim ) &&
+    if ( victim->isNewbie() && !IS_NPC( ch ) && !IS_NPC( victim ) &&
          !PLR_FLAGGED( victim, PLR_TOUGHGUY ) &&
          GET_LEVEL( ch ) < LVL_IMMORT ) {
         act( "$N is currently under new character protection.",

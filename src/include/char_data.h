@@ -257,8 +257,8 @@
 #define PLR_NOPK        (1 << 30)  /* player cannot pk */
 
 // Player Flags Mark II
-#define PLR2_SOULLESS	(1 << 0)	// Signing the Unholy Compact.
-#define PLR2_BURIED	(1 << 1)	// Player has died way too many times.
+#define PLR2_SOULLESS        (1 << 0)        // Signing the Unholy Compact.
+#define PLR2_BURIED        (1 << 1)        // Player has died way too many times.
 #define PLR2_COMBAT     (1 << 2)        // The player is engaged in a combat    
 
 /* Mobile flags: used by char_data.char_specials.act */
@@ -594,7 +594,6 @@
 #define LVL_CAN_BAN     LVL_GOD
 #define LVL_VIOLENCE    LVL_POWER
 #define LVL_LOGALL      LVL_ENTITY
-#define LVL_PROTECTED   5
 
 
 /* char-related structures ************************************************/
@@ -896,21 +895,21 @@ struct char_data {
     // carried weight
     inline int getCarriedWeight( void ) { return char_specials.getCarriedWeight(); }
     inline int setCarriedWeight( int new_weight ) {
-    return char_specials.setCarriedWeight( new_weight );
+        return char_specials.setCarriedWeight( new_weight );
     }
     int modifyCarriedWeight( int mod_weight );
 
     // worn weight
     inline int getWornWeight( void ) { return char_specials.getWornWeight(); }
     inline int setWornWeight( int new_weight ) { 
-    return char_specials.setWornWeight( new_weight );
+        return char_specials.setWornWeight( new_weight );
     }
     int modifyWornWeight( int mod_weight );
 
     // char weight
     inline short getWeight( void ) { return player.getWeight(); }
     inline short setWeight( short new_weight ) {
-    return player.setWeight( new_weight );
+        return player.setWeight( new_weight );
     }
     inline int getLevel( void ) { return player.level; }
     inline short modifyWeight( short mod_weight ) { return player.modifyWeight( mod_weight ); }
@@ -919,10 +918,10 @@ struct char_data {
     inline int getBreathCount( void ) { return char_specials.breath_count; }
     inline int getBreathThreshold( void ) { return ( getLevel() >> 5 ) + 2; }
     inline int setBreathCount( int new_count ) {
-    return ( char_specials.breath_count = new_count );
+        return ( char_specials.breath_count = new_count );
     }
     inline int modifyBreathCount( int mod_count ) {
-    return setBreathCount( getBreathCount() + mod_count );
+        return setBreathCount( getBreathCount() + mod_count );
     }
     // Set position and Get position.
     // Set returns success or failure
@@ -934,6 +933,15 @@ struct char_data {
         if(char_specials.saved.act & MOB_ISNPC)
             return 0;
         return player_specials->saved.speed;
+    }
+    inline bool char_data::isNewbie() {
+        if(char_specials.saved.act & MOB_ISNPC)
+            return false;
+        if((player_specials->saved.remort_generation) > 0)
+            return false;
+        if(player.level > 40)
+            return false;
+        return true;
     }
     inline void char_data::setSpeed( int speed ) {
         // if(IS_NPC(this))
