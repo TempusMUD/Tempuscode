@@ -426,6 +426,22 @@ obj_data::display_rent(Creature *ch, const char *currency_str)
 		name);
 }
 
+room_data *
+obj_data::find_room(void)
+{
+	if (worn_by)
+		return worn_by->in_room;
+	else if (carried_by)
+		return carried_by->in_room;
+	else if (in_obj)
+		return in_obj->find_room();
+	else if (in_room)
+		return in_room;
+	
+	slog("SYSERR: Object in limbo at %s:%d", __FILE__, __LINE__);
+	return NULL;
+}
+
 void
 obj_data::addAffect(struct tmp_obj_affect *af)
 {

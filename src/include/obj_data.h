@@ -266,6 +266,7 @@ static const int CREATED_IMM = 2;
 static const int CREATED_SEARCH = 3;
 static const int CREATED_ZONE = 4;
 static const int CREATED_MOB = 5;
+static const int CREATED_PROG = 6;
 
 // These constants are to be passed to affectJoin()
 static const int AFF_ADD = 0;
@@ -384,6 +385,7 @@ struct obj_data {
     struct tmp_obj_affect *affectedBySpell(int spellnum);
 	void saveToXML( FILE* ouf );
 	void display_rent(Creature *ch, const char *currency_str);
+	room_data *find_room();
 
 	room_data *in_room;	/* In what room -1 when conta/carr    */
 	int cur_flow_pulse;			/* Keep track of flowing pulse        */
