@@ -197,7 +197,6 @@ extern struct obj_data *dam_object;
 extern int max_exp_gain;		/* see config.c */
 extern int mini_mud;
 
-extern int search_nomessage;
 extern struct combat_data *battles;
 
 /* External procedures */

@@ -72,4 +72,6 @@ struct special_search_data {
 	struct special_search_data *next;
 };
 
+extern int search_nomessage;
+
 #endif
