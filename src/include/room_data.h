@@ -233,6 +233,7 @@ extern struct room_data *r_frozen_start_room;
 extern struct room_data *r_mortal_start_room;
 extern struct room_data *r_electro_start_room;
 extern struct room_data *r_new_thalos_start_room;
+extern struct room_data *r_kromguard_start_room;
 extern struct room_data *r_elven_start_room;
 extern struct room_data *r_istan_start_room;
 extern struct room_data *r_arena_start_room;
