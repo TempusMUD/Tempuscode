@@ -880,7 +880,7 @@ Account::set_quest_banned(bool banned)
 {
 	_quest_banned = banned;
 	sql_exec("update accounts set quest_banned='%s' where idnum=%d",
-		_quest_banned ? "T":"NIL", _id);
+		_quest_banned ? "T":"F", _id);
 }
 
 int Account::hasCharLevel(int level)
