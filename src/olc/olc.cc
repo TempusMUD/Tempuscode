@@ -1563,7 +1563,7 @@ recalc_all_mobs(Creature *ch, const char *argument)
 	struct zone_data *zone;
 	MobileMap::iterator mit = mobilePrototypes.begin();
 	int count = 0;
-	FILE *outfile;
+	FILE *outfile = NULL;
 	bool exptest = false;
 
 	if( strcmp(argument, "exptest") == 0 ) {
@@ -1591,12 +1591,10 @@ recalc_all_mobs(Creature *ch, const char *argument)
 			send_to_char(ch, "Cannot open recalc log file. Failing.\r\n");
 			return;
 		}
-	}
-	// Iterate through mobiles
-	if( exptest ) {
 		fprintf(outfile, "%6s %22s lvl gen %10s %10s %10s %7s\r\n",
 				"id", "name", "old","new","base","fact" );
 	}
+	// Iterate through mobiles
 	for (;mit != mobilePrototypes.end(); ++mit) {
 		mob = mit->second;
 		for (zone = zone_table;zone;zone = zone->next)
