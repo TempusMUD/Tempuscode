@@ -2387,7 +2387,7 @@ Fireball: like harder bones, skin, organ membranecs
         aff_array[1].duration = aff_array[0].duration;
         aff_array[1].modifier = -(1 + ch->getLevelBonus(SONG_VERSE_OF_VULNERABILITY) / 25);
 		to_vict = "Your armor softens at $N's words!";
-        to_room = "$N's armor appears to grow softer with $n's song!";
+        to_room = "$n's armor appears to grow softer with $N's song!";
 		WAIT_STATE(victim, PULSE_VIOLENCE * 2);
 		break;
 
