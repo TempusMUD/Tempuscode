@@ -88,7 +88,8 @@ ACMD(do_steal)
 	if (!ok_damage_vendor(ch, vict))
 		percent = 121;			/* Failure */
 
-	if (str_cmp(obj_name, "coins") && str_cmp(obj_name, "gold")) {
+	if (str_cmp(obj_name, "coins") && str_cmp(obj_name, "gold") && 
+	    str_cmp(obj_name, "cash") && str_cmp(obj_name, "credits") && str_cmp(obj_name, "creds")) {
 
 		if (!(obj = get_obj_in_list_vis(ch, obj_name, vict->carrying))) {
 
@@ -193,28 +194,56 @@ ACMD(do_steal)
 		}
 
 	} else {					/* Steal some coins */
-		if (AWAKE(vict) && (percent > CHECK_SKILL(ch, SKILL_STEAL)) &&
+		if (str_cmp(obj_name, "coins") && str_cmp(obj_name, "gold")) {
+			
+			if (AWAKE(vict) && (percent > CHECK_SKILL(ch, SKILL_STEAL)) &&
 			GET_LEVEL(ch) < LVL_IMPL) {
-			ohoh = true;
-			act("Oops..", FALSE, ch, 0, 0, TO_CHAR);
-			act("You discover that $n has $s hands in your wallet.", FALSE, ch,
+				ohoh = true;
+				act("Oops..", FALSE, ch, 0, 0, TO_CHAR);
+				act("You discover that $n has $s hands in your wallet.", FALSE, ch,
 				0, vict, TO_VICT);
-			act("$n tries to steal gold from $N.", TRUE, ch, 0, vict,
+				act("$n tries to steal gold from $N.", TRUE, ch, 0, vict,
 				TO_NOTVICT);
-		} else {
-			/* Steal some gold coins */
-			gold = (int)((GET_GOLD(vict) * number(1, 10)) / 100);
-			gold = MIN(1782, gold);
-			if (gold > 0) {
-				GET_GOLD(ch) += gold;
-				GET_GOLD(vict) -= gold;
-				send_to_char(ch, "Bingo!  You got %d gold coins.\r\n", gold);
-				if (GET_LEVEL(ch) >= LVL_AMBASSADOR) {
-					slog("%s stole %d coins from %s.", GET_NAME(ch),
-						gold, GET_NAME(vict));
-				}
 			} else {
-				send_to_char(ch, "You couldn't get any gold...\r\n");
+				/* Steal some gold coins */
+				gold = (int)((GET_GOLD(vict) * number(1, 10)) / 100);
+				gold = MIN(1782, gold);
+				if (gold > 0) {
+					GET_GOLD(ch) += gold;
+					GET_GOLD(vict) -= gold;
+					send_to_char(ch, "Bingo!  You got %d gold coins.\r\n", gold);
+					if (GET_LEVEL(ch) >= LVL_AMBASSADOR) {
+						slog("%s stole %d coins from %s.", GET_NAME(ch),
+						gold, GET_NAME(vict));
+					}
+				} else {
+					send_to_char(ch, "You couldn't get any gold...\r\n");
+				}
+			}
+		} else {
+			if (AWAKE(vict) && (percent > CHECK_SKILL(ch, SKILL_STEAL)) &&
+			GET_LEVEL(ch) < LVL_IMPL) {
+				ohoh = true;
+				act("Oops..", FALSE, ch, 0, 0, TO_CHAR);
+				act("You discover that $n has $s hands in your wallet.", FALSE, ch,
+				0, vict, TO_VICT);
+				act("$n tries to steal cash from $N.", TRUE, ch, 0, vict,
+				TO_NOTVICT);
+			} else {
+				/* Steal some cash credits */
+				gold = (int)((GET_CASH(vict) * number(1, 10)) / 100);
+				gold = MIN(1782, gold);
+				if (gold > 0) {
+					GET_CASH(ch) += gold;
+					GET_CASH(vict) -= gold;
+					send_to_char(ch, "Bingo!  You got %d cash credits.\r\n", gold);
+					if (GET_LEVEL(ch) >= LVL_AMBASSADOR) {
+						slog("%s stole %d credits from %s.", GET_NAME(ch),
+						gold, GET_NAME(vict));
+					}
+				} else {
+					send_to_char(ch, "You couldn't get any cash...\r\n");
+				}
 			}
 		}
 	}
