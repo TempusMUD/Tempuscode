@@ -1172,7 +1172,7 @@ Creature::get_reputation(void)
 {
 	if (IS_NPC(this))
 		return 0;
-	if (account)
+	if (account && GET_LEVEL(this) < LVL_AMBASSADOR)
 		return MAX(0, MIN(1000, (player_specials->saved.reputation * 95 / 100)
 			+ (account->get_reputation() * 5 / 100)));
 	return player_specials->saved.reputation;
