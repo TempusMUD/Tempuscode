@@ -3684,6 +3684,9 @@ print_object_location(int num, struct obj_data *obj,
 bool isWhereMatch( const list<char *> &req, const list<char *> &exc, obj_data *thing) {
     list<char *>::const_iterator reqit, excit;
     
+	if (!thing->aliases)
+		return false;
+
     for(reqit = req.begin(); reqit != req.end(); reqit++) {
         if(!isname(*reqit, thing->aliases)) 
             return false;
