@@ -1413,6 +1413,7 @@ ACCMD(do_drop)
                     if ((mode == SCMD_DONATE || mode == SCMD_JUNK) && !junkable(obj)) {
                         sprintf(buf, "$p is or contains a renamed object.");
                         counter --;
+                        send_to_char(buf, ch);
                         if (counter > 1) {
                             sprintf(buf, "You %s $p.%s (x%d)", sname, VANISH(mode), counter);
                             sprintf(buf2, "$n %ss $p.%s (x%d)", sname, VANISH(mode), counter);
