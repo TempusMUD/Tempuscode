@@ -300,22 +300,13 @@ void do_ticl_tset(struct char_data *ch, char *argument)
     case 1:              /** Code **/
 	if (ticl_p->code == NULL) {
 	    CREATE(ticl_p->code, char, MAX_TICL_LENGTH);
-	    send_to_char(" Write the TICL proc.  Terminate with a @ on a new line.\r\n"
-			 " Enter a * on a new line to enter TED\r\n", ch);
-	    send_to_char(" [+--------+---------+---------+--------"
-			 "-+---------+---------+---------+------+]\r\n", ch);
 	    act("$n begins to code a TICL proc.", TRUE, ch, 0, 0, TO_ROOM);
-	    ch->desc->str = &ticl_p->code;
-	    ch->desc->max_str = MAX_TICL_LENGTH;
 	}
 	else {
-	    send_to_char("Use TED to modify the TICL proc.\r\n", ch);
-	    ch->desc->str = &ticl_p->code;
-	    ch->desc->max_str = MAX_TICL_LENGTH;
-	    ch->desc->editor_mode = 1;
-	    ch->desc->editor_cur_lnum = get_line_count(ticl_p->code);
 	    act("$n begins to edit a TICL proc.", TRUE, ch, 0, 0, TO_ROOM);
 	}
+    start_text_editor(ch->desc, &ticl_p->code, true, MAX_TICL_LENGTH);
+    SET_BIT(PLR_FLAGS(ch), PLR_OLC);
 	break;
     default:
 	break;

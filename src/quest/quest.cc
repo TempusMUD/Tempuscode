@@ -963,23 +963,17 @@ do_qcontrol_desc(CHAR *ch, char *argument, int com)
     if (check_editors(ch, &(quest->description)))
 	return;
 
-    SET_BIT(PLR_FLAGS(ch), PLR_WRITING);
+
+    act("$n begins to edit a quest description.\r\n",TRUE,ch,0,0,TO_ROOM);
 
     if (quest->description) {
-	send_to_char("Use TED to modify the description.\r\n", ch);
-	ch->desc->editor_mode = 1;
-	ch->desc->editor_cur_lnum = get_line_count(quest->description);
-	sprintf(buf, "began editing description of quest '%s'",quest->name);
-    }
-    else {
-	sprintf(buf, "began writing description of quest '%s'",quest->name);
-	send_to_char(TED_MESSAGE, ch);
+        sprintf(buf, "began editing description of quest '%s'",quest->name);
+    } else {
+        sprintf(buf, "began writing description of quest '%s'",quest->name);
     }
 
-    ch->desc->str = &quest->description;
-    ch->desc->max_str = MAX_QUEST_DESC;
-  
-    act("$n begins to edit a quest description.\r\n",TRUE,ch,0,0,TO_ROOM);
+    start_text_editor(ch->desc, &quest->description, true,MAX_QUEST_DESC);
+    SET_BIT(PLR_FLAGS(ch), PLR_WRITING);
 }  
 
 void
@@ -1004,18 +998,12 @@ do_qcontrol_update(CHAR *ch, char *argument, int com)
 	return;
 
     if (quest->description) {
-	send_to_char("Use TED to modify the update text.\r\n", ch);
-	ch->desc->editor_mode = 1;
-	ch->desc->editor_cur_lnum = get_line_count(quest->updates);
-	sprintf(buf, "began editing update of quest '%s'",quest->name);
-    }
-    else {
-	send_to_char(TED_MESSAGE, ch);
-	sprintf(buf, "began writing the update of quest '%s'",quest->name);
+        sprintf(buf, "began editing update of quest '%s'",quest->name);
+    } else {
+        sprintf(buf, "began writing the update of quest '%s'",quest->name);
     }
 
-    ch->desc->str = &quest->updates;
-    ch->desc->max_str = MAX_QUEST_UPDATE;
+    start_text_editor(ch->desc,&quest->updates, true,MAX_QUEST_UPDATE);
     SET_BIT(PLR_FLAGS(ch), PLR_WRITING);
   
     act("$n begins to edit a quest update.\r\n",TRUE,ch,0,0,TO_ROOM);

@@ -127,8 +127,9 @@ int	Crash_load(struct char_data *ch);
 void	Crash_crashsave(struct char_data *ch);
 void	Crash_idlesave(struct char_data *ch);
 void	Crash_save_all(void);
-
+/*
 #define TED_MESSAGE " Write the text.  Terminate with @ on a new line.\r\n"\
       " Enter a * on a new line to enter TED\r\n"  \
 	" [+--------+---------+---------+--------"  \
 	"-+---------+---------+---------+------+]\r\n"
+*/

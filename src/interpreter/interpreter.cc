@@ -3032,12 +3032,7 @@ nanny(struct descriptor_data * d, char *arg)
                 SEND_TO_Q("Other players will usually be able to determine your general\r\n"
                           "size, as well as your race and gender, by looking at you.  What\r\n"
                           "else is noticable about your character?\r\n", d);
-                SEND_TO_Q("Terminate with a '@' on a new line.\r\n", d);
-                SEND_TO_Q("Enter a * on a new line to enter TED\r\n", d);
-                SEND_TO_Q(" [+--------+---------+---------+--------"
-                          "-+---------+---------+---------+------+]\r\n", d);
-                d->str = &d->character->player.description;
-                d->max_str = MAX_CHAR_DESC-1;
+                start_text_editor(d,&d->character->player.description,true, MAX_CHAR_DESC-1);
                 STATE(d) = CON_EXDESC;
                 break;
             }
@@ -3325,7 +3320,6 @@ nanny(struct descriptor_data * d, char *arg)
             SEND_TO_Q("Other players will be usually be able to determine your general\r\n"
                       "size, as well as your race and gender, by looking at you.  What\r\n"
                       "else is noticable about your character?\r\n", d);
-            SEND_TO_Q("Terminate with a '@' on a new line.\r\n", d);
             if (d->character->player.description) {
                 SEND_TO_Q("Old description:\r\n", d);
                 SEND_TO_Q(d->character->player.description, d);
@@ -3338,8 +3332,7 @@ nanny(struct descriptor_data * d, char *arg)
 #endif
                 d->character->player.description = NULL;
             }
-            d->str = &d->character->player.description;
-            d->max_str = MAX_CHAR_DESC-1;
+            start_text_editor(d, &d->character->player.description, true, MAX_CHAR_DESC-1);
             STATE(d) = CON_EXDESC;
             break;
 

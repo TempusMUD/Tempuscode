@@ -809,21 +809,12 @@ do_olc_rset( struct char_data *ch, char *argument )
 
     case 1: /* rdescription */
 	if ( ch->in_room->description ) {
-	    send_to_char( "Use TED to modify the description.\r\n", ch );
-	    ch->desc->str = &ch->in_room->description;
-	    ch->desc->max_str = MAX_STRING_LENGTH;
-	    ch->desc->editor_mode = 1;
-	    ch->desc->editor_cur_lnum = get_line_count( ch->in_room->description );
-	    SET_BIT( PLR_FLAGS( ch ), PLR_OLC );
 	    act( "$n begins to edit a room description.", TRUE, ch, 0, 0, TO_ROOM );
-	}
-	else {
-	    send_to_char( TED_MESSAGE, ch );
-	    ch->desc->str = &ch->in_room->description;
-	    ch->desc->max_str = MAX_STRING_LENGTH;
-	    SET_BIT( PLR_FLAGS( ch ), PLR_OLC );
+	} else {
 	    act( "$n begins to write a room description.", TRUE, ch, 0, 0, TO_ROOM );
 	}
+	start_text_editor(ch->desc, &ch->in_room->description,true);
+    SET_BIT( PLR_FLAGS( ch ), PLR_OLC );
 	break;
 
     case 2:    /* rsector */
@@ -906,21 +897,13 @@ do_olc_rset( struct char_data *ch, char *argument )
 	}
       
 	if ( ch->in_room->sounds == NULL ) {
-	    send_to_char( TED_MESSAGE, ch );
-	    ch->desc->str = &ch->in_room->sounds;
-	    ch->desc->max_str = MAX_STRING_LENGTH;
-	    SET_BIT( PLR_FLAGS( ch ), PLR_OLC );
 	    act( "$n begins to create a sound.", TRUE, ch, 0, 0, TO_ROOM );
-	}
-	else {
+	} else {
 	    send_to_char( "Use TED to modify the sound description.\r\n", ch );
-	    ch->desc->str = &ch->in_room->sounds;
-	    ch->desc->max_str = MAX_STRING_LENGTH;
-	    ch->desc->editor_mode = 1;
-	    ch->desc->editor_cur_lnum = get_line_count( ch->in_room->sounds );
-	    SET_BIT( PLR_FLAGS( ch ), PLR_OLC );
 	    act( "$n begins to edit a sound.", TRUE, ch, 0, 0, TO_ROOM );
 	}
+    start_text_editor(ch->desc, &ch->in_room->sounds,true);
+    SET_BIT( PLR_FLAGS( ch ), PLR_OLC );
 	break;
     case 5:      /*  flow  */
 	if ( !*arg2 ) {
@@ -1065,21 +1048,15 @@ do_olc_rexdesc( struct char_data *ch, char *argument )
 	ndesc->keyword  = str_dup( argument );
 	ndesc->next = ch->in_room->ex_description;
 	ch->in_room->ex_description = ndesc;
-	send_to_char( TED_MESSAGE, ch );
-	ch->desc->str = &ch->in_room->ex_description->description;
-	ch->desc->max_str = MAX_STRING_LENGTH;
+
+	start_text_editor(ch->desc,&ch->in_room->ex_description->description,true);
 	SET_BIT( PLR_FLAGS( ch ), PLR_OLC );
+
 	act( "$n begins to write an extra description.", TRUE, ch, 0, 0, TO_ROOM );
 	return;
     } else if ( is_abbrev( buf, "edit" ) ) {
 	if ( ( desc = locate_exdesc( argument, ch->in_room->ex_description ) ) ) {
-	    send_to_char( "Use TED to modify the extra description.\r\n", ch );
-	    ch->desc->str = &desc->description;
-	    ch->desc->max_str = MAX_STRING_LENGTH;
-	    if ( desc->description ) {
-		ch->desc->editor_mode = 1;
-		ch->desc->editor_cur_lnum = get_line_count( desc->description );
-	    }
+	    start_text_editor(ch->desc,&desc->description,true);
 	    SET_BIT( PLR_FLAGS( ch ), PLR_OLC );
 	    act( "$n begins to write an extra description.", TRUE, ch, 0, 0, TO_ROOM );
 	} else

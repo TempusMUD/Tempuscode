@@ -80,18 +80,9 @@ void HelpItem::SetFlags( char *argument ) {
 }
 // Crank up the text editor and lets hit it.
 void HelpItem::EditText( void ) {
+
+    start_text_editor(editor->desc, &text, true, MAX_HELP_TEXT_LENGTH);
     SET_BIT(PLR_FLAGS(editor), PLR_OLC);
-
-    if (text) {
-        send_to_char("Use TED to modify the description.\r\n", editor);
-        editor->desc->editor_mode = 1;
-        editor->desc->editor_cur_lnum = get_line_count(text);
-    } else {
-        send_to_char(TED_MESSAGE, editor);
-    }
-
-    editor->desc->str = &text;
-    editor->desc->max_str = MAX_HELP_TEXT_LENGTH;
 
     act("$n begins to edit a help file.\r\n",TRUE,editor,0,0,TO_ROOM);
 }   

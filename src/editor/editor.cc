@@ -1,13 +1,3 @@
-/* ************************************************************************
-*  File: editor.c                                                         *
-*                                                                         * 
-*  Usage: New and improved editor for Tempus                              *
-*                                                                         *
-*  All rights reserved.                                                   *
-*                                                                         *
-*  Copyright (C) 1996 by Chris Austin  (Stryker@TempusMUD)                *
-************************************************************************ */
-
 //
 // File: editor.c                      -- Part of TempusMUD
 //
@@ -16,503 +6,572 @@
 //
 //
 
-#include <stdio.h>
-#include <stdlib.h>
+#include <string>
+#include <list>
+using namespace std;
 #include <ctype.h>
-#include <string.h>
-#include <time.h>
-
-#include "structs.h"
-#include "utils.h"
-#include "interpreter.h"
-#include "handler.h"
-#include "db.h"
+#include <fcntl.h>
+// Tempus Includes
+#include "screen.h"
+#include "desc_data.h"
 #include "comm.h"
-#include "spells.h"
-#include "mail.h"
+#include "db.h"
+#include "utils.h"
+#include "login.h"
+#include "interpreter.h"
 #include "boards.h"
-
-static char arg1[MAX_INPUT_LENGTH], arg2[MAX_INPUT_LENGTH];
-
-static const char *editor_cmds[] = {
-    "list",
-    "exit",
-    "help",
-    "delete",
-    "insert",
-    "change",
-    "replace",
-    "purge",
-    "\n"
-};
+#include "mail.h"
+#include "editor.h"
 
 
-/* External Functions */
+//void string_add(struct descriptor_data *d, char *str);
+static char editbuf[MAX_STRING_LENGTH * 2];
+extern struct descriptor_data *descriptor_list;
 
-void string_add(struct descriptor_data *d, char *str);
-extern int log_cmds;
+// Muha. Call it Tine
 
- /* Local Functions */
-
-void process_editor_command(struct descriptor_data *d, char *buffer);
-void do_list_command(struct descriptor_data *d, int start, int end);
-void do_delete_command(struct descriptor_data *d, int start, int end);
-void do_insert_command(struct descriptor_data *d, int start, char *text);
-void do_change_command(struct descriptor_data *d, int start, char *text);
-void do_purge_command(struct descriptor_data *d);
-void do_help_command(struct descriptor_data *d, char *buffer);
-
-static char oldbuf[MAX_MESSAGE_LENGTH], newbuf[MAX_MESSAGE_LENGTH];
-
+/* Sets up text editor params and echo's passed in message.
+*/
 void 
-editor(struct descriptor_data *d, char *buffer)
-{
+start_text_editor(struct descriptor_data *d, char **dest, bool sendmessage=true, int max=MAX_STRING_LENGTH) {
+    /*  Editor Command
+        Note: Add info for logall
+    */
+    // There MUST be a destination!
+    if(!dest) {
+        mudlog("ERROR: NULL destination pointer passed into start_text_editor!!",
+                BRF, LVL_IMMORT, TRUE);
+        send_to_char("This command seems to be broken. Bug this.\r\n",d->character);
+        REMOVE_BIT(PLR_FLAGS(d->character), PLR_WRITING | PLR_OLC | PLR_MAILING);
+        return;
+    }
+    if(d->text_editor) {
+        mudlog("ERROR: Text editor object not null in start_text_editor.",
+                BRF,LVL_IMMORT,TRUE);
+        REMOVE_BIT(PLR_FLAGS(d->character), PLR_WRITING | PLR_OLC | PLR_MAILING);
+        return;
+    }
+    if(*dest && (strlen(*dest) > (unsigned int)max)) {
+        send_to_char("ERROR: Buffer too large for editor.\r\n",d->character);
+        REMOVE_BIT(PLR_FLAGS(d->character), PLR_WRITING | PLR_OLC | PLR_MAILING);
+        return;
+    }
+        
+    d->text_editor = new CTextEditor(d, dest, max, sendmessage);
+}
+/*
+string_add(d, buffer);
+        if (d->character && 
+            (log_cmds || PLR_FLAGGED(d->character, PLR_LOG))) {
+            
+            slog(buf);
+        }
+*/
 
-    if (d->editor_mode == 1) {
-	if (d->character && 
-	    (log_cmds || PLR_FLAGGED(d->character, PLR_LOG))) {
-	    sprintf(buf, "CMD: %s (editor) ::'%s'", GET_NAME(d->character), buffer);
-	    slog(buf);
-	}
-	process_editor_command(d, buffer);
+
+void CTextEditor::Process( char *inStr ) {
+    // 2 special chars, @ and &
+
+    delete_doubledollar(inStr);
+
+    if(*inStr == '&') {// Commands
+        ProcessCommand(inStr);
+        return;
+    } else if (*inStr == '@') {// Finish up
+        SaveText(inStr);
+        desc->text_editor = NULL;
+        delete this;
+        return;
+    } else { // Dump the text in
+        Append(inStr);
     }
-    else if (*buffer == '*') {
-	send_to_char("\r\nEntering command mode.\r\n", d->character);
-	d->editor_mode = 1;
+    desc->editor_cur_lnum = theText.size() + 1;
+}
+void CTextEditor::List( void ) {
+    list<string>::iterator itr;
+    int i;
+    strcpy(editbuf,"");
+    for(i = 1,itr = theText.begin();itr != theText.end();i++, itr++) {
+        sprintf(buf, "%-2d%s%s]%s ",i ,
+            CCBLD(desc->character,C_CMP),
+            CCBLU(desc->character,C_NRM),
+            CCNRM(desc->character,C_NRM));
+        strcat(editbuf,buf);
+        strcat(editbuf,itr->c_str());
+        strcat(editbuf,"\r\n");
     }
-    else {
-	if (d->character && 
-	    (log_cmds || PLR_FLAGGED(d->character, PLR_LOG))) {
-	    sprintf(buf, "CMD: %s (writin) ::'%s'", GET_NAME(d->character), buffer);
-	    slog(buf);
-	}
-	string_add(d, buffer);
-	d->editor_cur_lnum++;
-    }
+    SendMessage(editbuf);
 }
 
-void 
-process_editor_command(struct descriptor_data *d, char *buffer)
-{
-    int cmd, start, end;
-  
-    half_chop(buffer, arg1, arg2);
-    skip_spaces(&buffer);
-  
-    if ((cmd = search_block(arg1, editor_cmds, FALSE)) < 0) { 
-	sprintf(buf, "Unknown command [%s] - Type help for usage.\r\n", arg1);
-	send_to_char(buf, d->character);
-	return;
+void CTextEditor::SaveText( char *inStr) {
+    list<string>::iterator itr;
+    int length = 0;
+
+    // If we were editing rather than creating, wax what was there.
+    if(*target) {
+        free(*target);
+        *target = NULL;
     }
-  
-    switch(cmd) {
-    case 0:            /** List **/
-	buffer = two_arguments(buffer, arg2, arg1);
-	buffer = one_argument(buffer, arg2);
-      
-	if (*arg1 && is_number(arg1)) {
-	    if (!(*arg2)) {
-		start = end = atoi(arg1);
-		do_list_command(d, start, end);
-		return;
-	    }
-	
-	    if (!is_number(arg2)) {
-		send_to_char("List usage:- list [[start line #] [end line #]]\r\n", d->character);
-		return;
-	    }
-	
-	    start = atoi(arg1);
-	    end   = atoi(arg2);
-	
-	    if (start > end || start > 9999) {
-		send_to_char("Funny today, aren't we?\r\n", d->character);
-		return;
-	    }
-	
-	    do_list_command(d, start, end);
-	}
-	else
-	    do_list_command(d, 1, 9999);
-	break;
-    case 1:             /** Exit **/
-	send_to_char("\r\n Exiting command mode.  Enter a * on a new line to re-enter.\r\n", d->character);
-	send_to_char(" Continue with your message.  Terminate with a @ on a new line.\r\n", d->character);
-	send_to_char(" [+--------+---------+---------+--------"
-		     "-+---------+---------+---------+------+]\r\n", d->character);
-	d->editor_mode = 0;
-	break;
-    case 2:             /** Help **/
-	buffer = two_arguments(buffer, arg1, arg2);
-	if (!*arg2) {
-	    send_to_char("\r\nTED v0.75          - HELP -\r\n\r\n"
-			 "Commands :-\r\n"
-			 "   help      list      delete     insert\r\n"
-			 "   change    replace   exit       purge\r\n\r\n"
-			 "Enter help <command name> for an explanation.\r\n",
-			 d->character);
-	}
-	else
-	    do_help_command(d, arg2);
-	break;
-    case 3:             /** Delete **/
-	buffer = two_arguments(buffer, arg2, arg1);
-	buffer = one_argument(buffer, arg2);
-      
-	if (*arg1 && is_number(arg1)) {
-	    if (!(*arg2)) {
-		start = end = atoi(arg1);
-		do_delete_command(d, start, end);
-		return;
-	    }
-	
-	    if (!is_number(arg2)) {
-		send_to_char("Delete usage:- delete [[start line #] [end line #]]\r\n", d->character);
-		return;
-	    }
-	
-	    start = atoi(arg1);
-	    end   = atoi(arg2);
-	
-	    if (start > end || start > 99) {
-		send_to_char("Funny today, aren't we?\r\n", d->character);
-		return;
-	    }
-	    do_delete_command(d, start, end);
-	}
-	else
-	    send_to_char("Delete usage:- delete [[start line #] [end line #]]\r\n", d->character);
-	break;
-    case 4:             /** Insert **/
-	buffer = two_arguments(buffer, arg2, arg1);
-      
-	if ((!*arg1 || !*buffer) || !is_number(arg1))
-	    send_to_char("Insert usage:- insert <starting line #> <text>\r\n", d->character);
-	else {
-	    start = atoi(arg1);
-	    do_insert_command(d, start, buffer);
-	}
-	break;
-    case 5:             /** Change **/
-	buffer = two_arguments(buffer, arg2, arg1);
-      
-	if ((!*arg1 || !*buffer) || !is_number(arg1))
-	    send_to_char("Change usage:- change <line #> <text>\r\n", d->character);
-	else {
-	    start = atoi(arg1);
-	    do_change_command(d, start, buffer);
-	}
-	break;
-    case 6:               /** Replace **/
-	send_to_char("Sorry, not yet implemented.\r\n", d->character);
-	break;
-    case 7:               /** Purge **/
-	do_purge_command(d);
-	break;
-    }
-}
-
-
-void 
-do_list_command(struct descriptor_data *d, int start, int end)
-{
-    char *line, *inbuf, *safebuf;
-    int   i = 0;
-
-    if (*d->str == NULL) {
-	send_to_char("Nothing in the buffer!\r\n", d->character);
-	return;
-    }
-  
-    safebuf = inbuf = str_dup(*d->str);
-
-    while ((line = strsep(&inbuf, "\n")) && i < end) {
-	i++;
-	if (i >= start) {
-	    if (i > d->editor_cur_lnum)
-		send_to_char("--past cur_lnum error--\r\n", d->character);
-	    sprintf(buf, "%-2d] %s\r\n", i, line);
-	    send_to_char(buf, d->character);
-	}
-    }
-    if (safebuf)
-	free (safebuf);
-}
-
-void 
-do_delete_command(struct descriptor_data *d, int start, int end)
-{
-    char *line = NULL, *inbuf = NULL, newbuf[MAX_MESSAGE_LENGTH];
-    int   i = 0, found = 0, top = 0;
-  
-    if (*d->str == NULL) {
-	send_to_char("Nothing in the buffer!\r\n", d->character);
-	return;
-    }
-
-    strcpy(oldbuf, *d->str);
-    inbuf = oldbuf;
-    *newbuf = '\0';
-    top = d->editor_cur_lnum;
-    while ((line = strsep(&inbuf, "\n")) && i < top-1) {
-	i++;
-	if (i >= start && i <= end) {
-	    d->editor_cur_lnum--;
-	    found++;
-	    continue;
-	}
-	strcat(strcat(newbuf, line), "\n");
-    }
-  
-    if (d->editor_cur_lnum < 1)
-	d->editor_cur_lnum = 1;
-
-    sprintf(buf, "[%d] lines deleted.\r\n", found);
-    send_to_char(buf, d->character);
-
-    sprintf(buf, "%s TED-deleted lines %d through %d at %d.",
-	    GET_NAME(d->character), start, end,
-	    d->character->in_room ? d->character->in_room->number : -1);
-    slog(buf);
-    fflush(stderr);
-
-    free(*d->str);
-    *d->str = str_dup(newbuf);
-}
-
-void 
-do_insert_command(struct descriptor_data *d, int start, char *text)
-{
-    char *line = NULL, *inbuf = NULL;
-    int   i = 1, found = 0;
-  
-    if (*d->str == NULL) {
-	send_to_char("Nothing in the buffer!\r\n", d->character);
-	return;
-    }
-    if (strlen(*d->str)+strlen(text)+1 > MAX_MESSAGE_LENGTH) {
-	send_to_char("Maximum message size exceeded!", d->character);
-	return;
-    }
-
-    text++;
-    strcpy(oldbuf, *d->str);
-    inbuf = oldbuf;
-    *newbuf = '\0';
-
-    while ((line = strsep(&inbuf, "\n"))) {
-	if (i == start) {
-	    strcat(strcat(newbuf, text), "\r\n");
-	    if (i != d->editor_cur_lnum) {
-		strcat(strcat(newbuf, line), "\n");
-		if (inbuf) {
-		    strcat(newbuf, inbuf);
-		}
-	    }
-	    d->editor_cur_lnum++;
-	    found = TRUE;
-	    break;
-	}
-	i++;
-	strcat(strcat(newbuf, line), "\n");
-    }
-
-    if (!found) {
-	SEND_TO_Q("No such line number!!\r\n", d);
-	return;
-    }
-
-    SEND_TO_Q("Line inserted OK.\r\n", d);
-
-    sprintf(buf, "%s TED-deleted line %d at %d.",
-	    GET_NAME(d->character), start,
-	    d->character->in_room ? d->character->in_room->number : -1);
-    slog(buf);
-    fflush(stderr);
-
-
-    free(*d->str);
-    *d->str = str_dup(newbuf);
-}
-void 
-do_change_command(struct descriptor_data *d, int start, char *text)
-{
-    char *line, *inbuf, *newbuf, *safebuf;
-    int   i = 1;
-  
-    if (*d->str == NULL) {
-	send_to_char("Nothing in the buffer!\r\n", d->character);
-	return;
-    }
-
-    text++;
-  
-    safebuf = inbuf = strdup(*d->str);
-  
-    if (strlen(inbuf)+strlen(text)+1 > MAX_MESSAGE_LENGTH) {
-	send_to_char("Maximum message size exceeded!", d->character);
-	return;
-    }
-  
-    CREATE(newbuf, char, strlen(inbuf)+strlen(text)+1);
-
-    line = strsep(&inbuf, "\n");
-  
-    if (line == NULL) {
-	send_to_char("No such line number!!\r\n", d->character);
-	return;
-    }
-  
-    line[strlen(line)-1] = '\0';
-  
-    strcat(text, "\r\n");
-  
-    do {
-	if (i == start) { 
-	    strcat(newbuf,text);
-	    /* sprintf(newbuf, "%s%s", newbuf, text);*/
-	    line = strsep(&inbuf, "\n");
-	    if (line != NULL)
-		line[strlen(line)-1] = '\0';
-	    i++;
-	    continue;
-	}
-	i++;
-	strcat(newbuf,line);
-	strcat(newbuf,"\r\n");
-	/* sprintf(newbuf, "%s%s\r\n", newbuf, line); */    
-	line = strsep(&inbuf, "\n");
-	if (line != NULL)
-	    line[strlen(line)-1] = '\0';
-    } while (line != NULL && strcmp(line, "") != 0);
-  
-    sprintf(buf, "Changed line %d ok.\r\n", start);
-    send_to_char(buf, d->character);
-
-    sprintf(buf, "%s TED-changed line %d at %d.",
-	    GET_NAME(d->character), start, 
-	    d->character->in_room ? d->character->in_room->number : -1);
-    slog(buf);
-    fflush(stderr);
- 
-    free(*d->str);
-    *d->str = newbuf;
-
-    if (safebuf)
-	free(safebuf);
-
-#ifdef DMALLOC
-    dmalloc_verify(0);
-#endif
-}
-
-
-void 
-do_purge_command(struct descriptor_data *d)
-{
-    char *newbuf;
-  
-    CREATE(newbuf, char, MAX_STRING_LENGTH);
-  
-    free(*d->str);
-    *d->str = newbuf = NULL;
-#ifdef DMALLOC
-    dmalloc_verify(0);
-#endif
-    d->max_str = MAX_STRING_LENGTH;
-    d->editor_cur_lnum = 1;
-  
-    send_to_char("Buffer purged.\r\n", d->character);
-}
-  
-void 
-do_help_command(struct descriptor_data *d, char *buffer)
-{
-    int help_cmd;
-  
-    skip_spaces(&buffer);
-  
-    if ((help_cmd = search_block(buffer, editor_cmds, FALSE)) < 0) { 
-	sprintf(buf, "Unknown command [%s] - Type help for command listing.\r\n", buffer);
-	send_to_char(buf, d->character);
-	return;
-    }
-  
-    switch(help_cmd) {
-    case 0:             /** List **/
-	send_to_char("COMMAND:\r\n"
-		     "    List - List will display the text you have already enterd so far.\r\n\r\n"
-		     "USAGE:\r\n"
-		     "    list [start line #] [end line #]\r\n\r\n"
-		     "DESCRIPTION:\r\n"
-		     "    The list command used by itself will list all of the text in your buffer.\r\n"
-		     "    You can also list ranges of lines, ie list 1 5 will list lines 1 to 5 out.\r\n"
-		     "    List 2, for example,  is also acceptable to list just 1 line.\r\n\r\n",
-		     d->character);
-	break;
-    case 1:             /** Exit **/
-	send_to_char("COMMAND:\r\n"
-		     "    Exit - Exits TED and returns you to the line you were last on\r\n\r\n"
-		     "USAGE:\r\n"
-		     "    exit\r\n\r\n"
-		     "DESCRIPTION:\r\n"
-		     "    The exit command quits TED and returns you to inputting lines.  You are\r\n"
-		     "    returned to the point where you left off.  The modifications that you\r\n"
-		     "    did while in TED will be reflected after you exit.\r\n\r\n", d->character);
-	break;
-    case 2:             /** Help **/
-	send_to_char("COMMAND:\r\n"
-		     "    Help - Help will display the TED help screen.\r\n\r\n"
-		     "USAGE:\r\n"
-		     "    help\r\n\r\n"
-		     "DESCRIPTION:\r\n"
-		     "    The help command will display the TED help screen.  From there you can\r\n"
-		     "    type help <command name> to display more detailed help per command.\r\n\r\n",
-		     d->character);
-	break;
-    case 3:             /** Delete **/
-	send_to_char("COMMAND:\r\n"
-		     "    Delete - The delete command will delete lines of text from the buffer.\r\n\r\n"
-		     "USAGE:\r\n"
-		     "    delete [start line #] [end line #]\r\n\r\n"
-		     "DESCRIPTION:\r\n"
-		     "    The delete command will delete single lines or ranges of lines of text\r\n"
-		     "    from the buffer.  Delete 5 will delete line 5.  Delete 3 6 will delete\r\n"
-		     "    lines 3 4 5 and 6 from your buffer.\r\n\r\n", d->character);
-	break;
-    case 4:             /** Insert **/
-	send_to_char("COMMAND:\r\n"
-		     "    Insert - The insert command will insert a line of text.\r\n\r\n"
-		     "USAGE:\r\n"
-		     "    insert <line #> <text>\r\n\r\n"
-		     "DESCRIPTION:\r\n"
-		     "    The insert command will insert a line of text at a given line.  Note that\r\n"
-		     "    the line number specified will be used to insert the text and the existing\r\n"
-		     "    line at that position will be moved down 1 along with all of the other text.\r\n\r\n",
-		     d->character);
-	break;
-    case 5:             /** Change **/
-	send_to_char("COMMAND:\r\n"
-		     "    Change - The change command will replace a line of text.\r\n\r\n"
-		     "USAGE:\r\n"
-		     "    change <line #> <text>\r\n\r\n"
-		     "DESCRIPTION:\r\n"
-		     "    The change command will replace a line of text at a given line position.\r\n"
-		     "    the line number specified will be totaly replaced by the text specified.\r\n\r\n",
-		     d->character);
-	break;
-    case 6:               /** Replace **/
-	send_to_char("Sorry, not yet implemented.\r\n", d->character);
-	break;
-    case 7:               /** Purge **/
-	send_to_char("COMMAND:\r\n"
-		     "    Purge - The purge command will purge your buffer.\r\n\r\n"
-		     "USAGE:\r\n"
-		     "    purge\r\n\r\n"
-		     "DESCRIPTION:\r\n"
-		     "    The purge command will purge the contents of your buffer.\r\n",
-		     d->character);
-	break;
     
+    length = curSize + ( theText.size() * 2 );
+    *target = new char[length + 3];
+    strcpy(*target,"");
+
+    for(itr = theText.begin();itr != theText.end();itr++) {
+        strcat(*target,itr->c_str());
+        strcat(*target,"\r\n");
+    }
+    // If they're in the game
+    if(desc->connected == CON_PLAYING) {
+        // Saving a file
+        if ((desc->editor_file != NULL)) {
+            SaveFile();
+        }
+        // Sending Mail
+        else if (PLR_FLAGGED(desc->character, PLR_MAILING)) {
+            ExportMail();
+            free(target);
+        }
+    } 
+    // WTF is this?
+    if (desc->mail_to && desc->mail_to->recpt_idnum >= BOARD_MAGIC) {
+        Board_save_board(desc->mail_to->recpt_idnum - BOARD_MAGIC);
+        desc->mail_to = desc->mail_to->next;
+    }
+    // If editing thier description.
+    if (desc->connected == CON_EXDESC) {
+        SEND_TO_Q("\033[H\033[J", desc);
+        show_menu(desc);
+        desc->connected = CON_MENU;
+    }
+    // Remove the "using the editor" bits.
+    if (desc->connected == CON_PLAYING && 
+        desc->character && 
+        !IS_NPC(desc->character)) {
+        REMOVE_BIT(PLR_FLAGS(desc->character), PLR_WRITING | PLR_OLC | PLR_MAILING);
     }
 }
+
+void CTextEditor::ExportMail( void ) {
+
+    char   *cc_list = NULL;
+    int    stored_mail=0;
+    struct descriptor_data *r_d;
+    struct mail_recipient_data *mail_rcpt = NULL;
+
+    if(desc->mail_to->next) {
+        cc_list = new char[MAX_INPUT_LENGTH * 3 + 7];
+        strcpy(cc_list,"  CC: ");
+        for(mail_rcpt = desc->mail_to; mail_rcpt; mail_rcpt = mail_rcpt->next){
+            strcat(cc_list, get_name_by_id(mail_rcpt->recpt_idnum));
+            if (mail_rcpt->next)
+                strcat(cc_list, ", ");
+            else
+                strcat(cc_list, "\r\n");
+        }
+    }
+    mail_rcpt = desc->mail_to;
+    while (mail_rcpt) {
+        if((stored_mail = store_mail(mail_rcpt->recpt_idnum,GET_IDNUM(desc->character),*target, cc_list))) {
+            for (r_d = descriptor_list; r_d; r_d = r_d->next) {
+                if (!r_d->connected && r_d->character && r_d->character != desc->character &&
+                GET_IDNUM(r_d->character) == desc->mail_to->recpt_idnum &&
+                !PLR_FLAGGED(r_d->character,PLR_WRITING|PLR_MAILING|PLR_OLC)) {
+                    send_to_char("A strange voice in your head says, 'You have new mail.'\r\n", r_d->character);
+                }
+            }
+        }
+        mail_rcpt = mail_rcpt->next;
+        free(desc->mail_to);
+        desc->mail_to = mail_rcpt;
+    }
+    if(cc_list)
+        delete cc_list;
+    if(stored_mail)
+        SendMessage("Message sent!\r\n");
+}
+
+void CTextEditor::SaveFile( void ) {
+
+    char   filebuf[512], filename[64];
+    int    file_to_write;
+    int    backup_file,nread;
+
+    sprintf(filename,"%s", desc->editor_file);
+    if ((file_to_write = open(filename,O_RDWR, 0666)) == -1) {
+        sprintf(buf, "Could not open file %s, buffer not saved!\r\n", filename);
+        mudlog(buf, NRM, LVL_AMBASSADOR, TRUE);
+    } else {
+        sprintf(filename,"%s.bak",desc->editor_file);
+        if ((backup_file = open(filename, O_RDWR|O_CREAT|O_TRUNC, 0666)) == -1) {
+            sprintf(buf, "Could not open file %s, buffer not saved!\r\n", filename);
+            mudlog(buf, NRM, LVL_AMBASSADOR, TRUE);
+            close(file_to_write);
+        } else {
+            while ((nread = read(file_to_write, filebuf, sizeof(filebuf))) > 0) {
+                if (write(backup_file, filebuf, nread) != nread) {
+                    send_to_char("Could not save backup file!!\r\n", desc->character);
+                    break;
+                }
+            }
+            close(backup_file);
+            lseek(file_to_write, 0, 0);
+
+            write(file_to_write, *target, strlen(*target));
+            close(file_to_write);
+        }
+        free(desc->editor_file);
+        desc->editor_file = NULL;
+    }
+}
+
+bool CTextEditor::Full ( char *inStr=NULL) {
+    if( ( strlen(inStr) + curSize) + 
+        ( (theText.size() + 1) * 2 ) > maxSize) {
+        return true;
+    }
+    return false;
+}
+
+void CTextEditor::Append(char *inStr) {
+    if(Full(inStr)) {
+        SendMessage("Error: The buffer is full.\r\n");
+        return;
+    }
+    theText.push_back(inStr);
+    UpdateSize();
+}
+bool CTextEditor::Insert(unsigned int line, char *inStr) {
+    string text;
+    list<string>::iterator s;
+    unsigned int i = 1;
+
+    text = inStr;
+    if(line > theText.size()) {
+        SendMessage("You can't insert before a line that doesn't exist.\r\n");
+        return false;
+    }
+    if((text.length() + curSize) +
+         ((theText.size() + 1) * 2 ) > maxSize) {
+        SendMessage("Error: The buffer is full.\r\n");
+        return false;
+    }
+
+    // Find it again (the one after it actually)
+    for(s = theText.begin();i < line;i++,s++);
+
+    // Insert the new text
+    theText.insert(s,text);
+
+    UpdateSize();
+    
+    return true;
+}
+
+bool CTextEditor::ReplaceLine(unsigned int line, char *inStr) {
+    string text;
+    list<string>::iterator s;
+    unsigned int i = 1;
+    if(*inStr && *inStr == ' ')
+        inStr++;
+    text = inStr;
+
+    if(line > theText.size()) {
+        SendMessage("Your going to have to write the line first dummy.\r\n");
+        return false;
+    }
+    // Find the line
+    for(i = 1,s = theText.begin();i < line;i++,s++);
+
+    // Make sure we can fit the new stuff in
+    if((text.length() + curSize - s->length()) +
+        ( (theText.size() + 1) * 2 ) > maxSize) {
+        SendMessage("Error: The buffer is full.\r\n");
+        return false;
+    }
+    // Erase it
+    theText.erase(s);
+
+    // Find it again (the one after it actually)
+    for(i = 1,s = theText.begin();i < line;i++,s++);
+    // Insert the new text
+    theText.insert(s,text);
+
+    UpdateSize();
+    return true;
+}
+bool CTextEditor::FindReplace(char *args) {
+    // MAKE SURE YOU CHECK maxSize before inserting!
+    UpdateSize();
+    return true;
+}
+bool CTextEditor::Remove(unsigned int line) {
+    list<string>::iterator s;
+    unsigned int i;
+    if(line > theText.size()) {
+        SendMessage("Someone already deleted that line boss.\r\n");
+        return false;
+    }
+    for(i = 1,s = theText.begin();i < line ;s++,i++);
+
+    theText.erase(s);
+
+
+    UpdateSize();
+    return true;
+}
+bool CTextEditor::Clear( void ) {
+
+    theText.erase(theText.begin(),theText.end());
+
+    desc->editor_cur_lnum = theText.size() + 1;
+    UpdateSize();
+    return true;
+}
+void CTextEditor::ImportText( void ) {
+    char *b,*s;// s is the cursor, b is the beginning of the current line
+    string text;
+
+    strcpy(editbuf, *target);
+    s = editbuf;
+    while (s && *s) {
+        for(b = s; *s && *s != '\r';s++);
+
+        *s = '\0';
+        s += 2;
+        text = b;
+        theText.push_back(text);
+    }
+}
+
+
+// Constructor
+// Params: Users descriptor, The final destination of the text, 
+//      the max size of the text.
+CTextEditor::CTextEditor(struct descriptor_data *d, 
+                         char **dest, 
+                         int max, 
+                         bool startup) :theText() {
+    // Internal pointer to the descriptor
+    desc = d;
+    // Internal pointer to the destination
+    target = dest;
+
+    // The maximum size of the buffer.
+    maxSize = max;
+
+    if(*target) {
+        ImportText();
+    }
+    desc->editor_cur_lnum = theText.size() + 1;
+    UpdateSize();
+    if(startup) {
+        SendStartupMessage();
+        List();
+    }
+}
+
+void CTextEditor::SendMessage(const char *message) {
+    send_to_char(message,desc->character);
+}
+
+void CTextEditor::SendStartupMessage( void ) {
+    struct char_data *ch;
+    ch = desc->character;
+
+    sprintf(buf,"%s%s    *",CCBLD(ch,C_CMP),CCCYN(ch,C_NRM));
+    sprintf(buf,"%s%s TEDII ",buf,CCYEL(ch,C_NRM));
+    sprintf(buf,"%s%s] ",buf,CCBLU(ch,C_NRM));
+    sprintf(buf,"%s%sTerminate with @ on a new line. &H for help",buf,CCNRM(ch,C_NRM));
+    sprintf(buf,"%s%s%s                 *\r\n",buf,CCBLD(ch,C_CMP),CCCYN(ch,C_NRM));
+    sprintf(buf,"%s    %s",buf,CCBLD(ch,C_CMP));
+    for (int x=0;x < 7;x++) {
+        sprintf(buf,"%s%s%d%s---------",buf,CCCYN(ch,C_NRM),x,CCBLU(ch,C_NRM));
+    }
+    sprintf(buf,"%s%s7%s\r\n",buf,CCCYN(ch,C_NRM),CCNRM(ch,C_NRM));
+    SEND_TO_Q(buf,desc);
+}
+
+void CTextEditor::UpdateSize( void ) {
+    list<string>::iterator s;
+    
+    curSize = 0;
+
+    for(s = theText.begin();s != theText.end();s++) {
+        curSize += s->length();
+    }
+    desc->editor_cur_lnum = theText.size() + 1;
+}
+void CTextEditor::ProcessHelp(char *inStr) {
+    struct char_data *ch = desc->character;
+    char command[MAX_INPUT_LENGTH];
+    if(!*inStr) {
+        sprintf(buf,"%s%s     *",CCBLD(ch,C_CMP),CCCYN(ch,C_NRM));
+        sprintf(buf,"%s%s-----------------------",buf,CCBLU(ch,C_NRM));
+        sprintf(buf,"%s%s H E L P ",buf,CCYEL(ch,C_NRM));
+        sprintf(buf,"%s%s-----------------------",buf,CCBLU(ch,C_NRM));
+        sprintf(buf,"%s%s* \r\n%s",buf,CCCYN(ch,C_NRM),CCNRM(ch,C_NRM));
+        sprintf(buf,"%s%s%s            ",buf,CCBLD(ch,C_CMP),CCYEL(ch,C_NRM));
+        sprintf(buf,"%sF%s - %sFind & Replace   ",buf,CCYEL(ch,C_NRM),CCNRM(ch,C_NRM));
+        sprintf(buf,"%s    %s%s",buf,CCBLD(ch,C_CMP),CCYEL(ch,C_NRM));
+        sprintf(buf,"%sH%s - %sHelp         \r\n",buf,CCYEL(ch,C_NRM),CCNRM(ch,C_NRM));
+        sprintf(buf,"%s%s%s            ",buf,CCBLD(ch,C_CMP),CCYEL(ch,C_NRM));
+        sprintf(buf,"%sS%s - %sSave and Exit    ",buf,CCYEL(ch,C_NRM),CCNRM(ch,C_NRM));
+        sprintf(buf,"%s    %s%s",buf,CCBLD(ch,C_CMP),CCYEL(ch,C_NRM));
+        sprintf(buf,"%sQ%s - %sQuit (Cancel)\r\n",buf,CCYEL(ch,C_NRM),CCNRM(ch,C_NRM));
+        sprintf(buf,"%s%s%s            ",buf,CCBLD(ch,C_CMP),CCYEL(ch,C_NRM));
+        sprintf(buf,"%sL%s - %sReplace Line     ",buf,CCYEL(ch,C_NRM),CCNRM(ch,C_NRM));
+        sprintf(buf,"%s    %s%s",buf,CCBLD(ch,C_CMP),CCYEL(ch,C_NRM));
+        sprintf(buf,"%sD%s - %sDelete Line  \r\n",buf,CCYEL(ch,C_NRM),CCNRM(ch,C_NRM));
+        sprintf(buf,"%s%s%s            ",buf,CCBLD(ch,C_CMP),CCYEL(ch,C_NRM));
+        sprintf(buf,"%sI%s - %sInsert Line      ",buf,CCYEL(ch,C_NRM),CCNRM(ch,C_NRM));
+        sprintf(buf,"%s    %s%s",buf,CCBLD(ch,C_CMP),CCYEL(ch,C_NRM));
+        sprintf(buf,"%sR%s - %sRefresh Screen\r\n",buf,CCYEL(ch,C_NRM),CCNRM(ch,C_NRM));
+        sprintf(buf,"%s%s%s            ",buf,CCBLD(ch,C_CMP),CCYEL(ch,C_NRM));
+        sprintf(buf,"%sC%s - %sClear Buffer     ",buf,CCYEL(ch,C_NRM),CCNRM(ch,C_NRM));
+        sprintf(buf,"%s    %s%s",buf,CCBLD(ch,C_CMP),CCYEL(ch,C_NRM));
+        sprintf(buf,"%sU%s - %sUndo Changes  \r\n",buf,CCYEL(ch,C_NRM),CCNRM(ch,C_NRM));
+        sprintf(buf,"%s%s%s     *",buf,CCBLD(ch,C_CMP),CCCYN(ch,C_NRM));
+        sprintf(buf,"%s%s-------------------------------------------------------",buf,CCBLU(ch,C_NRM));
+        sprintf(buf,"%s%s*%s\r\n",buf,CCCYN(ch,C_NRM),CCNRM(ch,C_NRM));
+        SendMessage(buf);
+    } else {
+        inStr++;
+        inStr = one_argument(inStr,command);
+        *command = tolower(*command);
+        switch(*command) {
+            case 'f':
+                sprintf(buf,"%sFind & Replace: '&f' \r\n",buf);
+                sprintf(buf,"%s&f [red] [yellow]\r\n",buf);
+                sprintf(buf,"%sReplaces all occurances of \"red\" with \"yellow\".\r\n",buf);
+                sprintf(buf,"%se.g. 'That is a red dog.' would become 'That is a yellow dog.'\r\n",buf);
+                sprintf(buf,"%sAlso, 'Fred is here.' would become 'Fyellow is here.'\r\n",buf);
+                sprintf(buf,"%sWhen replacing words, remember to include the spaces     to either side\r\n",buf);
+                sprintf(buf,"%sin the replacement to keep from replacing partial words my mistake.\r\n",buf);
+                sprintf(buf,"%s(i.e. use '[ red ] [ yellow ]' instead of '[red] [yellow]'.\r\n",buf);
+                break;
+            case 'r':
+                sprintf(buf,"%sRefresh Screen: &r\r\n",buf);
+                sprintf(buf,"%sPrints out the entire text buffer.\r\n",buf);
+                sprintf(buf,"%s(The message/post/description)\r\n",buf);
+                sprintf(buf,"%sA single period '.' without an '&' can be used as well.\r\n",buf);
+                break;
+            case 'l':
+                sprintf(buf,"%sReplace Line: &l\r\n",buf);
+                sprintf(buf,"%s&l <line #> <replacement text>\r\n",buf);
+                sprintf(buf,"%sReplaces line <line #> with <replacement text>.",buf);
+                sprintf(buf,"%sSpaces are saved in the replacement text to save indentation.\r\n",buf);
+                break;
+            case 'd':
+                sprintf(buf,"%sDelete Line: &d\r\n",buf);
+                sprintf(buf,"%s&d <line #>\r\n",buf);
+                sprintf(buf,"%sDeletes line <line #>\r\n",buf);
+                break;
+            case 'i':
+                sprintf(buf,"%sInsert Line: &i\r\n",buf);
+                sprintf(buf,"%s&i <line #> <insert text>\r\n",buf);
+                sprintf(buf,"%sInserts <insert text> before line <line #>.\r\n",buf);
+                sprintf(buf,"%sSpaces are saved in the replacement text to save indentation\r\n",buf);
+                sprintf(buf,"%sA note to TinTin users:\r\n",buf);
+                sprintf(buf,"%s    Tintin removes all spaces before a command.\r\n",buf);
+                sprintf(buf,"%s    Use '&i <current line #> <spaces> <text>' to indent a line.\r\n",buf);
+                break;
+            case 'u':
+                sprintf(buf,"%sUndo Changes: &u\r\n",buf);
+                sprintf(buf,"%s&u yes\r\n",buf);
+                sprintf(buf,"%sUndoes all changes since last save.\r\n",buf);
+                sprintf(buf,"%s(Changes do not save until you exit the editor)\r\n",buf);
+                break;
+            case 'c':
+                sprintf(buf,"%sClear Buffer: &c\r\n",buf);
+                sprintf(buf,"%sDeletes ALL text in the current buffer.\r\n",buf);
+                break;
+            default:
+                sprintf(buf,"Sorry. There is no help on that.\r\n");
+        }
+        SendMessage(buf);
+    }
+}
+bool CTextEditor::ProcessCommand(char *inStr) {
+    int line;
+    char command[MAX_INPUT_LENGTH];
+    inStr++;
+    if(!*inStr) {
+        SendMessage("Invalid Command\r\n");
+    }
+    inStr = one_argument(inStr,command);
+    *command = tolower(*command);
+    switch(*command) {
+        case 'h': // Help
+            ProcessHelp(inStr);
+            return true;
+            break;
+        case 'f':   // Find/Replace
+            SendMessage("Not Implemented.\r\n");
+            return true;
+            break;
+        case 's':   // Save and Exit
+            SaveText(inStr);
+            desc->text_editor=NULL;
+            delete this;
+            return true;
+            break;
+        case 'l':   // Replace Line
+            inStr = one_argument(inStr,command);
+            if(!isdigit(*command)) {
+                SendMessage("Invalid Line #\r\n");
+                return false;
+            }
+            line = atoi(command);
+            if(line < 0) {
+                SendMessage("Invalid Line #\r\n");
+                return false;
+            }
+            return ReplaceLine((unsigned int)line,inStr);
+            break;
+        case 'i':   // Insert Line
+            inStr = one_argument(inStr,command);
+            if(!isdigit(*command)) {
+                SendMessage("Invalid Line #\r\n");
+                return false;
+            }
+            line = atoi(command);
+            if(line < 0) {
+                SendMessage("Invalid Line #\r\n");
+                return false;
+            }
+            return Insert((unsigned int)line,inStr);
+            break;  
+        case 'c':   // Clear Buffer
+            Clear();
+            SendMessage("Cleared.\r\n");
+            return true;
+            break;
+        case 'q':   // Quit without saving
+            SendMessage("Not Implemented.\r\n");
+            return true;
+            break;
+        case 'd':   // Delete Line
+            inStr = one_argument(inStr,command);
+            if(!isdigit(*command)) {
+                SendMessage("Invalid Line #\r\n");
+                return false;
+            }
+            line = atoi(command);
+            if(line < 0) {
+                SendMessage("Invalid Line #\r\n");
+                return false;
+            }
+            Remove((unsigned int)line);
+            break;
+        case 'r':   // Refresh Screen
+            List();
+            break;
+        case 'u':   // Undo Changes
+            SendMessage("Not Implemented.\r\n");
+            break;
+    }
+
+    return false;
+}
+

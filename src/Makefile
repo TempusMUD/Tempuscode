@@ -9,7 +9,7 @@ SUBDIRS= \
 	matrix misc mobiles net objsave olc paths quest search shop \
 	smokes social specials util vehicle weather structs 
 
-MAKEFLAGS=-s -k 4 
+MAKEFLAGS=-s -k 4
 OBJ=ObjFiles
 LIBS=-lcrypt
 EXE=../bin/circle

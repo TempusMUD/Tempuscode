@@ -5,9 +5,13 @@
 // Copyright 1998 by John Watson, all rights reserved.
 //
 
+
 #ifndef __desc_data_h__
 #define __desc_data_h__
 
+#include "structs.h"
+#include "defs.h"
+#include "editor.h"
 
 /* Modes of connectedness: used by descriptor_data.state */
 #define CON_PLAYING	 0		/* Playing - Nominal state	*/
@@ -87,9 +91,11 @@ struct descriptor_data {
    byte	prompt_mode;		/* control of prompt-printing		*/
    int	max_str;		/*		-			*/
    int  repeat_cmd_count;       /* how many times has this command been */
-   int  editor_mode;            /* Flag if char is in editor            */
+   // We know if text_editor != NULL
+   //int  editor_mode;            /* Flag if char is in editor            */
    int  editor_cur_lnum;        /* Current line number for editor       */
    char *editor_file;           /* Original line number for editor      */
+   CTextEditor *text_editor;    /*  Pointer to text editor object. */
    char	inbuf[MAX_RAW_INPUT_LENGTH];  /* buffer for raw input		*/
    char	last_input[MAX_INPUT_LENGTH]; /* the last input			*/
    char small_outbuf[SMALL_BUFSIZE];  /* standard output buffer		*/

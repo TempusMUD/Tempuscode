@@ -563,13 +563,7 @@ ACMD(do_dynedit)
 	act("$n begins editing a dynamic text file.", TRUE, ch, 0, 0, TO_ROOM);
 
 	// enter the text editor
-	send_to_char(TED_MESSAGE, ch);
-	ch->desc->str = &dyntext->tmp_buffer;
-	ch->desc->max_str = MAX_STRING_LENGTH;
-	if (dyntext->tmp_buffer) {
-	    ch->desc->editor_mode = 1;
-	    ch->desc->editor_cur_lnum = get_line_count(dyntext->tmp_buffer);
-	}
+    start_text_editor(ch->desc, &dyntext->tmp_buffer, true, MAX_STRING_LENGTH);
 	SET_BIT(PLR_FLAGS(ch), PLR_WRITING);
 
 	break;

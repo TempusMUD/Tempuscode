@@ -302,17 +302,14 @@ Board_write_message(int board_type, struct char_data * ch, struct obj_data *obj,
     NEW_MSG_INDEX(board_type).heading[len - 1] = '\0';
     NEW_MSG_INDEX(board_type).level = GET_LEVEL(ch);
 
-    send_to_char(" Write your message.  Terminate with a @ on a new line.\r\n"
-		 " Enter a * on a new line to enter TED\r\n", ch);
-    send_to_char(" [+--------+---------+---------+--------"
-		 "-+---------+---------+---------+------+]\r\n", ch);
-    act("$n starts to write a message.", TRUE, ch, 0, 0, TO_ROOM);
-
-    if (!IS_NPC(ch))
+    start_text_editor(ch->desc,
+        &(msg_storage[NEW_MSG_INDEX(board_type).slot_num]),
+        true,
+        MAX_MESSAGE_LENGTH);
 	SET_BIT(PLR_FLAGS(ch), PLR_WRITING);
 
-    ch->desc->str = &(msg_storage[NEW_MSG_INDEX(board_type).slot_num]);
-    ch->desc->max_str = MAX_MESSAGE_LENGTH;
+    act("$n starts to write a message.", TRUE, ch, 0, 0, TO_ROOM);
+
     CREATE(n_mail_to, struct mail_recipient_data, 1);
     n_mail_to->next = NULL;
     n_mail_to->recpt_idnum = board_type + BOARD_MAGIC;

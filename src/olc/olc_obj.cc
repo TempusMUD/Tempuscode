@@ -629,13 +629,11 @@ perform_oset(struct char_data *ch, struct obj_data *obj_p,
 		free(desc->description);
 	    desc->description = NULL;
 	}
-	send_to_char(TED_MESSAGE, ch);
-	ch->desc->str = &desc->description;
-	ch->desc->max_str = MAX_STRING_LENGTH;
-	if (subcmd == OLC_OSET)
-	    UPDATE_OBJLIST(obj_p, tmp_obj, ->ex_description);
-    
+    start_text_editor(ch->desc, &desc->description,true);
 	SET_BIT(PLR_FLAGS(ch), PLR_OLC);
+    
+    if (subcmd == OLC_OSET)
+        UPDATE_OBJLIST(obj_p, tmp_obj, ->ex_description);
 	act("$n begins to write an object description.", 
 	    TRUE, ch, 0, 0, TO_ROOM);
 	break;

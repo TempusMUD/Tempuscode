@@ -45,6 +45,7 @@
 #include "intermud.h"
 #include "vehicle.h"
 #include "help.h"
+#include "desc_data.h"
 
 /* externs */
 extern HelpCollection *Help;
@@ -123,7 +124,6 @@ void burn_update(void);
 void dynamic_object_pulse();
 void flow_room(int pulse);
 void path_activity();
-void string_add(struct descriptor_data * d, char *str);
 void editor(struct descriptor_data *d, char *buffer);
 void perform_violence(void);
 void show_string(struct descriptor_data * d, char *input);
@@ -576,8 +576,8 @@ game_loop(int mother_desc)
 		d->prompt_mode = 1;
 
 
-		if (d->str)			/* writing boards, mail, etc.	*/
-		    editor(d, comm);
+		if (d->text_editor)			/* writing boards, mail, etc.	*/
+		    d->text_editor->Process(comm);
 		else if (d->showstr_point)	/* reading something w/ pager	*/
 		    show_string(d, comm);
 		else if (d->connected != CON_PLAYING)	/* in menus, etc.	*/
@@ -807,11 +807,11 @@ make_prompt(struct descriptor_data * d)
     char lnum[5];
     char colorbuf[ 100 ];	
   
-    if (d->str)
-	if (d->editor_mode == 1)
-	    write_to_descriptor(d->descriptor, "[TED] ");
-	else {
-	    sprintf(lnum, "%-2d] ", d->editor_cur_lnum);
+    if (d->text_editor) {
+	    sprintf(lnum, "%-2d%s]%s ",
+        d->editor_cur_lnum, 
+        CCBLU_BLD(d->character,C_NRM), 
+        CCNRM(d->character,C_NRM));
 	    write_to_descriptor(d->descriptor, lnum);
 	}
     else if (d->showstr_point) {
@@ -1083,9 +1083,9 @@ new_descriptor(int s)
     newd->bufspace = SMALL_BUFSIZE - 1;
     newd->next = descriptor_list;
     newd->login_time = time(0);
-    newd->editor_mode = 0;
     newd->editor_cur_lnum = 1;
     newd->editor_file = NULL;
+    newd->text_editor = NULL;
     newd->idle = 0;
   
     if (++last_desc == 10000)

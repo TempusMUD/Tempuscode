@@ -439,21 +439,12 @@ ACMD(do_olc)
 	    }
   
 	    if (EXIT(ch, edir)->general_description == NULL) {
-		send_to_char(TED_MESSAGE, ch);
-		ch->desc->str = &EXIT(ch, edir)->general_description;
-		ch->desc->max_str = MAX_STRING_LENGTH;
-		SET_BIT(PLR_FLAGS(ch), PLR_OLC);
-		act("$n begins to create an exit description.", TRUE, ch, 0, 0, TO_ROOM);
+            act("$n begins to create an exit description.", TRUE, ch, 0, 0, TO_ROOM);
+	    } else {
+            act("$n begins to edit an exit description.", TRUE, ch, 0, 0, TO_ROOM);
 	    }
-	    else {
-		send_to_char("Use TED to modify the exit description.\r\n", ch);
-		ch->desc->str = &EXIT(ch, edir)->general_description;
-		ch->desc->max_str = MAX_STRING_LENGTH;
-		ch->desc->editor_mode = 1;
-		ch->desc->editor_cur_lnum = get_line_count(EXIT(ch, edir)->general_description);
-		SET_BIT(PLR_FLAGS(ch), PLR_OLC);
-		act("$n begins to edit an exit description.", TRUE, ch, 0, 0, TO_ROOM);
-	    }
+        start_text_editor(ch->desc,&EXIT(ch,edir)->general_description,true);
+        SET_BIT(PLR_FLAGS(ch), PLR_OLC);
 	    return;
 	} 
 	else if (is_abbrev(buf,"keywords"))  {
@@ -778,13 +769,13 @@ ACMD(do_olc)
 #endif
 	    ndesc->next = obj_p->ex_description;
 	    obj_p->ex_description = ndesc;
-	    send_to_char(TED_MESSAGE, ch);
-	    ch->desc->str = &obj_p->ex_description->description;
-	    ch->desc->max_str = MAX_STRING_LENGTH;
-	    UPDATE_OBJLIST(obj_p, tmp_obj, ->ex_description);
+
+        start_text_editor(ch->desc, &obj_p->ex_description->description,true);
 	    SET_BIT(PLR_FLAGS(ch), PLR_OLC);
+
 	    act("$n begins to write an object description.", 
 		TRUE, ch, 0, 0, TO_ROOM);
+	    UPDATE_OBJLIST(obj_p, tmp_obj, ->ex_description);
 	    for (tmp_obj = object_list; tmp_obj; tmp_obj = tmp_obj->next)
 		if (GET_OBJ_VNUM(tmp_obj) == GET_OBJ_VNUM(obj_p))
 		    tmp_obj->ex_description = NULL;
@@ -792,15 +783,9 @@ ACMD(do_olc)
 	    return;
 	} else if (is_abbrev(buf, "edit")) {
 	    if ((desc = locate_exdesc(argument,obj_p->ex_description))) {
-		send_to_char("Use TED to modify the object description.\r\n", ch);
-		ch->desc->str = &desc->description;
-		ch->desc->max_str = MAX_STRING_LENGTH;
-		if (desc->description) {
-		    ch->desc->editor_mode = 1;
-		    ch->desc->editor_cur_lnum = get_line_count(desc->description);
-		}
-		UPDATE_OBJLIST(obj_p, tmp_obj, ->ex_description);
+        start_text_editor(ch->desc, &desc->description,true);
 		SET_BIT(PLR_FLAGS(ch), PLR_OLC);
+		UPDATE_OBJLIST(obj_p, tmp_obj, ->ex_description);
 		act("$n begins to write an object description.", 
 		    TRUE, ch, 0, 0, TO_ROOM);
 		for (tmp_obj = object_list; tmp_obj; tmp_obj = tmp_obj->next)

@@ -251,6 +251,7 @@ postmaster_send_mail(struct char_data * ch, struct char_data *mailman,
     struct clan_data *clan = NULL;
     struct clanmember_data *member = NULL;
     int status = 0;
+    char **tmp_char = NULL;
   
     if (GET_LEVEL(ch) < MIN_MAIL_LEVEL) {
 		sprintf(buf2, "Sorry, you have to be level %d to send mail!", 
@@ -363,22 +364,12 @@ postmaster_send_mail(struct char_data * ch, struct char_data *mailman,
     act("$n starts to write some mail.", TRUE, ch, 0, 0, TO_ROOM);
     sprintf(buf2, "I'll take %d coins for the postage.", total_cost);
     perform_tell(mailman, ch, buf2);
-    send_to_char(" Write your message.  Terminate with a @ on a new line.\r\n"
-         " Enter a * on a new line to enter TED\r\n", ch);
-    send_to_char(" [+--------+---------+---------+--------"
-         "-+---------+---------+---------+------+]\r\n", ch);
+
+    tmp_char = (char **) malloc(sizeof(char *));
+    *(tmp_char) = NULL;
     
     SET_BIT(PLR_FLAGS(ch), PLR_MAILING | PLR_WRITING);
-
-#ifdef DMALLOC
-    dmalloc_verify(0);
-#endif
-    ch->desc->str = (char **) malloc(sizeof(char *));
-#ifdef DMALLOC
-    dmalloc_verify(0);
-#endif
-    *(ch->desc->str) = NULL;
-    ch->desc->max_str = MAX_MAIL_SIZE;
+    start_text_editor(ch->desc,tmp_char,true,MAX_MAIL_SIZE); 
 }
 
 void 

@@ -410,29 +410,15 @@ void do_mob_mset(struct char_data *ch, char *argument)
 	break;
     case 3:                 /** desc **/
 	if (mob_p->player.description == NULL) {
-	    CREATE(mob_p->player.description, char, MAX_STRING_LENGTH);
-	    send_to_char(TED_MESSAGE, ch);
 	    act("$n starts to write a mobile description.", TRUE, ch, 0, 0, TO_ROOM);
-	    ch->desc->str = &mob_p->player.description;
-	    ch->desc->max_str = MAX_STRING_LENGTH;
-	    SET_BIT(PLR_FLAGS(ch), PLR_OLC);
-	    for (tmp_mob = character_list; tmp_mob; tmp_mob = tmp_mob->next)
-		if (GET_MOB_VNUM(tmp_mob) == GET_MOB_VNUM(mob_p))
-		    tmp_mob->player.description = NULL;
-
-	}
-	else {
-	    send_to_char("Use TED to modify the mobile descripition.\r\n", ch);
-	    ch->desc->str = &mob_p->player.description;
-	    ch->desc->max_str = MAX_STRING_LENGTH;
-	    ch->desc->editor_mode = 1;
-	    ch->desc->editor_cur_lnum = get_line_count(mob_p->player.description);
-	    SET_BIT(PLR_FLAGS(ch), PLR_OLC);
+	} else {
 	    act("$n begins to edit a mobile description.", TRUE, ch, 0, 0, TO_ROOM);
-	    for (tmp_mob = character_list; tmp_mob; tmp_mob = tmp_mob->next)
-		if (GET_MOB_VNUM(tmp_mob) == GET_MOB_VNUM(mob_p))
-		    tmp_mob->player.description = NULL;
 	}
+    start_text_editor(ch->desc, &mob_p->player.description,true);
+    SET_BIT(PLR_FLAGS(ch), PLR_OLC);
+    for (tmp_mob = character_list; tmp_mob; tmp_mob = tmp_mob->next)
+    if (GET_MOB_VNUM(tmp_mob) == GET_MOB_VNUM(mob_p))
+        tmp_mob->player.description = NULL;
 	break;
     case 4:                /** flags **/
 	tmp_flags = 0;
@@ -1059,19 +1045,13 @@ void do_mob_mset(struct char_data *ch, char *argument)
 	    nreply->keyword  = str_dup(argument);
 	    nreply->next = mob_p->mob_specials.response;
 	    mob_p->mob_specials.response = nreply;
-	    send_to_char(TED_MESSAGE, ch);
-	    ch->desc->str = &mob_p->mob_specials.response->description;
-	    ch->desc->max_str = MAX_STRING_LENGTH;
+        start_text_editor(ch->desc, &mob_p->mob_specials.response->description,true);
 	    SET_BIT(PLR_FLAGS(ch), PLR_OLC);
 	    act("$n begins to write a mobile response.", TRUE, ch, 0, 0, TO_ROOM);
 	    return;
 	} else if (is_abbrev(buf, "edit")) {
 	    if ((reply = locate_exdesc(argument,mob_p->mob_specials.response))) {
-		send_to_char("Use TED to modify the response.\r\n", ch);
-		ch->desc->str = &reply->description;
-		ch->desc->max_str = MAX_STRING_LENGTH;
-		ch->desc->editor_mode = 1;
-		ch->desc->editor_cur_lnum = get_line_count(reply->description);
+        start_text_editor(ch->desc, &reply->description,true);
 		SET_BIT(PLR_FLAGS(ch), PLR_OLC);
 		act("$n begins to edit a mobile response.", TRUE, ch, 0, 0, TO_ROOM);
 	    } else

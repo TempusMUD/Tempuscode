@@ -516,31 +516,18 @@ ACMD(do_write)
 
 
     /* ok.. now let's see what kind of stuff we've found */
-    if (GET_OBJ_TYPE(pen) != ITEM_PEN)
-	act("$p is no good for writing with.", FALSE, ch, pen, 0, TO_CHAR);
-    else if (GET_OBJ_TYPE(paper) != ITEM_NOTE)
-	act("You can't write on $p.", FALSE, ch, paper, 0, TO_CHAR);
-    else if (paper->action_description)
-	send_to_char("There's something written on it already.\r\n", ch);
-    else {
-	if (paper->action_description == NULL) {
-	    CREATE(paper->action_description, char, MAX_NOTE_LENGTH);
-	    send_to_char(" Write the note.  Terminate with a @ on a new line.\r\n"
-			 " Enter a * on a new line to enter TED\r\n", ch);
-	    send_to_char(" [+--------+---------+---------+--------"
-			 "-+---------+---------+---------+------+]\r\n", ch);
-	    act("$n begins to jot down a note..", TRUE, ch, 0, 0, TO_ROOM);
-	    ch->desc->str = &paper->action_description;
-	    ch->desc->max_str = MAX_NOTE_LENGTH;
-	}
-	else {
-	    send_to_char("Use TED to modify the note.\r\n", ch);
-	    ch->desc->str = &paper->action_description;
-	    ch->desc->max_str = MAX_NOTE_LENGTH;
-	    ch->desc->editor_mode = 1;
-	    ch->desc->editor_cur_lnum = get_line_count(paper->action_description);
-	    act("$n begins to edit a note.", TRUE, ch, 0, 0, TO_ROOM);
-	}
+    if (GET_OBJ_TYPE(pen) != ITEM_PEN) {
+        act("$p is no good for writing with.", FALSE, ch, pen, 0, TO_CHAR);
+    } else if (GET_OBJ_TYPE(paper) != ITEM_NOTE) {
+        act("You can't write on $p.", FALSE, ch, paper, 0, TO_CHAR);
+    } else if (paper->action_description) {
+        send_to_char("There's something written on it already.\r\n", ch);
+    } else {
+        if (paper->action_description == NULL)
+            CREATE(paper->action_description, char, MAX_NOTE_LENGTH);
+        start_text_editor(ch->desc, &paper->action_description, true, MAX_NOTE_LENGTH);
+        SET_BIT(PLR_FLAGS(ch), PLR_WRITING);
+        act("$n begins to jot down a note..", TRUE, ch, 0, 0, TO_ROOM);
     }
 }
 
