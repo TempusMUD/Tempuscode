@@ -56,7 +56,6 @@ extern struct descriptor_data *descriptor_list;
 extern CreatureList characterList;
 
 extern struct obj_data *object_list;
-extern const struct title_type titles[NUM_CLASSES][LVL_GRIMP + 1];
 //extern const struct command_info cmd_info[];
 extern struct zone_data *zone_table;
 
@@ -96,7 +95,6 @@ extern const char *from_dirs[];
 extern const char *material_names[];
 extern const int rev_dir[];
 extern const char *wear_implantpos[];
-extern const char *evil_knight_titles[];
 extern const char *moon_sky_types[];
 extern const char *soilage_bits[];
 extern const char *wear_description[];
@@ -4167,49 +4165,6 @@ ACMD(do_attributes)
 		CCBLU(ch, C_SPR), CCWHT(ch, C_SPR));
 	send_to_char(ch, "%s", buf);
 }
-
-ACMD(do_levels)
-{
-	int i;
-
-	if (IS_NPC(ch)) {
-		send_to_char(ch, "You ain't nothin' but a hound-dog.\r\n");
-		return;
-	}
-	*buf = '\0';
-
-	for (i = 1; i < LVL_AMBASSADOR; i++) {
-		sprintf(buf + strlen(buf), "[%s%2d%s] %10d%s-%s%-10d : %s",
-			CCCYN(ch, C_NRM), i, CCNRM(ch, C_NRM),
-			exp_scale[i], CCCYN(ch, C_NRM), CCNRM(ch, C_NRM),
-			exp_scale[i + 1], CCYEL(ch, C_NRM));
-		if (GET_CLASS(ch) == CLASS_KNIGHT && IS_EVIL(ch))
-			strcat(buf, evil_knight_titles[i]);
-		else {
-			switch (GET_SEX(ch)) {
-			case SEX_MALE:
-			case SEX_NEUTRAL:
-				strcat(buf,
-					titles[(int)MIN(GET_CLASS(ch),
-							NUM_CLASSES - 1)][i].title_m);
-				break;
-			case SEX_FEMALE:
-				strcat(buf,
-					titles[(int)MIN(GET_CLASS(ch),
-							NUM_CLASSES - 1)][i].title_f);
-				break;
-			default:
-				send_to_char(ch, "Oh dear.  You seem to be sexless.\r\n");
-				break;
-			}
-		}
-		strcat(buf, CCNRM(ch, C_NRM));
-		strcat(buf, "\r\n");
-	}
-	page_string(ch->desc, buf);
-}
-
-
 
 ACMD(do_consider)
 {

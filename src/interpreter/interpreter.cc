@@ -243,7 +243,6 @@ ACMD(do_knock);
 ACMD(do_last);
 ACMD(do_leave);
 ACMD(do_lecture);
-ACMD(do_levels);
 ACMD(do_listen);
 ACMD(do_light);
 ACMD(do_look);
@@ -855,7 +854,6 @@ struct command_info cmd_info[] = {
 	{"learn", POS_STANDING, do_practice, 1, 0, 0, 0},
 	{"lecture", POS_STANDING, do_lecture, 0, 0, 0, 0},
 	{"leer", POS_RESTING, do_action, 0, 0, 0, 0},
-	{"levels", POS_DEAD, do_levels, 0, 0, 0, 0},
 	{"levitate", POS_RESTING, do_fly, 0, 0, 0, 0},
 	{"light", POS_RESTING, do_light, 0, 0, 0, 0},
 	{"list", POS_STANDING, do_not_here, 0, 0, 0, 0},
