@@ -3890,9 +3890,10 @@ show_player(CHAR *ch, char * value)
 
 void
 show_multi(CHAR *ch, char *arg) {
-        struct char_file_u *whole_file,*cur_pl;
+    struct char_file_u *whole_file,*cur_pl;
     struct char_file_u chdata;
-        int pl_idx,dot_pos;
+    int pl_idx,dot_pos;
+    int players_listed = 0;
 
     if (!*arg) {
         send_to_char("For whom do you wish to search?\r\n", ch);
@@ -3913,29 +3914,33 @@ show_multi(CHAR *ch, char *arg) {
             GET_LEVEL(ch) > LVL_ETERNAL ? chdata.host : "Unknown",
             ctime(&chdata.last_logon));
         
-        dot_pos = ( strrchr( chdata.host,'.' ) - chdata.host ) - 1;
+    dot_pos = ( strrchr( chdata.host,'.' ) - chdata.host ) - 1;
 
-        // Now we load in the whole player file, looking for matches
-        pl_idx = top_of_p_table + 1;
-        CREATE(whole_file, struct char_file_u, pl_idx);
-        fseek(player_fl, 0, SEEK_SET);
-        if ( (int)fread(whole_file, sizeof(struct char_file_u), pl_idx, player_fl) != pl_idx ) {
-                send_to_char("Didn't read the right number of records.\r\n", ch);
-                return;
+    // Now we load in the whole player file, looking for matches
+    pl_idx = top_of_p_table + 1;
+    CREATE(whole_file, struct char_file_u, pl_idx);
+    fseek(player_fl, 0, SEEK_SET);
+    if ( (int)fread(whole_file, sizeof(struct char_file_u), pl_idx, player_fl) != pl_idx ) {
+        send_to_char("Didn't read the right number of records.\r\n", ch);
+        return;
+    }
+    for (cur_pl = whole_file;pl_idx && players_listed < 300 ;cur_pl++, pl_idx--) {
+        if ( cur_pl->char_specials_saved.idnum == GET_IDNUM(ch) || 
+             cur_pl->char_specials_saved.idnum == chdata.char_specials_saved.idnum ) 
+        {
+            continue;
         }
-        for (cur_pl = whole_file;pl_idx;cur_pl++, pl_idx--) {
-                if ( cur_pl->char_specials_saved.idnum == GET_IDNUM(ch) || cur_pl->char_specials_saved.idnum == chdata.char_specials_saved.idnum )
-                        continue;
-                if ( !strncmp(cur_pl->host, chdata.host, dot_pos) &&
-                         cur_pl->level <= GET_LEVEL(ch) )
-                        sprintf(buf, "%s[%5ld] [%2d %s] %-12s : %-18s : %-20s", buf,
-                                        cur_pl->char_specials_saved.idnum, (int) cur_pl->level,
-                                        char_class_abbrevs[(int) cur_pl->char_class], cur_pl->name, 
-                                        GET_LEVEL(ch) > LVL_ETERNAL ? cur_pl->host : "Unknown",
-                                        ctime(&cur_pl->last_logon));
+        if ( !strncmp(cur_pl->host, chdata.host, dot_pos) && cur_pl->level <= GET_LEVEL(ch) ) {
+            sprintf(buf, "%s[%5ld] [%2d %s] %-12s : %-18s : %-20s", buf,
+                                cur_pl->char_specials_saved.idnum, (int) cur_pl->level,
+                                char_class_abbrevs[(int) cur_pl->char_class], cur_pl->name, 
+                                GET_LEVEL(ch) > LVL_ETERNAL ? cur_pl->host : "Unknown",
+                                ctime(&cur_pl->last_logon));
+            ++players_listed;
         }
-        free(whole_file);
-        page_string(ch->desc, buf, 1);
+    }
+    free(whole_file);
+    page_string(ch->desc, buf, 1);
 }
 
 void
