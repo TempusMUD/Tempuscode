@@ -2658,29 +2658,34 @@ mag_points(int level, struct Creature *ch, struct Creature *victim,
 	int hunger = 0;
 	int thirst = 0;
 	char *to_vict = NULL, *to_room = NULL;
+	int skill;
 
 	if (victim == NULL)
 		return;
 
+	if (savetype == SAVING_ROD || savetype == SAVING_NONE)
+		skill = 100;
+	else
+		skill = CHECK_SKILL(ch, spellnum);
 	switch (spellnum) {
 	case SPELL_CURE_LIGHT:
 		hit = dice(1, 8) + 1 + (level >> 2);
-        hit = ((CHECK_SKILL(ch, spellnum)) * hit) / 100;
+        hit = (skill * hit) / 100;
 		to_vict = "You feel better.";
 		break;
 	case SPELL_CURE_CRITIC:
 		hit = dice(3, 8) + 3 + (level >> 2);
-        hit = ((CHECK_SKILL(ch, spellnum)) * hit) / 100;
+        hit = (skill * hit) / 100;
 		to_vict = "You feel a lot better!";
 		break;
 	case SPELL_HEAL:
 		hit = 50 + dice(3, level);
-		hit = ((CHECK_SKILL(ch, spellnum)) * hit) / 100;
+		hit = (skill * hit) / 100;
 		to_vict = "A warm feeling floods your body.";
 		break;
 	case SPELL_GREATER_HEAL:
 		hit = 100 + dice(5, level);
-        hit = ((CHECK_SKILL(ch, spellnum)) * hit) / 100;
+        hit = (skill * hit) / 100;
 		to_vict = "A supreme warm feeling floods your body.";
 		break;
 	case SPELL_RESTORATION:
@@ -2693,7 +2698,7 @@ mag_points(int level, struct Creature *ch, struct Creature *victim,
 		break;
 	case SPELL_REFRESH:
 		move = 50 + number(0, level) + GET_WIS(ch);
-		move = ((CHECK_SKILL(ch, spellnum)) * hit) / 100;
+		move = (skill * hit) / 100;
 		to_vict = "You feel refreshed!.";
 		break;
 	case SPELL_MANA_RESTORE:
@@ -2733,7 +2738,7 @@ mag_points(int level, struct Creature *ch, struct Creature *victim,
 	case SPELL_CELL_REGEN:
 		hit = dice(4, 6 + (CHECK_SKILL(ch, SPELL_CELL_REGEN) >> 4)) +
 			number(level >> 1, level << 1);
-		hit = ((CHECK_SKILL(ch, spellnum)) * hit) / 100;
+		hit = (skill * hit) / 100;
 		break;
 
 	/** non-pc spells **/
