@@ -793,33 +793,37 @@ ACMD(do_gen_comm)
             (!i->showstr_point || PRF2_FLAGGED(ch, PRF2_LIGHT_READ)) &&
             !ROOM_FLAGGED(i->character->in_room, ROOM_SOUNDPROOF)) {
 
-            if (subcmd == SCMD_SHOUT &&
-                ((ch->in_room->zone != i->character->in_room->zone) ||
-                 i->character->getPosition() < POS_RESTING))
-                continue;
+			if (subcmd == SCMD_NEWBIE &&
+				!PRF2_FLAGGED(i->character, PRF2_NEWBIE_HELPER))
+				continue;
+		  
+			if (subcmd == SCMD_HOLLER &&
+				PRF2_FLAGGED(i->character, PRF2_NOHOLLER))
+				continue;
 
-            if (subcmd == SCMD_PROJECT && CHECK_REMORT_CLASS(i->character) < 0 &&
-                GET_LEVEL(i->character) < LVL_AMBASSADOR)
-                continue;
-    
-            if (subcmd == SCMD_DREAM && 
-            (i->character->getPosition() != POS_SLEEPING 
-                && GET_LEVEL(i->character) < LVL_IMMORT))
-                continue;
-    
-            if (subcmd == SCMD_NEWBIE &&
-                !PRF2_FLAGGED(i->character, PRF2_NEWBIE_HELPER))
-                continue;
-      
-            if ((subcmd == SCMD_GOSSIP || subcmd == SCMD_AUCTION ||
-                 subcmd == SCMD_GRATZ  || subcmd == SCMD_DREAM ||
-                 subcmd == SCMD_MUSIC  || subcmd == SCMD_SPEW ||
-                 subcmd == SCMD_NEWBIE) &&
-                COMM_NOTOK_ZONES(ch, i->character))
-                continue;
+			if (GET_LEVEL(i->character) < LVL_AMBASSADOR) {
+				if (subcmd == SCMD_SHOUT &&
+					((ch->in_room->zone != i->character->in_room->zone) ||
+					 i->character->getPosition() < POS_RESTING))
+					continue;
 
-            if (subcmd == SCMD_HOLLER && PRF2_FLAGGED(i->character, PRF2_NOHOLLER))
-                continue;
+				if (subcmd == SCMD_PROJECT &&
+					CHECK_REMORT_CLASS(i->character) < 0 &&
+					GET_LEVEL(i->character) < LVL_AMBASSADOR)
+					continue;
+		
+				if (subcmd == SCMD_DREAM &&
+					i->character->getPosition() != POS_SLEEPING)
+					continue;
+		
+				if ((subcmd == SCMD_GOSSIP || subcmd == SCMD_AUCTION ||
+					 subcmd == SCMD_GRATZ  || subcmd == SCMD_DREAM ||
+					 subcmd == SCMD_MUSIC  || subcmd == SCMD_SPEW ||
+					 subcmd == SCMD_NEWBIE) &&
+					COMM_NOTOK_ZONES(ch, i->character))
+					continue;
+
+			}
 
             if (COLOR_LEV(i->character) >= C_NRM) {
                 send_to_char(color_on1, i->character);
