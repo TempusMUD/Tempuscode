@@ -718,7 +718,7 @@ point_update(void)
 			if (GET_OBJ_TIMER(j) > 0)
 				GET_OBJ_TIMER(j)--;
 
-			if (!GET_OBJ_TIMER(j)) {
+			if (GET_OBJ_TIMER(j) <= 0) {
 				if (j->carried_by)
 					act("$p decays in your hands.", FALSE, j->carried_by, j, 0,
 						TO_CHAR);
