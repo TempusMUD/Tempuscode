@@ -1051,10 +1051,6 @@ newbie_equip(struct Creature *ch)
 			obj_to_char(obj, ch);
 		break;
 	}
-
-	if (!has_infravision(ch) && (obj = read_object(3030)))	/* torch */
-		obj_to_char(obj, ch);
-
 }
 
 
