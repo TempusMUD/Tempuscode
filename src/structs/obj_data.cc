@@ -282,7 +282,7 @@ obj_data::loadFromXML(obj_data *container, Creature *victim, room_data* room, xm
 				} else if (room) {
 					obj_to_room(this, room, false);
 				} else {
-					slog("SYSERR: Don't know where to put object!");
+					errlog("Don't know where to put object!");
 					return false;
 				}
 				placed = true;
@@ -441,7 +441,7 @@ obj_data::find_room(void)
 	else if (in_room)
 		return in_room;
 	
-	slog("SYSERR: Object in limbo at %s:%d", __FILE__, __LINE__);
+	errlog("Object in limbo at %s:%d", __FILE__, __LINE__);
 	return NULL;
 }
 

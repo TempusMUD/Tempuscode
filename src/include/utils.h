@@ -42,6 +42,8 @@ void mudlog(sbyte level, log_type type, bool file, const char *fmt, ...)
 	__attribute__ ((format (printf, 4, 5))); 
 void slog(const char *str, ...)
 	__attribute__ ((format (printf, 1, 2))); 
+void errlog(const char *str, ...)
+	__attribute__ ((format (printf, 1, 2))); 
 
 void mlog(const char *group,
 		sbyte level,

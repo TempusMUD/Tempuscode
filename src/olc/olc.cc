@@ -675,7 +675,7 @@ ACMD(do_olc)
 				if (!zone) {
 					send_to_char(ch, 
 						"That object does not belong to any zone!!\r\n");
-					slog("SYSERR: object not in any zone.");
+					errlog("object not in any zone.");
 					return;
 				}
 

@@ -1518,7 +1518,7 @@ mag_objectmagic(struct Creature *ch, struct obj_data *obj,
 					TRUE, ch, obj, tch, TO_VICT);
 			}
 		} else if (tobj) {
-			slog("SYSERR: tobj passed to SYRINGE in mag_objectmagic.");
+			errlog("tobj passed to SYRINGE in mag_objectmagic.");
 		} else {
 			act("Who do you want to inject with $p?", FALSE, ch, obj, NULL,
 				TO_CHAR);
@@ -1567,7 +1567,7 @@ mag_objectmagic(struct Creature *ch, struct obj_data *obj,
 		break;
 
 	default:
-		slog("SYSERR: Unknown object_type in mag_objectmagic");
+		errlog("Unknown object_type in mag_objectmagic");
 		break;
 	}
 	return 1;
@@ -1629,7 +1629,7 @@ cast_spell(struct Creature *ch, struct Creature *tch,
 		case POS_FIGHTING:
 			send_to_char(ch, "Impossible!  You can't concentrate enough!\r\n");
 			if (IS_MOB(ch)) {
-				slog("SYSERR: %s tried to cast spell %d in battle.",
+				errlog("%s tried to cast spell %d in battle.",
 					GET_NAME(ch), spellnum);
 			}
 			break;

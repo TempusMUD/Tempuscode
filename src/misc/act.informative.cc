@@ -2942,7 +2942,7 @@ show_mud_date_to_char(struct Creature *ch)
 	int day;
 
 	if (!ch->in_room) {
-		slog("SYSERR: !ch->in_room in show_mud_date_to_char");
+		errlog("!ch->in_room in show_mud_date_to_char");
 		return;
 	}
 

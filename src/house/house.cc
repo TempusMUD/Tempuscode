@@ -439,14 +439,14 @@ HouseControl::destroyHouse( House *house )
 {
 	iterator it = std::find( begin(), end(), house );
 	if( it == end() ) {
-		slog("SYSERR: House %d not in HouseControl list.", house->getID() );
+		errlog("House %d not in HouseControl list.", house->getID() );
 		return false;
 	}
 
 	for( unsigned int i = 0; i < house->getRoomCount(); i++) {
 		room_data *room = real_room( house->getRoom(i) );
 		if( room == NULL ) {
-			slog("SYSERR: House had invalid room number in destroy: %d", house->getRoom(i) );
+			errlog("House had invalid room number in destroy: %d", house->getRoom(i) );
 		} else {
 			REMOVE_BIT(ROOM_FLAGS(room), ROOM_HOUSE | ROOM_HOUSE_CRASH);
 		}
@@ -580,7 +580,7 @@ House::load( const char* filename )
 
 	if( axs != 0 ) {
 		if( errno != ENOENT ) {
-			slog("SYSERR: Unable to open xml house file '%s': %s", 
+			errlog("Unable to open xml house file '%s': %s", 
 				 filename, strerror(errno) );
 			return false;
 		} else {
@@ -589,14 +589,14 @@ House::load( const char* filename )
 	}
     xmlDocPtr doc = xmlParseFile(filename);
     if (!doc) {
-        slog("SYSERR: XML parse error while loading %s", filename);
+        errlog("XML parse error while loading %s", filename);
         return false;
     }
 
     xmlNodePtr root = xmlDocGetRootElement(doc);
     if (!root) {
         xmlFreeDoc(doc);
-        slog("SYSERR: XML file %s is empty", filename);
+        errlog("XML file %s is empty", filename);
         return false;
     }
 
@@ -607,14 +607,14 @@ House::load( const char* filename )
 	}
 	if( houseNode == NULL ) {
         xmlFreeDoc(doc);
-        slog("SYSERR: XML house file %s has no house node.", filename);
+        errlog("XML house file %s has no house node.", filename);
         return false;
 	}
 
 	//read house node stuff
 	id = xmlGetIntProp( houseNode, "id", -1 );
 	if( id == -1 || Housing.findHouseById(id) != NULL ) {
-		slog("SYSERR: Duplicate house id %d loaded from file %s.", getID(), filename );
+		errlog("Duplicate house id %d loaded from file %s.", getID(), filename );
 		return false;
 	}
 
@@ -639,7 +639,7 @@ House::load( const char* filename )
 			if( playerIndex.exists(id) ) {
 				addGuest( id );
 			} else {
-				slog("SYSERR: House %d had invalid guest: %d.", getID(), id);
+				errlog("House %d had invalid guest: %d.", getID(), id);
 			}
 		} else if( xmlMatches(node->name, "reposession")) {
 			char* note = xmlGetProp( node, "note" );
@@ -657,7 +657,7 @@ House::loadRoom( xmlNodePtr roomNode )
 	room_num number = xmlGetIntProp( roomNode, "number", -1 );
 	room_data *room = real_room( number );
 	if( room == NULL ) {
-        slog("SYSERR: House %d has invalid room: %d", getID(), number );
+        errlog("House %d has invalid room: %d", getID(), number );
 		return false;
 	}
 
@@ -688,7 +688,7 @@ HouseControl::save()
 	for( unsigned int i = 0; i < getHouseCount(); i++) {
 		House *house = getHouse(i);
 		if(! house->save() )
-			slog("SYSERR: Failed to save house %d.",house->getID());
+			errlog("Failed to save house %d.",house->getID());
 	}
 }
 
@@ -708,7 +708,7 @@ HouseControl::load()
 			mkdir(dirname, 0644);
 			dir = opendir(dirname);
 			if (!dir) {
-				slog("SYSERR: Couldn't open or create directory %s", dirname);
+				errlog("Couldn't open or create directory %s", dirname);
 				safe_exit(-1);
 			}
 		}
@@ -725,7 +725,7 @@ HouseControl::load()
 				push_back(house);
 				slog("HOUSE: Loaded house %d", house->getID() );
 			} else {
-				slog("SYSERR: Failed to load house file: %s ", filename );
+				errlog("Failed to load house file: %s ", filename );
 			}
 
 		}

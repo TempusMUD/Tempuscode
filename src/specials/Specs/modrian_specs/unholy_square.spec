@@ -28,7 +28,7 @@ perform_defile(struct room_data *room, int *state, char **olddesc,
 	struct obj_data *fount = NULL;
 
 	if (*state != STATE_HOLY) {
-		slog("SYSERR: invalid state in perform_defile from unholy_square.");
+		errlog("invalid state in perform_defile from unholy_square.");
 		return;
 	}
 
@@ -41,7 +41,7 @@ perform_defile(struct room_data *room, int *state, char **olddesc,
 		}
 
 	if (!(fount = read_object(FOUNT_UNHOLY)))
-		slog("SYSERR: unable to load unholy fount in unholy_square.");
+		errlog("unable to load unholy fount in unholy_square.");
 	else
 		obj_to_room(fount, room);
 
@@ -59,7 +59,7 @@ perform_resanct(struct room_data *room, int *state, char *olddesc,
 {
 
 	if (*state != STATE_UNHOLY) {
-		slog("SYSERR: invalid state in perform_resanct from unholy_square.");
+		errlog("invalid state in perform_resanct from unholy_square.");
 		return;
 	}
 
@@ -117,7 +117,7 @@ SPECIAL(unholy_square)
 		extract_obj(fount);
 
 		if (!(fount = read_object(FOUNT_HOLY))) {
-			slog("SYSERR: unable to load FOUNT_HOLY in unholy_square.\r\n");
+			errlog("unable to load FOUNT_HOLY in unholy_square.\r\n");
 			return 1;
 		}
 

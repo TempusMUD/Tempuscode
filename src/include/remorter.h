@@ -157,7 +157,7 @@ load_remort_questions()
 	remortQuestions.erase(remortQuestions.begin(), remortQuestions.end());
 	xmlDocPtr doc = xmlParseFile("text/remort_quiz.xml");
 	if (doc == NULL) {
-		slog("SYSERR: Remort quiz load FAILED.");
+		errlog("Remort quiz load FAILED.");
 		return false;
 	}
 	// discard root node

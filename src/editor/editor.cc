@@ -289,7 +289,7 @@ CTextEditor::ExportMail(void)
     else {
         SendMessage("Your message was not received by one or more recipients.\r\n"
                     "Please try again later!\r\n");
-        slog("SYSERR: store_mail() has returned <= 0");
+        errlog("store_mail() has returned <= 0");
     }
 }
 
@@ -694,7 +694,7 @@ CTextEditor::SendMessage(const char *message)
 {
 	char *output = NULL;
 	if (desc == NULL || desc->creature == NULL) {
-		slog("SYSERR: TEDII Attempting to SendMessage with null desc or desc->creature\r\n");
+		errlog("TEDII Attempting to SendMessage with null desc or desc->creature\r\n");
 		return;
 	}
 	// If the original message is too long, make a new one thats small

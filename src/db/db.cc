@@ -454,7 +454,7 @@ boot_db(void)
 	if (Help->LoadIndex())
 		slog("Help system boot succeded.");
 	else
-		slog("SYSERR: Help System Boot FAILED.");
+		errlog("Help System Boot FAILED.");
 
 	reset_q.head = reset_q.tail = NULL;
 
@@ -571,7 +571,7 @@ index_boot(int mode)
 		prefix = ZON_PREFIX;
 		break;
 	default:
-		slog("SYSERR: Unknown subcommand to index_boot!");
+		errlog("Unknown subcommand to index_boot!");
 		safe_exit(1);
 		break;
 	}
@@ -615,7 +615,7 @@ index_boot(int mode)
 	}
 
 	if (!rec_count) {
-		slog("SYSERR: boot error - 0 records counted");
+		errlog("boot error - 0 records counted");
 		safe_exit(1);
 	}
 	rec_count++;
@@ -893,7 +893,7 @@ parse_room(FILE * fl, int vnum_nr)
 				safe_exit(1);
 			}
 			if (FLOW_SPEED(room)) {
-				slog("SYSERR: Multiple flow states assigned to room #%d.\n",
+				errlog("Multiple flow states assigned to room #%d.\n",
 					vnum_nr);
 			}
 			if (t[0] < 0 || t[0] >= NUM_DIRS) {
@@ -908,7 +908,7 @@ parse_room(FILE * fl, int vnum_nr)
 				safe_exit(1);
 			}
 			if (t[2] < 0 || t[2] >= NUM_FLOW_TYPES) {
-				slog("SYSERR: Illegal flow type in room #%d.",
+				errlog("Illegal flow type in room #%d.",
 					vnum_nr);
 				FLOW_TYPE(room) = F_TYPE_NONE;
 			} else
@@ -1070,122 +1070,122 @@ check_start_rooms(void)
 	extern room_num newbie_school_start_room;
 
 	if ((r_mortal_start_room = real_room(mortal_start_room)) == NULL) {
-		slog("SYSERR:  Mortal start room does not exist.  Change in config.c.");
+		errlog(" Mortal start room does not exist.  Change in config.c.");
 		safe_exit(1);
 	}
 	if ((r_electro_start_room = real_room(electro_start_room)) == NULL) {
 		if (!mini_mud)
-			slog("SYSERR:  Electro Centralis start room does not exist.");
+			errlog(" Electro Centralis start room does not exist.");
 		r_electro_start_room = r_mortal_start_room;
 	}
 	if ((r_immort_start_room = real_room(immort_start_room)) == NULL) {
 		if (!mini_mud)
-			slog("SYSERR:  Warning: Immort start room does not exist.");
+			errlog(" Warning: Immort start room does not exist.");
 		r_immort_start_room = r_mortal_start_room;
 	}
 	if ((r_frozen_start_room = real_room(frozen_start_room)) == NULL) {
 		if (!mini_mud)
-			slog("SYSERR:  Warning: Frozen start room does not exist.");
+			errlog(" Warning: Frozen start room does not exist.");
 		r_frozen_start_room = r_mortal_start_room;
 	}
 	if ((r_new_thalos_start_room = real_room(new_thalos_start_room)) == NULL) {
 		if (!mini_mud)
-			slog("SYSERR:  Warning: New Thalos start room does not exist.");
+			errlog(" Warning: New Thalos start room does not exist.");
 		r_new_thalos_start_room = r_mortal_start_room;
 	}
 	if ((r_kromguard_start_room = real_room(kromguard_start_room)) == NULL) {
 		if (!mini_mud)
-			slog("SYSERR:  Warning: Kromguard start room does not exist.");
+			errlog(" Warning: Kromguard start room does not exist.");
 		r_kromguard_start_room = r_mortal_start_room;
 	}
 	if ((r_elven_start_room = real_room(elven_start_room)) == NULL) {
 		if (!mini_mud)
-			slog("SYSERR:  Warning: Elven Village start room does not exist.");
+			errlog(" Warning: Elven Village start room does not exist.");
 		r_elven_start_room = r_mortal_start_room;
 	}
 	if ((r_istan_start_room = real_room(istan_start_room)) == NULL) {
 		if (!mini_mud)
-			slog("SYSERR:  Warning: Istan start room does not exist.");
+			errlog(" Warning: Istan start room does not exist.");
 		r_istan_start_room = r_mortal_start_room;
 	}
 	if ((r_arena_start_room = real_room(arena_start_room)) == NULL) {
 		if (!mini_mud)
-			slog("SYSERR:  Warning: Arena start room does not exist.");
+			errlog(" Warning: Arena start room does not exist.");
 		r_arena_start_room = r_mortal_start_room;
 	}
 	if ((r_tower_modrian_start_room =
 			real_room(tower_modrian_start_room)) == NULL) {
 		if (!mini_mud)
-			slog("SYSERR:  Warning: Arena start room does not exist.");
+			errlog(" Warning: Arena start room does not exist.");
 		r_tower_modrian_start_room = r_mortal_start_room;
 	}
 	if ((r_monk_start_room = real_room(monk_start_room)) == NULL) {
 		if (!mini_mud)
-			slog("SYSERR:  Warning: Monk start room does not exist.");
+			errlog(" Warning: Monk start room does not exist.");
 		r_monk_start_room = r_mortal_start_room;
 	}
 	if ((r_skullport_newbie_start_room =
 			real_room(skullport_newbie_start_room)) == NULL) {
 		if (!mini_mud)
-			slog("SYSERR:  Warning: Skullport Newbie Academy start room does not exist.");
+			errlog(" Warning: Skullport Newbie Academy start room does not exist.");
 		r_skullport_newbie_start_room = r_mortal_start_room;
 	}
 	if ((r_solace_start_room = real_room(solace_start_room)) == NULL) {
 		if (!mini_mud)
-			slog("SYSERR:  Warning: Solace Cove start room does not exist.");
+			errlog(" Warning: Solace Cove start room does not exist.");
 		r_solace_start_room = r_mortal_start_room;
 	}
 	if ((r_mavernal_start_room = real_room(mavernal_start_room)) == NULL) {
 		if (!mini_mud)
-			slog("SYSERR:  Warning: Mavernal start room does not exist.");
+			errlog(" Warning: Mavernal start room does not exist.");
 		r_mavernal_start_room = r_mortal_start_room;
 	}
 	if ((r_dwarven_caverns_start_room =
 			real_room(dwarven_caverns_start_room)) == NULL) {
 		if (!mini_mud)
-			slog("SYSERR:  Warning: Dwarven Caverns  start room does not exist.");
+			errlog(" Warning: Dwarven Caverns  start room does not exist.");
 		r_dwarven_caverns_start_room = r_mortal_start_room;
 	}
 	if ((r_human_square_start_room =
 			real_room(human_square_start_room)) == NULL) {
 		if (!mini_mud)
-			slog("SYSERR:  Warning: Human Square start room does not exist.");
+			errlog(" Warning: Human Square start room does not exist.");
 		r_human_square_start_room = r_mortal_start_room;
 	}
 	if ((r_skullport_start_room = real_room(skullport_start_room)) == NULL) {
 		if (!mini_mud)
-			slog("SYSERR:  Warning: Skullport start room does not exist.");
+			errlog(" Warning: Skullport start room does not exist.");
 		r_skullport_start_room = r_mortal_start_room;
 	}
 	if ((r_drow_isle_start_room = real_room(drow_isle_start_room)) == NULL) {
 		if (!mini_mud)
-			slog("SYSERR:  Warning: Drow Isle start room does not exist.");
+			errlog(" Warning: Drow Isle start room does not exist.");
 		r_drow_isle_start_room = r_mortal_start_room;
 	}
 	if ((r_astral_manse_start_room =
 			real_room(astral_manse_start_room)) == NULL) {
 		if (!mini_mud)
-			slog("SYSERR:  Warning: Astral Manse start room does not exist.");
+			errlog(" Warning: Astral Manse start room does not exist.");
 		r_astral_manse_start_room = r_mortal_start_room;
 	}
 
 	if ((r_zul_dane_start_room = real_room(zul_dane_start_room)) == NULL) {
 		if (!mini_mud)
-			slog("SYSERR:  Warning: Zul Dane start room does not exist.");
+			errlog(" Warning: Zul Dane start room does not exist.");
 		r_zul_dane_start_room = r_mortal_start_room;
 	}
 
 	if ((r_zul_dane_newbie_start_room =
 			real_room(zul_dane_newbie_start_room)) == NULL) {
 		if (!mini_mud)
-			slog("SYSERR:  Warning: Zul Dane newbie start room does not exist.");
+			errlog(" Warning: Zul Dane newbie start room does not exist.");
 		// set it to the normal zul dane room ...
 		r_zul_dane_newbie_start_room = r_zul_dane_start_room;
 	}
 	if ((r_newbie_school_start_room =
 			real_room(newbie_school_start_room)) == NULL) {
 		if (!mini_mud)
-			slog("SYSERR:  Warning: Zul Dane newbie start room does not exist.");
+			errlog(" Warning: Zul Dane newbie start room does not exist.");
 		// set it to the normal zul dane room ...
 		r_newbie_school_start_room = r_mortal_start_room;
 	}
@@ -2478,7 +2478,7 @@ on_load_equip( Creature *ch, int vnum, char* position, int maxload, int percent 
 {
     obj_data *obj = real_object_proto(vnum);
     if( obj == NULL ) {
-        slog("SYSERR: Mob num %d: equip object %d nonexistant.",
+        errlog("Mob num %d: equip object %d nonexistant.",
 			ch->mob_specials.shared->vnum, vnum );
 		if( MOB2_FLAGGED(ch, MOB2_UNAPPROVED) ) {
 			char* msg = tmp_sprintf("Object %d doesn't exist!",vnum);
@@ -2507,7 +2507,7 @@ on_load_equip( Creature *ch, int vnum, char* position, int maxload, int percent 
 			char* msg = tmp_sprintf("%s is not a valid position!",position);
 			do_say(ch, msg, 0, SCMD_YELL, 0);
 		}
-        slog("SYSERR: Mob num %d trying to equip obj %d to badpos: '%s'",
+        errlog("Mob num %d trying to equip obj %d to badpos: '%s'",
 			ch->mob_specials.shared->vnum, obj->shared->vnum, position);
         return 4;
     }
@@ -2517,7 +2517,7 @@ on_load_equip( Creature *ch, int vnum, char* position, int maxload, int percent 
 
 	randomize_object(obj);
     if( obj == NULL ) {
-        slog("SYSERR: Mob num %d cannot load equip object #%d.",
+        errlog("Mob num %d cannot load equip object #%d.",
             ch->mob_specials.shared->vnum, vnum);
 		if( MOB2_FLAGGED(ch, MOB2_UNAPPROVED) ) {
 			char* msg = tmp_sprintf("Loading object %d failed!", vnum );
@@ -2842,7 +2842,7 @@ log_zone_error(struct zone_data *zone, struct reset_com *zonecmd,
 	bool display;
 
 	// Log the error to file first
-	slog("SYSERR: Zone #%d: %s (cmd %c, number %d)",
+	errlog("Zone #%d: %s (cmd %c, number %d)",
 		zone->number, message, zonecmd->command, zonecmd->line);
 
 	for (d = descriptor_list;d;d = d->next) {
@@ -3246,7 +3246,7 @@ fread_string(FILE * fl, char *error)
 
 	do {
 		if (!fgets(tmp, 512, fl)) {
-			slog("SYSERR: fread_string: format error at or near %s\n",
+			errlog("fread_string: format error at or near %s\n",
 				error);
 			safe_exit(1);
 		}
@@ -3264,7 +3264,7 @@ fread_string(FILE * fl, char *error)
 		templength = strlen(tmp);
 
 		if (length + templength >= MAX_STRING_LENGTH) {
-			slog("SYSERR: fread_string: string too large (db.c)");
+			errlog("fread_string: string too large (db.c)");
 			safe_exit(1);
 		} else {
 			strcat(buf + length, tmp);
@@ -3311,7 +3311,7 @@ pread_string(FILE * fl, char *str, char *error)
 		templength = strlen(tmp);
 
 		if (length + templength >= MAX_STRING_LENGTH) {
-			slog("SYSERR: pread_string: string too large: %s\n", error);
+			errlog("pread_string: string too large: %s\n", error);
 			return 0;
 		} else {
 			strcat(str + length, tmp);
@@ -3439,7 +3439,7 @@ file_to_string(char *name, char *buf)
 
 		if (!feof(fl)) {
 			if (strlen(buf) + strlen(tmp) + 1 > MAX_STRING_LENGTH) {
-				slog("SYSERR: fl->strng: string too big (db.c, file_to_string)");
+				errlog("fl->strng: string too big (db.c, file_to_string)");
 				*buf = '\0';
 				return (-1);
 			}
@@ -3543,7 +3543,7 @@ update_alias_dirs(void)
 	for (i = 0; i < 6; i++) {
 		sprintf(buf, "plralias/%s", dlist[i]);
 		if (!(dir = opendir(buf))) {
-			slog("SYSERR: Incorrect plralias directory structure.");
+			errlog("Incorrect plralias directory structure.");
 			safe_exit(1);
 		}
 		while ((dirp = readdir(dir))) {

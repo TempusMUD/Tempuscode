@@ -309,7 +309,7 @@ do_mob_medit(struct Creature *ch, char *argument)
 					break;
 			if (!zone) {
 				send_to_char(ch, "That mobile does not belong to any zone!!\r\n");
-				slog("SYSERR: mobile not in any zone.");
+				errlog("mobile not in any zone.");
 				return;
 			}
 
@@ -461,7 +461,7 @@ do_mob_mset(struct Creature *ch, char *argument)
 					break;
 
 			if (!zone) {
-				slog("SYSERR:  Error!  mobile not in zone.");
+				errlog(" Error!  mobile not in zone.");
 				send_to_char(ch, "ERROR\r\n");
 				return;
 			}
@@ -1436,7 +1436,7 @@ save_mobs(struct Creature *ch, struct zone_data *zone)
 	FILE *realfile;
 
 	if (!zone) {
-		slog("SYSERR: save_mob() called with NULL zone");
+		errlog("save_mob() called with NULL zone");
 		return false;
 	}
 
@@ -1643,7 +1643,7 @@ save_mobs(struct Creature *ch, struct zone_data *zone)
 		fclose(file);
 		sprintf(fname, "world/mob/olc/%d.mob", zone->number);
 		if (!(file = fopen(fname, "r"))) {
-			slog("SYSERR: Failure to reopen olc mob file.");
+			errlog("Failure to reopen olc mob file.");
 			send_to_char(ch, 
 				"OLC Error: Failure to duplicate mob file in main dir."
 				"\r\n");
@@ -1653,7 +1653,7 @@ save_mobs(struct Creature *ch, struct zone_data *zone)
 		do {
 			tmp = fread(buf, 1, 512, file);
 			if (fwrite(buf, 1, tmp, realfile) != tmp) {
-				slog("SYSERR: Failure to duplicate olc mob file in the main wld dir.");
+				errlog("Failure to duplicate olc mob file in the main wld dir.");
 				send_to_char(ch, 
 					"OLC Error: Failure to duplicate mob file in main dir."
 					"\r\n");
@@ -1694,7 +1694,7 @@ do_destroy_mobile(struct Creature *ch, int vnum)
 
 	if (!zone) {
 		send_to_char(ch, "That mobile does not belong to any zone!!\r\n");
-		slog("SYSERR: mobile not in any zone.");
+		errlog("mobile not in any zone.");
 		return 1;
 	}
 

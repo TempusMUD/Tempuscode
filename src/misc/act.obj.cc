@@ -283,7 +283,7 @@ perform_put(struct Creature *ch, struct obj_data *obj,
 
 	if (GET_OBJ_TYPE(cont) == ITEM_PIPE) {
 		if (GET_OBJ_TYPE(obj) != ITEM_TOBACCO) {
-			slog("SYSERR: obj %d '%s' attempted to pack.",
+			errlog("obj %d '%s' attempted to pack.",
 				GET_OBJ_VNUM(obj), obj->name);
 			send_to_char(ch, "Sorry, there is an error here.\r\n");
 		} else if (CUR_DRAGS(cont) && SMOKE_TYPE(cont) != SMOKE_TYPE(obj))
@@ -1305,7 +1305,7 @@ perform_drop(struct Creature *ch, struct obj_data *obj,
 		return value;
 		break;
 	default:
-		slog("SYSERR: Incorrect argument passed to perform_drop");
+		errlog("Incorrect argument passed to perform_drop");
 		break;
 	}
 
@@ -1936,7 +1936,7 @@ weight_change_object(struct obj_data *obj, int weight)
 	}
 
 	else {
-		slog("SYSERR: Unknown attempt to subtract weight from an object.");
+		errlog("Unknown attempt to subtract weight from an object.");
 	}
 }
 
@@ -3049,7 +3049,7 @@ char_hands_free(Creature *ch)
 
 	if (hands_free < 0) {
 		// Report it to the immortals
-		slog("SYSERR: %s has negative hands free", GET_NAME(ch));
+		errlog("%s has negative hands free", GET_NAME(ch));
 		// Now fix the problem
 		act("Oops... You dropped everything that was in your hands.",
 			FALSE, ch, NULL, NULL, TO_CHAR);
@@ -3130,7 +3130,7 @@ prototype_obj_value(struct obj_data *obj)
 	int value = 0, prev_value = 0, j;
 
 	if (!obj) {
-		slog("SYSERR: NULL obj passed to prototype_obj_value.");
+		errlog("NULL obj passed to prototype_obj_value.");
 		return 0;
 	}
 

@@ -605,7 +605,7 @@ path_do_echo(struct Creature *ch, struct obj_data *o, char *echo)
 		!(vnum = strtol(echo + 1, &tmp, 10)) || *tmp != ' ')
 		return;
 
-	slog("SYSERR: error in path_do_echo.");
+	errlog("error in path_do_echo.");
 }
 
 void

@@ -322,6 +322,59 @@ mudlog(sbyte level, log_type type, bool file, const char *fmt, ...)
 }
 
 void
+errlog(const char *fmt, ...)
+{
+	
+	va_list args;
+	const char *backtrace_str = "";
+
+	// Yes.  This is awful.  Blame GNU.
+	if (__builtin_frame_address(0)) {
+		backtrace_str = tmp_sprintf("%s < %p", backtrace_str,
+			__builtin_return_address(0));
+	if (__builtin_frame_address(1)) {
+		backtrace_str = tmp_sprintf("%s < %p", backtrace_str,
+			__builtin_return_address(1));
+	if (__builtin_frame_address(2)) {
+		backtrace_str = tmp_sprintf("%s < %p", backtrace_str,
+			__builtin_return_address(2));
+	if (__builtin_frame_address(3)) {
+		backtrace_str = tmp_sprintf("%s < %p", backtrace_str,
+			__builtin_return_address(3));
+	if (__builtin_frame_address(4)) {
+		backtrace_str = tmp_sprintf("%s < %p", backtrace_str,
+			__builtin_return_address(4));
+	if (__builtin_frame_address(5)) {
+		backtrace_str = tmp_sprintf("%s < %p", backtrace_str,
+			__builtin_return_address(5));
+	if (__builtin_frame_address(6)) {
+		backtrace_str = tmp_sprintf("%s < %p", backtrace_str,
+			__builtin_return_address(6));
+	if (__builtin_frame_address(7)) {
+		backtrace_str = tmp_sprintf("%s < %p", backtrace_str,
+			__builtin_return_address(7));
+	if (__builtin_frame_address(8)) {
+		backtrace_str = tmp_sprintf("%s < %p", backtrace_str,
+			__builtin_return_address(8));
+	if (__builtin_frame_address(9)) {
+		backtrace_str = tmp_sprintf("%s < %p", backtrace_str,
+			__builtin_return_address(9));
+	if (__builtin_frame_address(10)) {
+		backtrace_str = tmp_sprintf("%s < %p", backtrace_str,
+			__builtin_return_address(10));
+	}}}}}}}}}}}
+
+	va_start(args, fmt);
+	mlog(Security::CODER, LVL_AMBASSADOR, NRM, true,
+		"SYSERR: %s", tmp_vsprintf(fmt, args));
+	va_end(args);
+
+	mlog(Security::NOONE, LVL_AMBASSADOR, NRM, false,
+		"TRACE: %s", backtrace_str);
+}
+
+
+void
 sprintbit(long vektor, const char *names[], char *result)
 {
 	long nr;

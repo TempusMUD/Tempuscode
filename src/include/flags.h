@@ -223,14 +223,14 @@ boot_flagsets() {
 
 	xmlDocPtr doc = xmlParseFile("etc/flagtables.xml");
 	if (doc == NULL) {
-		slog("SYSERR: Failed to load flag tables. Exiting."); 
+		errlog("Failed to load flag tables. Exiting."); 
 		safe_exit(1);
 	}
 
 	xmlNodePtr cur = xmlDocGetRootElement(doc);
 	if (cur == NULL) {
 		xmlFreeDoc(doc);
-		slog("SYSERR: Failed to load flag tables. Exiting."); 
+		errlog("Failed to load flag tables. Exiting."); 
 		safe_exit(1);
 	}
 

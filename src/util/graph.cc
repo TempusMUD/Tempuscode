@@ -567,7 +567,7 @@ hunt_victim(struct Creature *ch)
 		return 0;
 
 	if (!HUNTING(ch)->in_room) {
-		slog("SYSERR:  hunting ! HUNTING(ch)->in_room !!");
+		errlog(" hunting ! HUNTING(ch)->in_room !!");
 		return 0;
 	}
 

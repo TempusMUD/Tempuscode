@@ -82,7 +82,7 @@ load_hunter_data()
 
 	xmlDocPtr doc = xmlParseFile("etc/hell_hunter_data.xml");
 	if (doc == NULL) {
-		slog("SYSERR: Hell Hunter Brain failed to load hunter data.");
+		errlog("Hell Hunter Brain failed to load hunter data.");
 		return false;
 	}
 	// discard root node
@@ -243,14 +243,14 @@ SPECIAL(hell_hunter_brain)
 		for (j = 0; j < 4; j++) {
 			if (number(0, 100) <= hunters[targets[i].level][j].prob) {	// probability
 				if (!(mob = read_mobile(hunters[targets[i].level][j].m_vnum))) {
-					slog("SYSERR: Unable to load mob in hell_hunter_brain()");
+					errlog("Unable to load mob in hell_hunter_brain()");
 					return 0;
 				}
 				if (hunters[targets[i].level][j].weapon >= 0 &&
 					(weap =
 						read_object(hunters[targets[i].level][j].weapon))) {
 					if (equip_char(mob, weap, WEAR_WIELD, MODE_EQ)) {	// mob equipped
-						slog("SYSERR: (non-critical) Hell Hunter killed by eq.");
+						errlog("(non-critical) Hell Hunter killed by eq.");
 						return 1;	// return if equip killed mob
 					}
 				}
@@ -286,7 +286,7 @@ SPECIAL(hell_hunter_brain)
 			&& number(0, GET_REMORT_GEN(vict)) > 1) {
 
 			if (!(mob = read_mobile(H_REGULATOR)))
-				slog("SYSERR: Unable to load hell hunter regulator in hell_hunter_brain.");
+				errlog("Unable to load hell hunter regulator in hell_hunter_brain.");
 			else {
 				regulator = 1;
 				HUNTING(mob) = vict;
@@ -393,7 +393,7 @@ SPECIAL(hell_hunter)
 			if (!IS_DEVIL(vict) && ch == FIGHTING(vict)) {
 
 				if (!(devil = read_mobile(H_SPINED))) {
-					slog("SYSERR: HH REGULATOR failed to load H_SPINED for defense.");
+					errlog("HH REGULATOR failed to load H_SPINED for defense.");
 					// set mana to zero so he will go away on the next loop
 					GET_MANA(ch) = 0;
 					return 1;

@@ -293,7 +293,7 @@ Creature::loadObjects()
 
 	if( axs != 0 ) {
 		if( errno != ENOENT ) {
-			slog("SYSERR: Unable to open xml equipment file '%s': %s", 
+			errlog("Unable to open xml equipment file '%s': %s", 
 				 path, strerror(errno) );
 			return -1;
 		} else {
@@ -302,14 +302,14 @@ Creature::loadObjects()
 	}
     xmlDocPtr doc = xmlParseFile(path);
     if (!doc) {
-        slog("SYSERR: XML parse error while loading %s", path);
+        errlog("XML parse error while loading %s", path);
         return -1;
     }
 
     xmlNodePtr root = xmlDocGetRootElement(doc);
     if (!root) {
         xmlFreeDoc(doc);
-        slog("SYSERR: XML file %s is empty", path);
+        errlog("XML file %s is empty", path);
         return 1;
     }
 
@@ -339,7 +339,7 @@ Creature::checkLoadCorpse()
     
     if (axs != 0) {
         if (errno != ENOENT) {
-            slog("SYSERR: Unable to open xml corpse file '%s' : %s",
+            errlog("Unable to open xml corpse file '%s' : %s",
                  path, strerror(errno));
             return false;
         }
@@ -366,7 +366,7 @@ Creature::loadCorpse()
 
 	if( axs != 0 ) {
 		if( errno != ENOENT ) {
-			slog("SYSERR: Unable to open xml corpse file '%s': %s", 
+			errlog("Unable to open xml corpse file '%s': %s", 
 				 path, strerror(errno) );
 			return -1;
 		} else {
@@ -375,14 +375,14 @@ Creature::loadCorpse()
 	}
     xmlDocPtr doc = xmlParseFile(path);
     if (!doc) {
-        slog("SYSERR: XML parse error while loading %s", path);
+        errlog("XML parse error while loading %s", path);
         return -1;
     }
 
     xmlNodePtr root = xmlDocGetRootElement(doc);
     if (!root) {
         xmlFreeDoc(doc);
-        slog("SYSERR: XML file %s is empty", path);
+        errlog("XML file %s is empty", path);
         return 1;
     }
     
@@ -391,7 +391,7 @@ Creature::loadCorpse()
         node = node->next;
         if (node == NULL) {
             xmlFreeDoc(doc);
-            slog("SYSERR: First child in XML file (%s) not an object", path);
+            errlog("First child in XML file (%s) not an object", path);
             return 1;
         }
     }
@@ -401,14 +401,14 @@ Creature::loadCorpse()
     if (!corpse_obj->loadFromXML(NULL, this, NULL, node)) {
         xmlFreeDoc(doc);
         extract_obj(corpse_obj);
-        slog("SYSERR: Could not create corpse object from file %s", path);
+        errlog("Could not create corpse object from file %s", path);
         return 1;
     }
 
     if (!IS_CORPSE(corpse_obj)) {
         xmlFreeDoc(doc);
         extract_obj(corpse_obj);
-        slog("SYSERR: First object in corpse file %s not a corpse", path);
+        errlog("First object in corpse file %s not a corpse", path);
         return 1;
     }
     
@@ -653,19 +653,19 @@ Creature::loadFromXML( const char *path )
 	int idx;
     
 	if( access(path, W_OK) ) {
-		slog("SYSERR: Unable to open xml player file '%s': %s", path, strerror(errno) );
+		errlog("Unable to open xml player file '%s': %s", path, strerror(errno) );
 		return false;
 	}
     xmlDocPtr doc = xmlParseFile(path);
     if (!doc) {
-        slog("SYSERR: XML parse error while loading %s", path);
+        errlog("XML parse error while loading %s", path);
         return false;
     }
 
     xmlNodePtr root = xmlDocGetRootElement(doc);
     if (!root) {
         xmlFreeDoc(doc);
-        slog("SYSERR: XML file %s is empty", path);
+        errlog("XML file %s is empty", path);
         return false;
     }
 
@@ -939,7 +939,7 @@ Creature::loadFromXML( const char *path )
     // Make sure the NPC flag isn't set
     if( IS_SET(char_specials.saved.act, MOB_ISNPC) ) {
 		REMOVE_BIT(char_specials.saved.act, MOB_ISNPC);
-		slog("SYSERR: loadFromXML %s loaded with MOB_ISNPC bit set!",
+		errlog("loadFromXML %s loaded with MOB_ISNPC bit set!",
 			GET_NAME(this));
 	}
 
@@ -1059,7 +1059,7 @@ Creature::loadFromDB(long idnum)
 	res = sql_query("select race, class, remort, name, title, poofin, poofout, imm_badge, sex, hitp, mana, move, maxhitp, maxmana, maxmove, gold, cash, exp, level, height, weight, align, gen, birth_time, death_time, played_time, login_time, pkills, mkills, akills, deaths, reputation, flag_severity, str, int, wis, dex, con, cha, hunger, thirst, drunk, invis_lvl, wimpy, lifepoints, rent_kind, rent_per_day, currency, cxn_mode, home_town, home_room, load_room, prefs_1, prefs_2, affects_1, affects_2, affects_3, descrip from accounts where idnum=%ld", idnum);
 	res_count = PQntuples(res);
 	if (res_count > 1) {
-		slog("SYSERR: search for player %ld returned more than one match", idnum);
+		errlog("search for player %ld returned more than one match", idnum);
 		return false;
 	}
 	

@@ -49,7 +49,7 @@ get_bounty_amount(int idnum)
 	Creature vict(true);
 	
 	if (!vict.loadFromXML(idnum)) {
-		slog("SYSERR: Could not load victim in place_bounty");
+		errlog("Could not load victim in place_bounty");
 		return 0;
 	}
 
@@ -213,7 +213,7 @@ register_bounty(Creature *self, Creature *ch, char *argument)
 	}
 
 	if (!vict.loadFromXML(playerIndex.getID(vict_name))) {
-		slog("SYSERR: Could not load victim in place_bounty");
+		errlog("Could not load victim in place_bounty");
 		do_say(self, "Hmmm.  There seems to be a problem with that person.", 0, 0, 0);
 		return 1;
 	}

@@ -209,7 +209,7 @@ tarrasque_fight(struct Creature *tarr)
 	CreatureList::iterator it;
 
 	if (!FIGHTING(tarr)) {
-		slog("SYSERR: FIGHTING(tarr) == NULL in tarrasque_fight!!");
+		errlog("FIGHTING(tarr) == NULL in tarrasque_fight!!");
 		return 0;
 	}
 
@@ -337,7 +337,7 @@ SPECIAL(tarrasque)
 	if (!IS_TARRASQUE(tarr)) {
 		tarr->mob_specials.shared->func = NULL;
 		REMOVE_BIT(MOB_FLAGS(tarr), MOB_SPEC);
-		slog("SYSERR: There is only one true tarrasque");
+		errlog("There is only one true tarrasque");
 		return 0;
 	}
 
@@ -431,7 +431,7 @@ SPECIAL(tarrasque)
 	if (!checked) {
 		checked = true;
 		if (!(belly_rm = real_room(BELLY_RM))) {
-			slog("SYSERR: Tarrasque can't find his belly!");
+			errlog("Tarrasque can't find his belly!");
 			tarr->mob_specials.shared->func = NULL;
 			REMOVE_BIT(MOB_FLAGS(tarr), MOB_SPEC);
 			return 1;
@@ -459,7 +459,7 @@ SPECIAL(tarrasque)
 		if (diurnal_timer > T_SLEEP_LEN) {
 			tarr->setPosition(POS_STANDING);
 			if (!add_path_to_mob(tarr, "tarr_exit_mod")) {
-				slog("SYSERR: error assigning tarr_exit_mod path to tarrasque.");
+				errlog("error assigning tarr_exit_mod path to tarrasque.");
 				mode = T_ERROR;
 				return 1;
 			}
@@ -479,7 +479,7 @@ SPECIAL(tarrasque)
 			diurnal_timer = 0;
 
 			if (!add_path_to_mob(tarr, "tarr_return_mod")) {
-				slog("SYSERR: error assigning tarr_return_mod path to tarrasque.");
+				errlog("error assigning tarr_return_mod path to tarrasque.");
 				mode = T_ERROR;
 				return 1;
 			}

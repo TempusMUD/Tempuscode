@@ -158,12 +158,12 @@ save_room(struct Creature *ch, struct room_data *room, FILE * file)
 	struct room_affect_data *rm_aff;
 
 	if (!file) {
-		slog("SYSERR: null fl in save_room().");
+		errlog("null fl in save_room().");
 		return 1;
 	}
 
 	if (check_room_cstrings(room)) {
-		slog("SYSERR: save_room() check_room_cstrings() failed.");
+		errlog("save_room() check_room_cstrings() failed.");
 		return 1;
 	}
 
@@ -356,7 +356,7 @@ save_wld(struct Creature *ch, struct zone_data *zone)
 	fclose(file);
 
 	if (rename(tmp_fname, real_fname)) {
-		slog("SYSERR: Error copying %s -> %s in save_wld: %s.",
+		errlog("Error copying %s -> %s in save_wld: %s.",
 			tmp_fname, real_fname, strerror(errno));
 		return false;
 	}
@@ -1175,7 +1175,7 @@ ACMD(do_hedit)
 			send_to_char(ch, "Your house modifications have been saved.\r\n");
 		} else {
 			send_to_char(ch, "An error occured while saving your house modifications.\r\n");
-			slog("SYSERR: Error hedit save in house room %d.", ch->in_room->number);
+			errlog("Error hedit save in house room %d.", ch->in_room->number);
 		}
 		WAIT_STATE(ch, 8 RL_SEC);
 		break;
@@ -1209,7 +1209,7 @@ ACMD(do_hedit)
 					continue;
                 room_data* room = real_room( house->getRoom(i) );
 				if( room == NULL ) {
-					slog("SYSERR:  house room does not exist!");
+					errlog(" house room does not exist!");
 					continue;
 				}
 

@@ -152,7 +152,7 @@ perform_recharge(struct Creature *ch, struct obj_data *battery,
 	}
 
 	if (!engine && !vict) {
-		slog("SYSERR:  NULL engine and vict in perform_recharge");
+		errlog(" NULL engine and vict in perform_recharge");
 		return;
 	}
 
@@ -3461,7 +3461,7 @@ ACMD(do_assimilate)
 			&& !(oldaffs =
 				(struct affected_type *)malloc(sizeof(struct affected_type) *
 					num_affs))) {
-			slog("SYSERR: unable to allocate oldaffs in do_assimilate.");
+			errlog("unable to allocate oldaffs in do_assimilate.");
 			return;
 		}
 		// make a copy of the old assimilate affs
@@ -3530,7 +3530,7 @@ ACMD(do_assimilate)
 			if (!(newaffs =
 					(struct affected_type *)realloc(oldaffs,
 						sizeof(struct affected_type) * (++num_affs)))) {
-				slog("SYSERR: error reallocating newaffs in do_assimilate.");
+				errlog("error reallocating newaffs in do_assimilate.");
 				return;
 			}
 

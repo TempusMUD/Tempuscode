@@ -3710,7 +3710,7 @@ ACMD(do_wizutil)
             }
             break;
         default:
-            slog("SYSERR: Unknown subcmd passed to do_wizutil (act.wizard.c)");
+            errlog("Unknown subcmd passed to do_wizutil (act.wizard.c)");
             break;
         }
         vict->saveToXML();
@@ -8449,7 +8449,7 @@ ACMD(do_delete)
 	acct_id = playerIndex.getAccountID(name);
 	acct = Account::retrieve(acct_id);
 	if (!acct) {
-		slog("SYSERR: Victim found without account");
+		errlog("Victim found without account");
 		send_to_char(ch, "The command mysteriously failed (XYZZY)\r\n");
 		return;
 	}

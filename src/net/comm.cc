@@ -227,7 +227,7 @@ main(int argc, char **argv)
 			slog("Running in production mode");
 			break;
 		default:
-			slog("SYSERR: Unknown option -%c in argument string.",
+			errlog("Unknown option -%c in argument string.",
 				*(argv[pos] + 1));
 			break;
 		}
@@ -1432,7 +1432,7 @@ void
 checkpointing(int sig = 0)
 {
 	if (!tics) {
-		slog("SYSERR: CHECKPOINT shutdown: tics not updated");
+		errlog("CHECKPOINT shutdown: tics not updated");
 		slog("Last command: %s %s.", playerIndex.getName(last_cmd[0].idnum),
 			last_cmd[0].string);
 		raise(SIGSEGV);
@@ -1474,7 +1474,7 @@ hupsig(int sig = 0)
 void
 pipesig(int sig = 0)
 {
-	slog("SYSERR:  Ignoring SIGPIPE signal.");
+	errlog(" Ignoring SIGPIPE signal.");
 }
 
 /*
@@ -1862,7 +1862,7 @@ perform_act(const char *orig, struct Creature *ch, struct obj_data *obj,
 		return;
 
 	if (!to->in_room) {
-		slog("SYSERR: to->in_room NULL in perform_act.");
+		errlog("to->in_room NULL in perform_act.");
 		return;
 	}
 	buf = lbuf;
@@ -1933,7 +1933,7 @@ perform_act(const char *orig, struct Creature *ch, struct obj_data *obj,
 				i = "$";
 				break;
 			default:
-				slog("SYSERR: Illegal $-code to act():");
+				errlog("Illegal $-code to act():");
 				strcpy(buf1, "SYSERR: ");
 				strcat(buf1, s);
 				slog(buf1);
@@ -2016,7 +2016,7 @@ act(const char *str, int hide_invisible, struct Creature *ch,
 	else if (obj && obj->in_room != NULL) {
 		room = obj->in_room;
 	} else {
-		slog("SYSERR: no valid target to act()!");
+		errlog("no valid target to act()!");
 		raise(SIGSEGV);
 		return;
 	}
@@ -2113,7 +2113,7 @@ bamf_quad_damage(void)
 		orig_room = quad->in_room;
 		obj_from_room(quad);
 	} else if (!(quad = read_object(QUAD_VNUM))) {
-		slog("SYSERR:  Unable to load Quad Damage.");
+		errlog(" Unable to load Quad Damage.");
 		return;
 	}
 
@@ -2130,7 +2130,7 @@ bamf_quad_damage(void)
 	}
 
 	if (!zone) {
-		slog("SYSERR:  Quad didn't find valid zone to bamf to in bamf_quad_damage.");
+		errlog(" Quad didn't find valid zone to bamf to in bamf_quad_damage.");
 		extract_obj(quad);
 		return;
 	}

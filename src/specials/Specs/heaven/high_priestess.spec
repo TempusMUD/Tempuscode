@@ -15,7 +15,7 @@ SPECIAL(high_priestess)
 	if (spec_mode != SPECIAL_CMD && spec_mode != SPECIAL_TICK)
 		return 0;
 	if (focus == NULL || quarters == NULL) {
-		slog("SYSERR: High Priestess room is bunk. Removing spec");
+		errlog("High Priestess room is bunk. Removing spec");
 		hpr->mob_specials.shared->func = NULL;
 		REMOVE_BIT(MOB_FLAGS(hpr), MOB_SPEC);
 		return 0;

@@ -161,7 +161,7 @@ save_objs(struct Creature *ch, struct zone_data *zone)
 	FILE *realfile;
 
 	if (!zone) {
-		slog("SYSERR: save_obj() called with NULL zone");
+		errlog("save_obj() called with NULL zone");
 		return false;
 	}
 
@@ -312,7 +312,7 @@ save_objs(struct Creature *ch, struct zone_data *zone)
 		sprintf(fname, "world/obj/olc/%d.obj", zone->number);
 		if (!(file = fopen(fname, "r"))) {
 			fclose(realfile);
-			slog("SYSERR: Failure to reopen olc obj file.");
+			errlog("Failure to reopen olc obj file.");
 			return false;
 		}
 		do {
@@ -320,7 +320,7 @@ save_objs(struct Creature *ch, struct zone_data *zone)
 			if (fwrite(buf, 1, tmp, realfile) != tmp) {
 				fclose(realfile);
 				fclose(file);
-				slog("SYSERR: Failure to duplicate olc obj file in the main wld dir.");
+				errlog("Failure to duplicate olc obj file in the main wld dir.");
 				return false;
 			}
 		} while (tmp == 512);
@@ -448,7 +448,7 @@ do_destroy_object(struct Creature *ch, int vnum)
 
 	if (!zone) {
 		send_to_char(ch, "That object does not belong to any zone!!\r\n");
-		slog("SYSERR: object not in any zone.");
+		errlog("object not in any zone.");
 		return 1;
 	}
 

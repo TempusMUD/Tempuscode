@@ -494,7 +494,7 @@ prog_do_trans(prog_env *env, prog_evt *evt, char *args)
 	
 	targ_num = atoi(tmp_getword(&args));
 	if ((targ_room = real_room(targ_num)) == NULL) {
-		slog("SYSERR: prog trans targ room %d nonexistant.", targ_num);
+		errlog("prog trans targ room %d nonexistant.", targ_num);
 		return;
 	}
 
@@ -604,7 +604,7 @@ prog_do_oload(prog_env *env, prog_evt *evt, char *args)
 		case PROG_TYPE_ROOM:
 			room = ((room_data *)env->owner);
 		default:
-			slog("SYSERR: Can't happen at %s:%d", __FILE__, __LINE__);
+			errlog("Can't happen at %s:%d", __FILE__, __LINE__);
 		}
 		obj_to_room(obj, room);
 	} else if (!strcasecmp(arg, "target")) {
@@ -621,7 +621,7 @@ prog_do_oload(prog_env *env, prog_evt *evt, char *args)
 		case PROG_TYPE_ROOM:
 			obj_to_room(obj, room); break;
 		default:
-			slog("SYSERR: Can't happen at %s:%d", __FILE__, __LINE__);
+			errlog("Can't happen at %s:%d", __FILE__, __LINE__);
 		}
 	}
 }
@@ -694,7 +694,7 @@ prog_do_echo(prog_env *env, prog_evt *evt, char *args)
 		case PROG_TYPE_ROOM:
 			room = ((room_data *)env->owner);
 		default:
-			slog("SYSERR: Can't happen at %s:%d", __FILE__, __LINE__);
+			errlog("Can't happen at %s:%d", __FILE__, __LINE__);
 		}
 		send_to_room(tmp_sprintf("%s\r\n", args), room);
 	} else if (!strcasecmp(arg, "target")) {
@@ -859,7 +859,7 @@ destroy_attached_progs(void *owner)
 {
 	struct prog_env *cur_prog;
 
-	for (cur_prog = prog_list;cur_prog;cur_prog = cur_prog) {
+	for (cur_prog = prog_list;cur_prog;cur_prog = cur_prog->next) {
 		if (cur_prog->owner == owner
 				|| cur_prog->target == owner
 				|| cur_prog->evt.subject == owner

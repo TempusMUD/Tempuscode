@@ -112,7 +112,7 @@ Account::load(long idnum)
 	acct_count = PQntuples(res);
 
 	if (acct_count > 1) {
-		slog("SYSERR: search for account %ld returned more than one match", idnum);
+		errlog("search for account %ld returned more than one match", idnum);
 		return false;
 	}
 
@@ -473,7 +473,7 @@ bool
 Account::authenticate(const char *pw)
 {
 	if(_password == NULL || *_password == '\0') {
-		slog("SYSERR: Account %s[%d] has NULL password. Setting to guess.", _name, _id );
+		errlog("Account %s[%d] has NULL password. Setting to guess.", _name, _id );
 		set_password(pw);
 	}
 	return !strcmp(_password, crypt(pw, _password));

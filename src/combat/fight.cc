@@ -67,7 +67,7 @@ set_fighting(struct Creature *ch, struct Creature *vict, int aggr)
 		return;
 
 	if (FIGHTING(ch)) {
-		slog("SYSERR: FIGHTING(ch) != NULL in set_fighting().");
+		errlog("FIGHTING(ch) != NULL in set_fighting().");
 		return;
 	}
 
@@ -570,7 +570,7 @@ eqdam_extract_obj(struct obj_data *obj)
 		else if (obj->in_obj)
 			obj_to_obj(inobj, obj->in_obj);
 		else {
-			slog("SYSERR: wierd bogus shit.");
+			errlog("wierd bogus shit.");
 			extract_obj(inobj);
 		}
 	}
@@ -714,7 +714,7 @@ destroy_object(Creature *ch, struct obj_data *obj, int type)
 		eqdam_extract_obj(obj);
 		obj_to_obj(new_obj, inobj);
 	} else {
-		slog("SYSERR: Improper location of obj and new_obj in damage_eq.");
+		errlog("Improper location of obj and new_obj in damage_eq.");
 		eqdam_extract_obj(obj);
 	}
 	return (new_obj);
@@ -841,13 +841,13 @@ damage(struct Creature *ch, struct Creature *victim, int dam,
 
 
 	if (victim->getPosition() <= POS_DEAD) {
-		slog("SYSERR: Attempt to damage a corpse--ch=%s,vict=%s,type=%d.",
+		errlog("Attempt to damage a corpse--ch=%s,vict=%s,type=%d.",
 			ch ? GET_NAME(ch) : "NULL", GET_NAME(victim), attacktype);
 		DAM_RETURN(DAM_VICT_KILLED);
 	}
 
 	if (victim->in_room == NULL) {
-		slog("SYSERR: Attempt to damage a char with null in_room ch=%s,vict=%s,type=%d.",
+		errlog("Attempt to damage a char with null in_room ch=%s,vict=%s,type=%d.",
 			ch ? GET_NAME(ch) : "NULL", GET_NAME(victim), attacktype);
 		raise(SIGSEGV);
 	}
@@ -857,7 +857,7 @@ damage(struct Creature *ch, struct Creature *victim, int dam,
 	}
 
 	if (GET_HIT(victim) < -10) {
-		slog("SYSERR: Attempt to damage a char with hps %d ch=%s,vict=%s,type=%d.",
+		errlog("Attempt to damage a char with hps %d ch=%s,vict=%s,type=%d.",
 			GET_HIT(victim), ch ? GET_NAME(ch) : "NULL", GET_NAME(victim),
 			attacktype);
 		DAM_RETURN(DAM_VICT_KILLED);
@@ -2678,7 +2678,7 @@ perform_violence(void)
 		if (!ch->in_room || !FIGHTING(ch))
 			continue;
 		if (ch == FIGHTING(ch)) {	// intentional crash here.
-			slog("SYSERR: ch == FIGHTING( ch ) in perform_violence.");
+			errlog("ch == FIGHTING( ch ) in perform_violence.");
 			raise(SIGSEGV);
 		}
 

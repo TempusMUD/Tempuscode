@@ -243,7 +243,7 @@ mag_savingthrow(struct Creature *ch, int level, int type)
 			save += (GET_LEVEL(FIGHTING(ch)) >> 2);
 		break;
 	default:
-		slog("SYSERR: unknown savetype in mag_savingthrow");
+		errlog("unknown savetype in mag_savingthrow");
 		break;
 	}
 
@@ -572,7 +572,7 @@ mag_damage(int level, struct Creature *ch, struct Creature *victim,
 		return 0;
 
 	if (victim->getPosition() <= POS_DEAD) {
-		slog("SYSERR: vict is already dead in mag_damage.");
+		errlog("vict is already dead in mag_damage.");
 		return DAM_VICT_KILLED;
 	}
 
@@ -2343,7 +2343,7 @@ Fireball: like harder bones, skin, organ membranecs
 		break;
 
 	default:
-		slog("SYSERR: unknown spell %d in mag_affects.", spellnum);
+		errlog("unknown spell %d in mag_affects.", spellnum);
 		break;
 	}
 
@@ -2448,7 +2448,7 @@ perform_mag_groups(int level, struct Creature *ch,
 		mag_affects(level, ch, tch, SPELL_SHIELD_OF_RIGHTEOUSNESS, savetype);
 		break;
 	default:
-		slog("SYSERR: Unknown spellnum %d in perform_mag_groups()",
+		errlog("Unknown spellnum %d in perform_mag_groups()",
 			spellnum);
 		break;
 
@@ -2922,7 +2922,7 @@ mag_points(int level, struct Creature *ch, struct Creature *victim,
 		}
 		break;
 	default:
-		slog("SYSERR: spellnum %d in mag_points.", spellnum);
+		errlog("spellnum %d in mag_points.", spellnum);
 		return;
 	}
 
@@ -3103,7 +3103,7 @@ mag_unaffects(int level, struct Creature *ch, struct Creature *victim,
 		break;
 
 	default:
-		slog("SYSERR: unknown spellnum %d passed to mag_unaffects",
+		errlog("unknown spellnum %d passed to mag_unaffects",
 			spellnum);
 		return;
 		break;
@@ -3549,7 +3549,7 @@ mag_alter_objs(int level, struct Creature *ch, struct obj_data *obj,
         break;
 
     default:
-        slog("SYSERR: Unknown spellnum in mag_alter_objs.");
+        errlog("Unknown spellnum in mag_alter_objs.");
         break;
 
     }
@@ -3608,7 +3608,7 @@ mag_objects(int level, struct Creature *ch, struct obj_data *obj,
 		if (!obj)
 			return;
 		if (!ch) {
-			slog("SYSERR:  NULL ch passed to mag_objects(). Spellnum BLESS.");
+			errlog(" NULL ch passed to mag_objects(). Spellnum BLESS.");
 			return;
 		}
 		if (IS_OBJ_STAT(obj, ITEM_MAGIC | ITEM_BLESS | ITEM_MAGIC_NODISPEL))
@@ -3692,7 +3692,7 @@ mag_creations(int level, struct Creature *ch, int spellnum)
 
 	if (!(tobj = read_object(z))) {
 		send_to_char(ch, "I seem to have goofed.\r\n");
-		slog("SYSERR: spell_creations, spell %d, obj %d: obj not found",
+		errlog("spell_creations, spell %d, obj %d: obj not found",
 			spellnum, z);
 		return;
 	}
@@ -3713,7 +3713,7 @@ mag_exits(int level, struct Creature *caster, struct room_data *room,
 	struct room_data *o_room = NULL;
 
 	if (!knock_door) {
-		slog("SYSERR: null knock_door in mag_exits().");
+		errlog("null knock_door in mag_exits().");
 		return 0;
 	}
 

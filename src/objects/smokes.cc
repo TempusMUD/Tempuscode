@@ -31,7 +31,7 @@ roll_joint(struct obj_data *tobac, struct obj_data *paper)
 	char buf[200];
 
 	if (!tobac || !paper) {
-		slog("SYSERR:  Attempt to roll_joint with NULL tobac or paper.");
+		errlog(" Attempt to roll_joint with NULL tobac or paper.");
 		return NULL;
 	}
 	obj = create_obj();

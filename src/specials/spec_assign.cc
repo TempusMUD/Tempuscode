@@ -335,7 +335,7 @@ do_specassign_save(struct Creature *ch, int mode)
 
 	if (!mode || IS_SET(mode, SPEC_MOB)) {
 		if (!(file = fopen(SPEC_FILE_MOB, "w"))) {
-			slog("SYSERR: Error opening mob spec file for write.");
+			errlog("Error opening mob spec file for write.");
 			return 1;
 		}
 		CreatureList::iterator mit = mobilePrototypes.begin();
@@ -356,7 +356,7 @@ do_specassign_save(struct Creature *ch, int mode)
 
 	if (!mode || IS_SET(mode, SPEC_OBJ)) {
 		if (!(file = fopen(SPEC_FILE_OBJ, "w"))) {
-			slog("SYSERR: Error opening obj spec file for write.");
+			errlog("Error opening obj spec file for write.");
 			return 1;
 		}
 		for (obj = obj_proto; obj; obj = obj->next) {
@@ -373,7 +373,7 @@ do_specassign_save(struct Creature *ch, int mode)
 
 	if (!mode || IS_SET(mode, SPEC_RM)) {
 		if (!(file = fopen(SPEC_FILE_RM, "w"))) {
-			slog("SYSERR: Error opening room spec file for write.");
+			errlog("Error opening room spec file for write.");
 			return 1;
 		}
 		for (zone = zone_table; zone; zone = zone->next)
@@ -482,7 +482,7 @@ ACMD(do_special)
 			send_to_char(ch, "Special assignments saved.\r\n");
 		break;
 	default:
-		slog("SYSERR: Invalid command reached in do_special.");
+		errlog("Invalid command reached in do_special.");
 		break;
 	}
 	return;

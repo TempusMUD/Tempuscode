@@ -182,7 +182,7 @@ QuestControl::loadQuests()
 	erase(begin(),end());
 	xmlDocPtr doc = xmlParseFile(filename);
 	if (doc == NULL) {
-		slog("SYSERR: Quesst load FAILED.");
+		errlog("Quesst load FAILED.");
 		return;
 	}
 	// discard root node
@@ -1829,7 +1829,7 @@ list_quest_players(Creature *ch, Quest * quest, char *outbuf)
 		if (!*name) {
 			strcat(buf, "BOGUS player idnum!\r\n");
 			strcat(buf2, "BOGUS player idnum!\r\n");
-			slog("SYSERR: bogus player idnum in list_quest_players.");
+			errlog("bogus player idnum in list_quest_players.");
 			break;
 		}
 		strcpy(name, CAP(name));
@@ -1887,7 +1887,7 @@ list_quest_bans(Creature *ch, Quest * quest, char *outbuf)
 		sprintf(name, "%s", playerIndex.getName(quest->getBan(i).idnum));
 		if (!*name) {
 			strcat(buf, "BOGUS player idnum!\r\n");
-			slog("SYSERR: bogus player idnum in list_quest_bans.");
+			errlog("bogus player idnum in list_quest_bans.");
 			break;
 		}
 		strcpy(name, CAP(name));
@@ -1955,7 +1955,7 @@ int
 boot_quests(void)
 {
 	if (!(qlogfile = fopen(QLOGFILENAME, "a"))) {
-		slog("SYSERR: unable to open qlogfile.");
+		errlog("unable to open qlogfile.");
 		safe_exit(1);
 	}
 	quests.loadQuests();

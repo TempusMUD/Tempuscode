@@ -392,7 +392,7 @@ HelpCollection::SaveIndex(Creature * ch)
 	index_file.open(fname, ios::out | ios::trunc);
 	//index_file.seekp(0, ios::beg);
 	if (!index_file) {
-		slog("SYSERR: Cannot open help index.");
+		errlog("Cannot open help index.");
 		return false;
 	}
 	index_file << top_id << endl;
@@ -404,7 +404,7 @@ HelpCollection::SaveIndex(Creature * ch)
 	}
 	index_file.close();
 	if (num_items == 0) {
-		slog("SYSERR: No records saved to help file index.");
+		errlog("No records saved to help file index.");
 		return false;
 	}
 	sprintf(buf, "Help: %d items saved to help file index\r\n", num_items);
@@ -422,7 +422,7 @@ HelpCollection::LoadIndex()
 	sprintf(fname, "%s/%s", Help_Directory, "index");
 	index_file.open(fname, ios::in);
 	if (!index_file) {
-		slog("SYSERR: Cannot open help index.");
+		errlog("Cannot open help index.");
 		return false;
 	}
 	index_file >> top_id;
@@ -445,7 +445,7 @@ HelpCollection::LoadIndex()
 	}
 	index_file.close();
 	if (num_items == 0) {
-		slog("SYSERR: No records read from help file index.");
+		errlog("No records read from help file index.");
 		return false;
 	}
 	slog("%d items read from help file index", num_items);

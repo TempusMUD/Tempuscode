@@ -51,7 +51,7 @@ SPECIAL(labyrinth_clock)
 		}
 
 		if (!to_room) {
-			slog("SYSERR: Improper room in labyrinth.spec");
+			errlog("Improper room in labyrinth.spec");
 			return 0;
 		}
 
@@ -111,7 +111,7 @@ SPECIAL(cuckoo)
 
 		/* little check to prevent a crash */
 		if ((to_room = real_room(66104)) == NULL) {
-			slog("SYSERR: Clock to room nonexistant.  Removing spec.");
+			errlog("Clock to room nonexistant.  Removing spec.");
 			bird->mob_specials.shared->func = NULL;
 			return 0;
 		}
@@ -134,7 +134,7 @@ SPECIAL(cuckoo)
 		if (bird->in_room->number == 66104) {
 
 			if ((r_clock_room = real_room(66236)) == NULL) {
-				slog("SYSERR: Clock room nonexistant.  Removing spec.");
+				errlog("Clock room nonexistant.  Removing spec.");
 				bird->mob_specials.shared->func = NULL;
 				return 0;
 			}
@@ -267,7 +267,7 @@ SPECIAL(gollum)
 			/* take ch to room 66162 */
 
 			if ((to_room = real_room(66162)) == NULL) {
-				slog("SYSERR: Gollum room nonexistant. Removing spec.");
+				errlog("Gollum room nonexistant. Removing spec.");
 				gollum->mob_specials.shared->func = NULL;
 				return 0;
 			}
@@ -363,12 +363,12 @@ SPECIAL(pendulum_timer_mob)
 			if (GET_OBJ_VNUM(test_obj) == 66007) {
 
 				if ((to_room = real_room(66126)) == NULL) {
-					slog("SYSERR: pendulum room nonexistant. Removing spec.");
+					errlog("pendulum room nonexistant. Removing spec.");
 					pendulum_timer_mob->mob_specials.shared->func = NULL;
 					return 0;
 				}
 				if ((from_room = real_room(66146)) == NULL) {
-					slog("SYSERR: pendulum room nonexistant. Removing spec.");
+					errlog("pendulum room nonexistant. Removing spec.");
 					pendulum_timer_mob->mob_specials.shared->func = NULL;
 					return 0;
 				}
@@ -411,12 +411,12 @@ SPECIAL(pendulum_timer_mob)
 			if (GET_OBJ_VNUM(test_obj) == 66011) {
 
 				if ((to_room = real_room(66146)) == NULL) {
-					slog("SYSERR: pendulum room nonexistant. Removing spec.");
+					errlog("pendulum room nonexistant. Removing spec.");
 					pendulum_timer_mob->mob_specials.shared->func = NULL;
 					return 0;
 				}
 				if ((from_room = real_room(66126)) == NULL) {
-					slog("SYSERR: pendulum room nonexistant. Removing spec.");
+					errlog("pendulum room nonexistant. Removing spec.");
 					pendulum_timer_mob->mob_specials.shared->func = NULL;
 					return 0;
 				}

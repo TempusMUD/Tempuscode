@@ -123,7 +123,7 @@ burn_update(void)
 		ch = *cit;
 
 		if (ch->in_room == NULL || ch->getPosition() == POS_DEAD) {
-			slog("SYSERR: Updating a corpse in burn_update.(%s)",
+			errlog("Updating a corpse in burn_update.(%s)",
 				GET_NAME(ch) == NULL ? "NULL" : GET_NAME(ch));
 			continue;
 		}
@@ -2750,12 +2750,12 @@ mobile_battle_activity(struct Creature *ch, struct Creature *precious_vict)
 	ACMD(do_feign);
 
 	if (!FIGHTING(ch)) {
-		slog("SYSERR: mobile_battle_activity called on non-fighting ch.");
+		errlog("mobile_battle_activity called on non-fighting ch.");
 		raise(SIGSEGV);
 	}
 
 	if (FIGHTING(ch) == precious_vict) {
-		slog("SYSERR: FIGHTING(ch) == precious_vict in mobile_battle_activity()");
+		errlog("FIGHTING(ch) == precious_vict in mobile_battle_activity()");
 		return 0;
 	}
 

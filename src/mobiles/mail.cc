@@ -187,7 +187,7 @@ store_mail(long to_id, long from_id, char *txt, list<string> cc_list,
     mailBag.push_back(obj);
     
     if ((ofile = fopen(mail_file_path, "w")) == NULL) {
-        slog("SYSERR: Unable to open xml mail file '%s': %s", 
+        errlog("Unable to open xml mail file '%s': %s", 
              mail_file_path, strerror(errno) );
         return 0;
     }
@@ -276,7 +276,7 @@ list<obj_data *> load_mail(char *path)
 
 	if( axs != 0 ) {
 		if( errno != ENOENT ) {
-			slog("SYSERR: Unable to open xml mail file '%s': %s", 
+			errlog("Unable to open xml mail file '%s': %s", 
 				 path, strerror(errno) );
 			return mailBag;
 		} else {
@@ -285,14 +285,14 @@ list<obj_data *> load_mail(char *path)
 	}
     xmlDocPtr doc = xmlParseFile(path);
     if (!doc) {
-        slog("SYSERR: XML parse error while loading %s", path);
+        errlog("XML parse error while loading %s", path);
         return mailBag;
     }
 
     xmlNodePtr root = xmlDocGetRootElement(doc);
     if (!root) {
         xmlFreeDoc(doc);
-        slog("SYSERR: XML file %s is empty", path);
+        errlog("XML file %s is empty", path);
         return mailBag;
     }
 

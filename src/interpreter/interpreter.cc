@@ -1651,7 +1651,7 @@ command_interpreter(struct Creature *ch, char *argument)
 		case POS_FIGHTING:
 			send_to_char(ch, "No way!  You're fighting for your life!\r\n");
 			if (!FIGHTING(ch))
-				slog("SYSERR: Char !FIGHTING(ch) while pos fighting.");
+				errlog("Char !FIGHTING(ch) while pos fighting.");
 			break;
 	} else if (no_specials ||
 			!special(ch, cmd, cmd_info[cmd].subcmd, line, SPECIAL_CMD)) {

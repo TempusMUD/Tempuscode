@@ -63,7 +63,7 @@ SPECIAL(gen_locker)
 		if (!locker_room || !real_object_proto(locker_vnum)) {
 			send_to_char(ch,
 				"Sorry, the locker room is out of service right now.\r\n");
-			slog("SYSERR: locker room with no storage room or locker.");
+			errlog("locker room with no storage room or locker.");
 			return 1;
 		}
 
@@ -145,7 +145,7 @@ SPECIAL(gen_locker)
 		if (!locker_room || !real_object_proto(locker_vnum)) {
 			send_to_char(ch,
 				"Sorry, the locker room is out of service right now.\r\n");
-			slog("SYSERR: locker room with no storage room or locker.");
+			errlog("locker room with no storage room or locker.");
 			return 1;
 		}
 
@@ -255,7 +255,7 @@ SPECIAL(gen_locker)
 		if (!locker_room || !real_object_proto(locker_vnum)) {
 			send_to_char(ch,
 				"Sorry, the locker room is out of service right now.\r\n");
-			slog("SYSERR: locker room with no storage room or locker.");
+			errlog("locker room with no storage room or locker.");
 			return 1;
 		}
 

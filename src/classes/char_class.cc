@@ -1280,7 +1280,7 @@ advance_level(struct Creature *ch, byte keep_internal)
 	if (IS_REMORT(ch) && GET_REMORT_GEN(ch)) {
 
 		if (add_hp[0] < 0 || add_hp[1] < 0) {
-			slog("SYSERR: remort level (%s) add_hp: [0]=%d,[1]=%d",
+			errlog("remort level (%s) add_hp: [0]=%d,[1]=%d",
 				GET_NAME(ch), add_hp[0], add_hp[1]);
 		}
 

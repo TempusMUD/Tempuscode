@@ -74,13 +74,6 @@ tmp_alloc_pool(size_t size_req)
 	struct tmp_str_pool *new_buf;
 	size_t size = MAX(size_req,DEFAULT_POOL_SIZE);
 
-	fprintf(stderr, "NOTICE: tmpstr pool allocated %d bytes for req of %d bytes\n", 
-			size, size_req );
-	fprintf(stderr, "        stack trace: 0x%lx 0x%lx 0x%lx\n",
-		(long)__builtin_return_address(0),
-		(long)__builtin_return_address(1),
-		(long)__builtin_return_address(2));
-
 	new_buf = (struct tmp_str_pool *)malloc(sizeof(struct tmp_str_pool) + size + 4);
 	new_buf->next = NULL;
 	tmp_list_tail->next = new_buf;
@@ -91,6 +84,9 @@ tmp_alloc_pool(size_t size_req)
 	// Add buffer overflow detection
 	new_buf->underflow = 0xddccbbaa;
 	*((unsigned long *)&new_buf->data[new_buf->space]) = 0xaabbccdd;
+
+	slog("NOTICE: tmpstr pool allocated %d bytes for req of %d bytes\n", 
+			size, size_req);
 
 	return new_buf;
 }

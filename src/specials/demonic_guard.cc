@@ -69,7 +69,7 @@ summon_criminal_demons(Creature *vict)
 		mob = read_mobile(vnum_base + MIN(4, (GET_LEVEL(vict) / 9))
 			+ number(0,1));
 		if (!mob) {
-			slog("SYSERR: Unable to load mob in demonic_overmind");
+			errlog("Unable to load mob in demonic_overmind");
 			return false;
 		}
 		HUNTING(mob) = vict;

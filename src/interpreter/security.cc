@@ -682,7 +682,7 @@ namespace Security {
 			if( cmd >= 0 )
 				getGroup(PQgetvalue(res, idx, 0)).addCommand(&cmd_info[cmd]);
 			else
-				slog("SYSERR: Invalid command '%s' in security group '%s'",
+				errlog("Invalid command '%s' in security group '%s'",
 					PQgetvalue(res, idx, 1), PQgetvalue(res, idx, 0));
 		}
 

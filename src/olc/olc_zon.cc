@@ -1263,7 +1263,7 @@ do_zput_cmd(struct Creature *ch, char *argument)
 				SET_BIT(GET_OBJ_EXTRA2(obj), ITEM2_UNAPPROVED);
 			obj_to_obj(obj, to_obj);
 		} else
-			slog("SYSERR: Freaky-ass error in zput!");
+			errlog("Freaky-ass error in zput!");
 	}
 	send_to_char(ch, "Command completed ok.\r\n");
 }
@@ -2646,7 +2646,7 @@ save_zone(struct Creature *ch, struct zone_data *zone)
 		fclose(zone_file);
 		sprintf(fname, "world/zon/olc/%d.zon", zone->number);
 		if (!(zone_file = fopen(fname, "r"))) {
-			slog("SYSERR: Failure to reopen olc zon file.");
+			errlog("Failure to reopen olc zon file.");
 			fclose(realfile);
 			return false;
 		}
@@ -2655,7 +2655,7 @@ save_zone(struct Creature *ch, struct zone_data *zone)
 			if (fwrite(buf, 1, tmp, realfile) != tmp) {
 				fclose(realfile);
 				fclose(zone_file);
-				slog("SYSERR: Failure to duplicate olc zon file in the main wld dir.");
+				errlog("Failure to duplicate olc zon file in the main wld dir.");
 				return false;
 			}
 		} while (tmp == 512);
@@ -2754,7 +2754,7 @@ do_zone_cmdlist(struct Creature *ch, struct zone_data *zone, char *arg)
 	PHead *p_head = NULL;
 
 	if (!zone) {
-		slog("SYSERR: Improper zone passed to do_zone_cmdlist.");
+		errlog("Improper zone passed to do_zone_cmdlist.");
 		send_to_char(ch, "Improper zone error.\r\n");
 		return;
 	}

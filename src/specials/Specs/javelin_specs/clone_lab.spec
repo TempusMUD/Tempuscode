@@ -21,7 +21,7 @@ SPECIAL(clone_lab)
 	struct Creature *cloned_char = read_mobile(17199);
 
 	if (!cloned_char) {
-		slog("SYSERR: cloned_char spec failed to load cloned_char mobile");
+		errlog("cloned_char spec failed to load cloned_char mobile");
 		return 0;
 	}
 

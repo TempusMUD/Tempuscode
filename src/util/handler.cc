@@ -65,7 +65,7 @@ fname(char *namelist)
 	char *point;
 
 	if (!namelist) {
-		slog("SYSERR: Null namelist passed to fname().");
+		errlog("Null namelist passed to fname().");
 		return "";
 	}
 	for (point = holder; isalnum(*namelist); namelist++, point++)
@@ -83,7 +83,7 @@ fname(const char *namelist)
 	char *point;
 
 	if (!namelist) {
-		slog("SYSERR: Null namelist passed to fname().");
+		errlog("Null namelist passed to fname().");
 		return "";
 	}
 	for (point = holder; isalnum(*namelist); namelist++, point++)
@@ -105,7 +105,7 @@ isname(const char *str, const char *namelist)
 		return 0;
 
 	if ( namelist == NULL || *namelist == '\0' ) {
-		slog("SYSERR:  NULL namelist given to isname()");
+		errlog(" NULL namelist given to isname()");
 		return 0;
 	}
 
@@ -150,7 +150,7 @@ isname_exact(const char *str, const char *namelist)
 		return 0;
 
 	if ( namelist == NULL || *namelist == '\0' ) {
-		slog("SYSERR:  NULL namelist given to isname()");
+		errlog(" NULL namelist given to isname()");
 		return 0;
 	}
 
@@ -498,7 +498,7 @@ affect_modify(struct Creature *ch, sh_int loc, sh_int mod, long bitv,
 		break;
 
 	default:
-		slog("SYSERR: Unknown apply adjust attempt on %20s %3d + %3d in affect_modify. add=%s",
+		errlog("Unknown apply adjust attempt on %20s %3d + %3d in affect_modify. add=%s",
 			GET_NAME(ch), loc, mod, add ? "true" : "false");
 		break;
 
@@ -779,7 +779,7 @@ affect_remove(struct Creature *ch, struct affected_type *af)
 	}
 
 	if (!ch->affected) {
-		slog("SYSERR: !ch->affected in affect_remove()");
+		errlog("!ch->affected in affect_remove()");
 		return 0;
 	}
 	if (af->type == SPELL_TAINT) {
@@ -1037,7 +1037,7 @@ char_from_room( Creature *ch, bool check_specials)
 {
 
 	if (ch == NULL || ch->in_room == NULL) {
-		slog("SYSERR: NULL or NOWHERE in handler.c, char_from_room");
+		errlog("NULL or NOWHERE in handler.c, char_from_room");
 		if (ch)
 			sprintf(buf, "Char is %s\r\n", GET_NAME(ch));
 		if (ch->in_room != NULL)
@@ -1124,7 +1124,7 @@ char_to_room(Creature *ch, room_data *room, bool check_specials)
 	struct affected_type *aff = NULL, *next_aff = NULL;
 
 	if (!ch || room == NULL) {
-		slog("SYSERR: Illegal value(s) passed to char_to_room");
+		errlog("Illegal value(s) passed to char_to_room");
 		raise(SIGSEGV);
 		return false;
 	}
@@ -1216,7 +1216,7 @@ obj_to_char(struct obj_data *object, struct Creature *ch, bool sorted)
 	struct zone_data *zn = NULL;
 
 	if (!object || !ch) {
-		slog("SYSERR: NULL obj or char passed to obj_to_char");
+		errlog("NULL obj or char passed to obj_to_char");
 		return;
 	}
 	if (!ch->carrying) {
@@ -1287,7 +1287,7 @@ obj_from_char(struct obj_data *object)
 	struct obj_data *temp;
 
 	if (object == NULL) {
-		slog("SYSERR: NULL object passed to obj_from_char");
+		errlog("NULL object passed to obj_from_char");
 		return;
 	}
 
@@ -1326,7 +1326,7 @@ apply_ac(struct Creature *ch, int eq_pos)
 	int factor;
 
 	if (!GET_EQ(ch, eq_pos)) {
-		slog("SYSERR: !GET_EQ(ch, eq_pos) in apply_ac");
+		errlog("!GET_EQ(ch, eq_pos) in apply_ac");
 		return 0;
 	}
 
@@ -1392,24 +1392,24 @@ equip_char(struct Creature *ch, struct obj_data *obj, int pos, int internal)
 	int invalid_char_class(struct Creature *ch, struct obj_data *obj);
 
 	if (pos < 0 || pos >= NUM_WEARS) {
-		slog("SYSERR: Illegal pos in equip_char.");
+		errlog("Illegal pos in equip_char.");
 		obj_to_room(obj, zone_table->world);
 		return 0;
 	}
 
 	if ((!internal && GET_EQ(ch, pos)) || (internal && GET_IMPLANT(ch, pos))) {
-		slog("SYSERR: Char is already equipped: %s, %s %s",
+		errlog("Char is already equipped: %s, %s %s",
 			GET_NAME(ch), obj->name, internal ? "(impl)" : "");
 		obj_to_room(obj, zone_table->world);
 		return 0;
 	}
 	if (obj->carried_by) {
-		slog("SYSERR: EQUIP: Obj is carried_by when equip.");
+		errlog("EQUIP: Obj is carried_by when equip.");
 		obj_to_room(obj, zone_table->world);
 		return 0;
 	}
 	if (obj->in_room != NULL) {
-		slog("SYSERR: EQUIP: Obj is in_room when equip.");
+		errlog("EQUIP: Obj is in_room when equip.");
 		return 0;
 	}
 	if (!internal) {
@@ -1462,12 +1462,12 @@ unequip_char(struct Creature *ch, int pos, int internal, bool disable_checks)
 
 
 	if (pos < 0 || pos >= NUM_WEARS) {
-		slog("SYSERR: Illegal pos in unequip_char.");
+		errlog("Illegal pos in unequip_char.");
 		return NULL;
 	}
 
 	if ((!internal && !GET_EQ(ch, pos)) || (internal && !GET_IMPLANT(ch, pos))) {
-		slog("SYSERR: %s pointer NULL at pos %d in unequip_char.",
+		errlog("%s pointer NULL at pos %d in unequip_char.",
 			internal ? "implant" : "eq", pos);
 		return NULL;
 	}
@@ -1692,7 +1692,7 @@ obj_to_room(struct obj_data *object, struct room_data *room, bool sorted)
 	int found;
 
 	if (!object || !room) {
-		slog("SYSERR: Illegal %s | %s passed to obj_to_room",
+		errlog("Illegal %s | %s passed to obj_to_room",
 			object ? "" : "OBJ", room ? "" : "ROOM");
 		raise(SIGSEGV);
 		return;
@@ -1756,12 +1756,12 @@ obj_from_room(struct obj_data *object)
 	struct obj_data *temp;
 
 	if (!object) {
-		slog("SYSERR: NULL object passed to obj_from_room");
+		errlog("NULL object passed to obj_from_room");
 		raise(SIGSEGV);
 		return;
 	}
 	if (!object->in_room) {
-		slog("SYSERR: NULL object->in_room in obj_from_room");
+		errlog("NULL object->in_room in obj_from_room");
 		raise(SIGSEGV);
 		return;
 	}
@@ -1794,7 +1794,7 @@ obj_to_obj(struct obj_data *obj, struct obj_data *obj_to, bool sorted)
 	int found, j;
 
 	if (!obj || !obj_to || obj == obj_to) {
-		slog("SYSERR: NULL object or same src and targ obj passed to obj_to_obj");
+		errlog("NULL object or same src and targ obj passed to obj_to_obj");
 		return;
 	}
 	if (!obj_to->contains) {
@@ -1957,7 +1957,7 @@ extract_obj(struct obj_data *obj)
 		if (unequip_char(obj->worn_by, obj->worn_on,
 				(obj == GET_EQ(obj->worn_by, obj->worn_on) ?
 					MODE_EQ : MODE_IMPLANT), false) != obj)
-			slog("SYSERR: Inconsistent worn_by and worn_on pointers!!");
+			errlog("Inconsistent worn_by and worn_on pointers!!");
 	if (obj->in_room != NULL)
 		obj_from_room(obj);
 	else if (obj->carried_by)
@@ -2353,7 +2353,7 @@ money_desc(int amount, int mode)
 	char *result;
 
 	if (amount <= 0) {
-		slog("SYSERR: Try to create negative or 0 money.");
+		errlog("Try to create negative or 0 money.");
 		return NULL;
 	}
 	if (mode == 0) {
@@ -2430,7 +2430,7 @@ create_money(int amount, int mode)
 	struct extra_descr_data *new_descr;
 
 	if (amount <= 0) {
-		slog("SYSERR: Try to create negative or 0 money.");
+		errlog("Try to create negative or 0 money.");
 		return NULL;
 	}
 	obj = create_obj();
@@ -2796,7 +2796,7 @@ Reaction::react(Creature *ch)
 				match = true;
 			break;
 		default:
-			slog("SYSERR: Invalid reaction code %x", *read_pt);
+			errlog("Invalid reaction code %x", *read_pt);
 			return UNDECIDED;
 		}
 

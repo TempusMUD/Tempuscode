@@ -21,7 +21,7 @@ SPECIAL(hell_domed_chamber)
 	struct Creature *cloned_char = read_mobile(17199);
 
 	if (!cloned_char) {
-		slog("SYSERR: hell_domed_chamber failed to load cloned_char mobile");
+		errlog("hell_domed_chamber failed to load cloned_char mobile");
 		return 0;
 	}
 

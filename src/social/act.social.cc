@@ -383,7 +383,7 @@ boot_social_messages(void)
 	/* Check to make sure that all social commands are defined */
 	for (nr = 0; *cmd_info[nr].command != '\n'; nr++)
 		if (cmd_info[nr].command_pointer == do_action && find_action(nr) < 0)
-			slog("SYSERR: Social '%s' is not defined in socials file",
+			errlog("Social '%s' is not defined in socials file",
 				cmd_info[nr].command);
 
 }

@@ -1213,7 +1213,7 @@ set_desc_state(cxn_state state,struct descriptor_data *d)
 
 	if (CXN_EDIT_DESC == state) {
 		if (!d->creature) {
-			slog("SYSERR: set_desc_state called with CXN_EDIT_DESC with no creature.");
+			errlog("set_desc_state called with CXN_EDIT_DESC with no creature.");
 			send_to_desc(d, "You can't edit yer desc right now.\r\n");
 			set_desc_state(CXN_WAIT_MENU, d);
 			return;
@@ -1391,7 +1391,7 @@ char_to_game(descriptor_data *d)
 			case 3:
 				load_room = real_room(number(10919, 10921));
 				if (!load_room) {
-					slog("SYSERR: Can't send %s to jail - jail doesn't exist!",
+					errlog("Can't send %s to jail - jail doesn't exist!",
 						GET_NAME(d->creature));
 				}
 				notes = tmp_strcat(notes, "\r\nYou were unable to pay your rent and have been put in JAIL!\r\n");
@@ -1453,7 +1453,7 @@ char_to_game(descriptor_data *d)
 		// New characters shouldn't get old mail.
 		if(has_mail(GET_IDNUM(d->creature))) {
 		   if(purge_mail(GET_IDNUM(d->creature))>0) {
-			   slog("SYSERR: Purging pre-existing mailfile for new character.(%s)",
+			   errlog("Purging pre-existing mailfile for new character.(%s)",
 					GET_NAME(d->creature));
 		   }
 		}
@@ -1572,7 +1572,7 @@ show_character_detail(descriptor_data *d)
 	char time_buf[30];
 
 	if (!ch) {
-		slog("SYSERR: show_player_detail() called without creature");
+		errlog("show_player_detail() called without creature");
 		return;
 	}
 

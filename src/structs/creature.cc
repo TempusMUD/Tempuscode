@@ -146,7 +146,7 @@ void
 Creature::setFighting(Creature * ch)
 {
 	if (ch == this) {
-		slog("SYSERR: Attempt to make %s fight itself!", GET_NAME(this));
+		errlog("Attempt to make %s fight itself!", GET_NAME(this));
 		raise(SIGSEGV);
 		return;
 	}
@@ -522,7 +522,7 @@ Creature::extract(cxn_state con_state)
 				do_return(t_desc->creature, "", 0, SCMD_FORCED, 0);
 	}
 	if (in_room == NULL) {
-		slog("SYSERR: NOWHERE extracting char. (handler.c, extract_char)");
+		errlog("NOWHERE extracting char. (handler.c, extract_char)");
 		slog("...extract char = %s", GET_NAME(this));
 		exit(1);
 	}
@@ -744,7 +744,7 @@ Creature::clear(void)
 	if (this->in_room != NULL || this->carrying != NULL ||
 		this->getFighting() != NULL || this->followers != NULL
 		|| this->master != NULL) {
-		slog("SYSERR: attempted clear of creature who is still connected to the world.");
+		errlog("attempted clear of creature who is still connected to the world.");
 		raise(SIGSEGV);
 	}
 
@@ -824,7 +824,7 @@ Creature::clear(void)
 		delete this->player_specials;
 
 		if (IS_NPC(this)) {
-			slog("SYSERR: Mob had player_specials allocated!");
+			errlog("Mob had player_specials allocated!");
 			raise(SIGSEGV);
 		}
 	}

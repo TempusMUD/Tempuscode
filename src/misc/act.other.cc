@@ -698,7 +698,7 @@ ACMD(do_use)
 				arg);
 			return;
 		default:
-			slog("SYSERR: Unknown subcmd passed to do_use");
+			errlog("Unknown subcmd passed to do_use");
 			return;
 		}
 	}
@@ -781,7 +781,7 @@ ACMD(do_use)
 		}
 		break;
 	default:
-		slog("SYSERR: Illegal subcmd passed to do_use.");
+		errlog("Illegal subcmd passed to do_use.");
 		return;
 	}
 
@@ -1319,7 +1319,7 @@ ACMD(do_gen_tog)
 		result = PRF_TOG_CHK(ch, PRF_NASTY);
 		break;
 	default:
-		slog("SYSERR: Unknown subcmd in do_gen_toggle");
+		errlog("Unknown subcmd in do_gen_toggle");
 		return;
 	}
 
@@ -2171,7 +2171,7 @@ ice_room(struct room_data *room, int amount)
 	}
 
 	if (!ice && (new_ice = TRUE) && !(ice = read_object(ICE_VNUM))) {
-		slog("SYSERR: Unable to load ice.");
+		errlog("Unable to load ice.");
 		return;
 	}
 

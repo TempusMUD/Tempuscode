@@ -45,7 +45,7 @@ town_crier_select(town_crier_data *data)
 	
 	res = sql_query("select idnum, body from board_messages where board='town_crier' and not idnum=%d limit 1 offset %d", data->last_msg, number(0, count - 1));
 	if (PQntuples(res) != 1) {
-		slog("SYSERR: town_crier found %d tuples from selection\n", PQntuples(res));
+		errlog("town_crier found %d tuples from selection\n", PQntuples(res));
 		return false;
 	}
 	

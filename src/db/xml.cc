@@ -31,7 +31,7 @@ xml_boot(void)
 
 	dir = opendir(XML_PREFIX);
 	if (!dir) {
-		slog("SYSERR: XML directory does not exist");
+		errlog("XML directory does not exist");
 		return;
 	}
 
@@ -44,14 +44,14 @@ xml_boot(void)
 		snprintf(path, 255, "%s/%s", XML_PREFIX, file->d_name);
 		doc = xmlParseFile(path);
 		if (!doc) {
-			slog("SYSERR: XML parse error while loading %s", path);
+			errlog("XML parse error while loading %s", path);
 			continue;
 		}
 
 		node = xmlDocGetRootElement(doc);
 		if (!node) {
 			xmlFreeDoc(doc);
-			slog("SYSERR: XML file %s is empty", path);
+			errlog("XML file %s is empty", path);
 			continue;
 		}
 
@@ -68,7 +68,7 @@ xml_boot(void)
 			else if (xmlMatches(node->name, "room"))
 				load_xml_room(node);
 			else
-				slog("SYSERR: Invalid XML object '%s' in %s", node->name, path);
+				errlog("Invalid XML object '%s' in %s", node->name, path);
 			node = node->next;
 		}
 
@@ -105,7 +105,7 @@ xml_reload( Creature *ch = NULL )
 
 	dir = opendir(XML_PREFIX);
 	if (!dir) {
-		slog("SYSERR: XML directory does not exist");
+		errlog("XML directory does not exist");
 		return;
 	}
 
@@ -120,14 +120,14 @@ xml_reload( Creature *ch = NULL )
 		snprintf(path, 255, "%s/%s", XML_PREFIX, file->d_name);
 		doc = xmlParseFile(path);
 		if (!doc) {
-			slog("SYSERR: XML parse error while loading %s", path);
+			errlog("XML parse error while loading %s", path);
 			continue;
 		}
 
 		node = xmlDocGetRootElement(doc);
 		if (!node) {
 			xmlFreeDoc(doc);
-			slog("SYSERR: XML file %s is empty", path);
+			errlog("XML file %s is empty", path);
 			continue;
 		}
 
@@ -216,7 +216,7 @@ load_xml_object(xmlNodePtr node)
 		} else if (!xmlStrcmp(cur_node->name, (const xmlChar *)"wearpos")) {
 			obj->obj_flags.wear_flags = xmlGetFlags(cur_node, wearpos_enum);
 		} else {
-			slog("SYSERR: Invalid xml node in <object>");
+			errlog("Invalid xml node in <object>");
 		}
 	}
 */
@@ -318,7 +318,7 @@ load_xml_mobile(xmlNodePtr node)
 			MOB_FLAGS(mob) = xmlGetFlags(node, action1_enum);
 			MOB2_FLAGS(mob) = xmlGetFlags(node, action2_enum);
 		} else {
-			slog("SYSERR: Invalid xml node in <mobile>");
+			errlog("Invalid xml node in <mobile>");
 		}
 	}
 
@@ -394,7 +394,7 @@ load_xml_room(xmlNodePtr node)
 					room->dir_option[dir]->exitinfo =
 						xmlGetFlags(sub_node, door_enum);
 				} else {
-					slog("SYSERR: Invalid xml node in <exit>");
+					errlog("Invalid xml node in <exit>");
 				}
 			}
 		} else if (!xmlStrcmp(cur_node->name, "flow")) {
@@ -425,7 +425,7 @@ load_xml_room(xmlNodePtr node)
 					new_search->to_remote =
 						xmlNodeListGetString(doc, sub_node, 1);
 				} else {
-					slog("SYSERR: Invalid xml node in <search>");
+					errlog("Invalid xml node in <search>");
 				}
 			}
 
@@ -440,7 +440,7 @@ load_xml_room(xmlNodePtr node)
 				t_srch->next = new_search;
 			}
 		} else {
-			slog("SYSERR: Invalid xml node in <room>");
+			errlog("Invalid xml node in <room>");
 		}
 	}
 

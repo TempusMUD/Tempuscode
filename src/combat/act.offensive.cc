@@ -794,7 +794,7 @@ calc_skill_prob(struct Creature *ch, struct Creature *vict, int skillnum,
 		break;
 
 	default:
-		slog("SYSERR: Illegal skillnum <%d> passed to calc_skill_prob().",
+		errlog("Illegal skillnum <%d> passed to calc_skill_prob().",
 			skillnum);
 		send_to_char(ch, "There was an error.\r\n");
 		return -1;
@@ -3120,7 +3120,7 @@ do_combat_fire(struct Creature *ch, struct Creature *vict)
 
 	//if our victim is NULL we simply return;
 	if (vict == NULL) {
-		slog("SYSERR: NULL vict in %s().", __FUNCTION__);
+		errlog("NULL vict in %s().", __FUNCTION__);
 		return 0;
 	}
 	// This should never happen 

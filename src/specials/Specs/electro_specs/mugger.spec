@@ -180,7 +180,7 @@ SPECIAL(mugger)
 
 	obj = real_object_proto(mug->vnum);
 	if (!obj) {
-		slog("SYSERR: Mugger's desired object not found in database");
+		errlog("Mugger's desired object not found in database");
 		free(mug);
 		self->mob_specials.func_data = NULL;
 	}

@@ -191,7 +191,7 @@ flow_room(int pulse)
 						aff->duration--;
 					if (aff->duration <= 0) {
 						if (aff->duration < 0) {
-							slog("SYSERR:  Room aff type %d has %d duration at %d.",
+							errlog(" Room aff type %d has %d duration at %d.",
 								aff->type, aff->duration, rnum->number);
 						}
 						affect_from_room(rnum, aff);
@@ -522,7 +522,7 @@ affect_to_room(struct room_data *room, struct room_affect_data *aff)
 		else
 			return;
 	} else {
-		slog("SYSERR: Invalid aff->type passed to affect_to_room.");
+		errlog("Invalid aff->type passed to affect_to_room.");
 		return;
 	}
 
@@ -556,14 +556,14 @@ affect_from_room(struct room_data *room, struct room_affect_data *aff)
 	}
 
 	if (!tmp_aff)
-		slog("SYSERR: aff not found in room->affects in affect_from_room.");
+		errlog("aff not found in room->affects in affect_from_room.");
 
 	if (aff->type == RM_AFF_FLAGS)
 		REMOVE_BIT(room->room_flags, aff->flags);
 	else if (aff->type < NUM_DIRS && room->dir_option[(int)aff->type])
 		REMOVE_BIT(room->dir_option[(int)aff->type]->exit_info, aff->flags);
 	else {
-		slog("SYSERR: Invalid aff->type passed to affect_from_room.");
+		errlog("Invalid aff->type passed to affect_from_room.");
 		return;
 	}
 	if (aff->description)

@@ -172,7 +172,7 @@ CraftItem::next_requirement(Creature *keeper)
 				return tmp_strdup(obj->name);
 			}
 		} else {
-			slog("SYSERR: Unimplemented requirement in artisan");
+			errlog("Unimplemented requirement in artisan");
 		}
 	}
 
@@ -190,13 +190,13 @@ CraftItem::create(Creature *keeper, Creature *recipient)
 		if ((*compon)->item) {
 			obj = get_obj_in_list_num(compon[0]->item, keeper->carrying);
 			if (!obj) {
-				slog("SYSERR: craft_remove_prereqs called without all prereqs");
+				errlog("craft_remove_prereqs called without all prereqs");
 				return NULL;
 			}
 			obj_from_char(obj);
 			extract_obj(obj);
 		} else {
-			slog("SYSERR: Unimplemented requirement in artisan");
+			errlog("Unimplemented requirement in artisan");
 			return NULL;
 		}
 	}
@@ -380,7 +380,7 @@ assign_artisans(void)
 		if (mob)
 			mob->mob_specials.shared->func = artisan;
 		else
-			slog("SYSERR: Artisan mob %d not found!", (*shop)->keeper_vnum);
+			errlog("Artisan mob %d not found!", (*shop)->keeper_vnum);
 	}
 
 	cmd_slap = find_command("slap");

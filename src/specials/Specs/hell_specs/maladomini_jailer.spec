@@ -16,7 +16,7 @@ SPECIAL(maladomini_jailer)
 
 	if (!to_room) {
 		if (!(to_room = real_room(16989))) {
-			slog("SYSERR: error loading to_room for maladomini_jailer.");
+			errlog("error loading to_room for maladomini_jailer.");
 			ch->mob_specials.shared->func = NULL;
 			REMOVE_BIT(MOB_FLAGS(ch), MOB_SPEC);
 			return 0;

@@ -380,7 +380,7 @@ check_object_killer(struct obj_data *obj, struct Creature *vict)
 	else if (GET_OBJ_SIGIL_IDNUM(obj))
 		obj_id = GET_OBJ_SIGIL_IDNUM(obj);
 	else {
-		slog("SYSERR: unknown damager in check_object_killer.");
+		errlog("unknown damager in check_object_killer.");
 		return;
 	}
 
@@ -400,7 +400,7 @@ check_object_killer(struct obj_data *obj, struct Creature *vict)
 
 	// the piece o shit has a bogus killer idnum on it!
 	if (!killer) {
-		slog("SYSERR: bogus idnum %d on object %s damaging %s.",
+		errlog("bogus idnum %d on object %s damaging %s.",
 			obj_id, obj->name, GET_NAME(vict));
 		return;
 	}
@@ -483,7 +483,7 @@ calculate_thaco(struct Creature *ch, struct Creature *victim,
 
 	if (weap) {
 		if (ch != weap->worn_by) {
-			slog("SYSERR: inconsistent weap->worn_by ptr in calculate_thaco.");
+			errlog("inconsistent weap->worn_by ptr in calculate_thaco.");
 			slog("weap: ( %s ), ch: ( %s ), weap->worn->by: ( %s )",
 				weap->name, GET_NAME(ch), weap->worn_by ?
 				GET_NAME(weap->worn_by) : "NULL");
@@ -589,7 +589,7 @@ add_blood_to_room(struct room_data *rm, int amount)
 			break;
 
 	if (!blood && (new_blood = TRUE) && !(blood = read_object(BLOOD_VNUM))) {
-		slog("SYSERR: Unable to load blood.");
+		errlog("Unable to load blood.");
 		return;
 	}
 
@@ -675,7 +675,7 @@ choose_random_limb(Creature *victim)
 	}
 
 	if (i >= NUM_WEARS) {
-		slog("SYSERR: exceeded NUM_WEARS-1 in choose_random_limb.");
+		errlog("exceeded NUM_WEARS-1 in choose_random_limb.");
 		return WEAR_BODY;
 	}
 	// shield will be the only armor check we do here, since it is a special position

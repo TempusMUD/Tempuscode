@@ -520,7 +520,7 @@ ACMD(do_demote)
 	} else if (member2->rank <= 0) {
 		send_to_char(ch, "They are already as low as they can go.\r\n");
 		if (member2->rank < 0) {
-			slog("SYSERR: clan member with rank < 0");
+			errlog("clan member with rank < 0");
 			member2->rank = 0;
 		}
 	} else {

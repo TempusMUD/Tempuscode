@@ -154,7 +154,7 @@ ASPELL(spell_recall)
     load_room = victim->getLoadroom();
 
 	if (!load_room || !victim->in_room) {
-		slog("SYSERR: NULL load_room or victim->in_room in spell_recall.");
+		errlog("NULL load_room or victim->in_room in spell_recall.");
 		return;
 	}
 
@@ -2209,7 +2209,7 @@ ASPELL(spell_gust_of_wind)
 	if (obj) {
 
 		if (!obj->in_room) {
-			slog("SYSERR: %s tried to gust %s at %d.",
+			errlog("%s tried to gust %s at %d.",
 				GET_NAME(ch), obj->name, ch->in_room->number);
 			act("$p doesnt budge.", FALSE, ch, obj, 0, TO_CHAR);
 			return;
@@ -2534,7 +2534,7 @@ ASPELL(spell_summon_legion)
 	i = MIN(i, 4);
 
 	if (!(devil = read_mobile(legion_vnums[i]))) {
-		slog("SYSERR: unable to load legion, i=%d.", i);
+		errlog("unable to load legion, i=%d.", i);
 		send_to_char(ch, "legion error.\r\n");
 		return;
 	}
@@ -2664,7 +2664,7 @@ ASPELL(spell_animate_dead)
 
 	if (!orig_char) {
 		send_to_char(ch, "The dark powers are not with you, tonight.\r\n");
-		slog("SYSERR: unable to load an original owner for corpse, idnum %d.",
+		errlog("unable to load an original owner for corpse, idnum %d.",
 			CORPSE_IDNUM(obj));
 		return;
 	}
@@ -2690,7 +2690,7 @@ ASPELL(spell_animate_dead)
 
 	if (!(zombie = read_mobile(ZOMBIE_VNUM))) {
 		send_to_char(ch, "The dark powers are not with you, tonight.\r\n");
-		slog("SYSERR: unable to load ZOMBIE_VNUM in spell_animate_dead.");
+		errlog("unable to load ZOMBIE_VNUM in spell_animate_dead.");
 		if (IS_PC(orig_char))
 			delete orig_char;
 		return;
@@ -2852,7 +2852,7 @@ ASPELL(spell_unholy_stalker)
 
 	if (!(stalker = read_mobile(UNHOLY_STALKER_VNUM))) {
 		send_to_char(ch, "The dark powers are not with you, tonight.\r\n");
-		slog("SYSERR: unable to load STALKER_VNUM in spell_unholy_stalker.");
+		errlog("unable to load STALKER_VNUM in spell_unholy_stalker.");
 		return;
 	}
 
@@ -3463,7 +3463,7 @@ ASPELL(spell_calm)
     if (!victim) {
         send_to_char(ch, "Something that shouldn't have "
                          "happened just did.\r\n");
-        slog("SYSERR: NULL victim in spell_calm()"); 
+        errlog("NULL victim in spell_calm()"); 
         return;
     }
 

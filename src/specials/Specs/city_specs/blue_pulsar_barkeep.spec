@@ -21,7 +21,7 @@ SPECIAL(blue_pulsar)
 		return 0;
 
 	if (!(beer = read_object(beer_vnum)))
-		slog("SYSERR: Blue Pulsar beer not in database.");
+		errlog("Blue Pulsar beer not in database.");
 	else {
 		act("$N yells, 'BEER!!!!'", FALSE, ch, 0, 0, TO_NOTVICT);
 		act("$n throws $p across the room to $N!", FALSE, bartender, beer, ch,

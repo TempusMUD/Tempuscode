@@ -53,7 +53,7 @@ SPECIAL(hell_ressurector)
 		//
 
 		if (!(vict = read_mobile(-CORPSE_IDNUM(corpse)))) {
-			slog("SYSERR:  hell ressurector unable to read_mobile(%d).",
+			errlog(" hell ressurector unable to read_mobile(%d).",
 				-CORPSE_IDNUM(corpse));
 			return 0;
 		}

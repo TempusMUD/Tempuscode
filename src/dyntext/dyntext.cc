@@ -53,7 +53,7 @@ boot_dynamic_text(void)
 	unsigned int i, j;
 
 	if (!(dir = opendir(DYN_TEXT_CONTROL_DIR))) {
-		slog("SYSERR: Cannot open dynamic text control dir.");
+		errlog("Cannot open dynamic text control dir.");
 		safe_exit(1);
 	}
 
@@ -65,7 +65,7 @@ boot_dynamic_text(void)
 			sprintf(filename, "%s/%s", DYN_TEXT_CONTROL_DIR, dirp->d_name);
 
 			if (!(fl = fopen(filename, "r"))) {
-				slog("SYSERR: error opening dynamic control file '%s'.",
+				errlog("error opening dynamic control file '%s'.",
 					filename);
 				perror("fopen:");
 				continue;
@@ -73,14 +73,14 @@ boot_dynamic_text(void)
 
 			if (!(newdyn =
 					(dynamic_text_file *) malloc(sizeof(dynamic_text_file)))) {
-				slog("SYSERR: error allocating dynamic control block, aborting.");
+				errlog("error allocating dynamic control block, aborting.");
 				closedir(dir);
 				fclose(fl);
 				return;
 			}
 
 			if (!(fread(newdyn, sizeof(dynamic_text_file), 1, fl))) {
-				slog("SYSERR: error reading information from '%s'.",
+				errlog("error reading information from '%s'.",
 					filename);
 				free(newdyn);
 				fclose(fl);
@@ -98,7 +98,7 @@ boot_dynamic_text(void)
 			sprintf(buf2, "text/%s", newdyn->filename);
 
 			if (!(fl = fopen(buf2, "r"))) {
-				slog("SYSERR: unable to open dynamic text file '%s'.",
+				errlog("unable to open dynamic text file '%s'.",
 					buf2);
 				perror("dyntext fopen:");
 			}
@@ -147,7 +147,7 @@ create_dyntext_backup(dynamic_text_file * dyntext)
 
 	// open backup dir
 	if (!(dir = opendir(DYN_TEXT_BACKUP_DIR))) {
-		slog("SYSERR: Cannot open dynamic text backup dir.");
+		errlog("Cannot open dynamic text backup dir.");
 		return 1;
 	}
 	// scan files in backup dir
@@ -172,7 +172,7 @@ create_dyntext_backup(dynamic_text_file * dyntext)
 		maxnum + 1);
 
 	if (!(fl = fopen(filename, "w"))) {
-		slog("SYSERR: Dyntext backup unable to open '%s'.", filename);
+		errlog("Dyntext backup unable to open '%s'.", filename);
 		return 1;
 	}
 
@@ -198,7 +198,7 @@ save_dyntext_buffer(dynamic_text_file * dyntext)
 	sprintf(filename, "text/%s", dyntext->filename);
 
 	if (!(fl = fopen(filename, "w"))) {
-		slog("SYSERR: Unable to open '%s' for write.", filename);
+		errlog("Unable to open '%s' for write.", filename);
 		return 1;
 	}
 
@@ -227,7 +227,7 @@ reload_dyntext_buffer(dynamic_text_file * dyntext)
 	sprintf(filename, "text/%s", dyntext->filename);
 
 	if (!(fl = fopen(filename, "r"))) {
-		slog("SYSERR: unable to open dynamic text file '%s'.",
+		errlog("unable to open dynamic text file '%s'.",
 			filename);
 		perror("dyntext fopen:");
 	}
@@ -263,12 +263,12 @@ save_dyntext_control(dynamic_text_file * dyntext)
 	sprintf(filename, "%s/%s.dyn", DYN_TEXT_CONTROL_DIR, dyntext->filename);
 
 	if (!(fl = fopen(filename, "w"))) {
-		slog("SYSERR: Unable to open '%s' for write.", filename);
+		errlog("Unable to open '%s' for write.", filename);
 		return 1;
 	}
 
 	if (!(fwrite(dyntext, sizeof(dynamic_text_file), 1, fl))) {
-		slog("SYSERR: Unable to write data to '%s'.", filename);
+		errlog("Unable to write data to '%s'.", filename);
 		fclose(fl);
 		return 1;
 	}
@@ -663,7 +663,7 @@ ACMD(do_dynedit)
 
 		if (!(newbuf = (char *)malloc(i))) {
 			send_to_char(ch, "Unable to allocate newbuf.\r\n");
-			slog("SYSERR:  error allocating newbuf in dynedit update.");
+			errlog(" error allocating newbuf in dynedit update.");
 			return;
 		}
 
@@ -731,7 +731,7 @@ ACMD(do_dynedit)
 				if (!(newbuf =
 						(char *)malloc(strlen(dyntext->buffer) +
 							strlen(dyntext->tmp_buffer) + 1))) {
-					slog("SYSERR: unable to malloc buffer for prepend in do_dynedit.");
+					errlog("unable to malloc buffer for prepend in do_dynedit.");
 					send_to_char(ch, 
 						"Unable to allocate memory for the new buffer.\r\n");
 					return;
@@ -778,7 +778,7 @@ ACMD(do_dynedit)
 				if (!(newbuf =
 						(char *)malloc(strlen(dyntext->buffer) +
 							strlen(dyntext->tmp_buffer) + 1))) {
-					slog("SYSERR: unable to malloc buffer for append in do_dynedit.");
+					errlog("unable to malloc buffer for append in do_dynedit.");
 					send_to_char(ch, 
 						"Unable to allocate memory for the new buffer.\r\n");
 					return;

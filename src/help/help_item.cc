@@ -372,7 +372,7 @@ HelpItem::LoadText()
 
 	help_file.open(fname, ios::in);
 	if (!help_file) {
-		slog("SYSERR: Unable to open help file to load text (%s).", fname);
+		errlog("Unable to open help file to load text (%s).", fname);
 		return false;
 	}
 

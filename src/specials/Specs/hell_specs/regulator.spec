@@ -35,7 +35,7 @@ SPECIAL(hell_regulator)
 		if (ch == FIGHTING(vict)) {
 
 			if (!(devil = read_mobile(REG_SPINED_VNUM))) {
-				slog("SYSERR: REGULATOR failed to load REG_SPINED_VNUM for defense.");
+				errlog("REGULATOR failed to load REG_SPINED_VNUM for defense.");
 				// set mana to zero so he will go away on the next loop
 				GET_MANA(ch) = 0;
 				return 1;

@@ -671,7 +671,7 @@ SPECIAL(cityguard)
 		
 		return true;
 	default:
-		slog("SYSERR: Can't happen at %s:%d", __FILE__, __LINE__); break;
+		errlog("Can't happen at %s:%d", __FILE__, __LINE__); break;
 	}
 
 	return false;

@@ -584,7 +584,7 @@ boot_timewarp_data(void)
 	timewarp_data elem, *newlist = NULL;
 
 	if (!(fl = fopen(TIMEWARP_FILE, "r"))) {
-		slog("SYSERR: unable to open timewarp file.");
+		errlog("unable to open timewarp file.");
 		return 1;
 	}
 

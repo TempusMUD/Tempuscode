@@ -30,7 +30,7 @@ boot_windy_rooms()
 	if (!(fl = fopen(WINDY_FILE, "r"))) {
 		if (errno == ENOENT) {	// file does not exist, initialize it
 			if (!(fl = fopen(WINDY_FILE, "w"))) {
-				slog("SYSERR: error opening WINDY_FILE for init.");
+				errlog("error opening WINDY_FILE for init.");
 				perror("");
 				return 0;
 			}
@@ -38,14 +38,14 @@ boot_windy_rooms()
 			fwrite(&i, sizeof(int), 1, fl);
 			fclose(fl);
 			if (!(fl = fopen(WINDY_FILE, "r"))) {
-				slog("SYSERR: error reopening WINDY_FILE in boot_windy_rooms.");
+				errlog("error reopening WINDY_FILE in boot_windy_rooms.");
 				perror("");
 				return 0;
 			}
 			slog("windy_rooms datafile successfully initialized.");
 		} else {				// file exists, something else went wrong
 
-			slog("SYSERR: error opening WINDY_FILE for read.");
+			errlog("error opening WINDY_FILE for read.");
 			perror("");
 			fclose(fl);
 			return 0;
@@ -53,7 +53,7 @@ boot_windy_rooms()
 	}
 
 	if (!(fread(&num_windy_rooms, sizeof(int), 1, fl))) {
-		slog("SYSERR: error reading size of windy list from file.");
+		errlog("error reading size of windy list from file.");
 		fclose(fl);
 		return 0;
 	}
@@ -71,14 +71,14 @@ boot_windy_rooms()
 	if (!(windy_list =
 			(windy_room_data *) malloc(sizeof(windy_room_data) *
 				num_windy_rooms))) {
-		slog("SYSERR: unable to malloc %d elements for windy list.",
+		errlog("unable to malloc %d elements for windy list.",
 			num_windy_rooms);
 		fclose(fl);
 		return 0;
 	}
 
 	if (!(fread(windy_list, sizeof(windy_room_data), num_windy_rooms, fl))) {
-		slog("SYSERR: unable to read %d windy elements from file.",
+		errlog("unable to read %d windy elements from file.",
 			num_windy_rooms);
 		fclose(fl);
 		return 0;
@@ -130,20 +130,20 @@ save_windy_rooms(void)
 	FILE *fl = NULL;
 
 	if (!(fl = fopen(WINDY_FILE, "w"))) {
-		slog("SYSERR: error opening WINDY_FILE for write.");
+		errlog("error opening WINDY_FILE for write.");
 		perror("");
 		fclose(fl);
 		return 0;
 	}
 
 	if (!(fwrite(&num_windy_rooms, sizeof(int), 1, fl))) {
-		slog("SYSERR: error writing size of windy list into file.");
+		errlog("error writing size of windy list into file.");
 		fclose(fl);
 		return 0;
 	}
 
 	if (!(fwrite(windy_list, sizeof(windy_room_data), num_windy_rooms, fl))) {
-		slog("SYSERR: error writing windy list into file.");
+		errlog("error writing windy list into file.");
 		fclose(fl);
 		return 0;
 	}
@@ -185,7 +185,7 @@ add_windy_data(int vnum, int min, int max)
 	if (!(newdata =
 			(windy_room_data *) realloc(windy_list,
 				sizeof(windy_room_data) * num_windy_rooms))) {
-		slog("SYSERR: error reallocating windy_rooms for room %d.", vnum);
+		errlog("error reallocating windy_rooms for room %d.", vnum);
 		return NULL;
 	}
 
@@ -311,7 +311,7 @@ SPECIAL(windy_room)
 		if (!(windy =
 				add_windy_data(room->number, DEFAULT_WINDY_MIN,
 					DEFAULT_WINDY_MAX))) {
-			slog("SYSERR: unable to generate default windy room data for room %d.", room->number);
+			errlog("unable to generate default windy room data for room %d.", room->number);
 			room->func = NULL;
 			return 0;
 		}
@@ -352,7 +352,7 @@ SPECIAL(windy_room)
 		dir = real_dirs[number(0, num - 1)];
 
 		if (!(room = ch->in_room->dir_option[dir]->to_room)) {
-			slog("SYSERR: null room in windy_room.");
+			errlog("null room in windy_room.");
 			send_to_room("You feel your hair stand on end.\r\n", ch->in_room);
 			return 1;
 		}
