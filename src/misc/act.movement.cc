@@ -2094,7 +2094,7 @@ creature_can_fly(Creature *ch)
 
 ACMD(do_fly)
 {
-	if (creature_can_fly(ch)) {
+	if (!creature_can_fly(ch)) {
 		send_to_char(ch, "You are not currently able to fly.\r\n");
 		return;
 	}
