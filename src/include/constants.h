@@ -148,6 +148,7 @@ extern const char *soilage_bits[];
 extern const char *trail_flags[];
 extern const char *spell_bits[];
 
+extern const char *ctypes[];
 extern const int wear_bitvectors[];
 #endif							// __extern constants_cc__
 #endif

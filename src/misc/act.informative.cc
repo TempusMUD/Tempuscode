@@ -988,18 +988,25 @@ list_char_to_char(struct Creature *list, struct Creature *ch)
 void
 do_auto_exits(struct Creature *ch, struct room_data *room)
 {
-
 	int door;
 
-	*buf = '\0';
+	buf[0] = '\0';
 
 	if (room == NULL)
 		room = ch->in_room;
 
-	for (door = 0; door < NUM_OF_DIRS; door++)
-		if (ABS_EXIT(room, door) && ABS_EXIT(room, door)->to_room != NULL &&
-			!IS_SET(ABS_EXIT(room, door)->exit_info, EX_CLOSED | EX_NOPASS))
-			sprintf(buf, "%s%c ", buf, tolower(*dirs[door]));;
+	for (door = 0; door < NUM_OF_DIRS; door++) {
+		if (!room->dir_option[door] || !room->dir_option[door]->to_room)
+			continue;
+		
+		if (IS_SET(room->dir_option[door]->exit_info, EX_HIDDEN | EX_SECRET))
+			continue;
+		
+		if (IS_SET(room->dir_option[door]->exit_info, EX_CLOSED))
+			sprintf(buf, "%s|%c| ", buf, tolower(*dirs[door]));
+		else
+			sprintf(buf, "%s%c ", buf, tolower(*dirs[door]));
+	}
 
 	send_to_char(ch, "%s[ Exits: %s]%s   ", CCCYN(ch, C_NRM),
 		*buf ? buf : "None obvious ", CCNRM(ch, C_NRM));
@@ -1011,10 +1018,10 @@ do_auto_exits(struct Creature *ch, struct room_data *room)
 		for (door = 0; door < NUM_OF_DIRS; door++)
 			if (ABS_EXIT(room, door) && ABS_EXIT(room, door)->to_room != NULL
 				&& IS_SET(ABS_EXIT(room, door)->exit_info,
-					EX_CLOSED | EX_NOPASS))
+					EX_SECRET | EX_HIDDEN))
 				sprintf(buf, "%s%c ", buf, tolower(*dirs[door]));
 
-		send_to_char(ch, "%s[ Closed Doors: %s]%s\r\n", CCCYN(ch, C_NRM),
+		send_to_char(ch, "%s[ Hidden Doors: %s]%s\r\n", CCCYN(ch, C_NRM),
 			*buf ? buf : "None ", CCNRM(ch, C_NRM));
 
 	} else
@@ -1157,69 +1164,74 @@ ACMD(do_scan)
 ACMD(do_exits)
 {
 	int door;
-	char buf3[MAX_STRING_LENGTH];
 
-	*buf = '\0';
-
-	if (IS_AFFECTED(ch, AFF_BLIND)) {
-		send_to_char(ch, "You can't see a damned thing, you're blind!\r\n");
-		return;
-	}
-	if (ROOM_FLAGGED(ch->in_room, ROOM_SMOKE_FILLED) &&
-			!AFF3_FLAGGED(ch, AFF3_SONIC_IMAGERY) && 
-			!PRF_FLAGGED(ch, PRF_HOLYLIGHT)) {
-		send_to_char(ch,
-			"The thick smoke is too disorienting to tell.\r\n");
-		return;
-	}
-	for (door = 0; door < NUM_OF_DIRS; door++)
-		if (EXIT(ch, door) && EXIT(ch, door)->to_room != NULL &&
-			(!IS_SET(EXIT(ch, door)->exit_info, EX_CLOSED) ||
-				GET_LEVEL(ch) >= LVL_AMBASSADOR) &&
-			(!IS_SET(EXIT(ch, door)->exit_info, EX_NOPASS) ||
-				GET_LEVEL(ch) >= LVL_AMBASSADOR)) {
-
-			if (GET_LEVEL(ch) >= LVL_AMBASSADOR) {
-				sprintf(buf2, "%s%s", CCBLD(ch, C_SPR), CCBLU(ch, C_NRM));
-				sprintf(buf3, "%-8s%s - %s[%s%5d%s] %s%s%s%s%s%s\r\n",
-					dirs[door], CCNRM(ch, C_NRM),
-					CCGRN(ch, C_NRM), CCNRM(ch, C_NRM),
-					EXIT(ch, door)->to_room->number, CCGRN(ch, C_NRM),
-					CCCYN(ch, C_NRM), EXIT(ch, door)->to_room->name,
-					CCNRM(ch, C_SPR),
-					IS_SET(EXIT(ch, door)->exit_info, EX_CLOSED) ?
-					" (closed)" : "",
-					IS_SET(EXIT(ch, door)->exit_info, EX_SECRET) ?
-					" (secret)" : "",
-					IS_SET(EXIT(ch, door)->exit_info, EX_NOPASS) ?
-					" (nopass)" : "");
-				strcat(buf2, CAP(buf3));
-			} else {
-				sprintf(buf2, "%s%s", CCBLD(ch, C_SPR), CCBLU(ch, C_NRM));
-				sprintf(buf3, "%-8s%s - ", dirs[door], CCNRM(ch, C_SPR));
-				strcat(buf2, CAP(buf3));
-				if (room_is_dark(EXIT(ch, door)->to_room) && !has_dark_sight(ch) &&
-					!ROOM_FLAGGED(EXIT(ch, door)->to_room, ROOM_DEATH))
-					strcat(buf2, "Too dark to tell\r\n");
-				else {
-					strcat(buf2, CCCYN(ch, C_NRM));
-					if (EXIT(ch, door)->to_room->name)
-						strcat(buf2, EXIT(ch, door)->to_room->name);
-					else
-						strcat(buf2, "(null)");
-					strcat(buf2, CCNRM(ch, C_NRM));
-					strcat(buf2, "\r\n");
-				}
-			}
-			strcat(buf, CAP(buf2));
+	if (!PRF_FLAGGED(ch, PRF_HOLYLIGHT)) {
+		if (check_sight_self(ch)) {
+			send_to_char(ch, "You can't see a damned thing, you're blind!\r\n");
+			return;
 		}
-	send_to_char(ch, "%s%sObvious Exits:%s\r\n", CCRED(ch, C_NRM), CCBLD(ch,
-			C_CMP), CCNRM(ch, C_NRM));
 
-	if (*buf)
-		send_to_char(ch, "%s", buf);
-	else
-		send_to_char(ch, " None.\r\n");
+		if (ROOM_FLAGGED(ch->in_room, ROOM_SMOKE_FILLED) &&
+				!AFF3_FLAGGED(ch, AFF3_SONIC_IMAGERY)) {
+			send_to_char(ch,
+				"The thick smoke is too disorienting to tell.\r\n");
+			return;
+		}
+	}
+
+	for (door = 0; door < NUM_OF_DIRS; door++) {
+		if (!EXIT(ch, door) || !EXIT(ch, door)->to_room)
+			continue;
+
+		if (!IS_IMMORT(ch) &&
+				IS_SET(EXIT(ch, door)->exit_info, EX_HIDDEN | EX_SECRET))
+			continue;
+
+		if (PRF_FLAGGED(ch, PRF_HOLYLIGHT)) {
+			send_to_char(ch, "%s%s%-8s%s - %s[%s%5d%s] %s%s%s%s%s%s%s\r\n",
+				CCBLD(ch, C_SPR), CCBLU(ch, C_NRM), tmp_capitalize(dirs[door]),
+				CCNRM(ch, C_NRM), CCGRN(ch, C_NRM), CCNRM(ch, C_NRM),
+				EXIT(ch, door)->to_room->number, CCGRN(ch, C_NRM),
+				CCCYN(ch, C_NRM), EXIT(ch, door)->to_room->name,
+				CCNRM(ch, C_SPR),
+				IS_SET(EXIT(ch, door)->exit_info, EX_CLOSED) ?
+				" (closed)" : "",
+				IS_SET(EXIT(ch, door)->exit_info, EX_HIDDEN) ?
+				" (hidden)" : "",
+				IS_SET(EXIT(ch, door)->exit_info, EX_SECRET) ?
+				" (secret)" : "",
+				IS_SET(EXIT(ch, door)->exit_info, EX_NOPASS) ?
+				" (nopass)" : "");
+			continue;
+		}
+
+		if (IS_SET(EXIT(ch, door)->exit_info, EX_CLOSED)) {
+			send_to_char(ch, "%s%s%-8s%s - Closed %s\r\n",
+				CCBLD(ch, C_SPR), CCBLU(ch, C_NRM),
+				tmp_capitalize(dirs[door]),
+				fname(EXIT(ch, door)->keyword),
+				CCNRM(ch, C_SPR));
+		} else if ((IS_AFFECTED(ch, AFF_BLIND) ||
+				ROOM_FLAGGED(ch->in_room, ROOM_SMOKE_FILLED)) &&
+				AFF3_FLAGGED(ch, AFF3_SONIC_IMAGERY)) {
+			send_to_char(ch, "%s%s%-8s%s - Out of range\r\n",
+				CCBLD(ch, C_SPR), CCBLU(ch, C_NRM),
+				tmp_capitalize(dirs[door]), CCNRM(ch, C_SPR));
+		} else if (check_sight_room(ch, EXIT(ch, door)->to_room) &&
+				!ROOM_FLAGGED(EXIT(ch, door)->to_room, ROOM_DEATH)) {
+			send_to_char(ch, "%s%s%-8s%s - Too dark to tell\r\n",
+				CCBLD(ch, C_SPR), CCBLU(ch, C_NRM),
+				tmp_capitalize(dirs[door]), CCNRM(ch, C_SPR));
+		} else {
+			send_to_char(ch, "%s%s%-8s%s - %s%s%s\r\n",
+				CCBLD(ch, C_SPR), CCBLU(ch, C_NRM),
+				tmp_capitalize(dirs[door]), CCNRM(ch, C_SPR),
+				CCCYN(ch, C_NRM),
+				(EXIT(ch, door)->to_room->name) ?
+					(EXIT(ch, door)->to_room->name):"(null)",
+				CCNRM(ch, C_SPR));
+		}
+	}
 }
 
 
@@ -4394,10 +4406,6 @@ ACMD(do_diagnose)
 	}
 }
 
-
-static const char *ctypes[] = {
-	"off", "sparse", "normal", "complete", "\n"
-};
 
 ACMD(do_color)
 {

@@ -40,6 +40,10 @@ extern const char *operator_str[] = {
 };
 
 
+extern const char *ctypes[] = {
+	"off", "sparse", "normal", "complete", "\n"
+};
+
 /* Extern Constant list for printing out who we sell to */
 extern const char *trade_letters[] = {
 	"Good",						/* First, the alignment based ones */
