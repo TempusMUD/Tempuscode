@@ -269,35 +269,79 @@ ok_to_damage(struct Creature *ch, struct Creature *vict)
 }
 
 void
+count_pkill(Creature *killer, Creature *victim)
+{
+	Creature *perp;
+
+	perp = killer;
+	while (IS_AFFECTED(perp, AFF_CHARM) && perp->master &&
+			perp->in_room == perp->master->in_room)
+		perp = perp->master;
+
+	GET_PKILLS(perp)++;
+
+	if (PRF2_FLAGGED(perp, PRF2_PKILLER) &&
+			!PLR_FLAGGED(victim, PLR_KILLER | PLR_THIEF)) {
+
+		// Basic level/gen adjustment
+		GET_REPUTATION(perp) +=
+			(GET_LEVEL(victim) + GET_REMORT_GEN(victim)) /
+			3;
+
+		// Additional adjustment for killing a lower gen
+		if (GET_REMORT_GEN(perp) > GET_REMORT_GEN(victim))
+			GET_REPUTATION(perp) += (GET_REMORT_GEN(perp) -
+				GET_REMORT_GEN(victim));
+	}
+}
+
+void
 check_killer(struct Creature *ch, struct Creature *vict,
 	const char *debug_msg)
 {
-	if (ok_to_damage(ch, vict))
+	Creature *perp;
+
+	// the attacker is considered to be innocent if charmed.  If you're
+	// going to charm a player, you had better keep control of them
+	perp = ch;
+	while (IS_AFFECTED(perp, AFF_CHARM) && perp->master &&
+			perp->in_room == perp->master->in_room)
+		perp = perp->master;
+
+	if (ok_to_damage(perp, vict))
 		return;
 
-	if (PLR_FLAGGED(ch, PLR_KILLER | PLR_THIEF))
+	if (PLR_FLAGGED(perp, PLR_KILLER | PLR_THIEF))
 		return;
 
 	// You don't get a killer for attacking someone with a higher
 	// reputation than you, but you do get a reputation...
-	if (GET_REPUTATION_RANK(ch) < GET_REPUTATION_RANK(vict)) {
+	if (GET_REPUTATION_RANK(perp) < GET_REPUTATION_RANK(vict)) {
 		mudlog(LVL_AMBASSADOR, BRF, true,
 			"%s's reputation adjusted for attack on %s at %d. %s",
-			GET_NAME(ch), GET_NAME(vict), vict->in_room->number,
-			PRF2_FLAGGED(ch, PRF2_PKILLER) ? "PK(ON)" : "PK(OFF)");
-		GET_REPUTATION(ch) = GET_REPUTATION(vict);
+			GET_NAME(perp), GET_NAME(vict), vict->in_room->number,
+			PRF2_FLAGGED(perp, PRF2_PKILLER) ? "PK(ON)" : "PK(OFF)");
+		GET_REPUTATION(perp) = GET_REPUTATION(vict);
 		return;
 	}
 
-	// If we get to this point, ch gets a killer
-	SET_BIT(PLR_FLAGS(ch), PLR_KILLER);
-	GET_SEVERITY(ch) += (GET_LEVEL(ch) + GET_REMORT_GEN(ch) * 50) - 
+	// If we get to this point, perp gets a killer
+	SET_BIT(PLR_FLAGS(perp), PLR_KILLER);
+	GET_SEVERITY(perp) += (GET_LEVEL(perp) + GET_REMORT_GEN(perp) * 50) - 
 		(GET_LEVEL(vict) + GET_REMORT_GEN(vict) * 50);
-	mudlog(LVL_AMBASSADOR, BRF, true,
-		"PC KILLER set on %s for attack on %s at %d. %s",
-		GET_NAME(ch), GET_NAME(vict), vict->in_room->number,
-		PRF2_FLAGGED(ch, PRF2_PKILLER) ? "PK(ON)" : "PK(OFF)");
-	send_to_char(ch, "If you want to be a PLAYER KILLER, so be it...\r\n");
+	if (perp == ch) {
+		mudlog(LVL_AMBASSADOR, BRF, true,
+			"PC KILLER set on %s for attack on %s at %d. %s",
+			GET_NAME(perp), GET_NAME(vict), vict->in_room->number,
+			PRF2_FLAGGED(ch, PRF2_PKILLER) ? "PK(ON)" : "PK(OFF)");
+		send_to_char(ch, "If you want to be a PLAYER KILLER, so be it...\r\n");
+	} else {
+		mudlog(LVL_AMBASSADOR, BRF, true,
+			"PC KILLER set on %s for %s's attack on %s at %d. %s",
+			GET_NAME(perp), GET_NAME(ch), GET_NAME(vict), vict->in_room->number,
+			PRF2_FLAGGED(ch, PRF2_PKILLER) ? "PK(ON)" : "PK(OFF)");
+		send_to_char(ch, "Your slave's actions have made you into a PLAYER KILLER...\r\n");
+	}
 
 	slog("KILLER set from: %s", debug_msg ? debug_msg : "unknown");
 }
