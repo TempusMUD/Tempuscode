@@ -230,6 +230,9 @@ is_arena_combat(struct Creature *ch, struct Creature *vict)
 	if (IS_NPC(vict))
 		return false;
 
+	if (!vict->in_room)
+		return false;
+
 	if (ROOM_FLAGGED(vict->in_room, ROOM_ARENA) ||
 			GET_ZONE(vict->in_room) == 400)
 		return true;
