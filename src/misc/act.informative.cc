@@ -3178,21 +3178,7 @@ ACMD(do_who)
 				strcpy(badge, "OP ARCH");
 				break;
 			case 8:			// Custom
-				if (!strncmp(GET_NAME(tch), "Fishbone", 8)) {
-					strcpy(badge, "BONEMAN");
-				} else if (!strncmp(GET_NAME(tch), "Tricky", 6)) {
-					strcpy(badge, "!WANTED");
-				} else if (!strncmp(GET_NAME(tch), "Generic", 7)) {
-					strcpy(badge, "GENERIC");
-				} else if (!strncmp(GET_NAME(tch), "Ska", 3)) {
-					strcpy(badge, "  LADY ");
-				} else if (!strncmp(GET_NAME(tch), "Shiva", 5)) {
-					strcpy(badge, " DEATH ");
-				} else if (!strncmp(GET_NAME(tch), "Smitty", 6)) {
-					strcpy(badge, "FOREMAN");
-				} else if (!strncmp(GET_NAME(tch), "Stryker", 7)) {
-					strcpy(badge, "CODEMAN");
-				} else if (!strncmp(GET_NAME(tch), "Nothing", 7)) {
+				if (!strncmp(GET_NAME(tch), "Nothing", 7)) {
 					strcpy(badge, "THECODE");
 				} else {
 					strcpy(badge, LEV_ABBR(tch));
@@ -3202,7 +3188,7 @@ ACMD(do_who)
 				strcpy(badge, " ELDER ");
 				break;
 			case 10:
-				strcpy(badge, "ARBITER");
+				strcpy(badge, "ADVISOR");
 				break;
 			case 11:
 				strcpy(badge, "FOREMAN");
