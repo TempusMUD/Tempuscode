@@ -3376,7 +3376,7 @@ ASPELL(spell_dispel_magic)
             return;
         }
 
-		if (GET_LEVEL(ch) > LVL_ELEMENT &&
+		if (!IS_IMMORT(ch) && 
 				(IS_OBJ_STAT(obj, ITEM_MAGIC_NODISPEL) ||
 				IS_OBJ_STAT2(obj, ITEM2_CURSED_PERM))) {
 			send_to_char(ch, "Nothing seems to happen.\r\n");
