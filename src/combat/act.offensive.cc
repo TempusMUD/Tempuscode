@@ -2719,9 +2719,8 @@ ACMD(do_impale)
 		prob = 0;
 
 	cur_weap = weap;
-	dam = dice(GET_OBJ_VAL(weap, 1), GET_OBJ_VAL(weap, 2)) << 1 +
-          weap->getWeight() << 2 +
-          GET_DAMROLL(ch);
+	dam = dice(GET_OBJ_VAL(weap, 1), GET_OBJ_VAL(weap, 2)) * 2 +
+          weap->getWeight() * 4 + GET_DAMROLL(ch);
     dam += dam * ch->getLevelBonus(SKILL_IMPALE) / 200;
 
 	if (IS_OBJ_STAT2(weap, ITEM2_TWO_HANDED) && weap->worn_on == WEAR_WIELD)
