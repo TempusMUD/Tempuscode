@@ -272,6 +272,11 @@ SPECIAL(guild)
 
 	skip_spaces(&argument);
 
+	if (!can_see_creature(master, ch)) {
+		do_say(master, "If I can't train a person I can't see!", 0, 0, 0);
+		return 1;
+	}
+
 	if (!*argument) {
 		if (CMD_IS("offer"))
 			do_say(master,
@@ -394,7 +399,7 @@ SPECIAL(guild)
 
 		if (GET_GOLD(ch) < cost) {
 			do_say(master,
-				tmp_sprintf("%s You haven't got the %ld creds I require to train %s.", GET_NAME(ch), cost, spell_to_str(skill_num)),
+				tmp_sprintf("%s You haven't got the %ld gold I require to train %s.", GET_NAME(ch), cost, spell_to_str(skill_num)),
 				0, SCMD_SAY_TO, 0);
 			return 1;
 		}
