@@ -2453,7 +2453,7 @@ extern const char *spell_wear_off_msg[] = {
 	"!microwave!",
 	"!oxidize!",
 	"!random coordinates!",
-	"The repulsive force field around you dissipates.",	/* 310 */
+	"You feel less repulsive.",	/* 310 */
 	"Your body is no longer transparent.",
 	"You resume your normal pace through time.",
 	"You resume your normal pace through time.",

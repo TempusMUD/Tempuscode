@@ -1907,6 +1907,14 @@ mag_affects(int level, struct Creature *ch, struct Creature *victim,
 		to_vict = "You feel very attractive -- to weapons.";
 		break;
 
+   	case SPELL_REPULSION_FIELD:
+		af.location = APPLY_AC;
+		af.duration = MAX(12, ch->getLevelBonus(SPELL_REPULSION_FIELD) / 4);
+		af.modifier = -((ch->getLevelBonus(SPELL_REPULSION_FIELD) >> 2) + 20);
+		accum_duration = TRUE;
+		to_vict = "You feel rather repulsive.";
+		break;
+
 	case SPELL_FLUORESCE:
 		af.duration = 8 + level;
 		af.bitvector = AFF2_FLUORESCENT;
@@ -1914,18 +1922,7 @@ mag_affects(int level, struct Creature *ch, struct Creature *victim,
 		to_vict = "The area around you is illuminated with flourescent atoms.";
 		to_room = "The light of flourescing atoms surrounds $n.";
 		break;
-
-	case SPELL_REPULSION_FIELD:
-		af.modifier = -2;
-		af.duration = 3 + (level >> 2);
-		af.location = APPLY_AC;
-		af.bitvector = 0;
-		accum_duration = TRUE;
-		af2.location = APPLY_SAVING_BREATH;
-		af2.modifier = -2;
-		to_vict = "You feel positively repulsive to attacks.";
-		break;
-        
+    
 	case SPELL_TEMPORAL_COMPRESSION:
 		af.duration = ch->getLevelBonus(SPELL_TEMPORAL_COMPRESSION) / 2;
 		af.bitvector = AFF2_HASTE;

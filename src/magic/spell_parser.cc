@@ -3395,9 +3395,9 @@ mag_assign_spells(void)
 		X, X, X, 100, 20, 2, POS_SITTING, TAR_CHAR_ROOM, FALSE,
 		MAG_PHYSICS | MAG_MANUAL);
 
-	spello(SPELL_REPULSION_FIELD, X, X, X, X, X, X, X, X, X, X, X, X, X, X, X,
+	spello(SPELL_REPULSION_FIELD, X, X, X, X, X, X, 16, X, X, X, X, X, X, X, X,
 		X, X, 30, 20, 1, POS_SITTING, TAR_CHAR_ROOM, FALSE,
-		MAG_PHYSICS | MAG_MANUAL);
+		MAG_PHYSICS | MAG_AFFECTS);
 
 	spello(SPELL_TRANSMITTANCE, X, X, X, X, X, X, 14, X, X, X, X, X, X, X, X,
 		X, X, 60, 30, 1, POS_SITTING,

@@ -639,6 +639,9 @@ desc_char_trailers(Creature *ch, Creature *i)
 		desc = tmp_strcat(desc, "...", HSHR(i),
 			" hands are glowing eerily.\r\n", NULL);
 
+    if (affected_by_spell(i, SPELL_REPULSION_FIELD))
+        desc = tmp_strcat(desc, "...", HSSH(i), " is surrounded by a ",
+                          "repulsive field.\r\n", NULL); 
 	return desc;
 }
 
@@ -2459,7 +2462,9 @@ acc_append_affects(struct Creature *ch, byte mode)
 	if (AFF3_FLAGGED(ch, AFF3_ACIDITY))
 		acc_strcat("Your body is producing self-corroding acids!\r\n", NULL);
 	if (AFF3_FLAGGED(ch, AFF3_ATTRACTION_FIELD))
-		acc_strcat("You are emitting an an attraction field.\r\n", NULL);
+		acc_strcat("You are emitting an attraction field.\r\n", NULL);
+    if (affected_by_spell(ch, SPELL_REPULSION_FIELD))
+        acc_strcat("You are emitting a repulsion field.\r\n", NULL);
 	if (affected_by_spell(ch, SPELL_CHEMICAL_STABILITY))
 		acc_strcat("You feel chemically inert.\r\n", NULL);
 

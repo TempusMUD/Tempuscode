@@ -42,7 +42,7 @@
   complete 
 
   #define SPELL_REPULSION_FIELD      310  
-  incomplete
+  complete
 
   #define SPELL_TRANSMITTANCE        311  // transparency
   complete
@@ -129,7 +129,7 @@
   incomplete
 
   #define SPELL_AREA_STASIS          340  // sets !phy room flag
-  incomplete
+  complete
 
   #define SPELL_ELECTROSTATIC_FIELD  341  // protective static field does damage to attackers
   complete
