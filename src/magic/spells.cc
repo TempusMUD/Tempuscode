@@ -599,14 +599,8 @@ ASPELL(spell_summon)
 		return;
 	}
 
-	if (ROOM_FLAGGED(ch->in_room, ROOM_HOUSE)
-			&& victim->distrusts(ch)) {
+	if (IS_PC(victim) && victim->distrusts(ch)) {
 		send_to_char(ch, "They must trust you to be summoned to this place.\r\n");
-		return;
-	}
-	if (ZONE_FLAGGED(ch->in_room->zone, ZONE_NOLAW)
-		&& victim->distrusts(ch)) {
-		send_to_char(ch, "They must trust you to be summoned to this lawless place.\r\n");
 		return;
 	}
 	if (ROOM_FLAGGED(ch->in_room, ROOM_NORECALL)) {
