@@ -326,6 +326,7 @@ show_string(struct descriptor_data *d)
 	register char *read_pt;
 	int page_length;
 	int pt_save;
+    int char_count = 0;
 
 	if (IS_NPC(d->character))
 		page_length = 22;
@@ -334,10 +335,18 @@ show_string(struct descriptor_data *d)
 
 	read_pt = d->showstr_point;
 	while (*read_pt && page_length) {
-		while (*read_pt && '\n' != *read_pt && '\r' != *read_pt)
+		while (*read_pt && *read_pt != '\n' && *read_pt != '\r') {
 			read_pt++;
+            char_count++;
+            if (char_count > 80) {
+                char_count = 0;
+                if (page_length > 0)
+                    page_length--;
+            }
+        }
 		if (*read_pt) {
-			page_length--;
+            if (page_length > 0)
+			    page_length--;
 			read_pt++;
 			if ('\n' == *read_pt || '\r' == *read_pt)
 				read_pt++;
