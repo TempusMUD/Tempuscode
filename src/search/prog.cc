@@ -42,6 +42,7 @@ void prog_do_nuke(prog_env *env, prog_evt *evt, char *args);
 void prog_do_trans(prog_env *env, prog_evt *evt, char *args);
 void prog_do_randomly(prog_env *env, prog_evt *evt, char *args);
 void prog_do_or(prog_env *env, prog_evt *evt, char *args);
+void prog_do_resume(prog_env *env, prog_evt *evt, char *args);
 
 char *prog_get_statement(char **prog, int linenum);
 
@@ -65,6 +66,7 @@ prog_command prog_cmds[] = {
 	{ "target",		true,	prog_do_target },
 	{ "nuke",		true,	prog_do_nuke },
 	{ "trans",		true,	prog_do_trans },
+	{ "resume",		false,	prog_do_resume },
 	{ NULL,		false,	prog_do_halt }
 };
 
@@ -112,7 +114,7 @@ prog_get_text(prog_env *env)
 }
 
 void
-prog_next_handler(prog_env *env)
+prog_next_handler(prog_env *env, bool use_resume)
 {
 	char *prog, *line, *cmd;
 
@@ -130,7 +132,8 @@ prog_next_handler(prog_env *env)
 		cmd++;
 		if (!strcmp(cmd, "before")
 				|| !strcmp(cmd, "handle")
-				|| !strcmp(cmd, "after"))
+				|| !strcmp(cmd, "after")
+				|| (use_resume && !strcmp(cmd, "resume")))
 			break;
 		env->exec_pt++;
 	}
@@ -146,7 +149,7 @@ prog_trigger_handler(prog_env *env, prog_evt *evt, int phase, char *args)
 	bool matched = false;
 
 	if (phase != evt->phase) {
-		prog_next_handler(env);
+		prog_next_handler(env, false);
 		return;
 	}
 		
@@ -169,7 +172,7 @@ prog_trigger_handler(prog_env *env, prog_evt *evt, int phase, char *args)
 	}
 
 	if (!matched)
-		prog_next_handler(env);
+		prog_next_handler(env, false);
 }
 
 void
@@ -229,14 +232,14 @@ void
 prog_do_require(prog_env *env, prog_evt *evt, char *args)
 {
 	if (!prog_eval_condition(env, evt, args))
-		prog_next_handler(env);
+		prog_next_handler(env, true);
 }
 
 void
 prog_do_unless(prog_env *env, prog_evt *evt, char *args)
 {
 	if (prog_eval_condition(env, evt, args))
-		prog_next_handler(env);
+		prog_next_handler(env, true);
 }
 
 void
@@ -247,7 +250,7 @@ prog_do_randomly(prog_env *env, prog_evt *evt, char *args)
 
 	// We save the execution point and find the next handler.
 	cur_line = env->exec_pt;
-	prog_next_handler(env);
+	prog_next_handler(env, true);
 	last_line = env->exec_pt;
 	env->exec_pt = cur_line;
 
@@ -277,7 +280,7 @@ prog_do_randomly(prog_env *env, prog_evt *evt, char *args)
 void
 prog_do_or(prog_env *env, prog_evt *evt, char *args)
 {
-	prog_next_handler(env);
+	prog_next_handler(env, true);
 }
 
 void
@@ -421,6 +424,12 @@ prog_do_trans(prog_env *env, prog_evt *evt, char *args)
 	}
 }
 
+void
+prog_do_resume(prog_env *env, prog_evt *evt, char *args)
+{
+	// literally does nothing
+}
+
 char *
 prog_get_statement(char **prog, int linenum)
 {
@@ -528,7 +537,7 @@ prog_start(int owner_type, void *owner, Creature *target, char *prog, prog_evt *
 	new_prog->target = target;
 	new_prog->evt = *evt;
 
-	prog_next_handler(new_prog);
+	prog_next_handler(new_prog, false);
 
 	return new_prog;
 }
