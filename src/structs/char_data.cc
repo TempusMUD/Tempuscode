@@ -12,6 +12,8 @@
 #include "help.h"
 #include "paths.h"
 #include "login.h"
+#include "house.h"
+#include "clan.h"
 
 int set_desc_state(int state, struct descriptor_data *d);
 
@@ -572,84 +574,85 @@ char_data::clearMemory()
 // Retrieves the characters appropriate loadroom.
 room_data *char_data::getLoadroom() {
     room_data *load_room = NULL;
-    if (PLR_FLAGGED(this, PLR_FROZEN))
-        load_room = r_frozen_start_room;
-    else if (PLR_FLAGGED(this, PLR_LOADROOM)) {
-        if ((load_room = real_room(GET_LOADROOM(this))) == NULL)
-            load_room = NULL;
-    }
-    if (load_room == NULL)  {
-        if (GET_LEVEL(this) >= LVL_IMMORT) {
-            if (this->in_room == NULL)
-                load_room = r_immort_start_room;
-            else
-                load_room = this->in_room;
-        } else {
-            if (this->in_room == NULL ||
-                (load_room = real_room(this->in_room->number)) == NULL) {
-                if( GET_HOME(this) == HOME_NEWBIE_SCHOOL ) {
-                    if (GET_LEVEL(this) > 5) {
-                        population_record[HOME_NEWBIE_SCHOOL]--;
-                        GET_HOME(this) = HOME_MODRIAN;
-                        population_record[HOME_MODRIAN]--;
-                        load_room = r_mortal_start_room;
-                    } else
-                        load_room = r_newbie_school_start_room;
-                    }
-                else if (GET_HOME(this) == HOME_ELECTRO)
-                    load_room = r_electro_start_room;
-                else if (GET_HOME(this) == HOME_NEWBIE_TOWER) {
-                    if (GET_LEVEL(this) > 5) {
-                        population_record[HOME_NEWBIE_TOWER]--;
-                        GET_HOME(this) = HOME_MODRIAN;
-                        population_record[HOME_MODRIAN]--;
-                        load_room = r_mortal_start_room;
-                    } else
-                        load_room = r_tower_modrian_start_room;
-                }
-                else if (GET_HOME(this) == HOME_NEW_THALOS)
-                    load_room = r_new_thalos_start_room;
-                else if (GET_HOME(this) == HOME_ELVEN_VILLAGE)
-                    load_room = r_elven_start_room;
-                else if (GET_HOME(this) == HOME_ISTAN)
-                    load_room = r_istan_start_room;
-                else if (GET_HOME(this) == HOME_ARENA)
-                    load_room = r_arena_start_room;
-                else if (GET_HOME(this) == HOME_DOOM)
-                    load_room = r_doom_start_room;
-                else if (GET_HOME(this) == HOME_CITY)
-                    load_room = r_city_start_room;
-                else if (GET_HOME(this) == HOME_MONK)
-                    load_room = r_monk_start_room;
-                else if (GET_HOME(this) == HOME_SKULLPORT_NEWBIE)
-                    load_room = r_skullport_newbie_start_room;
-                else if (GET_HOME(this) == HOME_SOLACE_COVE)
-                    load_room = r_solace_start_room;
-                else if (GET_HOME(this) == HOME_MAVERNAL)
-                    load_room = r_mavernal_start_room;
-                else if (GET_HOME(this) == HOME_DWARVEN_CAVERNS)
-                    load_room = r_dwarven_caverns_start_room;
-                else if (GET_HOME(this) == HOME_HUMAN_SQUARE)
-                    load_room = r_human_square_start_room;
-                else if (GET_HOME(this) == HOME_SKULLPORT)
-                    load_room = r_skullport_start_room;
-                else if (GET_HOME(this) == HOME_DROW_ISLE)
-                    load_room = r_drow_isle_start_room;
-                else if (GET_HOME(this) == HOME_ASTRAL_MANSE)
-                    load_room = r_astral_manse_start_room;
-                // zul dane
-                else if (GET_HOME(this) == HOME_ZUL_DANE) {
-                    // newbie start room for zul dane
-                    if (GET_LEVEL(this) > 5)
-                        load_room = r_zul_dane_newbie_start_room;
-                    else
-                        load_room = r_zul_dane_start_room;
-                }
-                else
-                    load_room = r_mortal_start_room;
-            }
-        }
-    }
+
+	if (PLR_FLAGGED(this, PLR_FROZEN)) {
+		load_room = r_frozen_start_room;
+	} else if (PLR_FLAGGED(this, PLR_LOADROOM)) {
+		if ((load_room = real_room(GET_LOADROOM(this))) &&
+			(!House_can_enter(this, load_room->number) ||
+			!clan_house_can_enter(this, load_room))) 
+		{
+			load_room = NULL;
+		}
+	}
+
+	if( load_room != NULL )
+		return load_room;
+
+	
+	if ( GET_LEVEL(this) >= LVL_AMBASSADOR ) {
+		load_room = r_immort_start_room;
+	} else {
+		if( GET_HOME(this) == HOME_NEWBIE_SCHOOL ) {
+			if (GET_LEVEL(this) > 5) {
+				population_record[HOME_NEWBIE_SCHOOL]--;
+				GET_HOME(this) = HOME_MODRIAN;
+				population_record[HOME_MODRIAN]--;
+				load_room = r_mortal_start_room;
+			} else {
+				load_room = r_newbie_school_start_room;
+			}
+		} else if (GET_HOME(this) == HOME_ELECTRO) {
+			load_room = r_electro_start_room;
+		} else if (GET_HOME(this) == HOME_NEWBIE_TOWER) {
+			if (GET_LEVEL(this) > 5) {
+				population_record[HOME_NEWBIE_TOWER]--;
+				GET_HOME(this) = HOME_MODRIAN;
+				population_record[HOME_MODRIAN]--;
+				load_room = r_mortal_start_room;
+			} else
+				load_room = r_tower_modrian_start_room;
+		} else if (GET_HOME(this) == HOME_NEW_THALOS) {
+			load_room = r_new_thalos_start_room;
+		} else if (GET_HOME(this) == HOME_ELVEN_VILLAGE){
+			load_room = r_elven_start_room;
+		} else if (GET_HOME(this) == HOME_ISTAN){
+			load_room = r_istan_start_room;
+		} else if (GET_HOME(this) == HOME_ARENA){
+			load_room = r_arena_start_room;
+		} else if (GET_HOME(this) == HOME_DOOM){
+			load_room = r_doom_start_room;
+		} else if (GET_HOME(this) == HOME_CITY){
+			load_room = r_city_start_room;
+		} else if (GET_HOME(this) == HOME_MONK){
+			load_room = r_monk_start_room;
+		} else if (GET_HOME(this) == HOME_SKULLPORT_NEWBIE) {
+			load_room = r_skullport_newbie_start_room;
+		} else if (GET_HOME(this) == HOME_SOLACE_COVE){
+			load_room = r_solace_start_room;
+		} else if (GET_HOME(this) == HOME_MAVERNAL){
+			load_room = r_mavernal_start_room;
+		} else if (GET_HOME(this) == HOME_DWARVEN_CAVERNS){
+			load_room = r_dwarven_caverns_start_room;
+		} else if (GET_HOME(this) == HOME_HUMAN_SQUARE){
+			load_room = r_human_square_start_room;
+		} else if (GET_HOME(this) == HOME_SKULLPORT){
+			load_room = r_skullport_start_room;
+		} else if (GET_HOME(this) == HOME_DROW_ISLE){
+			load_room = r_drow_isle_start_room;
+		} else if (GET_HOME(this) == HOME_ASTRAL_MANSE) {
+			load_room = r_astral_manse_start_room;
+		// zul dane
+		} else if (GET_HOME(this) == HOME_ZUL_DANE) {
+			// newbie start room for zul dane
+			if (GET_LEVEL(this) > 5)
+				load_room = r_zul_dane_newbie_start_room;
+			else
+				load_room = r_zul_dane_start_room;
+		} else {
+			load_room = r_mortal_start_room;
+		}
+	}
     return load_room;
 }
 

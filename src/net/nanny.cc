@@ -855,7 +855,11 @@ nanny(struct descriptor_data * d, char *arg)
 				send_to_char(CCNRM(d->character, C_NRM), d->character);
 				characterList.add(d->character);
 
-				load_room = d->character->getLoadroom();
+				if( d->character->in_room == NULL )
+					load_room = d->character->getLoadroom();
+				else
+					load_room = d->character->in_room;
+
 				char_to_room(d->character, load_room);
 				load_room->zone->enter_count++;
 
