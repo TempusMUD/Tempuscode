@@ -4058,7 +4058,7 @@ struct show_struct {
     { "mobkills",       LVL_GRGOD },      
     { "wizcommands",    LVL_IMMORT },
     { "timewarps",      LVL_IMMORT },        // 55
-    { "zonecommands", 	LVL_GOD},
+    { "zonecommands", 	LVL_IMMORT },
     { "\n", 0 }
 };
 
