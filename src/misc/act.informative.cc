@@ -4688,45 +4688,47 @@ ACMD(do_alignment)
 void send_wizlist_section_splitter( char_data *ch )
 {
     sprintf(buf, 
-            "    %so~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~%s\r\n",
-            CCCYN(ch,C_NRM), CCNRM(ch,C_NRM) );
+            "%s    %so~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~%s\r\n",
+            buf, CCCYN(ch,C_NRM), CCNRM(ch,C_NRM) );
 }
 
 void send_wizlist_section_title( char* name, char_data *ch )
 {
     sprintf(buf,
-            "\r\n\r\n        %s%s%s\r\n", 
-            CCYEL(ch,C_NRM), name, CCNRM(ch,C_NRM) );
+            "%s\r\n\r\n        %s%s%s\r\n", 
+            buf,CCYEL(ch,C_NRM), name, CCNRM(ch,C_NRM) );
     send_wizlist_section_splitter(ch);
 }
 
 ACMD(do_wizlist)
 {
     using namespace Security;
-    sprintf( buf, 
-            "\r\n                %sThe Immortals of TempusMUD\r\n",
-             CCBLU(ch,C_NRM) );
-    sprintf( buf,     "                %s--------------------------\r\n", 
-             CCBLU_BLD(ch,C_NRM) );
-    sprintf(buf,"        %sGRIMP%s\r\n", 
-                CCYEL_BLD(ch,C_NRM),CCNRM(ch,C_NRM) );
+    sprintf(buf,
+            "\r\n                %sThe Immortals of TempusMUD\r\n"
+			"                %s--------------------------\r\n" 
+			"        %sGRIMP%s\r\n", 
+             CCBLU(ch,C_NRM),CCBLU_BLD(ch,C_NRM), CCYEL_BLD(ch,C_NRM),
+			 CCNRM(ch,C_NRM) );
+
     send_wizlist_section_splitter(ch);
 
-    getGroup("Wizlist_Grimps").sendPublicMemberList(ch);
+    getGroup("Wizlist_Grimps").sendPublicMemberList(ch, buf);
     send_wizlist_section_title("Administrators",ch);
-    getGroup("Wizlist_Admins").sendPublicMemberList(ch);
+    getGroup("Wizlist_Admins").sendPublicMemberList(ch, buf);
     send_wizlist_section_title("Architects",ch);
-    getGroup("Wizlist_Arch_P").sendPublicMemberList(ch);
-    getGroup("Wizlist_ArchEC").sendPublicMemberList(ch);
-    getGroup("Wizlist_ArchOP").sendPublicMemberList(ch);
+    getGroup("Wizlist_Arch_P").sendPublicMemberList(ch, buf);
+    getGroup("Wizlist_ArchEC").sendPublicMemberList(ch, buf);
+    getGroup("Wizlist_ArchOP").sendPublicMemberList(ch, buf);
     send_wizlist_section_title("Builders",ch);
-    getGroup("Wizlist_Blders").sendPublicMemberList(ch);
+    getGroup("Wizlist_Blders").sendPublicMemberList(ch, buf);
     send_wizlist_section_title("Coders",ch);
-    getGroup("Wizlist_Coders").sendPublicMemberList(ch);
+    getGroup("Wizlist_Coders").sendPublicMemberList(ch, buf);
     send_wizlist_section_title("Questors",ch);
-    getGroup("Wizlist_Quests").sendPublicMemberList(ch);
+    getGroup("Wizlist_Quests").sendPublicMemberList(ch, buf);
     send_wizlist_section_title("Elder Gods",ch);
-    getGroup("Wizlist_Elders").sendPublicMemberList(ch);
+    getGroup("Wizlist_Elders").sendPublicMemberList(ch, buf);
+	strcat(buf, "\r\n\r\n");
+	page_string(ch->desc, buf);
 }
 
 

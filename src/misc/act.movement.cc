@@ -1574,10 +1574,10 @@ ACMD(do_gen_door)
 			case 0:
 				send_to_char(ch, "The %s %s too heavy for you to open!\r\n", dname,
 					ISARE(dname));
-				send_to_char(ch, "$n attempts to open the %s.", dname);
+				sprintf(buf, "$n attempts to open the %s.", dname);
 				break;
 			case 1:
-				sprintf(buf,
+				send_to_char(ch,
 					"You push against the %s, but %s barely budge%s.\r\n",
 					dname, IT_THEY(dname), PLUR(dname) ? "" : "s");
 				sprintf(buf,
@@ -1587,10 +1587,10 @@ ACMD(do_gen_door)
 			case 2:
 				send_to_char(ch, "You strain against the %s, to no avail.\r\n",
 					dname);
-				send_to_char(ch, "$n strains against the %s, to no avail.", dname);
+				sprintf(buf, "$n strains against the %s, to no avail.", dname);
 				break;
 			default:
-				sprintf(buf,
+				send_to_char(ch,
 					"You throw yourself against the heavy %s in an attempt to open %s.\r\n",
 					dname, IT_THEM(dname));
 				sprintf(buf,

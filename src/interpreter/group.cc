@@ -186,18 +186,19 @@ namespace Security {
     }
 
     /* Sends a list of this group's members to the given character. */
-    bool Group::sendPublicMemberList( char_data *ch ) {
+    bool Group::sendPublicMemberList( char_data *ch, char *str) {
         int pos = 1;
         vector<long>::iterator it = members.begin();
         char namebuf[80];
-        send_to_char(ch, "        ");
+        strcat(str, "        ");
         for( ; it != members.end(); ++it ) {
             strcpy(namebuf, get_name_by_id(*it));
             namebuf[0] = toupper(namebuf[0]);
-            send_to_char(ch, "%-15s", namebuf);
+            sprintf(buf2, "%-15s", namebuf);
+			strcat(str, buf2);
             if( pos++ % 4 == 0 ) {
                 pos = 1;
-                send_to_char(ch,"\r\n        ");
+                strcat(str,"\r\n        ");
             } 
         }
         return true;

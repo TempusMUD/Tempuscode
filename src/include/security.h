@@ -133,7 +133,7 @@ namespace Security {
 			 * Sends a list of this group's members to the given character. 
 			 * without player id's etc.
 			 */
-            bool sendPublicMemberList( char_data *ch );
+            bool sendPublicMemberList( char_data *ch, char *str );
             /* Sends a list of this group's members to the given character. */
             bool sendMemberList( char_data *ch );
             /* Sends a list of this group's members to the given character. */
