@@ -1454,7 +1454,13 @@ char_to_game(descriptor_data *d)
 		GET_IMMORT_QP(d->creature) = GET_QUEST_ALLOWANCE(d->creature);
 		notes = tmp_strcat(notes, "Your quest points have been restored!\r\n");
 	}
-		
+    
+    // if their rep is 0 and they are >= gen 5 they gain 5 rep
+	if (GET_REMORT_GEN(d->creature) >= 5 && d->creature->get_reputation() == 0) {
+        d->creature->gain_reputation(5);
+        notes = tmp_strcat(notes, "You are no longer innocent because you have reached your fifth generation.\r\n");
+    }
+    
 	d->creature->player.time.logon = now;
 	d->creature->saveToXML();
 	send_to_char(d->creature, "%s%s%s%s",
