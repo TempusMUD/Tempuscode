@@ -208,6 +208,9 @@ stop_fighting(struct Creature *ch)
 void
 stop_defending(struct Creature *ch)
 {
+	if (!DEFENDING(ch))
+		return;
+
 	act("You stop defending $N.",
 		true, ch, 0, DEFENDING(ch), TO_CHAR);
 	if (ch->in_room == DEFENDING(ch)->in_room) {
