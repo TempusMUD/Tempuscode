@@ -985,7 +985,9 @@ SPECIAL(vendor)
 		self->mob_specials.func_data = shop;
 	}
 
-	if (shop->func && shop->func(ch, me, cmd, argument, spec_mode))
+	if (shop->func &&
+			shop->func != vendor &&
+			shop->func(ch, me, cmd, argument, spec_mode))
 		return 1;
 
 	if (spec_mode == SPECIAL_RESET) {
