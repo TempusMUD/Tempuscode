@@ -2672,7 +2672,7 @@ load_corpse_owner(struct obj_data *obj)
 	//
 
 	if (CORPSE_IDNUM(obj) < 0) {
-		return (read_mobile(-CORPSE_IDNUM(obj)));
+		return (real_mobile_proto(-CORPSE_IDNUM(obj)));
 	}
 	//
 	// pc, load from file
@@ -2700,7 +2700,7 @@ ASPELL(spell_animate_dead)
 	if (ch && victim && ch == victim) {
 		if (IS_UNDEAD(ch)) {
 			GET_HIT(ch) = MIN(GET_MAX_HIT(ch), GET_HIT(ch) + dice(4, level));
-			send_to_char(ch, "You feel a renual of your tainted form.\r\n");
+			send_to_char(ch, "You feel a renewal of your tainted form.\r\n");
 		}
 		return;
 	}
@@ -2762,7 +2762,7 @@ ASPELL(spell_animate_dead)
 	zombie->player.name = str_dup(buf2);
 	zombie->player.short_descr = str_dup(obj->short_description);
 	strcpy(buf, obj->short_description);
-	strcat(buf, " is standing here.\r\n");
+	strcat(buf, " is standing here.");
 	CAP(buf);
 	zombie->player.long_descr = str_dup(buf);
 	zombie->player.description = NULL;
@@ -2852,7 +2852,8 @@ ASPELL(spell_animate_dead)
 
 	extract_obj(obj);
 
-	delete orig_char;
+	if (IS_PC(orig_char))
+		delete orig_char;
 
 	char_to_room(zombie, ch->in_room, false);
 	act("$n rises slowly to a standing position.", FALSE, zombie, 0, 0,
