@@ -217,6 +217,8 @@ sub process_file
 				{
 				$room{"searches"}{$sub_id}{"cmd"} = $search_cmd;
 				$room{"searches"}{$sub_id}{"keywords"} = $search_key;
+				undef $search_cmd;
+				undef $search_key;
 				}
 			}
 		elsif ( $state eq "search-vict" )
