@@ -2043,7 +2043,7 @@ act(const char *str, int hide_invisible, struct Creature *ch,
     }
 	else if (obj && obj->in_room != NULL) {
 		room = obj->in_room;
-	} else if ((to = (struct Creature *)vict_obj) && to->in_room != NULL) {
+	} else if ((to = (struct Creature *)vict_obj) && to->in_room != NULL) { //needed for bombs
         room = to->in_room;
     }
 
