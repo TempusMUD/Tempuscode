@@ -1,3 +1,6 @@
+#ifndef _SMOKES_H_
+#define _SMOKES_H_
+
 //
 // File: smokes.h                     -- Part of TempusMUD
 //
@@ -24,3 +27,4 @@
 #define MAX_DRAGS(obj)      (GET_OBJ_VAL(obj, 1))
 #define CUR_DRAGS(obj)      (GET_OBJ_VAL(obj, 0))
 #define SMOKE_LIT(obj)      (GET_OBJ_VAL(obj, 3))
+#endif

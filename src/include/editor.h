@@ -1,6 +1,5 @@
-
-#ifndef __CTEXT_EDITOR_H
-#define __CTEXT_EDITOR_H
+#ifndef _EDITOR_H_
+#define _EDITOR_H_
 
 #include <string>
 #include <list>

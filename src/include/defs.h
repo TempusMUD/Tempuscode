@@ -1,12 +1,12 @@
+#ifndef _DEFS_H_
+#define _DEFS_H_
+
 //
 // File: defs.h                      -- Part of TempusMUD
 //
 // All modifications and additions are
 // Copyright 1998 by John Watson, all rights reserved.
 //
-
-#ifndef __defs_h__
-#define __defs_h__
 
 typedef signed char sbyte;
 typedef unsigned char ubyte;

@@ -1,3 +1,6 @@
+#ifndef _BOARDS_H_
+#define _BOARDS_H_
+
 /* ************************************************************************
 *   File: boards.h                                      Part of CircleMUD *
 *  Usage: header file for bulletin boards                                 *
@@ -66,3 +69,5 @@ void Board_load_board(int board_type);
 void Board_reset_board(int board_num);
 void Board_write_message(int board_type, struct Creature *ch,
 	struct obj_data *obj, char *arg);
+
+#endif

@@ -1,3 +1,6 @@
+#ifndef _MAIL_H_
+#define _MAIL_H_
+
 /* ************************************************************************
 *   File: mail.h                                        Part of CircleMUD *
 *  Usage: header file for mail system                                     *
@@ -14,6 +17,7 @@
 // All modifications and additions are
 // Copyright 1998 by John Watson, all rights reserved.
 //
+
 
 // The vnum of the "letter" object
 #define MAIL_OBJ_VNUM 1204
@@ -42,7 +46,6 @@ void postmaster_check_mail(struct Creature *ch, struct Creature *mailman,
 void postmaster_receive_mail(struct Creature *ch, struct Creature *mailman,
 	int cmd, char *arg);
 // Redundant redeclarations for utility functions
-void perform_tell(struct Creature *ch, struct Creature *vict, char *arg);
 void string_add(struct descriptor_data *d, char *str);
 
 // Mail system internal functions.
@@ -63,3 +66,4 @@ struct mail_data {
 	long spare;
 	long msg_size;
 };
+#endif

@@ -1,5 +1,5 @@
-#ifndef __TEMPUS_SAFE_LIST_H
-#define __TEMPUS_SAFE_LIST_H
+#ifndef _SAFE_LIST_H_
+#define _SAFE_LIST_H_
 
 #include <stdlib.h>
 #include <unistd.h>

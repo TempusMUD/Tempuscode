@@ -1,5 +1,5 @@
-#ifndef __TEMPUS_XML_UTILS_H
-#define __TEMPUS_XML_UTILS_H
+#ifndef _XML_UTILS_H_
+#define _XML_UTILS_H_
 
 #include <libxml/parser.h>
 #include <libxml/tree.h>

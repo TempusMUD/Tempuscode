@@ -1,8 +1,14 @@
-//
-// File: guard.spec                     -- Part of TempusMUD
-//
-// Copyright 2002 by Daniel Lowe, all rights reserved.
-//
+#include <vector>
+
+#include "actions.h"
+#include "db.h"
+#include "comm.h"
+#include "fight.h"
+#include "handler.h"
+#include "interpreter.h"
+#include "tmpstr.h"
+#include "screen.h"
+#include "utils.h"
 
 const char *GUARD_HELP =
 "    guard is a more complete version of the now obsolete guildguard and\r\n"
@@ -57,10 +63,7 @@ SPECIAL(guard)
 			continue;
 
 		param_key = tmp_getword(&line);
-		if (!strcmp(param_key, "dir") || !strcmp(param_key, "guard")) {
-			if (!strcmp(param_key, "dir"))
-				slog("WARNING: Directive 'dir' deprecated in mob %d",
-					GET_MOB_VNUM(self));
+		if (!strcmp(param_key, "guard")) {
 			dir_str = tmp_getword(&line);
 			room_str = tmp_getword(&line);
 			room_num = 0;

@@ -1,3 +1,6 @@
+#ifndef _OBJ_DATA_H_
+#define _OBJ_DATA_H_
+
 //
 // File: obj_data.h                      -- Part of TempusMUD
 //
@@ -5,9 +8,6 @@
 // Copyright 1998 by John Watson, all rights reserved.
 //
 
-
-#ifndef __obj_data_h__
-#define __obj_data_h__
 
 /*#define DMALLOC 1 */
 

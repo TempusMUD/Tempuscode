@@ -1,3 +1,6 @@
+#ifndef _STRUCTS_H_
+#define _STRUCTS_H_
+
 /* ***********************************************************************
 *   File: structs.h                                     Part of CircleMUD *
 *  Usage: header file for central structures and contstants               *
@@ -14,9 +17,6 @@
 // All modifications and additions are
 // Copyright 1998 by John Watson, all rights reserved.
 //
-
-#ifndef __structs_h__
-#define __structs_h__
 
 
 /* preamble *************************************************************/

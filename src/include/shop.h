@@ -1,11 +1,11 @@
+#ifndef _SHOP_H_
+#define _SHOP_H_
+
 //
 // File: shop.h                     -- Part of TempusMUD
 //
 // Copyright 1998 by John Watson, all rights reserved.
 //
-
-#ifndef _SHOP_H_
-#define _SHOP_H_
 
 #include <vector>
 #include "xml_utils.h"

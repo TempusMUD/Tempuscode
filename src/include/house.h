@@ -1,3 +1,6 @@
+#ifndef _HOUSE_H_
+#define _HOUSE_H_
+
 //
 // File: house.h                     -- Part of TempusMUD
 //
@@ -89,3 +92,4 @@ struct house_control_rec *real_house(room_num vnum);
 void House_save_control(void);
 void Crash_rentsave(struct Creature *ch, int cost, int rentcode);
 int Crash_rentcost(struct Creature *ch, int display, int factor);
+#endif

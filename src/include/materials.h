@@ -1,3 +1,6 @@
+#ifndef _MATERIALS_H_
+#define _MATERIALS_H_
+
 //
 // File: materials.h                     -- Part of TempusMUD
 //
@@ -243,3 +246,4 @@
 #define MAT_BASALT           240
 #define MAT_ASH              241
 #define TOP_MATERIAL         242
+#endif

@@ -1,11 +1,11 @@
+#ifndef _FLOW_ROOM_H_
+#define _FLOW_ROOM_H_
+
 //
 // File: flow_room.h                     -- Part of TempusMUD
 //
 // Copyright 1998 by John Watson, all rights reserved.
 //
-
-#ifndef __flow_room_h__
-#define __flow_room_h__
 
 #define F_TYPE_NONE              0
 #define F_TYPE_WIND              1

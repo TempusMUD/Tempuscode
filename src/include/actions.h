@@ -1,11 +1,11 @@
+#ifndef _ACTIONS_H_
+#define _ACTIONS_H_
+
 //
 // File: act.barb.h                     -- Part of TempusMUD
 //
 // Copyright 1998 by John Watson, all rights reserved.
 //
-
-#ifndef _ACTIONS_
-#define _ACTIONS_
 
 #include "interpreter.h"
 #include "spells.h"
@@ -23,6 +23,7 @@ ASPELL(spell_area_stasis);
 // giving money
 void perform_give_gold(Creature *ch, Creature *vict, int amount);
 void perform_give_credits(Creature *ch, Creature *vict, int amount);
+void perform_tell(struct Creature *ch, struct Creature *vict, char *arg);
 
 #define TIMEWARP_FILE "etc/timewarps"
 

@@ -1,3 +1,6 @@
+#ifndef _COMBAT_H_
+#define _COMBAT_H_
+
 
 #define COMBAT_DIR "combat"
 #define COMBATFILENAME "combat/combatlog"
@@ -149,3 +152,4 @@ void do_ccontrol_stats(Creature *ch);
 // Ladder functions
 void show_ladder(ladder_data * the_ladder);
 void move_player(Creature *ch, ladder_data * the_ladder);	// ch should be the winner of the combat
+#endif

@@ -1,6 +1,6 @@
-#ifndef __elevator_h__
-#define __elevator_h__
-//
+#ifndef _ELEVATORS_H_
+#define _ELEVATORS_H_
+
 // File: elevators.h                     -- Part of TempusMUD
 //
 // Copyright 1998 by John Watson, all rights reserved.

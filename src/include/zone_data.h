@@ -1,12 +1,12 @@
+#ifndef _ZONE_DATA_H_
+#define _ZONE_DATA_H_
+
 //
 // File: zone_data.h                      -- Part of TempusMUD
 //
 // All modifications and additions are
 // Copyright 1998 by John Watson, all rights reserved.
 //
-
-#ifndef __zone_data_h__
-#define __zone_data_h__
 
 #define IS_APPR(zone)       (  !ZONE_FLAGGED(zone, ZONE_MOBS_APPROVED)\
 							&& !ZONE_FLAGGED(zone, ZONE_ROOMS_APPROVED)\

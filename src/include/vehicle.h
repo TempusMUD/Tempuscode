@@ -1,11 +1,11 @@
+#ifndef _VEHICLE_H_
+#define _VEHICLE_H_
+
 //
 // File: vehicle.h                     -- Part of TempusMUD
 //
 // Copyright 1998 by John Watson, all rights reserved.
 //
-
-#ifndef __vehicle_h__
-#define __vehicle_h__
 
 struct obj_data *find_vehicle(struct obj_data *v_door);
 
@@ -105,5 +105,4 @@ extern const char *engine_flags[];
 extern const char *vehicle_types[];
 
 #endif
-
 #endif

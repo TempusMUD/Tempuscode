@@ -1,3 +1,6 @@
+#ifndef _HELL_HUNTER_SPEC_H_
+#define _HELL_HUNTER_SPEC_H_
+
 // File: hell_hunter_spec.h -- Part of TempusMUD
 //
 // DataFile: lib/etc/hell_hunter_data
@@ -197,3 +200,4 @@ ostream & operator << (ostream & out, vector < Target > &t) {
 	out << " }";
 	return out;
 }
+#endif

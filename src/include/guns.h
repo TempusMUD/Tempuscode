@@ -1,11 +1,11 @@
+#ifndef _GUNS_H_
+#define _GUNS_H_
+
 //
 // File: guns.h                     -- Part of TempusMUD
 //
 // Copyright 1998 by John Watson, all rights reserved.
 //
-
-#ifndef __guns_h__
-#define __guns_h__
 
 void show_gun_status(struct Creature *ch, struct obj_data *gun);
 

@@ -1,5 +1,5 @@
-#ifndef TEMPUS_SECURITY_H
-#define TEMPUS_SECURITY_H
+#ifndef _SECURITY_H_
+#define _SECURITY_H_
 
 #include <vector>
 #include <algorithm>

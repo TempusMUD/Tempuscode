@@ -1,3 +1,6 @@
+#ifndef _SPELLS_H_
+#define _SPELLS_H_
+
 /* ************************************************************************
 *   File: spells.h                                      Part of CircleMUD *
 *  Usage: header file: constants and fn prototypes for spell system       *
@@ -15,8 +18,6 @@
 // Copyright 1998 by John Watson, all rights reserved.
 //
 
-#ifndef __spells_h__
-#define __spells_h__
 #include "creature.h"
 #include "tmpstr.h"
 

@@ -1,12 +1,12 @@
+#ifndef _WEATHER_H_
+#define _WEATHER_H_
+
 //
 // File: weather.h                      -- Part of TempusMUD
 //
 // All modifications and additions are
 // Copyright 1998 by John Watson, all rights reserved.
 //
-
-#ifndef __weather_h__
-#define __weather_h__
 
 
 /* Sun state for weather_data */

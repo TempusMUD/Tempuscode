@@ -1,5 +1,6 @@
-#ifndef _TOKENIZER_H
-#define _TOKENIZER_H
+#ifndef _TOKENIZER_H_
+#define _TOKENIZER_H_
+
 /*
  *  A simple safe rip-off of java.util.StringTokenizer
  */

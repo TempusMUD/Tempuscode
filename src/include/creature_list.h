@@ -1,5 +1,6 @@
-#ifndef __TEMPUS_CHARACTER_LIST_H
-#define __TEMPUS_CHARACTER_LIST_H
+#ifndef _CREATURE_LIST_H_
+#define _CREATURE_LIST_H_
+
 #include <signal.h>
 #include "creature.h"
 #include "safe_list.h"

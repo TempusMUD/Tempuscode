@@ -1,5 +1,5 @@
-#ifndef __FLAGS_H__
-#define __FLAGS_H__
+#ifndef _FLAGS_H_
+#define _FLAGS_H_
 
 #include <vector>
 #include <map>

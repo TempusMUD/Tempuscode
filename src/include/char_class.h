@@ -1,11 +1,11 @@
+#ifndef _CHAR_CLASS_H_
+#define _CHAR_CLASS_H_
+
 //
 // File: char_class.h                     -- Part of TempusMUD
 //
 // Copyright 1998 by John Watson, all rights reserved.
 //
-
-#ifndef __char_class_h__
-#define __char_class_h__
 
 #ifndef __char_class_c__
 

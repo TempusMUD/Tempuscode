@@ -1,3 +1,6 @@
+#ifndef _DMALLOC_H_
+#define _DMALLOC_H_
+
 /*
  * defines for the dmalloc library
  *
@@ -18,11 +21,8 @@
  *
  * The author may be contacted at gray.watson@letters.com
  *
- * $Id: dmalloc.h,v 1.2 2002/01/10 21:18:39 ashe Exp $
+ * $Id: dmalloc.h,v 1.3 2002/06/27 20:06:57 ashe Exp $
  */
-
-#ifndef __DMALLOC_H__
-#define __DMALLOC_H__
 
 /* this is dmalloc.h */
 /* produced by configure, inserted into dmalloc.h */
@@ -41,7 +41,7 @@
 #include <sys/types.h>
 #define DMALLOC_SIZE size_t
 
-/* NOTE: start of $Id: dmalloc.h,v 1.2 2002/01/10 21:18:39 ashe Exp $ */
+/* NOTE: start of $Id: dmalloc.h,v 1.3 2002/06/27 20:06:57 ashe Exp $ */
 
 /* this defines what type the standard void memory-pointer is */
 #if defined(__STDC__) && __STDC__ == 1
@@ -425,4 +425,4 @@ extern "C" {
 }
 #endif
 #endif							/* ! DMALLOC_DISABLE */
-#endif							/* ! __DMALLOC_H__ */
+#endif

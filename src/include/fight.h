@@ -1,12 +1,15 @@
+#ifndef _FIGHT_H_
+#define _FIGHT_H_
+
 //
 // File: fight.h                     -- Part of TempusMUD
 //
 // Copyright 1998 by John Watson, all rights reserved.
 //
 
-#ifndef __fight_h__
-#define __fight_h__
 //#define DEBUG_POSITION 1
+#include "handler.h"
+#include "utils.h"
 
 
 #define DAM_OBJECT_IDNUM(obj) (IS_BOMB(obj) ? BOMB_IDNUM(obj) : GET_OBJ_SIGIL_IDNUM(obj))

@@ -1,3 +1,6 @@
+#ifndef _CLAN_H_
+#define _CLAN_H_
+
 //
 // File: clan.h                     -- Part of TempusMUD
 //
@@ -81,3 +84,4 @@ struct clan_file_elem_hdr {
 	int flags;
 	char cSpares[20];
 };
+#endif

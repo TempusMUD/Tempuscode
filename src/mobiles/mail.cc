@@ -25,6 +25,7 @@ Rewritten by John Rothe (forget@tempusmud.com)
 #include <time.h>
 #include <fstream>
 
+#include "actions.h"
 #include "structs.h"
 #include "utils.h"
 #include "comm.h"

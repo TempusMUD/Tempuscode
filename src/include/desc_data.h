@@ -1,3 +1,6 @@
+#ifndef _DESC_DATA_H_
+#define _DESC_DATA_H_
+
 //
 // File: defs.h                      -- Part of TempusMUD
 //
@@ -5,9 +8,6 @@
 // Copyright 1998 by John Watson, all rights reserved.
 //
 
-
-#ifndef __desc_data_h__
-#define __desc_data_h__
 
 #include "structs.h"
 #include "defs.h"

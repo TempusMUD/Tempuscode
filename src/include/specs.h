@@ -1,3 +1,6 @@
+#ifndef _SPECS_H_
+#define _SPECS_H_
+
 //
 // File: specs.h                     -- Part of TempusMUD
 //
@@ -16,9 +19,6 @@
 #define FATE_VNUM_MID 1206
 #define FATE_VNUM_HIGH 1207
 #endif
-
-#ifndef __specs_h__
-#define __specs_h__
 
 SPECIAL(postmaster);
 SPECIAL(cityguard);

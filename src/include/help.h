@@ -1,5 +1,6 @@
-#ifndef __HELP_COLLECTION_H
-#define __HELP_COLLECTION_H
+#ifndef _HELP_H_
+#define _HELP_H_
+
 #include <vector>
 #include <fstream>
 using namespace std;

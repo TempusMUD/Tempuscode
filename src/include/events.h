@@ -1,5 +1,5 @@
-#ifndef __EVENTS_H
-#define __EVENTS_H
+#ifndef _EVENTS_H_
+#define _EVENTS_H_
 
 #define NUM_EVENTS 3
 
@@ -60,6 +60,6 @@ class EventSteal : public MobileEvent
         void process();
 };*/
 
-typedef list < MobileEvent * >eventQueue;
+typedef list<MobileEvent *> eventQueue;
 
 #endif

@@ -1,5 +1,5 @@
-#ifndef __ban_h__
-#define __ban_h__
+#ifndef _BAN_H_
+#define _BAN_H_
 
 /* don't change these */
 #define BAN_NOT 	0

@@ -99,10 +99,10 @@ SPECIAL(improve_prac_book)
 		return 0;
 
 	act("You spend several hours studying the writings within $p,\r\n"
-		"which afterwards fades from existance.\r\n",
+		"which afterwards fades from existence.\r\n",
 		FALSE, ch, obj, 0, TO_CHAR);
 	act("$n spends several hours studying the writings within $p,\r\n"
-		"which afterwards fades from existance.\r\n",
+		"which afterwards fades from existence.\r\n",
 		FALSE, ch, obj, 0, TO_ROOM);
 
 	if ((IS_OBJ_STAT(obj, ITEM_ANTI_EVIL) && IS_EVIL(ch)) ||

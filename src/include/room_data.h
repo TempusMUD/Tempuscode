@@ -1,12 +1,12 @@
+#ifndef _ROOM_DATA_H_
+#define _ROOM_DATA_H_
+
 //
 // File: defs.h                      -- Part of TempusMUD
 //
 // All modifications and additions are
 // Copyright 1998 by John Watson, all rights reserved.
 //
-
-#ifndef __room_data_h__
-#define __room_data_h__
 
 /* room-related defines *************************************************/
 

@@ -1,3 +1,6 @@
+#ifndef _DB_H_
+#define _DB_H_
+
 /* ************************************************************************
 *   File: db.h                                          Part of CircleMUD *
 *  Usage: header file for database handling                               *
@@ -15,9 +18,6 @@
 // Copyright 1998 by John Watson, all rights reserved.
 //
 
-
-#ifndef __db_h__
-#define __db_h__
 
 #include <stdio.h>
 #include "defs.h"
@@ -247,4 +247,4 @@ extern struct obj_data *object_list;
 
 #endif							// __db_c__
 
-#endif							// #ifndef __db_h__
+#endif

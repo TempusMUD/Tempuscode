@@ -1,3 +1,6 @@
+#ifndef _SCREEN_H_
+#define _SCREEN_H_
+
 /* ************************************************************************
 *   File: screen.h                                      Part of CircleMUD *
 *  Usage: header file with ANSI color codes for online color              *
@@ -127,3 +130,4 @@
 #define QMAG CCMAG(ch,C_SPR)
 #define QCYN CCCYN(ch,C_SPR)
 #define QWHT CCWHT(ch,C_SPR)
+#endif

@@ -1,3 +1,6 @@
+#ifndef _INTERMUD_H_
+#define _INTERMUD_H_
+
 
 /* Maximum size of incoming data on internet UDP port.
 ** Not a good idea to change this value right now.
@@ -87,3 +90,4 @@
 #define SRV_INTERWHO     1
 
 #define SRV_INTERBOARD   1
+#endif

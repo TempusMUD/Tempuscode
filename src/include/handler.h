@@ -1,3 +1,6 @@
+#ifndef _HANDLER_H_
+#define _HANDLER_H_
+
 /* ************************************************************************
 *   File: handler.h                                     Part of CircleMUD *
 *  Usage: header file: prototypes of handling and utility functions       *
@@ -138,3 +141,4 @@ void Crash_save_all(void);
 	" [+--------+---------+---------+--------"  \
 	"-+---------+---------+---------+------+]\r\n"
 */
+#endif

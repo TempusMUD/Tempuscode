@@ -1,5 +1,5 @@
-#ifndef __paths_h__
-#define __paths_h__
+#ifndef _PATHS_H_
+#define _PATHS_H_
 
 //
 // File: paths.h                     -- Part of TempusMUD

@@ -1,3 +1,6 @@
+#ifndef _MOBACT_H_
+#define _MOBACT_H_
+
 
 //
 // File: mobact.h                      -- Part of TempusMUD
@@ -5,9 +8,6 @@
 // All modifications and additions are
 // Copyright 1998 by John Watson, all rights reserved.
 //
-
-#ifndef __mobact_h__
-#define __mobact_h__
 
 struct Creature *choose_opponent(struct Creature *ch,
 	struct Creature *ignore_vict);

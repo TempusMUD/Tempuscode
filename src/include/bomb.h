@@ -1,11 +1,11 @@
+#ifndef _BOMB_H_
+#define _BOMB_H_
+
 //
 // File: bomb.h                     -- Part of TempusMUD
 //
 // Copyright 1998 by John Watson, all rights reserved.
 //
-
-#ifndef __bomb_h__
-#define __bomb_h__
 
 void sound_gunshots(struct room_data *rm, int type, int power, int num);
 struct obj_data *detonate_bomb(struct obj_data *bomb);

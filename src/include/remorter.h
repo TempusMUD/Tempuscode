@@ -1,6 +1,5 @@
-#ifndef __REMORTER_H_
-#define __REMORTER_H_
-
+#ifndef _REMORTER_H_
+#define _REMORTER_H_
 
 void do_start(struct Creature *ch, int mode);
 

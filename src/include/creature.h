@@ -1,12 +1,12 @@
+#ifndef _CREATURE_H_
+#define _CREATURE_H_
+
 //
 // File: creature.h                      -- Part of TempusMUD
 //
 // All modifications and additions are
 // Copyright 1998 by John Watson, all rights reserved.
 //
-
-#ifndef __Creature_h__
-#define __Creature_h__
 
 #include "constants.h"
 #include "macros.h"

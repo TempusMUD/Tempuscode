@@ -1,5 +1,5 @@
-#ifndef __ISCRIPT_H
-#define __ISCRIPT_H
+#ifndef _ISCRIPT_H_
+#define _ISCRIPT_H_
 
 #include <string>
 #include <list>

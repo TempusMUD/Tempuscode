@@ -1,11 +1,11 @@
+#ifndef _QUEST_H_
+#define _QUEST_H_
+
 //
 // File: quest.h                     -- Part of TempusMUD
 //
 // Copyright 1998 by John Watson, all rights reserved.
 //
-#ifndef _QUEST_H
-#define _QUEST_H
-
 #include <vector>
 using namespace std;
 #include <fstream>

@@ -1,3 +1,6 @@
+#ifndef _MAPPER_H_
+#define _MAPPER_H_
+
 using namespace std;
 // Tempus Includes
 #include "screen.h"
@@ -113,3 +116,4 @@ const int South = 2;
 const int West = 3;
 const int Up = 4;
 const int Down = 5;
+#endif

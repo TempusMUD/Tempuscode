@@ -1,3 +1,6 @@
+#ifndef _MATRIX_H_
+#define _MATRIX_H_
+
 //
 // File: matrix.h
 //
@@ -7,3 +10,4 @@
 
 void show_net_menu1_to_descriptor(struct descriptor_data *d);
 void show_net_progmenu1_to_descriptor(struct descriptor_data *d);
+#endif

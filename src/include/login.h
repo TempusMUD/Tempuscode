@@ -1,3 +1,6 @@
+#ifndef _LOGIN_H_
+#define _LOGIN_H_
+
 //
 // File: login.h
 //
@@ -21,3 +24,4 @@ int parse_future_home(struct descriptor_data *d, char *arg);
 
 #define MODE_RENT_MENU 0
 #define MODE_SHOW_MENU 1
+#endif

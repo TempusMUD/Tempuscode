@@ -1,3 +1,6 @@
+#ifndef _OBJ_MATCHER_H_
+#define _OBJ_MATCHER_H_
+
 /* ************************************************************************
 *   File: obj_matcher.h                             NOT Part of CircleMUD *
 *  Usage: Analysis routines for the DB.( Objects. )                       *
@@ -232,4 +235,5 @@ class ObjectExtraMatcher : public ObjectMatcher {
 };
 
 
+#endif
 #endif

@@ -1,3 +1,6 @@
+#ifndef _CONSTANTS_H_
+#define _CONSTANTS_H_
+
 
 //
 // File: constants.h                      -- Part of TempusMUD
@@ -5,9 +8,6 @@
 // All modifications and additions are
 // Copyright 1998 by John Watson, all rights reserved.
 //
-
-#ifndef __constants_h__
-#define __constants_h__
 
 #define NOWHERE    -1			/* nil reference for room-database        */
 #define NOTHING           -1	/* nil reference for objects                */
@@ -143,4 +143,4 @@ extern const char *spell_bits[];
 
 extern const int wear_bitvectors[];
 #endif							// __extern constants_cc__
-#endif							// __extern constants_h__
+#endif

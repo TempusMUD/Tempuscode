@@ -1,5 +1,5 @@
-#ifndef __PLAYER_TABLE_H__
-#define __PLAYER_TABLE_H__
+#ifndef _PLAYER_TABLE_H_
+#define _PLAYER_TABLE_H_
 
 #include <vector>
 #include <utility>

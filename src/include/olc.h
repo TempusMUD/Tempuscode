@@ -1,11 +1,11 @@
+#ifndef _OLC_H_
+#define _OLC_H_
+
 //
 // File: olc.h                     -- Part of TempusMUD
 //
 // Copyright 1998 by John Watson, all rights reserved.
 //
-
-#ifndef __OLC_H__
-#define __OLC_H__
 
 #define OLC_SET		0
 #define OLC_SHOW	1

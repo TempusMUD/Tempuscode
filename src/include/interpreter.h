@@ -1,5 +1,5 @@
-#ifndef TEMPUSMUD_INTERPRETER_H
-#define TEMPUSMUD_INTERPRETER_H
+#ifndef _INTERPRETER_H_
+#define _INTERPRETER_H_
 
 #include "defs.h"
 /* ************************************************************************

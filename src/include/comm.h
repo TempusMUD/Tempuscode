@@ -1,3 +1,6 @@
+#ifndef _COMM_H_
+#define _COMM_H_
+
 /* ************************************************************************
 *   File: comm.h                                        Part of CircleMUD *
 *  Usage: header file: prototypes of public communication functions       *
@@ -185,3 +188,4 @@ int socket(int domain, int type, int protocol);
 #endif
 
 #endif							/* #ifdef __COMM_C__ */
+#endif
