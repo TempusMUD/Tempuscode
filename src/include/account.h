@@ -96,7 +96,7 @@ class Account {
 		inline bool trustsNobody(void) { return _trusted.empty(); }
 		void displayTrusted(Creature *ch);
 
-        int hasImmortal();
+        int hasCharLevel(int level);
 
 		class cmp {
 			public:

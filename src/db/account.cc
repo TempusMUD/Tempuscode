@@ -395,6 +395,23 @@ Account::create_char(const char *name)
 
 	POOFIN(ch) = NULL;
 	POOFOUT(ch) = NULL;
+    
+    // If there are no characters >= level 45 on this account enroll
+    // this character in the academey.
+    struct clanmember_data *member = NULL;
+    struct clan_data *clan = real_clan(TEMPUS_ACADEMY);
+    if (!this->hasCharLevel(45)) {
+        GET_CLAN(ch) = TEMPUS_ACADEMY;
+        CREATE(member, struct clanmember_data, 1);
+        member->idnum = GET_IDNUM(ch);
+        member->rank = 0;
+        member->next = clan->member_list;
+        clan->member_list = member;
+        sort_clanmembers(clan);
+        sql_exec("insert into clan_members (clan, player, rank) values (%d, %ld, %d)",
+                 clan->number, GET_IDNUM(ch), 0);
+    }
+
 	return ch;
 }
 
@@ -856,7 +873,7 @@ Account::set_quest_points(int qp)
 		_quest_points, _id);
 }
 
-int Account::hasImmortal()
+int Account::hasCharLevel(int level)
 {
     int idx = 1;
     Creature *tmp_ch = new Creature(true);
@@ -867,7 +884,7 @@ int Account::hasImmortal()
         if (!tmp_ch->loadFromXML(this->get_char_by_index(idx)))
             return 0;
 
-        if (tmp_ch->getLevel() >= LVL_IMMORT) {
+        if (tmp_ch->getLevel() >= level) {
             delete tmp_ch;
             return idx;
         }

@@ -1939,7 +1939,7 @@ damage(struct Creature *ch, struct Creature *victim, int dam,
 
                         // If this account has had an imm logged on in the
                         // last hour log it as such
-                        int imm_idx = ch->account->hasImmortal();
+                        int imm_idx = ch->account->hasCharLevel(LVL_AMBASSADOR);
                         if (imm_idx) {
                             Creature *tmp_ch = new Creature(true);
                             tmp_ch->loadFromXML(ch->account->get_char_by_index(imm_idx));

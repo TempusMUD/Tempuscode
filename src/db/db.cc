@@ -3655,4 +3655,38 @@ sql_gc_queries(void)
 	sql_query_list = NULL;
 }
 
+void
+update_alias_dirs(void)
+{
+    slog("Alias directory update disabled.");
+    /*
+    DIR *dir;
+    struct dirent *dirp;
+    char dlist[7][4] = { "A-E", "F-J", "K-O", "P-T", "U-Z", "ZZZ" };
+    char name[1024], name2[1024];
+    int i;
+
+    for (i = 0; i < 6; i++) {
+        sprintf(buf, "plralias/%s", dlist[i]);
+        if (!(dir = opendir(buf))) {
+            errlog("Incorrect plralias directory structure.");
+            safe_exit(1);
+        }
+        while ((dirp = readdir(dir))) {
+            if ((strlen(dirp->d_name) > 3) &&
+                !strcmp(dirp->d_name + strlen(dirp->d_name) - 3, ".al")) {
+                strncpy(name, dirp->d_name, strlen(dirp->d_name) - 3);
+                name[strlen(dirp->d_name) - 3] = 0;
+                if (playerIndex.getID(name) < 0) {
+                    sprintf(name2, "%s/%s", buf, dirp->d_name);
+                    unlink(name2);
+                    sprintf(buf2, "    Deleting %s's alias file.", name);
+                    slog(buf2);
+                }
+            }
+        }
+        closedir(dir);
+    }
+    */
+}
 #undef __db_c__

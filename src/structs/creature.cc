@@ -236,6 +236,9 @@ Creature::isNewbie()
 		return false;
 	if (player.level > 24)
 		return false;
+    if (GET_CLAN(this) != TEMPUS_ACADEMY)
+        return false;
+
 	return true;
 }
 
