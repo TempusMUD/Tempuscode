@@ -2491,16 +2491,7 @@ mobile_activity(void)
 
 
 		else if (cur_class == CLASS_RANGER && random_binary()) {
-			if (GET_HIT(ch) < GET_MAX_HIT(ch) * 0.80) {
-				if (GET_LEVEL(ch) > 39)
-					do_medic(ch, "self", 0, 0);
-				else if (GET_LEVEL(ch) > 18)
-					do_firstaid(ch, "self", 0, 0);
-				else if (GET_LEVEL(ch) > 9)
-					do_bandage(ch, "self", 0, 0);
-			} else if (IS_AFFECTED(ch, AFF_POISON) && GET_LEVEL(ch) > 11) {
-				cast_spell(ch, ch, 0, SPELL_REMOVE_POISON);
-			}
+            ranger_activity(ch);
 		}
 		//
 		// cyborg spell up
@@ -3622,63 +3613,9 @@ mobile_battle_activity(struct Creature *ch, struct Creature *precious_vict)
 		}
 	}
 	if (cur_class == CLASS_RANGER) {
-
-		if (!(vict = choose_opponent(ch, precious_vict)))
-			return 0;
-
-		if ((GET_LEVEL(ch) > 4) && random_fractional_5() &&
-			!affected_by_spell(ch, SPELL_BARKSKIN)) {
-			cast_spell(ch, ch, NULL, SPELL_BARKSKIN);
-			WAIT_STATE(ch, PULSE_VIOLENCE);
-			return 0;
-		} else if ((GET_LEVEL(ch) > 21) && random_fractional_5() &&
-			GET_RACE(vict) == RACE_UNDEAD &&
-			!affected_by_spell(ch, SPELL_INVIS_TO_UNDEAD)) {
-			cast_spell(ch, ch, NULL, SPELL_INVIS_TO_UNDEAD);
-			WAIT_STATE(ch, PULSE_VIOLENCE);
-			return 0;
-		}
-
-		if (GET_LEVEL(ch) >= 27 &&
-			(GET_CLASS(vict) == CLASS_MAGIC_USER ||
-				GET_CLASS(vict) == CLASS_CLERIC) && random_fractional_3()) {
-			do_offensive_skill(ch, GET_NAME(vict), 0, SKILL_SWEEPKICK);
-			return 0;
-		}
-		if ((GET_LEVEL(ch) > 42) && random_fractional_5()) {
-			do_offensive_skill(ch, GET_NAME(vict), 0, SKILL_LUNGE_PUNCH);
-			return 0;
-		} else if ((GET_LEVEL(ch) > 25) && random_fractional_5()) {
-			do_offensive_skill(ch, GET_NAME(vict), 0, SKILL_BEARHUG);
-			return 0;
-		} else if ((GET_LEVEL(ch) >= 20) &&
-			GET_EQ(ch, WEAR_WIELD) && GET_EQ(vict, WEAR_WIELD) &&
-			random_fractional_5()) {
-			do_disarm(ch, PERS(vict, ch), 0, 0);
-			return 0;
-		}
-
-		if (random_fractional_4()) {
-
-			if (GET_LEVEL(ch) < 3) {
-				do_offensive_skill(ch, GET_NAME(vict), 0, SKILL_KICK);
-			} else if (GET_LEVEL(ch) < 6) {
-				do_offensive_skill(ch, GET_NAME(vict), 0, SKILL_BITE);
-			} else if (GET_LEVEL(ch) < 14) {
-				do_offensive_skill(ch, GET_NAME(vict), 0, SKILL_UPPERCUT);
-			} else if (GET_LEVEL(ch) < 17) {
-				do_offensive_skill(ch, GET_NAME(vict), 0, SKILL_HEADBUTT);
-			} else if (GET_LEVEL(ch) < 22) {
-				do_offensive_skill(ch, GET_NAME(vict), 0, SKILL_ROUNDHOUSE);
-			} else if (GET_LEVEL(ch) < 24) {
-				do_offensive_skill(ch, GET_NAME(vict), 0, SKILL_HOOK);
-			} else if (GET_LEVEL(ch) < 36) {
-				do_offensive_skill(ch, GET_NAME(vict), 0, SKILL_SIDEKICK);
-			} else {
-				do_offensive_skill(ch, GET_NAME(vict), 0, SKILL_LUNGE_PUNCH);
-			}
-			return 0;
-		}
+        if(ranger_battle_activity(ch, precious_vict) == 0){
+            return 0;
+        }
 	}
 
     ///Knights act offesive, through a function! (bwahahaha)
@@ -4345,3 +4282,108 @@ int knight_battle_activity(struct Creature *ch, struct Creature *precious_vict){
     }
     return 1;
 }
+
+
+/***********************************************************************************
+ *
+ *                        Ranger Activity
+ *   Continuing series of functions designed to extract activity and fight code 
+ * into many small functions as opposed to one large one.  Also allows for easeir 
+ * modifications to mob ai.
+ *******************************************************************************/
+
+void ranger_activity(struct Creature *ch){
+
+    if (GET_HIT(ch) < GET_MAX_HIT(ch) * 0.80) {
+        if (GET_LEVEL(ch) > 39)
+            do_medic(ch, "self", 0, 0);
+        else if (GET_LEVEL(ch) > 18)
+            do_firstaid(ch, "self", 0, 0);
+        else if (GET_LEVEL(ch) > 9)
+            do_bandage(ch, "self", 0, 0);
+    } else if (IS_AFFECTED(ch, AFF_POISON) && GET_LEVEL(ch) > 11) {
+        cast_spell(ch, ch, 0, SPELL_REMOVE_POISON);
+    } else if (!affected_by_spell(ch, SPELL_STONESKIN) && GET_LEVEL(ch) > 19 &&
+                GET_REMORT_CLASS(ch) != CLASS_RANGER &&
+                GET_REMORT_CLASS(ch) != CLASS_UNDEFINED){
+                cast_spell(ch,ch,0,SPELL_STONESKIN);
+    } else if (!affected_by_spell(ch, SPELL_BARKSKIN) &&
+               !affected_by_spell(ch, SPELL_STONESKIN) ){
+                cast_spell(ch, ch, 0, SPELL_BARKSKIN);
+    } 
+}
+
+
+/***********************************************************************************
+ *
+ *                        Ranger battle  Activity
+ *   Continuing series of functions designed to extract activity and fight code 
+ * into many small functions as opposed to one large one.  Also allows for easeir 
+ * modifications to mob ai.
+ *******************************************************************************/
+
+
+int ranger_battle_activity(struct Creature *ch, struct Creature *precious_vict){
+    struct Creature * vict;
+    ACCMD(do_disarm);
+    if (!(vict = choose_opponent(ch, precious_vict)))
+        return 0;
+
+
+    if ((GET_LEVEL(ch) > 4) && random_fractional_5() &&
+        !affected_by_spell(ch, SPELL_BARKSKIN) &&
+        !affected_by_spell(ch, SPELL_STONESKIN)) {
+        cast_spell(ch, ch, NULL, SPELL_BARKSKIN);
+        WAIT_STATE(ch, PULSE_VIOLENCE);
+        return 0;
+    } else if ((GET_LEVEL(ch) > 21) && random_fractional_5() &&
+        GET_RACE(vict) == RACE_UNDEAD &&
+        !affected_by_spell(ch, SPELL_INVIS_TO_UNDEAD)) {
+        cast_spell(ch, ch, NULL, SPELL_INVIS_TO_UNDEAD);
+        WAIT_STATE(ch, PULSE_VIOLENCE);
+        return 0;
+    }
+
+    if (GET_LEVEL(ch) >= 27 &&
+        (GET_CLASS(vict) == CLASS_MAGIC_USER ||
+            GET_CLASS(vict) == CLASS_CLERIC) && random_fractional_3()) {
+        do_offensive_skill(ch, GET_NAME(vict), 0, SKILL_SWEEPKICK);
+        return 0;
+    }
+    if ((GET_LEVEL(ch) > 42) && random_fractional_5()) {
+        do_offensive_skill(ch, GET_NAME(vict), 0, SKILL_LUNGE_PUNCH);
+        return 0;
+    } else if ((GET_LEVEL(ch) > 25) && random_fractional_5()) {
+        do_offensive_skill(ch, GET_NAME(vict), 0, SKILL_BEARHUG);
+        return 0;
+    } else if ((GET_LEVEL(ch) >= 20) &&
+        GET_EQ(ch, WEAR_WIELD) && GET_EQ(vict, WEAR_WIELD) &&
+        random_fractional_5()) {
+        do_disarm(ch, PERS(vict, ch), 0, 0);
+        return 0;
+    }
+
+    if (random_fractional_4()) {
+
+        if (GET_LEVEL(ch) < 3) {
+            do_offensive_skill(ch, GET_NAME(vict), 0, SKILL_KICK);
+        } else if (GET_LEVEL(ch) < 6) {
+            do_offensive_skill(ch, GET_NAME(vict), 0, SKILL_BITE);
+        } else if (GET_LEVEL(ch) < 14) {
+            do_offensive_skill(ch, GET_NAME(vict), 0, SKILL_UPPERCUT);
+        } else if (GET_LEVEL(ch) < 17) {
+            do_offensive_skill(ch, GET_NAME(vict), 0, SKILL_HEADBUTT);
+        } else if (GET_LEVEL(ch) < 22) {
+            do_offensive_skill(ch, GET_NAME(vict), 0, SKILL_ROUNDHOUSE);
+        } else if (GET_LEVEL(ch) < 24) {
+            do_offensive_skill(ch, GET_NAME(vict), 0, SKILL_HOOK);
+        } else if (GET_LEVEL(ch) < 36) {
+            do_offensive_skill(ch, GET_NAME(vict), 0, SKILL_SIDEKICK);
+        } else {
+            do_offensive_skill(ch, GET_NAME(vict), 0, SKILL_LUNGE_PUNCH);
+        }
+        return 0;
+    }
+    return 1;
+}
+
