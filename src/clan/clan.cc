@@ -231,13 +231,13 @@ ACMD(do_dismiss)
 			free(member);
 		}
 		REMOVE_BIT(PLR_FLAGS(vict), PLR_CLAN_LEADER);
+		sql_exec("delete from clan_members where player=%ld", GET_IDNUM(vict));
 
 		if (in_file) {
 			vict->saveToXML();
 			delete vict;
 			send_to_char(ch, "Player dismissed.\r\n");
 		}
-		sql_exec("delete from clan_members where player=%ld", GET_IDNUM(vict));
 	}
 }
 
