@@ -2350,7 +2350,7 @@ ACMD(do_insert)
         act("$p cannot be implanted there.", FALSE, ch, obj, 0, TO_CHAR);
         return;
     }
-    if (obj->getWeight() > GET_STR(vict)/2) {
+    if (obj->getWeight() > GET_STR(vict) && GET_LEVEL(ch) < LVL_IMMORT) {
 		if(ch != vict)
 			act("ERROR: $p is to heavy to implant in $N.",
 				FALSE, ch, GET_IMPLANT(vict, pos), vict, TO_CHAR);
