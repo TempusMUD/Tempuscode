@@ -400,7 +400,6 @@ Account::delete_char(Creature *ch)
 
 	for (group = Security::groups.begin();group != Security::groups.end();group++)
 		group->removeMember(GET_IDNUM(ch));
-	Security::saveGroups();
 
 	// Remove character from trusted lists - we have to take the accounts
 	// in memory into consideration when we do this, so we have to go
@@ -724,6 +723,8 @@ void
 Account::set_past_bank(long long amt)
 {
 	_bank_past = amt;
+	slog("Past bank of account %ld set to %lld",
+		_id, _bank_past);
 	sql_exec("update accounts set bank_past=%lld where idnum=%d",
 		_bank_past, _id);
 }
@@ -732,6 +733,8 @@ void
 Account::set_future_bank(long long amt)
 {
 	_bank_future = amt;
+	slog("Future bank of account %ld set to %lld",
+		_id, _bank_future);
 	sql_exec("update accounts set bank_future=%lld where idnum=%d",
 		_bank_future, _id);
 }
