@@ -1002,7 +1002,6 @@ int do_simple_move(struct char_data * ch, int dir, int mode, int need_specials_c
         // Save the char and its implants but not its eq
         save_char(ch, NULL);
         Crash_save_implants( ch );
-        //Crash_delete_crashfile(ch);
         // extract it, leaving it's eq and such in the dt.
         ch->extract(false, false, CON_AFTERLIFE);
         if (was_in->number == 34004) {

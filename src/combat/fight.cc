@@ -188,19 +188,14 @@ change_alignment( struct char_data * ch, struct char_data * victim )
 void 
 raw_kill( struct char_data * ch, struct char_data *killer, int attacktype ) {
 
-
-
     if ( FIGHTING( ch ) )
         stop_fighting( ch );
 
-    
     death_cry( ch );
 
     if( IN_COMBAT(ch) ) {
         combat_loop( ch, killer );
     }
-    
-    
 
     make_corpse( ch, killer, attacktype );
 
@@ -219,10 +214,11 @@ raw_kill( struct char_data * ch, struct char_data *killer, int attacktype ) {
                 qi++;
         }
     }
-    ch->extract(false, true, CON_AFTERLIFE);
+    // Equipment dealt with in make_corpse. 
+    // Do not save it here.
+    save_char(ch, NULL);
+    ch->extract(true, false, CON_AFTERLIFE);
 }
-
-
 
 void 
 die( struct char_data *ch, struct char_data *killer, int attacktype, int is_humil ) {

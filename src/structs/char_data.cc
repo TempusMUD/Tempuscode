@@ -470,8 +470,8 @@ char_data::extract(bool destroy_objs, bool save, int con_state) {
 
     if ( IS_PC(this) && save ) {
         save_char(this, NULL);
-        Crash_crashsave(this);
-        Crash_delete_crashfile(this);
+        Crash_crashsave(this);// Is there any eq to save?
+        Crash_delete_crashfile(this);// Should this be here?
     }
     if (desc && desc->original) {
         do_return(this, "", 0, SCMD_NOEXTRACT);
