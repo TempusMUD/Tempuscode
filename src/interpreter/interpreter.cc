@@ -1344,6 +1344,7 @@ struct command_info cmd_info[] = {
 	{"boldly", POS_DEAD, do_mood, 0, 0, 0},
 	{"contentedly", POS_DEAD, do_mood, 0, 0, 0},
 	{"desperately", POS_DEAD, do_mood, 0, 0, 0},
+	{"divinely", POS_DEAD, do_mood, LVL_IMMORT, 0, 0},
 	{"dreamily", POS_DEAD, do_mood, 0, 0, 0},
 	{"evilly", POS_DEAD, do_mood, 0, 0, 0},
 	{"fearfully", POS_DEAD, do_mood, 0, 0, 0},
