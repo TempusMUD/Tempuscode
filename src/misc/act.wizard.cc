@@ -6517,10 +6517,11 @@ ACMD(do_set)
 ACMD(do_aset)
 {
     static struct set_struct fields[] = {
-        {"past_bank", LVL_IMMORT, PC, NUMBER, "WizardFull"},
-        {"future_bank", LVL_IMMORT, PC, NUMBER, "WizardFull"},
-        {"reputation", LVL_IMMORT, PC, NUMBER, "WizardFull"},
-        {"qpoints", LVL_IMMORT, PC, NUMBER, "WizardFull"},
+        {"past_bank", LVL_IMMORT, PC, NUMBER, "AdminFull"},
+        {"future_bank", LVL_IMMORT, PC, NUMBER, "AdminFull"},
+        {"reputation", LVL_IMMORT, PC, NUMBER, "AdminFull"},
+        {"qpoints", LVL_IMMORT, PC, NUMBER, "QuestorAdmin,WizardFull"},
+        {"password", LVL_IMMORT, PC, MISC, "AdminFull"},
         {"\n", 0, BOTH, MISC, ""} };
 	char *name, *field;
 	int i, l, value;
@@ -6602,7 +6603,11 @@ ACMD(do_aset)
 		account->set_reputation(value); break;
 	case 3:
 		account->set_quest_points(value); break;
-		
+	case 4:
+		account->set_password(argument);
+		sprintf(buf, "Password for account %s[%d] has been set.",
+			account->get_name(), account->get_idnum());
+		break;
     default:
         sprintf(buf, "Can't set that!");
         break;
@@ -8064,7 +8069,6 @@ static const char* ACCOUNT_USAGE =
 					"      enable <id>\r\n"
 					"      movechar <Char ID> <to ID>\r\n"
 					"      exhume <account ID> <Character ID>\r\n"
-					"      password <account ID> <new password>\r\n"
                     ;
 ACMD(do_account)
 {
@@ -8135,27 +8139,6 @@ ACMD(do_account)
 			return;
 		}
 		account->exhume_char(ch, vict_id);
-	} else if (strcmp(token, "password") == 0) {
-		if(!tokens.next(token) ) {
-			send_to_char(ch, "Specify an account id.\r\n");
-			return;
-		}
-		account_id = atoi(token);
-
-		if (!tokens.next(token)) {
-			send_to_char(ch, "Specify a new password.\r\n");
-			return;
-		}
-
-		account = Account::retrieve(account_id);
-		if( account == NULL ) {
-			send_to_char(ch, "No such account: %d\r\n",account_id);
-			return;
-		}
-		
-		account->set_password(token);
-		send_to_char(ch, "Password for account %s[%d] has been set.\r\n",
-			account->get_name(), account_id);
 	} else {
 		send_to_char(ch, ACCOUNT_USAGE);
 	}
