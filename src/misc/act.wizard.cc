@@ -1108,6 +1108,11 @@ do_stat_object(struct char_data * ch, struct obj_data * j)
 	strcat(buf, CCNRM(ch, C_NRM));
 	send_to_char(strcat(buf, "\r\n"), ch);
     }
+
+    if( !j->description) {
+        send_to_char("**This object currently has no description**\r\n", ch);
+    }
+
     send_to_char("Can be worn on: ", ch);
     sprintbit(j->obj_flags.wear_flags, wear_bits, buf);
     strcat(buf, "\r\n");
@@ -5990,11 +5995,11 @@ ACMD(do_olist)
     for (obj = obj_proto; obj && (obj->shared->vnum <= last); 
 	 obj = obj->next) {
 	if (obj->shared->vnum >= first) {
-	    sprintf(buf, "%5d. %s[%s%5d%s]%s %-36s%s %s\r\n", ++found,
+	    sprintf(buf, "%5d. %s[%s%5d%s]%s %-36s%s %s %s\r\n", ++found,
 		    CCGRN(ch, C_NRM), CCNRM(ch, C_NRM), obj->shared->vnum,
 		    CCGRN(ch, C_NRM), CCGRN(ch, C_NRM),
 		    obj->short_description, CCNRM(ch, C_NRM),
-		    !P_OBJ_APPROVED(obj) ? "(!aprvd)" : "");
+		    !P_OBJ_APPROVED(obj) ? "(!aprvd)" : "", !(obj->description) ? "(nodesc)" : "");
 	    if ((strlen(out_list) + strlen(buf)) < MAX_STRING_LENGTH - 20)
 		strcat(out_list, buf);
 	    else if (strlen(out_list) < (MAX_STRING_LENGTH - 20)) {
