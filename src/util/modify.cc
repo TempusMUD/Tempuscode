@@ -380,12 +380,11 @@ show_string(struct descriptor_data *d)
 	// otherwise we tell em to use the 'more' command
 	if (*read_pt) {
 		if(d->creature)
-			send_to_char(d->creature,
-				"%s**** %sUse the 'more' command to continue. %s****%s\r\n",
-				CCRED(d->creature, C_NRM), CCNRM(d->creature, C_NRM),
-				CCRED(d->creature, C_NRM), CCNRM(d->creature, C_NRM));
+			send_to_desc(d,
+				"&r**** &nUse the 'more' command to continue. &r****&n\r\n");
 		else
-			SEND_TO_Q("**** Press return to continue, 'q' to quit ****\r\n", d);
+			send_to_desc(d,
+				"&r**** &nPress return to continue, 'q' to quit &r****&n");
 	} else {
 		free(d->showstr_head);
 		d->showstr_head = d->showstr_point = NULL;
