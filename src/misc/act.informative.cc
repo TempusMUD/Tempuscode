@@ -2731,16 +2731,23 @@ ACMD(do_equipment)
 			for (i = 0; i < NUM_WEARS; i++) {
 				if (!(obj = GET_EQ(ch, i)))
 					continue;
+				found = 1;
 				sprintf(outbuf, "%s-%s- is in %s condition.\r\n", outbuf,
 					obj->short_description, obj_cond_color(obj, ch));
 			}
-			page_string(ch->desc, outbuf);
+			if (found)
+				page_string(ch->desc, outbuf);
+			else
+				send_to_char(ch, "You're totally naked!\r\n");
 			return;
 		}
 
-		send_to_char(ch, "You are using:\r\n");
 		for (i = 0; i < NUM_WEARS; i++) {
 			if (GET_EQ(ch, (int)eq_pos_order[i])) {
+				if (!found) {
+					send_to_char(ch, "You are using:\r\n");
+					found = 1;
+				}
 				if (can_see_object(ch, GET_EQ(ch, (int)eq_pos_order[i]))) {
 					send_to_char(ch, strcat(strcat(strcpy(buf,
 									CCGRN(ch, C_NRM)),
@@ -2755,14 +2762,15 @@ ACMD(do_equipment)
 
 					show_obj_to_char(GET_EQ(ch, (int)eq_pos_order[i]), ch, 1,
 						0);
-					found = TRUE;
 				} else {
 					send_to_char(ch, where[(int)eq_pos_order[i]]);
 					send_to_char(ch, "Something.\r\n");
-					found = TRUE;
 				}
 			}
 		}
+
+		if (!found)
+			send_to_char(ch, "You're totally naked!\r\n");
 		return;
 	}
 
@@ -2776,11 +2784,15 @@ ACMD(do_equipment)
 					for (i = 0; i < NUM_WEARS; i++) {
 						if (!(obj = GET_IMPLANT(ch, i)))
 							continue;
+						found = 1;
 						sprintf(outbuf, "%s-%s- is in %s condition.\r\n",
 							outbuf, obj->short_description, obj_cond_color(obj,
 								ch));
 					}
-					page_string(ch->desc, outbuf);
+					if (!found)
+						page_string(ch->desc, outbuf);
+					else
+						send_to_char(ch, "You don't have any implants.\r\n");
 					return;
 				}
 				if (*buf2) {
@@ -2821,10 +2833,12 @@ ACMD(do_equipment)
 			}
 		}
 
-		send_to_char(ch, "You are implanted with:\r\n");
 		for (i = 0; i < NUM_WEARS; i++) {
 			if (GET_IMPLANT(ch, (int)eq_pos_order[i])) {
-
+				if (!found) {
+					send_to_char(ch, "You are implanted with:\r\n");
+					found = 1;
+				}
 				if (can_see_object(ch, GET_IMPLANT(ch, (int)eq_pos_order[i]))) {
 
 					if (IS_DEVICE(GET_IMPLANT(ch, (int)eq_pos_order[i])))
@@ -2843,21 +2857,16 @@ ACMD(do_equipment)
 						wear_implantpos[(int)eq_pos_order[i]], CCNRM(ch,
 							C_NRM), GET_IMPLANT(ch,
 							(int)eq_pos_order[i])->short_description, buf2);
-					found = TRUE;
 				} else {
 					send_to_char(ch, "%s[%12s]%s - (UNKNOWN)\r\n", CCCYN(ch,
 							C_NRM), wear_implantpos[(int)eq_pos_order[i]],
 						CCNRM(ch, C_NRM));
-					found = TRUE;
 				}
 			}
 		}
 	}
 	if (!found) {
-		if (subcmd == SCMD_EQ)
-			send_to_char(ch, " Nothing.\r\n");
-		else
-			send_to_char(ch, "No implants detected.\r\n");
+		send_to_char(ch, "You don't have any implants.\r\n");
 	}
 }
 
