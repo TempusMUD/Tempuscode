@@ -667,8 +667,7 @@ ASPELL(spell_summon)
 		return;
 	}
 
-	if ((ROOM_FLAGGED(victim->in_room, ROOM_PEACEFUL) &&
-			!ROOM_FLAGGED(ch->in_room, ROOM_PEACEFUL)) &&
+	if (ROOM_FLAGGED(victim->in_room, ROOM_PEACEFUL) &&
 		!PLR_FLAGGED(victim, PLR_KILLER) && GET_LEVEL(ch) < LVL_GRGOD) {
 		act("A strange vortex of energy opens up but fails to draw you in.\r\n"
 			"$n has attempted to summon you!", FALSE, ch, 0, victim, TO_VICT);

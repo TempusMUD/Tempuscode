@@ -2147,7 +2147,7 @@ extern const char *spell_wear_off_msg[] = {
 	"The shield of righteousness fades away.",
 	"The blackmantle dissipates.",	/* 130 */
 	"You are no longer sanctified.",
-	"Your bleeding stigma vanishes.",
+	"Your bleeding stigmata vanishes.",
 	"!summon legion!",
 	"The vegetative entanglement relaxes and releases you.",
 	"Your anti-magic shell dissipates.",	/* 135 */

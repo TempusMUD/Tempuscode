@@ -1928,7 +1928,7 @@ ACMD(do_weigh)
 	act("$n gauges the weight of $p by tossing it in one hand.",
 		TRUE, ch, obj, 0, TO_ROOM);
 
-	sprintf(buf, "It seems to weight about %d pounds.\r\n",
+	sprintf(buf, "It seems to weigh about %d pounds.\r\n",
 		(obj->getWeight() + number(-(obj->getWeight() / GET_INT(ch)),
 				obj->getWeight() / GET_INT(ch))));
 	send_to_char(buf, ch);
