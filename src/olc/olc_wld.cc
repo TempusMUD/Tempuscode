@@ -899,7 +899,6 @@ do_olc_rset( struct char_data *ch, char *argument )
 	if ( ch->in_room->sounds == NULL ) {
 	    act( "$n begins to create a sound.", TRUE, ch, 0, 0, TO_ROOM );
 	} else {
-	    send_to_char( "Use TED to modify the sound description.\r\n", ch );
 	    act( "$n begins to edit a sound.", TRUE, ch, 0, 0, TO_ROOM );
 	}
     start_text_editor(ch->desc, &ch->in_room->sounds,true);

@@ -272,6 +272,7 @@ bool CTextEditor::ReplaceLine(unsigned int line, char *inStr) {
     string text;
     list<string>::iterator s;
     unsigned int i = 1;
+
     if(*inStr && *inStr == ' ')
         inStr++;
     text = inStr;
@@ -302,6 +303,91 @@ bool CTextEditor::ReplaceLine(unsigned int line, char *inStr) {
 }
 bool CTextEditor::FindReplace(char *args) {
     // MAKE SURE YOU CHECK maxSize before inserting!
+	list<string>::iterator line;
+	string findit;
+	string replaceit;
+    int replaced = 0;
+	char temp[MAX_INPUT_LENGTH];
+	char *r,*w;
+
+	for(r = args;*r == ' ';r++);
+
+    if(!*r) {
+        SendMessage("The format for find/replace is &f [search string] [replace string] \r\nYou must actually include the brackets\r\n");
+        return false;
+    }
+// Find "findit"
+
+	if(*r != '[') {
+        SendMessage("Mismatched brackets.\r\n");
+        return false;
+    }
+	// Advance past [
+    r++;
+    if(*r == ']') {
+        SendMessage("You can't search for nothing...\r\n");
+        return false;
+    }
+
+	for(w = temp;*r && *r != ']';r++)
+		*w++ = *r;
+	// terminate w;
+	*w = '\0';
+
+	if(*r != ']') {
+        SendMessage("Mismatched brackets.\r\n");
+        return false;
+    }
+	// Advance past ]
+	r++;
+	findit = temp;
+
+// Find "replaceit"
+	for(;*r == ' ';r++);
+	if(*r != '[') {
+        SendMessage("Mismatched brackets.\r\n");
+        return false;
+    }
+	// Advance past [
+	r++;
+    /*
+    if(*r == ']') {
+        SendMessage("You can't search for nothing...\r\n");
+        return false;
+    }
+    */
+	for(w = temp;*r && *r != ']';r++)
+		*w++ = *r;
+	// terminate w;
+	*w = '\0';
+
+	if(*r != ']') {
+        SendMessage("Mismatched brackets.\r\n");
+        return false;
+    }
+	replaceit = temp;
+	
+	// Find "findit" in theText a line at a time and replace each instance.
+    unsigned int pos;
+	for(line = theText.begin();line != theText.end();line++) {
+        pos=0;
+		while(pos < line->length()) {
+            pos = line->find(findit,pos);
+            if(pos < line->length()) {
+            if((curSize - findit.length() + replaceit.length() ))
+                *line = line->replace(pos,findit.length(),replaceit);
+                replaced++;
+                pos += replaceit.length();
+            }
+		}
+	}
+	if(replaced > 0) {
+        sprintf(buf,"%d occurances of [%s] replaced with [%s].\r\n",
+            replaced,findit.c_str(),replaceit.c_str());
+        SendMessage(buf);
+    } else {
+        SendMessage("Search string not found.\r\n");
+    }
     UpdateSize();
     return true;
 }
@@ -315,7 +401,8 @@ bool CTextEditor::Remove(unsigned int line) {
     for(i = 1,s = theText.begin();i < line ;s++,i++);
 
     theText.erase(s);
-
+    sprintf(buf,"Line %d deleted.\r\n",line);
+    SendMessage(buf);
 
     UpdateSize();
     return true;
@@ -344,6 +431,18 @@ void CTextEditor::ImportText( void ) {
     }
 }
 
+void CTextEditor::UndoChanges( char *inStr ) {
+    if(!*target) {
+        SendMessage("There's no original to undo to.\r\n");
+        return;
+    }
+    Clear();
+    ImportText();
+    UpdateSize();
+    desc->editor_cur_lnum = theText.size() + 1;
+    SendMessage("Original buffer restored.\r\n");
+    return;
+}
 
 // Constructor
 // Params: Users descriptor, The final destination of the text, 
@@ -507,8 +606,7 @@ bool CTextEditor::ProcessCommand(char *inStr) {
             return true;
             break;
         case 'f':   // Find/Replace
-            SendMessage("Not Implemented.\r\n");
-            return true;
+            return FindReplace(inStr);
             break;
         case 's':   // Save and Exit
             SaveText(inStr);
@@ -519,12 +617,12 @@ bool CTextEditor::ProcessCommand(char *inStr) {
         case 'l':   // Replace Line
             inStr = one_argument(inStr,command);
             if(!isdigit(*command)) {
-                SendMessage("Invalid Line #\r\n");
+                SendMessage("Format for Replace Line is: &l <line #> <text>\r\n");
                 return false;
             }
             line = atoi(command);
             if(line < 0) {
-                SendMessage("Invalid Line #\r\n");
+                SendMessage("Format for Replace Line is: &l <line #> <text>\r\n");
                 return false;
             }
             return ReplaceLine((unsigned int)line,inStr);
@@ -532,12 +630,12 @@ bool CTextEditor::ProcessCommand(char *inStr) {
         case 'i':   // Insert Line
             inStr = one_argument(inStr,command);
             if(!isdigit(*command)) {
-                SendMessage("Invalid Line #\r\n");
+                SendMessage("Format for insert command is: &insert <line #>\r\n");
                 return false;
             }
             line = atoi(command);
             if(line < 0) {
-                SendMessage("Invalid Line #\r\n");
+                SendMessage("Format for insert command is: &insert <line #>\r\n");
                 return false;
             }
             return Insert((unsigned int)line,inStr);
@@ -554,21 +652,21 @@ bool CTextEditor::ProcessCommand(char *inStr) {
         case 'd':   // Delete Line
             inStr = one_argument(inStr,command);
             if(!isdigit(*command)) {
-                SendMessage("Invalid Line #\r\n");
+                SendMessage("Format for delete command is: &d <line #>\r\n");
                 return false;
             }
             line = atoi(command);
             if(line < 0) {
-                SendMessage("Invalid Line #\r\n");
+                SendMessage("Format for delete command is: &d <line #>\r\n");
                 return false;
             }
-            Remove((unsigned int)line);
+            return Remove((unsigned int)line);
             break;
         case 'r':   // Refresh Screen
             List();
             break;
         case 'u':   // Undo Changes
-            SendMessage("Not Implemented.\r\n");
+            UndoChanges(inStr);
             break;
     }
 
