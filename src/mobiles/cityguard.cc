@@ -15,34 +15,101 @@ struct cityguard_data {
 	int targ_room;
 };
 
+// Tracks the characters who are currently under arrest by cityguards
+memory_rec *under_arrest = NULL;
+
 SPECIAL(cityguard);
 SPECIAL(guard);
 
 // Cityguards have the following functions:
 // - stop all fights not involving a cityguard
-// - assist in all fights involving a cityguard
 // - they respond to calls for help by going to the room the call originated
-// - when fighting, they drag the person away to the jail
-// - when in the jail, they throw the person in jail
+// - when fighting, they call other guards
+// - when they detect another cityguard in combat, they stun the attacker
+// - when they detect a stunned criminal, they haul the person to jail
 // - when idle, they do various amusing things
-// - when the guard dies, two more spawn, hunting the attacker
+// - when the guard dies, specified mobs are loaded in the hq ready to move
+//   to the death point
 
 void
 summon_cityguards(room_data *room)
 {
 	CreatureList::iterator it;
 	cityguard_data *data;
+	int distance;
 
 	// Now get about half the cityguards in the zone to respond
 	for (it = characterList.begin(); it != characterList.end();it++) {
+		if (!(*it)->in_room || (*it)->in_room->zone != room->zone)
+			continue;
+		if ((*it)->in_room == room)
+			continue;
 		if (GET_MOB_SPEC((*it)) != cityguard)
 			continue;
-		if ((*it)->in_room
-				&& (*it)->in_room->zone == room->zone
-				&& !number(0, 4)) {
+		// the closer they are, the more likely they are to respond
+		distance = find_distance((*it)->in_room, room);
+		if (distance < 1)
+			continue;
+		if (number(1, distance / 2) == 1) {
 			data = (cityguard_data *)((*it)->mob_specials.func_data);
 			if (data && !data->targ_room)
 				data->targ_room = room->number;
+		}
+	}
+}
+
+bool
+char_is_arrested(Creature *ch)
+{
+	memory_rec_struct *cur_mem;
+	
+	if (IS_NPC(ch))
+		return false;
+
+	for (cur_mem = under_arrest;cur_mem;cur_mem = cur_mem->next)
+		if (cur_mem->id == GET_IDNUM(ch))
+			return true;
+
+	return false;
+}
+
+void
+char_under_arrest(Creature *ch)
+{
+	memory_rec_struct *new_mem;
+
+	if (IS_NPC(ch))
+		return;
+
+	if (char_is_arrested(ch))
+		return;
+
+	CREATE(new_mem, memory_rec_struct, 1);
+	new_mem->id = GET_IDNUM(ch);
+	new_mem->next = under_arrest;
+	under_arrest = new_mem;
+}
+
+void
+char_arrest_pardoned(Creature *ch)
+{
+	memory_rec_struct *cur_mem, *next_mem;
+
+	if (IS_NPC(ch) || !under_arrest)
+		return;
+
+	if (under_arrest->id == GET_IDNUM(ch)) {
+		cur_mem = under_arrest->next;
+		free(under_arrest);
+		under_arrest = cur_mem;
+	} else {
+		cur_mem = under_arrest;
+		while (cur_mem->next && cur_mem->next->id != GET_IDNUM(ch))
+			cur_mem = cur_mem->next;
+		if (cur_mem->next) {
+			next_mem = cur_mem->next->next;
+			free(cur_mem->next);
+			cur_mem->next = next_mem;
 		}
 	}
 }
@@ -222,11 +289,12 @@ drag_char_to_jail(Creature *ch, Creature *vict, room_data *jail_room)
 	cityguard_data *data;
 	int dir;
 
-	if (IS_MOB(vict) && GET_MOB_SPEC(ch) == GET_MOB_SPEC(vict))
+	if ((IS_MOB(vict) && GET_MOB_SPEC(ch) == GET_MOB_SPEC(vict)) || !jail_room)
 		return 0;
 
 	if (ch->in_room == jail_room) {
 		if (throw_char_in_jail(ch, vict)) {
+			char_arrest_pardoned(vict);
 			forget(ch, vict);
 			return 1;
 		} else
@@ -242,14 +310,12 @@ drag_char_to_jail(Creature *ch, Creature *vict, room_data *jail_room)
 			|| !can_travel_sector(vict, SECT_TYPE(EXIT(ch, dir)->to_room), 0))
 		return false;
 
-	act("$n grabs you and says 'You're coming with me!'", false, ch, 0, vict,
-		TO_VICT);
-	act("$n grabs $N and says 'You're coming with me!'", false, ch, 0, vict,
-		TO_NOTVICT);
-	act(tmp_sprintf("$n drags you %s!\r\n", to_dirs[dir]),
-		false, ch, 0, vict, TO_VICT);
-	act(tmp_sprintf("$n drags $N %s!", to_dirs[dir]),
-		false, ch, 0, vict, TO_NOTVICT);
+	act(tmp_sprintf("You drag a semi-conscious $N %s.", to_dirs[dir]), false,
+		ch, 0, vict, TO_CHAR);
+	act("You dimly feel yourself being dragged down the street.'", false,
+		ch, 0, vict, TO_VICT);
+	act(tmp_sprintf("$n drags a semi-conscious $N %s.", to_dirs[dir]), false,
+		ch, 0, vict, TO_NOTVICT);
 	
 	// Get other guards to follow
 	for (it = ch->in_room->people.begin(); it != ch->in_room->people.end();it++) {
@@ -266,10 +332,9 @@ drag_char_to_jail(Creature *ch, Creature *vict, room_data *jail_room)
 	char_to_room(vict, ch->in_room,false);
 	look_at_room(vict, vict->in_room, 0);
 
-	act(tmp_sprintf("$n drags $N in from %s, punching and kicking!",
+	act(tmp_sprintf("$n drags $N in from %s.",
 		from_dirs[dir]), false, ch, 0, vict, TO_NOTVICT);
-	hit(ch, vict, TYPE_UNDEFINED);
-	WAIT_STATE(ch, PULSE_VIOLENCE);
+	WAIT_STATE(ch, 1 RL_SEC);
 	return TRUE;
 }
 
@@ -281,6 +346,7 @@ SPECIAL(cityguard)
 	char *str, *line, *param_key;
 	int action, dir;
 	int jail_num = 0, hq_num = 0;
+	room_data *room;
 	bool lawful;
 	CreatureList::iterator it;
 
@@ -309,12 +375,28 @@ SPECIAL(cityguard)
 		if (!hq_num)
 			return 0;
 
-		// make new guard that will go to the place of death
+		room = real_room(hq_num);
+		if (!room)
+			return 0;
+
+		// make new guards that will go to the place of death
 		new_guard = read_mobile(GET_MOB_VNUM(self));
-		CREATE(data, cityguard_data, 1);
-		new_guard->mob_specials.func_data = data;
-		data->targ_room = self->in_room->number;
-		char_to_room(new_guard, real_room(hq_num));
+		str = GET_MOB_PARAM(self);
+		if (str) {
+			for (line = tmp_getline(&str);line;line = tmp_getline(&str)) {
+				param_key = tmp_getword(&line);
+				if (!strcmp(param_key, "deathspawn")) {
+					new_guard = read_mobile(atoi(line));
+					if (new_guard) {
+						CREATE(data, cityguard_data, 1);
+						new_guard->mob_specials.func_data = data;
+						data->targ_room = self->in_room->number;
+						char_to_room(new_guard, room);
+					}
+				}
+			}
+		}
+
 
 		return 0;
 	}
@@ -322,20 +404,24 @@ SPECIAL(cityguard)
 	if (!AWAKE(self))
 		return false;
 
-	// We're fighting someone - drag them to the jail
+	// We're fighting someone - call for help
 	if (FIGHTING(self)) {
-		if (jail_num
-				&&GET_MOB_WAIT(self) <= 5
-				&& self->getPosition() >= POS_FIGHTING
-				&& !number(0, 1)) {
-			if (drag_char_to_jail(self, FIGHTING(self), real_room(jail_num)))
-				return true;
-		}
+		tch = FIGHTING(self);
 
-		if (number(0,3)) {
-			call_for_help(self, FIGHTING(self));
+		// Save the newbies from themselves
+		if (GET_LEVEL(tch) < 20 && GET_REMORT_GEN(tch) == 0) {
+			do_say(self, "Here now, here now!  Stop that!", 0, SCMD_BELLOW, 0);
+			stop_fighting(self);
+			stop_fighting(tch);
 			return true;
 		}
+
+		if (!number(0, 3)) {
+			call_for_help(self, tch);
+			return true;
+		}
+
+		char_under_arrest(tch);
 
 		return false;
 	}
@@ -361,8 +447,9 @@ SPECIAL(cityguard)
 	// action == 0 : do emote
 	// action == 1 : emote half-criminal
 	// action == 2 : stop fight
-	// action == 3 : attack criminal
-	// action == 4 : assist guard
+	// action == 3 : drag creature to jail
+	// action == 4 : attack criminal
+	// action == 5 : assist guard
 	action = 0;
 	lawful = !ZONE_FLAGGED(self->in_room->zone, ZONE_NOLAW);
 
@@ -370,18 +457,27 @@ SPECIAL(cityguard)
 	it = self->in_room->people.begin();
 	for (; it != self->in_room->people.end(); ++it) {
 		tch = *it;
-		if (action < 4
+		if (action < 5
 				&& FIGHTING(tch)
 				&& IS_NPC(FIGHTING(tch))
 				&& GET_MOB_SPEC(FIGHTING(tch)) == cityguard) {
+			action = 5;
+			target = tch;
+		}
+		if (action < 4
+				&& ((lawful && GET_REPUTATION(tch) >= CRIMINAL_REP)
+						|| char_is_arrested(tch))
+				&& can_see_creature(self, tch)
+				&& !PRF_FLAGGED(tch, PRF_NOHASSLE)
+				&& tch->getPosition() > POS_STUNNED
+				) {
 			action = 4;
 			target = tch;
 		}
 		if (action < 3
-				&& lawful
-				&& can_see_creature(self, tch)
-				&& !PRF_FLAGGED(tch, PRF_NOHASSLE)
-				&& GET_REPUTATION(tch) >= CRIMINAL_REP) {
+				&& char_is_arrested(tch)
+				&& tch->getPosition() == POS_STUNNED
+				&& (GET_LEVEL(tch) >= 20 || GET_REMORT_GEN(tch) > 0)) {
 			action = 3;
 			target = tch;
 		}
@@ -471,7 +567,7 @@ SPECIAL(cityguard)
 			act("$n sharpens $p while watching you.",
 				false, self, GET_EQ(self, WEAR_WIELD), tch, TO_VICT);
 		}
-		break;
+		return true;
 	case 2:
 		// stopping fight
 		switch (number(0, 2)) {
@@ -483,14 +579,26 @@ SPECIAL(cityguard)
 			do_say(self, "Here now, here now!  Stop that!", 0, SCMD_BELLOW, 0); break;
 		}
 		breakup_fight(self, target, FIGHTING(target));
-		break;
+		return true;
 	case 3:
-		// attack criminal
-		act("$n screams 'HEY!!!  You're one of those CRIMINALS!!!!!!'",
-			false, self, 0, 0, TO_ROOM);
-		hit(self, target, TYPE_UNDEFINED);
-		break;
+		// drag criminal to jail
+		if (jail_num > 0)
+			drag_char_to_jail(self, target, real_room(jail_num));
+		return true;
 	case 4:
+		// attack criminal
+		if (char_is_arrested(target)) {
+			act("$n screams 'HEY!!!  I know who you are!!!!'",
+				false, self, 0, 0, TO_ROOM);
+			hit(self, target, TYPE_UNDEFINED);
+		} else {
+			act("$n screams 'HEY!!!  You're one of those CRIMINALS!!!!!!'",
+				false, self, 0, 0, TO_ROOM);
+			char_under_arrest(target);
+			hit(self, target, TYPE_UNDEFINED);
+		}
+		return true;
+	case 5:
 		// assist other cityguard
 		if (!number(0, 10)) {
 			if (number(0, 1))
@@ -498,11 +606,40 @@ SPECIAL(cityguard)
 			else
 				do_say(self, "BAAAANNNZZZZZAAAAAIIIIII!!!", 0, SCMD_YELL, 0);
 		}
-		act("You join the fight!.", false, self, 0, FIGHTING(target), TO_CHAR);
-		act("$n assists you.", false, self, 0, FIGHTING(target), TO_VICT);
-		act("$n assists $N.", false, self, 0, FIGHTING(target), TO_NOTVICT);
-		hit(self, target, TYPE_UNDEFINED);
-		break;
+
+		if (number(0, 1)) {
+			// Knock the person out
+			it = target->in_room->people.begin();
+			for (;it != target->in_room->people.end(); it++) {
+				if (FIGHTING((*it)) == target || *it == target)
+					stop_fighting(*it);
+				if (HUNTING((*it)) == target)
+					HUNTING((*it)) = NULL;
+			}
+
+			if (GET_EQ(self, WEAR_WIELD)) {
+				act("You smack $N across the head with the hilt of $p!.", false,
+					self, GET_EQ(self, WEAR_WIELD), target, TO_CHAR);
+				act("$n smacks you across the head with the hilt of $p! OW!.", false,
+					self, GET_EQ(self, WEAR_WIELD), target, TO_VICT);
+				act("$n smacks $N across the head with the hilt of $p!.", false,
+					self, GET_EQ(self, WEAR_WIELD), target, TO_NOTVICT);
+			} else {
+				act("You smack $N across the head, stunning $m.", false,
+					self, 0, target, TO_CHAR);
+				act("$n smacks you across the head, stunning you!", false,
+					self, 0, target, TO_VICT);
+				act("$n smacks $N across the head, stunning $m!", false,
+					self, 0, target, TO_NOTVICT);
+			}
+
+			target->setPosition(POS_STUNNED);
+			WAIT_STATE(target, 4 RL_SEC);
+		} else {
+			// Just hit them
+		}
+		
+		return true;
 	default:
 		slog("SYSERR: Can't happen at %s:%d", __FILE__, __LINE__); break;
 	}

@@ -20,6 +20,7 @@
 #include "prog.h"
 
 void extract_norents(struct obj_data *obj);
+void char_arrest_pardoned(Creature *ch);
 extern struct descriptor_data *descriptor_list;
 struct player_special_data dummy_mob;	/* dummy spec area for mobs         */
 
@@ -555,6 +556,7 @@ Creature::extract(cxn_state con_state)
 	}
 
 	destroy_attached_progs(this);
+	char_arrest_pardoned(this);
 
 	if (MOUNTED(this)) {
 		REMOVE_BIT(AFF2_FLAGS(MOUNTED(this)), AFF2_MOUNTED);
