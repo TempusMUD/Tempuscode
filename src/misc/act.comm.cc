@@ -704,6 +704,7 @@ ACMD(do_gen_comm)
         sprintf(buf1, "You must be at least level %d before you can %s.\r\n",
                 level_can_shout, com_msgs[subcmd][1]);
         send_to_char(buf1, ch);
+		send_to_char("Try using the newbie channel instead.\r\n", ch);
         return;
     }
     if (!IS_NPC(ch)) {
