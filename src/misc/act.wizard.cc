@@ -496,7 +496,8 @@ ACMD(do_trans)
 
 	if (GET_LEVEL(ch) < LVL_IMMORT
 			|| !(Security::isMember(ch, "WizardBasic")
-				|| Security::isMember(ch, "Questor"))) {
+				|| Security::isMember(ch, "Questor")
+                || Security::isMember(ch, "AdminBasic"))) {
 		send_to_char(ch, "Sorry, but you can't do that here!\r\n");
 		return;
 	}
