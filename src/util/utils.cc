@@ -143,44 +143,6 @@ int remove_from_cstring( char *str, char c = '~', char c_to = '.' )
 }
 
 
-/* creates a random number in interval [from;to] */
-int 
-number(int from, int to)
-{
-    if (to <= from)
-	return (from);
-    return ((my_rand() % (to - from + 1)) + from);
-}
-double
-float_number(double from, double to)
-{
-    double pct;
-    if (to <= from)
-	return (from);
-    pct = (double) ((double)my_rand() / 2147483647);
-    if (pct > 1) {
-	slog("SYSERR: float_number pct > 1.");
-	return (from);
-    }
-    return ((double) (pct * (to-from)) + from);
-}
-/* simulates dice roll */
-int dice(int number, int size)
-{
-    int sum = 0;
-
-    if (size <= 0 || number <= 0)
-	return 0;
-
-    while (number-- > 0)
-	sum += ((my_rand() % size) + 1);
-
-    return sum;
-}
-
-
-
-
 /* Create a duplicate of a string */
 char *
 str_dup(const char *source)

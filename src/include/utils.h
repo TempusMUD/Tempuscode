@@ -15,6 +15,9 @@
 // Copyright 1998 by John Watson, all rights reserved.
 //
 
+#ifndef __utils_h__
+#define __utils_h__
+
 #include <iostream>
 
 /* external declarations and prototypes **********************************/
@@ -984,3 +987,142 @@ inline bool MOB_CAN_GO( struct char_data *ch, int door ) {
     }
     return false;
 }
+
+//
+// my_rand() returns 0 to 2147483647
+//
+
+unsigned long my_rand( void );
+
+//
+// returns a random boolean value
+//
+inline bool random_binary() {
+    return ( my_rand() > 1073741823 );
+}
+
+//
+// returns a random boolean value, true 1/num of returns
+//
+inline bool random_fractional( unsigned int num ) {
+    return ( my_rand() < ( 2147483647 / num ) );
+}
+
+//
+// returns a random boolean value, true 1/3 of returns (33% tru)
+//
+inline bool random_fractional_3() {
+    return ( my_rand() < 715827882 );
+}
+
+//
+// returns a random boolean value, true 1/4 of returns (25% true)
+//
+inline bool random_fractional_4() {
+    return ( my_rand() < 536870911 );
+}
+
+//
+// returns a random boolean value, true 1/5 of returns (20% true)
+//
+inline bool random_fractional_5() {
+    return ( my_rand() < 429496729 );
+}
+
+//
+// returns a random boolean value, true 1/10 of returns (10% true)
+//
+inline bool random_fractional_10() {
+    return ( my_rand() < 214748365 );
+}
+
+//
+// returns a random boolean value, true 1/20 of returns (5% true)
+//
+inline bool random_fractional_20() {
+    return ( my_rand() < 107374182 );
+}
+
+//
+// returns a random boolean value, true 1/20 of returns (5% true)
+//
+inline bool random_fractional_50() {
+    return ( my_rand() < 42949672 );
+}
+
+//
+// returns a random boolean value, true 1/20 of returns (5% true)
+//
+inline bool random_fractional_100() {
+    return ( my_rand() < 21474836 );
+}
+
+//
+// returns a random value between and including 1-100
+//
+inline int random_percentage() {
+    return ( ( my_rand() / 21474837 ) + 1 );
+}
+
+//
+// returns a random value between and including 0-99
+//
+inline int random_percentage_zero_low() {
+    return ( my_rand() / 21474837 );
+}
+
+//
+// return a random value between 0 and num
+//
+inline int random_number_zero_low( unsigned int num ) {
+    return ( my_rand() % ( num + 1 ) );
+}
+
+//
+// creates a random number in interval [from;to]'
+//
+inline int number(int from, int to)
+{
+    if (to <= from)
+	return (from);
+    return ((my_rand() % (to - from + 1)) + from);
+}
+
+//
+//
+//
+
+inline double float_number(double from, double to)
+{
+    double pct;
+    if (to <= from)
+	return (from);
+    pct = (double) ((double)my_rand() / 2147483647);
+    if (pct > 1) {
+	slog("SYSERR: float_number pct > 1.");
+	return (from);
+    }
+    return ((double) (pct * (to-from)) + from);
+}
+
+//
+// simulates dice roll
+//
+inline int dice(int number, int size)
+{
+    int sum = 0;
+
+    if (size <= 0 || number <= 0)
+	return 0;
+
+    while (number-- > 0)
+	sum += ((my_rand() % size) + 1);
+
+    return sum;
+}
+
+
+
+
+
+#endif
