@@ -645,8 +645,6 @@ do_simple_move(struct Creature *ch, int dir, int mode,
 			sprintf(buf, "$n staggers %s, covered in flames.", to_dirs[dir]);
 		} else if (GET_COND(ch, DRUNK) > 8) {
 			sprintf(buf, "$n staggers %s.", to_dirs[dir]);
-		} else if (IS_AFFECTED(ch, AFF_BLUR)) {
-			sprintf(buf, "A blurred, shifted image leaves %s.", to_dirs[dir]);
 		} else if (IS_AFFECTED(ch, AFF_SNEAK)) {
 			sprintf(buf, "$n sneaks off %sward.", dirs[dir]);
 		} else if (IS_NPC(ch) && MOB_SHARED(ch)->move_buf) {
@@ -694,29 +692,49 @@ do_simple_move(struct Creature *ch, int dir, int mode,
 			tch = *it;
 			if ((*it) == ch || !AWAKE((*it)))
 				continue;
-			if (check_sneak(ch, tch, true, true) == SNEAK_FAILED)
-				act(buf, TRUE, ch, 0, (*it), TO_VICT);
+			if (check_sneak(ch, tch, true, true) == SNEAK_FAILED) {
+				if (IS_AFFECTED(ch, AFF_BLUR) &&
+						!IS_AFFECTED_2(tch, AFF2_TRUE_SEEING))
+					act(tmp_sprintf(
+						"A blurred, shifted image leaves %s.", to_dirs[dir]),
+						TRUE, ch, 0, tch, TO_VICT);
+				else
+					act(buf, TRUE, ch, 0, (*it), TO_VICT);
+			}
 		}
 	}
 
 	strcpy(buf2, "(outside) ");
 	strcat(buf2, buf);
 	for (car = ch->in_room->contents; car; car = car->next_content) {
-		if (IS_VEHICLE(car)) {
-			for (c_obj = object_list; c_obj; c_obj = c_obj->next) {
-				if (((IS_OBJ_TYPE(c_obj, ITEM_V_DOOR) && !CAR_CLOSED(car)) ||
-						(IS_OBJ_TYPE(c_obj, ITEM_V_WINDOW)
-							&& !CAR_CLOSED(c_obj)))
-					&& ROOM_NUMBER(c_obj) == ROOM_NUMBER(car)
-					&& GET_OBJ_VNUM(car) == V_CAR_VNUM(c_obj)
-					&& c_obj->in_room) {
-					CreatureList::iterator it =
-						c_obj->in_room->people.begin();
-					for (; it != c_obj->in_room->people.end(); ++it)
-						if (check_sneak(ch, (*it), true, false) == SNEAK_FAILED)
-							act(buf2, TRUE, ch, 0, (*it), TO_VICT);
-					break;
+		if (!IS_VEHICLE(car))
+			continue;
+
+		for (c_obj = object_list; c_obj; c_obj = c_obj->next) {
+			if (((IS_OBJ_TYPE(c_obj, ITEM_V_DOOR) && !CAR_CLOSED(car)) ||
+					(IS_OBJ_TYPE(c_obj, ITEM_V_WINDOW)
+						&& !CAR_CLOSED(c_obj)))
+				&& ROOM_NUMBER(c_obj) == ROOM_NUMBER(car)
+				&& GET_OBJ_VNUM(car) == V_CAR_VNUM(c_obj)
+				&& c_obj->in_room) {
+				CreatureList::iterator it =
+					c_obj->in_room->people.begin();
+				for (; it != c_obj->in_room->people.end(); ++it) {
+					tch = *it;
+					if (ch == tch)
+						continue;
+
+					if (check_sneak(ch, tch, true, false) == SNEAK_FAILED) {
+						if (IS_AFFECTED(ch, AFF_BLUR) &&
+								!IS_AFFECTED_2(tch, AFF2_TRUE_SEEING))
+							act(tmp_sprintf(
+								"(outside) A blurred, shifted image leaves %s.", to_dirs[dir]),
+								TRUE, ch, 0, tch, TO_VICT);
+						else
+							act(buf2, TRUE, ch, 0, tch, TO_VICT);
+					}
 				}
+				break;
 			}
 		}
 	}
@@ -829,9 +847,6 @@ do_simple_move(struct Creature *ch, int dir, int mode,
 				from_dirs[dir]);
 		} else if (GET_COND(ch, DRUNK) > 8) {
 			sprintf(buf, "$n staggers in from %s.", from_dirs[dir]);
-		} else if (IS_AFFECTED(ch, AFF_BLUR)) {
-			sprintf(buf, "A blurred, shifted image arrives from %s.",
-				from_dirs[dir]);
 		} else if (SECT_TYPE(ch->in_room) == SECT_WATER_SWIM
 			|| SECT_TYPE(ch->in_room) == SECT_FIRE_RIVER
 			|| SECT_TYPE(ch->in_room) == SECT_PITCH_PIT
@@ -905,7 +920,15 @@ do_simple_move(struct Creature *ch, int dir, int mode,
 				continue;
 
 			if (check_sneak(ch, tch, false, true) == SNEAK_FAILED) {
-				act(buf, TRUE, ch, 0, tch, TO_VICT);
+				if (IS_AFFECTED(ch, AFF_BLUR) &&
+						!IS_AFFECTED_2(tch, AFF2_TRUE_SEEING))
+					act(tmp_sprintf(
+						"A blurred, shifted image arrives from %s.",
+						from_dirs[dir]),
+						TRUE, ch, 0, tch, TO_VICT);
+				else
+					act(buf, TRUE, ch, 0, tch, TO_VICT);
+
 				if (affected_by_spell(ch, SPELL_QUAD_DAMAGE))
 					act("...$e is glowing with a bright blue light!",
 						TRUE, ch, 0, tch, TO_VICT);
@@ -915,19 +938,33 @@ do_simple_move(struct Creature *ch, int dir, int mode,
 		strcpy(buf2, "(outside) ");
 		strcat(buf2, buf);
 		for (car = ch->in_room->contents; car; car = car->next_content) {
-			if (IS_VEHICLE(car)) {
-				for (c_obj = object_list; c_obj; c_obj = c_obj->next) {
-					if (((IS_OBJ_TYPE(c_obj, ITEM_V_DOOR) && !CAR_CLOSED(car))
-							|| (IS_OBJ_TYPE(c_obj, ITEM_V_WINDOW)
-								&& !CAR_CLOSED(c_obj)))
-						&& ROOM_NUMBER(c_obj) == ROOM_NUMBER(car)
-						&& GET_OBJ_VNUM(car) == V_CAR_VNUM(c_obj)
-						&& c_obj->in_room) {
-						CreatureList::iterator it =
-							c_obj->in_room->people.begin();
-						for (; it != c_obj->in_room->people.end(); ++it)
-							if (check_sneak(ch, tch, false, false) == SNEAK_FAILED)
-								act(buf2, TRUE, ch, 0, (*it), TO_VICT);
+			if (!IS_VEHICLE(car))
+				continue;
+
+			for (c_obj = object_list; c_obj; c_obj = c_obj->next) {
+				if (((IS_OBJ_TYPE(c_obj, ITEM_V_DOOR) && !CAR_CLOSED(car))
+						|| (IS_OBJ_TYPE(c_obj, ITEM_V_WINDOW)
+							&& !CAR_CLOSED(c_obj)))
+					&& ROOM_NUMBER(c_obj) == ROOM_NUMBER(car)
+					&& GET_OBJ_VNUM(car) == V_CAR_VNUM(c_obj)
+					&& c_obj->in_room) {
+					CreatureList::iterator it =
+						c_obj->in_room->people.begin();
+					for (; it != c_obj->in_room->people.end(); ++it) {
+						tch = *it;
+						if (ch == tch)
+							continue;
+
+						if (check_sneak(ch, tch, false, false) == SNEAK_FAILED) {
+							if (IS_AFFECTED(ch, AFF_BLUR) &&
+									!IS_AFFECTED_2(tch, AFF2_TRUE_SEEING))
+								act(tmp_sprintf(
+									"(outside) A blurred, shifted image arrives from %s.",
+									from_dirs[dir]),
+									TRUE, ch, 0, tch, TO_VICT);
+							else
+								act(buf2, TRUE, ch, 0, tch, TO_VICT);
+						}
 					}
 				}
 			}
