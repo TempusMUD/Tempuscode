@@ -3131,7 +3131,7 @@ ACMD(do_who)
 			continue;
 
 		if (ch != tch && PRF2_FLAGGED(tch, PRF2_NOWHO) &&
-				GET_LEVEL(tch) >= LVL_IMMORT)
+				GET_LEVEL(tch) >= LVL_IMMORT && !IS_IMMORT(ch)  )
 			continue;
 
 		if (outlaws && !PLR_FLAGGED(tch, PLR_KILLER) &&
