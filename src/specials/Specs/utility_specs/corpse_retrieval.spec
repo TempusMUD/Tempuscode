@@ -142,6 +142,8 @@ SPECIAL(corpse_retrieval)
 	}
 	act("$p appears in your hands!", FALSE, ch, corpse, 0,
 		TO_CHAR);
+	
+	ch->saveToXML();
 
 	return 1;
 }
