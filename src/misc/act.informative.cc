@@ -129,62 +129,67 @@ show_obj_to_char(struct obj_data * object, struct char_data * ch,
 
     *buf = '\0';
     if ((mode == SHOW_OBJ_ROOM) && object->description)
-	strcpy(buf, object->description);
+        strcpy(buf, object->description);
+    else if (!object->description && GET_LEVEL(ch) >= LVL_AMBASSADOR )
+        sprintf(buf,"%s exits here.\r\n",object->name);
     else if (object->short_description && 
 	     ((mode == 1) || (mode == 2) || (mode == 3) || (mode == 4)))
-	strcpy(buf, object->short_description);
+        strcpy(buf, object->short_description);
     else if (mode == 5) {
-	if (GET_OBJ_TYPE(object) == ITEM_NOTE) {
-	    if (object->action_description) {
-		strcpy(buf, "There is something written upon it:\r\n\r\n");
-		strcat(buf, object->action_description);
-		page_string(ch->desc, buf, 1);
-	    } else
-		act("It's blank.", FALSE, ch, 0, 0, TO_CHAR);
-	    return;
-	} else if (GET_OBJ_TYPE(object) == ITEM_DRINKCON) 
-	    strcpy(buf, "It looks like a drink container.");
-	else if (GET_OBJ_TYPE(object) == ITEM_FOUNTAIN)
-	    strcpy(buf, "It looks like a source of drink.");
-	else if (GET_OBJ_TYPE(object) == ITEM_FOOD)
-	    strcpy(buf, "It looks edible.");
-	else if (GET_OBJ_TYPE(object) == ITEM_HOLY_SYMB)
-	    strcpy(buf, "It looks like the symbol of some deity.");
-	else if (GET_OBJ_TYPE(object) == ITEM_CIGARETTE ||
-		 GET_OBJ_TYPE(object) == ITEM_PIPE) {
-	    if (GET_OBJ_VAL(object, 3))
-		strcpy(buf, "It appears to be lit and smoking.");
-	    else
-		strcpy(buf, "It appears to be unlit.");
-	} else if (GET_OBJ_TYPE(object) == ITEM_CONTAINER) {
-	    if (GET_OBJ_VAL(object, 3))
-		strcpy(buf, "It looks like a corpse.\r\n");
-	    else {
-		strcpy(buf, "It looks like a container.\r\n");
-		if (CAR_CLOSED(object) && CAR_OPENABLE(object)) /*macro maps to containers too */
-		    strcat(buf, "It appears to be closed.\r\n");
-		else if (CAR_OPENABLE(object)) {
-		    strcat(buf, "It appears to be open.\r\n");
-		    if (object->contains)
-			strcat(buf, "There appears to be something inside.\r\n");
-		    else
-			strcat(buf, "It appears to be empty.\r\n");
-		}
-	    }
-	} else if (GET_OBJ_TYPE(object) == ITEM_SYRINGE) {
-	    if (GET_OBJ_VAL(object, 0)) 
-		strcpy(buf, "It is full.");
-	    else
-		strcpy(buf, "It's empty.");
-	} else if (GET_OBJ_MATERIAL(object) > MAT_NONE &&
-		   GET_OBJ_MATERIAL(object) < TOP_MATERIAL) {
-	    sprintf(buf, "It appears to be composed of %s.", 
-		    material_names[GET_OBJ_MATERIAL(object)]);
-	} else
-	    strcpy(buf, "You see nothing special.");
+        if (GET_OBJ_TYPE(object) == ITEM_NOTE) {
+            if (object->action_description) {
+                strcpy(buf, "There is something written upon it:\r\n\r\n");
+                strcat(buf, object->action_description);
+                page_string(ch->desc, buf, 1);
+            } else {
+                act("It's blank.", FALSE, ch, 0, 0, TO_CHAR);
+            }
+            return;
+        } else if (GET_OBJ_TYPE(object) == ITEM_DRINKCON) 
+            strcpy(buf, "It looks like a drink container.");
+        else if (GET_OBJ_TYPE(object) == ITEM_FOUNTAIN)
+            strcpy(buf, "It looks like a source of drink.");
+        else if (GET_OBJ_TYPE(object) == ITEM_FOOD)
+            strcpy(buf, "It looks edible.");
+        else if (GET_OBJ_TYPE(object) == ITEM_HOLY_SYMB)
+            strcpy(buf, "It looks like the symbol of some deity.");
+        else if (GET_OBJ_TYPE(object) == ITEM_CIGARETTE ||
+             GET_OBJ_TYPE(object) == ITEM_PIPE) {
+            if (GET_OBJ_VAL(object, 3))
+                strcpy(buf, "It appears to be lit and smoking.");
+            else
+                strcpy(buf, "It appears to be unlit.");
+        } else if (GET_OBJ_TYPE(object) == ITEM_CONTAINER) {
+            if (GET_OBJ_VAL(object, 3)) {
+                strcpy(buf, "It looks like a corpse.\r\n");
+            } else {
+                strcpy(buf, "It looks like a container.\r\n");
+                if (CAR_CLOSED(object) && CAR_OPENABLE(object)) /*macro maps to containers too */
+                    strcat(buf, "It appears to be closed.\r\n");
+                else if (CAR_OPENABLE(object)) {
+                    strcat(buf, "It appears to be open.\r\n");
+                    if (object->contains)
+                        strcat(buf, "There appears to be something inside.\r\n");
+                    else
+                        strcat(buf, "It appears to be empty.\r\n");
+                }
+            }
+        } else if (GET_OBJ_TYPE(object) == ITEM_SYRINGE) {
+            if (GET_OBJ_VAL(object, 0)) {
+                strcpy(buf, "It is full.");
+            } else {
+                strcpy(buf, "It's empty.");
+            }
+        } else if (GET_OBJ_MATERIAL(object) > MAT_NONE &&
+               GET_OBJ_MATERIAL(object) < TOP_MATERIAL) {
+            sprintf(buf, "It appears to be composed of %s.", 
+                material_names[GET_OBJ_MATERIAL(object)]);
+        } else {
+            strcpy(buf, "You see nothing special.");
+        }
     }
     if (mode != 3) {
-	found = false;
+        found = false;
 
 	if (IS_OBJ_STAT2(object, ITEM2_BROKEN)) {
 	    sprintf(buf2, " %s<broken>", CCNRM(ch, C_NRM));
@@ -200,13 +205,13 @@ show_obj_to_char(struct obj_data * object, struct char_data * ch,
 
 	if (ch == object->carried_by || ch == object->worn_by) {
 	    if (OBJ_REINFORCED(object)) {
-		sprintf(buf2, " %s[%sreinforced%s]%s", CCYEL(ch, C_NRM),
-			CCNRM(ch, C_NRM), CCYEL(ch, C_NRM), CCNRM(ch, C_NRM));
-		strcat(buf, buf2);
+            sprintf(buf2, " %s[%sreinforced%s]%s", CCYEL(ch, C_NRM),
+                CCNRM(ch, C_NRM), CCYEL(ch, C_NRM), CCNRM(ch, C_NRM));
+            strcat(buf, buf2);
 	    }
 	    if (OBJ_ENHANCED(object)) {
-		sprintf(buf2, " %s|enhanced|%s", CCMAG(ch, C_NRM), CCNRM(ch, C_NRM));
-		strcat(buf, buf2);
+            sprintf(buf2, " %s|enhanced|%s", CCMAG(ch, C_NRM), CCNRM(ch, C_NRM));
+            strcat(buf, buf2);
 	    }
 	}
 
@@ -242,15 +247,15 @@ show_obj_to_char(struct obj_data * object, struct char_data * ch,
 	if (IS_AFFECTED(ch, AFF_DETECT_ALIGN) || 
 	    IS_AFFECTED_2(ch, AFF2_TRUE_SEEING)) {
 	    if (IS_OBJ_STAT(object, ITEM_BLESS)) {
-		sprintf(buf2, " %s(holy aura)%s", 
-			CCBLU_BLD(ch, C_SPR), CCNRM(ch, C_SPR));
-		strcat(buf, buf2);
-		found = true;
+            sprintf(buf2, " %s(holy aura)%s", 
+                CCBLU_BLD(ch, C_SPR), CCNRM(ch, C_SPR));
+            strcat(buf, buf2);
+            found = true;
 	    } else if (IS_OBJ_STAT(object, ITEM_EVIL_BLESS)) {
-		sprintf(buf2, " %s(unholy aura)%s", 
-			CCRED_BLD(ch, C_SPR), CCNRM(ch, C_SPR));
-		strcat(buf, buf2);
-		found = true;
+            sprintf(buf2, " %s(unholy aura)%s", 
+                CCRED_BLD(ch, C_SPR), CCNRM(ch, C_SPR));
+            strcat(buf, buf2);
+            found = true;
 	    }
 	}
 	if ((IS_AFFECTED(ch, AFF_DETECT_MAGIC) || IS_AFFECTED_2(ch, AFF2_TRUE_SEEING)) &&
@@ -293,22 +298,22 @@ show_obj_to_char(struct obj_data * object, struct char_data * ch,
     }
 
     if (!((mode == 0) && !object->description)) {
-	if (count > 1) {
-	    sprintf(buf2, " [%d]", count);
-	    strcat(buf, buf2);
-	} 
-	strcat(buf, "\r\n");
+        if (count > 1) {
+            sprintf(buf2, " [%d]", count);
+            strcat(buf, buf2);
+        } 
+        strcat(buf, "\r\n");
     }
 
     page_string(ch->desc, buf, 1);
 
     if (GET_OBJ_TYPE(object) == ITEM_VEHICLE && mode == 6) {
-	if (CAR_OPENABLE(object)) {
-	    if (CAR_CLOSED(object))
-		act("The door of $p is closed.", TRUE, ch, object, 0, TO_CHAR);
-	    else
-		act("The door of $p is open.", TRUE, ch, object, 0, TO_CHAR);
-	}
+        if (CAR_OPENABLE(object)) {
+            if (CAR_CLOSED(object))
+            act("The door of $p is closed.", TRUE, ch, object, 0, TO_CHAR);
+            else
+            act("The door of $p is open.", TRUE, ch, object, 0, TO_CHAR);
+        }
     }
 }
 
