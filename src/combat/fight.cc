@@ -1366,10 +1366,12 @@ damage(struct Creature *ch, struct Creature *victim, int dam,
 
         if (mana_loss && (GET_MSHIELD_PCT(victim) == 100)) {
             mshield_hit = true;
-            if (attacktype < TYPE_HIT)
-                skill_message(mana_loss, ch, victim, attacktype);
-            else
-                dam_message(mana_loss, ch, victim, attacktype, WEAR_MSHIELD);
+			if (ch) {
+				if (IS_WEAPON(attacktype))
+					dam_message(mana_loss, ch, victim, attacktype, WEAR_MSHIELD);
+				else
+					skill_message(mana_loss, ch, victim, attacktype);
+			}
         }
 	}
 
@@ -1952,7 +1954,7 @@ damage(struct Creature *ch, struct Creature *victim, int dam,
 				victim->desc ? victim->desc->wait : 0,
 			victim->getPosition(), dam_reduction, CCNRM(ch, C_NRM));
 
-	if (victim && PRF2_FLAGGED(victim, PRF2_DEBUG))
+	if (victim && ch != victim && PRF2_FLAGGED(victim, PRF2_DEBUG))
 		send_to_char(victim,
 			"%s[DAMAGE] %s   dam:%d   wait:%d   pos:%d   reduct:%.2f%s\r\n",
 			CCCYN(victim, C_NRM), GET_NAME(victim), dam,
