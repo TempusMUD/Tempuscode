@@ -56,6 +56,7 @@ void prog_do_ldesc(prog_env *env, prog_evt *evt, char *args);
 void prog_do_damage(prog_env *env, prog_evt *evt, char *args);
 void prog_do_doorset(prog_env *env, prog_evt *evt, char *args);
 void prog_do_selfpurge(prog_env *env, prog_evt *evt, char *args);
+void prog_do_hunt(prog_env *env, prog_evt *evt, char *args);
 
 //external prototypes
 struct Creature *real_mobile_proto(int vnum);
@@ -891,6 +892,13 @@ prog_do_selfpurge(prog_env *env, prog_evt *evt, char *args) {
         env->exec_pt = -1;
         ((Creature*)env->owner)->purge(true);
         env->owner=NULL;
+    }
+}
+
+void
+prog_do_hunt(prog_env *env, prog_evt *evt, char *args) {
+    if (env->owner_type == PROG_TYPE_MOBILE && env->target) {
+        ((Creature*)env->owner)->startHunting(env->target);
     }
 }
 
