@@ -436,6 +436,26 @@ prog_eval_condition(prog_env *env, prog_evt *evt, char *args)
               arg = tmp_getword(&args);
               result = is_number(arg) && env->target && GET_REMORT_GEN(env->target) < atoi(arg);
           }
+      } else if (!strcasecmp(arg, "holding")) {
+          vnum = atoi(tmp_getword(&args));
+          if (env->target)
+              obj = env->target->carrying;
+          else 
+              obj = NULL;
+          while (obj) {
+              if (GET_OBJ_VNUM(obj) == vnum)
+                  result = true;
+              obj = obj->next_content;
+          }
+      } else if (!strcasecmp(arg, "wearing")) {
+          vnum = atoi(tmp_getword(&args));
+          if (env->target) {
+              for (int i=0; i<NUM_WEARS; i++) {
+                  if ((env->target->equipment[i] && GET_OBJ_VNUM(env->target->equipment[i]) == vnum) ||
+                      (env->target->implants[i] && GET_OBJ_VNUM(env->target->implants[i]) == vnum))
+                      result = true;
+              }
+          }
       }
   }
 
