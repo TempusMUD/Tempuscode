@@ -7578,25 +7578,6 @@ ACMD(do_tester)
     return;
 }
 
-ACMD(do_spechelp)
-{
-    int spec_idx;
-
-    if (!argument || !*argument) {
-        send_to_char(ch, "What special would you like help on?\r\n");
-        return;
-    }
-
-    spec_idx = find_spec_index_arg(tmp_getword(&argument));
-    if (spec_idx == -1) {
-        send_to_char(ch, "That special does not exist.\r\n");
-        return;
-    }
-
-    if (!(spec_list[spec_idx].func(ch, NULL, 0, 0, SPECIAL_HELP)))
-        send_to_char(ch, "There is no help available for that special.\r\n");
-}
-
 int do_freeze_char(char *argument, Creature *vict, Creature *ch)
 {
     static const int ONE_MINUTE = 60;
