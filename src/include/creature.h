@@ -463,7 +463,7 @@ static const int AFF2_PROT_DEMONS = (1 << 30);
 #define NUM_AFF2_FLAGS          31
 
 static const int AFF3_ATTRACTION_FIELD = (1 << 0);
-static const int AFF3_FEEDING = (1 << 1);
+static const int AFF3_ENERGY_LEAK = (1 << 1);
 static const int AFF3_POISON_2 = (1 << 2);
 static const int AFF3_POISON_3 = (1 << 3);
 static const int AFF3_SICKNESS = (1 << 4);
@@ -491,7 +491,8 @@ static const int AFF3_INST_AFF = (1 << 25);	// Affected by an instant affect
 static const int AFF3_TAINTED = (1 << 27);	// Knight spell, "taint"
 static const int AFF3_INFILTRATE = (1 << 28);	// Merc skill infiltrate
 static const int AFF3_DIVINE_POWER = (1 << 29);
-#define NUM_AFF3_FLAGS                30
+static const int AFF3_MANA_LEAK = (1 << 30);
+#define NUM_AFF3_FLAGS                31
 
 static const int ARRAY_AFF_1 = 1;
 static const int ARRAY_AFF_2 = 2;

@@ -145,7 +145,6 @@ remove_fighting_affects(struct Creature *ch)
 			ch->setPosition(POS_STANDING);
 	}
 
-	REMOVE_BIT(AFF3_FLAGS(ch), AFF3_FEEDING);
 	update_pos(ch);
 
 }
@@ -1633,9 +1632,6 @@ damage(struct Creature *ch, struct Creature *victim, int dam,
 			TRUE, victim, 0, 0, TO_ROOM);
 		send_to_char(victim, 
 			"You are mortally wounded, and will die soon, if not aided.\r\n");
-		if (ch && IS_VAMPIRE(ch) && IS_AFFECTED_3(ch, AFF3_FEEDING)) {
-			stop_fighting(ch);
-		}
 		break;
 
 		// Incapacitated
@@ -1644,10 +1640,6 @@ damage(struct Creature *ch, struct Creature *victim, int dam,
 			victim, 0, 0, TO_ROOM);
 		send_to_char(victim, 
 			"You are incapacitated and will slowly die, if not aided.\r\n");
-		if (ch && IS_VAMPIRE(ch) && IS_AFFECTED_3(ch, AFF3_FEEDING)) {
-			stop_fighting(ch);
-		}
-
 		break;
 
 		// Stunned
@@ -1656,9 +1648,6 @@ damage(struct Creature *ch, struct Creature *victim, int dam,
 			TRUE, victim, 0, 0, TO_ROOM);
 		send_to_char(victim, 
 			"You're stunned, but will probably regain consciousness again.\r\n");
-		if (ch && IS_VAMPIRE(ch) && IS_AFFECTED_3(ch, AFF3_FEEDING)) {
-			stop_fighting(ch);
-		}
 		break;
 
 		// Dead

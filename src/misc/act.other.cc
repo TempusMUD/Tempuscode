@@ -1764,95 +1764,36 @@ ACMD(do_feed)
 	struct Creature *vict = NULL;
 	struct obj_data *food = NULL;
 	char arg1[MAX_INPUT_LENGTH], arg2[MAX_INPUT_LENGTH];
-	int amount;
 
 	half_chop(argument, arg1, arg2);
 
-	if (IS_VAMPIRE(ch)) {
-		if (FIGHTING(ch)) {
-			if (!IS_AFFECTED_3(ch, AFF3_FEEDING)) {
-				send_to_char(ch, "You prepare to feed.\r\n");
-				SET_BIT(AFF3_FLAGS(ch), AFF3_FEEDING);
-			} else
-				send_to_char(ch, "You are already prepared to feed.\r\n");
-		} else {				/*  !FIGHTING  */
-			if (!*arg1 || !*arg2)
-				send_to_char(ch, "Feed upon who?\r\n");
-			else if (strncmp(arg1, "on", 2))
-				send_to_char(ch, 
-					"You must enter the command: 'feed on <victim>'.\r\n");
-			else if (!(vict = get_char_room_vis(ch, arg2)))
-				send_to_char(ch, "You don't see anyone around by that name.\r\n");
-			else if (vict->getPosition() > POS_SLEEPING)
-				act("$E is too alert for you to feed on $M.", FALSE, ch, 0,
-					vict, TO_CHAR);
-			else if (IS_UNDEAD(vict))
-				send_to_char(ch, "Ack!  You cannot feed from another undead!\r\n");
-			else if (IS_ROBOT(vict))
-				send_to_char(ch, "You cannot feed from a robot.\r\n");
-			else if (GET_COND(ch, THIRST) >= 24 && GET_COND(ch, FULL) >= 20)
-				send_to_char(ch, "Your belly is too full to feed now.\r\n");
-			else if (CHECK_SKILL(ch, SKILL_FEED) < (number(10,
-						80) + GET_LEVEL(vict)))
-				send_to_char(ch, "You are unable to feed.\r\n");
-			else if (!peaceful_room_ok(ch, vict, true))
-				send_to_char(ch, "You cannot feed in this place.\r\n");
-			else {
-				send_to_char(ch, "You begin to feed.\r\n");
-				act("$n begins to feed on $N.", FALSE, ch, 0, vict,
-					TO_NOTVICT);
-				send_to_char(vict, "You feel sharp teeth pierce your throat.\r\n");
-				amount =
-					GET_LEVEL(vict) + GET_LEVEL(ch) + (number(0,
-						CHECK_SKILL(ch, SKILL_FEED) / 5));
-				GET_HIT(vict) -= amount;
-				GET_HIT(ch) = MIN(GET_MAX_HIT(ch), GET_HIT(ch) + amount);
-				amount /= 10;
-				gain_condition(ch, THIRST, amount);
-
-				if (GET_COND(ch, THIRST) >= 24)
-					send_to_char(ch, 
-						"Your thirst for blood is satiated... for now.\r\n");
-				update_pos(vict);
-
-				if (GET_HIT(vict) < -10) {
-					act("You have drained $M completely of life!", FALSE, ch,
-						0, vict, TO_CHAR);
-					act("You feel a strange sensation as $n drains your life away.", FALSE, ch, 0, vict, TO_VICT | TO_SLEEP);
-					raw_kill(vict, ch, SKILL_FEED);	// Vampire feeding
-				} else
-					gain_skill_prof(ch, SKILL_FEED);
-			}
-		}
-	} else {
-		if (!*arg1 || !*arg2)
-			send_to_char(ch, "Feed who to what?\r\n");
-		else if (!(food = get_obj_in_list_vis(ch, arg1, ch->carrying)))
-			send_to_char(ch, "You don't have that food.\r\n");
-		else if (!((vict = MOUNTED(ch)) &&
-				isname(arg2, vict->player.name)) &&
-			!(vict = get_char_room_vis(ch, arg2)))
-			send_to_char(ch, "No-one around by that name.\r\n");
-		else if (GET_OBJ_TYPE(food) != ITEM_FOOD)
-			act("I don't think anyone wants to eat $p.",
-				FALSE, ch, food, 0, TO_CHAR);
-		else if (!MOB2_FLAGGED(vict, MOB2_MOUNT))
-			act("You cannot feed $p to $N.", FALSE, ch, food, vict, TO_CHAR);
-		else if (!AWAKE(vict))
-			act("$N is in no position to be eating.", FALSE, ch, food, vict,
-				TO_CHAR);
-		else if (GET_MOVE(vict) >= GET_MAX_MOVE(vict))
-			act("$N must not be hungry -- $E refuses $p.", FALSE, ch, food,
-				vict, TO_CHAR);
-		else {
-			act("$n feeds $p to $N.", FALSE, ch, food, vict, TO_NOTVICT);
-			act("$N devours $p.", FALSE, ch, food, vict, TO_CHAR);
-			GET_MOVE(vict) = MIN(GET_MAX_MOVE(vict), GET_MOVE(vict) +
-				GET_OBJ_VAL(food, 0));
-			extract_obj(food);
-			return;
-		}
-	}
+    if (!*arg1 || !*arg2)
+        send_to_char(ch, "Feed who to what?\r\n");
+    else if (!(food = get_obj_in_list_vis(ch, arg1, ch->carrying)))
+        send_to_char(ch, "You don't have that food.\r\n");
+    else if (!((vict = MOUNTED(ch)) &&
+            isname(arg2, vict->player.name)) &&
+        !(vict = get_char_room_vis(ch, arg2)))
+        send_to_char(ch, "No-one around by that name.\r\n");
+    else if (GET_OBJ_TYPE(food) != ITEM_FOOD)
+        act("I don't think anyone wants to eat $p.",
+            FALSE, ch, food, 0, TO_CHAR);
+    else if (!MOB2_FLAGGED(vict, MOB2_MOUNT))
+        act("You cannot feed $p to $N.", FALSE, ch, food, vict, TO_CHAR);
+    else if (!AWAKE(vict))
+        act("$N is in no position to be eating.", FALSE, ch, food, vict,
+            TO_CHAR);
+    else if (GET_MOVE(vict) >= GET_MAX_MOVE(vict))
+        act("$N must not be hungry -- $E refuses $p.", FALSE, ch, food,
+            vict, TO_CHAR);
+    else {
+        act("$n feeds $p to $N.", FALSE, ch, food, vict, TO_NOTVICT);
+        act("$N devours $p.", FALSE, ch, food, vict, TO_CHAR);
+        GET_MOVE(vict) = MIN(GET_MAX_MOVE(vict), GET_MOVE(vict) +
+            GET_OBJ_VAL(food, 0));
+        extract_obj(food);
+        return;
+    }
 }
 
 

@@ -2807,7 +2807,7 @@ ASPELL(spell_animate_dead)
 
 	SET_BIT(AFF3_FLAGS(zombie), AFF3_FLAGS(orig_char));
 	REMOVE_BIT(AFF3_FLAGS(zombie),
-		AFF3_FEEDING | AFF3_SELF_DESTRUCT | AFF3_STASIS | AFF3_PSYCHIC_CRUSH);
+		AFF3_SELF_DESTRUCT | AFF3_STASIS | AFF3_PSYCHIC_CRUSH);
 	// Make sure noone gets xp fer these buggers.
 	SET_BIT(MOB_FLAGS(zombie), MOB_PET);
 
