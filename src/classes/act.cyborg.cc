@@ -1197,8 +1197,139 @@ ACMD(do_bioscan)
 	gain_skill_prof(ch, SKILL_BIOSCAN);
   
 }
-
 ACMD(do_discharge)
+{
+
+    struct char_data *vict = NULL;
+    struct obj_data *ovict = NULL;
+    int percent, prob, amount, dam;
+	int feedback=0;
+	int tolerance=0;
+    char arg1[MAX_INPUT_LENGTH], arg2[MAX_INPUT_LENGTH];
+
+    half_chop(argument, arg1, arg2);
+  
+    if (!IS_CYBORG(ch)) {
+	send_to_char("You discharge some smelly gas.\r\n", ch);
+	act("$n discharges some smelly gas.",FALSE,ch,0,0,TO_ROOM);
+	return;
+    }
+  
+    if (CHECK_SKILL(ch, SKILL_DISCHARGE) < 20) {
+	send_to_char("You are unable to discharge.\r\n", ch);
+	return;
+    }
+
+    if (!*arg1) {
+	send_to_char("Usage: discharge <energy discharge amount> <victim>\r\n",ch);
+	return;
+    }
+
+    if (!(vict = get_char_room_vis(ch, arg2)) && 
+	!(ovict = get_obj_in_list_vis(ch, arg2, ch->in_room->contents))) {
+	if (FIGHTING(ch)) {
+	    vict = FIGHTING(ch);
+	} else {
+	    send_to_char("Discharge into who?\r\n", ch);
+	    return;
+	}
+    }
+
+    if (!is_number(arg1)) {
+	send_to_char("The discharge amount must be a number.\r\n", ch);
+	return;
+    }
+    amount = atoi(arg1);
+
+    if (amount > GET_MOVE(ch)) {
+	send_to_char("ERROR: Energy levels too low for requested discharge.\r\n", ch);
+	return;
+    }
+
+    if (amount < 0) {
+	send_to_char("Discharge into who?\r\n", ch);
+	sprintf(buf, "%s neg-discharge %d %s at %d", GET_NAME(ch), 
+		amount, vict ? GET_NAME(vict) : ovict->short_description, 
+		ch->in_room->number);
+	mudlog(buf, NRM, LVL_GRGOD, TRUE);
+	return;
+    }
+
+    GET_MOVE(ch) -= amount;
+
+	// Tolerance is the amount they can safely discharge.
+	tolerance = GET_LEVEL(ch) / 6 + dice( GET_LEVEL(ch) / 8, 4);
+
+	
+	if(amount > tolerance) {
+		if (amount > (tolerance * 2)) {
+			send_to_char("ERROR: Discharge amount far exceeds acceptable parameters. Aborted.\r\n.",ch);
+			return;
+		}
+		// Give them some idea of how much they went overboard by.
+		sprintf (buf,"WARNING: Voltage tolerance exceeded by %d%%.\r\n",
+			((amount * 100) - (tolerance * 100)) / tolerance );
+		send_to_char(buf,ch);
+		// Amount of component damage delt to cyborg.
+		feedback = dice(amount - tolerance,4);
+		feedback *= max_component_dam(ch) / 100;
+	
+		// Random debug messages.
+		if ( PRF2_FLAGGED( ch, PRF2_FIGHT_DEBUG ) ) {
+			sprintf(buf,"Tolerance: %d, Amount: %d, Feedback: %d\r\n",
+				tolerance, amount, feedback);
+			send_to_char(buf,ch);
+		}
+		if (GET_TOT_DAM(ch) + feedback >= max_component_dam(ch))
+			GET_TOT_DAM(ch) = max_component_dam(ch);
+		else
+			GET_TOT_DAM(ch) += feedback;
+		damage(NULL, ch, dice(amount - tolerance, 10), TYPE_OVERLOAD,-1);
+
+		if(GET_TOT_DAM(ch) == 0 || GET_TOT_DAM(ch) == max_component_dam(ch)) {
+			send_to_char("ERROR: Component failure. Discharge failed.\r\n",ch);
+			return;
+		}
+		send_to_char("WARNING: System components damaged by discharge!\r\n",ch);
+
+	}
+
+    if (ovict) {
+	act("$n blasts $p with a stream of pure energy!!",
+	    FALSE, ch,ovict,0,TO_ROOM);
+	act("You blast $p with a stream of pure energy!!",
+	    FALSE, ch,ovict,0,TO_CHAR);
+    
+	dam = amount * GET_LEVEL(ch) + dice(GET_INT(ch), 4);
+	damage_eq(ch, ovict, dam);
+	return;
+    }
+
+    if (vict == ch) {
+	send_to_char("Let's not try that shall we...\r\n", ch);
+	return;
+    }
+    if (!peaceful_room_ok(ch, vict, true))
+	return;
+
+    percent = 
+	((10 - (GET_AC(vict) / 10)) >> 1) + number(1, 91);
+							
+    prob = CHECK_SKILL(ch, SKILL_DISCHARGE);
+
+
+	dam = dice(amount * 3, 20 + GET_REMORT_GEN(ch));
+
+    if (percent > prob) {
+		damage(ch, vict, 0, SKILL_DISCHARGE,-1);
+    } else {
+		damage(ch, vict, dam, SKILL_DISCHARGE,-1);
+		gain_skill_prof(ch, SKILL_DISCHARGE);
+    }
+    WAIT_STATE(ch, (20 + (amount / 100)));
+}
+
+ACMD(do_old_discharge)
 {
 
     struct char_data *vict = NULL;
@@ -2182,20 +2313,19 @@ ACMD(do_insert)
 	return;
     }
 
-    if (!ROOM_FLAGGED(ch->in_room, ROOM_PEACEFUL) && 
-	GET_LEVEL(ch) < LVL_IMMORT) {
+    if (!ROOM_FLAGGED(ch->in_room, ROOM_PEACEFUL) && GET_LEVEL(ch) < LVL_IMMORT) {
 	send_to_char("You can only perform surgery in a safe room.\r\n", ch);
 	return;
     }
 
     if ((!(tool = GET_EQ(ch, WEAR_HOLD)) &&
-	 !(tool = GET_IMPLANT(ch, WEAR_HOLD))) ||
-	!IS_TOOL(tool) ||
-	TOOL_SKILL(tool) != SKILL_CYBO_SURGERY) {
+		 !(tool = GET_IMPLANT(ch, WEAR_HOLD))) ||
+		!IS_TOOL(tool) ||
+		TOOL_SKILL(tool) != SKILL_CYBO_SURGERY) {
 	send_to_char("You must be holding a cyber surgery tool to do this.\r\n", ch);
 	return;
     }
-	if (!IS_CYBORG(vict)) {
+	if (!IS_CYBORG(vict) && GET_LEVEL(ch) < LVL_IMMORT) {
 		send_to_char("Your subject is not prepared for such enhancement.\r\n",ch);
 		return;
 	}
@@ -2241,11 +2371,11 @@ ACMD(do_insert)
 		}
     }
 	if (!IS_WEAR_EXTREMITY(pos)) {    
-		if (GET_LEVEL(ch) < LVL_AMBASSADOR && vict == ch) {
+		if (GET_LEVEL(ch) < LVL_IMMORT && vict == ch) {
 			send_to_char("You can only perform surgery on your extremities!\r\n", ch);
 			return;
 		}
-		if (GET_LEVEL(ch) < LVL_AMBASSADOR && AWAKE(vict) && ch != vict) {
+		if (GET_LEVEL(ch) < LVL_IMMORT && AWAKE(vict) && ch != vict) {
 			send_to_char("Your subject is not properly sedated.\r\n", ch);
 			return;
 		}
@@ -2319,30 +2449,30 @@ ACMD(do_extract)
     skip_spaces(&argument);
   
     if (!*argument) {
-	send_to_char("Extract <object> <victim> <position>        ...or...\r\n"
-		     "Extract <object> <corpse>\r\n", ch);
-	return;
+		send_to_char("Extract <object> <victim> <position>        ...or...\r\n"
+				 "Extract <object> <corpse>\r\n", ch);
+		return;
     }
   
     argument = two_arguments(argument, buf, buf2);
 
     if (!*buf || !*buf2) {
-	send_to_char("Extract <object> <victim> <position>        ...or...\r\n"
-		     "Extract <object> <corpse>\r\n", ch);
-	return;
+		send_to_char("Extract <object> <victim> <position>        ...or...\r\n"
+				 "Extract <object> <corpse>\r\n", ch);
+		return;
     }
 
     if (CHECK_SKILL(ch, SKILL_CYBO_SURGERY) < 30) {
-	send_to_char("You are unskilled in the art of cybosurgery.\r\n", ch);
-	return;
+		send_to_char("You are unskilled in the art of cybosurgery.\r\n", ch);
+		return;
     }
 
     if ((!(tool = GET_EQ(ch, WEAR_HOLD)) &&
 	 !(tool = GET_IMPLANT(ch, WEAR_HOLD))) ||
 	!IS_TOOL(tool) ||
 	TOOL_SKILL(tool) != SKILL_CYBO_SURGERY) {
-	send_to_char("You must be holding a cyber surgery tool to do this.\r\n", ch);
-	return;
+		send_to_char("You must be holding a cyber surgery tool to do this.\r\n", ch);
+		return;
     }
 
     if (!(vict = get_char_room_vis(ch, buf2))) {
@@ -2393,7 +2523,7 @@ ACMD(do_extract)
 	return;
     }
     
-	if (!ROOM_FLAGGED(ch->in_room, ROOM_PEACEFUL)) {
+	if (GET_LEVEL(ch) < LVL_IMMORT && !ROOM_FLAGGED(ch->in_room, ROOM_PEACEFUL)) {
 		send_to_char("You can only perform surgery in a safe room.\r\n", ch);
 		return;
     }
@@ -2415,12 +2545,12 @@ ACMD(do_extract)
 		return;
     }
 	if (!IS_WEAR_EXTREMITY(pos)) {    
-		if (GET_LEVEL(ch) < LVL_AMBASSADOR && vict == ch) {
+		if (GET_LEVEL(ch) < LVL_IMMORT && vict == ch) {
 			send_to_char("You can only perform surgery on your extrimities!\r\n", ch);
 			return;
 		}
 
-		if (GET_LEVEL(ch) < LVL_AMBASSADOR && AWAKE(vict) && ch != vict) {
+		if (GET_LEVEL(ch) < LVL_IMMORT && AWAKE(vict) && ch != vict) {
 			send_to_char("Your subject is not properly sedated.\r\n", ch);
 			return;
 		}
@@ -2511,6 +2641,7 @@ ACMD(do_cyberscan)
 	    (obj = get_obj_in_list_vis(ch, argument, ch->in_room->contents))) {
 	    for (impl = obj->contains, found = 0; impl; impl = impl->next_content)
 		if (IS_IMPLANT(impl) && CAN_SEE_OBJ(ch, impl) &&
+			!IS_OBJ_TYPE(obj, ITEM_SCRIPT) &&
 		    ((CHECK_SKILL(ch, SKILL_CYBERSCAN) +
 		      (AFF3_FLAGGED(ch, AFF3_SONIC_IMAGERY) ? 50 : 0) > 
 		      number(70, 150)) || PRF_FLAGGED(ch, PRF_HOLYLIGHT))) {
