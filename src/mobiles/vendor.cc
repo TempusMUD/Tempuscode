@@ -348,13 +348,18 @@ vendor_sell(Creature *ch, char *arg, Creature *self, ShopData *shop)
 				tmp_sprintf("%s You wanted to buy something?", GET_NAME(ch)), 
 				0, SCMD_SAY_TO, NULL);
 			return;
-		}
+		} else if (num > 24 ) {
+			do_say(self,
+				tmp_sprintf("%s I can't sell that many at once.", GET_NAME(ch)), 
+				0, SCMD_SAY_TO, NULL);
+			return;
+        }
 
 		obj_str = tmp_getword(&arg);
 	} else if (!strcmp(obj_str, "all")) {
 		num = -1;
 		obj_str = tmp_getword(&arg);
-	} else{
+	} else {
 		num = 1;
 	}
 
