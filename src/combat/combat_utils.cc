@@ -309,22 +309,19 @@ check_object_killer(struct obj_data *obj, struct Creature *vict)
 		return;
 
 	if( IS_NPC(vict) ) {
-		sprintf(buf, "Checking object killer %s -> %s. (NPC)",
+		slog("Checking object killer %s -> %s. (NPC)",
 			obj->short_description, GET_NAME(vict));
-		slog(buf);
 		return;
 	}
 	// Lawless... Not wrong to pk in lawless zones.
 	if (vict->in_room && ZONE_FLAGGED(vict->in_room->zone, ZONE_NOLAW)) {
-		sprintf(buf, "Checking object killer %s -> %s. (!LAW. Poor schmuck.)",
+		slog("Checking object killer %s -> %s. (!LAW. Poor schmuck.)",
 			obj->short_description, GET_NAME(vict));
-		slog(buf);
 		return;
 	}
 
-	sprintf(buf, "Checking object killer %s -> %s. ", obj->short_description,
+	slog("Checking object killer %s -> %s. ", obj->short_description,
 		GET_NAME(vict));
-	slog(buf);
 
 	if (IS_BOMB(obj))
 		obj_id = BOMB_IDNUM(obj);
@@ -368,9 +365,8 @@ check_object_killer(struct obj_data *obj, struct Creature *vict)
 	}
 	// the piece o shit has a bogus killer idnum on it!x
 	if (!killer) {
-		sprintf(buf, "SYSERR: bogus idnum %d on object %s damaging %s.",
+		slog("SYSERR: bogus idnum %d on object %s damaging %s.",
 			obj_id, obj->short_description, GET_NAME(vict));
-		slog(buf);
 		return;
 	}
 
@@ -490,10 +486,9 @@ calculate_thaco(struct Creature *ch, struct Creature *victim,
 	if (weap) {
 		if (ch != weap->worn_by) {
 			slog("SYSERR: inconsistent weap->worn_by ptr in calculate_thaco.");
-			sprintf(buf, "weap: ( %s ), ch: ( %s ), weap->worn->by: ( %s )",
+			slog("weap: ( %s ), ch: ( %s ), weap->worn->by: ( %s )",
 				weap->short_description, GET_NAME(ch), weap->worn_by ?
 				GET_NAME(weap->worn_by) : "NULL");
-			slog(buf);
 			return 0;
 		}
 
@@ -682,8 +677,7 @@ choose_random_limb(CHAR * victim)
 	}
 
 	if (!POS_DAMAGE_OK(i)) {
-		sprintf(buf, "SYSERR improper pos %d leaving choose_random_limb.", i);
-		slog(buf);
+		slog("SYSERR improper pos %d leaving choose_random_limb.", i);
 		return WEAR_BODY;
 	}
 
@@ -705,9 +699,8 @@ peaceful_room_ok(struct Creature *ch, struct Creature *vict, bool mssg)
 			act("You are protected by the gods against $n's attack!",
 				FALSE, ch, 0, vict, TO_VICT);
 		}
-		sprintf(buf, "%s protected against %s [peaceful room check] at %d\n",
+		slog("%s protected against %s [peaceful room check] at %d\n",
 			GET_NAME(vict), GET_NAME(ch), vict->in_room->number);
-		slog(buf);
 		return 0;
 	}
 	if (vict && IS_SET(ROOM_FLAGS(ch->in_room), ROOM_PEACEFUL) &&

@@ -64,10 +64,8 @@ boot_dynamic_text(void)
 			sprintf(filename, "%s/%s", DYN_TEXT_CONTROL_DIR, dirp->d_name);
 
 			if (!(fl = fopen(filename, "r"))) {
-				sprintf(buf,
-					"SYSERR: error opening dynamic control file '%s'.",
+				slog("SYSERR: error opening dynamic control file '%s'.",
 					filename);
-				slog(buf);
 				perror("fopen:");
 				continue;
 			}
@@ -81,9 +79,8 @@ boot_dynamic_text(void)
 			}
 
 			if (!(fread(newdyn, sizeof(dynamic_text_file), 1, fl))) {
-				sprintf(buf, "SYSERR: error reading information from '%s'.",
+				slog("SYSERR: error reading information from '%s'.",
 					filename);
-				slog(buf);
 				free(newdyn);
 				fclose(fl);
 				continue;
@@ -91,8 +88,7 @@ boot_dynamic_text(void)
 
 			fclose(fl);
 
-			sprintf(buf, "dyntext BOOTED %s.", dirp->d_name);
-			slog(buf);
+			slog("dyntext BOOTED %s.", dirp->d_name);
 
 			newdyn->next = NULL;
 			newdyn->buffer = NULL;
@@ -101,9 +97,8 @@ boot_dynamic_text(void)
 			sprintf(buf2, "text/%s", newdyn->filename);
 
 			if (!(fl = fopen(buf2, "r"))) {
-				sprintf(buf, "SYSERR: unable to open dynamic text file '%s'.",
+				slog("SYSERR: unable to open dynamic text file '%s'.",
 					buf2);
-				slog(buf);
 				perror("dyntext fopen:");
 			}
 
@@ -176,8 +171,7 @@ create_dyntext_backup(dynamic_text_file * dyntext)
 		maxnum + 1);
 
 	if (!(fl = fopen(filename, "w"))) {
-		sprintf(buf, "SYSERR: Dyntext backup unable to open '%s'.", filename);
-		slog(buf);
+		slog("SYSERR: Dyntext backup unable to open '%s'.", filename);
 		return 1;
 	}
 
@@ -203,8 +197,7 @@ save_dyntext_buffer(dynamic_text_file * dyntext)
 	sprintf(filename, "text/%s", dyntext->filename);
 
 	if (!(fl = fopen(filename, "w"))) {
-		sprintf(buf, "SYSERR: Unable to open '%s' for write.", filename);
-		slog(buf);
+		slog("SYSERR: Unable to open '%s' for write.", filename);
 		return 1;
 	}
 
@@ -233,9 +226,8 @@ reload_dyntext_buffer(dynamic_text_file * dyntext)
 	sprintf(filename, "text/%s", dyntext->filename);
 
 	if (!(fl = fopen(filename, "r"))) {
-		sprintf(buf, "SYSERR: unable to open dynamic text file '%s'.",
+		slog("SYSERR: unable to open dynamic text file '%s'.",
 			filename);
-		slog(buf);
 		perror("dyntext fopen:");
 	}
 
@@ -270,14 +262,12 @@ save_dyntext_control(dynamic_text_file * dyntext)
 	sprintf(filename, "%s/%s.dyn", DYN_TEXT_CONTROL_DIR, dyntext->filename);
 
 	if (!(fl = fopen(filename, "w"))) {
-		sprintf(buf, "SYSERR: Unable to open '%s' for write.", filename);
-		slog(buf);
+		slog("SYSERR: Unable to open '%s' for write.", filename);
 		return 1;
 	}
 
 	if (!(fwrite(dyntext, sizeof(dynamic_text_file), 1, fl))) {
-		sprintf(buf, "SYSERR: Unable to write data to '%s'.", filename);
-		slog(buf);
+		slog("SYSERR: Unable to write data to '%s'.", filename);
 		fclose(fl);
 		return 1;
 	}

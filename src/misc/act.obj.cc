@@ -221,9 +221,8 @@ activate_char_quad(struct Creature *ch)
 		if (GET_OBJ_VNUM(obj) == QUAD_VNUM) {
 			call_magic(ch, ch, NULL, SPELL_QUAD_DAMAGE, LVL_GRIMP, CAST_SPELL);
 			extract_obj(obj);
-			sprintf(buf, "%s got the Quad Damage at %d.", GET_NAME(ch),
+			slog("%s got the Quad Damage at %d.", GET_NAME(ch),
 				ch->in_room->number);
-			slog(buf);
 
 			struct room_data *room = 0;
 			struct zone_data *zone = 0;
@@ -507,11 +506,10 @@ get_check_money(struct Creature *ch, struct obj_data **obj_p, int display)
 		}
 		if (!IS_OBJ_STAT2(obj, ITEM2_UNAPPROVED)) {
 			if (GET_OBJ_VAL(obj, 0) > 1000000) {
-				sprintf(buf, "MONEY: %s obtained %d %s at %d.",
+				slog("MONEY: %s obtained %d %s at %d.",
 					GET_NAME(ch), GET_OBJ_VAL(obj, 0),
 					GET_OBJ_VAL(obj, 1) ? "credits" : "coins",
 					ch->in_room->number);
-				slog(buf);
 			}
 			if (GET_OBJ_VAL(obj, 1)) {
 				GET_CASH(ch) += GET_OBJ_VAL(obj, 0);
@@ -1099,9 +1097,8 @@ perform_drop_gold(struct Creature *ch, int amount,
 		GET_GOLD(ch) -= amount;
 		if (mode != SCMD_DONATE && GET_LEVEL(ch) >= LVL_AMBASSADOR &&
 			GET_LEVEL(ch) < LVL_GOD) {
-			sprintf(buf, "MONEY: %s has dropped %d coins at %d.", GET_NAME(ch),
+			slog("MONEY: %s has dropped %d coins at %d.", GET_NAME(ch),
 				amount, ch->in_room->number);
-			slog(buf);
 		}
 	}
 }
@@ -1140,9 +1137,8 @@ perform_drop_credits(struct Creature *ch, int amount,
 		}
 		GET_CASH(ch) -= amount;
 		if (GET_LEVEL(ch) >= LVL_AMBASSADOR && GET_LEVEL(ch) < LVL_GOD) {
-			sprintf(buf, "MONEY: %s has dropped %d credits at %d.",
+			slog("MONEY: %s has dropped %d credits at %d.",
 				GET_NAME(ch), amount, ch->in_room->number);
-			slog(buf);
 		}
 	}
 }
@@ -3051,12 +3047,8 @@ char_hands_free(CHAR * ch)
 		hands_free -= IS_OBJ_STAT2(obj, ITEM2_TWO_HANDED) ? 2 : 1;
 
 	if (hands_free < 0) {
-		char buf[2048];
-
 		// Report it to the immortals
-		snprintf(buf, 2047, "SYSERR: %s has negative hands free",
-			GET_NAME(ch));
-		slog(buf);
+		slog("SYSERR: %s has negative hands free", GET_NAME(ch));
 		// Now fix the problem
 		act("Oops... You dropped everything that was in your hands.",
 			FALSE, ch, NULL, NULL, TO_CHAR);
@@ -4010,8 +4002,7 @@ empty_to_obj(struct obj_data *obj, struct obj_data *container,
 	int objs_moved = 0;
 
 	if (!(obj) || !(container) || !(ch)) {
-		sprintf(buf, "Null value passed into empty_to_obj.\r\n");
-		slog(buf);
+		slog("Null value passed into empty_to_obj.\r\n");
 		return 0;
 	}
 

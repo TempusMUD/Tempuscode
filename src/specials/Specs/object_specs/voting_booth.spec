@@ -501,8 +501,7 @@ voting_booth_init( void ) {
 		for (cur_mem = cur_poll->memory;cur_mem;cur_mem = cur_mem->next)
 			vote_check++;
 		if (vote_check != cur_poll->count) {
-			sprintf(buf, "ERROR: memory mismatch for voting booth %i", poll_idx);
-			slog(buf);
+			slog("ERROR: memory mismatch for voting booth %i", poll_idx);
 		}
 		vote_check = 0;
 		weight_check = 0;
@@ -511,12 +510,10 @@ voting_booth_init( void ) {
 			weight_check += cur_opt->weight;
 		}
 		if (vote_check != cur_poll->count) {
-			sprintf(buf, "ERROR: count mismatch for voting booth %i", poll_idx);
-			slog(buf);
+			slog("ERROR: count mismatch for voting booth %i", poll_idx);
 		}
 		if (weight_check != cur_poll->weight) {
-			sprintf(buf, "ERROR: weight mismatch for voting booth %i", poll_idx);
-			slog(buf);
+			slog("ERROR: weight mismatch for voting booth %i", poll_idx);
 		}
 	}
 }

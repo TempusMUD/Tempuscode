@@ -122,9 +122,8 @@ SPECIAL(increaser)
     break;
   }
 
-  sprintf(buf, "%s increased %s %d points at %d.", 
+  slog("%s increased %s %d points at %d.", 
 	  GET_NAME(ch), arg1, incr, ch->in_room->number);
-  slog(buf);
 
   send_to_char(ch, "You begin your improvement.\r\n");
   act("$n begins to improve.", FALSE, ch, 0, 0, TO_ROOM);

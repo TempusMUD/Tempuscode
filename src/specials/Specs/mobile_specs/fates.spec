@@ -77,8 +77,7 @@ SPECIAL(fate)
 			break;
 	}
 	if(!dyntext) {
-		sprintf(buf,"SYSERR: Fate unable to access dyntext doc.(%s)\r\n", dyn_name);
-		slog(buf);
+		slog("SYSERR: Fate unable to access dyntext doc.(%s)\r\n", dyn_name);
 		return 1;
 	}
 	// If the file is null, return

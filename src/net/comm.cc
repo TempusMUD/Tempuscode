@@ -149,7 +149,6 @@ int
 main(int argc, char **argv)
 {
 	int port;
-	char buf[512];
 	int pos = 1;
 	char *dir;
 
@@ -223,9 +222,8 @@ main(int argc, char **argv)
 			mud_moved = 1;
 			break;
 		default:
-			sprintf(buf, "SYSERR: Unknown option -%c in argument string.",
+			slog("SYSERR: Unknown option -%c in argument string.",
 				*(argv[pos] + 1));
-			slog(buf);
 			break;
 		}
 		pos++;
@@ -248,16 +246,14 @@ main(int argc, char **argv)
 		safe_exit(1);
 	}
 
-	sprintf(buf, "Using %s as data directory.", dir);
-	slog(buf);
+	slog("Using %s as data directory.", dir);
 
 	if (scheck) {
 		boot_world();
 		slog("Done.");
 		safe_exit(0);
 	} else {
-		sprintf(buf, "Running game on port %d.", port);
-		slog(buf);
+		slog("Running game on port %d.", port);
 		init_game(port);
 	}
 
@@ -373,6 +369,7 @@ init_socket(int port)
 	}
 #endif
 
+	memset(&sa, 0, sizeof(struct sockaddr_in));
 	sa.sin_family = AF_INET;
 	sa.sin_port = htons(port);
 	sa.sin_addr.s_addr = htonl(INADDR_ANY);
@@ -438,8 +435,7 @@ get_avail_descs(void)
 		slog("Non-positive max player limit!");
 		safe_exit(1);
 	}
-	sprintf(buf, "Setting player limit to %d.", max_descs);
-	slog(buf);
+	slog("Setting player limit to %d.", max_descs);
 	return max_descs;
 }
 
@@ -732,12 +728,11 @@ game_loop(int mother_desc)
 				send_to_all
 					("Please visit our website at http://tempusmud.com\r\n");
 
-				sprintf(buf, "(GC) %s called by %s EXECUTING.",
+				slog("(GC) %s called by %s EXECUTING.",
 					(shutdown_mode == SHUTDOWN_DIE
 						|| shutdown_mode ==
 						SHUTDOWN_DIE) ? "Shutdown" : "Reboot",
 					get_name_by_id(shutdown_idnum));
-				slog(buf);
 				circle_shutdown = TRUE;
 				for (d = descriptor_list; d; d = next_d) {
 					next_d = d->next;
@@ -800,7 +795,6 @@ record_usage(void)
 {
 	int sockets_connected = 0, sockets_playing = 0;
 	struct descriptor_data *d;
-	char buf[256];
 
 	for (d = descriptor_list; d; d = d->next) {
 		sockets_connected++;
@@ -808,19 +802,16 @@ record_usage(void)
 			sockets_playing++;
 	}
 
-	sprintf(buf, "nusage: %-3d sockets connected, %-3d sockets playing",
+	slog("nusage: %-3d sockets connected, %-3d sockets playing",
 		sockets_connected, sockets_playing);
-	slog(buf);
 
 #ifdef RUSAGE
 	{
 		struct rusage ru;
 
 		getrusage(0, &ru);
-		sprintf(buf,
-			"rusage: user time: %ld sec, system time: %ld sec, max res size: %ld",
+		slog("rusage: user time: %ld sec, system time: %ld sec, max res size: %ld",
 			ru.ru_utime.tv_sec, ru.ru_stime.tv_sec, ru.ru_maxrss);
-		slog(buf);
 	}
 #endif
 
@@ -2056,8 +2047,7 @@ bamf_quad_damage(void)
 		act("$p appears slowly spinning at the center of the room.",
 			FALSE, 0, quad, 0, TO_ROOM);
 
-	/*  sprintf(buf, "Quad damage moved to room %d.", room->number);
-	   slog(buf); */
+	/*  slog("Quad damage moved to room %d.", room->number); */
 
 }
 

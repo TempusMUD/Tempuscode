@@ -70,8 +70,7 @@ SPECIAL(unholy_compact)
           ch->real_abils.con -= con_cost;
           save_char( ch, NULL );
       send_to_char(ch, "The torturous cries of hell haunt your dreams.\r\n");
-      sprintf(buf, "%s sign's the unholy compact, joining the soulless masses.", GET_NAME(ch));
-      slog(buf);
+      slog("%s sign's the unholy compact, joining the soulless masses.", GET_NAME(ch));
       return 1;
     }
   return 1;

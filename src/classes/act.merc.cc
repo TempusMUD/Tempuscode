@@ -701,6 +701,7 @@ ACMD(do_infiltrate)
 	af.modifier = 0;
 	af.location = APPLY_NONE;
 	af.bitvector = AFF_SNEAK;
+	af.aff_index = 0;
 	af.level = GET_LEVEL(ch) + ch->getLevelBonus(SKILL_INFILTRATE);
 	affect_to_char(ch, &af);
 

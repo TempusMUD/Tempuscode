@@ -119,9 +119,8 @@ burn_update(void)
 		ch = *cit;
 
 		if (ch->in_room == NULL || ch->getPosition() == POS_DEAD) {
-			sprintf(buf, "SYSERR: Updating a corpse in burn_update.(%s)",
+			slog("SYSERR: Updating a corpse in burn_update.(%s)",
 				GET_NAME(ch) == NULL ? "NULL" : GET_NAME(ch));
-			slog(buf);
 			continue;
 		}
 
@@ -1463,10 +1462,9 @@ mobile_activity(void)
 		if (!no_specials && MOB_FLAGGED(ch, MOB_SPEC) &&
 			GET_MOB_WAIT(ch) <= 0 && !ch->desc && (count % 2)) {
 			if (ch->mob_specials.shared->func == NULL) {
-				sprintf(buf,
+				slog(
 					"%s (#%d): Attempting to call non-existing mob func",
 					GET_NAME(ch), GET_MOB_VNUM(ch));
-				slog(buf);
 				REMOVE_BIT(MOB_FLAGS(ch), MOB_SPEC);
 			} else {
 				if ((ch->mob_specials.shared->func) (ch, ch, 0, "", SPECIAL_TICK)) {

@@ -1230,13 +1230,13 @@ boot_clans()
 			fread(&member_rank, sizeof(byte), 1, file);
 
 			if (!get_name_by_id(member_id)) {
-				slog("Clan(%2d) member (%4ld) nonex.",
+				slog("Clan(%d) member (%ld) does not exist",
 					clan->number, member_id);
 				continue;
 			}
 			if (load_char(get_name_by_id(member_id), &tmp_store) > -1) {
 				if (tmp_store.player_specials_saved.clan != clan->number) {
-					slog("Clan(%2d) member (%4ld) nolonger.",
+					slog("Clan(%d) member (%ld) no longer a member.",
 						clan->number, member_id);
 					continue;
 				}

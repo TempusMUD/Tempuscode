@@ -341,9 +341,8 @@ nanny(struct descriptor_data * d, char *arg)
 					if (k != d && k->character && !k->character->in_room &&
 						GET_IDNUM(k->character) == GET_IDNUM(d->character) &&
 						!strcmp(GET_NAME(k->character),GET_NAME(d->character))) {
-						sprintf(buf, "socket close on multi login (%s)",
+						slog("socket close on multi login (%s)",
 								GET_NAME(d->character));
-						slog(buf);
 						close_socket(k);
 					}
 				}
@@ -914,9 +913,8 @@ nanny(struct descriptor_data * d, char *arg)
 					// New characters shouldn't get old mail.
 					if(has_mail(GET_IDNUM(d->character))) {
 					   if(purge_mail(GET_IDNUM(d->character))>0) {
-						   sprintf(buf,"SYSERR: Purging pre-existing mailfile for new character.(%s)",
+						   slog("SYSERR: Purging pre-existing mailfile for new character.(%s)",
 								GET_NAME(d->character));
-						   slog(buf);
 					   }
 					}
 
@@ -974,9 +972,8 @@ nanny(struct descriptor_data * d, char *arg)
 										"Your house rent is multiplied by a factor of %d.\n",
 										rooms, percent > 1 ? "s" : "", percent);
 								SEND_TO_Q(buf, d);
-								sprintf(buf, "%s exceeded house limit in %d rooms, %d multiplier charged.",
+								slog("%s exceeded house limit in %d rooms, %d multiplier charged.",
 										GET_NAME(d->character), rooms, percent);
-								slog(buf);
 
 								// actually multiply it
 								house_control[i].rent_sum *= percent;
@@ -1017,9 +1014,8 @@ nanny(struct descriptor_data * d, char *arg)
 									GET_BANK_GOLD(d->character) = 0;
 									SEND_TO_Q("You could not afford the rent.\r\n"
 											  "Some of your items have been repossessed.\r\n", d);
-									sprintf(buf, "House-rent (%d) - equipment lost.",
+									slog("House-rent (%d) - equipment lost.",
 											house_control[i].house_rooms[0]);
-									slog(buf);
 									for (j = 0;
 										 j < house_control[i].num_of_rooms &&
 											 house_control[i].rent_sum > 0; j++) {

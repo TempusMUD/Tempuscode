@@ -611,9 +611,7 @@ boot_timewarp_data(void)
 		timewarp_list = newlist;
 	}
 
-	sprintf(buf, "Timewarp data booted, %d elements read.", num_timewarp_data);
-	slog(buf);
-
+	slog("Timewarp data booted, %d elements read.", num_timewarp_data);
 	fclose(fl);
 
 	return 0;

@@ -2439,12 +2439,10 @@ qp_reload(int sig = 0)
 				// its an immort with an allowance, set 'em up
 				if (tmp_store.level >= LVL_AMBASSADOR
 					&& tmp_store.player_specials_saved.qp_allowance > 0) {
-					sprintf(buf,
-						"QP_RELOAD: Reset %s to %d QPs from %d. ( file )",
+					slog("QP_RELOAD: Reset %s to %d QPs from %d. ( file )",
 						tmp_store.name,
 						tmp_store.player_specials_saved.qp_allowance,
 						tmp_store.player_specials_saved.quest_points);
-					slog(buf);
 
 					tmp_store.player_specials_saved.quest_points =
 						tmp_store.player_specials_saved.qp_allowance;
@@ -2468,10 +2466,9 @@ qp_reload(int sig = 0)
 		//for( immortal = character_list; immortal; immortal = immortal->next) {
 		if (GET_LEVEL(immortal) >= LVL_AMBASSADOR && (!IS_NPC(immortal)
 				&& GET_QUEST_ALLOWANCE(immortal) > 0)) {
-			sprintf(buf, "QP_RELOAD: Reset %s to %d QPs from %d. ( online )",
+			slog("QP_RELOAD: Reset %s to %d QPs from %d. ( online )",
 				GET_NAME(immortal), GET_QUEST_ALLOWANCE(immortal),
 				GET_QUEST_POINTS(immortal));
-			slog(buf);
 
 			GET_QUEST_POINTS(immortal) = GET_QUEST_ALLOWANCE(immortal);
 			send_to_char(immortal, "Your quest points have been restored!\r\n");

@@ -258,8 +258,7 @@ handle_network(descriptor_data *d,char *arg) {
 		else
 			SEND_TO_Q("Error: Resource not available", d);
 	} else if ( *arg1 == '@' || is_abbrev( arg1,"exit" ) || is_abbrev(arg1, "logout") ) {
-		sprintf(buf, "User %s disconnecting from net.", GET_NAME(d->character));
-		slog(buf);
+		slog("User %s disconnecting from net.", GET_NAME(d->character));
 		set_desc_state( CON_PLAYING,d );
 		SEND_TO_Q("Connection closed.\r\n",d);
 		act("$n disconnects from the network.", TRUE, d->character, 0, 0, TO_ROOM);

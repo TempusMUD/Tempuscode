@@ -51,8 +51,7 @@ SPECIAL(hell_ressurector)
         //
 
         if ( ! ( vict = read_mobile( - CORPSE_IDNUM(corpse) ) ) ) {
-            sprintf(buf, "SYSERR:  hell ressurector unable to read_mobile(%d).", - CORPSE_IDNUM(corpse) );
-            slog(buf);
+            slog("SYSERR:  hell ressurector unable to read_mobile(%d).", - CORPSE_IDNUM(corpse) );
             return 0;
         }
 

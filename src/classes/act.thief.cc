@@ -155,10 +155,9 @@ ACMD(do_steal)
 						GET_EXP(ch) += MIN(1000, GET_OBJ_COST(obj));
 						gain_skill_prof(ch, SKILL_STEAL);
 						if (GET_LEVEL(ch) >= LVL_AMBASSADOR || !IS_NPC(vict)) {
-							sprintf(buf, "%s stole %s from %s.",
+							slog("%s stole %s from %s.",
 								GET_NAME(ch), obj->short_description,
 								GET_NAME(vict));
-							slog(buf);
 						}
 					} else {
 						if (vict->getPosition() == POS_SLEEPING) {
@@ -218,10 +217,9 @@ ACMD(do_steal)
 						WAIT_STATE(ch, PULSE_VIOLENCE);
 						gain_skill_prof(ch, SKILL_STEAL);
 						if (GET_LEVEL(ch) >= LVL_AMBASSADOR || !IS_NPC(vict)) {
-							sprintf(buf, "%s stole %s from %s.",
+							slog("%s stole %s from %s.",
 								GET_NAME(ch), obj->short_description,
 								GET_NAME(vict));
-							slog(buf);
 						}
 					} else
 						send_to_char(ch, "You cannot carry that much weight.\r\n");
@@ -248,9 +246,8 @@ ACMD(do_steal)
 				GET_GOLD(vict) -= gold;
 				send_to_char(ch, "Bingo!  You got %d gold coins.\r\n", gold);
 				if (GET_LEVEL(ch) >= LVL_AMBASSADOR) {
-					sprintf(buf, "%s stole %d coins from %s.", GET_NAME(ch),
+					slog("%s stole %d coins from %s.", GET_NAME(ch),
 						gold, GET_NAME(vict));
-					slog(buf);
 				}
 			} else {
 				send_to_char(ch, "You couldn't get any gold...\r\n");

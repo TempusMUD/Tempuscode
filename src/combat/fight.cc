@@ -134,9 +134,8 @@ set_fighting(struct Creature *ch, struct Creature *vict, int aggr)
 					FALSE, ch, 0, vict, TO_CHAR);
 				act("You are protected by the gods against $n's attack!",
 					FALSE, ch, 0, vict, TO_VICT);
-				sprintf(buf, "%s protected against %s ( set_fighting ) at %d",
+				slog("%s protected against %s ( set_fighting ) at %d",
 					GET_NAME(vict), GET_NAME(ch), vict->in_room->number);
-				slog(buf);
 				ch->setFighting(NULL);
 				ch->setPosition(POS_STANDING);
 				return;
@@ -426,9 +425,8 @@ perform_gain_kill_exp(struct Creature *ch, struct Creature *victim,
 	if (IS_NPC(victim) && !IS_NPC(ch) 
 	&& (GET_EXP(victim) < 0 || exp > 5000000)) 
 	{
-		sprintf(buf, "%s Killed %s( %d ) for exp: %d.", GET_NAME(ch),
+		slog("%s Killed %s( %d ) for exp: %d.", GET_NAME(ch),
 			GET_NAME(victim), GET_EXP(victim), exp);
-		slog(buf);
 	}
 	if (exp > ((exp_scale[GET_LEVEL(ch) + 1] - GET_EXP(ch)) / 10)) {
 		send_to_char(ch, "%s%sYou have gained much experience.%s\r\n",
@@ -745,18 +743,14 @@ damage(struct Creature *ch, struct Creature *victim, int dam,
 
 
 	if (victim->getPosition() <= POS_DEAD) {
-		sprintf(buf,
-			"SYSERR: Attempt to damage a corpse--ch=%s,vict=%s,type=%d.",
+		slog("SYSERR: Attempt to damage a corpse--ch=%s,vict=%s,type=%d.",
 			ch ? GET_NAME(ch) : "NULL", GET_NAME(victim), attacktype);
-		slog(buf);
 		DAM_RETURN(DAM_VICT_KILLED);
 	}
 
 	if (victim->in_room == NULL) {
-		sprintf(buf,
-			"SYSERR: Attempt to damage a char with null in_room ch=%s,vict=%s,type=%d.",
+		slog("SYSERR: Attempt to damage a char with null in_room ch=%s,vict=%s,type=%d.",
 			ch ? GET_NAME(ch) : "NULL", GET_NAME(victim), attacktype);
-		slog(buf);
 		raise(SIGSEGV);
 	}
 	// No more shall anyone be damaged in the void.
@@ -765,11 +759,9 @@ damage(struct Creature *ch, struct Creature *victim, int dam,
 	}
 
 	if (GET_HIT(victim) < -10) {
-		sprintf(buf,
-			"SYSERR: Attempt to damage a char with hps %d ch=%s,vict=%s,type=%d.",
+		slog("SYSERR: Attempt to damage a char with hps %d ch=%s,vict=%s,type=%d.",
 			GET_HIT(victim), ch ? GET_NAME(ch) : "NULL", GET_NAME(victim),
 			attacktype);
-		slog(buf);
 		DAM_RETURN(DAM_VICT_KILLED);
 	}
 
@@ -857,9 +849,8 @@ damage(struct Creature *ch, struct Creature *victim, int dam,
 				FALSE, ch, 0, victim, TO_CHAR);
 			act("You are protected by the gods against $n's attack!",
 				FALSE, ch, 0, victim, TO_VICT);
-			sprintf(buf, "%s protected against %s ( damage ) at %d\n",
+			slog("%s protected against %s ( damage ) at %d\n",
 				GET_NAME(victim), GET_NAME(ch), victim->in_room->number);
-			slog(buf);
 			if (victim == FIGHTING(ch))
 				stop_fighting(ch);
 			if (ch == FIGHTING(victim))
@@ -1953,9 +1944,8 @@ hit(struct Creature *ch, struct Creature *victim, int type)
 			FALSE, ch, 0, victim, TO_CHAR);
 		act("You are protected by the gods against $n's attack!",
 			FALSE, ch, 0, victim, TO_VICT);
-		sprintf(buf, "%s protected against %s ( hit ) at %d\n",
+		slog("%s protected against %s ( hit ) at %d\n",
 			GET_NAME(victim), GET_NAME(ch), victim->in_room->number);
-		slog(buf);
 
 		if (victim == FIGHTING(ch))
 			stop_fighting(ch);

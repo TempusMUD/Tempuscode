@@ -153,6 +153,7 @@ CTextEditor::List(unsigned int startline = 1)
 void
 CTextEditor::SaveText(char *inStr)
 {
+	struct mail_recipient_data *next_mail;
 	list <string>::iterator itr;
 	int length = 0;
 
@@ -197,12 +198,16 @@ CTextEditor::SaveText(char *inStr)
 	// Save the board if we were writing to a board
 	if (desc->mail_to && desc->mail_to->recpt_idnum >= BOARD_MAGIC) {
 		Board_save_board(desc->mail_to->recpt_idnum - BOARD_MAGIC);
-		desc->mail_to = desc->mail_to->next;
+		next_mail = desc->mail_to->next;
+		free(desc->mail_to);
+		desc->mail_to = next_mail;
 	}
 	// Add the poll if we were adding to a poll
 	if (desc->mail_to && desc->mail_to->recpt_idnum == VOTING_MAGIC) {
 		voting_add_poll();
-		desc->mail_to = desc->mail_to->next;
+		next_mail = desc->mail_to->next;
+		free(desc->mail_to);
+		desc->mail_to = next_mail;
 	}
 	// If editing thier description.
 	if (STATE(desc) == CON_EXDESC) {

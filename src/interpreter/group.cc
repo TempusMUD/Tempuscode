@@ -315,6 +315,7 @@ namespace Security {
                 } else {
                     addCommand( &cmd_info[index] );
                 }
+				free(command);
             }
             node = node->next;
         }

@@ -63,33 +63,28 @@ Obj_from_store(FILE * fl, bool allow_inroom)
 
 	if ((tmpsize = fread(&object, sizeof(struct obj_file_elem), 1, fl)) != 1) {
 		if (ferror(fl)) {
-			sprintf(buf, "Error reading object in Obj_from_store: %s.",
+			slog("Error reading object in Obj_from_store: %s.",
 				strerror(errno));
-			slog(buf);
 		}
 		return NULL;
 	}
 
 	if (object.item_number < 0) {
-		sprintf(buf,
-			"Obj_from_store found object vnum %d in file.  short_desc=%s. name=%s",
+		slog("Obj_from_store found object vnum %d in file.  short_desc=%s. name=%s",
 			object.item_number, object.short_desc, object.name);
-		slog(buf);
 		return NULL;
 	}
 
 	obj = read_object(object.item_number);
 
 	if (!obj) {
-		sprintf(buf, "Object %d no longer in database.", object.item_number);
-		slog(buf);
+		slog("Object %d no longer in database.", object.item_number);
 		return NULL;
 	}
 
 	if (!OBJ_APPROVED(obj)) {
-		sprintf(buf, "Obj %s being junked from rent.", obj->short_description);
+		slog("Obj %s being junked from rent.", obj->short_description);
 		extract_obj(obj);
-		slog(buf);
 		return NULL;
 	}
 
@@ -132,10 +127,8 @@ Obj_from_store(FILE * fl, bool allow_inroom)
 
 	if (allow_inroom == false) {
 		if (object.in_room_vnum >= 0) {
-			sprintf(buf,
-				"Obj_from_store loading object %s found non-negative inroom %d!  JUNKING.",
+			slog("Obj_from_store loading object %s found non-negative inroom %d!  JUNKING.",
 				obj->short_description, object.in_room_vnum);
-			slog(buf);
 			extract_obj(obj);
 			return NULL;
 		}
@@ -152,9 +145,8 @@ Obj_from_store(FILE * fl, bool allow_inroom)
 
 		if (!fread(obj->action_description, object.plrtext_len, 1, fl)) {
 			obj->plrtext_len = 0;
-			sprintf(buf, "Error reading Obj %s's plrtext.",
+			slog("Error reading Obj %s's plrtext.",
 				obj->short_description);
-			slog(buf);
 			return NULL;
 		}
 	}
@@ -292,16 +284,14 @@ Crash_clean_file(char *name)
 				strcpy(filetype, "UNKNOWN!");
 				break;
 			}
-			sprintf(buf, "    Deleting %s's %s file.", name, filetype);
-			slog(buf);
+			slog("    Deleting %s's %s file.", name, filetype);
 			return 1;
 		}
 		// Must retrieve rented items w/in 30 days
 	} else if (rent.rentcode == RENT_RENTED)
 		if (rent.time < time(0) - (rent_file_timeout * SECS_PER_REAL_DAY)) {
 			Crash_delete_file(name, CRASH_FILE);
-			sprintf(buf, "    Deleting %s's rent file.", name);
-			slog(buf);
+			slog("    Deleting %s's rent file.", name);
 			return 1;
 		}
 	return (0);
@@ -578,19 +568,17 @@ Crash_load(struct Creature *ch)
 
 				// see if we're paying with credits
 				if (rent.currency == TIME_ELECTRO) {
-					sprintf(buf, "remobj( no creds ):%s, cost:%d, value:%d",
+					slog("remobj( no creds ):%s, cost:%d, value:%d",
 						tmpo->short_description,
 						cost, recurs_obj_cost(tmpo, 1, NULL));
-					slog(buf);
 					cost -= (recurs_obj_cost(tmpo, true, NULL));
 					extract_obj(tmpo);
 					num_lost++;
 				} else {		// default to gold
-					sprintf(buf, "remobj( no gold ):%s, cost:%d, value:%d",
+					slog("remobj( no gold ):%s, cost:%d, value:%d",
 						tmpo->short_description,
 						cost, recurs_obj_cost(tmpo, true, NULL));
 
-					slog(buf);
 					cost -= (recurs_obj_cost(tmpo, true, NULL));
 					extract_obj(tmpo);
 					num_lost++;

@@ -157,8 +157,7 @@ load_messages(void)
 			fgets(chk, 128, fl);
 	}
 
-	sprintf(buf, "Top message number loaded: %d.", type);
-	slog(buf);
+	slog("Top message number loaded: %d.", type);
 	fclose(fl);
 }
 

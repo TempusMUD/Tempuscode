@@ -118,6 +118,7 @@ craft_parse_item(craftshop *shop, xmlNodePtr node)
 	new_item = new craft_item;
 	new_item->vnum = xmlGetIntProp(node, "vnum");
 	new_item->cost = xmlGetIntProp(node, "cost");
+	shop->items.insert(shop->items.end(), new_item);
 	return;
 }
 
@@ -127,12 +128,13 @@ craftshop_load(xmlNodePtr node)
 	xmlNodePtr sub_node;
 	craftshop *new_shop;
 	craft_restr *new_restr;
-	const xmlChar *prop;
+	xmlChar *prop;
 
 	new_shop = new craftshop;
 	new_shop->room = xmlGetIntProp(node, "room");
 	new_shop->keeper_vnum = xmlGetIntProp(node, "keeper");
 	for (sub_node = node->xmlChildrenNode; sub_node; sub_node = sub_node->next) {
+		prop = NULL;
 		if (xmlMatches(sub_node->name, "refuse")) {
 			new_restr = new craft_restr;
 			
@@ -141,11 +143,13 @@ craftshop_load(xmlNodePtr node)
 				new_restr->val = search_block((const char *)prop, pc_char_class_types, true);
 				if (new_restr->val < 0)
 					slog("WARNING: refuse set to invalid class");
+				free(prop);
 			} else if ((prop = xmlGetProp(sub_node, (const xmlChar *)"race")) != NULL) {
 				new_restr->kind = CRAFT_RACE;
 				new_restr->val = search_block((const char *)prop, player_race, true);
 				if (new_restr->val < 0)
 					slog("WARNING: refuse set to invalid race");
+				free(prop);
 			} else {
 				slog("SYSERR: RACE and CLASS unspecified in craftshop refusal");
 			}
@@ -159,11 +163,13 @@ craftshop_load(xmlNodePtr node)
 				new_restr->val = search_block((const char *)prop, pc_char_class_types, true);
 				if (new_restr->val < 0)
 					slog("WARNING: accept set to invalid class");
+				free(prop);
 			} else if ((prop = xmlGetProp(sub_node, (const xmlChar *)"race")) != NULL) {
 				new_restr->kind = CRAFT_RACE;
 				new_restr->val = search_block((const char *)prop, player_race, true);
 				if (new_restr->val < 0)
 					slog("WARNING: accept set to invalid race");
+				free(prop);
 			} else {
 				slog("SYSERR: RACE and CLASS unspecified in craftshop refusal");
 			}

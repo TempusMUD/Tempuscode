@@ -478,8 +478,7 @@ void
 	}
 	if (in_room == NULL) {
 		slog("SYSERR: NOWHERE extracting char. (handler.c, extract_char)");
-		sprintf(buf, "...extract char = %s", GET_NAME(this));
-		slog(buf);
+		slog("...extract char = %s", GET_NAME(this));
 		exit(1);
 	}
 

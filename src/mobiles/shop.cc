@@ -686,9 +686,8 @@ get_selling_obj(struct Creature *ch, char *name,
 		strcpy(buf, MSG_BROKEN_OBJ);
 		break;
 	default:
-		sprintf(buf, "Illegal return value of %d from trade_with() (shop.c)",
+		slog("Illegal return value of %d from trade_with() (shop.c)",
 			result);
-		slog(buf);
 		strcpy(buf, "An error has occurred.");
 		break;
 	}
@@ -1313,9 +1312,8 @@ int
 end_read_list(struct shop_buy_data *list, int len, int error)
 {
 	if (error) {
-		sprintf(buf, "Raise MAX_SHOP_OBJ constant in shop.h to %d",
+		slog("Raise MAX_SHOP_OBJ constant in shop.h to %d",
 			len + error);
-		slog(buf);
 	}
 	BUY_WORD(list[len]) = 0;
 	BUY_TYPE(list[len++]) = NOTHING;

@@ -61,10 +61,9 @@ SPECIAL(nohunger_dude)
       send_to_char(ch, "You will no longer be affected by %s!\r\n", 
            mode == DRUNK ? "alcohol" : mode == THIRST ? "thirst" : "hunger");
 
-      sprintf(buf, "%s has gained %s.", GET_NAME(ch), 
+      slog("%s has gained %s.", GET_NAME(ch), 
 	      mode == DRUNK ? "nodrunk" : mode == THIRST ? "nothirst" :
 	      "nohunger");
-      slog(buf);
 
       return 1;
     }

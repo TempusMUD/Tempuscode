@@ -334,15 +334,11 @@ HelpGroup::build_group_list()
 		while (members) {
 			file >> uid;
 			if (!get_name_by_id(uid)) {
-				sprintf(buf,
-					"HLPERR: No such player id %ld, not adding to group %ld.",
+				slog("HLPERR: No such player id %ld, not adding to group %ld.",
 					uid, gid);
-				slog(buf);
 			} else if (!add_user(uid, gid)) {
-				sprintf(buf,
-					"HLPERR: Unable to add user '%ld' to group: '%ld'", uid,
+				slog("HLPERR: Unable to add user '%ld' to group: '%ld'", uid,
 					gid);
-				slog(buf);
 			}
 			members--;
 		}

@@ -54,9 +54,8 @@ load_elevators(void)
 	while (1) {
 
 		if (!get_line(file, line)) {
-			sprintf(buf, "SYSERR: Format error in elevator file, after %d",
+			slog("SYSERR: Format error in elevator file, after %d",
 				last);
-			slog(buf);
 			fclose(file);
 			return 0;
 		}
@@ -65,24 +64,21 @@ load_elevators(void)
 			return 1;
 		}
 		if (*line != '#') {
-			sprintf(buf, "SYSERR: Format error in elevator file, after %d",
+			slog("SYSERR: Format error in elevator file, after %d",
 				last);
-			slog(buf);
 			fclose(file);
 			return 0;
 		}
 		if (sscanf(line, "#%d", &nr) != 1) {
-			sprintf(buf, "SYSERR: Format error in elevator file, after %d",
+			slog("SYSERR: Format error in elevator file, after %d",
 				last);
-			slog(buf);
 			fclose(file);
 			return 0;
 		}
 
 		if (nr > last) {
-			sprintf(buf, "SYSERR: elevator %d is after %d.. must decrease.",
+			slog("SYSERR: elevator %d is after %d.. must decrease.",
 				nr, last);
-			slog(buf);
 			fclose(file);
 			return 0;
 		}
@@ -96,9 +92,8 @@ load_elevators(void)
 
 		while (1) {
 			if (!get_line(file, line)) {
-				sprintf(buf, "SYSERR: Format error in elevator file, in %d",
+				slog("SYSERR: Format error in elevator file, in %d",
 					nr);
-				slog(buf);
 				while ((elem = head->list)) {
 					head->list = elem->next;
 					if (elem->name)
@@ -114,8 +109,7 @@ load_elevators(void)
 				break;
 
 			if (sscanf(line, " %d %d %s", &vnum, &key, name) != 3) {
-				sprintf(buf, "SYSERR: Vnum error in elevator file, in %d", nr);
-				slog(buf);
+				slog("SYSERR: Vnum error in elevator file, in %d", nr);
 				while ((elem = head->list)) {
 					head->list = elem->next;
 					if (elem->name)

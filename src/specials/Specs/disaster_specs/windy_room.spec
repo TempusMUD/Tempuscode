@@ -70,15 +70,13 @@ boot_windy_rooms()
     windy_list = NULL;
 
     if (!(windy_list = ( windy_room_data * ) malloc(sizeof(windy_room_data)*num_windy_rooms))) {
-	sprintf(buf, "SYSERR: unable to malloc %d elements for windy list.", num_windy_rooms);
-	slog(buf);
+	slog("SYSERR: unable to malloc %d elements for windy list.", num_windy_rooms);
 	fclose(fl);
 	return 0;
     }
 
     if (!(fread(windy_list, sizeof(windy_room_data), num_windy_rooms, fl))) {
-	sprintf(buf, "SYSERR: unable to read %d windy elements from file.", num_windy_rooms);
-	slog(buf);
+	slog("SYSERR: unable to read %d windy elements from file.", num_windy_rooms);
 	fclose(fl);
 	return 0;
     }
@@ -116,8 +114,7 @@ boot_windy_rooms()
 	free(windy_list);
 	windy_list = newdata;
     }
-    sprintf(buf, "%d windy rooms booted from file, %d culled.", num_windy_rooms, num_windy_rooms-tot_good);
-    slog(buf);
+    slog("%d windy rooms booted from file, %d culled.", num_windy_rooms, num_windy_rooms-tot_good);
     return 1;
 }
 
@@ -179,8 +176,7 @@ add_windy_data(int vnum, int min, int max)
     num_windy_rooms++;
   
     if (!(newdata = (windy_room_data *) realloc(windy_list, sizeof(windy_room_data)*num_windy_rooms))) {
-	sprintf(buf, "SYSERR: error reallocating windy_rooms for room %d.", vnum);
-	slog(buf);
+	slog("SYSERR: error reallocating windy_rooms for room %d.", vnum);
 	return NULL;
     }
 
@@ -256,8 +252,7 @@ immort_windy_command(CHAR *ch, windy_room_data *windy, char *argument)
     }
     else if (!strcmp(arg1, "load")) {
 	if (!boot_windy_rooms()) {
-	    sprintf(buf, " === disabling spec in room %d.", ch->in_room->number);
-	    slog(buf);
+	    slog(" === disabling spec in room %d.", ch->in_room->number);
 	    ch->in_room->func = NULL;             // disable in this room only
 	    send_to_char(ch, "An error occured.  Disabling spec in this room.\r\n");
 	} 
@@ -304,8 +299,7 @@ SPECIAL(windy_room)
 
     if (!booted) {
 	if (!boot_windy_rooms()) {
-	    sprintf(buf, " === disabling spec in room %d.", room->number);
-	    slog(buf);
+	    slog(" === disabling spec in room %d.", room->number);
 	    room->func = NULL;               // disable in this room only
 	    return 0;
 	}
@@ -314,8 +308,7 @@ SPECIAL(windy_room)
 
     if (!(windy = find_windy_data(room->number))) {
 	if (!(windy = add_windy_data(room->number, DEFAULT_WINDY_MIN, DEFAULT_WINDY_MAX))) {
-	    sprintf(buf, "SYSERR: unable to generate default windy room data for room %d.", room->number);
-	    slog(buf);
+	    slog("SYSERR: unable to generate default windy room data for room %d.", room->number);
 	    room->func = NULL;
 	    return 0;
 	}

@@ -586,9 +586,8 @@ House_boot(void)
 
 
 		if ((real_atrium = real_room(temp_house.house_rooms[0])) == NULL) {
-			sprintf(buf, "Atrium %d does not exist.",
+			slog("Atrium %d does not exist.",
 				temp_house.house_rooms[0]);
-			slog(buf);
 			continue;			/*      house doesn't have an atrium -- skip  */
 		}
 
@@ -599,9 +598,8 @@ House_boot(void)
 
 		for (i = 0; i < temp_house.num_of_rooms; i++) {
 			if ((rnum = real_room(temp_house.house_rooms[i])) == NULL) {
-				sprintf(buf, "House room %d of house %d does not exist.",
+				slog("House room %d of house %d does not exist.",
 					temp_house.house_rooms[i], temp_house.house_rooms[0]);
-				slog(buf);
 			} else
 				SET_BIT(ROOM_FLAGS(rnum), ROOM_HOUSE);
 		}
@@ -1056,9 +1054,8 @@ hcontrol_destroy_house(struct Creature *ch, char *arg)
 
 	for (j = 0; j < house_control[i].num_of_rooms; j++) {
 		if ((room_rnum = real_room(house_control[i].house_rooms[j])) == NULL) {
-			sprintf(buf, "SYSERR: House had invalid vnum: %d",
+			slog("SYSERR: House had invalid vnum: %d",
 				house_control[i].house_rooms[j]);
-			slog(buf);
 		} else {
 			REMOVE_BIT(ROOM_FLAGS(room_rnum), ROOM_HOUSE | ROOM_HOUSE_CRASH);
 			if (i == 0)

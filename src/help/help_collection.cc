@@ -265,8 +265,7 @@ HelpCollection::CreateItem(Creature * ch)
 	SaveIndex(ch);
 	n->Edit(ch);
 	SET_BIT(n->flags, HFLAG_MODIFIED);
-	sprintf(buf, "%s has help topic # %d.", GET_NAME(ch), n->idnum);
-	slog(buf);
+	slog("%s has help topic # %d.", GET_NAME(ch), n->idnum);
 	return true;
 }
 
@@ -360,8 +359,7 @@ HelpCollection::SaveAll(Creature * ch)
 			cur->Save();
 	}
 	send_to_char(ch, "Saved.\r\n");
-	sprintf(buf, "%s has saved the help system.", GET_NAME(ch));
-	slog(buf);
+	slog("%s has saved the help system.", GET_NAME(ch));
 	return true;
 }
 
@@ -435,8 +433,7 @@ HelpCollection::LoadIndex()
 		slog("SYSERR: No records read from help file index.");
 		return false;
 	}
-	sprintf(buf, "%d items read from help file index", num_items);
-	slog(buf);
+	slog("%d items read from help file index", num_items);
 	return true;
 }
 

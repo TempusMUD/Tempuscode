@@ -240,9 +240,8 @@ init_boards(void)
 
 	for (i = 0; i < NUM_OF_BOARDS; i++) {
 		/*    if (!real_object_proto(BOARD_VNUM(i, 0))) {
-		   sprintf(buf, "SYSERR: Fatal board error: board vnum %d does not exist!",
+		   slog("SYSERR: Fatal board error: board vnum %d does not exist!",
 		   BOARD_VNUM(i, 0));
-		   slog(buf);
 		   fatal_error = 1;
 		   } */
 		num_of_msgs[i] = 0;

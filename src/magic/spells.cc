@@ -771,9 +771,8 @@ ASPELL(spell_summon)
 			}
 
 			if (!IS_REMORT(victim) && !IS_NPC(victim)) {
-				sprintf(buf, "%s astral-summoned %s to %d.", GET_NAME(ch),
+				slog("%s astral-summoned %s to %d.", GET_NAME(ch),
 					GET_NAME(victim), ch->in_room->number);
-				slog(buf);
 			}
 
 		}
@@ -806,9 +805,8 @@ ASPELL(spell_summon)
 	WAIT_STATE(ch, PULSE_VIOLENCE * 2);
 
 	if (!IS_REMORT(victim) && !IS_NPC(victim)) {
-		sprintf(buf, "%s summoned %s to %d.\n",
+		slog("%s summoned %s to %d.\n",
 			GET_NAME(ch), GET_NAME(victim), victim->in_room->number);
-		slog(buf);
 	}
 }
 
@@ -2264,9 +2262,8 @@ ASPELL(spell_gust_of_wind)
 	if (obj) {
 
 		if (!obj->in_room) {
-			sprintf(buf, "SYSERR: %s tried to gust %s at %d.",
+			slog("SYSERR: %s tried to gust %s at %d.",
 				GET_NAME(ch), obj->short_description, ch->in_room->number);
-			slog(buf);
 			act("$p doesnt budge.", FALSE, ch, obj, 0, TO_CHAR);
 			return;
 		}
@@ -2608,8 +2605,7 @@ ASPELL(spell_summon_legion)
 	i = MIN(i, 4);
 
 	if (!(devil = read_mobile(legion_vnums[i]))) {
-		sprintf(buf, "SYSERR: unable to load legion, i=%d.", i);
-		slog(buf);
+		slog("SYSERR: unable to load legion, i=%d.", i);
 		send_to_char(ch, "legion error.\r\n");
 		return;
 	}
@@ -2991,9 +2987,8 @@ ASPELL(spell_unholy_stalker)
 
 	HUNTING(stalker) = victim;
 
-	sprintf(buf, "%s has sent an unholy stalker after %s.", GET_NAME(ch),
+	slog("%s has sent an unholy stalker after %s.", GET_NAME(ch),
 		GET_NAME(victim));
-	slog(buf);
 
 }
 

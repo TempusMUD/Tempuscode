@@ -66,9 +66,8 @@ SPECIAL(jail_locker)
 	GET_GOLD(ch) -= cost;
 
       if (ch->in_room->number == 3100) {
-	sprintf(buf, "%s received jail impound at %d.", GET_NAME(ch),
+	slog("%s received jail impound at %d.", GET_NAME(ch),
 		ch->in_room->number);
-	slog(buf);
       }
 
       House_crashsave(ch->in_room->next->number);

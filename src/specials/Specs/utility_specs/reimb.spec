@@ -197,8 +197,7 @@ SPECIAL(reimb)
         send_to_char(ch, "Type HELP <old password> for reimburse.\r\n");
       else if (strncmp(CRYPT(arg, data[i].pwd), data[i].pwd, MAX_PWD_LENGTH)) { 
         send_to_char(ch, "Bad password.\r\n");
-        sprintf(buf, "Bad REIMB pwd attempt for %s from %s.", GET_NAME(ch), ch->desc->host);
-        slog(buf);
+        slog("Bad REIMB pwd attempt for %s from %s.", GET_NAME(ch), ch->desc->host);
       } else {
         act("$n whaps you upside the head!", FALSE, reimber, 0, ch, TO_VICT);
         act("$n whaps $N upside the head!", FALSE, reimber, 0, ch, TO_NOTVICT);

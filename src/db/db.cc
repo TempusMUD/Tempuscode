@@ -481,9 +481,8 @@ reset_time(void)
 
 	time_info = mud_time_passed(time(0), beginning_of_time);
 
-	sprintf(buf, "   Current Gametime (global): %dH %dD %dM %dY.",
+	slog("   Current Gametime (global): %dH %dD %dM %dY.",
 		time_info.hours, time_info.day, time_info.month, time_info.year);
-	slog(buf);
 }
 
 void
@@ -560,8 +559,7 @@ build_player_index(void)
 		fprintf(stderr, "\aWARNING:  PLAYERFILE IS PROBABLY CORRUPT!\n");
 	recs = size / sizeof(struct char_file_u);
 	if (recs) {
-		sprintf(buf, "   %ld players in database.", recs);
-		slog(buf);
+		slog("   %ld players in database.", recs);
 		CREATE(player_table, struct player_index_element, recs);
 	} else {
 		player_table = NULL;
@@ -593,9 +591,8 @@ build_player_index(void)
 			   member->rank  = 0;
 			   member->next = clan->member_list;
 			   clan->member_list = member;
-			   sprintf(buf, "Player <%s> added to clan <%s>.",
+			   slog("Player <%s> added to clan <%s>.",
 			   dummy.name, clan->name);
-			   slog(buf);
 			   }
 			   } */
 		}
@@ -1029,10 +1026,8 @@ parse_room(FILE * fl, int vnum_nr)
 				safe_exit(1);
 			}
 			if (FLOW_SPEED(room)) {
-				sprintf(buf,
-					"SYSERR: Multiple flow states assigned to room #%d.\n",
+				slog("SYSERR: Multiple flow states assigned to room #%d.\n",
 					vnum_nr);
-				slog(buf);
 			}
 			if (t[0] < 0 || t[0] >= NUM_DIRS) {
 				fprintf(stderr,
@@ -1046,7 +1041,7 @@ parse_room(FILE * fl, int vnum_nr)
 				safe_exit(1);
 			}
 			if (t[2] < 0 || t[2] >= NUM_FLOW_TYPES) {
-				sprintf(buf, "SYSERR: Illegal flow type in room #%d.",
+				slog("SYSERR: Illegal flow type in room #%d.",
 					vnum_nr);
 				FLOW_TYPE(room) = F_TYPE_NONE;
 			} else
@@ -1142,8 +1137,7 @@ setup_dir(FILE * fl, struct room_data *room, int dir)
 	sprintf(buf2, "room #%d, direction D%d", room->number, dir);
 
 	if (dir >= NUM_DIRS) {
-		sprintf(buf, "ERROR!! 666!! (%d)", room->number);
-		slog(buf);
+		slog("ERROR!! 666!! (%d)", room->number);
 		safe_exit(1);
 	}
 	/*
@@ -3355,9 +3349,8 @@ store_to_char(struct char_file_u *st, struct Creature *ch)
 
 	if (IS_SET(ch->char_specials.saved.act, MOB_ISNPC)) {
 		REMOVE_BIT(ch->char_specials.saved.act, MOB_ISNPC);
-		sprintf(buf, "SYSERR: store_to_char %s loaded with MOB_ISNPC bit set!",
+		slog("SYSERR: store_to_char %s loaded with MOB_ISNPC bit set!",
 			GET_NAME(ch));
-		slog(buf);
 	}
 
 	ch->player_specials->saved = st->player_specials_saved;
@@ -3430,6 +3423,8 @@ char_to_store(struct Creature *ch, struct char_file_u *st)
 	sh_int hit = GET_HIT(ch), mana = GET_MANA(ch), move = GET_MOVE(ch);
 	int dead = 0;
 
+	memset(st, 0xFF, sizeof(struct char_file_u));
+
 	/* Unaffect everything a character can be affected by */
 
 	for (i = 0; i < NUM_WEARS; i++) {
@@ -3457,6 +3452,8 @@ char_to_store(struct Creature *ch, struct char_file_u *st)
 			st->affected[i].location = 0;
 			st->affected[i].bitvector = 0;
 			st->affected[i].level = 0;
+			st->affected[i].is_instant = 0;
+			st->affected[i].aff_index = 0;
 			st->affected[i].next = NULL;
 		}
 	}
@@ -3604,9 +3601,8 @@ fread_string(FILE * fl, char *error)
 
 	do {
 		if (!fgets(tmp, 512, fl)) {
-			sprintf(buf, "SYSERR: fread_string: format error at or near %s\n",
+			slog("SYSERR: fread_string: format error at or near %s\n",
 				error);
-			slog(buf);
 			safe_exit(1);
 		}
 		/* If there is a '~', end the string; else put an "\r\n" over the '\n'. */
@@ -3646,7 +3642,7 @@ fread_string(FILE * fl, char *error)
 int
 pread_string(FILE * fl, char *str, char *error)
 {
-	char buf[MAX_STRING_LENGTH], tmp[512];
+	char tmp[512];
 	register char *point;
 	unsigned int length = 0, templength = 0;
 	bool done = false;
@@ -3670,9 +3666,7 @@ pread_string(FILE * fl, char *str, char *error)
 		templength = strlen(tmp);
 
 		if (length + templength >= MAX_STRING_LENGTH) {
-			sprintf(buf, "SYSERR: pread_string: string too large: %s\n",
-				error);
-			slog(buf);
+			slog("SYSERR: pread_string: string too large: %s\n", error);
 			return 0;
 		} else {
 			strcat(str + length, tmp);

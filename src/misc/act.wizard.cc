@@ -2076,8 +2076,7 @@ ACMD(do_shutdown)
 			send_to_char(ch, "Please specify a shutdown mode.\r\n");
 			return;
 		}
-		sprintf(buf, "(GC) Shutdown by %s.", GET_NAME(ch));
-		slog(buf);
+		slog("(GC) Shutdown by %s.", GET_NAME(ch));
 		Crash_save_all();
 		House_save_all(TRUE);
 		save_quests();
@@ -2097,8 +2096,7 @@ ACMD(do_shutdown)
 			shutdown_count = -1;
 			shutdown_idnum = -1;
 			shutdown_mode = SHUTDOWN_NONE;
-			sprintf(buf, "(GC) Shutdown ABORT called by %s.", GET_NAME(ch));
-			slog(buf);
+			slog("(GC) Shutdown ABORT called by %s.", GET_NAME(ch));
 			send_to_all(":: Tempus REBOOT sequence aborted ::\r\n");
 		}
 		return;
@@ -2106,8 +2104,7 @@ ACMD(do_shutdown)
 	} else if (!str_cmp(arg, "reboot")) {
 		if (!count) {
 			touch("../.fastboot");
-			sprintf(buf, "(GC) Reboot by %s.", GET_NAME(ch));
-			slog(buf);
+			slog("(GC) Reboot by %s.", GET_NAME(ch));
 			Crash_save_all();
 			House_save_all(TRUE);
 			autosave_zones(ZONE_RESETSAVE);
@@ -2122,9 +2119,8 @@ ACMD(do_shutdown)
 				"Please visit our website at http://tempusmud.com\r\n");
 			circle_shutdown = circle_reboot = 1;
 		} else {
-			sprintf(buf, "(GC) Reboot in [%d] seconds by %s.", count,
+			slog("(GC) Reboot in [%d] seconds by %s.", count,
 				GET_NAME(ch));
-			slog(buf);
 			sprintf(buf, "\007\007:: Tempus REBOOT in %d seconds ::\r\n",
 				count);
 			send_to_all(buf);
@@ -2133,8 +2129,7 @@ ACMD(do_shutdown)
 			shutdown_mode = SHUTDOWN_REBOOT;
 		}
 	} else if (!str_cmp(arg, "die")) {
-		sprintf(buf, "(GC) Shutdown by %s.", GET_NAME(ch));
-		slog(buf);
+		slog("(GC) Shutdown by %s.", GET_NAME(ch));
 		Crash_save_all();
 		House_save_all(TRUE);
 		autosave_zones(ZONE_RESETSAVE);
@@ -2150,8 +2145,7 @@ ACMD(do_shutdown)
 		touch("../.killscript");
 		circle_shutdown = 1;
 	} else if (!str_cmp(arg, "pause")) {
-		sprintf(buf, "(GC) Shutdown by %s.", GET_NAME(ch));
-		slog(buf);
+		slog("(GC) Shutdown by %s.", GET_NAME(ch));
 		Crash_save_all();
 		House_save_all(TRUE);
 		autosave_zones(ZONE_RESETSAVE);
@@ -2268,11 +2262,10 @@ ACMD(do_switch)
 		victim->desc = ch->desc;
 		ch->desc = NULL;
 
-		sprintf(buf, "(%s) %s has %sswitched into %s at %d.",
+		slog("(%s) %s has %sswitched into %s at %d.",
 			subcmd == SCMD_QSWITCH ? "QC" : "GC", GET_NAME(ch),
 			subcmd == SCMD_QSWITCH ? "q" : "",
 			GET_NAME(victim), victim->in_room->number);
-		slog(buf);
 	}
 }
 
@@ -2314,9 +2307,8 @@ ACMD(do_rswitch)
 		victim->desc = orig->desc;
 		orig->desc = NULL;
 
-		sprintf(buf, "(GC) %s has rswitched %s into %s at %d.", GET_NAME(ch),
+		slog("(GC) %s has rswitched %s into %s at %d.", GET_NAME(ch),
 			GET_NAME(orig), GET_NAME(victim), victim->in_room->number);
-		slog(buf);
 
 	}
 }
@@ -2423,9 +2415,8 @@ ACMD(do_mload)
 	act("$n has created $N!", FALSE, ch, 0, mob, TO_ROOM);
 	act("You create $N.", FALSE, ch, 0, mob, TO_CHAR);
 
-	sprintf(buf, "(GC) %s mloaded %s at %d.", GET_NAME(ch), GET_NAME(mob),
+	slog("(GC) %s mloaded %s at %d.", GET_NAME(ch), GET_NAME(mob),
 		ch->in_room->number);
-	slog(buf);
 
 }
 
@@ -2454,9 +2445,8 @@ ACMD(do_oload)
 	act("$n has created $p!", FALSE, ch, obj, 0, TO_ROOM);
 	act("You create $p.", FALSE, ch, obj, 0, TO_CHAR);
 
-	sprintf(buf, "(GC) %s loaded %s at %d.", GET_NAME(ch),
+	slog("(GC) %s loaded %s at %d.", GET_NAME(ch),
 		obj->short_description, ch->in_room->number);
-	slog(buf);
 
 }
 
@@ -2499,9 +2489,8 @@ ACMD(do_pload)
 		act("You create $p.", FALSE, ch, obj, 0, TO_CHAR);
 		obj_to_char(obj, ch);
 
-		sprintf(buf, "(GC) %s ploaded %s on %s.", GET_NAME(ch),
+		slog("(GC) %s ploaded %s on %s.", GET_NAME(ch),
 			obj->short_description, vict ? GET_NAME(vict) : GET_NAME(ch));
-		slog(buf);
 	}
 }
 
@@ -2608,9 +2597,8 @@ ACMD(do_purge)
 			vict->extract(false, true, CON_CLOSE);
 		} else if ((obj = get_obj_in_list_vis(ch, buf, ch->in_room->contents))) {
 			act("$n destroys $p.", FALSE, ch, obj, 0, TO_ROOM);
-			sprintf(buf, "(GC) %s purged %s at %d.", GET_NAME(ch),
+			slog("(GC) %s purged %s at %d.", GET_NAME(ch),
 				obj->short_description, ch->in_room->number);
-			slog(buf);
 			extract_obj(obj);
 
 		} else {
@@ -2638,9 +2626,8 @@ ACMD(do_purge)
 
 		while (ch->in_room->affects)
 			affect_from_room(ch->in_room, ch->in_room->affects);
-		sprintf(buf, "(GC) %s has purged room %s.", GET_NAME(ch),
+		slog("(GC) %s has purged room %s.", GET_NAME(ch),
 			ch->in_room->name);
-		slog(buf);
 
 	}
 }
@@ -5592,11 +5579,10 @@ ACMD(do_set)
 			send_to_char(ch, "Better not -- could be a long winter!\r\n");
 			return;
 		}
-		sprintf(buf, "(GC) %s set %s %sfrozen.", 
+		slog("(GC) %s set %s %sfrozen.", 
 				GET_NAME(ch), 
 				GET_NAME(vict),
 				PLR_FLAGGED(vict, PLR_FROZEN) ? "" : "UN-"); 
-		slog(buf);
 		SET_OR_REMOVE(PLR_FLAGS(vict), PLR_FROZEN);
 		break;
 	case 27:
@@ -5654,9 +5640,8 @@ ACMD(do_set)
 		break;
 	case 37:
 		SET_OR_REMOVE(PLR_FLAGS(vict), PLR_SITEOK);
-		sprintf(buf, "(GC) %s %ssiteok'd %s.", GET_NAME(ch), PLR_FLAGGED(vict,
+		slog("(GC) %s %ssiteok'd %s.", GET_NAME(ch), PLR_FLAGGED(vict,
 				PLR_SITEOK) ? "" : "UN-", GET_NAME(vict));
-		slog(buf);
 
 		break;
 	case 38:
@@ -5919,11 +5904,10 @@ ACMD(do_set)
 		break;
 	case 88:
 		SET_OR_REMOVE(PLR_FLAGS(vict), PLR_LOG);
-		sprintf(buf, "(GC) Logging %sactivated for %s by %s.", 
+		slog("(GC) Logging %sactivated for %s by %s.", 
 				PLR_FLAGGED(vict, PLR_LOG) ? "" : "de-", 
 				GET_NAME(ch), 
 				GET_NAME(vict) );
-		slog(buf);
 		break;
 	case 89:
 		SET_OR_REMOVE(PLR_FLAGS(vict), PLR_NOSHOUT);

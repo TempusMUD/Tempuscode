@@ -779,9 +779,8 @@ ACMD(do_gen_comm)
 					"I don't think everyone wants to hear that.  SPEW it!\r\n");
 				break;
 			}
-			sprintf(buf, "%s warned for nasty public communication.",
+			slog("%s warned for nasty public communication.",
 				GET_NAME(ch));
-			slog(buf);
 		}
 	}
 

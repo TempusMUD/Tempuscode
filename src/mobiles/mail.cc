@@ -169,8 +169,7 @@ store_mail(long to_id, long from_id, char *txt, char *cc_list,
 	char *to_name = get_name_by_id(to_id);
 
 	if (to_name == 0) {
-		sprintf(buf, "Toss_Mail Error, recipient idnum %ld invalid.", to_id);
-		slog(buf);
+		slog("Toss_Mail Error, recipient idnum %ld invalid.", to_id);
 		delete letter;
 		return 0;
 	}
@@ -178,7 +177,8 @@ store_mail(long to_id, long from_id, char *txt, char *cc_list,
 	get_filename(to_name, fname, PLAYER_MAIL_FILE);
 	mail_file.open(fname, ios::out | ios::app | ios::ate);
 	if (!mail_file.is_open()) {
-		send_to_char(get_char_in_world_by_idnum(from_id), "Error, mailfile (%s) not opened.", fname);
+		sprintf(buf, "Error, mailfile (%s) not opened.", fname);
+		send_to_char(get_char_in_world_by_idnum(from_id), buf);
 		slog(buf);
 		delete letter;
 		return 0;

@@ -189,10 +189,8 @@ flow_room(int pulse)
 						aff->duration--;
 					if (aff->duration <= 0) {
 						if (aff->duration < 0) {
-							sprintf(buf,
-								"SYSERR:  Room aff type %d has %d duration at %d.",
+							slog("SYSERR:  Room aff type %d has %d duration at %d.",
 								aff->type, aff->duration, rnum->number);
-							slog(buf);
 						}
 						affect_from_room(rnum, aff);
 					}

@@ -1704,12 +1704,11 @@ cast_spell(struct Creature *ch, struct Creature *tch,
 	if (!IS_MOB(ch) && GET_LEVEL(ch) >= LVL_AMBASSADOR &&
 		GET_LEVEL(ch) < LVL_GOD && !mini_mud &&
 		(!tch || GET_LEVEL(tch) < LVL_AMBASSADOR) && (ch != tch)) {
-		sprintf(buf, "ImmCast: %s called %s on %s.", GET_NAME(ch),
+		slog("ImmCast: %s called %s on %s.", GET_NAME(ch),
 			spell_to_str(spellnum), tch ? GET_NAME(tch) : tobj ?
 			tobj->short_description : knock_door ?
 			(knock_door->keyword ? fname(knock_door->keyword) :
 				"door") : "NULL");
-		slog(buf);
 	}
 
 	int my_return_flags = 0;

@@ -45,8 +45,7 @@ void
 safe_exit(int mode)
 {
 	touch("../pause");
-	sprintf(buf, "Exiting with status %d from safe_exit().", mode);
-	slog(buf);
+	slog("Exiting with status %d from safe_exit().", mode);
 	exit(mode);
 }
 

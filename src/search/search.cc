@@ -146,25 +146,22 @@ general_search(struct Creature *ch, struct special_search_data *srch,
 	switch (srch->command) {
 	case (SEARCH_COM_OBJECT):
 		if (!(obj = real_object_proto(srch->arg[0]))) {
-			sprintf(buf, "SYSERR: search in room %d, object %d nonexistant.",
+			slog("SYSERR: search in room %d, object %d nonexistant.",
 				rm->number, srch->arg[0]);
-			slog(buf);
 			return 0;
 		}
 		if ((targ_room = real_room(srch->arg[1])) == NULL) {
-			sprintf(buf,
+			slog(
 				"SYSERR: search in room %d, targ room %d nonexistant.",
 				rm->number, srch->arg[1]);
-			slog(buf);
 			return 0;
 		}
 		if (obj->shared->number - obj->shared->house_count >= srch->arg[2]) {
 			return 0;
 		}
 		if (!(obj = read_object(srch->arg[0]))) {
-			sprintf(buf, "SYSERR: search cannot load object #%d, room %d.",
+			slog("SYSERR: search cannot load object #%d, room %d.",
 				srch->arg[0], ch->in_room->number);
-			slog(buf);
 			return 0;
 		}
 		if (ZONE_FLAGGED(ch->in_room->zone, ZONE_ZCMDS_APPROVED))
@@ -179,25 +176,21 @@ general_search(struct Creature *ch, struct special_search_data *srch,
 
 	case SEARCH_COM_MOBILE:
 		if (!(mob = real_mobile_proto(srch->arg[0]))) {
-			sprintf(buf, "SYSERR: search in room %d, mobile %d nonexistant.",
+			slog("SYSERR: search in room %d, mobile %d nonexistant.",
 				rm->number, srch->arg[0]);
-			slog(buf);
 			return 0;
 		}
 		if ((targ_room = real_room(srch->arg[1])) == NULL) {
-			sprintf(buf,
-				"SYSERR: search in room %d, targ room %d nonexistant.",
+			slog("SYSERR: search in room %d, targ room %d nonexistant.",
 				rm->number, srch->arg[1]);
-			slog(buf);
 			return 0;
 		}
 		if (mob->mob_specials.shared->number >= srch->arg[2]) {
 			return 0;
 		}
 		if (!(mob = read_mobile(srch->arg[0]))) {
-			sprintf(buf, "SYSERR: search cannot load mobile #%d, room %d.",
+			slog("SYSERR: search cannot load mobile #%d, room %d.",
 				srch->arg[0], ch->in_room->number);
-			slog(buf);
 			return 0;
 		}
 		char_to_room(mob, targ_room,false);
@@ -209,24 +202,18 @@ general_search(struct Creature *ch, struct special_search_data *srch,
 
 	case SEARCH_COM_EQUIP:
 		if (!(obj = real_object_proto(srch->arg[1]))) {
-			sprintf(buf,
-				"SYSERR: search in room %d, equip object %d nonexistant.",
+			slog("SYSERR: search in room %d, equip object %d nonexistant.",
 				rm->number, srch->arg[1]);
-			slog(buf);
 			return 0;
 		}
 		if (srch->arg[2] < 0 || srch->arg[2] >= NUM_WEARS) {
-			sprintf(buf,
-				"SYSERR: search trying to equip obj %d to badpos.",
+			slog("SYSERR: search trying to equip obj %d to badpos.",
 				obj->shared->vnum);
-			slog(buf);
 			return 0;
 		}
 		if (!(obj = read_object(srch->arg[1]))) {
-			sprintf(buf,
-				"SYSERR: search cannot load equip object #%d, room %d.",
+			slog("SYSERR: search cannot load equip object #%d, room %d.",
 				srch->arg[0], ch->in_room->number);
-			slog(buf);
 			return 0;
 		}
 		if (ZONE_FLAGGED(ch->in_room->zone, ZONE_ZCMDS_APPROVED))
@@ -266,10 +253,8 @@ general_search(struct Creature *ch, struct special_search_data *srch,
 
 	case SEARCH_COM_TRANSPORT:
 		if ((targ_room = real_room(srch->arg[0])) == NULL) {
-			sprintf(buf,
-				"SYSERR: search in room %d, targ room %d nonexistant.",
+			slog("SYSERR: search in room %d, targ room %d nonexistant.",
 				rm->number, srch->arg[0]);
-			slog(buf);
 			return 0;
 		}
 		if (srch->arg[1] == -1 || srch->arg[1] == 0) {
@@ -370,16 +355,13 @@ general_search(struct Creature *ch, struct special_search_data *srch,
 	case SEARCH_COM_DOOR:
 		/************  Targ Room nonexistant ************/
 		if ((targ_room = real_room(srch->arg[0])) == NULL) {
-			sprintf(buf,
-				"SYSERR: search in room %d, targ room %d nonexistant.",
+			slog("SYSERR: search in room %d, targ room %d nonexistant.",
 				rm->number, srch->arg[0]);
-			slog(buf);
 			return 0;
 		}
 		if (srch->arg[1] >= NUM_DIRS || !targ_room->dir_option[srch->arg[1]]) {
-			sprintf(buf, "SYSERR: search in room %d, direction nonexistant.",
+			slog("SYSERR: search in room %d, direction nonexistant.",
 				rm->number);
-			slog(buf);
 			return 0;
 		}
 		switch (srch->arg[2]) {
@@ -405,9 +387,8 @@ general_search(struct Creature *ch, struct special_search_data *srch,
 			break;
 
 		default:
-			sprintf(buf, "SYSERR: search bunk doorcmd %d in rm %d.",
+			slog("SYSERR: search bunk doorcmd %d in rm %d.",
 				srch->arg[2], rm->number);
-			slog(buf);
 			return 0;
 		}
 		if (!(other_rm = targ_room->dir_option[srch->arg[1]]->to_room) ||
@@ -473,16 +454,14 @@ general_search(struct Creature *ch, struct special_search_data *srch,
 		targ_room = real_room(srch->arg[1]);
 
 		if (srch->arg[0] < 0 || srch->arg[0] > LVL_GRIMP) {
-			sprintf(buf, "SYSERR: search in room %d, spell level %d invalid.",
+			slog("SYSERR: search in room %d, spell level %d invalid.",
 				rm->number, srch->arg[0]);
-			slog(buf);
 			return 0;
 		}
 
 		if (srch->arg[2] <= 0 || srch->arg[2] > TOP_NPC_SPELL) {
-			sprintf(buf, "SYSERR: search in room %d, spell number %d invalid.",
+			slog("SYSERR: search in room %d, spell number %d invalid.",
 				rm->number, srch->arg[2]);
-			slog(buf);
 			return 0;
 		}
 
@@ -564,17 +543,15 @@ general_search(struct Creature *ch, struct special_search_data *srch,
 		targ_room = real_room(srch->arg[1]);
 
 		if (srch->arg[0] < 0 || srch->arg[0] > 500) {
-			sprintf(buf, "SYSERR: search in room %d, damage level %d invalid.",
+			slog("SYSERR: search in room %d, damage level %d invalid.",
 				rm->number, srch->arg[0]);
-			slog(buf);
 			return 0;
 		}
 
 		if (srch->arg[2] <= 0 || srch->arg[2] >= TOP_NPC_SPELL) {
-			sprintf(buf,
+			slog(
 				"SYSERR: search in room %d, damage number %d invalid.",
 				rm->number, srch->arg[2]);
-			slog(buf);
 			return 0;
 		}
 
@@ -716,9 +693,8 @@ general_search(struct Creature *ch, struct special_search_data *srch,
 		break;
 
 	default:
-		sprintf(buf, "Unknown rsearch command in do_search(  )..room %d.",
+		slog("Unknown rsearch command in do_search(  )..room %d.",
 			rm->number);
-		slog(buf);
 
 	}
 

@@ -888,9 +888,8 @@ ACCMD(do_offensive_skill)
 				int tmp_wait = 50 - prob;
 				tmp_wait = MAX(tmp_wait, 70);
 				wait += tmp_wait;
-				sprintf(buf, "%s failed %s miserably, tacking on %d x0.1 sec",
+				slog("%s failed %s miserably, tacking on %d x0.1 sec",
 					GET_NAME(ch), spell_to_str(subcmd), tmp_wait);
-				slog(buf);
 			}
 		}
 
@@ -2016,9 +2015,8 @@ ACMD(do_turn)
 				TRUE, ch, 0, vict, TO_CHAR);
 			gain_exp(ch, GET_EXP(vict));
 
-			sprintf(buf, "%s killed %s with a turn at %d.",
+			slog("%s killed %s with a turn at %d.",
 				GET_NAME(ch), GET_NAME(vict), ch->in_room->number);
-			slog(buf);
 			gain_skill_prof(ch, SKILL_TURN);
 
 			raw_kill(vict, ch, SKILL_TURN);	// Destroying a victime with turn

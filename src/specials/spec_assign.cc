@@ -410,10 +410,8 @@ do_specassign_save(struct Creature *ch, int mode)
 			}
 		fclose(file);
 	}
-	if (!mode) {
-		sprintf(buf, "%s saved all spec assign files.", GET_NAME(ch));
-		slog(buf);
-	}
+	if (!mode)
+		slog("%s saved all spec assign files.", GET_NAME(ch));
 	return 0;
 }
 
@@ -540,18 +538,14 @@ assign_mobiles(void)
 		}
 
 		if (!(mob = real_mobile_proto(vnum))) {
-			if (!mini_mud) {
-				sprintf(buf, "Error in mob spec file: mobile <%d> not exist.",
+			if (!mini_mud)
+				slog("Error in mob spec file: mobile <%d> not exist.",
 					vnum);
-				slog(buf);
-			}
 		} else if ((index = find_spec_index_arg(ptr_name)) < 0) {
-			sprintf(buf, "Error in mob spec file: ptr <%s> not exist.",
+			slog("Error in mob spec file: ptr <%s> not exist.",
 				ptr_name);
-			slog(buf);
 		} else if (!IS_SET(spec_list[index].flags, SPEC_MOB)) {
-			sprintf(buf, "Attempt to assign ptr <%s> to a mobile.", ptr_name);
-			slog(buf);
+			slog("Attempt to assign ptr <%s> to a mobile.", ptr_name);
 		} else
 			mob->mob_specials.shared->func = spec_list[index].func;
 	}
@@ -587,17 +581,14 @@ assign_objects(void)
 
 		if (!(obj = real_object_proto(vnum))) {
 			if (!mini_mud) {
-				sprintf(buf, "Error in obj spec file: object <%d> not exist.",
+				slog("Error in obj spec file: object <%d> not exist.",
 					vnum);
-				slog(buf);
 			}
 		} else if ((index = find_spec_index_arg(ptr_name)) < 0) {
-			sprintf(buf, "Error in obj spec file: ptr <%s> not exist.",
+			slog("Error in obj spec file: ptr <%s> not exist.",
 				ptr_name);
-			slog(buf);
 		} else if (!IS_SET(spec_list[index].flags, SPEC_OBJ)) {
-			sprintf(buf, "Attempt to assign ptr <%s> to a object.", ptr_name);
-			slog(buf);
+			slog("Attempt to assign ptr <%s> to a object.", ptr_name);
 		} else
 			obj->shared->func = spec_list[index].func;
 	}
@@ -634,17 +625,14 @@ assign_rooms(void)
 
 		if (!(rm = real_room(vnum))) {
 			if (!mini_mud) {
-				sprintf(buf, "Error in room spec file: room <%d> not exist.",
+				slog("Error in room spec file: room <%d> not exist.",
 					vnum);
-				slog(buf);
 			}
 		} else if ((index = find_spec_index_arg(ptr_name)) < 0) {
-			sprintf(buf, "Error in room spec file: ptr <%s> not exist.",
+			slog("Error in room spec file: ptr <%s> not exist.",
 				ptr_name);
-			slog(buf);
 		} else if (!IS_SET(spec_list[index].flags, SPEC_RM)) {
-			sprintf(buf, "Attempt to assign ptr <%s> to a room.", ptr_name);
-			slog(buf);
+			slog("Attempt to assign ptr <%s> to a room.", ptr_name);
 		} else
 			rm->func = spec_list[index].func;
 	}

@@ -247,9 +247,8 @@ mag_savingthrow(struct Creature *ch, int level, int type)
 	}
 
 	/*  if (type == SAVING_SPELL) {
-	   sprintf(buf, "SAVLOG: %s saving vs. %d [level %d] at %d.",
+	   slog("SAVLOG: %s saving vs. %d [level %d] at %d.",
 	   GET_NAME(ch), type, level, save);
-	   slog(buf);
 	   } */
 	/* throwing a 0 is always a failure */
 	if (MAX(1, save) < number(0, 99))
@@ -2158,8 +2157,7 @@ Fireball: like harder bones, skin, organ membranecs
 			accum_affect = 1;
 		break;
 	default:
-		sprintf(buf, "SYSERR: unknown spell %d in mag_affects.", spellnum);
-		slog(buf);
+		slog("SYSERR: unknown spell %d in mag_affects.", spellnum);
 		break;
 	}
 
@@ -2257,9 +2255,8 @@ perform_mag_groups(int level, struct Creature *ch,
 		mag_affects(level, ch, tch, SPELL_SHIELD_OF_RIGHTEOUSNESS, savetype);
 		break;
 	default:
-		sprintf(buf, "SYSERR: Unknown spellnum %d in perform_mag_groups()",
+		slog("SYSERR: Unknown spellnum %d in perform_mag_groups()",
 			spellnum);
-		slog(buf);
 		break;
 
 	}
@@ -2722,8 +2719,7 @@ mag_points(int level, struct Creature *ch, struct Creature *victim,
 		}
 		break;
 	default:
-		sprintf(buf, "SYSERR: spellnum %d in mag_points.", spellnum);
-		slog(buf);
+		slog("SYSERR: spellnum %d in mag_points.", spellnum);
 		return;
 	}
 
@@ -2916,9 +2912,8 @@ mag_unaffects(int level, struct Creature *ch, struct Creature *victim,
 		break;
 
 	default:
-		sprintf(buf, "SYSERR: unknown spellnum %d passed to mag_unaffects",
+		slog("SYSERR: unknown spellnum %d passed to mag_unaffects",
 			spellnum);
-		slog(buf);
 		return;
 		break;
 	}
@@ -3351,10 +3346,8 @@ mag_creations(int level, struct Creature *ch, int spellnum)
 
 	if (!(tobj = read_object(z))) {
 		send_to_char(ch, "I seem to have goofed.\r\n");
-		sprintf(buf,
-			"SYSERR: spell_creations, spell %d, obj %d: obj not found",
+		slog("SYSERR: spell_creations, spell %d, obj %d: obj not found",
 			spellnum, z);
-		slog(buf);
 		return;
 	}
 	obj_to_char(tobj, ch);

@@ -436,10 +436,8 @@ affect_modify(struct Creature *ch, sh_int loc, sh_int mod, long bitv,
 		break;
 
 	default:
-		sprintf(buf,
-			"SYSERR: Unknown apply adjust attempt on %20s %3d + %3d in affect_modify. add=%s",
+		slog("SYSERR: Unknown apply adjust attempt on %20s %3d + %3d in affect_modify. add=%s",
 			GET_NAME(ch), loc, mod, add ? "true" : "false");
-		slog(buf);
 		break;
 
 	}							/* switch */
@@ -1293,10 +1291,9 @@ equip_char(struct Creature *ch, struct obj_data *obj, int pos, int internal)
 	}
 
 	if ((!internal && GET_EQ(ch, pos)) || (internal && GET_IMPLANT(ch, pos))) {
-		sprintf(buf, "SYSERR: Char is already equipped: %s, %s %s",
+		slog("SYSERR: Char is already equipped: %s, %s %s",
 			GET_NAME(ch), obj->short_description, internal ? "(impl)" : "");
 		obj_to_room(obj, zone_table->world);
-		slog(buf);
 		return 0;
 	}
 	if (obj->carried_by) {
@@ -1596,9 +1593,8 @@ obj_to_room(struct obj_data *object, struct room_data *room)
 	int found;
 
 	if (!object || !room) {
-		sprintf(buf, "SYSERR: Illegal %s | %s passed to obj_to_room",
+		slog("SYSERR: Illegal %s | %s passed to obj_to_room",
 			object ? "" : "OBJ", room ? "" : "ROOM");
-		slog(buf);
 		raise(SIGSEGV);
 		return;
 	}

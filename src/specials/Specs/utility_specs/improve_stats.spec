@@ -194,13 +194,12 @@ do_gen_improve(struct Creature *ch, int cmd, int mode, char *argument)
     REAL_STAT += 1;
     }
   if(mode != MODE_STR)
-      sprintf(buf, "%s improved %s from %d to %d at %d.", 
+      slog("%s improved %s from %d to %d at %d.", 
           GET_NAME(ch), improve_modes[mode],old_stat, REAL_STAT,ch->in_room->number);
   else
-      sprintf(buf, "%s improved %s from %d to %d/%d at %d.", 
+      slog("%s improved %s from %d to %d/%d at %d.", 
           GET_NAME(ch), improve_modes[mode],old_stat, REAL_STAT,ch->real_abils.str_add,
           ch->in_room->number);
-  slog(buf);
 
   send_to_char(ch, "You begin your training.\r\n");
   act("$n begins to train.", FALSE, ch, 0, 0, TO_ROOM);
