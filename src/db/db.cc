@@ -460,13 +460,13 @@ boot_db(void)
     sort_commands();
     sort_spells();
     sort_skills();
-
+/*
     slog("Booting mail system.");
     if (!scan_file()) {
 	slog("    Mail boot failed -- Mail system disabled");
 	no_mail = 1;
     }
-
+*/
     slog("Reading banned site, invalid-name, and NASTY word lists.");
     load_banned();
     Read_Invalid_List();

@@ -7,26 +7,23 @@
 *  Copyright (C) 1993, 94 by the Trustees of the Johns Hopkins University *
 *  CircleMUD is based on DikuMUD, Copyright (C) 1990, 1991.               *
 ************************************************************************ */
-
 /******* MUD MAIL SYSTEM MAIN FILE ***************************************
-
 Written by Jeremy Elson (jelson@cs.jhu.edu)
-
+Rewritten by John Rothe (forget@tempusmud.com)
 *************************************************************************/
-
 //
 // File: mail.c                      -- Part of TempusMUD
 //
 // All modifications and additions are
 // Copyright 1998 by John Watson, all rights reserved.
 //
-
 #include <stdio.h>
 #include <stdlib.h>
 #include <signal.h>
 #include <ctype.h>
 #include <string.h>
 #include <time.h>
+#include <fstream.h>
 
 #include "structs.h"
 #include "utils.h"
@@ -39,473 +36,130 @@ Written by Jeremy Elson (jelson@cs.jhu.edu)
 #include "clan.h"
 #include "materials.h"
 
-void postmaster_send_mail(struct char_data * ch, struct char_data *mailman,
-			  int cmd, char *arg);
-void postmaster_check_mail(struct char_data * ch, struct char_data *mailman,
-			   int cmd, char *arg);
-void postmaster_receive_mail(struct char_data * ch, struct char_data *mailman,
-			     int cmd, char *arg);
-void perform_tell(struct char_data *ch, struct char_data *vict, char *arg);
-
-void string_add(struct descriptor_data *d, char *str);
-
-extern int no_mail;
-extern int no_plrtext;
-int num_deleted_mails;
-mail_index_type *mail_index = 0;/* list of recs in the mail file  */
-position_list_type *free_list = 0;	/* list of free positions in file */
-long file_end_pos = 0;		/* length of file */
-
-
-void 
-push_free_list(long pos)
-{
-    position_list_type *new_pos;
-
-    CREATE(new_pos, position_list_type, 1);
-    new_pos->position = pos;
-    new_pos->next = free_list;
-    free_list = new_pos;
-}
-
-
-
-long 
-pop_free_list(void)
-{
-    position_list_type *old_pos;
-    long return_value;
-
-    if ((old_pos = free_list) != 0) {
-	return_value = free_list->position;
-	free_list = old_pos->next;
-#ifdef DMALLOC
-	dmalloc_verify(0);
-#endif
-	free(old_pos);
-#ifdef DMALLOC
-	dmalloc_verify(0);
-#endif
-	return return_value;
-    } else
-	return file_end_pos;
-}
-
-void
-show_mail_stats(char_data *ch)
-{
-	long num_free_positions = 0;
-	long num_used_positions = 0;
-	mail_index_type *cur_index = NULL;
-	position_list_type *cur_pos = NULL;
-	for ( cur_pos  = free_list; cur_pos; cur_pos = cur_pos->next ) {
-		num_free_positions++;
-	}
-	for ( cur_index = mail_index; cur_index; cur_index = cur_index->next ) {
-		for ( cur_pos = cur_index->list_start;cur_pos;cur_pos = cur_pos->next ) {
-			num_used_positions++;
-		}
-	}
-	sprintf(buf,"Unused Blocks: %ld  Total Unused Space: %ld bytes.\r\n",num_free_positions, num_free_positions * BLOCK_SIZE);
-	send_to_char(buf,ch);
-	sprintf(buf,"Letters currently in file: %ld.\r\n",num_used_positions);
-	send_to_char(buf,ch);
-}
-
-mail_index_type *
-find_char_in_index(long searchee)
-{
-    mail_index_type *tmp;
-
-    if (searchee < 0) {
-	slog("SYSERR: Mail system -- non fatal error #1.");
-	return 0;
-    }
-    for (tmp = mail_index; (tmp && tmp->recipient != searchee); tmp = tmp->next);
-
-    return tmp;
-}
-
-void 
-write_to_file(void *buf, int size, long filepos)
-{
-    FILE *mail_file;
-
-    mail_file = fopen(MAIL_FILE, "r+b");
-
-    if (filepos % BLOCK_SIZE) {
-	slog("SYSERR: Mail system -- fatal error #2!!!");
-	no_mail = 1;
+void show_mail_stats(char_data *ch) {
+	send_to_char("This has been removed.\r\n",ch);
 	return;
-    }
-    fseek(mail_file, filepos, SEEK_SET);
-    fwrite(buf, size, 1, mail_file);
-
-    /* find end of file */
-    fseek(mail_file, 0L, SEEK_END);
-    file_end_pos = ftell(mail_file);
-    fclose(mail_file);
-    return;
 }
+// returns 0 for no mail. 1 for mail.
+int
+has_mail ( long id ) {
+	char fname[256];
+	fstream mail_file;
 
+	get_filename( get_name_by_id(id), fname, PLAYER_MAIL_FILE);
+	printf("trying to open file %s\r\n",fname);
+	mail_file.open(fname, ios::in || ios::ate);
 
-void 
-read_from_file(void *buf, int size, long filepos)
-{
-    FILE *mail_file;
-
-    mail_file = fopen(MAIL_FILE, "r+b");
-
-    if (filepos % BLOCK_SIZE) {
-	slog("SYSERR: Mail system -- fatal error #3!!!");
-	no_mail = 1;
-	return;
-    }
-    fseek(mail_file, filepos, SEEK_SET);
-    fread(buf, size, 1, mail_file);
-    fclose(mail_file);
-    return;
-}
-
-void 
-index_mail(long id_to_index, long pos)
-{
-    mail_index_type *new_index;
-    position_list_type *new_position;
-
-    if (id_to_index < 0) {
-	slog("SYSERR: Mail system -- non-fatal error #4.");
-	return;
-    }
-    if (!(new_index = find_char_in_index(id_to_index))) {
-	/* name not already in index.. add it */
-	CREATE(new_index, mail_index_type, 1);
-	new_index->recipient = id_to_index;
-	new_index->list_start = NULL;
-
-	/* add to front of list */
-	new_index->next = mail_index;
-	mail_index = new_index;
-    }
-    /* now, add this position to front of position list */
-    CREATE(new_position, position_list_type, 1);
-    new_position->position = pos;
-    new_position->next = new_index->list_start;
-    new_index->list_start = new_position;
-}
-
-
-/* SCAN_FILE */
-/* scan_file is called once during boot-up.  It scans through the mail file
-   and indexes all entries currently in the mail file. */
-int 
-scan_file(void)
-{
-    FILE *mail_file;
-    header_block_type next_block;
-    int total_messages = 0, block_num = 0;
-	data_block_type data;
-    char buf[100];
-	time_t current_time = 0;
-	long following_block;
-	long position;
-    if (!(mail_file = fopen(MAIL_FILE, "r"))) {
-		slog("Mail file non-existant... creating new file.");
-		mail_file = fopen(MAIL_FILE, "w");
-		fclose(mail_file);
-		return 1;
-    }
-	num_deleted_mails = 0;
-	current_time = time(NULL);
-    while (fread(&next_block, sizeof(header_block_type), 1, mail_file)) {
-		position = ftell(mail_file) - sizeof(header_block_type);
-		if (next_block.block_type == HEADER_BLOCK) {
-			if( PURGE_OLD_MAIL &&  
-				next_block.header_data.mail_time + MAX_MAIL_AGE < current_time) {
-				following_block = next_block.header_data.next_block;
-				num_deleted_mails++;
-				/* mark the block as deleted */
-				push_free_list(position);
-				next_block.block_type = DELETED_BLOCK;
-				fseek(mail_file, position, SEEK_SET);
-				fwrite(&next_block, BLOCK_SIZE, 1,mail_file);
-				while (following_block != LAST_BLOCK) {
-					fseek(mail_file, following_block, SEEK_SET);
-					fread(&data, BLOCK_SIZE, 1, mail_file);
-					fseek(mail_file, following_block, SEEK_SET);
-					push_free_list(following_block);
-					following_block = data.block_type;
-					data.block_type = DELETED_BLOCK;
-					fwrite(&data, BLOCK_SIZE, 1, mail_file);
-				}
-				fseek(mail_file, position + BLOCK_SIZE, SEEK_SET);
-			} else {
-				index_mail(next_block.header_data.to, block_num * BLOCK_SIZE);
-				total_messages++;
-			}
-		} else if (next_block.block_type == DELETED_BLOCK)
-			push_free_list(block_num * BLOCK_SIZE);
-		block_num++;
-    }
-
-    file_end_pos = ftell(mail_file);
-    fclose(mail_file);
-    sprintf(buf, "   %ld bytes read.", file_end_pos);
-    slog(buf);
-    if (file_end_pos % BLOCK_SIZE) {
-	slog("SYSERR: Error booting mail system -- Mail file corrupt!");
-	slog("SYSERR: Mail disabled!");
-	return 0;
-    }
-    sprintf(buf, "   mail file read -- %d messages.", total_messages);
-    slog(buf);
-    sprintf(buf, "   %d messages purged from file.", num_deleted_mails);
-    slog(buf);
-    return 1;
-}				/* end of scan_file */
-
-
-/* HAS_MAIL */
-/* a simple little function which tells you if the guy has mail or not */
-int 
-has_mail(long recipient)
-{
-    if (find_char_in_index(recipient))
+	if (!mail_file || mail_file.eof())
+		return 0;
 	return 1;
-    return 0;
+}
+
+// Like it says, store the mail.  
+// Returns 0 if mail not stored.
+int
+store_mail( long to_id, long from_id, char *txt , time_t *cur_time = NULL) {
+	fstream mail_file;
+	mail_data *letter;
+	char fname[256];
+	
+	letter = new mail_data;
+	letter->to = to_id;
+	letter->from = from_id;
+	letter->time = time(cur_time);
+	letter->msg_size = strlen(txt);
+	letter->spare = 0;
+	
+	get_filename(get_name_by_id(to_id), fname, PLAYER_MAIL_FILE);
+	mail_file.open(fname,ios::out | ios::app | ios::ate );
+	if(!mail_file) {
+		sprintf(buf,"Error, mailfile (%s) not opened.\r\n",fname);
+		slog(buf);
+		send_to_char(buf, get_char_in_world_by_idnum(from_id));
+		return 0;
+	}
+
+	mail_file.seekp(0,ios::end);
+	mail_file.write((char *)letter,sizeof(mail_data));
+	mail_file.write(txt, letter->msg_size + 1);
+	mail_file.close();
+	return 1;
 }
 
 
+// Pull the mail out of the players mail file if he has one.
+// Create the "letters" from the file, and plant them on him without
+// 	telling him.  We'll let the spec say what it wants.
+// Returns the number of mails recieved.
+int 
+recieve_mail(char_data *ch) {
+	obj_data *obj = NULL;
+	int num_letters = 0;
+	fstream mail_file;
+	char fname[256];
+	char *text,*time_str;
+	mail_data *letter = NULL;
 
-/* STORE_MAIL  */
-/* call store_mail to store mail.  (hard, huh? :-) )  Pass 3 arguments:
-   who the mail is to (long), who it's from (long), and a pointer to the
-   actual message text (char *).
-*/
+	get_filename(GET_NAME(ch), fname, PLAYER_MAIL_FILE);
 
-void 
-store_mail(long to, long from, char *message_pointer)
-{
-    header_block_type header;
-    data_block_type data;
-    long last_address, target_address;
-    char *msg_txt = message_pointer;
-    int bytes_written = 0;
-    int total_length = strlen(message_pointer);
+	mail_file.open(fname, ios::in || ios::ate);
 
-    if (sizeof(header_block_type) != sizeof(data_block_type))
-	raise ( SIGSEGV );
-
-    if (sizeof(header_block_type) != BLOCK_SIZE)
-	raise( SIGSEGV );
-
-    if (from < 0 || to < 0 || !*message_pointer) {
-	slog("SYSERR: Mail system -- non-fatal error #5.");
-	return;
-    }
-    memset((char *) &header, 0, sizeof(header));	/* clear the record */
-    header.block_type = HEADER_BLOCK;
-    header.header_data.next_block = LAST_BLOCK;
-    header.header_data.from = from;
-    header.header_data.to = to;
-    header.header_data.mail_time = time(0);
-    strncpy(header.txt, msg_txt, HEADER_BLOCK_DATASIZE);
-    header.txt[HEADER_BLOCK_DATASIZE] = '\0';
-
-    target_address = pop_free_list();	/* find next free block */
-    index_mail(to, target_address);	/* add it to mail index in memory */
-    write_to_file(&header, BLOCK_SIZE, target_address);
-
-    if (strlen(msg_txt) <= HEADER_BLOCK_DATASIZE)
-	return;			/* that was the whole message */
-
-    bytes_written = HEADER_BLOCK_DATASIZE;
-    msg_txt += HEADER_BLOCK_DATASIZE;	/* move pointer to next bit of text */
-
-    /*
-     * find the next block address, then rewrite the header to reflect where
-     * the next block is.
-     */
-    last_address = target_address;
-    target_address = pop_free_list();
-    header.header_data.next_block = target_address;
-    write_to_file(&header, BLOCK_SIZE, last_address);
-
-    /* now write the current data block */
-    memset((char *) &data, 0, sizeof(data));	/* clear the record */
-    data.block_type = LAST_BLOCK;
-    strncpy(data.txt, msg_txt, DATA_BLOCK_DATASIZE);
-    data.txt[DATA_BLOCK_DATASIZE] = '\0';
-    write_to_file(&data, BLOCK_SIZE, target_address);
-    bytes_written += strlen(data.txt);
-    msg_txt += strlen(data.txt);
-
-    /*
-     * if, after 1 header block and 1 data block there is STILL part of the
-     * message left to write to the file, keep writing the new data blocks and
-     * rewriting the old data blocks to reflect where the next block is.  Yes,
-     * this is kind of a hack, but if the block size is big enough it won't
-     * matter anyway.  Hopefully, MUD players won't pour their life stories out
-     * into the Mud Mail System anyway.
-     * 
-     * Note that the block_type data field in data blocks is either a number >=0,
-     * meaning a link to the next block, or LAST_BLOCK flag (-2) meaning the
-     * last block in the current message.  This works much like DOS' FAT.
-     */
-
-    while (bytes_written < total_length) {
-	last_address = target_address;
-	target_address = pop_free_list();
-
-	/* rewrite the previous block to link it to the next */
-	data.block_type = target_address;
-	write_to_file(&data, BLOCK_SIZE, last_address);
-
-	/* now write the next block, assuming it's the last.  */
-	data.block_type = LAST_BLOCK;
-	strncpy(data.txt, msg_txt, DATA_BLOCK_DATASIZE);
-	data.txt[DATA_BLOCK_DATASIZE] = '\0';
-	write_to_file(&data, BLOCK_SIZE, target_address);
-
-	bytes_written += strlen(data.txt);
-	msg_txt += strlen(data.txt);
-    }
-}				/* store mail */
-
-
-
-
-/* READ_DELETE */
-/* read_delete takes 1 char pointer to the name of the person whose mail
-   you're retrieving.  It returns to you a char pointer to the message text.
-   The mail is then discarded from the file and the mail index. */
-
-char *
-read_delete(long recipient)
-/* recipient is the name as it appears in the index.
-   recipient_formatted is the name as it should appear on the mail
-   header (i.e. the text handed to the player) */
-{
-    header_block_type header;
-    data_block_type data;
-    mail_index_type *mail_pointer, *prev_mail;
-    position_list_type *position_pointer;
-    long mail_address, following_block;
-    char *message, *tmstr, buf[200];
-    size_t string_size;
-
-    if (recipient < 0) {
-	slog("SYSERR: Mail system -- non-fatal error #6.");
-	return 0;
-    }
-    if (!(mail_pointer = find_char_in_index(recipient))) {
-	slog("SYSERR: Mail system -- post office spec_proc error?  Error #7.");
-	return 0;
-    }
-    if (!(position_pointer = mail_pointer->list_start)) {
-	slog("SYSERR: Mail system -- non-fatal error #8.");
-	return 0;
-    }
-    if (!(position_pointer->next)) {	/* just 1 entry in list. */
-	mail_address = position_pointer->position;
-#ifdef DMALLOC
-	dmalloc_verify(0);
-#endif
-	free(position_pointer);
-#ifdef DMALLOC
-	dmalloc_verify(0);
-#endif
-	/* now free up the actual name entry */
-	if (mail_index == mail_pointer) {	/* name is 1st in list */
-	    mail_index = mail_pointer->next;
-#ifdef DMALLOC
-	    dmalloc_verify(0);
-#endif
-	    free(mail_pointer);
-#ifdef DMALLOC
-	    dmalloc_verify(0);
-#endif  
-	} else {
-	    /* find entry before the one we're going to del */
-	    for (prev_mail = mail_index;
-		 prev_mail->next != mail_pointer;
-		 prev_mail = prev_mail->next);
-	    prev_mail->next = mail_pointer->next;
-#ifdef DMALLOC
-	    dmalloc_verify(0);
-#endif
-	    free(mail_pointer);
-#ifdef DMALLOC
-	    dmalloc_verify(0);
-#endif    
+	if (!mail_file || mail_file.eof()) {
+		return 0;
 	}
-    } else {
-	/* move to next-to-last record */
-	while (position_pointer->next->next)
-	    position_pointer = position_pointer->next;
-	mail_address = position_pointer->next->position;
-#ifdef DMALLOC
-	dmalloc_verify(0);
-#endif
-	free(position_pointer->next);
-#ifdef DMALLOC
-	dmalloc_verify(0);
-#endif
-	position_pointer->next = 0;
-    }
+    
+	// Seek to the beginning and setup for reading.
+	mail_file.seekp(0,ios::beg);
+	letter = new mail_data;
+	while(!mail_file.eof()) {
+		mail_file.read(letter, sizeof(mail_data));
+		text = NULL;
+		if(letter->msg_size && !mail_file.eof()) { 
+			num_letters++;
+			text = new char[letter->msg_size + 1];
+			mail_file.read(text, letter->msg_size + 1);
+		} else if (mail_file.eof()) {
+			mail_file.close();
+			delete letter;
+			remove(fname);
+			return num_letters;
+		} else {
+			slog("SYSERR: Mail system -- Message length 0 before EOF.");
+			delete letter;
+			return num_letters;
+		}
+		if (!(obj = read_object(MAIL_OBJ_VNUM))) {
+			slog("SYSERR: Unable to load MAIL_OBJ_VNUM in postmaster_receive_mail");
+			delete letter;
+			return num_letters;
+		}
+		// Actually build the mail object and give it to the player.	
+		time_str = asctime(localtime(&letter->time));
+		*(time_str + strlen(time_str) - 1) = '\0';
 
-    /* ok, now lets do some readin'! */
-    read_from_file(&header, BLOCK_SIZE, mail_address);
+		sprintf(buf, " * * * *  Tempus Mail System  * * * *\r\n"
+			"Date: %s\r\n"
+			"  To: %s\r\n"
+			"From: %s\r\n", time_str, GET_NAME(ch),
+			get_name_by_id(letter->from));
 
-    if (header.block_type != HEADER_BLOCK) {
-	slog("SYSERR: Oh dear.");
-	no_mail = 1;
-	slog("SYSERR: Mail system disabled!  -- Error #9.");
-	return 0;
-    }
-    tmstr = asctime(localtime(&header.header_data.mail_time));
-    *(tmstr + strlen(tmstr) - 1) = '\0';
+		obj->action_description = new char[strlen(text) + strlen(buf) + 1];
+		strcpy(obj->action_description,buf);
+		strcat(obj->action_description,text);
+		obj->plrtext_len = strlen(obj->action_description) + 1;
 
-    sprintf(buf, " * * * *  Tempus Mail System  * * * *\r\n"
-	    "Date: %s\r\n"
-	    "  To: %s\r\n"
-	    "From: %s\r\n", tmstr, get_name_by_id(recipient),
-	    get_name_by_id(header.header_data.from));
-
-    string_size = (sizeof(char) * (strlen(buf) + strlen(header.txt) + 1));
-    CREATE(message, char, string_size);
-    strcpy(message, buf);
-    message[strlen(buf)] = '\0';
-    strcat(message, header.txt);
-    message[string_size - 1] = '\0';
-    following_block = header.header_data.next_block;
-
-    /* mark the block as deleted */
-    header.block_type = DELETED_BLOCK;
-    write_to_file(&header, BLOCK_SIZE, mail_address);
-    push_free_list(mail_address);
-
-    while (following_block != LAST_BLOCK) {
-	read_from_file(&data, BLOCK_SIZE, following_block);
-
-	string_size = (sizeof(char) * (strlen(message) + strlen(data.txt) + 1));
-	RECREATE(message, char, string_size);
-	strcat(message, data.txt);
-	message[string_size - 1] = '\0';
-	mail_address = following_block;
-	following_block = data.block_type;
-	data.block_type = DELETED_BLOCK;
-	write_to_file(&data, BLOCK_SIZE, mail_address);
-	push_free_list(mail_address);
-    }
-
-    return message;
+		obj_to_char(obj, ch);
+		delete text;
+	}
+	return num_letters;
 }
 
 
 /*****************************************************************
 ** Below is the spec_proc for a postmaster using the above       **
 ** routines.  Written by Jeremy Elson (jelson@server.cs.jhu.edu) **
+** Fixed by John Rothe (forget@tempusmud.com) and changes owned  **
+** John Watson.                                                  **
 *****************************************************************/
 
 SPECIAL(postmaster)
@@ -516,11 +170,12 @@ SPECIAL(postmaster)
     if (!(CMD_IS("mail") || CMD_IS("check") || CMD_IS("receive")))
 	return 0;
 
-    if (no_mail) {
+/*
+if (no_mail) {
 	send_to_char("Sorry, the mail system is having technical difficulties.\r\n", ch);
 	return 0;
     }
-
+*/
     if (CMD_IS("mail")) {
 	postmaster_send_mail(ch, ( struct char_data *) me, cmd, argument);
 	return 1;
@@ -683,49 +338,156 @@ postmaster_check_mail(struct char_data * ch, struct char_data *mailman,
     perform_tell(mailman, ch, buf2);
 }
 
-
-#define MAIL_OBJ_VNUM 1204
 void 
 postmaster_receive_mail(struct char_data * ch, struct char_data *mailman,
-			int cmd, char *arg)
+	int cmd, char *arg)
 {
     char buf2[256];
-    struct obj_data *obj;
+	int num_mails = 0;
 
     if (!has_mail(GET_IDNUM(ch))) {
-	strcpy(buf2, "Sorry, you don't have any mail waiting.");
-	perform_tell(mailman, ch, buf2);
-	return;
+		strcpy(buf2, "Sorry, you don't have any mail waiting.");
+		perform_tell(mailman, ch, buf2);
+		return;
     }
-    while (has_mail(GET_IDNUM(ch))) {
-#ifdef DMALLOC
-	dmalloc_verify(0);
-#endif
-	if (!(obj = read_object(MAIL_OBJ_VNUM))) {
-	    slog("SYSERR: Unable to load MAIL_OBJ_VNUM in postmaster_receive_mail");
-	    return;
+	
+	num_mails = recieve_mail(ch);
+	
+	if(num_mails) {
+		sprintf(buf2,"$n gives you %d pieces of mail.",num_mails);
+		act(buf2, FALSE, mailman, 0, ch, TO_VICT);
+		sprintf(buf2,"$N gives $n %d pieces of mail.",num_mails);
+		act(buf2, FALSE, ch, 0, mailman, TO_ROOM);
+    } else {
+		strcpy(buf2, "Sorry, you don't have any mail waiting.");
+		perform_tell(mailman, ch, buf2);
 	}
-
-	obj->action_description = read_delete(GET_IDNUM(ch));
-
-	if (obj->action_description == NULL)
-	    obj->action_description =
-		str_dup("Mail system error - please report.  Error #11.\r\n");
-
-	if (!no_plrtext && obj->action_description) {
-	    obj->plrtext_len = strlen(obj->action_description) + 1;
-	}
-
-	obj_to_char(obj, ch);
-
-	act("$n gives you a piece of mail.", FALSE, mailman, 0, ch, TO_VICT);
-	act("$N gives $n a piece of mail.", FALSE, ch, 0, mailman, TO_ROOM);
-#ifdef DMALLOC
-	dmalloc_verify(0);
-#endif
-    }
     save_char(ch, NULL);
 }
 
 
+#define MIN_MAIL_LEVEL 1
+#define STAMP_PRICE 50
+#define MAX_MAIL_SIZE 4096
+#define BLOCK_SIZE 100
+#define HEADER_BLOCK  -1
+#define LAST_BLOCK    -2
+#define DELETED_BLOCK -3
 
+#define MAX_MAIL_AGE 15552000 // should be 6 months.
+#define PURGE_OLD_MAIL 1
+
+/*
+ * note: next_block is part of header_blk in a data block; we can't combine
+ * them here because we have to be able to differentiate a data block from a
+ * header block when booting mail system.
+ */
+
+struct header_data_type {
+   long next_block;     /* if header block, link to next block  */
+   long from;           /* idnum of the mail's sender       */
+   long to;         /* idnum of mail's recipient        */
+   time_t mail_time;        /* when was the letter mailed?      */
+};
+
+/* size of the data part of a header block */
+#define HEADER_BLOCK_DATASIZE \
+    (BLOCK_SIZE - sizeof(long) - sizeof(struct header_data_type) - 1)
+
+/* size of the data part of a data block */
+#define DATA_BLOCK_DATASIZE (BLOCK_SIZE - sizeof(long) - 1)
+struct header_block_type_d {
+   long block_type;     /* is this a header or data block?  */
+   struct header_data_type header_data; /* other header data        */
+   char txt[HEADER_BLOCK_DATASIZE+1]; /* actual text plus 1 for null    */
+};
+
+struct data_block_type_d {
+   long block_type;     /* -1 if header block, -2 if last data block
+                       in mail, otherwise a link to the next */
+   char txt[DATA_BLOCK_DATASIZE+1]; /* actual text plus 1 for null  */
+};
+
+typedef struct header_block_type_d header_block_type;
+typedef struct data_block_type_d data_block_type;
+
+struct position_list_type_d {
+   long position;
+   struct position_list_type_d *next;
+};
+
+typedef struct position_list_type_d position_list_type;
+
+struct mail_index_type_d {
+   long recipient;          /* who is this mail for?    */
+   position_list_type *list_start;  /* list of mail positions   */
+   struct mail_index_type_d *next;  /* link to next one     */
+};
+
+typedef struct mail_index_type_d mail_index_type;
+
+
+ACMD(do_toss_mail)
+{
+    FILE *mail_file;
+    header_block_type next_block;
+    int block_num = 0;
+	data_block_type data;
+	time_t current_time = 0;
+	long following_block;
+	long position;
+	time_t mail_time;
+	char *txt = NULL;
+	long to_id=0,from_id=0;
+	int letters_tossed = 0;
+	int letters_ignored = 0;
+
+    if (!(mail_file = fopen(MAIL_FILE, "r"))) {
+		slog("Mail file non-existant... creating new file.");
+		mail_file = fopen(MAIL_FILE, "w");
+		fclose(mail_file);
+		return;
+    }
+	current_time = time(NULL);
+    while (fread(&next_block, sizeof(header_block_type), 1, mail_file)) {
+		position = ftell(mail_file) - sizeof(header_block_type);
+		if (next_block.block_type == HEADER_BLOCK) {
+			if( PURGE_OLD_MAIL &&  
+				next_block.header_data.mail_time + MAX_MAIL_AGE < current_time) {
+				following_block = next_block.header_data.next_block;
+				fseek(mail_file, position + BLOCK_SIZE, SEEK_SET);
+				letters_ignored++;
+			} else {
+				to_id = next_block.header_data.to;
+				from_id = next_block.header_data.from;
+				mail_time = next_block.header_data.mail_time;
+				txt = new char[MAX_MAIL_SIZE + 1];
+				strcpy(txt,next_block.txt);
+				
+				following_block = next_block.header_data.next_block;
+				fseek(mail_file, position, SEEK_SET);
+				while (following_block != LAST_BLOCK) {
+					fseek(mail_file, following_block, SEEK_SET);
+					fread(&data, BLOCK_SIZE, 1, mail_file);
+					fseek(mail_file, following_block, SEEK_SET);
+					following_block = data.block_type;
+					strcat(txt,data.txt);
+				}
+				if(!store_mail(to_id, from_id, txt, &mail_time)) {
+					send_to_char("ERROR: Unable to store mail!\r\n",ch);
+					delete txt;
+					return;
+				}
+				delete txt;
+				letters_tossed++;
+			}
+		} 
+		block_num++;
+    }
+
+    fclose(mail_file);
+	sprintf(buf,"Mail tossed.\r\n    %d letters tossed.\r\n    %d letters ignored.\r\n",
+		letters_tossed, letters_ignored);
+	send_to_char(buf,ch);
+    return;
+}

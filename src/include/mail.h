@@ -8,111 +8,59 @@
 *  CircleMUD is based on DikuMUD, Copyright (C) 1990, 1991.               *
 ************************************************************************ */
 
-/******* MUD MAIL SYSTEM HEADER FILE *********************
- ***     written by Jeremy Elson (jelson@cs.jhu.edu)   ***
- ********************************************************/
-
 //
 // File: mail.h                      -- Part of TempusMUD
-//
+// Author: John Rothe
 // All modifications and additions are
 // Copyright 1998 by John Watson, all rights reserved.
 //
 
-/* INSTALLATION INSTRUCTIONS in MAIL.C */
+// The vnum of the "letter" object
+#define MAIL_OBJ_VNUM 1204
 
-/* You can modify the following constants to fit your own MUD.  */
-
-/* minimum level a player must be to send mail	*/
+// minimum level a player must be to send mail
 #define MIN_MAIL_LEVEL 1
 
-/* # of gold coins required to send mail	*/
+// # of gold coins required to send mail
 #define STAMP_PRICE 50
 
-/* Maximum size of mail in bytes (arbitrary)	*/
+// Maximum size of mail in bytes (arbitrary)
 #define MAX_MAIL_SIZE 4096
 
-/* size of mail file allocation blocks		*/
-#define BLOCK_SIZE 100
-
-/*
- * NOTE:  Make sure that your block size is big enough -- if not,
- * HEADER_BLOCK_DATASIZE will end up negative.  This is a bad thing.
- * Check the define below to make sure it is >0 when choosing values
- * for NAME_SIZE and BLOCK_SIZE.  100 is a nice round number for
- * BLOCK_SIZE and is the default ... why bother trying to change it
- * anyway?
- *
- * The mail system will always allocate disk space in chunks of size
- * BLOCK_SIZE.
- */
-
-/* USER CHANGABLE DEFINES ABOVE **
-***************************************************************************
-**   DON'T TOUCH DEFINES BELOW  */
-
-int	scan_file(void);
-int	has_mail(long recipient);
-void	store_mail(long to, long from, char *message_pointer);
-char	*read_delete(long recipient);
-
-
-#define HEADER_BLOCK  -1
-#define LAST_BLOCK    -2
-#define DELETED_BLOCK -3
-
+// How long to let mail sit in the file before purging it out.
 #define MAX_MAIL_AGE 15552000 // should be 6 months.
-#define PURGE_OLD_MAIL 1
 
+// Prototypes for postmaster specs
+void postmaster_send_mail(struct char_data * ch, struct char_data *mailman,
+              int cmd, char *arg);
+void postmaster_check_mail(struct char_data * ch, struct char_data *mailman,
+               int cmd, char *arg);
+void postmaster_receive_mail(struct char_data * ch, struct char_data *mailman,
+                 int cmd, char *arg);
+// Redundant redeclarations for utility functions
+void perform_tell(struct char_data *ch, struct char_data *vict, char *arg);
+void string_add(struct descriptor_data *d, char *str);
+
+// Mail system internal functions.
+int	has_mail(long recipient);
+int has_mail(char_data *ch);
+int store_mail(long to_id,long from_id,char *txt, time_t *cur_time = NULL);
+int recieve_mail(char_data *ch);
+
+// Struct used to store the list of recipients while the player
+// is sending mail.
 /*
- * note: next_block is part of header_blk in a data block; we can't combine
- * them here because we have to be able to differentiate a data block from a
- * header block when booting mail system.
- */
-
-struct header_data_type {
-   long	next_block;		/* if header block, link to next block	*/
-   long from;			/* idnum of the mail's sender		*/
-   long to;			/* idnum of mail's recipient		*/
-   time_t mail_time;		/* when was the letter mailed?		*/
+struct mail_recipient_data {
+    long idnum;                // Idnum of char to recieve mail 
+    struct mail_recipient_data *next; //pointer to next in recpt list.
 };
+*/
 
-/* size of the data part of a header block */
-#define HEADER_BLOCK_DATASIZE \
-	(BLOCK_SIZE - sizeof(long) - sizeof(struct header_data_type) - 1)
-
-/* size of the data part of a data block */
-#define DATA_BLOCK_DATASIZE (BLOCK_SIZE - sizeof(long) - 1)
-
-/* note that an extra space is allowed in all string fields for the
-   terminating null character.  */
-
-struct header_block_type_d {
-   long	block_type;		/* is this a header or data block?	*/
-   struct header_data_type header_data;	/* other header data		*/
-   char	txt[HEADER_BLOCK_DATASIZE+1]; /* actual text plus 1 for null	*/
+// The actual mail file entry struct.
+struct mail_data {
+    long to;
+    long from;
+    time_t time;
+	long spare;
+    long msg_size;
 };
-
-struct data_block_type_d {
-   long	block_type;		/* -1 if header block, -2 if last data block
-      				   in mail, otherwise a link to the next */
-   char	txt[DATA_BLOCK_DATASIZE+1]; /* actual text plus 1 for null	*/
-};
-
-typedef struct header_block_type_d header_block_type;
-typedef struct data_block_type_d data_block_type;
-
-struct position_list_type_d {
-   long	position;
-   struct position_list_type_d *next;
-};
-
-typedef struct position_list_type_d position_list_type;
-
-struct mail_index_type_d {
-   long recipient;			/* who is this mail for?	*/
-   position_list_type *list_start;	/* list of mail positions	*/
-   struct mail_index_type_d *next;	/* link to next one		*/
-};
-
-typedef struct mail_index_type_d mail_index_type;
