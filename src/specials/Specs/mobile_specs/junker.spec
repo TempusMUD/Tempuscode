@@ -10,7 +10,7 @@ SPECIAL(junker)
 {
 
   struct obj_data *obj = NULL, *next_obj = NULL;
-  if( spec_mode != SPECIAL_CMD && spec_mode != SPECIAL_TICK ) return 0;
+  if( spec_mode != SPECIAL_TICK ) return 0;
 
   if (cmd || !AWAKE(ch) || FIGHTING(ch))
     return 0;

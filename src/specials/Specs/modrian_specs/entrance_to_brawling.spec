@@ -6,6 +6,8 @@
 
 SPECIAL(entrance_to_brawling)
 {
+  if( spec_mode != SPECIAL_CMD )
+	return 0;
   if (!CMD_IS("north"))
     return 0;
   if (IS_NPC(ch))

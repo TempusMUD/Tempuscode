@@ -10,9 +10,11 @@ SPECIAL(spinal)
   struct obj_data *spine = NULL;
   struct room_data *r_home_pad = real_room(1595);
   
+  if( spec_mode != SPECIAL_CMD && spec_mode != SPECIAL_TICK ) return 0;
+
   if (FIGHTING(spinal))
     return 0;
-  if( spec_mode != SPECIAL_CMD && spec_mode != SPECIAL_TICK ) return 0;
+
   if (!cmd && spinal->in_room != r_home_pad &&
       r_home_pad != NULL && !FIGHTING(ch)) {
     act("$n departs suddenly into the deeper ethereal.", 

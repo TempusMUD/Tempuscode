@@ -7,6 +7,8 @@
 SPECIAL(cyberfiend)
 {
 
+  if( spec_mode != SPECIAL_CMD )
+    return 0;
   struct char_data *fiend = (struct char_data *) me;
 
   if (!cmd || !AWAKE(fiend))

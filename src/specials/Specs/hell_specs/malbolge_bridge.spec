@@ -8,6 +8,13 @@ SPECIAL(malbolge_bridge)
 {
   struct room_data *bridge = (struct room_data *) me, *under = NULL;
 
+  if( spec_mode != SPECIAL_CMD 
+  && spec_mode != SPECIAL_TICK 
+  && spec_mode != SPECIAL_ENTER )
+  {         
+    return 0;     
+  }               
+
   if (GET_LEVEL(ch) >= LVL_IMMORT || ch->getPosition() == POS_FLYING ||
       (MOUNTED(ch) && (MOUNTED(ch))->getPosition() == POS_FLYING) ||
       number(5, 25) < GET_DEX(ch))

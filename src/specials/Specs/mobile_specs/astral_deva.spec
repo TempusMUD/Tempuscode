@@ -6,7 +6,7 @@
 
 SPECIAL(astral_deva)
 {
-  if( spec_mode != SPECIAL_CMD && spec_mode != SPECIAL_TICK ) return 0;
+  if( spec_mode != SPECIAL_COMBAT && spec_mode != SPECIAL_TICK ) return 0;
   if (!FIGHTING(ch) || cmd)
     return 0;
 

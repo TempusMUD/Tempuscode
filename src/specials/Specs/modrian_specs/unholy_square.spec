@@ -82,6 +82,9 @@ SPECIAL(unholy_square)
   struct obj_data *obj = NULL, *fount = NULL;
   static char *olddesc = NULL, *oldtitle = NULL;
 
+  if( spec_mode != SPECIAL_CMD )
+    return 0;
+
   if (!ch)
     return 0;
 

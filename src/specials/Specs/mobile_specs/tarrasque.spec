@@ -199,6 +199,8 @@ SPECIAL(tarrasque)
   struct char_data *tarr = (struct char_data *) me;
   struct room_data *rm = NULL;
 
+  if( spec_mode != SPECIAL_CMD && spec_mode != SPECIAL_TICK ) return 0;
+
   if (!checked) {
     checked = TRUE;
     if (!(belly_rm = real_room(24878))) {
@@ -209,7 +211,6 @@ SPECIAL(tarrasque)
       return 1;
     }
   }
-  if( spec_mode != SPECIAL_CMD && spec_mode != SPECIAL_TICK ) return 0;
   if (cmd) {
     if (CMD_IS("status") && GET_LEVEL(ch) >= LVL_IMMORT) {
       send_to_char(ch, "Tarrasque status: mode (%d), timer (%d), tframe (%d)\r\n",

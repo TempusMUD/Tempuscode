@@ -6,9 +6,7 @@
 
 SPECIAL(cock_fight)
 {
-  if( spec_mode != SPECIAL_CMD && spec_mode != SPECIAL_TICK ) return 0;
-  if (cmd)
-    return 0;
+  if( spec_mode != SPECIAL_COMBAT && spec_mode != SPECIAL_TICK ) return 0;
 
   if (!FIGHTING(ch)) {
     switch (number(0, 40)) {

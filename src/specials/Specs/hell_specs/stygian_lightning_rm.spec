@@ -8,6 +8,8 @@ SPECIAL(stygian_lightning_rm)
 {
     struct char_data *new_vict = NULL;
 
+	if( spec_mode != SPECIAL_ENTER && spec_mode != SPECIAL_TICK ) return 0;
+
     if (GET_LEVEL(ch) >= LVL_IMMORT || IS_DEVIL(ch) || IS_NPC(ch))
         return 0;
 

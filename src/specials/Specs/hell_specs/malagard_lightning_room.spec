@@ -5,6 +5,9 @@ SPECIAL( malagard_lightning_room )
     struct char_data *vict = 0;
     int retval = 0;
 
+	if( spec_mode != SPECIAL_TICK && spec_mode != SPECIAL_ENTER )
+		return 0;
+
     if ( IS_NPC(ch) || number( 0, 4 ) )
         return 0;
     

@@ -8,6 +8,8 @@ SPECIAL(wagon_room)
 {
   struct obj_data *i;
   int wagon_obj_rnum = 10, num;
+  if( spec_mode != SPECIAL_CMD )
+    return 0;
 
   if (!CMD_IS("disembark") && !CMD_IS("leave") && !CMD_IS("look"))
     return 0;

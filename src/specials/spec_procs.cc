@@ -281,7 +281,7 @@ SPECIAL(guild)
 	struct char_data *master = (struct char_data *)me;
 	char buf2[MAX_STRING_LENGTH];
 
-	if (spec_mode != SPECIAL_CMD && spec_mode != SPECIAL_TICK)
+	if (spec_mode != SPECIAL_CMD )
 		return 0;
 	if ((!CMD_IS("practice") && !CMD_IS("train") && !CMD_IS("learn")) ||
 		!AWAKE(ch))
@@ -467,10 +467,8 @@ npc_steal(struct char_data *ch, struct char_data *victim)
 
 SPECIAL(snake)
 {
-	if (spec_mode != SPECIAL_TICK)
+	if (spec_mode != SPECIAL_COMBAT )
 		return 0;
-	if (cmd)
-		return FALSE;
 
 	if (ch->getPosition() != POS_FIGHTING)
 		return FALSE;
@@ -489,7 +487,7 @@ SPECIAL(snake)
 
 SPECIAL(thief)
 {
-	if (spec_mode != SPECIAL_TICK)
+	if (spec_mode != SPECIAL_TICK && spec_mode != SPECIAL_ENTER )
 		return 0;
 	if (cmd)
 		return FALSE;
@@ -514,7 +512,7 @@ SPECIAL(magic_user)
 {
 	struct char_data *vict = NULL;
 
-	if (spec_mode != SPECIAL_TICK)
+	if (spec_mode != SPECIAL_COMBAT)
 		return 0;
 	if (cmd || ch->getPosition() != POS_FIGHTING)
 		return FALSE;
@@ -617,7 +615,7 @@ SPECIAL(magic_user)
 SPECIAL(battle_cleric)
 {
 
-	if (spec_mode != SPECIAL_TICK)
+	if (spec_mode != SPECIAL_COMBAT)
 		return 0;
 	if (cmd || ch->getPosition() != POS_FIGHTING)
 		return FALSE;
@@ -709,7 +707,7 @@ SPECIAL(battle_cleric)
 SPECIAL(barbarian)
 {
 
-	if (spec_mode != SPECIAL_TICK)
+	if (spec_mode != SPECIAL_COMBAT)
 		return 0;
 	if (cmd || ch->getPosition() != POS_FIGHTING)
 		return FALSE;
@@ -1800,7 +1798,7 @@ SPECIAL(bank)
 SPECIAL(cave_bear)
 {
 
-	if (spec_mode != SPECIAL_TICK)
+	if (spec_mode != SPECIAL_COMBAT)
 		return 0;
 	if (cmd || !FIGHTING(ch))
 		return FALSE;

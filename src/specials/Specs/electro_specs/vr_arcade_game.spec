@@ -22,6 +22,11 @@ SPECIAL(vr_arcade_game)
   struct room_data *r_startroom = NULL, *r_lckr_rm = real_room(30197);
   int i;
 
+  if( spec_mode != SPECIAL_CMD )
+  {         
+    return 0;     
+  }               
+
   if (!CMD_IS("play") && !CMD_IS("enter"))
     return 0;
 

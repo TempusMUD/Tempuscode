@@ -6,24 +6,25 @@
 
 SPECIAL(unholy_stalker)
 {
-    if (cmd)
-        return 0;
-    if( spec_mode != SPECIAL_CMD && spec_mode != SPECIAL_TICK ) return 0;
-    if ( !HUNTING(ch) && !FIGHTING(ch) ) {
-        act("$n dematerializes, returning to the negative planes.", TRUE, ch, 0, 0, TO_ROOM);
-        ch->extract(true, false, CON_MENU);
+    if( spec_mode != SPECIAL_COMBAT && spec_mode != SPECIAL_TICK ) return 0;
+
+	char_data *mob = (char_data*)me;
+	
+    if ( !HUNTING(mob) && !FIGHTING(mob) ) {
+        act("$n dematerializes, returning to the negative planes.", TRUE, mob, 0, 0, TO_ROOM);
+        mob->extract(true, false, CON_MENU);
         return 1;
     }
 
-    if ( FIGHTING(ch) ) {
+    if ( FIGHTING(mob) ) {
         if (!number(0, 3)) {
-            call_magic(ch, FIGHTING(ch), 0, SPELL_CHILL_TOUCH, GET_LEVEL(ch) + 10, CAST_SPELL);
+            call_magic(mob, FIGHTING(mob), 0, SPELL_CHILL_TOUCH, GET_LEVEL(mob) + 10, CAST_SPELL);
         }
 
-        if ( GET_HIT(ch) < 100 && GET_HIT(FIGHTING(ch)) > GET_HIT(ch) &&
-             !ROOM_FLAGGED(ch->in_room, ROOM_NOMAGIC | ROOM_NORECALL) &&
-             GET_LEVEL(ch) > number(20, 35) ) {
-            call_magic(ch, ch, 0, SPELL_LOCAL_TELEPORT, 90, CAST_SPELL);
+        if ( GET_HIT(mob) < 100 && GET_HIT(FIGHTING(mob)) > GET_HIT(mob) &&
+             !ROOM_FLAGGED(mob->in_room, ROOM_NOMAGIC | ROOM_NORECALL) &&
+             GET_LEVEL(mob) > number(20, 35) ) {
+            call_magic(mob, mob, 0, SPELL_LOCAL_TELEPORT, 90, CAST_SPELL);
         }
     }
 

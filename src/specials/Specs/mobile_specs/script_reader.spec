@@ -21,7 +21,7 @@ SPECIAL(mob_read_script)
     char *desc = NULL, *c, buf[EXDSCR_LENGTH];
     int which = 0;
     int found = 0;
-    if (spec_mode != SPECIAL_CMD && spec_mode != SPECIAL_TICK) return FALSE;
+    if(spec_mode != SPECIAL_TICK) return FALSE;
 
     if ( !SCRIPT_FLAGGED( MODE_ALONE ) ) {
         CharacterList::iterator it = ch->in_room->people.begin();

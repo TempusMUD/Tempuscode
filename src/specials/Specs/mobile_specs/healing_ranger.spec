@@ -12,9 +12,10 @@ SPECIAL(healing_ranger)
   ACMD(do_firstaid);
   ACMD(do_medic);
 
+  if( spec_mode != SPECIAL_ENTER && spec_mode != SPECIAL_TICK ) return 0;
+
   if (cmd || FIGHTING(ch))
     return FALSE;
-  if( spec_mode != SPECIAL_CMD && spec_mode != SPECIAL_TICK ) return 0;
 
   switch (number(0,25)) {
     case 0:

@@ -24,7 +24,8 @@ SPECIAL(fate)
 	struct room_data *temp_room = NULL;
 	int num_rooms = 0, the_room = 0;
 	int which_fate;
-    if( spec_mode != SPECIAL_CMD && spec_mode != SPECIAL_TICK ) return 0;  
+
+    if( spec_mode != SPECIAL_TICK ) return 0;  
 	// Don't want the zone goin to sleep and trapping her.
 	if (fate->in_room) {
 		fate->in_room->zone->idle_time = 0;

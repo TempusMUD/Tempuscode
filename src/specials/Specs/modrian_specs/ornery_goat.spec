@@ -9,7 +9,7 @@ SPECIAL(ornery_goat)
   struct obj_data *can;
   int can_vnum = 3138;
 
-  if( spec_mode != SPECIAL_CMD && spec_mode != SPECIAL_TICK ) return 0;
+  if( spec_mode != SPECIAL_COMBAT ) return 0;
   if (cmd || !FIGHTING(ch)) 
     return 0;
   

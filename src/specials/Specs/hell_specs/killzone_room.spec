@@ -6,6 +6,8 @@ SPECIAL( killzone_room )
     struct char_data *devil = 0, *vict = 0;
     int retval = 0;
 
+	if( spec_mode != SPECIAL_CMD && spec_mode != SPECIAL_TICK ) return 0;
+
     if ( IS_NPC(ch) || number( 0, 4 ) )
         return 0;
 

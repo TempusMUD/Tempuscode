@@ -57,7 +57,7 @@ SPECIAL(darom)
   quest_rec.key_wrd = NULL;
   quest_rec.quest_desc = NULL;
   quest_rec.first_clue = NULL;
-  if( spec_mode != SPECIAL_CMD && spec_mode != SPECIAL_TICK ) return 0;
+  if( spec_mode != SPECIAL_CMD ) return 0;
   /*50*/
   if ( !CMD_IS("ask") ) return (0);
   skip_spaces(&argument);

@@ -12,7 +12,8 @@ SPECIAL(energy_drainer)
   if (cmd)
     return FALSE;
 
-  if ( spec_mode != SPECIAL_CMD && spec_mode != SPECIAL_TICK ) return FALSE;
+  if ( spec_mode != SPECIAL_COMBAT ) return FALSE;
+
   if (ch->getPosition() != POS_FIGHTING || !FIGHTING(ch))
     return FALSE;
 

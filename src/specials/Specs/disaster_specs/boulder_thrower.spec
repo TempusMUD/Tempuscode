@@ -30,7 +30,9 @@ SPECIAL(boulder_thrower)
 
   if (cmd || !AWAKE(ch))
     return 0;
-  if( spec_mode != SPECIAL_CMD && spec_mode != SPECIAL_TICK ) return 0;
+  if( spec_mode != SPECIAL_CMD && spec_mode != SPECIAL_TICK 
+  && spec_mode != SPECIAL_COMBAT ) 
+	  return 0;
 
   if (FIGHTING(ch) && CAN_SEE(ch, FIGHTING(ch))) {
     // are we wielding a throwable weapon?

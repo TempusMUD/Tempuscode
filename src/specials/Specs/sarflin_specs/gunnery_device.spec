@@ -11,6 +11,8 @@ SPECIAL(gunnery_device)
    struct obj_data *ob = NULL;
    struct char_data *me2 = (struct char_data *)me;
    struct char_data *vict = NULL;
+   if( spec_mode != SPECIAL_CMD )
+     return 0;
 
    ob = GET_EQ(me2,WEAR_HOLD);
    if (ob == NULL) return (0);

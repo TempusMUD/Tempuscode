@@ -52,9 +52,8 @@ SPECIAL(increaser)
   }
 
   if (!*arg1) {
-    sprintf(buf,"Increase what?\r\n"
-                 "Type 'increase %s <amount>.\r\n"
-		 "The cost is 1 lp / %d points of %s.\r\n",status_desc,amount,status_desc);
+    send_to_char(ch,"Increase what?\r\nType 'increase %s <amount>.\r\n", status_desc);
+	send_to_char(ch,"The cost is 1 lp / %d points of %s.\r\n",amount,status_desc);
     return 1;
   }
   if (!str_cmp(arg1, "hit")) {
@@ -64,10 +63,8 @@ SPECIAL(increaser)
   } else if (!str_cmp(arg1, "move")) {
     mode = MODE_MOVE;
   } else {
-    sprintf(buf,"Increase what?\r\n"
-                 "Type 'increase %s <amount>.\r\n"
-		 "The cost is 1 lp / %d points of %s.\r\n",status_desc,amount,status_desc);
-    send_to_char(ch, "%s", buf);
+    send_to_char(ch,"Increase what?\r\nType 'increase %s <amount>.\r\n", status_desc);
+	send_to_char(ch,"The cost is 1 lp / %d points of %s.\r\n",amount,status_desc);
     return 1;
   }
 

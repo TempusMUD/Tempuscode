@@ -12,7 +12,7 @@ SPECIAL(tiamat)
 
   if (cmd || !FIGHTING(ch) || GET_MOB_WAIT(ch) || number(0, 4))
     return 0;
-  if( spec_mode != SPECIAL_CMD && spec_mode != SPECIAL_TICK ) return 0; 
+  if( spec_mode != SPECIAL_COMBAT && spec_mode != SPECIAL_TICK ) return 0; 
   if (GET_HIT(ch) < 200 && ch->in_room != lair && lair != NULL) {
     act("$n vanishes in a prismatic blast of light!",
 	FALSE, ch, 0, 0, TO_ROOM);

@@ -8,7 +8,7 @@ SPECIAL(taunting_frenchman)
 {
   struct char_data *vict = NULL;
   
-   if( spec_mode != SPECIAL_CMD && spec_mode != SPECIAL_TICK ) return 0;
+   if( spec_mode != SPECIAL_ENTER && spec_mode != SPECIAL_TICK ) return 0;
    if (cmd || !AWAKE(ch) || FIGHTING(ch) || number(0, 10))
      return (FALSE);
    CharacterList::iterator it = ch->in_room->people.begin();

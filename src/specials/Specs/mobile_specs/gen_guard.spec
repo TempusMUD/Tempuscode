@@ -30,7 +30,7 @@ SPECIAL( gen_guard ) {
     struct char_data *guard = ( struct char_data * ) me;
     struct obj_data    *obj = GET_IMPLANT( guard, WEAR_ASS );
     char *desc = NULL, *c, buf[EXDSCR_LENGTH];
-    if( spec_mode != SPECIAL_CMD && spec_mode != SPECIAL_TICK ) return 0;
+    if( spec_mode != SPECIAL_CMD ) return 0;
 
     // the worst conditional statement in coding history
     if ( !cmd || cmd > DOWN + 1 || !obj || GET_LEVEL( ch ) > LVL_IMMORT ||

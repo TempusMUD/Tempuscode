@@ -8,6 +8,11 @@ SPECIAL(cheeky_monkey)
 {
  struct char_data *vict = NULL;
  
+ if( spec_mode != SPECIAL_TICK && spec_mode != SPECIAL_ENTER )
+ {         
+	 return 0;     
+ }             
+
  if (cmd || !AWAKE(ch) || FIGHTING(ch) || number(0, 3))
    return FALSE;
 

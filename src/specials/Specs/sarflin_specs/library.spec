@@ -45,6 +45,8 @@ SPECIAL(library)
   char *text_string;
   char cat_name[100], dir_name[60];
   struct obj_data *me2 = (struct obj_data *)me;
+  if( spec_mode != SPECIAL_CMD )
+    return 0;
 
   if (ch->in_room->number == 8315)
     strcpy(dir_name, TOMES_DIR_DAROM);
