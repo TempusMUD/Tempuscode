@@ -154,12 +154,6 @@ check_sight_vict(Creature *self, Creature *vict)
 	if (PRF_FLAGGED(self, PRF_HOLYLIGHT))
 		return true;
 
-	// Remort invis.  (mobs don't have it and aren't affected by it.)
-	if (IS_PC(self) && IS_PC(vict) &&
-			GET_LEVEL(self) < GET_INVIS_LVL(vict) &&
-			GET_REMORT_GEN(self) < GET_REMORT_GEN(vict))
-		return false;
-
 	// Sonic imagery and retina detects transparent creatures
 	if (IS_AFFECTED_2(vict, AFF2_TRANSPARENT) &&
 			!(IS_AFFECTED_3(self, AFF3_SONIC_IMAGERY) ||
