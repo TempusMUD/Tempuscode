@@ -317,8 +317,14 @@ bool char_data::setPosition( int new_pos, int mode=0 ){
         return false;
     if(new_pos < BOTTOM_POS || new_pos > TOP_POS)
         return false;
-    if(IS_AFFECTED_2(this,AFF2_PETRIFIED) && new_pos > char_specials.getPosition())
-        return false;
+    // Petrified
+    if(IS_AFFECTED_2(this,AFF2_PETRIFIED) ){
+        // Stoners can stop fighting
+        if( char_specials.getPosition() == POS_FIGHTING && new_pos == POS_STANDING )
+            return true;
+        if( new_pos > char_specials.getPosition())
+            return false;
+    }
     if(new_pos == POS_STANDING && FIGHTING(this)) {
         char_specials.setPosition(POS_FIGHTING);
     } else {
