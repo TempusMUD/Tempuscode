@@ -1572,8 +1572,9 @@ cast_spell(struct char_data *ch, struct char_data *tch,
 			return 0;
 		else {
 			GET_MANA(ch) -= mag_manacost(ch, spellnum);
-			if (!ch->desc)
-				WAIT_STATE(ch, PULSE_VIOLENCE);
+			if (!ch->desc) {
+				WAIT_STATE( ch, (3 RL_SEC) ); //PULSE_VIOLENCE);
+			}
 		}
 	}
 	//
