@@ -846,7 +846,7 @@ perform_offensive_skill(Creature *ch, Creature *vict, int skill, int *return_fla
 	struct affected_type af;
 	int prob = -1, wait = 0, vict_wait = 0, dam = 0, vict_pos = 0, fail_pos =
 		0, loc = -1, move = 0, mana = 0;
-	int my_return_flags;
+	int my_return_flags = 0;
 
 	ACMD_set_return_flags(0);
 
@@ -1159,9 +1159,9 @@ ACMD(do_order)
 
 					if (IS_NPC(vict) && GET_MOB_VNUM(vict) == 5318)
 						do_say(vict, "As you command, master.", 0, 0, 0);
-					command_interpreter(vict, message);
 					if (FIGHTING(vict))
 						detect_opponent_master(FIGHTING(vict), vict);
+					command_interpreter(vict, message);
 				}
 
 			}
@@ -1189,9 +1189,9 @@ ACMD(do_order)
 							if (IS_NPC(k->follower)
 								&& GET_MOB_VNUM(k->follower) == 5318)
 								do_say(vict, "As you command, master.", 0, 0, 0);
-							command_interpreter(k->follower, message);
 							if (FIGHTING(k->follower))
 								detect_opponent_master(FIGHTING(k->follower), k->follower);
+							command_interpreter(k->follower, message);
 						}
 					} else
 						act("$n has an indifferent look.", TRUE, k->follower,
