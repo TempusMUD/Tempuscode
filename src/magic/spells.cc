@@ -2594,7 +2594,7 @@ ASPELL(spell_animate_dead)
     REMOVE_BIT(AFF_FLAGS(zombie), AFF_GROUP);
 	
     SET_BIT(AFF2_FLAGS(zombie), AFF2_FLAGS(orig_char));
-    REMOVE_BIT(AFF3_FLAGS(zombie), AFF2_MEDITATE | AFF2_INTIMIDATED | AFF2_ABLAZE);
+    REMOVE_BIT(AFF2_FLAGS(zombie), AFF2_MEDITATE | AFF2_INTIMIDATED | AFF2_ABLAZE);
 	
     SET_BIT(AFF3_FLAGS(zombie), AFF3_FLAGS(orig_char));
     REMOVE_BIT(AFF3_FLAGS(zombie), AFF3_FEEDING | AFF3_SELF_DESTRUCT | AFF3_STASIS | AFF3_PSYCHIC_CRUSH);
@@ -2602,7 +2602,9 @@ ASPELL(spell_animate_dead)
 	SET_BIT(MOB_FLAGS(zombie), MOB_PET);
 		
     if ( isname(GET_NAME(zombie), "headless") )
-	SET_BIT(AFF3_FLAGS(zombie), AFF2_NECK_PROTECTED);
+	SET_BIT(AFF2_FLAGS(zombie), AFF2_NECK_PROTECTED);
+
+    REMOVE_BIT(AFF2_FLAGS(zombie), AFF2_BESERK);
 
     //
     // transfer equipment and delete the corpse
