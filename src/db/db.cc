@@ -179,6 +179,7 @@ void set_local_time(struct zone_data *zone, struct time_info_data *local_time);
 void update_alias_dirs(void);
 void purge_trails(struct Creature *ch);
 void build_old_player_index();
+void randomize_object(struct obj_data *obj);
 
 /* external functions */
 extern struct descriptor_data *descriptor_list;
@@ -2484,6 +2485,7 @@ on_load_equip( Creature *ch, int vnum, char* position, int maxload, int percent 
         return 4;
     }
 	obj = read_object(vnum);
+	randomize_object(obj);
     if( obj == NULL ) {
         slog("SYSERR: Mob num %d cannot load equip object #%d.",
             ch->mob_specials.shared->vnum, vnum);
@@ -2539,6 +2541,137 @@ create_obj(void)
 	return obj;
 }
 
+int
+rand_value(int val, int variance, int min, int max)
+{
+	if (min == -1 || val - variance > min)
+		min = val - variance;
+	if (max == -1 || val + variance < max)
+		max = val + variance;
+	return number(min, max);
+}
+
+void
+randomize_object(struct obj_data *obj)
+{
+	int idx, bit, total_affs = 0;
+
+	// Applies
+	for (idx = 0;idx < MAX_OBJ_AFFECT;idx++)
+		if (obj->affected[idx].location != APPLY_NONE) {
+			if (obj->affected[idx].modifier > 0)
+				obj->affected[idx].modifier = number(0, obj->affected[idx].modifier);
+			else if (obj->affected[idx].modifier < 0)
+				obj->affected[idx].modifier = -number(0, -obj->affected[idx].modifier);
+			if (!obj->affected[idx].modifier)
+				obj->affected[idx].location = APPLY_NONE;
+			else
+				total_affs++;
+		}
+	
+	// Affects
+	for (idx = 0;idx < 32;idx++) {
+		bit = (1 << idx);
+		if (IS_SET(obj->obj_flags.bitvector[0], bit)) {
+			if (!number(0, 3))
+				REMOVE_BIT(obj->obj_flags.bitvector[0], bit);
+			else
+				total_affs++;
+		}
+		if (IS_SET(obj->obj_flags.bitvector[1], bit)) {
+			if (!number(0, 3))
+				REMOVE_BIT(obj->obj_flags.bitvector[1], bit);
+			else
+				total_affs++;
+		}
+		if (IS_SET(obj->obj_flags.bitvector[2], bit)) {
+			if (!number(0, 3))
+				REMOVE_BIT(obj->obj_flags.bitvector[2], bit);
+			else
+				total_affs++;
+		}
+	}
+
+	// Remove magicalness if no affects are left
+	if (!total_affs)
+		REMOVE_BIT(GET_OBJ_EXTRA(obj), ITEM_MAGIC | ITEM_BLESS | ITEM_DAMNED);
+	
+	switch (GET_OBJ_TYPE(obj)) {
+	// Spell level in first value
+	case ITEM_SCROLL:
+	case ITEM_PILL:
+	case ITEM_POTION:
+	case ITEM_SYRINGE:
+		GET_OBJ_VAL(obj, 0) = rand_value(GET_OBJ_VAL(obj, 0), 10, 1, 49);
+		break;
+	// Spell level in first, max charges in second
+	case ITEM_WAND:
+	case ITEM_STAFF:
+		GET_OBJ_VAL(obj, 0) = rand_value(GET_OBJ_VAL(obj, 0), 10, 1, 49);
+		GET_OBJ_VAL(obj, 1) = rand_value(
+			GET_OBJ_VAL(obj, 1),
+			GET_OBJ_VAL(obj, 1) / 4,
+			1,
+			-1);
+		GET_OBJ_VAL(obj, 2) = rand_value(
+			GET_OBJ_VAL(obj, 2),
+			GET_OBJ_VAL(obj, 2) / 4,
+			1,
+			GET_OBJ_VAL(obj, 1));
+		break;
+	// First value just needs some variation
+	case ITEM_CHIT:
+	case ITEM_ARMOR:
+	case ITEM_CONTAINER:
+	case ITEM_MONEY:
+		GET_OBJ_VAL(obj, 0) = rand_value(
+			GET_OBJ_VAL(obj, 0),
+			GET_OBJ_VAL(obj, 0) / 4,
+			1,
+			-1);
+		break;
+	// First value is max charges, second is current
+	case ITEM_BATTERY:
+	case ITEM_DEVICE:
+	case ITEM_ENERGY_CELL:
+	case ITEM_ENGINE:
+	case ITEM_COMMUNICATOR:
+	case ITEM_TRANSPORTER:
+		GET_OBJ_VAL(obj, 0) = rand_value(
+			GET_OBJ_VAL(obj, 0),
+			GET_OBJ_VAL(obj, 0) / 4,
+			1,
+			-1);
+		GET_OBJ_VAL(obj, 1) = rand_value(
+			GET_OBJ_VAL(obj, 1),
+			GET_OBJ_VAL(obj, 1) / 4,
+			1,
+			GET_OBJ_VAL(obj, 0));
+		break;
+	// Weapon damage dice
+	case ITEM_WEAPON:
+		GET_OBJ_VAL(obj, 1) = rand_value(
+			GET_OBJ_VAL(obj, 1),
+			GET_OBJ_VAL(obj, 1) / 4,
+			1,
+			GET_OBJ_VAL(obj, 0));
+		GET_OBJ_VAL(obj, 2) = rand_value(
+			GET_OBJ_VAL(obj, 2),
+			GET_OBJ_VAL(obj, 2) / 4,
+			1,
+			-1);
+		break;
+	// Vstone and portal charges
+	case ITEM_VSTONE:
+	case ITEM_PORTAL:
+		GET_OBJ_VAL(obj, 2) = rand_value(
+			GET_OBJ_VAL(obj, 2),
+			GET_OBJ_VAL(obj, 2) / 4,
+			1,
+			-1);
+		break;
+	}
+}
 
 /* create a new object from a prototype */
 struct obj_data *
@@ -2803,6 +2936,7 @@ reset_zone(struct zone_data *zone)
 					room = real_room(zonecmd->arg3);
 					if (room && !ROOM_FLAGGED(room, ROOM_HOUSE)) {
 						obj = read_object(zonecmd->arg1);
+						randomize_object(obj);
 						if (ZONE_FLAGGED(zone, ZONE_ZCMDS_APPROVED)) {
 							SET_BIT(GET_OBJ_EXTRA2(obj), ITEM2_UNAPPROVED);
 							GET_OBJ_TIMER(obj) = 60;
@@ -2828,6 +2962,7 @@ reset_zone(struct zone_data *zone)
 				tobj->shared->number - tobj->shared->house_count <
 				zonecmd->arg2) {
 				obj = read_object(zonecmd->arg1);
+				randomize_object(obj);
 				if (!(obj_to = get_obj_num(zonecmd->arg3))) {
 					ZONE_ERROR("target obj not found");
 					if (ZONE_FLAGGED(zone, ZONE_ZCMDS_APPROVED)) {
@@ -2868,6 +3003,7 @@ reset_zone(struct zone_data *zone)
 				tobj->shared->number - tobj->shared->house_count <
 				zonecmd->arg2) {
 				obj = read_object(zonecmd->arg1);
+				randomize_object(obj);
 				if (ZONE_FLAGGED(zone, ZONE_ZCMDS_APPROVED)) {
 					SET_BIT(GET_OBJ_EXTRA2(obj), ITEM2_UNAPPROVED);
 					GET_OBJ_TIMER(obj) = 60;
@@ -2897,6 +3033,7 @@ reset_zone(struct zone_data *zone)
 					ZONE_ERROR("char already equipped in position");
 				} else {
 					obj = read_object(zonecmd->arg1);
+					randomize_object(obj);
 					if (ZONE_FLAGGED(zone, ZONE_ZCMDS_APPROVED)) {
 						SET_BIT(GET_OBJ_EXTRA2(obj), ITEM2_UNAPPROVED);
 						GET_OBJ_TIMER(obj) = 60;
@@ -2928,6 +3065,7 @@ reset_zone(struct zone_data *zone)
 					ZONE_ERROR("char already implanted in position");
 				} else {
 					obj = read_object(zonecmd->arg1);
+					randomize_object(obj);
 					if (ZONE_FLAGGED(zone, ZONE_ZCMDS_APPROVED)) {
 						SET_BIT(GET_OBJ_EXTRA2(obj), ITEM2_UNAPPROVED);
 						GET_OBJ_TIMER(obj) = 60;
