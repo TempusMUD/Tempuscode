@@ -19,7 +19,7 @@ struct voting_option
 	int idx;
 	char *descrip;
 	int count;
-	long weighted;
+	long weight;
 	};
 
 struct voting_poll
@@ -27,7 +27,7 @@ struct voting_poll
 	char *header;
 	char *descrip;
 	time_t creation_time;
-	int vote_count;
+	int count;
 	long weight;
 	struct voting_poll *next;
 	struct voting_option *options;
@@ -56,14 +56,14 @@ voting_booth_save(void) {
 
 	ouf = fopen("etc/voting.booth","w");
 	for (poll = voting_poll_list;poll;poll = poll->next) {
-		fprintf(ouf, "# %ld %d %ld %s\n",
+		fprintf(ouf, "# %ld %d %ld\n",
 			poll->creation_time,
-			poll->vote_count,
-			poll->weight,
-			poll->header);
+			poll->count,
+			poll->weight);
+		fprintf(ouf,"%s~\n",poll->header);
 		fprintf(ouf, "%s~\n",poll->descrip);
 		for (opt = poll->options;opt;opt = opt->next) {
-			fprintf(ouf, "O %d %ld\n", opt->count, opt->weighted);
+			fprintf(ouf, "O %d %ld\n", opt->count, opt->weight);
 			fprintf(ouf, "%s~\n",opt->descrip);
 		}
 		for (mem = poll->memory;mem;mem = mem->next) {
@@ -71,6 +71,60 @@ voting_booth_save(void) {
 		}
 	}
 	fclose(ouf);
+}
+
+void
+voting_booth_load(void) {
+	struct voting_poll *prev_poll = NULL;
+	struct voting_option *new_opt,*prev_opt = NULL;
+	struct memory_rec_struct *new_mem,*prev_mem = NULL;
+	FILE *inf;
+
+	inf = fopen("etc/voting.booth","r");
+	if (!inf) {
+		slog("/etc/voting.booth not found.");
+		return;
+	}
+	while (fgets(buf, MAX_INPUT_LENGTH, inf)) {
+		if ('#' == buf[0]) {
+			CREATE(voting_new_poll, struct voting_poll, 1);
+			sscanf(buf, "# %ld %d %ld\n",
+				&voting_new_poll->creation_time,
+				&voting_new_poll->count,
+				&voting_new_poll->weight);
+			voting_new_poll->header = fread_string(inf, buf2);
+			voting_new_poll->descrip = fread_string(inf, buf2);
+			prev_opt = NULL;
+			prev_mem = NULL;
+			if (prev_poll)
+				prev_poll->next = voting_new_poll;
+			else
+				voting_poll_list = voting_new_poll;
+			prev_poll = voting_new_poll;
+		} else if ('O' == buf[0]) {
+			CREATE(new_opt, struct voting_option, 1);
+			sscanf(buf, "O %d %ld",
+				&new_opt->count,
+				&new_opt->weight);
+			new_opt->descrip = fread_string(inf, buf2);
+			if (prev_opt)
+				prev_opt->next = new_opt;
+			else
+				voting_new_poll->options = new_opt;
+			prev_opt = new_opt;
+		} else if ('M' == buf[0]) {
+			CREATE(new_mem, struct memory_rec_struct, 1);
+			sscanf(buf, "M %ld", &new_mem->id);
+			if (prev_mem)
+				prev_mem->next = new_mem;
+			else
+				voting_new_poll->memory = new_mem;
+			prev_mem = new_mem;
+		} else {
+			slog("Invalid format for /etc/voting.booth");
+			return;
+		}
+	}
 }
 
 void
@@ -108,13 +162,13 @@ voting_booth_read(char_data *ch, struct obj_data *obj, char *argument) {
 		opt_idx++;
 		if (GET_LEVEL(ch) >= LVL_AMBASSADOR) {
 			sprintf(buf, "%d/%ld (%3d%%/%3ld%%) %d) %s",
-				opt->count,opt->weighted,
-				((poll->vote_count) ? ((opt->count * 100)/poll->vote_count):0),
-				((poll->weight) ? ((opt->weighted * 100)/poll->weight):0),
+				opt->count,opt->weight,
+				((poll->count) ? ((opt->count * 100)/poll->count):0),
+				((poll->weight) ? ((opt->weight * 100)/poll->weight):0),
 				opt_idx,opt->descrip);
 		} else if (memory && memory->id == GET_IDNUM(ch)) {
 			sprintf(buf, "(%3d%%) %d) %s",
-				((poll->vote_count) ? ((opt->count * 100)/poll->vote_count):0),
+				((poll->count) ? ((opt->count * 100)/poll->count):0),
 				opt_idx,opt->descrip);
 		} else
 			sprintf(buf, "      %d) %s",opt_idx,opt->descrip);
@@ -191,8 +245,8 @@ voting_booth_vote(char_data *ch, struct obj_data *obj, char *argument) {
 	}
 
 	opt->count++;
-	opt->weighted += GET_LEVEL(ch) + ((GET_LEVEL(ch) < LVL_AMBASSADOR) ? (GET_REMORT_GEN(ch) * 50):0);
-	poll->vote_count++;
+	opt->weight += GET_LEVEL(ch) + ((GET_LEVEL(ch) < LVL_AMBASSADOR) ? (GET_REMORT_GEN(ch) * 50):0);
+	poll->count++;
 	poll->weight += GET_LEVEL(ch) + ((GET_LEVEL(ch) < LVL_AMBASSADOR) ? (GET_REMORT_GEN(ch) * 50):0);
 	
 	sprintf(buf, "You have voted for %d) %s",opt->idx,opt->descrip);
@@ -238,7 +292,7 @@ voting_booth_list(char_data *ch, struct obj_data *obj) {
 		while (poll) {
 			strftime(buf2, 2048, "%a %b %d", localtime(&poll->creation_time));
 			sprintf(buf, "%2d : %s (%d responses) :: %s\r\n", ++poll_count,
-				buf2, poll->vote_count, poll->header);
+				buf2, poll->count, poll->header);
 			send_to_char(buf, ch);
 			poll = poll->next;
 		}
@@ -291,6 +345,8 @@ voting_booth_remove(char_data *ch, struct obj_data *obj, char *argument) {
 
 	free(poll->descrip);
 	free(poll);
+
+	voting_booth_save();
 }
 
 void
@@ -308,7 +364,7 @@ voting_booth_write(char_data *ch, struct obj_data *obj, char *argument) {
 	voting_new_poll->header = str_dup(argument);
 	voting_new_poll->descrip = NULL;
 	voting_new_poll->creation_time = time(NULL);
-	voting_new_poll->vote_count = 0;
+	voting_new_poll->count = 0;
 	voting_new_poll->weight = 0;
 	voting_new_poll->options = NULL;
 	voting_new_poll->memory = NULL;
@@ -370,7 +426,7 @@ voting_add_poll( void ) {
 					new_option->idx = ++opt_idx;
 					new_option->descrip = str_dup(buf);
 					new_option->count = 0;
-					new_option->weighted = 0;
+					new_option->weight = 0;
 					new_option->next = NULL;
 					if (prev_option)
 						prev_option->next = new_option;
@@ -398,7 +454,7 @@ voting_add_poll( void ) {
 		new_option->idx = ++opt_idx;
 			new_option->descrip = str_dup(buf);
 			new_option->count = 0;
-			new_option->weighted = 0;
+			new_option->weight = 0;
 			new_option->next = NULL;
 			if (prev_option)
 				prev_option->next = new_option;
@@ -430,6 +486,8 @@ voting_booth_init( void ) {
 	VOTING_CMD_WRITE = find_command("write");
 	VOTING_CMD_REMOVE = find_command("remove");
 	VOTING_CMD_VOTE = find_command("vote");
+
+	voting_booth_load();
 }
 
 SPECIAL(voting_booth) {
@@ -450,16 +508,22 @@ SPECIAL(voting_booth) {
 		
 		if (VOTING_CMD_VOTE == cmd)
 			voting_booth_vote(ch, obj, argument);
-		else if (VOTING_CMD_READ == cmd)
+		else if (VOTING_CMD_READ == cmd) {
+			skip_spaces(&argument);
+			if (!isdigit(*argument))
+				return 0;
 			voting_booth_read(ch, obj, argument);
-		else if (VOTING_CMD_LOOK == cmd || VOTING_CMD_EXAMINE == cmd) {
+		} else if (VOTING_CMD_LOOK == cmd || VOTING_CMD_EXAMINE == cmd) {
 			skip_spaces(&argument);
 			if ( !isname(argument, obj->name) && !isname(argument,"voting booth") )
 				return 0;
 			voting_booth_list(ch, obj);
-		} else if (VOTING_CMD_REMOVE == cmd)
+		} else if (VOTING_CMD_REMOVE == cmd) {
+			skip_spaces(&argument);
+			if (!isdigit(*argument))
+				return 0;
 			voting_booth_remove(ch, obj, argument);
-		else if (VOTING_CMD_WRITE == cmd)
+		} else if (VOTING_CMD_WRITE == cmd)
 			voting_booth_write(ch, obj, argument);
 		else
 			return 0;
