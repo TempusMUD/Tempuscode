@@ -60,6 +60,11 @@ int perform_barb_beserk(struct char_data *ch)
     return 0;
 }
 
+ACMD(do_corner)
+{
+	send_to_char("You back into the corner.\r\n",ch);
+	return;
+}
 
 ACMD(do_beserk)
 {

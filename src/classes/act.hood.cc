@@ -27,6 +27,10 @@ void add_blood_to_room(struct room_data *rm, int amount);
 int House_can_enter( struct char_data *ch, room_num real_room );
 int clan_house_can_enter( struct char_data *ch, struct room_data *room);
 
+ACMD(do_taunt)
+{
+	send_to_char("You taunt them mercilessly!\r\n",ch);
+}
 
 ACMD(do_hamstring)
 {
