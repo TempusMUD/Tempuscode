@@ -1329,157 +1329,169 @@ ACMD(do_bash)
 {
 	struct Creature *vict = NULL;
 	struct obj_data *ovict;
-	char arg2[MAX_INPUT_LENGTH];
 	int percent, prob, door;
 	struct room_data *room = NULL;
+	char *arg1, *arg2;
+	const char *door_str;
 
-	two_arguments(argument, arg, arg2);
+	arg1 = tmp_getword(&argument);
+	arg2 = tmp_getword(&argument);
 
-	if (!(vict = get_char_room_vis(ch, arg))) {
-		if (FIGHTING(ch)) {
-			vict = FIGHTING(ch);
-		} else if ((ovict =
-				get_obj_in_list_vis(ch, arg, ch->in_room->contents))) {
-			act("You bash $p!", FALSE, ch, ovict, 0, TO_CHAR);
-			act("$n bashes $p!", FALSE, ch, ovict, 0, TO_ROOM);
-			if (GET_OBJ_TYPE(ovict) == ITEM_VEHICLE &&
-				(room = real_room(ROOM_NUMBER(ovict))) != NULL &&
-				room->people) {
-				act("$N bashes the outside of $p!",
-					FALSE, room->people, ovict, ch, TO_ROOM);
-				act("$N bashes the outside of $p!",
-					FALSE, room->people, ovict, ch, TO_CHAR);
-			}
-			return;
-		} else if ((door = find_door(ch, arg, arg2, "bash")) >= 0) {
-			if (!IS_SET(EXIT(ch, door)->exit_info, EX_ISDOOR))
-				send_to_char(ch, "You cannot bash that!\r\n");
-			else if (!IS_SET(EXIT(ch, door)->exit_info, EX_CLOSED))
-				send_to_char(ch, "It's already open!\r\n");
-			else if (GET_MOVE(ch) < 20)
-				send_to_char(ch, "You are to exhausted.\r\n");
-			else {
-				percent = CHECK_SKILL(ch, SKILL_BREAK_DOOR) +
-					(str_app[STRENGTH_APPLY_INDEX(ch)].todam << 3) +
-					GET_CON(ch);
+	if (*arg1)
+		vict = get_char_room_vis(ch, arg1);
+	else
+		vict = FIGHTING(ch);
 
-				if (IS_SET(EXIT(ch, door)->exit_info, EX_LOCKED))
-					percent -= 15;
-				if (IS_SET(EXIT(ch, door)->exit_info, EX_HEAVY_DOOR))
-					percent -= 20;
-				if (IS_SET(EXIT(ch, door)->exit_info, EX_REINFORCED))
-					percent -= 25;
-				if (!GET_COND(ch, FULL))
-					percent -= 5;
-
-				if (IS_SET(EXIT(ch, door)->exit_info, EX_PICKPROOF) ||
-					EXIT(ch, door)->to_room == NULL)
-					percent = 0;
-
-				// gods can bash down anything, dammit!!!
-				if (GET_LEVEL(ch) > LVL_GRGOD)
-					percent += 100;
-
-				prob = dice(3, 8);
-
-				if (percent < number(100, 170)) {
-					prob += dice(4, 8);
-					GET_HIT(ch) -= prob;
-					if (GET_HIT(ch) < -10) {
-						sprintf(buf,
-							"$n throws $mself against the %s, $s last futile effort.",
-							EXIT(ch, door)->keyword ?
-							fname(EXIT(ch, door)->keyword) : "door");
-						act(buf, FALSE, ch, 0, 0, TO_ROOM);
-						send_to_char(ch,
-							"You kill yourself as you hurl yourself against the %s!\r\n",
-							EXIT(ch, door)->keyword ?
-							fname(EXIT(ch, door)->keyword) : "door");
-						if (!IS_NPC(ch)) {
-							mudlog(GET_INVIS_LVL(ch), NRM, true,
-								"%s killed self bashing door at %d.",
-								GET_NAME(ch), ch->in_room->number);
-						}
-						raw_kill(ch, ch, SKILL_BASH);	// Bashing a door to death
-						return;
-					} else {
-						sprintf(buf,
-							"$n throws $mself against the %s, in an attempt to break it.",
-							EXIT(ch, door)->keyword ?
-							fname(EXIT(ch, door)->keyword) : "door");
-						act(buf, FALSE, ch, 0, 0, TO_ROOM);
-						send_to_char(ch,
-							"You slam yourself against the %s in a futile effort.\r\n",
-							EXIT(ch, door)->keyword ?
-							fname(EXIT(ch, door)->keyword) : "door");
-						update_pos(ch);
-					}
-				} else {
-					sprintf(buf, "$n bashes the %s open with a powerful blow!",
-						EXIT(ch, door)->keyword ?
-						fname(EXIT(ch, door)->keyword) : "door");
-					act(buf, FALSE, ch, 0, 0, TO_ROOM);
-					send_to_char(ch,
-						"The %s gives way under your powerful bash!\r\n",
-						EXIT(ch, door)->keyword ? fname(EXIT(ch,
-								door)->keyword) : "door");
-					REMOVE_BIT(EXIT(ch, door)->exit_info, EX_CLOSED);
-					REMOVE_BIT(EXIT(ch, door)->exit_info, EX_LOCKED);
-					GET_HIT(ch) -= prob;
-
-					if (number(0, 20) > GET_DEX(ch)) {
-						act("$n staggers and falls down.", TRUE, ch, 0, 0,
-							TO_ROOM);
-						act("You stagger and fall down.", TRUE, ch, 0, 0,
-							TO_CHAR);
-						ch->setPosition(POS_SITTING);
-					}
-
-					if (GET_HIT(ch) < -10) {
-						if (!IS_NPC(ch)) {
-							mudlog(GET_INVIS_LVL(ch), NRM, true,
-								"%s killed self bashing door at %d.",
-								GET_NAME(ch), ch->in_room->number);
-						}
-						raw_kill(ch, ch, SKILL_BASH);	// Bash Door to death
-						return;
-					} else {
-						update_pos(ch);
-						gain_skill_prof(ch, SKILL_BREAK_DOOR);
-					}
-
-					if (EXIT(ch, door)->to_room->dir_option[rev_dir[door]] &&
-						EXIT(ch,
-							door)->to_room->dir_option[rev_dir[door]]->
-						to_room == ch->in_room) {
-						sprintf(buf,
-							"The %s is bashed open from the other side!!\r\n",
-							EXIT(ch,
-								door)->to_room->dir_option[rev_dir[door]]->
-							keyword ? fname(EXIT(ch,
-									door)->to_room->dir_option[rev_dir[door]]->
-								keyword) : "door");
-						REMOVE_BIT(EXIT(ch,
-								door)->to_room->dir_option[rev_dir[door]]->
-							exit_info, EX_CLOSED);
-						REMOVE_BIT(EXIT(ch,
-								door)->to_room->dir_option[rev_dir[door]]->
-							exit_info, EX_LOCKED);
-						send_to_room(buf, EXIT(ch, door)->to_room);
-					}
-				}
-				GET_MOVE(ch) -= 20;
-			}
-			return;
-		} else {
-			send_to_char(ch, "Bash who?\r\n");
-			WAIT_STATE(ch, 4);
-			return;
-		}
+	// If we found our victim, it's a combat move
+	if (vict) {
+		do_offensive_skill(ch, fname(vict->player.name), 0, SKILL_BASH, 0);
+		return;
 	}
 
-	do_offensive_skill(ch, fname(vict->player.name), 0, SKILL_BASH, 0);
+	// If it's an object in the room, it's just a scary social
+	ovict = get_obj_in_list_vis(ch, arg, ch->in_room->contents);
+	if (ovict) {
+		act("You bash $p!", FALSE, ch, ovict, 0, TO_CHAR);
+		act("$n bashes $p!", FALSE, ch, ovict, 0, TO_ROOM);
+		if (GET_OBJ_TYPE(ovict) == ITEM_VEHICLE &&
+			(room = real_room(ROOM_NUMBER(ovict))) != NULL &&
+			room->people) {
+			act("$N bashes the outside of $p!",
+				FALSE, room->people, ovict, ch, TO_ROOM);
+			act("$N bashes the outside of $p!",
+				FALSE, room->people, ovict, ch, TO_CHAR);
+		}
+		return;
+	}
 
+	// If it's a door, it's a non-combat skill
+	door = find_door(ch, arg1, arg2, "bash");
+	if (door < 0) {
+		WAIT_STATE(ch, 4);
+		return;
+	}
+
+	// We know they're looking for a door at this point
+	if (!IS_SET(EXIT(ch, door)->exit_info, EX_ISDOOR)) {
+		send_to_char(ch, "You cannot bash that!\r\n");
+		return;
+	}
+	
+	if (!IS_SET(EXIT(ch, door)->exit_info, EX_CLOSED)) {
+		send_to_char(ch, "It's already open!\r\n");
+		return;
+	}
+
+	if (GET_MOVE(ch) < 20) {
+		send_to_char(ch, "You are too exhausted.\r\n");
+		return;
+	}
+
+	percent = CHECK_SKILL(ch, SKILL_BREAK_DOOR) +
+		(str_app[STRENGTH_APPLY_INDEX(ch)].todam << 3) +
+		GET_CON(ch);
+
+	if (IS_SET(EXIT(ch, door)->exit_info, EX_LOCKED))
+		percent -= 15;
+	if (IS_SET(EXIT(ch, door)->exit_info, EX_HEAVY_DOOR))
+		percent -= 20;
+	if (IS_SET(EXIT(ch, door)->exit_info, EX_REINFORCED))
+		percent -= 25;
+	if (!GET_COND(ch, FULL))
+		percent -= 5;
+
+	if (IS_SET(EXIT(ch, door)->exit_info, EX_PICKPROOF) ||
+		EXIT(ch, door)->to_room == NULL)
+		percent = 0;
+
+	// gods can bash down anything, dammit!!!
+	if (GET_LEVEL(ch) > LVL_GRGOD)
+		percent += 100;
+
+	prob = dice(3, 8);
+	door_str = EXIT(ch, door)->keyword ?
+		fname(EXIT(ch, door)->keyword) : "door";
+
+	if (percent < number(100, 170)) {
+		prob += dice(4, 8);
+		GET_HIT(ch) -= prob;
+		if (GET_HIT(ch) < -10) {
+			act(tmp_sprintf(
+					"$n throws $mself against the %s, $s last futile effort.",
+					door_str),
+				FALSE, ch, 0, 0, TO_ROOM);
+			send_to_char(ch,
+				"You kill yourself as you hurl yourself against the %s!\r\n",
+				door_str);
+			if (!IS_NPC(ch))
+				mudlog(GET_INVIS_LVL(ch), NRM, true,
+					"%s killed self bashing door at %d.",
+					GET_NAME(ch), ch->in_room->number);
+
+			raw_kill(ch, ch, SKILL_BASH);	// Bashing a door to death
+		} else {
+			act(tmp_sprintf(
+					"$n throws $mself against the %s in an attempt to break it.",
+					door_str),
+				FALSE, ch, 0, 0, TO_ROOM);
+			send_to_char(ch,
+				"You slam yourself against the %s in a futile effort.\r\n",
+				EXIT(ch, door)->keyword ?
+				fname(EXIT(ch, door)->keyword) : "door");
+			update_pos(ch);
+		}
+	} else {
+		// Success
+		act(tmp_sprintf("$n bashes the %s open with a powerful blow!",
+				door_str),
+			FALSE, ch, 0, 0, TO_ROOM);
+		send_to_char(ch, "The %s gives way under your powerful bash!\r\n",
+			door_str);
+
+		REMOVE_BIT(EXIT(ch, door)->exit_info, EX_CLOSED);
+		REMOVE_BIT(EXIT(ch, door)->exit_info, EX_LOCKED);
+		GET_HIT(ch) -= prob;
+
+		if (number(0, 20) > GET_DEX(ch)) {
+			act("$n staggers and falls down.", TRUE, ch, 0, 0,
+				TO_ROOM);
+			act("You stagger and fall down.", TRUE, ch, 0, 0,
+				TO_CHAR);
+			ch->setPosition(POS_SITTING);
+		}
+
+		if (GET_HIT(ch) < -10) {
+			if (!IS_NPC(ch)) {
+				mudlog(GET_INVIS_LVL(ch), NRM, true,
+					"%s killed self bashing door at %d.",
+					GET_NAME(ch), ch->in_room->number);
+			}
+			raw_kill(ch, ch, SKILL_BASH);	// Bash Door to death
+			return;
+		} else {
+			update_pos(ch);
+			gain_skill_prof(ch, SKILL_BREAK_DOOR);
+		}
+
+		if (EXIT(ch, door)->to_room->dir_option[rev_dir[door]] &&
+			EXIT(ch,
+				door)->to_room->dir_option[rev_dir[door]]->
+			to_room == ch->in_room) {
+			sprintf(buf,
+				"The %s is bashed open from the other side!!\r\n",
+				EXIT(ch,
+					door)->to_room->dir_option[rev_dir[door]]->
+				keyword ? fname(EXIT(ch,
+						door)->to_room->dir_option[rev_dir[door]]->
+					keyword) : "door");
+			REMOVE_BIT(EXIT(ch, door)->to_room->dir_option[rev_dir[door]]->
+				exit_info, EX_CLOSED);
+			REMOVE_BIT(EXIT(ch, door)->to_room->dir_option[rev_dir[door]]->
+				exit_info, EX_LOCKED);
+			send_to_room(buf, EXIT(ch, door)->to_room);
+		}
+	}
+	GET_MOVE(ch) -= 20;
 }
 
 ACMD(do_stun)
