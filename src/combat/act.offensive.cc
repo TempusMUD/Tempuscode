@@ -382,6 +382,13 @@ calc_skill_prob(struct Creature *ch, struct Creature *vict, int skillnum,
 		break;
 
 	case SKILL_SIDEKICK:
+		if ((MOB_FLAGGED(vict, MOB_NOBASH) ||
+				vict->getPosition() < POS_FIGHTING)
+			&& GET_LEVEL(ch) < LVL_AMBASSADOR)
+			prob = 0;
+
+		if (IS_PUDDING(vict) || IS_SLIME(vict))
+			prob = 0;
 
 		*dam = dice(5, (GET_LEVEL(ch) >> 2));
 		ADD_EQ_DAM(ch, WEAR_FEET);
