@@ -220,9 +220,13 @@ ACCMD(do_access) {
                     send_to_char("No such player.\r\n",ch);
                     return;
                 }
+                //send_to_char("You are a member of the following groups.\r\n",ch);
+                sprintf(buf,"%s is a member of the following groups:\r\n",token1);
+                send_to_char(buf,ch);
                 Security::sendMembership(ch, id);
             } else {
-                send_to_char("List group membership for what player?\r\n",ch);
+                send_to_char("You are a member of the following groups:\r\n",ch);
+                Security::sendMembership(ch, GET_IDNUM(ch) );
             }
             break;
         case 7: // list
@@ -499,7 +503,7 @@ namespace Security {
         return (*it).addCommand( &cmd_info[index] );
     }
     
-     bool addMember( const char *member, const char *group_name ) {
+    bool addMember( const char *member, const char *group_name ) {
         list<Group>::iterator it = find( groups.begin(), groups.end(), group_name );
         if( it == groups.end() ) {
             trace("addMember: group not found");
@@ -509,7 +513,7 @@ namespace Security {
         return (*it).addMember( member );
     }
 
-     bool removeCommand( char *command, char *group_name ) {
+    bool removeCommand( char *command, char *group_name ) {
         list<Group>::iterator it = find( groups.begin(), groups.end(), group_name );
         if( it == groups.end() ) {
             trace("removeCommand: group not found");
@@ -523,7 +527,7 @@ namespace Security {
         return (*it).removeCommand( &cmd_info[index] );
     }
     
-     bool removeMember( const char *member, const char *group_name ) {
+    bool removeMember( const char *member, const char *group_name ) {
         list<Group>::iterator it = find( groups.begin(), groups.end(), group_name );
         if( it == groups.end() ) {
             trace("removeMember: group not found");
