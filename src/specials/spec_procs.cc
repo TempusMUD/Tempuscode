@@ -37,6 +37,7 @@
 #include "house.h"
 #include "fight.h"
 
+
 /*   external vars  */
 extern struct descriptor_data *descriptor_list;
 extern struct time_info_data time_info;
@@ -1776,7 +1777,6 @@ SPECIAL(cave_bear)
 #include "Specs/utility_specs/corpse_retrieval.spec"
 #include "Specs/utility_specs/dt_cleaner.spec"
 #include "Specs/utility_specs/killer_hunter.spec"
-#include "Specs/utility_specs/remorter.spec"
 #include "Specs/utility_specs/nohunger_dude.spec"
 #include "Specs/utility_specs/portal_home.spec"
 #include "Specs/utility_specs/stable_room.spec"

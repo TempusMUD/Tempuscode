@@ -5,29 +5,6 @@
 // Copyright 1998 by John Watson, John Rothe, all rights reserved.
 // Hacked to use classes and XML John Rothe 2001
 //
-/** 
- * Parses an integer from a named property in the given node
- **/
-int xmlGetIntProp(xmlNodePtr n, const char* name) {
-    int prop = 0;
-    xmlChar *c = xmlGetProp(n, (const xmlChar *)name);
-    if( c == NULL ) return 0;
-    prop = atoi((const char*)c);
-    free(c);
-    return prop;
-}
-/** 
- * Parses a character from a named property in the given node
- **/
-char xmlGetCharProp(xmlNodePtr n, const char* name) {
-    char prop = 0;
-    xmlChar *c = xmlGetProp(n, (const xmlChar *)name);
-    if( c == NULL ) return 0;
-    prop = *c;
-    free(c);
-    return prop;
-}
-
 static const int SAFE_ROOM_BITS = ROOM_PEACEFUL | ROOM_NOMOB | ROOM_NOTRACK | 
                                   ROOM_NOMAGIC | ROOM_NOTEL |  ROOM_ARENA | 
                                   ROOM_NORECALL | ROOM_GODROOM | ROOM_HOUSE | 

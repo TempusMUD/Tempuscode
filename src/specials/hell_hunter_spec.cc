@@ -41,6 +41,7 @@ using namespace std;
 #include "house.h"
 #include "fight.h"
 
+#include "xml_utils.h"
 #include "hell_hunter_spec.h"
 
 /*   external vars  */
@@ -85,7 +86,7 @@ bool load_hunter_data() {
     targets.erase(targets.begin(),targets.end());
     hunters.erase(hunters.begin(),hunters.end());
 
-    xmlDocPtr doc = xmlParseFile( "etc/hell_hunter_data" );
+    xmlDocPtr doc = xmlParseFile( "etc/hell_hunter_data.xml" );
     if( doc == NULL ) {
         slog("SYSERR: Hell Hunter Brain failed to load hunter data.");
         return false;
