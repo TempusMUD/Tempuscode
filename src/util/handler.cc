@@ -2350,12 +2350,12 @@ generic_find(char *arg, int bitvector, struct Creature *ch,
 	struct Creature **tar_ch, struct obj_data **tar_obj)
 {
 	int i, found;
-	char name[256];
+	char *name;
 
 	*tar_ch = NULL;
 	*tar_obj = NULL;
 
-	one_argument(arg, name);
+	name = tmp_getword(&arg);
 
 	if (!*name)
 		return (0);
