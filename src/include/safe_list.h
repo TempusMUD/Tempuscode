@@ -184,7 +184,7 @@ template <class T> class SafeList:protected list <T> {
         }*/
         typename list <iterator *>::iterator sit = _iterators.begin();
 		for (; sit != _iterators.end(); ++sit) {
-			if (*sit == &it && *(*sit) == it) {
+			if (*sit == &it) { // && *(*sit) == it
 				_iterators.erase(sit);
                 break;
 			}
