@@ -3162,6 +3162,8 @@ ACMD(do_who)
                         strcpy(badge,"CODEMAN");
                     } else if( !strncmp(GET_NAME(tch), "Nothing", 7) ) { 
                         strcpy(badge,"THECODE");
+                    } else if( !strncmp(GET_NAME(tch), "Cedric", 6) ) { 
+                        strcpy(badge,"ARBITER");
                     } else {
                         strcpy(badge,LEV_ABBR(tch));
                     }
