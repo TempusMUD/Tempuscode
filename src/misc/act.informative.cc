@@ -3900,15 +3900,21 @@ print_attributes_to_buf(struct Creature *ch, char *buff)
 	sprintf(buf2, " %s%s(augmented)%s\r\n",
 		CCBLD(ch, C_SPR), CCYEL(ch, C_NRM), CCNRM(ch, C_NRM));
 
-	sprintf(buff, "          %s%sSTR:%s ",
+	sprintf(buff, "      %s%sStrength:%s ",
 		CCYEL(ch, C_NRM), CCBLD(ch, C_CMP), CCNRM(ch, C_NRM));
 
-	if (str <= 5)
+	if (str <= 3)
+		strcat(buff, "You can barely stand up under your own weight.");
+	else if (str <= 5)
+		strcat(buff, "You are laughed at by ten year olds.");
+	else if (str <= 6)
 		strcat(buff, "You are a weakling.");
+	else if (str <= 5)
+		strcat(buff, "You can pick up large rocks without breathing too hard.");
 	else if (str <= 8)
 		strcat(buff, "You are not very strong.");
 	else if (str <= 10)
-		strcat(buff, "Your strength is average.");
+		strcat(buff, "You are of average strength.");
 	else if (str <= 12)
 		strcat(buff, "You are fairly strong.");
 	else if (str <= 15)
@@ -3934,13 +3940,13 @@ print_attributes_to_buf(struct Creature *ch, char *buff)
 	else if (str == 21)
 		strcat(buff, "You have the strength of a frost giant!");
 	else if (str == 22)
-		strcat(buff, "You have the strength of a fire giant!");
+		strcat(buff, "You can toss boulders with ease!");
 	else if (str == 23)
 		strcat(buff, "You have the strength of a cloud giant!");
 	else if (str == 24)
-		strcat(buff, "You have the strength of a storm giant!");
+		strcat(buff, "You are possessed for a herculean might!");
 	else if (str == 25)
-		strcat(buff, "You have the strength of a titan!");
+		strcat(buff, "You have the strength of a god!");
 	else
 		strcat(buff, "Your strength is SKREWD.");
 
@@ -3949,13 +3955,15 @@ print_attributes_to_buf(struct Creature *ch, char *buff)
 	else
 		strcat(buff, "\r\n");
 
-	sprintf(buff, "%s          %s%sINT:%s ", buff,
+	sprintf(buff, "%s  %s%sIntelligence:%s ", buff,
 		CCYEL(ch, C_NRM), CCBLD(ch, C_CMP), CCNRM(ch, C_NRM));
 
 	if (intel <= 5)
-		strcat(buff, "You are mentally challenged.");
+		strcat(buff, "You lose arguments with inanimate objects.");
 	else if (intel <= 8)
 		strcat(buff, "You're about as smart as a rock.");
+	else if (intel <= 10)
+		strcat(buff, "You are a bit slow-witted.");
 	else if (intel <= 12)
 		strcat(buff, "Your intelligence is average.");
 	else if (intel <= 13)
@@ -3969,7 +3977,9 @@ print_attributes_to_buf(struct Creature *ch, char *buff)
 	else if (intel <= 18)
 		strcat(buff, "You are a powerhouse of logic.");
 	else if (intel <= 19)
-		strcat(buff, "You have the intelligence of a god!");
+		strcat(buff, "You are an absolute genius!");
+	else if (intel <= 20)
+		strcat(buff, "You are a suuuuper-geniuus!");
 	else
 		strcat(buff,
 			"You solve nonlinear higher dimensional systems in your sleep.");
@@ -3978,7 +3988,7 @@ print_attributes_to_buf(struct Creature *ch, char *buff)
 	else
 		strcat(buff, "\r\n");
 
-	sprintf(buff, "%s          %s%sWIS:%s ", buff,
+	sprintf(buff, "%s        %s%sWisdom:%s ", buff,
 		CCYEL(ch, C_NRM), CCBLD(ch, C_CMP), CCNRM(ch, C_NRM));
 
 	if (wis <= 5)
@@ -4003,7 +4013,7 @@ print_attributes_to_buf(struct Creature *ch, char *buff)
 	else
 		strcat(buff, "\r\n");
 
-	sprintf(buff, "%s          %s%sDEX:%s ", buff,
+	sprintf(buff, "%s     %s%sDexterity:%s ", buff,
 		CCYEL(ch, C_NRM), CCBLD(ch, C_CMP), CCNRM(ch, C_NRM));
 
 	if (dex <= 5)
@@ -4025,11 +4035,15 @@ print_attributes_to_buf(struct Creature *ch, char *buff)
 	else
 		strcat(buff, "\r\n");
 
-	sprintf(buff, "%s          %s%sCON:%s ", buff,
+	sprintf(buff, "%s  %s%sConstitution:%s ", buff,
 		CCYEL(ch, C_NRM), CCBLD(ch, C_CMP), CCNRM(ch, C_NRM));
 
-	if (con <= 5)
-		strcat(buff, "Your as healthy as a rabid dog.");
+	if (con <= 3)
+		strcat(buff, "You are dead, but haven't realized it yet.");
+	else if (con <= 5)
+		strcat(buff, "You're as healthy as a rabid dog.");
+	else if (con <= 7)
+		strcat(buff, "A child poked you once, and you have the scars to prove it.");
 	else if (con <= 8)
 		strcat(buff, "Your pretty skinny and sick looking.");
 	else if (con <= 10)
@@ -4050,21 +4064,37 @@ print_attributes_to_buf(struct Creature *ch, char *buff)
 	else
 		strcat(buff, "\r\n");
 
-	sprintf(buff, "%s          %s%sCHA:%s ", buff,
+	sprintf(buff, "%s      %s%sCharisma:%s ", buff,
 		CCYEL(ch, C_NRM), CCBLD(ch, C_CMP), CCNRM(ch, C_NRM));
 
-	if (cha <= 5)
-		strcat(buff, "Your face could turn a family of elephants to stone.");
-	else if (cha <= 8)
+	if (cha <= 2)
+		strcat(buff, "People go blind when they gaze upon your face.");
+	else if (cha <= 5)
 		strcat(buff, "U-G-L-Y");
+	else if (cha <= 6)
+		strcat(buff, "Your face could turn a family of elephants to stone.");
+	else if (cha <= 7)
+		strcat(buff, "Small children run away from you screaming.");
+	else if (cha <= 8)
+		strcat(buff, "You are totally unattractive.");
+	else if (cha <= 9)
+		strcat(buff, "You are slightly unattractive.");
 	else if (cha <= 10)
 		strcat(buff, "You are not too unpleasant to deal with.");
 	else if (cha <= 12)
 		strcat(buff, "You are a pleasant person.");
 	else if (cha <= 15)
+		strcat(buff, "You are exceptionally attractive.");
+	else if (cha <= 16)
+		strcat(buff, "You have a magnetic personality.");
+	else if (cha <= 17)
 		strcat(buff, "Others eat from the palm of your hand.");
 	else if (cha <= 18)
 		strcat(buff, "Your image should be chiseled in marble!");
+	else if (cha <= 22)
+		strcat(buff, "Others eat from the palm of your hand.  Literally.");
+	else if (cha <= 25)
+		strcat(buff, "People go blind when they gaze upon your face.");
 	else
 		strcat(buff,
 			"If the gods made better they'd have kept it for themselves.");

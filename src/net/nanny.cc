@@ -124,6 +124,10 @@ nanny(struct descriptor_data * d, char *arg)
 			}
 			if (!*arg)
 				close_socket(d);
+			if (!strcasecmp(arg, "new")) {
+				set_desc_state(CON_NAME_PROMPT, d);
+				return;
+			}
 			//
 			// port olc name
 			//
@@ -131,7 +135,7 @@ nanny(struct descriptor_data * d, char *arg)
 			else if (strlen(arg) > 7 && !strncasecmp(arg,"polc-",5)) {
 				strcpy(tmp_name,arg+5);
 				if ((player_i = load_char(tmp_name, &tmp_store)) == -1) {
-					SEND_TO_Q("Invalid Port OLC name, please try another.\r\nName:  ", d);
+					SEND_TO_Q("Invalid Port OLC name, please try another.\r\n", d);
 					return;
 				}
 				sprintf(tmp_store.name,"polc-%s",tmp_store.name);
@@ -141,7 +145,7 @@ nanny(struct descriptor_data * d, char *arg)
 				if (!PLR_FLAGGED(d->character, PLR_POLC)) {
 					free_char (d->character);
 					if ((player_i = load_char(tmp_name, &tmp_store)) == -1) {
-						SEND_TO_Q("Invalid Port OLC name, please try another.\r\nName:  ", d);
+						SEND_TO_Q("Invalid Port OLC name, please try another.\r\n", d);
 						return;
 					}
 				}
@@ -154,74 +158,95 @@ nanny(struct descriptor_data * d, char *arg)
 			// normal name
 			//
 
-			else {
-				if ( ( _parse_name(arg, tmp_name)) || strlen(tmp_name) < 2 ||
-					strlen(tmp_name) > MAX_NAME_LENGTH  || strlen(tmp_name) < 3 ) {
-					SEND_TO_Q("Invalid name, please try another.\r\n"
-							  "Name: ", d);
-					return;
-				}
-
-				if ( fill_word(strcpy(buf, tmp_name)) || reserved_word(buf)) {
-					SEND_TO_Q( "Reserved name, please try another.\r\n"
-							   "Name: ", d);
-					return;
-				}
-
-				if ((player_i = load_char(tmp_name, &tmp_store)) > -1) {
-
-					store_to_char(&tmp_store, d->character);
-					// set this up for the dyntext check
-					d->old_login_time = tmp_store.last_logon;
-
-					GET_PFILEPOS(d->character) = player_i;
-
-					if (PLR_FLAGGED(d->character, PLR_DELETED)) {
-						free_char(d->character);
-						CREATE(d->character, struct Creature, 1);
-						clear_char(d->character);
-						CREATE(d->character->player_specials, struct player_special_data, 1);
-						d->character->desc = d;
-						CREATE(d->character->player.name, char, strlen(tmp_name) + 1);
-						strcpy(d->character->player.name, CAP(tmp_name));
-						GET_PFILEPOS(d->character) = player_i;
-						GET_WAS_IN(d->character) = NULL;
-						Crash_delete_file(GET_NAME(d->character), CRASH_FILE);
-						Crash_delete_file(GET_NAME(d->character), IMPLANT_FILE);
-
-						set_desc_state( CON_NAME_CNFRM,d );
-					} else {
-						// undo it just in case they are set
-						REMOVE_BIT(PLR_FLAGS(d->character),
-								   PLR_WRITING | PLR_MAILING | PLR_OLC |
-								   PLR_QUESTOR);
-						REMOVE_BIT(PRF2_FLAGS(d->character), PRF2_WORLDWRITE);
-
-						if(d->character->getLevel() < LVL_AMBASSADOR) {
-							GET_QLOG_LEVEL(d->character) = 0;
-						}
-
-						// make sure clan is valid
-						if ((clan = real_clan(GET_CLAN(d->character)))) {
-							if (!(member = real_clanmember(GET_IDNUM(d->character), clan)))
-								GET_CLAN(d->character) = 0;
-						} else if (GET_CLAN(d->character))
-							GET_CLAN(d->character) = 0;
-
-						set_desc_state( CON_PASSWORD,d );
-					}
-				} else {
-					// player unknown -- make new character
-
-					if (!Valid_Name(tmp_name)) {
-						SEND_TO_Q("Invalid name, please use another.\r\n", d);
-						return;
-					}
-					CREATE(d->character->player.name, char, strlen(tmp_name) + 1);
-					strcpy(d->character->player.name, CAP(tmp_name));
-					set_desc_state( CON_NAME_CNFRM,d );
-				}
+			if ( ( _parse_name(arg, tmp_name)) || strlen(tmp_name) < 2 ||
+				strlen(tmp_name) > MAX_NAME_LENGTH  || strlen(tmp_name) < 3 ) {
+				SEND_TO_Q("\r\nInvalid name, please try another.\r\n", d);
+				return;
 			}
+
+			if ( fill_word(strcpy(buf, tmp_name)) || reserved_word(buf)) {
+				SEND_TO_Q( "\r\nReserved name, please try another.\r\n", d);
+				return;
+			}
+
+			player_i = load_char(tmp_name, &tmp_store);
+			if (player_i == -1 || tmp_store.char_specials_saved.act & PLR_DELETED) {
+				SEND_TO_Q("\r\nThat character does not exist.  Please try another.\r\n", d);
+				return;
+			}
+
+			store_to_char(&tmp_store, d->character);
+			// set this up for the dyntext check
+			d->old_login_time = tmp_store.last_logon;
+
+			GET_PFILEPOS(d->character) = player_i;
+
+			/* Obsolete------------------------------------
+			if (PLR_FLAGGED(d->character, PLR_DELETED)) 
+				free_char(d->character);
+				CREATE(d->character, struct Creature, 1);
+				clear_char(d->character);
+				CREATE(d->character->player_specials, struct player_special_data, 1);
+				d->character->desc = d;
+				CREATE(d->character->player.name, char, strlen(tmp_name) + 1);
+				strcpy(d->character->player.name, CAP(tmp_name));
+				GET_PFILEPOS(d->character) = player_i;
+				GET_WAS_IN(d->character) = NULL;
+				Crash_delete_file(GET_NAME(d->character), CRASH_FILE);
+				Crash_delete_file(GET_NAME(d->character), IMPLANT_FILE);
+
+				set_desc_state( CON_NAME_CNFRM,d );
+			----------------------------------------------*/
+				// undo it just in case they are set
+			REMOVE_BIT(PLR_FLAGS(d->character),
+					   PLR_WRITING | PLR_MAILING | PLR_OLC |
+					   PLR_QUESTOR);
+			REMOVE_BIT(PRF2_FLAGS(d->character), PRF2_WORLDWRITE);
+
+			if(d->character->getLevel() < LVL_AMBASSADOR) {
+				GET_QLOG_LEVEL(d->character) = 0;
+			}
+
+			// make sure clan is valid
+			if ((clan = real_clan(GET_CLAN(d->character)))) {
+				if (!(member = real_clanmember(GET_IDNUM(d->character), clan)))
+					GET_CLAN(d->character) = 0;
+			} else if (GET_CLAN(d->character))
+				GET_CLAN(d->character) = 0;
+
+			set_desc_state( CON_PASSWORD,d );
+			break;
+		case CON_NAME_PROMPT:		// new character making
+			// player unknown -- make new character
+			if ( ( _parse_name(arg, tmp_name)) || strlen(tmp_name) < 2 ||
+				strlen(tmp_name) > MAX_NAME_LENGTH  || strlen(tmp_name) < 3 ) {
+				SEND_TO_Q("\r\nInvalid name, please try another.\r\n", d);
+				return;
+			}
+
+			if ( fill_word(strcpy(buf, tmp_name)) || reserved_word(buf)) {
+				SEND_TO_Q( "\r\nReserved name, please try another.\r\n", d);
+				return;
+			}
+
+			if (!Valid_Name(tmp_name)) {
+				SEND_TO_Q("\r\nInvalid name, please use another.\r\n", d);
+				return;
+			}
+
+			player_i = load_char(tmp_name, &tmp_store);
+			if (player_i != -1 && !(tmp_store.char_specials_saved.act & PLR_DELETED)) {
+				SEND_TO_Q("\r\nThat character name is already in use.  Please try another.\r\n", d);
+				return;
+			}
+
+			CREATE(d->character->player.name, char, strlen(tmp_name) + 1);
+			strcpy(d->character->player.name, CAP(tmp_name));
+			GET_PFILEPOS(d->character) = player_i;
+			GET_WAS_IN(d->character) = NULL;
+			Crash_delete_file(GET_NAME(d->character), CRASH_FILE);
+			Crash_delete_file(GET_NAME(d->character), IMPLANT_FILE);
+			set_desc_state( CON_NAME_CNFRM,d );
 			break;
 		case CON_NAME_CNFRM:        // wait for conf. of new name
 			if (tolower(*arg) == 'y') {
@@ -1241,6 +1266,8 @@ make_prompt(struct descriptor_data * d)
 		case CON_CLOSE:				// Disconnecting
 			break;
 		case CON_GET_NAME:			// By what name ..?
+			SEND_TO_Q( "Enter your name, or 'new' for a new character:  ",d ); break;
+		case CON_NAME_PROMPT:			// By what name ..?
 			SEND_TO_Q( "By which name do you wish to be known? ",d ); break;
 		case CON_NAME_CNFRM:		// Did I get that right, x?
 			sprintf( buf,"Did I get that right, %s (Y/N)? ",GET_NAME(d->character));

@@ -438,8 +438,10 @@ SPECIAL(pendulum_timer_mob)
 /*****************************************************/
 SPECIAL(pendulum_room)
 {
-
 	struct obj_data *test_obj = NULL;
+
+	if (spec_mode != SPECIAL_CMD)
+		return 0;
 
 	if (!CMD_IS("south") && !CMD_IS("north"))
 		return 0;

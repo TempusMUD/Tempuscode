@@ -18,6 +18,7 @@ enum {
 	CON_PLAYING,				// Playing - Nominal state  
 	CON_CLOSE,					// Disconnecting        
 	CON_GET_NAME,				// By what name ..?     
+	CON_NAME_PROMPT,			// Entering a new name
 	CON_NAME_CNFRM,				// Did I get that right, x? 
 	CON_PASSWORD,				// Password:            
 	CON_NEWPASSWD,				// Give me a password for x 

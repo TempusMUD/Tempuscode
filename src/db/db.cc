@@ -26,6 +26,7 @@
 #include <signal.h>
 
 #include "structs.h"
+#include "constants.h"
 #include "utils.h"
 #include "db.h"
 #include "comm.h"
@@ -46,6 +47,7 @@
 #include "help.h"
 #include "combat.h"
 #include "iscript.h"
+#include "tmpstr.h"
 
 /**************************************************************************
 *  declarations of most of the 'global' variables                         *
@@ -3235,6 +3237,70 @@ save_char(struct Creature *ch, struct room_data *load_room)
 
 	fseek(player_fl, GET_PFILEPOS(ch) * sizeof(struct char_file_u), SEEK_SET);
 	fwrite(&st, sizeof(struct char_file_u), 1, player_fl);
+
+	// Save vital statistics
+	FILE *ouf;
+	char *path;
+	int idx;
+
+	path = tmp_sprintf("plrxml/%d.char", GET_PFILEPOS(ch));
+	ouf = fopen(path, "w");
+	fprintf(ouf, "<CREATURE NAME=\"%s\" IDNUM=\"%ld\">\n",
+		GET_NAME(ch), ch->char_specials.saved.idnum);
+
+	fprintf(ouf, "<POINTS HIT=\"%d\" MANA=\"%d\" MOVE=\"%d\" MAXHIT=\"%d\" MAXMANA=\"%d\" MAXMOVE=\"%d\"/>\n",
+		ch->points.hit, ch->points.mana, ch->points.move,
+		ch->points.max_hit, ch->points.max_mana, ch->points.max_move);
+
+	fprintf(ouf, "<STATS LEVEL=\"%d\" SEX=\"%s\" RACE=\"%s\" HEIGHT=\"%d\" WEIGHT=\"%d\" ALIGN=\"%d\" CLASS=\"%s\"",
+		GET_LEVEL(ch), genders[GET_SEX(ch)], player_race[GET_RACE(ch)],
+		GET_HEIGHT(ch), GET_WEIGHT(ch), GET_ALIGNMENT(ch),
+		pc_char_class_types[GET_CLASS(ch)]);
+	
+	if (GET_REMORT_GEN(ch))
+		fprintf(ouf, " REMORT=\"%s\" GEN=\"%d\"",
+			pc_char_class_types[GET_REMORT_CLASS(ch)], GET_REMORT_GEN(ch));
+	fprintf(ouf, "/>\n");
+
+	fprintf(ouf, "<TIME BIRTH=\"%ld\" DEATH=\"%ld\" PLAYED=\"%d\" LOGON=\"%ld\"/>\n",
+		ch->player.time.birth,
+		ch->player.time.death,
+		ch->player.time.played,
+		(long int)ch->player.time.logon);
+
+	fprintf(ouf, "<ATTR STR=\"%d\" INT=\"%d\" WIS=\"%d\" DEX=\"%d\" CON=\"%d\" CHA=\"%d\"/>\n",
+		ch->real_abils.str, ch->real_abils.intel, ch->real_abils.wis,
+		ch->real_abils.dex, ch->real_abils.con, ch->real_abils.cha);
+	fprintf(ouf, "<CONDITION HUNGER=\"%d\" THIRST=\"%d\" DRUNK=\"%d\"/>\n",
+		ch->player_specials->saved.conditions[0],
+		ch->player_specials->saved.conditions[1],
+		ch->player_specials->saved.conditions[2]);
+
+	fprintf(ouf, "<PREFS FLAG1=\"%ld\" FLAG2=\"%ld\"/>\n",
+		ch->char_specials.saved.act, ch->char_specials.saved.act2);
+
+	fprintf(ouf, "<AFFECTS FLAG1=\"%ld\" FLAG2=\"%ld\" FLAG3=\"%ld\"/>\n",
+		ch->char_specials.saved.affected_by,
+		ch->char_specials.saved.affected2_by,
+		ch->char_specials.saved.affected3_by);
+
+	for (idx = 0;idx < MAX_WEAPON_SPEC;idx++) {
+		if (ch->player_specials->saved.weap_spec[idx].level)
+			fprintf(ouf, "<WEAPONSPEC VNUM=\"%d\" LEVEL=\"%d\"/>\n",
+				ch->player_specials->saved.weap_spec[idx].vnum,
+				ch->player_specials->saved.weap_spec[idx].level);
+	}
+
+	if (GET_TITLE(ch) && *GET_TITLE(ch))
+		fprintf(ouf, "<TITLE>%s</TITLE>\n", GET_TITLE(ch));
+	if (POOFIN(ch) && *POOFIN(ch))
+		fprintf(ouf, "<POOFIN>%s</POOFIN>\n", POOFIN(ch));
+	if (POOFOUT(ch) && *POOFOUT(ch))
+		fprintf(ouf, "<POOFOUT>%s</POOFOUT>\n", POOFOUT(ch));
+	if (ch->player.description && *ch->player.description)
+		fprintf(ouf, "<DESCRIPTION>%s</DESCRIPTION>\n", ch->player.description);
+	fprintf(ouf, "</CREATURE>\n");
+	fclose(ouf);
 }
 
 /* copy data from the file structure to a char struct */
