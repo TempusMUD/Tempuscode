@@ -1645,11 +1645,12 @@ SPECIAL(bank)
 	arg1 = tmp_getword(&argument);
 	arg2 = tmp_getword(&argument);
 
+	if( GET_LEVEL(ch) >= LVL_AMBASSADOR || IS_NPC(ch)) {
+		send_to_char(ch, "Why would you need a bank?\r\n");
+		return 1;
+	}
+
 	if (CMD_IS("balance")) {
-        if( GET_LEVEL(ch) >= LVL_AMBASSADOR ) {
-            send_to_char(ch, "Why would you need a bank?\r\n");
-            return 1;
-        }
 		// Balance is always displayed, so we just check for clan here
 		if (*arg1 && !str_cmp(arg1, "clan")) {
 			clan = real_clan(GET_CLAN(ch));
@@ -1661,10 +1662,6 @@ SPECIAL(bank)
 			}
 		}
 	} else if (CMD_IS("deposit")) {
-        if( GET_LEVEL(ch) >= LVL_AMBASSADOR ) {
-            send_to_char(ch, "Why would you need a bank?\r\n");
-            return 1;
-        }
 		if (*arg1 && !str_cmp(arg2, "clan")) {
 			clan = real_clan(GET_CLAN(ch));
 			member = (clan) ? real_clanmember(GET_IDNUM(ch), clan) : NULL;
@@ -1718,10 +1715,6 @@ SPECIAL(bank)
 		act("$n makes a bank transaction.", TRUE, ch, 0, FALSE, TO_ROOM);
 
 	} else if (CMD_IS("withdraw")) {
-        if( GET_LEVEL(ch) >= LVL_AMBASSADOR ) {
-            send_to_char(ch, "Why would you need a bank?\r\n");
-            return 1;
-        }
 		if (*arg1 && !str_cmp(arg2, "clan")) {
 			clan = real_clan(GET_CLAN(ch));
 			member = (clan) ? real_clanmember(GET_IDNUM(ch), clan) : NULL;
