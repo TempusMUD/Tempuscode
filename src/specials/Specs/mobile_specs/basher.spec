@@ -8,9 +8,9 @@ SPECIAL(basher)
 {
 	struct Creature *vict = NULL;
 	ACMD(do_bash);
-	if (spec_mode != SPECIAL_COMBAT)
-		return 0;
-	if (cmd || ch->getPosition() != POS_FIGHTING || !FIGHTING(ch))
+	if (spec_mode != SPECIAL_TICK)
+		return false;
+	if (ch->getPosition() != POS_FIGHTING || !FIGHTING(ch))
 		return 0;
 
 	if (number(0, 81) > GET_LEVEL(ch))

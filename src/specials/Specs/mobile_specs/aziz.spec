@@ -10,11 +10,8 @@ SPECIAL(Aziz)
 {
 	struct Creature *vict = NULL;
 
-	if (spec_mode != SPECIAL_COMBAT && spec_mode != SPECIAL_TICK)
+	if (spec_mode != SPECIAL_TICK)
 		return 0;
-	if (cmd || ch->getPosition() != POS_FIGHTING)
-		return 0;
-
 	if (!FIGHTING(ch))
 		return 0;
 

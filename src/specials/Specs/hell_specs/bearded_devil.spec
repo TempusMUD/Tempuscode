@@ -6,10 +6,10 @@
 
 SPECIAL(bearded_devil)
 {
-	if (spec_mode != SPECIAL_TICK && spec_mode != SPECIAL_COMBAT)
-		return 0;
+	if (spec_mode != SPECIAL_TICK)
+		return false;
 	if (!FIGHTING(ch) || !AWAKE(ch) || GET_MOB_WAIT(ch) > 0)
-		return 0;
+		return false;
 
 	if (!number(0, 3)) {
 		act("$n thrusts $s wirelike beard at you!",

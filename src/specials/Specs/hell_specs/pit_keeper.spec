@@ -2,7 +2,7 @@ SPECIAL(pit_keeper)
 {
 	Creature *vict = 0;
 
-	if (spec_mode != SPECIAL_COMBAT && spec_mode != SPECIAL_TICK)
+	if (spec_mode != SPECIAL_TICK)
 		return 0;
 	if (cmd)
 		return 0;

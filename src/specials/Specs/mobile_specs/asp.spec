@@ -6,12 +6,7 @@
 
 SPECIAL(asp)
 {
-	if (cmd)
-		return FALSE;
-
-	if (spec_mode != SPECIAL_COMBAT && spec_mode != SPECIAL_TICK)
-		return FALSE;
-	if (ch->getPosition() != POS_FIGHTING)
+	if (spec_mode != SPECIAL_TICK)
 		return FALSE;
 
 	if (FIGHTING(ch) && (FIGHTING(ch)->in_room == ch->in_room) &&

@@ -470,7 +470,7 @@ npc_steal(struct Creature *ch, struct Creature *victim)
 
 SPECIAL(snake)
 {
-	if (spec_mode != SPECIAL_COMBAT )
+	if (spec_mode != SPECIAL_TICK)
 		return 0;
 
 	if (ch->getPosition() != POS_FIGHTING)
@@ -515,7 +515,7 @@ SPECIAL(magic_user)
 {
 	struct Creature *vict = NULL;
 
-	if (spec_mode != SPECIAL_COMBAT)
+	if (spec_mode != SPECIAL_TICK)
 		return 0;
 	if (cmd || ch->getPosition() != POS_FIGHTING)
 		return FALSE;
@@ -618,7 +618,7 @@ SPECIAL(magic_user)
 SPECIAL(battle_cleric)
 {
 
-	if (spec_mode != SPECIAL_COMBAT)
+	if (spec_mode != SPECIAL_TICK)
 		return 0;
 	if (cmd || ch->getPosition() != POS_FIGHTING)
 		return FALSE;
@@ -710,7 +710,7 @@ SPECIAL(battle_cleric)
 SPECIAL(barbarian)
 {
 
-	if (spec_mode != SPECIAL_COMBAT)
+	if (spec_mode != SPECIAL_TICK)
 		return 0;
 	if (cmd || ch->getPosition() != POS_FIGHTING)
 		return FALSE;
@@ -1772,7 +1772,7 @@ SPECIAL(bank)
 SPECIAL(cave_bear)
 {
 
-	if (spec_mode != SPECIAL_COMBAT)
+	if (spec_mode != SPECIAL_TICK)
 		return 0;
 	if (cmd || !FIGHTING(ch))
 		return FALSE;

@@ -8,7 +8,7 @@ SPECIAL(duke_nukem)
 {
 
 	struct Creature *duke = (struct Creature *)me, *vict = NULL;
-	if (spec_mode != SPECIAL_COMBAT && spec_mode != SPECIAL_TICK)
+	if (spec_mode != SPECIAL_TICK)
 		return 0;
 
 	if (cmd || !AWAKE(duke))

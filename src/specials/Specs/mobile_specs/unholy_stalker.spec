@@ -6,7 +6,7 @@
 
 SPECIAL(unholy_stalker)
 {
-	if (spec_mode != SPECIAL_COMBAT && spec_mode != SPECIAL_TICK)
+	if (spec_mode != SPECIAL_TICK)
 		return 0;
 
 	Creature *mob = (Creature *) me;

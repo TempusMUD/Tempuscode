@@ -9,9 +9,7 @@ SPECIAL(phantasmic_sword)
 	struct affected_type af;
 	struct Creature *mast = NULL;
 
-	if (spec_mode != SPECIAL_COMBAT && spec_mode != SPECIAL_TICK)
-		return 0;
-	if (cmd)
+	if (spec_mode != SPECIAL_TICK)
 		return 0;
 	if (FIGHTING(ch)) {
 		if (!number(0, 8)) {

@@ -9,7 +9,7 @@
 SPECIAL(hell_regulator)
 {
 	struct Creature *vict = NULL, *devil = NULL;
-	if (spec_mode != SPECIAL_COMBAT && spec_mode != SPECIAL_TICK)
+	if (spec_mode != SPECIAL_TICK)
 		return 0;
 
 	if (cmd)

@@ -7,10 +7,10 @@
 SPECIAL(juju_zombie)
 {
 	int prob;
-	if (spec_mode != SPECIAL_COMBAT)
+	if (spec_mode != SPECIAL_TICK)
 		return 0;
 
-	if (!FIGHTING(ch))
+	if (ch->getPosition() != POS_FIGHTING || !FIGHTING(ch))
 		return 0;
 
 	if (!number(0, 1)) {

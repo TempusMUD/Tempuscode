@@ -6,9 +6,9 @@
 
 SPECIAL(medusa)
 {
-	if (spec_mode != SPECIAL_COMBAT)
+	if (spec_mode != SPECIAL_TICK)
 		return 0;
-	if (cmd || ch->getPosition() != POS_FIGHTING)
+	if (ch->getPosition() != POS_FIGHTING)
 		return FALSE;
 
 	if (isname("medusa", ch->player.name) &&

@@ -8,7 +8,7 @@ SPECIAL(hell_hound)
 {
 	if (cmd)
 		return 0;
-	if (spec_mode != SPECIAL_COMBAT && spec_mode != SPECIAL_ENTER)
+	if (spec_mode != SPECIAL_ENTER)
 		return 0;
 	if (FIGHTING(ch) && !number(0, 6))
 		damage(ch, FIGHTING(ch),

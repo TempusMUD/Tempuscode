@@ -10,10 +10,10 @@ SPECIAL(underwater_predator)
 	struct Creature *pred = (struct Creature *)me;
 	struct Creature *vict = NULL;
 	struct room_data *troom = NULL;
-	if (spec_mode != SPECIAL_COMBAT && spec_mode != SPECIAL_TICK)
+	if (spec_mode != SPECIAL_TICK)
 		return 0;
 
-	if (cmd || pred->getPosition() < POS_RESTING ||
+	if (pred->getPosition() < POS_RESTING ||
 		AFF2_FLAGGED(pred, AFF2_PETRIFIED) || !AWAKE(pred))
 		return 0;
 
