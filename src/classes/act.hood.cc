@@ -149,7 +149,7 @@ ACMD(do_hamstring)
         }
         gain_skill_prof(ch, SKILL_HAMSTRING);
     }
-    WAIT_STATE(ch, 2 RL_SEC);
+    WAIT_STATE(ch, 4 RL_SEC);
 }
 
 
