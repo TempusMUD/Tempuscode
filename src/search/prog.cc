@@ -645,6 +645,9 @@ prog_do_opurge(prog_env *env, prog_evt *evt, char *args)
 		obj_list = ((room_data *)env->owner)->contents; break;
 	}
 	
+	if (!obj_list)
+		return;
+
 	while (GET_OBJ_VNUM(obj_list) == vnum) {
 		next_obj = obj_list->next_content;
 		extract_obj(obj_list);
@@ -742,6 +745,10 @@ prog_execute(prog_env *env)
 {
 	char *exec, *line;
 	int cur_line;
+
+	// Terminated, but not freed
+	if (env->exec_pt < 0)
+		return;
 
 	// blocking indefinitely
 	if (env->wait < 0)
@@ -850,18 +857,14 @@ prog_free(struct prog_env *prog)
 void
 destroy_attached_progs(void *owner)
 {
-	struct prog_env *cur_prog, *next_prog;
+	struct prog_env *cur_prog;
 
-	for (cur_prog = prog_list;cur_prog;cur_prog = next_prog) {
-		next_prog = cur_prog->next;
-		if (cur_prog->owner == owner)
-			prog_free(cur_prog);
-		else if (cur_prog->target == owner)
-			prog_free(cur_prog);
-		else if (cur_prog->evt.subject == owner)
-			prog_free(cur_prog);
-		else if (cur_prog->evt.object == owner)
-			prog_free(cur_prog);
+	for (cur_prog = prog_list;cur_prog;cur_prog = cur_prog) {
+		if (cur_prog->owner == owner
+				|| cur_prog->target == owner
+				|| cur_prog->evt.subject == owner
+				|| cur_prog->evt.object == owner)
+			cur_prog->exec_pt = -1;
 	}
 }
 
