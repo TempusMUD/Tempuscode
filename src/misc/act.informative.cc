@@ -3153,6 +3153,7 @@ ACMD(do_who)
                          !strncmp(GET_NAME(tch), "Nothing", 7)  ? "THECODE" :
                          !strncmp(GET_NAME(tch), "Evangeline", 10)  ? "QUESTOR" :
                          !strncmp(GET_NAME(tch), "Joran", 5)    ? " LOWER ":
+                         !strncmp(GET_NAME(tch), "Forget", 5)   ? "CODEGOD":
                          LEV_ABBR(tch)),  CCYEL_BLD(ch, C_NRM), CCNRM(ch, C_NRM),
                         PRF2_FLAGGED(tch, PRF2_NOWHO) ? nowho_buf : "",
                         CCGRN(ch, C_NRM), 

@@ -704,7 +704,7 @@ cedit_command_data cedit_keys[] = {
     {"set",     LVL_GOD},
     {"show",    LVL_GOD},
     {"add",     LVL_GOD},
-    {"remove",  LVL_GRGOD},
+    {"remove",  LVL_GOD},
     {"sort",    LVL_GRGOD},
     {NULL,      0}
 };
