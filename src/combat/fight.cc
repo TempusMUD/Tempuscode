@@ -1242,6 +1242,10 @@ damage(struct Creature *ch, struct Creature *victim, int dam,
 				}
 			}
 
+            //
+            // vict has thorn skin
+            //
+
             if ((af = affected_by_spell(victim, SPELL_THORN_SKIN))) {
                 if (!mag_savingthrow(ch, af->level, SAVING_BREATH) &&
                     !random_fractional_5()) {
@@ -2359,6 +2363,10 @@ hit(struct Creature *ch, struct Creature *victim, int type)
 			CCCYN(ch, C_NRM), calc_thaco, diceroll, victim_ac,
 			CCNRM(ch, C_NRM));
 
+    if ((diceroll == 1) && CHECK_SKILL(victim, SKILL_COUNTER_ATTACK) > 70) {
+        act("You lauch a counter attack!", false, victim, NULL, ch, TO_CHAR);
+        return hit(victim, ch, TYPE_UNDEFINED);
+    }
 	/* decide whether this is a hit or a miss */
 	if (((diceroll < 20) && AWAKE(victim) &&
 			((diceroll == 1) || ((calc_thaco - diceroll)) > victim_ac))) {

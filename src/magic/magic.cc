@@ -995,16 +995,17 @@ mag_affects(int level, struct Creature *ch, struct Creature *victim,
 		to_vict = "Your skin tightens up and hardens.";
 		break;
 
-    case SPELL_THORN_SKIN:
+    case SPELL_THORN_SKIN: {
         af.location = APPLY_AC;
         af.duration = dice(3, (level >> 2) + 1);
         af.modifier = -(ch->getLevelBonus(SPELL_THORN_SKIN) / 10 + 5);
 //        af.level = ch->getLevelBonus(SPELL_THORN_SKIN);
         to_vict = "You howl in pain as thorns pierce your skin!";
         to_room = "$n howls in pain as thorns pierce his skin.";
-        dam = (150 - ch->getLevelBonus() / 2);
-		damage(ch, ch, dam, TYPE_PIERCING, WEAR_RANDOM);
+        int dam = (150 - ch->getLevelBonus(SPELL_THORN_SKIN) / 2);
+		damage(ch, ch, dam, TYPE_UNDEFINED, WEAR_RANDOM);
         break;
+    }
 	case SPELL_STONESKIN:
 		if (affected_by_spell(victim, SPELL_BARKSKIN)) {
 			affect_from_char(victim, SPELL_BARKSKIN);

@@ -492,6 +492,7 @@ static const int SKILL_THROWING = 608;
 static const int SKILL_RIDING = 609;
 static const int SKILL_PIPEMAKING = 610;	//Make a pipe!
 static const int SKILL_CHARGE = 611;	// BANG!
+static const int SKILL_COUNTER_ATTACK = 612;
 
 
   /*****************  CYBORG SKILLS  ********************/

@@ -472,7 +472,7 @@ const char *spells[] = {
 	"riding",
 	"pipemaking",				/* 610 */
 	"charge",
-	"!UNUSED!",	 /****  evasion  ****/
+	"counter attack",	 /****  evasion  ****/
 	"reconfigure",
 	"reboot",
 	"motion sensor",			/* 615 */
@@ -3927,6 +3927,10 @@ mag_assign_spells(void)
 
 	spello(SKILL_TRIPLE_ATTACK, X, X, X, 40, 48, X, X, X, 45, 43, X, 41, X, 38,
 		X, X, X, 0, 0, 0, 0, 0, 0, 0);
+    
+	spello(SKILL_COUNTER_ATTACK, X, X, X, X, X, X, X, X, X, 31, X, X, X, X,
+		X, X, X, 0, 0, 0, 0, 0, 0, 0);
+    
 	spello(SKILL_SWIMMING, 1, 1, 1, 1, 1, 2, 1, X, 1, 1, 1, 7, X, 1, X, X, X,
 		0, 0, 0, 0, 0, 0, 0);
 
