@@ -65,35 +65,35 @@ unsigned char find_first_step_index = 0;
 #define UNMARK(room) ( room->find_first_step_index = 0 )
 #define IS_MARKED(room) ( room->find_first_step_index == find_first_step_index )
 
-#define TOROOM(x, y) ((x)->dir_option[(y)]->to_room)
-#define IS_CLOSED(x, y) (IS_SET((x)->dir_option[(y)]->exit_info, EX_CLOSED))
+inline room_data *
+to_room(room_data *room, int dir)
+{
+	if (room->dir_option[dir])
+		return room->dir_option[dir]->to_room;
+	return NULL;
+}
 
-#define MODE_NORM 0
-#define MODE_GOD  1
-#define MODE_PSI  2
+inline bool
+valid_edge(room_data *room, int dir, track_mode mode)
+{
+	room_data *dest = to_room(room, dir);
 
+	if (!dest)
+		return false;
+	if (IS_MARKED(dest))
+		return false;
 #ifdef TRACK_THROUGH_DOORS
-#define VALID_EDGE(x,y,mode) ( ( x )->dir_option[ ( y ) ] &&                         \
-			      TOROOM( x, y )  &&                                     \
-			      !IS_MARKED( TOROOM( x, y ) ) &&                        \
-			      ( mode != MODE_PSI ||                                  \
-			       !ROOM_FLAGGED( TOROOM( x,y ), ROOM_NOPSIONICS ) ) &&  \
-			      ( !ROOM_FLAGGED( TOROOM( x, y ),                       \
-					     ROOM_NOTRACK | ROOM_DEATH ) ||          \
-			       mode == MODE_GOD ) )
-
-#else
-#define VALID_EDGE(x,y,mode) ((x)->dir_option[(y)] &&              \
-			      TOROOM(x, y) &&                      \
-			      !IS_MARKED(TOROOM(x, y)) &&          \
-			      !IS_CLOSED(x, y) &&		   \
-			      (mode != MODE_PSI ||                 \
-			       !ROOM_FLAGGED(TOROOM(x,y),ROOM_NOPSIONICS)) &&\
-			      (mode == MODE_GOD ||                 \
-			       !ROOM_FLAGGED(TOROOM(x, y),        \
-					     ROOM_NOTRACK | ROOM_DEATH)))
-
+	if (IS_SET(room->dir_option[dir]->exit_info, EX_CLOSED))
+		return false;
 #endif
+	if (mode == PSI_TRACK && ROOM_FLAGGED(dest, ROOM_NOPSIONICS))
+		return false;
+	if (mode == GOD_TRACK)
+		return true;
+	if (ROOM_FLAGGED(dest, ROOM_NOTRACK | ROOM_DEATH))
+		return false;
+	return true;
+}
 
 inline void
 bfs_enqueue(struct room_data *room, char dir)
@@ -121,9 +121,10 @@ bfs_dequeue(void)
 	struct bfs_queue_struct *curr;
 
 	curr = queue_head;
-
-	if (!(queue_head = queue_head->next))
+	queue_head = queue_head->next;
+	if (!queue_head)
 		queue_tail = 0;
+
 #ifdef DMALLOC
 	dmalloc_verify(0);
 #endif
@@ -137,7 +138,6 @@ bfs_dequeue(void)
 inline void
 bfs_clear_queue(void)
 {
-
 	while (queue_head)
 		bfs_dequeue();
 }
@@ -154,13 +154,13 @@ bfs_clear_queue(void)
 
 
 int
-find_first_step(struct room_data *src, struct room_data *target, byte mode)
+find_first_step(struct room_data *src, struct room_data *target, track_mode mode)
 {
 	int curr_dir;
 	struct room_data *curr_room;
 	struct zone_data *zone;
 
-	if (src == NULL && target == NULL) {
+	if (!src || !target) {
 		slog("Illegal value passed to find_first_step (graph.c)");
 		return BFS_ERROR;
 	}
@@ -176,7 +176,6 @@ find_first_step(struct room_data *src, struct room_data *target, byte mode)
 		++find_first_step_index;
 
 		// reset all rooms' indices to zero
-
 		for (zone = zone_table; zone; zone = zone->next)
 			for (curr_room = zone->world; curr_room;
 				curr_room = curr_room->next)
@@ -187,9 +186,9 @@ find_first_step(struct room_data *src, struct room_data *target, byte mode)
 
 	/* first, enqueue the first steps, saving which direction we're going. */
 	for (curr_dir = 0; curr_dir < NUM_OF_DIRS; curr_dir++)
-		if (VALID_EDGE(src, curr_dir, mode)) {
-			MARK(TOROOM(src, curr_dir));
-			bfs_enqueue(TOROOM(src, curr_dir), curr_dir);
+		if (valid_edge(src, curr_dir, mode)) {
+			MARK(to_room(src, curr_dir));
+			bfs_enqueue(to_room(src, curr_dir), curr_dir);
 		}
 	/* now, do the char_classic BFS. */
 	while (queue_head) {
@@ -199,9 +198,9 @@ find_first_step(struct room_data *src, struct room_data *target, byte mode)
 			return curr_dir;
 		} else {
 			for (curr_dir = 0; curr_dir < NUM_OF_DIRS; curr_dir++)
-				if (VALID_EDGE(queue_head->room, curr_dir, mode)) {
-					MARK(TOROOM(queue_head->room, curr_dir));
-					bfs_enqueue(TOROOM(queue_head->room, curr_dir),
+				if (valid_edge(queue_head->room, curr_dir, mode)) {
+					MARK(to_room(queue_head->room, curr_dir));
+					bfs_enqueue(to_room(queue_head->room, curr_dir),
 						queue_head->dir);
 				}
 			bfs_dequeue();
@@ -212,21 +211,23 @@ find_first_step(struct room_data *src, struct room_data *target, byte mode)
 }
 
 int
-find_distance(struct room_data *start, struct room_data *location)
+find_distance(struct room_data *start, struct room_data *dest)
 {
 	int dir = -1, steps = 0;
-	struct room_data *tmp = start;
+	struct room_data *cur_room = start;
 
-	while (tmp && (dir = find_first_step(tmp, location, 1)) >= 0
-		&& steps < 600) {
-		tmp = ABS_EXIT(tmp, dir)->to_room;
+
+	dir = find_first_step(cur_room, dest, GOD_TRACK);
+	while (cur_room && dir >= 0 && steps < 600) {
+		cur_room = ABS_EXIT(cur_room, dir)->to_room;
 		steps++;
+		dir = find_first_step(cur_room, dest, GOD_TRACK);
 	}
 
-	if (location != tmp || steps >= 600)
+	if (cur_room != dest || steps >= 600)
 		return (-1);
 
-	return (steps);
+	return steps;
 }
 
 
@@ -286,7 +287,7 @@ ACMD(do_track)
 		return;
 	}
 	dir = find_first_step(ch->in_room, vict->in_room,
-		GET_LEVEL(ch) > LVL_TIMEGOD ? 1 : 0);
+		GET_LEVEL(ch) > LVL_TIMEGOD ? GOD_TRACK : STD_TRACK );
 
 	switch (dir) {
 	case BFS_ERROR:
@@ -396,7 +397,7 @@ ACMD(do_psilocate)
 		return;
 	}
 
-	if ((dir = find_first_step(ch->in_room, vict->in_room, 2)) ==
+	if ((dir = find_first_step(ch->in_room, vict->in_room, PSI_TRACK)) ==
 		BFS_ALREADY_THERE) {
 		send_to_char("You are in the same room!\r\n", ch);
 		return;
@@ -573,7 +574,7 @@ hunt_victim(struct char_data *ch)
 
 	if (!IS_AFFECTED(HUNTING(ch), AFF_NOTRACK) ||
 		(IS_NPC(ch) && MOB_FLAGGED(ch, MOB_SPIRIT_TRACKER)))
-		dir = find_first_step(ch->in_room, HUNTING(ch)->in_room, 0);
+		dir = find_first_step(ch->in_room, HUNTING(ch)->in_room, STD_TRACK);
 	else
 		dir = -1;
 	if (dir < 0) {

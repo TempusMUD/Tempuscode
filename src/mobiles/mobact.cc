@@ -47,8 +47,6 @@ void gain_skill_prof(struct char_data *ch, int skl);
 void perform_tell(struct char_data *ch, struct char_data *vict, char *messg);
 int mag_manacost(struct char_data *ch, int spellnum);
 int CLIP_COUNT(struct obj_data *clip);
-int find_first_step(struct room_data *src, struct room_data *target,
-	byte mode);
 int tarrasque_fight(struct char_data *tarr);
 int general_search(struct char_data *ch, struct special_search_data *srch,
 	int mode);
@@ -1783,7 +1781,7 @@ mobile_activity(void)
 					}
 					if (!vict ||
 						find_first_step(ch->in_room, vict->in_room,
-							FALSE) < 0) {
+							STD_TRACK) < 0) {
 						do_say(ch, "Curses, foiled again!", 0, 0);
 						free(ch->mob_specials.mug);
 						ch->mob_specials.mug = NULL;
@@ -2400,7 +2398,7 @@ mobile_activity(void)
 		if (GET_MOB_LAIR(ch) > 0 && ch->in_room->number != GET_MOB_LAIR(ch) &&
 			!HUNTING(ch) &&
 			(room = real_room(GET_MOB_LAIR(ch))) &&
-			((dir = find_first_step(ch->in_room, room, FALSE)) >= 0) &&
+			((dir = find_first_step(ch->in_room, room, STD_TRACK)) >= 0) &&
 			MOB_CAN_GO(ch, dir) &&
 			!ROOM_FLAGGED(ch->in_room->dir_option[dir]->to_room,
 				ROOM_NOMOB | ROOM_DEATH)) {
@@ -2412,7 +2410,7 @@ mobile_activity(void)
 		if (GET_MOB_LEADER(ch) > 0 && ch->master &&
 			ch->in_room != ch->master->in_room) {
 			if (smart_mobile_move(ch, find_first_step(ch->in_room,
-						ch->master->in_room, FALSE)))
+						ch->master->in_room, STD_TRACK)))
 				continue;
 		}
 

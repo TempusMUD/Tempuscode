@@ -2969,10 +2969,6 @@ ASPELL(spell_unholy_stalker)
 	struct char_data *stalker = NULL;
 	float mult = (float)level / 70;
 
-	int find_distance(struct room_data *start, struct room_data *location);
-	int find_first_step(struct room_data *src, struct room_data *target,
-		byte mode);
-
 	if (ROOM_FLAGGED(ch->in_room, ROOM_PEACEFUL)) {
 		send_to_char("You cannot cast that here.\r\n", ch);
 		return;
@@ -2981,7 +2977,7 @@ ASPELL(spell_unholy_stalker)
 	if (victim->in_room != ch->in_room) {
 
 		if (AFF_FLAGGED(victim, AFF_NOTRACK) ||
-			find_first_step(ch->in_room, victim->in_room, 0) < 0 ||
+			find_first_step(ch->in_room, victim->in_room, STD_TRACK) < 0 ||
 			(distance = find_distance(ch->in_room, victim->in_room)) < 0) {
 			act("You cannot discern a physical path to $M.", FALSE, ch, 0,
 				victim, TO_CHAR);

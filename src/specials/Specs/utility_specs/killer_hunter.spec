@@ -36,7 +36,7 @@ SPECIAL( killer_hunter )
                  CAN_SEE( hunter, d->character ) ) {
                 if ( GET_LEVEL( d->character ) < LVL_IMMORT && 
                      ( GET_LEVEL( hunter ) <= ( GET_LEVEL( d->character ) + 10 ) ) &&
-                     find_first_step( hunter->in_room, d->character->in_room, 0 ) >= 0 ) {
+                     find_first_step( hunter->in_room, d->character->in_room, STD_TRACK) >= 0 ) {
                     HUNTING( ch ) = d->character;
                     do_gen_comm( ch, "Okay.  Now I'm pissed.", 0, SCMD_HOLLER );
                     return 1;

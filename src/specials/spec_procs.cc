@@ -48,8 +48,6 @@ extern struct spell_info_type spell_info[];
 void add_follower(struct char_data *ch, struct char_data *leader);
 void do_auto_exits(struct char_data *ch, room_num room);
 void perform_tell(struct char_data *ch, struct char_data *vict, char *buf);
-extern int find_first_step(struct room_data *src, struct room_data *target,
-	byte mode);
 int mag_manacost(struct char_data *ch, int spellnum);
 int get_check_money(struct char_data *ch, struct obj_data **obj, int display);
 
@@ -1316,7 +1314,7 @@ drag_char_to_jail(struct char_data *ch, struct char_data *evil,
 			return 0;
 	}
 
-	dir = find_first_step(ch->in_room, r_jail_room, 0);
+	dir = find_first_step(ch->in_room, r_jail_room, STD_TRACK);
 	if (dir < 0)
 		return FALSE;
 	if (!CAN_GO(ch, dir) ||

@@ -25,7 +25,6 @@
 extern struct room_data *world;
 extern struct spell_info_type spell_info[];
 
-int find_first_step(struct room_data *room, struct room_data *targ, byte mode);
 void gain_condition(struct char_data *ch, int condition, int value);
 
 const char *bomb_types[] = {
@@ -503,7 +502,7 @@ detonate_bomb(struct obj_data *bomb)
 
 		bomb_damage_room(bomb->short_description, BOMB_TYPE(bomb),
 			BOMB_POWER(bomb), rad_elem->room, find_first_step(rad_elem->room,
-				room, 1), rad_elem->power);
+				room, GOD_TRACK), rad_elem->power);
 #ifdef DMALLOC
 		dmalloc_verify(0);
 #endif
@@ -594,7 +593,7 @@ engage_self_destruct(struct char_data *ch)
 			SKILL_SELF_DESTRUCT,
 			level,
 			rad_elem->room,
-			find_first_step(rad_elem->room, room, 1), rad_elem->power);
+			find_first_step(rad_elem->room, room, GOD_TRACK), rad_elem->power);
 		free(rad_elem);
 		bomb_rooms = next_elem;
 
@@ -744,7 +743,7 @@ sound_gunshots(struct room_data *room, int type, int power, int num)
 
 		if (rad_elem->room && !(rad_elem->room->people.empty())
 			&& rad_elem->room != room) {
-			if ((dir = find_first_step(rad_elem->room, room, 1)) >= 0)
+			if ((dir = find_first_step(rad_elem->room, room, GOD_TRACK)) >= 0)
 				dir = rev_dir[dir];
 
 			if (dir < 0 || dir >= NUM_DIRS) {

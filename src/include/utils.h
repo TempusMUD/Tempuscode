@@ -40,6 +40,15 @@ int get_filename(char *orig_name, char *filename, int mode);
 int get_line_count(char *buffer);
 int remove_from_cstring(char *str, char c = '~', char c_to = '.');
 
+enum track_mode
+{
+	STD_TRACK = 0,
+	GOD_TRACK = 1,
+	PSI_TRACK = 2
+};
+int find_first_step(room_data *start, room_data *dest, track_mode mode);
+int find_distance(room_data *start, room_data *dest);
+
 struct time_info_data age(struct char_data *ch);
 extern struct zone_data *zone_table;
 extern struct char_data *mob_proto;

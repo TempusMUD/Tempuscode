@@ -63,7 +63,7 @@ SPECIAL(red_highlord)
       if (GET_LEVEL(tmp_vict) >= LVL_IMMORT || IS_MOB(tmp_vict) ||
           GET_LEVEL(tmp_vict) < 3) {
         continue;
-      } else if (find_first_step(ch->in_room, tmp_vict->in_room, 0) >= 0) {
+      } else if (find_first_step(ch->in_room, tmp_vict->in_room, STD_TRACK) >= 0) {
         if (!vict || GET_LEVEL(vict) < GET_LEVEL(tmp_vict))
           vict = tmp_vict;
         continue;
@@ -82,7 +82,7 @@ SPECIAL(red_highlord)
         if (GET_LEVEL(tmp_vict) >= LVL_IMMORT ||
             GET_LEVEL(tmp_vict) < 3) {
           continue;
-        } else if (find_first_step(ch->in_room, tmp_vict->in_room, 0) >= 0) {
+        } else if (find_first_step(ch->in_room, tmp_vict->in_room, STD_TRACK) >= 0) {
           if (!vict || GET_LEVEL(vict) < GET_LEVEL(tmp_vict))
             vict = tmp_vict;
           continue;

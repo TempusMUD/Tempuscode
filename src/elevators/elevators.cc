@@ -19,7 +19,6 @@
 #include "elevators.h"
 
 int move_car(struct char_data *ch, struct obj_data *car, int dir);
-int find_first_step(struct room_data *room, struct room_data *targ, byte mode);
 
 struct elevator_data *elevators = NULL;
 

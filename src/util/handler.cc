@@ -1898,6 +1898,7 @@ get_player_vis(struct char_data *ch, char *name, int inroom)
 				case 1:		// abbreviated match
 					if (!match)
 						match = i;
+					break;
 				case 2:		// exact match
 					return i;
 				default:

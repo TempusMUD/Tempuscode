@@ -19,7 +19,6 @@
 #include "elevators.h"
 
 int move_car(struct char_data *ch, struct obj_data *car, int dir);
-int find_first_step(struct room_data *room, struct room_data *targ, byte mode);
 
 
 PHead *first_path = NULL;
@@ -641,7 +640,7 @@ path_activity(void)
 
 				o->phead->find_first_step_calls++;
 
-				if ((dir = find_first_step(ch->in_room, room, 1)) >= 0)
+				if ((dir = find_first_step(ch->in_room, room, GOD_TRACK)) >= 0)
 					perform_move(ch, dir, MOVE_NORM, 1);
 				if ((ch->in_room == room) && (o->phead->length != 1))
 					PATH_MOVE(o);
@@ -650,7 +649,7 @@ path_activity(void)
 
 				o->phead->find_first_step_calls++;
 
-				if ((dir = find_first_step(obj->in_room, room, 1)) >= 0)
+				if ((dir = find_first_step(obj->in_room, room, GOD_TRACK)) >= 0)
 					move_car(NULL, obj, dir);
 				if (GET_OBJ_VNUM(obj) == 1530)
 					if (handle_elevator_position(obj, room))
