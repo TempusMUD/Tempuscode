@@ -47,7 +47,7 @@ static const struct hcollect_command {
     { "unapprove","<topic #>",             LVL_GOD },
     { "immhelp",  "<keyword>",             LVL_IMMORT },
     { "olchelp",  "<keyword>",             LVL_IMMORT },
-    { "swap",   "<topic #> <topic #>",     LVL_GOD },
+    { "swap",   "<topic #> <topic #>",     73},
     { NULL, NULL, 0 }       // list terminator
 };
 static const struct group_command {
