@@ -2619,15 +2619,12 @@ hit(struct Creature *ch, struct Creature *victim, int type)
 	} else {
         dam = str_app[STRENGTH_APPLY_INDEX(ch)].todam;
         dam += GET_DAMROLL(ch);
-        if (cur_weap && IS_ENERGY_GUN(cur_weap)) { //bludgeoning with our gun
-            dam /= 10;
-        }
 	}
     
 	tmp_dam = dam;
 
 	if (cur_weap) {
-		if (IS_OBJ_TYPE(cur_weap, ITEM_WEAPON)) {
+		if (IS_OBJ_TYPE(cur_weap, ITEM_WEAPON) || IS_ENERGY_GUN(cur_weap)) {
 			dam += dice(GET_OBJ_VAL(cur_weap, 1), GET_OBJ_VAL(cur_weap, 2));
 			if (invalid_char_class(ch, cur_weap))
 				dam >>= 1;
@@ -2674,6 +2671,12 @@ hit(struct Creature *ch, struct Creature *victim, int type)
 		else if (IS_BARB(ch))
 			dam += number(0, (GET_LEVEL(ch) >> 1));
 	}
+
+     //bludgeoning with our gun
+    if (cur_weap && IS_ENERGY_GUN(cur_weap) && 
+        !(w_type >= TYPE_EGUN_LASER && w_type <= TYPE_EGUN_TOP)) {
+        dam /= 10;
+    }
 
 	dam = MAX(1, dam);			/* at least 1 hp damage min per hit */
 	dam = MIN(dam, 30 + (GET_LEVEL(ch) << 3));	/* level limit */
