@@ -1210,7 +1210,8 @@ advance_level(struct Creature *ch, byte keep_internal)
 			add_move[i] += number(1, 4);
 			break;
 		case CLASS_BARD:
-			add_hp[i] += number(6, 12);
+            add_hp[i] /= 1.5;
+			add_hp[i] += number(4, 10);
 			add_mana[i] += number(1, 8) + (GET_LEVEL(ch) / 5);
 			add_move[i] += number(10, 18);
 			break;
