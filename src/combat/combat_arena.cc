@@ -14,6 +14,7 @@
 #include "handler.h"
 #include "screen.h"
 #include "bomb.h"
+#include "house.h"
 
 combat_data *battles = NULL;
 carena_data *the_arenas = NULL;
@@ -22,12 +23,13 @@ int combat_on = 1;
 int num_combats = 0;
 FILE *combatfile = NULL;
 int num_arenas = 0;
-
+long holding_room = 0;
+long starting_room = 0;
 
 
 #define BOOTY_ROOM 1205
 #define BATTLE_START_ROOM 1204
-#define NUM_ARENAS   4     
+#define HOLDING_ROOM 1202
 
 const struct ctypes  {
     char *combattype;
@@ -90,6 +92,8 @@ const struct cc_wizoptions {
     { "lock",     "",                  LVL_GOD},
     { "destroy",  "<number>",          LVL_GOD},
     { "reload",   "",                  LVL_GOD},
+    { "stats",    "",                  LVL_GOD},
+    { "clear_booty", "",               LVL_GOD},
     {NULL, NULL, 0 }
 };
 
@@ -124,7 +128,7 @@ ACMD(do_ccontrol)
 			break;
     }
    
-    if((IN_ROOM(ch)->number != BATTLE_START_ROOM) && (cc_options[com].in_room) ) {
+    if((IN_ROOM(ch)->number != starting_room) && (cc_options[com].in_room) ) {
         send_to_char("You have to be in the battle starting room to use that command.\r\n", ch);
         return;
     }
@@ -255,6 +259,12 @@ do_ccontrol_wizoptions(CHAR* ch, char* argument) {
         sprintf(buf, "%d arenas reloaded.\r\n", num_arenas);
         send_to_char(buf, ch);
         break;
+    case 3:
+        do_ccontrol_stats(ch);
+        break;
+    case 4:
+        clear_booty_rooms();
+        break;
     default:
         send_to_char("That wiz combat option is not implemented.\r\n", ch);
         break;
@@ -332,6 +342,7 @@ do_ccontrol_create(CHAR *ch, char *argument, int com)
     send_to_char(buf, ch);
     sprintf(buf, "%d", combat->vnum); // Cheesy
     do_ccontrol_join(ch, buf);
+    num_combats++;
 
 }
 void
@@ -917,7 +928,7 @@ do_ccontrol_end(CHAR *ch)
     
     remove_players(combat);
     remove_combat(combat);
-    
+    num_combats--;
     
 
 }
@@ -972,6 +983,10 @@ void
 do_ccontrol_reimburse(CHAR* ch)
 {
     struct combat_data *combat = NULL;
+    struct room_data *rm = NULL;
+    struct obj_data *obj = NULL;
+    struct obj_data *next_o = NULL;
+    int items = 0;
 
     send_to_char("Searching for reimbursements.\r\n", ch);
 
@@ -979,10 +994,32 @@ do_ccontrol_reimburse(CHAR* ch)
         combat_reimburse(ch, combat);
     }
 
-    return;
+    rm = real_room(holding_room);
+    if(rm) {
+        for(obj = rm->contents; obj; obj = next_o) {
+            next_o = obj->next_content;
+            if(GET_OBJ_SIGIL_IDNUM(obj) == GET_IDNUM(ch) && GET_OBJ_SIGIL_LEVEL(obj) == -1) {
+                slog("!");
+                GET_OBJ_SIGIL_IDNUM(obj) = 0;
+                GET_OBJ_SIGIL_LEVEL(obj) = 0;
+                obj_from_room(obj);
+                obj_to_char(obj, ch);
+                items++;
+            }
+        }
 
-}
+        if(items > 0) {
+            sprintf(buf, "%d items have been reimbursed.\r\n", items);
+            send_to_char(buf, ch);
+        }
+        else {
+            send_to_char("No reimbursements found", ch);
+        }
+
+    }
     
+    return;
+}
 
 void
 do_ccontrol_destroy(CHAR* ch, char* argument)
@@ -1019,6 +1056,7 @@ do_ccontrol_destroy(CHAR* ch, char* argument)
     
     remove_players(combat);
     remove_combat(combat);
+    num_combats--;
 }
 
 void
@@ -1061,6 +1099,7 @@ do_ccontrol_lock(CHAR* ch)
                     the_combat = the_combat->next;
                 }
             }
+            num_combats = 0;
 }
 
 void 
@@ -1156,6 +1195,16 @@ do_ccontrol_fee(struct char_data *ch, char* arg)
 
 }
 
+void
+do_ccontrol_stats(CHAR* ch)
+{
+    sprintf(buf, "Combat Starting Room: %ld \r\n"
+                 "Combat Holding  Room: %ld \r\n"
+                 "Number of Combats: %d \r\n",
+            starting_room, holding_room, num_combats);
+    send_to_char(buf, ch);
+}
+ 
 int
 boot_combat(void)
 {
@@ -1165,6 +1214,8 @@ boot_combat(void)
     }
 
     num_arenas = build_arena_list();
+    clear_booty_rooms();
+
 
     comlog(NULL, "Combat System Rebooted.", TRUE, FALSE);
     return 1;
@@ -1239,8 +1290,11 @@ comlog(CHAR *ch, char *str, int file, int to_char)
         ct = time(0);
         tmstr = asctime(localtime(&ct));
         *(tmstr + strlen(tmstr) - 1) = '\0';
-        fprintf(combatfile, "%-19.19s :: %s", tmstr, buf);
-        fflush(combatfile);
+       
+        if(combatfile) {
+            fprintf(combatfile, "%-19.19s :: %s", tmstr, buf);
+            fflush(combatfile);
+        }
 
     }
 }
@@ -1451,49 +1505,51 @@ return 1;
 
 int end_battle(combat_data *combat) 
 {
-struct char_data *ch = NULL; 
-struct room_data *booty_room = NULL;
-struct obj_data *obj = NULL; 
+    struct char_data *ch = NULL; 
+    struct room_data *booty_room = NULL;
+    struct obj_data *obj = NULL; 
+    
+    booty_room = real_room(combat->arena->booty_room); 
+    
+     // loop through contents of the room and remove sigils
+    if(booty_room) {
+        for(obj = booty_room->contents; obj; obj = obj->next_content) {
+            slog("@");
+            GET_OBJ_SIGIL_IDNUM(obj) = 0;
+            GET_OBJ_SIGIL_LEVEL(obj) = 0;
+        }
+    }
 
-booty_room = real_room(combat->arena->booty_room); 
-// loop through contents of the room and remove sigils
- if(booty_room) {
-     for(obj = booty_room->contents; obj; obj = obj->next_content) {
-         GET_OBJ_SIGIL_IDNUM(obj) = 0;
-         GET_OBJ_SIGIL_LEVEL(obj) = 0;
-     }
- }
-
-// Trans winner(s) to the booty room
+    // Trans winner(s) to the booty room
 
 
- switch(combat->type) {
- case 0:                      // CLAN WAR loop through the winning clans players still in battle and trans them to the booty room
-     check_teams(combat);
-     break;
- case 1:
- case 2:
-     ch = get_char_in_world_by_idnum(combat->winner);
-     if(ch) {
-         
-         sprintf(buf, "%s%s is the victor!%s",KNRM_BLD, GET_NAME(ch), KNRM);
-         send_to_combat(buf, combat);
-         send_to_char("There can be only one!\r\n", ch);
-         char_from_room(ch);
-         char_to_room(ch, real_room(combat->arena->booty_room));
-         look_at_room(ch, ch->in_room, 0);
-     }
-     break;
- default:
-     break;
- }
-
- if(combat->arena) {
-     combat->arena->used = 0;
- }
- remove_players(combat);
- remove_combat(combat);
-
+    switch(combat->type) {
+    case 0:                      // CLAN WAR loop through the winning clans players still in battle and trans them to the booty room
+        check_teams(combat);
+        break;
+    case 1:
+    case 2:
+        ch = get_char_in_world_by_idnum(combat->winner);
+        if(ch) {
+            
+            sprintf(buf, "%s%s is the victor!%s",KNRM_BLD, GET_NAME(ch), KNRM);
+            send_to_combat(buf, combat);
+            send_to_char("There can be only one!\r\n", ch);
+            char_from_room(ch);
+            char_to_room(ch, real_room(combat->arena->booty_room));
+            look_at_room(ch, ch->in_room, 0);
+        }
+        break;
+    default:
+        break;
+    }
+    
+    if(combat->arena) {
+        combat->arena->used = 0;
+    }
+    remove_players(combat);
+    remove_combat(combat);
+    
  return 0;
 }
 
@@ -1747,7 +1803,9 @@ build_arena_list(void)
     char *arena_buf = NULL;
     char s[1024];
     int arenas = 0;
+    int counter = 0;
     long zone = 0, rm = 0; 
+
     carena_data *the_arena = NULL;
     dynamic_text_file *dyntext = NULL;
 
@@ -1784,6 +1842,26 @@ build_arena_list(void)
 
     skip_spaces(&arena_buf);
     while(*arena_buf) {
+        
+        if(counter == 0) {
+            
+            //
+            // First two arguments of the file are the combat starting room and holding room respectively
+            // the holding room should also be the atrium for the other booty rooms
+            // 
+
+            arena_buf = one_argument(arena_buf, s);
+            starting_room = atol(s);
+            arena_buf = one_argument(arena_buf, s);
+            holding_room = atol(s);
+            counter++;
+        }
+            
+
+        //
+        // Then read in the arenas by zone number and then booty room
+        //
+
         arena_buf = one_argument(arena_buf, s);
         zone = atol(s);
         arena_buf = one_argument(arena_buf, s);
@@ -1793,7 +1871,7 @@ build_arena_list(void)
         arenas++;
     }
    
-    return arenas;
+    return (arenas - 1);
 }
 
 void combat_reimburse(CHAR *ch,combat_data* combat)
@@ -1821,6 +1899,7 @@ void combat_reimburse(CHAR *ch,combat_data* combat)
     {
         if(GET_IDNUM(ch) == GET_OBJ_SIGIL_IDNUM(obj) && (GET_OBJ_SIGIL_LEVEL(obj) == -1))
         {
+            slog("#");
             GET_OBJ_SIGIL_IDNUM(obj) = 0;
             GET_OBJ_SIGIL_LEVEL(obj) = 0;
             obj_from_room(obj);
@@ -1918,6 +1997,7 @@ return_sacrifice(CHAR* ch)
     for (obj = rm->contents; obj; obj = next_o) {
         next_o = obj->next_content;
         if(GET_IDNUM(ch) == GET_OBJ_SIGIL_IDNUM(obj) && (GET_OBJ_SIGIL_LEVEL(obj) == -1)) {
+            slog("$");
             GET_OBJ_SIGIL_IDNUM(obj) = 0;
             GET_OBJ_SIGIL_LEVEL(obj) = 0;
             if(obj->in_room) {
@@ -2059,6 +2139,53 @@ combat_loop(CHAR* ch, CHAR* killer)
     }
     
 }
+
+void
+clear_booty_rooms(void)
+{
+
+    struct room_data *rm = NULL;
+    struct room_data *holding = NULL;
+    struct carena_data *arena = NULL;
+    struct obj_data *obj = NULL;
+    struct obj_data *next_o = NULL;
+    int count = 0;
+    int counter = 0;
+
+    slog("Cleaning booty rooms.");
+
+    for(arena = the_arenas; arena; arena = arena->next) {
+        sprintf(buf, "%d", count);
+        slog(buf);
+        rm = real_room(arena->booty_room);
+        holding = real_room(holding_room);
+        
+        if(rm && holding) {
+            for (obj = rm->contents; obj; obj = next_o) {
+                next_o = obj->next_content;
+                sprintf(buf, "%d", counter);
+                slog(buf);
+                obj_from_room(obj);  
+                obj_to_room(obj, holding);
+                counter++;
+            }
+        }
+        else {
+            slog("Error with holding room.");
+        }
+        count++;
+    }
+
+}
+            
+            
+            
+
+
+
+
+
+
 
 
 
