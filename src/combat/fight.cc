@@ -1366,8 +1366,9 @@ damage( struct char_data * ch, struct char_data * victim, int dam,
         if ( ch && !IS_NPC( ch ) && GET_IDNUM( ch ) == af->modifier ) {
             sprintf( buf, "You drain %d mana from $N!", (dam * 0.75) );
             act( buf, FALSE, ch, 0, victim, TO_CHAR );
-            GET_MANA( ch ) = MIN( GET_MAX_MANA( ch ), GET_MANA( ch ) + dam );
             GET_MOVE(ch) = MAX(0, GET_MOVE(ch) - (dam >> 2));
+            if (GET_MOVE(ch) > 0)
+                GET_MANA( ch ) = MIN( GET_MAX_MANA( ch ), GET_MANA( ch ) + dam );
             af->duration--;
             if ( af->duration <= 0 ) {
                 affect_remove( victim, af );
