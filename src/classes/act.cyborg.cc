@@ -3230,15 +3230,15 @@ ACMD(do_overdrain)
 	}
 
 	arg1 = tmp_getword(&argument);
-
 	if (!*arg1) {
 		send_to_char(ch, "Usage:  overdrain [internal] <battery/device>\r\n");
 		return;
 	}
+
+	arg2 = tmp_getword(&argument);
+
 	// Find the object to drain from
 	if (!strncmp(arg1, "internal", 8)) {
-
-		arg2 = tmp_getword(&argument);
 		if (!*arg2) {
 			send_to_char(ch, "Drain energy from which implant?\r\n");
 			return;
