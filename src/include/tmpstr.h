@@ -4,22 +4,38 @@
 #include <unistd.h>
 #include <stdarg.h>
 
-void tmp_string_init(void);
-void tmp_gc_strings(void);
+// vsprintf into a temp str
 char *tmp_vsprintf(const char *fmt, va_list args); 
+
+// sprintf into a temp str
 char *tmp_sprintf(const char *fmt, ...);
-char *tmp_strcat(char *src, ...);
+
+// get the next word, copied into a temp pool
 char *tmp_getword(char **src);
 
+// strcat into a temp str.  You must terminate the arguments with a NULL,
+// since the va_arg method is too stupid to give us the number of arguments.
+char *tmp_strcat(char *src, ...);
+
+// strcat into a temp str.  
+inline char *tmp_strcat(char *src_a, char *src_b)
+{
+	return tmp_strcat(src_a, src_b, NULL);
+}
+
+// creates a copy of the given str as a temp str
 inline char *tmp_strdup(char *src)
 {
 	return tmp_strcat(src, NULL);
 }
 
-inline char *tmp_strcat(char *src_a, char *src_b)
-{
-	return tmp_strcat(src_a, src_b, NULL);
-}
+// Initializes the structures used for the temporary string mechanism
+void tmp_string_init(void);
+
+// tmp_gc_strings will deallocate every temporary string, adjust the
+// size of the string pool.  All previously allocated strings will be
+// invalid after this is called.
+void tmp_gc_strings(void);
 
 extern unsigned long tmp_max_used;
 extern unsigned long tmp_overruns;

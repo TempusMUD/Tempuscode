@@ -83,7 +83,7 @@ const struct qcontrol_option {
 	"save", "", LVL_GRIMP }, {
 	"help", "<topic>", LVL_AMBASSADOR}, {
 	"switch", "<mobile name>", LVL_IMMORT}, {
-	"rename", "<obj name> <new obj name>", 73}, {
+	"rename", "<obj name> <new obj name>", LVL_GRIMP}, {
 	"oload", "<item num> <vnum>", LVL_AMBASSADOR}, {
 	"trans", "<vnum> [room number]", LVL_AMBASSADOR}, {
 	"award", "<player> <vnum> <pts> [comments]", LVL_AMBASSADOR}, {
@@ -313,7 +313,7 @@ ACMD(do_qcontrol)
 	case 22:
 		do_qcontrol_switch(ch, argument, com);
 		break;
-	case 23:					// rename
+	case 23:// rename
 		//do_qcontrol_rename( ch, argument ,com );
 		send_to_char(ch, "Not Implemented\r\n");
 		break;

@@ -62,6 +62,7 @@ tmp_gc_strings(void)
 	// 'used' to 0
 	tmp_list_head->next = NULL;
 	tmp_list_head->used = 0;
+	tmp_list_tail = tmp_list_head;
 }
 
 // Allocate a new string pool
