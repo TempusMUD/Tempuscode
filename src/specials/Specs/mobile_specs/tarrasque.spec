@@ -208,7 +208,7 @@ tarrasque_fight(struct Creature *tarr)
 	struct Creature *vict = NULL, *vict2 = NULL;
 	CreatureList::iterator it;
 
-	if (!FIGHTING(tarr)) {
+	if (!tarr->numCombatants()) {
 		errlog("FIGHTING(tarr) == NULL in tarrasque_fight!!");
 		return 0;
 	}
@@ -217,10 +217,10 @@ tarrasque_fight(struct Creature *tarr)
 	// this fighting pulse
 	vict = get_char_random_vis(tarr, tarr->in_room);
 	if (vict) {
-		if (vict == FIGHTING(tarr) || PRF_FLAGGED(vict, PRF_NOHASSLE))
+		if (tarr->findCombat(vict) || PRF_FLAGGED(vict, PRF_NOHASSLE))
 			vict = NULL;
 		vict2 = get_char_random_vis(tarr, tarr->in_room);
-		if (vict2 == FIGHTING(tarr) || vict == vict2 ||
+		if (tarr->findCombat(vict2) || vict == vict2 ||
 				PRF_FLAGGED(vict2, PRF_NOHASSLE))
 			vict2 = NULL;
 	}
@@ -232,7 +232,7 @@ tarrasque_fight(struct Creature *tarr)
 	if (!number(0, 5)) {
 		WAIT_STATE(tarr, 2 RL_SEC);
 
-		tarrasque_gore(tarr, FIGHTING(tarr));
+		tarrasque_gore(tarr, tarr->findRandomCombat());
 		if (vict) {
 			if (!tarrasque_trample(tarr, vict))
 				set_fighting(tarr, vict, 0);
@@ -250,7 +250,7 @@ tarrasque_fight(struct Creature *tarr)
 	if (!number(0, 5)) {
 		act("$n lashes out with $s tail!!", FALSE, tarr, 0, 0, TO_ROOM);
 		WAIT_STATE(tarr, 3 RL_SEC);
-		tarrasque_lash(tarr, FIGHTING(tarr));
+		tarrasque_lash(tarr, tarr->findRandomCombat());
 
 		if (vict)
 			tarrasque_lash(tarr, vict);
@@ -266,32 +266,18 @@ tarrasque_fight(struct Creature *tarr)
 	// the character whole, no matter how powerful.  If they make their saving
 	// throw, they just get hurt.  The player being fought is most likely to
 	// get swallowed.
-	if (FIGHTING(tarr)) {
-		if (GET_DEX(FIGHTING(tarr)) < number(5, 23) &&
-			!mag_savingthrow(FIGHTING(tarr), 50, SAVING_ROD)) {
-			tarrasque_swallow(tarr, FIGHTING(tarr));
-		} else {
-			damage(tarr,
-				FIGHTING(tarr), GET_DEX(FIGHTING(tarr)) < number(5, 28) ?
-				(dice(40, 20) + 200) : 0, TYPE_BITE, WEAR_BODY);
-		}
-	} else if (vict && number(0, 1) ) {
+    vict = tarr->findRandomCombat();
+	if (vict) {
 		if (GET_DEX(vict) < number(5, 23) &&
 			!mag_savingthrow(vict, 50, SAVING_ROD)) {
 			tarrasque_swallow(tarr, vict);
 		} else {
-			damage(tarr, vict, GET_DEX(vict) < number(5, 28) ?
+			damage(tarr,
+				vict, GET_DEX(vict) < number(5, 28) ?
 				(dice(40, 20) + 200) : 0, TYPE_BITE, WEAR_BODY);
 		}
-	} else if (vict2) {
-		if (GET_DEX(vict2) < number(5, 23) &&
-			!mag_savingthrow(vict2, 50, SAVING_ROD)) {
-			tarrasque_swallow(tarr, vict2);
-		} else {
-			damage(tarr, vict2, GET_DEX(vict2) < number(5, 28) ?
-				(dice(40, 20) + 200) : 0, TYPE_BITE, WEAR_BODY);
-		}
-	}
+    }
+
 	return 1;
 }
 
@@ -306,13 +292,13 @@ tarrasque_follow(Creature *tarr)
 	if (!ch)
 		return 0;
 
-	vict = FIGHTING(tarr);
+	vict = tarr->findRandomCombat();
 	vict2 = NULL;
 	if (!vict)
 		vict = get_char_random_vis(tarr, tarr->in_room);
 	if (vict) {
 		vict2 = get_char_random_vis(tarr, tarr->in_room);
-		if (vict2 == FIGHTING(tarr) || vict == vict2)
+		if (tarr->findCombat(vict) || vict == vict2)
 			vict2 = NULL;
 	}
 
@@ -389,7 +375,7 @@ SPECIAL(tarrasque)
 					return 1;
 				}
 			} else {
-				vict = FIGHTING(tarr);
+				vict = tarr->findRandomCombat();
 				if(vict == NULL) {
 					send_to_char(ch, "Yes, but WHO?\r\n");
 					return 1;
@@ -446,7 +432,7 @@ SPECIAL(tarrasque)
 	if (pursuit)
 		return tarrasque_follow(tarr);
 
-	if (FIGHTING(tarr))
+	if (tarr->numCombatants())
 		return tarrasque_fight(tarr);
 
 	if (poop_timer > T_POOP_LEN) {

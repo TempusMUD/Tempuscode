@@ -1805,7 +1805,7 @@ do_stat_character(struct Creature *ch, struct Creature *k)
         if (k->in_room)
             acc_sprintf(", %sFT%s: %s, %sHNT%s: %s, Timer: %d",
                 CCRED(ch, C_NRM), CCNRM(ch, C_NRM),
-                (FIGHTING(k) ? GET_NAME(FIGHTING(k)) : "N"),
+                (k->numCombatants() ? GET_NAME(k->findRandomCombat()) : "N"),
                 CCYEL(ch, C_NRM), CCNRM(ch, C_NRM),
                 HUNTING(k) ? PERS(HUNTING(k), ch) : "N",
                 k->char_specials.timer);
@@ -1814,7 +1814,7 @@ do_stat_character(struct Creature *ch, struct Creature *k)
         acc_sprintf("Pos: %s, %sFT%s: %s, %sHNT%s: %s",
             position_types[k->getPosition()],
             CCRED(ch, C_NRM), CCNRM(ch, C_NRM),
-            (FIGHTING(k) ? GET_NAME(FIGHTING(k)) : "N"),
+            (k->numCombatants() ? GET_NAME(k->findRandomCombat()) : "N"),
             CCYEL(ch, C_NRM), CCNRM(ch, C_NRM),
             HUNTING(k) ? PERS(HUNTING(k), ch) : "N");
     }
@@ -2414,7 +2414,7 @@ ACMD(do_return)
     bool cloud_found = false;
 
     if (!IS_NPC(ch) && !IS_REMORT(ch) && (GET_LEVEL(ch) < LVL_IMMORT)) {
-        if (FIGHTING(ch)) {
+        if (ch->numCombatants()) {
             send_to_char(ch, "No way!  You're fighting for your life!\r\n");
         } else if (GET_LEVEL(ch) <= LVL_CAN_RETURN) {
             act("A whirling globe of multi-colored light appears and whisks you away!", FALSE, ch, NULL, NULL, TO_CHAR);
@@ -2984,12 +2984,12 @@ perform_invis(struct Creature *ch, int level)
     if (IS_NPC(ch))
         return;
 
-    if (FIGHTING(ch) && level > GET_LEVEL(FIGHTING(ch))
+/*    if (ch->numCombatants() && level > GET_LEVEL(ch->findRandomCombat())
         && !IS_NPC(FIGHTING(ch))) {
         act("You cannot go invis over $N while fighting $M.", FALSE, ch, 0,
             FIGHTING(ch), TO_CHAR);
         return;
-    }
+    }*/
 
     // We set the invis level to 0 here because of a logic problem with
     // can_see_creature().  If we keep the old level, people won't be able to
@@ -5402,8 +5402,9 @@ ACMD(do_show)
         break;
 
     case 42:                    /* fighting */
+        strcpy(buf, "Broken for now.  Bug it if you use it.\r\n");
 
-        strcpy(buf, "Fighting characters:\r\n");
+/*        strcpy(buf, "Fighting characters:\r\n");
 
         cit = combatList.begin();
         for (; cit != combatList.end(); ++cit) {
@@ -5420,7 +5421,7 @@ ACMD(do_show)
                 GET_NAME(vict), IS_NPC(vict) ? "" : CCNRM(ch, C_NRM),
                 FIGHTING(vict) ? GET_NAME(FIGHTING(vict)) :
                 "ERROR!!", vict->in_room->number);
-        }
+        }*/
 
         page_string(ch->desc, buf);
         break;
@@ -6288,7 +6289,7 @@ ACMD(do_set)
         if (!(vict2 = get_char_vis(ch, argument))) {
             send_to_char(ch, "No such target character around.\r\n");
         } else {
-            vict->setFighting(vict2);
+            vict->addCombat(vict2, false);
             send_to_char(ch, "%s is now fighting %s.\r\n", GET_NAME(vict),
                 GET_NAME(vict2));
         }
@@ -7650,10 +7651,8 @@ ACMD(do_peace)
 
     CreatureList::iterator it = ch->in_room->people.begin();
     for (; it != ch->in_room->people.end(); ++it) {
-        if (FIGHTING((*it))) {
-            stop_fighting(*it);
-            found = 1;
-        }
+        found = 1;
+        (*it)->removeAllCombat();
     }
 
     if (!found)

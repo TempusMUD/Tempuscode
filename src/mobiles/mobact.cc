@@ -133,7 +133,7 @@ burn_update(void)
 				continue;
 		}
 
-		if (!FIGHTING(ch) && GET_MOB_WAIT(ch))
+		if (!ch->numCombatants() && GET_MOB_WAIT(ch))
 			GET_MOB_WAIT(ch) = MAX(0, GET_MOB_WAIT(ch) - FIRE_TICK);
 
 		if ((IS_NPC(ch) && ZONE_FLAGGED(ch->in_room->zone, ZONE_FROZEN)) ||
@@ -166,7 +166,7 @@ burn_update(void)
 		if (ch->in_room->dir_option[DOWN] &&
 			ch->getPosition() < POS_FLYING &&
 			!IS_SET(ch->in_room->dir_option[DOWN]->exit_info, EX_CLOSED) &&
-			(!FIGHTING(ch) || !AFF_FLAGGED(ch, AFF_INFLIGHT)) &&
+			(!ch->numCombatants() || !AFF_FLAGGED(ch, AFF_INFLIGHT)) &&
 			ch->in_room->isOpenAir() &&
 			!NOGRAV_ZONE(ch->in_room->zone) &&
 			(!MOUNTED(ch) || !AFF_FLAGGED(MOUNTED(ch), AFF_INFLIGHT)) &&
@@ -506,7 +506,7 @@ burn_update(void)
 			&& ch->getPosition() < POS_FLYING) {
 			if (damage(ch, ch, dice(4, 5), TYPE_HOLYOCEAN, WEAR_RANDOM))
 				continue;
-			if (IS_MOB(ch) && !FIGHTING(ch)) {
+			if (IS_MOB(ch) && !ch->numCombatants()) {
 				do_flee(ch, "", 0, 0, 0);
 			}
 		}
@@ -651,7 +651,7 @@ burn_update(void)
 			continue;
 		}
 
-		if (GET_MOB_PROG(ch) && !FIGHTING(ch))
+		if (GET_MOB_PROG(ch) && !ch->numCombatants())
 			trigger_prog_idle(ch);
 	}
 }
@@ -934,10 +934,8 @@ helper_assist(struct Creature *ch, struct Creature *vict,
 	act("$n jumps to the aid of $N!", TRUE, ch, 0, fvict, TO_NOTVICT);
 	act("$n jumps to your aid!", TRUE, ch, 0, fvict, TO_VICT);
 
-	if (prob > random_percentage()) {
-		stop_fighting(vict);
-		stop_fighting(fvict);
-	}
+	if (prob > random_percentage())
+		vict->removeCombat(fvict);
 
 	return hit(ch, vict, TYPE_UNDEFINED);
 }
@@ -1196,7 +1194,7 @@ best_attack(struct Creature *ch, struct Creature *vict)
 			((gun = GET_EQ(ch, WEAR_WIELD_2)) && STAB_WEAPON(gun)) ||
 			((gun = GET_EQ(ch, WEAR_HANDS)) && STAB_WEAPON(gun))) {
 
-			if (!FIGHTING(vict))
+			if (!vict->numCombatants())
 				do_backstab(ch, fname(vict->player.name), 0, 0, &return_flags);
 			else if (GET_LEVEL(ch) > 43)
 				do_circle(ch, fname(vict->player.name), 0, 0, &return_flags);
@@ -1550,7 +1548,7 @@ mobile_activity(void)
 		// nothing below this conditional affects FIGHTING characters
 		//
 
-		if (FIGHTING(ch) || ch->getPosition() == POS_FIGHTING) {
+		if (ch->numCombatants() || ch->getPosition() == POS_FIGHTING) {
 			continue;
 		}
 
@@ -1813,7 +1811,7 @@ mobile_activity(void)
 
 		/* Wearing Objects */
 		if (!MOB2_FLAGGED(ch, MOB2_WONT_WEAR) && !IS_ANIMAL(ch) &&
-			!FIGHTING(ch) && !IS_DRAGON(ch) && !IS_ELEMENTAL(ch)) {
+			!ch->numCombatants() && !IS_DRAGON(ch) && !IS_ELEMENTAL(ch)) {
 			if (ch->carrying && random_fractional_4()) {
 				for (obj = ch->carrying; obj; obj = best_obj) {
 					best_obj = obj->next_content;
@@ -1939,13 +1937,13 @@ mobile_activity(void)
 			it = ch->in_room->people.begin();
 			for (; it != ch->in_room->people.end() && !found; ++it) {
 				vict = *it;
-				if (ch != vict && FIGHTING(vict) && ch != FIGHTING(vict) &&
+				if (ch != vict && vict->numCombatants() && !vict->findCombat(ch) &&
 					can_see_creature(ch, vict)) {
 
 					int fvict_help_prob =
-						helper_help_probability(ch, FIGHTING(vict));
+						helper_help_probability(ch, vict->findRandomCombat());
 					int fvict_attack_prob =
-						helper_attack_probability(ch, FIGHTING(vict));
+						helper_attack_probability(ch, vict->findRandomCombat());
 
 					int vict_help_prob = helper_help_probability(ch, vict);
 					int vict_attack_prob = helper_attack_probability(ch, vict);
@@ -1975,7 +1973,7 @@ mobile_activity(void)
 						// store a pointer past next_ch if next_ch _happens_ to be vict
 						//
 
-						vict_retval = helper_assist(ch, vict, FIGHTING(vict));
+						vict_retval = helper_assist(ch, vict, vict->findRandomCombat());
 						found = 1;
 						break;
 					}
@@ -1990,7 +1988,8 @@ mobile_activity(void)
 						//
 
 
-						fvict_retval = helper_assist(ch, FIGHTING(vict), vict);
+						fvict_retval = helper_assist(ch, vict->findRandomCombat(), 
+                                                     vict);
 						found = 1;
 						break;
 					}
@@ -2321,7 +2320,7 @@ mobile_activity(void)
 				if (perform_move(ch, door, MOVE_NORM, 1))
 					continue;
 			}
-		}
+		} 
 
 		//
 		// thief tries to steal from others
@@ -2666,7 +2665,7 @@ choose_opponent(struct Creature *ch, struct Creature *ignore_vict)
 	for (; it != ch->in_room->people.end(); ++it) {
 		vict = *it;
 		// ignore bystanders
-		if (ch != FIGHTING(vict))
+		if (!vict->findCombat(ch))
 			continue;
 
 		//
@@ -2694,7 +2693,7 @@ choose_opponent(struct Creature *ch, struct Creature *ignore_vict)
 
 	// default to fighting opponent
 	if (!best_vict)
-		best_vict = FIGHTING(ch);
+		best_vict = ch->findRandomCombat();
 
 	return (best_vict);
 }
@@ -2702,7 +2701,7 @@ choose_opponent(struct Creature *ch, struct Creature *ignore_vict)
 bool
 detect_opponent_master(Creature *ch, Creature *opp)
 {
-	if (FIGHTING(opp) != ch)
+	if (!opp->findCombat(ch))
 		return false;
 	if (IS_PC(ch) || IS_PC(opp))
 		return false;
@@ -2719,7 +2718,7 @@ detect_opponent_master(Creature *ch, Creature *opp)
 	if (number(0, 50 - GET_INT(ch) - GET_WIS(ch)))
 		return false;
 
-	stop_fighting(ch);
+	ch->removeCombat(opp);
 	set_fighting(ch, opp->master, false);
 	return true;
 }
@@ -2746,12 +2745,12 @@ mobile_battle_activity(struct Creature *ch, struct Creature *precious_vict)
 	ACCMD(do_disarm);
 	ACMD(do_feign);
 
-	if (!FIGHTING(ch)) {
+	if (!ch->numCombatants()) {
 		errlog("mobile_battle_activity called on non-fighting ch.");
 		raise(SIGSEGV);
 	}
 
-	if (FIGHTING(ch) == precious_vict) {
+	if (ch->findCombat(precious_vict)) {
 		errlog("FIGHTING(ch) == precious_vict in mobile_battle_activity()");
 		return 0;
 	}
@@ -2765,6 +2764,7 @@ mobile_battle_activity(struct Creature *ch, struct Creature *precious_vict)
 	}
 
 	if (!IS_ANIMAL(ch)) {
+        Creature *target = ch->findRandomCombat();
 		// Speaking mobiles
 		if (GET_HIT(ch) < GET_MAX_HIT(ch) >> 7 && random_fractional_20()) {
 			int pct = random_percentage_zero_low();
@@ -2773,9 +2773,9 @@ mobile_battle_activity(struct Creature *ch, struct Creature *precious_vict)
 				act("$n grits $s teeth as $e begins to weaken.", false,
 					ch, 0, 0, TO_ROOM);
 			} else {
-				if (can_see_creature(FIGHTING(ch), ch))
+				if (can_see_creature(target, ch))
 					do_say(ch,
-						tmp_sprintf("%s you bastard!", PERS(FIGHTING(ch), ch)),
+						tmp_sprintf("%s you bastard!", PERS(target, ch)),
 						0, 0, 0);
 				else
 					do_say(ch, "You stinking bastard!", 0, 0, 0);
@@ -2784,7 +2784,7 @@ mobile_battle_activity(struct Creature *ch, struct Creature *precious_vict)
 			return 0;
 		}
 
-		if (GET_HIT(FIGHTING(ch)) < GET_MAX_HIT(FIGHTING(ch)) >> 7 &&
+		if (GET_HIT(target) < GET_MAX_HIT(target) >> 7 &&
 			GET_HIT(ch) > GET_MAX_HIT(ch) >> 4 && random_fractional_20()) {
 
 			int pct = random_percentage_zero_low();
@@ -2797,14 +2797,14 @@ mobile_battle_activity(struct Creature *ch, struct Creature *precious_vict)
 				return 0;
 			} else if (pct < 60) {
 				do_say(ch,
-					tmp_sprintf("Kiss my ass, %s!", PERS(ch, FIGHTING(ch))),
+					tmp_sprintf("Kiss my ass, %s!", PERS(ch, target)),
 					0, 0, 0);
 				return 0;
 			}
 		}
 	}
 
-	if (detect_opponent_master(ch, FIGHTING(ch)))
+	if (detect_opponent_master(ch, ch->findRandomCombat()))
 		return 0;
 
 	/* Here go the fighting Routines */
@@ -2827,19 +2827,20 @@ mobile_battle_activity(struct Creature *ch, struct Creature *precious_vict)
 			CUR_R_O_F(gun) = MAX_R_O_F(gun);
 
 			do_shoot(ch, tmp_sprintf("%s %s",
-				fname(gun->aliases), FIGHTING(ch)->player.name),
+				fname(gun->aliases), ch->findRandomCombat()->player.name),
 				0, 0, &return_flags);
 			return return_flags;
 		}
 	}
 
 	if (GET_CLASS(ch) == CLASS_SNAKE) {
-		if (FIGHTING(ch)->in_room == ch->in_room &&
+        Creature *target = ch->findRandomCombat();
+		if (target->in_room == ch->in_room &&
 			(random_number_zero_low(42 - GET_LEVEL(ch)) == 0)) {
-			act("$n bites $N!", 1, ch, 0, FIGHTING(ch), TO_NOTVICT);
-			act("$n bites you!", 1, ch, 0, FIGHTING(ch), TO_VICT);
+			act("$n bites $N!", 1, ch, 0, target, TO_NOTVICT);
+			act("$n bites you!", 1, ch, 0, target, TO_VICT);
 			if (random_fractional_10()) {
-				call_magic(ch, FIGHTING(ch), 0, SPELL_POISON, GET_LEVEL(ch),
+				call_magic(ch, target, 0, SPELL_POISON, GET_LEVEL(ch),
 					CAST_CHEM, &return_flags);
 			}
 			return return_flags;
@@ -2865,10 +2866,15 @@ mobile_battle_activity(struct Creature *ch, struct Creature *precious_vict)
 						CHAR_LIKES_ROOM(ch, EXIT(ch, dir)->to_room)
 						&& random_binary()) {
 
-						struct Creature *was_fighting = FIGHTING(ch);
+						struct Creature *was_fighting = ch->findRandomCombat();
 
-						stop_fighting(FIGHTING(ch));
-						stop_fighting(ch);
+                        ch->removeAllCombat();
+                        CreatureList::iterator ci = ch->in_room->people.begin();
+                        for (; ci != ch->in_room->people.end(); ++ci) {
+                            if ((*ci)->findCombat(ch)) {
+                                (*ci)->removeCombat(ch);
+                            }
+                        }
 
 						//
 						// leap in this direction
@@ -2895,16 +2901,20 @@ mobile_battle_activity(struct Creature *ch, struct Creature *precious_vict)
 
 		else if (random_binary()) {
 			act("$n releases a deafening scream!!", FALSE, ch, 0, 0, TO_ROOM);
-			call_magic(ch, FIGHTING(ch), 0, SPELL_FEAR, GET_LEVEL(ch),
-				CAST_BREATH, &return_flags);
+            list<CharCombat>::iterator li = ch->getCombatList()->end();
+            for (; li != ch->getCombatList()->end(); ++li) {
+			    call_magic(ch, li->getOpponent(), 0, SPELL_FEAR, GET_LEVEL(ch),
+				    CAST_BREATH, &return_flags);
+            }
 			return return_flags;
 		}
 	}
 
 
 	if (IS_RACE(ch, RACE_UMBER_HULK)) {
-		if (random_fractional_3() && !AFF_FLAGGED(FIGHTING(ch), AFF_CONFUSION)) {
-			call_magic(ch, FIGHTING(ch), 0, SPELL_CONFUSION, GET_LEVEL(ch),
+        Creature *target = ch->findRandomCombat();
+		if (random_fractional_3() && !AFF_FLAGGED(target, AFF_CONFUSION)) {
+			call_magic(ch, target, 0, SPELL_CONFUSION, GET_LEVEL(ch),
 				CAST_ROD, &return_flags);
 			return return_flags;
 		}
@@ -2914,7 +2924,7 @@ mobile_battle_activity(struct Creature *ch, struct Creature *precious_vict)
 		if (GET_CLASS(ch) == CLASS_DAEMON_PYRO) {
 			if (random_fractional_3()) {
 				WAIT_STATE(ch, 3 RL_SEC);
-				call_magic(ch, FIGHTING(ch), 0, SPELL_FIRE_BREATH,
+				call_magic(ch, ch->findRandomCombat(), 0, SPELL_FIRE_BREATH,
 					GET_LEVEL(ch), CAST_BREATH, &return_flags);
 				return return_flags;
 			}
@@ -2924,8 +2934,9 @@ mobile_battle_activity(struct Creature *ch, struct Creature *precious_vict)
 	if (IS_RACE(ch, RACE_MEPHIT)) {
 		if (GET_CLASS(ch) == CLASS_MEPHIT_LAVA) {
 			if (random_binary()) {
-				return damage(ch, FIGHTING(ch), dice(20, 20), TYPE_LAVA_BREATH,
-					WEAR_RANDOM);
+				return damage(ch, ch->findRandomCombat(), 
+                              dice(20, 20), TYPE_LAVA_BREATH,
+					          WEAR_RANDOM);
 			}
 		}
 	}
@@ -3065,8 +3076,9 @@ mobile_battle_activity(struct Creature *ch, struct Creature *precious_vict)
 				FALSE, ch, 0, 0, TO_ROOM);
 			act("$n steps out of the portal with a crack of lightning!",
 				FALSE, new_mob, 0, 0, TO_ROOM);
-			if (FIGHTING(ch) && IS_MOB(FIGHTING(ch)))
-				hit(new_mob, FIGHTING(ch), TYPE_UNDEFINED);
+            Creature *target = ch->findRandomCombat();
+			if (target && IS_MOB(target))
+				hit(new_mob, target, TYPE_UNDEFINED);
 			return 0;
 		}
 	}
@@ -3097,14 +3109,13 @@ mobile_battle_activity(struct Creature *ch, struct Creature *precious_vict)
 	if (IS_DRAGON(ch)) {
 		if (random_number_zero_low(GET_LEVEL(ch)) > 40) {
 			act("You feel a wave of sheer terror wash over you as $n approaches!", FALSE, ch, 0, 0, TO_ROOM);
-			CreatureList::iterator it = ch->in_room->people.begin();
-			for (; it != ch->in_room->people.end(); ++it) {
-				vict = *it;
-				if (FIGHTING(vict) && FIGHTING(vict) == ch &&
-					!mag_savingthrow(vict, GET_LEVEL(ch), SAVING_SPELL) &&
-					!IS_AFFECTED(vict, AFF_CONFIDENCE))
-					do_flee(vict, "", 0, 0, 0);
-			}
+            list<CharCombat>::iterator li = ch->getCombatList()->begin();
+            for (; li != ch->getCombatList()->end(); ++li) {
+                vict = li->getOpponent();
+                if (!mag_savingthrow(vict, GET_LEVEL(ch), SAVING_SPELL) &&
+                    !IS_AFFECTED(vict, AFF_CONFIDENCE))
+                    do_flee(vict, "", 0, 0, 0);
+            }
 			return 0;
 		}
 
@@ -3115,7 +3126,7 @@ mobile_battle_activity(struct Creature *ch, struct Creature *precious_vict)
 			damage(ch, vict, random_number_zero_low(GET_LEVEL(ch)), TYPE_CLAW,
 				WEAR_RANDOM);
 			return 0;
-		} else if (random_fractional_4() && vict == FIGHTING(ch)) {
+		} else if (random_fractional_4() && ch->findCombat(vict)) {
 			damage(ch, vict, random_number_zero_low(GET_LEVEL(ch)), TYPE_CLAW,
 				WEAR_RANDOM);
 			return 0;
@@ -3256,7 +3267,7 @@ mobile_battle_activity(struct Creature *ch, struct Creature *precious_vict)
 			if (!(vict = choose_opponent(ch, precious_vict)))
 				return 0;
 
-			if (vict == FIGHTING(ch) &&
+			if (ch->findCombat(vict) &&
 				GET_HIT(ch) < (GET_MAX_HIT(ch) >> 2) &&
 				GET_HIT(vict) > (GET_MAX_HIT(vict) >> 1)) {
 				if (GET_LEVEL(ch) >= 33 && random_fractional_3() &&
@@ -3663,7 +3674,7 @@ mob_fight_devil(struct Creature *ch, struct Creature *precious_vict)
 
 
 	if (IS_PET(ch)) {			// pets should only fight who they're told to
-		vict = FIGHTING(ch);
+		vict = ch->findRandomCombat();
 	} else {					// find a suitable victim
 		vict = choose_opponent(ch, precious_vict);
 	}
@@ -3686,11 +3697,8 @@ mob_fight_devil(struct Creature *ch, struct Creature *precious_vict)
 		return return_flags;
 	}
 	// see if we're fighting more than 1 person, if so, blast the room
-	CreatureList::iterator it = ch->in_room->people.begin();
-	for (num = 0; it != ch->in_room->people.end(); ++it)
-		if (ch == FIGHTING((*it)))
-			num++;
-
+    num = ch->numCombatants();
+    
 	if (num > 1 && GET_LEVEL(ch) > (random_number_zero_low(50) + 30)) {
 		WAIT_STATE(ch, 3 RL_SEC);
 		if (call_magic(ch, NULL, NULL,
@@ -3715,7 +3723,7 @@ mob_fight_devil(struct Creature *ch, struct Creature *precious_vict)
 
 
 	// see how many devils are already in the room
-	it = ch->in_room->people.begin();
+	CreatureList::iterator it = ch->in_room->people.begin();
 	for (num = 0; it != ch->in_room->people.end(); ++it)
 		if (IS_DEVIL((*it)))
 			num++;
@@ -3773,7 +3781,7 @@ mob_fight_devil(struct Creature *ch, struct Creature *precious_vict)
 			CreatureList::iterator it = ch->in_room->people.begin();
 			for (; it != ch->in_room->people.end() && *it != ch; ++it) {
 				vict = *it;
-				if (FIGHTING(vict) && FIGHTING(vict) == ch &&
+				if (vict->findCombat(ch) &&
 					GET_LEVEL(vict) < LVL_AMBASSADOR &&
 					!mag_savingthrow(vict, GET_LEVEL(ch) << 2, SAVING_SPELL) &&
 					!IS_AFFECTED(vict, AFF_CONFIDENCE))
@@ -3811,8 +3819,9 @@ mob_fight_devil(struct Creature *ch, struct Creature *precious_vict)
 		    act("$n steps out of the portal with a crack of lightning!",
 			    FALSE, new_mob, 0, 0, TO_ROOM);
         }
-		if (FIGHTING(ch) && IS_MOB(FIGHTING(ch)))
-			return (hit(new_mob, FIGHTING(ch),
+        Creature *target = ch->findRandomCombat();
+		if (target && IS_MOB(target))
+			return (hit(new_mob, target,
 					TYPE_UNDEFINED) & DAM_VICT_KILLED);
 		return 0;
 	}
@@ -3834,7 +3843,7 @@ ACMD(do_breathe)
 	skip_spaces(&argument);
 	Creature *vict = get_char_room_vis(ch, argument);
 	if (vict == NULL)
-		vict = FIGHTING(ch);
+		vict = ch->findRandomCombat();
 	if (vict == NULL) {
 		act("Breathe on whom?", FALSE, ch, 0, 0, TO_CHAR);
 		return;
@@ -3918,7 +3927,7 @@ mob_fight_celestial(struct Creature *ch, struct Creature *precious_vict)
 	int return_flags = 0;
 
 	if (IS_PET(ch)) {			// pets should only fight who they're told to
-		vict = FIGHTING(ch);
+		vict = ch->findRandomCombat();
 	} else {					// find a suitable victim
 		vict = choose_opponent(ch, precious_vict);
 	}
@@ -3939,10 +3948,7 @@ mob_fight_celestial(struct Creature *ch, struct Creature *precious_vict)
 		return return_flags;
 	}
 	// see if we're fighting more than 1 person, if so, blast the room
-	CreatureList::iterator it = ch->in_room->people.begin();
-	for (num = 0; it != ch->in_room->people.end(); ++it)
-		if (ch == FIGHTING((*it)))
-			num++;
+	num = ch->numCombatants();
 
 	if (num > 1 && GET_LEVEL(ch) > (random_number_zero_low(50) + 30)) {
 		WAIT_STATE(ch, 3 RL_SEC);
@@ -3962,7 +3968,7 @@ mob_fight_celestial(struct Creature *ch, struct Creature *precious_vict)
 	}
 
 	// see how many celestials are already in the room
-	it = ch->in_room->people.begin();
+	CreatureList::iterator it = ch->in_room->people.begin();
 	for (num = 0; it != ch->in_room->people.end(); ++it)
 		if (GET_RACE(*it) == RACE_CELESTIAL || GET_RACE(*it) == RACE_ARCHON)
 			num++;
@@ -4030,8 +4036,9 @@ mob_fight_celestial(struct Creature *ch, struct Creature *precious_vict)
 			FALSE, ch, 0, 0, TO_ROOM);
 		act("$n steps out of the portal with a flash of white light!",
 			FALSE, new_mob, 0, 0, TO_ROOM);
-		if (FIGHTING(ch) && IS_MOB(FIGHTING(ch)))
-			return (hit(new_mob, FIGHTING(ch),
+        Creature *target = ch->findRandomCombat();
+		if (target && IS_MOB(target))
+			return (hit(new_mob, target,
 					TYPE_UNDEFINED) & DAM_VICT_KILLED);
 		return 0;
 	}
@@ -4059,7 +4066,7 @@ mob_fight_guardinal(struct Creature *ch, struct Creature *precious_vict)
 	int return_flags = 0;
 
 	if (IS_PET(ch)) {			// pets should only fight who they're told to
-		vict = FIGHTING(ch);
+		vict = ch->findRandomCombat();
 	} else {					// find a suitable victim
 		vict = choose_opponent(ch, precious_vict);
 	}
@@ -4080,10 +4087,7 @@ mob_fight_guardinal(struct Creature *ch, struct Creature *precious_vict)
 		return return_flags;
 	}
 	// see if we're fighting more than 1 person, if so, blast the room
-	CreatureList::iterator it = ch->in_room->people.begin();
-	for (num = 0; it != ch->in_room->people.end(); ++it)
-		if (ch == FIGHTING((*it)))
-			num++;
+	num = ch->numCombatants();
 
 	if (num > 1 && GET_LEVEL(ch) > (random_number_zero_low(50) + 30)) {
 		WAIT_STATE(ch, 3 RL_SEC);
@@ -4103,7 +4107,7 @@ mob_fight_guardinal(struct Creature *ch, struct Creature *precious_vict)
 	}
 
 	// see how many guardinal are already in the room
-	it = ch->in_room->people.begin();
+	CreatureList::iterator it = ch->in_room->people.begin();
 	for (num = 0; it != ch->in_room->people.end(); ++it)
 		if (GET_RACE(*it) == RACE_GUARDINAL)
 			num++;
@@ -4171,8 +4175,9 @@ mob_fight_guardinal(struct Creature *ch, struct Creature *precious_vict)
 			FALSE, ch, 0, 0, TO_ROOM);
 		act("$n steps out of the portal with a flash of blue light!",
 			FALSE, new_mob, 0, 0, TO_ROOM);
-		if (FIGHTING(ch) && IS_MOB(FIGHTING(ch)))
-			return (hit(new_mob, FIGHTING(ch),
+        Creature *target = ch->findRandomCombat();
+		if (target && IS_MOB(target))
+			return (hit(new_mob, target,
 					TYPE_UNDEFINED) & DAM_VICT_KILLED);
 		return 0;
 	}
@@ -4211,7 +4216,7 @@ mob_fight_demon(struct Creature *ch, struct Creature *precious_vict)
 	int return_flags = 0;
 
 	if (IS_PET(ch)) {			// pets should only fight who they're told to
-		vict = FIGHTING(ch);
+		vict = ch->findRandomCombat();
 	} else {					// find a suitable victim
 		vict = choose_opponent(ch, precious_vict);
 	}
@@ -4232,10 +4237,7 @@ mob_fight_demon(struct Creature *ch, struct Creature *precious_vict)
 		return return_flags;
 	}
 	// see if we're fighting more than 1 person, if so, blast the room
-	CreatureList::iterator it = ch->in_room->people.begin();
-	for (num = 0; it != ch->in_room->people.end(); ++it)
-		if (ch == FIGHTING((*it)))
-			num++;
+    num = ch->numCombatants();
 
 	if (num > 1 && GET_LEVEL(ch) > (random_number_zero_low(50) + 30)) {
 		WAIT_STATE(ch, 3 RL_SEC);
@@ -4259,7 +4261,7 @@ mob_fight_demon(struct Creature *ch, struct Creature *precious_vict)
 	}
 
 	// see how many demon are already in the room
-	it = ch->in_room->people.begin();
+	CreatureList::iterator it = ch->in_room->people.begin();
 	for (num = 0; it != ch->in_room->people.end(); ++it)
 		if (GET_RACE(*it) == RACE_DEMON)
 			num++;
@@ -4405,8 +4407,9 @@ mob_fight_demon(struct Creature *ch, struct Creature *precious_vict)
 		    act("$n steps out of the portal with a clap of thunder!",
 			    FALSE, new_mob, 0, 0, TO_ROOM);
         }
-		if (FIGHTING(ch) && IS_MOB(FIGHTING(ch)))
-			return (hit(new_mob, FIGHTING(ch),
+        Creature *target = ch->findRandomCombat();
+		if (target && IS_MOB(target))
+			return (hit(new_mob, target,
 					TYPE_UNDEFINED) & DAM_VICT_KILLED);
 		return 0;
 	}
@@ -4512,13 +4515,13 @@ int knight_battle_activity(struct Creature *ch, struct Creature *precious_vict){
             cast_spell(ch, ch, NULL, SPELL_HEAL);
             return 0;
         }
-    } else if (IS_GOOD(ch) && IS_EVIL(FIGHTING(ch)) &&
+    } else if (IS_GOOD(ch) && IS_EVIL(ch->findRandomCombat()) &&
         random_fractional_3()  &&
         !ROOM_FLAGGED(ch->in_room, ROOM_NOMAGIC) &&
         !affected_by_spell(ch, SPELL_PROT_FROM_EVIL)) {
         cast_spell(ch, ch, NULL, SPELL_PROT_FROM_EVIL);
         return 0;
-    } else if (IS_EVIL(ch) && IS_GOOD(FIGHTING(ch)) &&
+    } else if (IS_EVIL(ch) && IS_GOOD(ch->findRandomCombat()) &&
         random_fractional_3() &&
         !ROOM_FLAGGED(ch->in_room, ROOM_NOMAGIC)
         && !affected_by_spell(ch, SPELL_PROT_FROM_GOOD)) {
@@ -4631,7 +4634,7 @@ int ranger_battle_activity(struct Creature *ch, struct Creature *precious_vict){
         return 0;
     } else if ((GET_LEVEL(ch) > 21) && random_fractional_5() &&
         GET_RACE(vict) == RACE_UNDEAD &&
-		!ch->isFighting() &&
+		!ch->numCombatants() &&
         !affected_by_spell(ch, SPELL_INVIS_TO_UNDEAD)) {
         cast_spell(ch, ch, NULL, SPELL_INVIS_TO_UNDEAD);
         WAIT_STATE(ch, PULSE_VIOLENCE);

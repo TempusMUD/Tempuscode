@@ -10,15 +10,14 @@ SPECIAL(tiamat)
 	int type = 0;
 	struct room_data *lair = real_room(16182);
 
-	if (cmd || !FIGHTING(ch) || GET_MOB_WAIT(ch) || number(0, 4))
+	if (cmd || !ch->numCombatants() || GET_MOB_WAIT(ch) || number(0, 4))
 		return 0;
 	if (spec_mode != SPECIAL_TICK)
 		return 0;
 	if (GET_HIT(ch) < 200 && ch->in_room != lair && lair != NULL) {
 		act("$n vanishes in a prismatic blast of light!",
 			FALSE, ch, 0, 0, TO_ROOM);
-		stop_fighting(FIGHTING(ch));
-		stop_fighting(ch);
+        ch->removeAllCombat();
 		char_from_room(ch);
 		char_to_room(ch, lair, false);
 		act("$n appears in a prismatic blast of light!",
@@ -43,7 +42,8 @@ SPECIAL(tiamat)
 		break;
 	}
 
-	call_magic(ch, FIGHTING(ch), 0, type, GET_LEVEL(ch), SAVING_BREATH);
+    Creature *vict = ch->findRandomCombat();
+	call_magic(ch, vict, 0, type, GET_LEVEL(ch), SAVING_BREATH);
 	WAIT_STATE(ch, PULSE_VIOLENCE * 2);
 	return 1;
 }

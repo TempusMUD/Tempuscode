@@ -13,10 +13,10 @@ SPECIAL(archon)
 		return 0;
 	if (cmd)
 		return 0;
-	if (!FIGHTING(ch) && ch->in_room->zone->plane != PLANE_HEAVEN) {
+	if (!ch->numCombatants() && ch->in_room->zone->plane != PLANE_HEAVEN) {
 		CreatureList::iterator it = ch->in_room->people.begin();
 		for (; it != ch->in_room->people.end(); ++it)
-			if ((*it) != ch && IS_ARCHON((*it)) && FIGHTING((*it))) {
+			if ((*it) != ch && IS_ARCHON((*it)) && (*it)->numCombatants()) {
 				do_rescue(ch, fname((*it)->player.name), 0, 0, 0);
 				return 1;
 			}

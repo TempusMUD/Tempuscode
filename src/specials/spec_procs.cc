@@ -499,15 +499,9 @@ SPECIAL(venom_attack)
 				err = "first word in param must be toroom or tovict";
 		}
 		if (err) {
-			if (IS_PC(FIGHTING(ch))) {
-				if (IS_IMMORT(FIGHTING(ch)))
-					perform_tell(ch, FIGHTING(ch), tmp_sprintf(
-						"%s in line %d of my specparam", err, lineno));
-				else
-					mudlog(LVL_IMMORT, NRM, true,
-						"ERR: Mobile %d has %s in line %d of specparam",
-							GET_MOB_VNUM(ch), err, lineno);
-			}
+            mudlog(LVL_IMMORT, NRM, true,
+                   "ERR: Mobile %d has %s in line %d of specparam",
+                   GET_MOB_VNUM(ch), err, lineno);
 
 			return 1;
 		}
@@ -520,11 +514,12 @@ SPECIAL(venom_attack)
 	else
 		return false;
 
-	if (FIGHTING(ch) && (FIGHTING(ch)->in_room == ch->in_room) &&
+    Creature *target = ch->findRandomCombat();
+	if (target && (target->in_room == ch->in_room) &&
 		number(0, 75) < perc_damaged) {
-		act(act_tovict, 1, ch, 0, FIGHTING(ch), TO_VICT);
-		act(act_toroom, 1, ch, 0, FIGHTING(ch), TO_NOTVICT);
-		call_magic(ch, FIGHTING(ch), 0, SPELL_POISON, GET_LEVEL(ch),
+		act(act_tovict, 1, ch, 0, target, TO_VICT);
+		act(act_toroom, 1, ch, 0, target, TO_NOTVICT);
+		call_magic(ch, target, 0, SPELL_POISON, GET_LEVEL(ch),
 			CAST_SPELL);
 		return TRUE;
 	}
@@ -565,17 +560,10 @@ SPECIAL(magic_user)
 		return FALSE;
 
 	/* pseudo-randomly choose someone in the room who is fighting me */
-	CreatureList::iterator it = ch->in_room->people.begin();
-	for (; it != ch->in_room->people.end(); ++it) {
-		if (FIGHTING((*it)) == ch && !number(0, 4)) {
-			vict = (*it);
-			break;
-		}
-	}
+    vict = ch->findRandomCombat();
 
-	/* if I didn't pick any of those, then just slam the guy I'm fighting */
 	if (vict == NULL)
-		vict = FIGHTING(ch);
+        return 0;
 
     bool found = true;
 
@@ -673,18 +661,11 @@ SPECIAL(battle_cleric)
 	struct Creature *vict = NULL;
 
 	/* pseudo-randomly choose someone in the room who is fighting me */
-	CreatureList::iterator it = ch->in_room->people.begin();
-	for (; it != ch->in_room->people.end(); ++it) {
-		if (FIGHTING((*it)) == ch && !number(0, 4)) {
-			vict = (*it);
-			break;
-		}
-	}
+    vict = ch->findRandomCombat();
 
 
-	/* if I didn't pick any of those, then just slam the guy I'm fighting */
 	if (vict == NULL)
-		vict = FIGHTING(ch);
+        return 0;
 
     bool found = true;
 	if ((GET_LEVEL(ch) > 2) && (number(0, 8) == 0) &&
@@ -770,17 +751,11 @@ SPECIAL(barbarian)
 	struct Creature *vict = NULL;
 
 	/* pseudo-randomly choose someone in the room who is fighting me */
-	CreatureList::iterator it = ch->in_room->people.begin();
-	for (; it != ch->in_room->people.end(); ++it) {
-		if (FIGHTING((*it)) == ch && !number(0, 4)) {
-			vict = (*it);
-			break;
-		}
-	}
+    vict = ch->findRandomCombat();
 
 	/* if I didn't pick any of those, then just slam the guy I'm fighting */
 	if (vict == NULL)
-		vict = FIGHTING(ch);
+        return 0;
     
     bool found = true;
 	if ((GET_LEVEL(ch) > 2) && (number(0, 12) == 0)) {
@@ -903,7 +878,7 @@ SPECIAL(fido)
 
 	if (spec_mode != SPECIAL_TICK)
 		return 0;
-	if (cmd || !AWAKE(ch) || FIGHTING(ch))
+	if (cmd || !AWAKE(ch) || ch->numCombatants())
 		return (FALSE);
 
 	vict = get_char_random_vis(ch, ch->in_room);
@@ -961,7 +936,7 @@ SPECIAL(buzzard)
 
 	if (spec_mode != SPECIAL_TICK)
 		return 0;
-	if (cmd || !AWAKE(ch) || FIGHTING(ch))
+	if (cmd || !AWAKE(ch) || ch->findRandomCombat())
 		return (FALSE);
 
 	for (i = ch->in_room->contents; i; i = i->next_content) {
@@ -981,14 +956,7 @@ SPECIAL(buzzard)
 			return true;
 		}
 	}
-	vict = NULL;
-	CreatureList::iterator it = ch->in_room->people.begin();
-	for (; it != ch->in_room->people.end(); ++it) {
-		if (FIGHTING((*it)) != ch && number(0, 3)) {
-			vict = (*it);
-			break;
-		}
-	}
+	vict = ch->findRandomCombat();
 
 	if (!vict || vict == ch)
 		return 0;
@@ -1545,11 +1513,12 @@ SPECIAL(cave_bear)
 
 	if (spec_mode != SPECIAL_TICK)
 		return 0;
-	if (cmd || !FIGHTING(ch))
+	if (cmd || !ch->numCombatants())
 		return FALSE;
 
 	if (!number(0, 12)) {
-		damage(ch, FIGHTING(ch), number(0, 1 + GET_LEVEL(ch)), SKILL_BEARHUG,
+		damage(ch, ch->findRandomCombat(), 
+               number(0, 1 + GET_LEVEL(ch)), SKILL_BEARHUG,
 			WEAR_BODY);
 		return TRUE;
 	}

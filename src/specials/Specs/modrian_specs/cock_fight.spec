@@ -9,7 +9,7 @@ SPECIAL(cock_fight)
 	if (spec_mode != SPECIAL_TICK)
 		return 0;
 
-	if (!FIGHTING(ch)) {
+	if (!ch->numCombatants()) {
 		switch (number(0, 40)) {
 		case 0:
 			act("$n scratches the ground with $s claw.", TRUE, ch, 0, 0,
@@ -28,6 +28,7 @@ SPECIAL(cock_fight)
 			return 0;
 		}
 	}
+    Creature *target = ch->findRandomCombat();
 	switch (number(0, 16)) {
 	case 0:
 		act("$n leaps into the air, feathers flying!", TRUE, ch, 0, 0,
@@ -38,9 +39,9 @@ SPECIAL(cock_fight)
 		send_to_room("Feathers fly everywhere!\r\n", ch->in_room);
 		return 1;
 	case 2:
-		act("$N screams as $E attacks you!", FALSE, FIGHTING(ch), 0, ch,
+		act("$N screams as $E attacks you!", FALSE, target, 0, ch,
 			TO_CHAR);
-		act("$N screams as $E attacks $n!", FALSE, FIGHTING(ch), 0, ch,
+		act("$N screams as $E attacks $n!", FALSE, target, 0, ch,
 			TO_ROOM);
 		return 1;
 	default:

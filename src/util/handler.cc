@@ -46,7 +46,6 @@ extern struct descriptor_data *descriptor_list;
 
 /* external functions */
 long special(struct Creature *ch, int cmd, int subcmd, char *arg, special_mode spec_mode);
-void stop_fighting(CreatureList::iterator & cit);
 void remove_follower(struct Creature *ch);
 void path_remove_object(void *object);
 void free_paths();
@@ -1044,11 +1043,8 @@ char_from_room( Creature *ch, bool check_specials)
 			sprintf(buf, "Char is in_room %d\r\n", ch->in_room->number);
 		exit(1);
 	}
-	if (FIGHTING(ch) != NULL) {
-		if (FIGHTING(FIGHTING(ch)) && FIGHTING(FIGHTING(ch)) == ch)
-			stop_fighting(FIGHTING(ch));
-		stop_fighting(ch);
-	}
+    
+    ch->removeAllCombat();
 
 	if (GET_RACE(ch) == RACE_ELEMENTAL && IS_CLASS(ch, CLASS_FIRE))
 		ch->in_room->light--;

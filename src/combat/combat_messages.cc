@@ -232,7 +232,7 @@ death_cry(struct Creature *ch)
 				CreatureList::iterator it = adjoin_room->people.begin();
 				for (; it != adjoin_room->people.end(); ++it) {
 					if (IS_MOB((*it)) && !MOB_FLAGGED((*it), MOB_SENTINEL) &&
-						!FIGHTING((*it)) && AWAKE((*it)) &&
+						!(*it)->numCombatants() && AWAKE((*it)) &&
 						(MOB_FLAGGED((*it), MOB_HELPER) ||
 							(*it)->mob_specials.shared->func ==
 							cityguard) && number(0, 40) < GET_LEVEL((*it))) {

@@ -21,12 +21,15 @@
 
 void extract_norents(struct obj_data *obj);
 void char_arrest_pardoned(Creature *ch);
+void remove_fighting_affects(struct Creature *ch);
 extern struct descriptor_data *descriptor_list;
 struct player_special_data dummy_mob;	/* dummy spec area for mobs         */
+
 
 Creature::Creature(bool pc)
 {
 	memset((char *)this, 0, sizeof(Creature));
+
 	if (pc) {
 		player_specials = new player_special_data;
 		memset((char *)player_specials, 0, sizeof(player_special_data));
@@ -34,6 +37,9 @@ Creature::Creature(bool pc)
 		player_specials = &dummy_mob;
 		SET_BIT(MOB_FLAGS(this), MOB_ISNPC);
 	}
+
+    char_specials.fighting = new list<CharCombat>();
+
 	clear();
 }
 
@@ -44,12 +50,8 @@ Creature::~Creature(void)
 		delete player_specials;
 		free(player.title);
 	}
-}
-
-bool
-Creature::isFighting()
-{
-	return (char_specials.fighting != NULL);
+    delete char_specials.fighting;
+    char_specials.fighting = NULL;
 }
 
 void
@@ -140,17 +142,6 @@ int Creature::getPenalizedExperience( int experience, Creature *victim)
 	}
 
 	return experience;
-}
-
-void
-Creature::setFighting(Creature * ch)
-{
-	if (ch == this) {
-		errlog("Attempt to make %s fight itself!", GET_NAME(this));
-		raise(SIGSEGV);
-		return;
-	}
-	char_specials.fighting = ch;
 }
 
 int
@@ -476,7 +467,7 @@ Creature::setPosition(int new_pos, int mode)
 			return false;
 		}
 	}
-	if (new_pos == POS_STANDING && FIGHTING(this)) {
+	if (new_pos == POS_STANDING && this->numCombatants()) {
 		char_specials.setPosition(POS_FIGHTING);
 	} else {
 		char_specials.setPosition(new_pos);
@@ -508,7 +499,6 @@ void
 Creature::extract(cxn_state con_state)
 {
 	ACMD(do_return);
-	void stop_fighting(struct Creature *ch);
 	void die_follower(struct Creature *ch);
 
 	struct obj_data* obj;
@@ -532,12 +522,10 @@ Creature::extract(cxn_state con_state)
 
 
 	// remove fighters, defenders, hunters and mounters
-	if (FIGHTING(this))
-		stop_fighting(this);
+	this->removeAllCombat();
+    this->getCombatList()->erase(getCombatList()->begin(), getCombatList()->end());
 
 	for (cit = characterList.begin(); cit != characterList.end(); ++cit) {
-		if (this == FIGHTING((*cit)))
-			stop_fighting(*cit);
 		if (this == DEFENDING((*cit)))
 			stop_defending(*cit);
 		if (this == HUNTING((*cit)))
@@ -742,14 +730,14 @@ Creature::clear(void)
 	// first make sure the char is no longer in the world
 	//
 	if (this->in_room != NULL || this->carrying != NULL ||
-		this->getFighting() != NULL || this->followers != NULL
+		this->numCombatants() != 0 || this->followers != NULL
 		|| this->master != NULL) {
 		errlog("attempted clear of creature who is still connected to the world.");
 		raise(SIGSEGV);
 	}
 
 	//
-	// first remove and free all alieases
+	// next remove and free all alieases
 	//
 
 	while ((a = GET_ALIASES(this)) != NULL) {
@@ -829,10 +817,17 @@ Creature::clear(void)
 		}
 	}
 
+    //
+    // next remove all the combat this creature might be involved in
+    //
+    removeAllCombat();
+    delete this->char_specials.fighting;
+
 	// At this point, everything should be freed, so we null the entire
 	// structure just to be sure
 	memset((char *)this, 0, sizeof(Creature));
 
+    this->char_specials.fighting = new list<CharCombat>();
 	// And we reset all the values to their initial settings
 	this->setPosition(POS_STANDING);
 	GET_CLASS(this) = -1;
@@ -849,8 +844,10 @@ Creature::clear(void)
 		set_title(this, "");
 	} else {
 		player_specials = &dummy_mob;
+		SET_BIT(MOB_FLAGS(this), MOB_ISNPC);
 		GET_TITLE(this) = NULL;
 	}
+
 }
 
 void
@@ -888,6 +885,7 @@ Creature::restore(void)
 bool
 Creature::rent(void)
 {
+    removeAllCombat();
 	player_specials->rentcode = RENT_RENTED;
 	player_specials->rent_per_day =
 		(GET_LEVEL(this) < LVL_IMMORT) ? calc_daily_rent(this, 1, NULL, NULL):0;
@@ -1020,6 +1018,14 @@ Creature::die(void)
 	obj_data *obj, *next_obj;
 	int pos;
 
+    // Remove any combat this character might have been involved in
+    removeAllCombat();
+
+    CreatureList::iterator ci = combatList.begin();
+    for (; ci != combatList.end(); ++ci) {
+        if ((*ci)->findCombat(this))
+            (*ci)->removeCombat(this);
+    }
 	// If their stuff hasn't been moved out, they dt'd, so we need to dump
 	// their stuff to the room
 	for (pos = 0;pos < NUM_WEARS;pos++) {
@@ -1208,4 +1214,131 @@ Creature::set_reputation(int amt)
 	player_specials->saved.reputation = MIN(1000, MAX(0, amt));
 }
 
+list<CharCombat>* 
+Creature::getCombatList()
+{
+    return char_specials.fighting;
+}
+
+void
+Creature::addCombat(Creature *ch, bool initiated)
+{
+    if (!ch)
+        return;
+
+    if (this == ch)
+        return;
+
+    // If we're already in combat with the victim, move him
+    // to the front of the list
+    list<CharCombat>::iterator li = getCombatList()->begin();
+    for (; li != getCombatList()->end(); ++li) {
+        if (li->getOpponent() == ch) {
+            bool ini = li->getInitiated();
+            getCombatList()->erase(li);
+            getCombatList()->push_front(CharCombat(ch, ini) ); 
+            return;
+        }
+    } 
+
+    getCombatList()->push_back(CharCombat(ch, initiated));
+
+    if (numCombatants() == 1)
+        combatList.add(this);
+}
+
+void
+Creature::removeCombat(Creature *ch)
+{
+    if (!ch)
+        return;
+    list<CharCombat>::iterator li = getCombatList()->begin();
+    for (; li != getCombatList()->end(); ++li) {
+        if (li->getOpponent() == ch) {
+            getCombatList()->erase(li);
+            break;
+        }
+    }
+
+    if (numCombatants() == 0) {
+        remove_fighting_affects(this);
+        combatList.remove(this);
+    }
+}
+
+void
+Creature::removeAllCombat()
+{
+    if (getCombatList()->empty())
+        return;
+
+    list<CharCombat>::iterator li = getCombatList()->begin();
+    for(; li != getCombatList()->end(); ++li) {
+        if (li->getOpponent())
+            li->getOpponent()->removeCombat(this);
+    }
+    getCombatList()->clear();
+
+    remove_fighting_affects(this);
+    combatList.remove(this);
+}
+
+Creature *
+Creature::findCombat(Creature *ch)
+{
+    if (!ch)
+        return NULL;
+
+    list<CharCombat>::iterator li = getCombatList()->begin();
+    for (; li != getCombatList()->end(); ++li) {
+        if (li->getOpponent() == ch)
+            return (li->getOpponent());
+    }   
+
+    return NULL;
+}
+
+// This function checks to see if (this) initiated combat with ch
+bool
+Creature::initiatedCombat(Creature *ch)
+{
+
+    if (ch == NULL)
+        return false;
+
+    list<CharCombat>::iterator li = getCombatList()->begin();
+    for (; li != getCombatList()->end(); ++li) {
+        if (li->getOpponent() == ch)
+            return (li->getInitiated());
+    }   
+
+    return false;
+}
+
+int
+Creature::numCombatants()
+{
+    return getCombatList()->size();
+}
+
+Creature *
+Creature::findRandomCombat()
+{
+
+    if (numCombatants() == 0)
+        return NULL;
+        
+    // Most of the time fighting will be one on one so let's save
+    // the iterator creation and the call to random_fractional_10
+    if (numCombatants() == 1)
+        return getCombatList()->front().getOpponent();
+
+    list<CharCombat>::iterator li = getCombatList()->begin();
+    for (; li != getCombatList()->end(); ++li) {
+       if (!random_fractional_10())
+           return (li->getOpponent()); 
+    }
+
+    return getCombatList()->front().getOpponent();
+}
 #undef __Creature_cc__

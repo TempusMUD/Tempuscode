@@ -13,7 +13,7 @@ SPECIAL(lawyer)
 	int mode, cost = 0;
 	char arg1[MAX_INPUT_LENGTH];
 
-	if (!cmd || FIGHTING(lawy) || IS_NPC(ch))
+	if (!cmd || lawy->numCombatants() || IS_NPC(ch))
 		return 0;
 
 	argument = one_argument(argument, arg1);

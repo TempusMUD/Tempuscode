@@ -11,20 +11,21 @@ SPECIAL(unholy_stalker)
 
 	Creature *mob = (Creature *) me;
 
-	if (!HUNTING(mob) && !FIGHTING(mob)) {
+	if (!HUNTING(mob) && !mob->numCombatants()) {
 		act("$n dematerializes, returning to the negative planes.", TRUE, mob,
 			0, 0, TO_ROOM);
 		mob->purge(true);
 		return 1;
 	}
 
-	if (FIGHTING(mob)) {
+	if (mob->numCombatants()) {
 		if (!number(0, 3)) {
-			call_magic(mob, FIGHTING(mob), 0, SPELL_CHILL_TOUCH,
+			call_magic(mob, mob->findRandomCombat(), 0, SPELL_CHILL_TOUCH,
 				GET_LEVEL(mob) + 10, CAST_SPELL);
 		}
 
-		if (GET_HIT(mob) < 100 && GET_HIT(FIGHTING(mob)) > GET_HIT(mob) &&
+        Creature *vict = mob->findRandomCombat();
+		if (GET_HIT(mob) < 100 && GET_HIT(vict) > GET_HIT(mob) &&
 			!ROOM_FLAGGED(mob->in_room, ROOM_NOMAGIC | ROOM_NORECALL) &&
 			GET_LEVEL(mob) > number(20, 35)) {
 			call_magic(mob, mob, 0, SPELL_LOCAL_TELEPORT, 90, CAST_SPELL);

@@ -7,9 +7,10 @@ SPECIAL(pit_keeper)
 	if (cmd)
 		return 0;
 
-	if (!(vict = FIGHTING(ch)))
+	if (!(ch->numCombatants()))
 		return 0;
 
+    vict = ch->findRandomCombat();
 	if (ch->in_room->number != 17027 &&
 		ch->in_room->number != 17021 &&
 		ch->in_room->number != 17022 &&
@@ -27,8 +28,8 @@ SPECIAL(pit_keeper)
 		act("$n lifts $N and hurls $M into the pit below!", FALSE, ch, 0, vict,
 			TO_NOTVICT);
 		WAIT_STATE(ch, 3 RL_SEC);
-		stop_fighting(vict);
-		stop_fighting(ch);
+        ch->removeCombat(vict);
+        vict->removeCombat(ch);
 		char_from_room(vict, false);
 		char_to_room(vict, ch->in_room->dir_option[DOWN]->to_room, false);
 		act("$n is hurled in from above!", FALSE, vict, 0, 0, TO_ROOM);

@@ -8,6 +8,7 @@ SPECIAL(moloch)
 {
 
 	struct Creature *moloch = (struct Creature *)me;
+    struct Creature *vict = NULL;
 	room_data *targ_room = NULL;
 	int throne_rooms[4] = { 16645, 16692, 16692, 16623 }, index;
 
@@ -17,21 +18,22 @@ SPECIAL(moloch)
 	if (spec_mode != SPECIAL_TICK)
 		return 0;
 
-	if (FIGHTING(moloch) && GET_MOB_WAIT(moloch) <= 0) {
+	if (moloch->numCombatants() && GET_MOB_WAIT(moloch) <= 0) {
+        vict = moloch->findRandomCombat();
 		if (!number(0, 10)) {
-			call_magic(moloch, FIGHTING(moloch), 0, SPELL_FLAME_STRIKE, 50,
+			call_magic(moloch, vict, 0, SPELL_FLAME_STRIKE, 50,
 				CAST_BREATH);
 			return 1;
 		} else if (!number(0, 10)) {
-			call_magic(moloch, FIGHTING(moloch), 0, SPELL_BURNING_HANDS, 50,
+			call_magic(moloch, vict, 0, SPELL_BURNING_HANDS, 50,
 				CAST_SPELL);
 			return 1;
-		} else if (!number(0, 8) && GET_DEX(FIGHTING(moloch)) < number(10, 25)) {
+		} else if (!number(0, 8) && GET_DEX(vict) < number(10, 25)) {
 			act("$n picks you up in his jaws and flails you around!!",
-				FALSE, moloch, 0, FIGHTING(moloch), TO_VICT);
+				FALSE, moloch, 0, vict, TO_VICT);
 			act("$n picks $N up in his jaws and flails $M around!!",
-				FALSE, moloch, 0, FIGHTING(moloch), TO_NOTVICT);
-			damage(moloch, FIGHTING(moloch), dice(30, 29), TYPE_RIP,
+				FALSE, moloch, 0, vict, TO_NOTVICT);
+			damage(moloch, vict, dice(30, 29), TYPE_RIP,
 				WEAR_BODY);
 			WAIT_STATE(moloch, 7 RL_SEC);
 			return 1;
@@ -39,7 +41,7 @@ SPECIAL(moloch)
 		return 0;
 	}
 
-	if (FIGHTING(moloch) || number(0, 20))
+	if (moloch->numCombatants() || number(0, 20))
 		return 0;
 
 	if (ch->in_room->number == throne_rooms[(index = number(0, 3))])

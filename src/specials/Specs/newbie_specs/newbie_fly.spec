@@ -8,7 +8,7 @@ SPECIAL(newbie_fly)
 {
 	if (spec_mode != SPECIAL_CMD && spec_mode != SPECIAL_TICK)
 		return 0;
-	if (cmd || FIGHTING(ch))
+	if (cmd || ch->numCombatants())
 		return 0;
 	CreatureList::iterator it = ch->in_room->people.begin();
 	for (; it != ch->in_room->people.end(); ++it) {

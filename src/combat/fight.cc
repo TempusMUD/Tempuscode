@@ -66,11 +66,6 @@ set_fighting(struct Creature *ch, struct Creature *vict, int aggr)
 	if (ch == vict)
 		return;
 
-	if (FIGHTING(ch)) {
-		errlog("FIGHTING(ch) != NULL in set_fighting().");
-		return;
-	}
-
 	CreatureList::iterator cit;
 	for (cit = ch->in_room->people.begin();
 			cit != ch->in_room->people.end();
@@ -78,7 +73,7 @@ set_fighting(struct Creature *ch, struct Creature *vict, int aggr)
 		if ((*cit) != vict
 				&& (*cit) != ch
 				&& DEFENDING((*cit)) == vict
-				&& !(*cit)->isFighting()
+				&& !(*cit)->numCombatants()
 				&& (*cit)->getPosition() > POS_RESTING) {
 			send_to_char(*cit, "You defend %s from %s's vicious attack!\r\n",
 				PERS(vict, (*cit)), PERS(ch, (*cit)));
@@ -128,7 +123,7 @@ set_fighting(struct Creature *ch, struct Creature *vict, int aggr)
 					FALSE, ch, 0, vict, TO_VICT);
 				slog("%s protected against %s (set_fighting) at %d",
 					GET_NAME(vict), GET_NAME(ch), vict->in_room->number);
-				ch->setFighting(NULL);
+				ch->removeCombat(vict);
 				ch->setPosition(POS_STANDING);
 				return;
 			}
@@ -138,9 +133,8 @@ set_fighting(struct Creature *ch, struct Creature *vict, int aggr)
 	if (DEFENDING(vict) == ch)
 		stop_defending(vict);
 
-	combatList.add(ch);
-
-	ch->setFighting(vict);
+    ch->addCombat(vict, aggr);
+    vict->addCombat(ch, false);
 	update_pos(ch);
 
 	trigger_prog_fight(ch, vict);
@@ -149,13 +143,11 @@ set_fighting(struct Creature *ch, struct Creature *vict, int aggr)
 
 /* 
    corrects position and removes combat related bits.
-   Call ONLY from stop_fighting
+   Call ONLY from removeCombat()/removeAllCombat() 
 */
 void
 remove_fighting_affects(struct Creature *ch)
 {
-	ch->setFighting(NULL);
-
 	if (ch->in_room && ch->in_room->isOpenAir()) {
 		ch->setPosition(POS_FLYING);
 	} else if (!IS_NPC(ch)) {
@@ -176,15 +168,6 @@ remove_fighting_affects(struct Creature *ch)
 
 }
 
-/* remove a char from the list of fighting chars */
-void
-stop_fighting(CreatureList::iterator & cit)
-{
-	struct Creature *ch = *cit;
-	combatList.remove(cit);
-	remove_fighting_affects(ch);
-}
-
 void
 set_defending(Creature *ch, Creature *target)
 {
@@ -199,14 +182,6 @@ set_defending(Creature *ch, Creature *target)
 		false, ch, 0, DEFENDING(ch), TO_VICT);
 	act("$n starts defending $N against attacks.",
 		false, ch, 0, DEFENDING(ch), TO_NOTVICT);
-}
-
-/* remove a char from the list of fighting chars */
-void
-stop_fighting(struct Creature *ch)
-{
-	combatList.remove(ch);
-	remove_fighting_affects(ch);
 }
 
 void
@@ -242,8 +217,7 @@ void
 raw_kill(struct Creature *ch, struct Creature *killer, int attacktype)
 {
 
-	if (FIGHTING(ch))
-		stop_fighting(ch);
+	ch->removeAllCombat();
 
 	if (attacktype != SKILL_GAROTTE)
 		death_cry(ch);
@@ -869,8 +843,8 @@ damage(struct Creature *ch, struct Creature *victim, int dam,
 		mudlog(GET_INVIS_LVL(ch), BRF, true,
 			"%s has attacked %s while writing at %d.", GET_NAME(ch),
 			GET_NAME(victim), ch->in_room->number);
-		stop_fighting(ch);
-		stop_fighting(victim);
+		ch->removeCombat(victim);
+		victim->removeAllCombat();
 		send_to_char(ch, "NO!  Do you want to be ANNIHILATED by the gods?!\r\n");
 		DAM_RETURN(0);
 	}
@@ -929,10 +903,8 @@ damage(struct Creature *ch, struct Creature *victim, int dam,
 				FALSE, ch, 0, victim, TO_VICT);
 			slog("%s protected against %s ( damage ) at %d\n",
 				GET_NAME(victim), GET_NAME(ch), victim->in_room->number);
-			if (victim == FIGHTING(ch))
-				stop_fighting(ch);
-			if (ch == FIGHTING(victim))
-				stop_fighting(victim);
+            victim->removeCombat(ch);
+            ch->removeCombat(victim);
 			DAM_RETURN(DAM_ATTACK_FAILED);
 		}
 
@@ -1677,7 +1649,7 @@ damage(struct Creature *ch, struct Creature *victim, int dam,
 							SKILL_FASTBOOT) >> 5)) RL_SEC);
 		}
 		// check for killer flags right here
-		if (ch != FIGHTING(victim) && !IS_DEFENSE_ATTACK(attacktype)) {
+		if (victim->findCombat(ch) && !IS_DEFENSE_ATTACK(attacktype)) {
 			check_killer(ch, victim, "secondary in damage()");
 		}
 	}
@@ -1795,17 +1767,6 @@ damage(struct Creature *ch, struct Creature *victim, int dam,
 			TRUE, victim, 0, 0, TO_ROOM);
 		send_to_char(victim, 
 			"You are mortally wounded, and will die soon, if not aided.\r\n");
-/*        if (!IS_NPC(ch) && IS_CLERIC(ch) && IS_EVIL(ch) && (CHECK_SKILL(ch, SPELL_DEATH_KNELL) > 90)) {
-			int return_flags = 0;
-
-			stop_fighting(victim);
-			stop_fighting(ch);
-            call_magic(ch, victim, 0, SPELL_DEATH_KNELL, 
-                       GET_LEVEL(ch), CAST_SPELL, &return_flags);
-			DAM_RETURN(return_flags);
-        }
-        victim->setPosition(POS_DEAD);*/
-
 		break;
 
 		// Incapacitated
@@ -1955,7 +1916,7 @@ damage(struct Creature *ch, struct Creature *victim, int dam,
 
 					// ch is initiating an attack ?
 					// only if ch is not "attacking" with a fireshield/energy shield/etc...
-					if (!FIGHTING(ch)) {
+					if (!ch->numCombatants()) {
 
 						// mages casting spells and shooters should be able to attack
 						// without initiating melee ( on their part at least )
@@ -1976,11 +1937,12 @@ damage(struct Creature *ch, struct Creature *victim, int dam,
 							HUNTING(victim) = ch;
 					}
 					// make the victim retailiate against the attacker
-					if (FIGHTING(ch)) {
-						if (!FIGHTING(FIGHTING(ch)))
-							set_fighting(FIGHTING(ch), ch, FALSE);
+					if (ch->numCombatants()) {
+						if (!victim->findCombat(ch))
+							set_fighting(victim, ch, FALSE);
 					} else {
-						if (!FIGHTING(victim) && ch->in_room == victim->in_room)
+						if (!victim->numCombatants() && 
+                            ch->in_room == victim->in_room)
 							set_fighting(victim, ch, FALSE);
 					}
 				}
@@ -1999,8 +1961,8 @@ damage(struct Creature *ch, struct Creature *victim, int dam,
 		act("$n is rescued by divine forces.", FALSE, victim, 0, 0, TO_ROOM);
 		GET_WAS_IN(victim) = victim->in_room;
 		if (ch) {
-			stop_fighting(victim);
-			stop_fighting(ch);
+			victim->removeAllCombat();
+			ch->removeCombat(victim);
 		}
 		char_from_room(victim,false);
 		char_to_room(victim, zone_table->world,false);
@@ -2028,8 +1990,8 @@ damage(struct Creature *ch, struct Creature *victim, int dam,
 	// If victim is asleep, incapacitated, etc.. stop fighting.
 	//
 
-	if (!AWAKE(victim) && FIGHTING(victim))
-		stop_fighting(victim);
+//	if (!AWAKE(victim) && victim->numCombatants())
+//		victim->removeAllCombat();
 
 	//
 	// Victim has been slain, handle all the implications
@@ -2250,8 +2212,8 @@ hit(struct Creature *ch, struct Creature *victim, int type)
 	int retval;
 
 	if (ch->in_room != victim->in_room) {
-		if (FIGHTING(ch) && FIGHTING(ch) == victim)
-			stop_fighting(ch);
+        ch->removeCombat(victim);
+        victim->removeCombat(ch);
 		return 0;
 	}
 
@@ -2283,10 +2245,8 @@ hit(struct Creature *ch, struct Creature *victim, int type)
 		slog("%s protected against %s ( hit ) at %d\n",
 			GET_NAME(victim), GET_NAME(ch), victim->in_room->number);
 
-		if (victim == FIGHTING(ch))
-			stop_fighting(ch);
-		if (ch == FIGHTING(victim))
-			stop_fighting(victim);
+		ch->removeCombat(victim);
+		victim->removeCombat(ch);
 		return 0;
 	}
 
@@ -2620,7 +2580,7 @@ do_casting_weapon(Creature *ch, obj_data *weap)
 				spell_info[GET_OBJ_VAL(weap, 0)].violent ||
 				IS_SET(spell_info[GET_OBJ_VAL(weap, 0)].targets,
 					TAR_UNPLEASANT))
-			call_magic(ch, FIGHTING(ch), 0, GET_OBJ_VAL(weap, 0),
+			call_magic(ch, ch->findRandomCombat(), 0, GET_OBJ_VAL(weap, 0),
 				GET_LEVEL(ch), CAST_WAND);
 		else if (!affected_by_spell(ch, GET_OBJ_VAL(weap, 0)))
 			call_magic(ch, ch, 0, GET_OBJ_VAL(weap, 0), GET_LEVEL(ch),
@@ -2671,24 +2631,37 @@ perform_violence(void)
 
 	register struct Creature *ch;
 	int prob, i, die_roll;
+    list<CharCombat>::iterator li;
+    list<CharCombat>::iterator temp_li;
 
 	CreatureList::iterator cit = combatList.begin();
 	for (; cit != combatList.end(); ++cit) {
 		ch = *cit;
-		if (!ch->in_room || !FIGHTING(ch))
+		if (!ch->in_room || !ch->numCombatants())
 			continue;
-		if (ch == FIGHTING(ch)) {	// intentional crash here.
-			errlog("ch == FIGHTING( ch ) in perform_violence.");
+		if (ch == ch->findCombat(ch)) {	// intentional crash here.
+			errlog("ch == ch->findCombat(ch) in perform_violence.");
 			raise(SIGSEGV);
 		}
 
-		if (FIGHTING(ch) == NULL || ch->in_room != FIGHTING(ch)->in_room ||
-			AFF2_FLAGGED(ch, AFF2_PETRIFIED) ||
+		if (AFF2_FLAGGED(ch, AFF2_PETRIFIED) ||
 			(IS_NPC(ch) && ch->in_room->zone->idle_time >= ZONE_IDLE_TIME)) {
-			stop_fighting(ch);
+            ch->removeAllCombat();
 			continue;
 		}
-
+        
+        li = ch->getCombatList()->begin();
+        while (li != ch->getCombatList()->end()) {
+            if (ch->in_room != li->getOpponent()->in_room) {
+                temp_li = li++;
+                temp_li->getOpponent()->removeCombat(ch);
+                ch->removeCombat(temp_li->getOpponent());    
+            }
+            else {
+                ++li;
+            }
+        }
+        
 		if (IS_NPC(ch)) {
 			if (GET_MOB_WAIT(ch) > 0) {
 				GET_MOB_WAIT(ch) = MAX(GET_MOB_WAIT(ch) - SEG_VIOLENCE, 0);
@@ -2719,14 +2692,17 @@ perform_violence(void)
 					wait : 0),
 				CCNRM(ch, C_NRM));
 		}
-		if (PRF2_FLAGGED(FIGHTING(ch), PRF2_DEBUG)) {
-			send_to_char(FIGHTING(ch),
-				"%s[COMBAT] %s   prob:%d   roll:%d   wait:%d%s\r\n",
-				CCCYN(FIGHTING(ch), C_NRM), GET_NAME(ch), prob, die_roll,
-				IS_NPC(ch) ? GET_MOB_WAIT(ch) : (CHECK_WAIT(ch) ? ch->desc->
-					wait : 0),
-				CCNRM(FIGHTING(ch), C_NRM));
-		}
+        li = ch->getCombatList()->begin();
+        for (; li != ch->getCombatList()->end(); li++) {
+            if (PRF2_FLAGGED(li->getOpponent(), PRF2_DEBUG)) {
+                send_to_char(li->getOpponent(),
+                    "%s[COMBAT] %s   prob:%d   roll:%d   wait:%d%s\r\n",
+                    CCCYN(li->getOpponent(), C_NRM), GET_NAME(ch), prob, die_roll,
+                    IS_NPC(ch) ? GET_MOB_WAIT(ch) : (CHECK_WAIT(ch) ? ch->desc->
+                        wait : 0),
+                    CCNRM(li->getOpponent(), C_NRM));
+            }
+        }
 		//
 		// it's an attack!
 		//
@@ -2736,7 +2712,7 @@ perform_violence(void)
             int retval = -1;
 
 			for (i = 0; i < 4; i++) {
-				if (!FIGHTING(ch) || GET_LEVEL(ch) < (i << 3))
+				if (!ch->numCombatants() || GET_LEVEL(ch) < (i << 3))
 					break;
 				if (ch->getPosition() < POS_FIGHTING) {
 					if (CHECK_WAIT(ch) < 10)
@@ -2749,7 +2725,7 @@ perform_violence(void)
                     if (IS_MERC(ch)) {
                         // Roll the dice to see if the merc gets to shoot his gun this round
                         if (prob > number(1, 101)) {
-                            retval = do_combat_fire(ch, FIGHTING(ch));
+                            retval = do_combat_fire(ch, ch->findRandomCombat());
                             // Either the attacker or the victim was killed
                             if ((retval == 1) || (retval == DAM_VICT_KILLED)) {
                                 stop = true;
@@ -2758,7 +2734,7 @@ perform_violence(void)
                             // the merc passed his test but was unable to fire for some reason.
                             // Whack them with it instead.
                             else if (retval == -1) {
-                                if (hit(ch, FIGHTING(ch), TYPE_UNDEFINED)) {
+                                if (hit(ch, ch->findRandomCombat(), TYPE_UNDEFINED)) {
                                     stop = true;
                                     break;
                                 }
@@ -2766,7 +2742,7 @@ perform_violence(void)
                         }
                         // The merc was too slow.  Can't shoot his gun this round
                         else {
-                            if (hit(ch, FIGHTING(ch), TYPE_UNDEFINED)) {
+                            if (hit(ch, ch->findRandomCombat(), TYPE_UNDEFINED)) {
                                 stop = true;
                                 break;
                             }
@@ -2774,7 +2750,7 @@ perform_violence(void)
                     }
                     // Everyone elses combat loop
                     else {
-                        if (hit(ch, FIGHTING(ch), TYPE_UNDEFINED)) {
+                        if (hit(ch, ch->findRandomCombat(), TYPE_UNDEFINED)) {
                             stop = true;
                             break;
                         }
@@ -2788,7 +2764,7 @@ perform_violence(void)
 			if (IS_CYBORG(ch)) {
 				int implant_prob;
 
-				if (!FIGHTING(ch))
+				if (!ch->numCombatants())
 					continue;
 
 				if (ch->getPosition() < POS_FIGHTING) {
@@ -2809,7 +2785,7 @@ perform_violence(void)
 
 					if (number(0, 100) < implant_prob) {
 						int retval =
-							hit(ch, FIGHTING(ch), SKILL_ADV_IMPLANT_W);
+							hit(ch, ch->findRandomCombat(), SKILL_ADV_IMPLANT_W);
 						/*  No longer needed because of CombatList
 						   if ( IS_SET( retval, DAM_VICT_KILLED ) ) {
 						   next_combat_list = tmp_next_combat_list;
@@ -2820,7 +2796,7 @@ perform_violence(void)
 					}
 				}
 
-				if (!FIGHTING(ch))
+				if (!ch->numCombatants())
 					continue;
 
 				if (IS_NPC(ch) && (GET_REMORT_CLASS(ch) == CLASS_UNDEFINED
@@ -2838,7 +2814,7 @@ perform_violence(void)
 					}
 
 					if (number(0, 100) < implant_prob) {
-						int retval = hit(ch, FIGHTING(ch), SKILL_IMPLANT_W);
+						int retval = hit(ch, ch->findRandomCombat(), SKILL_IMPLANT_W);
 						/*
 						   if ( IS_SET( retval, DAM_VICT_KILLED ) ) {
 						   next_combat_list = tmp_next_combat_list;
@@ -2866,9 +2842,9 @@ perform_violence(void)
 			// rarely enough that nobody should notice
 			//
 
-			if (FIGHTING(ch) == next_combat_list) {
+			if (ch->findRandomCombat() == next_combat_list) {
 				//int retval = 
-				hit(ch, FIGHTING(ch), TYPE_UNDEFINED);
+				hit(ch, ch->findRandomCombat(), TYPE_UNDEFINED);
 				/*
 				   if ( IS_SET( retval, DAM_VICT_KILLED ) )
 				   next_combat_list = tmp_next_combat_list;
@@ -2892,7 +2868,7 @@ perform_violence(void)
 				continue;
 			}
 
-			if (ch->in_room && GET_MOB_WAIT(ch) <= 0 && FIGHTING(ch)) {
+			if (ch->in_room && GET_MOB_WAIT(ch) <= 0 && ch->numCombatants()) {
 
 				//
 				// call mobile_battle_activity, but don't touch next_combat_list

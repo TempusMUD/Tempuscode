@@ -1180,8 +1180,8 @@ ACMD(do_cyborg_reboot)
 	act("$n begins a reboot sequence and shuts down.", FALSE, ch, 0, 0,
 		TO_ROOM);
 
-	if (ch->isFighting())
-		stop_fighting(ch);
+	if (ch->numCombatants())
+		ch->removeAllCombat();
 
 	ch->setPosition(POS_SLEEPING);
 
@@ -1336,8 +1336,8 @@ ACMD(do_discharge)
 
 	if (!(vict = get_char_room_vis(ch, arg2)) &&
 		!(ovict = get_obj_in_list_vis(ch, arg2, ch->in_room->contents))) {
-		if (ch->isFighting()) {
-			vict = ch->getFighting();
+		if (ch->numCombatants()) {
+			vict = ch->findRandomCombat();
 		} else {
 			send_to_char(ch, "Discharge into who?\r\n");
 			return;
@@ -1927,7 +1927,7 @@ ACMD(do_repair)
 			else if (!IS_CYBORG(vict))
 				act("You cannot repair $M.  You can only repair other borgs.",
 					FALSE, ch, 0, vict, TO_CHAR);
-			else if (ch->isFighting())
+			else if (ch->numCombatants())
 				send_to_char(ch, 
 					"You cannot perform repairs on fighting patients.\r\n");
 			else if (GET_HIT(vict) == GET_MAX_HIT(vict))
@@ -3298,8 +3298,8 @@ ACMD(do_de_energize)
 	skip_spaces(&argument);
 
 	if (!(vict = get_char_room_vis(ch, argument))) {
-		if (ch->isFighting()) {
-			vict = ch->getFighting();
+		if (ch->numCombatants()) {
+			vict = ch->findRandomCombat();
 		} else {
 			send_to_char(ch, "De-energize who??\r\n");
 			return;

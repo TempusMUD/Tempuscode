@@ -13,11 +13,11 @@ SPECIAL(spinal)
 	if (spec_mode != SPECIAL_CMD && spec_mode != SPECIAL_TICK)
 		return 0;
 
-	if (FIGHTING(spinal))
+	if (spinal->numCombatants())
 		return 0;
 
 	if (!cmd && spinal->in_room != r_home_pad &&
-		r_home_pad != NULL && !FIGHTING(ch)) {
+		r_home_pad != NULL && !ch->numCombatants()) {
 		act("$n departs suddenly into the deeper ethereal.",
 			FALSE, spinal, 0, 0, TO_ROOM);
 		char_from_room(spinal, false);

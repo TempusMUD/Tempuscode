@@ -184,8 +184,8 @@ breakup_fight(Creature *ch, Creature *vict1, Creature *vict2)
 			
 	}
 
-	stop_fighting(vict1);
-	stop_fighting(vict2);
+	vict1->removeCombat(vict2);
+	vict2->removeCombat(vict1);
 }
 
 int
@@ -354,8 +354,8 @@ knock_unconscious(Creature *ch, Creature *target)
 	// Knock the person out
 	it = target->in_room->people.begin();
 	for (;it != target->in_room->people.end(); it++) {
-		if (FIGHTING((*it)) == target || *it == target)
-			stop_fighting(*it);
+		if ((*it)->findCombat(target) || *it == target)
+			(*it)->removeAllCombat();
 		if (HUNTING((*it)) == target)
 			HUNTING((*it)) = NULL;
 		if (IS_NPC((*it)))
@@ -390,6 +390,23 @@ knock_unconscious(Creature *ch, Creature *target)
 	target->setPosition(POS_SLEEPING);
 	WAIT_STATE(target, 4 RL_SEC);
 	affect_join(target, &af, false, false, false, false);
+}
+
+bool 
+is_fighting_cityguard(Creature *ch)
+{
+    list<CharCombat>::iterator li;
+    
+    if (ch == NULL)
+        return false;
+    li = ch->getCombatList()->begin();
+    for (; li != ch->getCombatList()->end(); ++li) {
+        if (IS_NPC(li->getOpponent()) && 
+            GET_MOB_SPEC(li->getOpponent()) == cityguard)
+            return true;
+    }
+    
+    return false;
 }
 
 SPECIAL(cityguard)
@@ -458,14 +475,14 @@ SPECIAL(cityguard)
 		return false;
 
 	// We're fighting someone - call for help
-	if (FIGHTING(self)) {
-		tch = FIGHTING(self);
+	if (self->numCombatants()) {
+		tch = self->findRandomCombat();
 
 		// Save the newbies from themselves
 		if (GET_LEVEL(tch) < 20 && GET_REMORT_GEN(tch) == 0) {
 			do_say(self, "Here now, here now!  Stop that!", 0, SCMD_BELLOW, 0);
-			stop_fighting(self);
-			stop_fighting(tch);
+			self->removeCombat(tch);
+			tch->removeCombat(self);
 			return true;
 		}
 
@@ -511,10 +528,7 @@ SPECIAL(cityguard)
 	it = self->in_room->people.begin();
 	for (; it != self->in_room->people.end(); ++it) {
 		tch = *it;
-		if (action < 5
-				&& FIGHTING(tch)
-				&& IS_NPC(FIGHTING(tch))
-				&& GET_MOB_SPEC(FIGHTING(tch)) == cityguard) {
+		if (action < 5 && is_fighting_cityguard(tch)) {
 			action = 5;
 			target = tch;
 		}
@@ -539,7 +553,7 @@ SPECIAL(cityguard)
 		if (action < 2
 				&& can_see_creature(self, tch)
 				&& !PRF_FLAGGED(tch, PRF_NOHASSLE)
-				&& FIGHTING(tch)) {
+				&& tch->numCombatants()) {
 			action = 2;
 			target = tch;
 		}
@@ -633,7 +647,7 @@ SPECIAL(cityguard)
 		case 2:
 			do_say(self, "Here now, here now!  Stop that!", 0, SCMD_BELLOW, 0); break;
 		}
-		breakup_fight(self, target, FIGHTING(target));
+		breakup_fight(self, target, target->findRandomCombat());
 		return true;
 	case 3:
 		// drag criminal to jail

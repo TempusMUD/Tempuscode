@@ -57,14 +57,14 @@ SPECIAL(underworld_goddess)
 		it = ch->in_room->people.begin();
 		for (; it != ch->in_room->people.end(); ++it) {
 			vict = *it;
-			if (FIGHTING(vict) == ch && !number(0, 2))
+			if (vict->findCombat(ch) && !number(0, 2))
 				break;
 
 		}
 
 		/* if I didn't pick any of those, then just slam the guy I'm fighting */
 		if (vict == NULL)
-			vict = FIGHTING(ch);
+			vict = ch->findRandomCombat();
 
 		/* if I'm fighting styx, try to teleport him away.  */
 		if (vict == styx) {
@@ -93,7 +93,7 @@ SPECIAL(underworld_goddess)
 		}
 
 		/*  Check to make sure I haven't killed him! */
-		if (ch != FIGHTING(vict))
+		if (vict->findCombat(ch))
 			return 1;
 
 		/* And maybe say something nice! */
@@ -124,7 +124,7 @@ SPECIAL(underworld_goddess)
 		}
 
 		/* If Styx is fighting, send a present to his opponent. */
-		if ((vict = FIGHTING(styx)))
+		if ((vict = styx->findRandomCombat()))
 			switch (number(0, 4)) {
 			case 0:
 				send_to_char(vict, 

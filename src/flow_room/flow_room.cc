@@ -252,7 +252,8 @@ flow_room(int pulse)
 				it = rnum->people.begin();
 				for (; it != rnum->people.end(); ++it) {
 					vict = *it;
-
+                    if (!vict)
+                        continue;
 					if (CHAR_CUR_PULSE(vict) == pulse ||
 						(IS_MOB(vict) &&
 							(MOB2_FLAGGED(vict, MOB2_NO_FLOW) ||

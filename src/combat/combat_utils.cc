@@ -114,7 +114,7 @@ update_pos(struct Creature *victim)
 	// If everything is normal and they're fighting, set them fighting
 	else if (GET_HIT(victim) > 0 &&
 		(victim->getPosition() == POS_STANDING
-			|| victim->getPosition() == POS_FLYING) && FIGHTING(victim)) {
+			|| victim->getPosition() == POS_FLYING) && victim->numCombatants()) {
 #ifdef DEBUG_POSITION
 		if (victim->setPosition(POS_FIGHTING, 1))
 			act("$n moves to POS_FIGHTING.(from standing or flying)",
@@ -126,7 +126,7 @@ update_pos(struct Creature *victim)
 	// (Making mobs stand when they get popped.
 	else if ((GET_HIT(victim) > 0)
 		&& (victim->getPosition() > POS_STUNNED)
-		&& victim->getPosition() < POS_FIGHTING && FIGHTING(victim)) {
+		&& victim->getPosition() < POS_FIGHTING && victim->numCombatants()) {
 		// If they're an npc, and thier wait is 0.
 		if (IS_NPC(victim) && GET_MOB_WAIT(victim) <= 0) {
 			if (victim->getPosition() < POS_FIGHTING) {
@@ -158,7 +158,7 @@ update_pos(struct Creature *victim)
 				victim->setPosition(POS_FLYING, 1);
 			else if (!IS_AFFECTED_3(victim, AFF3_GRAVITY_WELL)
 				&& victim->getPosition() < POS_FIGHTING) {
-				if (FIGHTING(victim)) {
+				if (victim->numCombatants()) {
 					if (victim->setPosition(POS_FIGHTING, 1)) {
 #ifdef DEBUG_POSITION
 						act("$n moves to POS_FIGHTING.(B1)", TRUE, victim, 0,
@@ -182,7 +182,7 @@ update_pos(struct Creature *victim)
 				}
 			} else if (number(1, 20) < GET_STR(victim)
 				&& victim->getPosition() < POS_FIGHTING) {
-				if (FIGHTING(victim)) {
+				if (victim->numCombatants()) {
 					if (victim->setPosition(POS_FIGHTING, 1)) {
 #ifdef DEBUG_POSITION
 						act("$n moves to POS_FIGHTING.(C1)", TRUE, victim, 0,
@@ -1663,7 +1663,7 @@ int calculate_attack_probability(struct Creature *ch)
     if (GET_EQ(ch, WEAR_HANDS))
         prob = calculate_weapon_probability(ch, prob, GET_EQ(ch, WEAR_HANDS));
 
-    prob += ((POS_FIGHTING - (FIGHTING(ch))->getPosition()) << 1);
+    prob += (POS_FIGHTING - (ch->findRandomCombat()->getPosition()) << 1);
 
     if (CHECK_SKILL(ch, SKILL_DBL_ATTACK))
         prob += (int)((CHECK_SKILL(ch, SKILL_DBL_ATTACK) * 0.15) +

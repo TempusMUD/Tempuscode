@@ -117,7 +117,7 @@ find_guard(struct Creature *chAtChar)
 
 	CreatureList::iterator it = chAtChar->in_room->people.begin();
 	for (; it != chAtChar->in_room->people.end(); ++it) {
-		if (!FIGHTING((*it)) && member_of_royal_guard((*it)))
+		if (!(*it)->numCombatants() && member_of_royal_guard((*it)))
 			return (*it);
 	}
 	return NULL;
@@ -135,7 +135,7 @@ get_victim(struct Creature *chAtChar)
 	int iNum_bad_guys = 0, iVictim;
 	CreatureList::iterator it = chAtChar->in_room->people.begin();
 	for (; it != chAtChar->in_room->people.end(); ++it) {
-		if (FIGHTING((*it)) && member_of_staff(FIGHTING((*it))))
+		if ((*it)->numCombatants() && member_of_staff((*it)->findRandomCombat()))
 			iNum_bad_guys++;
 	}
 	if (!iNum_bad_guys)
@@ -148,8 +148,9 @@ get_victim(struct Creature *chAtChar)
 	iNum_bad_guys = 0;
 	it = chAtChar->in_room->people.begin();
 	for (; it != chAtChar->in_room->people.end(); ++it) {
-		if (FIGHTING((*it)) &&
-			member_of_staff(FIGHTING((*it))) && ++iNum_bad_guys == iVictim)
+		if ((*it)->numCombatants() &&
+			member_of_staff((*it)->findRandomCombat()) && 
+            ++iNum_bad_guys == iVictim)
 			return (*it);
 	}
 	return NULL;
@@ -187,7 +188,7 @@ do_npc_rescue(struct Creature *ch_hero, struct Creature *ch_victim)
 	struct Creature *ch_bad_guy = NULL;
 	CreatureList::iterator it = ch_hero->in_room->people.begin();
 	for (; it != ch_hero->in_room->people.end(); ++it) {
-		if (FIGHTING((*it)) == ch_victim)
+		if ((*it)->findCombat(ch_victim))
 			ch_bad_guy = *it;
 	}
 	if (ch_bad_guy) {
@@ -200,13 +201,10 @@ do_npc_rescue(struct Creature *ch_hero, struct Creature *ch_victim)
 		act("$n heroically rescues $N.", FALSE, ch_hero, 0, ch_victim,
 			TO_NOTVICT);
 
-		if (FIGHTING(ch_bad_guy))
-			stop_fighting(ch_bad_guy);
-		if (FIGHTING(ch_hero))
-			stop_fighting(ch_hero);
+		ch_bad_guy->removeCombat(ch_victim);
+        ch_victim->removeCombat(ch_bad_guy);
 
 		set_fighting(ch_hero, ch_bad_guy, TRUE);
-		set_fighting(ch_bad_guy, ch_hero, TRUE);
 		return TRUE;
 	}
 	return FALSE;
@@ -456,7 +454,7 @@ SPECIAL(training_master)
 	if (!banzaii(ch) && !number(0, 2)) {
 		if ((pupil1 = find_npc_by_name(ch, "Brian", 5)) &&
 			(pupil2 = find_npc_by_name(ch, "Mick", 4)) &&
-			(!FIGHTING(pupil1) && !FIGHTING(pupil2))) {
+			(!pupil1->numCombatants() && !pupil2->numCombatants())) {
 			if (number(0, 1)) {
 				tch = pupil1;
 				pupil1 = pupil2;
@@ -555,12 +553,12 @@ SPECIAL(tom)
 	if ((!cmd) && (king = find_npc_by_name(ch, "Duke Araken", 11))) {
 		if (!ch->master)
 			do_follow(ch, "Duke Araken", 0, 0, 0);
-		if (FIGHTING(king))
+		if (king->numCombatants())
 			do_npc_rescue(ch, king);
 	}
 	if (!cmd)
 		if ((tim = find_npc_by_name(ch, "Tim", 3)))
-			if (FIGHTING(tim) && 2 * GET_HIT(tim) < GET_HIT(ch))
+			if (tim->numCombatants() && 2 * GET_HIT(tim) < GET_HIT(ch))
 				do_npc_rescue(ch, tim);
 
 	if (!cmd && ch->getPosition() != POS_FIGHTING)
@@ -586,12 +584,12 @@ SPECIAL(tim)
 	if ((!cmd) && (king = find_npc_by_name(ch, "Duke Araken", 11))) {
 		if (!ch->master)
 			do_follow(ch, "Duke Araken", 0, 0, 0);
-		if (FIGHTING(king))
+		if (king->numCombatants())
 			do_npc_rescue(ch, king);
 	}
 	if (!cmd)
 		if ((tom = find_npc_by_name(ch, "Tom", 3)))
-			if (FIGHTING(tom) && 2 * GET_HIT(tom) < GET_HIT(ch))
+			if (tom->numCombatants() && 2 * GET_HIT(tom) < GET_HIT(ch))
 				do_npc_rescue(ch, tom);
 
 	if (!cmd && ch->getPosition() != POS_FIGHTING)
@@ -756,7 +754,7 @@ SPECIAL(armory_person)
 	if (!cmd || IS_NPC(ch))
 		return FALSE;
 
-	if (!can_see_creature(guard, ch) || FIGHTING(guard))
+	if (!can_see_creature(guard, ch) || guard->numCombatants())
 		return FALSE;
 
 	act("$n screams, 'This is a RESTRICTED AREA!!!'", FALSE, guard, 0, 0,
@@ -852,7 +850,7 @@ SPECIAL(jerry)
 	if (!banzaii(ch) && !number(0, 2)) {
 		if ((gambler1 = ch) &&
 			(gambler2 = find_npc_by_name(ch, "Michael", 7)) &&
-			(!FIGHTING(gambler1) && !FIGHTING(gambler2))) {
+			(!gambler1->numCombatants() && !gambler2->numCombatants())) {
 			if (number(0, 1)) {
 				tch = gambler1;
 				gambler1 = gambler2;

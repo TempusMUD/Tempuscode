@@ -15,9 +15,10 @@ SPECIAL(duke_nukem)
 		return 0;
 
 
-	if (FIGHTING(duke)) {
+	if (duke->numCombatants()) {
+        vict = duke->findRandomCombat();
 		if (GET_HIT(duke) > (GET_MAX_HIT(duke) >> 2) &&
-			GET_HIT(FIGHTING(duke)) < (GET_MAX_HIT(FIGHTING(duke)) >> 1)) {
+			GET_HIT(vict) < (GET_MAX_HIT(vict) >> 1)) {
 			if (!number(0, 10))
 				do_say(duke, "You're an inspiration for birth control.", 0, 0, 0);
 			else if (!number(0, 10))
@@ -30,11 +31,11 @@ SPECIAL(duke_nukem)
 				do_say(duke, "Eat shit and die.", 0, 0, 0);
 			else if (!number(0, 10))
 				do_say(duke, "Blow it out your ass.", 0, 0, 0);
-			else if (IS_MALE(FIGHTING(duke)) && !number(0, 10))
+			else if (IS_MALE(vict) && !number(0, 10))
 				do_say(duke, "Die, you son of a bitch.", 0, 0, 0);
-			else if (IS_FEMALE(FIGHTING(duke)) && !number(0, 10))
+			else if (IS_FEMALE(vict) && !number(0, 10))
 				do_say(duke, "Shake it baby.", 0, 0, 0);
-			else if (GET_HIT(FIGHTING(duke)) < 50)
+			else if (GET_HIT(vict) < 50)
 				do_say(duke, "Game Over.", 0, 0, 0);
 		}
 		return 0;
@@ -58,7 +59,7 @@ SPECIAL(duke_nukem)
 			vict = *it;
 			if (vict == duke || !can_see_creature(duke, vict))
 				continue;
-			if (GET_LEVEL(vict) > 40 && !FIGHTING(vict) &&
+			if (GET_LEVEL(vict) > 40 && !vict->numCombatants() &&
 				!PRF_FLAGGED(vict, PRF_NOHASSLE)) {
 				best_attack(duke, vict);
 				return 1;

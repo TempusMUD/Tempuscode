@@ -17,7 +17,7 @@ SPECIAL(watchdog)
 	if (spec_mode != SPECIAL_CMD && spec_mode != SPECIAL_TICK)
 		return 0;
 
-	if (cmd || !AWAKE(dog) || FIGHTING(dog))
+	if (cmd || !AWAKE(dog) || dog->numCombatants())
 		return 0;
 
 	for (it = dog->in_room->people.begin(); it != ch->in_room->people.end();

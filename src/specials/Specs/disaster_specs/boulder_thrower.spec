@@ -32,7 +32,8 @@ SPECIAL(boulder_thrower)
 	if (cmd || !AWAKE(ch))
 		return 0;
 
-	if (FIGHTING(ch) && can_see_creature(ch, FIGHTING(ch))) {
+    Creature *vict = ch->findRandomCombat();
+	if (vict && can_see_creature(ch, vict)) {
 		// are we wielding a throwable weapon?
 		if ((obj = GET_EQ(ch, WEAR_WIELD)) && THROW_OK(obj)) {
 			tmp_obj = obj;
@@ -59,7 +60,7 @@ SPECIAL(boulder_thrower)
 
 			char *str = tmp_sprintf("%s %s", 
                                     fname(obj->aliases),
-                                    fname(FIGHTING(ch)->player.name) );
+                                    fname(vict->player.name) );
 			do_throw(ch, str, 0, 0, 0);
 			return 1;
 		}

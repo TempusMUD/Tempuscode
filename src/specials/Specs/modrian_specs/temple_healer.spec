@@ -6,19 +6,21 @@
 
 SPECIAL(temple_healer)
 {
-	Creature *self = (Creature *)me;
+	Creature *self = (Creature *)me, *target;
 	struct Creature *vict;
 	int found = 0;
 
 	if (spec_mode != SPECIAL_TICK)
 		return false;
 
-	if (self->getPosition() == POS_FIGHTING && FIGHTING(self) &&
-		FIGHTING(self)->in_room == self->in_room) {
+    if (self->numCombatants())
+       target = self->findRandomCombat();
+        
+	if (target->in_room == self->in_room) {
 		switch (number(0, 20)) {
 		case 0:
 			do_say(self, "Now you pay!!", 0, 0, 0);
-			cast_spell(self, FIGHTING(self), NULL, SPELL_FLAME_STRIKE);
+			cast_spell(self, target, NULL, SPELL_FLAME_STRIKE);
 			return true;
 		case 1:
 		case 2:
@@ -39,7 +41,7 @@ SPECIAL(temple_healer)
 		return false;
 	}
 
-	if (self->getPosition() != POS_FIGHTING && !FIGHTING(self)) {
+	if (self->getPosition() != POS_FIGHTING && !self->numCombatants()) {
 		switch (number(0, 18)) {
 		case 0:
 			do_say(self, "Rest here, adventurer.  Your wounds will be tended.",

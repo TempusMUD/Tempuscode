@@ -52,7 +52,7 @@ SPECIAL(fate)
 		fate->in_room->zone->idle_time = 0;
 	}
 
-	if (FIGHTING(fate))
+	if (fate->numCombatants())
 		return 0;
 	if (!fate->in_room)
 		return 0;

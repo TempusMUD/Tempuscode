@@ -15,7 +15,7 @@ SPECIAL(rust_monster)
 	if (spec_mode != SPECIAL_CMD && spec_mode != SPECIAL_TICK)
 		return 0;
 
-	if (!FIGHTING(ch)) {
+	if (!ch->numCombatants()) {
 
 		for (obj = ch->in_room->contents; obj; obj = obj->next_content) {
 
@@ -57,17 +57,18 @@ SPECIAL(rust_monster)
 		i = number(2, NUM_WEARS - 2);
 		count++;
 
-		if ((!(obj = GET_EQ(FIGHTING(ch), i)) &&
-				!(obj = GET_EQ(FIGHTING(ch), i - 1)) &&
-				!(obj = GET_EQ(FIGHTING(ch), i + 1)) &&
-				!(obj = GET_EQ(FIGHTING(ch), i - 2)) &&
-				!(obj = GET_EQ(FIGHTING(ch), i + 2))) ||
+        Creature *vict = ch->findRandomCombat();
+		if ((!(obj = GET_EQ(vict, i)) &&
+				!(obj = GET_EQ(vict, i - 1)) &&
+				!(obj = GET_EQ(vict, i + 1)) &&
+				!(obj = GET_EQ(vict, i - 2)) &&
+				!(obj = GET_EQ(vict, i + 2))) ||
 			!IS_FERROUS(obj) || !number(0, 2))
 			continue;
 
-		act("$n flays $p with $s antennae.", TRUE, ch, obj, FIGHTING(ch),
+		act("$n flays $p with $s antennae.", TRUE, ch, obj, vict,
 			TO_VICT);
-		act("$n flays $N with $s antennae.", TRUE, ch, obj, FIGHTING(ch),
+		act("$n flays $N with $s antennae.", TRUE, ch, obj, vict,
 			TO_NOTVICT);
 
 		if ((!IS_OBJ_STAT(obj, ITEM_MAGIC) ||

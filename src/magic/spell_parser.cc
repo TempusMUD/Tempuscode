@@ -1731,7 +1731,7 @@ cast_spell(struct Creature *ch, struct Creature *tch,
 
 	if (tch && ch != tch && IS_NPC(tch) &&
 		ch->in_room == tch->in_room &&
-		SINFO.violent && !FIGHTING(tch) && tch->getPosition() > POS_SLEEPING &&
+		SINFO.violent && !tch->numCombatants() && tch->getPosition() > POS_SLEEPING &&
 		(!AFF_FLAGGED(tch, AFF_CHARM) || ch != tch->master)) {
 		int my_return_flags = hit(tch, ch, TYPE_UNDEFINED);
 
@@ -1911,13 +1911,13 @@ find_spell_targets(struct Creature *ch, char *argument,
 
 	} else {					/* if target string is empty */
 		if (!*target && IS_SET(SINFO.targets, TAR_FIGHT_SELF))
-			if (FIGHTING(ch) != NULL) {
+			if (ch->numCombatants()) {
 				*tch = ch;
 				*target = TRUE;
 			}
 		if (!*target && IS_SET(SINFO.targets, TAR_FIGHT_VICT))
-			if (FIGHTING(ch) != NULL) {
-				*tch = FIGHTING(ch);
+			if (ch->numCombatants()) {
+				*tch = ch->findRandomCombat();
 				*target = TRUE;
 			}
 		/* if no target specified, 
@@ -2114,8 +2114,8 @@ ACMD(do_cast)
 
 	prob -= (NUM_WEARS - num_eq);
 
-	if (FIGHTING(ch) && (FIGHTING(ch))->getPosition() == POS_FIGHTING)
-		prob += (GET_LEVEL(FIGHTING(ch)) >> 3);
+	if (tch->getPosition() == POS_FIGHTING)
+		prob += (GET_LEVEL(tch) >> 3);
 
 	/**** casting probability ends here *****/
 
@@ -2303,8 +2303,8 @@ ACMD(do_trigger)
 
 	prob -= ((IS_CARRYING_W(ch) + IS_WEARING_W(ch)) << 3) / CAN_CARRY_W(ch);
 
-	if (FIGHTING(ch) && (FIGHTING(ch))->getPosition() == POS_FIGHTING)
-		prob -= (GET_LEVEL(FIGHTING(ch)) >> 3);
+	if (tch->getPosition() == POS_FIGHTING)
+		prob -= (GET_LEVEL(tch) >> 3);
 
 	/**** casting probability ends here *****/
 

@@ -9,7 +9,7 @@ SPECIAL(cyber_cock)
 	if (cmd)
 		return 0;
 
-	if (!FIGHTING(ch)) {
+	if (!ch->numCombatants()) {
 		switch (number(0, 40)) {
 		case 0:
 			act("$n scratches the ground with $s metal claw.", TRUE, ch, 0, 0,
@@ -28,9 +28,10 @@ SPECIAL(cyber_cock)
 			return 0;
 		}
 	}
+    Creature *vict = ch->findRandomCombat();
 	switch (number(0, 16)) {
 	case 0:
-		act("$n leaps into the air, stubby chrone wings flapping!", TRUE, ch,
+		act("$n leaps into the air, stubby chrome wings flapping!", TRUE, ch,
 			0, 0, TO_ROOM);
 		send_to_char(ch, "You leap.\r\n");
 		return 1;
@@ -38,9 +39,9 @@ SPECIAL(cyber_cock)
 		send_to_room("Oil sprays everywhere!\r\n", ch->in_room);
 		return 1;
 	case 2:
-		act("$N screams as $E attacks you!", FALSE, FIGHTING(ch), 0, ch,
+		act("$N screams as $E attacks you!", FALSE, vict, 0, ch,
 			TO_CHAR);
-		act("$N screams as $E attacks $n!", FALSE, FIGHTING(ch), 0, ch,
+		act("$N screams as $E attacks $n!", FALSE, vict, 0, ch,
 			TO_ROOM);
 		return 1;
 	default:

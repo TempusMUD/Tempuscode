@@ -12,7 +12,7 @@ SPECIAL(grandmaster)
 		return 0;
 	}
 
-	if (!FIGHTING(ch)) {
+	if (!ch->numCombatants()) {
 		switch (number(0, 25)) {
 		case 0:
 			act("$n performs a spinning jump kick.", TRUE, ch, 0, 0, TO_ROOM);
@@ -42,38 +42,39 @@ SPECIAL(grandmaster)
 		return 1;
 	}
 
+    Creature *vict = ch->findRandomCombat();
 	switch (number(0, 12)) {
 	case 0:
-		act("$N whacks you with a spinning backfist!", FALSE, FIGHTING(ch), 0,
+		act("$N whacks you with a spinning backfist!", FALSE, vict, 0,
 			ch, TO_CHAR);
-		act("$N whacks $n with a spinning backfist!", FALSE, FIGHTING(ch), 0,
+		act("$N whacks $n with a spinning backfist!", FALSE, vict, 0,
 			ch, TO_ROOM);
 		break;
 	case 1:
 		act("$N leaps through the air, kicking you in the head!", FALSE,
-			FIGHTING(ch), 0, ch, TO_CHAR);
+			vict, 0, ch, TO_CHAR);
 		act("$N leaps through the air, kicking $n in the head!", FALSE,
-			FIGHTING(ch), 0, ch, TO_ROOM);
+			vict, 0, ch, TO_ROOM);
 		break;
 	case 2:
-		if ((FIGHTING(ch))->getPosition() == POS_FIGHTING) {
-			act("$N trips you, sending you staggering!", FALSE, FIGHTING(ch),
+		if ((vict)->getPosition() == POS_FIGHTING) {
+			act("$N trips you, sending you staggering!", FALSE, vict,
 				0, ch, TO_CHAR);
 			act("$N trips $n, who staggers across the room!", TRUE,
-				FIGHTING(ch), 0, ch, TO_ROOM);
-			(FIGHTING(ch))->setPosition(POS_SITTING);
+				vict, 0, ch, TO_ROOM);
+			(vict)->setPosition(POS_SITTING);
 		}
 		break;
 	case 3:
-		act("$N drops into a split, dodging your attack.", TRUE, FIGHTING(ch),
+		act("$N drops into a split, dodging your attack.", TRUE, vict,
 			0, ch, TO_CHAR);
-		act("$N drops into a split, dodging $n's attack.", TRUE, FIGHTING(ch),
+		act("$N drops into a split, dodging $n's attack.", TRUE, vict,
 			0, ch, TO_ROOM);
 		break;
 	case 4:
-		act("$N punches you in the throat!", FALSE, FIGHTING(ch), 0, ch,
+		act("$N punches you in the throat!", FALSE, vict, 0, ch,
 			TO_CHAR);
-		act("$N punches $n in the throat!", FALSE, FIGHTING(ch), 0, ch,
+		act("$N punches $n in the throat!", FALSE, vict, 0, ch,
 			TO_ROOM);
 		break;
 	default:

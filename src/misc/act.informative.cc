@@ -805,13 +805,13 @@ desc_one_char(Creature *ch, Creature *i, bool is_group)
 		else
 			desc = tmp_strcat(tmp_capitalize(desc), " exists here.");
 	} else if (i->getPosition() == POS_FIGHTING) {
-		if (!i->getFighting())
+		if (!i->numCombatants())
 			desc = tmp_sprintf("%s is here, fighting thin air!", desc);
-		else if (i->getFighting() == ch)
+		else if (i->findRandomCombat() == ch)
 			desc = tmp_sprintf("%s is here, fighting YOU!", desc);
-		else if (i->getFighting()->in_room == i->in_room)
+		else if (i->findRandomCombat()->in_room == i->in_room)
 			desc = tmp_sprintf("%s is here, fighting %s!", desc,
-				PERS(i->getFighting(), ch));
+				PERS(i->findRandomCombat(), ch));
 		else
 			desc = tmp_sprintf("%s is here, fighting someone who already left!",
 				desc);
@@ -1821,7 +1821,7 @@ glance_at_target(struct Creature *ch, char *arg, int cmd)
 				act("$n glances sidelong at $N.", TRUE, ch, 0, found_char,
 					TO_NOTVICT);
 
-				if (IS_NPC(found_char) && !(found_char->isFighting())
+				if (IS_NPC(found_char) && !(found_char->numCombatants())
 					&& AWAKE(found_char) && (!found_char->master
 						|| found_char->master != ch)) {
 					if (IS_ANIMAL(found_char) || IS_BUGBEAR(found_char)
@@ -1894,7 +1894,7 @@ ACMD(do_listen)
 	}
 	CreatureList::iterator it = ch->in_room->people.begin();
 	for (; it != ch->in_room->people.end(); ++it) {
-		if ((*it)->isFighting()) {
+		if ((*it)->numCombatants()) {
 			fighting_vict = *it;
 			break;
 		}
@@ -1991,7 +1991,7 @@ ACMD(do_listen)
 						ch->in_room->dir_option[i]->to_room->people.begin();
 					for (; it != end; ++it) {
 						fighting_vict = *it;
-						if ((fighting_vict->isFighting()))
+						if ((fighting_vict->numCombatants()))
 							break;
 					}
 					if (fighting_vict && !number(0, 1)) {
@@ -2692,9 +2692,9 @@ ACMD(do_score)
 				CCNRM(ch, C_NRM), "\r\n", NULL);
 		break;
 	case POS_FIGHTING:
-		if ((ch->isFighting()))
+		if ((ch->numCombatants()))
 			acc_strcat(CCYEL(ch, C_NRM),
-				"You are fighting ", PERS(ch->getFighting(), ch), ".",
+				"You are fighting ", PERS(ch->findRandomCombat(), ch), ".",
 				CCNRM(ch, C_NRM), "\r\n", NULL);
 		else
 			acc_strcat(CCYEL(ch, C_NRM),
@@ -4303,8 +4303,8 @@ ACMD(do_diagnose)
 		} else
 			diag_char_to_char(vict, ch);
 	} else {
-		if (ch->isFighting())
-			diag_char_to_char(ch->getFighting(), ch);
+		if (ch->numCombatants())
+			diag_char_to_char(ch->findRandomCombat(), ch);
 		else
 			send_to_char(ch, "Diagnose who?\r\n");
 	}

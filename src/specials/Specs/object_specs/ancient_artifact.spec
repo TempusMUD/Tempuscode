@@ -4,7 +4,7 @@ SPECIAL(ancient_artifact)
 {
 	obj_data *obj = (obj_data *) me;
 
-	if (spec_mode != SPECIAL_COMBAT || !FIGHTING(ch))
+	if (spec_mode != SPECIAL_COMBAT || !ch->numCombatants())
 		return 0;
 
 	// Same algorithm as do_casting_objon uses
@@ -20,9 +20,10 @@ SPECIAL(ancient_artifact)
 		send_to_char(ch, CCNRM(ch, C_NRM));
 		act(buf, TRUE, ch, obj, 0, TO_ROOM);
 		strcpy(buf, "$N screams silently as $E briefly fades from existence!");
-		act(buf, FALSE, ch, obj, FIGHTING(ch), TO_CHAR);
-		act(buf, TRUE, ch, obj, FIGHTING(ch), TO_ROOM);
-		GET_HIT(FIGHTING(ch)) -= GET_HIT(FIGHTING(ch)) / 10;
+		act(buf, FALSE, ch, obj, ch->findRandomCombat(), TO_CHAR);
+		act(buf, TRUE, ch, obj, ch->findRandomCombat(), TO_ROOM);
+        Creature *target = ch->findRandomCombat();
+		GET_HIT(target) -= GET_HIT(target) / 10;
 	} else if (number(0, 99)) {
 		strcpy(buf, "$p rumbles disquietingly in your hands.");
 		send_to_char(ch, CCCYN(ch, C_NRM));

@@ -8,7 +8,7 @@ SPECIAL(new_mavernal_talker)
 {
 	char tmpstr[80];
 
-	if (cmd || FIGHTING(ch) || !AWAKE(ch))
+	if (cmd || ch->numCombatants() || !AWAKE(ch))
 		return 0;
 	if (spec_mode != SPECIAL_ENTER && spec_mode != SPECIAL_TICK)
 		return 0;

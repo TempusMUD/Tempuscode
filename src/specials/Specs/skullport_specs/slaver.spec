@@ -23,7 +23,7 @@ SPECIAL(slaver)
 	if (!r_pit_lip || !r_slave_pit)
 		return 0;
 
-	if (!FIGHTING(slaver)) {
+	if (!slaver->numCombatants()) {
 
 		CreatureList::iterator it = slaver->in_room->people.begin();
 		for (; it != slaver->in_room->people.end(); ++it) {
@@ -38,8 +38,8 @@ SPECIAL(slaver)
 						FALSE, slaver, 0, vict, TO_VICT);
 					act("$n hurls $N headfirst into the slave pit!",
 						FALSE, slaver, 0, vict, TO_NOTVICT);
-					stop_fighting(slaver);
-					stop_fighting(vict);
+					slaver->removeCombat(vict);
+					vict->removeCombat(slaver);
 					char_from_room(vict, false);
 					char_to_room(vict, r_slave_pit, false);
 					look_at_room(vict, vict->in_room, 1);
@@ -53,7 +53,7 @@ SPECIAL(slaver)
 		return 0;
 	}
 
-	if (!(vict = FIGHTING(slaver)) ||
+	if (!(vict = slaver->findRandomCombat()) ||
 		PRF_FLAGGED(vict, PRF_NOHASSLE) || !can_see_creature(slaver, vict))
 		return 0;
 
@@ -64,8 +64,8 @@ SPECIAL(slaver)
 				FALSE, slaver, 0, vict, TO_VICT);
 			act("$n hurls $N headfirst into the slave pit!",
 				FALSE, slaver, 0, vict, TO_NOTVICT);
-			stop_fighting(slaver);
-			stop_fighting(vict);
+			slaver->removeCombat(vict);
+			vict->removeCombat(slaver);
 			char_from_room(vict, false);
 			char_to_room(vict, r_slave_pit, false);
 			look_at_room(vict, vict->in_room, 1);

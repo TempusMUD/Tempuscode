@@ -37,8 +37,8 @@ ACMD(do_pistolwhip)
 	one_argument(argument, arg);
 
 	if (!(vict = get_char_room_vis(ch, arg))) {
-		if (ch->isFighting()) {
-			vict = ch->getFighting();
+		if (ch->numCombatants()) {
+			vict = ch->findRandomCombat();
 		} else if ((ovict =
 				get_obj_in_list_vis(ch, arg, ch->in_room->contents))) {
 			act("You pistolwhip $p!", FALSE, ch, ovict, 0, TO_CHAR);
@@ -101,8 +101,8 @@ ACMD(do_crossface)
 	one_argument(argument, arg);
 
 	if (!(vict = get_char_room_vis(ch, arg))) {
-		if (ch->getFighting()) {
-			vict = ch->getFighting();
+		if (ch->findRandomCombat()) {
+			vict = ch->findRandomCombat();
 		} else if ((ovict =
 				get_obj_in_list_vis(ch, arg, ch->in_room->contents))) {
 			act("You fiercely crossface $p!", FALSE, ch, ovict, 0, TO_CHAR);
@@ -185,9 +185,9 @@ ACMD(do_crossface)
 				!IS_SET(retval, DAM_ATTACKER_KILLED)) {
 				if (!IS_NPC(vict) || (IS_NPC(vict) &&
 						!MOB2_FLAGGED(vict, MOB2_NOSTUN))
-					&& ch->getFighting()) {
-					stop_fighting(ch);
-					stop_fighting(vict);
+					&& ch->numCombatants()) {
+					ch->removeCombat(vict);
+					vict->removeAllCombat();
 					vict->setPosition(POS_STUNNED);
 					act("Your crossface has knocked $N senseless!",
 						TRUE, ch, NULL, vict, TO_CHAR);
@@ -204,7 +204,7 @@ ACMD(do_crossface)
 			retval = damage(ch, vict, dam, SKILL_CROSSFACE, wear_num);
 			if ((prev_pos != POS_RESTING && prev_pos != POS_STUNNED)
 				&& !IS_SET(retval, DAM_VICT_KILLED) &&
-				!IS_SET(retval, DAM_ATTACKER_KILLED) && ch->getFighting()) {
+				!IS_SET(retval, DAM_ATTACKER_KILLED) && ch->numCombatants()) {
 				vict->setPosition(POS_RESTING);
 				act("Your crossface has knocked $N on his ass!",
 					TRUE, ch, NULL, vict, TO_CHAR);
@@ -219,7 +219,7 @@ ACMD(do_crossface)
 		else if (diff >= 20) {
 			retval = damage(ch, vict, dam >> 1, SKILL_CROSSFACE, wear_num);
 			if (wear && !IS_SET(retval, DAM_VICT_KILLED) &&
-				!IS_SET(retval, DAM_ATTACKER_KILLED) && ch->getFighting()) {
+				!IS_SET(retval, DAM_ATTACKER_KILLED) && ch->numCombatants()) {
 				act("Your crossface has knocked $N's $p from his head!",
 					TRUE, ch, wear, vict, TO_CHAR);
 				act("$n's nasty crossface just knocked $p from $N's head!",
@@ -373,8 +373,8 @@ ACMD(do_snipe)
 	}
 	// if vict is fighting someone you have a 50% chance of hitting the person
 	// vict is fighting
-	if ((vict->isFighting()) && (number(0, 1))) {
-		vict = (vict->getFighting());
+	if ((vict->numCombatants()) && (number(0, 1))) {
+		vict = (vict->findRandomCombat());
 	}
 	// Has vict been sniped once and is vict a sentinel mob?
 	if ((MOB_FLAGGED(vict, MOB_SENTINEL)) &&
@@ -460,8 +460,8 @@ ACMD(do_snipe)
 		}
 		// ch and vict really shouldn't be fighting if they aren't in
 		// the same room...
-		stop_fighting(ch);
-		stop_fighting(vict);
+		ch->removeCombat(vict);
+		vict->removeCombat(ch);
 		send_to_char(ch, "Damn!  You missed!\r\n");
 		act("$n fires $p to the %s, and a look of irritation crosses $s face.",
 			TRUE, ch, gun, vict, TO_ROOM);
@@ -562,8 +562,8 @@ ACMD(do_wrench)
 	one_argument(argument, arg);
 
 	if (!(vict = get_char_room_vis(ch, arg))) {
-		if (ch->isFighting()) {
-			vict = (ch->getFighting());
+		if (ch->numCombatants()) {
+			vict = (ch->findRandomCombat());
 		} else if ((ovict =
 				get_obj_in_list_vis(ch, arg, ch->in_room->contents))) {
 			act("You fiercly wrench $p!", FALSE, ch, ovict, 0, TO_CHAR);
@@ -611,7 +611,7 @@ ACMD(do_wrench)
 		dam += dam / 2;
 	}
 
-	if (!(ch->isFighting()) && !(vict->isFighting())) {
+	if (!(ch->numCombatants()) && !(vict->numCombatants())) {
 		dam += dam / 3;
 	}
 

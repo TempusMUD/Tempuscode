@@ -32,7 +32,7 @@ SPECIAL(hell_regulator)
 			continue;
 
 		// REGULATOR doesn't want anyone attacking him
-		if (ch == FIGHTING(vict)) {
+		if (vict->findCombat(ch)) {
 
 			if (!(devil = read_mobile(REG_SPINED_VNUM))) {
 				errlog("REGULATOR failed to load REG_SPINED_VNUM for defense.");
@@ -49,7 +49,7 @@ SPECIAL(hell_regulator)
 			act("...$n leaps out and attacks you!", FALSE, devil, 0, vict,
 				TO_VICT);
 
-			stop_fighting(vict);
+            vict->removeCombat(ch);
 			hit(devil, vict, TYPE_UNDEFINED);
 			WAIT_STATE(vict, 1 RL_SEC);
 

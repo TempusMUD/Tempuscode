@@ -10,7 +10,7 @@ SPECIAL(taunting_frenchman)
 
 	if (spec_mode != SPECIAL_ENTER && spec_mode != SPECIAL_TICK)
 		return 0;
-	if (cmd || !AWAKE(ch) || FIGHTING(ch) || number(0, 10))
+	if (cmd || !AWAKE(ch) || ch->numCombatants() || number(0, 10))
 		return (FALSE);
 	CreatureList::iterator it = ch->in_room->people.begin();
 	for (; it != ch->in_room->people.end(); ++it) {

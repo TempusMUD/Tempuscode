@@ -977,8 +977,9 @@ SPECIAL(vendor)
 	}
 
 	if (spec_mode == SPECIAL_TICK) {
-		if (FIGHTING(self) && shop->call_for_help && !number(0, 4)) {
-			call_for_help(self, FIGHTING(self));
+        Creature *target = self->findRandomCombat();
+		if (target && shop->call_for_help && !number(0, 4)) {
+			call_for_help(self, target);
 			return 1;
 		}
 		return 0;

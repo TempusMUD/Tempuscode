@@ -10,22 +10,21 @@ SPECIAL(basher)
 	ACMD(do_bash);
 	if (spec_mode != SPECIAL_TICK)
 		return false;
-	if (ch->getPosition() != POS_FIGHTING || !FIGHTING(ch))
+	if (ch->getPosition() != POS_FIGHTING || !ch->numCombatants())
 		return 0;
 
 	if (number(0, 81) > GET_LEVEL(ch))
 		return 0;
-	CreatureList::iterator it = ch->in_room->people.begin();
-	for (; it != ch->in_room->people.end(); ++it) {
-		if (FIGHTING((*it)) == ch && !number(0, 2) && IS_MAGE((*it))) {
-			vict = *it;
-			break;
-		}
-	}
 
-	/* if I didn't pick any of those, then just slam the guy I'm fighting */
+    list<CharCombat>::iterator li = ch->getCombatList()->begin();
+    for (; li != ch->getCombatList()->end(); ++li) {
+        if (IS_MAGE(li->getOpponent()) && number(0, 1)) {
+            vict = li->getOpponent();
+            break;
+        }
+    }
 	if (vict == NULL)
-		vict = FIGHTING(ch);
+		vict = ch->findRandomCombat();
 
 	do_bash(ch, "", 0, 0, 0);
 	return 1;

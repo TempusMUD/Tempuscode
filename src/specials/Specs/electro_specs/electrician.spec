@@ -8,7 +8,7 @@ ACMD(do_flee);
 
 SPECIAL(electrician)
 {
-	if (cmd || FIGHTING(ch) || !AWAKE(ch) || number(0, 150))
+	if (cmd || ch->numCombatants() || !AWAKE(ch) || number(0, 150))
 		return 0;
 
 	if (spec_mode != SPECIAL_CMD && spec_mode != SPECIAL_TICK &&

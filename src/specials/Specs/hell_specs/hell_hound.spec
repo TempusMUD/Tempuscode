@@ -10,9 +10,11 @@ SPECIAL(hell_hound)
 		return 0;
 	if (spec_mode != SPECIAL_ENTER)
 		return 0;
-	if (FIGHTING(ch) && !number(0, 6))
-		damage(ch, FIGHTING(ch),
-			mag_savingthrow(FIGHTING(ch), GET_LEVEL(ch), SAVING_BREATH) ?
+
+    Creature *vict = ch->findRandomCombat();
+	if (vict && !number(0, 6))
+		damage(ch, vict,
+			mag_savingthrow(vict, GET_LEVEL(ch), SAVING_BREATH) ?
 			(GET_LEVEL(ch) >> 1) : GET_LEVEL(ch), SPELL_FIRE_BREATH, -1);
 	else
 		return 0;

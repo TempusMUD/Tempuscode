@@ -17,8 +17,8 @@ SPECIAL(corpse_retrieval)
 	int amt_carried;
 
 	if (spec_mode == SPECIAL_TICK) {
-		if (FIGHTING(((Creature *)me)) && !number(0, 4)) {
-			call_for_help(((Creature *)me), FIGHTING(((Creature *)me)));
+		if (((Creature *)me)->numCombatants() && !number(0, 4)) {
+			call_for_help(retriever, retriever->findRandomCombat());
 			return 1;
 		}
 		return 0;

@@ -2400,7 +2400,7 @@ ASPELL(spell_id_insinuation)
 
 	if (!victim)
 		return;
-	if (victim->isFighting())
+	if (victim->numCombatants())
 		return;
 
 	send_to_char(victim, "You feel an intense desire to KILL someone!!\r\n");
@@ -3467,22 +3467,7 @@ ASPELL(spell_calm)
         return;
     }
 
-	CreatureList::iterator it = victim->in_room->people.begin();
-	for (; it != victim->in_room->people.end(); ++it) {
-        if (GET_LEVEL((*it)) >= LVL_AMBASSADOR)
-            continue;
-        if (FIGHTING((*it)) == victim) {
-            stop_fighting((*it));
-            act("A peaceful look comes over $N!", TRUE,
-                 ch, NULL, victim, TO_CHAR);
-            act("A peaceful look comes over $N!", TRUE,
-                 ch, NULL, victim, TO_NOTVICT);
-            act("A peaceful feeling comes over you!", TRUE,
-                ch, NULL, victim, TO_VICT);
-        }
-    }
-
-    stop_fighting(victim);
+    victim->removeAllCombat();
 
     return;
 }

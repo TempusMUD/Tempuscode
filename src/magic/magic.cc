@@ -239,8 +239,6 @@ mag_savingthrow(struct Creature *ch, int level, int type)
 	case SAVING_PHY:
 		if (IS_PHYSIC(ch))
 			save -= (GET_LEVEL(ch) >> 3) + (GET_REMORT_GEN(ch) << 1);
-		if (FIGHTING(ch))
-			save += (GET_LEVEL(FIGHTING(ch)) >> 2);
 		break;
 	default:
 		errlog("unknown savetype in mag_savingthrow");
@@ -912,8 +910,8 @@ mag_damage(int level, struct Creature *ch, struct Creature *victim,
 
 			victim->setPosition(POS_STUNNED);
 			WAIT_STATE(victim, 5 RL_SEC);
-			if (victim == FIGHTING(ch))
-				stop_fighting(ch);
+            victim->removeCombat(ch);
+            ch->removeCombat(victim);
 			memset(&af, 0, sizeof(af));
 			af.type = SPELL_PSYCHIC_SURGE;
 			af.duration = 1;
@@ -1142,10 +1140,8 @@ mag_affects(int level, struct Creature *ch, struct Creature *victim,
 			hit(victim, ch, TYPE_UNDEFINED);
 			return;
 		}
-		if (FIGHTING(victim)) {
-			stop_fighting(FIGHTING(victim));
-			stop_fighting(victim);
-		}
+        victim->removeCombat(ch);
+        ch->removeCombat(victim);
 		victim->setPosition(POS_STUNNED);
 		WAIT_STATE(victim, 2 * PULSE_VIOLENCE);
 		to_room = "$n suddenly looks stunned!";
@@ -2513,7 +2509,7 @@ mag_masses(byte level, struct Creature *ch, int spellnum, int savetype)
 	int found = 0;
 	CreatureList::iterator it = ch->in_room->people.begin();
 	for (; it != ch->in_room->people.end(); ++it) {
-		if ((*it) == ch || ch != FIGHTING((*it)))
+		if ((*it) == ch || !(*it)->findCombat(ch))
 			continue;
 		found = TRUE;
 		mag_damage(level, ch, (*it), spellnum, savetype);

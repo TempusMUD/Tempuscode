@@ -26,7 +26,7 @@ SPECIAL(javelin_of_lightning)
 		return 0;
 	else if (jav != GET_EQ(ch, WEAR_WIELD))
 		send_to_char(ch, "You need to wield it first.\r\n");
-	else if (!(*arg2) && !(vict = FIGHTING(ch)))
+	else if (!(*arg2) && !(vict = ch->findRandomCombat()))
 		send_to_char(ch, "Who would you like to throw it at?\r\n");
 	else if (!vict && !(vict = get_char_room_vis(ch, arg2)))
 		send_to_char(ch, "Throw it at who?\r\n");

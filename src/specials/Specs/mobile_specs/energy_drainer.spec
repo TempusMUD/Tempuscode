@@ -15,12 +15,12 @@ SPECIAL(energy_drainer)
 	if (spec_mode != SPECIAL_TICK)
 		return FALSE;
 
-	if (ch->getPosition() != POS_FIGHTING || !FIGHTING(ch))
+	if (ch->getPosition() != POS_FIGHTING || !ch->numCombatants())
 		return FALSE;
 
-	if (FIGHTING(ch) && (FIGHTING(ch)->in_room == ch->in_room) &&
+    vict = ch->findRandomCombat();
+	if (vict && (vict->in_room == ch->in_room) &&
 		!number(0, 6)) {
-		vict = FIGHTING(ch);
 		if (mag_savingthrow(vict, GET_LEVEL(ch), SAVING_PARA))
 			damage(ch, vict, 0, SPELL_ENERGY_DRAIN, -1);
 		else {

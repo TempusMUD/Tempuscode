@@ -8,7 +8,7 @@ SPECIAL(maveral_citizen)
 {
 	if (spec_mode != SPECIAL_ENTER && spec_mode != SPECIAL_TICK)
 		return 0;
-	if (cmd || FIGHTING(ch) || !AWAKE(ch))
+	if (cmd || ch->numCombatants() || !AWAKE(ch))
 		return (0);
 
 	switch (number(0, 40)) {

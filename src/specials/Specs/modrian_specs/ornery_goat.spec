@@ -11,7 +11,7 @@ SPECIAL(ornery_goat)
 
 	if (spec_mode != SPECIAL_TICK)
 		return 0;
-	if (!FIGHTING(ch))
+	if (!ch->numCombatants())
 		return 0;
 
 	if (!number(0, 40)) {

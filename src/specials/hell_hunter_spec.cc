@@ -367,7 +367,7 @@ SPECIAL(hell_hunter)
 		}
 	}
 
-	if (!FIGHTING(ch) && !HUNTING(ch) && !AFF_FLAGGED(ch, AFF_CHARM)) {
+	if (!ch->numCombatants() && !HUNTING(ch) && !AFF_FLAGGED(ch, AFF_CHARM)) {
 		act("$n vanishes into the mouth of an interplanar conduit.",
 			FALSE, ch, 0, 0, TO_ROOM);
 		ch->purge(true);
@@ -390,7 +390,7 @@ SPECIAL(hell_hunter)
 				continue;
 
 			// REGULATOR doesn't want anyone attacking him
-			if (!IS_DEVIL(vict) && ch == FIGHTING(vict)) {
+			if (!IS_DEVIL(vict) && vict->findCombat(ch)) {
 
 				if (!(devil = read_mobile(H_SPINED))) {
 					errlog("HH REGULATOR failed to load H_SPINED for defense.");
@@ -407,7 +407,7 @@ SPECIAL(hell_hunter)
 				act("...$n leaps out and attacks you!", FALSE, devil, 0, vict,
 					TO_VICT);
 
-				stop_fighting(vict);
+				ch->removeAllCombat();
 				hit(devil, vict, TYPE_UNDEFINED);
 				WAIT_STATE(vict, 1 RL_SEC);
 
@@ -452,7 +452,7 @@ SPECIAL(arioch)
 
 	if (ch->in_room->zone->number != 162) {
 
-		if (!HUNTING(ch) && !FIGHTING(ch)) {
+		if (!HUNTING(ch) && !ch->numCombatants()) {
 
 			for (obj = ch->in_room->contents; obj; obj = obj->next_content) {
 				if (IS_CORPSE(obj)) {

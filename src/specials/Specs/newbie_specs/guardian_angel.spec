@@ -134,7 +134,7 @@ angel_check_charge(Creature *self, Creature *charge, angel_data *data)
 	}
 
 	// First check for mortal danger
-	if (GET_HIT(charge) < GET_MAX_HIT(charge) / 4 && FIGHTING(charge)) {
+	if (GET_HIT(charge) < GET_MAX_HIT(charge) / 4 && charge->numCombatants()) {
 		if (!IS_SET(data->flags, ANGEL_DANGER)) {
 			do_say(self, "Flee!  Flee for your life!", 0, SCMD_YELL, 0);
 			SET_BIT(data->flags, ANGEL_DANGER);
@@ -145,7 +145,7 @@ angel_check_charge(Creature *self, Creature *charge, angel_data *data)
 	}
 
 	// Everything below here only applies to not fighting
-	if (FIGHTING(charge))
+	if (charge->numCombatants())
 		return 0;
 	
 	if ((!GET_COND(charge, FULL) || !GET_COND(charge, THIRST))

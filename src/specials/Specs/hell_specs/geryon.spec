@@ -12,7 +12,7 @@ SPECIAL(geryon)
 
 	if (spec_mode != SPECIAL_CMD && spec_mode != SPECIAL_TICK)
 		return 0;
-	if (cmd || !FIGHTING(ch))
+	if (cmd || !ch->numCombatants())
 		return 0;
 
 	if ((!ch->followers || !ch->followers->next)
@@ -25,7 +25,7 @@ SPECIAL(geryon)
 		return 0;
 	CreatureList::iterator it = ch->in_room->people.begin();
 	for (; it != ch->in_room->people.end() && *it != ch; ++it) {
-		if (ch == FIGHTING((*it)) &&
+		if ((*it)->findCombat(ch) &&
 			!number(0, 4) && !affected_by_spell((*it), SPELL_POISON)) {
 			vict = *it;
 			break;
@@ -33,7 +33,7 @@ SPECIAL(geryon)
 	}
 
 	if (!vict || !number(0, 3) || vict == ch)
-		vict = FIGHTING(ch);
+		vict = ch->findRandomCombat();
 
 	act("$n stings you with a mighty lash of $s deadly tail!", FALSE, ch, 0,
 		vict, TO_VICT);

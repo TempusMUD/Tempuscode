@@ -8,10 +8,12 @@
 // Copyright 1998 by John Watson, all rights reserved.
 //
 
+#include <list>
 #include "constants.h"
 #include "macros.h"
 #include "account.h"
 #include "desc_data.h"
+#include "safe_list.h"
 
 /* char and mob-related defines *****************************************/
 
@@ -740,6 +742,46 @@ struct char_special_data_saved {
 };
 
 
+class CharCombat {
+    private:
+        CharCombat() {
+            _initiated = false;
+            _opponent = NULL;
+        }
+    public:
+        CharCombat(Creature *ch, bool initiated) {
+            _initiated = initiated;
+            _opponent = ch;
+        }
+        CharCombat(const CharCombat &a) {
+            this->_initiated = a._initiated;
+            this->_opponent = a._opponent;
+        }
+        inline bool getInitiated() { 
+            return _initiated; 
+        }
+        inline void setInitiated(bool init) { 
+            _initiated = init;
+        }
+        inline void setOpponent(Creature *ch) { 
+            _opponent = ch; 
+        } 
+        inline Creature *getOpponent() { 
+            return _opponent; 
+        }
+        bool operator==( const Creature* c ) {
+                   return _opponent == c;
+        }
+        bool operator==( const CharCombat& c ) {
+            return _initiated == c._initiated &&
+                   _opponent == c._opponent;
+        }
+
+    private:
+        bool _initiated;
+        struct Creature *_opponent;
+};
+
 /* Special playing constants shared by PCs and NPCs which aren't in pfile */
 struct char_special_data {
 
@@ -765,7 +807,8 @@ struct char_special_data {
 		return worn_weight;
 	}
 
-	struct Creature *fighting;	/* Opponent                */
+//	struct Creature *fighting;	/* Opponent                */
+    list<CharCombat>*fighting; /* list of combats for this char */
 	struct Creature *defending;	/* Char defended by this char */
 	struct Creature *hunting;	/* Char hunted by this char        */
 	struct Creature *mounted;	/* creatures mounted ON this char        */
@@ -1011,9 +1054,6 @@ struct Creature {
 	// Various combat utility functions
 	bool affBySanc(Creature * attacker = NULL);
 	float getDamReduction(Creature * attacker = NULL);
-	bool isFighting();
-	Creature *getFighting() { return (char_specials.fighting); }
-	void setFighting(Creature * ch);
 	void clearMemory();
 	void restore();
     bool loadFromXML( long id );
@@ -1026,6 +1066,17 @@ struct Creature {
 	int loadObjects();
     int loadCorpse();
     bool checkLoadCorpse();
+
+    // Combat related fucntions
+    void addCombat(Creature *ch, bool initiated);
+    void removeCombat(Creature *ch);
+    void removeAllCombat();
+    bool initiatedCombat(Creature *ch);
+    int numCombatants();
+    Creature *findCombat(Creature *ch);
+    Creature *findRandomCombat();
+    list<CharCombat>*getCombatList();
+    
     room_data *getLoadroom(); // Retrieves the characters appropriate loadroom.
 
 	bool displayUnrentables(void);
@@ -1077,6 +1128,7 @@ struct Creature {
 	void extract(cxn_state con_state);
     
   public:						// ******  Data ****
+	struct char_special_data char_specials;	/* PC/NPC specials      */
 	int pfilepos;				/* playerfile pos          */
 	struct room_data *in_room;	/* Location (real room number)      */
 
@@ -1084,7 +1136,6 @@ struct Creature {
 	struct char_ability_data real_abils;	/* Abilities without modifiers   */
 	struct char_ability_data aff_abils;	/* Abils with spells/stones/etc  */
 	struct char_point_data points;	/* Points                        */
-	struct char_special_data char_specials;	/* PC/NPC specials      */
     struct char_language_data language_data;
 	struct player_special_data *player_specials;	/* PC specials          */
 	struct mob_special_data mob_specials;	/* NPC specials          */

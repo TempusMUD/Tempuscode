@@ -10,7 +10,7 @@ SPECIAL(circus_clown)
 	if (spec_mode != SPECIAL_CMD && spec_mode != SPECIAL_ENTER
 		&& spec_mode != SPECIAL_TICK)
 		return 0;
-	if (!cmd && !FIGHTING(ch) && ch->getPosition() != POS_FIGHTING) {
+	if (!cmd && !ch->numCombatants() && ch->getPosition() != POS_FIGHTING) {
 		switch (number(0, 30)) {
 		case 0:
 			act("$n flips head over heels.", TRUE, ch, 0, 0, TO_ROOM);

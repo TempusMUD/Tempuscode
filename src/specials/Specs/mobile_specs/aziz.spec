@@ -12,21 +12,22 @@ SPECIAL(Aziz)
 
 	if (spec_mode != SPECIAL_TICK)
 		return 0;
-	if (!FIGHTING(ch))
+	if (!ch->numCombatants())
 		return 0;
 
 	/* pseudo-randomly choose a mage in the room who is fighting me */
-	CreatureList::iterator it = ch->in_room->people.begin();
-	for (; it != ch->in_room->people.end(); ++it) {
-		if (FIGHTING((*it)) == ch && !number(0, 2) && IS_MAGE((*it))) {
-			vict = *it;
-			break;
-		}
-	}
+    list<CharCombat>::iterator li = ch->getCombatList()->begin();
+    for (; li != ch->getCombatList()->end(); ++li) {
+        if (IS_MAGE(li->getOpponent()) && number(0, 1)) {
+            vict = li->getOpponent();
+            break;
+        }
+    }
+
 
 	/* if I didn't pick any of those, then just slam the guy I'm fighting */
 	if (vict == NULL)
-		vict = FIGHTING(ch);
+		vict = ch->findRandomCombat();
 
 	do_bash(ch, "", 0, 0, 0);
 

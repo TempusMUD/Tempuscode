@@ -17,7 +17,7 @@ SPECIAL(underwater_predator)
 		AFF2_FLAGGED(pred, AFF2_PETRIFIED) || !AWAKE(pred))
 		return 0;
 
-	if ((vict = FIGHTING(pred))
+	if ((vict = pred->findRandomCombat())
 		&& SECT_TYPE(pred->in_room) != SECT_UNDERWATER
 		&& SECT_TYPE(pred->in_room) != SECT_DEEP_OCEAN
 		&& !number(0, 3)) {
@@ -46,7 +46,7 @@ SPECIAL(underwater_predator)
 				return 1;
 			}
 		}
-	} else if (!FIGHTING(pred) && MOB_FLAGGED(pred, MOB_AGGRESSIVE) &&
+	} else if (!pred->numCombatants() && MOB_FLAGGED(pred, MOB_AGGRESSIVE) &&
 		(SECT_TYPE(pred->in_room) == SECT_UNDERWATER
 			|| SECT_TYPE(pred->in_room) == SECT_DEEP_OCEAN) &&
 		EXIT(pred, UP) &&

@@ -39,7 +39,7 @@ ACMD(do_psidrain)
 		return;
 	}
 
-	if (!*argument && !(vict = FIGHTING(ch))) {
+	if (!*argument && !(vict = ch->findRandomCombat())) {
 		send_to_char(ch, "Psidrain who?\r\n");
 		return;
 	}
@@ -65,7 +65,7 @@ ACMD(do_psidrain)
 		return;
 	}
 
-	if (FIGHTING(ch) && vict->in_room != ch->in_room) {
+	if (ch->numCombatants() && vict->in_room != ch->in_room) {
 		send_to_char(ch, "You cannot focus outside the room during battle!\r\n");
 		return;
 	}
@@ -146,7 +146,7 @@ ACMD(do_psidrain)
 	prob = CHECK_SKILL(ch, SKILL_PSIDRAIN) + GET_INT(ch) +
 		(AFF3_FLAGGED(vict, AFF3_PSISHIELD) ? -20 : 0);
 
-	if (FIGHTING(vict))
+	if (vict->numCombatants())
 		prob += 15;
 
 	if (dist > 0)
@@ -162,7 +162,7 @@ ACMD(do_psidrain)
 		send_to_char(ch, "You are unable to create the drainage link!\r\n");
 		WAIT_STATE(ch, 2 RL_SEC);
 
-		if (IS_NPC(vict) && !FIGHTING(vict)) {
+		if (IS_NPC(vict) && !vict->numCombatants()) {
 
 			if (ch->in_room == vict->in_room)
 				set_fighting(vict, ch, 0);
@@ -195,7 +195,7 @@ ACMD(do_psidrain)
 		WAIT_STATE(ch, 5 RL_SEC);
 		gain_skill_prof(ch, SKILL_PSIDRAIN);
 
-		if (IS_NPC(vict) && !FIGHTING(vict)) {
+		if (IS_NPC(vict) && !(vict->numCombatants())) {
 			if (ch->in_room == vict->in_room) {
 				remember(vict, ch);
 				if (MOB2_FLAGGED(vict, MOB2_HUNT))
@@ -212,7 +212,7 @@ mob_fight_psionic(struct Creature *ch, struct Creature *precious_vict)
 
 	Creature *vict = 0;
 
-	if (!FIGHTING(ch))
+	if (!ch->numCombatants())
 		return 0;
 
 	// pick an enemy
@@ -275,14 +275,14 @@ mob_fight_psionic(struct Creature *ch, struct Creature *precious_vict)
 	// ego whip
 	else if (GET_LEVEL(ch) >= 22 &&
 		GET_MANA(ch) > mag_manacost(ch, SPELL_EGO_WHIP) &&
-		(!number(0, 2) || (!can_see_creature(ch, vict) && vict != FIGHTING(ch))))
+		(!number(0, 2) || (!can_see_creature(ch, vict) && !ch->findCombat(vict))))
 		cast_spell(ch, vict, NULL, SPELL_EGO_WHIP);
 	// psiblast
 	else if (GET_LEVEL(ch) >= 5 &&
 		GET_MANA(ch) > mag_manacost(ch, SKILL_PSIBLAST)) {
 		if (!can_see_creature(ch, vict))
 			// just attack the default opponent
-			perform_offensive_skill(ch, FIGHTING(ch), SKILL_PSIBLAST, 0);
+			perform_offensive_skill(ch, ch->findRandomCombat(), SKILL_PSIBLAST, 0);
 		else
 			perform_offensive_skill(ch, vict, SKILL_PSIBLAST, 0);
 	} else

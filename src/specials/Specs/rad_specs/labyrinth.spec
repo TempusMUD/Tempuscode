@@ -103,7 +103,7 @@ SPECIAL(cuckoo)
 	if (spec_mode != SPECIAL_TICK)
 		return 0;
 
-	if (cmd || FIGHTING(bird) || !AWAKE(bird))
+	if (cmd || bird->numCombatants() || !AWAKE(bird))
 		return 0;
 
 	/* check if cuckoo is in room 66236 */
@@ -254,7 +254,7 @@ SPECIAL(gollum)
 	struct room_data *to_room = NULL;
 
 	/* check if gollum is in room and not fighting */
-	if (gollum->in_room->number != 66163 || FIGHTING(gollum))
+	if (gollum->in_room->number != 66163 || gollum->numCombatants())
 		return 0;
 
 	if (CMD_IS("say") || CMD_IS("'")) {

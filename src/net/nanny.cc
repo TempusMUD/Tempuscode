@@ -804,10 +804,10 @@ send_prompt(descriptor_data *d)
 					CCYEL_BLD( d->creature, C_CMP ), CCNRM( d->creature,C_SPR ) );
 		}
 
-		if (FIGHTING(d->creature) &&
+		if (d->creature->numCombatants() &&
 			PRF2_FLAGGED(d->creature, PRF2_AUTO_DIAGNOSE))
 			sprintf(prompt, "%s%s(%s)%s ", prompt, CCRED(d->creature, C_NRM),
-					diag_conditions(FIGHTING(d->creature)),
+					diag_conditions(d->creature->findRandomCombat()),
 					CCNRM(d->creature, C_NRM));
 		
 		sprintf(prompt, "%s%s%s>%s ", prompt, CCWHT(d->creature, C_NRM),
@@ -1276,7 +1276,7 @@ reset_char(struct Creature *ch)
 	ch->master = NULL;
 	/* ch->in_room = NOWHERE; Used for start in room */
 	ch->carrying = NULL;
-	ch->setFighting(NULL);
+	ch->removeAllCombat();
 	ch->char_specials.position = POS_STANDING;
 	if (ch->mob_specials.shared)
 		ch->mob_specials.shared->default_pos = POS_STANDING;

@@ -301,7 +301,7 @@ prog_eval_condition(prog_env *env, prog_evt *evt, char *args)
 		}
     } else if (!strcmp(arg, "fighting")) {
 		result = (env->owner_type == PROG_TYPE_MOBILE 
-				&& ((Creature *)env->owner)->isFighting());
+				&& ((Creature *)env->owner)->numCombatants());
 	} else if (!strcmp(arg, "randomly")) {
 		result = number(0, 100) < atoi(args);
 	} else if (!strcmp(arg, "variable")) {
@@ -449,7 +449,7 @@ prog_do_target(prog_env *env, prog_evt *evt, char *args)
 	} else if (!strcasecmp(arg, "opponent")) {
 		switch (env->owner_type) {
 		case PROG_TYPE_MOBILE:
-			env->target = FIGHTING(((Creature *)env->owner));
+			env->target = ((Creature *)env->owner)->findRandomCombat();
 			break;
 		default:
 			env->target = NULL;

@@ -12,7 +12,7 @@ SPECIAL(aziz_canon)
 		return 0;
 	if (spec_mode != SPECIAL_CMD && spec_mode != SPECIAL_TICK)
 		return 0;
-	if (!FIGHTING(ch) && ch->getPosition() != POS_FIGHTING) {
+	if (!ch->numCombatants() && ch->getPosition() != POS_FIGHTING) {
 		CreatureList::iterator it = ch->in_room->people.begin();
 		for (; it != ch->in_room->people.end(); ++it) {
 			vict = *it;
@@ -55,15 +55,16 @@ SPECIAL(aziz_canon)
 		}
 		return 1;
 	}
-	if (FIGHTING(ch)) {
+	if (ch->numCombatants()) {
+        vict = ch->findRandomCombat();
 		if (!number(0, 3)) {
-			act("$n gets in a three point stance and plows his shoulder into you!", FALSE, ch, 0, FIGHTING(ch), TO_VICT);
-			act("$n gets in a three point stance and plows his shoulder into $N!", FALSE, ch, 0, FIGHTING(ch), TO_NOTVICT);
-			if (GET_LEVEL(FIGHTING(ch)) < LVL_IMMORT) {
-				GET_HIT(FIGHTING(ch)) -= dice(1, 20);
-				(FIGHTING(ch))->setPosition(POS_SITTING);
+			act("$n gets in a three point stance and plows his shoulder into you!", FALSE, ch, 0, vict, TO_VICT);
+			act("$n gets in a three point stance and plows his shoulder into $N!", FALSE, ch, 0, vict, TO_NOTVICT);
+			if (GET_LEVEL(vict) < LVL_IMMORT) {
+				GET_HIT(vict) -= dice(1, 20);
+				(vict)->setPosition(POS_SITTING);
 				WAIT_STATE(ch, PULSE_VIOLENCE * 4);
-				WAIT_STATE(FIGHTING(ch), PULSE_VIOLENCE * 2);
+				WAIT_STATE(vict, PULSE_VIOLENCE * 2);
 			}
 			return 1;
 		}

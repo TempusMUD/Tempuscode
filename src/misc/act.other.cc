@@ -720,8 +720,8 @@ ACMD(do_use)
 		break;
 
 	case SCMD_RECITE:
-		if (FIGHTING(ch)) {
-			act("What, while fighting $N?!", FALSE, ch, 0, FIGHTING(ch),
+		if (ch->numCombatants()) {
+			act("What, while fighting $N?!", FALSE, ch, 0, ch->findRandomCombat(),
 				TO_CHAR);
 			return;
 		} else if (GET_OBJ_TYPE(mag_item) != ITEM_SCROLL) {
@@ -1195,7 +1195,7 @@ ACMD(do_gen_tog)
 		result = PLR_TOG_CHK(ch, PLR_HALT);
 		break;
 	case SCMD_MORTALIZE:
-		if (FIGHTING(ch)) {
+		if (ch->numCombatants()) {
 			send_to_char(ch, "You can't do this while fighting.\r\n");
 			return;
 		}
@@ -1280,7 +1280,7 @@ ACMD(do_gen_tog)
 			send_to_char(ch, "Nothing happens.\r\n");
 			return;
 		}
-		if (ch->isFighting()) {
+		if (ch->numCombatants()) {
 			send_to_char(ch, "You can't change your mind about playerkilling while you're fighting!\r\n");
 			return;
 		}
@@ -1713,7 +1713,7 @@ ACMD(do_throw)
 					if (CHECK_SKILL(ch, SKILL_THROWING) < 60)
 						WAIT_STATE(ch, PULSE_VIOLENCE * 1);
 
-					if (IS_MOB(target_vict) && !FIGHTING(target_vict))
+					if (IS_MOB(target_vict) && !target_vict->numCombatants())
 						hit(target_vict, ch, TYPE_UNDEFINED);
 
 					obj_from_char(obj);

@@ -202,7 +202,7 @@ ACMD(do_whirlwind)
 
 	one_argument(argument, arg);
 
-	if ((!*arg && (all = true) && !(vict = ch->getFighting())) ||
+	if ((!*arg && (all = true) && !(vict = ch->findRandomCombat())) ||
 		(*arg && !(all = false) && !(vict = get_char_room_vis(ch, arg)) &&
 			!(ovict = get_obj_in_list_vis(ch, arg, ch->in_room->contents)))) {
 		send_to_char(ch, "Whirlwind who?\r\n");
@@ -276,7 +276,7 @@ ACMD(do_whirlwind)
 			i = 0;				/* will get 4 hits total */
 			CreatureList::iterator it = ch->in_room->people.begin();
 			for (; it != ch->in_room->people.end(); ++it) {
-				if ((*it) == ch || ch != (*it)->getFighting()
+				if ((*it) == ch || ch != (*it)->findRandomCombat()
 					|| !can_see_creature(ch, (*it)))
 					continue;
 				damage(ch, (*it), (CHECK_SKILL(ch, SKILL_WHIRLWIND) >
@@ -286,7 +286,7 @@ ACMD(do_whirlwind)
 				i++;
 			}
 
-			if (i < 4 && (vict = ch->getFighting())) {
+			if (i < 4 && (vict = ch->findRandomCombat())) {
 				for (; i < 4; i++) {
 					GET_MOVE(ch) -= 7;
 					if (CHECK_SKILL(ch, SKILL_WHIRLWIND) > number(50,
@@ -343,8 +343,8 @@ ACMD(do_combo)
 	one_argument(argument, arg);
 
 	if (!(vict = get_char_room_vis(ch, arg))) {
-		if (ch->isFighting()) {
-			vict = ch->getFighting();
+		if (ch->numCombatants()) {
+			vict = ch->findRandomCombat();
 		} else if ((ovict =
 				get_obj_in_list_vis(ch, arg, ch->in_room->contents))) {
 			act("You perform a devastating combo to the $p!", FALSE, ch, ovict,
@@ -485,8 +485,8 @@ ACMD(do_pinch)
 	vict_str = tmp_getword(&argument);
 
 	if (!(vict = get_char_room_vis(ch, vict_str))) {
-		if (ch->isFighting()) {
-			vict = ch->getFighting();
+		if (ch->numCombatants()) {
+			vict = ch->findRandomCombat();
 		} else if ((ovict = get_obj_in_list_vis(ch, vict_str,
 					ch->in_room->contents))) {
 			act("You can't pinch that.", FALSE, ch, ovict, 0, TO_CHAR);
@@ -618,7 +618,7 @@ ACMD(do_pinch)
 			ch->setPosition(POS_STUNNED);
 			return;
 		}
-		if (ch->isFighting() || vict->isFighting()
+		if (ch->numCombatants() || vict->numCombatants()
 			|| MOB2_FLAGGED(vict, MOB2_NOSTUN)
 			|| (AFF_FLAGGED(vict, AFF_ADRENALINE)
 				&& number(0, 60) < GET_LEVEL(vict))) {
@@ -633,7 +633,7 @@ ACMD(do_pinch)
 		af.type = 0;
 		break;
 	case SKILL_PINCH_GAMMA:
-		if (ch->isFighting() || vict->isFighting()) {
+		if (ch->numCombatants() || vict->numCombatants()) {
 			send_to_char(ch, "You fail.\r\n");
 			send_to_char(vict, NOEFFECT);
 			return;
@@ -774,7 +774,7 @@ ACMD(do_pinch)
 
 	if (which_pinch != SKILL_PINCH_ZETA) {
 		check_killer(ch, vict);
-		if (IS_NPC(vict) && !vict->isFighting()
+		if (IS_NPC(vict) && !vict->numCombatants()
 			&& vict->getPosition() >= POS_FIGHTING) {
 			int retval = hit(vict, ch, TYPE_UNDEFINED);
 			retval = SWAP_DAM_RETVAL(retval);
@@ -793,7 +793,7 @@ ACMD(do_meditate)
 		send_to_char(ch, "You cease to meditate.\r\n");
 		act("$n comes out of a trance.", TRUE, ch, 0, 0, TO_ROOM);
 		MEDITATE_TIMER(ch) = 0;
-	} else if (FIGHTING(ch))
+	} else if (ch->numCombatants())
 		send_to_char(ch, "You cannot meditate while in battle.\r\n");
 	else if (ch->getPosition() != POS_SITTING || !AWAKE(ch))
 		send_to_char(ch, "You are not in the proper position to meditate.\r\n");

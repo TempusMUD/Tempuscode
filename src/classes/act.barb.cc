@@ -82,7 +82,7 @@ perform_barb_berserk(struct Creature *ch, struct Creature **who_was_attacked,
 	CreatureList::iterator it = ch->in_room->people.begin();
 	for (; it != ch->in_room->people.end(); ++it) {
 		vict = *it;
-		if (vict == ch || ch->isFighting() ||
+		if (vict == ch || ch->numCombatants() ||
 			PRF_FLAGGED(vict, PRF_NOHASSLE) ||
 			(IS_NPC(ch) && IS_NPC(vict) && !MOB2_FLAGGED(ch, MOB2_ATK_MOBS)) ||
 			!can_see_creature(ch, vict) || !number(0, 1 + (GET_LEVEL(ch) >> 4)))
@@ -304,7 +304,8 @@ perform_cleave(Creature *ch, Creature *vict, int *return_flags)
             // find a new victim
             CreatureList::iterator it = ch->in_room->people.begin();
 			for( ; it != ch->in_room->people.end(); ++it ) {
-				if( (*it) == ch || ch != (*it)->getFighting() || !can_see_creature(ch, (*it)))
+				if((*it) == ch || !(*it)->findCombat(ch) || 
+                   !can_see_creature(ch, (*it)))
                     continue;
                 vict = *it;
                 break;
@@ -324,7 +325,7 @@ ACMD(do_cleave)
 	arg = tmp_getword(&argument);
 
     if( !*arg ) {
-        vict = FIGHTING(ch);
+        vict = ch->findRandomCombat();
     } else {
         vict = get_char_room_vis(ch, arg);
     }
