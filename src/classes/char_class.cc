@@ -1182,7 +1182,7 @@ do_start(struct Creature *ch, int mode)
 	GET_COND(ch, FULL) = 24;
 	GET_COND(ch, DRUNK) = 0;
 
-	if (GET_REMORT_CLASS(ch) < 0) {
+	if (new_player) {
 		ch->player.time.played = 0;
 		ch->player.time.logon = time(0);
 	}
