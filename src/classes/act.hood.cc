@@ -32,6 +32,32 @@ ACMD(do_taunt)
 	send_to_char(ch, "You taunt them mercilessly!\r\n");
 }
 
+obj_data*
+find_hamstring_weapon( Creature *ch )
+{
+	obj_data* weap = NULL;
+	if( (weap = GET_EQ(ch, WEAR_WIELD)) && SLASHING(weap)) {
+		return weap;
+	} else if( (weap = GET_EQ(ch, WEAR_WIELD_2)) && SLASHING(weap)) {
+		return weap;
+	} else if( (weap = GET_EQ(ch, WEAR_HANDS)) && 
+			   IS_OBJ_TYPE(weap, ITEM_WEAPON) && SLASHING(weap) ) {
+		return weap;
+	} else if( (weap = GET_EQ(ch, WEAR_ARMS)) && 
+			   IS_OBJ_TYPE(weap, ITEM_WEAPON) && SLASHING(weap) ) {
+		return weap;
+	} else if( (weap = GET_IMPLANT(ch, WEAR_HANDS)) && 
+			   IS_OBJ_TYPE(weap, ITEM_WEAPON) && SLASHING(weap) && 
+			   GET_EQ(ch, WEAR_HANDS) == NULL ) {
+		return weap;
+	} else if( (weap = GET_IMPLANT(ch, WEAR_ARMS)) && 
+			   IS_OBJ_TYPE(weap, ITEM_WEAPON) && SLASHING(weap) && 
+			   GET_EQ(ch, WEAR_ARMS) == NULL ) {
+		return weap;
+	}
+	return NULL;
+}
+
 ACMD(do_hamstring)
 {
 	struct Creature *vict = NULL;
@@ -44,6 +70,11 @@ ACMD(do_hamstring)
 	one_argument(argument, arg);
 	if (CHECK_SKILL(ch, SKILL_HAMSTRING) < 50) {
 		send_to_char(ch, "Even if you knew what that was, you wouldn't do it.\r\n");
+		return;
+	}
+
+	if( IS_CLERIC(ch) && IS_GOOD(ch) ) {
+		send_to_char(ch, "Your diety forbids this.\r\n");
 		return;
 	}
 	// If there's noone in the room that matches your alias
@@ -62,12 +93,9 @@ ACMD(do_hamstring)
 			}
 		}
 	}
-	if (!(((weap = GET_EQ(ch, WEAR_WIELD)) && SLASHING(weap)) ||
-			((weap = GET_EQ(ch, WEAR_WIELD_2)) && SLASHING(weap)) ||
-			((weap = GET_EQ(ch, WEAR_HANDS)) && SLASHING(weap)) ||
-			((weap = GET_IMPLANT(ch, WEAR_HANDS)) && SLASHING(weap)) ||
-			((weap = GET_IMPLANT(ch, WEAR_ARMS)) && SLASHING(weap)))
-		) {
+
+	weap = find_hamstring_weapon(ch);
+	if( weap == NULL) {
 		send_to_char(ch, "You need to be using a slashing weapon.\r\n");
 		return;
 	}
