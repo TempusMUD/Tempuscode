@@ -109,6 +109,10 @@ struct zone_data {
 	int hour_mod;				/* */
 	int year_mod;
 	int lattitude;				/* geographic */
+	int target_lvl;				// Target player level of zone
+	int target_gen;				// Target player remort gen of zone
+	char *public_desc;			// Public description of zone
+	char *private_desc;			// Private description of zone
 	unsigned char num_players;	/* number of players in zone */
 	unsigned short int idle_time;	/* num tics idle */
 
