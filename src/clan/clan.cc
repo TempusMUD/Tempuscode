@@ -37,6 +37,9 @@ int check_mob_reaction(struct char_data *ch, struct char_data *vict);
 int save_wld (struct char_data *ch);
 
 struct clan_data *clan_list;
+extern FILE *player_fl;
+int player_i=0;
+
 
 #define NAME(x) ((temp = get_name_by_id(x)) == NULL ? "<UNDEF>" : temp)
 
@@ -145,53 +148,90 @@ ACMD(do_dismiss)
     struct clan_data *clan = real_clan(GET_CLAN(ch));
     struct clanmember_data *member = NULL, *member2 = NULL;
     char arg[MAX_INPUT_LENGTH];
+    bool in_file = false;
+    long idnum = -1;
+    struct char_file_u tmp_store;
+
 
     one_argument(argument, arg);
     skip_spaces(&argument);
   
-    if (!clan)
-	send_to_char("Try joining a clan first.\r\n", ch);
-    if (!*argument) 
-	send_to_char("Ummm... dismiss who?\r\n", ch);
-    else if (!(vict = get_char_vis(ch, argument)))
-	send_to_char("Dismiss who?\r\n", ch);
-    else if (vict == ch) 
-	send_to_char("Thats real damn funny.\r\n", ch);
+    if (!clan) {
+        send_to_char("Try joining a clan first.\r\n", ch);
+        return;
+    } else if (!*argument) {
+        send_to_char("Ummm... dismiss who?\r\n", ch);
+        return;
+    }
+    /* Find the player. */
+    if ((idnum = get_id_by_name(arg)) < 0) {
+        send_to_char("There is no character named '%s'\r\n", ch);
+        return;
+    }
+
+    if (!(vict = get_char_in_world_by_idnum(idnum))) {
+        // load the char from file
+        CREATE(vict, CHAR, 1);
+        clear_char(vict);
+        in_file = true;
+
+        if ((player_i = load_char(arg, &tmp_store)) > -1) {
+            store_to_char(&tmp_store, vict);
+        } else {
+            free(vict);
+            send_to_char("Error loading char from file.\r\n", ch);
+            return;
+        }
+    } 
+
+    /* Was the player found? */
+    if (!vict) {
+        send_to_char("Dismiss who?\r\n", ch);
+        if(in_file)
+            free(vict);
+        return;
+    }
+    if (vict == ch) 
+        send_to_char("Thats real damn funny.\r\n", ch);
     else if (!PLR_FLAGGED(ch, PLR_CLAN_LEADER) && GET_LEVEL(ch) < LVL_IMMORT)
-	send_to_char("You are not the leader of the clan!\r\n", ch);
-    else if (IS_MOB(vict) && GET_LEVEL(ch) < LVL_IMMORT)
-	send_to_char("You cannot influence that character in that way.\r\n", ch);
+        send_to_char("You are not the leader of the clan!\r\n", ch);
+    else if (GET_LEVEL(vict) >= LVL_GRGOD && GET_LEVEL(ch) < LVL_GRGOD)
+        send_to_char("I don't think you should do that.\r\n", ch);
     else if (GET_CLAN(vict) != GET_CLAN(ch))
-	send_to_char("Umm, why dont you check the clan list, okay?\r\n", ch);
+        send_to_char("Umm, why dont you check the clan list, okay?\r\n", ch);
     else if ((member = real_clanmember(GET_IDNUM(ch), clan)) &&
 	     (member2 = real_clanmember(GET_IDNUM(vict), clan)) &&
-	     member->rank <= member2->rank)
-	send_to_char("You don't have the rank for that.\r\n", ch);
+	     (member->rank <= member2->rank && member->rank < clan->top_rank))
+        send_to_char("You don't have the rank for that.\r\n", ch);
     else if (PLR_FLAGGED(ch, PLR_FROZEN))
-	send_to_char("You are frozen solid, and can't lift a finger!\r\n", ch);
-    else if (PLR_FLAGGED(vict, PLR_CLAN_LEADER) && GET_LEVEL(ch) < LVL_IMMORT) 
-	send_to_char("You cannot dismiss co-leaders.\r\n", ch);
+        send_to_char("You are frozen solid, and can't lift a finger!\r\n", ch);
+    else if (PLR_FLAGGED(vict, PLR_CLAN_LEADER) && 
+    (GET_IDNUM(ch) != clan->owner && GET_LEVEL(ch) < LVL_IMMORT ))
+        send_to_char("You cannot dismiss co-leaders.\r\n", ch);
     else {
-	sprintf(buf, "You have been dismissed from clan %s by %s!\r\n", 
-		clan->name, GET_NAME(ch));
-	send_to_char(buf, vict);
-	GET_CLAN(vict) = 0;
-	sprintf(buf, "%s has been dismissed from clan %s by %s!", GET_NAME(vict), 
-		clan->name, GET_NAME(ch));
-	mudlog(buf, NRM, MAX(LVL_IMMORT, GET_INVIS_LEV(ch)), 1);
-	strcat(buf, "\r\n");
-	send_to_clan(buf, GET_CLAN(ch));
-	if ((member = real_clanmember(GET_IDNUM(vict), clan))) {
-	    REMOVE_MEMBER_FROM_CLAN(member, clan);
-#ifdef DMALLOC
-	    dmalloc_verify(0);
-#endif
-	    free(member);
-#ifdef DMALLOC
-	    dmalloc_verify(0);
-#endif
-	}
+        sprintf(buf, "You have been dismissed from clan %s by %s!\r\n", 
+            clan->name, GET_NAME(ch));
+        send_to_char(buf, vict);
+        GET_CLAN(vict) = 0;
+        sprintf(buf, "%s has been dismissed from clan %s by %s!", GET_NAME(vict), 
+            clan->name, GET_NAME(ch));
+        mudlog(buf, NRM, MAX(LVL_IMMORT, GET_INVIS_LEV(ch)), 1);
+        strcat(buf, "\r\n");
+        send_to_clan(buf, GET_CLAN(ch));
+        if ((member = real_clanmember(GET_IDNUM(vict), clan))) {
+            REMOVE_MEMBER_FROM_CLAN(member, clan);
+            free(member);
+        }
+        REMOVE_BIT(PLR_FLAGS(vict), PLR_CLAN_LEADER);
     }
+    if (in_file) {
+        char_to_store(vict, &tmp_store);
+        fseek(player_fl, (player_i) * sizeof(struct char_file_u), SEEK_SET);
+        fwrite(&tmp_store, sizeof(struct char_file_u), 1, player_fl);
+        free_char(vict);
+        send_to_char("Player dismissed.\r\n", ch);
+    }
+
 }
 
 ACMD(do_resign)
@@ -214,6 +254,8 @@ ACMD(do_resign)
 	send_to_clan(buf, GET_CLAN(ch));
 	GET_CLAN(ch) = 0;
 	REMOVE_BIT(PLR_FLAGS(ch), PLR_CLAN_LEADER);
+    if(clan->owner == GET_IDNUM(ch))
+        clan->owner = 0;
 	if ((member = real_clanmember(GET_IDNUM(ch), clan))) {
 	    REMOVE_MEMBER_FROM_CLAN(member, clan);
 #ifdef DMALLOC
@@ -509,7 +551,7 @@ ACMD(do_promote)
 	send_to_char("Promote who?\r\n", ch);
     else if (!(vict = get_char_room_vis(ch, argument)))
 	send_to_char("No-one around by that name.\r\n", ch);
-    else if (ch == vict)
+    else if (ch == vict && clan->owner != GET_IDNUM(ch))
 	send_to_char("Very funny.  Really.\r\n", ch);
     else if (real_clan(GET_CLAN(vict)) != clan)
 	act("$N is not a member of your clan.",FALSE,ch,0,vict,TO_CHAR);
@@ -519,7 +561,7 @@ ACMD(do_promote)
 	act("$N is not properly installed in the clan.\r\n",
 	    FALSE, ch, 0, vict, TO_CHAR);
     else if (!PLR_FLAGGED(ch, PLR_CLAN_LEADER) && GET_LEVEL(ch) < LVL_GRGOD) {
-	if (member2->rank >= member1->rank - 1)
+	if (member2->rank >= member1->rank - 1 && GET_IDNUM(ch) != clan->owner)
 	    act("You are not in a position to promote $M.",
 		FALSE, ch, 0, vict, TO_CHAR);
 	else {
@@ -550,7 +592,7 @@ ACMD(do_promote)
 		save_char(vict, NULL);
 	    }
 	} else {
-	    if (member2->rank >= member1->rank)
+	    if (member2->rank >= member1->rank && GET_IDNUM(ch) != clan->owner)
 		act("You cannot promote $M further.",FALSE,ch,0,vict,TO_CHAR);
 	    else {
 		member2->rank++;
