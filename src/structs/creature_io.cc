@@ -825,7 +825,7 @@ Creature::loadFromXML( const char *path )
 			strncpy(BADGE(this), txt, 7);
 			BADGE(this)[7] = '\0';
 			if (is_number(player_specials->saved.badge))
-				strcpy(BADGE(this), LEV_ABBR(this));
+				strcpy(BADGE(this), "SETME");
 			free(txt);
 
 			GET_QLOG_LEVEL(this) = xmlGetIntProp(node, "qlog");
