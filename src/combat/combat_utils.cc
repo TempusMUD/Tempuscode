@@ -273,36 +273,6 @@ ok_to_damage(struct Creature *ch, struct Creature *vict)
 	if (affected_by_spell(vict, SKILL_DISGUISE))
 		return true;
 
-	// If they're in a quest and they attack someone outside of
-	// the quest, this drops them out of the quest.  Normal rules
-	// then apply
-	if (GET_QUEST(ch) && GET_QUEST(ch) != GET_QUEST(vict)) {
-		Quest *quest = quest_by_vnum(GET_QUEST(ch));
-
-		if (!quest->canLeave(ch)) {
-			qlog(ch,
-				tmp_sprintf("%s has attacked non-questing PC %s",
-					GET_NAME(ch), GET_NAME(vict)),
-				QLOG_BRIEF,
-				MAX(GET_INVIS_LVL(ch), LVL_AMBASSADOR),
-				true);
-			return false;
-		}
-
-		quest->removePlayer(GET_IDNUM(ch));
-		qlog(ch,
-			tmp_sprintf("%s kicked out of quest for attacking %s",
-				GET_NAME(ch), GET_NAME(vict)),
-			QLOG_BRIEF,
-			MAX(GET_INVIS_LVL(ch), LVL_AMBASSADOR),
-			true);
-	}
-
-	// It's not ok to hit someone in a quest if you're not in the
-	// quest, either.
-	if (GET_QUEST(vict) && GET_QUEST(vict) != GET_QUEST(ch))
-		return false;
-
 	// We don't worry about arena combat
 	if (is_arena_combat(ch, vict))
 		return true;
@@ -815,7 +785,7 @@ choose_random_limb(Creature *victim)
 // 
 // the check for PRF2_KILLER is rolled into here for increased ( un )coherency.
 // since this is called before any attack/damage/etc... its a good place to check the flag  
-int
+bool
 peaceful_room_ok(struct Creature *ch, struct Creature *vict, bool mssg)
 {
 	if (vict->isNewbie() && !is_arena_combat(ch, vict) &&
@@ -828,7 +798,7 @@ peaceful_room_ok(struct Creature *ch, struct Creature *vict, bool mssg)
 		}
 		slog("%s protected against %s [peaceful room check] at %d\n",
 			GET_NAME(vict), GET_NAME(ch), vict->in_room->number);
-		return 0;
+		return false;
 	}
 	if (vict && IS_SET(ROOM_FLAGS(ch->in_room), ROOM_PEACEFUL) &&
 		!PLR_FLAGGED(vict, PLR_KILLER) && GET_LEVEL(ch) < LVL_GRGOD &&
@@ -845,23 +815,46 @@ peaceful_room_ok(struct Creature *ch, struct Creature *vict, bool mssg)
 					FALSE, ch, 0, 0, TO_ROOM);
 		}
 
-		return 0;
+		return false;
 	}
 	if (IS_AFFECTED(ch, AFF_CHARM) && (ch->master == vict)) {
 		if (mssg)
 			act("$N is just such a good friend, you simply can't hurt $M.",
 				FALSE, ch, 0, vict, TO_CHAR);
-		return 0;
+		return false;
 	}
 
 	if (!is_arena_combat(ch, vict) && !IS_NPC(ch) && !IS_NPC(vict) && !PRF2_FLAGGED(ch, PRF2_PKILLER)) {
-		act("In order to attack $N or another player, you must toggle your\n"
-			"Pkiller status with the 'pkiller' command.", FALSE, ch, 0, vict,
-			TO_CHAR);
-		return 0;
+		if (mssg)
+			send_to_char(ch,
+				"In order to attack %s or another player, you must toggle your\r\n"
+				"pkiller status with the 'pkiller' command.",
+				PERS(vict, ch));
+		return false;
 	}
 
-	return 1;
+	// If they're in a quest and they attack someone outside of
+	// the quest, this drops them out of the quest.  Normal rules
+	// then apply
+	if (GET_QUEST(ch) && GET_QUEST(ch) != GET_QUEST(vict)) {
+		if (mssg)
+			send_to_char(ch,
+				"%s is not in your quest and may not be attacked!\r\n",
+				PERS(vict, ch));
+		return false;
+	}
+
+	// It's not ok to hit someone in a quest if you're not in the
+	// quest, either.
+	if (GET_QUEST(vict) && GET_QUEST(vict) != GET_QUEST(ch)) {
+		if (mssg)
+			send_to_char(ch,
+				"%s is on a godly quest and may not be attacked!\r\n",
+				PERS(vict, ch));
+		return false;
+	}
+
+	return true;
 }
 
 void
