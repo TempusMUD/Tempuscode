@@ -3154,10 +3154,10 @@ ACMD(do_who)
                          !strncmp(GET_NAME(tch), "Stryker", 7)  ? "CODEMAN" :
                          !strncmp(GET_NAME(tch), "Hubris", 6)   ? "EC ARCH" :
                          !strncmp(GET_NAME(tch), "Tigger", 6)   ? "OP ARCH" :
-                         !strncmp(GET_NAME(tch), "Babylon", 7)   ? " CODER " :
                          !strncmp(GET_NAME(tch), "Trouble", 7)  ? " ADMIN " :
                          !strncmp(GET_NAME(tch), "Darth", 5)    ? " ADMIN " :
                          !strncmp(GET_NAME(tch), "Nothing", 7)  ? "THECODE" :
+                         !strncmp(GET_NAME(tch), "Babylon", 7)  ? " CODER " :
                          !strncmp(GET_NAME(tch), "Reptile", 7)  ? "BUILDER" :
                          !strncmp(GET_NAME(tch), "Fortune", 7)  ? "BUILDER" :
                          !strncmp(GET_NAME(tch), "Storm"  , 5)  ? "BUILDER" :
@@ -3165,8 +3165,10 @@ ACMD(do_who)
                          !strncmp(GET_NAME(tch), "Taurean", 7)  ? "BUILDER" :
                          !strncmp(GET_NAME(tch), "Javelin", 7)  ? "BUILDER" :
                          !strncmp(GET_NAME(tch), "Wolfe"  , 5)  ? "BUILDER" :
-                         !strncmp(GET_NAME(tch), "Evangeline",  10)  ? "QUESTOR" :
-                         !strncmp(GET_NAME(tch), "Dissonance", 11)  ? "QUESTOR" :
+                         !strncmp(GET_NAME(tch), "Renaissance",11)  ? "BUILDER" :
+                         !strncmp(GET_NAME(tch), "Countdown", 9)  ? "BUILDER" :
+                         !strncmp(GET_NAME(tch), "Evangeline", 10)  ? "QUESTOR" :
+                         !strncmp(GET_NAME(tch), "Dissonance", 10)  ? "QUESTOR" :
                          !strncmp(GET_NAME(tch), "Failure", 7)  ? "QUESTOR" :
                          !strncmp(GET_NAME(tch), "Joran", 5)    ? " LOWER ":
                          LEV_ABBR(tch)),  CCYEL_BLD(ch, C_NRM), CCNRM(ch, C_NRM),
