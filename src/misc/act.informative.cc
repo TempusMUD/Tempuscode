@@ -3683,7 +3683,7 @@ perform_immort_where(struct char_data * ch, char *arg)
 	    if (CAN_SEE(ch, i) && i->in_room && isname(arg1, i->player.name) &&
 		(++num) &&
 		(!*arg2 || isname(arg2, i->player.name)) &&
-		!(GET_MOB_SPEC(i) == fate)) {
+		(GET_MOB_SPEC(i) != fate || GET_LEVEL(ch) >= LVL_SPIRIT)) {
 		found = 1;
 		sprintf(buf, "%sM%s%3d. %s%-25s%s - %s[%s%5d%s]%s %s%s%s\r\n", 
 			CCRED_BLD(ch, NRM), CCNRM(ch, NRM), num, 

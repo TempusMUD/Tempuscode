@@ -1423,7 +1423,7 @@ do_stat_character(struct char_data * ch, struct char_data * k)
     extern struct attack_hit_type attack_hit_text[];
     char outbuf[MAX_STRING_LENGTH];
 
-	if(GET_MOB_SPEC(k) == fate && GET_LEVEL(ch) < 58) {
+	if(GET_MOB_SPEC(k) == fate && GET_LEVEL(ch) < LVL_SPIRIT) {
 		send_to_char("You can't stat this mob.\r\n",ch);
 		return;
 	}
