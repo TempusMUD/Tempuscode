@@ -942,6 +942,7 @@ ACMD(do_econvert)
 	}
 
 	num_points = MIN(num_points, GET_MAX_MANA(ch) - GET_MANA(ch));
+    num_points = MAX(num_points, 0);
 	GET_MANA(ch) += num_points;
 
 	send_to_char(ch, "You have increased your mana level by %d to %d.\r\n",
