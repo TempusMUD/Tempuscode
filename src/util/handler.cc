@@ -471,19 +471,23 @@ affect_modify(struct Creature *ch, sh_int loc, sh_int mod, long bitv,
 	case APPLY_NOTHIRST:
 		if (IS_NPC(ch))
 			break;
-		if (mod > 0)
-			GET_COND(ch, THIRST) = -1;
-		else
-			GET_COND(ch, THIRST) = 0;
+        if (GET_COND(ch, THIRST) != -1) {
+            if (mod > 0)
+                GET_COND(ch, THIRST) = -2;
+            else
+                GET_COND(ch, THIRST) = 0;
+        }
 		break;
 	case APPLY_NOHUNGER:
 		if (IS_NPC(ch))
 			break;
-		if (mod > 0)
-			GET_COND(ch, FULL) = -1;
-		else
-			GET_COND(ch, FULL) = 0;
-		break;
+        if (GET_COND(ch, FULL) != -1) {
+            if (mod > 0)
+                GET_COND(ch, FULL) = -2;
+            else
+                GET_COND(ch, FULL) = 0;
+            break;
+        }
 	case APPLY_NODRUNK:
 		if (IS_NPC(ch))
 			break;

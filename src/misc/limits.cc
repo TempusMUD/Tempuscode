@@ -417,7 +417,7 @@ gain_condition(struct Creature *ch, int condition, int value)
 {
 	int intoxicated = 0;
 
-	if (GET_COND(ch, condition) == -1 || !value)	/* No change */
+	if (GET_COND(ch, condition) < 0 || !value)	/* No change */
 		return;
 
 	intoxicated = (GET_COND(ch, DRUNK) > 0);
