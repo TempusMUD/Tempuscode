@@ -295,6 +295,13 @@ The lever controls the inner portcullis of the gatehouse.  It may be
 either pushed or pulled.
 ~
 Z
+trig_enter2~
+~
+The trapdoor slams shut behind you!~
+The trapdoor slams shut!~
+The trapdoor slams shut!~
+1 17010 4 2 17
+Z
 trig_enter1~
 ~
 ~
@@ -1855,6 +1862,10 @@ D2
 ~
 ~
 0 0 17057
+E
+lever steel~
+The massive lever is mounted into the floor.  It may be pushed or pulled.
+~
 Z
 push~
 lever~
@@ -1882,6 +1893,10 @@ D0
 ~
 ~
 0 0 17072
+E
+lever steel~
+The massive lever is mounted into the floor.  It may be pushed or pulled.
+~
 Z
 push~
 lever~
@@ -2117,7 +2132,7 @@ boiling pit of lava far below.  The walkway terminates here at the
 giant wall which rises above you to the north.  A large metal gate is
 set into the wall.
 ~
-170 c 0
+170 cj 0
 D0
 ~
 gate~
@@ -2140,7 +2155,7 @@ completely black.  From the top of the tower, high overhead, comes a
 constant blast of fire of such power and magnitude that you have never
 seen nor imagined.
 ~
-170 0 0
+170 j 0
 D0
 ~
 gate~
@@ -2200,7 +2215,7 @@ see a gigantic lake of boiling lava.
 black tower.  You feel an oppressive heat from inside the tower, even
 worse than the heatwaves which rise from the lake of fire below.
 ~
-170 0 0
+170 j 0
 D2
 ~
 archway~
@@ -2280,7 +2295,7 @@ A Bridge Over a Lavaduct~
 lava. The lava bubbles and hisses as it flows by, sending scalding
 clouds of steam into the air.  The bridge leads to the north and south.
 ~
-170 0 0
+170 j 1
 D0
 ~
 ~
@@ -2301,7 +2316,7 @@ walls and black stone towers rise up around you into the red sky.
    The road leads off to the west, and to the south you see a massive
 steel bridge which appears to arch over a channel of swiftly flowing lava.
 ~
-170 0 0
+170 j 1
 D2
 ~
 ~
@@ -2317,7 +2332,7 @@ A Road Through Malagard~
 walls and black stone towers rise up around you into the red sky.
    The road leads to the west and east from here.
 ~
-170 0 0
+170 j 1
 D1
 ~
 ~
@@ -2334,7 +2349,7 @@ walls and black stone towers rise up around you into the red sky.
    The road ends here, leading back to the east.  A steep stone ramp leads
 upward to what appears to be a raised walkway.
 ~
-170 0 0
+170 j 1
 D1
 ~
 ~
@@ -2352,7 +2367,7 @@ tower.
    The walkway leads off to the west.  A steep stone ramp leads down
 from here to a wide roadway below.
 ~
-170 0 0
+170 j 1
 D3
 ~
 ~
@@ -2369,7 +2384,7 @@ Malagard. The stone walkway runs along the side of a massive black
 tower.
    The walkway curves to the east and south here.
 ~
-170 0 0
+170 j 1
 D1
 ~
 ~
@@ -2386,7 +2401,7 @@ Malagard. The stone walkway runs along the side of a massive black
 tower.
    The walkway curves to the north and west here.
 ~
-170 0 0
+170 j 1
 D0
 ~
 ~
@@ -2403,7 +2418,7 @@ Malagard. The stone walkway runs along the side of a massive black
 tower.
    To the south you see a gigantic lava pit.
 ~
-170 0 0
+170 j 1
 D1
 ~
 ~
@@ -2424,7 +2439,7 @@ Malagard. The stone walkway runs along the side of a massive black
 tower.
    To the south you see a gigantic lava pit.
 ~
-170 0 0
+170 j 1
 D1
 ~
 ~
@@ -2446,7 +2461,7 @@ to the east.  South of here lies a giant pit of lava, and to the
 west you see a dark plaza.
    A spiked archway stands between you and the plaza to the west.
 ~
-170 0 0
+170 j 1
 D1
 ~
 ~
@@ -2462,8 +2477,12 @@ D3
 S
 #17110
 A Dark Plaza~
+   You are at the edge of a vast, black plaza.  The stones of the plaza
+extend off to the south from here, alongside a broad pit of smoking
+lava.  To the east, a rock walkway leads to what appears to be a guard
+post.  Black walls and towers rise into the sky to the north and west.
 ~
-170 0 0
+170 j 1
 D1
 ~
 ~
@@ -2475,8 +2494,12 @@ D2
 S
 #17111
 A Dark Plaza~
+   You find yourself at the eastern edge of a vast, black plaza.  Wide
+stone steps lead up to the west toward the towering entrance of the
+Palace.  The eastern edge of the plaza is lined with a low wall, beyond
+which you see a broad pit of smoking lava.
 ~
-170 0 0
+170 j 1
 D0
 ~
 ~
@@ -2496,8 +2519,14 @@ D3
 S
 #17112
 A Dark Plaza~
+   You find yourself at the eastern edge of a vast, black plaza.  Wide
+stone steps lead up to the west toward the towering entrance of the
+Palace.  The eastern edge of the plaza is lined with a low wall, beyond
+which you see a broad pit of smoking lava.
+   A stone walkway, lined with sharp black spikes, leads off to the south
+toward what appears to be a double circular staircase.
 ~
-170 0 0
+170 j 1
 D0
 ~
 ~
@@ -2506,6 +2535,10 @@ D1
 ~
 ~
 0 0 17120
+D2
+~
+~
+0 0 17141
 D3
 ~
 ~
@@ -2513,12 +2546,21 @@ D3
 S
 #17113
 A Dark Plaza~
+   You are surrounded by gigantic stone pillars which seem to be
+scattered about in a random manner amid the black steps which lead
+up to the entrance to the Palace.  As you gaze around you, you get the
+distinct feeling that the pillars have moved since you last looked.
+Perhaps they are slowly moving in to crush you?
+   A narrow archway in the wall to the north appears to lead into
+a dark passageway.
 ~
-170 0 0
+170 j 1
 D0
+You cannot see very far into the narrow, arched passageway.  It is so
+dark, in fact, that it seems to actually thinly radiate darkness.
 ~
-~
-0 0 17121
+portcullis~
+ae 0 17121
 D1
 ~
 ~
@@ -2530,8 +2572,16 @@ D2
 S
 #17114
 A Dark Plaza~
+   You are surrounded by gigantic stone pillars which seem to be
+scattered about in a random manner amid the black steps which lead
+up to the entrance to the Palace.  As you gaze around you, you get the
+distinct feeling that the pillars have moved since you last looked.
+Perhaps they are slowly moving in to crush you?
+   A narrow archway in the wall to the south appears to lead into
+a dark passageway.  To the west, you see the arched entrance to the
+palace.  Huge stone toothlike protrusions line the way to the gate.
 ~
-170 0 0
+170 j 1
 D0
 ~
 ~
@@ -2544,6 +2594,17 @@ D2
 ~
 ~
 0 0 17123
+D3
+~
+~
+0 0 17131
+Z
+trig_enter1~
+~
+~
+~
+~
+10 17142 17142 1 17
 S
 #17115
 A Lava Pit~
@@ -2553,7 +2614,7 @@ the south and east.  A thick stone rim lines the edge of the pit.
    To the west you see a large, dark plaza, and what appears to be
 the entrance to the palace in the distance.
 ~
-170 0 18
+170 j 18
 D0
 ~
 ~
@@ -2579,7 +2640,7 @@ the dark skies.
    To the north you see the edge of the pit, and a stone walkway
 leading along the edge.
 ~
-170 0 18
+170 j 18
 D0
 ~
 ~
@@ -2605,7 +2666,7 @@ the dark skies.
    To the north you see the edge of the pit, and a stone walkway
 leading along the edge.
 ~
-170 0 18
+170 j 18
 D0
 ~
 ~
@@ -2627,7 +2688,7 @@ the dark skies.
    From here the lava pours down though an opening into a large
 lavaduct below.
 ~
-170 0 18
+170 j 18
 D0
 ~
 ~
@@ -2649,7 +2710,7 @@ A Lava Pit~
 hisses and bubbles all around you, sending clouds of steam into
 the dark skies.
 ~
-170 0 0
+170 j 0
 D0
 ~
 ~
@@ -2671,7 +2732,7 @@ the north and east.  A thick stone rim lines the edge of the pit.
    To the west you see a large, dark plaza, and what appears to be
 the entrance to the palace in the distance.
 ~
-170 0 18
+170 j 18
 D0
 ~
 ~
@@ -2687,47 +2748,123 @@ D3
 S
 #17121
 A Dark Passage~
+   You find yourself in a narrow, arched passageway.  Red light spills
+into the passage from the north, barely affecting the oppressive
+darkness.  A smell of putrescence and decay comes from the north.
 ~
-170 0 0
+170 acj 0
 D0
 ~
 ~
 0 0 17122
 D2
 ~
-~
-0 0 17113
+portcullis~
+ae 0 17113
 S
 #17122
-A Dark Passage~
+A Dark Chamber~
+   You stand in a large circular chamber.  Crumbling archways lead to
+to the west, north, and east, opening into what appears to be a small
+graveyard.  The odor of decay and rotting flesh in this chamber almost
+overpowers you.
+   A large stone staircase climbs the wall into the darkness, and a
+narrow arched passageway leads off to the south.
 ~
-170 0 0
+170 acdj 0
+D0
+~
+~
+0 0 17146
+D1
+~
+~
+0 0 17147
 D2
 ~
 ~
 0 0 17121
+D3
+~
+~
+0 0 17145
+D4
+~
+~
+0 0 17150
+Z
+trig_enter3~
+~
+~
+~
+~
+10 17149 17149 1 145
+Z
+trig_enter2~
+~
+~
+~
+~
+10 17148 17148 1 145
+Z
+trig_enter1~
+~
+You hear a crashing sound as the portcullis down the hall to the south slams shut!~
+You hear a crashing sound as the portcullis down the hall to the south slams shut!~
+The portcullis slams shut!~
+1 17121 2 2 145
+O 50
 S
 #17123
 A Dark Passage~
+   You find yourself in a narrow, arched passageway.  Red light spills
+into the passage from the north, barely illuminating a massive door
+to the south.
 ~
-170 0 0
+170 j 0
 D0
 ~
 ~
 0 0 17114
 D2
+The door appears to be made of stone, and is banded with steel.
+Hundreds of sharp steel spikes protrude from the door.  You notice
+that the spikes and the door itself is quite soaked with blood.
 ~
-~
-0 0 17124
+door~
+ae 0 17124
 S
 #17124
 A Dark Passage~
+   This small passageway leads southward into a large domed chamber,
+and ends abruptly here at a massive stone door to the north.
+   A large metal plate is mounted in the wall here.
 ~
-170 0 0
+170 dj 0
 D0
+The door appears to be made of stone, and is banded with steel.
+Hundreds of sharp steel spikes protrude from the door.  You notice
+that the spikes and the door itself is quite soaked with blood.
+~
+door~
+ae 0 17123
+D2
 ~
 ~
-0 0 17123
+0 0 17157
+E
+plate metal~
+The plate protrudes about 6 inches from the wall.  It appears that it
+may respond to being pushed.  Respond in what way, you cannot be sure.
+~
+Z
+push~
+plate metal~
+The plate pushes into the wall with a grinding sound...  The door swings slowly open.~
+$n pushes the plate into the wall, accompanied by a low grinding...  The door swings slowly open.~
+The spiked door swings slowly open.~
+1 17124 0 0 1
+O 50
 S
 #17125
 A Lavaduct~
@@ -2737,7 +2874,7 @@ channel.
    Lava pours into the channel from above here, and continues to
 flow off to the east.
 ~
-170 gw 18
+170 gjw 18
 D1
 ~
 ~
@@ -2756,7 +2893,7 @@ the city of Malagard.   Hissing lava flows swiftly through the rocky
 channel.
    The lava is flowing from the west to the east here.
 ~
-170 gw 18
+170 gjw 18
 D1
 ~
 ~
@@ -2776,7 +2913,7 @@ channel.
    The lava is flowing around a curve in the channel from the west
 to the north here.
 ~
-170 gw 18
+170 gjw 18
 D0
 ~
 ~
@@ -2795,7 +2932,7 @@ the city of Malagard.   Hissing lava flows swiftly through the rocky
 channel.
    The lava is flowing from the south to the north here.
 ~
-170 gw 18
+170 gjw 18
 D0
 ~
 ~
@@ -2815,7 +2952,7 @@ channel.
    The lava is flowing around a curve in the channel from the south
 to the east here.
 ~
-170 gw 18
+170 gjw 18
 D1
 ~
 ~
@@ -2834,7 +2971,7 @@ the city of Malagard.   Hissing lava flows swiftly through the rocky
 channel.
    The lava is flowing from the west to the east here.
 ~
-170 gw 18
+170 gjw 18
 D1
 ~
 ~
@@ -2846,6 +2983,28 @@ D3
 F
 1 4 8
 S
+#17131
+Before the Palace Gates~
+   The main gates of the Palace of Malagard rise up before you to the
+west.  The steel doors are ten stories high, and fill the arching
+entranceway like a dark wall.  Huge stone spikes shaped like gigantic
+teeth line the floor and ceiling as if the entranceway itself were
+the mouth of some giant beast.
+~
+170 j 0
+D1
+~
+~
+0 0 17114
+D3
+The gates are made from what appears to be solid steel, and rise up
+over ten stories above you.  The surface of the gates is scratched and
+scarred, but as you watch, the marks seem to shift and move across the
+metal doors.
+~
+gates~
+ae 0 -1
+S
 #17132
 A Lavaduct~
    You are in one of the uncountably many lavaducts which run through
@@ -2854,7 +3013,7 @@ channel.
    The lava flows under a massive metal bridge here.  The lavaduct
 continues to the east.
 ~
-170 gw 18
+170 gjw 18
 D1
 ~
 ~
@@ -2877,7 +3036,7 @@ the city of Malagard.   Hissing lava flows swiftly through the rocky
 channel.
    The lava is flowing from the west to the east here.
 ~
-170 gw 18
+170 gjw 18
 D1
 ~
 ~
@@ -2896,7 +3055,7 @@ the city of Malagard.   Hissing lava flows swiftly through the rocky
 channel.
    The lava is flowing from the west to the east here.
 ~
-170 gw 18
+170 gjw 18
 D1
 ~
 ~
@@ -2915,7 +3074,7 @@ the city of Malagard.   Hissing lava flows swiftly through the rocky
 channel.
    The lava is flowing from the west to the east here.
 ~
-170 gw 18
+170 gjw 18
 D1
 ~
 ~
@@ -2935,7 +3094,7 @@ channel.
    The lava is flowing from the west to the east here.  To the
 north, you see a dark opening in the rock face.
 ~
-170 gw 18
+170 gjw 18
 D0
 ~
 ~
@@ -2958,7 +3117,7 @@ The surface of the lava is crusted with black, solidifying rock.
    To the south you see a large lavaduct flowing by, and this small
 passage continues to the north.
 ~
-170 agw 18
+170 agjw 18
 D0
 ~
 ~
@@ -2975,7 +3134,7 @@ filled with lava.  The lava in this tunnel is old, and has a thick black
 layer of rocky crust floating on top of it.
    The passage leads back to the south.
 ~
-170 aghwC 18
+170 aghjwC 18
 D2
 ~
 ~
@@ -2988,7 +3147,7 @@ the city of Malagard.   Hissing lava flows swiftly through the rocky
 channel.
    The lava is flowing from the west to the east here.
 ~
-170 gw 18
+170 gjw 18
 D1
 ~
 ~
@@ -3008,7 +3167,7 @@ channel.
    The lava flows in from the west and continues eastward through
 a heavy metal grating.
 ~
-170 gw 18
+170 gjw 18
 D1
 ~
 ~
@@ -3019,5 +3178,421 @@ D3
 0 0 17139
 F
 1 1 8
+S
+#17141
+The Edge of the Plaza~
+   You stand before what appears to be a pair of entwined circular
+staircases.  The steps of the two stairways appear to be suspended
+magically in midair, because you cannot discern any physical support
+structures.
+   The stairways rise up in the form of a double helix to a rocky
+platform, high above.  To the north you can see the Dark Plaza which
+extends before the entrance of the Palace.
+~
+170 cj 1
+D0
+~
+~
+0 0 17112
+D4
+~
+~
+0 0 17142
+S
+#17142
+A Wide Platform~
+   The smooth stone surface of this platform is very dark, absorbing all
+the light given off by the glowing, blood-red sky above.  Large spikes
+resembling gigantic teeth line the edges of the platform.
+   The platform extends to the east and south.  A pair of stone
+staircases, in the form of a giant double helix, leads down from here.
+~
+170 j 1
+D1
+~
+~
+0 0 17143
+D2
+~
+~
+0 0 17144
+D5
+~
+~
+0 0 17141
+S
+#17143
+A Wide Platform~
+   The smooth stone surface of this platform is very dark, absorbing all
+the light given off by the glowing, blood-red sky above.  Large spikes
+resembling gigantic teeth line the edges of the platform.
+   The platform extends to the west.
+~
+170 j 1
+D3
+~
+~
+0 0 17142
+S
+#17144
+A Wide Platform~
+   The smooth stone surface of this platform is very dark, absorbing all
+the light given off by the glowing, blood-red sky above.  Large spikes
+resembling gigantic teeth line the edges of the platform.
+   The platform extends to the north.
+~
+170 j 1
+D0
+~
+~
+0 0 17142
+S
+#17145
+An Ancient Graveyard~
+   This horrible area is the vilest graveyard you have ever seen.
+The graves have all been laid open, and rotting corpses lay strewn
+about in maggot-infested piles.  However, these corpses do not seem
+to be completely inanimate.  In fact, they seem to be clawing and
+dragging themselves over the violated ground and shattered tombstones
+in an insane effort to intercept you!
+   Through a crumbling archway to the east you see a dark chamber.
+~
+170 adgjsy 0
+D0
+~
+~
+0 0 17148
+D1
+~
+~
+0 0 17122
+E
+tombstones stones~
+The tombstones appear to be quite old.  They are shattered, and the
+engravings upon then have become completely obscured.
+~
+E
+graves~
+The graves have all been dug up, and the fetid dirt strewn all over the
+yard.  The graves are now filled with rotting corpses and squirming
+insects.
+~
+L
+You hear the tortured moans of the not-so-recently deceased.
+~
+O 50
+S
+#17146
+An Ancient Graveyard~
+   This horrible area is the vilest graveyard you have ever seen.
+The graves have all been laid open, and rotting corpses lay strewn
+about in maggot-infested piles.  However, these corpses do not seem
+to be completely inanimate.  In fact, they seem to be clawing and
+dragging themselves over the violated ground and shattered tombstones
+in an insane effort to intercept you!
+   Through a crumbling archway to the south you see a dark chamber.
+~
+170 adgjsy 0
+D1
+~
+~
+0 0 17149
+D2
+~
+~
+0 0 17122
+D3
+~
+~
+0 0 17148
+E
+graves~
+The graves have all been dug up, and the fetid dirt strewn all over the
+yard.  The graves are now filled with rotting corpses and squirming
+insects.
+~
+E
+tombstones stones~
+The tombstones appear to be quite old.  They are shattered, and the
+engravings upon then have become completely obscured.
+~
+L
+You hear the tortured moans of the not-so-recently deceased.
+~
+O 50
+S
+#17147
+An Ancient Graveyard~
+   This horrible area is the vilest graveyard you have ever seen.
+The graves have all been laid open, and rotting corpses lay strewn
+about in maggot-infested piles.  However, these corpses do not seem
+to be completely inanimate.  In fact, they seem to be clawing and
+dragging themselves over the violated ground and shattered tombstones
+in an insane effort to intercept you!
+   Through a crumbling archway to the west you see a dark chamber.
+~
+170 adgjsy 0
+D0
+~
+~
+0 0 17149
+D3
+~
+~
+0 0 17122
+E
+tombstones stones~
+The tombstones appear to be quite old.  They are shattered, and the
+engravings upon then have become completely obscured.
+~
+E
+graves~
+The graves have all been dug up, and the fetid dirt strewn all over the
+yard.  The graves are now filled with rotting corpses and squirming
+insects.
+~
+L
+You hear the tortured moans of the not-so-recently deceased.
+~
+O 50
+S
+#17148
+An Ancient Graveyard~
+   This horrible area is the vilest graveyard you have ever seen.
+The graves have all been laid open, and rotting corpses lay strewn
+about in maggot-infested piles.  However, these corpses do not seem
+to be completely inanimate.  In fact, they seem to be clawing and
+dragging themselves over the violated ground and shattered tombstones
+in an insane effort to intercept you!
+~
+170 adgjsy 0
+D1
+~
+~
+0 0 17146
+D2
+~
+~
+0 0 17145
+E
+tombstones stones~
+The tombstones appear to be quite old.  They are shattered, and the
+engravings upon then have become completely obscured.
+~
+E
+graves~
+The graves have all been dug up, and the fetid dirt strewn all over the
+yard.  The graves are now filled with rotting corpses and squirming
+insects.
+~
+L
+You hear the tortured moans of the not-so-recently deceased.
+~
+O 50
+S
+#17149
+An Ancient Graveyard~
+   This horrible area is the vilest graveyard you have ever seen.
+The graves have all been laid open, and rotting corpses lay strewn
+about in maggot-infested piles.  However, these corpses do not seem
+to be completely inanimate.  In fact, they seem to be clawing and
+dragging themselves over the violated ground and shattered tombstones
+in an insane effort to intercept you!
+~
+170 adgjsy 0
+D2
+~
+~
+0 0 17147
+D3
+~
+~
+0 0 17146
+E
+tombstones stones~
+The tombstones appear to be quite old.  They are shattered, and the
+engravings upon then have become completely obscured.
+~
+E
+graves~
+The graves have all been dug up, and the fetid dirt strewn all over the
+yard.  The graves are now filled with rotting corpses and squirming
+insects.
+~
+L
+You hear the tortured moans of the not-so-recently deceased.
+~
+O 50
+S
+#17150
+The North End of the Corridor~
+   You are at the north end of a long corridor.  The walls and floors
+of this passage are made of dark stone.  A large staircase leads down
+into darkness, and a terrible stench.
+~
+170 cdj 0
+D2
+~
+~
+0 0 17151
+D5
+~
+~
+0 0 17122
+O 50
+S
+#17151
+A Passageway~
+   This long stone passageway leads north and south.  You seem to be
+somewhere above the main entrance to the Palace.  Long, narrow windows
+line the eastern wall, and hot red light falls through, forming glowing
+bands of light on the otherwise dark stones of the floor.
+~
+170 dj 0
+D0
+~
+~
+0 0 17150
+D2
+~
+~
+0 0 17152
+O 50
+S
+#17152
+A Passageway~
+   This long stone passageway leads north and south.  You seem to be
+somewhere above the main entrance to the Palace.  Long, narrow windows
+line the eastern wall, and hot red light falls through, forming glowing
+bands of light on the otherwise dark stones of the floor.
+~
+170 dj 0
+D0
+~
+~
+0 0 17151
+D2
+~
+~
+0 0 17153
+O 50
+S
+#17153
+Above the Gates~
+   This long stone passageway leads north and south.  You seem to be
+somewhere above the main entrance to the Palace.  Long, narrow windows
+line the eastern wall, and hot red light falls through, forming glowing
+bands of light on the otherwise dark stones of the floor.
+   Judging from the view through the thick metal bars on the floor,
+this part of the passageway is directly above the main entrance to
+the Palace.  Mounted into the west wall you see a huge steel lever,
+which you can see is attached to a network of chains and gears that
+server to open or close the main gates.  A large stone structure
+extends from the wall, partially surrounding the lever and its mount.
+~
+170 dj 0
+D0
+~
+~
+0 0 17152
+D2
+~
+~
+0 0 17154
+D5
+You see some thick metal bars.  Through the bars you can see the
+exterior of the main entrance to the Palace.
+~
+~
+0 0 -1
+E
+lever~
+You can push or pull the lever, depending on its position.
+~
+Z
+push~
+lever steel~
+You push the steel lever... there is a loud grinding from below.~
+$n pushes the steel lever... there is a loud grinding from below.~
+The gates swing closed with a resounding clang.~
+1 17131 3 2 1
+Z
+pull~
+lever steel~
+You pull the steel lever... there is a loud grinding from below.~
+$n pulls the steel lever... there is a loud grinding from below.~
+The gates swing open with a loud rumble.~
+1 17131 3 0 1
+O 50
+S
+#17154
+A Passageway~
+   This long stone passageway leads north and south.  You seem to be
+somewhere above the main entrance to the Palace.  Long, narrow windows
+line the eastern wall, and hot red light falls through, forming glowing
+bands of light on the otherwise dark stones of the floor.
+~
+170 dj 0
+D0
+~
+~
+0 0 17153
+D2
+~
+~
+0 0 17155
+O 50
+S
+#17155
+A Passageway~
+   This long stone passageway leads north and south.  You seem to be
+somewhere above the main entrance to the Palace.  Long, narrow windows
+line the eastern wall, and hot red light falls through, forming glowing
+bands of light on the otherwise dark stones of the floor.
+~
+170 dj 0
+D0
+~
+~
+0 0 17154
+D2
+~
+~
+0 0 17156
+O 50
+S
+#17156
+The South End of the Corridor~
+   You are at the south end of a long stone corridor.  A curving
+staircase leads down into a chamber from here.
+~
+170 cdj 0
+D0
+~
+~
+0 0 17155
+D5
+~
+~
+0 0 17157
+O 50
+S
+#17157
+A Domed Chamber~
+   A large domed chamber surrounds you.  It is very dark and quiet
+here. You can hear yourself breathing...  it is somewhat unnerving.
+A passageway leads to the north, and a curving stone staircase leads
+upwards to a dark elevated passageway.
+~
+170 dj 0
+D0
+~
+~
+0 0 17124
+D4
+~
+~
+0 0 17156
+O 50
 S
 $~
