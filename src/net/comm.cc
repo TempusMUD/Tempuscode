@@ -2078,10 +2078,12 @@ push_command_onto_list(Creature *ch, char *string)
 	}
 
 	last_cmd[0].idnum = GET_IDNUM(ch);
-	strcpy(last_cmd[0].name, GET_NAME(ch));
+	strncpy(last_cmd[0].name, GET_NAME(ch), MAX_INPUT_LENGTH);
 	last_cmd[0].roomnum = (ch->in_room) ? ch->in_room->number:-1;
-	strcpy(last_cmd[0].room, (ch->in_room) ? ch->in_room->name:"<NULL>");
-	strcpy(last_cmd[0].string, string);
+	strncpy(last_cmd[0].room, 
+                (ch->in_room && ch->in_room->name) ? 
+                    ch->in_room->name : "<NULL>", MAX_INPUT_LENGTH );
+	strncpy(last_cmd[0].string, string, MAX_INPUT_LENGTH);
 }
 
 void
