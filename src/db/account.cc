@@ -616,3 +616,15 @@ Account::deny_char_entry(Creature *ch)
 
 	return true;
 }
+
+bool 
+Account::is_logged_in() const
+{
+    list<descriptor_data*> connections;
+	for( descriptor_data *d = descriptor_list; d != NULL; d = d->next ) {
+		if( d->account == this ) {
+            return true;
+		}
+	}
+    return false;
+}

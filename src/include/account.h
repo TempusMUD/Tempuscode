@@ -25,6 +25,7 @@ class Account {
 		bool authenticate(const char *password);
 		void login(descriptor_data *d);
 		void logout(descriptor_data *d, bool forced);
+        bool is_logged_in() const;
 		void initialize(const char *name, descriptor_data *d, int idnum);
 
 		inline const char *get_name(void) const { return _name; }
@@ -55,6 +56,7 @@ class Account {
 
 		void set_password(const char *password);
 
+        
 	private:
 		// Internal
 		int _id;
