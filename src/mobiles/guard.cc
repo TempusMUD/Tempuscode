@@ -11,27 +11,40 @@
 #include "utils.h"
 
 const char *GUARD_HELP =
-"    guard is a more complete version of the now obsolete guildguard and\r\n"
-"gen_guard specials.  Its purpose is to block a certain exit from other\r\n"
-"creatures given a number of blocking criteria.  A specparam is used to\r\n"
-"configure it, where each line of the param gives a single directive.\r\n"
-"\r\n" 
-"    The directives are listed here:\r\n"
-"\r\n"
-"                guard <direction to block> <room number>\r\n"
-"                allow [not] <class>|<align>|<race>|<clan>|all\r\n"
-"                deny [not] <class>|<align>|<race>|<clan>|all\r\n"
-"                tovict <message sent to blocked creature>\r\n"
-"                toroom <message sent to everyone else>\r\n"
-"                attack yes|no\r\n"
+"Required Directives:\r\n"
+"    guard <direction to block> <room number> {REQUIRED}\r\n"
+"        The guard will block the exit from denied creatures while in\r\n"
+"        the specified room.\r\n"
+"\r\n"    
+"Optional Directives:\r\n"
+"    allow [not] <class>|<align>|<race>|<clan>|player|all\r\n"
+"    deny [not] <class>|<align>|<race>|<clan>|player|all\r\n"
+"        These two directives determine who the guard should block.\r\n"
+"        They are processed in the order given in the spec-param.\r\n"
+"        A creature matching the 'allow' directive will immediately be\r\n"
+"        let through, while a creature matching a 'deny' directive will\r\n"
+"        be blocked.  If none of the allow/deny directives match, the\r\n"
+"        default is to deny access.\r\n"
+"    tovict <message sent to blocked creature>\r\n"
+"    toroom <message sent to everyone else>\r\n"
+"        These are emits shown when the guard blocks a creature.  Within\r\n"
+"        them, $n refers to the guard, and $N refers to the creature being\r\n"
+"        blocked.\r\n"
+"    attack yes|no\r\n"
+"        If this directive is set to yes, the guard will begin attacking\r\n"
+"        any creature blocked, if not already in combat.  The default is\r\n"
+"        not to attack.\r\n"
+"    fallible yes|no\r\n"
+"        If this directive is set to yes, there is a chance the guard\r\n"
+"        will not notice sneaking, infiltrating, or invisible creatures.\r\n"
+"        The default is to always block.\r\n"
 "\r\n"
 "Example:\r\n"
-"    For a guard that allows all mages, but\r\n"
-"blocks all evil non-mages, but lets non-evil people through, you may use\r\n"
+"    For a guard that allows all humans or good knights to pass:\r\n"
 "\r\n"
-"                allow mage\r\n"
-"                deny evil\r\n"
-"                allow all\r\n";
+"                allow human\r\n"
+"                deny not good\r\n"
+"                allow knight\r\n";
 
 
 SPECIAL(guard)
@@ -42,7 +55,7 @@ SPECIAL(guard)
 	char *to_vict = "You are blocked by $n.";
 	char *to_room = "$N is blocked by $n.";
 	char *str, *line, *param_key, *dir_str, *room_str;
-	bool attack = false;
+	bool attack = false, fallible = false;
 	char *err = NULL;
 	long room_num = -1;
 
@@ -91,6 +104,9 @@ SPECIAL(guard)
 		} else if (!strcmp(param_key, "attack")) {
 			attack = (is_abbrev(line, "yes") || is_abbrev(line, "on") ||
 				is_abbrev(line, "1") || is_abbrev(line, "true"));
+		} else if (!strcmp(param_key, "fallible")) {
+			fallible = (is_abbrev(line, "yes") || is_abbrev(line, "on") ||
+				is_abbrev(line, "1") || is_abbrev(line, "true"));
 		} else {
 			err = "an invalid directive";
 			break;
@@ -117,10 +133,16 @@ SPECIAL(guard)
 	} else if (ch == self || IS_IMMORT(ch) || ALLOW == reaction.react(ch))
 		return false;
 
+	// If we're a fallible guard, check to see if they can get past us
+	if (fallible && check_sneak(ch, self, true, true) == SNEAK_OK)
+		return false;
+
 	// Set to deny if undecided
 	act(to_vict, FALSE, self, 0, ch, TO_VICT);
 	act(to_room, FALSE, self, 0, ch, TO_NOTVICT);
 	if (!err && attack && IS_PC(ch) && !PRF_FLAGGED(ch, PRF_NOHASSLE))
 		set_fighting(ch, self, true);
+
+	WAIT_STATE(ch, 1 RL_SEC);
 	return true;
 }
