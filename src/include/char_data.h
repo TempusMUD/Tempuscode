@@ -273,10 +273,9 @@
 #define MOB_NOBLIND	 (1 << 17) // Mob can't be blinded
 #define MOB_NOTURN       (1 << 18) // Hard to turn
 #define MOB_NOPETRI      (1 << 19) // Cannot be petrified
-#define MOB_NONE		(1 << 20)	// A Useless, No-do-nothing flag.
-#define MOB_PET			(1 << 21)	// Mob is a conjured pet and shouldn't
+#define MOB_PET			(1 << 20)	// Mob is a conjured pet and shouldn't
 									// get nor give any xp in any way.
-#define NUM_MOB_FLAGS    22
+#define NUM_MOB_FLAGS    21
 
 #define MOB2_SCRIPT     (1 << 0)
 #define MOB2_MOUNT      (1 << 1)
