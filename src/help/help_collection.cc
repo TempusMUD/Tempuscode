@@ -48,6 +48,7 @@ static const struct hcollect_command {
 	"unapprove", "<topic #>", LVL_DEMI}, {
 	"immhelp", "<keyword>", LVL_IMMORT}, {
 	"olchelp", "<keyword>", LVL_IMMORT}, {
+	"qchelp", "<keyword>", LVL_IMMORT}, {
 	"swap", "<topic #> <topic #>", LVL_DEMI}, {
 	NULL, NULL, 0}				// list terminator
 };
@@ -89,6 +90,7 @@ const char *help_group_names[] = {
 	"helpeditors",
 	"helpgods",
 	"immhelp",
+	"qcontrol",
 	"\n"
 };
 const char *help_group_bits[] = {
@@ -116,6 +118,7 @@ const char *help_group_bits[] = {
 	"HEDT",
 	"HGOD",
 	"IMM",
+	"QCTR",
 	"\n"
 };
 const char *help_bit_descs[] = {
@@ -730,6 +733,26 @@ ACMD(do_hcollect_help)
 	}
 }
 
+// 'qcontrol help'
+void
+do_qcontrol_help( CHAR *ch, char *argument )
+{
+	HelpItem *cur = NULL;
+	skip_spaces(&argument);
+
+	// Take care of all the special cases.
+	if (!argument || !*argument) {
+		cur = Help->find_item_by_id(900);
+	}
+	// If we have a special case, do it, otherwise try to get it normally.
+	if (cur) {
+		cur->Show(ch, gHelpbuf, 2);
+		page_string(ch->desc, gHelpbuf);
+	} else {
+		Help->GetTopic(ch, argument, 2, false, HGROUP_QCONTROL);
+	}
+}
+
 // The "olchelp" command
 ACMD(do_olchelp)
 {
@@ -855,7 +878,10 @@ ACMD(do_help_collection_command)
 	case 13:					// olchelp
 		Help->GetTopic(ch, argument, 2, false, HGROUP_OLC);
 		break;
-	case 14:{					// Swap 2 topics
+	case 14: 				   // QControl Help
+		Help->GetTopic(ch, argument, 2, false, HGROUP_QCONTROL);
+		break;
+	case 15:{					// Swap 2 topics
 			HelpItem *A = NULL;
 			HelpItem *Ap = NULL;
 			HelpItem *B = NULL;

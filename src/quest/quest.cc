@@ -346,6 +346,9 @@ ACMD(do_qcontrol)
 	}
 }
 
+/*  
+ *  Replaced with help_collection.cc:do_qcontrol_help
+ *  and placed in help_collection.cc to avoid yet another include.
 void
 do_qcontrol_help(struct char_data *ch, char *argument)
 {
@@ -387,6 +390,7 @@ do_qcontrol_help(struct char_data *ch, char *argument)
 
 	send_to_char(ch, "No help on that topic.\r\n");
 }
+*/
 
 void							//Load mobile.
 do_qcontrol_mload(CHAR * ch, char *argument, int com)
@@ -796,6 +800,21 @@ find_quest_type(char *argument)
 }
 
 void
+qcontrol_show_valid_types( CHAR *ch ) {
+	char *msg = tmp_sprintf("  Valid Types:\r\n");
+	int i = 0;
+	while (1) {
+		if (*qtypes[i] == '\n')
+			break;
+		char *line = tmp_sprintf("    %2d. %s\r\n", i, qtypes[i]);
+		msg = tmp_strcat(msg,line);
+		i++;
+	}
+	page_string(ch->desc, msg);
+	return;
+}
+
+void
 do_qcontrol_create(CHAR * ch, char *argument, int com)
 {
 	int type;
@@ -804,14 +823,13 @@ do_qcontrol_create(CHAR * ch, char *argument, int com)
 
 	if (!*arg1 || !*argument) {
 		do_qcontrol_usage(ch, com);
+		qcontrol_show_valid_types(ch);
 		return;
 	}
 
 	if ((type = find_quest_type(arg1)) < 0) {
-		sprintf(buf,
-			"Invalid quest type '%s'.\r\n"
-			"Use 'qcontrol help types'.\r\n", arg1);
-		send_to_char(ch, "%s", buf);
+		send_to_char(ch, "Invalid quest type '%s'.\r\n",arg1);
+		qcontrol_show_valid_types(ch);
 		return;
 	}
 
@@ -1035,6 +1053,24 @@ do_qcontrol_kick(CHAR * ch, char *argument, int com)
 }
 
 void
+qcontrol_show_valid_flags( CHAR *ch ) {
+
+	char *msg = tmp_sprintf("  Valid Quest Flags:\r\n");
+	int i = 0;
+	while (1) {
+		if (*quest_bits[i] == '\n')
+			break;
+		char *line = tmp_sprintf("    %2d. %s - %s\r\n", 
+								 i, 
+								 quest_bits[i],
+								 quest_bit_descs[i]);
+		msg = tmp_strcat(msg,line);
+		i++;
+	}
+	page_string(ch->desc, msg);
+	return;
+}
+void
 do_qcontrol_flags(CHAR * ch, char *argument, int com)
 {
 	Quest *quest = NULL;
@@ -1044,6 +1080,7 @@ do_qcontrol_flags(CHAR * ch, char *argument, int com)
 
 	if (!*arg1 || !*arg2 || !*argument) {
 		do_qcontrol_usage(ch, com);
+		qcontrol_show_valid_flags(ch);
 		return;
 	}
 
@@ -1059,6 +1096,7 @@ do_qcontrol_flags(CHAR * ch, char *argument, int com)
 		state = 2;
 	else {
 		do_qcontrol_usage(ch, com);
+		qcontrol_show_valid_flags(ch);
 		return;
 	}
 

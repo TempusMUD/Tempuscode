@@ -32,7 +32,8 @@ using namespace std;
 #define HGROUP_HELP_EDIT (1 << 21)
 #define HGROUP_HELP_GODS (1 << 22)
 #define HGROUP_IMMHELP   (1 << 23)
-#define HGROUP_MAX        24
+#define HGROUP_QCONTROL  (1 << 24)
+#define HGROUP_MAX        25
 
 
 
