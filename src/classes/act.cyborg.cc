@@ -1845,7 +1845,6 @@ ACMD(do_repair)
 	struct Creature *vict = NULL;
 	struct obj_data *obj = NULL, *tool = NULL;
 	int dam, cost, skill = 0;
-	int damage_threshold = 0;
 
 	skip_spaces(&argument);
 
@@ -2001,12 +2000,8 @@ ACMD(do_repair)
 		return;
 	}
 
-	damage_threshold = GET_OBJ_MAX_DAM(obj) >> 2;
-	damage_threshold -=
-		((GET_OBJ_MAX_DAM(obj) >> 1) * CHECK_SKILL(ch, skill)) / 150;
-
-	if (GET_OBJ_DAM(obj) > damage_threshold) {
-		act("$p is not broken.", FALSE, ch, obj, 0, TO_CHAR);
+	if (GET_OBJ_DAM(obj) > GET_OBJ_MAX_DAM(obj) * 3 / 4) {
+		act("$p is not damaged enough to need repair.", FALSE, ch, obj, 0, TO_CHAR);
 		return;
 	}
 
