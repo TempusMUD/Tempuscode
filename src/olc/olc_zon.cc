@@ -2271,7 +2271,7 @@ do_zset_command(struct Creature *ch, char *argument)
 		}
 
 	case 14:	// respawn point
-		if (is_abbrev("none", argument)) {
+		if (is_abbrev(argument, "none")) {
 			zone->respawn_pt = 0;
 			send_to_char(ch, "Zone respawn point cleared\r\n");
 		} else if (is_number(argument)) {
