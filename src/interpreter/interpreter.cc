@@ -1561,14 +1561,15 @@ add_alias(struct Creature *ch, struct alias_data *a)
 /* The interface to the outside world: do_alias */
 ACMD(do_alias)
 {
-	char *repl;
+	char *repl, *arg;
 	struct alias_data *cur_alias, *temp;
 	int alias_cnt = 0;
 
 	if (IS_NPC(ch))
 		return;
 
-	repl = any_one_arg(argument, arg);
+	arg = tmp_getword(&argument);
+	repl = argument;
 
 	if (!*arg || !*repl) {				/* no argument specified -- list currently defined aliases */
 		strcpy(buf, "Currently defined aliases:\r\n");
