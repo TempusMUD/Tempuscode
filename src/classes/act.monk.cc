@@ -475,18 +475,19 @@ ACMD(do_pinch)
 	struct obj_data *ovict = NULL;
 	struct Creature *vict = NULL;
 	int prob, percent, which_pinch, i;
-	char arg1[MAX_INPUT_LENGTH], arg2[MAX_INPUT_LENGTH];
+	char *pinch_str, *vict_str;
 	char *to_vict = NULL, *to_room = NULL;
 	bool happened;
 
 	ACMD_set_return_flags(0);
 
-	half_chop(argument, arg1, arg2);
+	pinch_str = tmp_getword(&argument);
+	vict_str = tmp_getword(&argument);
 
-	if (!(vict = get_char_room_vis(ch, arg1))) {
+	if (!(vict = get_char_room_vis(ch, vict_str))) {
 		if (ch->isFighting()) {
 			vict = ch->getFighting();
-		} else if ((ovict = get_obj_in_list_vis(ch, arg1,
+		} else if ((ovict = get_obj_in_list_vis(ch, vict_str,
 					ch->in_room->contents))) {
 			act("You can't pinch that.", FALSE, ch, ovict, 0, TO_CHAR);
 			return;
@@ -512,19 +513,19 @@ ACMD(do_pinch)
 		}
 	}
 
-	if (is_abbrev(arg2, "alpha"))
+	if (is_abbrev(pinch_str, "alpha"))
 		which_pinch = SKILL_PINCH_ALPHA;
-	else if (is_abbrev(arg2, "beta"))
+	else if (is_abbrev(pinch_str, "beta"))
 		which_pinch = SKILL_PINCH_BETA;
-	else if (is_abbrev(arg2, "gamma"))
+	else if (is_abbrev(pinch_str, "gamma"))
 		which_pinch = SKILL_PINCH_GAMMA;
-	else if (is_abbrev(arg2, "delta"))
+	else if (is_abbrev(pinch_str, "delta"))
 		which_pinch = SKILL_PINCH_DELTA;
-	else if (is_abbrev(arg2, "epsilon"))
+	else if (is_abbrev(pinch_str, "epsilon"))
 		which_pinch = SKILL_PINCH_EPSILON;
-	else if (is_abbrev(arg2, "omega"))
+	else if (is_abbrev(pinch_str, "omega"))
 		which_pinch = SKILL_PINCH_OMEGA;
-	else if (is_abbrev(arg2, "zeta"))
+	else if (is_abbrev(pinch_str, "zeta"))
 		which_pinch = SKILL_PINCH_ZETA;
 	else {
 		send_to_char(ch, "You know of no such nerve.\r\n");
