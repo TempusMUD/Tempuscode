@@ -2235,6 +2235,17 @@ special(struct Creature *ch, int cmd, int subcmd, char *arg, special_mode spec_m
 			return 1;
         }
     }
+	if (GET_ROOM_PROG(ch->in_room) != NULL) {
+	  if (spec_mode == SPECIAL_CMD && 
+		  trigger_prog_cmd(ch->in_room, PROG_TYPE_ROOM, ch, cmd, arg))
+		return true;
+	  if (spec_mode == SPECIAL_ENTER
+		  && trigger_prog_move(ch->in_room, PROG_TYPE_ROOM, ch, SPECIAL_ENTER))
+		return true;
+	  if (spec_mode == SPECIAL_LEAVE
+		  && trigger_prog_move(ch->in_room, PROG_TYPE_ROOM, ch, SPECIAL_LEAVE))
+		return true;
+	}
 
 	/* search special in room */
 	strcpy(tmp_arg, arg);		/* don't mess up the arg, in case of special */
@@ -2320,14 +2331,14 @@ special(struct Creature *ch, int cmd, int subcmd, char *arg, special_mode spec_m
 		}
 		if (GET_MOB_PROG((*it)) != NULL) {
 			if (spec_mode == SPECIAL_CMD && 
-                trigger_prog_cmd(*it, ch, cmd, arg) &&
+                trigger_prog_cmd(*it, PROG_TYPE_MOBILE, ch, cmd, arg) &&
                 (!(*it)->master || ((*it)->master->in_room != (*it)->in_room)))
 				return true;
 			if (spec_mode == SPECIAL_ENTER
-					&& trigger_prog_move(*it, ch, SPECIAL_ENTER))
+					&& trigger_prog_move(*it, PROG_TYPE_MOBILE, ch, SPECIAL_ENTER))
 				return true;
 			if (spec_mode == SPECIAL_LEAVE
-					&& trigger_prog_move(*it, ch, SPECIAL_LEAVE))
+					&& trigger_prog_move(*it, PROG_TYPE_MOBILE, ch, SPECIAL_LEAVE))
 				return true;
 		}
 	}

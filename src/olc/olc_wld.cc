@@ -25,6 +25,7 @@
 #include "house.h"
 #include "tmpstr.h"
 #include "player_table.h"
+#include "prog.h"
 
 extern struct zone_data *zone_table;
 extern struct descriptor_data *descriptor_list;
@@ -243,6 +244,9 @@ save_room(struct Creature *ch, struct room_data *room, FILE * file)
 		desc = desc->next;
 	}
 
+	if (room->prog)
+	  fprintf(file, "R\n%s~\n", tmp_gsub(room->prog, "\r", ""));
+  
 	search = room->search;
 	while (search) {
 		fprintf(file, "Z\n");
@@ -535,7 +539,10 @@ do_destroy_room(struct Creature *ch, int vnum)
 		free(rm->description);
 	if (rm->sounds)
 		free(rm->sounds);
-
+	if (rm->prog) {
+	  destroy_attached_progs(rm);
+	  free(rm->prog);
+	}
 	while ((desc = rm->ex_description)) {
 		rm->ex_description = desc->next;
 		if (desc->keyword)
@@ -743,7 +750,6 @@ olc_mimic_room(struct Creature *ch, struct room_data *rnum, char *argument)
 	ch->in_room->flow_type = rnum->flow_type;
 	ch->in_room->flow_speed = rnum->flow_speed;
 	ch->in_room->max_occupancy = rnum->max_occupancy;
-
 	send_to_char(ch, "Okay, done mimicing.\r\n");
 }
 
@@ -757,6 +763,7 @@ static const char *olc_rset_keys[] = {
 	"occupancy",
 	"special",
 	"specparam",
+	"prog",
 	"\n"						/* many more to be added */
 };
 
@@ -988,7 +995,11 @@ do_olc_rset(struct Creature *ch, char *argument)
 		}
 
 		break;
-
+	case 9:
+	  start_text_editor(ch->desc, &ch->in_room->prog, true);
+	  SET_BIT(PLR_FLAGS(ch), PLR_OLC);
+	  act("$n begins to write a room prog.", TRUE, ch, 0, 0, TO_ROOM);
+	  break;
 	default:
 		send_to_char(ch, 
 			"Sorry, you have attempted to access an unimplemented command.\r\nUnfortunately, you will now be killed.\r\n");

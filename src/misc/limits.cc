@@ -531,6 +531,10 @@ point_update(void)
 			// shadow zones so long as you create an integer array with the number for
 			// all the rooms which link the zone to the rest of the world.
 		}
+		/* rooms */
+		for (room_data *room = zone->world;room;room = room->next)
+		  if (GET_ROOM_PROG(room))
+			trigger_prog_idle(room, PROG_TYPE_ROOM);
 	}
 
 	/* characters */
@@ -642,7 +646,7 @@ point_update(void)
 
 		// progs
 		if (IS_NPC(i) && GET_MOB_PROG(i))
-			trigger_prog_tick(i);
+			trigger_prog_tick(i, PROG_TYPE_MOBILE);
 
 		if (!IS_NPC(i)) {
 			update_char_objects(i);

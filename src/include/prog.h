@@ -64,15 +64,15 @@ struct prog_env {
 };
 
 void destroy_attached_progs(void *self);
-bool trigger_prog_cmd(Creature *self, Creature *ch, int cmd, char *argument);
-bool trigger_prog_move(Creature *ch, Creature *self, special_mode mode);
+bool trigger_prog_cmd(void *owner, int owner_type, Creature *ch, int cmd, char *argument);
+bool trigger_prog_move(void *owner, int owner_type, Creature *ch, special_mode mode);
 void trigger_progs_after(Creature *ch, int cmd, char *argument);
-void trigger_prog_idle(Creature *self);
-void trigger_prog_tick(Creature *self);
+void trigger_prog_idle(void *owner, int owner_type);
+void trigger_prog_tick(void *owner, int owner_type);
 void trigger_prog_load(Creature *self);
 void trigger_prog_fight(Creature *ch, Creature *self);
 void trigger_prog_give(Creature *ch, Creature *self, struct obj_data *obj);
-prog_env *prog_start(int owner_type, void *owner, Creature *target, char *prog, prog_evt *evt);
+prog_env *prog_start(int owner_type, void *owner, Creature *target, prog_evt *evt);
 void prog_free(struct prog_env *prog);
 void prog_update(void);
 void prog_update_pending(void);

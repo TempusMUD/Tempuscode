@@ -131,11 +131,12 @@ char *
 prog_get_text(prog_env *env)
 {
 	switch (env->owner_type) {
+	case PROG_TYPE_OBJECT:
+	  break;
 	case PROG_TYPE_MOBILE:
 		return GET_MOB_PROG(((Creature *)env->owner));
-	case PROG_TYPE_OBJECT:
 	case PROG_TYPE_ROOM:
-		break;
+	  return ((room_data *)env->owner)->prog;
 	}
 	errlog("Can't happen at %s:%d", __FILE__, __LINE__);
 	return NULL;
@@ -649,21 +650,30 @@ prog_do_trans(prog_env *env, prog_evt *evt, char *args)
 void
 prog_do_set(prog_env *env, prog_evt *evt, char *args)
 {
-	Creature *ch;
 	prog_state_data *state;
 	prog_var *cur_var;
 	char *key;
 
-	if (env->owner_type != PROG_TYPE_MOBILE)
-		return;
-
-	// Get the mob state.  If they don't have a mob state record,
-	// create one
-	ch = (Creature *)env->owner;
-	state = GET_MOB_STATE(ch);
-	if (!state) {
-		CREATE(ch->mob_specials.prog_state, prog_state_data, 1);
-		state = GET_MOB_STATE(ch);
+	switch(env->owner_type) {
+	case PROG_TYPE_OBJECT:
+	  return;
+	case PROG_TYPE_MOBILE:
+	  state = GET_MOB_STATE(env->owner);
+	  if (!state) {
+		CREATE(GET_MOB_STATE(env->owner), prog_state_data, 1);
+		state = GET_MOB_STATE(env->owner);
+	  }
+	  break;
+	case PROG_TYPE_ROOM:
+	  state = GET_ROOM_STATE(env->owner);
+	  if (!state) {
+		CREATE(GET_ROOM_STATE(env->owner), prog_state_data, 1);
+		state = GET_ROOM_STATE(env->owner);
+	  }
+	  break;
+	default:
+	  errlog("Can't happen");
+	  return;
 	}
 
 	// Now find the variable record.  If they don't have one
@@ -802,19 +812,19 @@ prog_do_echo(prog_env *env, prog_evt *evt, char *args)
 	case PROG_TYPE_OBJECT:
 		obj = ((obj_data *)env->owner);
 	case PROG_TYPE_ROOM:
-		// both ch and obj are null - target can't be null
-		if (env->target)
-			return;
-		break;
+		// we just pick the top guy off the people list for rooms.
+	  ch = *(((room_data *)env->owner)->people.begin());
+	  break;
 	default:
 		errlog("Can't happen at %s:%d", __FILE__, __LINE__);
 	}
 	target = env->target;
 
 	arg = tmp_getword(&args);
-	if (!strcasecmp(arg, "room"))
+	if (!strcasecmp(arg, "room")) {
+	  act(args, false, ch, obj, target, TO_CHAR);
 		act(args, false, ch, obj, target, TO_ROOM);
-	else if (!strcasecmp(arg, "target"))
+	} else if (!strcasecmp(arg, "target"))
 		act(args, false, ch, obj, target, TO_VICT);
 	else if (!strcasecmp(arg, "!target"))
 		act(args, false, ch, obj, target, TO_NOTVICT);
@@ -919,7 +929,7 @@ prog_execute(prog_env *env)
 }
 
 prog_env *
-prog_start(int owner_type, void *owner, Creature *target, char *prog, prog_evt *evt)
+prog_start(int owner_type, void *owner, Creature *target, prog_evt *evt)
 {
 	prog_env *new_prog;
 
@@ -936,12 +946,18 @@ prog_start(int owner_type, void *owner, Creature *target, char *prog, prog_evt *
 	new_prog->target = target;
 	new_prog->evt = *evt;
 
+	if (!prog_get_text(new_prog)) {
+	  free(new_prog);
+	  return NULL;
+	}
+
 	switch (owner_type) {
 	case PROG_TYPE_MOBILE:
-		new_prog->state = GET_MOB_STATE((Creature *)owner); break;
+		new_prog->state = GET_MOB_STATE(owner); break;
 	case PROG_TYPE_OBJECT:
+	  new_prog->state = NULL; break;
 	case PROG_TYPE_ROOM:
-		new_prog->state = NULL; break;
+		new_prog->state = GET_ROOM_STATE(owner); break;
 	}
 
 	prog_next_handler(new_prog, false);
@@ -986,13 +1002,13 @@ destroy_attached_progs(void *owner)
 }
 
 bool
-trigger_prog_cmd(Creature *owner, Creature *ch, int cmd, char *argument)
+trigger_prog_cmd(void *owner, int owner_type, Creature *ch, int cmd, char *argument)
 {
 	prog_env *env, *handler_env;
 	prog_evt evt;
 	bool handled = false;
 
-	if (!GET_MOB_PROG(owner) || ch == owner)
+	if (ch == owner)
 		return false;
 	
 	// We don't want an infinite loop with mobs triggering progs that
@@ -1011,17 +1027,17 @@ trigger_prog_cmd(Creature *owner, Creature *ch, int cmd, char *argument)
 	evt.object = NULL;
 	evt.object_type = PROG_TYPE_NONE;
 	evt.args = strdup(argument);
-	env = prog_start(PROG_TYPE_MOBILE, owner, ch, GET_MOB_PROG(owner), &evt);
+	env = prog_start(owner_type, owner, ch, &evt);
 	prog_execute(env);
 	
 	evt.phase = PROG_EVT_HANDLE;
 	evt.args = strdup(argument);
-	handler_env = prog_start(PROG_TYPE_MOBILE, owner, ch, GET_MOB_PROG(owner), &evt);
+	handler_env = prog_start(owner_type, owner, ch, &evt);
 	prog_execute(handler_env);
 
 	evt.phase = PROG_EVT_AFTER;
 	evt.args = strdup(argument);
-	env = prog_start(PROG_TYPE_MOBILE, owner, ch, GET_MOB_PROG(owner), &evt);
+	env = prog_start(owner_type, owner, ch, &evt);
 	// note that we don't start executing yet...
 
 	loop_fence -= 1;
@@ -1033,13 +1049,13 @@ trigger_prog_cmd(Creature *owner, Creature *ch, int cmd, char *argument)
 }
 
 bool
-trigger_prog_move(Creature *owner, Creature *ch, special_mode mode)
+trigger_prog_move(void *owner, int owner_type, Creature *ch, special_mode mode)
 {
 	prog_env *env, *handler_env;
 	prog_evt evt;
 	bool handled = false;
 
-	if (!GET_MOB_PROG(owner) || ch == owner)
+	if (ch == owner)
 		return false;
 	
 	// We don't want an infinite loop with mobs triggering progs that
@@ -1058,17 +1074,17 @@ trigger_prog_move(Creature *owner, Creature *ch, special_mode mode)
 	evt.object = NULL;
 	evt.object_type = PROG_TYPE_NONE;
 	evt.args = NULL;
-	env = prog_start(PROG_TYPE_MOBILE, owner, ch, GET_MOB_PROG(owner), &evt);
+	env = prog_start(owner_type, owner, ch, &evt);
 	prog_execute(env);
 	
 	evt.phase = PROG_EVT_HANDLE;
 	evt.args = NULL;
-	handler_env = prog_start(PROG_TYPE_MOBILE, owner, ch, GET_MOB_PROG(owner), &evt);
+	handler_env = prog_start(owner_type, owner, ch, &evt);
 	prog_execute(handler_env);
 
 	evt.phase = PROG_EVT_AFTER;
 	evt.args = NULL;
-	env = prog_start(PROG_TYPE_MOBILE, owner, ch, GET_MOB_PROG(owner), &evt);
+	env = prog_start(owner_type, owner, ch, &evt);
 	// note that we don't start executing yet...
 
 	loop_fence -= 1;
@@ -1095,7 +1111,7 @@ trigger_prog_fight(Creature *ch, Creature *self)
 	evt.object_type = PROG_TYPE_NONE;
 	evt.args = strdup("");
 
-	env = prog_start(PROG_TYPE_MOBILE, self, ch, GET_MOB_PROG(self), &evt);
+	env = prog_start(PROG_TYPE_MOBILE, self, ch, &evt);
 	prog_execute(env);
 }
 
@@ -1115,20 +1131,16 @@ trigger_prog_give(Creature *ch, Creature *self, struct obj_data *obj)
 	evt.object_type = PROG_TYPE_NONE;
 	evt.args = strdup("");
 
-	env = prog_start(PROG_TYPE_MOBILE, self, ch, GET_MOB_PROG(self), &evt);
+	env = prog_start(PROG_TYPE_MOBILE, self, ch, &evt);
 	prog_execute(env);
 }
 
 void
-trigger_prog_idle(Creature *owner)
+trigger_prog_idle(void *owner, int owner_type)
 {
 	prog_env *env;
 	prog_evt evt;
 
-	// Do we have a mobile program?
-	if (!GET_MOB_PROG(owner))
-		return;
-	
 	// Are we already running a prog?
 	if (find_prog_by_owner(owner))
 		return;
@@ -1136,13 +1148,13 @@ trigger_prog_idle(Creature *owner)
 	evt.phase = PROG_EVT_HANDLE;
 	evt.kind = PROG_EVT_IDLE;
 	evt.cmd = -1;
-	evt.subject = owner;
+	evt.subject = NULL;
 	evt.object = NULL;
 	evt.object_type = PROG_TYPE_NONE;
 	evt.args = NULL;
 
 	// We start an idle mobprog here
-	env = prog_start(PROG_TYPE_MOBILE, owner, NULL, GET_MOB_PROG(owner), &evt);
+	env = prog_start(owner_type, owner, NULL, &evt);
 	prog_execute(env);
 }
 
@@ -1164,29 +1176,25 @@ trigger_prog_load(Creature *owner)
 	evt.object_type = PROG_TYPE_NONE;
 	evt.args = NULL;
 
-	env = prog_start(PROG_TYPE_MOBILE, owner, NULL, GET_MOB_PROG(owner), &evt);
+	env = prog_start(PROG_TYPE_MOBILE, owner, NULL, &evt);
 	prog_execute(env);
 }
 
 void
-trigger_prog_tick(Creature *owner)
+trigger_prog_tick(void *owner, int owner_type)
 {
 	prog_env *env;
 	prog_evt evt;
 
-	// Do we have a mobile program?
-	if (!GET_MOB_PROG(owner))
-		return;
-	
 	evt.phase = PROG_EVT_HANDLE;
 	evt.kind = PROG_EVT_TICK;
 	evt.cmd = -1;
-	evt.subject = owner;
+	evt.subject = NULL;
 	evt.object = NULL;
 	evt.object_type = PROG_TYPE_NONE;
 	evt.args = NULL;
 
-	env = prog_start(PROG_TYPE_MOBILE, owner, NULL, GET_MOB_PROG(owner), &evt);
+	env = prog_start(owner_type, owner, NULL, &evt);
 	prog_execute(env);
 }
 

@@ -698,7 +698,7 @@ burn_update(void)
 		}
 
 		if (GET_MOB_PROG(ch) && !ch->numCombatants())
-			trigger_prog_idle(ch);
+			trigger_prog_idle(ch, PROG_TYPE_MOBILE);
 	}
 }
 

@@ -11,7 +11,7 @@ $(OBJ)/olc_srch.o : olc_srch.cc \
 	$(INCLUDE)/structs.h $(INCLUDE)/utils.h $(INCLUDE)/comm.h $(INCLUDE)/interpreter.h $(INCLUDE)/handler.h $(INCLUDE)/db.h $(INCLUDE)/olc.h $(INCLUDE)/screen.h $(INCLUDE)/spells.h $(INCLUDE)/materials.h 
 	$(CXX) -c $(CXXFLAGS) olc_srch.cc          -o $(OBJ)/olc_srch.o
 $(OBJ)/olc_wld.o : olc_wld.cc \
-	$(INCLUDE)/structs.h $(INCLUDE)/utils.h $(INCLUDE)/comm.h $(INCLUDE)/interpreter.h $(INCLUDE)/handler.h $(INCLUDE)/db.h $(INCLUDE)/security.h $(INCLUDE)/olc.h $(INCLUDE)/screen.h $(INCLUDE)/flow_room.h $(INCLUDE)/clan.h $(INCLUDE)/specs.h $(INCLUDE)/house.h $(INCLUDE)/tmpstr.h $(INCLUDE)/player_table.h 
+	$(INCLUDE)/structs.h $(INCLUDE)/utils.h $(INCLUDE)/comm.h $(INCLUDE)/interpreter.h $(INCLUDE)/handler.h $(INCLUDE)/db.h $(INCLUDE)/security.h $(INCLUDE)/olc.h $(INCLUDE)/screen.h $(INCLUDE)/flow_room.h $(INCLUDE)/clan.h $(INCLUDE)/specs.h $(INCLUDE)/house.h $(INCLUDE)/tmpstr.h $(INCLUDE)/player_table.h $(INCLUDE)/prog.h 
 	$(CXX) -c $(CXXFLAGS) olc_wld.cc           -o $(OBJ)/olc_wld.o
 $(OBJ)/olc_zon.o : olc_zon.cc \
 	$(INCLUDE)/structs.h $(INCLUDE)/utils.h $(INCLUDE)/comm.h $(INCLUDE)/interpreter.h $(INCLUDE)/handler.h $(INCLUDE)/db.h $(INCLUDE)/security.h $(INCLUDE)/olc.h $(INCLUDE)/screen.h $(INCLUDE)/flow_room.h $(INCLUDE)/paths.h $(INCLUDE)/player_table.h $(INCLUDE)/mobile_map.h 

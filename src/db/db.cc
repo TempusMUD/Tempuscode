@@ -852,6 +852,8 @@ parse_room(FILE * fl, int vnum_nr)
 			safe_exit(1);
 		}
 		switch (*line) {
+		case 'R':
+		  room->prog = fread_string(fl, buf2); break;
 		case 'O':
 			room->max_occupancy = atoi(line + 1);
 			break;
@@ -1197,7 +1199,7 @@ renum_world(void)
             rooms[room->number] = room;
         }
     }
-	slog("%d rooms loaded.\r\n", rooms.size());
+	slog("%d rooms loaded.", rooms.size());
     // lookup each room's doors and reconnect the to_room pointers
     for( zone_data* zone = zone_table; zone; zone = zone->next) {
 		for( room_data* room = zone->world; room; room = room->next) {

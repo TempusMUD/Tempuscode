@@ -237,7 +237,6 @@ char *AN(char *str);
 #define FLOW_TYPE(room)           ((room)->flow_type)
 #define ROOM_FLAGGED(loc, flag) (IS_SET(ROOM_FLAGS((loc)), (flag)))
 #define MAX_OCCUPANTS(room)       ((room)->max_occupancy)
-
 #define ZONE_FLAGS(loc)           ((loc)->flags)
 #define ZONE_FLAGGED(loc, flag)   (IS_SET(ZONE_FLAGS((loc)), (flag)))
 
@@ -481,6 +480,8 @@ SECT(room_data * room)
 
 #define GET_ROOM_SPEC(room) ((room) != NULL ? (room)->func : NULL)
 #define GET_ROOM_PARAM(room) ((room) != NULL ? (room)->func_param : NULL)
+#define GET_ROOM_PROG(room) ((room) != NULL ? (room)->prog : NULL)
+#define GET_ROOM_STATE(room)      (((room_data *)(room))->prog_state)
 
 /* char utils ************************************************************/
 
@@ -657,7 +658,7 @@ static inline bool IS_REMORT( const Creature *ch )
 #define GET_MOB_VNUM(mob)        (IS_MOB(mob) ? \
                                       (mob)->mob_specials.shared->vnum : -1)
 
-#define GET_MOB_STATE(ch)       ((ch)->mob_specials.prog_state)
+#define GET_MOB_STATE(ch)       (((Creature *)(ch))->mob_specials.prog_state)
 #define GET_MOB_WAIT(ch)        ((ch)->mob_specials.wait_state)
 #define GET_MOB_LAIR(ch)        ((ch)->mob_specials.shared->lair)
 #define GET_MOB_LEADER(ch)        ((ch)->mob_specials.shared->leader)
