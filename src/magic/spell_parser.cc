@@ -1744,36 +1744,46 @@ ACMD(do_cast)
 
     if (GET_LEVEL(ch) > 3 && GET_LEVEL(ch) < LVL_AMBASSADOR && !IS_NPC(ch) &&
 	(IS_CLERIC(ch) || IS_KNIGHT(ch)) && SPELL_IS_DIVINE(spellnum)) {
-        for (i = 0; i < NUM_WEARS; i++) {
-            if (ch->equipment[i]) {
-                if (GET_OBJ_TYPE(ch->equipment[i]) == ITEM_HOLY_SYMB) {
-                    holy_symbol = ch->equipment[i];
-                    break;
+        bool need_symbol = true;
+        int gen = GET_REMORT_GEN(ch);
+        if(IS_SOULLESS(ch)) {
+            if(GET_CLASS(ch) == CLASS_CLERIC && gen > 4)
+                need_symbol = false;
+            else if(GET_CLASS(ch) == CLASS_KNIGHT && gen > 6)
+                need_symbol = false;
+        }
+        if(need_symbol) {
+            for (i = 0; i < NUM_WEARS; i++) {
+                if (ch->equipment[i]) {
+                    if (GET_OBJ_TYPE(ch->equipment[i]) == ITEM_HOLY_SYMB) {
+                        holy_symbol = ch->equipment[i];
+                        break;
+                    }
                 }
             }
-        }
-        if (!holy_symbol) {
-            send_to_char("You do not even wear the symbol of your faith!\r\n", ch);
-            return;
-        }
-        if ((IS_GOOD(ch) && (GET_OBJ_VAL(holy_symbol, 0) == 2)) ||
-            (IS_EVIL(ch) && (GET_OBJ_VAL(holy_symbol, 0) == 0))) {
-            send_to_char("You are not aligned with your holy symbol!\r\n", ch);
-            return;
-        }
-        if (GET_CLASS(ch) != GET_OBJ_VAL(holy_symbol, 1) &&
-            GET_REMORT_CLASS(ch) != GET_OBJ_VAL(holy_symbol, 1)) {
-            send_to_char("The holy symbol you wear is not of your faith!\r\n", ch);
-            return;
-        }
-        if (GET_LEVEL(ch) < GET_OBJ_VAL(holy_symbol, 2)) {
-            send_to_char("You are not powerful enough to utilize your holy symbol!\r\n", ch);
-            return;
-        }
-        if (GET_LEVEL(ch) > GET_OBJ_VAL(holy_symbol, 3)) {
-            act("$p will no longer support your power!",
-            FALSE, ch, holy_symbol, 0, TO_CHAR);
-            return;
+            if (!holy_symbol) {
+                send_to_char("You do not even wear the symbol of your faith!\r\n", ch);
+                return;
+            }
+            if ((IS_GOOD(ch) && (GET_OBJ_VAL(holy_symbol, 0) == 2)) ||
+                (IS_EVIL(ch) && (GET_OBJ_VAL(holy_symbol, 0) == 0))) {
+                send_to_char("You are not aligned with your holy symbol!\r\n", ch);
+                return;
+            }
+            if (GET_CLASS(ch) != GET_OBJ_VAL(holy_symbol, 1) &&
+                GET_REMORT_CLASS(ch) != GET_OBJ_VAL(holy_symbol, 1)) {
+                send_to_char("The holy symbol you wear is not of your faith!\r\n", ch);
+                return;
+            }
+            if (GET_LEVEL(ch) < GET_OBJ_VAL(holy_symbol, 2)) {
+                send_to_char("You are not powerful enough to utilize your holy symbol!\r\n", ch);
+                return;
+            }
+            if (GET_LEVEL(ch) > GET_OBJ_VAL(holy_symbol, 3)) {
+                act("$p will no longer support your power!",
+                FALSE, ch, holy_symbol, 0, TO_CHAR);
+                return;
+            }
         }
     }
 
