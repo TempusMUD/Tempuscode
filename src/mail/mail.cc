@@ -62,7 +62,13 @@ store_mail( long to_id, long from_id, char *txt , time_t *cur_time = NULL) {
     fstream mail_file;
     mail_data *letter;
     char fname[256];
-    
+    /*
+	Add in something here to avoid sending length 0 messages.
+	if (!txt || !strlen(txt)) {
+        sprintf(buf,"Why would you send a blank message?");
+        send_to_char(buf, get_char_in_world_by_idnum(from_id));
+	}
+	*/
     letter = new mail_data;
     letter->to = to_id;
     letter->from = from_id;
@@ -129,16 +135,12 @@ recieve_mail(char_data *ch) {
             num_letters++;
             text = new char[letter->msg_size + 1];
             mail_file.read(text, letter->msg_size + 1);
-        } else if (mail_file.eof()) {
+        } else (mail_file.eof()) {
             mail_file.close();
             delete letter;
             remove(fname);
             return num_letters;
-        } else {
-            slog("SYSERR: Mail system -- Message length 0 before EOF.");
-            delete letter;
-            return num_letters;
-        }
+		}
         if (!(obj = read_object(MAIL_OBJ_VNUM))) {
             slog("SYSERR: Unable to load MAIL_OBJ_VNUM in postmaster_receive_mail");
             delete letter;
