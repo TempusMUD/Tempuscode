@@ -2469,11 +2469,29 @@ mag_areas(byte level, struct Creature *ch, int spellnum, int savetype)
 			if (ch == *it)
 				continue;
 			if (!IS_NPC((*it))) {
-				act("You cannot do this, because this action might cause harm to $N,\r\n" "and you have not chosen to be a Pkiller.\r\n" "You can toggle this with the command 'pkiller'.", FALSE, ch, 0, (*it), TO_CHAR);
+				act("You cannot do this, because this action might cause harm to $N,\r\n" 
+					"and you have not chosen to be a Pkiller.\r\n" 
+					"You can toggle this with the command 'pkiller'.", 
+					 FALSE, ch, 0, (*it), TO_CHAR);
 				return 0;
 			}
 		}
 	}
+	
+	// Check for newbies etc.
+	if( !ROOM_FLAGGED(ch->in_room, ROOM_ARENA) ) {
+		CreatureList::iterator it = ch->in_room->people.begin();
+		for (; it != ch->in_room->people.end(); ++it) {
+			Creature *vict = *it;
+			if( ch == vict )
+				continue;
+			if( IS_PC(vict) && ( PLR_FLAGGED(vict, PLR_NOPK) || vict->isNewbie() ) ) {
+				act("You cannot do this, because this action might cause harm to $N,\r\n",
+					 FALSE, ch, 0, vict, TO_CHAR);
+			}
+		}
+	}
+	
 	CreatureList::iterator it = ch->in_room->people.begin();
 	for (; it != ch->in_room->people.end(); ++it) {
 		// skips:
