@@ -97,6 +97,7 @@ ACMD(do_analyze);
 ACMD(do_approve);
 ACMD(do_appraise);
 ACMD(do_arm);
+ACMD(do_aset);
 ACMD(do_access);
 ACMD(do_coderutil);
 ACMD(do_unapprove);
@@ -470,6 +471,7 @@ struct command_info cmd_info[] = {
 	{"arm", POS_SITTING, do_arm, 1, 0, 0, 0},
 	{"assist", POS_FIGHTING, do_assist, 1, 0, 0, 0},
 	{"assimilate", POS_RESTING, do_assimilate, 0, 0, 0, 0},
+	{"aset", POS_DEAD, do_aset, 51, 0, 0, 0},
 	{"ask", POS_RESTING, do_spec_comm, 0, SCMD_ASK, 0, 0},
 	{"auction", POS_RESTING, do_gen_comm, 0, SCMD_AUCTION, 0, 0},
 	{"autodiagnose", POS_DEAD, do_gen_tog, 1, SCMD_AUTO_DIAGNOSE, 0, 0},

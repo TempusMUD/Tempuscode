@@ -5747,7 +5747,6 @@ ACMD(do_set)
         {"soilage", LVL_IMMORT, PC, MISC, "WizardBasic"},
         {"econet", LVL_IMMORT, BOTH, NUMBER, "AdminFull"},
         {"specialization", LVL_IMMORT, PC, MISC, "AdminFull"},
-        {"qpoints", LVL_IMMORT, PC, NUMBER, "QuestorAdmin,WizardFull"},
         {"qpallow", LVL_IMMORT, PC, NUMBER, "QuestorAdmin,WizardFull"},    /*  95 */
         {"soulless", LVL_IMMORT, BOTH, BINARY, "WizardFull"},
         {"buried", LVL_IMMORT, PC, BINARY, "AdminFull"},
@@ -5980,8 +5979,7 @@ ACMD(do_set)
         GET_GOLD(vict) = RANGE(0, 1000000000);
         break;
     case 20:
-		if (vict->account)
-			vict->account->set_past_bank(value);
+		send_to_char(ch, "Disabled.  Use aset instead.\r\n");
         break;
     case 21:
         vict->points.exp = RANGE(0, 1500000000);
@@ -6376,8 +6374,7 @@ ACMD(do_set)
         CHAR_SOILAGE(vict, i) = atoi(arg2);
         break;
     case 92:
-		if (vict->account)
-			vict->account->set_future_bank(value);
+		send_to_char(ch, "Disabled.  Use aset instead.\r\n");
         break;
     case 93:                    // specialization
         arg1 = tmp_getword(&argument);
@@ -6405,31 +6402,27 @@ ACMD(do_set)
         return;
         // qpoints
     case 94:
-		vict->account->set_quest_points(RANGE(0, 10000000));
-        break;
-
-    case 95:
         GET_QUEST_ALLOWANCE(vict) = RANGE(0, 100);
         break;
 
-    case 96:
+    case 95:
         if (IS_NPC(vict)) {
             SET_OR_REMOVE(MOB_FLAGS(vict), MOB_SOULLESS);
         } else {
             SET_OR_REMOVE(PLR2_FLAGS(vict), PLR2_SOULLESS);
         }
         break;
-    case 97:
+    case 96:
         if (IS_NPC(vict)) {
             send_to_char(ch, "Just kill the bugger!\r\n");
             break;
         }
 		send_to_char(ch, "Disabled.  Use the 'delete' command.\r\n");
 		break;
-    case 98:                    // Set Speed
+    case 97:                    // Set Speed
         vict->setSpeed(RANGE(0, 100));
         break;
-    case 99:
+    case 98:
         if(!argument || !*argument) {
             send_to_char(ch, "You have to specify the badge.\r\n");
             return;
@@ -6452,13 +6445,13 @@ ACMD(do_set)
 
         break;
 
-    case 100:
+    case 99:
         name = tmp_getquoted(&argument);
         arg1 = tmp_getword(&argument);
         perform_skillset(ch, vict, name, atoi(arg1));
         break;
 
-    case 101:
+    case 100:
         vict->set_reputation(RANGE(0, 1000));
         break;
     case 102:
@@ -6519,6 +6512,111 @@ ACMD(do_set)
         delete cbuf;
         send_to_char(ch, "Saved in file.\r\n");
     }
+}
+
+ACMD(do_aset)
+{
+    static struct set_struct fields[] = {
+        {"past_bank", LVL_IMMORT, PC, NUMBER, "WizardFull"},
+        {"future_bank", LVL_IMMORT, PC, NUMBER, "WizardFull"},
+        {"reputation", LVL_IMMORT, PC, NUMBER, "WizardFull"},
+        {"qpoints", LVL_IMMORT, PC, NUMBER, "WizardFull"},
+        {"\n", 0, BOTH, MISC, ""} };
+	char *name, *field;
+	int i, l, value;
+	Account *account;
+	bool on, off;
+	
+    name = tmp_getword(&argument);
+    field = tmp_getword(&argument);
+
+    if (!*name || !*field) {
+        send_to_char(ch, "Usage: aset <victim> <field> <value>\r\n");
+        vector <string> cmdlist;
+        for (i = 0; fields[i].level != 0; i++) {
+            if (!Security::canAccess(ch, fields[i]))
+                continue;
+            cmdlist.push_back(fields[i].cmd);
+        }
+        sort(cmdlist.begin(), cmdlist.end());
+
+        for (i = 0, l = 1; i < (int)(cmdlist.size()); i++) {
+            send_to_char(ch, "%12s%s", cmdlist[i].c_str(),
+                ((l++) % 5) ? " " : "\n");
+        }
+
+        if ((l - 1) % 5)
+            send_to_char(ch, "\r\n");
+        return;
+    }
+
+	if (*name == '.')
+		account = Account::retrieve(playerIndex.getAccountID(name + 1));
+	else if (is_number(name))
+		account = Account::retrieve(atoi(name));
+	else
+		account = Account::retrieve(name);
+	
+	if (!account) {
+		send_to_char(ch, "There is no such account.\r\n");
+		return;
+	}
+
+    for (l = 0; *(fields[l].cmd) != '\n'; l++) {
+        if (!strncmp(field, fields[l].cmd, strlen(field)))
+            break;
+    }
+
+    if (GET_LEVEL(ch) < fields[l].level && subcmd != SCMD_TESTER_SET ) {
+        send_to_char(ch, "You are not able to perform this godly deed!\r\n");
+        return;
+    }
+
+    if (!Security::canAccess(ch, fields[l]) && subcmd != SCMD_TESTER_SET) {
+        send_to_char(ch, "You do not have that power.\r\n");
+        return;
+    }
+
+    if (fields[l].type == BINARY) {
+        if (!strcmp(argument, "on") || !strcmp(argument, "yes"))
+            on = 1;
+        else if (!strcmp(argument, "off") || !strcmp(argument, "no"))
+            off = 1;
+        if (!(on || off)) {
+            send_to_char(ch, "Value must be on or off.\r\n");
+            return;
+        }
+    } else if (fields[l].type == NUMBER) {
+        value = atoi(argument);
+    }
+
+    strcpy(buf, "Okay.");        /* can't use OK macro here 'cause of \r\n */
+
+
+    switch (l) {
+    case 0:
+		account->set_past_bank(value); break;
+	case 1:
+		account->set_future_bank(value); break;
+	case 2:
+		account->set_reputation(value); break;
+	case 3:
+		account->set_quest_points(value); break;
+		
+    default:
+        sprintf(buf, "Can't set that!");
+        break;
+    }
+
+    if (fields[l].type == BINARY) {
+        send_to_char(ch, "%s %s for %s.\r\n", fields[l].cmd, ONOFF(on),
+			account->get_name());
+            
+    } else if (fields[l].type == NUMBER) {
+        send_to_char(ch, "%s's %s set to %d.\r\n", account->get_name(),
+            fields[l].cmd, value);
+    } else
+        send_to_char(ch, "%s\r\n", buf);
 }
 
 
