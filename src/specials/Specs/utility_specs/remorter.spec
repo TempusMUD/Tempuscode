@@ -32,80 +32,82 @@ SPECIAL(remorter)
 
     if (IS_NPC(ch) || (idnum && GET_IDNUM(ch) != idnum) ||
 	GET_LEVEL(ch) >= LVL_IMMORT)
-	return 0;
+		return 0;
 
     if (CMD_IS("help")) {
-	show_char_class_menu(ch->desc);
-	return 1;
+		show_char_class_menu(ch->desc);
+		return 1;
     }
 
     if (!CMD_IS("say") && !CMD_IS("'") && !CMD_IS(">"))
-	return 0;
+		return 0;
 
     if (GET_EXP(ch) < exp_scale[LVL_AMBASSADOR] || 
 	GET_LEVEL(ch) < (LVL_AMBASSADOR -1)) {
-	send_to_char("Piss off.  Come back when you are bigger.\r\n", ch);
-	return 1;
+		send_to_char("Piss off.  Come back when you are bigger.\r\n", ch);
+		return 1;
     }
 
     skip_spaces(&argument);
 
     if (!*argument) {
-	send_to_char("Please speak clearly.\r\n", ch);
-	if (status && index) {
-	    send_to_char(remort_quiz[index]->question, ch);
-	    send_to_char("\r\n", ch);
-	}
-	return 1;
+		send_to_char("Please speak clearly.\r\n", ch);
+		if (status && index) {
+			send_to_char(remort_quiz[index]->question, ch);
+			send_to_char("\r\n", ch);
+		}
+		return 1;
     }
 
     if (IS_SET(status, MODE_DONE)) {
+		char_class_choice = parse_char_class(argument);
+		if (	char_class_choice == CLASS_UNDEFINED
+			|| 	char_class_choice >= CLASS_SPARE1 
+			||  char_class_choice == CLASS_VAMPIRE ) {
+			send_to_char("You must choose one of the following:\r\n", ch);
+			show_char_class_menu(ch->desc);  
 
-	if ((char_class_choice = parse_char_class(argument)) == CLASS_UNDEFINED) {
-	    send_to_char("You must choose one of the following:\r\n", ch);
-	    show_char_class_menu(ch->desc);  
-	} else if (char_class_choice == GET_CLASS(ch) ||
-		   (GET_CLASS(ch) == CLASS_VAMPIRE && 
-		    char_class_choice == GET_OLD_CLASS(ch)))
-	    send_to_char("You must pick a char_class other than your first char_class.\r\n",ch);
-	else {
-      
-	    if (GET_CLASS(ch) == CLASS_VAMPIRE) {
-		GET_CLASS(ch) = GET_OLD_CLASS(ch);
-	    }
-	    GET_REMORT_CLASS(ch) = char_class_choice;
-	    do_start(ch, FALSE);
-      
-	    REMOVE_BIT(PRF_FLAGS(ch), PRF_NOPROJECT | PRF_ROOMFLAGS | PRF_HOLYLIGHT |
-		       PRF_NOHASSLE | PRF_LOG1 | PRF_LOG2 | PRF_NOWIZ);
-	    REMOVE_BIT(PLR_FLAGS(ch), PLR_HALT | PLR_INVSTART | PLR_QUESTOR | 
-		       PLR_MORTALIZED | PLR_OLCGOD);
-      
-	    GET_INVIS_LEV(ch) = 0;
-	    GET_REMORT_INVIS(ch) = 0;
-	    GET_COND(ch, DRUNK) = 0;
-	    GET_COND(ch, FULL) = 0;
-	    GET_COND(ch, THIRST) = 0;
-      
-	    for (i = 1; i <= MAX_SKILLS; i++)
-		SET_SKILL(ch, i, 0);
-      
-	    if (GET_REMORT_GEN(ch) < 10)
-		GET_REMORT_GEN(ch)++;
-	    GET_REMORT_INVIS(ch) = 0;
-	    GET_WIMP_LEV(ch) =     0;
-	    sprintf(buf, "(RTEST) %s has remorted (%d) as a %s/%s.", GET_NAME(ch), 
-		    GET_REMORT_GEN(ch), pc_char_class_types[(int)GET_CLASS(ch)], 
-		    pc_char_class_types[(int)GET_REMORT_CLASS(ch)]);
-	    mudlog(buf, BRF, LVL_IMMORT, TRUE);
-	    REMOVE_BIT(ch->in_room->room_flags, ROOM_NORECALL);
+		} else if (char_class_choice == GET_CLASS(ch) || 
+			(GET_CLASS(ch) == CLASS_VAMPIRE && char_class_choice == GET_OLD_CLASS(ch))) {
+				send_to_char("You must pick a char_class other than your first char_class.\r\n",ch);
 
-	    extract_char(ch, FALSE);
-	    status = 0;
-	    index = -1;
-	    idnum = 0;
-	}  
-	return 1;
+		} else {
+			if (GET_CLASS(ch) == CLASS_VAMPIRE) {
+				GET_CLASS(ch) = GET_OLD_CLASS(ch);
+			}
+			GET_REMORT_CLASS(ch) = char_class_choice;
+			do_start(ch, FALSE);
+		  
+			REMOVE_BIT(PRF_FLAGS(ch), PRF_NOPROJECT | PRF_ROOMFLAGS | PRF_HOLYLIGHT |
+				   PRF_NOHASSLE | PRF_LOG1 | PRF_LOG2 | PRF_NOWIZ);
+			REMOVE_BIT(PLR_FLAGS(ch), PLR_HALT | PLR_INVSTART | PLR_QUESTOR | 
+				   PLR_MORTALIZED | PLR_OLCGOD);
+		  
+			GET_INVIS_LEV(ch) = 0;
+			GET_REMORT_INVIS(ch) = 0;
+			GET_COND(ch, DRUNK) = 0;
+			GET_COND(ch, FULL) = 0;
+			GET_COND(ch, THIRST) = 0;
+		  
+			for (i = 1; i <= MAX_SKILLS; i++)
+			SET_SKILL(ch, i, 0);
+		  
+			if (GET_REMORT_GEN(ch) < 10)
+			GET_REMORT_GEN(ch)++;
+			GET_REMORT_INVIS(ch) = 0;
+			GET_WIMP_LEV(ch) =     0;
+			sprintf(buf, "(RTEST) %s has remorted (%d) as a %s/%s.", GET_NAME(ch), 
+				GET_REMORT_GEN(ch), pc_char_class_types[(int)GET_CLASS(ch)], 
+				pc_char_class_types[(int)GET_REMORT_CLASS(ch)]);
+			mudlog(buf, BRF, LVL_IMMORT, TRUE);
+			REMOVE_BIT(ch->in_room->room_flags, ROOM_NORECALL);
+
+			extract_char(ch, FALSE);
+			status = 0;
+			index = -1;
+			idnum = 0;
+		}  
+		return 1;
     }
     
     if ( isname_exact( argument, "remort" ) ) {
