@@ -3853,7 +3853,7 @@ isInHouse( obj_data *obj) {
 }
 
 void
-perform_immort_where(struct Creature *ch, char *arg)
+perform_immort_where(struct Creature *ch, char *arg, bool show_morts)
 {
 	register struct Creature *i = NULL;
 	register struct obj_data *k;
@@ -3873,7 +3873,7 @@ perform_immort_where(struct Creature *ch, char *arg)
 		for (d = descriptor_list; d; d = d->next) {
 			if (STATE(d) == CXN_PLAYING) {
 				i = (d->original ? d->original : d->creature);
-				if (i && can_see_creature(ch, i) && (i->in_room != NULL)) {
+				if (i && can_see_creature(ch, i) && (i->in_room != NULL) &&	(show_morts || IS_IMMORT(i))) {
 					if (d->original)
 						sprintf(buf,
 							"%s%-20s%s - %s[%s%5d%s]%s %s%s%s %s(in %s)%s\r\n",
@@ -3990,8 +3990,10 @@ ACMD(do_where)
 	if (Security::isMember(ch, "Questor,AdminBasic,WizardBasic") ||
 		(IS_MOB(ch) && ch->desc && ch->desc->original &&
 			Security::isMember(ch->desc->original, "Questor,AdminBasic,WizardBasic")))
-		perform_immort_where(ch, argument);
-	else {
+	  perform_immort_where(ch, argument, true);
+	else if (IS_IMMORT(ch)) {
+	  perform_immort_where(ch, argument, false);
+	} else {
 
 		send_to_char(ch, "You are located: %s%s%s\r\nIn: %s%s%s.\r\n",
 			CCGRN(ch, C_NRM), (room_is_dark(ch->in_room) && !has_dark_sight(ch)) ?
