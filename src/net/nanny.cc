@@ -1237,6 +1237,7 @@ char_to_game(descriptor_data *d)
 	struct room_data *load_room = NULL;
 	time_t now = time(0);
 	char *notes = "";
+    Quest *quest;
 
 	// this code is to prevent people from multiply logging in
 	for (k = descriptor_list; k; k = next) {
@@ -1269,7 +1270,11 @@ char_to_game(descriptor_data *d)
 	// if we're not a new char, check loadroom and rent
 	if (GET_LEVEL(d->creature)) {
 		// Figure out the room the player is gonna start in
-		if (GET_LOADROOM(d->creature))
+        load_room = NULL;
+        if ((GET_LEVEL(d->creature) < LVL_AMBASSADOR) && 
+            (quest = quest_by_vnum(GET_QUEST(d->creature))))
+            load_room = real_room(quest->loadroom);
+		if (!load_room && GET_LOADROOM(d->creature))
 			load_room = real_room(GET_LOADROOM(d->creature));
 		if (!load_room && GET_HOMEROOM(d->creature))
 			load_room = real_room(GET_HOMEROOM(d->creature));

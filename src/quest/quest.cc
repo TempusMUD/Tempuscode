@@ -45,6 +45,7 @@ void do_qcontrol_switch(struct Creature *ch, char *argument, int com);
 void do_qcontrol_oload_list(Creature * ch);
 void do_qcontrol_oload(Creature *ch, char *argument, int com);
 void do_qcontrol_restore(Creature *ch, char *argument, int com);
+void do_qcontrol_loadroom(Creature *ch, char *argument, int com);
 char *compose_qcomm_string(Creature *ch, Creature *vict, Quest * quest, int mode, char *str);
 void send_to_quest(Creature *ch, char *str, Quest * quest, int level, int mode);
 
@@ -84,6 +85,7 @@ const struct qcontrol_option {
 	{"award", "<quest vnum> <player> <pts> [comments]", LVL_AMBASSADOR},
 	{"penalize", "<quest vnum> <player> <pts> [reason]", LVL_AMBASSADOR},
 	{"restore", "<quest vnum>", LVL_AMBASSADOR},
+    {"loadroom", "<quest vnum> <room number>", LVL_AMBASSADOR},
 	{NULL, NULL, 0}				// list terminator
 };
 
@@ -340,6 +342,9 @@ ACMD(do_qcontrol)
 	case 28:					// restore
 		do_qcontrol_restore(ch, argument, com);
 		break;
+    case 29:
+        do_qcontrol_loadroom(ch, argument, com);
+        break;
 	default:
 		send_to_char(ch, "Sorry, this qcontrol option is not implemented.\r\n");
 		break;
@@ -392,6 +397,48 @@ do_qcontrol_mload(Creature *ch, char *argument, int com)
 
 }
 
+void // Set loadroom for quest participants
+do_qcontrol_loadroom(Creature *ch, char *argument, int com)
+{
+	struct Quest *quest = NULL;
+	char arg1[MAX_INPUT_LENGTH];
+	int number;
+
+	argument = two_arguments(argument, buf, arg1);
+
+	if (!*buf || !isdigit(*buf) || !*arg1 || !isdigit(*arg1)) {
+		do_qcontrol_usage(ch, com);
+		return;
+	}
+
+	if (!(quest = find_quest(ch, buf))) {
+		return;
+	}
+	if (!quest->canEdit(ch)) {
+		return;
+	}
+	if (quest->getEnded() ) {
+		send_to_char(ch, "Pay attention you dummy! That quest is over!\r\n");
+		return;
+	}
+
+	if ((number = atoi(arg1)) < 0) {
+		send_to_char(ch, "A NEGATIVE number??\r\n");
+		return;
+	}
+    if (!real_room(number)) {
+        send_to_char(ch, "That room doesn't exist!\r\n");
+        return;
+    }
+    
+    quest->loadroom = number;
+    send_to_char(ch, "Okay, quest loadroom is now %d\r\n", number);
+
+	sprintf(buf, "%s set quest loadroom to: (%d)", 
+            GET_NAME(ch), number);
+	qlog(ch, buf, QLOG_BRIEF, MAX(GET_INVIS_LVL(ch), LVL_IMMORT), TRUE);
+}
+
 void
 do_qcontrol_oload_list(Creature * ch)
 {
@@ -435,7 +482,7 @@ do_qcontrol_oload(Creature *ch, char *argument, int com)
 		return;
 	}
 	if (quest->getEnded() ) {
-		send_to_char(ch, "Pay attentionu dummy! That quest is over!\r\n");
+		send_to_char(ch, "Pay attention you dummy! That quest is over!\r\n");
 		return;
 	}
 

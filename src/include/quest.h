@@ -141,6 +141,7 @@ class Quest {
 		int maxlevel;
 		int mingen;
 		int maxgen;
+        int loadroom;
 		ubyte type;
 };
 
