@@ -52,16 +52,17 @@ int char_data::getPenalizedExperience( int experience, char_data *victim = NULL 
 	if( IS_NPC(this) )
 		return experience;
 	// Immortals are not
-	if(  getLevel() >= LVL_AMBASSADOR ) {
+	if( getLevel() >= LVL_AMBASSADOR ) {
 		return 0;
 	}
 
-	if ( victim != NULL && IS_GOOD(victim) ) {
+	if ( victim != NULL ) {
 		if( victim->getLevel() >= LVL_AMBASSADOR )
 			return 0;
 
 		// good clerics & knights penalized for killing good
-		if( IS_GOOD(this) && (IS_CLERIC(this) || IS_KNIGHT(this)) ) {
+		if( IS_GOOD(victim) && IS_GOOD(this) && 
+			(IS_CLERIC(this) || IS_KNIGHT(this)) ) {
 			experience /= 2;
 		}
 	}
@@ -80,12 +81,21 @@ int char_data::getPenalizedExperience( int experience, char_data *victim = NULL 
 	//  9     71.8%  81.8%  91.8%
 	// 10     73.3%  83.3%  93.3%
 	if( IS_REMORT(this) ) {
-		int gen = MIN( 10, GET_REMORT_GEN(this) );
-		float multiplier = (float)(gen / ( gen + 2 ));
+		float gen = MIN( 10, GET_REMORT_GEN(this) );
+		float multiplier = (gen / ( gen + 2 ));
+
 		if( getLevel() <= 15 )
 			multiplier -= 0.10;
 		else if( getLevel() >= 40 )
 			multiplier += 0.10;
+
+		if (PRF2_FLAGGED(this, PRF2_FIGHT_DEBUG)) {
+			char buf[512];
+			sprintf(buf, "<XP> ( penalty: %d% ) ( exp: %d ) ( reduction: %d )\r\n",
+					(int)(multiplier * 100), experience, (int)(experience * multiplier) );
+			send_to_char(buf,this);
+		}
+
 		experience -= (int)(experience * multiplier);
 	}
 
