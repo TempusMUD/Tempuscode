@@ -865,8 +865,13 @@ nanny(struct descriptor_data * d, char *arg)
 						GET_INVIS_LVL(d->character) = (GET_LEVEL(d->character) > LVL_LUCIFER ?
 													   LVL_LUCIFER : GET_LEVEL(d->character));
 
-					if ((load_result = Crash_load(d->character)) &&
-						d->character->in_room == NULL) {
+					load_result = Crash_load(d->character);
+
+					// In case of error, break out
+					if (load_result == -1)
+						break;
+
+					if (load_result && d->character->in_room == NULL) {
 						d->character->in_room = NULL;
 					}
 				} else { // otherwise null the loadroom

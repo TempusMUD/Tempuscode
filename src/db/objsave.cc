@@ -429,6 +429,7 @@ write_rentinfo(FILE * fl, struct rent_info *rent)
 int
 Crash_load(struct Creature *ch)
 /* return values:
+		-1 - dangerous failure - don't allow char to enter
         0 - successful load, keep char in rent room.
         1 - load failure or load of crash items -- put char in temple.
         2 - rented equipment lost ( no $ )
@@ -446,7 +447,8 @@ Crash_load(struct Creature *ch)
 	int num_lost = 0;
 
 	if (get_filename(GET_NAME(ch), fname, IMPLANT_FILE)) {
-		if ((fl = fopen(fname, "r+b"))) {
+		fl = fopen(fname, "r+b");
+		if (fl) {
 			while (!feof(fl) || !cont) {
 				tmpo = Obj_from_store(fl, false);
 				if (tmpo && tmpo->worn_on >= 0) {
@@ -465,25 +467,38 @@ Crash_load(struct Creature *ch)
 				}
 			}
 			fclose(fl);
+		} else if (errno != ENOENT) {
+			sprintf(buf1, "SYSERR: READING IMPLANT FILE %s", fname);
+			perror(buf1);
+			send_to_char(ch, 
+				"\r\n********************* NOTICE *********************\r\n"
+				"There was a problem loading your objects from disk.  To protect your items,\r\n"
+				"you will not be allowed to enter the game.  If you can't get in after multiple\r\n"
+				"attempts, please mail ashe@tempusmud.com about the problem.\r\n");
+			return -1;
 		}
 	}
 
 	if (!get_filename(GET_NAME(ch), fname, CRASH_FILE))
 		return 1;
 
-	if (!(fl = fopen(fname, "r+b"))) {
-		if (errno != ENOENT) {	/* if it fails, NOT because of no file */
-			sprintf(buf1, "SYSERR: READING OBJECT FILE %s ( 5 )", fname);
+	fl = fopen(fname, "r+b");
+	if (!fl) {
+		if (errno != ENOENT) {
+			sprintf(buf1, "SYSERR: READING OBJECT FILE %s", fname);
 			perror(buf1);
 			send_to_char(ch, 
 				"\r\n********************* NOTICE *********************\r\n"
-				"There was a problem loading your objects from disk.\r\n"
-				"Contact a God for assistance.\r\n");
+				"There was a problem loading your objects from disk.  To protect your items,\r\n"
+				"you will not be allowed to enter the game.  If you can't get in after multiple\r\n"
+				"attempts, please mail ashe@tempusmud.com about the problem.\r\n");
+			return -1;
 		}
 		mudlog(MAX(LVL_AMBASSADOR, GET_INVIS_LVL(ch)), NRM, true,
 			"%s entering game with no equipment.", GET_NAME(ch));
 		return 1;
 	}
+
 	if (!feof(fl))
 		fread(&rent, sizeof(struct rent_info), 1, fl);
 
