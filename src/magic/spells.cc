@@ -1844,7 +1844,7 @@ ASPELL(spell_conjure_elemental)
 		return;
 	}
     float mult = MAX(0.5,
-                     (float)((ch->getLevelBonus(SONG_INSTANT_AUDIENCE)) * 1.5) / 100);
+                     (float)((ch->getLevelBonus(SPELL_CONJURE_ELEMENTAL)) * 1.5) / 100);
 
     // tweak them out
     GET_HITROLL(elemental) = MIN((int)(GET_HITROLL(elemental) * mult), 60);
