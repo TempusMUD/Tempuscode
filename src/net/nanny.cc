@@ -925,8 +925,8 @@ send_prompt(descriptor_data *d)
 void
 send_menu(descriptor_data *d)
 {
+	Creature *tmp_ch;
 	int idx;
-	Creature *tmp_ch, *real_ch;
 
 	switch (d->input_mode) {
 	case CXN_DISCONNECT:
@@ -1070,105 +1070,9 @@ send_menu(descriptor_data *d)
 		send_to_desc(d,
 			"&c*&n&b-----------------------------------------------------------------------------&c*\r\n"
 			"&n&b|                                 &YT E M P U S&n                                 &b|\r\n"
-			"&c*&b-----------------------------------------------------------------------------&c*&n\r\n\r\n"
-			"&y  # Name           Lvl Gen Sex     Race     Class      Last on    Status  Mail\r\n"
-			"&b -- -------------- --- --- --- -------- --------- ------------- --------- ----\r\n");
-
-		idx = 1;
-		tmp_ch = new Creature(true);
-		while (!d->account->invalid_char_index(idx)) {
-			const char *class_str, *status_str, *mail_str;
-			char laston_str[15];
-
-
-			tmp_ch->clear();
-
-			if (!tmp_ch->loadFromXML(d->account->get_char_by_index(idx))) {
-				send_to_desc(d, "&R------ BAD PROBLEMS ------  PLEASE REPORT ------&n\r\n");
-				idx++;
-				continue;
-			}
-
-            char* sex_color = "";
-            switch( GET_SEX(tmp_ch) ) {
-                case SEX_MALE:
-                    sex_color = "&b";
-                    break;
-                case SEX_FEMALE:
-                    sex_color = "&m";
-                    break;
-            }
-            char* sex_str = tmp_sprintf("%s%c&n",
-                    sex_color, toupper(genders[(int)GET_SEX(tmp_ch)][0]) );
-                    
-
-			// Construct compact menu entry for each character
-			if (IS_REMORT(tmp_ch)) {
-                class_str = tmp_sprintf( "%s%4s&n/%s%4s&n",
-                    get_char_class_color( tmp_ch, GET_CLASS(tmp_ch) ),
-                    char_class_abbrevs[GET_CLASS(tmp_ch)],
-                    get_char_class_color( tmp_ch, GET_REMORT_CLASS(tmp_ch) ),
-                    char_class_abbrevs[GET_REMORT_CLASS(tmp_ch)] );
-			} else {
-                class_str = tmp_sprintf( "%s%9s&n",
-                    get_char_class_color( tmp_ch, GET_CLASS(tmp_ch) ),
-                    pc_char_class_types[GET_CLASS(tmp_ch)] );
-            }
-			strftime(laston_str, sizeof(laston_str), "%b %d, %Y",
-				localtime(&tmp_ch->player.time.logon));
-			if (PLR_FLAGGED(tmp_ch, PLR_FROZEN))
-				status_str = "&CFROZEN!";
-			else if (PLR2_FLAGGED(tmp_ch, PLR2_BURIED))
-				status_str = "&GBURIED!";
-			else if ((real_ch = get_char_in_world_by_idnum(GET_IDNUM(tmp_ch))) != NULL) {
-				if (real_ch->desc)
-					status_str = "&g  Playing";
-				else
-					status_str = "&c Linkless";
-			} else if (tmp_ch->player_specials->desc_mode == CXN_AFTERLIFE) {
-				status_str =     "&R     Died";
-			} else switch (tmp_ch->player_specials->rentcode) {
-				case RENT_CREATING:
-                    status_str = "&Y Creating"; break;
-                case RENT_NEW_CHAR:
-                    status_str = "&Y      New"; break;
-                case RENT_UNDEF:
-                    status_str = "&r    UNDEF"; break;
-                case RENT_CRYO:
-                    status_str = "&c   Cryoed"; break;
-                case RENT_CRASH:
-                    status_str = "&yCrashsave"; break;
-                case RENT_RENTED:
-                    status_str = "&m   Rented"; break;
-                case RENT_FORCED:
-                    status_str = "&yForcerent"; break;
-                case RENT_QUIT:
-                    status_str = "&g     Quit"; break;
-				case RENT_REMORTING:
-                    status_str = "&YRemorting"; break;
-                default:
-                    status_str = "&R REPORTME"; break;
-			}
-			if (has_mail(GET_IDNUM(tmp_ch)))
-				mail_str = "&Y Yes";
-			else
-				mail_str = "&n No ";
-			if (tmp_ch->player_specials->rentcode == RENT_CREATING) {
-				send_to_desc(d,
-					"&b[&y%2d&b] &n%-13s   &y-   -  -         -         -         Never  Creating&n  --\r\n",
-					idx, GET_NAME(tmp_ch));
-			} else {
-				send_to_desc(d,
-					"&b[&y%2d&b] &n%-13s %3d %3d  %s  %8s %s %13s %s %s&n\r\n",
-					idx, GET_NAME(tmp_ch),
-					GET_LEVEL(tmp_ch), GET_REMORT_GEN(tmp_ch),
-					sex_str,
-					player_race[(int)GET_RACE(tmp_ch)],
-					class_str, laston_str, status_str, mail_str);
-			}
-			idx++;
-		}
-		delete tmp_ch;
+			"&c*&b-----------------------------------------------------------------------------&c*&n\r\n\r\n");
+		
+		show_account_chars(d, d->account, false);
 
 		send_to_desc(d, "\r\n             Past bank: %-12lld      Future Bank: %-12lld\r\n\r\n",
 			d->account->get_past_bank(), d->account->get_future_bank());
@@ -1632,6 +1536,122 @@ show_character_detail(descriptor_data *d)
 		str, GET_EXP(ch));
 
 	send_to_desc(d, "\r\n");
+}
+
+void
+show_account_chars(descriptor_data *d, Account *acct, bool immort)
+{
+	const char *class_str, *status_str, *mail_str;
+	char *sex_color = "";
+	char *sex_str;
+	Creature *tmp_ch, *real_ch;
+	char laston_str[40];
+	int idx;
+
+	if (!immort)
+		send_to_desc(d,
+			"&y  # Name           Lvl Gen Sex     Race     Class      Last on    Status  Mail\r\n"
+			"&b -- -------------- --- --- --- -------- --------- ------------- --------- ----\r\n");
+
+	idx = 1;
+	tmp_ch = new Creature(true);
+	while (!acct->invalid_char_index(idx)) {
+
+		tmp_ch->clear();
+
+		if (!tmp_ch->loadFromXML(acct->get_char_by_index(idx))) {
+			send_to_desc(d, "&R------ BAD PROBLEMS ------  PLEASE REPORT ------&n\r\n");
+			idx++;
+			continue;
+		}
+
+		switch( GET_SEX(tmp_ch) ) {
+			case SEX_MALE:
+				sex_color = "&b";
+				break;
+			case SEX_FEMALE:
+				sex_color = "&m";
+				break;
+		}
+		sex_str = tmp_sprintf("%s%c&n",
+				sex_color, toupper(genders[(int)GET_SEX(tmp_ch)][0]) );
+				
+
+		// Construct compact menu entry for each character
+		if (IS_REMORT(tmp_ch)) {
+			class_str = tmp_sprintf( "%s%4s&n/%s%4s&n",
+				get_char_class_color( tmp_ch, GET_CLASS(tmp_ch) ),
+				char_class_abbrevs[GET_CLASS(tmp_ch)],
+				get_char_class_color( tmp_ch, GET_REMORT_CLASS(tmp_ch) ),
+				char_class_abbrevs[GET_REMORT_CLASS(tmp_ch)] );
+		} else {
+			class_str = tmp_sprintf( "%s%9s&n",
+				get_char_class_color( tmp_ch, GET_CLASS(tmp_ch) ),
+				pc_char_class_types[GET_CLASS(tmp_ch)] );
+		}
+		if (immort)
+			strftime(laston_str, sizeof(laston_str), "%a, %d %b %Y %H:%M:%S",
+				localtime(&tmp_ch->player.time.logon));
+		else
+			strftime(laston_str, sizeof(laston_str), "%b %d, %Y",
+				localtime(&tmp_ch->player.time.logon));
+		if (PLR_FLAGGED(tmp_ch, PLR_FROZEN))
+			status_str = "&CFROZEN!";
+		else if (PLR2_FLAGGED(tmp_ch, PLR2_BURIED))
+			status_str = "&GBURIED!";
+		else if ((real_ch = get_char_in_world_by_idnum(GET_IDNUM(tmp_ch))) != NULL) {
+			if (real_ch->desc)
+				status_str = "&g  Playing";
+			else
+				status_str = "&c Linkless";
+		} else if (tmp_ch->player_specials->desc_mode == CXN_AFTERLIFE) {
+			status_str =     "&R     Died";
+		} else switch (tmp_ch->player_specials->rentcode) {
+			case RENT_CREATING:
+				status_str = "&Y Creating"; break;
+			case RENT_NEW_CHAR:
+				status_str = "&Y      New"; break;
+			case RENT_UNDEF:
+				status_str = "&r    UNDEF"; break;
+			case RENT_CRYO:
+				status_str = "&c   Cryoed"; break;
+			case RENT_CRASH:
+				status_str = "&yCrashsave"; break;
+			case RENT_RENTED:
+				status_str = "&m   Rented"; break;
+			case RENT_FORCED:
+				status_str = "&yForcerent"; break;
+			case RENT_QUIT:
+				status_str = "&g     Quit"; break;
+			case RENT_REMORTING:
+				status_str = "&YRemorting"; break;
+			default:
+				status_str = "&R REPORTME"; break;
+		}
+		if (has_mail(GET_IDNUM(tmp_ch)))
+			mail_str = "&Y Yes";
+		else
+			mail_str = "&n No ";
+		if (immort) {
+			send_to_desc(d,
+				"&y%5ld &n%-13s %s&n %s\r\n",
+				GET_IDNUM(tmp_ch), GET_NAME(tmp_ch), status_str, laston_str);
+		} else if (tmp_ch->player_specials->rentcode == RENT_CREATING) {
+			send_to_desc(d,
+				"&b[&y%2d&b] &n%-13s   &y-   -  -         -         -         Never  Creating&n  --\r\n",
+				idx, GET_NAME(tmp_ch));
+		} else {
+			send_to_desc(d,
+				"&b[&y%2d&b] &n%-13s %3d %3d  %s  %8s %s %13s %s %s&n\r\n",
+				idx, GET_NAME(tmp_ch),
+				GET_LEVEL(tmp_ch), GET_REMORT_GEN(tmp_ch),
+				sex_str,
+				player_race[(int)GET_RACE(tmp_ch)],
+				class_str, laston_str, status_str, mail_str);
+		}
+		idx++;
+	}
+	delete tmp_ch;
 }
 
 #undef __interpreter_c__
