@@ -241,6 +241,13 @@ int CHECK_SKILL(struct char_data *ch, int i);
       pos == WEAR_WIELD_2 || pos == WEAR_ASS || pos == WEAR_NECK_2 || \
       pos == WEAR_RANDOM)
 
+#define IS_WEAR_EXTREMITY(pos) \
+    (	pos == WEAR_FINGER_L || pos == WEAR_FINGER_R \
+     || pos == WEAR_LEGS     || pos == WEAR_FEET     || pos == WEAR_BELT \
+     || pos == WEAR_EAR_L    || pos == WEAR_EAR_R    || pos == WEAR_ARMS \
+     || pos == WEAR_HANDS    || pos == WEAR_HOLD     || pos == WEAR_WIELD \
+     || pos == WEAR_SHIELD   || pos == WEAR_WRIST_L  || pos == WEAR_WRIST_R)
+
 #define ILLEGAL_IMPLANTPOS(pos) \
      (pos == WEAR_LIGHT || pos == WEAR_SHIELD || pos == WEAR_ABOUT || \
       pos == WEAR_WIELD || pos == WEAR_BELT ||    \

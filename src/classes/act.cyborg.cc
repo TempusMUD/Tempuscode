@@ -2195,14 +2195,6 @@ ACMD(do_insert)
 	send_to_char("You must be holding a cyber surgery tool to do this.\r\n", ch);
 	return;
     }
-    if (GET_LEVEL(ch) < LVL_AMBASSADOR && vict == ch) {
-	send_to_char("You cannot perform surgery on yourself!\r\n", ch);
-	return;
-    }
-    if (GET_LEVEL(ch) < LVL_AMBASSADOR && AWAKE(vict) && ch != vict) {
-	send_to_char("Your subject is not properly sedated.\r\n", ch);
-	return;
-    }
 	if (!IS_CYBORG(vict)) {
 		send_to_char("Your subject is not prepared for such enhancement.\r\n",ch);
 		return;
@@ -2212,71 +2204,107 @@ ACMD(do_insert)
 
     if ((pos = search_block(buf, wear_implantpos, 0)) < 0 ||
 	(ILLEGAL_IMPLANTPOS(pos) && !IS_OBJ_TYPE(obj, ITEM_TOOL))) {
-	send_to_char("Invalid implant position.\r\n", ch);
-	return;
+		send_to_char("Invalid implant position.\r\n", ch);
+		return;
     }
 
     if (!IS_IMPLANT(obj)) {
-	act("ERROR: $p is not an implantable object.",
-	    FALSE, ch, obj, vict, TO_CHAR);
-	return;
+		act("ERROR: $p is not an implantable object.",
+			FALSE, ch, obj, vict, TO_CHAR);
+		return;
     }
     if (ANTI_ALIGN_OBJ(vict, obj)) {
-	act("$N is unable to safely utilize $p.",FALSE,ch,obj,vict,TO_CHAR);
-	return;
+		act("$N is unable to safely utilize $p.",FALSE,ch,obj,vict,TO_CHAR);
+		return;
     }
     if (GET_IMPLANT(vict, pos)) {
-	act("ERROR: $E is already implanted with $p there.",
-	    FALSE, ch, GET_IMPLANT(vict, pos), vict, TO_CHAR);
-	return;
+		act("ERROR: $E is already implanted with $p there.",
+			FALSE, ch, GET_IMPLANT(vict, pos), vict, TO_CHAR);
+		return;
     }
 
     if (!CAN_WEAR(obj, wear_bitvectors[pos])) {
-	act("$p cannot be implanted there.", FALSE, ch, obj, 0, TO_CHAR);
-	return;
+		act("$p cannot be implanted there.", FALSE, ch, obj, 0, TO_CHAR);
+		return;
     }
 
     if (IS_INTERFACE(obj) && INTERFACE_TYPE(obj) == INTERFACE_CHIPS) {
-	for (i = 0; i < NUM_WEARS; i++) {
-	    if ((GET_EQ(vict, i) && IS_INTERFACE(GET_EQ(vict, i)) &&
-		 INTERFACE_TYPE(GET_EQ(vict, i)) == INTERFACE_CHIPS) ||
-		(GET_IMPLANT(vict, i) && IS_INTERFACE(GET_IMPLANT(vict, i)) &&
-		 INTERFACE_TYPE(GET_IMPLANT(vict, i)) == INTERFACE_CHIPS)) {
-		act("$N is already using an interface.\r\n", 
-		    FALSE, ch, 0, vict, TO_CHAR);
-		return;
-	    }
-	}
+		for (i = 0; i < NUM_WEARS; i++) {
+			if ((GET_EQ(vict, i) && IS_INTERFACE(GET_EQ(vict, i)) &&
+			 INTERFACE_TYPE(GET_EQ(vict, i)) == INTERFACE_CHIPS) ||
+			(GET_IMPLANT(vict, i) && IS_INTERFACE(GET_IMPLANT(vict, i)) &&
+			 INTERFACE_TYPE(GET_IMPLANT(vict, i)) == INTERFACE_CHIPS)) {
+			act("$N is already using an interface.\r\n", 
+				FALSE, ch, 0, vict, TO_CHAR);
+			return;
+			}
+		}
     }
-	    
-    if (GET_LEVEL(ch) < LVL_AMBASSADOR && !AFF_FLAGGED(vict, AFF_SLEEP) &&
-	!AFF3_FLAGGED(vict, AFF3_STASIS)) {
-	act("$N wakes up with a scream as you cut into $M!", 
-	    FALSE, ch, 0, vict, TO_CHAR);
-	act("$N wakes up with a scream as $n cuts into $M!", 
-	    FALSE, ch, 0, vict, TO_NOTVICT);
-	act("$N wakes up with a scream as $n cuts into you!", 
-	    FALSE, ch, 0, vict, TO_VICT | TO_SLEEP);
-	GET_POS(vict) = POS_RESTING;
-	//    damage(ch, vict, dice(5, 10), TYPE_SURGERY, pos);
-	return;
+	if (!IS_WEAR_EXTREMITY(pos)) {    
+		if (GET_LEVEL(ch) < LVL_AMBASSADOR && vict == ch) {
+			send_to_char("You can only perform surgery on your extremities!\r\n", ch);
+			return;
+		}
+		if (GET_LEVEL(ch) < LVL_AMBASSADOR && AWAKE(vict) && ch != vict) {
+			send_to_char("Your subject is not properly sedated.\r\n", ch);
+			return;
+		}
+	}
+
+    if (!(vict == ch && IS_WEAR_EXTREMITY(pos)) &&
+		GET_LEVEL(ch) < LVL_AMBASSADOR && !AFF_FLAGGED(vict, AFF_SLEEP) &&
+		!AFF3_FLAGGED(vict, AFF3_STASIS)) {
+		act("$N wakes up with a scream as you cut into $M!", 
+			FALSE, ch, 0, vict, TO_CHAR);
+		act("$N wakes up with a scream as $n cuts into $M!", 
+			FALSE, ch, 0, vict, TO_NOTVICT);
+		act("$N wakes up with a scream as $n cuts into you!", 
+			FALSE, ch, 0, vict, TO_VICT | TO_SLEEP);
+		GET_POS(vict) = POS_RESTING;
+		//    damage(ch, vict, dice(5, 10), TYPE_SURGERY, pos);
+		return;
     }
 
     if (CHECK_SKILL(ch, SKILL_CYBO_SURGERY) + TOOL_MOD(tool) + 
 	(GET_DEX(ch) << 2) <
 	number(50, 100)) {
-	send_to_char("You fail.\r\n", ch);
-	return;
+		send_to_char("You fail.\r\n", ch);
+		return;
     }
 
     obj_from_char(obj);
     if (equip_char(vict, obj, pos, MODE_IMPLANT))
-	return;
-    act("$p inserted into $N.", 
-	FALSE, ch, GET_IMPLANT(vict, pos), vict, TO_CHAR);
-    GET_HIT(vict) = 1;
-    GET_MOVE(vict) = 1;
-    WAIT_STATE(vict, 10 RL_SEC);
+		return;
+
+	if(ch == vict) {
+		sprintf(buf,"$p inserted into your %s.",wear_implantpos[pos]);
+		act(buf, FALSE, ch, GET_IMPLANT(vict, pos), vict, TO_CHAR);
+		sprintf(buf,"$n inserts $p into $s %s.",wear_description[pos]);
+		act(buf, FALSE, ch, GET_IMPLANT(vict, pos), vict, TO_NOTVICT);
+		if(GET_POS(vict) > POS_SITTING)
+			GET_POS(ch) = POS_SITTING;
+		GET_HIT(vict) = GET_HIT(vict) / 4;
+		GET_MOVE(vict) = GET_MOVE(vict) / 4;
+		if(GET_HIT(vict) < 1)
+			GET_HIT(vict) = 1;
+		if(GET_MOVE(vict) < 1)
+			GET_MOVE(vict) = 1;
+		WAIT_STATE(vict, 6 RL_SEC);
+	} else {
+		sprintf(buf,"$p inserted into $N's %s.",wear_implantpos[pos]);
+		act(buf, FALSE, ch, GET_IMPLANT(vict, pos), vict, TO_CHAR);
+
+		sprintf(buf,"$n inserts $p into your %s.",wear_description[pos]);
+		act(buf, FALSE, ch, GET_IMPLANT(vict, pos), vict, TO_VICT);
+
+		sprintf(buf,"$n inserts $p into $n's %s.",wear_description[pos]);
+		act(buf, FALSE, ch, GET_IMPLANT(vict, pos), vict, TO_NOTVICT);
+		if(GET_POS(vict) > POS_RESTING)
+			GET_POS(vict) = POS_RESTING;
+		GET_HIT(vict) = 1;
+		GET_MOVE(vict) = 1;
+		WAIT_STATE(vict, 10 RL_SEC);
+	}
 
 }
 
@@ -2364,75 +2392,98 @@ ACMD(do_extract)
 
 	return;
     }
-
-
-    if (GET_LEVEL(ch) < LVL_AMBASSADOR && vict == ch) {
-	send_to_char("You cannot perform surgery on yourself!\r\n", ch);
-	return;
-    }
-
-    if (!ROOM_FLAGGED(ch->in_room, ROOM_PEACEFUL)) {
-	send_to_char("You can only perform surgery in a safe room.\r\n", ch);
-	return;
-    }
-
-    if (GET_LEVEL(ch) < LVL_AMBASSADOR && AWAKE(vict) && ch != vict) {
-	send_to_char("Your subject is not properly sedated.\r\n", ch);
-	return;
+    
+	if (!ROOM_FLAGGED(ch->in_room, ROOM_PEACEFUL)) {
+		send_to_char("You can only perform surgery in a safe room.\r\n", ch);
+		return;
     }
 
     if (!(obj = get_object_in_equip_vis(ch, buf, vict->implants, &pos))) {
-	send_to_char("Invalid object.  Type 'extract' for usage.\r\n",ch);
-	return;
+		send_to_char("Invalid object.  Type 'extract' for usage.\r\n",ch);
+		return;
     }
 
     if (!*argument) {
-	send_to_char("Extract the implant from what position.\r\n", ch);
-	return;
+		send_to_char("Extract the implant from what position.\r\n", ch);
+		return;
     }
 
     one_argument(argument, buf);
   
     if ((pos = search_block(buf, wear_implantpos, 0)) < 0) {
-	send_to_char("Invalid implant position.\r\n", ch);
-	return;
+		send_to_char("Invalid implant position.\r\n", ch);
+		return;
     }
+	if (!IS_WEAR_EXTREMITY(pos)) {    
+		if (GET_LEVEL(ch) < LVL_AMBASSADOR && vict == ch) {
+			send_to_char("You can only perform surgery on your extrimities!\r\n", ch);
+			return;
+		}
 
-    if (GET_LEVEL(ch) < LVL_AMBASSADOR && !AFF_FLAGGED(vict, AFF_SLEEP) &&
-	!AFF3_FLAGGED(vict, AFF3_STASIS)) {
-	act("$N wakes up with a scream as you cut into $M!", 
-	    FALSE, ch, 0, vict, TO_CHAR);
-	act("$N wakes up with a scream as $n cuts into $M!", 
-	    FALSE, ch, 0, vict, TO_NOTVICT);
-	act("$N wakes up with a scream as $n cuts into you!", 
-	    FALSE, ch, 0, vict, TO_VICT | TO_SLEEP);
-	GET_POS(vict) = POS_RESTING;
-	//    damage(ch, vict, dice(5, 10), TYPE_SURGERY, pos);
-	return;
+		if (GET_LEVEL(ch) < LVL_AMBASSADOR && AWAKE(vict) && ch != vict) {
+			send_to_char("Your subject is not properly sedated.\r\n", ch);
+			return;
+		}
+	}
+
+    if (!(vict == ch && IS_WEAR_EXTREMITY(pos)) &&
+		GET_LEVEL(ch) < LVL_AMBASSADOR && !AFF_FLAGGED(vict, AFF_SLEEP) &&
+		!AFF3_FLAGGED(vict, AFF3_STASIS)) {
+		act("$N wakes up with a scream as you cut into $M!", 
+			FALSE, ch, 0, vict, TO_CHAR);
+		act("$N wakes up with a scream as $n cuts into $M!", 
+			FALSE, ch, 0, vict, TO_NOTVICT);
+		act("$N wakes up with a scream as $n cuts into you!", 
+			FALSE, ch, 0, vict, TO_VICT | TO_SLEEP);
+		GET_POS(vict) = POS_RESTING;
+		//    damage(ch, vict, dice(5, 10), TYPE_SURGERY, pos);
+		return;
     }
 
     if (!GET_IMPLANT(vict, pos)) {
-	act("ERROR: $E is not implanted there.", FALSE, ch, 0, vict, TO_CHAR);
-	return; // unequip_char(vict, pos, MODE_IMPLANT);
+		act("ERROR: $E is not implanted there.", FALSE, ch, 0, vict, TO_CHAR);
+		return; // unequip_char(vict, pos, MODE_IMPLANT);
     }
 
     if ((CHECK_SKILL(ch, SKILL_CYBO_SURGERY) + TOOL_MOD(tool) + 
 	 (GET_DEX(ch) << 2) <  number(50, 100)) ||
 	(IS_OBJ_TYPE(obj, ITEM_SCRIPT) && GET_LEVEL(ch) < 50)) {
-	send_to_char("You fail.\r\n", ch);
-	return;
+		send_to_char("You fail.\r\n", ch);
+		return;
     }
 
     obj_to_char((obj = unequip_char(vict, pos, MODE_IMPLANT)), ch);
     SET_BIT(GET_OBJ_WEAR(obj), ITEM_WEAR_TAKE);
 
-    act("$p extracted from $N.", 
-	FALSE, ch, obj, vict, TO_CHAR);
-    act("$n extracts $p from $N.", FALSE, ch, obj, vict, TO_NOTVICT);
+	if(ch == vict) {
+		sprintf(buf,"$p extracted from your %s.",wear_implantpos[pos]);
+		act(buf, FALSE, ch, obj, vict, TO_CHAR);
+		sprintf(buf,"$n extracts $p from $s %s.",wear_description[pos]);
+		act(buf, FALSE, ch, obj, vict, TO_NOTVICT);
+		if(GET_POS(vict) > POS_SITTING)
+			GET_POS(vict) = POS_SITTING;
+		GET_HIT(vict) = GET_HIT(vict) / 4;
+		GET_MOVE(vict) = GET_MOVE(vict) / 4;
+		if(GET_HIT(vict) < 1)
+			GET_HIT(vict) = 1;
+		if(GET_MOVE(vict) < 1)
+			GET_MOVE(vict) = 1;
+		WAIT_STATE(vict, 6 RL_SEC);
+	} else {
+		sprintf(buf,"$p extracted from $N's %s.",wear_implantpos[pos]);
+		act(buf, FALSE, ch, obj, vict, TO_CHAR);
 
-    GET_HIT(vict) = 1;
-    GET_MOVE(vict) = 1;
-    WAIT_STATE(vict, 10 RL_SEC);
+		sprintf(buf,"$n extracts $p from your %s.",wear_description[pos]);
+		act(buf, FALSE, ch, obj, vict, TO_VICT);
+
+		sprintf(buf,"$n extracts $p from $n's %s.",wear_description[pos]);
+		act(buf, FALSE, ch, obj, vict, TO_NOTVICT);
+		if(GET_POS(vict) > POS_RESTING)
+			GET_POS(vict) = POS_RESTING;
+		GET_HIT(vict) = 1;
+		GET_MOVE(vict) = 1;
+		WAIT_STATE(vict, 10 RL_SEC);
+	}
 
     if (CHECK_SKILL(ch, SKILL_CYBO_SURGERY) + TOOL_MOD(tool) +
 	(GET_DEX(ch) << 2) <
