@@ -933,6 +933,7 @@ struct command_info cmd_info[] = {
 	{"notitle", POS_DEAD, do_wizutil, LVL_IMMORT, SCMD_NOTITLE, 0, 0},
 	{"nopost", POS_DEAD, do_wizutil, LVL_IMMORT, SCMD_NOPOST, 0, 0},
 	{"notrailers", POS_DEAD, do_gen_tog, 1, SCMD_NOTRAILERS, 0, 0},
+	{"nowho", POS_DEAD, do_gen_tog, LVL_IMMORT, SCMD_NOWHO, 0, 0},
 	{"nowiz", POS_DEAD, do_gen_tog, LVL_IMMORT, SCMD_NOWIZ, 0, 0},
 	{"nudge", POS_RESTING, do_action, 0, 0, 0, 0},
 	{"nuzzle", POS_RESTING, do_action, 0, 0, 0, 0},
