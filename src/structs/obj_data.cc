@@ -76,7 +76,8 @@ obj_data::saveToXML(FILE *ouf)
 		extra_descr_data *desc;
 
 		for (desc = ex_description;desc;desc = desc->next)
-			fprintf(ouf, "%s<extra_desc keywords=\"%s\">%s</extra_desc>\n", indent.c_str(),  xmlEncodeTmp(desc->keyword), xmlEncodeTmp(desc->description) );
+			if (desc->keyword && desc->description)
+				fprintf(ouf, "%s<extra_desc keywords=\"%s\">%s</extra_desc>\n", indent.c_str(),  xmlEncodeTmp(desc->keyword), xmlEncodeTmp(desc->description) );
 	}
 
     s = action_desc;
