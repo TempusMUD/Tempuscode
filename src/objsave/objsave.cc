@@ -884,21 +884,35 @@ Crash_cursesave( struct char_data * ch )
 	return;
     }
 
-    for ( j = 0; j < NUM_WEARS; j++ )
-	if ( GET_EQ( ch, j ) && 
-	     ( IS_OBJ_STAT( GET_EQ( ch, j ), ITEM_NODROP ) ||
-	       IS_OBJ_STAT2( GET_EQ( ch, j ), ITEM2_NOREMOVE ) ) )
-	    if ( Crash_save( GET_EQ( ch, j ), fp ) )
-		Crash_extract_objs( GET_EQ( ch, j ) );
-  
+    for ( j = 0; j < NUM_WEARS; j++ ) {
+	if ( GET_EQ( ch, j ) ) {
+	    if ( IS_OBJ_STAT( GET_EQ( ch, j ), ITEM_NODROP ) ||
+		 IS_OBJ_STAT2( GET_EQ( ch, j ), ITEM2_NOREMOVE ) ) {
+		
+		// the item is cursed, but its contents cannot be (normally)
+		while ( GET_EQ( ch, j )->contains )
+		    Crash_extract_objs( GET_EQ( ch, j )->contains );
+		
+		if ( Crash_save( GET_EQ( ch, j ), fp ) )
+		    Crash_extract_objs( GET_EQ( ch, j ) );
+	    }
+	}
+    }
+
     for ( obj = ch->carrying; obj; obj = next_obj ) {
 	next_obj = obj->next_content;
 	if ( IS_OBJ_STAT( obj, ITEM_NODROP ) ) {
+	    
+	    // the item is cursed, but its contents cannot be (normally)
+	    while ( obj->contains )
+		Crash_extract_objs( obj->contains );
+	    
 	    if ( Obj_to_store( obj, fp ) )
 		extract_obj( obj );
 	}
+	
     }
-  
+    
     fclose( fp );
 
     // save implants
