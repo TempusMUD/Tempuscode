@@ -85,6 +85,10 @@ ACMD(do_hamstring)
         send_to_char("How can you cut it when they're sitting on it!\r\n",ch);
         return;
     }
+    if (vict->getPosition() == POS_RESTING) {
+        send_to_char("How can you cut it when they're laying on it!\r\n",ch);
+        return;
+    }
     prob = CHECK_SKILL(ch,SKILL_HAMSTRING) + GET_REMORT_GEN(ch);
     percent = number (0,101);
     if(affected_by_spell(vict,ZEN_AWARENESS)) {
@@ -137,14 +141,14 @@ ACMD(do_hamstring)
                               * ( CHECK_SKILL( ch ,SKILL_HAMSTRING ) )/1000;
             affect_to_char(vict, &af);
             vict->setPosition( POS_RESTING );
+            WAIT_STATE(vict, 4 RL_SEC);
             if(!damage(ch, vict, dam, SKILL_HAMSTRING, WEAR_LEGS)) {
                 vict->setPosition( POS_RESTING );
-                WAIT_STATE(vict, 4 RL_SEC);
             }
         } else {
+            WAIT_STATE(vict, 3 RL_SEC);
             if(!damage(ch, vict, dam/2, SKILL_HAMSTRING, WEAR_LEGS)) {
                 vict->setPosition( POS_SITTING );
-                WAIT_STATE(vict, 3 RL_SEC);
             }
         }
         gain_skill_prof(ch, SKILL_HAMSTRING);
