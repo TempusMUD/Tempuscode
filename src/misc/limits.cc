@@ -745,11 +745,20 @@ point_update(void)
 		}
 		extract_obj(j);
 	    }
-	} else if (GET_OBJ_VNUM(j) < 0 &&
-		   ((IS_OBJ_TYPE(j, ITEM_DRINKCON) && isname("head", j->name)) ||
-		    (	(j->worn_on == WEAR_WIELD || j->worn_on == WEAR_WIELD_2) &&
-				(IS_OBJ_TYPE(j, ITEM_WEAPON) && isname("leg", j->name))) ||
-		    (IS_OBJ_TYPE(j, ITEM_FOOD) && isname("heart", j->name)))) {
+	} else if (
+					GET_OBJ_VNUM(j) < 0 &&
+					(
+						(IS_OBJ_TYPE(j, ITEM_DRINKCON) && isname("head", j->name)) || 
+						(
+							(IS_OBJ_TYPE(j, ITEM_WEAPON) && isname("leg", j->name)) && 
+							(j->worn_on != WEAR_WIELD && j->worn_on != WEAR_WIELD_2) 
+						) || 
+						(IS_OBJ_TYPE(j, ITEM_FOOD) && isname("heart", j->name))
+					)
+				) {
+		sprintf(buf,"Checking object %s.",j->name);
+		mudlog( buf, BRF, LVL_AMBASSADOR, TRUE );
+
 	    // body parts
 	    if (GET_OBJ_TIMER(j) > 0)
 		GET_OBJ_TIMER(j)--;

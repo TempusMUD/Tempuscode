@@ -580,7 +580,7 @@ make_corpse( struct char_data *ch,struct char_data *killer,int attacktype )
     if ( IS_AFFECTED_2( ch, AFF2_PETRIFIED ) )
         leg->name = str_dup( "blood leg stone" );
     else
-        leg->name = str_dup( "blood leg severed" );
+        leg->name = str_dup( "leg severed" );
   
     sprintf( buf2, "The severed %sleg of %s %s lying here.",
          IS_AFFECTED_2( ch, AFF2_PETRIFIED ) ? "stone " : "",GET_NAME( ch ), isare );
