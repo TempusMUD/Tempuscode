@@ -234,20 +234,6 @@ struct sql_query_data {
 	PGresult *res;
 };
 
-#ifndef __db_c__
-
-extern struct time_info_data time_info;
-extern time_t boot_time;
-extern time_t last_sunday_time;
-extern const int daylight_mod[];
-extern const char *lunar_phases[];
-extern int lunar_day;
-extern struct obj_shared_data *null_obj_shared;
-extern struct shop_data *shop_index;
-extern struct obj_data *obj_proto;
-extern struct room_data *world;
-extern struct obj_data *object_list;
-
 // Executes a SQL insertion, returning the Oid if successful
 Oid sql_insert(const char *str, ...)
 	__attribute__ ((format (printf, 1, 2))); 
@@ -262,7 +248,22 @@ PGresult *sql_query(const char *str, ...)
 
 // Deallocates all SQL query result structures
 void sql_gc_queries(void);
+void update_unique_id(void);
 
+
+#ifndef __db_c__
+
+extern struct time_info_data time_info;
+extern time_t boot_time;
+extern time_t last_sunday_time;
+extern const int daylight_mod[];
+extern const char *lunar_phases[];
+extern int lunar_day;
+extern struct obj_shared_data *null_obj_shared;
+extern struct shop_data *shop_index;
+extern struct obj_data *obj_proto;
+extern struct room_data *world;
+extern struct obj_data *object_list;
 #endif							// __db_c__
 
 #endif

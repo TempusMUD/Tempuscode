@@ -87,6 +87,8 @@ int olc_lock = 0;
 int no_initial_zreset = 0;
 int quest_status = 0;
 int lunar_day = 0;
+long top_unique_id = 0;
+bool unique_id_changed = true;
 
 struct room_data *r_mortal_start_room;	/* rnum of mortal start room   */
 struct room_data *r_electro_start_room;	/* Electro Centralis start room  */
@@ -317,6 +319,7 @@ void
 boot_db(void)
 {
 	struct zone_data *zone;
+	PGresult *res;
 
 	slog("Boot db -- BEGIN.");
 
@@ -338,6 +341,10 @@ boot_db(void)
 		slog("Couldn't connect to postgres!: %s", PQerrorMessage(sql_cxn));
 		safe_exit(1);
 	}
+
+	res = sql_query("select last_value from unique_id");
+	top_unique_id = atol(PQgetvalue(res, 0, 0));
+	slog("Top unique object id = %ld", top_unique_id);
 
 	Account::boot();
 	slog("Reading credits, bground, info & motds.");
@@ -2486,6 +2493,9 @@ on_load_equip( Creature *ch, int vnum, char* position, int maxload, int percent 
         return 4;
     }
 	obj = read_object(vnum);
+	obj->creation_method = CREATED_MOB;
+	obj->creator = vnum;
+
 	randomize_object(obj);
     if( obj == NULL ) {
         slog("SYSERR: Mob num %d cannot load equip object #%d.",
@@ -2701,6 +2711,13 @@ read_object(int vnum)
 	obj->obj_flags.tracker.string[TRACKER_STR_LEN - 1] = '\0';
 
 #endif
+
+	unique_id_changed = true;
+	top_unique_id += 1;
+	obj->unique_id = top_unique_id;
+	obj->creation_time = time(NULL);
+	obj->creator = 0;
+	obj->creation_method = CREATED_UNKNOWN;
 
 	obj->next = object_list;
 	object_list = obj;
@@ -2932,6 +2949,8 @@ reset_zone(struct zone_data *zone)
 					room = real_room(zonecmd->arg3);
 					if (room && !ROOM_FLAGGED(room, ROOM_HOUSE)) {
 						obj = read_object(zonecmd->arg1);
+						obj->creation_method = CREATED_ZONE;
+						obj->creator = zone->number;
 						randomize_object(obj);
 						if (ZONE_FLAGGED(zone, ZONE_ZCMDS_APPROVED)) {
 							SET_BIT(GET_OBJ_EXTRA2(obj), ITEM2_UNAPPROVED);
@@ -2958,6 +2977,8 @@ reset_zone(struct zone_data *zone)
 				tobj->shared->number - tobj->shared->house_count <
 				zonecmd->arg2) {
 				obj = read_object(zonecmd->arg1);
+				obj->creation_method = CREATED_ZONE;
+				obj->creator = zone->number;
 				randomize_object(obj);
 				if (!(obj_to = get_obj_num(zonecmd->arg3))) {
 					ZONE_ERROR("target obj not found");
@@ -2999,6 +3020,8 @@ reset_zone(struct zone_data *zone)
 				tobj->shared->number - tobj->shared->house_count <
 				zonecmd->arg2) {
 				obj = read_object(zonecmd->arg1);
+				obj->creation_method = CREATED_ZONE;
+				obj->creator = zone->number;
 				if (GET_MOB_SPEC(mob) != vendor)
 					randomize_object(obj);
 				if (ZONE_FLAGGED(zone, ZONE_ZCMDS_APPROVED)) {
@@ -3030,6 +3053,8 @@ reset_zone(struct zone_data *zone)
 					ZONE_ERROR("char already equipped in position");
 				} else {
 					obj = read_object(zonecmd->arg1);
+					obj->creation_method = CREATED_ZONE;
+					obj->creator = zone->number;
 					randomize_object(obj);
 					if (ZONE_FLAGGED(zone, ZONE_ZCMDS_APPROVED)) {
 						SET_BIT(GET_OBJ_EXTRA2(obj), ITEM2_UNAPPROVED);
@@ -3062,6 +3087,8 @@ reset_zone(struct zone_data *zone)
 					ZONE_ERROR("char already implanted in position");
 				} else {
 					obj = read_object(zonecmd->arg1);
+					obj->creation_method = CREATED_ZONE;
+					obj->creator = zone->number;
 					randomize_object(obj);
 					if (ZONE_FLAGGED(zone, ZONE_ZCMDS_APPROVED)) {
 						SET_BIT(GET_OBJ_EXTRA2(obj), ITEM2_UNAPPROVED);
@@ -3153,7 +3180,6 @@ reset_zone(struct zone_data *zone)
 	for (room = zone->world; room; room = room->next)
 		for (srch = room->search; srch; srch = srch->next)
 			REMOVE_BIT(srch->flags, SRCH_TRIPPED);
-
 }
 
 /* for use in reset_zone; return TRUE if zone 'nr' is free of PC's  */
@@ -3533,6 +3559,15 @@ purge_trails(struct Creature *ch)
 	send_to_char(ch, "%d trails removed from the world.\r\n", i);
 }
 
+void
+update_unique_id(void)
+{
+	if (unique_id_changed) {
+		sql_exec("select setval('unique_id', %ld)", top_unique_id);
+		unique_id_changed = false;
+	}
+}
+
 int
 zone_number(int nr)
 {
@@ -3619,7 +3654,8 @@ sql_exec(const char *str, ...)
 		slog("FATAL: Couldn't allocate sql result");
 		safe_exit(1);
 	}
-	result = PQresultStatus(res) == PGRES_COMMAND_OK;
+	result = PQresultStatus(res) == PGRES_COMMAND_OK
+		|| PQresultStatus(res) == PGRES_TUPLES_OK;
 	if (!result) {
 		slog("FATAL: sql command generated error: %s",
 			PQresultErrorMessage(res));
