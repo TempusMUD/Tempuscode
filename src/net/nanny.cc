@@ -108,7 +108,6 @@ handle_input(struct descriptor_data *d)
 	d->need_prompt = true;
 	d->wait = 1;
 	d->idle = 0;
-	d->creature->char_specials.timer = 0;
 
 	if (d->text_editor) {
 		d->text_editor->Process(arg);
@@ -121,6 +120,7 @@ handle_input(struct descriptor_data *d)
 		break;
 	case CXN_PLAYING:
 		// Push input onto command list
+		d->creature->char_specials.timer = 0;
 		push_command_onto_list(d->creature, arg);
 		// Drag them back from limbo
 		if (GET_WAS_IN(d->creature)) {
