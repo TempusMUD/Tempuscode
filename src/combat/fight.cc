@@ -3401,11 +3401,15 @@ damage( struct char_data * ch, struct char_data * victim, int dam,
 	     GET_CLASS( victim ) != CLASS_DEMON_PRINCE &&
 	     GET_MOB_WAIT( ch ) <= 0 && !MOB_FLAGGED( ch, MOB_SENTINEL ) &&
 	     ( 100 - ( ( GET_HIT( victim ) * 100 ) / GET_MAX_HIT( victim ) ) ) > 
-	     GET_MORALE( victim ) + number( -5, 10 + ( GET_INT( victim ) >> 2 ) ) &&
-		 GET_MAX_HIT(victim) > 0
-	   )
-	    do_flee( victim, "", 0, 0 );
-
+	     GET_MORALE( victim ) + number( -5, 10 + ( GET_INT( victim ) >> 2 ) )
+	   ) {
+		if(GET_HIT(victim) > 0) {
+			do_flee( victim, "", 0, 0 );
+		} else {
+			sprintf(buf,"%s was at position %d with %d hit points and tried to flee.",GET_NAME(victim),GET_POS(victim),GET_HIT(victim));
+			mudlog( buf, BRF, LVL_DEMI, TRUE );
+		}
+	}
 	if ( IS_CYBORG( victim ) && !IS_NPC( victim ) && 
 	     GET_TOT_DAM( victim ) >= max_component_dam( victim ) ){
 	    if ( GET_BROKE( victim ) ) {
