@@ -1657,8 +1657,10 @@ ACMD(do_cast)
 	return;
     }
   
-    if ((!IS_EVIL(ch) && SPELL_IS_EVIL(spellnum)) ||
-	(!IS_GOOD(ch) && SPELL_IS_GOOD(spellnum))) {
+    if (GET_LEVEL(ch) < LVL_IMMORT && 
+        (!IS_EVIL(ch) && SPELL_IS_EVIL(spellnum)) ||
+        (!IS_GOOD(ch) && SPELL_IS_GOOD(spellnum))
+       ) {
 	send_to_char("You cannot cast that spell.\r\n", ch);
 	return;
     }

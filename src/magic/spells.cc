@@ -1720,7 +1720,7 @@ ASPELL(spell_magical_vestment)
     if (ch == NULL || obj == NULL)
 	return;
 
-    if ( IS_NEUTRAL( ch ) ) {
+    if ( IS_NEUTRAL( ch )  && GET_LEVEL( ch ) < LVL_IMMORT ) {
         send_to_char( "You cannot cast this spell, you worthless excuse for a cleric!\n", ch );
         return;
     }
