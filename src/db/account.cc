@@ -257,7 +257,6 @@ AccountIndex::add(Account *acct)
 	if (acct->get_idnum() > _top_id)
 		_top_id = acct->get_idnum();
 	this->push_back(acct);
-	sort();
 	return true;
 }
 
