@@ -687,10 +687,6 @@ Creature::loadFromXML( long id )
             player.time.death = xmlGetLongProp(node, "death");
             player.time.played = xmlGetIntProp(node, "played");
             player.time.logon = xmlGetLongProp(node, "time");
-            //char *h = xmlGetProp(node, "host");
-            //strncpy( desc->host, h, HOST_LENGTH );
-			//desc->host[HOST_LENGTH] = '\0';
-            //free(h);
         } else if ( xmlMatches(node->name, "carnage") ) {
             GET_PKILLS(this) = xmlGetIntProp(node, "pkills");
             GET_MOBKILLS(this) = xmlGetIntProp(node, "mkills");
@@ -824,11 +820,7 @@ Creature::loadFromXML( long id )
 			player_specials->saved.occupation = xmlGetIntProp(node,"badge");
         } else if ( xmlMatches(node->name, "lastlogin") ) {
             player.time.logon = xmlGetIntProp(node, "time");
-            if( desc != NULL ) {
-                char *host = xmlGetProp(node,"host");
-                strcpy( desc->host, host );
-                free(host);
-            }
+			// host is not loaded to avoid conflicting with current host
         }
     }
 
