@@ -4752,36 +4752,28 @@ ACMD(do_wizlist)
     using namespace Security;
     sprintf(buf,
             "\r\n                %sThe Immortals of TempusMUD\r\n"
-			"                %s--------------------------\r\n" 
-			"        %sGRIMP%s\r\n", 
-             CCBLU(ch,C_NRM),CCBLU_BLD(ch,C_NRM), CCYEL_BLD(ch,C_NRM),
+			"                %s--------------------------%s\r\n",
+             CCBLU(ch,C_NRM),CCBLU_BLD(ch,C_NRM),
 			 CCNRM(ch,C_NRM) );
 
-    send_wizlist_section_splitter(ch);
-
+    send_wizlist_section_title("Greater Implementors",ch);
     getGroup("Wizlist_Grimps").sendPublicMemberList(ch, buf);
 
     send_wizlist_section_title("Administrators",ch);
     getGroup("Wizlist_Admins").sendPublicMemberList(ch, buf,"WizardAdmin");
 
-    send_wizlist_section_title("Foreman",ch);
-    getGroup("Wizlist_Foreman").sendPublicMemberList(ch, buf);
-
-    send_wizlist_section_title("Advisors",ch);
-    getGroup("Wizlist_Advisors").sendPublicMemberList(ch, buf);
-
-    send_wizlist_section_title("Architects",ch);
+    send_wizlist_section_title("Directors",ch);
 	strcat(buf, "        ");
-    getGroup("Wizlist_Arch_P").sendPublicMember(ch, buf, "Past: " );
+    getGroup("Wizlist_Foreman").sendPublicMember(ch, buf, "Foreman: ");
 	strcat(buf,"   ");
-    getGroup("Wizlist_ArchEC").sendPublicMember(ch, buf, "Future: " );
+    getGroup("Wizlist_Advisors").sendPublicMember(ch, buf, "Advisor: ");
 	strcat(buf,"   ");
-    getGroup("Wizlist_ArchOP").sendPublicMember(ch, buf, "Outer Planes: " );
+    getGroup("Wizlist_Architects").sendPublicMember(ch, buf, "Architect: ");
 
     send_wizlist_section_title("Builders",ch);
     getGroup("Wizlist_Blders").sendPublicMemberList(ch, buf);
 
-    send_wizlist_section_title("Coders",ch);
+    send_wizlist_section_title("Implementors",ch);
     getGroup("Wizlist_Coders").sendPublicMemberList(ch, buf);
 
     send_wizlist_section_title("Questors",ch);
