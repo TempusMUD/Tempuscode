@@ -2412,7 +2412,9 @@ ASPELL(spell_id_insinuation)
 		act("$n attacks $N in a rage!!\r\n", TRUE, victim, 0, ch, TO_NOTVICT);
 		act("$n attacks you in a rage!!\r\n", TRUE, victim, 0, ch, TO_VICT);
 		act("You attack $N in a rage!!\r\n", TRUE, victim, 0, ch, TO_CHAR);
-		set_fighting(victim, ch, true);
+		//set_fighting(victim, ch, true);
+        ch->addCombat(victim, true);
+        victim->addCombat(ch, false);
 		return;
 	}
 
@@ -2450,7 +2452,9 @@ ASPELL(spell_id_insinuation)
 	act("$n attacks you in a rage!!\r\n", TRUE, victim, 0, ulv, TO_VICT);
 	act("You attack $N in a rage!!\r\n", TRUE, victim, 0, ulv, TO_CHAR);
 
-	set_fighting(victim, ulv, false);
+	//set_fighting(victim, ulv, false);
+    victim->addCombat(ulv, false);
+    ulv->addCombat(victim, false);
 	gain_skill_prof(ch, SPELL_ID_INSINUATION);
 }
 

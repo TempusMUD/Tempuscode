@@ -351,7 +351,9 @@ ACMD(do_circle)
 		//
 
 		if ((number(1, 40) + GET_LEVEL(vict)) > CHECK_SKILL(ch, SKILL_CIRCLE)) {
-			set_fighting(vict, ch, FALSE);
+			//set_fighting(vict, ch, FALSE);
+            vict->addCombat(ch, false);
+            ch->addCombat(vict, true);
 		}
 	}
 }

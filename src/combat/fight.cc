@@ -60,10 +60,10 @@ int do_casting_weapon(Creature *ch, obj_data *weap);
 int calculate_attack_probability(struct Creature *ch);
 
 /* start one char fighting another ( yes, it is horrible, I know... )  */
-void
-set_fighting(struct Creature *ch, struct Creature *vict, int aggr)
-{
-	if (ch == vict)
+//void
+//set_fighting(struct Creature *ch, struct Creature *vict, int aggr)
+//{
+/*	if (ch == vict)
 		return;
 
 	CreatureList::iterator cit;
@@ -84,9 +84,9 @@ set_fighting(struct Creature *ch, struct Creature *vict, int aggr)
 			vict = *cit;
 			break;
 		}
-	}
+	} */
 
-	if (aggr && !IS_NPC(vict)) {
+/*	if (aggr && !IS_NPC(vict)) {
 		if (IS_NPC(ch)) {
 			if (AFF_FLAGGED(ch, AFF_CHARM) && ch->master && !IS_NPC(ch->master)
 				&& (!MOB_FLAGGED(ch, MOB_MEMORY)
@@ -128,17 +128,17 @@ set_fighting(struct Creature *ch, struct Creature *vict, int aggr)
 				return;
 			}
 		}
-	}
+	} */
 
-	if (DEFENDING(vict) == ch)
+/*	if (DEFENDING(vict) == ch)
 		stop_defending(vict);
 
     ch->addCombat(vict, aggr);
 //    vict->addCombat(ch, false);
 	update_pos(ch);
 
-	trigger_prog_fight(ch, vict);
-}
+	trigger_prog_fight(ch, vict); */
+//}
 
 
 /* 
@@ -1925,7 +1925,8 @@ damage(struct Creature *ch, struct Creature *victim, int dam,
 							ch->in_room == victim->in_room &&
 							(!IS_MAGE(ch) || attacktype > MAX_SPELLS ||
 								!SPELL_IS_MAGIC(attacktype))) {
-							set_fighting(ch, victim, TRUE);
+							//set_fighting(ch, victim, TRUE);
+                            ch->addCombat(victim, true);
 						}
 
 					}
@@ -1937,14 +1938,15 @@ damage(struct Creature *ch, struct Creature *victim, int dam,
 							HUNTING(victim) = ch;
 					}
 					// make the victim retailiate against the attacker
-					if (ch->numCombatants()) {
+					if (ch->findCombat(victim)) {
 						if (!victim->findCombat(ch))
-							set_fighting(victim, ch, FALSE);
-					} else {
+							//set_fighting(victim, ch, FALSE);
+                            victim->addCombat(ch, false);
+					}/* else {
 						if (!victim->numCombatants() && 
                             ch->in_room == victim->in_room)
 							set_fighting(victim, ch, FALSE);
-					}
+					}*/
 				}
 			}
 			break;

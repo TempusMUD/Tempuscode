@@ -164,8 +164,11 @@ ACMD(do_psidrain)
 
 		if (IS_NPC(vict) && !vict->numCombatants()) {
 
-			if (ch->in_room == vict->in_room)
-				set_fighting(vict, ch, 0);
+			if (ch->in_room == vict->in_room) {
+				//set_fighting(vict, ch, 0);
+				vict->addCombat(ch, false);
+                ch->addCombat(vict, true);
+            }
 			else {
 				remember(vict, ch);
 				if (MOB2_FLAGGED(vict, MOB2_HUNT))
@@ -200,7 +203,9 @@ ACMD(do_psidrain)
 				remember(vict, ch);
 				if (MOB2_FLAGGED(vict, MOB2_HUNT))
 					HUNTING(vict) = ch;
-				set_fighting(vict, ch, 0);
+                    //set_fighting(vict, ch, false);
+				vict->addCombat(ch, false);
+                ch->addCombat(vict, true);
 			}
 		}
 	}

@@ -2329,7 +2329,7 @@ read_mobile(int vnum)
 {
 	struct Creature *mob = NULL, *tmp_mob;
 
-	if (!(tmp_mob = mobilePrototypes.find(vnum))) {
+	if (!(tmp_mob = real_mobile_proto(vnum))) {
 		sprintf(buf, "Mobile (V) %d does not exist in database.", vnum);
 		return (NULL);
 	}

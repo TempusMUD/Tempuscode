@@ -234,12 +234,19 @@ tarrasque_fight(struct Creature *tarr)
 
 		tarrasque_gore(tarr, tarr->findRandomCombat());
 		if (vict) {
-			if (!tarrasque_trample(tarr, vict))
-				set_fighting(tarr, vict, 0);
+			if (!tarrasque_trample(tarr, vict)) {
+				//set_fighting(tarr, vict, 0);
+                tarr->addCombat(vict, true);
+                vict->addCombat(tarr, false);
+            }
+                
 		}
 		if (vict2) {
-			if (!tarrasque_trample(tarr, vict2))
-				set_fighting(tarr, vict2, 0);
+			if (!tarrasque_trample(tarr, vict2)) {
+			//	set_fighting(tarr, vict2, 0);
+                tarr->addCombat(vict2, true);
+                vict2->addCombat(tarr, false);
+            }
 		}
 		return 1;
 	}

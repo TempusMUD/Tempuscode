@@ -1638,7 +1638,9 @@ ACMD(do_stun)
 		(GET_LEVEL(ch) < LVL_AMBASSADOR || GET_LEVEL(ch) < GET_LEVEL(vict))) {
 		act("$N tried to stun you!", FALSE, vict, 0, ch, TO_CHAR);
 		send_to_char(ch, "Uh-oh!  You failed.\r\n");
-        set_fighting(ch, vict, true);
+        //set_fighting(vict, ch, false);
+        ch->addCombat(vict, true);
+        vict->addCombat(ch, false);
 		WAIT_STATE(ch, PULSE_VIOLENCE);
 		return;
 	}
@@ -1682,9 +1684,10 @@ ACMD(do_feign)
 			ch->removeAllCombat();
 			gain_skill_prof(ch, SKILL_FEIGN);
 
-			percent = GET_INT(foe) + GET_LEVEL(foe) + number(-40, 40);
-			if (percent > prob)
-				set_fighting(ch, foe, true);
+/*			percent = GET_INT(foe) + GET_LEVEL(foe) + number(-40, 40);
+			if (percent > prob) {
+                vict->addCombat(ch, true);
+            }*/
 
 		}
 		send_to_char(ch, "You fall over dead!\r\n");
@@ -1759,7 +1762,9 @@ ACMD(do_tag)
             ch->removeCombat(tmp_ch);
             tmp_ch->removeCombat(ch);
 
-            set_fighting(vict, tmp_ch, true);
+            //set_fighting(vict, tmp_ch, true);
+            vict->addCombat(tmp_ch, true);
+            tmp_ch->addCombat(vict, false);
 			gain_skill_prof(ch, SKILL_TAG);
 		}
 	}
@@ -1815,7 +1820,9 @@ ACMD(do_rescue)
         tmp_ch->removeCombat(vict);
         vict->removeCombat(tmp_ch);
         
-        set_fighting(ch, tmp_ch, true);
+        //set_fighting(ch, tmp_ch, true);
+        ch->addCombat(tmp_ch, true);
+        tmp_ch->addCombat(ch, false);
 		WAIT_STATE(vict, 2 * PULSE_VIOLENCE);
 		gain_skill_prof(ch, SKILL_RESCUE);
 	}
@@ -2588,7 +2595,7 @@ ACMD(do_ceasefire)
 
     CreatureList::iterator it = ch->in_room->people.begin();
 	for (; it != ch->in_room->people.end(); ++it) {
-		if ((*it)->findCombat(ch)) {
+		if ((*it)->getCombatList()->front().getOpponent() == ch) {
 			f = *it;
 			break;
 		}
@@ -2600,11 +2607,12 @@ ACMD(do_ceasefire)
     else {
         act("You stop attacking your opponents.", FALSE, ch, 
             0, NULL, TO_CHAR);
-		act("$n stops attacking $M opponents.", FALSE, ch, 0, 
+		act("$n stops attacking $m opponents.", FALSE, ch, 0, 
             NULL, TO_NOTVICT);
         it = ch->in_room->people.begin();
         for (; it != ch->in_room->people.end(); ++ it) {
-            if ((*it)->findCombat(ch)) {
+            if (ch->findCombat((*it))) {
+                (*it)->removeCombat(ch);
                 ch->removeCombat((*it));
 		        act("$n stops attacking you.", FALSE, ch, 0, 
                     ch->findCombat((*it)), TO_VICT);
@@ -2614,7 +2622,8 @@ ACMD(do_ceasefire)
         if (f) {
             act("You start defending yourself against $N", FALSE, ch, 0, f,
                 TO_CHAR);
-            set_fighting(ch, f, false);
+            ch->addCombat(f, false);
+            f->addCombat(ch, false);
         }
     }
 }
@@ -2691,13 +2700,17 @@ ACCMD(do_disarm)
 		GET_EXP(ch) += MIN(100, weap->getWeight());
 		WAIT_STATE(ch, PULSE_VIOLENCE);
 		if (IS_NPC(vict) && !vict->numCombatants() && can_see_creature(vict, ch))
-            set_fighting(ch, vict, true);
+            //set_fighting(ch, vict, true);
+            ch->addCombat(vict, false);
+            vict->addCombat(ch, true);
 	} else {
 		send_to_char(ch, "You fail the disarm!\r\n");
 		act("$n tries to disarm you!", FALSE, ch, 0, vict, TO_VICT);
 		WAIT_STATE(ch, PULSE_VIOLENCE);
 		if (IS_NPC(vict) && !vict->numCombatants())
-            set_fighting(ch, vict, true);
+            //set_fighting(ch, vict, true);
+            ch->addCombat(vict, true);
+            vict->addCombat(ch, false);
 	}
 }
 

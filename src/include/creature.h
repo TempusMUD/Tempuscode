@@ -1074,6 +1074,8 @@ struct Creature {
     void removeCombat(Creature *ch);
     void removeAllCombat();
     bool initiatedCombat(Creature *ch);
+    bool isOkToAttack(Creature *vict);
+    Creature *hasDefender(Creature *vict);
     int numCombatants();
     Creature *findCombat(Creature *ch);
     Creature *findRandomCombat();

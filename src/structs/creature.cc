@@ -1048,13 +1048,18 @@ Creature::die(void)
 	int pos;
 
     // Remove any combat this character might have been involved in
+    // And make sure all defending creatures stop defending
     removeAllCombat();
 
     CreatureList::iterator ci = combatList.begin();
     for (; ci != combatList.end(); ++ci) {
         if ((*ci)->findCombat(this))
             (*ci)->removeCombat(this);
+        if (DEFENDING((*ci)) == this)
+            stop_defending((*ci));
     }
+
+
 	// If their stuff hasn't been moved out, they dt'd, so we need to dump
 	// their stuff to the room
 	for (pos = 0;pos < NUM_WEARS;pos++) {
@@ -1255,9 +1260,29 @@ Creature::addCombat(Creature *ch, bool initiated)
     if (!ch)
         return;
 
-    if (this == ch)
+    if (this == ch || findCombat(ch))
         return;
 
+    if (!isOkToAttack(ch))
+        return;
+
+    Creature *def;
+    if ((def = hasDefender(ch))) {
+        if (findCombat(def))
+            return;
+
+        send_to_char(def, "You defend %s from %s's vicious attack!\r\n",
+                     PERS(ch, def), PERS(this, def));
+        send_to_char(ch, "%s defends you from %s's vicious attack!\r\n",
+                     PERS(def, ch), PERS(this, ch));
+        act("$n comes to $N's defense!", false,
+            def, 0, ch, TO_NOTVICT);
+        ch = def;
+    }
+    
+    if (DEFENDING(ch) == this)
+        stop_defending(ch);
+        
     // If we're already in combat with the victim, move him
     // to the front of the list
     list<CharCombat>::iterator li = getCombatList()->begin();
@@ -1272,6 +1297,9 @@ Creature::addCombat(Creature *ch, bool initiated)
 
     getCombatList()->push_back(CharCombat(ch, initiated));
 
+    update_pos(this);
+    trigger_prog_fight(this, ch);
+
     if (numCombatants() == 1)
         combatList.add(this);
 }
@@ -1283,9 +1311,12 @@ Creature::removeCombat(Creature *ch)
         return;
     list<CharCombat>::iterator li = getCombatList()->begin();
     for (; li != getCombatList()->end(); ++li) {
-        if (li->getOpponent() == ch) {
+        if (li->getOpponent() && li->getOpponent() == ch) {
             getCombatList()->erase(li);
             break;
+        }
+        else {
+            li = getCombatList()->erase(li);
         }
     }
 
@@ -1369,5 +1400,63 @@ Creature::findRandomCombat()
     }
 
     return getCombatList()->front().getOpponent();
+}
+
+bool
+Creature::isOkToAttack(Creature *vict)
+{
+    if (IS_NPC(vict) || IS_NPC(this))
+        return true;
+
+    if (is_arena_combat(this, vict))
+        return true;
+    
+    if (!PRF2_FLAGGED(this, PRF2_PKILLER)) {
+        send_to_char(this, "A small dark shape flies in fron the future "
+                           "and sticks to your tongue.\r\n");
+        return false;
+    }
+
+    if (this->isNewbie()) {
+        send_to_char(this, "You are currently under new player protection, which "
+                           "expires at level 41\r\n");
+        send_to_char(this, "You cannot attack other players while under this "
+                           "protection.\r\n");
+        return false;
+    }
+    
+    if (vict->isNewbie() && GET_LEVEL(this) < LVL_IMMORT) {
+        act("$N is currently under new character protection.",
+            FALSE, this, 0, vict, TO_CHAR);
+        act("You are protected by the gods against $n's attack!",
+            FALSE, this, 0, vict, TO_VICT);
+        slog("%s protected against %s (Creature::isOkToAttack()) at %d",
+             GET_NAME(vict), GET_NAME(this), vict->in_room->number);
+
+        return false;
+    }
+       
+   return true;
+}
+
+Creature *
+Creature::hasDefender(Creature *vict)
+{
+    Creature *def = NULL;
+
+    CreatureList::iterator cit;
+    cit = vict->in_room->people.begin();
+    for (; cit != vict->in_room->people.end(); ++cit) {
+        if ((*cit) != vict && 
+            (*cit) != this &&
+            DEFENDING((*cit)) == vict &&
+            !(*cit)->numCombatants() &&
+            (*cit)->getPosition() > POS_RESTING) {
+            def = *cit;
+            break;
+        }
+    }
+
+    return def;
 }
 #undef __Creature_cc__

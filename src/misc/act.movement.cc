@@ -612,6 +612,15 @@ do_simple_move(struct Creature *ch, int dir, int mode,
 		return 1;
 	}
 
+    // At this point we're definately going to move.  Let's iterate though
+    // the people in the room and make sure that no one is fighting us.
+    CreatureList::iterator it;
+    it = ch->in_room->people.begin();
+    for (; it != ch->in_room->people.end(); ++it) {
+        if ((*it)->findCombat(ch))
+            (*it)->removeCombat(ch);
+    }
+
 	if (GET_LEVEL(ch) < LVL_AMBASSADOR && !IS_NPC(ch))
 		GET_MOVE(ch) -= need_movement;
 	if (mount)
@@ -731,7 +740,7 @@ do_simple_move(struct Creature *ch, int dir, int mode,
 			blur_msg = tmp_strcat(blur_msg, ".");
 	}
 
-	CreatureList::iterator it = ch->in_room->people.begin();
+	it = ch->in_room->people.begin();
 	for (; it != ch->in_room->people.end(); ++it) {
 		tch = *it;
 		if ((*it) == ch || !AWAKE((*it)))

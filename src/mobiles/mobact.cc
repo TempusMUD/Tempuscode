@@ -2724,7 +2724,9 @@ detect_opponent_master(Creature *ch, Creature *opp)
 		return false;
 
 	ch->removeCombat(opp);
-	set_fighting(ch, opp->master, false);
+	//set_fighting(ch, opp->master, false);
+    ch->addCombat(opp->master, false);
+    opp->master->addCombat(ch, false);
 	return true;
 }
 

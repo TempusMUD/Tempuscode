@@ -222,7 +222,7 @@ extern struct obj_data *cur_weap;
 #endif
 
 /* prototypes from fight.c */
-void set_fighting(struct Creature *ch, struct Creature *victim, int aggr);
+//void set_fighting(struct Creature *ch, struct Creature *victim, int aggr);
 void set_defending(struct Creature *ch, struct Creature *target);
 void stop_defending(struct Creature *ch);
 void stop_follower(struct Creature *ch);

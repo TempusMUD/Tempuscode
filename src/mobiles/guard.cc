@@ -130,8 +130,11 @@ SPECIAL(guard)
 			&& attack
 			&& !self->numCombatants()
 			&& IS_PC(ch)
-			&& !PRF_FLAGGED(ch, PRF_NOHASSLE))
-		set_fighting(self, ch, true);
+			&& !PRF_FLAGGED(ch, PRF_NOHASSLE)) {
+		//set_fighting(self, ch, true);
+        self->addCombat(ch, false);
+        ch->addCombat(self, false);
+    }
 
 	WAIT_STATE(ch, 1 RL_SEC);
 	return true;
