@@ -322,12 +322,12 @@ const char *spells[] = {
 	"!UNUSED!", "!UNUSED!", "!UNUSED!", "!UNUSED!", "!UNUSED!",	/* 395 */
 	"!UNUSED!", "!UNUSED!", "!UNUSED!", "!UNUSED!", "!UNUSED!",	/* 400 */
 
-	"the zen of healing",
-	"the zen of awareness",
-	"the zen of oblivity",
-	"the zen of motion",
-	"the zen of translocation",	/* 405 */
-	"the zen of celerity",
+	"zen of healing",
+	"zen of awareness",
+	"zen of oblivity",
+	"zen of motion",
+	"zen of translocation",	/* 405 */
+	"zen of celerity",
 	"!UNUSED!",
 	"!UNUSED!", "!UNUSED!", "!UNUSED!",	/* 410 */
 	"!UNUSED!", "!UNUSED!", "!UNUSED!", "!UNUSED!", "!UNUSED!",	/* 415 */
@@ -529,7 +529,7 @@ const char *spells[] = {
 	"bowery and fletchery",
 	"read scrolls",				/* 690 */
 	"use wands",
-	"the discipline of steel",
+	"discipline of steel",
 	"strike",
 	"cleave",
 	"great cleave",	/* 695 */
