@@ -356,10 +356,18 @@ check_thief(struct Creature *ch, struct Creature *vict,
 
 	gain = MAX(1, gain);
 
-	mudlog(LVL_IMMORT, CMP, true,
-		"%s gained %d reputation for pstealing from %s",
-		GET_NAME(perp), gain, GET_NAME(vict));
-	perp->gain_reputation(gain);
+
+    if (!is_arena_combat(ch, vict)) {
+    	mudlog(LVL_IMMORT, CMP, true,
+               "%s gained %d reputation for pstealing from %s",
+		       GET_NAME(perp), gain, GET_NAME(vict));
+	    perp->gain_reputation(gain);
+    }
+    else {
+    	mudlog(LVL_POWER, CMP, true,
+               "%s pstealing from %s in [ARENA]",
+		       GET_NAME(perp), GET_NAME(vict));
+    }
 }
 
 void
