@@ -3853,10 +3853,12 @@ mag_assign_spells(void)
            X, X, X, 75, 50, 2, POS_STANDING, TAR_CHAR_ROOM | TAR_SELF_ONLY, FALSE, 
            MAG_BARD | MAG_AFFECTS);
            
-    spello(SONG_HYMN_OF_PEACE, X, X, X, X, X, X, X, X, X, X, 1, X, X, X,
+    spello(SONG_HYMN_OF_PEACE, X, X, X, X, X, X, X, X, X, X, 33, X, X, X,
            X, X, X, 75, 50, 3, POS_STANDING, TAR_IGNORE, FALSE, MAG_BARD | 
            MAG_MANUAL | MAG_UNAFFECTS);
 
+    spello(SKILL_VENTRILOQUISM, X, X, X, X, X, X, X, X, X, X, 25, X, X, X,
+           X, X, X, 0, 0, 0, 0, 0, false, 0);
 
     /* C L A S S E S      M A N A   */
 

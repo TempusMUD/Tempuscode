@@ -407,6 +407,7 @@ ACMD(do_help_collection_command);
 ACMD(do_wizlist);
 ACMD(do_immhelp);
 ACMD(do_map);
+ACMD(do_ventriloquize);
 
 
 /* This is the Master Command List(tm).
@@ -1372,6 +1373,7 @@ struct command_info cmd_info[] = {
 	{"voodoo", POS_RESTING, do_action, 0, 0, 0, 0},
 	{"vote", POS_RESTING, do_action, 0, 0, 0, 0},
 	{"vstat", POS_DEAD, do_vstat, LVL_IMMORT, 0, 0, 0},
+	{"ventriloquize", POS_DEAD, do_ventriloquize, 0, 0, 0, 0},
 
 	{"wake", POS_SLEEPING, do_wake, 0, 0, 0, 0},
 	{"wait", POS_RESTING, do_action, 0, 0, 0, 0},

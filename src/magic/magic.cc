@@ -2430,7 +2430,7 @@ Fireball: like harder bones, skin, organ membranecs
     case SONG_DEFENSE_DITTY:
         aff_array[0].location = APPLY_SAVING_PSI;
         aff_array[0].duration = (ch->getLevelBonus(SONG_DEFENSE_DITTY) >> 3) + 20;
-        aff_array[0].modifier = 1 + ch->getLevelBonus(SONG_DEFENSE_DITTY) / 10;
+        aff_array[0].modifier = -(1 + ch->getLevelBonus(SONG_DEFENSE_DITTY) / 10);
 
         if (number(0, 120) < ch->getLevelBonus(SONG_DEFENSE_DITTY)) {
             aff_array[1].location = APPLY_SAVING_PHY;

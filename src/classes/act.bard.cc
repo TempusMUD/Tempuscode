@@ -302,7 +302,6 @@ struct bard_song songs[] = {
 
 // incomplete
 /*
-    static const int SKILL_VENTRILOQUISM = 673; // makes objects talk
     static const int SONG_LULLABY = 352; // puts a room to sleep
     static const int SONG_SONG_SHIELD = 361; // self only, like psi shield
     static const int SONG_HYMN_OF_PEACE = 363; // stops fighting in room, counters req of rage
@@ -354,6 +353,7 @@ struct bard_song songs[] = {
     static const int SONG_INSIDIOUS_RHYTHM = 392; // target, - int
 
     static const int SKILL_SCREAM = 672; // damage like psiblast, chance to stun
+    static const int SKILL_VENTRILOQUISM = 673; // makes objects talk
     static const int SKILL_TUMBLING = 674; // like uncanny dodge
     static const int SKILL_LINGERING_SONG = 676; // increases duration of song affects
 */
@@ -820,4 +820,90 @@ ASPELL(song_hymn_of_peace)
 
     send_to_char(ch, "Your song brings a feeling of peacefulness.\r\n");
     act("A feeling of peacefulness is heralded by $n's song.", FALSE, ch, 0, 0, TO_ROOM);
+
+    gain_skill_prof(ch, SONG_HYMN_OF_PEACE);
+}
+
+ACMD(do_ventriloquize)
+{
+    char *obj_str = NULL;
+    char *target_str = NULL;
+    struct obj_data *obj = NULL;
+    Creature *target = NULL;
+    struct obj_data *otarget = NULL;
+
+    if (CHECK_SKILL(ch, SKILL_VENTRILOQUISM) < 60) {
+        send_to_char(ch, "You really have no idea how.\r\n");
+        return;
+    }
+
+    obj_str = tmp_getword(&argument);
+    skip_spaces(&argument);
+
+    obj = get_obj_in_list_vis(ch, obj_str, ch->carrying);
+
+    if (!obj) {
+        obj = get_obj_in_list_vis(ch, obj_str, ch->in_room->contents);
+    }
+
+    if (!obj) {
+        send_to_char(ch, "Sorry friend, I can't find that object.\r\n");
+        return;
+    }
+
+    if (*argument == '>') {
+        target_str = tmp_getword(&argument);
+        skip_spaces(&argument);
+        target_str++;
+    }
+
+    if (target_str) {
+        target = get_char_room_vis(ch, target_str);
+        
+        if (!target) {
+            otarget = get_obj_in_list_vis(ch, target_str, ch->carrying);
+
+            if (!otarget) {
+                otarget = get_obj_in_list_vis(ch, target_str, ch->in_room->contents);
+            }
+        }
+
+        if (!target && !otarget) {
+            send_to_char(ch, "I can't find the target of your ventriloquization!\r\n");
+            return;
+        }
+    }
+
+    if (!*argument) {
+        send_to_char(ch, "Yes!  But what you do want it to say?!\r\n");
+        return;
+    }
+
+    CreatureList::iterator ci = ch->in_room->people.begin();
+    for (; ci != ch->in_room->people.end(); ++ci) {
+        if (target) {
+            if (target == *ci)
+                target_str = tmp_strdup(" to you");
+            else
+                target_str = tmp_sprintf(" to %s", GET_NAME(target));
+        }
+        else if (otarget) {
+            if (otarget == obj)
+                target_str = tmp_strdup(" to itself");
+            else
+                target_str = tmp_sprintf(" to %s", otarget->name);
+        }
+        else
+            target_str = NULL;
+        
+        char *buf = tmp_sprintf("%s%s says%s,%s%s \'%s\'%s\r\n", CCBLU_BLD(ch, C_NRM), 
+                                obj->name, (target_str ? target_str : ""), 
+                                CCNRM(ch, C_NRM), CCCYN(ch, C_NRM), argument, 
+                                CCNRM(ch, C_NRM)); 
+
+        send_to_char(*ci, buf);
+
+    }
+
+    gain_skill_prof(ch, SKILL_VENTRILOQUISM);
 }
