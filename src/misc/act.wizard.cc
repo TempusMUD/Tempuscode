@@ -2914,7 +2914,7 @@ ACMD(do_gecho)
 		if (PRF_FLAGGED(ch, PRF_NOREPEAT))
 			send_to_char(ch, OK);
 		else
-			send_to_char(ch, "%s", argument);
+			send_to_char(ch, "%s\r\n", argument);
 	}
 }
 
