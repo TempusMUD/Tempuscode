@@ -105,7 +105,7 @@ mob_read_script(struct char_data *ch);
      (GET_RACE(ch) == RACE_ALIEN_1 && GET_RACE(vict) == RACE_HUMAN) || \
      (GET_RACE(ch) == RACE_ORC && GET_RACE(vict) == RACE_DWARF))
 
-void update_iaffects(char_data *ch);
+int update_iaffects(char_data *ch);
 
 void burn_update(void) {
 
@@ -128,7 +128,8 @@ void burn_update(void) {
         }
 
         if (IS_AFFECTED_3(ch, AFF3_INST_AFF)) {
-            update_iaffects(ch);
+            if(update_iaffects(ch))
+                continue;
         }
 
         if (!FIGHTING(ch) && GET_MOB_WAIT(ch))

@@ -85,14 +85,19 @@ holytouch_after_effect(char_data *vict,int level ) {
         act("$n begins to scream!", TRUE, vict, 0, 0, TO_ROOM);
     }
     WAIT_STATE(vict,1 RL_SEC);
-    if(damage( vict, vict, dam, TYPE_MALOVENT_HOLYTOUCH,WEAR_EYES))
-        return 1;
-   
     if(GET_EQ(vict,WEAR_FACE))
-        unequip_char(vict, WEAR_FACE, MODE_EQ);
+        obj_to_char( unequip_char( vict, WEAR_FACE, MODE_EQ ), vict );
     if(GET_EQ(vict,WEAR_EYES))
-        unequip_char(vict, WEAR_EYES, MODE_EQ);
+        obj_to_char( unequip_char( vict, WEAR_EYES, MODE_EQ ), vict );
 
+
+
+    if(damage( vict, vict, dam, TYPE_MALOVENT_HOLYTOUCH,WEAR_EYES)) {
+        fprintf(stderr,"Vict killed himself gouging\r\n");
+        return 1;
+    } else {
+        fprintf(stderr,"Vict survived gouging\r\n");
+    }
     if (!IS_NPC(vict) || !MOB_FLAGGED(vict, MOB_NOBLIND)) {
         af.type = TYPE_MALOVENT_HOLYTOUCH;
         af.duration = level/10;

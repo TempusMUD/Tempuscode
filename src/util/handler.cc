@@ -672,13 +672,20 @@ affect_to_char(struct char_data * ch, struct affected_type * af)
  */
  int
  holytouch_after_effect(char_data *vict,int level );
-void
+int
 affect_remove(struct char_data * ch, struct affected_type * af)
 {
     struct affected_type *temp;
-    int type = af->type;
-    int level = af->level;
-    short is_instant = af->is_instant;
+    int type;
+    int level;
+    int duration;
+    short is_instant = 0;
+
+    if((is_instant = af->is_instant)) {
+        type = af->type;
+        level = af->level;
+        duration = af->duration;
+    }
 
     if (!ch->affected) {
         slog("SYSERR: !ch->affected in affect_remove()");
@@ -698,8 +705,15 @@ affect_remove(struct char_data * ch, struct affected_type * af)
     free(af);
     affect_total(ch);
 
-    if(type == SKILL_HOLY_TOUCH && is_instant && ch->in_room)
-        holytouch_after_effect(ch,level);
+    if(is_instant && duration == 0 &&  ch->in_room) {
+        switch(type) {
+            case SKILL_HOLY_TOUCH:
+                if(affected_by_spell(ch,SKILL_HOLY_TOUCH))
+                    fprintf(stderr,"holytouch not removed\r\n");
+                return holytouch_after_effect(ch,level);
+                break;
+        }
+    }
 }
 
 

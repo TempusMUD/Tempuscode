@@ -266,7 +266,7 @@ mag_savingthrow(struct char_data * ch, int level, int type)
     else
     return FALSE;
 }
-void
+int
 update_iaffects(char_data *ch) {
     static struct affected_type *af, *next;
     for (af = ch->affected; af ; af = next) {
@@ -275,7 +275,8 @@ update_iaffects(char_data *ch) {
             continue;
         af->duration--;
         if(af->duration <= 0) {
-            affect_remove(ch, af);
+            if(affect_remove(ch, af))
+                return 1;
             af = ch->affected;
         }
     }

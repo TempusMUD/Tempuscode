@@ -19,7 +19,7 @@
 void	affect_total(struct char_data *ch);
 void	affect_modify(struct char_data *ch, sh_int loc, sh_int mod, long bitv, int index, bool add);
 void	affect_to_char(struct char_data *ch, struct affected_type *af);
-void	affect_remove(struct char_data *ch, struct affected_type *af);
+int affect_remove(struct char_data *ch, struct affected_type *af);
 int	affect_from_char(struct char_data *ch, sh_int type);
 struct affected_type *affected_by_spell(struct char_data *ch, sh_int type);
 void	affect_join(struct char_data *ch, struct affected_type *af,
