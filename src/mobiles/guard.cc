@@ -95,6 +95,14 @@ SPECIAL(guard)
 	if (fallible && check_sneak(ch, self, true, true) == SNEAK_OK)
 		return false;
 
+	// Guards must be at least standing to be able to block people
+	if (self->getPosition() <= POS_SITTING)
+		return false;
+
+	// Petrified guards can't do much
+	if (IS_AFFECTED_2(ch, AFF2_PETRIFIED))
+		return false;
+
 	// Set to deny if undecided
 	act(to_vict, FALSE, self, 0, ch, TO_VICT);
 	act(to_room, FALSE, self, 0, ch, TO_NOTVICT);
