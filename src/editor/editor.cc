@@ -706,10 +706,10 @@ CTextEditor::SendMessage(const char *message)
 		output = (char*) malloc( sizeof(char) * LARGE_BUFSIZE );
 		//output = new char[LARGE_BUFSIZE];
 		strncpy(output, message, LARGE_BUFSIZE - 2);
-		send_to_char(desc->creature, output);
+		send_to_char(desc->creature, "%s", output);
 		free(output);
 	} else {					// If the original message is small enough, just let it through.
-		send_to_char(desc->creature, message);
+		send_to_char(desc->creature, "%s", message);
 	}
 }
 
