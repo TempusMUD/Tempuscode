@@ -115,8 +115,10 @@ static const int CLASS_DAEMON_PISCO = 174;
 static const int CLASS_DAEMON_ULTRO = 175;
 static const int CLASS_DAEMON_YAGNO = 176;
 static const int CLASS_DAEMON_PYRO = 177;
+static const int CLASS_GODLING = 178;
+static const int CLASS_DIETY = 179;
 
-static const int TOP_CLASS = 177;
+static const int TOP_CLASS = 180;
 
 #define RACE_UNDEFINED  -1
 static const int RACE_HUMAN = 0;
@@ -173,7 +175,10 @@ static const int RACE_SPIDER = 52;
 static const int RACE_GRIFFIN = 53;
 static const int RACE_ROTARIAN = 54;
 static const int RACE_HALF_ELF = 55;
-static const int NUM_RACES = 56;
+static const int RACE_CELESTIAL = 56;
+static const int RACE_ELYSIAN = 57;
+static const int RACE_OLYMPIAN = 58;
+static const int NUM_RACES = 59;
 static const int NUM_PC_RACES = 9;
 
 /* Hometown defines                            */

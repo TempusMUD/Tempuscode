@@ -15,5 +15,9 @@ int mobile_battle_activity(struct Creature *ch,
 	struct Creature *previous_vict);
 
 int mob_fight_devil(struct Creature *ch, struct Creature *precious_vict);
+void knight_activity(Creature * ch);
+int knight_battle_activity(Creature * ch, Creature * precious_vict);
+int mob_fight_celestial(struct Creature *ch, struct Creature *precious_vict);
+
 
 #endif

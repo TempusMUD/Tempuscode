@@ -212,7 +212,7 @@ burn_update(void)
 							TO_ROOM);
 						act("You hit the ground hard!", TRUE, ch, 0, 0,
 							TO_CHAR);
-					}
+                    }
 
 					for (srch = ch->in_room->search, found = 0; srch;
 						srch = srch->next) {
@@ -1390,6 +1390,7 @@ mobile_activity(void)
 	static unsigned int count = 0;
 	struct mob_mugger_data *new_mug = NULL;
 	struct room_data *room = NULL;
+    int cur_class = 0;
 
 	extern int no_specials;
 
@@ -1397,6 +1398,12 @@ mobile_activity(void)
 	for (++count; cit != characterList.end(); ++cit) {
 		ch = *cit;
 		found = FALSE;
+
+
+	    if (GET_REMORT_CLASS(ch) != CLASS_UNDEFINED && !random_fractional_3())
+            cur_class = GET_REMORT_CLASS(ch);
+        else
+            cur_class = GET_CLASS(ch);
 
 		//
 		// Check for valid mob
@@ -1638,11 +1645,11 @@ mobile_activity(void)
 							act("$n growls at you.", FALSE, ch, 0, vict,
 								TO_VICT);
 						}
-					} else if (GET_CLASS(ch) == CLASS_PREDATOR) {
+					} else if (cur_class == CLASS_PREDATOR) {
 						act("$n growls at $N.", FALSE, ch, 0, vict,
 							TO_NOTVICT);
 						act("$n growls at you.", FALSE, ch, 0, vict, TO_VICT);
-					} else if (IS_THIEF(ch)) {
+					} else if (cur_class == CLASS_THIEF) {
 						act("$n glances sidelong at $N.", FALSE, ch, 0, vict,
 							TO_NOTVICT);
 						act("$n glances sidelong at you.", FALSE, ch, 0, vict,
@@ -1897,7 +1904,7 @@ mobile_activity(void)
 		}
 
 		/* Animals devouring corpses and food */
-		if (IS_CLASS(ch, CLASS_PREDATOR)) {
+		if (cur_class == CLASS_PREDATOR) {
 			if (ch->in_room->contents &&
 				(random_fractional_4() || GET_MOB_VNUM(ch) == 24800)) {
 				found = FALSE;
@@ -2443,7 +2450,7 @@ mobile_activity(void)
 		// thief tries to steal from others
 		//
 
-		if (GET_CLASS(ch) == CLASS_THIEF && random_binary()) {
+		if (cur_class == CLASS_THIEF && random_binary()) {
 			if (thief(ch, ch, 0, "", SPECIAL_TICK))
 				continue;
 		}
@@ -2451,7 +2458,7 @@ mobile_activity(void)
 		// clerics spell up
 		//
 
-		else if (IS_CLERIC(ch) && random_binary()) {
+		else if (cur_class == CLASS_CLERIC && random_binary()) {
 			if (GET_HIT(ch) < GET_MAX_HIT(ch) * 0.80) {
 				if (GET_LEVEL(ch) > 23)
 					cast_spell(ch, ch, 0, SPELL_HEAL);
@@ -2479,40 +2486,15 @@ mobile_activity(void)
 		// knights spell up
 		//
 
-		else if (IS_KNIGHT(ch) && random_binary()) {
-			if (GET_HIT(ch) < GET_MAX_HIT(ch) * 0.80) {
-				if (GET_LEVEL(ch) > 27 && random_binary())
-					cast_spell(ch, ch, 0, SPELL_HEAL);
-				else if (GET_LEVEL(ch) > 13 && random_binary())
-					cast_spell(ch, ch, 0, SPELL_CURE_CRITIC);
-				else if (random_binary())
-					cast_spell(ch, ch, 0, SPELL_CURE_LIGHT);
-				else
-					do_holytouch(ch, "self", 0, 0);
-			} else if (IS_DARK(ch->in_room) &&
-				!CAN_SEE_IN_DARK(ch) && GET_LEVEL(ch) > 6) {
-				cast_spell(ch, ch, 0, SPELL_DIVINE_ILLUMINATION);
-			} else if ((affected_by_spell(ch, SPELL_BLINDNESS) ||
-					affected_by_spell(ch, SKILL_GOUGE)) &&
-				GET_LEVEL(ch) > 20) {
-				cast_spell(ch, ch, 0, SPELL_CURE_BLIND);
-			} else if (IS_AFFECTED(ch, AFF_POISON) && GET_LEVEL(ch) > 18) {
-				cast_spell(ch, ch, 0, SPELL_REMOVE_POISON);
-			} else if (IS_AFFECTED(ch, AFF_CURSE) && GET_LEVEL(ch) > 30) {
-				cast_spell(ch, ch, 0, SPELL_REMOVE_CURSE);
-			} else if (IS_GOOD(ch) &&
-				!affected_by_spell(ch, SPELL_SANCTIFICATION) &&
-				GET_LEVEL(ch) > 32 &&
-				GET_REMORT_CLASS(ch) != CLASS_UNDEFINED) {
-				cast_spell(ch, ch, 0, SPELL_SANCTIFICATION);
-			}
+		else if (cur_class == CLASS_KNIGHT && random_binary()) {
+            knight_activity(ch);
 		}
 		//
 		// ranger spell up
 		//
 
 
-		else if (IS_RANGER(ch) && random_binary()) {
+		else if (cur_class == CLASS_RANGER && random_binary()) {
 			if (GET_HIT(ch) < GET_MAX_HIT(ch) * 0.80) {
 				if (GET_LEVEL(ch) > 39)
 					do_medic(ch, "self", 0, 0);
@@ -2528,7 +2510,7 @@ mobile_activity(void)
 		// cyborg spell up
 		//
 
-		else if (IS_CYBORG(ch) && random_binary()) {
+		else if (cur_class == CLASS_CYBORG && random_binary()) {
 			if (GET_HIT(ch) < GET_MAX_HIT(ch) * 0.80 && GET_MOVE(ch) > 100) {
 				do_repair(ch, "", 0, 0);
 			}
@@ -2557,7 +2539,7 @@ mobile_activity(void)
 		// mage spell up
 		//
 
-		else if (IS_MAGE(ch) && !ROOM_FLAGGED(ch->in_room, ROOM_NOMAGIC)
+		else if (cur_class == CLASS_MAGE && !ROOM_FLAGGED(ch->in_room, ROOM_NOMAGIC)
 			&& random_binary()) {
 			if (GET_LEVEL(ch) > 3 && !affected_by_spell(ch, SPELL_ARMOR)) {
 				cast_spell(ch, ch, 0, SPELL_ARMOR);
@@ -2604,7 +2586,7 @@ mobile_activity(void)
 		// psionic spell up
 		//
 
-		else if (IS_PSIONIC(ch) && !ROOM_FLAGGED(ch->in_room, ROOM_NOPSIONICS)
+		else if (cur_class == CLASS_PSIONIC && !ROOM_FLAGGED(ch->in_room, ROOM_NOPSIONICS)
 			&& random_binary()) {
 			if (IS_DARK(ch->in_room) && !CAN_SEE_IN_DARK(ch)
 				&& GET_LEVEL(ch) >= 6)
@@ -2649,7 +2631,7 @@ mobile_activity(void)
 		// barbs acting barbaric
 		//
 
-		if (GET_CLASS(ch) == CLASS_BARB || GET_CLASS(ch) == CLASS_HILL) {
+		else if (cur_class == CLASS_BARB || cur_class == CLASS_HILL) {
 			if (ch->getPosition() != POS_FIGHTING && random_fractional_20()) {
 
 				if (random_fractional_50())
@@ -2674,6 +2656,10 @@ mobile_activity(void)
 				continue;
 			}
 		}
+
+        else if(GET_RACE(ch) == RACE_CELESTIAL){
+            knight_activity(ch);
+        }
 		//
 		// elementals heading home
 		//
@@ -3062,6 +3048,16 @@ mobile_battle_activity(struct Creature *ch, struct Creature *precious_vict)
 		if (mob_fight_devil(ch, precious_vict))
 			return 0;
 	}
+
+    if(GET_RACE(ch) == RACE_CELESTIAL || GET_RACE(ch) == RACE_ARCHON){
+        if(random_number_zero_low(8) < 1){
+            if(knight_battle_activity == 0){
+                return 0;
+            }
+        } else if(mob_fight_celestial(ch, precious_vict)){
+            return 0;
+        }
+    }
 
 	/* Slaad */
 	if (IS_SLAAD(ch)) {
@@ -3689,80 +3685,13 @@ mobile_battle_activity(struct Creature *ch, struct Creature *precious_vict)
 		}
 	}
 
+    ///Knights act offesive, through a function! (bwahahaha)
+    //defined below
 	if (cur_class == CLASS_KNIGHT) {
-
-		if (!(vict = choose_opponent(ch, precious_vict)))
-			return 0;
-
-		if (CAN_SEE(ch, vict) &&
-			(IS_MAGE(vict) || IS_CLERIC(vict))
-			&& vict->getPosition() > POS_SITTING) {
-			do_offensive_skill(ch, GET_NAME(vict), 0, SKILL_BASH);
-			return 0;
-		}
-
-		if (GET_LEVEL(ch) > 4 && random_fractional_5() &&
-			!affected_by_spell(ch, SPELL_ARMOR)) {
-			cast_spell(ch, ch, NULL, SPELL_ARMOR);
-			return 0;
-		} else if ((GET_HIT(ch) / MAX(1,
-					GET_MAX_HIT(ch))) < (GET_MAX_HIT(ch) >> 2)) {
-			if ((GET_LEVEL(ch) < 14) && (number(0, 10) == 0)) {
-				cast_spell(ch, ch, NULL, SPELL_CURE_LIGHT);
-				return 0;
-			} else if ((GET_LEVEL(ch) < 28) && random_fractional_10()) {
-				cast_spell(ch, ch, NULL, SPELL_CURE_CRITIC);
-				return 0;
-			} else if (random_fractional_5()) {
-				cast_spell(ch, ch, NULL, SPELL_HEAL);
-				return 0;
-			}
-		} else if (IS_GOOD(ch) && IS_EVIL(FIGHTING(ch)) &&
-			random_fractional_3()
-			&& !affected_by_spell(ch, SPELL_PROT_FROM_EVIL)) {
-			cast_spell(ch, ch, NULL, SPELL_PROT_FROM_EVIL);
-			return 0;
-		} else if (IS_EVIL(ch) && IS_GOOD(FIGHTING(ch)) &&
-			random_fractional_3()
-			&& !affected_by_spell(ch, SPELL_PROT_FROM_GOOD)) {
-			cast_spell(ch, ch, NULL, SPELL_PROT_FROM_GOOD);
-			return 0;
-		} else if ((GET_LEVEL(ch) > 21) &&
-			GET_RACE(vict) == RACE_UNDEAD &&
-			random_fractional_10() &&
-			!affected_by_spell(ch, SPELL_INVIS_TO_UNDEAD)) {
-			cast_spell(ch, ch, NULL, SPELL_INVIS_TO_UNDEAD);
-			return 0;
-		} else if ((GET_LEVEL(ch) > 15) && random_fractional_5()) {
-			cast_spell(ch, vict, NULL, SPELL_SPIRIT_HAMMER);
-			return 0;
-		} else if ((GET_LEVEL(ch) > 35) && random_fractional_4()) {
-			cast_spell(ch, vict, NULL, SPELL_FLAME_STRIKE);
-			return 0;
-		} else if ((GET_LEVEL(ch) >= 20) &&
-			GET_EQ(ch, WEAR_WIELD) && GET_EQ(vict, WEAR_WIELD) &&
-			random_fractional_3()) {
-			do_disarm(ch, PERS(vict, ch), 0, 0);
-			return 0;
-		}
-
-		if (random_fractional_4()) {
-
-			if (GET_LEVEL(ch) < 7) {
-				do_offensive_skill(ch, GET_NAME(vict), 0, SKILL_SPINFIST);
-			} else if (GET_LEVEL(ch) < 16) {
-				do_offensive_skill(ch, GET_NAME(vict), 0, SKILL_UPPERCUT);
-			} else if (GET_LEVEL(ch) < 23) {
-				do_offensive_skill(ch, GET_NAME(vict), 0, SKILL_HOOK);
-			} else if (GET_LEVEL(ch) < 35) {
-				do_offensive_skill(ch, GET_NAME(vict), 0, SKILL_LUNGE_PUNCH);
-			} else if (GET_EQ(ch, WEAR_WIELD) &&
-				GET_OBJ_VAL(GET_EQ(ch, WEAR_WIELD), 3) == 3) {
-				do_offensive_skill(ch, GET_NAME(vict), 0, SKILL_BEHEAD);
-			}
-			return 0;
-		}
-	}
+        if(knight_battle_activity(ch, precious_vict) == 0){
+            return 0;
+        }
+    }
 
 
 	/* add new mobile fight routines here. */
@@ -4127,4 +4056,266 @@ ACMD(do_breathe)
 		break;
 	}
 
+}
+
+
+int
+mob_fight_celestial(struct Creature *ch, struct Creature *precious_vict)
+{
+
+    const int LANTERN_ARCHON = 43000;
+    const int HOUND_ARCHON = 43001;
+    const int WARDEN_ARCHON = 43002;
+    const int SWORD_ARCHON = 43003;
+    const int TOME_ARCHON = 43004;
+    
+	int prob = 0;
+	Creature *new_mob = NULL;
+	Creature *vict = NULL;
+	int num = 0;
+	int return_flags = 0;
+
+	if (IS_PET(ch)) {			// pets should only fight who they're told to
+		vict = FIGHTING(ch);
+	} else {					// find a suitable victim
+		vict = choose_opponent(ch, precious_vict);
+	}
+	// if you have noone to fight, don't fight
+	// what a waste.
+	if (vict == NULL)
+		return 0;
+
+	// prob determines celestials's chance of drawing a bead on his victim for blasting
+	prob =
+		10 + GET_LEVEL(ch) - GET_LEVEL(vict) + (GET_AC(vict) / 10) +
+		GET_HITROLL(ch);
+
+	if (prob > (random_percentage() - 25)) {
+		WAIT_STATE(ch, 2 RL_SEC);
+		call_magic(ch, vict, NULL, SPELL_FLAME_STRIKE,
+			GET_LEVEL(ch), CAST_BREATH, &return_flags);
+		return return_flags;
+	}
+	// see if we're fighting more than 1 person, if so, blast the room
+	CreatureList::iterator it = ch->in_room->people.begin();
+	for (num = 0; it != ch->in_room->people.end(); ++it)
+		if (ch == FIGHTING((*it)))
+			num++;
+
+	if (num > 1 && GET_LEVEL(ch) > (random_number_zero_low(50) + 30)) {
+		WAIT_STATE(ch, 3 RL_SEC);
+		if (call_magic(ch, NULL, NULL, SPELL_FLAME_STRIKE,
+				GET_LEVEL(ch), CAST_BREATH, &return_flags)) {
+			return return_flags;
+		}
+	}
+	// pets shouldnt port, ever, not even once. not on a train. not on a plane
+	// not even for green eggs and spam.
+	if (IS_PET(ch)) {
+		return 0;
+	}
+	// 100 move flat rate to gate, removed when the gating actually occurs
+	if (GET_MOVE(ch) < 100) {
+		return 0;
+	}
+
+	// see how many celestials are already in the room
+	it = ch->in_room->people.begin();
+	for (num = 0; it != ch->in_room->people.end(); ++it)
+		if (GET_RACE(*it) == RACE_CELESTIAL || GET_RACE(*it) == RACE_ARCHON)
+			num++;
+
+	// less chance of gating for psionic celeestials with mana
+	if (IS_PSIONIC(ch) && GET_MANA(ch) > 100)
+		num += 3;
+
+	// gating results depend on celestials char_class
+	switch (GET_CLASS(ch)) {
+	case CLASS_LESSER:
+		if (random_number_zero_low(8) > num) {
+			if (random_fractional_4()){	// Warden Archon
+				new_mob = read_mobile(WARDEN_ARCHON);
+            } else if (random_fractional_3()) {  //Hound Archon
+                new_mob = read_mobile(HOUND_ARCHON);
+			} else {                    // Lantern Archon
+                new_mob = read_mobile(LANTERN_ARCHON);
+            }
+		}
+		break;
+	case CLASS_GREATER:
+		if (random_number_zero_low(10) > num) {
+            if(random_fractional_3()){
+                if(random_binary()){
+                    new_mob = read_mobile(TOME_ARCHON);
+                } else {
+                    new_mob = read_mobile(SWORD_ARCHON);
+                }
+                
+            } else if( random_binary()){
+                new_mob = read_mobile(WARDEN_ARCHON);
+            } else {
+                new_mob = read_mobile(HOUND_ARCHON);
+            }
+		}
+		break;
+    case CLASS_GODLING:
+		if (random_number_zero_low(12) > num) {
+			if (random_binary())
+				new_mob = read_mobile(TOME_ARCHON);	// Tome Archon
+			else
+				new_mob = read_mobile(SWORD_ARCHON);	// Sword Archon
+
+		}
+		break;
+	case CLASS_DIETY:
+		if (random_number_zero_low(15) > num) {
+			if (random_binary())
+				new_mob = read_mobile(TOME_ARCHON);	// Tome Archon
+			else
+				new_mob = read_mobile(SWORD_ARCHON);	// Sword Archon
+
+		}
+		break;
+	}
+	if (new_mob) {
+		if (IS_PET(ch))
+			SET_BIT(MOB_FLAGS(new_mob), MOB_PET);
+		WAIT_STATE(ch, 5 RL_SEC);
+		GET_MOVE(ch) -= 100;
+		char_to_room(new_mob, ch->in_room,false);
+		WAIT_STATE(new_mob, 3 RL_SEC);
+		act("$n gestures, a glowing silver portal appears with a hum!",
+			FALSE, ch, 0, 0, TO_ROOM);
+		act("$n steps out of the portal with a flash of white light!",
+			FALSE, new_mob, 0, 0, TO_ROOM);
+		if (FIGHTING(ch) && IS_MOB(FIGHTING(ch)))
+			return (hit(new_mob, FIGHTING(ch),
+					TYPE_UNDEFINED) & DAM_VICT_KILLED);
+		return 0;
+	}
+
+	return 0;
+}
+
+/***********************************************************************************
+ *
+ *                        Knight Activity
+ *   First in a series of functions designed to extract activity and fight code 
+ * into many small functions as opposed to one large one.  Also allows for easeir 
+ * modifications to mob ai.
+ *******************************************************************************/
+
+void knight_activity(struct Creature *ch){
+    if (GET_HIT(ch) < GET_MAX_HIT(ch) * 0.80) {
+        if (GET_LEVEL(ch) > 27 && random_binary())
+            cast_spell(ch, ch, 0, SPELL_HEAL);
+        else if (GET_LEVEL(ch) > 13 && random_binary())
+            cast_spell(ch, ch, 0, SPELL_CURE_CRITIC);
+        else if (random_binary())
+            cast_spell(ch, ch, 0, SPELL_CURE_LIGHT);
+        else
+            do_holytouch(ch, "self", 0, 0);
+    } else if (IS_DARK(ch->in_room) &&
+               !CAN_SEE_IN_DARK(ch) && GET_LEVEL(ch) > 6) {
+        cast_spell(ch, ch, 0, SPELL_DIVINE_ILLUMINATION);
+    } else if ((affected_by_spell(ch, SPELL_BLINDNESS) ||
+                affected_by_spell(ch, SKILL_GOUGE)) &&
+                GET_LEVEL(ch) > 20) {
+        cast_spell(ch, ch, 0, SPELL_CURE_BLIND);
+    } else if (IS_AFFECTED(ch, AFF_POISON) && GET_LEVEL(ch) > 18) {
+        cast_spell(ch, ch, 0, SPELL_REMOVE_POISON);
+    } else if (IS_AFFECTED(ch, AFF_CURSE) && GET_LEVEL(ch) > 30) {
+        cast_spell(ch, ch, 0, SPELL_REMOVE_CURSE);
+    } else if (IS_GOOD(ch) &&
+               !affected_by_spell(ch, SPELL_SANCTIFICATION) &&
+               GET_LEVEL(ch) > 32 &&
+               GET_REMORT_CLASS(ch) != CLASS_UNDEFINED) {
+        cast_spell(ch, ch, 0, SPELL_SANCTIFICATION);
+    }
+
+}
+
+/***********************************************************************************
+ *
+ *                        Knight Battle Activity
+ *   member of  a series of functions designed to extract activity and fight code 
+ * into many small functions as opposed to one large one.  Also allows for easeir 
+ * modifications to mob ai.
+ *******************************************************************************/
+
+int knight_battle_activity(struct Creature *ch, struct Creature *precious_vict){
+    struct Creature * vict;
+    ACCMD(do_disarm);
+    if (!(vict = choose_opponent(ch, precious_vict)))
+        return 0;
+
+    if (CAN_SEE(ch, vict) &&
+        (IS_MAGE(vict) || IS_CLERIC(vict))
+        && vict->getPosition() > POS_SITTING) {
+        do_offensive_skill(ch, GET_NAME(vict), 0, SKILL_BASH);
+        return 0;
+    }
+
+    if (GET_LEVEL(ch) > 4 && random_fractional_5() &&
+        !affected_by_spell(ch, SPELL_ARMOR)) {
+        cast_spell(ch, ch, NULL, SPELL_ARMOR);
+        return 0;
+    } else if ((GET_HIT(ch) / MAX(1,
+                GET_MAX_HIT(ch))) < (GET_MAX_HIT(ch) >> 2)) {
+        if ((GET_LEVEL(ch) < 14) && (number(0, 10) == 0)) {
+            cast_spell(ch, ch, NULL, SPELL_CURE_LIGHT);
+            return 0;
+        } else if ((GET_LEVEL(ch) < 28) && random_fractional_10()) {
+            cast_spell(ch, ch, NULL, SPELL_CURE_CRITIC);
+            return 0;
+        } else if (random_fractional_5()) {
+            cast_spell(ch, ch, NULL, SPELL_HEAL);
+            return 0;
+        }
+    } else if (IS_GOOD(ch) && IS_EVIL(FIGHTING(ch)) &&
+        random_fractional_3()
+        && !affected_by_spell(ch, SPELL_PROT_FROM_EVIL)) {
+        cast_spell(ch, ch, NULL, SPELL_PROT_FROM_EVIL);
+        return 0;
+    } else if (IS_EVIL(ch) && IS_GOOD(FIGHTING(ch)) &&
+        random_fractional_3()
+        && !affected_by_spell(ch, SPELL_PROT_FROM_GOOD)) {
+        cast_spell(ch, ch, NULL, SPELL_PROT_FROM_GOOD);
+        return 0;
+    } else if ((GET_LEVEL(ch) > 21) &&
+        GET_RACE(vict) == RACE_UNDEAD &&
+        random_fractional_10() &&
+        !affected_by_spell(ch, SPELL_INVIS_TO_UNDEAD)) {
+        cast_spell(ch, ch, NULL, SPELL_INVIS_TO_UNDEAD);
+        return 0;
+    } else if ((GET_LEVEL(ch) > 15) && random_fractional_5()) {
+        cast_spell(ch, vict, NULL, SPELL_SPIRIT_HAMMER);
+        return 0;
+    } else if ((GET_LEVEL(ch) > 35) && random_fractional_4()) {
+        cast_spell(ch, vict, NULL, SPELL_FLAME_STRIKE);
+        return 0;
+    } else if ((GET_LEVEL(ch) >= 20) &&
+        GET_EQ(ch, WEAR_WIELD) && GET_EQ(vict, WEAR_WIELD) &&
+        random_fractional_3()) {
+        do_disarm(ch, PERS(vict, ch), 0, 0);
+        return 0;
+    }
+
+    if (random_fractional_4()) {
+
+        if (GET_LEVEL(ch) < 7) {
+            do_offensive_skill(ch, GET_NAME(vict), 0, SKILL_SPINFIST);
+        } else if (GET_LEVEL(ch) < 16) {
+            do_offensive_skill(ch, GET_NAME(vict), 0, SKILL_UPPERCUT);
+        } else if (GET_LEVEL(ch) < 23) {
+            do_offensive_skill(ch, GET_NAME(vict), 0, SKILL_HOOK);
+        } else if (GET_LEVEL(ch) < 35) {
+            do_offensive_skill(ch, GET_NAME(vict), 0, SKILL_LUNGE_PUNCH);
+        } else if (GET_EQ(ch, WEAR_WIELD) &&
+            GET_OBJ_VAL(GET_EQ(ch, WEAR_WIELD), 3) == 3) {
+            do_offensive_skill(ch, GET_NAME(vict), 0, SKILL_BEHEAD);
+        }
+        return 0;
+    }
+    return 1;
 }
