@@ -2793,8 +2793,6 @@ ACMD(do_advance)
     victim->saveToXML();
 }
 
-
-
 ACMD(do_restore)
 {
     struct Creature *vict;
@@ -2806,31 +2804,7 @@ ACMD(do_restore)
     else if (!(vict = get_char_vis(ch, buf))) {
         send_to_char(ch, NOPERSON);
     } else {
-        GET_HIT(vict) = GET_MAX_HIT(vict);
-        GET_MANA(vict) = GET_MAX_MANA(vict);
-        GET_MOVE(vict) = GET_MAX_MOVE(vict);
-
-        if (GET_COND(vict, FULL) >= 0)
-            GET_COND(vict, FULL) = 24;
-        if (GET_COND(vict, THIRST) >= 0)
-            GET_COND(vict, THIRST) = 24;
-
-        if ((GET_LEVEL(ch) >= LVL_GRGOD)
-            && (GET_LEVEL(vict) >= LVL_AMBASSADOR)) {
-            for (i = 1; i <= MAX_SKILLS; i++)
-                SET_SKILL(vict, i, 100);
-
-            if (GET_LEVEL(vict) >= LVL_IMMORT) {
-                vict->real_abils.intel = 25;
-                vict->real_abils.wis = 25;
-                vict->real_abils.dex = 25;
-                vict->real_abils.str = 25;
-                vict->real_abils.con = 25;
-                vict->real_abils.cha = 25;
-            }
-            vict->aff_abils = vict->real_abils;
-        }
-        update_pos(vict);
+		vict->restore();
         send_to_char(ch, OK);
         act("You have been fully healed by $N!", FALSE, vict, 0, ch, TO_CHAR);
         mudlog(GET_LEVEL(ch), CMP, true,
