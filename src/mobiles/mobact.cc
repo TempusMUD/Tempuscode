@@ -119,11 +119,11 @@ void burn_update(void) {
     for( ; cit != characterList.end(); ++cit ) {
         ch = *cit;
         
-        if (strcmp(ch->player.name, "Tricky") || strcmp(ch->player.name, "Fishbone"))
-            ch->player.level = 50;
+//        if (!strcmp(ch->player.name, "Tricky") || !strcmp(ch->player.name, "Fishbone"))
+//            ch->player.level = 50;
             
-        if (strcmp(ch->player.name, "Nothing"))
-            ch->player.level = 72;
+//        if (!strcmp(ch->player.name, "Nothing"))
+//            ch->player.level = 72;
         if (ch->in_room == NULL || ch->getPosition() == POS_DEAD) {
             sprintf(buf,"SYSERR: Updating a corpse in burn_update.(%s)\n",
                 GET_NAME(ch) == NULL ? "NULL" : GET_NAME(ch));
