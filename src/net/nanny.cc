@@ -1376,8 +1376,12 @@ make_prompt(struct descriptor_data * d)
 	char prompt[MAX_INPUT_LENGTH];
     char colorbuf[ 100 ];
 
+	// No prompt for the wicked
+	if (STATE(d) == CON_CLOSE )
+		return;
+
 	// Check for the text editor being used
-	if (d->text_editor) {
+	if (d->character && d->text_editor) {
 			sprintf(prompt, "%-2d%s]%s ",
 		d->editor_cur_lnum,
 		CCBLU_BLD(d->character,C_NRM),
@@ -1389,7 +1393,7 @@ make_prompt(struct descriptor_data * d)
 		}
 
 	// Are we displaying a multi-line string?
-	if (d->showstr_point) {
+	if (d->character && d->showstr_point) {
 		sprintf(buf, " %s%s******%s  Press return to continue, q to quit  %s******%s",
 				CCBLD(d->character, C_CMP),
 				CCRED(d->character, C_NRM), CCWHT(d->character, C_NRM),

@@ -970,21 +970,21 @@ ASPELL(spell_locate_object)
         else if (IS_OBJ_STAT2(i, ITEM2_HIDDEN))
             sprintf(buf3, "%s is hidden somewhere.\r\n", i->short_description);
         else if (i->carried_by)
-            sprintf(buf3, "%s is being carried by %s.\n\r",
+            sprintf(buf3, "%s is being carried by %s.\r\n",
                     i->short_description, PERS(i->carried_by, ch));
         else if (i->in_room != NULL &&
                  !ROOM_FLAGGED(i->in_room, ROOM_HOUSE)) {
-            sprintf(buf3, "%s is in %s.\n\r", i->short_description,
+            sprintf(buf3, "%s is in %s.\r\n", i->short_description,
                     i->in_room->name);
         }
         else if (i->in_obj)
-            sprintf(buf3, "%s is in %s.\n\r", i->short_description,
+            sprintf(buf3, "%s is in %s.\r\n", i->short_description,
                     i->in_obj->short_description);
         else if (i->worn_by)
-            sprintf(buf3, "%s is being worn by %s.\n\r",
+            sprintf(buf3, "%s is being worn by %s.\r\n",
                     i->short_description, PERS(i->worn_by, ch));
         else
-            sprintf(buf3, "%s's location is uncertain.\n\r",
+            sprintf(buf3, "%s's location is uncertain.\r\n",
                     i->short_description);
 
         // this ptr crap is to quiet a compiler warning!
@@ -998,7 +998,7 @@ ASPELL(spell_locate_object)
     }
   
     if (j == level >> 1 && k == level >> 2)
-        send_to_char("You sense nothing.\n\r", ch);
+        send_to_char("You sense nothing.\r\n", ch);
   
     else {
         if (*buf2 && strlen(buf) + strlen(buf2) < MAX_STRING_LENGTH-1) {
