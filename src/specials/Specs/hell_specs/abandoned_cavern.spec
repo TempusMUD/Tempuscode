@@ -14,6 +14,9 @@ SPECIAL( abandoned_cavern )
     struct obj_data *obj = NULL, *rubble = NULL;
     static int hell_VI_count = 0, darth_count = 0;
     int count, i;
+
+	if( spec_mode != SPECIAL_CMD )
+		return 0;
   
     if ( GET_LEVEL( ch ) >= LVL_IMMORT || AFF_FLAGGED( ch, AFF_SNEAK ) )
         return 0;
