@@ -416,9 +416,9 @@ burn_update(void)
                 damager = get_char_in_world_by_idnum(af->owner);
             if (!damager)
                 damager = ch;
-			if (mag_savingthrow(ch, af->level, SAVING_PHY))
+			if (mag_savingthrow(ch, af ? af->level:GET_LEVEL(ch), SAVING_PHY))
 				continue;
-			if (damage(damager, ch, number(5, af->level / 5), TYPE_PRESSURE, -1))
+			if (damage(damager, ch, number(5,  (af ? af->level:GET_LEVEL(ch)) / 5), TYPE_PRESSURE, -1))
 				continue;
 		}
 		// psychic crush
@@ -435,9 +435,7 @@ burn_update(void)
 		}
 		// character has a stigmata
 		if ((af = affected_by_spell(ch, SPELL_STIGMATA))) {
-            damager = NULL;
-            if ((af = affected_by_spell(ch, SPELL_STIGMATA)))
-                damager = get_char_in_world_by_idnum(af->owner);
+			damager = get_char_in_world_by_idnum(af->owner);
             if (!damager)
                 damager = ch;
 			if (damage(damager, ch, mag_savingthrow(ch, af->level,
@@ -449,10 +447,8 @@ burn_update(void)
 		// character has entropy field
 		if ((af = affected_by_spell(ch, SPELL_ENTROPY_FIELD))
 				&& !random_fractional_10()
-				&& !mag_savingthrow(ch, af->level, SAVING_PHY)) {
-            damager = NULL;
-            if ((af = affected_by_spell(ch, SPELL_ENTROPY_FIELD)))
-                damager = get_char_in_world_by_idnum(af->owner);
+				&& !mag_savingthrow(ch, (af ? af->level:GET_LEVEL(ch)), SAVING_PHY)) {
+			damager = get_char_in_world_by_idnum(af->owner);
             if (!damager)
                 damager = ch;
 			GET_MANA(ch) = MAX(0, GET_MANA(ch) - 
