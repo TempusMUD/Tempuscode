@@ -397,7 +397,7 @@ bool
 obj_data::isUnrentable()
 {
 
-	if (IS_OBJ_STAT(this, ITEM_NORENT) || GET_OBJ_RENT(this) < 0
+	if (IS_OBJ_STAT(this, ITEM_NORENT)
 		|| !OBJ_APPROVED(this) || GET_OBJ_VNUM(this) <= NOTHING
 		|| (GET_OBJ_TYPE(this) == ITEM_KEY && GET_OBJ_VAL(this, 1) == 0)
 		|| (GET_OBJ_TYPE(this) == ITEM_CIGARETTE && GET_OBJ_VAL(this, 3))) {

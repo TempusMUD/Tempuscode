@@ -430,7 +430,7 @@ Quiz::reset(Creature * ch)
 void
 Quiz::reset()
 {
-	if (remortQuestions.size() >= 0) {
+	if (remortQuestions.size() > 0) {
 		remortQuestions.erase(remortQuestions.begin(), remortQuestions.end());
 	}
 	if (load_remort_questions()) {
