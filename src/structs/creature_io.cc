@@ -105,7 +105,7 @@ Creature::payRent(time_t last_time, int code, int currency)
 		factor = 3;
 	else
 		factor = 1;
-	cost = (int)(calcDailyRent(factor) * day_count);
+	cost = (int)(calc_daily_rent(this, factor, NULL, NULL) * day_count);
 
 	// First we get as much as we can out of their hand
 	if (currency == TIME_ELECTRO) {
@@ -262,67 +262,6 @@ Creature::displayUnrentables(void)
 	}
 
 	return result;
-}
-
-long
-Creature::calcDailyRent(int factor,
-	bool display,
-	const char *currency_str)
-{
-	extern int min_rent_cost;
-	obj_data *cur_obj;
-	int pos;
-	long total_cost = 0;
-	long level_adj;
-
-	if (GET_LEVEL(this) >= LVL_AMBASSADOR)
-		return 0;
-
-	for (pos = 0;pos < NUM_WEARS;pos++) {
-		cur_obj = GET_EQ(this, pos);
-		if (cur_obj && !cur_obj->isUnrentable()) {
-			total_cost += GET_OBJ_RENT(cur_obj);
-			if (display)
-				cur_obj->display_rent(this, currency_str);
-		}
-		cur_obj = GET_IMPLANT(this, pos);
-		if (cur_obj && !cur_obj->isUnrentable()) {
-			total_cost += GET_OBJ_RENT(cur_obj);
-			if (display)
-				cur_obj->display_rent(this, currency_str);
-		}
-	}
-
-	cur_obj = carrying;
-	while (cur_obj) {
-		if (!cur_obj->isUnrentable()) {
-			total_cost += GET_OBJ_RENT(cur_obj);
-			if (display)
-				cur_obj->display_rent(this, currency_str);
-		}
-		if (cur_obj->contains)
-			cur_obj = cur_obj->contains;	// descend into obj
-		else if (!cur_obj->next_content && cur_obj->in_obj)
-			cur_obj = cur_obj->in_obj->next_content; // ascend out of obj
-		else
-			cur_obj = cur_obj->next_content; // go to next obj
-	}
-
-	level_adj = (3 * total_cost * (10 + GET_LEVEL(this))) / 100 +
-				min_rent_cost * GET_LEVEL(this) - total_cost;
-	total_cost += level_adj;
-	total_cost *= factor;
-
-	if (display) {
-		send_to_char(this, "%10ld %s for level adjustment\r\n",
-			level_adj, currency_str);
-		if (factor != 1)
-			send_to_char(this, "        x%d for services\r\n", factor);
-		send_to_char(this, "-------------------------------------------\r\n");
-		send_to_char(this, "%10ld %s TOTAL\r\n", total_cost, currency_str);
-	}
-
-	return total_cost;
 }
 
 bool
