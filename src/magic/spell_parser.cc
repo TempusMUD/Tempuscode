@@ -3373,13 +3373,13 @@ mag_assign_spells(void)
     spello(SKILL_SWEEPKICK, X, X, X, 1, 28, X, X,  X, X, 27, X, 25, X, 30,X,X,X,
 	   0, 0, 0, 0, 0, 0, 0);
 
-    spello(SKILL_TRIP, X, X, 18, 1, X, X, X,  X, X, X, X, X, X,X,X,X,X,
+                   /* Ma Cl Th  Wa Ba Sy Ph Cy Kn Rn Hd Mk Vm Mr 1 2 3 */
+    spello(SKILL_TRIP, X, X, 18, 1, X, X, X, X, X, X,15, X, X,X,X,X,X,
 	   0, 0, 0, 0, 0, 0, 0);
 
     spello(SKILL_UPPERCUT, X, X, X, 1, 11, X, X,  X, 15, 13, X, X, X,20, X,X,X,
 	   0, 0, 0, 0, 0, 0, 0);
 
-                         /* Ma Cl Th Wa Ba Sy Ph Cy Kn  Rn Hd Mk Vm Mr 1 2 3 */
     spello(SKILL_GROINKICK, X, X, 12, 1, X, X, X,  X, X, X, 7, X, X,X,X,X,X,
 	   0, 0, 0, 0, 0, 0, 0);
 
