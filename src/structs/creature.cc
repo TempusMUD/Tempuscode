@@ -29,6 +29,7 @@ Creature::Creature(bool pc)
 		memset((char *)player_specials, 0, sizeof(player_special_data));
 	} else {
 		player_specials = &dummy_mob;
+		SET_BIT(MOB_FLAGS(this), MOB_ISNPC);
 	}
 	clear();
 }
@@ -754,7 +755,7 @@ Creature::clear(void)
 	// free mob strings:
 	// free strings only if the string is not pointing at proto
 	//
-	if (GET_MOB_VNUM(this) > -1) {
+	if (mob_specials.shared && GET_MOB_VNUM(this) > -1) {
 
 		tmp_mob = real_mobile_proto(GET_MOB_VNUM(this));
 
