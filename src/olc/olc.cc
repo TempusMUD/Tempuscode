@@ -1595,16 +1595,22 @@ ACMD(do_olc)
 		send_to_char(ch, "This action is not supported yet.\r\n");
 	}
 }
-
 void
 recalc_all_mobs(Creature *ch, const char *argument)
 {
+	int oldmobile_experience(struct Creature *mob);
+
 	struct Creature *mob;
 	struct zone_data *zone;
 	CreatureList::iterator mit = mobilePrototypes.begin();
 	int count = 0;
+	FILE *outfile;
+	bool exptest = false;
 
-	if (strcmp(argument, "aA43215nfiss")) {
+	if( strcmp(argument, "exptest") == 0 ) {
+		exptest = true;
+		send_to_char(ch, "Performing EXP test. Check log file for result.\r\n");
+	} else if (strcmp(argument, "aA43215nfiss")) {
 		// Safe version reports non-recalculated zones and returns
 		for (zone = zone_table;zone;zone = zone->next)
 			if (ZONE_FLAGGED(zone, ZONE_NORECALC))
@@ -1618,8 +1624,20 @@ recalc_all_mobs(Creature *ch, const char *argument)
 		if (ZONE_FLAGGED(zone, ZONE_NORECALC))
 			send_to_char(ch, "Zone #%d is not being recalculated.\r\n",
 				zone->number);
-
+	
+	if( exptest ) {
+		outfile = fopen("recalc.log","w");
+		if( outfile == NULL ) {
+			slog("Unable to open recalculation log file.");
+			send_to_char(ch, "Cannot open recalc log file. Failing.\r\n");
+			return;
+		}
+	}
 	// Iterate through mobiles
+	if( exptest ) {
+		fprintf(outfile, "%6s %22s lvl gen %10s %10s %10s %7s\r\n",
+				"id", "name", "old","new","base","fact" );
+	}
 	for (;mit != mobilePrototypes.end(); ++mit) {
 		mob = *mit;
 		for (zone = zone_table;zone;zone = zone->next)
@@ -1634,20 +1652,28 @@ recalc_all_mobs(Creature *ch, const char *argument)
 
 		if (ZONE_FLAGGED(zone, ZONE_NORECALC))
 			continue;
-
-		recalculate_based_on_level(mob);
-		GET_EXP(mob) = mobile_experience(mob);
+		if( exptest ) {
+			mobile_experience(mob, outfile);
+		} else {
+			recalculate_based_on_level(mob);
+			GET_EXP(mob) = mobile_experience(mob);
+		}
 		count++;
 	}
+	
+	if( exptest ) {
+		fclose(outfile);
+		send_to_char(ch, "%d mobiles tested.\r\n", count);
+	} else {
+		// Save all the zones
+		for (zone = zone_table;zone;zone = zone->next)
+			if (!ZONE_FLAGGED(zone, ZONE_NORECALC))
+				if (!save_mobs(ch, zone))
+					send_to_char(ch, "WARNING: Zone %d was not saved.\r\n",
+						zone->number);
 
-	// Save all the zones
-	for (zone = zone_table;zone;zone = zone->next)
-		if (!ZONE_FLAGGED(zone, ZONE_NORECALC))
-			if (!save_mobs(ch, zone))
-				send_to_char(ch, "WARNING: Zone %d was not saved.\r\n",
-					zone->number);
-
-	send_to_char(ch, "%d mobiles recalculated.\r\n", count);
+		send_to_char(ch, "%d mobiles recalculated.\r\n", count);
+	}
 }
 
 

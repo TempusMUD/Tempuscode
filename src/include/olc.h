@@ -116,7 +116,7 @@ void
 	struct special_search_data *cur_search, char *buf);
 
 void show_olc_help(struct Creature *ch, char *arg);
-int mobile_experience(struct Creature *mob);
+int mobile_experience(struct Creature *mob, FILE *outfile = NULL);
 
 
 #endif							// __OLC_H__

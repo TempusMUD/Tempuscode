@@ -1648,7 +1648,199 @@ do_destroy_mobile(struct Creature *ch, int vnum)
 }
 
 int
-mobile_experience(struct Creature *mob)
+mobile_experience( Creature *mob, FILE *outfile /*= NULL*/ )
+{
+	int levelBonus = mob->getLevelBonus(true);
+	int factor = 100;
+	// PC exp scale at levels [1,72]
+	int base = exp_scale[MIN(GET_LEVEL(mob) + 1, LVL_GRIMP)];
+	// add up to half again for mob level
+	base += (base * GET_LEVEL(mob)) / 100;
+	// 13 * ( (level^2 + 24) / 8 ) == 0 to 4000, 
+	// Used to trim PC exp scale to a more managable number
+	int scaleback = 13 * ((GET_LEVEL(mob) * GET_LEVEL(mob) + 24) >> 3);
+	// Trim back PC scale
+	base = base / MAX(1, scaleback);
+	// Minimum 10 xp
+	base = MAX(10, base);
+	
+	
+	// 49  1 == 50 / 55
+	// 49 10 == 80 / 100
+	// 30  1 == 10 / 35
+	// 30 10 == 20 / 80
+	//  1 10 == 50 / 51
+	//  1  0 == 40 / 1
+	//
+	//maxhit = hit D mana + move
+	//mana   = maxmana
+	//move   = maxmove
+	if (GET_MAX_HIT(mob)) {
+		base += 50 + levelBonus * GET_MAX_HIT(mob);
+	} else {
+		int maxhit = ((GET_HIT(mob) * (GET_MANA(mob) + 1)) / 2) + GET_MOVE(mob);
+		base += 50 + levelBonus * maxhit;
+	}
+	int barehand = ( mob->mob_specials.shared->damnodice *
+					 (mob->mob_specials.shared->damsizedice + 1) )/ 2;
+	base += barehand * 4 * levelBonus;
+
+	factor += GET_REMORT_GEN(mob) * 20;
+
+	if( GET_STR(mob) > 11 ) {
+		base += ( (GET_STR(mob) - 11) * 20 ) * levelBonus;
+	}
+	if( GET_DEX(mob) > 11 ) {
+		base += ( (GET_DEX(mob) - 11) * 20 ) * levelBonus;
+	}
+	if( GET_INT(mob) > 11 ) {
+		base += ( (GET_INT(mob) - 11) * 5 ) * levelBonus;
+	}
+	if( GET_WIS(mob) > 11 ) {
+		base += ( (GET_WIS(mob) - 11) * 5 ) * levelBonus;
+	}
+
+	base += GET_DAMROLL(mob) * 12 * levelBonus;
+	base += GET_HITROLL(mob) * 15 * levelBonus;
+
+	factor += levelBonus;
+
+	if (GET_CLASS(mob) == CLASS_ARCH ) {
+		factor += 100;
+	} 
+	if (IS_DEVIL(mob) || IS_DEMON(mob) || IS_SLAAD(mob) || IS_CELESTIAL(mob)) {
+		factor += 200;
+	}
+	if( IS_DRAGON(mob) ) {
+		factor += 200;
+	} 
+	if( GET_MOB_VNUM(mob) == 24800 ) {
+		factor += 100;
+	}
+	if (NON_CORPOREAL_UNDEAD(mob)) {
+		factor += 30;
+	} 
+	if (IS_GIANT(mob)) {
+		factor += 20;
+	} 
+	if (IS_TROLL(mob)) {
+		factor += 200;
+	}
+	if( IS_MAGE(mob) ) {
+		factor += 30;
+	}
+	if( IS_PSIONIC(mob) ) {
+		factor += 30;
+	}
+
+	if( IS_THIEF(mob) && GET_LEVEL(mob) >= 35 ) {
+		factor += 35;
+	}
+	if( IS_BARB(mob) ) {
+		if( GET_LEVEL(mob) >= 18 ) 
+			factor += 30;
+		if( GET_LEVEL(mob) >= 25 )
+			factor += 20;
+	}
+
+	if( GET_AC(mob) < 0 ) {
+		factor += (-GET_AC(mob))/10;
+	}
+
+	factor += GET_MORALE(mob) - 60;
+
+	if (MOB_FLAGGED(mob, MOB_NOBASH)) {
+		factor += 35;
+	}
+	if (MOB_FLAGGED(mob, MOB_NOSLEEP)) {
+		factor += 30;
+	}
+	if (MOB_FLAGGED(mob, MOB_NOBLIND)) {
+		factor += 20;
+	}
+	if (MOB2_FLAGGED(mob, MOB2_NOSTUN)) {
+		factor += 20;
+	}
+	if (AFF_FLAGGED(mob, AFF_INVISIBLE)) {
+		factor += 25;
+	}
+	if (AFF_FLAGGED(mob, AFF_SENSE_LIFE)) {
+		factor += 20;
+	}
+	if (AFF_FLAGGED(mob, AFF_SANCTUARY | AFF_NOPAIN)) {
+		factor += 50;
+	}
+	if (AFF_FLAGGED(mob, AFF_ADRENALINE)) {
+		factor += 20;
+	}
+	if (AFF_FLAGGED(mob, AFF_CONFIDENCE)) {
+		factor += 10;
+	}
+	if (AFF_FLAGGED(mob, AFF_REGEN)) {
+		factor += 30;
+	}
+	if (AFF_FLAGGED(mob, AFF_BLUR)) {
+		factor += 20;
+	}
+	if (AFF2_FLAGGED(mob, AFF2_TRANSPARENT)) {
+		factor += 60;
+	}
+	if (AFF2_FLAGGED(mob, AFF2_SLOW)) {
+		factor -= 30;
+	}
+	if (AFF2_FLAGGED(mob, AFF2_HASTE)) {
+		factor += 70;
+	}
+	if (AFF2_FLAGGED(mob, AFF2_FIRE_SHIELD)) {
+		factor += 25;
+	}
+	if (AFF2_FLAGGED(mob, AFF2_TRUE_SEEING)) {
+		factor += 30;
+	}
+	if (AFF2_FLAGGED(mob, AFF2_DISPLACEMENT)) {
+		factor += 25;
+	}
+	if (AFF2_FLAGGED(mob, AFF2_BLADE_BARRIER)) {
+		factor += 30;
+	}
+	if (AFF2_FLAGGED(mob, AFF2_ENERGY_FIELD)) {
+		factor += 15;
+	}
+	if (AFF3_FLAGGED(mob, AFF3_PRISMATIC_SPHERE)) {
+		factor += 70;
+	}
+	if (AFF3_FLAGGED(mob, AFF3_DOUBLE_DAMAGE)) {
+		factor += 300;
+	}
+
+
+	int exp = (int) ( base * ( (float)factor/100.0 ));
+	// Round off the number
+	exp = (exp/ 10) * 10;
+	// Make sure it's positive.
+	exp = MAX(0, exp);
+	if( outfile != NULL ) {
+		int oldmobile_experience(struct Creature *mob);
+
+		char name[21];
+		strncpy( name, GET_NAME(mob), 20 );
+		name[20] = '\0';
+		int oldexp = oldmobile_experience(mob);
+
+		int percent = (int) ( ((float)exp)/((float)oldexp) * 100.0 );
+		if( oldexp <= 0 )
+			percent = 9999;
+		
+		fprintf(outfile, "%6d \'%20s\' L%2d G%2d %10d %10d %10d %4d [%5d]\r\n",
+							GET_MOB_VNUM(mob), name,
+							GET_LEVEL(mob), GET_REMORT_GEN(mob),
+							oldexp, exp, base, factor, percent);
+	}
+	return exp;
+}
+
+int
+oldmobile_experience(struct Creature *mob)
 {
 
 	int exp = 0, tmp = 0;
