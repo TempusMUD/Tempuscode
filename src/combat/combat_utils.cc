@@ -625,7 +625,7 @@ apply_soil_to_char(struct Creature *ch, struct obj_data *obj, int type,
 				continue;
 			if (!GET_EQ(ch, idx) && CHAR_SOILED(ch, pos, type))
 				continue;
-			if (GET_EQ(ch, idx) && (OBJ_SOILED(GET_EQ(ch, pos), type) ||
+			if (GET_EQ(ch, idx) && (OBJ_SOILED(GET_EQ(ch, idx), type) ||
 					IS_OBJ_STAT2(GET_EQ(ch, idx), ITEM2_NOSOIL)))
 				continue;
 			if (!number(0, cnt))
