@@ -288,13 +288,11 @@ postmaster_send_mail(struct char_data * ch, struct char_data *mailman,
 			return;
 		}
 		for (member = clan->member_list; member; member = member->next) {
-            if(member->idnum != GET_IDNUM(ch)) {
-                total_cost += STAMP_PRICE;
-                CREATE(n_mail_to, struct mail_recipient_data, 1);
-                n_mail_to->next = ch->desc->mail_to;
-                n_mail_to->recpt_idnum = member->idnum;
-                ch->desc->mail_to = n_mail_to;
-            }
+            total_cost += STAMP_PRICE;
+            CREATE(n_mail_to, struct mail_recipient_data, 1);
+            n_mail_to->next = ch->desc->mail_to;
+            n_mail_to->recpt_idnum = member->idnum;
+            ch->desc->mail_to = n_mail_to;
 		}
     } else {
     
