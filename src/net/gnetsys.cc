@@ -139,6 +139,11 @@ perform_net_load(descriptor_data *d,char *arg) {
 		return;
 	}
 
+	if (GET_SKILL(d->character, skill_num) >= LEARNED( d->character)) {
+		SEND_TO_Q("Program fully installed on local system.\r\n", d);
+		return;
+	}
+
 	percent = MIN(MAXGAIN(d->character),
 				  MAX(MINGAIN(d->character),
 					  INT_APP(GET_INT(d->character))));
