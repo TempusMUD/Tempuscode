@@ -48,6 +48,13 @@ bool Creature::isTester(){
 	return Security::isMember( this, "Testers", false );
 }
 
+// Returns this creature's account id.
+long Creature::getAccountID() const { 
+    if( account == NULL ) 
+        return 0; 
+    return account->get_idnum(); 
+}
+
 /**
  * Modifies the given experience to be appropriate for this character's
  *  level/gen and class.
