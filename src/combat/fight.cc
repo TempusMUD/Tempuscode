@@ -3287,9 +3287,23 @@ damage( struct char_data * ch, struct char_data * victim, int dam,
 			IS_PET(ch) || IS_PET(victim)
 			) 
 		)
-	gain_exp( ch, MIN( GET_LEVEL( ch ) * GET_LEVEL( ch ) * GET_LEVEL( ch ),
-			   GET_LEVEL( victim ) * dam ) );
-
+	{	// Gaining XP for damage dealt.
+		int exp;
+		exp = MIN( GET_LEVEL( ch ) * GET_LEVEL( ch ) * GET_LEVEL( ch ), 
+				   GET_LEVEL( victim ) * dam );
+		if ( !IS_NPC( ch ) && IS_REMORT( ch ) )
+			exp -= ( exp * GET_REMORT_GEN( ch ) ) / ( GET_REMORT_GEN( ch ) + 2 );
+		if ( IS_CLERIC( ch ) && !IS_GOOD( ch ) )
+			exp -= ( exp * 15 ) / 100;
+		if ( IS_KNIGHT( ch ) && !IS_GOOD( ch ) )
+			exp -= ( exp * 25 ) / 100;
+		if ( IS_GOOD( ch ) && 
+			( IS_CLERIC( ch ) || IS_KNIGHT( ch ) ) && 
+			IS_GOOD( vic tim ) ) {    // good clerics & knights penalized
+				exp = -exp;
+			}
+		gain_exp( ch, exp );
+	}
     // check for killer flags and remove sleep/etc...
     if ( ch && ch != victim ) {
 
