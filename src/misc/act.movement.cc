@@ -988,9 +988,17 @@ perform_move(struct char_data *ch, int dir, int mode, int need_specials_check)
 	return 1;
     }	
 
-    if (!EXIT(ch, dir) || EXIT(ch, dir)->to_room == NULL || 
-	(IS_SET(EXIT(ch, dir)->exit_info, EX_NOPASS) &&
-	 GET_LEVEL(ch) < LVL_AMBASSADOR && !NON_CORPOREAL_UNDEAD(ch))) {
+    if (
+		!EXIT(ch, dir) || EXIT(ch, dir)->to_room == NULL || 
+		( 
+			IS_SET(EXIT(ch, dir)->exit_info, EX_NOPASS) ||
+			(
+				IS_SET(EXIT(ch, dir)->exit_info, EX_SECRET) &&
+				IS_SET(EXIT(ch, dir)->exit_info, EX_CLOSED)
+			) 
+		) &&
+		 GET_LEVEL(ch) < LVL_AMBASSADOR && !NON_CORPOREAL_UNDEAD(ch)
+	  ) {
 	switch (number(0,5)) {
 	case 0:
 	    send_to_char("Alas, you cannot go that way...\r\n", ch);

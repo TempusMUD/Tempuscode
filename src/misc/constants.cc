@@ -496,6 +496,7 @@ extern const char *exit_bits[] = {
   "FORCE",
   "SPECIAL",
   "REINF",
+  "SECRET",
   "\n"
 };
 

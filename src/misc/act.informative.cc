@@ -1110,7 +1110,7 @@ ACMD(do_exits)
 
 	    if (GET_LEVEL(ch) >= LVL_AMBASSADOR) {
 		sprintf(buf2, "%s%s", CCBLD(ch, C_SPR), CCBLU(ch, C_NRM));
-		sprintf(buf3, "%-8s%s - %s[%s%5d%s] %s%s%s%s%s\r\n",
+		sprintf(buf3, "%-8s%s - %s[%s%5d%s] %s%s%s%s%s%s\r\n",
 			dirs[door], CCNRM(ch, C_NRM), 
 			CCGRN(ch, C_NRM), CCNRM(ch, C_NRM),
 			EXIT(ch, door)->to_room->number, CCGRN(ch, C_NRM),
@@ -1118,6 +1118,8 @@ ACMD(do_exits)
 			CCNRM(ch, C_SPR), 
 			IS_SET(EXIT(ch, door)->exit_info, EX_CLOSED) ?
 			" (closed)" : "",
+			IS_SET(EXIT(ch, door)->exit_info, EX_SECRET) ?
+			" (secret)" : "",
 			IS_SET(EXIT(ch, door)->exit_info, EX_NOPASS) ?
 			" (nopass)" : "");
 		strcat(buf2, CAP(buf3));

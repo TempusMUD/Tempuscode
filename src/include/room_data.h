@@ -92,7 +92,8 @@
 #define EX_WALL_FORCE           (1 << 22)
 #define EX_SPECIAL              (1 << 23)
 #define EX_REINFORCED           (1 << 24)
-#define NUM_DOORFLAGS           24
+#define EX_SECRET				(1 << 25)
+#define NUM_DOORFLAGS           26
 
 
 /* Sector types: used in room_data.sector_type */
@@ -148,12 +149,12 @@
 
 
 struct room_direction_data {
-    char	*general_description;   /* When look DIR.			*/
-    char	*keyword;		/* for open/close			*/
+    char	*general_description;   // When look DIR.
+    char	*keyword;		// for open/close
 
-    sh_int exit_info;		/* Exit info				*/
-    obj_num key;			/* Key's number (-1 for no key)		*/
-    struct room_data *to_room;   /* Pointer to room                    */
+    unsigned int exit_info;	// Exit info
+    obj_num key;			// Key's number (-1 for no key)
+    struct room_data *to_room;   // Pointer to room
 };
 
 struct room_affect_data {
