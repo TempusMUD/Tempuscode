@@ -943,15 +943,22 @@ ACMD(do_cedit)
 				send_to_char(ch, "Set the bank account of the clan to what?\r\n");
 				return;
 			}
-			if (!is_number(argument) || (i = atoi(argument)) < 0) {
+			if( !is_number(argument) ) {
 				send_to_char(ch, 
 					"Try setting the bank account to an appropriate number asswipe.\r\n");
 				return;
+			} 
+			i = atoi(argument);
+			if( i < 0 ) {
+				send_to_char(ch, 
+					"This clan has no overdraft protection. Negative value invalid.\r\n");
+				return;
 			}
+			slog("(cedit) %s set clan %d bank from %d to %d.", GET_NAME(ch),
+				clan->number, clan->bank_account, i );
+			send_to_char(ch, "Clan bank account set from %d to %d\r\n",
+					clan->bank_account, i );
 			clan->bank_account = i;
-			send_to_char(ch, "Clan bank account set.\r\n");
-			slog("(cedit) %s set clan %d bank to %d.", GET_NAME(ch),
-				clan->number, clan->bank_account);
 
 			return;
 
