@@ -184,6 +184,9 @@ SPECIAL(hell_hunter_brain)
 
         if (!obj->in_room && !(vict = obj->carried_by) && !(vict = obj->worn_by))
             continue;
+        if(! IS_OBJ_STAT3(obj, ITEM3_HUNTED ) ) {
+            continue;
+        }
 
         if (vict && (IS_NPC(vict) || PRF_FLAGGED(vict, PRF_NOHASSLE) ||
                      // some rooms are safe
