@@ -25,6 +25,39 @@
 #include "house.h"
 #include "char_class.h"
 #include "bomb.h"
+ACMD(do_charge)
+{
+    struct affected_type af, af2;
+    struct char_data *vict = NULL;
+    one_argument(argument, buf);
+    // Check for beserk.
+    // 
+
+    // find out who we're whackin.
+    vict = get_char_in_remote_room_vis(ch, buf, ch->in_room);
+    if(vict == ch) {
+        send_to_char("You charge in and scare yourself silly!\r\n",ch);
+        return;
+    }
+    if(!vict) {
+        send_to_char("Charge who?\r\n",ch);
+        return;
+    }
+	af.level = af2.level = GET_LEVEL(ch) + GET_REMORT_GEN(ch);
+	af2.type = af.type = SKILL_CHARGE;
+    af2.is_instant = af.is_instant = 1;
+	af2.duration = af.duration = number(1,2);
+	af2.location = af.location = 0;
+	af2.modifier = af.modifier = 0;
+    af.aff_index = 3;
+	af2.aff_index = 3;
+	af.bitvector = AFF3_INST_AFF;
+    af2.bitvector = AFF3_DOUBLE_DAMAGE;
+	affect_to_char(ch, &af);
+	affect_to_char(ch, &af2);
+    // Whap the bastard
+	hit(ch, vict, TYPE_UNDEFINED);
+}
 
 int perform_barb_beserk(struct char_data *ch)
 {

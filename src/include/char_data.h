@@ -450,7 +450,8 @@
 #define AFF3_GRAVITY_WELL       (1 << 22)    // Pissed off a phyz and got hit by gravity well
 #define AFF3_SYMBOL_OF_PAIN     (1 << 23)    // Char's mind is burning with pain
 #define AFF3_EMP_SHIELD         (1 << 24)    // EMP SHIELDING
-#define NUM_AFF3_FLAGS          25
+#define AFF3_INST_AFF           (1 << 25)    // Affected by an instant affect
+#define NUM_AFF3_FLAGS          26
 
 #define ARRAY_AFF_1        1
 #define ARRAY_AFF_2        2
@@ -865,7 +866,7 @@ struct affected_type {
     sh_int modifier;       /* This is added to apropriate ability     */
     sh_int location;      /* Tells which ability to change(APPLY_XXX)*/
     ubyte level;
-    ubyte spare_c;
+    ubyte is_instant;
     long	bitvector;       /* Tells which bits to set (AFF_XXX)       */
     int aff_index;
     struct affected_type *next;

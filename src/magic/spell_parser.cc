@@ -451,7 +451,7 @@ const char *spells[] =
     "throwing", 
     "riding", 
     "pipemaking",	                         /* 610 */
-    "!UNUSED!",  /**** meditate  ****/
+    "charge",  
     "!UNUSED!",  /****  evasion  ****/
     "reconfigure", 
     "reboot", 

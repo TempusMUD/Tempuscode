@@ -1064,6 +1064,7 @@ extern const char *affected3_bits[]=
   "GRV WELL",
   "SMBL PAIN",
   "EMP_SHLD",
+  "IAFF",
   "\n"
 };  
 
@@ -1093,6 +1094,7 @@ extern const char *affected3_bits_desc[] = {
   "gravity well",
   "symbol of pain",
   "emp shielding",
+  "!instant affect!",
   "\n"
 };
 

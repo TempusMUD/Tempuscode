@@ -125,6 +125,7 @@ ACMD(do_cast);
 ACMD(do_ceasefire);
 ACMD(do_conceal);
 ACMD(do_cedit);
+ACMD(do_charge);
 ACMD(do_circle);
 ACMD(do_cinfo);
 ACMD(do_clan_comm);
@@ -521,7 +522,7 @@ extern const struct command_info cmd_info[] = {
     { "camel"    , POS_RESTING , do_action   , 0, 0 },
     { "catnap"   , POS_RESTING , do_action   , 0, 0 },
     { "chat"     , POS_SLEEPING, do_gen_comm , 0, SCMD_GOSSIP },
-    { "charge"   , POS_STANDING, do_action   , 0, 0 },
+    { "charge"   , POS_STANDING, do_charge   , 0, 0 },
     { "check"    , POS_STANDING, do_not_here , 1, 0 },
     { "cheer"    , POS_RESTING,  do_action   , 0, 0 },
     { "choke"    , POS_FIGHTING, do_offensive_skill, 0, SKILL_CHOKE },

@@ -263,7 +263,20 @@ mag_savingthrow(struct char_data * ch, int level, int type)
     else
 	return FALSE;
 }
-
+void
+update_iaffects(char_data *ch) {
+    static struct affected_type *af, *next;
+	for (af = ch->affected; af ; af = next) {
+        next = af->next;
+        if(!af->is_instant)
+            continue;
+        af->duration--;
+        if(!af->duration) {
+            affect_remove(ch, af);
+            af = ch->affected;
+        }
+    }
+}
 
 /* affect_update: called from comm.c (causes spells to wear off) */
 void 

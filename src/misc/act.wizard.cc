@@ -1771,8 +1771,8 @@ do_stat_character(struct char_data * ch, struct char_data * k)
     if (k->affected) {
 	for (aff = k->affected; aff; aff = aff->next) {
 	    *buf2 = '\0';
-	    sprintf(buf, "SPL: (%3dhr) [%2d] %s%-24s%s ", aff->duration + 1,
-		    aff->level, 
+	    sprintf(buf, "SPL: (%3d%s) [%2d] %s%-24s%s ", aff->duration + 1,
+		    aff->is_instant ? "sec" : "hr",aff->level, 
 		    CCCYN(ch, C_NRM), spells[aff->type], CCNRM(ch, C_NRM));
 	    if (aff->modifier) {
 		sprintf(buf2, "%+d to %s", aff->modifier, apply_types[(int) aff->location]);

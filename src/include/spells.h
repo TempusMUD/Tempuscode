@@ -455,7 +455,7 @@ extern const char *spells[];
 #define SKILL_THROWING              608
 #define SKILL_RIDING                609
 #define SKILL_PIPEMAKING            610 //Make a pipe!
-#define SKILL_CORNER				611 // Keep them from fleeing
+#define SKILL_CHARGE                611 // BANG!
 
 
   /*****************  CYBORG SKILLS  ********************/
