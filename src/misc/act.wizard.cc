@@ -5650,6 +5650,12 @@ ACMD(do_set)
 
         break;
     case 38:
+		slog("%s set %s %s's name to '%s'",
+			GET_NAME(ch),
+			(IS_NPC(vict) ? "NPC":"PC"),
+			GET_NAME(vict),
+			argument);
+
 		free(GET_NAME(vict));
 		GET_NAME(vict) = strdup(argument);
 		// Set name
