@@ -54,7 +54,7 @@ ACMD(do_holytouch)
         return;
     }
 
-    if(IS_EVIL(ch)) {
+    if(IS_EVIL(ch) && ch != vict) {
         if(!IS_GOOD(vict)) 
             healing_holytouch(ch,vict);
         else
