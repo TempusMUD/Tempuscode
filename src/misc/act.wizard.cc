@@ -5650,12 +5650,12 @@ ACMD(do_set)
 
         break;
     case 38:
-        sprintf(buf, "(GC) %s set %s %sdeleted.", 
-                GET_NAME(ch), 
-                GET_NAME(vict),
-                PLR_FLAGGED(vict, PLR_DELETED) ? "" : "UN-"); 
-        SET_OR_REMOVE(PLR_FLAGS(vict), PLR_DELETED);
-        break;
+        if (IS_NPC(vict)) {
+            send_to_char(ch, "Just kill the bugger!\r\n");
+            break;
+        }
+		send_to_char(ch, "Disabled.  Use 'delete' command.\r\n");
+		break;
     case 39:
         if ((i = parse_char_class(argument)) == CLASS_UNDEFINED) {
             send_to_char(ch, argument);
@@ -5968,13 +5968,9 @@ ACMD(do_set)
         if (IS_NPC(vict)) {
             send_to_char(ch, "Just kill the bugger!\r\n");
             break;
-        } else {
-            SET_OR_REMOVE(PLR2_FLAGS(vict), PLR2_BURIED);
-            slog("(GC) %s set %s %sburied.", 
-                    GET_NAME(ch), 
-                    GET_NAME(vict),
-                    PLR2_FLAGGED(vict, PLR2_BURIED) ? "" : "UN-"); 
         }
+		send_to_char(ch, "Disabled.  Use the 'delete' command.\r\n");
+		break;
     case 98:                    // Set Speed
         vict->setSpeed(RANGE(0, 100));
         break;
@@ -7644,4 +7640,65 @@ int do_freeze_char(char *argument, Creature *vict, Creature *ch)
            GET_NAME(vict), GET_NAME(ch)); 
  
     return 1;
+}
+
+ACMD(do_delete)
+{
+	char *name;
+	Creature *vict;
+	Account *acct;
+	int vict_id, acct_id;
+	bool in_world;
+
+	name = tmp_getword(&argument);
+	if (!Security::isMember(ch, "AdminFull") &&
+			!Security::isMember(ch, "WizardFull")) {
+		send_to_char(ch, "No way!  You're not authorized!\r\n");
+		mudlog(GET_INVIS_LVL(ch), BRF, true, "%s denied deletion of '%s'",
+			GET_NAME(ch), name);
+		return;
+	}
+
+	if (!*name) {
+		send_to_char(ch, "Come, come.  Don't you want to delete SOMEONE?\r\n");
+		return;
+	}
+	
+	if (!playerIndex.exists(name)) {
+		send_to_char(ch, "That player does not exist.\r\n");
+		return;
+	}
+
+	acct_id = playerIndex.getAccountID(name);
+	acct = accountIndex.find_account(acct_id);
+	if (!acct) {
+		slog("SYSERR: Victim found without account");
+		send_to_char(ch, "The command mysteriously failed (XYZZY)\r\n");
+		return;
+	}
+
+	vict_id = playerIndex.getID(name);
+	vict = get_char_in_world_by_idnum(vict_id);
+	in_world = (vict != NULL);
+	if (!in_world) {
+		vict = new Creature(true);
+		if (!vict->loadFromXML(vict_id)) {
+			delete vict;
+			send_to_char(ch, "Error loading char from file.\r\n");
+			return;
+		}
+	}
+
+	acct->delete_char(vict);
+
+	send_to_char(ch, "Character '%s' has been deleted from account %s.\r\n",
+		GET_NAME(vict), acct->get_name());
+
+	if (in_world) {
+		send_to_char(vict, "A cold wind blows through your soul, and you disappear!\r\n");
+		vict->purge(true);
+		return;
+	} else {
+		delete vict;
+	}
 }

@@ -161,6 +161,7 @@ ACMD(do_corner);
 ACMD(do_credits);
 ACMD(do_date);
 ACMD(do_dc);
+ACMD(do_delete);
 ACMD(do_diagnose);
 ACMD(do_dismount);
 ACMD(do_display);
@@ -608,6 +609,7 @@ struct command_info cmd_info[] = {
 	{"deassimilate", POS_RESTING, do_deassimilate, 0, 0, 0},
 	{"deathtouch", POS_FIGHTING, do_offensive_skill, 0, SKILL_DEATH_TOUCH, 0},
 	{"defuse", POS_SITTING, do_defuse, 0, 0, 0},
+	{"delete", POS_DEAD, do_delete, LVL_IMMORT, 0, 0},
 	{"demote", POS_RESTING, do_demote, LVL_CAN_CLAN, 0, 0},
 	{"deposit", POS_STANDING, do_not_here, 1, 0, 0},
 	{"detach", POS_RESTING, do_attach, 0, SCMD_DETACH, 0},
