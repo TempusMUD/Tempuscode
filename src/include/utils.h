@@ -420,21 +420,35 @@ PRF2_FLAGGED( Creature *ch, int flag )
      (IS_UNDEAD(vict) || IS_SLIME(vict) || IS_PUDDING(vict) || \
       IS_ROBOT(vict) || IS_PLANT(vict))
 
-#define COMM_NOTOK_ZONES(ch, tch) \
-     (GET_LEVEL(ch) < LVL_IMMORT &&                                        \
-      ch->in_room != tch->in_room &&                                       \
-      (ch->in_room->zone->plane != tch->in_room->zone->plane ||            \
-       (ch->in_room->zone != tch->in_room->zone &&                         \
-        (ZONE_FLAGGED(ch->in_room->zone,                                   \
-                      ZONE_ISOLATED | ZONE_SOUNDPROOF) ||                  \
-         ZONE_FLAGGED(tch->in_room->zone,                                  \
-                      ZONE_ISOLATED | ZONE_SOUNDPROOF))) ||                \
-       (ch->in_room->zone->time_frame != tch->in_room->zone->time_frame && \
-        ch->in_room->zone->time_frame != TIME_TIMELESS &&                  \
-        tch->in_room->zone->time_frame != TIME_TIMELESS) ||                \
-       ROOM_FLAGGED(ch->in_room, ROOM_SOUNDPROOF) ||                       \
-       ROOM_FLAGGED(tch->in_room, ROOM_SOUNDPROOF)))
+inline bool
+COMM_NOTOK_ZONES(Creature *ch, Creature *tch)
+{
+	if (ch->player.level >= LVL_IMMORT)
+		return false;
+	
+	if (ch->in_room == tch->in_room)
+		return false;
 
+	if (ROOM_FLAGGED(ch->in_room, ROOM_SOUNDPROOF) ||
+			ROOM_FLAGGED(tch->in_room, ROOM_SOUNDPROOF))
+		return true;
+	
+	if (ch->in_room->zone == tch->in_room->zone)
+		return false;
+	
+	if (ch->in_room->zone->plane != tch->in_room->zone->plane)
+		return true;
+
+	if (ZONE_FLAGGED(ch->in_room->zone, ZONE_ISOLATED | ZONE_SOUNDPROOF) ||
+			ZONE_FLAGGED(tch->in_room->zone, ZONE_ISOLATED | ZONE_SOUNDPROOF))
+		return true;
+
+	if (ch->in_room->zone->time_frame == TIME_TIMELESS ||
+			tch->in_room->zone->time_frame == TIME_TIMELESS)
+		return false;
+	
+	return true;
+}
 
 	  /* room utils *********************************************************** */
 
