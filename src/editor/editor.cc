@@ -316,7 +316,6 @@ bool CTextEditor::Full ( char *inStr=NULL) {
 }
 
 void CTextEditor::Append(char *inStr) {
-	char *readPt,*writePt;
 
     if(Full(inStr)) {
         SendMessage("Error: The buffer is full.\r\n");
@@ -324,15 +323,18 @@ void CTextEditor::Append(char *inStr) {
     }
 	
 	// All tildes must die
-	readPt = writePt = inStr;
-	while ( *readPt )
-		{
-		if ( *readPt != '~' )
-			*writePt++ = *readPt;
-		readPt++;
-		}
-	*writePt = '\0';
+    if((PLR_FLAGGED(desc->character, PLR_OLC)) && scripting) {
+		char *readPt,*writePt;
 
+		readPt = writePt = inStr;
+		while ( *readPt )
+			{
+			if ( *readPt != '~' )
+				*writePt++ = *readPt;
+			readPt++;
+			}
+		*writePt = '\0';
+	}
     theText.push_back(inStr);
     Wrap();
     UpdateSize();
