@@ -511,6 +511,8 @@ Account::initialize(const char *name, descriptor_data *d, int idnum)
 {
 	_id = idnum;
 	_name = strdup(name);
+	if (strlen(_name) > 20)
+		_name[20] = '\0';
 	_password = NULL;
 	_creation_time = _login_time = time(0);
 	_creation_addr = strdup(d->host);
@@ -610,6 +612,8 @@ void
 Account::set_email_addr(const char *addr)
 {
 	_email = strdup(addr);
+	if (strlen(_email) > 60)
+		_email[60] = '\0';
 	sql_exec("update accounts set email='%s' where idnum=%d",
 		tmp_sqlescape(_email), _id);
 }
