@@ -194,7 +194,7 @@ recieve_mail(char_data *ch) {
             } else {
                 list = obj;
             }
-            delete text;
+            delete [] text;
         } else {
             break;
 		}
