@@ -292,7 +292,7 @@ check_killer(struct Creature *ch, struct Creature *vict,
 	// If we get to this point, ch gets a killer
 	SET_BIT(PLR_FLAGS(ch), PLR_KILLER);
 	GET_SEVERITY(ch) += (GET_LEVEL(ch) + GET_REMORT_GEN(ch) * 50) - 
-		(GET_LEVEL(vict) + GET_REMORT_GEN(ch));
+		(GET_LEVEL(vict) + GET_REMORT_GEN(vict) * 50);
 	mudlog(LVL_AMBASSADOR, BRF, true,
 		"PC KILLER set on %s for attack on %s at %d. %s",
 		GET_NAME(ch), GET_NAME(vict), vict->in_room->number,
