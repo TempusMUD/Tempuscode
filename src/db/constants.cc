@@ -2540,7 +2540,7 @@ extern const char *spell_wear_off_msg[] = {
     "You feel less charming.", 
     "!UNUSED!", 
     "!UNUSED!",	/* 390 */
-	"!UNUSED!", 
+	"The air around you returns to normal.", 
     "The rhythm invading your brain dissipates.", 
     "!UNUSED!", 
     "!UNUSED!", 
