@@ -27,6 +27,7 @@ SPECIAL(high_priestess)
 
 		act("There is a blinding flash of light!!\r\n"
 			"$n disappears in a thunderclap!", FALSE, hpr, 0, 0, TO_ROOM);
+        vict = hpr->findRandomCombat();
         hpr->removeAllCombat();
 
 		if ((archon = read_mobile(43014))) {
