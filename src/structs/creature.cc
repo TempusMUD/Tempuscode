@@ -58,7 +58,6 @@ Creature::Creature(const Creature &c)
 {
     memset((char *)this, 0, sizeof(Creature));
 
-    this->pfilepos = c.pfilepos;
     this->player_specials = c.player_specials;
     //todo: duplicate affects
     //this->affected = c.affected;

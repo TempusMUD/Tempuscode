@@ -1136,7 +1136,6 @@ struct Creature {
     }
     
   public:						// ******  Data ****
-	int pfilepos;				/* playerfile pos          */
 	struct room_data *in_room;	/* Location (real room number)      */
 
     list<CharCombat>*fighting; /* list of combats for this char */

@@ -494,7 +494,6 @@ SECT(room_data * room)
 #define GET_TITLE(ch)   ((ch)->player.title)
 #define GET_LEVEL(ch)   ((ch)->player.level)
 #define GET_PASSWD(ch)        ((ch)->player.passwd)
-#define GET_PFILEPOS(ch)((ch)->pfilepos)
 
 /*
  * I wonder if this definition of GET_REAL_LEVEL should be the definition
