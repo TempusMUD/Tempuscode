@@ -3595,11 +3595,11 @@ mag_assign_spells(void)
 	remort_spello(SPELL_LOCUST_REGENERATION, CLASS_MAGE, 34, 5,
 		150, 75, 5, POS_FIGHTING, TAR_CHAR_ROOM | TAR_FIGHT_VICT
 		| TAR_NOT_SELF, TRUE, MAG_MAGIC | MAG_AFFECTS);
-	
+/*	--- Add this back in when we want trail-based tracking
 	remort_spello(SPELL_SPIRIT_TRACK, CLASS_RANGER, 38, 2,
 		120, 60, 10, POS_FIGHTING, TAR_CHAR_ROOM | TAR_SELF_ONLY,
 		false, MAG_MAGIC | MAG_AFFECTS);
-	
+*/	
 
 
 /*

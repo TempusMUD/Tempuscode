@@ -324,6 +324,7 @@ ACMD(do_track)
 		return;
 	}
 	one_argument(argument, arg);
+/*	---- Add this back in when we want trail-based tracking
 	if (!*arg) {
 		show_trails_to_char(ch, NULL);
 		return;
@@ -333,7 +334,7 @@ ACMD(do_track)
 		show_trails_to_char(ch, arg);
 		return;
 	}
-
+*/
 	vict = get_char_vis(ch, arg);
 
 	if (!vict || !can_see_creature(ch, vict)) {
