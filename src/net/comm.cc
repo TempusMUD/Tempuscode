@@ -1348,13 +1348,13 @@ close_socket(struct descriptor_data *d)
 		if (IS_PLAYING(d)) {
 			save_char(d->character, NULL);
 			act("$n has lost $s link.", TRUE, d->character, 0, 0, TO_ROOM);
-			mudlog(MAX(LVL_AMBASSADOR, GET_INVIS_LEV(d->character)), NRM, true,
+			mudlog(MAX(LVL_AMBASSADOR, GET_INVIS_LVL(d->character)), NRM, true,
 				"Closing link to: %s. [%s] ", GET_NAME(d->character),
 				d->host);
 			d->character->desc = NULL;
 			GET_OLC_OBJ(d->character) = NULL;
 		} else {
-			mudlog(MAX(LVL_AMBASSADOR, GET_INVIS_LEV(d->character)), NRM, true,
+			mudlog(MAX(LVL_AMBASSADOR, GET_INVIS_LVL(d->character)), NRM, true,
 				"Losing player: %s. [%s]",
 				GET_NAME(d->character) ? GET_NAME(d->character) : "<null>",
 				d->host);

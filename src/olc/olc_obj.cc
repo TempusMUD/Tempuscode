@@ -365,7 +365,7 @@ do_create_obj(struct Creature *ch, int vnum)
 
 	if (!CAN_EDIT_ZONE(ch, zone)) {
 		send_to_char(ch, "Try creating objects in your own zone, luser.\r\n");
-		mudlog(GET_INVIS_LEV(ch), BRF, true,
+		mudlog(GET_INVIS_LVL(ch), BRF, true,
 			"OLC: %s failed attempt to CREATE obj %d.",
 			GET_NAME(ch), vnum);
 		return NULL;
@@ -461,7 +461,7 @@ do_destroy_object(struct Creature *ch, int vnum)
 
 	if (GET_IDNUM(ch) != zone->owner_idnum && GET_LEVEL(ch) < LVL_LUCIFER) {
 		send_to_char(ch, "Oh, no you dont!!!\r\n");
-		mudlog(GET_INVIS_LEV(ch), BRF, true,
+		mudlog(GET_INVIS_LVL(ch), BRF, true,
 			"OLC: %s failed attempt to DESTROY object %d.",
 			GET_NAME(ch), obj->shared->vnum);
 		return 1;

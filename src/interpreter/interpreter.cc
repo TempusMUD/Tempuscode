@@ -1348,6 +1348,38 @@ struct command_info cmd_info[] = {
 	{"\n", 0, 0, 0, 0, 0}
 };								/* this must be last */
 
+void
+send_unknown_cmd(Creature *ch)
+{
+	switch (number(0, 11)) {
+	case 0:
+		send_to_char(ch, "Huh?!?\r\n"); break;
+	case 1:
+		send_to_char(ch, "What's that?\r\n"); break;
+	case 2:
+		send_to_char(ch, "%cQue?!?\r\n", 191); break;
+	case 3:
+		send_to_char(ch, 
+			"You'll have to speak in a language I understand...\r\n"); break;
+	case 4:
+		send_to_char(ch, "I don't understand that.\r\n"); break;
+	case 5:
+		send_to_char(ch, "Wie bitte?\r\n"); break;
+	case 6:
+		send_to_char(ch, "You're talking nonsense to me.\r\n"); break;
+	case 7:
+	case 8:
+	case 9:
+		send_to_char(ch, "Hmm, I don't understand that command.\r\n");
+		break;
+	case 10:
+		send_to_char(ch, "Beg pardon?\r\n"); break;
+	default:
+		send_to_char(ch, "Come again?\r\n"); break;
+	}
+	return;
+}
+
 /*
  * This is the actual command interpreter called from game_loop() in comm.c
  * It makes sure you are the proper level and position to execute the command,
@@ -1401,38 +1433,7 @@ command_interpreter(struct Creature *ch, char *argument)
 	}
 
 	if (*cmd_info[cmd].command == '\n') {
-		switch (number(0, 10)) {
-		case 0:
-			send_to_char(ch, "Huh?!?\r\n");
-			break;
-		case 1:
-			send_to_char(ch, "What's that?\r\n");
-			break;
-		case 2:
-			send_to_char(ch, "%cQue?!?\r\n", 191);
-			break;
-		case 3:
-			send_to_char(ch, 
-				"You'll have to speak in a language I understand...\r\n");
-			break;
-		case 4:
-			send_to_char(ch, "I don't understand that.\r\n");
-			break;
-		case 5:
-			send_to_char(ch, "Wie bitte?\r\n");
-			break;
-		case 6:
-			send_to_char(ch, "You're talking nonsense to me.\r\n");
-			break;
-		case 7:
-		case 8:
-		case 9:
-			send_to_char(ch, "Hmm, I don't understand the command '%s'.\r\n", arg);
-			break;
-		default:
-			send_to_char(ch, "Come again?\r\n");
-			break;
-		}
+		send_unknown_cmd(ch);
 		return;
 	}
 	if (ch->desc) {

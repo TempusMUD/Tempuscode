@@ -1446,7 +1446,7 @@ advance_level(struct Creature *ch, byte keep_internal)
 	if (keep_internal)
 		slog(msg);
 	else
-		mudlog(GET_INVIS_LEV(ch), BRF, true, "%s", msg);
+		mudlog(GET_INVIS_LVL(ch), BRF, true, "%s", msg);
 }
 
 

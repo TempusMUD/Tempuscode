@@ -434,7 +434,7 @@ do_qcontrol_mload(Creature *ch, char *argument, int com)
 	act("You create $N.", FALSE, ch, 0, mob, TO_CHAR);
 
 	sprintf(buf, "mloaded %s at %d.", GET_NAME(mob), ch->in_room->number);
-	qlog(ch, buf, QLOG_BRIEF, MAX(GET_INVIS_LEV(ch), LVL_IMMORT), TRUE);
+	qlog(ch, buf, QLOG_BRIEF, MAX(GET_INVIS_LVL(ch), LVL_IMMORT), TRUE);
 
 }
 
@@ -532,7 +532,7 @@ do_qcontrol_oload(Creature *ch, char *argument, int com)
 
 	sprintf(buf, "loaded %s at %d.", obj->short_description,
 		ch->in_room->number);
-	qlog(ch, buf, QLOG_BRIEF, MAX(GET_INVIS_LEV(ch), LVL_IMMORT), TRUE);
+	qlog(ch, buf, QLOG_BRIEF, MAX(GET_INVIS_LVL(ch), LVL_IMMORT), TRUE);
 
 }
 
@@ -595,7 +595,7 @@ do_qcontrol_trans(Creature *ch, char *argument, int com)
 	}
 	char *buf = tmp_sprintf("has transferred %d questers to %s[%d] for quest %d.", 
 		 					transCount, room->name,room->number, quest->getVnum());
-	qlog(ch, buf, QLOG_BRIEF, MAX(GET_INVIS_LEV(ch), LVL_IMMORT), TRUE);
+	qlog(ch, buf, QLOG_BRIEF, MAX(GET_INVIS_LVL(ch), LVL_IMMORT), TRUE);
 
 	send_to_char(ch,"%d players transferred.\r\n",transCount);
 }
@@ -634,7 +634,7 @@ do_qcontrol_purge(Creature *ch, char *argument, int com)
 		act("$n disintegrates $N.", FALSE, ch, 0, vict, TO_NOTVICT);
 		sprintf(buf, "has purged %s at %d.",
 			GET_NAME(vict), vict->in_room->number);
-		qlog(ch, buf, QLOG_BRIEF, MAX(GET_INVIS_LEV(ch), LVL_IMMORT), TRUE);
+		qlog(ch, buf, QLOG_BRIEF, MAX(GET_INVIS_LVL(ch), LVL_IMMORT), TRUE);
 		if (vict->desc) {
 			close_socket(vict->desc);
 			vict->desc = NULL;
@@ -944,7 +944,7 @@ do_qcontrol_add(Creature *ch, char *argument, int com)
 	GET_QUEST(vict) = quest->getVnum();
 
 	sprintf(buf, "added %s to quest '%s'.", GET_NAME(vict), quest->name);
-	qlog(ch, buf, QLOG_COMP, GET_INVIS_LEV(vict), TRUE);
+	qlog(ch, buf, QLOG_COMP, GET_INVIS_LVL(vict), TRUE);
 
 	send_to_char(ch, "%s added to quest %d.\r\n", GET_NAME(vict), quest->getVnum());
 
@@ -952,7 +952,7 @@ do_qcontrol_add(Creature *ch, char *argument, int com)
 		quest->getVnum());
 
 	sprintf(buf, "%s is now part of the quest.", GET_NAME(vict));
-	send_to_quest(NULL, buf, quest, MAX(GET_INVIS_LEV(vict), LVL_AMBASSADOR),
+	send_to_quest(NULL, buf, quest, MAX(GET_INVIS_LVL(vict), LVL_AMBASSADOR),
 		QCOMM_ECHO);
 
 	if (GET_LEVEL(vict) < LVL_AMBASSADOR && !PRF_FLAGGED(vict, PRF_QUEST)) {
@@ -1033,14 +1033,14 @@ do_qcontrol_kick(Creature *ch, char *argument, int com)
 	send_to_char(ch, "%s kicked from quest %d.\r\n", arg1, quest->getVnum());
 	if (vict) {
 		sprintf(buf, "kicked %s from quest '%s'.", arg1, quest->name);
-		qlog(ch, buf, QLOG_BRIEF, MAX(GET_INVIS_LEV(vict), LVL_AMBASSADOR),
+		qlog(ch, buf, QLOG_BRIEF, MAX(GET_INVIS_LVL(vict), LVL_AMBASSADOR),
 			TRUE);
 
 		send_to_char(vict, "%s kicked you from quest %d.\r\n",
 			GET_NAME(ch), quest->getVnum());
 
 		sprintf(buf, "%s has been kicked from the quest.", arg1);
-		send_to_quest(NULL, buf, quest, MAX(GET_INVIS_LEV(vict),
+		send_to_quest(NULL, buf, quest, MAX(GET_INVIS_LVL(vict),
 				LVL_AMBASSADOR), QCOMM_ECHO);
 	} else {
 		sprintf(buf, "kicked %s from quest '%s'.", arg1, quest->name);
@@ -2101,7 +2101,7 @@ do_quest_join(Creature *ch, char *argument)
 	send_to_char(ch, "You have joined quest '%s'.\r\n", quest->name);
 
 	sprintf(buf, "%s has joined the quest.", GET_NAME(ch));
-	send_to_quest(NULL, buf, quest, MAX(GET_INVIS_LEV(ch), 0), QCOMM_ECHO);
+	send_to_quest(NULL, buf, quest, MAX(GET_INVIS_LVL(ch), 0), QCOMM_ECHO);
 	if (GET_LEVEL(ch) < LVL_AMBASSADOR && !PRF_FLAGGED(ch, PRF_QUEST)) {
 		SET_BIT(PRF_FLAGS(ch), PRF_QUEST);
 	}
@@ -2151,7 +2151,7 @@ do_quest_leave(Creature *ch, char *argument)
 	send_to_char(ch, "You have left quest '%s'.\r\n", quest->name);
 
 	sprintf(buf, "%s has left the quest.", GET_NAME(ch));
-	send_to_quest(NULL, buf, quest, MAX(GET_INVIS_LEV(ch), 0), QCOMM_ECHO);
+	send_to_quest(NULL, buf, quest, MAX(GET_INVIS_LVL(ch), 0), QCOMM_ECHO);
 
 	if (GET_LEVEL(ch) < LVL_AMBASSADOR && PRF_FLAGGED(ch, PRF_QUEST)) {
 		REMOVE_BIT(PRF_FLAGS(ch), PRF_QUEST);
@@ -2553,11 +2553,11 @@ do_qcontrol_award(Creature *ch, char *argument, int com)
 		save_char(ch, NULL);
 		save_char(vict, NULL);
 		sprintf(buf, "awarded player %s %d qpoints.", GET_NAME(vict), award);
-		qlog(ch, buf, QLOG_BRIEF, MAX(GET_INVIS_LEV(ch), LVL_AMBASSADOR),
+		qlog(ch, buf, QLOG_BRIEF, MAX(GET_INVIS_LVL(ch), LVL_AMBASSADOR),
 			TRUE);
 		if (*argument) {
 			sprintf(buf, "'s Award Comments: %s", argument);
-			qlog(ch, buf, QLOG_COMP, MAX(GET_INVIS_LEV(ch), LVL_AMBASSADOR),
+			qlog(ch, buf, QLOG_COMP, MAX(GET_INVIS_LVL(ch), LVL_AMBASSADOR),
 				TRUE);
 		}
 	}
@@ -2634,11 +2634,11 @@ do_qcontrol_penalize(Creature *ch, char *argument, int com)
 			GET_NAME(vict));
 		sprintf(buf, "penalized player %s %d qpoints.", GET_NAME(vict),
 			penalty);
-		qlog(ch, buf, QLOG_BRIEF, MAX(GET_INVIS_LEV(ch), LVL_AMBASSADOR),
+		qlog(ch, buf, QLOG_BRIEF, MAX(GET_INVIS_LVL(ch), LVL_AMBASSADOR),
 			TRUE);
 		if (*argument) {
 			sprintf(buf, "'s Penalty Comments: %s", argument);
-			qlog(ch, buf, QLOG_COMP, MAX(GET_INVIS_LEV(ch), LVL_AMBASSADOR),
+			qlog(ch, buf, QLOG_COMP, MAX(GET_INVIS_LVL(ch), LVL_AMBASSADOR),
 				TRUE);
 		}
 	}

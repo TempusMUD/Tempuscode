@@ -1288,7 +1288,7 @@ throw_char_in_jail(struct Creature *ch, struct Creature *vict)
 	if ((torch = read_object(3030)))
 		obj_to_char(torch, vict);
 
-	mudlog(GET_INVIS_LEV(vict), NRM, true,
+	mudlog(GET_INVIS_LVL(vict), NRM, true,
 		"%s has been thrown into jail by %s at %d.", GET_NAME(vict),
 		GET_NAME(ch), ch->in_room->number);
 	return 1;

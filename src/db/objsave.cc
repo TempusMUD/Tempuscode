@@ -480,7 +480,7 @@ Crash_load(struct Creature *ch)
 				"There was a problem loading your objects from disk.\r\n"
 				"Contact a God for assistance.\r\n");
 		}
-		mudlog(MAX(LVL_AMBASSADOR, GET_INVIS_LEV(ch)), NRM, true,
+		mudlog(MAX(LVL_AMBASSADOR, GET_INVIS_LVL(ch)), NRM, true,
 			"%s entering game with no equipment.", GET_NAME(ch));
 		return 1;
 	}
@@ -503,7 +503,7 @@ Crash_load(struct Creature *ch)
 					cost = 0;
 					save_char(ch, NULL);
 				} else {
-					mudlog(MAX(LVL_AMBASSADOR, GET_INVIS_LEV(ch)), BRF, true,
+					mudlog(MAX(LVL_AMBASSADOR, GET_INVIS_LVL(ch)), BRF, true,
 						"%s entering game, some rented eq lost ( no creds ). -- %d/day, %f days",
 						GET_NAME(ch), rent.net_cost_per_diem, num_of_days);
 				}
@@ -514,7 +514,7 @@ Crash_load(struct Creature *ch)
 					save_char(ch, NULL);
 					cost = 0;
 				} else {
-					mudlog(MAX(LVL_AMBASSADOR, GET_INVIS_LEV(ch)), BRF, true,
+					mudlog(MAX(LVL_AMBASSADOR, GET_INVIS_LVL(ch)), BRF, true,
 						"%s entering game, some rented eq lost ( no gold ). -- %d/day, %f days",
 						GET_NAME(ch), rent.net_cost_per_diem, num_of_days);
 				}
@@ -554,7 +554,7 @@ Crash_load(struct Creature *ch)
 
 	}
 	if (*buf)
-		mudlog(MAX(LVL_AMBASSADOR, GET_INVIS_LEV(ch)), BRF, true, "%s", buf);
+		mudlog(MAX(LVL_AMBASSADOR, GET_INVIS_LVL(ch)), BRF, true, "%s", buf);
 
 	// load objects from file
 	while (!feof(fl)) {
@@ -1254,7 +1254,7 @@ gen_receptionist(struct Creature *ch, struct Creature *recep,
 			SET_BIT(PLR_FLAGS(ch), PLR_CRYO);
 		}
 
-		mudlog(MAX(LVL_AMBASSADOR, GET_INVIS_LEV(ch)), NRM, true, "%s", buf);
+		mudlog(MAX(LVL_AMBASSADOR, GET_INVIS_LVL(ch)), NRM, true, "%s", buf);
 		act("$n helps $N into $S private chamber.",
 			FALSE, recep, 0, ch, TO_NOTVICT);
 		save_room = ch->in_room;

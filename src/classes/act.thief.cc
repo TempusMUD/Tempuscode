@@ -86,7 +86,7 @@ ACMD(do_steal)
 		!PLR_FLAGGED(ch, PLR_THIEF) && GET_LEVEL(ch) < LVL_AMBASSADOR) {
 		send_to_char(ch, "Okay... You will now be a THIEF!\r\n");
 		SET_BIT(PLR_FLAGS(ch), PLR_THIEF);
-		mudlog(MAX(GET_INVIS_LEV(ch), GET_INVIS_LEV(vict)), NRM, true,
+		mudlog(MAX(GET_INVIS_LVL(ch), GET_INVIS_LVL(vict)), NRM, true,
 			"PC THIEF bit set on %s for robbing %s.", GET_NAME(ch),
 			GET_NAME(vict));
 	}
@@ -258,8 +258,8 @@ ACMD(do_steal)
 	// Drop remort vis upon steal failure
 	if (ohoh && !IS_NPC(vict) && !IS_NPC(ch) &&
 		GET_REMORT_GEN(ch) > GET_REMORT_GEN(vict) &&
-		GET_REMORT_INVIS(ch) > GET_LEVEL(vict)) {
-		GET_REMORT_INVIS(ch) = GET_LEVEL(vict);
+		GET_INVIS_LVL(ch) > GET_LEVEL(vict)) {
+		GET_INVIS_LVL(ch) = GET_LEVEL(vict);
 		send_to_char(ch, "You feel a bit more visible.\n");
 	}
 

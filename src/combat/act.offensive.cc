@@ -1042,7 +1042,7 @@ ACMD(do_kill)
 				TO_CHAR);
 			act("$N chops you to pieces!", FALSE, vict, 0, ch, TO_CHAR);
 			act("$n brutally slays $N!", FALSE, ch, 0, vict, TO_NOTVICT);
-			mudlog(MAX(GET_INVIS_LEV(ch), GET_INVIS_LEV(vict)), NRM, true,
+			mudlog(MAX(GET_INVIS_LVL(ch), GET_INVIS_LVL(vict)), NRM, true,
 				"%s killed %s with a wiz-slay at %s.",
 				GET_NAME(ch), GET_NAME(vict), ch->in_room->name);
 
@@ -1396,7 +1396,7 @@ ACMD(do_bash)
 							EXIT(ch, door)->keyword ?
 							fname(EXIT(ch, door)->keyword) : "door");
 						if (!IS_NPC(ch)) {
-							mudlog(GET_INVIS_LEV(ch), NRM, true,
+							mudlog(GET_INVIS_LVL(ch), NRM, true,
 								"%s killed self bashing door at %d.",
 								GET_NAME(ch), ch->in_room->number);
 						}
@@ -1437,7 +1437,7 @@ ACMD(do_bash)
 
 					if (GET_HIT(ch) < -10) {
 						if (!IS_NPC(ch)) {
-							mudlog(GET_INVIS_LEV(ch), NRM, true,
+							mudlog(GET_INVIS_LVL(ch), NRM, true,
 								"%s killed self bashing door at %d.",
 								GET_NAME(ch), ch->in_room->number);
 						}
@@ -2673,7 +2673,7 @@ ACMD(do_impale)
 					TO_CHAR);
 				act("$n suddenly impales $mself with $p!", TRUE, ch, weap, 0,
 					TO_ROOM);
-				mudlog(GET_INVIS_LEV(ch), NRM, true,
+				mudlog(GET_INVIS_LVL(ch), NRM, true,
 					"%s killed self with an impale at %d.",
 					GET_NAME(ch), ch->in_room->number);
 				gain_exp(ch, -(GET_LEVEL(ch) * 1000));

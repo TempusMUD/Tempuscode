@@ -444,7 +444,7 @@ stop_follower(struct Creature *ch)
 	} else {
 		act("You stop following $N.", FALSE, ch, 0, ch->master, TO_CHAR);
 		act("$n stops following $N.", TRUE, ch, 0, ch->master, TO_NOTVICT);
-		if (GET_INVIS_LEV(ch) < GET_LEVEL(ch->master)
+		if (GET_INVIS_LVL(ch) < GET_LEVEL(ch->master)
 			&& !IS_AFFECTED(ch, AFF_SNEAK))
 			act("$n stops following you.", TRUE, ch, 0, ch->master, TO_VICT);
 	}

@@ -96,9 +96,8 @@ Creature::saveToXML() {
 		ch->player_specials->saved.conditions[2]);
 
 	fprintf(ouf, "<PLAYER INVIS=\"%d\" WIMPY=\"%d\" PRACS=\"%d\" LP=\"%d\" CLAN=\"%d\"/>\n",
-		(GET_INVIS_LEV(ch) ? GET_INVIS_LEV(ch):GET_REMORT_INVIS(ch)),
-		GET_WIMP_LEV(ch), GET_PRACTICES(ch), GET_LIFE_POINTS(ch),
-		GET_CLAN(ch));
+		GET_INVIS_LVL(ch), GET_WIMP_LEV(ch), GET_PRACTICES(ch),
+		GET_LIFE_POINTS(ch), GET_CLAN(ch));
 
 	fprintf(ouf, "<HOME TOWN=\"%d\" LOADROOM=\"%d\" HELD_TOWN=\"%d\" HELD_LOADROOM=\"%d\"/>\n",
 		GET_HOME(ch), GET_LOADROOM(ch), GET_HOLD_HOME(ch),

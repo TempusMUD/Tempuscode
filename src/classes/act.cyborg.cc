@@ -1260,7 +1260,7 @@ ACMD(do_bioscan)
 	}
 	CreatureList::iterator it = ch->in_room->people.begin();
 	for (; it != ch->in_room->people.end(); ++it) {
-		if ((((CAN_SEE(ch, (*it)) || GET_INVIS_LEV((*it)) < GET_LEVEL(ch)) &&
+		if ((((CAN_SEE(ch, (*it)) || GET_INVIS_LVL((*it)) < GET_LEVEL(ch)) &&
 					(CHECK_SKILL(ch, SKILL_BIOSCAN) > number(30, 100) ||
 						affected_by_spell(ch, SKILL_HYPERSCAN)))
 				|| ch == (*it)) && LIFE_FORM((*it)))

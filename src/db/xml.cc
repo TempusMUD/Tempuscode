@@ -99,7 +99,7 @@ xml_reload( Creature *ch = NULL )
 	int file_count = 0;
 
     if( ch != NULL ) {
-        mudlog( GET_INVIS_LEV(ch), NRM, false,
+        mudlog( GET_INVIS_LVL(ch), NRM, false,
                 "%s Reloading XML data files.", 
                 GET_NAME(ch) );
     } else {

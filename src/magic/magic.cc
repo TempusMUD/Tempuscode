@@ -1304,7 +1304,7 @@ mag_affects(int level, struct Creature *ch, struct Creature *victim,
 
 		//Why was this logged in the first place?
 		//sprintf(buf, "%s has contracted a disease from %s.", GET_NAME(victim), GET_NAME(ch)); 
-		//mudlog(buf, CMP, MAX(GET_INVIS_LEV(ch),GET_INVIS_LEV(victim)),TRUE);
+		//mudlog(buf, CMP, MAX(GET_INVIS_LVL(ch),GET_INVIS_LVL(victim)),TRUE);
 		af.type = SPELL_SICKNESS;
 		af2.type = SPELL_SICKNESS;
 		af.location = APPLY_HITROLL;
@@ -3296,7 +3296,7 @@ mag_objects(int level, struct Creature *ch, struct obj_data *obj,
 			strcpy(buf2, obj->name);
 			strcat(buf2, buf);
 			obj->name = str_dup(buf2);
-			mudlog(GET_INVIS_LEV(ch), CMP, true,
+			mudlog(GET_INVIS_LVL(ch), CMP, true,
 				"ENCHANT: Bless. %s by %s.", obj->short_description,
 				GET_NAME(ch));
 		}

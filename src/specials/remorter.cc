@@ -262,8 +262,7 @@ SPECIAL(remorter)
 				PLR_HALT | PLR_INVSTART | PLR_QUESTOR | PLR_MORTALIZED |
 				PLR_OLCGOD);
 
-			GET_INVIS_LEV(ch) = 0;
-			GET_REMORT_INVIS(ch) = 0;
+			GET_INVIS_LVL(ch) = 0;
 			GET_COND(ch, DRUNK) = 0;
 			GET_COND(ch, FULL) = 0;
 			GET_COND(ch, THIRST) = 0;
@@ -272,7 +271,6 @@ SPECIAL(remorter)
 			if (GET_REMORT_GEN(ch) < 10)
 				GET_REMORT_GEN(ch)++;
 			// Whack thier remort invis
-			GET_REMORT_INVIS(ch) = 0;
 			GET_WIMP_LEV(ch) = 0;	// wimpy
 			GET_TOT_DAM(ch) = 0;	// cyborg damage 
 

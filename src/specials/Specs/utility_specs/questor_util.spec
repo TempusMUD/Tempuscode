@@ -28,7 +28,7 @@ SPECIAL(questor_util)
 
 	TOGGLE_BIT(PLR_FLAGS(ch), PLR_QUESTOR);
 
-	mudlog(GET_INVIS_LEV(ch), NRM, true,
+	mudlog(GET_INVIS_LVL(ch), NRM, true,
 		"(GC) %s has %s QUESTOR flag.", GET_NAME(ch),
 		PLR_FLAGGED(ch, PLR_QUESTOR) ? "obtained" : "removed");
 
@@ -44,11 +44,11 @@ SPECIAL(questor_util)
 			}
 		}
 		if (!found) {
-			mudlog(GET_INVIS_LEV(ch), NRM, true, "Quest_status disabled.");
+			mudlog(GET_INVIS_LVL(ch), NRM, true, "Quest_status disabled.");
 			quest_status = 0;
 		}
 	} else if (!quest_status) {
-		mudlog(GET_INVIS_LEV(ch), NRM, true, "Quest_status enabled.");
+		mudlog(GET_INVIS_LVL(ch), NRM, true, "Quest_status enabled.");
 		quest_status = 1;
 	}
 	return 1;

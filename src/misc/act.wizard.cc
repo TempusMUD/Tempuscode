@@ -49,6 +49,7 @@ using namespace std;
 #include "defs.h"
 #include "tokenizer.h"
 #include "tmpstr.h"
+#include "interpreter.h"
 
 
 /*   external vars  */
@@ -2696,7 +2697,7 @@ ACMD(do_advance)
 
 	send_to_char(ch, OK);
 
-	mudlog(MAX(GET_INVIS_LEV(ch), GET_INVIS_LEV(victim)), NRM, true,
+	mudlog(MAX(GET_INVIS_LVL(ch), GET_INVIS_LVL(victim)), NRM, true,
 		"(GC) %s has advanced %s to level %d (from %d)",
 		GET_NAME(ch), GET_NAME(victim), 
 		newlevel, GET_LEVEL(victim) );
@@ -2735,7 +2736,7 @@ ACMD(do_restore)
 				TO_CHAR);
 		}
 		send_to_char(ch, OK);
-		mudlog(GET_INVIS_LEV(ch), CMP, true,
+		mudlog(GET_INVIS_LVL(ch), CMP, true,
 			"The mud has been restored by %s.", GET_NAME(ch));
 	} else if (!(vict = get_char_vis(ch, buf))) {
 		send_to_char(ch, NOPERSON);
@@ -2778,13 +2779,12 @@ perform_immort_vis(struct Creature *ch)
 {
 	int old_level = 0;
 
-	if (GET_INVIS_LEV(ch) == 0 && !IS_AFFECTED(ch, AFF_HIDE | AFF_INVISIBLE)) {
+	if (GET_INVIS_LVL(ch) == 0 && !IS_AFFECTED(ch, AFF_HIDE | AFF_INVISIBLE)) {
 		send_to_char(ch, "You are already fully visible.\r\n");
 		return;
 	}
-	old_level = GET_INVIS_LEV(ch);
-	GET_INVIS_LEV(ch) = 0;
-	GET_REMORT_INVIS(ch) = 0;
+	old_level = GET_INVIS_LVL(ch);
+	GET_INVIS_LVL(ch) = 0;
 	//appear(ch);
 	send_to_char(ch, "You are now fully visible.\r\n");
 	CreatureList::iterator it = ch->in_room->people.begin();
@@ -2797,68 +2797,41 @@ perform_immort_vis(struct Creature *ch)
 	}
 }
 
-
 void
-perform_immort_invis(struct Creature *ch, int level)
-{
-	int old_level = 0;
-
-	if (IS_NPC(ch))
-		return;
-
-	old_level = GET_INVIS_LEV(ch);
-	if (old_level > level)
-		GET_INVIS_LEV(ch) = level;
-	CreatureList::iterator it = ch->in_room->people.begin();
-	for (; it != ch->in_room->people.end(); ++it) {
-		if ((*it) == ch)
-			continue;
-		if (GET_LEVEL((*it)) >= old_level && GET_LEVEL((*it)) < level)
-			act("You blink and suddenly realize that $n is gone.", FALSE, ch,
-				0, (*it), TO_VICT);
-		if (GET_LEVEL((*it)) < old_level && GET_LEVEL((*it)) >= level)
-			act("you suddenly realize that $n is standing beside you.", false,
-				ch, 0, (*it), TO_VICT);
-	}
-	if (old_level <= level)
-		GET_INVIS_LEV(ch) = level;
-
-	// check for remort invis
-	if (GET_REMORT_INVIS(ch))
-		GET_REMORT_INVIS(ch) = 0;
-
-	send_to_char(ch, "Your invisibility level is %d.\r\n", level);
-}
-
-void
-perform_remort_vis(struct Creature *ch)
+perform_vis(struct Creature *ch)
 {
 
-	int level = GET_REMORT_INVIS(ch);
+	int level = GET_INVIS_LVL(ch);
 
-	if (!GET_REMORT_INVIS(ch) && !IS_AFFECTED(ch, AFF_HIDE | AFF_INVISIBLE)) {
+	if (!GET_INVIS_LVL(ch) && !IS_AFFECTED(ch, AFF_HIDE | AFF_INVISIBLE)) {
 		send_to_char(ch, "You are already fully visible.\r\n");
 		return;
 	}
 
-	GET_REMORT_INVIS(ch) = 0;
+	GET_INVIS_LVL(ch) = 0;
 	CreatureList::iterator it = ch->in_room->people.begin();
 	for (; it != ch->in_room->people.end(); ++it) {
 		if ((*it) == ch || !CAN_SEE((*it), ch))
 			continue;
-		else if (GET_REMORT_GEN((*it)) < GET_REMORT_GEN(ch) &&
-			GET_LEVEL((*it)) < level)
-			act("$n suddenly appears from the thin air beside you.", FALSE, ch,
-				0, (*it), TO_VICT);
+		if (GET_LEVEL(*it) < level) {
+			if (GET_LEVEL(ch) >= LVL_AMBASSADOR)
+				act("you suddenly realize that $n is standing beside you.",
+					false, ch, 0, (*it), TO_VICT);
+			else if (GET_REMORT_GEN(*it) <= GET_REMORT_GEN(ch))
+				act("$n suddenly appears from the thin air beside you.",
+					false, ch, 0, (*it), TO_VICT);
+		}
 	}
 
-	send_to_char(ch, "You are now fully remort visible.\r\n");
+	send_to_char(ch, "You are now fully visible.\r\n");
 }
 
 
 void
-perform_remort_invis(struct Creature *ch, int level)
+perform_invis(struct Creature *ch, int level)
 {
+	int old_level;
+	
 	if (IS_NPC(ch))
 		return;
 
@@ -2869,72 +2842,72 @@ perform_remort_invis(struct Creature *ch, int level)
 		return;
 	}
 
+	// We set the invis level to 0 here because of a logic problem with
+	// CAN_SEE().  If we keep the old level, people won't be able to
+	// see people appear, and if we set the new level here, people won't be
+	// able to see them disappear.  Setting the invis level to 0 ensures
+	// that we can still take invisibility/transparency into account.
+	old_level = GET_INVIS_LVL(ch);
+	GET_INVIS_LVL(ch) = 0;
+
 	CreatureList::iterator it = ch->in_room->people.begin();
 	for (; it != ch->in_room->people.end(); ++it) {
 		if ((*it) == ch || !CAN_SEE((*it), ch))
 			continue;
-		if (!IS_REMORT((*it))
-			&& ((int)GET_REMORT_INVIS(ch) <= GET_LEVEL((*it)))
-			&& (GET_LEVEL((*it)) < level))
-			act("$n suddenly vanishes from your reality.", FALSE, ch, 0, (*it),
-				TO_VICT);
-		else if (!IS_REMORT(ch)
-			&& (GET_LEVEL((*it)) < (int)GET_REMORT_INVIS(ch))
-			&& (GET_LEVEL((*it)) >= level))
-			act("$n suddenly appears from the thin air beside you.", FALSE, ch,
-				0, (*it), TO_VICT);
+
+		if (GET_LEVEL(*it) < old_level && GET_LEVEL(*it) >= level) {
+			if (GET_LEVEL(ch) >= LVL_AMBASSADOR)
+				act("you suddenly realize that $n is standing beside you.",
+					false, ch, 0, (*it), TO_VICT);
+			else if (GET_REMORT_GEN(*it) <= GET_REMORT_GEN(ch))
+				act("$n suddenly appears from the thin air beside you.",
+					false, ch, 0, (*it), TO_VICT);
+		}
+
+		if (GET_LEVEL(*it) >= old_level && GET_LEVEL(*it) < level ) {
+			if (GET_LEVEL(ch) >= LVL_AMBASSADOR)
+				act("You blink and suddenly realize that $n is gone.",
+					false, ch, 0, (*it), TO_VICT);
+			else if (GET_REMORT_GEN(*it) <= GET_REMORT_GEN(ch))
+				act("$n suddenly vanishes from your reality.",
+					FALSE, ch, 0, (*it), TO_VICT);
+		}
 	}
 
-	GET_REMORT_INVIS(ch) = level;
+	GET_INVIS_LVL(ch) = level;
 	send_to_char(ch, "Your invisibility level is %d.\r\n", level);
 }
 
 
 ACMD(do_invis)
 {
+	char *arg;
 	int level;
 
 	if (IS_NPC(ch)) {
 		send_to_char(ch, "You can't do that!\r\n");
 		return;
 	}
+
 	if (GET_LEVEL(ch) < LVL_AMBASSADOR && !IS_REMORT(ch)) {
-		send_to_char(ch, "What's that?\r\n");
+		send_unknown_cmd(ch);
 		return;
 	}
 
-	one_argument(argument, arg);
+	arg = tmp_getword(&argument);
 	if (!*arg) {
-		if (IS_REMORT(ch) && GET_LEVEL(ch) < LVL_AMBASSADOR) {
-			if (GET_REMORT_INVIS(ch) > 0) {
-				perform_remort_vis(ch);
-			} else {
-				perform_remort_invis(ch, GET_LEVEL(ch));
-			}
-		} else if (GET_INVIS_LEV(ch) > 0) {
-			perform_immort_vis(ch);
-		} else {
-			level =
-				(GET_LEVEL(ch) > LVL_LUCIFER ? LVL_LUCIFER : GET_LEVEL(ch));
-			perform_immort_invis(ch, level);
-		}
+		if (GET_INVIS_LVL(ch) > 0)
+			perform_vis(ch);
+		else
+			perform_invis(ch, GET_LEVEL(ch));
 	} else {
 		level = atoi(arg);
 		if (level > GET_LEVEL(ch))
 			send_to_char(ch, "You can't go invisible above your own level.\r\n");
-		else if (level > LVL_LUCIFER)
-			send_to_char(ch, "Why even _try_ to hide from lucifer?\r\n");
-		else if (IS_REMORT(ch) && GET_LEVEL(ch) < LVL_AMBASSADOR) {
-			if (level < 1) {
-				perform_remort_vis(ch);
-			} else {
-				perform_remort_invis(ch, level);
-			}
-		} else if (level < 1) {
-			perform_immort_vis(ch);
-		} else {
-			perform_immort_invis(ch, level);
-		}
+		if (level < 1)
+			perform_vis(ch);
+		else
+			perform_invis(ch, level);
 	}
 }
 
@@ -3143,7 +3116,7 @@ ACMD(do_wizlock)
 			restrict, when);
 		break;
 	}
-	mudlog(MAX(LVL_AMBASSADOR, GET_INVIS_LEV(ch)), CMP, false,
+	mudlog(MAX(LVL_AMBASSADOR, GET_INVIS_LVL(ch)), CMP, false,
 		"(GC) %s has set wizlock to %d.", GET_NAME(ch), restrict);
 }
 
@@ -3450,7 +3423,7 @@ ACMD(do_zreset)
 			reset_zone(zone);
 
 		send_to_char(ch, "Reset world.\r\n");
-		mudlog(MAX(LVL_GRGOD, GET_INVIS_LEV(ch)), NRM, true,
+		mudlog(MAX(LVL_GRGOD, GET_INVIS_LVL(ch)), NRM, true,
 			"(GC) %s reset entire world.", GET_NAME(ch));
 		return;
 	} else if (*arg == '.')
@@ -3464,7 +3437,7 @@ ACMD(do_zreset)
 	if (zone) {
 		reset_zone(zone);
 		send_to_char(ch, "Reset zone %d : %s.\r\n", zone->number, zone->name);
-		mudlog(MAX(LVL_GRGOD, GET_INVIS_LEV(ch)),
+		mudlog(MAX(LVL_GRGOD, GET_INVIS_LVL(ch)),
 			subcmd == SCMD_OLC ? CMP : NRM,
 			true,
 			"(GC) %s %sreset zone %d (%s)", GET_NAME(ch),
@@ -3515,7 +3488,7 @@ ACMD(do_wizutil)
 			REMOVE_BIT(PLR_FLAGS(vict), PLR_THIEF | PLR_KILLER);
 			send_to_char(ch, "Pardoned.\r\n");
 			send_to_char(vict, "You have been pardoned by the Gods!\r\n");
-			mudlog(MAX(LVL_GOD, GET_INVIS_LEV(ch)), NRM, true,
+			mudlog(MAX(LVL_GOD, GET_INVIS_LVL(ch)), NRM, true,
 				"(GC) %s pardoned by %s", GET_NAME(vict),
 				GET_NAME(ch));
 			break;
@@ -3526,7 +3499,7 @@ ACMD(do_wizutil)
 									GET_NAME(vict), 
 									GET_NAME(ch));
 			send_to_char(ch,"%s\r\n",msg);
-			mudlog(MAX(LVL_GOD, GET_INVIS_LEV(ch)), NRM, true, "(GC) %s", msg);
+			mudlog(MAX(LVL_GOD, GET_INVIS_LVL(ch)), NRM, true, "(GC) %s", msg);
 			break;
 		}
 		case SCMD_NOPOST: {
@@ -3536,7 +3509,7 @@ ACMD(do_wizutil)
 									GET_NAME(vict), 
 									GET_NAME(ch));
 			send_to_char(ch,"%s\r\n",msg);
-			mudlog(MAX(LVL_GOD, GET_INVIS_LEV(ch)), NRM, true, "(GC) %s", msg);
+			mudlog(MAX(LVL_GOD, GET_INVIS_LVL(ch)), NRM, true, "(GC) %s", msg);
 			break;
 	    }
 		case SCMD_COUNCIL: {
@@ -3546,7 +3519,7 @@ ACMD(do_wizutil)
 									GET_NAME(vict), 
 									GET_NAME(ch));
 			send_to_char(ch,"%s\r\n",msg);
-			mudlog(MAX(LVL_GOD, GET_INVIS_LEV(ch)), NRM, true, "(GC) %s", msg);
+			mudlog(MAX(LVL_GOD, GET_INVIS_LVL(ch)), NRM, true, "(GC) %s", msg);
 			break;
 	    }
 		case SCMD_SQUELCH: {
@@ -3556,7 +3529,7 @@ ACMD(do_wizutil)
 									GET_NAME(vict), 
 									GET_NAME(ch) );
 			send_to_char(ch,"%s\r\n",msg);
-			mudlog(MAX(LVL_GOD, GET_INVIS_LEV(ch)), NRM, true, "(GC) %s", msg);
+			mudlog(MAX(LVL_GOD, GET_INVIS_LVL(ch)), NRM, true, "(GC) %s", msg);
 			break;
 		}
 		case SCMD_FREEZE:
@@ -3575,7 +3548,7 @@ ACMD(do_wizutil)
 			send_to_char(ch, "Frozen.\r\n");
 			act("A sudden cold wind conjured from nowhere freezes $n!", FALSE,
 				vict, 0, 0, TO_ROOM);
-			mudlog(MAX(LVL_POWER, GET_INVIS_LEV(ch)), BRF, true,
+			mudlog(MAX(LVL_POWER, GET_INVIS_LVL(ch)), BRF, true,
 				"(GC) %s frozen by %s.", GET_NAME(vict),
 				GET_NAME(ch));
 			break;
@@ -3592,7 +3565,7 @@ ACMD(do_wizutil)
 				send_to_char(ch, "%s", buf);
 				return;
 			}
-			mudlog(MAX(LVL_POWER, GET_INVIS_LEV(ch)), BRF, true,
+			mudlog(MAX(LVL_POWER, GET_INVIS_LVL(ch)), BRF, true,
 				"(GC) %s un-frozen by %s.", GET_NAME(vict),
 				GET_NAME(ch));
 			REMOVE_BIT(PLR_FLAGS(vict), PLR_FROZEN);
@@ -3855,7 +3828,7 @@ show_player(Creature *ch, char *value)
 	}
 
 	if (get_char_in_world_by_idnum(idnum) &&
-		GET_INVIS_LEV(get_char_in_world_by_idnum(idnum)) < GET_LEVEL(ch)) {
+		GET_INVIS_LVL(get_char_in_world_by_idnum(idnum)) < GET_LEVEL(ch)) {
 		strcpy(rent_type, CCYEL(ch, C_NRM));
 		strcat(rent_type, "In Game.");
 	} else {
@@ -5569,9 +5542,9 @@ ACMD(do_set)
 			send_to_char(ch, "You aren't godly enough for that!\r\n");
 			return;
 		}
-		GET_INVIS_LEV(vict) = RANGE(0, GET_LEVEL(vict));
-		if (GET_INVIS_LEV(vict) > LVL_LUCIFER)
-			GET_INVIS_LEV(vict) = LVL_LUCIFER;
+		GET_INVIS_LVL(vict) = RANGE(0, GET_LEVEL(vict));
+		if (GET_INVIS_LVL(vict) > LVL_LUCIFER)
+			GET_INVIS_LVL(vict) = LVL_LUCIFER;
 		break;
 	case 25:
 		if (GET_LEVEL(ch) < GET_LEVEL(vict)) {
@@ -5825,7 +5798,7 @@ ACMD(do_set)
 		SET_OR_REMOVE(PLR_FLAGS(vict), PLR_NOTITLE);
 		break;
 	case 67:
-		GET_REMORT_INVIS(vict) = RANGE(0, GET_LEVEL(vict));
+		GET_INVIS_LVL(vict) = RANGE(0, GET_LEVEL(vict));
 		break;
 	case 68:
 		SET_OR_REMOVE(PLR_FLAGS(vict), PLR_TOUGHGUY);
@@ -6360,7 +6333,7 @@ ACMD(do_rename)
 		vict->player.long_descr = str_dup(buf);
 	}
 	send_to_char(ch, "Okay, you do it.\r\n");
-	mudlog(MAX(LVL_ETERNAL, GET_INVIS_LEV(ch)), CMP, true, "%s", logbuf);
+	mudlog(MAX(LVL_ETERNAL, GET_INVIS_LVL(ch)), CMP, true, "%s", logbuf);
 	return;
 }
 
@@ -6552,7 +6525,7 @@ ACMD(do_mudwipe)
 			"objects, mobiles, fullmobs, or clean.\r\n");
 		return;
 	}
-	mudlog(GET_INVIS_LEV(ch), BRF, true, "%s", buf);
+	mudlog(GET_INVIS_LVL(ch), BRF, true, "%s", buf);
 
 	if (mode == 4) {
 		retire_trails();
@@ -6655,7 +6628,7 @@ ACMD(do_zonepurge)
 		sprintf(buf, "(GC) %s %spurged zone %d (%s)", GET_NAME(ch),
 			subcmd == SCMD_OLC ? "olc-" : "", zone->number, zone->name);
 		if (subcmd != SCMD_OLC) {
-			mudlog(GET_INVIS_LEV(ch),
+			mudlog(GET_INVIS_LVL(ch),
 				subcmd == SCMD_OLC ? CMP : NRM,
 				true, "%s", buf);
 		} else {

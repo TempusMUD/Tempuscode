@@ -803,7 +803,7 @@ struct player_special_data_saved {
 
 	ubyte clan;
 	ubyte hold_home;
-	ubyte remort_invis_level;
+	ubyte spare22;
 	ubyte broken_component;
 	ubyte remort_generation;
 	ubyte quest_points;

@@ -73,7 +73,7 @@ do_create_ticl(struct Creature *ch, int vnum)
 
 	if (!CAN_EDIT_ZONE(ch, zone)) {
 		send_to_char(ch, "You can't touch this zone, buttmunch.\r\n");
-		mudlog(GET_INVIS_LEV(ch), BRF, true,
+		mudlog(GET_INVIS_LVL(ch), BRF, true,
 			"OLC: %s failed attempt to CREATE TICL %d.", GET_NAME(ch),
 			vnum);
 		return (NULL);

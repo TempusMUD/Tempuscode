@@ -108,7 +108,8 @@ bool
 INVIS_OK(Creature *sub, Creature *obj)
 {
 	// Can't see invis'd immortals
-	if (GET_LEVEL(sub) < GET_INVIS_LEV(obj))
+	if (GET_LEVEL(obj) >= LVL_AMBASSADOR &&
+		GET_LEVEL(sub) < GET_INVIS_LVL(obj))
 		return false;
 
 	// Holy is the light that shines on the chosen
@@ -117,7 +118,7 @@ INVIS_OK(Creature *sub, Creature *obj)
 
 	// Remort invis.  (mobs don't have it and aren't affected by it.)
 	if (!IS_NPC(sub) && !IS_NPC(obj) &&
-			GET_LEVEL(sub) < GET_REMORT_INVIS(obj) &&
+			GET_LEVEL(sub) < GET_INVIS_LVL(obj) &&
 			GET_REMORT_GEN(sub) < GET_REMORT_GEN(obj))
 		return false;
 
@@ -149,7 +150,7 @@ CAN_SEE(Creature *sub, Creature *obj)
 		return true;
 
 	// Nothing gets at all gets through immort invis
-	if (GET_LEVEL(sub) < GET_INVIS_LEV(obj))
+	if (GET_LEVEL(sub) < GET_INVIS_LVL(obj))
 		return false;
 
 	// Mortals can't see unapproved mobs

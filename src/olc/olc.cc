@@ -384,7 +384,7 @@ ACMD(do_olc)
 				send_to_char(ch, "You seem to have forgotten something.\r\n");
 			} else {
 				send_to_char(ch, "Piss off Beanhead.  Permission DENIED.\r\n");
-				mudlog(GET_INVIS_LEV(ch), NRM, true,
+				mudlog(GET_INVIS_LVL(ch), NRM, true,
 					"Failed attempt for %s to edit zone %d.",
 					GET_NAME(ch), ch->in_room->zone->number);
 			}
@@ -573,7 +573,7 @@ ACMD(do_olc)
 			else if (GET_LEVEL(ch) >= olc_lock) {
 				send_to_char(ch, "Unlocking olc (global).\r\n");
 				olc_lock = 0;
-				mudlog(MAX(LVL_IMMORT, GET_INVIS_LEV(ch)), NRM, true,
+				mudlog(MAX(LVL_IMMORT, GET_INVIS_LVL(ch)), NRM, true,
 					"OLC: %s has unlocked global access.",
 					GET_NAME(ch));
 			} else
@@ -592,7 +592,7 @@ ACMD(do_olc)
 							REMOVE_BIT(zone->flags, ZONE_LOCKED);
 							send_to_char(ch, 
 								"Zone unlocked for online creation.\r\n");
-							mudlog(GET_INVIS_LEV(ch), NRM, true,
+							mudlog(GET_INVIS_LVL(ch), NRM, true,
 								"OLC: %s has unlocked zone %d (%s).",
 								GET_NAME(ch), zone->number, zone->name);
 						}
@@ -613,7 +613,7 @@ ACMD(do_olc)
 			else if (OLCIMP(ch)) {
 				send_to_char(ch, "Locking olc.\r\n");
 				olc_lock = GET_LEVEL(ch);
-				mudlog(GET_INVIS_LEV(ch), BRF, true,
+				mudlog(GET_INVIS_LVL(ch), BRF, true,
 					"OLC: %s has locked global access to olc.",
 					GET_NAME(ch));
 			} else
@@ -630,7 +630,7 @@ ACMD(do_olc)
 						else {
 							SET_BIT(zone->flags, ZONE_LOCKED);
 							send_to_char(ch, "Zone locked to online creation.\r\n");
-							mudlog(GET_INVIS_LEV(ch), BRF, true,
+							mudlog(GET_INVIS_LVL(ch), BRF, true,
 								"OLC: %s has locked zone %d (%s).",
 								GET_NAME(ch), zone->number, zone->name);
 						}

@@ -589,7 +589,7 @@ engage_self_destruct(struct Creature *ch)
 	}
 
 	gain_skill_prof(ch, SKILL_SELF_DESTRUCT);
-	mudlog(GET_INVIS_LEV(ch), BRF, true,
+	mudlog(GET_INVIS_LVL(ch), BRF, true,
 		"%s self-destructed at room #%d, level %d.", GET_NAME(ch),
 		ch->in_room->number, level);
 	die(ch, ch, SKILL_SELF_DESTRUCT, FALSE);

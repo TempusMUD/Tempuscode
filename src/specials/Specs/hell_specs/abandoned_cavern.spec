@@ -45,7 +45,7 @@ SPECIAL(abandoned_cavern)
 					"You die a horrible death!!", FALSE, vict, 0, 0,
 					TO_CHAR | TO_SLEEP);
 
-				mudlog(GET_INVIS_LEV(vict), BRF, true,
+				mudlog(GET_INVIS_LVL(vict), BRF, true,
 					"%s killed in a cave-in at %d",
 					GET_NAME(vict), cavern->number);
 

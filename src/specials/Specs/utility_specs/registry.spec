@@ -138,7 +138,7 @@ SPECIAL(registry)
 		obj_to_char(cert, ch);
 	}
 
-	mudlog(GET_INVIS_LEV(ch), CMP, true,
+	mudlog(GET_INVIS_LVL(ch), CMP, true,
 		"%s has registered at %s.", GET_NAME(ch),
 		home_towns[(int)GET_HOME(ch)]);
 	return 1;

@@ -297,7 +297,7 @@ SPECIAL(hell_hunter_brain)
 			}
 		}
 
-		mudlog(vict ? GET_INVIS_LEV(vict) : 0, CMP, true,
+		mudlog(vict ? GET_INVIS_LVL(vict) : 0, CMP, true,
 			"HELL: %d Devils%s sent after obj %s (%s@%d)",
 			num_devils,
 			regulator ? " (+reg)" : "",

@@ -285,7 +285,7 @@ burn_update(void)
 				MEDITATE_TIMER(ch)--;
 			} else {
 				if (!IS_CYBORG(ch)) {
-					mudlog(GET_INVIS_LEV(ch), NRM, true,
+					mudlog(GET_INVIS_LVL(ch), NRM, true,
 						"SYSERR: %s tried to self destruct at [%d].",
 						GET_NAME(ch), ch->in_room->number);
 					REMOVE_BIT(AFF3_FLAGS(ch), AFF3_SELF_DESTRUCT);

@@ -80,8 +80,8 @@ appear(struct Creature *ch, struct Creature *vict)
 
 	if (!IS_NPC(vict) && !IS_NPC(ch) &&
 		GET_REMORT_GEN(ch) > GET_REMORT_GEN(vict) &&
-		GET_REMORT_INVIS(ch) > GET_LEVEL(vict)) {
-		GET_REMORT_INVIS(ch) = GET_LEVEL(vict);
+		GET_INVIS_LVL(ch) > GET_LEVEL(vict)) {
+		GET_INVIS_LVL(ch) = GET_LEVEL(vict);
 		send_to_char(ch, "You feel a bit more visible.\n");
 		found = 1;
 	}

@@ -3333,15 +3333,10 @@ ACMD(do_who)
 						CCCYN(ch, C_NRM), real_clan(GET_CLAN(tch))->name,
 						CCNRM(ch, C_NRM));
 			}
-			if (GET_INVIS_LEV(tch))
+			if (GET_INVIS_LVL(tch))
 				sprintf(buf2, "%s %s(%si%d%s)%s",
 					buf2, CCMAG(ch, C_NRM), CCRED(ch, C_NRM),
-					GET_INVIS_LEV(tch), CCMAG(ch, C_NRM), CCNRM(ch, C_NRM));
-			else if (GET_REMORT_INVIS(tch) && GET_LEVEL(tch) < LVL_AMBASSADOR
-				&& (IS_REMORT(ch) || GET_LEVEL(ch) >= LVL_AMBASSADOR))
-				sprintf(buf2, "%s %s(%si%d%s)%s", buf2, CCBLU(ch, C_NRM),
-					CCMAG(ch, C_NRM), GET_REMORT_INVIS(tch), CCBLU(ch, C_NRM),
-					CCNRM(ch, C_NRM));
+					GET_INVIS_LVL(tch), CCMAG(ch, C_NRM), CCNRM(ch, C_NRM));
 			else if (!who_i && IS_AFFECTED(tch, AFF_INVISIBLE)) {
 				sprintf(buf2, "%s %s(invis)%s",
 					buf2, CCCYN(ch, C_NRM), CCNRM(ch, C_NRM));
@@ -3523,7 +3518,7 @@ ACMD(do_users)
 			if (showchar_class && !(showchar_class & (1 << GET_CLASS(tch))))
 				continue;
 			if (GET_LEVEL(ch) < LVL_LUCIFER)
-				if (GET_INVIS_LEV(ch) > GET_LEVEL(ch))
+				if (GET_INVIS_LVL(ch) > GET_LEVEL(ch))
 					continue;
 
 			if (d->original)
@@ -3707,12 +3702,12 @@ void
 print_object_location(int num, struct obj_data *obj,
 	struct Creature *ch, int recur, char *to_buf)
 {
-	if ((obj->carried_by && GET_INVIS_LEV(obj->carried_by) > GET_LEVEL(ch)) ||
+	if ((obj->carried_by && GET_INVIS_LVL(obj->carried_by) > GET_LEVEL(ch)) ||
 		(obj->in_obj && obj->in_obj->carried_by &&
-			GET_INVIS_LEV(obj->in_obj->carried_by) > GET_LEVEL(ch)) ||
-		(obj->worn_by && GET_INVIS_LEV(obj->worn_by) > GET_LEVEL(ch)) ||
+			GET_INVIS_LVL(obj->in_obj->carried_by) > GET_LEVEL(ch)) ||
+		(obj->worn_by && GET_INVIS_LVL(obj->worn_by) > GET_LEVEL(ch)) ||
 		(obj->in_obj && obj->in_obj->worn_by &&
-			GET_INVIS_LEV(obj->in_obj->worn_by) > GET_LEVEL(ch)))
+			GET_INVIS_LVL(obj->in_obj->worn_by) > GET_LEVEL(ch)))
 		return;
 
 	if (num > 0)

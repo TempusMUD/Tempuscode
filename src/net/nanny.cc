@@ -294,7 +294,7 @@ nanny(struct descriptor_data * d, char *arg)
 					mudlog(MAX(LVL_GOD,
 							PLR_FLAGGED(d->character, PLR_INVSTART) ?
 							GET_LEVEL(d->character) :
-							GET_INVIS_LEV(d->character)), CMP, true,
+							GET_INVIS_LVL(d->character)), CMP, true,
 						"Bad PW: %s [%s]", GET_NAME(d->character), d->host);
 
 					GET_BAD_PWS(d->character)++;
@@ -382,7 +382,7 @@ nanny(struct descriptor_data * d, char *arg)
 
 						notify_cleric_moon(d->character);
 
-						mudlog(MAX(LVL_GOD, GET_INVIS_LEV(d->character)), NRM,
+						mudlog(MAX(LVL_GOD, GET_INVIS_LVL(d->character)), NRM,
 							true,
 							"%s [%s] has reconnected.",
 							GET_NAME(d->character), d->host);
@@ -408,7 +408,7 @@ nanny(struct descriptor_data * d, char *arg)
 								send_to_char(d->character, "%s", buf);
 							}
 
-							mudlog(MAX(LVL_GOD, GET_INVIS_LEV(d->character)), NRM, true,
+							mudlog(MAX(LVL_GOD, GET_INVIS_LVL(d->character)), NRM, true,
 								"%s [%s] has reconnected.", GET_NAME(d->character),
 								d->host);
 							if (!polc_char) {
@@ -433,7 +433,7 @@ nanny(struct descriptor_data * d, char *arg)
 
 
 						} else {
-							mudlog(MAX(LVL_GOD, GET_INVIS_LEV(tmp_ch)),
+							mudlog(MAX(LVL_GOD, GET_INVIS_LVL(tmp_ch)),
 								NRM, true,
 								"%s has re-logged:[%s]. disconnecting old socket.",
 								GET_NAME(tmp_ch), d->host);
@@ -494,7 +494,7 @@ nanny(struct descriptor_data * d, char *arg)
 				mudlog(MAX(LVL_GOD,
 					 PLR_FLAGGED(d->character, PLR_INVSTART) ?
 					 GET_LEVEL(d->character) :
-					 GET_INVIS_LEV(d->character)), CMP, true,
+					 GET_INVIS_LVL(d->character)), CMP, true,
 					"%s [%s] has connected.", GET_NAME(d->character), d->host);
 				if (polc_char) {
 					set_desc_state( CON_PORT_OLC,d );
@@ -862,7 +862,7 @@ nanny(struct descriptor_data * d, char *arg)
 					}
 
 					if (PLR_FLAGGED(d->character, PLR_INVSTART))
-						GET_INVIS_LEV(d->character) = (GET_LEVEL(d->character) > LVL_LUCIFER ?
+						GET_INVIS_LVL(d->character) = (GET_LEVEL(d->character) > LVL_LUCIFER ?
 													   LVL_LUCIFER : GET_LEVEL(d->character));
 
 					if ((load_result = Crash_load(d->character)) &&
@@ -1203,15 +1203,10 @@ make_prompt(struct descriptor_data * d)
 		case CON_PLAYING:			// Playing - Nominal state
 			*prompt = '\0';
 
-			if (GET_INVIS_LEV(d->character))
+			if (GET_INVIS_LVL(d->character))
 				sprintf(prompt,"%s%s(%si%d%s)%s ",prompt,CCMAG(d->character, C_NRM),
-					CCRED(d->character, C_NRM), GET_INVIS_LEV(d->character),
+					CCRED(d->character, C_NRM), GET_INVIS_LVL(d->character),
 					CCMAG(d->character, C_NRM), CCNRM(d->character, C_NRM));
-			else if (GET_REMORT_INVIS(d->character) &&
-					 GET_LEVEL(d->character) < LVL_AMBASSADOR)
-				sprintf(prompt, "%s%s(%sr%d%s)%s ",prompt,CCBLU(d->character, C_NRM),
-					CCMAG(d->character, C_NRM), GET_REMORT_INVIS(d->character),
-					CCBLU(d->character, C_NRM), CCNRM(d->character, C_NRM));
 			else if (IS_MOB(d->character))
 				sprintf(prompt, "%s%s[NPC]%s ", prompt,
 					CCCYN(d->character, C_NRM), CCNRM(d->character, C_NRM));

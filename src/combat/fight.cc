@@ -768,7 +768,7 @@ damage(struct Creature *ch, struct Creature *victim, int dam,
 	if (ch && (PLR_FLAGGED(victim, PLR_MAILING) ||
 			PLR_FLAGGED(victim, PLR_WRITING) ||
 			PLR_FLAGGED(victim, PLR_OLC)) && ch != victim) {
-		mudlog(GET_INVIS_LEV(ch), BRF, true,
+		mudlog(GET_INVIS_LVL(ch), BRF, true,
 			"%s has attacked %s while writing at %d.", GET_NAME(ch),
 			GET_NAME(victim), ch->in_room->number);
 		stop_fighting(ch);
@@ -1849,10 +1849,10 @@ damage(struct Creature *ch, struct Creature *victim, int dam,
 				// and tag it
 				if (arena) {
 					strcat(buf2, " [ARENA]");
-					//mudlog(buf2, CMP, GET_INVIS_LEV(victim), TRUE);
-					qlog(NULL, buf2, QLOG_COMP, GET_INVIS_LEV(victim), TRUE);
+					//mudlog(buf2, CMP, GET_INVIS_LVL(victim), TRUE);
+					qlog(NULL, buf2, QLOG_COMP, GET_INVIS_LVL(victim), TRUE);
 				} else {
-					mudlog(GET_INVIS_LEV(victim), BRF, true, "%s", buf2);
+					mudlog(GET_INVIS_LVL(victim), BRF, true, "%s", buf2);
 				}
 				if (MOB_FLAGGED(ch, MOB_MEMORY))
 					forget(ch, victim);

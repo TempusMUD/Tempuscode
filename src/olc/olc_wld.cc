@@ -386,7 +386,7 @@ do_create_room(struct Creature *ch, int vnum)
 
 	if (!CAN_EDIT_ZONE(ch, zone)) {
 		send_to_char(ch, "Try creating rooms in your own zone, luser.\r\n");
-		mudlog(GET_INVIS_LEV(ch), BRF, true,
+		mudlog(GET_INVIS_LVL(ch), BRF, true,
 			"OLC: %s failed attempt to CREATE room %d.",
 			GET_NAME(ch), vnum);
 		return NULL;
@@ -471,7 +471,7 @@ do_destroy_room(struct Creature *ch, int vnum)
 
 	if (GET_IDNUM(ch) != zone->owner_idnum && GET_LEVEL(ch) < LVL_LUCIFER) {
 		send_to_char(ch, "Oh, no you dont!!!\r\n");
-		mudlog(GET_INVIS_LEV(ch), BRF, true,
+		mudlog(GET_INVIS_LVL(ch), BRF, true,
 			"OLC: %s failed attempt to DESTROY room %d.",
 			GET_NAME(ch), rm->number);
 		return 1;

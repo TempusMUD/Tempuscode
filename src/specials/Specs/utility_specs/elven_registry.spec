@@ -76,7 +76,7 @@ SPECIAL(elven_registry)
 		act("$n presents you with $p.", FALSE, reg, cert, ch, TO_VICT);
 		obj_to_char(cert, ch);
 	}
-	mudlog(GET_INVIS_LEV(ch), CMP, true,
+	mudlog(GET_INVIS_LVL(ch), CMP, true,
 		"%s has registered at the Elven Village.", GET_NAME(ch));
 	return 1;
 }

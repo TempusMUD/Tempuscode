@@ -40,6 +40,7 @@ int find_command(char *command);
 void skip_spaces(char **string);
 void skip_spaces(const char **string);
 char *delete_doubledollar(char *string);
+void send_unknown_cmd(Creature *ch);
 
 // from search.c
 int triggers_search(struct Creature *ch, int cmd, char *arg,

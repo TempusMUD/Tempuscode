@@ -207,7 +207,7 @@ ACMD(do_ban)
 	ban_node->next = ban_list;
 	ban_list = ban_node;
 
-	mudlog(MAX(LVL_GOD, GET_INVIS_LEV(ch)), NRM, true,
+	mudlog(MAX(LVL_GOD, GET_INVIS_LVL(ch)), NRM, true,
 		"%s has banned %s for %s players.", GET_NAME(ch), site,
 		ban_types[ban_node->type]);
 	send_to_char(ch, "Site banned.\r\n");
@@ -240,7 +240,7 @@ ACMD(do_unban)
 	}
 	REMOVE_FROM_LIST(ban_node, ban_list, next);
 	send_to_char(ch, "Site unbanned.\r\n");
-	mudlog(MAX(LVL_GOD, GET_INVIS_LEV(ch)), NRM, true,
+	mudlog(MAX(LVL_GOD, GET_INVIS_LVL(ch)), NRM, true,
 		"%s removed the %s-player ban on %s.",
 		GET_NAME(ch), ban_types[ban_node->type], ban_node->site);
 #ifdef DMALLOC

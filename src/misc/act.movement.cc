@@ -192,7 +192,7 @@ room_count(struct Creature *ch, struct room_data *room)
 	int i = 0;
 	CreatureList::iterator it = room->people.begin();
 	for (; it != room->people.end(); ++it) {
-		if (IS_NPC((*it)) || (GET_INVIS_LEV((*it)) <= GET_LEVEL(ch))) {
+		if (IS_NPC((*it)) || (GET_INVIS_LVL((*it)) <= GET_LEVEL(ch))) {
 			if (GET_HEIGHT((*it)) > 1000)
 				i += 3;
 			else if (GET_HEIGHT((*it)) > 500)
@@ -2524,7 +2524,7 @@ ACMD(do_translocate)
 			ch->carrying = obj->next_content;
 			extract_obj(obj);
 		}
-		mudlog(GET_INVIS_LEV(ch), NRM, true,
+		mudlog(GET_INVIS_LVL(ch), NRM, true,
 			"%s died %s into solid matter from %d.", GET_NAME(ch),
 			subcmd == SKILL_WORMHOLE ? "wormholed" : "translocated",
 			ch->in_room->number);

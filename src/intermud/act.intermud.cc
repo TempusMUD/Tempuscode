@@ -491,7 +491,7 @@ serv_recv_intertell(char *serv_message)
 	for (d = descriptor_list; d; d = d->next)
 		if (IS_PLAYING(d) && d->character &&
 			(str_cmp(To, GET_NAME(d->character)) == 0)) {
-			if (GET_INVIS_LEV(d->character) == GET_LEVEL(d->character))
+			if (GET_INVIS_LVL(d->character) == GET_LEVEL(d->character))
 				continue;
 			if (PLR_FLAGGED(d->character, PLR_WRITING | PLR_MAILING | PLR_OLC)
 				|| (d->showstr_point
@@ -580,7 +580,7 @@ serv_recv_interwhoreq(char *serv_message)
 	for (d = descriptor_list; d; d = d->next)
 		if (IS_PLAYING(d) && d->character &&
 			GET_LEVEL(d->character) >= LVL_AMBASSADOR &&
-			(!ch || GET_INVIS_LEV(d->character) <= GET_LEVEL(ch))) {
+			(!ch || GET_INVIS_LVL(d->character) <= GET_LEVEL(ch))) {
 			sprintf(message2, "%s[%7s] %s %s", message2,
 				GET_LEVEL(d->character) < LVL_AMBASSADOR ? " MORTAL " :
 				level_abbrevs[(int)GET_LEVEL(d->character) - LVL_AMBASSADOR],
@@ -661,8 +661,8 @@ serv_recv_interpage(char *serv_message)
 
 	for (d = descriptor_list; d; d = d->next)
 		if (IS_PLAYING(d) && (str_cmp(To, GET_NAME(d->character)) == 0)) {
-			if (GET_INVIS_LEV(d->character) == GET_LEVEL(d->character) ||
-				(ch && GET_INVIS_LEV(d->character) > GET_LEVEL(ch)))
+			if (GET_INVIS_LVL(d->character) == GET_LEVEL(d->character) ||
+				(ch && GET_INVIS_LVL(d->character) > GET_LEVEL(ch)))
 				continue;
 			if (PLR_FLAGGED(d->character, PLR_WRITING | PLR_MAILING | PLR_OLC))
 				player_found = 1;

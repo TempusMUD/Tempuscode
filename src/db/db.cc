@@ -280,7 +280,7 @@ ACMD(do_reboot)
 		return;
 	}
 	send_to_char(ch, OK);
-	mudlog(GET_INVIS_LEV(ch), NRM, false,
+	mudlog(GET_INVIS_LVL(ch), NRM, false,
 		"%s has reloaded %s text file.", GET_NAME(ch), arg);
 }
 
