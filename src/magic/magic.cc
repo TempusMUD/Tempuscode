@@ -2588,7 +2588,7 @@ static char *mag_summon_fail_msgs[] = {
 	"There are no such creatures.\r\n",
 	"Uh oh...\r\n",
 	"Oh dear.\r\n",
-	"Oh shit!\r\n",
+	"This is bad...\r\n",
 	"The elements resist!\r\n",
 	"You failed.\r\n",
 	"There is no corpse!\r\n"
