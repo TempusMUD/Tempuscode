@@ -13,15 +13,17 @@ SPECIAL(head_shrinker)
 	char *s = NULL;
 	char arg[MAX_INPUT_LENGTH];
 
+
+	if (CMD_IS("list")) {
+		send_to_char("Type 'buy talisman <corpse>' to have a talisman made from it's head.\r\n"
+					 "Better empty the corpse out first if you want the contents.\r\n",ch);
+		return 1;
+	}
+	
 	if (!cmd || !CMD_IS("buy"))
 		return 0;
 
 	argument = one_argument(argument, arg);
-	if (!*arg) {
-		send_to_char("Type 'buy talisman <corpse> to shrink a corpse's head.\r\n"
-					 "Better empty the corpse out first if you want the contents.\r\n",ch);
-		return 1;
-	}
 
 	if (!is_abbrev(arg,"talisman"))
 		return 0;
