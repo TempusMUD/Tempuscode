@@ -207,7 +207,7 @@ obj_gives_affects(obj_data *obj, Creature *ch, bool internal)
 			GET_OBJ_TYPE(obj) == ITEM_PIPE))
 		return false;
 	
-	if (!internal && !IS_IMPLANT(obj))
+	if (!internal && IS_IMPLANT(obj))
 		return false;
 
 	if (IS_DEVICE(obj) && !ENGINE_STATE(obj))
@@ -1450,12 +1450,7 @@ unequip_char(struct Creature *ch, int pos, int internal, bool disable_checks)
 	obj->worn_by = NULL;
 	obj->worn_on = -1;
 
-	if ((internal || pos != WEAR_BELT ||
-			(GET_OBJ_TYPE(obj) != ITEM_WEAPON &&
-				GET_OBJ_TYPE(obj) != ITEM_PIPE)) &&
-		!invalid_char_class(ch, obj) && (internal || !IS_IMPLANT(obj)) &&
-		(!IS_DEVICE(obj) || ENGINE_STATE(obj))) {
-
+	if (obj_gives_affects(obj, ch, internal)) {
 		for (j = 0; j < MAX_OBJ_AFFECT; j++)
 			affect_modify(ch, obj->affected[j].location,
 				obj->affected[j].modifier, 0, 0, FALSE);
