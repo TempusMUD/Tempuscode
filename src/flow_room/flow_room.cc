@@ -58,6 +58,7 @@ const char *flow_types[] = {
     "Unseen_Force",
     "Elemental_Wind",
     "Quicksand",        
+	"Crowds",
     "\n"
 };
 
@@ -114,6 +115,10 @@ const char *char_flow_msg[NUM_FLOW_TYPES+1][3] = {
      "The quicksand pulls $n in from the %s as $e struggles to break free!", 
      "You struggle frantically as the quicksand pulls you %s!",},
 
+    {"$n is beaten %sward by the bloodthirsty mob!",     // Crowds
+     "A wild mob of spectators shoves $n in from %s", 
+     "Your reluctance is overcome as the bloodthirsty mob shoves you %s!",},
+
 
     {"\n","\n","\n"}          /******* LEAVE THIS LINE LAST *********/
 };
@@ -153,6 +158,8 @@ const char *obj_flow_msg[NUM_FLOW_TYPES+1][2] = {
      "$p is pushed in from %s by the strong elemental winds."},
     {"$p is pulled %s by the quicksand.",                  // Quicksand
      "$p is pulled in from %s by the quicksand."},
+    {"Someone in the crowd picks up $p and pitches it %s.",                  // Crowd
+     "$p is thrown in from %s by the angry mob."},
     {"\n","\n"}
 };
 

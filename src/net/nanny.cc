@@ -1226,7 +1226,7 @@ nanny(struct descriptor_data * d, char *arg)
                     SEND_TO_Q("Usage: finger <user>\r\n",d);
             } else if ( is_abbrev( arg1,"write" ) ) {
 				SEND_TO_Q("Usage: write <user> <message>\r\nNot implemented yet!\r\n",d);
-            } else if ( *arg == '@' || is_abbrev( arg1,"exit" ) || is_abbrev(arg, "logout") ) {
+            } else if ( *arg1 == '@' || is_abbrev( arg1,"exit" ) || is_abbrev(arg1, "logout") ) {
 				sprintf(buf, "User %s disconnecting from net.", GET_NAME(d->character));
 				slog(buf);
 				set_desc_state( CON_PLAYING,d );

@@ -24,8 +24,9 @@
 #define F_TYPE_UNSEEN_FORCE      14
 #define F_TYPE_ELEMENTAL_WIND    15
 #define F_TYPE_QUICKSAND         16
+#define F_TYPE_CROWD             17
 
-#define NUM_FLOW_TYPES           17
+#define NUM_FLOW_TYPES           18
 
 #define MSG_TORM_1    0
 #define MSG_TORM_2    1
