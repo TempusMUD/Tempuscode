@@ -362,23 +362,6 @@ extern const char *pc_char_class_types[] = {
 	"\n"
 };
 
-
-/* The menu for choosing a char_class in interpreter.c: */
-extern const char *char_class_menu =
-	"\r\n"
-	"Select a char_class:\r\n"
-	"  [C]leric\r\n"
-	"  [T]hief\r\n"
-	"  [W]arrior\r\n"
-	"  [B]arbarian\r\n"
-	"  [M]agic-user\r\n"
-	"  P[s]ychic\r\n"
-	"  [P]hysic\r\n"
-	"  C[y]borg\r\n"
-	"  [K]night\r\n"
-	"  [R]anger\r\n" "  [H]oodlum\r\n" "  Bou[n]ty Hunter\r\n";
-
-
 // Returns a tmpstr allocated char* containing an appropriate ANSI
 // color code for the given target Creature (tch) with the given
 // recipient Creature(ch)'s color settings in mind.
@@ -386,43 +369,43 @@ const char*
 get_char_class_color( Creature *ch, Creature *tch, int char_class ) {
     switch( char_class ) {
         case CLASS_MAGIC_USER:
-            return tmp_strdup(CCMAG(ch, C_NRM));
+            return CCMAG(ch, C_NRM);
         case CLASS_CLERIC:
             if (IS_GOOD(tch)) {
-                return tmp_strdup(CCYEL_BLD(ch, C_NRM));
+                return CCYEL_BLD(ch, C_NRM);
             } else if (IS_EVIL(tch)) {
-                return tmp_strdup(CCRED_BLD(ch, C_NRM));
+                return CCRED_BLD(ch, C_NRM);
             } else {
-                return tmp_strdup(CCYEL(ch, C_NRM));
+                return CCYEL(ch, C_NRM);
             }
         case CLASS_KNIGHT:
             if (IS_GOOD(tch)) {
-                return tmp_strdup(CCBLU_BLD(ch, C_NRM));
+                return CCBLU_BLD(ch, C_NRM);
             } else if (IS_EVIL(tch)) {
-                return tmp_strdup(CCRED(ch, C_NRM));
+                return CCRED(ch, C_NRM);
             } else {
-                return tmp_strdup(CCYEL(ch, C_NRM));
+                return CCYEL(ch, C_NRM);
             }
         case CLASS_RANGER:
-            return tmp_strdup(CCGRN(ch, C_NRM));
+            return CCGRN(ch, C_NRM);
         case CLASS_BARB:
-            return tmp_strdup(CCCYN(ch, C_NRM));
+            return CCCYN(ch, C_NRM);
         case CLASS_THIEF:
-            return tmp_strdup( CCNRM_BLD(ch, C_NRM));
+            return CCNRM_BLD(ch, C_NRM);
         case CLASS_CYBORG:
-            return tmp_strdup( CCCYN(ch, C_NRM));
+            return CCCYN(ch, C_NRM);
         case CLASS_PSIONIC:
-            return tmp_strdup( CCMAG(ch, C_NRM));
+            return CCMAG(ch, C_NRM);
         case CLASS_PHYSIC:
-            return tmp_strdup( CCNRM_BLD(ch, C_NRM));
+            return CCNRM_BLD(ch, C_NRM);
         case CLASS_HOOD:
-            return tmp_strdup( CCRED(ch, C_NRM));
+            return CCRED(ch, C_NRM);
         case CLASS_MONK:
-            return tmp_strdup( CCGRN(ch, C_NRM));
+            return CCGRN(ch, C_NRM);
         case CLASS_MERCENARY:
-            return tmp_strdup( CCYEL(ch, C_NRM));
+            return CCYEL(ch, C_NRM);
         default:
-            return tmp_strdup( CCNRM(ch, C_NRM));
+            return CCNRM(ch, C_NRM);
     }
 }
 
