@@ -528,9 +528,10 @@ Creature::saveToXML()
 		GET_HEIGHT(ch), GET_WEIGHT(ch), GET_ALIGNMENT(ch));
 	
 	fprintf(ouf, "<class name=\"%s\"", pc_char_class_types[GET_CLASS(ch)]);
-	if (GET_REMORT_GEN(ch))
+	if( IS_REMORT(ch) ) {
 		fprintf(ouf, " remort=\"%s\" gen=\"%d\"",
 			pc_char_class_types[GET_REMORT_CLASS(ch)], GET_REMORT_GEN(ch));
+    }
 	if (IS_CYBORG(ch)) {
 		if (GET_OLD_CLASS(ch) != -1)
 			fprintf(ouf, " subclass=\"%s\"",
