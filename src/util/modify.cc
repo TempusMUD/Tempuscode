@@ -271,7 +271,7 @@ show_file(struct Creature *ch, char *fname, int lines)
     acc_string_clear();
     vector<string>::reverse_iterator ri = oLines.rbegin();
     for (int x = 0; x <= lines; ++x, ++ri) {
-        if (*ri != "\r\n")
+        if (*ri != "")
             acc_strcat(ri->c_str(), "\r\n", NULL);
     }
 
