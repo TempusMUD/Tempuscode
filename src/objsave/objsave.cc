@@ -594,7 +594,8 @@ Crash_load( struct char_data * ch )
 	break;
     case RENT_FORCED:
     case RENT_TIMEDOUT:
-	sprintf( buf, "%s retrieving force-saved items and entering game.", GET_NAME( ch ) );
+        sprintf( buf, "%s retrieving force-saved items and entering game.", GET_NAME( ch ) );
+        send_to_char("WARNING: Failure to rent before disconnecting has doubled your rent.\r\n",ch);
 	break;
     default:
 	sprintf( buf, "WARNING: %s entering game with undefined rent code.", GET_NAME( ch ) );
