@@ -255,7 +255,7 @@ ok_to_damage(struct Creature *ch, struct Creature *vict)
 	// we were really cool, we would be able to skip the check when needed,
 	// but we're not that cool yet, so for right now just skip everyone
 	// that isn't already at the player's rank
-	if (GET_REPUTATION(ch) / 100 == GET_REPUTATION(ch) / 100)
+	if (GET_REPUTATION_RANK(ch) == GET_REPUTATION_RANK(vict))
 		return true;
 
 	// What is proper behavior for a god is not for a mortal
@@ -278,7 +278,7 @@ check_killer(struct Creature *ch, struct Creature *vict,
 
 	// You don't get a killer for attacking someone with a higher
 	// reputation than you, but you do get a reputation...
-	if (GET_REPUTATION(ch) / 100 < GET_REPUTATION(vict) / 100) {
+	if (GET_REPUTATION_RANK(ch) < GET_REPUTATION_RANK(vict)) {
 		mudlog(LVL_AMBASSADOR, BRF, true,
 			"%s's reputation adjusted for attack on %s at %d. %s",
 			GET_NAME(ch), GET_NAME(vict), vict->in_room->number,
@@ -307,7 +307,7 @@ check_thief(struct Creature *ch, struct Creature *vict,
 
 	// You don't get a killer for attacking someone with a higher
 	// reputation than you, but you do get a reputation...
-	if (GET_REPUTATION(ch) / 100 < GET_REPUTATION(vict) / 100) {
+	if (GET_REPUTATION_RANK(ch) < GET_REPUTATION_RANK(vict)) {
 		mudlog(LVL_AMBASSADOR, BRF, true,
 			"%s's reputation adjusted for attempting to steal from %s at %d. %s",
 			GET_NAME(ch), GET_NAME(vict), vict->in_room->number,
