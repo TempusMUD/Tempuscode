@@ -3,9 +3,9 @@
 #include "structs.h"
 #include "utils.h"
 #include "handler.h"
+#include "db.h"
 
 extern int no_plrtext;
-struct obj_data *real_object_proto(int vnum);
 
 /**
  * Stores this object and it's contents into the given file.
@@ -168,7 +168,7 @@ obj_data::saveToXML(FILE *ouf)
 			obj_flags.bitvector[1], obj_flags.bitvector[2] );
 
 	for( int i = 0; i < MAX_OBJ_AFFECT; i++ ) {
-		if( affected[i].location > 0 && affected[i].modifier > 0 ) {
+		if( affected[i].location > 0) {
 			fprintf( ouf, "%s<affect modifier=\"%d\" location=\"%d\" />\n",
 					  indent.c_str(), affected[i].modifier, affected[i].location );
 		}
@@ -204,13 +204,15 @@ obj_data::loadFromXML(obj_data *container, Creature *victim, room_data* room, xm
 		return false;
 	}
 
+	// NOTE: This is bad, but since the object is already allocated, we have
+	// to do it this way.  Functionality is copied from read_object(int)
 	obj_data* prototype = real_object_proto( vnum );
-	if( prototype == NULL ) {
-		slog("Object %d no longer in database.", vnum );
-		return false;
-	} 
-
-	shared = prototype->shared;
+	if(prototype) {
+		shared = prototype->shared;
+		shared->number++;
+	} else {
+		shared = null_obj_shared;
+	}
 
 	short_description = shared->proto->short_description;
 	name = shared->proto->name;
@@ -306,6 +308,14 @@ obj_data::loadFromXML(obj_data *container, Creature *victim, room_data* room, xm
 			}
 		} 
 	}
+	if (shared == null_obj_shared) {
+		if (name)
+			slog("Object #%d (%s) being removed from %s's rent",
+				vnum, name, GET_NAME(victim));
+		else
+			slog("Object #%d being removed from %s's rent",
+				vnum, GET_NAME(victim));
+	}
 	if (!OBJ_APPROVED(this)) {
 		slog("Unapproved object %d being junked from %s's rent.", 
 			 vnum, GET_NAME(victim) );
@@ -322,6 +332,7 @@ obj_data::loadFromXML(obj_data *container, Creature *victim, room_data* room, xm
 	}
 	return true;
 }
+
 int
 obj_data::modifyWeight(int mod_weight)
 {
