@@ -1948,15 +1948,13 @@ void mobile_activity(void) {
 			cast_spell(ch, ch, 0, SPELL_TELEKINESIS);
 		} else if ( GET_LEVEL(ch) > 43 && !IS_AFFECTED_2(ch, AFF2_HASTE) &&
 			GET_MANA(ch) > mag_manacost(ch, SPELL_HASTE) ) {
-			if(!cast_spell(ch, ch, 0, SPELL_HASTE))
-				do_say(ch,"Shit. No haste.",0,0);
+				cast_spell(ch, ch, 0, SPELL_HASTE);
 		} else if ( GET_LEVEL(ch) > 45 && !IS_AFFECTED_2(ch, AFF2_DISPLACEMENT) &&
 			GET_MANA(ch) > mag_manacost(ch, SPELL_DISPLACEMENT) ) {
 			cast_spell(ch, ch, 0, SPELL_DISPLACEMENT);
 		} else if ( GET_LEVEL(ch) > 16 && !IS_AFFECTED_2(ch, AFF2_FIRE_SHIELD) &&
 			GET_MANA(ch) > mag_manacost(ch, SPELL_FIRE_SHIELD) ) {
-			if(!cast_spell(ch, ch, 0, SPELL_FIRE_SHIELD))
-				do_say(ch,"Shit. !fire shield",0,0);
+				cast_spell(ch, ch, 0, SPELL_FIRE_SHIELD);
 		} else if ( GET_LEVEL(ch) > 48 && !IS_AFFECTED_3(ch, AFF3_PRISMATIC_SPHERE) &&
 			GET_MANA(ch) > mag_manacost(ch, SPELL_FIRE_SHIELD) ) {
 			cast_spell(ch, ch, 0, SPELL_PRISMATIC_SPHERE);
