@@ -161,6 +161,10 @@ do_zcmd(struct char_data *ch, char *argument)
             send_to_char("if_flag dependancy flag must be 0, 1 or -1\r\n",ch);
             return;
 	    }
+        if(if_flag == -1 && GET_LEVEL(ch) < LVL_DEMI) {
+            send_to_char("You have to have a little more experience to use if_flag -1.\r\n",ch);
+            return;
+        }
 	    int_arg1 = atoi(arg2);
 	    if (!real_mobile_proto(int_arg1)) {
 		sprintf(buf, "Mobile (V) %d does not exist.\r\n", int_arg1);
@@ -262,6 +266,10 @@ do_zcmd(struct char_data *ch, char *argument)
 		send_to_char("if_flag dependancy flag must be 0, 1 or -1\r\n", ch);
 		return;
 	    }
+        if(if_flag == -1 && GET_LEVEL(ch) < LVL_DEMI) {
+            send_to_char("You have to have a little more experience to use if_flag -1.\r\n",ch);
+            return;
+        }
 	    int_arg1 = atoi(arg2);
 	    if (!real_object_proto(int_arg1)) {
 		sprintf(buf, "Object (V) %d does not exist.\r\n", int_arg1);
@@ -364,6 +372,10 @@ do_zcmd(struct char_data *ch, char *argument)
 		send_to_char("if_flag dependancy flag must be 0, 1 or -1\r\n", ch);
 		return;
 	    }
+        if(if_flag == -1 && GET_LEVEL(ch) < LVL_DEMI) {
+            send_to_char("You have to have a little more experience to use if_flag -1.\r\n",ch);
+            return;
+        }
 	    int_arg1 = atoi(arg2);
 	    if (!real_object_proto(int_arg1)) {
 		sprintf(buf, "Object (V) %d does not exist.\r\n", int_arg1);
@@ -463,6 +475,10 @@ do_zcmd(struct char_data *ch, char *argument)
 		send_to_char("if_flag dependancy flag must be 0, 1 or -1\r\n",ch);
 		return;
 	    }
+        if(if_flag == -1 && GET_LEVEL(ch) < LVL_DEMI) {
+            send_to_char("You have to have a little more experience to use if_flag -1.\r\n",ch);
+            return;
+        }
 	    int_arg1 = atoi(arg2);
 	    if (!real_object_proto(int_arg1)) {
 		sprintf(buf, "Object (V) %d does not exist.\r\n", int_arg1);
@@ -561,6 +577,10 @@ do_zcmd(struct char_data *ch, char *argument)
             send_to_char("if_flag dependancy flag must be 0, 1 or -1\r\n", ch);
             return;
 	    }
+        if(if_flag == -1 && GET_LEVEL(ch) < LVL_DEMI) {
+            send_to_char("You have to have a little more experience to use if_flag -1.\r\n",ch);
+            return;
+        }
 	    int_arg1 = atoi(arg2);
 	    if (!real_object_proto(int_arg1)) {
             sprintf(buf, "Object (V) %d does not exist.\r\n", int_arg1);
@@ -675,6 +695,10 @@ do_zcmd(struct char_data *ch, char *argument)
 		send_to_char("if_flag dependancy flag must be 0, 1 or 1\r\n", ch);
 		return;
 	    }
+        if(if_flag == -1 && GET_LEVEL(ch) < LVL_DEMI) {
+            send_to_char("You have to have a little more experience to use if_flag -1.\r\n",ch);
+            return;
+        }
 	    int_arg1 = atoi(arg2);
 	    if (!real_object_proto(int_arg1)) {
 		sprintf(buf, "Object (V) %d does not exist.\r\n", int_arg1);
@@ -793,6 +817,10 @@ do_zcmd(struct char_data *ch, char *argument)
 		send_to_char("if_flag dependancy flag must be 0, 1 or -1\r\n", ch);
 		return;
 	    }
+        if(if_flag == -1 && GET_LEVEL(ch) < LVL_DEMI) {
+            send_to_char("You have to have a little more experience to use if_flag -1.\r\n",ch);
+            return;
+        }
 	    int_arg1 = atoi(arg2);
 	    if (!real_object_proto(int_arg1)) {
 		sprintf(buf, "Object (V) %d does not exist.\r\n", int_arg1);
@@ -872,6 +900,10 @@ do_zcmd(struct char_data *ch, char *argument)
 		send_to_char("if_flag dependancy flag must be 0, 1 or -1\r\n", ch);
 		return;
 	    }
+        if(if_flag == -1 && GET_LEVEL(ch) < LVL_DEMI) {
+            send_to_char("You have to have a little more experience to use if_flag -1.\r\n",ch);
+            return;
+        }
 	    int_arg1 = atoi(arg2);
 	    if ((room = real_room(int_arg1)) == NULL) {
 		sprintf(buf, "Room (V) %d does not exist.\r\n", int_arg1);
