@@ -2803,29 +2803,7 @@ ACMD(do_restore)
     one_argument(argument, buf);
     if (!*buf)
         send_to_char(ch, "Whom do you wish to restore?\r\n");
-    else if (!str_cmp(buf, "all")) {
-        CreatureList::iterator cit = characterList.begin();
-        for (; cit != characterList.end(); ++cit) {
-            vict = *cit;
-            if (IS_NPC(vict))
-                continue;
-            GET_HIT(vict) = GET_MAX_HIT(vict);
-            GET_MANA(vict) = GET_MAX_MANA(vict);
-            GET_MOVE(vict) = GET_MAX_MOVE(vict);
-
-            if (GET_COND(vict, FULL) >= 0)
-                GET_COND(vict, FULL) = 24;
-            if (GET_COND(vict, THIRST) >= 0)
-                GET_COND(vict, THIRST) = 24;
-
-            update_pos(vict);
-            act("You have been fully healed by $N!", FALSE, vict, 0, ch,
-                TO_CHAR);
-        }
-        send_to_char(ch, OK);
-        mudlog(GET_INVIS_LVL(ch), CMP, true,
-            "The mud has been restored by %s.", GET_NAME(ch));
-    } else if (!(vict = get_char_vis(ch, buf))) {
+    else if (!(vict = get_char_vis(ch, buf))) {
         send_to_char(ch, NOPERSON);
     } else {
         GET_HIT(vict) = GET_MAX_HIT(vict);
