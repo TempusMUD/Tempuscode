@@ -44,6 +44,8 @@ char ANSI[20];
 void
 safe_exit(int mode)
 {
+	Security::shutdown();
+
 	touch("../pause");
 	slog("Exiting with status %d from safe_exit().", mode);
 	exit(mode);
