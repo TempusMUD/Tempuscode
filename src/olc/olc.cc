@@ -380,10 +380,14 @@ ACMD(do_olc)
 
 	if (olc_command != 8 && olc_command != 10) {	/* help? */
 		if (!CAN_EDIT_ZONE(ch, ch->in_room->zone)) {
-			send_to_char(ch, "Piss off Beanhead.  Permission DENIED.\r\n");
-			mudlog(GET_INVIS_LEV(ch), NRM, true,
-				"Failed attempt for %s to edit zone %d.",
-				GET_NAME(ch), ch->in_room->zone->number);
+			if( OLCIMP(ch) && !PRF2_FLAGGED(ch,PRF2_WORLDWRITE) ) {
+				send_to_char(ch, "You seem to have forgotten something.\r\n");
+			} else {
+				send_to_char(ch, "Piss off Beanhead.  Permission DENIED.\r\n");
+				mudlog(GET_INVIS_LEV(ch), NRM, true,
+					"Failed attempt for %s to edit zone %d.",
+					GET_NAME(ch), ch->in_room->zone->number);
+			}
 			return;
 		}
 	}
