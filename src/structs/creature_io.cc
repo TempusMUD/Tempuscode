@@ -678,6 +678,14 @@ Creature::loadFromXML( const char *path )
 				}
 			}
 
+			if (GET_CLASS(this) == CLASS_MAGE &&
+					GET_SKILL(this, SPELL_MANA_SHIELD) > 0) {
+				player_specials->saved.mana_shield_low =
+					xmlGetLongProp(node, "manash_low");
+				player_specials->saved.mana_shield_pct =
+					xmlGetLongProp(node, "manash_pct");
+			}
+
 			GET_REMORT_GEN(this) = xmlGetIntProp( node, "gen" );
 			GET_TOT_DAM(this) = xmlGetIntProp( node, "total_dam" );
 
