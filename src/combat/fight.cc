@@ -1672,6 +1672,9 @@ damage(struct Creature *ch, struct Creature *victim, int dam,
 			}
 		}
 	} else if (ch) {
+		if (suppress_output) {
+			errlog("DEBUG: Output suppressed during damage");
+		}
 		// it is a weapon attack
 		if (victim->getPosition() == POS_DEAD || dam == 0) {
 			if (!mshield_hit && !skill_message(dam, ch, victim, attacktype))
