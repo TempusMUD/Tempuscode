@@ -19,6 +19,9 @@ void perform_tell(struct Creature *ch, struct Creature *vict, char *arg);
 void perform_analyze( Creature *ch, obj_data *obj, bool checklev );
 void perform_appraise( Creature *ch, obj_data *obj, int skill_lvl);
 
+// From cityguard.cc
+void call_for_help(Creature *ch, Creature *attacker);
+
 bool
 same_obj(obj_data *obj1, obj_data *obj2)
 {
@@ -921,6 +924,9 @@ vendor_parse_param(Creature *self, char *param, ShopData *shop, int *err_line)
 		} else if (!strcmp(param_key, "attack-ok")) {
 			shop->attack_ok = (is_abbrev(line, "yes") || is_abbrev(line, "on") ||
 				is_abbrev(line, "1") || is_abbrev(line, "true"));
+		} else if (!strcmp(param_key, "call-for-help")) {
+			shop->call_for_help = (is_abbrev(line, "yes") || is_abbrev(line, "on") ||
+				is_abbrev(line, "1") || is_abbrev(line, "true"));
 		} else if (!strcmp(param_key, "special")) {
 			val = find_spec_index_arg(line);
 			if (val == -1)
@@ -962,6 +968,14 @@ SPECIAL(vendor)
 
 	if (spec_mode == SPECIAL_RESET) {
 		vendor_revenue(self, shop);
+		return 0;
+	}
+
+	if (spec_mode == SPECIAL_TICK) {
+		if (FIGHTING(self) && shop->call_for_help && !number(0, 4)) {
+			call_for_help(self, FIGHTING(self));
+			return 1;
+		}
 		return 0;
 	}
 
