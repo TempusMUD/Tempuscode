@@ -1064,6 +1064,8 @@ ACMD(do_kill)
 
 ACMD(do_order)
 {
+	bool detect_opponent_master(Creature *ch, Creature *opp);
+
 	char name[MAX_INPUT_LENGTH], message[MAX_INPUT_LENGTH];
 	char buf[MAX_INPUT_LENGTH + 56];
 	bool found = FALSE;
@@ -1083,7 +1085,7 @@ ACMD(do_order)
 	else {
 		if (IS_AFFECTED(ch, AFF_CHARM)) {
 			send_to_char(ch, 
-				"Your superior would not aprove of you giving orders.\r\n");
+				"Your superior would not approve of you giving orders.\r\n");
 			return;
 		}
 		if (vict) {
@@ -1118,6 +1120,8 @@ ACMD(do_order)
 					if (IS_NPC(vict) && GET_MOB_VNUM(vict) == 5318)
 						do_say(vict, "As you command, master.", 0, 0, 0);
 					command_interpreter(vict, message);
+					if (FIGHTING(vict))
+						detect_opponent_master(FIGHTING(vict), vict);
 				}
 
 			}
@@ -1145,6 +1149,8 @@ ACMD(do_order)
 								&& GET_MOB_VNUM(k->follower) == 5318)
 								do_say(vict, "As you command, master.", 0, 0, 0);
 							command_interpreter(k->follower, message);
+							if (FIGHTING(k->follower))
+								detect_opponent_master(FIGHTING(k->follower), k->follower);
 						}
 					} else
 						act("$n has an indifferent look.", TRUE, k->follower,
