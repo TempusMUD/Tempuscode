@@ -1557,12 +1557,21 @@ do_stat_character(struct char_data * ch, struct char_data * k)
 	    CCCYN(ch, C_NRM), GET_CON(k), CCNRM(ch, C_NRM),
 	    CCCYN(ch, C_NRM), GET_CHA(k), CCNRM(ch, C_NRM));
     strcat(outbuf, buf);    
-
-    sprintf(buf, "Hit p.:[%s%d/%d+%d%s]  Mana p.:[%s%d/%d+%d%s]  Move p.:[%s%d/%d+%d%s]\r\n",
-	    CCGRN(ch, C_NRM), GET_HIT(k), GET_MAX_HIT(k), hit_gain(k), CCNRM(ch, C_NRM),
-	    CCGRN(ch, C_NRM), GET_MANA(k), GET_MAX_MANA(k), mana_gain(k), CCNRM(ch, C_NRM),
-	    CCGRN(ch, C_NRM), GET_MOVE(k), GET_MAX_MOVE(k), move_gain(k), CCNRM(ch, C_NRM));
-    strcat(outbuf, buf);    
+	if(k->in_room) { // Real Mob/Char
+		sprintf(buf, "Hit p.:[%s%d/%d+%d%s]  Mana p.:[%s%d/%d+%d%s]  Move p.:[%s%d/%d+%d%s]\r\n",
+			CCGRN(ch, C_NRM), GET_HIT(k), GET_MAX_HIT(k), hit_gain(k), CCNRM(ch, C_NRM),
+			CCGRN(ch, C_NRM), GET_MANA(k), GET_MAX_MANA(k), mana_gain(k), CCNRM(ch, C_NRM),
+			CCGRN(ch, C_NRM), GET_MOVE(k), GET_MAX_MOVE(k), move_gain(k), CCNRM(ch, C_NRM));
+		strcat(outbuf, buf);    
+	} else { // Virtual Mob
+		//sprintf(buf, "Hit p.:[%s%d/%d+%d%s]  Mana p.:[%s%d/%d+%d%s]  Move p.:[%s%d/%d+%d%s]\r\n",
+		sprintf(buf, "Hit p.:[%s%dd%d+%d (%d)%s]  Mana p.:[%s%d%s]  Move p.:[%s%d%s]\r\n",
+			CCGRN(ch, C_NRM), GET_HIT(k), GET_MANA(k), GET_MOVE(k),
+				(GET_HIT(k)*(GET_MANA(k)+1)/2)+GET_MOVE(k), CCNRM(ch, C_NRM),
+			CCGRN(ch, C_NRM), GET_MAX_MANA(k), CCNRM(ch, C_NRM),
+			CCGRN(ch, C_NRM), GET_MAX_MOVE(k), CCNRM(ch, C_NRM));
+		strcat(outbuf, buf);    
+	}
 
     sprintf(buf, "AC: [%s%d/10%s], Hitroll: [%s%2d%s], Damroll: [%s%2d%s]\r\n",
 	    CCYEL(ch, C_NRM), GET_AC(k), CCNRM(ch, C_NRM),
