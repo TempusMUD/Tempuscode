@@ -202,41 +202,47 @@ ACMD(do_drag)
         dir = 0;
     }
 
-    if( is_abbrev( arg2, "east" ) ) {
+    else if( is_abbrev( arg2, "east" ) ) {
         dir = 1;
     }
 
-    if( is_abbrev( arg2, "south" ) ) {
+    else if( is_abbrev( arg2, "south" ) ) {
         dir = 2;
     }
 
-    if( is_abbrev( arg2, "west" ) ) {
+    else if( is_abbrev( arg2, "west" ) ) {
 	dir = 3;
     }	
  
-    if( is_abbrev( arg2, "up" ) ) {
+    else if( is_abbrev( arg2, "up" ) ) {
 	dir = 4;
     }
 
-    if( is_abbrev( arg2, "down" ) ) {
+    else if( is_abbrev( arg2, "down" ) ) {
 	dir = 5;
     }
     
-    if( is_abbrev( arg2, "future" ) ) {
+    else if( is_abbrev( arg2, "future" ) ) {
 	dir = 6;
     }
     
-    if( is_abbrev( arg2, "past" ) ) {
+    else if( is_abbrev( arg2, "past" ) ) {
 	dir = 7;
     }
     
+    else {
+	send_to_char( "Sorry, that's not a valid direction.\r\n", ch );
+	return;
+    }
+
     
     if (EXIT(ch, dir) &&  (target_room = EXIT( ch, dir )->to_room ) != NULL ) {
 	
 	if ( CAN_GO( ch, dir ) && ( ROOM_FLAGGED( target_room, ROOM_HOUSE ) && 
 				    ! House_can_enter( ch, target_room->number ) ) ||
-	     ( ROOM_FLAGGED( target_room, ROOM_CLAN_HOUSE ) && ! clan_house_can_enter( ch, target_room ) ) ) {
-	    act( "You are unable to drag $M there", FALSE, ch, 0, vict, TO_CHAR );
+	     ( ROOM_FLAGGED( target_room, ROOM_CLAN_HOUSE ) && ! clan_house_can_enter( ch, target_room ) ) || 
+	     ( ROOM_FLAGGED( target_room, ROOM_DEATH ) ) ){
+	    act( "You are unable to drag $M there.", FALSE, ch, 0, vict, TO_CHAR );
 	    return;
 	}
     }
@@ -290,10 +296,12 @@ ACMD(do_drag)
     else {
 	act( "$n grabs $N but fails to move $m", FALSE, ch, 0, vict, TO_NOTVICT );
 	act( "You attempt to man-handle $N but you fail!", FALSE, ch, 0, vict, TO_CHAR );
-	act( "$n attempts to drag you, but you hold your ground.", FALSE, ch, 0, vict, TO_VICT );
+	act( "$n attempts to drag you, but you hold your ground.", FALSE, ch, 0, vict, TO_VICT );	 
 	return;
     }
+
 }
+
 ACMD(do_snatch)
 {	
 	//send_to_char("We don't want to talk about that right now.\r\n",ch);
