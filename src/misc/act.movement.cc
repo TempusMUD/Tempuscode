@@ -728,7 +728,7 @@ do_simple_move(struct char_data * ch, int dir, int mode, int need_specials_check
 	    else if (AFF_FLAGGED(ch, AFF_WATERWALK) && !IS_FISH(ch) &&
 		     SECT_TYPE(ch->in_room) != SECT_PITCH_SUB &&
 		     SECT_TYPE(ch->in_room) != SECT_UNDERWATER)
-		sprintf(buf, "$n walks across the %s from %s.", 
+		sprintf(buf, "$n walks across the %s from the %s.", 
 			SECT_TYPE(ch->in_room) == SECT_FIRE_RIVER ? "flames" : 
 			SECT_TYPE(ch->in_room) == SECT_PITCH_PIT ? "pitch" : 
 			"water", to_dirs[dir]);
