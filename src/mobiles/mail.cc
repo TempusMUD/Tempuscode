@@ -309,6 +309,9 @@ recieve_mail(char_data * ch)
 
 SPECIAL(postmaster)
 {
+	if( spec_mode == SPECIAL_DEATH ) 
+		return 0;
+
 	if (!ch || !ch->desc || IS_NPC(ch))
 		return 0;				/* so mobs don't get caught here */
 
