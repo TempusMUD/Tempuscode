@@ -2350,6 +2350,15 @@ ACMD(do_insert)
         act("$p cannot be implanted there.", FALSE, ch, obj, 0, TO_CHAR);
         return;
     }
+    if (obj->getWeight() > GET_STR(vict)/2) {
+		if(ch != vict)
+			act("ERROR: $p is to heavy to implant in $N.",
+				FALSE, ch, GET_IMPLANT(vict, pos), vict, TO_CHAR);
+		else
+			act("ERROR: $p is to heavy to implant.",
+				FALSE, ch, GET_IMPLANT(vict, pos), vict, TO_CHAR);
+        return;
+    }   
 
     if (IS_INTERFACE(obj) && INTERFACE_TYPE(obj) == INTERFACE_CHIPS) {
         for (i = 0; i < NUM_WEARS; i++) {
