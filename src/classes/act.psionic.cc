@@ -29,7 +29,7 @@ ACMD(do_psidrain)
 {
 
 	struct char_data *vict = NULL;
-	int dist, drain, prob;
+	int dist, drain, prob, percent;
 	int find_distance(struct room_data *tmp, struct room_data *location);
 
 	ACMD_set_return_flags(0);
@@ -112,15 +112,38 @@ ACMD(do_psidrain)
 		return;
 	}
 
-	if (AFF3_FLAGGED(vict, AFF3_PSISHIELD) &&
-		!mag_savingthrow(vict, GET_LEVEL(ch), SAVING_PSI)) {
-		act("Your attack is deflected by $N's psishield!",
-			FALSE, ch, 0, vict, TO_CHAR);
-		act("$n's psychic attack is deflected by your psishield!",
-			FALSE, ch, 0, vict, TO_VICT);
-		act("$n staggers under an unseen force.",
-			TRUE, ch, 0, vict, TO_NOTVICT);
-		return;
+	if (AFF3_FLAGGED(vict, AFF3_PSISHIELD)) { 
+/*		if (!mag_savingthrow(vict, GET_LEVEL(ch), SAVING_PSI)) {
+		    act("Your attack is deflected by $N's psishield!",
+			    FALSE, ch, 0, vict, TO_CHAR);
+		    act("$n's psychic attack is deflected by your psishield!",
+			    FALSE, ch, 0, vict, TO_VICT);
+		    act("$n staggers under an unseen force.",
+			    TRUE, ch, 0, vict, TO_NOTVICT);
+        }*/
+        
+        prob = CHECK_SKILL(ch, SKILL_PSIDRAIN) + GET_INT(ch);
+        prob += ch->getLevelBonus(SKILL_PSIDRAIN);
+
+        percent = vict->getLevelBonus(SPELL_PSISHIELD);
+        percent += number(1, 120);
+
+        if (mag_savingthrow(vict, GET_LEVEL(ch), SAVING_PSI))
+            percent <<= 1;
+        
+        if (GET_INT(vict) > GET_INT(ch))
+            percent += (GET_INT(vict) - GET_INT(ch)) << 3;    
+            
+        if (percent >= prob) {
+            act("Your attack is deflected by $N's psishield!",
+                FALSE, ch, 0, vict, TO_CHAR); 
+            act("$n's psychic attack is deflected by your psishield!",
+                FALSE, ch, 0, vict, TO_VICT);
+            act("$n staggers under an unseen force.",
+                TRUE, ch, 0, vict, TO_NOTVICT);
+
+		    return;
+        }
 	}
 
 	if (GET_MANA(vict) <= 0) {

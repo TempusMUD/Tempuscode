@@ -928,7 +928,8 @@ call_magic(struct char_data *caster, struct char_data *cvict,
 		if ((SINFO.violent || IS_SET(SINFO.routines, MAG_DAMAGE))) {
 			check_toughguy(caster, cvict, 0);
 			check_killer(caster, cvict);
-			if ((SPELL_IS_PSIONIC(spellnum) || casttype == CAST_PSIONIC) &&
+            //Try to make this a little more sane...
+/*			if ((SPELL_IS_PSIONIC(spellnum) || casttype == CAST_PSIONIC) &&
 				(spellnum != SPELL_PSIONIC_SHATTER ||
 					mag_savingthrow(cvict, level, SAVING_PSI)) &&
 				mag_savingthrow(cvict, level, SAVING_PSI) &&
@@ -940,7 +941,41 @@ call_magic(struct char_data *caster, struct char_data *cvict,
 				act("$n's psychic attack is deflected by your psishield!",
 					FALSE, caster, 0, cvict, TO_VICT);
 				return 0;
-			}
+			}*/
+            if (AFF3_FLAGGED(cvict, AFF3_PSISHIELD) && 
+                (SPELL_IS_PSIONIC(spellnum) || casttype == CAST_PSIONIC)) {
+                bool failed = false;
+                int prob, percent;
+                
+                if (spellnum == SPELL_PSIONIC_SHATTER && 
+                    !mag_savingthrow(cvict, level, SAVING_PSI))
+                    failed = true;
+                
+                prob = CHECK_SKILL(caster, spellnum) + GET_INT(caster);
+                prob += caster->getLevelBonus(spellnum);
+
+                percent = cvict->getLevelBonus(SPELL_PSISHIELD);
+                percent += number(1, 120);
+
+                if (mag_savingthrow(cvict, GET_LEVEL(caster), SAVING_PSI))
+                    percent <<= 1;
+
+                if (GET_INT(cvict) < GET_INT(caster))
+                    percent += (GET_INT(cvict) - GET_INT(caster)) << 3;
+
+                if (percent >= prob)
+                    failed = true;
+
+                if (failed) {
+                    act("Your psychic attack is deflected by $N's psishield!",
+                        FALSE, caster, 0, cvict, TO_CHAR);
+                    act("$n's psychic attack is deflected by $N's psishield!",
+                        FALSE, caster, 0, cvict, TO_NOTVICT);
+                    act("$n's psychic attack is deflected by your psishield!",
+                        FALSE, caster, 0, cvict, TO_VICT);
+                    return 0; 
+                }
+            }
 		}
 
 		if (((af_ptr = affected_by_spell(cvict, SPELL_ANTI_MAGIC_SHELL)) &&
