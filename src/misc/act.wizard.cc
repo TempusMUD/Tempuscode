@@ -4105,7 +4105,7 @@ show_zoneusage(Creature *ch, char *value)
 }
 
 bool 
-zoneEntryLessThan(const struct zone_data* a, const struct zone_data* b)
+topZoneComparison(const struct zone_data* a, const struct zone_data* b)
 {
    return a->enter_count < b->enter_count;
 }
@@ -4159,7 +4159,7 @@ show_topzones(Creature *ch, char *value)
         }
     }
     
-    sort(zone_list.begin(), zone_list.end(), zoneEntryLessThan);
+    sort(zone_list.begin(), zone_list.end(), topZoneComparison);
     
     num_zones = MIN((int)zone_list.size(), num_zones);
 
