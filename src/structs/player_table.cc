@@ -21,7 +21,7 @@ PlayerTable::clear(void)
 	top_id = 0;
 }
 
-int PlayerTable::getTopIDNum() {
+long PlayerTable::getTopIDNum() {
     return top_id;
 }
 

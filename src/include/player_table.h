@@ -109,7 +109,7 @@ class PlayerTable
     private:
         IDTable idTable;
         NameTable nameTable;
-        int top_id;
+        long top_id;
     public:
         /** Creates a blank PlayerTable  **/
         PlayerTable();
@@ -144,7 +144,7 @@ class PlayerTable
         /** Sorts the player table. **/
         void sort();
         /** Retrieves the largest player id in the table **/
-        int getTopIDNum();
+        long getTopIDNum();
 		
 		/** loads the named victim into the provided Creature **/
 		bool loadPlayer( const char* name, Creature *victim ) const;
