@@ -1424,10 +1424,7 @@ ACMD(do_discharge)
 
 	prob = CHECK_SKILL(ch, SKILL_DISCHARGE);
 
-	if (GET_CLASS(ch) == CLASS_CYBORG)
-		dam = dice(amount * 3, 16 + GET_REMORT_GEN(ch));
-	else
-		dam = dice(amount * 3, 12);
+    dam = dice(amount * 3, 16 + (ch->getLevelBonus(SKILL_DISCHARGE) / 10));
 
 	wait = (1 + amount / 5) RL_SEC;
 	WAIT_STATE(ch, wait);
