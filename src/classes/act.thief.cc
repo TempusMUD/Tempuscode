@@ -144,7 +144,7 @@ ACMD(do_steal)
                         obj_to_char(unequip_char(vict, eq_pos, MODE_EQ), ch);
                         GET_EXP(ch) += MIN(1000, GET_OBJ_COST(obj));
                         gain_skill_prof(ch, SKILL_STEAL);
-                        if (GET_LEVEL(ch) >= LVL_AMBASSADOR) {
+                        if(GET_LEVEL(ch) >= LVL_AMBASSADOR || !IS_NPC(vict)) {
                             sprintf(buf, "%s stole %s from %s.", 
                                     GET_NAME(ch), obj->short_description, GET_NAME(vict));
                             slog(buf);
@@ -205,7 +205,7 @@ ACMD(do_steal)
                         GET_EXP(ch) += MIN(100, GET_OBJ_COST(obj));
                         WAIT_STATE(ch, PULSE_VIOLENCE);
                         gain_skill_prof(ch, SKILL_STEAL);
-                        if (GET_LEVEL(ch) >= LVL_AMBASSADOR) {
+                        if(GET_LEVEL(ch) >= LVL_AMBASSADOR || !IS_NPC(vict)) {
                             sprintf(buf, "%s stole %s from %s.", 
                                     GET_NAME(ch), obj->short_description, GET_NAME(vict));
                             slog(buf);

@@ -576,10 +576,10 @@ ACMD(do_snatch)
                 }
             }
 
-            // Keep tabs on gods snatching stuff. :P
-            if (GET_LEVEL(ch) >= LVL_AMBASSADOR) {
+            // Keep tabs on snatching stuff. :P
+            if(GET_LEVEL(ch) >= LVL_AMBASSADOR || !IS_NPC(vict)) {
                 sprintf(buf, "%s stole %s from %s.",
-                    GET_NAME(ch), obj->short_description, GET_NAME(vict));
+                        GET_NAME(ch), obj->short_description, GET_NAME(vict));
                 slog(buf);
             }
             obj_to_char(unequip_char(vict, eq_pos, MODE_EQ), ch);
