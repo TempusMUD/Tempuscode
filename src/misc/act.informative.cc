@@ -2606,7 +2606,7 @@ ACMD(do_score)
 		msg = tmp_sprintf("%sYou are known as %s%s%s.%s\r\n",
 			msg, CCYEL(ch, C_NRM), GET_NAME(ch), GET_TITLE(ch), CCNRM(ch, C_NRM));
 		msg = tmp_strcat(msg, "You have a reputation of being -",
-			reputation_msg[GET_REPUTATION(ch) / 100], "-\r\n", NULL);
+			reputation_msg[GET_REPUTATION_RANK(ch)], "-\r\n", NULL);
 	}
 	msg = tmp_sprintf(
 		"%sYou carry %s%d%s gold coins.  You have %s%d%s cash credits.\r\n",
@@ -3364,7 +3364,7 @@ ACMD(do_who)
 			if ((outlaws || who_pkills) && GET_PKILLS(tch)) {
 				sprintf(buf2, "%s %s*%d KILLS* -%s-%s",
 					buf2, CCRED_BLD(ch, C_NRM), GET_PKILLS(tch),
-					reputation_msg[GET_REPUTATION(ch)/100],
+					reputation_msg[GET_REPUTATION_RANK(tch)],
 					CCNRM(ch, C_NRM));
 			}
 			if (GET_LEVEL(tch) >= LVL_AMBASSADOR)
