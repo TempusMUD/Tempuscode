@@ -1154,6 +1154,8 @@ do_mob_mset(struct Creature *ch, char *argument)
 			else {
 
 				mob_p->mob_specials.shared->func = spec_list[i].func;
+				free(MOB_SHARED(mob_p)->func_param);
+				MOB_SHARED(mob_p)->func_param = NULL;
 				do_specassign_save(ch, SPEC_MOB);
 				send_to_char(ch, "Mobile special set.\r\n");
 			}
@@ -1214,18 +1216,26 @@ do_mob_mset(struct Creature *ch, char *argument)
 			send_to_char(ch, "Mobile iscript set.\r\n");
 			break;
 		}
-	case 48:{
+	case 48:
+		// Make sure they have a mob special
 		if (!GET_MOB_SPEC(mob_p)) {
 			send_to_char(ch, "You should set a special first!\r\n");
-		} else {
-			start_text_editor(ch->desc, &MOB_SHARED(mob_p)->func_param, true);
-			SET_BIT(PLR_FLAGS(ch), PLR_OLC);
-			act("$n begins to write a mobile spec param.", TRUE, ch, 0, 0,
-				TO_ROOM);
+			break;
 		}
 
+		// Check to see that they can set the spec param
+		i = find_spec_index_ptr(GET_MOB_SPEC(mob_p));
+		if (IS_SET(spec_list[i].flags, SPEC_RES) && !OLCIMP(ch)) {
+			send_to_char(ch, "This special is reserved.\r\n");
+			break;
+		}
+
+		// It's ok.  Let em set it.
+		start_text_editor(ch->desc, &MOB_SHARED(mob_p)->func_param, true);
+		SET_BIT(PLR_FLAGS(ch), PLR_OLC);
+		act("$n begins to write a mobile spec param.", TRUE, ch, 0, 0,
+			TO_ROOM);
 		break;
-	}
 	default:{
 			break;
 		}
