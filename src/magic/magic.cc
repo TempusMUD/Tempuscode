@@ -896,6 +896,11 @@ mag_affects(int level, struct Creature *ch, struct Creature *victim,
 	if (victim == NULL || ch == NULL)
 		return;
 
+	if( IS_PC(ch) && GET_REMORT_GEN(ch) > 0 && 
+		GET_CLASS(ch) >= 0 && GET_CLASS(ch) < NUM_CLASSES ) {
+		level +=  spell_info[spellnum].gen[GET_CLASS(ch)] << 1;
+	}
+
 	if (spell_info[spellnum].violent
 		&& mag_savingthrow(victim, level, savetype)) {
 		send_to_char(ch, NOEFFECT);

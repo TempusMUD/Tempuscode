@@ -246,7 +246,7 @@ Creature::loadFromXML( long id )
 			free(race);
 
         } else if ( xmlMatches(node->name, "CLASS") ) {
-			GET_OLC_CLASS(this) = GET_REMORT_CLASS(this) = GET_CLASS(this) = 0;
+			GET_OLD_CLASS(this) = GET_REMORT_CLASS(this) = GET_CLASS(this) = 0;
 
             char *trade = xmlGetProp(node, "NAME");
             if( trade != NULL ) {
