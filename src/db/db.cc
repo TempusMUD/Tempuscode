@@ -342,7 +342,6 @@ boot_db(void)
 	reset_time();
 
 	boot_accounts();
-    build_old_player_index();
 	slog("Reading credits, bground, info & motds.");
 	file_to_string_alloc(CREDITS_FILE, &credits);
 	file_to_string_alloc(MOTD_FILE, &motd);
@@ -507,72 +506,6 @@ reset_zone_weather(void)
 
 	slog("Zone weather set.");
 
-}
-
-/**
- * Parses name/id information out of every player file and stores it in
- * the playerIndex.
-**/
-void
-build_old_player_index(void) 
-{
-	DIR* dir;
-	dirent *file;
-	char dirname[256];
-    char filename[256];
-	char inbuf[131072];
-    ifstream inf;
-    slog("Building old character index...");
-
-	for( int i = 0; i <= 9; i++ ) {
-		// If we don't have
-		sprintf(dirname,"oldplayers/%d", i);
-		dir = opendir(dirname);
-		if (!dir) {
-			mkdir(dirname, 0644);
-			dir = opendir(dirname);
-			if (!dir) {
-				slog("SYSERR: Couldn't open or create directory %s", dirname);
-				return;
-			}
-		}
-		while ((file = readdir(dir)) != NULL) {
-			// Check for correct filename (*.dat)
-			if (!rindex(file->d_name, '.'))
-				continue;
-			if (strcmp(rindex(file->d_name, '.'), ".dat")) {
-				continue;
-            }
-
-            // Open up the file and scan through it, looking for name and idnum
-			// parameters
-            sprintf(filename,"%s/%s", dirname, file->d_name);
-			inf.open(filename, ios::in);
-			inf.read(inbuf, 100);
-            inf.close();
-			char *name = strstr(inbuf, "name=" );
-			char *idnum = strstr(inbuf, "idnum=" );
-            
-			if(!name) {
-                slog("...name not found for file '%s'\n",filename);
-				continue;
-            }
-            if(!idnum) {
-                slog("...idnum not found for file '%s'\n",filename);
-				continue;
-            }
-			name += 5;
-			name = tmp_getquoted(&name);
-			idnum += 6;
-			idnum = tmp_getquoted(&idnum);
-
-			long id = atol( idnum );
-            oldPlayerIndex.add( id, name, false );
-		}
-		closedir(dir);
-	}
-	oldPlayerIndex.sort();
-    slog("...%d old characters found.", oldPlayerIndex.size() );
 }
 
 /* function to count how many hash-mark delimited records exist in a file */

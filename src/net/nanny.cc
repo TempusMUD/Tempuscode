@@ -70,7 +70,6 @@ void roll_real_abils(struct Creature * ch);
 void print_attributes_to_buf(struct Creature *ch, char *buff);
 void polc_input(struct descriptor_data * d, char *str);
 void show_character_detail(descriptor_data *d);
-long import_old_character(descriptor_data *d);
 void push_command_onto_list(Creature *ch, char *comm);
 
 int isbanned(char *hostname, char *blocking_hostname);
@@ -284,8 +283,6 @@ handle_input(struct descriptor_data *d)
 			set_desc_state(CXN_OLDPW_PROMPT, d); break;
 		case 'v':
 			set_desc_state(CXN_VIEW_BG, d); break;
-        case 'i':
-			set_desc_state(CXN_IMPORT_NAME_PROMPT, d); break;
 		case '?':
 		case '\0':
 			send_menu(d);
@@ -362,12 +359,6 @@ handle_input(struct descriptor_data *d)
 			set_desc_state(CXN_MENU, d);
 			return;
 		}
-
-        if( oldPlayerIndex.exists(arg) ) {
-            send_to_desc(d, "\r\nThat character name is reserved"
-                            " and can be imported from the account menu.\r\n\r\n");
-			return;
-        }
 
 		if (playerIndex.exists(arg)) {
 			send_to_desc(d, "\r\nThat character name is already taken.\r\n\r\n");
@@ -704,63 +695,6 @@ handle_input(struct descriptor_data *d)
 		d->creature = NULL;
 		set_desc_state(CXN_WAIT_MENU, d);
         break;
-    case CXN_IMPORT_NAME_PROMPT: {
-        if (!arg[0]) {
-			set_desc_state(CXN_MENU, d);
-			return;
-		}
-
-        if(! oldPlayerIndex.exists(arg) ) {
-            send_to_desc(d, "\r\nThat character does not exist.\r\n\r\n");
-            set_desc_state(CXN_WAIT_MENU, d);
-			return;
-        }
-		if( playerIndex.exists(arg) ) {
-			send_to_desc(d, "\r\nThat character is already imported.\r\n\r\n");
-            set_desc_state(CXN_WAIT_MENU, d);
-			return;
-		}
-
-        long id = oldPlayerIndex.getID( arg );
-        char* filename = tmp_sprintf("oldplayers/%ld/%ld.dat", (id%10), id );
-        d->original = new Creature(true);
-        if( !d->original->loadFromXML( filename ) ) {
-            delete d->original;
-            d->original = NULL;
-            send_to_desc(d, "\r\nUnable to import old character.\r\n\r\n");
-            set_desc_state(CXN_WAIT_MENU, d);
-            return;
-        }
-        set_desc_state(CXN_IMPORT_PW_PROMPT,d);
-        break;
-    }
-    case CXN_IMPORT_PW_PROMPT:
-        if (!arg[0]) {
-            delete d->original;
-            d->original = NULL;
-			set_desc_state(CXN_MENU, d);
-			return;
-		}
-
-        if( strncmp( GET_PASSWD(d->original), crypt(arg, GET_PASSWD(d->original)),10 ) ) {
-            delete d->original;
-            d->original = NULL;
-            send_to_desc(d, "\r\nIncorrect password.\r\n\r\n");
-			set_desc_state(CXN_WAIT_MENU, d);
-            return;
-        }
-
-        long id = import_old_character(d);
-        const char *name = playerIndex.getName(id);
-        mudlog(LVL_GOD, NRM, true,
-                "%s[%d] has imported old character %s[%ld]",
-                d->account->get_name(), d->account->get_idnum(),
-                name, id );
-        send_to_desc(d, "\r\nCharacter %s imported.\r\n\r\n", name );
-		delete d->creature;
-		d->creature = NULL;
-        set_desc_state(CXN_WAIT_MENU, d);
-        break;
 	}
 }
 
@@ -933,10 +867,6 @@ send_prompt(descriptor_data *d)
 	case CXN_NETWORK:
 		send_to_desc(d, "> "); break;
 		break;
-    case CXN_IMPORT_PW_PROMPT:
-        send_to_desc(d, "Password: "); break;
-    case CXN_IMPORT_NAME_PROMPT:
-        send_to_desc(d, "Enter the name of the character you wish to import: "); break;
 	}
 	d->need_prompt = false;
 }
@@ -959,13 +889,8 @@ send_menu(descriptor_data *d)
 	case CXN_AFTERLIFE:
 	case CXN_REMORT_AFTERLIFE:
 	case CXN_DELETE_PW:
-    case CXN_IMPORT_PW_PROMPT:
 		// These states don't have menus
 		break;
-    case CXN_IMPORT_NAME_PROMPT:
-        send_to_desc(d, "\e[H\e[J");
-		send_to_desc(d,"&c\r\n                                IMPORT CHARACTER\r\n*******************************************************************************\r\n\r\n&n");
-        break;
 	case CXN_OLDPW_PROMPT:
 		send_to_desc(d, "\e[H\e[J");
 		send_to_desc(d,"&c\r\n                                 CHANGE PASSWORD\r\n*******************************************************************************\r\n\r\n&n");
@@ -1095,7 +1020,6 @@ send_menu(descriptor_data *d)
 
 		send_to_desc(d, "\r\n             Past bank: %-12lld      Future Bank: %-12lld\r\n\r\n",
 			d->account->get_past_bank(), d->account->get_future_bank());
-        send_to_desc(d, "                            &b[&yI&b] &NImport an old character\r\n\r\n");
 		send_to_desc(d, "    &b[&yP&b] &cChange your account password     &b[&yV&b] &cView the background story\r\n");
 	    send_to_desc(d, "    &b[&yC&b] &cCreate a new character           &b[&yS&b] &cShow character details\r\n");
         if (!d->account->invalid_char_index(1))

@@ -191,6 +191,5 @@ inline bool operator==(const char* name, const IDEntry &e) {
 }
 
 extern PlayerTable playerIndex;
-extern PlayerTable oldPlayerIndex;
 
 #endif // __PLAYER_TABLE_H__

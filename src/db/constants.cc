@@ -101,8 +101,6 @@ const char *desc_modes[] = {
 	"future-class-prompt",
 	"align-prompt",
 	"statistics-roll",
-    "import-name-prompt",
-    "import-pw-prompt",
 	"menu",
 	"wait-menu",
 	"class-remort",
