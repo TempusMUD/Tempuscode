@@ -2873,7 +2873,7 @@ perform_net_who(struct char_data *ch, char *arg)
 
     strcpy(buf, "Visible users of the global net:\r\n");
     for (d = descriptor_list; d; d = d->next) {
-        if (STATE(d) < CON_NET_MENU1)
+        if (STATE(d) != CON_NETWORK)
             continue;
         if (!CAN_SEE(ch, d->character))
             continue;
@@ -2895,7 +2895,7 @@ void perform_net_finger(struct char_data *ch, char *arg)
         return;
     }
     if (!(vict = get_char_vis(ch, arg)) || !vict->desc ||
-        STATE(vict->desc) < CON_NET_MENU1) {
+        STATE(vict->desc) != CON_NETWORK) {
         send_to_char("No such user detected.\r\n", ch);
         return;
     }
@@ -3050,7 +3050,7 @@ ACMD(do_who)
             "" : "\r\n");
 
     for (d = descriptor_list; d; d = d->next) {
-        if (d->connected != CON_PLAYING && STATE(d) < CON_NET_MENU1)
+        if (d->connected != CON_PLAYING && STATE(d) != CON_NETWORK)
             continue;
 
         if (d->original)

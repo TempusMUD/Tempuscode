@@ -52,8 +52,6 @@ enum
 	CON_PORT_OLC,		// Using port olc interface
 	};
 
-#define IS_PLAYING(desc)	((desc)->connected == CON_PLAYING || \
-							(desc)->connected == CON_NETWORK)
 
 /* descriptor-related structures ******************************************/
 
@@ -115,5 +113,7 @@ struct descriptor_data {
    struct descriptor_data *next; /* link to next descriptor		*/
    struct mail_recipient_data *mail_to;	/* list of names for mailsystem	*/
 };
+
+
 
 #endif 

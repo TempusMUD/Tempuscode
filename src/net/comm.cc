@@ -1343,7 +1343,7 @@ close_socket(struct descriptor_data * d)
     }
     if (d->character) {
         target_idnum = GET_IDNUM(d->character);
-        if (d->connected == CON_PLAYING || d->connected > CON_NET_MENU1) {
+        if (d->connected == CON_PLAYING || d->connected == CON_NETWORK) {
             save_char(d->character, NULL);
             act("$n has lost $s link.", TRUE, d->character, 0, 0, TO_ROOM);
             sprintf(buf, "Closing link to: %s. [%s] ", GET_NAME(d->character),d->host);
@@ -2078,7 +2078,7 @@ descriptor_update(void)
     
         d->idle++;
 
-        if (d->idle >= 30 || (d->connected < CON_NET_MENU1 && d->idle >= 10)) {
+        if (d->idle >= 30 || (d->connected != CON_NETWORK && d->idle >= 10)) {
             mudlog("Descriptor idling out after 10 minutes.", CMP, LVL_IMMORT, TRUE);
             SEND_TO_Q("Idle time limit reached, disconnecting.\r\n", d);
             d->connected = CON_CLOSE;

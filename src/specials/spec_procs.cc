@@ -268,12 +268,10 @@ list_skills(struct char_data * ch, int mode, int type)
 }
 
 void 
-show_programs_to_char(struct char_data * ch, int char_class)
-{
+show_programs_to_char(struct char_data * ch, int char_class) {
     int i, sortpos;
 
-    sprintf(buf2, "Directory listing for %s programs.\r\n\r\n", 
-            pc_char_class_types[char_class]);
+    strcpy(buf2, "Directory listing for local programs.\r\n\r\n");
   
     for (sortpos = 1; sortpos < MAX_SKILLS - MAX_SPELLS; sortpos++) {
         i = skill_sort_info[sortpos];
