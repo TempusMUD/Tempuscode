@@ -278,13 +278,13 @@ CTextEditor::ExportMail(void)
 
     list<string>::iterator si;
     for (si = cc_list.begin(); si != cc_list.end(); si++) {
-        stored_mail = store_mail(playerIndex.getID(si->c_str()), 
-                                 GET_IDNUM(desc->creature), *target,  cc_list);
+        long id = playerIndex.getID(si->c_str());
+        stored_mail = store_mail(id, GET_IDNUM(desc->creature), *target,  cc_list);
         if (stored_mail == 1) {
             for (r_d = descriptor_list; r_d; r_d = r_d->next) {
                 if (IS_PLAYING(r_d) && r_d->creature &&
                     (r_d->creature != desc->creature) &&
-                    (GET_IDNUM(r_d->creature) == desc->mail_to->recpt_idnum) &&
+                    (GET_IDNUM(r_d->creature) == id) &&
                     (!PLR_FLAGGED(r_d->creature, PLR_WRITING | PLR_MAILING | PLR_OLC))) {
                     send_to_char(r_d->creature, "A strange voice in your head says, "
                                                 "'You have new mail.'\r\n");
