@@ -2221,9 +2221,11 @@ ACMD(do_rswitch)
 	send_to_char("You can't use a mortal's body like that!\r\n", ch);
     else if ((GET_LEVEL(ch) < LVL_IMPL) && GET_LEVEL(orig) < LVL_AMBASSADOR)
 	send_to_char("You cannot allow that mortal to do that.\r\n", ch);
+	else if ( GET_LEVEL(ch) < GET_LEVEL(orig)) 
+	send_to_char("Maybe you should just ask them.\r\n", ch);
     else {
 	send_to_char(OK, ch);
-
+	send_to_char("The world seems to lurch and shift.\r\n",orig);
 	orig->desc->character = victim;
 	orig->desc->original = orig;
 
