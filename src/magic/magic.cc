@@ -2283,44 +2283,44 @@ mag_areas(byte level, struct char_data * ch, int spellnum, int savetype)
      * in mag_damage for the damaging part of the spell.
      */
     switch (spellnum) {
-    case SPELL_EARTHQUAKE:
-    to_char = "You gesture and the earth begins to shake all around you!";
-    to_room ="$n gracefully gestures and the earth begins to shake violently!";
-    to_next_room = "You hear a loud rumbling and feel the earth shake.";
-    break;
-    case SPELL_METEOR_STORM:
-    to_char = "You gesture and a storm of meteors appears blazing in the sky!";
-    to_room = "$n gestures and a storm of meteors appears blazing in the sky!";
-    to_next_room = "A blazing storm of meteors appears and streaks across the sky!";
-    break;
-    case SPELL_MASS_HYSTERIA:
-    to_char = "You begin to induce hysteria on the group of people around you.";
-    to_room = "A wave of psychic power begins rolling off of $n.";
-    break;
-    case SPELL_FISSION_BLAST:
-        to_char = "You begin splitting atoms and the room erupts into a fission blast!";  
-        to_room = "The room erupts in a blinding flash of light.";  
-        to_next_room = "A blinding flash of light briefly envelopes you.";
-        break;
-  
+		case SPELL_EARTHQUAKE:
+			to_char = "You gesture and the earth begins to shake all around you!";
+			to_room ="$n gracefully gestures and the earth begins to shake violently!";
+			to_next_room = "You hear a loud rumbling and feel the earth shake.";
+			break;
+		case SPELL_METEOR_STORM:
+			to_char = "You gesture and a storm of meteors appears blazing in the sky!";
+			to_room = "$n gestures and a storm of meteors appears blazing in the sky!";
+			to_next_room = "A blazing storm of meteors appears and streaks across the sky!";
+			break;
+		case SPELL_MASS_HYSTERIA:
+			to_char = "You begin to induce hysteria on the group of people around you.";
+			to_room = "A wave of psychic power begins rolling off of $n.";
+			break;
+		case SPELL_FISSION_BLAST:
+			to_char = "You begin splitting atoms and the room erupts into a fission blast!";  
+			to_room = "The room erupts in a blinding flash of light.";  
+			to_next_room = "A blinding flash of light briefly envelopes you.";
+			break;
     }
 
     if (to_char != NULL)
-    act(to_char, FALSE, ch, 0, 0, TO_CHAR);
+		act(to_char, FALSE, ch, 0, 0, TO_CHAR);
     if (to_room != NULL)
-    act(to_room, FALSE, ch, 0, 0, TO_ROOM);
+		act(to_room, FALSE, ch, 0, 0, TO_ROOM);
 
     if (spellnum == SPELL_EARTHQUAKE && 
-    (SECT_TYPE(ch->in_room) == SECT_UNDERWATER || ch->in_room->isOpenAir() ) )
+		(SECT_TYPE(ch->in_room) == SECT_UNDERWATER ||
+			ch->in_room->isOpenAir() ) )
         return 0;
     if (spellnum == SPELL_METEOR_STORM &&
-    SECT_TYPE(ch->in_room) == SECT_UNDERWATER)
-    return 0;
+		SECT_TYPE(ch->in_room) == SECT_UNDERWATER)
+		return 0;
 
     if (ROOM_FLAGGED(ch->in_room, ROOM_PEACEFUL) &&
     GET_LEVEL(ch) < LVL_GOD) {
-    send_to_char("This is a non-violence zone!\r\n", ch);
-    return 0;
+		send_to_char("This is a non-violence zone!\r\n", ch);
+		return 0;
     }
 
     // check for players if caster is not a pkiller
@@ -2359,7 +2359,7 @@ mag_areas(byte level, struct char_data * ch, int spellnum, int savetype)
             continue;
         }
            
-        if( !( mag_savingthrow( (*it), level, SAVING_PHY ) ) ){ 
+        if( spellnum == SPELL_FISSION_BLAST && !( mag_savingthrow( (*it), level, SAVING_PHY ) ) ){ 
             add_rad_sickness( (*it), level );
         }
         int retval = mag_damage(level, ch, (*it), spellnum, 1); 
