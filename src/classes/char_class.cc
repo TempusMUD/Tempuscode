@@ -685,7 +685,7 @@ find_char_class_bitvector(char arg)
 void
 roll_real_abils(struct Creature *ch)
 {
-	int i, j, k;
+	int i, j, k, str_add;
 	ubyte table[6];
 	// Zero out table
 	for (i = 0; i < 6; i++) {
@@ -700,6 +700,12 @@ roll_real_abils(struct Creature *ch)
 		table[j] -= 1;
 	}
 
+    str_add = number(0, 100);
+    int remainder = str_add % 10;
+    if (remainder > 4)
+        str_add += (10 - remainder);
+    else
+        str_add -= (remainder);
 
 	// Sort the table
 	for (j = 0;j < 6;j++) {
@@ -746,7 +752,7 @@ roll_real_abils(struct Creature *ch)
 		ch->real_abils.intel = table[4];
 		ch->real_abils.cha = table[5];
 		if (ch->real_abils.str == 18)
-			ch->real_abils.str_add = number(0, 100);
+			ch->real_abils.str_add = str_add;
 		break;
 	case CLASS_BARB:
 		ch->real_abils.str = table[0];
@@ -756,7 +762,7 @@ roll_real_abils(struct Creature *ch)
 		ch->real_abils.intel = table[4];
 		ch->real_abils.cha = table[5];
 		if (ch->real_abils.str == 18)
-			ch->real_abils.str_add = number(0, 100);
+			ch->real_abils.str_add = str_add;
 		break;
 
 	case CLASS_PSIONIC:
@@ -811,7 +817,7 @@ roll_real_abils(struct Creature *ch)
 		ch->real_abils.intel = table[4];
 		ch->real_abils.cha = table[5];
 		if (ch->real_abils.str == 18)
-			ch->real_abils.str_add = number(0, 100);
+			ch->real_abils.str_add = str_add;
 		break;
 	case CLASS_RANGER:
 		ch->real_abils.dex = table[0];
@@ -821,7 +827,7 @@ roll_real_abils(struct Creature *ch)
 		ch->real_abils.intel = table[4];
 		ch->real_abils.cha = table[5];
 		if (ch->real_abils.str == 18)
-			ch->real_abils.str_add = number(0, 100);
+			ch->real_abils.str_add = str_add;
 		break;
 	case CLASS_MONK:
 		ch->real_abils.dex = table[0];
@@ -847,7 +853,7 @@ roll_real_abils(struct Creature *ch)
 		ch->real_abils.wis = table[4];
 		ch->real_abils.cha = table[5];
 		if (ch->real_abils.str == 18)
-			ch->real_abils.str_add = number(0, 100);
+			ch->real_abils.str_add = str_add;
 		break;
 	default:
 		ch->real_abils.dex = table[0];
