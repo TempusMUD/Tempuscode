@@ -218,10 +218,15 @@ update_pos( struct char_data * victim )
     else if ( ( GET_HIT( victim ) > 0 ) && ( GET_POS( victim ) > POS_STUNNED ) &&
 	      FIGHTING( victim ) ) {
 		if ( ( victim->desc && victim->desc->wait <= 0 ) ||
-			 ( IS_NPC( victim ) && GET_MOB_WAIT( victim ) <= 0 ) )
-			GET_POS( victim ) = POS_FIGHTING;
-		else
+			 ( IS_NPC( victim ) && GET_MOB_WAIT( victim ) <= 0 ) ) {
+            if ( GET_POS( victim ) < POS_FIGHTING ) {
+                act( "$n scrambles to $s feet!", TRUE, victim, 0, 0, TO_ROOM );
+                GET_MOB_WAIT( victim ) += PULSE_VIOLENCE;
+            }
+            GET_POS( victim ) = POS_FIGHTING;
+        } else {
 			return;
+        }
     } else if ( GET_HIT( victim ) > 0 ) {
 		if ( victim->in_room->isOpenAir() )
 			GET_POS( victim ) = POS_FLYING;
