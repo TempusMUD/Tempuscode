@@ -621,7 +621,6 @@ bool
 Account::deny_char_entry(Creature *ch)
 {
 	descriptor_data *d;
-	int remorts = 0, mortals = 0;
 
     // Admins and full wizards can multi-play all they want
     if (Security::isMember(ch, "WizardFull"))
@@ -643,17 +642,11 @@ Account::deny_char_entry(Creature *ch)
 				return false;
             if (ch->isTester() && Security::isMember(d->creature, "OLC"))
 				return false;
-			if (IS_REMORT(d->creature))
-				remorts++;
-			else
-				mortals++;
+			// We have a non-immortal already in the game, so they don't
+			// get to come in
+			return true;
 		}
 	}
-
-	if (remorts)
-		return true;
-	if (mortals < 2)
-		return false;
 
 	return true;
 }
