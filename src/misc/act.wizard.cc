@@ -108,7 +108,6 @@ int parse_char_class(char *arg);
 void retire_trails(void);
 float prac_gain(struct Creature *ch, int mode);
 int skill_gain(struct Creature *ch, int mode);
-void qp_reload(int sig = 0);
 void list_obj_to_char(struct obj_data *list, struct Creature *ch, int mode,
 	bool show);
 void save_quests(); // quests.cc - saves quest data
