@@ -39,19 +39,20 @@ ACMD(do_holytouch)
         send_to_char("You are unable to call upon the powers necessary.\r\n", ch);
         return;
     }
-    if(NON_CORPOREAL_MOB(vict) || NULL_PSI(vict)) {
-        send_to_char("That is unlikely to work.\r\n",ch);
-        return;
-    }
 
     if (!*vict_name)
         vict = ch;
     else if (!(vict = get_char_room_vis(ch, vict_name))) {
-        send_to_char("Heal who?\r\n", ch);
+        send_to_char("Holytouch who?\r\n", ch);
         return;
     }
 
     if (vict == NULL) return;
+
+    if((NON_CORPOREAL_MOB(vict) || NULL_PSI(vict))) {
+        send_to_char("That is unlikely to work.\r\n",ch);
+        return;
+    }
 
     if(IS_EVIL(ch)) {
         if(!IS_GOOD(vict)) 
