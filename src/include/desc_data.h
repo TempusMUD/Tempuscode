@@ -89,10 +89,10 @@ struct descriptor_data {
 	int descriptor;				/* file descriptor for socket       */
 	char host[HOST_LENGTH + 1];	/* hostname             */
 	cxn_state input_mode;					/* mode of 'connectedness'      */
+	char *mode_data;			// pointer for misc data needed for input_mode
 	int wait;					/* wait for how many loops      */
 	int desc_num;				/* unique num assigned to desc      */
 	time_t login_time;			/* when the person connected        */
-	time_t old_login_time;		// used for the dynamic text notification
 	char *showstr_head;			/* for paging through texts     */
 	char *showstr_point;		/*      -           */
 	byte bad_pws;				/* number of bad pw attemps this login  */
@@ -106,17 +106,17 @@ struct descriptor_data {
 	CTextEditor *text_editor;	/*  Pointer to text editor object. */
 	char inbuf[MAX_RAW_INPUT_LENGTH];	/* buffer for raw input       */
 	char last_input[MAX_INPUT_LENGTH];	/* the last input         */
+	struct txt_q input;			/* q of unprocessed input       */
 	char small_outbuf[SMALL_BUFSIZE];	/* standard output buffer     */
-	char last_argument[MAX_INPUT_LENGTH];	/* */
-	char output_broken;
-	char *output;				/* ptr to the current output buffer */
 	int bufptr;					/* ptr to end of current output     */
 	int bufspace;				/* space left in the output buffer  */
+	struct txt_block *large_outbuf;	/* ptr to large buffer, if we need it */
+	char last_argument[MAX_INPUT_LENGTH];	/* */
 	int last_cmd;
+	char output_broken;
+	char *output;				/* ptr to the current output buffer */
 	int idle;					// how long idle for
 	pthread_t resolver_thread;	// thread to resolve hostname
-	struct txt_block *large_outbuf;	/* ptr to large buffer, if we need it */
-	struct txt_q input;			/* q of unprocessed input       */
 	Account *account;
 	struct Creature *creature;	/* linked to char           */
 	struct Creature *original;	/* original char if switched        */
