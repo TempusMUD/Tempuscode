@@ -45,6 +45,7 @@ void prog_do_nuke(prog_env *env, prog_evt *evt, char *args);
 void prog_do_trans(prog_env *env, prog_evt *evt, char *args);
 void prog_do_set(prog_env *env, prog_evt *evt, char *args);
 void prog_do_oload(prog_env *env, prog_evt *evt, char *args);
+void prog_do_mload(prog_env *env, prog_evt *evt, char *args);
 void prog_do_opurge(prog_env *env, prog_evt *evt, char *args);
 void prog_do_randomly(prog_env *env, prog_evt *evt, char *args);
 void prog_do_or(prog_env *env, prog_evt *evt, char *args);
@@ -84,6 +85,7 @@ prog_command prog_cmds[] = {
 	{ "resume",		false,	prog_do_resume },
 	{ "set",		true,	prog_do_set },
 	{ "oload",		true,	prog_do_oload },
+	{ "mload",		true,	prog_do_mload },
 	{ "opurge",		true,	prog_do_opurge },
 	{ "echo",		true,	prog_do_echo },
 	{ "halt",		false,	prog_do_halt },
@@ -138,7 +140,7 @@ prog_get_text(prog_env *env)
 	case PROG_TYPE_MOBILE:
 		return GET_MOB_PROG(((Creature *)env->owner));
 	case PROG_TYPE_ROOM:
-	  return ((room_data *)env->owner)->prog;
+		return ((room_data *)env->owner)->prog;
 	}
 	errlog("Can't happen at %s:%d", __FILE__, __LINE__);
 	return NULL;
@@ -578,7 +580,7 @@ prog_do_driveto(prog_env *env, prog_evt *evt, char *args)
 		return;
 
 	if (target_room != vehicle->in_room) {
-		dir = find_first_step(vehicle->in_room, target_room, STD_TRACK);
+		dir = find_first_step(vehicle->in_room, target_room, PSI_TRACK);
 
 		// Validate exit the vehicle is going to take
 		exit = vehicle->in_room->dir_option[dir];
@@ -651,60 +653,128 @@ prog_do_nuke(prog_env *env, prog_evt *evt, char *args)
 }
 
 void
+prog_trans_creature(Creature *ch, room_data *targ_room)
+{
+	room_data *was_in;
+
+	if (!House_can_enter(ch, targ_room->number)
+		|| !clan_house_can_enter(ch, targ_room)
+		|| (ROOM_FLAGGED(targ_room, ROOM_GODROOM)
+			&& !Security::isMember(ch, "WizardFull"))) {
+		return;
+	}
+
+	was_in = ch->in_room;
+	char_from_room(ch);
+	char_to_room(ch, targ_room);
+	targ_room->zone->enter_count++;
+
+	// Immortal following
+	if (ch->followers) {
+		struct follow_type *k, *next;
+
+		for (k = ch->followers; k; k = next) {
+			next = k->next;
+			if (targ_room == k->follower->in_room &&
+					GET_LEVEL(k->follower) >= LVL_AMBASSADOR &&
+					!PLR_FLAGGED(k->follower, PLR_OLC | PLR_WRITING | PLR_MAILING) &&
+					can_see_creature(k->follower, ch))
+				perform_goto(k->follower, targ_room, true);
+		}
+	}
+
+	if (IS_SET(ROOM_FLAGS(targ_room), ROOM_DEATH)) {
+		if (GET_LEVEL(ch) < LVL_AMBASSADOR) {
+			log_death_trap(ch);
+			death_cry(ch);
+			ch->die();
+			//Event::Queue(new DeathEvent(0, ch, false));
+		} else {
+			mudlog(LVL_GOD, NRM, true,
+				"(GC) %s trans-searched into deathtrap %d.",
+				GET_NAME(ch), targ_room->number);
+		}
+	}
+}
+
+void
 prog_do_trans(prog_env *env, prog_evt *evt, char *args)
 {
-	room_data *targ_room;
+	room_data *room, *targ_room;
+	obj_data *obj;
 	int targ_num;
+	char *target_arg;
 
-	if (!env->target)
-		return;
-	
+	target_arg = tmp_getword(&args);
+
 	targ_num = atoi(tmp_getword(&args));
 	if ((targ_room = real_room(targ_num)) == NULL) {
 		errlog("prog trans targ room %d nonexistent.", targ_num);
 		return;
 	}
 
-	if (targ_room == env->target->in_room)
-		return;
+	if (!strcmp(target_arg, "self")) {
+		// Trans the owner of the prog
+		switch (env->owner_type) {
+		case PROG_TYPE_OBJECT:
+			obj = (obj_data *)env->owner;
+			if (obj->carried_by)
+				obj_from_char(obj);
+			else if (obj->in_room)
+				obj_from_room(obj);
+			else if (obj->worn_by)
+				unequip_char(obj->worn_by, obj->worn_on,
+					(obj == GET_EQ(obj->worn_by, obj->worn_on) ?
+						MODE_EQ : MODE_IMPLANT), false);
+			else if (obj->in_obj)
+				obj_from_obj(obj);
 
-	if (!House_can_enter(env->target, targ_room->number)
-		|| !clan_house_can_enter(env->target, targ_room)
-		|| (ROOM_FLAGGED(targ_room, ROOM_GODROOM)
-			&& !Security::isMember(env->target, "WizardFull"))) {
-		return;
-	}
-
-	char_from_room(env->target);
-	char_to_room(env->target, targ_room);
-	targ_room->zone->enter_count++;
-
-	if (env->target->followers) {
-		struct follow_type *k, *next;
-
-		for (k = env->target->followers; k; k = next) {
-			next = k->next;
-			if (targ_room == k->follower->in_room &&
-					GET_LEVEL(k->follower) >= LVL_AMBASSADOR &&
-					!PLR_FLAGGED(k->follower, PLR_OLC | PLR_WRITING | PLR_MAILING) &&
-					can_see_creature(k->follower, env->target))
-				perform_goto(k->follower, targ_room, true);
+			obj_to_room(obj, targ_room);
+			break;
+		case PROG_TYPE_MOBILE:
+			prog_trans_creature((Creature *)env->owner, targ_room);
+		  break;
+		case PROG_TYPE_ROOM:
+		  break;
 		}
-	}
-
-	if (IS_SET(ROOM_FLAGS(targ_room), ROOM_DEATH)) {
-		if (GET_LEVEL(env->target) < LVL_AMBASSADOR) {
-			log_death_trap(env->target);
-			death_cry(env->target);
-			env->target->die();
-			//Event::Queue(new DeathEvent(0, ch, false));
+		return;
+	} else if (!strcmp(target_arg, "target")) {
+		// Transport the target, which is always a creature
+		if (!env->target)
 			return;
-		} else {
-			mudlog(LVL_GOD, NRM, true,
-				"(GC) %s trans-searched into deathtrap %d.",
-				GET_NAME(env->target), targ_room->number);
-		}
+		prog_trans_creature((Creature *)env->target, targ_room);
+		return;
 	}
+
+	// The rest of the options deal with multiple creatures
+
+	bool players = false, mobs = false;
+	
+	if (!strcmp(target_arg, "mobiles"))
+		mobs = true;
+	else if (!strcmp(target_arg, "players"))
+		players = true;
+	else if (strcmp(target_arg, "all"))
+		errlog("Bad trans argument 1");
+
+	switch (env->owner_type) {
+	case PROG_TYPE_MOBILE:
+		room = ((Creature *)env->owner)->in_room; break;
+	case PROG_TYPE_OBJECT:
+		room = ((obj_data *)env->owner)->find_room(); break;
+	case PROG_TYPE_ROOM:
+		room = ((room_data *)env->owner); break;
+	default:
+		room = NULL;
+		errlog("Can't happen at %s:%d", __FILE__, __LINE__);
+	}
+
+	for (CreatureList::iterator it = room->people.begin();
+			it != room->people.end();
+			++it)
+		if ((!players || IS_PC(*it)) &&
+				(!mobs || IS_NPC(*it)))
+			prog_trans_creature(*it, targ_room);
 }
 
 void
@@ -772,16 +842,25 @@ prog_do_oload(prog_env *env, prog_evt *evt, char *args)
 
 	arg = tmp_getword(&args);
 	if (!strcasecmp(arg, "room")) {
-		switch (env->owner_type) {
-		case PROG_TYPE_MOBILE:
-			room = ((Creature *)env->owner)->in_room; break;
-		case PROG_TYPE_OBJECT:
-			room = ((obj_data *)env->owner)->find_room(); break;
-		case PROG_TYPE_ROOM:
-			room = ((room_data *)env->owner);
-		default:
-			room = NULL;
-			errlog("Can't happen at %s:%d", __FILE__, __LINE__);
+		arg = tmp_getword(&args);
+		if (arg) {
+			// They're specifying a room number
+			room = real_room(atoi(arg));
+			if (!room)
+				return;
+		} else {
+			// They mean the current room
+			switch (env->owner_type) {
+			case PROG_TYPE_MOBILE:
+				room = ((Creature *)env->owner)->in_room; break;
+			case PROG_TYPE_OBJECT:
+				room = ((obj_data *)env->owner)->find_room(); break;
+			case PROG_TYPE_ROOM:
+				room = ((room_data *)env->owner); break;
+			default:
+				room = NULL;
+				errlog("Can't happen at %s:%d", __FILE__, __LINE__);
+			}
 		}
 		obj_to_room(obj, room);
 	} else if (!strcasecmp(arg, "target")) {
@@ -801,6 +880,42 @@ prog_do_oload(prog_env *env, prog_evt *evt, char *args)
 			errlog("Can't happen at %s:%d", __FILE__, __LINE__);
 		}
 	}
+}
+
+void
+prog_do_mload(prog_env *env, prog_evt *evt, char *args)
+{
+	Creature *mob;
+	room_data *room = NULL;
+	int vnum;
+	char *arg;
+
+	vnum = atoi(tmp_getword(&args));
+	if (vnum <= 0)
+		return;
+	mob = read_mobile(vnum);
+	if (!mob)
+		return;
+
+	arg = tmp_getword(&args);
+	if (*arg) {
+		room = real_room(atoi(arg));
+		if (!room)
+			return;
+	} else {
+		switch (env->owner_type) {
+		case PROG_TYPE_MOBILE:
+			room = ((Creature *)env->owner)->in_room; break;
+		case PROG_TYPE_OBJECT:
+			room = ((obj_data *)env->owner)->find_room(); break;
+		case PROG_TYPE_ROOM:
+			room = ((room_data *)env->owner); break;
+		default:
+			room = NULL;
+			errlog("Can't happen at %s:%d", __FILE__, __LINE__);
+		}
+	}
+	char_to_room(mob, room);
 }
 
 void
