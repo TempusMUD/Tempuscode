@@ -94,6 +94,7 @@ store_mail( long to_id, long from_id, char *txt , char *cc_list, time_t *cur_tim
     mail_data *letter;
     char fname[256];
     // NO zero length mail!
+    // This should never happen.
 	if (!txt || !strlen(txt)) {
         sprintf(buf,"Why would you send a blank message?\r\n");
         send_to_char(buf, get_char_in_world_by_idnum(from_id));

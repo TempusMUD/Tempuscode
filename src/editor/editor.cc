@@ -164,9 +164,24 @@ void CTextEditor::SaveText( char *inStr) {
 void CTextEditor::ExportMail( void ) {
 
     char   *cc_list = NULL;
-    int    stored_mail=0;
+    int    stored_mail=0; 
     struct descriptor_data *r_d;
     struct mail_recipient_data *mail_rcpt = NULL;
+
+    // If they're trying to send a blank message
+    if(!*target || !strlen(*target)) {
+        SendMessage("Why would you send a blank message?\r\n");
+
+        mail_rcpt = desc->mail_to;
+        while(mail_rcpt) {
+            desc->mail_to = desc->mail_to->next;
+            free(mail_rcpt);
+            mail_rcpt = desc->mail_to;
+        }
+        if(target)
+            free(target);
+        return;
+    }
 
     if(desc->mail_to->next) {
         cc_list = new char[MAX_INPUT_LENGTH * 3 + 7];
@@ -181,7 +196,8 @@ void CTextEditor::ExportMail( void ) {
     }
     mail_rcpt = desc->mail_to;
     while (mail_rcpt) {
-        if((stored_mail = store_mail(mail_rcpt->recpt_idnum,GET_IDNUM(desc->character),*target, cc_list))) {
+        stored_mail = store_mail(mail_rcpt->recpt_idnum,GET_IDNUM(desc->character),*target, cc_list);
+        if( stored_mail == 1 ) {
             for (r_d = descriptor_list; r_d; r_d = r_d->next) {
                 if (!r_d->connected && r_d->character && r_d->character != desc->character &&
                 GET_IDNUM(r_d->character) == desc->mail_to->recpt_idnum &&
@@ -196,6 +212,8 @@ void CTextEditor::ExportMail( void ) {
     }
     if(cc_list)
         delete cc_list;
+    if(target)
+        free(target);
     if(stored_mail)
         SendMessage("Message sent!\r\n");
 }
@@ -316,20 +334,20 @@ bool CTextEditor::ReplaceLine(unsigned int line, char *inStr) {
     return true;
 }
 bool CTextEditor::FindReplace(char *args) {
-	// Iterator to the current line in theText
-	list<string>::iterator line;
-	// The string containing the search pattern
-	string findit;
-	// String containing the replace pattern
-	string replaceit;
-	// Number of replacements made
+    // Iterator to the current line in theText
+    list<string>::iterator line;
+    // The string containing the search pattern
+    string findit;
+    // String containing the replace pattern
+    string replaceit;
+    // Number of replacements made
     int replaced = 0;
-	// Temporary string.
-	char temp[MAX_INPUT_LENGTH];
-	// read pointer and write pointer.
-	char *r,*w;
+    // Temporary string.
+    char temp[MAX_INPUT_LENGTH];
+    // read pointer and write pointer.
+    char *r,*w;
 
-	for(r = args;*r == ' ';r++);
+    for(r = args;*r == ' ';r++);
 
     if(!*r) {
         SendMessage("The format for find/replace is &f [search string] [replace string] \r\nYou must actually include the brackets\r\n");
@@ -337,55 +355,55 @@ bool CTextEditor::FindReplace(char *args) {
     }
 // Find "findit"
 
-	if(*r != '[') {
+    if(*r != '[') {
         SendMessage("Mismatched brackets.\r\n");
         return false;
     }
-	// Advance past [
+    // Advance past [
     r++;
     if(*r == ']') {
         SendMessage("You can't search for nothing...\r\n");
         return false;
     }
 
-	for(w = temp;*r && *r != ']';r++)
-		*w++ = *r;
-	// terminate w;
-	*w = '\0';
+    for(w = temp;*r && *r != ']';r++)
+        *w++ = *r;
+    // terminate w;
+    *w = '\0';
 
-	if(*r != ']') {
+    if(*r != ']') {
         SendMessage("Mismatched brackets.\r\n");
         return false;
     }
-	// Advance past ]
-	r++;
-	findit = temp;
+    // Advance past ]
+    r++;
+    findit = temp;
 
 // Find "replaceit"
-	for(;*r == ' ';r++);
-	if(*r != '[') {
+    for(;*r == ' ';r++);
+    if(*r != '[') {
         SendMessage("Mismatched brackets.\r\n");
         return false;
     }
-	// Advance past [
-	r++;
-	for(w = temp;*r && *r != ']';r++)
-		*w++ = *r;
-	// terminate w;
-	*w = '\0';
+    // Advance past [
+    r++;
+    for(w = temp;*r && *r != ']';r++)
+        *w++ = *r;
+    // terminate w;
+    *w = '\0';
 
-	if(*r != ']') {
+    if(*r != ']') {
         SendMessage("Mismatched brackets.\r\n");
         return false;
     }
-	replaceit = temp;
-	
-	// Find "findit" in theText a line at a time and replace each instance.
+    replaceit = temp;
+    
+    // Find "findit" in theText a line at a time and replace each instance.
     unsigned int pos;// Current position in the line
     bool overflow=false;// Have we overflowed the buffer?
-	for(line = theText.begin();!overflow && line != theText.end();line++) {
+    for(line = theText.begin();!overflow && line != theText.end();line++) {
         pos=0;
-		while(pos < line->length()) {
+        while(pos < line->length()) {
             pos = line->find(findit,pos);
             if(pos < line->length()) {
                 if((curSize - findit.length() + replaceit.length()) +
@@ -403,9 +421,9 @@ bool CTextEditor::FindReplace(char *args) {
                 overflow = true;
                 break;
             }
-		}
-	}
-	if(replaced > 0 && !overflow) {
+        }
+    }
+    if(replaced > 0 && !overflow) {
         sprintf(buf,"%d occurances of [%s] replaced with [%s].\r\n",
             replaced,findit.c_str(),replaceit.c_str());
         SendMessage(buf);
@@ -588,20 +606,21 @@ void CTextEditor::ProcessHelp(char *inStr) {
         sprintf(buf,"%sR%s - %sRefresh Screen\r\n",buf,CCYEL(ch,C_NRM),CCNRM(ch,C_NRM));
         sprintf(buf,"%s%s%s            ",buf,CCBLD(ch,C_CMP),CCYEL(ch,C_NRM));
         sprintf(buf,"%sC%s - %sClear Buffer     ",buf,CCYEL(ch,C_NRM),CCNRM(ch,C_NRM));
+    if(!PLR_FLAGGED(ch, PLR_MAILING)) { // Can't undo if yer mailin.
         sprintf(buf,"%s    %s%s",buf,CCBLD(ch,C_CMP),CCYEL(ch,C_NRM));
         sprintf(buf,"%sU%s - %sUndo Changes  \r\n",buf,CCYEL(ch,C_NRM),CCNRM(ch,C_NRM));
-	if(PLR_FLAGGED(ch, PLR_MAILING)) {
-	    sprintf(buf,"%s%s%s            ",buf,CCBLD(ch,C_CMP),CCYEL(ch,C_NRM));
-	    sprintf(buf,"%sT%s - %sList Recipients",buf,CCYEL(ch,C_NRM),CCNRM(ch,C_NRM));
-	    sprintf(buf,"%s      %s%s",buf,CCBLD(ch,C_CMP),CCYEL(ch,C_NRM));
-	    sprintf(buf,"%sA%s - %sAdd Recipient\r\n",buf,CCYEL(ch,C_NRM),CCNRM(ch,C_NRM));
-	    sprintf(buf,"%s%s%s            ",buf,CCBLD(ch,C_CMP),CCYEL(ch,C_NRM));
-	    sprintf(buf,"%sE%s - %sRemove Recipient\r\n",buf,CCYEL(ch,C_NRM),CCNRM(ch,C_NRM));
-	}
+    } else {
+        sprintf(buf,"%s    %s%s",buf,CCBLD(ch,C_CMP),CCYEL(ch,C_NRM));
+        sprintf(buf,"%sA%s - %sAdd Recipient \r\n",buf,CCYEL(ch,C_NRM),CCNRM(ch,C_NRM));
+        sprintf(buf,"%s%s%s            ",buf,CCBLD(ch,C_CMP),CCYEL(ch,C_NRM));
+        sprintf(buf,"%sT%s - %sList Recipients",buf,CCYEL(ch,C_NRM),CCNRM(ch,C_NRM));
+        sprintf(buf,"%s      %s%s",buf,CCBLD(ch,C_CMP),CCYEL(ch,C_NRM));
+        sprintf(buf,"%sE%s - %sRemove Recipient\r\n",buf,CCYEL(ch,C_NRM),CCNRM(ch,C_NRM));
+    }
         sprintf(buf,"%s%s%s     *",buf,CCBLD(ch,C_CMP),CCCYN(ch,C_NRM));
      
  
-	sprintf(buf,"%s%s-------------------------------------------------------",buf,CCBLU(ch,C_NRM));
+    sprintf(buf,"%s%s-------------------------------------------------------",buf,CCBLU(ch,C_NRM));
         sprintf(buf,"%s%s*%s\r\n",buf,CCCYN(ch,C_NRM),CCNRM(ch,C_NRM));
         SendMessage(buf);
     } else {
@@ -747,25 +766,27 @@ bool CTextEditor::ProcessCommand(char *inStr) {
             break;
         case 'u':   // Undo Changes
             UndoChanges(inStr);
-            break;
+            return true;
         case 't':
-	    if(PLR_FLAGGED(desc->character, PLR_MAILING)) {
-		ListRecipients(desc);
-	    }
-	    break;
+            if(PLR_FLAGGED(desc->character, PLR_MAILING)) {
+                ListRecipients(desc);
+                return true;
+            }
         case 'a':
-	    if(PLR_FLAGGED(desc->character, PLR_MAILING)) {
-		inStr = one_argument(inStr, command);
-		AddRecipient(desc, command);
-	    }
-	    break;
+            if(PLR_FLAGGED(desc->character, PLR_MAILING)) {
+                inStr = one_argument(inStr, command);
+                AddRecipient(desc, command);
+                return true;
+            }
         case 'e':
-	    if(PLR_FLAGGED(desc->character, PLR_MAILING)) {
-		inStr = one_argument(inStr, command);
-		RemRecipient(desc, command);
-	    }
-	    break;
-
+            if(PLR_FLAGGED(desc->character, PLR_MAILING)) {
+                inStr = one_argument(inStr, command);
+                RemRecipient(desc, command);
+                return true;
+            } 
+        default:
+            SendMessage("Invalid Command. Type &h for help.\r\n");
+            return false;
     }
 
     return false;
@@ -778,25 +799,27 @@ void CTextEditor::ListRecipients(struct descriptor_data *desc) {
     cc_list = new char[MAX_INPUT_LENGTH * 3 + 7];
     
     if(desc->mail_to) {
-	sprintf(cc_list, "%sTo%s:%s ", CCYEL(desc->character, C_NRM), CCBLU(desc->character, C_NRM), CCCYN(desc->character, C_NRM));
+        sprintf(cc_list, "%sTo%s:%s ", 
+            CCYEL(desc->character, C_NRM), 
+            CCBLU(desc->character, C_NRM), 
+            CCCYN(desc->character, C_NRM));
         for(mail_rcpt = desc->mail_to; mail_rcpt;){
-	    strcat(cc_list, CAP(get_name_by_id(mail_rcpt->recpt_idnum)));
+            strcat(cc_list, CAP(get_name_by_id(mail_rcpt->recpt_idnum)));
             if (mail_rcpt->next) {
                 strcat(cc_list, ", ");
-		mail_rcpt = mail_rcpt->next;
-	    }
-            else {
+                mail_rcpt = mail_rcpt->next;
+            } else {
                 strcat(cc_list, "\r\n");
-		break;
-	    }
-	}
+                break;
+            }
+        }
     }   
 
     sprintf(cc_list, "%s%s", cc_list, CCNRM(desc->character, C_NRM));
     SendMessage(cc_list);
 
     if(cc_list){
-	delete cc_list;
+    delete cc_list;
     }
 
 }
@@ -808,12 +831,10 @@ void CTextEditor::AddRecipient(struct descriptor_data *desc, char* name) {
     char buf[MAX_INPUT_LENGTH];
     int x = 0;
 
-   
-
     new_id_num = get_id_by_name(name);
     if ( ( new_id_num ) < 0 ) {
-	SendMessage("Cannot find anyone by that name.\r\n");
-	return;
+        SendMessage("Cannot find anyone by that name.\r\n");
+        return;
     }
 
     added_pointer = (struct mail_recipient_data *)malloc(sizeof(struct mail_recipient_data));
@@ -823,118 +844,80 @@ void CTextEditor::AddRecipient(struct descriptor_data *desc, char* name) {
     // Now find the end of the current list and add the new recipient
     
     // First case, originally just one recipient
-    if(desc->mail_to) {
-	
-	if(desc->mail_to->recpt_idnum == new_id_num) {
-	    sprintf(buf, "%s is already on the recipient list.\r\n", CAP(get_name_by_id(new_id_num)));
-	    SendMessage(buf);
-	    free(added_pointer);
-	    return;
-	}
-
-	else if(desc->mail_to->next == NULL) {
-	    desc->mail_to->next = added_pointer;
-	    sprintf(buf, "%s added to recipient list.\r\n", CAP(get_name_by_id(new_id_num)));
-	    SendMessage(buf);
-	    ListRecipients(desc);
-	    return;
-	}
+    if(desc->mail_to->recpt_idnum == new_id_num) {
+        sprintf(buf, "%s is already on the recipient list.\r\n", CAP(get_name_by_id(new_id_num)));
+        SendMessage(buf);
+        free(added_pointer);
+        return;
+    } else if(desc->mail_to->next == NULL) {
+        desc->mail_to->next = added_pointer;
+        sprintf(buf, "%s added to recipient list.\r\n", CAP(get_name_by_id(new_id_num)));
+        SendMessage(buf);
+        ListRecipients(desc);
+        return;
     }
     
     for(recipient = desc->mail_to; recipient;){
-	if (recipient->next && x < 90) {
-		recipient = recipient->next;
-
-		if(recipient->recpt_idnum == new_id_num) {
-		    sprintf(buf, "%s is already on the recipient list.\r\n", CAP(get_name_by_id(new_id_num)));
-		    SendMessage(buf);
-		    free(added_pointer);
-		    return;
-		}
-		x++;
-	}
-            else {
-                recipient->next = added_pointer;
-		sprintf(buf, "%s added to recipient list.\r\n", CAP(get_name_by_id(new_id_num)));
-		SendMessage(buf);
-		ListRecipients(desc);
-		 return;
-	    }
+        if (recipient->next && x < 90) {
+            recipient = recipient->next;
+            if(recipient->recpt_idnum == new_id_num) {
+                sprintf(buf, "%s is already on the recipient list.\r\n", CAP(get_name_by_id(new_id_num)));
+                SendMessage(buf);
+                free(added_pointer);
+                return;
+            }
+            x++;
+        } else {
+            recipient->next = added_pointer;
+            sprintf(buf, "%s added to recipient list.\r\n", CAP(get_name_by_id(new_id_num)));
+            SendMessage(buf);
+            ListRecipients(desc);
+            return;
+        }
     }
 
 }
 
 void CTextEditor::RemRecipient(struct descriptor_data *desc, char* name) {
-	int removed_idnum = -1;
-	struct mail_recipient_data *tmp_recipient = NULL;
-	struct mail_recipient_data *previous_recipient = NULL;
-	struct mail_recipient_data *next_recipient = NULL;
-	char buf[MAX_INPUT_LENGTH];
-	
-	removed_idnum = get_id_by_name(name);
+    int removed_idnum = -1;
+    struct mail_recipient_data *cur = NULL;
+    struct mail_recipient_data *prev = NULL;
+    char buf[MAX_INPUT_LENGTH];
+    
+    removed_idnum = get_id_by_name(name);
 
-	if(removed_idnum < 0 ) {
-	    SendMessage("Cannot find anyone by that name.\r\n");
-	    return;
-	}
+    if(removed_idnum < 0 ) {
+        SendMessage("Cannot find anyone by that name.\r\n");
+        return;
+    }
 
-	// Step through the tree and compare the removed idnum with the idnums in the list
+    // First case...the mail only has one recipient
+    if(!desc->mail_to->next) {
+        SendMessage("You cannot remove the last recipient of the letter.\r\n");
+        return;
+    // Second case... Its the first one.
+    } else if(desc->mail_to->recpt_idnum == removed_idnum) {
+        cur = desc->mail_to;
+        desc->mail_to = desc->mail_to->next;
+        free(cur);
+        sprintf(buf, "%s removed from recipient list.\r\n", CAP(get_name_by_id(removed_idnum)));
+        SendMessage(buf);
+        return;
+    }
+    
+    // Last case... Somewhere past the first recipient.
+    cur = desc->mail_to;
+    // Find the recipient in question
+    while(cur && cur->recpt_idnum != removed_idnum) {
+        prev = cur;
+        cur = cur->next;
+    }
+    // Link around the recipient to be removed.
+    prev->next = cur->next;
+    free(cur);
 
-	// First case...the mail only has one recipient
+    sprintf(buf, "%s removed from recipient list.\r\n", CAP(get_name_by_id(removed_idnum)));
+    SendMessage(buf);
 
-	if(desc->mail_to) {
-	   
-	    if(!desc->mail_to->next) {
-		
-		if(desc->mail_to->recpt_idnum == removed_idnum) {
-		    SendMessage("You cannot remove the last recipient of the letter.\r\n");
-		}
-		return;
-	    }
-
-	    else if(desc->mail_to->recpt_idnum == removed_idnum) {
-		desc->mail_to = desc->mail_to->next;
-		sprintf(buf, "%s removed from recipient list.\r\n", CAP(get_name_by_id(removed_idnum)));
-		SendMessage(buf);
-		return;
-	    }
-	}
-
-  
-
-
-
-	for(tmp_recipient = desc->mail_to; tmp_recipient;) {
-	 
-	    previous_recipient = tmp_recipient;
-	    tmp_recipient = tmp_recipient->next;
-	    next_recipient = tmp_recipient->next;
-	   
-	    if( tmp_recipient->recpt_idnum == removed_idnum ) {
-		previous_recipient->next = next_recipient;
-		free(tmp_recipient);
-		sprintf(buf, "%s removed from recipient list.\r\n", CAP(get_name_by_id(removed_idnum)));
-		SendMessage(buf);
-		return;
-	    }
-	}
-	
-	return;
-	
+    return;
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
