@@ -806,9 +806,48 @@ House::calcRentCost( room_data *room ) const
 void
 House::display( Creature *ch )
 {
-	send_to_char(ch, "Mostly unimplemented:\r\n");
+
+	const char* landlord = "NONE";
+	char created_buf[30];
+
+	if( playerIndex.exists(getLandlord()) )
+		landlord = playerIndex.getName(getLandlord());
+
+	send_to_desc( ch->desc, "&yHouse[&n%4d&y]  Type:&n %s  &yLandlord:&n %s\r\n",
+				  getID(), getTypeName(), landlord );
+
+	if( getType() == PRIVATE || getType() == RENTAL || getType() == PUBLIC ) {
+		Account *account = accountIndex.find_account(ownerID);
+		if( account != NULL ) {
+			const char* email = "";
+			if( account->get_email_addr() && *account->get_email_addr()) {
+				email = account->get_email_addr();
+			}
+			send_to_desc( ch->desc, "&yOwner:&n %s [%d] &c%s&n\r\n", 
+					account->get_name(), account->get_idnum(), email );
+		}
+	} else if( getType() == CLAN ) {
+		clan_data *clan = real_clan( ownerID );
+		if( clan == NULL ) {
+			send_to_desc( ch->desc, "&yOwned by Clan:&n NONE\r\n" );
+		} else {
+			send_to_desc( ch->desc, "&yOwned by Clan:&c %s&n [%d]\r\n",
+					      clan->name, clan->number );
+		}
+	} else {
+		send_to_desc( ch->desc, "&yOwner:&n NONE\r\n" );
+	}
+	
+	strftime(created_buf, 29, "%a %b %d, %Y %H:%M:%S", localtime(&created));
+	send_to_desc( ch->desc, "&yCreated:&n %s\r\n", created_buf );
 	listGuests(ch);
 	listRooms(ch);
+	if( repoNotes.size() > 0 ) {
+		send_to_desc( ch->desc, "&cReposession Notifications:&n \r\n" );
+		for( unsigned int i = 0; i < repoNotes.size(); ++i ) {
+			send_to_desc( ch->desc, "    %s\r\n", repoNotes[i].c_str() );
+		}
+	}
 }
 
 char*
@@ -1037,6 +1076,8 @@ House::findCostliestObj(void)
 		room_data *room = real_room( getRoom(i) );
 		if( room != NULL ) {
 			obj_data *o = findCostliestObj(room);
+			if( o == NULL )
+				continue;
 			if( result == NULL || GET_OBJ_COST(o) > GET_OBJ_COST(result) ) {
 				result = o;
 			}
@@ -1186,7 +1227,7 @@ set_house_clan_owner( Creature *ch, House *house, char *arg )
 	}
 	// An account may only own one house
 	House *h = Housing.findHouseByOwner( clanID, false );
-	if( h != NULL ) {
+	if( h != NULL && h->getType() == House::CLAN ) {
 		send_to_char(ch, "Clan %d already owns house %d.\r\n", 
 					 clanID, h->getID() );
 		return;
