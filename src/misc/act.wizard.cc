@@ -1278,7 +1278,7 @@ do_stat_object(struct char_data * ch, struct obj_data * j)
 	break;
     case ITEM_VEHICLE:
 	sprintbit(GET_OBJ_VAL(j, 2), vehicle_types, buf2);
-	sprintf(buf, "Key Number: %d, Door State: %d, Type: %s, v3: %d",
+	sprintf(buf, "Room/Key Number: %d, Door State: %d, Type: %s, v3: %d",
 		GET_OBJ_VAL(j, 0), GET_OBJ_VAL(j, 1), buf2,
 		GET_OBJ_VAL(j, 3));
 	break;
