@@ -3,6 +3,7 @@
 #include "structs.h"
 #include <signal.h>
 #include "utils.h"
+#include "spells.h"
 
 int char_data::modifyCarriedWeight( int mod_weight ) {
     return ( setCarriedWeight( getCarriedWeight() + mod_weight ) );
@@ -14,6 +15,68 @@ int char_data::modifyWornWeight( int mod_weight ) {
 
 short char_player_data::modifyWeight( short mod_weight ) {
     return setWeight( getWeight() + mod_weight );
+}
+
+/**
+   Compute level bonus factor.
+   Do NOT pass true for "use_remort" if gen == 0
+   Do NOT pass a gen < 0
+   params: use_remort - Add in remort gen to factor?
+            primary - Add in remort gen as a primary?
+   return: a number from 1-100 based on level and params.
+           (!use_remort for a level 49 returns 100)
+           (use_remort + primary for level 49 gen 10 returns 100)
+*/
+int char_data::getLevelBonus ( bool use_remort, bool primary ) {
+    int bonus = player.level + 1;
+
+    if(! use_remort ) {// Without remort calc, simply use the mort calc in its' place.
+        return 2 * bonus;
+    } else {
+        if(primary) { // Primary. Give full remort bonus per gen.
+            return bonus + (MIN(player_specials->saved.remort_generation,10)) * 5;
+        } else { // Secondary. Give miniscule remort bonus.
+            return bonus + MIN(player_specials->saved.remort_generation,10);
+        }
+    }
+}
+/**
+   Compute level bonus factor.
+   Should be used for a particular skill in general.
+   Returns 50 for max mort, 100 for max remort.
+   params: skill - the skill # to check bonus for.
+   return: a number from 1-100 based on level/gen/can learn skill.
+*/
+int char_data::getLevelBonus( int skill ) {
+    sh_int pclass = player.char_class;
+    sh_int sclass = player.remort_char_class;
+    sh_int gen = player_specials->saved.remort_generation;
+    int pLevel = spell_info[skill].min_level[pclass];
+    int sLevel = spell_info[skill].min_level[sclass];
+    int spell_gen = spell_info[skill].gen[pclass];
+    // Note: If a class doesn't get a skill, the SPELL_LEVEL for that skill is 50.
+    //       To compensate for this, level 50+ get the full bonus of 100.
+
+    if(player.level == 50) return 100; // Immorts get full bonus.
+
+    // If you dont get it, you dont get jack
+    // (The following is an optimized ABLE_TO_LEARN)
+    if(!(((gen >= spell_gen && player.level >= sLevel ) || \
+    (sclass >= 0 && player.level >= sLevel && spell_info[skill].gen[pclass] == 0))))
+    //if(!ABLE_TO_LEARN(skill,this)) 
+        return (getLevelBonus(false,false))/4;
+
+    if(player_specials->saved.remort_generation == 0)  { // Mortal. Normal bonus.
+        return getLevelBonus(false,false);
+    } else { // Remort, check primary vs secondary
+        // Primary Skill.
+        if( pLevel < sLevel) {
+            return getLevelBonus(true,true);
+        } else { // Secondary Skill
+            return getLevelBonus(true,false);
+        }
+    }
+    return 1; // This should never happen, but just in case.
 }
 
 // Set position and Get position.

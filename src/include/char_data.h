@@ -935,52 +935,10 @@ struct char_data {
         else
             player_specials->saved.speed = speed;
     }
-    /**
-        Compute level bonus factor.
-        params: use_remort - Add in remort gen to factor?
-                primary - Add in remort gen as a primary?
-       return: a number from 1-100 based on level and params.
-               (!use_remort for a level 49 returns 100)
-               (use_remort + primary for level 49 gen 10 returns 100)
-    */
- /*   inline int char_data::getLevelBonus ( bool use_remort, bool primary ) {
-        int bonus = 0;
-        int gen = 0;
 
-        // Compute bare level bonus.
-        bonus = player.level + 1;
+    int char_data::getLevelBonus( int skill );
+    int char_data::getLevelBonus ( bool use_remort, bool primary );
 
-        if(! use_remort ) {
-            return 2 * bonus;
-        } else {
-            gen = MIN(player_specials->saved.remort_generation,10);
-            if(primary) {
-                gen = MAX(1, gen);
-            } else {
-                gen = MAX(1, gen/3);
-            }
-            return bonus + gen * 5;
-        }
-    }
- */   /**
-        Compute level bonus factor.
-        params: skill - the skill # to check bonus for.
-       return: a number from 1-100 based on level/gen/can learn skill.
-    */
-/*
-    inline int char_data::getLevelBonus( int skill ) {
-        int pGen,sGen;
-        int pLevel,sLevel;
-
-        SPELL_GEN(spl, GET_CLASS(ch))
-        SPELL_GEN(spl, GET_CLASS(ch))
-        SPELL_LEVEL(spl, GET_CLASS(ch))
-
-        if(!ABLE_TO_LEARN(skill,this))
-            return getLevelBonus(false,false);
-        
-    }
-*/
     int pfilepos;             /* playerfile pos          */
     struct room_data *in_room;            /* Location (real room number)      */
 
