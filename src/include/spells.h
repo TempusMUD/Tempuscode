@@ -748,6 +748,7 @@ ASPELL(spell_control_undead);
 ASPELL(spell_inferno);
 ASPELL(spell_banishment);
 ASPELL(spell_sun_ray);
+ASPELL(spell_emp_pulse);
 
 /* basic magic calling functions */
 

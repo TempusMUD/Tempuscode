@@ -60,19 +60,19 @@
   incomplete
 
   #define SPELL_FISSION_BLAST        316  // full-room damage
-  incomplete
+  complete
 
   #define SPELL_REFRACTION           317  // like displacement
-  incomplete
+  complete
 
   #define SPELL_ELECTROSHIELD        318  // prot_lightning
-  incomplete
+  complete
 
   #define SPELL_VACUUM_SHROUD        319  // eliminates breathing and fire
   incomplete
 
   #define SPELL_DENSIFY              320  // increase weight of obj & char
-  incomplete
+  complete
 
   #define SPELL_UNUSED_321
   
@@ -81,6 +81,7 @@
   incomplete
 
   #define SPELL_GRAVITY_WELL         323  // time effect crushing damage
+  complete
 
   #define SPELL_CAPACITANCE_BOOST    324  // increase maxmv
   incomplete
@@ -92,7 +93,7 @@
   incomplete
 
   #define SPELL_LATTICE_HARDENING     327  // dermal hard or increase obj maxdam
-  incomplete
+  complete
 
   #define SPELL_NULLIFY              328  // like dispel magic
   
@@ -141,6 +142,10 @@
 
   #define SKILL_ENERGY_CONVERSION     679 // physic's energy conversion
   complete
+  #define SPELL_EMP_PULSE            342  // Shuts off devices, communicators
+                                          // deactivats all cyborg programs
+                                          // blocked by emp shield
+
 
   ************************************************************************
   //
@@ -853,7 +858,100 @@ ACMD( do_econvert ) {
     
     return;
 }
+void
+do_emp_pulse_olist( obj_data *list, char_data *ch=NULL, char_data *vict=NULL) {
+    obj_data *o;
+    for( o = list; o ; o = o->next_content) {
+        if((IS_DEVICE(o) || IS_COMMUNICATOR(o))
+        && !random_fractional_3()) {
+            if(GET_OBJ_VAL(o,2) == 1) {
+                GET_OBJ_VAL(o,2) = 0;
+                if(vict)
+                    act("$p shuts off. (carried)", FALSE, ch, o, vict, TO_VICT);
+                else
+                    act("$p shuts off.", FALSE, ch, o, vict, TO_ROOM);
+            }
+        }
+    }
+}
+void
+do_emp_pulse_eq( obj_data *list[], char_data *ch=NULL, char_data *vict=NULL, int internal=0) {
+    for( int i = 0;i < NUM_WEAR_FLAGS; i++ ) {
+        if(list[i] && 
+        (IS_DEVICE(list[i]) || IS_COMMUNICATOR(list[i]))
+        && !random_fractional_3()) {
+            if(GET_OBJ_VAL(list[i],2) == 1) {
+                GET_OBJ_VAL(list[i],2) = 0;
+                sprintf(buf,"$p shuts off. %s",internal ? "(internal)" : "(worn)");
+                act(buf, FALSE, ch, list[i], vict, TO_VICT);
+            }
+        }
+    }
+}
+void
+do_emp_pulse_char( char_data *ch, char_data *vict ) {
+    affected_type *af = NULL;
+    int removed = 0;
     
+    if(IS_AFFECTED_3(vict, AFF3_EMP_SHIELD) && !random_fractional_5()) {
+        send_to_char("Your emp shielding stops the pulse!\r\n",vict);
+        return;
+    }
+   // Put a saving throw in here!!!
+   if(IS_CYBORG(vict) && !mag_savingthrow(vict,GET_LEVEL(ch),SAVING_CHEM) ) {
+        for( af = vict->affected; af; af = af ? af->next : NULL) {
+            if(SPELL_IS_PROGRAM(af->type)) {
+                affect_remove(vict,af);
+                af = vict->affected;
+                removed++;
+            }
+        }
+        if(removed > 0) {
+            send_to_char("ERROR: Excessive electromagnetic interference! Some systems failing!\r\n",vict);
+            act("$N twitches and begins to smoke.",FALSE,ch,NULL,vict,TO_NOTVICT);
+        }
+   }
+   do_emp_pulse_eq(vict->equipment,ch,vict);
+   if(!IS_CYBORG(vict) || !mag_savingthrow(vict,GET_LEVEL(ch),SAVING_CHEM))
+       do_emp_pulse_eq(vict->implants,ch,vict,1);
+   do_emp_pulse_olist(vict->carrying,ch,vict);
+}
+
+// Shuts off devices, communicators
+// deactivats all cyborg programs
+// blocked by emp shield
+ASPELL(spell_emp_pulse) {
+    char_data *vict;
+    bool can_continue;
+
+    if( ch->in_room == NULL)
+        return;
+    if ( ROOM_FLAGGED( ch->in_room, ROOM_NOPHYSIC ) ) {
+        send_to_char("You are unable to alter physical reality in this space.\r\n",ch);
+        return;
+    }
+    for(vict = ch->in_room->people; 
+        vict && (can_continue = peaceful_room_ok(ch,vict,true));
+        vict=vict->next_in_room);
+    if(!can_continue)
+        return;
+
+    send_to_room( "An electromagnetic pulse jolts the room!\r\n", ch->in_room );
+    for(vict = ch->in_room->people;vict;vict = vict->next_in_room) {
+        if(vict != ch) {
+            if (IS_PC(vict)) {
+                check_toughguy(ch, vict, 1);
+                check_killer(ch, vict);
+            }
+            do_emp_pulse_char(ch, vict);
+        }
+    }
+    if(ch->in_room->contents) {
+        do_emp_pulse_olist( ch->in_room->contents );
+    }
+    
+    return;
+}
     
 ASPELL(spell_area_stasis)
 {

@@ -298,7 +298,8 @@ const char *spells[] =
     "!UNUSED!", 
     "area stasis",	/* 340 */
     "electrostatic field",
-    "!UNUSED!", "!UNUSED!", "!UNUSED!", "!UNUSED!",	/* 345 */
+    "emp pulse", 
+    "!UNUSED!", "!UNUSED!", "!UNUSED!",	/* 345 */
     "!UNUSED!", "!UNUSED!", "!UNUSED!", "!UNUSED!", "!UNUSED!",	/* 350 */
     "!UNUSED!", "!UNUSED!", "!UNUSED!", "!UNUSED!", "!UNUSED!",	/* 355 */
     "!UNUSED!", "!UNUSED!", "!UNUSED!", "!UNUSED!", "!UNUSED!",	/* 360 */
@@ -1077,6 +1078,7 @@ call_magic(struct char_data * caster, struct char_data * cvict,
 	case SPELL_BANISHMENT:      MANUAL_SPELL(spell_banishment); break;
     case SPELL_AREA_STASIS:     MANUAL_SPELL(spell_area_stasis); break;     
     case SPELL_SUN_RAY:         MANUAL_SPELL(spell_sun_ray); break;
+    case SPELL_EMP_PULSE:       MANUAL_SPELL(spell_emp_pulse);break;
 	}
   
     knock_door = NULL;
@@ -2949,8 +2951,8 @@ mag_assign_spells(void)
 	   80, 20, 8, POS_SITTING, TAR_CHAR_ROOM | TAR_OBJ_EQUIP | TAR_OBJ_ROOM | TAR_OBJ_INV,
 	   FALSE, MAG_PHYSICS | MAG_AFFECTS | MAG_ALTER_OBJS );
 
-    spello(SPELL_LATTICE_HARDENING, X, X, X, X, X, X, 26, X, X, X, X, X, X,X,X,X,X, 
-	   200, 100, 9, POS_SITTING, TAR_CHAR_ROOM | TAR_OBJ_ROOM | TAR_OBJ_INV,
+    spello(SPELL_LATTICE_HARDENING, X, X, X, X, X, X, 28, X, X, X, X, X, X,X,X,X,X, 
+	   350, 265, 9, POS_SITTING, TAR_CHAR_ROOM | TAR_OBJ_ROOM | TAR_OBJ_INV,
 	   FALSE, MAG_PHYSICS | MAG_AFFECTS | MAG_ALTER_OBJS );
 
     spello(SPELL_CHEMICAL_STABILITY, X, X, X, X, X, X, 9, X, X, X, X, X, X,X,X,X,X, 
@@ -2968,6 +2970,11 @@ mag_assign_spells(void)
 
     spello(SPELL_AREA_STASIS, X, X, X, X, X, X, 40, X,X,X,X,X,X,X,X,X,X,
            100,50,5, 
+           POS_SITTING, TAR_IGNORE, FALSE,
+           MAG_PHYSICS | MAG_MANUAL);
+
+    spello(SPELL_EMP_PULSE, X, X, X, X, X, X, 34, X,X,X,X,X,X,X,X,X,X,
+           145,75,5, 
            POS_SITTING, TAR_IGNORE, FALSE,
            MAG_PHYSICS | MAG_MANUAL);
     
