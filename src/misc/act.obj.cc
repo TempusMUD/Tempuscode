@@ -415,38 +415,45 @@ ACMD(do_put)
 			} else {
 				for (obj = ch->carrying; obj; obj = next_obj) {
 					next_obj = obj->next_content;
-					if (obj != cont && can_see_object(ch, obj) &&
-						(obj_dotmode == FIND_ALL || isname(arg1, obj->name))) {
-						if ((IS_BOMB(obj) && obj->contains
-								&& IS_FUSE(obj->contains)
-								&& FUSE_STATE(obj->contains))) {
-							act("It would really be best if you didn't put $p in $P.", FALSE, ch, obj, cont, TO_CHAR);
-							bomb = true;
-							continue;
-						}
-						if (save_obj != NULL
-							&& str_cmp(save_obj->short_description,
-								obj->short_description) != 0) {
-							if (counter == 1)
-								sprintf(cntbuf, "You put $p in $P.");
-							else
-								sprintf(cntbuf, "You put $p in $P. (x%d)",
-									counter);
-							act(cntbuf, FALSE, ch, save_obj, cont, TO_CHAR);
-
-							if (counter == 1)
-								sprintf(cntbuf, "$n puts $p in $P.");
-							else
-								sprintf(cntbuf, "$n puts $p in $P. (x%d)",
-									counter);
-							act(cntbuf, TRUE, ch, save_obj, cont, TO_ROOM);
-							counter = 0;
-						}
-						found = 1;
-						counter++;
-						save_obj = obj;
-						perform_put(ch, obj, cont, FALSE);
+					if (obj == cont)
+						continue;
+					if (!can_see_object(ch, obj))
+						continue;
+					if (!(obj_dotmode == FIND_ALL || isname(arg1, obj->name)))
+						continue;
+					if (IS_BOMB(obj) &&
+							obj->contains &&
+							IS_FUSE(obj->contains) &&
+							FUSE_STATE(obj->contains)) {
+						act("It would really be best if you didn't put $p in $P.", FALSE, ch, obj, cont, TO_CHAR);
+						bomb = true;
+						continue;
 					}
+					if (IS_PIPE(cont) && !IS_TOBACCO(obj))
+						continue;
+
+					if (save_obj != NULL
+						&& str_cmp(save_obj->short_description,
+							obj->short_description) != 0) {
+						if (counter == 1)
+							sprintf(cntbuf, "You put $p in $P.");
+						else
+							sprintf(cntbuf, "You put $p in $P. (x%d)",
+								counter);
+						act(cntbuf, FALSE, ch, save_obj, cont, TO_CHAR);
+
+						if (counter == 1)
+							sprintf(cntbuf, "$n puts $p in $P.");
+						else
+							sprintf(cntbuf, "$n puts $p in $P. (x%d)",
+								counter);
+						act(cntbuf, TRUE, ch, save_obj, cont, TO_ROOM);
+						counter = 0;
+					}
+					found = 1;
+					counter++;
+					save_obj = obj;
+					perform_put(ch, obj, cont, FALSE);
 				}
 				if (found == 1) {
 					if (counter == 1)
