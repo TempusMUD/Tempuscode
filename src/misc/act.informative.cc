@@ -2542,6 +2542,7 @@ ACMD(do_score)
 
 	struct time_info_data playing_time;
 	struct time_info_data real_time_passed(time_t t2, time_t t1);
+	int get_hunted_id(int hunter_id);
 
 	acc_string_clear();
 	acc_sprintf(
@@ -2628,6 +2629,10 @@ ACMD(do_score)
 			CCYEL(ch, C_NRM), GET_NAME(ch), GET_TITLE(ch), CCNRM(ch, C_NRM));
 		acc_strcat("You have a reputation of being -",
 			reputation_msg[GET_REPUTATION_RANK(ch)], "-\r\n", NULL);
+		if (get_hunted_id(GET_IDNUM(ch)))
+			acc_sprintf("You are registered to bounty hunt %s.\r\n",
+				playerIndex.getName(get_hunted_id(GET_IDNUM(ch))));
+
 	}
 	acc_sprintf("You are currently speaking %s.\r\n",
 				 ((GET_LANGUAGE(ch) > LANGUAGE_COMMON) ? 
@@ -2734,7 +2739,7 @@ ACMD(do_score)
 
 	if (GET_LEVEL(ch) >= LVL_AMBASSADOR && PLR_FLAGGED(ch, PLR_MORTALIZED))
 		acc_strcat("You are mortalized.\r\n", NULL);
-
+	
 	acc_append_affects(ch, PRF2_FLAGGED(ch, PRF2_NOAFFECTS));
 
 	page_string(ch->desc, acc_get_string());
