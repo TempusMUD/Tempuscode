@@ -295,7 +295,7 @@ namespace Security {
                 member = xmlGetLongProp(node, "ID");
                 if( member == 0 )
                     continue;
-                members.push_back(member);
+                addMember(member);
             }
             if ((!xmlStrcmp(node->name, (const xmlChar*)"Command"))) {
                 command = xmlGetProp(node, "Name");
