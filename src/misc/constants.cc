@@ -2377,7 +2377,7 @@ extern const char *spell_wear_off_msg[] = {
   "!UNUSED!","!UNUSED!","!UNUSED!","!UNUSED!","!UNUSED!",   /* 750 */
   "!UNUSED!","!UNUSED!","!UNUSED!","!UNUSED!","!UNUSED!",   /* 755 */
   "!UNUSED!","!UNUSED!","!UNUSED!","!UNUSED!","!UNUSED!",   /* 760 */
-  "Quad Damage has worn off.",
+  "Your bright blue glow fades away.",
   "!UNUSED!","!UNUSED!","!UNUSED!","!UNUSED!",   /* 765 */
   "\n"
 };
