@@ -73,6 +73,7 @@
 "olc zpath <'mob'|'obj'> <name> <path name>\r\n" \
 "olc zreset/zpurge\r\n" \
 "olc medit [number | 'exit']\r\n" \
+"olc mload <vnum>\r\n" \
 "olc mstat\r\n" \
 "olc mset\r\n" \
 "olc mmimic <vnum>\r\n" \
@@ -273,7 +274,8 @@ const char *olc_commands[] = {
     "tstat",
     "tset",
     "tsave",
-    "\n"				/* many more to be added */
+    "mload", 
+     "\n"				/* many more to be added */
 };
 
 
@@ -292,6 +294,7 @@ struct extra_descr_data *locate_exdesc(char *word,
 
 
 #define obj_p     GET_OLC_OBJ(ch)
+#define mob_p     GET_OLC_MOB(ch)
 
 /* The actual do_olc command for the interpreter.  Determines the target
    entity, checks permissions, and passes contrl to olc_interpreter */
@@ -311,6 +314,7 @@ ACMD(do_olc)
     struct zone_data *zone = NULL;
     struct shop_data *shop = NULL;
     struct char_data *mob = NULL;
+    struct char_data *tmp_mob = NULL;
   
     if (olc_lock || (IS_SET(ch->in_room->zone->flags, ZONE_LOCKED)) ) {
 	if (GET_LEVEL(ch) >= LVL_IMPL) {
@@ -1384,6 +1388,65 @@ ACMD(do_olc)
       else
       send_to_char("An error occured while saving.\r\n",ch);
       break;  */
+    case 56:
+	if ( ! *argument ) {
+
+            if ( ! mob_p ) {
+                send_to_char( "Which mobile?\r\n", ch );
+                return;
+            } 
+
+	    else {
+                j = GET_MOB_VNUM( tmp_mob );
+                tmp_mob = mob_p;
+            } 
+
+        } 
+
+	else {
+	    skip_spaces( &argument );
+            
+	    if ( ! is_number( argument ) ) {
+                send_to_char( "The argument must be a vnum.\r\n", ch );
+                return;
+            }
+            
+	    j = atoi( argument );
+            
+	    if ( ! ( tmp_mob = real_mobile_proto( j ) ) ) {
+                send_to_char( "No such mobile exists.\r\n", ch );
+                return;
+            }   
+	    
+	    if ( j < ( GET_ZONE( ch->in_room ) * 100 ) || j > ch->in_room->zone->top ) {
+		send_to_char( "You cannot olc mload mobiles from other zones.\r\n",ch );
+		return;
+	    }
+
+	}
+
+
+	if ( ! OLCIMP( ch ) && ! MOB2_FLAGGED( tmp_mob, MOB2_UNAPPROVED ) ) {
+	    send_to_char( "You cannot olc mload approved mobiles.\r\n", ch );
+	    return;
+	}
+
+	if ( ! ( tmp_mob = read_mobile( j ) ) ){
+	    send_to_char( "Unable to load mobile.\r\n", ch );
+	}
+
+	else {
+	    char_to_room( tmp_mob, ch->in_room );
+	    act( "$N appears next to you.", FALSE, ch, 0, tmp_mob, TO_CHAR );
+	    act( "$n creates $N in $s hands.",TRUE, ch, 0, tmp_mob, TO_ROOM );
+	    sprintf( buf, "OLC: %s mloaded [%d] %s.", GET_NAME( ch ), GET_MOB_VNUM( tmp_mob ), GET_NAME( tmp_mob ) );
+	    slog( buf );
+	}
+
+	break;
+
+
+
     default:
 	send_to_char("This action is not supported yet.\r\n",ch);
     }
