@@ -36,9 +36,10 @@ Creature::Creature(bool pc)
 Creature::~Creature(void)
 {
 	clear();
-	if (player_specials != &dummy_mob)
+	if (player_specials != &dummy_mob) {
 		delete player_specials;
-	free(player.title);
+		free(player.title);
+	}
 }
 
 bool
