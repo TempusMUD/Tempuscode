@@ -18,5 +18,7 @@ struct ban_list_element {
 	struct ban_list_element *next;
 };
 
+int isbanned(char *hostname, char *blocking_hostname);
+int Valid_Name(char *newname);
 
 #endif
