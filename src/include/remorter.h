@@ -8,6 +8,7 @@ void do_start(struct char_data *ch, int mode);
 // Argument storage for the remorter
 static char arg1[MAX_INPUT_LENGTH];
 
+
 /**
  * This class represents a remort quiz question.
  **/
@@ -33,6 +34,8 @@ class Question {
         const char* getHint(int index) { return hints[index].c_str(); }
             // Returns the # of hints available
         int getHintCount() { return hints.size(); }
+
+        int getID() { return id; }
         
         // Relative value of a Question is for sorting only.
         bool operator<(const Question &q) const  { return (gen < q.gen); }
@@ -41,6 +44,7 @@ class Question {
         bool operator!=(const Question &q) const { return (gen != q.gen); }
         
     private:
+        int id;
             // The point value of this question
         int value;
             // The minimum generation that can be given this question
@@ -72,6 +76,7 @@ Question::Question(xmlNodePtr n,xmlDocPtr doc) {
     xmlChar *s;
     gen = xmlGetIntProp(n,"Generation");
     value = xmlGetIntProp(n,"Value");
+    id = xmlGetIntProp(n,"ID");
     
     xmlNodePtr cur = n->xmlChildrenNode;
     while (cur != NULL) {
@@ -147,6 +152,21 @@ static inline bool load_remort_questions() {
         }
         cur = cur->next;
     }
+    cur = xmlDocGetRootElement(doc);
+    cur = cur->xmlChildrenNode;
+
+    // Write out the tree with ID's
+    int id = 0;
+    while (cur != NULL) {
+        sprintf(buf,"%d",id);
+        if ((!xmlStrcmp(cur->name, (const xmlChar *)"Question"))) {
+            xmlSetProp(cur,(const xmlChar *)"ID", (const xmlChar *)buf);
+            ++id;
+        }
+        cur = cur->next;
+    }
+    xmlSaveFile("text/remort_quiz_new.xml",doc);
+    
     // Sort them by gen
     sort(remortQuestions.begin(),remortQuestions.end());
     xmlFreeDoc(doc);
@@ -160,6 +180,10 @@ class Quiz : private vector<Question*> {
         : vector<Question*>( remortQuestions.size() ) 
         { 
             reset();
+            remortLog.open("log/remorter.log",ios::app | ios::ate);
+            if( !remortLog ) fprintf(stderr, "Unable to open remorter log file.\n");
+            remortStatistics.open("log/remorter_stats.log",ios::app | ios::ate);
+            if( !remortStatistics ) fprintf(stderr, "Unable to open remorter statistics file.\n");
         }
             // Discards the current question, randomly 
             // selects another and returns it;
@@ -173,7 +197,7 @@ class Quiz : private vector<Question*> {
             // Returns true if this character is currently taking this test.
         bool isStudent(char_data *ch) { return GET_IDNUM(ch) == studentID; }
             // Returns true if the given guess is an answer to the current Question
-        bool makeGuess(const char* guess);
+        bool makeGuess(char_data *ch, const char* guess);
             // Returns true if the quiz is finished or there are no more questions
         bool isComplete(){ 
             return studentID > 0 && 
@@ -198,6 +222,8 @@ class Quiz : private vector<Question*> {
             // Returns the average value of the current questions
         float getAverage(int gen = -1 );
         void sendGenDistribution(char_data *ch);
+        void log(const char* message);
+        void logScore();
     private:
             // selects all appropriate body of questions from remortQuestions
         void selectQuestions(char_data *ch);
@@ -217,6 +243,10 @@ class Quiz : private vector<Question*> {
         int passes;
             // The number of hints requested
         int hints;
+        // The log file for remorting
+        ofstream remortLog;
+        // The remort statistics file
+        ofstream remortStatistics;
 };
             /***   BEGIN QUIZ MEMBER FUNCTIONS   ***/
     // selects another and returns it;
@@ -299,13 +329,17 @@ void Quiz::sendQuestion(char_data *ch) {
 
   // Returns true if the given guess is an answer to the current Question
   // Updates lostPoints and earnedPoints.
-bool Quiz::makeGuess(const char* guess) {
+bool Quiz::makeGuess(char_data *ch, const char* guess) {
     Question *q = getQuestion();
     if( q->isAnswer(guess) ) {
         earnedPoints += q->getValue();
+        remortStatistics << q->getID() << " 1 " << GET_NAME(ch) << endl;
+        remortStatistics.flush();
         return true;
     } else {
         lostPoints += q->getValue();
+        remortStatistics << q->getID() << " 0 " << GET_NAME(ch) << endl;
+        remortStatistics.flush();
         return false;
     }
 }
@@ -331,6 +365,8 @@ void Quiz::sendStatus(char_data *ch) {
 
     // Sets up the quiz for this character.
 void Quiz::reset(char_data *ch) {
+    remortStatistics << "# Test reset for "<< GET_NAME(ch) << endl;
+    remortStatistics.flush();
     int level = MIN(10, 3 + GET_REMORT_GEN(ch));
     maximumPoints = 18*level;// ave 4 per question:  72->240
     neededPoints = (maximumPoints * (50 + (level << 2)))/100;
@@ -350,7 +386,7 @@ void Quiz::reset() {
     }
     if(load_remort_questions() ) {
         sprintf(buf,"Remorter: %d questions loaded.",remortQuestions.size());
-        slog(buf);
+        log(buf);
     }
     studentID = 0;
     current = 0;
@@ -377,5 +413,21 @@ void Quiz::selectQuestions(char_data *ch) {
             continue;
         push_back( &(remortQuestions[i]) );
     }
+}
+static char logbuf[MAX_STRING_LENGTH];
+void Quiz::log(const char* message) {
+    time_t ct;
+    char *tmstr; 
+    ct = time(0);
+    tmstr = asctime(localtime(&ct));
+    *(tmstr + strlen(tmstr) - 1) = '\0';
+    sprintf(logbuf, "%-19.19s :: %s\n", tmstr, message);
+    remortLog << logbuf;
+    remortLog.flush();;
+}
+void Quiz::logScore() {
+    sprintf( buf,"Earned[%d] Missed[%d] Needed[%d] Limit[%d] Score(%%%d)\r\n",
+        earnedPoints, lostPoints, neededPoints , maximumPoints , getScore() );
+    log(buf);
 }
 #endif //__REMORTER_H_

@@ -152,10 +152,13 @@ SPECIAL(remorter)
             GET_TOT_DAM(ch) = 0;     // cyborg damage 
 
             // Tell everyone that they remorted
-            sprintf(buf, "(RTEST) %s has remorted to gen %d as a %s/%s. Score(%d)", GET_NAME(ch), 
-            GET_REMORT_GEN(ch), pc_char_class_types[(int)GET_CLASS(ch)], 
-            pc_char_class_types[(int)GET_REMORT_CLASS(ch)], quiz.getScore());
-            mudlog(buf, BRF, LVL_IMMORT, TRUE);
+            sprintf(buf, "%s has remorted to gen %d as a %s/%s. Score(%d)", GET_NAME(ch), 
+                GET_REMORT_GEN(ch), pc_char_class_types[(int)GET_CLASS(ch)], 
+                pc_char_class_types[(int)GET_REMORT_CLASS(ch)], quiz.getScore());
+            mudlog(buf, BRF, LVL_IMMORT, FALSE);
+            quiz.log(buf);
+            quiz.logScore();
+
             REMOVE_BIT(ch->in_room->room_flags, ROOM_NORECALL);
             quiz.reset();
 
@@ -244,7 +247,7 @@ SPECIAL(remorter)
     }
 
     argument = one_argument(argument, arg1);
-    if( quiz.makeGuess(arg1) ) {
+    if( quiz.makeGuess(ch, arg1) ) {
         sprintf(buf,"%s%sThat is correct.%s\r\n",CCBLD(ch,C_NRM),CCBLU(ch,C_NRM),CCNRM(ch,C_NRM));
     } else {
         sprintf(buf,"%sThat is incorrect.%s\r\n",CCRED(ch,C_NRM),CCNRM(ch,C_NRM));
@@ -258,11 +261,6 @@ SPECIAL(remorter)
         return 1;
     } else { // *******    TEST COMPLETE.  YAY.
         send_to_char("The test is over.\r\n", ch);
-        // Now that the "test is over" remove all those pesky affects.
-        if(affected_by_spell(ch,SKILL_EMPOWER)) {
-            sprintf(buf,"(RTEST) %s empowered during remort test. Possible abuse.",GET_NAME(ch));
-            mudlog(buf, NRM, LVL_DEMI, TRUE);
-        }
         while (ch->affected)
             affect_remove(ch, ch->affected);
 
@@ -271,8 +269,9 @@ SPECIAL(remorter)
                     //"You must be able to answer %d percent correctly.\r\n"
                     "You are unable to remort at this time.\r\n", quiz.getScore() );
             send_to_char(buf, ch);
-            sprintf(buf, "(RTEST) %s has failed (%d) remort test.", GET_NAME(ch),quiz.getScore());
-            mudlog(buf, NRM, LVL_ELEMENT, TRUE);
+            sprintf(buf, "%s has failed (%d) remort test.", GET_NAME(ch),quiz.getScore());
+            mudlog(buf, NRM, LVL_ELEMENT, FALSE);
+            quiz.log(buf);
             REMOVE_BIT(ch->in_room->room_flags, ROOM_NORECALL);
 
             // remove all eq and affects here, just in case
