@@ -101,31 +101,32 @@ SPECIAL(remorter)
 				quiz.sendQuestion(ch);
 			} else {
 				send_to_char
-					("Can it scumbag. Someone is trying to concentrate.\r\n",
-					ch);
+					("Can it scumbag. Someone is trying to concentrate.\r\n",ch);
+                send_to_char
+					("If you want to leave, just say 'goodbye'.\r\n",ch);
 			}
 		} else {
 			send_to_char
-				("You must say 'remort' to begin or 'goodbye' to leave.\r\n",
-				ch);
+				("You must say 'remort' to begin or 'goodbye' to leave.\r\n",ch);
 		}
 		return 1;
 	}
 	if (!quiz.inProgress() && isname_exact(argument, "goodbye")) {
-		room_data *dias = real_room(3001);
-		if (dias == NULL) {
+		room_data *room = ch->getLoadroom();
+        if( room == NULL )
+            room = real_room(3061);// modrian dump
+
+		if (room == NULL) {
 			send_to_char("There is nowhere to send you.\r\n", ch);
 			return 1;
 		} else {
 			send_to_char("Very well, coward.\r\n", ch);
-			act("$n disappears in a mushroom cloud.", FALSE, ch, 0, 0,
-				TO_ROOM);
+			act("$n disappears in a mushroom cloud.", FALSE, ch, 0, 0,TO_ROOM);
 			char_from_room(ch);
-			char_to_room(ch, dias);
+			char_to_room(ch, room);
 			act("$n arrives from a puff of smoke.", FALSE, ch, 0, 0, TO_ROOM);
-			act("$n has transferred you!", FALSE, (char_data *) me, 0, ch,
-				TO_VICT);
-			look_at_room(ch, dias, 0);
+			act("$n has transferred you!", FALSE, (char_data *) me, 0, ch, TO_VICT);
+			look_at_room(ch, room, 0);
 			return 1;
 		}
 	} else if (isname_exact(argument, "remort")) {
