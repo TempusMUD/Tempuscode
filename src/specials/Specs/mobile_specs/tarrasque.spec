@@ -310,6 +310,7 @@ tarrasque_follow(Creature *tarr)
 		return 0;
 
 	vict = FIGHTING(tarr);
+	vict2 = NULL;
 	if (!vict)
 		vict = get_char_random_vis(tarr, tarr->in_room);
 	if (vict) {
