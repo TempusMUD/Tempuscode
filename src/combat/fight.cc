@@ -2105,11 +2105,15 @@ get_next_weap(struct Creature *ch)
 	cur_weap = GET_EQ(ch, WEAR_WIELD_2);
 	if (cur_weap && IS_OBJ_TYPE(cur_weap, ITEM_WEAPON)) {
 		if (affected_by_spell(ch, SKILL_NEURAL_BRIDGING)) {
-			if ((CHECK_SKILL(ch, SKILL_NEURAL_BRIDGING) * 2 / 3) + dual_prob > number(50, 150))
+			if ((CHECK_SKILL(ch, SKILL_NEURAL_BRIDGING) * 2 / 3) + dual_prob > number(50, 150)) {
+				gain_skill_prof(ch, SKILL_NEURAL_BRIDGING);
 				return cur_weap;
+			}
 		} else {
-			if ((CHECK_SKILL(ch, SKILL_SECOND_WEAPON) * 2 / 3) + dual_prob > number(50, 150))
+			if ((CHECK_SKILL(ch, SKILL_SECOND_WEAPON) * 2 / 3) + dual_prob > number(50, 150)) {
+				gain_skill_prof(ch, SKILL_SECOND_WEAPON);
 				return cur_weap;
+			}
 		}
 	}
 
