@@ -7390,6 +7390,7 @@ static const char* CODER_UTIL_USAGE =
                     "Usage: coderutil <command> <args>\r\n"
                     "Commands: \r\n"
                     "      tick - forces a mud-wide tick to occur.\r\n"
+					"      recalc - recalculates all mobs and saves.\r\n"
                     ;
 
 ACMD(do_coderutil)
@@ -7397,15 +7398,17 @@ ACMD(do_coderutil)
     Tokenizer tokens(argument);
     char token[MAX_INPUT_LENGTH];
     
-    if(! tokens.next(token) ) {
+    if(!tokens.next(token)) {
         send_to_char( ch, CODER_UTIL_USAGE );
         return;
     }
-    if ( strcmp( token, "tick" ) == 0 ) {
+    if (strcmp(token, "tick") == 0)
         point_update();
-    } else {
-        send_to_char( ch, CODER_UTIL_USAGE );
-    }
+	if (strcmp(token, "recalc") == 0) {
+		tokens.next(token);
+		recalc_all_mobs(ch, token);
+	} else
+        send_to_char(ch, CODER_UTIL_USAGE);
 }
 
 ACMD(do_tester)
