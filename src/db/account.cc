@@ -401,6 +401,7 @@ Account::create_char(const char *name)
 void
 Account::delete_char(Creature *ch)
 {
+	void remove_bounties(int);
 	vector<long>::iterator it;
 	clan_data *clan;
 	int idx, count;
@@ -447,6 +448,7 @@ Account::delete_char(Creature *ch)
 	}
 
 	// Remove from the bounty list
+	remove_bounties(GET_IDNUM(ch));
 	sql_exec("delete from bounty_hunters where idnum=%ld or victim=%ld",
 		GET_IDNUM(ch), GET_IDNUM(ch));
 

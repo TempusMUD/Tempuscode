@@ -26,6 +26,23 @@ load_bounty_data(void)
 			atoi(PQgetvalue(res, idx, 1))));
 }
 
+void
+remove_bounties(int char_id)
+{
+	vector <hunter_data>::iterator hunter;
+	bool removed = true;
+
+	while (removed) {
+		removed = false;
+		for (hunter = hunter_list.begin();hunter != hunter_list.end();hunter++)
+			if (hunter->vict_id == char_id || hunter->idnum == char_id) {
+				hunter_list.erase(hunter);
+				removed = true;
+				break;
+			}
+	}
+}
+
 int
 get_bounty_amount(int idnum)
 {
@@ -65,6 +82,7 @@ award_bounty(Creature *killer, Creature *vict)
 		return false;
 
 	// erase record for this hunter
+	hunter_list.erase(hunter);
 	sql_exec("delete from bounty_hunters where idnum=%ld", GET_IDNUM(killer));
 
 	// Now find out how much money they get for killing the bastard
@@ -148,6 +166,21 @@ award_bounty(Creature *killer, Creature *vict)
 	}
 
 	return true;
+}
+
+int
+get_hunted_id(int hunter_id)
+{
+	vector <hunter_data>::iterator hunter;
+
+	if (!hunter_id)
+		return 0;
+
+	hunter = find(hunter_list.begin(), hunter_list.end(), hunter_id);
+	if (hunter == hunter_list.end())
+		return 0;
+
+	return hunter->vict_id;
 }
 
 int
