@@ -25,10 +25,15 @@ SPECIAL(fountain_heal)
     return 0;
 
   if (GET_HIT(ch) < GET_MAX_HIT(ch))
-    send_to_char("You drink from the fountain, it tastes oddly refreshing!\r\n", ch);
+    act("You drink from $p, it tastes oddly refreshing!", 
+        TRUE, ch, fountain, 0, TO_CHAR);
+  else
+    act("You drink from $p.", 
+        TRUE, ch, fountain, 0, TO_CHAR);
   act("$n drinks from $p.", TRUE, ch, fountain, 0, TO_ROOM);
 
-  num= number(1,3);
+  num= number(4,12);
+  WAIT_STATE(ch,1 RL_SEC);
   GET_HIT(ch) = MIN(GET_HIT(ch)+num,GET_MAX_HIT(ch));
   return 1;
 }
