@@ -2865,6 +2865,53 @@ ACMD(do_weather)
     }
 }
 
+void 
+perform_net_who(struct char_data *ch, char *arg)
+{
+    struct descriptor_data *d = NULL;
+    int count = 0;
+
+    strcpy(buf, "Visible users of the global net:\r\n");
+    for (d = descriptor_list; d; d = d->next) {
+        if (STATE(d) < CON_NET_MENU1)
+            continue;
+        if (!CAN_SEE(ch, d->character))
+            continue;
+    
+        count++;
+        sprintf(buf, "%s   (%3d)     %s\r\n", buf, count, GET_NAME(d->character));
+        continue;
+    }
+    sprintf(buf, "%s\r\n%d users detected.\r\n\r\n", buf, count);
+    page_string(ch->desc, buf, 1);
+}
+
+void perform_net_finger(struct char_data *ch, char *arg)
+{
+    struct char_data *vict = NULL;
+
+    if (!*arg) {
+        send_to_char("ERROR.  NULL arg passed to perform_net_finger.\r\n", ch);
+        return;
+    }
+    if (!(vict = get_char_vis(ch, arg)) || !vict->desc ||
+        STATE(vict->desc) < CON_NET_MENU1) {
+        send_to_char("No such user detected.\r\n", ch);
+        return;
+    }
+    sprintf(buf, "Finger results:\r\n"
+            "Name:  %s, Level %d %s %s.\r\n"
+            "Logged in at: %s.\r\n"
+            "State:  %s.\r\n\r\n",
+            GET_NAME(vict), GET_LEVEL(vict), 
+            player_race[(int)GET_RACE(vict)], 
+            pc_char_class_types[(int)GET_CLASS(vict)], 
+            vict->in_room != NULL ?ch->in_room->name: "NOWHERE", 
+            connected_types[STATE(vict->desc)]);
+    send_to_char(buf, ch);
+
+}
+
 #define WHO_FORMAT \
 "format: who [minlev[-maxlev]] [-n name] [-c char_classlist] [-a clan] [-<soqrzmftpx>]\r\n"
 
@@ -3003,7 +3050,7 @@ ACMD(do_who)
             "" : "\r\n");
 
     for (d = descriptor_list; d; d = d->next) {
-        if (!IS_PLAYING(d))
+        if (d->connected != CON_PLAYING && STATE(d) < CON_NET_MENU1)
             continue;
 
         if (d->original)
@@ -3399,11 +3446,11 @@ ACMD(do_users)
     one_argument(argument, arg);
 
     for (d = descriptor_list; d; d = d->next) {
-        if (IS_PLAYING(d) && playing)
+        if (d->connected != CON_PLAYING && playing)
             continue;
-        if (STATE(d) == CON_PLAYING && deadweight)
+        if (d->connected == CON_PLAYING && deadweight)
             continue;
-        if (STATE(d) == CON_PLAYING) {
+        if (d->connected == CON_PLAYING) {
             if (d->original)
                 tch = d->original;
             else if (!(tch = d->character))
@@ -3438,12 +3485,12 @@ ACMD(do_users)
         timeptr += 11;
         *(timeptr + 8) = '\0';
 
-        if (STATE(d) == CON_PLAYING && d->original)
+        if (d->connected == CON_PLAYING && d->original)
             strcpy(state, "Switched");
         else
-            strcpy(state, connected_types[STATE(d)]);
+            strcpy(state, connected_types[d->connected]);
 
-        if (d->character && STATE(d) == CON_PLAYING && 
+        if (d->character && d->connected == CON_PLAYING && 
             (GET_LEVEL(d->character) < GET_LEVEL(ch) || GET_LEVEL(ch) >= LVL_LUCIFER))
             sprintf(idletime, "%2d", d->character->char_specials.timer *
                     SECS_PER_MUD_HOUR / SECS_PER_REAL_MIN);
@@ -3478,11 +3525,11 @@ ACMD(do_users)
             strcat(line, CCNRM(ch, C_SPR));
         }
 
-        if (STATE(d) != CON_PLAYING) {
+        if (d->connected != CON_PLAYING) {
             sprintf(line2, "%s%s%s", CCCYN(ch, C_SPR), line, CCNRM(ch, C_SPR));
             strcpy(line, line2);
         }
-        if (STATE(d) != CON_PLAYING || (STATE(d) == CON_PLAYING && CAN_SEE(ch, d->character))) {
+        if (d->connected != CON_PLAYING || (d->connected == CON_PLAYING && CAN_SEE(ch, d->character))) {
             strcat(out_buf, line);
             num_can_see++;
         }
@@ -3581,7 +3628,7 @@ perform_mortal_where(struct char_data * ch, char *arg)
     if (!*arg) {
         send_to_char("Players in your Zone\r\n--------------------\r\n", ch);
         for (d = descriptor_list; d; d = d->next) {
-            if (STATE(d) == CON_PLAYING) {
+            if (d->connected == CON_PLAYING) {
                 i = (d->original ? d->original : d->character);
                 if (i && CAN_SEE(ch, i) && (i->in_room != NULL) &&
                     (ch->in_room->zone == i->in_room->zone)) {
@@ -3669,7 +3716,7 @@ perform_immort_where(struct char_data * ch, char *arg)
     if (!*arg) {
         strcpy(main_buf, "Players\r\n-------\r\n");
         for (d = descriptor_list; d; d = d->next) {
-            if (STATE(d) == CON_PLAYING) {
+            if (d->connected == CON_PLAYING) {
                 i = (d->original ? d->original : d->character);
                 if (i && CAN_SEE(ch, i) && (i->in_room != NULL)) {
                     if (d->original)

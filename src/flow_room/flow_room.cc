@@ -286,7 +286,8 @@ flow_room(int pulse)
         
                     if (OBJ_CUR_PULSE(obj) == pulse ||
                         (!CAN_WEAR(obj, ITEM_WEAR_TAKE) &&
-                         GET_OBJ_VNUM(obj) != BLOOD_VNUM) ||
+                         GET_OBJ_VNUM(obj) != BLOOD_VNUM &&
+						 GET_OBJ_VNUM(obj) != ICE_VNUM) ||
                         (obj->getWeight() > number(5, FLOW_SPEED(rnum) * 10) &&
                          !number(0, FLOW_SPEED(rnum))))
                         continue;
@@ -326,7 +327,7 @@ dynamic_object_pulse()
 
         if (fallpulse &&
             obj->in_room && obj->in_room->isOpenAir() &&
-            (CAN_WEAR(obj, ITEM_WEAR_TAKE) || GET_OBJ_VNUM(obj) == BLOOD_VNUM) &&
+            (CAN_WEAR(obj, ITEM_WEAR_TAKE) || OBJ_IS_SOILAGE(obj)) &&
             obj->in_room->dir_option[DOWN] &&
             (fall_to = obj->in_room->dir_option[DOWN]->to_room) &&
             fall_to != obj->in_room &&

@@ -691,8 +691,12 @@ char *CURRENCY(char_data *ch);
 #define OBJ_IS_RAD(obj) (IS_OBJ_STAT2(obj, ITEM2_RADIOACTIVE))
 
 #define QUAD_VNUM  1578
+
 #define BLOOD_VNUM 1579
 #define ICE_VNUM   1576
+
+#define OBJ_IS_SOILAGE(obj) (GET_OBJ_VNUM(obj) == BLOOD_VNUM || \
+							 GET_OBJ_VNUM(obj) == ICE_VNUM)
 
 #define CHAR_HAS_BLOOD(ch)  (!IS_UNDEAD(ch) && !IS_ELEMENTAL(ch) && \
                              !IS_GOLEM(ch) && !IS_ROBOT(ch) && \
