@@ -2923,7 +2923,7 @@ ASPELL(spell_sun_ray)
                     act( "You begin to scream as the flames of light sear out your eyes!",
                         FALSE, ch, NULL, vict, TO_VICT);
                 } else {
-                    act( "$N screams in agony!",
+                    act( "$n screams in agony!",
                         FALSE, vict, NULL, ch, TO_ROOM);
                     act( "You cry out in pain as the flames of light consume your body!",
                         FALSE, ch, NULL, vict, TO_VICT);
