@@ -817,39 +817,86 @@ SPECIAL(barbarian)
 *  Special procedures for mobiles                                      *
 ******************************************************************** */
 
+int parse_player_class(char *arg, int timeframe);
+
 SPECIAL(guild_guard)
 {
-	int i;
 	struct Creature *guard = (struct Creature *)me;
 	char *buf = "$N humiliates you, and blocks your way.";
 	char *buf2 = "$N humiliates $n, and blocks $s way.";
+	char *str;
+	int ch_class, align;
+	int cmd_idx, idx;
 
-	if (spec_mode != SPECIAL_CMD)
-		return 0;
+	if (spec_mode == SPECIAL_HELP) {
+		send_to_char(ch,
+"%sSpecial: guildguard%s\r\n\r\n"
+"    The guild_guard mobile special is used to protect the entrances of class\r\n"
+"guilds from players and mobs not of a particular class.  The guard will\r\n"
+"humiliate and block any attempts to go in a specified direction by someone\r\n"
+"not of the appropriate class.  It is configured with the use of a specparam.\r\n"
+"\r\n    The specparam must be in the form \"<class> <align> <direction>\",\r\n"
+"without the quotes.  <class> is the single player class allowed to go in\r\n"
+"the <direction>.  You must set the <align> to 'good', 'evil', 'neutral',\r\n"
+"or 'all'.  Most guilds will accept 'all' alignments.  <direction> is the\r\n"
+"direction from the room that you want protected against interlopers.\r\n\r\n",
+			CCCYN(ch, C_NRM), CCNRM(ch, C_NRM));
+		return 1;
+	} else if (spec_mode != SPECIAL_CMD)
+		return false;
 	if (!IS_MOVE(cmd) || !AWAKE(guard) || !LIGHT_OK(guard) ||
-		ch == guard || GET_LEVEL(ch) >= LVL_GRGOD) {
-		return FALSE;
-	}
-
-	for (i = 0; guild_info[i][0] != -1; i++) {
-		if (cmd != guild_info[i][3]) {
-			continue;
-		} else if (ch->in_room->number != guild_info[i][2]) {
-			continue;
-		} else if (GET_CLASS(ch) != guild_info[i][0] &&
-			CHECK_REMORT_CLASS(ch) != guild_info[i][0]) {
-			act(buf, FALSE, ch, 0, guard, TO_CHAR);
-			act(buf2, FALSE, ch, 0, guard, TO_ROOM);
-			return TRUE;
-		} else if ((guild_info[i][1] == EVIL && IS_GOOD(ch)) ||
-			(guild_info[i][1] == GOOD && IS_EVIL(ch)) ||
-			(guild_info[i][1] == NEUTRAL && !IS_NEUTRAL(ch))) {
-			act(buf, FALSE, ch, 0, guard, TO_CHAR);
-			act(buf2, FALSE, ch, 0, guard, TO_ROOM);
-			return TRUE;
+		ch == guard || GET_LEVEL(ch) >= LVL_GRGOD)
+		return false;
+	
+	if (GET_MOB_PARAM(guard)) {
+		str = GET_MOB_PARAM(guard);
+		ch_class = parse_player_class(tmp_getword(&str), TIME_TIMELESS);
+		switch (tolower(tmp_getword(&str)[0])) {
+			case 'e':
+				align = EVIL; break;
+			case 'g':
+				align = GOOD; break;
+			case 'n':
+				align = NEUTRAL; break;
+			case 'a':
+				align = ALL; break;
+			default:
+				slog("SYSERR: Invalid alignment in guild_guard [%d]",
+					guard->in_room->number);
+				return false;
 		}
+		cmd_idx = find_command(tmp_getword(&str));
+		if (cmd_idx == -1) {
+			slog("syserr: bad trigger command in guild_guard [%d]",
+				guard->in_room->number);
+			return false;
+		}
+		if (cmd_idx != cmd)
+			return false;
+	} else {
+		for (idx = 0; guild_info[idx][0] != -1; idx++)
+			if (ch->in_room->number == guild_info[idx][2] &&
+					cmd == guild_info[idx][3])
+				break;
+		if (guild_info[idx][0] == -1)
+			return false;
+		ch_class = guild_info[idx][0];
+		align = guild_info[idx][1];
 	}
-	return FALSE;
+	
+	if (GET_CLASS(ch) != ch_class &&
+		CHECK_REMORT_CLASS(ch) != ch_class) {
+		act(buf, false, ch, 0, guard, TO_CHAR);
+		act(buf2, false, ch, 0, guard, TO_ROOM);
+		return true;
+	} else if ((align == EVIL && !IS_EVIL(ch)) ||
+		(align == GOOD && !IS_GOOD(ch)) ||
+		(align == NEUTRAL && !IS_NEUTRAL(ch))) {
+		act(buf, false, ch, 0, guard, TO_CHAR);
+		act(buf2, false, ch, 0, guard, TO_ROOM);
+		return true;
+	}
+	return false;
 }
 
 

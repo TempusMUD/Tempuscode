@@ -880,6 +880,7 @@ struct mob_shared_data {
 	struct Creature *proto;	/* pointer to prototype */
 	struct ticl_data *ticl_ptr;	/* Pointer to TICL procedure */
 	 SPECIAL(*func);
+	char *func_param;			/* mobile's special parameter str */
 };
 
 

@@ -218,6 +218,7 @@ class room_data {
 	byte flow_type;				// Type of flow
 	struct ticl_data *ticl_ptr;	// Pointer to TICL procedure
 	 SPECIAL(*func);
+	 char *func_param;
 	struct zone_data *zone;		// zone the room is in
 	struct room_data *next;
 

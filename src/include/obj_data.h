@@ -404,6 +404,7 @@ struct obj_shared_data {
 	struct obj_data *proto;		/* pointer to prototype */
 	struct ticl_data *ticl_ptr;	/* Pointer to TICL procedure */
 	SPECIAL(*func);
+	char *func_param;
 };
 
 

@@ -100,11 +100,9 @@ const char *olc_mset_keys[] = {
 	"lair",			/** 45 **/
 	"leader",
 	"iscript",
+	"specparam",
 	"\n"
 };
-
-#define NUM_MSET_COMMANDS 45
-
 
 struct Creature *
 do_create_mob(struct Creature *ch, int vnum)
@@ -372,7 +370,7 @@ do_mob_mset(struct Creature *ch, char *argument)
 		strcpy(buf, "Valid mset commands:\r\n");
 		strcat(buf, CCYEL(ch, C_NRM));
 		i = 0;
-		while (i < NUM_MSET_COMMANDS) {
+		while (*olc_mset_keys[i] != '\n') {
 			strcat(buf, olc_mset_keys[i]);
 			strcat(buf, "\r\n");
 			i++;
@@ -1214,6 +1212,24 @@ do_mob_mset(struct Creature *ch, char *argument)
 			send_to_char(ch, "Mobile iscript set.\r\n");
 			break;
 		}
+	case 48:{
+		if (!*arg2) {
+			send_to_char(ch, "You should set the specparam to something.  Try using ~ to clear it.\r\n");
+		} else if (!GET_MOB_SPEC(mob_p)) {
+			send_to_char(ch, "You should set a special first!\r\n");
+		} else {
+			if (GET_MOB_PARAM(mob_p))
+				free(GET_MOB_PARAM(mob_p));
+			if (*arg2 == '~')
+				mob_p->mob_specials.shared->func_param = NULL;
+			else
+				mob_p->mob_specials.shared->func_param = strdup(arg2);
+			do_specassign_save(ch, SPEC_MOB);
+			send_to_char(ch, "Mobile special parameters set.\r\n");
+		}
+
+		break;
+	}
 	default:{
 			break;
 		}
@@ -1335,8 +1351,10 @@ save_mobs(struct Creature *ch)
 			ch->in_room->zone->number);
 	}
 	sprintf(fname, "world/mob/olc/%d.mob", zone->number);
-	if (!(file = fopen(fname, "w")))
+	if (!(file = fopen(fname, "w"))) {
+		slog("OLC: ERROR while saving mobile file - %s", strerror(errno));
 		return 1;
+	}
 
 	if ((write_mob_index(ch, zone)) != 1) {
 		fclose(file);

@@ -740,10 +740,9 @@ static const char *olc_rset_keys[] = {
 	"flow",
 	"occupancy",
 	"special",
+	"specparam",
 	"\n"						/* many more to be added */
 };
-
-#define NUM_RSET_COMMANDS 8
 
 
 void
@@ -959,6 +958,23 @@ do_olc_rset(struct Creature *ch, char *argument)
 			ch->in_room->func = spec_list[i].func;
 			do_specassign_save(ch, SPEC_RM);
 			send_to_char(ch, "Room special set.\r\n");
+		}
+
+		break;
+	case 8:
+		if (!*arg2) {
+			send_to_char(ch, "You should set the specparam to something.  Try using ~ to clear it.\r\n");
+		} else if (!GET_ROOM_SPEC(ch->in_room)) {
+			send_to_char(ch, "You should set a special first!\r\n");
+		} else {
+			if (GET_ROOM_PARAM(ch->in_room))
+				free(GET_ROOM_PARAM(ch->in_room));
+			if (*arg2 == '~')
+				ch->in_room->func_param = NULL;
+			else
+				ch->in_room->func_param = strdup(arg2);
+			do_specassign_save(ch, SPEC_RM);
+			send_to_char(ch, "Room special parameters set.\r\n");
 		}
 
 		break;

@@ -74,12 +74,9 @@ const char *olc_oset_keys[] = {
 	"sigil",
 	"extra3",
 	"timer",
-
+	"specparam",
 	"\n"
 };
-
-#define NUM_OSET_COMMANDS 24
-
 
 int
 write_obj_index(struct Creature *ch, struct zone_data *zone)
@@ -533,7 +530,7 @@ perform_oset(struct Creature *ch, struct obj_data *obj_p,
 		strcpy(buf, "Valid oset commands:\r\n");
 		strcat(buf, CCYEL(ch, C_NRM));
 		i = 0;
-		while (i < NUM_OSET_COMMANDS) {
+		while (*olc_oset_keys[i] != '\n') {
 			strcat(buf, olc_oset_keys[i]);
 			strcat(buf, "\r\n");
 			i++;
@@ -1119,6 +1116,23 @@ perform_oset(struct Creature *ch, struct obj_data *obj_p,
 			send_to_char(ch, "Object %d timer set to %d.\r\n",
 				obj_p->shared->vnum, i);
 		}
+		break;
+	case 24:
+		if (!*arg2) {
+			send_to_char(ch, "You should set the specparam to something.  Try using ~ to clear it.\r\n");
+		} else if (!GET_OBJ_SPEC(obj_p)) {
+			send_to_char(ch, "You should set a special first!\r\n");
+		} else {
+			if (GET_OBJ_PARAM(obj_p))
+				free(GET_OBJ_PARAM(obj_p));
+			if (*arg2 == '~')
+				obj_p->shared->func_param = NULL;
+			else
+				obj_p->shared->func_param = strdup(arg2);
+			do_specassign_save(ch, SPEC_OBJ);
+			send_to_char(ch, "Object special parameters set.\r\n");
+		}
+
 		break;
 
 	default:

@@ -341,6 +341,7 @@ ACMD(do_sneak);
 ACMD(do_snipe);
 ACMD(do_snoop);
 ACMD(do_spec_comm);
+ACMD(do_spechelp);
 ACMD(do_specializations);
 ACMD(do_special);
 ACMD(do_split);
@@ -1155,6 +1156,7 @@ struct command_info cmd_info[] = {
 	{"socials", POS_DEAD, do_commands, 0, SCMD_SOCIALS, 0},
 	{"soilage", POS_SLEEPING, do_soilage, 0, 0, 0},
 	{"specials", POS_DEAD, do_special, LVL_IMPL, 0, 0},
+	{"spechelp", POS_DEAD, do_spechelp, LVL_IMMORT, 0, 0},
 	{"specializations", POS_DEAD, do_specializations, 0, 0, 0},
 	{"spells", POS_SLEEPING, do_skills, 0, SCMD_SPELLS_ONLY, 0},
 	{"spinfist", POS_FIGHTING, do_offensive_skill, 0, SKILL_SPINFIST, 0},

@@ -21,6 +21,7 @@ enum special_mode {
 	SPECIAL_COMBAT = 4,	// special in-combat ability
 	SPECIAL_ENTER =  5,	// special upon entrance
 	SPECIAL_LEAVE =  6,	// special upon exit
+	SPECIAL_HELP =   7, // describe special to ch for documentation
 };
 
 /* other miscellaneous defines *******************************************/

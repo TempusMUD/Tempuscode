@@ -116,7 +116,8 @@ bool OLCIMP(Creature * ch);
                   "olc rset flags [- | +] <flags>\r\n"               \
                   "olc rset sound [remove]\r\n"                      \
                   "olc rset flow [remove] <dir> <speed> <type>\r\n"  \
-                  "olc rset occupancy <maximum>\r\n"
+                  "olc rset occupancy <maximum>\r\n" \
+				  "olc rset specparam <param>\r\n"
 
 #define OLC_EXDESC_USAGE "olc <r|o>exdesc <create | remove | edit | addkey>" \
 		   "<keywords> [new keywords]\r\n"

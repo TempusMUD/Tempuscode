@@ -448,6 +448,7 @@ IS_LIGHT(room_data * room)
 }
 
 #define GET_ROOM_SPEC(room) ((room) != NULL ? (room)->func : NULL)
+#define GET_ROOM_PARAM(room) ((room) != NULL ? (room)->func_param : NULL)
 
 /* char utils ************************************************************/
 
@@ -591,6 +592,7 @@ char *CURRENCY(Creature * ch);
 #define GET_IMPLANT(ch, i)      ((ch)->implants[i])
 
 #define GET_MOB_SPEC(ch) (IS_MOB(ch) ? (ch->mob_specials.shared->func) : NULL)
+#define GET_MOB_PARAM(ch) (IS_MOB(ch) ? (ch->mob_specials.shared->func_param) : NULL)
 #define GET_MOB_VNUM(mob)        (IS_MOB(mob) ? \
                                       mob->mob_specials.shared->vnum : -1)
 
@@ -685,6 +687,7 @@ char *CURRENCY(Creature * ch);
 #define IS_OBJ_STAT3(obj,stat)        (IS_SET((obj)->obj_flags.extra3_flags,stat))
 
 #define GET_OBJ_SPEC(obj) ((obj) ? (obj)->shared->func : NULL)
+#define GET_OBJ_PARAM(obj) ((obj) ? (obj)->shared->func_param : NULL)
 
 #define OBJ_SOILAGE(obj)        (obj->soilage)
 #define OBJ_SOILED(obj, soil)    (IS_SET(OBJ_SOILAGE(obj), soil))
