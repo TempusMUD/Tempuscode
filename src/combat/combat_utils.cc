@@ -45,6 +45,7 @@ extern int corpse_state;
 obj_data *get_random_uncovered_implant(Creature * ch, int type = -1);
 int calculate_weapon_probability(struct Creature *ch, int prob,
 	struct obj_data *weap);
+int calculate_attack_probability(struct Creature *ch);
 
 
 int
@@ -1708,6 +1709,86 @@ make_corpse(struct Creature *ch, struct Creature *killer, int attacktype)
 		extract_obj(corpse);
 	} else
 		obj_to_room(corpse, ch->in_room);
+}
+
+
+int calculate_attack_probability(struct Creature *ch)
+{
+    int prob;
+    struct obj_data *weap = NULL;
+
+    prob = 1 + (GET_LEVEL(ch) / 7) + (GET_DEX(ch) << 1);
+
+    if (IS_RANGER(ch) && (!GET_EQ(ch, WEAR_BODY) ||
+        !OBJ_TYPE(GET_EQ(ch, WEAR_BODY), ITEM_ARMOR) ||
+        !IS_METAL_TYPE(GET_EQ(ch, WEAR_BODY))))
+        prob -= (GET_LEVEL(ch) >> 2);
+
+    if (GET_EQ(ch, WEAR_WIELD_2))
+        prob = calculate_weapon_probability(ch, prob, GET_EQ(ch, WEAR_WIELD_2));
+
+    if (GET_EQ(ch, WEAR_WIELD))
+        prob = calculate_weapon_probability(ch, prob, GET_EQ(ch, WEAR_WIELD));
+
+    if (GET_EQ(ch, WEAR_HANDS))
+        prob = calculate_weapon_probability(ch, prob, GET_EQ(ch, WEAR_HANDS));
+
+    prob += ((POS_FIGHTING - (FIGHTING(ch))->getPosition()) << 1);
+
+    if (CHECK_SKILL(ch, SKILL_DBL_ATTACK))
+        prob += (int)((CHECK_SKILL(ch, SKILL_DBL_ATTACK) * 0.15) +
+                (CHECK_SKILL(ch, SKILL_TRIPLE_ATTACK) * 0.17));
+
+    if (CHECK_SKILL(ch, SKILL_MELEE_COMBAT_TAC) &&
+        affected_by_spell(ch, SKILL_MELEE_COMBAT_TAC))
+        prob += (int)(CHECK_SKILL(ch, SKILL_MELEE_COMBAT_TAC) * 0.10);
+
+    if (affected_by_spell(ch, SKILL_OFFENSIVE_POS))
+        prob += (int)(CHECK_SKILL(ch, SKILL_OFFENSIVE_POS) * 0.10);
+    else if (affected_by_spell(ch, SKILL_DEFENSIVE_POS))
+        prob -= (int)(CHECK_SKILL(ch, SKILL_DEFENSIVE_POS) * 0.05);
+
+    if (IS_MERC(ch) && ((((weap = GET_EQ(ch, WEAR_WIELD)) && IS_GUN(weap)) || 
+                        ((weap = GET_EQ(ch, WEAR_WIELD_2)) && IS_GUN(weap))) &&
+                        CHECK_SKILL(ch, SKILL_SHOOT) > 50)) 
+        prob += (int)(CHECK_SKILL(ch, SKILL_SHOOT) * 0.18);
+
+    if (IS_AFFECTED(ch, AFF_ADRENALINE))
+        prob = (int)(prob * 1.10);
+
+    if (IS_AFFECTED_2(ch, AFF2_HASTE))
+        prob = (int)(prob * 1.30);
+
+    if (ch->getSpeed())
+        prob += (prob * ch->getSpeed()) / 100;
+
+    if (IS_AFFECTED_2(ch, AFF2_SLOW))
+        prob = (int)(prob * 0.70);
+
+    if (SECT(ch->in_room) == SECT_ELEMENTAL_OOZE)
+        prob = (int)(prob * 0.70);
+
+    if (IS_AFFECTED_2(ch, AFF2_BERSERK))
+        prob += (GET_LEVEL(ch) + (GET_REMORT_GEN(ch) << 2)) >> 1;
+
+    if (IS_MONK(ch))
+        prob += GET_LEVEL(ch) >> 2;
+
+    if (IS_AFFECTED_3(ch, AFF3_DIVINE_POWER))
+        prob += (ch->getLevelBonus(SPELL_DIVINE_POWER) / 3);
+
+    if (ch->desc)
+        prob -= ((MAX(0, ch->desc->wait >> 1)) * prob) / 100;
+    else
+        prob -= ((MAX(0, GET_MOB_WAIT(ch) >> 1)) * prob) / 100;
+
+    prob -= ((((IS_CARRYING_W(ch) + IS_WEARING_W(ch)) << 5) * prob) /
+            (CAN_CARRY_W(ch) * 85));
+
+    if (GET_COND(ch, DRUNK) > 5)
+        prob -= (int)((prob * 0.15) + (prob * (GET_COND(ch, DRUNK) / 100)));
+
+    return prob;
 }
 
 #undef __combat_code__

@@ -55,6 +55,7 @@ int calculate_weapon_probability(struct Creature *ch, int prob,
 	struct obj_data *weap);
 int do_combat_fire(struct Creature *ch, struct Creature *vict, int weap_pos);
 int do_casting_weapon(Creature *ch, obj_data *weap);
+int calculate_attack_probability(struct Creature *ch);
 
 /* start one char fighting another ( yes, it is horrible, I know... )  */
 void
@@ -2473,7 +2474,6 @@ perform_violence(void)
 {
 
 	register struct Creature *ch;
-	struct obj_data *weap = NULL;
 	int prob, i, die_roll;
 
 	CreatureList::iterator cit = combatList.begin();
@@ -2509,66 +2509,10 @@ perform_violence(void)
 			continue;
 		}
 
-		prob = 1 + (GET_LEVEL(ch) / 7) + (GET_DEX(ch) << 1);
-		if (IS_RANGER(ch) && (!GET_EQ(ch, WEAR_BODY) ||
-				!OBJ_TYPE(GET_EQ(ch, WEAR_BODY), ITEM_ARMOR) ||
-				!IS_METAL_TYPE(GET_EQ(ch, WEAR_BODY))))
-			prob -= (GET_LEVEL(ch) >> 2);
-		if (GET_EQ(ch, WEAR_WIELD_2))
-			prob =
-				calculate_weapon_probability(ch, prob, GET_EQ(ch,
-					WEAR_WIELD_2));
-		if (GET_EQ(ch, WEAR_WIELD))
-			prob =
-				calculate_weapon_probability(ch, prob, GET_EQ(ch, WEAR_WIELD));
-		if (GET_EQ(ch, WEAR_HANDS))
-			prob =
-				calculate_weapon_probability(ch, prob, GET_EQ(ch, WEAR_HANDS));
+        // Moved all attack prob stuff to this function.
+        // STOP THE INSANITY! --N
+        prob = calculate_attack_probability(ch);
 
-		prob += ((POS_FIGHTING - (FIGHTING(ch))->getPosition()) << 1);
-
-		if (CHECK_SKILL(ch, SKILL_DBL_ATTACK))
-			prob += (int)((CHECK_SKILL(ch, SKILL_DBL_ATTACK) * 0.15) +
-				(CHECK_SKILL(ch, SKILL_TRIPLE_ATTACK) * 0.17));
-		if (CHECK_SKILL(ch, SKILL_MELEE_COMBAT_TAC) &&
-			affected_by_spell(ch, SKILL_MELEE_COMBAT_TAC))
-			prob += (int)(CHECK_SKILL(ch, SKILL_MELEE_COMBAT_TAC) * 0.10);
-		if (affected_by_spell(ch, SKILL_OFFENSIVE_POS))
-			prob += (int)(CHECK_SKILL(ch, SKILL_OFFENSIVE_POS) * 0.10);
-		else if (affected_by_spell(ch, SKILL_DEFENSIVE_POS))
-			prob -= (int)(CHECK_SKILL(ch, SKILL_DEFENSIVE_POS) * 0.05);
-		if (IS_MERC(ch) && ((((weap = GET_EQ(ch, WEAR_WIELD)) && IS_GUN(weap))
-					|| ((weap = GET_EQ(ch, WEAR_WIELD_2)) && IS_GUN(weap)))
-				&& CHECK_SKILL(ch, SKILL_SHOOT) > 50))
-			prob += (int)(CHECK_SKILL(ch, SKILL_SHOOT) * 0.18);
-		if (IS_AFFECTED(ch, AFF_ADRENALINE))
-			prob = (int)(prob * 1.10);
-		if (IS_AFFECTED_2(ch, AFF2_HASTE))
-			prob = (int)(prob * 1.30);
-		if (ch->getSpeed())
-			prob += (prob * ch->getSpeed()) / 100;
-		if (IS_AFFECTED_2(ch, AFF2_SLOW))
-			prob = (int)(prob * 0.70);
-		if (SECT(ch->in_room) == SECT_ELEMENTAL_OOZE)
-			prob = (int)(prob * 0.70);
-		if (IS_AFFECTED_2(ch, AFF2_BERSERK))
-			prob += (GET_LEVEL(ch) + (GET_REMORT_GEN(ch) << 2)) >> 1;
-		if (IS_MONK(ch))
-			prob += GET_LEVEL(ch) >> 2;
-		if (IS_AFFECTED_3(ch, AFF3_DIVINE_POWER))
-			prob += (ch->getLevelBonus(SPELL_DIVINE_POWER) / 3);
-		if (ch->desc)
-			prob -= ((MAX(0, ch->desc->wait >> 1)) * prob) / 100;
-		else
-			prob -= ((MAX(0, GET_MOB_WAIT(ch) >> 1)) * prob) / 100;
-
-		prob -=
-			((((IS_CARRYING_W(ch) + IS_WEARING_W(ch)) << 5) * prob) /
-			(CAN_CARRY_W(ch) * 85));
-
-		if (GET_COND(ch, DRUNK) > 5)
-			prob -=
-				(int)((prob * 0.15) + (prob * (GET_COND(ch, DRUNK) / 100)));
 		die_roll = number(0, 300);
 
 		if (PRF2_FLAGGED(ch, PRF2_DEBUG)) {
@@ -2593,17 +2537,6 @@ perform_violence(void)
 		if (MIN(100, prob + 15) >= die_roll) {
 
 			bool stop = false;
-			// Mercs wielding guns fire rather than hitting
-			if (IS_MERC(ch)) {
-				if (do_combat_fire(ch, FIGHTING(ch), WEAR_WIELD)) {
-					stop = true;
-				}
-				if (do_combat_fire(ch, FIGHTING(ch), WEAR_WIELD_2)) {
-					stop = true;
-				}
-				if (stop)
-					break;
-			}
 
 			for (i = 0; i < 4; i++) {
 				if (!FIGHTING(ch) || GET_LEVEL(ch) < (i << 3))
