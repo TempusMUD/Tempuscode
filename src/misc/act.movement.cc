@@ -1131,9 +1131,13 @@ perform_move(struct char_data *ch, int dir, int mode, int need_specials_check)
             ch->setPosition(POS_SITTING);
         }
         return 1;
-    }        
-    if ((GET_COND(ch, DRUNK) > 15) && (number(2, 60) > (GET_DEX(ch) + GET_INT(ch))))
+    }
+    
+    if ((GET_COND(ch, DRUNK) > 15) && (number(2, 60) > (GET_DEX(ch) + GET_INT(ch)))) {
+        act("You become disoriented!", TRUE, ch, 0, 0, TO_CHAR);
         dir = number(0, 7);
+    }
+
     if ( ! EXIT( ch, dir ) || EXIT( ch, dir )->to_room == NULL || 
          ( ( IS_SET(EXIT( ch, dir )->exit_info, EX_NOPASS ) ||
              ( IS_SET( EXIT( ch, dir )->exit_info, EX_SECRET | EX_HIDDEN ) &&
