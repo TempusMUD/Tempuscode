@@ -37,6 +37,7 @@
 #include "security.h"
 #include "tmpstr.h"
 #include "player_table.h"
+#include "actions.h"
 
 /* extern variables */
 extern struct room_data *world;
@@ -1640,10 +1641,10 @@ give_find_vict(struct Creature *ch, char *arg)
 }
 
 void
-transfer_money(Creature *from, Creature *to, int amt, int currency, bool plant)
+transfer_money(Creature *from, Creature *to, long long amt, int currency, bool plant)
 {
 	const char *currency_str, *cmd_str;
-	int on_hand;
+	long long on_hand;
 
 	if (currency == 1) {
 		currency_str = "cred";
@@ -1668,19 +1669,19 @@ transfer_money(Creature *from, Creature *to, int amt, int currency, bool plant)
 	}
 
 	if (plant) {
-		send_to_char(from, "You plant %d %s%s on %s", amt, currency_str,
-			amt == 1 ? "":"s", PERS(from, to));
+		send_to_char(from, "You plant %lld %s%s on %s\r\n", amt, currency_str,
+			amt == 1 ? "":"s", PERS(to, from));
 		if (IS_IMMORT(to) || (GET_SKILL(from, SKILL_PLANT) + GET_DEX(from)) <
 				(number(0, 83) + GET_WIS(to))) {
-			act(tmp_sprintf(buf, "%d %s%s planted in your pocket by $n.", amt,
+			act(tmp_sprintf("%lld %s%s planted in your pocket by $n.", amt,
 					currency_str, amt == 1 ? "is" : "s are"),
 				FALSE, from, 0, to, TO_VICT);
 		}
 		cmd_str = "planted";
 	} else {
-		send_to_char(from, "You give %d %s%s to %s", amt, currency_str,
-			amt == 1 ? "":"s", PERS(from, to));
-		act(tmp_sprintf("You are given %d %s%s by $n.", amt, currency_str,
+		send_to_char(from, "You give %lld %s%s to %s\r\n", amt, currency_str,
+			amt == 1 ? "":"s", PERS(to, from));
+		act(tmp_sprintf("You are given %lld %s%s by $n.", amt, currency_str,
 				amt == 1 ? "":"s"),
 			FALSE, from, 0, to, TO_VICT);
 		act(tmp_sprintf("$n gives %s to $N.", money_desc(amt, currency)),
@@ -1697,8 +1698,8 @@ transfer_money(Creature *from, Creature *to, int amt, int currency, bool plant)
 	}
 
 	if (amt >= MONEY_LOG_LIMIT)
-		slog("MONEY: %s has %s %s to %s in room #%d (%s)",
-			GET_NAME(from), cmd_str, money_desc(amt, currency),
+		slog("MONEY: %s has %s %lld %s%s to %s in room #%d (%s)",
+			GET_NAME(from), cmd_str, amt, currency_str, (amt == 1) ? "":"s",
 			GET_NAME(to), to->in_room->number, to->in_room->name);
 
 	if (IS_PC(from))

@@ -21,7 +21,7 @@ ASPELL(spell_time_warp);
 ASPELL(spell_area_stasis);
 
 // giving money
-void transfer_money(Creature *ch, Creature *vict, int amt, int currency, bool plant);
+void transfer_money(Creature *from, Creature *to, long long amt, int currency, bool plant);
 void perform_give_credits(Creature *ch, Creature *vict, int amount);
 void perform_tell(struct Creature *ch, struct Creature *vict, char *arg);
 
