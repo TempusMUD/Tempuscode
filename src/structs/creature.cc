@@ -778,6 +778,8 @@ Creature::clear(void)
 			free(this->player.description);
 		if (this->mob_specials.mug)
 			free(this->mob_specials.mug);
+		if (this->mob_specials.func_data)
+			free(this->mob_specials.func_data);
 	} else {
 		//
 		// otherwise this is a player, so free all

@@ -898,6 +898,7 @@ struct mob_mugger_data {
 struct mob_special_data {
 	memory_rec *memory;			/* List of attackers to remember           */
 	struct extra_descr_data *response;	/* for response processing */
+	void *func_data;			// Mobile-specific data used for specials
 	struct mob_mugger_data *mug;
 	struct mob_shared_data *shared;
 	int wait_state;				/* Wait state for bashed mobs           */
