@@ -1057,13 +1057,19 @@ MOB_CAN_GO(struct Creature * ch, int door)
 
 unsigned long my_rand(void);
 
+inline double
+rand_float(void)
+{
+	return (double)my_rand() / (double)INT_MAX;
+}
+
 //
 // returns a random boolean value
 //
 inline bool
 random_binary()
 {
-	return (my_rand() > (INT_MAX / 2));
+	return (int)(rand_float() > 0.5);
 }
 
 //
@@ -1074,7 +1080,7 @@ random_fractional(unsigned int num)
 {
 	if (num == 0)
 		return true;
-	return (my_rand() < (INT_MAX / num));
+	return (int)(rand_float() > (1.0 / num));
 }
 
 //
@@ -1083,7 +1089,7 @@ random_fractional(unsigned int num)
 inline bool
 random_fractional_3()
 {
-	return (my_rand() < (INT_MAX / 3));
+	return (int)(rand_float() < (1.0 / 3));
 }
 
 //
@@ -1092,7 +1098,7 @@ random_fractional_3()
 inline bool
 random_fractional_4()
 {
-	return (my_rand() < (INT_MAX / 4));
+	return (int)(rand_float() < (1.0 / 4));
 }
 
 //
@@ -1101,7 +1107,7 @@ random_fractional_4()
 inline bool
 random_fractional_5()
 {
-	return (my_rand() < (INT_MAX / 5));
+	return (int)(rand_float() < (1.0 / 5));
 }
 
 //
@@ -1110,7 +1116,7 @@ random_fractional_5()
 inline bool
 random_fractional_10()
 {
-	return (my_rand() < (INT_MAX / 10));
+	return (int)(rand_float() < (1.0 / 10));
 }
 
 //
@@ -1119,7 +1125,7 @@ random_fractional_10()
 inline bool
 random_fractional_20()
 {
-	return (my_rand() < (INT_MAX / 20));
+	return (int)(rand_float() < (1.0 / 20));
 }
 
 //
@@ -1128,7 +1134,7 @@ random_fractional_20()
 inline bool
 random_fractional_50()
 {
-	return (my_rand() < (INT_MAX / 50));
+	return (int)(rand_float() < (1.0 / 50));
 }
 
 //
@@ -1137,7 +1143,7 @@ random_fractional_50()
 inline bool
 random_fractional_100()
 {
-	return (my_rand() < (INT_MAX / 100));
+	return (int)(rand_float() < (1.0 / 100));
 }
 
 //
@@ -1146,7 +1152,7 @@ random_fractional_100()
 inline int
 random_percentage()
 {
-	return ((my_rand() / (INT_MAX / 100)) + 1);
+	return (int)(rand_float() * 100);
 }
 
 //
@@ -1155,7 +1161,7 @@ random_percentage()
 inline int
 random_percentage_zero_low()
 {
-	return (my_rand() / (INT_MAX / 100));
+	return (int)(rand_float() * 99);
 }
 
 //
@@ -1166,7 +1172,7 @@ random_number_zero_low(unsigned int num)
 {
 	if (num == 0)
 		return 0;
-	return (my_rand() / (INT_MAX / num));
+	return (int)(rand_float() * num);
 }
 
 //
@@ -1177,7 +1183,7 @@ number(int from, int to)
 {
 	if (to <= from)
 		return (from);
-	return ((my_rand() / (INT_MAX / (to - from))) + from);
+	return (int)(rand_float() * (to - from) + from);
 }
 
 //
@@ -1187,15 +1193,9 @@ number(int from, int to)
 inline double
 float_number(double from, double to)
 {
-	double pct;
 	if (to <= from)
 		return (from);
-	pct = (double)((double)my_rand() / (INT_MAX / 100));
-	if (pct > 1) {
-		slog("SYSERR: float_number pct > 1.");
-		return (from);
-	}
-	return ((double)(pct * (to - from)) + from);
+	return rand_float() * (to - from) + from;
 }
 
 //
@@ -1210,7 +1210,7 @@ dice(int number, int size)
 		return 0;
 
 	while (number-- > 0)
-		sum += ((my_rand() / (INT_MAX / size)) + 1);
+		sum += (int)((rand_float() * size) + 1);
 
 	return sum;
 }
