@@ -291,8 +291,7 @@ int CHECK_SKILL(struct char_data *ch, int i);
 #define MOB_SHARED(ch)     (ch->mob_specials.shared)
 
 #define IS_PET(ch)       (MOB_FLAGGED(ch, MOB_PET))
-#define IS_SOULLESS(ch) ((IS_NPC(ch) && MOB_FLAGGED(ch, MOB_SOULLESS)) || \
-						 (!IS_NPC(ch) && PLR2_FLAGGED(ch, PLR2_SOULLESS)))
+#define IS_SOULLESS(ch) (MOB_FLAGGED(ch, MOB_SOULLESS) || PLR2_FLAGGED(ch, PLR2_SOULLESS))
 
 /* IS_AFFECTED for backwards compatibility */
 #define IS_AFFECTED(ch, skill) (AFF_FLAGGED((ch), (skill))) 
