@@ -723,9 +723,9 @@ extern const struct command_info cmd_info[] = {
     { "gtell"    , POS_SLEEPING, do_gsay     , 0, 0 },
     { "gunset"   , POS_RESTING , do_gunset   , 0, 0 },
 
-//    { "help"     , POS_DEAD    , do_help     , 0, 0 },
+    //    { "help"     , POS_DEAD    , do_help     , 0, 0 },
     { "help"     , POS_DEAD    , do_hcollect_help,0, 0 },
-//    { "?"        , POS_DEAD    , do_help     , 0, 0 },
+    //    { "?"        , POS_DEAD    , do_help     , 0, 0 },
     { "?"        , POS_DEAD    , do_hcollect_help,0, 0 },
     { "hedit"    , POS_RESTING , do_hedit    , 20, 0 },
     { "hack"     , POS_STANDING, do_gen_door , 1, SCMD_HACK },
@@ -1156,7 +1156,7 @@ extern const struct command_info cmd_info[] = {
     { "syslog"   , POS_DEAD    , do_syslog   , LVL_AMBASSADOR, 0 },
 
     { "tell"     , POS_DEAD    , do_tell     , 0, 0 },
-//    { "tempus"   , POS_DEAD    , do_help     , 0, 0 },
+    //    { "tempus"   , POS_DEAD    , do_help     , 0, 0 },
     { "tempus"   , POS_DEAD    , do_hcollect_help     , 0, 0 },
     { "terrorize", POS_FIGHTING, do_intimidate, 5, SKILL_TERRORIZE },
     { "tackle"   , POS_RESTING , do_action   , 0, 0 },
@@ -1338,17 +1338,17 @@ command_interpreter(struct char_data * ch, char *argument)
     REMOVE_BIT(AFF2_FLAGS(ch), AFF2_MEDITATE);
     REMOVE_BIT(AFF2_FLAGS(ch), AFF2_EVADE);
     if (ch->getPosition() > POS_SLEEPING)
-    REMOVE_BIT(AFF3_FLAGS(ch), AFF3_STASIS);
+        REMOVE_BIT(AFF3_FLAGS(ch), AFF3_STASIS);
 
     if (MOUNTED(ch) && ch->in_room != MOUNTED(ch)->in_room) {
-    REMOVE_BIT(AFF2_FLAGS(MOUNTED(ch)), AFF2_MOUNTED);
-    MOUNTED(ch) = NULL;
+        REMOVE_BIT(AFF2_FLAGS(MOUNTED(ch)), AFF2_MOUNTED);
+        MOUNTED(ch) = NULL;
     }
 
     /* just drop to next line for hitting CR */
     skip_spaces(&argument);
     if (!*argument)
-    return;
+        return;
 
     /*
      * special case to handle one-character, non-alphanumeric commands;
@@ -1356,122 +1356,122 @@ command_interpreter(struct char_data * ch, char *argument)
      * Patch sent by Eric Green and Stefan Wasilewski.
      */
     if (!isalpha(*argument)) {
-    arg[0] = argument[0];
-    arg[1] = '\0';
-    line = argument+1;
+        arg[0] = argument[0];
+        arg[1] = '\0';
+        line = argument+1;
     } else
-    line = any_one_arg(argument, arg);
+        line = any_one_arg(argument, arg);
 
     /* otherwise, find the command */
     for (length = strlen(arg), cmd = 0; *cmd_info[cmd].command != '\n'; cmd++) {
-    if (!strncmp(cmd_info[cmd].command, arg, length)) {
-        if (GET_LEVEL(ch) >= cmd_info[cmd].minimum_level || GET_IDNUM(ch) == 1) {
-        break;
+        if (!strncmp(cmd_info[cmd].command, arg, length)) {
+            if (GET_LEVEL(ch) >= cmd_info[cmd].minimum_level || GET_IDNUM(ch) == 1) {
+                break;
+            } 
         } 
-    } 
     }
       
     if (*cmd_info[cmd].command == '\n') {
-    switch (number(0, 10)) {
-    case 0:
-        send_to_char("Huh?!?\r\n", ch);
-        break;
-    case 1:
-        send_to_char("What's that?\r\n", ch);
-        break;
-    case 2:
-        sprintf(buf, "%cQue?!?\r\n", 191);
-        send_to_char(buf, ch);
-        break;
-    case 3:
-        send_to_char("You'll have to speak in a language I understand...\r\n", ch);
-        break;
-    case 4:
-        send_to_char("I don't understand that.\r\n", ch);
-        break;
-    case 5:
-        send_to_char("Wie bitte?\r\n", ch);
-        break;
-    case 6:
-        send_to_char("You're talking nonsense to me.\r\n", ch);
-        break;
-    case 7:
-    case 8:
-    case 9:
-        sprintf(buf, "Hmm, I don't understand the command '%s'.\r\n", arg);
-        send_to_char(buf, ch);
-        break;
-    default:
-        send_to_char("Come again?\r\n", ch);
-        break;
-    }
-    return;
+        switch (number(0, 10)) {
+        case 0:
+            send_to_char("Huh?!?\r\n", ch);
+            break;
+        case 1:
+            send_to_char("What's that?\r\n", ch);
+            break;
+        case 2:
+            sprintf(buf, "%cQue?!?\r\n", 191);
+            send_to_char(buf, ch);
+            break;
+        case 3:
+            send_to_char("You'll have to speak in a language I understand...\r\n", ch);
+            break;
+        case 4:
+            send_to_char("I don't understand that.\r\n", ch);
+            break;
+        case 5:
+            send_to_char("Wie bitte?\r\n", ch);
+            break;
+        case 6:
+            send_to_char("You're talking nonsense to me.\r\n", ch);
+            break;
+        case 7:
+        case 8:
+        case 9:
+            sprintf(buf, "Hmm, I don't understand the command '%s'.\r\n", arg);
+            send_to_char(buf, ch);
+            break;
+        default:
+            send_to_char("Come again?\r\n", ch);
+            break;
+        }
+        return;
     } 
     if (ch->desc) {
-    if (cmd == ch->desc->last_cmd &&
-        !strcasecmp(line, ch->desc->last_argument))
-        ch->desc->repeat_cmd_count++;
-    else
-        ch->desc->repeat_cmd_count = 0;
-    strcpy(ch->desc->last_argument, line);
-    ch->desc->last_cmd = cmd;
+        if (cmd == ch->desc->last_cmd &&
+            !strcasecmp(line, ch->desc->last_argument))
+            ch->desc->repeat_cmd_count++;
+        else
+            ch->desc->repeat_cmd_count = 0;
+        strcpy(ch->desc->last_argument, line);
+        ch->desc->last_cmd = cmd;
     
-    /* log cmds */
-    if (log_cmds || PLR_FLAGGED(ch, PLR_LOG)) {
-        sprintf(buf, "CMD: %s ::%s '%s'", GET_NAME(ch), cmd_info[cmd].command, line);
-        slog(buf);
+        /* log cmds */
+        if (log_cmds || PLR_FLAGGED(ch, PLR_LOG)) {
+            sprintf(buf, "CMD: %s ::%s '%s'", GET_NAME(ch), cmd_info[cmd].command, line);
+            slog(buf);
       
-    }
-    /* end log cmds */
+        }
+        /* end log cmds */
     }
   
     if (PLR_FLAGGED(ch, PLR_FROZEN) && GET_LEVEL(ch) < LVL_GRIMP)
-    send_to_char("You try, but the mind-numbing cold prevents you...\r\n", ch);
+        send_to_char("You try, but the mind-numbing cold prevents you...\r\n", ch);
     else if (IS_AFFECTED_2(ch, AFF2_PETRIFIED) && GET_LEVEL(ch)<LVL_ELEMENT &&
-         (!ch->desc || !ch->desc->original)) {
-    if (!number(0, 3))
-        send_to_char("You have been turned to stone!\r\n", ch);
-    else if (!number(0, 2))
-        send_to_char("You are petrified!  You cannot move an inch!\r\n",ch);
-    else if (!number(0, 1))
-        send_to_char("WTF??!!  Your body has been turned to solid stone!",ch);
-    else
-        send_to_char("You have been turned to stone, and cannot move.\r\n",ch);
+             (!ch->desc || !ch->desc->original)) {
+        if (!number(0, 3))
+            send_to_char("You have been turned to stone!\r\n", ch);
+        else if (!number(0, 2))
+            send_to_char("You are petrified!  You cannot move an inch!\r\n",ch);
+        else if (!number(0, 1))
+            send_to_char("WTF??!!  Your body has been turned to solid stone!",ch);
+        else
+            send_to_char("You have been turned to stone, and cannot move.\r\n",ch);
     }
     else if (cmd_info[cmd].command_pointer == NULL)
-    send_to_char("Sorry, that command hasn't been implemented yet.\r\n", ch);
+        send_to_char("Sorry, that command hasn't been implemented yet.\r\n", ch);
     else if (IS_NPC(ch) && cmd_info[cmd].minimum_level >= LVL_IMMORT)
-    send_to_char("You can't use immortal commands while switched.\r\n", ch);
+        send_to_char("You can't use immortal commands while switched.\r\n", ch);
     else if (ch->getPosition() < cmd_info[cmd].minimum_position && 
-         GET_LEVEL(ch) < LVL_AMBASSADOR)
-    switch (ch->getPosition()) {
-    case POS_DEAD:
-        send_to_char("Lie still; you are DEAD!!! :-(\r\n", ch);
-        break;
-    case POS_INCAP:
-    case POS_MORTALLYW:
-        send_to_char("You are in a pretty bad shape, unable to do anything!\r\n", ch);
-        break;
-    case POS_STUNNED:
-        send_to_char("All you can do right now is think about the stars!\r\n", ch);
-        break;
-    case POS_SLEEPING:
-        send_to_char("In your dreams, or what?\r\n", ch);
-        break;
-    case POS_RESTING:
-        send_to_char("Nah... You're resting.  Why don't you sit up first?\r\n", ch);
-        break;
-    case POS_SITTING:
-        send_to_char("Maybe you should get on your feet first?\r\n", ch);
-        break;
-    case POS_FIGHTING:
-        send_to_char("No way!  You're fighting for your life!\r\n", ch);
-        if (!FIGHTING(ch))
-        slog("SYSERR: Char !FIGHTING(ch) while pos fighting.");
-        break;
-    }
+             GET_LEVEL(ch) < LVL_AMBASSADOR)
+        switch (ch->getPosition()) {
+        case POS_DEAD:
+            send_to_char("Lie still; you are DEAD!!! :-(\r\n", ch);
+            break;
+        case POS_INCAP:
+        case POS_MORTALLYW:
+            send_to_char("You are in a pretty bad shape, unable to do anything!\r\n", ch);
+            break;
+        case POS_STUNNED:
+            send_to_char("All you can do right now is think about the stars!\r\n", ch);
+            break;
+        case POS_SLEEPING:
+            send_to_char("In your dreams, or what?\r\n", ch);
+            break;
+        case POS_RESTING:
+            send_to_char("Nah... You're resting.  Why don't you sit up first?\r\n", ch);
+            break;
+        case POS_SITTING:
+            send_to_char("Maybe you should get on your feet first?\r\n", ch);
+            break;
+        case POS_FIGHTING:
+            send_to_char("No way!  You're fighting for your life!\r\n", ch);
+            if (!FIGHTING(ch))
+                slog("SYSERR: Char !FIGHTING(ch) while pos fighting.");
+            break;
+        }
     else if (no_specials || !special(ch, cmd, cmd_info[cmd].subcmd, line)) {
-    ((*cmd_info[cmd].command_pointer) (ch, line, cmd, cmd_info[cmd].subcmd));
+        ((*cmd_info[cmd].command_pointer) (ch, line, cmd, cmd_info[cmd].subcmd));
     }
     
 }
@@ -1485,11 +1485,11 @@ struct alias_data *
 find_alias(struct alias_data * alias_list, char *str)
 {
     while (alias_list != NULL) {
-    if (*str == *alias_list->alias)    /* hey, every little bit counts :-) */
-        if (!strcmp(str, alias_list->alias))
-        return alias_list;
+        if (*str == *alias_list->alias)    /* hey, every little bit counts :-) */
+            if (!strcmp(str, alias_list->alias))
+                return alias_list;
 
-    alias_list = alias_list->next;
+        alias_list = alias_list->next;
     }
 
     return NULL;
@@ -1500,9 +1500,9 @@ void
 free_alias(struct alias_data * a)
 {
     if (a->alias)
-    free(a->alias);
+        free(a->alias);
     if (a->replacement)
-    free(a->replacement);
+        free(a->replacement);
     free(a);
 }
 
@@ -1512,18 +1512,18 @@ add_alias(struct char_data *ch, struct alias_data *a)
     struct alias_data *this_alias = GET_ALIASES(ch);
 
     if ((!this_alias) || (strcmp(a->alias, this_alias->alias) < 0))  {
-    a->next = this_alias;
-    GET_ALIASES(ch) = a;
-    return;
+        a->next = this_alias;
+        GET_ALIASES(ch) = a;
+        return;
     }
 
     while (this_alias->next != NULL)  {
-    if (strcmp(a->alias, this_alias->next->alias) < 0)  {
-        a->next = this_alias->next;
-        this_alias->next = a;
-        return;
-    }
-    this_alias = this_alias->next;
+        if (strcmp(a->alias, this_alias->next->alias) < 0)  {
+            a->next = this_alias->next;
+            this_alias->next = a;
+            return;
+        }
+        this_alias = this_alias->next;
     }
     a->next = NULL;
     this_alias->next = a;
@@ -1537,63 +1537,63 @@ ACMD(do_alias)
     struct alias_data *a, *temp;
 
     if (IS_NPC(ch))
-    return;
+        return;
 
     repl = any_one_arg(argument, arg);
 
     if (!*arg) {  /* no argument specified -- list currently defined aliases */
-    strcpy(buf, "Currently defined aliases:\r\n");
-    if ((a = GET_ALIASES(ch)) == NULL)
-        strcat(buf, " None.\r\n");
-    else {
-        while (a != NULL) {
-        sprintf(buf, "%s%s%-15s%s %s\r\n", buf, CCCYN(ch, C_NRM), a->alias, 
-            CCNRM(ch, C_NRM), a->replacement);
-        a = a->next;
+        strcpy(buf, "Currently defined aliases:\r\n");
+        if ((a = GET_ALIASES(ch)) == NULL)
+            strcat(buf, " None.\r\n");
+        else {
+            while (a != NULL) {
+                sprintf(buf, "%s%s%-15s%s %s\r\n", buf, CCCYN(ch, C_NRM), a->alias, 
+                        CCNRM(ch, C_NRM), a->replacement);
+                a = a->next;
+            }
         }
-    }
-    page_string(ch->desc, buf, 1);
+        page_string(ch->desc, buf, 1);
     } 
     else { /* otherwise, add or display aliases */
-    if (!*repl) {
-        if ((a = find_alias(GET_ALIASES(ch), arg)) == NULL) {
-        send_to_char("No such alias.\r\n", ch);
+        if (!*repl) {
+            if ((a = find_alias(GET_ALIASES(ch), arg)) == NULL) {
+                send_to_char("No such alias.\r\n", ch);
+            }
+            else {
+                sprintf(buf, "%s%-15s%s %s\r\n", CCCYN(ch, C_NRM), a->alias, 
+                        CCNRM(ch, C_NRM), a->replacement);
+                send_to_char(buf,ch);
+            }
         }
-        else {
-        sprintf(buf, "%s%-15s%s %s\r\n", CCCYN(ch, C_NRM), a->alias, 
-            CCNRM(ch, C_NRM), a->replacement);
-        send_to_char(buf,ch);
-        }
-    }
-    else {  /* otherwise, either add or redefine an alias */
-        if (!str_cmp(arg, "alias")) {
-        send_to_char("You can't alias 'alias'.\r\n", ch);
-        return;
-        }
+        else {  /* otherwise, either add or redefine an alias */
+            if (!str_cmp(arg, "alias")) {
+                send_to_char("You can't alias 'alias'.\r\n", ch);
+                return;
+            }
 
-        /* is this an alias we've already defined? */
-        if ((a = find_alias(GET_ALIASES(ch), arg)) != NULL) {
-        REMOVE_FROM_LIST(a, GET_ALIASES(ch), next);
+            /* is this an alias we've already defined? */
+            if ((a = find_alias(GET_ALIASES(ch), arg)) != NULL) {
+                REMOVE_FROM_LIST(a, GET_ALIASES(ch), next);
 #ifdef DMALLOC
-        dmalloc_verify(0);
+                dmalloc_verify(0);
 #endif
-        free_alias(a);
+                free_alias(a);
 #ifdef DMALLOC
-        dmalloc_verify(0);
+                dmalloc_verify(0);
 #endif
-        }
+            }
 
-        CREATE(a, struct alias_data, 1);
-        a->alias = str_dup(arg);
-        delete_doubledollar(repl);
-        a->replacement = str_dup(repl);
-        if (strchr(repl, ALIAS_SEP_CHAR) || strchr(repl, ALIAS_VAR_CHAR))
-        a->type = ALIAS_COMPLEX;
-        else
-        a->type = ALIAS_SIMPLE;
-        add_alias(ch, a);
-        send_to_char("Alias added.\r\n", ch);
-    }
+            CREATE(a, struct alias_data, 1);
+            a->alias = str_dup(arg);
+            delete_doubledollar(repl);
+            a->replacement = str_dup(repl);
+            if (strchr(repl, ALIAS_SEP_CHAR) || strchr(repl, ALIAS_VAR_CHAR))
+                a->type = ALIAS_COMPLEX;
+            else
+                a->type = ALIAS_SIMPLE;
+            add_alias(ch, a);
+            send_to_char("Alias added.\r\n", ch);
+        }
     }
 }
 
@@ -1604,29 +1604,29 @@ ACMD(do_unalias)
     struct alias_data *a, *temp;
 
     if (IS_NPC(ch))
-    return;
+        return;
 
     repl = any_one_arg(argument, arg); /* vintage */
 
     if (!*arg) {  /* no argument specified -- what a dumbass */
-    send_to_char ("Unalias what?\r\n", ch);
-    return;
+        send_to_char ("Unalias what?\r\n", ch);
+        return;
     }
     else {
-    if ((a = find_alias(GET_ALIASES(ch), arg)) != NULL) {
-        REMOVE_FROM_LIST(a, GET_ALIASES(ch), next);
+        if ((a = find_alias(GET_ALIASES(ch), arg)) != NULL) {
+            REMOVE_FROM_LIST(a, GET_ALIASES(ch), next);
 #ifdef DMALLOC
-        dmalloc_verify(0);
+            dmalloc_verify(0);
 #endif
-        free_alias(a);
+            free_alias(a);
 #ifdef DMALLOC
-        dmalloc_verify(0);
+            dmalloc_verify(0);
 #endif
-        send_to_char("Alias removed.\r\n", ch);
-    }
-    else {
-        send_to_char("No such alias Mr. Tard.\r\n", ch);
-    }
+            send_to_char("Alias removed.\r\n", ch);
+        }
+        else {
+            send_to_char("No such alias Mr. Tard.\r\n", ch);
+        }
     }
 }
 
@@ -1648,8 +1648,8 @@ perform_complex_alias(struct txt_q *input_q, char *orig, struct alias_data *a)
     /* First, parse the original string */
     temp = strtok(strcpy(buf2, orig), " ");
     while (temp != NULL && num_of_tokens < NUM_TOKENS) {
-    tokens[num_of_tokens++] = temp;
-    temp = strtok(NULL, " ");
+        tokens[num_of_tokens++] = temp;
+        temp = strtok(NULL, " ");
     }
 
     /* initialize */
@@ -1658,24 +1658,24 @@ perform_complex_alias(struct txt_q *input_q, char *orig, struct alias_data *a)
 
     /* now parse the alias */
     for (temp = a->replacement; *temp; temp++) {
-    if (*temp == ALIAS_SEP_CHAR) {
-        *write_point = '\0';
-        buf[MAX_INPUT_LENGTH-1] = '\0';
-        write_to_q(buf, &temp_queue, 1);
-        write_point = buf;
-    } else if (*temp == ALIAS_VAR_CHAR) {
-        temp++;
-        if ((num = *temp - '1') < num_of_tokens && num >= 0) {
-        strcpy(write_point, tokens[num]);
-        write_point += strlen(tokens[num]);
-        } else if (*temp == ALIAS_GLOB_CHAR) {
-        strcpy(write_point, orig);
-        write_point += strlen(orig);
+        if (*temp == ALIAS_SEP_CHAR) {
+            *write_point = '\0';
+            buf[MAX_INPUT_LENGTH-1] = '\0';
+            write_to_q(buf, &temp_queue, 1);
+            write_point = buf;
+        } else if (*temp == ALIAS_VAR_CHAR) {
+            temp++;
+            if ((num = *temp - '1') < num_of_tokens && num >= 0) {
+                strcpy(write_point, tokens[num]);
+                write_point += strlen(tokens[num]);
+            } else if (*temp == ALIAS_GLOB_CHAR) {
+                strcpy(write_point, orig);
+                write_point += strlen(orig);
+            } else
+                if ((*(write_point++) = *temp) == '$') /* redouble $ for act safety */
+                    *(write_point++) = '$';
         } else
-        if ((*(write_point++) = *temp) == '$') /* redouble $ for act safety */
-            *(write_point++) = '$';
-    } else
-        *(write_point++) = *temp;
+            *(write_point++) = *temp;
     }
 
     *write_point = '\0';
@@ -1684,10 +1684,10 @@ perform_complex_alias(struct txt_q *input_q, char *orig, struct alias_data *a)
 
     /* push our temp_queue on to the _front_ of the input queue */
     if (input_q->head == NULL)
-    *input_q = temp_queue;
+        *input_q = temp_queue;
     else {
-    temp_queue.tail->next = input_q->head;
-    input_q->head = temp_queue.head;
+        temp_queue.tail->next = input_q->head;
+        input_q->head = temp_queue.head;
     }
 }
 
@@ -1708,25 +1708,25 @@ perform_alias(struct descriptor_data * d, char *orig)
 
     /* bail out immediately if the guy doesn't have any aliases */
     if ((tmp = GET_ALIASES(d->character)) == NULL)
-    return 0;
+        return 0;
 
     /* find the alias we're supposed to match */
     ptr = any_one_arg(orig, first_arg);
 
     /* bail out if it's null */
     if (!*first_arg)
-    return 0;
+        return 0;
 
     /* if the first arg is not an alias, return without doing anything */
     if ((a = find_alias(tmp, first_arg)) == NULL)
-    return 0;
+        return 0;
 
     if (a->type == ALIAS_SIMPLE) {
-    strcpy(orig, a->replacement);
-    return 0;
+        strcpy(orig, a->replacement);
+        return 0;
     } else {
-    perform_complex_alias(&d->input, ptr, a);
-    return 1;
+        perform_complex_alias(&d->input, ptr, a);
+        return 1;
     }
 }
 
@@ -1750,27 +1750,27 @@ search_block(char *arg, const char **list, bool exact)
 
     /* Make into lower case, and get length of string */
     for (l = 0; *(arg + l); l++)
-    *(arg + l) = LOWER(*(arg + l));
+        *(arg + l) = LOWER(*(arg + l));
 
     if (exact) {
-    for (i = 0; **(list + i) != '\n'; i++)
-        if (!strcmp(arg, *(list + i)))
-        return (i);
+        for (i = 0; **(list + i) != '\n'; i++)
+            if (!strcmp(arg, *(list + i)))
+                return (i);
     } else {
-    if (!l)
-        l = 1;            /* Avoid "" to match the first available
-                     * string */
-    for (i = 0; **(list + i) != '\n' ; i++) {
-        count++;
-        if (!strncasecmp(arg, *(list + i), l))
-        return (i);
-        if (count > 1000) {
-        sprintf(buf,"SYSERR: search_block in unterminated list. [0] = '%s'.",
-            list[0]);
-        slog(buf);
-        return (-1);
+        if (!l)
+            l = 1;            /* Avoid "" to match the first available
+                               * string */
+        for (i = 0; **(list + i) != '\n' ; i++) {
+            count++;
+            if (!strncasecmp(arg, *(list + i), l))
+                return (i);
+            if (count > 1000) {
+                sprintf(buf,"SYSERR: search_block in unterminated list. [0] = '%s'.",
+                        list[0]);
+                slog(buf);
+                return (-1);
+            }
         }
-    }
 
     }
 
@@ -1781,11 +1781,11 @@ search_block(char *arg, const char **list, bool exact)
 int is_number( const char *str ) {
 
     if (str[0] == '-' || str[0] == '+')
-    str++;
+        str++;
 
     while (*str)
-    if (!isdigit(*(str++)))
-        return 0;
+        if (!isdigit(*(str++)))
+            return 0;
 
     return 1;
 }
@@ -1804,14 +1804,14 @@ delete_doubledollar(char *string)
     char *read, *write;
 
     if ((write = strchr(string, '$')) == NULL)
-    return string;
+        return string;
 
     read = write;
 
     while (*read)
-    if ((*(write++) = *(read++)) == '$')
-        if (*read == '$')
-        read++;
+        if ((*(write++) = *(read++)) == '$')
+            if (*read == '$')
+                read++;
 
     *write = '\0';
 
@@ -1841,15 +1841,15 @@ one_argument(char *argument, char *first_arg)
     char *begin = first_arg;
 
     do {
-    skip_spaces(&argument);
+        skip_spaces(&argument);
 
-    first_arg = begin;
-    while (*argument && !isspace(*argument)) {
-        *(first_arg++) = LOWER(*argument);
-        argument++;
-    }
+        first_arg = begin;
+        while (*argument && !isspace(*argument)) {
+            *(first_arg++) = LOWER(*argument);
+            argument++;
+        }
 
-    *first_arg = '\0';
+        *first_arg = '\0';
     } while (fill_word(begin));
 
     return argument;
@@ -1862,17 +1862,17 @@ one_argument (const char *argument, char *first_arg)
     char *begin = first_arg;
     const char *s = argument;
     do {
-    while (isspace(*s))
-        s++;
-    //skip_spaces(&s);
+        while (isspace(*s))
+            s++;
+        //skip_spaces(&s);
 
-    first_arg = begin;
-    while (*s && !isspace(*s)) {
-        *(first_arg++) = LOWER(*s);
-        s++;
-    }
+        first_arg = begin;
+        while (*s && !isspace(*s)) {
+            *(first_arg++) = LOWER(*s);
+            s++;
+        }
 
-    *first_arg = '\0';
+        *first_arg = '\0';
     } while (fill_word(begin));
 }
 
@@ -1884,8 +1884,8 @@ any_one_arg(char *argument, char *first_arg)
     skip_spaces(&argument);
 
     while (*argument && !isspace(*argument)) {
-    *(first_arg++) = LOWER(*argument);
-    argument++;
+        *(first_arg++) = LOWER(*argument);
+        argument++;
     }
 
     *first_arg = '\0';
@@ -1948,16 +1948,16 @@ int
 is_abbrev(const char *arg1, const char *arg2)
 {
     if (!*arg1)
-    return 0;
-
-    for (; *arg1 && *arg2; arg1++, arg2++)
-    if (LOWER(*arg1) != LOWER(*arg2))
         return 0;
 
+    for (; *arg1 && *arg2; arg1++, arg2++)
+        if (LOWER(*arg1) != LOWER(*arg2))
+            return 0;
+
     if (!*arg1)
-    return 1;
+        return 1;
     else
-    return 0;
+        return 0;
 }
 
 
@@ -1982,8 +1982,8 @@ find_command(char *command)
     int cmd;
 
     for (cmd = 0; *cmd_info[cmd].command != '\n'; cmd++)
-    if (!strcmp(cmd_info[cmd].command, command))
-        return cmd;
+        if (!strcmp(cmd_info[cmd].command, command))
+            return cmd;
 
     return -1;
 }
@@ -2001,8 +2001,8 @@ special(struct char_data * ch, int cmd, int subcmd,  char *arg)
 
     /* special in room? */
     if (GET_ROOM_SPEC(ch->in_room) != NULL)
-    if (GET_ROOM_SPEC(ch->in_room) (ch, ch->in_room, cmd, arg, 0))
-        return 1;
+        if (GET_ROOM_SPEC(ch->in_room) (ch, ch->in_room, cmd, arg, 0))
+            return 1;
 
     /* search special in room */
     strcpy(tmp_arg, arg); /* don't mess up the arg, in case of special */
@@ -2010,76 +2010,76 @@ special(struct char_data * ch, int cmd, int subcmd,  char *arg)
 
     /* translate cmd for jumping, etc... */
     if (cmd_info[cmd].command_pointer == do_move &&
-    subcmd > SCMD_MOVE && *tmp_arg) {
-    if ((j = search_block(tmp_arg, dirs, FALSE)) >= 0) {
-        tmp_cmd = j+1;
-    }
+        subcmd > SCMD_MOVE && *tmp_arg) {
+        if ((j = search_block(tmp_arg, dirs, FALSE)) >= 0) {
+            tmp_cmd = j+1;
+        }
     }
     for (srch = ch->in_room->search; srch; srch = srch->next) {
-    if (triggers_search(ch, cmd, tmp_arg, srch)) {
-        if ((result = general_search(ch, srch, found)) == 2)
-        return 1;
-        if (!found)
-        found = result;
-    }
+        if (triggers_search(ch, cmd, tmp_arg, srch)) {
+            if ((result = general_search(ch, srch, found)) == 2)
+                return 1;
+            if (!found)
+                found = result;
+        }
     }
   
     if (found)
-    return 1;
+        return 1;
 
     /* special in equipment list? */
     for (j = 0; j < NUM_WEARS; j++) {
-    if ((i = GET_EQ(ch, j))) {
-        if (GET_OBJ_SPEC(i) && (GET_OBJ_SPEC(i) (ch, i, cmd, arg, 0)))
-        return 1;
-        if (IS_BOMB(i) && i->contains && IS_FUSE(i->contains) &&
-        (FUSE_IS_MOTION(i->contains) || FUSE_IS_CONTACT(i->contains)) &&
-        FUSE_STATE(i->contains)) {
-        FUSE_TIMER(i->contains)--;
-        if (FUSE_TIMER(i->contains) <= 0) {
-            detonate_bomb(i);
-            return TRUE;
+        if ((i = GET_EQ(ch, j))) {
+            if (GET_OBJ_SPEC(i) && (GET_OBJ_SPEC(i) (ch, i, cmd, arg, 0)))
+                return 1;
+            if (IS_BOMB(i) && i->contains && IS_FUSE(i->contains) &&
+                (FUSE_IS_MOTION(i->contains) || FUSE_IS_CONTACT(i->contains)) &&
+                FUSE_STATE(i->contains)) {
+                FUSE_TIMER(i->contains)--;
+                if (FUSE_TIMER(i->contains) <= 0) {
+                    detonate_bomb(i);
+                    return TRUE;
+                }
+            }
         }
-        }
-    }
     }
 
     /* special in inventory? */
     for (i = ch->carrying; i; i = i->next_content) {
-    if (GET_OBJ_SPEC(i) && (GET_OBJ_SPEC(i) (ch, i, cmd, arg, 0)))
-        return 1;
-    if (IS_BOMB(i) && i->contains && IS_FUSE(i->contains) &&
-        (FUSE_IS_MOTION(i->contains) || FUSE_IS_CONTACT(i->contains)) &&
-        FUSE_STATE(i->contains)) {
-        FUSE_TIMER(i->contains)--;
-        if (FUSE_TIMER(i->contains) <= 0) {
-        detonate_bomb(i);
-        return TRUE;
+        if (GET_OBJ_SPEC(i) && (GET_OBJ_SPEC(i) (ch, i, cmd, arg, 0)))
+            return 1;
+        if (IS_BOMB(i) && i->contains && IS_FUSE(i->contains) &&
+            (FUSE_IS_MOTION(i->contains) || FUSE_IS_CONTACT(i->contains)) &&
+            FUSE_STATE(i->contains)) {
+            FUSE_TIMER(i->contains)--;
+            if (FUSE_TIMER(i->contains) <= 0) {
+                detonate_bomb(i);
+                return TRUE;
+            }
         }
-    }
     }
 
     /* special in mobile present? */
     for (k = ch->in_room->people; k; k = k->next_in_room)
-    if (GET_MOB_SPEC(k) != NULL) {
-        if (GET_MOB_SPEC(k) (ch, k, cmd, arg, 0)) {
-        return 1;
+        if (GET_MOB_SPEC(k) != NULL) {
+            if (GET_MOB_SPEC(k) (ch, k, cmd, arg, 0)) {
+                return 1;
+            }
         }
-    }
 
     /* special in object present? */
     for (i = ch->in_room->contents; i; i = i->next_content) {
-    if (GET_OBJ_SPEC(i) != NULL)
-        if (GET_OBJ_SPEC(i) (ch, i, cmd, arg, 0))
-        return 1;
-    if (IS_BOMB(i) && i->contains && IS_FUSE(i->contains) &&
-        FUSE_IS_MOTION(i->contains) && FUSE_STATE(i->contains)) {
-        FUSE_TIMER(i->contains)--;
-        if (FUSE_TIMER(i->contains) <= 0) {
-        detonate_bomb(i);
-        return TRUE;
+        if (GET_OBJ_SPEC(i) != NULL)
+            if (GET_OBJ_SPEC(i) (ch, i, cmd, arg, 0))
+                return 1;
+        if (IS_BOMB(i) && i->contains && IS_FUSE(i->contains) &&
+            FUSE_IS_MOTION(i->contains) && FUSE_STATE(i->contains)) {
+            FUSE_TIMER(i->contains)--;
+            if (FUSE_TIMER(i->contains) <= 0) {
+                detonate_bomb(i);
+                return TRUE;
+            }
         }
-    }
     }
 
     return 0;
@@ -2099,8 +2099,8 @@ find_name(char *name)
     int i;
 
     for (i = 0; i <= top_of_p_table; i++) {
-    if (!str_cmp((player_table + i)->name, name))
-        return i;
+        if (!str_cmp((player_table + i)->name, name))
+            return i;
     }
 
     return -1;
@@ -2116,11 +2116,11 @@ _parse_name(char *arg, char *name)
     for (; isspace(*arg); arg++);
 
     for (i = 0; (*name = *arg); arg++, i++, name++)
-    if (!isalpha(*arg))
-        return 1;
+        if (!isalpha(*arg))
+            return 1;
 
     if (!i)
-    return 1;
+        return 1;
 
     return 0;
 }
@@ -2178,1444 +2178,1459 @@ nanny(struct descriptor_data * d, char *arg)
 
     switch (STATE(d)) {
     case CON_GET_NAME:        /* wait for input of name */
-    if (d->character == NULL) {
-        CREATE(d->character, struct char_data, 1);
-        clear_char(d->character);
-        CREATE(d->character->player_specials, struct player_special_data, 1);
-        GET_LOADROOM(d->character) = -1;
-        GET_HOLD_LOADROOM(d->character) = -1;
-        d->character->desc = d;
-    }
-    if (!*arg)
-        close_socket(d);
-    else if (strlen(tmp_name) > 7 && !strncasecmp(tmp_name,"polc-",5)) {
-        strcpy(tmp_name,tmp_name+5);
-        if ((player_i = load_char(tmp_name, &tmp_store)) == -1) {
-        SEND_TO_Q("Invalid name, please try another.\r\nName:  ", d);
-        return;
-        }
-        sprintf(tmp_store.name,"polc-%s",tmp_store.name);
-        store_to_char(&tmp_store, d->character);
-        GET_PFILEPOS(d->character) = player_i;
-
-        if (!PLR_FLAGGED(d->character, PLR_POLC)) {
-        free_char (d->character);
-        if ((player_i = load_char(tmp_name, &tmp_store)) == -1) {
-            SEND_TO_Q("Invalid name, please try another.\r\nName:  ", d);
-            return;
-        }
-        }
-
-        REMOVE_BIT(PLR_FLAGS(d->character), PLR_WRITING | PLR_MAILING | PLR_OLC | PLR_QUESTOR);
-
-        SEND_TO_Q("Password: ", d);
-        echo_off(d);
-
-        STATE(d) = CON_PASSWORD;
-    }
-    else {
-        if ((_parse_name(arg, tmp_name)) || strlen(tmp_name) < 2 ||
-        strlen(tmp_name) > MAX_NAME_LENGTH ||
-        fill_word(strcpy(buf, tmp_name)) || reserved_word(buf)) {
-        SEND_TO_Q("Invalid name, please try another.\r\n"
-              "Name: ", d);
-        return;
-        }
-        if ((player_i = load_char(tmp_name, &tmp_store)) > -1) {
-
-        store_to_char(&tmp_store, d->character);
-        // set this up for the dyntext check
-        d->old_login_time = tmp_store.last_logon;
-
-        GET_PFILEPOS(d->character) = player_i;
-
-        if (PLR_FLAGGED(d->character, PLR_DELETED)) {
-#ifdef DMALLOC
-            dmalloc_verify(0);
-#endif
-            free_char(d->character);
+        if (d->character == NULL) {
             CREATE(d->character, struct char_data, 1);
             clear_char(d->character);
             CREATE(d->character->player_specials, struct player_special_data, 1);
+            GET_LOADROOM(d->character) = -1;
+            GET_HOLD_LOADROOM(d->character) = -1;
             d->character->desc = d;
-            CREATE(d->character->player.name, char, strlen(tmp_name) + 1);
-            strcpy(d->character->player.name, CAP(tmp_name));
+        }
+        if (!*arg)
+            close_socket(d);
+        //
+        // port olc name
+        //
+    
+        else if (strlen(tmp_name) > 7 && !strncasecmp(tmp_name,"polc-",5)) {
+            strcpy(tmp_name,tmp_name+5);
+            if ((player_i = load_char(tmp_name, &tmp_store)) == -1) {
+                SEND_TO_Q("Invalid Port OLC name, please try another.\r\nName:  ", d);
+                return;
+            }
+            sprintf(tmp_store.name,"polc-%s",tmp_store.name);
+            store_to_char(&tmp_store, d->character);
             GET_PFILEPOS(d->character) = player_i;
-            GET_WAS_IN(d->character) = NULL;
-            Crash_delete_file(GET_NAME(d->character), CRASH_FILE);
-            Crash_delete_file(GET_NAME(d->character), IMPLANT_FILE);
-            sprintf(buf, "Did I get that right, %s (Y/N)? ", tmp_name);
-            SEND_TO_Q(buf, d);
-            STATE(d) = CON_NAME_CNFRM;
-#ifdef DMALLOC
-            dmalloc_verify(0);
-#endif
-        } else {
-            /* undo it just in case they are set */
-            REMOVE_BIT(PLR_FLAGS(d->character),
-                   PLR_WRITING | PLR_MAILING | PLR_OLC | 
-                   PLR_QUESTOR);
-      
-            /* make sure clan is valid */
-            if ((clan = real_clan(GET_CLAN(d->character)))) {
-            if (!(member = real_clanmember(GET_IDNUM(d->character), clan)))
-                GET_CLAN(d->character) = 0;
-            } else if (GET_CLAN(d->character))
-            GET_CLAN(d->character) = 0;
+        
+            if (!PLR_FLAGGED(d->character, PLR_POLC)) {
+                free_char (d->character);
+                if ((player_i = load_char(tmp_name, &tmp_store)) == -1) {
+                    SEND_TO_Q("Invalid Port OLC name, please try another.\r\nName:  ", d);
+                    return;
+                }
+            }
+
+            REMOVE_BIT(PLR_FLAGS(d->character), PLR_WRITING | PLR_MAILING | PLR_OLC | PLR_QUESTOR);
 
             SEND_TO_Q("Password: ", d);
             echo_off(d);
 
             STATE(d) = CON_PASSWORD;
         }
-        } else {
-        /* player unknown -- make new character */
 
-        if (!Valid_Name(tmp_name)) {
-            SEND_TO_Q("Invalid name, please try another.\r\n", d);
-            SEND_TO_Q("Name: ", d);
-            return;
-        }
-        CREATE(d->character->player.name, char, strlen(tmp_name) + 1);
-        strcpy(d->character->player.name, CAP(tmp_name));
-
-        sprintf(buf, "Did I get that right, %s (Y/N)? ", tmp_name);
-        SEND_TO_Q(buf, d);
-        STATE(d) = CON_NAME_CNFRM;
-        }
-    }
-    break;
-    case CON_NAME_CNFRM:        /* wait for conf. of new name     */
-    if (UPPER(*arg) == 'Y') {
-        if (isbanned(d->host, buf2) >= BAN_NEW) {
-        sprintf(buf, "Request for new char %s denied from [%s] (siteban)",
-            GET_NAME(d->character), d->host);
-        mudlog(buf, NRM, LVL_GOD, TRUE);
-        SEND_TO_Q("Sorry, new characters are not allowed from your site!\r\n", d);
-        STATE(d) = CON_CLOSE;
-        return;
-        }
-        if (restrict) {
-        SEND_TO_Q("Sorry, new players can't be created at the moment.\r\n", d);
-        sprintf(buf, "Request for new char %s denied from %s (wizlock)",
-            GET_NAME(d->character), d->host);
-        mudlog(buf, NRM, LVL_GOD, TRUE);
-        STATE(d) = CON_CLOSE;
-        return;
-        }
-        sprintf(buf, "New player [%s] connect from %s.", GET_NAME(d->character),
-            d->host);
-        mudlog(buf, CMP, LVL_GOD, TRUE);
-
-        SEND_TO_Q("\033[H\033[J", d);
-        sprintf(buf,"Creating new character '%s'.\r\n\r\n",
-            GET_NAME(d->character));
-        SEND_TO_Q(buf, d);
-        SEND_TO_Q("What shall be your password: ", d);
-        echo_off(d);
-        STATE(d) = CON_NEWPASSWD;
-    } else if (*arg == 'n' || *arg == 'N') {
-        SEND_TO_Q("Okay, what IS it, then? ", d);
-        free(d->character->player.name);
-        d->character->player.name = NULL;
-        STATE(d) = CON_GET_NAME;
-    } else {
-        SEND_TO_Q("Please type Yes or No: ", d);
-    }
-    break;
-    case CON_PASSWORD:        /* get pwd for known player     */
-    /* turn echo back on */
-    echo_on(d);
-
-    if (!*arg)
-        close_socket(d);
-    else {
-        if (strncmp(CRYPT(arg, GET_PASSWD(d->character)), 
-            GET_PASSWD(d->character), MAX_PWD_LENGTH)) {
-        sprintf(buf, "Bad PW: %s [%s]", GET_NAME(d->character), d->host);
-        mudlog(buf, CMP, 
-               MAX(LVL_GOD, PLR_FLAGGED(d->character, PLR_INVSTART) ? 
-               GET_LEVEL(d->character) :
-               GET_INVIS_LEV(d->character)), TRUE);
-        GET_BAD_PWS(d->character)++;
-        save_char(d->character, real_room(GET_LOADROOM(d->character)));
-        if (++(d->bad_pws) >= max_bad_pws) {    /* 3 strikes and you're out. */
-            SEND_TO_Q("Wrong password... disconnecting.\r\n", d);
-            STATE(d) = CON_CLOSE;
-        } else {
-            SEND_TO_Q("Wrong password.\r\nPassword: ", d);
-            echo_off(d);
-        }
-        return;
-        }
-        load_result = GET_BAD_PWS(d->character);
-        GET_BAD_PWS(d->character) = 0;
-
-        if (!strncasecmp(GET_NAME(d->character),"polc-",5))
-        polc_char = TRUE;
-
-        if (!polc_char)
-        save_char(d->character, real_room(GET_LOADROOM(d->character)));
-
-        if (isbanned(d->host, buf2) == BAN_SELECT &&
-        !PLR_FLAGGED(d->character, PLR_SITEOK)) {
-        SEND_TO_Q("Sorry, this char has not been cleared for login from your site!\r\n", d);
-        STATE(d) = CON_CLOSE;
-        sprintf(buf, "Connection attempt for %s denied from %s",
-            GET_NAME(d->character), d->host);
-        mudlog(buf, NRM, LVL_GOD, TRUE);
-        return;
-        }
-        if (GET_LEVEL(d->character) < restrict && 
-        (!PLR_FLAGGED(d->character, PLR_TESTER) || restrict > LVL_ETERNAL)) {
-        SEND_TO_Q("The game is temporarily restricted.. try again later.\r\n", d);
-        STATE(d) = CON_CLOSE;
-        sprintf(buf, "Request for login denied for %s [%s] (wizlock)",
-            GET_NAME(d->character), d->host);
-        mudlog(buf, NRM, LVL_GOD, TRUE);
-        return;
-        }
-        /* first, check for other logins */
-        for (k = descriptor_list; k; k = next) {
-        next = k->next;
-        if (k != d && k->character && !k->character->in_room &&
-            GET_IDNUM(k->character) == GET_IDNUM(d->character) &&
-            !strcmp(GET_NAME(k->character),GET_NAME(d->character))) {
-            sprintf(buf, "socket close on multi login (%s)", 
-                GET_NAME(d->character));
-            slog(buf);
-            close_socket(k);
-        }
-        }
-        /* check to see if this is a port olc descriptor */
-      
-        /*
-         * next, check to see if this person is already logged in, but
-         * switched.  If so, disconnect the switched persona.
-         */
-        for (k = descriptor_list; k; k = k->next) {
-        if (k->original && 
-            (GET_IDNUM(k->original) == GET_IDNUM(d->character))) {
-            SEND_TO_Q("Disconnecting for return to unswitched char.\r\n", k);
-            STATE(k) = CON_CLOSE;
-#ifdef DMALLOC
-            dmalloc_verify(0);
-#endif
-            free_char(d->character);
-#ifdef DMALLOC
-            dmalloc_verify(0);
-#endif
-            d->character = k->original;
-            d->character->desc = d;
-            d->original = NULL;
-            d->character->char_specials.timer = 0;
-            if (k->character)
-            k->character->desc = NULL;
-            k->character = NULL;
-            k->original = NULL;
-            SEND_TO_Q("Reconnecting to unswitched char.\r\n", d);
-            REMOVE_BIT(PLR_FLAGS(d->character), PLR_MAILING | PLR_WRITING | PLR_OLC);
-            STATE(d) = CON_PLAYING;
-
-            if (shutdown_count > 0) {
-            sprintf(buf, 
-                "\r\n\007\007:: NOTICE :: Tempus will be rebooting in [%d] second%s ::\r\n",
-                shutdown_count, shutdown_count == 1 ? "" : "s");
-            send_to_char(buf, d->character);
-            }
-
-            if (has_mail(GET_IDNUM(d->character)))
-            SEND_TO_Q("You have mail waiting.\r\n", d);
-
-            notify_cleric_moon(d->character);
-
-            sprintf(buf, "%s [%s] has reconnected.",
-                GET_NAME(d->character), d->host);
-            mudlog(buf, NRM, MAX(LVL_GOD, GET_INVIS_LEV(d->character)), TRUE);
-            return;
-        }
-        }
-
-        /* now check for linkless and usurpable */
-        for (tmp_ch = character_list; tmp_ch; tmp_ch = tmp_ch->next)
-        if (!IS_NPC(tmp_ch) &&
-            GET_IDNUM(d->character) == GET_IDNUM(tmp_ch) &&
-            !strcmp(GET_NAME(tmp_ch),GET_NAME(d->character))) {
-            if (!tmp_ch->desc) {
-            SEND_TO_Q("Reconnecting.\r\n", d);
-
-            if (shutdown_count > 0) {
-                sprintf(buf, 
-                    "\r\n\007\007:: NOTICE :: Tempus will be rebooting in [%d] second%s ::\r\n",
-                    shutdown_count, shutdown_count == 1 ? "" : "s");
-                send_to_char(buf, d->character);
-            }
-        
-            sprintf(buf, "%s [%s] has reconnected.", GET_NAME(d->character),
-                d->host);
-            mudlog(buf, NRM, MAX(LVL_GOD, GET_INVIS_LEV(d->character)),
-                   TRUE);
-            if (!polc_char) {
-                act("$n has reconnected.", TRUE, tmp_ch, 0, 0, TO_ROOM);
-                if (has_mail(GET_IDNUM(d->character)))
-                SEND_TO_Q("You have mail waiting.\r\n", d);
-
-                notify_cleric_moon(d->character);
-
-            }
-
-            // check for dynamic text updates (news, inews, etc...)
-            check_dyntext_updates(d->character, CHECKDYN_RECONNECT);
-
-
-            } else {
-            sprintf(buf, "%s has re-logged:[%s]. disconnecting old socket.",
-                GET_NAME(tmp_ch), d->host);
-            mudlog(buf, NRM, MAX(LVL_GOD, GET_INVIS_LEV(tmp_ch)), TRUE);
-            SEND_TO_Q("This body has been usurped!\r\n", tmp_ch->desc);
-            STATE(tmp_ch->desc) = CON_CLOSE;
-            tmp_ch->desc->character = NULL;
-            tmp_ch->desc = NULL;
-            SEND_TO_Q("You take over your own body, already in use!\r\n", d);
-            if (shutdown_count > 0) {
-                sprintf(buf, 
-                    "\r\n\007\007:: NOTICE :: Tempus will be rebooting in [%d] second%s ::\r\n",
-                    shutdown_count, shutdown_count == 1 ? "" : "s");
-                send_to_char(buf, d->character);
-            }
-        
-            if (!polc_char) {
-                if (AWAKE(tmp_ch))
-                act("$n suddenly keels over in pain, surrounded by a white "
-                    "aura...", TRUE, tmp_ch, 0, 0, TO_ROOM);
-                else 
-                act("$n's body goes into convulsions!",TRUE,tmp_ch,0,0,TO_ROOM);
-                act("$n's body has been taken over by a new spirit!",
-                TRUE, tmp_ch, 0, 0, TO_ROOM);
-            }
-            }
-#ifdef DMALLOC
-            dmalloc_verify(0);
-#endif
-            free_char(d->character);
-#ifdef DMALLOC
-            dmalloc_verify(0);
-#endif
-            tmp_ch->desc = d;
-            d->character = tmp_ch;
-            tmp_ch->char_specials.timer = 0;
-            d->character->player_specials->olc_obj = NULL;
-            REMOVE_BIT(PLR_FLAGS(d->character), PLR_MAILING | PLR_WRITING |
-                   PLR_OLC);
-            if (polc_char)
-            STATE(d) = CON_PORT_OLC;
-            else
-            STATE(d) = CON_PLAYING;
-            return;
-        }
-        if (!polc_char) {
-        if (!mini_mud) {
-            SEND_TO_Q("\033[H\033[J", d);
-            if (GET_LEVEL(d->character) >= LVL_IMMORT) {
-            if (clr(d->character, C_NRM))
-                SEND_TO_Q(ansi_imotd, d);
-            else
-                SEND_TO_Q(imotd, d);
-            } else {
-            if (clr(d->character, C_NRM))     
-                SEND_TO_Q(ansi_motd, d);
-            else
-                SEND_TO_Q(motd, d);
-            }
-        }
-        }
-
-        sprintf(buf, "%s [%s] has connected.", GET_NAME(d->character), d->host);
-        mudlog(buf, CMP, MAX(LVL_GOD,
-                 PLR_FLAGGED(d->character, PLR_INVSTART) ? 
-                 GET_LEVEL(d->character) :
-                 GET_INVIS_LEV(d->character)), TRUE);
-
-        if (polc_char) {
-        STATE(d) = CON_PORT_OLC;
-        }
+        //
+        // normal name
+        //
+    
         else {
-        if (load_result) {
-            sprintf(buf, "\r\n\r\n\007\007\007"
-                "%s%d LOGIN FAILURE%s SINCE LAST SUCCESSFUL LOGIN.%s\r\n",
-                CCRED(d->character, C_SPR), load_result,
-                (load_result > 1) ? "S" : "", CCNRM(d->character, C_SPR));
-            SEND_TO_Q(buf, d);
-        }
-        SEND_TO_Q("\r\n*** PRESS RETURN: ", d);
-        STATE(d) = CON_RMOTD;
-        }
-    }
-    break;
+            if ( ( _parse_name(arg, tmp_name)) || strlen(tmp_name) < 2 ||
+                strlen(tmp_name) > MAX_NAME_LENGTH ) {
+                SEND_TO_Q("Invalid name, please try another.\r\n"
+                          "Name: ", d);
+                return;
+            }
 
-    case CON_NEWPASSWD:
-    case CON_CHPWD_GETNEW:
-    if (!*arg || strlen(arg) > MAX_PWD_LENGTH || strlen(arg) < 3 ||
-        !str_cmp(arg, GET_NAME(d->character))) {
-        SEND_TO_Q("\r\nIllegal password.\r\n", d);
-        SEND_TO_Q("Password: ", d);
-        return;
-    }
-    strncpy(GET_PASSWD(d->character), CRYPT(arg, GET_NAME(d->character)), MAX_PWD_LENGTH);
-    *(GET_PASSWD(d->character) + MAX_PWD_LENGTH) = '\0';
+            if ( fill_word(strcpy(buf, tmp_name)) || reserved_word(buf)) {
+                SEND_TO_Q( "Reserved name, please try another.\r\n"
+                           "Name: ", d);
+                return;
+            }
 
-    SEND_TO_Q("\r\nPlease retype password: ", d);
-    if (STATE(d) == CON_NEWPASSWD)
-        STATE(d) = CON_CNFPASSWD;
-    else
-        STATE(d) = CON_CHPWD_VRFY;
-
-    break;
-
-    case CON_CNFPASSWD:
-    case CON_CHPWD_VRFY:
-    if (strncmp(CRYPT(arg, GET_PASSWD(d->character)), GET_PASSWD(d->character),
-            MAX_PWD_LENGTH)) {
-        SEND_TO_Q("\r\nPasswords don't match... start over.\r\n", d);
-        SEND_TO_Q("Password: ", d);
-        if (STATE(d) == CON_CNFPASSWD)
-        STATE(d) = CON_NEWPASSWD;
-        else
-        STATE(d) = CON_CHPWD_GETNEW;
-        return;
-    }
-    echo_on(d);
-
-    if (STATE(d) == CON_CNFPASSWD) {
-        SEND_TO_Q("This game supports ANSI color standards.\r\n"
-              "Is your terminal compatible to receive colors? [y/n]  ", d);
-        STATE(d) = CON_QCOLOR;
-    } else {
-        save_char(d->character, real_room(GET_LOADROOM(d->character)));
-        echo_on(d);
-        SEND_TO_Q("\033[H\033[J", d);
-        SEND_TO_Q("\r\nPassword changed.\r\n", d);
-        show_menu(d);
-        STATE(d) = CON_MENU;
-    }
-
-    break;
-
-    case CON_QCOLOR:
-    switch (*arg) {
-    case 'y':
-    case 'Y':
-        SET_BIT(PRF_FLAGS(d->character), PRF_COLOR_2);
-        sprintf(buf, "\r\nYou will receive colors in the %sNORMAL%s format.\r\n",
-                CCCYN(d->character, C_NRM), CCNRM(d->character, C_NRM));
-        SEND_TO_Q(buf, d);
-        SEND_TO_Q(CCYEL(d->character, C_NRM), d);
-        SEND_TO_Q("If this is not acceptable, you may change modes at any time.\r\n\r\n", d);
-        SEND_TO_Q(CCNRM(d->character, C_NRM), d);
-        // default settings
-        SET_BIT(PRF_FLAGS(d->character), PRF_COMPACT);
-        SET_BIT(PRF_FLAGS(d->character), PRF_NOSPEW);
-        break;
-    case 'n':
-    case 'N':
-        SEND_TO_Q("\r\nVery well.  You will not receive colored text.\r\n", d);
-        break;
-    default:
-        SEND_TO_Q("\r\nYou must specify either 'Y' or 'N'.\r\n", d);
-        return;
-    }   
-
-    SET_BIT(PRF2_FLAGS(d->character), PRF2_LIGHT_READ | 
-        PRF2_AUTOPROMPT | PRF2_NEWBIE_HELPER);
-    sprintf(buf, "%sWhat do you choose as your sex %s(M/F)%s?%s ", 
-        CCCYN(d->character, C_NRM), CCGRN(d->character, C_NRM), 
-        CCCYN(d->character, C_NRM), CCNRM(d->character, C_NRM));
-    SEND_TO_Q(buf, d);
-    STATE(d) = CON_QSEX;
-    return;
-
-    case CON_QSEX:        /* query sex of new user     */
-
-    if (is_abbrev(arg, "male"))
-        d->character->player.sex = SEX_MALE;
-    else if (is_abbrev(arg, "female"))
-        d->character->player.sex = SEX_FEMALE;
-    else {
-        SEND_TO_Q("That is not a sex...\r\n", d);
-        sprintf(buf, "%sWhat IS your sex?%s ", CCCYN(d->character, C_NRM),
-            CCNRM(d->character, C_NRM));
-        SEND_TO_Q(buf, d);
-        return;
-        break;
-    }
-
-    SEND_TO_Q("\033[H\033[J", d);    
-    show_time_menu(d);
-    STATE(d) = CON_QTIME_FRAME;
-    break;
-    
-    /*    GET_HOME(d->character) = HOME_MODRIAN;   assigns past to char  */
-    /*    SEND_TO_Q("\033[H\033[J", d);    
-          show_race_menu_past(d);
-          SEND_TO_Q(CCCYN(d->character, C_NRM), d);
-          SEND_TO_Q("\r\nYour Choice: ", d);
-          SEND_TO_Q(CCNRM(d->character, C_NRM), d);
-          STATE(d) = CON_RACE;
-          break;    */
-
-    case CON_QTIME_FRAME:
-    
-    if ((GET_HOME(d->character) = parse_time_frame(arg)) == HOME_UNDEFINED) {
-        SEND_TO_Q("\033[H\033[J", d);
-        SEND_TO_Q("\r\nThat's not a choice.\r\n\r\n", d);
-        show_time_menu(d);
-        return;
-    }
-
-    SEND_TO_Q("\033[H\033[J", d);
-    if (GET_HOME(d->character) == HOME_ELECTRO) {
-        show_race_menu_future(d);
-        STATE(d) = CON_RACE_FUTURE;
-    } else {
-        show_race_menu_past(d);
-        STATE(d) = CON_RACE_PAST;
-    }
-    break;
-
-    case CON_RACEHELP_P:
-    SEND_TO_Q("\033[H\033[J", d);
-    show_race_menu_past(d);
-    STATE(d) = CON_RACE_PAST;
-    break;
-
-    case CON_RACEHELP_F:
-    SEND_TO_Q("\033[H\033[J", d);
-    show_race_menu_future(d);
-    STATE(d) = CON_RACE_FUTURE;
-    break;
-
-    case CON_RACE_PAST:
-    if ((GET_RACE(d->character) = parse_race_past(d, arg)) == -1) {
-        SEND_TO_Q("\033[H\033[J", d);    
-        SEND_TO_Q(CCRED(d->character, C_NRM), d);
-        SEND_TO_Q("\r\nThat's not a choice.\r\n", d);
-        SEND_TO_Q(CCNRM(d->character, C_NRM), d);
-        show_race_menu_past(d);
-        break;
-    } else if (GET_RACE(d->character) == -2) {
-        STATE(d) = CON_RACEHELP_P;
-        break;
-    }
-
-    SEND_TO_Q("\033[H\033[J", d);    
-    show_char_class_menu_past(d);
-    SEND_TO_Q(CCCYN(d->character, C_NRM), d);
-    SEND_TO_Q("\r\nClass: ", d);
-    SEND_TO_Q(CCNRM(d->character, C_NRM), d);
-    STATE(d) = CON_QCLASS;
-    break;
-
-    case CON_RACE_FUTURE:
-    if ((GET_RACE(d->character) = parse_race_future(d, arg)) == -1) {
-        SEND_TO_Q("\033[H\033[J", d);    
-        SEND_TO_Q(CCRED(d->character, C_NRM), d);
-        SEND_TO_Q("\r\nThat's not a choice.\r\n", d);
-        SEND_TO_Q(CCNRM(d->character, C_NRM), d);
-        show_race_menu_future(d);
-        break;
-    } else if (GET_RACE(d->character) == -2) {
-        STATE(d) = CON_RACEHELP_F;
-        break;
-    }
-
-    SEND_TO_Q("\033[H\033[J", d);    
-    show_char_class_menu_future(d);
-    SEND_TO_Q(CCCYN(d->character, C_NRM), d);
-    SEND_TO_Q("\r\nClass: ", d);
-    SEND_TO_Q(CCNRM(d->character, C_NRM), d);
-    STATE(d) = CON_QCLASS;
-    break;
-
-    case CON_CLASSHELP_P:
-    show_char_class_menu_past(d);
-    STATE(d) = CON_QCLASS;
-    break;
-
-    case CON_CLASSHELP_F:
-    show_char_class_menu_future(d);
-    STATE(d) = CON_QCLASS;
-    break;
-
-    case CON_QCLASS:
-    if (GET_HOME(d->character) == HOME_ELECTRO) {
-        if ((GET_CLASS(d->character)=parse_char_class_future(arg))==CLASS_UNDEFINED){
-        SEND_TO_Q("\033[H\033[J", d);    
-        SEND_TO_Q(CCRED(d->character, C_NRM), d);
-        SEND_TO_Q("\r\nThat's not a char_class.\r\n", d);
-        SEND_TO_Q(CCNRM(d->character, C_NRM), d);
-        show_char_class_menu_future(d);
-        SEND_TO_Q(CCCYN(d->character, C_NRM), d);
-        SEND_TO_Q("Class:  \r\n", d);
-        SEND_TO_Q(CCNRM(d->character, C_NRM), d);
-        return;
-        } else if (IS_HALF_ORC(d->character) && IS_PSIONIC(d->character)) {
-        SEND_TO_Q(CCGRN(d->character, C_NRM), d);
-        SEND_TO_Q("\r\nThat char_class is not allowed to your race!\r\n", d);
-        show_race_restrict_past(d);
-        show_race_menu_past(d);
-        STATE(d) = CON_RACE_FUTURE;
-        break;
-        } 
-    }
-    
-    else if (GET_HOME(d->character) == HOME_MODRIAN) {
-        if ((GET_CLASS(d->character) = parse_char_class_past(arg))==CLASS_UNDEFINED) 
-        {
-        SEND_TO_Q("\033[H\033[J", d);    
-        SEND_TO_Q(CCRED(d->character, C_NRM), d);
-        SEND_TO_Q("\r\nThat's not a char_class.\r\n", d);
-        SEND_TO_Q(CCNRM(d->character, C_NRM), d);
-        show_char_class_menu_past(d);
-        SEND_TO_Q(CCCYN(d->character, C_NRM), d);
-        SEND_TO_Q("Class:  \r\n", d);
-        SEND_TO_Q(CCNRM(d->character, C_NRM), d);
-        return;
-        } else if ((IS_DWARF(d->character) &&
-            (IS_MAGE(d->character) ||
-             IS_MONK(d->character) || IS_RANGER(d->character))) ||
-               (IS_HALF_ORC(d->character) &&
-            (IS_MAGE(d->character) || IS_CLERIC(d->character) ||
-             IS_MONK(d->character) || IS_KNIGHT(d->character))) ||
-               (IS_ELF(d->character) && IS_BARB(d->character)) ||
-               (IS_DROW(d->character) && (IS_BARB(d->character) ||
-                          IS_MONK(d->character))) ||
-               (IS_TABAXI(d->character) && IS_KNIGHT(d->character)) ||
-               (IS_MINOTAUR(d->character) && 
-            (IS_KNIGHT(d->character) || IS_THIEF(d->character) ||
-             IS_MONK(d->character)))) {
-        SEND_TO_Q(CCGRN(d->character, C_NRM), d);
-        SEND_TO_Q("\r\nThat char_class is not allowed to your race!\r\n", d);
-        show_race_restrict_past(d);
-        show_race_menu_past(d);
-        STATE(d) = CON_RACE_PAST;
-        break;
-        } 
-    } else
-        GET_CLASS(d->character) = load_result;
-    
-
-    SEND_TO_Q("\r\nALIGNMENT is a measure of your philosophies and morals.\r\n\r\n", d);
-
-    if (GET_CLASS(d->character) == CLASS_MONK) {
-        SEND_TO_Q("The monastic ideology requires that you remain neutral in alignment.\r\nTherefore you begin your life with a perfect neutrality.\r\n", d);
-        GET_ALIGNMENT(d->character) = 0;
-        if (GET_HOME(d->character) != HOME_ELECTRO) {
-        GET_HOME(d->character) = HOME_MONK;
-        STATE(d) = CON_QHOME_PAST;
-        } else {
-        SEND_TO_Q("\033[H\033[J", d);
-        STATE(d) = CON_QHOME_FUTURE;
-        show_future_home_menu(d);
-        }
-        break;
-    } else if (IS_DROW(d->character)) {
-        SEND_TO_Q("The Drow race is inherently evil.  Thus you begin your life as evil.\r\n", d);
-        GET_ALIGNMENT(d->character) = -666;
-        GET_HOME(d->character) = HOME_SKULLPORT;
-        STATE(d) = CON_QHOME_PAST;
-        break;
-    }
-
-    sprintf(buf, "%sDo you wish to be %sGood%s, %sNeutral%s, or %sEvil%s?%s ",
-        CCCYN(d->character, C_NRM), CCGRN(d->character, C_NRM),
-        CCCYN(d->character, C_NRM), CCGRN(d->character, C_NRM),
-        CCCYN(d->character, C_NRM), CCGRN(d->character, C_NRM),
-        CCCYN(d->character, C_NRM), CCNRM(d->character, C_NRM));
-    SEND_TO_Q(buf, d);
-    
-    STATE(d) = CON_QALIGN;
-    break;
-    
-    
-    case CON_QALIGN:
-    if (GET_CLASS(d->character) != CLASS_MONK) {
-        if (is_abbrev(arg, "evil"))
-        d->character->char_specials.saved.alignment = -666;
-        else if (is_abbrev(arg, "good"))
-        d->character->char_specials.saved.alignment = 777;
-        else if (is_abbrev(arg, "neutral")) {
-        if (GET_CLASS(d->character) == CLASS_KNIGHT ||
-            GET_CLASS(d->character) == CLASS_CLERIC) {
-            SEND_TO_Q(CCGRN(d->character, C_NRM), d);
-            SEND_TO_Q("Characters of your char_class must be either Good, or Evil.\r\n", d);
-            SEND_TO_Q(CCCYN(d->character, C_NRM), d);
-            SEND_TO_Q("Please choose one of these. \r\n", d);
-            SEND_TO_Q(CCNRM(d->character, C_NRM), d);
-            return;
-        }
-        d->character->char_specials.saved.alignment = 0;
-        } else {
-        SEND_TO_Q(CCRED(d->character, C_NRM), d);
-        SEND_TO_Q("Thats not a choice.\r\n", d); 
-        SEND_TO_Q(CCNRM(d->character, C_NRM), d);
-        sprintf(buf,
-            "%sDo you wish to be %sGood%s, %sNeutral%s, or %sEvil%s?%s ",
-            CCCYN(d->character, C_NRM), CCGRN(d->character, C_NRM),
-            CCCYN(d->character, C_NRM), CCGRN(d->character, C_NRM),
-            CCCYN(d->character, C_NRM), CCGRN(d->character, C_NRM),
-            CCCYN(d->character, C_NRM), CCNRM(d->character, C_NRM));
-        SEND_TO_Q(buf, d);
-        break;
-        }
-    }
-
-    if (GET_CLASS(d->character) == CLASS_CLERIC)
-        GET_DEITY(d->character) = DEITY_GUIHARIA;
-    else if (GET_CLASS(d->character) == CLASS_KNIGHT)
-        if (IS_GOOD(d->character))
-        GET_DEITY(d->character) = DEITY_JUSTICE;
-        else
-        GET_DEITY(d->character) = DEITY_ARES;
-    else 
-        GET_DEITY(d->character) = DEITY_GUIHARIA;
-
-    SEND_TO_Q("\033[H\033[J", d);    
-
-    if (GET_HOME(d->character) == HOME_ELECTRO) {
-        show_future_home_menu(d);
-        STATE(d) = CON_QHOME_FUTURE;
-    } else {
-        show_past_home_menu(d);
-        STATE(d) = CON_QHOME_PAST;
-    }
-    break;
-
-    case CON_HOMEHELP_P:
-    SEND_TO_Q("\033[H\033[J", d);
-    show_past_home_menu(d);
-    STATE(d) = CON_QHOME_PAST;
-    break;
-
-    case CON_HOMEHELP_F:
-    SEND_TO_Q("\033[H\033[J", d);
-    show_future_home_menu(d);
-    STATE(d) = CON_QHOME_FUTURE;
-    break;
-
-    case CON_QHOME_PAST:
-    case CON_QHOME_FUTURE:
-
-    if (STATE(d) == CON_QHOME_FUTURE) {
-        if ((GET_HOME(d->character) = parse_future_home(d, arg)) == -1) {
-        SEND_TO_Q("\033[H\033[J", d);    
-        SEND_TO_Q("That is not a valid choice.", d);
-        show_future_home_menu(d);
-        break;
-        } else if (GET_HOME(d->character) == -2) {
-        STATE(d) = CON_HOMEHELP_F;
-        break;
-        }
-    } else {
-        if (GET_CLASS(d->character) != CLASS_MONK && !IS_DROW(d->character)) {
-        if ((GET_HOME(d->character) = parse_past_home(d, arg)) == -1) {
-            SEND_TO_Q("\033[H\033[J", d);    
-            SEND_TO_Q("That is not a valid choice.", d);
-            show_past_home_menu(d);
-            break;
-        } else if (GET_HOME(d->character) == HOME_ELVEN_VILLAGE && 
-               (!IS_ELF(d->character) || IS_EVIL(d->character))) {
-            SEND_TO_Q("\033[H\033[J", d);    
-            SEND_TO_Q("Only good elves are allowed to reside in this place.\r\n",d);
-            show_past_home_menu(d);
-            break;
-        } else if (GET_HOME(d->character) == -2) {
-            STATE(d) = CON_HOMEHELP_P;
-            break;
-        }
-        }
-    }
-
-    population_record[GET_HOME(d->character)]++;
-    
-    if (GET_PFILEPOS(d->character) < 0)
-        GET_PFILEPOS(d->character) = create_entry(GET_NAME(d->character));
-    init_char(d->character);
-    roll_real_abils(d->character);
-    save_char(d->character, NULL);
-
-    SEND_TO_Q("\033[H\033[J", d);
-    SEND_TO_Q("The following is a description of your character's attributes:\r\n\r\n", d);
-    print_attributes_to_buf(d->character, buf2);
-    SEND_TO_Q(buf2, d);
-    SEND_TO_Q("\r\n", d);
-    SEND_TO_Q("Would you like to REROLL or KEEP these attributes?\r\n", d);
-    STATE(d) = CON_QREROLL;
-    break;
-
-    case CON_QREROLL:
-
-    if (is_abbrev(arg, "reroll")) {
-        roll_real_abils(d->character);
-        print_attributes_to_buf(d->character, buf2);
-        SEND_TO_Q("\033[H\033[J", d);
-        SEND_TO_Q("Character attributes:\r\n\r\n", d);
-        SEND_TO_Q(buf2, d);
-        SEND_TO_Q("\r\n", d);
-        SEND_TO_Q("Would you like to REROLL or KEEP these attributes?\r\n", d);
-        d->wait = 4;
-        break;
-    } else if (is_abbrev(arg, "keep")) {
-        save_char(d->character, NULL);
-
-        SEND_TO_Q("\033[H\033[J", d);
-        if (clr(d->character, C_NRM))     
-        SEND_TO_Q(ansi_motd, d);
-        else
-        SEND_TO_Q(motd, d);
+            if ((player_i = load_char(tmp_name, &tmp_store)) > -1) {
+            
+                store_to_char(&tmp_store, d->character);
+                // set this up for the dyntext check
+                d->old_login_time = tmp_store.last_logon;
+            
+                GET_PFILEPOS(d->character) = player_i;
+            
+                if (PLR_FLAGGED(d->character, PLR_DELETED)) {
+#ifdef DMALLOC
+                    dmalloc_verify(0);
+#endif
+                    free_char(d->character);
+                    CREATE(d->character, struct char_data, 1);
+                    clear_char(d->character);
+                    CREATE(d->character->player_specials, struct player_special_data, 1);
+                    d->character->desc = d;
+                    CREATE(d->character->player.name, char, strlen(tmp_name) + 1);
+                    strcpy(d->character->player.name, CAP(tmp_name));
+                    GET_PFILEPOS(d->character) = player_i;
+                    GET_WAS_IN(d->character) = NULL;
+                    Crash_delete_file(GET_NAME(d->character), CRASH_FILE);
+                    Crash_delete_file(GET_NAME(d->character), IMPLANT_FILE);
+                    sprintf(buf, "Did I get that right, %s (Y/N)? ", tmp_name);
+                    SEND_TO_Q(buf, d);
+                    STATE(d) = CON_NAME_CNFRM;
+#ifdef DMALLOC
+                    dmalloc_verify(0);
+#endif
+                } else {
+                    /* undo it just in case they are set */
+                    REMOVE_BIT(PLR_FLAGS(d->character),
+                               PLR_WRITING | PLR_MAILING | PLR_OLC | 
+                               PLR_QUESTOR);
       
-        SEND_TO_Q(CCYEL(d->character, C_NRM), d);
-        SEND_TO_Q("\r\n\n*** PRESS RETURN: ", d);
-        SEND_TO_Q(CCNRM(d->character, C_NRM), d);
-        STATE(d) = CON_RMOTD;
+                    /* make sure clan is valid */
+                    if ((clan = real_clan(GET_CLAN(d->character)))) {
+                        if (!(member = real_clanmember(GET_IDNUM(d->character), clan)))
+                            GET_CLAN(d->character) = 0;
+                    } else if (GET_CLAN(d->character))
+                        GET_CLAN(d->character) = 0;
 
-        sprintf(buf, "%s [%s] new player.", GET_NAME(d->character), d->host);
-        mudlog(buf, NRM, LVL_GOD, TRUE);
+                    SEND_TO_Q("Password: ", d);
+                    echo_off(d);
 
-        break;
-    } else
-        SEND_TO_Q("You must type 'reroll' or 'keep'.\r\n", d);
-    break;
+                    STATE(d) = CON_PASSWORD;
+                }
+            } else {
+                /* player unknown -- make new character */
 
-    case CON_RMOTD:        /* read CR after printing motd     */
-    if (!mini_mud)    SEND_TO_Q("\033[H\033[J", d);
-    show_menu(d);
-    STATE(d) = CON_MENU;
-    break;
+                if (!Valid_Name(tmp_name)) {
+                    SEND_TO_Q("Invalid name, please use another.\r\n", d);
+                    SEND_TO_Q("Name: ", d);
+                    return;
+                }
+                CREATE(d->character->player.name, char, strlen(tmp_name) + 1);
+                strcpy(d->character->player.name, CAP(tmp_name));
 
-    case CON_MENU:        /* get selection from main menu     */
-    switch (*arg) {
-    case '0':
-        SEND_TO_Q("\033[H\033[J", d);
-        SEND_TO_Q("Connection terminated.\r\n", d);
-        close_socket(d);
-        break;
-
-    case '1':
-        /* this code is to prevent people from multiply logging in */
-        struct room_data *theroom;
-        for (k = descriptor_list; k; k = next) {
-        next = k->next;
-        if (!k->connected && k->character &&
-            !str_cmp(GET_NAME(k->character), GET_NAME(d->character))) {
-            SEND_TO_Q("Your character has been deleted.\r\n", d);
-            STATE(d) = CON_CLOSE;
-            return;
+                sprintf(buf, "Did I get that right, %s (Y/N)? ", tmp_name);
+                SEND_TO_Q(buf, d);
+                STATE(d) = CON_NAME_CNFRM;
+            }
         }
-        }
-        if (!mini_mud)    SEND_TO_Q("\033[H\033[J", d);
-        if (!d->character->player.description && !GET_LEVEL(d->character)) {
-        SEND_TO_Q("Other players will usually be able to determine your general\r\n"
-              "size, as well as your race and gender, by looking at you.  What\r\n"
-              "else is noticable about your character?\r\n", d);
-        SEND_TO_Q("Terminate with a '@' on a new line.\r\n", d);
-        SEND_TO_Q("Enter a * on a new line to enter TED\r\n", d);
-        SEND_TO_Q(" [+--------+---------+---------+--------"
-              "-+---------+---------+---------+------+]\r\n", d);
-        d->str = &d->character->player.description;
-        d->max_str = MAX_CHAR_DESC-1;
-        STATE(d) = CON_EXDESC;
         break;
-        }
-
-        reset_char(d->character);
-
-        // if we're not a new char, check loadroom and rent
-        if (GET_LEVEL(d->character)) {
-            // If we're buried, tell em and drop link.
-            if (PLR2_FLAGGED(d->character, PLR2_BURIED)) {
-                sprintf(buf,"You lay fresh flowers on the grave of %s.\r\n",GET_NAME(d->character));
-                SEND_TO_Q( buf, d);
-                sprintf(buf,"Disconnecting %s. - Character is buried.",GET_NAME(d->character));
+    case CON_NAME_CNFRM:        /* wait for conf. of new name     */
+        if (UPPER(*arg) == 'Y') {
+            if (isbanned(d->host, buf2) >= BAN_NEW) {
+                sprintf(buf, "Request for new char %s denied from [%s] (siteban)",
+                        GET_NAME(d->character), d->host);
+                mudlog(buf, NRM, LVL_GOD, TRUE);
+                SEND_TO_Q("Sorry, new characters are not allowed from your site!\r\n", d);
+                STATE(d) = CON_CLOSE;
+                return;
+            }
+            if (restrict) {
+                SEND_TO_Q("Sorry, new players can't be created at the moment.\r\n", d);
+                sprintf(buf, "Request for new char %s denied from %s (wizlock)",
+                        GET_NAME(d->character), d->host);
                 mudlog(buf, NRM, LVL_GOD, TRUE);
                 STATE(d) = CON_CLOSE;
                 return;
             }
-            theroom = real_room(GET_LOADROOM(d->character));
-            if(theroom && House_can_enter(d->character,theroom->number)
-               && clan_house_can_enter(d->character, theroom) ) {
-                d->character->in_room = theroom;
-            } else {
-                if(theroom) {
-                    sprintf(buf,"%s unable to load in <clan>house room %d. Loadroom unset.",
-                        GET_NAME(d->character),GET_LOADROOM(d->character));
-                        mudlog(buf, NRM, LVL_DEMI, TRUE);
+            sprintf(buf, "New player [%s] connect from %s.", GET_NAME(d->character),
+                    d->host);
+            mudlog(buf, CMP, LVL_GOD, TRUE);
+            
+            SEND_TO_Q("\033[H\033[J", d);
+            sprintf(buf,"Creating new character '%s'.\r\n\r\n",
+                    GET_NAME(d->character));
+            SEND_TO_Q(buf, d);
+            SEND_TO_Q("What shall be your password: ", d);
+            echo_off(d);
+            STATE(d) = CON_NEWPASSWD;
+        } else if (*arg == 'n' || *arg == 'N') {
+            SEND_TO_Q("Okay, what IS it, then? ", d);
+            free(d->character->player.name);
+            d->character->player.name = NULL;
+            STATE(d) = CON_GET_NAME;
+        } else {
+            SEND_TO_Q("Please type Yes or No: ", d);
+        }
+        break;
+    case CON_PASSWORD:        /* get pwd for known player     */
+        /* turn echo back on */
+        echo_on(d);
+
+        if (!*arg)
+            close_socket(d);
+        else {
+            if (strncmp(CRYPT(arg, GET_PASSWD(d->character)), 
+                        GET_PASSWD(d->character), MAX_PWD_LENGTH)) {
+                sprintf(buf, "Bad PW: %s [%s]", GET_NAME(d->character), d->host);
+                mudlog(buf, CMP, 
+                       MAX(LVL_GOD, PLR_FLAGGED(d->character, PLR_INVSTART) ? 
+                           GET_LEVEL(d->character) :
+                           GET_INVIS_LEV(d->character)), TRUE);
+                GET_BAD_PWS(d->character)++;
+                save_char(d->character, real_room(GET_LOADROOM(d->character)));
+                if (++(d->bad_pws) >= max_bad_pws) {    /* 3 strikes and you're out. */
+                    SEND_TO_Q("Wrong password... disconnecting.\r\n", d);
+                    STATE(d) = CON_CLOSE;
+                } else {
+                    SEND_TO_Q("Wrong password.\r\nPassword: ", d);
+                    echo_off(d);
                 }
-                GET_LOADROOM(d->character) = -1;
+                return;
             }
-            if(GET_LOADROOM(d->character) == -1 &&
-               GET_HOLD_LOADROOM(d->character) == -1) {
-                REMOVE_BIT(PLR_FLAGS(d->character), PLR_LOADROOM);
+            load_result = GET_BAD_PWS(d->character);
+            GET_BAD_PWS(d->character) = 0;
+
+            if (!strncasecmp(GET_NAME(d->character),"polc-",5))
+                polc_char = TRUE;
+
+            if (!polc_char)
+                save_char(d->character, real_room(GET_LOADROOM(d->character)));
+
+            if (isbanned(d->host, buf2) == BAN_SELECT &&
+                !PLR_FLAGGED(d->character, PLR_SITEOK)) {
+                SEND_TO_Q("Sorry, this char has not been cleared for login from your site!\r\n", d);
+                STATE(d) = CON_CLOSE;
+                sprintf(buf, "Connection attempt for %s denied from %s",
+                        GET_NAME(d->character), d->host);
+                mudlog(buf, NRM, LVL_GOD, TRUE);
+                return;
+            }
+            if (GET_LEVEL(d->character) < restrict && 
+                (!PLR_FLAGGED(d->character, PLR_TESTER) || restrict > LVL_ETERNAL)) {
+                SEND_TO_Q("The game is temporarily restricted.. try again later.\r\n", d);
+                STATE(d) = CON_CLOSE;
+                sprintf(buf, "Request for login denied for %s [%s] (wizlock)",
+                        GET_NAME(d->character), d->host);
+                mudlog(buf, NRM, LVL_GOD, TRUE);
+                return;
+            }
+            /* first, check for other logins */
+            for (k = descriptor_list; k; k = next) {
+                next = k->next;
+                if (k != d && k->character && !k->character->in_room &&
+                    GET_IDNUM(k->character) == GET_IDNUM(d->character) &&
+                    !strcmp(GET_NAME(k->character),GET_NAME(d->character))) {
+                    sprintf(buf, "socket close on multi login (%s)", 
+                            GET_NAME(d->character));
+                    slog(buf);
+                    close_socket(k);
+                }
+            }
+            /* check to see if this is a port olc descriptor */
+      
+            /*
+             * next, check to see if this person is already logged in, but
+             * switched.  If so, disconnect the switched persona.
+             */
+            for (k = descriptor_list; k; k = k->next) {
+                if (k->original && 
+                    (GET_IDNUM(k->original) == GET_IDNUM(d->character))) {
+                    SEND_TO_Q("Disconnecting for return to unswitched char.\r\n", k);
+                    STATE(k) = CON_CLOSE;
+#ifdef DMALLOC
+                    dmalloc_verify(0);
+#endif
+                    free_char(d->character);
+#ifdef DMALLOC
+                    dmalloc_verify(0);
+#endif
+                    d->character = k->original;
+                    d->character->desc = d;
+                    d->original = NULL;
+                    d->character->char_specials.timer = 0;
+                    if (k->character)
+                        k->character->desc = NULL;
+                    k->character = NULL;
+                    k->original = NULL;
+                    SEND_TO_Q("Reconnecting to unswitched char.\r\n", d);
+                    REMOVE_BIT(PLR_FLAGS(d->character), PLR_MAILING | PLR_WRITING | PLR_OLC);
+                    STATE(d) = CON_PLAYING;
+
+                    if (shutdown_count > 0) {
+                        sprintf(buf, 
+                                "\r\n\007\007:: NOTICE :: Tempus will be rebooting in [%d] second%s ::\r\n",
+                                shutdown_count, shutdown_count == 1 ? "" : "s");
+                        send_to_char(buf, d->character);
+                    }
+
+                    if (has_mail(GET_IDNUM(d->character)))
+                        SEND_TO_Q("You have mail waiting.\r\n", d);
+
+                    notify_cleric_moon(d->character);
+
+                    sprintf(buf, "%s [%s] has reconnected.",
+                            GET_NAME(d->character), d->host);
+                    mudlog(buf, NRM, MAX(LVL_GOD, GET_INVIS_LEV(d->character)), TRUE);
+                    return;
+                }
             }
 
-            if (PLR_FLAGGED(d->character, PLR_INVSTART))
-                GET_INVIS_LEV(d->character) = (GET_LEVEL(d->character) > LVL_LUCIFER ?
-                               LVL_LUCIFER : GET_LEVEL(d->character));
+            /* now check for linkless and usurpable */
+            for (tmp_ch = character_list; tmp_ch; tmp_ch = tmp_ch->next)
+                if (!IS_NPC(tmp_ch) &&
+                    GET_IDNUM(d->character) == GET_IDNUM(tmp_ch) &&
+                    !strcmp(GET_NAME(tmp_ch),GET_NAME(d->character))) {
+                    if (!tmp_ch->desc) {
+                        SEND_TO_Q("Reconnecting.\r\n", d);
+
+                        if (shutdown_count > 0) {
+                            sprintf(buf, 
+                                    "\r\n\007\007:: NOTICE :: Tempus will be rebooting in [%d] second%s ::\r\n",
+                                    shutdown_count, shutdown_count == 1 ? "" : "s");
+                            send_to_char(buf, d->character);
+                        }
+        
+                        sprintf(buf, "%s [%s] has reconnected.", GET_NAME(d->character),
+                                d->host);
+                        mudlog(buf, NRM, MAX(LVL_GOD, GET_INVIS_LEV(d->character)),
+                               TRUE);
+                        if (!polc_char) {
+                            act("$n has reconnected.", TRUE, tmp_ch, 0, 0, TO_ROOM);
+                            if (has_mail(GET_IDNUM(d->character)))
+                                SEND_TO_Q("You have mail waiting.\r\n", d);
+
+                            notify_cleric_moon(d->character);
+
+                        }
+
+                        // check for dynamic text updates (news, inews, etc...)
+                        check_dyntext_updates(d->character, CHECKDYN_RECONNECT);
+
+
+                    } else {
+                        sprintf(buf, "%s has re-logged:[%s]. disconnecting old socket.",
+                                GET_NAME(tmp_ch), d->host);
+                        mudlog(buf, NRM, MAX(LVL_GOD, GET_INVIS_LEV(tmp_ch)), TRUE);
+                        SEND_TO_Q("This body has been usurped!\r\n", tmp_ch->desc);
+                        STATE(tmp_ch->desc) = CON_CLOSE;
+                        tmp_ch->desc->character = NULL;
+                        tmp_ch->desc = NULL;
+                        SEND_TO_Q("You take over your own body, already in use!\r\n", d);
+                        if (shutdown_count > 0) {
+                            sprintf(buf, 
+                                    "\r\n\007\007:: NOTICE :: Tempus will be rebooting in [%d] second%s ::\r\n",
+                                    shutdown_count, shutdown_count == 1 ? "" : "s");
+                            send_to_char(buf, d->character);
+                        }
+        
+                        if (!polc_char) {
+                            if (AWAKE(tmp_ch))
+                                act("$n suddenly keels over in pain, surrounded by a white "
+                                    "aura...", TRUE, tmp_ch, 0, 0, TO_ROOM);
+                            else 
+                                act("$n's body goes into convulsions!",TRUE,tmp_ch,0,0,TO_ROOM);
+                            act("$n's body has been taken over by a new spirit!",
+                                TRUE, tmp_ch, 0, 0, TO_ROOM);
+                        }
+                    }
+#ifdef DMALLOC
+                    dmalloc_verify(0);
+#endif
+                    free_char(d->character);
+#ifdef DMALLOC
+                    dmalloc_verify(0);
+#endif
+                    tmp_ch->desc = d;
+                    d->character = tmp_ch;
+                    tmp_ch->char_specials.timer = 0;
+                    d->character->player_specials->olc_obj = NULL;
+                    REMOVE_BIT(PLR_FLAGS(d->character), PLR_MAILING | PLR_WRITING |
+                               PLR_OLC);
+                    if (polc_char)
+                        STATE(d) = CON_PORT_OLC;
+                    else
+                        STATE(d) = CON_PLAYING;
+                    return;
+                }
+            if (!polc_char) {
+                if (!mini_mud) {
+                    SEND_TO_Q("\033[H\033[J", d);
+                    if (GET_LEVEL(d->character) >= LVL_IMMORT) {
+                        if (clr(d->character, C_NRM))
+                            SEND_TO_Q(ansi_imotd, d);
+                        else
+                            SEND_TO_Q(imotd, d);
+                    } else {
+                        if (clr(d->character, C_NRM))     
+                            SEND_TO_Q(ansi_motd, d);
+                        else
+                            SEND_TO_Q(motd, d);
+                    }
+                }
+            }
+
+            sprintf(buf, "%s [%s] has connected.", GET_NAME(d->character), d->host);
+            mudlog(buf, CMP, MAX(LVL_GOD,
+                                 PLR_FLAGGED(d->character, PLR_INVSTART) ? 
+                                 GET_LEVEL(d->character) :
+                                 GET_INVIS_LEV(d->character)), TRUE);
+
+            if (polc_char) {
+                STATE(d) = CON_PORT_OLC;
+            }
+            else {
+                if (load_result) {
+                    sprintf(buf, "\r\n\r\n\007\007\007"
+                            "%s%d LOGIN FAILURE%s SINCE LAST SUCCESSFUL LOGIN.%s\r\n",
+                            CCRED(d->character, C_SPR), load_result,
+                            (load_result > 1) ? "S" : "", CCNRM(d->character, C_SPR));
+                    SEND_TO_Q(buf, d);
+                }
+                SEND_TO_Q("\r\n*** PRESS RETURN: ", d);
+                STATE(d) = CON_RMOTD;
+            }
+        }
+        break;
+
+    case CON_NEWPASSWD:
+    case CON_CHPWD_GETNEW:
+        if (!*arg || strlen(arg) > MAX_PWD_LENGTH || strlen(arg) < 3 ||
+            !str_cmp(arg, GET_NAME(d->character))) {
+            SEND_TO_Q("\r\nIllegal password.\r\n", d);
+            SEND_TO_Q("Password: ", d);
+            return;
+        }
+        strncpy(GET_PASSWD(d->character), CRYPT(arg, GET_NAME(d->character)), MAX_PWD_LENGTH);
+        *(GET_PASSWD(d->character) + MAX_PWD_LENGTH) = '\0';
+
+        SEND_TO_Q("\r\nPlease retype password: ", d);
+        if (STATE(d) == CON_NEWPASSWD)
+            STATE(d) = CON_CNFPASSWD;
+        else
+            STATE(d) = CON_CHPWD_VRFY;
+
+        break;
+
+    case CON_CNFPASSWD:
+    case CON_CHPWD_VRFY:
+        if (strncmp(CRYPT(arg, GET_PASSWD(d->character)), GET_PASSWD(d->character),
+                    MAX_PWD_LENGTH)) {
+            SEND_TO_Q("\r\nPasswords don't match... start over.\r\n", d);
+            SEND_TO_Q("Password: ", d);
+            if (STATE(d) == CON_CNFPASSWD)
+                STATE(d) = CON_NEWPASSWD;
+            else
+                STATE(d) = CON_CHPWD_GETNEW;
+            return;
+        }
+        echo_on(d);
+
+        if (STATE(d) == CON_CNFPASSWD) {
+            SEND_TO_Q("This game supports ANSI color standards.\r\n"
+                      "Is your terminal compatible to receive colors? [y/n]  ", d);
+            STATE(d) = CON_QCOLOR;
+        } else {
+            save_char(d->character, real_room(GET_LOADROOM(d->character)));
+            echo_on(d);
+            SEND_TO_Q("\033[H\033[J", d);
+            SEND_TO_Q("\r\nPassword changed.\r\n", d);
+            show_menu(d);
+            STATE(d) = CON_MENU;
+        }
+
+        break;
+
+    case CON_QCOLOR:
+        switch (*arg) {
+        case 'y':
+        case 'Y':
+            SET_BIT(PRF_FLAGS(d->character), PRF_COLOR_2);
+            sprintf(buf, "\r\nYou will receive colors in the %sNORMAL%s format.\r\n",
+                    CCCYN(d->character, C_NRM), CCNRM(d->character, C_NRM));
+            SEND_TO_Q(buf, d);
+            SEND_TO_Q(CCYEL(d->character, C_NRM), d);
+            SEND_TO_Q("If this is not acceptable, you may change modes at any time.\r\n\r\n", d);
+            SEND_TO_Q(CCNRM(d->character, C_NRM), d);
+            // default settings
+            SET_BIT(PRF_FLAGS(d->character), PRF_COMPACT);
+            SET_BIT(PRF_FLAGS(d->character), PRF_NOSPEW);
+            break;
+        case 'n':
+        case 'N':
+            SEND_TO_Q("\r\nVery well.  You will not receive colored text.\r\n", d);
+            break;
+        default:
+            SEND_TO_Q("\r\nYou must specify either 'Y' or 'N'.\r\n", d);
+            return;
+        }   
+
+        SET_BIT(PRF2_FLAGS(d->character), PRF2_LIGHT_READ | 
+                PRF2_AUTOPROMPT | PRF2_NEWBIE_HELPER);
+        sprintf(buf, "%sWhat do you choose as your sex %s(M/F)%s?%s ", 
+                CCCYN(d->character, C_NRM), CCGRN(d->character, C_NRM), 
+                CCCYN(d->character, C_NRM), CCNRM(d->character, C_NRM));
+        SEND_TO_Q(buf, d);
+        STATE(d) = CON_QSEX;
+        return;
+
+    case CON_QSEX:        /* query sex of new user     */
+
+        if (is_abbrev(arg, "male"))
+            d->character->player.sex = SEX_MALE;
+        else if (is_abbrev(arg, "female"))
+            d->character->player.sex = SEX_FEMALE;
+        else {
+            SEND_TO_Q("That is not a sex...\r\n", d);
+            sprintf(buf, "%sWhat IS your sex?%s ", CCCYN(d->character, C_NRM),
+                    CCNRM(d->character, C_NRM));
+            SEND_TO_Q(buf, d);
+            return;
+            break;
+        }
+
+        SEND_TO_Q("\033[H\033[J", d);    
+        show_time_menu(d);
+        STATE(d) = CON_QTIME_FRAME;
+        break;
+    
+        /*    GET_HOME(d->character) = HOME_MODRIAN;   assigns past to char  */
+        /*    SEND_TO_Q("\033[H\033[J", d);    
+              show_race_menu_past(d);
+              SEND_TO_Q(CCCYN(d->character, C_NRM), d);
+              SEND_TO_Q("\r\nYour Choice: ", d);
+              SEND_TO_Q(CCNRM(d->character, C_NRM), d);
+              STATE(d) = CON_RACE;
+              break;    */
+
+    case CON_QTIME_FRAME:
+    
+        if ((GET_HOME(d->character) = parse_time_frame(arg)) == HOME_UNDEFINED) {
+            SEND_TO_Q("\033[H\033[J", d);
+            SEND_TO_Q("\r\nThat's not a choice.\r\n\r\n", d);
+            show_time_menu(d);
+            return;
+        }
+
+        SEND_TO_Q("\033[H\033[J", d);
+        if (GET_HOME(d->character) == HOME_ELECTRO) {
+            show_race_menu_future(d);
+            STATE(d) = CON_RACE_FUTURE;
+        } else {
+            show_race_menu_past(d);
+            STATE(d) = CON_RACE_PAST;
+        }
+        break;
+
+    case CON_RACEHELP_P:
+        SEND_TO_Q("\033[H\033[J", d);
+        show_race_menu_past(d);
+        STATE(d) = CON_RACE_PAST;
+        break;
+
+    case CON_RACEHELP_F:
+        SEND_TO_Q("\033[H\033[J", d);
+        show_race_menu_future(d);
+        STATE(d) = CON_RACE_FUTURE;
+        break;
+
+    case CON_RACE_PAST:
+        if ((GET_RACE(d->character) = parse_race_past(d, arg)) == -1) {
+            SEND_TO_Q("\033[H\033[J", d);    
+            SEND_TO_Q(CCRED(d->character, C_NRM), d);
+            SEND_TO_Q("\r\nThat's not a choice.\r\n", d);
+            SEND_TO_Q(CCNRM(d->character, C_NRM), d);
+            show_race_menu_past(d);
+            break;
+        } else if (GET_RACE(d->character) == -2) {
+            STATE(d) = CON_RACEHELP_P;
+            break;
+        }
+
+        SEND_TO_Q("\033[H\033[J", d);    
+        show_char_class_menu_past(d);
+        SEND_TO_Q(CCCYN(d->character, C_NRM), d);
+        SEND_TO_Q("\r\nClass: ", d);
+        SEND_TO_Q(CCNRM(d->character, C_NRM), d);
+        STATE(d) = CON_QCLASS;
+        break;
+
+    case CON_RACE_FUTURE:
+        if ((GET_RACE(d->character) = parse_race_future(d, arg)) == -1) {
+            SEND_TO_Q("\033[H\033[J", d);    
+            SEND_TO_Q(CCRED(d->character, C_NRM), d);
+            SEND_TO_Q("\r\nThat's not a choice.\r\n", d);
+            SEND_TO_Q(CCNRM(d->character, C_NRM), d);
+            show_race_menu_future(d);
+            break;
+        } else if (GET_RACE(d->character) == -2) {
+            STATE(d) = CON_RACEHELP_F;
+            break;
+        }
+
+        SEND_TO_Q("\033[H\033[J", d);    
+        show_char_class_menu_future(d);
+        SEND_TO_Q(CCCYN(d->character, C_NRM), d);
+        SEND_TO_Q("\r\nClass: ", d);
+        SEND_TO_Q(CCNRM(d->character, C_NRM), d);
+        STATE(d) = CON_QCLASS;
+        break;
+
+    case CON_CLASSHELP_P:
+        show_char_class_menu_past(d);
+        STATE(d) = CON_QCLASS;
+        break;
+
+    case CON_CLASSHELP_F:
+        show_char_class_menu_future(d);
+        STATE(d) = CON_QCLASS;
+        break;
+
+    case CON_QCLASS:
+        if (GET_HOME(d->character) == HOME_ELECTRO) {
+            if ((GET_CLASS(d->character)=parse_char_class_future(arg))==CLASS_UNDEFINED){
+                SEND_TO_Q("\033[H\033[J", d);    
+                SEND_TO_Q(CCRED(d->character, C_NRM), d);
+                SEND_TO_Q("\r\nThat's not a char_class.\r\n", d);
+                SEND_TO_Q(CCNRM(d->character, C_NRM), d);
+                show_char_class_menu_future(d);
+                SEND_TO_Q(CCCYN(d->character, C_NRM), d);
+                SEND_TO_Q("Class:  \r\n", d);
+                SEND_TO_Q(CCNRM(d->character, C_NRM), d);
+                return;
+            } else if (IS_HALF_ORC(d->character) && IS_PSIONIC(d->character)) {
+                SEND_TO_Q(CCGRN(d->character, C_NRM), d);
+                SEND_TO_Q("\r\nThat char_class is not allowed to your race!\r\n", d);
+                show_race_restrict_past(d);
+                show_race_menu_past(d);
+                STATE(d) = CON_RACE_FUTURE;
+                break;
+            } 
+        }
+    
+        else if (GET_HOME(d->character) == HOME_MODRIAN) {
+            if ((GET_CLASS(d->character) = parse_char_class_past(arg))==CLASS_UNDEFINED) 
+                {
+                    SEND_TO_Q("\033[H\033[J", d);    
+                    SEND_TO_Q(CCRED(d->character, C_NRM), d);
+                    SEND_TO_Q("\r\nThat's not a char_class.\r\n", d);
+                    SEND_TO_Q(CCNRM(d->character, C_NRM), d);
+                    show_char_class_menu_past(d);
+                    SEND_TO_Q(CCCYN(d->character, C_NRM), d);
+                    SEND_TO_Q("Class:  \r\n", d);
+                    SEND_TO_Q(CCNRM(d->character, C_NRM), d);
+                    return;
+                } else if ((IS_DWARF(d->character) &&
+                            (IS_MAGE(d->character) ||
+                             IS_MONK(d->character) || IS_RANGER(d->character))) ||
+                           (IS_HALF_ORC(d->character) &&
+                            (IS_MAGE(d->character) || IS_CLERIC(d->character) ||
+                             IS_MONK(d->character) || IS_KNIGHT(d->character))) ||
+                           (IS_ELF(d->character) && IS_BARB(d->character)) ||
+                           (IS_DROW(d->character) && (IS_BARB(d->character) ||
+                                                      IS_MONK(d->character))) ||
+                           (IS_TABAXI(d->character) && IS_KNIGHT(d->character)) ||
+                           (IS_MINOTAUR(d->character) && 
+                            (IS_KNIGHT(d->character) || IS_THIEF(d->character) ||
+                             IS_MONK(d->character)))) {
+                    SEND_TO_Q(CCGRN(d->character, C_NRM), d);
+                    SEND_TO_Q("\r\nThat char_class is not allowed to your race!\r\n", d);
+                    show_race_restrict_past(d);
+                    show_race_menu_past(d);
+                    STATE(d) = CON_RACE_PAST;
+                    break;
+                } 
+        } else
+            GET_CLASS(d->character) = load_result;
+    
+
+        SEND_TO_Q("\r\nALIGNMENT is a measure of your philosophies and morals.\r\n\r\n", d);
+
+        if (GET_CLASS(d->character) == CLASS_MONK) {
+            SEND_TO_Q("The monastic ideology requires that you remain neutral in alignment.\r\nTherefore you begin your life with a perfect neutrality.\r\n", d);
+            GET_ALIGNMENT(d->character) = 0;
+            if (GET_HOME(d->character) != HOME_ELECTRO) {
+                GET_HOME(d->character) = HOME_MONK;
+                STATE(d) = CON_QHOME_PAST;
+            } else {
+                SEND_TO_Q("\033[H\033[J", d);
+                STATE(d) = CON_QHOME_FUTURE;
+                show_future_home_menu(d);
+            }
+            break;
+        } else if (IS_DROW(d->character)) {
+            SEND_TO_Q("The Drow race is inherently evil.  Thus you begin your life as evil.\r\n", d);
+            GET_ALIGNMENT(d->character) = -666;
+            GET_HOME(d->character) = HOME_SKULLPORT;
+            STATE(d) = CON_QHOME_PAST;
+            break;
+        }
+
+        sprintf(buf, "%sDo you wish to be %sGood%s, %sNeutral%s, or %sEvil%s?%s ",
+                CCCYN(d->character, C_NRM), CCGRN(d->character, C_NRM),
+                CCCYN(d->character, C_NRM), CCGRN(d->character, C_NRM),
+                CCCYN(d->character, C_NRM), CCGRN(d->character, C_NRM),
+                CCCYN(d->character, C_NRM), CCNRM(d->character, C_NRM));
+        SEND_TO_Q(buf, d);
+    
+        STATE(d) = CON_QALIGN;
+        break;
+    
+    
+    case CON_QALIGN:
+        if (GET_CLASS(d->character) != CLASS_MONK) {
+            if (is_abbrev(arg, "evil"))
+                d->character->char_specials.saved.alignment = -666;
+            else if (is_abbrev(arg, "good"))
+                d->character->char_specials.saved.alignment = 777;
+            else if (is_abbrev(arg, "neutral")) {
+                if (GET_CLASS(d->character) == CLASS_KNIGHT ||
+                    GET_CLASS(d->character) == CLASS_CLERIC) {
+                    SEND_TO_Q(CCGRN(d->character, C_NRM), d);
+                    SEND_TO_Q("Characters of your char_class must be either Good, or Evil.\r\n", d);
+                    SEND_TO_Q(CCCYN(d->character, C_NRM), d);
+                    SEND_TO_Q("Please choose one of these. \r\n", d);
+                    SEND_TO_Q(CCNRM(d->character, C_NRM), d);
+                    return;
+                }
+                d->character->char_specials.saved.alignment = 0;
+            } else {
+                SEND_TO_Q(CCRED(d->character, C_NRM), d);
+                SEND_TO_Q("Thats not a choice.\r\n", d); 
+                SEND_TO_Q(CCNRM(d->character, C_NRM), d);
+                sprintf(buf,
+                        "%sDo you wish to be %sGood%s, %sNeutral%s, or %sEvil%s?%s ",
+                        CCCYN(d->character, C_NRM), CCGRN(d->character, C_NRM),
+                        CCCYN(d->character, C_NRM), CCGRN(d->character, C_NRM),
+                        CCCYN(d->character, C_NRM), CCGRN(d->character, C_NRM),
+                        CCCYN(d->character, C_NRM), CCNRM(d->character, C_NRM));
+                SEND_TO_Q(buf, d);
+                break;
+            }
+        }
+
+        if (GET_CLASS(d->character) == CLASS_CLERIC)
+            GET_DEITY(d->character) = DEITY_GUIHARIA;
+        else if (GET_CLASS(d->character) == CLASS_KNIGHT)
+            if (IS_GOOD(d->character))
+                GET_DEITY(d->character) = DEITY_JUSTICE;
+            else
+                GET_DEITY(d->character) = DEITY_ARES;
+        else 
+            GET_DEITY(d->character) = DEITY_GUIHARIA;
+
+        SEND_TO_Q("\033[H\033[J", d);    
+
+        if (GET_HOME(d->character) == HOME_ELECTRO) {
+            show_future_home_menu(d);
+            STATE(d) = CON_QHOME_FUTURE;
+        } else {
+            show_past_home_menu(d);
+            STATE(d) = CON_QHOME_PAST;
+        }
+        break;
+
+    case CON_HOMEHELP_P:
+        SEND_TO_Q("\033[H\033[J", d);
+        show_past_home_menu(d);
+        STATE(d) = CON_QHOME_PAST;
+        break;
+
+    case CON_HOMEHELP_F:
+        SEND_TO_Q("\033[H\033[J", d);
+        show_future_home_menu(d);
+        STATE(d) = CON_QHOME_FUTURE;
+        break;
+
+    case CON_QHOME_PAST:
+    case CON_QHOME_FUTURE:
+
+        if (STATE(d) == CON_QHOME_FUTURE) {
+            if ((GET_HOME(d->character) = parse_future_home(d, arg)) == -1) {
+                SEND_TO_Q("\033[H\033[J", d);    
+                SEND_TO_Q("That is not a valid choice.", d);
+                show_future_home_menu(d);
+                break;
+            } else if (GET_HOME(d->character) == -2) {
+                STATE(d) = CON_HOMEHELP_F;
+                break;
+            }
+        } else {
+            if (GET_CLASS(d->character) != CLASS_MONK && !IS_DROW(d->character)) {
+                if ((GET_HOME(d->character) = parse_past_home(d, arg)) == -1) {
+                    SEND_TO_Q("\033[H\033[J", d);    
+                    SEND_TO_Q("That is not a valid choice.", d);
+                    show_past_home_menu(d);
+                    break;
+                } else if (GET_HOME(d->character) == HOME_ELVEN_VILLAGE && 
+                           (!IS_ELF(d->character) || IS_EVIL(d->character))) {
+                    SEND_TO_Q("\033[H\033[J", d);    
+                    SEND_TO_Q("Only good elves are allowed to reside in this place.\r\n",d);
+                    show_past_home_menu(d);
+                    break;
+                } else if (GET_HOME(d->character) == -2) {
+                    STATE(d) = CON_HOMEHELP_P;
+                    break;
+                }
+            }
+        }
+
+        population_record[GET_HOME(d->character)]++;
+    
+        if (GET_PFILEPOS(d->character) < 0)
+            GET_PFILEPOS(d->character) = create_entry(GET_NAME(d->character));
+        init_char(d->character);
+        roll_real_abils(d->character);
+        save_char(d->character, NULL);
+
+        SEND_TO_Q("\033[H\033[J", d);
+        SEND_TO_Q("The following is a description of your character's attributes:\r\n\r\n", d);
+        print_attributes_to_buf(d->character, buf2);
+        SEND_TO_Q(buf2, d);
+        SEND_TO_Q("\r\n", d);
+        SEND_TO_Q("Would you like to REROLL or KEEP these attributes?\r\n", d);
+        STATE(d) = CON_QREROLL;
+        break;
+
+    case CON_QREROLL:
+
+        if (is_abbrev(arg, "reroll")) {
+            roll_real_abils(d->character);
+            print_attributes_to_buf(d->character, buf2);
+            SEND_TO_Q("\033[H\033[J", d);
+            SEND_TO_Q("Character attributes:\r\n\r\n", d);
+            SEND_TO_Q(buf2, d);
+            SEND_TO_Q("\r\n", d);
+            SEND_TO_Q("Would you like to REROLL or KEEP these attributes?\r\n", d);
+            d->wait = 4;
+            break;
+        } else if (is_abbrev(arg, "keep")) {
+            save_char(d->character, NULL);
+
+            SEND_TO_Q("\033[H\033[J", d);
+            if (clr(d->character, C_NRM))     
+                SEND_TO_Q(ansi_motd, d);
+            else
+                SEND_TO_Q(motd, d);
+      
+            SEND_TO_Q(CCYEL(d->character, C_NRM), d);
+            SEND_TO_Q("\r\n\n*** PRESS RETURN: ", d);
+            SEND_TO_Q(CCNRM(d->character, C_NRM), d);
+            STATE(d) = CON_RMOTD;
+
+            sprintf(buf, "%s [%s] new player.", GET_NAME(d->character), d->host);
+            mudlog(buf, NRM, LVL_GOD, TRUE);
+
+            break;
+        } else
+            SEND_TO_Q("You must type 'reroll' or 'keep'.\r\n", d);
+        break;
+
+    case CON_RMOTD:        /* read CR after printing motd     */
+        if (!mini_mud)    SEND_TO_Q("\033[H\033[J", d);
+        show_menu(d);
+        STATE(d) = CON_MENU;
+        break;
+
+    case CON_MENU:        /* get selection from main menu     */
+        switch (*arg) {
+        case '0':
+            SEND_TO_Q("\033[H\033[J", d);
+            SEND_TO_Q("Connection terminated.\r\n", d);
+            close_socket(d);
+            break;
+
+        case '1':
+            /* this code is to prevent people from multiply logging in */
+            struct room_data *theroom;
+            for (k = descriptor_list; k; k = next) {
+                next = k->next;
+                if (!k->connected && k->character &&
+                    !str_cmp(GET_NAME(k->character), GET_NAME(d->character))) {
+                    SEND_TO_Q("Your character has been deleted.\r\n", d);
+                    STATE(d) = CON_CLOSE;
+                    return;
+                }
+            }
+            if (!mini_mud)    SEND_TO_Q("\033[H\033[J", d);
+            if (!d->character->player.description && !GET_LEVEL(d->character)) {
+                SEND_TO_Q("Other players will usually be able to determine your general\r\n"
+                          "size, as well as your race and gender, by looking at you.  What\r\n"
+                          "else is noticable about your character?\r\n", d);
+                SEND_TO_Q("Terminate with a '@' on a new line.\r\n", d);
+                SEND_TO_Q("Enter a * on a new line to enter TED\r\n", d);
+                SEND_TO_Q(" [+--------+---------+---------+--------"
+                          "-+---------+---------+---------+------+]\r\n", d);
+                d->str = &d->character->player.description;
+                d->max_str = MAX_CHAR_DESC-1;
+                STATE(d) = CON_EXDESC;
+                break;
+            }
+
+            reset_char(d->character);
+
+            // if we're not a new char, check loadroom and rent
+            if (GET_LEVEL(d->character)) {
+                // If we're buried, tell em and drop link.
+                if (PLR2_FLAGGED(d->character, PLR2_BURIED)) {
+                    sprintf(buf,"You lay fresh flowers on the grave of %s.\r\n",GET_NAME(d->character));
+                    SEND_TO_Q( buf, d);
+                    sprintf(buf,"Disconnecting %s. - Character is buried.",GET_NAME(d->character));
+                    mudlog(buf, NRM, LVL_GOD, TRUE);
+                    STATE(d) = CON_CLOSE;
+                    return;
+                }
+                theroom = real_room(GET_LOADROOM(d->character));
+                if(theroom && House_can_enter(d->character,theroom->number)
+                   && clan_house_can_enter(d->character, theroom) ) {
+                    d->character->in_room = theroom;
+                } else {
+                    if(theroom) {
+                        sprintf(buf,"%s unable to load in <clan>house room %d. Loadroom unset.",
+                                GET_NAME(d->character),GET_LOADROOM(d->character));
+                        mudlog(buf, NRM, LVL_DEMI, TRUE);
+                    }
+                    GET_LOADROOM(d->character) = -1;
+                }
+                if(GET_LOADROOM(d->character) == -1 &&
+                   GET_HOLD_LOADROOM(d->character) == -1) {
+                    REMOVE_BIT(PLR_FLAGS(d->character), PLR_LOADROOM);
+                }
+
+                if (PLR_FLAGGED(d->character, PLR_INVSTART))
+                    GET_INVIS_LEV(d->character) = (GET_LEVEL(d->character) > LVL_LUCIFER ?
+                                                   LVL_LUCIFER : GET_LEVEL(d->character));
           
-            if ((load_result = Crash_load(d->character)) && 
-                d->character->in_room == NULL) {
+                if ((load_result = Crash_load(d->character)) && 
+                    d->character->in_room == NULL) {
+                    d->character->in_room = NULL;
+                }
+            } else { // otherwise null the loadroom
                 d->character->in_room = NULL;
             }
-        } else { // otherwise null the loadroom
-            d->character->in_room = NULL;
-        }
 
-        save_char(d->character, NULL);
-        send_to_char(CCRED(d->character, C_NRM), d->character);
-        send_to_char(CCBLD(d->character, C_NRM), d->character);
-        send_to_char(WELC_MESSG, d->character);
-        send_to_char(CCNRM(d->character, C_NRM), d->character);
-        d->character->next = character_list;
-        character_list = d->character;
+            save_char(d->character, NULL);
+            send_to_char(CCRED(d->character, C_NRM), d->character);
+            send_to_char(CCBLD(d->character, C_NRM), d->character);
+            send_to_char(WELC_MESSG, d->character);
+            send_to_char(CCNRM(d->character, C_NRM), d->character);
+            d->character->next = character_list;
+            character_list = d->character;
 
-        load_room = NULL;
-        if (PLR_FLAGGED(d->character, PLR_FROZEN))
-            load_room = r_frozen_start_room;
-        else if (PLR_FLAGGED(d->character, PLR_LOADROOM)) {
-            if ((load_room = real_room(GET_LOADROOM(d->character))) == NULL)
-                load_room = NULL;
-            //else if (!House_can_enter(d->character, load_room->number) ||
-            //     !clan_house_can_enter(d->character, load_room))
-            //    load_room = NULL;
-        } 
-        if (load_room == NULL)  {
-        if (GET_LEVEL(d->character) >= LVL_IMMORT) {
-            if (d->character->in_room == NULL)
-                load_room = r_immort_start_room;
-            else
-                load_room = d->character->in_room;
-            //else if ((load_room = real_room(d->character->in_room->number)) == 
-            //     NULL || !House_can_enter(d->character, load_room->number) ||
-            //     !clan_house_can_enter(d->character, load_room))
-            //load_room = r_immort_start_room;
-        } else {
-            if (d->character->in_room == NULL || 
-            (load_room = real_room(d->character->in_room->number)) == NULL) {
-            if (GET_HOME(d->character) == HOME_ELECTRO)
-                load_room = r_electro_start_room;
-            else if (GET_HOME(d->character) == HOME_NEWBIE_TOWER) {
-                if (GET_LEVEL(d->character) > 5) {
-                population_record[HOME_NEWBIE_TOWER]--;
-                GET_HOME(d->character) = HOME_MODRIAN;
-                population_record[HOME_MODRIAN]--;
-                load_room = r_mortal_start_room;
-                } else
-                load_room = r_tower_modrian_start_room;
-            }
-            else if (GET_HOME(d->character) == HOME_NEW_THALOS)
-                load_room = r_new_thalos_start_room;
-            else if (GET_HOME(d->character) == HOME_ELVEN_VILLAGE)
-                load_room = r_elven_start_room;
-            else if (GET_HOME(d->character) == HOME_ISTAN)
-                load_room = r_istan_start_room;
-            else if (GET_HOME(d->character) == HOME_ARENA)
-                load_room = r_arena_start_room;
-            else if (GET_HOME(d->character) == HOME_DOOM)
-                load_room = r_doom_start_room;
-            else if (GET_HOME(d->character) == HOME_CITY)
-                load_room = r_city_start_room;
-            else if (GET_HOME(d->character) == HOME_MONK)
-                load_room = r_monk_start_room;
-            else if (GET_HOME(d->character) == HOME_SOLACE_COVE)
-                load_room = r_solace_start_room;
-            else if (GET_HOME(d->character) == HOME_MAVERNAL)
-                load_room = r_mavernal_start_room;
-            else if (GET_HOME(d->character) == HOME_DWARVEN_CAVERNS)
-                load_room = r_dwarven_caverns_start_room;
-            else if (GET_HOME(d->character) == HOME_HUMAN_SQUARE)
-                load_room = r_human_square_start_room;
-            else if (GET_HOME(d->character) == HOME_SKULLPORT)
-                load_room = r_skullport_start_room;
-            else if (GET_HOME(d->character) == HOME_DROW_ISLE)
-                load_room = r_drow_isle_start_room;
-            else if (GET_HOME(d->character) == HOME_ASTRAL_MANSE)
-                load_room = r_astral_manse_start_room;
-            // zul dane
-            else if (GET_HOME(d->character) == HOME_ZUL_DANE) {
-                // newbie start room for zul dane
-                if (GET_LEVEL(d->character) > 5)
-                load_room = r_zul_dane_newbie_start_room;
-                else
-                load_room = r_zul_dane_start_room;
-            }
-            else
-                load_room = r_mortal_start_room;
-            }
-        }
-        }
-        char_to_room(d->character, load_room);
-        load_room->zone->enter_count++;
-
-        if (!(PLR_FLAGGED(d->character, PLR_LOADROOM)) &&
-        GET_HOLD_LOADROOM(d->character) > 0 &&
-        real_room(GET_HOLD_LOADROOM(d->character))) {
-            GET_LOADROOM(d->character) = GET_HOLD_LOADROOM(d->character);
-            SET_BIT(PLR_FLAGS(d->character), PLR_LOADROOM);
-            GET_HOLD_LOADROOM(d->character) = NOWHERE;
-        }
-        show_mud_date_to_char(d->character);
-        send_to_char("\r\n", d->character);
-
-        STATE(d) = CON_PLAYING;
-        if (!GET_LEVEL(d->character)) {
-        send_to_char(START_MESSG, d->character);
-        sprintf(buf, 
-            " ***> New adventurer %s has entered the realm. <***\r\n", 
-            GET_NAME(d->character));
-        send_to_newbie_helpers(buf);
-        do_start(d->character, 0);
-
-        d->old_login_time = time(0);  // clear login time so we dont get news updates
-    
-        } 
-        else if (load_result == 2) {    /* rented items lost */
-        send_to_char("\r\n\007You could not afford your rent!\r\n"
-                 "Some of your possesions have been repossesed to cover your bill!\r\n",
-                 d->character);
-        }
-      
-        act("$n has entered the game.", TRUE, d->character, 0, 0, TO_ROOM);
-        look_at_room(d->character, d->character->in_room, 0);
-
-        // temporary fix to quest flag
-        REMOVE_BIT(PRF_FLAGS(d->character), PRF_QUEST );
-            REMOVE_BIT( PLR_FLAGS( d->character), PLR_CRYO ); 
-
-        if (has_mail(GET_IDNUM(d->character)))
-        send_to_char("You have mail waiting.\r\n", d->character);
-
-        notify_cleric_moon(d->character);
-
-        // check for dynamic text updates (news, inews, etc...)
-        check_dyntext_updates(d->character, CHECKDYN_UNRENT);
-      
-        if (shutdown_count > 0) {
-        sprintf(buf, 
-            "\r\n\007\007:: NOTICE :: Tempus will be rebooting in [%d] second%s ::\r\n",
-            shutdown_count, shutdown_count == 1 ? "" : "s");
-        send_to_char(buf, d->character);
-        }
-        if(GET_LEVEL(d->character) < LVL_GOD) {
-            for (i = 0; i < num_of_houses; i++) {
-                if (house_control[i].mode != HOUSE_PUBLIC &&
-                    house_control[i].owner1 == GET_IDNUM(d->character) &&
-                    house_control[i].rent_sum && 
-                    (h_rm = real_room(house_control[i].house_rooms[0]))) {
-                    for (j=0, percent=1, rooms=0; j < house_control[i].num_of_rooms; j++) {
-                        if ((rm = real_room(house_control[i].house_rooms[j]))) {
-                            for (cur=0, obj = rm->contents; obj; obj = obj->next_content)
-                            cur += recurs_obj_contents(obj, NULL);
-                            if (cur > MAX_HOUSE_ITEMS) {
-                            sprintf(buf, "WARNING:  House room [%s%s%s] contains %d items.\r\n", 
-                                CCCYN(d->character, C_NRM), rm->name, CCNRM(d->character, C_NRM), cur);
-                            SEND_TO_Q(buf, d);
-
-                            // add one factor for every MAX_HOUSE_ITEMS over
-                            percent += (cur / MAX_HOUSE_ITEMS);
-                            rooms++;
-
-                            }
+            load_room = NULL;
+            if (PLR_FLAGGED(d->character, PLR_FROZEN))
+                load_room = r_frozen_start_room;
+            else if (PLR_FLAGGED(d->character, PLR_LOADROOM)) {
+                if ((load_room = real_room(GET_LOADROOM(d->character))) == NULL)
+                    load_room = NULL;
+                //else if (!House_can_enter(d->character, load_room->number) ||
+                //     !clan_house_can_enter(d->character, load_room))
+                //    load_room = NULL;
+            } 
+            if (load_room == NULL)  {
+                if (GET_LEVEL(d->character) >= LVL_IMMORT) {
+                    if (d->character->in_room == NULL)
+                        load_room = r_immort_start_room;
+                    else
+                        load_room = d->character->in_room;
+                    //else if ((load_room = real_room(d->character->in_room->number)) == 
+                    //     NULL || !House_can_enter(d->character, load_room->number) ||
+                    //     !clan_house_can_enter(d->character, load_room))
+                    //load_room = r_immort_start_room;
+                } else {
+                    if (d->character->in_room == NULL || 
+                        (load_room = real_room(d->character->in_room->number)) == NULL) {
+                        if (GET_HOME(d->character) == HOME_ELECTRO)
+                            load_room = r_electro_start_room;
+                        else if (GET_HOME(d->character) == HOME_NEWBIE_TOWER) {
+                            if (GET_LEVEL(d->character) > 5) {
+                                population_record[HOME_NEWBIE_TOWER]--;
+                                GET_HOME(d->character) = HOME_MODRIAN;
+                                population_record[HOME_MODRIAN]--;
+                                load_room = r_mortal_start_room;
+                            } else
+                                load_room = r_tower_modrian_start_room;
                         }
-                    }
-                    if (percent > 1) {
-                        sprintf(buf, "You exceeded the house limit in %d room%s.\n"
-                            "Your house rent is multiplied by a factor of %d.\n", 
-                            rooms, percent > 1 ? "s" : "", percent);
-                        SEND_TO_Q(buf, d);
-                        sprintf(buf, "%s exceeded house limit in %d rooms, %d multiplier charged.",
-                            GET_NAME(d->character), rooms, percent);
-                        slog(buf);
-
-                        // actually multiply it
-                        house_control[i].rent_sum *= percent;
-                    }
-                sprintf(buf, 
-                    "You have accrued costs of %d %s on property: %s.\r\n", 
-                    house_control[i].rent_sum, 
-                    (cur = (h_rm->zone->time_frame == TIME_ELECTRO)) ?
-                    "credits" : "coins", h_rm->name);
-                SEND_TO_Q(buf, d);
-                if (cur) {        /* credits */
-                    if ((GET_ECONET(d->character) + GET_CASH(d->character))
-                        < house_control[i].rent_sum) {
-                        house_control[i].rent_sum -= GET_ECONET(d->character);
-                        house_control[i].rent_sum -= GET_CASH(d->character);
-                        GET_ECONET(d->character) = GET_CASH(d->character) = 0;
-                    } else {
-                        GET_CASH(d->character) -= house_control[i].rent_sum;
-                        if (GET_CASH(d->character) < 0) {
-                            GET_ECONET(d->character) += GET_CASH(d->character);
-                            GET_CASH(d->character) = 0;
+                        else if (GET_HOME(d->character) == HOME_NEW_THALOS)
+                            load_room = r_new_thalos_start_room;
+                        else if (GET_HOME(d->character) == HOME_ELVEN_VILLAGE)
+                            load_room = r_elven_start_room;
+                        else if (GET_HOME(d->character) == HOME_ISTAN)
+                            load_room = r_istan_start_room;
+                        else if (GET_HOME(d->character) == HOME_ARENA)
+                            load_room = r_arena_start_room;
+                        else if (GET_HOME(d->character) == HOME_DOOM)
+                            load_room = r_doom_start_room;
+                        else if (GET_HOME(d->character) == HOME_CITY)
+                            load_room = r_city_start_room;
+                        else if (GET_HOME(d->character) == HOME_MONK)
+                            load_room = r_monk_start_room;
+                        else if (GET_HOME(d->character) == HOME_SOLACE_COVE)
+                            load_room = r_solace_start_room;
+                        else if (GET_HOME(d->character) == HOME_MAVERNAL)
+                            load_room = r_mavernal_start_room;
+                        else if (GET_HOME(d->character) == HOME_DWARVEN_CAVERNS)
+                            load_room = r_dwarven_caverns_start_room;
+                        else if (GET_HOME(d->character) == HOME_HUMAN_SQUARE)
+                            load_room = r_human_square_start_room;
+                        else if (GET_HOME(d->character) == HOME_SKULLPORT)
+                            load_room = r_skullport_start_room;
+                        else if (GET_HOME(d->character) == HOME_DROW_ISLE)
+                            load_room = r_drow_isle_start_room;
+                        else if (GET_HOME(d->character) == HOME_ASTRAL_MANSE)
+                            load_room = r_astral_manse_start_room;
+                        // zul dane
+                        else if (GET_HOME(d->character) == HOME_ZUL_DANE) {
+                            // newbie start room for zul dane
+                            if (GET_LEVEL(d->character) > 5)
+                                load_room = r_zul_dane_newbie_start_room;
+                            else
+                                load_room = r_zul_dane_start_room;
                         }
-                        house_control[i].rent_sum = 0;
-                    }
-                } else {          /** gold economy **/
-                    if (GET_GOLD(d->character) < house_control[i].rent_sum) {
-                        house_control[i].rent_sum -= GET_GOLD(d->character);
-                        GET_GOLD(d->character) = 0;
-                    } else {
-                        GET_GOLD(d->character) -= house_control[i].rent_sum;
-                        house_control[i].rent_sum = 0;
+                        else
+                            load_room = r_mortal_start_room;
                     }
                 }
+            }
+            char_to_room(d->character, load_room);
+            load_room->zone->enter_count++;
 
-                if (house_control[i].rent_sum > 0) {     /* bank is universal */
-                    if (GET_BANK_GOLD(d->character) < house_control[i].rent_sum) {
-                        house_control[i].rent_sum -= GET_BANK_GOLD(d->character);
-                        GET_BANK_GOLD(d->character) = 0;
-                        SEND_TO_Q("You could not afford the rent.\r\n"
-                              "Some of your items have been repossessed.\r\n", d);
-                        sprintf(buf, "House-rent (%d) - equipment lost.",
-                            house_control[i].house_rooms[0]);
-                        slog(buf);
-                        for (j = 0; 
-                         j < house_control[i].num_of_rooms &&
-                             house_control[i].rent_sum > 0; j++) {
-                            if ((h_rm = real_room(house_control[i].house_rooms[j]))) {
-                                for (obj = h_rm->contents; 
-                                 obj && house_control[i].rent_sum > 0; 
-                                 obj = next_obj) {
-                                    next_obj = obj->next_content;
-                                    house_control[i].rent_sum -=
-                                        recurs_obj_cost(obj, true, NULL);
-                                    extract_obj(obj);
+            if (!(PLR_FLAGGED(d->character, PLR_LOADROOM)) &&
+                GET_HOLD_LOADROOM(d->character) > 0 &&
+                real_room(GET_HOLD_LOADROOM(d->character))) {
+                GET_LOADROOM(d->character) = GET_HOLD_LOADROOM(d->character);
+                SET_BIT(PLR_FLAGS(d->character), PLR_LOADROOM);
+                GET_HOLD_LOADROOM(d->character) = NOWHERE;
+            }
+            show_mud_date_to_char(d->character);
+            send_to_char("\r\n", d->character);
+
+            STATE(d) = CON_PLAYING;
+            if (!GET_LEVEL(d->character)) {
+                send_to_char(START_MESSG, d->character);
+                sprintf(buf, 
+                        " ***> New adventurer %s has entered the realm. <***\r\n", 
+                        GET_NAME(d->character));
+                send_to_newbie_helpers(buf);
+                do_start(d->character, 0);
+
+                d->old_login_time = time(0);  // clear login time so we dont get news updates
+    
+            } 
+            else if (load_result == 2) {    /* rented items lost */
+                send_to_char("\r\n\007You could not afford your rent!\r\n"
+                             "Some of your possesions have been repossesed to cover your bill!\r\n",
+                             d->character);
+            }
+      
+            act("$n has entered the game.", TRUE, d->character, 0, 0, TO_ROOM);
+            look_at_room(d->character, d->character->in_room, 0);
+
+            // temporary fix to quest flag
+            REMOVE_BIT(PRF_FLAGS(d->character), PRF_QUEST );
+            REMOVE_BIT( PLR_FLAGS( d->character), PLR_CRYO ); 
+
+            if (has_mail(GET_IDNUM(d->character)))
+                send_to_char("You have mail waiting.\r\n", d->character);
+
+            notify_cleric_moon(d->character);
+
+            // check for dynamic text updates (news, inews, etc...)
+            check_dyntext_updates(d->character, CHECKDYN_UNRENT);
+      
+            if (shutdown_count > 0) {
+                sprintf(buf, 
+                        "\r\n\007\007:: NOTICE :: Tempus will be rebooting in [%d] second%s ::\r\n",
+                        shutdown_count, shutdown_count == 1 ? "" : "s");
+                send_to_char(buf, d->character);
+            }
+            if(GET_LEVEL(d->character) < LVL_GOD) {
+                for (i = 0; i < num_of_houses; i++) {
+                    if (house_control[i].mode != HOUSE_PUBLIC &&
+                        house_control[i].owner1 == GET_IDNUM(d->character) &&
+                        house_control[i].rent_sum && 
+                        (h_rm = real_room(house_control[i].house_rooms[0]))) {
+                        for (j=0, percent=1, rooms=0; j < house_control[i].num_of_rooms; j++) {
+                            if ((rm = real_room(house_control[i].house_rooms[j]))) {
+                                for (cur=0, obj = rm->contents; obj; obj = obj->next_content)
+                                    cur += recurs_obj_contents(obj, NULL);
+                                if (cur > MAX_HOUSE_ITEMS) {
+                                    sprintf(buf, "WARNING:  House room [%s%s%s] contains %d items.\r\n", 
+                                            CCCYN(d->character, C_NRM), rm->name, CCNRM(d->character, C_NRM), cur);
+                                    SEND_TO_Q(buf, d);
+
+                                    // add one factor for every MAX_HOUSE_ITEMS over
+                                    percent += (cur / MAX_HOUSE_ITEMS);
+                                    rooms++;
+
                                 }
                             }
                         }
-                    } else
-                        GET_BANK_GOLD(d->character) -= house_control[i].rent_sum;
-                    }
+                        if (percent > 1) {
+                            sprintf(buf, "You exceeded the house limit in %d room%s.\n"
+                                    "Your house rent is multiplied by a factor of %d.\n", 
+                                    rooms, percent > 1 ? "s" : "", percent);
+                            SEND_TO_Q(buf, d);
+                            sprintf(buf, "%s exceeded house limit in %d rooms, %d multiplier charged.",
+                                    GET_NAME(d->character), rooms, percent);
+                            slog(buf);
+
+                            // actually multiply it
+                            house_control[i].rent_sum *= percent;
+                        }
+                        sprintf(buf, 
+                                "You have accrued costs of %d %s on property: %s.\r\n", 
+                                house_control[i].rent_sum, 
+                                (cur = (h_rm->zone->time_frame == TIME_ELECTRO)) ?
+                                "credits" : "coins", h_rm->name);
+                        SEND_TO_Q(buf, d);
+                        if (cur) {        /* credits */
+                            if ((GET_ECONET(d->character) + GET_CASH(d->character))
+                                < house_control[i].rent_sum) {
+                                house_control[i].rent_sum -= GET_ECONET(d->character);
+                                house_control[i].rent_sum -= GET_CASH(d->character);
+                                GET_ECONET(d->character) = GET_CASH(d->character) = 0;
+                            } else {
+                                GET_CASH(d->character) -= house_control[i].rent_sum;
+                                if (GET_CASH(d->character) < 0) {
+                                    GET_ECONET(d->character) += GET_CASH(d->character);
+                                    GET_CASH(d->character) = 0;
+                                }
+                                house_control[i].rent_sum = 0;
+                            }
+                        } else {          /** gold economy **/
+                            if (GET_GOLD(d->character) < house_control[i].rent_sum) {
+                                house_control[i].rent_sum -= GET_GOLD(d->character);
+                                GET_GOLD(d->character) = 0;
+                            } else {
+                                GET_GOLD(d->character) -= house_control[i].rent_sum;
+                                house_control[i].rent_sum = 0;
+                            }
+                        }
+
+                        if (house_control[i].rent_sum > 0) {     /* bank is universal */
+                            if (GET_BANK_GOLD(d->character) < house_control[i].rent_sum) {
+                                house_control[i].rent_sum -= GET_BANK_GOLD(d->character);
+                                GET_BANK_GOLD(d->character) = 0;
+                                SEND_TO_Q("You could not afford the rent.\r\n"
+                                          "Some of your items have been repossessed.\r\n", d);
+                                sprintf(buf, "House-rent (%d) - equipment lost.",
+                                        house_control[i].house_rooms[0]);
+                                slog(buf);
+                                for (j = 0; 
+                                     j < house_control[i].num_of_rooms &&
+                                         house_control[i].rent_sum > 0; j++) {
+                                    if ((h_rm = real_room(house_control[i].house_rooms[j]))) {
+                                        for (obj = h_rm->contents; 
+                                             obj && house_control[i].rent_sum > 0; 
+                                             obj = next_obj) {
+                                            next_obj = obj->next_content;
+                                            house_control[i].rent_sum -=
+                                                recurs_obj_cost(obj, true, NULL);
+                                            extract_obj(obj);
+                                        }
+                                    }
+                                }
+                            } else
+                                GET_BANK_GOLD(d->character) -= house_control[i].rent_sum;
+                        }
               
-                    house_control[i].rent_sum = 0;
-                    house_control[i].hourly_rent_sum = 0;
-                    house_control[i].rent_time = 0;
-                    House_crashsave(h_rm->number);
+                        house_control[i].rent_sum = 0;
+                        house_control[i].hourly_rent_sum = 0;
+                        house_control[i].rent_time = 0;
+                        House_crashsave(h_rm->number);
+                    }
                 }
             }
-        }
-        d->prompt_mode = 1;
-        break;
+            d->prompt_mode = 1;
+            break;
 
-    case '2':
-        SEND_TO_Q("\033[H\033[J", d);
-        SEND_TO_Q("Other players will be usually be able to determine your general\r\n"
-              "size, as well as your race and gender, by looking at you.  What\r\n"
-              "else is noticable about your character?\r\n", d);
-        SEND_TO_Q("Terminate with a '@' on a new line.\r\n", d);
-        if (d->character->player.description) {
-        SEND_TO_Q("Old description:\r\n", d);
-        SEND_TO_Q(d->character->player.description, d);
+        case '2':
+            SEND_TO_Q("\033[H\033[J", d);
+            SEND_TO_Q("Other players will be usually be able to determine your general\r\n"
+                      "size, as well as your race and gender, by looking at you.  What\r\n"
+                      "else is noticable about your character?\r\n", d);
+            SEND_TO_Q("Terminate with a '@' on a new line.\r\n", d);
+            if (d->character->player.description) {
+                SEND_TO_Q("Old description:\r\n", d);
+                SEND_TO_Q(d->character->player.description, d);
 #ifdef DMALLOC
-        dmalloc_verify(0);
+                dmalloc_verify(0);
 #endif
-        free(d->character->player.description);
+                free(d->character->player.description);
 #ifdef DMALLOC
-        dmalloc_verify(0);
+                dmalloc_verify(0);
 #endif
-        d->character->player.description = NULL;
+                d->character->player.description = NULL;
+            }
+            d->str = &d->character->player.description;
+            d->max_str = MAX_CHAR_DESC-1;
+            STATE(d) = CON_EXDESC;
+            break;
+
+        case '3':
+            SEND_TO_Q("\033[H\033[J", d);
+            page_string(d, background, 0);
+            STATE(d) = CON_RMOTD;
+            break;
+
+        case '4':
+            SEND_TO_Q("\033[H\033[J", d);
+            sprintf(buf, "Changing password for %s.\r\n", GET_NAME(d->character));
+            SEND_TO_Q(buf, d);
+            SEND_TO_Q("\r\nEnter your old password: ", d);
+            echo_off(d);
+            STATE(d) = CON_CHPWD_GETOLD;
+            break;
+
+        case '5':
+            SEND_TO_Q("\033[H\033[J", d);
+            sprintf(buf, "\r\nDeleting character '%s', level %d.\r\n",
+                    GET_NAME(d->character), GET_LEVEL(d->character));
+            SEND_TO_Q(buf, d);
+            SEND_TO_Q("\r\nFor verification enter your password: ", d);
+            echo_off(d);
+            STATE(d) = CON_DELCNF1;
+            break;
+
+        default:
+            if (!mini_mud)
+                SEND_TO_Q("\033[H\033[J", d);
+            SEND_TO_Q("\r\nThat's not a menu choice!\r\n", d);
+            show_menu(d);
+            break;
         }
-        d->str = &d->character->player.description;
-        d->max_str = MAX_CHAR_DESC-1;
-        STATE(d) = CON_EXDESC;
-        break;
 
-    case '3':
-        SEND_TO_Q("\033[H\033[J", d);
-        page_string(d, background, 0);
-        STATE(d) = CON_RMOTD;
         break;
-
-    case '4':
-        SEND_TO_Q("\033[H\033[J", d);
-        sprintf(buf, "Changing password for %s.\r\n", GET_NAME(d->character));
-        SEND_TO_Q(buf, d);
-        SEND_TO_Q("\r\nEnter your old password: ", d);
-        echo_off(d);
-        STATE(d) = CON_CHPWD_GETOLD;
-        break;
-
-    case '5':
-        SEND_TO_Q("\033[H\033[J", d);
-        sprintf(buf, "\r\nDeleting character '%s', level %d.\r\n",
-            GET_NAME(d->character), GET_LEVEL(d->character));
-        SEND_TO_Q(buf, d);
-        SEND_TO_Q("\r\nFor verification enter your password: ", d);
-        echo_off(d);
-        STATE(d) = CON_DELCNF1;
-        break;
-
-    default:
-        if (!mini_mud)
-        SEND_TO_Q("\033[H\033[J", d);
-        SEND_TO_Q("\r\nThat's not a menu choice!\r\n", d);
-        show_menu(d);
-        break;
-    }
-
-    break;
 
     case CON_CHPWD_GETOLD:
-    if (strncmp(CRYPT(arg, GET_PASSWD(d->character)), GET_PASSWD(d->character), MAX_PWD_LENGTH)) {
-        echo_on(d);
-        SEND_TO_Q("\033[H\033[J", d);
-        SEND_TO_Q("\r\nIncorrect password.  ---  Password unchanged\r\n", d);
-        show_menu(d);
-        STATE(d) = CON_MENU;
-        return;
-    } else {
-        SEND_TO_Q("\r\nEnter a new password: ", d);
-        STATE(d) = CON_CHPWD_GETNEW;
-        return;
-    }
-    break;
+        if (strncmp(CRYPT(arg, GET_PASSWD(d->character)), GET_PASSWD(d->character), MAX_PWD_LENGTH)) {
+            echo_on(d);
+            SEND_TO_Q("\033[H\033[J", d);
+            SEND_TO_Q("\r\nIncorrect password.  ---  Password unchanged\r\n", d);
+            show_menu(d);
+            STATE(d) = CON_MENU;
+            return;
+        } else {
+            SEND_TO_Q("\r\nEnter a new password: ", d);
+            STATE(d) = CON_CHPWD_GETNEW;
+            return;
+        }
+        break;
 
     case CON_DELCNF1:
-    echo_on(d);
-    if (strncmp(CRYPT(arg, GET_PASSWD(d->character)), GET_PASSWD(d->character), MAX_PWD_LENGTH)) {
-        SEND_TO_Q("\033[H\033[J", d);
-        SEND_TO_Q("\r\nIncorrect password. -- Deletion aborted.\r\n", d);
-        show_menu(d);
-        STATE(d) = CON_MENU;
-    } else {
-        SEND_TO_Q(CCRED(d->character, C_SPR), d);
-        SEND_TO_Q("\r\nYOU ARE ABOUT TO DELETE THIS CHARACTER PERMANENTLY.\r\n"
-              "ARE YOU ABSOLUTELY SURE?\r\n\r\n", d);
-        SEND_TO_Q(CCNRM(d->character, C_SPR), d);
-        SEND_TO_Q("Please type \"yes\" to confirm: ", d);
-        STATE(d) = CON_DELCNF2;
-    }
-    break;
+        echo_on(d);
+        if (strncmp(CRYPT(arg, GET_PASSWD(d->character)), GET_PASSWD(d->character), MAX_PWD_LENGTH)) {
+            SEND_TO_Q("\033[H\033[J", d);
+            SEND_TO_Q("\r\nIncorrect password. -- Deletion aborted.\r\n", d);
+            show_menu(d);
+            STATE(d) = CON_MENU;
+        } else {
+            SEND_TO_Q(CCRED(d->character, C_SPR), d);
+            SEND_TO_Q("\r\nYOU ARE ABOUT TO DELETE THIS CHARACTER PERMANENTLY.\r\n"
+                      "ARE YOU ABSOLUTELY SURE?\r\n\r\n", d);
+            SEND_TO_Q(CCNRM(d->character, C_SPR), d);
+            SEND_TO_Q("Please type \"yes\" to confirm: ", d);
+            STATE(d) = CON_DELCNF2;
+        }
+        break;
 
     case CON_DELCNF2:
-    if (!strcmp(arg, "yes") || !strcmp(arg, "YES")) {
-        if (PLR_FLAGGED(d->character, PLR_FROZEN)) {
-        SEND_TO_Q(CCCYN(d->character, C_NRM), d);
-        SEND_TO_Q(CCBLD(d->character, C_NRM), d);
-        SEND_TO_Q("You try to kill yourself, but the ice stops you.\r\n", d);
-        SEND_TO_Q(CCNRM(d->character, C_NRM), d);
-        SEND_TO_Q("Character not deleted.\r\n\r\n", d);
-        STATE(d) = CON_CLOSE;
-        return;
-        }
-        if (GET_LEVEL(d->character) < LVL_GRGOD)
-        SET_BIT(PLR_FLAGS(d->character), PLR_DELETED);
-        save_char(d->character, real_room(GET_LOADROOM(d->character)));
-        Crash_delete_file(GET_NAME(d->character), CRASH_FILE);
-        Crash_delete_file(GET_NAME(d->character), IMPLANT_FILE);
-        population_record[GET_HOME(d->character)]--;
+        if (!strcmp(arg, "yes") || !strcmp(arg, "YES")) {
+            if (PLR_FLAGGED(d->character, PLR_FROZEN)) {
+                SEND_TO_Q(CCCYN(d->character, C_NRM), d);
+                SEND_TO_Q(CCBLD(d->character, C_NRM), d);
+                SEND_TO_Q("You try to kill yourself, but the ice stops you.\r\n", d);
+                SEND_TO_Q(CCNRM(d->character, C_NRM), d);
+                SEND_TO_Q("Character not deleted.\r\n\r\n", d);
+                STATE(d) = CON_CLOSE;
+                return;
+            }
+            if (GET_LEVEL(d->character) < LVL_GRGOD)
+                SET_BIT(PLR_FLAGS(d->character), PLR_DELETED);
+            save_char(d->character, real_room(GET_LOADROOM(d->character)));
+            Crash_delete_file(GET_NAME(d->character), CRASH_FILE);
+            Crash_delete_file(GET_NAME(d->character), IMPLANT_FILE);
+            population_record[GET_HOME(d->character)]--;
 
-        if ((clan = real_clan(GET_CLAN(d->character))) &&
-        (member = real_clanmember(GET_IDNUM(d->character), clan))) {
-        REMOVE_MEMBER_FROM_CLAN(member, clan);
+            if ((clan = real_clan(GET_CLAN(d->character))) &&
+                (member = real_clanmember(GET_IDNUM(d->character), clan))) {
+                REMOVE_MEMBER_FROM_CLAN(member, clan);
 
 #ifdef DMALLOC
-        dmalloc_verify(0);
+                dmalloc_verify(0);
 #endif
-        free(member);
+                free(member);
 #ifdef DMALLOC
-        dmalloc_verify(0);
+                dmalloc_verify(0);
 #endif
-        save_clans();
-        }
+                save_clans();
+            }
 
-        sprintf(buf, "Character '%s' deleted!\r\n"
-            "Goodbye.\r\n", GET_NAME(d->character));
-        SEND_TO_Q(buf, d);
-        sprintf(buf, "%s (lev %d) has self-deleted.", GET_NAME(d->character),
-            GET_LEVEL(d->character));
-        mudlog(buf, NRM, LVL_GOD, TRUE);
-        STATE(d) = CON_CLOSE;
-        return;
-    } else {
-        SEND_TO_Q("\033[H\033[J", d);      
-        SEND_TO_Q("\r\nCharacter not deleted.\r\n", d);
-        show_menu(d);
-        STATE(d) = CON_MENU;
-    }
-    break;
+            sprintf(buf, "Character '%s' deleted!\r\n"
+                    "Goodbye.\r\n", GET_NAME(d->character));
+            SEND_TO_Q(buf, d);
+            sprintf(buf, "%s (lev %d) has self-deleted.", GET_NAME(d->character),
+                    GET_LEVEL(d->character));
+            mudlog(buf, NRM, LVL_GOD, TRUE);
+            STATE(d) = CON_CLOSE;
+            return;
+        } else {
+            SEND_TO_Q("\033[H\033[J", d);      
+            SEND_TO_Q("\r\nCharacter not deleted.\r\n", d);
+            show_menu(d);
+            STATE(d) = CON_MENU;
+        }
+        break;
 
     case CON_AFTERLIFE:
-    SEND_TO_Q("\033[H\033[J", d);
-    show_menu(d);
-    STATE(d) = CON_MENU;
-    break;
+        SEND_TO_Q("\033[H\033[J", d);
+        show_menu(d);
+        STATE(d) = CON_MENU;
+        break;
 
     case CON_CLOSE:
-    close_socket(d);
-    break;
+        close_socket(d);
+        break;
 
     case CON_NET_MENU1:
-    switch (*arg) {
-    case '0':
-    case '@':
-    case '+':
-        sprintf(buf, "User %s disconnecting from net.", GET_NAME(d->character));
-        slog(buf);
-        strcat(buf, "\r\n");
-        SEND_TO_Q(buf, d);
-        STATE(d) = CON_PLAYING;
-        act("$n disconnects from the network.", TRUE, d->character, 0, 0, TO_ROOM);
+        switch (*arg) {
+        case '0':
+        case '@':
+        case '+':
+            sprintf(buf, "User %s disconnecting from net.", GET_NAME(d->character));
+            slog(buf);
+            strcat(buf, "\r\n");
+            SEND_TO_Q(buf, d);
+            STATE(d) = CON_PLAYING;
+            act("$n disconnects from the network.", TRUE, d->character, 0, 0, TO_ROOM);
+            break;
+        case '1':
+            show_net_progmenu1_to_descriptor(d);
+            STATE(d) = CON_NET_PROGMENU1;
+            break;
+        case '2':
+            perform_net_who(d->character, "");
+            SEND_TO_Q("  >", d);
+            break;
+        default:
+            sprintf(buf, "%s : ILLEGAL OPTION.\r\n", arg);
+            show_net_menu1_to_descriptor(d);
+            break;
+        }
         break;
-    case '1':
-        show_net_progmenu1_to_descriptor(d);
-        STATE(d) = CON_NET_PROGMENU1;
-        break;
-    case '2':
-        perform_net_who(d->character, "");
-        SEND_TO_Q("  >", d);
-        break;
-    default:
-        sprintf(buf, "%s : ILLEGAL OPTION.\r\n", arg);
-        show_net_menu1_to_descriptor(d);
-        break;
-    }
-    break;
   
     case CON_NET_PROGMENU1:
-    switch (*arg) {
-    case '@':
-    case '+':
-        sprintf(buf, "User %s disconnecting from net.", GET_NAME(d->character));
-        slog(buf);
-        strcat(buf, "\r\n");
-        SEND_TO_Q(buf, d);
-        STATE(d) = CON_PLAYING;
-        act("$n disconnects from the network.", TRUE, d->character, 0, 0, TO_ROOM);
+        switch (*arg) {
+        case '@':
+        case '+':
+            sprintf(buf, "User %s disconnecting from net.", GET_NAME(d->character));
+            slog(buf);
+            strcat(buf, "\r\n");
+            SEND_TO_Q(buf, d);
+            STATE(d) = CON_PLAYING;
+            act("$n disconnects from the network.", TRUE, d->character, 0, 0, TO_ROOM);
+            break;
+        case '0':
+            show_net_menu1_to_descriptor(d);
+            STATE(d) = CON_NET_MENU1;
+            break;
+        case '1':
+            SEND_TO_Q("Entering Cyborg database.\r\n"
+                      "Use the list command to view programs.\r\n"
+                      "  >", d);
+            STATE(d) = CON_NET_PROG_CYB;
+            break;
+        default:
+            sprintf(buf, "%s : ILLEGAL OPTION.\r\n", arg);
+            show_net_progmenu1_to_descriptor(d);
+            break;
+        }
         break;
-    case '0':
-        show_net_menu1_to_descriptor(d);
-        STATE(d) = CON_NET_MENU1;
-        break;
-    case '1':
-        SEND_TO_Q("Entering Cyborg database.\r\n"
-              "Use the list command to view programs.\r\n"
-              "  >", d);
-        STATE(d) = CON_NET_PROG_CYB;
-        break;
-    default:
-        sprintf(buf, "%s : ILLEGAL OPTION.\r\n", arg);
-        show_net_progmenu1_to_descriptor(d);
-        break;
-    }
-    break;
     case CON_NET_PROG_CYB:
-    if (!*arg) {
-        SEND_TO_Q("  >", d);
-        return;
-    }
-    char_class_state = CLASS_CYBORG;
-
-    arg = one_argument(arg, arg1);
-    if (!strcmp(arg1, "@") || !strcmp(arg1, "+")) {
-        sprintf(buf, "User %s disconnecting from net.", GET_NAME(d->character));
-        slog(buf);
-        strcat(buf, "\r\n");
-        SEND_TO_Q(buf, d);
-        STATE(d) = CON_PLAYING;
-        act("$n disconnects from the network.", TRUE, d->character, 0, 0, TO_ROOM);
-        return;
-    } else if (is_abbrev(arg1, "download")) {
-        if (!IS_CYBORG(d->character))
-        SEND_TO_Q("You are unable to download to your neural network.\r\n", d);
-        else if (!GET_PRACTICES(d->character))
-        SEND_TO_Q("You have no data storage units free.\r\n", d);
-        else {
-        skip_spaces(&arg);
         if (!*arg) {
-            SEND_TO_Q("Download which program?\r\n", d);
+            SEND_TO_Q("  >", d);
             return;
-        } 
-        skill_num = find_skill_num(arg);
+        }
+        char_class_state = CLASS_CYBORG;
+
+        arg = one_argument(arg, arg1);
+        if (!strcmp(arg1, "@") || !strcmp(arg1, "+")) {
+            sprintf(buf, "User %s disconnecting from net.", GET_NAME(d->character));
+            slog(buf);
+            strcat(buf, "\r\n");
+            SEND_TO_Q(buf, d);
+            STATE(d) = CON_PLAYING;
+            act("$n disconnects from the network.", TRUE, d->character, 0, 0, TO_ROOM);
+            return;
+        } else if (is_abbrev(arg1, "download")) {
+            if (!IS_CYBORG(d->character))
+                SEND_TO_Q("You are unable to download to your neural network.\r\n", d);
+            else if (!GET_PRACTICES(d->character))
+                SEND_TO_Q("You have no data storage units free.\r\n", d);
+            else {
+                skip_spaces(&arg);
+                if (!*arg) {
+                    SEND_TO_Q("Download which program?\r\n", d);
+                    return;
+                } 
+                skill_num = find_skill_num(arg);
         
-        if (skill_num < 1) {
-            SEND_TO_Q("Unknown program.\r\n", d);
-            return;
-        }
-        if( GET_REMORT_GEN(d->character) < SPELL_GEN(skill_num, CLASS_CYBORG) || 
-        GET_LEVEL(d->character) < SPELL_LEVEL(skill_num, CLASS_CYBORG) ){
-            SEND_TO_Q("That program is unavailable.\r\n", d);
-            return;
-        }
-        if (GET_SKILL(d->character, skill_num) >= LEARNED(d->character)) {
-            SEND_TO_Q("That program already fully installed.\r\n", d);
-            return;
-        }
-        percent = MIN(MAXGAIN(d->character), 
-                  MAX(MINGAIN(d->character), 
-                  INT_APP(GET_INT(d->character))));
-        percent = MIN(LEARNED(d->character) - 
+                if (skill_num < 1) {
+                    SEND_TO_Q("Unknown program.\r\n", d);
+                    return;
+                }
+                if( GET_REMORT_GEN(d->character) < SPELL_GEN(skill_num, CLASS_CYBORG) || 
+                    GET_LEVEL(d->character) < SPELL_LEVEL(skill_num, CLASS_CYBORG) ){
+                    SEND_TO_Q("That program is unavailable.\r\n", d);
+                    return;
+                }
+                if (GET_SKILL(d->character, skill_num) >= LEARNED(d->character)) {
+                    SEND_TO_Q("That program already fully installed.\r\n", d);
+                    return;
+                }
+                percent = MIN(MAXGAIN(d->character), 
+                              MAX(MINGAIN(d->character), 
+                                  INT_APP(GET_INT(d->character))));
+                percent = MIN(LEARNED(d->character) - 
                               GET_SKILL(d->character, skill_num), percent); 
-        GET_PRACTICES(d->character)--;
-        SET_SKILL(d->character, skill_num, GET_SKILL(d->character, skill_num) + percent); 
+                GET_PRACTICES(d->character)--;
+                SET_SKILL(d->character, skill_num, GET_SKILL(d->character, skill_num) + percent); 
 
-        sprintf(buf, "Program download: %s terminating, %d percent transfer.\r\n",
-            spells[skill_num], percent); 
-        SEND_TO_Q(buf, d);
-        if (GET_SKILL(d->character, skill_num) >= LEARNED(d->character))
-            strcpy(buf, "Program fully installed on home system.\r\n");
-        else
-            sprintf(buf, "Program %d percent installed on home system.\r\n", 
-                GET_SKILL(d->character, skill_num));
-        SEND_TO_Q(buf, d);
-        return;
+                sprintf(buf, "Program download: %s terminating, %d percent transfer.\r\n",
+                        spells[skill_num], percent); 
+                SEND_TO_Q(buf, d);
+                if (GET_SKILL(d->character, skill_num) >= LEARNED(d->character))
+                    strcpy(buf, "Program fully installed on home system.\r\n");
+                else
+                    sprintf(buf, "Program %d percent installed on home system.\r\n", 
+                            GET_SKILL(d->character, skill_num));
+                SEND_TO_Q(buf, d);
+                return;
+            }
+            SEND_TO_Q("  >", d);
+        } else if (is_abbrev(arg1, "exit") || is_abbrev(arg1, "back") || 
+                   is_abbrev(arg1, "return")) {
+            sprintf(buf, "Leaving directory of %s programs.\r\n",
+                    char_class_state == CLASS_CYBORG ? "Cyborg" :
+                    char_class_state == CLASS_MONK ? "Monk" : 
+                    char_class_state == CLASS_HOOD ? "Hoodlum" : "UNDEFINED");
+            SEND_TO_Q(buf, d);
+            show_net_progmenu1_to_descriptor(d);
+            STATE(d) = CON_NET_PROGMENU1;
+            break;
+        } else if (is_abbrev(arg1, "list")) {
+            show_programs_to_char(d->character, char_class_state);
+        } else if (is_abbrev(arg1, "help") || is_abbrev(arg1, "?")) {
+            skip_spaces(&arg);
+            if (!*arg) {
+                SEND_TO_Q("Valid commands are:\r\n"
+                          "list         help        ?\r\n"
+                          "finger       who         status\r\n"
+                          "exit         back        \r\n"
+                          "Escape character: @ or +\r\n", d);
+            } else
+                do_hcollect_help(d->character, arg, 0, 0);
+        } else if (is_abbrev(arg1, "who")) {
+            perform_net_who(d->character, "");
+        } else if (is_abbrev(arg1, "finger")) {
+            skip_spaces(&arg);
+            if (!*arg)
+                perform_net_who(d->character, "");
+            else
+                perform_net_finger(d->character, arg);
+        } else if (is_abbrev(arg1, "status") || is_abbrev(arg1, "free")) {
+            sprintf(buf, "You have %d data storage units free.\r\n", GET_PRACTICES(d->character));
+            SEND_TO_Q(buf, d);
+        } else {
+            SEND_TO_Q("Invalid command.\r\n", d);
         }
         SEND_TO_Q("  >", d);
-    } else if (is_abbrev(arg1, "exit") || is_abbrev(arg1, "back") || 
-           is_abbrev(arg1, "return")) {
-        sprintf(buf, "Leaving directory of %s programs.\r\n",
-            char_class_state == CLASS_CYBORG ? "Cyborg" :
-            char_class_state == CLASS_MONK ? "Monk" : 
-            char_class_state == CLASS_HOOD ? "Hoodlum" : "UNDEFINED");
-        SEND_TO_Q(buf, d);
-        show_net_progmenu1_to_descriptor(d);
-        STATE(d) = CON_NET_PROGMENU1;
         break;
-    } else if (is_abbrev(arg1, "list")) {
-        show_programs_to_char(d->character, char_class_state);
-    } else if (is_abbrev(arg1, "help") || is_abbrev(arg1, "?")) {
-        skip_spaces(&arg);
-        if (!*arg) {
-        SEND_TO_Q("Valid commands are:\r\n"
-              "list         help        ?\r\n"
-              "finger       who         status\r\n"
-              "exit         back        \r\n"
-              "Escape character: @ or +\r\n", d);
-        } else
-        do_hcollect_help(d->character, arg, 0, 0);
-    } else if (is_abbrev(arg1, "who")) {
-        perform_net_who(d->character, "");
-    } else if (is_abbrev(arg1, "finger")) {
-        skip_spaces(&arg);
-        if (!*arg)
-        perform_net_who(d->character, "");
-        else
-        perform_net_finger(d->character, arg);
-    } else if (is_abbrev(arg1, "status") || is_abbrev(arg1, "free")) {
-        sprintf(buf, "You have %d data storage units free.\r\n", GET_PRACTICES(d->character));
-        SEND_TO_Q(buf, d);
-    } else {
-        SEND_TO_Q("Invalid command.\r\n", d);
-    }
-    SEND_TO_Q("  >", d);
-    break;
 
     case CON_PORT_OLC:
-    polc_input (d, arg);
-    break;
+        polc_input (d, arg);
+        break;
         
     default:
-    slog("SYSERR: Nanny: illegal state of con'ness; closing connection");
-    close_socket(d);
-    break;
+        slog("SYSERR: Nanny: illegal state of con'ness; closing connection");
+        close_socket(d);
+        break;
     }
 }
 
