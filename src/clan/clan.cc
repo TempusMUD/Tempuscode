@@ -1015,7 +1015,9 @@ ACMD(do_cedit)
 				send_to_char(ch, "Set the owner of the clan to what?\r\n");
 				return;
 			}
-			if ((i = playerIndex.getID(argument)) < 0) {
+            i = atoi(argument);
+            
+			if (i == 0 && (i = playerIndex.getID(argument)) < 0) {
 				send_to_char(ch, "No such person.\r\n");
 				return;
 			}
