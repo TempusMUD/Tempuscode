@@ -23,7 +23,6 @@
 #include "materials.h"
 #include "fight.h"
 
-ACCMD(do_offensive_skill);
 
 ACMD(do_psidrain)
 {
@@ -289,9 +288,9 @@ mob_fight_psionic(struct Creature *ch, struct Creature *precious_vict)
 		GET_MANA(ch) > mag_manacost(ch, SKILL_PSIBLAST)) {
 		if (!can_see_creature(ch, vict))
 			// just attack the default opponent
-			do_offensive_skill(ch, "", 0, SKILL_PSIBLAST, 0);
+			perform_offensive_skill(ch, FIGHTING(ch), SKILL_PSIBLAST, 0);
 		else
-			do_offensive_skill(ch, GET_NAME(vict), 0, SKILL_PSIBLAST, 0);
+			perform_offensive_skill(ch, vict, SKILL_PSIBLAST, 0);
 	} else
 		return 0;
 
