@@ -388,7 +388,8 @@ do_mob_mset(struct Creature *ch, char *argument)
 		send_to_char(ch, "Invalid mset command '%s'.\r\n", arg1);
 		return;
 	}
-	if (mset_command != 3 && !*arg2) {
+	// Check for desc and specparam setting, both of which use tedii
+	if (mset_command != 3 && mset_command != 48 && !*arg2) {
 		send_to_char(ch, "Set %s to what??\r\n", olc_mset_keys[mset_command]);
 		return;
 	}
@@ -1214,19 +1215,13 @@ do_mob_mset(struct Creature *ch, char *argument)
 			break;
 		}
 	case 48:{
-		if (!*arg2) {
-			send_to_char(ch, "You should set the specparam to something.  Try using ~ to clear it.\r\n");
-		} else if (!GET_MOB_SPEC(mob_p)) {
+		if (!GET_MOB_SPEC(mob_p)) {
 			send_to_char(ch, "You should set a special first!\r\n");
 		} else {
-			if (GET_MOB_PARAM(mob_p))
-				free(GET_MOB_PARAM(mob_p));
-			if (*arg2 == '~')
-				mob_p->mob_specials.shared->func_param = NULL;
-			else
-				mob_p->mob_specials.shared->func_param = strdup(arg2);
-			do_specassign_save(ch, SPEC_MOB);
-			send_to_char(ch, "Mobile special parameters set.\r\n");
+			start_text_editor(ch->desc, &MOB_SHARED(mob_p)->func_param, true);
+			SET_BIT(PLR_FLAGS(ch), PLR_OLC);
+			act("$n begins to write a mobile spec param.", TRUE, ch, 0, 0,
+				TO_ROOM);
 		}
 
 		break;
@@ -1489,6 +1484,13 @@ save_mobs(struct Creature *ch)
 				fprintf(file, "Move_buf: %s\n", MOB_SHARED(mob)->move_buf);
 			if (MOB_SHARED(mob)->svnum > 0)
 				fprintf(file, "IScript: %d\n", MOB_SHARED(mob)->svnum);
+			if (MOB_SHARED(mob)->func_param) {
+				char *str;
+
+				str = tmp_gsub(MOB_SHARED(mob)->func_param, "\r", "");
+				str = tmp_gsub(str, "~", "!");
+				fprintf(file, "SpecParam:\n%s~\n", str);
+			}
 			fprintf(file, "E\n");
 		}
 
@@ -1548,6 +1550,7 @@ save_mobs(struct Creature *ch)
 	}
 	fclose(file);
 
+	do_specassign_save(ch, SPEC_MOB);
 	REMOVE_BIT(zone->flags, ZONE_MOBS_MODIFIED);
 	return 0;
 }

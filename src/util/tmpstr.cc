@@ -283,3 +283,88 @@ tmp_pad(int c, size_t len)
 
 	return result;
 }
+
+// get the next line, copied into a temp pool
+char *
+tmp_getline(char **src)
+{
+	struct tmp_str_pool *cur_buf;
+	char *result, *read_pt, *write_pt;
+	size_t len = 0;
+
+	skip_spaces(src);
+
+	read_pt = *src;
+	while (*read_pt && '\r' != *read_pt && '\n' != *read_pt)
+		read_pt++;
+	len = (read_pt - *src) + 1;
+
+	if (len == 1)
+		return NULL;
+
+	if (len > tmp_list_tail->space - tmp_list_tail->used)
+		cur_buf = tmp_alloc_pool(len);
+	else
+		cur_buf = tmp_list_tail;
+
+	result = cur_buf->data + cur_buf->used;
+	read_pt = *src;
+	write_pt = result;
+
+	while (*read_pt && '\r' != *read_pt && '\n' != *read_pt)
+		*write_pt++ = *read_pt++;
+	*write_pt = '\0';
+
+	cur_buf->used += len;
+	*src = read_pt;
+
+	skip_spaces(src);
+	return result;
+}
+
+char *
+tmp_gsub(const char *haystack, const char *needle, const char *sub)
+{
+	struct tmp_str_pool *cur_buf;
+	char *write_pt, *result;
+	const char *read_pt, *search_pt;
+	size_t len;
+	int matches;
+
+	// Count number of occurences of needle in haystack
+	matches = 0;
+	read_pt = haystack;
+	while ((read_pt = strstr(read_pt, needle)) != NULL) {
+		matches++;
+		read_pt += strlen(needle);
+	}
+
+	// Figure out how much space we'll need
+		len = strlen(haystack) + matches * (strlen(sub) - strlen(needle)) + 1;
+
+	// If we don't have the space, we allocate another pool
+	if (len > tmp_list_tail->space - tmp_list_tail->used)
+		cur_buf = tmp_alloc_pool(len);
+	else
+		cur_buf = tmp_list_tail;
+
+	result = cur_buf->data + cur_buf->used;
+	cur_buf->used += len;
+
+	// Now copy up to matches
+	read_pt = haystack;
+	write_pt = result;
+	while ((search_pt = strstr(read_pt, needle)) != NULL) {
+		while (read_pt != search_pt)
+			*write_pt++ = *read_pt++;
+		read_pt = sub;
+		while (*read_pt)
+			*write_pt++ = *read_pt++;
+		search_pt += strlen(needle);
+		read_pt = search_pt;
+	}
+
+	// Copy the rest of the string
+	strcpy(write_pt, read_pt);
+	return result;
+}

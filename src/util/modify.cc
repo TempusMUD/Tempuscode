@@ -305,7 +305,7 @@ show_file(struct Creature *ch, char *fname, int lines)
 }
 
 void
-page_string(struct descriptor_data *d, char *str)
+page_string(struct descriptor_data *d, const char *str)
 {
 	if (!d || !str)
 		return;

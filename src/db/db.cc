@@ -1131,6 +1131,8 @@ parse_room(FILE * fl, int vnum_nr)
 			}
 			break;
 
+		case 'P':
+			room->func_param = fread_string(fl, buf2); break;
 		case 'S':				/* end of room */
 			top_of_world = room_nr++;
 
@@ -1901,7 +1903,9 @@ parse_enhanced_mob(FILE * mob_f, struct Creature *mobile, int nr)
 	parse_simple_mob(mob_f, mobile, nr);
 
 	while (get_line(mob_f, line)) {
-		if (!strcmp(line, "E"))	/* end of the ehanced section */
+		if (!strcmp(line, "SpecParam:")) { /* multi-line specparam */
+			MOB_SHARED(mobile)->func_param = fread_string(mob_f, buf2);
+		} else if (!strcmp(line, "E"))	/* end of the ehanced section */
 			return;
 		else if (*line == '#') {	/* we've hit the next mob, maybe? */
 			fprintf(stderr, "Unterminated E section in mob #%d\n", nr);
@@ -2246,6 +2250,8 @@ parse_object(FILE * obj_f, int nr)
 				break;
 			obj->obj_flags.bitvector[t[0] - 1] = asciiflag_conv(f1);
 			break;
+		case 'P':
+			obj->shared->func_param = fread_string(obj_f, buf2); break;
 		case '$':
 		case '#':
 			top_of_objt = i++;

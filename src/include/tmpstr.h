@@ -22,6 +22,9 @@ char *tmp_getword(char **src);
 // quotation marks.  Otherwise, acts just like tmp_getword.
 char *tmp_getquoted(char **src);
 
+// like tmp_getword, except it pulls out a single line, broken with a CR or a LF
+char *tmp_getline(char **src);
+
 // strcat into a temp str.  You must terminate the arguments with a NULL,
 // since the va_arg method is too stupid to give us the number of arguments.
 char *tmp_strcat(const char *src, ...);
@@ -37,6 +40,9 @@ inline char *tmp_strdup(const char *src)
 {
 	return tmp_strcat(src, NULL);
 }
+
+// returns a string, in which every needle in haystack is substituted with sub
+char *tmp_gsub(const char *haystack, const char *needle, const char *sub);
 
 // Initializes the structures used for the temporary string mechanism
 void tmp_string_init(void);

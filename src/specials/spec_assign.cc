@@ -361,9 +361,8 @@ do_specassign_save(struct Creature *ch, int mode)
 										find_spec_index_ptr(SHOP_FUNC(shop))) <
 									0)
 									break;
-								fprintf(file, "%-6d %-20s %-20s ## %s\n",
+								fprintf(file, "%-6d %-20s ## %s\n",
 									GET_MOB_VNUM(mob), spec_list[index].tag,
-									GET_MOB_PARAM(mob) ? GET_MOB_PARAM(mob):"",
 									GET_NAME(mob));
 							}
 						}
@@ -372,9 +371,8 @@ do_specassign_save(struct Creature *ch, int mode)
 							find_spec_index_ptr(mob->mob_specials.shared->
 								func)) < 0)
 						continue;
-					fprintf(file, "%-6d %-20s %-20s ## %s\n",
+					fprintf(file, "%-6d %-20s ## %s\n",
 						GET_MOB_VNUM(mob), spec_list[index].tag,
-						GET_MOB_PARAM(mob) ? GET_MOB_PARAM(mob):"",
 						GET_NAME(mob));
 				}
 			}
@@ -391,9 +389,8 @@ do_specassign_save(struct Creature *ch, int mode)
 			if (obj->shared->func) {
 				if ((index = find_spec_index_ptr(obj->shared->func)) < 0)
 					continue;
-				fprintf(file, "%-6d %-20s %-20s ## %s\n",
+				fprintf(file, "%-6d %-20s ## %s\n",
 					GET_OBJ_VNUM(obj), spec_list[index].tag,
-					GET_OBJ_PARAM(obj) ? GET_OBJ_PARAM(obj):"",
 					obj->short_description);
 			}
 		}
@@ -410,9 +407,8 @@ do_specassign_save(struct Creature *ch, int mode)
 				if (room->func) {
 					if ((index = find_spec_index_ptr(room->func)) < 0)
 						continue;
-					fprintf(file, "%-6d %-20s %-20s ## %s\n",
+					fprintf(file, "%-6d %-20s ## %s\n",
 						room->number, spec_list[index].tag,
-						GET_ROOM_PARAM(room) ? GET_ROOM_PARAM(room):"",
 						room->name);
 				}
 			}
@@ -569,19 +565,13 @@ assign_mobiles(void)
 
 		// Find the spec
 		index = find_spec_index_arg(ptr_name);
-		if (index < 0) {
-			slog("Error in mob spec file: ptr <%s> not exist.",
-				ptr_name);
-		} else if (!IS_SET(spec_list[index].flags, SPEC_MOB)) {
+		if (index < 0)
+			slog("Error in mob spec file: ptr <%s> not exist.", ptr_name);
+		else if (!IS_SET(spec_list[index].flags, SPEC_MOB))
 			slog("Attempt to assign ptr <%s> to a mobile.", ptr_name);
-		} else {
+		else
 			mob->mob_specials.shared->func = spec_list[index].func;
-			if (*str)
-				mob->mob_specials.shared->func_param = strdup(str);
-			else
-				mob->mob_specials.shared->func_param = NULL;
-
-		}
+		
 	}
 	fclose(file);
 }
@@ -636,10 +626,6 @@ assign_objects(void)
 			slog("Attempt to assign ptr <%s> to a object.", ptr_name);
 		} else {
 			obj->shared->func = spec_list[index].func;
-			if (*str)
-				obj->shared->func_param = strdup(str);
-			else
-				obj->shared->func_param = NULL;
 		}
 	}
 	fclose(file);
@@ -696,10 +682,6 @@ assign_rooms(void)
 			slog("Attempt to assign ptr <%s> to a room.", ptr_name);
 		} else {
 			rm->func = spec_list[index].func;
-			if (*str)
-				rm->func_param = strdup(str);
-			else
-				rm->func_param = NULL;
 		}
 	}
 	fclose(file);

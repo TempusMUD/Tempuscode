@@ -23,6 +23,7 @@
 #include "clan.h"
 #include "specs.h"
 #include "house.h"
+#include "tmpstr.h"
 
 extern struct zone_data *zone_table;
 extern struct descriptor_data *descriptor_list;
@@ -305,6 +306,13 @@ save_room(struct Creature *ch, struct room_data *room, FILE * file)
 	if (MAX_OCCUPANTS(room) != 256)
 		fprintf(file, "O %d\n", MAX_OCCUPANTS(room));
 
+	if (GET_ROOM_PARAM(room)) {
+		char *str;
+
+		str = tmp_gsub(GET_ROOM_PARAM(room), "\r", "");
+		str = tmp_gsub(str, "~", "!");
+		fprintf(file, "P\n%s~\n", str);
+	}
 
 	fprintf(file, "S\n");
 	return 0;
@@ -962,19 +970,13 @@ do_olc_rset(struct Creature *ch, char *argument)
 
 		break;
 	case 8:
-		if (!*arg2) {
-			send_to_char(ch, "You should set the specparam to something.  Try using ~ to clear it.\r\n");
-		} else if (!GET_ROOM_SPEC(ch->in_room)) {
+		if (!GET_ROOM_SPEC(ch->in_room)) {
 			send_to_char(ch, "You should set a special first!\r\n");
 		} else {
-			if (GET_ROOM_PARAM(ch->in_room))
-				free(GET_ROOM_PARAM(ch->in_room));
-			if (*arg2 == '~')
-				ch->in_room->func_param = NULL;
-			else
-				ch->in_room->func_param = strdup(arg2);
-			do_specassign_save(ch, SPEC_RM);
-			send_to_char(ch, "Room special parameters set.\r\n");
+			start_text_editor(ch->desc, &ch->in_room->func_param, true);
+			SET_BIT(PLR_FLAGS(ch), PLR_OLC);
+			act("$n begins to write a room spec param.", TRUE, ch, 0, 0,
+				TO_ROOM);
 		}
 
 		break;

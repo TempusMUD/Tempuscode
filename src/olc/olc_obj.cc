@@ -296,6 +296,13 @@ save_objs(struct Creature *ch)
 			}
 		}
 
+		if (GET_OBJ_PARAM(obj)) {
+			char *str;
+
+			str = tmp_gsub(GET_OBJ_PARAM(obj), "\r", "");
+			str = tmp_gsub(str, "~", "!");
+			fprintf(file, "P\n%s~\n", str);
+		}
 		low++;
 	}
 
@@ -558,7 +565,7 @@ perform_oset(struct Creature *ch, struct obj_data *obj_p,
 		send_to_char(ch, "Invalid oset command '%s'.\r\n", arg1);
 		return;
 	}
-	if (oset_command != 3 && !*arg2) {
+	if (oset_command != 3 && oset_command != 24 && !*arg2) {
 		send_to_char(ch, "Set %s to what??\r\n", olc_oset_keys[oset_command]);
 		return;
 	}
@@ -1118,19 +1125,13 @@ perform_oset(struct Creature *ch, struct obj_data *obj_p,
 		}
 		break;
 	case 24:
-		if (!*arg2) {
-			send_to_char(ch, "You should set the specparam to something.  Try using ~ to clear it.\r\n");
-		} else if (!GET_OBJ_SPEC(obj_p)) {
+		if (!GET_OBJ_SPEC(obj_p)) {
 			send_to_char(ch, "You should set a special first!\r\n");
 		} else {
-			if (GET_OBJ_PARAM(obj_p))
-				free(GET_OBJ_PARAM(obj_p));
-			if (*arg2 == '~')
-				obj_p->shared->func_param = NULL;
-			else
-				obj_p->shared->func_param = strdup(arg2);
-			do_specassign_save(ch, SPEC_OBJ);
-			send_to_char(ch, "Object special parameters set.\r\n");
+			start_text_editor(ch->desc, &obj_p->shared->func_param, true);
+			SET_BIT(PLR_FLAGS(ch), PLR_OLC);
+			act("$n begins to write an object spec param.", TRUE, ch, 0, 0,
+				TO_ROOM);
 		}
 
 		break;
