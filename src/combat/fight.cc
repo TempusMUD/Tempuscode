@@ -40,7 +40,41 @@ int corpse_state = 0;
 
 /* The Fight related routines */
 obj_data * get_random_uncovered_implant ( char_data *ch, int type = -1 );
+int calculate_weapon_probability( struct char_data *ch, int prob, struct obj_data *weap);
 
+
+int 
+calculate_weapon_probability( struct char_data *ch, int prob, struct obj_data *weap) {
+    int i, weap_weight;
+    i = weap_weight = 0;
+
+    if(!ch || !weap)
+        return 0;
+        
+    if ( GET_OBJ_VNUM(weap) > 0 ) {
+        for ( i = 0; i < MAX_WEAPON_SPEC; i++ ) {
+            if ( GET_WEAP_SPEC( ch, i ).vnum == GET_OBJ_VNUM( weap ) ) {
+                prob += GET_WEAP_SPEC( ch, i ).level << 2;
+                break;
+            }   
+        }   
+    }   
+    if(weap->worn_on == WEAR_WIELD || weap->worn_on == WEAR_WIELD_2) {
+        for ( i = 0, weap_weight = 0; i < MAX_OBJ_AFFECT; i++ ) {
+            if ( weap->affected[i].location == APPLY_WEAPONSPEED ) {
+                weap_weight -= weap->affected[i].modifier;
+                break;
+            }   
+        }   
+        weap_weight += weap->getWeight();
+        weap_weight = MAX( ( weap->getWeight() >> 2 ), weap_weight );
+        
+        prob -=  ( prob * weap_weight ) / ( str_app[STRENGTH_APPLY_INDEX( ch )].wield_w >> 1 );
+        if(weap->worn_on == WEAR_WIELD_2)
+            prob += CHECK_SKILL( ch, SKILL_SECOND_WEAPON ) - 60;
+    }
+    return prob;
+}
 
 void 
 appear( struct char_data * ch, struct char_data *vict )
@@ -3975,7 +4009,7 @@ void
 perform_violence( void )
 {
     register struct char_data *ch;
-    int prob, i, weap_weight,die_roll;
+    int prob, i, die_roll;
     void mobile_battle_activity( struct char_data *ch );
 
     for ( ch = combat_list; ch; ch = next_combat_list ) {
@@ -4017,58 +4051,12 @@ perform_violence( void )
 				  !OBJ_TYPE( GET_EQ( ch, WEAR_BODY ), ITEM_ARMOR ) ||
 				  !IS_METAL_TYPE( GET_EQ( ch, WEAR_BODY ) ) ) )
 	    prob -= ( GET_LEVEL( ch ) >> 2 );
-      
-	if ( GET_EQ( ch, WEAR_WIELD_2 ) ) {
-	    if ( GET_OBJ_VNUM( GET_EQ( ch, WEAR_WIELD_2 ) ) > 0 ) {
-		for ( i = 0; i < MAX_WEAPON_SPEC; i++ )
-		    if ( GET_WEAP_SPEC( ch, i ).vnum == 
-			 GET_OBJ_VNUM( GET_EQ( ch, WEAR_WIELD_2 ) ) ) {
-			prob += GET_WEAP_SPEC( ch, i ).level << 2;
-			break;
-		    }
-	    } 
-	    for ( i = 0, weap_weight = 0; i < MAX_OBJ_AFFECT; i++ ) {
-		if ( GET_EQ( ch, WEAR_WIELD_2 )->affected[i].location == 
-		     APPLY_WEAPONSPEED ) {
-		    weap_weight -= GET_EQ( ch, WEAR_WIELD_2 )->affected[i].modifier;
-		    break;
-		}
-	    }
-	    weap_weight += GET_EQ( ch, WEAR_WIELD_2 )->getWeight();
-	    weap_weight = MAX( ( GET_EQ( ch, WEAR_WIELD_2 )->getWeight() >> 2 ), 
-			       weap_weight );
-      
-	    prob -=  ( prob * weap_weight ) / 
-		( str_app[STRENGTH_APPLY_INDEX( ch )].wield_w >> 1 );
-      
-	    prob += CHECK_SKILL( ch, SKILL_SECOND_WEAPON ) - 60;
-      
-	}
-	if ( GET_EQ( ch, WEAR_WIELD ) ) {
-	    if ( GET_OBJ_VNUM( GET_EQ( ch, WEAR_WIELD ) ) > 0 ) {
-		for ( i = 0; i < MAX_WEAPON_SPEC; i++ )
-		    if ( GET_WEAP_SPEC( ch, i ).vnum == 
-			 GET_OBJ_VNUM( GET_EQ( ch, WEAR_WIELD ) ) ) {
-			prob += GET_WEAP_SPEC( ch, i ).level << 2;
-			break;
-		    }
-	    } 
-	    if ( IS_MONK( ch ) )
-		prob += ( LEARNED( ch ) - weapon_prof( ch, GET_EQ( ch, WEAR_WIELD ) ) ) >> 3;
-      
-	    for ( weap_weight = 0, i = 0; i < MAX_OBJ_AFFECT; i++ ) {
-		if ( GET_EQ( ch, WEAR_WIELD )->affected[i].location == 
-		     APPLY_WEAPONSPEED ) {
-		    weap_weight = - GET_EQ( ch, WEAR_WIELD )->affected[i].modifier;
-		    break;
-		}
-	    }
-	    weap_weight += GET_EQ( ch, WEAR_WIELD )->getWeight();
-	    weap_weight = MAX( (GET_EQ( ch, WEAR_WIELD )->getWeight() >> 1 ), weap_weight );
-      
-	    prob -=  ( prob * weap_weight ) / 
-		( str_app[STRENGTH_APPLY_INDEX( ch )].wield_w << 1 );
-	}
+    if( GET_EQ( ch, WEAR_WIELD_2) )
+        prob = calculate_weapon_probability( ch, prob, GET_EQ( ch, WEAR_WIELD_2));
+    if( GET_EQ( ch, WEAR_WIELD) )
+        prob = calculate_weapon_probability( ch, prob, GET_EQ( ch, WEAR_WIELD));
+    if( GET_EQ( ch, WEAR_HANDS) )
+        prob = calculate_weapon_probability( ch, prob, GET_EQ( ch, WEAR_HANDS));
     
 	prob += ( ( POS_FIGHTING - GET_POS( FIGHTING( ch ) ) ) << 1 );
 
@@ -4149,10 +4137,8 @@ perform_violence( void )
 			implant_prob += GET_REMORT_GEN(ch) + (CHECK_SKILL(ch, SKILL_ADV_IMPLANT_W) - 100)/2;
 		    }
 		    if(  number( 0 ,100 ) < implant_prob ) {
-			if ( PRF2_FLAGGED( ch, PRF2_FIGHT_DEBUG ) ) 
-			    send_to_char("Attempting advanced implant weapon attack.\r\n",ch);
-			if ( hit( ch, FIGHTING(ch), SKILL_ADV_IMPLANT_W) )
-			    continue;
+                if ( hit( ch, FIGHTING(ch), SKILL_ADV_IMPLANT_W) )
+                    continue;
 		    }
 		}
 		if ( !FIGHTING( ch ) )
@@ -4165,10 +4151,8 @@ perform_violence( void )
 			implant_prob += GET_REMORT_GEN(ch) + (CHECK_SKILL(ch, SKILL_IMPLANT_W) - 100)/2;
 		    }
 		    if(  number( 0 ,100 ) < implant_prob ) {
-			if ( PRF2_FLAGGED( ch, PRF2_FIGHT_DEBUG ) ) 
-			    send_to_char("Attempting implant weapon attack.\r\n",ch);
-			if ( hit( ch, FIGHTING(ch), SKILL_IMPLANT_W) )
-			    continue;
+                if ( hit( ch, FIGHTING(ch), SKILL_IMPLANT_W) )
+                    continue;
 		    } 
 		}
 	    }
