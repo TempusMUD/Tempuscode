@@ -2683,7 +2683,8 @@ ACMD(do_perform)
 		act("You do not know that song!", FALSE, ch, 0, 0, TO_CHAR);
 		return;
 	}
-    if (!check_instrument(ch, spellnum)) {
+    if ((GET_LEVEL(ch) < LVL_AMBASSADOR && (GET_LEVEL(ch) > 10)) && 
+        !check_instrument(ch, spellnum)) {
         send_to_char(ch, "But you're not using a %s instrument!\r\n", 
                      get_instrument_type(spellnum));
         return;
