@@ -141,9 +141,9 @@ start_engine(struct Creature *ch, struct obj_data *car,
 		V_CONSOLE_IDNUM(console) = -(GET_MOB_VNUM(ch));
 
 	if (ENGINE_ON(engine)) {
-		act("The starter belt squeals as you try to crank $p!",
+		act("The starter squeals as you try to crank $p!",
 			FALSE, ch, car, 0, TO_CHAR);
-		act("The starter belt squeals as $n tries to crank $p!",
+		act("The starter squeals as $n tries to crank $p!",
 			FALSE, ch, car, 0, TO_ROOM);
 		if (car->in_room->people)
 			act("You hear a loud squealing from under the hood of $p.",
