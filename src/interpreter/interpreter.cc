@@ -1352,6 +1352,7 @@ struct command_info cmd_info[] = {
 	// Moods!
 	{"accusingly", POS_DEAD, do_mood, 0, 0, 0, 0},
 	{"angrily", POS_DEAD, do_mood, 0, 0, 0, 0},
+	{"bitterly", POS_DEAD, do_mood, 0, 0, 0, 0},
 	{"boldly", POS_DEAD, do_mood, 0, 0, 0, 0},
 	{"calmly", POS_DEAD, do_mood, 0, 0, 0, 0},
 	{"carefully", POS_DEAD, do_mood, 0, 0, 0, 0},
@@ -1411,8 +1412,10 @@ struct command_info cmd_info[] = {
 	{"warmly", POS_DEAD, do_mood, 0, 0, 0, 0},
 	{"wearily", POS_DEAD, do_mood, 0, 0, 0, 0},
 	{"wildly", POS_DEAD, do_mood, 0, 0, 0, 0},
+	{"wickedly", POS_DEAD, do_mood, 0, 0, 0, 0},
 	{"wisely", POS_DEAD, do_mood, 0, 0, 0, 0},
 	{"wishfully", POS_DEAD, do_mood, 0, 0, 0, 0},
+	{"wistfully", POS_DEAD, do_mood, 0, 0, 0, 0},
 	{"valiantly", POS_DEAD, do_mood, 0, 0, 0, 0},
 	{"\n", 0, 0, 0, 0, 0, 0}
 };								/* this must be last */
