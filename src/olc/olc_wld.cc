@@ -1100,7 +1100,7 @@ do_olc_rexdesc(struct Creature *ch, char *argument, bool is_hedit)
 "hedit owner <name>\r\n"
 
 ACMD(do_hedit)
-{
+{/*
 	char arg[MAX_INPUT_LENGTH];
 	int command, j, cost = 0, num = 0, tot_cost = 0, tot_num = 0;
 	bool local = false, brief = false;
@@ -1158,7 +1158,7 @@ ACMD(do_hedit)
 	}
 
 	switch (command) {
-	case 0:					/* title */
+	case 0:					// title
 		if (strlen(argument) > 80) {
 			send_to_char(ch, "That's a bit long. Dont you think?\r\n");
 			return;
@@ -1166,18 +1166,18 @@ ACMD(do_hedit)
 		sprintf(buf, "title %s", argument);
 		do_olc_rset(ch, buf);
 		break;
-	case 1:					/* desc */
+	case 1:					// desc 
 		sprintf(buf, "desc %s", argument);
 		do_olc_rset(ch, buf);
 		break;
-	case 3:					/* sound */
+	case 3:					// sound
 		sprintf(buf, "sound %s", argument);
 		do_olc_rset(ch, buf);
 		break;
-	case 2:					/* extra */
+	case 2:					// extra
 		do_olc_rexdesc(ch, argument, true);
 		break;
-	case 4:					/* save  */
+	case 4:					// save
 		if (save_wld(ch, ch->in_room->zone))
 			send_to_char(ch, "Your house modifications have been saved.\r\n");
 		else {
@@ -1187,7 +1187,7 @@ ACMD(do_hedit)
 		}
 		WAIT_STATE(ch, 8 RL_SEC);
 		break;
-	case 5:					/* show */
+	case 5:					// show 
 		char tmpbuf[1024];
 		tmpbuf[0] = '\0';
 		buf[0] = '\0';
@@ -1246,7 +1246,7 @@ ACMD(do_hedit)
 			print_room_contents_to_buf(ch, buf, ch->in_room);
 			page_string(ch->desc, buf);
 		} else
-			hcontrol_list_house_rooms(ch, h->house_rooms[0]);
+			h->listRooms(ch);
 		break;
 
 		// owner
@@ -1289,5 +1289,5 @@ ACMD(do_hedit)
 	default:
 		send_to_char(ch, "Error code <69> -- fatal allocation in do_hedit.\r\n");
 		break;
-	}
+	} */
 }
