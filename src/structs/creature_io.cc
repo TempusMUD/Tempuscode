@@ -408,7 +408,6 @@ Creature::saveObjects(void)
 		return false;
 	}
 	fprintf( ouf, "<objects>\n" );
-    rent.saveToXML( ouf );
 	// Save the inventory
 	for( obj_data *obj = carrying; obj != NULL; obj = obj->next_content ) {
 		obj->saveToXML(ouf);
@@ -566,20 +565,35 @@ Creature::saveToXML()
 		GET_INVIS_LVL(ch), GET_WIMP_LEV(ch), GET_PRACTICES(ch),
 		GET_LIFE_POINTS(ch), GET_CLAN(ch));
 
-	rent.saveToXML(ouf);
+	if (ch->desc)
+		ch->rent.desc_mode = ch->desc->input_mode;
+	if (ch->rent.rentcode == RENT_CREATING ||
+			ch->rent.rentcode == RENT_REMORTING) {
+		fprintf(ouf, "<rent time=\"%d\" code=\"%d\" perdiem=\"%d\" "
+			"gold=\"%d\" bank=\"%d\" currency=\"%d\" state=\"%s\"/>\n",
+			ch->rent.time, ch->rent.rentcode, ch->rent.net_cost_per_diem,
+			ch->rent.gold, ch->rent.account, ch->rent.currency,
+			desc_modes[(int)ch->rent.desc_mode]);
+	} else {
+		fprintf(ouf, "<rent time=\"%d\" code=\"%d\" perdiem=\"%d\" "
+			"gold=\"%d\" bank=\"%d\" currency=\"%d\"/>\n",
+			ch->rent.time, ch->rent.rentcode, ch->rent.net_cost_per_diem,
+			ch->rent.gold, ch->rent.account, ch->rent.currency );
+	}
 	fprintf(ouf, "<home town=\"%d\" loadroom=\"%d\" held_town=\"%d\" held_loadroom=\"%d\"/>\n",
 		GET_HOME(ch), GET_LOADROOM(ch), GET_HOLD_HOME(ch),
 		GET_HOLD_LOADROOM(ch));
 
-	fprintf(ouf, "<quest");
-	if (GET_QUEST(ch))
-		fprintf(ouf, " current=\"%d\"", GET_QUEST(ch));
-	if (GET_LEVEL(ch) >= LVL_IMMORT)
-		fprintf(ouf, " allowance=\"%d\"", GET_QUEST_ALLOWANCE(ch));
-    if( GET_QUEST_POINTS(ch) != 0 )
-        fprintf(ouf, " points=\"%d\"", GET_QUEST_POINTS(ch));
-    
-	fprintf(ouf, "/>\n");
+	if (GET_LEVEL(ch) < LVL_IMMORT && !GET_QUEST(ch) && !GET_QUEST_POINTS(ch)) {
+		fprintf(ouf, "<quest");
+		if (GET_QUEST(ch))
+			fprintf(ouf, " current=\"%d\"", GET_QUEST(ch));
+		if (GET_LEVEL(ch) >= LVL_IMMORT)
+			fprintf(ouf, " allowance=\"%d\"", GET_QUEST_ALLOWANCE(ch));
+		if( GET_QUEST_POINTS(ch) != 0 )
+			fprintf(ouf, " points=\"%d\"", GET_QUEST_POINTS(ch));
+		fprintf(ouf, "/>\n");
+	}
 		
 	fprintf(ouf, "<bits flag1=\"%lx\" flag2=\"%x\"/>\n",
 		ch->char_specials.saved.act, ch->player_specials->saved.plr2_bits);
@@ -878,11 +892,16 @@ Creature::loadFromXML( const char *path )
         } else if ( xmlMatches(node->name, "immort") ) {
 			player_specials->saved.occupation = xmlGetIntProp(node,"badge");
         } else if (xmlMatches(node->name, "rent")) {
+			char *txt;
+
 			rent.time = xmlGetIntProp(node, "time");
 			rent.rentcode = xmlGetIntProp(node, "code");
 			rent.net_cost_per_diem = xmlGetIntProp(node, "perdiem");
 			rent.gold = xmlGetIntProp(node, "gold");
 			rent.currency = xmlGetIntProp(node, "currency");
+			txt = (char *)xmlGetProp(node, "state");
+			if (txt)
+                rent.desc_mode = (cxn_state)search_block(txt, desc_modes, FALSE);
 		}
     }
 

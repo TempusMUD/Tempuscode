@@ -23,6 +23,8 @@ static const int RENT_CRYO      = 3;
 static const int RENT_FORCED    = 4;
 static const int RENT_TIMEDOUT  = 5;
 static const int RENT_NEW_CHAR  = 6;
+static const int RENT_CREATING  = 7;
+static const int RENT_REMORTING = 8;
 
 
 /* PC char_classes */
@@ -931,27 +933,14 @@ struct follow_type {
 
 struct rent_info {
     rent_info() : time(0), rentcode(0), net_cost_per_diem(0), 
-                  gold(0), account(0), currency(0) {}
+                  gold(0), account(0), desc_mode(CXN_UNKNOWN), currency(0) {}
 	int time;
 	int rentcode;
 	int net_cost_per_diem;
 	int gold;
 	int account;
-	int spare0;
-	int spare1;
+	cxn_state desc_mode;
 	int currency;
-	int spare2;
-	int spare3;
-	int spare4;
-	int spare5;
-	int spare6;
-	int spare7;
-    
-    void saveToXML( FILE *ouf ) const {
-        fprintf( ouf, "<rent time=\"%d\" code=\"%d\" perdiem=\"%d\" "
-                      "gold=\"%d\" bank=\"%d\" currency=\"%d\"/>\n",
-                 time, rentcode, net_cost_per_diem, gold, account, currency );
-    }
 };
 
 

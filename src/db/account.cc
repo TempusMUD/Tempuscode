@@ -314,7 +314,7 @@ Account::create_char(const char *name)
 		GET_HOME(ch) = HOME_NEWBIE_SCHOOL;
 		ch->player_specials->saved.load_room = -1;
 	}
-    ch->rent.rentcode = RENT_NEW_CHAR;
+    ch->rent.rentcode = RENT_CREATING;
 
 	set_title(ch, NULL);
 

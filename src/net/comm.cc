@@ -1329,10 +1329,14 @@ close_socket(struct descriptor_data *d)
 		d->creature->desc = NULL;
 		GET_OLC_OBJ(d->creature) = NULL;
 	} else if (d->account) {
+		if (d->creature) {
+			d->creature->saveToXML();
+			delete d->creature;
+			d->creature = NULL;
+		}
 		mudlog(LVL_AMBASSADOR, NRM, true,
                 "%s[%d] logging off from %s", 
                 d->account->get_name(), d->account->get_idnum(), d->host);
-		delete d->creature;
 	} else {
 		mudlog(LVL_AMBASSADOR, CMP, true, "Losing descriptor without account");
     }

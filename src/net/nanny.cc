@@ -103,6 +103,7 @@ handle_input(struct descriptor_data *d, char *arg)
 	}
 
 	switch(d->input_mode) {
+	case CXN_UNKNOWN:
 	case CXN_DISCONNECT:
 		break;
 	case CXN_PLAYING: {
@@ -200,6 +201,7 @@ handle_input(struct descriptor_data *d, char *arg)
 			} else if (!d->account->invalid_char_index(1)) {
 				char_id = d->account->get_char_by_index(1);
 				d->creature = new Creature;
+				d->creature->desc = d;
 				if (d->creature->loadFromXML(char_id)) {
 					set_desc_state(CXN_DELETE_PW, d);
 				} else {
@@ -217,8 +219,8 @@ handle_input(struct descriptor_data *d, char *arg)
 			} else if (!d->account->invalid_char_index(1)) {
 				char_id = d->account->get_char_by_index(1);
 				d->creature = new Creature;
+				d->creature->desc = d;
 				if (d->creature->loadFromXML(char_id)) {
-					d->creature->desc = d;
 					set_desc_state(CXN_EDIT_DESC, d);
 				} else {
                     slog("Error loading character %d to edit it's description.", char_id);
@@ -235,6 +237,7 @@ handle_input(struct descriptor_data *d, char *arg)
 			} else if (!d->account->invalid_char_index(1)) {
 				char_id = d->account->get_char_by_index(1);
 				d->creature = new Creature;
+				d->creature->desc = d;
 				if (d->creature->loadFromXML(char_id)) {
 					d->creature->desc = d;
 					show_character_detail(d);
@@ -306,6 +309,13 @@ handle_input(struct descriptor_data *d, char *arg)
 				return;
 			}
 
+			// If they were in the middle of something important
+			if (d->creature->rent.rentcode == RENT_CREATING ||
+					d->creature->rent.rentcode == RENT_REMORTING) {
+				set_desc_state(d->creature->rent.desc_mode, d);
+				return;
+			}
+
 			if (d->account->deny_char_entry(d->creature)) {
 				send_to_desc(d, "You can't have another character in the game right now.\r\n");
 				delete d->creature;
@@ -320,11 +330,7 @@ handle_input(struct descriptor_data *d, char *arg)
 		break;
 	case CXN_NAME_PROMPT:
 		if (!arg[0]) {
-			if (d->account->invalid_char_index(1)) {
-				send_to_desc(d, "Sorry you decided not to join us!\r\n");
-				set_desc_state(CXN_DISCONNECT, d);
-			} else
-				set_desc_state(CXN_MENU, d);
+			set_desc_state(CXN_MENU, d);
 			return;
 		}
 
@@ -340,25 +346,18 @@ handle_input(struct descriptor_data *d, char *arg)
 		}
 
 		if (Valid_Name(arg)) {
-			d->creature = d->account->create_char(arg);
-            d->creature->desc = d;
-			set_desc_state(CXN_NAME_VERIFY, d);
+			if (!d->creature) {
+				d->creature = d->account->create_char(arg);
+				d->creature->desc = d;
+				d->creature->rent.rentcode = RENT_CREATING;
+			} else {
+				// reset name in account, playerIndex, creature, ugh...
+			}
+			set_desc_state(CXN_SEX_PROMPT, d);
+			d->account->save_to_xml();
 		} else {
             send_to_desc(d, "\r\nThat character name is invalid.\r\n\r\n");
         }
-		break;
-	case CXN_NAME_VERIFY:
-		switch (tolower(arg[0])) {
-		case 'y':
-			set_desc_state(CXN_SEX_PROMPT, d); break;
-		case 'n':
-			delete d->creature;
-			d->creature = NULL;
-			set_desc_state(CXN_NAME_PROMPT, d);
-			break;
-		default:
-			send_to_desc(d, "\r\nPlease enter Y or N.\r\n\r\n"); break;
-		}
 		break;
 	case CXN_SEX_PROMPT:
 		switch (tolower(arg[0])) {
@@ -537,6 +536,7 @@ handle_input(struct descriptor_data *d, char *arg)
 				"%s[%d] has created new character %s[%ld]",
 					d->account->get_name(), d->account->get_idnum(),
                     GET_NAME(d->creature), GET_IDNUM(d->creature) );
+			d->creature->rent.rentcode = RENT_NEW_CHAR;
 			d->creature->saveToXML();
 		} else
 			SEND_TO_Q("\r\nYou must type 'reroll' or 'keep'.\r\n\r\n", d);
@@ -552,6 +552,7 @@ handle_input(struct descriptor_data *d, char *arg)
 
 		char_id = d->account->get_char_by_index(atoi(arg));
 		d->creature = new Creature;
+		d->creature->desc = d;
 		if (!d->creature->loadFromXML(char_id)) {
 			send_to_desc(d, "Sorry.  That character could not be loaded.\r\n");
 			set_desc_state(CXN_WAIT_MENU, d);
@@ -569,6 +570,7 @@ handle_input(struct descriptor_data *d, char *arg)
 
 		char_id = d->account->get_char_by_index(atoi(arg));
 		d->creature = new Creature;
+		d->creature->desc = d;
 		if (!d->creature->loadFromXML(char_id)) {
 			send_to_desc(d, "Sorry.  That character could not be loaded.\r\n");
 			set_desc_state(CXN_WAIT_MENU, d);
@@ -658,6 +660,7 @@ handle_input(struct descriptor_data *d, char *arg)
 
 		char_id = d->account->get_char_by_index(atoi(arg));
 		d->creature = new Creature;
+		d->creature->desc = d;
 		if (!d->creature->loadFromXML(char_id)) {
 			send_to_desc(d, "Sorry.  That character could not be loaded.\r\n");
 			set_desc_state(CXN_WAIT_MENU, d);
@@ -692,6 +695,7 @@ send_prompt(descriptor_data *d)
 
 	// Handle all other states
 	switch ( d->input_mode ) {
+	case CXN_UNKNOWN:
 	case CXN_DISCONNECT:
 		break;
 	case CXN_PLAYING:			// Playing - Nominal state
@@ -780,11 +784,6 @@ send_prompt(descriptor_data *d)
 		send_to_desc(d, "Enter your new password: "); break;
 	case CXN_NAME_PROMPT:
 		send_to_desc(d, "Enter the name you wish for this character: "); break;
-	case CXN_NAME_VERIFY:
-		send_to_desc(d, "\r\nYou have entered your name as '%s'\r\n",
-			GET_NAME(d->creature));
-		send_to_desc(d, "Are you sure you want this name (Y/N)? ");
-		break;
 	case CXN_TIME_PROMPT:
 		send_to_desc(d, "From what time period do you hail? "); break;
 	case CXN_SEX_PROMPT:
@@ -866,7 +865,6 @@ send_menu(descriptor_data *d)
 	case CXN_DELETE_VERIFY:
 	case CXN_AFTERLIFE:
 	case CXN_REMORT_AFTERLIFE:
-	case CXN_NAME_VERIFY:
 		break;
 		// These states don't have menus
 		break;
@@ -1048,6 +1046,8 @@ send_menu(descriptor_data *d)
 				else
 					status_str = "&c linkless";
 			} else switch (tmp_ch->rent.rentcode) {
+				case RENT_CREATING:
+                    status_str = "&Y Creating"; break;
                 case RENT_NEW_CHAR:
                     status_str = "&Y      New"; break;
                 case RENT_UNDEF:
@@ -1062,6 +1062,8 @@ send_menu(descriptor_data *d)
                     status_str = "&yForcerent"; break;
                 case RENT_TIMEDOUT:
                     status_str = "&yForcerent"; break;
+				case RENT_REMORTING:
+                    status_str = "&YRemorting"; break;
                 default:
                     status_str = "&R REPORTME"; break;
 			}
@@ -1069,13 +1071,19 @@ send_menu(descriptor_data *d)
 				mail_str = "&Y Yes";
 			else
 				mail_str = "&n No ";
-			send_to_desc(d,
-				"&b[&y%2d&b] &n%-13s %3d %3d  %s  %8s %s %13s %s %s&n\r\n",
-				idx, GET_NAME(tmp_ch),
-				GET_LEVEL(tmp_ch), GET_REMORT_GEN(tmp_ch),
-				sex_str,
-				player_race[(int)GET_RACE(tmp_ch)],
-				class_str, laston_str, status_str, mail_str);
+			if (tmp_ch->rent.rentcode == RENT_CREATING) {
+				send_to_desc(d,
+					"&b[&y%2d&b] &n%-13s   &y-   -  -         -         -         Never  Creating&n  --\r\n",
+					idx, GET_NAME(tmp_ch));
+			} else {
+				send_to_desc(d,
+					"&b[&y%2d&b] &n%-13s %3d %3d  %s  %8s %s %13s %s %s&n\r\n",
+					idx, GET_NAME(tmp_ch),
+					GET_LEVEL(tmp_ch), GET_REMORT_GEN(tmp_ch),
+					sex_str,
+					player_race[(int)GET_RACE(tmp_ch)],
+					class_str, laston_str, status_str, mail_str);
+			}
 			idx++;
 		}
 		delete tmp_ch;
@@ -1190,7 +1198,11 @@ set_desc_state(cxn_state state,struct descriptor_data *d)
 		d->inbuf[0] = '\0';
 		d->wait = 5 RL_SEC;
 	}
-    
+	if (d->creature)
+		d->creature->saveToXML();
+
+    send_menu(d);
+
 	if (CXN_EDIT_DESC == state) {
 		if (!d->creature) {
 			slog("SYSERR: set_desc_state called with CXN_EDIT_DESC with no creature.");
