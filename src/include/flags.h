@@ -20,20 +20,18 @@ using namespace std;
 class Flag {
 	public:
 		Flag( const char *_name, const char *_bits, const char *_desc ) 
-        : name(_name),bits(_bits),desc(_desc), index = -1 { 
-        }
+			: index(-1), name(_name),bits(_bits),desc(_desc) { }
 
 
-		Flag( xmlChar *_name, xmlChar *_bits, xmlChar *_desc ) {
-            name = (char*)_name;
-            bits = (char*)_bits;
-            desc = (char*)_desc;
-		}
+		Flag( xmlChar *_name, xmlChar *_bits, xmlChar *_desc ) 
+			: index(-1), name((char*)_name),bits((char*)_bits),desc((char*)_desc) { }
 		
 		int index;  // This Flag's index in the FlagTable
 		string name;
 		string bits;// The string used to represent this flag in sprintbits
 		string desc;// 
+	private:
+		Flag() : index(-1), name(), bits(), desc() { }
 };
 
 /**
