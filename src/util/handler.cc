@@ -15,6 +15,7 @@
 // Copyright 1998 by John Watson, all rights reserved.
 //
 
+#include <vector>
 #include <signal.h>
 
 #include "structs.h"
@@ -36,6 +37,8 @@
 #include "fight.h"
 #include "security.h"
 #include "tmpstr.h"
+#include "utils.h"
+
 
 /* external vars */
 extern struct descriptor_data *descriptor_list;
@@ -2519,4 +2522,130 @@ find_all_dots(char *arg)
 		return FIND_ALLDOT;
 	} else
 		return FIND_INDIV;
+}
+// The reaction class compiles a list of allow/deny rules into a string
+// of byte codes, and executes them on a match.  This way, we can compile
+// an arbitrary number of rules into a convenient, fast format.
+
+// The byte code is:
+//    bit 4-7
+//       0 == deny
+//       1 == accept
+//    bit 0 - 3
+//       0 == terminate search
+//       1 == all
+//       2 == good align
+//       3 == evil align
+//       4 == neutral align
+//       5 == killer
+//       6 == thief
+//       7 == race (next byte is race + 1)
+//       8 == class (next byte is class + 1)
+//       9 == clan (next byte is clan + 1)
+// so 0x12 means 'accept align'
+// and 0x01 means 'deny all'
+
+int parse_char_class(char *);
+int parse_race(char *);
+
+bool
+Reaction::add_reaction(decision_t action, char *condition)
+{
+	char *tmp;
+	clan_data *clan;
+	char new_reaction[3];
+	
+	if (action != ALLOW && action != DENY)
+		return false;
+
+	new_reaction[0] = (action == ALLOW) ? 0x10:0x00;
+	new_reaction[1] = new_reaction[2] = '\0';
+	if (is_abbrev(condition, "all"))
+		new_reaction[0] |= 0x01;
+	else if (is_abbrev(condition, "good"))
+		new_reaction[0] |= 0x02;
+	else if (is_abbrev(condition, "evil"))
+		new_reaction[0] |= 0x03;
+	else if (is_abbrev(condition, "neutral"))
+		new_reaction[0] |= 0x04;
+	else if (is_abbrev(condition, "killer"))
+		new_reaction[0] |= 0x05;
+	else if (is_abbrev(condition, "thief"))
+		new_reaction[0] |= 0x06;
+	else if ((new_reaction[1] = parse_char_class(condition) + 1) != 0)
+		new_reaction[0] |= 0x07;
+	else if ((new_reaction[1] = parse_race(condition) + 1) != 0)
+		new_reaction[0] |= 0x08;
+	else if ((clan = clan_by_name(condition)) != NULL) {
+		new_reaction[0] |= 0x09;
+		new_reaction[1] = clan->number + 1;
+	} else
+		return false;
+
+	if (_reaction) {
+		tmp = tmp_strcat(_reaction, new_reaction);
+		free(_reaction);
+		_reaction = strdup(tmp);
+	} else {
+		_reaction = strdup(new_reaction);
+	}
+	
+	return true;
+}
+
+bool
+Reaction::add_reaction(char *config)
+{
+	char *action_str;
+	decision_t action;
+
+	action_str = tmp_getword(&config);
+	if (!strcmp(action_str, "allow"))
+		action = ALLOW;
+	else if (!strcmp(action_str, "deny"))
+		action = DENY;
+	else
+		return false;
+
+	return add_reaction(action, config);
+}
+
+decision_t
+Reaction::react(Creature *ch)
+{
+	char *read_pt;
+	decision_t action;
+
+	for (read_pt = _reaction;*read_pt;read_pt++) {
+		action = ((*read_pt) >> 4) ? ALLOW:DENY;
+		switch (*read_pt & 0xF) {
+		case 0:	// terminate
+			return UNDECIDED;
+		case 1: // all
+			return action;
+		case 2:	// good
+			if (IS_GOOD(ch)) return action; break;
+		case 3:	// evil
+			if (IS_EVIL(ch)) return action; break;
+		case 4:	// neutral
+			if (IS_NEUTRAL(ch)) return action; break;
+		case 5:
+			if (PLR_FLAGGED(ch, PLR_KILLER)) return action; break;
+		case 6:
+			if (PLR_FLAGGED(ch, PLR_THIEF)) return action; break;
+		case 7:
+			read_pt++;
+			if (GET_CLASS(ch) + 1 == *read_pt) return action;
+			if (GET_REMORT_CLASS(ch) + 1 == *read_pt) return action;
+			break;
+		case 8:
+			if (GET_RACE(ch) + 1 == *(++read_pt)) return action; break;
+		case 9:
+			if (GET_CLAN(ch) + 1 == *(++read_pt)) return action; break;
+		default:
+			slog("SYSERR: Invalid reaction code %x", *read_pt);
+			return UNDECIDED;
+		}
+	}
+	return UNDECIDED;
 }

@@ -71,6 +71,22 @@ extern struct spell_info_type spell_info[];
 void safe_exit(int mode);
 int player_in_room(struct room_data *room);
 
+enum decision_t {
+	UNDECIDED,
+	ALLOW,
+	DENY,
+};
+class Reaction {
+	public:
+		Reaction(void) : _reaction(0) {}
+		~Reaction(void) { if (_reaction) free(_reaction); }
+
+		decision_t react(Creature *ch);
+		bool add_reaction(decision_t action, char *condition);
+		bool add_reaction(char *config);
+	private:
+		char *_reaction;
+};
 
 /* undefine MAX and MIN so that our functions are used instead */
 #ifdef MAX

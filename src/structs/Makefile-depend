@@ -8,7 +8,7 @@ $(OBJ)/creature_list.o : creature_list.cc \
 	$(INCLUDE)/structs.h $(INCLUDE)/creature_list.h 
 	$(CXX) -c $(CXXFLAGS) creature_list.cc     -o $(OBJ)/creature_list.o
 $(OBJ)/obj_data.o : obj_data.cc \
-	$(INCLUDE)/structs.h $(INCLUDE)/utils.h 
+	$(INCLUDE)/structs.h $(INCLUDE)/utils.h $(INCLUDE)/handler.h 
 	$(CXX) -c $(CXXFLAGS) obj_data.cc          -o $(OBJ)/obj_data.o
 $(OBJ)/player_table.o : player_table.cc \
 	$(INCLUDE)/player_table.h $(INCLUDE)/utils.h 

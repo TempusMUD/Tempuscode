@@ -26,9 +26,6 @@
     ( !IS_SET( GUARD_MODE, MODE_NONEUTRAL ) || !IS_NEUTRAL( ch ) ) &&    \
     ( !IS_SET( GUARD_MODE, MODE_NOEVIL )    || !IS_EVIL( ch ) ) )
 
-int parse_char_class(char *arg);
-int parse_race(char *arg);
-
 const char *GUARD_HELP =
 "    gen_guard is a more complete version of the now obsolete guildguard\r\n"
 "special.  Its purpose is to block a certain exit from other creatures given\r\n"
@@ -53,53 +50,19 @@ const char *GUARD_HELP =
 "                allow all\r\n";
 
 
-bool
-guard_match(Creature *ch, char *desc)
-{
-	clan_data *clan;
-	int val;
-
-	if (is_abbrev(desc, "all") || is_abbrev(desc, "any"))
-		return true;
-
-	// Check align
-	if (is_abbrev(desc, "good"))
-		return IS_GOOD(ch);
-	if (is_abbrev(desc, "evil"))
-		return IS_EVIL(ch);
-	if (is_abbrev(desc, "neutral"))
-		return IS_NEUTRAL(ch);
-
-	// Check class
-	val = parse_char_class(desc);
-	if (val != -1)
-		return (GET_CLASS(ch) == val || GET_REMORT_CLASS(ch) == val);
-
-	// Check race
-	val = parse_race(desc);
-	if (val != -1)
-		return (GET_RACE(ch) == val);
-	
-	// Check clan
-	clan = clan_by_name(desc);
-	if (clan)
-		return (GET_CLAN(ch) == clan->number);
-
-	return false;
-}
-
 SPECIAL(gen_guard)
 {
 	struct Creature *guard = (struct Creature *)me;
 	struct obj_data *obj;
 	char *desc = NULL, *c, buf[EXDSCR_LENGTH];
-	int cmd_idx;
+	int cmd_idx, lineno;
+	Reaction reaction;
 
 	if (spec_mode == SPECIAL_HELP) {
 		page_string(ch->desc, GUARD_HELP);
 		return 1;
 	}
-
+	
 	if (spec_mode != SPECIAL_CMD)
 		return 0;
 
@@ -108,15 +71,14 @@ SPECIAL(gen_guard)
 		char *to_room = "$n is blocked by $N";
 		char *str, *line, *param_key;
 		bool attack = false;
-		enum {
-			GUARD_UNDECIDED,
-			GUARD_ALLOW,
-			GUARD_DENY
-		} action = GUARD_UNDECIDED;
 
 		str = GET_MOB_PARAM(guard);
-		line = tmp_getline(&str);
-		while (line) {
+		for (line = tmp_getline(&str), lineno = 1; line;
+				line = tmp_getline(&str), lineno++) {
+
+			if (reaction.add_reaction(line))
+				continue;
+
 			param_key = tmp_getword(&line);
 			if (!strcmp(param_key, "dir")) {
 				cmd_idx = find_command(tmp_getword(&line));
@@ -127,12 +89,6 @@ SPECIAL(gen_guard)
 				}
 				if (cmd_idx != cmd)
 					return false;
-			} else if (!strcmp(param_key, "allow")) {
-			 	if (GUARD_UNDECIDED == action && guard_match(ch, line))
-					action = GUARD_ALLOW;
-			} else if (!strcmp(param_key, "deny")) {
-			 	if (GUARD_UNDECIDED == action && guard_match(ch, line))
-					action = GUARD_DENY;
 			} else if (!strcmp(param_key, "tovict")) {
 				to_vict = line;
 			} else if (!strcmp(param_key, "toroom")) {
@@ -141,14 +97,13 @@ SPECIAL(gen_guard)
 				attack = (is_abbrev(line, "yes") || is_abbrev(line, "on") ||
 					is_abbrev(line, "1") || is_abbrev(line, "true"));
 			} else {
-				mudlog(LVL_IMMORT, NRM, true, "ERR: Invalid directive '%s' in gen_guard [%d]\r\n",
-					param_key, guard->in_room->number);
+				mudlog(LVL_IMMORT, NRM, true, "ERR: Invalid directive in gen_guard specparam [%d]",
+					guard->in_room->number);
 				return false;
 			}
-			line = tmp_getline(&str);
 		}
 
-		if (GUARD_ALLOW == action)
+		if (ALLOW == reaction.react(ch))
 			return false;
 
 		// Set to deny if undecided
