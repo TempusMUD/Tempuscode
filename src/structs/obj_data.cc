@@ -166,6 +166,8 @@ obj_data::loadFromXML(obj_data *container, Creature *victim, room_data* room, xm
 	    action_desc  = shared->proto->action_desc;
 	    ex_description = shared->proto->ex_description;
     }
+    else
+        shared = null_obj_shared;
 
 	for( xmlNodePtr cur = node->xmlChildrenNode; cur; cur = cur->next) {
 		if(xmlMatches(cur->name, "name")) {
