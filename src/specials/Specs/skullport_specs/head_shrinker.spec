@@ -6,7 +6,7 @@
 // Copyright 1998 by John Watson, all rights reserved.
 //
 
-#define PROTOHEAD 92800
+#define PROTOHEAD 23200
 SPECIAL(head_shrinker)
 {
 	struct obj_data *corpse = NULL, *head = NULL;
