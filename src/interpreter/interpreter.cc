@@ -996,6 +996,7 @@ struct command_info cmd_info[] = {
 	{"poofin", POS_DEAD, do_poofset, LVL_AMBASSADOR, SCMD_POOFIN, 0},
 	{"poofout", POS_DEAD, do_poofset, LVL_AMBASSADOR, SCMD_POOFOUT, 0},
 	{"pose", POS_RESTING, do_echo, 1, SCMD_EMOTE, 0},
+	{"pounce", POS_STANDING, do_action, 0, 0, 0},
 	{"pour", POS_STANDING, do_pour, 0, SCMD_POUR, 0},
 	{"pout", POS_RESTING, do_action, 0, 0, 0},
 	{"poupon", POS_RESTING, do_action, 0, 0, 0},
@@ -1578,62 +1579,62 @@ add_alias(struct Creature *ch, struct alias_data *a)
 ACMD(do_alias)
 {
 	char *repl;
-	struct alias_data *a, *temp;
+	struct alias_data *cur_alias, *temp;
+	int alias_cnt = 0;
 
 	if (IS_NPC(ch))
 		return;
 
 	repl = any_one_arg(argument, arg);
 
-	if (!*arg) {				/* no argument specified -- list currently defined aliases */
+	if (!*arg || !*repl) {				/* no argument specified -- list currently defined aliases */
 		strcpy(buf, "Currently defined aliases:\r\n");
-		if ((a = GET_ALIASES(ch)) == NULL)
+		cur_alias = GET_ALIASES(ch);
+		if (!cur_alias) {
 			strcat(buf, " None.\r\n");
-		else {
-			while (a != NULL) {
-				sprintf(buf, "%s%s%-15s%s %s\r\n", buf, CCCYN(ch, C_NRM),
-					a->alias, CCNRM(ch, C_NRM), a->replacement);
-				a = a->next;
+		} else {
+			while (cur_alias != NULL) {
+				if (!*arg || is_abbrev(arg, cur_alias->alias)) {
+					sprintf(buf, "%s%s%-15s%s %s\r\n", buf, CCCYN(ch, C_NRM),
+						cur_alias->alias, CCNRM(ch, C_NRM),
+						cur_alias->replacement);
+					alias_cnt++;
+				}
+				cur_alias = cur_alias->next;
 			}
+			if (!alias_cnt)
+				strcat(buf, " None matching.\r\n");
 		}
 		page_string(ch->desc, buf);
 	} else {					/* otherwise, add or display aliases */
-		if (!*repl) {
-			if ((a = find_alias(GET_ALIASES(ch), arg)) == NULL) {
-				send_to_char(ch, "No such alias.\r\n");
-			} else {
-				send_to_char(ch, "%s%-15s%s %s\r\n", CCCYN(ch, C_NRM), a->alias,
-					CCNRM(ch, C_NRM), a->replacement);
-			}
-		} else {				/* otherwise, either add or redefine an alias */
-			if (!str_cmp(arg, "alias")) {
-				send_to_char(ch, "You can't alias 'alias'.\r\n");
-				return;
-			}
-
-			/* is this an alias we've already defined? */
-			if ((a = find_alias(GET_ALIASES(ch), arg)) != NULL) {
-				REMOVE_FROM_LIST(a, GET_ALIASES(ch), next);
-#ifdef DMALLOC
-				dmalloc_verify(0);
-#endif
-				free_alias(a);
-#ifdef DMALLOC
-				dmalloc_verify(0);
-#endif
-			}
-
-			CREATE(a, struct alias_data, 1);
-			a->alias = str_dup(arg);
-			delete_doubledollar(repl);
-			a->replacement = str_dup(repl);
-			if (strchr(repl, ALIAS_SEP_CHAR) || strchr(repl, ALIAS_VAR_CHAR))
-				a->type = ALIAS_COMPLEX;
-			else
-				a->type = ALIAS_SIMPLE;
-			add_alias(ch, a);
-			send_to_char(ch, "Alias added.\r\n");
+		if (!str_cmp(arg, "alias")) {
+			send_to_char(ch, "You can't alias 'alias'.\r\n");
+			return;
 		}
+
+		/* is this an alias we've already defined? */
+		cur_alias = find_alias(GET_ALIASES(ch), arg);
+		if (cur_alias) {
+			REMOVE_FROM_LIST(cur_alias, GET_ALIASES(ch), next);
+#ifdef DMALLOC
+			dmalloc_verify(0);
+#endif
+			free_alias(cur_alias);
+#ifdef DMALLOC
+			dmalloc_verify(0);
+#endif
+		}
+
+		CREATE(cur_alias, struct alias_data, 1);
+		cur_alias->alias = str_dup(arg);
+		delete_doubledollar(repl);
+		cur_alias->replacement = str_dup(repl);
+		if (strchr(repl, ALIAS_SEP_CHAR) || strchr(repl, ALIAS_VAR_CHAR))
+			cur_alias->type = ALIAS_COMPLEX;
+		else
+			cur_alias->type = ALIAS_SIMPLE;
+		add_alias(ch, cur_alias);
+		send_to_char(ch, "Alias added.\r\n");
 	}
 }
 
