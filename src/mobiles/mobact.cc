@@ -2192,7 +2192,8 @@ mobile_battle_activity(struct char_data *ch)
 	else if ( !number( 0, 1 ) ) {
 	    act( "$n releases a deafening scream!!", FALSE, ch, 0, 0, TO_ROOM );
 	    call_magic( ch, FIGHTING( ch ), 0, SPELL_FEAR, GET_LEVEL( ch ), CAST_BREATH );
-	    WAIT_STATE( FIGHTING( ch ), 3 RL_SEC );
+	    if ( FIGHTING( ch ) )
+		WAIT_STATE( FIGHTING( ch ), 3 RL_SEC );
 	    return;
 	}
     }
