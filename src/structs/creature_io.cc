@@ -201,11 +201,11 @@ Creature::loadObjects()
 {
 
     char *path = get_equipment_file_path( GET_IDNUM(this) );
-	int access = access(path, W_OK);
-	if( access != 0 ) {
-		if( access != ENOENT ) {
+	int axs = access(path, W_OK);
+	if( axs != 0 ) {
+		if( axs != ENOENT ) {
 			slog("SYSERR: Unable to open xml equipment file '%s': %s", 
-				 path, strerror(errno) );
+				 path, strerror(axs) );
 			return -1;
 		} else {
 			return 1; // normal no eq file
