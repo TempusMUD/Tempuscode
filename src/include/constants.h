@@ -79,6 +79,7 @@ extern const char *dirs[];
 extern const char *to_dirs[];
 extern const char *from_dirs[];
 extern const char *search_commands[];
+extern const char *search_cmd_short[];
 extern const char *home_town_abbrevs[];
 extern const char *home_towns[];
 extern const char *level_abbrevs[];

@@ -412,6 +412,23 @@ extern const char *search_commands[] = {
 	"Loadroom",
 	"\n"
 };
+
+extern const char *search_cmd_short[] = {
+	"NONE",
+	"DOOR",
+	"MOBILE",
+	"OBJECT",
+	"REMOVE",
+	"GIVE",
+	"EQUIP",
+	"TRANS",
+	"SPELL",
+	"DAMAGE",
+	"SPAWN",
+	"LDROOM",
+	"\n"
+};
+
 extern const char *home_town_abbrevs[] = {
 	"Modrian",
 	"New Thalos",
