@@ -3277,7 +3277,7 @@ mag_assign_spells(void)
     spello(SKILL_RESCUE, X,  X, X, 3, 12, X, X, X, 8, 12, X, 16, X, X,X,X,X,
 	   0, 0, 0, 0, 0, 0, 0);
 
-    spello(SKILL_SNEAK, X, X, 3, X, X, X, X, X, X, 8, X, X, 7,X,X,X,X,
+    spello(SKILL_SNEAK, X, X, 3, X, X, X, X, X, X, 8, X, X, 7,30,X,X,X,
 	   0, 0, 0, 0, 0, 0, 0);
 
     spello(SKILL_STEAL, X, X, 2, X, X, X, X, X, X, X, X, X, X,X,X,X,X,
