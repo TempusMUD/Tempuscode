@@ -402,13 +402,15 @@ Creature::getLevelBonus(int skill)
 	return getLevelBonus(primary);
 }
 
-//
-//  attempts to set character's position.
-//
-//  return success or failure
-//  @param mode: 1 == from update_pos, 2 == from perform violence (not used for anything really)
-//  @param new_position the enumerated int position to be set to.
-
+/**
+ *  attempts to set character's position.
+ *
+ *  @return success or failure
+ *  @param new_position the enumerated int position to be set to.
+ *  @param mode: 1 == from update_pos;
+ *  			 2 == from perform violence;
+ *  			 NOTE: Previously used for debugging. No longer used.
+**/
 bool
 Creature::setPosition(int new_pos, int mode = 0)
 {
@@ -419,11 +421,12 @@ Creature::setPosition(int new_pos, int mode = 0)
 	// Petrified
 	if (IS_AFFECTED_2(this, AFF2_PETRIFIED)) {
 		// Stoners can stop fighting
-		if (char_specials.getPosition() == POS_FIGHTING
-			&& new_pos == POS_STANDING)
+		if (char_specials.getPosition() == POS_FIGHTING && new_pos == POS_STANDING ) {
+			char_specials.setPosition(new_pos);
 			return true;
-		if (new_pos > char_specials.getPosition())
+		} else if (new_pos > char_specials.getPosition()) {
 			return false;
+		}
 	}
 	if (new_pos == POS_STANDING && FIGHTING(this)) {
 		char_specials.setPosition(POS_FIGHTING);
@@ -433,43 +436,37 @@ Creature::setPosition(int new_pos, int mode = 0)
 	return true;
 }
 
-//
-// Returns current position (standing sitting etc.)
-
+/**
+ * Returns current position 
+ * (POS_STANDING, POS_FIGHTING, POS_RESTING...)
+**/
 int
 Creature::getPosition(void)
 {
 	return char_specials.getPosition();
 }
 
-// Extract a ch completely from the world, and leave his stuff behind
-// Parameters
-//      destroy_objs - if false, will dump all objects into room.  if true,
-//          will destroy all the objects.
-//      save - if true and this is a player, will save the character after
-//          removing everything
-//      con_state - the connection state to change the descriptor to, if one
-//          exists
+/**
+ * Extract a ch completely from the world, and leave his stuff behind
+ * 
+ * @param destroy_objs if false, will dump all objects into room.  
+ * 					   if true,  will destroy all the objects.
+ * @param save if true and IS_PC(this), will save the character after 
+ * 			   removing everything
+ * @param con_state the connection state to change the descriptor to, if one exists
+**/
 void
- Creature::extract(bool destroy_objs, bool save, int con_state)
+Creature::extract(bool destroy_objs, bool save, int con_state)
 {
-	void
-	stop_fighting(struct Creature *ch);
-	struct Creature *
-		k;
-	struct obj_data *
-		obj;
-	struct descriptor_data *
-		t_desc;
-	int
-		idx,
-		freed =
-		0;
-	CreatureList::iterator cit;
 	ACMD(do_return);
+	void stop_fighting(struct Creature *ch);
+	void die_follower(struct Creature *ch);
 
-	void
-	die_follower(struct Creature *ch);
+	struct obj_data* obj;
+	struct descriptor_data* t_desc;
+	int idx;
+	int freed = 0;
+	CreatureList::iterator cit;
 
 	if (!IS_NPC(this) && !desc) {
 		for (t_desc = descriptor_list; t_desc; t_desc = t_desc->next)
@@ -489,10 +486,25 @@ void
 	if (FIGHTING(this))
 		stop_fighting(this);
 
-	// remove hunters
+	// remove hunters and mounters
 	for (cit = characterList.begin(); cit != characterList.end(); ++cit) {
 		if (this == HUNTING((*cit)))
 			HUNTING((*cit)) = NULL;
+		if (this == MOUNTED((*cit))) {
+			MOUNTED((*cit)) = NULL;
+			if ((*cit)->getPosition() == POS_MOUNTED) {
+				if ((*cit)->in_room->sector_type == SECT_FLYING)
+					(*cit)->setPosition(POS_FLYING);
+				else
+					(*cit)->setPosition(POS_STANDING);
+			}
+		}
+	}
+
+
+	if (MOUNTED(this)) {
+		REMOVE_BIT(AFF2_FLAGS(MOUNTED(this)), AFF2_MOUNTED);
+		MOUNTED(this) = NULL;
 	}
 
 	// Make sure they aren't editing a help topic.
@@ -563,25 +575,6 @@ void
 			stop_fighting(*cit);
 	}
 
-	if (MOUNTED(this)) {
-		REMOVE_BIT(AFF2_FLAGS(MOUNTED(this)), AFF2_MOUNTED);
-		MOUNTED(this) = NULL;
-	}
-
-	if (AFF2_FLAGGED(this, AFF2_MOUNTED)) {
-		for (cit = characterList.begin(); cit != characterList.end(); ++cit) {
-			k = *cit;
-			if (this == MOUNTED(k)) {
-				MOUNTED(k) = NULL;
-				if (k->getPosition() == POS_MOUNTED) {
-					if (k->in_room->sector_type == SECT_FLYING)
-						k->setPosition(POS_FLYING);
-					else
-						k->setPosition(POS_STANDING);
-				}
-			}
-		}
-	}
 
 	if (IS_PC(this) && save) {
 		save_char(this, NULL);
