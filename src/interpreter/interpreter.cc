@@ -921,7 +921,7 @@ extern const struct command_info cmd_info[] = {
     { "offer"    , POS_STANDING, do_not_here , 1, 0 },
     { "open"     , POS_SITTING , do_gen_door , 0, SCMD_OPEN },
     { "oecho"    , POS_DEAD    , do_oecho    , LVL_GOD, 0 },
-    { "oset"     , POS_DEAD    , do_oset     , LVL_CREATOR, 0 },
+    { "oset"     , POS_DEAD    , do_oset     , LVL_GREATER , 0 },
     { "overhaul",  POS_STANDING, do_overhaul , 1, 0 },
     { "overdrain", POS_STANDING, do_overdrain , 1, 0 },
     { "objupdate", POS_DEAD,     do_objupdate, LVL_GRIMP, 0 },
