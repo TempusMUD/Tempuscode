@@ -78,8 +78,10 @@ CANNOT_DAMAGE(Creature *ch, Creature *vict, obj_data *weap, int attacktype) {
 		if (IS_WEAPON(attacktype) && weap && IS_OBJ_TYPE(weap, ITEM_WEAPON) &&
 				!IS_OBJ_STAT(weap, ITEM_MAGIC))
 			return true;
-		if (!weap && ch && IS_MONK(ch) && ch->getLevelBonus(SKILL_KATA) >= 50 
-			&& !affected_by_spell(ch, SKILL_KATA) ) {
+		// bare-handed monk attacks can hit magical stuff with kata
+		if (IS_WEAPON(attacktype) && !weap && ch &&
+				(ch->getLevelBonus(SKILL_KATA) < 50 
+				|| !affected_by_spell(ch, SKILL_KATA))) {
 			return true;	
 		}
 	}
