@@ -551,7 +551,7 @@ point_update(void)
     register struct char_data *i, *next_char;
     register struct obj_data *j, *next_thing, *jj, *next_thing2;
     struct room_data *rm;
-    int full = 0, thirst = 0, drunk = 0, z, out_of_zone;
+    int full = 0, thirst = 0, drunk = 0, z, out_of_zone = 0;
 
     /* characters */
     for (i = character_list; i; i = next_char) {
