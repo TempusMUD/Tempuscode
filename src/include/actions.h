@@ -54,7 +54,6 @@ void engage_self_destruct(struct Creature *ch);
 
 #define INTERFACE_TYPE(obj)     (GET_OBJ_VAL(obj, 0))
 #define INTERFACE_MAX(obj)      (GET_OBJ_VAL(obj, 2))
-#define INTERFACE_CUR(obj)      (GET_OBJ_VAL(obj, 3))
 
 #define INTERFACE_NONE          0
 #define INTERFACE_POWER         1
