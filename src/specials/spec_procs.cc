@@ -1626,6 +1626,10 @@ SPECIAL(bank)
 	arg2 = tmp_getword(&argument);
 
 	if (CMD_IS("balance")) {
+        if( GET_LEVEL(ch) >= LVL_AMBASSADOR ) {
+            send_to_char(ch, "Why would you need a bank?\r\n");
+            return 1;
+        }
 		// Balance is always displayed, so we just check for clan here
 		if (*arg1 && !str_cmp(arg1, "clan")) {
 			clan = real_clan(GET_CLAN(ch));
@@ -1637,6 +1641,10 @@ SPECIAL(bank)
 			}
 		}
 	} else if (CMD_IS("deposit")) {
+        if( GET_LEVEL(ch) >= LVL_AMBASSADOR ) {
+            send_to_char(ch, "Why would you need a bank?\r\n");
+            return 1;
+        }
 		if (*arg1 && !str_cmp(arg2, "clan")) {
 			clan = real_clan(GET_CLAN(ch));
 			member = (clan) ? real_clanmember(GET_IDNUM(ch), clan) : NULL;
@@ -1690,7 +1698,10 @@ SPECIAL(bank)
 		ch->saveToXML();
 
 	} else if (CMD_IS("withdraw")) {
-
+        if( GET_LEVEL(ch) >= LVL_AMBASSADOR ) {
+            send_to_char(ch, "Why would you need a bank?\r\n");
+            return 1;
+        }
 		if (*arg1 && !str_cmp(arg2, "clan")) {
 			clan = real_clan(GET_CLAN(ch));
 			member = (clan) ? real_clanmember(GET_IDNUM(ch), clan) : NULL;
