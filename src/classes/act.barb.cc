@@ -59,6 +59,7 @@ ACMD(do_charge)
 	af.modifier = GET_REMORT_GEN(ch);
 	af.aff_index = 3;
 	af.bitvector = AFF3_INST_AFF;
+    af.owner = ch->getIdNum();
 	affect_to_char(ch, &af);
 	WAIT_STATE(ch, 2 * PULSE_VIOLENCE);
 	// Whap the bastard
@@ -158,6 +159,9 @@ ACMD(do_berserk)
 		af.bitvector = AFF2_BERSERK;
 		af2.bitvector = 0;
 		af3.bitvector = 0;
+        af.owner = ch->getIdNum();
+        af2.owner = ch->getIdNum();
+        af3.owner = ch->getIdNum();
 		affect_to_char(ch, &af);
 		affect_to_char(ch, &af2);
 		affect_to_char(ch, &af3);

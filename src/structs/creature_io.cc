@@ -598,12 +598,12 @@ Creature::saveToXML()
                 xmlEncodeSpecialTmp(cur_alias->alias), 
                 xmlEncodeSpecialTmp(cur_alias->replacement) );
 	for (cur_aff = saved_affs;cur_aff; cur_aff = cur_aff->next)
-		fprintf(ouf, "<affect type=\"%d\" duration=\"%d\" modifier=\"%d\" location=\"%d\" level=\"%d\" instant=\"%s\" affbits=\"%lx\" index=\"%d\" />\n",
+		fprintf(ouf, "<affect type=\"%d\" duration=\"%d\" modifier=\"%d\" location=\"%d\" level=\"%d\" instant=\"%s\" affbits=\"%lx\" index=\"%d\" owner=\"%d\"/>\n",
 			cur_aff->type, cur_aff->duration, cur_aff->modifier,
 			cur_aff->location, cur_aff->level,
 			(cur_aff->is_instant) ? "yes":"no", 
 			cur_aff->bitvector,
-			cur_aff->aff_index );
+			cur_aff->aff_index, cur_aff->owner );
 
 	if (GET_LEVEL(ch) < 50) {
 		for (idx = 0;idx < MAX_SKILLS;idx++)
@@ -833,12 +833,14 @@ Creature::loadFromXML( const char *path )
 				free(txt);
         } else if ( xmlMatches(node->name, "affect") ) {
 			affected_type af;
+            memset(&af, 0x0, sizeof(affected_type));
 			af.type = xmlGetIntProp( node, "type" );
 			af.duration = xmlGetIntProp( node, "duration" );
 			af.modifier = xmlGetIntProp( node, "modifier" );
 			af.location = xmlGetIntProp( node, "location" );
 			af.level = xmlGetIntProp( node, "level" );
 			af.aff_index = xmlGetIntProp( node, "index" );
+            af.owner = xmlGetIntProp(node, "owner");
 			af.next = NULL;
 			char* instant = xmlGetProp( node, "instant" );
 			if( instant != NULL && strcmp( instant, "yes" ) == 0 ) {

@@ -1032,8 +1032,9 @@ skill_message(int dam, struct Creature *ch, struct Creature *vict,
 				if (vict->getPosition() == POS_DEAD) {
 					if (ch) {
 						act(msg->die_msg.room_msg, FALSE, ch, weap, vict,
-							TO_NOTVICT);
-						if (ch != vict) {
+							TO_NOTVICT | TO_VICT_RM);
+						if (ch != vict && 
+                            find_distance(ch->in_room, vict->in_room) < 3) {
 							send_to_char(ch, CCYEL(ch, C_NRM));
 							act(msg->die_msg.attacker_msg, FALSE, ch, weap,
 								vict, TO_CHAR);
@@ -1050,8 +1051,8 @@ skill_message(int dam, struct Creature *ch, struct Creature *vict,
 				} else {
 					if (ch) {
 						act(msg->hit_msg.room_msg, FALSE, ch, weap, vict,
-							TO_NOTVICT);
-						if (ch != vict) {
+							TO_NOTVICT | TO_VICT_RM);
+						if (ch != vict && ch->in_room == vict->in_room) {
 							send_to_char(ch, CCYEL(ch, C_NRM));
 							act(msg->hit_msg.attacker_msg, FALSE, ch, weap,
 								vict, TO_CHAR);
@@ -1067,13 +1068,15 @@ skill_message(int dam, struct Creature *ch, struct Creature *vict,
 				}
 			} else if (ch != vict) {	/* Dam == 0 */
 				if (ch && !PRF_FLAGGED(ch, PRF_GAGMISS)) {
-					send_to_char(ch, CCYEL(ch, C_NRM));
-					act(msg->miss_msg.attacker_msg, FALSE, ch, weap, vict,
-						TO_CHAR);
-					send_to_char(ch, CCNRM(ch, C_NRM));
+                    if (ch->in_room == vict->in_room) {
+					    send_to_char(ch, CCYEL(ch, C_NRM));
+					    act(msg->miss_msg.attacker_msg, FALSE, ch, weap, vict,
+						    TO_CHAR);
+					    send_to_char(ch, CCNRM(ch, C_NRM));
+                    }
 
 					act(msg->miss_msg.room_msg, FALSE, ch, weap, vict,
-						TO_NOTVICT);
+						TO_NOTVICT | TO_VICT_RM);
 				}
 
 				if (!PRF_FLAGGED(vict, PRF_GAGMISS)) {

@@ -382,7 +382,7 @@ ACMD(do_sneak)
 	af.bitvector = AFF_SNEAK;
 	af.aff_index = 0;
 	af.level = GET_LEVEL(ch) + GET_REMORT_GEN(ch);
-
+    af.owner = ch->getIdNum();
 	affect_to_char(ch, &af);
 
 }
@@ -486,6 +486,7 @@ ACMD(do_disguise)
 	af.level = GET_LEVEL(ch) + GET_REMORT_GEN(ch);
 	af.bitvector = 0;
 	af.aff_index = 0;
+    af.owner = ch->getIdNum();
 
 	act("$n disguises $mself as $N.", TRUE, ch, 0, vict, TO_ROOM);
 	affect_to_char(ch, &af);

@@ -758,7 +758,7 @@ affect_to_char(struct Creature *ch, struct affected_type *af)
  * reaches zero). Pointer *af must never be NIL!  Frees mem and calls
  * affect_location_apply
  */
-int holytouch_after_effect(Creature * vict, int level);
+int holytouch_after_effect(long toucher, Creature * vict, int level);
 int apply_soil_to_char(struct Creature *ch, struct obj_data *obj, int type,
 	int pos);
 
@@ -769,6 +769,7 @@ affect_remove(struct Creature *ch, struct affected_type *af)
 	int type = -1;
 	int level = 0;
 	int duration = 0;
+    long owner = 0;
 	short is_instant = 0;
 
 	if ((is_instant = af->is_instant)) {
@@ -776,6 +777,8 @@ affect_remove(struct Creature *ch, struct affected_type *af)
 		level = af->level;
 		duration = af->duration;
 	}
+
+    owner = af->owner;
 
 	if (!ch->affected) {
 		errlog("!ch->affected in affect_remove()");
@@ -801,7 +804,7 @@ affect_remove(struct Creature *ch, struct affected_type *af)
 	if (is_instant && duration == 0 && ch->in_room) {
 		switch (type) {
 		case SKILL_HOLY_TOUCH:
-			return holytouch_after_effect(ch, level);
+			return holytouch_after_effect(owner, ch, level);
 			break;
 		}
 	}

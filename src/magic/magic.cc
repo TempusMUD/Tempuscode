@@ -916,6 +916,7 @@ mag_damage(int level, struct Creature *ch, struct Creature *victim,
 			af.type = SPELL_PSYCHIC_SURGE;
 			af.duration = 1;
 			af.level = level;
+            af.owner = ch->getIdNum();
 			affect_to_char(victim, &af);
 		}
 	} else if (spellnum == SPELL_EGO_WHIP
@@ -967,9 +968,6 @@ mag_affects(int level, struct Creature *ch, struct Creature *victim,
 	char *to_vict = NULL;
 	char *to_room = NULL;
 
-	bzero(aff_array, sizeof(aff_array));
-
-	af.is_instant = af2.is_instant = 0;
 	if (victim == NULL || ch == NULL)
 		return;
 
@@ -991,13 +989,24 @@ mag_affects(int level, struct Creature *ch, struct Creature *victim,
 	is_psychic = (IS_PSYCHIC(ch));
 	is_physic = (IS_PHYSIC(ch));
 
+    // This is dumb.  One day when one of us
+    // has some time we should completely remove
+    // af and af2 from this function and convert
+    // everything to aff_array
+    memset(&af, 0x0, sizeof(affected_type));
+    memset(&af2, 0x0, sizeof(affected_type));
 	af.type = af2.type = spellnum;
-	af.bitvector = af.duration = af.modifier = af.aff_index =
-		af2.bitvector = af2.duration = af2.modifier = af2.aff_index = 0;
-
 	af.location = af2.location = APPLY_NONE;
 	af.level = af2.level = level;
+    af.owner = af2.owner = ch->getIdNum();
 
+    for (int i = 0; i < 8; i++) {
+        memset(&aff_array[i], 0x0, sizeof(affected_type));
+        aff_array[i].type = spellnum;
+        aff_array[i].location = APPLY_NONE;
+        aff_array[i].level = level;
+        aff_array[i].owner = ch->getIdNum();
+    }
 	switch (spellnum) {
 
 	case SPELL_CHILL_TOUCH:

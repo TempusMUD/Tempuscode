@@ -901,6 +901,7 @@ ASPELL(spell_charm)
 		return;
 	}
 
+    af.owner = ch->getIdNum();
 	if (victim == ch)
 		send_to_char(ch, "You like yourself even better!\r\n");
 	else if (!IS_NPC(victim) && !(victim->desc))
@@ -1010,6 +1011,7 @@ ASPELL(spell_charm_animal)
 	if (victim == NULL || ch == NULL)
 		return;
 
+    af.owner = ch->getIdNum();
 	if (victim == ch)
 		send_to_char(ch, "You like yourself even better!\r\n");
 	else if (IS_AFFECTED(victim, AFF_SANCTUARY))
@@ -1863,6 +1865,7 @@ ASPELL(spell_conjure_elemental)
 		af.location = 0;
 		af.bitvector = AFF_CHARM;
 		af.level = level;
+        af.owner = ch->getIdNum();
 		affect_to_char(elemental, &af);
 
 		gain_skill_prof(ch, SPELL_CONJURE_ELEMENTAL);
@@ -1919,9 +1922,9 @@ ASPELL(spell_death_knell)
 	struct affected_type af, af2, af3;
 
 	// Zero out structures
-	bzero(&af, sizeof(af));
-	bzero(&af, sizeof(af2));
-	bzero(&af, sizeof(af3));
+    memset(&af, 0x0, sizeof(affected_type));
+    memset(&af2, 0x0, sizeof(affected_type));
+    memset(&af3, 0x0, sizeof(affected_type));
 
 	if (GET_HIT(victim) > -1) {
 		act("$N is way too healthy for that!", TRUE, ch, NULL, victim,
@@ -1938,14 +1941,6 @@ ASPELL(spell_death_knell)
 	af2.level = GET_LEVEL(ch);
 	af3.level = GET_LEVEL(ch);
 
-	af.bitvector = 0;
-	af2.bitvector = 0;
-	af3.bitvector = 0;
-
-	af.aff_index = 0;
-	af2.aff_index = 0;
-	af3.aff_index = 0;
-
 	// Set the duration
 	af.duration = 4 + (ch->getLevelBonus(SPELL_DEATH_KNELL) / 6);
 	af2.duration = 4 + (ch->getLevelBonus(SPELL_DEATH_KNELL) / 6);
@@ -1955,6 +1950,11 @@ ASPELL(spell_death_knell)
 	af.location = APPLY_STR;
 	af2.location = APPLY_HIT;
 	af3.location = APPLY_DAMROLL;
+
+    // Affect owner
+    af.owner = ch->getIdNum();
+    af2.owner = ch->getIdNum();
+    af3.owner = ch->getIdNum();
 
 	// Modifiers
 	af.modifier = 2;
@@ -2121,6 +2121,8 @@ ASPELL(spell_sword)
 	af.location = 0;
 	af.bitvector = AFF_CHARM;
 	af.level = level;
+    af.owner = ch->getIdNum();
+
 	affect_to_char(sword, &af);
 	SET_BIT(MOB_FLAGS(sword), MOB_PET);
 	IS_CARRYING_N(sword) = CAN_CARRY_N(sword);
@@ -2610,6 +2612,7 @@ ASPELL(spell_summon_legion)
 	af.location = 0;
 	af.bitvector = AFF_CHARM;
 	af.level = level;
+    af.owner = ch->getIdNum();
 	affect_to_char(devil, &af);
 
 	return;
@@ -2827,6 +2830,7 @@ ASPELL(spell_animate_dead)
 	af.location = 0;
 	af.bitvector = AFF_CHARM;
 	af.level = level;
+    af.owner = ch->getIdNum();
 	affect_to_char(zombie, &af);
 
 	gain_skill_prof(ch, SPELL_ANIMATE_DEAD);
@@ -3040,6 +3044,7 @@ ASPELL(spell_control_undead)
 		af.location = 0;
 		af.bitvector = AFF_CHARM;
 		af.level = level;
+        af.owner = ch->getIdNum();
 		affect_to_char(victim, &af);
 
 		act("$n has become your unholy master.", FALSE, ch, 0, victim,
@@ -3097,10 +3102,12 @@ ASPELL(spell_sun_ray)
 					af.duration = 2;
 					af.bitvector = AFF_BLIND;
                     af.level = af2.level = level;
+                    af.owner = ch->getIdNum();
 					af2.location = APPLY_AC;
 					af2.modifier = 40;
 					af2.duration = 2;
 					af2.bitvector = AFF_BLIND;
+                    af2.owner = ch->getIdNum();
 					affect_join(*it, &af, FALSE, FALSE, FALSE, FALSE);
 					if (af2.bitvector || af2.location)
 						affect_join((*it), &af2, FALSE, FALSE, FALSE, FALSE);
@@ -3451,9 +3458,11 @@ ASPELL(spell_bless)
 		af.location = APPLY_HITROLL;
 		af.modifier = 2 + (level >> 4);
 		af.duration = 6;
+        af.owner = ch->getIdNum();
 		af2.type = SPELL_BLESS;
 		af2.location = APPLY_SAVING_SPELL;
 		af2.modifier = -(1 + (level >> 5));
+        af2.owner = ch->getIdNum();
 		af2.duration = 6;
 		affect_join(victim, &af, true, false, false, false);
 		affect_join(victim, &af2, true, false, false, false);
@@ -3544,9 +3553,11 @@ ASPELL(spell_damn)
 		af.location = APPLY_HITROLL;
 		af.modifier = -(2 + (level >> 4));
 		af.duration = 6;
+        af.owner = ch->getIdNum();
 		af2.type = SPELL_DAMN;
 		af2.location = APPLY_SAVING_SPELL;
 		af2.modifier = +(1 + (level >> 5));
+        af2.owner = ch->getIdNum();
 		af2.duration = 6;
 		affect_join(victim, &af, true, false, false, false);
 		affect_join(victim, &af2, true, false, false, false);
@@ -3676,6 +3687,7 @@ perform_call_familiar(Creature *ch, int level, int type)
 	af.location = 0;
 	af.bitvector = AFF_CHARM;
 	af.level = level;
+    af.owner = ch->getIdNum();
 	affect_to_char(pet, &af);
 
 	return true;

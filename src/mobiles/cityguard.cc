@@ -387,6 +387,7 @@ knock_unconscious(Creature *ch, Creature *target)
 	af.aff_index = 0;
 	af.location = APPLY_NONE;
 	af.level = 49;
+    af.owner = ch->getIdNum();
 
 	target->setPosition(POS_SLEEPING);
 	WAIT_STATE(target, 4 RL_SEC);

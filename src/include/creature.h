@@ -1164,6 +1164,7 @@ struct affected_type {
 	ubyte is_instant;
 	long bitvector;				/* Tells which bits to set (AFF_XXX)       */
 	int aff_index;
+    long owner;             /* Who placed this affect on this Creature */
 	struct affected_type *next;
 };
 
@@ -1197,6 +1198,12 @@ struct Creature {
 	// Reset creature to initial state
 	void clear();    
 
+    long getIdNum() {
+        if (char_specials.saved.act & MOB_ISNPC)
+            return mob_specials.mob_idnum;
+
+        return char_specials.saved.idnum;
+    }
 	// carried weight
 	int getCarriedWeight(void) {
 		return char_specials.getCarriedWeight();

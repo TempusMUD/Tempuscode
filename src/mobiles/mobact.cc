@@ -110,7 +110,7 @@ void
 burn_update(void)
 {
 
-	struct Creature *ch;
+	struct Creature *ch, *damager = NULL;
 	struct obj_data *obj = NULL;
 	struct room_data *fall_to = NULL;
 	struct special_search_data *srch = NULL;
@@ -118,6 +118,7 @@ burn_update(void)
 	int found = 0;
 	int idx = 0;
 	struct affected_type *af;
+
 	CreatureList::iterator cit = characterList.begin();
 	for (; cit != characterList.end(); ++cit) {
 		ch = *cit;
@@ -151,7 +152,10 @@ burn_update(void)
 			act("$n is slammed to the ground by the inexhorable force of gravity!\r\n", TRUE, ch, 0, 0, TO_ROOM);
 			ch->setPosition(POS_RESTING);
 			WAIT_STATE(ch, 1);
-			if (damage(NULL, ch, dice(6, 5), TYPE_FALLING, WEAR_RANDOM))
+            damager = NULL;
+            if ((af = affected_by_spell(ch, AFF3_GRAVITY_WELL)))
+                damager = get_char_in_world_by_idnum(af->owner);
+			if (damage(damager, ch, dice(6, 5), TYPE_FALLING, WEAR_RANDOM))
 				continue;
 		}
 
@@ -302,6 +306,7 @@ burn_update(void)
 				}
 			}
 
+
 			if (!obj_found || !repaired) {
 				if (!obj_found)
 					send_to_char(ch, "NOTICE: Implants not found.  Nanite reconstruction halted.\r\n");
@@ -347,7 +352,10 @@ burn_update(void)
 		}
 		// character is poisoned (3)
 		if (HAS_POISON_3(ch) && GET_LEVEL(ch) < LVL_AMBASSADOR) {
-			if (damage(ch, ch, dice(4, 3) + (affected_by_spell(ch,
+            damager = NULL;
+            if ((af = affected_by_spell(ch, SPELL_POISON)))
+                damager = get_char_in_world_by_idnum(af->owner);
+			if (damage(damager, ch, dice(4, 3) + (affected_by_spell(ch,
 							SPELL_METABOLISM) ? dice(4, 11) : 0), SPELL_POISON,
 					-1))
 				continue;
@@ -356,22 +364,30 @@ burn_update(void)
 		if (IS_AFFECTED_3(ch, AFF3_GRAVITY_WELL)
 			&& !random_fractional_10()
 			&& !NOGRAV_ZONE(ch->in_room->zone)) {
-			af = affected_by_spell(ch, SPELL_GRAVITY_WELL);
-			if (!af || mag_savingthrow(ch, af->level, SAVING_PHY))
+            damager = NULL;
+            if ((af = affected_by_spell(ch, SPELL_GRAVITY_WELL)))
+                damager = get_char_in_world_by_idnum(af->owner);
+			if (mag_savingthrow(ch, af->level, SAVING_PHY))
 				continue;
-			if (damage(ch, ch, number(5, af->level / 5), TYPE_PRESSURE, -1))
+			if (damage(damager, ch, number(5, af->level / 5), TYPE_PRESSURE, -1))
 				continue;
 		}
 		// psychic crush
 		if (AFF3_FLAGGED(ch, AFF3_PSYCHIC_CRUSH)) {
-			if (damage(ch, ch, mag_savingthrow(ch, 50,
+            damager = NULL;
+            if ((af = affected_by_spell(ch, SPELL_PSYCHIC_CRUSH)))
+                damager = get_char_in_world_by_idnum(af->owner);
+			if (damage(damager, ch, mag_savingthrow(ch, 50,
 						SAVING_PSI) ? 0 : dice(4, 20), SPELL_PSYCHIC_CRUSH,
 					WEAR_HEAD))
 				continue;
 		}
 		// character has a stigmata
 		if ((af = affected_by_spell(ch, SPELL_STIGMATA))) {
-			if (damage(ch, ch, mag_savingthrow(ch, af->level,
+            damager = NULL;
+            if ((af = affected_by_spell(ch, SPELL_STIGMATA)))
+                damager = get_char_in_world_by_idnum(af->owner);
+			if (damage(damager, ch, mag_savingthrow(ch, af->level,
 						SAVING_SPELL) ? 0 : dice(3, af->level), SPELL_STIGMATA,
 					WEAR_FACE))
 				continue;
@@ -381,11 +397,14 @@ burn_update(void)
 		if ((af = affected_by_spell(ch, SPELL_ENTROPY_FIELD))
 				&& !random_fractional_10()
 				&& !mag_savingthrow(ch, af->level, SAVING_PHY)) {
+            damager = NULL;
+            if ((af = affected_by_spell(ch, SPELL_ENTROPY_FIELD)))
+                damager = get_char_in_world_by_idnum(af->owner);
 			GET_MANA(ch) = MAX(0, GET_MANA(ch) - 
 							   (13 - random_number_zero_low(GET_WIS(ch) >> 2)));
 			GET_MOVE(ch) = MAX(0, GET_MOVE(ch) - 
 							   (13 - random_number_zero_low(GET_STR(ch) >> 2)));
-			if (damage(ch, ch, (13 - random_number_zero_low(GET_CON(ch) >> 2)),
+			if (damage(damager, ch, (13 - random_number_zero_low(GET_CON(ch) >> 2)),
 					SPELL_ENTROPY_FIELD, -1))
 				continue;
 
@@ -393,7 +412,10 @@ burn_update(void)
 
 		// character has acidity
 		if (AFF3_FLAGGED(ch, AFF3_ACIDITY)) {
-			if (damage(ch, ch, mag_savingthrow(ch, 50,
+            damager = NULL;
+            if ((af = affected_by_spell(ch, SPELL_ACIDITY)))
+                damager = get_char_in_world_by_idnum(af->owner);
+			if (damage(damager, ch, mag_savingthrow(ch, 50,
 						SAVING_PHY) ? 0 : dice(2, 10), TYPE_ACID_BURN, -1))
 				continue;
 		}
@@ -459,15 +481,19 @@ burn_update(void)
 			// Sect types that don't have oxygen
 			//
 
-			if (				// SECT_TYPE( ch->in_room ) == SECT_ELEMENTAL_EARTH || 
-				SECT_TYPE(ch->in_room) == SECT_FREESPACE) {
+			else if (SECT_TYPE(ch->in_room) == SECT_FREESPACE) {
 				send_to_char(ch, 
 					"The flames on your body die in the absence of oxygen.\r\n");
 				act("The flames on $n die in the absence of oxygen.", FALSE,
 					ch, 0, 0, TO_ROOM);
 				REMOVE_BIT(AFF2_FLAGS(ch), AFF2_ABLAZE);
-			} else if (!random_fractional_3() && !CHAR_WITHSTANDS_FIRE(ch)) {
-				if (damage(ch, ch,
+			} 
+            
+            else if (!random_fractional_3() && !CHAR_WITHSTANDS_FIRE(ch)) {
+                damager = NULL;
+                if ((af = affected_by_spell(ch, AFF2_ABLAZE)))
+                    damager = get_char_in_world_by_idnum(af->owner);
+				if (damage(damager, ch,
 						CHAR_WITHSTANDS_FIRE(ch) ? 0 :
 						ROOM_FLAGGED(ch->in_room, ROOM_FLAME_FILLED) ? dice(8,
 							7) : dice(5, 5), TYPE_ABLAZE, -1))
@@ -1431,7 +1457,7 @@ void
 mobile_activity(void)
 {
 
-	struct Creature *ch, *vict = NULL;
+	struct Creature *ch, *vict = NULL, *damager = NULL;
 	struct obj_data *obj, *best_obj, *i;
 	struct affected_type *af_ptr = NULL;
 	CreatureList::iterator cit, it;
@@ -1480,7 +1506,10 @@ mobile_activity(void)
 		//
 
 		if (HAS_POISON_2(ch) && GET_LEVEL(ch) < LVL_AMBASSADOR && !(count % 2)) {
-			if (damage(ch, ch, dice(4, 3) +
+            affected_type *af;
+            if ((af = affected_by_spell(ch, AFF3_POISON_2)))
+                damager = get_char_in_world_by_idnum(af->owner);
+			if (damage(damager, ch, dice(4, 3) +
 					(affected_by_spell(ch, SPELL_METABOLISM) ? dice(4,
 							11) : 0), SPELL_POISON, -1))
 				continue;

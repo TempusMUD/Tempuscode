@@ -191,6 +191,7 @@ SPECIAL(drink_me_bottle)
 	af.modifier = -(GET_HEIGHT(ch) - 10);
 	af.aff_index = 0;
 	af.bitvector = 0;
+    af.owner = ch->getIdNum();
 
 	affect_to_char(ch, &af);
 

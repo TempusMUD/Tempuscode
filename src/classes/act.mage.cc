@@ -88,17 +88,22 @@ ACMD(do_empower)
 	af.is_instant = af2.is_instant = af3.is_instant = false;
 
 	af.type = SKILL_EMPOWER;
-	af2.type = SKILL_EMPOWER;
-	af3.type = SKILL_EMPOWER;
 	af.duration = (GET_INT(ch) >> 1);
 	af.location = APPLY_MANA;
 	af.modifier = (val1 + val2 - 5);
+    af.owner = ch->getIdNum();
+
+	af2.type = SKILL_EMPOWER;
 	af2.duration = (GET_INT(ch) >> 1);
 	af2.location = APPLY_HIT;
 	af2.modifier = -(val1);
+    af2.owner = ch->getIdNum();
+    
+	af3.type = SKILL_EMPOWER;
 	af3.duration = (GET_INT(ch) >> 1);
 	af3.location = APPLY_MOVE;
 	af3.modifier = -(val2);
+    af3.owner = ch->getIdNum();
 
 	struct affected_type *cur_aff;
 	int aff_power;

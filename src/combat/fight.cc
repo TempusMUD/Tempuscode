@@ -515,6 +515,9 @@ gain_kill_exp(struct Creature *ch, struct Creature *victim)
 		return;
 	}
 
+    if (find_distance(ch->in_room, victim->in_room) > 2)
+        return;
+
 	perform_gain_kill_exp(ch, victim, 1);
 }
 
@@ -948,10 +951,10 @@ damage(struct Creature *ch, struct Creature *victim, int dam,
 
 	if (attacktype == TYPE_ACID_BURN && location == -1) {
 		for (i = 0; i < NUM_WEARS; i++) {
-			if (GET_EQ(ch, i))
-				damage_eq(ch, GET_EQ(ch, i), (dam >> 1), attacktype);
-			if (GET_IMPLANT(ch, i))
-				damage_eq(ch, GET_IMPLANT(ch, i), (dam >> 1), attacktype);
+			if (GET_EQ(victim, i))
+				damage_eq(ch, GET_EQ(victim, i), (dam >> 1), attacktype);
+			if (GET_IMPLANT(victim, i))
+				damage_eq(ch, GET_IMPLANT(victim, i), (dam >> 1), attacktype);
 		}
 	}
 
@@ -1240,6 +1243,7 @@ damage(struct Creature *ch, struct Creature *victim, int dam,
                             af.location = APPLY_STR;
                             af.duration = MAX(1, level_bonus / 10);
                             af.modifier = -(number(1, level_bonus / 20));
+                            af.owner = ch->getIdNum();
                             
                             if (level_bonus > (85 + number(0, 30))) {
                                 af.bitvector = AFF3_POISON_3;
@@ -1624,7 +1628,10 @@ damage(struct Creature *ch, struct Creature *victim, int dam,
 
 		exp = ch->getPenalizedExperience( exp, victim );
 
-		gain_exp(ch, exp);
+        // We shall not give exp for damage delt unless they're in
+        // the same room
+        if (ch->in_room == victim->in_room)
+		    gain_exp(ch, exp);
 	}
 	// check for killer flags and remove sleep/etc...
 	if (ch && ch != victim) {
@@ -1714,7 +1721,7 @@ damage(struct Creature *ch, struct Creature *victim, int dam,
 		if (victim->getPosition() == POS_DEAD || dam == 0) {
 			if (!mshield_hit && !skill_message(dam, ch, victim, attacktype))
 				dam_message(dam, ch, victim, attacktype, location);
-		} else if (!mshield_hit){
+		} else if (!mshield_hit) {
 			dam_message(dam, ch, victim, attacktype, location);
 		}
 

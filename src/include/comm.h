@@ -48,6 +48,7 @@ void act(const char *str, int hide_invisible, struct Creature *ch,
 #define TO_NOTVICT	3
 #define TO_CHAR		4
 #define ACT_HIDECAR     8
+#define TO_VICT_RM  64 
 #define TO_SLEEP	128			/* to char, even if sleeping */
 
 #define SHUTDOWN_NONE   0

@@ -56,6 +56,7 @@ perform_monk_meditate(struct Creature *ch)
 			af.aff_index = 2;
 			af.duration = af.level / 5;
 			af.modifier = 0;
+            af.owner = ch->getIdNum();
 			affect_to_char(ch, &af);
 			if (GET_LEVEL(ch) < LVL_AMBASSADOR)
 				WAIT_STATE(ch, PULSE_VIOLENCE * 3);
@@ -89,6 +90,7 @@ perform_monk_meditate(struct Creature *ch)
 			}
 			af.duration = af.level / 5;
 			af.modifier = 0;
+            af.owner = ch->getIdNum();
 			affect_to_char(ch, &af);
 			if (GET_LEVEL(ch) < LVL_AMBASSADOR)
 				WAIT_STATE(ch, PULSE_VIOLENCE * 2);
@@ -116,6 +118,7 @@ perform_monk_meditate(struct Creature *ch)
 			af.aff_index = 0;
 			af.duration = af.level / 4;
 			af.modifier = 0;
+            af.owner = ch->getIdNum();
 			// make them able to fly at high power
 			if (GET_CLASS(ch) == CLASS_MONK
 					&& ch->getLevelBonus(ZEN_MOTION) >= 50) {
@@ -152,6 +155,7 @@ perform_monk_meditate(struct Creature *ch)
 			af.aff_index = 0;
 			af.duration = af.level / 4;
 			af.modifier = 0;
+            af.owner = ch->getIdNum();
 			affect_to_char(ch, &af);
 			WAIT_STATE(ch, PULSE_VIOLENCE * 2);
 			gain_skill_prof(ch, ZEN_TRANSLOCATION);
@@ -180,6 +184,7 @@ perform_monk_meditate(struct Creature *ch)
 			af.duration = af.level / 5;
 			af.location = APPLY_SPEED;
 			af.modifier = af.level / 4;
+            af.owner = ch->getIdNum();
 			affect_to_char(ch, &af);
 			WAIT_STATE(ch, PULSE_VIOLENCE * 2);
 			gain_skill_prof(ch, ZEN_CELERITY);
@@ -634,6 +639,7 @@ ACMD(do_pinch)
 	af.duration = 0;
 	af.bitvector = 0;
 	af.level = GET_LEVEL(ch) + GET_REMORT_GEN(ch);
+    af.owner = ch->getIdNum();
 
 	switch (which_pinch) {
 	case SKILL_PINCH_ALPHA:
@@ -923,6 +929,7 @@ ACMD(do_kata)
 
 		af.location = APPLY_DAMROLL;
 		af.modifier = 1 + (GET_LEVEL(ch) / 12) + (GET_REMORT_GEN(ch) * 2) / 4;
+        af.owner = ch->getIdNum();
 		affect_to_char(ch, &af);
 	}
 }

@@ -25,7 +25,7 @@
 #include "creature.h"
 #include "fight.h"
 
-int holytouch_after_effect(Creature * vict);
+int holytouch_after_effect(long owner, Creature * vict, int level);
 void healing_holytouch(Creature * ch, Creature * vict);
 void malovent_holy_touch(Creature * ch, Creature * vict);
 ACMD(do_holytouch)
@@ -74,12 +74,13 @@ ACMD(do_holytouch)
         - eyeballs appear on death
 */
 int
-holytouch_after_effect(Creature * vict, int level)
+holytouch_after_effect(long owner, Creature * vict, int level)
 {
 	affected_type af;
 	af.location = APPLY_NONE;
 	af.is_instant = 0;
 	af.next = NULL;
+    af.owner = owner;
 	int dam = level * 2;
 
 	send_to_char(vict, "Visions of pure evil sear through your mind!\r\n");
@@ -121,7 +122,7 @@ malovent_holy_touch(Creature * ch, Creature * vict)
 	af.type = af.duration = af.modifier = af.location = 0;
 	af.level = af.is_instant = af.aff_index = 0;
 	af.next = NULL;
-
+    af.owner = 0;
 
 	if (GET_LEVEL(vict) > LVL_AMBASSADOR) {
 		send_to_char(ch, "Aren't they evil enough already?\r\n");
@@ -174,6 +175,7 @@ malovent_holy_touch(Creature * ch, Creature * vict)
 	af.duration = number(1, 3);
 	af.aff_index = 3;
 	af.bitvector = AFF3_INST_AFF;
+    af.owner = ch->getIdNum();
 
 	if (IS_SOULLESS(ch))
 		af.level += 20;

@@ -284,6 +284,7 @@ calc_skill_prob(struct Creature *ch, struct Creature *vict, int skillnum,
 			af->duration = 1 + (GET_LEVEL(ch) > 40);
 			af->modifier = -10;
 			af->location = APPLY_HITROLL;
+            af->owner = ch->getIdNum();
 			af->bitvector = AFF_BLIND;
 		}
 		break;
@@ -913,7 +914,7 @@ perform_offensive_skill(Creature *ch, Creature *vict, int skill, int *return_fla
 	}
 
 	af.type = 0;
-
+    af.owner = ch->getIdNum();
 	//
 	// calc_skill_prob returns -1 if you cannot perform that skill,
 	// or if somethine exceptional happened and we need to return
@@ -2077,6 +2078,7 @@ ACMD(do_sleeper)
 			af.aff_index = 0;
 			af.location = APPLY_NONE;
 			af.level = GET_LEVEL(ch);
+            af.owner = ch->getIdNum();
 			affect_join(vict, &af, false, false, false, false);
 
 			if (IS_SET(retval, DAM_ATTACKER_KILLED))
@@ -2932,6 +2934,7 @@ ACMD(do_intimidate)
 		af.modifier = -5;
 		af.location = APPLY_HITROLL;
 		af.bitvector = 0;
+        af.owner = ch->getIdNum();
 		affect_to_char(vict, &af);
 		return;
 	}
@@ -2969,6 +2972,7 @@ ACMD(do_intimidate)
 			af.duration = 2 + 2 * (GET_LEVEL(ch) > 40);
 			af.modifier = -5;
 			af.location = APPLY_HITROLL;
+            af.owner = ch->getIdNum();
 			af.bitvector = 0;
 			affect_to_char(vict, &af);
 
@@ -3002,6 +3006,7 @@ ACMD(do_intimidate)
 			af.modifier = -5;
 			af.location = APPLY_HITROLL;
 			af.bitvector = 0;
+            af.owner = ch->getIdNum();
 			affect_to_char(vict, &af);
 
 		} else {

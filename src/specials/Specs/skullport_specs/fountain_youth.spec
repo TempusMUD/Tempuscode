@@ -44,6 +44,7 @@ SPECIAL(fountain_youth)
 	af.bitvector = 0;
 	af.level = 1;
 	af.is_instant = FALSE;
+    af.owner = ch->getIdNum();
 	affect_to_char(ch, &af);
 
 	af1.type = SPELL_YOUTH;
@@ -52,8 +53,9 @@ SPECIAL(fountain_youth)
 	af1.modifier = 3;
 	af1.aff_index = 0;
 	af1.bitvector = 0;
-	af.level = 1;
-	af.is_instant = FALSE;
+	af1.level = 1;
+	af1.is_instant = FALSE;
+    af1.owner = ch->getIdNum();
 	affect_to_char(ch, &af1);
 
 	af2.type = SPELL_YOUTH;
@@ -62,8 +64,9 @@ SPECIAL(fountain_youth)
 	af2.modifier = 2;
 	af2.aff_index = 0;
 	af2.bitvector = 0;
-	af.level = 1;
-	af.is_instant = FALSE;
+	af2.level = 1;
+	af2.is_instant = FALSE;
+    af2.owner = ch->getIdNum();
 	affect_to_char(ch, &af2);
 
 	af3.type = SPELL_YOUTH;
@@ -72,8 +75,9 @@ SPECIAL(fountain_youth)
 	af3.modifier = -4;
 	af3.aff_index = 0;
 	af3.bitvector = 0;
-	af.level = 1;
-	af.is_instant = FALSE;
+	af3.level = 1;
+	af3.is_instant = FALSE;
+    af3.owner = ch->getIdNum();
 	affect_to_char(ch, &af3);
 
 	act("As you drink from the pool, your reflection becomes visibly younger!",

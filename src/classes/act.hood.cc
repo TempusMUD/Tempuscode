@@ -181,6 +181,7 @@ ACMD(do_hamstring)
 			af.location = APPLY_DEX;
 			af.modifier = 0 - (level / 2 + dice(7, 7) + dice(gen, 5))
 				* (CHECK_SKILL(ch, SKILL_HAMSTRING)) / 1000;
+            af.owner = ch->getIdNum();
 			affect_to_char(vict, &af);
 			WAIT_STATE(vict, 3 RL_SEC);
 			vict->setPosition(POS_RESTING);

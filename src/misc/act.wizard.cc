@@ -1989,8 +1989,9 @@ do_stat_character(struct Creature *ch, struct Creature *k)
     /* Routine to show what spells a char is affected by */
     if (k->affected) {
         for (aff = k->affected; aff; aff = aff->next) {
-            acc_sprintf("SPL: (%3d%s) [%2d] %s%-24s%s ", aff->duration + 1,
+            acc_sprintf("SPL: (%3d%s) [%2d] %s(%ld) %s%-24s%s ", aff->duration + 1,
                 aff->is_instant ? "sec" : "hr", aff->level,
+                CCYEL(ch, C_NRM), aff->owner, 
                 CCCYN(ch, C_NRM), spell_to_str(aff->type), CCNRM(ch, C_NRM));
             if (aff->modifier) {
                 acc_sprintf("%+d to %s", aff->modifier,

@@ -1986,9 +1986,22 @@ act(const char *str, int hide_invisible, struct Creature *ch,
 	 * command.  It's not legal to combine TO_x's with each other otherwise.
 	 */
 
+     /*
+      * Same warning goes for TO_VICT_RM.  Ugly, ugly hack.  I'm not prepared
+      * to rewrite act to use a bitvector right now though.  TO_VICT_RM will
+      * be ignored if not used with TO_ROOM or TO_NOTVICT.  At any rate, it
+      * should cause the message to be sent to the victims room instead of
+      * ch's room.
+      */
+
 	/* check if TO_SLEEP is there, and remove it if it is. */
 	if ((sleep = (type & TO_SLEEP)))
 		type &= ~TO_SLEEP;
+
+    if (vict_obj && (type & TO_VICT_RM)) {
+        room = ((Creature *)vict_obj)->in_room;
+        type &= ~TO_VICT_RM;  
+    }
 
 	if (IS_SET(type, ACT_HIDECAR)) {
 		hidecar = true;
@@ -2005,13 +2018,17 @@ act(const char *str, int hide_invisible, struct Creature *ch,
 			perform_act(str, ch, obj, vict_obj, to, 0);
 		return;
 	}
-	/* ASSUMPTION: at this point we know type must be TO_NOTVICT or TO_ROOM */
+	/* ASSUMPTION: at this point we know type must be TO_NOTVICT TO_ROOM,
+       or TO_VICT_RM */
 
-	if (ch && ch->in_room != NULL)
+	if (!room && ch && ch->in_room != NULL) {
 		room = ch->in_room;
+    }
 	else if (obj && obj->in_room != NULL) {
 		room = obj->in_room;
-	} else {
+	} 
+
+    if (!room) {
 		errlog("no valid target to act()!");
 		raise(SIGSEGV);
 		return;

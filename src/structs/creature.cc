@@ -1286,7 +1286,7 @@ Creature::addCombat(Creature *ch, bool initiated)
     if (!ch)
         return;
 
-    if (this == ch)
+    if (this == ch || this->in_room != ch->in_room)
         return;
 
     if (!isOkToAttack(ch))

@@ -8,6 +8,7 @@ SPECIAL(phantasmic_sword)
 {
 	struct affected_type af;
 	struct Creature *mast = NULL;
+    Creature *self = (Creature *)me;
 
 	if (spec_mode != SPECIAL_TICK)
 		return 0;
@@ -26,6 +27,7 @@ SPECIAL(phantasmic_sword)
 			af.modifier = 1;
 			af.location = APPLY_STR;
 			af.duration = 2;
+            af.owner = self->getIdNum();
 			if (GET_STR(ch) > 21)
 				return 1;
 			affect_to_char(ch, &af);

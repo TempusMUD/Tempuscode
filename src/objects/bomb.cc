@@ -350,6 +350,7 @@ bomb_damage_room(char *bomb_name, int bomb_type, int bomb_power,
 			af.modifier = 0;
 			af.aff_index = 1;
 			af.level = 30;
+            af.owner = vict->getIdNum();
 			affect_to_char(vict, &af);
 		}
 

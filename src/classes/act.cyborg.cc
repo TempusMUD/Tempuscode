@@ -542,6 +542,7 @@ perform_cyborg_activate(Creature *ch, int mode, int subcmd)
 		af[0].modifier = 0;
 		af[0].aff_index = 1;
 		af[0].level = GET_LEVEL(ch);
+        af[0].owner = ch->getIdNum();
 
 		af[1].type = 0;
 		af[1].is_instant = 0;
@@ -551,6 +552,7 @@ perform_cyborg_activate(Creature *ch, int mode, int subcmd)
 		af[1].modifier = 0;
 		af[1].aff_index = 1;
 		af[1].level = GET_LEVEL(ch);
+        af[1].owner = ch->getIdNum();
 
 		af[2].type = 0;
 		af[2].is_instant = 0;
@@ -560,6 +562,7 @@ perform_cyborg_activate(Creature *ch, int mode, int subcmd)
 		af[2].modifier = 0;
 		af[2].aff_index = 1;
 		af[2].level = GET_LEVEL(ch);
+        af[2].owner = ch->getIdNum();
 
 		switch (mode) {
 		case SKILL_ADRENAL_MAXIMIZER:

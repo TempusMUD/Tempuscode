@@ -500,6 +500,7 @@ ACMD(do_snipe)
 			af.type = SKILL_SNIPE;
 			af.level = GET_LEVEL(ch);
 			af.duration = 3;
+            af.owner = ch->getIdNum();
 			affect_to_char(vict, &af);
 		}
 
@@ -673,6 +674,7 @@ ACMD(do_infiltrate)
 	af.bitvector = AFF_SNEAK;
 	af.aff_index = 0;
 	af.level = GET_LEVEL(ch) + ch->getLevelBonus(SKILL_INFILTRATE);
+    af.owner = ch->getIdNum();
 	affect_to_char(ch, &af);
 
 	af.type = SKILL_INFILTRATE;
@@ -683,6 +685,7 @@ ACMD(do_infiltrate)
 	af.location = APPLY_NONE;
 	af.bitvector = AFF3_INFILTRATE;
 	af.level = GET_LEVEL(ch) + ch->getLevelBonus(SKILL_INFILTRATE);
+    af.owner = ch->getIdNum();
 	affect_to_char(ch, &af);
 }
 
