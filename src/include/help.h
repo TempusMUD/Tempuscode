@@ -112,7 +112,9 @@ class HelpCollection {
     HelpCollection();
     ~HelpCollection();
         // Calls FindItems then Show
-    void GetTopic(char_data *ch, char *args, int mode=2,bool show_no_app=false,int type=0);
+    //void GetTopic(char_data *ch, char *args, int mode=2,bool show_no_app=false,int thegroup=HGROUP_PLAYER);
+    void GetTopic(char_data *ch, char *args,int mode=2,bool show_no_app=false, int thegroup=HGROUP_PLAYER);
+
     void List( char_data *ch, char *args ); // Show all the items
     // Create an item. (calls EditItem && SaveIndex)
     bool CreateItem( char_data *ch ); 
@@ -139,7 +141,7 @@ class HelpCollection {
 
     private:
     // Returns a show list of items it found
-    HelpItem *FindItems( char *args, bool find_no_approve=false,int thegroup=0 ); 
+    HelpItem *FindItems( char *args, bool find_no_approve=false,int thegroup=HGROUP_PLAYER); 
     int top_id;
     bool need_save;
 };

@@ -47,6 +47,7 @@ static const struct hcollect_command {
     { "search",  "<keyword>",              LVL_IMMORT },
     { "unapprove","<topic #>",             LVL_GOD },
     { "immhelp",  "<keyword>",             LVL_IMMORT },
+    { "olchelp",  "<keyword>",             LVL_IMMORT },
     { NULL, NULL, 0 }       // list terminator
 };
 static const struct group_command {
@@ -159,7 +160,7 @@ int HelpCollection::GetTop( void ) {
 // Calls FindItems 
 // Mode is how to show the item.
 // Type: 0==normal help, 1==immhelp, 2==olchelp
-void HelpCollection::GetTopic(char_data *ch, char *args,int mode=2,bool show_no_app=false, int thegroup=0) {
+void HelpCollection::GetTopic(char_data *ch, char *args,int mode=2,bool show_no_app=false, int thegroup=HGROUP_PLAYER) {
 
     HelpItem *cur = NULL;
     gHelpbuf[0] = '\0';
@@ -259,7 +260,7 @@ bool HelpCollection::SaveItem( char_data *ch ) {
 // Find an Item in the index 
 // This should take an optional "mode" argument to specify groups the
 //  returned topic can be part of. e.g. (FindItems(argument,FIND_MODE_OLC))
-HelpItem *HelpCollection::FindItems( char *args, bool find_no_approve=false, int thegroup) {
+HelpItem *HelpCollection::FindItems( char *args, bool find_no_approve=false, int thegroup=HGROUP_PLAYER) {
     HelpItem *cur = NULL;
     char stack[256];
     char *b;// beginning of stack
@@ -582,6 +583,7 @@ static void do_group_command(char_data *ch, char *argument) {
     }
 }
 ACMD(do_immhelp) {
+    skip_spaces(&argument);
     Help->GetTopic(ch,argument,2,false,HGROUP_IMMHELP);
     return;
 }
@@ -702,13 +704,16 @@ ACMD(do_help_collection_command) {
             send_to_char("Okay.\r\n",ch);
             break;
         case 10: // Search (mode==3 is "stat" rather than "show") show_no_app "true"
-            Help->GetTopic(ch,argument,3,true);
+            Help->GetTopic(ch,argument,3,true,-1);
             break;
         case 11: // UnApprove
             Help->UnApproveItem( ch, argument );
             break;
         case 12: // Immhelp
             Help->GetTopic(ch,argument,2,false,HGROUP_IMMHELP);
+            break;
+        case 13: // olchelp
+            Help->GetTopic(ch,argument,2,false,HGROUP_OLC);
             break;
         default:
             do_hcollect_cmds(ch);

@@ -692,7 +692,7 @@ ACMD(do_gen_comm)
 	send_to_char(com_msgs[subcmd][0], ch);
 	return;
     }
-    if (ROOM_FLAGGED(ch->in_room, ROOM_SOUNDPROOF)) {
+    if (ROOM_FLAGGED(ch->in_room, ROOM_SOUNDPROOF) && GET_LEVEL(ch) < LVL_GRGOD) {
 	send_to_char("The walls seem to absorb your words.\r\n", ch);
 	return;
     }
