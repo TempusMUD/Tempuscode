@@ -478,49 +478,53 @@ ASPELL(spell_quantum_rift)
     //  show_imprint_rooms(ch);
 
     if (rnum < 0) {
-                // Change this to open a REALLY random portal.
-                // Include DT's in this room list.
-                send_to_char("You do not have any outstanding spacetime imprints in effect.\r\n", ch);
-                return;
+        // Change this to open a REALLY random portal.
+        // Include DT's in this room list.
+        send_to_char("You do not have any outstanding spacetime imprints in effect.\r\n", ch);
+        return;
     }
 
     if (!(room = real_room(rnum))) {
-                send_to_char("The imprinted location you have requested no longer exists!\r\n", ch);
-                return;
+        send_to_char("The imprinted location you have requested no longer exists!\r\n", ch);
+        return;
     }
 
     if (ROOM_FLAGGED(room, ROOM_NORECALL | ROOM_NOPHYSIC | ROOM_NOTEL)) {
-                send_to_char("You are unable to open the rift into that place.\r\n", ch);
-                return;
+        send_to_char("You are unable to open the rift into that place.\r\n", ch);
+        return;
     }
     for (o = object_list; o; o = o->next) {
         if( GET_OBJ_VNUM(o) == QUANTUM_RIFT_VNUM 
-        && GET_OBJ_VAL(o,2) == GET_IDNUM(ch)) {
+        && GET_OBJ_VAL(o,2) == GET_IDNUM(ch) 
+        && o->in_room->people ) 
+        {
+            char_data *occupant = o->in_room->people;
             act("$p collapses in on itself.",
-                TRUE, *(o->in_room->people.begin()), o, 0, TO_CHAR);
+                TRUE, occupant, o, 0, TO_CHAR);
             act("$p collapses in on itself.",
-                TRUE, *(o->in_room->people.begin()), o, 0, TO_ROOM);
+                TRUE, occupant, o, 0, TO_ROOM);
             extract_obj(o);
         }
     }
     // Quantum Rift
-        if ( ( rift = read_object( QUANTUM_RIFT_VNUM ) ) ) {
-                GET_OBJ_TIMER( rift ) = (int)(GET_REMORT_GEN(ch)/2);
-        if(!IS_NPC(ch))
+    if ( ( rift = read_object( QUANTUM_RIFT_VNUM ) ) ) {
+        GET_OBJ_TIMER( rift ) = (int)(GET_REMORT_GEN(ch)/2);
+        if(!IS_NPC(ch)) {
             GET_OBJ_VAL(rift,2) = GET_IDNUM(ch);
-                obj_to_room( rift, ch->in_room );
-                // Set the target room number.
-                // Note: Add in some random change of going to the wrong place.
-                GET_OBJ_VAL(rift,0) = rnum;
-
-                act("$n shreds the fabric of space and time creating $p!", 
-                        TRUE, ch, rift,0, TO_ROOM);
-                act("You shred the fabric of space and time creating $p!", 
-                        TRUE, ch, rift,0, TO_CHAR);
-        } else {
-                send_to_char("The rift has failed to form.  Something is terribly wrong.\r\n",ch);
-                return;
         }
+        obj_to_room( rift, ch->in_room );
+        // Set the target room number.
+        // Note: Add in some random change of going to the wrong place.
+        GET_OBJ_VAL(rift,0) = rnum;
+
+        act("$n shreds the fabric of space and time creating $p!", 
+                TRUE, ch, rift,0, TO_ROOM);
+        act("You shred the fabric of space and time creating $p!", 
+                TRUE, ch, rift,0, TO_CHAR);
+    } else {
+        send_to_char("The rift has failed to form.  Something is terribly wrong.\r\n",ch);
+        return;
+    }
     WAIT_STATE(ch,2 RL_SEC);
 } 
  
