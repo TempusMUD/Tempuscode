@@ -3255,58 +3255,7 @@ ACMD(do_who)
 				effective_char_class = GET_OLD_CLASS(tch);
 			else
 				effective_char_class = GET_CLASS(tch);
-
-			switch (effective_char_class) {
-			case CLASS_MAGIC_USER:
-				strcpy(c_buf, CCMAG(ch, C_NRM));
-				break;
-			case CLASS_CLERIC:
-				if (IS_GOOD(tch)) {
-					strcpy(c_buf, CCYEL_BLD(ch, C_NRM));
-				} else if (IS_EVIL(tch)) {
-					strcpy(c_buf, CCRED_BLD(ch, C_NRM));
-				} else
-					strcpy(c_buf, CCYEL(ch, C_NRM));
-				break;
-			case CLASS_KNIGHT:
-				if (IS_GOOD(tch)) {
-					strcpy(c_buf, CCBLU_BLD(ch, C_NRM));
-				} else if (IS_EVIL(tch)) {
-					strcpy(c_buf, CCRED(ch, C_NRM));
-				} else
-					strcpy(c_buf, CCYEL(ch, C_NRM));
-				break;
-			case CLASS_RANGER:
-				strcpy(c_buf, CCGRN(ch, C_NRM));
-				break;
-			case CLASS_BARB:
-				strcpy(c_buf, CCCYN(ch, C_NRM));
-				break;
-			case CLASS_THIEF:
-				strcpy(c_buf, CCNRM_BLD(ch, C_NRM));
-				break;
-			case CLASS_CYBORG:
-				strcpy(c_buf, CCCYN(ch, C_NRM));
-				break;
-			case CLASS_PSIONIC:
-				strcpy(c_buf, CCMAG(ch, C_NRM));
-				break;
-			case CLASS_PHYSIC:
-				strcpy(c_buf, CCNRM_BLD(ch, C_NRM));
-				break;
-			case CLASS_HOOD:
-				strcpy(c_buf, CCRED(ch, C_NRM));
-				break;
-			case CLASS_MONK:
-				strcpy(c_buf, CCGRN(ch, C_NRM));
-				break;
-			case CLASS_MERCENARY:
-				strcpy(c_buf, CCYEL(ch, C_NRM));
-				break;
-			default:
-				strcpy(c_buf, CCNRM(ch, C_NRM));
-				break;
-			}
+            strcpy(c_buf, get_char_class_color( ch, tch, effective_char_class ) );
 			if (PRF2_FLAGGED(tch, PRF2_ANONYMOUS) &&
 				!PRF_FLAGGED(ch, PRF_HOLYLIGHT))
 				sprintf(buf2, "%s%s[%s-- %s%s%s%s]%s ", buf2,
