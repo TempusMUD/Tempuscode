@@ -1206,7 +1206,7 @@ advance_level(struct Creature *ch, byte keep_internal)
 			add_move[i] += number(3, 8);
 			break;
 		case CLASS_RANGER:
-			add_hp[i] += number(4, 12);
+			add_hp[i] += number(4, 11);
 			add_mana[i] = (int)(add_mana[i] * 0.6);
 			add_mana[i] += number(1, 6) + (GET_LEVEL(ch) / 8);
 			add_move[i] += number(6, 14);
