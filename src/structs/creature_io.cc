@@ -642,8 +642,7 @@ Creature::saveToXML()
 bool 
 Creature::loadFromXML( long id )
 {
-    char *path = get_player_file_path( id );
-    return loadFromXML( path );
+    return loadFromXML(get_player_file_path(id));
 }
 /* copy data from the file structure to a Creature */
 bool
