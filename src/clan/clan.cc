@@ -1016,7 +1016,7 @@ ACMD(do_cedit)
 			}
             i = atoi(argument);
             
-			if (i == 0 && (i = playerIndex.getID(argument)) < 0) {
+			if (i == 0 && (i = playerIndex.getID(argument)) == 0) {
 				send_to_char(ch, "No such person.\r\n");
 				return;
 			}
@@ -1039,7 +1039,7 @@ ACMD(do_cedit)
 			arg1 = tmp_getword(&argument);
 
 			if (!is_number(arg3)) {
-				if ((i = playerIndex.getID(arg3)) < 0) {
+				if ((i = playerIndex.getID(arg3)) == 0) {
 					send_to_char(ch, "There is no such player in existence...\r\n");
 					return;
 				}
@@ -1134,7 +1134,7 @@ ACMD(do_cedit)
 		// cedit add member
 		else if (is_abbrev(arg2, "member")) {
 			if (!is_number(arg3)) {
-				if ((i = playerIndex.getID(arg3)) < 0) {
+				if ((i = playerIndex.getID(arg3)) == 0) {
 					send_to_char(ch, "There exists no player with that name.\r\n");
 					return;
 				}
@@ -1217,7 +1217,7 @@ ACMD(do_cedit)
 		// cedit remove member
 		else if (is_abbrev(arg2, "member")) {
 			if (!is_number(arg3)) {
-				if ((i = playerIndex.getID(arg3)) < 0) {
+				if ((i = playerIndex.getID(arg3)) == 0) {
 					send_to_char(ch, "There exists no player with that name.\r\n");
 					return;
 				}
