@@ -333,25 +333,6 @@ set_title(struct Creature *ch, char *title)
 		*GET_TITLE(ch) = '\0';
 }
 
-
-void
-check_autowiz(struct Creature *ch)
-{
-	char buf[100];
-	extern int use_autowiz;
-	extern int min_wizlist_lev;
-//    pid_t getpid(void);
-
-	if (use_autowiz && GET_LEVEL(ch) >= LVL_AMBASSADOR) {
-		sprintf(buf, "nice ../bin/autowiz %d %s %d %s %d &", min_wizlist_lev,
-			WIZLIST_FILE, LVL_AMBASSADOR, IMMLIST_FILE, (int)getpid());
-		mudlog(LVL_AMBASSADOR, CMP, false, "Initiating autowiz");
-		system(buf);
-	}
-}
-
-
-
 void
 gain_exp(struct Creature *ch, int gain)
 {
@@ -397,7 +378,6 @@ gain_exp(struct Creature *ch, int gain)
 				send_to_char(ch, "You rise %d levels!\r\n", num_levels);
 			}
 			ch->saveToXML();
-			check_autowiz(ch);
 		}
 	} else if (gain < 0) {
 		gain = MAX(-max_exp_loss, gain);	/* Cap max exp lost per death */
@@ -433,7 +413,6 @@ gain_exp_regardless(struct Creature *ch, int gain)
 			else {
 				send_to_char(ch, "You rise %d levels!\r\n", num_levels);
 			}
-			check_autowiz(ch);
 		}
 	}
 }
