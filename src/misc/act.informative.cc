@@ -3779,7 +3779,8 @@ bool isWhereMatch( const list<char *> &req, const list<char *> &exc, obj_data *t
  * @return a boolean value representing if the object passed the search criteria
  *
 **/ 
-bool isWhereMatch( const list<char *> &req, const list<char *> &exc, Creature *mob) {
+bool 
+isWhereMatch( const list<char *> &req, const list<char *> &exc, Creature *mob) {
     list<char *>::const_iterator reqit, excit;
 
     for(reqit = req.begin(); reqit != req.end(); reqit++) {
@@ -3795,6 +3796,35 @@ bool isWhereMatch( const list<char *> &req, const list<char *> &exc, Creature *m
     return true;
 }
 
+/**
+ *  Recursively checks to see if an object is located in a house
+ *  
+ *  @param obj the object data of the object in question
+ *  
+ *  @return a boolean value reflecting the search results
+**/
+
+bool
+isInHouse( obj_data *obj) {
+    //if in_obj isn't null, it's still inside a container.
+    if(obj->in_obj == NULL) {
+        //container is being carried, not in house
+        if(obj->in_room == NULL) {
+            return false;
+        }
+        if(ROOM_FLAGGED(obj->in_room, ROOM_HOUSE)) {
+            return true;
+        }
+        //container lying on the ground outside a house
+        else { 
+            return false;
+        }
+    }
+    //still inside a container, call again
+    else { 
+        return isInHouse(obj->in_obj);
+    }
+}
 
 void
 perform_immort_where(struct Creature *ch, char *arg)
@@ -3894,9 +3924,9 @@ perform_immort_where(struct Creature *ch, char *arg)
             for (num = 0, k = object_list; k; k = k->next) {
                 if(! CAN_SEE_OBJ(ch, k) )
                     continue;
-                if( house_only && (k->in_room == NULL || !ROOM_FLAGGED(k->in_room, ROOM_HOUSE)) )
+                if( house_only && !isInHouse(k) )
                     continue;
-                if( no_house && k->in_room != NULL && ROOM_FLAGGED(k->in_room, ROOM_HOUSE) )
+                if( no_house && isInHouse(k) )
                     continue;
                 if( isWhereMatch(required, excluded, k) ) {
                     found = 1;
