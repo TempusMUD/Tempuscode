@@ -53,7 +53,10 @@ bool char_data::setPosition( int new_pos, int mode=0 ){
                 if(FIGHTING(this))
                     raise(SIGINT);
     */
-    char_specials.setPosition(new_pos);
+    if(new_pos == POS_STANDING && FIGHTING(this))
+        char_specials.setPosition(POS_FIGHTING);
+    else
+        char_specials.setPosition(new_pos);
     return true;
 }
 int char_data::getPosition( void ) {
