@@ -988,22 +988,6 @@ call_magic(struct char_data * caster, struct char_data * cvict,
 	break;
     }
 
-    if (IS_SET(SINFO.routines, MAG_DAMAGE)) {
-	if (caster == cvict)
-	    same_vict = true;
-	if (mag_damage(level, caster, cvict, spellnum, savetype)) {
-	    if (casttype == CAST_SPELL && !same_vict) {
-			WAIT_STATE(caster, 2 RL_SEC);
-		if(spellnum == SPELL_SYMBOL_OF_PAIN)
-			WAIT_STATE(caster, 1 RL_SEC);
-		mana = mag_manacost(caster, spellnum);
-		if (mana > 0)
-		    GET_MANA(caster) = 
-			MAX(0, MIN(GET_MAX_MANA(caster), GET_MANA(caster) - mana));
-	    }
-	    return 0;
-	}
-    }
     if (IS_SET(SINFO.routines, MAG_EXITS) && knock_door)
 	mag_exits(level, caster, caster->in_room, spellnum);
 
@@ -1036,6 +1020,23 @@ call_magic(struct char_data * caster, struct char_data * cvict,
 
     if (IS_SET(SINFO.routines, MAG_OBJECTS) && ovict)
 	mag_objects(level, caster, ovict, spellnum);
+
+    if (IS_SET(SINFO.routines, MAG_DAMAGE)) {
+		if (caster == cvict)
+			same_vict = true;
+		if (mag_damage(level, caster, cvict, spellnum, savetype)) {
+			if (casttype == CAST_SPELL && !same_vict) {
+				WAIT_STATE(caster, 2 RL_SEC);
+			if(spellnum == SPELL_SYMBOL_OF_PAIN)
+				WAIT_STATE(caster, 1 RL_SEC);
+			mana = mag_manacost(caster, spellnum);
+			if (mana > 0)
+				GET_MANA(caster) = 
+				MAX(0, MIN(GET_MAX_MANA(caster), GET_MANA(caster) - mana));
+			}
+			return 0;
+		}
+    }
 
     if (IS_SET(SINFO.routines, MAG_MANUAL))
 	switch (spellnum) {
