@@ -109,7 +109,11 @@ sub process_file
 			elsif ( /^F/ ) # Flow Information
 				{ $state = "flow"; }
 			elsif ( /^Z/ ) # Search
-				{ $state = "search-cmd" }
+				{
+				$state = "search-cmd";
+				$sub_id = $room{"searchcount"};
+				$room{"searchcount"}++;
+				}
 			else
 				{ print STDERR "Invalid directive in $inf_name:$line_num\n"; exit }
 			}
@@ -197,10 +201,9 @@ sub process_file
 				$state = "search-key";
 				s/~//g;
 				}
-			if ( $sub_id )
-				{ $sub_id .= "\n"; }
-			$sub_id .= $_;
-			$search_cmd = $sub_id;
+			if ( $room{"searches"}[$sub_id]{"cmd"} )
+				{ $room{"searches"}[$sub_id]{"cmd"} .= "\n"; }
+			$room{"searches"}[$sub_id]{"cmd"} .= $_;
 			}
 		elsif ( $state eq "search-key" )
 			{
@@ -209,17 +212,9 @@ sub process_file
 				$state = "search-vict";
 				s/~//g;
 				}
-			if ( $search_key )
-				{ $search_key .= "\n"; }
-			$search_key .= $_;
-			$sub_id = $search_cmd . "/" . $search_key;
-			if ( $state eq "search-vict" )
-				{
-				$room{"searches"}{$sub_id}{"cmd"} = $search_cmd;
-				$room{"searches"}{$sub_id}{"keywords"} = $search_key;
-				undef $search_cmd;
-				undef $search_key;
-				}
+			if ( $room{"searches"}[$sub_id]{"keywords"} )
+				{ $room{"searches"}[$sub_id]{"keywords"} .= "\n"; }
+			$room{"searches"}[$sub_id]{"keywords"} .= $_;
 			}
 		elsif ( $state eq "search-vict" )
 			{
@@ -228,9 +223,9 @@ sub process_file
 				$state = "search-room";
 				s/~//g;
 				}
-			if ( $room{"searches"}{$sub_id}{"vict"} )
-				{ $room{"searches"}{$sub_id}{"vict"} .= "\n"; }
-			$room{"searches"}{$sub_id}{"vict"} .= $_;
+			if ( $room{"searches"}[$sub_id]{"vict"} )
+				{ $room{"searches"}[$sub_id]{"vict"} .= "\n"; }
+			$room{"searches"}[$sub_id]{"vict"} .= $_;
 			}
 		elsif ( $state eq "search-room" )
 			{
@@ -239,9 +234,9 @@ sub process_file
 				$state = "search-remote";
 				s/~//g;
 				}
-			if ( $room{"searches"}{$sub_id}{"room"} )
-				{ $room{"searches"}{$sub_id}{"room"} .= "\n"; }
-			$room{"searches"}{$sub_id}{"room"} .= $_;
+			if ( $room{"searches"}[$sub_id]{"room"} )
+				{ $room{"searches"}[$sub_id]{"room"} .= "\n"; }
+			$room{"searches"}[$sub_id]{"room"} .= $_;
 			}
 		elsif ( $state eq "search-remote" )
 			{
@@ -250,19 +245,19 @@ sub process_file
 				$state = "search-flags";
 				s/~//g;
 				}
-			if ( $room{"searches"}{$sub_id}{"remote"} )
-				{ $room{"searches"}{$sub_id}{"remote"} .= "\n"; }
-			$room{"searches"}{$sub_id}{"remote"} .= $_;
+			if ( $room{"searches"}[$sub_id]{"remote"} )
+				{ $room{"searches"}[$sub_id]{"remote"} .= "\n"; }
+			$room{"searches"}[$sub_id]{"remote"} .= $_;
 			}
 		elsif ( $state eq "search-flags" )
 			{
 			if ( !/([-0-9]+) ([-0-9]+) ([-0-9]+) ([-0-9]+) ([-0-9]+)/ )
 				{ print STDERR "No match for search flags in $inf_name:$line_num\n"; exit }
-			$room{"searches"}{$sub_id}{"command"} .= $1;
-			$room{"searches"}{$sub_id}{"arg0"} .= $2;
-			$room{"searches"}{$sub_id}{"arg1"} .= $3;
-			$room{"searches"}{$sub_id}{"arg2"} .= $4;
-			$room{"searches"}{$sub_id}{"flags"} .= $5;
+			$room{"searches"}[$sub_id]{"command"} .= $1;
+			$room{"searches"}[$sub_id]{"arg0"} .= $2;
+			$room{"searches"}[$sub_id]{"arg1"} .= $3;
+			$room{"searches"}[$sub_id]{"arg2"} .= $4;
+			$room{"searches"}[$sub_id]{"flags"} .= $5;
 			$state = "optional";
 			}
 		else
@@ -308,19 +303,19 @@ sub output_room
 		print $room{"flow"}{$dir}{"speed"} . " ";
 		print $room{"flow"}{$dir}{"type"} . "\n";
 		}
-	foreach $search ( keys %{$room{"searches"}} )
+	foreach $search ( @{$room{"searches"}} )
 		{
 		print "Z\n";
-		print $room{"searches"}{$search}{"cmd"} . "~\n";
-		print $room{"searches"}{$search}{"keywords"} . "~\n";
-		print $room{"searches"}{$search}{"vict"} . "~\n";
-		print $room{"searches"}{$search}{"room"} . "~\n";
-		print $room{"searches"}{$search}{"remote"} . "~\n";
-		print $room{"searches"}{$search}{"command"} . " ";
-		print $room{"searches"}{$search}{"arg0"} . " ";
-		print $room{"searches"}{$search}{"arg1"} . " ";
-		print $room{"searches"}{$search}{"arg2"} . " ";
-		print $room{"searches"}{$search}{"flags"} . "\n";
+		print ${$search}{"cmd"} . "~\n";
+		print ${$search}{"keywords"} . "~\n";
+		print ${$search}{"vict"} . "~\n";
+		print ${$search}{"room"} . "~\n";
+		print ${$search}{"remote"} . "~\n";
+		print ${$search}{"command"} . " ";
+		print ${$search}{"arg0"} . " ";
+		print ${$search}{"arg1"} . " ";
+		print ${$search}{"arg2"} . " ";
+		print ${$search}{"flags"} . "\n";
 		}
 	if ( $room{"sound"} )
 		{ print "L\n" . $room{"sound"} . "~\n" }
