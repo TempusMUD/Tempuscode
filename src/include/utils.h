@@ -268,6 +268,10 @@ char *AN(char *str);
 /******************* SHADOW PLANE STUFF *******************/
 #define SHADOW_ZONE(zone)     ((zone)->plane == PLANE_SHADOW)
 #define ZONE_IS_SHADE(zone)   ((zone)->number == 198)
+
+/******************* ASLEEP ZONE STUFF ********************/
+#define ASLEEP_ZONE 150
+
 /***************** END  SHADOW PLANE STUFF *****************/
 
 #define ZONE_IS_HELL(zone) \
