@@ -274,7 +274,7 @@ ACMD(do_cleave)
 	one_argument(argument, buf);
 
 	if( weap == NULL || !IS_TWO_HAND(weap) ) {
-		send_to_char(ch, "You need to be wielding a good two handed weapon to cleave!\r\n");
+		send_to_char(ch, "You need to be wielding a two handed weapon to cleave!\r\n");
 		return;
 	}
 
