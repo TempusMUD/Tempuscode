@@ -1109,7 +1109,7 @@ do_olc_rexdesc( struct char_data *ch, char *argument )
 #define HEDIT_USAGE   "HEDIT ( house edit ) usage:\r\n" \
 "hedit title <title>\r\n" \
 "hedit desc\r\n"          \
-"hedit extradesc <create|edit|adddkey> <keywords>\r\n"\
+"hedit extradesc <create|edit|addkey> <keywords>\r\n"\
 "hedit sound\r\n"         \
 "hedit save\r\n"          \
 "hedit show  [brief] [.] ( lists rooms and contents )\r\n" \
