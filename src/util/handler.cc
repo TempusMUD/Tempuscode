@@ -2778,9 +2778,7 @@ Reaction::react(Creature *ch)
 		case 7:
 			if (GET_CLAN(ch) + 1 == *(++read_pt)) match = true; break;
 		case 8:
-			if (IS_PC(ch) && GET_REPUTATION(ch) > CRIMINAL_REP)
-				match = true;
-			break;
+			if (IS_CRIMINAL(ch)) match = true; break;
 		case 9:
 			if (PLR_FLAGGED(ch, PLR_THIEF)) match = true; break;
 		case 10:
