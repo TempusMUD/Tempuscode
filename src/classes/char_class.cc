@@ -104,7 +104,7 @@ extern const char race_restr[NUM_PC_RACES][NUM_CLASSES + 1] = {
 	{ RACE_TABAXI,		2, 2, 2, 0, 2, 2, 2, 2, 0, 2, 0, 2, 0, 2, 0, 0, 0 },
 	{ RACE_DROW,		2, 2, 2, 0, 0, 1, 1, 1, 2, 2, 0, 0, 0, 1, 0, 0, 0 },
 	{ RACE_MINOTAUR,	2, 2, 0, 0, 2, 0, 1, 1, 0, 2, 0, 0, 0, 1, 0, 0, 0 },
-	{ RACE_ORC,			0, 0, 1, 0, 1, 0, 0, 2, 0, 0, 0, 2, 0, 2, 0, 0, 0 },
+	{ RACE_ORC,			0, 0, 1, 0, 2, 0, 1, 2, 0, 0, 0, 2, 0, 2, 0, 0, 0 },
 };
 
 /* THAC0 for char_classes and levels.  (To Hit Armor Class 0) */
