@@ -1088,31 +1088,14 @@ do_start(struct Creature *ch, int mode)
 	void advance_level(struct Creature *ch, byte keep_internal);
 	byte new_player = 0;
 	int i, j;
+	obj_data *implant_save[NUM_WEARS];
 
 	// remove implant affects
-	for (i = 0; i < NUM_WEARS; i++) {
-
-		if (ch->implants[i] && !invalid_char_class(ch, ch->implants[i]) &&
-			(!IS_DEVICE(ch->implants[i]) || ENGINE_STATE(ch->implants[i]))) {
-
-			for (j = 0; j < MAX_OBJ_AFFECT; j++)
-				affect_modify(ch, ch->implants[i]->affected[j].location,
-					ch->implants[i]->affected[j].modifier, 0, 0, FALSE);
-			affect_modify(ch, 0, 0, ch->implants[i]->obj_flags.bitvector[0], 1,
-				FALSE);
-			affect_modify(ch, 0, 0, ch->implants[i]->obj_flags.bitvector[1], 2,
-				FALSE);
-			affect_modify(ch, 0, 0, ch->implants[i]->obj_flags.bitvector[2], 3,
-				FALSE);
-
-			if (IS_INTERFACE(ch->implants[i]) &&
-				INTERFACE_TYPE(ch->implants[i]) == INTERFACE_CHIPS &&
-				ch->implants[i]->contains) {
-				check_interface(ch, ch->implants[i], FALSE);
-
-			}
-		}
-	}
+	for (i = 0; i < NUM_WEARS; i++)
+		if (GET_IMPLANT(ch, i))
+			implant_save[i] = unequip_char(ch, i, true, true);
+		else
+			implant_save[i] = NULL;
 
 	if (GET_EXP(ch) == 0 && !IS_REMORT(ch) && !IS_VAMPIRE(ch))
 		new_player = TRUE;
@@ -1229,31 +1212,10 @@ do_start(struct Creature *ch, int mode)
 		ch->player.time.played = 0;
 		ch->player.time.logon = time(0);
 	}
-	// re-add implant affects
-	for (i = 0; i < NUM_WEARS; i++) {
 
-		if (ch->implants[i] && !invalid_char_class(ch, ch->implants[i]) &&
-			(!IS_DEVICE(ch->implants[i]) || ENGINE_STATE(ch->implants[i]))) {
-
-			for (j = 0; j < MAX_OBJ_AFFECT; j++)
-				affect_modify(ch, ch->implants[i]->affected[j].location,
-					ch->implants[i]->affected[j].modifier, 0, 0, FALSE);
-			affect_modify(ch, 0, 0, ch->implants[i]->obj_flags.bitvector[0], 1,
-				TRUE);
-			affect_modify(ch, 0, 0, ch->implants[i]->obj_flags.bitvector[1], 2,
-				TRUE);
-			affect_modify(ch, 0, 0, ch->implants[i]->obj_flags.bitvector[2], 3,
-				TRUE);
-
-			if (IS_INTERFACE(ch->implants[i]) &&
-				INTERFACE_TYPE(ch->implants[i]) == INTERFACE_CHIPS &&
-				ch->implants[i]->contains) {
-				check_interface(ch, ch->implants[i], FALSE);
-
-			}
-		}
-	}
-
+	for (i = 0; i < NUM_WEARS; i++)
+		if (implant_save[i])
+			equip_char(ch, implant_save[i], i, true);
 }
 
 // prac_gain: mode==TRUE means to return a prac gain value
