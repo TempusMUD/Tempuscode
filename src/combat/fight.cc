@@ -1516,7 +1516,8 @@ damage(struct Creature *ch, struct Creature *victim, int dam,
 
 	// rangers' critical hit
 	if (ch && IS_RANGER(ch) && dam > 10 &&
-		IS_WEAPON(attacktype) && number(0, 74) <= GET_REMORT_GEN(ch)) {
+		IS_WEAPON(attacktype) && 
+        number(0, 550) <= ch->getLevelBonus(GET_CLASS(ch) == CLASS_RANGER)) {
 		send_to_char(ch, "CRITICAL HIT!\r\n");
 		act("$n has scored a CRITICAL HIT!", FALSE, ch, 0, victim,
 			TO_VICT);
