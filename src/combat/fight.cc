@@ -3299,7 +3299,7 @@ damage( struct char_data * ch, struct char_data * victim, int dam,
 			exp -= ( exp * 25 ) / 100;
 		if ( IS_GOOD( ch ) && 
 			( IS_CLERIC( ch ) || IS_KNIGHT( ch ) ) && 
-			IS_GOOD( vic tim ) ) {    // good clerics & knights penalized
+			IS_GOOD( victim ) ) {    // good clerics & knights penalized
 				exp = -exp;
 			}
 		gain_exp( ch, exp );
