@@ -3118,10 +3118,11 @@ mobile_battle_activity(struct Creature *ch, struct Creature *precious_vict)
 			act("You feel a wave of sheer terror wash over you as $n approaches!", FALSE, ch, 0, 0, TO_ROOM);
             list<CharCombat>::iterator li = ch->getCombatList()->begin();
             for (; li != ch->getCombatList()->end(); ++li) {
-                vict = li->getOpponent();
-                if (!mag_savingthrow(vict, GET_LEVEL(ch), SAVING_SPELL) &&
-                    !IS_AFFECTED(vict, AFF_CONFIDENCE))
-                    do_flee(vict, "", 0, 0, 0);
+                if ((vict = li->getOpponent())) {
+                    if (!mag_savingthrow(vict, GET_LEVEL(ch), SAVING_SPELL) &&
+                        !IS_AFFECTED(vict, AFF_CONFIDENCE))
+                        do_flee(vict, "", 0, 0, 0);
+                }
             }
 			return 0;
 		}
