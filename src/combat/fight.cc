@@ -940,9 +940,18 @@ make_corpse( struct char_data *ch,struct char_data *killer,int attacktype )
 	GET_OBJ_EXTRA2( head ) = ITEM2_BODY_PART;
 	GET_OBJ_VAL( head, 0 ) = 5;  /* Head full of blood */	
 	GET_OBJ_VAL( head, 1 ) = 5;	
-	GET_OBJ_VAL( head, 2 ) = 13;	
-	head->setWeight( 10 );
+	GET_OBJ_VAL( head, 2 ) = 13;
+
 	head->worn_on = -1;
+
+	if(IS_AFFECTED_2( ch, AFF2_PETRIFIED )) {
+		GET_OBJ_MATERIAL( head ) = MAT_STONE;
+		head->setWeight( 25 );
+	} else {
+		GET_OBJ_MATERIAL( head ) = MAT_FLESH;
+		head->setWeight( 10 );
+	}
+
 	if ( IS_NPC( ch ) )
 	    GET_OBJ_TIMER( head ) = max_npc_corpse_time;
 	else {
