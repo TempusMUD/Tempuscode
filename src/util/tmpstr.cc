@@ -213,6 +213,8 @@ tmp_getword(char **src)
 
 	cur_buf->used += len;
 	*src = read_pt;
+
+	skip_spaces(src);
 	return result;
 }
 
