@@ -153,11 +153,7 @@ show_obj_to_char(struct obj_data *object, struct Creature *ch,
 	} else if (mode == 5) {
 		if (GET_OBJ_TYPE(object) == ITEM_NOTE) {
 			if (object->action_desc) {
-				char *msg;
-
-				msg = tmp_strcat("There is something written upon it:\r\n\r\n",
-					object->action_desc, NULL);
-				page_string(ch->desc, msg);
+				page_string(ch->desc, object->action_desc);
 			} else {
 				act("It's blank.", FALSE, ch, 0, 0, TO_CHAR);
 			}
