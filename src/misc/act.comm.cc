@@ -581,137 +581,127 @@ ACMD(do_page)
 /**********************************************************************
  * generalized communication func, originally by Fred C. Merkel (Torg) *
   *********************************************************************/
+const bool CURSE_BAD = true;
+const bool CURSE_OK = false;
+const bool INTERPLANAR = false;
+const bool PLANAR = true;
+
+struct channel_info_t {
+	char *name;
+	int deaf_vector;
+	int deaf_flag;
+	bool check_curse;
+	bool check_plane;
+	char *desc_color;
+	char *text_color;
+	char *msg_noton;
+	char *msg_muted;
+};
+
+static const channel_info_t channels[] = {
+	{ "holler", 2, PRF2_NOHOLLER, CURSE_BAD, INTERPLANAR, KYEL_BLD, KRED,
+		"Ha!  You are noholler buddy.",
+		"You find yourself unable to holler!" },
+	{ "shout", 1, PRF_DEAF, CURSE_BAD, PLANAR, KYEL, KCYN,
+		"Turn off your noshout flag first!",
+		"You cannot shout!!" },
+	{ "gossip", 1, PRF_NOGOSS, CURSE_BAD, PLANAR, KGRN, KNRM,
+		"You aren't even on the channel!",
+		"You cannot gossip!!" },
+	{ "auction", 1, PRF_NOAUCT, CURSE_BAD, PLANAR, KMAG, KNRM,
+		"You aren't even on the channel!",
+		"You cannot auction!!" },
+	{ "congrat", 1, PRF_NOGRATZ, CURSE_BAD, PLANAR, KGRN, KMAG,
+		"You aren't even on the channel!",
+		"You cannot congratulate!!" },
+	{ "sing", 1, PRF_NOMUSIC, CURSE_BAD, PLANAR, KCYN, KYEL,
+		"You aren't even on the channel!",
+		"You cannot sing!!" },
+	{ "spew", 1, PRF_NOSPEW, CURSE_OK, PLANAR, KRED, KYEL,
+		"You aren't even on the channel!",
+		"You cannot spew!!" },
+	{ "dream", 1, PRF_NODREAM, CURSE_BAD, PLANAR, KCYN, KNRM_BLD,
+		"You aren't even on the channel!",
+		"You cannot dream!!" },
+	{ "project", 1, PRF_NOPROJECT, CURSE_BAD, INTERPLANAR, KNRM_BLD, KCYN,
+		"You are not open to projections yourself...",
+		"You cannot project.  The gods have muted you." },
+	{ "newbie", -2, PRF2_NEWBIE_HELPER, CURSE_BAD, PLANAR, KYEL, KNRM,
+		"You aren't on the illustrious newbie channel.",
+		"The gods have muted you for bad behavior!" },
+	{ "clan-say", 1, PRF_NOCLANSAY, CURSE_OK, PLANAR, KCYN, KNRM,
+		"You aren't listening to the words of your clan.",
+		"The gods have muted you.  You may not clan say." },
+	{ "guild-say", 2, PRF2_NOGUILDSAY, CURSE_BAD, PLANAR, KMAG, KYEL,
+		"You aren't listening to the rumors of your guild.",
+		"You may not guild-say, for the gods have muted you." },
+};
 
 ACMD(do_gen_comm)
 {
 	extern int level_can_shout;
 	extern int holler_move_cost;
+	const channel_info_t *chan;
 	struct descriptor_data *i;
-	char color_on1[24], color_on2[24], buf2[MAX_STRING_LENGTH],
-		buf[MAX_STRING_LENGTH];
+	char *plain_emit, *color_emit;
 
-	/* Array of flags which must _not_ be set in order for comm to be heard */
-	static int channels[] = {
-		0,
-		PRF_DEAF,
-		PRF_NOGOSS,
-		PRF_NOAUCT,
-		PRF_NOGRATZ,
-		PRF_NOMUSIC,
-		PRF_NOSPEW,
-		PRF_NODREAM,
-		PRF_NOPROJECT,
-		0
-	};
+	chan = &channels[subcmd];
 
-	/*
-	 * com_msgs: [0] Message if you can't perform the action because of noshout
-	 *           [1] name of the action
-	 *           [2] message if you're not on the channel
-	 *           [3] a color string.
-	 */
-	static char *com_msgs[][5] = {
-		{"You cannot holler!!\r\n",
-				"holler",
-				"You aren't on the holler channel.\r\n",
-			KYEL_BLD, KRED},
-
-		{"You cannot shout!!\r\n",
-				"shout",
-				"Turn off your noshout flag first!\r\n",
-			KYEL, KCYN},
-
-		{"You cannot gossip!!\r\n",
-				"gossip",
-				"You aren't even on the channel!\r\n",
-			KGRN, KNUL},
-
-		{"You cannot auction!!\r\n",
-				"auction",
-				"You aren't even on the channel!\r\n",
-			KMAG, KNRM},
-
-		{"You cannot congratulate!\r\n",
-				"congrat",
-				"You aren't even on the channel!\r\n",
-			KGRN, KMAG},
-
-		{"You cannot sing!!\r\n",
-				"sing",
-				"You aren't even on the channel!\r\n",
-			KCYN, KYEL},
-
-		{"You cannot spew!!\r\n",
-				"spew",
-				"You aren't even on the channel!\r\n",
-			KRED, KYEL},
-
-		{"You cannot dream.  You are muted.\r\n",
-				"dream",
-				"You aren't even on the dream channel!\r\n",
-			KCYN, KNRM_BLD},
-
-		{"You cannot project.  The gods have muted you.\r\n",
-				"project",
-				"You are not open to projections yourself...\r\n",
-			KNRM_BLD, KCYN},
-
-		{"You are muted.\r\n",
-				"newbie",
-				"",
-			KYEL, KNRM},
-
-	};
-
-	/* to keep pets, etc from being ordered to shout  */
-
-	if (!ch->desc && ch->master && (subcmd == SCMD_PROJECT ||
-			subcmd == SCMD_HOLLER))
+	// pets can't shout on interplanar channels
+	if (!ch->desc && ch->master && !chan->check_plane)
 		return;
 
+	// Drunk people not allowed!
 	if ((GET_COND(ch, DRUNK) > 5) && (number(0, 3) >= 2)) {
 		send_to_char(ch,
 			"You try to %s, but somehow it just doesn't come out right.\r\n",
-			subcmd == SCMD_GOSSIP ? "gossip" : subcmd ==
-			SCMD_AUCTION ? "auction" : subcmd ==
-			SCMD_GRATZ ? "congratulate" : subcmd ==
-			SCMD_MUSIC ? "sing" : subcmd == SCMD_SPEW ? "spew" : subcmd ==
-			SCMD_DREAM ? "dream" : subcmd ==
-			SCMD_PROJECT ? "project" : subcmd ==
-			SCMD_NEWBIE ? "newbie" : "speak");
+			chan->name);
 		return;
 	}
-	if (subcmd == SCMD_PROJECT && !IS_NPC(ch) && CHECK_REMORT_CLASS(ch) < 0 &&
-		GET_LEVEL(ch) < LVL_AMBASSADOR) {
-		send_to_char(ch, "You do not know how to project yourself that way.\r\n");
+	// NPCs and non-clan members don't get to clan-say
+	if (subcmd == SCMD_CLANSAY && (IS_NPC(ch) || !GET_CLAN(ch))) {
+		send_to_char(ch, "You aren't even a member of a clan!\r\n");
 		return;
 	}
 	if (PLR_FLAGGED(ch, PLR_NOSHOUT)) {
-		send_to_char(ch, com_msgs[subcmd][0]);
+		send_to_char(ch, chan->msg_noton);
 		return;
 	}
-	/* level_can_shout defined in config.c */
-	if (!IS_NPC(ch) && GET_LEVEL(ch) < level_can_shout
-		&& subcmd != SCMD_NEWBIE && GET_REMORT_GEN(ch) <= 0 ) {
-		send_to_char(ch, "You must be at least level %d before you can %s.\r\n",
-			level_can_shout, com_msgs[subcmd][1]);
-		send_to_char(ch, "Try using the newbie channel instead.\r\n");
-		return;
-	}
-	if (!IS_NPC(ch)) {
-		/* make sure the char is on the channel */
-		if (PRF_FLAGGED(ch, channels[subcmd])) {
-			send_to_char(ch, com_msgs[subcmd][2]);
-			return;
-		}
-		if (subcmd == SCMD_HOLLER && PRF2_FLAGGED(ch, PRF2_NOHOLLER)) {
-			send_to_char(ch, "Ha!  You are noholler buddy.\r\n");
+
+	// These are all restrictions, to which immortals and npcs are uncaring
+	if (!IS_NPC(ch) && !IS_IMMORT(ch)) {
+		/* level_can_shout defined in config.c */
+		if (GET_LEVEL(ch) < level_can_shout
+			&& subcmd != SCMD_NEWBIE && GET_REMORT_GEN(ch) <= 0 ) {
+			send_to_char(ch, "You must be at least level %d before you can %s.\r\n",
+				level_can_shout, chan->name);
+			send_to_char(ch, "Try using the newbie channel instead.\r\n");
 			return;
 		}
 
-		if (subcmd == SCMD_DREAM &&
-			(ch->getPosition() != POS_SLEEPING)
-			&& GET_LEVEL(ch) < LVL_IMMORT) {
+		// Only remort players can project
+		if (subcmd == SCMD_PROJECT &&
+				CHECK_REMORT_CLASS(ch) < 0 &&
+				GET_LEVEL(ch) < LVL_AMBASSADOR) {
+			send_to_char(ch, "You do not know how to project yourself that way.\r\n");
+			return;
+		}
+
+		/* make sure the char is on the channel */
+		if (chan->deaf_vector == 1 && PRF_FLAGGED(ch, chan->deaf_flag)) {
+			send_to_char(ch, "%s\r\n", chan->msg_noton);
+			return;
+		}
+		if (chan->deaf_vector == 2 && PRF2_FLAGGED(ch, chan->deaf_flag)) {
+			send_to_char(ch, "%s\r\n", chan->msg_noton);
+			return;
+		}
+		if (chan->deaf_vector == -2 && !PRF2_FLAGGED(ch, chan->deaf_flag)) {
+			send_to_char(ch, "%s\r\n", chan->msg_noton);
+			return;
+		}
+
+		if (subcmd == SCMD_DREAM && (ch->getPosition() != POS_SLEEPING)) {
 			send_to_char(ch, 
 				"You attempt to dream, but realize you need to sleep first.\r\n");
 			return;
@@ -728,7 +718,7 @@ ACMD(do_gen_comm)
 	/* make sure that there is something there to say! */
 	if (!*argument) {
 		send_to_char(ch, "Yes, %s, fine, %s we must, but WHAT???\r\n",
-			com_msgs[subcmd][1], com_msgs[subcmd][1]);
+			chan->name, chan->name);
 		return;
 	}
 
@@ -739,25 +729,20 @@ ACMD(do_gen_comm)
 		} else
 			GET_MOVE(ch) -= holler_move_cost;
 	}
-	/* set up the color on code */
-	strcpy(color_on1, com_msgs[subcmd][3]);
-	if (com_msgs[subcmd][4])
-		strcpy(color_on2, com_msgs[subcmd][4]);
-
-	/* first, set up strings to be given to the communicator */
+	
+	// first, set up strings to be given to the communicator
 	if (PRF_FLAGGED(ch, PRF_NOREPEAT))
 		send_to_char(ch, OK);
 	else {
 		if (COLOR_LEV(ch) >= C_NRM)
-			sprintf(buf1, "%sYou %s,%s%s '%s'%s", color_on1,
-				com_msgs[subcmd][1], KNRM, color_on2, argument, KNRM);
+			send_to_char(ch, "%sYou %s,%s%s '%s'%s\r\n", chan->desc_color,
+					chan->name, KNRM, chan->text_color, argument, KNRM);
 		else
-			sprintf(buf1, "You %s, '%s'", com_msgs[subcmd][1], argument);
-		act(buf1, FALSE, ch, 0, 0, TO_CHAR | TO_SLEEP);
+			send_to_char(ch, "You %s, '%s'\r\n", chan->name, argument);
 
 		/* see if it's dirty! */
-		if (!IS_MOB(ch) && GET_LEVEL(ch) < LVL_GRGOD &&
-			Nasty_Words(argument) && subcmd != SCMD_SPEW) {
+		if (chan->check_curse && !IS_MOB(ch) && GET_LEVEL(ch) < LVL_GRGOD &&
+			Nasty_Words(argument)) {
 			switch (number(0, 2)) {
 			case 0:
 				send_to_char(ch, 
@@ -772,73 +757,69 @@ ACMD(do_gen_comm)
 					"I don't think everyone wants to hear that.  SPEW it!\r\n");
 				break;
 			}
-			slog("%s warned for nasty public communication.",
-				GET_NAME(ch));
+			slog("%s warned for nasty public communication.", GET_NAME(ch));
 		}
 	}
 
-	sprintf(buf, "$n %ss, '%s'", com_msgs[subcmd][1], argument);
-	sprintf(buf2, "$n %ss,%s%s '%s'", com_msgs[subcmd][1], KNRM, color_on2,
-		argument);
+	plain_emit = tmp_sprintf("%%s %ss, '%s'\r\n", chan->name, argument);
+	color_emit = tmp_sprintf("%s%%s %ss,%s%s '%s'%s\r\n", chan->desc_color,
+		chan->name, KNRM, chan->text_color, argument, KNRM);
 
 	/* now send all the strings out */
 	for (i = descriptor_list; i; i = i->next) {
-		if (STATE(i) == CON_PLAYING && i != ch->desc && i->character &&
-			!PRF_FLAGGED(i->character, channels[subcmd]) &&
-			!PLR_FLAGGED(i->character, PLR_WRITING) &&
-			!PLR_FLAGGED(i->character, PLR_OLC)) {
+		if (STATE(i) != CON_PLAYING || i == ch->desc || !i->character ||
+				PLR_FLAGGED(i->character, PLR_WRITING) ||
+				PLR_FLAGGED(i->character, PLR_OLC))
+			continue;
 
-			if ((ROOM_FLAGGED(ch->in_room, ROOM_SOUNDPROOF) ||
+		if (chan->deaf_vector == 1 &&
+				PRF_FLAGGED(i->character, chan->deaf_flag))
+			continue;
+		if (chan->deaf_vector == 2 &&
+				PRF2_FLAGGED(i->character, chan->deaf_flag))
+			continue;
+		if (chan->deaf_vector == -2 &&
+				!PRF2_FLAGGED(i->character, chan->deaf_flag))
+			continue;
+
+		// Must be in same clan to hear clansay - even immortals
+		if (subcmd == SCMD_CLANSAY && (!GET_CLAN(i->character) ||
+				GET_CLAN(i->character) != GET_CLAN(ch)))
+			continue;
+
+		// Must be in same guild to hear guildsay - even immortals
+		if (subcmd == SCMD_GUILDSAY &&
+				GET_CLASS(i->character) != GET_CLASS(ch))
+			continue;
+
+		if (subcmd == SCMD_PROJECT && !IS_REMORT(i->character))
+			continue;
+
+		if (subcmd == SCMD_DREAM &&
+				i->character->getPosition() != POS_SLEEPING)
+			continue;
+
+		if (subcmd == SCMD_SHOUT &&
+			((ch->in_room->zone != i->character->in_room->zone) ||
+				i->character->getPosition() < POS_RESTING))
+			continue;
+
+		if ((ROOM_FLAGGED(ch->in_room, ROOM_SOUNDPROOF) ||
 				ROOM_FLAGGED(i->character->in_room, ROOM_SOUNDPROOF)) &&
-				GET_LEVEL(ch) < LVL_IMMORT &&
-				GET_LEVEL(i->character) < LVL_IMMORT &&
-				i->character->in_room != ch->in_room) {
-				continue;
-			}
+				!IS_IMMORT(ch) && !IS_IMMORT(i->character) &&
+				i->character->in_room != ch->in_room)
+			continue;
 
-			if (subcmd == SCMD_NEWBIE &&
-				!PRF2_FLAGGED(i->character, PRF2_NEWBIE_HELPER))
-				continue;
+		if (chan->check_plane && !IS_IMMORT(i->character) &&
+				COMM_NOTOK_ZONES(ch, i->character))
+			continue;
 
-			if (subcmd == SCMD_HOLLER &&
-				PRF2_FLAGGED(i->character, PRF2_NOHOLLER))
-				continue;
-
-			if (IS_NPC(ch) || GET_LEVEL(i->character) < LVL_AMBASSADOR) {
-				if (subcmd == SCMD_SHOUT &&
-					((ch->in_room->zone != i->character->in_room->zone) ||
-						i->character->getPosition() < POS_RESTING))
-					continue;
-
-				if (subcmd == SCMD_PROJECT &&
-					CHECK_REMORT_CLASS(i->character) < 0 &&
-					GET_LEVEL(i->character) < LVL_AMBASSADOR)
-					continue;
-
-				if (subcmd == SCMD_DREAM &&
-					i->character->getPosition() != POS_SLEEPING)
-					continue;
-
-				if ((subcmd == SCMD_GOSSIP || subcmd == SCMD_AUCTION ||
-						subcmd == SCMD_GRATZ || subcmd == SCMD_DREAM ||
-						subcmd == SCMD_MUSIC || subcmd == SCMD_SPEW ||
-						subcmd == SCMD_NEWBIE) &&
-					COMM_NOTOK_ZONES(ch, i->character))
-					continue;
-
-			}
-
-			if (COLOR_LEV(i->character) >= C_NRM) {
-				send_to_char(i->character, color_on1);
-				act(buf2, FALSE, ch, 0, i->character, TO_VICT | TO_SLEEP);
-				send_to_char(i->character, KNRM);
-			} else
-				act(buf, FALSE, ch, 0, i->character, TO_VICT | TO_SLEEP);
-		}
+		send_to_char(i->character,
+			COLOR_LEV(i->character) >= C_NRM ? color_emit : plain_emit,
+			tmp_capitalize(PERS(ch, i->character)));
 	}
 
-	if (ROOM_FLAGGED(ch->in_room, ROOM_SOUNDPROOF) &&
-			GET_LEVEL(ch) < LVL_IMMORT)
+	if (ROOM_FLAGGED(ch->in_room, ROOM_SOUNDPROOF) && !IS_IMMORT(ch))
 		send_to_char(ch, "The walls seem to absorb your words.\r\n");
 }
 
@@ -944,39 +925,20 @@ ACMD(do_clan_comm)
 					GET_NAME(ch), CCNRM(ch, C_NRM), argument);
 		}
 
-		if (subcmd == SCMD_CLAN_SAY) {
-			for (i = descriptor_list; i; i = i->next)
-				if (STATE(i) == CON_PLAYING && i != ch->desc && i->character &&
-					GET_CLAN(i->character) &&
-					GET_CLAN(i->character) == GET_CLAN(ch) &&
-					!PRF_FLAGGED(i->character, PRF_NOCLANSAY) &&
-					i->character->in_room != NULL &&
-					!COMM_NOTOK_ZONES(ch, i->character) &&
-					!PLR_FLAGGED(i->character,
-						PLR_MAILING | PLR_WRITING | PLR_OLC)) {
-					strcpy(buf, CCCYN(i->character, C_NRM));
-					sprintf(buf2, "%s clan-says, %s'%s'\r\n", PERS(ch,
-							i->character), CCNRM(i->character, C_NRM),
-						argument);
-					strcat(buf, CAP(buf2));
-					send_to_char(i->character, "%s", buf);
-				}
-		} else {
-			for (i = descriptor_list; i; i = i->next)
-				if (STATE(i) == CON_PLAYING && i != ch->desc && i->character &&
-					GET_CLAN(i->character) &&
-					GET_CLAN(i->character) == GET_CLAN(ch) &&
-					!PRF_FLAGGED(i->character, PRF_NOCLANSAY) &&
-					i->character->in_room != NULL &&
-					!COMM_NOTOK_ZONES(ch, i->character) &&
-					!PLR_FLAGGED(i->character,
-						PLR_MAILING | PLR_WRITING | PLR_OLC)) {
-					sprintf(buf, "$n%s %s", CCNRM(i->character, C_NRM),
-						argument);
-					send_to_char(i->character, CCCYN(i->character, C_NRM));
-					act(buf, 0, ch, 0, i->character, TO_VICT | TO_SLEEP);
-				}
-		}
+		for (i = descriptor_list; i; i = i->next)
+			if (STATE(i) == CON_PLAYING && i != ch->desc && i->character &&
+				GET_CLAN(i->character) &&
+				GET_CLAN(i->character) == GET_CLAN(ch) &&
+				!PRF_FLAGGED(i->character, PRF_NOCLANSAY) &&
+				i->character->in_room != NULL &&
+				!COMM_NOTOK_ZONES(ch, i->character) &&
+				!PLR_FLAGGED(i->character,
+					PLR_MAILING | PLR_WRITING | PLR_OLC)) {
+				sprintf(buf, "$n%s %s", CCNRM(i->character, C_NRM),
+					argument);
+				send_to_char(i->character, CCCYN(i->character, C_NRM));
+				act(buf, 0, ch, 0, i->character, TO_VICT | TO_SLEEP);
+			}
 	}
 }
 

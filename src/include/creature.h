@@ -391,6 +391,7 @@ static const int PRF2_NOGECHO = (1 << 18);	// Silly Gecho things
 static const int PRF2_NOWRAP = (1 << 19);	// turns off autowrap temporarily.
 static const int PRF2_DISPALIGN = (1 << 20);
 static const int PRF2_WORLDWRITE = (1 << 21); // allows worldwrite to work
+static const int PRF2_NOGUILDSAY = (1 << 22);
 
 /* Affect bits: used in Creature.char_specials.saved.affected_by */
 /* WARNING: In the world files, NEVER set the bits marked "R" ("Reserved") */
