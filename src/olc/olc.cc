@@ -27,6 +27,7 @@
 #include "interpreter.h"
 #include "handler.h"
 #include "db.h"
+#include "security.h"
 #include "olc.h"
 #include "screen.h"
 #include "flow_room.h"
@@ -41,6 +42,15 @@
 #include "guns.h"
 #include "char_class.h"
 #include "events.h"
+
+
+bool OLCIMP( char_data *ch ) {
+    if( GET_LEVEL(ch) == LVL_GRIMP )
+        return true;
+    if( Security::isMember( ch, "Architects" ) )
+        return true;
+    return false;
+}
 
 #define NUM_POSITIONS 11
 #define LVL_ISCRIPT 73

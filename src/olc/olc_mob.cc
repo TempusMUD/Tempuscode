@@ -17,6 +17,7 @@
 #include "char_class.h"
 #include "handler.h"
 #include "db.h"
+#include "security.h"
 #include "olc.h"
 #include "screen.h"
 #include "flow_room.h"

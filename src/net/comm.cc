@@ -38,6 +38,7 @@
 #include "utils.h"
 #include "comm.h"
 #include "interpreter.h"
+#include "security.h"
 #include "handler.h"
 #include "db.h"
 #include "house.h"
@@ -296,6 +297,7 @@ init_game(int port)
     close(mother_desc);
     close(intermud_desc);
     fclose(player_fl);
+    Security::shutdown();
 
     if (circle_reboot) {
         slog("Rebooting.");

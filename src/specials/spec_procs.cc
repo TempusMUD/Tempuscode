@@ -29,6 +29,7 @@
 #include "vehicle.h"
 #include "materials.h"
 #include "paths.h"
+#include "security.h"
 #include "olc.h"
 #include "specs.h"
 #include "login.h"

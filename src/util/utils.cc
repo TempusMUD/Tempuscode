@@ -31,6 +31,7 @@
 #include "screen.h"
 #include "spells.h"
 #include "handler.h"
+#include "security.h"
 #include "db.h"
 
 extern struct follow_type *order_next_k;

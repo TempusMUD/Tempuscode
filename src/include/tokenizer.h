@@ -12,16 +12,16 @@ class Tokenizer {
          */
         Tokenizer(const char *input, char delimiter = ' ') {
             index = 0;
-			if (input) {
-				length = strlen(input);
-				delim = delimiter;
-				data = new char[ length + 1 ];
-				strcpy( data, input );
-			} else {
-				length = 0;
-				delim = delimiter;
-				data = NULL;
-			}
+            if (input) {
+                length = strlen(input);
+                delim = delimiter;
+                data = new char[ length + 1 ];
+                strcpy( data, input );
+            } else {
+                length = 0;
+                delim = delimiter;
+                data = NULL;
+            }
         }
 
         /*
@@ -70,6 +70,17 @@ class Tokenizer {
             // Find the next non delimiter ( next token begin )
             while( data[index] && data[index] == delim )
                 index++;
+            return true;
+        }
+        
+        /*
+         * Copies all remaining data into out
+         */
+        bool remaining( char *out ) {
+            if( index >= length )
+                return false;
+            strcpy( out, data+index);
+            index = length;
             return true;
         }
 

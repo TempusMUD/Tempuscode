@@ -63,7 +63,9 @@ int CAN_EDIT_ZONE(CHAR *ch, struct zone_data *zone);
 int OLC_EDIT_OK( CHAR *ch, struct zone_data *zone, int bits );
 
 #define OLCGOD(ch) ( PLR_FLAGGED(ch, PLR_OLCGOD) )
-#define OLCIMP(ch) ( GET_LEVEL(ch) >= LVL_CREATOR )
+//#define OLCIMP(ch) ( GET_LEVEL(ch) >= LVL_CREATOR )
+
+bool OLCIMP( char_data *ch );
 
 #define UPDATE_OBJLIST_NAMES(obj_p, tmp_obj, _item)                         \
      for (tmp_obj = object_list; tmp_obj; tmp_obj = tmp_obj->next)   \

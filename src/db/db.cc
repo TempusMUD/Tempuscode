@@ -40,12 +40,12 @@
 #include "paths.h"
 #include "quest.h"
 #include "char_class.h"
+#include "security.h"
 #include "olc.h"
 #include "shop.h"
 #include "help.h"
 #include "combat.h"
 #include "iscript.h"
-#include "security.h"
 
 /**************************************************************************
 *  declarations of most of the 'global' variables                         *

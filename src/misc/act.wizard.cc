@@ -30,6 +30,7 @@
 #include "screen.h"
 #include "char_class.h"
 #include "vehicle.h"
+#include "security.h"
 #include "olc.h"
 #include "materials.h"
 #include "clan.h"

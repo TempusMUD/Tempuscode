@@ -11,6 +11,7 @@ using namespace std;
 // Undefine CHAR to avoid collisions
 #undef CHAR 
 #include "xml_utils.h"
+#include "screen.h"
 
 // Interpreter command structure
 extern struct command_info cmd_info[];
@@ -77,21 +78,49 @@ namespace Security {
             /* membership check for players by player id */
             bool member( long player );
             /* membership check for a given player */
-            bool member( const char_data *ch );
+            bool member( char_data *ch );
             /* membership check for a given command */
             bool member( const command_info *command );
             
             /* membership check for players by player id */
-            bool givesAccess( const char_data *ch, const command_info *command );
+            bool givesAccess( char_data *ch, const command_info *command );
             
             /* Retrieves this group's description */
             const char *getDescription() { return _description; }
+            /* sets this group's description */
+            void setDescription(const char *desc);
             /* Retrieves this group's name */
             const char *getName() { return _name; }
+            /* retrieves the name of the group that can admin this group. */
+            const char *getAdminGroup() { return _adminGroup; }
             
-            bool operator==( const char *name ) { return ( strcmp(_name,name) == 0 ); }
-            bool operator!=( const char *name ) { return !(*this == name); }
-            
+            /* assignment operator. Used by copy constructor and sorting. */
+            Group &operator=( const Group &g );
+            /* 
+             * Equivilance of this groups name with the given name.
+             * Used for sorting and searching.
+             */
+            bool operator==( const char *name ) 
+                { return ( strcasecmp(_name,name) == 0 ); }
+            /* 
+             * Inequivilance of this groups name with the given name.
+             * Used for sorting and searching.
+             */
+            bool operator!=( const char *name ) 
+                { return !(*this == name); }
+            /* 
+             * Less than as defined by strcasecmp() on this._name vs g._name.
+             * Used for sorting and searching.
+             */
+            bool operator<( const Group& g )  
+                { return ( strcasecmp(_name, g._name) < 0 ); }
+            /* 
+             * Greater than as defined by strcasecmp() on this._name vs g._name.
+             * Used for sorting and searching.
+             */
+            bool operator>( const Group& g )  
+                { return ( strcasecmp(_name, g._name) > 0 ); }
+
             /* Sends a list of this group's members to the given character. */
             bool sendMemberList( char_data *ch );
             /* Sends a list of this group's members to the given character. */
@@ -100,54 +129,86 @@ namespace Security {
             /* Create the required xmlnodes to recreate this group; */
             bool save( xmlNodePtr parent );
             
+            /* sends a multi-line status of this group to ch */
+            void sendStatus( char_data *ch ); 
+            /* sprintf's a one line desc of this group into out */
+            void toString( char *out, char_data *ch );
+
+            /* Clear out this group's data for shutdown. */
+            void clear();
             
-            void toString( char *out ) {
-                sprintf( out, "%15s [%4d] [%4d]\r\n", _name, commands.size(),members.size());
-            }
             ~Group();
         private:
+            /* A one line description of this group */
             char *_description;
+            /* The one word name for this group */
             char *_name;
-            // resolved on group load/creation. 
-            // Command names stored in file.
-            // Pointers sorted as if they're ints.
-            vector<command_info *> commands;
+            /* The name of the group whos members can administrate this group */
+            char *_adminGroup;
+            /** 
+             * resolved on group load/creation. 
+             * Command names stored in file.
+             * Pointers sorted as if they're ints.
+             **/
+             vector<command_info *> commands;
             // player ids, sorted
             vector<long> members;
     };
+    /* The list of existing groups (group.cc) */
     extern list<Group> groups;
     
-    /*
+    /**
      * Returns true if the character is the proper level AND is in
      * one of the required groups (if any)
     **/
-    bool canAccess( const char_data *ch, const command_info *command );
+    bool canAccess( char_data *ch, const command_info *command );
     /* Check membership in a particular group by name.**/
     bool isMember( char_data *ch, const char* group_name );
+    /* can this character add/remove characters from this group. **/
+    bool canAdminGroup( char_data *ch, const char* groupName );
     
     /* send a list of the current groups to a character */
     void sendGroupList( char_data *ch );
-    /** creates a new group with the given name.  returns false if the name is taken. **/
+    /** 
+     * creates a new group with the given name.  
+     * returns false if the name is taken. 
+     **/
     bool createGroup( char *name );
-    /** removes the group with the given name. returns false if there is no such group. **/
+    /** 
+     * removes the group with the given name. 
+     * returns false if there is no such group. 
+     **/
     bool removeGroup( char *name );
     
     /** returns true if the named group exists. **/
     bool isGroup( const char* name );
-    
+    /** retrieves the named group. **/
+    Group& getGroup( const char* name);
     /** sends the member list of the named group to the given character. **/
     bool sendMemberList( char_data *ch, char *group_name );
     /** sends the command list of the named group to the given character. **/
     bool sendCommandList( char_data *ch, char *group_name );
     
-    /** adds the named command to the named group.  returns false if either doesn't exist. **/
+    /** 
+     * adds the named command to the named group.  
+     * returns false if either doesn't exist. 
+     **/
     bool addCommand( char *command, char *group_name );
-    /** adds the named character to the named group.  returns false if either doesn't exist. **/
+    /** 
+     * adds the named character to the named group.  
+     * returns false if either doesn't exist. 
+     **/
     bool addMember( const char *member, const char *group_name );
     
-    /** removes the named command from the named group.  returns false if either doesn't exist. **/
+    /** 
+     * removes the named command from the named group.  
+     * returns false if either doesn't exist. 
+     **/
     bool removeCommand( char *command, char *group_name );
-    /** removes the named character from the named group.  returns false if either doesn't exist. **/
+    /** 
+     * removes the named character from the named group.  
+     * returns false if either doesn't exist. 
+     **/
     bool removeMember( const char *member, const char *group_name );
     
     /** stores the security groups in the given file in XML format. **/
@@ -157,6 +218,12 @@ namespace Security {
      * membership from the given filename 
      **/
     bool loadGroups( const char *filename = SECURITY_FILE );
+
+    /**
+     *
+     * clears security related memory and shuts the system down.
+     */
+    void shutdown();
     
     void log( const char* msg, const char* name );
     void log( const char* msg, const long id );

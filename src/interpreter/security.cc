@@ -13,8 +13,9 @@ using namespace std;
 #include "db.h"
 #include "interpreter.h"
 #include "comm.h"
-#include "security.h"
 #include "tokenizer.h"
+#include "screen.h"
+#include "security.h"
 
 using namespace Security;
 
@@ -22,10 +23,13 @@ using namespace Security;
  /**
   *
   * The command struct for access commands
+  * ( with 'pissers' being a group )
   * 
   * access list
   * access create pissers
   * access remove pissers
+  * access description pissers The wierdos that piss a lot
+  * access admingroup pissers PisserAdmins
   *
   * access memberlist pissers
   * access addmember pissers forget ashe
@@ -52,22 +56,27 @@ const struct {
     { "grouplist",  "<player name>" },
     { "load",       ""},
     { "save",       ""},
+    { "describe",   "<group name> <description>"},
+    { "admin",      "<group name> <admin group>"},
+    { "stat",       "<group name>"}, 
     { NULL,         NULL }
 };
+
+static char out_buf[MAX_STRING_LENGTH + 2];
 
 /**
  *  Sends usage info to the given character
  */
 void send_access_options( char_data *ch ) {
     int i = 0; 
-    strcpy(buf, "access usage :\r\n");
+    strcpy(out_buf, "access usage :\r\n");
     while (1) {
         if (!access_cmds[i].command)
             break;
-        sprintf(buf, "%s  %-15s %s\r\n", buf, access_cmds[i].command, access_cmds[i].usage);
+        sprintf(out_buf, "%s  %-15s %s\r\n", out_buf, access_cmds[i].command, access_cmds[i].usage);
         i++;
     }
-    page_string(ch->desc, buf, 1);
+    page_string(ch->desc, out_buf, 1);
 }
 
 /**
@@ -106,6 +115,10 @@ ACCMD(do_access) {
             sendGroupList(ch);
             break;
         case 1: // create
+            if(! isMember(ch, "GroupsAdmin") ) {
+                send_to_char("You cannot create groups.\r\n",ch);
+                return;
+            }
             if( tokens.next(token1) ) {
                 if( Security::createGroup( token1 ) ) {
                     send_to_char( "Group created.\r\n",ch);
@@ -117,6 +130,10 @@ ACCMD(do_access) {
             }
             break;
         case 2: // remove
+            if(! isMember(ch, "GroupsAdmin") ) {
+                send_to_char("You cannot remove groups.\r\n",ch);
+                return;
+            }
             if( tokens.next(token1) && isGroup(token1) ) {
                 if( removeGroup( token1 ) ) {
                     send_to_char( "Group removed.\r\n",ch);
@@ -137,7 +154,13 @@ ACCMD(do_access) {
             }
             break;
         case 4: // addmember
+            
             if( tokens.next(token1) && isGroup(token1) ) {
+                if(! canAdminGroup( ch, token1 ) ) {
+                    send_to_char("You cannot add members to this group.\r\n",ch);
+                    return;
+                }
+                
                 if(! tokens.hasNext() ) {
                     send_to_char("Add what member?\r\n",ch);
                 }
@@ -156,6 +179,11 @@ ACCMD(do_access) {
             break;
         case 5: // remmember
             if( tokens.next(token1) && isGroup(token1) ) {
+                if(! canAdminGroup( ch, token1 ) ) {
+                    send_to_char("You cannot remove members from this group.\r\n",ch);
+                    return;
+                }
+
                 if(! tokens.hasNext() ) {
                     send_to_char("Remove what member?\r\n",ch);
                 }
@@ -183,6 +211,10 @@ ACCMD(do_access) {
             break;
         case 7: // addcmd
             if( tokens.next(token1) && isGroup(token1) ) {
+                if(! canAdminGroup( ch, token1 ) ) {
+                    send_to_char("You cannot add commands to this group.\r\n",ch);
+                    return;
+                }
                 if(! tokens.hasNext() ) {
                     send_to_char("Add what command?\r\n",ch);
                 }
@@ -201,6 +233,10 @@ ACCMD(do_access) {
             break;
         case 8: // remcmd
             if( tokens.next(token1) && isGroup(token1) ) {
+                if(! canAdminGroup( ch, token1 ) ) {
+                    send_to_char("You cannot remove commands from this group.\r\n",ch);
+                    return;
+                }
                 if(! tokens.hasNext() ) {
                     send_to_char("Remove what command?\r\n",ch);
                 }
@@ -237,6 +273,31 @@ ACCMD(do_access) {
                 send_to_char("Error saving access groups.\r\n",ch);
             }
             break;
+        case 12: // Describe
+            if( tokens.next(token1) && isGroup(token1) ) {
+                if(! canAdminGroup( ch, token1 ) ) {
+                    send_to_char("You cannot describe this group.\r\n",ch);
+                    return;
+                }
+                if( tokens.remaining(linebuf) ) {
+                    getGroup(token1).setDescription( linebuf );
+                    send_to_char("Description set.\r\n",ch);
+                } else {
+                    send_to_char("Set what description?\r\n",ch);        
+                }
+            } else {
+                send_to_char("Describe what group?\r\n",ch);
+            }
+            break;
+        case 13: // Admin
+            break;
+        case 14: // Stat
+            if( tokens.next(token1) && isGroup(token1) ) {
+                getGroup(token1).sendStatus(ch);
+            } else {
+                send_to_char("Stat what group?\r\n",ch);
+            }
+            break;
         default:
             send_access_options(ch);
             break;
@@ -251,7 +312,7 @@ namespace Security {
      * Returns true if the character is the proper level AND is in
      * one of the required groups (if any)
      */
-     bool canAccess( const char_data *ch, const command_info *command ) {
+     bool canAccess( char_data *ch, const command_info *command ) {
         if(! command->security & GROUP ) {
             return (GET_LEVEL(ch) >= command->minimum_level || GET_IDNUM(ch) == 1);
         } else {
@@ -274,6 +335,8 @@ namespace Security {
      * Check membership in a particular group by name.
      */
      bool isMember( char_data *ch, const char* group_name ) {
+        if( ch->getLevel() == LVL_GRIMP )
+            return true;
         list<Group>::iterator it = groups.begin(); 
         for( ; it != groups.end(); ++it ) {
             if( (*it) == group_name )
@@ -287,17 +350,28 @@ namespace Security {
      */
      void sendGroupList( char_data *ch ) {
         static char linebuf[256];
+        const char *nrm = CCNRM(ch,C_NRM);
+        const char *cyn = CCCYN(ch,C_NRM);
+        const char *grn = CCGRN(ch,C_NRM);
 
-        sprintf(linebuf,"%15s [cmds] [mbrs]\r\n","Group");
-        strcat(buf,linebuf);
+        sprintf(linebuf,
+                "%s%15s %s[%scmds%s] [%smbrs%s]%s - Description \r\n",
+                grn,
+                "Group",
+                cyn,
+                nrm,
+                cyn,
+                nrm,
+                cyn,
+                nrm);
+        strcpy(out_buf,linebuf);
 
         list<Group>::iterator it = groups.begin();
         for( ; it != groups.end(); ++it ) {
-            (*it).toString(linebuf);
-            fprintf(stderr,linebuf);
-            strcat(buf,linebuf);
+            (*it).toString(linebuf,ch);
+            strcat(out_buf,linebuf);
         }
-        send_to_char(buf,ch);
+        send_to_char(out_buf,ch);
     }
 
      bool createGroup( char *name ) {
@@ -307,6 +381,7 @@ namespace Security {
             return false;
         }
         groups.push_back(name);
+        groups.sort();
         return true;
     }
 
@@ -392,6 +467,13 @@ namespace Security {
         return( it != groups.end() );
     }
     
+    
+    /** retrieves the named group. **/
+    Group& getGroup( const char* name) {
+        list<Group>::iterator it = find( groups.begin(), groups.end(), name );
+        return *it;
+    }
+        
     bool saveGroups( const char *filename = SECURITY_FILE ) {
         xmlDocPtr doc;
         doc = xmlNewDoc((const xmlChar*)"1.0");
@@ -432,4 +514,29 @@ namespace Security {
         slog("Security:  Access group data loaded.");
         return true;
     }
+    
+    bool canAdminGroup( char_data *ch, const char* groupName ) {
+        // The name of the administrative group
+        const char* admin = NULL;
+        
+        if(! isGroup(groupName) )
+            return false;
+        if( isMember(ch, "GroupsAdmin") )
+            return true;
+        admin = getGroup(groupName).getAdminGroup();
+        if( admin == NULL || !isGroup(admin) )
+            return false;
+        return getGroup(admin).member(ch);
+    }
+     /**
+      * clears security related memory and shuts the system down.
+      */
+    void shutdown() {
+        list<Group>::iterator it = groups.begin();
+        for(; it != groups.end(); it++) {
+            (*it).clear();
+        }
+        groups.erase(groups.begin(),groups.end());
+    }
+
 }

@@ -49,13 +49,62 @@ namespace Security {
         command->security &= ~(GROUP);
     }
 
+
+    /* sets this group's description */
+    void Group::setDescription(const char *desc) {
+        if( _description != NULL )
+            delete _description;
+        _description = strdup(desc);
+    }
+
+    void Group::toString( char *out, char_data *ch ) {
+        const char *nrm = CCNRM(ch,C_NRM);
+        const char *cyn = CCCYN(ch,C_NRM);
+        const char *grn = CCGRN(ch,C_NRM);
+
+        sprintf( out,
+                "%s%15s %s[%s%4d%s] [%s%4d%s]%s - %s\r\n",
+                grn, _name, cyn,
+                nrm, commands.size(), cyn,
+                nrm, members.size(), cyn,
+                nrm, _description );
+    }
+
+    /* sends a multi-line status of this group to ch */
+    void Group::sendStatus( char_data *ch ) {
+        const char *nrm = CCNRM(ch,C_NRM);
+        const char *cyn = CCCYN(ch,C_NRM);
+        const char *grn = CCGRN(ch,C_NRM);
+
+        sprintf( buf,
+                "Name: %s%s %s [%s%4d%s][%s%4d%s]%s",
+                grn, _name, cyn,
+                nrm, commands.size(), cyn,
+                nrm, members.size(), cyn,
+                nrm);
+        sprintf( buf,
+                "%sAdmin Group: %s%s%s\r\n",
+                buf,
+                grn,
+                _adminGroup ? _adminGroup : "None",
+                nrm);
+        sprintf( buf,
+                "%sDescription: %s\r\n",
+                buf, 
+                _description);
+        send_to_char(buf,ch);
+        sendCommandList( ch );
+        sendMemberList( ch );
+    }
+
+    
     bool Group::addCommand( command_info *command ) {
         if( member( command ) )
             return false;
         command->security |= GROUP;
         commands.push_back(command);
         sort( commands.begin(), commands.end() );
-        log("Command added",command->command);
+        //log("Command added",command->command);
         return true;
     }
 
@@ -71,7 +120,7 @@ namespace Security {
         // Remove the group bit from the command
         updateSecurity(command);
         
-        log("Command removed",command->command);
+        //log("Command removed",command->command);
         
         sort( commands.begin(), commands.end() );
         return true;
@@ -91,7 +140,7 @@ namespace Security {
             return false;
         members.erase(it);
         
-        log("Member removed",player);
+        //log("Member removed",player);
         
         sort( members.begin(), members.end() );
         return true;
@@ -107,10 +156,10 @@ namespace Security {
 
     bool Group::addMember( long player ) {
         if( member(player) )
-            return false;
+            return true;
         members.push_back(player);
         
-        log("Member added",player);
+        //log("Member added",player);
         
         sort( members.begin(), members.end() );
         return true;
@@ -120,13 +169,13 @@ namespace Security {
     bool Group::member( long player ) { 
         return ( find(members.begin(), members.end(), player) != members.end() ); 
     }
-    bool Group::member( const char_data *ch ) { 
+    bool Group::member(  char_data *ch ) { 
         return member(GET_IDNUM(ch)); 
     }
     bool Group::member( const command_info *command ) { 
         return ( find(commands.begin(), commands.end(), command) != commands.end() ); 
     }
-    bool Group::givesAccess( const char_data *ch, const command_info *command ) {
+    bool Group::givesAccess(  char_data *ch, const command_info *command ) {
         return ( member(ch) && member(command) );
     }
 
@@ -136,11 +185,17 @@ namespace Security {
         strcpy(buf,"Members:\r\n");
         for( ; it != members.end(); ++it ) {
             sprintf(buf,
-                    "%s[%s%6ld%s] %s%-15s%s", 
+                    "%s%s[%s%6ld%s] %s%-15s%s", 
                     buf, 
-                    CCCYN(ch,C_NRM),*it, CCNRM(ch,C_NRM),
-                    CCYEL(ch,C_NRM), get_name_by_id(*it), CCNRM(ch,C_NRM) );
-            if( pos++ % 4 == 0 ) {
+                    CCCYN(ch,C_NRM),
+                    CCNRM(ch,C_NRM),
+                    *it, 
+                    CCCYN(ch,C_NRM),
+                    CCGRN(ch,C_NRM), 
+                    get_name_by_id(*it), 
+                    CCNRM(ch,C_NRM) 
+                    );
+            if( pos++ % 3 == 0 ) {
                 pos = 1;
                 strcat(buf,"\r\n");
             } 
@@ -156,17 +211,23 @@ namespace Security {
         vector<command_info*>::iterator it = commands.begin();
         strcpy(buf,"Commands:\r\n");
         for( int i=1 ; it != commands.end(); ++it, ++i ) {
-            sprintf(buf,"%s[%s%4d%s] %-15s",
+            sprintf(buf,
+                    "%s%s[%s%4d%s] %s%-15s",
                     buf,
-                    CCCYN(ch,C_NRM),i, CCNRM(ch,C_NRM),
+                    CCCYN(ch,C_NRM),
+                    CCNRM(ch,C_NRM),
+                    i, 
+                    CCCYN(ch,C_NRM),
+                    CCGRN(ch,C_NRM),
                     (*it)->command);
-            if( pos++ % 4 == 0 ) {
+            if( pos++ % 3 == 0 ) {
                 pos = 1;
                 strcat(buf,"\r\n");
             }
         }
         if( pos != 1 )
             strcat(buf,"\r\n");
+        strcat(buf,CCNRM(ch,C_NRM));
         send_to_char(buf,ch);
         return true;
     }
@@ -187,6 +248,7 @@ namespace Security {
         // properties
         _name = xmlGetProp(node, "Name");
         _description = xmlGetProp(node, "Description");
+        _adminGroup = xmlGetProp(node, "Admin");
         long member;
         char *command;
         // commands & members
@@ -226,11 +288,32 @@ namespace Security {
      * Makes a complete copy of the Group
      */
     Group::Group( const Group &g ) {
+        _name = NULL;
+        _description = NULL;
+        _adminGroup = NULL;
+        (*this) = g;
+    }
+    
+    /*
+     * Assignment operator
+     */
+    Group &Group::operator=( const Group &g ) {
+        // Clean out old data
+        if( _name != NULL )
+            delete _name;
+        if( _description != NULL )
+            delete _description;
+        if( _adminGroup != NULL )
+            delete _adminGroup;
+        // Copy in new data
         _name = strdup(g._name);
         if( g._description != NULL )
             _description = strdup(g._description);
+        if( g._adminGroup != NULL )
+            _adminGroup = strdup(g._adminGroup);
         members = g.members;
         commands = g.commands;
+        return *this;
     }
 
     /*
@@ -241,6 +324,8 @@ namespace Security {
         
         parent = xmlNewChild( parent, NULL, (const xmlChar *)"Group", NULL );
         xmlSetProp( parent , "Name", _name ); 
+        xmlSetProp( parent , "Description", _description ); 
+        xmlSetProp( parent , "Admin", _adminGroup ); 
        
         vector<command_info*>::iterator cit = commands.begin();
         for( ; cit != commands.end(); ++cit ) {
@@ -255,6 +340,14 @@ namespace Security {
         return true;
     }
 
+    /**
+     * Clear out this group's data for shutdown.
+     */
+    void Group::clear() {
+        commands.erase(commands.begin(),commands.end());
+        members.erase( members.begin(), members.end() );
+    }
+
 
     /*
      *
@@ -265,5 +358,6 @@ namespace Security {
         }
         if( _description != NULL ) delete _description;
         if( _name != NULL ) delete _name;
+        if( _adminGroup != NULL ) delete _adminGroup;
     }
 }
