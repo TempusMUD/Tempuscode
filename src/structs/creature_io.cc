@@ -61,14 +61,14 @@ Creature::rentSave(int cost, int rentcode)//= RENT_RENTED
     // THIS SHOULD NOT BE HERE. 
     // Extract should be called properly instead.
     // Left here temporarily to get the xml code working first. --jr 6-30-02
-    for (int j = 0; j < NUM_WEARS; j++) {
-		if( GET_EQ(this, j) )
-            extract_object_list(GET_EQ(this, j));
-        if( GET_IMPLANT(this, j) )
-            extract_object_list(GET_IMPLANT(this, j));
-    }
+//     for (int j = 0; j < NUM_WEARS; j++) {
+// 		if( GET_EQ(this, j) )
+//             extract_object_list(GET_EQ(this, j));
+//         if( GET_IMPLANT(this, j) )
+//             extract_object_list(GET_IMPLANT(this, j));
+//     }
 
-    extract_object_list(carrying);
+//     extract_object_list(carrying);
 
     return true;
 }
@@ -339,7 +339,10 @@ Creature::curseSave()
 				// the item is cursed, but its contents cannot be (normally)
 				while (GET_EQ(this, j)->contains)
 					extract_object_list(GET_EQ(this, j)->contains);
-			}
+			} else {
+                obj_data* obj = unequip_char(this, j, MODE_EQ);
+                obj_to_room(obj, in_room);
+            }
 		}
 		if (GET_IMPLANT(this, j)) {
 			// Break implants and put them on the floor
@@ -358,7 +361,10 @@ Creature::curseSave()
 			// the item is cursed, but its contents cannot be (normally)
 			while (obj->contains)
 				extract_object_list(obj->contains);
-		}
+		} else {
+            obj_from_char( obj );
+            obj_to_room( obj, in_room );
+        }
 	}
 
 
