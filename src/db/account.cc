@@ -234,8 +234,8 @@ Account::retrieve(const char *name)
 	}
 
 	// Apprently, we don't, so look it up on the db
-	res = sql_query("select idnum from accounts where name ilike '%s'",
-		tmp_sqlescape(name));
+	res = sql_query("select idnum from accounts where lower(name)='%s'",
+		tmp_sqlescape(tmp_tolower(name)));
 	if (PQntuples(res) != 1)
 		return NULL;
 	acct_id = atoi(PQgetvalue(res, 0, 0));
