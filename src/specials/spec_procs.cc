@@ -267,29 +267,6 @@ list_skills(struct char_data * ch, int mode, int type)
     page_string(ch->desc, buf2, 1);
 }
 
-void 
-show_programs_to_char(struct char_data * ch, int char_class) {
-    int i, sortpos;
-
-    strcpy(buf2, "Directory listing for local programs.\r\n\r\n");
-  
-    for (sortpos = 1; sortpos < MAX_SKILLS - MAX_SPELLS; sortpos++) {
-        i = skill_sort_info[sortpos];
-        if (strlen(buf2) >= MAX_STRING_LENGTH - 32) {
-            strcat(buf2, "**OVERFLOW**\r\n");
-            break;
-        }
-        if ((CHECK_SKILL(ch, i) || ABLE_TO_LEARN(ch, i)) &&
-            SPELL_LEVEL(i, 0) <= LVL_GRIMP) {
-            sprintf(buf, "%-30s [%3d] percent installed.\r\n", 
-                    spells[i], GET_SKILL(ch, i));
-            strcat(buf2, buf);
-        } 
-    }
-
-    page_string(ch->desc, buf2, 1);
-}
-
 SPECIAL(guild)
 {
     int skill_num, percent;
@@ -1819,6 +1796,7 @@ SPECIAL(cave_bear)
 
 /* OBJECT SPECIALS */
 #include "Specs/object_specs/loudspeaker.spec"
+#include "Specs/object_specs/voting_booth.spec"
 
 /* HILL GIANT STEADING */
 #include "Specs/giants_specs/javelin_of_lightning.spec"
@@ -1941,6 +1919,7 @@ SPECIAL(cave_bear)
 #include "Specs/skullport_specs/head_shrinker.spec"
 #include "Specs/skullport_specs/multi_healer.spec"
 #include "Specs/skullport_specs/slaver.spec"
+#include "Specs/skullport_specs/fountain_youth.spec"
 
 /* out specs */
 #include "Specs/out_specs/spirit_priestess.spec"

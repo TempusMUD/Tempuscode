@@ -589,6 +589,7 @@ const char *spells[] =
     "radiation sickness",
     "flamethrower",
     "gouged his own eyes out",
+	"youth",
     "\n"                                /* the end */
 };
 
