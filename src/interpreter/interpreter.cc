@@ -2127,26 +2127,31 @@ two_arguments(const char *argument, char *first_arg, char *second_arg)
  * returns 1 if arg1 is an abbreviation of arg2
  * returns 2 if arg1 is an extact match to arg2
  * returns 0 otherwise
+ *
+ * added 3rd argument with default for minimum match length
+ * LK -- 2/22/2004
  */
 int
-is_abbrev(const char *needle, const char *haystack)
+is_abbrev(const char *needle, const char *haystack, int count)
 {
+    int matched = 0;
+
 	if (!*needle)
 		return 0;
 
-	while (*needle && *haystack)
+	while (*needle && *haystack) {
+        matched++;
 		if (tolower(*needle++) != tolower(*haystack++))
 			return 0;
+    }
 	
 	if (!*needle && !*haystack)
 		return 2;
-	if (!*needle)
+	if ((!*needle) && matched >= count)
 		return 1;
 
 	return 0;
 }
-
-
 
 /* return first space-delimited token in arg1; remainder of string in arg2 */
 void
