@@ -911,6 +911,10 @@ retire_trails(void)
 						free(trail->name);
 						trail->name = NULL;
 					}
+					if (trail->aliases) {
+						free(trail->aliases);
+						trail->aliases = NULL;
+					}
 					if (trail == rm->trail) {
 						rm->trail = next_trail;
 						last_trail = rm->trail;
