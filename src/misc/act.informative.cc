@@ -2251,31 +2251,52 @@ acc_append_affects(struct Creature *ch, byte mode)
 		else
 			acc_strcat("You feel sick and your hair is falling out.\r\n", NULL);
 	}
-	if (IS_AFFECTED_2(ch, AFF2_PROT_RAD))
-		acc_strcat("You are immune to the effects of radiation.\r\n", NULL);
+
+	if (AFF2_FLAGGED(ch, AFF2_SLOW))
+		acc_strcat("You feel unnaturally slowed.\r\n", NULL);
+	if (IS_AFFECTED(ch, AFF_CHARM))
+		acc_strcat("You have been charmed!\r\n", NULL);
+    if (IS_AFFECTED_3(ch, AFF3_MANA_LEAK) && !IS_AFFECTED_3(ch, AFF3_MANA_TAP))
+        acc_strcat(str, "You are slowly being drained of your spiritual energy.\r\n", NULL);
+    if (IS_AFFECTED_3(ch, AFF3_ENERGY_LEAK) && !IS_AFFECTED_3(ch, AFF3_ENERGY_TAP))
+        acc_strcat(str, "Your body is slowly being drained of physical energy.\r\n", NULL);
+
+	if (IS_AFFECTED_3(ch, AFF3_SYMBOL_OF_PAIN))
+		acc_strcat("Your mind burns with the symbol of pain!\r\n", NULL);
+	if (affected_by_spell(ch, SPELL_WEAKNESS))
+		acc_strcat("You feel unusually weakened.\r\n", NULL);
+	if (AFF3_FLAGGED(ch, AFF3_PSYCHIC_CRUSH))
+		acc_strcat("You feel a psychic force crushing your mind!\r\n", NULL);
+	if (affected_by_spell(ch, SPELL_FEAR))
+		acc_strcat("The world is a terribly frightening place!\r\n", NULL);
+	if (AFF3_FLAGGED(ch, AFF3_ACIDITY))
+		acc_strcat("Your body is producing self-corroding acids!\r\n", NULL);
+	if (IS_AFFECTED_3(ch, AFF3_GRAVITY_WELL))
+		acc_strcat(
+			"Spacetime is bent around you in a powerful gravity well!\r\n", NULL);
+	if (IS_AFFECTED_3(ch, AFF3_HAMSTRUNG))
+		acc_sprintf(
+			"%sThe gash on your leg is %sBLEEDING%s%s all over!!%s\r\n",
+			CCRED(ch, C_SPR), CCBLD(ch, C_SPR), CCNRM(ch, C_SPR), CCRED(ch,
+				C_SPR), CCNRM(ch, C_SPR));
+	if (IS_SICK(ch))
+		acc_strcat("You are afflicted with a terrible sickness!\r\n", NULL);
+	if (IS_AFFECTED_3(ch, AFF3_GRAVITY_WELL))
+		acc_strcat(
+			"Spacetime is bent around you in a powerful gravity well!\r\n", NULL);
+	if (IS_AFFECTED_3(ch, AFF3_HAMSTRUNG))
+		acc_sprintf(
+			"%sThe gash on your leg is %sBLEEDING%s%s all over!!%s\r\n",
+			CCRED(ch, C_SPR), CCBLD(ch, C_SPR), CCNRM(ch, C_SPR), CCRED(ch,
+				C_SPR), CCNRM(ch, C_SPR));
+	if (IS_AFFECTED(ch, AFF_CONFUSION))
+		acc_strcat("You are very confused.\r\n", NULL);
+	if (affected_by_spell(ch, SPELL_MOTOR_SPASM))
+		acc_strcat("Your muscles are spasming uncontrollably!\r\n", NULL);
+	if (AFF2_FLAGGED(ch, AFF2_VERTIGO))
+		acc_strcat("You are lost in a sea of vertigo.\r\n", NULL);
 	if (IS_AFFECTED_3(ch, AFF3_TAINTED))
 		acc_strcat("The very essence of your being has been tainted.\r\n", NULL);
-
-	// vampiric regeneration
-
-	if ((af = affected_by_spell(ch, SPELL_VAMPIRIC_REGENERATION))) {
-		if ((name = playerIndex.getName(af->modifier)))
-			acc_sprintf(
-				"You are under the effects of %s's vampiric regeneration.\r\n",
-				name);
-		else
-			acc_strcat("You are under the effects of vampiric regeneration from an unknown source.\r\n", NULL);
-	}
-
-	if ((af = affected_by_spell(ch, SPELL_LOCUST_REGENERATION))) {
-		if ((name = playerIndex.getName(af->modifier)))
-			acc_strcat("You are under the effects of ", name,
-				"'s locust regeneration.\r\n", NULL);
-		else
-			acc_strcat(str,
-				"You are under the effects of locust regeneration from an unknown source.\r\n", NULL);
-	}
-
 	if (mode)					/* Only asked for bad affs? */
 		return;
 	if (IS_SOULLESS(ch))
@@ -2295,8 +2316,6 @@ acc_append_affects(struct Creature *ch, byte mode)
 		acc_strcat("You are seeing truly.\r\n", NULL);
 	if (IS_AFFECTED(ch, AFF_SANCTUARY))
 		acc_strcat("You are protected by Sanctuary.\r\n", NULL);
-	if (IS_AFFECTED(ch, AFF_CHARM))
-		acc_strcat("You have been charmed!\r\n", NULL);
 	if (affected_by_spell(ch, SPELL_ARMOR))
 		acc_strcat("You feel protected.\r\n", NULL);
 	if (affected_by_spell(ch, SPELL_BARKSKIN))
@@ -2372,8 +2391,6 @@ acc_append_affects(struct Creature *ch, byte mode)
 		acc_strcat("Your Reflex Boosters are active.\r\n", NULL);
 	else if (IS_AFFECTED_2(ch, AFF2_HASTE))
 		acc_strcat("You are moving very fast.\r\n", NULL);
-	if (AFF2_FLAGGED(ch, AFF2_SLOW))
-		acc_strcat("You feel unnaturally slowed.\r\n", NULL);
 	if (affected_by_spell(ch, SKILL_KATA))
 		acc_strcat("You feel focused from your kata.\r\n", NULL);
 	if (IS_AFFECTED_2(ch, AFF2_OBLIVITY))
@@ -2387,13 +2404,9 @@ acc_append_affects(struct Creature *ch, byte mode)
 	if (IS_AFFECTED_3(ch, AFF3_MANA_TAP) && !IS_AFFECTED_3(ch, AFF3_MANA_LEAK))
 		acc_strcat(str,
 			"You have a direct tap to the spiritual energies of the universe.\r\n", NULL);
-    if (IS_AFFECTED_3(ch, AFF3_MANA_LEAK) && !IS_AFFECTED_3(ch, AFF3_MANA_TAP))
-        acc_strcat(str, "You are slowly being drained of your spiritual energy.\r\n", NULL);
 	if (IS_AFFECTED_3(ch, AFF3_ENERGY_TAP) && !IS_AFFECTED_3(ch, AFF3_ENERGY_LEAK))
 		acc_strcat(str,
 			"Your body is absorbing physical energy from the universe.\r\n", NULL);
-    if (IS_AFFECTED_3(ch, AFF3_ENERGY_LEAK) && !IS_AFFECTED_3(ch, AFF3_ENERGY_TAP))
-        acc_strcat(str, "Your body is slowly being drained of physical energy.\r\n", NULL);
 	if (IS_AFFECTED_3(ch, AFF3_SONIC_IMAGERY))
 		acc_strcat("You are perceiving sonic images.\r\n", NULL);
 	if (IS_AFFECTED_3(ch, AFF3_PROT_HEAT))
@@ -2431,10 +2444,6 @@ acc_append_affects(struct Creature *ch, byte mode)
 		acc_strcat("Your mind is ignoring pain.\r\n", NULL);
 	if (IS_AFFECTED(ch, AFF_RETINA))
 		acc_strcat("Your retina is especially sensitive.\r\n", NULL);
-	if (IS_AFFECTED_3(ch, AFF3_SYMBOL_OF_PAIN))
-		acc_strcat("Your mind burns with the symbol of pain!\r\n", NULL);
-	if (IS_AFFECTED(ch, AFF_CONFUSION))
-		acc_strcat("You are very confused.\r\n", NULL);
 	if (affected_by_spell(ch, SKILL_ADRENAL_MAXIMIZER))
 		acc_strcat("Shukutei Adrenal Maximizations are active.\r\n", NULL);
 	else if (IS_AFFECTED(ch, AFF_ADRENALINE))
@@ -2453,26 +2462,14 @@ acc_append_affects(struct Creature *ch, byte mode)
 		acc_strcat("Your metabolism is racing.\r\n", NULL);
 	else if (affected_by_spell(ch, SPELL_RELAXATION))
 		acc_strcat("You feel very relaxed.\r\n", NULL);
-	if (affected_by_spell(ch, SPELL_WEAKNESS))
-		acc_strcat("You feel unusually weakened.\r\n", NULL);
-	if (affected_by_spell(ch, SPELL_MOTOR_SPASM))
-		acc_strcat("Your muscles are spasming uncontrollably!\r\n", NULL);
 	if (affected_by_spell(ch, SPELL_ENDURANCE))
 		acc_strcat("Your endurance is increased.\r\n", NULL);
     if (affected_by_spell(ch, SPELL_CAPACITANCE_BOOST))
         acc_strcat("You energy capacitance is boosted.\r\n", NULL);
 	if (affected_by_spell(ch, SPELL_PSYCHIC_RESISTANCE))
 		acc_strcat("Your mind is resistant to external energies.\r\n", NULL);
-	if (AFF2_FLAGGED(ch, AFF2_VERTIGO))
-		acc_strcat("You are lost in a sea of vertigo.\r\n", NULL);
-	if (AFF3_FLAGGED(ch, AFF3_PSYCHIC_CRUSH))
-		acc_strcat("You feel a psychic force crushing your mind!\r\n", NULL);
-	if (affected_by_spell(ch, SPELL_FEAR))
-		acc_strcat("The world is a terribly frightening place!\r\n", NULL);
 
 	/* physic affects */
-	if (AFF3_FLAGGED(ch, AFF3_ACIDITY))
-		acc_strcat("Your body is producing self-corroding acids!\r\n", NULL);
 	if (AFF3_FLAGGED(ch, AFF3_ATTRACTION_FIELD))
 		acc_strcat("You are emitting an attraction field.\r\n", NULL);
     if (affected_by_spell(ch, SPELL_REPULSION_FIELD))
@@ -2493,16 +2490,6 @@ acc_append_affects(struct Creature *ch, byte mode)
 			"You are surrounded by an magical obscurement shroud.\r\n", NULL);
 	if (affected_by_spell(ch, SPELL_DETECT_SCRYING))
 		acc_strcat("You are sensitive to attempts to magical scrying.\r\n", NULL);
-	if (IS_SICK(ch))
-		acc_strcat("You are afflicted with a terrible sickness!\r\n", NULL);
-	if (IS_AFFECTED_3(ch, AFF3_GRAVITY_WELL))
-		acc_strcat(
-			"Spacetime is bent around you in a powerful gravity well!\r\n", NULL);
-	if (IS_AFFECTED_3(ch, AFF3_HAMSTRUNG))
-		acc_sprintf(
-			"%sThe gash on your leg is %sBLEEDING%s%s all over!!%s\r\n",
-			CCRED(ch, C_SPR), CCBLD(ch, C_SPR), CCNRM(ch, C_SPR), CCRED(ch,
-				C_SPR), CCNRM(ch, C_SPR));
 	if (affected_by_spell(ch, SKILL_ELUSION))
 		acc_strcat("You are attempting to hide your tracks.\r\n", NULL);
 	if (affected_by_spell(ch, SPELL_TELEPATHY))
@@ -2513,6 +2500,28 @@ acc_append_affects(struct Creature *ch, byte mode)
         acc_strcat("There are thorns protruding from your skin.\r\n", NULL);
 	if (affected_by_spell(ch, SKILL_NANITE_RECONSTRUCTION))
 		acc_strcat("Your implants are undergoing nanite reconstruction\r\n", NULL);
+	if (IS_AFFECTED_2(ch, AFF2_PROT_RAD))
+		acc_strcat("You are immune to the effects of radiation.\r\n", NULL);
+
+	// vampiric regeneration
+
+	if ((af = affected_by_spell(ch, SPELL_VAMPIRIC_REGENERATION))) {
+		if ((name = playerIndex.getName(af->modifier)))
+			acc_sprintf(
+				"You are under the effects of %s's vampiric regeneration.\r\n",
+				name);
+		else
+			acc_strcat("You are under the effects of vampiric regeneration from an unknown source.\r\n", NULL);
+	}
+
+	if ((af = affected_by_spell(ch, SPELL_LOCUST_REGENERATION))) {
+		if ((name = playerIndex.getName(af->modifier)))
+			acc_strcat("You are under the effects of ", name,
+				"'s locust regeneration.\r\n", NULL);
+		else
+			acc_strcat(str,
+				"You are under the effects of locust regeneration from an unknown source.\r\n", NULL);
+	}
 }
 
 ACMD(do_affects)
