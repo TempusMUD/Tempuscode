@@ -26,10 +26,10 @@ extern struct room_data *world;
 extern struct spell_info_type spell_info[];
 extern struct obj_data *object_list;
 
-int check_mob_reaction(struct char_data *ch, struct char_data *vict);
-void look_at_target(struct char_data *ch, char *arg);
+int check_mob_reaction(struct Creature *ch, struct Creature *vict);
+void look_at_target(struct Creature *ch, char *arg);
 char *obj_cond(struct obj_data *obj);  /** writes to buf2 **/
-char *obj_cond_color(struct obj_data *obj, struct char_data *ch);
+char *obj_cond_color(struct obj_data *obj, struct Creature *ch);
 
 ACMD(do_not_here);
 ACMD(do_examine);
@@ -96,7 +96,7 @@ const char *vehicle_types[] = {
 };
 
 int
-max_component_dam(struct char_data *ch)
+max_component_dam(struct Creature *ch)
 {
 
 	int max;
@@ -110,8 +110,8 @@ max_component_dam(struct char_data *ch)
 }
 
 void
-perform_recharge(struct char_data *ch, struct obj_data *battery,
-	struct char_data *vict, struct obj_data *engine, int amount)
+perform_recharge(struct Creature *ch, struct obj_data *battery,
+	struct Creature *vict, struct obj_data *engine, int amount)
 {
 	int wait = 0;
 	if (battery) {
@@ -264,7 +264,7 @@ ACMD(do_recharge)
 	char arg1[MAX_INPUT_LENGTH], arg2[MAX_INPUT_LENGTH],
 		arg3[MAX_INPUT_LENGTH], arg4[MAX_INPUT_LENGTH];
 	struct obj_data *target = NULL, *battery = NULL;
-	struct char_data *vict = NULL;
+	struct Creature *vict = NULL;
 	int i;
 
 	argument = two_arguments(one_argument(argument, arg1), arg2, arg3);
@@ -1279,7 +1279,7 @@ ACMD(do_bioscan)
 ACMD(do_discharge)
 {
 
-	struct char_data *vict = NULL;
+	struct Creature *vict = NULL;
 	struct obj_data *ovict = NULL;
 	int percent, prob, amount, dam;
 	int feedback = 0;
@@ -1834,7 +1834,7 @@ ACMD(do_status)
 
 ACMD(do_repair)
 {
-	struct char_data *vict = NULL;
+	struct Creature *vict = NULL;
 	struct obj_data *obj = NULL, *tool = NULL;
 	int dam, cost, skill = 0;
 	int damage_threshold = 0;
@@ -2026,7 +2026,7 @@ ACMD(do_repair)
 
 ACMD(do_overhaul)
 {
-	struct char_data *vict = NULL;
+	struct Creature *vict = NULL;
 	struct obj_data *tool = NULL;
 	skip_spaces(&argument);
 
@@ -2123,7 +2123,7 @@ obj_cond(struct obj_data *obj)
 }
 
 char *
-obj_cond_color(struct obj_data *obj, struct char_data *ch)
+obj_cond_color(struct obj_data *obj, struct Creature *ch)
 {
 
 	int num;
@@ -2166,7 +2166,7 @@ ACMD(do_analyze)
 {
 
 	struct obj_data *obj = NULL;
-	struct char_data *vict = NULL;
+	struct Creature *vict = NULL;
 	char buf3[MAX_STRING_LENGTH];
 	int i, found = 0;
 
@@ -2378,7 +2378,7 @@ ACMD(do_analyze)
 ACMD(do_insert)
 {
 	struct obj_data *obj = NULL, *tool = NULL;
-	struct char_data *vict = NULL;
+	struct Creature *vict = NULL;
 	int pos, i;
 
 	skip_spaces(&argument);
@@ -2572,7 +2572,7 @@ ACMD(do_extract)
 {
 
 	struct obj_data *obj = NULL, *corpse = NULL, *tool = NULL;
-	struct char_data *vict = NULL;
+	struct Creature *vict = NULL;
 	int pos;
 
 	skip_spaces(&argument);
@@ -2771,7 +2771,7 @@ ACMD(do_extract)
 ACMD(do_cyberscan)
 {
 	struct obj_data *obj = NULL, *impl = NULL;
-	struct char_data *vict = NULL;
+	struct Creature *vict = NULL;
 	int i;
 	int found = 0;
 

@@ -22,15 +22,15 @@ ASPELL(spell_area_stasis);
 
 #define TIMEWARP_FILE "etc/timewarps"
 
-int perform_barb_beserk(struct char_data *ch,
-	struct char_data **who_was_attacked,
-	//struct char_data *precious_ch,
+int perform_barb_beserk(struct Creature *ch,
+	struct Creature **who_was_attacked,
+	//struct Creature *precious_ch,
 	int *return_flags);
 
-int max_component_dam(struct char_data *ch);
-int room_count(struct char_data *ch, struct room_data *room);
+int max_component_dam(struct Creature *ch);
+int room_count(struct Creature *ch, struct room_data *room);
 int redundant_skillchip(struct obj_data *chip, struct obj_data *slot);
-void engage_self_destruct(struct char_data *ch);
+void engage_self_destruct(struct Creature *ch);
 
 #define NUM_COMPS               9	/* Number of borg components */
 
@@ -95,7 +95,7 @@ extern const char *borg_subchar_class_names[];
 extern const char *component_names[][3];
 
 
-void perform_monk_meditate(struct char_data *ch);
+void perform_monk_meditate(struct Creature *ch);
 
 void add_rad_sickness(CHAR * ch, int level);
 int boot_timewarp_data(void);
@@ -109,7 +109,7 @@ typedef struct timewarp_data {
 //extern timewarp_data *timewarp_list;
 //extern int num_timewarp_data;
 
-int mob_fight_psionic(struct char_data *ch, struct char_data *precious_vict);
-void perform_goto(char_data *ch, room_data *room, bool allow_follow);
+int mob_fight_psionic(struct Creature *ch, struct Creature *precious_vict);
+void perform_goto(Creature *ch, room_data *room, bool allow_follow);
 
 #endif

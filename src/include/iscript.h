@@ -7,7 +7,7 @@
 
 using namespace std;
 
-struct char_data;
+struct Creature;
 
 class CHandler {
   public:
@@ -20,11 +20,11 @@ class CHandler {
 		if (&chandler != this) {
 			event_type = chandler.event_type;
 				theLines = chandler.theLines; target = chandler.target;}
-  return *this;}; void process_handler(CHandler * theHandler); void setTarget(char_data * target); void setInit(char_data * ch); string getEventType(); list < string > &getTheLines(); private:
-	char_data * target;
-		char_data * ch;
+  return *this;}; void process_handler(CHandler * theHandler); void setTarget(Creature * target); void setInit(Creature * ch); string getEventType(); list < string > &getTheLines(); private:
+	Creature * target;
+		Creature * ch;
 		string event_type; list < string > theLines;}; class CIScript {
   public:
-  CIScript(ifstream & ifile, string line); CIScript(int svnum); CHandler * handler_exists(const string & event_type); void do_handler(CHandler * theHandler); void setTarget(char_data * target); void setInit(char_data * ch); bool deleteHandler(string event_type); string getName(); void setName(string name); int getVnum(); void setVnum(int vnum); list < CHandler * >theScript; private:
-	int vnum; string name; char_data * target; char_data * ch;};
+  CIScript(ifstream & ifile, string line); CIScript(int svnum); CHandler * handler_exists(const string & event_type); void do_handler(CHandler * theHandler); void setTarget(Creature * target); void setInit(Creature * ch); bool deleteHandler(string event_type); string getName(); void setName(string name); int getVnum(); void setVnum(int vnum); list < CHandler * >theScript; private:
+	int vnum; string name; Creature * target; Creature * ch;};
 #endif

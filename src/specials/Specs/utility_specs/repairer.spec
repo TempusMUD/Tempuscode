@@ -10,7 +10,7 @@
 SPECIAL(repairer)
 {
   
-  struct char_data *repairer = (struct char_data *) me;
+  struct Creature *repairer = (struct Creature *) me;
   struct obj_data *obj = NULL, *proto_obj = NULL;
   int cost;
   int currency;

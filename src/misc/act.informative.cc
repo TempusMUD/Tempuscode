@@ -50,7 +50,7 @@ using namespace std;
 /* extern variables */
 extern struct room_data *world;
 extern struct descriptor_data *descriptor_list;
-//extern struct char_data *character_list;
+//extern struct Creature *character_list;
 extern CharacterList characterList;
 
 extern struct obj_data *object_list;
@@ -107,7 +107,7 @@ long find_char_class_bitvector(char arg);
 
 int isbanned(char *hostname, char *blocking_hostname);
 char *obj_cond(struct obj_data *obj);  /** writes to buf2 **/
-char *obj_cond_color(struct obj_data *obj, struct char_data *ch);  /**writes to buf2 **/
+char *obj_cond_color(struct obj_data *obj, struct Creature *ch);  /**writes to buf2 **/
 int same_obj(struct obj_data *obj1, struct obj_data *obj2);
 void send_to_queue(MobileEvent * e);
 
@@ -134,7 +134,7 @@ ACMD(do_say);
 #define SHOW_OBJ_BITS    6
 
 void
-show_obj_to_char(struct obj_data *object, struct char_data *ch,
+show_obj_to_char(struct obj_data *object, struct Creature *ch,
 	int mode, int count)
 {
 	char *msg;
@@ -348,7 +348,7 @@ show_obj_to_char(struct obj_data *object, struct char_data *ch,
 }
 
 void
-list_obj_to_char(struct obj_data *list, struct char_data *ch, int mode,
+list_obj_to_char(struct obj_data *list, struct Creature *ch, int mode,
 	bool show)
 {
 	struct obj_data *i = NULL, *o = NULL;
@@ -402,8 +402,8 @@ list_obj_to_char(struct obj_data *list, struct char_data *ch, int mode,
 }
 
 void
-list_obj_to_char_GLANCE(struct obj_data *list, struct char_data *ch,
-	struct char_data *vict, int mode, bool show, int glance)
+list_obj_to_char_GLANCE(struct obj_data *list, struct Creature *ch,
+	struct Creature *vict, int mode, bool show, int glance)
 {
 	struct obj_data *i = NULL, *o = NULL;
 	bool found = false;
@@ -453,7 +453,7 @@ list_obj_to_char_GLANCE(struct obj_data *list, struct char_data *ch,
 }
 
 void
-diag_char_to_char(struct char_data *i, struct char_data *ch)
+diag_char_to_char(struct Creature *i, struct Creature *ch)
 {
 	int percent;
 
@@ -494,7 +494,7 @@ diag_char_to_char(struct char_data *i, struct char_data *ch)
 }
 
 char *
-diag_conditions(struct char_data *ch)
+diag_conditions(struct Creature *ch)
 {
 
 	int percent;
@@ -525,7 +525,7 @@ diag_conditions(struct char_data *ch)
 }
 
 void
-show_trailers_to_char(struct char_data *ch, struct char_data *i)
+show_trailers_to_char(struct Creature *ch, struct Creature *i)
 {
 
 	if (affected_by_spell(i, SPELL_QUAD_DAMAGE))
@@ -623,12 +623,12 @@ if (IS_AFFECTED(i, AFF_NOPAIN))
 }
 
 void
-look_at_char(struct char_data *i, struct char_data *ch, int cmd)
+look_at_char(struct Creature *i, struct Creature *ch, int cmd)
 {
 	int j, found = 0, app_height, app_weight, h, k, pos;
 	char *description = NULL;
 	struct affected_type *af = NULL;
-	struct char_data *mob = NULL;
+	struct Creature *mob = NULL;
 
 	if ((af = affected_by_spell(i, SKILL_DISGUISE))) {
 		if ((mob = real_mobile_proto(af->modifier)))
@@ -732,7 +732,7 @@ look_at_char(struct char_data *i, struct char_data *ch, int cmd)
 
 
 void
-list_one_char(struct char_data *i, struct char_data *ch, byte is_group)
+list_one_char(struct Creature *i, struct Creature *ch, byte is_group)
 {
 	char *positions[] = {
 		" is lying here, dead.",
@@ -943,9 +943,9 @@ list_one_char(struct char_data *i, struct char_data *ch, byte is_group)
 }
 
 void
-list_char_to_char(struct char_data *list, struct char_data *ch)
+list_char_to_char(struct Creature *list, struct Creature *ch)
 {
-	struct char_data *i;
+	struct Creature *i;
 	byte is_group = FALSE;
 	if (list == NULL)
 		return;
@@ -987,7 +987,7 @@ list_char_to_char(struct char_data *list, struct char_data *ch)
 
 
 void
-do_auto_exits(struct char_data *ch, struct room_data *room)
+do_auto_exits(struct Creature *ch, struct room_data *room)
 {
 
 	int door;
@@ -1024,7 +1024,7 @@ do_auto_exits(struct char_data *ch, struct room_data *room)
 
 /* functions and macros for 'scan' command */
 void
-list_scanned_chars(struct char_data *list, struct char_data *ch,
+list_scanned_chars(struct Creature *list, struct Creature *ch,
 	int distance, int door)
 {
 	const char *how_far[] = {
@@ -1226,7 +1226,7 @@ ACMD(do_exits)
 
 
 void
-look_at_room(struct char_data *ch, struct room_data *room, int ignore_brief)
+look_at_room(struct Creature *ch, struct room_data *room, int ignore_brief)
 {
 
 	struct room_affect_data *aff = NULL;
@@ -1335,7 +1335,7 @@ look_at_room(struct char_data *ch, struct room_data *room, int ignore_brief)
 }
 
 void
-look_in_direction(struct char_data *ch, int dir)
+look_in_direction(struct Creature *ch, int dir)
 {
 #define EXNUMB EXIT(ch, dir)->to_room
 	struct room_affect_data *aff;
@@ -1569,10 +1569,10 @@ look_in_direction(struct char_data *ch, int dir)
 
 
 void
-look_in_obj(struct char_data *ch, char *arg)
+look_in_obj(struct Creature *ch, char *arg)
 {
 	struct obj_data *obj = NULL;
-	struct char_data *dummy = NULL;
+	struct Creature *dummy = NULL;
 	int amt, bits;
 	struct room_data *room_was_in = NULL;
 
@@ -1671,10 +1671,10 @@ find_exdesc(char *word, struct extra_descr_data *list, int find_exact = 0)
  * with the name.  Then check local objs for exdescs.
  */
 void
-look_at_target(struct char_data *ch, char *arg, int cmd)
+look_at_target(struct Creature *ch, char *arg, int cmd)
 {
 	int bits, found = 0, j;
-	struct char_data *found_char = NULL;
+	struct Creature *found_char = NULL;
 	struct obj_data *obj = NULL, *found_obj = NULL, *car;
 	char *desc;
 
@@ -1792,10 +1792,10 @@ look_at_target(struct char_data *ch, char *arg, int cmd)
 }
 
 void
-glance_at_target(struct char_data *ch, char *arg, int cmd)
+glance_at_target(struct Creature *ch, char *arg, int cmd)
 {
 	int bits;
-	struct char_data *found_char = NULL;
+	struct Creature *found_char = NULL;
 	struct obj_data *found_obj = NULL;
 	char glancebuf[512];
 
@@ -1880,7 +1880,7 @@ glance_at_target(struct char_data *ch, char *arg, int cmd)
 
 ACMD(do_listen)
 {
-	struct char_data *fighting_vict = NULL;
+	struct Creature *fighting_vict = NULL;
 	struct obj_data *noisy_obj = NULL;
 	int i;
 
@@ -2072,7 +2072,7 @@ ACMD(do_glance)
 ACMD(do_examine)
 {
 	int bits;
-	struct char_data *tmp_char;
+	struct Creature *tmp_char;
 	struct obj_data *tmp_object;
 
 	if (ch->getPosition() < POS_SLEEPING) {
@@ -2187,11 +2187,11 @@ ACMD(do_encumbrance)
 
 
 char *
-affs_to_str(struct char_data *ch, byte mode)
+affs_to_str(struct Creature *ch, byte mode)
 {
 
 	struct affected_type *af = NULL;
-	struct char_data *mob = NULL;
+	struct Creature *mob = NULL;
 	char *name = NULL;
 	char *str = "";
 
@@ -2906,7 +2906,7 @@ ACMD(do_time)
 }
 
 void
-show_mud_date_to_char(struct char_data *ch)
+show_mud_date_to_char(struct Creature *ch)
 {
 	char *suf;
 	struct time_info_data local_time;
@@ -2978,7 +2978,7 @@ ACMD(do_weather)
 ACMD(do_who)
 {
 	struct descriptor_data *d;
-	struct char_data *tch;
+	struct Creature *tch;
 	struct clan_data *clan = NULL;
 	char name_search[MAX_INPUT_LENGTH];
 	char buf2[MAX_STRING_LENGTH];
@@ -3432,7 +3432,7 @@ ACMD(do_users)
 	char state[30], *timeptr, *format, mode;
 	char name_search[MAX_INPUT_LENGTH], host_search[MAX_INPUT_LENGTH];
 	char out_buf[MAX_STRING_LENGTH];
-	struct char_data *tch;
+	struct Creature *tch;
 	struct descriptor_data *d;
 	int low = 0, high = LVL_GRIMP, i, num_can_see = 0;
 	int showchar_class = 0, outlaws = 0, playing = 0, deadweight = 0;
@@ -3671,9 +3671,9 @@ ACMD(do_gen_ps)
 
 
 void
-perform_mortal_where(struct char_data *ch, char *arg)
+perform_mortal_where(struct Creature *ch, char *arg)
 {
-	register struct char_data *i = NULL;
+	register struct Creature *i = NULL;
 	register struct descriptor_data *d;
 
 	if (!*arg) {
@@ -3704,7 +3704,7 @@ perform_mortal_where(struct char_data *ch, char *arg)
 
 void
 print_object_location(int num, struct obj_data *obj,
-	struct char_data *ch, int recur, char *to_buf)
+	struct Creature *ch, int recur, char *to_buf)
 {
 	if ((obj->carried_by && GET_INVIS_LEV(obj->carried_by) > GET_LEVEL(ch)) ||
 		(obj->in_obj && obj->in_obj->carried_by &&
@@ -3760,9 +3760,9 @@ print_object_location(int num, struct obj_data *obj,
 
 
 void
-perform_immort_where(struct char_data *ch, char *arg)
+perform_immort_where(struct Creature *ch, char *arg)
 {
-	register struct char_data *i = NULL;
+	register struct Creature *i = NULL;
 	register struct obj_data *k;
 	struct descriptor_data *d;
 	int num = 0, found = 0;
@@ -3887,7 +3887,7 @@ ACMD(do_where)
 
 
 void
-print_attributes_to_buf(struct char_data *ch, char *buff)
+print_attributes_to_buf(struct Creature *ch, char *buff)
 {
 
 	sbyte str, stradd, intel, wis, dex, con, cha;
@@ -4145,7 +4145,7 @@ ACMD(do_levels)
 
 ACMD(do_consider)
 {
-	struct char_data *victim;
+	struct Creature *victim;
 	int diff, ac;
 
 	one_argument(argument, buf);
@@ -4273,7 +4273,7 @@ ACMD(do_consider)
 
 ACMD(do_diagnose)
 {
-	struct char_data *vict;
+	struct Creature *vict;
 
 	one_argument(argument, buf);
 
@@ -4476,7 +4476,7 @@ ACMD(do_commands)
 {
 	int no, i, cmd_num;
 	int wizhelp = 0, socials = 0, level = 0;
-	struct char_data *vict = NULL;
+	struct Creature *vict = NULL;
 
 	one_argument(argument, arg);
 
@@ -4601,9 +4601,9 @@ ACMD(do_skills)
 {
 	int parse_player_class(char *arg, int timeframe);
 	int parse_char_class(char *arg);
-	void show_char_class_skills(struct char_data *ch, int con, int immort,
+	void show_char_class_skills(struct Creature *ch, int con, int immort,
 		int bits);
-	void list_skills(struct char_data *ch, int mode, int type);
+	void list_skills(struct Creature *ch, int mode, int type);
 	int char_class = 0;
 	char *arg;
 
@@ -4703,14 +4703,14 @@ ACMD(do_alignment)
 }
 
 
-void send_wizlist_section_splitter( char_data *ch )
+void send_wizlist_section_splitter( Creature *ch )
 {
     sprintf(buf, 
             "%s    %so~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~%s\r\n",
             buf, CCCYN(ch,C_NRM), CCNRM(ch,C_NRM) );
 }
 
-void send_wizlist_section_title( char* name, char_data *ch )
+void send_wizlist_section_title( char* name, Creature *ch )
 {
     sprintf(buf,
             "%s\r\n\r\n        %s%s%s\r\n", 

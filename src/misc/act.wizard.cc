@@ -53,10 +53,10 @@ using namespace std;
 
 /*   external vars  */
 extern FILE *player_fl;
-extern struct char_data *character_list;
+extern struct Creature *character_list;
 extern struct obj_data *object_list;
 extern struct descriptor_data *descriptor_list;
-extern struct char_data *mob_proto;
+extern struct Creature *mob_proto;
 extern struct obj_data *obj_proto;
 extern struct zone_data *zone_table;
 extern int top_of_zone_table;
@@ -72,7 +72,7 @@ extern struct player_index_element *player_table;
 extern int lunar_stage;
 extern int lunar_phase;
 extern int quest_status;
-extern struct char_data *combat_list;	/* head of list of fighting chars */
+extern struct Creature *combat_list;	/* head of list of fighting chars */
 extern int shutdown_count;
 extern int shutdown_mode;
 extern int current_mob_idnum;
@@ -89,22 +89,22 @@ int choose_material(struct obj_data *obj);
 int set_maxdamage(struct obj_data *obj);
 
 long asciiflag_conv(char *buf);
-void show_social_messages(struct char_data *ch, char *arg);
+void show_social_messages(struct Creature *ch, char *arg);
 void autosave_zones(int SAVE_TYPE);
-void perform_oset(struct char_data *ch, struct obj_data *obj_p,
+void perform_oset(struct Creature *ch, struct obj_data *obj_p,
 	char *argument, byte subcmd);
-void do_show_objects(struct char_data *ch, char *value, char *arg);
-void do_show_mobiles(struct char_data *ch, char *value, char *arg);
-void show_searches(struct char_data *ch, char *value, char *arg);
-void do_zone_cmdlist(struct char_data *ch, struct zone_data *zone, char *arg);
+void do_show_objects(struct Creature *ch, char *value, char *arg);
+void do_show_mobiles(struct Creature *ch, char *value, char *arg);
+void show_searches(struct Creature *ch, char *value, char *arg);
+void do_zone_cmdlist(struct Creature *ch, struct zone_data *zone, char *arg);
 const char *stristr(const char *haystack, const char *needle);
 
 int parse_char_class(char *arg);
 void retire_trails(void);
-float prac_gain(struct char_data *ch, int mode);
-int skill_gain(struct char_data *ch, int mode);
+float prac_gain(struct Creature *ch, int mode);
+int skill_gain(struct Creature *ch, int mode);
 void qp_reload(int sig = 0);
-void list_obj_to_char(struct obj_data *list, struct char_data *ch, int mode,
+void list_obj_to_char(struct obj_data *list, struct Creature *ch, int mode,
 	bool show);
 void save_quests(); // quests.cc - saves quest data
 
@@ -117,7 +117,7 @@ static const char *logtypes[] = {
 
 
 void
-show_char_class_skills(struct char_data *ch, int con, int immort, int bits)
+show_char_class_skills(struct Creature *ch, int con, int immort, int bits)
 {
 	int lvl, skl;
 	bool found;
@@ -200,7 +200,7 @@ show_char_class_skills(struct char_data *ch, int con, int immort, int bits)
 }
 
 void
-list_residents_to_char(struct char_data *ch, int town)
+list_residents_to_char(struct Creature *ch, int town)
 {
 	struct descriptor_data *d;
 	byte found = 0;
@@ -274,7 +274,7 @@ ACMD(do_echo)
 
 ACMD(do_send)
 {
-	struct char_data *vict;
+	struct Creature *vict;
 
 	half_chop(argument, arg, buf);
 
@@ -299,11 +299,11 @@ ACMD(do_send)
 
 /* take a string, and return an rnum.. used for goto, at, etc.  -je 4/6/93 */
 struct room_data *
-find_target_room(struct char_data *ch, char *rawroomstr)
+find_target_room(struct Creature *ch, char *rawroomstr)
 {
 	int tmp;
 	struct room_data *location;
-	struct char_data *target_mob;
+	struct Creature *target_mob;
 	struct obj_data *target_obj;
 	char roomstr[MAX_INPUT_LENGTH];
 
@@ -409,7 +409,7 @@ ACMD(do_distance)
 }
 
 void
-perform_goto(char_data *ch, room_data *room, bool allow_follow)
+perform_goto(Creature *ch, room_data *room, bool allow_follow)
 {
 	room_data *was_in = NULL;
 	char *msg;
@@ -483,7 +483,7 @@ ACMD(do_trans)
 {
 	struct descriptor_data *i;
 	struct room_data *was_in;
-	struct char_data *victim;
+	struct Creature *victim;
 
 	one_argument(argument, buf);
 	if (!*buf)
@@ -564,7 +564,7 @@ ACMD(do_trans)
 
 ACMD(do_teleport)
 {
-	struct char_data *victim;
+	struct Creature *victim;
 	struct room_data *target;
 
 	two_arguments(argument, buf, buf2);
@@ -614,7 +614,7 @@ ACMD(do_vnum)
 
 #define CHARADD(sum,var) if (var) {sum += strlen(var) +1;}
 void
-do_stat_memory(struct char_data *ch)
+do_stat_memory(struct Creature *ch)
 {
 	int sum = 0, total = 0;
 	int i = 0, j = 0;
@@ -624,7 +624,7 @@ do_stat_memory(struct char_data *ch)
 	struct affected_type *af;
 	struct descriptor_data *desc = NULL;
 	struct follow_type *fol;
-	struct char_data *chars, *mob;
+	struct Creature *chars, *mob;
 	struct zone_data *zone;
 	struct room_data *rm;
 
@@ -666,7 +666,7 @@ do_stat_memory(struct char_data *ch)
 	total = sum;
 	send_to_char(ch, "%s  world structs: %9d  (%d)\r\n", buf, sum, i);
 
-	sum = top_of_mobt * (sizeof(struct char_data));
+	sum = top_of_mobt * (sizeof(struct Creature));
 
 	CharacterList::iterator mit = mobilePrototypes.begin();
 	for (; mit != mobilePrototypes.end(); ++mit) {
@@ -725,7 +725,7 @@ do_stat_memory(struct char_data *ch)
 			continue;
 		}
 		i++;
-		sum += sizeof(struct char_data);
+		sum += sizeof(struct Creature);
 
 		af = chars->affected;
 		while (af) {
@@ -757,7 +757,7 @@ do_stat_memory(struct char_data *ch)
 			continue;
 		}
 		i++;
-		sum += sizeof(struct char_data);
+		sum += sizeof(struct Creature);
 
 		CHARADD(sum, chars->player.name);
 		CHARADD(sum, chars->player.short_descr);
@@ -810,7 +810,7 @@ do_stat_memory(struct char_data *ch)
 #undef CHARADD
 
 void
-do_stat_zone(struct char_data *ch, struct zone_data *zone)
+do_stat_zone(struct Creature *ch, struct zone_data *zone)
 {
 	struct obj_data *obj;
 	struct descriptor_data *plr;
@@ -904,7 +904,7 @@ do_stat_zone(struct char_data *ch, struct zone_data *zone)
 }
 
 void
-do_stat_trails(struct char_data *ch)
+do_stat_trails(struct Creature *ch)
 {
 
 	struct room_trail_data *trail = NULL;
@@ -933,7 +933,7 @@ do_stat_trails(struct char_data *ch)
 }
 
 void
-do_stat_room(struct char_data *ch, char *roomstr)
+do_stat_room(struct Creature *ch, char *roomstr)
 {
 	int tmp;
 	struct extra_descr_data *desc;
@@ -943,7 +943,7 @@ do_stat_room(struct char_data *ch, char *roomstr)
 	char out_buf[MAX_STRING_LENGTH];
 	int i, found = 0;
 	struct obj_data *j = 0;
-	struct char_data *k = 0;
+	struct Creature *k = 0;
 	if (roomstr && *roomstr) {
 		if (isdigit(*roomstr) && !strchr(roomstr, '.')) {
 			tmp = atoi(roomstr);
@@ -1111,7 +1111,7 @@ do_stat_room(struct char_data *ch, char *roomstr)
 
 
 void
-do_stat_object(struct char_data *ch, struct obj_data *j)
+do_stat_object(struct Creature *ch, struct obj_data *j)
 {
 	int i, found;
 	struct extra_descr_data *desc;
@@ -1464,7 +1464,7 @@ do_stat_object(struct char_data *ch, struct obj_data *j)
 
 
 void
-do_stat_character(struct char_data *ch, struct char_data *k)
+do_stat_character(struct Creature *ch, struct Creature *k)
 {
 	int i, num, num2, found = 0, rexp;
 	struct follow_type *fol;
@@ -1872,7 +1872,7 @@ do_stat_character(struct char_data *ch, struct char_data *k)
 
 
 void
-do_stat_ticl(struct char_data *ch, int vnum)
+do_stat_ticl(struct Creature *ch, int vnum)
 {
 	struct zone_data *zone = NULL;
 	struct ticl_data *ticl = NULL;
@@ -1927,7 +1927,7 @@ do_stat_ticl(struct char_data *ch, int vnum)
 
 ACMD(do_stat)
 {
-	struct char_data *victim = 0;
+	struct Creature *victim = 0;
 	struct obj_data *object = 0;
 	struct zone_data *zone = NULL;
 	struct char_file_u tmp_store;
@@ -1997,7 +1997,7 @@ ACMD(do_stat)
 		if (!*buf2) {
 			send_to_char(ch, "Stats on which player?\r\n");
 		} else {
-			CREATE(victim, struct char_data, 1);
+			CREATE(victim, struct Creature, 1);
 			clear_char(victim);
 			if (load_char(buf2, &tmp_store) > -1) {
 				store_to_char(&tmp_store, victim);
@@ -2166,7 +2166,7 @@ ACMD(do_shutdown)
 
 
 void
-stop_snooping(struct char_data *ch)
+stop_snooping(struct Creature *ch)
 {
 	if (!ch->desc->snooping)
 		send_to_char(ch, "You aren't snooping anyone.\r\n");
@@ -2180,7 +2180,7 @@ stop_snooping(struct char_data *ch)
 
 ACMD(do_snoop)
 {
-	struct char_data *victim, *tch;
+	struct Creature *victim, *tch;
 
 	if (!ch->desc)
 		return;
@@ -2234,7 +2234,7 @@ ACMD(do_snoop)
 
 ACMD(do_switch)
 {
-	struct char_data *victim;
+	struct Creature *victim;
 
 	one_argument(argument, arg);
 
@@ -2272,7 +2272,7 @@ ACMD(do_switch)
 
 ACMD(do_rswitch)
 {
-	struct char_data *orig, *victim;
+	struct Creature *orig, *victim;
 	char arg2[MAX_INPUT_LENGTH];
 
 	two_arguments(argument, arg, arg2);
@@ -2335,7 +2335,7 @@ ACMD(do_rswitch)
                             r_mortal_start_room)
 ACMD(do_return)
 {
-	struct char_data *orig = NULL;
+	struct Creature *orig = NULL;
 	bool cloud_found = false;
 
 	if (!IS_NPC(ch) && (CHECK_REMORT_CLASS(ch) < 0)
@@ -2392,7 +2392,7 @@ ACMD(do_return)
 
 ACMD(do_mload)
 {
-	struct char_data *mob;
+	struct Creature *mob;
 	int number;
 
 	one_argument(argument, buf);
@@ -2456,7 +2456,7 @@ ACMD(do_oload)
 
 ACMD(do_pload)
 {
-	struct char_data *vict = NULL;
+	struct Creature *vict = NULL;
 	struct obj_data *obj;
 	int number;
 
@@ -2502,7 +2502,7 @@ ACMD(do_pload)
 
 ACMD(do_vstat)
 {
-	struct char_data *mob;
+	struct Creature *mob;
 	struct obj_data *obj;
 	int number;
 
@@ -2534,7 +2534,7 @@ ACMD(do_vstat)
 
 ACMD(do_rstat)
 {
-	struct char_data *mob;
+	struct Creature *mob;
 	//  struct obj_data *obj;
 	int number;
 
@@ -2565,7 +2565,7 @@ ACMD(do_rstat)
 /* clean a room of all mobiles and objects */
 ACMD(do_purge)
 {
-	struct char_data *vict;
+	struct Creature *vict;
 	struct obj_data *obj, *next_o;
 	struct room_trail_data *trail;
 	int i = 0;
@@ -2643,10 +2643,10 @@ ACMD(do_purge)
 
 ACMD(do_advance)
 {
-	struct char_data *victim;
+	struct Creature *victim;
 	char *name = arg, *level = buf2;
 	int newlevel;
-	void do_start(struct char_data *ch, int mode);
+	void do_start(struct Creature *ch, int mode);
 
 	two_arguments(argument, name, level);
 
@@ -2711,7 +2711,7 @@ ACMD(do_advance)
 
 ACMD(do_restore)
 {
-	struct char_data *vict;
+	struct Creature *vict;
 	int i;
 
 	one_argument(argument, buf);
@@ -2777,7 +2777,7 @@ ACMD(do_restore)
 
 
 void
-perform_immort_vis(struct char_data *ch)
+perform_immort_vis(struct Creature *ch)
 {
 	int old_level = 0;
 
@@ -2802,7 +2802,7 @@ perform_immort_vis(struct char_data *ch)
 
 
 void
-perform_immort_invis(struct char_data *ch, int level)
+perform_immort_invis(struct Creature *ch, int level)
 {
 	int old_level = 0;
 
@@ -2834,7 +2834,7 @@ perform_immort_invis(struct char_data *ch, int level)
 }
 
 void
-perform_remort_vis(struct char_data *ch)
+perform_remort_vis(struct Creature *ch)
 {
 
 	int level = GET_REMORT_INVIS(ch);
@@ -2860,7 +2860,7 @@ perform_remort_vis(struct char_data *ch)
 
 
 void
-perform_remort_invis(struct char_data *ch, int level)
+perform_remort_invis(struct Creature *ch, int level)
 {
 	if (IS_NPC(ch))
 		return;
@@ -3213,7 +3213,7 @@ ACMD(do_last)
 ACMD(do_force)
 {
 	struct descriptor_data *i, *next_desc;
-	struct char_data *vict;
+	struct Creature *vict;
 	char to_force[MAX_INPUT_LENGTH + 2];
 
 	half_chop(argument, arg, to_force);
@@ -3483,9 +3483,9 @@ ACMD(do_zreset)
 
 ACMD(do_wizutil)
 {
-	struct char_data *vict;
+	struct Creature *vict;
 	long result;
-	void roll_real_abils(struct char_data *ch);
+	void roll_real_abils(struct Creature *ch);
 
 	one_argument(argument, arg);
 
@@ -3630,7 +3630,7 @@ ACMD(do_wizutil)
    code 3 times ... -je, 4/6/93 */
 
 void
-print_zone_to_buf(struct char_data *ch, char *bufptr, struct zone_data *zone)
+print_zone_to_buf(struct Creature *ch, char *bufptr, struct zone_data *zone)
 {
 	sprintf(bufptr,
 		"%s%s%s%3d%s %s%-30.30s%s Age:%s%3d%s;Reset:%s%3d%s(%s%1d%s);Top: %s%5d%s;Own:%s%4d%s%s%s\r\n",
@@ -3651,7 +3651,7 @@ print_zone_to_buf(struct char_data *ch, char *bufptr, struct zone_data *zone)
 
 
 void
-list_skills_to_char(struct char_data *ch, struct char_data *vict)
+list_skills_to_char(struct Creature *ch, struct Creature *vict)
 {
 	extern struct spell_info_type spell_info[];
 	char buf3[MAX_STRING_LENGTH];
@@ -3728,11 +3728,11 @@ list_skills_to_char(struct char_data *ch, struct char_data *vict)
 }
 
 void
-do_show_stats(struct char_data *ch)
+do_show_stats(struct Creature *ch)
 {
 	int i = 0, j = 0, k = 0, con = 0, tr_count = 0, srch_count = 0;
 	short int num_active_zones = 0;
-	struct char_data *vict;
+	struct Creature *vict;
 	struct obj_data *obj;
 	struct room_data *room;
 	struct room_trail_data *trail;
@@ -4307,7 +4307,7 @@ ACMD(do_show)
 	char self = 0;
 	int found = 0;
 	int sfc_mode = 0;
-	struct char_data *vict;
+	struct Creature *vict;
 	struct obj_data *obj;
 	struct alias_data *a;
 	struct zone_data *zone = NULL;
@@ -4317,11 +4317,11 @@ ACMD(do_show)
 	extern char *quest_guide;
 	struct elevator_data *e_head = NULL;
 	struct elevator_elem *e_elem = NULL;
-	struct char_data *mob = NULL;
+	struct Creature *mob = NULL;
 	CharacterList::iterator cit;
 	CharacterList::iterator mit;
 
-	void show_shops(struct char_data *ch, char *value);
+	void show_shops(struct Creature *ch, char *value);
 
 	skip_spaces(&argument);
 	if (!*argument) {
@@ -4506,7 +4506,7 @@ ACMD(do_show)
 					"Getting that data from file requires basic administrative rights.\r\n");
 			} else {
 				struct char_file_u tmp_store;
-				CREATE(vict, struct char_data, 1);
+				CREATE(vict, struct Creature, 1);
 				clear_char(vict);
 				if (load_char(value, &tmp_store) > -1) {
 					store_to_char(&tmp_store, vict);
@@ -5212,8 +5212,8 @@ ACMD(do_set)
 {
 	int i, l, tp;
 	struct room_data *room;
-	struct char_data *vict = NULL, *vict2 = NULL;
-	struct char_data *cbuf = NULL;
+	struct Creature *vict = NULL, *vict2 = NULL;
+	struct Creature *cbuf = NULL;
 	struct char_file_u tmp_store;
 	char field[MAX_INPUT_LENGTH], name[MAX_INPUT_LENGTH],
 		val_arg[MAX_INPUT_LENGTH];
@@ -5374,7 +5374,7 @@ ACMD(do_set)
 			}
 		}
 	} else if (is_file) {
-		CREATE(cbuf, struct char_data, 1);
+		CREATE(cbuf, struct Creature, 1);
 		clear_char(cbuf);
 		if ((player_i = load_char(name, &tmp_store)) > -1) {
 			store_to_char(&tmp_store, cbuf);
@@ -6314,7 +6314,7 @@ ACMD(do_olist)
 ACMD(do_rename)
 {
 	struct obj_data *obj;
-	struct char_data *vict = NULL;
+	struct Creature *vict = NULL;
 	char new_desc[MAX_INPUT_LENGTH], logbuf[MAX_STRING_LENGTH];
 
 	half_chop(argument, arg, new_desc);
@@ -6372,7 +6372,7 @@ ACMD(do_rename)
 ACMD(do_addname)
 {
 	struct obj_data *obj;
-	struct char_data *vict = NULL;
+	struct Creature *vict = NULL;
 	char new_name[MAX_INPUT_LENGTH];
 
 	two_arguments(argument, arg, new_name);
@@ -6508,7 +6508,7 @@ ACMD(do_nolocate)
 
 ACMD(do_menu)
 {
-	struct char_data *vict;
+	struct Creature *vict;
 
 	skip_spaces(&argument);
 
@@ -6531,7 +6531,7 @@ ACMD(do_menu)
 ACMD(do_mudwipe)
 {
 	struct obj_data *obj, *obj_tmp;
-	struct char_data *mob;
+	struct Creature *mob;
 	struct zone_data *zone = NULL;
 	struct room_data *room = NULL;
 	int mode, i;
@@ -6675,7 +6675,7 @@ ACMD(do_zonepurge)
 
 ACMD(do_searchfor)
 {
-	struct char_data *mob = NULL;
+	struct Creature *mob = NULL;
 	struct obj_data *obj = NULL;
 	byte mob_found = FALSE, obj_found = FALSE;
 	CharacterList::iterator cit = characterList.begin();
@@ -6712,7 +6712,7 @@ ACMD(do_searchfor)
 ACMD(do_oset)
 {
 	struct obj_data *obj = NULL;
-	struct char_data *vict = NULL;
+	struct Creature *vict = NULL;
 	int where_worn = 0;
 	char arg1[MAX_INPUT_LENGTH];
 	bool internal = 0;
@@ -6757,11 +6757,11 @@ static const char *show_mob_keys[] = {
 #define NUM_SHOW_MOB 6
 
 void
-do_show_mobiles(struct char_data *ch, char *value, char *arg)
+do_show_mobiles(struct Creature *ch, char *value, char *arg)
 {
 
 	int i, j, k, l, command;
-	struct char_data *mob = NULL;
+	struct Creature *mob = NULL;
 	char arg1[MAX_INPUT_LENGTH], arg2[MAX_INPUT_LENGTH];
 	CharacterList::iterator mit;
 	if (!*value || (command = search_block(value, show_mob_keys, 0)) < 0) {
@@ -6972,7 +6972,7 @@ ACMD(do_xlag)
 {
 
 	int raw = 0;
-	struct char_data *vict = NULL;
+	struct Creature *vict = NULL;
 
 	argument = two_arguments(argument, buf, buf2);
 
@@ -7027,7 +7027,7 @@ ACMD(do_peace)
 
 ACMD(do_severtell)
 {
-	struct char_data *vict = NULL;
+	struct Creature *vict = NULL;
 
 	skip_spaces(&argument);
 
@@ -7406,7 +7406,7 @@ static const char *tester_cmds[] = {
 ACMD(do_tester)
 {
 	ACMD(do_gen_tog);
-	void do_start(struct char_data *ch, int mode);
+	void do_start(struct Creature *ch, int mode);
 	char arg1[MAX_INPUT_LENGTH], arg2[MAX_INPUT_LENGTH];
 	byte tcmd;
 	int i;

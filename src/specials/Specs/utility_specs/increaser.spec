@@ -11,7 +11,7 @@
 SPECIAL(increaser)
 {
 
-  struct char_data *increaser = (struct char_data *) me;
+  struct Creature *increaser = (struct Creature *) me;
   char arg1[MAX_INPUT_LENGTH], arg2[MAX_INPUT_LENGTH];
   char status_desc[64];
   int gold, life_cost, incr;

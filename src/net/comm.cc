@@ -111,7 +111,7 @@ int perform_alias(struct descriptor_data *d, char *orig);
 void record_usage(void);
 void make_prompt(struct descriptor_data *point);
 void bamf_quad_damage(void);
-void push_command_onto_list(char_data *ch, char *comm);
+void push_command_onto_list(Creature *ch, char *comm);
 void descriptor_update(void);
 
 /* extern fcnts */
@@ -1560,7 +1560,7 @@ signal_setup(void)
 *******************************************************************/
 
 void
-send_to_char(struct char_data *ch, const char *str, ...)
+send_to_char(struct Creature *ch, const char *str, ...)
 {
 	char *msg_str;
 	va_list args;
@@ -1647,7 +1647,7 @@ send_to_newbie_helpers(char *messg)
 
 /* mode == TRUE -> hide from sender.  FALSE -> show to all */
 void
-send_to_comm_channel(struct char_data *ch, char *buf, int chan, int mode,
+send_to_comm_channel(struct Creature *ch, char *buf, int chan, int mode,
 	int hide_invis)
 {
 
@@ -1699,7 +1699,7 @@ send_to_zone(char *messg, struct zone_data *zn, int outdoor)
 void
 send_to_room(char *messg, struct room_data *room)
 {
-	struct char_data *i;
+	struct Creature *i;
 	struct obj_data *o, *obj = NULL;
 	char buf[MAX_STRING_LENGTH];
 	int j;
@@ -1782,8 +1782,8 @@ if ((pointer) == NULL) i = ACTNULL; else i = (expression);
 
 /* higher-level communication: the act() function */
 void
-perform_act(const char *orig, struct char_data *ch, struct obj_data *obj,
-	void *vict_obj, struct char_data *to, int mode)
+perform_act(const char *orig, struct Creature *ch, struct obj_data *obj,
+	void *vict_obj, struct Creature *to, int mode)
 {
 	register const char *i = 0;
 	register const char *s = orig;
@@ -1804,25 +1804,25 @@ perform_act(const char *orig, struct char_data *ch, struct obj_data *obj,
 				i = PERS(ch, to);
 				break;
 			case 'N':
-				CHECK_NULL(vict_obj, PERS((struct char_data *)vict_obj, to));
+				CHECK_NULL(vict_obj, PERS((struct Creature *)vict_obj, to));
 				break;
 			case 'm':
 				i = HMHR(ch);
 				break;
 			case 'M':
-				CHECK_NULL(vict_obj, HMHR((struct char_data *)vict_obj));
+				CHECK_NULL(vict_obj, HMHR((struct Creature *)vict_obj));
 				break;
 			case 's':
 				i = HSHR(ch);
 				break;
 			case 'S':
-				CHECK_NULL(vict_obj, HSHR((struct char_data *)vict_obj));
+				CHECK_NULL(vict_obj, HSHR((struct Creature *)vict_obj));
 				break;
 			case 'e':
 				i = HSSH(ch);
 				break;
 			case 'E':
-				CHECK_NULL(vict_obj, HSSH((struct char_data *)vict_obj));
+				CHECK_NULL(vict_obj, HSSH((struct Creature *)vict_obj));
 				break;
 			case 'o':
 				CHECK_NULL(obj, OBJN(obj, to));
@@ -1885,10 +1885,10 @@ perform_act(const char *orig, struct char_data *ch, struct obj_data *obj,
                     !PLR_FLAGGED((ch), PLR_WRITING | PLR_OLC))
 
 void
-act(const char *str, int hide_invisible, struct char_data *ch,
+act(const char *str, int hide_invisible, struct Creature *ch,
 	struct obj_data *obj, void *vict_obj, int type)
 {
-	struct char_data *to;
+	struct Creature *to;
 	struct obj_data *o, *o2 = NULL;
 	static int sleep;
 	struct room_data *room = NULL;
@@ -1922,7 +1922,7 @@ act(const char *str, int hide_invisible, struct char_data *ch,
 		return;
 	}
 	if (type == TO_VICT) {
-		if ((to = (struct char_data *)vict_obj) && SENDOK(to))
+		if ((to = (struct Creature *)vict_obj) && SENDOK(to))
 			perform_act(str, ch, obj, vict_obj, to, 0);
 		return;
 	}
@@ -2064,7 +2064,7 @@ bamf_quad_damage(void)
 
 
 void
-push_command_onto_list(char_data *ch, char *string)
+push_command_onto_list(Creature *ch, char *string)
 {
 
 	int i;

@@ -9,15 +9,15 @@ using namespace std;
 
 eventQueue mobileQueue;
 
-struct char_data;
+struct Creature;
 extern list <CIScript *>scriptList;
 
 //void call_process(MobileEvent *e);
 
-void send_to_char(const char *, struct char_data *);
+void send_to_char(const char *, struct Creature *);
 
-MobileEvent::MobileEvent(char_data * ch,
-	char_data * target,
+MobileEvent::MobileEvent(Creature * ch,
+	Creature * target,
 	short val1, short val2, short val3, short val4, string event_type)
 {
 	this->ch = ch;
@@ -29,26 +29,26 @@ MobileEvent::MobileEvent(char_data * ch,
 	val[3] = val4;
 }
 
-struct char_data *
+struct Creature *
 MobileEvent::getInit()
 {
 	return this->ch;
 }
 
-struct char_data *
+struct Creature *
 MobileEvent::getTarget()
 {
 	return this->target;
 }
 
 void
-MobileEvent::setInit(char_data * init)
+MobileEvent::setInit(Creature * init)
 {
 	this->ch = ch;
 }
 
 void
-MobileEvent::setTarget(char_data * target)
+MobileEvent::setTarget(Creature * target)
 {
 	this->target = target;
 }

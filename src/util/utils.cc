@@ -65,7 +65,7 @@ VT_RPPOS(int x, int y)
 }
 
 void
-enable_vt100(struct char_data *ch)
+enable_vt100(struct Creature *ch)
 {
 	char level[4];
 	char seperator[161];
@@ -111,7 +111,7 @@ enable_vt100(struct char_data *ch)
 }
 
 void
-disable_vt100(struct char_data *ch)
+disable_vt100(struct Creature *ch)
 {
 }
 
@@ -199,7 +199,7 @@ strn_cmp(char *arg1, char *arg2, int n)
 
 /* log a death trap hit */
 void
-log_death_trap(struct char_data *ch)
+log_death_trap(struct Creature *ch)
 {
 	mudlog(LVL_AMBASSADOR, BRF, true,
 		"%s hit death trap #%d (%s)", GET_NAME(ch),
@@ -376,7 +376,7 @@ mud_time_passed(time_t t2, time_t t1)
 
 
 struct time_info_data
-age(struct char_data *ch)
+age(struct Creature *ch)
 {
 	struct time_info_data player_age;
 
@@ -410,9 +410,9 @@ age(struct char_data *ch)
 /* Check if making CH follow VICTIM will create an illegal */
 /* Follow "Loop/circle"                                    */
 bool
-circle_follow(struct char_data * ch, struct char_data * victim)
+circle_follow(struct Creature * ch, struct Creature * victim)
 {
-	struct char_data *k;
+	struct Creature *k;
 
 	for (k = victim; k; k = k->master) {
 		if (k == ch)
@@ -427,7 +427,7 @@ circle_follow(struct char_data * ch, struct char_data * victim)
 /* Called when stop following persons, or stopping charm */
 /* This will NOT do if a character quits/dies!!          */
 void
-stop_follower(struct char_data *ch)
+stop_follower(struct Creature *ch)
 {
 	struct follow_type *j, *k;
 
@@ -476,7 +476,7 @@ stop_follower(struct char_data *ch)
 
 /* Called when a character that follows/is followed dies */
 void
-die_follower(struct char_data *ch)
+die_follower(struct Creature *ch)
 {
 	struct follow_type *j, *k;
 
@@ -507,7 +507,7 @@ player_in_room(struct room_data *room)
 /* Do NOT call this before having checked if a circle of followers */
 /* will arise. CH will follow leader                               */
 void
-add_follower(struct char_data *ch, struct char_data *leader)
+add_follower(struct Creature *ch, struct Creature *leader)
 {
 	struct follow_type *k;
 
@@ -529,7 +529,7 @@ add_follower(struct char_data *ch, struct char_data *leader)
 }
 
 void
-add_stalker(struct char_data *ch, struct char_data *leader)
+add_stalker(struct Creature *ch, struct Creature *leader)
 {
 	struct follow_type *k;
 
@@ -774,10 +774,10 @@ num2str(char *str, int num)
 }
 
 char *
-GET_DISGUISED_NAME(struct char_data *ch, struct char_data *tch)
+GET_DISGUISED_NAME(struct Creature *ch, struct Creature *tch)
 {
 	struct affected_type *af = NULL;
-	struct char_data *mob = NULL;
+	struct Creature *mob = NULL;
 	static char buf[1024];
 
 	if (IS_NPC(tch))
@@ -798,7 +798,7 @@ GET_DISGUISED_NAME(struct char_data *ch, struct char_data *tch)
 }
 
 int
-CHECK_SKILL(struct char_data *ch, int i)
+CHECK_SKILL(struct Creature *ch, int i)
 {
 	int level = 0;
 	struct affected_type *af_ptr = NULL;
@@ -831,7 +831,7 @@ CHECK_SKILL(struct char_data *ch, int i)
 }
 
 void
-WAIT_STATE(struct char_data *ch, int cycle)
+WAIT_STATE(struct Creature *ch, int cycle)
 {
 	int wait;
 
@@ -857,7 +857,7 @@ WAIT_STATE(struct char_data *ch, int cycle)
 }
 
 char *
-OBJN(obj_data * obj, char_data * vict)
+OBJN(obj_data * obj, Creature * vict)
 {
 	if (CAN_SEE_OBJ(vict, obj))
 		return fname((obj)->name);
@@ -866,7 +866,7 @@ OBJN(obj_data * obj, char_data * vict)
 }
 
 char *
-OBJS(obj_data * obj, char_data * vict)
+OBJS(obj_data * obj, Creature * vict)
 {
 	if (CAN_SEE_OBJ((vict), (obj)))
 		return obj->short_description;
@@ -875,7 +875,7 @@ OBJS(obj_data * obj, char_data * vict)
 }
 
 char *
-PERS(char_data * ch, char_data * sub)
+PERS(Creature * ch, Creature * sub)
 {
 	if (CAN_SEE(sub, ch))
 		return GET_DISGUISED_NAME(sub, ch);
@@ -911,7 +911,7 @@ ONOFF(bool a)
 }
 
 char *
-CURRENCY(char_data * ch)
+CURRENCY(Creature * ch)
 {
 	if (ch->in_room->zone->time_frame == TIME_ELECTRO)
 		return "credit";
@@ -919,7 +919,7 @@ CURRENCY(char_data * ch)
 }
 
 bool
-CAN_GO(char_data * ch, int door)
+CAN_GO(Creature * ch, int door)
 {
 	room_direction_data *exit = EXIT(ch, door);
 	return (exit != NULL &&

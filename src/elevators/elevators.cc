@@ -18,7 +18,7 @@
 #include "screen.h"
 #include "elevators.h"
 
-int move_car(struct char_data *ch, struct obj_data *car, int dir);
+int move_car(struct Creature *ch, struct obj_data *car, int dir);
 
 struct elevator_data *elevators = NULL;
 

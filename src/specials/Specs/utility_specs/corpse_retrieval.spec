@@ -7,7 +7,7 @@
 SPECIAL(corpse_retrieval)
 {
   struct obj_data *corpse;
-  struct char_data *retriever = (struct char_data *) me;
+  struct Creature *retriever = (struct Creature *) me;
   char buf2[MAX_STRING_LENGTH];
   ACMD(do_say);
   int price;

@@ -19,22 +19,22 @@
 
 /* comm.c */
 void send_to_all(char *messg);
-void send_to_char(struct char_data *ch, const char *str, ...);
+void send_to_char(struct Creature *ch, const char *str, ...);
 void send_to_room(char *messg, struct room_data *room);
 void send_to_clerics(char *messg);
 void send_to_outdoor(char *messg, int isecho = 0);
 void send_to_clan(char *messg, int clan);
 void send_to_zone(char *messg, struct zone_data *zone, int outdoor);
-void send_to_comm_channel(struct char_data *ch, char *buff, int chan, int mode,
+void send_to_comm_channel(struct Creature *ch, char *buff, int chan, int mode,
 	int hide_invis);
 void send_to_newbie_helpers(char *messg);
-void perform_to_all(char *messg, struct char_data *ch);
+void perform_to_all(char *messg, struct Creature *ch);
 void close_socket(struct descriptor_data *d);
 
-void perform_act(const char *orig, struct char_data *ch,
-	struct obj_data *obj, void *vict_obj, struct char_data *to, int mode);
+void perform_act(const char *orig, struct Creature *ch,
+	struct obj_data *obj, void *vict_obj, struct Creature *to, int mode);
 
-void act(const char *str, int hide_invisible, struct char_data *ch,
+void act(const char *str, int hide_invisible, struct Creature *ch,
 	struct obj_data *obj, void *vict_obj, int type);
 
 #define TO_ROOM		1
@@ -53,7 +53,7 @@ int write_to_descriptor(int desc, char *txt);
 void write_to_q(char *txt, struct txt_q *queue, int aliased);
 void write_to_output(const char *txt, struct descriptor_data *d);
 void page_string(struct descriptor_data *d, char *str);
-void show_file(struct char_data *ch, char *fname, int lines);
+void show_file(struct Creature *ch, char *fname, int lines);
 
 #define SEND_TO_Q(messg, desc)  write_to_output((messg), desc)
 

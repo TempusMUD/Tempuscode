@@ -7,10 +7,10 @@
 SPECIAL(javelin_of_lightning)
 {
   struct obj_data *jav = (struct obj_data *) me;
-  struct char_data *vict = NULL;
+  struct Creature *vict = NULL;
   char arg1[MAX_STRING_LENGTH], arg2[MAX_STRING_LENGTH];
   int dam;
-  void update_pos(struct char_data *victim);
+  void update_pos(struct Creature *victim);
 
   two_arguments(argument, arg1, arg2);
 

@@ -8,7 +8,7 @@
 SPECIAL(arena_object)
 {
    struct obj_data *me2 = (struct obj_data *) me;
-   struct char_data *new_mob = NULL;
+   struct Creature *new_mob = NULL;
    if (!CMD_IS("say") && !CMD_IS("'"))  return 0;
    skip_spaces(&argument);
    if (!*argument)   return 0; 

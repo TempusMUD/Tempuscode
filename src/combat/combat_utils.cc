@@ -43,13 +43,13 @@
 extern int corpse_state;
 
 /* The Fight related routines */
-obj_data *get_random_uncovered_implant(char_data * ch, int type = -1);
-int calculate_weapon_probability(struct char_data *ch, int prob,
+obj_data *get_random_uncovered_implant(Creature * ch, int type = -1);
+int calculate_weapon_probability(struct Creature *ch, int prob,
 	struct obj_data *weap);
 
 
 int
-calculate_weapon_probability(struct char_data *ch, int prob,
+calculate_weapon_probability(struct Creature *ch, int prob,
 	struct obj_data *weap)
 {
 	int i, weap_weight;
@@ -105,7 +105,7 @@ calculate_weapon_probability(struct char_data *ch, int prob,
 }
 
 void
-update_pos(struct char_data *victim)
+update_pos(struct Creature *victim)
 {
 	// Wake them up from thier nap.
 	if (GET_HIT(victim) > 0 && victim->getPosition() == POS_SLEEPING)
@@ -225,7 +225,7 @@ update_pos(struct char_data *victim)
 }
 
 void
-check_killer(struct char_data *ch, struct char_data *vict,
+check_killer(struct Creature *ch, struct Creature *vict,
 	const char *debug_msg = 0)
 {
 	if (!PLR_FLAGGED(vict, PLR_KILLER | PLR_THIEF) &&
@@ -262,7 +262,7 @@ check_killer(struct char_data *ch, struct char_data *vict,
 
 // remember that ch->in_room can be null!!
 void
-check_toughguy(struct char_data *ch, struct char_data *vict, int mode)
+check_toughguy(struct Creature *ch, struct Creature *vict, int mode)
 {
 	if (IS_NPC(ch) || IS_NPC(vict) || affected_by_spell(vict, SKILL_DISGUISE)
 		|| (ch == vict) || ROOM_FLAGGED(vict->in_room, ROOM_ARENA))
@@ -294,10 +294,10 @@ check_toughguy(struct char_data *ch, struct char_data *vict, int mode)
 }
 
 void
-check_object_killer(struct obj_data *obj, struct char_data *vict)
+check_object_killer(struct obj_data *obj, struct Creature *vict)
 {
 	CHAR cbuf;
-	struct char_data *killer = NULL;
+	struct Creature *killer = NULL;
 	int player_i = 0;
 	struct char_file_u tmp_store;
 	int obj_id;
@@ -454,7 +454,7 @@ replace_string(char *str, char *weapon_singular, char *weapon_plural,
 
 /* Calculate the raw armor including magic armor.  Lower AC is better. */
 int
-calculate_thaco(struct char_data *ch, struct char_data *victim,
+calculate_thaco(struct Creature *ch, struct Creature *victim,
 	struct obj_data *weap)
 {
 	int calc_thaco, wpn_wgt, i;
@@ -609,7 +609,7 @@ add_blood_to_room(struct room_data *rm, int amount)
 }
 
 int
-apply_soil_to_char(struct char_data *ch, struct obj_data *obj, int type,
+apply_soil_to_char(struct Creature *ch, struct obj_data *obj, int type,
 	int pos)
 {
 
@@ -694,7 +694,7 @@ choose_random_limb(CHAR * victim)
 // the check for PRF2_KILLER is rolled into here for increased ( un )coherency.
 // since this is called before any attack/damage/etc... its a good place to check the flag  
 int
-peaceful_room_ok(struct char_data *ch, struct char_data *vict, bool mssg)
+peaceful_room_ok(struct Creature *ch, struct Creature *vict, bool mssg)
 {
 	if (vict->isNewbie() && !PLR_FLAGGED(vict, PLR_TOUGHGUY) &&
 		!ROOM_FLAGGED(vict->in_room, ROOM_ARENA) &&
@@ -745,7 +745,7 @@ peaceful_room_ok(struct char_data *ch, struct char_data *vict, bool mssg)
 }
 
 void
-make_corpse(struct char_data *ch, struct char_data *killer, int attacktype)
+make_corpse(struct Creature *ch, struct Creature *killer, int attacktype)
 {
 	struct obj_data *corpse = NULL, *head = NULL, *heart = NULL,
 		*spine = NULL, *o = NULL, *next_o = NULL, *leg = NULL;

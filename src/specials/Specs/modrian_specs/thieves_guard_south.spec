@@ -6,7 +6,7 @@
 
 SPECIAL(thieves_guard_south)
 {
-  struct char_data *guard = (struct char_data *) me;
+  struct Creature *guard = (struct Creature *) me;
   if( spec_mode != SPECIAL_CMD ) return 0;
   if (cmd != SOUTH + 1 && !CMD_IS("unlock") && !CMD_IS("pick")) 
     return FALSE;

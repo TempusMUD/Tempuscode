@@ -36,7 +36,7 @@
 extern list <CIScript *>scriptList;
 extern struct zone_data *zone_table;
 extern struct descriptor_data *descriptor_list;
-extern struct char_data *character_list;
+extern struct Creature *character_list;
 extern int olc_lock;
 extern int *iscr_index;
 
@@ -67,7 +67,7 @@ const char *event_types[] = {
 #define NUM_IHANDLER_COMMANDS 3
 
 int
-write_iscr_index(struct char_data *ch, struct zone_data *zone)
+write_iscr_index(struct Creature *ch, struct zone_data *zone)
 {
 	int done = 0, i, j, found = 0, count = 0, *new_index;
 	char fname[64];
@@ -131,7 +131,7 @@ write_iscr_index(struct char_data *ch, struct zone_data *zone)
 }
 
 int
-do_olc_isave(struct char_data *ch)
+do_olc_isave(struct Creature *ch)
 {
 	struct zone_data *zone;
 	int svnum;
@@ -227,7 +227,7 @@ do_olc_isave(struct char_data *ch)
 }
 
 void
-do_olc_ihandler(struct char_data *ch, char *arg)
+do_olc_ihandler(struct Creature *ch, char *arg)
 {
 	class CIScript *script;
 	int i, ihandler_command;
@@ -345,7 +345,7 @@ do_olc_ihandler(struct char_data *ch, char *arg)
 }
 
 void
-do_olc_iset(struct char_data *ch, char *arg)
+do_olc_iset(struct Creature *ch, char *arg)
 {
 	class CIScript *script;
 	int i, iset_command;
@@ -393,7 +393,7 @@ do_olc_iset(struct char_data *ch, char *arg)
 }
 
 void
-do_olc_idelete(struct char_data *ch, char *argument)
+do_olc_idelete(struct Creature *ch, char *argument)
 {
 	struct zone_data *zone = NULL;
 	struct descriptor_data *d = NULL;
@@ -459,7 +459,7 @@ do_olc_idelete(struct char_data *ch, char *argument)
 }
 
 void
-do_olc_iedit(struct char_data *ch, char *argument)
+do_olc_iedit(struct Creature *ch, char *argument)
 {
 	struct zone_data *zone = NULL;
 	struct descriptor_data *d = NULL;
@@ -521,7 +521,7 @@ do_olc_iedit(struct char_data *ch, char *argument)
 }
 
 void
-do_olc_ilist(struct char_data *ch, char *argument)
+do_olc_ilist(struct Creature *ch, char *argument)
 {
 	int counter = 0, znum = -1;
 	list <CIScript *>::iterator si;
@@ -580,7 +580,7 @@ do_olc_ilist(struct char_data *ch, char *argument)
 }
 
 class CIScript *
-do_create_iscr(struct char_data *ch, int vnum)
+do_create_iscr(struct Creature *ch, int vnum)
 {
 	struct zone_data *zone = NULL;
 
@@ -639,7 +639,7 @@ do_create_iscr(struct char_data *ch, int vnum)
 }
 
 void
-do_olc_istat(struct char_data *ch, char *arg)
+do_olc_istat(struct Creature *ch, char *arg)
 {
 	list <CIScript *>::iterator si;
 	list <CHandler *>::iterator hi;

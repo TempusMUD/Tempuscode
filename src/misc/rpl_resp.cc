@@ -24,11 +24,11 @@
 #include "rpl_resp.h"
 
 #define RPL(name) \
-void (name) (struct char_data *ch)
+void (name) (struct Creature *ch)
 
-void rpl_give_gold(struct char_data *ch, struct char_data *vict, char *desc);
-void rpl_give_obj(struct char_data *ch, struct char_data *vict, char *desc);
-void rpl_user_spec(struct char_data *ch, struct char_data *vict, char *desc);
+void rpl_give_gold(struct Creature *ch, struct Creature *vict, char *desc);
+void rpl_give_obj(struct Creature *ch, struct Creature *vict, char *desc);
+void rpl_user_spec(struct Creature *ch, struct Creature *vict, char *desc);
 char buf_temp[256];
 
 /* 
@@ -43,7 +43,7 @@ RPL(rpl_test);
 
 
 void
-reply_respond(struct char_data *ch, struct char_data *vict, char *desc)
+reply_respond(struct Creature *ch, struct Creature *vict, char *desc)
 {
 	char *desc2 = desc;
 	if (desc[0] == '%') {
@@ -66,7 +66,7 @@ reply_respond(struct char_data *ch, struct char_data *vict, char *desc)
 }
 
 void
-rpl_give_gold(struct char_data *ch, struct char_data *vict, char *desc)
+rpl_give_gold(struct Creature *ch, struct Creature *vict, char *desc)
 {
 	short num;
 
@@ -79,7 +79,7 @@ rpl_give_gold(struct char_data *ch, struct char_data *vict, char *desc)
 }
 
 void
-rpl_give_obj(struct char_data *ch, struct char_data *vict, char *desc)
+rpl_give_obj(struct Creature *ch, struct Creature *vict, char *desc)
 {
 
 	struct obj_data *new_obj;
@@ -95,7 +95,7 @@ rpl_give_obj(struct char_data *ch, struct char_data *vict, char *desc)
 }
 
 void
-rpl_user_spec(struct char_data *ch, struct char_data *vict, char *desc)
+rpl_user_spec(struct Creature *ch, struct Creature *vict, char *desc)
 {
 	desc++;						/* move pointer beyond 'U ' */
 	desc++;						/* move pointer beyond 'U ' */

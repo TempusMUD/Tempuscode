@@ -38,7 +38,7 @@
 #include "constants.h"
 #include "obj_data.h"
 #include "character_list.h"
-#include "char_data.h"
+#include "creature.h"
 #include "desc_data.h"
 #include "room_data.h"
 #include "search.h"

@@ -7,7 +7,7 @@
 SPECIAL(cyborg_overhaul)
 {
 
-  struct char_data *borg = (struct char_data *) me;
+  struct Creature *borg = (struct Creature *) me;
   int cost;
 
   if (!cmd || (!CMD_IS("buy") && !CMD_IS("value")))

@@ -7,8 +7,8 @@ using namespace std;
 //#include <defs.h>
 #include <utils.h>
 
-struct char_data;
-void command_interpreter(struct char_data *ch, char *argument);
+struct Creature;
+void command_interpreter(struct Creature *ch, char *argument);
 
 list <CIScript *> scriptList;
 
@@ -108,25 +108,25 @@ CHandler::process_handler(CHandler * theHandler)
 }
 
 void
-CIScript::setTarget(char_data * target)
+CIScript::setTarget(Creature * target)
 {
 	this->target = target;
 }
 
 void
-CIScript::setInit(char_data * init)
+CIScript::setInit(Creature * init)
 {
 	this->ch = init;
 }
 
 void
-CHandler::setTarget(char_data * target)
+CHandler::setTarget(Creature * target)
 {
 	this->target = target;
 }
 
 void
-CHandler::setInit(char_data * init)
+CHandler::setInit(Creature * init)
 {
 	this->ch = init;
 }

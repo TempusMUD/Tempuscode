@@ -5,4 +5,4 @@
 //
 
 
-void reply_respond(struct char_data *ch, struct char_data *vict, char *desc);
+void reply_respond(struct Creature *ch, struct Creature *vict, char *desc);

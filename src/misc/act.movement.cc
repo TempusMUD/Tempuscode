@@ -35,7 +35,7 @@
 #include "char_class.h"
 
 /* external vars  */
-extern struct char_data *character_list;
+extern struct Creature *character_list;
 extern struct descriptor_data *descriptor_list;
 extern const struct str_app_type str_app[];
 extern const struct dex_skill_type dex_app_skill[];
@@ -47,15 +47,15 @@ extern const byte movement_loss[];
 extern struct obj_data *object_list;
 
 /* external functs */
-int special(struct char_data *ch, int cmd, int subcmd, char *arg, special_mode spec_mode);
-int find_eq_pos(struct char_data *ch, struct obj_data *obj, char *arg);
-int clan_house_can_enter(struct char_data *ch, struct room_data *room);
-int general_search(struct char_data *ch, struct special_search_data *srch,
+int special(struct Creature *ch, int cmd, int subcmd, char *arg, special_mode spec_mode);
+int find_eq_pos(struct Creature *ch, struct obj_data *obj, char *arg);
+int clan_house_can_enter(struct Creature *ch, struct room_data *room);
+int general_search(struct Creature *ch, struct special_search_data *srch,
 	int mode);
-void update_trail(struct char_data *ch, struct room_data *rm, int dir, int j);
-int apply_soil_to_char(struct char_data *ch, struct obj_data *obj, int type,
+void update_trail(struct Creature *ch, struct room_data *rm, int dir, int j);
+int apply_soil_to_char(struct Creature *ch, struct obj_data *obj, int type,
 	int pos);
-void Crash_save_implants(struct char_data *ch, bool extract = true);
+void Crash_save_implants(struct Creature *ch, bool extract = true);
 
 #define DOOR_IS_OPENABLE(ch, obj, door)        \
 ((obj) ? \
@@ -97,7 +97,7 @@ void Crash_save_implants(struct char_data *ch, bool extract = true);
 
 
 bool
-can_travel_sector(struct char_data *ch, int sector_type, bool active)
+can_travel_sector(struct Creature *ch, int sector_type, bool active)
 {
 	struct obj_data *obj;
 	int i;
@@ -186,7 +186,7 @@ can_travel_sector(struct char_data *ch, int sector_type, bool active)
 
 /* count the people in the room */
 int
-room_count(struct char_data *ch, struct room_data *room)
+room_count(struct Creature *ch, struct room_data *room)
 {
 	int i = 0;
 	CharacterList::iterator it = room->people.begin();
@@ -204,7 +204,7 @@ room_count(struct char_data *ch, struct room_data *room)
 }
 
 void
-get_giveaway(struct char_data *ch, struct char_data *tch, char *str)
+get_giveaway(struct Creature *ch, struct Creature *tch, char *str)
 {
 
 	if (IS_NPC(ch) && GET_MOB_VNUM(ch) == UNHOLY_STALKER_VNUM) {
@@ -276,14 +276,14 @@ get_giveaway(struct char_data *ch, struct char_data *tch, char *str)
  */
 
 int
-do_simple_move(struct char_data *ch, int dir, int mode,
+do_simple_move(struct Creature *ch, int dir, int mode,
 	int need_specials_check)
 {
 
 	int need_movement, i, has_boat = 0, wait_state = 0, sneak_prob = 0;
 	struct room_data *was_in;
 	struct obj_data *obj = NULL, *next_obj = NULL, *car = NULL, *c_obj = NULL;
-	struct char_data *tch, *mount = MOUNTED(ch);
+	struct Creature *tch, *mount = MOUNTED(ch);
 	char str[256];
 	int found = 0;
 	struct special_search_data *srch = NULL;
@@ -1067,7 +1067,7 @@ do_simple_move(struct char_data *ch, int dir, int mode,
  * same as do_simple_move
  */
 int
-perform_move(struct char_data *ch, int dir, int mode, int need_specials_check)
+perform_move(struct Creature *ch, int dir, int mode, int need_specials_check)
 {
 	struct room_data *was_in;
 	struct follow_type *k, *next;
@@ -1229,7 +1229,7 @@ ACMD(do_move)
 
 
 int
-find_door(struct char_data *ch, char *type, char *dir, const char *cmdname)
+find_door(struct Creature *ch, char *type, char *dir, const char *cmdname)
 {
 	int door;
 
@@ -1276,7 +1276,7 @@ find_door(struct char_data *ch, char *type, char *dir, const char *cmdname)
 
 
 int
-has_key(struct char_data *ch, int key)
+has_key(struct Creature *ch, int key)
 {
 	struct obj_data *o;
 
@@ -1349,7 +1349,7 @@ LOCK_DOOR(room_data * room, obj_data * obj, int direction)
 }
 
 void
-do_doorcmd(struct char_data *ch, struct obj_data *obj, int door, int scmd)
+do_doorcmd(struct Creature *ch, struct obj_data *obj, int door, int scmd)
 {
 	struct room_data *other_room = NULL;
 	struct room_direction_data *back = 0;
@@ -1463,7 +1463,7 @@ do_doorcmd(struct char_data *ch, struct obj_data *obj, int door, int scmd)
 
 
 int
-ok_pick(struct char_data *ch, int keynum, int pickproof, int tech, int scmd)
+ok_pick(struct Creature *ch, int keynum, int pickproof, int tech, int scmd)
 {
 	int percent, mod;
 	struct obj_data *tool = NULL;
@@ -1522,7 +1522,7 @@ ACMD(do_gen_door)
 	int door = 0, keynum;
 	char type[MAX_INPUT_LENGTH], dir[MAX_INPUT_LENGTH], dname[128];
 	struct obj_data *obj = NULL;
-	struct char_data *victim = NULL;
+	struct Creature *victim = NULL;
 
 	skip_spaces(&argument);
 	if (!*argument) {
@@ -2107,7 +2107,7 @@ ACMD(do_sleep)
 
 ACMD(do_wake)
 {
-	struct char_data *vict;
+	struct Creature *vict;
 	int self = 0;
 
 	one_argument(argument, arg);
@@ -2181,7 +2181,7 @@ ACMD(do_wake)
 
 ACMD(do_makemount)
 {
-	struct char_data *vict;
+	struct Creature *vict;
 	one_argument(argument, buf);
 
 	if (*buf) {
@@ -2199,7 +2199,7 @@ ACMD(do_makemount)
 
 ACMD(do_mount)
 {
-	struct char_data *vict;
+	struct Creature *vict;
 	one_argument(argument, buf);
 
 	if (*buf) {
@@ -2291,8 +2291,8 @@ ACMD(do_dismount)
 
 ACMD(do_stalk)
 {
-	struct char_data *vict;
-	void add_stalker(struct char_data *ch, struct char_data *vict);
+	struct Creature *vict;
+	void add_stalker(struct Creature *ch, struct Creature *vict);
 
 	one_argument(argument, buf);
 
@@ -2336,10 +2336,10 @@ ACMD(do_stalk)
 
 ACMD(do_follow)
 {
-	struct char_data *leader;
+	struct Creature *leader;
 
-	void stop_follower(struct char_data *ch);
-	void add_follower(struct char_data *ch, struct char_data *leader);
+	void stop_follower(struct Creature *ch);
+	void add_follower(struct Creature *ch, struct Creature *leader);
 
 	one_argument(argument, buf);
 

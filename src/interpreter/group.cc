@@ -57,13 +57,13 @@ namespace Security {
     bool Group::member( long player ) { 
         return binary_search(members.begin(), members.end(), player); 
     }
-    bool Group::member(  char_data *ch ) { 
+    bool Group::member(  Creature *ch ) { 
         return member(GET_IDNUM(ch)); 
     }
     bool Group::member( const command_info *command ) { 
         return binary_search( commands.begin(), commands.end(), command );
     }
-    bool Group::givesAccess(  char_data *ch, const command_info *command ) {
+    bool Group::givesAccess(  Creature *ch, const command_info *command ) {
         return ( member(ch) && member(command) );
     }
 
@@ -75,7 +75,7 @@ namespace Security {
     }
 
     /* sprintf's a one line desc of this group into out */
-    void Group::sendString(char_data *ch) {
+    void Group::sendString(Creature *ch) {
         const char *nrm = CCNRM(ch,C_NRM);
         const char *cyn = CCCYN(ch,C_NRM);
         const char *grn = CCGRN(ch,C_NRM);
@@ -89,7 +89,7 @@ namespace Security {
     }
 
     /* sends a multi-line status of this group to ch */
-    void Group::sendStatus( char_data *ch ) {
+    void Group::sendStatus( Creature *ch ) {
         const char *nrm = CCNRM(ch,C_NRM);
         const char *cyn = CCCYN(ch,C_NRM);
         const char *grn = CCGRN(ch,C_NRM);
@@ -186,7 +186,7 @@ namespace Security {
     }
 
     /* Sends a list of this group's members to the given character. */
-    bool Group::sendPublicMemberList( char_data *ch, char *str) {
+    bool Group::sendPublicMemberList( Creature *ch, char *str) {
         int pos = 1;
         vector<long>::iterator it = members.begin();
         char namebuf[80];
@@ -205,7 +205,7 @@ namespace Security {
     }
 
     /* Sends a list of this group's members to the given character. */
-    bool Group::sendMemberList( char_data *ch ) {
+    bool Group::sendMemberList( Creature *ch ) {
         int pos = 1;
         vector<long>::iterator it = members.begin();
         send_to_char(ch, "Members:\r\n");
@@ -231,7 +231,7 @@ namespace Security {
     }
 
     /* Sends a list of this group's members to the given character. */
-    bool Group::sendCommandList( char_data *ch, bool prefix = true ) {
+    bool Group::sendCommandList( Creature *ch, bool prefix = true ) {
         int pos = 1;
         vector<command_info*>::iterator it = commands.begin();
         if( prefix )

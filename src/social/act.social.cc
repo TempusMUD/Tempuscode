@@ -94,7 +94,7 @@ ACMD(do_action)
 {
 	int act_nr;
 	struct social_messg *action;
-	struct char_data *vict = NULL;
+	struct Creature *vict = NULL;
 	struct obj_data *obj = NULL;
 
 	/*struct obj_data *weap = GET_EQ(ch, WEAR_WIELD); */
@@ -153,7 +153,7 @@ ACMD(do_action)
 
 ACMD(do_point)
 {
-	struct char_data *vict = NULL;
+	struct Creature *vict = NULL;
 	struct obj_data *obj = NULL;
 	int dir, i;
 
@@ -200,7 +200,7 @@ ACMD(do_point)
 
 ACMD(do_insult)
 {
-	struct char_data *victim;
+	struct Creature *victim;
 
 	one_argument(argument, arg);
 
@@ -375,7 +375,7 @@ boot_social_messages(void)
 
 
 void
-show_social_messages(struct char_data *ch, char *arg)
+show_social_messages(struct Creature *ch, char *arg)
 {
 	int i, j, l;
 	struct social_messg *action;

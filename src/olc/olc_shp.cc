@@ -24,7 +24,7 @@
 
 extern struct zone_data *zone_table;
 extern struct descriptor_data *descriptor_list;
-extern struct char_data *character_list;
+extern struct Creature *character_list;
 extern struct shop_data *shop_index;
 extern int *shp_index;
 extern int top_of_zone_table;
@@ -39,7 +39,7 @@ char *one_argument_no_lower(char *argument, char *first_arg);
 int search_block_no_lower(char *arg, char **list, bool exact);
 int fill_word_no_lower(char *argument);
 void num2str(char *str, int num);
-void list_detailed_shop(struct char_data *ch, struct shop_data *shop);
+void list_detailed_shop(struct Creature *ch, struct shop_data *shop);
 
 const char *olc_sset_keys[] = {
 	"addproduct",
@@ -75,7 +75,7 @@ const char *olc_sset_keys[] = {
 SPECIAL(shop_keeper);
 
 struct shop_data *
-do_create_shop(struct char_data *ch, int vnum)
+do_create_shop(struct Creature *ch, int vnum)
 {
 	struct shop_data *new_shop = NULL, *tmp_shop = NULL;
 	struct zone_data *zone = NULL;
@@ -174,7 +174,7 @@ do_create_shop(struct char_data *ch, int vnum)
 
 
 void
-do_shop_sedit(struct char_data *ch, char *argument)
+do_shop_sedit(struct Creature *ch, char *argument)
 {
 	struct shop_data *shop = NULL, *tmp_shop = NULL;
 	struct zone_data *zone = NULL;
@@ -250,7 +250,7 @@ do_shop_sedit(struct char_data *ch, char *argument)
 }
 
 void
-do_shop_sstat(struct char_data *ch)
+do_shop_sstat(struct Creature *ch)
 {
 	struct shop_data *shop = NULL;
 
@@ -265,9 +265,9 @@ do_shop_sstat(struct char_data *ch)
 #define shop_p GET_OLC_SHOP(ch)
 
 void
-do_shop_sset(struct char_data *ch, char *argument)
+do_shop_sset(struct Creature *ch, char *argument)
 {
-	struct char_data *mob = NULL, *mob2 = NULL;
+	struct Creature *mob = NULL, *mob2 = NULL;
 	struct obj_data *obj;
 	struct zone_data *zone;
 	struct room_data *room;
@@ -764,7 +764,7 @@ do_shop_sset(struct char_data *ch, char *argument)
 
 
 int
-write_shp_index(struct char_data *ch, struct zone_data *zone)
+write_shp_index(struct Creature *ch, struct zone_data *zone)
 {
 	int done = 0, i, j, found = 0, count = 0, *new_index;
 	char fname[64];
@@ -826,7 +826,7 @@ write_shp_index(struct char_data *ch, struct zone_data *zone)
 
 
 int
-save_shops(struct char_data *ch)
+save_shops(struct Creature *ch)
 {
 	unsigned int i, tmp;
 	int s_vnum;
@@ -977,12 +977,12 @@ save_shops(struct char_data *ch)
 
 
 int
-do_destroy_shop(struct char_data *ch, int vnum)
+do_destroy_shop(struct Creature *ch, int vnum)
 {
 
 	struct zone_data *zone = NULL;
 	struct shop_data *shop = NULL, *tmp_shop = NULL;
-	struct char_data *mob = NULL;
+	struct Creature *mob = NULL;
 	struct descriptor_data *d = NULL;
 	int found = 0;
 

@@ -7,7 +7,7 @@
 SPECIAL(moloch)
 {
 
-  struct char_data *moloch = (struct char_data *) me;
+  struct Creature *moloch = (struct Creature *) me;
   room_data *targ_room = NULL;
   int throne_rooms[4] = {16645, 16692, 16692, 16623}, index;
 

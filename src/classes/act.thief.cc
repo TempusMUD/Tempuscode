@@ -28,12 +28,12 @@
 #include "events.h"
 
 SPECIAL(shop_keeper);
-int check_mob_reaction(struct char_data *ch, struct char_data *vict);
+int check_mob_reaction(struct Creature *ch, struct Creature *vict);
 void send_to_queue(MobileEvent * e);
 
 ACMD(do_steal)
 {
-	struct char_data *vict = NULL;
+	struct Creature *vict = NULL;
 	struct obj_data *obj;
 	char vict_name[MAX_INPUT_LENGTH];
 	char obj_name[MAX_INPUT_LENGTH];
@@ -277,7 +277,7 @@ ACMD(do_steal)
 
 ACMD(do_backstab)
 {
-	struct char_data *vict;
+	struct Creature *vict;
 	int percent, prob;
 	struct obj_data *weap = NULL;
 
@@ -331,7 +331,7 @@ ACMD(do_backstab)
 
 ACMD(do_circle)
 {
-	struct char_data *vict;
+	struct Creature *vict;
 	int percent, prob;
 	struct obj_data *weap = NULL;
 
@@ -460,7 +460,7 @@ ACMD(do_hide)
 
 ACMD(do_disguise)
 {
-	struct char_data *vict = NULL;
+	struct Creature *vict = NULL;
 	struct affected_type af;
 
 	if (CHECK_SKILL(ch, SKILL_DISGUISE) < 20) {

@@ -26,7 +26,7 @@
 
 ACMD(do_bandage)
 {
-	struct char_data *vict;
+	struct Creature *vict;
 	int mod, cost;
 	char vict_name[MAX_INPUT_LENGTH];
 	one_argument(argument, vict_name);
@@ -88,7 +88,7 @@ ACMD(do_bandage)
 
 ACMD(do_firstaid)
 {
-	struct char_data *vict;
+	struct Creature *vict;
 	int mod, cost;
 	char vict_name[MAX_INPUT_LENGTH];
 	one_argument(argument, vict_name);
@@ -145,7 +145,7 @@ ACMD(do_firstaid)
 
 ACMD(do_medic)
 {
-	struct char_data *vict;
+	struct Creature *vict;
 	int mod;
 	char vict_name[MAX_INPUT_LENGTH];
 	one_argument(argument, vict_name);
@@ -196,7 +196,7 @@ ACMD(do_medic)
 
 ACMD(do_autopsy)
 {
-	struct char_data *vict = NULL;
+	struct Creature *vict = NULL;
 	struct obj_data *corpse = NULL;
 	char *name = NULL;
 

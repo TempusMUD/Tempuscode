@@ -10,8 +10,8 @@
 SPECIAL(slaver)
 {
 
-  struct char_data *slaver = (struct char_data *) me;
-  struct char_data *vict = NULL;
+  struct Creature *slaver = (struct Creature *) me;
+  struct Creature *vict = NULL;
   struct room_data *r_pit_lip = real_room(PIT_LIP),
     *r_slave_pit = real_room(SLAVE_PIT);
 

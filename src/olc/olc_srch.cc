@@ -19,8 +19,8 @@
 #include "spells.h"
 #include "materials.h"
 
-extern struct char_data *character_list;
-int clan_house_can_enter(struct char_data *ch, struct room_data *room);
+extern struct Creature *character_list;
+int clan_house_can_enter(struct Creature *ch, struct room_data *room);
 const char *olc_xset_keys[] = {
 	"triggers",
 	"keywords",
@@ -36,7 +36,7 @@ const char *olc_xset_keys[] = {
 
 #define srch_p GET_OLC_SRCH(ch)
 void
-do_olc_xset(struct char_data *ch, char *argument)
+do_olc_xset(struct Creature *ch, char *argument)
 {
 
 	char arg1[MAX_INPUT_LENGTH], arg2[MAX_INPUT_LENGTH];
@@ -200,7 +200,7 @@ do_olc_xset(struct char_data *ch, char *argument)
 #endif
 }
 struct special_search_data *
-do_create_search(struct char_data *ch, char *arg)
+do_create_search(struct Creature *ch, char *arg)
 {
 
 	struct special_search_data *srch = NULL;
@@ -252,7 +252,7 @@ do_create_search(struct char_data *ch, char *arg)
 }
 
 int
-do_destroy_search(struct char_data *ch, char *arg)
+do_destroy_search(struct Creature *ch, char *arg)
 {
 	struct special_search_data *srch = NULL, *temp = NULL;
 	char triggers[MAX_INPUT_LENGTH], keywords[MAX_INPUT_LENGTH];
@@ -301,7 +301,7 @@ do_destroy_search(struct char_data *ch, char *arg)
 }
 
 int
-set_char_xedit(struct char_data *ch, char *argument)
+set_char_xedit(struct Creature *ch, char *argument)
 {
 
 	struct special_search_data *srch = NULL;
@@ -335,12 +335,12 @@ set_char_xedit(struct char_data *ch, char *argument)
 }
 
 void
-print_search_data_to_buf(struct char_data *ch, struct room_data *room,
+print_search_data_to_buf(struct Creature *ch, struct room_data *room,
 	struct special_search_data *cur_search, char *buf)
 {
 
 	struct obj_data *obj = NULL;
-	struct char_data *mob = NULL;
+	struct Creature *mob = NULL;
 
 	sprintf(buf, "%sCommand triggers:%s %s, %skeywords:%s %s\r\n",
 		CCRED(ch, C_NRM), CCNRM(ch, C_NRM),
@@ -441,7 +441,7 @@ print_search_data_to_buf(struct char_data *ch, struct room_data *room,
 }
 
 void
-do_olc_xstat(struct char_data *ch)
+do_olc_xstat(struct Creature *ch)
 {
 	if (!GET_OLC_SRCH(ch)) {
 		send_to_char(ch, "You are not currently editing a search.\r\n");

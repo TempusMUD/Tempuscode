@@ -107,8 +107,8 @@ struct descriptor_data {
 	pthread_t resolver_thread;	// thread to resolve hostname
 	struct txt_block *large_outbuf;	/* ptr to large buffer, if we need it */
 	struct txt_q input;			/* q of unprocessed input       */
-	struct char_data *character;	/* linked to char           */
-	struct char_data *original;	/* original char if switched        */
+	struct Creature *character;	/* linked to char           */
+	struct Creature *original;	/* original char if switched        */
 	struct descriptor_data *snooping;	/* Who is this char snooping   */
 	struct descriptor_data *snoop_by;	/* And who is snooping this char   */
 	struct descriptor_data *next;	/* link to next descriptor     */

@@ -6,7 +6,7 @@
 
 SPECIAL(jail_locker)
 {
-  struct char_data *atten = (struct char_data *) me;
+  struct Creature *atten = (struct Creature *) me;
   struct obj_data *locker, *item, *tmp_item;
   int cost, v_locker;
   ACMD(do_say);

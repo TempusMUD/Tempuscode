@@ -95,7 +95,7 @@ SPECIAL(cuckoo)
 	   pulsed... only called when a command is entered in
 	   thier vicinity. */
 
-	struct char_data *bird = (struct char_data *)me;
+	struct Creature *bird = (struct Creature *)me;
 	struct room_data *r_clock_room = NULL, *to_room = NULL;
 	static int room_status = 0;
 
@@ -246,7 +246,7 @@ SPECIAL(gollum)
 	/* im making this into a mob special */
 	if (spec_mode != SPECIAL_CMD && spec_mode != SPECIAL_TICK)
 		return 0;
-	struct char_data *gollum = (struct char_data *)me;
+	struct Creature *gollum = (struct Creature *)me;
 	struct room_data *to_room = NULL;
 
 	/* check if gollum is in room and not fighting */
@@ -315,9 +315,9 @@ SPECIAL(pendulum_timer_mob)
 	if (spec_mode != SPECIAL_CMD && spec_mode != SPECIAL_TICK)
 		return 0;
 
-	struct char_data *pendulum_timer_mob = (struct char_data *)me;
+	struct Creature *pendulum_timer_mob = (struct Creature *)me;
 	struct obj_data *test_obj = NULL;
-	struct char_data *vict = NULL;
+	struct Creature *vict = NULL;
 	struct room_data *in_room = real_room(66136),
 		*to_room = NULL, *from_room = NULL;
 	static int pendulum_time = 0;
@@ -473,8 +473,8 @@ SPECIAL(pendulum_room)
 SPECIAL(parrot)
 {
 
-	struct char_data *parrot = (struct char_data *)me;
-	struct char_data *master = parrot->master;
+	struct Creature *parrot = (struct Creature *)me;
+	struct Creature *master = parrot->master;
 
 	if (spec_mode != SPECIAL_CMD && spec_mode != SPECIAL_TICK)
 		return 0;
@@ -515,7 +515,7 @@ SPECIAL(astrolabe)
 {
 
 	struct obj_data *astrolabe = (struct obj_data *)me;
-	struct char_data *wearer = astrolabe->worn_by;
+	struct Creature *wearer = astrolabe->worn_by;
 	struct room_data *to_room = NULL;
 
 	if (ch != wearer || !IS_OBJ_TYPE(astrolabe, ITEM_OTHER))

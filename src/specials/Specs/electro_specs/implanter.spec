@@ -6,19 +6,19 @@
 
 list<long> implanter_sessions; // ids of players with implant sessions
 
-void implanter_implant(char_data *me, char_data *ch, char *args);
-void implanter_extract(char_data *me, char_data *ch, char *args);
-void implanter_redeem(char_data *me, char_data *ch, char *args);
-bool implanter_in_session(char_data *ch);
-void implanter_end_sess(char_data *me, char_data *ch);
-void implanter_show_args(char_data *me, char_data *ch);
-void implanter_show_pos(char_data *me, char_data *ch, obj_data *obj);
+void implanter_implant(Creature *me, Creature *ch, char *args);
+void implanter_extract(Creature *me, Creature *ch, char *args);
+void implanter_redeem(Creature *me, Creature *ch, char *args);
+bool implanter_in_session(Creature *ch);
+void implanter_end_sess(Creature *me, Creature *ch);
+void implanter_show_args(Creature *me, Creature *ch);
+void implanter_show_pos(Creature *me, Creature *ch, obj_data *obj);
 
 const long TICKET_VNUM = 92277;
 
 SPECIAL(implanter)
 {
-	struct char_data *self = (struct char_data *)me;
+	struct Creature *self = (struct Creature *)me;
 
 	if (spec_mode != SPECIAL_LEAVE && spec_mode != SPECIAL_CMD)
 		return 0;
@@ -55,7 +55,7 @@ SPECIAL(implanter)
 
 
 void
-implanter_implant(char_data *me, char_data *ch, char *args)
+implanter_implant(Creature *me, Creature *ch, char *args)
 {
 	extern const int wear_bitvectors[];
 	struct obj_data *implant = NULL;
@@ -201,7 +201,7 @@ implanter_implant(char_data *me, char_data *ch, char *args)
 }
 
 void
-implanter_extract(char_data *me, char_data *ch, char *args)
+implanter_extract(Creature *me, Creature *ch, char *args)
 {
 	struct obj_data *implant = NULL, *obj = NULL;
 	int cost = 0, pos = 0;
@@ -312,7 +312,7 @@ implanter_extract(char_data *me, char_data *ch, char *args)
 	return;
 }
 
-void implanter_redeem(char_data *me, char_data *ch, char *args)
+void implanter_redeem(Creature *me, Creature *ch, char *args)
 {
 	if (implanter_in_session(ch)) {
 		perform_tell(me, ch, "You've already redeemed your implanting session!");
@@ -353,7 +353,7 @@ void implanter_redeem(char_data *me, char_data *ch, char *args)
 }
 
 bool
-implanter_in_session(char_data *ch)
+implanter_in_session(Creature *ch)
 {
 	if (implanter_sessions.empty())
 		return false;
@@ -369,13 +369,13 @@ implanter_in_session(char_data *ch)
 	return false;
 }
 
-void implanter_end_sess(char_data *me, char_data *ch)
+void implanter_end_sess(Creature *me, Creature *ch)
 {
 	implanter_sessions.remove(GET_IDNUM(ch));
 }
 
 void
-implanter_show_args(char_data *me, char_data *ch)
+implanter_show_args(Creature *me, Creature *ch)
 {
 	perform_tell(me, ch, "buy implant <implant> <position> or");
 	perform_tell(me, ch,
@@ -386,7 +386,7 @@ implanter_show_args(char_data *me, char_data *ch)
 }
 
 void
-implanter_show_pos(char_data *me, char_data *ch, obj_data *obj)
+implanter_show_pos(Creature *me, Creature *ch, obj_data *obj)
 {
 	int pos;
 	bool not_first = false;

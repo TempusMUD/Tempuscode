@@ -8,7 +8,7 @@ SPECIAL(stable_room)
 {
   char buf[MAX_STRING_LENGTH], pet_name[256];
   struct room_data *pet_room;
-  struct char_data *pet = NULL;
+  struct Creature *pet = NULL;
   int price;
 
   if (!(pet_room = ch->in_room->next)) {

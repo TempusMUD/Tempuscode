@@ -65,7 +65,7 @@ bool OLC_EDIT_OK(CHAR * ch, struct zone_data *zone, int bits);
 #define OLCGOD(ch) ( PLR_FLAGGED(ch, PLR_OLCGOD) )
 //#define OLCIMP(ch) ( GET_LEVEL(ch) >= LVL_CREATOR )
 
-bool OLCIMP(char_data * ch);
+bool OLCIMP(Creature * ch);
 
 #define UPDATE_OBJLIST_NAMES(obj_p, tmp_obj, _item)                         \
      for (tmp_obj = object_list; tmp_obj; tmp_obj = tmp_obj->next)   \
@@ -123,11 +123,11 @@ bool OLCIMP(char_data * ch);
 
 
 void
- print_search_data_to_buf(struct char_data *ch, struct room_data *room,
+ print_search_data_to_buf(struct Creature *ch, struct room_data *room,
 	struct special_search_data *cur_search, char *buf);
 
-void show_olc_help(struct char_data *ch, char *arg);
-int mobile_experience(struct char_data *mob);
+void show_olc_help(struct Creature *ch, char *arg);
+int mobile_experience(struct Creature *mob);
 
 
 #endif							// __OLC_H__

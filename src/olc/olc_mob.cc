@@ -25,7 +25,7 @@
 
 extern struct zone_data *zone_table;
 extern struct descriptor_data *descriptor_list;
-extern struct char_data *character_list;
+extern struct Creature *character_list;
 extern struct player_special_data dummy_mob;
 extern int top_of_zone_table;
 extern int olc_lock;
@@ -40,11 +40,11 @@ char *one_argument_no_lower(char *argument, char *first_arg);
 int search_block_no_lower(char *arg, char **list, bool exact);
 int fill_word_no_lower(char *argument);
 void num2str(char *str, int num);
-void set_physical_attribs(struct char_data *ch);
-void do_stat_character(struct char_data *ch, struct char_data *k);
+void set_physical_attribs(struct Creature *ch);
+void do_stat_character(struct Creature *ch, struct Creature *k);
 struct extra_descr_data *locate_exdesc(char *word,
 	struct extra_descr_data *list);
-void set_move_buffer(struct char_data *ch);
+void set_move_buffer(struct Creature *ch);
 char *find_exdesc(char *word, struct extra_descr_data *list, int find_exact = 0);
 
 SPECIAL(shop_keeper);
@@ -107,10 +107,10 @@ const char *olc_mset_keys[] = {
 #define NUM_MSET_COMMANDS 45
 
 
-struct char_data *
-do_create_mob(struct char_data *ch, int vnum)
+struct Creature *
+do_create_mob(struct Creature *ch, int vnum)
 {
-	struct char_data *mob = NULL, *new_mob = NULL;
+	struct Creature *mob = NULL, *new_mob = NULL;
 	struct zone_data *zone = NULL;
 	int j;
 
@@ -153,7 +153,7 @@ do_create_mob(struct char_data *ch, int vnum)
 			break;
 
 	}
-	CREATE(new_mob, struct char_data, 1);
+	CREATE(new_mob, struct Creature, 1);
 
 	clear_char(new_mob);
 
@@ -271,9 +271,9 @@ do_create_mob(struct char_data *ch, int vnum)
 
 
 void
-do_mob_medit(struct char_data *ch, char *argument)
+do_mob_medit(struct Creature *ch, char *argument)
 {
-	struct char_data *mobile = NULL, *tmp_mob = NULL;
+	struct Creature *mobile = NULL, *tmp_mob = NULL;
 	struct zone_data *zone = NULL;
 	struct descriptor_data *d = NULL;
 	int j;
@@ -340,9 +340,9 @@ do_mob_medit(struct char_data *ch, char *argument)
 }
 
 void
-do_mob_mstat(struct char_data *ch)
+do_mob_mstat(struct Creature *ch)
 {
-	struct char_data *mob = NULL;
+	struct Creature *mob = NULL;
 
 	mob = GET_OLC_MOB(ch);
 
@@ -357,10 +357,10 @@ do_mob_mstat(struct char_data *ch)
 "<keywords> [new keywords]\r\n"
 
 void
-do_mob_mset(struct char_data *ch, char *argument)
+do_mob_mset(struct Creature *ch, char *argument)
 {
 	struct extra_descr_data *reply, *nreply, *temp;
-	struct char_data *tmp_mob;
+	struct Creature *tmp_mob;
 	struct zone_data *zone;
 	int i, mset_command, tmp_flags, flag, cur_flags, state;
 
@@ -1234,7 +1234,7 @@ do_mob_mset(struct char_data *ch, char *argument)
 }
 
 int
-write_mob_index(struct char_data *ch, struct zone_data *zone)
+write_mob_index(struct Creature *ch, struct zone_data *zone)
 {
 	int done = 0, i, j, found = 0, count = 0, *new_index;
 	char fname[64];
@@ -1299,7 +1299,7 @@ write_mob_index(struct char_data *ch, struct zone_data *zone)
 }
 
 int
-save_mobs(struct char_data *ch)
+save_mobs(struct Creature *ch)
 {
 	int m_vnum, espec_mob = 0;
 	unsigned int i, tmp;
@@ -1309,7 +1309,7 @@ save_mobs(struct char_data *ch)
 	char sbuf1[64], sbuf2[64], sbuf3[64], sbuf4[64], sbuf5[64];
 	struct extra_descr_data *reply;
 	struct zone_data *zone;
-	struct char_data *mob;
+	struct Creature *mob;
 	FILE *file;
 	FILE *realfile;
 
@@ -1536,11 +1536,11 @@ save_mobs(struct char_data *ch)
 
 
 int
-do_destroy_mobile(struct char_data *ch, int vnum)
+do_destroy_mobile(struct Creature *ch, int vnum)
 {
 
 	struct zone_data *zone = NULL;
-	struct char_data *mob = NULL;
+	struct Creature *mob = NULL;
 	struct extra_descr_data *resp = NULL;
 	struct descriptor_data *d = NULL;
 	struct memory_rec_struct *mem_r = NULL;
@@ -1633,7 +1633,7 @@ do_destroy_mobile(struct char_data *ch, int vnum)
 }
 
 int
-mobile_experience(struct char_data *mob)
+mobile_experience(struct Creature *mob)
 {
 
 	int exp = 0, tmp = 0;
@@ -1726,9 +1726,9 @@ mobile_experience(struct char_data *mob)
 }
 
 int
-do_clear_olc_mob(struct char_data *ch)
+do_clear_olc_mob(struct Creature *ch)
 {
-	struct char_data *targ = GET_OLC_MOB(ch);
+	struct Creature *targ = GET_OLC_MOB(ch);
 
 	targ->mob_specials.shared->number = 0;
 	targ->mob_specials.shared->func = NULL;
@@ -1819,8 +1819,8 @@ do_clear_olc_mob(struct char_data *ch)
 }
 
 int
-olc_mimic_mob(struct char_data *ch,
-	struct char_data *orig, struct char_data *targ, int mode)
+olc_mimic_mob(struct Creature *ch,
+	struct Creature *orig, struct Creature *targ, int mode)
 {
 
 	if (mode) {					/* (mode) => mimicing prototype... else real mob */
@@ -1926,7 +1926,7 @@ olc_mimic_mob(struct char_data *ch,
 
 }
 
-void set_move_buffer(struct char_data *ch)
+void set_move_buffer(struct Creature *ch)
 {
     if (GET_RACE(ch) == RACE_GRIFFIN) {
         if (MOB_SHARED(ch)->move_buf)

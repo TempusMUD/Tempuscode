@@ -42,7 +42,7 @@ using namespace std;
 #include "xml_utils.h"
 #include "remorter.h"
 
-void Crash_save_implants(struct char_data *ch, bool extract = true);
+void Crash_save_implants(struct Creature *ch, bool extract = true);
 
 
 SPECIAL(remorter)
@@ -69,7 +69,7 @@ SPECIAL(remorter)
 	}
 	if (CMD_IS("reload") && GET_LEVEL(ch) >= LVL_IMMORT) {
 		act("$n conjures a new remort test from thin air!", TRUE,
-			(char_data *) me, 0, 0, TO_ROOM);
+			(Creature *) me, 0, 0, TO_ROOM);
 		quiz.reset();
 		send_to_char(ch, "Remort test reset.\r\n");
 		return 1;
@@ -123,7 +123,7 @@ SPECIAL(remorter)
 			char_from_room(ch,false);
 			char_to_room(ch, room,false);
 			act("$n arrives from a puff of smoke.", FALSE, ch, 0, 0, TO_ROOM);
-			act("$n has transferred you!", FALSE, (char_data *) me, 0, ch, TO_VICT);
+			act("$n has transferred you!", FALSE, (Creature *) me, 0, ch, TO_VICT);
 			look_at_room(ch, room, 0);
 			return 1;
 		}

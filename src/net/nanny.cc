@@ -45,7 +45,7 @@ extern char *background;
 extern char *MENU;
 extern char *WELC_MESSG;
 extern char *START_MESSG;
-extern struct char_data *character_list;
+extern struct Creature *character_list;
 extern struct player_index_element *player_table;
 extern int top_of_p_table;
 extern int restrict;
@@ -60,20 +60,20 @@ extern int shutdown_count;
 
 // external functions
 ACMD(do_hcollect_help);
-void do_start(struct char_data * ch, int mode);
-void show_mud_date_to_char(struct char_data *ch);
-void show_programs_to_char(struct char_data *ch, int char_class);
+void do_start(struct Creature * ch, int mode);
+void show_mud_date_to_char(struct Creature *ch);
+void show_programs_to_char(struct Creature *ch, int char_class);
 void handle_network(struct descriptor_data *d,char *arg);
-int general_search(struct char_data *ch, struct special_search_data *srch, int mode);
-void roll_real_abils(struct char_data * ch);
-void print_attributes_to_buf(struct char_data *ch, char *buff);
+int general_search(struct Creature *ch, struct special_search_data *srch, int mode);
+void roll_real_abils(struct Creature * ch);
+void print_attributes_to_buf(struct Creature *ch, char *buff);
 void polc_input(struct descriptor_data * d, char *str);
 
 int isbanned(char *hostname, char *blocking_hostname);
 int Valid_Name(char *newname);
 int _parse_name(char *arg, char *name);
 int reserved_word(char *argument);
-char *diag_conditions(struct char_data *ch);
+char *diag_conditions(struct Creature *ch);
 
 
 // internal functions
@@ -81,7 +81,7 @@ void set_desc_state(int state,struct descriptor_data *d );
 void echo_on(struct descriptor_data * d);
 void echo_off(struct descriptor_data * d);
 
-void notify_cleric_moon(struct char_data *ch);
+void notify_cleric_moon(struct Creature *ch);
 
 // deal with newcomers and other non-playing sockets
 void
@@ -91,7 +91,7 @@ nanny(struct descriptor_data * d, char *arg)
 	char tmp_name[MAX_INPUT_LENGTH];
     int player_i, load_result=0;
     struct char_file_u tmp_store;
-    struct char_data *tmp_ch;
+    struct Creature *tmp_ch;
     struct descriptor_data *k, *next;
     extern struct descriptor_data *descriptor_list;
     extern int max_bad_pws;
@@ -115,7 +115,7 @@ nanny(struct descriptor_data * d, char *arg)
 				return;
 			}
 			if (d->character == NULL) {
-				CREATE(d->character, struct char_data, 1);
+				CREATE(d->character, struct Creature, 1);
 				clear_char(d->character);
 				CREATE(d->character->player_specials, struct player_special_data, 1);
 				GET_LOADROOM(d->character) = -1;
@@ -178,7 +178,7 @@ nanny(struct descriptor_data * d, char *arg)
 
 					if (PLR_FLAGGED(d->character, PLR_DELETED)) {
 						free_char(d->character);
-						CREATE(d->character, struct char_data, 1);
+						CREATE(d->character, struct Creature, 1);
 						clear_char(d->character);
 						CREATE(d->character->player_specials, struct player_special_data, 1);
 						d->character->desc = d;

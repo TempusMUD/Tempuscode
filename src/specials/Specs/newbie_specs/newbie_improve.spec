@@ -15,8 +15,8 @@ SPECIAL(newbie_improve)
 #define CHA  5
   if( spec_mode != SPECIAL_CMD && spec_mode != SPECIAL_TICK ) return 0;
   ACMD(do_say);
-  void perform_tell(struct char_data *ch, struct char_data *vict, char *mssg);
-  struct char_data *impro = (struct char_data *) me;
+  void perform_tell(struct Creature *ch, struct Creature *vict, char *mssg);
+  struct Creature *impro = (struct Creature *) me;
   byte index = -1;
   char *mssg = NULL;
   char buf3[MAX_STRING_LENGTH];

@@ -25,7 +25,7 @@
 #include "shop.h"
 
 void
-perform_monk_meditate(struct char_data *ch)
+perform_monk_meditate(struct Creature *ch)
 {
 	struct affected_type af;
 
@@ -142,7 +142,7 @@ perform_monk_meditate(struct char_data *ch)
 
 ACMD(do_whirlwind)
 {
-	struct char_data *vict = NULL;
+	struct Creature *vict = NULL;
 	struct obj_data *ovict = NULL;
 	int percent = 0, prob = 0, i;
 	bool all = false;
@@ -260,7 +260,7 @@ ACMD(do_whirlwind)
 #define HOW_MANY    19
 ACMD(do_combo)
 {
-	struct char_data *vict = NULL;
+	struct Creature *vict = NULL;
 	struct obj_data *ovict = NULL;
 	int percent = 0, prob = 0, count = 0, i, dam = 0;
 	int dead = 0;
@@ -414,7 +414,7 @@ ACMD(do_pinch)
 {
 	struct affected_type af;
 	struct obj_data *ovict = NULL;
-	struct char_data *vict = NULL;
+	struct Creature *vict = NULL;
 	int prob, percent, which_pinch, i;
 	char arg1[MAX_INPUT_LENGTH], arg2[MAX_INPUT_LENGTH];
 	char *to_vict = NULL, *to_room = NULL;

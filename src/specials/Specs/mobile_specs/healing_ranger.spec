@@ -6,7 +6,7 @@
 
 SPECIAL(healing_ranger)
 {
-  struct char_data *vict = NULL;
+  struct Creature *vict = NULL;
   int found = 0;
   ACMD(do_bandage);
   ACMD(do_firstaid);

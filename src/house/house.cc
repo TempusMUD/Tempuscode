@@ -50,10 +50,10 @@ struct house_control_rec house_control[MAX_HOUSES];
 int num_of_houses = 0;
 
 int
-can_edit_house(struct char_data *ch, struct house_control_rec *house)
+can_edit_house(struct Creature *ch, struct house_control_rec *house)
 {
 	struct char_file_u tmp_store;
-	struct char_data *vict;
+	struct Creature *vict;
 	int player_i = 0;
 	CHAR cbuf;
 
@@ -513,7 +513,7 @@ House_delete_file(int atrium)
 
 /* List all objects in a house file */
 void
-House_listrent(struct char_data *ch, int vnum)
+House_listrent(struct Creature *ch, int vnum)
 {
 }
 
@@ -649,7 +649,7 @@ House_boot(void)
 
 
 void
-print_room_contents_to_buf(struct char_data *ch, char *buf,
+print_room_contents_to_buf(struct Creature *ch, char *buf,
 	struct room_data *real_house_room)
 {
 	static char tmpbuf[256];
@@ -695,7 +695,7 @@ print_room_contents_to_buf(struct char_data *ch, char *buf,
 }
 
 void
-hcontrol_list_house_rooms(struct char_data *ch, room_num atrium_vnum)
+hcontrol_list_house_rooms(struct Creature *ch, room_num atrium_vnum)
 {
 	int i, which_house;
 	room_num virt_i_room;
@@ -723,7 +723,7 @@ hcontrol_list_house_rooms(struct char_data *ch, room_num atrium_vnum)
 }
 
 void
-hcontrol_list_house_guests(struct char_data *ch, room_num vnum)
+hcontrol_list_house_guests(struct Creature *ch, room_num vnum)
 {
 	int i, j;
 	char *temp;
@@ -811,7 +811,7 @@ hcontrol_list_houses_modebits(CHAR * ch, char *args)
 }
 
 void
-hcontrol_list_houses(struct char_data *ch, char *args)
+hcontrol_list_houses(struct Creature *ch, char *args)
 {
 	int i;
 	char *timestr, *temp;
@@ -946,7 +946,7 @@ hcontrol_list_houses(struct char_data *ch, char *args)
 }
 
 void
-hcontrol_build_house(struct char_data *ch, char *arg)
+hcontrol_build_house(struct Creature *ch, char *arg)
 {
 	char arg1[MAX_INPUT_LENGTH];
 	struct house_control_rec temp_house;
@@ -1034,7 +1034,7 @@ hcontrol_build_house(struct char_data *ch, char *arg)
 }
 
 void
-hcontrol_destroy_house(struct char_data *ch, char *arg)
+hcontrol_destroy_house(struct Creature *ch, char *arg)
 {
 	int i, j;
 	struct room_data *room_rnum;
@@ -1079,12 +1079,12 @@ hcontrol_destroy_house(struct char_data *ch, char *arg)
 
 
 void
-hcontrol_pay_house(struct char_data *ch, char *arg)
+hcontrol_pay_house(struct Creature *ch, char *arg)
 {
 
 }
 void
-hcontrol_add_to_house(struct char_data *ch, char *arg)
+hcontrol_add_to_house(struct Creature *ch, char *arg)
 {
 	char arg1[MAX_INPUT_LENGTH];
 	room_num room_vnum, virt_atrium;
@@ -1196,7 +1196,7 @@ hcontrol_add_to_house(struct char_data *ch, char *arg)
 }
 
 void
-hcontrol_delete_from_house(struct char_data *ch, char *arg)
+hcontrol_delete_from_house(struct Creature *ch, char *arg)
 {
 	char arg1[MAX_INPUT_LENGTH];
 	room_num room_vnum, virt_atrium;
@@ -1362,7 +1362,7 @@ match_houses( list<house_control_rec*> &houses, int mode, const char *name )
 }
 
 void 
-display_houses( list<house_control_rec*> &houses, char_data *ch ) 
+display_houses( list<house_control_rec*> &houses, Creature *ch ) 
 {
     char owner[81];
     char coowner[81];
@@ -1395,7 +1395,7 @@ display_houses( list<house_control_rec*> &houses, char_data *ch )
 }
 
 void
-hcontrol_find_houses(struct char_data *ch, char *arg)
+hcontrol_find_houses(struct Creature *ch, char *arg)
 {
     char token[256];
     
@@ -1436,7 +1436,7 @@ hcontrol_find_houses(struct char_data *ch, char *arg)
 
 
 void
-hcontrol_set_house(struct char_data *ch, char *arg)
+hcontrol_set_house(struct Creature *ch, char *arg)
 {
 	char arg1[256], arg2[256];
 	room_num atrium_vnum;
@@ -1538,7 +1538,7 @@ hcontrol_set_house(struct char_data *ch, char *arg)
 }
 
 void
-hcontrol_where_house(struct char_data *ch, char *arg)
+hcontrol_where_house(struct Creature *ch, char *arg)
 {
 	struct house_control_rec *h;
 	char *temp = 0;
@@ -1731,7 +1731,7 @@ House_save_all(bool mode)
 
 /* note: arg passed must be house vnum, so there. */
 int
-House_can_enter(struct char_data *ch, room_num room_vnum)
+House_can_enter(struct Creature *ch, room_num room_vnum)
 {
 	int i, j;
 

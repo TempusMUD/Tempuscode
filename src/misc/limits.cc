@@ -41,7 +41,7 @@
 			 [(int)GET_LEVEL(ch)].title_f))
 
 
-extern struct char_data *character_list;
+extern struct Creature *character_list;
 extern struct obj_data *object_list;
 extern struct title_type titles[NUM_CLASSES][LVL_GRIMP + 1];
 extern struct room_data *world;
@@ -95,7 +95,7 @@ graf(int age, int race, int p0, int p1, int p2, int p3, int p4, int p5, int p6)
 
 /* manapoint gain pr. game hour */
 int
-mana_gain(struct char_data *ch)
+mana_gain(struct Creature *ch)
 {
 	int gain;
 
@@ -165,7 +165,7 @@ mana_gain(struct char_data *ch)
 
 
 int
-hit_gain(struct char_data *ch)
+hit_gain(struct Creature *ch)
 /* Hitpoint gain pr. game hour */
 {
 	int gain;
@@ -248,7 +248,7 @@ hit_gain(struct char_data *ch)
 
 
 int
-move_gain(struct char_data *ch)
+move_gain(struct Creature *ch)
 /* move gain pr. game hour */
 {
 	int gain;
@@ -312,7 +312,7 @@ move_gain(struct char_data *ch)
 
 
 void
-set_title(struct char_data *ch, char *title)
+set_title(struct Creature *ch, char *title)
 {
 	struct clan_data *clan = NULL;
 	struct clanmember_data *memb = NULL;
@@ -357,7 +357,7 @@ set_title(struct char_data *ch, char *title)
 
 
 void
-check_autowiz(struct char_data *ch)
+check_autowiz(struct Creature *ch)
 {
 	char buf[100];
 	extern int use_autowiz;
@@ -375,7 +375,7 @@ check_autowiz(struct char_data *ch)
 
 
 void
-gain_exp(struct char_data *ch, int gain)
+gain_exp(struct Creature *ch, int gain)
 {
 	int is_altered = FALSE;
 	int num_levels = 0;
@@ -432,7 +432,7 @@ gain_exp(struct char_data *ch, int gain)
 
 
 void
-gain_exp_regardless(struct char_data *ch, int gain)
+gain_exp_regardless(struct Creature *ch, int gain)
 {
 	int is_altered = FALSE;
 	int num_levels = 0;
@@ -464,7 +464,7 @@ gain_exp_regardless(struct char_data *ch, int gain)
 
 
 void
-gain_condition(struct char_data *ch, int condition, int value)
+gain_condition(struct Creature *ch, int condition, int value)
 {
 	int intoxicated = 0;
 
@@ -512,9 +512,9 @@ gain_condition(struct char_data *ch, int condition, int value)
 
 
 int
-check_idling(struct char_data *ch)
+check_idling(struct Creature *ch)
 {
-	void Crash_rentsave(struct char_data *ch, int cost);
+	void Crash_rentsave(struct Creature *ch, int cost);
 	void set_desc_state(int state, struct descriptor_data *d);
 
 	if (++(ch->char_specials.timer) > 1 && ch->desc)
@@ -560,9 +560,9 @@ check_idling(struct char_data *ch)
 void
 point_update(void)
 {
-	void update_char_objects(struct char_data *ch);	/* handler.c */
+	void update_char_objects(struct Creature *ch);	/* handler.c */
 	void extract_obj(struct obj_data *obj);	/* handler.c */
-	register struct char_data *i;
+	register struct Creature *i;
 	register struct obj_data *j, *next_thing, *jj, *next_thing2;
 	struct room_data *rm;
 	struct zone_data *zone;

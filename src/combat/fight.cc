@@ -52,15 +52,15 @@ extern eventQueue mobileQueue;
 int corpse_state = 0;
 
 /* The Fight related routines */
-obj_data *get_random_uncovered_implant(char_data * ch, int type = -1);
-int calculate_weapon_probability(struct char_data *ch, int prob,
+obj_data *get_random_uncovered_implant(Creature * ch, int type = -1);
+int calculate_weapon_probability(struct Creature *ch, int prob,
 	struct obj_data *weap);
-int do_combat_fire(struct char_data *ch, struct char_data *vict, int weap_pos);
-int do_casting_weapon(char_data *ch, obj_data *weap);
+int do_combat_fire(struct Creature *ch, struct Creature *vict, int weap_pos);
+int do_casting_weapon(Creature *ch, obj_data *weap);
 
 /* start one char fighting another ( yes, it is horrible, I know... )  */
 void
-set_fighting(struct char_data *ch, struct char_data *vict, int aggr)
+set_fighting(struct Creature *ch, struct Creature *vict, int aggr)
 {
 	if (ch == vict)
 		return;
@@ -151,7 +151,7 @@ set_fighting(struct char_data *ch, struct char_data *vict, int aggr)
    Call ONLY from stop_fighting
 */
 void
-remove_fighting_affects(struct char_data *ch)
+remove_fighting_affects(struct Creature *ch)
 {
 	ch->setFighting(NULL);
 
@@ -180,14 +180,14 @@ remove_fighting_affects(struct char_data *ch)
 void
 stop_fighting(CharacterList::iterator & cit)
 {
-	struct char_data *ch = *cit;
+	struct Creature *ch = *cit;
 	combatList.remove(cit);
 	remove_fighting_affects(ch);
 }
 
 /* remove a char from the list of fighting chars */
 void
-stop_fighting(struct char_data *ch)
+stop_fighting(struct Creature *ch)
 {
 	combatList.remove(ch);
 	remove_fighting_affects(ch);
@@ -196,7 +196,7 @@ stop_fighting(struct char_data *ch)
 
 /* When ch kills victim */
 void
-change_alignment(struct char_data *ch, struct char_data *victim)
+change_alignment(struct Creature *ch, struct Creature *victim)
 {
 	GET_ALIGNMENT(ch) += -(GET_ALIGNMENT(victim) / 100);
 	GET_ALIGNMENT(ch) = MAX(-1000, GET_ALIGNMENT(ch));
@@ -206,7 +206,7 @@ change_alignment(struct char_data *ch, struct char_data *victim)
 
 
 void
-raw_kill(struct char_data *ch, struct char_data *killer, int attacktype)
+raw_kill(struct Creature *ch, struct Creature *killer, int attacktype)
 {
 
 	if (FIGHTING(ch))
@@ -245,7 +245,7 @@ raw_kill(struct char_data *ch, struct char_data *killer, int attacktype)
 extern bool LOG_DEATHS;
 
 void
-die(struct char_data *ch, struct char_data *killer, int attacktype,
+die(struct Creature *ch, struct Creature *killer, int attacktype,
 	int is_humil)
 {
 	if (IS_NPC(ch) && GET_MOB_SPEC(ch)) {
@@ -336,13 +336,13 @@ die(struct char_data *ch, struct char_data *killer, int attacktype,
 	raw_kill(ch, killer, attacktype);	// die
 }
 
-void perform_gain_kill_exp(struct char_data *ch, struct char_data *victim,
+void perform_gain_kill_exp(struct Creature *ch, struct Creature *victim,
 	float multiplier);
 
 void
-group_gain(struct char_data *ch, struct char_data *victim)
+group_gain(struct Creature *ch, struct Creature *victim)
 {
-	struct char_data *leader;
+	struct Creature *leader;
 	int total_levs = 0;
 	int total_pc_mems = 0;
 	float mult = 0;
@@ -386,7 +386,7 @@ group_gain(struct char_data *ch, struct char_data *victim)
 
 
 void
-perform_gain_kill_exp(struct char_data *ch, struct char_data *victim,
+perform_gain_kill_exp(struct Creature *ch, struct Creature *victim,
 	float multiplier)
 {
 
@@ -452,7 +452,7 @@ perform_gain_kill_exp(struct char_data *ch, struct char_data *victim,
 }
 
 void
-gain_kill_exp(struct char_data *ch, struct char_data *victim)
+gain_kill_exp(struct Creature *ch, struct Creature *victim)
 {
 
 	if (ch == victim)
@@ -506,10 +506,10 @@ eqdam_extract_obj(struct obj_data *obj)
 
 
 struct obj_data *
-damage_eq(struct char_data *ch, struct obj_data *obj, int eq_dam, int type =
+damage_eq(struct Creature *ch, struct obj_data *obj, int eq_dam, int type =
 	-1)
 {
-	struct char_data *vict = NULL;
+	struct Creature *vict = NULL;
 	struct obj_data *new_obj = NULL, *inobj = NULL, *next_obj = NULL;
 	struct room_data *room = NULL;
 	int tmp;
@@ -716,7 +716,7 @@ SWAP_DAM_RETVAL(int val)
 //
 
 inline int
-damage_attacker(struct char_data *ch, struct char_data *victim, int dam,
+damage_attacker(struct Creature *ch, struct Creature *victim, int dam,
 	int attacktype, int location)
 {
 	int retval = damage(ch, victim, dam, attacktype, location);
@@ -738,7 +738,7 @@ damage_attacker(struct char_data *ch, struct char_data *victim, int dam,
 //
 
 int
-damage(struct char_data *ch, struct char_data *victim, int dam,
+damage(struct Creature *ch, struct Creature *victim, int dam,
 	int attacktype, int location)
 {
 	int hard_damcap, is_humil = 0, eq_dam = 0, weap_dam = 0, i, impl_dam =
@@ -1270,7 +1270,7 @@ damage(struct char_data *ch, struct char_data *victim, int dam,
 			dam = (dam * abs(GET_ALIGNMENT(ch)) / 2000);
 	}
 	// ALL previous damage reduction code that was based off of character 
-	// attributes has been moved to the function below.  See structs/char_data.cc
+	// attributes has been moved to the function below.  See structs/Creature.cc
 	dam_reduction = victim->getDamReduction(ch);
 
 	dam -= (int)(dam * dam_reduction);
@@ -1911,7 +1911,7 @@ damage(struct char_data *ch, struct char_data *victim, int dam,
 //
 
 int
-hit(struct char_data *ch, struct char_data *victim, int type)
+hit(struct Creature *ch, struct Creature *victim, int type)
 {
 
 	int w_type = 0, victim_ac, calc_thaco, dam, tmp_dam, diceroll, skill = 0;
@@ -2243,7 +2243,7 @@ hit(struct char_data *ch, struct char_data *victim, int type)
 }
 
 int
-do_casting_weapon(char_data *ch, obj_data *weap)
+do_casting_weapon(Creature *ch, obj_data *weap)
 {
 	obj_data *weap2;
 
@@ -2334,7 +2334,7 @@ void
 perform_violence(void)
 {
 
-	register struct char_data *ch;
+	register struct Creature *ch;
 	struct obj_data *weap = NULL;
 	int prob, i, die_roll;
 

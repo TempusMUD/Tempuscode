@@ -6,7 +6,7 @@ using namespace std;
 #include <stdlib.h>
 #include <sys/types.h>
 #include "structs.h"
-#include "char_data.h"
+#include "creature.h"
 #include "utils.h"
 #include "help.h"
 #include "interpreter.h"
@@ -293,7 +293,7 @@ HelpItem::Clear(void)
 // much like olc oedit.
 // Sets yer currently editable item to this one.
 bool
-HelpItem::Edit(char_data * ch)
+HelpItem::Edit(Creature * ch)
 {
 	if (editor) {
 		if (editor != ch) {
@@ -380,7 +380,7 @@ HelpItem::LoadText()
 // Show the entry. 
 // buffer is output buffer.
 void
-HelpItem::Show(char_data * ch, char *buffer, int mode = 0)
+HelpItem::Show(Creature * ch, char *buffer, int mode = 0)
 {
 	char bitbuf[256];
 	char groupbuf[256];

@@ -23,8 +23,8 @@ extern const char race_restr[NUM_PC_RACES][NUM_CLASSES + 1];
 
 #endif
 
-int invalid_char_class(struct char_data *ch, struct obj_data *obj);
-void gain_skill_prof(struct char_data *ch, int skl);
+int invalid_char_class(struct Creature *ch, struct obj_data *obj);
+void gain_skill_prof(struct Creature *ch, int skl);
 
 #include "actions.h"
 #include "mobact.h"

@@ -6,7 +6,7 @@
 
 SPECIAL(kata)
 {
-  struct char_data *kata = (struct char_data *) me;
+  struct Creature *kata = (struct Creature *) me;
   ACMD(do_say);
   char buf[MAX_STRING_LENGTH];
   

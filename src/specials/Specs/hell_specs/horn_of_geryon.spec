@@ -7,7 +7,7 @@
 SPECIAL(horn_of_geryon)
 {
   struct obj_data *horn = (struct obj_data *) me;
-  struct char_data *minotaur = NULL;
+  struct Creature *minotaur = NULL;
   
   if( spec_mode != SPECIAL_CMD ) return 0;
   if ((!CMD_IS("wind") && !CMD_IS("blow")) || GET_OBJ_TYPE(horn) == ITEM_PIPE)

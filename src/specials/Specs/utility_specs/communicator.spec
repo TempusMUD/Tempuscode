@@ -14,7 +14,7 @@ SPECIAL(master_communicator)
 {
   struct obj_data *comm = (struct obj_data *) me, *o = NULL, *tmpo = NULL;
   char arg1[MAX_INPUT_LENGTH], arg2[MAX_INPUT_LENGTH];
-  struct char_data *vict = NULL;
+  struct Creature *vict = NULL;
   int i, num = 0, chan[MAX_CHAN];
 
     if( spec_mode != SPECIAL_CMD )

@@ -6,7 +6,7 @@
 
 SPECIAL(nude_guard)
 {
-  struct char_data *guard = (struct char_data *) me;
+  struct Creature *guard = (struct Creature *) me;
   int i;
   int found = 0;
   

@@ -16,7 +16,7 @@ void load_xml_room(xmlNodePtr node);
 extern int top_of_objt;
 extern int top_of_mobt;
 extern player_special_data dummy_mob;
-void set_physical_attribs(struct char_data *ch);
+void set_physical_attribs(struct Creature *ch);
 
 void
 xml_boot(void)
@@ -161,10 +161,10 @@ load_xml_object(xmlNodePtr node)
 void
 load_xml_mobile(xmlNodePtr node)
 {
-	struct char_data *mob;
+	struct Creature *mob;
 
 	// Initialize structures
-	CREATE(mob, struct char_data, 1);
+	CREATE(mob, struct Creature, 1);
 	clear_char(mob);
 	CREATE(mob->mob_specials.shared, struct mob_shared_data, 1);
 

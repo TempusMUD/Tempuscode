@@ -49,16 +49,16 @@ extern struct obj_shared_data *null_obj_shared;
 extern int log_cmds;
 extern int jet_stream_state;
 
-extern int check_mob_reaction(struct char_data *ch, struct char_data *vict);
-void look_at_target(struct char_data *ch, char *arg);
-int find_door(struct char_data *ch, char *type, char *dir,
+extern int check_mob_reaction(struct Creature *ch, struct Creature *vict);
+void look_at_target(struct Creature *ch, char *arg);
+int find_door(struct Creature *ch, char *type, char *dir,
 	const char *cmdname);
-void enable_vt100(struct char_data *ch);
-void disable_vt100(struct char_data *ch);
+void enable_vt100(struct Creature *ch);
+void disable_vt100(struct Creature *ch);
 void weather_change(void);
-void Crash_rentsave(struct char_data *ch, int cost, int rentcode);
-int Crash_rentcost(struct char_data *ch, int display, int factor);
-void Crash_cursesave(struct char_data *ch);
+void Crash_rentsave(struct Creature *ch, int cost, int rentcode);
+int Crash_rentcost(struct Creature *ch, int display, int factor);
+void Crash_cursesave(struct Creature *ch);
 int drag_object(CHAR * ch, struct obj_data *obj, char *argument);
 void ice_room(struct room_data *room, int amount);
 ACMD(do_drag_char);
@@ -258,7 +258,7 @@ ACMD(do_elude)
 
 ACMD(do_practice)
 {
-	void list_skills(struct char_data *ch, int mode, int type);
+	void list_skills(struct Creature *ch, int mode, int type);
 
 	one_argument(argument, arg);
 
@@ -380,7 +380,7 @@ ACMD(do_title)
 
 
 int
-perform_group(struct char_data *ch, struct char_data *vict)
+perform_group(struct Creature *ch, struct Creature *vict)
 {
 	if (IS_AFFECTED(vict, AFF_GROUP) || !CAN_SEE(ch, vict))
 		return 0;
@@ -395,9 +395,9 @@ perform_group(struct char_data *ch, struct char_data *vict)
 
 
 void
-print_group(struct char_data *ch)
+print_group(struct Creature *ch)
 {
-	struct char_data *k;
+	struct Creature *k;
 	struct follow_type *f;
 
 	if (!IS_AFFECTED(ch, AFF_GROUP))
@@ -435,7 +435,7 @@ print_group(struct char_data *ch)
 
 ACMD(do_group)
 {
-	struct char_data *vict;
+	struct Creature *vict;
 	struct follow_type *f;
 	int found;
 
@@ -493,8 +493,8 @@ ACMD(do_group)
 ACMD(do_ungroup)
 {
 	struct follow_type *f, *next_fol;
-	struct char_data *tch;
-	void stop_follower(struct char_data *ch);
+	struct Creature *tch;
+	void stop_follower(struct Creature *ch);
 
 	one_argument(argument, buf);
 
@@ -548,7 +548,7 @@ ACMD(do_ungroup)
 
 ACMD(do_report)
 {
-	struct char_data *k;
+	struct Creature *k;
 	struct follow_type *f;
 
 	if (!IS_AFFECTED(ch, AFF_GROUP)) {
@@ -579,7 +579,7 @@ ACMD(do_report)
 ACMD(do_split)
 {
 	int amount, num, share, mode = 0;
-	struct char_data *k;
+	struct Creature *k;
 	struct follow_type *f;
 
 	if (IS_NPC(ch))
@@ -663,7 +663,7 @@ ACMD(do_use)
 	struct obj_data *mag_item;
 	int equipped = 1;
 	char arg1[256];
-	char_data *vict = NULL;
+	Creature *vict = NULL;
 
 	half_chop(argument, arg, buf);
 	if (!*arg) {
@@ -1556,7 +1556,7 @@ ACMD(do_screen)
 ACMD(do_throw)
 {
 	struct obj_data *obj = NULL, *target_obj = NULL;
-	struct char_data *vict = NULL, *target_vict = NULL;
+	struct Creature *vict = NULL, *target_vict = NULL;
 	char arg1[MAX_INPUT_LENGTH];
 	char buf[MAX_STRING_LENGTH];
 	int dir = 0, victim_ac, diceroll, calc_thaco;
@@ -1782,7 +1782,7 @@ ACMD(do_throw)
 
 ACMD(do_feed)
 {
-	struct char_data *vict = NULL;
+	struct Creature *vict = NULL;
 	struct obj_data *food = NULL;
 	char arg1[MAX_INPUT_LENGTH], arg2[MAX_INPUT_LENGTH];
 	int amount;
@@ -1908,7 +1908,7 @@ ACMD(do_knock)
 	int dir;
 	char dname[128], arg1[MAX_INPUT_LENGTH], arg2[MAX_INPUT_LENGTH];
 	struct room_data *other_room = NULL;
-	struct char_data *vict = NULL;
+	struct Creature *vict = NULL;
 
 	// Do some basic parsing
 	skip_spaces(&argument);
@@ -2033,7 +2033,7 @@ ACMD(do_loadroom)
 
 ACMD(do_gasify)
 {
-	struct char_data *gas = NULL;
+	struct Creature *gas = NULL;
 	struct room_data *tank = real_room(13);
 
 	if (!ch->desc)
@@ -2070,7 +2070,7 @@ ACMD(do_gasify)
 ACMD(do_clean)
 {
 	struct obj_data *obj = NULL;
-	struct char_data *vict = NULL;
+	struct Creature *vict = NULL;
 	int i, j, k, found, pos;
 	char arg1[MAX_INPUT_LENGTH], arg2[MAX_INPUT_LENGTH];
 
@@ -2208,7 +2208,7 @@ ACMD(do_clean)
 
 ACMD(do_drag)
 {
-	struct char_data *found_char;
+	struct Creature *found_char;
 	struct obj_data *found_obj;
 
 	int bits;

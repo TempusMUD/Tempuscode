@@ -17,7 +17,7 @@ SPECIAL(electrician)
   	return 0;
   }
 	  
-  char_data *mob = (char_data*)me;
+  Creature *mob = (Creature*)me;
 
   switch (number(0, 5)) {
   case 0:

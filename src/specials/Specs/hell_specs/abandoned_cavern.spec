@@ -10,7 +10,7 @@ SPECIAL( abandoned_cavern )
 {
 
     struct room_data *cavern = ( struct room_data * ) me;
-    struct char_data *vict = NULL;
+    struct Creature *vict = NULL;
     struct obj_data *obj = NULL, *rubble = NULL;
     static int hell_VI_count = 0, darth_count = 0;
     int count, i;

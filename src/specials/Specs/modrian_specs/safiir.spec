@@ -7,7 +7,7 @@
 SPECIAL(safiir)
 {
   ACMD(do_say);
-  struct char_data *safiir = (struct char_data *) me;
+  struct Creature *safiir = (struct Creature *) me;
   struct obj_data *wand;
   char buf3[MAX_STRING_LENGTH];
   int cost;

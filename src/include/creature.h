@@ -1,12 +1,12 @@
 //
-// File: char_data.h                      -- Part of TempusMUD
+// File: creature.h                      -- Part of TempusMUD
 //
 // All modifications and additions are
 // Copyright 1998 by John Watson, all rights reserved.
 //
 
-#ifndef __char_data_h__
-#define __char_data_h__
+#ifndef __Creature_h__
+#define __Creature_h__
 
 #include "constants.h"
 #include "macros.h"
@@ -236,7 +236,7 @@ static const int POS_SWIMMING = 11;
 static const int TOP_POS = 11;
 
 
-/* Player flags: used by char_data.char_specials.act */
+/* Player flags: used by Creature.char_specials.act */
 static const int PLR_KILLER = (1 << 0);	/* Player is a player-killer        */
 static const int PLR_THIEF = (1 << 1);	/* Player is a player-thief        */
 static const int PLR_FROZEN = (1 << 2);	/* Player is frozen            */
@@ -274,7 +274,7 @@ static const int PLR2_SOULLESS = (1 << 0);	// Signing the Unholy Compact.
 static const int PLR2_BURIED = (1 << 1);	// Player has died way too many times.
 static const int PLR2_COMBAT = (1 << 2);	// The player is engaged in a combat    
 
-/* Mobile flags: used by char_data.char_specials.act */
+/* Mobile flags: used by Creature.char_specials.act */
 static const int MOB_SPEC = (1 << 0);	/* Mob has a callable spec-proc    */
 static const int MOB_SENTINEL = (1 << 1);	/* Mob should not move        */
 static const int MOB_SCAVENGER = (1 << 2);	/* Mob picks up stuff on the ground    */
@@ -320,7 +320,7 @@ static const int MOB2_NOAGGRO_RACE = (1 << 14);	/* wont attack members of own ra
 static const int MOB2_MUGGER = (1 << 15);
 #define NUM_MOB2_FLAGS            16
 
-/* Preference flags: used by char_data.player_specials.pref */
+/* Preference flags: used by Creature.player_specials.pref */
 static const int PRF_BRIEF = (1 << 0);	/* Room descs won't normally be shown    */
 static const int PRF_COMPACT = (1 << 1);	/* No extra CRLF pair before prompts    */
 static const int PRF_DEAF = (1 << 2);	/* Can't hear shouts            */
@@ -378,7 +378,7 @@ static const int PRF2_NOWRAP = (1 << 19);	// turns off autowrap temporarily.
 static const int PRF2_DISPALIGN = (1 << 20);
 static const int PRF2_WORLDWRITE = (1 << 21); // allows worldwrite to work
 
-/* Affect bits: used in char_data.char_specials.saved.affected_by */
+/* Affect bits: used in Creature.char_specials.saved.affected_by */
 /* WARNING: In the world files, NEVER set the bits marked "R" ("Reserved") */
 static const int AFF_BLIND = (1 << 0);	/* (R) Char is blind        */
 static const int AFF_INVISIBLE = (1 << 1);	/* Char is invisible        */
@@ -482,7 +482,7 @@ static const int ARRAY_AFF_1 = 1;
 static const int ARRAY_AFF_2 = 2;
 static const int ARRAY_AFF_3 = 3;
 
-/* Character equipment positions: used as index for char_data.equipment[] */
+/* Character equipment positions: used as index for Creature.equipment[] */
 /* NOTE: Don't confuse these constants with the ITEM_ bitvectors
    which control the valid places you can wear a piece of equipment */
 static const int WEAR_LIGHT = 0;
@@ -753,9 +753,9 @@ struct char_special_data {
 		return worn_weight;
 	}
 
-	struct char_data *fighting;	/* Opponent                */
-	struct char_data *hunting;	/* Char hunted by this char        */
-	struct char_data *mounted;	/* MOB mounted by this char        */
+	struct Creature *fighting;	/* Opponent                */
+	struct Creature *hunting;	/* Char hunted by this char        */
+	struct Creature *mounted;	/* MOB mounted by this char        */
 
 	int carry_weight;			/* Carried weight                     */
 	int worn_weight;			/* Total weight equipped                */
@@ -847,7 +847,7 @@ struct player_special_data {
 	int imprint_rooms[MAX_IMPRINT_ROOMS];
 	unsigned int soilage[NUM_WEARS];
 	struct obj_data *olc_obj;	/* which obj being edited               */
-	struct char_data *olc_mob;	/* which mob being edited               */
+	struct Creature *olc_mob;	/* which mob being edited               */
 	struct shop_data *olc_shop;	/* which shop being edited              */
 	struct olc_help_r *olc_help;	/* which help record being edited       */
 	struct special_search_data *olc_srch;	/* which srch being edited */
@@ -872,7 +872,7 @@ struct mob_shared_data {
 	byte damsizedice;			/* The size of the damage dice's         */
 	byte morale;
 	char *move_buf;				/* custom move buf */
-	struct char_data *proto;	/* pointer to prototype */
+	struct Creature *proto;	/* pointer to prototype */
 	struct ticl_data *ticl_ptr;	/* Pointer to TICL procedure */
 	 SPECIAL(*func);
 };
@@ -912,13 +912,13 @@ struct affected_type {
 
 /* Structure used for chars following other chars */
 struct follow_type {
-	struct char_data *follower;
+	struct Creature *follower;
 	struct follow_type *next;
 };
 
 
 /* ================== Structure for player/non-player ===================== */
-struct char_data {
+struct Creature {
 
   public:						// *******   METHODS ******
 	// carried weight
@@ -955,7 +955,7 @@ struct char_data {
 	 *  level/gen and class.
 	 * If victim != NULL, assume that this char is fighting victim to gain experience.
 	 **/
-	int getPenalizedExperience( int experience, char_data *victim = NULL );
+	int getPenalizedExperience( int experience, Creature *victim = NULL );
 	
 	short modifyWeight(short mod_weight) {
 		return player.modifyWeight(mod_weight);
@@ -986,11 +986,11 @@ struct char_data {
 	int getLevelBonus(int skill);
 	int getLevelBonus(bool primary);
 	// Various combat utility functions
-	bool affBySanc(char_data * attacker = NULL);
-	float getDamReduction(char_data * attacker = NULL);
+	bool affBySanc(Creature * attacker = NULL);
+	float getDamReduction(Creature * attacker = NULL);
 	bool isFighting();
-	char_data *getFighting();
-	void setFighting(char_data * ch);
+	Creature *getFighting();
+	void setFighting(Creature * ch);
 	void extract(bool destroy_objs, bool save, int con_state);
 	void clearMemory();
     room_data *getLoadroom(); // Retrieves the characters appropriate loadroom.
@@ -1014,12 +1014,12 @@ struct char_data {
 	struct descriptor_data *desc;	/* NULL for mobiles              */
 
 	struct follow_type *followers;	/* List of chars followers       */
-	struct char_data *master;	/* Who is char following?        */
+	struct Creature *master;	/* Who is char following?        */
 
   private:
 
 };
-typedef struct char_data CHAR;
+typedef struct Creature CHAR;
 
 /* ====================================================================== */
 

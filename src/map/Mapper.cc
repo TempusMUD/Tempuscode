@@ -57,7 +57,7 @@ MapToken::MapToken(int d, int r, int c, room_data * s, room_data * t)
 	targetID = t->number;
 	next = NULL;
 }
-Mapper::Mapper(char_data * ch, int rows, int columns)
+Mapper::Mapper(Creature * ch, int rows, int columns)
 {
 	mapDisplay = new MapPixel[rows * columns];
 	mapStack = NULL;

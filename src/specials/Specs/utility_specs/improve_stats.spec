@@ -24,7 +24,7 @@ char *improve_modes[7] = {
 		       mode == MODE_CON ? ch->real_abils.con :   \
 		       ch->real_abils.cha)
 int 
-do_gen_improve(struct char_data *ch, int cmd, int mode, char *argument)
+do_gen_improve(struct Creature *ch, int cmd, int mode, char *argument)
 {
 
   int gold, life_cost;

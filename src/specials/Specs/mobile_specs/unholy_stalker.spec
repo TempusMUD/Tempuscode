@@ -8,7 +8,7 @@ SPECIAL(unholy_stalker)
 {
     if( spec_mode != SPECIAL_COMBAT && spec_mode != SPECIAL_TICK ) return 0;
 
-	char_data *mob = (char_data*)me;
+	Creature *mob = (Creature*)me;
 	
     if ( !HUNTING(mob) && !FIGHTING(mob) ) {
         act("$n dematerializes, returning to the negative planes.", TRUE, mob, 0, 0, TO_ROOM);

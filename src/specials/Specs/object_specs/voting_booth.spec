@@ -124,7 +124,7 @@ voting_booth_load(void) {
 }
 
 void
-voting_booth_read(char_data *ch, struct obj_data *obj, char *argument) {
+voting_booth_read(Creature *ch, struct obj_data *obj, char *argument) {
 	struct voting_poll *poll;
 	struct voting_option *opt;
 	struct memory_rec_struct *memory;
@@ -178,7 +178,7 @@ voting_booth_read(char_data *ch, struct obj_data *obj, char *argument) {
 }
 
 void
-voting_booth_vote(char_data *ch, struct obj_data *obj, char *argument) {
+voting_booth_vote(Creature *ch, struct obj_data *obj, char *argument) {
 	struct voting_poll *poll;
 	struct voting_option *opt;
 	struct memory_rec_struct *memory,*new_memory;
@@ -264,7 +264,7 @@ voting_booth_vote(char_data *ch, struct obj_data *obj, char *argument) {
 }
 
 void
-voting_booth_list(char_data *ch, struct obj_data *obj) {
+voting_booth_list(Creature *ch, struct obj_data *obj) {
 	struct voting_poll *poll;
 	int poll_count = 0;
 
@@ -296,7 +296,7 @@ voting_booth_list(char_data *ch, struct obj_data *obj) {
 }
 
 void
-voting_booth_remove(char_data *ch, struct obj_data *obj, char *argument) {
+voting_booth_remove(Creature *ch, struct obj_data *obj, char *argument) {
 	struct voting_poll *poll,*prev_poll;
 	struct voting_option *opt,*next_opt;
 	struct memory_rec_struct *mem,*next_mem;
@@ -347,7 +347,7 @@ voting_booth_remove(char_data *ch, struct obj_data *obj, char *argument) {
 }
 
 void
-voting_booth_write(char_data *ch, struct obj_data *obj, char *argument) {
+voting_booth_write(Creature *ch, struct obj_data *obj, char *argument) {
 	struct mail_recipient_data *n_mail_to;
 
 	skip_spaces(&argument);

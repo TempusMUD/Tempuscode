@@ -1,4 +1,4 @@
-#define __char_data_cc__
+#define __Creature_cc__
 
 #include <signal.h>
 #include "structs.h"
@@ -22,20 +22,20 @@ int set_desc_state(int state, struct descriptor_data *d);
 extern struct descriptor_data *descriptor_list;
 
 bool
-char_data::isFighting()
+Creature::isFighting()
 {
 	return (char_specials.fighting != NULL);
 }
 
-char_data *
-char_data::getFighting()
+Creature *
+Creature::getFighting()
 {
 	return (char_specials.fighting);
 }
 /**
  * Returns true if this character is in the Testers access group.
 **/
-bool char_data::isTester(){
+bool Creature::isTester(){
 	return Security::isMember( this, "Testers", false );
 }
 
@@ -46,7 +46,7 @@ bool char_data::isTester(){
  *  experience.
  *
 **/
-int char_data::getPenalizedExperience( int experience, char_data *victim = NULL ) 
+int Creature::getPenalizedExperience( int experience, Creature *victim = NULL ) 
 {
 
 	// Mobs are easily trained
@@ -97,19 +97,19 @@ int char_data::getPenalizedExperience( int experience, char_data *victim = NULL 
 }
 
 void
-char_data::setFighting(char_data * ch)
+Creature::setFighting(Creature * ch)
 {
 	char_specials.fighting = ch;
 }
 
 int
-char_data::modifyCarriedWeight(int mod_weight)
+Creature::modifyCarriedWeight(int mod_weight)
 {
 	return (setCarriedWeight(getCarriedWeight() + mod_weight));
 }
 
 int
-char_data::modifyWornWeight(int mod_weight)
+Creature::modifyWornWeight(int mod_weight)
 {
 	return (setWornWeight(getWornWeight() + mod_weight));
 }
@@ -121,7 +121,7 @@ char_player_data::modifyWeight(short mod_weight)
 }
 
 int
-char_data::getSpeed(void)
+Creature::getSpeed(void)
 {
 	// if(IS_NPC(this))
 	if (char_specials.saved.act & MOB_ISNPC)
@@ -130,7 +130,7 @@ char_data::getSpeed(void)
 }
 
 void
-char_data::setSpeed(int speed)
+Creature::setSpeed(int speed)
 {
 	// if(IS_NPC(this))
 	if (char_specials.saved.act & MOB_ISNPC)
@@ -141,7 +141,7 @@ char_data::setSpeed(int speed)
 }
 
 bool
-char_data::isNewbie()
+Creature::isNewbie()
 {
 	if (char_specials.saved.act & MOB_ISNPC)
 		return false;
@@ -155,10 +155,10 @@ char_data::isNewbie()
 // Utility function to determine if a char should be affected by sanctuary
 // on a hit by hit level... --N
 bool
-char_data::affBySanc(char_data * attacker = NULL)
+Creature::affBySanc(Creature * attacker = NULL)
 {
 
-	char_data *ch = this;
+	Creature *ch = this;
 
 	if (IS_AFFECTED(ch, AFF_SANCTUARY)) {
 		if (attacker && IS_EVIL(ch) &&
@@ -177,9 +177,9 @@ char_data::affBySanc(char_data * attacker = NULL)
 // Pass in the attacker for conditional reduction such as PROT_GOOD and 
 // PROT_EVIL.  Or leave it blank for the characters base reduction --N
 float
-char_data::getDamReduction(char_data * attacker = NULL)
+Creature::getDamReduction(Creature * attacker = NULL)
 {
-	struct char_data *ch = this;
+	struct Creature *ch = this;
 	struct affected_type *af = NULL;
 	float dam_reduction = 0;
 
@@ -312,7 +312,7 @@ char_data::getDamReduction(char_data * attacker = NULL)
 //   return: a number from 1-100 based on level and primary/secondary)
 
 int
-char_data::getLevelBonus(bool primary)
+Creature::getLevelBonus(bool primary)
 {
 	int bonus = MIN(50, player.level + 1);
 	short gen;
@@ -347,7 +347,7 @@ char_data::getLevelBonus(bool primary)
 // return: a number from 1-100 based on level/gen/can learn skill.
 
 int
-char_data::getLevelBonus(int skill)
+Creature::getLevelBonus(int skill)
 {
 
 	// Immorts get full bonus. 
@@ -410,7 +410,7 @@ char_data::getLevelBonus(int skill)
 //  @param new_position the enumerated int position to be set to.
 
 bool
-char_data::setPosition(int new_pos, int mode = 0)
+Creature::setPosition(int new_pos, int mode = 0)
 {
 	if (new_pos == char_specials.getPosition())
 		return false;
@@ -437,7 +437,7 @@ char_data::setPosition(int new_pos, int mode = 0)
 // Returns current position (standing sitting etc.)
 
 int
-char_data::getPosition(void)
+Creature::getPosition(void)
 {
 	return char_specials.getPosition();
 }
@@ -451,11 +451,11 @@ char_data::getPosition(void)
 //      con_state - the connection state to change the descriptor to, if one
 //          exists
 void
- char_data::extract(bool destroy_objs, bool save, int con_state)
+ Creature::extract(bool destroy_objs, bool save, int con_state)
 {
 	void
-	stop_fighting(struct char_data *ch);
-	struct char_data *
+	stop_fighting(struct Creature *ch);
+	struct Creature *
 		k;
 	struct obj_data *
 		obj;
@@ -469,7 +469,7 @@ void
 	ACMD(do_return);
 
 	void
-	die_follower(struct char_data *ch);
+	die_follower(struct Creature *ch);
 
 	if (!IS_NPC(this) && !desc) {
 		for (t_desc = descriptor_list; t_desc; t_desc = t_desc->next)
@@ -620,7 +620,7 @@ void
 
 // erase ch's memory
 void
-char_data::clearMemory()
+Creature::clearMemory()
 {
 	memory_rec *curr, *next;
 
@@ -637,7 +637,7 @@ char_data::clearMemory()
 
 
 // Retrieves the characters appropriate loadroom.
-room_data *char_data::getLoadroom() {
+room_data *Creature::getLoadroom() {
     room_data *load_room = NULL;
 
 	if (PLR_FLAGGED(this, PLR_FROZEN)) {
@@ -717,4 +717,4 @@ room_data *char_data::getLoadroom() {
     return load_room;
 }
 
-#undef __char_data_cc__
+#undef __Creature_cc__

@@ -63,7 +63,7 @@ void
 perform_net_write(descriptor_data *d,char *arg) {
 	char targ[MAX_INPUT_LENGTH];
 	char msg[MAX_INPUT_LENGTH];
-	char_data *vict;
+	Creature *vict;
 
 	half_chop(arg,targ,msg);
 
@@ -168,7 +168,7 @@ perform_net_status(descriptor_data *d) {
 }
 
 void 
-perform_net_who(struct char_data *ch, char *arg)
+perform_net_who(struct Creature *ch, char *arg)
 {
     struct descriptor_data *d = NULL;
     int count = 0;
@@ -188,9 +188,9 @@ perform_net_who(struct char_data *ch, char *arg)
     page_string(ch->desc, buf);
 }
 
-void perform_net_finger(struct char_data *ch, char *arg)
+void perform_net_finger(struct Creature *ch, char *arg)
 {
-    struct char_data *vict = NULL;
+    struct Creature *vict = NULL;
 
 	skip_spaces(&arg);
     if (!*arg) {
@@ -213,7 +213,7 @@ void perform_net_finger(struct char_data *ch, char *arg)
 }
 
 void 
-perform_net_list(struct char_data * ch, int char_class) {
+perform_net_list(struct Creature * ch, int char_class) {
     int i, sortpos;
 
     strcpy(buf2, "Directory listing for local programs.\r\n\r\n");

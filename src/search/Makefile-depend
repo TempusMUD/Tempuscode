@@ -1,4 +1,4 @@
 $(OBJ)/search.o : search.cc \
-	$(INCLUDE)/structs.h $(INCLUDE)/comm.h $(INCLUDE)/utils.h $(INCLUDE)/interpreter.h $(INCLUDE)/handler.h $(INCLUDE)/db.h $(INCLUDE)/spells.h $(INCLUDE)/screen.h $(INCLUDE)/vehicle.h $(INCLUDE)/fight.h $(INCLUDE)/security.h 
+	$(INCLUDE)/structs.h $(INCLUDE)/comm.h $(INCLUDE)/utils.h $(INCLUDE)/interpreter.h $(INCLUDE)/handler.h $(INCLUDE)/db.h $(INCLUDE)/spells.h $(INCLUDE)/screen.h $(INCLUDE)/vehicle.h $(INCLUDE)/fight.h $(INCLUDE)/security.h $(INCLUDE)/actions.h 
 	$(CXX) -c $(CXXFLAGS) search.cc            -o $(OBJ)/search.o
 OBJFILES= $(OBJ)/search.o

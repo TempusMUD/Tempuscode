@@ -6,7 +6,7 @@ using namespace std;
 #include <stdlib.h>
 #include <sys/types.h>
 #include "structs.h"
-#include "char_data.h"
+#include "creature.h"
 #include "utils.h"
 #include "help.h"
 #include "interpreter.h"
@@ -170,7 +170,7 @@ HelpCollection::Push(HelpItem * n)
 // Mode is how to show the item.
 // Type: 0==normal help, 1==immhelp, 2==olchelp
 void
-HelpCollection::GetTopic(char_data * ch,
+HelpCollection::GetTopic(Creature * ch,
 	char *args,
 	int mode = 2,
 	bool show_no_app = false,
@@ -215,7 +215,7 @@ HelpCollection::GetTopic(char_data * ch,
 
 // Show all the items
 void
-HelpCollection::List(char_data * ch, char *args)
+HelpCollection::List(Creature * ch, char *args)
 {
 	HelpItem *cur;
 	int start = 0, end = top_id;
@@ -253,7 +253,7 @@ HelpCollection::List(char_data * ch, char *args)
 
 // Create an item. (calls Edit)
 bool
-HelpCollection::CreateItem(char_data * ch)
+HelpCollection::CreateItem(Creature * ch)
 {
 	HelpItem *n;
 
@@ -272,7 +272,7 @@ HelpCollection::CreateItem(char_data * ch)
 
 // Begin editing an item
 bool
-HelpCollection::EditItem(char_data * ch, int idnum)
+HelpCollection::EditItem(Creature * ch, int idnum)
 {
 	// See if you can edit it before you do....
 	HelpItem *cur;
@@ -287,7 +287,7 @@ HelpCollection::EditItem(char_data * ch, int idnum)
 
 // Clear an item
 bool
-HelpCollection::ClearItem(char_data * ch)
+HelpCollection::ClearItem(Creature * ch)
 {
 	if (!GET_OLC_HELP(ch)) {
 		send_to_char(ch, "You must be editing an item to clear it.\r\n");
@@ -299,7 +299,7 @@ HelpCollection::ClearItem(char_data * ch)
 
 // Save and Item
 bool
-HelpCollection::SaveItem(char_data * ch)
+HelpCollection::SaveItem(Creature * ch)
 {
 	if (!GET_OLC_HELP(ch)) {
 		send_to_char(ch, "You must be editing an item to save it.\r\n");
@@ -350,7 +350,7 @@ HelpCollection::FindItems(char *args, bool find_no_approve =
 
 // Save everything.
 bool
-HelpCollection::SaveAll(char_data * ch)
+HelpCollection::SaveAll(Creature * ch)
 {
 	HelpItem *cur;
 	SaveIndex(ch);
@@ -367,7 +367,7 @@ HelpCollection::SaveAll(char_data * ch)
 
 // Save the index
 bool
-HelpCollection::SaveIndex(char_data * ch)
+HelpCollection::SaveIndex(Creature * ch)
 {
 	char fname[256];
 	HelpItem *cur = NULL;
@@ -443,7 +443,7 @@ HelpCollection::LoadIndex()
 // Funnels outside commands into HelpItem functions
 // (that should be protected or something... shrug.)
 bool
-HelpCollection::Set(char_data * ch, char *argument)
+HelpCollection::Set(Creature * ch, char *argument)
 {
 	char arg1[256];
 	if (!GET_OLC_HELP(ch)) {
@@ -491,7 +491,7 @@ HelpCollection::Sync(void)
 
 // Approve an item
 void
-HelpCollection::ApproveItem(char_data * ch, char *argument)
+HelpCollection::ApproveItem(Creature * ch, char *argument)
 {
 	char arg1[256];
 	int idnum = 0;
@@ -517,7 +517,7 @@ HelpCollection::ApproveItem(char_data * ch, char *argument)
 
 // Unapprove an item
 void
-HelpCollection::UnApproveItem(char_data * ch, char *argument)
+HelpCollection::UnApproveItem(Creature * ch, char *argument)
 {
 	char arg1[256];
 	int idnum = 0;
@@ -543,7 +543,7 @@ HelpCollection::UnApproveItem(char_data * ch, char *argument)
 
 // Give some stat info on the Help System
 void
-HelpCollection::Show(char_data * ch)
+HelpCollection::Show(Creature * ch)
 {
 	int num_items = 0;
 	int num_modified = 0;
@@ -637,7 +637,7 @@ HelpCollection::find_item_by_id(int id)
 // Group command parser. 
 // Yeah yeah. Prolly doesn't need it but here it is.
 static void
-do_group_command(char_data * ch, char *argument)
+do_group_command(Creature * ch, char *argument)
 {
 	int com;
 	argument = one_argument(argument, linebuf);

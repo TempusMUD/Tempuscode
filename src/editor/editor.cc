@@ -729,7 +729,7 @@ CTextEditor::SendMessage(const char *message)
 void
 CTextEditor::SendStartupMessage(void)
 {
-	struct char_data *ch;
+	struct Creature *ch;
 	ch = desc->character;
 
 	sprintf(tedii_out_buf, "%s%s    *", CCBLD(ch, C_CMP), CCCYN(ch, C_NRM));
@@ -800,7 +800,7 @@ CTextEditor::UpdateSize(void)
 void
 CTextEditor::ProcessHelp(char *inStr)
 {
-	struct char_data *ch = desc->character;
+	struct Creature *ch = desc->character;
 	char command[MAX_INPUT_LENGTH];
 	if (!*inStr) {
 		sprintf(tedii_out_buf, "%s%s     *", CCBLD(ch, C_CMP), CCCYN(ch,

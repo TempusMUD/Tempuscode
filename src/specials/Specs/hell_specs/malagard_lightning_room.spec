@@ -2,7 +2,7 @@
 
 SPECIAL( malagard_lightning_room )
 {
-    struct char_data *vict = 0;
+    struct Creature *vict = 0;
     int retval = 0;
 
 	if( spec_mode != SPECIAL_TICK && spec_mode != SPECIAL_ENTER )

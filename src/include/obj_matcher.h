@@ -48,7 +48,7 @@ class ObjectMatcher {
 		bool isKey( const char *key ) { 
 			return (strncmp( this->key.c_str(), key, strlen(key) ) == 0 );
 		}
-		virtual bool init( char_data *ch, Tokenizer &tokens ) { 
+		virtual bool init( Creature *ch, Tokenizer &tokens ) { 
 			return false; 
 		}
 		virtual bool isMatch( obj_data *obj ) { 
@@ -78,7 +78,7 @@ class ObjectTypeMatcher : public ObjectMatcher {
 			type = -1;
 		}
 		virtual ~ObjectTypeMatcher() { }
-		virtual bool init( char_data *ch, Tokenizer &tokens );
+		virtual bool init( Creature *ch, Tokenizer &tokens );
 		virtual bool isMatch( obj_data *obj );
 	private:
 		int type;
@@ -93,7 +93,7 @@ class ObjectMaterialMatcher : public ObjectMatcher {
 			material = -1;
 		}
 		virtual ~ObjectMaterialMatcher() { }
-		virtual bool init( char_data *ch, Tokenizer &tokens );
+		virtual bool init( Creature *ch, Tokenizer &tokens );
 		virtual bool isMatch( obj_data *obj );
 	private:
 		int material;
@@ -108,7 +108,7 @@ class ObjectApplyMatcher : public ObjectMatcher {
 			apply = -1;
 		}
 		virtual ~ObjectApplyMatcher() { }
-		virtual bool init( char_data *ch, Tokenizer &tokens );
+		virtual bool init( Creature *ch, Tokenizer &tokens );
 		virtual bool isMatch( obj_data *obj );
 	private:
 		int apply;
@@ -123,7 +123,7 @@ class ObjectSpecialMatcher : public ObjectMatcher {
 			spec = -1;
 		}
 		virtual ~ObjectSpecialMatcher() { }
-		virtual bool init( char_data *ch, Tokenizer &tokens );
+		virtual bool init( Creature *ch, Tokenizer &tokens );
 		virtual bool isMatch( obj_data *obj );
 	private:
 		int spec;
@@ -139,7 +139,7 @@ class ObjectAffectMatcher : public ObjectMatcher {
 			affect = -1;
 		}
 		virtual ~ObjectAffectMatcher() { }
-		virtual bool init( char_data *ch, Tokenizer &tokens );
+		virtual bool init( Creature *ch, Tokenizer &tokens );
 		virtual bool isMatch( obj_data *obj );
 	private:
 		int index;
@@ -157,7 +157,7 @@ class ObjectCostMatcher : public ObjectMatcher {
 			costBelow = INT_MAX;
 		}
 		virtual ~ObjectCostMatcher() { }
-		virtual bool init( char_data *ch, Tokenizer &tokens );
+		virtual bool init( Creature *ch, Tokenizer &tokens );
 		virtual bool isMatch( obj_data *obj );
 	private:
 		int costBelow;
@@ -176,7 +176,7 @@ class ObjectSpellMatcher : public ObjectMatcher {
 			spell = -1;
 		}
 		virtual ~ObjectSpellMatcher() { }
-		virtual bool init( char_data *ch, Tokenizer &tokens );
+		virtual bool init( Creature *ch, Tokenizer &tokens );
 		virtual bool isMatch( obj_data *obj );
 	private:
 		int spell;
@@ -192,7 +192,7 @@ class ObjectWornMatcher : public ObjectMatcher {
 			worn = INT_MAX;
 		}
 		virtual ~ObjectWornMatcher() { }
-		virtual bool init( char_data *ch, Tokenizer &tokens );
+		virtual bool init( Creature *ch, Tokenizer &tokens );
 		virtual bool isMatch( obj_data *obj );
 	private:
 		int worn;
@@ -208,9 +208,9 @@ class ObjectExtraMatcher : public ObjectMatcher {
             noextra = noextra2 = noextra3 = 0;
 		}
 		virtual ~ObjectExtraMatcher() { }
-		virtual bool init( char_data *ch, Tokenizer &tokens );
-        bool addExtra( char_data *ch, char *arg );
-        bool addNoExtra( char_data *ch, char *arg );
+		virtual bool init( Creature *ch, Tokenizer &tokens );
+        bool addExtra( Creature *ch, char *arg );
+        bool addNoExtra( Creature *ch, char *arg );
 		virtual bool isMatch( obj_data *obj );
 	private:
 		int extra;

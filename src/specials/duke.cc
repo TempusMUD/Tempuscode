@@ -28,7 +28,7 @@
 
 /*   external vars  */
 extern struct room_data *world;
-extern struct char_data *character_list;
+extern struct Creature *character_list;
 extern struct descriptor_data *descriptor_list;
 void set_local_time(struct zone_data *zone, struct time_info_data *local_time);
 
@@ -59,7 +59,7 @@ void set_local_time(struct zone_data *zone, struct time_info_data *local_time);
 /* Used to see if a character is a member of the castle staff */
 /* Used mainly by BANZAI:ng NPC:s */
 int
-member_of_staff(struct char_data *chChar)
+member_of_staff(struct Creature *chChar)
 {
 	int ch_num;
 
@@ -78,7 +78,7 @@ member_of_staff(struct char_data *chChar)
 /* Returns TRUE if the character is a guard on duty, otherwise FALSE */
 /* Used by Peter the captain of the royal guard */
 int
-member_of_royal_guard(struct char_data *chChar)
+member_of_royal_guard(struct Creature *chChar)
 {
 	int ch_num;
 
@@ -96,8 +96,8 @@ member_of_royal_guard(struct char_data *chChar)
 /* Function find_npc_by_name */
 /* Returns a pointer to an npc by the given name */
 /* Used by Tim and Tom */
-struct char_data *
-find_npc_by_name(struct char_data *chAtChar, char *pszName, int iLen)
+struct Creature *
+find_npc_by_name(struct Creature *chAtChar, char *pszName, int iLen)
 {
 	CharacterList::iterator it = chAtChar->in_room->people.begin();
 	for (; it != chAtChar->in_room->people.end(); ++it) {
@@ -112,8 +112,8 @@ find_npc_by_name(struct char_data *chAtChar, char *pszName, int iLen)
 /* Function find_guard */
 /* Returns the pointer to a guard on duty. */
 /* Used by Peter the Captain of the Royal Guard */
-struct char_data *
-find_guard(struct char_data *chAtChar)
+struct Creature *
+find_guard(struct Creature *chAtChar)
 {
 
 	CharacterList::iterator it = chAtChar->in_room->people.begin();
@@ -129,8 +129,8 @@ find_guard(struct char_data *chAtChar)
 /* Returns a pointer to a randomly chosen character in the same room, */
 /* fighting someone in the castle staff... */
 /* Used by BANZAII-ing characters and King Welmar... */
-struct char_data *
-get_victim(struct char_data *chAtChar)
+struct Creature *
+get_victim(struct Creature *chAtChar)
 {
 
 	int iNum_bad_guys = 0, iVictim;
@@ -161,10 +161,10 @@ get_victim(struct char_data *chAtChar)
 /* Makes a character banzaii on attackers of the castle staff */
 /* Used by Guards, Tim, Tom, Dick, David, Peter, Master, King and Guards */
 int
-banzaii(struct char_data *ch)
+banzaii(struct Creature *ch)
 {
 
-	struct char_data *chOpponent = NULL;
+	struct Creature *chOpponent = NULL;
 
 	if (!AWAKE(ch) || ch->getPosition() == POS_FIGHTING)
 		return FALSE;
@@ -182,10 +182,10 @@ banzaii(struct char_data *ch)
 /* Makes ch_hero rescue ch_victim */
 /* Used by Tim and Tom */
 int
-do_npc_rescue(struct char_data *ch_hero, struct char_data *ch_victim)
+do_npc_rescue(struct Creature *ch_hero, struct Creature *ch_victim)
 {
 
-	struct char_data *ch_bad_guy = NULL;
+	struct Creature *ch_bad_guy = NULL;
 	CharacterList::iterator it = ch_hero->in_room->people.begin();
 	for (; it != ch_hero->in_room->people.end(); ++it) {
 		if (FIGHTING((*it)) == ch_victim)
@@ -217,7 +217,7 @@ do_npc_rescue(struct char_data *ch_hero, struct char_data *ch_victim)
 /* Procedure to block a person trying to enter a room. */
 /* Used by Tim/Tom at Kings bedroom and Dick/David at treasury */
 int
-block_way(struct char_data *ch, struct char_data *guard, int cmd,
+block_way(struct Creature *ch, struct Creature *guard, int cmd,
 	char *arg, int iIn_room, int iProhibited_direction)
 {
 
@@ -263,10 +263,10 @@ is_trash(struct obj_data *i)
 /* Finds a suitabe victim, and cast some _NASTY_ spell on him */
 /* Used by King Welmar */
 void
-fry_victim(struct char_data *ch)
+fry_victim(struct Creature *ch)
 {
 
-	struct char_data *tch;
+	struct Creature *tch;
 
 	if (ch->points.mana < 10)
 		return;
@@ -443,7 +443,7 @@ SPECIAL(duke_araken)
 SPECIAL(training_master)
 {
 
-	struct char_data *pupil1, *pupil2, *tch;
+	struct Creature *pupil1, *pupil2, *tch;
 
 	if (spec_mode == SPECIAL_TICK)
 		return 0;
@@ -543,8 +543,8 @@ SPECIAL(training_master)
 SPECIAL(tom)
 {
 
-	struct char_data *tom = (struct char_data *)me;
-	struct char_data *king, *tim;
+	struct Creature *tom = (struct Creature *)me;
+	struct Creature *king, *tim;
 
 	if (spec_mode != SPECIAL_TICK)
 		return 0;
@@ -574,8 +574,8 @@ SPECIAL(tom)
 SPECIAL(tim)
 {
 
-	struct char_data *tim = (struct char_data *)me;
-	struct char_data *king, *tom;
+	struct Creature *tim = (struct Creature *)me;
+	struct Creature *king, *tom;
 
 	if (spec_mode != SPECIAL_TICK)
 		return 0;
@@ -754,7 +754,7 @@ SPECIAL(lounge_soldier)
 SPECIAL(DicknDavid)
 {
 
-	struct char_data *guard = (struct char_data *)me;
+	struct Creature *guard = (struct Creature *)me;
 	if (spec_mode != SPECIAL_TICK)
 		return 0;
 	if (!AWAKE(ch))
@@ -769,7 +769,7 @@ SPECIAL(DicknDavid)
 SPECIAL(chess_guard_no_west)
 {
 
-	struct char_data *guard = (struct char_data *)me;
+	struct Creature *guard = (struct Creature *)me;
 
 	if (spec_mode != SPECIAL_TICK)
 		return 0;
@@ -787,7 +787,7 @@ SPECIAL(chess_guard_no_west)
 SPECIAL(chess_guard_no_east)
 {
 
-	struct char_data *guard = (struct char_data *)me;
+	struct Creature *guard = (struct Creature *)me;
 	if (spec_mode != SPECIAL_TICK)
 		return 0;
 	if (!AWAKE(ch))
@@ -806,7 +806,7 @@ SPECIAL(armory_guard)
 
 	if (spec_mode != SPECIAL_TICK)
 		return 0;
-	struct char_data *guard = (struct char_data *)me;
+	struct Creature *guard = (struct Creature *)me;
 	if (!AWAKE(ch))
 		return FALSE;
 	if (!cmd && ch->getPosition() != POS_FIGHTING)
@@ -818,7 +818,7 @@ SPECIAL(armory_guard)
 SPECIAL(armory_person)
 {
 
-	struct char_data *guard = (struct char_data *)me;
+	struct Creature *guard = (struct Creature *)me;
 	if (spec_mode != SPECIAL_TICK)
 		return 0;
 	if (!cmd || IS_NPC(ch))
@@ -839,7 +839,7 @@ SPECIAL(armory_person)
 SPECIAL(peter)
 {
 
-	struct char_data *ch_guard;
+	struct Creature *ch_guard;
 
 	if (spec_mode != SPECIAL_TICK)
 		return 0;
@@ -908,7 +908,7 @@ SPECIAL(peter)
 SPECIAL(jerry)
 {
 
-	struct char_data *gambler1, *gambler2, *tch;
+	struct Creature *gambler1, *gambler2, *tch;
 
 	if (spec_mode != SPECIAL_TICK)
 		return 0;

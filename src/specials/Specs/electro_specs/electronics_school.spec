@@ -6,7 +6,7 @@
 
 SPECIAL(electronics_school)
 {
-  struct char_data *teacher = (struct char_data *) me;
+  struct Creature *teacher = (struct Creature *) me;
   int  gold_cost = 0, prac_cost = 0;
   
   if (!CMD_IS("learn") && !CMD_IS("train") && !CMD_IS("offer"))

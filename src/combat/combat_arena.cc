@@ -589,7 +589,7 @@ do_ccontrol_start(CHAR * ch)
 	int num = 0;
 	int i = 0;
 	struct combat_data *combat = NULL;
-	struct char_data *unapproved = NULL;
+	struct Creature *unapproved = NULL;
 
 	num = char_in_combat_vnum(ch);
 	combat = combat_by_vnum(num);
@@ -1127,7 +1127,7 @@ do_ccontrol_lock(CHAR * ch)
 }
 
 void
-do_ccontrol_approve(struct char_data *ch)
+do_ccontrol_approve(struct Creature *ch)
 {
 	struct combat_data *combat = NULL;
 	struct cplayer_data *cplayer = NULL;
@@ -1174,7 +1174,7 @@ do_ccontrol_approve(struct char_data *ch)
 
 
 void
-do_ccontrol_fee(struct char_data *ch, char *arg)
+do_ccontrol_fee(struct Creature *ch, char *arg)
 {
 	struct combat_data *combat = NULL;
 	int num = 0;
@@ -1525,7 +1525,7 @@ check_teams(combat_data * combat)
 int
 end_battle(combat_data * combat)
 {
-	struct char_data *ch = NULL;
+	struct Creature *ch = NULL;
 	struct room_data *booty_room = NULL;
 	struct obj_data *obj = NULL;
 
@@ -1652,7 +1652,7 @@ trans_combatants(struct combat_data *combat)
 	//  and then trans em to a random room
 	int i = 0;
 	struct room_data *trans_room = NULL;
-	struct char_data *ch = NULL;
+	struct Creature *ch = NULL;
 
 	for (i = 0; i < combat->num_players; i++) {
 
@@ -1698,7 +1698,7 @@ say_to_combat(char *argument, CHAR * ch, combat_data * combat)
 {
 
 	int i = 0;
-	struct char_data *ch2 = NULL;
+	struct Creature *ch2 = NULL;
 
 	if (!argument) {
 		return;
@@ -1725,7 +1725,7 @@ void
 send_to_combat(char *argument, combat_data * combat)
 {
 	int i = 0;
-	struct char_data *ch2 = NULL;
+	struct Creature *ch2 = NULL;
 
 	if (!argument) {
 		return;
@@ -2034,7 +2034,7 @@ return_sacrifice(CHAR * ch)
 void
 return_sacrifices(struct combat_data *combat)
 {
-	struct char_data *ch2 = NULL;
+	struct Creature *ch2 = NULL;
 	int i = 0;
 
 	if (!combat) {

@@ -41,9 +41,9 @@
 extern struct descriptor_data *descriptor_list;
 
 /* external functions */
-int special(struct char_data *ch, int cmd, int subcmd, char *arg, special_mode spec_mode);
+int special(struct Creature *ch, int cmd, int subcmd, char *arg, special_mode spec_mode);
 void stop_fighting(CharacterList::iterator & cit);
-void remove_follower(struct char_data *ch);
+void remove_follower(struct Creature *ch);
 void path_remove_object(void *object);
 void free_paths();
 void free_text_files();
@@ -51,7 +51,7 @@ void free_remort_quiz();
 void free_ptable();
 void free_fight();
 void free_socials();
-void print_attributes_to_buf(struct char_data *ch, char *buff);
+void print_attributes_to_buf(struct Creature *ch, char *buff);
 int same_obj(struct obj_data *o1, struct obj_data *o2);
 extern struct clan_data *clan_list;
 
@@ -168,7 +168,7 @@ isname_exact(const char *str, const char *namelist)
 
 
 void
-check_interface(struct char_data *ch, struct obj_data *obj, int mode)
+check_interface(struct Creature *ch, struct obj_data *obj, int mode)
 {
 	struct obj_data *chip = NULL;
 	int j;
@@ -192,7 +192,7 @@ GET_SKILL(ch, skill) = \
 MIN(GET_SKILL(ch, skill) + mod, 125)
 
 void
-affect_modify(struct char_data *ch, sh_int loc, sh_int mod, long bitv,
+affect_modify(struct Creature *ch, sh_int loc, sh_int mod, long bitv,
 	int index, bool add)
 {
 
@@ -450,7 +450,7 @@ affect_modify(struct char_data *ch, sh_int loc, sh_int mod, long bitv,
 /* This updates a character by subtracting everything he is affected by */
 /* restoring original abilities, and then affecting all again           */
 void
-affect_total(struct char_data *ch)
+affect_total(struct Creature *ch)
 {
 	struct affected_type *af;
 	int i, j;
@@ -665,10 +665,10 @@ affect_total(struct char_data *ch)
 }
 
 
-/* Insert an affect_type in a char_data structure
+/* Insert an affect_type in a Creature structure
    Automatically sets apropriate bits and apply's */
 void
-affect_to_char(struct char_data *ch, struct affected_type *af)
+affect_to_char(struct Creature *ch, struct affected_type *af)
 {
 	struct affected_type *affected_alloc;
 	struct affected_type *prev_quad = affected_by_spell(ch, SPELL_QUAD_DAMAGE);
@@ -699,12 +699,12 @@ affect_to_char(struct char_data *ch, struct affected_type *af)
  * reaches zero). Pointer *af must never be NIL!  Frees mem and calls
  * affect_location_apply
  */
-int holytouch_after_effect(char_data * vict, int level);
-int apply_soil_to_char(struct char_data *ch, struct obj_data *obj, int type,
+int holytouch_after_effect(Creature * vict, int level);
+int apply_soil_to_char(struct Creature *ch, struct obj_data *obj, int type,
 	int pos);
 
 int
-affect_remove(struct char_data *ch, struct affected_type *af)
+affect_remove(struct Creature *ch, struct affected_type *af)
 {
 	struct affected_type *temp;
 	int type = -1;
@@ -753,7 +753,7 @@ affect_remove(struct char_data *ch, struct affected_type *af)
 
 /* Call affect_remove with every spell of spelltype "skill" */
 int
-affect_from_char(struct char_data *ch, sh_int type)
+affect_from_char(struct Creature *ch, sh_int type)
 {
 	struct affected_type *hjp = NULL, *next_hjp = NULL;
 	int found = 0;
@@ -775,7 +775,7 @@ affect_from_char(struct char_data *ch, sh_int type)
  * not affected
  */
 struct affected_type *
-affected_by_spell(struct char_data *ch, sh_int type)
+affected_by_spell(struct Creature *ch, sh_int type)
 {
 	struct affected_type *hjp = NULL;
 
@@ -791,7 +791,7 @@ affected_by_spell(struct char_data *ch, sh_int type)
 //
 
 void
-affect_join(struct char_data *ch, struct affected_type *af,
+affect_join(struct Creature *ch, struct affected_type *af,
 	bool add_dur, bool avg_dur, bool add_mod, bool avg_mod)
 {
 	struct affected_type *hjp;
@@ -865,7 +865,7 @@ retire_trails(void)
 	}
 }
 void
-update_trail(struct char_data *ch, struct room_data *room, int dir, int mode)
+update_trail(struct Creature *ch, struct room_data *room, int dir, int mode)
 {
 
 	struct room_trail_data *trail = NULL, *low_trail = NULL, *temp = NULL;
@@ -948,7 +948,7 @@ update_trail(struct char_data *ch, struct room_data *room, int dir, int mode)
 
 /* move a player out of a room */
 void
-char_from_room( char_data *ch, bool check_specials = true )
+char_from_room( Creature *ch, bool check_specials = true )
 {
 
 	if (ch == NULL || ch->in_room == NULL) {
@@ -1006,7 +1006,7 @@ char_from_room( char_data *ch, bool check_specials = true )
 
 // place a character in a room
 void
-char_to_room(char_data *ch, room_data *room, bool check_specials = true )
+char_to_room(Creature *ch, room_data *room, bool check_specials = true )
 {
 	struct affected_type *aff = NULL, *next_aff = NULL;
 
@@ -1066,7 +1066,7 @@ char_to_room(char_data *ch, room_data *room, bool check_specials = true )
 
 /* give an object to a char   */
 void
-obj_to_char(struct obj_data *object, struct char_data *ch)
+obj_to_char(struct obj_data *object, struct Creature *ch)
 {
 	struct obj_data *o = NULL;
 	int found;
@@ -1169,7 +1169,7 @@ obj_from_char(struct obj_data *object)
 
 /* Return the effect of a piece of armor in position eq_pos */
 int
-apply_ac(struct char_data *ch, int eq_pos)
+apply_ac(struct Creature *ch, int eq_pos)
 {
 	int factor;
 
@@ -1212,7 +1212,7 @@ apply_ac(struct char_data *ch, int eq_pos)
 }
 
 int
-weapon_prof(struct char_data *ch, struct obj_data *obj)
+weapon_prof(struct Creature *ch, struct obj_data *obj)
 {
 
 	int skill = 0;
@@ -1234,10 +1234,10 @@ weapon_prof(struct char_data *ch, struct obj_data *obj)
 
 /* equip_char returns TRUE if victim is killed by equipment :> */
 int
-equip_char(struct char_data *ch, struct obj_data *obj, int pos, int internal)
+equip_char(struct Creature *ch, struct obj_data *obj, int pos, int internal)
 {
 	int j;
-	int invalid_char_class(struct char_data *ch, struct obj_data *obj);
+	int invalid_char_class(struct Creature *ch, struct obj_data *obj);
 
 	if (pos < 0 || pos >= NUM_WEARS) {
 		slog("SYSERR: Illegal pos in equip_char.");
@@ -1308,11 +1308,11 @@ equip_char(struct char_data *ch, struct obj_data *obj, int pos, int internal)
 }
 
 struct obj_data *
-unequip_char(struct char_data *ch, int pos, int internal, bool disable_checks = false)
+unequip_char(struct Creature *ch, int pos, int internal, bool disable_checks = false)
 {
 	int j;
 	struct obj_data *obj = NULL;
-	int invalid_char_class(struct char_data *ch, struct obj_data *obj);
+	int invalid_char_class(struct Creature *ch, struct obj_data *obj);
 
 
 	if (pos < 0 || pos >= NUM_WEARS) {
@@ -1392,7 +1392,7 @@ unequip_char(struct char_data *ch, int pos, int internal, bool disable_checks = 
 }
 
 int
-check_eq_align(char_data *ch)
+check_eq_align(Creature *ch)
 {
 	struct obj_data *obj;
 	int pos;
@@ -1492,7 +1492,7 @@ get_obj_num(int nr)
 
 
 /* search a room for a char, and return a pointer if found..  */
-struct char_data *
+struct Creature *
 get_char_room(char *name, struct room_data *room)
 {
 	int j = 0, number;
@@ -1513,7 +1513,7 @@ get_char_room(char *name, struct room_data *room)
 
 
 /* search all over the world for a char num, and return a pointer if found */
-struct char_data *
+struct Creature *
 get_char_num(int nr)
 {
 
@@ -1526,10 +1526,10 @@ get_char_num(int nr)
 	return NULL;
 }
 
-struct char_data *
+struct Creature *
 get_char_in_world_by_idnum(int nr)
 {
-	struct char_data *ch;
+	struct Creature *ch;
 	CharacterList::iterator cit = characterList.begin();
 	for (; cit != characterList.end(); ++cit) {
 		ch = *cit;
@@ -1637,7 +1637,7 @@ void
 obj_to_obj(struct obj_data *obj, struct obj_data *obj_to)
 {
 	struct obj_data *o = NULL;
-	struct char_data *vict = NULL;
+	struct Creature *vict = NULL;
 	int found, j;
 
 	if (!obj || !obj_to || obj == obj_to) {
@@ -1714,7 +1714,7 @@ void
 obj_from_obj(struct obj_data *obj)
 {
 	struct obj_data *obj_from = 0, *temp = 0;
-	struct char_data *vict = NULL;
+	struct Creature *vict = NULL;
 	int j;
 
 	if (obj->in_obj == NULL) {
@@ -1790,7 +1790,7 @@ obj_from_obj(struct obj_data *obj)
 
 /* Set all carried_by to point to new owner */
 void
-object_list_new_owner(struct obj_data *list, struct char_data *ch)
+object_list_new_owner(struct obj_data *list, struct Creature *ch)
 {
 	if (list) {
 		object_list_new_owner(list->contains, ch);
@@ -1855,7 +1855,7 @@ update_object(struct obj_data *obj, int use)
 
 
 void
-update_char_objects(struct char_data *ch)
+update_char_objects(struct Creature *ch)
 {
 	int i;
 
@@ -1897,10 +1897,10 @@ update_char_objects(struct char_data *ch)
    *********************************************************************** */
 
 
-struct char_data *
-get_player_vis(struct char_data *ch, char *name, int inroom)
+struct Creature *
+get_player_vis(struct Creature *ch, char *name, int inroom)
 {
-	struct char_data *i, *match;
+	struct Creature *i, *match;
 	CharacterList::iterator cit;
 	char *tmpname, *write_pt;
 
@@ -1938,10 +1938,10 @@ get_player_vis(struct char_data *ch, char *name, int inroom)
 }
 
 
-struct char_data *
-get_char_room_vis(struct char_data *ch, char *name)
+struct Creature *
+get_char_room_vis(struct Creature *ch, char *name)
 {
-	struct char_data *i, *mob = NULL;
+	struct Creature *i, *mob = NULL;
 	int j = 0, number;
 	char tmpname[MAX_INPUT_LENGTH];
 	char *tmp = tmpname;
@@ -1979,12 +1979,12 @@ get_char_room_vis(struct char_data *ch, char *name)
 	return NULL;
 }
 
-struct char_data *
-get_char_in_remote_room_vis(struct char_data *ch, char *name,
+struct Creature *
+get_char_in_remote_room_vis(struct Creature *ch, char *name,
 	struct room_data *inroom)
 {
 	struct room_data *was_in = ch->in_room;
-	struct char_data *i = NULL;
+	struct Creature *i = NULL;
 
 	ch->in_room = inroom;
 	i = get_char_room_vis(ch, name);
@@ -1992,10 +1992,10 @@ get_char_in_remote_room_vis(struct char_data *ch, char *name,
 	return (i);
 }
 
-struct char_data *
-get_char_vis(struct char_data *ch, char *name)
+struct Creature *
+get_char_vis(struct Creature *ch, char *name)
 {
-	struct char_data *i;
+	struct Creature *i;
 	int j = 0, number;
 	char tmpname[MAX_INPUT_LENGTH];
 	char *tmp = tmpname;
@@ -2022,7 +2022,7 @@ get_char_vis(struct char_data *ch, char *name)
 
 
 struct obj_data *
-get_obj_in_list_vis(struct char_data *ch, char *name, struct obj_data *list)
+get_obj_in_list_vis(struct Creature *ch, char *name, struct obj_data *list)
 {
 	struct obj_data *i;
 	int j = 0, number;
@@ -2043,7 +2043,7 @@ get_obj_in_list_vis(struct char_data *ch, char *name, struct obj_data *list)
 }
 
 struct obj_data *
-get_obj_in_list_all(struct char_data *ch, char *name, struct obj_data *list)
+get_obj_in_list_all(struct Creature *ch, char *name, struct obj_data *list)
 {
 	struct obj_data *i;
 	int j = 0, number;
@@ -2067,7 +2067,7 @@ get_obj_in_list_all(struct char_data *ch, char *name, struct obj_data *list)
 
 /* search the entire world for an object, and return a pointer  */
 struct obj_data *
-get_obj_vis(struct char_data *ch, char *name)
+get_obj_vis(struct Creature *ch, char *name)
 {
 	struct obj_data *i;
 	int j = 0, number;
@@ -2098,7 +2098,7 @@ get_obj_vis(struct char_data *ch, char *name)
 
 
 struct obj_data *
-get_object_in_equip_pos(struct char_data *ch, char *arg, int pos)
+get_object_in_equip_pos(struct Creature *ch, char *arg, int pos)
 {
 	if (GET_EQ(ch, pos) && isname(arg, GET_EQ(ch, pos)->name) &&
 		CAN_SEE_OBJ(ch, GET_EQ(ch, pos)))
@@ -2108,7 +2108,7 @@ get_object_in_equip_pos(struct char_data *ch, char *arg, int pos)
 }
 
 struct obj_data *
-get_object_in_equip_vis(struct char_data *ch,
+get_object_in_equip_vis(struct Creature *ch,
 	char *arg, struct obj_data *equipment[], int *j)
 {
 	int x = 0;
@@ -2131,7 +2131,7 @@ get_object_in_equip_vis(struct char_data *ch,
 }
 
 struct obj_data *
-get_object_in_equip_all(struct char_data *ch,
+get_object_in_equip_all(struct Creature *ch,
 	char *arg, struct obj_data *equipment[], int *j)
 {
 	int x = 0;
@@ -2346,8 +2346,8 @@ is_wierd(CHAR * ch, struct obj_data *obj, CHAR * vict)
 }
 
 int
-generic_find(char *arg, int bitvector, struct char_data *ch,
-	struct char_data **tar_ch, struct obj_data **tar_obj)
+generic_find(char *arg, int bitvector, struct Creature *ch,
+	struct Creature **tar_ch, struct obj_data **tar_obj)
 {
 	int i, found;
 	char name[256];

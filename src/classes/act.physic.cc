@@ -509,7 +509,7 @@ ASPELL(spell_quantum_rift)
 		if (GET_OBJ_VNUM(o) == QUANTUM_RIFT_VNUM
 			&& GET_OBJ_VAL(o, 2) == GET_IDNUM(ch)
 			&& o->in_room->people) {
-			char_data *occupant = o->in_room->people;
+			Creature *occupant = o->in_room->people;
 			act("$p collapses in on itself.", TRUE, occupant, o, 0, TO_CHAR);
 			act("$p collapses in on itself.", TRUE, occupant, o, 0, TO_ROOM);
 			extract_obj(o);
@@ -982,7 +982,7 @@ do_deactivate_device(obj_data * obj)
 
 }
 void
-do_emp_pulse_olist(obj_data * list, char_data * ch = NULL, char_data * vict =
+do_emp_pulse_olist(obj_data * list, Creature * ch = NULL, Creature * vict =
 	NULL)
 {
 	obj_data *o;
@@ -1001,7 +1001,7 @@ do_emp_pulse_olist(obj_data * list, char_data * ch = NULL, char_data * vict =
 	}
 }
 void
-do_emp_pulse_eq(obj_data * list[], char_data * ch = NULL, char_data * vict =
+do_emp_pulse_eq(obj_data * list[], Creature * ch = NULL, Creature * vict =
 	NULL, int internal = 0)
 {
 	for (int i = 0; i < NUM_WEAR_FLAGS; i++) {
@@ -1017,7 +1017,7 @@ do_emp_pulse_eq(obj_data * list[], char_data * ch = NULL, char_data * vict =
 	}
 }
 void
-do_emp_pulse_char(char_data * ch, char_data * vict)
+do_emp_pulse_char(Creature * ch, Creature * vict)
 {
 	affected_type *af = NULL;
 	int removed = 0;

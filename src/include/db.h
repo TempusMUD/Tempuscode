@@ -21,7 +21,7 @@
 
 #include <stdio.h>
 #include "defs.h"
-#include "char_data.h"
+#include "creature.h"
 
 #ifndef _NEWDYNCONTROL_			// used by a util
 
@@ -99,18 +99,18 @@ int pread_string(FILE * fl, char *str, char *error);
 long get_id_by_name(const char *name);
 char *get_name_by_id(long id);
 
-void char_to_store(struct char_data *ch, struct char_file_u *st);
-void store_to_char(struct char_file_u *st, struct char_data *ch);
+void char_to_store(struct Creature *ch, struct char_file_u *st);
+void store_to_char(struct char_file_u *st, struct Creature *ch);
 int load_char(char *name, struct char_file_u *char_element);
-void save_char(struct char_data *ch, struct room_data *load_room);
-void init_char(struct char_data *ch);
-struct char_data *read_mobile(int vnum);
+void save_char(struct Creature *ch, struct room_data *load_room);
+void init_char(struct Creature *ch);
+struct Creature *read_mobile(int vnum);
 int real_mobile(int vnum);
-struct char_data *real_mobile_proto(int vnum);
-int vnum_mobile(char *searchname, struct char_data *ch);
-void clear_char(struct char_data *ch);
-void reset_char(struct char_data *ch);
-void free_char(struct char_data *ch);
+struct Creature *real_mobile_proto(int vnum);
+int vnum_mobile(char *searchname, struct Creature *ch);
+void clear_char(struct Creature *ch);
+void reset_char(struct Creature *ch);
+void free_char(struct Creature *ch);
 
 struct obj_data *create_obj(void);
 void clear_object(struct obj_data *obj);
@@ -118,10 +118,10 @@ void free_obj(struct obj_data *obj);
 int real_object(int vnum);
 struct obj_data *real_object_proto(int vnum);
 struct obj_data *read_object(int vnum);
-int vnum_object(char *searchname, struct char_data *ch);
+int vnum_object(char *searchname, struct Creature *ch);
 int zone_number(int nr);
 struct room_data *where_obj(struct obj_data *obj);
-struct char_data *obj_owner(struct obj_data *obj);
+struct Creature *obj_owner(struct obj_data *obj);
 
 #define REAL 0
 #define VIRTUAL 1
@@ -233,7 +233,7 @@ extern struct shop_data *shop_index;
 extern struct obj_data *obj_proto;
 extern struct room_data *world;
 extern struct obj_data *object_list;
-extern struct char_data *character_list;
+extern struct Creature *character_list;
 
 #endif							// __db_c__
 

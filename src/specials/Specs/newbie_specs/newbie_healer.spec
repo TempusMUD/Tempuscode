@@ -7,7 +7,7 @@
 SPECIAL(newbie_healer)
 {
   ACCMD(do_drop);
-  struct char_data *i;
+  struct Creature *i;
   struct obj_data *p;
 
   if( spec_mode != SPECIAL_CMD && spec_mode != SPECIAL_TICK ) return 0;

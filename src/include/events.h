@@ -6,26 +6,26 @@
 #include <list>
 using namespace std;
 
-// prototype char_data to avoid including char_data.h
-struct char_data;
+// prototype Creature to avoid including creature.h
+struct Creature;
 
 class MobileEvent {
   public:
-	MobileEvent(char_data * ch, char_data * target, short val1, short val2,
+	MobileEvent(Creature * ch, Creature * target, short val1, short val2,
 		short val3, short val4, string event_type);
 
 	// the =0 here makes this a "pure virual" function
 									/*virtual */ void process();
 									//=0;
-	struct char_data *getInit();
-	struct char_data *getTarget();
-	void setInit(char_data * ch);
-	void setTarget(char_data * target);
+	struct Creature *getInit();
+	struct Creature *getTarget();
+	void setInit(Creature * ch);
+	void setTarget(Creature * target);
 	int getVal(int val);
 	void setVal(int val_num, int set_to);
   private:
-	 char_data * ch;
-	char_data *target;
+	 Creature * ch;
+	Creature *target;
 	short val[4];
 	string event_type;
 };
@@ -33,7 +33,7 @@ class MobileEvent {
 /*class EventPhysicalAttack : public MobileEvent 
 {
     public:
-        EventPhysicalAttack(char_data *ch, char_data *target, 
+        EventPhysicalAttack(Creature *ch, Creature *target, 
                             short val1, short val2, short val3, short val4) 
                             : MobileEvent(ch, target, val1, val2, val3, val4) {}
   
@@ -43,7 +43,7 @@ class MobileEvent {
 class EventExamine : public MobileEvent
 {
     public:
-        EventExamine(char_data *ch, char_data *target,
+        EventExamine(Creature *ch, Creature *target,
                      short val1, short val2, short val3, short val4)
                      : MobileEvent(ch, target, val1, val2, val3, val4) {}
 
@@ -53,7 +53,7 @@ class EventExamine : public MobileEvent
 class EventSteal : public MobileEvent
 {
     public:
-        EventSteal(char_data *ch, char_data *target,
+        EventSteal(Creature *ch, Creature *target,
                    short val1, short val2, short val3, short val4)
                    : MobileEvent(ch, target, val1, val2, val3, val4) {}
         

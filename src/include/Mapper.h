@@ -48,7 +48,7 @@ class MapPixel {
 
 class Mapper {
   public:
-	Mapper(char_data * ch, int rows, int columns);
+	Mapper(Creature * ch, int rows, int columns);
 	~Mapper();
 	bool build(bool stayzone);
 	void display(int bRows, int bCols);
@@ -59,7 +59,7 @@ class Mapper {
 	int last;
 	bool full;
   private:
-	 char_data * ch;			// character doing the mapping
+	 Creature * ch;			// character doing the mapping
 	int rows, columns;			// size of the desired map
 	MapPixel *mapDisplay;
 	MapToken *mapStack;

@@ -19,11 +19,11 @@
 // Copyright 1998 by John Watson, all rights reserved.
 //
 #define ACMD(name)  \
-   void (name)(struct char_data *ch, char *argument, int cmd, int subcmd, int *return_flags = 0 )
+   void (name)(struct Creature *ch, char *argument, int cmd, int subcmd, int *return_flags = 0 )
 #define ACCMD(name)  \
-   void (name)(struct char_data *ch, char *argument, int cmd, int subcmd, int *return_flags = 0 )
+   void (name)(struct Creature *ch, char *argument, int cmd, int subcmd, int *return_flags = 0 )
 
-void command_interpreter(struct char_data *ch, char *argument);
+void command_interpreter(struct Creature *ch, char *argument);
 int search_block(const char *arg, const char **list, bool exact);
 char lower(char c);
 char *one_argument(char *argument, char *first_arg);
@@ -42,7 +42,7 @@ void skip_spaces(const char **string);
 char *delete_doubledollar(char *string);
 
 // from search.c
-int triggers_search(struct char_data *ch, int cmd, char *arg,
+int triggers_search(struct Creature *ch, int cmd, char *arg,
 	struct special_search_data *srch);
 
 //
@@ -72,7 +72,7 @@ struct command_info {
 	byte minimum_position;
 	 ACMD(*command_pointer);
 	//    void  (*command_pointer)
-	//        (struct char_data *ch, char * argument, int cmd, int subcmd);
+	//        (struct Creature *ch, char * argument, int cmd, int subcmd);
 	sh_int minimum_level;
 	int subcmd;
 	int security;

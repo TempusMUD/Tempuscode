@@ -77,7 +77,7 @@ class qplayer_data {
 
 class Quest {
 	public:
-		Quest( char_data *ch, int type, const char* name );
+		Quest( Creature *ch, int type, const char* name );
 		Quest( const Quest &q );
 		Quest(xmlNodePtr n, xmlDocPtr doc);
 		~Quest();
@@ -88,7 +88,7 @@ class Quest {
 		bool operator>( const Quest &q ) const { return vnum > q.vnum; }
 		Quest& operator=( const Quest &q );
 	public: // utils
-		bool canEdit( char_data *ch );
+		bool canEdit( Creature *ch );
 		bool addPlayer( long id );
 		bool removePlayer( long id );
 		bool addBan( long id );

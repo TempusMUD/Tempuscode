@@ -36,7 +36,7 @@ extern char *olc_guide;
 long asciiflag_conv(char *buf);
 
 void num2str(char *str, int num);
-void do_stat_object(struct char_data *ch, struct obj_data *obj);
+void do_stat_object(struct Creature *ch, struct obj_data *obj);
 
 int prototype_obj_value(struct obj_data *obj);
 int set_maxdamage(struct obj_data *obj);
@@ -82,7 +82,7 @@ const char *olc_oset_keys[] = {
 
 
 int
-write_obj_index(struct char_data *ch, struct zone_data *zone)
+write_obj_index(struct Creature *ch, struct zone_data *zone)
 {
 	int done = 0, i, j, found = 0, count = 0, *new_index;
 	char fname[64];
@@ -148,7 +148,7 @@ write_obj_index(struct char_data *ch, struct zone_data *zone)
 
 
 int
-save_objs(struct char_data *ch)
+save_objs(struct Creature *ch)
 {
 	int o_vnum;
 	size_t i, tmp;
@@ -342,7 +342,7 @@ save_objs(struct char_data *ch)
 
 
 struct obj_data *
-do_create_obj(struct char_data *ch, int vnum)
+do_create_obj(struct Creature *ch, int vnum)
 {
 
 	struct obj_data *obj = NULL, *new_obj = NULL;
@@ -436,7 +436,7 @@ do_create_obj(struct char_data *ch, int vnum)
 
 
 int
-do_destroy_object(struct char_data *ch, int vnum)
+do_destroy_object(struct Creature *ch, int vnum)
 {
 
 	struct zone_data *zone = NULL;
@@ -519,7 +519,7 @@ do_destroy_object(struct char_data *ch, int vnum)
 
 
 void
-perform_oset(struct char_data *ch, struct obj_data *obj_p,
+perform_oset(struct Creature *ch, struct obj_data *obj_p,
 	char *argument, byte subcmd)
 {
 	struct zone_data *zone = NULL;
@@ -1171,7 +1171,7 @@ perform_oset(struct char_data *ch, struct obj_data *obj_p,
 
 /** olc only! */
 void
-do_clear_olc_object(struct char_data *ch)
+do_clear_olc_object(struct Creature *ch)
 {
 	struct obj_data *obj_p = GET_OLC_OBJ(ch), *tmp_obj = NULL;
 	struct extra_descr_data *desc = NULL;

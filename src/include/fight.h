@@ -62,25 +62,25 @@ class CallerDiedException {
 //
 // internal functions
 //
-void update_pos(struct char_data *victim);
-struct obj_data *damage_eq(struct char_data *ch, struct obj_data *obj, int eq_dam, int type = -1);
+void update_pos(struct Creature *victim);
+struct obj_data *damage_eq(struct Creature *ch, struct obj_data *obj, int eq_dam, int type = -1);
 
-void dam_message(int dam, struct char_data *ch, struct char_data *victim,
+void dam_message(int dam, struct Creature *ch, struct Creature *victim,
 	int w_type, int location);
 
-void death_cry(struct char_data *ch);
-void appear(struct char_data *ch, struct char_data *vict);
-void make_corpse(struct char_data *ch, struct char_data *killer,
+void death_cry(struct Creature *ch);
+void appear(struct Creature *ch, struct Creature *vict);
+void make_corpse(struct Creature *ch, struct Creature *killer,
 	int attacktype);
-void check_object_killer(struct obj_data *obj, struct char_data *vict);
-void raw_kill(struct char_data *ch, struct char_data *killer, int attacktype);	// prototype
-int peaceful_room_ok(struct char_data *ch, struct char_data *vict, bool mssg);
-void check_toughguy(struct char_data *ch, struct char_data *vict, int mode);
-void check_killer(struct char_data *ch, struct char_data *vict,
+void check_object_killer(struct obj_data *obj, struct Creature *vict);
+void raw_kill(struct Creature *ch, struct Creature *killer, int attacktype);	// prototype
+int peaceful_room_ok(struct Creature *ch, struct Creature *vict, bool mssg);
+void check_toughguy(struct Creature *ch, struct Creature *vict, int mode);
+void check_killer(struct Creature *ch, struct Creature *vict,
 	const char *debug_msg = 0);
-void die(struct char_data *ch, struct char_data *killer, int attacktype,
+void die(struct Creature *ch, struct Creature *killer, int attacktype,
 	int is_humil);
-int calculate_thaco(struct char_data *ch, struct char_data *victim,
+int calculate_thaco(struct Creature *ch, struct Creature *victim,
 	struct obj_data *obj);
 
 #ifdef __combat_code__
@@ -164,8 +164,8 @@ extern struct combat_data *battles;
 /* External procedures */
 char *fread_action(FILE * fl, int nr);
 ACMD(do_flee);
-int char_class_race_hit_bonus(struct char_data *ch, struct char_data *vict);
-int apply_soil_to_char(struct char_data *ch, struct obj_data *obj, int type,
+int char_class_race_hit_bonus(struct Creature *ch, struct Creature *vict);
+int apply_soil_to_char(struct Creature *ch, struct obj_data *obj, int type,
 	int pos);
 
 int choose_random_limb(CHAR * victim);
@@ -176,35 +176,35 @@ extern FILE *player_fl;
 #ifdef __fight_c__
 /* Structures */
 ACCMD(do_offensive_skill);
-struct char_data *combat_list = NULL;	/* head of list of fighting chars */
-struct char_data *next_combat_list = NULL;
+struct Creature *combat_list = NULL;	/* head of list of fighting chars */
+struct Creature *next_combat_list = NULL;
 struct obj_data *cur_weap = NULL;
 #else
-extern struct char_data *combat_list;	/* head of list of fighting chars */
-extern struct char_data *next_combat_list;
+extern struct Creature *combat_list;	/* head of list of fighting chars */
+extern struct Creature *next_combat_list;
 extern struct obj_data *cur_weap;
 #endif
 
 /* prototypes from fight.c */
-void set_fighting(struct char_data *ch, struct char_data *victim, int aggr);
-void stop_fighting(struct char_data *ch);
-void stop_follower(struct char_data *ch);
-int hit(struct char_data *ch, struct char_data *victim, int type);
-void forget(struct char_data *ch, struct char_data *victim);
-void remember(struct char_data *ch, struct char_data *victim);
-int char_in_memory(struct char_data *victim, struct char_data *rememberer);
+void set_fighting(struct Creature *ch, struct Creature *victim, int aggr);
+void stop_fighting(struct Creature *ch);
+void stop_follower(struct Creature *ch);
+int hit(struct Creature *ch, struct Creature *victim, int type);
+void forget(struct Creature *ch, struct Creature *victim);
+void remember(struct Creature *ch, struct Creature *victim);
+int char_in_memory(struct Creature *victim, struct Creature *rememberer);
 
 const int DAM_VICT_KILLED = 0x0001;	// the victim of damage() died
 const int DAM_ATTACKER_KILLED = 0x0002;	// the caller of damage() died
 const int DAM_ATTACK_FAILED = 0x0003;	// the caller of damage() died
 
 int SWAP_DAM_RETVAL(int val);
-int damage(struct char_data *ch, struct char_data *victim, int dam,
+int damage(struct Creature *ch, struct Creature *victim, int dam,
 	int attacktype, int location);
-int skill_message(int dam, struct char_data *ch, struct char_data *vict,
+int skill_message(int dam, struct Creature *ch, struct Creature *vict,
 	int attacktype);
-int best_attack(struct char_data *ch, struct char_data *vict);
-int check_infiltrate(struct char_data *ch, struct char_data *vict);
+int best_attack(struct Creature *ch, struct Creature *vict);
+int check_infiltrate(struct Creature *ch, struct Creature *vict);
 void add_blood_to_room(struct room_data *rm, int amount);
 
 

@@ -43,7 +43,7 @@ char *replace_string(char *str, char *weapon_singular, char *weapon_plural,
 
 
 void
-appear(struct char_data *ch, struct char_data *vict)
+appear(struct Creature *ch, struct Creature *vict)
 {
 	char *to_char = NULL;
 	int found = 0;
@@ -163,7 +163,7 @@ load_messages(void)
 }
 
 void
-death_cry(struct char_data *ch)
+death_cry(struct Creature *ch)
 {
 	struct room_data *adjoin_room = NULL;
 	int door;
@@ -265,12 +265,12 @@ death_cry(struct char_data *ch)
 }
 
 void
-blood_spray(struct char_data *ch, struct char_data *victim,
+blood_spray(struct Creature *ch, struct Creature *victim,
 	int dam, int attacktype)
 {
 	char *to_char, *to_vict, *to_notvict;
 	int pos, found = 0;
-	struct char_data *nvict;
+	struct Creature *nvict;
 
 	switch (number(0, 6)) {
 	case 0:
@@ -407,7 +407,7 @@ blood_spray(struct char_data *ch, struct char_data *victim,
 
 /* message for doing damage with a weapon */
 void
-dam_message(int dam, struct char_data *ch, struct char_data *victim,
+dam_message(int dam, struct Creature *ch, struct Creature *victim,
 	int w_type, int location)
 {
 	char *buf;
@@ -858,7 +858,7 @@ dam_message(int dam, struct char_data *ch, struct char_data *victim,
  *  C3.0: Also used for weapon damage on miss and death blows
  */
 int
-skill_message(int dam, struct char_data *ch, struct char_data *vict,
+skill_message(int dam, struct Creature *ch, struct Creature *vict,
 	int attacktype)
 {
 	int i, j, nr;

@@ -53,7 +53,7 @@
 
 int top_of_world = 0;			/* ref to top element of world         */
 
-//struct char_data *character_list = NULL;        /* global linked list of
+//struct Creature *character_list = NULL;        /* global linked list of
 //                                                 * chars         */
 
 int top_of_mobt = 0;			/* top of mobile index table         */
@@ -185,7 +185,7 @@ void reset_time(void);
 void reset_zone_weather(void);
 void set_local_time(struct zone_data *zone, struct time_info_data *local_time);
 void update_alias_dirs(void);
-void purge_trails(struct char_data *ch);
+void purge_trails(struct Creature *ch);
 
 /* external functions */
 extern struct descriptor_data *descriptor_list;
@@ -202,9 +202,9 @@ void Read_Invalid_List(void);
 void Read_Nasty_List(void);
 void boot_the_shops(FILE * shop_f, char *filename, int rec_count);
 //struct help_index_element *build_help_index(FILE * fl, int *num);
-void add_alias(struct char_data *ch, struct alias_data *a);
+void add_alias(struct Creature *ch, struct alias_data *a);
 void boot_clans(void);
-void add_follower(struct char_data *ch, struct char_data *leader);
+void add_follower(struct Creature *ch, struct Creature *leader);
 
 extern int no_specials;
 extern int scheck;
@@ -1472,7 +1472,7 @@ renum_zone_table(void)
 
 
 void
-set_physical_attribs(struct char_data *ch)
+set_physical_attribs(struct Creature *ch)
 {
 	GET_MAX_MANA(ch) = MAX(100, (GET_LEVEL(ch) << 3));
 	GET_MAX_MOVE(ch) = MAX(100, (GET_LEVEL(ch) << 4));
@@ -1636,7 +1636,7 @@ set_physical_attribs(struct char_data *ch)
 }
 
 void
-parse_simple_mob(FILE * mob_f, struct char_data *mobile, int nr)
+parse_simple_mob(FILE * mob_f, struct Creature *mobile, int nr)
 {
 	int j, t[10];
 	char line[256];
@@ -1735,7 +1735,7 @@ parse_simple_mob(FILE * mob_f, struct char_data *mobile, int nr)
 #define RANGE(low, high) (num_arg = MAX((low), MIN((high), (num_arg))))
 
 void
-interpret_espec(char *keyword, char *value, struct char_data *mobile, int nr)
+interpret_espec(char *keyword, char *value, struct Creature *mobile, int nr)
 {
 	int num_arg, matched = 0;
 
@@ -1851,7 +1851,7 @@ interpret_espec(char *keyword, char *value, struct char_data *mobile, int nr)
 #undef RANGE
 
 void
-parse_espec(char *buf, struct char_data *mobile, int nr)
+parse_espec(char *buf, struct Creature *mobile, int nr)
 {
 	char *ptr;
 
@@ -1867,7 +1867,7 @@ parse_espec(char *buf, struct char_data *mobile, int nr)
 
 
 void
-parse_enhanced_mob(FILE * mob_f, struct char_data *mobile, int nr)
+parse_enhanced_mob(FILE * mob_f, struct Creature *mobile, int nr)
 {
 	char line[256];
 
@@ -1960,9 +1960,9 @@ parse_mobile(FILE * mob_f, int nr)
 	int j, t[10];
 	char line[256], *tmpptr, letter;
 	char f1[128], f2[128], f3[128], f4[128], f5[128];
-	struct char_data *mobile = NULL, *tmp_mob = NULL;
+	struct Creature *mobile = NULL, *tmp_mob = NULL;
 
-	CREATE(mobile, struct char_data, 1);
+	CREATE(mobile, struct Creature, 1);
 
 	clear_char(mobile);
 
@@ -2415,9 +2415,9 @@ load_zones(FILE * fl, char *zonename)
 
 
 int
-vnum_mobile(char *searchname, struct char_data *ch)
+vnum_mobile(char *searchname, struct Creature *ch)
 {
-	struct char_data *mobile;
+	struct Creature *mobile;
 	int found = 0;
 
 	strcpy(buf, "");
@@ -2446,7 +2446,7 @@ vnum_mobile(char *searchname, struct char_data *ch)
 
 
 int
-vnum_object(char *searchname, struct char_data *ch)
+vnum_object(char *searchname, struct Creature *ch)
 {
 	struct obj_data *obj = NULL;
 	int found = 0;
@@ -2472,13 +2472,13 @@ vnum_object(char *searchname, struct char_data *ch)
 
 
 /* create a new mobile from a prototype */
-struct char_data *
+struct Creature *
 read_mobile(int vnum)
 {
 	int found = 0;
-	struct char_data *mob = NULL, *tmp_mob;
+	struct Creature *mob = NULL, *tmp_mob;
 
-	/*  CREATE(mob, struct char_data, 1);
+	/*  CREATE(mob, struct Creature, 1);
 	   clear_char(mob); */
 	CharacterList::iterator mit = mobilePrototypes.begin();
 	for (; mit != mobilePrototypes.end(); ++mit) {
@@ -2486,7 +2486,7 @@ read_mobile(int vnum)
 		//for (tmp_mob = mob_proto; tmp_mob; tmp_mob = tmp_mob->next) {
 		if (tmp_mob->mob_specials.shared->vnum >= vnum) {
 			if (tmp_mob->mob_specials.shared->vnum == vnum) {
-				CREATE(mob, struct char_data, 1);
+				CREATE(mob, struct Creature, 1);
 				*mob = *tmp_mob;
 				tmp_mob->mob_specials.shared->number++;
 				tmp_mob->mob_specials.shared->loaded++;
@@ -2699,17 +2699,17 @@ void
 reset_zone(struct zone_data *zone)
 {
 	int cmd_no, last_cmd = 0, prob_override = 0;
-	struct char_data *mob = NULL, *tmob = NULL;
+	struct Creature *mob = NULL, *tmob = NULL;
 	struct obj_data *obj = NULL, *obj_to = NULL, *tobj = NULL;
 	struct reset_com *zonecmd;
 	struct room_data *room;
 	struct special_search_data *srch = NULL;
 	PHead *p_head = NULL;
 	struct shop_data *shop;
-	struct char_data *vkeeper = NULL;
+	struct Creature *vkeeper = NULL;
 
 	SPECIAL(shop_keeper);
-	//extern struct char_data *character_list;
+	//extern struct Creature *character_list;
 	extern struct shop_data *shop_index;
 
 	// Find all the shops in this zone and reset them.
@@ -3105,7 +3105,7 @@ load_char(char *name, struct char_file_u *char_element)
 }
 
 void
-save_aliases(struct char_data *ch)
+save_aliases(struct Creature *ch)
 {
 	struct alias_data *a;
 	FILE *file_handle = NULL;
@@ -3140,7 +3140,7 @@ save_aliases(struct char_data *ch)
 }
 
 void
-read_alias(struct char_data *ch)
+read_alias(struct Creature *ch)
 {
 	struct alias_data *a;
 	char buf[MAX_STRING_LENGTH];
@@ -3203,7 +3203,7 @@ read_alias(struct char_data *ch)
 
 /* write the vital data of a player to the player file */
 void
-save_char(struct char_data *ch, struct room_data *load_room)
+save_char(struct Creature *ch, struct room_data *load_room)
 {
 	struct char_file_u st;
 	if (IS_NPC(ch) || !ch->desc || GET_PFILEPOS(ch) < 0)
@@ -3239,7 +3239,7 @@ save_char(struct char_data *ch, struct room_data *load_room)
 
 /* copy data from the file structure to a char struct */
 void
-store_to_char(struct char_file_u *st, struct char_data *ch)
+store_to_char(struct char_file_u *st, struct Creature *ch)
 {
 	int i;
 
@@ -3340,7 +3340,7 @@ store_to_char(struct char_file_u *st, struct char_data *ch)
 
 /* copy vital data from a players char-structure to the file structure */
 void
-char_to_store(struct char_data *ch, struct char_file_u *st)
+char_to_store(struct Creature *ch, struct char_file_u *st)
 {
 	int i;
 	struct affected_type *af;
@@ -3608,11 +3608,11 @@ pread_string(FILE * fl, char *str, char *error)
 //
 
 void
-free_char(struct char_data *ch)
+free_char(struct Creature *ch)
 {
 
 	int i;
-	struct char_data *tmp_mob;
+	struct Creature *tmp_mob;
 	struct alias_data *a;
 
 	void free_alias(struct alias_data *a);
@@ -3863,7 +3863,7 @@ file_to_string(char *name, char *buf)
 
 /* clear some of the the working variables of a char */
 void
-reset_char(struct char_data *ch)
+reset_char(struct Creature *ch)
 {
 	int i;
 
@@ -3900,9 +3900,9 @@ reset_char(struct char_data *ch)
 
 /* clear ALL the working variables of a char; do NOT free any space alloc'ed */
 void
-clear_char(struct char_data *ch)
+clear_char(struct Creature *ch)
 {
-	memset((char *)ch, 0, sizeof(struct char_data));
+	memset((char *)ch, 0, sizeof(struct Creature));
 
 	ch->in_room = NULL;
 	GET_PFILEPOS(ch) = -1;
@@ -3942,7 +3942,7 @@ clear_object(struct obj_data *obj)
 
 /* initialize a new character only if char_class is set */
 void
-init_char(struct char_data *ch)
+init_char(struct Creature *ch)
 {
 	int i;
 
@@ -4108,10 +4108,10 @@ real_zone(int number)
 	return (NULL);
 }
 
-struct char_data *
+struct Creature *
 real_mobile_proto(int vnum)
 {
-	struct char_data *mobile = NULL;
+	struct Creature *mobile = NULL;
 
 	CharacterList::iterator mit = mobilePrototypes.begin();
 	for (; mit != mobilePrototypes.end(); ++mit) {
@@ -4191,7 +4191,7 @@ update_alias_dirs(void)
 }
 
 void
-purge_trails(struct char_data *ch)
+purge_trails(struct Creature *ch)
 {
 	struct room_trail_data *trl;
 	struct room_data *rm;
@@ -4236,7 +4236,7 @@ where_obj(struct obj_data *obj)
 	return NULL;
 }
 
-struct char_data *
+struct Creature *
 obj_owner(struct obj_data *obj)
 {
 	if (obj->carried_by)

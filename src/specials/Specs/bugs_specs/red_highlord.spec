@@ -16,7 +16,7 @@ SPECIAL(red_highlord)
   struct room_data *target_room = NULL;
   struct room_data *was_in = NULL;
   struct obj_data *blade = NULL, *container = NULL;
-  struct char_data *vict = NULL, *tmp_vict = NULL;
+  struct Creature *vict = NULL, *tmp_vict = NULL;
 
   if (cmd || FIGHTING(ch) || HUNTING(ch) || ch->getPosition() <= POS_SLEEPING)
     return 0; 

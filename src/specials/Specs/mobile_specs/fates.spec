@@ -13,7 +13,7 @@ struct room_list_struct {
 int fate_timers[3] = {0,0,0};
 SPECIAL(fate)
 {
-	struct char_data *fate = (struct char_data *) me;
+	struct Creature *fate = (struct Creature *) me;
 	struct room_data *dest = NULL;
 	dynamic_text_file *dyntext = NULL;
 	char dyn_name[64];

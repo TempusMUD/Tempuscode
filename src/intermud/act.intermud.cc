@@ -562,7 +562,7 @@ void
 serv_recv_interwhoreq(char *serv_message)
 {
 	struct descriptor_data *d;
-	struct char_data *ch = NULL;
+	struct Creature *ch = NULL;
 
 	Service = strtok(serv_message, "|");
 	Our_Mud = strtok(NULL, "|");
@@ -642,7 +642,7 @@ serv_recv_interpage(char *serv_message)
 {
 	struct descriptor_data *d;
 	int player_found = 0;
-	struct char_data *ch = NULL;
+	struct Creature *ch = NULL;
 
 	Service = strtok(serv_message, "|");
 	To = strtok(NULL, "|");

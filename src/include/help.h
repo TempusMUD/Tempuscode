@@ -37,7 +37,7 @@ using namespace std;
 
 
 
-struct char_data;
+struct Creature;
 
 #define MAX_HELP_NAME_LENGTH 128
 #define MAX_HELP_TEXT_LENGTH 16384
@@ -68,7 +68,7 @@ class HelpItem {
 	inline void SetNextShow(HelpItem * n) {
 		next_show = n;
 	}
-	bool Edit(char_data * ch);	// Begin editing an item
+	bool Edit(Creature * ch);	// Begin editing an item
 	bool Clear();				// Clear the item out.
 	void SetName(char *argument);
 	void SetKeyWords(char *argument);
@@ -76,7 +76,7 @@ class HelpItem {
 	void SetDesc(char *argument);	// Actually sets "text" (body of the message)
 	void SetFlags(char *argument);
 	void EditText(void);
-	bool CanEditItem(char_data * ch);
+	bool CanEditItem(Creature * ch);
 	bool Save(void);			// Save the current entry to file.
 	bool IsInGroup(int thegroup);
 
@@ -85,7 +85,7 @@ class HelpItem {
 	// 1 == One Line Stat
 	// 2 == Entire Entry 
 	// 3 == Entire Entry Stat
-	void Show(char_data * ch, char *buffer, int mode = 0);
+	void Show(Creature * ch, char *buffer, int mode = 0);
 
 	// Data
 	int idnum;					// Unique Identifier
@@ -97,7 +97,7 @@ class HelpItem {
 	char *keys;					// Key Words
 	char *name;					// The listed name of the help topic
 	char *text;					// The body of the help topic
-	char_data *editor;
+	Creature *editor;
 
   private:
 	bool LoadText();
@@ -109,11 +109,11 @@ class HelpItem {
 class HelpGroup {
   public:
 	HelpGroup();
-	bool AddUser(char_data * ch, char *argument);
-	bool RemoveUser(char_data * ch, char *argument);
-	void Members(char_data * ch, char *argument);
-	bool CanEdit(char_data * ch, HelpItem * n);
-	void Show(char_data * ch);
+	bool AddUser(Creature * ch, char *argument);
+	bool RemoveUser(Creature * ch, char *argument);
+	void Members(Creature * ch, char *argument);
+	bool CanEdit(Creature * ch, HelpItem * n);
+	void Show(Creature * ch);
 	void Load();
 	void Save();
 
@@ -136,7 +136,7 @@ class HelpCollection {
 	 HelpCollection();
 	~HelpCollection();
 	// Calls FindItems then Show
-	void GetTopic(char_data * ch,	// The character that wants the topic
+	void GetTopic(Creature * ch,	// The character that wants the topic
 		char *args,				// the search arguments. (pattern)
 		int mode = 2,			// How to show the item. (see HelpItem::Show())
 		bool show_no_app = false,	// Show Unapproved items?
@@ -144,21 +144,21 @@ class HelpCollection {
 		bool searchmode = false);	// Should we search by keyword but still
 	// return a list?
 
-	void List(char_data * ch, char *args);	// Show all the items
+	void List(Creature * ch, char *args);	// Show all the items
 	// Create an item. (calls EditItem && SaveIndex)
-	bool CreateItem(char_data * ch);
-	bool EditItem(char_data * ch, int idnum);	// Begin editing an item
-	void ApproveItem(char_data * ch, char *argument);	// Approve an item
-	void UnApproveItem(char_data * ch, char *argument);	// Approve an item
-	bool ClearItem(char_data * ch);	// Clear an item
-	bool SaveItem(char_data * ch);	// Duh?
-	bool SaveIndex(char_data * ch);	// Save the entire index
-	bool SaveAll(char_data * ch);	// Save Everything. (cals saveitem and saveindex)
-	bool Set(char_data * ch, char *argument);
+	bool CreateItem(Creature * ch);
+	bool EditItem(Creature * ch, int idnum);	// Begin editing an item
+	void ApproveItem(Creature * ch, char *argument);	// Approve an item
+	void UnApproveItem(Creature * ch, char *argument);	// Approve an item
+	bool ClearItem(Creature * ch);	// Clear an item
+	bool SaveItem(Creature * ch);	// Duh?
+	bool SaveIndex(Creature * ch);	// Save the entire index
+	bool SaveAll(Creature * ch);	// Save Everything. (cals saveitem and saveindex)
+	bool Set(Creature * ch, char *argument);
 	bool LoadIndex(void);		// Load help index (at startup)
 	void Sync(void);			// Delete unneeded item->text from memory.
 	bool AddUser(char *argument);	// Add user to group
-	void Show(char_data * ch);	// Show collection statistics
+	void Show(Creature * ch);	// Show collection statistics
 	inline int GetTop(void) {
 		return top_id;
 	} void Push(HelpItem * n);	//Add topic to help_collection

@@ -30,7 +30,7 @@
 ACMD(do_charge)
 {
 	struct affected_type af;
-	struct char_data *vict = NULL;
+	struct Creature *vict = NULL;
 	one_argument(argument, buf);
 	// Check for beserk.
 	// 
@@ -75,11 +75,11 @@ ACMD(do_charge)
 //
 
 int
-perform_barb_beserk(struct char_data *ch, struct char_data **who_was_attacked,
-	//struct char_data *precious_ch,
+perform_barb_beserk(struct Creature *ch, struct Creature **who_was_attacked,
+	//struct Creature *precious_ch,
 	int *return_flags)
 {
-	static struct char_data *vict = NULL;
+	static struct Creature *vict = NULL;
 	CharacterList::iterator it = ch->in_room->people.begin();
 	for (; it != ch->in_room->people.end(); ++it) {
 		vict = *it;

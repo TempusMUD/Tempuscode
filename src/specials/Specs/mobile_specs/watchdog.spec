@@ -9,8 +9,8 @@
 
 SPECIAL(watchdog)
 {
-    struct char_data *dog = (struct char_data *) me;
-    struct char_data *vict = NULL;
+    struct Creature *dog = (struct Creature *) me;
+    struct Creature *vict = NULL;
     static byte indignation = 0;
 	CharacterList::iterator it;
 

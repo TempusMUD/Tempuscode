@@ -6,7 +6,7 @@
 
 SPECIAL(temple_healer)
 {
-  struct char_data *vict;
+  struct Creature *vict;
   int found = 0;
   if( spec_mode != SPECIAL_ENTER 
   && spec_mode != SPECIAL_COMBAT 

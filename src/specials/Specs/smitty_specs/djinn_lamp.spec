@@ -7,7 +7,7 @@
 SPECIAL(djinn_lamp)
 {
   struct obj_data *lamp = (struct obj_data *) me;
-  struct char_data *djinn = NULL;
+  struct Creature *djinn = NULL;
   if( spec_mode != SPECIAL_CMD && spec_mode != SPECIAL_TICK ) return 0;
   
   if ((!CMD_IS("rub") && !CMD_IS("clean")))

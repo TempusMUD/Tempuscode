@@ -6,7 +6,7 @@
 
 SPECIAL(basher)
 {
-  struct char_data *vict = NULL;
+  struct Creature *vict = NULL;
   ACMD(do_bash);
   if( spec_mode != SPECIAL_COMBAT ) return 0;
   if (cmd || ch->getPosition() != POS_FIGHTING || !FIGHTING(ch))

@@ -6,7 +6,7 @@
 
 SPECIAL( maladomini_jailer )
 {
-    struct char_data *vict = NULL;
+    struct Creature *vict = NULL;
     static struct room_data *to_room = NULL;
     if( spec_mode != SPECIAL_CMD && spec_mode != SPECIAL_TICK ) return 0;
 

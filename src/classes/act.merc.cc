@@ -23,13 +23,13 @@
 #define PISTOL(gun)  ((IS_GUN(gun) || IS_ENERGY_GUN(gun)) && !IS_TWO_HAND(gun))
 #define LARGE_GUN(gun) ((IS_GUN(gun) || IS_ENERGY_GUN(gun)) && IS_TWO_HAND(gun))
 
-int apply_soil_to_char(struct char_data *ch, struct obj_data *obj, int type,
+int apply_soil_to_char(struct Creature *ch, struct obj_data *obj, int type,
 	int pos);
-int ok_damage_shopkeeper(struct char_data *ch, struct char_data *victim);
+int ok_damage_shopkeeper(struct Creature *ch, struct Creature *victim);
 
 ACMD(do_pistolwhip)
 {
-	struct char_data *vict = NULL;
+	struct Creature *vict = NULL;
 	struct obj_data *ovict = NULL, *weap = NULL;
 	int percent, prob, dam;
 
@@ -87,7 +87,7 @@ ACMD(do_pistolwhip)
 
 ACMD(do_crossface)
 {
-	struct char_data *vict = NULL;
+	struct Creature *vict = NULL;
 	struct obj_data *ovict = NULL, *weap = NULL, *wear = NULL;
 	int str_mod, dex_mod, percent = 0, prob = 0, dam = 0;
 	int retval = 0, diff = 0, wear_num;
@@ -256,7 +256,7 @@ IS_SET(obj->obj_flags.bitvector[1], AFF2_NECK_PROTECTED)
 // --Nothing
 ACMD(do_snipe)
 {
-	struct char_data *vict, *temp = NULL;
+	struct Creature *vict, *temp = NULL;
 	struct obj_data *gun = NULL;
 	struct affected_type af;
 	obj_data *bullet, *armor;
@@ -531,15 +531,15 @@ ACMD(do_snipe)
 			// it's my understanding that damage() frees the memory for vict if
 			// vict has been killed.  Therefore if I want to print the message
 			// "You have killed $N" I'm going to have to make a copy of victs
-			// char_data struct.  If there's another way that I'm unaware of
+			// Creature struct.  If there's another way that I'm unaware of
 			// please change it and/or let me know
 			if (!(temp =
-					(struct char_data *)malloc(sizeof(struct char_data) +
+					(struct Creature *)malloc(sizeof(struct Creature) +
 						1))) {
 				mudlog(LVL_AMBASSADOR, NRM, true,
 					"SYSERR: Out of memory in do_snipe!");
 			}
-			memcpy(temp, vict, sizeof(struct char_data));
+			memcpy(temp, vict, sizeof(struct Creature));
 			retval = damage(ch, vict, dam, SKILL_SNIPE, damage_loc);
 			// I hope this works...this is supposed to handle the case
 			// of ch hitting vict succesfully but for some outside
@@ -580,7 +580,7 @@ ACMD(do_snipe)
 
 ACMD(do_wrench)
 {
-	struct char_data *vict = NULL;
+	struct Creature *vict = NULL;
 	struct obj_data *ovict = NULL;
 	struct obj_data *neck = NULL;
 	int two_handed = 0;

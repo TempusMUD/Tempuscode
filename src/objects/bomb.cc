@@ -156,10 +156,10 @@ add_bomb_room(struct room_data *room, int fromdir, int p_factor)
 void
 bomb_damage_room(char *bomb_name, int bomb_type, int bomb_power,
 	struct room_data *room, int dir, int power,
-	struct char_data *precious_vict = 0)
+	struct Creature *precious_vict = 0)
 {
 
-	struct char_data *vict = NULL;
+	struct Creature *vict = NULL;
 	struct room_affect_data rm_aff;
 	struct affected_type af;
 	int dam, damage_type = 0;
@@ -451,7 +451,7 @@ detonate_bomb(struct obj_data *bomb)
 {
 
 	struct room_data *room = bomb->in_room;
-	struct char_data *ch = bomb->carried_by;
+	struct Creature *ch = bomb->carried_by;
 	struct obj_data *cont = bomb->in_obj, *next_obj = NULL;
 	struct bomb_radius_list *rad_elem = NULL, *next_elem = NULL;
 	bool internal = false;
@@ -544,7 +544,7 @@ detonate_bomb(struct obj_data *bomb)
 //
 
 void
-engage_self_destruct(struct char_data *ch)
+engage_self_destruct(struct Creature *ch)
 {
 
 	int level, i;

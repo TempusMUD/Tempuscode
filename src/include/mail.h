@@ -35,22 +35,22 @@
 #define MAX_MAILFILE_SIZE 150000
 
 // Prototypes for postmaster specs
-void postmaster_send_mail(struct char_data *ch, struct char_data *mailman,
+void postmaster_send_mail(struct Creature *ch, struct Creature *mailman,
 	int cmd, char *arg);
-void postmaster_check_mail(struct char_data *ch, struct char_data *mailman,
+void postmaster_check_mail(struct Creature *ch, struct Creature *mailman,
 	int cmd, char *arg);
-void postmaster_receive_mail(struct char_data *ch, struct char_data *mailman,
+void postmaster_receive_mail(struct Creature *ch, struct Creature *mailman,
 	int cmd, char *arg);
 // Redundant redeclarations for utility functions
-void perform_tell(struct char_data *ch, struct char_data *vict, char *arg);
+void perform_tell(struct Creature *ch, struct Creature *vict, char *arg);
 void string_add(struct descriptor_data *d, char *str);
 
 // Mail system internal functions.
 int has_mail(long recipient);
-int has_mail(char_data * ch);
+int has_mail(Creature * ch);
 int store_mail(long to_id, long from_id, char *txt, char *cc_list,
 	time_t * cur_time = NULL);
-int recieve_mail(char_data * ch);
+int recieve_mail(Creature * ch);
 int purge_mail(long idnum);
 
 

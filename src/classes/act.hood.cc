@@ -22,11 +22,11 @@
 
 
 SPECIAL(shop_keeper);
-int check_mob_reaction(struct char_data *ch, struct char_data *vict);
-int apply_soil_to_char(struct char_data *ch, struct obj_data *obj, int type,
+int check_mob_reaction(struct Creature *ch, struct Creature *vict);
+int apply_soil_to_char(struct Creature *ch, struct obj_data *obj, int type,
 	int pos);
-int House_can_enter(struct char_data *ch, room_num real_room);
-int clan_house_can_enter(struct char_data *ch, struct room_data *room);
+int House_can_enter(struct Creature *ch, room_num real_room);
+int clan_house_can_enter(struct Creature *ch, struct room_data *room);
 
 ACMD(do_taunt)
 {
@@ -35,7 +35,7 @@ ACMD(do_taunt)
 
 ACMD(do_hamstring)
 {
-	struct char_data *vict = NULL;
+	struct Creature *vict = NULL;
 	struct obj_data *ovict = NULL, *weap = NULL;
 	int percent, prob, dam;
 	struct affected_type af;
@@ -175,7 +175,7 @@ ACMD(do_hamstring)
 
 ACMD(do_drag_char)
 {
-	struct char_data *vict = NULL;
+	struct Creature *vict = NULL;
 	struct room_data *target_room = NULL;
 	struct room_data *location = NULL;
 
@@ -307,7 +307,7 @@ ACMD(do_snatch)
 	//
 	//  Check to make sure they have a free hand!
 	//
-	struct char_data *vict = NULL;
+	struct Creature *vict = NULL;
 	struct obj_data *obj, *sec_weap;
 	char vict_name[MAX_INPUT_LENGTH];
 	int percent = -1, eq_pos = -1;

@@ -14,7 +14,7 @@
 #define TOMES_DIR_MONK     "tomes/monk_guild/"
 
 #include <unistd.h>
-void read_page(FILE *fh,int page,struct char_data *ch)
+void read_page(FILE *fh,int page,struct Creature *ch)
 {
    long *list;
    int count;

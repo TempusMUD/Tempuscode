@@ -32,18 +32,18 @@ extern struct obj_data *object_list;
 
 int search_nomessage = 0;
 
-void print_search_data_to_buf(struct char_data *ch,
+void print_search_data_to_buf(struct Creature *ch,
 	struct room_data *room, struct special_search_data *cur_search, char *buf);
-int general_search(struct char_data *ch, struct special_search_data *srch,
+int general_search(struct Creature *ch, struct special_search_data *srch,
 	int mode);
-int House_can_enter(struct char_data *ch, room_num real_room);
-int clan_house_can_enter(struct char_data *ch, struct room_data *room);
+int House_can_enter(struct Creature *ch, room_num real_room);
+int clan_house_can_enter(struct Creature *ch, struct room_data *room);
 int room_tele_ok(CHAR * ch, struct room_data *room);
 
 int
-search_trans_character(char_data * ch,
+search_trans_character(Creature * ch,
 	special_search_data * srch,
-	room_data * targ_room, obj_data * obj, char_data * mob)
+	room_data * targ_room, obj_data * obj, Creature * mob)
 {
 	room_data *was_in;
 
@@ -114,11 +114,11 @@ search_trans_character(char_data * ch,
 //
 
 int
-general_search(struct char_data *ch, struct special_search_data *srch,
+general_search(struct Creature *ch, struct special_search_data *srch,
 	int mode)
 {
 	struct obj_data *obj = NULL;
-	static struct char_data *mob = NULL;
+	static struct Creature *mob = NULL;
 	struct room_data *rm = ch->in_room, *other_rm = NULL;
 	struct room_data *targ_room = NULL;
 	int add = 0, killed = 0, found = 0;
@@ -738,7 +738,7 @@ general_search(struct char_data *ch, struct special_search_data *srch,
 }
 
 void
-show_searches(struct char_data *ch, char *value, char *argument)
+show_searches(struct Creature *ch, char *value, char *argument)
 {
 
 	struct special_search_data *srch = NULL;
@@ -818,7 +818,7 @@ show_searches(struct char_data *ch, char *value, char *argument)
 }
 
 int
-triggers_search(struct char_data *ch, int cmd, char *arg,
+triggers_search(struct Creature *ch, int cmd, char *arg,
 	struct special_search_data *srch)
 {
 

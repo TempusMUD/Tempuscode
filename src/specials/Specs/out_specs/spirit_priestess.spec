@@ -6,7 +6,7 @@
 
 SPECIAL( spirit_priestess )
 {
-    struct char_data *pri = ( struct char_data * ) me;
+    struct Creature *pri = ( struct Creature * ) me;
     struct obj_data *am = NULL, *staff = NULL;
     char arg1[MAX_INPUT_LENGTH], arg2[MAX_INPUT_LENGTH];
 

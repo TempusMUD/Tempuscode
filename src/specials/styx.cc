@@ -32,7 +32,7 @@
 
 /*   external vars  */
 extern struct room_data *world;
-extern struct char_data *character_list;
+extern struct Creature *character_list;
 extern struct descriptor_data *descriptor_list;
 extern struct time_info_data time_info;
 
@@ -42,8 +42,8 @@ extern struct time_info_data time_info;
 
 SPECIAL(underworld_goddess)
 {
-	struct char_data *vict = NULL;
-	struct char_data *styx = NULL;
+	struct Creature *vict = NULL;
+	struct Creature *styx = NULL;
 	struct room_data *room;
 
 	/* See if Styx is in the room */

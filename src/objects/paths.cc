@@ -18,7 +18,7 @@
 #include "screen.h"
 #include "elevators.h"
 
-int move_car(struct char_data *ch, struct obj_data *car, int dir);
+int move_car(struct Creature *ch, struct obj_data *car, int dir);
 
 
 PHead *first_path = NULL;
@@ -57,7 +57,7 @@ real_path_by_num(int vnum)
 }
 
 void
-show_pathobjs(struct char_data *ch)
+show_pathobjs(struct Creature *ch)
 {
 
 	Link *lnk = NULL;
@@ -70,8 +70,8 @@ show_pathobjs(struct char_data *ch)
 		if (p_obj->type == PMOBILE && p_obj->object)
 			sprintf(buf, "%s%3d. MOB <%5d> %25s - %12s (%2d) %s\r\n", buf,
 				count,
-				((struct char_data *)p_obj->object)->mob_specials.shared->vnum,
-				((struct char_data *)p_obj->object)->player.short_descr,
+				((struct Creature *)p_obj->object)->mob_specials.shared->vnum,
+				((struct Creature *)p_obj->object)->player.short_descr,
 				p_obj->phead->name, p_obj->pos,
 				IS_SET(p_obj->flags, POBJECT_STALLED) ? "stalled" : "");
 		else if (p_obj->type == PVEHICLE && p_obj->object)
@@ -87,7 +87,7 @@ show_pathobjs(struct char_data *ch)
 }
 
 void
-show_path(struct char_data *ch, char *arg)
+show_path(struct Creature *ch, char *arg)
 {
 	PHead *path_head = NULL;
 	int i = 0;
@@ -577,7 +577,7 @@ Load_paths(void)
 }
 
 void
-path_do_echo(struct char_data *ch, struct obj_data *o, char *echo)
+path_do_echo(struct Creature *ch, struct obj_data *o, char *echo)
 {
 	char *tmp;
 	int vnum;
@@ -596,7 +596,7 @@ path_activity(void)
 	Link *i, *cmd, *next_i;
 	int length, dir, j, k;
 	struct room_data *room;
-	struct char_data *ch;
+	struct Creature *ch;
 	struct obj_data *obj;
 
 
@@ -662,7 +662,7 @@ path_activity(void)
 
 			dir = o->phead->path[o->pos].data;
 			if (o->type == PMOBILE) {
-				ch = (struct char_data *)o->object;
+				ch = (struct Creature *)o->object;
 
 				if (ch->getPosition() < POS_STANDING)
 					ch->setPosition(POS_STANDING);
@@ -680,7 +680,7 @@ path_activity(void)
 		case PATH_CMD:
 
 			if (o->type == PMOBILE) {
-				ch = (struct char_data *)o->object;
+				ch = (struct Creature *)o->object;
 				cmd = path_command_list;
 				j = o->phead->path[o->pos].data;
 				for (k = 1; k != j; k++, cmd = cmd->next);
@@ -692,7 +692,7 @@ path_activity(void)
 		case PATH_ECHO:
 
 			if (o->type == PMOBILE) {
-				path_do_echo((struct char_data *)o->object, NULL,
+				path_do_echo((struct Creature *)o->object, NULL,
 					o->phead->path[o->pos].str);
 			} else {
 				path_do_echo(NULL, (struct obj_data *)o->object,
@@ -749,7 +749,7 @@ path_remove_object(void *object)
 }
 
 int
-add_path_to_mob(struct char_data *mob, char *name)
+add_path_to_mob(struct Creature *mob, char *name)
 {
 	PHead *phead;
 	Link *i;

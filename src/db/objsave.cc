@@ -50,7 +50,7 @@ extern int no_plrtext;
 ACMD(do_tell);
 SPECIAL(receptionist);
 SPECIAL(cryogenicist);
-void perform_tell(struct char_data *ch, struct char_data *vict, char *buf);
+void perform_tell(struct Creature *ch, struct Creature *vict, char *buf);
 int write_plrtext(struct obj_data *obj, FILE * fl);
 
 struct obj_data *
@@ -218,7 +218,7 @@ Crash_delete_file(char *name, int mode)
  * Deletes this player's .objs file if the rentcode is RENT_CRASH
  */
 int
-Crash_delete_crashfile(struct char_data *ch)
+Crash_delete_crashfile(struct Creature *ch)
 {
 	char fname[MAX_INPUT_LENGTH];
 	struct rent_info rent;
@@ -331,7 +331,7 @@ update_obj_file(void)
  * that buffer to 'ch'
 **/
 void
-Crash_listrent(struct char_data *ch, char *name)
+Crash_listrent(struct Creature *ch, char *name)
 {
 	FILE *fl;
 	char fname[MAX_INPUT_LENGTH];
@@ -437,7 +437,7 @@ write_rentinfo(FILE * fl, struct rent_info *rent)
 
 
 int
-Crash_load(struct char_data *ch)
+Crash_load(struct Creature *ch)
 /* return values:
         0 - successful load, keep char in rent room.
         1 - load failure or load of crash items -- put char in temple.
@@ -696,7 +696,7 @@ Crash_calculate_rent(struct obj_data *obj, int *cost)
  * if extract is true, extract implants after saving them.
  */
 void
-Crash_save_implants(struct char_data *ch, bool extract = true)
+Crash_save_implants(struct Creature *ch, bool extract = true)
 {
 
 	FILE *fp = 0;
@@ -723,7 +723,7 @@ Crash_save_implants(struct char_data *ch, bool extract = true)
  * Does not extract any eq or implants. 
  **/
 void
-Crash_crashsave(struct char_data *ch)
+Crash_crashsave(struct Creature *ch)
 {
 	char buf[MAX_INPUT_LENGTH];
 	struct rent_info rent;
@@ -773,7 +773,7 @@ Crash_crashsave(struct char_data *ch)
  * Sets rent code.
 **/
 void
-Crash_rentsave(struct char_data *ch, int cost, int rentcode)
+Crash_rentsave(struct Creature *ch, int cost, int rentcode)
 {
 	char buf[MAX_INPUT_LENGTH];
 	struct rent_info rent;
@@ -819,7 +819,7 @@ Crash_rentsave(struct char_data *ch, int cost, int rentcode)
 }
 
 void
-Crash_idlesave(struct char_data *ch)
+Crash_idlesave(struct Creature *ch)
 {
 	int cost = 0;
 	Crash_calculate_rent(ch->carrying, &cost);
@@ -835,7 +835,7 @@ Crash_idlesave(struct char_data *ch)
  *  process.
 **/
 void
-Crash_cursesave(struct char_data *ch)
+Crash_cursesave(struct Creature *ch)
 {
 	char buf[MAX_INPUT_LENGTH];
 	struct rent_info rent;
@@ -911,7 +911,7 @@ Crash_cursesave(struct char_data *ch)
 
 
 void
-Crash_cryosave(struct char_data *ch, int cost)
+Crash_cryosave(struct Creature *ch, int cost)
 {
 	char buf[MAX_INPUT_LENGTH];
 	struct rent_info rent;
@@ -973,7 +973,7 @@ Crash_cryosave(struct char_data *ch, int cost)
 ************************************************************************* */
 
 void
-Crash_rent_deadline(struct char_data *ch, struct char_data *recep, long cost)
+Crash_rent_deadline(struct Creature *ch, struct Creature *recep, long cost)
 {
 	long rent_deadline;
 
@@ -996,7 +996,7 @@ Crash_rent_deadline(struct char_data *ch, struct char_data *recep, long cost)
 }
 
 int
-Crash_report_unrentables(struct char_data *ch, struct char_data *recep,
+Crash_report_unrentables(struct Creature *ch, struct Creature *recep,
 	struct obj_data *obj)
 {
 	int has_norents = 0;
@@ -1030,7 +1030,7 @@ Crash_report_unrentables(struct char_data *ch, struct char_data *recep,
 
 
 void
-Crash_report_rent(struct char_data *ch, struct char_data *recep,
+Crash_report_rent(struct Creature *ch, struct Creature *recep,
 	struct obj_data *obj, long *cost, long *nitems, int display, int factor)
 {
 
@@ -1064,7 +1064,7 @@ Crash_report_rent(struct char_data *ch, struct char_data *recep,
 
 
 int
-Crash_rentcost(struct char_data *ch, int display, int factor)
+Crash_rentcost(struct Creature *ch, int display, int factor)
 {
 //  extern int max_obj_save;        /* change in config.c */
 	int i;
@@ -1110,7 +1110,7 @@ Crash_rentcost(struct char_data *ch, int display, int factor)
 
 
 int
-Crash_offer_rent(struct char_data *ch, struct char_data *receptionist,
+Crash_offer_rent(struct Creature *ch, struct Creature *receptionist,
 	int display, int factor)
 {
 	extern int max_obj_save;	/* change in config.c */
@@ -1187,7 +1187,7 @@ Crash_offer_rent(struct char_data *ch, struct char_data *receptionist,
 }
 
 int
-gen_receptionist(struct char_data *ch, struct char_data *recep,
+gen_receptionist(struct Creature *ch, struct Creature *recep,
 	int cmd, char *arg, int mode)
 {
 	int cost = 0;
@@ -1284,7 +1284,7 @@ SPECIAL(receptionist)
 {
 	if (spec_mode != SPECIAL_CMD)
 		return 0;
-	return (gen_receptionist(ch, (struct char_data *)me, cmd, argument,
+	return (gen_receptionist(ch, (struct Creature *)me, cmd, argument,
 			RENT_FACTOR));
 }
 
@@ -1293,7 +1293,7 @@ SPECIAL(cryogenicist)
 {
 	if (spec_mode != SPECIAL_CMD)
 		return 0;
-	return (gen_receptionist(ch, (struct char_data *)me, cmd, argument,
+	return (gen_receptionist(ch, (struct Creature *)me, cmd, argument,
 			CRYO_FACTOR));
 }
 

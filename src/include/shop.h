@@ -183,5 +183,5 @@ struct stack_data {
 #define SHOP_DEFAULT_MESSAGE_BUY  "You spend %d."
 #define SHOP_DEFAULT_MESSAGE_SELL "You receive %d."
 
-int ok_damage_shopkeeper(struct char_data *ch, struct char_data *victim);
+int ok_damage_shopkeeper(struct Creature *ch, struct Creature *victim);
 bool shop_check_message_format(char *format_buf);

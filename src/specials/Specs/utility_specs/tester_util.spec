@@ -61,7 +61,7 @@ SPECIAL(tester_util)
   ACMD(do_set);
   ACMD(do_gen_tog);
   ACMD(do_stat);
-  void do_start(struct char_data *ch, int mode);
+  void do_start(struct Creature *ch, int mode);
   struct obj_data *obj = (struct obj_data *) me;
   char arg1[MAX_INPUT_LENGTH], arg2[MAX_INPUT_LENGTH];
   byte tcmd;

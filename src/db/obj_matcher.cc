@@ -26,7 +26,7 @@
 //
 // TYPE
 //
-bool ObjectTypeMatcher::init(char_data *ch, Tokenizer &tokens ) {
+bool ObjectTypeMatcher::init(Creature *ch, Tokenizer &tokens ) {
 	char arg[256];
 	if (! tokens.hasNext() ) {
 		send_to_char(ch, "Show objects of what type?\r\n");
@@ -55,7 +55,7 @@ bool ObjectTypeMatcher::isMatch( obj_data *obj ) {
 //
 // MATERIAL
 //
-bool ObjectMaterialMatcher::init( char_data *ch, Tokenizer &tokens ) {
+bool ObjectMaterialMatcher::init( Creature *ch, Tokenizer &tokens ) {
     char arg[256];
     if (! tokens.hasNext() ) {
         send_to_char(ch, "Show objects of what material?\r\n");
@@ -85,7 +85,7 @@ bool ObjectMaterialMatcher::isMatch( obj_data *obj ) {
 //
 // APPLY
 //
-bool ObjectApplyMatcher::init( char_data *ch, Tokenizer &tokens ) {
+bool ObjectApplyMatcher::init( Creature *ch, Tokenizer &tokens ) {
     char arg[256];
     if (! tokens.hasNext() ) {
         send_to_char(ch, "Show objects with what apply?\r\n");
@@ -119,7 +119,7 @@ bool ObjectApplyMatcher::isMatch( obj_data *obj ) {
 //
 // SPECIAL
 //
-bool ObjectSpecialMatcher::init( char_data *ch, Tokenizer &tokens ) {
+bool ObjectSpecialMatcher::init( Creature *ch, Tokenizer &tokens ) {
     char arg[256];
     if (! tokens.hasNext() ) {
         send_to_char(ch, "Show objects with what special?\r\n");
@@ -146,7 +146,7 @@ bool ObjectSpecialMatcher::isMatch( obj_data *obj ) {
 //
 // AFFECT
 //
-bool ObjectAffectMatcher::init( char_data *ch, Tokenizer &tokens ) {
+bool ObjectAffectMatcher::init( Creature *ch, Tokenizer &tokens ) {
     char arg[256];
     if (! tokens.hasNext() ) {
         send_to_char(ch, "Show objects with what affect?\r\n");
@@ -175,7 +175,7 @@ bool ObjectAffectMatcher::isMatch( obj_data *obj ) {
 //
 // COST
 //
-bool ObjectCostMatcher::init( char_data *ch, Tokenizer &tokens ) {
+bool ObjectCostMatcher::init( Creature *ch, Tokenizer &tokens ) {
     char arg[256];
     if (! tokens.hasNext() ) {
         send_to_char(ch, "Usage: 'show objects cost < amount'\r\n");
@@ -214,7 +214,7 @@ bool ObjectCostMatcher::isMatch( obj_data *obj ) {
 //
 // SPELL
 //
-bool ObjectSpellMatcher::init( char_data *ch, Tokenizer &tokens ) {
+bool ObjectSpellMatcher::init( Creature *ch, Tokenizer &tokens ) {
     char arg[256];
     char spellName[256];
     spellName[0] = '\0';
@@ -278,7 +278,7 @@ bool ObjectSpellMatcher::isMatch( obj_data *obj ) {
 //
 // WORN
 //
-bool ObjectWornMatcher::init( char_data *ch, Tokenizer &tokens ) {
+bool ObjectWornMatcher::init( Creature *ch, Tokenizer &tokens ) {
 	char arg[256];
 	if (! tokens.hasNext() ) {
 		send_to_char(ch, "Show objects worn in what position?\r\n");
@@ -309,7 +309,7 @@ bool ObjectWornMatcher::isMatch( obj_data *obj ) {
 //
 // EXTRA
 //
-bool ObjectExtraMatcher::init( char_data *ch, Tokenizer &tokens ) {
+bool ObjectExtraMatcher::init( Creature *ch, Tokenizer &tokens ) {
 	char arg[256];
 	if (! tokens.hasNext() ) {
 		send_to_char(ch, "Usage: 'show objects extra < [!] flag> ...'\r\n");
@@ -339,7 +339,7 @@ bool ObjectExtraMatcher::init( char_data *ch, Tokenizer &tokens ) {
 }
 
 
-bool ObjectExtraMatcher::addExtra( char_data *ch, char *arg ) {
+bool ObjectExtraMatcher::addExtra( Creature *ch, char *arg ) {
     int i =  search_block(arg, extra_names, 0);
     if( i > 0 )  {
         extra |= (1 << i);
@@ -360,7 +360,7 @@ bool ObjectExtraMatcher::addExtra( char_data *ch, char *arg ) {
     return false;
 }
 
-bool ObjectExtraMatcher::addNoExtra( char_data *ch, char *arg ) {
+bool ObjectExtraMatcher::addNoExtra( Creature *ch, char *arg ) {
     int i =  search_block(arg, extra_names, 0);
     if( i > 0 )  {
         noextra |= (1 << i);

@@ -68,7 +68,7 @@ static char out_buf[MAX_STRING_LENGTH + 2];
 /**
  *  Sends usage info to the given character
  */
-void send_access_options( char_data *ch ) {
+void send_access_options( Creature *ch ) {
     int i = 0; 
     strcpy(out_buf, "access usage :\r\n");
     while (1) {
@@ -326,7 +326,7 @@ namespace Security {
      * Returns true if the character is the proper level AND is in
      * one of the required groups (if any)
      */
-     bool canAccess( char_data *ch, const command_info *command ) {
+     bool canAccess( Creature *ch, const command_info *command ) {
         if(! command->security & GROUP ) {
             return (GET_LEVEL(ch) >= command->minimum_level || GET_IDNUM(ch) == 1);
         } else {
@@ -348,7 +348,7 @@ namespace Security {
      * Returns true if the character is the proper level AND is in
      * one of the required groups (if any)
      **/
-     bool canAccess( char_data *ch, const show_struct &command ) {
+     bool canAccess( Creature *ch, const show_struct &command ) {
         if(command.level > GET_LEVEL(ch) )
             return false;
         if( *(command.group) =='\0')
@@ -362,7 +362,7 @@ namespace Security {
      * Returns true if the character is the proper level AND is in
      * one of the required groups (if any)
      **/
-     bool canAccess( char_data *ch, const set_struct &command ) {
+     bool canAccess( Creature *ch, const set_struct &command ) {
         if(command.level > GET_LEVEL(ch) )
             return false;
         if( *(command.group) =='\0')
@@ -376,7 +376,7 @@ namespace Security {
      * Returns true if the character is the proper level AND is in
      * one of the required groups (if any)
      **/
-     bool canAccess( char_data *ch, const board_info_type &board ) {
+     bool canAccess( Creature *ch, const board_info_type &board ) {
         if( board.read_lvl > GET_LEVEL(ch) )
             return false;
         if( *(board.groupname) =='\0')
@@ -403,7 +403,7 @@ namespace Security {
      * Check membership in a particular group by name.
      * Comma delimited names are also accepted.
      */
-     bool isMember( char_data *ch, const char* group_name, bool substitute=true ) {
+     bool isMember( Creature *ch, const char* group_name, bool substitute=true ) {
         if( substitute && ch->getLevel() == LVL_GRIMP )
             return true;
         if( group_name == NULL || *group_name == '\0' )
@@ -423,7 +423,7 @@ namespace Security {
     /*
      * send a list of the current groups to a character
      */
-     void sendGroupList( char_data *ch ) {
+     void sendGroupList( Creature *ch ) {
         const char *nrm = CCNRM(ch,C_NRM);
         const char *cyn = CCCYN(ch,C_NRM);
         const char *grn = CCGRN(ch,C_NRM);
@@ -465,7 +465,7 @@ namespace Security {
         return true;
     }
 
-     bool sendMemberList( char_data *ch, char *group_name ) {
+     bool sendMemberList( Creature *ch, char *group_name ) {
         list<Group>::iterator it = find( groups.begin(), groups.end(), group_name );
         if( it == groups.end() ) {
             trace("sendMemberList : group not found");
@@ -474,7 +474,7 @@ namespace Security {
         return (*it).sendMemberList(ch);
     }
     
-     bool sendCommandList( char_data *ch, char *group_name ) {
+     bool sendCommandList( Creature *ch, char *group_name ) {
         list<Group>::iterator it = find( groups.begin(), groups.end(), group_name );
         if( it == groups.end() ) {
             trace("sendCommandList : group not found");
@@ -483,7 +483,7 @@ namespace Security {
         return (*it).sendCommandList(ch);
     }
     /** sends a list of the groups that the id is a member if. **/
-    bool sendMembership( char_data *ch, long id ) {
+    bool sendMembership( Creature *ch, long id ) {
         int n = 0;
         out_buf[0] = '\0';
         list<Group>::iterator it = groups.begin();
@@ -504,7 +504,7 @@ namespace Security {
     /* sends a list of the commands a char has access to and the
      * groups that contain them.
     **/
-    bool sendAvailableCommands( char_data *ch, long id ) {
+    bool sendAvailableCommands( Creature *ch, long id ) {
         int n = 0;
         out_buf[0] = '\0';
         list<Group>::iterator it = groups.begin();
@@ -625,7 +625,7 @@ namespace Security {
         return true;
     }
     
-    bool canAdminGroup( char_data *ch, const char* groupName ) {
+    bool canAdminGroup( Creature *ch, const char* groupName ) {
         // The name of the administrative group
         const char* admin = NULL;
         

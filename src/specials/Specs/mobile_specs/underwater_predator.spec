@@ -7,8 +7,8 @@
 SPECIAL(underwater_predator)
 {
 
-  struct char_data *pred = (struct char_data *) me;
-  struct char_data *vict = NULL;
+  struct Creature *pred = (struct Creature *) me;
+  struct Creature *vict = NULL;
   struct room_data *troom = NULL;
   if( spec_mode != SPECIAL_COMBAT && spec_mode != SPECIAL_TICK ) return 0;
 

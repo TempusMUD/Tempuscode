@@ -8,7 +8,7 @@ ACMD(do_bash);
 
 SPECIAL(Aziz)
 {
-  struct char_data *vict = NULL;
+  struct Creature *vict = NULL;
 
   if( spec_mode != SPECIAL_COMBAT && spec_mode != SPECIAL_TICK ) return 0;
   if (cmd || ch->getPosition() != POS_FIGHTING)

@@ -42,7 +42,7 @@ void mudlog(sbyte level, log_type type, bool file, const char *fmt, ...)
 void slog(char *str, ...)
 	__attribute__ ((format (printf, 1, 2))); 
 
-void log_death_trap(struct char_data *ch);
+void log_death_trap(struct Creature *ch);
 void show_string(struct descriptor_data *desc);
 int number(int from, int to);
 double float_number(double from, double to);
@@ -63,9 +63,9 @@ enum track_mode
 int find_first_step(room_data *start, room_data *dest, track_mode mode);
 int find_distance(room_data *start, room_data *dest);
 
-struct time_info_data age(struct char_data *ch);
+struct time_info_data age(struct Creature *ch);
 extern struct zone_data *zone_table;
-extern struct char_data *mob_proto;
+extern struct Creature *mob_proto;
 extern struct spell_info_type spell_info[];
 void safe_exit(int mode);
 int player_in_room(struct room_data *room);
@@ -84,36 +84,36 @@ int player_in_room(struct room_data *room);
 #define MIN(a, b) (a > b ? b : a)
 
 /* in magic.c */
-bool circle_follow(struct char_data *ch, struct char_data *victim);
+bool circle_follow(struct Creature *ch, struct Creature *victim);
 
 /* in act.informative.c */
-void look_at_room(struct char_data *ch, struct room_data *room, int mode);
+void look_at_room(struct Creature *ch, struct room_data *room, int mode);
 
 /* in act.movmement.c */
-int do_simple_move(struct char_data *ch, int dir, int mode, int following);
-int perform_move(struct char_data *ch, int dir, int mode, int following);
+int do_simple_move(struct Creature *ch, int dir, int mode, int following);
+int perform_move(struct Creature *ch, int dir, int mode, int following);
 
 /* in limits.c */
-int mana_limit(struct char_data *ch);
-int hit_limit(struct char_data *ch);
-int move_limit(struct char_data *ch);
-int mana_gain(struct char_data *ch);
-int hit_gain(struct char_data *ch);
-int move_gain(struct char_data *ch);
-void advance_level(struct char_data *ch, byte keep_internal);
-void set_title(struct char_data *ch, char *title);
-void gain_exp(struct char_data *ch, int gain);
-void gain_exp_regardless(struct char_data *ch, int gain);
-void gain_condition(struct char_data *ch, int condition, int value);
-int check_idling(struct char_data *ch);
+int mana_limit(struct Creature *ch);
+int hit_limit(struct Creature *ch);
+int move_limit(struct Creature *ch);
+int mana_gain(struct Creature *ch);
+int hit_gain(struct Creature *ch);
+int move_gain(struct Creature *ch);
+void advance_level(struct Creature *ch, byte keep_internal);
+void set_title(struct Creature *ch, char *title);
+void gain_exp(struct Creature *ch, int gain);
+void gain_exp_regardless(struct Creature *ch, int gain);
+void gain_condition(struct Creature *ch, int condition, int value);
+int check_idling(struct Creature *ch);
 void point_update(void);
-char *GET_DISGUISED_NAME(struct char_data *ch, struct char_data *tch);
-int CHECK_SKILL(struct char_data *ch, int i);
-char *OBJS(obj_data * obj, char_data * vict);
-char *OBJN(obj_data * obj, char_data * vict);
-char *PERS(char_data * ch, char_data * sub);
+char *GET_DISGUISED_NAME(struct Creature *ch, struct Creature *tch);
+int CHECK_SKILL(struct Creature *ch, int i);
+char *OBJS(obj_data * obj, Creature * vict);
+char *OBJN(obj_data * obj, Creature * vict);
+char *PERS(Creature * ch, Creature * sub);
 
-void WAIT_STATE(struct char_data *ch, int cycle);
+void WAIT_STATE(struct Creature *ch, int cycle);
 /* various constants *****************************************************/
 
 
@@ -506,7 +506,7 @@ IS_LIGHT(room_data * room)
                         GET_ECONET(ch) : GET_BANK_GOLD(ch))
 #define CASH_MONEY(ch) (ch->in_room->zone->time_frame == TIME_ELECTRO ? \
                     GET_CASH(ch) : GET_GOLD(ch))
-char *CURRENCY(char_data * ch);
+char *CURRENCY(Creature * ch);
 
 #define GET_HITROLL(ch)          ((ch)->points.hitroll)
 #define GET_DAMROLL(ch)   ((ch)->points.damroll)
@@ -802,7 +802,7 @@ char *CURRENCY(char_data * ch);
                          !ROOM_FLAGGED(sub->in_room, ROOM_SMOKE_FILLED) || \
 						 AFF3_FLAGGED(sub, AFF3_SONIC_IMAGERY))
 
-inline bool INVIS_OK(char_data * sub, char_data * obj);
+inline bool INVIS_OK(Creature * sub, Creature * obj);
 #define MORT_CAN_SEE(sub, obj) (LIGHT_OK(sub) && ROOM_OK(sub) && \
                                 INVIS_OK(sub, obj) &&     \
                                 (!obj->isTester()  || \
@@ -824,7 +824,7 @@ inline bool INVIS_OK(char_data * sub, char_data * obj);
 
 #define MOB_UNAPPROVED(ch)       (MOB2_FLAGGED(ch, MOB2_UNAPPROVED))
 
-static inline bool APPROVED_OK_OBJ( char_data *sub, obj_data *obj )  {
+static inline bool APPROVED_OK_OBJ( Creature *sub, obj_data *obj )  {
 	if(OBJ_APPROVED(obj) )
 		return true;
 	if( sub->getLevel() >= LVL_IMMORT || sub->isTester() )
@@ -866,13 +866,13 @@ static inline bool APPROVED_OK_OBJ( char_data *sub, obj_data *obj )  {
 static inline room_direction_data*& EXIT( obj_data *ch, int dir ) {
 	return ch->in_room->dir_option[dir];
 }
-static inline room_direction_data*& EXIT( char_data *ch, int dir ) {
+static inline room_direction_data*& EXIT( Creature *ch, int dir ) {
 	return ch->in_room->dir_option[dir];
 }
-static inline room_direction_data*& _2ND_EXIT( char_data *ch, int dir ) {
+static inline room_direction_data*& _2ND_EXIT( Creature *ch, int dir ) {
 	return EXIT(ch,dir)->to_room->dir_option[dir];
 }
-static inline room_direction_data*& _3RD_EXIT( char_data *ch, int dir ) {
+static inline room_direction_data*& _3RD_EXIT( Creature *ch, int dir ) {
 	return _2ND_EXIT(ch,dir)->to_room->dir_option[dir];
 }
 static inline room_direction_data*& ABS_EXIT( room_data *room, int dir ) {
@@ -884,7 +884,7 @@ static inline room_direction_data*& ABS_EXIT( room_data *room, int dir ) {
 
 //#define ABS_EXIT(room, door)  ((room)->dir_option[door])
 
-bool CAN_GO(char_data * ch, int door);
+bool CAN_GO(Creature * ch, int door);
 bool CAN_GO(obj_data * obj, int door);
 
 
@@ -1011,7 +1011,7 @@ bool CAN_GO(obj_data * obj, int door);
 
 
 inline bool
-INVIS_OK(char_data * sub, char_data * obj)
+INVIS_OK(Creature * sub, Creature * obj)
 {
 	// Holy is the light that shines on the chosen
 	if (PRF_FLAGGED(sub, PRF_HOLYLIGHT))
@@ -1087,7 +1087,7 @@ INVIS_OK(char_data * sub, char_data * obj)
 #endif
 
 inline bool
-MOB_CAN_GO(struct char_data * ch, int door)
+MOB_CAN_GO(struct Creature * ch, int door)
 {
 	if (EXIT(ch, door) &&
 		EXIT(ch, door)->to_room &&

@@ -302,7 +302,7 @@ SPECIAL(gen_board)
 
 
 void
-Board_write_message(int board_type, struct char_data *ch, struct obj_data *obj,
+Board_write_message(int board_type, struct Creature *ch, struct obj_data *obj,
 	char *arg)
 {
 	char *tmstr;
@@ -384,7 +384,7 @@ Board_write_message(int board_type, struct char_data *ch, struct obj_data *obj,
 
 
 int
-Board_show_board(int board_type, struct char_data *ch, struct obj_data *obj,
+Board_show_board(int board_type, struct Creature *ch, struct obj_data *obj,
 	char *arg)
 {
 	int i;
@@ -440,7 +440,7 @@ Board_show_board(int board_type, struct char_data *ch, struct obj_data *obj,
 
 
 int
-Board_display_msg(int board_type, struct char_data *ch, struct obj_data *obj,
+Board_display_msg(int board_type, struct Creature *ch, struct obj_data *obj,
 	char *arg)
 {
 	char number[MAX_STRING_LENGTH], buffer[MAX_STRING_LENGTH];
@@ -498,7 +498,7 @@ Board_display_msg(int board_type, struct char_data *ch, struct obj_data *obj,
 
 
 int
-Board_remove_msg(int board_type, struct char_data *ch, struct obj_data *obj,
+Board_remove_msg(int board_type, struct Creature *ch, struct obj_data *obj,
 	char *arg)
 {
 	int ind, msg, slot_num;

@@ -6,7 +6,7 @@
 
 SPECIAL(energy_drainer)
 {
-  struct char_data *vict;
+  struct Creature *vict;
   int loss;
 
   if (cmd)

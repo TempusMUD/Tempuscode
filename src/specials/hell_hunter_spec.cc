@@ -49,10 +49,10 @@ extern struct time_info_data time_info;
 extern struct spell_info_type spell_info[];
 
 /* extern functions */
-void add_follower(struct char_data *ch, struct char_data *leader);
-void do_auto_exits(struct char_data *ch, room_num room);
-void perform_tell(struct char_data *ch, struct char_data *vict, char *buf);
-int get_check_money(struct char_data *ch, struct obj_data **obj, int display);
+void add_follower(struct Creature *ch, struct Creature *leader);
+void do_auto_exits(struct Creature *ch, room_num room);
+void perform_tell(struct Creature *ch, struct Creature *vict, char *buf);
+int get_check_money(struct Creature *ch, struct obj_data **obj, int display);
 
 
 struct social_type {
@@ -136,7 +136,7 @@ SPECIAL(hell_hunter_brain)
 	static bool data_loaded = false;
 	static int counter = 1;
 	struct obj_data *obj = NULL, *weap = NULL;
-	struct char_data *mob = NULL, *vict = NULL;
+	struct Creature *mob = NULL, *vict = NULL;
 	unsigned int i, j;
 	int num_devils = 0, regulator = 0;
 	if (spec_mode != SPECIAL_CMD && spec_mode != SPECIAL_TICK)
@@ -334,7 +334,7 @@ SPECIAL(hell_hunter)
 		return 0;
 	struct obj_data *obj = NULL, *t_obj = NULL;
 	unsigned int i;
-	struct char_data *vict = NULL, *devil = NULL;
+	struct Creature *vict = NULL, *devil = NULL;
 
 	if (cmd)
 		return 0;
@@ -446,7 +446,7 @@ SPECIAL(arioch)
 {
 	struct obj_data *blade = NULL, *obj = NULL;
 	struct room_data *rm = NULL;
-	struct char_data *vict = NULL;
+	struct Creature *vict = NULL;
 	unsigned int i;
 
 	if (spec_mode != SPECIAL_TICK)

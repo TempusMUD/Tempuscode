@@ -736,8 +736,8 @@ struct attack_hit_type {
 
 
 #define ASPELL(spellname) \
-void	spellname(byte level, struct char_data *ch, \
-		  struct char_data *victim, struct obj_data *obj)
+void	spellname(byte level, struct Creature *ch, \
+		  struct Creature *victim, struct obj_data *obj)
 
 #define MANUAL_SPELL(spellname)	spellname(level, caster, cvict, ovict);
 
@@ -786,54 +786,54 @@ ASPELL(spell_death_knell);
 
 int find_skill_num(char *name);
 
-int mag_damage(int level, struct char_data *ch, struct char_data *victim,
+int mag_damage(int level, struct Creature *ch, struct Creature *victim,
 	int spellnum, int savetype);
 
-int mag_exits(int level, struct char_data *caster, struct room_data *room,
+int mag_exits(int level, struct Creature *caster, struct room_data *room,
 	int spellnum);
 
-void mag_affects(int level, struct char_data *ch, struct char_data *victim,
+void mag_affects(int level, struct Creature *ch, struct Creature *victim,
 	int spellnum, int savetype);
 
-void mag_group_switch(int level, struct char_data *ch, struct char_data *tch,
+void mag_group_switch(int level, struct Creature *ch, struct Creature *tch,
 	int spellnum, int savetype);
 
-void mag_groups(int level, struct char_data *ch, int spellnum, int savetype);
+void mag_groups(int level, struct Creature *ch, int spellnum, int savetype);
 
-void mag_masses(byte level, struct char_data *ch, int spellnum, int savetype);
+void mag_masses(byte level, struct Creature *ch, int spellnum, int savetype);
 
-int mag_areas(byte level, struct char_data *ch, int spellnum, int savetype);
+int mag_areas(byte level, struct Creature *ch, int spellnum, int savetype);
 
-void mag_summons(int level, struct char_data *ch, struct obj_data *obj,
+void mag_summons(int level, struct Creature *ch, struct obj_data *obj,
 	int spellnum, int savetype);
 
-void mag_points(int level, struct char_data *ch, struct char_data *victim,
+void mag_points(int level, struct Creature *ch, struct Creature *victim,
 	int spellnum, int savetype);
 
-void mag_unaffects(int level, struct char_data *ch, struct char_data *victim,
+void mag_unaffects(int level, struct Creature *ch, struct Creature *victim,
 	int spellnum, int type);
 
-void mag_alter_objs(int level, struct char_data *ch, struct obj_data *obj,
+void mag_alter_objs(int level, struct Creature *ch, struct obj_data *obj,
 	int spellnum, int type);
 
-void mag_creations(int level, struct char_data *ch, int spellnum);
+void mag_creations(int level, struct Creature *ch, int spellnum);
 
-int call_magic(struct char_data *caster, struct char_data *cvict,
+int call_magic(struct Creature *caster, struct Creature *cvict,
 	struct obj_data *ovict, int spellnum, int level, int casttype,
 	int *return_flags = 0);
 
-int mag_objectmagic(struct char_data *ch, struct obj_data *obj,
+int mag_objectmagic(struct Creature *ch, struct obj_data *obj,
 	char *argument, int *return_flags = NULL);
 
-void mag_objects(int level, struct char_data *ch, struct obj_data *obj,
+void mag_objects(int level, struct Creature *ch, struct obj_data *obj,
 	int spellnum);
 
-int cast_spell(struct char_data *ch, struct char_data *tch,
+int cast_spell(struct Creature *ch, struct Creature *tch,
 	struct obj_data *tobj, int spellnum, int *return_flags = 0);
 
-int mag_savingthrow(struct char_data *ch, int level, int type);
+int mag_savingthrow(struct Creature *ch, int level, int type);
 
-int mag_manacost(struct char_data *ch, int spellnum);
+int mag_manacost(struct Creature *ch, int spellnum);
 
 
 #endif

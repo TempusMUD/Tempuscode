@@ -81,7 +81,7 @@ int length[] = {
 
 ACMD(do_skillset)
 {
-	struct char_data *vict;
+	struct Creature *vict;
 	char name[MAX_INPUT_LENGTH], buf[100], help[MAX_STRING_LENGTH];
 	int skill, value, i, qend;
 
@@ -263,7 +263,7 @@ build_help_index(FILE * fl, int *num)
 }
 
 void
-show_file(struct char_data *ch, char *fname, int lines)
+show_file(struct Creature *ch, char *fname, int lines)
 {
 	char *logbuf = NULL;
 	int size;

@@ -6,7 +6,7 @@
 
 SPECIAL(mob_helper)
 {
-  struct char_data *vict = NULL;
+  struct Creature *vict = NULL;
 
   if( spec_mode != SPECIAL_ENTER && spec_mode != SPECIAL_TICK ) return 0;
   if (cmd || FIGHTING(ch))

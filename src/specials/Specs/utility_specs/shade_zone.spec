@@ -9,14 +9,14 @@
 #include "zone_data.h"
 #include "utils.h"
 
-struct char_data *ch, *tempch = NULL;
+struct Creature *ch, *tempch = NULL;
 
 extern void set_local_time(struct zone_data *zone, struct time_info_data *local_time);
 
 // moves all characters from "from" to "to"
 // Does not deal with nulls in either place.
 void move_chars(room_data *from, room_data *to) {
-     char_data *ch = NULL;
+     Creature *ch = NULL;
      CharacterList::iterator it = from->people.begin();
      for( ; it != from->people.end(); ++it ) {
          ch = *it;

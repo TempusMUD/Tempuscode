@@ -35,8 +35,8 @@ extern struct room_data *world;
 extern struct descriptor_data *descriptor_list;
 extern struct room_data *world;
 extern struct spell_info_type spell_info[];
-int check_mob_reaction(struct char_data *ch, struct char_data *vict);
-int save_wld(struct char_data *ch);
+int check_mob_reaction(struct Creature *ch, struct Creature *vict);
+int save_wld(struct Creature *ch);
 
 struct clan_data *clan_list;
 extern FILE *player_fl;
@@ -61,7 +61,7 @@ REMOVE_MEMBER_FROM_CLAN(struct clanmember_data *member, struct clan_data *clan)
 
 ACMD(do_enroll)
 {
-	struct char_data *vict = 0;
+	struct Creature *vict = 0;
 	struct clan_data *clan = real_clan(GET_CLAN(ch));
 	struct clanmember_data *member = NULL;
 	int count = 0;
@@ -135,7 +135,7 @@ ACMD(do_enroll)
 
 ACMD(do_dismiss)
 {
-	struct char_data *vict;
+	struct Creature *vict;
 	struct clan_data *clan = real_clan(GET_CLAN(ch));
 	struct clanmember_data *member = NULL, *member2 = NULL;
 	bool in_file = false;
@@ -255,7 +255,7 @@ ACMD(do_resign)
 
 ACMD(do_clanlist)
 {
-	struct char_data *i;
+	struct Creature *i;
 	struct clan_data *clan = real_clan(GET_CLAN(ch));
 	struct clanmember_data *member = NULL, *ch_member = NULL;
 	struct descriptor_data *d;
@@ -369,7 +369,7 @@ ACMD(do_clanlist)
 				continue;
 			}
 			if (load_char(get_name_by_id(member->idnum), &tmp_store) >= 0) {
-				CREATE(i, struct char_data, 1);
+				CREATE(i, struct Creature, 1);
 				clear_char(i);
 				store_to_char(&tmp_store, i);
 				name = tmp_strcat(GET_NAME(i), " ",
@@ -444,7 +444,7 @@ ACMD(do_demote)
 {
 	struct clan_data *clan = real_clan(GET_CLAN(ch));
 	struct clanmember_data *member1, *member2;
-	struct char_data *vict = NULL;
+	struct Creature *vict = NULL;
 	char *msg;
 
 	skip_spaces(&argument);
@@ -507,7 +507,7 @@ ACMD(do_promote)
 {
 	struct clan_data *clan = real_clan(GET_CLAN(ch));
 	struct clanmember_data *member1, *member2;
-	struct char_data *vict = NULL;
+	struct Creature *vict = NULL;
 	char *msg;
 
 	skip_spaces(&argument);
@@ -1434,7 +1434,7 @@ delete_clan(struct clan_data *clan)
 
 
 void
-do_show_clan(struct char_data *ch, struct clan_data *clan)
+do_show_clan(struct Creature *ch, struct clan_data *clan)
 {
 	struct clanmember_data *member = NULL;
 	struct room_list_elem *rm_list = NULL;
@@ -1500,7 +1500,7 @@ do_show_clan(struct char_data *ch, struct clan_data *clan)
 }
 
 int
-clan_house_can_enter(struct char_data *ch, struct room_data *room)
+clan_house_can_enter(struct Creature *ch, struct room_data *room)
 {
 	struct clan_data *clan = NULL, *ch_clan = NULL;
 	struct room_list_elem *rm_list = NULL;

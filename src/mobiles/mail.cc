@@ -37,7 +37,7 @@ Rewritten by John Rothe (forget@tempusmud.com)
 #include "materials.h"
 
 void
-show_mail_stats(char_data * ch)
+show_mail_stats(Creature * ch)
 {
 	send_to_char(ch, "This has been removed.\r\n");
 	return;
@@ -89,14 +89,14 @@ mail_box_status(long id)
 	// 3 is deleted
 	// 4 is failure
 
-	struct char_data *victim = NULL;
+	struct Creature *victim = NULL;
 	struct char_file_u tmp_store;
 	int flag = 0;
 
 	if (load_char(get_name_by_id(id), &tmp_store) < 0)
 		return 4;				// Failed to load char.
 
-	CREATE(victim, struct char_data, 1);
+	CREATE(victim, struct Creature, 1);
 	clear_char(victim);
 
 	store_to_char(&tmp_store, victim);
@@ -212,7 +212,7 @@ purge_mail(long idnum)
 //     telling him.  We'll let the spec say what it wants.
 // Returns the number of mails recieved.
 int
-recieve_mail(char_data * ch)
+recieve_mail(Creature * ch)
 {
 	obj_data *obj = NULL;
 	obj_data *list = NULL;
@@ -312,13 +312,13 @@ SPECIAL(postmaster)
 		return 0;
 
 	if (CMD_IS("mail")) {
-		postmaster_send_mail(ch, (struct char_data *)me, cmd, argument);
+		postmaster_send_mail(ch, (struct Creature *)me, cmd, argument);
 		return 1;
 	} else if (CMD_IS("check")) {
-		postmaster_check_mail(ch, (struct char_data *)me, cmd, argument);
+		postmaster_check_mail(ch, (struct Creature *)me, cmd, argument);
 		return 1;
 	} else if (CMD_IS("receive")) {
-		postmaster_receive_mail(ch, (struct char_data *)me, cmd, argument);
+		postmaster_receive_mail(ch, (struct Creature *)me, cmd, argument);
 		return 1;
 	} else
 		return 0;
@@ -326,7 +326,7 @@ SPECIAL(postmaster)
 
 
 void
-postmaster_send_mail(struct char_data *ch, struct char_data *mailman,
+postmaster_send_mail(struct Creature *ch, struct Creature *mailman,
 	int cmd, char *arg)
 {
 	long recipient;
@@ -462,7 +462,7 @@ postmaster_send_mail(struct char_data *ch, struct char_data *mailman,
 }
 
 void
-postmaster_check_mail(struct char_data *ch, struct char_data *mailman,
+postmaster_check_mail(struct Creature *ch, struct Creature *mailman,
 	int cmd, char *arg)
 {
 	char buf2[256];
@@ -475,7 +475,7 @@ postmaster_check_mail(struct char_data *ch, struct char_data *mailman,
 }
 
 void
-postmaster_receive_mail(struct char_data *ch, struct char_data *mailman,
+postmaster_receive_mail(struct Creature *ch, struct Creature *mailman,
 	int cmd, char *arg)
 {
 	char buf2[256];

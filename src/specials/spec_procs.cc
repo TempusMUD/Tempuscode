@@ -46,10 +46,10 @@ extern struct time_info_data time_info;
 extern struct spell_info_type spell_info[];
 
 /* extern functions */
-void add_follower(struct char_data *ch, struct char_data *leader);
-void do_auto_exits(struct char_data *ch, room_num room);
-void perform_tell(struct char_data *ch, struct char_data *vict, char *buf);
-int get_check_money(struct char_data *ch, struct obj_data **obj, int display);
+void add_follower(struct Creature *ch, struct Creature *leader);
+void do_auto_exits(struct Creature *ch, room_num room);
+void perform_tell(struct Creature *ch, struct Creature *vict, char *buf);
+int get_check_money(struct Creature *ch, struct obj_data **obj, int display);
 
 
 struct social_type {
@@ -70,7 +70,7 @@ ACCMD(do_get);
 // skill_gain: mode==TRUE means to return a skill gain value
 //             mode==FALSE means to return an average value
 int
-skill_gain(struct char_data *ch, int mode)
+skill_gain(struct Creature *ch, int mode)
 {
 	if (mode)
 		return (number(MINGAIN(ch), MAXGAIN(ch)));
@@ -173,7 +173,7 @@ const char *prac_types[] = {
 
 
 void
-list_skills(struct char_data *ch, int mode, int type)
+list_skills(struct Creature *ch, int mode, int type)
 {
 	char buf3[MAX_STRING_LENGTH], buf4[8];
 	int i, sortpos;
@@ -278,7 +278,7 @@ list_skills(struct char_data *ch, int mode, int type)
 SPECIAL(guild)
 {
 	int skill_num, percent;
-	struct char_data *master = (struct char_data *)me;
+	struct Creature *master = (struct Creature *)me;
 	char buf2[MAX_STRING_LENGTH];
 
 	if (spec_mode != SPECIAL_CMD )
@@ -434,7 +434,7 @@ SPECIAL(dump)
 
 
 void
-npc_steal(struct char_data *ch, struct char_data *victim)
+npc_steal(struct Creature *ch, struct Creature *victim)
 {
 	struct obj_data *obj = NULL;
 
@@ -512,7 +512,7 @@ SPECIAL(thief)
 
 SPECIAL(magic_user)
 {
-	struct char_data *vict = NULL;
+	struct Creature *vict = NULL;
 
 	if (spec_mode != SPECIAL_COMBAT)
 		return 0;
@@ -622,7 +622,7 @@ SPECIAL(battle_cleric)
 	if (cmd || ch->getPosition() != POS_FIGHTING)
 		return FALSE;
 
-	struct char_data *vict = NULL;
+	struct Creature *vict = NULL;
 
 	/* pseudo-randomly choose someone in the room who is fighting me */
 	CharacterList::iterator it = ch->in_room->people.begin();
@@ -714,7 +714,7 @@ SPECIAL(barbarian)
 	if (cmd || ch->getPosition() != POS_FIGHTING)
 		return FALSE;
 
-	struct char_data *vict = NULL;
+	struct Creature *vict = NULL;
 
 	/* pseudo-randomly choose someone in the room who is fighting me */
 	CharacterList::iterator it = ch->in_room->people.begin();
@@ -819,7 +819,7 @@ SPECIAL(barbarian)
 SPECIAL(guild_guard)
 {
 	int i;
-	struct char_data *guard = (struct char_data *)me;
+	struct Creature *guard = (struct Creature *)me;
 	char *buf = "$N humiliates you, and blocks your way.";
 	char *buf2 = "$N humiliates $n, and blocks $s way.";
 
@@ -883,7 +883,7 @@ SPECIAL(puff)
 SPECIAL(fido)
 {
 	struct obj_data *i, *temp, *next_obj;
-	struct char_data *vict;
+	struct Creature *vict;
 
 	if (spec_mode != SPECIAL_TICK)
 		return 0;
@@ -962,7 +962,7 @@ SPECIAL(fido)
 SPECIAL(buzzard)
 {
 	struct obj_data *i, *temp, *next_obj;
-	struct char_data *vict = NULL;
+	struct Creature *vict = NULL;
 
 	if (spec_mode != SPECIAL_TICK)
 		return 0;
@@ -1197,7 +1197,7 @@ SPECIAL(gelatinous_blob)
 }
 
 int
-throw_char_in_jail(struct char_data *ch, struct char_data *vict)
+throw_char_in_jail(struct Creature *ch, struct Creature *vict)
 {
 	room_num jail_cells[6] = { 10908, 10910, 10911, 10921, 10920, 10919 };
 	struct room_data *cell_rnum = NULL;
@@ -1295,7 +1295,7 @@ throw_char_in_jail(struct char_data *ch, struct char_data *vict)
 }
 
 int
-drag_char_to_jail(struct char_data *ch, struct char_data *evil,
+drag_char_to_jail(struct Creature *ch, struct Creature *evil,
 	struct room_data *r_jail_room)
 {
 	int dir;
@@ -1350,8 +1350,8 @@ drag_char_to_jail(struct char_data *ch, struct char_data *evil,
 
 SPECIAL(cityguard)
 {
-	struct char_data *guard = (struct char_data *)me;
-	struct char_data *tch, *evil;
+	struct Creature *guard = (struct Creature *)me;
+	struct Creature *tch, *evil;
 	int max_evil = 0;
 	struct room_data *r_jail_room = real_room(3100);
 
@@ -1537,7 +1537,7 @@ SPECIAL(cityguard)
 
 SPECIAL(pet_shops)
 {
-	struct char_data *pet;
+	struct Creature *pet;
 	struct room_data *pet_room;
 	char *pet_name, *pet_kind;
 	int cost;

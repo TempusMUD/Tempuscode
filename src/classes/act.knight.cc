@@ -23,15 +23,15 @@
 #include "flow_room.h"
 #include "house.h"
 #include "char_class.h"
-#include "char_data.h"
+#include "creature.h"
 #include "fight.h"
 
-int holytouch_after_effect(char_data * vict);
-void healing_holytouch(char_data * ch, char_data * vict);
-void malovent_holy_touch(char_data * ch, char_data * vict);
+int holytouch_after_effect(Creature * vict);
+void healing_holytouch(Creature * ch, Creature * vict);
+void malovent_holy_touch(Creature * ch, Creature * vict);
 ACMD(do_holytouch)
 {
-	struct char_data *vict = NULL;
+	struct Creature *vict = NULL;
 	char vict_name[MAX_INPUT_LENGTH];
 	one_argument(argument, vict_name);
 
@@ -75,7 +75,7 @@ ACMD(do_holytouch)
         - eyeballs appear on death
 */
 int
-holytouch_after_effect(char_data * vict, int level)
+holytouch_after_effect(Creature * vict, int level)
 {
 	struct affected_type af;
 	int dam = level * 2;
@@ -114,7 +114,7 @@ holytouch_after_effect(char_data * vict, int level)
     Initial "bad" holytouch effect.  Happens when evil holytouch's good.
  */
 void
-malovent_holy_touch(char_data * ch, char_data * vict)
+malovent_holy_touch(Creature * ch, Creature * vict)
 {
 	struct affected_type af;
 	int chance = 0;
@@ -185,7 +185,7 @@ malovent_holy_touch(char_data * ch, char_data * vict)
 }
 
 void
-healing_holytouch(char_data * ch, char_data * vict)
+healing_holytouch(Creature * ch, Creature * vict)
 {
 	int mod;
 	mod = (GET_LEVEL(ch) + (CHECK_SKILL(ch, SKILL_HOLY_TOUCH) >> 4));

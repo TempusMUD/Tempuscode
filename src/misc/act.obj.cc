@@ -47,7 +47,7 @@ extern struct obj_data *dam_object;
 
 int char_hands_free(CHAR * ch);
 int empty_to_obj(struct obj_data *obj, struct obj_data *container,
-	struct char_data *ch);
+	struct Creature *ch);
 bool junkable(struct obj_data *obj);
 ACMD(do_stand);
 ACMD(do_throw);
@@ -58,7 +58,7 @@ ACMD(do_say);
 ACMD(do_split);
 
 obj_data *
-get_random_uncovered_implant(char_data * ch, int type = -1)
+get_random_uncovered_implant(Creature * ch, int type = -1)
 {
 	int possibles = 0;
 	int implant = 0;
@@ -138,7 +138,7 @@ explode_sigil(CHAR * ch, OBJ * obj)
 // return value is same as damage()
 //
 int
-explode_all_sigils(struct char_data *ch)
+explode_all_sigils(struct Creature *ch)
 {
 	struct obj_data *obj, *next_obj;
 
@@ -161,7 +161,7 @@ explode_all_sigils(struct char_data *ch)
 //
 
 void
-consolidate_char_money(struct char_data *ch)
+consolidate_char_money(struct Creature *ch)
 {
 	struct obj_data *obj = 0, *next_obj = 0;
 
@@ -209,7 +209,7 @@ consolidate_char_money(struct char_data *ch)
 //
 
 bool
-activate_char_quad(struct char_data *ch)
+activate_char_quad(struct Creature *ch)
 {
 
 	struct obj_data *obj = 0, *next_obj = 0;
@@ -269,7 +269,7 @@ activate_char_quad(struct char_data *ch)
 
 
 void
-perform_put(struct char_data *ch, struct obj_data *obj,
+perform_put(struct Creature *ch, struct obj_data *obj,
 	struct obj_data *cont, int display)
 {
 	int capacity = 0;
@@ -355,7 +355,7 @@ ACMD(do_put)
 	char arg2[MAX_INPUT_LENGTH];
 	char cntbuf[80];
 	struct obj_data *obj, *next_obj, *cont, *save_obj = NULL;
-	struct char_data *tmp_char;
+	struct Creature *tmp_char;
 	int obj_dotmode, cont_dotmode, found = 0, counter = 0;
 	bool bomb = false;
 
@@ -466,7 +466,7 @@ ACMD(do_put)
 
 
 bool
-can_take_obj(struct char_data *ch, struct obj_data *obj, bool check_weight,
+can_take_obj(struct Creature *ch, struct obj_data *obj, bool check_weight,
 	bool print)
 {
 
@@ -494,7 +494,7 @@ can_take_obj(struct char_data *ch, struct obj_data *obj, bool check_weight,
 // returns 1 if item is extracted, 0 otherwise
 
 int
-get_check_money(struct char_data *ch, struct obj_data **obj_p, int display)
+get_check_money(struct Creature *ch, struct obj_data **obj_p, int display)
 {
 	struct obj_data *obj = *obj_p;
 
@@ -540,7 +540,7 @@ get_check_money(struct char_data *ch, struct obj_data **obj_p, int display)
 //
 
 bool
-perform_get_from_container(struct char_data * ch,
+perform_get_from_container(struct Creature * ch,
 	struct obj_data * obj,
 	struct obj_data * cont, bool already_has, bool display, int counter)
 {
@@ -594,7 +594,7 @@ perform_get_from_container(struct char_data * ch,
 //
 
 int
-get_from_container(struct char_data *ch, struct obj_data *cont, char *arg)
+get_from_container(struct Creature *ch, struct obj_data *cont, char *arg)
 {
 
 	struct obj_data *obj, *next_obj;
@@ -758,7 +758,7 @@ get_from_container(struct char_data *ch, struct obj_data *cont, char *arg)
 //
 
 bool
-perform_get_from_room(struct char_data * ch,
+perform_get_from_room(struct Creature * ch,
 	struct obj_data * obj, bool display, int counter)
 {
 
@@ -800,7 +800,7 @@ perform_get_from_room(struct char_data * ch,
 //
 
 int
-get_from_room(struct char_data *ch, char *arg)
+get_from_room(struct Creature *ch, char *arg)
 {
 
 	struct obj_data *obj, *next_obj;
@@ -932,7 +932,7 @@ ACCMD(do_get)
 
 	int cont_dotmode;
 	struct obj_data *cont;
-	struct char_data *tmp_char;
+	struct Creature *tmp_char;
 
 	ACMD_set_return_flags(0);
 
@@ -1069,7 +1069,7 @@ ACCMD(do_get)
 
 
 void
-perform_drop_gold(struct char_data *ch, int amount,
+perform_drop_gold(struct Creature *ch, int amount,
 	byte mode, struct room_data *RDR)
 {
 	struct obj_data *obj;
@@ -1111,7 +1111,7 @@ perform_drop_gold(struct char_data *ch, int amount,
 	}
 }
 void
-perform_drop_credits(struct char_data *ch, int amount,
+perform_drop_credits(struct Creature *ch, int amount,
 	byte mode, struct room_data *RDR)
 {
 	struct obj_data *obj;
@@ -1175,7 +1175,7 @@ junkable(struct obj_data *obj)
 }
 
 int
-perform_drop(struct char_data *ch, struct obj_data *obj,
+perform_drop(struct Creature *ch, struct obj_data *obj,
 	byte mode, char *sname, struct room_data *RDR, int display)
 {
 	int value;
@@ -1510,7 +1510,7 @@ ACCMD(do_drop)
 
 
 void
-perform_give(struct char_data *ch, struct char_data *vict,
+perform_give(struct Creature *ch, struct Creature *vict,
 	struct obj_data *obj, int display)
 {
 	int i;
@@ -1620,7 +1620,7 @@ perform_give(struct char_data *ch, struct char_data *vict,
 	}
 }
 void
-perform_plant(struct char_data *ch, struct char_data *vict,
+perform_plant(struct Creature *ch, struct Creature *vict,
 	struct obj_data *obj)
 {
 	if (IS_OBJ_STAT(obj, ITEM_NODROP)) {
@@ -1647,10 +1647,10 @@ perform_plant(struct char_data *ch, struct char_data *vict,
 }
 
 /* utility function for give */
-struct char_data *
-give_find_vict(struct char_data *ch, char *arg)
+struct Creature *
+give_find_vict(struct Creature *ch, char *arg)
 {
-	struct char_data *vict;
+	struct Creature *vict;
 
 	if (!*arg) {
 		send_to_char(ch, "To who?\r\n");
@@ -1666,7 +1666,7 @@ give_find_vict(struct char_data *ch, char *arg)
 }
 
 void
-perform_give_gold(struct char_data *ch, struct char_data *vict, int amount)
+perform_give_gold(struct Creature *ch, struct Creature *vict, int amount)
 {
 	if (amount <= 0) {
 		send_to_char(ch, "Heh heh heh ... we are jolly funny today, eh?\r\n");
@@ -1698,7 +1698,7 @@ perform_give_gold(struct char_data *ch, struct char_data *vict, int amount)
 }
 
 void
-perform_plant_gold(struct char_data *ch, struct char_data *vict, int amount)
+perform_plant_gold(struct Creature *ch, struct Creature *vict, int amount)
 {
 	if (amount <= 0) {
 		send_to_char(ch, "Heh heh heh ... we are jolly funny today, eh?\r\n");
@@ -1729,7 +1729,7 @@ perform_plant_gold(struct char_data *ch, struct char_data *vict, int amount)
 }
 
 void
-perform_give_credits(struct char_data *ch, struct char_data *vict, int amount)
+perform_give_credits(struct Creature *ch, struct Creature *vict, int amount)
 {
 	if (amount <= 0) {
 		send_to_char(ch, "Heh heh heh ... we are jolly funny today, eh?\r\n");
@@ -1761,7 +1761,7 @@ perform_give_credits(struct char_data *ch, struct char_data *vict, int amount)
 }
 
 void
-perform_plant_credits(struct char_data *ch, struct char_data *vict, int amount)
+perform_plant_credits(struct Creature *ch, struct Creature *vict, int amount)
 {
 	if (amount <= 0) {
 		send_to_char(ch, "Heh heh heh ... we are jolly funny today, eh?\r\n");
@@ -1794,7 +1794,7 @@ perform_plant_credits(struct char_data *ch, struct char_data *vict, int amount)
 ACMD(do_give)
 {
 	int amount, dotmode, counter = 0;
-	struct char_data *vict;
+	struct Creature *vict;
 	struct obj_data *obj, *next_obj, *save_obj = NULL;
 	char cntbuf[80];
 
@@ -1914,7 +1914,7 @@ ACMD(do_give)
 ACMD(do_plant)
 {
 	int amount, dotmode;
-	struct char_data *vict;
+	struct Creature *vict;
 	struct obj_data *obj, *next_obj;
 
 	argument = one_argument(argument, arg);
@@ -1975,7 +1975,7 @@ void
 weight_change_object(struct obj_data *obj, int weight)
 {
 	struct obj_data *tmp_obj;
-	struct char_data *tmp_ch;
+	struct Creature *tmp_ch;
 
 	if (obj->in_room != NULL) {
 		obj->modifyWeight(weight);
@@ -2534,7 +2534,7 @@ ACMD(do_pour)
 
 
 void
-wear_message(struct char_data *ch, struct obj_data *obj, int where)
+wear_message(struct Creature *ch, struct obj_data *obj, int where)
 {
 	char *wear_messages[][2] = {
 		{"$n lights $p and holds it.",
@@ -2626,7 +2626,7 @@ wear_message(struct char_data *ch, struct obj_data *obj, int where)
 
 /* returns same as equip_char(), TRUE = killed da ho */
 int
-perform_wear(struct char_data *ch, struct obj_data *obj, int where)
+perform_wear(struct Creature *ch, struct obj_data *obj, int where)
 {
 	int i;
 	char *already_wearing[] = {
@@ -2799,7 +2799,7 @@ perform_wear(struct char_data *ch, struct obj_data *obj, int where)
 
 
 int
-find_eq_pos(struct char_data *ch, struct obj_data *obj, char *arg)
+find_eq_pos(struct Creature *ch, struct obj_data *obj, char *arg)
 {
 	int where = -1;
 
@@ -3028,7 +3028,7 @@ ACMD(do_grab)
 }
 
 void
-perform_remove(struct char_data *ch, int pos)
+perform_remove(struct Creature *ch, int pos)
 {
 	struct obj_data *obj;
 
@@ -3960,7 +3960,7 @@ ACMD(do_empty)
 	struct obj_data *next_obj = NULL;
 	struct obj_data *o = NULL;
 	struct obj_data *container = NULL;
-	struct char_data *dummy = NULL;
+	struct Creature *dummy = NULL;
 	int bits;
 	int bits2;
 	char arg1[MAX_INPUT_LENGTH];
@@ -4033,7 +4033,7 @@ ACMD(do_empty)
 
 int
 empty_to_obj(struct obj_data *obj, struct obj_data *container,
-	struct char_data *ch)
+	struct Creature *ch)
 {
 
 	//

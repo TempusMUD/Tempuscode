@@ -42,15 +42,15 @@ struct follow_type *order_next_k;
 
 ACMD(do_say);
 /* extern functions */
-int find_door(struct char_data *ch, char *type, char *dir,
+int find_door(struct Creature *ch, char *type, char *dir,
 	const char *cmdname);
-int do_combat_fire(struct char_data *ch, struct char_data *vict, int weap_pos,
+int do_combat_fire(struct Creature *ch, struct Creature *vict, int weap_pos,
 	int prob);
 void send_to_queue(MobileEvent * e);
 
 
 int
-check_mob_reaction(struct char_data *ch, struct char_data *vict)
+check_mob_reaction(struct Creature *ch, struct Creature *vict)
 {
 	int num = 0;
 
@@ -72,7 +72,7 @@ check_mob_reaction(struct char_data *ch, struct char_data *vict)
 // #define RAW_EQ_DAM(ch, pos, var)
 
 inline int
-RAW_EQ_DAM(struct char_data *ch, int pos, int *var)
+RAW_EQ_DAM(struct Creature *ch, int pos, int *var)
 {
 
 	if (ch->equipment[pos]) {
@@ -100,7 +100,7 @@ RAW_EQ_DAM(struct char_data *ch, int pos, int *var)
 IS_SET(obj->obj_flags.bitvector[1], AFF2_NECK_PROTECTED)
 
 int
-calc_skill_prob(struct char_data *ch, struct char_data *vict, int skillnum,
+calc_skill_prob(struct Creature *ch, struct Creature *vict, int skillnum,
 	int *wait, int *vict_wait, int *move, int *mana, int *dam,
 	int *fail_pos, int *vict_pos, int *loc,
 	struct affected_type *af, int *return_flags)
@@ -807,7 +807,7 @@ calc_skill_prob(struct char_data *ch, struct char_data *vict, int skillnum,
 
 ACCMD(do_offensive_skill)
 {
-	struct char_data *vict = NULL;
+	struct Creature *vict = NULL;
 	struct obj_data *ovict = NULL;
 	struct affected_type af;
 	int prob = -1, wait = 0, vict_wait = 0, dam = 0, vict_pos = 0, fail_pos =
@@ -937,7 +937,7 @@ ACCMD(do_offensive_skill)
 
 ACMD(do_assist)
 {
-	struct char_data *helpee;
+	struct Creature *helpee;
 
 	if (FIGHTING(ch)) {
 		send_to_char(ch, 
@@ -981,7 +981,7 @@ ACMD(do_assist)
 
 ACMD(do_hit)
 {
-	struct char_data *vict;
+	struct Creature *vict;
 
 	one_argument(argument, arg);
 
@@ -1020,7 +1020,7 @@ ACMD(do_hit)
 
 ACMD(do_kill)
 {
-	struct char_data *vict;
+	struct Creature *vict;
 
 	if ((GET_LEVEL(ch) < LVL_CREATOR) || subcmd != SCMD_SLAY || IS_NPC(ch)) {
 		do_hit(ch, argument, cmd, subcmd);
@@ -1059,7 +1059,7 @@ ACMD(do_order)
 	char buf[MAX_INPUT_LENGTH + 56];
 	bool found = FALSE;
 	struct room_data *org_room;
-	struct char_data *vict;
+	struct Creature *vict;
 	struct follow_type *k = NULL;
 
 	half_chop(argument, name, message);
@@ -1157,7 +1157,7 @@ ACMD(do_order)
 ACMD(do_flee)
 {
 	int i, attempt, loss = 0;
-	struct char_data *fighting = FIGHTING(ch);
+	struct Creature *fighting = FIGHTING(ch);
 
 	ACMD_set_return_flags(0);
 
@@ -1232,7 +1232,7 @@ ACMD(do_flee)
 }
 
 static inline int
-FLEE_SPEED(char_data * ch)
+FLEE_SPEED(Creature * ch)
 {
 	int speed = GET_DEX(ch);
 	if (AFF2_FLAGGED(ch, AFF2_HASTE))
@@ -1281,7 +1281,7 @@ ACMD(do_retreat)
 	room_data *room = ch->in_room;
 	CharacterList::iterator it = room->people.begin();
 	for (; it != room->people.end(); ++it) {
-		char_data *vict = *it;
+		Creature *vict = *it;
 		if (vict != ch && ch == FIGHTING(vict) &&
 			CAN_SEE(vict, ch) &&
 			((IS_NPC(vict) && GET_MOB_WAIT(vict) < 10) ||
@@ -1328,7 +1328,7 @@ ACMD(do_retreat)
 
 ACMD(do_bash)
 {
-	struct char_data *vict = NULL;
+	struct Creature *vict = NULL;
 	struct obj_data *ovict;
 	char arg2[MAX_INPUT_LENGTH];
 	int percent, prob, door;
@@ -1485,7 +1485,7 @@ ACMD(do_bash)
 
 ACMD(do_stun)
 {
-	struct char_data *vict = NULL;
+	struct Creature *vict = NULL;
 	int percent, prob, wait;
 
 	one_argument(argument, arg);
@@ -1593,7 +1593,7 @@ ACMD(do_stun)
 ACMD(do_feign)
 {
 	int percent, prob;
-	struct char_data *foe = NULL;
+	struct Creature *foe = NULL;
 
 	percent = number(1, 101);	/* 101% is a complete failure */
 	prob = CHECK_SKILL(ch, SKILL_FEIGN);
@@ -1623,7 +1623,7 @@ ACMD(do_feign)
 
 ACMD(do_tag)
 {
-	struct char_data *vict = NULL, *tmp_ch = NULL;
+	struct Creature *vict = NULL, *tmp_ch = NULL;
 	int percent, prob;
 
 	one_argument(argument, arg);
@@ -1699,7 +1699,7 @@ ACMD(do_tag)
 
 ACMD(do_rescue)
 {
-	struct char_data *vict = NULL, *tmp_ch;
+	struct Creature *vict = NULL, *tmp_ch;
 	int percent, prob;
 
 	one_argument(argument, arg);
@@ -1768,7 +1768,7 @@ ACMD(do_rescue)
 
 ACMD(do_tornado_kick)
 {
-	struct char_data *vict = NULL;
+	struct Creature *vict = NULL;
 	struct obj_data *ovict = NULL;
 	int percent, prob, dam;
 	bool dead = 0;
@@ -1856,7 +1856,7 @@ ACMD(do_tornado_kick)
 
 ACMD(do_sleeper)
 {
-	struct char_data *vict = NULL;
+	struct Creature *vict = NULL;
 	struct obj_data *ovict = NULL;
 	int percent, prob;
 
@@ -1956,7 +1956,7 @@ ACMD(do_sleeper)
 
 ACMD(do_turn)
 {
-	struct char_data *vict = NULL;
+	struct Creature *vict = NULL;
 	struct obj_data *ovict = NULL;
 	int percent, prob;
 
@@ -2040,7 +2040,7 @@ ACMD(do_turn)
 ACMD(do_shoot)
 {
 
-	struct char_data *vict = NULL, *tmp_vict = NULL;
+	struct Creature *vict = NULL, *tmp_vict = NULL;
 	struct obj_data *gun = NULL, *target = NULL, *bullet = NULL;
 	sh_int prob, dam, cost;
 	int i, dum_ptr = 0, dum_move = 0;
@@ -2523,7 +2523,7 @@ ACMD(do_shoot)
 
 ACMD(do_ceasefire)
 {
-	struct char_data *f = NULL;
+	struct Creature *f = NULL;
 	CharacterList::iterator it = ch->in_room->people.begin();
 	for (; it != ch->in_room->people.end(); ++it) {
 		if (ch == FIGHTING((*it))) {
@@ -2554,7 +2554,7 @@ ACMD(do_ceasefire)
 
 ACCMD(do_disarm)
 {
-	struct char_data *vict = NULL;
+	struct Creature *vict = NULL;
 	struct obj_data *weap = NULL, *weap2 = NULL;
 	int percent, prob;
 	ACCMD(do_drop);
@@ -2639,7 +2639,7 @@ ACCMD(do_disarm)
 
 ACMD(do_impale)
 {
-	struct char_data *vict = NULL;
+	struct Creature *vict = NULL;
 	struct obj_data *ovict = NULL, *weap = NULL;
 	int percent, prob, dam;
 
@@ -2733,7 +2733,7 @@ ACMD(do_impale)
 
 ACMD(do_intimidate)
 {
-	struct char_data *vict = NULL;
+	struct Creature *vict = NULL;
 	struct obj_data *ovict = NULL;
 	struct affected_type af;
 	int prob = 0;
@@ -2875,7 +2875,7 @@ ACMD(do_intimidate)
 
 ACMD(do_drain)
 {
-	struct char_data *vict = NULL;
+	struct Creature *vict = NULL;
 	struct obj_data *ovict = NULL;
 	int percent, prob, mana;
 
@@ -2939,7 +2939,7 @@ ACMD(do_drain)
 ACMD(do_beguile)
 {
 
-	struct char_data *vict = NULL;
+	struct Creature *vict = NULL;
 	skip_spaces(&argument);
 
 	if (!(vict = get_char_room_vis(ch, argument))) {
@@ -2982,9 +2982,9 @@ ACMD(do_beguile)
 //shooting wielded guns in combat instead of bludgeoning with them
 
 int
-do_combat_fire(struct char_data *ch, struct char_data *vict, int weap_pos)
+do_combat_fire(struct Creature *ch, struct Creature *vict, int weap_pos)
 {
-	struct char_data *tmp_vict = NULL;
+	struct Creature *tmp_vict = NULL;
 	struct obj_data *bullet = NULL, *gun = NULL;
 	sh_int prob, dam, cost;
 	int i, dum_ptr = 0, dum_move = 0;

@@ -3,7 +3,7 @@
 SPECIAL( killzone_room )
 {
     struct room_data *uproom = 0;
-    struct char_data *devil = 0, *vict = 0;
+    struct Creature *devil = 0, *vict = 0;
     int retval = 0;
 
 	if( spec_mode != SPECIAL_CMD && spec_mode != SPECIAL_TICK ) return 0;

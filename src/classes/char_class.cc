@@ -224,7 +224,7 @@ extern const float thaco_factor[NUM_CLASSES] = {
 };
 
 void
-gain_skill_prof(struct char_data *ch, int skl)
+gain_skill_prof(struct Creature *ch, int skl)
 {
 	int learned;
 	if (skl == SKILL_READ_SCROLLS || skl == SKILL_USE_WANDS)
@@ -689,7 +689,7 @@ find_char_class_bitvector(char arg)
  * which priority will be given for the best to worst stats.
  */
 void
-roll_real_abils(struct char_data *ch)
+roll_real_abils(struct Creature *ch)
 {
 	int i, j, k, temp;
 	ubyte table[6];
@@ -1032,7 +1032,7 @@ const int newbie_equipment[NUM_CLASSES][NUM_NEWBIE_EQ] = {
 };
 
 void
-newbie_equip(struct char_data *ch)
+newbie_equip(struct Creature *ch)
 {
 
 	int i, vnum;
@@ -1074,9 +1074,9 @@ newbie_equip(struct char_data *ch)
 
 /* Some initializations for characters, including initial skills */
 void
-do_start(struct char_data *ch, int mode)
+do_start(struct Creature *ch, int mode)
 {
-	void advance_level(struct char_data *ch, byte keep_internal);
+	void advance_level(struct Creature *ch, byte keep_internal);
 	byte new_player = 0;
 	int i, j;
 
@@ -1250,7 +1250,7 @@ do_start(struct char_data *ch, int mode)
 // prac_gain: mode==TRUE means to return a prac gain value
 //            mode==FALSE means to return an average value
 float
-prac_gain(struct char_data *ch, int mode)
+prac_gain(struct Creature *ch, int mode)
 {
 	float gain;
 	double max, min;
@@ -1272,7 +1272,7 @@ prac_gain(struct char_data *ch, int mode)
  * each char_class every time they gain a level.
  */
 void
-advance_level(struct char_data *ch, byte keep_internal)
+advance_level(struct Creature *ch, byte keep_internal)
 {
 	int add_hp[2], add_mana[2], add_move[2], i, char_class;
 	char *msg;
@@ -1448,7 +1448,7 @@ advance_level(struct char_data *ch, byte keep_internal)
  */
 
 int
-invalid_char_class(struct char_data *ch, struct obj_data *obj)
+invalid_char_class(struct Creature *ch, struct obj_data *obj)
 {
 	int invalid = 0;
 	int foundreq = 0;
@@ -1576,7 +1576,7 @@ invalid_char_class(struct char_data *ch, struct obj_data *obj)
 }
 
 int
-char_class_race_hit_bonus(struct char_data *ch, struct char_data *vict)
+char_class_race_hit_bonus(struct Creature *ch, struct Creature *vict)
 {
 	int bonus = 0;
 	bonus += (IS_DWARF(ch) && (IS_OGRE(vict) || IS_TROLL(vict) ||

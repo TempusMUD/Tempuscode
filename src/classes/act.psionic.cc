@@ -28,7 +28,7 @@ ACCMD(do_offensive_skill);
 ACMD(do_psidrain)
 {
 
-	struct char_data *vict = NULL;
+	struct Creature *vict = NULL;
 	int dist, drain, prob, percent;
 	int find_distance(struct room_data *tmp, struct room_data *location);
 
@@ -240,7 +240,7 @@ ACMD(do_psidrain)
 }
 
 int
-mob_fight_psionic(struct char_data *ch, struct char_data *precious_vict)
+mob_fight_psionic(struct Creature *ch, struct Creature *precious_vict)
 {
 
 	CHAR *vict = 0;

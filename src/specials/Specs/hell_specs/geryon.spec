@@ -6,7 +6,7 @@
 
 SPECIAL(geryon)
 {
-  struct char_data *vict = NULL;
+  struct Creature *vict = NULL;
   struct obj_data *horn = NULL;
   ACMD(do_order);
 

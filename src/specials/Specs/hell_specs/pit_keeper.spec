@@ -1,6 +1,6 @@
 SPECIAL( pit_keeper )
 {
-    char_data* vict = 0;
+    Creature* vict = 0;
 
     if( spec_mode != SPECIAL_COMBAT && spec_mode != SPECIAL_TICK ) return 0;
     if ( cmd )

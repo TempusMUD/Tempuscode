@@ -9,8 +9,8 @@ SPECIAL(gunnery_device)
    int hit = 0;
    struct room_data *dest;
    struct obj_data *ob = NULL;
-   struct char_data *me2 = (struct char_data *)me;
-   struct char_data *vict = NULL;
+   struct Creature *me2 = (struct Creature *)me;
+   struct Creature *vict = NULL;
    if( spec_mode != SPECIAL_CMD )
      return 0;
 

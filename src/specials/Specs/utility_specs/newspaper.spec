@@ -5,7 +5,7 @@
 //
 
 ACMD(do_dyntext_show);
-//void (name)(struct char_data *ch, char *argument, int cmd, int subcmd, int *return_flags = 0 )
+//void (name)(struct Creature *ch, char *argument, int cmd, int subcmd, int *return_flags = 0 )
 
 SPECIAL(newspaper)
 {

@@ -1,19 +1,19 @@
 #ifndef __TEMPUS_CHARACTER_LIST_H
 #define __TEMPUS_CHARACTER_LIST_H
 #include <signal.h>
-#include "char_data.h"
+#include "creature.h"
 #include "safe_list.h"
 
-class CharacterList:public SafeList < char_data * > {
+class CharacterList:public SafeList < Creature * > {
   public:
 	CharacterList(bool prepend = false)
-	:SafeList < char_data * >(prepend) {
+	:SafeList < Creature * >(prepend) {
 	} ~CharacterList() {
 	}
 	inline operator bool() {
 		return size() > 0;
 	}
-	inline operator char_data *() {
+	inline operator Creature *() {
 		if (size() == 0)
 			return NULL;
 		else

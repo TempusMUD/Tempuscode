@@ -9,7 +9,7 @@ const int U_MODE_OFFER = 2;
 
 SPECIAL(unspecializer)
 {
-	struct char_data *self = (struct char_data *)me;
+	struct Creature *self = (struct Creature *)me;
 	char *word, *msg;
 	int mode = 0;
 	struct obj_data *o_proto = NULL;

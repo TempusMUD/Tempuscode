@@ -44,7 +44,7 @@ extern int quest_status;
 
 ACMD(do_say)
 {
-	struct char_data *vict = NULL;
+	struct Creature *vict = NULL;
 	char name[MAX_INPUT_LENGTH], buf3[MAX_INPUT_LENGTH],
 		buf[MAX_STRING_LENGTH];
 	struct room_data *was_in = NULL;
@@ -218,7 +218,7 @@ ACMD(do_say)
 
 ACMD(do_gsay)
 {
-	struct char_data *k;
+	struct Creature *k;
 	struct follow_type *f;
 
 	skip_spaces(&argument);
@@ -262,7 +262,7 @@ ACMD(do_gsay)
 
 
 void
-perform_tell(struct char_data *ch, struct char_data *vict, char *arg)
+perform_tell(struct Creature *ch, struct Creature *vict, char *arg)
 {
 	char *str;
 
@@ -301,7 +301,7 @@ perform_tell(struct char_data *ch, struct char_data *vict, char *arg)
  */
 ACMD(do_tell)
 {
-	struct char_data *vict;
+	struct Creature *vict;
 
 	char buf2[MAX_INPUT_LENGTH];
 	half_chop(argument, buf, buf2);
@@ -341,7 +341,7 @@ ACMD(do_tell)
 
 ACMD(do_reply)
 {
-	//struct char_data *tch = character_list;
+	//struct Creature *tch = character_list;
 	CharacterList::iterator tch = characterList.begin();
 	skip_spaces(&argument);
 
@@ -378,7 +378,7 @@ ACMD(do_reply)
 
 ACMD(do_spec_comm)
 {
-	struct char_data *vict;
+	struct Creature *vict;
 	struct extra_descr_data *rpl_ptr;
 	char *action_sing, *action_plur, *action_others, *word;
 	short found;
@@ -537,7 +537,7 @@ ACMD(do_write)
 ACMD(do_page)
 {
 	struct descriptor_data *d;
-	struct char_data *vict;
+	struct Creature *vict;
 
 	half_chop(argument, arg, buf2);
 

@@ -75,7 +75,7 @@ show_menu(struct descriptor_data *d)
 void
 show_char_class_menu(struct descriptor_data *d, int timeframe = 0)
 {
-	char_data *ch = d->character;
+	Creature *ch = d->character;
 	int i;
 
 	for (i = 0;i < NUM_PC_RACES;i++)

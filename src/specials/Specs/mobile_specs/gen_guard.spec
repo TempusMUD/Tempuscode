@@ -27,7 +27,7 @@
     ( !IS_SET( GUARD_MODE, MODE_NOEVIL )    || !IS_EVIL( ch ) ) )
 
 SPECIAL( gen_guard ) {
-    struct char_data *guard = ( struct char_data * ) me;
+    struct Creature *guard = ( struct Creature * ) me;
     struct obj_data    *obj = GET_IMPLANT( guard, WEAR_ASS );
     char *desc = NULL, *c, buf[EXDSCR_LENGTH];
     if( spec_mode != SPECIAL_CMD ) return 0;

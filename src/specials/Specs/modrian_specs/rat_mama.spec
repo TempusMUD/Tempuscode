@@ -6,7 +6,7 @@
 
 SPECIAL(rat_mama)
 {
-  struct char_data *rat;
+  struct Creature *rat;
   int i;
   int rat_rooms[] = {
          2940,

@@ -30,12 +30,12 @@
 #include "fight.h"
 
 /* external structs */
-extern struct char_data *character_list;
+extern struct Creature *character_list;
 extern struct obj_data *object_list;
 extern struct zone_data *zone_table;
-void npc_steal(struct char_data *ch, struct char_data *victim);
-void hunt_victim(struct char_data *ch);
-int general_search(struct char_data *ch, struct special_search_data *srch,
+void npc_steal(struct Creature *ch, struct Creature *victim);
+void hunt_victim(struct Creature *ch);
+int general_search(struct Creature *ch, struct special_search_data *srch,
 	int mode);
 
 const char *flow_types[] = {
@@ -165,7 +165,7 @@ void
 flow_room(int pulse)
 {
 
-	struct char_data *vict = NULL;
+	struct Creature *vict = NULL;
 	struct obj_data *obj = NULL, *next_obj = NULL;
 	register struct zone_data *zone = NULL;
 	register struct room_data *rnum = NULL, *was_in = NULL;
@@ -326,7 +326,7 @@ dynamic_object_pulse()
 {
 
 	register struct obj_data *obj = NULL, *next_obj = NULL;
-	struct char_data *vict = NULL;
+	struct Creature *vict = NULL;
 	struct room_data *fall_to = NULL;
 	static int counter = 0;
 	int j, tenpulse = 0, fallpulse = 0;

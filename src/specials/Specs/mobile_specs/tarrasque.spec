@@ -28,7 +28,7 @@ room_num inner_tunnel[] = {24914, 24915, 24916, 24917};
 room_num outer_tunnel[] = {24903, 24902, 24901, 24900, 24878};
 
 void
-tarrasque_jump(struct char_data *tarr, int jump_mode)
+tarrasque_jump(struct Creature *tarr, int jump_mode)
 {
 
   struct room_data *up_room = NULL;
@@ -54,9 +54,9 @@ tarrasque_jump(struct char_data *tarr, int jump_mode)
   }
 }
 int
-tarrasque_fight(struct char_data *tarr)
+tarrasque_fight(struct Creature *tarr)
 {
-  struct char_data *vict = NULL, *vict2 = NULL;
+  struct Creature *vict = NULL, *vict2 = NULL;
  
   if (!FIGHTING(tarr)) {
     slog("SYSERR: FIGHTING(tarr) == NULL in tarrasque_fight!!");
@@ -196,7 +196,7 @@ SPECIAL(tarrasque)
 
   static int mode = 0, tframe = TIME_MODRIAN, checked = FALSE;
   static unsigned int timer = 0;
-  struct char_data *tarr = (struct char_data *) me;
+  struct Creature *tarr = (struct Creature *) me;
   struct room_data *rm = NULL;
 
   if( spec_mode != SPECIAL_CMD && spec_mode != SPECIAL_TICK ) return 0;

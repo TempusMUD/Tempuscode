@@ -7,7 +7,7 @@ using namespace std;
 #include <stdlib.h>
 #include <sys/types.h>
 #include "structs.h"
-#include "char_data.h"
+#include "creature.h"
 #include "utils.h"
 #include "help.h"
 #include "interpreter.h"
@@ -24,7 +24,7 @@ HelpGroup::HelpGroup(void)
 }
 
 void
-HelpGroup::Show(char_data * ch)
+HelpGroup::Show(Creature * ch)
 {
 	char linebuf[256];
 	send_to_char(ch,
@@ -48,7 +48,7 @@ HelpGroup::Show(char_data * ch)
 }
 
 bool
-HelpGroup::AddUser(char_data * ch, char *argument)
+HelpGroup::AddUser(Creature * ch, char *argument)
 {
 	char player[256];
 	char group[256];
@@ -101,7 +101,7 @@ HelpGroup::AddUser(char_data * ch, char *argument)
 }
 
 bool
-HelpGroup::RemoveUser(char_data * ch, char *argument)
+HelpGroup::RemoveUser(Creature * ch, char *argument)
 {
 	char player[256];
 	char group[256];
@@ -158,7 +158,7 @@ HelpGroup::RemoveUser(char_data * ch, char *argument)
 }
 
 bool
-HelpGroup::CanEdit(char_data * ch, HelpItem * n)
+HelpGroup::CanEdit(Creature * ch, HelpItem * n)
 {
 	if (!ch || !n)
 		return false;
@@ -262,7 +262,7 @@ HelpGroup::get_gid_by_name(char *gname)
 }
 
 void
-HelpGroup::Members(char_data * ch, char *args)
+HelpGroup::Members(Creature * ch, char *args)
 {
 	char gname[256];
 	char linebuf[256];

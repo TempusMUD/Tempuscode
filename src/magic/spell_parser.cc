@@ -41,7 +41,7 @@ char locate_buf[256];
 extern int mini_mud;
 
 extern struct room_data *world;
-int find_door(struct char_data *ch, char *type, char *dir,
+int find_door(struct Creature *ch, char *type, char *dir,
 	const char *cmdname);
 void name_from_drinkcon(struct obj_data *obj);
 
@@ -658,7 +658,7 @@ struct syllable syls[] = {
 };
 
 int
-mag_manacost(struct char_data *ch, int spellnum)
+mag_manacost(struct Creature *ch, int spellnum)
 {
 	int mana, mana2;
 
@@ -683,7 +683,7 @@ mag_manacost(struct char_data *ch, int spellnum)
 
 /* say_spell erodes buf, buf1, buf2 */
 void
-say_spell(struct char_data *ch, int spellnum, struct char_data *tch,
+say_spell(struct Creature *ch, int spellnum, struct Creature *tch,
 	struct obj_data *tobj)
 {
 	char lbuf[256], xbuf[256];
@@ -846,7 +846,7 @@ find_skill_num(char *name)
  *
  */
 int
-call_magic(struct char_data *caster, struct char_data *cvict,
+call_magic(struct Creature *caster, struct Creature *cvict,
 	struct obj_data *ovict, int spellnum, int level, int casttype,
 	int *return_flags = 0)
 {
@@ -1271,11 +1271,11 @@ call_magic(struct char_data *caster, struct char_data *cvict,
  */
 
 int
-mag_objectmagic(struct char_data *ch, struct obj_data *obj,
+mag_objectmagic(struct Creature *ch, struct obj_data *obj,
 	char *argument, int *return_flags = NULL)
 {
 	int i, k, level;
-	struct char_data *tch = NULL;
+	struct Creature *tch = NULL;
 	struct obj_data *tobj = NULL;
 	int my_return_flags = 0;
 	if (return_flags == NULL)
@@ -1552,7 +1552,7 @@ mag_objectmagic(struct char_data *ch, struct obj_data *obj,
  */
 
 int
-cast_spell(struct char_data *ch, struct char_data *tch,
+cast_spell(struct Creature *ch, struct Creature *tch,
 	struct obj_data *tobj, int spellnum, int *return_flags = 0)
 {
 
@@ -1753,8 +1753,8 @@ cast_spell(struct char_data *ch, struct char_data *tch,
 }
 
 int
-find_spell_targets(struct char_data *ch, char *argument,
-	struct char_data **tch, struct obj_data **tobj, int *target, int *spellnm,
+find_spell_targets(struct Creature *ch, char *argument,
+	struct Creature **tch, struct obj_data **tobj, int *target, int *spellnm,
 	int cmd)
 {
 
@@ -1899,7 +1899,7 @@ find_spell_targets(struct char_data *ch, char *argument,
 
 ACMD(do_cast)
 {
-	struct char_data *tch = NULL, *vict = NULL;
+	struct Creature *tch = NULL, *vict = NULL;
 	struct obj_data *tobj = NULL, *holy_symbol = NULL, *metal = NULL;
 
 	int mana, spellnum, i, target = 0, prob = 0, metal_wt = 0, num_eq =
@@ -2189,7 +2189,7 @@ ACMD(do_cast)
 
 ACMD(do_trigger)
 {
-	struct char_data *tch = NULL;
+	struct Creature *tch = NULL;
 	struct obj_data *tobj = NULL;
 	int mana, spellnum, target = 0, prob = 0, temp = 0;
 
@@ -2301,7 +2301,7 @@ ACMD(do_trigger)
 
 ACMD(do_arm)
 {
-	struct char_data *tch = NULL;
+	struct Creature *tch = NULL;
 	struct obj_data *tobj = NULL;
 	int mana, spellnum, target = 0, prob = 0;
 
@@ -2392,7 +2392,7 @@ ACMD(do_arm)
 
 ACMD(do_alter)
 {
-	struct char_data *tch = NULL;
+	struct Creature *tch = NULL;
 	struct obj_data *tobj = NULL;
 	int mana, spellnum, target = 0, temp = 0;
 

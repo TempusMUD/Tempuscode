@@ -73,7 +73,7 @@ class ObjectMatcherTable {
 			return (int) table.size();
 		}
 		/** returns true if all matchers initialized properly. **/
-		bool init(char_data *ch, Tokenizer &tokens) {
+		bool init(Creature *ch, Tokenizer &tokens) {
 			char arg[256];
 			while( tokens.next(arg) ) {
                 bool used = false;
@@ -127,7 +127,7 @@ class ObjectMatcherTable {
  * the given buffer with color for ch.
 **/
 char*
-get_spell_names( char_data *ch, obj_data *obj ) 
+get_spell_names( Creature *ch, obj_data *obj ) 
 {
 	const char *spell1 = "0"; 
 	const char *spell2 = "0";
@@ -164,7 +164,7 @@ get_spell_names( char_data *ch, obj_data *obj )
  * showing or not showing spell names.
 **/
 char*
-sprintobj( char_data *ch, obj_data *obj, int num, bool show_spell=false ) 
+sprintobj( Creature *ch, obj_data *obj, int num, bool show_spell=false ) 
 {
 	return tmp_sprintf("%3d. %s[%s%5d%s] %40s%s%s %s\r\n", num,
 			     CCGRN(ch, C_NRM), CCNRM(ch, C_NRM), GET_OBJ_VNUM(obj),
@@ -174,7 +174,7 @@ sprintobj( char_data *ch, obj_data *obj, int num, bool show_spell=false )
 }
 
 void
-do_show_objects( char_data *ch, char *value, char *arg ) {
+do_show_objects( Creature *ch, char *value, char *arg ) {
 	ObjectMatcherTable matcherTable;
 	list<obj_data*> objects;
 	Tokenizer tokens(value);

@@ -36,15 +36,15 @@
 int find_name(char *name);
 ACMD(do_switch);
 // external vars here
-extern struct char_data *character_list;
+extern struct Creature *character_list;
 extern struct player_index_element *player_table;	// index to plr file
 extern int top_of_p_table;
 extern struct descriptor_data *descriptor_list;
 
 // internal funcs here
-void do_qcontrol_help(struct char_data *ch, char *argument);
-void do_qcontrol_switch(struct char_data *ch, char *argument, int com);
-void do_qcontrol_oload_list(char_data * ch);
+void do_qcontrol_help(struct Creature *ch, char *argument);
+void do_qcontrol_switch(struct Creature *ch, char *argument, int com);
+void do_qcontrol_oload_list(Creature * ch);
 void do_qcontrol_oload(CHAR * ch, char *argument, int com);
 void send_to_quest(CHAR * ch, char *str, Quest * quest, int level, int mode);
 
@@ -350,7 +350,7 @@ ACMD(do_qcontrol)
  *  Replaced with help_collection.cc:do_qcontrol_help
  *  and placed in help_collection.cc to avoid yet another include.
 void
-do_qcontrol_help(struct char_data *ch, char *argument)
+do_qcontrol_help(struct Creature *ch, char *argument)
 {
 	int i;
 
@@ -395,7 +395,7 @@ do_qcontrol_help(struct char_data *ch, char *argument)
 void							//Load mobile.
 do_qcontrol_mload(CHAR * ch, char *argument, int com)
 {
-	struct char_data *mob;
+	struct Creature *mob;
 	struct Quest *quest = NULL;
 	char arg1[MAX_INPUT_LENGTH];
 	int number;
@@ -439,7 +439,7 @@ do_qcontrol_mload(CHAR * ch, char *argument, int com)
 }
 
 void
-do_qcontrol_oload_list(char_data * ch)
+do_qcontrol_oload_list(Creature * ch)
 {
 	int i = 0;
 	char main_buf[MAX_STRING_LENGTH];
@@ -541,7 +541,7 @@ void							//Purge mobile.
 do_qcontrol_trans(CHAR * ch, char *argument, int com)
 {
 
-	char_data *vict;
+	Creature *vict;
 	Quest *quest = NULL;
 	room_data *room = NULL;
 
@@ -605,7 +605,7 @@ void							//Purge mobile.
 do_qcontrol_purge(CHAR * ch, char *argument, int com)
 {
 
-	struct char_data *vict;
+	struct Creature *vict;
 	struct Quest *quest = NULL;
 	char arg1[MAX_INPUT_LENGTH];
 
@@ -2427,7 +2427,7 @@ qp_reload(int sig = 0)
 {
 	int x;
 	int player_i = 0;
-	struct char_data *immortal = NULL;
+	struct Creature *immortal = NULL;
 	struct char_file_u tmp_store;
 	int online = 0, offline = 0;
 
@@ -2680,7 +2680,7 @@ compose_qcomm_string(CHAR * ch, CHAR * vict, Quest * quest, int mode, char *str)
 void
 send_to_quest(CHAR * ch, char *str, Quest * quest, int level, int mode)
 {
-	struct char_data *vict = NULL;
+	struct Creature *vict = NULL;
 	int i;
 
 	for (i = 0; i < quest->getNumPlayers(); i++) {
@@ -2699,7 +2699,7 @@ send_to_quest(CHAR * ch, char *str, Quest * quest, int level, int mode)
 	}
 }
 
-Quest::Quest( char_data *ch, int type, const char* name ) 
+Quest::Quest( Creature *ch, int type, const char* name ) 
 	: players(), bans()
 {
 	this->vnum = quests.getNextVnum();
@@ -2839,7 +2839,7 @@ Quest& Quest::operator=( const Quest &q )
 }
 
 bool Quest::removePlayer( long id ) { 
-	char_data *vict = NULL;
+	Creature *vict = NULL;
 	struct char_file_u tmp_store;
 	vector<qplayer_data>::iterator it;
 
@@ -2849,7 +2849,7 @@ bool Quest::removePlayer( long id ) {
 
 	if (!(vict = get_char_in_world_by_idnum(id))) {
 		// load the char from file
-		CREATE(vict, struct char_data, 1);
+		CREATE(vict, struct Creature, 1);
 		clear_char(vict);
 		long player_i = load_char(arg1, &tmp_store);
 		if( player_i > -1 ) {

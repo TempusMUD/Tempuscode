@@ -52,9 +52,9 @@ const char *fill_words[] = {
 
 extern int log_cmds;
 
-int general_search(struct char_data *ch, struct special_search_data *srch,
+int general_search(struct Creature *ch, struct special_search_data *srch,
 	int mode);
-int special(struct char_data *ch, int cmd, int subcmd, char *arg, special_mode spec_mode);
+int special(struct Creature *ch, int cmd, int subcmd, char *arg, special_mode spec_mode);
 
 
 /* writes a string to the command log */
@@ -1353,7 +1353,7 @@ struct command_info cmd_info[] = {
  * then calls the appropriate function.
  */
 void
-command_interpreter(struct char_data *ch, char *argument)
+command_interpreter(struct Creature *ch, char *argument)
 {
 	int cmd, length;
 	extern int no_specials;
@@ -1547,7 +1547,7 @@ free_alias(struct alias_data *a)
 }
 
 void
-add_alias(struct char_data *ch, struct alias_data *a)
+add_alias(struct Creature *ch, struct alias_data *a)
 {
 	struct alias_data *this_alias = GET_ALIASES(ch);
 
@@ -2022,7 +2022,7 @@ find_command(char *command)
 
 
 int
-special(struct char_data *ch, int cmd, int subcmd, char *arg, special_mode spec_mode)
+special(struct Creature *ch, int cmd, int subcmd, char *arg, special_mode spec_mode)
 {
 	struct obj_data *i;
 	struct special_search_data *srch = NULL;

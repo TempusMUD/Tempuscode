@@ -29,7 +29,7 @@
 extern int mini_mud;
 extern struct obj_data *obj_proto;
 extern struct zone_data *zone_table;
-extern struct char_data *mob_proto;
+extern struct Creature *mob_proto;
 extern struct shop_data *shop_index;
 
 SPECIAL(shop_keeper);
@@ -329,13 +329,13 @@ find_spec_index_arg(char *arg)
 //
 
 int
-do_specassign_save(struct char_data *ch, int mode)
+do_specassign_save(struct Creature *ch, int mode)
 {
 
 	FILE *file;
 	int index;
 	struct obj_data *obj = NULL;
-	struct char_data *mob = NULL;
+	struct Creature *mob = NULL;
 	struct room_data *room = NULL;
 	struct zone_data *zone = NULL;
 	struct shop_data *shop = NULL;
@@ -422,7 +422,7 @@ do_specassign_save(struct char_data *ch, int mode)
 //
 
 void
-do_show_specials(struct char_data *ch, char *arg)
+do_show_specials(struct Creature *ch, char *arg)
 {
 
 	int mode_all = 0, mode_mob = 0, mode_obj = 0, mode_room = 0;
@@ -523,7 +523,7 @@ assign_mobiles(void)
 	FILE *file;
 	int vnum, index;
 	char ptr_name[128];
-	struct char_data *mob = NULL;
+	struct Creature *mob = NULL;
 
 
 	if (!(file = fopen(SPEC_FILE_MOB, "r"))) {

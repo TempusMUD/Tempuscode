@@ -45,7 +45,7 @@
 
 
 bool
-OLCIMP(char_data * ch)
+OLCIMP(Creature * ch)
 {
 	if (Security::isMember(ch, "OLCWorldWrite"))
 		return true;
@@ -160,7 +160,7 @@ OLCIMP(char_data * ch)
 
 extern struct room_data *world;
 extern struct obj_data *obj_proto;
-extern struct char_data *mob_proto;
+extern struct Creature *mob_proto;
 extern struct zone_data *zone_table;
 extern struct descriptor_data *descriptor_list;
 extern struct obj_data *object_list;
@@ -174,71 +174,71 @@ extern const char *obj_flow_msg[NUM_FLOW_TYPES + 1][2];
 long asciiflag_conv(char *buf);
 
 void num2str(char *str, int num);
-void do_stat_object(struct char_data *ch, struct obj_data *obj);
+void do_stat_object(struct Creature *ch, struct obj_data *obj);
 
 ACMD(do_zonepurge);
 ACMD(do_zreset);
 
 int prototype_obj_value(struct obj_data *obj);
-int save_objs(struct char_data *ch);
-int save_wld(struct char_data *ch);
-int save_mobs(struct char_data *ch);
-int save_shops(struct char_data *ch);
-struct room_data *do_create_room(struct char_data *ch, int vnum);
-struct obj_data *do_create_obj(struct char_data *ch, int vnum);
-struct char_data *do_create_mob(struct char_data *ch, int vnum);
-struct shop_data *do_create_shop(struct char_data *ch, int vnum);
-struct help_index_element *do_create_help(struct char_data *ch);
-struct ticl_data *do_create_ticl(struct char_data *ch, int vnum);
-class CIScript *do_create_iscr(struct char_data *ch, int vnum);
+int save_objs(struct Creature *ch);
+int save_wld(struct Creature *ch);
+int save_mobs(struct Creature *ch);
+int save_shops(struct Creature *ch);
+struct room_data *do_create_room(struct Creature *ch, int vnum);
+struct obj_data *do_create_obj(struct Creature *ch, int vnum);
+struct Creature *do_create_mob(struct Creature *ch, int vnum);
+struct shop_data *do_create_shop(struct Creature *ch, int vnum);
+struct help_index_element *do_create_help(struct Creature *ch);
+struct ticl_data *do_create_ticl(struct Creature *ch, int vnum);
+class CIScript *do_create_iscr(struct Creature *ch, int vnum);
 
-int do_destroy_room(struct char_data *ch, int vnum);
-int do_destroy_object(struct char_data *ch, int vnum);
-int do_destroy_mobile(struct char_data *ch, int vnum);
-int do_destroy_shop(struct char_data *ch, int vnum);
-int do_create_zone(struct char_data *ch, int num);
-int olc_mimic_mob(struct char_data *ch, struct char_data *orig,
-	struct char_data *targ, int mode);
-void olc_mimic_room(struct char_data *ch, struct room_data *targ, char *arg);
-void do_olc_rexdesc(struct char_data *ch, char *a, bool is_hedit);
-void perform_oset(struct char_data *ch, struct obj_data *obj_p,
+int do_destroy_room(struct Creature *ch, int vnum);
+int do_destroy_object(struct Creature *ch, int vnum);
+int do_destroy_mobile(struct Creature *ch, int vnum);
+int do_destroy_shop(struct Creature *ch, int vnum);
+int do_create_zone(struct Creature *ch, int num);
+int olc_mimic_mob(struct Creature *ch, struct Creature *orig,
+	struct Creature *targ, int mode);
+void olc_mimic_room(struct Creature *ch, struct room_data *targ, char *arg);
+void do_olc_rexdesc(struct Creature *ch, char *a, bool is_hedit);
+void perform_oset(struct Creature *ch, struct obj_data *obj_p,
 	char *argument, byte subcmd);
-void do_zset_command(struct char_data *ch, char *argument);
-void do_zcmd(struct char_data *ch, char *argument);
-void do_zone_cmdlist(struct char_data *ch, struct zone_data *zone);
-void do_zmob_cmd(struct char_data *ch, char *argument);
-void do_zobj_cmd(struct char_data *ch, char *argument);
-void do_zdoor_cmd(struct char_data *ch, char *argument);
-void do_zgive_cmd(struct char_data *ch, char *argument);
-void do_zput_cmd(struct char_data *ch, char *argument);
-void do_zequip_cmd(struct char_data *ch, char *argument);
-void do_zimplant_cmd(struct char_data *ch, char *argument);
-void do_zpath_cmd(struct char_data *ch, char *argument);
-void do_mob_medit(struct char_data *ch, char *argument);
-void do_mob_mstat(struct char_data *ch);
-void do_mob_mset(struct char_data *ch, char *argument);
-void do_shop_sedit(struct char_data *ch, char *argument);
-void do_shop_sstat(struct char_data *ch);
-void do_shop_sset(struct char_data *ch, char *argument);
-int save_zone(struct char_data *ch, struct zone_data *zone);
-void do_olc_xset(struct char_data *ch, char *argument);
-void do_olc_rset(struct char_data *ch, char *argument);
-void do_olc_xstat(struct char_data *ch);
-struct special_search_data *do_create_search(struct char_data *ch, char *arg);
-int do_destroy_search(struct char_data *ch, char *arg);
-int set_char_xedit(struct char_data *ch, char *argument);
-void do_clear_room(struct char_data *ch);
-void do_clear_olc_object(struct char_data *ch);
-void do_clear_olc_mob(struct char_data *ch);
-void do_ticl_tedit(struct char_data *ch, char *argument);
-void do_ticl_tstat(struct char_data *ch);
-void do_olc_ilist(struct char_data *ch, char *argument);
-void do_olc_istat(struct char_data *ch, char *argument);
-void do_olc_iedit(struct char_data *ch, char *argument);
-void do_olc_iset(struct char_data *ch, char *argument);
-void do_olc_ihandler(struct char_data *ch, char *argument);
-int do_olc_isave(struct char_data *ch);
-void do_olc_idelete(struct char_data *ch, char *argument);
+void do_zset_command(struct Creature *ch, char *argument);
+void do_zcmd(struct Creature *ch, char *argument);
+void do_zone_cmdlist(struct Creature *ch, struct zone_data *zone);
+void do_zmob_cmd(struct Creature *ch, char *argument);
+void do_zobj_cmd(struct Creature *ch, char *argument);
+void do_zdoor_cmd(struct Creature *ch, char *argument);
+void do_zgive_cmd(struct Creature *ch, char *argument);
+void do_zput_cmd(struct Creature *ch, char *argument);
+void do_zequip_cmd(struct Creature *ch, char *argument);
+void do_zimplant_cmd(struct Creature *ch, char *argument);
+void do_zpath_cmd(struct Creature *ch, char *argument);
+void do_mob_medit(struct Creature *ch, char *argument);
+void do_mob_mstat(struct Creature *ch);
+void do_mob_mset(struct Creature *ch, char *argument);
+void do_shop_sedit(struct Creature *ch, char *argument);
+void do_shop_sstat(struct Creature *ch);
+void do_shop_sset(struct Creature *ch, char *argument);
+int save_zone(struct Creature *ch, struct zone_data *zone);
+void do_olc_xset(struct Creature *ch, char *argument);
+void do_olc_rset(struct Creature *ch, char *argument);
+void do_olc_xstat(struct Creature *ch);
+struct special_search_data *do_create_search(struct Creature *ch, char *arg);
+int do_destroy_search(struct Creature *ch, char *arg);
+int set_char_xedit(struct Creature *ch, char *argument);
+void do_clear_room(struct Creature *ch);
+void do_clear_olc_object(struct Creature *ch);
+void do_clear_olc_mob(struct Creature *ch);
+void do_ticl_tedit(struct Creature *ch, char *argument);
+void do_ticl_tstat(struct Creature *ch);
+void do_olc_ilist(struct Creature *ch, char *argument);
+void do_olc_istat(struct Creature *ch, char *argument);
+void do_olc_iedit(struct Creature *ch, char *argument);
+void do_olc_iset(struct Creature *ch, char *argument);
+void do_olc_ihandler(struct Creature *ch, char *argument);
+int do_olc_isave(struct Creature *ch);
+void do_olc_idelete(struct Creature *ch, char *argument);
 
 char *find_exdesc(char *word, struct extra_descr_data *list, int find_exact =
 	0);
@@ -343,8 +343,8 @@ ACMD(do_olc)
 	struct descriptor_data *d = NULL;
 	struct zone_data *zone = NULL;
 	struct shop_data *shop = NULL;
-	struct char_data *mob = NULL;
-	struct char_data *tmp_mob = NULL;
+	struct Creature *mob = NULL;
+	struct Creature *tmp_mob = NULL;
 	class CIScript *tmp_iscr = NULL;
 	struct special_search_data *tmp_search;
 
@@ -1705,7 +1705,7 @@ const char *olc_help_keys[] = {
 #define NUM_SHOP_FLAGS 4
 
 void
-show_olc_help(struct char_data *ch, char *arg)
+show_olc_help(struct Creature *ch, char *arg)
 {
 
 	int i = 0, which_help, j = 0;
@@ -2236,7 +2236,7 @@ ACMD(do_unapprove)
 	byte o_m = 0, zn = 0;
 	struct obj_data *obj = NULL;
 	struct zone_data *zone = NULL;
-	struct char_data *mob = NULL;
+	struct Creature *mob = NULL;
 
 	half_chop(argument, arg1, arg2);
 
@@ -2373,7 +2373,7 @@ ACMD(do_approve)
 	byte o_m = 0, zn = 0;
 	struct obj_data *obj = NULL;
 	struct zone_data *zone = NULL;
-	struct char_data *mob = NULL;
+	struct Creature *mob = NULL;
 
 	half_chop(argument, arg1, arg2);
 

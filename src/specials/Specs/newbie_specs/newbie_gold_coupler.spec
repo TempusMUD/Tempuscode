@@ -6,7 +6,7 @@
 
 SPECIAL(newbie_gold_coupler)
 {
-  struct char_data *coup = (struct char_data *) me;
+  struct Creature *coup = (struct Creature *) me;
   extern struct time_info_data time_info;
   struct obj_data *o, *tmp_o, *money;
   int i, count = 0;

@@ -34,7 +34,7 @@
 
 extern struct zone_data *zone_table;
 extern struct descriptor_data *descriptor_list;
-extern struct char_data *character_list;
+extern struct Creature *character_list;
 extern int olc_lock;
 extern int *ticl_index;
 
@@ -56,7 +56,7 @@ const char *olc_tset_keys[] = {
 #define NUM_TSET_COMMANDS 2
 
 struct ticl_data *
-do_create_ticl(struct char_data *ch, int vnum)
+do_create_ticl(struct Creature *ch, int vnum)
 {
 	struct zone_data *zone = NULL;
 	struct ticl_data *ticl = NULL, *new_ticl = NULL;
@@ -120,7 +120,7 @@ do_create_ticl(struct char_data *ch, int vnum)
 }
 
 void
-do_ticl_tedit(struct char_data *ch, char *argument)
+do_ticl_tedit(struct Creature *ch, char *argument)
 {
 	struct ticl_data *ticl = NULL, *tmp_ticl = NULL;
 	struct zone_data *zone = NULL;
@@ -203,7 +203,7 @@ do_ticl_tedit(struct char_data *ch, char *argument)
 }
 
 void
-do_ticl_tstat(struct char_data *ch)
+do_ticl_tstat(struct Creature *ch)
 {
 	struct ticl_data *ticl = NULL;
 	char tim1[30], tim2[30];
@@ -250,7 +250,7 @@ do_ticl_tstat(struct char_data *ch)
 "<keywords> [new keywords]\r\n"
 
 void
-do_ticl_tset(struct char_data *ch, char *argument)
+do_ticl_tset(struct Creature *ch, char *argument)
 {
 	int i, tset_command;		/* tmp_flags, flag, cur_flags, state; */
 
@@ -311,7 +311,7 @@ do_ticl_tset(struct char_data *ch, char *argument)
 }
 
 int
-write_ticl_index(struct char_data *ch, struct zone_data *zone)
+write_ticl_index(struct Creature *ch, struct zone_data *zone)
 {
 	int done = 0, i, j, found = 0, count = 0, *new_index;
 	char fname[64];
@@ -376,7 +376,7 @@ write_ticl_index(struct char_data *ch, struct zone_data *zone)
 }
 
 int
-save_ticls(struct char_data *ch)
+save_ticls(struct Creature *ch)
 {
 	unsigned int tmp;
 	int t_vnum;

@@ -35,7 +35,7 @@ extern struct clan_data *clan_list;
 long asciiflag_conv(char *buf);
 
 void num2str(char *str, int num);
-void do_stat_object(struct char_data *ch, struct obj_data *obj);
+void do_stat_object(struct Creature *ch, struct obj_data *obj);
 
 char *find_exdesc(char *word, struct extra_descr_data *list, int find_exact =
 	0);
@@ -43,7 +43,7 @@ extern struct extra_descr_data *locate_exdesc(char *word,
 	struct extra_descr_data *list);
 
 int
-write_wld_index(struct char_data *ch, struct zone_data *zone)
+write_wld_index(struct Creature *ch, struct zone_data *zone)
 {
 	int done = 0, i, j, found = 0, count = 0, *new_index;
 	char fname[64];
@@ -147,7 +147,7 @@ check_room_cstrings(struct room_data *room)
 //
 
 int
-save_room(struct char_data *ch, struct room_data *room, FILE * file)
+save_room(struct Creature *ch, struct room_data *room, FILE * file)
 {
 	unsigned int i, j;
 	unsigned int tmp;
@@ -311,7 +311,7 @@ save_room(struct char_data *ch, struct room_data *room, FILE * file)
 }
 
 int
-save_wld(struct char_data *ch)
+save_wld(struct Creature *ch)
 {
 	FILE *file = 0;
 	char temp_fname[1024];
@@ -363,7 +363,7 @@ save_wld(struct char_data *ch)
 
 
 struct room_data *
-do_create_room(struct char_data *ch, int vnum)
+do_create_room(struct Creature *ch, int vnum)
 {
 
 	struct room_data *rm = NULL, *new_rm = NULL;
@@ -444,12 +444,12 @@ do_create_room(struct char_data *ch, int vnum)
 }
 
 int
-do_destroy_room(struct char_data *ch, int vnum)
+do_destroy_room(struct Creature *ch, int vnum)
 {
 
 	struct room_data *rm = NULL, *t_rm = NULL;
 	struct zone_data *zone = NULL;
-	struct char_data *vict = NULL;
+	struct Creature *vict = NULL;
 	struct obj_data *obj = NULL, *next_obj = NULL;
 	struct special_search_data *srch = NULL;
 	struct extra_descr_data *desc = NULL;
@@ -579,7 +579,7 @@ do_destroy_room(struct char_data *ch, int vnum)
 
 
 void
-do_clear_room(struct char_data *ch)
+do_clear_room(struct Creature *ch)
 {
 	struct extra_descr_data *desc = NULL;
 	struct special_search_data *srch = NULL;
@@ -644,7 +644,7 @@ do_clear_room(struct char_data *ch)
 }
 
 void
-olc_mimic_room(struct char_data *ch, struct room_data *rnum, char *argument)
+olc_mimic_room(struct Creature *ch, struct room_data *rnum, char *argument)
 {
 
 	char arg1[MAX_INPUT_LENGTH];
@@ -747,7 +747,7 @@ static const char *olc_rset_keys[] = {
 
 
 void
-do_olc_rset(struct char_data *ch, char *argument)
+do_olc_rset(struct Creature *ch, char *argument)
 {
 
 	char arg1[MAX_INPUT_LENGTH], arg2[MAX_INPUT_LENGTH],
@@ -971,7 +971,7 @@ do_olc_rset(struct char_data *ch, char *argument)
 }
 
 void
-do_olc_rexdesc(struct char_data *ch, char *argument, bool is_hedit)
+do_olc_rexdesc(struct Creature *ch, char *argument, bool is_hedit)
 {
 
 	struct extra_descr_data *desc = NULL, *ndesc = NULL, *temp = NULL;

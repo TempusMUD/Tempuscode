@@ -37,7 +37,7 @@
 #include "tokenizer.h"
 
 extern struct obj_data *object_list;
-extern struct char_data *character_list;
+extern struct Creature *character_list;
 
 extern struct descriptor_data *descriptor_list;
 extern struct zone_data *zone_table;
@@ -49,10 +49,10 @@ extern char *last_command;
 extern struct apply_mod_defaults *apmd;
 
 void weight_change_object(struct obj_data *obj, int weight);
-void add_follower(struct char_data *ch, struct char_data *leader);
+void add_follower(struct Creature *ch, struct Creature *leader);
 void zone_weather_change(struct zone_data *zone);
-int House_can_enter(struct char_data *ch, room_num real_room);
-int clan_house_can_enter(struct char_data *ch, struct room_data *room);
+int House_can_enter(struct Creature *ch, room_num real_room);
+int clan_house_can_enter(struct Creature *ch, struct room_data *room);
 
 
 /*
@@ -1133,7 +1133,7 @@ ASPELL(spell_identify)
 	int i;
 	int found;
 
-	struct time_info_data age(struct char_data *ch);
+	struct time_info_data age(struct Creature *ch);
 
 
 	if (obj) {
@@ -1302,7 +1302,7 @@ ASPELL(spell_minor_identify)
 	int i;
 	int found;
 
-	struct time_info_data age(struct char_data *ch);
+	struct time_info_data age(struct Creature *ch);
 
 	if (obj) {
 		send_to_char(ch, "You feel a bit informed:\r\n");
@@ -1862,7 +1862,7 @@ ASPELL(spell_coordinates)
 ASPELL(spell_conjure_elemental)
 {
 	struct affected_type af;
-	struct char_data *elemental = NULL;
+	struct Creature *elemental = NULL;
 	int sect_type;
 	sect_type = ch->in_room->sector_type;
 
@@ -1929,7 +1929,7 @@ ASPELL(spell_conjure_elemental)
 
 ASPELL(spell_decoy)
 {
-	struct char_data *decoy = NULL;
+	struct Creature *decoy = NULL;
 	char buf[255];
 
 	if (number(0, GET_INT(ch)) < 4) {
@@ -2139,7 +2139,7 @@ ASPELL(spell_knock)
 ASPELL(spell_sword)
 {
 	struct affected_type af;
-	struct char_data *sword = NULL;
+	struct Creature *sword = NULL;
 
 
 	if ((GET_LEVEL(ch) + GET_INT(ch) + number(0, 10)) < 50 + number(0, 13)) {
@@ -2452,7 +2452,7 @@ ASPELL(spell_vestigial_rune)
 ASPELL(spell_id_insinuation)
 {
 
-	struct char_data *ulv = NULL;	/* un-lucky-vict */
+	struct Creature *ulv = NULL;	/* un-lucky-vict */
 	int total = 0;
 
 	if (!victim)
@@ -2532,7 +2532,7 @@ ASPELL(spell_id_insinuation)
 ASPELL(spell_shadow_breath)
 {
 	struct room_affect_data rm_aff;
-	struct char_data *vch = NULL;
+	struct Creature *vch = NULL;
 	int i;
 
 	if (!victim)
@@ -2578,7 +2578,7 @@ ASPELL(spell_summon_legion)
 {
 	int i, count;
 	float mult;
-	struct char_data *devil = NULL;
+	struct Creature *devil = NULL;
 	struct affected_type af;
 	struct follow_type *k = NULL;
 	/*
@@ -2676,11 +2676,11 @@ ASPELL(spell_summon_legion)
 // Evil cleric stuff
 //
 
-struct char_data *
+struct Creature *
 load_corpse_owner(struct obj_data *obj)
 {
 	struct char_file_u tmp_store;
-	struct char_data *vict = NULL;
+	struct Creature *vict = NULL;
 
 
 	//
@@ -2694,7 +2694,7 @@ load_corpse_owner(struct obj_data *obj)
 	// pc, load from file
 	//
 
-	CREATE(vict, struct char_data, 1);
+	CREATE(vict, struct Creature, 1);
 
 	clear_char(vict);
 
@@ -2709,8 +2709,8 @@ load_corpse_owner(struct obj_data *obj)
 ASPELL(spell_animate_dead)
 {
 	struct affected_type af;
-	struct char_data *orig_char = NULL;
-	struct char_data *zombie = NULL;
+	struct Creature *orig_char = NULL;
+	struct Creature *zombie = NULL;
 	struct obj_data *i = NULL;
 	float mult = (float)level / 70;
 
@@ -2900,7 +2900,7 @@ ASPELL(spell_unholy_stalker)
 {
 
 	int distance = 0;
-	struct char_data *stalker = NULL;
+	struct Creature *stalker = NULL;
 	float mult = (float)level / 70;
 
 	if (ROOM_FLAGGED(ch->in_room, ROOM_PEACEFUL)) {
@@ -3192,7 +3192,7 @@ ASPELL(spell_sun_ray)
 ASPELL(spell_inferno)
 {
 	struct room_affect_data rm_aff;
-	struct char_data *vict = NULL;
+	struct Creature *vict = NULL;
 
 	send_to_room
 		("A raging firestorm fills the room with a hellish inferno!\r\n",

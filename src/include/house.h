@@ -71,14 +71,14 @@ typedef struct house_door_elem {
 #define TOROOM(room, dir) (world[room].dir_option[dir] ? \
 			    world[room].dir_option[dir]->to_room : NOWHERE)
 
-void House_listrent(struct char_data *ch, int vnum);
+void House_listrent(struct Creature *ch, int vnum);
 void House_boot(void);
 void House_save_all(bool mode);
-int House_can_enter(struct char_data *ch, room_num house);
+int House_can_enter(struct Creature *ch, room_num house);
 void House_crashsave(int vnum);
 void House_countobjs(void);
-void hcontrol_list_house_rooms(struct char_data *ch, room_num atrium_vnum);
-void print_room_contents_to_buf(struct char_data *ch, char *buf,
+void hcontrol_list_house_rooms(struct Creature *ch, room_num atrium_vnum);
+void print_room_contents_to_buf(struct Creature *ch, char *buf,
 	struct room_data *real_house_room);
 int recurs_obj_cost(struct obj_data *obj, bool mode, struct obj_data *top_o);
 int recurs_obj_contents(struct obj_data *obj, struct obj_data *top_o);
@@ -87,5 +87,5 @@ int find_house(room_num vnum);
 
 struct house_control_rec *real_house(room_num vnum);
 void House_save_control(void);
-void Crash_rentsave(struct char_data *ch, int cost, int rentcode);
-int Crash_rentcost(struct char_data *ch, int display, int factor);
+void Crash_rentsave(struct Creature *ch, int cost, int rentcode);
+int Crash_rentcost(struct Creature *ch, int display, int factor);

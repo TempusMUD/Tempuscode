@@ -7,7 +7,7 @@
 #ifndef __guns_h__
 #define __guns_h__
 
-void show_gun_status(struct char_data *ch, struct obj_data *gun);
+void show_gun_status(struct Creature *ch, struct obj_data *gun);
 
 	 /*** energy gun utils ***/
 #define IS_ENERGY_GUN(obj)      (GET_OBJ_TYPE(obj) == ITEM_ENERGY_GUN)

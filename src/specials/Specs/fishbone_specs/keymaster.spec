@@ -6,7 +6,7 @@
 
 (SPECIAL(keymaster)
 {
-  struct char_data *keymaster = (struct char_data *) me;
+  struct Creature *keymaster = (struct Creature *) me;
   struct obj_data *key = NULL;
   room_num v_home_pad = 1595, r_home_pad = NOWHERE;
   

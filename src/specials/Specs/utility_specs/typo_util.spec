@@ -3,8 +3,8 @@
 //
 // Copyright 2000 by John Watson, all rights reserved.
 //
-void do_olc_rset( struct char_data *ch, char *argument );
-int save_wld ( struct char_data *ch );
+void do_olc_rset( struct Creature *ch, char *argument );
+int save_wld ( struct Creature *ch );
 
 /**
  *    a util for editing various descriptions.

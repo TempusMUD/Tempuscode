@@ -8,7 +8,7 @@
 SPECIAL(reimb)
 {
   extern struct title_type titles[NUM_CLASSES][LVL_GRIMP+1];
-  struct char_data *reimber = (struct char_data *) me;
+  struct Creature *reimber = (struct Creature *) me;
   int i;
   typedef struct {
     int level;

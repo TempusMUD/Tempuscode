@@ -6,7 +6,7 @@
 
 SPECIAL(aziz_canon)
 {
-  struct char_data *vict = NULL;
+  struct Creature *vict = NULL;
 
   if (cmd)
     return 0;

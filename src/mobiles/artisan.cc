@@ -22,7 +22,7 @@ const int CRAFT_NEUTRAL = 2;
 static int cmd_slap, cmd_smirk, cmd_sayto, cmd_cry;
 
 struct craft_restr {
-	bool match(char_data *ch);
+	bool match(Creature *ch);
 	int kind;
 	int val;
 };
@@ -37,7 +37,7 @@ struct craft_component {
 
 class craft_item {
 	public:
-		bool can_make(char_data *keeper);
+		bool can_make(Creature *keeper);
 
 		short vnum;	// object to be offered when all components are held
 		long cost; // -1 means to use default cost
@@ -45,8 +45,8 @@ class craft_item {
 };
 
 struct craftshop {
-		bool accepts(char_data *ch);
-		bool refuses(char_data *ch);
+		bool accepts(Creature *ch);
+		bool refuses(Creature *ch);
 
 		short room;
 		short keeper_vnum;
@@ -60,7 +60,7 @@ struct craftshop {
 vector<craftshop *> shop_list;
 
 bool
-craft_restr::match(char_data *ch)
+craft_restr::match(Creature *ch)
 {
 	switch (this->kind) {
 		case CRAFT_RACE:
@@ -87,7 +87,7 @@ craft_restr::match(char_data *ch)
 }
 
 bool
-craftshop::accepts(char_data *ch)
+craftshop::accepts(Creature *ch)
 {
 	vector<craft_restr *>::iterator restr_iter;
 
@@ -99,7 +99,7 @@ craftshop::accepts(char_data *ch)
 }
 
 bool
-craftshop::refuses(char_data *ch)
+craftshop::refuses(Creature *ch)
 {
 	vector<craft_restr *>::iterator restr_iter;
 
@@ -178,7 +178,7 @@ craftshop_load(xmlNodePtr node)
 }
 
 craftshop *
-craftshop_find(char_data *keeper)
+craftshop_find(Creature *keeper)
 {
 	vector<craftshop *>::iterator shop;
 
@@ -190,7 +190,7 @@ craftshop_find(char_data *keeper)
 }
 
 void
-craftshop_list(char_data *keeper, char_data *ch)
+craftshop_list(Creature *keeper, Creature *ch)
 {
 	obj_data *obj;
 
@@ -214,7 +214,7 @@ void
 assign_artisans(void)
 {
 	vector<craftshop *>::iterator shop;
-	char_data *mob;
+	Creature *mob;
 
 	for (shop = shop_list.begin(); shop != shop_list.end(); shop++) {
 		mob = real_mobile_proto(shop[0]->keeper_vnum);
@@ -232,7 +232,7 @@ assign_artisans(void)
 
 SPECIAL(artisan)
 {
-	struct char_data *keeper = (char_data *)me;
+	struct Creature *keeper = (Creature *)me;
 	craftshop *shop;
 
 	if ( spec_mode != SPECIAL_CMD )

@@ -37,18 +37,18 @@
 #include "mobact.h"
 #include "fight.h"
 #include "actions.h"
-#include "char_data.h"
+#include "creature.h"
 
 /* external structs */
-extern struct char_data *character_list;
-void npc_steal(struct char_data *ch, struct char_data *victim);
-int hunt_victim(struct char_data *ch);
-void perform_tell(struct char_data *ch, struct char_data *vict, char *messg);
+extern struct Creature *character_list;
+void npc_steal(struct Creature *ch, struct Creature *victim);
+int hunt_victim(struct Creature *ch);
+void perform_tell(struct Creature *ch, struct Creature *vict, char *messg);
 int CLIP_COUNT(struct obj_data *clip);
-int tarrasque_fight(struct char_data *tarr);
-int general_search(struct char_data *ch, struct special_search_data *srch,
+int tarrasque_fight(struct Creature *tarr);
+int general_search(struct Creature *ch, struct special_search_data *srch,
 	int mode);
-int smart_mobile_move(struct char_data *ch, int dir);
+int smart_mobile_move(struct Creature *ch, int dir);
 
 ACMD(do_flee);
 ACMD(do_sleeper);
@@ -101,13 +101,13 @@ SPECIAL(mob_read_script);
      (GET_RACE(ch) == RACE_ALIEN_1 && GET_RACE(vict) == RACE_HUMAN) || \
      (GET_RACE(ch) == RACE_ORC && GET_RACE(vict) == RACE_DWARF))
 
-int update_iaffects(char_data * ch);
+int update_iaffects(Creature * ch);
 
 void
 burn_update(void)
 {
 
-	struct char_data *ch;
+	struct Creature *ch;
 	struct obj_data *obj = NULL;
 	struct room_data *fall_to = NULL;
 	struct special_search_data *srch = NULL;
@@ -589,7 +589,7 @@ burn_update(void)
 //
 
 inline int
-helper_help_probability(struct char_data *ch, struct char_data *vict)
+helper_help_probability(struct Creature *ch, struct Creature *vict)
 {
 
 	int prob = GET_MORALE(ch);
@@ -680,7 +680,7 @@ helper_help_probability(struct char_data *ch, struct char_data *vict)
 //
 
 inline int
-helper_attack_probability(struct char_data *ch, struct char_data *vict)
+helper_attack_probability(struct Creature *ch, struct Creature *vict)
 {
 
 	int prob = GET_MORALE(ch);
@@ -801,8 +801,8 @@ helper_attack_probability(struct char_data *ch, struct char_data *vict)
 //
 
 int
-helper_assist(struct char_data *ch, struct char_data *vict,
-	struct char_data *fvict)
+helper_assist(struct Creature *ch, struct Creature *vict,
+	struct Creature *fvict)
 {
 
 	int my_return_flags = 0;
@@ -862,7 +862,7 @@ helper_assist(struct char_data *ch, struct char_data *vict,
 }
 
 void
-mob_load_unit_gun(struct char_data *ch, struct obj_data *clip,
+mob_load_unit_gun(struct Creature *ch, struct obj_data *clip,
 	struct obj_data *gun, bool internal)
 {
 	char loadbuf[1024];
@@ -875,7 +875,7 @@ mob_load_unit_gun(struct char_data *ch, struct obj_data *clip,
 }
 
 struct obj_data *
-find_bullet(struct char_data *ch, int gun_type, struct obj_data *list)
+find_bullet(struct Creature *ch, int gun_type, struct obj_data *list)
 {
 	struct obj_data *bul = NULL;
 
@@ -888,7 +888,7 @@ find_bullet(struct char_data *ch, int gun_type, struct obj_data *list)
 }
 
 void
-mob_reload_gun(struct char_data *ch, struct obj_data *gun)
+mob_reload_gun(struct Creature *ch, struct obj_data *gun)
 {
 	bool internal = false;
 	int count = 0, i;
@@ -1009,7 +1009,7 @@ mob_reload_gun(struct char_data *ch, struct obj_data *gun)
 //
 
 int
-check_infiltrate(struct char_data *ch, struct char_data *vict)
+check_infiltrate(struct Creature *ch, struct Creature *vict)
 {
 	if (!ch || !vict) {
 		mudlog(LVL_IMMORT, CMP, true,
@@ -1061,7 +1061,7 @@ check_infiltrate(struct char_data *ch, struct char_data *vict)
 }
 
 int
-best_attack(struct char_data *ch, struct char_data *vict)
+best_attack(struct Creature *ch, struct Creature *vict)
 {
 
 	struct obj_data *gun = GET_EQ(ch, WEAR_WIELD);
@@ -1334,7 +1334,7 @@ best_attack(struct char_data *ch, struct char_data *vict)
  GET_CLASS(ch) != CLASS_WATER)
 
 inline bool
-CHAR_LIKES_ROOM(struct char_data * ch, struct room_data * room)
+CHAR_LIKES_ROOM(struct Creature * ch, struct room_data * room)
 {
 
 	if (ELEMENTAL_LIKES_ROOM(ch, room) &&
@@ -1383,10 +1383,10 @@ void
 mobile_activity(void)
 {
 
-	struct char_data *ch, *vict = NULL;
+	struct Creature *ch, *vict = NULL;
 	struct obj_data *obj, *best_obj, *i;
 	struct affected_type *af_ptr = NULL;
-	struct char_data *tmp_vict = NULL;
+	struct Creature *tmp_vict = NULL;
 	int dir, found, max, k;
 	static unsigned int count = 0;
 	struct mob_mugger_data *new_mug = NULL;
@@ -1839,7 +1839,7 @@ mobile_activity(void)
 						// save a pointer past vict if vict _happens_ to be next_ch ( ch->next )
 						//
 
-						//struct char_data *tmp_next_ch = 
+						//struct Creature *tmp_next_ch = 
 						//    ( vict == next_ch ) ? ( next_ch ? next_ch->next : 0 ) : next_ch;
 						//int retval = 
 						best_attack(ch, vict);
@@ -2047,7 +2047,7 @@ mobile_activity(void)
 			int fvict_retval = 0;
 			int vict_retval = 0;
 			vict = NULL;
-			//struct char_data *tmp_next_ch = 0;
+			//struct Creature *tmp_next_ch = 0;
 
 			if (IS_AFFECTED(ch, AFF_CHARM))
 				continue;
@@ -2803,12 +2803,12 @@ mobile_activity(void)
 
 #define SAME_ALIGN(a, b) ( ( IS_GOOD(a) && IS_GOOD(b) ) || ( IS_EVIL(a) && IS_EVIL(b) ) )
 
-struct char_data *
-choose_opponent(struct char_data *ch, struct char_data *ignore_vict)
+struct Creature *
+choose_opponent(struct Creature *ch, struct Creature *ignore_vict)
 {
 
-	struct char_data *vict = NULL;
-	struct char_data *best_vict = NULL;
+	struct Creature *vict = NULL;
+	struct Creature *best_vict = NULL;
 
 	// first look for someone who is fighting us
 	CharacterList::iterator it = ch->in_room->people.begin();
@@ -2859,10 +2859,10 @@ choose_opponent(struct char_data *ch, struct char_data *ignore_vict)
 //
 
 int
-mobile_battle_activity(struct char_data *ch, struct char_data *precious_vict)
+mobile_battle_activity(struct Creature *ch, struct Creature *precious_vict)
 {
 
-	register struct char_data *vict = NULL, *new_mob = NULL;
+	register struct Creature *vict = NULL, *new_mob = NULL;
 	int num = 0, prob = 0, dam = 0;
 	struct obj_data *weap = GET_EQ(ch, WEAR_WIELD), *gun = NULL;
 	int return_flags = 0;
@@ -2973,7 +2973,7 @@ mobile_battle_activity(struct char_data *ch, struct char_data *precious_vict)
 						CHAR_LIKES_ROOM(ch, EXIT(ch, dir)->to_room)
 						&& random_binary()) {
 
-						struct char_data *was_fighting = FIGHTING(ch);
+						struct Creature *was_fighting = FIGHTING(ch);
 
 						stop_fighting(FIGHTING(ch));
 						stop_fighting(ch);
@@ -3840,7 +3840,7 @@ mobile_battle_activity(struct char_data *ch, struct char_data *precious_vict)
 
 /* make ch remember victim */
 void
-remember(struct char_data *ch, struct char_data *victim)
+remember(struct Creature *ch, struct Creature *victim)
 {
 	memory_rec *tmp;
 	int present = FALSE;
@@ -3863,7 +3863,7 @@ remember(struct char_data *ch, struct char_data *victim)
 
 /* make ch forget victim */
 void
-forget(struct char_data *ch, struct char_data *victim)
+forget(struct Creature *ch, struct Creature *victim)
 {
 	memory_rec *curr, *prev = NULL;
 
@@ -3888,7 +3888,7 @@ forget(struct char_data *ch, struct char_data *victim)
 
 
 int
-char_in_memory(struct char_data *victim, struct char_data *rememberer)
+char_in_memory(struct Creature *victim, struct Creature *rememberer)
 {
 	memory_rec *names;
 
@@ -3906,7 +3906,7 @@ char_in_memory(struct char_data *victim, struct char_data *rememberer)
 //
 
 int
-mob_fight_devil(struct char_data *ch, struct char_data *precious_vict)
+mob_fight_devil(struct Creature *ch, struct Creature *precious_vict)
 {
 
 
@@ -4068,7 +4068,7 @@ mob_fight_devil(struct char_data *ch, struct char_data *precious_vict)
 
 ACMD(do_breathe)
 {								// Breath Weapon Attack
-	struct char_data *vict = NULL;
+	struct Creature *vict = NULL;
 	if (!IS_NPC(ch)) {
 		act("You breathe heavily.", FALSE, ch, 0, 0, TO_CHAR);
 		act("$N seems to be out of breath.", FALSE, ch, 0, 0, TO_ROOM);

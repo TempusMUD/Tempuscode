@@ -41,7 +41,7 @@
 /* Externals */
 extern struct room_data *world;
 
-int has_key(struct char_data *ch, obj_num key);
+int has_key(struct Creature *ch, obj_num key);
 
 ACMD(do_say);
 ACMD(do_gen_comm);
@@ -237,7 +237,7 @@ find_distance(struct room_data *start, struct room_data *dest)
 
 ACMD(do_track)
 {
-	struct char_data *vict;
+	struct Creature *vict;
 	int dir, num, bonus = 0;
 	byte count = 0;
 
@@ -335,7 +335,7 @@ ACMD(do_track)
 ACMD(do_psilocate)
 {
 
-	struct char_data *vict = NULL;
+	struct Creature *vict = NULL;
 	int dist, dir;
 	byte error;
 
@@ -435,7 +435,7 @@ ACMD(do_psilocate)
 //
 
 int
-smart_mobile_move(struct char_data *ch, int dir)
+smart_mobile_move(struct Creature *ch, int dir)
 {
 
 	char doorbuf[128];
@@ -507,11 +507,11 @@ smart_mobile_move(struct char_data *ch, int dir)
 //
 
 int
-hunt_victim(struct char_data *ch)
+hunt_victim(struct Creature *ch)
 {
 
 	char buf2[MAX_STRING_LENGTH];
-	void perform_tell(struct char_data *ch, struct char_data *vict, char *buf);
+	void perform_tell(struct Creature *ch, struct Creature *vict, char *buf);
 	struct affected_type *af_ptr = NULL;
 	int dir;
 	byte found;

@@ -103,7 +103,7 @@ extern const int gun_damage[][2] = {
 };
 
 void
-show_gun_status(struct char_data *ch, struct obj_data *gun)
+show_gun_status(struct Creature *ch, struct obj_data *gun)
 {
 	struct obj_data *bullet = NULL;
 	int count = 0;

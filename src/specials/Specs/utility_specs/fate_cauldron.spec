@@ -8,7 +8,7 @@ SPECIAL(fate_cauldron)
 {
 	struct obj_data *pot = (struct obj_data *) me;
 	char arg1[MAX_INPUT_LENGTH];
-	register struct char_data *fate = NULL;
+	register struct Creature *fate = NULL;
 	int fateid = 0;
 
     if( spec_mode != SPECIAL_CMD )

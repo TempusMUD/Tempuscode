@@ -6,7 +6,7 @@
 
 SPECIAL(cheeky_monkey)
 {
- struct char_data *vict = NULL;
+ struct Creature *vict = NULL;
  
  if( spec_mode != SPECIAL_TICK && spec_mode != SPECIAL_ENTER )
  {         

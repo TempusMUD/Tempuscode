@@ -35,7 +35,7 @@
 #include "fight.h"
 
 /* External variables */
-extern struct char_data *mob_proto;
+extern struct Creature *mob_proto;
 extern struct obj_data *obj_proto;
 extern struct room_data *world;
 extern struct time_info_data time_info;
@@ -45,8 +45,8 @@ ACMD(do_tell);
 ACMD(do_action);
 ACMD(do_echo);
 ACMD(do_say);
-void sort_keeper_objs(struct char_data *keeper, struct shop_data *shop);
-void perform_tell(struct char_data *ch, struct char_data *vict, char *buf);
+void sort_keeper_objs(struct Creature *keeper, struct shop_data *shop);
+void perform_tell(struct Creature *ch, struct Creature *vict, char *buf);
 void set_local_time(struct zone_data *zone, struct time_info_data *local_time);
 
 /* Local variables */
@@ -88,7 +88,7 @@ shop_check_message_format(char *format_buf)
 }
 
 int
-is_ok_char(struct char_data *keeper, struct char_data *ch,
+is_ok_char(struct Creature *keeper, struct Creature *ch,
 	struct shop_data *shop)
 {
 	char buf[200];
@@ -150,7 +150,7 @@ is_ok_char(struct char_data *keeper, struct char_data *ch,
 
 
 int
-is_open(struct char_data *keeper, struct shop_data *shop, int msg)
+is_open(struct Creature *keeper, struct shop_data *shop, int msg)
 {
 	char buf[200];
 	struct time_info_data local_time;
@@ -175,7 +175,7 @@ is_open(struct char_data *keeper, struct shop_data *shop, int msg)
 
 
 int
-is_ok(struct char_data *keeper, struct char_data *ch, struct shop_data *shop)
+is_ok(struct Creature *keeper, struct Creature *ch, struct shop_data *shop)
 {
 	if (is_open(keeper, shop, TRUE))
 		return (is_ok_char(keeper, ch, shop));
@@ -429,7 +429,7 @@ times_message(struct obj_data *obj, char *name, int num)
 
 
 struct obj_data *
-get_slide_obj_vis(struct char_data *ch, char *name, struct obj_data *list)
+get_slide_obj_vis(struct Creature *ch, char *name, struct obj_data *list)
 {
 	struct obj_data *i, *last_match = 0;
 	int j, number;
@@ -454,7 +454,7 @@ get_slide_obj_vis(struct char_data *ch, char *name, struct obj_data *list)
 
 
 struct obj_data *
-get_hash_obj_vis(struct char_data *ch, char *name, struct obj_data *list)
+get_hash_obj_vis(struct Creature *ch, char *name, struct obj_data *list)
 {
 	struct obj_data *loop, *last_obj = 0;
 	int index;
@@ -476,8 +476,8 @@ get_hash_obj_vis(struct char_data *ch, char *name, struct obj_data *list)
 
 
 struct obj_data *
-get_purchase_obj(struct char_data *ch, char *arg,
-	struct char_data *keeper, struct shop_data *shop, int msg)
+get_purchase_obj(struct Creature *ch, char *arg,
+	struct Creature *keeper, struct shop_data *shop, int msg)
 {
 	char buf[MAX_STRING_LENGTH], name[MAX_INPUT_LENGTH];
 	struct obj_data *obj;
@@ -518,8 +518,8 @@ buy_price(struct obj_data *obj, struct shop_data *shop)
 
 
 void
-shopping_buy(char *arg, struct char_data *ch,
-	struct char_data *keeper, struct shop_data *shop)
+shopping_buy(char *arg, struct Creature *ch,
+	struct Creature *keeper, struct shop_data *shop)
 {
 	char tempstr[200], buf[MAX_STRING_LENGTH];
 	struct obj_data *obj, *last_obj = NULL;
@@ -655,8 +655,8 @@ shopping_buy(char *arg, struct char_data *ch,
 
 
 struct obj_data *
-get_selling_obj(struct char_data *ch, char *name,
-	struct char_data *keeper, struct shop_data *shop, int msg)
+get_selling_obj(struct Creature *ch, char *name,
+	struct Creature *keeper, struct shop_data *shop, int msg)
 {
 	char buf[MAX_STRING_LENGTH];
 	struct obj_data *obj;
@@ -699,7 +699,7 @@ get_selling_obj(struct char_data *ch, char *name,
 
 
 int
-sell_price(struct char_data *ch, struct obj_data *obj, struct shop_data *shop)
+sell_price(struct Creature *ch, struct obj_data *obj, struct shop_data *shop)
 {
 	int price;
 
@@ -713,7 +713,7 @@ sell_price(struct char_data *ch, struct obj_data *obj, struct shop_data *shop)
 }
 
 int
-shop_inventory(struct char_data *ch, struct obj_data *obj)
+shop_inventory(struct Creature *ch, struct obj_data *obj)
 {
 	int count = 0;
 	struct obj_data *o;
@@ -732,7 +732,7 @@ shop_inventory(struct char_data *ch, struct obj_data *obj)
 //
 
 struct obj_data *
-slide_obj(struct obj_data *obj, struct char_data *keeper,
+slide_obj(struct obj_data *obj, struct Creature *keeper,
 	struct shop_data *shop)
 	/*
 	   This function is a slight hack!  To make sure that duplicate items are
@@ -768,7 +768,7 @@ slide_obj(struct obj_data *obj, struct char_data *keeper,
 
 
 void
-sort_keeper_objs(struct char_data *keeper, struct shop_data *shop)
+sort_keeper_objs(struct Creature *keeper, struct shop_data *shop)
 {
 	struct obj_data *list = NULL, *temp = NULL;
 
@@ -794,8 +794,8 @@ sort_keeper_objs(struct char_data *keeper, struct shop_data *shop)
 
 
 void
-shopping_sell(char *arg, struct char_data *ch,
-	struct char_data *keeper, struct shop_data *shop)
+shopping_sell(char *arg, struct Creature *ch,
+	struct Creature *keeper, struct shop_data *shop)
 {
 	char tempstr[MAX_INPUT_LENGTH], buf[MAX_STRING_LENGTH], name[200];
 	struct obj_data *obj, *tag = NULL;
@@ -891,8 +891,8 @@ shopping_sell(char *arg, struct char_data *ch,
 
 
 void
-shopping_value(char *arg, struct char_data *ch,
-	struct char_data *keeper, struct shop_data *shop)
+shopping_value(char *arg, struct Creature *ch,
+	struct Creature *keeper, struct shop_data *shop)
 {
 	char buf[MAX_STRING_LENGTH];
 	struct obj_data *obj;
@@ -919,7 +919,7 @@ shopping_value(char *arg, struct char_data *ch,
 
 
 char *
-list_object(struct obj_data *obj, struct char_data *ch, int cnt,
+list_object(struct obj_data *obj, struct Creature *ch, int cnt,
 	int index, struct shop_data *shop)
 {
 	static char buf[256];
@@ -977,8 +977,8 @@ list_object(struct obj_data *obj, struct char_data *ch, int cnt,
 
 
 void
-shopping_list(char *arg, struct char_data *ch,
-	struct char_data *keeper, struct shop_data *shop)
+shopping_list(char *arg, struct Creature *ch,
+	struct Creature *keeper, struct shop_data *shop)
 {
 	char buf[MAX_STRING_LENGTH], name[MAX_INPUT_LENGTH];
 	struct obj_data *obj, *last_obj = 0;
@@ -1042,12 +1042,12 @@ SPECIAL(shop_keeper)
 {
 	char argm[MAX_INPUT_LENGTH];
 	char buf[MAX_STRING_LENGTH], buf2[MAX_STRING_LENGTH];
-	struct char_data *keeper = (struct char_data *)me;
-	struct char_data *sucker;
+	struct Creature *keeper = (struct Creature *)me;
+	struct Creature *sucker;
 	struct shop_data *shop = NULL;
 	ACMD(do_order);
 	ACMD(do_gen_comm);
-	void perform_tell(struct char_data *ch, struct char_data *vict,
+	void perform_tell(struct Creature *ch, struct Creature *vict,
 		char *messg);
 
 
@@ -1262,7 +1262,7 @@ SPECIAL(shop_keeper)
 
 
 int
-ok_damage_shopkeeper(struct char_data *ch, struct char_data *victim)
+ok_damage_shopkeeper(struct Creature *ch, struct Creature *victim)
 {
 	char buf[200];
 	struct shop_data *shop = NULL;
@@ -1420,7 +1420,7 @@ boot_the_shops(FILE * shop_f, char *filename, int rec_count)
 {
 	char *buf, buf2[150], output_buf[MAX_STRING_LENGTH];
 	int temp, count, new_format = 0;
-	struct char_data *shop_dude = NULL;
+	struct Creature *shop_dude = NULL;
 	struct shop_data *new_shop = NULL, *tmp_shop = NULL;
 	struct shop_buy_data list[MAX_SHOP_OBJ + 1];
 	int done = 0;
@@ -1555,7 +1555,7 @@ boot_the_shops(FILE * shop_f, char *filename, int rec_count)
 void
 assign_the_shopkeepers(void)
 {
-	struct char_data *mob;
+	struct Creature *mob;
 	struct shop_data *shop;
 
 	cmd_say = find_command("say");
@@ -1603,11 +1603,11 @@ customer_string(struct shop_data *shop, int detailed)
 
 
 void
-list_all_shops(struct char_data *ch, struct zone_data *zone)
+list_all_shops(struct Creature *ch, struct zone_data *zone)
 {
 	struct shop_data *shop;
 	int shop_nr;
-	struct char_data *keeper = NULL;
+	struct Creature *keeper = NULL;
 
 	strcpy(buf, "\r\n");
 	for (shop_nr = 0, shop = shop_index; shop; shop_nr++, shop = shop->next) {
@@ -1639,7 +1639,7 @@ list_all_shops(struct char_data *ch, struct zone_data *zone)
 
 
 void
-handle_detailed_list(char *buf, char *buf1, struct char_data *ch)
+handle_detailed_list(char *buf, char *buf1, struct Creature *ch)
 {
 	if ((strlen(buf1) + strlen(buf) < 78) || (strlen(buf) < 20))
 		strcat(buf, buf1);
@@ -1652,10 +1652,10 @@ handle_detailed_list(char *buf, char *buf1, struct char_data *ch)
 
 
 void
-list_detailed_shop(struct char_data *ch, struct shop_data *shop)
+list_detailed_shop(struct Creature *ch, struct shop_data *shop)
 {
 	struct obj_data *obj;
-	struct char_data *keeper = NULL;
+	struct Creature *keeper = NULL;
 	struct room_data *temp;
 	int index;
 
@@ -1776,7 +1776,7 @@ list_detailed_shop(struct char_data *ch, struct shop_data *shop)
 
 
 void
-show_shops(struct char_data *ch, char *arg)
+show_shops(struct Creature *ch, char *arg)
 {
 	struct shop_data *shop = NULL;
 	struct zone_data *zone = NULL;

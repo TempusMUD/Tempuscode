@@ -12,7 +12,7 @@
 
 SPECIAL(lawyer)
 {
-  struct char_data *lawy = (struct char_data *) me;
+  struct Creature *lawy = (struct Creature *) me;
   int mode, cost = 0;
   char arg1[MAX_INPUT_LENGTH];
 

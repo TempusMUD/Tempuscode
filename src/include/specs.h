@@ -291,13 +291,13 @@ struct spec_func_data {
 int
  find_spec_index_arg(char *arg);
 void
- do_show_specials(struct char_data *ch, char *arg);
+ do_show_specials(struct Creature *ch, char *arg);
 int
- do_specassign_save(struct char_data *ch, int mode);
+ do_specassign_save(struct Creature *ch, int mode);
 int
  find_spec_index_ptr(SPECIAL(*func));
 int
- mob_read_script(struct char_data *ch);
+ mob_read_script(struct Creature *ch);
 
 #define SPEC_FILE_MOB "etc/spec_ass_mob"
 #define SPEC_FILE_OBJ "etc/spec_ass_obj"
