@@ -91,6 +91,8 @@ ACMD(do_enroll)
 		send_to_char(ch, "Ummm... enroll who?\r\n");
 	else if (!(vict = get_char_room_vis(ch, member_str)))
 		send_to_char(ch, "Enroll who?\r\n");
+	else if( IS_NPC(vict) )
+		send_to_char(ch, "You can only enroll player characters. Duh.\r\n");
 	else if (vict == ch && !Security::isMember(ch, "Clan"))
 		send_to_char(ch, "Yeah, yeah, yeah... enroll yourself, huh?\r\n");
 	else if (!IS_IMMORT(ch) && !PLR_FLAGGED(ch, PLR_CLAN_LEADER))
