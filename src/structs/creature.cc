@@ -27,11 +27,6 @@ Creature::isFighting()
 	return (char_specials.fighting != NULL);
 }
 
-Creature *
-Creature::getFighting()
-{
-	return (char_specials.fighting);
-}
 /**
  * Returns true if this character is in the Testers access group.
 **/
@@ -435,16 +430,6 @@ Creature::setPosition(int new_pos, int mode)
 		char_specials.setPosition(new_pos);
 	}
 	return true;
-}
-
-/**
- * Returns current position 
- * (POS_STANDING, POS_FIGHTING, POS_RESTING...)
-**/
-int
-Creature::getPosition(void)
-{
-	return char_specials.getPosition();
 }
 
 /**
