@@ -87,7 +87,9 @@ boot_accounts(void)
 	else
 		slog("WARNING: No characters loaded");
 	playerIndex.sort();
+	accountIndex.sort();
 }
+
 
 Account::Account(void)
 	: _chars()
