@@ -3560,3 +3560,135 @@ ASPELL(spell_damn)
 	}
 	gain_skill_prof(ch, SPELL_DAMN);
 }
+
+#define TYPE_RODENT		0
+#define TYPE_BIRD		1
+#define TYPE_REPTILE	2
+#define TYPE_BEAST 		3
+#define TYPE_PREDATOR	4
+
+
+Creature *
+load_familiar(Creature *ch, int sect_type, int type)
+{
+	Creature *result;
+	const char *to_char, *to_room;
+
+	switch (sect_type) {
+	case SECT_CITY:
+		result = read_mobile(20 + type);
+		to_room = "$n emerges from an dirty alley.";
+		break;
+	case SECT_MOUNTAIN:
+		result = read_mobile(30 + type);
+		to_char = "$n hops up on a rock and looks at you expectantly.";
+		to_room = "$n hops up on a rock and looks at $N expectantly.";
+		break;
+	case SECT_FIELD:
+		result = read_mobile(40 + type);
+		to_room = "$n emerges from the tall grasses.";
+		break;
+	case SECT_FOREST:
+		result = read_mobile(50 + type);
+		to_room = "$n leaves the cover of the trees.";
+		break;
+	case SECT_JUNGLE:
+		result = read_mobile(60 + type);
+		to_room = "$n emerges from the thick jungle overgrowth.";
+		break;
+	case SECT_SWAMP:
+		result = read_mobile(70 + type);
+		to_char = "$n carefully steps out of the reeds";
+		to_room = "$n carefully steps out of some reeds.";
+		break;
+	default:
+		return NULL;
+	}
+
+	if (!result)
+		return NULL;
+
+	char_to_room(result, ch->in_room);
+	if (to_char)
+		act(to_room, false, result, 0, ch, TO_CHAR);
+	if (to_room)
+		act(to_room, false, result, 0, ch, TO_ROOM);
+
+	return result;
+}
+
+bool
+perform_call_familiar(Creature *ch, int level, int type)
+{
+	struct affected_type af;
+	struct Creature *pet = NULL;
+	struct follow_type *cur_fol;
+
+	// First check to make sure that they don't already have a familiar
+	for (cur_fol = ch->followers;cur_fol;cur_fol = cur_fol->next) {
+		if (MOB2_FLAGGED(cur_fol->follower, MOB2_FAMILIAR)) {
+			send_to_char(ch, NOEFFECT);
+			act("$N looks up at you mournfully.", true,
+				ch, 0, cur_fol->follower, TO_CHAR);
+			act("You look up at $n mournfully.", true,
+				ch, 0, cur_fol->follower, TO_VICT);
+			act("$N looks up at $n mournfully.", true,
+				ch, 0, cur_fol->follower, TO_NOTVICT);
+			return false;
+		}
+	}
+
+	pet = load_familiar(ch, ch->in_room->sector_type, type);
+	if (!pet) {
+		send_to_char(ch, NOEFFECT);
+		return false;
+	}
+
+	SET_BIT(MOB_FLAGS(pet), MOB_PET);
+	SET_BIT(MOB2_FLAGS(pet), MOB2_FAMILIAR);
+
+	if (pet->master)
+		stop_follower(pet);
+	add_follower(pet, ch);
+
+	af.type = SPELL_CHARM;
+	af.is_instant = 0;
+	af.duration = -1;
+	af.modifier = 0;
+	af.location = 0;
+	af.bitvector = AFF_CHARM;
+	af.level = level;
+	affect_to_char(pet, &af);
+
+	return true;
+}
+
+ASPELL(spell_call_rodent)
+{
+	if (perform_call_familiar(ch, level, TYPE_RODENT))
+		gain_skill_prof(ch, SPELL_CALL_RODENT);
+}
+
+ASPELL(spell_call_bird)
+{
+	if (perform_call_familiar(ch, level, TYPE_BIRD))
+		gain_skill_prof(ch, SPELL_CALL_BIRD);
+}
+
+ASPELL(spell_call_reptile)
+{
+	if (perform_call_familiar(ch, level, TYPE_REPTILE))
+		gain_skill_prof(ch, SPELL_CALL_REPTILE);
+}
+
+ASPELL(spell_call_beast)
+{
+	if (perform_call_familiar(ch, level, TYPE_BEAST))
+		gain_skill_prof(ch, SPELL_CALL_BEAST);
+}
+
+ASPELL(spell_call_predator)
+{
+	if (perform_call_familiar(ch, level, TYPE_PREDATOR))
+		gain_skill_prof(ch, SPELL_CALL_PREDATOR);
+}

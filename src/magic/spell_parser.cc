@@ -258,8 +258,11 @@ const char *spells[] = {
 	"nullpsi",
 	"!UNUSED!",
 	"distraction",
-	"!UNUSED!", "!UNUSED!",	/* 240 */
-	"!UNUSED!", "!UNUSED!", "!UNUSED!", "!UNUSED!", "!UNUSED!",	/* 245 */
+	"call rodent",
+	"call bird",	/* 240 */
+	"call reptile",
+	"call beast",
+	"call predator", "!UNUSED!", "!UNUSED!",	/* 245 */
 	"!UNUSED!", "!UNUSED!", "!UNUSED!", "!UNUSED!", "!UNUSED!",	/* 250 */
 	"!UNUSED!", "!UNUSED!", "!UNUSED!", "!UNUSED!", "!UNUSED!",	/* 255 */
 	"!UNUSED!", "!UNUSED!", "!UNUSED!", "!UNUSED!", "!UNUSED!",	/* 260 */
@@ -1249,6 +1252,16 @@ call_magic(struct Creature *caster, struct Creature *cvict,
 			MANUAL_SPELL(spell_bless); break;
 		case SPELL_DAMN:
 			MANUAL_SPELL(spell_damn); break;
+		case SPELL_CALL_RODENT:
+			MANUAL_SPELL(spell_call_rodent); break;
+		case SPELL_CALL_BIRD:
+			MANUAL_SPELL(spell_call_bird); break;
+		case SPELL_CALL_REPTILE:
+			MANUAL_SPELL(spell_call_reptile); break;
+		case SPELL_CALL_BEAST:
+			MANUAL_SPELL(spell_call_beast); break;
+		case SPELL_CALL_PREDATOR:
+			MANUAL_SPELL(spell_call_predator); break;
 		}
 
 	knock_door = NULL;
@@ -2663,6 +2676,27 @@ mag_assign_spells(void)
 	spello(SPELL_CLAIRVOYANCE, 35, X, X, X, X, X, X, X, X, X, X, X, X, X, X, X,
 		X, 90, 60, 2, POS_STANDING, TAR_CHAR_WORLD, FALSE,
 		MAG_MAGIC | MAG_MANUAL);
+
+	spello(SPELL_CALL_RODENT, X, X, X, X, X, X, X, X, X, 15, X, X, X, X, X, X,
+		X, 90, 60, 2, POS_STANDING, TAR_CHAR_ROOM | TAR_SELF_ONLY, FALSE,
+		MAG_MAGIC | MAG_MANUAL);
+
+	spello(SPELL_CALL_BIRD, X, X, X, X, X, X, X, X, X, 22, X, X, X, X, X, X,
+		X, 90, 60, 2, POS_STANDING, TAR_CHAR_ROOM | TAR_SELF_ONLY, FALSE,
+		MAG_MAGIC | MAG_MANUAL);
+
+	spello(SPELL_CALL_REPTILE, X, X, X, X, X, X, X, X, X, 29, X, X, X, X, X, X,
+		X, 90, 60, 2, POS_STANDING, TAR_CHAR_ROOM | TAR_SELF_ONLY, FALSE,
+		MAG_MAGIC | MAG_MANUAL);
+
+	spello(SPELL_CALL_BEAST, X, X, X, X, X, X, X, X, X, 35, X, X, X, X, X, X,
+		X, 90, 60, 2, POS_STANDING, TAR_CHAR_ROOM | TAR_SELF_ONLY, FALSE,
+		MAG_MAGIC | MAG_MANUAL);
+
+	spello(SPELL_CALL_PREDATOR, X, X, X, X, X, X, X, X, X, 41, X, X, X, X, X, X,
+		X, 90, 60, 2, POS_STANDING, TAR_CHAR_ROOM | TAR_SELF_ONLY, FALSE,
+		MAG_MAGIC | MAG_MANUAL);
+
 	/* C L A S S E S      M A N A   */
 	/* Ma Cl Th Wa Bar Syk Ph Cyb Kni Ran Hood Bnt Max Min Chn */
 	spello(SPELL_CLONE, X, X, X, X, X, X, X, X, X, X, X, X, X, X, X, X, X,

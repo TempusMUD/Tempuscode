@@ -309,6 +309,12 @@ static const int SPELL_ENDURANCE = 234;
 static const int SPELL_AMNESIA = 235;	// psi remorts
 static const int SPELL_NULLPSI = 236;	// remove psi affects
 static const int SPELL_DISTRACTION = 238;
+static const int SPELL_CALL_RODENT = 239;
+static const int SPELL_CALL_BIRD = 240;
+static const int SPELL_CALL_REPTILE = 241;
+static const int SPELL_CALL_BEAST = 242;
+static const int SPELL_CALL_PREDATOR = 243;
+
   /**************************  Mercenary Devices ******************/
 static const int SPELL_DECOY = 237;
   /*************************** Physic Alterations *****************/
@@ -812,6 +818,11 @@ ASPELL(spell_dispel_magic);
 ASPELL(spell_distraction);
 ASPELL(spell_bless);
 ASPELL(spell_damn);
+ASPELL(spell_call_rodent);
+ASPELL(spell_call_bird);
+ASPELL(spell_call_reptile);
+ASPELL(spell_call_beast);
+ASPELL(spell_call_predator);
 
 /* basic magic calling functions */
 
