@@ -272,16 +272,10 @@ SPECIAL(guild)
 
 	skip_spaces(&argument);
 
-	if (!can_see_creature(master, ch)) {
-		do_say(master, "If I can't train a person I can't see!", 0, 0, 0);
-		return 1;
-	}
-
 	if (!*argument) {
 		if (CMD_IS("offer"))
-			do_say(master,
-				tmp_sprintf("%s For what skill would you like to know the price of training?", GET_NAME(ch)),
-				0, SCMD_SAY_TO, 0);
+			perform_tell(master, ch,
+				"For what skill would you like to know the price of training?");
 		else
 			list_skills(ch, 1, 3);
 		return 1;
@@ -294,37 +288,24 @@ SPECIAL(guild)
 				CHECK_REMORT_CLASS(ch) != GET_CLASS(ch)) &&
 			(!IS_REMORT(master) ||
 				CHECK_REMORT_CLASS(ch) != CHECK_REMORT_CLASS(ch))) {
-		do_say(master,
-			tmp_sprintf("%s Go to your own guild to practice!", GET_NAME(ch)),
-			0, SCMD_SAY_TO, 0);
+		perform_tell(master, ch, "Go to your own guild to practice!");
 		return 1;
 	}
-
-	/*  Lame upper level trainer thing.
-	   if (GET_MOB_VNUM(master) ==  25015 && GET_LEVEL(ch) < 43) {
-	   sprintf(buf2, "You are not ready to train with me, %s.", GET_NAME(ch));
-	   do_say(master, buf2, 0, 0);
-	   return 1;
-	   }
-	 */
 
 	skill_num = find_skill_num(argument);
 
 	if (skill_num < 1) {
-		do_say(master,
-			tmp_sprintf("%s You do not know of that %s!", GET_NAME(ch), SPLSKL(ch)),
-			0, SCMD_SAY_TO, 0);
+		perform_tell(master, ch,
+			tmp_sprintf("You do not know of that %s!", SPLSKL(ch)));
 		return 1;
 	}
 	if (!ABLE_TO_LEARN(ch, skill_num)) {
 		if (CHECK_SKILL(ch, skill_num))
-			do_say(master,
-				tmp_sprintf("%s I cannot teach you %s yet.", GET_NAME(ch), spell_to_str(skill_num)),
-				0, SCMD_SAY_TO, 0);
+			perform_tell(master, ch,
+				tmp_sprintf("I cannot teach you %s yet.", spell_to_str(skill_num)));
 		else
-			do_say(master,
-				tmp_sprintf("%s You are not yet ready to practice %s.", GET_NAME(ch), spell_to_str(skill_num)),
-				0, SCMD_SAY_TO, 0);
+			perform_tell(master, ch,
+				tmp_sprintf("You are not yet ready to practice %s.", spell_to_str(skill_num)));
 		return 1;
 	}
 
@@ -334,56 +315,46 @@ SPECIAL(guild)
 			(!IS_REMORT(master) ||
 				GET_LEVEL(master) <
 				SPELL_LEVEL(skill_num, GET_REMORT_CLASS(master))))) {
-		do_say(master,
-			tmp_sprintf("%s I am not able to teach you that skill.", GET_NAME(ch)),
-			0, SCMD_SAY_TO, 0);
+		perform_tell(master, ch, "I am not able to teach you that skill.");
 		return 1;
 	}
 
 	if (GET_CLASS(master) < NUM_CLASSES &&
 		(SPELL_GEN(skill_num, GET_CLASS(master)) && !IS_REMORT(master))) {
-		do_say(master,
-			tmp_sprintf("%s You must go elsewhere to learn that remort skill.", GET_NAME(ch)),
-			0, SCMD_SAY_TO, 0);
+		perform_tell(master, ch,
+			"You must go elsewhere to learn that remort skill.");
 		return 1;
 	}
 
 	if ((skill_num == SKILL_READ_SCROLLS || skill_num == SKILL_USE_WANDS) &&
 		CHECK_SKILL(ch, skill_num) > 10) {
-		do_say(master,
-			tmp_sprintf("%s You cannot practice that any further.", GET_NAME(ch)),
-			0, SCMD_SAY_TO, 0);
+		perform_tell(master, ch,
+			tmp_sprintf("You cannot practice %s any further.", spell_to_str(skill_num)));
 		return 1;
 	}
 
 	if (GET_SKILL(ch, skill_num) >= LEARNED(ch)) {
-		do_say(master,
-			tmp_sprintf("%s You are already learned in that area.", GET_NAME(ch)),
-			0, SCMD_SAY_TO, 0);
+		perform_tell(master, ch, "You are already learned in that area.");
 		return 1;
 	}
 
 	if ((SPELL_IS_GOOD(skill_num) && !IS_GOOD(ch)) ||
 		(SPELL_IS_EVIL(skill_num) && !IS_EVIL(ch))) {
-		do_say(master,
-			tmp_sprintf("%s You have no business dealing with such magic.", GET_NAME(ch)),
-			0, SCMD_SAY_TO, 0);
+		perform_tell(master, ch, "You have no business dealing with such magic.");
 		return 1;
 	}
 
 	cost = GET_SKILL_COST(ch, skill_num);
 	if (ch->in_room->zone->time_frame == TIME_ELECTRO) {
 		if (CMD_IS("offer")) {
-			do_say(master,
-				tmp_sprintf("%s It will cost you %ld creds to train %s.", GET_NAME(ch), cost, spell_to_str(skill_num)),
-				0, SCMD_SAY_TO, 0);
+			perform_tell(master, ch,
+				tmp_sprintf("It will cost you %ld creds to train %s.", cost, spell_to_str(skill_num)));
 			return 1;
 		}
 
 		if (GET_CASH(ch) < cost) {
-			do_say(master,
-				tmp_sprintf("%s You haven't got the %ld creds I require to train %s.", GET_NAME(ch), cost, spell_to_str(skill_num)),
-				0, SCMD_SAY_TO, 0);
+			perform_tell(master, ch,
+				tmp_sprintf("You haven't got the %ld creds I require to train %s.", cost, spell_to_str(skill_num)));
 			return 1;
 		}
 
@@ -391,16 +362,14 @@ SPECIAL(guild)
 		GET_CASH(ch) -= cost;
 	} else {
 		if (CMD_IS("offer")) {
-			do_say(master,
-				tmp_sprintf("%s It will cost you %ld gold to train %s.", GET_NAME(ch), cost, spell_to_str(skill_num)),
-				0, SCMD_SAY_TO, 0);
+			perform_tell(master, ch,
+				tmp_sprintf("It will cost you %ld gold to train %s.", cost, spell_to_str(skill_num)));
 			return 1;
 		}
 
 		if (GET_GOLD(ch) < cost) {
-			do_say(master,
-				tmp_sprintf("%s You haven't got the %ld gold I require to train %s.", GET_NAME(ch), cost, spell_to_str(skill_num)),
-				0, SCMD_SAY_TO, 0);
+			perform_tell(master, ch,
+				tmp_sprintf("You haven't got the %ld gold I require to train %s.", cost, spell_to_str(skill_num)));
 			return 1;
 		}
 
