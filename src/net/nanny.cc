@@ -88,6 +88,7 @@ void echo_off(struct descriptor_data * d);
 void char_to_game(descriptor_data *d);
 
 void notify_cleric_moon(struct Creature *ch);
+void send_menu(descriptor_data *d);
 
 void
 handle_input(struct descriptor_data *d, char *arg)
@@ -191,6 +192,10 @@ handle_input(struct descriptor_data *d, char *arg)
 		case 'd':
 			if (d->account->get_char_by_index(1))
 				set_desc_state(CXN_DELETE_PROMPT, d);
+			break;
+		case '?':
+		case '\0':
+			send_menu(d);
 			break;
 		default:
 			if (!is_number(arg)) {
