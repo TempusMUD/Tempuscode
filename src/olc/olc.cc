@@ -2405,6 +2405,9 @@ CAN_EDIT_ZONE(CHAR *ch, struct zone_data *zone)
     if ( OLCIMP(ch) )
 	return 1;
 
+    if( OLCGOD(ch) && GET_LEVEL(ch) >= LVL_GRGOD )
+    return 1;
+
     if (zone->owner_idnum == GET_IDNUM(ch))
 	return 1;
 
