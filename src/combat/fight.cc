@@ -2932,7 +2932,7 @@ void
 perform_violence(void)
 {
 
-	register struct Creature *ch;
+	Creature *ch;
 	int prob, i, die_roll;
     CombatDataList::iterator li;
     CombatDataList::iterator temp_li;
