@@ -989,7 +989,8 @@ damage(struct Creature *ch, struct Creature *victim, int dam,
 	if (IS_WEAPON(attacktype)
 			&& GET_EQ(victim, WEAR_SHIELD)
 			&& CHECK_SKILL(victim, SKILL_SHIELD_MASTERY) > 20
-			&& victim->getLevelBonus(SKILL_SHIELD_MASTERY) > number(0, 600)) {
+			&& victim->getLevelBonus(SKILL_SHIELD_MASTERY) > number(0, 600)
+            && victim->getPosition() >= POS_FIGHTING) {
 		act("$N deflects your attack with $S shield!", true,
 			ch, GET_EQ(victim, WEAR_SHIELD), victim, TO_CHAR);
 		act("You deflect $n's attack with $p!", true,
@@ -1003,7 +1004,8 @@ damage(struct Creature *ch, struct Creature *victim, int dam,
     if (IS_WEAPON(attacktype)) {
         if (!SPELL_IS_PSIONIC(attacktype) &&
             CHECK_SKILL(victim, SKILL_UNCANNY_DODGE) > 20 &&
-            victim->getLevelBonus(SKILL_UNCANNY_DODGE) > number(0, 350)) {
+            victim->getLevelBonus(SKILL_UNCANNY_DODGE) > number(0, 350) &&
+            victim->getPosition() >= POS_FIGHTING) {
             act("$N smirks as $E easily sidesteps your attack!", true,
                 ch, NULL, victim, TO_CHAR);
             act("You smirk as you easily sidestep $n's attack!", true,
