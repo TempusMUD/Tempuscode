@@ -1603,6 +1603,7 @@ command_interpreter(struct Creature *ch, char *argument)
 		cmd_info[cmd].command_pointer(ch, line, cmd, cmd_info[cmd].subcmd, 0);
 	}
 
+	trigger_progs_after(ch, cmd, line);
 }
 
 /**************************************************************************
