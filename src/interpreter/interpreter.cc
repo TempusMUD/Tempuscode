@@ -2284,9 +2284,17 @@ special(struct Creature *ch, int cmd, int subcmd, char *arg, special_mode spec_m
 				return specAddress;
 			}
 		}
-		if (GET_MOB_PROG((*it)) != NULL)
-			if (trigger_prog_cmd(*it, ch, cmd, arg))
+		if (GET_MOB_PROG((*it)) != NULL) {
+			if (spec_mode == SPECIAL_CMD
+					&& trigger_prog_cmd(*it, ch, cmd, arg))
 				return true;
+			if (spec_mode == SPECIAL_ENTER
+					&& trigger_prog_move(*it, ch, SPECIAL_ENTER))
+				return true;
+			if (spec_mode == SPECIAL_LEAVE
+					&& trigger_prog_move(*it, ch, SPECIAL_LEAVE))
+				return true;
+		}
 	}
 
 	/* special in object present? */

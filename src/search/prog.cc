@@ -184,6 +184,10 @@ prog_trigger_handler(prog_env *env, prog_evt *evt, int phase, char *args)
 		matched = (evt->kind == PROG_EVT_FIGHT);
 	} else if (!strcmp("give", arg)) {
 		matched = (evt->kind == PROG_EVT_GIVE);
+	} else if (!strcmp("enter", arg)) {
+		matched = (evt->kind == PROG_EVT_ENTER);
+	} else if (!strcmp("leave", arg)) {
+		matched = (evt->kind == PROG_EVT_LEAVE);
 	}
 
 	if (!matched)
@@ -889,6 +893,53 @@ trigger_prog_cmd(Creature *owner, Creature *ch, int cmd, char *argument)
 
 	evt.phase = PROG_EVT_AFTER;
 	evt.args = strdup(argument);
+	env = prog_start(PROG_TYPE_MOBILE, owner, ch, GET_MOB_PROG(owner), &evt);
+	// note that we don't start executing yet...
+
+	loop_fence -= 1;
+
+	if (handler_env && handler_env->executed)
+		return true;
+
+	return handled;
+}
+
+bool
+trigger_prog_move(Creature *owner, Creature *ch, special_mode mode)
+{
+	prog_env *env, *handler_env;
+	prog_evt evt;
+	bool handled = false;
+
+	if (!GET_MOB_PROG(owner) || ch == owner)
+		return false;
+	
+	// We don't want an infinite loop with mobs triggering progs that
+	// trigger a prog, etc.
+	if (loop_fence >= 20) {
+		mudlog(LVL_IMMORT, NRM, true, "Infinite prog loop halted.");
+		return false;
+	}
+	
+	loop_fence++;
+
+	evt.phase = PROG_EVT_BEGIN;
+	evt.kind = (mode == SPECIAL_ENTER) ? PROG_EVT_ENTER:PROG_EVT_LEAVE;
+	evt.cmd = 0;
+	evt.subject = ch;
+	evt.object = NULL;
+	evt.object_type = PROG_TYPE_NONE;
+	evt.args = NULL;
+	env = prog_start(PROG_TYPE_MOBILE, owner, ch, GET_MOB_PROG(owner), &evt);
+	prog_execute(env);
+	
+	evt.phase = PROG_EVT_HANDLE;
+	evt.args = NULL;
+	handler_env = prog_start(PROG_TYPE_MOBILE, owner, ch, GET_MOB_PROG(owner), &evt);
+	prog_execute(handler_env);
+
+	evt.phase = PROG_EVT_AFTER;
+	evt.args = NULL;
 	env = prog_start(PROG_TYPE_MOBILE, owner, ch, GET_MOB_PROG(owner), &evt);
 	// note that we don't start executing yet...
 

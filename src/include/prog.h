@@ -1,6 +1,8 @@
 #ifndef _PROG_H_
 #define _PROG_H_
 
+#include "constants.h"
+
 class Creature;
 
 enum prog_evt_type {
@@ -20,7 +22,9 @@ enum prog_evt_kind {
 	PROG_EVT_COMMAND,
 	PROG_EVT_IDLE,
 	PROG_EVT_FIGHT,
-	PROG_EVT_GIVE
+	PROG_EVT_GIVE,
+	PROG_EVT_ENTER,
+	PROG_EVT_LEAVE
 };
 
 struct prog_evt {
@@ -59,6 +63,7 @@ struct prog_env {
 
 void destroy_attached_progs(void *self);
 bool trigger_prog_cmd(Creature *self, Creature *ch, int cmd, char *argument);
+bool trigger_prog_move(Creature *ch, Creature *self, special_mode mode);
 void trigger_progs_after(Creature *ch, int cmd, char *argument);
 void trigger_prog_idle(Creature *self);
 void trigger_prog_fight(Creature *ch, Creature *self);
