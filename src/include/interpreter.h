@@ -343,6 +343,7 @@ struct alias {
 #define TRIG_BIT  2
 #define ZEN_BIT   4
 #define ALTER_BIT 8
+#define PROG_BIT 16
 
 // do_dyntext_show
 #define SCMD_DYNTEXT_NEWS  1
