@@ -279,26 +279,25 @@ ACMD(do_gsay)
 void
 perform_tell(struct Creature *ch, struct Creature *vict, char *arg)
 {
+	const char *mood_str;
 	char *str;
 
-	str = tmp_sprintf("%sYou tell $N,%s '%s'",
-		CCRED(ch, C_NRM), CCNRM(ch, C_NRM), arg);
+	mood_str = GET_MOOD(ch) ? GET_MOOD(ch):"";
+
+	str = tmp_sprintf("%sYou%s tell $N,%s '%s'",
+		CCRED(ch, C_NRM), mood_str, CCNRM(ch, C_NRM), arg);
 	act(str, FALSE, ch, 0, vict, TO_CHAR | TO_SLEEP);
 
 	delete_doubledollar(arg);
 
-	if (!IS_NPC(vict)) {
-		str = tmp_strdup(PERS(ch, vict));
-		str[0] = toupper(str[0]);
-		send_to_char(vict, "%s%s tells you,%s '%s'\r\n",
-			CCRED(vict, C_NRM),
-			str,
-			CCNRM(vict, C_NRM),
-			arg);
-	} else {
-		str = tmp_sprintf("$n tells you, '%s'", arg);
-		act(str, FALSE, ch, 0, vict, TO_VICT | TO_SLEEP);
-	}
+	str = tmp_strdup(PERS(ch, vict));
+	str[0] = toupper(str[0]);
+	send_to_char(vict, "%s%s%s tells you,%s '%s'\r\n",
+		CCRED(vict, C_NRM),
+		str,
+		mood_str,
+		CCNRM(vict, C_NRM),
+		arg);
 	if (PRF2_FLAGGED(vict, PRF2_AUTOPAGE) && !IS_MOB(ch))
 		send_to_char(vict, "\007\007");
 
@@ -415,15 +414,15 @@ ACMD(do_spec_comm)
 	if (subcmd == SCMD_WHISPER) {
 		action_sing = "whisper to";
 		action_plur = "whispers to";
-		action_others = "$n whispers something to $N.";
+		action_others = "$n$a whispers something to $N.";
 	} else if (subcmd == SCMD_RESPOND) {
 		action_sing = "respond to";
 		action_plur = "responds to";
-		action_others = "$n responds to $N.";
+		action_others = "$n$a responds to $N.";
 	} else {
 		action_sing = "ask";
 		action_plur = "asks";
-		action_others = "$n asks $N a question.";
+		action_others = "$n$a asks $N a question.";
 	}
 
 	half_chop(argument, buf, buf2);
@@ -436,10 +435,10 @@ ACMD(do_spec_comm)
 		send_to_char(ch, 
 			"You can't get your mouth close enough to your ear...\r\n");
 	else {
-		sprintf(buf, "%s$n %s you,%s '%s'", CCYEL(vict, C_NRM), action_plur,
+		sprintf(buf, "%s$n$a %s you,%s '%s'", CCYEL(vict, C_NRM), action_plur,
 			CCNRM(vict, C_NRM), buf2);
 		act(buf, FALSE, ch, 0, vict, TO_VICT);
-		sprintf(buf, "%sYou %s %s,%s '%s'", CCYEL(ch, C_NRM), action_sing,
+		sprintf(buf, "%sYou$a %s %s,%s '%s'", CCYEL(ch, C_NRM), action_sing,
 			GET_DISGUISED_NAME(ch, vict), CCNRM(ch, C_NRM), buf2);
 		act(buf, FALSE, ch, 0, 0, TO_CHAR);
 		act(action_others, FALSE, ch, 0, vict, TO_NOTVICT);
