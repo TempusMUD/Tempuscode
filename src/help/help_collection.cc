@@ -340,12 +340,12 @@ bool HelpCollection::LoadIndex() {
                         >>  n->counter >> n->flags  
                         >> n->owner;
 
-            index_file.getline(fname,100,'\n');
-            index_file.getline(fname,100,'\n');
+            index_file.getline(buf,250,'\n');
+            index_file.getline(buf,250,'\n');
             n->SetName(s);
                 
-            s = fname;
-            index_file.getline(fname,100,'\n');
+            s = buf;
+            index_file.getline(buf,250,'\n');
             n->SetKeyWords(s);
             REMOVE_BIT(n->flags,HFLAG_MODIFIED);
             Push(n);
