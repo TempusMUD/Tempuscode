@@ -4674,7 +4674,7 @@ ACMD(do_soilage)
 
 ACMD(do_skills)
 {
-	int parse_player_class(char *arg, int timeframe);
+	int parse_player_class(char *arg);
 	int parse_char_class(char *arg);
 	void show_char_class_skills(struct Creature *ch, int con, int immort,
 		int bits);
@@ -4688,7 +4688,7 @@ ACMD(do_skills)
 		arg = tmp_getword(&argument);
 		if (*arg) {
 			if (GET_LEVEL(ch) < LVL_IMMORT)
-				char_class = parse_player_class(arg, TIME_TIMELESS);
+				char_class = parse_player_class(arg);
 			else
 				char_class = parse_char_class(arg);
 			if (char_class < 0) {

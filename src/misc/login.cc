@@ -12,64 +12,158 @@
 #include "utils.h"
 #include "login.h"
 #include "char_class.h"
+#include "creature.h"
 
-void show_race_help(struct descriptor_data *d, int race, int timeframe);
+void show_race_help(struct descriptor_data *d, int race);
 
 //
 // show_char_class_menu is for choosing a char_class when you remort
 //
 
-void
-show_char_class_menu(struct descriptor_data *d, int timeframe)
+int
+count_ampers(const char *str)
 {
-	Creature *ch = d->creature;
+	int count = 0;
+
+	while (*str) {
+		if (*str == '&')
+			count++;
+		str++;
+	}
+
+	return count;
+}
+
+void
+show_pc_race_menu(struct descriptor_data *d)
+{
+	int i, cl;
+
+	cl = GET_CLASS(d->creature) + 1;
+	for (i = 0;i < NUM_PC_RACES;i++) {
+		if (race_restr[i][cl] != 2)
+			continue;
+		switch (race_restr[i][0]) {
+		case RACE_HUMAN:
+			send_to_desc(d,
+				"                    &gHuman&n     --  Homo Sapiens\r\n");
+			break;
+		case RACE_ELF:
+			send_to_desc(d,
+				"                    &gElf&n       --  Ancient Woodland Race\r\n");
+			break;
+		case RACE_DWARF:
+			send_to_desc(d,
+				"                    &gDwarf&n     --  Short, Bearded, Strong\r\n");
+			break;
+		case RACE_HALF_ORC:
+			send_to_desc(d,
+				"                    &gHalf Orc&n  --  Mean, Ugly Bastards\r\n");
+			break;
+		case RACE_HALFLING:
+			send_to_desc(d,
+				"                    &gHalfling&n  --  Nimble Hole-dwellers\r\n");
+			break;
+		case RACE_TABAXI:
+			send_to_desc(d,
+				"                    &gTabaxi&n    --  Lithe Cat-person\r\n");
+			break;
+		case RACE_DROW:
+			send_to_desc(d,
+				"                    &gDrow&n      --  Black-hearted dark elves\r\n");
+			break;
+		case RACE_MINOTAUR:
+			send_to_desc(d,
+				"                    &gMinotaur&n  --  Powerful Bull-man\r\n");
+			break;
+		case RACE_ORC:
+			send_to_desc(d,
+				"                    &gOrc&n       --  Full blooded monsters\r\n");
+			break;
+		}
+	}
+}
+
+bool
+valid_class_race(Creature *ch, int char_class, bool remort)
+{
 	int i;
+
+	// We only have to worry about the remort menu
+	if (!remort)
+		return true;
+
+	if (char_class == GET_CLASS(ch))
+		return false;
 
 	for (i = 0;i < NUM_PC_RACES;i++)
 		if (race_restr[i][0] == GET_RACE(ch))
-			break;
-		
-	buf[0] = '\0';
-	if (!timeframe || timeframe == TIME_PAST) {
-		if (GET_CLASS(ch) != CLASS_MAGE && race_restr[i][CLASS_MAGE + 1])
-			send_to_desc(d,
-				"                &gMage&n      --  Delver in Magical Arts\r\n");
-		if (GET_CLASS(ch) != CLASS_BARB && race_restr[i][CLASS_BARB + 1])
-			send_to_desc(d,
-				"                &gBarbarian&n --  Uncivilized Warrior\r\n");
-		if (GET_CLASS(ch) != CLASS_KNIGHT && GET_CLASS(ch) != CLASS_MONK &&
-				race_restr[i][CLASS_KNIGHT + 1])
-			send_to_desc(d,
-				"                &gKnight&n    --  Defender of the Faith\r\n");
-		if (GET_CLASS(ch) != CLASS_RANGER && race_restr[i][CLASS_RANGER + 1])
-			send_to_desc(d, "                &gRanger&n    --  Roamer of Worlds\r\n");
-		if (GET_CLASS(ch) != CLASS_CLERIC && GET_CLASS(ch) != CLASS_MONK &&
-				race_restr[i][CLASS_CLERIC + 1])
-			send_to_desc(d, "                &gCleric&n    --  Servant of Diety\r\n");
-		if (GET_CLASS(ch) != CLASS_THIEF && race_restr[i][CLASS_THIEF + 1])
-			send_to_desc(d, "                &gThief&n     --  Stealthy Rogue\r\n");
-	}
+			return (race_restr[i][GET_CLASS(ch) + 1] != 0);
+
+	return false;
+}
+
+void
+show_char_class_menu(struct descriptor_data *d, bool remort)
+{
+	Creature *ch = d->creature;
+	char *left_col, *right_col;
+	char *left_line, *right_line;
+
+	left_col = right_col = "";
+	if (valid_class_race(ch, CLASS_MAGE, remort))
+		left_col = tmp_strcat(left_col,
+			"&gMage&n\r\n    Delver in Magical Arts\r\n");
+	if (valid_class_race(ch, CLASS_BARB, remort))
+		left_col = tmp_strcat(left_col,
+			"&gBarbarian&n\r\n    Uncivilized Warrior\r\n");
+	if (valid_class_race(ch, CLASS_KNIGHT, remort) &&
+			GET_CLASS(ch) != CLASS_MONK)
+		left_col = tmp_strcat(left_col,
+			"&gKnight&n\r\n    Defender of the Faith\r\n");
+	if (valid_class_race(ch, CLASS_RANGER, remort))
+		left_col = tmp_strcat(left_col,
+			"&gRanger&n\r\n    Roamer of Worlds\r\n");
+	if (valid_class_race(ch, CLASS_CLERIC, remort) &&
+			GET_CLASS(ch) != CLASS_MONK)
+		left_col = tmp_strcat(left_col,
+			"&gCleric&n\r\n    Servant of Diety\r\n");
+	if (valid_class_race(ch, CLASS_THIEF, remort))
+		left_col = tmp_strcat(left_col,
+			"&gThief&n\r\n    Stealthy Rogue\r\n");
 
 	// Print future classes
-	if (!timeframe || timeframe == TIME_FUTURE) {
-		if (GET_CLASS(ch) != CLASS_CYBORG && race_restr[i][CLASS_CYBORG + 1])
-			send_to_desc(d,
-				"                &gCyborg&n      --  The Electronically Advanced\r\n");
-		if (GET_CLASS(ch) != CLASS_PSIONIC && race_restr[i][CLASS_PSIONIC + 1])
-			send_to_desc(d, "                &gPsionic&n     --  Mind Traveller\r\n");
-		if (GET_CLASS(ch) != CLASS_MERCENARY && race_restr[i][CLASS_MERCENARY + 1])
-			send_to_desc(d, "                &gMercenary&n   --  Gun for Hire\r\n");
-		if (GET_CLASS(ch) != CLASS_PHYSIC && race_restr[i][CLASS_PHYSIC + 1])
-			send_to_desc(d,
-				"                &gPhysic&n      --  Controller of Forces\r\n");
-	}
+	if (valid_class_race(ch, CLASS_CYBORG, remort))
+		right_col = tmp_strcat(right_col,
+			"&gCyborg&n\r\n    The Electronically Advanced\r\n");
+	if (valid_class_race(ch, CLASS_PSIONIC, remort))
+		right_col = tmp_strcat(right_col,
+			"&gPsionic&n\r\n    Mind Traveller\r\n");
+	if (valid_class_race(ch, CLASS_MERCENARY, remort))
+		right_col = tmp_strcat(right_col,
+			"&gMercenary&n\r\n    Gun for Hire\r\n");
+	if (valid_class_race(ch, CLASS_PHYSIC, remort))
+		right_col = tmp_strcat(right_col,
+			"&gPhysic&n\r\n    Alterer of Universal Laws\r\n");
+	if (valid_class_race(ch, CLASS_MONK, remort) &&
+			GET_CLASS(ch) != CLASS_KNIGHT && GET_CLASS(ch) != CLASS_CLERIC)
+		right_col = tmp_strcat(right_col,
+			"&gMonk&n\r\n    Philosophical Warrior\r\n");
 
-	// Monks are both future and past
-	if (GET_CLASS(ch) != CLASS_MONK && GET_CLASS(ch) != CLASS_KNIGHT && 
-		GET_CLASS(ch) != CLASS_CLERIC && race_restr[i][CLASS_MONK + 1])
-		send_to_desc(d,
-			"                &gMonk&n      --  Philosophical Warrior\r\n");
-	send_to_desc(d, "\r\n\r\n\r\n");
+	do {
+		left_line = tmp_getline(&left_col);
+		if (!left_line)
+			left_line = "";
+		right_line = tmp_getline(&right_col);
+		if (!right_line)
+			right_line = "";
+		send_to_desc(d, " %s%s%s\r\n",
+			left_line,
+			tmp_pad(' ', 39 + (count_ampers(left_line) * 2) - strlen(left_line)),
+			right_line);
+	} while (*left_line || *right_line);
+
+	send_to_desc(d, "\r\n");
 }
 
 //
@@ -188,7 +282,7 @@ parse_past_home(struct descriptor_data *d, char *arg)
 //
 
 int
-parse_pc_race(struct descriptor_data *d, char *arg, int timeframe)
+parse_pc_race(struct descriptor_data *d, char *arg)
 {
 	int race = -1;
 
@@ -199,8 +293,8 @@ parse_pc_race(struct descriptor_data *d, char *arg, int timeframe)
 		if (!*buf2)
 			SEND_TO_Q("Help on what race?\r\n", d);
 		else {
-			race = parse_pc_race(d, buf2, timeframe);
-			show_race_help(d, race, timeframe);
+			race = parse_pc_race(d, buf2);
+			show_race_help(d, race);
 		}
 		return (-2);
 	}
@@ -209,29 +303,26 @@ parse_pc_race(struct descriptor_data *d, char *arg, int timeframe)
 		return RACE_HUMAN;
 	else if (is_abbrev(buf, "elf") || is_abbrev(buf, "elven"))
 		return RACE_ELF;
+	else if (is_abbrev(buf, "halfling"))
+		return RACE_HALFLING;
 	else if (is_abbrev(buf, "half orc") || is_abbrev(buf, "half orcen"))
 		return RACE_HALF_ORC;
 	else if (is_abbrev(buf, "tabaxi"))
 		return RACE_TABAXI;
-	if (timeframe == TIME_PAST) {
-		// Past only classes
-		if (is_abbrev(buf, "dwarf") || is_abbrev(buf, "dwarven"))
-			return RACE_DWARF;
-		else if (is_abbrev(buf, "minotaur"))
-			return RACE_MINOTAUR;
-		else if (is_abbrev(buf, "drow"))
-			return RACE_DROW;
-	} else {
-		// Future only races
-		if (is_abbrev(buf, "orc"))
-			return RACE_ORC;
-	}
+	else if (is_abbrev(buf, "dwarf") || is_abbrev(buf, "dwarven"))
+		return RACE_DWARF;
+	else if (is_abbrev(buf, "minotaur"))
+		return RACE_MINOTAUR;
+	else if (is_abbrev(buf, "drow"))
+		return RACE_DROW;
+	else if (is_abbrev(buf, "orc"))
+		return RACE_ORC;
 
 	return (-1);
 }
 
 void
-show_race_help(struct descriptor_data *d, int race, int timeframe)
+show_race_help(struct descriptor_data *d, int race)
 {
 
 	SEND_TO_Q("\r\n", d);

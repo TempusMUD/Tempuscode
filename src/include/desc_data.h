@@ -36,11 +36,8 @@ enum cxn_state {
 	// Character creation
 	CXN_NAME_PROMPT,			// Enter a name for new character
 	CXN_SEX_PROMPT,				// Sex?             
-	CXN_TIME_PROMPT,			// What timeframe?
-	CXN_RACE_PAST,				// Race? (timeframe-based)
-	CXN_RACE_FUTURE,			// Race? (timeframe-based)
-	CXN_CLASS_PAST,				// Class? (timeframe-based)
-	CXN_CLASS_FUTURE,			// Class? (timeframe-based)
+	CXN_CLASS_PROMPT,			// Class?
+	CXN_RACE_PROMPT,			// Race?
 	CXN_ALIGN_PROMPT,			// Align? (race/class may restrict)
 	CXN_STATISTICS_ROLL,		// Statistics rolling
 	// Other, miscellaneous states

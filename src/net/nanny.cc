@@ -79,8 +79,7 @@ int reserved_word(char *argument);
 char *diag_conditions(struct Creature *ch);
 int perform_alias(struct descriptor_data *d, char *orig);
 int get_from_q(struct txt_q *queue, char *dest, int *aliased, int length = MAX_INPUT_LENGTH );
-int parse_player_class(char *arg, int timeframe);
-int parse_time_frame(char *arg);
+int parse_player_class(char *arg);
 void save_all_players(void);
 
 
@@ -385,90 +384,53 @@ handle_input(struct descriptor_data *d)
 		switch (tolower(arg[0])) {
 		case 'm':
 			GET_SEX(d->creature) = 1;
-			set_desc_state(CXN_TIME_PROMPT, d);
+			set_desc_state(CXN_CLASS_PROMPT, d);
 			break;
 		case 'f':
 			GET_SEX(d->creature) = 2;
-			set_desc_state(CXN_TIME_PROMPT, d);
+			set_desc_state(CXN_CLASS_PROMPT, d);
 			break;
 		default:
 			send_to_desc(d, "\r\nPlease enter male or female.\r\n\r\n"); break;
 		}
 		break;
-	case CXN_TIME_PROMPT:
-		switch (tolower(arg[0])) {
-		case 'p':
-			set_desc_state(CXN_RACE_PAST, d); break;
-		case 'f':
-			set_desc_state(CXN_RACE_FUTURE, d); break;
-		default:
-			send_to_desc(d, "Please select the past or the future.\r\n"); break;
-		}
-		break;
-	case CXN_RACE_PAST:
-		GET_RACE(d->creature) = parse_pc_race(d, arg, TIME_PAST);
-		if (GET_RACE(d->creature) == RACE_UNDEFINED) {
-			SEND_TO_Q(CCRED(d->creature, C_NRM), d);
-			SEND_TO_Q("\r\nThat's not a choice.\r\n\r\n", d);
-			SEND_TO_Q(CCNRM(d->creature, C_NRM), d);
-			break;
-		}
-		GET_CLASS(d->creature) = CLASS_UNDEFINED;
-		set_desc_state( CXN_CLASS_PAST,d );
-		break;
-	case CXN_RACE_FUTURE:
-		GET_RACE(d->creature) = parse_pc_race(d, arg, TIME_FUTURE);
-		if (GET_RACE(d->creature) == RACE_UNDEFINED) {
-			SEND_TO_Q(CCRED(d->creature, C_NRM), d);
-			SEND_TO_Q("\r\nThat's not a choice.\r\n\r\n", d);
-			SEND_TO_Q(CCNRM(d->creature, C_NRM), d);
-			break;
-		}
-		GET_CLASS(d->creature) = CLASS_UNDEFINED;
-		set_desc_state( CXN_CLASS_FUTURE,d );
-		break;
-	case CXN_CLASS_PAST:
-		GET_CLASS(d->creature) = parse_player_class(arg, TIME_PAST);
+	case CXN_CLASS_PROMPT:
+		GET_CLASS(d->creature) = parse_player_class(arg);
 		if (GET_CLASS(d->creature) == CLASS_UNDEFINED) {
 			SEND_TO_Q(CCRED(d->creature, C_NRM), d);
 			SEND_TO_Q("\r\nThat's not a character class.\r\n\r\n", d);
 			SEND_TO_Q(CCNRM(d->creature, C_NRM), d);
 			return;
 		}
-
-		for (i=0;i < NUM_PC_RACES;i++) {
-			if (race_restr[i][0] == GET_RACE(d->creature))
-				break;
-		}
-
-		if (!race_restr[i][GET_CLASS(d->creature)+1]) {
-				SEND_TO_Q(CCGRN(d->creature, C_NRM), d);
-				SEND_TO_Q("\r\nThat character class is not allowed to your race!\r\n\r\n", d);
-				GET_CLASS(d->creature) = CLASS_UNDEFINED;
-		} else
-			set_desc_state( CXN_ALIGN_PROMPT,d );
+		set_desc_state(CXN_RACE_PROMPT, d);
 		break;
-	case CXN_CLASS_FUTURE:
-		GET_CLASS(d->creature) = parse_player_class(arg, TIME_FUTURE);
-		if (GET_CLASS(d->creature) == CLASS_UNDEFINED) {
-			SEND_TO_Q(CCRED(d->creature, C_NRM), d);
-			SEND_TO_Q("\r\nThat's not a character class.\r\n\r\n", d);
-			SEND_TO_Q(CCNRM(d->creature, C_NRM), d);
-			return;
-		}
+	case CXN_RACE_PROMPT:
+		GET_RACE(d->creature) = parse_pc_race(d, arg);
 
 		for (i=0;i < NUM_PC_RACES;i++)
 			if (race_restr[i][0] == GET_RACE(d->creature))
 				break;
-		if (!race_restr[i][GET_CLASS(d->creature)+1]) {
-				SEND_TO_Q(CCGRN(d->creature, C_NRM), d);
-				SEND_TO_Q("\r\nThat character class is not allowed to your race!\r\n\r\n", d);
-				GET_CLASS(d->creature) = CLASS_UNDEFINED;
-		} else
-			set_desc_state( CXN_ALIGN_PROMPT,d );
+
+		if (race_restr[i][GET_CLASS(d->creature)+1] != 2) {
+			SEND_TO_Q(CCGRN(d->creature, C_NRM), d);
+			SEND_TO_Q("\r\nThat race is not allowed to your character class!\r\n", d);
+			SEND_TO_Q(CCNRM(d->creature, C_NRM), d);
+
+			GET_RACE(d->creature) = RACE_UNDEFINED;
+			break;
+		}
+
+		if (GET_RACE(d->creature) == RACE_UNDEFINED) {
+			SEND_TO_Q(CCRED(d->creature, C_NRM), d);
+			SEND_TO_Q("\r\nThat's not a choice.\r\n\r\n", d);
+			SEND_TO_Q(CCNRM(d->creature, C_NRM), d);
+			break;
+		}
+
+		set_desc_state(CXN_ALIGN_PROMPT, d);
 		break;
 	case CXN_CLASS_REMORT:
-		GET_REMORT_CLASS(d->creature) = parse_player_class(arg, TIME_TIMELESS);
+		GET_REMORT_CLASS(d->creature) = parse_player_class(arg);
 		if (GET_REMORT_CLASS(d->creature) == CLASS_UNDEFINED) {
 			SEND_TO_Q(CCRED(d->creature, C_NRM), d);
 			SEND_TO_Q("\r\nThat's not a character class.\r\n\r\n", d);
@@ -809,18 +771,14 @@ send_prompt(descriptor_data *d)
 		send_to_desc(d, "Enter your new password: "); break;
 	case CXN_NAME_PROMPT:
 		send_to_desc(d, "Enter the name you wish for this character: "); break;
-	case CXN_TIME_PROMPT:
-		send_to_desc(d, "From what time period do you hail? "); break;
 	case CXN_SEX_PROMPT:
 		send_to_desc(d, "What do you choose as your sex (M/F)? "); break;
-	case CXN_RACE_PAST:
-	case CXN_RACE_FUTURE:
-		send_to_desc(d, "What race are you a member of? "); break;
-	case CXN_CLASS_PAST:
-	case CXN_CLASS_FUTURE:
-		send_to_desc(d, "Choose your profession from the above list: "); break;
+	case CXN_RACE_PROMPT:
+		send_to_desc(d, "\r\n\r\n                     Of which race are you a member? "); break;
+	case CXN_CLASS_PROMPT:
+		send_to_desc(d, "             Choose your profession from the above list: "); break;
 	case CXN_CLASS_REMORT:
-		send_to_desc(d, "Choose your secondary class from the above list: "); break;
+		send_to_desc(d, "             Choose your secondary class from the above list: "); break;
 	case CXN_ALIGN_PROMPT:
 		if (IS_DROW(d->creature)) {
 			send_to_desc(d, "The Drow race is inherently evil.  Thus you begin your life as evil.\r\n\r\nPress return to continue.\r\n");
@@ -941,49 +899,20 @@ send_menu(descriptor_data *d)
 		send_to_desc(d, "&c\r\n                                     GENDER\r\n*******************************************************************************\r\n&n");
 		send_to_desc(d, "\r\n    Is your character a male or a female?\r\n\r\n");
 		break;
-	case CXN_TIME_PROMPT:
+	case CXN_RACE_PROMPT:			// Racial Query
 		send_to_desc(d, "\e[H\e[J");
-		send_to_desc(d, "&c\r\n                                      TIME\r\n*******************************************************************************\r\n&n");
-		send_to_desc(d, "\r\n\r\n"
-			"         &gPast&c     - the era of Modrian&n\r\n"
-			"         &gFuture&c   - era of Electro Centralis&n\r\n\r\n\r\n");
+		send_to_desc(d, "&c\r\n                                      RACE\r\n*******************************************************************************&n\r\n\r\n");
+		show_pc_race_menu(d);
 		break;
-	case CXN_RACE_PAST:			// Racial Query
+	case CXN_CLASS_PROMPT:
 		send_to_desc(d, "\e[H\e[J");
-		send_to_desc(d, "&c\r\n                                      RACE\r\n*******************************************************************************\r\n&n");
-		send_to_desc(d, "\r\n\r\n"
-			"                    &gHuman&n    --  Homo Sapiens\r\n"
-			"                    &gElven&n    --  Ancient Woodland Race\r\n"
-			"                    &gDrow&n     --  The Dark Elf\r\n"
-			"                    &gDwarven&n  --  Short and Stout\r\n"
-			"                    &gHalf Orc&n --  Mean, Ugly Bastards\r\n"
-			"                    &gTabaxi&n   --  Lithe Cat-person\r\n"
-			"                    &gMinotaur&n --  Powerful Bull-Man\r\n\r\n");
-		break;
-	case CXN_RACE_FUTURE:		// Racial Query
-		send_to_desc(d, "\e[H\e[J");
-		send_to_desc(d ,"&c\r\n                                      RACE\r\n*******************************************************************************\r\n&n");
-		send_to_desc(d, "\r\n\r\n"
-			"                    &gHuman&n    --  Homo Sapiens\r\n"
-			"                    &gElven&n    --  Ancient Woodland Race\r\n"
-			"                    &gOrc&n      --  Full blooded monsters\r\n"
-			"                    &gHalf Orc&n --  Mean, Ugly Bastards\r\n"
-			"                    &gTabaxi&n   --  Lithe Cat-person\r\n");
-		break;
-	case CXN_CLASS_PAST:
-		send_to_desc(d, "\e[H\e[J");
-		send_to_desc(d, "&c\r\n                                   PROFESSION\r\n*******************************************************************************&n\r\n\r\n\r\n");
-		show_char_class_menu(d, TIME_PAST);
-		break;
-	case CXN_CLASS_FUTURE:
-		send_to_desc(d, "\e[H\e[J");
-		send_to_desc(d, "&c\r\n                                   PROFESSION\r\n*******************************************************************************&n\r\n\r\n\r\n");
-		show_char_class_menu(d, TIME_FUTURE);
+		send_to_desc(d, "&c\r\n                                   PROFESSION\r\n*******************************************************************************&n\r\n\r\n");
+		show_char_class_menu(d, false);
 		break;
 	case CXN_CLASS_REMORT:
 		send_to_desc(d, "\e[H\e[J");
 		send_to_desc(d, "&c\r\n                                   PROFESSION\r\n*******************************************************************************&n\r\n\r\n\r\n");
-		show_char_class_menu(d);
+		show_char_class_menu(d, true);
 		break;
 	case CXN_ALIGN_PROMPT:
 		send_to_desc(d, "\e[H\e[J");
