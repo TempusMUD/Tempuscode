@@ -8,11 +8,13 @@
 #define BAN_ALL		3
 
 #define BANNED_SITE_LENGTH    50
+#define BANNED_REASON_LENGTH  80
 struct ban_list_element {
 	char site[BANNED_SITE_LENGTH + 1];
 	int type;
 	time_t date;
 	char name[MAX_NAME_LENGTH + 1];
+	char reason[BANNED_REASON_LENGTH + 1];
 	struct ban_list_element *next;
 };
 

@@ -47,9 +47,8 @@ void
 load_banned(void)
 {
 	FILE *fl;
-	int i, date;
-	char site_name[BANNED_SITE_LENGTH + 1], ban_type[100];
-	char name[MAX_NAME_LENGTH + 1];
+	int i;
+	char *read_pt, *ban_type;
 	struct ban_list_element *next_node;
 
 	ban_list = 0;
@@ -58,13 +57,25 @@ load_banned(void)
 		perror("Unable to open banfile");
 		return;
 	}
-	while (fscanf(fl, " %s %s %d %s ", ban_type, site_name, &date, name) == 4) {
+	while (fgets(buf, MAX_STRING_LENGTH, fl)) {
+		if (!buf[0] || buf[0] == '#')
+			continue;
+		buf[strlen(buf) - 1] = '\0';
+		read_pt = buf;
 		CREATE(next_node, struct ban_list_element, 1);
-		strncpy(next_node->site, site_name, BANNED_SITE_LENGTH);
+		ban_type = tmp_getword(&read_pt);
+
+		strncpy(next_node->site, tmp_getword(&read_pt), BANNED_SITE_LENGTH);
 		next_node->site[BANNED_SITE_LENGTH] = '\0';
-		strncpy(next_node->name, name, MAX_NAME_LENGTH);
+
+		next_node->date = atol(tmp_getword(&read_pt));
+
+		strncpy(next_node->name, tmp_getword(&read_pt), MAX_NAME_LENGTH);
 		next_node->name[MAX_NAME_LENGTH] = '\0';
-		next_node->date = date;
+		next_node->name[0] = toupper(next_node->name[0]);
+
+		strncpy(next_node->reason, read_pt, 79);
+		next_node->name[79] = '\0';
 
 		for (i = BAN_NOT; i <= BAN_ALL; i++)
 			if (!strcmp(ban_type, ban_types[i]))
@@ -107,8 +118,8 @@ _write_one_node(FILE * fp, struct ban_list_element *node)
 {
 	if (node) {
 		_write_one_node(fp, node->next);
-		fprintf(fp, "%s %s %ld %s\n", ban_types[node->type],
-			node->site, (long)node->date, node->name);
+		fprintf(fp, "%s %s %ld %s %s\n", ban_types[node->type],
+			node->site, (long)node->date, node->name, node->reason);
 	}
 }
 
@@ -131,10 +142,10 @@ write_ban_list(void)
 
 ACMD(do_ban)
 {
-	char flag[MAX_INPUT_LENGTH], site[MAX_INPUT_LENGTH],
-		format[MAX_INPUT_LENGTH], *nextchar, *timestr;
+	char *nextchar, timestr[30];
 	int i;
 	struct ban_list_element *ban_node;
+	char *write_pt, *site, *flag;
 
 	*buf = '\0';
 
@@ -143,32 +154,27 @@ ACMD(do_ban)
 			send_to_char(ch, "No sites are banned.\r\n");
 			return;
 		}
-		strcpy(format, "%-25.25s  %-8.8s  %-10.10s  %-16.16s\r\n");
-		sprintf(buf2, format,
-			"Banned Site Name", "Ban Type", "Banned On", "Banned By");
 
-		sprintf(buf, format,
-			"---------------------------------",
-			"---------------------------------",
-			"---------------------------------",
-			"---------------------------------");
-		strcat(buf2, buf);
+		strcpy(buf, "* Site             Date            Banned by   Reason\r\n");
+		strcat(buf, "- ---------------  --------------  ----------  -------------------------------\r\n");
+		write_pt = buf + strlen(buf);
 
 		for (ban_node = ban_list; ban_node; ban_node = ban_node->next) {
 			if (ban_node->date) {
-				timestr = asctime(localtime(&(ban_node->date)));
-				*(timestr + 10) = 0;
-				strcpy(site, timestr);
+				strftime(timestr, 29, "%a %m/%d/%Y", localtime(&ban_node->date));
 			} else
-				strcpy(site, "Unknown");
-			sprintf(buf, format, ban_node->site, ban_types[ban_node->type],
-				site, ban_node->name);
-			strcat(buf2, buf);
+				strcpy(timestr, "Unknown");
+			sprintf(buf2, "%c %-15s  %-14s  %-10s  %-30s\r\n",
+				toupper(ban_types[ban_node->type][0]), ban_node->site,
+				timestr, ban_node->name, ban_node->reason);
+			strcpy(write_pt, buf2);
+			write_pt += strlen(buf2);
 		}
-		page_string(ch->desc, buf2);
+		page_string(ch->desc, buf);
 		return;
 	}
-	two_arguments(argument, flag, site);
+	flag = tmp_getword(&argument);
+	site = tmp_getword(&argument);
 	if (!*site || !*flag) {
 		send_to_char(ch, "Usage: ban {all | select | new} site_name\r\n");
 		return;
@@ -199,7 +205,9 @@ ACMD(do_ban)
 	strncpy(ban_node->name, GET_NAME(ch), MAX_NAME_LENGTH);
 	ban_node->name[MAX_NAME_LENGTH] = '\0';
 	ban_node->date = time(0);
-
+	strncpy(ban_node->reason, argument, MAX_NAME_LENGTH);
+	ban_node->reason[MAX_NAME_LENGTH] = '\0';
+	
 	for (i = BAN_NEW; i <= BAN_ALL; i++)
 		if (!str_cmp(flag, ban_types[i]))
 			ban_node->type = i;
