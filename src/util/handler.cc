@@ -670,16 +670,19 @@ affect_to_char(struct char_data * ch, struct affected_type * af)
  * reaches zero). Pointer *af must never be NIL!  Frees mem and calls
  * affect_location_apply
  */
+ int
+ holytouch_after_effect(char_data *vict );
 void
 affect_remove(struct char_data * ch, struct affected_type * af)
 {
     struct affected_type *temp;
+    int type = af->type;
+    short is_instant = af->is_instant;
 
     if (!ch->affected) {
-	slog("SYSERR: !ch->affected in affect_remove()");
-	return;
+        slog("SYSERR: !ch->affected in affect_remove()");
+        return;
     }
-
 
     if (af->type == SPELL_QUAD_DAMAGE && ch->in_room &&
 	!IS_AFFECTED(ch, AFF_GLOWLIGHT) && 
@@ -693,6 +696,8 @@ affect_remove(struct char_data * ch, struct affected_type * af)
     REMOVE_FROM_LIST(af, ch->affected, next);
     free(af);
     affect_total(ch);
+    if(type == TYPE_MALOVENT_HOLYTOUCH && is_instant && ch->in_room)
+        holytouch_after_effect(ch);
 }
 
 

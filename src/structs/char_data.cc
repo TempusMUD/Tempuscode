@@ -30,7 +30,7 @@ short char_player_data::modifyWeight( short mod_weight ) {
            (!use_remort for a level 49 returns 100)
            (use_remort + primary for level 49 gen 10 returns 100)
 */
-inline int char_data::getLevelBonus ( bool use_remort, bool primary ) {
+int char_data::getLevelBonus ( bool use_remort, bool primary ) {
     int bonus = player.level + 1;
 
     if(! use_remort ) {// Without remort calc, simply use the mort calc in its' place.

@@ -587,6 +587,7 @@ const char *spells[] =
     "Zhengis Fist of Annihilation",
     "radiation sickness",
     "flamethrower",
+    "gouged his own eyes out",
     "\n"				/* the end */
 };
 

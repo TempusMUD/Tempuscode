@@ -605,7 +605,8 @@ extern const char *spells[];
 #define SPELL_ZHENGIS_FIST_OF_ANNIHILATION 764
 #define TYPE_RAD_SICKNESS            765
 #define TYPE_FLAMETHROWER            766
-#define TOP_NPC_SPELL                766
+#define TYPE_MALOVENT_HOLYTOUCH      767 // When holytouch wears off.
+#define TOP_NPC_SPELL                767
 
 #define TOP_SPELL_DEFINE	     799
 /* NEW NPC/OBJECT SPELLS can be inserted here up to 799 */
@@ -641,7 +642,7 @@ extern const char *spells[];
 #define TYPE_ANGUISH				 896 // Unholy compact etc.
 #define TYPE_BLEED					 897 // Open wound
 #define TYPE_OVERLOAD				 898 // cyborg overloading systems.
-#define TYPE_SUFFERING		     899
+#define TYPE_SUFFERING		         899
 
 #define SAVING_PARA    0
 #define SAVING_ROD     1

@@ -936,7 +936,7 @@ struct char_data {
             player_specials->saved.speed = speed;
     }
 
-    inline int char_data::getLevelBonus( int skill );
+    int char_data::getLevelBonus( int skill );
     int char_data::getLevelBonus ( bool use_remort, bool primary );
 
     int pfilepos;             /* playerfile pos          */
