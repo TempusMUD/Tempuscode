@@ -7305,19 +7305,31 @@ do_show_objects(struct char_data *ch, char *value, char *arg)
 
 		skip_spaces(&arg);
 
-		if ((!(i = 1) || (j = search_block(arg, extra_names, 0)) < 0) &&
-			(!(i = 2) || (j = search_block(arg, extra2_names, 0)) < 0)) {
+		if( (!(i = 1) || (j = search_block(arg, extra_names, 0)) < 0) &&
+			(!(i = 2) || (j = search_block(arg, extra2_names, 0)) < 0) &&
+			(!(i = 3) || (j = search_block(arg, extra3_names, 0)) < 0) ) 
+		{
 			sprintf(buf, "There is no extra '%s'.\r\n", arg);
 			send_to_char(buf, ch);
 			return;
+		} else { 
+			string extraName;
+			if( i == 1 ) {
+				extraName = extra_names[j];
+			} else if( i == 2 ) {
+				extraName = extra2_names[j];
+			} else if( i == 3 ) {
+				extraName = extra3_names[j];
+			}
+			sprintf(buf, "Objects with extra %s%s%s:\r\n", CCYEL(ch, C_NRM),
+				extraName.c_str(), CCNRM(ch, C_NRM));
 		}
 
-		sprintf(buf, "Objects with extra %s%s%s:\r\n", CCYEL(ch, C_NRM),
-			(i == 1) ? extra_names[j] : extra2_names[j], CCNRM(ch, C_NRM));
-
 		for (obj = obj_proto, k = 0; obj; obj = obj->next)
-			if ((i == 1 && IS_OBJ_STAT(obj, (1 << j))) ||
-				(i == 2 && IS_OBJ_STAT2(obj, (1 << j)))) {
+			if ( (i == 1 && IS_OBJ_STAT(obj, (1 << j))) ||
+				 (i == 2 && IS_OBJ_STAT2(obj, (1 << j))) ||
+				 (i == 3 && IS_OBJ_STAT3(obj, (1 << j))) ) 
+			{
 				sprintf(buf2, "%3d. %s[%s%5d%s] %40s%s%s\r\n", ++k,
 					CCGRN(ch, C_NRM), CCNRM(ch, C_NRM), GET_OBJ_VNUM(obj),
 					CCGRN(ch, C_NRM), obj->short_description, CCNRM(ch, C_NRM),
