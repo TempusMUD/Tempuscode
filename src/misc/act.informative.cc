@@ -4425,9 +4425,8 @@ ACMD(do_color)
 		send_to_char(ch, "Usage: color { Off | Sparse | Normal | Complete }\r\n");
 		return;
 	}
-	REMOVE_BIT(PRF_FLAGS(ch), PRF_COLOR_1 | PRF_COLOR_2);
-	SET_BIT(PRF_FLAGS(ch),
-		(PRF_COLOR_1 * (tp & 1)) | (PRF_COLOR_2 * (tp & 2) >> 1));
+	ch->account->set_ansi_level(tp);
+	ch->account->save_to_xml();
 
 	send_to_char(ch, "Your %scolor%s is now %s%s%s%s.\r\n", CCRED(ch, C_SPR),
 		CCNRM(ch, C_OFF), CCYEL(ch, C_NRM), CCBLD(ch, C_CMP), ctypes[tp],
