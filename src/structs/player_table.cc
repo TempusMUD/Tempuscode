@@ -63,7 +63,7 @@ bool PlayerTable::exists( const char* name )
 **/
 const char *PlayerTable::getName( long id ) 
 {
-    IDTable::iterator it;
+    IDTable::const_iterator it;
     it = lower_bound( idTable.begin(), idTable.end(), id );
     if( it != idTable.end() && (*it) == id ) {
         return (*it).second;
@@ -85,19 +85,42 @@ long PlayerTable::getID( const char *name ) const
     return 0;
 }
 
+long
+PlayerTable::getAccountID(const char *name) const
+{
+    NameTable::const_iterator it;
+
+    it = lower_bound( nameTable.begin(), nameTable.end(), name );
+    if( it != nameTable.end() && (*it) == name ) {
+        return (*it).getAccountID();
+    }
+	return 0;
+}
+
+long
+PlayerTable::getAccountID(long id) const
+{
+    IDTable::const_iterator it;
+    it = lower_bound( idTable.begin(), idTable.end(), id );
+    if( it != idTable.end() && (*it) == id ) {
+        return (*it).getAccountID();
+    }
+    return 0;
+}
+
 /**
  * Adds the given player info to this PlayerTable.
  *
  * NOTE: name will be duplicated and stored without alteration.
  * @param sortTable if true, the player table will be sorted after insertion
 **/
-bool PlayerTable::add( long id, const char* name, bool sortTable  ) 
+bool PlayerTable::add( long id, const char* name, long account, bool sortTable  ) 
 {
     if( exists(id) )
         return false;
     top_id = MAX(id, top_id);
-    idTable.push_back(IDEntry(id,strdup(name)));
-    nameTable.push_back(NameEntry(id,strdup(name)));
+    idTable.push_back(IDEntry(id, strdup(name), account));
+    nameTable.push_back(NameEntry(id, strdup(name), account));
 	if( sortTable )
 		sort();
     return true;
@@ -174,10 +197,10 @@ void IDTable::sort()
 
 // Constructor
 
-NameEntry::NameEntry( long id, char* name ) 
+NameEntry::NameEntry( long id, char* name, long account ) 
 : pair<char*, long>( name, id ) 
 {
-    //
+    _account_id = account;
 }
 
 // Copy Constructor
@@ -196,12 +219,16 @@ long NameEntry::getID() {
 const char* NameEntry::getName() {
     return first;
 }
+long NameEntry::getAccountID() const {
+	return _account_id;
+}
 
 NameEntry &NameEntry::operator=(const NameEntry &e ) {
 	if( this->first != NULL )
 		free(this->first);
     this->first = strdup(e.first);
     this->second = e.second;
+	this->_account_id = e._account_id;
 	return *this;
 }
 bool NameEntry::operator==(long id) const { 
@@ -241,13 +268,16 @@ bool NameEntry::operator>(const char *name) const {
 /***               ID ENTRY               ***/
 
 //Constructor
-IDEntry::IDEntry( long id, char* name) 
+IDEntry::IDEntry( long id, char* name, long account) 
 : pair< long, char*>( id, name )
-{ }
+{
+    _account_id = account;
+}
 // Copy constructor
 IDEntry::IDEntry( const IDEntry &e ) {
     this->second = strdup(e.second);
     this->first = e.first;
+	this->_account_id = e._account_id;
 }
 // Destructor
 IDEntry::~IDEntry() {
@@ -260,6 +290,9 @@ long IDEntry::getID() {
 }
 const char* IDEntry::getName() {
     return second;
+}
+long IDEntry::getAccountID() const {
+	return _account_id;
 }
 IDEntry& IDEntry::operator=(const IDEntry &e ) {
     this->first = e.first;

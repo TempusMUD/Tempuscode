@@ -20,12 +20,13 @@ struct Creature;
 **/
 class NameEntry : public pair<char*, long> {
     public:
-        NameEntry( long id, char* name );
+        NameEntry( long id, char* name, long account );
         NameEntry( const NameEntry &n );
         ~NameEntry();
 
         long getID();
         const char* getName();
+		long getAccountID() const;
         bool operator==(long id) const;
         bool operator==( const char *name) const;
         NameEntry& operator=(const NameEntry &e);
@@ -37,6 +38,8 @@ class NameEntry : public pair<char*, long> {
         bool operator>(long id) const;
         bool operator<(const char* name) const;
         bool operator>(const char* name) const;
+	private:
+		long _account_id;
 };
 
 
@@ -52,12 +55,13 @@ class NameEntry : public pair<char*, long> {
 **/
 class IDEntry : public pair<long, char*> {
     public:
-        IDEntry( long id, char* name);
+        IDEntry( long id, char* name, long account);
         IDEntry( const IDEntry &e );
         ~IDEntry();
         
         long getID();
         const char* getName();
+		long getAccountID() const;
         IDEntry& operator=(const IDEntry &e);
         bool operator==(IDEntry &e) const;
         bool operator!=(IDEntry &e) const;
@@ -67,6 +71,8 @@ class IDEntry : public pair<long, char*> {
         bool operator==(long id) const;
         bool operator<(long id) const;
         bool operator>(long id) const;
+	private:
+		long _account_id;
 };
 
 /**
@@ -119,6 +125,9 @@ class PlayerTable
         const char *getName( long id );
         /** returns chars id or 0 if not found **/
         long getID( const char *name ) const;
+		// returns account id or 0 if not found
+		long getAccountID(const char *name) const;
+		long getAccountID(long id) const;
 
         /** returns chars id or 0 if not found **/
         long operator[](const char *name){ return getID(name); }
@@ -126,7 +135,7 @@ class PlayerTable
         const char* operator[](long id) { return getName(id); }
 
         /** Adds the given player info to this PlayerTable.  **/
-        bool add( long id, const char* name, bool sortTable = true );
+        bool add( long id, const char* name, long acct, bool sortTable = true );
         /** Removes the entry in this player table for the given id. **/
         bool remove( long id );
         /** Removes the entry in this player table for the given name. **/
