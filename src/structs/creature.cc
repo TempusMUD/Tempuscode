@@ -812,6 +812,7 @@ Creature::clear(void)
 
 	// And we reset all the values to their initial settings
 	this->setPosition(POS_STANDING);
+	GET_CLASS(this) = -1;
 	GET_REMORT_CLASS(this) = -1;
 
 	GET_AC(this) = 100;			/* Basic Armor */
@@ -988,6 +989,31 @@ Creature::die(void)
 		saveObjects();
 		saveToXML();
 	}
+	extract(CXN_AFTERLIFE);
+	return true;
+}
+
+bool
+Creature::arena_die(void)
+{
+	// Rent them out
+	if (!IS_NPC(this)) {
+		player_specials->rentcode = RENT_RENTED;
+		player_specials->rent_per_day =
+			(GET_LEVEL(this) < LVL_IMMORT) ? calcDailyRent():0;
+		player_specials->desc_mode = CXN_UNKNOWN;
+		player_specials->rent_currency = in_room->zone->time_frame;
+		GET_LOADROOM(this) = in_room->number;
+		player.time.logon = time(0);
+		saveObjects();
+		saveToXML();
+		if (GET_LEVEL(this) < 50)
+			mudlog(MAX(LVL_AMBASSADOR, GET_INVIS_LVL(this)), NRM, true,
+				"%s has died in arena (%d/day, %lld %s)", GET_NAME(this),
+				player_specials->rent_per_day, CASH_MONEY(this) + BANK_MONEY(this),
+				(player_specials->rent_currency == TIME_ELECTRO) ? "gold":"creds");
+	}
+	// But extract them to afterlife
 	extract(CXN_AFTERLIFE);
 	return true;
 }

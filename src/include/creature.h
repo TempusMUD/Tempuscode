@@ -1037,6 +1037,8 @@ struct Creature {
 	bool idle(void);
 	// player has chosen to die horribly
 	bool die(void);
+	// player has chosen to die horribly in arena
+	bool arena_die(void);
 	// player has chosen to remort
 	bool remort(void);
 	// creature has chosen to be purged
