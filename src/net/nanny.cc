@@ -1644,7 +1644,8 @@ show_account_chars(descriptor_data *d, Account *acct, bool immort, bool brief)
 		tmp_ch->clear();
 
 		if (!tmp_ch->loadFromXML(acct->get_char_by_index(idx))) {
-			send_to_desc(d, "&R------ BAD PROBLEMS ------  PLEASE REPORT ------&n\r\n");
+			send_to_desc(d, "&R------ BAD PROBLEMS ------  PLEASE REPORT ------[%ld]&n\r\n",
+                         acct->get_char_by_index(idx));
 			idx++;
 			continue;
 		}
