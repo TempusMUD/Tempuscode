@@ -229,7 +229,8 @@ SPECIAL(quest_sphere)
 	if (targ_obj) {
 		targ_str = tmp_sprintf("%s qsphere-%d %s", targ_obj->aliases,
 			GET_OBJ_COST(self), GET_NAME(ch));
-		free(targ_obj->aliases);
+		if (targ_obj->aliases != targ_obj->shared->proto->aliases)
+			free(targ_obj->aliases);
 		targ_obj->aliases = str_dup(targ_str);
 		mudlog(GET_LEVEL(ch), CMP, true,
 			"%s has used %s on %s", GET_NAME(ch), self->name,
