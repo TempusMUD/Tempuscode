@@ -86,6 +86,8 @@ Creature::findCostliestObj(void)
 	if (GET_LEVEL(this) >= LVL_AMBASSADOR)
 		return false;
 
+	result = NULL;
+
 	for (pos = 0;pos < NUM_WEARS;pos++) {
 		cur_obj = GET_EQ(this, pos);
 		if (cur_obj &&
@@ -150,10 +152,12 @@ Creature::payRent(time_t last_time, int code, int currency)
 		doomed_obj = findCostliestObj();
 		while (cost > 0 && doomed_obj) {
 			slog("%s sold for %d %s to cover %s's rent",
-				doomed_obj->short_description, GET_OBJ_COST(doomed_obj),
-				(currency) ? "creds":"gold", GET_NAME(this));
-			act("$p has been sold to cover the cost of your rent.",
-				true, this, doomed_obj, 0, TO_CHAR);
+				tmp_capitalize(doomed_obj->short_description),
+				GET_OBJ_COST(doomed_obj), (currency) ? "creds":"gold",
+				GET_NAME(this));
+			send_to_char(this,
+				"%s has been sold to cover the cost of your rent.",
+				tmp_capitalize(OBJS(doomed_obj, this)));
 
 			// Credit player with value of object
 			cost -= GET_OBJ_COST(doomed_obj);
