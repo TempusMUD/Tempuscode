@@ -902,6 +902,20 @@ damage( struct char_data * ch, struct char_data * victim, int dam,
             }
         }
     }
+    if ( affected_by_spell( victim, SPELL_MANA_SHIELD ) &&  ( !  ( attacktype == TYPE_BLEED ) && 
+	 ! ( attacktype == SPELL_POISON ) ) ) { 
+        mana_loss = ( dam * GET_MSHIELD_PCT( victim ) ) / 100;
+        mana_loss = MAX( MIN( GET_MANA( victim ) - GET_MSHIELD_LOW( victim ), mana_loss ), 0 );
+        GET_MANA( victim ) -= mana_loss;
+        
+        if ( GET_MANA( victim ) <= GET_MSHIELD_LOW( victim ) ) {
+            send_to_char( "Your mana shield has expired.\r\n", victim );
+            affect_from_char( victim, SPELL_MANA_SHIELD );
+        }
+        
+        dam = MAX( 0, dam - mana_loss );
+    }
+	
 
     if ( GET_CLASS( victim ) == CLASS_CLERIC && IS_GOOD( victim ) ) {
         // full moon gives protection up to 30%
@@ -1125,20 +1139,6 @@ damage( struct char_data * ch, struct char_data * victim, int dam,
 	break;
     }
 
-    if ( affected_by_spell( victim, SPELL_MANA_SHIELD ) &&  ( !  ( attacktype == TYPE_BLEED ) && 
-	 ! ( attacktype == SPELL_POISON ) ) ) { 
-        mana_loss = ( dam * GET_MSHIELD_PCT( victim ) ) / 100;
-        mana_loss = MAX( MIN( GET_MANA( victim ) - GET_MSHIELD_LOW( victim ), mana_loss ), 0 );
-        GET_MANA( victim ) -= mana_loss;
-        
-        if ( GET_MANA( victim ) <= GET_MSHIELD_LOW( victim ) ) {
-            send_to_char( "Your mana shield has expired.\r\n", victim );
-            affect_from_char( victim, SPELL_MANA_SHIELD );
-        }
-        
-        dam = MAX( 0, dam - mana_loss );
-    }
-	
 
     if ( dam_object && dam )
         check_object_killer( dam_object, victim );
