@@ -1588,24 +1588,12 @@ ACMD(do_show_language)
     int idx = GET_LANGUAGE(ch);
     int num_languages = 1;
 
-    send_to_char(ch, 
-    "%s*%s---------------------------------------------------------------%s*%s\n"
-    "%s|%s                      %sL A N G U A G E S%s                        %s|%s\n"
-    "%s*%s---------------------------------------------------------------%s*%s"
-    "\r\n\r\n",
-    CCCYN(ch, C_NRM), CCBLU(ch, C_NRM), CCCYN(ch, C_NRM), CCNRM(ch, C_NRM),
-    CCBLU(ch, C_NRM), CCNRM(ch, C_NRM), CCYEL_BLD(ch, C_NRM), CCNRM(ch, C_NRM),
-    CCBLU(ch, C_NRM), CCNRM(ch, C_NRM), CCCYN(ch, C_NRM), CCBLU(ch, C_NRM),
-    CCCYN(ch, C_NRM), CCNRM(ch, C_NRM));
     send_to_char(ch, "%sYou are currently speaking:  %s%s\r\n\r\n", 
                  CCCYN(ch, C_NRM), CCNRM(ch, C_NRM),
                  ((GET_LANGUAGE(ch) > LANGUAGE_COMMON) ? 
                   tmp_capitalize(language_names[idx]) : "Common"));
     send_to_char(ch, "%sYou are fluent in the following languages:%s\r\n",
                  CCCYN(ch, C_NRM), CCNRM(ch, C_NRM));
-    send_to_char(ch, "%s----------------------------------------"
-                     "---------------------%s\r\n", CCBLU(ch, C_NRM),
-                 CCNRM(ch, C_NRM));
     send_to_char(ch, "%-15s", "Common");
     for (int x = 0; x < NUM_LANGUAGES; x++) {
         if (can_speak_language(ch, x)) {
