@@ -351,8 +351,8 @@ group_gain(struct char_data *ch, struct char_data *victim)
 			|| leader == (*it)->master)) 
 		{
 			mult = (float)GET_LEVEL((*it));
-			if( IS_PC )
-				mult += (float)GET_REMORT_GEN((*it)) << 3;
+			if( IS_PC( (*it) ) )
+				mult += GET_REMORT_GEN((*it)) << 3;
 			mult /= (float)total_levs;
 
 			if (total_pc_mems) {

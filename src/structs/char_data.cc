@@ -75,7 +75,7 @@ int char_data::getPenalizedExperience( int experience, char_data *victim = NULL 
 		int levelBonus = MAX(0, getLevelBonus(true) - 5 );
 		// just to be sure it isn't rounded
 		float multiplier = levelBonus / 100; 
-		experience -= modified * multiplier;
+		experience -= experience * multiplier;
 	}
 
 	return experience;
