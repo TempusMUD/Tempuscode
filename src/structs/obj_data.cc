@@ -3,6 +3,7 @@
 #include "structs.h"
 #include "utils.h"
 extern int no_plrtext;
+struct obj_data *real_object_proto(int vnum);
 
 /**
  * Stores this object and it's contents into the given file.
@@ -79,6 +80,117 @@ obj_data::save(FILE * fl)
 	return 1;
 }
 
+void obj_data::clear() 
+{
+	memset((char *)this, 0, sizeof(struct obj_data));
+	in_room = NULL;
+	worn_on = -1;
+}
+
+
+void
+obj_data::saveToXML(xmlNodePtr parent)
+{
+	//<NAME>bloody corpse evangeline</NAME>
+	//<SHORT_DESC>the bloody corpse of Evangeline</SHORT_DESC>
+	//<LONG_DESC>There is a corpse lying in the middle of the floor.</LONG_DESC>
+	//<ACTION_DESC></ACTION_DESC>
+	//<POINTS TYPE="1" SOILAGE="0" WEIGHT="150" MATERIAL="1" TIMER="0" />
+	//<DAMAGE CURRENT="100" MAX="100" SIGIL_ID="24999" SIGIL_LEVEL="72"/>
+	//<FLAGS WEAR="0x0" EXTRA="0x0" EXTRA2="0x0" EXTRA3="0x0"/>
+	//<VALUES V0="0" V1="0" V2="0" V3="0"/>
+	//<AFFECTBITS AFF1="0x0" AFF2="0x0" AFF3="0x0"/>
+	//<AFFECT LOCATION="18" MODIFIER="1"/>
+	return;
+}
+
+bool
+obj_data::loadFromXML(xmlNodePtr node)
+{
+
+	clear();
+	int vnum = xmlGetIntProp(node, "VNUM");
+	
+	obj_data* prototype = real_object_proto( vnum );
+	if( prototype == NULL )
+		return false;
+	shared = prototype->shared;
+
+	for( xmlNodePtr cur = node->xmlChildrenNode; cur; cur = cur->next) {
+		if( xmlMatches( cur->name, "NAME" ) ) {
+			//<NAME>bloody corpse evangeline</NAME>
+		} else if( xmlMatches( cur->name, "SHORT_DESC" ) ) {
+			//<SHORT_DESC>the bloody corpse of Evangeline</SHORT_DESC>
+		} else if( xmlMatches( cur->name, "LONG_DESC" ) ) {
+			//<LONG_DESC>There is a corpse lying in the middle of the floor.</LONG_DESC>
+		} else if( xmlMatches( cur->name, "ACTION_DESC" ) ) {
+			//<ACTION_DESC></ACTION_DESC>
+		} else if( xmlMatches( cur->name, "POINTS" ) ) {
+			//<POINTS TYPE="1" SOILAGE="0" WEIGHT="150" MATERIAL="1" TIMER="0" />
+		} else if( xmlMatches( cur->name, "DAMAGE" ) ) {
+			//<DAMAGE CURRENT="100" MAX="100" SIGIL_ID="24999" SIGIL_LEVEL="72"/>
+		} else if( xmlMatches( cur->name, "FLAGS" ) ) {
+			// <FLAGS WEAR="0x0" EXTRA="0x0" EXTRA2="0x0" EXTRA3="0x0"/>
+		} else if( xmlMatches( cur->name, "VALUES" ) ) {
+			//<VALUES V0="0" V1="0" V2="0" V3="0"/>
+		} else if( xmlMatches( cur->name, "AFFECTBITS" ) ) {
+			// <AFFECTBITS AFF1="0x0" AFF2="0x0" AFF3="0x0"/>
+		} else if( xmlMatches( cur->name, "AFFECT" ) ) {
+			//<AFFECT LOCATION="18" MODIFIER="1"/>
+		}
+	}
+
+/*
+	name = xmlGetProp( node, "NAME" );
+	description = xmlGetProp( node, "DESCRIPTION" );
+	short_description = xmlGetProp( node, "SHORT_DESC" );
+	action_description = xmlGetProp( node, "ACTION_DESC" );
+	setWeight(xmlGetIntProp(node, "WEIGHT"));
+
+	// OBJ FLAGS
+	obj_flags.value[0] = xmlGetIntProp( node, "VALUE1" );
+	obj_flags.value[1] = xmlGetIntProp( node, "VALUE2" );
+	obj_flags.value[2] = xmlGetIntProp( node, "VALUE3" );
+	obj_flags.value[3] = xmlGetIntProp( node, "VALUE4" );
+
+	obj_flags.type_flag = xmlGetEnumProp(node, "TYPE", item_types);
+	obj_flags.material = xmlGetEnumProp(node, "MATERIAL", materials);
+	obj_flags.max_dam = xmlGetIntProp(node, "MAXDAMAGE");
+	obj_flags.damage = xmlGetIntProp(node, "DAMAGE");
+
+
+	for (cur_node = node->xmlChildrenNode; cur_node; cur_node = cur_node->next) {
+		if (!xmlStrcmp(cur_node->name, (const xmlChar *)"aliases"))
+			obj->name = xmlNodeListGetString(doc, cur_node, 1);
+		else if (!xmlStrcmp(cur_node->name, (const xmlChar *)"linedesc"))
+			obj->description = xmlNodeListGetString(doc, cur_node, 1);
+		else if (!xmlStrcmp(cur_node->name, (const xmlChar *)"action"))
+			obj->action_description = xmlNodeListGetString(doc, cur_node, 1);
+		else if (!xmlStrcmp(cur_node->name, (const xmlChar *)"extradesc")) {
+			CREATE(new_desc, struct extra_descr_data, 1);
+			new_desc->keyword = xmlGetProp(cur_node, "keyword");
+			new_desc->description = xmlNodeListGetString(doc, cur_node, 1);
+			new_desc->next = obj->ex_description;
+			obj->ex_description = new_desc;
+		} else if (!xmlStrcmp(cur_node->name, (const xmlChar *)"apply")) {
+			obj->affected[xmlGetEnumProp(cur_node, "attr", applies)] =
+				xmlGetIntProp(cur_node, "value");
+		} else if (!xmlStrcmp(cur_node->name, (const xmlChar *)"value")) {
+			obj->value[xmlGetIntProp(cur_node, "num")] =
+				xmlGetIntProp(cur_node, "value");
+		} else if (!xmlStrcmp(cur_node->name, (const xmlChar *)"objflags")) {
+			obj->obj_flags.extra_flags = xmlGetFlags(cur_node, extra1_enum);
+			obj->obj_flags.extra2_flags = xmlGetFlags(cur_node, extra2_enum);
+			obj->obj_flags.extra3_flags = xmlGetFlags(cur_node, extra3_enum);
+		} else if (!xmlStrcmp(cur_node->name, (const xmlChar *)"wearpos")) {
+			obj->obj_flags.wear_flags = xmlGetFlags(cur_node, wearpos_enum);
+		} else {
+			slog("SYSERR: Invalid xml node in <object>");
+		}
+	}
+*/
+	return true;
+}
 int
 obj_data::modifyWeight(int mod_weight)
 {

@@ -2034,8 +2034,8 @@ parse_object(FILE * obj_f, int nr)
 	struct obj_data *obj = NULL, *tmp_obj = NULL;
 
 	CREATE(obj, struct obj_data, 1);
-
-	clear_object(obj);
+	
+	obj->clear();
 
 	CREATE(obj->shared, struct obj_shared_data, 1);
 
@@ -2502,7 +2502,7 @@ create_obj(void)
 
 	CREATE(obj, struct obj_data, 1);
 
-	clear_object(obj);
+	obj->clear();
 
 	obj->next = object_list;
 	object_list = obj;
@@ -2522,7 +2522,6 @@ read_object(int vnum)
 		if (tmp_obj->shared->vnum >= vnum) {
 			if (tmp_obj->shared->vnum == vnum) {
 				CREATE(obj, struct obj_data, 1);
-				/*      clear_object(obj); */
 				*obj = *tmp_obj;
 				tmp_obj->shared->number++;
 				found = 1;
@@ -3885,26 +3884,6 @@ clear_char(struct Creature *ch)
 	if (ch->points.max_mana < 100)
 		ch->points.max_mana = 100;
 }
-
-
-void
-clear_object(struct obj_data *obj)
-{
-	memset((char *)obj, 0, sizeof(struct obj_data));
-
-#ifdef TRACK_OBJS
-	// temp debugging
-	obj->obj_flags.tracker.lost_time = time(0);
-	obj->obj_flags.tracker.string[TRACKER_STR_LEN - 1] = '\0';
-
-#endif
-
-	obj->in_room = NULL;
-	obj->worn_on = -1;
-	obj->in_room = NULL;
-
-}
-
 
 
 

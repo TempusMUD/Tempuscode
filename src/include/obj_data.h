@@ -25,6 +25,7 @@
 #include <pthread.h>
 #include "defs.h"
 #include "constants.h"
+#include "xml_utils.h"
 
 /* object-related defines ********************************************/
 
@@ -259,20 +260,13 @@ static const int NUM_LIQUID_TYPES = 39;
 
 /* object-related structures ******************************************/
 
-#ifdef TRACK_OBJS
-static const int TRACKER_STR_LEN = 64;
-typedef struct obj_tracker {
-	time_t lost_time;
-	char string[TRACKER_STR_LEN];
-} obj_tracker;
-#endif
-
 /* object flags; used in obj_data */
 struct obj_flag_data {
 	int setWeight(int new_weight);
 	inline int getWeight(void) {
 		return weight;
-	} int value[4];				/* Values of the item (see list)    */
+	} 
+	int value[4];				/* Values of the item (see list)    */
 	byte type_flag;				/* Type of item             */
 	int wear_flags;				/* Where you can wear it        */
 	int extra_flags;			/* If it hums, glows, etc.      */
@@ -288,9 +282,6 @@ struct obj_flag_data {
 	int damage;
 	int sigil_idnum;			// the owner of the sigil
 	byte sigil_level;			// the level of the sigil
-#ifdef TRACK_OBJS
-	obj_tracker tracker;		// temp debugging thing
-#endif
 };
 
 /* Used in obj_file_elem *DO*NOT*CHANGE* */
@@ -298,7 +289,6 @@ struct obj_affected_type {
 	byte location;				/* Which ability to change (APPLY_XXX) */
 	sbyte modifier;				/* How much it changes by              */
 };
-
 
 /* ================== Memory Structure for Objects ================== */
 struct obj_data {
@@ -308,7 +298,8 @@ struct obj_data {
 	int setWeight(int new_weight);
 	inline int getWeight(void) {
 		return obj_flags.getWeight();
-	} inline int getContainedWeight(void) {
+	} 
+	inline int getContainedWeight(void) {
 		obj_data *cur_obj;
 		int result = 0;
 
@@ -318,6 +309,12 @@ struct obj_data {
 			result += cur_obj->getWeight();
 		return result;
 	}
+
+	void clear();
+
+	bool loadFromXML( xmlNodePtr node );
+	void saveToXML( xmlNodePtr parent );
+
 	struct room_data *in_room;	/* In what room -1 when conta/carr    */
 	int cur_flow_pulse;			/* Keep track of flowing pulse        */
 

@@ -170,7 +170,7 @@ load_xml_object(xmlNodePtr node)
 	struct obj_data *obj, *tmp_obj;
 
 	CREATE(obj, struct obj_data, 1);
-	clear_object(obj);
+	obj->clear();
 	CREATE(obj->shared, struct obj_shared_data, 1);
 
 	obj->shared->vnum = xmlGetIntProp(node, "vnum");

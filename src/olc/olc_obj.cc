@@ -382,7 +382,7 @@ do_create_obj(struct Creature *ch, int vnum)
 			break;
 
 	CREATE(new_obj, struct obj_data, 1);
-	clear_object(new_obj);
+	new_obj->clear();
 	CREATE(new_obj->shared, struct obj_shared_data, 1);
 	new_obj->shared->vnum = vnum;
 	new_obj->shared->number = 0;
