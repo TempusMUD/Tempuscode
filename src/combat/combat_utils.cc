@@ -663,23 +663,24 @@ make_corpse( struct char_data *ch,struct char_data *killer,int attacktype )
     strcpy( isare, "is" );
   
     if ( GET_RACE( ch ) == RACE_ROBOT || GET_RACE( ch ) == RACE_PLANT ||
-	 attacktype == TYPE_FALLING ) {
-	strcpy( isare, "are" );
-	strcpy( typebuf, "remains" );
-	strcpy( namestr, typebuf );
-    }
-    else if ( attacktype == SKILL_DRAIN ) {
-	strcpy( typebuf, "husk" );
-	strcpy( namestr, typebuf );
-    }
-    else {
-	strcpy( typebuf, "corpse" );
-	strcpy( namestr, typebuf );
+        attacktype == TYPE_FALLING ) {
+        strcpy( isare, "are" );
+        strcpy( typebuf, "remains" );
+        strcpy( namestr, typebuf );
+    } else if ( attacktype == SKILL_DRAIN ) {
+        strcpy( typebuf, "husk" );
+        strcpy( namestr, typebuf );
+    } else {
+        strcpy( typebuf, "corpse" );
+        strcpy( namestr, typebuf );
     }
   
     if ( AFF2_FLAGGED( ch, AFF2_PETRIFIED ) ) {
-	strcat( namestr, " stone" );
-	sprintf( typebuf, "stone %s", typebuf );
+        strcat( namestr, " stone" );
+        strcpy( adj, "stone ");
+        strcat( adj, typebuf);
+        strcpy(typebuf,adj);
+        adj[0] = '\0';
     }
   
 #ifdef DMALLOC
