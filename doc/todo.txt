@@ -1,16 +1,11 @@
 High Priority
 -------------------------------------------------------------------------------
 * Implement house repossession
-X Containers currently gain the weight of their contents each time they
-  are rented
-* Applies on eq don't seem to be stable at all
-* Drink container's weight is 1lb/drink.  This is silly.
 * Penalties for dying far exceed reasonable (at least in randomness).
-* olc recalculate does not check CAN_EDIT
+* Add recalculate object
 * Add recalculate "zone" for mob/object.
 * Debug qcontrol system. ( doesn't save/load reliably )
 * Cleave/Great-Cleave damage is too low and too consistant.
-
 
 Low Priority
 -------------------------------------------------------------------------------
@@ -45,6 +40,7 @@ Low Priority
 
 Under discussion
 -------------------------------------------------------------------------------
+* Keep track of mob vnums killed - adjust exp based on killing same mob
 * New combat system
 	- Melee combat takes time to start if not sneaking or invis: can make
 	  messages amusingly dependant on state
@@ -74,7 +70,6 @@ Under discussion
     - Add '(protected)' flag or use player id to show '(protected)'
     - Add insurance company in E.C. that will both insure objects, and
       load a character's insured eq
-* Keep track of mob vnums killed - adjust exp based on killing same mob
 * Bounty Hunter
     - Kiosk in Skullport that sells 'bountys' on any player
     - Any player that kills the given player outside NVZ can
@@ -130,3 +125,10 @@ X Barb skill Strike(17) - Low level 2X damage strike with weapon.
 X Move monk weapon specializations to barb
 X Crash bug in cleave
 X Strike needs a more obvious message
+X Alignment needs to be imported with character
+X Crash bug in store_mail()
+X Containers currently gain the weight of their contents each time they
+  are rented
+X Applies on eq don't seem to be stable at all
+X Drink container's weight is 1lb/drink.  This is silly.
+X olc recalculate does not check CAN_EDIT
