@@ -300,6 +300,7 @@ HelpGroup::Members(Creature * ch, char *args)
 			strcat(buf, s);
 			strcat(buf, "\r\n");
 		}
+		send_to_char(ch, buf);
 	} else {
 		send_to_char(ch, "Invalid group name.\r\n");
 	}
