@@ -113,7 +113,7 @@ isname(const char *str, const char *namelist)
 	while (*curname) {
 		curstr = str;
 		while (true) {
-			if (!*curstr)		// && !isalnum(*curname))
+			if (!*curstr || isspace(*curstr))		// && !isalnum(*curname))
 				return true;
 
 			if (!*curname)
@@ -158,7 +158,7 @@ isname_exact(const char *str, const char *namelist)
 	while (*curname) {
 		curstr = str;
 		while (true) {
-			if (!*curstr && !isalnum(*curname))
+			if ((!*curstr || isspace(*curstr)) && !isalnum(*curname))
 				return true;
 
 			if (!*curname)
@@ -193,13 +193,16 @@ namelist_match(const char *sub_list, const char *super_list)
 {
 	const char *word_pt;
 	
-	word_pt = tmp_getword(&sub_list);
+	word_pt = sub_list;
 	if (!*word_pt)
 		return false;
 	while (*word_pt) {
 		if (!isname(word_pt, super_list))
 			return false;
-		word_pt = tmp_getword(&sub_list);
+		while (isalnum(*word_pt))
+			word_pt++;
+		while (isspace(*word_pt))
+			word_pt++;
 	}
 	return true;
 }
