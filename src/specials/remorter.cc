@@ -280,6 +280,8 @@ int do_pass_remort_test(Quiz *quiz, struct Creature *ch)
 	GET_COND(ch, THIRST) = 0;
 
 	// Give em another gen
+	if (GET_REMORT_GEN(ch) == 10)
+		GET_QUEST_POINTS(ch)++;
 	if (GET_REMORT_GEN(ch) < 10)
 		GET_REMORT_GEN(ch)++;
 	// Whack thier remort invis
