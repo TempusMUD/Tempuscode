@@ -146,10 +146,10 @@ show_obj_to_char(struct obj_data *object, struct Creature *ch,
 			msg = tmp_strdup(object->description);
 		else if (IS_IMMORT(ch))
 			msg = tmp_sprintf("%s exists here.\r\n", object->short_description);
-	} else if (mode == 1 || mode == 2 || mode == 3 || mode == 4)
+	} else if (mode == 1 || mode == 2 || mode == 3 || mode == 4) {
 		if (object->short_description)
 			msg = tmp_strdup(object->short_description);
-	else if (mode == 5) {
+	} else if (mode == 5) {
 		if (GET_OBJ_TYPE(object) == ITEM_NOTE) {
 			if (object->action_description) {
 				char *msg;
