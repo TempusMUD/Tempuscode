@@ -125,11 +125,81 @@ report_unrentables(struct Creature *ch, struct Creature *recep,
 	return (has_norents);
 }
 
+void
+append_obj_rent(obj_data *obj, const char *currency_str, char *str)
+{
+	sprintf(str + strlen(str), "%10d %s for %s\r\n", GET_OBJ_RENT(obj),
+		currency_str, obj->short_description);
+}
+
+long
+calc_daily_rent(Creature *ch, int factor, char *currency_str, char *display)
+{
+	extern int min_rent_cost;
+	obj_data *cur_obj;
+	int pos;
+	long total_cost = 0;
+	long level_adj;
+
+	if (GET_LEVEL(ch) >= LVL_AMBASSADOR)
+		return 0;
+
+	for (pos = 0;pos < NUM_WEARS;pos++) {
+		cur_obj = GET_EQ(ch, pos);
+		if (cur_obj && !cur_obj->isUnrentable()) {
+			total_cost += GET_OBJ_RENT(cur_obj);
+			if (display)
+				append_obj_rent(cur_obj, currency_str, display);
+		}
+		cur_obj = GET_IMPLANT(ch, pos);
+		if (cur_obj && !cur_obj->isUnrentable()) {
+			total_cost += GET_OBJ_RENT(cur_obj);
+			if (display)
+				append_obj_rent(cur_obj, currency_str, display);
+		}
+	}
+
+	cur_obj = ch->carrying;
+	while (cur_obj) {
+		if (!cur_obj->isUnrentable()) {
+			total_cost += GET_OBJ_RENT(cur_obj);
+			if (display)
+				append_obj_rent(cur_obj, currency_str, display);
+		}
+		if (cur_obj->contains)
+			cur_obj = cur_obj->contains;	// descend into obj
+		else if (!cur_obj->next_content && cur_obj->in_obj)
+			cur_obj = cur_obj->in_obj->next_content; // ascend out of obj
+		else
+			cur_obj = cur_obj->next_content; // go to next obj
+	}
+
+	level_adj = (3 * total_cost * (10 + GET_LEVEL(ch))) / 100 +
+				min_rent_cost * GET_LEVEL(ch) - total_cost;
+	total_cost += level_adj;
+	total_cost *= factor;
+
+	if (display) {
+		sprintf(display + strlen(display), "%10ld %s for level adjustment\r\n",
+			level_adj, currency_str);
+		if (factor != 1)
+			sprintf(display + strlen(display),
+				"        x%d for services\r\n", factor);
+		sprintf(display + strlen(display),
+			"-------------------------------------------\r\n");
+		sprintf(display + strlen(display),	
+		"%10ld %s TOTAL\r\n", total_cost, currency_str);
+	}
+
+	return total_cost;
+}
+
 int
 offer_rent(struct Creature *ch, struct Creature *receptionist,
-	int display, int factor)
+	int factor, bool display)
 {
 	long total_money;
+	long cost_per_day;
 	char curr[64];
 
 	if (receptionist->in_room->zone->time_frame == TIME_ELECTRO) {
@@ -143,10 +213,24 @@ offer_rent(struct Creature *ch, struct Creature *receptionist,
 	if (ch->displayUnrentables())
 		return 0;
 
-	if (display)
-		send_to_char(ch, "%s writes up a bill and shows it to you:\r\n",
-			PERS(receptionist, ch));
-	return ch->calcDailyRent(factor, display, curr);
+	if (display) {
+		sprintf(buf, "%s writes up a bill and shows it to you:\r\n",
+			tmp_capitalize(PERS(receptionist, ch)));
+		cost_per_day = calc_daily_rent(ch, factor, curr, buf);
+		if (factor == RENT_FACTOR) {
+			if (total_money < cost_per_day)
+				strcat(buf, "You don't have enough money to rent for a single day!\r\n");
+			else
+				sprintf(buf + strlen(buf), "Your %ld %s is enough to rent for %s%ld%s days.\r\n",
+					total_money, curr, CCCYN(ch, C_NRM),
+					total_money / cost_per_day, CCNRM(ch, C_NRM));
+		}
+		page_string(ch->desc, buf);
+	} else {
+		cost_per_day = calc_daily_rent(ch, factor, curr, NULL);
+	}
+	
+	return cost_per_day;
 }
 
 int
@@ -199,7 +283,7 @@ gen_receptionist(struct Creature *ch, struct Creature *recep,
 	}
 	if (CMD_IS("rent")) {
 
-		if (!(cost = offer_rent(ch, recep, false, mode)))
+		if (!(cost = offer_rent(ch, recep, mode, false)))
 			return true;
 
 		if (mode == RENT_FACTOR)
@@ -238,7 +322,7 @@ gen_receptionist(struct Creature *ch, struct Creature *recep,
 		}
 
 	} else {
-		offer_rent(ch, recep, true, mode);
+		offer_rent(ch, recep, mode, true);
 		act("$N gives $n an offer.", false, ch, 0, recep, TO_ROOM);
 	}
 	return true;
