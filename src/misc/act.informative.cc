@@ -4345,18 +4345,17 @@ ACMD(do_color)
 
 	if (!*arg) {
 		send_to_char(ch, "Your current color level is %s.\r\n",
-			ansi_levels[COLOR_LEV(ch)]);
+			strlist_aref(COLOR_LEV(ch), ansi_levels));
 		return;
 	}
-	if (((tp = search_block(arg, ansi_levels, FALSE)) == -1)) {
-		send_to_char(ch, "Usage: color { Off | Sparse | Normal | Complete }\r\n");
+	if (((tp = search_block(tmp_tolower(arg), ansi_levels, false)) == -1)) {
+		send_to_char(ch, "Usage: color { none | Sparse | Normal | Complete }\r\n");
 		return;
 	}
 	ch->account->set_ansi_level(tp);
 
-	send_to_char(ch, "Your %scolor%s is now %s%s%s%s.\r\n", CCRED(ch, C_SPR),
-		CCNRM(ch, C_OFF), CCYEL(ch, C_NRM), CCBLD(ch, C_CMP), ansi_levels[tp],
-		CCNRM(ch, C_NRM));
+	send_to_char(ch, "Your color is now %s%s%s%s.\r\n",
+		CCYEL(ch, C_NRM), CCBLD(ch, C_CMP), ansi_levels[tp], CCNRM(ch, C_NRM));
 }
 
 
