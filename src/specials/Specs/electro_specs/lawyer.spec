@@ -78,7 +78,9 @@ SPECIAL(lawyer)
     
     cost += GET_LEVEL(ch) * 300000;
     cost += GET_REMORT_GEN(ch) * 3000000;
-    
+	if(GET_LEVEL(ch) >= 51) {
+		cost = 1;
+	}
     if (GET_CASH(ch) < cost) {
       sprintf(buf, 
 	      "That will cost you %d credits bucko..."
