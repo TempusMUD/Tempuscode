@@ -315,8 +315,8 @@ drag_char_to_jail(Creature *ch, Creature *vict, room_data *jail_room)
 
 	act(tmp_sprintf("You drag a semi-conscious $N %s.", to_dirs[dir]), false,
 		ch, 0, vict, TO_CHAR);
-	act("You dimly feel yourself being dragged down the street.'", false,
-		ch, 0, vict, TO_VICT);
+	act("You dimly feel yourself being dragged down the street.", false,
+		ch, 0, vict, TO_VICT | TO_SLEEP);
 	act(tmp_sprintf("$n drags a semi-conscious $N %s.", to_dirs[dir]), false,
 		ch, 0, vict, TO_NOTVICT);
 	
@@ -333,7 +333,6 @@ drag_char_to_jail(Creature *ch, Creature *vict, room_data *jail_room)
 	char_to_room(ch, EXIT(vict, dir)->to_room,false);
 	char_from_room(vict,false);
 	char_to_room(vict, ch->in_room,false);
-	look_at_room(vict, vict->in_room, 0);
 
 	act(tmp_sprintf("$n drags $N in from %s.",
 		from_dirs[dir]), false, ch, 0, vict, TO_NOTVICT);
@@ -471,14 +470,14 @@ SPECIAL(cityguard)
 						|| char_is_arrested(tch))
 				&& can_see_creature(self, tch)
 				&& !PRF_FLAGGED(tch, PRF_NOHASSLE)
-				&& tch->getPosition() > POS_STUNNED
+				&& tch->getPosition() > POS_SLEEPING
 				) {
 			action = 4;
 			target = tch;
 		}
 		if (action < 3
 				&& char_is_arrested(tch)
-				&& tch->getPosition() == POS_STUNNED
+				&& tch->getPosition() <= POS_SLEEPING
 				&& (GET_LEVEL(tch) >= 20 || GET_REMORT_GEN(tch) > 0)) {
 			action = 3;
 			target = tch;
@@ -610,6 +609,8 @@ SPECIAL(cityguard)
 		}
 
 		if (number(0, 1)) {
+			struct affected_type af;
+
 			// Knock the person out
 			it = target->in_room->people.begin();
 			for (;it != target->in_room->people.end(); it++) {
@@ -627,16 +628,26 @@ SPECIAL(cityguard)
 				act("$n smacks $N across the head with the hilt of $p!.", false,
 					self, GET_EQ(self, WEAR_WIELD), target, TO_NOTVICT);
 			} else {
-				act("You smack $N across the head, stunning $m.", false,
+				act("You smack $N across the head, knocking $m unconscious.", false,
 					self, 0, target, TO_CHAR);
-				act("$n smacks you across the head, stunning you!", false,
+				act("$n smacks you across the head, knocking you unconscious!", false,
 					self, 0, target, TO_VICT);
-				act("$n smacks $N across the head, stunning $m!", false,
+				act("$n smacks $N across the head, knocking $m unconscious!", false,
 					self, 0, target, TO_NOTVICT);
 			}
 
-			target->setPosition(POS_STUNNED);
+			af.is_instant = 0;
+			af.duration = 20;
+			af.bitvector = AFF_SLEEP;
+			af.type = SKILL_SLEEPER;
+			af.modifier = 0;
+			af.aff_index = 0;
+			af.location = APPLY_NONE;
+			af.level = 49;
+
+			target->setPosition(POS_SLEEPING);
 			WAIT_STATE(target, 4 RL_SEC);
+			affect_join(target, &af, false, false, false, false);
 		} else {
 			// Just hit them
 		}
