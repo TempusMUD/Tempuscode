@@ -1271,7 +1271,7 @@ damage(struct Creature *ch, struct Creature *victim, int dam,
                                      attacktype == TYPE_ANGUISH || \
                                      attacktype == TYPE_OVERLOAD || \
                                      attacktype == TYPE_SUFFERING || \
-                                     attacktype == SPEL_STIGMATA || \
+                                     attacktype == SPELL_STIGMATA || \
                                      attacktype == TYPE_DROWNING || \
                                      attacktype == SPELL_SICKNESS || \
                                      attacktype == TYPE_RAD_SICKNESS || \
@@ -1285,6 +1285,8 @@ damage(struct Creature *ch, struct Creature *victim, int dam,
 		mana_loss = (dam * GET_MSHIELD_PCT(victim)) / 100;
 		mana_loss = MIN(GET_MANA(victim) - GET_MSHIELD_LOW(victim), mana_loss);
 		mana_loss = MAX(mana_loss, 0);
+		dam = MAX(0, dam - mana_loss);
+	    mana_loss -= (int)(mana_loss * MIN(victim->getDamReduction(), 0.50));
 		GET_MANA(victim) -= mana_loss;
 
 		if (GET_MANA(victim) <= GET_MSHIELD_LOW(victim)) {
@@ -1300,7 +1302,6 @@ damage(struct Creature *ch, struct Creature *victim, int dam,
                 dam_message(mana_loss, ch, victim, attacktype, 
                             -(GET_IDNUM(victim)));
         }
-		dam = MAX(0, dam - mana_loss);
 	}
 
 	if (ch && GET_CLASS(ch) == CLASS_CLERIC && IS_EVIL(ch)) {
