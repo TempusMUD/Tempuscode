@@ -1167,9 +1167,6 @@ damage(struct Creature *ch, struct Creature *victim, int dam,
 			}
 		}
 	}
-	if (dam_object && dam)
-		check_object_killer(dam_object, victim);
-
 	if (deflected) {
 		// We have to do all the object damage for shields here, after
 		// it's calculated
@@ -2072,7 +2069,10 @@ damage(struct Creature *ch, struct Creature *victim, int dam,
 
 					// If it's not arena, give em a pkill and adjust reputation
 					if (!arena) {
-						count_pkill(ch, victim);
+						if (dam_object)
+							check_object_killer(dam_object, victim);
+						else
+							count_pkill(ch, victim);
 					} else {
 						// Else adjust arena kills
 						GET_ARENAKILLS(ch) += 1;
@@ -2364,13 +2364,16 @@ hit(struct Creature *ch, struct Creature *victim, int type)
 			CCCYN(ch, C_NRM), calc_thaco, diceroll, victim_ac,
 			CCNRM(ch, C_NRM));
 
-    if ((diceroll == 1) && CHECK_SKILL(victim, SKILL_COUNTER_ATTACK) > 70) {
+    if ((diceroll == 1)
+			&& AWAKE(victim)
+			&& CHECK_SKILL(victim, SKILL_COUNTER_ATTACK) > 70) {
         act("You lauch a counter attack!", false, victim, NULL, ch, TO_CHAR);
         return hit(victim, ch, TYPE_UNDEFINED);
     }
 	/* decide whether this is a hit or a miss */
-	if (((diceroll < 20) && AWAKE(victim) &&
-			((diceroll == 1) || ((calc_thaco - diceroll)) > victim_ac))) {
+	if (diceroll < 20
+			&& AWAKE(victim)
+			&& ((diceroll == 1) || ((calc_thaco - diceroll)) > victim_ac)) {
 
 		if (type == SKILL_BACKSTAB || type == SKILL_CIRCLE ||
 			type == SKILL_SECOND_WEAPON || type == SKILL_CLEAVE )
