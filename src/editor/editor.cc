@@ -316,10 +316,23 @@ bool CTextEditor::Full ( char *inStr=NULL) {
 }
 
 void CTextEditor::Append(char *inStr) {
+	char *read_pt,*write_pt;
+
     if(Full(inStr)) {
         SendMessage("Error: The buffer is full.\r\n");
         return;
     }
+	
+	// All tildes must die
+	readPt = writePt = inStr;
+	while ( *readPt )
+		{
+		if ( *readPt != '~' )
+			*writePt++ = *readPt;
+		*readPt++;
+		}
+	*writePt = '\0';
+
     theText.push_back(inStr);
     Wrap();
     UpdateSize();
