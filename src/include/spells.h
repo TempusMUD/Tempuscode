@@ -772,6 +772,10 @@ static const int TYPE_EGUN_GAMMA = 826;
 static const int TYPE_EGUN_LIGHTNING = 827;
 static const int TYPE_EGUN_TOP = 828;
 
+//energy weapon spec types
+static const int TYPE_EGUN_SPEC_LIGHTNING = 831;
+
+
 static const int TYPE_CRUSHING_DEPTH = 892;	// in deep ocean without vehicle
 static const int TYPE_TAINT_BURN = 893;	// casting while tainted
 static const int TYPE_PRESSURE = 894;

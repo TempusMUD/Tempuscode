@@ -1203,7 +1203,9 @@ damage(struct Creature *ch, struct Creature *victim, int dam,
 		return 0;
 	}
     
-    if (attacktype == TYPE_EGUN_PARTICLE && dam) {
+    
+    //particle stream special
+    if (attacktype == TYPE_EGUN_PARTICLE && dam && ch) {
         obj_data *tmp = NULL;
         if (impl) tmp=impl;
         if (obj) tmp=obj;
@@ -1224,9 +1226,20 @@ damage(struct Creature *ch, struct Creature *victim, int dam,
                 act("$n's particle stream penetrates deep into $N!", false, ch, obj, victim, TO_NOTVICT);
             }
         }
-        
     }
-
+    
+    //lightning gun special
+    if (attacktype == TYPE_EGUN_LIGHTNING && dam && ch) {
+        if (do_gun_special(ch, weap)) {
+            CreatureList::iterator it = ch->in_room->people.begin();
+            for (; it != ch->in_room->people.end(); ++it) {
+                if ((*it) == ch || !(*it)->findCombat(ch))
+                    continue;
+                damage(ch, (*it), dam/2, TYPE_EGUN_SPEC_LIGHTNING, WEAR_RANDOM);
+            }
+        }
+    }
+    
 	//
 	// attacker is a character
 	//
@@ -2836,6 +2849,16 @@ do_gun_special(Creature *ch, obj_data *obj) {
             return false;
         }
                         
+    } else if (GET_OBJ_VAL(obj, 3) == EGUN_LIGHTNING) {
+        //basic chance to chain
+        bool chain = !number(0, MAX(5, LVL_GRIMP + 28 - GET_LEVEL(ch) - GET_DEX(ch) -
+                    (CHECK_SKILL(ch, SKILL_ENERGY_WEAPONS) >> 3)));
+        //in water we get a second chance
+        if ((SECT_TYPE(ch->in_room) == SECT_UNDERWATER || SECT_TYPE(ch->in_room) == SECT_DEEP_OCEAN)
+            && !number(0,3)) {
+            chain = true;
+        }
+        return chain;
     } else if (number(0, MAX(2, LVL_GRIMP + 28 - GET_LEVEL(ch) - GET_DEX(ch) -
                 (CHECK_SKILL(ch, SKILL_ENERGY_WEAPONS) >> 3)))) {
         return false;
