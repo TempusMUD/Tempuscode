@@ -2470,44 +2470,132 @@ ACMD(do_pload)
 {
 	struct Creature *vict = NULL;
 	struct obj_data *obj;
-	int number;
+	int number, quantity;
+    char *temp, *temp2;
 
-	two_arguments(argument, buf, buf2);
+    temp = temp2 = NULL;
+	//two_arguments(argument, buf, buf2);
 
-	if (!*buf || !isdigit(*buf)) {
-		send_to_char(ch, "Usage: pload <number> {target char}\r\n");
+    temp = tmp_getword(&argument);
+    temp2 = tmp_getword(&argument);
+    
+	if (!*temp || !isdigit(*temp)) {
+		send_to_char(ch, "Usage: pload [quantity] <number> [target char]\r\n");
 		return;
 	}
-	if ((number = atoi(buf)) < 0) {
+    if(!*temp2) {
+        number = atoi(temp);
+        quantity = 1;
+    }
+    //else, :)  there are two or three arguments
+    else {
+        //check to see if there's a quantity argument
+        if(isdigit(*temp2)) {
+            quantity = atoi(temp);
+            number = atoi(temp2);
+            //get the vict if there is one
+
+            temp = tmp_getword(&argument);
+            if(*temp) {
+                if(!(vict = get_char_vis(ch, temp))) {
+                    send_to_char(ch, NOPERSON);
+                    return;
+                }
+            }
+        }
+        //second arg must be vict
+        else {
+            number = atoi(temp);
+            quantity = 1;
+            //find vict.  If no visible corresponding char, return
+            if(!(vict = get_char_vis(ch, temp2))) {
+                send_to_char(ch, NOPERSON);
+                return;
+            }
+        }
+    }
+    
+	if (number < 0) {
 		send_to_char(ch, "A NEGATIVE number??\r\n");
 		return;
 	}
-	if (*buf2)
-		if (!(vict = get_char_vis(ch, buf2))) {
-			send_to_char(ch, NOPERSON);
-			return;
-		}
+	if (quantity == 0) {
+        send_to_char(ch, "POOF!  Congratulations!  You've created nothing!\r\n");
+        return;
+    }
+    if (quantity < 0) {
+        send_to_char(ch, "How do you expect to create negative objects?\r\n");
+        return;
+    }
+    //put a cap on how many someone can load
+    if (quantity > 100) {
+        send_to_char(ch, "You can't possibly need THAT many!\r\n");
+        return;
+    }
+    
+    /*//no visible characters corresponding to vict.
+    if (!vict) {
+        send_to_char(ch, NOPERSON);
+        return;
+    }
+    */
 	if (!real_object_proto(number)) {
 		send_to_char(ch, "There is no object with that number.\r\n");
 		return;
 	}
 	obj = read_object(number);
 	if (vict) {
-		obj_to_char(obj, vict);
-		act("You load $p onto $N.", FALSE, ch, obj, vict, TO_CHAR);
-		act("$n does something suspicious and alters reality.", TRUE, ch, 0, 0,
+		for(int i=0; i < quantity; i++) {
+            obj_to_char(obj, vict);
+            obj = read_object(number);
+        }
+		
+        
+        act("$n does something suspicious and alters reality.", TRUE, ch, 0, 0,
 			TO_ROOM);
-		act("$N causes $p to appear in your hands.", TRUE, vict, obj, ch,
-			TO_CHAR);
+        
+        //no quantity list if there's only one object.
+        if(quantity == 1) {
+            act("You load $p onto $N.", TRUE, ch, obj, vict, TO_CHAR);
+		    act("$N causes $p to appear in your hands.", TRUE, vict, obj, ch,
+			    TO_CHAR);
+        }
+        
+        else {
+            act(tmp_sprintf("You load %s onto %s. (x%d)", obj->short_description, 
+                    GET_NAME(vict), quantity), FALSE, ch, obj, vict, TO_CHAR);
+            act(tmp_sprintf("%s causes %s to appear in your hands. (x%d)", 
+                    GET_NAME(ch), obj->short_description, quantity), FALSE, ch, obj, 
+                    vict, TO_VICT);
+        }
+        
+        
+        
 	} else {
 		act("$n does something suspicious and alters reality.", TRUE, ch, 0, 0,
 			TO_ROOM);
-		act("You create $p.", FALSE, ch, obj, 0, TO_CHAR);
-		obj_to_char(obj, ch);
-
-		slog("(GC) %s ploaded %s on %s.", GET_NAME(ch),
-			obj->short_description, vict ? GET_NAME(vict) : GET_NAME(ch));
+        for(int i=0; i < quantity; i++) {
+		    obj_to_char(obj, ch);
+            obj = read_object(number);
+        }
+        
+		if(quantity == 1) {
+            act("You create $p.", FALSE, ch, obj, 0, TO_CHAR);
+        } 
+        else {
+            act(tmp_sprintf("You create %s. (x%d)", obj->short_description, 
+                quantity), FALSE, ch, obj, 0, TO_CHAR);
+        }
 	}
+    if(quantity == 1) {
+        slog("(GC) %s ploaded %s on %s.", GET_NAME(ch), obj->short_description,
+            vict ? GET_NAME(vict) : GET_NAME(ch));
+    }
+    else {
+        slog("(GC) %s ploaded %s on %s. (x%d)", GET_NAME(ch), 
+            obj->short_description, vict ? GET_NAME(vict) : GET_NAME(ch), 
+            quantity);
+    }
 }
 
 
