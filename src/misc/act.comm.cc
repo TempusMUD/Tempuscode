@@ -43,6 +43,7 @@ extern struct zone_data *zone_table;
 int Nasty_Words(char *words);
 extern int quest_status;
 
+int parse_player_class(char *arg);
 //extern struct command_info cmd_info[];
 
 ACMD(do_say)
@@ -644,7 +645,8 @@ ACMD(do_gen_comm)
 	struct descriptor_data *i;
 	char *plain_emit, *color_emit;
 	char *imm_plain_emit, *imm_color_emit;
-	const char *str;
+	const char *str, *gs_channel_desc;
+	int eff_is_neutral, eff_is_good, eff_is_evil, eff_class;
 
 	chan = &channels[subcmd];
 
@@ -753,14 +755,50 @@ ACMD(do_gen_comm)
 		} else
 			GET_MOVE(ch) -= holler_move_cost;
 	}
-	
-	// first, set up strings to be given to the communicator
-	if (COLOR_LEV(ch) >= C_NRM)
-		send_to_char(ch, "%sYou %s,%s%s '%s'%s\r\n", chan->desc_color,
-				chan->name, KNRM, chan->text_color, argument, KNRM);
-	else
-		send_to_char(ch, "You %s, '%s'\r\n", chan->name, argument);
 
+	eff_is_neutral = IS_NEUTRAL(ch);
+	eff_is_evil = IS_EVIL(ch);
+	eff_is_good = IS_GOOD(ch);
+	eff_class = GET_CLASS(ch);
+	if (IS_IMMORT(ch) && *argument == '>') {
+		char *class_str, *tmp_arg;
+
+		tmp_arg = argument + 1;
+		class_str = tmp_getword(&tmp_arg);
+		if (!strcmp(class_str, "e-cleric")) {
+			eff_is_neutral = false;
+			eff_is_evil = true;
+			eff_is_good = false;
+			eff_class = CLASS_CLERIC;
+		} else if (!strcmp(class_str, "g-cleric")) {
+			eff_is_neutral = false;
+			eff_is_evil = false;
+			eff_is_good = true;
+			eff_class = CLASS_CLERIC;
+		} else if (!strcmp(class_str, "e-knight")) {
+			eff_is_neutral = false;
+			eff_is_evil = true;
+			eff_is_good = false;
+			eff_class = CLASS_KNIGHT;
+		} else if (!strcmp(class_str, "g-knight")) {
+			eff_is_neutral = false;
+			eff_is_evil = false;
+			eff_is_good = true;
+			eff_class = CLASS_KNIGHT;
+		} else
+			eff_class = parse_player_class(class_str);
+
+		if (eff_class == CLASS_MONK) {
+			eff_is_neutral = true;
+			eff_is_evil = false;
+			eff_is_good = false;
+		}
+		if (eff_class == CLASS_UNDEFINED) {
+			send_to_char(ch, "That guild doesn't exist in this universe.\r\n");
+			return;
+		}
+	}
+	
 	/* see if it's dirty! */
 	if (chan->check_curse && !IS_MOB(ch) && GET_LEVEL(ch) < LVL_GRGOD &&
 		Nasty_Words(argument)) {
@@ -781,25 +819,33 @@ ACMD(do_gen_comm)
 		slog("%s warned for nasty public communication.", GET_NAME(ch));
 	}
 
+	if (subcmd == SCMD_GUILDSAY) {
+		if (eff_class >= 0 && eff_class < TOP_CLASS)
+			str = tmp_tolower(pc_char_class_types[eff_class]);
+		else
+			str = tmp_sprintf("#%d", eff_class);
+		if (eff_class == CLASS_CLERIC || eff_class == CLASS_KNIGHT)
+			str = tmp_sprintf("%s-%s", (eff_is_good ? "g":"e"), str);
+		gs_channel_desc = tmp_strcat(" [", str, "]", NULL);
+	} else {
+		gs_channel_desc = "";
+	}
+
 	plain_emit = tmp_sprintf("%%s %ss, '%s'\r\n", chan->name, argument);
 	color_emit = tmp_sprintf("%s%%s %ss,%s%s '%s'%s\r\n", chan->desc_color,
 		chan->name, KNRM, chan->text_color, argument, KNRM);
-	if (subcmd == SCMD_GUILDSAY) {
-		if (GET_CLASS(ch) >= 0 && GET_CLASS(ch) < TOP_CLASS)
-			str = tmp_tolower(pc_char_class_types[GET_CLASS(ch)]);
-		else
-			str = tmp_sprintf("#%d", GET_CLASS(ch));
-		if (GET_CLASS(ch) == CLASS_CLERIC || GET_CLASS(ch) == CLASS_KNIGHT)
-			str = tmp_sprintf("%s-%s", (IS_GOOD(ch) ? "g":"e"), str);
-		imm_plain_emit = tmp_sprintf("%%s %ss [%s], '%s'\r\n", chan->name, str,
-			argument);
-		imm_color_emit = tmp_sprintf("%s%%s %ss [%s],%s%s '%s'%s\r\n",
-			chan->desc_color, chan->name, str, KNRM, chan->text_color,
-			argument, KNRM);
-	} else {
-		imm_plain_emit = plain_emit;
-		imm_color_emit = color_emit;
-	}
+	imm_plain_emit = tmp_sprintf("%%s %ss%s, '%s'\r\n", chan->name,
+		gs_channel_desc, argument);
+	imm_color_emit = tmp_sprintf("%s%%s %ss%s,%s%s '%s'%s\r\n",
+		chan->desc_color, chan->name, gs_channel_desc, KNRM, chan->text_color,
+		argument, KNRM);
+	if (COLOR_LEV(ch) >= C_NRM)
+		send_to_char(ch, "%sYou %s%s,%s%s '%s'%s\r\n", chan->desc_color,
+			chan->name, (IS_IMMORT(ch) ? gs_channel_desc:""), KNRM,
+			chan->text_color, argument, KNRM);
+	else
+		send_to_char(ch, "You %s%s, '%s'\r\n", chan->name,
+			(IS_IMMORT(ch) ? gs_channel_desc:""), argument);
 
 	/* now send all the strings out */
 	for (i = descriptor_list; i; i = i->next) {
@@ -826,7 +872,7 @@ ACMD(do_gen_comm)
 
 		// Must be in same guild or an admin to hear guildsay
 		if (subcmd == SCMD_GUILDSAY &&
-				GET_CLASS(i->creature) != GET_CLASS(ch) &&
+				GET_CLASS(i->creature) != eff_class &&
 				!Security::isMember(i->creature, "AdminBasic"))
 			continue;
 
@@ -835,11 +881,11 @@ ACMD(do_gen_comm)
 				(GET_CLASS(i->creature) == CLASS_CLERIC ||
 				GET_CLASS(i->creature) == CLASS_KNIGHT) &&
 				!Security::isMember(i->creature, "AdminBasic")) {
-			if (IS_NEUTRAL(ch))
+			if (eff_is_neutral)
 				continue;
-			if (IS_EVIL(ch) && !IS_EVIL(i->creature))
+			if (eff_is_evil && !IS_EVIL(i->creature))
 				continue;
-			if (IS_GOOD(ch) && !IS_GOOD(i->creature))
+			if (eff_is_good && !IS_GOOD(i->creature))
 				continue;
 		}
 
