@@ -33,6 +33,7 @@
 #include <signal.h>
 #include <netinet/in.h>
 
+#include "macros.h"
 #include "structs.h"
 #include "spells.h"
 #include "utils.h"
@@ -1773,12 +1774,10 @@ send_to_clan(char *messg, int clan)
 }
 
 
-
 char *ACTNULL = "<NULL>";
 
 #define CHECK_NULL(pointer, expression) \
 if ((pointer) == NULL) i = ACTNULL; else i = (expression);
-
 
 /* higher-level communication: the act() function */
 void

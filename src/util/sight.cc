@@ -157,11 +157,15 @@ CAN_SEE(Creature *sub, Creature *obj)
 		return false;
 
 	// Mortals can't see unapproved mobs
-	if (GET_LEVEL(sub) < LVL_IMMORT && MOB_UNAPPROVED(obj))
+	if (!MOB_UNAPPROVED(sub) &&
+			GET_LEVEL(sub) < LVL_IMMORT &&
+			MOB_UNAPPROVED(obj))
 		return false;
 
 	// Non-tester mortals can't see testers
-	if (GET_LEVEL(sub) < LVL_IMMORT && !sub->isTester() && obj->isTester())
+	if (GET_LEVEL(sub) < LVL_IMMORT &&
+			!sub->isTester() &&
+			obj->isTester())
 		return false;
 
 	// Holy light sees over all in-game affects

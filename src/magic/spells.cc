@@ -2742,10 +2742,8 @@ ASPELL(spell_animate_dead)
 
 	if (!orig_char) {
 		send_to_char(ch, "The dark powers are not with you, tonight.\r\n");
-		sprintf(buf,
-			"SYSERR: unable to load an original owner for corpse, idnum %d.",
+		slog("SYSERR: unable to load an original owner for corpse, idnum %d.",
 			CORPSE_IDNUM(obj));
-		slog(buf);
 		return;
 	}
 	//

@@ -762,8 +762,6 @@ char *CURRENCY(Creature * ch);
            i == SKILL_SWEEPKICK   || i == SKILL_TRIP ||          \
            i == SKILL_HIP_TOSS    || i == SKILL_SHOULDER_THROW)
 
-/*#define SKILL_NIGHT_VISION          605   (in spells.h) */
-
 /* Various macros building up to CAN_SEE */
 
 #define CLASS_ABBR(ch) (char_class_abbrevs[(int)GET_CLASS(ch)])
@@ -887,7 +885,6 @@ char *CURRENCY(Creature * ch);
 #define OUTSIDE(ch) (!ROOM_FLAGGED((ch)->in_room, ROOM_INDOORS) && \
                                         (ch)->in_room->sector_type != SECT_INSIDE )
 
-bool NIGHT_VIS(Creature *ch);
 bool IS_RACE_INFRA(Creature *ch);
 bool CAN_SEE_IN_DARK(Creature *ch);
 bool LIGHT_OK(Creature *sub);
@@ -1188,6 +1185,17 @@ isnumber(const char *str)
 		else
 			str++;
 	return true;
+}
+
+inline const char *
+SAFETY(const char *str)
+{
+	if (!str) {
+		slog("Attempt to print null string at 0x%lx",
+			(long)__builtin_return_address(0));
+		return "<NULLS>";
+	}
+	return str;
 }
 
 

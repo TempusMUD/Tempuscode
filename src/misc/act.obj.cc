@@ -1277,7 +1277,7 @@ ACCMD(do_drop)
 	byte oldmode;
 	byte mode = SCMD_DROP;
 	int dotmode, amount = 0, counter = 0, found;
-	char *sname = NULL;
+	char *sname = NULL, *short_desc = NULL;
 	char *arg1, *arg2;
 	char *to_char, *to_room;
 
@@ -1425,6 +1425,7 @@ ACCMD(do_drop)
 		if (IS_BOMB(obj) && obj->contains && IS_FUSE(obj->contains))
 			mode = SCMD_DROP;
 
+		short_desc = tmp_strdup(obj->short_description);
 		found = perform_drop(ch, obj, mode, sname, RDR, FALSE);
 		mode = oldmode;
 
@@ -1434,16 +1435,18 @@ ACCMD(do_drop)
 		amount += found;
 
 		if (!next_obj
-			|| next_obj->short_description != obj->short_description) {
+			|| strcmp(next_obj->short_description, short_desc)) {
 			if (counter > 0) {
 				if (counter == 1) {
-					to_char = tmp_sprintf("You %s $p.%s", sname, VANISH(mode));
-					to_room = tmp_sprintf("$n %ss $p.%s", sname, VANISH(mode));
+					to_char = tmp_sprintf("You %s %s.%s", sname,
+						SAFETY(short_desc), VANISH(mode));
+					to_room = tmp_sprintf("$n %ss %s.%s", sname,
+						SAFETY(short_desc), VANISH(mode));
 				} else {
-					to_char = tmp_sprintf("You %s $p.%s (x%d)", sname, VANISH(mode),
-						counter);
-					to_room = tmp_sprintf("$n %ss $p.%s (x%d)", sname,
-						VANISH(mode), counter);
+					to_char = tmp_sprintf("You %s %s.%s (x%d)", sname,
+						SAFETY(short_desc), VANISH(mode), counter);
+					to_room = tmp_sprintf("$n %ss %s.%s (x%d)", sname,
+						SAFETY(short_desc), VANISH(mode), counter);
 				}
 				act(to_char, FALSE, ch, obj, 0, TO_CHAR);
 				act(to_room, TRUE, ch, obj, 0, TO_ROOM);

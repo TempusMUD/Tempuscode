@@ -1,6 +1,7 @@
 #ifndef _MACROS_
 #define _MACROS_
 
+
 #define SPECIAL(name) \
 int (name)(struct Creature *ch, void *me, int cmd, char *argument, special_mode spec_mode)
 
