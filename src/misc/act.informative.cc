@@ -945,8 +945,10 @@ list_char_to_char(struct Creature *list, struct Creature *ch)
 		}
 
 		if (IS_AFFECTED(ch, AFF_GROUP) && IS_AFFECTED(i, AFF_GROUP)) {
-			if (i->master && (i->master == ch || i->master == ch->master))
-				is_group = true;
+			is_group =
+				ch->master == i ||
+				i->master == ch ||
+				(ch->master && i->master == ch->master);
 		}
 
 		msg = tmp_strcat(msg, desc_one_char(ch, i, is_group));
