@@ -137,14 +137,6 @@ burn_update(void)
 			IS_AFFECTED_2(ch, AFF2_PETRIFIED))
 			continue;
 
-		// char is flying but unable to continue
-		if (ch->getPosition() == POS_FLYING && !AFF_FLAGGED(ch, AFF_INFLIGHT)
-			&& GET_LEVEL(ch) < LVL_AMBASSADOR
-			&& (CHECK_SKILL(ch, SKILL_FLYING) < 30)) {
-			send_to_char(ch, "You can no longer fly!\r\n");
-			ch->setPosition(POS_STANDING);
-		}
-
 		if (IS_AFFECTED_3(ch, AFF3_GRAVITY_WELL)
 			&& ch->getPosition() == POS_FLYING
 			&& (!ch->in_room->dir_option[DOWN]
@@ -157,6 +149,14 @@ burn_update(void)
 			ch->setPosition(POS_RESTING);
 			if (damage(NULL, ch, dice(6, 5), TYPE_FALLING, WEAR_RANDOM))
 				continue;
+		}
+
+		// char is flying but unable to continue
+		if (ch->getPosition() == POS_FLYING && !AFF_FLAGGED(ch, AFF_INFLIGHT)
+			&& GET_LEVEL(ch) < LVL_AMBASSADOR
+			&& (CHECK_SKILL(ch, SKILL_FLYING) < 30)) {
+			send_to_char(ch, "You can no longer fly!\r\n");
+			ch->setPosition(POS_STANDING);
 		}
 		// character is in open air
 		if (ch->in_room->dir_option[DOWN] &&
