@@ -2728,6 +2728,33 @@ extern const char eq_pos_order[] = {
 	0, 0, 0, 0, 0, 0
 };
 
+extern const char implant_pos_order[] = {
+	WEAR_HEAD,
+	WEAR_FACE,
+	WEAR_EYES,
+	WEAR_EAR_L,
+	WEAR_EAR_R,
+	WEAR_NECK_1,
+	WEAR_NECK_2,
+	WEAR_ABOUT,
+	WEAR_BODY,
+	WEAR_BACK,
+	WEAR_ARMS,					/* 10 */
+	WEAR_SHIELD,
+	WEAR_WRIST_R,
+	WEAR_WRIST_L,
+	WEAR_HANDS,
+	WEAR_FINGER_R,
+	WEAR_FINGER_L,
+	WEAR_LIGHT,
+	WEAR_WAIST,
+	WEAR_BELT,
+	WEAR_CROTCH,
+	WEAR_LEGS,
+	WEAR_FEET,
+	0, 0, 0, 0, 0, 0, 0, 0, 0, 0
+};
+
 extern const char *material_names[] = {
 	"indeterminate",
 	"water",

@@ -142,6 +142,7 @@ extern const char *sky_types[];
 extern const char *lunar_phases[];
 extern const char *moon_sky_types[];
 extern const char eq_pos_order[];
+extern const char implant_pos_order[];
 extern const char *material_names[];
 extern const int weapon_proficiencies[];
 extern const char *soilage_bits[];
