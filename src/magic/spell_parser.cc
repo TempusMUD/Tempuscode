@@ -1344,7 +1344,7 @@ mag_objectmagic(struct Creature *ch, struct obj_data *obj,
 
 			CreatureList::iterator it = ch->in_room->people.begin();
 			for (; it != ch->in_room->people.end(); ++it) {
-				if (ch == *it)
+				if (ch == *it && spell_info[GET_OBJ_VAL(obj, 3)].violent)
 					continue;
 				if (level)
 					call_magic(ch, (*it), NULL, GET_OBJ_VAL(obj, 3),
