@@ -604,9 +604,10 @@ extern const char *spells[];
 #define TYPE_RIP                     816
 #define TYPE_CHOP                    817
 #define TYPE_SHOOT                   818
-#define TYPE_BLEED					 819
-#define TOP_ATTACKTYPE               820
+#define TOP_ATTACKTYPE               819
 /* new attack types can be added here - up to TYPE_SUFFERING */
+#define TYPE_BLEED					 820 // Open wound
+#define TYPE_OVERLOAD				 821 // cyborg overloading systems.
 #define TYPE_SUFFERING		     899
 
 

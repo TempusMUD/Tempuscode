@@ -2952,6 +2952,8 @@ damage( struct char_data * ch, struct char_data * victim, int dam,
 	dam >>= 2;
 
     switch ( attacktype ) {
+	case TYPE_OVERLOAD:
+	break;
     case SPELL_POISON:
 	if ( IS_UNDEAD( victim ) )
 	    dam = 0;
@@ -2963,7 +2965,6 @@ damage( struct char_data * ch, struct char_data * victim, int dam,
 	if ( AFF_FLAGGED( victim, AFF_PROTECT_GOOD ) )
 	    dam >>= 1;
 	break;
-
     case SPELL_OXIDIZE:
 	if ( IS_CYBORG( victim ) )
 	    dam <<= 1;

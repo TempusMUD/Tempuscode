@@ -1284,7 +1284,7 @@ ACMD(do_discharge)
 			GET_TOT_DAM(ch) = max_component_dam(ch);
 		else
 			GET_TOT_DAM(ch) += feedback;
-		damage(NULL, ch, dice(amount - tolerance, 10), TYPE_OVERLOAD,-1);
+		damage(ch, ch, dice(amount - tolerance, 10), TYPE_OVERLOAD,-1);
 
 		if(GET_TOT_DAM(ch) == 0 || GET_TOT_DAM(ch) == max_component_dam(ch)) {
 			send_to_char("ERROR: Component failure. Discharge failed.\r\n",ch);

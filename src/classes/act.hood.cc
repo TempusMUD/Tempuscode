@@ -138,6 +138,7 @@ ACMD(do_hamstring)
 							  * ( CHECK_SKILL( ch ,SKILL_HAMSTRING ) )/1000;
 			affect_to_char(vict, &af);
 			WAIT_STATE(vict, 6 RL_SEC);
+			GET_POS(vict) = POS_RESTING;
 			damage(ch, vict, dam, SKILL_HAMSTRING, WEAR_LEGS);
 			GET_POS(vict) = POS_RESTING;
 		} else {

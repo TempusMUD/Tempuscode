@@ -9,7 +9,7 @@
 
 #define DAM_OBJECT_IDNUM(obj) (IS_BOMB(obj) ? BOMB_IDNUM(obj) : GET_OBJ_SIGIL_IDNUM(obj))
 			       
-#define IS_WEAPON(type) ((((type)>=TYPE_HIT) && ((type)<TYPE_SUFFERING)) || \
+#define IS_WEAPON(type) ((((type)>=TYPE_HIT) && ((type)<TOP_ATTACKTYPE)) || \
 			 type == SKILL_SECOND_WEAPON || \
 			 type == SKILL_ENERGY_WEAPONS || \
 			 type == SKILL_ARCHERY        || \
