@@ -303,7 +303,11 @@ burn_update(void)
 							&& GET_OBJ_DAM(obj) != -1
 							&& GET_OBJ_DAM(obj) < GET_OBJ_MAX_DAM(obj)) {
 						repaired = true;
-						GET_OBJ_DAM(obj) = GET_OBJ_DAM(obj) + number(0, 1);
+                        float amount =  
+                            (ch->getLevelBonus(SKILL_NANITE_RECONSTRUCTION) / 
+                            number(33, 50));
+
+                        GET_OBJ_DAM(obj) += (int)(ceilf(amount));
 					}
 				}
 			}
