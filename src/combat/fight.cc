@@ -1306,18 +1306,23 @@ damage( struct char_data * ch, struct char_data * victim, int dam,
     if (IS_AFFECTED_2(victim, AFF2_PETRIFIED))
         dam_reduction += 75;
 
-    //********** Knights, Clerics, and Monks out of alignment ************/
+    //******************* Reduction based on the attacker ********************/
     if (ch) {
+        //********** Knights, Clerics, and Monks out of alignment ************/
         if (((IS_KNIGHT(ch) || IS_CLERIC(ch)) && IS_NEUTRAL(ch)) ||
             IS_MONK(ch) && !IS_NEUTRAL(ch))
             dam = (dam * abs(GET_ALIGNMENT(ch)) / 2000);
             
         //******************* Various forms of protection ****************/
-        if ((IS_EVIL(ch) && IS_AFFECTED(victim, AFF_PROTECT_EVIL)) ||
-             (IS_GOOD(ch) && IS_AFFECTED(victim, AFF_PROTECT_GOOD)) ||
-             (IS_UNDEAD(ch) && IS_AFFECTED_2(victim, AFF2_PROTECT_UNDEAD)) ||
-             (IS_DEMON(ch) && IS_AFFECTED_2(victim, AFF2_PROT_DEMONS)) ||
-             (IS_DEVIL(ch) && IS_AFFECTED_2(victim, AFF2_PROT_DEVILS)))
+        if (IS_EVIL(ch) && IS_AFFECTED(victim, AFF_PROTECT_EVIL)) 
+            dam_reduction += 8;
+        if (IS_GOOD(ch) && IS_AFFECTED(victim, AFF_PROTECT_GOOD))
+            dam_reduction += 8;
+        if (IS_UNDEAD(ch) && IS_AFFECTED_2(victim, AFF2_PROTECT_UNDEAD))
+            dam_reduction += 8;
+        if (IS_DEMON(ch) && IS_AFFECTED_2(victim, AFF2_PROT_DEMONS))
+            dam_reduction += 8;
+        if (IS_DEVIL(ch) && IS_AFFECTED_2(victim, AFF2_PROT_DEVILS))
             dam_reduction += 8;
     }
 
