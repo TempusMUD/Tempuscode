@@ -346,8 +346,7 @@ boot_db(void)
 	reset_time();
 
 	boot_accounts();
-    if(! mini_mud )
-        build_old_player_index();
+    build_old_player_index();
 	slog("Reading credits, bground, info & motds.");
 	file_to_string_alloc(CREDITS_FILE, &credits);
 	file_to_string_alloc(MOTD_FILE, &motd);
@@ -526,12 +525,13 @@ build_old_player_index(void)
 {
 	DIR* dir;
 	dirent *file;
-	char *dirname;
+	char dirname[256];
+    char filename[256];
 	char inbuf[131072];
     slog("Building old character index...");
 	for( int i = 0; i <= 9; i++ ) {
 		// If we don't have
-		dirname = tmp_sprintf("oldplayers/%d", i);
+		sprintf(dirname,"oldplayers/%d", i);
 		dir = opendir(dirname);
 		if (!dir) {
 			mkdir(dirname, 0644);
@@ -550,7 +550,8 @@ build_old_player_index(void)
 
 			// Open up the file and scan through it, looking for name and idnum
 			// parameters
-			ifstream in(tmp_sprintf("%s/%s", dirname, file->d_name));
+            sprintf(filename,"%s/%s", dirname, file->d_name)
+			ifstream in(filename);
 			in.read(inbuf, sizeof(inbuf));
 			char *name = strstr(inbuf, "name=" );
 			char *idnum = strstr(inbuf, "idnum=" );
