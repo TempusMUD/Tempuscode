@@ -2185,11 +2185,11 @@ ACMD(do_clean)
 		found = 0;
 		strcpy(buf, "$p is no longer ");
 
-		for (k = 0, j = 0; j < 16; j++)
+		for (k = 0, j = 0; j < 17; j++)
 			if (OBJ_SOILED(obj, (1 << j)))
 				k++;
 
-		for (j = 0; j < 16; j++) {
+		for (j = 0; j < 17; j++) {
 			if (OBJ_SOILED(obj, (1 << j))) {
 				found++;
 				if (found > 1) {
