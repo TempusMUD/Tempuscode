@@ -1199,7 +1199,10 @@ damage( struct char_data * ch, struct char_data * victim, int dam,
     if ( ch && GET_CLASS( ch ) == CLASS_CLERIC && IS_EVIL( ch ) ) {
         // new moon gives extra damage up to 30%
         if ( lunar_stage == MOON_NEW ) {
-            dam += ( dam * GET_ALIGNMENT( ch ) ) / 10000;
+            // I think this is a cut and paste error, evil clerics were only getting
+            // a 10 percent damage bonus for a new moon instead of 30
+            //dam += ( dam * GET_ALIGNMENT( ch ) ) / 10000;
+            dam += ( dam * GET_ALIGNMENT( ch ) ) / 3000;
             // evil clerics get an alignment-based damage bonus, up to 10%
         } else {
             dam += ( dam * GET_ALIGNMENT( ch ) ) / 10000;
@@ -1207,53 +1210,62 @@ damage( struct char_data * ch, struct char_data * victim, int dam,
     }
 
     /*************** Sanctuary ******************/
-    if ( IS_AFFECTED( victim, AFF_SANCTUARY ) &&
-         ( !ch || !IS_EVIL( victim ) || 
-           !affected_by_spell( ch, SPELL_RIGHTEOUS_PENETRATION ) ) &&
-         ( !ch || !IS_GOOD( victim ) || 
-           !affected_by_spell( ch, SPELL_MALEFIC_VIOLATION ) ) && 
-         ( !(  attacktype == TYPE_BLEED ) && ! ( attacktype == SPELL_POISON ) ) ) {
-        if ( IS_VAMPIRE( victim ) || IS_CYBORG( victim ) || IS_PHYSIC( victim ) ) {
-            dam = ( int ) ( dam * 0.80 );
-        } else if ( IS_CLERIC( victim ) || IS_KNIGHT( victim ) ) {
-            if ( IS_NEUTRAL( victim ) ) {  /***** weaker affects while neutral *****/
-                dam = ( int ) ( dam * 0.60 );
-            } else {   
-                dam >>= 1;
-            }
-        } else {
-            dam = ( int ) ( dam * 0.60 );
-        }
-    } else if ( IS_AFFECTED_2( victim, AFF2_OBLIVITY ) &&
-                CHECK_SKILL( victim, ZEN_OBLIVITY ) > 60 ) {
-        // damage reduction ranges from about 35 to 60%
-        dam -= ( dam * 
-                 ( ( GET_LEVEL( victim ) * 10 ) +
-                   ( CHECK_SKILL( victim, ZEN_OBLIVITY ) - 60 ) +
-                   ( GET_REMORT_GEN( victim ) << 2 ) ) ) / 1000;
-    
-    } else if ( IS_AFFECTED( victim, AFF_NOPAIN ) ) {
-        dam >>= 1;          /* 1/2 damage when NoPain */
-    } else if ( IS_AFFECTED_2( victim, AFF2_BESERK ) ) {
-        if ( IS_BARB( victim ) ) 
-            dam -= ( dam * ( 10 + GET_REMORT_GEN( victim ) ) ) / 50;
-        else
-            dam = ( int ) ( dam * 0.80 );
-    } else if ( AFF3_FLAGGED( victim, AFF3_DAMAGE_CONTROL ) ) {
-        if ( GET_LEVEL( victim ) < 30 )
-            dam = ( int ) ( dam * 0.90 );
-        else if ( GET_LEVEL( victim ) < 35 ) 
-            dam = ( int ) ( dam * 0.85 );
-        else if ( GET_LEVEL( victim ) < 40 ) 
-            dam = ( int ) ( dam * 0.80 );
-        else if ( GET_LEVEL( victim ) < 45 ) 
-            dam = ( int ) ( dam * 0.75 );
-        else if ( GET_LEVEL( victim ) < 47 ) 
-            dam = ( int ) ( dam * 0.70 );
-        else if ( GET_LEVEL( victim ) < 49 ) 
-            dam = ( int ) ( dam * 0.65 );
+    if (IS_AFFECTED(victim, AFF_SANCTUARY) && (!ch || !IS_EVIL(victim) || 
+         !affected_by_spell(ch, SPELL_RIGHTEOUS_PENETRATION)) &&
+         (!ch || !IS_GOOD(victim) || !affected_by_spell(ch, SPELL_MALEFIC_VIOLATION)) && 
+         (!(attacktype == TYPE_BLEED ) && ! (attacktype == SPELL_POISON))) {
+        
+// Changed by Nothing, this causes remort class physics (including clerics) to only get
+// 20 percent damage reduction from sanctuary...I don't think that's what was intended here
+//        if (IS_VAMPIRE(victim) || IS_CYBORG(victim) || IS_PHYSIC(victim)) {
+        if (IS_VAMPIRE(victim) || 
+              GET_CLASS(victim) == CLASS_CYBORG || 
+              GET_CLASS(victim) == CLASS_PHYSIC) 
+            dam = (int)(dam * 0.80);
+// Only primary clerics and knights should get the full benefit of Sanctuary        
+        else if ((GET_CLASS(victim) == CLASS_CLERIC || 
+                 GET_CLASS(victim) == CLASS_KNIGHT) && !IS_NEUTRAL(victim)) 
+            dam >>= 1;
         else 
-            dam = ( int ) ( dam * 0.60 ); 
+            dam = (int)(dam * 0.60);
+    } 
+    
+    else if (IS_AFFECTED_2(victim, AFF2_OBLIVITY) &&
+             CHECK_SKILL(victim, ZEN_OBLIVITY) > 60) {
+        // damage reduction ranges from about 35 to 60%
+        dam -= (dam * 
+               (( GET_LEVEL( victim ) * 10 ) +
+               (CHECK_SKILL(victim, ZEN_OBLIVITY) - 60) +
+               (GET_REMORT_GEN(victim) << 2))) / 1000;
+    
+    } 
+    
+    else if (IS_AFFECTED(victim, AFF_NOPAIN)) {
+        dam >>= 1;          /* 1/2 damage when NoPain */
+    } 
+    
+    else if (IS_AFFECTED_2(victim, AFF2_BESERK)) {
+        if (IS_BARB(victim)) 
+            dam -= (dam * (10 + GET_REMORT_GEN(victim))) / 50;
+        else
+            dam = (int)(dam * 0.80);
+    } 
+    
+    else if (AFF3_FLAGGED(victim, AFF3_DAMAGE_CONTROL)) {
+        if (GET_LEVEL(victim) < 30)
+            dam = (int) (dam * 0.90);
+        else if (GET_LEVEL(victim) < 35) 
+            dam = (int) (dam * 0.85);
+        else if (GET_LEVEL(victim) < 40) 
+            dam = (int) (dam * 0.80);
+        else if (GET_LEVEL(victim) < 45) 
+            dam = (int)(dam * 0.75);
+        else if (GET_LEVEL( victim ) < 47) 
+            dam = (int) (dam * 0.70);
+        else if (GET_LEVEL(victim) < 49) 
+            dam = (int)(dam * 0.65);
+        else 
+            dam = (int)(dam * 0.60); 
     } 
     // Damn alchoholics
     if ( GET_COND( victim, DRUNK ) > 5 && !IS_AFFECTED( victim, AFF_NOPAIN ) )
