@@ -3323,7 +3323,6 @@ ASPELL(spell_dispel_magic)
 {
     int aff_to_remove;
 	bool affs_all_gone;
-    int my_return_flags = 0;
 
     if (victim) {
         // Cast on creature
