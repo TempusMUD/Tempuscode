@@ -382,17 +382,20 @@ Account::delete_char(Creature *ch)
 	PGresult *res;
 	Account *acct;
 
+	// Clear the owner of any clans this player might own in memory
+	for (clan = clan_list;clan;clan = clan->next)
+		if (clan->owner == GET_IDNUM(ch))
+            clan->owner = 0;
+
+	// Clear the owner of any clans this player might own on the db
+	sql_exec("update clans set owner=null where owner=%d", clan->number);
+
 	// Remove character from clan
 	clan = real_clan(GET_CLAN(ch));
 	if (clan) {
 		struct clanmember_data *member, *temp;
 
 		member = real_clanmember(GET_IDNUM(ch), clan);
-        if (clan->owner == GET_IDNUM(ch)) {
-            clan->owner = 0;
-            sql_exec("update clans set owner=null where idnum=%d",
-                     clan->number);
-        }
 		if (member) {
 			REMOVE_FROM_LIST(member, clan->member_list, next);
 			sql_exec("delete from clan_members where player=%ld",
