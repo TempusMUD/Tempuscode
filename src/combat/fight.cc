@@ -66,19 +66,15 @@ set_fighting(struct Creature *ch, struct Creature *vict, int aggr)
 		return;
 
 	if (FIGHTING(ch)) {
-		slog("SYSERR: FIGHTING( ch ) != NULL in set_fighting(  ).");
+		slog("SYSERR: FIGHTING(ch) != NULL in set_fighting().");
 		return;
 	}
 	combatList.add(ch);
-	//ch->next_fighting = combat_list;
-	//combat_list = ch;
 
 	ch->setFighting(vict);
 	update_pos(ch);
-//    ch->setPosition( POS_FIGHTING );
 
-	if (aggr == TRUE && !IS_NPC(vict)) {
-
+	if (aggr && !IS_NPC(vict)) {
 		if (IS_NPC(ch)) {
 			if (AFF_FLAGGED(ch, AFF_CHARM) && ch->master && !IS_NPC(ch->master)
 				&& (!MOB_FLAGGED(ch, MOB_MEMORY)
@@ -96,7 +92,7 @@ set_fighting(struct Creature *ch, struct Creature *vict, int aggr)
 								&& ch->master->in_room == ch->in_room)))
 						check_killer(ch->master, vict, "charmie");
 			}
-		} else {				/*if ( !IS_NPC( ch ) ) { */
+		} else {
 			bool isArena = ROOM_FLAGGED(ch->in_room, ROOM_ARENA) && 
 						   ROOM_FLAGGED(vict->in_room, ROOM_ARENA);
 			if( !isArena ) {
@@ -110,8 +106,7 @@ set_fighting(struct Creature *ch, struct Creature *vict, int aggr)
 					return;
 				}
 				if (ch->isNewbie() && !PLR_FLAGGED(ch, PLR_TOUGHGUY) &&
-					!ROOM_FLAGGED(ch->in_room, ROOM_ARENA)) 
-				{
+					!ROOM_FLAGGED(ch->in_room, ROOM_ARENA)) {
 					send_to_char(ch, "You are currently under new player protection, which expires at level 41.\r\n");
 					send_to_char(ch, "You cannot attack other players while under this protection.\r\n");
 					return;
@@ -134,7 +129,7 @@ set_fighting(struct Creature *ch, struct Creature *vict, int aggr)
 					FALSE, ch, 0, vict, TO_CHAR);
 				act("You are protected by the gods against $n's attack!",
 					FALSE, ch, 0, vict, TO_VICT);
-				slog("%s protected against %s ( set_fighting ) at %d",
+				slog("%s protected against %s (set_fighting) at %d",
 					GET_NAME(vict), GET_NAME(ch), vict->in_room->number);
 				ch->setFighting(NULL);
 				ch->setPosition(POS_STANDING);
@@ -867,7 +862,7 @@ damage(struct Creature *ch, struct Creature *victim, int dam,
 			dam = 0;
 
 		if (victim != ch && IS_NPC(ch) && IS_NPC(victim) && victim->master &&
-			GET_MOB_WAIT(ch) < 10 &&
+			GET_MOB_WAIT(ch) < 10 && ch->master != victim->master &&
 			!number(0, 10) && IS_AFFECTED(victim, AFF_CHARM) &&
 			(victim->master->in_room == ch->in_room)) {
 			if (FIGHTING(ch))
