@@ -3142,7 +3142,8 @@ ACMD(do_who)
                          !strncmp(GET_NAME(tch), "Tigger", 6)   ? "OP ARCH" :
                          !strncmp(GET_NAME(tch), "Trouble", 7)  ? " ADMIN " :
                          !strncmp(GET_NAME(tch), "Darth", 5)    ? " ADMIN " :
-                         !strncmp(GET_NAME(tch), "Nothing", 7)  ? "KODPOET" :
+                         !strncmp(GET_NAME(tch), "Nothing", 7)  ? "THECODE" :
+                         !strncmp(GET_NAME(tch), "Evangeline", 10)  ? "QUESTOR" :
                          !strncmp(GET_NAME(tch), "Joran", 5)    ? " LOWER ":
                          LEV_ABBR(tch)),  CCYEL_BLD(ch, C_NRM), CCNRM(ch, C_NRM),
                         PRF2_FLAGGED(tch, PRF2_NOWHO) ? nowho_buf : "",
