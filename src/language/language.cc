@@ -1605,19 +1605,19 @@ ACMD(do_show_language)
 
 void set_initial_language(Creature *ch)
 {
-    int race_idx = (int)GET_RACE(ch);
     int language_idx;
     char *language_name;
 
-    language_name = tmp_strdup(race_language[race_idx][1]);
-    language_idx = find_language_idx_by_name(language_name);
+    language_idx = find_language_idx_by_race(player_race[GET_RACE(ch)]);
 
     if (language_idx != LANGUAGE_NONE) {
         learn_language(ch, language_idx);
     }
 
-    if (!can_speak_language(ch, GET_LANGUAGE(ch)))
+    if ((language_idx == LANGUAGE_NONE) || 
+        !can_speak_language(ch, GET_LANGUAGE(ch)))
         GET_LANGUAGE(ch) = LANGUAGE_COMMON;
+
     return;
 }
 
