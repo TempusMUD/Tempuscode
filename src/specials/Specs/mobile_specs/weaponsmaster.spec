@@ -11,7 +11,6 @@ extern struct {
 #define weap_spec GET_WEAP_SPEC(ch, i)
 SPECIAL(weaponsmaster)
 {
-	Creature *self = (Creature *)me;
 	struct obj_data *weap = NULL;
 	int pos, cost, i, char_class, check_only = 0;
 
@@ -25,25 +24,6 @@ SPECIAL(weaponsmaster)
 		check_only = 1;
 	else if (!CMD_IS("train"))
 		return 0;
-	
-	cost = (int)(weap_spec_char_class[char_class].multiplier
-		* (weap_spec.level + 1) * 300000);
-	
-	if (!check_only && cost > GET_GOLD(ch)) {
-		perform_tell(self, ch,
-			tmp_sprintf("You don't have the %d gold coins I require to train that specialization.",
-				cost));
-		return 1;
-	}
-
-	perform_tell(self, ch,
-		tmp_sprintf("It will cost you %d gold coins to train your specialization with %s up to level %d",
-			cost,
-			weap->name,
-			weap_spec.level + 1));
-
-	if (check_only)
-		return 1;
 
 	skip_spaces(&argument);
 
@@ -106,9 +86,18 @@ SPECIAL(weaponsmaster)
 		return 1;
 	}
 
-	cost = (int)(weap_spec_char_class[char_class].multiplier * (weap_spec.level + 1));
+	cost = (weap_spec.level + 1) * 300000;
 
+	send_to_char(ch,
+		"It will cost you %d gold coin%s to train your specialization with %s to level %d.\r\n%s",
+		cost, cost == 1 ? "" : "s", weap->name,
+		weap_spec.level + 1,
+		cost > GET_GOLD(ch) ? "Which you don't have.\r\n" : "");
 
+	if (check_only || cost > GET_GOLD(ch))
+		return 1;
+
+	GET_GOLD(ch) -= cost;
 	weap_spec.vnum = GET_OBJ_VNUM(weap);
 	weap_spec.level++;
 	act("You improve your fighting aptitude with $p.", FALSE, ch, weap, 0,
