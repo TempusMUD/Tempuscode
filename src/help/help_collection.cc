@@ -424,7 +424,6 @@ HelpCollection::LoadIndex()
 		slog("SYSERR: Cannot open help index.");
 		return false;
 	}
-	//index_file.seekp(0, ios::beg);
 	index_file >> top_id;
 	s = buf;
 	for (int i = 1; i <= top_id; i++) {
