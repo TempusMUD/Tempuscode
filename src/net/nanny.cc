@@ -213,7 +213,7 @@ handle_input(struct descriptor_data *d)
 			set_desc_state(CXN_PW_PROMPT, d);
 		} else {
 			d->account->save_to_xml();
-			set_desc_state(CXN_MENU, d);
+			set_desc_state(CXN_NAME_PROMPT, d);
 		}
 		break;
 	case CXN_MENU:
