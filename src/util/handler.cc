@@ -2352,13 +2352,14 @@ generic_find(char *arg, int bitvector, struct Creature *ch,
 	int i, found;
 	char name[256];
 
+	*tar_ch = NULL;
+	*tar_obj = NULL;
+
 	one_argument(arg, name);
 
 	if (!*name)
 		return (0);
 
-	*tar_ch = NULL;
-	*tar_obj = NULL;
 
 	if (IS_SET(bitvector, FIND_CHAR_ROOM)) {	/* Find person in room */
 		if ((*tar_ch = get_char_room_vis(ch, name))) {

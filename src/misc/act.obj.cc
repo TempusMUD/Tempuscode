@@ -928,17 +928,14 @@ get_from_room(struct Creature *ch, char *arg)
 
 ACCMD(do_get)
 {
-	char *arg1, *arg2;
-
-	int cont_dotmode;
-	struct obj_data *cont;
-	struct Creature *tmp_char;
+	int cont_dotmode = -1;
+	struct obj_data *cont = NULL;
+	struct Creature *tmp_char = NULL;
+	char *arg1 = tmp_getword(&argument);
+	char *arg2 = tmp_getword(&argument);
 
 	ACMD_set_return_flags(0);
-
 	total_coins = total_credits = 0;
-	arg1 = tmp_getword(&argument);
-	arg2 = tmp_getword(&argument);
 
 	if (IS_CARRYING_N(ch) >= CAN_CARRY_N(ch)) {
 		send_to_char(ch, "Your arms are already full!\r\n");
