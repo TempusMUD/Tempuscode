@@ -2265,7 +2265,10 @@ hit(struct Creature *ch, struct Creature *victim, int type)
 			}
               
             if( type == SKILL_CLEAVE ) {
-                dam *= 4;
+				if (GET_SKILL(ch, SKILL_GREAT_CLEAVE) > 50)
+					dam *= 4 + GET_REMORT_GEN(ch);
+				else
+					dam *= 4;
 				w_type = SKILL_CLEAVE;
 				//if( IS_PC(ch) )
 				//	fprintf(stderr, "CLEAVE %d\r\n", dam );
