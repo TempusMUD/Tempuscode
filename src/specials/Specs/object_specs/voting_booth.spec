@@ -76,6 +76,7 @@ voting_booth_load(void)
 			prev_poll->next = new_poll;
 		else
 			voting_poll_list = new_poll;
+		prev_poll = new_poll;
 	}
 
 	res = sql_query("select poll, descrip, count from voting_options order by poll, idx");
