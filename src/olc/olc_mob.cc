@@ -1603,8 +1603,8 @@ do_destroy_mobile(struct Creature *ch, int vnum)
 		}
 	}
 
-	if (GET_NAME(mob)) {
-		free(GET_NAME(mob));
+	if (mob->player.name) {
+		free(mob->player.name);
 	}
 	if (mob->player.title) {
 		free(mob->player.title);

@@ -788,6 +788,7 @@ add_path_to_mob(struct Creature *mob, char *name)
 	o->phead = phead;
 	o->wait_time = phead->wait_time;
 	o->step = 1;
+	o->pos = 0;
 
 	return 1;
 }
