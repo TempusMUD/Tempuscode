@@ -2080,6 +2080,7 @@ load_zones(FILE * fl, char *zonename)
 	struct zone_data *new_zone, *zone = NULL;
 	struct reset_com *zonecmd, *new_zonecmd = NULL;
 	struct weather_data *weather = NULL;
+	char *arg1, *arg2;
 
 	/* Let's allocate the memory for the new zone... */
 
@@ -2128,12 +2129,38 @@ load_zones(FILE * fl, char *zonename)
 		line_num += get_line(fl, buf);
 	} else
 		new_zone->respawn_pt = 0;
+	
+	// New format reading starts now.
+	while (true) {
+		arg2 = buf;
+		arg1 = tmp_getword(&arg2);
+		if (!strcmp(arg1, "owner:"))
+			new_zone->owner_idnum = atoi(arg2);
+		else if (!strcmp(arg1, "co-owner:"))
+			new_zone->co_owner_idnum = atoi(arg2);
+		else if (!strcmp(arg1, "respawn-pt:"))
+			new_zone->respawn_pt = atoi(arg2);
+		else if (!strcmp(arg1, "target-power:")) {
+			if (sscanf(arg2, "%d/%d", &new_zone->target_lvl, &new_zone->target_gen) != 2) {
+				slog("SYSERR: Invalid target power '%s'", arg2);
+				safe_exit(0);
+			}
+		} else if (!strcmp(arg1, "public-desc:")) {
+			new_zone->public_desc = fread_string(fl, buf2);
+		} else if (!strcmp(arg1, "private-desc:")) {
+			new_zone->private_desc = fread_string(fl, buf2);
+		} else
+			break;
+
+		line_num += get_line(fl, buf);
+	}
 
 	if (sscanf(buf, " %d %d %d %d %d %s %d %d", &new_zone->top,
 			&new_zone->lifespan, &new_zone->reset_mode,
 			&new_zone->time_frame, &new_zone->plane, flags,
 			&new_zone->hour_mod, &new_zone->year_mod) != 8) {
 		fprintf(stderr, "Format error in 8-constant line of %s\n", zname);
+		fprintf(stderr, "Line was: %s", buf);
 		safe_exit(0);
 	}
 
