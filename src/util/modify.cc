@@ -341,6 +341,10 @@ show_string(struct descriptor_data *d)
 	else
 		cols = 80;
 
+	// No division by zero errors!
+	if (cols == 0)
+		cols = -1;
+
 	undisplayed = 0;
 	line_pt = read_pt = d->showstr_point;
 	while (*read_pt && page_length > 0) {
