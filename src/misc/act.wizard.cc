@@ -4302,7 +4302,7 @@ ACMD(do_show)
     switch (l) {
     case 1: /* zone */
     {  
-        static const char *usage = "Usage: show zone [ all | <begin#> <end#> | name <partial name> | fullcontrol | owner | co-owner ]\r\n";
+        static const char *usage = "Usage: show zone [ . | all | <begin#> <end#> | name <partial name> | fullcontrol | owner | co-owner ]\r\n";
         Tokenizer tokens(arg);
         if( value[0] == '\0' ) {
             send_to_char( usage, ch );
