@@ -72,8 +72,6 @@ void polc_input(struct descriptor_data * d, char *str);
 void show_character_detail(descriptor_data *d);
 void push_command_onto_list(Creature *ch, char *comm);
 
-int isbanned(char *hostname, char *blocking_hostname);
-int Valid_Name(char *newname);
 int _parse_name(char *arg, char *name);
 int reserved_word(char *argument);
 char *diag_conditions(struct Creature *ch);
