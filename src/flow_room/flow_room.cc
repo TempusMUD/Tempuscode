@@ -424,10 +424,6 @@ dynamic_object_pulse()
 					ENGINE_STATE(obj) = 0;
 
 					if ((vict = obj->carried_by) || (vict = obj->worn_by)) {
-						sprintf(buf, "$n has left channel [%d].",
-							COMM_CHANNEL(obj));
-						send_to_comm_channel(vict, buf, COMM_CHANNEL(obj),
-							TRUE, TRUE);
 						act("$p auto switching off: depleted of energy.",
 							FALSE, vict, obj, 0, TO_CHAR | TO_SLEEP);
 					}
