@@ -138,22 +138,29 @@ malovent_holy_touch(char_data * ch, char_data * vict)
 
 	chance = GET_ALIGNMENT(vict) / 10;
 	if (GET_WIS(vict) > 20)
-		chance -= GET_WIS(vict) * 5;
+		chance -= ( GET_WIS(vict) - 20) * 5;
 	if (AFF_FLAGGED(vict, AFF_PROTECT_EVIL))
 		chance -= 20;
 	if (affected_by_spell(vict, SPELL_BLESS))
 		chance -= 10;
 	if (affected_by_spell(vict, SPELL_PRAY))
-		chance -= 20;
+		chance -= 10;
 
 	if (IS_SOULLESS(ch))
-		chance += 20;
+		chance += 25;
 
 	WAIT_STATE(ch, 2 RL_SEC);
 	check_toughguy(ch, vict, 0);
 	check_killer(ch, vict);
 
-	if (number(0, 99) > chance) {
+	int roll = random_percentage_zero_low();
+
+	if (PRF2_FLAGGED(ch, PRF2_FIGHT_DEBUG)) {
+		sprintf(buf, "HolyTouch: roll[%d] chance[%d]\r\n", roll, chance );
+		send_to_char(buf, ch);
+	}
+
+	if (roll > chance) {
 		damage(ch, vict, 0, SKILL_HOLY_TOUCH, 0);
 		return;
 	}
@@ -167,10 +174,6 @@ malovent_holy_touch(char_data * ch, char_data * vict)
 
 	if (IS_SOULLESS(ch))
 		af.level += 20;
-	if (PRF2_FLAGGED(ch, PRF2_FIGHT_DEBUG)) {
-		sprintf(buf, "HolyTouch: chance[%d] level[%d]\r\n", chance, af.level);
-		send_to_char(buf, ch);
-	}
 
 	affect_to_char(vict, &af);
 
