@@ -1376,7 +1376,7 @@ char_to_game(descriptor_data *d)
 		mudlog(GET_INVIS_LVL(d->creature), NRM, true,
 			"%s has entered the game in room #%d",
 			GET_NAME(d->creature), d->creature->in_room->number);
-		act("$n has entered the game.", false, d->creature, 0, 0, TO_ROOM);
+		act("$n has entered the game.", true, d->creature, 0, 0, TO_ROOM);
 	}
 
 	look_at_room(d->creature, d->creature->in_room, 0);
