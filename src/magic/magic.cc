@@ -687,15 +687,12 @@ mag_damage(int level, struct char_data * ch, struct char_data * victim,
 	break;
 
     case SPELL_FISSION_BLAST:
-        if( IS_PHYSIC( ch ) ){ 
-	  dam = dice(level, 17) + level; 	
-        }
-        else
-         dam = dice(level, 13) + level;
-
-         sprintf(buf, "Dam: %d\r\n", dam);
-         send_to_char(buf, ch);
-         break; 
+	if( IS_PHYSIC( ch ) ){ 
+		dam = dice(level, 17) + level; 	
+	}
+	else
+		dam = dice(level, 13) + level;
+	break; 
 
     }				/* switch(spellnum) */
 
@@ -2179,11 +2176,11 @@ mag_areas(byte level, struct char_data * ch, int spellnum, int savetype)
 	    continue;
 	}
        
-        if (spellnum == SPELL_FISSION_BLAST) {
-           if( !( mag_savingthrow( tch, level, SAVING_PHY ) ) ){ 
-	      add_rad_sickness( tch, level );
-           }
-        }
+	if (spellnum == SPELL_FISSION_BLAST) {
+	   if( !( mag_savingthrow( tch, level, SAVING_PHY ) ) ){ 
+		  add_rad_sickness( tch, level );
+	   }
+	}
  
 	if (!mag_damage(level, ch, tch, spellnum, 1)) {
 	    if (spellnum == SPELL_EARTHQUAKE && number(10, 20) > GET_DEX(ch)) {
