@@ -1779,13 +1779,6 @@ do_stat_character(struct Creature *ch, struct Creature *k)
 					GET_LOAD_PARAM(k));
 			}
 		}
-        if (k->mob_specials.mug) {
-            sprintf(buf,
-                "MUGGING:  victim idnum: %d, obj vnum: %d, timer: %d\r\n",
-                k->mob_specials.mug->idnum, k->mob_specials.mug->vnum,
-                k->mob_specials.mug->timer);
-            strcat(outbuf, buf);
-        }
     }
 
     for (i = 0, num = 0, num2 = 0; i < NUM_WEARS; i++) {

@@ -332,8 +332,7 @@ static const int MOB2_NO_FLOW = (1 << 11);	/* Mob doesnt flow */
 static const int MOB2_UNAPPROVED = (1 << 12);	/* Mobile not approved for game play */
 static const int MOB2_RENAMED = (1 << 13);	/* Mobile renamed */
 static const int MOB2_NOAGGRO_RACE = (1 << 14);	/* wont attack members of own race */
-static const int MOB2_MUGGER = (1 << 15);
-#define NUM_MOB2_FLAGS            16
+#define NUM_MOB2_FLAGS            15
 
 /* Preference flags: used by Creature.player_specials.pref */
 static const int PRF_BRIEF = (1 << 0);	/* Room descs won't normally be shown    */
@@ -887,19 +886,11 @@ struct mob_shared_data {
 	char *load_param;			/* mobile's on_load script */
 };
 
-
-struct mob_mugger_data {
-	int idnum;					/* idnum of player on shit list */
-	int vnum;					/* vnum of object desired */
-	byte timer;					/* how long has the mob been waiting */
-};
-
 /* Specials used by NPCs, not PCs */
 struct mob_special_data {
 	memory_rec *memory;			/* List of attackers to remember           */
 	struct extra_descr_data *response;	/* for response processing */
 	void *func_data;			// Mobile-specific data used for specials
-	struct mob_mugger_data *mug;
 	struct mob_shared_data *shared;
 	int wait_state;				/* Wait state for bashed mobs           */
 	byte last_direction;		/* The last direction the monster went     */

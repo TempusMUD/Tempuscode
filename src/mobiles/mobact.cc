@@ -1361,25 +1361,16 @@ CHAR_LIKES_ROOM(struct Creature * ch, struct room_data * room)
 	return true;
 }
 
-const int mug_eq[] = {
-	WEAR_WIELD, WEAR_WIELD_2, WEAR_NECK_1, WEAR_NECK_2, WEAR_BODY,
-	WEAR_HEAD, WEAR_ARMS, WEAR_HANDS, WEAR_WRIST_R, WEAR_WRIST_L,
-	WEAR_HOLD, WEAR_EYES, WEAR_BACK, WEAR_BELT, WEAR_FACE,
-	WEAR_SHIELD, WEAR_ABOUT
-};
-
-#define MUG_MAX 17
 void
 mobile_activity(void)
 {
 
-	struct Creature *ch, *vict = NULL, *tmp_vict = NULL;
+	struct Creature *ch, *vict = NULL;
 	struct obj_data *obj, *best_obj, *i;
 	struct affected_type *af_ptr = NULL;
 	CreatureList::iterator cit, it;
 	int dir, found, max, k;
 	static unsigned int count = 0;
-	struct mob_mugger_data *new_mug = NULL;
 	struct room_data *room = NULL;
     int cur_class = 0;
 
@@ -1666,197 +1657,6 @@ mobile_activity(void)
 					break;
 				}
 			}
-		}
-		//
-		// muggers
-		//
-
-		if (MOB2_FLAGGED(ch, MOB2_MUGGER)) {
-
-			//
-			// we're not currently mugging anybody, so look for a new victim
-			//
-
-			if (!ch->mob_specials.mug) {
-
-				if (!ROOM_FLAGGED(ch->in_room, ROOM_PEACEFUL) &&
-					random_fractional_4() &&
-					ch->in_room->people.size() <
-					(unsigned)random_number_zero_low(GET_LEVEL(ch) >> 3) + 1) {
-					tmp_vict = NULL;
-					max = 0;
-					it = ch->in_room->people.begin();
-					for (; it != ch->in_room->people.end(); ++it) {
-						vict = *it;
-						if (check_infiltrate(vict, ch))
-							continue;
-						if (IS_NPC(vict) && can_see_creature(ch, vict) &&
-							(cityguard == vict->mob_specials.shared->func)) {
-							act("$n glances at $N.", TRUE, ch, 0, vict,
-								TO_ROOM);
-							found = TRUE;
-							break;
-						}
-						if (vict == ch || !can_see_creature(ch, vict)
-							|| !can_see_creature(vict, ch) || FIGHTING(vict)
-							|| IS_NPC(vict) || !AWAKE(vict)
-							|| GET_LEVEL(vict) < 7
-							|| GET_LEVEL(vict) > (GET_LEVEL(ch) + 5)
-							|| GET_LEVEL(vict) + 15 < GET_LEVEL(ch))
-							continue;
-						if (!tmp_vict ||
-							GET_LEVEL(vict) < GET_LEVEL(tmp_vict) ||
-							GET_HIT(vict) < GET_HIT(tmp_vict)
-							|| !random_fractional_3())
-							tmp_vict = vict;
-					}
-					if (found || !tmp_vict)
-						continue;
-
-					vict = tmp_vict;
-					act("$n examines $N.", TRUE, ch, 0, vict, TO_NOTVICT);
-					act("$n examines you.", TRUE, ch, 0, vict, TO_VICT);
-
-					for (k = 0; k < MUG_MAX; k++) {
-
-						if ((obj = GET_EQ(vict, mug_eq[k])) &&
-							!IS_OBJ_STAT(obj, ITEM_NODROP) &&
-							!IS_OBJ_STAT2(obj, ITEM2_NOREMOVE) &&
-							can_see_object(ch, obj) &&
-							!invalid_char_class(ch, obj) &&
-							obj->shared->proto &&
-							obj->name ==
-							obj->shared->proto->name) {
-							/* &&
-							   (!(i = GET_EQ(vict, mug_eq[k])) ||
-							   GET_OBJ_COST(obj) > (GET_OBJ_COST(i) << 1))) { */
-							sprintf(buf,
-								"%s I see you are using %s."
-								"  I believe I could appreciate it much more than you."
-								"  Give it to me now.",
-								GET_NAME(vict), obj->name);
-							do_say(ch, buf, 0, SCMD_SAY_TO, 0);
-							CREATE(new_mug, struct mob_mugger_data, 1);
-							new_mug->idnum = GET_IDNUM(vict);
-							new_mug->vnum = GET_OBJ_VNUM(obj);
-							new_mug->timer = 1;
-							ch->mob_specials.mug = new_mug;
-							found = TRUE;
-							break;
-						}		/* found the good obj */
-					}			/* loop thru eq */
-					if (found)
-						continue;
-				}				/* (!ROOM_FLAGGED(ch->in_room, ROOM_PEACEFUL)) { */
-			}
-			/*       if (!ch->mob_specials.mug) */
-			//
-			// the mob is already mugging somebody, see if he's going to attack now
-			//
-
-			else if (!FIGHTING(ch) && !HUNTING(ch)) {
-				vict = NULL;
-				it = ch->in_room->people.begin();
-				for (; it != ch->in_room->people.end(); ++it) {
-					vict = *it;
-					if (!IS_NPC(vict) && can_see_creature(ch, vict) &&
-						GET_IDNUM(vict) == ch->mob_specials.mug->idnum)
-						break;
-				}
-				if (!vict) {
-
-					CreatureList::iterator cit = characterList.begin();
-					for (; cit != characterList.end(); ++cit) {
-						vict = *cit;
-						if (!IS_NPC(vict) && can_see_creature(ch, vict) &&
-							GET_IDNUM(vict) == ch->mob_specials.mug->idnum)
-							break;
-					}
-					if (!vict ||
-						find_first_step(ch->in_room, vict->in_room,
-							STD_TRACK) < 0) {
-						do_say(ch, "Curses, foiled again!", 0, 0, 0);
-						free(ch->mob_specials.mug);
-						ch->mob_specials.mug = NULL;
-						continue;
-					}
-
-					sprintf(buf, "You're asking for it, %s!", GET_NAME(vict));
-					do_gen_comm(ch, buf, 0, SCMD_SHOUT, 0);
-					HUNTING(ch) = vict;
-					continue;
-				}
-
-				/* vict is still in room */
-
-				if (!(obj = real_object_proto(ch->mob_specials.mug->vnum))) {
-					slog("SYSERR: fatal error 1 in mugger code!");
-					continue;
-				}
-
-				for (i = ch->in_room->contents; i; i = i->next_content) {
-					if (GET_OBJ_VNUM(i) == GET_OBJ_VNUM(obj)
-						&& can_see_object(ch, i) && i->shared->proto
-						&& i->shared->proto->name ==
-						obj->shared->proto->name) {
-						act("$n snickers and picks up $p.", FALSE, ch, i, 0,
-							TO_ROOM);
-						obj_from_room(i);
-						obj_to_char(i, ch);
-						free(ch->mob_specials.mug);
-						ch->mob_specials.mug = NULL;
-						found = TRUE;
-						break;
-					}
-				}
-				if (found)
-					continue;
-
-				if (!ROOM_FLAGGED(ch->in_room, ROOM_PEACEFUL)) {
-					if (ch->mob_specials.mug->timer <= 3) {
-						if (ch->mob_specials.mug->timer == 1) {
-							sprintf(buf,
-								"%s I'm warning you."
-								"  Give %s to me now, or face the consequences!",
-								GET_NAME(vict), obj->name);
-							do_say(ch, buf, 0, SCMD_SAY_TO, 0);
-						}
-						sprintf(buf, "You have %d seconds to comply.",
-							ch->mob_specials.mug->timer == 1 ? 16 :
-							ch->mob_specials.mug->timer == 2 ? 12 : 8);
-						do_say(ch, buf, 0, 0, 0);
-						ch->mob_specials.mug->timer++;
-						continue;
-					} else if (ch->mob_specials.mug->timer == 4) {
-						sprintf(buf,
-							"%s You have 4 seconds to give %s to me, OR ELSE!",
-							GET_NAME(vict), obj->name);
-						do_say(ch, buf, 0, SCMD_SAY_TO, 0);
-						ch->mob_specials.mug->timer = 5;
-						continue;
-					} else if (ch->mob_specials.mug->timer == 5) {
-
-						sprintf(buf,
-							"%s Okay, you asked for it.  Now I'm taking %s!!",
-							GET_NAME(vict), obj->name);
-						do_say(ch, buf, 0, SCMD_SAY_TO, 0);
-						ch->mob_specials.mug->timer = 4;
-
-						//
-						// save a pointer past vict if vict _happens_ to be next_ch ( ch->next )
-						//
-
-						//struct Creature *tmp_next_ch = 
-						//    ( vict == next_ch ) ? ( next_ch ? next_ch->next : 0 ) : next_ch;
-						//int retval = 
-						best_attack(ch, vict);
-						//if ( IS_SET( retval, DAM_VICT_KILLED ) ) {
-						//    next_ch = tmp_next_ch;
-						//}
-						continue;
-					}
-				}				/*    if (!ROOM_FLAGGED(ch->in_room, ROOM_PEACEFUL)) { */
-			}					/*      else if (!FIGHTING(ch) && !HUNTING(ch)) { */
 		}
 
 		/* Scavenger (picking up objects) */

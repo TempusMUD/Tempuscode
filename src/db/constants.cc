@@ -896,8 +896,7 @@ extern const char *action2_bits[] = {
 	"!APPROVE",
 	"RENAMED",
 	"!AGGR_RACE",
-	"MUGGER",
-	"16", "17", "18", "19",
+	"15", "16", "17", "18", "19",
 	"\n"
 };
 

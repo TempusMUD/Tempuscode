@@ -1462,7 +1462,7 @@ SPECIAL(cityguard)
 				} else if (IS_NPC(tch) && cityguard == GET_MOB_SPEC(tch) &&
 					IS_GOOD(tch) && !number(0, 3)) {
 					act("$n nods at $N.", FALSE, ch, 0, tch, TO_NOTVICT);
-				} else if (IS_NPC(tch) && MOB2_FLAGGED(tch, MOB2_MUGGER) &&
+				} else if (IS_NPC(tch) && GET_MOB_SPEC(tch) == mugger &&
 					!number(0, 1)) {
 					sprintf(buf, "Don't cause any trouble here, %s.",
 						GET_NAME(tch));
@@ -1973,6 +1973,7 @@ SPECIAL(cave_bear)
 #include "Specs/electro_specs/electrician.spec"
 #include "Specs/electro_specs/paramedic.spec"
 #include "Specs/electro_specs/unspecializer.spec"
+#include "Specs/electro_specs/mugger.spec"
 
 /* HEAVENLY SPECS */
 #include "Specs/heaven/archon.spec"

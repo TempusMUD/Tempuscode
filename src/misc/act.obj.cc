@@ -1553,32 +1553,6 @@ perform_give(struct Creature *ch, struct Creature *vict,
 		act("$n gives $p to $N.", TRUE, ch, obj, vict, TO_NOTVICT);
 	}
 
-	if (!IS_NPC(ch) && IS_NPC(vict) && MOB2_FLAGGED(vict, MOB2_MUGGER) &&
-		vict->mob_specials.mug &&
-		GET_OBJ_VNUM(obj) == vict->mob_specials.mug->vnum) {
-
-		if (GET_IDNUM(ch) == vict->mob_specials.mug->idnum) {
-			if (FIGHTING(vict) && !IS_NPC(FIGHTING(vict)) &&
-				GET_IDNUM(FIGHTING(vict)) == vict->mob_specials.mug->idnum) {
-				sprintf(buf, "Ha!  Let this be a lesson to you, %s!",
-					GET_NAME(FIGHTING(vict)));
-				do_say(vict, buf, 0, 0, 0);
-				if (FIGHTING(FIGHTING(vict)))
-					stop_fighting(FIGHTING(vict));
-				stop_fighting(vict);
-			} else {
-				sprintf(buf, "Good move, %s!", GET_DISGUISED_NAME(vict, ch));
-				do_say(vict, buf, 0, 0, 0);
-			}
-			free(vict->mob_specials.mug);
-			vict->mob_specials.mug = NULL;
-		} else
-			do_say(ch, "Ok, that will work.", 0, 0, 0);
-
-		free(vict->mob_specials.mug);
-		vict->mob_specials.mug = NULL;
-		return 1;
-	}
 	if (IS_OBJ_TYPE(obj, ITEM_MONEY) && GET_OBJ_VAL(obj, 0) > MONEY_LOG_LIMIT)
 		slog("MONEY: %s has given obj #%d (%s) worth %d %s to %s in room #%d (%s)",
 			GET_NAME(ch), GET_OBJ_VNUM(obj), obj->name,

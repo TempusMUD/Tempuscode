@@ -776,8 +776,6 @@ Creature::clear(void)
 		if (this->player.description &&
 			this->player.description != tmp_mob->player.description)
 			free(this->player.description);
-		if (this->mob_specials.mug)
-			free(this->mob_specials.mug);
 		if (this->mob_specials.func_data)
 			free(this->mob_specials.func_data);
 	} else {
