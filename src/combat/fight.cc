@@ -798,26 +798,7 @@ damage(struct Creature *ch, struct Creature *victim, int dam,
 		}
 	}
 
-	/* NV */
-	if (ch && ch != victim && !PLR_FLAGGED(victim, PLR_KILLER | PLR_THIEF) &&
-		GET_LEVEL(ch) < LVL_VIOLENCE &&
-		!(PLR_FLAGGED(ch, PLR_KILLER) && FIGHTING(victim) == ch) &&
-		(ROOM_FLAGGED(victim->in_room, ROOM_PEACEFUL) ||
-			ROOM_FLAGGED(ch->in_room, ROOM_PEACEFUL)))
-		dam = 0;
-
-	/* You can't damage an immortal! */
-	if (!IS_NPC(victim) && (GET_LEVEL(victim) >= LVL_AMBASSADOR) &&
-		(!ch || !PLR_FLAGGED(victim, PLR_MORTALIZED)))
-		dam = 0;
-
-	/* need magic weapons to damage undead */
-	if (IS_WEAPON(attacktype)
-		&& weap && IS_OBJ_TYPE(weap, ITEM_WEAPON)
-		&& (NON_CORPOREAL_UNDEAD(victim)
-			|| IS_RAKSHASA(victim)
-			|| IS_GREATER_DEVIL(victim))
-		&& !IS_OBJ_STAT(weap, ITEM_MAGIC))
+	if (CANNOT_DAMAGE(ch, victim, weap, attacktype))
 		dam = 0;
 
 	/* shopkeeper protection */

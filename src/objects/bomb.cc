@@ -353,13 +353,14 @@ bomb_damage_room(char *bomb_name, int bomb_type, int bomb_power,
 			affect_to_char(vict, &af);
 		}
 
+		if (CANNOT_DAMAGE(NULL, vict, NULL, damage_type))
+			continue;
+
 		if (GET_STR(vict) < number(3, power)) {
 			send_to_char(vict, 
 				"You are blown to the ground by the explosive blast!\r\n");
 			vict->setPosition(POS_SITTING);
-		}
-
-		else if (vict->getPosition() > POS_STUNNED &&
+		} else if (vict->getPosition() > POS_STUNNED &&
 			(bomb_type == BOMB_CONCUSSION || power > number(2, 12)) &&
 			number(5, 5 + power) > GET_CON(vict)) {
 
@@ -386,8 +387,7 @@ bomb_damage_room(char *bomb_name, int bomb_type, int bomb_power,
 			}
 
 			if (!ROOM_FLAGGED(room, ROOM_PEACEFUL) &&
-				!mag_savingthrow(vict, 40, SAVING_ROD) &&
-				GET_LEVEL(vict) < LVL_AMBASSADOR)
+					!mag_savingthrow(vict, 40, SAVING_ROD))
 				vict->setPosition(POS_STUNNED);
 		}
 	}

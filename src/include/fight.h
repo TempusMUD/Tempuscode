@@ -56,6 +56,28 @@
 
 #define IS_DEFENSE_ATTACK(attacktype)   (attacktype == SPELL_FIRE_SHIELD || attacktype == SPELL_BLADE_BARRIER  || attacktype == SPELL_PRISMATIC_SPHERE || attacktype == SKILL_ENERGY_FIELD)
 
+static inline bool CANNOT_DAMAGE(Creature *ch, Creature *vict, obj_data *weap, int attacktype) {
+    if (ch && ch != vict && !PLR_FLAGGED(vict, PLR_KILLER | PLR_THIEF) &&
+			GET_LEVEL(ch) < LVL_VIOLENCE &&
+			!(PLR_FLAGGED(ch, PLR_KILLER) && FIGHTING(vict) == ch) &&
+			(ROOM_FLAGGED(vict->in_room, ROOM_PEACEFUL) ||
+			ROOM_FLAGGED(ch->in_room, ROOM_PEACEFUL)))
+		return true;
+
+	if (IS_PC(vict) && GET_LEVEL(vict) >= LVL_AMBASSADOR &&
+			!PLR_FLAGGED(vict, PLR_MORTALIZED))
+		return true;
+
+	if (IS_WEAPON(attacktype)
+			&& weap && IS_OBJ_TYPE(weap, ITEM_WEAPON)
+			&& (NON_CORPOREAL_UNDEAD(vict)
+			|| IS_RAKSHASA(vict)
+			|| IS_GREATER_DEVIL(vict))
+			&& !IS_OBJ_STAT(weap, ITEM_MAGIC))
+		return true;
+
+	return false;
+}
 class CallerDiedException {
 };
 
