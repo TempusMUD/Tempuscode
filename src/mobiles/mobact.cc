@@ -2276,7 +2276,7 @@ mobile_activity(void)
 							break;
 						case 6:
 							if (AWAKE(vict) && !IS_UNDEAD(ch) && !IS_DRAGON(ch) &&
-								!IS_PLANAR(ch) && GET_HIT(ch) > GET_HIT(vict) &&
+								!IS_DEVIL(ch) && GET_HIT(ch) > GET_HIT(vict) &&
 								((GET_LEVEL(vict) + ((50 * GET_HIT(vict)) /
 											MAX(1, GET_MAX_HIT(vict)))) >
 									GET_LEVEL(ch) + (GET_MORALE(ch) >> 1) +
