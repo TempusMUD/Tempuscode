@@ -23,6 +23,7 @@
 #include "screen.h"
 #include "vehicle.h"
 #include "fight.h"
+#include "security.h"
 
 /* extern variables */
 extern struct room_data *world;
@@ -49,7 +50,7 @@ int search_trans_character( char_data *ch,
     if ( !House_can_enter( ch, targ_room->number ) ||
          !clan_house_can_enter( ch, targ_room ) ||
          ( ROOM_FLAGGED( targ_room, ROOM_GODROOM ) &&
-           GET_LEVEL( ch ) < LVL_GRGOD ) )
+           !Security::isMember(ch, "WizardFull") ) )
         return 0;
 
     char_from_room( ch );
@@ -250,11 +251,12 @@ general_search( struct char_data *ch, struct special_search_data *srch,int mode 
             return 0;
         }
         if( srch->arg[1] == -1 || srch->arg[1] == 0 ) {
-            if ( !House_can_enter( ch, targ_room->number ) ||
-                 !clan_house_can_enter( ch, targ_room ) ||
-                 ( ROOM_FLAGGED( targ_room, ROOM_GODROOM ) &&
-                   GET_LEVEL( ch ) < LVL_GRGOD ) )
+            if ( !House_can_enter( ch, targ_room->number ) 
+            || !clan_house_can_enter( ch, targ_room ) 
+            || ( ROOM_FLAGGED( targ_room, ROOM_GODROOM ) 
+                 && !Security::isMember(ch, "WizardFull") ) ) {
                 return 0;
+            }
 
             if ( srch->to_room )
                 act( srch->to_room, FALSE, ch, obj, mob, TO_ROOM );

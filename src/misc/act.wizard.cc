@@ -321,7 +321,7 @@ find_target_room(struct char_data * ch, char *rawroomstr)
     }
 
     /* a location has been found -- if you're < GRGOD, check restrictions. */
-    if (GET_LEVEL(ch) < LVL_GRGOD) {
+    if(! Security::isMember(ch, "WizardFull") ) {
         if (location->zone->number == 12 && GET_LEVEL(ch) < LVL_AMBASSADOR) {
             send_to_char("You can't go there.\r\n", ch);
             return NULL;
@@ -2146,10 +2146,10 @@ ACMD(do_snoop)
             send_to_char("Busy already. \r\n", ch);
     else if (victim->desc->snooping == ch->desc) 
         send_to_char("Don't be stupid.\r\n", ch);
-    else if (ROOM_FLAGGED(victim->in_room, ROOM_GODROOM) &&
-             GET_LEVEL(ch) < LVL_GRGOD)
+    else if (ROOM_FLAGGED(victim->in_room, ROOM_GODROOM) 
+    && !Security::isMember(ch, "WizardFull") ) {
         send_to_char("You cannot snoop into that place.\r\n", ch);
-    else {
+    } else {
         if (victim->desc->original)
             tch = victim->desc->original;
         else

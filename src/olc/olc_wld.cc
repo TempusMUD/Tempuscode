@@ -955,7 +955,7 @@ do_olc_rset( struct char_data *ch, char *argument )
                           "Type show special room to view a list.\r\n", ch );
         else if ( !IS_SET( spec_list[i].flags, SPEC_RM ) )
             send_to_char( "This special is not for rooms.\r\n", ch );
-        else if ( IS_SET( spec_list[i].flags, SPEC_RES ) && !OLCGOD( ch ) && !OLCIMP( ch ) )
+        else if ( IS_SET( spec_list[i].flags, SPEC_RES ) && !OLCIMP( ch ) )
             send_to_char( "This special is reserved.\r\n", ch );
         else {
             ch->in_room->func = spec_list[i].func;

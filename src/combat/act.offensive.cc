@@ -1067,7 +1067,6 @@ ACMD(do_order)
         send_to_char("That person isn't here.\r\n", ch);
     else if (ch == vict)
         send_to_char("You obviously suffer from schizophrenia.\r\n", ch);
-
     else {
         if (IS_AFFECTED(ch, AFF_CHARM)) {
             send_to_char("Your superior would not aprove of you giving orders.\r\n",

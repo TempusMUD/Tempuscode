@@ -59,8 +59,8 @@ struct ticl_data {
 #define MOB_D2(lev)    (6 + (lev >> 1))
 #define MOB_MOD(lev)   (((lev*lev*lev*lev*lev) >> 15) + lev + 6)
 
-int CAN_EDIT_ZONE(CHAR *ch, struct zone_data *zone);
-int OLC_EDIT_OK( CHAR *ch, struct zone_data *zone, int bits );
+bool CAN_EDIT_ZONE(CHAR *ch, struct zone_data *zone);
+bool OLC_EDIT_OK( CHAR *ch, struct zone_data *zone, int bits );
 
 #define OLCGOD(ch) ( PLR_FLAGGED(ch, PLR_OLCGOD) )
 //#define OLCIMP(ch) ( GET_LEVEL(ch) >= LVL_CREATOR )

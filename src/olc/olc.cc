@@ -935,9 +935,9 @@ ACMD(do_olc)
         obj_p->shared->cost =           tmp_obj->shared->cost;
         obj_p->shared->cost_per_day = tmp_obj->shared->cost_per_day;
         
-        //if(!OLCGOD(ch) && !OLCIMP(ch)) {
+        if( !OLCIMP(ch) ) {
             SET_BIT(obj_p->obj_flags.extra2_flags, ITEM2_UNAPPROVED);
-        //}
+        }
  
         for (k = 0; k < 4; k++)
             obj_p->obj_flags.bitvector[k] = tmp_obj->obj_flags.bitvector[k];
@@ -1084,10 +1084,7 @@ ACMD(do_olc)
         				send_to_char("No allocatable rooms found in zone.\r\n",ch);
         		}
             } else if (is_abbrev(arg1, "zone")) {
-        	if ((GET_LEVEL(ch) < LVL_ENTITY) && 
-        !(GET_LEVEL(ch) >= LVL_CREATOR && OLCGOD(ch))) {
-            // not an ancient+ and
-            // not a creator+ with olc god
+            if(! OLCIMP(ch) ) { 
         	    send_to_char("You cannot create zones.\r\n", ch);
         	    return;
         	}
@@ -2274,7 +2271,7 @@ ACMD(do_unapprove)
             return;
         }
 
-        if (!CAN_EDIT_ZONE(ch, zone) && !OLCIMP(ch) && !OLCGOD( ch )) {
+        if( !CAN_EDIT_ZONE(ch, zone) && !OLCIMP(ch) && !Security::isMember(ch,"OLCApproval") ) {
             send_to_char("You can't unapprove this, BEANHEAD!\r\n", ch);
             return;
         }
@@ -2313,7 +2310,7 @@ ACMD(do_unapprove)
             return;
         }
 
-        if (!CAN_EDIT_ZONE(ch, zone) && !OLCIMP(ch) && !OLCGOD( ch ) ) {
+        if( !CAN_EDIT_ZONE(ch, zone) && !OLCIMP(ch) && !Security::isMember(ch,"OLCApproval") ) {
             send_to_char("You can't unapprove this, BEANHEAD!\r\n", ch);
             return;
         }
@@ -2415,7 +2412,7 @@ ACMD(do_approve)
             return;
         }
 
-        if (CAN_EDIT_ZONE(ch, zone) && !OLCIMP(ch) && !OLCGOD( ch )) {
+        if( !CAN_EDIT_ZONE(ch, zone) && !OLCIMP(ch) && !Security::isMember(ch,"OLCApproval") ) {
             send_to_char("You can't approve your own objects, silly.\r\n", ch);
             return;
         }
@@ -2454,7 +2451,7 @@ ACMD(do_approve)
             return;
         }
 
-        if (CAN_EDIT_ZONE(ch, zone) && !OLCIMP(ch) && !OLCGOD( ch ) ) {
+        if( !CAN_EDIT_ZONE(ch, zone) && !OLCIMP(ch) && !Security::isMember(ch,"OLCApproval") ) {
             send_to_char("You can't approve your own mobiles, silly.\r\n", ch);
             return;
         }
@@ -2476,66 +2473,38 @@ ACMD(do_approve)
     }
 }
 
-int
+/** Could this person edit this zone if it were unapproved. **/
+bool
 CAN_EDIT_ZONE(CHAR *ch, struct zone_data *zone)
 {
+    if( Security::isMember( ch, "OLCWorldWrite" ) )
+        return true;
 
-    char *name = NULL;
-    CHAR *vict = NULL;
-    struct char_file_u tmp_store;
+    if( Security::isMember( ch, "OLCProofer" ) && !IS_APPR(zone) )
+        return true;
+
+    if (zone->owner_idnum == GET_IDNUM(ch))
+        return true;
+
+    if (zone->co_owner_idnum == GET_IDNUM(ch))
+        return true;
+
+    return false;
+}
+/** Can this person edit this zone given these bits set on it. **/
+bool
+OLC_EDIT_OK( CHAR *ch, struct zone_data *zone, int bits )
+{
 
     if( Security::isMember( ch, "OLCWorldWrite" ) )
         return true;
 
-    if( OLCGOD(ch) && GET_LEVEL(ch) >= LVL_GRGOD )
-    return 1;
-
-    if (zone->owner_idnum == GET_IDNUM(ch))
-        return 1;
-
-    if (zone->co_owner_idnum == GET_IDNUM(ch))
-        return 1;
-    
-    if (!(name = get_name_by_id(zone->owner_idnum))) {
-        return 0;
-    }
-        
-    if ( !OLCGOD(ch) ) {
-        return 0;
-    }
-
-    // load the owner from file and compare levels
-    CREATE(vict, CHAR, 1);
-    clear_char(vict);
-    if (load_char(name, &tmp_store) > -1) {
-        store_to_char(&tmp_store, vict);
-        if (GET_LEVEL(vict) >= GET_LEVEL(ch)) {
-            free_char(vict);
-            return 0;
-        }
-        else {
-            free_char(vict);
-            return 1;
-        }
-        
-    }
-    else {
-        return 1;
-    }
-    
-}
-int OLC_EDIT_OK( CHAR *ch, struct zone_data *zone, int bits )
-{
-
-    if( Security::isMember( ch, "OLCWorldWrite" ) )
-        return 1;
-    
     if ( ZONE_FLAGGED( zone, ZONE_FULLCONTROL ) )
-        return 1;
+        return true;
 
     if ( ZONE_FLAGGED( zone, bits ) )
-        return 1;
+        return true;
 
-    return 0;
+    return false;
 }
     

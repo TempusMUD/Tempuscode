@@ -1030,7 +1030,7 @@ perform_oset(struct char_data *ch, struct obj_data *obj_p,
 			 "Type show special obj to view a list.\r\n", ch);
 	else if (!IS_SET(spec_list[i].flags, SPEC_OBJ))
 	    send_to_char("This special is not for objects.\r\n", ch);
-	else if (IS_SET(spec_list[i].flags, SPEC_RES) && !OLCGOD(ch) && !OLCIMP(ch))
+	else if (IS_SET(spec_list[i].flags, SPEC_RES) && !OLCIMP(ch))
 	    send_to_char("This special is reserved.\r\n", ch);
 	else {
       

@@ -77,7 +77,7 @@ struct ticl_data * do_create_ticl(struct char_data *ch, int vnum)
 	return(NULL);
     }
   
-    if (!ZONE_FLAGGED(zone, ZONE_TICL_APPROVED) && !OLCGOD(ch)) {
+    if (!ZONE_FLAGGED(zone, ZONE_TICL_APPROVED) ){
 	send_to_char("TICL OLC is not approved for this zone.\r\n", ch);
 	return(NULL);
     }

@@ -31,6 +31,7 @@
 #include "vehicle.h"
 #include "materials.h"
 #include "fight.h"
+#include "security.h"
 
 /* external vars  */
 extern struct char_data *character_list;
@@ -338,8 +339,8 @@ int do_simple_move(struct char_data * ch, int dir, int mode, int need_specials_c
         return 1;
     }
 
-    if (IS_SET(ROOM_FLAGS(EXIT(ch, dir)->to_room), ROOM_GODROOM) &&
-        (GET_LEVEL(ch) < LVL_GRGOD)) {
+    if (IS_SET(ROOM_FLAGS(EXIT(ch, dir)->to_room), ROOM_GODROOM) 
+    && !Security::isMember(ch, "WizardFull") ) {
         send_to_char("You cannot set foot in that Ultracosmic place.\r\n", ch);
         return 1;
     }
@@ -1613,12 +1614,12 @@ ACMD(do_enter)
         if (GET_OBJ_TYPE(car) == ITEM_PORTAL) {
             if ((room = real_room(ROOM_NUMBER(car))) != NULL) {
                 if (!CAR_CLOSED(car)) {
-                    if ((ROOM_FLAGGED(room,ROOM_GODROOM)&&GET_LEVEL(ch)<LVL_GRGOD) ||
-                        (ROOM_FLAGGED(ch->in_room, ROOM_NORECALL) && (!car->in_room || CAN_WEAR(car, ITEM_WEAR_TAKE))) ||
-                        (ROOM_FLAGGED(room, ROOM_HOUSE) &&
-                         !House_can_enter(ch, room->number)) ||
-                        (ROOM_FLAGGED(room, ROOM_CLAN_HOUSE) &&
-                         !clan_house_can_enter(ch, room))) {
+                    if( (ROOM_FLAGGED(room,ROOM_GODROOM)
+                         && !Security::isMember(ch, "WizardFull") ) 
+                    || (ROOM_FLAGGED(ch->in_room, ROOM_NORECALL) 
+                        && (!car->in_room || CAN_WEAR(car, ITEM_WEAR_TAKE))) 
+                    || (ROOM_FLAGGED(room, ROOM_HOUSE) && !House_can_enter(ch, room->number)) 
+                    || (ROOM_FLAGGED(room, ROOM_CLAN_HOUSE) && !clan_house_can_enter(ch, room))) {
                         act("$p repulses you.", FALSE, ch, car, 0, TO_CHAR);
                         act("$n is repulsed by $p as he tries to enter it.",
                             TRUE, ch, car, 0, TO_ROOM);
