@@ -639,12 +639,17 @@ Creature::saveToXML()
 	fprintf(ouf, "</creature>\n");
 	fclose(ouf);
 }
-
-/* copy data from the file structure to a Creature */
-bool
+bool 
 Creature::loadFromXML( long id )
 {
     char *path = get_player_file_path( id );
+    return loadFromXML( path );
+}
+/* copy data from the file structure to a Creature */
+bool
+Creature::loadFromXML( const char *path )
+{
+    
 	if( access(path, W_OK) ) {
 		slog("SYSERR: Unable to open xml player file '%s': %s", path, strerror(errno) );
 		return false;

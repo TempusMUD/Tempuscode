@@ -1038,6 +1038,7 @@ struct Creature {
 	void extract(bool destroy_objs, bool save, cxn_state con_state);
 	void clearMemory();
     bool loadFromXML( long id );
+    bool loadFromXML( const char *path );
     void saveToXML();
 
 	int loadObjects();
