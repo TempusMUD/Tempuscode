@@ -1135,7 +1135,10 @@ ACMD(do_exits)
 		    strcat(buf2, "Too dark to tell\r\n");
 		else {
 		    strcat(buf2, CCCYN(ch, C_NRM));
-		    strcat(buf2, EXIT(ch, door)->to_room->name);
+			if(EXIT(ch, door)->to_room->name)
+				strcat(buf2, EXIT(ch, door)->to_room->name);
+			else
+				strcat(buf2, "(null)");
 		    strcat(buf2, CCNRM(ch, C_NRM));
 		    strcat(buf2, "\r\n");
 		}
