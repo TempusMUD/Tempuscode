@@ -112,7 +112,6 @@ int perform_alias(struct descriptor_data *d, char *orig);
 void record_usage(void);
 void send_prompt(struct descriptor_data *point);
 void bamf_quad_damage(void);
-void push_command_onto_list(Creature *ch, char *comm);
 void descriptor_update(void);
 int write_to_descriptor(int desc, char *txt);
 
@@ -451,9 +450,8 @@ game_loop(int mother_desc)
 {
 	fd_set input_set, output_set, exc_set;
 	struct timeval last_time, now, timespent, timeout, opt_time;
-	char comm[MAX_INPUT_LENGTH*10];
 	struct descriptor_data *d, *next_d;
-	int pulse = 0, mins_since_crashsave = 0, maxdesc, aliased;
+	int pulse = 0, mins_since_crashsave = 0, maxdesc;
 
 	/* initialize various time values */
 	null_time.tv_sec = 0;
@@ -564,30 +562,9 @@ game_loop(int mother_desc)
 
 			next_d = d->next;
 
-			if ((--(d->wait) <= 0) && get_from_q(&d->input, comm, &aliased)) {
-				// we need a prompt here
-				d->need_prompt = true;
-
-				if (d->creature) {
-					d->creature->char_specials.timer = 0;
-					d->idle = 0;
-					if (d->input_mode == CXN_PLAYING && *comm)
-						push_command_onto_list(d->creature, comm);
-					if (d->input_mode == CXN_PLAYING &&
-							GET_WAS_IN(d->creature) != NULL) {
-						if (d->creature->in_room != NULL)
-							char_from_room(d->creature,false);
-						char_to_room(d->creature, GET_WAS_IN(d->creature),false);
-						GET_WAS_IN(d->creature) = NULL;
-						act("$n has returned.", TRUE, d->creature, 0, 0,
-							TO_ROOM);
-					}
-				}
-
-				d->wait = 1;
-
-				handle_input(d, comm);
-			}
+			if (--(d->wait) > 0)
+				continue;
+			handle_input(d);
 		}
 
 		/* give each descriptor an appropriate prompt */
