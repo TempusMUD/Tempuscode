@@ -1,0 +1,36 @@
+README for Tempus src/util dir
+
+========================================
+
+
+This dir contains various and sundry utilities intended for use
+'offline'.  That is, they run independently of the MUD itself.
+
+Some of the files have build directives in the main Makefile,
+others expect to be compiled by hand, but there is no reason
+that an entry could not be included in the Makefile.
+
+The state of these files is in general UNKNOWN.  Typically, if
+one is needed, the source should be examined and possibly modified
+for compatibility.  This is because when structures and methods in
+the main MUD code has changed, this code has not necessarily changed
+with it.
+
+
+========================================
+
+The following subdirs have code of interest:
+
+ped/		:	player-edit code.  Used to convert playerfiles
+			when the char_file_u and related file structures
+			must change
+
+oed/		:	object-edit code.  Converts rentfiles.
+
+hed/		:	house-edit code.  Converts house files.
+
+
+As above, the current state and compatibility of these codes is UNKNOWN.
+
+========================================
+

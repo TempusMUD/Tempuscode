@@ -1,0 +1,4 @@
+$(OBJ)/mail.o : mail.cc \
+	$(INCLUDE)/structs.h $(INCLUDE)/utils.h $(INCLUDE)/comm.h $(INCLUDE)/db.h $(INCLUDE)/interpreter.h $(INCLUDE)/handler.h $(INCLUDE)/mail.h $(INCLUDE)/screen.h $(INCLUDE)/clan.h $(INCLUDE)/materials.h 
+	$(CXX) -c $(CXXFLAGS) mail.cc              -o $(OBJ)/mail.o
+OBJFILES= $(OBJ)/mail.o

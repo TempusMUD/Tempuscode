@@ -1,0 +1,55 @@
+*****************************************************************************
+*****Specials.doc                scribed by Fireball of Tempus          *****  
+*****the complete, authoritative, wonderful guide to special procedures.*****
+*****************************************************************************
+
+Preface:
+
+Special procedures provide life and flavor to the game.  Without them, the
+game would be dull and boring.  With specials, you can create new challenges,
+open new avenues for exploration, and make the game more interesting.  I claim
+that a little Spec goes a long way.
+
+Specs can be assigned to:
+	1) Mobiles
+	2) Objects
+	3) Rooms
+
+The special is a program, a procedure that is carried out on demand.
+The Special program is called (ie, control is given to the program by
+the game) under 2 circumstances:
+	1) Any command is issued in the presence of the mob/obj/room
+that is special.  For rooms, this is only when a char is in the room,
+for mobs when the char is in the room with the mob, and objs when the 
+obj is in_room/carried/worn.
+	2) MOBILES ONLY:  Every 10 seconds, the mobiles are pulsed.  
+This controls the mobile_activity, which makes mobs walk around, attack
+other chars, pick up stuff, etc... It is from here that the mobile
+special is also called.
+
+Data structures used by the specials:
+char_data, obj_data, and room_data.  refer to structs.doc for details.
+When a character activates the special, the char_data struct is passed
+to the special, and it is called ch.  To refer to the data structure
+of the special mob/obj/room when the special is command-called, use
+one of the following initialization formats at the top of the special:
+
+struct char_data *guard = (struct char_data *) me;
+struct obj_data *obj = (stuct obj_data *) me;
+struct room_data *room = (struct room_data *) me;
+
+Where guard, obj, and room are arbitrary names which you can choose.
+NOTE:  When a mob special is called from the _pulse_ there is no need
+for this initialization!  In this case, ch refers to the special MOB.
+
+I. SECTION ONE:  Mobile Specials
+While running the special, you may use any of the commands which are 
+available to characters, as listed in "commands.doc".  Also, to make
+data access easier, you may use macros as defined in "macros.doc".
+
+To use a command from the command list, you must supply the char_data
+struct of the char calling the command, as well as an argument and
+the subcommand, if applicable.
+
+
+

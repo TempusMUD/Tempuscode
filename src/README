@@ -1,0 +1,20 @@
+Tempus Source README
+
+========================================
+
+This directory contains most of the code needed to compile the MUD.
+Quite a few files in the Specs/ tree are #include'd in the spec_procs.c
+file.
+
+========================================
+
+Here is a description of important files and dirs:
+
+Specs/		:	dir tree containing special procedures
+
+doc/		:	assorted documents
+
+util/		: 	various stand-alone utilities.
+
+========================================
+

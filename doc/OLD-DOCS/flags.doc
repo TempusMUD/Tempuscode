@@ -1,0 +1,617 @@
+** For use with TEMPUS MUD world creation.   Edited by Fireball     **
+
+                            "FLAGS.doc"
+
+
+World File field description:
+=============================
+Main structure notes:
+---------------------
+<room_flags> are:
+  A bitvector consisting of the room conditions as:
+  DARK           a  Light must be used to see anything.
+  DEATH          b  A player 'dies' (no xp lost) when entering.
+                    It is a good idea to:
+                     *Have these rooms light, because then EXITS will show
+                      the room title, for example "In Boiling Water".
+                     *Make exits to all rooms from which one can enter the
+                      death_room, then the "death cry" will be heard by
+                      other members of the group considering following...
+  NO_MOB         c  No monsters may walk around in here
+  INDOORS        d  This is inside (a house,cave or dungeon for example)
+  PEACEFUL       e  Violent acts and spells will be supressed.
+  SOUNDPROOF	 f  No communications take place into/out of room.
+  !TRACK         g  Track doesn't work through this room.
+  NO_MAGIC       h  Mages/Clerics cannot cast spells.
+  TUNNEL         i  Only one char. at a time in room.
+  PRIVATE        j  It is impossible to teleport to this room if it
+                    already contains two characters.  The 'teleport'
+		    spell will never teleport a player into this room.
+  GODROOM        k  Super-private room: Immortals can not 'goto' this room.
+            (l - p) DO NOT USE!!!!!
+  NO_PSIONICS    q  Psychic abilities are useless.
+  NO_SCIENCE     r  Physics cannot alter reality here.
+  NO_RECALL      s  Recall spell cannot be used...
+  CLAN_ROOM      t  Is a clan room
+  ARENA		 u  
+  DOCK	         v
+  FLAME FILLED   w  Will set characters on fire if unprotected
+  FREEZING       x  Chars will freeze to death if unprotected
+
+<sector_type> is:
+  This determines how many movement points are used when moving through
+  a location of the type - use one of the numbers 0..7 (they are NOT the
+  movement-points used - merely indexes to a lookup-table):
+
+  SECT_INSIDE          0  Uses as if walking indoors
+  SECT_CITY            1  Uses as if walking in a city
+  SECT_FIELD           2  Uses as if walking in a field
+  SECT_FOREST          3  Uses as if walking in a forest
+  SECT_HILLS           4  Uses as if walking in hills
+  SECT_MOUNTAIN        5  Uses as if climbing in mountains
+  SECT_WATER_SWIM      6  Uses as if swimming
+  SECT_WATER_NOSWIM    7  Impossible to swim water - requires a boat
+  SECT_UNDERWATER      8  Underwater--need SCUBA or WATERBEATH
+  SECT_FLYING          9  Requires POS_FLYING to enter
+  SECT_NOTIME         10  Between times..Requires TIME_WARP to enter
+  SECT_CLIMBING       11  Requires CLIMBING skills, or PITONS
+  SECT_FREESPACE      12  Outer Space...Requires SPACE_SUIT
+  SECT_ROAD	      13  On the road.
+  SECT_VEHICLE	      14  Inside a car.
+  SECT_CORNFIELD      15  ...
+  SECT_SWAMP	      16  A marshy swamp.
+  SECT_DESERT         17  Thirst becomes an important factor here...
+  SECT_FLAME_RIVER    18
+  SECT_JUNGLE         19
+
+<Door flag> [NL]:
+	the door flag is set up as a combination of the following flags:
+	a	IS DOOR
+	b 	CLOSED (must set in zone file)
+	c	LOCKED (must set in zone file)
+	d	PICKPROOF
+     	e       HEAVY
+	f 	HARD TO PICK
+	g       !MOB    mobs wont wander thru
+	h	HIDDEN  can't see door until flag is removed
+	i	!SCAN   scan is blocked by something
+	j       TECH    lock is not a keylock, but electronic
+
+	Example: aej is a DOOR, HEAVY, and TECH.
+-------------------------------------------------------------------------
+
+Monster fields flags:
+===========================
+<mob_flags>[NL]
+  This bitvector define how the monster behave.  The bits mean:
+
+  ACT_SPEC         a  
+  ACT_SENTINEL     b  
+  ACT_SCAVENGER    c  
+  ACT_ISNPC        d  
+  ACT_NICE_THIEF   e  
+  ACT_AGGRESSIVE   f 
+  ACT_STAY_ZONE    g  
+  ACT_WIMPY        h  
+  ACT_AGGR_EVIL    i
+  ACT_AGGR_GOOD    j 
+  ACT_AGGR_NEUTRAL k 
+  ACT_MEMORY	   l  
+  ACT_HELPER       m  
+  ACT_NOCHARM      n
+  ACT_NOSUMMON     o
+  ACT_NOSLEEP      p 
+  ACT_NOBASH       q
+  ACT_NOBLIND      r
+  ACT_NOTURN       s
+  ACT_NOPETRI      t
+
+<mob2_flags>  This is just like mob_flags. (each slot accepts up to 32 flags)
+
+  MOB2_MOUNT       b    Mob can be mounted and ridden.
+  MOB2_STAY_SECT   c    Mob will not leave the SECT_type it's in.(ie underw) 
+  MOB2_ATK_MOBS    d	If mob is AGGRO, will attack mobs as well as players
+  MOB2_HUNT  	   e	Will HUNT down attackers(you have to set memory, too)
+  MOB2_LOOTER      f    Loots any corpses it comes across
+  MOB2_NOSTUN      g    Cannot be stunned.
+  MOB2_SELLER      h    If is a shopkeeper, will sell at any location.
+  MOB2_WONT_WEAR   i    Mob wont wear shit it picks up (SHOPKEEPERS!!!!!!!)
+  MOB2_SILENT_HUNTER j  Will not yell stuff while he hunts a victim.
+  MOB2_FAMILIAR    k    Don't Set.
+  MOB2_NO_FLOW     l    Mob will not flow.
+
+<affection flags>[NL]
+
+  AFF_BLIND             a         Blind
+  AFF_INVISIBLE         b         The monster is invisible
+  AFF_DETECT_ALIGN      c         Really a useless flag for now.
+  AFF_DETECT_INVIS      d         (Especially good for aggressive npc's)
+  AFF_DETECT_MAGIC      e                          
+  AFF_SENSE_LIFE        f         Sense life
+  AFF_WATERWALK         g         Mob can walk on WATER_NOSWIM
+  AFF_SANCTUARY         h         The monster has sanctuary (1/2 damage)
+  AFF_GROUP             i         RESERVED PLAYERS
+  AFF_CURSE             j                          
+  AFF_INFRAVISION       k         Mob can see in dark; Eyes glow in dark.
+  AFF_POISON            l         RESERVED PLAYERS
+  AFF_PROTECT_EVIL      m                       
+  AFF_PROTECT_GOOD      n
+  AFF_SLEEP             o         RESERVED PLAYERS
+  AFF_NOTRACK           p  
+  AFF_INFLIGHT          q         Mob can fly (POS_FLYING)
+  AFF_TIME_WARP         r         Mob can enter SECT_NOTIME
+  AFF_SNEAK             s         The message "The xxx leaves direction" will
+  AFF_HIDE              t         The monster will be hidden, and can only
+  AFF_WATERBREATH       u         Can go SECT_UNDERWATER
+  AFF_CHARM             v         RESERVED PLAYERS
+  AFF_CONFUSION         w         Mob cannot cast, or fight well.
+  AFF_NOPAIN            x         Mob oblivious to pain.
+  AFF_RETINA            y         Can see in dark--Eyes do not glow.
+  AFF_ADRENALINE        z         Adrenaline is pumping, fights better.
+  AFF_CONFIDENCE        A         
+  AFF_REJUVENATION      B         RESERVED PLAYERS
+  AFF_REGENERATION      C         HPs return extra fast
+  AFF_GLOWLIGHT         D         Mob surrounded by illumination
+  AFF_BLUR              E         Mob is blurred. 
+
+<Affection2 Flags>
+More affections:
+	AFF2_FLOURESCENT	a  	Atoms are flourescing near char
+	AFF2_TRANSPARENT	b	Char is transparent
+	AFF2_SLOW		c	Char is  s l o w e d.
+        AFF2_HASTE	        d	Char is moving FAST!
+        AFF2_MOUNTED		e       RESERVED FOR PLAYERS ONLY!!!!
+    	AFF2_FIRE_SHIELD	f	Char has a shield of fire.
+	AFF2_BESERK		g       Char is beserk...
+  	AFF2_INTIMIDATED        h       Char fights badly.
+        AFF2_TRUE_SEEING        i       Sees all, knows all...
+  	AFF2_HOLY_LIGHT         j       Followed by glow, sim. to glowlight
+        AFF2_PROTECT_UNDEAD     k       Undead have a hard time killing char.
+        AFF2_INVIS_TO_UDEAD     l	Undead cannot see char
+        AFF2_INVIS_TO_ANIMAL    m       Animals cannot see char.
+	AFF2_ENDURE_COLD        n       Char endures cold environ. and attacks
+        AFF2_PARALYZED          o  
+        AFF2_PROT_LIGHTNING     p	Char aint scared o lightning
+        AFF2_PROT_FIRE          q	Char aint scared of fire 
+        AFF2_TELEKINESIS	r	Char can carry alot.
+        AFF2_AUTOEXITS          s       DONT USE on mobs...(items maybe)
+        AFF2_ABLAZE             t       Char is on fire...
+        AFF2_NECK_PROTECTED     u       Sez it all... no beheads
+        AFF2_DISPLACEMENT       v       Char image displ..hard to hit.     
+        AFF2_PROT_DEVILS        w       Protected from Devil race.
+        AFF2_MEDITATION         x
+        AFF2_EVASION            y
+        AFF2_BLADE_BARRIER      z    	
+        AFF2_OBLIVITY           A	Oblivious to pain.
+        AFF2_ENERGY_FIELD       B	Surrounded by prot. field.
+	AFF2_PETRIFIED          C	Char is turned to stone.
+
+
+<Affection3 Flags>
+More affections:
+      	AFF3_POISON_2           c       Poison affects on 10sec pulse.
+	AFF3_POISON_3           d       Poison affects on 2sec pulse.
+        AFF3_SICK               e       Char is sick and contagious.
+	
+Level    AVERAGE          AVERAGE  SUGGESTED  SUGGESTED  SUGGESTED
+          <HP>             <EXP>    <THAC0>     <AC>       <DAM>
+
+  0    [001..010]           [25]       20        10        1d4+0 (2.5)
+  1    [011..022]          [100]       20         9        1d5+0 (3.0)
+  2    [023..035]          [200]       19         8        1d6+0 (3.5)
+  3    [036..047]          [350]       18         7        1d7+0 (4.0)
+  4    [048..060]          [600]       17         6        1d8+0 (4.5)
+  5    [061..072]          [900]       16         5        2d4+0 (5.0)
+  6    [073..085]         [1500]       15         4        1d8+1 (5.5)
+  7    [086..097]         [2250]       14         4        2d4+1 (6.0)
+  8    [098..110]         [3750]       13         3        2d5+1 (7.0)
+  9    [111..122]         [6000]       12         3        2d5+1 (7.0)
+ 10    [123..135]         [9000]       11         2        2d6+1 (8.0)
+ 11    [136..147]        [11000]       10         2        2d6+1 (8.0)
+ 12    [148..160]        [13000]        9         2        2d7+1 (9.0)
+ 13    [161..172]        [16000]        8         2        2d7+1 (9.0)
+ 14    [173..185]        [18000]        7         1        2d8+1 (10.0)
+ 15    [186..197]        [21000]        6         1        2d8+2 (11.0)
+ 16    [198..210]        [24000]        5         1        2d8+2 (11.0)
+ 17    [211..222]        [28000]        4         1        3d6+2 (12.5)
+ 18    [223..235]        [30000]        3         0        3d6+2 (12.5)
+ 19    [236..247]        [35000]        2         0        3d6+3 (13.5)
+ 20    [248..260]        [40000]        1         0        3d6+4 (14.5)
+ 21    [261..350]        [50000]        0        -1        3d7+4 (16.0)
+ 22    [351..400]        [60000]        0        -1        3d8+4 (17.5)
+ 23    [401..450]        [80000]        0        -2        3d8+4 (17.5)
+ 24    [451..500]       [100000]       -1        -3        3d8+4 (17.5)
+ 25    [501..550]       [130000]       -1        -4        4d6+4 (18.0)
+ 26    [551..600]       [155000]       -1        -6        4d6+4 (18.0)
+ 27    [601..650]       [200000]       -2        -7        4d6+4 (18.0)
+ 28    [651..700]       [310000]       -2        -8        4d6+5 (19.0)
+ 29    [701..900]       [450000]       -3        -9        4d7+5 (21.0)
+ 30    [901..1000]      [800000]       -3        -10       4d8+4 (22.0)
+ 31    [1001..1300]     [1000000]      -4        -10       4d8+5 (23.0)
+ 32    [1301..1600]     [1300000]      -4        -10       4d8+6 (24.0)
+ 33    [1601..1900]     [1800000]      -5        -11       4d8+7 (25.0)
+ 34    [1901..2300]     [2300000]      -5        -11       4d8+8 (26.0)
+ 35    [2301..2700]     [2900000]      -6        -11       5d9+3 (28.0)
+ 36    [2701..3100]     [3500000]      -6        -12       5d9+5 (30.0)
+ 37    [3101..3500]     [4200000]      -7        -12       5d9+7 (32.0)
+ 38    [3501..3900]     [5000000]      -7        -12       6d8+8 (35.0)
+ 39    [3901..4300]     [6000000]     -8        -13       6d8+11 (38.0)
+ 40    [4301..4700]     [7200000]     -8        -13       6d8+14 (41.0)
+ 41    [4701..5100]     [8500000]     -9        -13       6d8+17 (44.0)
+ 42    [5101..5500]     [10000000]     -9        -14       6d8+20 (47.0)
+ 43    [5501..5900]     [11000000]     -10       -14       6d8+23 (50.0)
+ 44    [5901..6400]     [12000000]     -10       -14       8d8+17 (53.0)
+ 45    [6401..6900]     [14000000]     -11       -15       8d8+20 (56.0)
+ 46    [6901..7400]     [17000000]     -11       -15       8d8+23 (59.0)
+ 47    [7401..8000]     [21000000]     -12       -15       10d8+17 (62.0)
+ 48    [8001..8600]     [26000000]     -12       -16       10d8+21 (66.0)
+ 49    [8601..10000]    [34000000]     -13       -16       10d9+20 (70.0)
+
+<Race> 
+   Defines the Monster's Race. Can be one of:
+   
+   HUMAN         0
+   ELF           1
+   DWARF         2
+   HALF ORC    	 3
+   -  NPC races	--
+   MOBILE(def)  10
+   UNDEAD	11
+   HUMANOID 	12
+   ANIMAL	13
+   DRAGON	14
+   GIANT	15
+   ORC		16
+   GOBLIN	17
+   HALFLING	18
+   MINOTAUR     19
+   TROLL	20
+   GOLEM	21
+   ELEMENTAL    22
+   OGRE		23
+   DEVIL        24
+   TROGLODYTE   25
+   MANTICORE    26
+   BUGBEAR      27
+   DRACONIAN    28
+   DUERGAR      29
+   SLAAD        30
+   ROBOT        31
+   DEMON        32
+   DEVA         33
+   PLANT        34
+   ARCHON       35
+   PUDDING      36
+   ALIEN        37
+   PREDATOR ALIEN 38
+
+<Class>
+    Defines the Monster Class.  Helps to specify the type of mob.
+    Also calls special actions.
+  
+    MAGE	0	   	 EARTH EL. 	81	
+    CLERIC	1		 FIRE ELE.  	82
+    THIEF       2		 WATER EL.  	83
+    WARRIOR     3		 AIR ELEM.      84
+    BARBARIAN   4		 Lightning Elem.  	85
+    PSYCHIC     5		 GREEN DR.  	91
+    PHYSIC      6		 Red Dragon     95
+    CYBORG      7		 Blue Dragon    94
+    KNIGHT      8		 White Dragon	92
+    RANGER      9		 Black Dragon	93
+    HOOD	10		 Silver Dragon 	96
+    MONK        11
+    - NPC classes-
+    NORMAL	50
+    BIRD        51
+    PREDATOR    52
+    SNAKE	53		 LEAST Devil 	101	/* Devils of */
+    HORSE       54		 LESSER Devil	102	/* the Hells */
+    SMALL       55		 GREATER Devil  103
+    MEDIUM      56		 DUKE Devil     104    
+    LARGE       57		 ARCH Devil     105
+    --
+    SKELETON	60		 Hill Giant 	111
+    GHOUL	61		 Stone Giant	112
+    SHADOW      62		 Frost Giant	113	
+    WIGHT     	63		 Fire Giant     114
+    WRAITH      64		 Cloud Giant	115
+    MUMMY	65		 Storm Giant	116
+    SPECTRE	66
+    VAMPIRE     67
+    GHOST	68	
+    LICH	69 
+
+    RED SLAAD	120		/* Slaad of Limbo */
+    BLUE SLAAD	121
+    GREEN SLAAD	122
+    GREY SLAAD	123
+    DEATH SLAAD	124
+    LORD SLAAD	125
+
+    DEMON TYPE I	130		/* Demons of the Abyss */
+    DEMON TYPE II	131
+    DEMON TYPE III	132
+    DEMON TYPE IV	133
+    DEMON TYPE V	134
+    DEMON TYPE VI	135
+    DEMON SEMI		136
+    DEMON MINOR		137
+    DEMON MAJOR		138
+    DEMON LORD		139
+    DEMON PRINCE	140
+
+<position>
+   This defines the monster's position when loaded into the game.
+   A position is one of:
+
+   POSITION_DEAD       0  DO NOT USE
+   POSITION_MORTALLYW  1  DO NOT USE
+   POSITION_INCAP      2  DO NOT USE
+   POSITION_STUNNED    3  DO NOT USE
+   POSITION_SLEEPING   4  The monster is sleeping.
+   POSITION_RESTING    5  The monster is resting.
+   POSITION_SITTING    6  The monster is sitting.
+   POSITION_FIGHTING   7  DO NOT USE.
+   POSITION_STANDING   8  The monster is standing.
+   POSITION_FLYING     9  Monster is flying in the air.
+   POSITION_MOUNTED   10
+   POSITION_SWIMMING  11  
+
+[attack type]<NL>
+   How the monster attacks, without a weapon.  Can be one of:
+
+   HIT		0
+   STING	1
+   WHIP		2
+   SLASH	3
+   BITE		4
+   BLUDGEON	5
+   CRUSH	6
+   POUND	7
+   CLAW		8
+   MAUL		9
+   THRASH	10
+   PIERCE	11
+   BLAST	12
+   PUNCH	13
+   STAB		14
+   RIP          16
+   CHOP         17
+
+Special attrib assignments:
+	"Str","StrAdd", "Int", "Wis", "Dex", "Con", "Cha",
+        "MaxMana", "MaxMove", "Height", "Weight", "RemortClass"
+	"Class", "Race"
+   Format:Str: 18
+   End list with an E on a newline.
+
+Object fields description:
+==========================
+
+<type flag>[NL]
+   This defines what kind of item you are defining, it can be one of:
+
+   ITEM_LIGHT      1  Item is a light.
+   ITEM_SCROLL     2  
+   ITEM_WAND       3 
+   ITEM_STAFF      4
+   ITEM_WEAPON     5  Item is a weapon
+   ITEM_FIREWEAPON 6  Not yet implemented
+   ITEM_MISSILE    7  Not yet implemented
+   ITEM_TREASURE   8  Item is a treasure (not money)
+   ITEM_ARMOR      9  Item is armour.
+   ITEM_POTION    10  
+   ITEM_WORN      11  
+   ITEM_OTHER     12  Item is other
+   ITEM_TRASH     13  Item is trash
+   ITEM_TRAP      14  Not yet implemented
+   ITEM_CONTAINER 15  Item is a container
+   ITEM_NOTE      16  Item is a note that can be written upon (with a pen)
+   ITEM_DRINKCON  17  Item is a drink container, for example a bottle or
+   ITEM_KEY       18  Item is a key
+   ITEM_FOOD      19  Item is food.
+   ITEM_MONEY     20  Item is money.
+   ITEM_PEN       21  Item is a pen.
+   ITEM_BOAT      22  Item is a boat, which must be carried by a player if
+   ITEM_FOUNTAIN  23  Item is a fountain (characters can drink from it
+   ITEM_WINGS     24  When worn, allows player to fly.
+   ITEM_TIME_WARP 25  Worn, allows players to time warp.
+   ITEM_SCUBA     26  Self Contained Underwater Breathing Apparatus.
+   ITEM_PITONS    27  Helps a player climb.
+   ITEM_SPACESUIT 28  well,...
+   ITEM_HOLY_SYMB 29  Holy Symbol.  see values.doc
+   ITEM_VEHICLE   30  Car object.  see values.doc
+   ITEM_ENGINE    31  ditto
+   ITEM_BATTERY   32  Can recharge from it.  May or may not cost.
+   ITEM_RAY_GUN   33  Energy weapon.
+   ITEM_WINDOW    34  Look through to another, specified room.
+   ITEM_PORTAL    35  Enter this to be transed to specified rooom.
+   ITEM_TOBACCO   36  Can be rolled or put in pipe.
+   ITEM_CIGARETTE 37  Smoke.
+   ITEM_METAL     38  Raw material. 
+
+<extra flag>[NL]
+   This bitvector defines mostly special effects:
+
+   ITEM_GLOW            a  The item is glowing.
+   ITEM_HUM             b  The item is "humming"/"buzzing".
+   ITEM_NORENT		c
+   ITEM_NODONATE	d
+   ITEM_NOINVIS      	e
+   ITEM_INVISIBLE	f
+   ITEM_MAGIC		g
+   ITEM_NODROP		h
+   ITEM_BLESS		i
+   ITEM_!GOOD		j
+   ITEM_!EVIL		k
+   ITEM_!NEUTRAL	l
+   ITEM_!MAGE		m
+   ITEM_!CLERIC		n
+   ITEM_!THIEF		o
+   ITEM_!WARRIOR    	p
+   ITEM_NOSELL		q
+   ITEM_!BARB		r
+   ITEM_!SYK		s
+   ITEM_!PHY		t
+   ITEM_!CYB		u
+   ITEM_!KNI		v
+   ITEM_!RANGER		w
+   ITEM_!HOOD		x
+   ITEM_!MONK  		y
+   ITEM_BLURRED		z
+   ITEM_!DISPEL_MAGIC  	A
+   ITEM_ATTRACT_FILED   B
+   ITEM_REPULSE_FIELD	C
+   ITEM_TRANSPARENT	D
+   ITEM_EVIL_BLESS      E
+
+<item2 flags>
+Like the item flags.
+
+   ITEM2_V_ATV		a	}   Choose one of these
+   ITEM2_V_ROADCAR	b	}   flags for any vehicle
+   ITEM2_V_SKYCAR	c	}   you design.  These 
+   ITEM2_V_BOAT		d	}   flags define WHERE you
+   ITEM2_V_SPACESHIP    e	}   can drive the vehicle.
+   ITEM2_CAST_WEAPON    k	Weapon casts spells (see value.doc)
+   ITEM2_TWO_HANDED     l	No shield can be used.
+                        m      RESERVED.
+   ITEM2_ABLAZE         n       Item is on fire. 
+   ITEM2_CURSED_PERM    o      Curse may not be removed.
+   ITEM2_NOREMOVE       p      VERY nasty curse... cannot remove once worn.
+   ITEM2_THROWN_WEAPON  q      Weapon can be thrown effectively.
+
+
+<wear flag><NL>
+   This bitvector defines if items can be taken, and if they can be worn:
+
+   ITEM_TAKE              a Item is takeable.
+   ITEM_WEAR_FINGER       b Can be worn on a finger (rings usually)
+   ITEM_WEAR_NECK         c Can be worn around neck.
+   ITEM_WEAR_BODY         d Can be worn on body.
+   ITEM_WEAR_HEAD         e Can be worn on head.
+   ITEM_WEAR_LEGS         f Can be worn on legs.
+   ITEM_WEAR_FEET         g Can be worn on feet
+   ITEM_WEAR_HANDS        h Can be worn on hands (gauntlets, etc)
+   ITEM_WEAR_ARMS         i Can be worn on arms.
+   ITEM_WEAR_SHIELD       j Can be used as a shield.
+   ITEM_WEAR_ABOUT        k ???
+   ITEM_WEAR_WAISTE       l Can be worn around the waiste (belt)
+   ITEM_WEAR_WRIST        m Can be worn on wrist (bracelets)
+   ITEM_WIELD             n Can be wielded and used as a weapon
+   ITEM_HOLD              o Item can be held in a hand.
+   ITEM_WEAR_CROTCH	  p
+   ITEM_WEAR_EYES	  q
+   ITEM_WEAR_BACK	  r
+   ITEM_WEAR_BELT	  s Worn ON a belt...
+   ITEM_WEAR_FACE	  t worn on face
+   ITEM_WEAR_EARS	  u Earrings
+
+<location>[NL]
+   <location> is one of the below numbers, indicating which ability
+   will be changed.
+
+   APPLY_NONE              0  DO NOT USE.
+   APPLY_STR               1
+   APPLY_DEX               2
+   APPLY_INT               3
+   APPLY_WIS               4
+   APPLY_CON               5
+   APPLY_CHA               6  
+   APPLY_CLASS             7  DO NOT USE.
+   APPLY_LEVEL             8  DO NOT USE.
+   APPLY_AGE               9
+   APPLY_CHAR_WEIGHT      10
+   APPLY_CHAR_HEIGHT      11
+   APPLY_MANA             12  
+   APPLY_HIT              13  The MAXIMUM number of hitpoints.
+   APPLY_MOVE             14 
+   APPLY_GOLD             15  DO NOT USE.
+   APPLY_EXP              16  DO NOT USE.
+   APPLY_AC               17
+   APPLY_ARMOR            17  Same as APPLY_AC
+   APPLY_HITROLL          18  The bonus/penalty to hit the opponent.
+   APPLY_DAMROLL          19  The bouns/penalty to damage the opponent.
+   APPLY_SAVING_PARA      20  These five are saving throws.
+   APPLY_SAVING_ROD       21
+   APPLY_SAVING_PETRI     22
+   APPLY_SAVING_BREATH    23
+   APPLY_SAVING_SPELL     24  This is the most used saving throw.
+   APPLY_SNEAK		  25  Modifies SNEAK skill.
+   APPLY_HIDE             26  Modifies HIDE skill.
+   APPLY_RACE	          27  Sets RACE to given value.  values follow:
+   APPLY_SEX		  28  Sets SEX to given value. values are in this doc
+   APPLY_BACKSTAB	  29  Modifies BACKSTAB skill
+   APPLY_PICK_LOCK        30
+   APPLY_PUNCH            31
+   APPLY_SHOOT            32
+   APPLY_KICK             33
+   APPLY_TRACK            34
+   APPLY_IMPALE           35
+   APPLY_BEHEAD           36
+
+ZONE flags:
+
+c) The RESET_MODE. This may take on of three values:
+  0: Don't reset the zone at all. 
+  1: Only when no players are located within the zone.
+  2: Reset the zone no matter who or what is in it.
+d)  The TIME_FRAME of the zone.  The values are:
+  0: TIMELESS
+  1: PAST (Modrian)
+  2: FUTURE (Electro)
+e)   the PLANE of existance of the zone:
+	0:  Prime Material 1  (Modrian, etc...)
+       10:  Astral Plane
+    11-19:  Hell (1-9)
+       20:  Ghenna
+       25:  Abyss I
+       39:  OLC
+f) The COMMAND TABLE. This is a series of commands to execute at reset. The
+   M (load a mobile): 
+     Format: 'M' <if-flag> <mobile nr> <max existing> <room nr>
+   O (load an object):
+     Format: 'O' <if-flag> <object nr> <max existing> <room nr>
+   G (give object to mobile):
+     Format: 'G' <if-flag> <object nr> <max existing>
+   E (object to equipment list of mobile)
+     Format: 'E' <if-flag> <object nr> <max existing> <equipment position>
+   R (remove object from room, if it exists)
+     Format: 'R' <if-flag> <object nr> <room nr>
+   P (put object in object):
+     Format: 'P' <if-flag> <object_nr1> <max existing> <object nr2>
+   D (set state of door)
+     Format: 'D' <if-flag> <room nr> <exit nr> <state>
+	State being one of:
+        	0: Open.
+        	1: Closed.
+        	2: Closed and locked.
+		3: Hidden. used in conjunction with above commmands.
+ Equipment position is one of:
+      WEAR_LIGHT      0
+      WEAR_FINGER_R   1
+      WEAR_FINGER_L   2
+      WEAR_NECK_1     3
+      WEAR_NECK_2     4
+      WEAR_BODY       5
+      WEAR_HEAD       6
+      WEAR_LEGS       7
+      WEAR_FEET       8
+      WEAR_HANDS      9
+      WEAR_ARMS      10
+      WEAR_SHIELD    11
+      WEAR_ABOUT     12
+      WEAR_WAISTE    13
+      WEAR_WRIST_R   14
+      WEAR_WRIST_L   15
+      WIELD          16
+      HOLD           17
+      WEAR_CROTCH    18
+      WEAR_EYES      19
+      WEAR_BACK	     20
+      WEAR_BELT      21
+      WEAR_FACE	     22
+      WEAR_EAR_LEFT  23
+      WEAR_EAR_RIGHT 24
+

@@ -1,0 +1,4 @@
+$(OBJ)/ban.o : ban.cc \
+	$(INCLUDE)/structs.h $(INCLUDE)/utils.h $(INCLUDE)/comm.h $(INCLUDE)/interpreter.h $(INCLUDE)/handler.h $(INCLUDE)/db.h 
+	$(CXX) -c $(CXXFLAGS) ban.cc               -o $(OBJ)/ban.o
+OBJFILES= $(OBJ)/ban.o

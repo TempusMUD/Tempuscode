@@ -1,0 +1,46 @@
+//
+// File: cyber_cock.spec                     -- Part of TempusMUD
+//
+// Copyright 1998 by John Watson, all rights reserved.
+//
+
+SPECIAL(cyber_cock)
+{
+  if (cmd)
+    return 0;
+
+  if (!FIGHTING(ch)) {
+    switch (number(0, 40)) {
+    case 0:
+      act("$n scratches the ground with $s metal claw.", TRUE, ch, 0, 0, TO_ROOM);
+      send_to_char("You scratch.\r\n", ch);
+      return 1;
+    case 1:
+      act("$n emits a loud squealing sound!", FALSE, ch, 0, 0, TO_ROOM);
+      send_to_char("You squawk!\r\n", ch);
+      return 1;
+    case 2:
+      act("$n struts around proudly.", TRUE, ch, 0, 0, TO_ROOM);
+      send_to_char("You strut.\r\n", ch);
+      return 1;
+    default:
+      return 0;
+    }
+  }
+  switch (number(0, 16)) {
+  case 0:
+    act("$n leaps into the air, stubby chrone wings flapping!", TRUE, ch, 0, 0, TO_ROOM);
+    send_to_char("You leap.\r\n", ch);
+    return 1;
+  case 1:
+    send_to_room("Oil sprays everywhere!\r\n", ch->in_room);
+    return 1;
+  case 2:
+    act("$N screams as $E attacks you!", FALSE, FIGHTING(ch), 0, ch, TO_CHAR);
+    act("$N screams as $E attacks $n!", FALSE, FIGHTING(ch), 0, ch, TO_ROOM);
+    return 1;
+  default:
+    return 0;
+  } 
+  return 0;
+}

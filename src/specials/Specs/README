@@ -1,0 +1,13 @@
+README file for Tempus src/Specs dir
+
+========================================
+
+This dir and it's subdirs contain the source code for most of the
+special procedures.  They are grouped together pseudo-logically.
+
+The source files all bear the .spec extension.  Furthermore, the
+source files are not stand-alone C programs.  They are intended to
+be included via the preprocessor directive #include in the spec_procs.c
+file.
+
+========================================

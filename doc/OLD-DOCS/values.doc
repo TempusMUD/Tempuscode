@@ -1,0 +1,450 @@
+/* ************************************************************************T
+*  Copyright (C) 1990, 1991 - see 'license.doc' for complete information. *
+************************************************************************* */
+
+
+                     ITEM VALUE DOCUMENTATION
+                           "values.doc"
+
+
+These values are used, as illustrated below, with the different
+item types. The various item types are shown in dbsup.doc.
+
+
+
+ITEM_LIGHT (1)
+Value[0]: Not Used
+Value[1]: Not Used
+Value[2]: Number of hours the light can be used for. Zero hours means that
+          the light has gone out. A negative number will create an eternal
+          light source.
+Value[3]: Not Used
+
+
+ITEM_SCROLL (2)
+Value[0]: Level of the spell on the scroll.
+Value[1]: Which spell (see list somewhere around the end of file)
+Value[2]: Which spell
+Value[3]: Which spell
+  The values(1-3) are three (or less) different spells, mixed 'on' the scroll.
+  Unused spells should be set to -1.
+
+
+ITEM_WAND (3)
+Value[0]: Level of spell in wand.
+Value[1]: Max Charges (1..X)
+Value[2]: Charges Left
+Value[3]: Which spell in wand (see list somewhere around the end of file)
+
+
+ITEM_STAFF (4)
+Value[0]: Level of spell in staff.
+Value[1]: Max Charges (1..X)
+Value[2]: Charges Left
+Value[3]: Which spell in staff (see list somewhere around the end of file)
+
+
+ITEM_WEAPON (5)
+Value[0]: Spellnum that weapon casts on enemy.
+Value[1]: Number of dice to roll for damage
+Value[2]: Size of dice to roll for damage
+Value[3]: The weapon type. Type is one of:
+
+         NUMBER  CATEGORY   Message type
+            0  : hit           "hit/hits"
+            1  : sting 
+            2  : Whip          "whip/whips"
+            3  : Slash         "slash/slashes"
+            4  : Bite
+            5  : Bludgeon
+            6  : Crush         "crush/crushes"
+            7  : Pound         "pound/pounds"
+            8  : Claw
+            9  : Maul
+           10  : Thrash
+           11  : Pierce        "pierce/pierces"
+           12  : Blast
+           13  : Punch
+           14  : Stab
+
+          New types can be added as needed.
+
+
+ITEM_FIREWEAPON (6)
+Value[0]: -
+Value[1]: -
+Value[2]: -
+Value[3]: -
+
+ITEM_MISSILE    (7)
+Value[0]: -
+Value[1]: -
+Value[2]: -
+Value[3]: -
+
+ITEM_TREASURE   (8)
+Value[0]: -
+Value[1]: -
+Value[2]: -
+Value[3]: -
+
+ITEM_ARMOR      (9)
+Value[0]: The effective AC. >0 enhances the armour class. <0 reduces the
+          the armour class (cursed armour for example.. (-10, ..., +10).
+Value[1]: -
+Value[2]: -
+Value[3]: -
+
+ITEM_POTION    (10)
+Value[0]: Level of the spell in the potion.
+Value[1]: Which spell (Listed elsewhere in this file)
+Value[2]: Which spell
+Value[3]: Which spell
+  The values(1-3) are three (or less) different spells, mixed in the potion.
+  Unused spells should be set to -1.
+   Eg.
+   Value 0 : 30  (Level)
+   Value 1 : 27  (Harm)
+   Value 2 : 17  (Curse)
+   Value 3 :  4  (Blindness)
+     (* Don't drink this - It's bad for your health! *)
+
+
+ITEM_WORN      (11)
+Value[0]: -
+Value[1]: -
+Value[2]: -
+Value[3]: -
+
+ITEM_OTHER     (12)
+Value[0]: -
+Value[1]: -
+Value[2]: -
+Value[3]: -
+
+ITEM_TRASH     (13)
+Value[0]: -
+Value[1]: -
+Value[2]: -
+Value[3]: -
+
+ITEM_TRAP      (14)
+Value[0]: -
+Value[1]: -
+Value[2]: -
+Value[3]: -
+
+ITEM_CONTAINER (15)
+Value[0]: Maximum weight the container can contain.
+Value[1]: Container flags:
+
+   CLOSEABLE     1
+   PICKPROOF     2
+   CLOSED        4
+   LOCKED        8
+
+Value[2]: The item-number of the object which can open the object. -1 means
+          no lockability.
+Value[3]: Internal use for Corpses that must "rot".
+
+ITEM_NOTE      (16)
+Value[0]: Tounge (language of writing). Not yet used.
+Value[1]: -
+Value[2]: -
+Value[3]: -
+
+ITEM_DRINKCON  (17)
+Value[0]: Maximum drink-units the drink-container can contain. (-1 for perm.)
+Value[1]: Number of drink-units that are left in the container. (-1 for perm.)
+Value[2]: The type of liquid in the drink-container, one of:
+
+              Type           nr.    Effect
+                                    Drunkness   Fullness   Thirst
+
+              LIQ_WATER      0      0           1           10
+              LIQ_BEER       1      3           2           5
+              LIQ_WINE       2      5           2           5
+              LIQ_ALE        3      2           2           5
+              LIQ_DARKALE    4      1           2           5
+              LIQ_WHISKY     5      6           1           4
+              LIQ_LEMONADE   6      0           1           8
+              LIQ_FIREBRT    7      10          0           0
+              LIQ_LOCALSPC   8      3           3           3
+              LIQ_SLIME      9      0           4           -8
+              LIQ_MILK       10     0           3           6
+              LIQ_TEA        11     0           1           6
+              LIQ_COFFE      12     0           1           6
+              LIQ_BLOOD      13     0           2           -1
+              LIQ_SALTWATER  14     0           1           -2
+              LIQ_CLEARWATER 15	    0		0	    13
+              LIQ_COKE       16     0		1           10
+              LIQ_FIRETALON  17	    10          0           1
+              LIQ_SOUP       18     0           5           5
+              LIQ_MUD        19     0           3           -2
+              LIQ_HOLY_WATER 20     0           1           10
+              LIQ_ORNG_JUICE 21     0           2           8
+              LIQ_GOATSMILK  22     0           3           8
+              LIQ_MUCUS      23     0           3           -5
+              LIQ_PUS        24     0           1           0
+              LIQ_SPRITE     25     0           1           10
+              LIQ_DIET_COKE  26     0           1           10
+              LIQ_ROOT_BEER  27     0           1           10
+              LIQ_VODKA      28     12          0           2
+              LIQ_CITY_BEER  29     1           1           6
+              LIQ_URINE      30     0           0           -2
+	      LIQ_STOUT      31     5           3           8
+
+          The above values for drunkness/fullness/thirst are used per 
+          four "units" drunk. The values are expressed in HOURS!
+          Example:
+            Dragon empties a bottle (say 7 units) of saltwater.
+            His Drunkness is not changed ((7/4)*0)
+            His Fullness increases by ((7/4)*1) hours
+            His Thirst increases by ((7/4)*-2) hours, thus making
+               him More thirsty.
+
+          The hours above are numbers between 0 and 24. 24 hours is
+          maximum for drunkness/fullness/thirst. When hours are zero
+          for any drunkness/fullness/thirst the person will be
+          sober, hungry, or thirsty respectively.
+
+Value[3]: if this value is non-zero, then the drink is poisoned.
+	  1 -- Poison #1.  Damages every tick.
+	  2 -- Poison #2.  Damages every 10 seconds (zone pulse).
+	  3 -- Poison #3.  Damages every 3 seconds (fire tick).
+          4 -- Sickness.   Makes char sick.
+
+ITEM_KEY       (18)
+Value[0]: The key-type. This value must match the lock-type the door
+          that the key can open. 
+Value[1]: If this number is nonzero, the key can be rented.( for vehicles,
+          this number must match the vnum of the interior room.)
+Value[2]: -
+Value[3]: -
+
+ITEM_FOOD      (19)
+Value[0]: The number of hours, that this food will fill the stomach
+Value[1]: The level of the spell in the food, if any. (0 = none)
+Value[2]: The spell number of the spell in the food. 
+Value[3]: If this value is non-zero, the food is poisoned.
+         	See the values for drinkcon (#17) above.
+
+ITEM_MONEY     (20)
+Value[0]: The number of gold coins "in the pile of coins".
+Value[1]: -
+Value[2]: -
+Value[3]: -
+
+ITEM_PEN       (21)
+Value[0]: -
+Value[1]: -
+Value[2]: -
+Value[3]: -
+
+ITEM_BOAT      (22)
+Value[0]: -
+Value[1]: -
+Value[2]: -
+Value[3]: -
+
+ITEM_FOUNTAIN  (23)
+
+Value[0]: Maximum drink-units the drink-container can contain.
+Value[1]: Number of drink-units that are left in the container.
+Value[2]: The type of liquid in the drink-container; definitions
+	  are the same as for ITEM_DRINKCON.
+Value[3]: Drink is posioned if non-zero.
+
+ITEM_HOLY_SYMB  (29)
+Value[0]: The Alignment of the item (0=good, 1=neutral, 2=evil)
+Value[1]: The Class of Character that can use the item (1=cleric)...
+Value[2]: The minimum level the player has to be to use it.
+Value[3]: The maximum level the player can be and still use it.
+
+ITEM_VEHICLE (30)
+Value[0]: The vnum of the interior room and vnum of key.
+Value[1]: The State of the Doors, same bits as container.
+Value[2]: Car Flags.
+Value[3]: Reserved.
+
+ITEM_ENGINE (31)
+Value[0]: Maximum number of energy units.
+Value[1]: Current energy level.
+Value[2]: Engine State:
+          1	OPERATIONAL
+	  2	PARKED(car is parked)
+          4	RUNNING
+Value[3]: Energy consumption rate (1-4, 4 being intense guzzler).
+
+ITEM_BATTERY (32)
+Value[0]: MAximum Charge.
+Value[1]: Current Charge.
+Value[2]: Recharge Rate.
+Value[3]: Cost per unit of energy for use with !TAKE room rechargers only.
+
+ITEM_RAY_GUN (33)
+Value[0]: Maximum energy level.
+Value[1]: Current energy level.
+Value[2]: Maximum discharge level.
+Value[3]: Current discharge level.
+
+ITEM_WINDOW (34)
+Value[0]: Room number which window looks into.
+
+ITEM_PORTAL (35)
+Value[0]: Room number that the portal takes you to.
+
+ITEM_TOBACCO (36)
+
+ITEM_CIGARETTE (37)
+Value[0]: Drags remaining.
+Value[1]: Not Used.
+Value[2]: Type of Tobacco.
+Value[3]: Reserved [ 0==unlit, 1==lit]
+
+ITEM_METAL (38)
+
+ITEM_RSTONE (39)
+Value[0]: Room number the stone is linked to.
+Value[1]: Idnum of the char it is attached to (-1 for unused stone)
+Value[2]: Not used.
+Value[3]: Not used.
+
+ITEM_PIPE (40)
+Value[0],[2],[3]...Same as ITEM_CIGARETTE (37)...
+Value[1]: Maximum packing potential.
+
+ITEM_TRANSPORTER (41)
+Value[0]: Max Units of Energy. 
+Value[1]: Current Units of Energy.
+Value[2]: Room number the stone is linked to.
+Value[3]: Tunability. (1 = tunable, 0 = not tunable)
+
+
+ The following is appended from spells.h *the official spell list*
+#define SPELL_ARMOR                   1 /* Reserved Skill[] DO NOT CHANGE */
+#define SPELL_TELEPORT                2 /* Reserved Skill[] DO NOT CHANGE */
+#define SPELL_BLESS                   3 /* Reserved Skill[] DO NOT CHANGE */
+#define SPELL_BLINDNESS               4 /* Reserved Skill[] DO NOT CHANGE */
+#define SPELL_BURNING_HANDS           5 /* Reserved Skill[] DO NOT CHANGE */
+#define SPELL_CALL_LIGHTNING          6 /* Reserved Skill[] DO NOT CHANGE */
+#define SPELL_CHARM                   7 /* Reserved Skill[] DO NOT CHANGE */
+#define SPELL_CHILL_TOUCH             8 /* Reserved Skill[] DO NOT CHANGE */
+#define SPELL_CLONE                   9 /* Reserved Skill[] DO NOT CHANGE */
+#define SPELL_COLOR_SPRAY            10 /* Reserved Skill[] DO NOT CHANGE */
+#define SPELL_CONTROL_WEATHER        11 /* Reserved Skill[] DO NOT CHANGE */
+#define SPELL_CREATE_FOOD            12 /* Reserved Skill[] DO NOT CHANGE */
+#define SPELL_CREATE_WATER           13 /* Reserved Skill[] DO NOT CHANGE */
+#define SPELL_CURE_BLIND             14 /* Reserved Skill[] DO NOT CHANGE */
+#define SPELL_CURE_CRITIC            15 /* Reserved Skill[] DO NOT CHANGE */
+#define SPELL_CURE_LIGHT             16 /* Reserved Skill[] DO NOT CHANGE */
+#define SPELL_CURSE                  17 /* Reserved Skill[] DO NOT CHANGE */
+#define SPELL_DETECT_ALIGN           18 /* Reserved Skill[] DO NOT CHANGE */
+#define SPELL_DETECT_INVIS           19 /* Reserved Skill[] DO NOT CHANGE */
+#define SPELL_DETECT_MAGIC           20 /* Reserved Skill[] DO NOT CHANGE */
+#define SPELL_DETECT_POISON          21 /* Reserved Skill[] DO NOT CHANGE */
+#define SPELL_DISPEL_EVIL            22 /* Reserved Skill[] DO NOT CHANGE */
+#define SPELL_EARTHQUAKE             23 /* Reserved Skill[] DO NOT CHANGE */
+#define SPELL_ENCHANT_WEAPON         24 /* Reserved Skill[] DO NOT CHANGE */
+#define SPELL_ENERGY_DRAIN           25 /* Reserved Skill[] DO NOT CHANGE */
+#define SPELL_FIREBALL               26 /* Reserved Skill[] DO NOT CHANGE */
+#define SPELL_HARM                   27 /* Reserved Skill[] DO NOT CHANGE */
+#define SPELL_HEAL                   28 /* Reserved Skill[] DO NOT CHANGE */
+#define SPELL_INVISIBLE              29 /* Reserved Skill[] DO NOT CHANGE */
+#define SPELL_LIGHTNING_BOLT         30 /* Reserved Skill[] DO NOT CHANGE */
+#define SPELL_LOCATE_OBJECT          31 /* Reserved Skill[] DO NOT CHANGE */
+#define SPELL_MAGIC_MISSILE          32 /* Reserved Skill[] DO NOT CHANGE */
+#define SPELL_POISON                 33 /* Reserved Skill[] DO NOT CHANGE */
+#define SPELL_PROT_FROM_EVIL         34 /* Reserved Skill[] DO NOT CHANGE */
+#define SPELL_REMOVE_CURSE           35 /* Reserved Skill[] DO NOT CHANGE */
+#define SPELL_SANCTUARY              36 /* Reserved Skill[] DO NOT CHANGE */
+#define SPELL_SHOCKING_GRASP         37 /* Reserved Skill[] DO NOT CHANGE */
+#define SPELL_SLEEP                  38 /* Reserved Skill[] DO NOT CHANGE */
+#define SPELL_STRENGTH               39 /* Reserved Skill[] DO NOT CHANGE */
+#define SPELL_SUMMON                 40 /* Reserved Skill[] DO NOT CHANGE */
+#define SPELL_VENTRILOQUATE          41 /* Reserved Skill[] DO NOT CHANGE */
+#define SPELL_WORD_OF_RECALL         42 /* Reserved Skill[] DO NOT CHANGE */
+#define SPELL_REMOVE_POISON          43 /* Reserved Skill[] DO NOT CHANGE */
+#define SPELL_SENSE_LIFE             44 /* Reserved Skill[] DO NOT CHANGE */
+#define SPELL_ANIMATE_DEAD	     45 /* Reserved Skill[] DO NOT CHANGE */
+#define SPELL_DISPEL_GOOD	     46 /* Reserved Skill[] DO NOT CHANGE */
+#define SPELL_GROUP_ARMOR	     47 /* Reserved Skill[] DO NOT CHANGE */
+#define SPELL_GROUP_HEAL	     48 /* Reserved Skill[] DO NOT CHANGE */
+#define SPELL_GROUP_RECALL	     49 /* Reserved Skill[] DO NOT CHANGE */
+#define SPELL_INFRAVISION	     50 /* Reserved Skill[] DO NOT CHANGE */
+#define SPELL_WATERWALK		     51 /* Reserved Skill[] DO NOT CHANGE */
+#define SPELL_IDENTIFY               53	
+#define SPELL_GLOWLIGHT              54
+#define SPELL_BLUR                   55
+#define SPELL_KNOCK                  56
+#define SPELL_DISPEL_MAGIK           57
+#define SPELL_DIMENSION_DOOR         59
+#define SPELL_MINOR_CREATION         60
+#define SPELL_TELEKINESIS            61
+#define SPELL_SWORD                  62
+#define SPELL_WORD_STUN              63
+#define SPELL_PRISMATIC_SPRAY        64
+#define SPELL_FIRE_SHIELD            65
+#define SPELL_DETECT_SCRYING         66
+#define SPELL_CLAIRVOYANCE           67
+#define SPELL_TIME_STOP              68
+#define SPELL_GREATER_ENCHANT        69
+#define SPELL_ENCHANT_ARMOR          70
+#define SPELL_MINOR_IDENTIFY         71
+#define SPELL_FLY                    72
+#define SPELL_GREAT_HEAL	     73
+#define SPELL_CONE_COLD			74
+#define SPELL_TRUE_SEEING		75
+#define SPELL_PROT_FROM_GOOD		76
+#define SPELL_MAGICAL_PROT		77
+#define SPELL_UNDEAD_PROT		78
+#define SPELL_SPIRIT_HAMMER		79
+#define SPELL_PRAY			80
+#define SPELL_FLAME_STRIKE		81
+#define SPELL_ENDURE_COLD		82
+#define SPELL_MAGICAL_VESTMENT		83
+#define SPELL_REJUVENATE		84
+#define SPELL_REGENERATE		85
+#define SPELL_COMMAND			86
+#define SPELL_AIR_WALK			87
+#define SPELL_HOLY_LIGHT		88
+#define SPELL_GOODBERRY			89
+#define SPELL_BARKSKIN			90
+#define SPELL_INVIS_TO_UNDEAD		91
+#define SPELL_HASTE			92
+#define SPELL_INVIS_TO_ANIMALS          93
+#define SPELL_CHARM_ANIMAL		94
+#define SPELL_REFRESH			95
+#define SPELL_BREATHE_WATER	  	96
+#define SPELL_CONJURE_ELEMENTAL	        97
+#define SPELL_GREATER_INVIS		98
+/* Insert new spells here, up to MAX_SPELLS */
+#define SPELL_POWER                101
+#define SPELL_INTELLECT            102
+#define SPELL_CONFUSION		   103
+#define SPELL_FEAR	           104
+#define SPELL_SATIATION            105
+#define SPELL_QUENCH               106
+#define SPELL_CONFIDENCE           107
+#define SPELL_NOPAIN               108
+#define SPELL_FLESHPREP            109
+#define SPELL_BODYREPAIR           110
+#define SPELL_ANTIBODY             111
+#define SPELL_RETINA               112
+#define SPELL_ADRENALINE           113
+#define SPELL_URINARY              114
+#define SPELL_ACIDITY              201
+#define SPELL_ATTRACTION_FIELD     202
+#define SPELL_COORDINATES          203
+#define SPELL_FLUORESCE	           204
+#define SPELL_GAMMA_RAY            205
+#define SPELL_HALFLIFE             206
+#define SPELL_MICROWAVE            207
+#define SPELL_OXIDIZE              208
+#define SPELL_RANDOM_COORDINATES   209
+#define SPELL_REPULSION_FIELD      210
+#define SPELL_TRANSMITTANCE        211
+#define SPELL_TIME_SLOW            212
+#define SPELL_TIME_FAST            213
+#define SPELL_TIME_WARP            214
+#define SPELL_WARP_SPACETIME       215

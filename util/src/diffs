@@ -1,0 +1,10 @@
+#!/bin/sh
+OTHERDIR=$1/
+
+rm -f diffs.log
+touch diffs.log
+
+for file in *.spec; do \
+  echo "${file}" >> diffs.log; \
+  diff ${file} $OTHERDIR${file} >> diffs.log  ; \
+done

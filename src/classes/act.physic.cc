@@ -1,0 +1,559 @@
+//
+// File: act.physic.c                     -- Part of TempusMUD
+//
+// Copyright 1998 by John Watson, all rights reserved.
+//
+
+/* ************************************************************************
+*   File: act.physic.c                Created for TempusMUD by Fireball   *
+************************************************************************ */
+
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+#include <ctype.h>
+#include <time.h>
+#include <sys/types.h>
+#include <sys/stat.h>
+
+#include "structs.h"
+#include "utils.h"
+#include "comm.h"
+#include "interpreter.h"
+#include "handler.h"
+#include "db.h"
+#include "spells.h"
+#include "screen.h"
+#include "vehicle.h"
+#include "materials.h"
+#include "flow_room.h"
+#include "house.h"
+#include "char_class.h"
+#include "fight.h"
+
+void appear(struct char_data *ch, struct char_data *vict);
+
+static timewarp_data *timewarp_list = NULL;
+static int num_timewarp_data = 0;
+
+CHAR *
+check_char_room_vis(CHAR *ch, char *argument)
+{
+    CHAR *vict = NULL;
+
+    if (!(vict = get_char_room_vis(ch, argument))) {
+	sprintf(buf, "There's no one named '%s' here.\r\n", argument);
+	send_to_char(buf, ch);
+    }
+    return (vict);
+}
+
+// physic's boring-ass lecture
+#define NUM_TOPICS 17
+
+char *lecture_topics[NUM_TOPICS] =
+{
+    "on the subject of particle physics.",
+    "on the benefits of Hilbert Spaces.",
+    "about the lesser-known properties of the cross product.",
+    "on LaGrangian mechanics.",
+    "on the nature of wave-particle duality.",
+    "about the equations for Fresnel diffraction.",
+    "on the analysis of fluid flow.",
+    "on the analysis of rigid body motion.",
+    "on the nature of conservative fields.",
+    "on the properties of lamellar fields.",
+    "on the use of integrating circuits.",
+    "on the subject of microwave interference.",
+    "on the construction of solid-state lasers.",
+    "on the use of Hermitian operators.",
+    "on the applications of the Gradient Theorem.",
+    "on forced underdamped harmonic oscillators.",
+    "on the effects of magnetic induction."
+};
+
+ACMD(do_lecture)
+{
+    CHAR *vict = NULL;
+    int prob, index, wait, percent;
+
+
+    skip_spaces(&argument);
+  
+    if (!*argument) {
+	send_to_char("Lecture who?\r\n", ch);
+	return;
+    }
+    
+    if (!(vict = check_char_room_vis(ch, argument)))
+	return;
+
+    if (vict == ch) {
+	send_to_char("You can't lecture yourself.\r\n", ch);
+	return;
+    }
+
+    if (!AWAKE(vict)) {
+	act("$E is not in a state which is receptive to the finer points of lecturing.", FALSE, ch, 0, vict, TO_CHAR);
+	return;
+    }
+
+    if (peaceful_room_ok(ch, vict, false)) {
+	appear(ch, vict);
+	if (IS_PC(vict)) {
+	    check_toughguy(ch, vict, 1);
+	    check_killer(ch, vict);
+	}
+	prob = CHECK_SKILL(ch, SKILL_LECTURE) + (GET_INT(ch) << 1) - GET_CHA(ch);
+    } 
+    else
+	prob = 0;
+
+    index = number(0, NUM_TOPICS-1);
+  
+    sprintf(buf, "You begin lecturing $N %s", lecture_topics[index]);
+    act(buf, FALSE, ch, 0, vict, TO_CHAR);
+  
+    sprintf(buf, "$n begins lecturing $N %s", lecture_topics[index]);
+    act(buf, FALSE, ch, 0, vict, TO_NOTVICT);
+  
+    sprintf(buf, "$n begins lecturing you %s", lecture_topics[index]);
+    act(buf, FALSE, ch, 0, vict, TO_VICT);
+  
+    percent = 
+	number(0, 50) + 
+	(GET_LEVEL(vict) >> 1) + GET_REMORT_GEN(vict) + GET_INT(vict);
+
+    if (MOB_FLAGGED(vict, MOB_NOSLEEP) || IS_UNDEAD(vict) ||
+	CHECK_SKILL(ch, SKILL_LECTURE) < 30 || IS_PHYSIC(vict))
+	prob = 0;
+
+    // he likes it!
+    if (IS_PHYSIC(vict)) {
+	act("$n appears to be fascinated, and nods in agreement.", TRUE, vict, 0, 0, TO_ROOM);
+	send_to_char("Fascinating!\r\n", vict);
+    }
+    // victim falls asleep
+    else if (percent < prob) {
+	act("$n immediately dozes off to sleep.", TRUE, vict, 0, 0, TO_ROOM);
+	send_to_char("You start to feel very sleepy...\r\n", vict);
+	GET_POS(vict) = POS_SLEEPING;
+	wait = 2 RL_SEC + ((prob - percent) >> 1);
+	WAIT_STATE(vict, wait);
+	gain_skill_prof(ch, SKILL_LECTURE);
+	return;
+    }
+    // resist
+    else {
+	act("$n starts to doze off, but resists.", TRUE, vict, 0, 0, TO_ROOM);
+	send_to_char("You start to doze off, but resist.\r\n", vict);
+    }
+
+    WAIT_STATE(ch, 2 RL_SEC);
+}
+
+#undef NUM_TOPICS
+
+ACMD(do_evaluate)
+{  
+    CHAR *vict = NULL;
+    int delta, cost;
+  
+    if (CHECK_SKILL(ch, SKILL_EVALUATE) < 30) {
+	send_to_char("Your evaluation abilities are too weak.\r\n", ch);
+	return;
+    }
+
+    skip_spaces(&argument);
+  
+    if (!*argument) {
+	send_to_char("Evaluate who?\r\n", ch);
+	return;
+    }
+  
+    if (!(vict = check_char_room_vis(ch, argument)))
+	return;
+
+  
+    cost = (GET_LEVEL(vict) >> 2) + GET_REMORT_GEN(vict);
+
+    if (GET_MOVE(ch) < cost) {
+	sprintf(buf, "You don't have the %d move points needed.\r\n", cost);
+	send_to_char(buf, ch);
+	return;
+    }
+
+    GET_MOVE(ch) -= cost;
+  
+    delta = (cost + 126 - CHECK_SKILL(ch, SKILL_EVALUATE) - GET_INT(ch));
+    delta = MAX(5, delta);
+
+    sprintf(buf, "%s appears to have about %d hitpoints.\r\n",
+	    GET_NAME(vict), GET_HIT(vict) + number(-delta, delta));
+    send_to_char(buf, ch);
+  
+    if (delta < 100)
+	gain_skill_prof(ch, SKILL_EVALUATE);
+  
+}
+  
+void
+add_rad_sickness(CHAR *ch, int level)
+{
+
+    struct affected_type *af = NULL, newaff;
+
+    // dangerous code, here, but hey
+    if ((af = affected_by_spell(ch, TYPE_RAD_SICKNESS))) {
+	af->duration = MIN(af->duration+1, 100);
+	af->level =    MIN(af->level+1, 50);       // important -- level max must be 50
+	return;
+    }
+
+    // add a new effect
+    newaff.type = TYPE_RAD_SICKNESS;
+    newaff.duration = MIN(level, 100);
+    newaff.modifier = - (level >> 4);
+    newaff.location = APPLY_CON;
+    newaff.level    = level;
+    newaff.bitvector = 0;
+    newaff.aff_index = 0;
+    newaff.next = NULL;
+
+    affect_to_char(ch, &newaff);
+  
+}
+
+
+ASPELL(spell_nuclear_wasteland)
+{
+    struct room_affect_data rm_aff;
+
+    if (ROOM_FLAGGED(ch->in_room, ROOM_RADIOACTIVE)) {
+	send_to_char("This room is already radioactive.\r\n", ch);
+	return;
+    }
+
+    send_to_room("A blinding flash heralds the beginning of a local nuclear winter!\r\n", ch->in_room);
+
+    rm_aff.description = str_dup("   This area bears a strong resemblance to a radioactive wasteland.\r\n");
+    rm_aff.level = level;
+    rm_aff.type = RM_AFF_FLAGS;
+    rm_aff.flags = ROOM_RADIOACTIVE;
+    rm_aff.duration = level;
+    affect_to_room(ch->in_room, &rm_aff);
+}
+
+void
+push_imprint(CHAR *ch, int max)
+{
+
+    int tmp[MAX_IMPRINT_ROOMS];
+    int i;
+
+    memcpy(tmp, ch->player_specials->imprint_rooms, sizeof(int)*MAX_IMPRINT_ROOMS);
+
+    GET_IMPRINT_ROOM(ch, 0) = ch->in_room->number;
+
+    memcpy(ch->player_specials->imprint_rooms+1, tmp, sizeof(int)*(MAX_IMPRINT_ROOMS-1));
+
+    for (i = max; i < MAX_IMPRINT_ROOMS; i++)
+	GET_IMPRINT_ROOM(ch, i) = -1;
+}
+
+int
+pop_imprint(CHAR *ch)
+{
+    int i = 0;
+    int ret = -1;
+
+    for (i = MAX_IMPRINT_ROOMS-1; i >= 0; i--) {
+	// valid room number
+	if (GET_IMPRINT_ROOM(ch, i) >= 0) {
+	    ret = GET_IMPRINT_ROOM(ch, i);
+	    // invalidate it
+	    GET_IMPRINT_ROOM(ch, i) = -1;
+	    break;
+	}
+    }
+  
+    return (ret);
+}
+  
+void
+show_imprint_rooms(CHAR *ch)
+{
+    int i;
+    for (i = 0; i < MAX_IMPRINT_ROOMS; i++) {
+	sprintf(buf, "%2d. [%5d]\r\n", i, GET_IMPRINT_ROOM(ch, i));
+	send_to_char(buf, ch);
+    }
+}
+  
+ASPELL(spell_spacetime_imprint)
+{
+
+    int max = MIN(MAX_IMPRINT_ROOMS, (level / 10));  
+
+    if (ROOM_FLAGGED(ch->in_room, ROOM_NORECALL | ROOM_NOPHYSIC | ROOM_NOTEL)) {
+	send_to_char("You cannot make a spacetime imprint in this place.\r\n", ch);
+	return;
+    }
+
+    push_imprint(ch, max);
+    act("You feel a strange sensation, which quickly passes.", FALSE, ch, 0, 0, TO_ROOM);
+    send_to_char("A spacetime imprint has been made of this place.\r\n", ch);
+    //  show_imprint_rooms(ch);
+}
+ 
+ASPELL(spell_spacetime_recall)
+{
+    int rnum;
+    struct room_data *room = NULL;
+
+    rnum = pop_imprint(ch);
+
+    //  show_imprint_rooms(ch);
+
+    if (rnum < 0) {
+	send_to_char("You do not have any outstanding spacetime imprints in effect.\r\n", ch);
+	return;
+    }
+
+    if (!(room = real_room(rnum))) {
+	send_to_char("The imprinted location you have requested no longer exists!\r\n", ch);
+	return;
+    }
+
+    if (ROOM_FLAGGED(room, ROOM_NORECALL | ROOM_NOPHYSIC | ROOM_NOTEL)) {
+	send_to_char("You are unable to make the transition into that place.\r\n", ch);
+	return;
+    }
+
+    if (ROOM_FLAGGED(room, ROOM_HOUSE) && !House_can_enter(ch, room->number)) {
+	send_to_char("You are unable to enter that place.\r\n", ch);
+	return;
+    }
+
+    act("$n fades from view and disappears.", TRUE, ch, 0, 0, TO_ROOM);
+    char_from_room(ch);
+    send_to_char("You shift through space and time:\r\n", ch);
+    char_to_room(ch, room);
+    look_at_room(ch, room, 0);
+    act("$n fades into view from some other place and time.", TRUE, ch, 0, 0, TO_ROOM);
+  
+} 
+
+int
+boot_timewarp_data(void)
+{
+    FILE *fl;
+    timewarp_data elem, *newlist = NULL;
+
+    if (!(fl = fopen(TIMEWARP_FILE, "r"))) {
+	slog("SYSERR: unable to open timewarp file.");
+	return 1;
+    }
+
+    if (timewarp_list) {
+	free (timewarp_list);
+	timewarp_list = NULL;
+    }
+
+    num_timewarp_data = 0;
+
+    while (fscanf(fl, "%d %d", &elem.from, &elem.to) == 2) {
+	num_timewarp_data++;
+
+	newlist = ( timewarp_data *) realloc(timewarp_list, num_timewarp_data * sizeof(timewarp_data));
+
+	newlist[num_timewarp_data - 1].from = elem.from;
+	newlist[num_timewarp_data - 1].to   = elem.to;
+
+	timewarp_list = newlist;
+    }
+
+    sprintf(buf, "Timewarp data booted, %d elements read.", num_timewarp_data);
+    slog(buf);
+
+    fclose(fl);
+
+    return 0;
+}
+
+void
+show_timewarps(CHAR *ch)
+{
+    int i;
+    struct zone_data *zn = NULL;
+
+    strcpy(buf, "Timewarp data:\r\n");
+
+    for (i = 0; i < num_timewarp_data; i++) {
+    
+	sprintf(buf, "%s  %3d.]  %s%25s%s [%s%3d%s] --> [%s%3d%s] %s%s%s\r\n",
+		buf, i, 
+		CCCYN(ch, C_NRM), (zn = real_zone(timewarp_list[i].from)) ? zn->name : "FROM-ERROR", CCNRM(ch, C_NRM),
+		CCYEL(ch, C_NRM), timewarp_list[i].from, CCNRM(ch, C_NRM),
+		CCYEL(ch, C_NRM),timewarp_list[i].to, CCNRM(ch, C_NRM),
+		CCCYN(ch, C_NRM), (zn = real_zone(timewarp_list[i].to)) ? zn->name : "TO-ERROR", CCNRM(ch, C_NRM));
+    }
+
+    sprintf(buf, "%s  %d total.\r\n", buf, num_timewarp_data);
+    page_string(ch->desc, buf, 1);
+}
+
+// function to find the matchint zone in the timewarp info
+struct zone_data *
+timewarp_target(struct zone_data *zSrc)
+{
+    int i;
+
+    for (i = 0; i < num_timewarp_data; i++)
+	if (zSrc->number == timewarp_list[i].from)
+	    return(real_zone(timewarp_list[i].to));
+  
+    for (i = 0; i < num_timewarp_data; i++)
+	if (zSrc->number == timewarp_list[i].to)
+	    return(real_zone(timewarp_list[i].from));
+
+    return NULL;
+}
+
+int
+room_tele_ok(CHAR *ch, struct room_data *room)
+{
+
+    if (ROOM_FLAGGED(room, ROOM_NORECALL | ROOM_NOPHYSIC | ROOM_NOTEL))
+	return 0;
+
+    if (ROOM_FLAGGED(room, ROOM_HOUSE) && !House_can_enter(ch, room->number))
+	return 0;
+
+    if (ROOM_FLAGGED(room, ROOM_GODROOM) && GET_LEVEL(ch) < LVL_GRGOD)
+	return 0;
+
+    return 1;
+}
+
+  
+struct room_data *
+random_room(CHAR *ch, struct zone_data *zone)
+{
+
+    struct room_data *room;
+    int num_rooms = 0;
+
+    if (!zone)
+	return (NULL);
+
+    for (room = zone->world; room; room = room->next)
+	if (room_tele_ok(ch, room))
+	    num_rooms++;
+
+    for (room = zone->world; room; room = room->next)
+	if (room_tele_ok(ch, room))
+	    if (!number(0, --num_rooms))
+		return (room);
+
+    return (NULL);
+}
+
+// tmode == TRUE, choose other time frame
+int 
+zone_tele_ok(CHAR *ch, struct zone_data *zone, int tmode)
+{
+
+    if (ZONE_FLAGGED(ch->in_room->zone, ZONE_ISOLATED) && zone != ch->in_room->zone)
+	return 0;
+
+    if (zone->plane != ch->in_room->zone->plane)
+	return 0;
+
+    if (zone->time_frame == ch->in_room->zone->time_frame) {
+	if (tmode)
+	    return 0;
+    } else if (!tmode)
+	return 0;
+    
+    return 1;
+}
+
+// choose a random teleportable zone.  mode == TRUE means only choose other times (timewarp)
+struct zone_data *
+random_zone(CHAR *ch, int mode)
+{
+    struct zone_data *zone = NULL;
+    int num_zones = 0;
+
+    for (zone = zone_table; zone; zone = zone->next)
+	if (zone_tele_ok(ch, zone, mode))
+	    num_zones++;
+
+    for (zone = zone_table; zone; zone = zone->next)
+	if (zone_tele_ok(ch, zone, mode))
+	    if (!number(0, --num_zones))
+		return (zone);
+
+    return (NULL);
+}
+  
+ASPELL(spell_time_warp)
+{
+
+    struct zone_data *zone = NULL, *oldzone = ch->in_room->zone;
+    struct room_data *to_room = NULL;
+    int i;
+
+    // determine the target zone
+    if ((zone = timewarp_target(ch->in_room->zone)))
+	to_room = random_room(ch, zone);
+
+    // if no room we need a random zone to choose from
+    if (!to_room) {
+
+	// try up to 3 random zones
+	for (i = 0; i < 3 && !to_room; i++) {
+
+	    zone = random_zone(ch, 1);
+      
+	    // find the target room in the random zone
+	    if ((to_room = random_room(ch, zone)))
+		break;
+      
+	}
+    
+	// we still couldnt find a suitable room, abort
+	if (!to_room) {
+	    send_to_char("You were unable to link to a cross-time room.\r\n", ch);
+	    return;
+	}
+    
+    }
+
+    // do the player transferral
+    sprintf(buf, "$n fades silently into the %s.",
+	    zone->time_frame == TIME_ELECTRO ? "future" :
+	    zone->time_frame == TIME_MODRIAN ? "past" : "unknown");
+
+    act(buf, TRUE, ch, 0, 0, TO_ROOM);
+
+    sprintf(buf, "You fade silently into the %s:\r\n",
+	    zone->time_frame == TIME_ELECTRO ? "future" :
+	    zone->time_frame == TIME_MODRIAN ? "past" : "unknown");
+
+    send_to_char(buf, ch);
+
+    char_from_room(ch);
+
+    char_to_room(ch, to_room);
+
+    look_at_room(ch, to_room, 0);
+
+    sprintf(buf, "$n fades silently in from the %s.",
+	    oldzone->time_frame == TIME_ELECTRO ? "future" :
+	    oldzone->time_frame == TIME_MODRIAN ? "past" : "unknown");
+
+    act(buf, TRUE, ch, 0, 0, TO_ROOM);
+  
+}

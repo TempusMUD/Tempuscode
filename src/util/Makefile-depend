@@ -1,0 +1,16 @@
+$(OBJ)/graph.o : graph.cc \
+	$(INCLUDE)/structs.h $(INCLUDE)/utils.h $(INCLUDE)/comm.h $(INCLUDE)/interpreter.h $(INCLUDE)/handler.h $(INCLUDE)/db.h $(INCLUDE)/spells.h $(INCLUDE)/vehicle.h $(INCLUDE)/fight.h $(INCLUDE)/char_class.h 
+	$(CXX) -c $(CXXFLAGS) graph.cc             -o $(OBJ)/graph.o
+$(OBJ)/handler.o : handler.cc \
+	$(INCLUDE)/structs.h $(INCLUDE)/utils.h $(INCLUDE)/comm.h $(INCLUDE)/db.h $(INCLUDE)/handler.h $(INCLUDE)/interpreter.h $(INCLUDE)/spells.h $(INCLUDE)/screen.h $(INCLUDE)/vehicle.h $(INCLUDE)/shop.h $(INCLUDE)/clan.h $(INCLUDE)/smokes.h $(INCLUDE)/materials.h $(INCLUDE)/login.h $(INCLUDE)/char_class.h 
+	$(CXX) -c $(CXXFLAGS) handler.cc           -o $(OBJ)/handler.o
+$(OBJ)/modify.o : modify.cc \
+	$(INCLUDE)/structs.h $(INCLUDE)/utils.h $(INCLUDE)/interpreter.h $(INCLUDE)/handler.h $(INCLUDE)/db.h $(INCLUDE)/comm.h $(INCLUDE)/spells.h $(INCLUDE)/mail.h $(INCLUDE)/boards.h $(INCLUDE)/login.h 
+	$(CXX) -c $(CXXFLAGS) modify.cc            -o $(OBJ)/modify.o
+$(OBJ)/random.o : random.cc \
+
+	$(CXX) -c $(CXXFLAGS) random.cc            -o $(OBJ)/random.o
+$(OBJ)/utils.o : utils.cc \
+	$(INCLUDE)/structs.h $(INCLUDE)/utils.h $(INCLUDE)/comm.h $(INCLUDE)/screen.h $(INCLUDE)/spells.h $(INCLUDE)/handler.h $(INCLUDE)/db.h 
+	$(CXX) -c $(CXXFLAGS) utils.cc             -o $(OBJ)/utils.o
+OBJFILES= $(OBJ)/graph.o $(OBJ)/handler.o $(OBJ)/modify.o $(OBJ)/random.o $(OBJ)/utils.o

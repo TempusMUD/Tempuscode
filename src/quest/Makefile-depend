@@ -1,0 +1,4 @@
+$(OBJ)/quest.o : quest.cc \
+	$(INCLUDE)/structs.h $(INCLUDE)/comm.h $(INCLUDE)/utils.h $(INCLUDE)/interpreter.h $(INCLUDE)/db.h $(INCLUDE)/spells.h $(INCLUDE)/quest.h $(INCLUDE)/handler.h $(INCLUDE)/screen.h 
+	$(CXX) -c $(CXXFLAGS) quest.cc             -o $(OBJ)/quest.o
+OBJFILES= $(OBJ)/quest.o

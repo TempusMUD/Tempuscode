@@ -1,0 +1,217 @@
+$(OBJ)/act.barb.o : act.barb.cc \
+	$(INCLUDE)/structs.h $(INCLUDE)/utils.h $(INCLUDE)/comm.h $(INCLUDE)/interpreter.h $(INCLUDE)/handler.h $(INCLUDE)/db.h $(INCLUDE)/spells.h $(INCLUDE)/screen.h $(INCLUDE)/vehicle.h $(INCLUDE)/materials.h $(INCLUDE)/flow_room.h $(INCLUDE)/house.h $(INCLUDE)/char_class.h $(INCLUDE)/bomb.h 
+		$(CXX) -c $(CXXFLAGS) act.barb.cc          -o $(OBJ)/act.barb.o
+$(OBJ)/act.comm.o : act.comm.cc \
+	$(INCLUDE)/structs.h $(INCLUDE)/spells.h $(INCLUDE)/utils.h $(INCLUDE)/comm.h $(INCLUDE)/interpreter.h $(INCLUDE)/handler.h $(INCLUDE)/db.h $(INCLUDE)/screen.h $(INCLUDE)/rpl_resp.h 
+		$(CXX) -c $(CXXFLAGS) act.comm.cc          -o $(OBJ)/act.comm.o
+$(OBJ)/act.cyborg.o : act.cyborg.cc \
+	$(INCLUDE)/structs.h $(INCLUDE)/utils.h $(INCLUDE)/comm.h $(INCLUDE)/interpreter.h $(INCLUDE)/handler.h $(INCLUDE)/db.h $(INCLUDE)/spells.h $(INCLUDE)/screen.h $(INCLUDE)/vehicle.h $(INCLUDE)/materials.h $(INCLUDE)/char_class.h $(INCLUDE)/guns.h $(INCLUDE)/bomb.h $(INCLUDE)/fight.h $(INCLUDE)/house.h 
+		$(CXX) -c $(CXXFLAGS) act.cyborg.cc        -o $(OBJ)/act.cyborg.o
+$(OBJ)/act.informative.o : act.informative.cc \
+	$(INCLUDE)/structs.h $(INCLUDE)/utils.h $(INCLUDE)/comm.h $(INCLUDE)/interpreter.h $(INCLUDE)/handler.h $(INCLUDE)/db.h $(INCLUDE)/spells.h $(INCLUDE)/screen.h $(INCLUDE)/vehicle.h $(INCLUDE)/materials.h $(INCLUDE)/clan.h $(INCLUDE)/smokes.h $(INCLUDE)/bomb.h $(INCLUDE)/fight.h 
+		$(CXX) -c $(CXXFLAGS) act.informative.cc   -o $(OBJ)/act.informative.o
+$(OBJ)/act.intermud.o : act.intermud.cc \
+	$(INCLUDE)/structs.h $(INCLUDE)/utils.h $(INCLUDE)/comm.h $(INCLUDE)/db.h $(INCLUDE)/interpreter.h $(INCLUDE)/handler.h $(INCLUDE)/intermud.h $(INCLUDE)/screen.h 
+		$(CXX) -c $(CXXFLAGS) act.intermud.cc      -o $(OBJ)/act.intermud.o
+$(OBJ)/act.knight.o : act.knight.cc \
+	$(INCLUDE)/structs.h $(INCLUDE)/utils.h $(INCLUDE)/comm.h $(INCLUDE)/interpreter.h $(INCLUDE)/handler.h $(INCLUDE)/db.h $(INCLUDE)/spells.h $(INCLUDE)/screen.h $(INCLUDE)/vehicle.h $(INCLUDE)/materials.h $(INCLUDE)/flow_room.h $(INCLUDE)/house.h $(INCLUDE)/char_class.h 
+		$(CXX) -c $(CXXFLAGS) act.knight.cc        -o $(OBJ)/act.knight.o
+$(OBJ)/act.mage.o : act.mage.cc \
+	$(INCLUDE)/structs.h $(INCLUDE)/utils.h $(INCLUDE)/comm.h $(INCLUDE)/interpreter.h $(INCLUDE)/handler.h $(INCLUDE)/db.h $(INCLUDE)/spells.h $(INCLUDE)/screen.h $(INCLUDE)/vehicle.h $(INCLUDE)/materials.h $(INCLUDE)/flow_room.h $(INCLUDE)/house.h $(INCLUDE)/char_class.h 
+		$(CXX) -c $(CXXFLAGS) act.mage.cc          -o $(OBJ)/act.mage.o
+$(OBJ)/act.merc.o : act.merc.cc \
+	$(INCLUDE)/structs.h $(INCLUDE)/utils.h $(INCLUDE)/comm.h $(INCLUDE)/interpreter.h $(INCLUDE)/handler.h $(INCLUDE)/db.h $(INCLUDE)/spells.h $(INCLUDE)/screen.h $(INCLUDE)/char_class.h $(INCLUDE)/vehicle.h $(INCLUDE)/materials.h $(INCLUDE)/fight.h $(INCLUDE)/guns.h $(INCLUDE)/bomb.h 
+		$(CXX) -c $(CXXFLAGS) act.merc.cc          -o $(OBJ)/act.merc.o
+$(OBJ)/act.monk.o : act.monk.cc \
+	$(INCLUDE)/structs.h $(INCLUDE)/utils.h $(INCLUDE)/comm.h $(INCLUDE)/interpreter.h $(INCLUDE)/handler.h $(INCLUDE)/db.h $(INCLUDE)/spells.h $(INCLUDE)/screen.h $(INCLUDE)/vehicle.h $(INCLUDE)/materials.h $(INCLUDE)/flow_room.h $(INCLUDE)/house.h $(INCLUDE)/char_class.h $(INCLUDE)/fight.h $(INCLUDE)/shop.h 
+		$(CXX) -c $(CXXFLAGS) act.monk.cc          -o $(OBJ)/act.monk.o
+$(OBJ)/act.movement.o : act.movement.cc \
+	$(INCLUDE)/structs.h $(INCLUDE)/utils.h $(INCLUDE)/comm.h $(INCLUDE)/interpreter.h $(INCLUDE)/handler.h $(INCLUDE)/db.h $(INCLUDE)/spells.h $(INCLUDE)/house.h $(INCLUDE)/vehicle.h $(INCLUDE)/materials.h 
+		$(CXX) -c $(CXXFLAGS) act.movement.cc      -o $(OBJ)/act.movement.o
+$(OBJ)/act.obj.o : act.obj.cc \
+	$(INCLUDE)/structs.h $(INCLUDE)/utils.h $(INCLUDE)/comm.h $(INCLUDE)/interpreter.h $(INCLUDE)/handler.h $(INCLUDE)/db.h $(INCLUDE)/spells.h $(INCLUDE)/char_class.h $(INCLUDE)/vehicle.h $(INCLUDE)/materials.h $(INCLUDE)/smokes.h $(INCLUDE)/bomb.h $(INCLUDE)/guns.h 
+		$(CXX) -c $(CXXFLAGS) act.obj.cc           -o $(OBJ)/act.obj.o
+$(OBJ)/act.offensive.o : act.offensive.cc \
+	$(INCLUDE)/structs.h $(INCLUDE)/utils.h $(INCLUDE)/comm.h $(INCLUDE)/interpreter.h $(INCLUDE)/handler.h $(INCLUDE)/db.h $(INCLUDE)/spells.h $(INCLUDE)/screen.h $(INCLUDE)/char_class.h $(INCLUDE)/vehicle.h $(INCLUDE)/materials.h $(INCLUDE)/fight.h $(INCLUDE)/guns.h $(INCLUDE)/bomb.h $(INCLUDE)/shop.h 
+		$(CXX) -c $(CXXFLAGS) act.offensive.cc     -o $(OBJ)/act.offensive.o
+$(OBJ)/act.other.o : act.other.cc \
+	$(INCLUDE)/structs.h $(INCLUDE)/utils.h $(INCLUDE)/comm.h $(INCLUDE)/interpreter.h $(INCLUDE)/handler.h $(INCLUDE)/db.h $(INCLUDE)/spells.h $(INCLUDE)/screen.h $(INCLUDE)/house.h $(INCLUDE)/vehicle.h $(INCLUDE)/materials.h $(INCLUDE)/smokes.h $(INCLUDE)/clan.h $(INCLUDE)/constants.h $(INCLUDE)/fight.h $(INCLUDE)/char_class.h 
+		$(CXX) -c $(CXXFLAGS) act.other.cc         -o $(OBJ)/act.other.o
+$(OBJ)/act.physic.o : act.physic.cc \
+	$(INCLUDE)/structs.h $(INCLUDE)/utils.h $(INCLUDE)/comm.h $(INCLUDE)/interpreter.h $(INCLUDE)/handler.h $(INCLUDE)/db.h $(INCLUDE)/spells.h $(INCLUDE)/screen.h $(INCLUDE)/vehicle.h $(INCLUDE)/materials.h $(INCLUDE)/flow_room.h $(INCLUDE)/house.h $(INCLUDE)/char_class.h $(INCLUDE)/fight.h 
+		$(CXX) -c $(CXXFLAGS) act.physic.cc        -o $(OBJ)/act.physic.o
+$(OBJ)/act.psionic.o : act.psionic.cc \
+	$(INCLUDE)/structs.h $(INCLUDE)/utils.h $(INCLUDE)/comm.h $(INCLUDE)/interpreter.h $(INCLUDE)/handler.h $(INCLUDE)/db.h $(INCLUDE)/spells.h $(INCLUDE)/screen.h $(INCLUDE)/char_class.h $(INCLUDE)/vehicle.h $(INCLUDE)/materials.h $(INCLUDE)/fight.h 
+		$(CXX) -c $(CXXFLAGS) act.psionic.cc       -o $(OBJ)/act.psionic.o
+$(OBJ)/act.ranger.o : act.ranger.cc \
+	$(INCLUDE)/structs.h $(INCLUDE)/utils.h $(INCLUDE)/comm.h $(INCLUDE)/interpreter.h $(INCLUDE)/handler.h $(INCLUDE)/db.h $(INCLUDE)/spells.h $(INCLUDE)/screen.h $(INCLUDE)/vehicle.h $(INCLUDE)/materials.h $(INCLUDE)/flow_room.h $(INCLUDE)/house.h $(INCLUDE)/char_class.h 
+		$(CXX) -c $(CXXFLAGS) act.ranger.cc        -o $(OBJ)/act.ranger.o
+$(OBJ)/act.social.o : act.social.cc \
+	$(INCLUDE)/structs.h $(INCLUDE)/utils.h $(INCLUDE)/comm.h $(INCLUDE)/interpreter.h $(INCLUDE)/handler.h $(INCLUDE)/db.h $(INCLUDE)/spells.h 
+		$(CXX) -c $(CXXFLAGS) act.social.cc        -o $(OBJ)/act.social.o
+$(OBJ)/act.thief.o : act.thief.cc \
+	$(INCLUDE)/structs.h $(INCLUDE)/utils.h $(INCLUDE)/comm.h $(INCLUDE)/interpreter.h $(INCLUDE)/handler.h $(INCLUDE)/db.h $(INCLUDE)/spells.h $(INCLUDE)/screen.h $(INCLUDE)/vehicle.h $(INCLUDE)/materials.h $(INCLUDE)/flow_room.h $(INCLUDE)/house.h $(INCLUDE)/char_class.h $(INCLUDE)/fight.h $(INCLUDE)/constants.h 
+		$(CXX) -c $(CXXFLAGS) act.thief.cc         -o $(OBJ)/act.thief.o
+$(OBJ)/act.wizard.o : act.wizard.cc \
+	$(INCLUDE)/structs.h $(INCLUDE)/utils.h $(INCLUDE)/comm.h $(INCLUDE)/interpreter.h $(INCLUDE)/handler.h $(INCLUDE)/db.h $(INCLUDE)/spells.h $(INCLUDE)/house.h $(INCLUDE)/screen.h $(INCLUDE)/char_class.h $(INCLUDE)/vehicle.h $(INCLUDE)/olc.h $(INCLUDE)/materials.h $(INCLUDE)/clan.h $(INCLUDE)/specs.h $(INCLUDE)/flow_room.h $(INCLUDE)/smokes.h $(INCLUDE)/paths.h $(INCLUDE)/login.h $(INCLUDE)/bomb.h $(INCLUDE)/guns.h $(INCLUDE)/elevators.h 
+		$(CXX) -c $(CXXFLAGS) act.wizard.cc        -o $(OBJ)/act.wizard.o
+$(OBJ)/ban.o : ban.cc \
+	$(INCLUDE)/structs.h $(INCLUDE)/utils.h $(INCLUDE)/comm.h $(INCLUDE)/interpreter.h $(INCLUDE)/handler.h $(INCLUDE)/db.h 
+		$(CXX) -c $(CXXFLAGS) ban.cc               -o $(OBJ)/ban.o
+$(OBJ)/boards.o : boards.cc \
+	$(INCLUDE)/structs.h $(INCLUDE)/utils.h $(INCLUDE)/comm.h $(INCLUDE)/db.h $(INCLUDE)/boards.h $(INCLUDE)/interpreter.h $(INCLUDE)/handler.h $(INCLUDE)/screen.h $(INCLUDE)/clan.h 
+		$(CXX) -c $(CXXFLAGS) boards.cc            -o $(OBJ)/boards.o
+$(OBJ)/bomb.o : bomb.cc \
+	$(INCLUDE)/structs.h $(INCLUDE)/utils.h $(INCLUDE)/comm.h $(INCLUDE)/interpreter.h $(INCLUDE)/handler.h $(INCLUDE)/db.h $(INCLUDE)/spells.h $(INCLUDE)/screen.h $(INCLUDE)/vehicle.h $(INCLUDE)/materials.h $(INCLUDE)/flow_room.h $(INCLUDE)/bomb.h $(INCLUDE)/fight.h $(INCLUDE)/house.h $(INCLUDE)/char_class.h 
+		$(CXX) -c $(CXXFLAGS) bomb.cc              -o $(OBJ)/bomb.o
+$(OBJ)/char_class.o : char_class.cc \
+	$(INCLUDE)/structs.h $(INCLUDE)/db.h $(INCLUDE)/utils.h $(INCLUDE)/spells.h $(INCLUDE)/interpreter.h $(INCLUDE)/char_class.h $(INCLUDE)/comm.h $(INCLUDE)/vehicle.h $(INCLUDE)/handler.h 
+		$(CXX) -c $(CXXFLAGS) char_class.cc        -o $(OBJ)/char_class.o
+$(OBJ)/clan.o : clan.cc \
+	$(INCLUDE)/structs.h $(INCLUDE)/utils.h $(INCLUDE)/comm.h $(INCLUDE)/interpreter.h $(INCLUDE)/handler.h $(INCLUDE)/db.h $(INCLUDE)/spells.h $(INCLUDE)/screen.h $(INCLUDE)/house.h $(INCLUDE)/clan.h $(INCLUDE)/char_class.h 
+		$(CXX) -c $(CXXFLAGS) clan.cc              -o $(OBJ)/clan.o
+$(OBJ)/comm.o : comm.cc \
+	$(INCLUDE)/structs.h $(INCLUDE)/spells.h $(INCLUDE)/utils.h $(INCLUDE)/comm.h $(INCLUDE)/interpreter.h $(INCLUDE)/handler.h $(INCLUDE)/db.h $(INCLUDE)/house.h $(INCLUDE)/screen.h $(INCLUDE)/intermud.h $(INCLUDE)/vehicle.h 
+		$(CXX) -c $(CXXFLAGS) comm.cc              -o $(OBJ)/comm.o
+$(OBJ)/config.o : config.cc \
+	$(INCLUDE)/structs.h $(INCLUDE)/spells.h $(INCLUDE)/char_class.h 
+		$(CXX) -c $(CXXFLAGS) config.cc            -o $(OBJ)/config.o
+$(OBJ)/constants.o : constants.cc \
+	$(INCLUDE)/structs.h $(INCLUDE)/spells.h 
+		$(CXX) -c $(CXXFLAGS) constants.cc         -o $(OBJ)/constants.o
+$(OBJ)/db.o : db.cc \
+	$(INCLUDE)/structs.h $(INCLUDE)/utils.h $(INCLUDE)/db.h $(INCLUDE)/comm.h $(INCLUDE)/handler.h $(INCLUDE)/spells.h $(INCLUDE)/mail.h $(INCLUDE)/interpreter.h $(INCLUDE)/house.h $(INCLUDE)/screen.h $(INCLUDE)/flow_room.h $(INCLUDE)/clan.h $(INCLUDE)/paths.h $(INCLUDE)/quest.h $(INCLUDE)/char_class.h 
+		$(CXX) -c $(CXXFLAGS) db.cc                -o $(OBJ)/db.o
+$(OBJ)/duke.o : duke.cc \
+	$(INCLUDE)/structs.h $(INCLUDE)/utils.h $(INCLUDE)/comm.h $(INCLUDE)/interpreter.h $(INCLUDE)/handler.h $(INCLUDE)/db.h $(INCLUDE)/spells.h 
+		$(CXX) -c $(CXXFLAGS) duke.cc              -o $(OBJ)/duke.o
+$(OBJ)/dyntext.o : dyntext.cc \
+	$(INCLUDE)/structs.h $(INCLUDE)/comm.h $(INCLUDE)/utils.h $(INCLUDE)/handler.h $(INCLUDE)/db.h $(INCLUDE)/screen.h $(INCLUDE)/interpreter.h 
+		$(CXX) -c $(CXXFLAGS) dyntext.cc           -o $(OBJ)/dyntext.o
+$(OBJ)/editor.o : editor.cc \
+	$(INCLUDE)/structs.h $(INCLUDE)/utils.h $(INCLUDE)/interpreter.h $(INCLUDE)/handler.h $(INCLUDE)/db.h $(INCLUDE)/comm.h $(INCLUDE)/spells.h $(INCLUDE)/mail.h $(INCLUDE)/boards.h 
+		$(CXX) -c $(CXXFLAGS) editor.cc            -o $(OBJ)/editor.o
+$(OBJ)/elevators.o : elevators.cc \
+	$(INCLUDE)/structs.h $(INCLUDE)/utils.h $(INCLUDE)/db.h $(INCLUDE)/vehicle.h $(INCLUDE)/interpreter.h $(INCLUDE)/handler.h $(INCLUDE)/paths.h $(INCLUDE)/comm.h $(INCLUDE)/screen.h $(INCLUDE)/elevators.h 
+		$(CXX) -c $(CXXFLAGS) elevators.cc         -o $(OBJ)/elevators.o
+$(OBJ)/fight.o : fight.cc \
+	$(INCLUDE)/structs.h $(INCLUDE)/utils.h $(INCLUDE)/comm.h $(INCLUDE)/handler.h $(INCLUDE)/interpreter.h $(INCLUDE)/db.h $(INCLUDE)/spells.h $(INCLUDE)/screen.h $(INCLUDE)/char_class.h $(INCLUDE)/vehicle.h $(INCLUDE)/materials.h $(INCLUDE)/flow_room.h $(INCLUDE)/fight.h $(INCLUDE)/bomb.h $(INCLUDE)/shop.h $(INCLUDE)/guns.h 
+		$(CXX) -c $(CXXFLAGS) fight.cc             -o $(OBJ)/fight.o
+$(OBJ)/flow_room.o : flow_room.cc \
+	$(INCLUDE)/structs.h $(INCLUDE)/utils.h $(INCLUDE)/comm.h $(INCLUDE)/handler.h $(INCLUDE)/db.h $(INCLUDE)/flow_room.h $(INCLUDE)/vehicle.h $(INCLUDE)/smokes.h $(INCLUDE)/spells.h $(INCLUDE)/char_class.h $(INCLUDE)/bomb.h 
+		$(CXX) -c $(CXXFLAGS) flow_room.cc         -o $(OBJ)/flow_room.o
+$(OBJ)/graph.o : graph.cc \
+	$(INCLUDE)/structs.h $(INCLUDE)/utils.h $(INCLUDE)/comm.h $(INCLUDE)/interpreter.h $(INCLUDE)/handler.h $(INCLUDE)/db.h $(INCLUDE)/spells.h $(INCLUDE)/vehicle.h $(INCLUDE)/fight.h $(INCLUDE)/char_class.h 
+		$(CXX) -c $(CXXFLAGS) graph.cc             -o $(OBJ)/graph.o
+$(OBJ)/guns.o : guns.cc \
+	$(INCLUDE)/structs.h $(INCLUDE)/utils.h $(INCLUDE)/comm.h $(INCLUDE)/interpreter.h $(INCLUDE)/handler.h $(INCLUDE)/db.h $(INCLUDE)/spells.h $(INCLUDE)/screen.h $(INCLUDE)/vehicle.h $(INCLUDE)/materials.h $(INCLUDE)/char_class.h $(INCLUDE)/guns.h 
+		$(CXX) -c $(CXXFLAGS) guns.cc              -o $(OBJ)/guns.o
+$(OBJ)/handler.o : handler.cc \
+	$(INCLUDE)/structs.h $(INCLUDE)/utils.h $(INCLUDE)/comm.h $(INCLUDE)/db.h $(INCLUDE)/handler.h $(INCLUDE)/interpreter.h $(INCLUDE)/spells.h $(INCLUDE)/screen.h $(INCLUDE)/vehicle.h $(INCLUDE)/shop.h $(INCLUDE)/clan.h $(INCLUDE)/smokes.h $(INCLUDE)/materials.h $(INCLUDE)/login.h $(INCLUDE)/char_class.h 
+		$(CXX) -c $(CXXFLAGS) handler.cc           -o $(OBJ)/handler.o
+$(OBJ)/house.o : house.cc \
+	$(INCLUDE)/structs.h $(INCLUDE)/comm.h $(INCLUDE)/handler.h $(INCLUDE)/db.h $(INCLUDE)/interpreter.h $(INCLUDE)/utils.h $(INCLUDE)/house.h $(INCLUDE)/screen.h 
+		$(CXX) -c $(CXXFLAGS) house.cc             -o $(OBJ)/house.o
+$(OBJ)/interpreter.o : interpreter.cc \
+	$(INCLUDE)/structs.h $(INCLUDE)/comm.h $(INCLUDE)/interpreter.h $(INCLUDE)/db.h $(INCLUDE)/utils.h $(INCLUDE)/spells.h $(INCLUDE)/handler.h $(INCLUDE)/mail.h $(INCLUDE)/screen.h $(INCLUDE)/char_class.h $(INCLUDE)/clan.h $(INCLUDE)/vehicle.h $(INCLUDE)/house.h $(INCLUDE)/login.h $(INCLUDE)/matrix.h $(INCLUDE)/bomb.h 
+		$(CXX) -c $(CXXFLAGS) interpreter.cc       -o $(OBJ)/interpreter.o
+$(OBJ)/limits.o : limits.cc \
+	$(INCLUDE)/structs.h $(INCLUDE)/utils.h $(INCLUDE)/spells.h $(INCLUDE)/comm.h $(INCLUDE)/db.h $(INCLUDE)/handler.h $(INCLUDE)/vehicle.h $(INCLUDE)/clan.h 
+		$(CXX) -c $(CXXFLAGS) limits.cc            -o $(OBJ)/limits.o
+$(OBJ)/login.o : login.cc \
+	$(INCLUDE)/structs.h $(INCLUDE)/comm.h $(INCLUDE)/db.h $(INCLUDE)/screen.h $(INCLUDE)/interpreter.h $(INCLUDE)/utils.h $(INCLUDE)/login.h 
+		$(CXX) -c $(CXXFLAGS) login.cc             -o $(OBJ)/login.o
+$(OBJ)/magic.o : magic.cc \
+	$(INCLUDE)/structs.h $(INCLUDE)/utils.h $(INCLUDE)/comm.h $(INCLUDE)/spells.h $(INCLUDE)/handler.h $(INCLUDE)/db.h $(INCLUDE)/interpreter.h $(INCLUDE)/char_class.h $(INCLUDE)/flow_room.h 
+		$(CXX) -c $(CXXFLAGS) magic.cc             -o $(OBJ)/magic.o
+$(OBJ)/mail.o : mail.cc \
+	$(INCLUDE)/structs.h $(INCLUDE)/utils.h $(INCLUDE)/comm.h $(INCLUDE)/db.h $(INCLUDE)/interpreter.h $(INCLUDE)/handler.h $(INCLUDE)/mail.h $(INCLUDE)/screen.h $(INCLUDE)/clan.h $(INCLUDE)/materials.h 
+		$(CXX) -c $(CXXFLAGS) mail.cc              -o $(OBJ)/mail.o
+$(OBJ)/matrix.o : matrix.cc \
+	$(INCLUDE)/structs.h $(INCLUDE)/db.h $(INCLUDE)/comm.h $(INCLUDE)/matrix.h 
+		$(CXX) -c $(CXXFLAGS) matrix.cc            -o $(OBJ)/matrix.o
+$(OBJ)/mobact.o : mobact.cc \
+	$(INCLUDE)/structs.h $(INCLUDE)/utils.h $(INCLUDE)/db.h $(INCLUDE)/comm.h $(INCLUDE)/interpreter.h $(INCLUDE)/handler.h $(INCLUDE)/spells.h $(INCLUDE)/char_class.h $(INCLUDE)/vehicle.h $(INCLUDE)/flow_room.h $(INCLUDE)/char_class.h $(INCLUDE)/guns.h $(INCLUDE)/bomb.h $(INCLUDE)/mobact.h 
+		$(CXX) -c $(CXXFLAGS) mobact.cc            -o $(OBJ)/mobact.o
+$(OBJ)/modify.o : modify.cc \
+	$(INCLUDE)/structs.h $(INCLUDE)/utils.h $(INCLUDE)/interpreter.h $(INCLUDE)/handler.h $(INCLUDE)/db.h $(INCLUDE)/comm.h $(INCLUDE)/spells.h $(INCLUDE)/mail.h $(INCLUDE)/boards.h $(INCLUDE)/login.h 
+		$(CXX) -c $(CXXFLAGS) modify.cc            -o $(OBJ)/modify.o
+$(OBJ)/objsave.o : objsave.cc \
+	$(INCLUDE)/structs.h $(INCLUDE)/comm.h $(INCLUDE)/handler.h $(INCLUDE)/db.h $(INCLUDE)/interpreter.h $(INCLUDE)/utils.h $(INCLUDE)/spells.h $(INCLUDE)/screen.h $(INCLUDE)/vehicle.h $(INCLUDE)/house.h $(INCLUDE)/bomb.h 
+		$(CXX) -c $(CXXFLAGS) objsave.cc           -o $(OBJ)/objsave.o
+$(OBJ)/olc.o : olc.cc \
+	$(INCLUDE)/structs.h $(INCLUDE)/utils.h $(INCLUDE)/comm.h $(INCLUDE)/interpreter.h $(INCLUDE)/handler.h $(INCLUDE)/db.h $(INCLUDE)/olc.h $(INCLUDE)/screen.h $(INCLUDE)/flow_room.h $(INCLUDE)/spells.h $(INCLUDE)/materials.h $(INCLUDE)/vehicle.h $(INCLUDE)/specs.h $(INCLUDE)/shop.h $(INCLUDE)/smokes.h $(INCLUDE)/paths.h $(INCLUDE)/bomb.h $(INCLUDE)/guns.h $(INCLUDE)/char_class.h 
+		$(CXX) -c $(CXXFLAGS) olc.cc               -o $(OBJ)/olc.o
+$(OBJ)/olc_hlp.o : olc_hlp.cc \
+	$(INCLUDE)/structs.h $(INCLUDE)/utils.h $(INCLUDE)/comm.h $(INCLUDE)/interpreter.h $(INCLUDE)/handler.h $(INCLUDE)/db.h $(INCLUDE)/olc.h $(INCLUDE)/screen.h $(INCLUDE)/flow_room.h $(INCLUDE)/specs.h 
+		$(CXX) -c $(CXXFLAGS) olc_hlp.cc           -o $(OBJ)/olc_hlp.o
+$(OBJ)/olc_mob.o : olc_mob.cc \
+	$(INCLUDE)/structs.h $(INCLUDE)/utils.h $(INCLUDE)/comm.h $(INCLUDE)/interpreter.h $(INCLUDE)/char_class.h $(INCLUDE)/handler.h $(INCLUDE)/db.h $(INCLUDE)/olc.h $(INCLUDE)/screen.h $(INCLUDE)/flow_room.h $(INCLUDE)/specs.h 
+		$(CXX) -c $(CXXFLAGS) olc_mob.cc           -o $(OBJ)/olc_mob.o
+$(OBJ)/olc_obj.o : olc_obj.cc \
+	$(INCLUDE)/structs.h $(INCLUDE)/utils.h $(INCLUDE)/comm.h $(INCLUDE)/interpreter.h $(INCLUDE)/handler.h $(INCLUDE)/db.h $(INCLUDE)/olc.h $(INCLUDE)/screen.h $(INCLUDE)/spells.h $(INCLUDE)/materials.h $(INCLUDE)/specs.h 
+		$(CXX) -c $(CXXFLAGS) olc_obj.cc           -o $(OBJ)/olc_obj.o
+$(OBJ)/olc_shp.o : olc_shp.cc \
+	$(INCLUDE)/structs.h $(INCLUDE)/utils.h $(INCLUDE)/comm.h $(INCLUDE)/interpreter.h $(INCLUDE)/handler.h $(INCLUDE)/db.h $(INCLUDE)/olc.h $(INCLUDE)/screen.h $(INCLUDE)/flow_room.h $(INCLUDE)/specs.h $(INCLUDE)/shop.h 
+		$(CXX) -c $(CXXFLAGS) olc_shp.cc           -o $(OBJ)/olc_shp.o
+$(OBJ)/olc_srch.o : olc_srch.cc \
+	$(INCLUDE)/structs.h $(INCLUDE)/utils.h $(INCLUDE)/comm.h $(INCLUDE)/interpreter.h $(INCLUDE)/handler.h $(INCLUDE)/db.h $(INCLUDE)/olc.h $(INCLUDE)/screen.h $(INCLUDE)/spells.h $(INCLUDE)/materials.h 
+		$(CXX) -c $(CXXFLAGS) olc_srch.cc          -o $(OBJ)/olc_srch.o
+$(OBJ)/olc_ticl.o : olc_ticl.cc \
+	$(INCLUDE)/structs.h $(INCLUDE)/utils.h $(INCLUDE)/comm.h $(INCLUDE)/interpreter.h $(INCLUDE)/handler.h $(INCLUDE)/db.h $(INCLUDE)/olc.h $(INCLUDE)/screen.h $(INCLUDE)/flow_room.h $(INCLUDE)/specs.h 
+		$(CXX) -c $(CXXFLAGS) olc_ticl.cc          -o $(OBJ)/olc_ticl.o
+$(OBJ)/olc_wld.o : olc_wld.cc \
+	$(INCLUDE)/structs.h $(INCLUDE)/utils.h $(INCLUDE)/comm.h $(INCLUDE)/interpreter.h $(INCLUDE)/handler.h $(INCLUDE)/db.h $(INCLUDE)/olc.h $(INCLUDE)/screen.h $(INCLUDE)/flow_room.h $(INCLUDE)/clan.h $(INCLUDE)/specs.h $(INCLUDE)/house.h 
+		$(CXX) -c $(CXXFLAGS) olc_wld.cc           -o $(OBJ)/olc_wld.o
+$(OBJ)/olc_zon.o : olc_zon.cc \
+	$(INCLUDE)/structs.h $(INCLUDE)/utils.h $(INCLUDE)/comm.h $(INCLUDE)/interpreter.h $(INCLUDE)/handler.h $(INCLUDE)/db.h $(INCLUDE)/olc.h $(INCLUDE)/screen.h $(INCLUDE)/flow_room.h $(INCLUDE)/paths.h 
+		$(CXX) -c $(CXXFLAGS) olc_zon.cc           -o $(OBJ)/olc_zon.o
+$(OBJ)/paths.o : paths.cc \
+	$(INCLUDE)/structs.h $(INCLUDE)/utils.h $(INCLUDE)/db.h $(INCLUDE)/vehicle.h $(INCLUDE)/interpreter.h $(INCLUDE)/handler.h $(INCLUDE)/paths.h $(INCLUDE)/comm.h $(INCLUDE)/screen.h $(INCLUDE)/elevators.h 
+		$(CXX) -c $(CXXFLAGS) paths.cc             -o $(OBJ)/paths.o
+$(OBJ)/polc.o : polc.cc \
+	$(INCLUDE)/structs.h $(INCLUDE)/utils.h $(INCLUDE)/comm.h $(INCLUDE)/interpreter.h $(INCLUDE)/handler.h $(INCLUDE)/db.h $(INCLUDE)/olc.h 
+		$(CXX) -c $(CXXFLAGS) polc.cc              -o $(OBJ)/polc.o
+$(OBJ)/quest.o : quest.cc \
+	$(INCLUDE)/structs.h $(INCLUDE)/comm.h $(INCLUDE)/utils.h $(INCLUDE)/interpreter.h $(INCLUDE)/db.h $(INCLUDE)/spells.h $(INCLUDE)/quest.h $(INCLUDE)/handler.h $(INCLUDE)/screen.h 
+		$(CXX) -c $(CXXFLAGS) quest.cc             -o $(OBJ)/quest.o
+$(OBJ)/random.o : random.cc \
+	
+		$(CXX) -c $(CXXFLAGS) random.cc            -o $(OBJ)/random.o
+$(OBJ)/rpl_resp.o : rpl_resp.cc \
+	$(INCLUDE)/structs.h $(INCLUDE)/utils.h $(INCLUDE)/comm.h $(INCLUDE)/interpreter.h $(INCLUDE)/handler.h $(INCLUDE)/db.h $(INCLUDE)/screen.h $(INCLUDE)/rpl_resp.h 
+		$(CXX) -c $(CXXFLAGS) rpl_resp.cc          -o $(OBJ)/rpl_resp.o
+$(OBJ)/search.o : search.cc \
+	$(INCLUDE)/structs.h $(INCLUDE)/comm.h $(INCLUDE)/utils.h $(INCLUDE)/interpreter.h $(INCLUDE)/handler.h $(INCLUDE)/db.h $(INCLUDE)/spells.h $(INCLUDE)/screen.h $(INCLUDE)/vehicle.h 
+		$(CXX) -c $(CXXFLAGS) search.cc            -o $(OBJ)/search.o
+$(OBJ)/shop.o : shop.cc \
+	$(INCLUDE)/structs.h $(INCLUDE)/comm.h $(INCLUDE)/handler.h $(INCLUDE)/db.h $(INCLUDE)/interpreter.h $(INCLUDE)/spells.h $(INCLUDE)/utils.h $(INCLUDE)/shop.h $(INCLUDE)/screen.h 
+		$(CXX) -c $(CXXFLAGS) shop.cc              -o $(OBJ)/shop.o
+$(OBJ)/smokes.o : smokes.cc \
+	$(INCLUDE)/structs.h $(INCLUDE)/utils.h $(INCLUDE)/comm.h $(INCLUDE)/interpreter.h $(INCLUDE)/handler.h $(INCLUDE)/db.h $(INCLUDE)/spells.h $(INCLUDE)/screen.h $(INCLUDE)/house.h $(INCLUDE)/vehicle.h $(INCLUDE)/materials.h $(INCLUDE)/smokes.h $(INCLUDE)/clan.h $(INCLUDE)/char_class.h $(INCLUDE)/bomb.h 
+		$(CXX) -c $(CXXFLAGS) smokes.cc            -o $(OBJ)/smokes.o
+$(OBJ)/spec_assign.o : spec_assign.cc \
+	$(INCLUDE)/structs.h $(INCLUDE)/db.h $(INCLUDE)/interpreter.h $(INCLUDE)/utils.h $(INCLUDE)/specs.h $(INCLUDE)/screen.h $(INCLUDE)/comm.h $(INCLUDE)/shop.h 
+		$(CXX) -c $(CXXFLAGS) spec_assign.cc       -o $(OBJ)/spec_assign.o
+$(OBJ)/spec_procs.o : spec_procs.cc \
+	$(INCLUDE)/structs.h $(INCLUDE)/utils.h $(INCLUDE)/comm.h $(INCLUDE)/interpreter.h $(INCLUDE)/handler.h $(INCLUDE)/db.h $(INCLUDE)/spells.h $(INCLUDE)/char_class.h $(INCLUDE)/screen.h $(INCLUDE)/clan.h $(INCLUDE)/vehicle.h $(INCLUDE)/materials.h $(INCLUDE)/paths.h $(INCLUDE)/olc.h $(INCLUDE)/specs.h $(INCLUDE)/login.h $(INCLUDE)/matrix.h $(INCLUDE)/elevators.h $(INCLUDE)/house.h $(INCLUDE)/fight.h Specs/modrian_specs/shimmering_portal.spec Specs/modrian_specs/wagon_obj.spec Specs/modrian_specs/wagon_room.spec Specs/modrian_specs/wagon_driver.spec Specs/modrian_specs/thieves_guard_south.spec Specs/modrian_specs/thieves_guard_west.spec Specs/modrian_specs/temple_healer.spec Specs/modrian_specs/rat_mama.spec Specs/modrian_specs/ornery_goat.spec Specs/modrian_specs/entrance_to_cocks.spec Specs/modrian_specs/entrance_to_brawling.spec Specs/modrian_specs/cock_fight.spec Specs/modrian_specs/circus_clown.spec Specs/modrian_specs/chest_mimic.spec Specs/modrian_specs/cemetary_ghoul.spec Specs/modrian_specs/modrian_fountain_obj.spec Specs/modrian_specs/modrian_fountain_rm.spec Specs/modrian_specs/mystical_enclave_rm.spec Specs/modrian_specs/safiir.spec Specs/modrian_specs/unholy_square.spec Specs/newbie_specs/newbie_improve.spec Specs/newbie_specs/newbie_tower_rm.spec Specs/newbie_specs/newbie_cafe_rm.spec Specs/newbie_specs/newbie_healer.spec Specs/newbie_specs/newbie_portal_rm.spec Specs/newbie_specs/newbie_stairs_rm.spec Specs/newbie_specs/newbie_fly.spec Specs/newbie_specs/newbie_gold_coupler.spec Specs/utility_specs/gen_locker.spec Specs/utility_specs/gen_shower_rm.spec Specs/utility_specs/improve_stats.spec Specs/utility_specs/registry.spec Specs/utility_specs/corpse_retrieval.spec Specs/utility_specs/dt_cleaner.spec Specs/utility_specs/killer_hunter.spec Specs/utility_specs/remorter.spec Specs/utility_specs/nohunger_dude.spec Specs/utility_specs/portal_home.spec Specs/utility_specs/stable_room.spec Specs/utility_specs/increaser.spec Specs/utility_specs/donation_room.spec Specs/utility_specs/tester_util.spec Specs/utility_specs/newspaper.spec Specs/utility_specs/questor_util.spec Specs/utility_specs/prac_manual.spec Specs/utility_specs/jail_locker.spec Specs/utility_specs/repairer.spec Specs/utility_specs/telescope.spec Specs/utility_specs/astral_portal.spec Specs/utility_specs/reinforcer.spec Specs/utility_specs/enhancer.spec Specs/utility_specs/magic_books.spec Specs/utility_specs/communicator.spec Specs/utility_specs/elevator.spec Specs/sarflin_specs/maze_cleaner.spec Specs/sarflin_specs/maze_switcher.spec Specs/sarflin_specs/darom.spec Specs/sarflin_specs/puppet.spec Specs/sarflin_specs/oracle.spec Specs/sarflin_specs/fountain_heal.spec Specs/sarflin_specs/library.spec Specs/sarflin_specs/arena.spec Specs/sarflin_specs/gingwatzim_rm.spec Specs/sarflin_specs/dwarven_hermit.spec Specs/sarflin_specs/vault_door.spec Specs/sarflin_specs/vein.spec Specs/sarflin_specs/gunnery_device.spec Specs/sarflin_specs/ramp_leaver.spec Specs/giants_specs/javelin_of_lightning.spec Specs/giants_specs/carrion_crawler.spec Specs/giants_specs/ogre1.spec Specs/giants_specs/kata.spec Specs/giants_specs/insane_merchant.spec Specs/hell_specs/cloak_of_deception.spec Specs/hell_specs/horn_of_geryon.spec Specs/hell_specs/stygian_lightning_rm.spec Specs/hell_specs/tiamat.spec Specs/hell_specs/hell_hound.spec Specs/hell_specs/geryon.spec Specs/hell_specs/moloch.spec Specs/hell_specs/malbolge_bridge.spec Specs/hell_specs/abandoned_cavern.spec Specs/hell_specs/dangerous_climb.spec Specs/hell_specs/bearded_devil.spec Specs/hell_specs/cyberfiend.spec Specs/hell_specs/hell_hunter.spec Specs/hell_specs/maladomini_jailer.spec Specs/hell_specs/regulator.spec Specs/hell_specs/ressurector.spec Specs/hell_specs/killzone_room.spec Specs/hell_specs/malagard_lightning_room.spec Specs/hell_specs/pit_keeper.spec Specs/hell_specs/cremator.spec Specs/smitty_specs/aziz_canon.spec Specs/smitty_specs/battlefield_ghost.spec Specs/smitty_specs/nude_guard.spec Specs/smitty_specs/djinn_lamp.spec Specs/cj_specs/beer_tree.spec Specs/cj_specs/black_rose.spec Specs/city_specs/blue_pulsar_barkeep.spec Specs/city_specs/life_bldg_guard.spec Specs/city_specs/borg_guild_entrance.spec Specs/electro_specs/sunstation.spec Specs/electro_specs/lawyer.spec Specs/electro_specs/electronics_school.spec Specs/electro_specs/vr_arcade_game.spec Specs/electro_specs/physic_guildguard.spec Specs/electro_specs/cyber_cock.spec Specs/electro_specs/cyborg_overhaul.spec Specs/electro_specs/credit_exchange.spec Specs/electro_specs/implanter.spec Specs/electro_specs/electrician.spec Specs/electro_specs/paramedic.spec Specs/electro_specs/unspecializer.spec Specs/heaven/archon.spec Specs/heaven/high_priestess.spec Specs/araken_specs/rust_monster.spec Specs/mavernal_specs/mavernal_citizen.spec Specs/mavernal_specs/mavernal_obj_specs.spec Specs/mavernal_specs/new_mavernal_talker.spec Specs/falling_tower_dt.spec Specs/stepping_stone.spec Specs/mobile_specs/healing_ranger.spec Specs/mobile_specs/mob_helper.spec Specs/mobile_specs/underwater_predator.spec Specs/mobile_specs/watchdog.spec Specs/mobile_specs/medusa.spec Specs/mobile_specs/grandmaster.spec Specs/mobile_specs/fire_breather.spec Specs/mobile_specs/energy_drainer.spec Specs/mobile_specs/basher.spec Specs/mobile_specs/aziz.spec Specs/mobile_specs/asp.spec Specs/mobile_specs/juju_zombie.spec Specs/mobile_specs/phantasmic_sword.spec Specs/mobile_specs/guard_east.spec Specs/mobile_specs/guard_north.spec Specs/mobile_specs/guard_up.spec Specs/mobile_specs/spinal.spec Specs/mobile_specs/astral_deva.spec Specs/mobile_specs/junker.spec Specs/mobile_specs/duke_nukem.spec Specs/mobile_specs/script_reader.spec Specs/mobile_specs/gen_guard.spec Specs/mobile_specs/tarrasque.spec Specs/mobile_specs/weaponsmaster.spec Specs/mobile_specs/morkoth.spec Specs/mobile_specs/unholy_stalker.spec Specs/rad_specs/labyrinth.spec Specs/bugs_specs/monastery_eating.spec Specs/bugs_specs/red_highlord.spec Specs/joran_specs/quasimodo.spec Specs/hobbes_specs/hobbes.spec Specs/skullport_specs/corpse_griller.spec Specs/skullport_specs/multi_healer.spec Specs/skullport_specs/slaver.spec Specs/out_specs/spirit_priestess.spec Specs/out_specs/taunting_frenchman.spec Specs/atlas_specs/align_fountains.spec Specs/disaster_specs/boulder_thrower.spec Specs/disaster_specs/windy_room.spec 
+		$(CXX) -c $(CXXFLAGS) spec_procs.cc        -o $(OBJ)/spec_procs.o
+$(OBJ)/spell_parser.o : spell_parser.cc \
+	$(INCLUDE)/structs.h $(INCLUDE)/utils.h $(INCLUDE)/interpreter.h $(INCLUDE)/spells.h $(INCLUDE)/handler.h $(INCLUDE)/comm.h $(INCLUDE)/db.h $(INCLUDE)/materials.h $(INCLUDE)/char_class.h $(INCLUDE)/fight.h $(INCLUDE)/shop.h 
+		$(CXX) -c $(CXXFLAGS) spell_parser.cc      -o $(OBJ)/spell_parser.o
+$(OBJ)/spells.o : spells.cc \
+	$(INCLUDE)/structs.h $(INCLUDE)/utils.h $(INCLUDE)/comm.h $(INCLUDE)/spells.h $(INCLUDE)/handler.h $(INCLUDE)/db.h $(INCLUDE)/interpreter.h $(INCLUDE)/flow_room.h $(INCLUDE)/smokes.h $(INCLUDE)/screen.h $(INCLUDE)/vehicle.h $(INCLUDE)/char_class.h $(INCLUDE)/shop.h 
+		$(CXX) -c $(CXXFLAGS) spells.cc            -o $(OBJ)/spells.o
+$(OBJ)/styx.o : styx.cc \
+	$(INCLUDE)/structs.h $(INCLUDE)/utils.h $(INCLUDE)/comm.h $(INCLUDE)/interpreter.h $(INCLUDE)/handler.h $(INCLUDE)/db.h $(INCLUDE)/spells.h 
+		$(CXX) -c $(CXXFLAGS) styx.cc              -o $(OBJ)/styx.o
+$(OBJ)/utils.o : utils.cc \
+	$(INCLUDE)/structs.h $(INCLUDE)/utils.h $(INCLUDE)/comm.h $(INCLUDE)/screen.h $(INCLUDE)/spells.h $(INCLUDE)/handler.h $(INCLUDE)/db.h 
+		$(CXX) -c $(CXXFLAGS) utils.cc             -o $(OBJ)/utils.o
+$(OBJ)/vehicle.o : vehicle.cc \
+	$(INCLUDE)/structs.h $(INCLUDE)/utils.h $(INCLUDE)/comm.h $(INCLUDE)/interpreter.h $(INCLUDE)/handler.h $(INCLUDE)/db.h $(INCLUDE)/spells.h $(INCLUDE)/screen.h $(INCLUDE)/vehicle.h $(INCLUDE)/house.h $(INCLUDE)/clan.h 
+		$(CXX) -c $(CXXFLAGS) vehicle.cc           -o $(OBJ)/vehicle.o
+$(OBJ)/weather.o : weather.cc \
+	$(INCLUDE)/structs.h $(INCLUDE)/utils.h $(INCLUDE)/comm.h $(INCLUDE)/handler.h $(INCLUDE)/interpreter.h $(INCLUDE)/db.h 
+		$(CXX) -c $(CXXFLAGS) weather.cc           -o $(OBJ)/weather.o
+OBJFILES= $(OBJ)/act.barb.o $(OBJ)/act.comm.o $(OBJ)/act.cyborg.o $(OBJ)/act.informative.o $(OBJ)/act.intermud.o $(OBJ)/act.knight.o $(OBJ)/act.mage.o $(OBJ)/act.merc.o $(OBJ)/act.monk.o $(OBJ)/act.movement.o $(OBJ)/act.obj.o $(OBJ)/act.offensive.o $(OBJ)/act.other.o $(OBJ)/act.physic.o $(OBJ)/act.psionic.o $(OBJ)/act.ranger.o $(OBJ)/act.social.o $(OBJ)/act.thief.o $(OBJ)/act.wizard.o $(OBJ)/ban.o $(OBJ)/boards.o $(OBJ)/bomb.o $(OBJ)/char_class.o $(OBJ)/clan.o $(OBJ)/comm.o $(OBJ)/config.o $(OBJ)/constants.o $(OBJ)/db.o $(OBJ)/duke.o $(OBJ)/dyntext.o $(OBJ)/editor.o $(OBJ)/elevators.o $(OBJ)/fight.o $(OBJ)/flow_room.o $(OBJ)/graph.o $(OBJ)/guns.o $(OBJ)/handler.o $(OBJ)/house.o $(OBJ)/interpreter.o $(OBJ)/limits.o $(OBJ)/login.o $(OBJ)/magic.o $(OBJ)/mail.o $(OBJ)/matrix.o $(OBJ)/mobact.o $(OBJ)/modify.o $(OBJ)/objsave.o $(OBJ)/olc.o $(OBJ)/olc_hlp.o $(OBJ)/olc_mob.o $(OBJ)/olc_obj.o $(OBJ)/olc_shp.o $(OBJ)/olc_srch.o $(OBJ)/olc_ticl.o $(OBJ)/olc_wld.o $(OBJ)/olc_zon.o $(OBJ)/paths.o $(OBJ)/polc.o $(OBJ)/quest.o $(OBJ)/random.o $(OBJ)/rpl_resp.o $(OBJ)/search.o $(OBJ)/shop.o $(OBJ)/smokes.o $(OBJ)/spec_assign.o $(OBJ)/spec_procs.o $(OBJ)/spell_parser.o $(OBJ)/spells.o $(OBJ)/styx.o $(OBJ)/utils.o $(OBJ)/vehicle.o $(OBJ)/weather.o

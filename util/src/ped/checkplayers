@@ -1,0 +1,2 @@
+ls -l players.new ~/DevelMUD/lib/etc/players
+diff players.new ~/DevelMUD/lib/etc/players

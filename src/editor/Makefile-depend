@@ -1,0 +1,4 @@
+$(OBJ)/editor.o : editor.cc \
+	$(INCLUDE)/structs.h $(INCLUDE)/utils.h $(INCLUDE)/interpreter.h $(INCLUDE)/handler.h $(INCLUDE)/db.h $(INCLUDE)/comm.h $(INCLUDE)/spells.h $(INCLUDE)/mail.h $(INCLUDE)/boards.h 
+	$(CXX) -c $(CXXFLAGS) editor.cc            -o $(OBJ)/editor.o
+OBJFILES= $(OBJ)/editor.o

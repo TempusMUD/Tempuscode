@@ -1,0 +1,7 @@
+$(OBJ)/act.offensive.o : act.offensive.cc \
+	$(INCLUDE)/structs.h $(INCLUDE)/utils.h $(INCLUDE)/comm.h $(INCLUDE)/interpreter.h $(INCLUDE)/handler.h $(INCLUDE)/db.h $(INCLUDE)/spells.h $(INCLUDE)/screen.h $(INCLUDE)/char_class.h $(INCLUDE)/vehicle.h $(INCLUDE)/materials.h $(INCLUDE)/fight.h $(INCLUDE)/guns.h $(INCLUDE)/bomb.h $(INCLUDE)/shop.h 
+	$(CXX) -c $(CXXFLAGS) act.offensive.cc     -o $(OBJ)/act.offensive.o
+$(OBJ)/fight.o : fight.cc \
+	$(INCLUDE)/structs.h $(INCLUDE)/utils.h $(INCLUDE)/comm.h $(INCLUDE)/handler.h $(INCLUDE)/interpreter.h $(INCLUDE)/db.h $(INCLUDE)/spells.h $(INCLUDE)/screen.h $(INCLUDE)/char_class.h $(INCLUDE)/vehicle.h $(INCLUDE)/materials.h $(INCLUDE)/flow_room.h $(INCLUDE)/fight.h $(INCLUDE)/bomb.h $(INCLUDE)/shop.h $(INCLUDE)/guns.h 
+	$(CXX) -c $(CXXFLAGS) fight.cc             -o $(OBJ)/fight.o
+OBJFILES= $(OBJ)/act.offensive.o $(OBJ)/fight.o

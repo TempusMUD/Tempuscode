@@ -1,0 +1,6 @@
+mail -s "database.doc (1/5)" $1 < db.doc
+mail -s "dbsup.doc    (2/5)" $1 < dbsup.doc
+mail -s "defs.doc     (3/5)" $1 < defs.doc 
+mail -s "shop.doc     (4/5)" $1 < shop.doc
+mail -s "values.doc   (5/5)" $1 < values.doc
+
