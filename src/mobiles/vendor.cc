@@ -40,7 +40,7 @@ const char VENDOR_HELP[] =
 "        Percent to mark price up when selling to a player\r\n"
 "    markdown <percentage>\r\n"
 "        Percent to mark price down when buying from a player\r\n"
-"    currency past|future\r\n"
+"    currency past|future|quest\r\n"
 "        Which currency to use\r\n"
 "    steal-ok yes|no\r\n"
 "        If this is set, stealing from the vendor is allowed\r\n"
@@ -81,7 +81,7 @@ struct ShopData {
 	char *cmd_temper;		// Command to run after buyerbroke
 	int markup;				// Price increase when player buying
 	int markdown;			// Price decrease when player is selling
-	bool currency;			// True == cash, False == gold
+	int currency;			// 0 == gold, 1 == cash, 2 == quest points
 	long revenue;			// Amount added to money every reset
 	bool steal_ok;
 	bool attack_ok;
@@ -299,7 +299,16 @@ vendor_sell(Creature *ch, char *arg, Creature *self, ShopData *shop)
 	}
 
 	cost = vendor_get_value(obj, shop->markup);
-	amt_carried = (shop->currency) ? GET_CASH(ch):GET_GOLD(ch);
+	switch (shop->currency) {
+	case 0:	
+		amt_carried = GET_GOLD(ch); break;
+	case 1:	
+		amt_carried = GET_CASH(ch); break;
+	case 2:	
+		amt_carried = GET_QUEST_POINTS(ch); break;
+	default:
+		slog("Can't happen at %s:%d", __FILE__, __LINE__);
+	}
 	
 	if (cost > amt_carried) {
 		do_say(self, tmp_sprintf("%s %s",
@@ -354,16 +363,24 @@ vendor_sell(Creature *ch, char *arg, Creature *self, ShopData *shop)
 				GET_NAME(ch), num), 0, SCMD_SAY_TO, NULL);
 	}
 
-	if (shop->currency) {
-		GET_CASH(ch) -= cost * num;
-		GET_CASH(self) += cost * num;
-		currency_str = "creds";
-	} else {
+	switch (shop->currency) {
+	case 0:
 		GET_GOLD(ch) -= cost * num;
 		GET_GOLD(self) += cost * num;
 		currency_str = "gold";
+		break;
+	case 1:
+		GET_CASH(ch) -= cost * num;
+		GET_CASH(self) += cost * num;
+		currency_str = "creds";
+		break;
+	case 2:
+		GET_QUEST_POINTS(ch) -= cost * num;
+		currency_str = "quest points";
+		break;
+	default:
+		slog("Can't happen at %s:%d", __FILE__, __LINE__);
 	}
-
 
 	do_say(self,
 		tmp_sprintf("%s %s",
@@ -404,6 +421,13 @@ vendor_buy(Creature *ch, char *arg, Creature *self, ShopData *shop)
 	long cost, amt_carried;
 	int num = 1;
 
+	if (shop->currency == 2) {
+		do_say(self,
+			tmp_sprintf("%s Hey, I only sell stuff.", GET_NAME(ch)), 
+			0, SCMD_SAY_TO, NULL);
+		return;
+	}
+		
 	if (!*arg) {
 		send_to_char(ch, "What do you wish to sell?\r\n");
 		return;
@@ -482,6 +506,8 @@ vendor_buy(Creature *ch, char *arg, Creature *self, ShopData *shop)
 
 	obj_from_char(obj);
 
+	save_char(ch, NULL);
+
 	if (vendor_is_produced(obj, shop))
 		extract_obj(obj);
 	else
@@ -549,8 +575,20 @@ vendor_list(Creature *ch, char *arg, Creature *self, ShopData *shop)
 		return;
 	}
 
+	switch (shop->currency) {
+	case 0:
+		msg = "        Gold"; break;
+	case 1:
+		msg = "       Creds"; break;
+	case 2:
+		msg = "Quest Points"; break;
+	default:
+		slog("Can't happen at %s:%d", __FILE__, __LINE__);
+	}
+
 	msg = tmp_strcat(CCCYN(ch, C_NRM),
-" ##   Available   Item                                               Cost\r\n"
+" ##   Available   Item                                       ", msg,
+"\r\n",
 "-------------------------------------------------------------------------\r\n"
 		, CCNRM(ch, C_NRM), NULL);
 
@@ -589,6 +627,13 @@ vendor_value(Creature *ch, char *arg, Creature *self, ShopData *shop)
 	int cost;
 	char *msg;
 
+	if (shop->currency == 2) {
+		do_say(self,
+			tmp_sprintf("%s I'm not the buying kind.", GET_NAME(ch)), 
+			0, SCMD_SAY_TO, NULL);
+		return;
+	}
+		
 	if (!*arg) {
 		send_to_char(ch, "What do you wish to value?\r\n");
 		return;
@@ -727,10 +772,12 @@ SPECIAL(vendor)
 				break;
 			}
 		} else if (!strcmp(param_key, "currency")) {
-			if (is_abbrev(line, "future") || is_abbrev(line, "cash"))
-				shop.currency = true;
-			else if (is_abbrev(line, "past") || is_abbrev(line, "gold"))
-				shop.currency = false;
+			if (is_abbrev(line, "past") || is_abbrev(line, "gold"))
+				shop.currency = 0;
+			else if (is_abbrev(line, "future") || is_abbrev(line, "cash"))
+				shop.currency = 1;
+			else if (is_abbrev(line, "qp") || is_abbrev(line, "quest"))
+				shop.currency = 2;
 			else {
 				err = "invalid currency";
 				break;
@@ -785,6 +832,12 @@ SPECIAL(vendor)
 		return true;
 	}
 	
+	if (!CAN_SEE(self, ch)) {
+		do_say(self, "Show yourself if you want to do business with me!",
+			0, 0, 0);
+		return true;
+	}
+
 	if (shop.room != -1 && shop.room != self->in_room->number) {
 		do_say(self, tmp_sprintf("%s Catch me when I'm in my store.",
 			GET_NAME(ch)), 0, SCMD_SAY_TO, 0);
@@ -794,12 +847,6 @@ SPECIAL(vendor)
 	if (shop.reaction.react(ch) != ALLOW) {
 		do_say(self, tmp_sprintf("%s %s", GET_NAME(ch), shop.msg_denied),
 			0, SCMD_SAY_TO, 0);
-		return true;
-	}
-
-	if (!CAN_SEE(self, ch)) {
-		do_say(self, "Show yourself if you want to do business with me!",
-			0, 0, 0);
 		return true;
 	}
 
