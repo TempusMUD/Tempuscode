@@ -1553,6 +1553,11 @@ char_to_game(descriptor_data *d)
 
 	if (has_mail(GET_IDNUM(d->creature)))
 		send_to_char(d->creature, "You have mail waiting.\r\n");
+	
+	if (GET_CLAN(d->creature) && !real_clan(GET_CLAN(d->creature))) {
+		send_to_char(d->creature, "Your clan has been disbanded.\r\n");
+		GET_CLAN(d->creature) = 0;
+	}
 
 	notify_cleric_moon(d->creature);
 
