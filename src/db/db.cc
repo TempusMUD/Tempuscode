@@ -3378,6 +3378,8 @@ real_object_proto(int vnum)
 void
 update_alias_dirs(void)
 {
+	slog("Alias directory update disabled.");
+	/*
 	DIR *dir;
 	struct dirent *dirp;
 	char dlist[7][4] = { "A-E", "F-J", "K-O", "P-T", "U-Z", "ZZZ" };
@@ -3405,6 +3407,7 @@ update_alias_dirs(void)
 		}
 		closedir(dir);
 	}
+	*/
 }
 
 void
@@ -3463,6 +3466,12 @@ obj_owner(struct obj_data *obj)
 	if (obj->in_obj)
 		return (obj_owner(obj->in_obj));
 	return NULL;
+}
+
+char*
+get_alias_file_path( long id )
+{
+    return tmp_sprintf( "players/alias/%0ld/%ld.dat", (id % 10), id );
 }
 
 char*
