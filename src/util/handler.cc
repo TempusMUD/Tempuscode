@@ -2249,7 +2249,7 @@ get_object_in_equip_all(struct Creature *ch,
 char *
 money_desc(int amount, int mode)
 {
-	static char buf[128];
+	char *result;
 
 	if (amount <= 0) {
 		slog("SYSERR: Try to create negative or 0 money.");
@@ -2257,68 +2257,68 @@ money_desc(int amount, int mode)
 	}
 	if (mode == 0) {
 		if (amount == 1)
-			strcpy(buf, "a gold coin");
+			result = tmp_strdup("a gold coin");
 		else if (amount <= 10)
-			strcpy(buf, "a tiny pile of gold coins");
+			result = tmp_strdup("a tiny pile of gold coins");
 		else if (amount <= 20)
-			strcpy(buf, "a handful of gold coins");
+			result = tmp_strdup("a handful of gold coins");
 		else if (amount <= 75)
-			strcpy(buf, "a little pile of gold coins");
+			result = tmp_strdup("a little pile of gold coins");
 		else if (amount <= 200)
-			strcpy(buf, "a small pile of gold coins");
+			result = tmp_strdup("a small pile of gold coins");
 		else if (amount <= 1000)
-			strcpy(buf, "a pile of gold coins");
+			result = tmp_strdup("a pile of gold coins");
 		else if (amount <= 5000)
-			strcpy(buf, "a big pile of gold coins");
+			result = tmp_strdup("a big pile of gold coins");
 		else if (amount <= 10000)
-			strcpy(buf, "a large heap of gold coins");
+			result = tmp_strdup("a large heap of gold coins");
 		else if (amount <= 20000)
-			strcpy(buf, "a huge mound of gold coins");
+			result = tmp_strdup("a huge mound of gold coins");
 		else if (amount <= 75000)
-			strcpy(buf, "an enormous mound of gold coins");
+			result = tmp_strdup("an enormous mound of gold coins");
 		else if (amount <= 150000)
-			strcpy(buf, "a small mountain of gold coins");
+			result = tmp_strdup("a small mountain of gold coins");
 		else if (amount <= 250000)
-			strcpy(buf, "a mountain of gold coins");
+			result = tmp_strdup("a mountain of gold coins");
 		else if (amount <= 500000)
-			strcpy(buf, "a huge mountain of gold coins");
+			result = tmp_strdup("a huge mountain of gold coins");
 		else if (amount <= 1000000)
-			strcpy(buf, "an enormous mountain of gold coins");
+			result = tmp_strdup("an enormous mountain of gold coins");
 		else
-			strcpy(buf, "an absolutely colossal mountain of gold coins");
+			result = tmp_strdup("an absolutely colossal mountain of gold coins");
 	} else {					// credits
 		if (amount == 1)
-			strcpy(buf, "a one-credit note");
+			result = tmp_strdup("a one-credit note");
 		else if (amount <= 10)
-			strcpy(buf, "a small wad of cash");
+			result = tmp_strdup("a small wad of cash");
 		else if (amount <= 20)
-			strcpy(buf, "a handful of cash");
+			result = tmp_strdup("a handful of cash");
 		else if (amount <= 75)
-			strcpy(buf, "a large wad of cash");
+			result = tmp_strdup("a large wad of cash");
 		else if (amount <= 200)
-			strcpy(buf, "a huge wad of cash");
+			result = tmp_strdup("a huge wad of cash");
 		else if (amount <= 1000)
-			strcpy(buf, "a small pile of cash");
+			result = tmp_strdup("a small pile of cash");
 		else if (amount <= 5000)
-			strcpy(buf, "a big pile of cash");
+			result = tmp_strdup("a big pile of cash");
 		else if (amount <= 10000)
-			strcpy(buf, "a large heap of cash");
+			result = tmp_strdup("a large heap of cash");
 		else if (amount <= 20000)
-			strcpy(buf, "a huge mound of cash");
+			result = tmp_strdup("a huge mound of cash");
 		else if (amount <= 75000)
-			strcpy(buf, "an enormous mound of cash");
+			result = tmp_strdup("an enormous mound of cash");
 		else if (amount <= 150000)
-			strcpy(buf, "a small mountain of cash money");
+			result = tmp_strdup("a small mountain of cash money");
 		else if (amount <= 250000)
-			strcpy(buf, "a mountain of cash money");
+			result = tmp_strdup("a mountain of cash money");
 		else if (amount <= 500000)
-			strcpy(buf, "a huge mountain of cash");
+			result = tmp_strdup("a huge mountain of cash");
 		else if (amount <= 1000000)
-			strcpy(buf, "an enormous mountain of cash");
+			result = tmp_strdup("an enormous mountain of cash");
 		else
-			strcpy(buf, "an absolutely colossal mountain of cash");
+			result = tmp_strdup("an absolutely colossal mountain of cash");
 	}
-	return buf;
+	return result;
 }
 
 
@@ -2327,7 +2327,6 @@ create_money(int amount, int mode)
 {
 	struct obj_data *obj;
 	struct extra_descr_data *new_descr;
-	char buf[200];
 
 	if (amount <= 0) {
 		slog("SYSERR: Try to create negative or 0 money.");
@@ -2336,22 +2335,20 @@ create_money(int amount, int mode)
 	obj = create_obj();
 	CREATE(new_descr, struct extra_descr_data, 1);
 
-	obj->short_description = str_dup(money_desc(amount, mode));
-	sprintf(buf, "%s is lying here.", money_desc(amount, mode));
-	obj->description = str_dup(CAP(buf));
 
 	if (mode == 0) {
 		if (amount == 1) {
 			obj->name = str_dup("coin gold");
+			new_descr->keyword = str_dup("coin gold");
 			obj->short_description = str_dup("a gold coin");
 			obj->description =
 				str_dup("One miserable gold coin is lying here.");
-			new_descr->keyword = str_dup("coin gold");
-			new_descr->description =
-				str_dup("It's just one miserable little gold coin.");
 		} else {
 			obj->name = str_dup("coins gold");
 			new_descr->keyword = str_dup("coins gold");
+			obj->short_description = str_dup(money_desc(amount, mode));
+			obj->description = str_dup(tmp_capitalize(tmp_sprintf(
+				"%s is lying here.", obj->short_description)));
 		}
 		GET_OBJ_MATERIAL(obj) = MAT_GOLD;
 	} else {					// credits
@@ -2361,33 +2358,41 @@ create_money(int amount, int mode)
 			obj->description =
 				str_dup("A single one-credit none has been dropped here.");
 			new_descr->keyword = str_dup("credit money note one-credit");
-			new_descr->description = str_dup("It's one almighty credit!");
 		} else {
 			obj->name = str_dup("credits money cash");
 			new_descr->keyword = str_dup("credits money cash");
+			obj->short_description = str_dup(money_desc(amount, mode));
+			obj->description = str_dup(tmp_capitalize(tmp_sprintf(
+				"%s is lying here.", obj->short_description)));
 		}
 		GET_OBJ_MATERIAL(obj) = MAT_PAPER;
 	}
 
-	if (amount < 10) {
-		sprintf(buf, "There are %d %s.", amount, mode ? "credits" : "coins");
-		new_descr->description = str_dup(buf);
+	if (amount == 1) {
+		if (mode)
+			new_descr->description = str_dup("It's one almighty credit!");
+		else
+			new_descr->description =
+				str_dup("It's just one miserable little gold coin.");
+	} else if (amount < 10) {
+		new_descr->description = str_dup(tmp_sprintf(
+			"There are %d %s.", amount, mode ? "credits" : "coins"));
 	} else if (amount < 100) {
-		sprintf(buf, "There are about %d %s.", 10 * (amount / 10),
-			mode ? "credits" : "coins");
-		new_descr->description = str_dup(buf);
+		new_descr->description = str_dup(tmp_sprintf(
+			"There are about %d %s.", 10 * (amount / 10),
+			mode ? "credits" : "coins"));
 	} else if (amount < 1000) {
-		sprintf(buf, "It looks to be about %d %s.", 100 * (amount / 100),
-			mode ? "credits" : "coins");
-		new_descr->description = str_dup(buf);
+		new_descr->description = str_dup(tmp_sprintf(
+			"It looks to be about %d %s.", 100 * (amount / 100),
+			mode ? "credits" : "coins"));
 	} else if (amount < 100000) {
-		sprintf(buf, "You guess there are, maybe, %d %s.",
+		new_descr->description = str_dup(tmp_sprintf(
+			"You guess there are, maybe, %d %s.",
 			1000 * ((amount / 1000) + number(0, (amount / 1000))),
-			mode ? "credits" : "coins");
-		new_descr->description = str_dup(buf);
+			mode ? "credits" : "coins"));
 	} else {
-		sprintf(buf, "There are a LOT of %s.", mode ? "credits" : "coins");
-		new_descr->description = str_dup(buf);
+		new_descr->description = str_dup(tmp_sprintf(
+			"There are a LOT of %s.", mode ? "credits" : "coins"));
 	}
 	new_descr->next = NULL;
 	obj->ex_description = new_descr;
@@ -2544,14 +2549,15 @@ find_all_dots(char *arg)
 //       2 == good align
 //       3 == evil align
 //       4 == neutral align
-//       5 == killer
-//       6 == thief
-//       7 == race (next byte is race + 1)
-//       8 == class (next byte is class + 1)
-//       9 == clan (next byte is clan + 1)
-//       a == level less than (next byte is number compared to)
-//       b == level greater than (next byte is number compared to)
-// so 0x12 means 'accept align'
+//       5 == class (next byte is class + 1)
+//       6 == race (next byte is race + 1)
+//       7 == clan (next byte is clan + 1)
+//       8 == killer
+//       9 == thief
+//       a == player
+//       b == level less than (next byte is number compared to)
+//       c == level greater than (next byte is number compared to)
+// so 0x12 means 'accept good'
 // and 0x01 means 'deny all'
 
 int parse_char_class(char *);
@@ -2595,13 +2601,15 @@ Reaction::add_reaction(decision_t action, char *arg)
 		new_reaction[0] |= 0x08;
 	else if (is_abbrev(condition, "thiefflag"))
 		new_reaction[0] |= 0x09;
-	else if (is_abbrev(condition, "lvl<")) {
+	else if (is_abbrev(condition, "player"))
 		new_reaction[0] |= 0x0a;
+	else if (is_abbrev(condition, "lvl<")) {
+		new_reaction[0] |= 0x0b;
 		new_reaction[1] = atoi(arg);
 		if (new_reaction[1] < 1 || new_reaction[1] > 49)
 			return false;
 	} else if (is_abbrev(condition, "lvl>")) {
-		new_reaction[0] |= 0x0b;
+		new_reaction[0] |= 0x0c;
 		new_reaction[1] = atoi(arg);
 		if (new_reaction[1] < 1 || new_reaction[1] > 49)
 			return false;
@@ -2675,8 +2683,10 @@ Reaction::react(Creature *ch)
 		case 9:
 			if (PLR_FLAGGED(ch, PLR_THIEF)) match = true; break;
 		case 10:
-			if (GET_LEVEL(ch) < *(++read_pt)) match = true; break;
+			if (IS_PC(ch)) match = true; break;
 		case 11:
+			if (GET_LEVEL(ch) < *(++read_pt)) match = true; break;
+		case 12:
 			if (GET_LEVEL(ch) > *(++read_pt)) match = true; break;
 		default:
 			slog("SYSERR: Invalid reaction code %x", *read_pt);
