@@ -718,27 +718,33 @@ prog_do_resume(prog_env *env, prog_evt *evt, char *args)
 void
 prog_do_echo(prog_env *env, prog_evt *evt, char *args)
 {
-	room_data *room;
 	char *arg;
+	Creature *ch = NULL, *target = NULL;
+	obj_data *obj = NULL;
+
+	switch (env->owner_type) {
+	case PROG_TYPE_MOBILE:
+		ch = ((Creature *)env->owner);
+		break;
+	case PROG_TYPE_OBJECT:
+		obj = ((obj_data *)env->owner);
+	case PROG_TYPE_ROOM:
+		// both ch and obj are null - target can't be null
+		if (env->target)
+			return;
+		break;
+	default:
+		errlog("Can't happen at %s:%d", __FILE__, __LINE__);
+	}
+	target = env->target;
 
 	arg = tmp_getword(&args);
-	if (!strcasecmp(arg, "room")) {
-		switch (env->owner_type) {
-		case PROG_TYPE_MOBILE:
-			room = ((Creature *)env->owner)->in_room; break;
-		case PROG_TYPE_OBJECT:
-			room = ((obj_data *)env->owner)->find_room(); break;
-		case PROG_TYPE_ROOM:
-			room = ((room_data *)env->owner);
-		default:
-			room = NULL;
-			errlog("Can't happen at %s:%d", __FILE__, __LINE__);
-		}
-		send_to_room(tmp_sprintf("%s\r\n", args), room);
-	} else if (!strcasecmp(arg, "target")) {
-		if (env->target)
-			send_to_char(env->target, "%s\r\n", args);
-	}
+	if (!strcasecmp(arg, "room"))
+		act(args, false, ch, obj, target, TO_ROOM);
+	else if (!strcasecmp(arg, "target"))
+		act(args, false, ch, obj, target, TO_VICT);
+	else if (!strcasecmp(arg, "!target"))
+		act(args, false, ch, obj, target, TO_NOTVICT);
 }
 
 char *
