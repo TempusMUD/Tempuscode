@@ -93,7 +93,7 @@ struct  zone_data *real_zone(int number);
 class CIScript *real_iscript(int vnum);
 char	*fread_string(FILE *fl, char *error);
 int	pread_string(FILE *fl, char *str, char *error);
-long	get_id_by_name(char *name);
+long	get_id_by_name(const char *name);
 char	*get_name_by_id(long id);
 
 void	char_to_store(struct char_data *ch, struct char_file_u *st);

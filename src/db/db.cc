@@ -3051,7 +3051,7 @@ reset_zone(struct zone_data *zone)
 *********************************************************************** */
 
 long 
-get_id_by_name(char *name)
+get_id_by_name(const char *name)
 {
     int i;
 
