@@ -33,7 +33,10 @@ ACMD(do_hamstring)
 
 
     one_argument(argument, arg);
-
+	if (CHECK_SKILL(ch,SKILL_HAMSTRING) < 50) {
+		send_to_char("Even if you knew what that was, you wouldn't do it.\r\n",ch);
+	return;
+	}
 	// If there's noone in the room that matches your alias
 	// Then it must be an object.
     if (!(vict = get_char_room_vis(ch, arg))) {
@@ -108,11 +111,16 @@ ACMD(do_hamstring)
 	cur_weap = weap;
 	if (percent > prob) {
 		damage(ch, vict, 0, SKILL_HAMSTRING, WEAR_LEGS);
+		WAIT_STATE(ch, 2 RL_SEC);
+		return;
 	} else {
 		int level = 0, gen = 0;
 		level = GET_LEVEL(ch);
 		gen = GET_REMORT_GEN(ch);
 		dam = dice(level, 20 + gen/2);
+		add_blood_to_room(vict->in_room,1);
+		apply_soil_to_char(ch, GET_EQ(vict,WEAR_LEGS), SOIL_BLOOD, WEAR_LEGS);
+		apply_soil_to_char(ch, GET_EQ(vict,WEAR_FEET), SOIL_BLOOD, WEAR_FEET);
 		if(!affected_by_spell(vict,SKILL_HAMSTRING)) {
 			af.type = SKILL_HAMSTRING;
 			af.bitvector = AFF3_HAMSTRUNG;
@@ -120,19 +128,21 @@ ACMD(do_hamstring)
 			af.level = level + gen;
 			af.duration = level + gen  / 10;
 			af.location = APPLY_DEX;
-			af.modifier = - 1 * (( level/2 + dice(7,7) + dice(gen,5)) / 10) 
+			af.modifier = -1 * (
+							( level/2 + dice(7,7) + dice(gen,5)) 
+							/ 10) 
 							  * (CHECK_SKILL(ch,SKILL_HAMSTRING)/100);
+			sprintf(buf,"Modifier: %d\r\n",af.modifier);
+			send_to_char(buf,ch);
 			affect_to_char(vict, &af);
 			WAIT_STATE(vict, 6 RL_SEC);
 			GET_POS(vict) = POS_RESTING;
+			damage(ch, vict, dam, SKILL_HAMSTRING, WEAR_LEGS);
 		} else {
 			WAIT_STATE(vict, 3 RL_SEC);
 			GET_POS(vict) = POS_SITTING;
+			damage(ch, vict, dam/2, SKILL_HAMSTRING, WEAR_LEGS);
 		}
-		add_blood_to_room(vict->in_room,1);
-		apply_soil_to_char(ch, GET_EQ(vict,WEAR_LEGS), SOIL_BLOOD, WEAR_LEGS);
-		apply_soil_to_char(ch, GET_EQ(vict,WEAR_FEET), SOIL_BLOOD, WEAR_FEET);
-		damage(ch, vict, dam, SKILL_HAMSTRING, WEAR_LEGS);
 		gain_skill_prof(ch, SKILL_HAMSTRING);
 	}
 	WAIT_STATE(ch, 2 RL_SEC);
