@@ -2286,7 +2286,7 @@ extern const char *spell_wear_off_msg[] = {
 	"You can no longer fly.",
 	"G Heal",
 	"COC",
-	"You are no longer super-sensitive",
+	"You are no longer super-sensitive.",
 	"The feeling of invulnerability fades.",
 	"You are no longer protected from magical attacks.",
 	"You are no longer protected from the undead.",
