@@ -946,7 +946,8 @@ list_char_to_char(struct Creature *list, struct Creature *ch)
 				continue;
 			}
 
-			send_to_char(i, "%s seems to have seen you.\r\n", GET_NAME(ch));
+			if (can_see_creature(i, ch))
+				send_to_char(i, "%s seems to have seen you.\r\n", GET_NAME(ch));
 		}
 
 		if (IS_AFFECTED(ch, AFF_GROUP) && IS_AFFECTED(i, AFF_GROUP)) {
