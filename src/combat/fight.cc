@@ -2543,7 +2543,7 @@ perform_violence(void)
 		if (MIN(100, prob + 15) >= die_roll) {
 
 			bool stop = false;
-
+			// Mercs wielding guns fire rather than hitting
 			if (IS_MERC(ch)) {
 				if (do_combat_fire(ch, FIGHTING(ch), WEAR_WIELD)) {
 					stop = true;
