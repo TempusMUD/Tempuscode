@@ -152,6 +152,7 @@ SPECIAL(implanter);
 SPECIAL(nude_guard);
 SPECIAL(spirit_priestess);
 SPECIAL(corpse_griller);
+SPECIAL(head_shrinker);
 SPECIAL(multi_healer);
 SPECIAL(slaver);
 SPECIAL(tarrasque);

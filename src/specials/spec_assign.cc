@@ -176,6 +176,7 @@ const struct spec_func_data spec_list[] = {
     {"quasimodo",       quasimodo,             SPEC_MOB | SPEC_RES },
     {"spirit_priestess", spirit_priestess,     SPEC_MOB | SPEC_RES },
     {"corpse_griller",  corpse_griller,        SPEC_MOB | SPEC_RES },
+    {"head_shrinker",   head_shrinker,        SPEC_MOB | SPEC_RES },
     {"multi_healer",    multi_healer,          SPEC_MOB | SPEC_RES },
     {"slaver",          slaver,                SPEC_MOB | SPEC_RES },
     {"cheeky_monkey",   cheeky_monkey,         SPEC_MOB},

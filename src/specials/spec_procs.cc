@@ -1859,6 +1859,7 @@ SPECIAL(cave_bear)
 
 /* skullport SPECS */
 #include "Specs/skullport_specs/corpse_griller.spec"
+#include "Specs/skullport_specs/head_shrinker.spec"
 #include "Specs/skullport_specs/multi_healer.spec"
 #include "Specs/skullport_specs/slaver.spec"
 
