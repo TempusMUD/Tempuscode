@@ -1,6 +1,7 @@
 #include <string>
 using namespace std;
 #include "Mapper.h"
+#include "tokenizer.h"
 #include <signal.h>
 
 bool CAN_EDIT_ZONE(CHAR *ch, struct zone_data *zone);
@@ -8,6 +9,8 @@ bool CAN_EDIT_ZONE(CHAR *ch, struct zone_data *zone);
 ACMD(do_map) {
     int rows;
     int columns;
+    char buf[256];
+    bool stayzone = false;
     if(IS_NPC(ch)) {
         send_to_char("You scribble out a map on the ground.\r\n",ch);
         return;
@@ -16,20 +19,25 @@ ACMD(do_map) {
         send_to_char("You can't map this zone.\r\n",ch);
         return;
     }
+
+    // Default map size
+    columns = rows = GET_PAGE_LENGTH(ch)/2;
     
-    argument = one_argument(argument, buf);
-    if(!strcmp(buf,"small"))  {
-        columns = rows = GET_PAGE_LENGTH(ch)/4;
-    } else if(!strcmp(buf,"medium"))  {
-        columns = rows = GET_PAGE_LENGTH(ch)/2;
-    } else if(!strcmp(buf,"large"))  {
-        columns = rows = GET_PAGE_LENGTH(ch);
-    } else {
-        columns = rows = GET_PAGE_LENGTH(ch)/2;
+    Tokenizer tokens(argument);
+    while( tokens.next(buf) ) {
+        int i = strlen(buf);
+        if(!strncmp(buf,"small",i))  {
+            columns = rows = GET_PAGE_LENGTH(ch)/4;
+        } else if(!strncmp(buf,"medium",i))  {
+            columns = rows = GET_PAGE_LENGTH(ch)/2;
+        } else if(!strncmp(buf,"large",i))  {
+            columns = rows = GET_PAGE_LENGTH(ch);
+        } else if(!strncmp(buf,"stayzone",i) )  {
+            stayzone = true;
+        }
     }
-    
     Mapper theMap(ch,rows,columns);
-    if(theMap.build()) {
+    if(theMap.build(stayzone)) {
         theMap.display(rows,columns);
         if(theMap.full) {
             send_to_char("Room mapping limit reached. Some rooms not mapped.\r\n",ch);
@@ -328,7 +336,7 @@ static inline bool MAPPED(room_data *mappedRoom, int mappedDirection) {
 static inline bool MAP(room_data *mappedRoom, int mappedDirection) {
     return (mappedRoom->find_first_step_index |= mapBits[mappedDirection]);
 }
-bool Mapper::build() {
+bool Mapper::build(bool stayzone) {
     int i;
     long row,col;
     room_data *curRoom;
@@ -391,28 +399,32 @@ bool Mapper::build() {
             token = NULL;
             exit = curToken->getTarget()->dir_option[North];
             if( exit != NULL && exit->to_room != NULL && !MAPPED(exit->to_room,North)) {
-                token = (new MapToken(North,curToken->row - 2,curToken->column,curToken->getTarget(), exit->to_room));
+                if( exit->to_room->zone == curZone || !stayzone )
+                    token = (new MapToken(North,curToken->row - 2,curToken->column,curToken->getTarget(), exit->to_room));
                 if(token != NULL)
                     push(token);
             }                
             token = NULL;
             exit = curToken->getTarget()->dir_option[South];//&& exit->to_room->zone == curZone) {
             if( exit != NULL && exit->to_room != NULL && !MAPPED(exit->to_room,South)) {
-                token = (new MapToken( South,curToken->row + 2,curToken->column,curToken->getTarget(), exit->to_room));
+                if( exit->to_room->zone == curZone || !stayzone )
+                    token = (new MapToken( South,curToken->row + 2,curToken->column,curToken->getTarget(), exit->to_room));
                 if(token != NULL)
                     push(token);
             }                
             token = NULL;
             exit = curToken->getTarget()->dir_option[East];
             if( exit != NULL && exit->to_room != NULL && !MAPPED(exit->to_room,East)) {
-                token = (new MapToken( East, curToken->row, curToken->column + 2,curToken->getTarget(), exit->to_room));
+                if( exit->to_room->zone == curZone || !stayzone )
+                    token = (new MapToken( East, curToken->row, curToken->column + 2,curToken->getTarget(), exit->to_room));
                 if(token != NULL)
                     push(token);
             }                
             token = NULL;
             exit = curToken->getTarget()->dir_option[West];
             if( exit != NULL && exit->to_room != NULL && !MAPPED(exit->to_room,West)) {
-                token = (new MapToken( West,curToken->row, curToken->column - 2,curToken->getTarget(), exit->to_room));
+                if( exit->to_room->zone == curZone || !stayzone )
+                    token = (new MapToken( West,curToken->row, curToken->column - 2,curToken->getTarget(), exit->to_room));
                 if(token != NULL)
                     push(token);
             }
