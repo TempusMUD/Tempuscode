@@ -1128,6 +1128,7 @@ struct affected_type {
 	int aff_index;
     long owner;             /* Who placed this affect on this Creature */
 	struct affected_type *next;
+    bool clearAtDeath(void);
 };
 
 

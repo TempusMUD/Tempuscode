@@ -3688,7 +3688,20 @@ mag_alter_objs(int level, struct Creature *ch, struct obj_data *obj,
 	char *to_room = NULL;
     struct tmp_obj_affect oaf[5];
     int dur_mode, val_mode, aff_mode;
-
+    int max_repulsions=0;
+    int max_attractions=0;
+    struct affected_type af;
+    
+    af.is_instant = 0;
+    af.bitvector = 0;
+    af.location = APPLY_NONE;
+    af.modifier = 0;
+    af.aff_index = 0;
+    af.owner = ch->getIdNum();
+    af.duration = 0;
+    af.level = GET_LEVEL(ch);
+    af.type = 0;
+    
     dur_mode = val_mode = aff_mode = AFF_NOOP;
 
     memset(&oaf, 0x0, sizeof(oaf));
@@ -3753,15 +3766,25 @@ mag_alter_objs(int level, struct Creature *ch, struct obj_data *obj,
                 obj->removeAffect( af );
             }
         } 
+        //range will be 200-2700, divided by 400 = 0-6, clamped to 1-6
+        max_attractions = (ch->getLevelBonus(SPELL_ATTRACTION_FIELD)*GET_INT(ch)+200)/400;
+        max_attractions = MAX(max_attractions,1);
+        
         if (obj->affectedBySpell(SPELL_ITEM_ATTRACTION_FIELD)) {
             to_char = "$p already has an attraction field!";
             break;
+        } else if (count_affect(ch, SPELL_ITEM_ATTRACTION_FIELD) >= max_attractions) {
+            to_char = "You will need to wait awhile before you can do this again.";
+            break;
         }
-
+        
         oaf[0].level = ch->getLevelBonus(SPELL_ATTRACTION_FIELD);
+        af.level = oaf[0].level;
         oaf[0].type = SPELL_ITEM_ATTRACTION_FIELD;
+        af.type = oaf[0].type;
         oaf[0].duration = 20 + ch->getLevelBonus(SPELL_ATTRACTION_FIELD) / 2;
-
+        af.duration = oaf[0].duration;
+        
         if (GET_OBJ_TYPE(obj) == ITEM_WEAPON || GET_OBJ_TYPE(obj) == ITEM_ENERGY_GUN) {
 			int levelBonus = ch->getLevelBonus(SPELL_ATTRACTION_FIELD);
 			int hitroll = dice( 3, 2 );
@@ -3779,7 +3802,8 @@ mag_alter_objs(int level, struct Creature *ch, struct obj_data *obj,
 			oaf[0].affect_loc[0] = APPLY_AC;
 			oaf[0].affect_mod[0] = (level / 8) + number(1, 2);
 		}
-
+        
+        affect_to_char(ch, &af);
         to_char = "$p begins to emit an attraction field.";
         break;
     }
@@ -3790,16 +3814,26 @@ mag_alter_objs(int level, struct Creature *ch, struct obj_data *obj,
                 act(item_wear_off_msg[af->type], FALSE, ch, obj, NULL, TO_CHAR);
                 obj->removeAffect( af );
             }
-        } 
+        }
+        //range will be 200-2700, divided by 400 = 0-6, clamped to 1-6
+        max_repulsions = (ch->getLevelBonus(SPELL_REPULSION_FIELD)*GET_INT(ch)+200)/400;
+        max_repulsions = MAX(max_repulsions,1);
+        
         if (obj->affectedBySpell(SPELL_ITEM_REPULSION_FIELD)) {
             to_char = "$p already has an repulsion field!";
             break;
+        } else if (count_affect(ch, SPELL_ITEM_REPULSION_FIELD) >= max_repulsions) {
+            to_char = "You will need to wait awhile before you can do this again.";
+            break;
         }
-
+        
         oaf[0].level = ch->getLevelBonus(SPELL_REPULSION_FIELD);
+        af.level = oaf[0].level;
         oaf[0].type = SPELL_ITEM_REPULSION_FIELD;
+        af.type = oaf[0].type;
         oaf[0].duration = 20 + ch->getLevelBonus(SPELL_REPULSION_FIELD) / 2;
-
+        af.duration = oaf[0].duration;
+        
         if (GET_OBJ_TYPE(obj) == ITEM_WEAPON) {
 			int levelBonus = ch->getLevelBonus(SPELL_REPULSION_FIELD);
 			int hitroll = dice( 3, 2 );
@@ -3817,7 +3851,8 @@ mag_alter_objs(int level, struct Creature *ch, struct obj_data *obj,
 			oaf[0].affect_loc[0] = APPLY_AC;
 			oaf[0].affect_mod[0] = -((level / 8) + number(1, 2));
 		}
-
+        
+        affect_to_char(ch, &af);
         to_char = "$p begins to emit an repulsion field.";
         break;
     case SPELL_TRANSMITTANCE:

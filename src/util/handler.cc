@@ -852,6 +852,20 @@ affected_by_spell(struct Creature *ch, sh_int type)
 	return NULL;
 }
 
+int
+count_affect(struct Creature *ch, sh_int type)
+{
+    struct affected_type *curr = NULL;
+    int count = 0;
+    for (curr = ch->affected; curr; curr = curr->next) {
+        if (curr->type == type) {
+            count++;
+        }
+    }
+    return count;
+}
+
+
 //
 // add a new affect to a character, joining it with an existing one if possible
 //

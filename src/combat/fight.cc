@@ -106,8 +106,16 @@ raw_kill(struct Creature *ch, struct Creature *killer, int attacktype)
 
 	make_corpse(ch, killer, attacktype);
 
-	while (ch->affected)
-		affect_remove(ch, ch->affected);
+	struct affected_type *af = ch->affected;
+    while (af) {
+        if (af->clearAtDeath()) {
+            affect_remove(ch, af);
+            af = ch->affected;
+        } else {
+            af = af->next;
+        }
+    }
+    
 
 	REMOVE_BIT(AFF2_FLAGS(ch), AFF2_PETRIFIED);
 
@@ -172,10 +180,16 @@ die(struct Creature *ch, struct Creature *killer, int attacktype,
 		//
 		// Unaffect the character before all the stuff is subtracted. Bug was being abused
 		//
-
-		while (ch->affected)
-			affect_remove(ch, ch->affected);
-
+        struct affected_type *af = ch->affected;
+		while (af) {
+			if (af->clearAtDeath()) {
+                affect_remove(ch, af);
+                af = ch->affected;
+            } else {
+                af = af->next;
+            }
+        }
+        
 		GET_REMORT_GEN(ch) -= MIN(GET_REMORT_GEN(ch), loss / 50);
 		if (GET_LEVEL(ch) <= (loss % 50)) {
 			GET_REMORT_GEN(ch) -= 1;

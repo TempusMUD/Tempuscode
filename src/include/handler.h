@@ -27,6 +27,7 @@ void affect_to_char(struct Creature *ch, struct affected_type *af);
 int affect_remove(struct Creature *ch, struct affected_type *af);
 int affect_from_char(struct Creature *ch, sh_int type);
 struct affected_type *affected_by_spell(struct Creature *ch, sh_int type);
+int count_affect(struct Creature *ch, sh_int type);
 void affect_join(struct Creature *ch, struct affected_type *af,
 	bool add_dur, bool avg_dur, bool add_mod, bool avg_mod);
 void check_interface(struct Creature *ch, struct obj_data *obj, int mode);

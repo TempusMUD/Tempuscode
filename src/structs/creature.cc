@@ -1731,5 +1731,12 @@ Creature::checkReputations(Creature *vict)
 
     return false;
 }
+
+//not inlined because we need access to spells.h
+bool
+affected_type::clearAtDeath(void) { 
+    return (type != SPELL_ITEM_REPULSION_FIELD &&
+    type != SPELL_ITEM_ATTRACTION_FIELD);
+}
 #undef __Creature_cc__
 
