@@ -230,7 +230,7 @@ show_home_help_past(struct descriptor_data *d, int home)
 			"dangerous caverns and the River Sargauth.  Thieves enjoy the\r\n"
 			"largest Thieves Guild in the world and mages study under the\r\n"
 			"masterful hand of the Drow. The Antipaladins, Evil Clerics of\r\n"
-			"Kalar, and barbarians also retain a guild in the caverns of\r\n"
+			"Zhel, and barbarians also retain a guild in the caverns of\r\n"
 			"the UnderDark.\r\n", d);
 
 		break;
