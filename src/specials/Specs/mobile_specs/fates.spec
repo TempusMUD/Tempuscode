@@ -26,7 +26,7 @@ SPECIAL(fate)
 	int which_fate;
 
 	if( spec_mode == SPECIAL_CMD ) {
-		if(! GET_LEVEL(ch) < 67 ) {
+		if(! Security::isMember(ch,"Coder") ) {
 			return 0;
 		} else if( strcmp(argument,"status") ) {
 			send_to_char(ch, "Fate timers: %d, %d, %d\r\n",
