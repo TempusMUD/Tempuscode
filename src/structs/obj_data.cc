@@ -66,7 +66,7 @@ int obj_data::save( FILE * fl ) {
         perror( "Error writing object in obj_data::save()" );
         return 0;
     }
-    if ( object.plrtext_len && fwrite( action_description, plrtext_len, 1, fl ) ) {
+    if ( object.plrtext_len && !fwrite( action_description, plrtext_len, 1, fl ) ) {
         perror( "Error writing player text in obj file." );
         return 0;
     }
