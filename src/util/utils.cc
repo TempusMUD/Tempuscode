@@ -227,25 +227,6 @@ log_death_trap(struct Creature *ch)
 }
 
 
-/* writes a string to the log */
-void
-slog(char *str, ...)
-{
-	va_list args;
-	time_t ct;
-	char *tm_str;
-	const char *msg_str;
-
-	ct = time(0);
-	tm_str = asctime(localtime(&ct));
-	*(tm_str + strlen(tm_str) - 1) = '\0';
-	va_start(args, str);
-	msg_str = tmp_vsprintf(str, args);
-	va_end(args);
-	fprintf(stderr, "%-19.19s :: %s\n", tm_str, msg_str);
-}
-
-
 /* the "touch" command, essentially. */
 int
 touch(char *path)
@@ -267,7 +248,7 @@ touch(char *path)
  * based on syslog by Fen Jul 3, 1992
  */
 void
-mudlog(sbyte level, log_type type, bool file, const char *fmt, ...)
+mlog(const char *group, sbyte level, log_type type, bool file, const char *fmt, ...)
 {
 	extern struct descriptor_data *descriptor_list;
 	struct descriptor_data *i;
@@ -283,7 +264,6 @@ mudlog(sbyte level, log_type type, bool file, const char *fmt, ...)
 
 	ct = time(NULL);
 	ctm = localtime(&ct);
-	strftime(timebuf, 24, " - %b %d %T", ctm);
 
 	if (file) {
 		char *tm_str;
@@ -292,23 +272,53 @@ mudlog(sbyte level, log_type type, bool file, const char *fmt, ...)
 		fprintf(stderr, "%-19.19s :: %s\n", tm_str, msg);
 	}
 
+	if (group == Security::NOONE)
+		return;
 	if (level < 0)
 		return;
 
+	strftime(timebuf, 24, " - %b %d %T", ctm);
 
 	for (i = descriptor_list; i; i = i->next)
-		if (i->input_mode == CXN_PLAYING && !PLR_FLAGGED(i->creature, PLR_WRITING) &&
-			!PLR_FLAGGED(i->creature, PLR_OLC)) {
+		if (i->input_mode == CXN_PLAYING
+				&& !PLR_FLAGGED(i->creature, PLR_WRITING)
+				&& !PLR_FLAGGED(i->creature, PLR_OLC)) {
+
 			tp = ((PRF_FLAGGED(i->creature, PRF_LOG1) ? 1 : 0) +
 				(PRF_FLAGGED(i->creature, PRF_LOG2) ? 2 : 0));
 
-			if ((GET_LEVEL(i->creature) >= level) && (tp >= type)) {
+			if (Security::isMember(i->creature, group) && (tp >= type))
 				send_to_char(i->creature, "%s[ %s%s ]%s\r\n",
 					CCGRN(i->creature, C_NRM),
 					msg, timebuf,
 					CCNRM(i->creature, C_NRM));
-			}
 		}
+}
+
+/* writes a string to the log */
+void
+slog(const char *fmt, ...)
+{
+	va_list args;
+
+	va_start(args, fmt);
+	mlog(Security::NOONE, -1, CMP, true, tmp_vsprintf(fmt, args));
+	va_end(args);
+}
+
+/*
+ * mudlog -- log mud messages to a file & to online imm's syslogs
+ * based on syslog by Fen Jul 3, 1992
+ */
+void
+mudlog(sbyte level, log_type type, bool file, const char *fmt, ...)
+{
+	
+	va_list args;
+
+	va_start(args, fmt);
+	mlog(Security::EVERYONE, level, type, file, tmp_vsprintf(fmt, args));
+	va_end(args);
 }
 
 void

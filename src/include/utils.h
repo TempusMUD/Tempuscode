@@ -37,10 +37,18 @@ enum log_type
 	NRM = 2,
 	CMP = 3
 };
+// mudlog() and slog() are shorter interfaces to mlog()
 void mudlog(sbyte level, log_type type, bool file, const char *fmt, ...)
 	__attribute__ ((format (printf, 4, 5))); 
-void slog(char *str, ...)
+void slog(const char *str, ...)
 	__attribute__ ((format (printf, 1, 2))); 
+
+void mlog(const char *group,
+		sbyte level,
+		log_type type,
+		bool file,
+		const char *fmt, ...)
+	__attribute__ ((format (printf, 5, 6))); 
 
 void log_death_trap(struct Creature *ch);
 void show_string(struct descriptor_data *desc);
