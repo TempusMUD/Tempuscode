@@ -132,10 +132,6 @@ char *imotd = NULL;				/* message of the day - immorts */
 char *ansi_imotd = NULL;		/* message of the day - immorts */
 //char *help = NULL;                /* help screen                         */
 char *info = NULL;				/* info page                         */
-char *wizlist = NULL;			/* list of higher gods                 */
-char *ansi_wizlist = NULL;		/* list of higher gods                 */
-char *immlist = NULL;			/* list of peon gods                 */
-char *ansi_immlist = NULL;		/* list of peon gods                 */
 char *background = NULL;		/* background story                 */
 char *handbook = NULL;			/* handbook for new immortals         */
 char *policies = NULL;			/* policies page                 */
@@ -222,15 +218,6 @@ extern int scheck;
 *  routines for booting the system                                       *
 *********************************************************************** */
 
-/* this is necessary for the autowiz system */
-void
-reboot_wizlists(void)
-{
-	file_to_string_alloc(WIZLIST_FILE, &wizlist);
-	file_to_string_alloc(ANSI_WIZLIST_FILE, &ansi_wizlist);
-	file_to_string_alloc(IMMLIST_FILE, &immlist);
-	file_to_string_alloc(ANSI_IMMLIST_FILE, &ansi_immlist);
-}
 
 
 ACMD(do_reboot)
@@ -245,10 +232,6 @@ ACMD(do_reboot)
 		file_to_string_alloc(ANSI_IMOTD_FILE, &ansi_imotd);
 //        file_to_string_alloc(HELP_PAGE_FILE, &help);
 		file_to_string_alloc(INFO_FILE, &info);
-		file_to_string_alloc(WIZLIST_FILE, &wizlist);
-		file_to_string_alloc(ANSI_WIZLIST_FILE, &ansi_wizlist);
-		file_to_string_alloc(IMMLIST_FILE, &immlist);
-		file_to_string_alloc(ANSI_IMMLIST_FILE, &ansi_immlist);
 //        file_to_string_alloc(POLICIES_FILE, &policies);
 		file_to_string_alloc(HANDBOOK_FILE, &handbook);
 		file_to_string_alloc(BACKGROUND_FILE, &background);
@@ -258,12 +241,6 @@ ACMD(do_reboot)
 		file_to_string_alloc(AREAS_REMORT_FILE, &areas_remort);
 		file_to_string_alloc(OLC_GUIDE_FILE, &olc_guide);
 		file_to_string_alloc(QUEST_GUIDE_FILE, &quest_guide);
-	} else if (!str_cmp(arg, "wizlist")) {
-		file_to_string_alloc(WIZLIST_FILE, &wizlist);
-		file_to_string_alloc(ANSI_WIZLIST_FILE, &ansi_wizlist);
-	} else if (!str_cmp(arg, "immlist")) {
-		file_to_string_alloc(IMMLIST_FILE, &immlist);
-		file_to_string_alloc(ANSI_IMMLIST_FILE, &ansi_immlist);
 	} else if (!str_cmp(arg, "credits")) {
 		file_to_string_alloc(CREDITS_FILE, &credits);
 	} else if (!str_cmp(arg, "motd")) {
@@ -384,10 +361,6 @@ boot_db(void)
 	file_to_string_alloc(ANSI_IMOTD_FILE, &ansi_imotd);
 //    file_to_string_alloc(HELP_PAGE_FILE, &help);
 	file_to_string_alloc(INFO_FILE, &info);
-	file_to_string_alloc(WIZLIST_FILE, &wizlist);
-	file_to_string_alloc(ANSI_WIZLIST_FILE, &ansi_wizlist);
-	file_to_string_alloc(IMMLIST_FILE, &immlist);
-	file_to_string_alloc(ANSI_IMMLIST_FILE, &ansi_immlist);
 	file_to_string_alloc(POLICIES_FILE, &policies);
 	file_to_string_alloc(HANDBOOK_FILE, &handbook);
 	file_to_string_alloc(BACKGROUND_FILE, &background);

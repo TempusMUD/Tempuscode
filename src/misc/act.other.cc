@@ -138,7 +138,9 @@ ACMD(do_quit)
 				ch);
 			return;
 
-		} else if (IS_CARRYING_N(ch) || IS_WEARING_W(ch)) {
+		} else if (IS_CARRYING_N(ch) || IS_WEARING_W(ch) 
+			       || ROOM_FLAGGED(ch->in_room, ROOM_HOUSE )) 
+		{
 			if (AFF_FLAGGED(ch, AFF_CHARM) && ch->master) {
 				act("You fear that your death will grieve $N.",
 					FALSE, ch, 0, ch->master, TO_CHAR);
@@ -160,6 +162,7 @@ ACMD(do_quit)
 				send_to_char("You smoothly slip out of existence.\r\n", ch);
 				act("$n smoothly slips out of existence and is gone.",
 					TRUE, ch, 0, 0, TO_ROOM);
+				save_char(ch,NULL);
 				Crash_rentsave(ch, cost, RENT_RENTED);
 				destroy = true;
 				save = false;

@@ -1470,15 +1470,6 @@ checkpointing(int sig = 0)
 }
 
 
-void
-reread_wizlists(int sig = 0)
-{
-	void reboot_wizlists(void);
-
-	mudlog("Signal received - rereading wizlists.", NRM, LVL_AMBASSADOR, TRUE);
-	reboot_wizlists();
-}
-
 
 void
 unrestrict_game(int sig = 0)
