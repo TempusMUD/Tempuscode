@@ -96,18 +96,18 @@ while /bin/true; do
     mv syslog       log/syslog.0
     touch syslog
 
-    rm log/command.log.1
-    mv log/command.log.2  log/command.log.1
-    mv log/command.log.3  log/command.log.2
-    mv log/command.log.4  log/command.log.3
-    mv log/command.log.5  log/command.log.4
-    mv log/command.log.6  log/command.log.5
-    mv log/command.log.7  log/command.log.6
-    mv log/command.log.8  log/command.log.7
-    mv log/command.log.9  log/command.log.8
-    mv log/command.log.0  log/command.log.9
-	mv log/command.log    log/command.log.0
-    touch log/command.log 
+    rm lib/log/command.log.1
+    mv lib/log/command.log.2  lib/log/command.log.1
+    mv lib/log/command.log.3  lib/log/command.log.2
+    mv lib/log/command.log.4  lib/log/command.log.3
+    mv lib/log/command.log.5  lib/log/command.log.4
+    mv lib/log/command.log.6  lib/log/command.log.5
+    mv lib/log/command.log.7  lib/log/command.log.6
+    mv lib/log/command.log.8  lib/log/command.log.7
+    mv lib/log/command.log.9  lib/log/command.log.8
+    mv lib/log/command.log.0  lib/log/command.log.9
+	mv lib/log/command.log    lib/log/command.log.0
+    touch lib/log/command.log 
 
   
 # rm log/prof_log.1
