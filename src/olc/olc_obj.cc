@@ -598,17 +598,18 @@ perform_oset(struct Creature *ch, struct obj_data *obj_p,
 		send_to_char(ch, "Object L-desc set.\r\n");
 		break;
 	case 3:
-		if (!(desc = locate_exdesc(fname(obj_p->name), obj_p->ex_description))) {
+		if (subcmd != OLC_OSET && proto &&
+				proto->ex_description == obj_p->ex_description) {
+			obj_p->ex_description = exdesc_list_dup(proto->ex_description);
+		}
+
+		desc = locate_exdesc(fname(obj_p->name), obj_p->ex_description);
+		if (!desc) {
 			CREATE(ndesc, struct extra_descr_data, 1);
 			ndesc->keyword = str_dup(obj_p->name);
 			ndesc->next = obj_p->ex_description;
 			obj_p->ex_description = ndesc;
 			desc = obj_p->ex_description;
-		} else {
-			if (subcmd == OLC_OSET || !proto ||
-				proto->ex_description != obj_p->ex_description)
-				free(desc->description);
-			desc->description = NULL;
 		}
 		start_text_editor(ch->desc, &desc->description, true);
 		SET_BIT(PLR_FLAGS(ch), PLR_OLC);
