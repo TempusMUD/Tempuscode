@@ -2160,7 +2160,7 @@ special(struct Creature *ch, int cmd, int subcmd, char *arg, special_mode spec_m
 		return 1;
 
 	// Special in self?  (for activating special abilities in switched mobs)
-	if (IS_NPC(ch) && GET_MOB_SPEC(ch)) {
+	if (IS_NPC(ch) && MOB_FLAGGED(ch, MOB_SPEC) && GET_MOB_SPEC(ch)) {
 		specAddress = (long)GET_MOB_SPEC(ch);
 		if (GET_MOB_SPEC(ch) (ch, ch, cmd, arg, spec_mode))
 			return specAddress;
