@@ -38,6 +38,7 @@ Rewritten by John Rothe (forget@tempusmud.com)
 #include "clan.h"
 #include "materials.h"
 #include "player_table.h"
+#include "accstr.h"
 
 using namespace std;
 
@@ -125,7 +126,6 @@ store_mail(long to_id, long from_id, char *txt, list<string> cc_list,
     char *mail_file_path;
     FILE *ofile;
     char *time_str;
-	char *msg;
     struct obj_data *obj;
     struct stat stat_buf;
     time_t now = time(NULL);
@@ -163,7 +163,8 @@ store_mail(long to_id, long from_id, char *txt, list<string> cc_list,
     time_str = asctime(localtime(&now));
     *(time_str + strlen(time_str) - 1) = '\0';
      
-    msg = tmp_sprintf(" * * * *  Tempus Mail System  * * * *\r\n"
+	acc_string_clear();
+    acc_sprintf(" * * * *  Tempus Mail System  * * * *\r\n"
 		"Date: %s\r\n  To: %s\r\nFrom: %s",
 		time_str, playerIndex.getName(to_id), playerIndex.getName(from_id));
 
@@ -171,14 +172,17 @@ store_mail(long to_id, long from_id, char *txt, list<string> cc_list,
 		list<string>::iterator si;
 
 		for (si = cc_list.begin(); si != cc_list.end(); si++)
-			msg = tmp_strcat(msg,
-				(si == cc_list.begin()) ? "\r\n  CC: ":", ",
+			acc_strcat((si == cc_list.begin()) ? "\r\n  CC: ":", ",
 				si->c_str(), NULL);
 	}
 
-	msg = tmp_strcat(msg, "\r\n\r\n", txt, NULL);
+	acc_strcat("\r\n\r\n", txt, NULL);
     
-    obj->action_desc = strdup(msg);
+	obj->name = strdup(tmp_sprintf("a piece of mail from %s",
+		playerIndex.getName(from_id)));
+	obj->aliases = strdup(tmp_sprintf("%s %s", obj->aliases,
+		playerIndex.getName(from_id)));
+    obj->action_desc = strdup(acc_get_string());
     
     obj->plrtext_len = strlen(obj->action_desc) + 1;
     mailBag.push_back(obj);
