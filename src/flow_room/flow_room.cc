@@ -26,6 +26,7 @@
 #include "spells.h"
 #include "char_class.h"
 #include "bomb.h"
+#include "house.h"
 
 /* external structs */
 extern struct char_data *character_list;
@@ -236,6 +237,8 @@ flow_room(int pulse)
 			(AFF_FLAGGED(vict, AFF_WATERWALK) && 
 			 FLOW_TYPE(rnum) == F_TYPE_SINKING_SWAMP))
 			continue;
+            if(!House_can_enter(vict,rnum->number))
+            continue;
 	  
 		    CHAR_CUR_PULSE(vict) = pulse;
 		    sprintf(buf, char_flow_msg[(int)FLOW_TYPE(rnum)][MSG_TORM_1], 
