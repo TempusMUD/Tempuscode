@@ -156,7 +156,7 @@ ACMD(do_dismiss)
 	}
 	/* Find the player. */
 	if ((idnum = get_id_by_name(arg)) < 0) {
-		send_to_char(ch, "There is no character named '%s'\r\n");
+		send_to_char(ch, "There is no character named '%s'\r\n", arg);
 		return;
 	}
 
@@ -213,15 +213,15 @@ ACMD(do_dismiss)
 			free(member);
 		}
 		REMOVE_BIT(PLR_FLAGS(vict), PLR_CLAN_LEADER);
-	}
-	if (in_file) {
-		char_to_store(vict, &tmp_store);
-		fseek(player_fl, (player_i) * sizeof(struct char_file_u), SEEK_SET);
-		fwrite(&tmp_store, sizeof(struct char_file_u), 1, player_fl);
-		free_char(vict);
-		send_to_char(ch, "Player dismissed.\r\n");
-	}
 
+		if (in_file) {
+			char_to_store(vict, &tmp_store);
+			fseek(player_fl, (player_i) * sizeof(struct char_file_u), SEEK_SET);
+			fwrite(&tmp_store, sizeof(struct char_file_u), 1, player_fl);
+			free_char(vict);
+			send_to_char(ch, "Player dismissed.\r\n");
+		}
+	}
 }
 
 ACMD(do_resign)
