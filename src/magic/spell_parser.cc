@@ -2538,8 +2538,8 @@ mag_assign_spells(void)
 	   POS_STANDING, TAR_CHAR_ROOM, FALSE, MAG_DIVINE | MAG_UNAFFECTS);
 
     /* C L A S S E S      M A N A   */
-    /* Ma Cl Th Wa Ba Sy Ph Cy Kn Rn Hd Mk Vmp Max Min Chn */
-    spello(SPELL_REJUVENATE, X, 40, X, X, X, X, X, 45, X, X, X, X, X, X,X,X,X,
+                          /* Ma Cl Th Wa Ba Sy Ph Cy Kn Rn Hd Mk Vmp Max Min Chn */
+    spello(SPELL_REJUVENATE, X, 40, X, X, X, X, X, X, X, X, X, X, X, X,X,X,X,
 	   100, 40, 8,
 	   POS_RESTING, TAR_CHAR_ROOM, FALSE, MAG_DIVINE | MAG_AFFECTS);
 
