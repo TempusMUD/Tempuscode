@@ -199,7 +199,9 @@ extern const char *searchflag_help[] = {
 	"spell and damage do not affect mobs in the room.",
 	"NOPLAYER",
 	"can only be tripped by remorts.",
-	"all arguments must match"
+	"all arguments must match",
+    "causes the tripper not to look at the room after being transed.",
+    "causes searches to be set tripped even if the search was failed.",
 	"\n"
 };
 
