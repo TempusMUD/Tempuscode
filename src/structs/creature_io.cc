@@ -475,8 +475,8 @@ Creature::saveToXML()
 	fprintf(ouf, "/>\n");
 
 	fprintf(ouf, "<attr str=\"%d\" int=\"%d\" wis=\"%d\" dex=\"%d\" con=\"%d\" cha=\"%d\" stradd=\"%d\"/>\n",
-		GET_STR(ch), GET_INT(ch), GET_WIS(ch), GET_DEX(ch), GET_CON(ch),
-		GET_CHA(ch), GET_ADD(ch));
+		real_abils.str, real_abils.intel, real_abils.wis, real_abils.dex,
+		real_abils.con, real_abils.cha, real_abils.str_add);
 
 	fprintf(ouf, "<condition hunger=\"%d\" thirst=\"%d\" drunk=\"%d\"/>\n",
 		GET_COND(ch, FULL), GET_COND(ch, THIRST), GET_COND(ch, DRUNK));
