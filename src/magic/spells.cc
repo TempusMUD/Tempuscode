@@ -405,7 +405,7 @@ ASPELL(spell_teleport)
 	if (ch->in_room->zone->number == 400 ||
 		GET_PLANE(ch->in_room) == PLANE_DOOM ||
 		ZONE_FLAGGED(ch->in_room->zone, ZONE_ISOLATED)) {
-		call_magic(ch, victim, 0, SPELL_LOCAL_TELEPORT, GET_LEVEL(ch),
+		call_magic(ch, victim, 0, NULL, SPELL_LOCAL_TELEPORT, GET_LEVEL(ch),
 			CAST_SPELL);
 		return;
 	}
@@ -513,7 +513,7 @@ ASPELL(spell_astral_spell)
 
 	if (ch->in_room->zone->number == 400 || GET_PLANE(ch->in_room) ==
 		PLANE_DOOM || ZONE_FLAGGED(ch->in_room->zone, ZONE_ISOLATED)) {
-		call_magic(ch, victim, 0, SPELL_LOCAL_TELEPORT, GET_LEVEL(ch),
+		call_magic(ch, victim, 0, NULL, SPELL_LOCAL_TELEPORT, GET_LEVEL(ch),
 			CAST_SPELL);
 		return;
 	}
@@ -2019,7 +2019,7 @@ ASPELL(spell_knock)
 
 	extern struct room_direction_data *knock_door;
 	struct room_data *toroom = NULL;
-	int dir = -1, i;
+	int kdir = -1, i;
 	char dname[128];
 
 	if (!ch)
@@ -2069,24 +2069,24 @@ ASPELL(spell_knock)
 		for (i = 0; i < NUM_DIRS; i++) {
 			if (ch->in_room->dir_option[i] &&
 				ch->in_room->dir_option[i] == knock_door) {
-				dir = i;
+				kdir = i;
 				break;
 			}
 		}
 
-		if (dir == -1)
+		if (kdir == -1)
 			return;
 
-		dir = rev_dir[dir];
+		kdir = rev_dir[kdir];
 
 		if ((toroom = knock_door->to_room) &&
-			toroom->dir_option[dir] &&
-			ch->in_room == toroom->dir_option[dir]->to_room) {
+			toroom->dir_option[kdir] &&
+			ch->in_room == toroom->dir_option[kdir]->to_room) {
 
-			if (IS_SET(toroom->dir_option[dir]->exit_info, EX_CLOSED) &&
-				IS_SET(toroom->dir_option[dir]->exit_info, EX_ISDOOR)) {
-				REMOVE_BIT(toroom->dir_option[dir]->exit_info, EX_CLOSED);
-				REMOVE_BIT(toroom->dir_option[dir]->exit_info, EX_LOCKED);
+			if (IS_SET(toroom->dir_option[kdir]->exit_info, EX_CLOSED) &&
+				IS_SET(toroom->dir_option[kdir]->exit_info, EX_ISDOOR)) {
+				REMOVE_BIT(toroom->dir_option[kdir]->exit_info, EX_CLOSED);
+				REMOVE_BIT(toroom->dir_option[kdir]->exit_info, EX_LOCKED);
 
 				sprintf(buf, "The %s %s flung open from the other side.",
 					dname, ISARE(dname));

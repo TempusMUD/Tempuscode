@@ -223,7 +223,7 @@ perform_smoke(struct Creature *ch, int type)
 		affect_join(ch, &af, accum_dur, TRUE, accum_affect, TRUE);
 
 	if (spell && lev)
-		call_magic(ch, ch, 0, spell, (int)lev, CAST_CHEM);
+		call_magic(ch, ch, 0, NULL, spell, (int)lev, CAST_CHEM);
 
 	WAIT_STATE(ch, 6);
 

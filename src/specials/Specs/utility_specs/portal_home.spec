@@ -28,7 +28,7 @@ SPECIAL(portal_home)
 		REMOVE_BIT(room->room_flags, ROOM_NOMAGIC);
 		act("$n steps into $p.", FALSE, ch, portal, 0, TO_ROOM);
 		act("You step into $p.", FALSE, ch, portal, 0, TO_CHAR);
-		call_magic(ch, ch, 0, SPELL_WORD_OF_RECALL, GET_LEVEL(ch), CAST_SPELL);
+		call_magic(ch, ch, 0, NULL, SPELL_WORD_OF_RECALL, GET_LEVEL(ch), CAST_SPELL);
 		room->room_flags = flags;
 		WAIT_STATE(ch, 2 RL_SEC);
 		return 1;

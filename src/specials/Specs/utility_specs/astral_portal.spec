@@ -22,7 +22,7 @@ SPECIAL(astral_portal)
 	if (isname(argument, portal->aliases)) {
 		act("$n steps into $p.", FALSE, ch, portal, 0, TO_ROOM);
 		act("You step into $p.", FALSE, ch, portal, 0, TO_CHAR);
-		call_magic(ch, ch, 0, SPELL_ASTRAL_SPELL, GET_LEVEL(ch), CAST_SPELL);
+		call_magic(ch, ch, 0, NULL, SPELL_ASTRAL_SPELL, GET_LEVEL(ch), CAST_SPELL);
 		return 1;
 	}
 	return 0;

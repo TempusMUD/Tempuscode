@@ -21,11 +21,11 @@ SPECIAL(moloch)
 	if (moloch->numCombatants() && GET_MOB_WAIT(moloch) <= 0) {
         vict = moloch->findRandomCombat();
 		if (!number(0, 10)) {
-			call_magic(moloch, vict, 0, SPELL_FLAME_STRIKE, 50,
+			call_magic(moloch, vict, 0, NULL, SPELL_FLAME_STRIKE, 50,
 				CAST_BREATH);
 			return 1;
 		} else if (!number(0, 10)) {
-			call_magic(moloch, vict, 0, SPELL_BURNING_HANDS, 50,
+			call_magic(moloch, vict, 0, NULL, SPELL_BURNING_HANDS, 50,
 				CAST_SPELL);
 			return 1;
 		} else if (!number(0, 8) && GET_DEX(vict) < number(10, 25)) {
@@ -69,7 +69,7 @@ SPECIAL(moloch)
 	}
 
 	if (index)
-		cast_spell(moloch, NULL, 0, SPELL_METEOR_STORM);
+		cast_spell(moloch, NULL, 0, NULL, SPELL_METEOR_STORM);
 
 	return 1;
 

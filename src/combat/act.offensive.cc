@@ -3144,7 +3144,7 @@ ACMD(do_beguile)
 	if (can_see_creature(vict, ch) &&
 		(CHECK_SKILL(ch, SKILL_BEGUILE) + GET_CHA(ch)) >
 		(number(0, 50) + GET_LEVEL(vict) + GET_INT(vict)))
-		spell_charm(GET_LEVEL(ch), ch, vict, NULL);
+		spell_charm(GET_LEVEL(ch), ch, vict, NULL, NULL);
 	else
 		send_to_char(ch, "There appears to be no effect.\r\n");
 

@@ -315,7 +315,7 @@ vendor_appraise(Creature *ch, obj_data *obj, Creature *self, ShopData *shop)
 
 
 	if( IS_MAGE(self) ) {
-		spell_identify(50, ch, NULL, obj );
+		spell_identify(50, ch, NULL, obj, NULL );
 	} else if( IS_PHYSIC(self) || IS_CYBORG(self) ) {
 		perform_analyze(ch,obj,false);
 	} else {

@@ -535,11 +535,11 @@ smart_mobile_move(struct Creature *ch, int dir)
 			if (can_travel_sector(ch, SECT_TYPE(EXIT(ch, dir)->to_room), 0))
 				do_fly(ch, "", 0, 0, 0);
 			else if (IS_MAGE(ch) && GET_LEVEL(ch) >= 33)
-				cast_spell(ch, ch, 0, SPELL_FLY);
+				cast_spell(ch, ch, 0, NULL, SPELL_FLY);
 			else if (IS_CLERIC(ch) && GET_LEVEL(ch) >= 32)
-				cast_spell(ch, ch, 0, SPELL_AIR_WALK);
+				cast_spell(ch, ch, 0, NULL, SPELL_AIR_WALK);
 			else if (IS_PHYSIC(ch))
-				cast_spell(ch, ch, 0, SPELL_TIDAL_SPACEWARP);
+				cast_spell(ch, ch, 0, NULL, SPELL_TIDAL_SPACEWARP);
 			else if (!number(0, 10)) {
 				do_say(ch, "Well, SHIT!  I need to be able to fly!", 0, 0, 0);
 				return 0;
@@ -550,7 +550,7 @@ smart_mobile_move(struct Creature *ch, int dir)
 			if (IS_AFFECTED(ch, AFF_INFLIGHT))
 				do_fly(ch, "", 0, 0, 0);
 			else if (IS_MAGE(ch) && GET_LEVEL(ch) >= 32)
-				cast_spell(ch, ch, 0, SPELL_WATERWALK);
+				cast_spell(ch, ch, 0, NULL, SPELL_WATERWALK);
 			else if (!number(0, 10)) {
 				do_say(ch, "Damn this water!  Can anybody help me cross?", 0,
 					0, 0);
@@ -623,7 +623,7 @@ hunt_victim(struct Creature *ch)
 			if ((IS_CLERIC(ch) && GET_LEVEL(ch) > 16) ||
 				(IS_MAGE(ch) && GET_LEVEL(ch) > 27)) {
 				if (GET_MANA(ch) < mag_manacost(ch, SPELL_SUMMON)) {
-					return cast_spell(ch, ch->isHunting(), 0, SPELL_SUMMON);
+					return cast_spell(ch, ch->isHunting(), 0, NULL, SPELL_SUMMON);
 				}
 			}
 		}

@@ -51,7 +51,7 @@ SPECIAL(portal_out)
 		sprintf(buf, "A voice BOOMS out, '%s has left the arena.'\r\n",
 			GET_NAME(ch));
 		send_to_zone(buf, ch->in_room->zone, 0);
-		call_magic(ch, ch, 0, SPELL_WORD_OF_RECALL, LVL_GRIMP, CAST_SPELL);
+		call_magic(ch, ch, 0, NULL, SPELL_WORD_OF_RECALL, LVL_GRIMP, CAST_SPELL);
 		return true;
 	}
 	return false;

@@ -918,7 +918,7 @@ find_skill_num(char *name)
  */
 int
 call_magic(struct Creature *caster, struct Creature *cvict,
-	struct obj_data *ovict, int spellnum, int level, int casttype,
+	struct obj_data *ovict, int *dvict, int spellnum, int level, int casttype,
 	int *return_flags)
 {
 
@@ -1185,13 +1185,13 @@ call_magic(struct Creature *caster, struct Creature *cvict,
 		mag_exits(level, caster, caster->in_room, spellnum);
 
 	if (IS_SET(SINFO.routines, MAG_AFFECTS))
-		mag_affects(level, caster, cvict, spellnum, savetype);
+		mag_affects(level, caster, cvict, dvict, spellnum, savetype);
 
 	if (IS_SET(SINFO.routines, MAG_UNAFFECTS))
 		mag_unaffects(level, caster, cvict, spellnum, savetype);
 
 	if (IS_SET(SINFO.routines, MAG_POINTS))
-		mag_points(level, caster, cvict, spellnum, savetype);
+		mag_points(level, caster, cvict, dvict, spellnum, savetype);
 
 	if (IS_SET(SINFO.routines, MAG_ALTER_OBJS))
 		mag_alter_objs(level, caster, ovict, spellnum, savetype);
@@ -1349,6 +1349,9 @@ call_magic(struct Creature *caster, struct Creature *cvict,
             MANUAL_SPELL(song_instant_audience); break;
         case SONG_RHYTHM_OF_ALARM:
             MANUAL_SPELL(song_rhythm_of_alarm); break;
+        case SONG_WALL_OF_SOUND:
+            MANUAL_SPELL(song_wall_of_sound); break;
+
 		}
 
 	knock_door = NULL;
@@ -1425,10 +1428,10 @@ mag_objectmagic(struct Creature *ch, struct obj_data *obj,
 				if (ch == *it && spell_info[GET_OBJ_VAL(obj, 3)].violent)
 					continue;
 				if (level)
-					call_magic(ch, (*it), NULL, GET_OBJ_VAL(obj, 3),
+					call_magic(ch, (*it), NULL, NULL, GET_OBJ_VAL(obj, 3),
 						level, CAST_STAFF);
 				else
-					call_magic(ch, (*it), NULL, GET_OBJ_VAL(obj, 3),
+					call_magic(ch, (*it), NULL, NULL, GET_OBJ_VAL(obj, 3),
 						DEFAULT_STAFF_LVL, CAST_STAFF);
 			}
 		}
@@ -1481,7 +1484,7 @@ mag_objectmagic(struct Creature *ch, struct obj_data *obj,
 		gain_skill_prof(ch, SKILL_USE_WANDS);
 		GET_OBJ_VAL(obj, 2)--;
 		WAIT_STATE(ch, PULSE_VIOLENCE);
-		return (call_magic(ch, tch, tobj, GET_OBJ_VAL(obj, 3),
+		return (call_magic(ch, tch, tobj, NULL, GET_OBJ_VAL(obj, 3),
 				level ? level : DEFAULT_WAND_LVL, CAST_WAND));
 		break;
 	case ITEM_SCROLL:
@@ -1528,7 +1531,7 @@ mag_objectmagic(struct Creature *ch, struct obj_data *obj,
 		WAIT_STATE(ch, PULSE_VIOLENCE);
 		gain_skill_prof(ch, SKILL_READ_SCROLLS);
 		for (i = 1; i < 4; i++) {
-			call_magic(ch, tch, tobj, GET_OBJ_VAL(obj, i),
+			call_magic(ch, tch, tobj, NULL, GET_OBJ_VAL(obj, i),
 				level, CAST_SCROLL, &my_return_flags);
 			if (IS_SET(my_return_flags, DAM_ATTACKER_KILLED) ||
 				IS_SET(my_return_flags, DAM_VICT_KILLED)) {
@@ -1542,7 +1545,7 @@ mag_objectmagic(struct Creature *ch, struct obj_data *obj,
 		if (!ROOM_FLAGGED(ch->in_room, ROOM_NOMAGIC)) {
 			act("You feel a strange sensation as you eat $p...", FALSE,
 				ch, obj, NULL, TO_CHAR);
-			return (call_magic(ch, ch, NULL, GET_OBJ_VAL(obj, 2),
+			return (call_magic(ch, ch, NULL, NULL, GET_OBJ_VAL(obj, 2),
 					GET_OBJ_VAL(obj, 1), CAST_POTION));
 		}
 		break;
@@ -1560,7 +1563,7 @@ mag_objectmagic(struct Creature *ch, struct obj_data *obj,
 			for (i = 1; i < 4; i++) {
 				if (!ch->in_room)
 					break;
-				call_magic(ch, ch, NULL, GET_OBJ_VAL(obj, i),
+				call_magic(ch, ch, NULL, NULL, GET_OBJ_VAL(obj, i),
 					GET_OBJ_VAL(obj, 0), CAST_POTION, &my_return_flags);
 				if (IS_SET(my_return_flags, DAM_ATTACKER_KILLED) ||
 					IS_SET(my_return_flags, DAM_VICT_KILLED)) {
@@ -1600,7 +1603,7 @@ mag_objectmagic(struct Creature *ch, struct obj_data *obj,
 		WAIT_STATE(ch, PULSE_VIOLENCE);
 
 		for (i = 1; i < 4; i++) {
-			call_magic(ch, tch, NULL, GET_OBJ_VAL(obj, i),
+			call_magic(ch, tch, NULL, NULL, GET_OBJ_VAL(obj, i),
 				GET_OBJ_VAL(obj, 0),
 				IS_OBJ_STAT(obj, ITEM_MAGIC) ? CAST_SPELL :
 				CAST_INTERNAL, &my_return_flags);
@@ -1624,7 +1627,7 @@ mag_objectmagic(struct Creature *ch, struct obj_data *obj,
 		WAIT_STATE(ch, PULSE_VIOLENCE);
 
 		for (i = 1; i < 4; i++) {
-			call_magic(ch, ch, NULL, GET_OBJ_VAL(obj, i),
+			call_magic(ch, ch, NULL, NULL, GET_OBJ_VAL(obj, i),
 				GET_OBJ_VAL(obj, 0), CAST_INTERNAL, &my_return_flags);
 			if (IS_SET(my_return_flags, DAM_ATTACKER_KILLED) ||
 				IS_SET(my_return_flags, DAM_VICT_KILLED)) {
@@ -1654,7 +1657,7 @@ mag_objectmagic(struct Creature *ch, struct obj_data *obj,
 
 int
 cast_spell(struct Creature *ch, struct Creature *tch,
-	struct obj_data *tobj, int spellnum, int *return_flags)
+	struct obj_data *tobj, int *tdir, int spellnum, int *return_flags)
 {
 
     void sing_song(struct Creature *ch, Creature *vict, 
@@ -1791,7 +1794,7 @@ cast_spell(struct Creature *ch, struct Creature *tch,
 
 	int my_return_flags = 0;
 
-	int retval = call_magic(ch, tch, tobj, spellnum,
+	int retval = call_magic(ch, tch, tobj, tdir, spellnum,
 		GET_LEVEL(ch) + (!IS_NPC(ch) ? (GET_REMORT_GEN(ch) << 1) : 0),
 		(SPELL_IS_PSIONIC(spellnum) ? CAST_PSIONIC :
 		(SPELL_IS_PHYSICS(spellnum) ? CAST_PHYSIC : 
@@ -1880,7 +1883,7 @@ int perform_taint_burn(Creature *ch, int spellnum)
 
 int
 find_spell_targets(struct Creature *ch, char *argument,
-	struct Creature **tch, struct obj_data **tobj, int *target, int *spellnm,
+	struct Creature **tch, struct obj_data **tobj, int *tdir, int *target, int *spellnm,
 	int cmd)
 {
 
@@ -1888,6 +1891,9 @@ find_spell_targets(struct Creature *ch, char *argument,
 	char t3[MAX_INPUT_LENGTH], t2[MAX_INPUT_LENGTH];
 	int i, spellnum;
 
+    *tch = NULL;
+    *tobj = NULL;
+    *tdir = -1;
 	knock_door = NULL;
 	/* get: blank, spell name, target name */
 	s = strtok(argument, "'");
@@ -1908,6 +1914,9 @@ find_spell_targets(struct Creature *ch, char *argument,
 		else if (CMD_IS("arm"))
 			send_to_char(ch, 
 				"The device name must be enclosed in the symbols: '\r\n");
+        else if (CMD_IS("perform"))
+            send_to_char(ch,
+                "The song name must be enclosed in the symbols: '\r\n");
 		else
 			send_to_char(ch, 
 				"Spell names must be enclosed in the Holy Magic Symbols: '\r\n");
@@ -1954,7 +1963,13 @@ find_spell_targets(struct Creature *ch, char *argument,
 	if (IS_SET(SINFO.targets, TAR_IGNORE)) {
 		*target = TRUE;
 	} else if (t != NULL && *t) {
-		if (!*target && (IS_SET(SINFO.targets, TAR_CHAR_ROOM))) {
+        if (!*target && (IS_SET(SINFO.targets, TAR_DIR))) {
+            *tdir = search_block(t, dirs, false); 
+            if (*tdir >= 0)
+                *target = true;
+            
+        }
+        else if (!*target && (IS_SET(SINFO.targets, TAR_CHAR_ROOM))) {
 			if ((*tch = get_char_room_vis(ch, t)) != NULL)
 				*target = TRUE;
 		}
@@ -1992,7 +2007,6 @@ find_spell_targets(struct Creature *ch, char *argument,
 			}
 		}
 
-
 	} else {					/* if target string is empty */
 		if (!*target && IS_SET(SINFO.targets, TAR_FIGHT_SELF))
 			if (ch->numCombatants()) {
@@ -2028,6 +2042,7 @@ find_spell_targets(struct Creature *ch, char *argument,
 ACMD(do_cast)
 {
 	Creature *tch = NULL;
+    int tdir;
 	obj_data *tobj = NULL, *holy_symbol = NULL, *metal = NULL;
 
 	int mana, spellnum, i, target = 0, prob = 0, metal_wt = 0, num_eq =
@@ -2055,7 +2070,7 @@ ACMD(do_cast)
 		return;
 	}
 
-	if (!(find_spell_targets(ch, argument, &tch, &tobj, &target, &spellnum,
+	if (!(find_spell_targets(ch, argument, &tch, &tobj, &tdir, &target, &spellnum,
 				cmd)))
 		return;
 
@@ -2236,7 +2251,7 @@ ACMD(do_cast)
 						else
 							act("Your spell has been misdirected toward $N!!",
 								FALSE, ch, 0, (*it), TO_CHAR);
-						cast_spell(ch, (*it), tobj, spellnum);
+						cast_spell(ch, (*it), tobj, &tdir, spellnum);
 						if (mana > 0)
 							GET_MANA(ch) =
 								MAX(0, MIN(GET_MAX_MANA(ch),
@@ -2258,7 +2273,7 @@ ACMD(do_cast)
 						metal, 0, TO_CHAR);
 				else
 					send_to_char(ch, "Your spell has backfired!!\r\n");
-				cast_spell(ch, ch, tobj, spellnum);
+				cast_spell(ch, ch, tobj, &tdir, spellnum);
 				if (mana > 0)
 					GET_MANA(ch) = MAX(0, MIN(GET_MAX_MANA(ch), GET_MANA(ch) -
 							(mana >> 1)));
@@ -2296,7 +2311,7 @@ ACMD(do_cast)
 		/* cast spell returns 1 on success; subtract mana & set waitstate */
 		//HERE
 	} else {
-		if (cast_spell(ch, tch, tobj, spellnum)) {
+		if (cast_spell(ch, tch, tobj, &tdir, spellnum)) {
 			WAIT_STATE(ch, ((3 RL_SEC) - (GET_CLASS(ch) == CLASS_MAGIC_USER ?
 						GET_REMORT_GEN(ch) : 0)));
 			if (mana > 0)
@@ -2312,6 +2327,7 @@ ACMD(do_trigger)
 {
 	struct Creature *tch = NULL;
 	struct obj_data *tobj = NULL;
+    int tdir;
 	int mana, spellnum, target = 0, prob = 0, temp = 0;
 
 	if (IS_NPC(ch))
@@ -2327,7 +2343,7 @@ ACMD(do_trigger)
 		return;
 	}
 
-	if (!(find_spell_targets(ch, argument, &tch, &tobj, &target, &spellnum,
+	if (!(find_spell_targets(ch, argument, &tch, &tobj, &tdir, &target, &spellnum,
 				cmd)))
 		return;
 
@@ -2404,7 +2420,7 @@ ACMD(do_trigger)
 		if (SINFO.violent && tch && IS_NPC(tch))
 			hit(tch, ch, TYPE_UNDEFINED);
 	} else {
-		if (cast_spell(ch, tch, tobj, spellnum)) {
+		if (cast_spell(ch, tch, tobj, &tdir, spellnum)) {
 			WAIT_STATE(ch, PULSE_VIOLENCE);
 			if (mana > 0)
 				GET_MANA(ch) =
@@ -2541,6 +2557,7 @@ ACMD(do_alter)
 {
 	struct Creature *tch = NULL;
 	struct obj_data *tobj = NULL;
+    int tdir;
 	int mana, spellnum, target = 0, temp = 0;
 
 	if (IS_NPC(ch))
@@ -2563,7 +2580,7 @@ ACMD(do_alter)
 		return;
 	}
 
-	if (!(find_spell_targets(ch, argument, &tch, &tobj, &target, &spellnum,
+	if (!(find_spell_targets(ch, argument, &tch, &tobj, &tdir, &target, &spellnum,
 				cmd)))
 		return;
 
@@ -2622,7 +2639,7 @@ ACMD(do_alter)
 		if (SINFO.violent && tch && IS_NPC(tch))
 			hit(tch, ch, TYPE_UNDEFINED);
 	} else {
-		if (cast_spell(ch, tch, tobj, spellnum)) {
+		if (cast_spell(ch, tch, tobj, &tdir, spellnum)) {
 			WAIT_STATE(ch, PULSE_VIOLENCE);
 			if (mana > 0)
 				GET_MANA(ch) =
@@ -2636,6 +2653,7 @@ ACMD(do_perform)
 {
 	struct Creature *tch = NULL;
 	struct obj_data *tobj = NULL;
+    int tdir;
 	int mana, spellnum, target = 0, temp = 0;
 
     extern bool check_instrument(Creature *ch, int songnum);
@@ -2656,7 +2674,7 @@ ACMD(do_perform)
 		return;
 	}
 
-	if (!(find_spell_targets(ch, argument, &tch, &tobj, &target, &spellnum,
+	if (!(find_spell_targets(ch, argument, &tch, &tobj, &tdir, &target, &spellnum,
 				cmd)))
 		return;
 
@@ -2720,7 +2738,7 @@ ACMD(do_perform)
 		if (SINFO.violent && tch && IS_NPC(tch))
 			hit(tch, ch, TYPE_UNDEFINED);
 	} else {
-		if (cast_spell(ch, tch, tobj, spellnum)) {
+		if (cast_spell(ch, tch, tobj, &tdir, spellnum)) {
 			WAIT_STATE(ch, PULSE_VIOLENCE);
 			if (mana > 0)
 				GET_MANA(ch) =
@@ -3840,6 +3858,10 @@ mag_assign_spells(void)
 
 	remort_spello(SONG_LAMENT_OF_LONGING, CLASS_BARD, 40, 4,
            320, 180, 5, POS_STANDING, TAR_CHAR_WORLD | TAR_NOT_SELF, 
+           FALSE, MAG_BARD | MAG_MANUAL);
+
+	remort_spello(SONG_WALL_OF_SOUND, CLASS_BARD, 42, 1,
+           150, 90, 4, POS_STANDING, TAR_DIR, 
            FALSE, MAG_BARD | MAG_MANUAL);
 
 	remort_spello(SKILL_LINGERING_SONG, CLASS_BARD, 20, 2,

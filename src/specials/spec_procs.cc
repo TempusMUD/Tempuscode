@@ -522,7 +522,7 @@ SPECIAL(venom_attack)
 		number(0, 75) < perc_damaged) {
 		act(act_tovict, 1, ch, 0, target, TO_VICT);
 		act(act_toroom, 1, ch, 0, target, TO_NOTVICT);
-		call_magic(ch, target, 0, SPELL_POISON, GET_LEVEL(ch),
+		call_magic(ch, target, 0, NULL, SPELL_POISON, GET_LEVEL(ch),
 			CAST_SPELL);
 		return TRUE;
 	}
@@ -572,18 +572,18 @@ SPECIAL(magic_user)
 
 	if ((GET_LEVEL(ch) > 5) && (number(0, 8) == 0) &&
 		!affected_by_spell(ch, SPELL_ARMOR)) {
-		cast_spell(ch, ch, NULL, SPELL_ARMOR);
+		cast_spell(ch, ch, NULL, NULL, SPELL_ARMOR);
     } else if ((GET_LEVEL(ch) > 14) && (number(0, 8) == 0)
 		&& !IS_AFFECTED(ch, AFF_BLUR)) {
-		cast_spell(ch, ch, NULL, SPELL_BLUR);
+		cast_spell(ch, ch, NULL, NULL, SPELL_BLUR);
     } else if ((GET_LEVEL(ch) > 18) && (number(0, 8) == 0) &&
 		!IS_AFFECTED_2(ch, AFF2_FIRE_SHIELD)) {
-		cast_spell(ch, ch, NULL, SPELL_FIRE_SHIELD);
+		cast_spell(ch, ch, NULL, NULL, SPELL_FIRE_SHIELD);
     } else if ((GET_LEVEL(ch) > 12) && (number(0, 12) == 0)) {
 		if (IS_EVIL(ch))
-			cast_spell(ch, vict, NULL, SPELL_ENERGY_DRAIN);
+			cast_spell(ch, vict, NULL, NULL, SPELL_ENERGY_DRAIN);
 		else if (IS_GOOD(ch) && IS_EVIL(vict))
-			cast_spell(ch, vict, NULL, SPELL_DISPEL_EVIL);
+			cast_spell(ch, vict, NULL, NULL, SPELL_DISPEL_EVIL);
     } else if (number(0, 4)) {
         // do nothing
     } else {
@@ -595,29 +595,29 @@ SPECIAL(magic_user)
 	switch (GET_LEVEL(ch)) {
 	case 4:
 	case 5:
-		cast_spell(ch, vict, NULL, SPELL_MAGIC_MISSILE);
+		cast_spell(ch, vict, NULL, NULL, SPELL_MAGIC_MISSILE);
 		break;
 	case 6:
 	case 7:
-		cast_spell(ch, vict, NULL, SPELL_CHILL_TOUCH);
+		cast_spell(ch, vict, NULL, NULL, SPELL_CHILL_TOUCH);
 		break;
 	case 8:
 	case 9:
 	case 10:
 	case 11:
-		cast_spell(ch, vict, NULL, SPELL_SHOCKING_GRASP);
+		cast_spell(ch, vict, NULL, NULL, SPELL_SHOCKING_GRASP);
 		break;
 	case 12:
 	case 13:
 	case 14:
-		cast_spell(ch, vict, NULL, SPELL_BURNING_HANDS);
+		cast_spell(ch, vict, NULL, NULL, SPELL_BURNING_HANDS);
 		break;
 	case 15:
 	case 16:
 	case 17:
 	case 18:
 	case 19:
-		cast_spell(ch, vict, NULL, SPELL_LIGHTNING_BOLT);
+		cast_spell(ch, vict, NULL, NULL, SPELL_LIGHTNING_BOLT);
 	case 20:
 	case 21:
 	case 22:
@@ -631,7 +631,7 @@ SPECIAL(magic_user)
 	case 30:
 	case 31:
 	case 32:
-		cast_spell(ch, vict, NULL, SPELL_COLOR_SPRAY);
+		cast_spell(ch, vict, NULL, NULL, SPELL_COLOR_SPRAY);
 		break;
 	case 33:
 	case 34:
@@ -643,10 +643,10 @@ SPECIAL(magic_user)
 	case 40:
 	case 41:
 	case 42:
-		cast_spell(ch, vict, NULL, SPELL_FIREBALL);
+		cast_spell(ch, vict, NULL, NULL, SPELL_FIREBALL);
 		break;
 	default:
-		cast_spell(ch, vict, NULL, SPELL_PRISMATIC_SPRAY);
+		cast_spell(ch, vict, NULL, NULL, SPELL_PRISMATIC_SPRAY);
 		break;
 	}
 	return TRUE;
@@ -673,25 +673,25 @@ SPECIAL(battle_cleric)
     bool found = true;
 	if ((GET_LEVEL(ch) > 2) && (number(0, 8) == 0) &&
 		!affected_by_spell(ch, SPELL_ARMOR)) {
-		cast_spell(ch, ch, NULL, SPELL_ARMOR);
+		cast_spell(ch, ch, NULL, NULL, SPELL_ARMOR);
 
     } else if ((GET_HIT(ch) / GET_MAX_HIT(ch)) < (GET_MAX_HIT(ch) >> 1)) {
 		if ((GET_LEVEL(ch) < 12) && (number(0, 4) == 0))
-			cast_spell(ch, ch, NULL, SPELL_CURE_LIGHT);
+			cast_spell(ch, ch, NULL, NULL, SPELL_CURE_LIGHT);
 
 		else if ((GET_LEVEL(ch) < 24) && (number(0, 4) == 0))
-			cast_spell(ch, ch, NULL, SPELL_CURE_CRITIC);
+			cast_spell(ch, ch, NULL, NULL, SPELL_CURE_CRITIC);
 
 		else if ((GET_LEVEL(ch) < 34) && (number(0, 4) == 0))
-			cast_spell(ch, ch, NULL, SPELL_HEAL);
+			cast_spell(ch, ch, NULL, NULL, SPELL_HEAL);
 
 		else if ((GET_LEVEL(ch) > 34) && (number(0, 4) == 0))
-			cast_spell(ch, ch, NULL, SPELL_GREATER_HEAL);
+			cast_spell(ch, ch, NULL, NULL, SPELL_GREATER_HEAL);
 	} else if ((GET_LEVEL(ch) > 12) && (number(0, 12) == 0)) {
 		if (IS_EVIL(ch))
-			cast_spell(ch, vict, NULL, SPELL_DISPEL_GOOD);
+			cast_spell(ch, vict, NULL, NULL, SPELL_DISPEL_GOOD);
 		else if (IS_GOOD(ch) && IS_EVIL(vict))
-			cast_spell(ch, vict, NULL, SPELL_DISPEL_EVIL);
+			cast_spell(ch, vict, NULL, NULL, SPELL_DISPEL_EVIL);
 	} else if (number(0, 4)) {
 		// do nothing this round 
     } else {
@@ -719,24 +719,24 @@ SPECIAL(battle_cleric)
 	case 23:
 	case 24:
 	case 25:
-		cast_spell(ch, vict, NULL, SPELL_SPIRIT_HAMMER);
+		cast_spell(ch, vict, NULL, NULL, SPELL_SPIRIT_HAMMER);
 		break;
 	case 26:
 	case 27:
 	case 28:
 	case 29:
 	case 30:
-		cast_spell(ch, vict, NULL, SPELL_CALL_LIGHTNING);
+		cast_spell(ch, vict, NULL, NULL, SPELL_CALL_LIGHTNING);
 		break;
 	case 31:
 	case 32:
 	case 33:
 	case 34:
 	case 35:
-		cast_spell(ch, vict, NULL, SPELL_HARM);
+		cast_spell(ch, vict, NULL, NULL, SPELL_HARM);
 		break;
 	default:
-		cast_spell(ch, vict, NULL, SPELL_FLAME_STRIKE);
+		cast_spell(ch, vict, NULL, NULL, SPELL_FLAME_STRIKE);
 		break;
 	}
 	return TRUE;

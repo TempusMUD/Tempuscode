@@ -14,7 +14,7 @@ SPECIAL(newbie_portal_rm)
 		char_from_room(ch, false);
 		if (IS_REMORT(ch)) {
 			char_to_room(ch, room, false);
-			call_magic(ch, ch, 0, SPELL_WORD_OF_RECALL, LVL_GRIMP, CAST_SPELL);
+			call_magic(ch, ch, 0, NULL, SPELL_WORD_OF_RECALL, LVL_GRIMP, CAST_SPELL);
 			return 1;
 		} else if (GET_EXP(ch) < 10) {
 			char_to_room(ch, real_room(2329), false);

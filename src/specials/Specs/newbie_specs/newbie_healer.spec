@@ -27,15 +27,15 @@ SPECIAL(newbie_healer)
 		}
 		if (!IS_NPC(i) && GET_LEVEL(i) < 5 && !number(0, GET_LEVEL(i))) {
 			if (GET_HIT(i) < GET_MAX_HIT(i))
-				cast_spell(ch, i, 0, SPELL_CURE_CRITIC);
+				cast_spell(ch, i, 0, NULL, SPELL_CURE_CRITIC);
 			else if (IS_AFFECTED(i, AFF_POISON))
-				cast_spell(ch, i, 0, SPELL_REMOVE_POISON);
+				cast_spell(ch, i, 0, NULL, SPELL_REMOVE_POISON);
 			else if (!affected_by_spell(i, SPELL_BLESS))
-				cast_spell(ch, i, 0, SPELL_BLESS);
+				cast_spell(ch, i, 0, NULL, SPELL_BLESS);
 			else if (!affected_by_spell(i, SPELL_ARMOR))
-				cast_spell(ch, i, 0, SPELL_ARMOR);
+				cast_spell(ch, i, 0, NULL, SPELL_ARMOR);
 			else if (!affected_by_spell(i, SPELL_DETECT_MAGIC))
-				cast_spell(ch, i, 0, SPELL_DETECT_MAGIC);
+				cast_spell(ch, i, 0, NULL, SPELL_DETECT_MAGIC);
 			else
 				return 0;
 			return 1;
@@ -44,7 +44,7 @@ SPECIAL(newbie_healer)
 	for (p = ch->carrying; p; p = p->next_content) {
 		act("$p.", FALSE, ch, p, 0, TO_CHAR);
 		if (GET_OBJ_TYPE(p) == ITEM_WORN)
-			cast_spell(ch, 0, p, SPELL_MAGICAL_VESTMENT);
+			cast_spell(ch, 0, p, NULL, SPELL_MAGICAL_VESTMENT);
 		else
 			send_to_char(ch, "No WEAR.\r\n");
 		do_drop(ch, fname(p->aliases), 0, 0, 0);

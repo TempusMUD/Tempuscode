@@ -526,7 +526,7 @@ general_search(struct Creature *ch, struct special_search_data *srch,
 					continue;
 
 				if (mob == ch) {
-					call_magic(ch, ch, 0, srch->arg[2], srch->arg[0],
+					call_magic(ch, ch, 0, NULL, srch->arg[2], srch->arg[0],
 						(SPELL_IS_MAGIC(srch->arg[2]) ||
 							SPELL_IS_DIVINE(srch->arg[2])) ? CAST_SPELL :
 						(SPELL_IS_PHYSICS(srch->arg[2])) ? CAST_PHYSIC :
@@ -535,7 +535,7 @@ general_search(struct Creature *ch, struct special_search_data *srch,
 					if (IS_SET(retval, DAM_ATTACKER_KILLED))
 						break;
 				} else {
-					call_magic(ch, mob, 0, srch->arg[2], srch->arg[0],
+					call_magic(ch, mob, 0, NULL, srch->arg[2], srch->arg[0],
 						(SPELL_IS_MAGIC(srch->arg[2]) ||
 							SPELL_IS_DIVINE(srch->arg[2])) ? CAST_SPELL :
 						(SPELL_IS_PHYSICS(srch->arg[2])) ? CAST_PHYSIC :
@@ -544,7 +544,7 @@ general_search(struct Creature *ch, struct special_search_data *srch,
 				}
 			}
 		} else if (!targ_room && !affected_by_spell(ch, srch->arg[2]))
-			call_magic(ch, ch, 0, srch->arg[2], srch->arg[0],
+			call_magic(ch, ch, 0, NULL, srch->arg[2], srch->arg[0],
 				(SPELL_IS_MAGIC(srch->arg[2]) ||
 					SPELL_IS_DIVINE(srch->arg[2])) ? CAST_SPELL :
 				(SPELL_IS_PHYSICS(srch->arg[2])) ? CAST_PHYSIC :

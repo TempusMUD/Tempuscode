@@ -397,14 +397,14 @@ affect_update(void)
 						if (IS_MOB(i)) {
 							if (IS_MAGE(i) && GET_LEVEL(i) > 32
 								&& GET_MANA(i) > 50)
-								found = cast_spell(i, i, 0, SPELL_FLY);
+								found = cast_spell(i, i, 0, NULL, SPELL_FLY);
 							else if (IS_CLERIC(i) && GET_LEVEL(i) > 31
 								&& GET_MANA(i) > 50)
-								found = cast_spell(i, i, 0, SPELL_AIR_WALK);
+								found = cast_spell(i, i, 0, NULL, SPELL_AIR_WALK);
 							else if (IS_PHYSIC(i) && GET_LEVEL(i) > 31
 								&& GET_MANA(i) > 50)
 								found =
-									cast_spell(i, i, 0, SPELL_TIDAL_SPACEWARP);
+									cast_spell(i, i, 0, NULL, SPELL_TIDAL_SPACEWARP);
 							if (!found) {
 
 								if (!i->in_room->isOpenAir()) {
@@ -957,7 +957,7 @@ mag_damage(int level, struct Creature *ch, struct Creature *victim,
 
 void
 mag_affects(int level, struct Creature *ch, struct Creature *victim,
-	int spellnum, int savetype)
+	int *dir, int spellnum, int savetype)
 {
 
 	struct affected_type af, af2, *afp;
@@ -2762,69 +2762,69 @@ Fireball: like harder bones, skin, organ membranecs
 
 void
 perform_mag_groups(int level, struct Creature *ch,
-	struct Creature *tch, int spellnum, int savetype)
+	struct Creature *tch, int *tdir, int spellnum, int savetype)
 {
 	switch (spellnum) {
 	case SPELL_GROUP_HEAL:
-		mag_points(level, ch, tch, SPELL_HEAL, savetype);
+		mag_points(level, ch, tch, tdir, SPELL_HEAL, savetype);
 		break;
 	case SPELL_GROUP_ARMOR:
-		mag_affects(level, ch, tch, SPELL_ARMOR, savetype);
+		mag_affects(level, ch, tch, tdir, SPELL_ARMOR, savetype);
 		break;
 	case SPELL_GROUP_RECALL:
-		spell_recall(level, ch, tch, NULL);
+		spell_recall(level, ch, tch, NULL, NULL);
 		break;
 	case SPELL_GROUP_CONFIDENCE:
-		mag_affects(level, ch, tch, SPELL_CONFIDENCE, savetype);
+		mag_affects(level, ch, tch, tdir, SPELL_CONFIDENCE, savetype);
 		break;
 	case SPELL_SHIELD_OF_RIGHTEOUSNESS:
 		if (!IS_GOOD(tch))
 			break;
-		mag_affects(level, ch, tch, SPELL_SHIELD_OF_RIGHTEOUSNESS, savetype);
+		mag_affects(level, ch, tch, tdir, SPELL_SHIELD_OF_RIGHTEOUSNESS, savetype);
 		break;
     case SONG_DRIFTERS_DITTY:
-		mag_affects(level, ch, tch, SONG_DRIFTERS_DITTY, savetype);
-		mag_points(level, ch, tch, SONG_DRIFTERS_DITTY, savetype);
+		mag_affects(level, ch, tch, tdir, SONG_DRIFTERS_DITTY, savetype);
+		mag_points(level, ch, tch, tdir, SONG_DRIFTERS_DITTY, savetype);
         break;
     case SONG_ARIA_OF_ARMAMENT:
-        mag_affects(level, ch, tch, SONG_ARIA_OF_ARMAMENT, savetype);
+        mag_affects(level, ch, tch, tdir, SONG_ARIA_OF_ARMAMENT, savetype);
         break;
     case SONG_MELODY_OF_METTLE:
-        mag_affects(level, ch, tch, SONG_MELODY_OF_METTLE, savetype);
+        mag_affects(level, ch, tch, tdir, SONG_MELODY_OF_METTLE, savetype);
         break;
     case SONG_REGALERS_RHAPSODY:
-        mag_affects(level, ch, tch, SONG_REGALERS_RHAPSODY, savetype);
+        mag_affects(level, ch, tch, tdir, SONG_REGALERS_RHAPSODY, savetype);
         break;
     case SONG_DEFENSE_DITTY:
-        mag_affects(level, ch, tch, SONG_DEFENSE_DITTY, savetype);
+        mag_affects(level, ch, tch, tdir, SONG_DEFENSE_DITTY, savetype);
         break;
     case SONG_ALRONS_ARIA:
-        mag_affects(level, ch, tch, SONG_ALRONS_ARIA, savetype);
+        mag_affects(level, ch, tch, tdir, SONG_ALRONS_ARIA, savetype);
         mag_unaffects(level, ch, tch, SONG_ALRONS_ARIA, savetype);
         break;
     case SONG_LUSTRATION_MELISMA:
         mag_unaffects(level, ch, tch, SONG_LUSTRATION_MELISMA, savetype);
         break;
     case SONG_VERSE_OF_VALOR:
-        mag_affects(level, ch, tch, SONG_VERSE_OF_VALOR, savetype);
+        mag_affects(level, ch, tch, tdir, SONG_VERSE_OF_VALOR, savetype);
         break;
     case SONG_CHANT_OF_LIGHT:
-        mag_affects(level, ch, tch, SONG_CHANT_OF_LIGHT, savetype);
+        mag_affects(level, ch, tch, tdir, SONG_CHANT_OF_LIGHT, savetype);
         break;
     case SONG_EAGLES_OVERTURE:
-        mag_affects(level, ch, tch, SONG_EAGLES_OVERTURE, savetype);
+        mag_affects(level, ch, tch, tdir, SONG_EAGLES_OVERTURE, savetype);
         break;
     case SONG_WEIGHT_OF_THE_WORLD:
-        mag_affects(level, ch, tch, SONG_WEIGHT_OF_THE_WORLD, savetype);
+        mag_affects(level, ch, tch, tdir, SONG_WEIGHT_OF_THE_WORLD, savetype);
         break;
     case SONG_GUIHARIAS_GLORY:
-        mag_affects(level, ch, tch, SONG_GUIHARIAS_GLORY, savetype);
+        mag_affects(level, ch, tch, tdir, SONG_GUIHARIAS_GLORY, savetype);
         break;
     case SONG_UNLADEN_SWALLOW_SONG:
-        mag_affects(level, ch, tch, SONG_UNLADEN_SWALLOW_SONG, savetype);
+        mag_affects(level, ch, tch, tdir, SONG_UNLADEN_SWALLOW_SONG, savetype);
         break;
     case SONG_ARIA_OF_ASYLUM:
-        mag_affects(level, ch, tch, SONG_ARIA_OF_ASYLUM, savetype);
+        mag_affects(level, ch, tch, tdir, SONG_ARIA_OF_ASYLUM, savetype);
         break;
 	default:
 		errlog("Unknown spellnum %d in perform_mag_groups()",
@@ -2851,6 +2851,7 @@ void
 mag_groups(int level, struct Creature *ch, int spellnum, int savetype)
 {
 	struct Creature *tch, *k;
+    int tdir = -1;
 	struct follow_type *f, *f_next;
 
 	if (ch == NULL)
@@ -2871,12 +2872,12 @@ mag_groups(int level, struct Creature *ch, int spellnum, int savetype)
 			continue;
 		if (ch == tch)
 			continue;
-		perform_mag_groups(level, ch, tch, spellnum, savetype);
+		perform_mag_groups(level, ch, tch, &tdir, spellnum, savetype);
 	}
 
 	if ((k != ch) && IS_AFFECTED(k, AFF_GROUP))
-		perform_mag_groups(level, ch, k, spellnum, savetype);
-	perform_mag_groups(level, ch, ch, spellnum, savetype);
+		perform_mag_groups(level, ch, k, &tdir, spellnum, savetype);
+	perform_mag_groups(level, ch, ch, &tdir, spellnum, savetype);
 }
 
 
@@ -3024,7 +3025,7 @@ mag_areas(byte level, struct Creature *ch, int spellnum, int savetype)
 			continue;
 
 		if (spellnum == SPELL_MASS_HYSTERIA) {
-			call_magic(ch, (*it), 0, SPELL_FEAR, level, CAST_PSIONIC);
+			call_magic(ch, (*it), 0, NULL, SPELL_FEAR, level, CAST_PSIONIC);
 			continue;
 		}
 
@@ -3190,7 +3191,7 @@ mag_summons(int level, struct Creature *ch, struct obj_data *obj,
 
 void
 mag_points(int level, struct Creature *ch, struct Creature *victim,
-	int spellnum, int savetype)
+	int *dir, int spellnum, int savetype)
 {
 	int hit = 0;
 	int move = 0;

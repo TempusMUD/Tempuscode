@@ -303,7 +303,6 @@ struct bard_song songs[] = {
 // incomplete
 /*
     static const int SKILL_VENTRILOQUISM = 673; // makes objects talk
-    static const int SONG_WALL_OF_SOUND = 347; // seals an exit, broken by shatter
     static const int SONG_MISDIRECTION_MELISMA = 350; // misleads a tracker
     static const int SONG_LULLABY = 352; // puts a room to sleep
     static const int SONG_VERSE_OF_VIBRATION = 355; // motor spasm++
@@ -326,6 +325,7 @@ struct bard_song songs[] = {
 // complete
 /*
     static const int SONG_INSTANT_AUDIENCE = 346; // conjures an audience, like summon elem
+    static const int SONG_WALL_OF_SOUND = 347; // seals an exit, broken by shatter
     static const int SONG_LAMENT_OF_LONGING = 349; // creates a portal to another character
     static const int SONG_ARIA_OF_ARMAMENT = 351; // Similar to armor, group spell
     static const int SONG_VERSE_OF_VULNERABILITY = 353; // lowers AC of target
@@ -759,4 +759,54 @@ ASPELL(song_rhythm_of_alarm)
     rm_aff.owner = ch;
     affect_to_room(ch->in_room, &rm_aff);
 
+    gain_skill_prof(ch, SONG_RHYTHM_OF_ALARM);
+}
+
+ASPELL(song_wall_of_sound)
+{
+    struct room_affect_data rm_aff;
+    struct room_affect_data *rm_aff_ptr;
+    const char *dir_str;
+
+    dir_str = dirs[*dir]; 
+
+    if ((rm_aff_ptr = room_affected_by(ch->in_room, SONG_WALL_OF_SOUND)) &&
+        rm_aff_ptr->type == *dir) {
+        send_to_char(ch, "There is already a wall of sound in that direction!\r\n");
+        return;
+    }
+
+    if (!EXIT(ch, *dir)) {
+        send_to_char(ch, "There's no exit in that direction!\r\n");
+        return;
+    }
+
+    if (ch->in_room->number == 3013 || ch->in_room->number == 30013) {
+        send_to_char(ch, "That's really not a good idea.  Jerk...\r\n");
+        return;
+    }
+
+    char *buff = tmp_sprintf("A wall of sound appears, sealing the exit ");
+    if (!strcmp(dir_str, "future") || !strcmp(dir_str, "past"))
+        buff = tmp_strcat(buff, "to the ", NULL);
+    buff = tmp_strcat(buff, dir_str, "!\r\n", NULL);
+
+    send_to_room(buff, ch->in_room);
+
+    rm_aff.level = level;
+    rm_aff.spell_type = SONG_WALL_OF_SOUND;
+    rm_aff.type = *dir;
+    rm_aff.duration = number(1, 50) + (ch->getLevelBonus(SONG_WALL_OF_SOUND));
+    rm_aff.flags = EX_NOPASS;
+    rm_aff.owner = ch;
+
+    buff = tmp_sprintf("   There is a wall of sound blocking the exit ");
+    if (!strcmp(dir_str, "future") || !strcmp(dir_str, "past"))
+        buff = tmp_strcat(buff, "to the ", NULL);
+    buff = tmp_strcat(buff, dir_str, ".\r\n", NULL);
+
+    rm_aff.description = str_dup(buff);
+    affect_to_room(ch->in_room, &rm_aff);
+
+    gain_skill_prof(ch, SONG_WALL_OF_SOUND);
 }

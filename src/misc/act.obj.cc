@@ -226,7 +226,7 @@ activate_char_quad(struct Creature *ch)
 		next_obj = obj->next_content;
 
 		if (GET_OBJ_VNUM(obj) == QUAD_VNUM) {
-			call_magic(ch, ch, NULL, SPELL_QUAD_DAMAGE, LVL_GRIMP, CAST_SPELL);
+			call_magic(ch, ch, NULL, NULL, SPELL_QUAD_DAMAGE, LVL_GRIMP, CAST_SPELL);
 			extract_obj(obj);
 			slog("%s got the Quad Damage at %d.", GET_NAME(ch),
 				ch->in_room->number);
@@ -2217,7 +2217,7 @@ ACMD(do_eat)
 
 	if (IS_OBJ_TYPE(food, ITEM_FOOD)) {
 		if (IS_OBJ_STAT(food, ITEM_DAMNED)) {
-			if (!call_magic(ch, ch, 0, SPELL_ESSENCE_OF_EVIL, GET_OBJ_VAL(food, 1), CAST_SPELL, return_flags) ) {
+			if (!call_magic(ch, ch, 0, NULL, SPELL_ESSENCE_OF_EVIL, GET_OBJ_VAL(food, 1), CAST_SPELL, return_flags) ) {
 				if (extract_ok)
 					extract_obj(food);
 				return;
@@ -2228,7 +2228,7 @@ ACMD(do_eat)
 				}
 			}
 		} else if (IS_OBJ_STAT(food, ITEM_BLESS)) {
-			if (!call_magic(ch, ch, 0, SPELL_ESSENCE_OF_GOOD, GET_OBJ_VAL(food, 1), CAST_SPELL, return_flags ) ) {
+			if (!call_magic(ch, ch, 0, NULL, SPELL_ESSENCE_OF_GOOD, GET_OBJ_VAL(food, 1), CAST_SPELL, return_flags ) ) {
 				if (extract_ok)
 					extract_obj(food);
 				return;

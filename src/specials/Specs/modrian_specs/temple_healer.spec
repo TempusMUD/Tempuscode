@@ -20,7 +20,7 @@ SPECIAL(temple_healer)
 			switch (number(0, 20)) {
 			case 0:
 				do_say(self, "Now you pay!!", 0, 0, 0);
-				cast_spell(self, vict, NULL, SPELL_FLAME_STRIKE);
+				cast_spell(self, vict, NULL, NULL, SPELL_FLAME_STRIKE);
 				return true;
 			case 1:
 			case 2:
@@ -31,11 +31,11 @@ SPECIAL(temple_healer)
 			case 7:
 				if (!IS_AFFECTED(self, AFF_SANCTUARY)) {
 					do_say(self, "Guiharia, aid me now!!", 0, 0, 0);
-					call_magic(self, self, NULL, SPELL_SANCTUARY, 50, CAST_SPELL);
+					call_magic(self, self, NULL, NULL, SPELL_SANCTUARY, 50, CAST_SPELL);
 					return true;
 				}
 			case 8:
-				cast_spell(self, self, NULL, SPELL_GREATER_HEAL);
+				cast_spell(self, self, NULL, NULL, SPELL_GREATER_HEAL);
 				return true;
 			}
 			return false;
@@ -91,7 +91,7 @@ SPECIAL(temple_healer)
 						act("$n touches $N, and heals $M.", TRUE, self, 0, vict,
 							TO_NOTVICT);
 
-						cast_spell(self, vict, 0,
+						cast_spell(self, vict, 0, NULL, 
 							GET_LEVEL(vict) <= 10 ? SPELL_CURE_LIGHT :
 							GET_LEVEL(vict) <= 20 ? SPELL_CURE_CRITIC :
 							GET_LEVEL(vict) <=
@@ -122,10 +122,10 @@ SPECIAL(temple_healer)
 							FALSE, self, 0, vict, TO_CHAR);
 
 						if (IS_POISONED(vict))
-							call_magic(self, vict, 0, SPELL_REMOVE_POISON,
+							call_magic(self, vict, 0, NULL, SPELL_REMOVE_POISON,
 								GET_LEVEL(self), CAST_SPELL);
 						if (IS_SICK(vict))
-							call_magic(self, vict, 0, SPELL_REMOVE_SICKNESS,
+							call_magic(self, vict, 0, NULL, SPELL_REMOVE_SICKNESS,
 								GET_LEVEL(self), CAST_SPELL);
 						return true;
 					}
@@ -151,7 +151,7 @@ SPECIAL(temple_healer)
 							TO_NOTVICT);
 						act("You touch the eyes of $N.", FALSE, self, 0, vict,
 							TO_CHAR);
-						call_magic(self, vict, 0, SPELL_CURE_BLIND,
+						call_magic(self, vict, 0, NULL, SPELL_CURE_BLIND,
 							GET_LEVEL(self), CAST_SPELL);
 						return true;
 

@@ -20,7 +20,7 @@ SPECIAL(unholy_stalker)
 
 	if (mob->numCombatants()) {
 		if (!number(0, 3)) {
-			call_magic(mob, mob->findRandomCombat(), 0, SPELL_CHILL_TOUCH,
+			call_magic(mob, mob->findRandomCombat(), NULL, 0, SPELL_CHILL_TOUCH,
 				GET_LEVEL(mob) + 10, CAST_SPELL);
 		}
 
@@ -28,7 +28,7 @@ SPECIAL(unholy_stalker)
 		if (GET_HIT(mob) < 100 && GET_HIT(vict) > GET_HIT(mob) &&
 			!ROOM_FLAGGED(mob->in_room, ROOM_NOMAGIC | ROOM_NORECALL) &&
 			GET_LEVEL(mob) > number(20, 35)) {
-			call_magic(mob, mob, 0, SPELL_LOCAL_TELEPORT, 90, CAST_SPELL);
+			call_magic(mob, mob, 0, NULL, SPELL_LOCAL_TELEPORT, 90, CAST_SPELL);
 		}
 	}
 

@@ -227,23 +227,23 @@ mob_fight_psionic(struct Creature *ch, struct Creature *precious_vict)
 	if (GET_LEVEL(ch) >= 12 &&
 		!affected_by_spell(ch, SPELL_DERMAL_HARDENING) &&
 		GET_MANA(ch) > mag_manacost(ch, SPELL_DERMAL_HARDENING))
-		cast_spell(ch, ch, NULL, SPELL_DERMAL_HARDENING);
+		cast_spell(ch, ch, NULL, NULL, SPELL_DERMAL_HARDENING);
 	// wound closure
 	else if (GET_LEVEL(ch) >= 10 &&
 		GET_HIT(ch) < (GET_MAX_HIT(ch) >> 2) &&
 		GET_MANA(ch) > mag_manacost(ch, SPELL_WOUND_CLOSURE))
-		cast_spell(ch, ch, NULL, SPELL_WOUND_CLOSURE);
+		cast_spell(ch, ch, NULL, NULL, SPELL_WOUND_CLOSURE);
 	// psychic resistance
 	else if (IS_PSIONIC(vict) && GET_LEVEL(vict) >= 5 &&
 		GET_LEVEL(ch) >= 20 &&
 		!affected_by_spell(ch, SPELL_PSYCHIC_RESISTANCE) &&
 		GET_MANA(ch) > mag_manacost(ch, SPELL_PSYCHIC_RESISTANCE))
-		cast_spell(ch, ch, NULL, SPELL_PSYCHIC_RESISTANCE);
+		cast_spell(ch, ch, NULL, NULL, SPELL_PSYCHIC_RESISTANCE);
 	// adrenaline
 	else if (GET_LEVEL(ch) >= 27 &&
 		!AFF_FLAGGED(ch, AFF_ADRENALINE) &&
 		GET_MANA(ch) > mag_manacost(ch, SPELL_ADRENALINE))
-		cast_spell(ch, ch, NULL, SPELL_ADRENALINE);
+		cast_spell(ch, ch, NULL, NULL, SPELL_ADRENALINE);
 	// drain the enemy!
 	else if (GET_LEVEL(ch) >= 24 &&
 		(IS_MAGE(vict) || IS_PSIONIC(vict) || IS_CLERIC(vict) |
@@ -260,27 +260,27 @@ mob_fight_psionic(struct Creature *ch, struct Creature *precious_vict)
 	else if (GET_LEVEL(ch) >= 29 &&
 		GET_MANA(ch) > mag_manacost(ch, SPELL_FEAR) &&
 		!affected_by_spell(vict, SPELL_FEAR) && !number(0, 2))
-		cast_spell(ch, vict, NULL, SPELL_FEAR);
+		cast_spell(ch, vict, NULL, NULL, SPELL_FEAR);
 	// clumsiness
 	else if (GET_LEVEL(ch) >= 28 &&
 		!affected_by_spell(vict, SPELL_CLUMSINESS) &&
 		GET_MANA(ch) > mag_manacost(ch, SPELL_CLUMSINESS) && !number(0, 2))
-		cast_spell(ch, vict, NULL, SPELL_CLUMSINESS);
+		cast_spell(ch, vict, NULL, NULL, SPELL_CLUMSINESS);
 	// weakness
 	else if (GET_LEVEL(ch) >= 16 &&
 		!affected_by_spell(vict, SPELL_WEAKNESS) &&
 		GET_MANA(ch) > mag_manacost(ch, SPELL_WEAKNESS) && !number(0, 2))
-		cast_spell(ch, vict, NULL, SPELL_WEAKNESS);
+		cast_spell(ch, vict, NULL, NULL, SPELL_WEAKNESS);
 	// psychic crush
 	else if (GET_LEVEL(ch) >= 35 &&
 		!AFF3_FLAGGED(vict, SPELL_PSYCHIC_CRUSH) &&
 		GET_MANA(ch) > mag_manacost(ch, SPELL_PSYCHIC_CRUSH))
-		cast_spell(ch, vict, NULL, SPELL_PSYCHIC_CRUSH);
+		cast_spell(ch, vict, NULL, NULL, SPELL_PSYCHIC_CRUSH);
 	// ego whip
 	else if (GET_LEVEL(ch) >= 22 &&
 		GET_MANA(ch) > mag_manacost(ch, SPELL_EGO_WHIP) &&
 		(!number(0, 2) || (!can_see_creature(ch, vict) && !ch->findCombat(vict))))
-		cast_spell(ch, vict, NULL, SPELL_EGO_WHIP);
+		cast_spell(ch, vict, NULL, NULL, SPELL_EGO_WHIP);
 	// psiblast
 	else if (GET_LEVEL(ch) >= 5 &&
 		GET_MANA(ch) > mag_manacost(ch, SKILL_PSIBLAST)) {

@@ -14,7 +14,7 @@ SPECIAL(newbie_fly)
 	for (; it != ch->in_room->people.end(); ++it) {
 		if (IS_AFFECTED((*it), AFF_INFLIGHT) || !can_see_creature(ch, (*it)))
 			continue;
-		cast_spell(ch, (*it), 0, SPELL_FLY);
+		cast_spell(ch, (*it), 0, NULL, SPELL_FLY);
 		return 1;
 	}
 	return 0;

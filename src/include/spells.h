@@ -789,6 +789,7 @@ static const int TAR_OBJ_WORLD = 512;
 static const int TAR_OBJ_EQUIP = 1024;
 static const int TAR_DOOR = 2048;
 static const int TAR_UNPLEASANT = 4096;
+static const int TAR_DIR = 8192;
 
 struct spell_info_type {
 	char min_position;			/* Position for caster   */
@@ -836,9 +837,9 @@ struct attack_hit_type {
 
 #define ASPELL(spellname) \
 void	spellname(byte level, struct Creature *ch, \
-		  struct Creature *victim, struct obj_data *obj)
+		  struct Creature *victim, struct obj_data *obj, int *dir)
 
-#define MANUAL_SPELL(spellname)	spellname(level, caster, cvict, ovict);
+#define MANUAL_SPELL(spellname)	spellname(level, caster, cvict, ovict, dvict);
 
 static inline int SPELL_LEVEL( int spell, int char_class ) {
 	return spell_info[spell].min_level[char_class];
@@ -910,6 +911,7 @@ ASPELL(song_lament_of_longing);
 ASPELL(song_unravelling_diapason);
 ASPELL(song_instant_audience);
 ASPELL(song_rhythm_of_alarm);
+ASPELL(song_wall_of_sound);
 
 /* basic magic calling functions */
 
@@ -922,7 +924,7 @@ int mag_exits(int level, struct Creature *caster, struct room_data *room,
 	int spellnum);
 
 void mag_affects(int level, struct Creature *ch, struct Creature *victim,
-	int spellnum, int savetype);
+	int *dir, int spellnum, int savetype);
 
 void mag_group_switch(int level, struct Creature *ch, struct Creature *tch,
 	int spellnum, int savetype);
@@ -937,7 +939,7 @@ void mag_summons(int level, struct Creature *ch, struct obj_data *obj,
 	int spellnum, int savetype);
 
 void mag_points(int level, struct Creature *ch, struct Creature *victim,
-	int spellnum, int savetype);
+	int *dir, int spellnum, int savetype);
 
 void mag_unaffects(int level, struct Creature *ch, struct Creature *victim,
 	int spellnum, int type);
@@ -948,7 +950,7 @@ void mag_alter_objs(int level, struct Creature *ch, struct obj_data *obj,
 void mag_creations(int level, struct Creature *ch, int spellnum);
 
 int call_magic(struct Creature *caster, struct Creature *cvict,
-	struct obj_data *ovict, int spellnum, int level, int casttype,
+	struct obj_data *ovict, int *dvict, int spellnum, int level, int casttype,
 	int *return_flags = 0);
 
 int mag_objectmagic(struct Creature *ch, struct obj_data *obj,
@@ -958,7 +960,7 @@ void mag_objects(int level, struct Creature *ch, struct obj_data *obj,
 	int spellnum);
 
 int cast_spell(struct Creature *ch, struct Creature *tch,
-	struct obj_data *tobj, int spellnum, int *return_flags = 0);
+	struct obj_data *tobj, int *tdir, int spellnum, int *return_flags = 0);
 
 int mag_savingthrow(struct Creature *ch, int level, int type);
 

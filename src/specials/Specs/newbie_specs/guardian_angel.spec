@@ -9,8 +9,8 @@
 ACMD(do_follow);
 ACMD(do_rescue);
 bool affected_by_spell( struct char_data *ch, byte skill );
-int cast_spell(struct Creature *ch, struct Creature *tch,
-               struct obj_data *tobj, int spellnum, int *return_flags);
+int cast_spell(struct Creature *ch, struct Creature *tch, 
+               struct obj_data *tobj, int *tdir, int spellnum, int *return_flags);
 void angel_find_path_to_room(Creature *angel, struct room_data *dest, struct angel_data **data);
 
 struct angel_data {
@@ -170,7 +170,7 @@ angel_do_action(Creature *self, Creature *charge, angel_data *data)
 
         if (spell) {
             do_say(self, angel_spells[spell_no].text, 0, SCMD_SAY, 0);
-            cast_spell(self, charge, NULL, angel_spells[spell_no].spell_no, &return_flags);
+            cast_spell(self, charge, NULL, NULL, angel_spells[spell_no].spell_no, &return_flags);
             return 1;
         }
     }
@@ -282,13 +282,13 @@ angel_check_charge(Creature *self, Creature *charge, angel_data *data)
 
     if (affected_by_spell(charge, SPELL_POISON)) {
         do_say(self, "You're poisoned!  I'll take care of that for you.", 0, SCMD_SAY, 0);
-        cast_spell(self, charge, NULL, SPELL_REMOVE_POISON, &return_flags);
+        cast_spell(self, charge, NULL, NULL, SPELL_REMOVE_POISON, &return_flags);
         return 1;
     }
 
     if (affected_by_spell(charge, SPELL_SICKNESS)) {
         do_say(self, "You're sick!  This spell should fix you up!.", 0, SCMD_SAY, 0);
-        cast_spell(self, charge, NULL, SPELL_REMOVE_SICKNESS, &return_flags);
+        cast_spell(self, charge, NULL, NULL, SPELL_REMOVE_SICKNESS, &return_flags);
         return 1;
     }
 

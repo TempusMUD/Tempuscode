@@ -43,7 +43,7 @@ SPECIAL(tiamat)
 	}
 
     Creature *vict = ch->findRandomCombat();
-	call_magic(ch, vict, 0, type, GET_LEVEL(ch), SAVING_BREATH);
+	call_magic(ch, vict, 0, NULL, type, GET_LEVEL(ch), SAVING_BREATH);
 	WAIT_STATE(ch, PULSE_VIOLENCE * 2);
 	return 1;
 }

@@ -283,13 +283,13 @@ fry_victim(struct Creature *ch)
 			TO_CHAR);
 		act("$n raises $s hand in a dramatic gesture.", 1, ch, 0, 0,
 			TO_ROOM);
-		cast_spell(ch, tch, 0, SPELL_COLOR_SPRAY);
+		cast_spell(ch, tch, 0, NULL, SPELL_COLOR_SPRAY);
 		break;
 	case 4:
 	case 5:
 		act("You concentrate and mumble to yourself.", 1, ch, 0, 0, TO_CHAR);
 		act("$n concentrates, and mumbles to $mself.", 1, ch, 0, 0, TO_ROOM);
-		cast_spell(ch, tch, 0, SPELL_HARM);
+		cast_spell(ch, tch, 0, NULL, SPELL_HARM);
 		break;
 	case 6:
 	case 7:
@@ -297,11 +297,11 @@ fry_victim(struct Creature *ch)
 		act("$n looks deeply into the eyes of $N.", 1, ch, 0, tch, TO_NOTVICT);
 		act("You see an ill-boding flame in the eye of $n.", 1, ch, 0, tch,
 			TO_VICT);
-		cast_spell(ch, tch, 0, SPELL_FIREBALL);
+		cast_spell(ch, tch, 0, NULL, SPELL_FIREBALL);
 		break;
 	default:
 		if (!number(0, 1))
-			cast_spell(ch, ch, 0, SPELL_HEAL);
+			cast_spell(ch, ch, 0, NULL, SPELL_HEAL);
 		break;
 	}
 

@@ -1626,7 +1626,7 @@ damage(struct Creature *ch, struct Creature *victim, int dam,
 			if ((IS_SICK(ch) || IS_ZOMBIE(ch)
 					|| (ch->in_room->zone->number == 163 && !IS_NPC(victim)))
 				&& !IS_SICK(victim) && !IS_UNDEAD(victim)) {
-				call_magic(ch, victim, 0, SPELL_SICKNESS, GET_LEVEL(ch),
+				call_magic(ch, victim, 0, NULL, SPELL_SICKNESS, GET_LEVEL(ch),
 					CAST_PARA);
 			}
 		}
@@ -2533,12 +2533,12 @@ do_casting_weapon(Creature *ch, obj_data *weap)
 					TAR_UNPLEASANT)) {
             if (ch->numCombatants()) {
                 Creature *vict = ch->findRandomCombat();
-			    call_magic(ch, vict, 0, GET_OBJ_VAL(weap, 0),
+			    call_magic(ch, vict, 0, NULL, GET_OBJ_VAL(weap, 0),
 				           GET_LEVEL(ch), CAST_WAND);
             }
         }
 		else if (!affected_by_spell(ch, GET_OBJ_VAL(weap, 0)))
-			call_magic(ch, ch, 0, GET_OBJ_VAL(weap, 0), GET_LEVEL(ch),
+			call_magic(ch, ch, 0, NULL, GET_OBJ_VAL(weap, 0), GET_LEVEL(ch),
 				CAST_WAND);
 	} else {
 		// drop the weapon
