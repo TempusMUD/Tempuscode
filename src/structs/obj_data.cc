@@ -2,6 +2,8 @@
 
 #include "structs.h"
 #include "utils.h"
+#include "handler.h"
+
 extern int no_plrtext;
 struct obj_data *real_object_proto(int vnum);
 
@@ -87,68 +89,83 @@ void obj_data::clear()
 	worn_on = -1;
 }
 
-
+char*
+get_worn_type( obj_data *obj ) 
+{
+	if( obj->worn_on == -1 ) {
+		return "none";
+	} else if( obj->worn_by != NULL ) {
+		if( GET_EQ(obj->worn_by, obj->worn_on) == obj ) {
+			return "equipped";
+		} else if( GET_IMPLANT(obj->worn_by, obj->worn_on) == obj ) {
+			return "implanted";
+		}
+	} 
+	return "unknown";
+}
 void
 obj_data::saveToXML(FILE *ouf)
 {
-	static string indent = "";
-	fprintf( ouf, "%s<object vnum=\"%d\">\n", 
-			indent.c_str(), shared->vnum );
-	indent += '\t';
+	fprintf( ouf, "<object vnum=\"%d\">\n", 
+			shared->vnum );
 
 	if( strcmp( short_description, shared->proto->short_description ) ) {
-		fprintf( ouf, "%s<short_desc>%s</short_desc>\n",
-				indent.c_str(), 
+		fprintf( ouf, "<short_desc>%s</short_desc>\n",
 				xmlEncodeTmp(short_description) );
 	}
 	if( strcmp( name, shared->proto->name ) ) {
-		fprintf( ouf, "%s<name>%s</name>\n",
-				 indent.c_str(), xmlEncodeTmp(name) );
+		fprintf( ouf, "<name>%s</name>\n",
+				xmlEncodeTmp(name) );
 	}
 	if( strcmp( description, shared->proto->description ) ) {
-		fprintf( ouf, "%s<long_desc>%s</long_desc>\n",
-				 indent.c_str(), xmlEncodeTmp(description) );
+		fprintf( ouf, "<long_desc>%s</long_desc>\n",
+				  xmlEncodeTmp(description) );
 	}
-	if( strcmp( description, shared->proto->action_description ) ) {
-		fprintf( ouf, "%s<action_desc>%s</action_desc>\n",
-				 indent.c_str(), xmlEncodeTmp(action_description));
+	if( action_description != NULL ) {
+		if( strcmp( action_description, shared->proto->action_description ) ) {
+			fprintf( ouf, "<action_desc>%s</action_desc>\n",
+					  xmlEncodeTmp(action_description));
+		}
 	}
-	fprintf( ouf, "%s<equipment wearable=\"%x\" worn_on=\"%d\" />\n", 
-			indent.c_str(), obj_flags.wear_flags, worn_on );
-	fprintf( ouf, "%s<points type=\"%d\" soilage=\"%d\" weight=\"%d\" material=\"%d\" timer=\"%d\"/>\n",
-			 indent.c_str(), obj_flags.type_flag, soilage, 
+	fprintf( ouf, "<points type=\"%d\" soilage=\"%d\" weight=\"%d\" material=\"%d\" timer=\"%d\"/>\n",
+			  obj_flags.type_flag, soilage, 
 			 obj_flags.getWeight(), obj_flags.material, obj_flags.timer );
-	fprintf( ouf, "%s<damage current=\"%d\" max=\"%d\" sigil_id=\"%d\" sigil_level=\"%d\" />\n",
-			indent.c_str(), obj_flags.damage, obj_flags.max_dam, 
+	fprintf( ouf, "<damage current=\"%d\" max=\"%d\" sigil_id=\"%d\" sigil_level=\"%d\" />\n",
+			 obj_flags.damage, obj_flags.max_dam, 
 			obj_flags.sigil_idnum, obj_flags.sigil_level );
-	fprintf( ouf, "%s<flags extra=\"%x\" extra2=\"%x\" extra3=\"%x\" />\n",
-			indent.c_str(), obj_flags.extra_flags, 
+	fprintf( ouf, "<flags extra=\"%x\" extra2=\"%x\" extra3=\"%x\" />\n",
+			 obj_flags.extra_flags, 
 			obj_flags.extra2_flags, obj_flags.extra3_flags );
-	fprintf( ouf, "%s<values v0=\"%d\" v1=\"%d\" v2=\"%d\" v3=\"%d\" />\n",
-			indent.c_str(), obj_flags.value[0],obj_flags.value[1],
+	fprintf( ouf, "<values v0=\"%d\" v1=\"%d\" v2=\"%d\" v3=\"%d\" />\n",
+			 obj_flags.value[0],obj_flags.value[1],
 			obj_flags.value[2],obj_flags.value[3] );
 
-	fprintf( ouf, "%s<affectbits aff1=\"%lx\" aff2=\"%lx\" aff3=\"%lx\" />\n",
-			indent.c_str(), obj_flags.bitvector[0], 
+	fprintf( ouf, "<affectbits aff1=\"%lx\" aff2=\"%lx\" aff3=\"%lx\" />\n",
+			 obj_flags.bitvector[0], 
 			obj_flags.bitvector[1], obj_flags.bitvector[2] );
 
 	for( int i = 0; i < MAX_OBJ_AFFECT; i++ ) {
 		if( affected[i].location > 0 && affected[i].modifier > 0 ) {
-			fprintf( ouf, "%s<affect modifier=\"%d\" location=\"%d\" />\n",
-					 indent.c_str(), affected[i].modifier, affected[i].location );
+			fprintf( ouf, "<affect modifier=\"%d\" location=\"%d\" />\n",
+					  affected[i].modifier, affected[i].location );
 		}
 	}
 	// Contained objects
-	indent += '\t';
 	for( obj_data *obj = contains; obj != NULL; obj = obj->next_content ) {
 		obj->saveToXML(ouf);
 	}
-	indent.erase( indent.size() - 2, 2 );
+	// Intentionally done last since reading this property causes the eq to be
+	// worn.
+	fprintf( ouf, "<worn possible=\"%x\" pos=\"%d\" type=\"%s\"/>\n", 
+			 obj_flags.wear_flags, worn_on, get_worn_type(this) );
+
+
+	fprintf( ouf, "</object>\n" );
 	return;
 }
 
 bool
-obj_data::loadFromXML(xmlNodePtr node)
+obj_data::loadFromXML(obj_data *container, Creature *victim, xmlNodePtr node)
 {
 
 	clear();
@@ -194,11 +211,27 @@ obj_data::loadFromXML(xmlNodePtr node)
 			flag = xmlGetProp(cur,"extra3");
 			obj_flags.extra3_flags = hex2dec(flag);
 			free(flag);
-		} else if( xmlMatches( cur->name, "equipment" ) ) {
-			char* flag = xmlGetProp(cur,"wear");
+		} else if( xmlMatches( cur->name, "worn" ) ) {
+			char* flag = xmlGetProp(cur,"possible");
 			obj_flags.wear_flags = hex2dec(flag);
 			free(flag);
-			worn_on = xmlGetIntProp( cur, "worn_on" );
+			int position = xmlGetIntProp( cur, "pos" );
+
+			char *type = xmlGetProp(cur, "type");
+			if( type != NULL && victim != NULL ) {
+				if( strcmp(type,"none") ) {
+					obj_to_char(this,victim);
+				} else if( strcmp(type,"equipped") ) {
+					if(! equip_char( victim, this, position, MODE_EQ ) ) {
+						obj_to_char(this, victim);
+					}
+				} else if( strcmp(type,"implanted") ) {
+					if(! equip_char( victim, this, position, MODE_IMPLANT ) ) {
+						obj_to_char(this, victim);
+					}
+				}
+			}
+			free(type);
 		} else if( xmlMatches( cur->name, "values" ) ) {
 			obj_flags.value[0] = xmlGetIntProp( cur, "V0" );
 			obj_flags.value[1] = xmlGetIntProp( cur, "V1" );
@@ -225,11 +258,17 @@ obj_data::loadFromXML(xmlNodePtr node)
 					 break;
 				}
 			}
-		} else {
-			slog("SYSERR: Invalid xml node in <object>:%s",cur->name);
-		}
+		} else if( xmlMatches( cur->name, "object" ) ) {
+			obj_data *obj;
+			CREATE(obj, struct obj_data, 1);
+			obj->clear();
+			obj->loadFromXML(this,victim,cur);
+		} 
 	}
 
+	if( container ) {
+		obj_to_obj( this, container );
+	}
 	return true;
 }
 int
