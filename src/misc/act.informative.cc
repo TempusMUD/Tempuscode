@@ -4006,6 +4006,8 @@ ACMD(do_where)
 			send_to_char(ch, "This zone is %sUNAPPROVED%s!\r\n", CCRED(ch, C_NRM),
 				CCNRM(ch, C_NRM));
 		}
+		if (ch->in_room->zone->public_desc)
+			send_to_char(ch, "%s", ch->in_room->zone->public_desc);
 		act("$n ponders the implications of $s location.", TRUE, ch, 0, 0,
 			TO_ROOM);
 	}
