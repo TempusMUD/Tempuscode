@@ -170,7 +170,7 @@ Account::load_from_xml(xmlDocPtr doc, xmlNodePtr root)
 bool
 Account::save_to_xml(void)
 {
-	vector<int>::iterator cur_pc;
+	vector<long>::iterator cur_pc;
 	char *path = get_account_file_path(_id);
 	FILE *ouf;
 
@@ -193,7 +193,7 @@ Account::save_to_xml(void)
 	fprintf(ouf, "\t<display ansi=\"%u\" height=\"%u\" width=\"%u\"/>\n",
 		_ansi_level, _term_height, _term_width);
 	for (cur_pc = _chars.begin();cur_pc != _chars.end();cur_pc++) {
-		fprintf(ouf, "\t<character idnum=\"%d\" name=\"%s\"/>\n",
+		fprintf(ouf, "\t<character idnum=\"%ld\" name=\"%s\"/>\n",
 			*cur_pc, playerIndex.getName(*cur_pc));
 	}
 
@@ -417,14 +417,13 @@ Account::create_char(const char *name)
 
 	POOFIN(ch) = NULL;
 	POOFOUT(ch) = NULL;
-
 	return ch;
 }
 
 void
 Account::delete_char(Creature *ch)
 {
-	vector<int>::iterator it;
+	vector<long>::iterator it;
 
 	it = lower_bound(_chars.begin(), _chars.end(), GET_IDNUM(ch));
 	if (it != _chars.end())
