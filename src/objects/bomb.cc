@@ -462,6 +462,30 @@ detonate_bomb(struct obj_data *bomb)
 			internal = true;
 	}
 
+	// Unequip the bomb before removing it.
+	dam_object = bomb;
+
+	if (ch) {
+		act(tmp_sprintf("$p goes off in %s!!!", (internal ? "body!" :
+				(cont ? "$P" : "your inventory"))),
+			false, ch, bomb, cont, TO_CHAR);
+		act(tmp_sprintf("$p goes off $n's %s!!!",
+				(cont ? fname(cont->aliases) : "hands")),
+			false, ch, bomb, cont, TO_ROOM);
+		room = ch->in_room;
+
+		if( bomb->worn_by ) {
+			unequip_char( ch, bomb->worn_on, 0 );
+		} else if (bomb->carried_by ) {
+			obj_from_char(bomb);
+		}
+
+		damage(NULL, ch,
+			dice(MIN(100, BOMB_POWER(bomb) +
+					(internal ? BOMB_POWER(bomb) : 0)),
+				MIN(500, BOMB_POWER(bomb))), TYPE_BLAST, WEAR_HANDS);
+	}
+
 	if (cont) {
 		while (cont->in_obj)
 			cont = cont->in_obj;
@@ -469,37 +493,10 @@ detonate_bomb(struct obj_data *bomb)
 		ch = (cont->worn_by ? cont->worn_by : cont->carried_by);
 		room = cont->in_room;
 		obj_from_obj(bomb);
-	}
 
-	// Unequip the bomb before removing it.
-	if( ch != NULL ) { 
-		if( bomb->worn_by ) {
-			unequip_char( ch, bomb->worn_on, 0 );
-		}
-		if (bomb->carried_by ) {
-			obj_from_char(bomb);
-		}
-	}
-
-	dam_object = bomb;
-
-	if (ch) {
-		sprintf(buf, "$p goes off in %s!!!", (internal ? "body!" :
-				(cont ? "$P" : "your inventory")));
-		act(buf, FALSE, ch, bomb, cont, TO_CHAR);
-		sprintf(buf, "$p goes off $n's %s!!!",
-			cont ? fname(cont->aliases) : "hands");
-		act(buf, FALSE, ch, bomb, cont, TO_ROOM);
-		room = ch->in_room;
-		damage(NULL, ch,
-			dice(MIN(100, BOMB_POWER(bomb) +
-					(internal ? BOMB_POWER(bomb) : 0)),
-				MIN(500, BOMB_POWER(bomb))), TYPE_BLAST, WEAR_HANDS);
-	}
-
-	if (cont)
 		damage_eq(NULL, cont, dice(MIN(100, BOMB_POWER(bomb)),
 				BOMB_POWER(bomb)));
+	}
 
 	if ((cont || internal) && BOMB_IS_FLASH(bomb))
 		add_bomb_room(room, -1, BOMB_POWER(bomb) >> 4);
