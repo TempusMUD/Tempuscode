@@ -19,7 +19,7 @@ class House
 		static const unsigned int MAX_GUESTS = 50;
 		static const int MAX_ITEMS = 50;
 
-		enum Type { INVALID = 0, PRIVATE, PUBLIC, RENTAL };
+		enum Type { INVALID = 0, PRIVATE, PUBLIC, RENTAL, CLAN };
 
 		const char* getTypeName();
 		const char* getTypeShortName();
@@ -57,6 +57,10 @@ class House
 		obj_data* findCostliestObj();
 		// Finds the most expensive object in the given room
 		obj_data* findCostliestObj(room_data *room);
+		// Withdraws cost from appropriate accounts
+		int House::reconcileCollection( int cost );
+		int House::reconcilePrivateCollection( int cost );
+		int House::reconcileClanCollection( int cost );
 		// the reposession notices created when objects are sold
 		// to cover rent cost.
 		vector<string> repoNotes;
@@ -122,6 +126,8 @@ class House
 		string getRepoNote( int index ) const { return repoNotes[index]; }
 		// removes all repo notes
 		void clearRepoNotes() { repoNotes.erase( repoNotes.begin(), repoNotes.end() ); }
+		void notifyReposession( Creature *ch );
+
 
 		// retrieves the rent charged per day on this house
 		int getRentalRate() const { return rentalRate; }
@@ -185,7 +191,7 @@ class HouseControl : private std::vector<House*>
 		// retrieves the house with the given unique id
 		House* findHouseById( int id );
 		// retrieves the house with the given owner (account id)
-		House* findHouseByOwner( int accountID );
+		House* findHouseByOwner( int id, bool isAccount=true);
 		// returns the number of houses in this house control
 		unsigned int getHouseCount() const ;
 		// returns the house at the given index

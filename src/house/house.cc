@@ -24,6 +24,7 @@ using namespace std;
 #include "tokenizer.h"
 #include "tmpstr.h"
 #include "player_table.h"
+#include "clan.h"
 
 // usage message
 #define HCONTROL_FIND_FORMAT \
@@ -114,6 +115,8 @@ House::getTypeName() {
 			return "Public";
 		case RENTAL:
 			return "Rental";
+		case CLAN:
+			return "Clan";
 		default:
 			return "Invalid";
 	}
@@ -129,6 +132,8 @@ House::getTypeShortName()
 			return "PUB";
 		case RENTAL:
 			return "RENT";
+		case CLAN:
+			return "CLAN";
 		default:
 			return "ERR";
 	}
@@ -144,6 +149,8 @@ House::getTypeFromName( const char* name ) {
 		return PUBLIC;
 	if( strcmp(name, "Rental") == 0 )
 		return RENTAL;
+	if( strcmp(name, "Clan") == 0 )
+		return CLAN;
 	return INVALID;
 }
 
@@ -241,7 +248,25 @@ House::isGuest( Creature *c ) const
 bool 
 House::isGuest( long idnum ) const 
 {
-	return find(guests.begin(), guests.end(), idnum) != guests.end();
+	switch( getType() ) {
+		case PRIVATE:
+		case PUBLIC:
+		case RENTAL:
+			return find(guests.begin(), guests.end(), idnum) != guests.end();
+		case CLAN: {
+			// if there is no clan then check guests
+			clan_data *clan = real_clan( getOwnerID() );
+			if( clan == NULL )
+				return find(guests.begin(), guests.end(), idnum) != guests.end();
+			// if they're not a member, check the guests
+			clanmember_data *member = real_clanmember( idnum, clan );
+			if( member == NULL )
+				return find(guests.begin(), guests.end(), idnum) != guests.end();
+			return true;
+		}
+		default:
+			return false;
+	}
 }
 
 bool House::hasRoom( room_data *room ) const 
@@ -257,7 +282,23 @@ bool House::hasRoom( room_num room ) const
 bool 
 House::isOwner( Creature *ch )const 
 {
-	return ownerID == playerIndex.getAccountID( GET_IDNUM(ch) );
+	switch( getType() ) {
+		case PRIVATE:
+		case PUBLIC:
+		case RENTAL:
+			return ownerID == playerIndex.getAccountID( GET_IDNUM(ch) );
+		case CLAN: {
+			clan_data *clan = real_clan( getOwnerID() );
+			if( clan == NULL )
+				return false;
+			clanmember_data *member = real_clanmember( GET_IDNUM(ch), clan );
+			if( member == NULL )
+				return false;
+			return PLR_FLAGGED(ch, PLR_CLAN_LEADER);
+		}
+		default:
+			return false;
+	}
 }
 
 
@@ -316,10 +357,13 @@ HouseControl::findHouseById( int id )
 }
 
 House* 
-HouseControl::findHouseByOwner( int accountID )
+HouseControl::findHouseByOwner( int id, bool isAccount )
 {
 	for( unsigned int i = 0; i < getHouseCount(); i++ ) {
-		if( getHouse(i)->getOwnerID() == accountID )
+		House *house = getHouse(i);
+		if( isAccount && house->getType() == House::CLAN )
+			continue;
+		if( house->getOwnerID() == id )
 			return getHouse(i);
 	}
 	return NULL;
@@ -349,11 +393,20 @@ HouseControl::canEnter( Creature *ch, room_num room_vnum )
 	switch( house->getType() ) {
 		case House::PUBLIC:
 			return true;
+		case House::RENTAL:
 		case House::PRIVATE:
 			if( ch->getAccountID() == house->getOwnerID() )
 				return true;
 			return house->isGuest( ch );
-		case House::RENTAL:
+		case House::CLAN: {
+			clan_data *clan = real_clan( house->getOwnerID() );
+			if( clan == NULL )
+				return true;
+			clanmember_data *member = real_clanmember( GET_IDNUM(ch), clan );
+			if( member != NULL )
+				return true;
+			return false;
+		}
 		case House::INVALID:
 			return false;
 	}
@@ -401,6 +454,26 @@ HouseControl::destroyHouse( House *house )
 	return true;
 }
 
+void
+House::notifyReposession( Creature *ch )
+{
+	extern int MAIL_OBJ_VNUM;
+	if( getRepoNoteCount() == 0 ) {
+		return;
+	}
+	obj_data *note =  read_object(MAIL_OBJ_VNUM);
+	char *msg = tmp_sprintf( "The following items were sold at auction to cover your back rent:\r\n\r\n");
+	for( unsigned int i = 0; i < getRepoNoteCount(); ++i ) {
+		msg = tmp_strcat( msg, getRepoNote(i).c_str() );
+	}
+	msg = tmp_strcat( msg, "\r\n\r\nSincerely,\r\n    The Management\r\n");
+	note->action_description = strdup(msg);
+	note->plrtext_len = strlen(note->action_description) + 1;
+	obj_to_char( note, ch);
+	send_to_char(ch, "The TempusMUD Landlord gives you a letter detailing your bill.\r\n");
+	clearRepoNotes();
+	save();
+}
 
 void
 count_objects( obj_data *obj)
@@ -673,10 +746,14 @@ HouseControl::collectRent()
 		House *house = getHouse(i);
 		if( house->getType() == House::PUBLIC )
 			continue;
-		// If the player is online, do not charge rent.
-		Account *account = accountIndex.find_account( house->getOwnerID() );
-		if( account == NULL  || account->is_logged_in() )
-			continue;
+		if( house->getType() == House::PRIVATE 
+		 || house->getType() == House::RENTAL ) 
+		{
+			// If the player is online, do not charge rent.
+			Account *account = accountIndex.find_account( house->getOwnerID() );
+			if( account == NULL  || account->is_logged_in() )
+				continue;
+		}
 		
 		// Cost per minute
 		int cost = (int) ( ( house->calcRentCost() / 24.0 ) / 60 );
@@ -812,27 +889,47 @@ House::listGuests( Creature *ch )
 	page_string(ch->desc, buf);
 }
 
-// collects the house's rent, selling off items to meet the
-// bill, if necessary.
-bool
-House::collectRent( int cost )
+int
+House::reconcileCollection( int cost ) 
+{
+	switch( getType() ) {
+		case PUBLIC:
+			return 0;
+		case RENTAL:
+		case PRIVATE:
+			return reconcilePrivateCollection(cost);
+		case CLAN:
+			return reconcileClanCollection(cost);
+		default:
+			return 0;
+	}
+}
+
+int
+House::reconcileClanCollection( int cost )
+{
+	clan_data *clan = real_clan( getOwnerID() );
+	if( clan == NULL )
+		return 0;
+	// First we get as much gold as we can
+	if (cost < clan->bank_account ) {
+		clan->bank_account -= cost;
+		cost = 0;
+	} else {
+		cost -= clan->bank_account;
+		clan->bank_account = 0;
+	}
+	save_clans();
+	return cost;
+}
+
+int
+House::reconcilePrivateCollection( int cost )
 {
 	Account *account = accountIndex.find_account(ownerID);
 	if( account == NULL ) {
 		return false;
 	}
-
-
-	if( cost < rentOverflow ) {
-		rentOverflow -= cost;
-		cost = 0;
-		slog("HOUSE: [%d] Previous reposessions covering %d rent.", getID(),cost );
-		return false;
-	} else {
-		cost -= rentOverflow;
-	}
-
-	slog("HOUSE: [%d] Collecting %d rent.", getID(), cost );
 
 	// First we get as much gold as we can
 	if (cost < account->get_past_bank() ) {
@@ -853,6 +950,27 @@ House::collectRent( int cost )
 			account->set_future_bank(0);
 		}
 	}
+	account->save_to_xml();
+	return cost;
+}
+
+// collects the house's rent, selling off items to meet the
+// bill, if necessary.
+bool
+House::collectRent( int cost )
+{
+
+	if( cost < rentOverflow ) {
+		rentOverflow -= cost;
+		cost = 0;
+		slog("HOUSE: [%d] Previous reposessions covering %d rent.", getID(),cost );
+		return false;
+	} else {
+		cost -= rentOverflow;
+	}
+
+	slog("HOUSE: [%d] Collecting %d rent.", getID(), cost );
+	cost = reconcileCollection( cost );
 
 	// If they still don't have enough, start selling stuff
 	if (cost > 0) {
@@ -905,10 +1023,8 @@ House::collectRent( int cost )
 			// If there's any money left over, store it for the next tick
 			rentOverflow = -cost;
 		}
-		account->save_to_xml();
 		return true;
 	}
-	account->save_to_xml();
 	return false;
 }
 
@@ -1053,6 +1169,70 @@ hcontrol_destroy_house( Creature *ch, char *arg)
 
 
 void
+set_house_clan_owner( Creature *ch, House *house, char *arg )
+{
+	int clanID = 0;
+	if( isdigit(*arg) ) { // to clan id
+		clan_data *clan = real_clan( atoi(arg) );
+		if( clan != NULL ) {
+			clanID = atoi(arg);
+		} else {
+			send_to_char(ch, "Clan %d doesn't exist.\r\n", atoi(arg));
+			return;
+		}
+	} else {
+		send_to_char(ch, "When setting a clan owner, the clan ID must be used.\r\n");
+		return;
+	}
+	// An account may only own one house
+	House *h = Housing.findHouseByOwner( clanID, false );
+	if( h != NULL ) {
+		send_to_char(ch, "Clan %d already owns house %d.\r\n", 
+					 clanID, h->getID() );
+		return;
+	}
+
+	house->setOwnerID( clanID );
+	send_to_char(ch, "Owner set to clan %d.\r\n", house->getOwnerID() );
+	slog("HOUSE: Owner of house %d set to clan %d by %s.", 
+			house->getID(), house->getOwnerID(), GET_NAME(ch) );
+}
+
+void
+set_house_account_owner( Creature *ch, House *house, char *arg )
+{
+	int accountID = 0;
+	if( isdigit(*arg) ) { // to an account id
+		if( accountIndex.exists( atoi(arg) ) ) {
+			accountID = atoi(arg);
+		} else {
+			send_to_char(ch, "Account %d doesn't exist.\r\n", atoi(arg));
+			return;
+		}
+	} else { // to a player name
+		if( playerIndex.exists(arg) ) {
+			accountID = playerIndex.getAccountID(arg);
+		} else {
+			send_to_char(ch, "There is no such player, '%s'\r\n", arg);
+			return;
+		}
+	}
+	// An account may only own one house
+	House *h = Housing.findHouseByOwner( accountID );
+	if( h != NULL ) {
+		send_to_char(ch, "Account %d already owns house %d.\r\n", 
+					 accountID, h->getID() );
+		return;
+	}
+
+	house->setOwnerID( atoi(arg) );
+	send_to_char(ch, "Owner set to account %d.\r\n", house->getOwnerID() );
+	slog("HOUSE: Owner of house %d set to account %d by %s.", 
+			house->getID(), house->getOwnerID(), GET_NAME(ch) );
+	
+}
+
+void
 hcontrol_set_house( Creature *ch, char *arg)
 {
 	char *arg1 = tmp_getword(&arg);
@@ -1099,9 +1279,11 @@ hcontrol_set_house( Creature *ch, char *arg)
 			house->setType( House::PRIVATE );
 		} else if (is_abbrev(arg, "rental")) {
 			house->setType( House::RENTAL );
+		} else if (is_abbrev(arg, "clan")) {
+			house->setType( House::CLAN );
 		} else {
 			send_to_char(ch, 
-				"You must specify public, private, or rental!!\r\n");
+				"You must specify public, private, clan, or rental!!\r\n");
 			return;
 		}
 		send_to_char(ch, "House %d type set to %s.\r\n", 
@@ -1128,39 +1310,24 @@ hcontrol_set_house( Creature *ch, char *arg)
 				house->getID(), playerIndex.getName(house->getLandlord()), GET_NAME(ch) );
 		return;
 	} else if (is_abbrev(arg2, "owner")) {
-		int accountID = 0;
 		if (!*arg) {
 			send_to_char(ch, "Set who as the owner?\r\n");
 			return;
 		}
-
-		if( isdigit(*arg) ) { // to an account id
-			if( accountIndex.exists( atoi(arg) ) ) {
-				accountID = atoi(arg);
-			} else {
-				send_to_char(ch, "Account %d doesn't exist.\r\n", atoi(arg));
-				return;
-			}
-		} else { // to a player name
-			if( playerIndex.exists(arg) ) {
-				accountID = playerIndex.getAccountID(arg);
-			} else {
-				send_to_char(ch, "There is no such player, '%s'\r\n", arg);
-				return;
-			}
+		
+		switch( house->getType() ) {
+			case House::PRIVATE:
+			case House::PUBLIC:
+			case House::RENTAL:
+				set_house_account_owner(ch, house, arg);
+				break;
+			case House::CLAN:
+				set_house_clan_owner(ch, house, arg);
+				break;
+			case House::INVALID:
+				send_to_char(ch, "Invalid house type. Nothing set.\r\n");
+				break;
 		}
-		// An account may only own one house
-		House *h = Housing.findHouseByOwner( accountID );
-		if( h != NULL ) {
-			send_to_char(ch, "Account %d already owns house %d.\r\n", 
-						 accountID, h->getID() );
-			return;
-		}
-
-		house->setOwnerID( atoi(arg) );
-		send_to_char(ch, "Owner set to account %d.\r\n", house->getOwnerID() );
-		slog("HOUSE: Owner of house %d set to %d by %s.", 
-				house->getID(), house->getOwnerID(), GET_NAME(ch) );
 
 		return;
 	}

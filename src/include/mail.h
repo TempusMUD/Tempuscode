@@ -24,7 +24,7 @@ using namespace std;
 
 
 // The vnum of the "letter" object
-#define MAIL_OBJ_VNUM 1204
+extern const int MAIL_OBJ_VNUM;
 
 // minimum level a player must be to send mail
 #define MIN_MAIL_LEVEL 1
