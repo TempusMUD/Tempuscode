@@ -4,64 +4,111 @@
 // Copyright 1998 by John Watson, all rights reserved.
 //
 
+// Random Act Of Electronics
+static void
+electronics_raoe(Creature *self)
+{
+	switch (number(0, 7)) {
+	case 0:
+		act("$n begins poring through a parts manual.",
+			false, self, 0, 0, TO_ROOM);
+		break;
+	case 1:
+		act("$n dabs a few drops of solder on a circuit board.",
+			false, self, 0, 0, TO_ROOM);
+		break;
+	case 2:
+		act("$n gets a part out of a box.", false, self, 0, 0, TO_ROOM);
+		break;
+	case 3:
+		act("$n frowns as $e breaks a wire.", false, self, 0, 0, TO_ROOM);
+		break;
+	case 4:
+		act("Sparks fly as $n toggles a switch.", false, self, 0, 0, TO_ROOM);
+		break;
+	case 5:
+		act("$n gazes serenely at a frenetically gyrating oscilloscope",
+			false, self, 0, 0, TO_ROOM);
+		break;
+	case 6:
+		act("$n quietly curses as $e burns $mself on $s soldering iron.",
+			false, self, 0, 0, TO_ROOM);
+		break;
+	case 7:
+		act("$n pushes a button, which blinks a few times and stops.",
+			false, self, 0, 0, TO_ROOM);
+		break;
+	default:
+		break;
+	}
+}
+
 SPECIAL(electronics_school)
 {
-	struct Creature *teacher = (struct Creature *)me;
-	int gold_cost = 0, prac_cost = 0;
+	Creature *self = (Creature *)me;
+	int cred_cost = 0, prac_cost = 0;
 
+	if (spec_mode == SPECIAL_TICK) {
+		if (!number(0, 20))
+			electronics_raoe(self);
+		return 0;
+	}
+		
 	if (!CMD_IS("learn") && !CMD_IS("train") && !CMD_IS("offer"))
 		return 0;
 
-
-	gold_cost = (GET_LEVEL(ch) << 6) + 2000;
+	cred_cost = (GET_LEVEL(ch) << 6) + 2000;
 	prac_cost = MAX(3, 21 - GET_INT(ch));
 
 	if (IS_CYBORG(ch)) {
-		perform_tell(teacher, ch,
-			"Why don't you just download the program, borg?!");
+		do_say(self, tmp_sprintf(
+			"%s You're a borg, why don't you just download the program?",
+			GET_NAME(ch)), 0, SCMD_SAY_TO, NULL);
 		return 1;
 	}
 
 	if (CMD_IS("offer")) {
-		sprintf(buf2, "You can enroll for %d coins.  "
-			"It will require %d practice points as well.",
-			gold_cost, prac_cost);
-		perform_tell(teacher, ch, buf2);
-		strcpy(buf2,
-			"You may not learn the skill with a single lesson, however.");
-		perform_tell(teacher, ch, buf2);
+		do_say(self, tmp_sprintf(
+			"%s Yeah, I'll give you a lesson for %d creds.",
+			GET_NAME(ch), cred_cost), 0, SCMD_SAY_TO, NULL);
+		do_say(self, tmp_sprintf(
+			"%s You'll also need %d practice sessions",
+			GET_NAME(ch), prac_cost), 0, SCMD_SAY_TO, NULL);
 		return 1;
 	}
 
 	if (GET_SKILL(ch, SKILL_ELECTRONICS) >= LEARNED(ch)) {
-		perform_tell(teacher, ch,
-			"I cannot teach you any more about electronics.");
+		do_say(self, tmp_sprintf(
+			"%s I cannot teach you any more about electronics.", GET_NAME(ch)),
+			0, SCMD_SAY_TO, NULL);
 		return 1;
 	}
 
-	if (GET_CASH(ch) < gold_cost) {
-		sprintf(buf2, "You don't have the %d credit tuition I require.",
-			gold_cost);
-		perform_tell(teacher, ch, buf2);
+	if (GET_CASH(ch) < cred_cost) {
+		do_say(self, tmp_sprintf(
+			"%s You don't have the %d cred tuition I require.", GET_NAME(ch),
+			cred_cost), 0, SCMD_SAY_TO, NULL);
 		return 1;
 	}
 
 	if (GET_PRACTICES(ch) < prac_cost) {
-		perform_tell(teacher, ch, "Come back when you have more practices!");
+		do_say(self, tmp_sprintf("%s Come back when you have more practices!",
+			GET_NAME(ch)), 0, SCMD_SAY_TO, NULL);
 		return 1;
 	}
 
 
 	GET_PRACTICES(ch) -= prac_cost;
-	GET_CASH(ch) -= gold_cost;
+	GET_CASH(ch) -= cred_cost;
 
 	GET_SKILL(ch, SKILL_ELECTRONICS) =
 		MIN(LEARNED(ch), GET_SKILL(ch,
 			SKILL_ELECTRONICS) + (30 + GET_INT(ch)));
 
-	act("$n begins to study electronics.", TRUE, ch, 0, 0, TO_ROOM);
-	send_to_char(ch, "You pay %s %d coins and begin to study electronics.\r\n",
-		PERS(teacher, ch), gold_cost);
+	send_to_char(ch, "You pay %d creds to %s and are given a short electronics lesson.\r\n",
+		cred_cost, PERS(self, ch));
+	act("$n pays $N, who gives an impromptu electronics lesson.",
+		true, ch, 0, self, TO_ROOM);
 
 	WAIT_STATE(ch, PULSE_VIOLENCE * 2);
 
