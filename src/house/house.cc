@@ -35,7 +35,7 @@
 #define NAME(x) ((temp = get_name_by_id(x)) == NULL ? "<UNDEF>" : temp)
 
 extern struct room_data *world;
-extern struct index_data *obj_index;
+
 extern struct descriptor_data *descriptor_list;
 extern struct obj_data *obj_proto;        /* prototypes for objs                 */
 extern int no_plrtext;

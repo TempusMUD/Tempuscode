@@ -33,7 +33,6 @@
 extern struct room_data *world;
 extern struct obj_data *object_list;
 extern struct char_data *character_list;
-extern struct index_data *obj_index;
 extern struct room_direction_data *knock_door;
 
 extern struct descriptor_data *descriptor_list;

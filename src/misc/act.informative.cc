@@ -49,7 +49,6 @@ extern CharacterList characterList;
 extern struct obj_data *object_list;
 extern const struct title_type titles[NUM_CLASSES][LVL_GRIMP + 1];
 //extern const struct command_info cmd_info[];
-extern struct index_data *obj_index;
 extern struct zone_data *zone_table;
 
 extern const byte eq_pos_order[];
