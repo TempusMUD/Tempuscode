@@ -396,7 +396,14 @@ bomb_damage_room(char *bomb_name, int bomb_type, int bomb_power,
 	obj_data *obj, *next_obj;
 	for (obj = room->contents;obj; obj = next_obj) {
 		next_obj = obj->next_content;
-		damage_eq(NULL, obj, dam, damage_type);
+
+		if(!IS_BOMB(obj) // Do not damage lit bombs
+		||  obj->contains == NULL
+		|| !IS_FUSE(obj->contains)
+		||  FUSE_STATE(obj->contains) == 0 ) 
+		{
+			damage_eq(NULL, obj, dam, damage_type);
+		}
 	}
 
 	// room affects here
@@ -465,9 +472,16 @@ detonate_bomb(struct obj_data *bomb)
 		obj_from_obj(bomb);
 	}
 
-	if (ch && (bomb->carried_by || bomb->worn_by)) {
-		obj_from_char(bomb);
+	// Unequip the bomb before removing it.
+	if( ch != NULL ) { 
+		if( bomb->worn_by ) {
+			unequip_char( ch, bomb->worn_on, 0 );
+		}
+		if (bomb->carried_by ) {
+			obj_from_char(bomb);
+		}
 	}
+
 	dam_object = bomb;
 
 	if (ch) {
@@ -509,13 +523,7 @@ detonate_bomb(struct obj_data *bomb)
 		bomb_damage_room(bomb->short_description, BOMB_TYPE(bomb),
 			BOMB_POWER(bomb), rad_elem->room, find_first_step(rad_elem->room,
 				room, GOD_TRACK), rad_elem->power);
-#ifdef DMALLOC
-		dmalloc_verify(0);
-#endif
 		free(rad_elem);
-#ifdef DMALLOC
-		dmalloc_verify(0);
-#endif
 		bomb_rooms = next_elem;
 
 	}

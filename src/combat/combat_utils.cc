@@ -758,9 +758,14 @@ make_corpse(struct char_data *ch, struct char_data *killer, int attacktype)
 	char namestr[256];
 	char isare[16];
 
+
 	extern int max_npc_corpse_time, max_pc_corpse_time;
 
-	*adj = '\0';
+	adj[0] = '\0';
+	typebuf[0] = '\0';
+	namestr[0] = '\0';
+	isare[0] = '\0';
+
 	// The Fate's corpses are portals to the remorter.
 	if (GET_MOB_SPEC(ch) == fate) {	// GetMobSpec checks IS_NPC
 		struct obj_data *portal = NULL;

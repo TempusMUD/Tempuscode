@@ -981,13 +981,13 @@ char_from_room(struct char_data *ch)
 
 	affect_from_char(ch, SPELL_ENTANGLE);	// remove entanglement (summon etc)
 
-	if(! special(ch, 0, 0, "", SPECIAL_LEAVE) ) {
+	//if(! special(ch, 0, 0, "", SPECIAL_LEAVE) ) {
 		ch->in_room->people.remove(ch);
 		ch->in_room = NULL;
 		//ch->next_in_room = NULL;
 		if (GET_OLC_SRCH(ch))
 			GET_OLC_SRCH(ch) = NULL;
-	}
+	//}
 }
 
 
@@ -1047,7 +1047,7 @@ char_to_room(struct char_data *ch, struct room_data *room)
 		SET_BIT(AFF2_FLAGS(ch), AFF2_ABLAZE);
 	}
 
-	special(ch, 0, 0, "", SPECIAL_ENTER);
+	//special(ch, 0, 0, "", SPECIAL_ENTER);
 }
 
 /* give an object to a char   */
