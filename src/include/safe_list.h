@@ -93,18 +93,6 @@ template <class T> class SafeList:protected list <T> {
 			list <T>::iterator::operator++ ();
 			return *this;
 		}
-		/** InEquality **/
-		bool operator != (const iterator & it) {
-			return (list <T>::iterator::operator != (it));	// different node
-		}
-		/** Equality **/
-		bool operator == (const iterator & it)const {
-			return (list <T>::iterator::operator == (it));	// same node
-		}
-		/** Derefencing **/ 
-		T operator *() const {
-			return list <T>::iterator::operator * ();
-		}
 		/**  Assignment **/ 
 		iterator & operator = (const iterator & it) {
 			// superclass assignment

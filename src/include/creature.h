@@ -669,9 +669,10 @@ struct char_player_data {
 	sh_int char_class;			/* PC / NPC's char_class               */
 	sh_int remort_char_class;	/* PC / NPC REMORT CLASS (-1 for none) */
 	sh_int weight;				/* PC / NPC's weight                    */
-	inline short getWeight() {
+	short getWeight() {
 		return weight;
-	} inline short setWeight(const short new_weight) {
+	} 
+	short setWeight(const short new_weight) {
 		return (weight = new_weight);
 	}
 	short modifyWeight(const short mod_weight);
@@ -746,23 +747,24 @@ struct char_special_data {
 
 	int setCarriedWeight(int new_weight) {
 		return (carry_weight = new_weight);
-	} inline int setWornWeight(int new_weight) {
+	} 
+	int setWornWeight(int new_weight) {
 		return (worn_weight = new_weight);
 	}
 	// Set position and Get position.
 	// Set returns success or failure
 	// Get returns current pos
-	inline void setPosition(int new_pos) {
+	void setPosition(int new_pos) {
 		position = new_pos;
 	}
-	inline int getPosition(void) {
+	int getPosition(void) {
 		return position;
 	}
 
-	inline int getCarriedWeight(void) {
+	int getCarriedWeight(void) {
 		return carry_weight;
 	}
-	inline int getWornWeight(void) {
+	int getWornWeight(void) {
 		return worn_weight;
 	}
 
@@ -991,7 +993,7 @@ struct Creature {
 	// Set current position. returns success or failure
 	bool setPosition(int new_pos, int mode = 0);
 	// Get returns current pos (standing sitting etc.)
-	int getPosition(void);
+	int getPosition(void) { return char_specials.getPosition(); }
 	// retrieve the char's speed attribute ( or 0 for mobiles )
 	int getSpeed(void);
 	// Assign the char's speed attribute. ( does nothing for mobs )
@@ -1003,7 +1005,7 @@ struct Creature {
 	bool affBySanc(Creature * attacker = NULL);
 	float getDamReduction(Creature * attacker = NULL);
 	bool isFighting();
-	Creature *getFighting();
+	Creature *getFighting() { return (char_specials.fighting); }
 	void setFighting(Creature * ch);
 	void extract(bool destroy_objs, bool save, int con_state);
 	void clearMemory();
