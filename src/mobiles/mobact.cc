@@ -38,6 +38,7 @@
 #include "fight.h"
 #include "actions.h"
 #include "creature.h"
+#include "screen.h"
 
 /* external structs */
 void npc_steal(struct Creature *ch, struct Creature *victim);
@@ -1006,13 +1007,13 @@ mob_reload_gun(struct Creature *ch, struct obj_data *gun)
 //
 //
 
-int
+bool
 check_infiltrate(struct Creature *ch, struct Creature *vict)
 {
 	if (!ch || !vict) {
 		mudlog(LVL_IMMORT, CMP, true,
 			"ERROR:<NULL> char in check_infiltrate()!");
-		return 0;
+		return false;
 	}
 
 	int prob = ch->getLevelBonus(SKILL_INFILTRATE);
@@ -1020,10 +1021,10 @@ check_infiltrate(struct Creature *ch, struct Creature *vict)
 
 	if (IS_NPC(vict) && MOB_FLAGGED(vict, MOB_SPIRIT_TRACKER) &&
 		char_in_memory(ch, vict))
-		return 0;
+		return false;
 
 	if (!IS_AFFECTED_3(ch, AFF3_INFILTRATE) && !IS_AFFECTED(ch, AFF_HIDE))
-		return 0;
+		return false;
 
 	if (affected_by_spell(vict, ZEN_AWARENESS) ||
 		IS_AFFECTED_2(vict, AFF2_TRUE_SEEING))
@@ -1043,19 +1044,11 @@ check_infiltrate(struct Creature *ch, struct Creature *vict)
 
 	percent += (vict->getLevelBonus(SKILL_INFILTRATE) / 2);
 
-	if (prob > percent) {
-		if (ch && PRF2_FLAGGED(ch, PRF2_DEBUG)) {
-			send_to_char(ch, "Infiltrate Success: Chance: [%4d] Roll: [%4d]\r\n",
-				prob, percent);
-		}
-		return 1;
-	} else {
-		if (ch && PRF2_FLAGGED(ch, PRF2_DEBUG)) {
-			send_to_char(ch, "Infiltrate Failure: Chance: [%4d] Roll: [%4d]\r\n",
-				prob, percent);
-		}
-		return 0;
-	}
+	if (ch && PRF2_FLAGGED(ch, PRF2_DEBUG))
+		send_to_char(ch, "%s[INFILTRATE] chance:%d   roll:%d%s\r\n",
+			CCCYN(ch, C_NRM), prob, percent, CCNRM(ch, C_NRM));
+	
+	return prob > percent;
 }
 
 int

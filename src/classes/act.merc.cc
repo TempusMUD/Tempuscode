@@ -148,9 +148,14 @@ ACMD(do_crossface)
 		+ (dex_mod * (GET_DEX(ch) - GET_DEX(vict)))
 		+ (str_mod * (GET_STR(ch) - GET_STR(vict)));
 	percent = number(1, 100);
-	if (PRF2_FLAGGED(ch, PRF2_DEBUG)) {
-		send_to_char(ch, "Roll: %d, Chance: %d\r\n", prob, percent);
-	}
+	if (PRF2_FLAGGED(ch, PRF2_DEBUG))
+		send_to_char(ch, "%s[CROSSFACE] %s   roll:%d   chance:%d%s\r\n",
+			CCCYN(ch, C_NRM), GET_NAME(ch), prob, percent, CCNRM(ch, C_NRM));
+	if (PRF2_FLAGGED(vict, PRF2_DEBUG))
+		send_to_char(vict, "%s[CROSSFACE] %s   roll:%d   chance:%d%s\r\n",
+			CCCYN(vict, C_NRM), GET_NAME(ch), prob, percent,
+			CCNRM(vict, C_NRM));
+
 	// You can't crossface pudding you fool!
 	if (IS_PUDDING(vict) || IS_SLIME(vict))
 		prob = 0;

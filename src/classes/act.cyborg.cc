@@ -1373,10 +1373,17 @@ ACMD(do_discharge)
 		feedback *= max_component_dam(ch) / 100;
 
 		// Random debug messages.
-		if (PRF2_FLAGGED(ch, PRF2_DEBUG)) {
-			send_to_char(ch, "Tolerance: %d, Amount: %d, Feedback: %d\r\n",
-				tolerance, amount, feedback);
-		}
+		if (PRF2_FLAGGED(ch, PRF2_DEBUG))
+			send_to_char(ch,
+				"%s[DISCHARGE] %s tolerance:%d   amount:%d   feedback: %d\r\n",
+				CCCYN(ch, C_NRM), GET_NAME(ch), tolerance, amount, feedback,
+				CCNRM(ch, C_NRM));
+		if (vict && PRF2_FLAGGED(vict, PRF2_DEBUG))
+			send_to_char(vict,
+				"%s[DISCHARGE] %s tolerance:%d   amount:%d   feedback: %d\r\n",
+				CCCYN(vict, C_NRM), GET_NAME(ch), tolerance, amount, feedback,
+				CCNRM(vict, C_NRM));
+
 		if (GET_TOT_DAM(ch) + feedback >= max_component_dam(ch))
 			GET_TOT_DAM(ch) = max_component_dam(ch);
 		else

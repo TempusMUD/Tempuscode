@@ -319,7 +319,7 @@ ACMD(do_snatch)
 	one_argument(argument, vict_name);
 
 	if (!(vict = get_char_room_vis(ch, vict_name))) {
-		send_to_char(ch, "Snatch something away from who?\r\n");
+		send_to_char(ch, "Who do you want to snatch from?\r\n");
 		return;
 	} else if (vict == ch) {
 		send_to_char(ch, "Come on now, that's rather stupid!\r\n");
@@ -334,7 +334,7 @@ ACMD(do_snatch)
 	if (IS_SET(ROOM_FLAGS(ch->in_room), ROOM_PEACEFUL) &&
 		!PLR_FLAGGED(vict, PLR_THIEF) && GET_LEVEL(ch) < LVL_AMBASSADOR) {
 		send_to_char(ch, "You can't do that here!\r\n");
-		act("$n looks really aggrivated.", FALSE, ch, 0, vict, TO_ROOM);
+		act("$n looks really aggravated.", FALSE, ch, 0, vict, TO_ROOM);
 		return;
 	}
 	if (vict->isNewbie() && GET_LEVEL(ch) < LVL_IMMORT) {
@@ -499,9 +499,15 @@ ACMD(do_snatch)
 		if (CHECK_SKILL(ch, SKILL_SNATCH) > 100)
 			percent += CHECK_SKILL(ch, SKILL_SNATCH) - 100;
 		prob = number(1, 100);
-		if (PRF2_FLAGGED(ch, PRF2_DEBUG)) {
-			send_to_char(ch, "Roll: %d, Chance: %d\r\n", prob, percent);
-		}
+		if (PRF2_FLAGGED(ch, PRF2_DEBUG))
+			send_to_char(ch, "%s[SNATCH] %s   chance:%d   roll:%d%s\r\n",
+				CCCYN(ch, C_NRM), GET_NAME(ch), percent, prob,
+				CCNRM(ch, C_NRM));
+		if (PRF2_FLAGGED(vict, PRF2_DEBUG))
+			send_to_char(vict, "%s[SNATCH] %s   chance:%d   roll:%d%s\r\n",
+				CCCYN(vict, C_NRM), GET_NAME(ch), percent, prob,
+				CCNRM(vict, C_NRM));
+
 		//failure. hand on it and failed to take away.
 		if (prob > percent) {
 

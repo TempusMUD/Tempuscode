@@ -31,6 +31,7 @@
 #include "char_class.h"
 #include "fight.h"
 #include "shop.h"
+#include "screen.h"
 
 struct spell_info_type spell_info[TOP_SPELL_DEFINE + 1];
 struct room_direction_data *knock_door = NULL;
@@ -1678,11 +1679,17 @@ cast_spell(struct Creature *ch, struct Creature *tch,
 		if (number(1, attribute) < number(mana / 2, mana)) {
 			weenie = true;
 		}
-		if (PRF2_FLAGGED(ch, PRF2_DEBUG)) {
+		if (PRF2_FLAGGED(ch, PRF2_DEBUG))
 			send_to_char(ch,
-				"Taint - Attribute[%d] Weenie[%s] Mana Cost[%d] - Damage[%d]\r\n",
-				attribute, weenie ? "true" : "false", mana, dam);
-		}
+				"%s[TAINT] %s attribute:%d   weenie:%s   mana:%d   damage:%d%s\r\n",
+				CCCYN(ch, C_NRM), GET_NAME(ch), attribute,
+				weenie ? "t" : "f", mana, dam, CCNRM(ch, C_NRM));
+		if (PRF2_FLAGGED(tch, PRF2_DEBUG))
+			send_to_char(tch,
+				"%s[TAINT] %s attribute:%d   weenie:%s   mana:%d   damage:%d%s\r\n",
+				CCCYN(tch, C_NRM), GET_NAME(ch), attribute,
+				weenie ? "t" : "f", mana, dam, CCNRM(tch, C_NRM));
+
 		if (af != NULL) {
 			af->duration -= mana;
 			af->duration = MAX(af->duration, 0);

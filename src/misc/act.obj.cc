@@ -2019,7 +2019,8 @@ ACMD(do_drink)
 {
 	struct obj_data *temp;
 	struct affected_type af;
-	int amount, weight, drunk;
+	int amount, weight;
+	int drunk, full, thirst;
 	int on_ground = 0;
 
 	one_argument(argument, arg);
@@ -2096,27 +2097,23 @@ ACMD(do_drink)
 	if (GET_OBJ_VAL(temp, 1) != -1)
 		weight_change_object(temp, -weight);	/* Subtract amount */
 
-	if (PRF2_FLAGGED(ch, PRF2_DEBUG)) {
-		send_to_char(ch, "(%d amount) D%d-F%d-H%d\n", amount,
-			(int)drink_aff[GET_OBJ_VAL(temp, 2)][DRUNK],
-			(int)drink_aff[GET_OBJ_VAL(temp, 2)][FULL],
-			(int)drink_aff[GET_OBJ_VAL(temp, 2)][THIRST]);
-	}
-
 	if (!IS_VAMPIRE(ch)) {
 		drunk = (int)drink_aff[GET_OBJ_VAL(temp, 2)][DRUNK] * amount;
 		drunk /= 4;
 		if (IS_MONK(ch))
 			drunk >>= 2;
-
-		gain_condition(ch, DRUNK, drunk);
-
-		gain_condition(ch, FULL,
-			(int)((int)drink_aff[GET_OBJ_VAL(temp, 2)][FULL] * amount) / 4);
-
-		gain_condition(ch, THIRST,
-			(int)((int)drink_aff[GET_OBJ_VAL(temp, 2)][THIRST] * amount) / 4);
+		full = (int)drink_aff[GET_OBJ_VAL(temp, 2)][FULL] * amount / 4;
+		thirst = (int)drink_aff[GET_OBJ_VAL(temp, 2)][THIRST] * amount / 4;
 	}
+
+	if (PRF2_FLAGGED(ch, PRF2_DEBUG))
+		send_to_char(ch,
+			"%s[DRINK] amount:%d   drunk:%d   full:%d   thirst:%d%s\r\n",
+			CCCYN(ch, C_NRM), amount, drunk, full, thirst, CCCYN(ch, C_NRM));
+
+	gain_condition(ch, DRUNK, drunk);
+	gain_condition(ch, FULL, full);
+	gain_condition(ch, THIRST, thirst);
 
 	if (GET_COND(ch, DRUNK) > 10)
 		send_to_char(ch, "You feel pretty damn drunk.\r\n");

@@ -158,9 +158,12 @@ malovent_holy_touch(Creature * ch, Creature * vict)
 
 	int roll = random_percentage_zero_low();
 
-	if (PRF2_FLAGGED(ch, PRF2_DEBUG)) {
-		send_to_char(ch, "HolyTouch: roll[%d] chance[%d]\r\n", roll, chance );
-	}
+	if (PRF2_FLAGGED(ch, PRF2_DEBUG))
+		send_to_char(ch, "%s[HOLYTOUCH] %s   roll:%d   chance:%d%s\r\n",
+			CCCYN(ch, C_NRM), GET_NAME(ch), roll, chance, CCNRM(ch, C_NRM));
+	if (PRF2_FLAGGED(vict, PRF2_DEBUG))
+		send_to_char(vict, "%s[HOLYTOUCH] %s   roll:%d   chance:%d%s\r\n",
+			CCCYN(vict, C_NRM), GET_NAME(ch), roll, chance, CCNRM(vict, C_NRM));
 
 	if (roll > chance) {
 		damage(ch, vict, 0, SKILL_HOLY_TOUCH, 0);

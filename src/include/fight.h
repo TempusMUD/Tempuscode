@@ -235,7 +235,7 @@ int damage(struct Creature *ch, struct Creature *victim, int dam,
 int skill_message(int dam, struct Creature *ch, struct Creature *vict,
 	int attacktype);
 int best_attack(struct Creature *ch, struct Creature *vict);
-int check_infiltrate(struct Creature *ch, struct Creature *vict);
+bool check_infiltrate(struct Creature *ch, struct Creature *vict);
 void add_blood_to_room(struct room_data *rm, int amount);
 
 

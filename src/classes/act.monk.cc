@@ -33,9 +33,9 @@ perform_monk_meditate(struct Creature *ch)
 	af.is_instant = 0;
 	af.location = APPLY_NONE;
 	MEDITATE_TIMER(ch)++;
-	if (PRF2_FLAGGED(ch, PRF2_DEBUG)) {
-		send_to_char(ch, "<meditate>: Timer %d\r\n", MEDITATE_TIMER(ch));
-	}
+	if (PRF2_FLAGGED(ch, PRF2_DEBUG))
+		send_to_char(ch, "%s[MEDITATE] timer:%d%s\r\n",
+			CCCYN(ch, C_NRM), MEDITATE_TIMER(ch), CCNRM(ch, C_NRM));
 
 	// oblivity
 	if (!IS_AFFECTED_2(ch, AFF2_OBLIVITY) 
