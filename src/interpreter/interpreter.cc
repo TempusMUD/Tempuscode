@@ -887,7 +887,7 @@ struct command_info cmd_info[] = {
 	{"mosh", POS_FIGHTING, do_action, 0, 0, 0, 0},
 	{"motd", POS_DEAD, do_gen_ps, 0, SCMD_MOTD, 0, 0},
 	{"moo", POS_RESTING, do_action, 0, 0, 0, 0},
-	{"moods", POS_SITTING, do_commands, 0, SCMD_MOODS, 0, 0},
+	{"moods", POS_DEAD, do_commands, 0, SCMD_MOODS, 0, 0},
 	{"moon", POS_SITTING, do_action, 0, 0, 0, 0},
 	{"mortalize", POS_SLEEPING, do_gen_tog, LVL_AMBASSADOR, SCMD_MORTALIZE, 0, 0},
 	{"move", POS_STANDING, do_move, 0, SCMD_MOVE, 0, 0},
