@@ -49,7 +49,7 @@ using namespace std;
 #include "help.h"
 #include "combat.h"
 #include "tmpstr.h"
-#include "flags.h"
+//#include "flags.h"
 #include "player_table.h"
 #include "account.h"
 #include "specs.h"
@@ -2655,10 +2655,12 @@ randomize_object(struct obj_data *obj)
 			1, -1);
         break;
 	case ITEM_PORTAL:
-		GET_OBJ_VAL(obj, 3) = rand_value(
-			GET_OBJ_VAL(obj, 3),
-			GET_OBJ_VAL(obj, 3) / 4,
-			1, -1);
+        if (GET_OBJ_VAL(obj, 3) > 0) {
+		    GET_OBJ_VAL(obj, 3) = rand_value(
+			    GET_OBJ_VAL(obj, 3),
+			    GET_OBJ_VAL(obj, 3) / 4,
+			    1, -1);
+        }
 		break;
 	}
 }
