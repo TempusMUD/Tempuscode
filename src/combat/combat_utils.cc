@@ -383,7 +383,9 @@ check_killer(struct Creature *ch, struct Creature *vict,
 		GET_REPUTATION(perp) = GET_REPUTATION(vict);
 		return;
 	}
-
+    if( GET_LEVEL(perp) > 50 ) {
+        return;
+    }
 	if (PLR_FLAGGED(perp, PLR_KILLER | PLR_THIEF))
 		return;
 
