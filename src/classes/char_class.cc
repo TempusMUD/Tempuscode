@@ -91,17 +91,20 @@ extern const int prac_params[4][NUM_CLASSES] = {
 
 };
 
+// 0 - class/race combination not allowed
+// 1 - class/race combination allowed only for secondary class
+// 2 - class/race combination allowed for primary class
 extern const char race_restr[NUM_PC_RACES][NUM_CLASSES + 1] = {
 	//                 MG CL TH WR BR PS PH CY KN RN HD MN VP MR S1 S2 S3
-	{ RACE_HUMAN,		1, 1, 1, 0, 1, 1, 1, 1, 1, 1, 0, 1, 0, 1, 0, 0, 0 },
-	{ RACE_ELF,			1, 1, 1, 0, 0, 1, 1, 1, 1, 1, 0, 1, 0, 1, 0, 0, 0 },
-	{ RACE_DWARF,		0, 1, 1, 0, 1, 1, 1, 1, 1, 0, 0, 0, 0, 1, 0, 0, 0 },
-	{ RACE_HALF_ORC,	0, 0, 1, 0, 1, 0, 1, 1, 0, 0, 0, 0, 0, 1, 0, 0, 0 },
-	{ RACE_HALFLING,	1, 1, 1, 0, 1, 1, 1, 1, 1, 1, 0, 1, 0, 1, 0, 0, 0 },
-	{ RACE_TABAXI,		1, 1, 1, 0, 1, 1, 1, 1, 0, 1, 0, 1, 0, 1, 0, 0, 0 },
-	{ RACE_DROW,		1, 1, 1, 0, 0, 1, 1, 1, 1, 1, 0, 0, 0, 1, 0, 0, 0 },
-	{ RACE_MINOTAUR,	1, 1, 0, 0, 1, 0, 1, 1, 0, 1, 0, 0, 0, 1, 0, 0, 0 },
-	{ RACE_ORC,			0, 0, 1, 0, 1, 0, 0, 1, 0, 0, 0, 0, 0, 1, 0, 0, 0 },
+	{ RACE_HUMAN,		2, 2, 2, 0, 2, 2, 2, 2, 2, 2, 0, 2, 0, 2, 0, 0, 0 },
+	{ RACE_ELF,			2, 2, 2, 0, 0, 2, 2, 2, 2, 2, 0, 2, 0, 2, 0, 0, 0 },
+	{ RACE_DWARF,		0, 2, 2, 0, 2, 1, 1, 1, 2, 0, 0, 0, 0, 1, 0, 0, 0 },
+	{ RACE_HALF_ORC,	0, 0, 2, 0, 2, 0, 2, 2, 0, 0, 0, 0, 0, 2, 0, 0, 0 },
+	{ RACE_HALFLING,	2, 2, 2, 0, 2, 1, 1, 1, 2, 2, 0, 2, 0, 1, 0, 0, 0 },
+	{ RACE_TABAXI,		2, 2, 2, 0, 2, 2, 2, 2, 0, 2, 0, 2, 0, 2, 0, 0, 0 },
+	{ RACE_DROW,		2, 2, 2, 0, 0, 1, 1, 1, 2, 2, 0, 0, 0, 1, 0, 0, 0 },
+	{ RACE_MINOTAUR,	2, 2, 0, 0, 2, 0, 1, 1, 0, 2, 0, 0, 0, 1, 0, 0, 0 },
+	{ RACE_ORC,			0, 0, 1, 0, 1, 0, 0, 2, 0, 0, 0, 2, 0, 2, 0, 0, 0 },
 };
 
 /* THAC0 for char_classes and levels.  (To Hit Armor Class 0) */
@@ -472,40 +475,33 @@ parse_time_frame(char *arg)
  */
 
 int
-parse_player_class(char *arg, int timeframe)
+parse_player_class(char *arg)
 {
 	skip_spaces(&arg);
-	if (timeframe == TIME_TIMELESS || timeframe == TIME_PAST) {
-		if (is_abbrev(arg, "magic user") || is_abbrev(arg, "mage"))
-			return CLASS_MAGIC_USER;
-		else if (is_abbrev(arg, "cleric"))
-			return CLASS_CLERIC;
-		else if (is_abbrev(arg, "barbarian"))
-			return CLASS_BARB;
-		else if (is_abbrev(arg, "thief"))
-			return CLASS_THIEF;
-		else if (is_abbrev(arg, "knight"))
-			return CLASS_KNIGHT;
-		else if (is_abbrev(arg, "ranger"))
-			return CLASS_RANGER;
-		else if (is_abbrev(arg, "monk"))
-			return CLASS_MONK;
-		else if (timeframe == TIME_PAST)
-			return CLASS_UNDEFINED;
-	}
-
-	if (timeframe == TIME_TIMELESS || timeframe == TIME_FUTURE) {
-		if (is_abbrev(arg, "cyborg") || is_abbrev(arg, "borg"))
-			return CLASS_CYBORG;
-		else if (is_abbrev(arg, "psionic") || is_abbrev(arg, "psychic"))
-			return CLASS_PSIONIC;
-		else if (is_abbrev(arg, "physic") || is_abbrev(arg, "physicist"))
-			return CLASS_PHYSIC;
-		else if (is_abbrev(arg, "monk"))
-			return CLASS_MONK;
-		else if (is_abbrev(arg, "mercenary"))
-			return CLASS_MERCENARY;
-	}
+	if (is_abbrev(arg, "magic user") || is_abbrev(arg, "mage"))
+		return CLASS_MAGIC_USER;
+	else if (is_abbrev(arg, "cleric"))
+		return CLASS_CLERIC;
+	else if (is_abbrev(arg, "barbarian"))
+		return CLASS_BARB;
+	else if (is_abbrev(arg, "thief"))
+		return CLASS_THIEF;
+	else if (is_abbrev(arg, "knight"))
+		return CLASS_KNIGHT;
+	else if (is_abbrev(arg, "ranger"))
+		return CLASS_RANGER;
+	else if (is_abbrev(arg, "monk"))
+		return CLASS_MONK;
+	else if (is_abbrev(arg, "cyborg") || is_abbrev(arg, "borg"))
+		return CLASS_CYBORG;
+	else if (is_abbrev(arg, "psionic") || is_abbrev(arg, "psychic"))
+		return CLASS_PSIONIC;
+	else if (is_abbrev(arg, "physic") || is_abbrev(arg, "physicist"))
+		return CLASS_PHYSIC;
+	else if (is_abbrev(arg, "monk"))
+		return CLASS_MONK;
+	else if (is_abbrev(arg, "mercenary"))
+		return CLASS_MERCENARY;
 
 	return CLASS_UNDEFINED;
 }
@@ -528,7 +524,7 @@ extern const char *player_race[] = {
 	"Giant",					/* 15 */
 	"Orc",
 	"Goblin",
-	"Halfling",
+	"Hafling",
 	"Minotaur",
 	"Troll",					/* 20 */
 	"Golem",
@@ -579,7 +575,7 @@ extern const int race_lifespan[] = {
 	160,						/* dwarf */
 	55,							/* half orc */
 	100,						/* klingon */
-	100,						/* halfling */
+	110,						/* halfling */
 	80,							/* tabaxi */
 	200,						/* drow */
 	0,
@@ -868,6 +864,17 @@ roll_real_abils(struct Creature *ch)
 		ch->real_abils.intel += 1;
 		ch->real_abils.dex += 1;
 		ch->real_abils.con -= 1;
+		break;
+	case RACE_HALFLING:
+		if (ch->real_abils.str == 18 && ch->real_abils.str_add > 0)
+			ch->real_abils.str_add -= 10;
+		else
+			ch->real_abils.str -= 1;
+		if (ch->real_abils.str == 18 && ch->real_abils.str_add > 0)
+			ch->real_abils.str_add -= 10;
+		else
+			ch->real_abils.str -= 1;
+		ch->real_abils.dex += 2;
 		break;
 	case RACE_DWARF:
 		ch->real_abils.con += 1;
@@ -2954,7 +2961,6 @@ correct_race( int race ) {
         case RACE_TROLL:
         case RACE_OGRE:
         case RACE_INSECT:
-        case RACE_HAFLING:
         case RACE_GOBLIN:
         case RACE_ELEMENTAL:
         case RACE_DUERGAR:
@@ -3035,45 +3041,51 @@ calculate_height_weight( Creature *ch )
 	if (ch->player.sex == SEX_MALE) {
 		if (GET_RACE(ch) == RACE_HUMAN) {
 			ch->player.weight = number(130, 180) + GET_STR(ch);
-			ch->player.height = number(140, 190) + (GET_WEIGHT(ch) >> 3);
+			ch->player.height = number(140, 190) + (GET_WEIGHT(ch) / 8);
 		} else if (GET_RACE(ch) == RACE_TABAXI) {
 			ch->player.weight = number(110, 160) + GET_STR(ch);
-			ch->player.height = number(160, 200) + (GET_WEIGHT(ch) >> 3);
+			ch->player.height = number(160, 200) + (GET_WEIGHT(ch) / 8);
+		} else if (GET_RACE(ch) == RACE_HALFLING) {
+			ch->player.weight = number(70, 80) + GET_STR(ch);
+			ch->player.height = number(81, 100) + (GET_WEIGHT(ch) / 16);
 		} else if (GET_RACE(ch) == RACE_DWARF) {
 			ch->player.weight = number(120, 160) + GET_STR(ch);
-			ch->player.height = number(100, 125) + (GET_WEIGHT(ch) >> 4);
+			ch->player.height = number(100, 125) + (GET_WEIGHT(ch) / 16);
 		} else if (IS_ELF(ch) || IS_DROW(ch)) {
 			ch->player.weight = number(120, 180) + GET_STR(ch);
-			ch->player.height = number(140, 165) + (GET_WEIGHT(ch) >> 3);
+			ch->player.height = number(140, 165) + (GET_WEIGHT(ch) / 8);
 		} else if (GET_RACE(ch) == RACE_HALF_ORC) {
 			ch->player.weight = number(120, 180) + GET_STR(ch);
-			ch->player.height = number(120, 200) + (GET_WEIGHT(ch) >> 4);
+			ch->player.height = number(120, 200) + (GET_WEIGHT(ch) / 16);
 		} else if (GET_RACE(ch) == RACE_MINOTAUR) {
 			ch->player.weight = number(200, 360) + GET_STR(ch);
-			ch->player.height = number(140, 190) + (GET_WEIGHT(ch) >> 3);
+			ch->player.height = number(140, 190) + (GET_WEIGHT(ch) / 8);
 		} else {
 			ch->player.weight = number(130, 180) + GET_STR(ch);
-			ch->player.height = number(140, 190) + (GET_WEIGHT(ch) >> 3);
+			ch->player.height = number(140, 190) + (GET_WEIGHT(ch) / 8);
 		}
 	} else {
 		if (GET_RACE(ch) == RACE_HUMAN) {
 			ch->player.weight = number(90, 150) + GET_STR(ch);
-			ch->player.height = number(140, 170) + (GET_WEIGHT(ch) >> 3);
+			ch->player.height = number(140, 170) + (GET_WEIGHT(ch) / 8);
 		} else if (GET_RACE(ch) == RACE_TABAXI) {
 			ch->player.weight = number(80, 120) + GET_STR(ch);
-			ch->player.height = number(160, 190) + (GET_WEIGHT(ch) >> 3);
+			ch->player.height = number(160, 190) + (GET_WEIGHT(ch) / 8);
+		} else if (GET_RACE(ch) == RACE_HALFLING) {
+			ch->player.weight = number(70, 80) + GET_STR(ch);
+			ch->player.height = number(81, 100) + (GET_WEIGHT(ch) / 16);
 		} else if (GET_RACE(ch) == RACE_DWARF) {
 			ch->player.weight = number(100, 140) + GET_STR(ch);
-			ch->player.height = number(90, 115) + (GET_WEIGHT(ch) >> 4);
+			ch->player.height = number(90, 115) + (GET_WEIGHT(ch) / 16);
 		} else if (IS_ELF(ch) || IS_DROW(ch)) {
 			ch->player.weight = number(90, 130) + GET_STR(ch);
-			ch->player.height = number(120, 155) + (GET_WEIGHT(ch) >> 3);
+			ch->player.height = number(120, 155) + (GET_WEIGHT(ch) / 8);
 		} else if (GET_RACE(ch) == RACE_HALF_ORC) {
 			ch->player.weight = number(110, 170) + GET_STR(ch);
-			ch->player.height = number(110, 190) + (GET_WEIGHT(ch) >> 3);
+			ch->player.height = number(110, 190) + (GET_WEIGHT(ch) / 8);
 		} else {
 			ch->player.weight = number(90, 150) + GET_STR(ch);
-			ch->player.height = number(140, 170) + (GET_WEIGHT(ch) >> 3);
+			ch->player.height = number(140, 170) + (GET_WEIGHT(ch) / 8);
 		}
 	}
 }
