@@ -142,8 +142,8 @@ handle_input(struct descriptor_data *d, char *arg)
 			d->account = accountIndex.find_account(arg);
 
 			if (!d->account) {
-				d->account = accountIndex.create_account(arg, d);
 				set_desc_state(CXN_ACCOUNT_VERIFY, d);
+				d->mode_data = strdup(arg);
 			} else {
 				d->account = NULL;
 				send_to_desc(d, "That account name has already been taken.  Try another.\r\n");
@@ -153,7 +153,9 @@ handle_input(struct descriptor_data *d, char *arg)
 	case CXN_ACCOUNT_VERIFY:
 		switch (tolower(arg[0])) {
 		case 'y':
-			set_desc_state(CXN_ANSI_PROMPT, d); break;
+			d->account = accountIndex.create_account(d->mode_data, d);
+			set_desc_state(CXN_ANSI_PROMPT, d);
+			break;
 		case 'n':
 			set_desc_state(CXN_ACCOUNT_PROMPT, d); break;
 		default:
@@ -827,7 +829,7 @@ send_prompt(descriptor_data *d)
 		break;
 	case CXN_ACCOUNT_VERIFY:
 		send_to_desc(d, "Are you sure you want your account name to be '%s' (Y/N)? ",
-			d->account->get_name());
+			d->last_input);
 		break;
 	case CXN_ANSI_PROMPT:
 		send_to_desc(d, "Enter the level of color you prefer: "); break;
@@ -1245,6 +1247,8 @@ send_menu(descriptor_data *d)
 void
 set_desc_state(cxn_state state,struct descriptor_data *d)
 	{
+	free(d->mode_data);
+	d->mode_data = NULL;
 	if (d->input_mode == CXN_ACCOUNT_PW ||
 			d->input_mode == CXN_PW_PROMPT ||
 			d->input_mode == CXN_PW_VERIFY ||
@@ -1472,9 +1476,6 @@ char_to_game(descriptor_data *d)
 				GET_NAME(d->creature)));
 		do_start(d->creature, 1);
 
-		// clear login time so we dont get news updates
-		d->old_login_time = time(0);
-
 		// New characters shouldn't get old mail.
 		if(has_mail(GET_IDNUM(d->creature))) {
 		   if(purge_mail(GET_IDNUM(d->creature))>0) {
@@ -1526,6 +1527,7 @@ char_to_game(descriptor_data *d)
 				"\r\n\007\007:: NOTICE :: Tempus will be rebooting in [%d] second%s ::\r\n",
 				shutdown_count, shutdown_count == 1 ? "" : "s"), d);
 
+	d->account->update_last_entry();
 }
 
 int 
