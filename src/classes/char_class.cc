@@ -1396,7 +1396,9 @@ advance_level(struct char_data * ch, byte keep_internal)
   
     save_char(ch, NULL);
 
-    sprintf(buf, "%s advanced to level %d", GET_NAME(ch), GET_LEVEL(ch));
+    sprintf(buf, "%s advanced to level %d in room %d %s", 
+        GET_NAME(ch), GET_LEVEL(ch), ch->in_room->number,
+        PLR_FLAGGED(ch, PLR_TESTER) ? "<TESTER>" : "");
     if (keep_internal)
 	slog(buf);
     else
