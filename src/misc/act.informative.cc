@@ -4354,7 +4354,7 @@ ACMD(do_consider)
 	else if (diff <= 30)
 		send_to_char(ch, "What?? Are you STUPID or something?!!\r\n");
 	else
-		send_to_char(ch, "Would you like to borrow a cross and a shovel?\r\n");
+		send_to_char(ch, "Would you like to borrow a cross and a shovel for your grave?\r\n");
 
 	if (GET_SKILL(ch, SKILL_CONSIDER) > 70) {
 		diff = (GET_MAX_HIT(victim) - GET_MAX_HIT(ch));

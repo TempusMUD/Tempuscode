@@ -4371,6 +4371,7 @@ struct show_struct fields[] = {
 	{"timewarps", LVL_IMMORT, ""},	// 55
 	{"zonecommands", LVL_IMMORT, ""},
 	{"multi", LVL_IMMORT, "AdminBasic"},
+	{"nohelps", LVL_IMMORT, "Help"},
 	{"\n", 0, ""}
 };
 
@@ -5261,6 +5262,8 @@ ACMD(do_show)
 	case 57:
 		show_multi(ch, value);
 		break;
+	case 58:
+		show_file(ch, "log/help.log", 0); break;
 	default:
 		send_to_char(ch, "Sorry, I don't understand that.\r\n");
 		break;

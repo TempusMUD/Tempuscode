@@ -14,6 +14,7 @@ using namespace std;
 #include "comm.h"
 #include "screen.h"
 #include "handler.h"
+#include "tmpstr.h"
 
 // Where under lib do we toss our data?
 const char *Help_Directory = "text/help_data/";
@@ -25,6 +26,7 @@ static char gHelpbuf[MAX_STRING_LENGTH];
 static char linebuf[MAX_STRING_LENGTH];
 static fstream help_file;
 static fstream index_file;
+static fstream help_log;
 extern const char *pc_char_class_types[];
 
 char *one_word(char *argument, char *first_arg);
@@ -188,6 +190,20 @@ HelpCollection::GetTopic(Creature * ch,
 	}
 	cur = FindItems(args, show_no_app, thegroup, searchmode);
 	if (!cur) {
+		help_log.open("log/help.log", ios::out | ios::app);
+		if (help_log.good()) {
+			time_t ct;
+			char *tmstr;
+
+			ct = time(0);
+			tmstr = asctime(localtime(&ct));
+			*(tmstr + strlen(tmstr) - 1) = '\0';
+			help_log << tmp_sprintf("%-8s (%6.6s) [%5d] %s", GET_NAME(ch),
+				tmstr + 4, ch->in_room->number, args) << endl;
+			help_log.flush();
+		}
+		help_log.close();
+
 		send_to_char(ch, "No items were found matching your search criteria.\r\n");
 		return;
 	}
