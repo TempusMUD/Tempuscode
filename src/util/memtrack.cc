@@ -104,29 +104,6 @@ _dbg_free(void *ptr, const void *return_addr)
 		return;
 	}
 	
-	// Now check for unfreed blocks that might be in the struct
-	unsigned long *search_ptr;
-	struct dbg_mem_blk *search_blk;
-	struct rusage usage;
-	size_t hi_bound, lo_bound;
-
-	getrusage(RUSAGE_SELF, &usage);
-	lo_bound = (size_t)sbrk(0);
-	hi_bound = lo_bound + usage.ru_idrss;
-	for (search_ptr = (unsigned long *)ptr;
-			search_ptr < (unsigned long *)((char *)ptr + cur_blk->size);
-			search_ptr++) {
-		if (*search_ptr > lo_bound && *search_ptr < hi_bound) {
-			search_blk = (struct dbg_mem_blk *)((char *)*search_ptr -
-				sizeof(struct dbg_mem_blk));
-			if (search_blk->magic == _dbg_magic &&
-					search_blk->status == dbg_allocated)
-				slog("MEMORY: Possible leak 0x%lx freeing %p, alloced at %p, freed %p",
-					*search_ptr, ptr, search_blk->alloc_addr,
-					return_addr);
-		}
-	}
-
 	// Remove from list of memory blocks
 	if (cur_blk->prev)
 		cur_blk->prev->next = cur_blk->next;
