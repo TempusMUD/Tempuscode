@@ -37,6 +37,7 @@
 #include "db.h"
 #include "char_class.h"
 #include "tmpstr.h"
+#include "spells.h"
 
 extern struct follow_type *order_next_k;
 char ANSI[20];
@@ -73,12 +74,12 @@ GET_SKILL_COST(Creature *ch, int skill)
 	// Mort costs: Level 1: 5000, Level 49: 12mil
 	cost = SPELL_LEVEL(skill, GET_CLASS(ch))
 			* SPELL_LEVEL(skill, GET_CLASS(ch))
-			* 500;
+			* 250;
 	// Remort costs: gen 1, lvl 35: 12mil  gen 10, lvl 49: 132mil
 	if (SPELL_GEN(skill, GET_CLASS(ch)))
 		cost *= SPELL_GEN(skill, GET_CLASS(ch)) + 1;
 
-	// Charisma knocks off up to 1/4th of price
+	// Charisma knocks off up to 1/4 of price
 	cost -= cost * GET_CHA(ch) / 100;
 	return cost;
 }
