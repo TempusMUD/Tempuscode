@@ -22,18 +22,24 @@
 #include "house.h"
 #include "events.h"
 #include "prog.h"
+#include "clan.h"
 
 struct prog_env *prog_list = NULL;
+int loop_fence = 0;
 
 // Prog command prototypes
 void prog_do_before(prog_env *env, prog_evt *evt, char *args);
 void prog_do_handle(prog_env *env, prog_evt *evt, char *args);
 void prog_do_after(prog_env *env, prog_evt *evt, char *args);
-void prog_do_when(prog_env *env, prog_evt *evt, char *args);
+void prog_do_require(prog_env *env, prog_evt *evt, char *args);
 void prog_do_unless(prog_env *env, prog_evt *evt, char *args);
 void prog_do_do(prog_env *env, prog_evt *evt, char *args);
+void prog_do_force(prog_env *env, prog_evt *evt, char *args);
 void prog_do_pause(prog_env *env, prog_evt *evt, char *args);
 void prog_do_halt(prog_env *env, prog_evt *evt, char *args);
+void prog_do_target(prog_env *env, prog_evt *evt, char *args);
+void prog_do_nuke(prog_env *env, prog_evt *evt, char *args);
+void prog_do_trans(prog_env *env, prog_evt *evt, char *args);
 
 struct prog_command {
 	const char *str;
@@ -45,11 +51,14 @@ prog_command prog_cmds[] = {
 	{ "before",	false,	prog_do_before },
 	{ "handle",	false,	prog_do_handle },
 	{ "after",	false,	prog_do_after },
-	{ "when",	false,	prog_do_when },
+	{ "require",false,	prog_do_require },
 	{ "unless",	false,	prog_do_unless },
-	{ "do",		true,	prog_do_do },
 	{ "pause",	true,	prog_do_pause },
-	{ "halt",	true,	prog_do_halt },
+	{ "do",		true,	prog_do_do },
+	{ "force",	true,	prog_do_force },
+	{ "target",	true,	prog_do_target },
+	{ "nuke",	true,	prog_do_nuke },
+	{ "trans",	true,	prog_do_trans },
 	{ NULL,		false,	prog_do_halt }
 };
 
@@ -69,13 +78,41 @@ advance_lines(char *str, int lines)
 	return str;
 }
 
+
+struct prog_env *
+find_prog_by_owner(void *owner)
+{
+	struct prog_env *cur_prog;
+
+	for (cur_prog = prog_list;cur_prog;cur_prog = cur_prog->next)
+		if (cur_prog->owner == owner)
+			return cur_prog;
+
+	return NULL;
+}
+
+char *
+prog_get_text(prog_env *env)
+{
+	switch (env->owner_type) {
+	case PROG_TYPE_MOBILE:
+		return GET_MOB_PROG(((Creature *)env->owner));
+	case PROG_TYPE_OBJECT:
+	case PROG_TYPE_ROOM:
+		break;
+	}
+	slog("Can't happen at %s:%d", __FILE__, __LINE__);
+	return NULL;
+}
+
 void
 prog_next_handler(prog_env *env)
 {
 	char *prog, *line, *cmd;
 
 	// find our current execution point
-	prog = advance_lines(env->prog, env->exec_pt);
+	prog = prog_get_text(env);
+	prog = advance_lines(prog, env->exec_pt);
 
 	// skip over lines until we find another handler (or bust)
 	while ((line = tmp_getline(&prog)) != NULL) {
@@ -113,8 +150,11 @@ prog_trigger_handler(prog_env *env, prog_evt *evt, int phase, char *args)
 		matched = (evt->kind == PROG_EVT_COMMAND)
 			&& evt->cmd >= 0
 			&& !strcasecmp(cmd_info[evt->cmd].command, arg);
-	} else if (!strcmp("idle", arg))
+	} else if (!strcmp("idle", arg)) {
 		matched = (evt->kind == PROG_EVT_IDLE);
+	} else if (!strcmp("fight", arg)) {
+		matched = (evt->kind == PROG_EVT_FIGHT);
+	}
 
 	if (!matched)
 		prog_next_handler(env);
@@ -142,26 +182,29 @@ bool
 prog_eval_condition(prog_env *env, prog_evt *evt, char *args)
 {
 	char *arg;
+	bool result = false, not_flag = false;
 
 	arg = tmp_getword(&args);
-	if (!strcmp(arg, "argument")) {
+	if (!strcasecmp(arg, "not")) {
+		not_flag = true;
 		arg = tmp_getword(&args);
-		if (!strcmp(arg, "is")) {
-			return (evt->args && !strcasecmp(args, evt->args));
-		} else if (!strcmp(arg, "contains")) {
-			return (evt->args && !strstr(args, evt->args));
-		}
+	}
+
+	if (!strcmp(arg, "argument")) {
+		result = (evt->args && !strcasecmp(args, evt->args));
+	} else if (!strcmp(arg, "keyword")) {
+		result = (evt->args && isname(evt->args, args));
 	} else if (!strcmp(arg, "fighting")) {
-		return (env->owner_type == PROG_TYPE_MOBILE
+		result = (env->owner_type == PROG_TYPE_MOBILE
 				&& ((Creature *)env->owner)->isFighting());
 	} else if (!strcmp(arg, "randomly"))
-		return number(0, 100) < atoi(args);
+		result = number(0, 100) < atoi(args);
 
-	return false;
+	return (not_flag) ? (!result):result;
 }
 
 void
-prog_do_when(prog_env *env, prog_evt *evt, char *args)
+prog_do_require(prog_env *env, prog_evt *evt, char *args)
 {
 	if (!prog_eval_condition(env, evt, args))
 		prog_next_handler(env);
@@ -185,6 +228,56 @@ prog_do_do(prog_env *env, prog_evt *evt, char *args)
 }
 
 void
+prog_do_force(prog_env *env, prog_evt *evt, char *args)
+{
+	if (!env->target)
+		return;
+
+	if (env->owner_type == PROG_TYPE_MOBILE) {
+		args = tmp_gsub(args, "$N", fname(env->target->player.name));
+		command_interpreter((Creature *)env->target, args);
+	}
+}
+
+void
+prog_do_target(prog_env *env, prog_evt *evt, char *args)
+{
+	Creature *ch_self;
+	obj_data *obj_self;
+	char *arg;
+
+	arg = tmp_getword(&args);
+	if (!strcasecmp(arg, "random")) {
+		switch (env->owner_type) {
+		case PROG_TYPE_MOBILE:
+			ch_self = (Creature *)env->owner;
+			env->target = get_char_random_vis(ch_self, ch_self->in_room);
+			break;
+		case PROG_TYPE_OBJECT:
+			obj_self = (obj_data *)env->owner;
+			if (obj_self->in_room)
+				env->target = get_char_random(obj_self->in_room);
+			else if (obj_self->worn_by)
+				env->target = get_char_random(obj_self->worn_by->in_room);
+			else if (obj_self->carried_by)
+				env->target = get_char_random(obj_self->carried_by->in_room);
+			break;
+		case PROG_TYPE_ROOM:
+			env->target = get_char_random((room_data *)env->owner);
+			break;
+		}
+	} else if (!strcasecmp(arg, "opponent")) {
+		switch (env->owner_type) {
+		case PROG_TYPE_MOBILE:
+			env->target = FIGHTING(((Creature *)env->owner));
+			break;
+		default:
+			env->target = NULL;
+		}
+	}
+}
+
+void
 prog_do_pause(prog_env *env, prog_evt *evt, char *args)
 {
 	env->wait = MAX(1, atoi(args));
@@ -196,17 +289,73 @@ prog_do_halt(prog_env *env, prog_evt *evt, char *args)
 	env->wait = -1;
 }
 
-
-struct prog_env *
-find_prog_by_owner(void *owner)
+void
+prog_do_nuke(prog_env *env, prog_evt *evt, char *args)
 {
-	struct prog_env *cur_prog;
+	struct prog_env *cur_prog, *next_prog;
 
-	for (cur_prog = prog_list;cur_prog;cur_prog = cur_prog->next)
-		if (cur_prog->owner == owner)
-			return cur_prog;
+	for (cur_prog = prog_list;cur_prog;cur_prog = next_prog) {
+		next_prog = cur_prog->next;
+		if (cur_prog != env && cur_prog->owner == env->owner)
+			prog_free(cur_prog);
+	}
+}
 
-	return NULL;
+void
+prog_do_trans(prog_env *env, prog_evt *evt, char *args)
+{
+	room_data *targ_room;
+	int targ_num;
+
+	if (!env->target)
+		return;
+	
+	targ_num = atoi(tmp_getword(&args));
+	if ((targ_room = real_room(targ_num)) == NULL) {
+		slog("SYSERR: prog trans targ room %d nonexistant.", targ_num);
+		return;
+	}
+
+	if (targ_room == env->target->in_room)
+		return;
+
+	if (!House_can_enter(env->target, targ_room->number)
+		|| !clan_house_can_enter(env->target, targ_room)
+		|| (ROOM_FLAGGED(targ_room, ROOM_GODROOM)
+			&& !Security::isMember(env->target, "WizardFull"))) {
+		return;
+	}
+
+	char_from_room(env->target);
+	char_to_room(env->target, targ_room);
+	targ_room->zone->enter_count++;
+
+	if (env->target->followers) {
+		struct follow_type *k, *next;
+
+		for (k = env->target->followers; k; k = next) {
+			next = k->next;
+			if (targ_room == k->follower->in_room &&
+					GET_LEVEL(k->follower) >= LVL_AMBASSADOR &&
+					!PLR_FLAGGED(k->follower, PLR_OLC | PLR_WRITING | PLR_MAILING) &&
+					can_see_creature(k->follower, env->target))
+				perform_goto(k->follower, targ_room, true);
+		}
+	}
+
+	if (IS_SET(ROOM_FLAGS(targ_room), ROOM_DEATH)) {
+		if (GET_LEVEL(env->target) < LVL_AMBASSADOR) {
+			log_death_trap(env->target);
+			death_cry(env->target);
+			env->target->die();
+			//Event::Queue(new DeathEvent(0, ch, false));
+			return;
+		} else {
+			mudlog(LVL_GOD, NRM, true,
+				"(GC) %s trans-searched into deathtrap %d.",
+				GET_NAME(env->target), targ_room->number);
+		}
+	}
 }
 
 char *
@@ -221,8 +370,10 @@ prog_get_statement(char **prog, int linenum)
 	if (!statement)
 		return NULL;
 	
-	while (statement[strlen(statement) - 1] == '\\')
+	while (statement[strlen(statement) - 1] == '\\') {
+		statement[strlen(statement) - 1] = '\0';
 		statement = tmp_strcat(statement, tmp_getline(prog), NULL);
+	}
 	
 	return statement;
 }
@@ -263,7 +414,7 @@ prog_execute(prog_env *env)
 	// we've waited long enough!
 	env->wait = env->speed;
 
-	exec = env->prog;
+	exec = prog_get_text(env);
 	line = prog_get_statement(&exec, env->exec_pt);
 	while (line) {
 		// increment line number of currently executing prog
@@ -272,6 +423,8 @@ prog_execute(prog_env *env)
 
 		if (*line == '*') {
 			prog_handle_command(env, &env->evt, line);
+		} else if (*line == '\0' || *line == '-') {
+			// Do nothing.  comment or blank.
 		} else if (env->owner_type == PROG_TYPE_MOBILE) {
 			env->executed += 1;
 			prog_do_do(env, &env->evt, line);
@@ -297,25 +450,23 @@ prog_execute(prog_env *env)
 prog_env *
 prog_start(int owner_type, void *owner, Creature *target, char *prog, prog_evt *evt)
 {
-	prog_env *new_prog, *cur_prog;
+	prog_env *new_prog;
 
-	// Find any progs run by the same owner
-	cur_prog = find_prog_by_owner(owner);
-	if (cur_prog) {
-		// The same object was running a prog, so we just re-initialize
-		// its state
-		new_prog = cur_prog;
-	} else {
-		// The same object wasn't already running a prog, so we have to
-		// make a new one
-		CREATE(new_prog, struct prog_env, 1);
-		new_prog->next = prog_list;
-		prog_list = new_prog;
+	// We don't want an infinite loop with mobs triggering progs that
+	// trigger a prog, etc.
+	if (loop_fence >= 20) {
+		mudlog(LVL_IMMORT, NRM, true, "Infinite prog loop halted.");
+		return NULL;
 	}
+	
+	loop_fence++;
+
+	CREATE(new_prog, struct prog_env, 1);
+	new_prog->next = prog_list;
+	prog_list = new_prog;
 
 	new_prog->owner_type = owner_type;
 	new_prog->owner = owner;
-	new_prog->prog = prog;
 	new_prog->exec_pt = 0;
 	new_prog->executed = 0;
 	new_prog->wait = 0;
@@ -324,6 +475,8 @@ prog_start(int owner_type, void *owner, Creature *target, char *prog, prog_evt *
 	new_prog->evt = *evt;
 
 	prog_execute(new_prog);
+
+	loop_fence -= 1;
 
 	return new_prog;
 }
@@ -387,7 +540,7 @@ trigger_prog_cmd(Creature *owner, Creature *ch, int cmd, char *argument)
 	
 	evt.phase = PROG_EVT_HANDLE;
 	env = prog_start(PROG_TYPE_MOBILE, owner, ch, GET_MOB_PROG(owner), &evt);
-	if (env->executed)
+	if (env && env->executed)
 		return true;
 
 	return handled;
@@ -399,6 +552,9 @@ trigger_progs_after(Creature *ch, int cmd, char *argument)
 	prog_env *env;
 	prog_evt evt;
 
+	if (!ch || !ch->in_room)
+		return;
+	skip_spaces(&argument);
 	evt.phase = PROG_EVT_AFTER;
 	evt.kind = PROG_EVT_COMMAND;
 	evt.cmd = cmd;
@@ -413,6 +569,25 @@ trigger_progs_after(Creature *ch, int cmd, char *argument)
 			env = prog_start(PROG_TYPE_MOBILE, *cit, ch, GET_MOB_PROG((*cit)), &evt);
 		cit++;
 	}
+}
+
+void
+trigger_prog_fight(Creature *ch, Creature *self)
+{
+	prog_env *env;
+	prog_evt evt;
+
+	if (!self || !self->in_room || !GET_MOB_PROG(self))
+		return;
+	evt.phase = PROG_EVT_AFTER;
+	evt.kind = PROG_EVT_FIGHT;
+	evt.cmd = -1;
+	evt.subject = ch;
+	evt.object = NULL;
+	evt.object_type = PROG_TYPE_NONE;
+	evt.args = strdup("");
+
+	env = prog_start(PROG_TYPE_MOBILE, self, ch, GET_MOB_PROG(self), &evt);
 }
 
 void
@@ -456,4 +631,15 @@ prog_update(void)
 		if (!cur_prog->exec_pt)
 			prog_free(cur_prog);
 	}
+}
+
+int
+prog_count(void)
+{
+	int result = 0;
+	prog_env *cur_env;
+
+	for (cur_env = prog_list;cur_env;cur_env = cur_env->next)
+		result++;
+	return result;
 }

@@ -1474,6 +1474,7 @@ send_unknown_cmd(Creature *ch)
 void
 command_interpreter(struct Creature *ch, char *argument)
 {
+	descriptor_data *d;
 	int cmd, length;
 	extern int no_specials;
 	char *line;
@@ -1522,14 +1523,15 @@ command_interpreter(struct Creature *ch, char *argument)
 		send_unknown_cmd(ch);
 		return;
 	}
-	if (ch->desc) {
-		if (cmd == ch->desc->last_cmd &&
-			!strcasecmp(line, ch->desc->last_argument))
-			ch->desc->repeat_cmd_count++;
+	d = ch->desc;
+	if (d) {
+		if (cmd == d->last_cmd &&
+			!strcasecmp(line, d->last_argument))
+			d->repeat_cmd_count++;
 		else
-			ch->desc->repeat_cmd_count = 0;
-		strcpy(ch->desc->last_argument, line);
-		ch->desc->last_cmd = cmd;
+			d->repeat_cmd_count = 0;
+		strcpy(d->last_argument, line);
+		d->last_cmd = cmd;
 
 		/* log cmds */
 		if (log_cmds || PLR_FLAGGED(ch, PLR_LOG)) {
@@ -1555,7 +1557,7 @@ command_interpreter(struct Creature *ch, char *argument)
 	if (PLR_FLAGGED(ch, PLR_FROZEN) && GET_LEVEL(ch) < LVL_GRIMP)
 		send_to_char(ch, "You try, but the mind-numbing cold prevents you...\r\n");
 	else if (IS_AFFECTED_2(ch, AFF2_PETRIFIED) && !IS_IMMORT(ch)
-		&& (!ch->desc || !ch->desc->original)) {
+		&& (!d || !d->original)) {
 		if (!number(0, 3))
 			send_to_char(ch, "You have been turned to stone!\r\n");
 		else if (!number(0, 2))
@@ -1603,7 +1605,8 @@ command_interpreter(struct Creature *ch, char *argument)
 		cmd_info[cmd].command_pointer(ch, line, cmd, cmd_info[cmd].subcmd, 0);
 	}
 
-	trigger_progs_after(ch, cmd, line);
+	if (d && IS_PLAYING(d))
+		trigger_progs_after(ch, cmd, line);
 }
 
 /**************************************************************************

@@ -18,7 +18,9 @@ enum prog_evt_phase {
 
 enum prog_evt_kind {
 	PROG_EVT_COMMAND,
-	PROG_EVT_IDLE
+	PROG_EVT_IDLE,
+	PROG_EVT_FIGHT,
+	PROG_EVT_GIVE
 };
 
 struct prog_evt {
@@ -34,7 +36,6 @@ struct prog_evt {
 
 struct prog_env {
 	struct prog_env *next;	// next prog environment
-	char *prog;					// the text of the prog itself
 	int exec_pt;				// the line number we're executing
 	int executed;				// the number of non-handlers we've executed
 	int speed;					// default wait between commands
@@ -49,8 +50,10 @@ void destroy_attached_progs(void *self);
 bool trigger_prog_cmd(Creature *self, Creature *ch, int cmd, char *argument);
 void trigger_progs_after(Creature *ch, int cmd, char *argument);
 void trigger_prog_idle(Creature *self);
+void trigger_prog_fight(Creature *ch, Creature *self);
 prog_env *prog_start(int owner_type, void *owner, Creature *target, char *prog, prog_evt *evt);
 void prog_free(struct prog_env *prog);
 void prog_update(void);
+int prog_count(void);
 
 #endif

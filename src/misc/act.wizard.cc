@@ -57,6 +57,7 @@ using namespace std;
 #include "memtrack.h"
 #include "boards.h"
 #include "language.h"
+#include "prog.h"
 
 /*   external vars  */
 extern struct obj_data *object_list;
@@ -3902,6 +3903,8 @@ do_show_stats(struct Creature *ch)
         buf_switches, buf_overflows);
     send_to_char(ch, "  %5u tmpstr space     %5u accstr space\r\n",
         tmp_max_used, acc_str_space);
+    send_to_char(ch, "  %5u running progs\r\n",
+        prog_count());
     send_to_char(ch, "  Lunar day: %2d, phase: %s (%d)\r\n",
         lunar_day, lunar_phases[get_lunar_phase(lunar_day)],
 		get_lunar_phase(lunar_day));

@@ -44,6 +44,7 @@
 #include "quest.h"
 #include "vendor.h"
 #include "utils.h"
+#include "prog.h"
 
 #include <iostream>
 #include <algorithm>
@@ -141,6 +142,8 @@ set_fighting(struct Creature *ch, struct Creature *vict, int aggr)
 
 	ch->setFighting(vict);
 	update_pos(ch);
+
+	trigger_prog_fight(ch, vict);
 }
 
 
