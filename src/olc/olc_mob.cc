@@ -1696,11 +1696,11 @@ int do_clear_olc_mob(struct char_data *ch)
     targ->points.hitroll = 0;
     targ->points.armor = 0;
 
-    targ->points.max_hit = 0;
     targ->points.hit = 10;
     targ->points.mana = 10;
     targ->points.move = 50;
 
+    targ->points.max_hit =  10;
     targ->points.max_mana = 10;
     targ->points.max_move = 50;
 
