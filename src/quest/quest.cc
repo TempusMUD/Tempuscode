@@ -67,7 +67,7 @@ const struct qcontrol_option {
     { "award",    "<player> <vnum> <pts> [comments]",           LVL_IMMORT },
     { "penalize", "<player> <vnum> <pts> <reason>",             LVL_POWER  },
     { "load",     "<mobile vnum> <vnum>",                              LVL_POWER   },
-    { "purge",    "<mobile name>",                              LVL_POWER   }, // 20
+    { "purge",    "<vnum> <mobile name>",                              LVL_POWER   }, // 20
     { "save",     "",                                           LVL_GRGOD  },
     { "help",     "<topic>",                                    LVL_IMMORT },
     { "switch",   "<mobile name>",                              LVL_IMMORT },
@@ -409,26 +409,27 @@ do_qcontrol_purge   (CHAR *ch, char *argument, int com) {
 
     struct char_data *vict;
     struct quest_data *quest = NULL;
-    struct qplayer_data *qp = NULL;
-		
+	char arg1[MAX_INPUT_LENGTH];
 
 
-    one_argument(argument, buf);
-
+    argument = two_arguments(argument, arg1, buf);
+	printf("arg1 %s\r\nbuf %s\r\n",arg1,buf);
 	if (!*buf) {
 		send_to_char("Purge what?\r\n",ch);
 		return;
 	}
+	if ( !(quest = find_quest( ch, arg1) ) ){
+		return;
+	}
+	if ( !quest_edit_ok( ch, quest) ){
+		return;
+	}
+	if( quest->ended ){
+		send_to_char( "Pay attentionu dummy! That quest is over!\r\n", ch);
+		return;
+	}
 	
-        if ( ! ( quest = quest_by_vnum( GET_QUEST( ch ) ) ) ||
-                ! ( qp = idnum_in_quest( GET_IDNUM( ch ), quest ) ) ) {
-                send_to_char( "You are not currently active on any quest.\r\n", ch );
-                return;
-        }
-
-
-
-	if ((vict = get_char_room_vis(ch, argument))) {
+	if ((vict = get_char_room_vis(ch, buf))) {
         if (!IS_NPC(vict)) {
 			send_to_char("You don't need a quest to purge them!\r\n", ch);
 			return;
