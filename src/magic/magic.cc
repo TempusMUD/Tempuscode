@@ -1002,7 +1002,8 @@ mag_affects(int level, struct Creature *ch, struct Creature *victim,
 //        af.level = ch->getLevelBonus(SPELL_THORN_SKIN);
         to_vict = "You howl in pain as thorns pierce your skin!";
         to_room = "$n howls in pain as thorns pierce his skin.";
-        GET_HIT(victim) -= (100 - ch->getLevelBonus(SPELL_THORN_SKIN) / 2);
+        dam = (150 - ch->getLevelBonus() / 2);
+		damage(ch, ch, dam, TYPE_PIERCING, WEAR_RANDOM);
         break;
 	case SPELL_STONESKIN:
 		if (affected_by_spell(victim, SPELL_BARKSKIN)) {
