@@ -3658,7 +3658,7 @@ mag_assign_spells(void)
 		0, 0, 0, 0, 0, 0, 0);
 
 	/*  Ma Cl Th Wa Br Sy Ph Cy Kn  Rn Hd Bt Vm */
-	spello(SKILL_PILEDRIVE, X, X, X, 1, 30, X, X, X, X, X, 20, X, X, X, X, X,
+	spello(SKILL_PILEDRIVE, X, X, X, X, X, X, X, X, X, X, X, X, X, X, X, X,
 		X, 0, 0, 0, 0, 0, 0, 0);
 
 	spello(SKILL_SLEEPER, X, X, X, 1, 25, X, X, X, X, X, X, X, X, X, X, X, X,
