@@ -1537,6 +1537,9 @@ set_desc_state(int state,struct descriptor_data *d)
 		STATE(d) == CON_DELCNF1 ||
 		STATE(d) == CON_CNFPASSWD )
 		echo_off(d);
+	if (CON_AFTERLIFE == state)
+		d->inbuf[0] = '\0';
+
 	d->need_prompt = true;
 	}
 
