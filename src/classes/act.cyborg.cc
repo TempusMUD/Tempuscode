@@ -2584,7 +2584,7 @@ ACMD(do_extract)
         sprintf(buf,"$n extracts $p from your %s.",wear_implantpos[pos]);
         act(buf, FALSE, ch, obj, vict, TO_VICT);
 
-        sprintf(buf,"$n extracts $p from $n's %s.",wear_implantpos[pos]);
+        sprintf(buf,"$n extracts $p from $N's %s.",wear_implantpos[pos]);
         act(buf, FALSE, ch, obj, vict, TO_NOTVICT);
         if(GET_POS(vict) > POS_RESTING)
             GET_POS(vict) = POS_RESTING;
