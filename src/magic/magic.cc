@@ -880,10 +880,9 @@ mag_affects(int level, struct char_data * ch, struct char_data * victim,
 	}
 	af2.location = APPLY_DEX;
 	af.location = APPLY_AC;
-	af.duration = dice(4, (level >> 3) + 1);
-	af2.duration = dice(4, (level >> 3) + 1);
+	af.duration = af2.duration = dice(4, (level >> 3) + 1);
 	af.modifier = -20;
-	af2.modifier = -3;
+	af2.modifier = -2;
 	accum_duration = TRUE;
 	to_vict = "Your skin hardens to a rock-like shell.";
 	break;
