@@ -1350,7 +1350,7 @@ struct command_info cmd_info[] = {
 	{"olist", POS_DEAD, do_olist, LVL_IMMORT, 0, 0},
 	{"mlist", POS_DEAD, do_mlist, LVL_IMMORT, 0, 0},
 	{"xlist", POS_DEAD, do_xlist, LVL_IMMORT, 0, 0},
-	{"hcollection", POS_DEAD, do_help_collection_command, LVL_IMMORT, 0, 0},
+	{"hcollection", POS_DEAD, do_help_collection_command, 1, 0, 0},
 	{"access", POS_DEAD, do_access, LVL_IMMORT, 0, 0},
 	{"coderutil", POS_DEAD, do_coderutil, LVL_DEMI, 0, 0},
 	{"\n", 0, 0, 0, 0, 0}
