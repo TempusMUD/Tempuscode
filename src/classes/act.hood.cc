@@ -75,14 +75,7 @@ ACMD(do_hamstring)
             FALSE, ch, 0, ch->master, TO_CHAR);
             return;
         }
-        act("You manage to get your leg half removed before you die.", 
-            FALSE, ch, weap, 0, TO_CHAR);
-        act("$n starts hacking at $s his leg and bleeds to death!", TRUE, ch, weap, 0, TO_ROOM);
-        sprintf(buf, "%s killed self with hamstring at %d.",
-            GET_NAME(ch), ch->in_room->number);
-        mudlog(buf, NRM, GET_INVIS_LEV(ch), TRUE);
-        gain_exp(ch, -(GET_LEVEL(ch) * 1000));
-        raw_kill(ch, ch, SKILL_HAMSTRING);
+		send_to_char("Cutting off your own leg just doesn't sound like fun.\r\n",ch);
         return;
     }
     if (!peaceful_room_ok(ch, vict, true))
