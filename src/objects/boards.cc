@@ -54,7 +54,6 @@ gen_board_show(Creature *ch)
 	count = PQntuples(res);
 	if (count == 0) {
 		send_to_char(ch, "There are no messages on any board.\r\n");
-		PQclear(res);
 		return;
 	}
 
@@ -62,7 +61,6 @@ gen_board_show(Creature *ch)
 	acc_sprintf("Board                Count\r\n--------------------------\r\n");
 	for (idx = 0;idx < count;idx++)
 		acc_sprintf("%-20s %5s\r\n", PQgetvalue(res, idx, 0), PQgetvalue(res, idx, 1));
-	PQclear(res);
 
 	page_string(ch->desc, acc_get_string());
 }
@@ -117,7 +115,6 @@ gen_board_write(board_data *board, Creature *ch, char *argument)
 		return;
 	}
 	idnum = atol(PQgetvalue(res, 0, 0));
-	PQclear(res);
 
 	CREATE(n_mail_to, struct mail_recipient_data, 1);
 	n_mail_to->recpt_idnum = BOARD_MAGIC + idnum;
@@ -174,7 +171,6 @@ gen_board_remove(board_data *board, Creature *ch, char *argument)
 
 	sql_exec("delete from board_messages where idnum=%s",
 		PQgetvalue(res, 0, 0));
-	PQclear(res);
 
 	send_to_char(ch, "The posting was deleted.\r\n");
 }
@@ -211,7 +207,6 @@ gen_board_read(board_data *board, Creature *ch, char *argument)
 		tmp_sqlescape(board->name), idx);
 	if (PQntuples(res) == 0) {
 		send_to_char(ch, "That message does not exist on this board.\r\n");
-		PQclear(res);
 		return;
 	}
 	acc_string_clear();
@@ -225,7 +220,6 @@ gen_board_read(board_data *board, Creature *ch, char *argument)
 		CCNRM(ch, C_CMP),
 		PQgetvalue(res, 0, 2),
 		PQgetvalue(res, 0, 3));
-	PQclear(res);
 
 	page_string(ch->desc, acc_get_string());
 }
@@ -242,7 +236,6 @@ gen_board_list(board_data *board, Creature *ch)
 	count = PQntuples(res);
 	if (count == 0) {
 		send_to_char(ch, "This board is empty.\r\n");
-		PQclear(res);
 		return;
 	}
 
@@ -259,7 +252,6 @@ gen_board_list(board_data *board, Creature *ch)
 			time_buf, tmp_sprintf("(%s)", PQgetvalue(res, idx, 1)),
 			PQgetvalue(res, idx, 2));
 	}
-	PQclear(res);
 
 	page_string(ch->desc, acc_get_string());
 }

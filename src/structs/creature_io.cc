@@ -982,7 +982,6 @@ Creature::loadFromDB(long idnum)
 	for (field_idx = 0;field_idx < field_count;field_idx++)
 		this->set(fields[field_idx], PQgetvalue(res, 0, field_idx));
 	delete [] fields;
-	PQclear(res);
 	return true;
 }
 

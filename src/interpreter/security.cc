@@ -455,7 +455,6 @@ namespace Security {
         }
 		res = sql_query("select MAX(idnum) from sgroups");
 		group_id = atoi(PQgetvalue(res, 0, 0)) + 1;
-		PQclear(res);
 
         groups.push_back(name);
 		getGroup(name).setID(group_id);
@@ -647,7 +646,6 @@ namespace Security {
 			getGroup(name).setAdminGroup(PQgetvalue(res, idx, 3));
 			getGroup(name).setID(atoi(PQgetvalue(res, idx, 0)));
 		}
-		PQclear(res);
 
 		res = sql_query("select name, command from sgroups, sgroup_commands where sgroups.idnum=sgroup_commands.sgroup order by command");
 		count = PQntuples(res);
@@ -659,14 +657,12 @@ namespace Security {
 				slog("SYSERR: Invalid command '%s' in security group '%s'",
 					PQgetvalue(res, idx, 1), PQgetvalue(res, idx, 0));
 		}
-		PQclear(res);
 
 		res = sql_query("select name, player from sgroups, sgroup_members where sgroups.idnum=sgroup_members.sgroup order by player");
 		count = PQntuples(res);
 		for (idx = 0;idx < count;idx++) {
 			getGroup(PQgetvalue(res, idx, 0)).addMember(atol(PQgetvalue(res, idx, 1)));
 		}
-		PQclear(res);
 
         slog("Security:  Access group data loaded.");
         return true;

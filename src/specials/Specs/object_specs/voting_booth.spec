@@ -517,7 +517,6 @@ voting_add_poll(void)
 		tmp_sqlescape(voting_new_poll->descrip));
 	res = sql_query("select idnum from voting_polls where oid=%u", poll_oid);
 	voting_new_poll->idnum = atoi(PQgetvalue(res, 0, 0));
-	PQclear(res);
 
 	// Now store new options for poll
 	for (new_option = voting_new_poll->options;new_option;new_option = new_option->next) {

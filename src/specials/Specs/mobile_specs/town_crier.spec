@@ -38,7 +38,6 @@ town_crier_select(town_crier_data *data)
 	// Get the number of things we could shout
 	res = sql_query("select COUNT(*) from board_messages where board='town_crier' and not idnum=%d", data->last_msg);
 	count = atol(PQgetvalue(res, 0, 0));
-	PQclear(res);
 	if (!count) {
 		data->last_msg = 0;
 		return false;	// no messages
@@ -47,13 +46,11 @@ town_crier_select(town_crier_data *data)
 	res = sql_query("select idnum, body from board_messages where board='town_crier' and not idnum=%d limit 1 offset %d", data->last_msg, number(0, count - 1));
 	if (PQntuples(res) != 1) {
 		slog("SYSERR: town_crier found %d tuples from selection\n", PQntuples(res));
-		PQclear(res);
 		return false;
 	}
 	
 	data->last_msg = atol(PQgetvalue(res, 0, 0));
 	data->msg_head = data->msg_pos = strdup(PQgetvalue(res, 0, 1));
-	PQclear(res);
 
 	return true;
 }

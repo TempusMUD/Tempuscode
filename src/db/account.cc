@@ -36,7 +36,6 @@ Account::boot(void)
 
 	res = sql_query("select MAX(idnum) from accounts");
 	_top_id = atol(PQgetvalue(res, 0, 0));
-	PQclear(res);
 
 	if (playerIndex.size())
 		slog("... %d character%s in db", playerIndex.size(), (playerIndex.size() == 1) ? "":"s");
@@ -117,21 +116,18 @@ Account::load(long idnum)
 		this->set(fields[field_idx],
 			PQgetvalue(res, 0, field_idx));
 	delete [] fields;
-	PQclear(res);
 
 	// Now we add the players to the account and player index
 	res = sql_query("select idnum from players where account=%ld order by idnum", idnum);
 	count = PQntuples(res);
 	for (idx = 0;idx < count;idx++)
 		this->add_player(atol(PQgetvalue(res, idx, 0)));
-	PQclear(res);
 
 	// Add trusted players to account
 	res = sql_query("select player from trusted where account=%ld", idnum);
 	count = PQntuples(res);
 	for (idx = 0;idx < count;idx++)
 		this->add_trusted(atol(PQgetvalue(res, idx, 0)));
-	PQclear(res);
 
 	slog("Account %d loaded from database", _id);
 	_cache.push_back(this);
@@ -213,7 +209,6 @@ Account::exists( int accountID )
 
 	res = sql_query("select idnum from accounts where idnum=%d", accountID);
 	result = PQntuples(res) > 0;
-	PQclear(res);
 
     return result;
 }
@@ -239,7 +234,6 @@ Account::retrieve(const char *name)
 	if (PQntuples(res) != 1)
 		return NULL;
 	acct_id = atoi(PQgetvalue(res, 0, 0));
-	PQclear(res);
 
 	// Now try to load it
 	acct = new Account;

@@ -1285,7 +1285,6 @@ boot_clans(void)
 	count = PQntuples(res);
 	if (count == 0) {
 		slog("WARNING: No clans loaded");
-		PQclear(res);
 		return false;
 	}
 

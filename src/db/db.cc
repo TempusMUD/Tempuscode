@@ -147,6 +147,7 @@ extern struct player_special_data dummy_mob;	/* dummy spec area for mobs        
 extern bool production_mode;
 struct reset_q_type reset_q;	/* queue of zones to be reset         */
 PGconn *sql_cxn = NULL;
+struct sql_query_data *sql_query_list = NULL;
 
 /* local functions */
 void setup_dir(FILE * fl, struct room_data *room, int dir);
@@ -3538,6 +3539,27 @@ sql_query(const char *str, ...)
 			PQresultErrorMessage(res));
 		slog("FROM SQL: %s", query);
 	}
+
+	sql_query_data *rec = new sql_query_data;
+	rec->next = sql_query_list;
+	rec->res = res;
+	sql_query_list = rec;
+
 	return res;
 }
+
+void
+sql_gc_queries(void)
+{
+	sql_query_data *cur_query, *next_query;
+
+	for (cur_query = sql_query_list;cur_query;cur_query = next_query) {
+		next_query = cur_query->next;
+		PQclear(cur_query->res);
+		delete cur_query;
+	}
+
+	sql_query_list = NULL;
+}
+
 #undef __db_c__

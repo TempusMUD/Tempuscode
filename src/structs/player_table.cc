@@ -23,7 +23,6 @@ PlayerTable::getTopIDNum()
 	if (PQresultStatus(res) != PGRES_TUPLES_OK)
 		return 0;
 	result = atol(PQgetvalue(res, 0, 0));
-	PQclear(res);
 
     return result;
 }
@@ -60,7 +59,6 @@ PlayerTable::exists(long id)
 	if (PQresultStatus(res) != PGRES_TUPLES_OK)
 		return 0;
 	result = (atoi(PQgetvalue(res, 0, 0)) == 1);
-	PQclear(res);
 
     return result;
 }
@@ -78,7 +76,6 @@ bool PlayerTable::exists(const char* name)
 	if (PQresultStatus(res) != PGRES_TUPLES_OK)
 		return 0;
 	result = (atoi(PQgetvalue(res, 0, 0)) == 1);
-	PQclear(res);
 
     return result;
 }
@@ -99,7 +96,6 @@ PlayerTable::getName(long id)
 		result = tmp_strdup(PQgetvalue(res, 0, 0));
 	else
 		return NULL;
-	PQclear(res);
 
     return result;
 }
@@ -122,7 +118,6 @@ PlayerTable::getID(const char *name) const
 		result = atol(PQgetvalue(res, 0, 0));
 	else
 		result = 0;
-	PQclear(res);
 
     return result;
 }
@@ -141,7 +136,6 @@ PlayerTable::getAccountID(const char *name) const
 		result = atol(PQgetvalue(res, 0, 0));
 	else
 		result = 0;
-	PQclear(res);
 
     return result;
 }
@@ -159,7 +153,6 @@ PlayerTable::getAccountID(long id) const
 		result = atol(PQgetvalue(res, 0, 0));
 	else
 		result = 0;
-	PQclear(res);
 
     return result;
 }
@@ -174,7 +167,6 @@ PlayerTable::size(void) const
 	if (PQresultStatus(res) != PGRES_TUPLES_OK)
 		return 0;
 	result = atol(PQgetvalue(res, 0, 0));
-	PQclear(res);
 
     return result;
 }
