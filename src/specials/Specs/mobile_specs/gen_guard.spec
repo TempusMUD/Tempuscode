@@ -75,7 +75,7 @@ SPECIAL(gen_guard)
   act(buf, FALSE, guard, 0, ch, TO_NOTVICT);
   
   if (MOB_FLAGGED(guard, MOB_HELPER) &&
-      !PRF_FLAGGED(ch, PRF_NOHASSLE))
+      !PRF_FLAGGED(ch, PRF_NOHASSLE) && !FIGHTING(guard))
     hit(guard, ch, TYPE_UNDEFINED);
   
   return 1;

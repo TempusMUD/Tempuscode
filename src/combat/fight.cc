@@ -193,10 +193,13 @@ die( struct char_data *ch, struct char_data *killer,
       }
       }
     */
-  
-    if ( !ROOM_FLAGGED( ch->in_room, ROOM_ARENA ) && killer &&
+    if (!ch->in_room){
+        sprintf(buf,"SYSERR: %s dying with null room pointer.",GET_NAME(ch));
+        mudlog(buf, NRM, LVL_GOD, TRUE);
+        slog
+    } else if ( !ROOM_FLAGGED( ch->in_room, ROOM_ARENA ) && killer &&
 	 !PLR_FLAGGED( killer, PLR_KILLER ) )
-	gain_exp( ch, -( GET_EXP( ch ) >> 3 ) );
+        gain_exp( ch, -( GET_EXP( ch ) >> 3 ) );
   
     if ( PLR_FLAGGED( ch, PLR_KILLER ) && GET_LEVEL( ch ) < LVL_AMBASSADOR ) {
 		GET_EXP( ch ) = MAX( 0, MIN( GET_EXP( ch ) - ( GET_LEVEL( ch ) * GET_LEVEL( ch ) ),
@@ -207,7 +210,7 @@ die( struct char_data *ch, struct char_data *killer,
 		GET_MAX_HIT( ch ) = MAX( 0, GET_MAX_HIT( ch ) - GET_LEVEL( ch ) );
     }
   
-    if ( !IS_NPC( ch ) && !ROOM_FLAGGED( ch->in_room, ROOM_ARENA ) ) {
+    if ( !IS_NPC( ch ) && (!ch->in_room) || !ROOM_FLAGGED(ch->in_room, ROOM_ARENA) ) {
 		if ( ch != killer )
 			REMOVE_BIT( PLR_FLAGS( ch ), PLR_KILLER | PLR_THIEF );
 		
@@ -1493,14 +1496,14 @@ damage( struct char_data * ch, struct char_data * victim, int dam,
 	if ( victim != ch ) {
 	    // see if the victim needs to run screaming in terror!
 	    if ( !IS_NPC( victim ) &&
-		 GET_HIT( victim ) < GET_WIMP_LEV( victim ) ) {
+		 GET_HIT( victim ) < GET_WIMP_LEV( victim )  && GET_HIT(victim) > 0) {
             send_to_char( "You wimp out, and attempt to flee!\r\n", victim );
             if ( KNOCKDOWN_SKILL( attacktype ) && damage )
                 GET_POS( victim ) = POS_SITTING;
             do_flee( victim, "", 0, 0 );
             break;
 	    } else if ( affected_by_spell( victim, SPELL_FEAR ) && 
-		      !number( 0, ( GET_LEVEL( victim ) >> 3 ) + 1 ) ) {
+		      !number( 0, ( GET_LEVEL( victim ) >> 3 ) + 1 )  && GET_HIT(victim) > 0) {
             if ( KNOCKDOWN_SKILL( attacktype ) && damage )
                 GET_POS( victim ) = POS_SITTING;
             do_flee( victim, "", 0, 0 );
@@ -1585,19 +1588,31 @@ damage( struct char_data * ch, struct char_data * victim, int dam,
             if ( !IS_NPC( victim ) ) {
                 if ( victim != ch ) {
                     GET_PKILLS( ch ) += 1;
-                    sprintf( buf2, "%s %skilled by %s at %s ( %d )", GET_NAME( victim ), 
-                         !IS_NPC( ch ) ? "p" : "", GET_NAME( ch ),
-                         victim->in_room->name, victim->in_room->number );
+                    if(victim->in_room) {
+                        sprintf( buf2, "%s %skilled by %s at %s ( %d )", GET_NAME( victim ), 
+                             !IS_NPC( ch ) ? "p" : "", GET_NAME( ch ),
+                             victim->in_room->name, victim->in_room->number );
 
-                    if ( ROOM_FLAGGED( victim->in_room, ROOM_ARENA ) ) {
-                        strcat( buf2, " [ARENA]" );
+                        if ( ROOM_FLAGGED( victim->in_room, ROOM_ARENA ) ) {
+                            strcat( buf2, " [ARENA]" );
+                        }
+                    } else {
+                        sprintf( buf2, "SYSERR: %s %skilled by %s at %s ( %s )", GET_NAME( victim ), 
+                             !IS_NPC( ch ) ? "p" : "", GET_NAME( ch ),
+                             "(NULL)", "Extracted before death" );
                     }
 
                 } else {
-                    sprintf( buf2, "%s died%s%s at %s ( %d )", GET_NAME( ch ),
-                         ( attacktype <= TOP_NPC_SPELL ) ? " by " : "",
-                         ( attacktype <= TOP_NPC_SPELL ) ? spells[attacktype] : "",
-                         ch->in_room->name, ch->in_room->number );
+                    if(ch->in_room)
+                        sprintf( buf2, "%s died%s%s at %s ( %d )", GET_NAME( ch ),
+                             ( attacktype <= TOP_NPC_SPELL ) ? " by " : "",
+                             ( attacktype <= TOP_NPC_SPELL ) ? spells[attacktype] : "",
+                             ch->in_room->name, ch->in_room->number );
+                    else
+                        sprintf( buf2, "SYSERR: %s died%s%s at %s ( %s )", GET_NAME( ch ),
+                             ( attacktype <= TOP_NPC_SPELL ) ? " by " : "",
+                             ( attacktype <= TOP_NPC_SPELL ) ? spells[attacktype] : "",
+                             "(NULL)", "Extracted before death" );
                 }
                 mudlog( buf2, BRF, GET_INVIS_LEV( victim ), TRUE );
                 if ( MOB_FLAGGED( ch, MOB_MEMORY ) )
