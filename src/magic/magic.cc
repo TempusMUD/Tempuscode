@@ -775,7 +775,6 @@ mag_damage(int level, struct Creature *ch, struct Creature *victim,
 
 	case SPELL_FISSION_BLAST:
         dam =  dice(level, 8) + level;
-        dam = (ch->getLevelBonus(SPELL_FISSION_BLAST) * dam)/100;
 		break;
 
 	}							/* switch(spellnum) */
