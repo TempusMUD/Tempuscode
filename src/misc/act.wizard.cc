@@ -5972,7 +5972,14 @@ ACMD(do_set)
 		vict->setSpeed(RANGE(0, 100));
 		break;
 	case 99:
-		if (!IS_NPC(vict)) {
+		if( !argument || !*argument ) {
+			send_to_char(ch, "1. BUILDER\r\n2. CODER\r\n3. ADMIN\r\n4. QUESTOR\r\n"
+							 "5. P ARCH\r\n6. EC ARCH\r\n7. OP ARCH\r\n8. <custom>\r\n");
+			return;
+		} else if (IS_NPC(vict)) {
+			send_to_char( ch, "As good an idea as it might seem, it just won't work.\r\n");
+			return;
+		} else {
 			vict->player_specials->saved.occupation = RANGE(0, 254);
 		}
 		break;
