@@ -9,6 +9,7 @@
 #include <stdlib.h>
 #include <ctype.h>
 #include <string.h>
+#include <errno.h>
 #include "structs.h"
 #include "utils.h"
 #include "comm.h"
@@ -27,7 +28,6 @@ extern struct descriptor_data *descriptor_list;
 extern int top_of_world;
 extern int olc_lock;
 extern int *wld_index;
-
 extern struct room_data *r_mortal_start_room;
 extern struct clan_data *clan_list;
 
