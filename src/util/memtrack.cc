@@ -107,7 +107,7 @@ _dbg_free(void *ptr, const void *return_addr)
 	struct _dbg_mem_blk *cur_blk;
 
 	if (!ptr) {
-		slog("DEBUG: Attempt to deallocate NULL ptr (%p)",
+		slog("MEMORY: Attempt to deallocate NULL ptr (%p)",
 			return_addr);
 		return;
 	}
@@ -115,13 +115,13 @@ _dbg_free(void *ptr, const void *return_addr)
 	cur_blk = (struct _dbg_mem_blk *)((char *)ptr - sizeof(struct _dbg_mem_blk));
 
 	if (cur_blk->magic != _dbg_magic) {
-		slog("DEBUG: free called on unregistered memory block at %p",
+		slog("MEMORY: free called on unregistered memory block at %p",
 			return_addr);
 		return;
 	}
 
 	if (*((unsigned long *)(cur_blk->data + cur_blk->size)) != _dbg_magic) {
-		slog("DEBUG: Buffer overrun detected at (%p)\n         Block %lld was allocated at %p",
+		slog("MEMORY: Buffer overrun detected at (%p)\n         Block %lld was allocated at %p",
 			return_addr, cur_blk->serial_num, cur_blk->alloc_addr);
 		return;
 	}
@@ -143,7 +143,7 @@ _dbg_free(void *ptr, const void *return_addr)
 				sizeof(struct _dbg_mem_blk));
 			if (search_blk->magic == _dbg_magic &&
 					search_blk->status == _dbg_allocated)
-				slog("DEBUG: Possible leak 0x%lx freeing %p, alloced at %p, freed %p",
+				slog("MEMORY: Possible leak 0x%lx freeing %p, alloced at %p, freed %p",
 					*search_ptr, ptr, search_blk->alloc_addr,
 					return_addr);
 		}
@@ -301,14 +301,14 @@ dbg_check_now(char *str, bool abort_now)
 		block_count++;
 		if (cur_blk->status == _dbg_allocated) {
 			if (cur_blk->magic != _dbg_magic) {
-				slog("Header corruption detected: %s (%p)",
+				slog("MEMORY: Header corruption detected: %s (%p)",
 					str, cur_blk->alloc_addr);
 			}
 			
 			if (*((unsigned long *)
 					(cur_blk->data + cur_blk->size)) != 0xAABBCCDD) {
 				cur_blk->status = _dbg_corrupted;
-				slog("Footer corruption detected: %s (%p)",
+				slog("MEMORY: Footer corruption detected: %s (%p)",
 					str, cur_blk->alloc_addr);
 				if (abort_now)
 					abort();
