@@ -194,13 +194,10 @@ char_data::getDamReduction(char_data * attacker = NULL)
 	if (ch->affBySanc(attacker)) {
 		if (IS_VAMPIRE(ch))
 			dam_reduction += 0;
-		else if (GET_CLASS(ch) == CLASS_CYBORG
-			|| GET_CLASS(ch) == CLASS_PHYSIC)
-			dam_reduction += 8;
-		else if ((GET_CLASS(ch) == CLASS_CLERIC
-				|| GET_CLASS(ch) == CLASS_KNIGHT)
-			&& !IS_NEUTRAL(ch))
+		else if (IS_CLERIC(ch) || IS_KNIGHT(ch) && !IS_NEUTRAL(ch))
 			dam_reduction += 25;
+		else if (GET_CLASS(ch) == CLASS_CYBORG || GET_CLASS(ch) == CLASS_PHYSIC)
+			dam_reduction += 8;
 		else
 			dam_reduction += 15;
 	}
