@@ -54,6 +54,8 @@ enum cxn_state {
 	CXN_EDIT_PROMPT,			// Which character do you want to describe
 	CXN_EDIT_DESC,				// Describe your char
 	CXN_NETWORK,				// Cyborg interfaced to network
+	CXN_CLASS_HELP,
+	CXN_RACE_HELP
 };
 
 #define IS_PLAYING(desc)	((desc)->input_mode == CXN_PLAYING || \

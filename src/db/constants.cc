@@ -112,6 +112,8 @@ const char *desc_modes[] = {
 	"edit-prompt",
 	"edit-description",
 	"network",
+	"class-help",
+	"race-help",
 	"\n"
 };
 
