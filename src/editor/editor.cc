@@ -433,7 +433,7 @@ bool CTextEditor::FindReplace(char *args) {
     if(replaced > 0 && !overflow) {
         sprintf(tedii_out_buf,"%d occurances of [%s] replaced with [%s].\r\n",
             replaced,findit.c_str(),replaceit.c_str());
-        SendMessage(buf);
+        SendMessage(tedii_out_buf);
     } else if (!overflow) {
         SendMessage("Search string not found.\r\n");
     }
@@ -887,7 +887,7 @@ void CTextEditor::AddRecipient(char* name) {
     if(desc->mail_to->recpt_idnum == new_id_num) {
         sprintf(tedii_out_buf, "%s is already on the recipient list.\r\n", 
 			CAP(get_name_by_id(new_id_num)));
-        SendMessage(buf);
+        SendMessage(tedii_out_buf);
         free(new_rcpt);
         return;
     } else if(desc->mail_to->next == NULL) {
@@ -905,7 +905,7 @@ void CTextEditor::AddRecipient(char* name) {
             if(cur->recpt_idnum == new_id_num) {
                 sprintf(tedii_out_buf, "%s is already on the recipient list.\r\n", 
 					CAP(get_name_by_id(new_id_num)));
-                SendMessage(buf);
+                SendMessage(tedii_out_buf);
                 free(new_rcpt);
                 return;
             }
