@@ -587,7 +587,7 @@ Creature::saveToXML()
 
 	if (GET_LEVEL(ch) >= 50) {
 		fprintf(ouf, "<immort badge=\"%s\" qlog=\"%d\" invis=\"%d\"/>\n",
-			xmlEncodeTmp(BADGE(ch)), GET_QLOG_LEVEL(ch),
+			xmlEncodeSpecialTmp(BADGE(ch)), GET_QLOG_LEVEL(ch),
 			GET_INVIS_LVL(ch));
 		if (POOFIN(ch) && *POOFIN(ch))
 			fprintf(ouf, "<poofin>%s</poofin>\n", xmlEncodeTmp(POOFIN(ch)));
@@ -598,8 +598,9 @@ Creature::saveToXML()
 		fprintf(ouf, "<description>%s</description>\n",  xmlEncodeTmp(tmp_gsub(ch->player.description, "\r\n", "\n")));
 	}
 	for (cur_alias = ch->player_specials->aliases; cur_alias; cur_alias = cur_alias->next)
-		fprintf(ouf, "<alias type=\"%d\" alias=\"%s\" replace=\"%s\"/>\n",
-			cur_alias->type, xmlEncodeTmp(cur_alias->alias), xmlEncodeTmp(cur_alias->replacement) );
+		fprintf(ouf, "<alias type=\"%d\" alias=\"%s\" replace=\"%s\"/>\n", cur_alias->type, 
+                xmlEncodeSpecialTmp(cur_alias->alias), 
+                xmlEncodeSpecialTmp(cur_alias->replacement) );
 	for (cur_aff = saved_affs;cur_aff; cur_aff = cur_aff->next)
 		fprintf(ouf, "<affect type=\"%d\" duration=\"%d\" modifier=\"%d\" location=\"%d\" level=\"%d\" instant=\"%s\" affbits=\"%lx\" index=\"%d\" />\n",
 			cur_aff->type, cur_aff->duration, cur_aff->modifier,

@@ -78,7 +78,9 @@ obj_data::saveToXML(FILE *ouf)
 
 		for (desc = ex_description;desc;desc = desc->next)
 			if (desc->keyword && desc->description)
-				fprintf(ouf, "%s<extra_desc keywords=\"%s\">%s</extra_desc>\n", indent.c_str(),  xmlEncodeTmp(desc->keyword), xmlEncodeTmp(desc->description) );
+				fprintf(ouf, "%s<extra_desc keywords=\"%s\">%s</extra_desc>\n", 
+                        indent.c_str(),  xmlEncodeSpecialTmp(desc->keyword), 
+                        xmlEncodeTmp(desc->description) );
 	}
 
     s = action_desc;
@@ -86,7 +88,8 @@ obj_data::saveToXML(FILE *ouf)
         ( proto == NULL || proto->action_desc == NULL || 
           strcmp(s, proto->action_desc) ) )
     {
-        fprintf(ouf, "%s<action_desc>%s</action_desc>\n", indent.c_str(), xmlEncodeTmp(tmp_gsub(tmp_gsub(s, "\r\n", "\n"), "\r", "")));
+        fprintf(ouf, "%s<action_desc>%s</action_desc>\n", indent.c_str(), 
+                xmlEncodeTmp(tmp_gsub(tmp_gsub(s, "\r\n", "\n"), "\r", "")));
     }
 
     // Detach the list of temp affects from the object and remove them

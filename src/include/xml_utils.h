@@ -112,6 +112,24 @@ xmlEncodeTmp( char* text )
 }
 
 /**
+ * tmp_string wrapped xmlEncodeSpecialChars:
+ *
+ * Do a global encoding of a string, replacing the predefined entities 
+ * this routine is reentrant, and result must be deallocated.
+ *
+ * NOTE: This should be used for name="value" elements rather 
+ *       than <name>value</name>.
+**/
+static inline char*
+xmlEncodeSpecialTmp( char* text ) 
+{
+	char *encoded = (char*)xmlEncodeSpecialChars(NULL, (xmlChar*)text);
+	char *tmp_encoded = tmp_strdup(encoded);
+	free(encoded);
+	return tmp_encoded;
+}
+
+/**
  * Do a global encoding of a string, replacing the predefined entities and 
  * non ASCII values with their entities and CharRef counterparts. 
  * Contrary to xmlEncodeEntities, this routine is reentrant, and result 
