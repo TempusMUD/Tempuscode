@@ -3686,6 +3686,8 @@ show_player(CHAR *ch, char * value)
 	if(IS_SET(vbuf.char_specials_saved.act,PLR_FROZEN))
 		sprintf( buf, "%s%s%s is FROZEN!%s\r\n", buf, CCCYN( ch, C_NRM ),vbuf.name, CCNRM( ch, C_NRM ) );
 
+	if(IS_SET(vbuf.char_specials_saved.act,PLR_DELETED))
+		sprintf( buf, "%s%s%s is DELETED!%s\r\n", buf, CCRED( ch, C_NRM ),vbuf.name, CCNRM( ch, C_NRM ) );
     send_to_char(buf, ch);
 }
 
