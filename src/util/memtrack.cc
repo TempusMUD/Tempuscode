@@ -1,30 +1,8 @@
 /* Memory debugging macros */
-#include <stdio.h>
-#include <stdlib.h>
-#include <unistd.h>
-#include <string.h>
-#include <malloc.h>
-#include <sys/resource.h>
-#include "utils.h"
-
-#define _DBG_MEM_BLKS	64000
-
-enum _dbg_mem_blk_status { _dbg_allocated, _dbg_alloc_failed, _dbg_deallocated,
-	_dbg_bad_dealloc, _dbg_bad_realloc, _dbg_corrupted
-};
-
-struct _dbg_mem_blk {
-	unsigned long magic;
-	struct _dbg_mem_blk *next, *prev;
-	unsigned long long serial_num;
-	size_t size;
-	const void *alloc_addr;
-	enum _dbg_mem_blk_status status;
-	unsigned char data[0];	// four extra bytes on end of block
-};
+#include "memtrack.h"
 
 const unsigned long _dbg_magic = 0xAABBCCDD;
-struct _dbg_mem_blk *_dbg_mem_list = NULL;
+struct dbg_mem_blk *_dbg_mem_list = NULL;
 int _dbg_enabled = 0;
 int _dbg_serial_num = 0;
 
@@ -74,11 +52,11 @@ dbg_disable_tracking(void)
 void *
 _dbg_alloc(size_t size, const void *return_addr)
 {
-	_dbg_mem_blk *new_blk;
+	dbg_mem_blk *new_blk;
 	
 	__malloc_hook = old_malloc_hook;
-	new_blk = (struct _dbg_mem_blk *)malloc(size + 4 +
-			sizeof(struct _dbg_mem_blk));
+	new_blk = (struct dbg_mem_blk *)malloc(size + 4 +
+			sizeof(struct dbg_mem_blk));
 	__malloc_hook = _dbg_alloc;
 
 	if (!new_blk)
@@ -87,7 +65,7 @@ _dbg_alloc(size_t size, const void *return_addr)
 	new_blk->magic = _dbg_magic;
 	new_blk->serial_num = ++_dbg_serial_num;
 	new_blk->size = size;
-	new_blk->status = _dbg_allocated;
+	new_blk->status = dbg_allocated;
 	new_blk->alloc_addr = return_addr;
 
 	*((unsigned long *)(new_blk->data + size)) = _dbg_magic;
@@ -104,7 +82,7 @@ _dbg_alloc(size_t size, const void *return_addr)
 void
 _dbg_free(void *ptr, const void *return_addr)
 {
-	struct _dbg_mem_blk *cur_blk;
+	struct dbg_mem_blk *cur_blk;
 
 	if (!ptr) {
 		slog("MEMORY: Attempt to deallocate NULL ptr (%p)",
@@ -112,7 +90,7 @@ _dbg_free(void *ptr, const void *return_addr)
 		return;
 	}
 
-	cur_blk = (struct _dbg_mem_blk *)((char *)ptr - sizeof(struct _dbg_mem_blk));
+	cur_blk = (struct dbg_mem_blk *)((char *)ptr - sizeof(struct dbg_mem_blk));
 
 	if (cur_blk->magic != _dbg_magic) {
 		slog("MEMORY: free called on unregistered memory block at %p",
@@ -128,7 +106,7 @@ _dbg_free(void *ptr, const void *return_addr)
 	
 	// Now check for unfreed blocks that might be in the struct
 	unsigned long *search_ptr;
-	struct _dbg_mem_blk *search_blk;
+	struct dbg_mem_blk *search_blk;
 	struct rusage usage;
 	size_t hi_bound, lo_bound;
 
@@ -139,10 +117,10 @@ _dbg_free(void *ptr, const void *return_addr)
 			search_ptr < (unsigned long *)((char *)ptr + cur_blk->size);
 			search_ptr++) {
 		if (*search_ptr > lo_bound && *search_ptr < hi_bound) {
-			search_blk = (struct _dbg_mem_blk *)((char *)*search_ptr -
-				sizeof(struct _dbg_mem_blk));
+			search_blk = (struct dbg_mem_blk *)((char *)*search_ptr -
+				sizeof(struct dbg_mem_blk));
 			if (search_blk->magic == _dbg_magic &&
-					search_blk->status == _dbg_allocated)
+					search_blk->status == dbg_allocated)
 				slog("MEMORY: Possible leak 0x%lx freeing %p, alloced at %p, freed %p",
 					*search_ptr, ptr, search_blk->alloc_addr,
 					return_addr);
@@ -165,7 +143,7 @@ _dbg_free(void *ptr, const void *return_addr)
 void *
 _dbg_realloc(void *ptr, size_t size, const void *addr)
 {
-	struct _dbg_mem_blk *cur_blk;
+	struct dbg_mem_blk *cur_blk;
 	void *new_ptr;
 
 	if (!ptr) {
@@ -179,7 +157,7 @@ _dbg_realloc(void *ptr, size_t size, const void *addr)
 	}
 
 	new_ptr = _dbg_alloc(size, addr);
-	cur_blk = (struct _dbg_mem_blk *)((char *)ptr - sizeof(struct _dbg_mem_blk));
+	cur_blk = (struct dbg_mem_blk *)((char *)ptr - sizeof(struct dbg_mem_blk));
 	memcpy(new_ptr, ptr, cur_blk->size);
 	_dbg_free(ptr, addr);
 
@@ -190,7 +168,7 @@ void
 _dbg_dump(void)
 {
 	FILE *ouf;
-	struct _dbg_mem_blk *cur_blk;
+	struct dbg_mem_blk *cur_blk;
 	unsigned long total_bytes = 0;
 	unsigned int block_count = 0;
 
@@ -202,25 +180,25 @@ _dbg_dump(void)
 		return;
 
 	for (cur_blk = _dbg_mem_list; cur_blk; cur_blk = cur_blk->next) {
-		if (cur_blk->status == _dbg_deallocated)
+		if (cur_blk->status == dbg_deallocated)
 			continue;
 
 		total_bytes += cur_blk->size;
 		block_count++;
-		if (cur_blk->status == _dbg_allocated) {
+		if (cur_blk->status == dbg_allocated) {
 			if (cur_blk->magic &&
 					*((unsigned long *)(cur_blk->data + cur_blk->size)) !=
 					0xAABBCCDD)
-				cur_blk->status = _dbg_corrupted;
+				cur_blk->status = dbg_corrupted;
 		}
 
 		fprintf(ouf, "%10llu %4i %p %p %s\n",
 			cur_blk->serial_num, cur_blk->size, cur_blk->data,
 			cur_blk->alloc_addr,
-			(cur_blk->status == _dbg_corrupted) ? "OVERFLOWED":"");
+			(cur_blk->status == dbg_corrupted) ? "OVERFLOWED":"");
 		
 		/*
-		if (cur_blk->status == _dbg_allocated) {
+		if (cur_blk->status == dbg_allocated) {
 			unsigned int i;
 
 			printf("  [ ");
@@ -287,19 +265,19 @@ operator delete[] (void *ptr) {
 void
 dbg_check_now(char *str, bool abort_now)
 {
-	struct _dbg_mem_blk *cur_blk;
+	struct dbg_mem_blk *cur_blk;
 	unsigned long total_bytes = 0;
 	unsigned int block_count = 0;
 
 	if (!_dbg_mem_list)
 		return;
 	for (cur_blk = _dbg_mem_list; cur_blk; cur_blk = cur_blk->next) {
-		if (cur_blk->status != _dbg_allocated)
+		if (cur_blk->status != dbg_allocated)
 			continue;
 
 		total_bytes += cur_blk->size;
 		block_count++;
-		if (cur_blk->status == _dbg_allocated) {
+		if (cur_blk->status == dbg_allocated) {
 			if (cur_blk->magic != _dbg_magic) {
 				slog("MEMORY: Header corruption detected: %s (%p)",
 					str, cur_blk->alloc_addr);
@@ -307,7 +285,7 @@ dbg_check_now(char *str, bool abort_now)
 			
 			if (*((unsigned long *)
 					(cur_blk->data + cur_blk->size)) != 0xAABBCCDD) {
-				cur_blk->status = _dbg_corrupted;
+				cur_blk->status = dbg_corrupted;
 				slog("MEMORY: Footer corruption detected: %s (%p)",
 					str, cur_blk->alloc_addr);
 				if (abort_now)
@@ -315,4 +293,16 @@ dbg_check_now(char *str, bool abort_now)
 			}
 		}
 	}
+}
+
+struct dbg_mem_blk *
+dbg_get_block(void *ptr)
+{
+	struct dbg_mem_blk *blk;
+	
+	blk = (struct dbg_mem_blk *)((char *)ptr - sizeof(struct dbg_mem_blk));
+	if (blk->status != dbg_allocated)
+		return NULL;
+	
+	return blk;
 }
