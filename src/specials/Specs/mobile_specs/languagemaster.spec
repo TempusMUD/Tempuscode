@@ -14,7 +14,9 @@ SPECIAL(languagemaster)
     struct Creature *master = (struct Creature *)me;
 	int check_only = 0, language_idx = -1;
     char *buf;
-
+    int cost = LANGUAGE_COST;
+    cost += (cost*ch->getCostModifier(master))/100;
+    
 	if (spec_mode != SPECIAL_CMD)
 		return FALSE;
 
@@ -54,13 +56,13 @@ SPECIAL(languagemaster)
 
 	send_to_char(ch,
 		"It will cost you %d gold coins to learn to speak %s.\r\n%s",
-		LANGUAGE_COST, tmp_capitalize(argument),
-		LANGUAGE_COST > GET_GOLD(ch) ? "Which you don't have.\r\n" : "");
+		cost, tmp_capitalize(argument),
+		cost > GET_GOLD(ch) ? "Which you don't have.\r\n" : "");
 
-	if (check_only || LANGUAGE_COST > GET_GOLD(ch))
+	if (check_only || cost > GET_GOLD(ch))
 		return 1;
 
-	GET_GOLD(ch) -= LANGUAGE_COST;
+	GET_GOLD(ch) -= cost;
     learn_language(ch, language_idx);
     
     buf = tmp_sprintf("You learn to speak %s!", tmp_capitalize(argument));

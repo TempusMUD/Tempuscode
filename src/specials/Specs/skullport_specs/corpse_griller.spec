@@ -5,11 +5,15 @@
 //
 
 #define PROTOSTEAK  23005
+#define GRILL_COST 100
 SPECIAL(corpse_griller)
 {
 	struct obj_data *corpse = NULL, *steak = NULL;
+    struct Creature *griller = (struct Creature*)me;
 	char arg[MAX_INPUT_LENGTH];
-
+    int cost = GRILL_COST;
+    cost += (cost*ch->getCostModifier(griller))/100;
+    
 	if (spec_mode != SPECIAL_CMD && spec_mode != SPECIAL_TICK)
 		return 0;
 	if (!cmd || !CMD_IS("buy"))
@@ -50,12 +54,12 @@ SPECIAL(corpse_griller)
 		return 1;
 	}
 
-	if (GET_GOLD(ch) < 100) {
-		send_to_char(ch, "It costs 100 gold coins to grill, buddy.\r\n");
+	if (GET_GOLD(ch) < cost) {
+		send_to_char(ch, "It costs %d gold coins to grill, buddy.\r\n", cost);
 		return 1;
 	}
 
-	GET_GOLD(ch) -= 100;
+	GET_GOLD(ch) -= cost;
 
 	if (!(steak = read_object(PROTOSTEAK)))
 		return 0;

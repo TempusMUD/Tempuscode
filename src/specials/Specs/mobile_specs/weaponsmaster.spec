@@ -11,6 +11,7 @@ extern struct {
 #define weap_spec GET_WEAP_SPEC(ch, i)
 SPECIAL(weaponsmaster)
 {
+	struct Creature *master = (struct Creature *)me;
 	struct obj_data *weap = NULL;
 	int pos, cost, i, char_class, check_only = 0;
 
@@ -87,7 +88,8 @@ SPECIAL(weaponsmaster)
 	}
 
 	cost = (weap_spec.level + 1) * 300000;
-
+    cost += (cost*ch->getCostModifier(master))/100;
+    
 	send_to_char(ch,
 		"It will cost you %d gold coin%s to train your specialization with %s to level %d.\r\n%s",
 		cost, cost == 1 ? "" : "s", weap->name,

@@ -433,7 +433,7 @@ postmaster_send_mail(struct Creature *ch, struct Creature *mailman,
                     total_cost += 1000000;
                 else
                     total_cost += STAMP_PRICE;
-
+                
                 CREATE(n_mail_to, struct mail_recipient_data, 1);
                 n_mail_to->next = ch->desc->mail_to;
                 n_mail_to->recpt_idnum = recipient;

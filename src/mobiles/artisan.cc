@@ -84,7 +84,7 @@ Craftshop::parse_item(xmlNodePtr node)
 	new_item = new CraftItem();
 	new_item->vnum = xmlGetIntProp(node, "vnum");
 	new_item->cost = xmlGetIntProp(node, "cost");
-	new_item->fail_pct = xmlGetIntProp(node, "failure", 0);
+    new_item->fail_pct = xmlGetIntProp(node, "failure", 0);
 	for (sub_node = node->xmlChildrenNode; sub_node; sub_node = sub_node->next) {
 		if (xmlMatches(sub_node->name, "requires")) {
 			compon = new CraftComponent;
@@ -229,7 +229,7 @@ list_commission_item(Creature *ch, Creature *keeper, int idx, CraftItem *item, c
 		item_prefix,
 		needed,
 		CAP(tmp_strdup(obj->name)),
-		item->cost);
+		item->cost+(item->cost*ch->getCostModifier(keeper))/100);
 		
 }
 
@@ -280,8 +280,7 @@ Craftshop::buy(Creature *keeper, Creature *ch, char *arguments)
 	CraftItem *item;
 	obj_data *obj;
 	char *arg, *msg, *needed_str;
-
-	arg = tmp_getword(&arguments);
+    arg = tmp_getword(&arguments);
 
 	item = NULL;
 	if (*arg == '#') {
@@ -306,6 +305,8 @@ Craftshop::buy(Creature *keeper, Creature *ch, char *arguments)
 		return;
 	}
 
+    long modCost = item->cost+(item->cost*ch->getCostModifier(keeper))/100;
+	
 	needed_str = item->next_requirement(keeper);
 	if (needed_str) {
 		msg = tmp_sprintf("%s I don't have the necessary materials.", GET_NAME(ch));
@@ -315,10 +316,10 @@ Craftshop::buy(Creature *keeper, Creature *ch, char *arguments)
 		return;
 	}
 
-	if (item->cost > GET_GOLD(ch)) {
+	if (modCost > GET_GOLD(ch)) {
 		msg = tmp_sprintf("%s You don't have enough money", GET_NAME(ch));
 		do_say(keeper, msg, 0, SCMD_SAY_TO, NULL);
-		msg = tmp_sprintf("%s It costs %ld.", GET_NAME(ch), item->cost);
+		msg = tmp_sprintf("%s It costs %ld.", GET_NAME(ch), modCost);
 		do_say(keeper, msg, 0, SCMD_SAY_TO, NULL);
 		return;
 	}
@@ -335,7 +336,7 @@ Craftshop::buy(Creature *keeper, Creature *ch, char *arguments)
 		return;
 	}
 
-	GET_GOLD(ch) -= item->cost;
+	GET_GOLD(ch) -= modCost;
 	obj = item->create(keeper, ch);
 
 	if (!obj) {
@@ -344,7 +345,7 @@ Craftshop::buy(Creature *keeper, Creature *ch, char *arguments)
 		return;
 	}
 
-	send_to_char(ch, "You buy %s for %ld gold.\r\n", obj->name, item->cost);
+	send_to_char(ch, "You buy %s for %ld gold.\r\n", obj->name, modCost);
 	switch (number(0, 20)) {
 		case 0:
 			msg = tmp_strcat(GET_NAME(ch), " Glad to do business with you");

@@ -42,7 +42,9 @@ SPECIAL(gen_locker)
 		locker_vnum = locker_room->number;
 		cost_factor = 75;
 	}
-
+    
+    cost_factor += (cost_factor*ch->getCostModifier(atten))/100;
+    
 	skip_spaces(&argument);
 
 	if (CMD_IS("offer")) {

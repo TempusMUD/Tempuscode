@@ -183,6 +183,13 @@ int Creature::getPenalizedExperience( int experience, Creature *victim)
 	return experience;
 }
 
+//Positive or negative percent modifier based on buyer vs seller charisma.
+int
+Creature::getCostModifier(Creature* seller) {
+    int cost_modifier = (GET_CHA(seller)-GET_CHA(this))*2;
+    return cost_modifier;
+}
+
 int
 Creature::modifyCarriedWeight(int mod_weight)
 {

@@ -1233,6 +1233,9 @@ struct Creature {
 	 **/
 	int getPenalizedExperience( int experience, Creature *victim = NULL );
 	
+    //Positive or negative percent modifier based on buyer vs seller charisma.
+    int getCostModifier(Creature* seller);
+
 	short modifyWeight(short mod_weight) {
 		return player.modifyWeight(mod_weight);
 	}

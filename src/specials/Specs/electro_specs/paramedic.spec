@@ -4,11 +4,14 @@
 // Copyright 1998 by John Watson, all rights reserved.
 //
 
+#define PARAMEDIC_COST 100
 SPECIAL(paramedic)
 {
 
 	Creature *pm = (Creature *) me;
-
+    int cost = PARAMEDIC_COST;
+    cost += (cost*ch->getCostModifier(pm))/100;
+    
 	if (!cmd)
 		return 0;
 
@@ -21,9 +24,9 @@ SPECIAL(paramedic)
 			send_to_char(ch, "The paramedic cannot see you.\r\n");
 		else
 			send_to_char(ch, "You can buy the following services:\r\n"
-				"Healing           -- 100 credits / 100 HPS\r\n"
-				"Stim              -- 100 credits / 100 MOVE\r\n"
-				"Detox             -- 100 credits\r\n");
+				"Healing           -- %d credits / 100 HPS\r\n"
+				"Stim              -- %d credits / 100 MOVE\r\n"
+				"Detox             -- %d credits\r\n", cost, cost, cost);
 
 		return 1;
 	}
@@ -55,14 +58,14 @@ SPECIAL(paramedic)
 				return 1;
 			}
 
-			if (GET_CASH(ch) < 100) {
+			if (GET_CASH(ch) < cost) {
 				send_to_char(ch,
-					"That costs 100 credits, which you cannot afford.\r\n");
+					"That costs %d credits, which you cannot afford.\r\n", cost);
 				return 1;
 			}
 
 			GET_HIT(ch) = (MIN(GET_MAX_HIT(ch), GET_HIT(ch) + 100));
-			GET_CASH(ch) -= 100;
+			GET_CASH(ch) -= cost;
 
 			act("$n performs first aid on $N.", TRUE, pm, 0, ch, TO_NOTVICT);
 			act("$n performs first aid on you.", TRUE, pm, 0, ch, TO_VICT);
@@ -80,14 +83,14 @@ SPECIAL(paramedic)
 				return 1;
 			}
 
-			if (GET_CASH(ch) < 100) {
+			if (GET_CASH(ch) < cost) {
 				send_to_char(ch,
-					"That costs 100 credits, which you cannot afford.\r\n");
+					"That costs %d credits, which you cannot afford.\r\n", cost);
 				return 1;
 			}
 
 			GET_MOVE(ch) = (MIN(GET_MAX_MOVE(ch), GET_MOVE(ch) + 100));
-			GET_CASH(ch) -= 100;
+			GET_CASH(ch) -= cost;
 
 			act("$n administers a stim-pack to $N.", TRUE, pm, 0, ch,
 				TO_NOTVICT);
@@ -109,9 +112,9 @@ SPECIAL(paramedic)
 				return 1;
 			}
 
-			if (GET_CASH(ch) < 100) {
+			if (GET_CASH(ch) < cost) {
 				send_to_char(ch,
-					"That costs 100 credits, which you cannot afford.\r\n");
+					"That costs %d credits, which you cannot afford.\r\n", cost);
 				return 1;
 			}
 
@@ -120,7 +123,7 @@ SPECIAL(paramedic)
 			if (GET_COND(ch, DRUNK) >= 0)
 				GET_COND(ch, DRUNK) = 0;
 
-			GET_CASH(ch) -= 100;
+			GET_CASH(ch) -= cost;
 
 			act("$n performs a detoxification on $N.", TRUE, pm, 0, ch,
 				TO_NOTVICT);

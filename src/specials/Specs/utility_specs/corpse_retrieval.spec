@@ -58,6 +58,7 @@ SPECIAL(corpse_retrieval)
 	} else {
 		price = GET_LEVEL(ch) * 100;
 	}
+    price = (price*ch->getCostModifier(retriever))/100;
 
 	if (retriever->in_room->zone->time_frame == TIME_ELECTRO) {
 		amt_carried = GET_CASH(ch);

@@ -16,6 +16,9 @@ SPECIAL(lawyer)
 	if (!cmd || lawy->numCombatants() || IS_NPC(ch))
 		return 0;
 
+    cost = GET_SEVERITY(ch) * 1000000;
+    cost += (cost*ch->getCostModifier(lawy))/100;
+    
 	argument = one_argument(argument, arg1);
 	skip_spaces(&argument);
 
@@ -28,7 +31,7 @@ SPECIAL(lawyer)
 			send_to_char(ch,
 				"For you, I'll make you a deal for %d credits.\r\n"
 				"That's better than you'll get from the bounty hunters.\r\n",
-				GET_SEVERITY(ch) * 1000000);
+				cost);
 		}
 		return 1;
 	}
@@ -63,8 +66,6 @@ SPECIAL(lawyer)
 				argument);
 			return 1;
 		}
-
-		cost = GET_SEVERITY(ch) * 1000000;
 
 		if (GET_LEVEL(ch) >= 51) {
 			cost = 1;

@@ -41,6 +41,7 @@ SPECIAL(safiir)
 			cost >>= 3;
 		else
 			cost >>= 2;
+        cost += (cost*ch->getCostModifier(safiir))/100;
 	}
 
 	if (CMD_IS("recharge")) {

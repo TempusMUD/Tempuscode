@@ -24,7 +24,7 @@ char *improve_modes[7] = {
 		       mode == MODE_CON ? ch->real_abils.con :   \
 		       ch->real_abils.cha)
 int
-do_gen_improve(struct Creature *ch, int cmd, int mode, char *argument)
+do_gen_improve(struct Creature *ch, struct Creature *trainer, int cmd, int mode, char *argument)
 {
 
 	int gold, life_cost;
@@ -43,6 +43,8 @@ do_gen_improve(struct Creature *ch, int cmd, int mode, char *argument)
 	gold = REAL_STAT * GET_LEVEL(ch) * 50;
 	if (mode == MODE_STR && IS_MAGE(ch))
 		gold <<= 1;
+    gold += (gold*ch->getCostModifier(trainer))/100;
+    
 	life_cost = MAX(6, (REAL_STAT << 1) - (GET_WIS(ch)));
 
 	skip_spaces(&argument);
@@ -173,32 +175,32 @@ do_gen_improve(struct Creature *ch, int cmd, int mode, char *argument)
 
 SPECIAL(improve_dex)
 {
-	return (do_gen_improve(ch, cmd, MODE_DEX, argument));
+	return (do_gen_improve(ch, (struct Creature*)me, cmd, MODE_DEX, argument));
 }
 
 SPECIAL(improve_str)
 {
-	return (do_gen_improve(ch, cmd, MODE_STR, argument));
+	return (do_gen_improve(ch, (struct Creature*)me, cmd, MODE_STR, argument));
 }
 
 SPECIAL(improve_int)
 {
-	return (do_gen_improve(ch, cmd, MODE_INT, argument));
+	return (do_gen_improve(ch, (struct Creature*)me, cmd, MODE_INT, argument));
 }
 
 SPECIAL(improve_wis)
 {
-	return (do_gen_improve(ch, cmd, MODE_WIS, argument));
+	return (do_gen_improve(ch, (struct Creature*)me, cmd, MODE_WIS, argument));
 }
 
 SPECIAL(improve_con)
 {
-	return (do_gen_improve(ch, cmd, MODE_CON, argument));
+	return (do_gen_improve(ch, (struct Creature*)me, cmd, MODE_CON, argument));
 }
 
 SPECIAL(improve_cha)
 {
-	return (do_gen_improve(ch, cmd, MODE_CHA, argument));
+	return (do_gen_improve(ch, (struct Creature*)me, cmd, MODE_CHA, argument));
 }
 
 #undef MODE_STR

@@ -30,7 +30,10 @@ SPECIAL(cyborg_overhaul)
 		cost = GET_TOT_DAM(ch);
 		if (GET_BROKE(ch))
 			cost += GET_LEVEL(ch) * 100;
-
+        
+        cost += (cost*ch->getCostModifier(borg))/100;
+        
+        
 		if (!cost) {
 			perform_tell(borg, ch, "You are not in need of overhaul.");
 			return 1;
@@ -39,7 +42,7 @@ SPECIAL(cyborg_overhaul)
 		if (CMD_IS("value")) {
 			sprintf(buf2, "Cost of operation: %d credits.", cost);
 			perform_tell(borg, ch, buf2);
-			act("$n interfaces momentarily with $n.", TRUE, ch, 0, borg,
+			act("$N interfaces momentarily with $n.", TRUE, ch, 0, borg,
 				TO_ROOM);
 			return 1;
 		}
@@ -72,7 +75,8 @@ SPECIAL(cyborg_overhaul)
 
 	if (!str_cmp(argument, "repairs")) {
 		cost = (GET_MAX_HIT(ch) - GET_HIT(ch)) * 100;
-
+        cost += (cost*ch->getCostModifier(borg))/100;
+        
 		if (!cost) {
 			perform_tell(borg, ch, "You are not in need of repairs.");
 			return 1;
@@ -81,7 +85,7 @@ SPECIAL(cyborg_overhaul)
 		if (CMD_IS("value")) {
 			sprintf(buf2, "Cost of operation: %d credits.", cost);
 			perform_tell(borg, ch, buf2);
-			act("$n interfaces momentarily with $n.", TRUE, ch, 0, borg,
+			act("$N interfaces momentarily with $n.", TRUE, ch, 0, borg,
 				TO_ROOM);
 			return 1;
 		}

@@ -163,6 +163,8 @@ implanter_implant(Creature * me, Creature * ch, char *args)
 	}
 
 	cost = GET_OBJ_COST(implant);
+    cost += (cost*ch->getCostModifier(me))/100;
+    
 	if (!IS_CYBORG(ch))
 		cost <<= 1;
 
@@ -270,6 +272,8 @@ implanter_extract(Creature * me, Creature * ch, char *args)
 	}
 
 	cost = GET_OBJ_COST(implant);
+    cost += (cost*ch->getCostModifier(me))/100;
+    
 	if (!obj && !IS_CYBORG(ch))
 		cost <<= 1;
 	if (obj)
@@ -368,7 +372,9 @@ implanter_repair(Creature * me, Creature * ch, char *args)
 	}
 	// implant repairs cost 1.5 the amount of insertion/extraction
 	cost = GET_OBJ_COST(implant) + GET_OBJ_COST(implant) >> 1;
-	if (!IS_CYBORG(ch))
+    cost += (cost*ch->getCostModifier(me))/100;
+    
+    if (!IS_CYBORG(ch))
 		cost <<= 1;
 
 	if (!in_session && GET_CASH(ch) < cost) {

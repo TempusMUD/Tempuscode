@@ -343,7 +343,9 @@ SPECIAL(guild)
 	}
 
 	cost = GET_SKILL_COST(ch, skill_num);
-	if (ch->in_room->zone->time_frame == TIME_ELECTRO) {
+    cost += (cost*ch->getCostModifier(master))/100;
+    
+    if (ch->in_room->zone->time_frame == TIME_ELECTRO) {
 		if (CMD_IS("offer")) {
 			perform_tell(master, ch,
 				tmp_sprintf("It will cost you %ld creds to train %s.", cost, spell_to_str(skill_num)));
@@ -1199,7 +1201,10 @@ SPECIAL(pet_shops)
 			cost = GET_EXP(pet) * 3;
 		else
 			cost = GET_EXP(pet) >> 4;
-
+        
+        //we have no shop keeper so compare charisma with the pet
+        cost += (cost*ch->getCostModifier(pet))/100;
+    
 		if (GET_GOLD(ch) < cost) {
 			send_to_char(ch, "You don't have enough gold!\r\n");
 			return true;

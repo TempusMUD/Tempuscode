@@ -21,6 +21,7 @@ SPECIAL(elven_registry)
 		return 1;
 	}
 	cost = GET_LEVEL(ch) * 50;
+    cost += (cost*ch->getCostModifier(reg))/100;
 	if (GET_GOLD(ch) < cost) {
 		sprintf(buf2,
 			"It costs %d coins to register with us, which you do not have.",

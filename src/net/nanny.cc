@@ -1383,9 +1383,7 @@ char_to_game(descriptor_data *d)
 			load_room = NULL;
 		}
 
-		// Loadroom is only good for one go
-		GET_LOADROOM(d->creature) = 0;
-
+		
 		if (PLR_FLAGGED(d->creature, PLR_INVSTART))
 			GET_INVIS_LVL(d->creature) = (GET_LEVEL(d->creature) > LVL_LUCIFER ?
 										   LVL_LUCIFER : GET_LEVEL(d->creature));
@@ -1418,6 +1416,9 @@ char_to_game(descriptor_data *d)
 			default:
 				errlog("Can't happen at %s:%d", __FILE__, __LINE__);
 		}
+
+        // Loadroom is only good for one go
+		GET_LOADROOM(d->creature) = 0;
 
         // Do we need to load up his corpse?
         if (d->creature->checkLoadCorpse()) {

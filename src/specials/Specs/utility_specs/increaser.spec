@@ -96,6 +96,7 @@ SPECIAL(increaser)
 	else
 		life_cost = ((incr + 1) >> 1);	/* 2 pts/ life point */
 	gold = 10000 * life_cost;
+    gold += (gold*ch->getCostModifier(increaser))/100;
 
 	send_to_char(ch,
 		"It will cost you %d %s and %d life points to increase your %s by %d.\r\n",

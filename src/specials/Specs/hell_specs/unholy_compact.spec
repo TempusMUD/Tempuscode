@@ -24,6 +24,8 @@ SPECIAL(unholy_compact)
 	}
 	life_cost = 25;
 	gold = 10000 * GET_LEVEL(ch);
+    gold += (gold*ch->getCostModifier(dude))/100;
+    
 	if (IS_KNIGHT(ch))
 		min_gen = 6;
 	if (IS_CLERIC(ch))

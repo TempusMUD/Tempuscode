@@ -7,12 +7,15 @@
 //
 
 #define PROTOHEAD 23200
+#define SHRINKER_COST 150
 SPECIAL(head_shrinker)
 {
 	struct obj_data *corpse = NULL, *head = NULL;
+    struct Creature *shrinker = (struct Creature*)me;
 	char *s = NULL;
 	char arg[MAX_INPUT_LENGTH];
-
+    int cost = SHRINKER_COST;
+    cost += (cost*ch->getCostModifier(shrinker))/100;
 
 	if (spec_mode != SPECIAL_CMD && spec_mode != SPECIAL_TICK)
 		return 0;
@@ -55,9 +58,9 @@ SPECIAL(head_shrinker)
 	if (!strncmp(corpse->name, "the headless", 12)) {
 		return 1;
 	}
-	if (GET_GOLD(ch) < 150) {
+	if (GET_GOLD(ch) < cost) {
 		send_to_char(ch,
-			"It costs 150 gold coins to shrink a head, buddy.\r\n");
+			"It costs %d gold coins to shrink a head, buddy.\r\n", cost);
 		return 1;
 	}
 
@@ -68,7 +71,7 @@ SPECIAL(head_shrinker)
 		return 1;
 	}
 
-	GET_GOLD(ch) -= 150;
+	GET_GOLD(ch) -= cost;
 
 	if (!strncmp(corpse->name, "the severed head of", 19)) {
 		sprintf(buf, "the shrunken head of%s", corpse->name + 19);

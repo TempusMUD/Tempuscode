@@ -73,6 +73,8 @@ SPECIAL(repairer)
 
 	obj_damage = GET_OBJ_MAX_DAM(obj) - GET_OBJ_DAM(obj);
 	cost = (obj_damage * GET_OBJ_COST(obj) / GET_OBJ_MAX_DAM(obj)) / 8;
+    cost += (cost*ch->getCostModifier(repairer))/100;
+    
 	currency = (ch->in_room->zone->time_frame == TIME_ELECTRO);
 
 	if (CMD_IS("value")) {

@@ -42,6 +42,7 @@ SPECIAL(mage_teleporter)
 	cost = vstone->shared->cost * GET_LEVEL(ch);
 	if (IS_MAGE(ch))
 		cost /= 4;
+    cost += (cost*ch->getCostModifier(self))/100;
 	if (GET_GOLD(ch) < cost || CMD_IS("offer")) {
 		if (can_see_creature(self, ch))
 			do_say(self, tmp_sprintf("%s It will cost you %d coins to be transported to %s", GET_NAME(ch), cost, tmp_capitalize(fname(vstone->aliases))), 0, SCMD_SAY_TO, 0);

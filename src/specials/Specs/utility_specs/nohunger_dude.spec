@@ -18,6 +18,7 @@ SPECIAL(nohunger_dude)
 
 	life_cost = MAX(10, 70 - GET_INT(ch) - GET_WIS(ch) - GET_CON(ch));
 	gold = 10000 * GET_LEVEL(ch);
+    gold += (gold*ch->getCostModifier(dude))/100;
 
 	if (!*argument) {
 		send_to_char(ch, "Gain what?\r\n"

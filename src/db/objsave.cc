@@ -149,8 +149,25 @@ calc_daily_rent(Creature *ch, int factor, char *currency_str, char *display)
 	obj_data *cur_obj;
 	int pos;
 	long total_cost = 0;
+    float f_factor = factor;
 	long level_adj;
-
+    
+    if (real_room(GET_LOADROOM(ch)) || ch->in_room) {
+        struct room_data *room = NULL;
+        if (ch->in_room)
+            room = ch->in_room;
+        else
+            room = real_room(GET_LOADROOM(ch));
+        CreatureList::iterator cit = room->people.begin();
+        for ( ; cit != room->people.end(); ++cit) {
+            if (GET_MOB_SPEC((*cit)) == cryogenicist || 
+            GET_MOB_SPEC((*cit)) == receptionist) {
+                f_factor += (f_factor*ch->getCostModifier((*cit)))/100;
+                break;
+            }
+        }
+    }
+    
 	if (GET_LEVEL(ch) >= LVL_AMBASSADOR)
 		return 0;
 
@@ -169,14 +186,14 @@ calc_daily_rent(Creature *ch, int factor, char *currency_str, char *display)
 	level_adj = (3 * total_cost * (10 + GET_LEVEL(ch))) / 100 +
 				min_rent_cost * GET_LEVEL(ch) - total_cost;
 	total_cost += level_adj;
-	total_cost *= factor;
+	total_cost = (int)((float)total_cost*f_factor);
 
 	if (display) {
 		sprintf(display + strlen(display), "%10ld %s for level adjustment\r\n",
 			level_adj, currency_str);
-		if (factor != 1)
+		if (f_factor != 1)
 			sprintf(display + strlen(display),
-				"        x%d for services\r\n", factor);
+				"        x%.2f for services\r\n", f_factor);
 		sprintf(display + strlen(display),
 			"-------------------------------------------\r\n");
 		sprintf(display + strlen(display),	
@@ -209,7 +226,7 @@ offer_rent(struct Creature *ch, struct Creature *receptionist,
 		sprintf(buf, "%s writes up a bill and shows it to you:\r\n",
 			tmp_capitalize(PERS(receptionist, ch)));
 		cost_per_day = calc_daily_rent(ch, factor, curr, buf);
-		if (factor == RENT_FACTOR) {
+        if (factor == RENT_FACTOR) {
 			if (total_money < cost_per_day)
 				strcat(buf, "You don't have enough money to rent for a single day!\r\n");
 			else if (cost_per_day)
@@ -280,9 +297,10 @@ gen_receptionist(struct Creature *ch, struct Creature *recep,
 
 		if (mode == RENT_FACTOR)
 			msg = tmp_sprintf("Rent will cost you %d %s per day.", cost, curr);
-		else if (mode == CRYO_FACTOR)
-			msg = tmp_sprintf("It will cost you %d %s to be frozen.", cost,
-				curr);
+		else if (mode == CRYO_FACTOR) {
+			//cost += (cost*ch->getCostModifier(recep))/100;
+            msg = tmp_sprintf("It will cost you %d %s to be frozen.", cost,	curr);
+        }
 		else
 			msg = "Please report this word: Arbaxyl";
 		perform_tell(recep, ch, msg);

@@ -62,7 +62,8 @@ SPECIAL(unspecializer)
 
 	lp_cost = GET_WEAP_SPEC(ch, i).level;
 	cash_cost = GET_WEAP_SPEC(ch, i).level * 200000;
-
+    cash_cost += (cash_cost*ch->getCostModifier(self))/100;
+    
 	msg =
 		tmp_sprintf
 		("The service of complete neural erasure of the weapon specialization of\r\n"

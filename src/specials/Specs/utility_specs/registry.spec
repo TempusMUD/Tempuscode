@@ -19,6 +19,7 @@ SPECIAL(registry)
 		return 1;
 	}
 	cost = GET_LEVEL(ch) * 100;
+    cost += (cost*ch->getCostModifier(reg))/100;
 
 	if (GET_GOLD(ch) < cost) {
 		sprintf(buf2,
