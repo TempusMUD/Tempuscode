@@ -1695,7 +1695,6 @@ SPECIAL(bank)
 		}
 
 		act("$n makes a bank transaction.", TRUE, ch, 0, FALSE, TO_ROOM);
-		ch->saveToXML();
 
 	} else if (CMD_IS("withdraw")) {
         if( GET_LEVEL(ch) >= LVL_AMBASSADOR ) {
@@ -1756,7 +1755,6 @@ SPECIAL(bank)
 		send_to_char(ch, "You withdraw %d %s%s.\r\n", amount, CURRENCY(ch),
 			PLURAL(amount));
 		act("$n makes a bank transaction.", TRUE, ch, 0, FALSE, TO_ROOM);
-		ch->saveToXML();
 
 		if (amount > 50000000) {
 			mudlog(LVL_IMMORT, NRM, true,
@@ -1767,6 +1765,8 @@ SPECIAL(bank)
 	} else
 		return 0;
 
+	ch->saveToXML();
+	ch->account->save_to_xml();
 	if (clan) {
 		if (clan->bank_account > 0)
 			send_to_char(ch, "The current clan balance is %d %s%s.\r\n",
