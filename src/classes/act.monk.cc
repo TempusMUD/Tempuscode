@@ -359,7 +359,6 @@ ACMD(do_combo)
     else {
         int retval = 0;
 
-        GET_MOVE( ch ) -= 20;
         gain_skill_prof(ch, SKILL_COMBO);
         
         //

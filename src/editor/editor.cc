@@ -99,6 +99,9 @@ void CTextEditor::List( unsigned int startline=1 ) {
         strcat(editbuf,buf);
         strcat(editbuf,itr->c_str());
         strcat(editbuf,"\r\n");
+        if(strlen(editbuf) > 10240) {
+            
+        }
     }
     SendMessage(editbuf);
 }
