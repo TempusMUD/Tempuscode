@@ -28,6 +28,7 @@ const char *tester_util_cmds[] = {
   "con",
   "dex",
   "cha",
+  "maxstat",
   "\n"
 };
 
@@ -179,6 +180,15 @@ SPECIAL(tester_util)
   case 22: // charisma
     sprintf(buf, "me %s %s", arg1, arg2);
     do_set(ch, buf, 0, 0);
+    break;
+  case 23: // Max Stats
+    do_set(ch, "me str 25", 0, 0);
+    do_set(ch, "me int 25", 0, 0);
+    do_set(ch, "me wis 25", 0, 0);
+    do_set(ch, "me con 25", 0, 0);
+    do_set(ch, "me dex 25", 0, 0);
+    do_set(ch, "me cha 25", 0, 0);
+    send_to_char("Stat's Maxed.\r\n",ch);
     break;
   default:
     sprintf(buf, "$p: Invalid command '%s'.", arg1);

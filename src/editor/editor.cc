@@ -856,10 +856,9 @@ void CTextEditor::ListRecipients( void ) {
 
 void CTextEditor::AddRecipient(char* name) {
     long new_id_num = 0;
-    struct mail_cur_data *cur = NULL;
-    struct mail_cur_data *new_rcpt = NULL;
+    struct mail_recipient_data *cur = NULL;
+    struct mail_recipient_data *new_rcpt = NULL;
     char buf[MAX_INPUT_LENGTH];
-    int x = 0;
 
     new_id_num = get_id_by_name(name);
     if ( ( new_id_num ) < 0 ) {
@@ -867,7 +866,7 @@ void CTextEditor::AddRecipient(char* name) {
         return;
     }
 
-    new_rcpt = (struct mail_cur_data *)malloc(sizeof(struct mail_cur_data));
+    new_rcpt = (struct mail_recipient_data *)malloc(sizeof(struct mail_recipient_data));
     new_rcpt->recpt_idnum = new_id_num;
     new_rcpt->next = NULL;
 
