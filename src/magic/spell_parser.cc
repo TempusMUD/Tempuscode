@@ -298,7 +298,7 @@ const char *spells[] =
     "!UNUSED!", 
     "area stasis",	/* 340 */
     "electrostatic field",
-    "emp pulse", 
+    "electromagnetic pulse", 
     "quantum rift", 
     "!UNUSED!", "!UNUSED!",	/* 345 */
     "!UNUSED!", "!UNUSED!", "!UNUSED!", "!UNUSED!", "!UNUSED!",	/* 350 */
