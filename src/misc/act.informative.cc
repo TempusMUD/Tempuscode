@@ -2737,10 +2737,7 @@ ACMD(do_equipment)
 	int i, found = 0;
 	struct obj_data *obj = NULL;
 	char outbuf[MAX_STRING_LENGTH];
-	char active_buf[2][28];
-
-	strcpy(active_buf[0], "(inactive)");
-	strcpy(active_buf[1], "(active)");
+	const char *active_buf[2] = { "(inactive)", "(active)" };
 
 	skip_spaces(&argument);
 
@@ -2821,8 +2818,8 @@ ACMD(do_equipment)
 
 					if (IS_DEVICE(GET_IMPLANT(ch, (int)eq_pos_order[i])))
 						sprintf(buf2, " %10s %s(%s%d%s/%s%d%s)%s",
-							active_buf[ENGINE_STATE(GET_IMPLANT(ch, (int)
-										eq_pos_order[i]))],
+							active_buf[(ENGINE_STATE(GET_IMPLANT(ch, (int)
+										eq_pos_order[i]))) ? 1:0],
 							CCGRN(ch, C_NRM), CCNRM(ch, C_NRM),
 							CUR_ENERGY(GET_IMPLANT(ch, (int)eq_pos_order[i])),
 							CCGRN(ch, C_NRM), CCNRM(ch, C_NRM),
