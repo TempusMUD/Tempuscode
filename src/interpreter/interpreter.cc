@@ -248,6 +248,7 @@ ACMD(do_makemount);
 ACMD(do_medic);
 ACMD(do_meditate);
 ACMD(do_mload);
+ACMD(do_mood);
 ACMD(do_mount);
 ACMD(do_show_more);
 ACMD(do_move);
@@ -877,6 +878,7 @@ struct command_info cmd_info[] = {
 	{"mosh", POS_FIGHTING, do_action, 0, 0, 0},
 	{"motd", POS_DEAD, do_gen_ps, 0, SCMD_MOTD, 0},
 	{"moo", POS_RESTING, do_action, 0, 0, 0},
+	{"moods", POS_SITTING, do_commands, 0, SCMD_MOODS, 0},
 	{"moon", POS_SITTING, do_action, 0, 0, 0},
 	{"mortalize", POS_SLEEPING, do_gen_tog, LVL_AMBASSADOR, SCMD_MORTALIZE, 0},
 	{"move", POS_STANDING, do_move, 0, SCMD_MOVE, 0},
@@ -1336,6 +1338,42 @@ struct command_info cmd_info[] = {
 	{"hcollection", POS_DEAD, do_help_collection_command, 1, 0, 0},
 	{"access", POS_DEAD, do_access, LVL_IMMORT, 0, 0},
 	{"coderutil", POS_DEAD, do_coderutil, LVL_DEMI, 0, 0},
+	// Moods!
+	{"accusingly", POS_DEAD, do_mood, 0, 0, 0},
+	{"angrily", POS_DEAD, do_mood, 0, 0, 0},
+	{"boldly", POS_DEAD, do_mood, 0, 0, 0},
+	{"contentedly", POS_DEAD, do_mood, 0, 0, 0},
+	{"desperately", POS_DEAD, do_mood, 0, 0, 0},
+	{"dreamily", POS_DEAD, do_mood, 0, 0, 0},
+	{"evilly", POS_DEAD, do_mood, 0, 0, 0},
+	{"fearfully", POS_DEAD, do_mood, 0, 0, 0},
+	{"fondly", POS_DEAD, do_mood, 0, 0, 0},
+	{"gently", POS_DEAD, do_mood, 0, 0, 0},
+	{"graciously", POS_DEAD, do_mood, 0, 0, 0},
+	{"happily", POS_DEAD, do_mood, 0, 0, 0},
+	{"icily", POS_DEAD, do_mood, 0, 0, 0},
+	{"innocently", POS_DEAD, do_mood, 0, 0, 0},
+	{"kindly", POS_DEAD, do_mood, 0, 0, 0},
+	{"loudly", POS_DEAD, do_mood, 0, 0, 0},
+	{"lustily", POS_DEAD, do_mood, 0, 0, 0},
+	{"nicely", POS_DEAD, do_mood, 0, 0, 0},
+	{"outrageously", POS_DEAD, do_mood, 0, 0, 0},
+	{"patiently", POS_DEAD, do_mood, 0, 0, 0},
+	{"playfully", POS_DEAD, do_mood, 0, 0, 0},
+	{"politely", POS_DEAD, do_mood, 0, 0, 0},
+	{"proudly", POS_DEAD, do_mood, 0, 0, 0},
+	{"quickly", POS_DEAD, do_mood, 0, 0, 0},
+	{"quietly", POS_DEAD, do_mood, 0, 0, 0},
+	{"rudely", POS_DEAD, do_mood, 0, 0, 0},
+	{"sadly", POS_DEAD, do_mood, 0, 0, 0},
+	{"sheepishly", POS_DEAD, do_mood, 0, 0, 0},
+	{"slowly", POS_DEAD, do_mood, 0, 0, 0},
+	{"slyly", POS_DEAD, do_mood, 0, 0, 0},
+	{"softly", POS_DEAD, do_mood, 0, 0, 0},
+	{"solemnly", POS_DEAD, do_mood, 0, 0, 0},
+	{"viciously", POS_DEAD, do_mood, 0, 0, 0},
+	{"warmly", POS_DEAD, do_mood, 0, 0, 0},
+	{"wildly", POS_DEAD, do_mood, 0, 0, 0},
 	{"\n", 0, 0, 0, 0, 0}
 };								/* this must be last */
 

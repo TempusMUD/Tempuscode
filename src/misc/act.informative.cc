@@ -4556,7 +4556,8 @@ ACMD(do_toggle)
 
 struct sort_struct {
 	int sort_pos;
-	byte is_social;
+	bool is_social;
+	bool is_mood;
 } *cmd_sort_info = NULL;
 
 int num_of_cmds;
@@ -4586,6 +4587,8 @@ sort_commands(void)
 		cmd_sort_info[a].sort_pos = a;
 		cmd_sort_info[a].is_social =
 			(cmd_info[a].command_pointer == do_action);
+		cmd_sort_info[a].is_mood =
+			(cmd_info[a].command_pointer == do_mood);
 	}
 
 	/* the infernal special case */
@@ -4607,7 +4610,7 @@ sort_commands(void)
 ACMD(do_commands)
 {
 	int no, i, cmd_num;
-	int wizhelp = 0, socials = 0, level = 0;
+	int wizhelp = 0, socials = 0, moods = 0, level = 0;
 	struct Creature *vict = NULL;
 
 	one_argument(argument, arg);
@@ -4639,26 +4642,33 @@ ACMD(do_commands)
 
 	if (subcmd == SCMD_SOCIALS)
 		socials = 1;
+	else if (subcmd == SCMD_MOODS)
+		moods = 1;
 	else if (subcmd == SCMD_WIZHELP)
 		wizhelp = 1;
 
 	sprintf(buf, "The following %s%s are available to %s:\r\n",
 		wizhelp ? "privileged " : "",
-		socials ? "socials" : "commands",
+		socials ? "socials" : moods ? "moods":"commands",
 		(vict && vict == ch) ? "you" : vict ? GET_NAME(vict) : "that level");
 
 	/* cmd_num starts at 1, not 0, to remove 'RESERVED' */
 	for (no = 1, cmd_num = 1; cmd_num < num_of_cmds; cmd_num++) {
 		i = cmd_sort_info[cmd_num].sort_pos;
-		if (cmd_info[i].minimum_level >= 0 &&
-			level >= cmd_info[i].minimum_level &&
-			(cmd_info[i].minimum_level >= LVL_AMBASSADOR) == wizhelp &&
-			(wizhelp || socials == cmd_sort_info[i].is_social)) {
-			sprintf(buf + strlen(buf), "%-11s", cmd_info[i].command);
-			if (!(no % 7))
-				strcat(buf, "\r\n");
-			no++;
-		}
+		if (cmd_info[i].minimum_level < 0)
+			continue;
+		if (level < cmd_info[i].minimum_level)
+			continue;
+		if (wizhelp && (cmd_info[i].minimum_level < LVL_AMBASSADOR))
+			continue;
+		if (!wizhelp && socials != cmd_sort_info[i].is_social)
+			continue;
+		if (moods != cmd_sort_info[i].is_mood)
+			continue;
+		sprintf(buf + strlen(buf), "%-11s", cmd_info[i].command);
+		if (!(no % 7))
+			strcat(buf, "\r\n");
+		no++;
 	}
 
 	strcat(buf, "\r\n");

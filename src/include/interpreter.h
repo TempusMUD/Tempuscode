@@ -247,6 +247,7 @@ struct set_struct {
 #define SCMD_COMMANDS	0
 #define SCMD_SOCIALS	1
 #define SCMD_WIZHELP	2
+#define SCMD_MOODS  	3
 
 /* do_drop */
 #define SCMD_DROP	0
