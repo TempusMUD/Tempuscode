@@ -210,7 +210,7 @@ const char *spells[] = {
 	"divine power",
 	"death knell",	/* 150 */
 	"telepathy",
-	"!UNUSED!", "!UNUSED!", "!UNUSED!", "!UNUSED!",	/* 155 */
+	"damn", "!UNUSED!", "!UNUSED!", "!UNUSED!",	/* 155 */
 	"!UNUSED!", "!UNUSED!", "!UNUSED!", "!UNUSED!", "!UNUSED!",	/* 160 */
 	"!UNUSED!", "!UNUSED!", "!UNUSED!", "!UNUSED!", "!UNUSED!",	/* 165 */
 	"!UNUSED!", "!UNUSED!", "!UNUSED!", "!UNUSED!", "!UNUSED!",	/* 170 */
@@ -1161,132 +1161,94 @@ call_magic(struct Creature *caster, struct Creature *cvict,
 	if (IS_SET(SINFO.routines, MAG_MANUAL))
 		switch (spellnum) {
 		case SPELL_ASTRAL_SPELL:
-			MANUAL_SPELL(spell_astral_spell);
-			break;
+			MANUAL_SPELL(spell_astral_spell); break;
 		case SPELL_ENCHANT_WEAPON:
-			MANUAL_SPELL(spell_enchant_weapon);
-			break;
+			MANUAL_SPELL(spell_enchant_weapon); break;
 		case SPELL_CHARM:
-			MANUAL_SPELL(spell_charm);
-			break;
+			MANUAL_SPELL(spell_charm); break;
 		case SPELL_CHARM_ANIMAL:
-			MANUAL_SPELL(spell_charm_animal);
-			break;
+			MANUAL_SPELL(spell_charm_animal); break;
 		case SPELL_WORD_OF_RECALL:
-			MANUAL_SPELL(spell_recall);
-			break;
+			MANUAL_SPELL(spell_recall); break;
 		case SPELL_IDENTIFY:
-			MANUAL_SPELL(spell_identify);
-			break;
+			MANUAL_SPELL(spell_identify); break;
 		case SPELL_SUMMON:
-			MANUAL_SPELL(spell_summon);
-			break;
+			MANUAL_SPELL(spell_summon); break;
 		case SPELL_LOCATE_OBJECT:
-			MANUAL_SPELL(spell_locate_object);
-			break;
+			MANUAL_SPELL(spell_locate_object); break;
 		case SPELL_ENCHANT_ARMOR:
-			MANUAL_SPELL(spell_enchant_armor);
-			break;
+			MANUAL_SPELL(spell_enchant_armor); break;
 		case SPELL_GREATER_ENCHANT:
-			MANUAL_SPELL(spell_greater_enchant);
-			break;
+			MANUAL_SPELL(spell_greater_enchant); break;
 		case SPELL_MINOR_IDENTIFY:
-			MANUAL_SPELL(spell_minor_identify);
-			break;
+			MANUAL_SPELL(spell_minor_identify); break;
 		case SPELL_CLAIRVOYANCE:
-			MANUAL_SPELL(spell_clairvoyance);
-			break;
+			MANUAL_SPELL(spell_clairvoyance); break;
 		case SPELL_MAGICAL_VESTMENT:
-			MANUAL_SPELL(spell_magical_vestment);
-			break;
+			MANUAL_SPELL(spell_magical_vestment); break;
 		case SPELL_TELEPORT:
 		case SPELL_RANDOM_COORDINATES:
-			MANUAL_SPELL(spell_teleport);
-			break;
+			MANUAL_SPELL(spell_teleport); break;
 		case SPELL_CONJURE_ELEMENTAL:
-			MANUAL_SPELL(spell_conjure_elemental);
-			break;
+			MANUAL_SPELL(spell_conjure_elemental); break;
 		case SPELL_KNOCK:
-			MANUAL_SPELL(spell_knock);
-			break;
+			MANUAL_SPELL(spell_knock); break;
 		case SPELL_SWORD:
-			MANUAL_SPELL(spell_sword);
-			break;
+			MANUAL_SPELL(spell_sword); break;
 		case SPELL_ANIMATE_DEAD:
-			MANUAL_SPELL(spell_animate_dead);
-			break;
+			MANUAL_SPELL(spell_animate_dead); break;
 		case SPELL_CONTROL_WEATHER:
-			MANUAL_SPELL(spell_control_weather);
-			break;
+			MANUAL_SPELL(spell_control_weather); break;
 		case SPELL_GUST_OF_WIND:
-			MANUAL_SPELL(spell_gust_of_wind);
-			break;
+			MANUAL_SPELL(spell_gust_of_wind); break;
 		case SPELL_RETRIEVE_CORPSE:
-			MANUAL_SPELL(spell_retrieve_corpse);
-			break;
+			MANUAL_SPELL(spell_retrieve_corpse); break;
 		case SPELL_LOCAL_TELEPORT:
-			MANUAL_SPELL(spell_local_teleport);
-			break;
+			MANUAL_SPELL(spell_local_teleport); break;
 		case SPELL_PEER:
-			MANUAL_SPELL(spell_peer);
-			break;
+			MANUAL_SPELL(spell_peer); break;
 		case SPELL_VESTIGIAL_RUNE:
-			MANUAL_SPELL(spell_vestigial_rune);
-			break;
+			MANUAL_SPELL(spell_vestigial_rune); break;
 		case SPELL_ID_INSINUATION:
-			MANUAL_SPELL(spell_id_insinuation);
-			break;
+			MANUAL_SPELL(spell_id_insinuation); break;
 		case SPELL_SHADOW_BREATH:
-			MANUAL_SPELL(spell_shadow_breath);
-			break;
+			MANUAL_SPELL(spell_shadow_breath); break;
 		case SPELL_SUMMON_LEGION:
-			MANUAL_SPELL(spell_summon_legion);
-			break;
+			MANUAL_SPELL(spell_summon_legion); break;
 		case SPELL_NUCLEAR_WASTELAND:
-			MANUAL_SPELL(spell_nuclear_wasteland);
-			break;
+			MANUAL_SPELL(spell_nuclear_wasteland); break;
 		case SPELL_SPACETIME_IMPRINT:
-			MANUAL_SPELL(spell_spacetime_imprint);
-			break;
+			MANUAL_SPELL(spell_spacetime_imprint); break;
 		case SPELL_SPACETIME_RECALL:
-			MANUAL_SPELL(spell_spacetime_recall);
-			break;
+			MANUAL_SPELL(spell_spacetime_recall); break;
 		case SPELL_TIME_WARP:
-			MANUAL_SPELL(spell_time_warp);
-			break;
+			MANUAL_SPELL(spell_time_warp); break;
 		case SPELL_UNHOLY_STALKER:
-			MANUAL_SPELL(spell_unholy_stalker);
-			break;
+			MANUAL_SPELL(spell_unholy_stalker); break;
 		case SPELL_CONTROL_UNDEAD:
-			MANUAL_SPELL(spell_control_undead);
-			break;
+			MANUAL_SPELL(spell_control_undead); break;
 		case SPELL_INFERNO:
-			MANUAL_SPELL(spell_inferno);
-			break;
+			MANUAL_SPELL(spell_inferno); break;
 		case SPELL_BANISHMENT:
-			MANUAL_SPELL(spell_banishment);
-			break;
+			MANUAL_SPELL(spell_banishment); break;
 		case SPELL_AREA_STASIS:
-			MANUAL_SPELL(spell_area_stasis);
-			break;
+			MANUAL_SPELL(spell_area_stasis); break;
 		case SPELL_SUN_RAY:
-			MANUAL_SPELL(spell_sun_ray);
-			break;
+			MANUAL_SPELL(spell_sun_ray); break;
 		case SPELL_EMP_PULSE:
-			MANUAL_SPELL(spell_emp_pulse);
-			break;
+			MANUAL_SPELL(spell_emp_pulse); break;
 		case SPELL_QUANTUM_RIFT:
-			MANUAL_SPELL(spell_quantum_rift);
-			break;
+			MANUAL_SPELL(spell_quantum_rift); break;
 		case SPELL_DEATH_KNELL:
-			MANUAL_SPELL(spell_death_knell);
-			break;
+			MANUAL_SPELL(spell_death_knell); break;
 		case SPELL_DISPEL_MAGIC:
-			MANUAL_SPELL(spell_dispel_magic);
-			break;
+			MANUAL_SPELL(spell_dispel_magic); break;
 		case SPELL_DISTRACTION:
-			MANUAL_SPELL(spell_distraction);
-			break;
+			MANUAL_SPELL(spell_distraction); break;
+		case SPELL_BLESS:
+			MANUAL_SPELL(spell_bless); break;
+		case SPELL_DAMN:
+			MANUAL_SPELL(spell_damn); break;
 		}
 
 	knock_door = NULL;
@@ -2664,7 +2626,11 @@ mag_assign_spells(void)
 
 	spello(SPELL_BLESS, X, 7, X, X, X, X, X, X, 10, X, X, X, X, X, X, X, X,
 		35, 15, 1, POS_STANDING, TAR_CHAR_ROOM | TAR_OBJ_INV, FALSE,
-		MAG_DIVINE | MAG_AFFECTS);
+		MAG_DIVINE | MAG_MANUAL | MAG_GOOD);
+
+	spello(SPELL_DAMN, X, 7, X, X, X, X, X, X, 10, X, X, X, X, X, X, X, X,
+		35, 15, 1, POS_STANDING, TAR_CHAR_ROOM | TAR_OBJ_INV, true,
+		MAG_DIVINE | MAG_MANUAL | MAG_EVIL);
 
 	spello(SPELL_BLINDNESS, 16, 13, X, X, X, X, X, X, X, X, X, X, X, X, X, X,
 		X, 35, 25, 1, POS_STANDING, TAR_CHAR_ROOM | TAR_NOT_SELF, TRUE,

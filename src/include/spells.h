@@ -269,6 +269,7 @@ static const int SPELL_LOCUST_REGENERATION = 148;	// Mage remort skill, drains m
 static const int SPELL_DIVINE_POWER = 149;	// Good cleric remort skill.
 static const int SPELL_DEATH_KNELL = 150;	// Evil cleric remort skill.
 static const int SPELL_TELEPATHY = 151;
+static const int SPELL_DAMN = 152;
 
   /************************** Psionic Triggers ***************/
 static const int SPELL_POWER = 201;	/* Strength                */
@@ -809,6 +810,8 @@ ASPELL(spell_decoy);
 ASPELL(spell_death_knell);
 ASPELL(spell_dispel_magic);
 ASPELL(spell_distraction);
+ASPELL(spell_bless);
+ASPELL(spell_damn);
 
 /* basic magic calling functions */
 

@@ -3412,3 +3412,151 @@ ASPELL(spell_distraction)
 	act("You suddenly feel like you're missing something...", false, ch, 0, victim, TO_VICT);
 	act("$N suddenly looks very distracted.", false, ch, 0, victim, TO_NOTVICT);
 }
+
+ASPELL(spell_bless)
+{
+	struct affected_type af, af2;
+	int i;
+
+	if (!IS_GOOD(ch) && GET_LEVEL(ch) < LVL_IMMORT) {
+		send_to_char(ch, "Your soul is not worthy enough to cast this spell.\n");
+		return;
+	}
+
+	if (obj) {
+		if (IS_SET(GET_OBJ_EXTRA(obj), ITEM_DAMNED)) {
+			destroy_object(ch, obj, SPELL_DAMN);
+			return;
+		}
+
+		if (IS_SET(GET_OBJ_EXTRA(obj), ITEM_BLESS)
+				|| IS_SET(GET_OBJ_EXTRA(obj), ITEM_MAGIC)) {
+			send_to_char(ch, NOEFFECT);
+			return;
+		}
+
+		for (i = 0; i < MAX_OBJ_AFFECT; i++) {
+			if (obj->affected[i].location == APPLY_AC ||
+				obj->affected[i].location == APPLY_SAVING_PARA ||
+				obj->affected[i].location == APPLY_SAVING_SPELL) {
+				obj->affected[i].location = APPLY_NONE;
+				obj->affected[i].modifier = 0;
+			}
+		}
+
+		SET_BIT(GET_OBJ_EXTRA(obj), ITEM_MAGIC);
+		SET_BIT(GET_OBJ_EXTRA(obj), ITEM_BLESS);
+		act("$p glows blue.", FALSE, ch, obj, 0, TO_CHAR);
+
+		if (GET_LEVEL(ch) >= 37) {
+			obj->affected[0].location = APPLY_AC;
+			obj->affected[0].modifier =
+				-(char)(2 + ((int)(level + GET_WIS(ch)) >> 4));
+		}
+
+		if (level > number(35, 53))
+			SET_BIT(GET_OBJ_EXTRA(obj), ITEM_GLOW);
+	} else {
+		if (IS_EVIL(victim)) {
+			send_to_char(ch, "%s is not worthy of your blessing.\r\n",
+				GET_NAME(victim));
+			return;
+		}
+		
+		memset(&af, 0, sizeof(affected_type));
+		memset(&af2, 0, sizeof(affected_type));
+		af.type = SPELL_BLESS;
+		af.location = APPLY_HITROLL;
+		af.modifier = 2 + (level >> 4);
+		af.duration = 6;
+		af2.type = SPELL_BLESS;
+		af2.location = APPLY_SAVING_SPELL;
+		af2.modifier = -(1 + (level >> 5));
+		af2.duration = 6;
+		affect_join(victim, &af, true, false, false, false);
+		affect_join(victim, &af2, true, false, false, false);
+		send_to_char(victim, "You feel righteous.\r\n");
+		if (ch != victim)
+			act("$N briefly glows with a bright blue light!", true,
+				ch, 0, victim, TO_CHAR);
+		act("$N briefly glows with a bright blue light!", true,
+			ch, 0, victim, TO_ROOM);
+	}
+
+	gain_skill_prof(ch, SPELL_BLESS);
+}
+
+ASPELL(spell_damn)
+{
+	struct affected_type af, af2;
+	int i;
+
+	if (!IS_EVIL(ch) && GET_LEVEL(ch) < LVL_IMMORT) {
+		send_to_char(ch,
+			"Your soul is not stained enough to cast this spell.\n");
+		return;
+	}
+
+	if (obj) {
+		if (IS_SET(GET_OBJ_EXTRA(obj), ITEM_BLESS)) {
+			destroy_object(ch, obj, SPELL_DAMN);
+			return;
+		}
+
+		if (IS_SET(GET_OBJ_EXTRA(obj), ITEM_DAMNED)
+				|| IS_SET(GET_OBJ_EXTRA(obj), ITEM_MAGIC)) {
+			send_to_char(ch, NOEFFECT);
+			return;
+		}
+
+		for (i = 0; i < MAX_OBJ_AFFECT; i++) {
+			if (obj->affected[i].location == APPLY_AC ||
+				obj->affected[i].location == APPLY_SAVING_PARA ||
+				obj->affected[i].location == APPLY_SAVING_SPELL) {
+				obj->affected[i].location = APPLY_NONE;
+				obj->affected[i].modifier = 0;
+			}
+		}
+
+		SET_BIT(GET_OBJ_EXTRA(obj), ITEM_MAGIC);
+		SET_BIT(GET_OBJ_EXTRA(obj), ITEM_DAMNED);
+		act("$p glows red.", FALSE, ch, obj, 0, TO_CHAR);
+
+		if (GET_LEVEL(ch) >= 37) {
+			obj->affected[0].location = APPLY_AC;
+			obj->affected[0].modifier =
+				-(char)(2 + ((int)(level + GET_WIS(ch)) >> 4));
+		}
+
+		if (level > number(35, 53))
+			SET_BIT(GET_OBJ_EXTRA(obj), ITEM_GLOW);
+	} else {
+		if (IS_EVIL(victim)) {
+			if (victim == ch)
+				send_to_char(ch, "You are already damned by your own actions.\r\n");
+			else
+				send_to_char(ch, "%s is already damned by their own actions.\r\n",
+					GET_NAME(victim));
+			return;
+		}
+		
+		memset(&af, 0, sizeof(affected_type));
+		memset(&af2, 0, sizeof(affected_type));
+		af.type = SPELL_DAMN;
+		af.location = APPLY_HITROLL;
+		af.modifier = -(2 + (level >> 4));
+		af.duration = 6;
+		af2.type = SPELL_DAMN;
+		af2.location = APPLY_SAVING_SPELL;
+		af2.modifier = +(1 + (level >> 5));
+		af2.duration = 6;
+		affect_join(victim, &af, true, false, false, false);
+		affect_join(victim, &af2, true, false, false, false);
+		send_to_char(victim, "You feel terrible.\r\n");
+		act("$N briefly glows with a dark red light!", true,
+			ch, 0, victim, TO_CHAR);
+		act("$N briefly glows with a dark red light!", true,
+			ch, 0, victim, TO_ROOM);
+	}
+	gain_skill_prof(ch, SPELL_DAMN);
+}

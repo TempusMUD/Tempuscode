@@ -1028,16 +1028,6 @@ mag_affects(int level, struct Creature *ch, struct Creature *victim,
 		to_vict = "Your skin hardens to a rock-like shell.";
 		to_room = "$n's skin turns a pale, rough grey.";
 		break;
-	case SPELL_BLESS:
-		af.location = APPLY_HITROLL;
-		af.modifier = 2 + (level >> 4);
-		af.duration = 6;
-		af2.location = APPLY_SAVING_SPELL;
-		af2.modifier = -(1 + (level >> 5));
-		af2.duration = 6;
-		accum_duration = TRUE;
-		to_vict = "You feel righteous.";
-		break;
 	case SPELL_PRAY:
 		af.location = APPLY_HITROLL;
 		af.modifier = 3 + (level >> 3);
