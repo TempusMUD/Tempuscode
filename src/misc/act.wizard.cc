@@ -1994,23 +1994,26 @@ do_stat_character(struct Creature *ch, struct Creature *k)
              tmp_capitalize(language_names[(int)GET_LANGUAGE(k)]) :
              "Common"), CCNRM(ch, C_NRM));
     strcat(outbuf, buf);
-    sprintf(buf, "Known languages:\r\n");
+    strcat(outbuf, "Known languages: ");
+    sprintf(buf, "%s%-17s%s", CCCYN(ch, C_NRM), "Common", CCNRM(ch, C_NRM));
     strcat(outbuf, buf);
-    sprintf(buf, "%s%-15s%s", CCCYN(ch, C_NRM), "Common", CCNRM(ch, C_NRM));
-    strcat(outbuf, buf);
-    int num_languages = 1;
+    int num_languages = 2;
     for (int x = 0; x < NUM_LANGUAGES; x++) {
         if (can_speak_language(k, x)) {
             num_languages++;
-            sprintf(buf, "%s%-15s%s", CCCYN(ch, C_NRM),
+            sprintf(buf, "%s%-17s%s", CCCYN(ch, C_NRM),
                     tmp_capitalize(language_names[x]), CCNRM(ch, C_NRM));
             if (num_languages % 4 == 0)
                 strcat(buf, "\r\n");
             strcat(outbuf, buf);
         }
     }
-    sprintf(buf, "\r\n");
-    strcat(outbuf, buf);
+	if (num_languages % 4 != 0)
+		strcat(outbuf, "\r\n");
+
+	if (IS_NPC(k) && GET_MOB_STATE(k))
+		strcat(outbuf, tmp_sprintf("Prog state: [%s]\r\n",
+			GET_MOB_STATE(k)->state_str));
     /* Routine to show what spells a char is affected by */
     if (k->affected) {
         for (aff = k->affected; aff; aff = aff->next) {
