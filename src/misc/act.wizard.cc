@@ -55,6 +55,7 @@ using namespace std;
 #include "quest.h"
 #include "ban.h"
 #include "memtrack.h"
+#include "boards.h"
 
 
 /*   external vars  */
@@ -4639,6 +4640,7 @@ struct show_struct fields[] = {
     {"nohelps", LVL_IMMORT, "Help"},
     {"account", LVL_IMMORT, "AdminBasic"},
     {"rooms", LVL_IMMORT, "OLC"}, // 60
+	{"boards", LVL_IMMORT, "OLC"},
     {"\n", 0, ""}
 };
 
@@ -4669,7 +4671,6 @@ ACMD(do_show)
         for (j = 0, i = 1; fields[i].level; i++) {
             if (Security::canAccess(ch, fields[i])) {
                 cmdlist.push_back(fields[i].cmd);
-                //sprintf(buf, "%s%-15s%s", buf, fields[i].cmd, (!(++j % 5) ? "\r\n" : ""));
             }
         }
         sort(cmdlist.begin(), cmdlist.end());
@@ -5515,6 +5516,8 @@ ACMD(do_show)
     case 60: // rooms
         show_rooms(ch, value, arg);
         break;
+	case 61: // boards
+		gen_board_show(ch);
     default:
         send_to_char(ch, "Sorry, I don't understand that.\r\n");
         break;
