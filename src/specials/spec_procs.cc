@@ -1294,7 +1294,7 @@ SPECIAL(bank)
 		clan = real_clan(GET_CLAN(ch));
 		member = (clan) ? real_clanmember(GET_IDNUM(ch), clan) : NULL;
 		
-		if (!member) {
+		if (!member || (CMD_IS("withdraw") && !PLR_FLAGGED(ch, PLR_CLAN_LEADER))) {
 			send_to_char(ch, "You can't do that.\r\n");
 			return 1;
 		}
