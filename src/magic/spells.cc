@@ -1,3 +1,4 @@
+
 /* ************************************************************************
 *   File: spells.c                                      Part of CircleMUD *
 *  Usage: Implementation of "manual spells".  Circle 2.2 spell compat.    *
@@ -890,6 +891,8 @@ ASPELL(spell_summon)
     }
 }
 
+#define MAX_LOCATE_TERMS	4
+
 ASPELL(spell_locate_object)
 {
     struct obj_data *i;
@@ -899,20 +902,54 @@ ASPELL(spell_locate_object)
     struct room_data *rm = NULL;
     char buf3[MAX_STRING_LENGTH];
     void * ptr;
-
+    char *terms[MAX_LOCATE_TERMS];
+    char *c;
+    int term_idx, term_count = 1;
+    int found;
+    
     j = level >> 1;
     k = level >> 2;
 
     *buf = *buf2 = '\0';
 
-    for (i = object_list; i && (j > 0 || k > 0); i = i->next) {
+    // Grab the search terms
+    terms[0] = c = strtok(locate_buf, " ");
+    while (term_count <= MAX_LOCATE_TERMS && c) {
+        c = strtok(NULL, " ");
+        if (c)
+            terms[term_count++] = c;
+    }
 
-        if (!isname(locate_buf, i->name)) {
-            continue;
+    //Check to see if the character can be that precise
+    if (ch) {
+        int extracost;
+
+        if (term_count > (ch->getLevelBonus(SPELL_LOCATE_OBJECT) / 25)) {
+            send_to_char("You are not powerful enough to be so precise.\r\n", ch);
+            return;
         }
 
-    if (!CAN_SEE_OBJ(ch, i))
-        continue;
+        extracost = (term_count - 1) * mag_manacost(ch, SPELL_LOCATE_OBJECT);
+        if (extracost > GET_MANA(ch) && ((GET_LEVEL(ch) < LVL_AMBASSADOR) &&
+            !PLR_FLAGGED(ch, PLR_MORTALIZED))) {
+            send_to_char("You haven't the energy to be that precise!\r\n", ch);
+            return;
+        }
+
+        GET_MANA(ch) = GET_MANA(ch) - extracost;
+    }
+    
+    for (i = object_list; i && (j > 0 || k > 0); i = i->next) {
+        found = 1;
+        for (term_idx = 0; term_idx < term_count && found; term_idx++)
+            if (!isname(terms[term_idx], i->name))
+                found = 0;
+
+        if (!found) 
+            continue;
+
+        if (!CAN_SEE_OBJ(ch, i))
+            continue;
 
         if (isname("imm", i->name) || IS_OBJ_TYPE(i, ITEM_SCRIPT) || !OBJ_APPROVED(i)) {
             continue;
@@ -1979,46 +2016,46 @@ ASPELL(spell_conjure_elemental)
 
 ASPELL(spell_decoy)
 {
-  struct char_data *decoy = NULL;
-  char buf[255];
+    struct char_data *decoy = NULL;
+    char buf[255];
 
-  if(number(0, GET_INT(ch)) < 4) {
-    send_to_char("You are unable to construct a decoy.\r\n", ch);
-    return;
-  }
+    if (number(0, GET_INT(ch)) < 4) {
+      send_to_char("You are unable to construct a decoy.\r\n", ch);
+      return;
+    }
 
-  decoy = read_mobile(92007);
+    decoy = read_mobile(92007);
 
-  if(decoy == NULL) {
-    send_to_char("You are unable to construct a decoy.\r\n", ch);
-    return;
-  }
+    if(decoy == NULL) {
+      send_to_char("You are unable to construct a decoy.\r\n", ch);
+      return;
+    }
 
-  strcpy(buf, ch->player.name);
-  strcat(buf, " ");
-  strcat(buf, ch->player.title);
-  strcat(buf, " is standing here.\r\n");
-  decoy->player.long_descr = strdup(buf);
+    strcpy(buf, ch->player.name);
+    strcat(buf, " ");
+    strcat(buf, ch->player.title);
+    strcat(buf, " is standing here.\r\n");
+    decoy->player.long_descr = strdup(buf);
          
-  strcpy(buf, ch->player.name);
-  strcat(buf, " .");
-  strcat(buf, ch->player.name);
-  decoy->player.name = strdup(buf);
+    strcpy(buf, ch->player.name);
+    strcat(buf, " .");
+    strcat(buf, ch->player.name);
+    decoy->player.name = strdup(buf);
 
-  strcpy(buf, ch->player.name);
-  decoy->player.short_descr = strdup(buf);
+    strcpy(buf, ch->player.name);
+    decoy->player.short_descr = strdup(buf);
 
-  act("You have constructed a perfect decoy of yourself!",
-      FALSE, ch, 0, NULL, TO_CHAR);
-  act("$n have constructed a perfect decoy of $mself!",
-      FALSE, ch, 0, NULL, TO_ROOM);
-  char_to_room(decoy, ch->in_room);
+    act("You have constructed a perfect decoy of yourself!",
+        FALSE, ch, 0, NULL, TO_CHAR);
+    act("$n have constructed a perfect decoy of $mself!",
+        FALSE, ch, 0, NULL, TO_ROOM);
+    char_to_room(decoy, ch->in_room);
 
-  SET_BIT(MOB_FLAGS(decoy), MOB_ISNPC);
-  SET_BIT(MOB_FLAGS(decoy), MOB_SENTINEL);
+    SET_BIT(MOB_FLAGS(decoy), MOB_ISNPC);
+    SET_BIT(MOB_FLAGS(decoy), MOB_SENTINEL);
 
-  gain_skill_prof(ch, SPELL_DECOY);
-  return;
+    gain_skill_prof(ch, SPELL_DECOY);
+    return;
 }
 
 ASPELL(spell_knock) 
