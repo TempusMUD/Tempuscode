@@ -1630,7 +1630,7 @@ void learn_language(Creature *ch, char language_idx)
 
 void forget_language(Creature *ch, char language_idx)
 {
-    KNOWN_LANGUAGES(vict) &= ~((long long)1 << language_idx);
+    KNOWN_LANGUAGES(ch) &= ~((long long)1 << language_idx);
 
     return;
 }
