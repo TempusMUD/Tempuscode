@@ -579,12 +579,12 @@ affect_total(struct char_data * ch)
 		   (IS_DWARF(ch) ? -1 : 0) +
 		   (IS_TABAXI(ch) ? -2 : 0)));
   
-    GET_DEX(ch) = MAX(0, MIN(GET_DEX(ch), max_dex));
-    GET_INT(ch) = MAX(0, MIN(GET_INT(ch), max_intel));
-    GET_WIS(ch) = MAX(0, MIN(GET_WIS(ch), max_wis));
-    GET_CON(ch) = MAX(0, MIN(GET_CON(ch), max_con));
-    GET_CHA(ch) = MAX(0, MIN(GET_CHA(ch), max_cha));
-    GET_STR(ch) = MAX(0, GET_STR(ch));
+    GET_DEX(ch) = MAX(1, MIN(GET_DEX(ch), max_dex));
+    GET_INT(ch) = MAX(1, MIN(GET_INT(ch), max_intel));
+    GET_WIS(ch) = MAX(1, MIN(GET_WIS(ch), max_wis));
+    GET_CON(ch) = MAX(1, MIN(GET_CON(ch), max_con));
+    GET_CHA(ch) = MAX(1, MIN(GET_CHA(ch), max_cha));
+    GET_STR(ch) = MAX(1, GET_STR(ch));
 
     /* Make sure that HIT !> MAX_HIT, etc...               */
 
