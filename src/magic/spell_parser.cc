@@ -896,6 +896,7 @@ call_magic(struct char_data * caster, struct char_data * cvict,
     
 	if (((af_ptr = affected_by_spell(cvict, SPELL_ANTI_MAGIC_SHELL)) &&
 	     SPELL_IS_MAGIC(spellnum) && 
+	     !SPELL_IS_DIVINE(spellnum) && 
 	     number(0, af_ptr->level) > number(0, level)) ||
 	    ((af_ptr = affected_by_spell(cvict, SPELL_DIVINE_INTERVENTION)) &&
 	     SPELL_IS_DIVINE(spellnum) && IS_EVIL(caster) &&
