@@ -833,14 +833,19 @@ peaceful_room_ok(struct Creature *ch, struct Creature *vict, bool mssg)
 		return false;
 	}
 
-	// If they're in a quest and they attack someone outside of
-	// the quest, this drops them out of the quest.  Normal rules
-	// then apply
 	if (GET_QUEST(ch) && GET_QUEST(ch) != GET_QUEST(vict)) {
 		if (mssg)
 			send_to_char(ch,
 				"%s is not in your quest and may not be attacked!\r\n",
 				PERS(vict, ch));
+
+		qlog(ch,
+			tmp_sprintf("%s has attacked non-questing PC %s",
+				GET_NAME(ch), GET_NAME(vict)),
+			QLOG_BRIEF,
+			MAX(GET_INVIS_LVL(ch), LVL_AMBASSADOR),
+			true);
+
 		return false;
 	}
 
@@ -851,6 +856,14 @@ peaceful_room_ok(struct Creature *ch, struct Creature *vict, bool mssg)
 			send_to_char(ch,
 				"%s is on a godly quest and may not be attacked!\r\n",
 				PERS(vict, ch));
+
+		qlog(ch,
+			tmp_sprintf("%s has attacked questing PC %s",
+				GET_NAME(ch), GET_NAME(vict)),
+			QLOG_BRIEF,
+			MAX(GET_INVIS_LVL(ch), LVL_AMBASSADOR),
+			true);
+
 		return false;
 	}
 
