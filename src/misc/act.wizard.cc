@@ -2056,8 +2056,9 @@ ACMD(do_stat)
             send_to_char(ch, "Stats on which player?\r\n");
         } else {
 			victim = new Creature(true);
-			if (playerIndex.exists(buf2)) {
+			if (!playerIndex.exists(buf2)) {
                 send_to_char(ch, "There is no such player.\r\n");
+            } else {
 				if (victim->loadFromXML(playerIndex.getID(buf2)))
 					do_stat_character(ch, victim);
 				else
