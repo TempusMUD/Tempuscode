@@ -120,8 +120,10 @@ void burn_update(void) {
 
         next_ch = ch->next;
 
-        if (!ch->in_room)
+        if (ch->in_room == NULL or ch->getPosition() == POS_DEAD) {
+            slog("Updating a corpse in burn_update\r\n");
             continue;
+        }
 
         if (IS_AFFECTED_3(ch, AFF3_INST_AFF)) {
             update_iaffects(ch);
@@ -2009,10 +2011,11 @@ void mobile_activity(void) {
                     IS_AFFECTED_2(vict, AFF2_PETRIFIED))
                     continue;
                 
-				// DIVIDE BY ZERO ERROR! FPE!
+                // DIVIDE BY ZERO ERROR! FPE!
                 if (GET_MORALE(ch) + GET_LEVEL(ch) < 
                     number(GET_LEVEL(vict),  (GET_LEVEL(vict) << 2) + 
-                           ((GET_HIT(vict) * GET_LEVEL(vict)) / GET_MAX_HIT(vict))) &&
+                           (MAX(1,(GET_HIT(vict)) * GET_LEVEL(vict)) 
+                           / MAX(1,GET_MAX_HIT(vict)))) &&
                     AWAKE(vict))
                     continue;
                 else if (RACIAL_ATTACK(ch, vict) &&
