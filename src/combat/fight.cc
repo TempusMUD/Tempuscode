@@ -1824,6 +1824,9 @@ damage(struct Creature *ch, struct Creature *victim, int dam,
 						if (GET_REMORT_GEN(ch) > GET_REMORT_GEN(victim))
 							GET_REPUTATION(ch) += (GET_REMORT_GEN(ch) -
 								GET_REMORT_GEN(victim));
+					} else {
+						// Else adjust arena kills
+						GET_ARENAKILLS(ch) += 1;
 					}
 
 				} else {

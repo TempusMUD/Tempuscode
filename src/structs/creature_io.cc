@@ -558,8 +558,8 @@ Creature::saveToXML()
 	if( desc != NULL ) {
 		host = xmlEncodeTmp( desc->host );
 	}
-	fprintf(ouf, "<carnage pkills=\"%d\" mkills=\"%d\" deaths=\"%d\" reputation=\"%d\"/>\n",
-		GET_PKILLS(ch), GET_MOBKILLS(ch), GET_PC_DEATHS(ch),
+	fprintf(ouf, "<carnage pkills=\"%d\" akills=\"%d\" mkills=\"%d\" deaths=\"%d\" reputation=\"%d\"/>\n",
+		GET_PKILLS(ch), GET_ARENAKILLS(ch), GET_MOBKILLS(ch), GET_PC_DEATHS(ch),
 		GET_REPUTATION(ch));
 
 	fprintf(ouf, "<attr str=\"%d\" int=\"%d\" wis=\"%d\" dex=\"%d\" con=\"%d\" cha=\"%d\" stradd=\"%d\"/>\n",
@@ -765,6 +765,7 @@ Creature::loadFromXML( const char *path )
             player.time.logon = xmlGetLongProp(node, "last");
         } else if ( xmlMatches(node->name, "carnage") ) {
             GET_PKILLS(this) = xmlGetIntProp(node, "pkills");
+            GET_ARENAKILLS(this) = xmlGetIntProp(node, "akills");
             GET_MOBKILLS(this) = xmlGetIntProp(node, "mkills");
             GET_PC_DEATHS(this) = xmlGetIntProp(node, "deaths");
 			GET_REPUTATION(this) = xmlGetIntProp(node, "reputation");

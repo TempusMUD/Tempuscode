@@ -822,6 +822,7 @@ struct player_special_data_saved {
 	int spells_to_learn;
 	int life_points;
 	int pkills;
+	int akills;
 	int mobkills;
 	int deaths;
 	int old_char_class;			/* Type of borg, or char_class before vamprism. */

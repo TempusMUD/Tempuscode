@@ -2563,11 +2563,11 @@ ACMD(do_score)
 	msg = tmp_sprintf("%sMove Points: %11s           Experience: %s%d%s\r\n",
 		msg, msg2, CCGRN(ch, C_NRM), GET_EXP(ch), CCNRM(ch, C_NRM));
 	msg = tmp_sprintf(
-		"%s                                   %sKills%s: %d, %sPKills%s: %d\r\n",
-		msg,
-		CCYEL(ch, C_NRM), CCNRM(ch, C_NRM),
-		(GET_MOBKILLS(ch) + GET_PKILLS(ch)), CCRED(ch, C_NRM), CCNRM(ch,
-			C_NRM), GET_PKILLS(ch));
+		"%s                                   %sKills%s: %d, %sPKills%s: %d, %sAKills%s: %d\r\n",
+		msg, CCYEL(ch, C_NRM), CCNRM(ch, C_NRM),
+		(GET_MOBKILLS(ch) + GET_PKILLS(ch) + GET_ARENAKILLS(ch)),
+		CCRED(ch, C_NRM), CCNRM(ch, C_NRM), GET_PKILLS(ch),
+		CCGRN(ch, C_NRM), CCNRM(ch, C_NRM), GET_ARENAKILLS(ch));
 
 	msg = tmp_sprintf(
 		"%s%s*****************************************************************%s\r\n",

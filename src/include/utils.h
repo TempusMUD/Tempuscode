@@ -550,6 +550,7 @@ char *CURRENCY(Creature * ch);
 #define GET_MSHIELD_LOW(ch)     ((ch)->player_specials->saved.mana_shield_low)
 #define GET_MSHIELD_PCT(ch)     ((ch)->player_specials->saved.mana_shield_pct)
 #define GET_PKILLS(ch)          ((ch)->player_specials->saved.pkills)
+#define GET_ARENAKILLS(ch)		((ch)->player_specials->saved.akills)
 #define GET_PC_DEATHS(ch)       ((ch)->player_specials->saved.deaths)
 #define GET_REPUTATION(ch)      ((ch)->player_specials->saved.reputation)
 #define GET_PAGE_LENGTH(ch)     ((ch)->account->get_term_height())
