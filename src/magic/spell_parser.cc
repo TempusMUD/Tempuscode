@@ -3398,10 +3398,10 @@ mag_assign_spells(void)
 	   0, 0, 0, 0, 0, 0, CYB_ACTIVATE);
     
 	spello(SKILL_IMPLANT_W,  X, X, X, X, X, X, X, 26, X, X, X, X, X,X,X,X,X,
-	   0, 0, 0, 0, 0, 0, CYB_ACTIVATE);
+	   0, 0, 0, 0, 0, 0, 0);
 
-	spello(SKILL_ADV_IMPLANT_W,  X, X, X, X, X, X, X, 28, X, X, X, X, X,X,X,X,X,
-	   0, 0, 0, 0, 0, 0, CYB_ACTIVATE);
+    remort_spello(SKILL_ADV_IMPLANT_W, CLASS_CYBORG, 28, 5,
+		  0, 0, 0, 0, 0, 0, 0);
 
 	spello(SKILL_OFFENSIVE_POS,  X, X, X, X, X, X, X, X, X, X, X, X, X,X,X,X,X,
 	   0, 0, 0, 0, 0, 0, CYB_ACTIVATE);
