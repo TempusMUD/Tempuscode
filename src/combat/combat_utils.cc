@@ -304,6 +304,7 @@ void
 count_pkill(Creature *killer, Creature *victim)
 {
 	Creature *perp;
+	int gain;
 
 	perp = killer;
 	while (IS_AFFECTED(perp, AFF_CHARM) && perp->master &&
@@ -317,13 +318,16 @@ count_pkill(Creature *killer, Creature *victim)
 
 		// Basic level/gen adjustment
         if (perp != victim) {
-			perp->gain_reputation(GET_LEVEL(victim)
-				+ GET_REMORT_GEN(victim) / 3);
+			gain = MAX(1, CRIMINAL_REP - GET_REPUTATION(victim) / 10);
 
             // Additional adjustment for killing a lower gen
             if (GET_REMORT_GEN(perp) > GET_REMORT_GEN(victim))
-				perp->gain_reputation(GET_REMORT_GEN(perp) -
-					GET_REMORT_GEN(victim));
+				gain += (GET_REMORT_GEN(perp) - GET_REMORT_GEN(victim)) * 9;
+
+			if (GET_REPUTATION(victim) > CRIMINAL_REP)
+				gain /= 4;
+
+			perp->gain_reputation(MAX(1, gain));
         }
 	}
 }
