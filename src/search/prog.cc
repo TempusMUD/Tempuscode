@@ -757,6 +757,11 @@ prog_execute(prog_env *env)
 	env->wait = env->speed;
 
 	exec = prog_get_text(env);
+	if (!exec) {
+		// damn prog disappeared on us
+		env->exec_pt = -1;
+		return;
+	}
 	line = prog_get_statement(&exec, env->exec_pt);
 	while (line) {
 		// increment line number of currently executing prog
