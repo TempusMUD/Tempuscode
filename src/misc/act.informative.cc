@@ -3362,6 +3362,7 @@ ACMD(do_who)
 		out << (IS_NPC(ch) ? "" : (ch->account->get_compact_level() > 1) ? "" : "\r\n");
 		out << imms.str();
 		out << (IS_NPC(ch) ? "" : (ch->account->get_compact_level() > 1) ? "" : "\r\n");
+        out << "\r\n";
 	}
 	//testers
 	if ((GET_LEVEL(ch) >= LVL_AMBASSADOR || ch->isTester()) && testerCount > 0) {
@@ -3371,6 +3372,7 @@ ACMD(do_who)
 		out << (IS_NPC(ch) ? "" : (ch->account->get_compact_level() > 1) ? "" : "\r\n");
 		out << testers.str();
 		out << (IS_NPC(ch) ? "" : (ch->account->get_compact_level() > 1) ? "" : "\r\n");
+        out << "\r\n";
 	}
 	//players
 	if (playerCount > 0) {
@@ -3380,6 +3382,7 @@ ACMD(do_who)
 		out << (IS_NPC(ch) ? "" : (ch->account->get_compact_level() > 1) ? "" : "\r\n");
 		out << players.str();
 		out << (IS_NPC(ch) ? "" : (ch->account->get_compact_level() > 1) ? "" : "\r\n");
+        out << "\r\n";
 	}
 	
 	//determine plurality of nouns
