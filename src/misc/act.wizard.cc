@@ -1573,10 +1573,11 @@ do_stat_character(struct char_data * ch, struct char_data * k)
 		strcat(outbuf, buf);    
 	}
 
-    sprintf(buf, "AC: [%s%d/10%s], Hitroll: [%s%2d%s], Damroll: [%s%2d%s]\r\n",
+    sprintf(buf, "AC: [%s%d/10%s], Hitroll: [%s%2d%s], Damroll: [%s%2d%s], Speed: [%s%2d%s]\r\n",
 	    CCYEL(ch, C_NRM), GET_AC(k), CCNRM(ch, C_NRM),
 	    CCYEL(ch, C_NRM), k->points.hitroll, CCNRM(ch, C_NRM),
-	    CCYEL(ch, C_NRM), k->points.damroll, CCNRM(ch, C_NRM));
+	    CCYEL(ch, C_NRM), k->points.damroll, CCNRM(ch, C_NRM),
+	    CCYEL(ch, C_NRM), k->getSpeed(), CCNRM(ch, C_NRM));
     strcat(outbuf, buf);    
 
     if (!IS_NPC(k) || k->in_room) {

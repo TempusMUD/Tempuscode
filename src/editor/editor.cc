@@ -77,11 +77,21 @@ void CTextEditor::Process( char *inStr ) {
     }
     desc->editor_cur_lnum = theText.size() + 1;
 }
-void CTextEditor::List( void ) {
+void CTextEditor::List( unsigned int startline=1 ) {
     list<string>::iterator itr;
     int i;
+    int num_lines;
     strcpy(editbuf,"\r\n");
-    for(i = 1,itr = theText.begin();itr != theText.end();i++, itr++) {
+    
+    itr = theText.begin();
+    
+    // Allow a param, cut off when the buffer hits LARGE_BUF_SIZE
+    if(startline > 1) {
+        for(i = startline ;i > 1 && itr != theText.end();i--)
+            itr++;
+    }
+    
+    for(i = startline;itr != theText.end();i++, itr++) {
         sprintf(buf, "%-2d%s%s]%s ",i ,
             CCBLD(desc->character,C_CMP),
             CCBLU(desc->character,C_NRM),

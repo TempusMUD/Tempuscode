@@ -36,7 +36,7 @@ class CTextEditor {
         void ProcessHelp(char *inStr);
         bool ProcessCommand(char *inStr); // Duh.
         void SaveText(char *inStr); // Dump the text to string_add.
-        void List ( void ); // Print the contents.
+        void List ( unsigned int startline=1 ); // Print the contents.
         void SendMessage(const char *message);// Wrapper for sendtochar
         void Help(char *inStr); // Open refrigerator?
 
