@@ -1436,7 +1436,7 @@ close_socket(struct descriptor_data * d)
 	    d->character->desc = NULL;
 	    GET_OLC_OBJ(d->character) = NULL;
 	} else {
-	    sprintf(buf, "Losing player: %s. [%s] ",
+	    sprintf(buf, "Losing player: %s. [%s]",
 		    GET_NAME(d->character) ? GET_NAME(d->character) : "<null>",
             d->host);
 	    mudlog(buf, CMP, MAX(LVL_AMBASSADOR, GET_INVIS_LEV(d->character)), TRUE);
