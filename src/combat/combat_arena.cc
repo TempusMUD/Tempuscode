@@ -30,6 +30,7 @@ long starting_room = 0;
 #define BOOTY_ROOM 1205
 #define BATTLE_START_ROOM 1204
 #define HOLDING_ROOM 1202
+#define MAX_COMBATS 30
 
 const struct ctypes  {
     char *combattype;
@@ -451,9 +452,10 @@ do_ccontrol_join(CHAR *ch, char* argument)
      
     
     if(!argument || !strcmp(argument, "")) {
-        for(i = 0; i < num_arenas; i++) {
+        for(i = 0; i <= 1000; i++) {
             the_combat = combat_by_vnum(i);
             if(the_combat) {
+                battle_number = the_combat->vnum;
                 break;
             }
         }
@@ -957,9 +959,22 @@ do_ccontrol_leave(CHAR *ch)
         send_to_char("The battle has already begun....it's too late to chicken out now.\r\n", ch);
         return;
     }
+        
 
     if(combat->sacrificed) {
         return_sacrifices(combat);
+    }
+
+    if(combat->creator == GET_IDNUM(ch)) {
+        send_to_combat("Combat creator has left...combat ending.", combat);
+        if(combat->arena) {
+            combat->arena->used = 0;
+        }
+        
+        remove_players(combat);
+        remove_combat(combat);
+        num_combats--;
+        return;
     }
 
     remove_player(ch);
@@ -967,14 +982,15 @@ do_ccontrol_leave(CHAR *ch)
     send_to_combat(buf, combat);
     send_to_char("You have left the combat.\r\n", ch);
 
-    if(combat->num_players < 1 ) {
+    if(combat->num_players < 1) {
        
         if(combat->arena) {
             combat->arena->used = 0;
         }
-        
+    
+        remove_players(combat);
         remove_combat(combat);
-        
+        num_combats--;
     }
    
 }
@@ -1255,7 +1271,7 @@ create_combat(CHAR *ch, int type, char *name)
     combat->sacrificed   = 0;
 
     sprintf(buf, "created %s combat, '%s'", ctypes[type].combattype, name);
-    comlog(ch, buf, TRUE, FALSE);
+    comlog(ch, buf, FALSE, FALSE);
     return combat;
 
 }
@@ -2155,8 +2171,6 @@ clear_booty_rooms(void)
     slog("Cleaning booty rooms.");
 
     for(arena = the_arenas; arena; arena = arena->next) {
-        sprintf(buf, "%d", count);
-        slog(buf);
         rm = real_room(arena->booty_room);
         holding = real_room(holding_room);
         
