@@ -193,6 +193,28 @@ check_interface(struct Creature *ch, struct obj_data *obj, int mode)
 	}
 }
 
+bool
+obj_gives_affects(obj_data *obj, Creature *ch, bool internal)
+{
+	if (obj->worn_by != ch)
+		return false;
+
+	if (invalid_char_class(ch, obj))
+		return false;
+
+	if (!internal && obj->worn_on == WEAR_BELT &&
+			(GET_OBJ_TYPE(obj) == ITEM_WEAPON ||
+			GET_OBJ_TYPE(obj) == ITEM_PIPE))
+		return false;
+	
+	if (!internal && !IS_IMPLANT(obj))
+		return false;
+
+	if (IS_DEVICE(obj) && !ENGINE_STATE(obj))
+		return false;
+
+	return true;
+}
 
 #define APPLY_SKILL(ch, skill, mod) \
 GET_SKILL(ch, skill) = \
@@ -1356,12 +1378,7 @@ equip_char(struct Creature *ch, struct obj_data *obj, int pos, int internal)
 	obj->worn_on = pos;
 
 
-	if ((internal || pos != WEAR_BELT ||
-			(GET_OBJ_TYPE(obj) != ITEM_WEAPON &&
-				GET_OBJ_TYPE(obj) != ITEM_PIPE)) &&
-		!invalid_char_class(ch, obj) && (internal || !IS_IMPLANT(obj)) &&
-		(!IS_DEVICE(obj) || ENGINE_STATE(obj))) {
-
+	if (obj_gives_affects(obj, ch, internal)) {
 		for (j = 0; j < MAX_OBJ_AFFECT; j++)
 			affect_modify(ch, obj->affected[j].location,
 				obj->affected[j].modifier, 0, 0, TRUE);
