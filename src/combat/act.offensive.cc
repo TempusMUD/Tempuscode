@@ -222,7 +222,7 @@ calc_skill_prob(struct Creature *ch, struct Creature *vict, int skillnum,
 		if (GET_EQ(ch, WEAR_WIELD))
 			ADD_EQ_DAM(ch, WEAR_WIELD);
 		else if (GET_EQ(ch, WEAR_HANDS))
-			ADD_EQ_DAM(ch, WEAR_WIELD);
+			ADD_EQ_DAM(ch, WEAR_HANDS);
 		else {
 			send_to_char(ch, "You need a weapon to strike out with!\r\n");
 			prob = 0;
