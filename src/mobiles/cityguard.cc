@@ -380,7 +380,6 @@ SPECIAL(cityguard)
 			return 0;
 
 		// make new guards that will go to the place of death
-		new_guard = read_mobile(GET_MOB_VNUM(self));
 		str = GET_MOB_PARAM(self);
 		if (str) {
 			for (line = tmp_getline(&str);line;line = tmp_getline(&str)) {
