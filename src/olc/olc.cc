@@ -929,7 +929,11 @@ ACMD(do_olc)
 	obj_p->setWeight( tmp_obj->getWeight() );
 	obj_p->shared->cost =           tmp_obj->shared->cost;
 	obj_p->shared->cost_per_day = tmp_obj->shared->cost_per_day;
-
+	
+        if(!OLCGOD(ch) && !OLCIMP(ch)) {
+            SET_BIT(obj_p->obj_flags.extra2_flags, ITEM2_UNAPPROVED);
+        }
+ 
 	for (k = 0; k < 4; k++)
 	    obj_p->obj_flags.bitvector[k] = tmp_obj->obj_flags.bitvector[k];
 
