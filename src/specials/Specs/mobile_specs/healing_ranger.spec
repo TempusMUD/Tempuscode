@@ -47,11 +47,11 @@ SPECIAL(healing_ranger)
 					(GET_HIT(vict) < GET_MAX_HIT(vict))) {
 					if (GET_MOVE(ch) > 50) {
 						if (GET_LEVEL(vict) <= 15)
-							do_bandage(ch, GET_NAME(vict), 0, 0);
+							do_bandage(ch, GET_NAME(vict), 0, 0, 0);
 						else if (GET_LEVEL(vict) <= 30)
-							do_firstaid(ch, GET_NAME(vict), 0, 0);
+							do_firstaid(ch, GET_NAME(vict), 0, 0, 0);
 						else
-							do_medic(ch, GET_NAME(vict), 0, 0);
+							do_medic(ch, GET_NAME(vict), 0, 0, 0);
 
 						return TRUE;
 					}

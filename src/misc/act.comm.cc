@@ -113,7 +113,7 @@ ACMD(do_say)
 					char_from_room(ch,false);
 					char_to_room(ch, ABS_EXIT(was_in, j)->to_room,false);
 					recurs_say = 1;
-					do_say(ch, arg, cmd, subcmd);
+					do_say(ch, arg, cmd, subcmd, 0);
 				}
 			}
 

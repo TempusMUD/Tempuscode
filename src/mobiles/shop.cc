@@ -97,7 +97,7 @@ is_ok_char(struct Creature *keeper, struct Creature *ch,
 		return (TRUE);
 
 	if (!CAN_SEE(keeper, ch)) {
-		do_say(keeper, MSG_NO_SEE_CHAR, cmd_say, 0);
+		do_say(keeper, MSG_NO_SEE_CHAR, cmd_say, 0, 0);
 		return (FALSE);
 	}
 
@@ -169,7 +169,7 @@ is_open(struct Creature *keeper, struct shop_data *shop, int msg)
 	if (!(*buf))
 		return (TRUE);
 	if (msg)
-		do_say(keeper, buf, cmd_tell, 0);
+		do_say(keeper, buf, cmd_tell, 0, 0);
 	return (FALSE);
 }
 
@@ -577,16 +577,16 @@ shopping_buy(char *arg, struct Creature *ch,
 
 		switch (SHOP_BROKE_TEMPER(shop)) {
 		case 0:
-			do_action(keeper, GET_NAME(ch), cmd_puke, 0);
+			do_action(keeper, GET_NAME(ch), cmd_puke, 0, 0);
 			return;
 		case 1:
-			do_echo(keeper, "smokes on a fat joint.", cmd_emote, SCMD_EMOTE);
+			do_echo(keeper, "smokes on a fat joint.", cmd_emote, SCMD_EMOTE, 0);
 			return;
 		case 2:
-			do_action(keeper, "", cmd_spit, 0);
+			do_action(keeper, "", cmd_spit, 0, 0);
 			return;
 		case 3:
-			do_action(keeper, GET_NAME(ch), cmd_fart, 0);
+			do_action(keeper, GET_NAME(ch), cmd_fart, 0, 0);
 			return;
 		case 4:
 			act("$n tokes on $s golden hookah.", FALSE, ch, 0, 0, TO_ROOM);
@@ -1125,81 +1125,81 @@ SPECIAL(shop_keeper)
 					sprintf(buf2,
 						"%s gossip I am a fool.  I tried to charm %s.",
 						GET_NAME(sucker), GET_NAME(keeper));
-					do_order(keeper, buf2, 0, 0);
+					do_order(keeper, buf2, 0, 0, 0);
 					break;
 				case 4:
 					sprintf(buf2,
 						"%s gossip Anybody want anything from the store?",
 						GET_NAME(sucker));
-					do_order(keeper, buf2, 0, 0);
+					do_order(keeper, buf2, 0, 0, 0);
 					break;
 				case 5:
 					sprintf(buf, CAP(GET_NAME(keeper)));
 					sprintf(buf2, "%s holler WOW!! %s is so great!",
 						GET_NAME(sucker), buf);
-					do_order(keeper, buf2, 0, 0);
+					do_order(keeper, buf2, 0, 0, 0);
 					break;
 				case 6:
 					sprintf(buf2, "Everyone come to my store!  %s is buying.",
 						GET_NAME(sucker));
-					do_gen_comm(keeper, buf2, 0, SCMD_GOSSIP);
+					do_gen_comm(keeper, buf2, 0, SCMD_GOSSIP, 0);
 					break;
 				case 7:
 					sprintf(buf2, "%s fart", GET_NAME(sucker));
-					do_order(keeper, buf2, 0, 0);
+					do_order(keeper, buf2, 0, 0, 0);
 					break;
 				case 8:
 					sprintf(buf2, "%s lick", GET_NAME(sucker));
-					do_order(keeper, buf2, 0, 0);
+					do_order(keeper, buf2, 0, 0, 0);
 					break;
 				case 9:
 					sprintf(buf2, "%s hump", GET_NAME(sucker));
-					do_order(keeper, buf2, 0, 0);
+					do_order(keeper, buf2, 0, 0, 0);
 					break;
 				case 10:
 					sprintf(buf2, "%s howl", GET_NAME(sucker));
-					do_order(keeper, buf2, 0, 0);
+					do_order(keeper, buf2, 0, 0, 0);
 					break;
 				case 11:
 					sprintf(buf2, "%s cringe", GET_NAME(sucker));
-					do_order(keeper, buf2, 0, 0);
+					do_order(keeper, buf2, 0, 0, 0);
 					break;
 				case 12:
 					sprintf(buf2, "%s rofl", GET_NAME(sucker));
-					do_order(keeper, buf2, 0, 0);
+					do_order(keeper, buf2, 0, 0, 0);
 					break;
 				case 13:
 					sprintf(buf2, "%s cry", GET_NAME(sucker));
-					do_order(keeper, buf2, 0, 0);
+					do_order(keeper, buf2, 0, 0, 0);
 					break;
 				case 14:
 					sprintf(buf2, "%s worship", GET_NAME(sucker));
-					do_order(keeper, buf2, 0, 0);
+					do_order(keeper, buf2, 0, 0, 0);
 					break;
 				case 15:
 					sprintf(buf2, "%s remove all", GET_NAME(sucker));
-					do_order(keeper, buf2, 0, 0);
+					do_order(keeper, buf2, 0, 0, 0);
 					sprintf(buf2, "%s drop all", GET_NAME(sucker));
-					do_order(keeper, buf2, 0, 0);
+					do_order(keeper, buf2, 0, 0, 0);
 					break;
 				case 16:
 					sprintf(buf2, "%s moan", GET_NAME(sucker));
-					do_order(keeper, buf2, 0, 0);
+					do_order(keeper, buf2, 0, 0, 0);
 					break;
 				case 17:
 					sprintf(buf2, "%s bark", GET_NAME(sucker));
-					do_order(keeper, buf2, 0, 0);
+					do_order(keeper, buf2, 0, 0, 0);
 					break;
 				case 18:
 					sprintf(buf2, "%s joint", GET_NAME(sucker));
-					do_order(keeper, buf2, 0, 0);
+					do_order(keeper, buf2, 0, 0, 0);
 					break;
 				case 19:
 					if (sucker->getPosition() > POS_SLEEPING)
 						sprintf(buf2, "%s sleep", GET_NAME(sucker));
 					if (sucker->getPosition() == POS_SLEEPING)
 						sprintf(buf2, "%s wake", GET_NAME(sucker));
-					do_order(keeper, buf2, 0, 0);
+					do_order(keeper, buf2, 0, 0, 0);
 					break;
 				default:
 					return 0;
@@ -1214,7 +1214,7 @@ SPECIAL(shop_keeper)
 			break;
 
 	if (!shop) {
-		do_say(keeper, "Dammit!!  Who's the moron?", 0, 0);
+		do_say(keeper, "Dammit!!  Who's the moron?", 0, 0, 0);
 		keeper->mob_specials.shared->func = NULL;
 		return (FALSE);
 	}
@@ -1239,7 +1239,7 @@ SPECIAL(shop_keeper)
 		&& (GET_CLASS(keeper) != CLASS_HOOD)
 		&& GET_LEVEL(ch) < LVL_IMMORT) {
 		sprintf(argm, "$N shouts '%s'", MSG_NO_STEAL_HERE);
-		do_action(keeper, GET_NAME(ch), cmd_slap, 0);
+		do_action(keeper, GET_NAME(ch), cmd_slap, 0, 0);
 		act(argm, FALSE, ch, 0, keeper, TO_CHAR);
 		return (TRUE);
 	}
@@ -1303,7 +1303,7 @@ ok_damage_shopkeeper(struct Creature *ch, struct Creature *victim)
 				&& !SHOP_KILL_CHARS(shop)
 				&& !IS_AFFECTED(victim, AFF_CHARM)) {
 				if (ch) {
-					do_action(victim, GET_NAME(ch), cmd_slap, 0);
+					do_action(victim, GET_NAME(ch), cmd_slap, 0, 0);
 					strcpy(buf, MSG_CANT_KILL_KEEPER);
 					perform_tell(victim, ch, buf);
 				}

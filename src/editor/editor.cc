@@ -35,8 +35,7 @@ void voting_add_poll(void);
 /* Sets up text editor params and echo's passed in message.
 */
 void
-start_text_editor(struct descriptor_data *d, char **dest, bool sendmessage =
-	true, int max = MAX_STRING_LENGTH)
+start_text_editor(struct descriptor_data *d, char **dest, bool sendmessage, int max)
 {
 	/*  Editor Command
 	   Note: Add info for logall
@@ -115,7 +114,7 @@ CTextEditor::Process(char *inStr)
 }
 
 void
-CTextEditor::List(unsigned int startline = 1)
+CTextEditor::List(unsigned int startline)
 {
 	list <string>::iterator itr;
 	int i;
@@ -348,7 +347,7 @@ CTextEditor::SaveFile(void)
 }
 
 bool
-CTextEditor::Full(char *inStr = NULL)
+CTextEditor::Full(char *inStr)
 {
 	if ((strlen(inStr) + curSize) + ((theText.size() + 1) * 2) > maxSize) {
 		return true;

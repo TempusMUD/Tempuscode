@@ -1601,7 +1601,7 @@ send_to_clerics(char *messg)
 }
 
 void
-send_to_outdoor(char *messg, int isecho = 0)
+send_to_outdoor(char *messg, int isecho)
 {
 	struct descriptor_data *i;
 

@@ -1022,7 +1022,7 @@ ACMD(do_kill)
 	struct Creature *vict;
 
 	if ((GET_LEVEL(ch) < LVL_CREATOR) || subcmd != SCMD_SLAY || IS_NPC(ch)) {
-		do_hit(ch, argument, cmd, subcmd);
+		do_hit(ch, argument, cmd, subcmd, 0);
 		return;
 	}
 	one_argument(argument, arg);
@@ -1106,7 +1106,7 @@ ACMD(do_order)
 					}
 
 					if (IS_NPC(vict) && GET_MOB_VNUM(vict) == 5318)
-						do_say(vict, "As you command, master.", 0, 0);
+						do_say(vict, "As you command, master.", 0, 0, 0);
 					command_interpreter(vict, message);
 				}
 
@@ -1133,7 +1133,7 @@ ACMD(do_order)
 							&& !GET_MOB_WAIT(k->follower)) {
 							if (IS_NPC(k->follower)
 								&& GET_MOB_VNUM(k->follower) == 5318)
-								do_say(vict, "As you command, master.", 0, 0);
+								do_say(vict, "As you command, master.", 0, 0, 0);
 							command_interpreter(k->follower, message);
 						}
 					} else
@@ -1273,7 +1273,7 @@ ACMD(do_retreat)
 		if (CHECK_SKILL(ch, SKILL_RETREAT) + GET_LEVEL(ch) <
 			number(60, 70 + GET_LEVEL(FIGHTING(ch)))) {
 			send_to_char(ch, "You panic!\r\n");
-			do_flee(ch, "", 0, 0);
+			do_flee(ch, "", 0, 0, 0);
 			return;
 		}
 	}
@@ -1478,7 +1478,7 @@ ACMD(do_bash)
 		}
 	}
 
-	do_offensive_skill(ch, fname(vict->player.name), 0, SKILL_BASH);
+	do_offensive_skill(ch, fname(vict->player.name), 0, SKILL_BASH, 0);
 
 }
 
@@ -2025,7 +2025,7 @@ ACMD(do_turn)
 				FALSE, ch, 0, vict, TO_ROOM);
 			act("You call upon the power of your deity and force $N to flee!",
 				TRUE, ch, 0, vict, TO_CHAR);
-			do_flee(vict, "", 0, 0);
+			do_flee(vict, "", 0, 0, 0);
 			gain_skill_prof(ch, SKILL_TURN);
 		} else {
 			damage(ch, vict, GET_LEVEL(ch) >> 1, SKILL_TURN, -1);
@@ -2613,10 +2613,10 @@ ACCMD(do_disarm)
 		}
 
 		if (GET_STR(ch) + number(0, 20) > GET_STR(vict) + GET_DEX(vict)) {
-			do_drop(vict, OBJN(weap, vict), 0, 0);
+			do_drop(vict, OBJN(weap, vict), 0, 0, 0);
 			if (IS_NPC(vict) && !GET_MOB_WAIT(vict) && AWAKE(vict) &&
 				number(0, GET_LEVEL(vict)) > (GET_LEVEL(vict) >> 1))
-				do_get(vict, OBJN(weap, vict), 0, 0);
+				do_get(vict, OBJN(weap, vict), 0, 0, 0);
 		}
 
 		GET_EXP(ch) += MIN(100, weap->getWeight());
@@ -2811,7 +2811,7 @@ ACMD(do_intimidate)
 				TO_ROOM);
 			send_to_char(vict, "You PANIC and attempt to escape!\r\n");
 			if (!MOB_FLAGGED(vict, MOB_SENTINEL))
-				do_flee(vict, "", 0, 0);
+				do_flee(vict, "", 0, 0, 0);
 
 			act("$n cowers in fear!", TRUE, vict, 0, 0, TO_ROOM);
 			send_to_char(vict, "You cower in paralyzing fear!\r\n");

@@ -959,7 +959,7 @@ update_trail(struct Creature *ch, struct room_data *room, int dir, int mode)
  * @return true on success, false if the Creature may have died.
  */
 bool
-char_from_room( Creature *ch, bool check_specials = true )
+char_from_room( Creature *ch, bool check_specials)
 {
 
 	if (ch == NULL || ch->in_room == NULL) {
@@ -1044,7 +1044,7 @@ char_from_room( Creature *ch, bool check_specials = true )
  * @return true on success, false if the Creature may have died.
  */
 bool
-char_to_room(Creature *ch, room_data *room, bool check_specials = true )
+char_to_room(Creature *ch, room_data *room, bool check_specials)
 {
 	struct affected_type *aff = NULL, *next_aff = NULL;
 
@@ -1374,7 +1374,7 @@ equip_char(struct Creature *ch, struct obj_data *obj, int pos, int internal)
 }
 
 struct obj_data *
-unequip_char(struct Creature *ch, int pos, int internal, bool disable_checks = false)
+unequip_char(struct Creature *ch, int pos, int internal, bool disable_checks)
 {
 	int j;
 	struct obj_data *obj = NULL;

@@ -120,7 +120,7 @@ template <class T> class SafeList:protected list <T> {
 			return *this;
 		}
 	  private:					// Functions
-		void operator = (const list <T>::iterator & it){
+		void operator = (const typename list <T>::iterator & it){
 			// If pointing to a list, unregister
 			if (_list != NULL)
 				_list->removeIterator(this);
@@ -199,7 +199,7 @@ template <class T> class SafeList:protected list <T> {
 			return;
 		}
 
-		list <iterator *>::iterator sit = _iterators.begin();
+		typename list <iterator *>::iterator sit = _iterators.begin();
 		for (; sit != _iterators.end(); ++sit) {
 			if (*sit != &it && *(*sit) == it) {
 				(*sit)->save();

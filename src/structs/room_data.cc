@@ -24,7 +24,7 @@ room_data::isOpenAir(void)
 	return false;
 }
 
-room_data::room_data(room_num n = -1, zone_data * z = NULL)
+room_data::room_data(room_num n, zone_data *z)
 :	people(true)
 {
 

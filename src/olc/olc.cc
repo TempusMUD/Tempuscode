@@ -1357,11 +1357,11 @@ ACMD(do_olc)
 			do_zdoor_cmd(ch, argument);
 		break;
 	case 28:					/* zreset */
-		do_zreset(ch, ".", 0, SCMD_OLC);
+		do_zreset(ch, ".", 0, SCMD_OLC, 0);
 		break;
 	case 29:					/* zonepurge */
 		sprintf(buf, " %d", ch->in_room->zone->number);
-		do_zonepurge(ch, buf, 0, SCMD_OLC);
+		do_zonepurge(ch, buf, 0, SCMD_OLC, 0);
 		break;
 	case 30:					/* zequip */
 		do_zequip_cmd(ch, argument);

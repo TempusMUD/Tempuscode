@@ -23,7 +23,7 @@ Rewritten by John Rothe (forget@tempusmud.com)
 #include <ctype.h>
 #include <string.h>
 #include <time.h>
-#include <fstream.h>
+#include <fstream>
 
 #include "structs.h"
 #include "utils.h"
@@ -116,7 +116,7 @@ mail_box_status(long id)
 // Returns 0 if mail not stored.
 int
 store_mail(long to_id, long from_id, char *txt, char *cc_list,
-	time_t * cur_time = NULL)
+	time_t *cur_time)
 {
 	fstream mail_file;
 	mail_data *letter;

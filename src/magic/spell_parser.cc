@@ -848,7 +848,7 @@ find_skill_num(char *name)
 int
 call_magic(struct Creature *caster, struct Creature *cvict,
 	struct obj_data *ovict, int spellnum, int level, int casttype,
-	int *return_flags = 0)
+	int *return_flags)
 {
 
 	int savetype, mana = -1;
@@ -1272,7 +1272,7 @@ call_magic(struct Creature *caster, struct Creature *cvict,
 
 int
 mag_objectmagic(struct Creature *ch, struct obj_data *obj,
-	char *argument, int *return_flags = NULL)
+	char *argument, int *return_flags)
 {
 	int i, k, level;
 	struct Creature *tch = NULL;
@@ -1553,7 +1553,7 @@ mag_objectmagic(struct Creature *ch, struct obj_data *obj,
 
 int
 cast_spell(struct Creature *ch, struct Creature *tch,
-	struct obj_data *tobj, int spellnum, int *return_flags = 0)
+	struct obj_data *tobj, int spellnum, int *return_flags)
 {
 
 	if (return_flags)

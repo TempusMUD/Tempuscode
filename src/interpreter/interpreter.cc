@@ -1511,7 +1511,7 @@ command_interpreter(struct Creature *ch, char *argument)
 	} else if (no_specials ||
 			!special(ch, cmd, cmd_info[cmd].subcmd, line, SPECIAL_CMD)) {
 		((*cmd_info[cmd].command_pointer) (ch, line, cmd,
-				cmd_info[cmd].subcmd));
+				cmd_info[cmd].subcmd, 0));
 	}
 
 }

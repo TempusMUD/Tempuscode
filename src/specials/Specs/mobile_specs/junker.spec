@@ -20,7 +20,7 @@ SPECIAL(junker)
 		next_obj = obj->next_content;
 		if (CAN_SEE_OBJ(ch, obj) && !IS_OBJ_STAT(obj, ITEM_NODROP) &&
 			!number(0, 2)) {
-			do_drop(ch, fname(obj->name), 0, SCMD_JUNK);
+			do_drop(ch, fname(obj->name), 0, SCMD_JUNK, 0);
 			return 1;
 		}
 	}

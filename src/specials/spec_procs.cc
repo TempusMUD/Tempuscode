@@ -303,7 +303,7 @@ SPECIAL(guild)
 		(!IS_REMORT(master) ||
 			CHECK_REMORT_CLASS(ch) != CHECK_REMORT_CLASS(ch))) {
 		sprintf(buf2, "Go to your own guild to practice, %s.", GET_NAME(ch));
-		do_say(master, buf2, 0, 0);
+		do_say(master, buf2, 0, 0, 0);
 		act("You say, 'Go to your own guild to practice, $N.'",
 			FALSE, master, 0, ch, TO_CHAR);
 		return 1;
@@ -405,7 +405,7 @@ SPECIAL(dump)
 	if (!CMD_IS("drop"))
 		return 0;
 
-	do_drop(ch, argument, cmd, 0);
+	do_drop(ch, argument, cmd, 0, 0);
 
 	for (k = ch->in_room->contents; k; k = next_obj) {
 		next_obj = k->next_content;
@@ -456,14 +456,14 @@ npc_steal(struct Creature *ch, struct Creature *victim)
 
 		if (obj) {
 			sprintf(buf, "%s %s", fname(obj->name), victim->player.name);
-			do_steal(ch, buf, 0, 0);
+			do_steal(ch, buf, 0, 0, 0);
 			return;
 		}
 
 	}
 
 	sprintf(buf, "gold %s", victim->player.name);
-	do_steal(ch, buf, 0, 0);
+	do_steal(ch, buf, 0, 0, 0);
 
 }
 
@@ -863,16 +863,16 @@ SPECIAL(puff)
 
 	switch (number(0, 60)) {
 	case 0:
-		do_say(ch, "My god!  It's full of stars!", 0, 0);
+		do_say(ch, "My god!  It's full of stars!", 0, 0, 0);
 		return (1);
 	case 1:
-		do_say(ch, "How'd all those fish get up here?", 0, 0);
+		do_say(ch, "How'd all those fish get up here?", 0, 0, 0);
 		return (1);
 	case 2:
-		do_say(ch, "I'm a very female dragon.", 0, 0);
+		do_say(ch, "I'm a very female dragon.", 0, 0, 0);
 		return (1);
 	case 3:
-		do_say(ch, "I've got a peaceful, easy feeling.", 0, 0);
+		do_say(ch, "I've got a peaceful, easy feeling.", 0, 0, 0);
 		return (1);
 	default:
 		return (0);
@@ -1111,11 +1111,11 @@ SPECIAL(janitor)
 
 		if (!number(0, 5)) {
 			ahole = 1;
-			do_say(ch, "You assholes must like LAG.", 0, SCMD_BELLOW);
+			do_say(ch, "You assholes must like LAG.", 0, SCMD_BELLOW, 0);
 		} else if (!number(0, 5))
-			do_say(ch, "Why don't you guys junk this crap?", 0, 0);
+			do_say(ch, "Why don't you guys junk this crap?", 0, 0, 0);
 
-		do_get(ch, fname(i->name), 0, 0);
+		do_get(ch, fname(i->name), 0, 0, 0);
 
 		if (ahole && IS_MALE(ch)) {
 			CreatureList::iterator it = ch->in_room->people.begin();
@@ -1123,7 +1123,7 @@ SPECIAL(janitor)
 				if ((*it) != ch && IS_FEMALE((*it)) && CAN_SEE(ch, (*it))) {
 					sprintf(buf, "%s Excuse me, ma'am.",
 						fname(GET_NAME((*it))));
-					do_say(ch, buf, 0, SCMD_SAY_TO);
+					do_say(ch, buf, 0, SCMD_SAY_TO, 0);
 				}
 			}
 		}
@@ -1156,7 +1156,7 @@ SPECIAL(elven_janitor)
 			continue;
 
 		act("$n grumbles as $e picks up $p.", FALSE, ch, i, 0, TO_ROOM);
-		do_get(ch, fname(i->name), 0, 0);
+		do_get(ch, fname(i->name), 0, 0, 0);
 		return TRUE;
 	}
 
@@ -1475,7 +1475,7 @@ SPECIAL(cityguard)
 					!number(0, 1)) {
 					sprintf(buf, "Don't cause any trouble here, %s.",
 						GET_NAME(tch));
-					do_say(ch, buf, 0, 0);
+					do_say(ch, buf, 0, 0, 0);
 				} else if ((IS_CLERIC(tch) || IS_KNIGHT(tch) ||
 						GET_LEVEL(tch) >= LVL_AMBASSADOR) && IS_GOOD(tch)) {
 					act("$n bows before you.", FALSE, ch, 0, tch, TO_VICT);

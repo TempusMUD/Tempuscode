@@ -39,7 +39,7 @@ SPECIAL(spirit_priestess)
 
 	do_say(pri,
 		"Thank you, you have done well.  I now give you this healing staff.",
-		0, 0);
+		0, 0, 0);
 
 	act("$N gives $p to $n.", TRUE, ch, staff, pri, TO_ROOM);
 	act("$N gives $p to you.", FALSE, ch, staff, pri, TO_CHAR);

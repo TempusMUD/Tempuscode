@@ -190,7 +190,7 @@ consolidate_char_money(struct Creature *ch)
 
 		if (AFF_FLAGGED(ch, AFF_GROUP) && PRF2_FLAGGED(ch, PRF2_AUTOSPLIT)) {
 			sprintf(buf2, "%d", num_gold);
-			do_split(ch, buf2, 0, 0);
+			do_split(ch, buf2, 0, 0, 0);
 		}
 	}
 
@@ -200,7 +200,7 @@ consolidate_char_money(struct Creature *ch)
 
 		if (AFF_FLAGGED(ch, AFF_GROUP) && PRF2_FLAGGED(ch, PRF2_AUTOSPLIT)) {
 			sprintf(buf2, "%d credits", num_credits);
-			do_split(ch, buf2, 0, 0);
+			do_split(ch, buf2, 0, 0, 0);
 		}
 	}
 }
@@ -1504,18 +1504,18 @@ perform_give(struct Creature *ch, struct Creature *vict,
 				GET_IDNUM(FIGHTING(vict)) == vict->mob_specials.mug->idnum) {
 				sprintf(buf, "Ha!  Let this be a lesson to you, %s!",
 					GET_NAME(FIGHTING(vict)));
-				do_say(vict, buf, 0, 0);
+				do_say(vict, buf, 0, 0, 0);
 				if (FIGHTING(FIGHTING(vict)))
 					stop_fighting(FIGHTING(vict));
 				stop_fighting(vict);
 			} else {
 				sprintf(buf, "Good move, %s!", GET_DISGUISED_NAME(vict, ch));
-				do_say(vict, buf, 0, 0);
+				do_say(vict, buf, 0, 0, 0);
 			}
 			free(vict->mob_specials.mug);
 			vict->mob_specials.mug = NULL;
 		} else
-			do_say(ch, "Ok, that will work.", 0, 0);
+			do_say(ch, "Ok, that will work.", 0, 0, 0);
 
 		free(vict->mob_specials.mug);
 		vict->mob_specials.mug = NULL;
@@ -1540,34 +1540,34 @@ perform_give(struct Creature *ch, struct Creature *vict,
 				if (!FIGHTING(vict)
 					&& CHECK_SKILL(vict, SKILL_DEMOLITIONS) > number(40, 60))
 					if (FUSE_IS_BURN(obj->contains))
-						do_extinguish(vict, fname(obj->name), 0, 0);
+						do_extinguish(vict, fname(obj->name), 0, 0, 0);
 					else
-						do_activate(vict, fname(obj->name), 0, 1);
+						do_activate(vict, fname(obj->name), 0, 1, 0);
 				else {
 					if (vict->getPosition() < POS_FIGHTING)
-						do_stand(vict, 0, 0, 0);
+						do_stand(vict, 0, 0, 0, 0);
 					for (i = 0; i < NUM_DIRS; i++) {
 						if (ch->in_room->dir_option[i] &&
 							ch->in_room->dir_option[i]->to_room && i != UP &&
 							!IS_SET(ch->in_room->dir_option[i]->exit_info,
 								EX_CLOSED)) {
 							sprintf(buf, "%s %s", fname(obj->name), dirs[i]);
-							do_throw(vict, buf, 0, 0);
+							do_throw(vict, buf, 0, 0, 0);
 							return 1;
 						}
 					}
 					if (CAN_SEE(vict, ch)) {
 						sprintf(buf, "%s %s", fname(obj->name),
 							fname(ch->player.name));
-						do_give(vict, buf, 0, 0);
+						do_give(vict, buf, 0, 0, 0);
 					} else
-						do_throw(vict, fname(obj->name), 0, 0);
+						do_throw(vict, fname(obj->name), 0, 0, 0);
 				}
 			}
 			return 1;
 		}
 		if ((IS_CARRYING_W(vict) + IS_WEARING_W(vict)) > (CAN_CARRY_W(vict) >> 1))	// i don't want that heavy shit
-			do_drop(vict, fname(obj->name), 0, 0);
+			do_drop(vict, fname(obj->name), 0, 0, 0);
 	}
 	return 1;
 }
@@ -2207,7 +2207,7 @@ ACMD(do_eat)
 	}
 	if (subcmd == SCMD_TASTE && ((GET_OBJ_TYPE(food) == ITEM_DRINKCON) ||
 			(GET_OBJ_TYPE(food) == ITEM_FOUNTAIN))) {
-		do_drink(ch, argument, 0, SCMD_SIP);
+		do_drink(ch, argument, 0, SCMD_SIP, 0);
 		return;
 	}
 	if ((GET_OBJ_TYPE(food) != ITEM_FOOD) && (GET_LEVEL(ch) < LVL_GOD)) {

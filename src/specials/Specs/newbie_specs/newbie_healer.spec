@@ -47,7 +47,7 @@ SPECIAL(newbie_healer)
 			cast_spell(ch, 0, p, SPELL_MAGICAL_VESTMENT);
 		else
 			send_to_char(ch, "No WEAR.\r\n");
-		do_drop(ch, fname(p->name), 0, 0);
+		do_drop(ch, fname(p->name), 0, 0, 0);
 		return 1;
 	}
 	return 0;

@@ -138,7 +138,7 @@ get_line_count(char *buffer)
 // removes all occurances of the specified character c from char * str,
 // replacing each occurance with a char c_to
 int
-remove_from_cstring(char *str, char c = '~', char c_to = '.')
+remove_from_cstring(char *str, char c, char c_to)
 {
 	for (char *p = str; p && *p; ++p)
 		if (*p == c)

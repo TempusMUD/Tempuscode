@@ -401,7 +401,7 @@ SPECIAL(artisan)
 		return false;
 
 	if (CMD_IS("steal") && GET_LEVEL(ch) < LVL_IMMORT) {
-		do_action(keeper, GET_NAME(ch), cmd_slap, 0);
+		do_action(keeper, GET_NAME(ch), cmd_slap, 0, 0);
 		sprintf(buf, "%s is a bloody thief!", GET_NAME(ch));
 		do_say(keeper, buf, 0, SCMD_SHOUT, NULL);
 		return true;
@@ -415,7 +415,7 @@ SPECIAL(artisan)
 	if (!shop || shop->room != keeper->in_room->number) {
 		msg = tmp_sprintf("%s Sorry!  I don't have my tools!", GET_NAME(ch));
 		do_say(keeper, msg, 0, SCMD_SAY_TO, NULL);
-		do_action(keeper, "", cmd_cry, 0);
+		do_action(keeper, "", cmd_cry, 0, 0);
 		return true;
 	}
 

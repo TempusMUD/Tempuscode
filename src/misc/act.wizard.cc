@@ -4676,7 +4676,7 @@ ACMD(do_show)
 		}
 		ch->desc->character = vict;
 		vict->desc = ch->desc;
-		do_equipment(vict, arg, 0, SCMD_IMPLANTS);
+		do_equipment(vict, arg, 0, SCMD_IMPLANTS, 0);
 		ch->desc->character = ch;
 		if ((vict->desc = tmp_d))
 			tmp_d->character = vict;
@@ -7454,16 +7454,16 @@ ACMD(do_tester)
 			}
 			break;
 		case 1:                    /* unaffect */
-			do_wizutil(ch, "self", 0, SCMD_UNAFFECT);
+			do_wizutil(ch, "self", 0, SCMD_UNAFFECT, 0);
 			break;
 		case 2:                    /* reroll */
-			do_wizutil(ch, "self", 0, SCMD_REROLL);
+			do_wizutil(ch, "self", 0, SCMD_REROLL, 0);
 			break;
 		case 3:                    /* stat */
-			do_stat(ch, arg2, 0, 0);
+			do_stat(ch, arg2, 0, 0, 0);
 			break;
 		case 4:                    /* goto */
-			do_goto(ch, arg2, 0, 0);
+			do_goto(ch, arg2, 0, 0, 0);
 			break;
 		case 5:                    /* restore */
 			GET_HIT(ch) = GET_MAX_HIT(ch);
@@ -7478,13 +7478,13 @@ ACMD(do_tester)
 		case 10:                   /* maxmana */
 		case 11:                   /* maxmove */
 			sprintf(buf, "self %s %s", arg1, arg2);
-			do_set(ch, buf, 0, SCMD_TESTER_SET);
+			do_set(ch, buf, 0, SCMD_TESTER_SET, 0);
 			break;
 		case 12:
-			do_gen_tog(ch, "", CMD_TESTER, SCMD_NOHASSLE);
+			do_gen_tog(ch, "", CMD_TESTER, SCMD_NOHASSLE, 0);
 			break;
 		case 13:
-			do_gen_tog(ch, "", CMD_TESTER, SCMD_ROOMFLAGS);
+			do_gen_tog(ch, "", CMD_TESTER, SCMD_ROOMFLAGS, 0);
 			break;
 		case 14:
 			if (!*arg2)
@@ -7503,7 +7503,7 @@ ACMD(do_tester)
 			}
 			break;
 		case 16:
-			do_gen_tog(ch, "", CMD_TESTER, SCMD_DEBUG);
+			do_gen_tog(ch, "", CMD_TESTER, SCMD_DEBUG, 0);
 			break;
 		case 17: // strength
 		case 18: // intelligence
@@ -7512,15 +7512,15 @@ ACMD(do_tester)
 		case 21: // dexterity
 		case 22: // charisma
 			sprintf(buf, "self %s %s", arg1, arg2);
-			do_set(ch, buf, 0, SCMD_TESTER_SET);
+			do_set(ch, buf, 0, SCMD_TESTER_SET, 0);
 			break;
 		case 23: // Max Stats
-			do_set(ch, "self str 25", 0, SCMD_TESTER_SET);
-			do_set(ch, "self int 25", 0, SCMD_TESTER_SET);
-			do_set(ch, "self wis 25", 0, SCMD_TESTER_SET);
-			do_set(ch, "self con 25", 0, SCMD_TESTER_SET);
-			do_set(ch, "self dex 25", 0, SCMD_TESTER_SET);
-			do_set(ch, "self cha 25", 0, SCMD_TESTER_SET);
+			do_set(ch, "self str 25", 0, SCMD_TESTER_SET, 0);
+			do_set(ch, "self int 25", 0, SCMD_TESTER_SET, 0);
+			do_set(ch, "self wis 25", 0, SCMD_TESTER_SET, 0);
+			do_set(ch, "self con 25", 0, SCMD_TESTER_SET, 0);
+			do_set(ch, "self dex 25", 0, SCMD_TESTER_SET, 0);
+			do_set(ch, "self cha 25", 0, SCMD_TESTER_SET, 0);
 			break;
 		default:
 			sprintf(buf, "$p: Invalid command '%s'.", arg1);

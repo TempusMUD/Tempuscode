@@ -82,7 +82,7 @@ SPECIAL(fate)
 	}
 	// If the file is null, return
 	if (!dyntext->buffer) {
-		do_say(fate, "Hmm... Where should I go to next?", 0, 0);
+		do_say(fate, "Hmm... Where should I go to next?", 0, 0, 0);
 		return 1;
 	}
 	// Grab the rooms out of the buffer
@@ -115,7 +115,7 @@ SPECIAL(fate)
 	delete[]roomlist_buf_top;
 	// Didnt find any rooms. :P
 	if (!roomlist) {
-		do_say(fate, "Hmm... Where should I go to next?", 0, 0);
+		do_say(fate, "Hmm... Where should I go to next?", 0, 0, 0);
 		return 1;
 	}
 	// Find room we want.

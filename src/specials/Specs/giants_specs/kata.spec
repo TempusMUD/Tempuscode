@@ -22,14 +22,14 @@ SPECIAL(kata)
 		return 0;
 
 	if (IS_EVIL(ch) && IS_GOOD(kata)) {
-		do_say(kata, "No! I will not follow you.", 0, 0);
+		do_say(kata, "No! I will not follow you.", 0, 0, 0);
 		return 1;
 	}
 
 	sprintf(buf,
 		"Thank you for rescuing me, %s!  I will be a loyal companion.",
 		GET_NAME(ch));
-	do_say(kata, buf, 0, 0);
+	do_say(kata, buf, 0, 0, 0);
 	add_follower(kata, ch);
 	SET_BIT(AFF_FLAGS(kata), AFF_CHARM);
 	return 1;

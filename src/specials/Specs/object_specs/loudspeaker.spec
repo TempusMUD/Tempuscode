@@ -26,6 +26,6 @@ SPECIAL(loud_speaker)
 	act("$n yells into $p.", TRUE, ch, speaker, 0, TO_ROOM);
 	act("You yell into $p.", TRUE, ch, speaker, 0, TO_CHAR);
 	sprintf(buf, "%s BOOMS '%s'", speaker->short_description, argument);
-	do_gecho(ch, buf, 0, 0);
+	do_gecho(ch, buf, 0, 0, 0);
 	return 1;
 }

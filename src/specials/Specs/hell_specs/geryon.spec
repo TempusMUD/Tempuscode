@@ -19,7 +19,7 @@ SPECIAL(geryon)
 		&& (horn = GET_EQ(ch, WEAR_HOLD)) && GET_OBJ_VNUM(horn) == 16144
 		&& GET_OBJ_VAL(horn, 0)) {
 		command_interpreter(ch, "wind horn");
-		do_order(ch, "minotaur assist geryon", 0, 0);
+		do_order(ch, "minotaur assist geryon", 0, 0, 0);
 		return 1;
 	} else if (number(0, 2))
 		return 0;

@@ -388,7 +388,7 @@ ACMD(do_light)
 	if (!(obj = get_obj_in_list_vis(ch, arg1, ch->carrying)))
 		send_to_char(ch, "Light what?\r\n");
 	else if (GET_OBJ_TYPE(obj) == ITEM_LIGHT)
-		do_grab(ch, fname(obj->name), 0, 0);
+		do_grab(ch, fname(obj->name), 0, 0, 0);
 	else if (GET_OBJ_TYPE(obj) == ITEM_TOBACCO)
 		send_to_char(ch, "You need to roll it up first.\r\n");
 	else if (GET_OBJ_TYPE(obj) != ITEM_CIGARETTE &&
@@ -496,7 +496,7 @@ ACMD(do_ignite)
 	one_argument(argument, arg1);
 
 	if (GET_LEVEL(ch) < LVL_CREATOR) {
-		do_light(ch, argument, 0, 0);
+		do_light(ch, argument, 0, 0, 0);
 		return;
 	}
 

@@ -18,7 +18,7 @@ SPECIAL(temple_healer)
 		FIGHTING(ch)->in_room == ch->in_room) {
 		switch (number(0, 20)) {
 		case 0:
-			do_say(ch, "Now you pay!!", 0, 0);
+			do_say(ch, "Now you pay!!", 0, 0, 0);
 			cast_spell(ch, FIGHTING(ch), NULL, SPELL_FLAME_STRIKE);
 			return (1);
 		case 1:
@@ -29,7 +29,7 @@ SPECIAL(temple_healer)
 		case 6:
 		case 7:
 			if (!IS_AFFECTED(ch, AFF_SANCTUARY)) {
-				do_say(ch, "Guiharia, aid me now!!", 0, 0);
+				do_say(ch, "Guiharia, aid me now!!", 0, 0, 0);
 				call_magic(ch, ch, NULL, SPELL_SANCTUARY, 50, CAST_SPELL);
 				return (1);
 			} else
@@ -47,11 +47,11 @@ SPECIAL(temple_healer)
 		switch (number(0, 18)) {
 		case 0:
 			do_say(ch, "Rest here, adventurer.  Your wounds will be tended.",
-				0, 0);
+				0, 0, 0);
 			return TRUE;
 		case 1:
 			do_say(ch, "You are in the hands of Guiharia here, traveller.", 0,
-				0);
+				0, 0);
 			return TRUE;
 		case 3:
 		case 4:

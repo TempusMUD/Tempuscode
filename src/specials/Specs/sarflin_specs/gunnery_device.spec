@@ -30,8 +30,8 @@ SPECIAL(gunnery_device)
 
 		num = atoi(buf2);
 		GET_OBJ_VAL(ob, 0) = num;
-		do_say(ch, argument, 0, 0);
-		do_say(me2, "Yes, Sir.", 0, 0);
+		do_say(ch, argument, 0, 0, 0);
+		do_say(me2, "Yes, Sir.", 0, 0, 0);
 		return (1);
 	}
 	if (cmd)

@@ -82,18 +82,18 @@ SPECIAL(arena_locker)
 		return 0;
 
 	if (CMD_IS("store")) {
-		do_say(ch, "I'd like to store my stuff, please.", 0, 0);
+		do_say(ch, "I'd like to store my stuff, please.", 0, 0, 0);
 		if (IS_NPC(ch)) {
-			do_say(atten, "Sorry, I cannot store things for mobiles.", 0, 0);
+			do_say(atten, "Sorry, I cannot store things for mobiles.", 0, 0, 0);
 			return 1;
 		}
 		if (!(IS_CARRYING_W(ch) + IS_WEARING_W(ch))) {
 			do_say(atten, "Looks to me like you're already stark naked.", 0,
-				0);
+				0, 0);
 			return 1;
 		}
 		if (IS_WEARING_W(ch)) {
-			do_say(atten, "You need to remove all your gear first.", 0, 0);
+			do_say(atten, "You need to remove all your gear first.", 0, 0, 0);
 			return 1;
 		}
 		for (locker = r_locker_room->contents; locker;
@@ -116,13 +116,13 @@ SPECIAL(arena_locker)
 			return 1;
 		}
 		do_say(atten, "Sorry, all the lockers are occupied at the moment.", 0,
-			0);
+			0, 0);
 		return 1;
 	}
 	if (CMD_IS("receive")) {
-		do_say(ch, "I'd like to get my stuff back , please.", 0, 0);
+		do_say(ch, "I'd like to get my stuff back , please.", 0, 0, 0);
 		if (IS_NPC(ch)) {
-			do_say(atten, "Sorry, I don't deal with mobiles.", 0, 0);
+			do_say(atten, "Sorry, I don't deal with mobiles.", 0, 0, 0);
 			return 1;
 		}
 
@@ -136,7 +136,7 @@ SPECIAL(arena_locker)
 				GET_OBJ_VAL(locker, 0) != GET_IDNUM(ch)
 				|| (!locker->contains)) {
 				do_say(atten, "Sorry, you don't seem to have a locker here.",
-					0, 0);
+					0, 0, 0);
 				return 1;
 			}
 			for (item = locker->contains; item; item = tmp_item) {
@@ -155,7 +155,7 @@ SPECIAL(arena_locker)
 
 			return 1;
 		}
-		do_say(atten, "Sorry, you don't seem to have a locker here.", 0, 0);
+		do_say(atten, "Sorry, you don't seem to have a locker here.", 0, 0, 0);
 		return 1;
 	}
 	return 0;

@@ -403,7 +403,7 @@ namespace Security {
      * Check membership in a particular group by name.
      * Comma delimited names are also accepted.
      */
-     bool isMember( Creature *ch, const char* group_name, bool substitute=true ) {
+     bool isMember( Creature *ch, const char* group_name, bool substitute) {
         if( substitute && ch->getLevel() == LVL_GRIMP )
             return true;
         if( group_name == NULL || *group_name == '\0' )
@@ -584,7 +584,7 @@ namespace Security {
         return *it;
     }
         
-    bool saveGroups( const char *filename = SECURITY_FILE ) {
+    bool saveGroups( const char *filename) {
         xmlDocPtr doc;
         doc = xmlNewDoc((const xmlChar*)"1.0");
         doc->children = xmlNewDocNode(doc, NULL, (const xmlChar *)"Security", NULL);
@@ -599,7 +599,7 @@ namespace Security {
         return( rc != -1 );
     }
 
-    bool loadGroups( const char *filename = SECURITY_FILE ) {
+    bool loadGroups( const char *filename) {
         groups.erase(groups.begin(),groups.end());
         xmlDocPtr doc = xmlParseFile(filename);
         if( doc == NULL ) {

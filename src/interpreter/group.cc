@@ -232,7 +232,7 @@ namespace Security {
     }
 
     /* Sends a list of this group's members to the given character. */
-    bool Group::sendCommandList( Creature *ch, bool prefix = true ) {
+    bool Group::sendCommandList( Creature *ch, bool prefix) {
         int pos = 1;
         vector<command_info*>::iterator it = commands.begin();
         if( prefix )

@@ -454,24 +454,24 @@ smart_mobile_move(struct Creature *ch, int dir)
 
 			if (IS_SET(EXIT(ch, dir)->exit_info, EX_LOCKED)) {
 				if (has_key(ch, EXIT(ch, dir)->key))
-					do_gen_door(ch, doorbuf, 0, SCMD_UNLOCK);
+					do_gen_door(ch, doorbuf, 0, SCMD_UNLOCK, 0);
 				else if ((IS_THIEF(ch) || IS_HOOD(ch)) &&
 					CHECK_SKILL(ch, SKILL_PICK_LOCK) > 30)
-					do_gen_door(ch, doorbuf, 0, SCMD_PICK);
+					do_gen_door(ch, doorbuf, 0, SCMD_PICK, 0);
 				else if (IS_MAGE(ch) && CHECK_SKILL(ch, SPELL_KNOCK) &&
 					GET_MANA(ch) > (GET_MAX_MANA(ch) >> 1)) {
 					sprintf(doorbuf, "'knock' %s", doorbuf);
-					do_cast(ch, doorbuf, 0, 0);
+					do_cast(ch, doorbuf, 0, 0, 0);
 				} else if (CHECK_SKILL(ch, SKILL_BREAK_DOOR) > 30 &&
 					GET_HIT(ch) > (GET_MAX_HIT(ch) >> 1))
-					do_bash(ch, doorbuf, 0, 0);
+					do_bash(ch, doorbuf, 0, 0, 0);
 			} else
-				do_gen_door(ch, doorbuf, 0, SCMD_OPEN);
+				do_gen_door(ch, doorbuf, 0, SCMD_OPEN, 0);
 
 		} else if (EXIT(ch, dir)->to_room->isOpenAir() &&
 			ch->getPosition() != POS_FLYING) {
 			if (can_travel_sector(ch, SECT_TYPE(EXIT(ch, dir)->to_room), 0))
-				do_fly(ch, "", 0, 0);
+				do_fly(ch, "", 0, 0, 0);
 			else if (IS_MAGE(ch) && GET_LEVEL(ch) >= 33)
 				cast_spell(ch, ch, 0, SPELL_FLY);
 			else if (IS_CLERIC(ch) && GET_LEVEL(ch) >= 32)
@@ -479,19 +479,19 @@ smart_mobile_move(struct Creature *ch, int dir)
 			else if (IS_PHYSIC(ch))
 				cast_spell(ch, ch, 0, SPELL_TIDAL_SPACEWARP);
 			else if (!number(0, 10)) {
-				do_say(ch, "Well, SHIT!  I need to be able to fly!", 0, 0);
+				do_say(ch, "Well, SHIT!  I need to be able to fly!", 0, 0, 0);
 				return 0;
 			}
 		} else if (SECT_TYPE(EXIT(ch, dir)->to_room) == SECT_WATER_NOSWIM &&
 			ch->getPosition() != POS_FLYING &&
 			can_travel_sector(ch, SECT_TYPE(EXIT(ch, dir)->to_room), 0)) {
 			if (IS_AFFECTED(ch, AFF_INFLIGHT))
-				do_fly(ch, "", 0, 0);
+				do_fly(ch, "", 0, 0, 0);
 			else if (IS_MAGE(ch) && GET_LEVEL(ch) >= 32)
 				cast_spell(ch, ch, 0, SPELL_WATERWALK);
 			else if (!number(0, 10)) {
 				do_say(ch, "Damn this water!  Can anybody help me cross?", 0,
-					0);
+					0, 0);
 				return 0;
 			}
 		} else
@@ -532,7 +532,7 @@ hunt_victim(struct Creature *ch)
 	}
 	if (!found) {
 		if (!FIGHTING(ch)) {
-			do_say(ch, "Damn!  My prey is gone!!", 0, 0);
+			do_say(ch, "Damn!  My prey is gone!!", 0, 0, 0);
 			HUNTING(ch) = 0;
 		}
 		return 0;
@@ -598,7 +598,7 @@ hunt_victim(struct Creature *ch)
 						act("$n shouts, '$N you vile profaner of goodness!",
 							FALSE, ch, 0, HUNTING(ch), TO_ROOM);
 					} else if (GET_MOB_VNUM(ch) == UNHOLY_STALKER_VNUM) {
-						do_say(ch, "Time to die.", 0, SCMD_INTONE);
+						do_say(ch, "Time to die.", 0, SCMD_INTONE, 0);
 					} else {
 						if (!number(0, 3))
 							act("$n screams, 'Gotcha, punk ass $N!!'.",
@@ -606,16 +606,16 @@ hunt_victim(struct Creature *ch)
 						else if (!number(0, 2)) {
 							sprintf(buf2, "Well, well well... if it isn't %s!",
 								GET_NAME(HUNTING(ch)));
-							do_say(ch, buf2, 0, 0);
+							do_say(ch, buf2, 0, 0, 0);
 						} else if (!number(0, 1)) {
 							sprintf(buf2,
 								"%s You can run, but you can't hide!",
 								GET_NAME(HUNTING(ch)));
-							do_say(ch, buf2, 0, SCMD_SAY_TO);
+							do_say(ch, buf2, 0, SCMD_SAY_TO, 0);
 						} else {
 							sprintf(buf2, "%s Now I have you!",
 								GET_NAME(HUNTING(ch)));
-							do_say(ch, buf2, 0, SCMD_SAY_TO);
+							do_say(ch, buf2, 0, SCMD_SAY_TO, 0);
 						}
 					}
 					return best_attack(ch, HUNTING(ch));
@@ -688,7 +688,7 @@ hunt_victim(struct Creature *ch)
 				case 11:
 					sprintf(buf2, "I'm practically on you, %s!",
 						GET_NAME(HUNTING(ch)));
-					do_gen_comm(ch, buf2, 0, SCMD_SHOUT);
+					do_gen_comm(ch, buf2, 0, SCMD_SHOUT, 0);
 					return 0;
 				case 12:
 					sprintf(buf2, "Hey you momma's %s!  I'm coming for you.",
@@ -708,19 +708,19 @@ hunt_victim(struct Creature *ch)
 				}
 
 				if (!number(0, 4))
-					do_gen_comm(ch, buf2, 0, SCMD_SHOUT);
+					do_gen_comm(ch, buf2, 0, SCMD_SHOUT, 0);
 				if (!number(0, 5))
-					do_gen_comm(ch, buf2, 0, SCMD_HOLLER);
+					do_gen_comm(ch, buf2, 0, SCMD_HOLLER, 0);
 				else if (!number(0, 2))
-					do_gen_comm(ch, buf2, 0, SCMD_GOSSIP);
+					do_gen_comm(ch, buf2, 0, SCMD_GOSSIP, 0);
 				else if (!number(0, 1))
-					do_gen_comm(ch, buf2, 0, SCMD_SPEW);
+					do_gen_comm(ch, buf2, 0, SCMD_SPEW, 0);
 				else
-					do_gen_comm(ch, buf2, 0, SCMD_MUSIC);
+					do_gen_comm(ch, buf2, 0, SCMD_MUSIC, 0);
 			}
 
 			if (!number(0, 32))
-				do_say(ch, "One of these days..", 0, 0);
+				do_say(ch, "One of these days..", 0, 0, 0);
 		}
 	}
 	return 0;

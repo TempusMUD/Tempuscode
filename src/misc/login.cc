@@ -73,7 +73,7 @@ show_menu(struct descriptor_data *d)
 //
 
 void
-show_char_class_menu(struct descriptor_data *d, int timeframe = 0)
+show_char_class_menu(struct descriptor_data *d, int timeframe)
 {
 	Creature *ch = d->character;
 	int i;

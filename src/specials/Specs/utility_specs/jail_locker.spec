@@ -24,9 +24,9 @@ SPECIAL(jail_locker)
 	}
 
 	if (CMD_IS("receive")) {
-		do_say(ch, "I'd like to get my stuff back, please.", 0, 0);
+		do_say(ch, "I'd like to get my stuff back, please.", 0, 0, 0);
 		if (IS_NPC(ch)) {
-			do_say(atten, "Sorry, I don't deal with mobiles.", 0, 0);
+			do_say(atten, "Sorry, I don't deal with mobiles.", 0, 0, 0);
 			return 1;
 		}
 		cost = GET_LEVEL(ch) * 1000;
@@ -50,7 +50,7 @@ SPECIAL(jail_locker)
 				GET_OBJ_VAL(locker, 0) != GET_IDNUM(ch) ||
 				(!locker->contains)) {
 				do_say(atten, "Sorry, you don't seem to have a locker here.",
-					0, 0);
+					0, 0, 0);
 				return 1;
 			}
 			for (item = locker->contains; item; item = tmp_item) {
@@ -81,7 +81,7 @@ SPECIAL(jail_locker)
 
 			return 1;
 		}
-		do_say(atten, "Sorry, you don't seem to have a locker here.", 0, 0);
+		do_say(atten, "Sorry, you don't seem to have a locker here.", 0, 0, 0);
 		return 1;
 	}
 	return 0;

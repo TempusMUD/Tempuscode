@@ -123,16 +123,16 @@ SPECIAL(tester_util)
 		}
 		break;
 	case 1:					/* unaffect */
-		do_wizutil(ch, "me", 0, SCMD_UNAFFECT);
+		do_wizutil(ch, "me", 0, SCMD_UNAFFECT, 0);
 		break;
 	case 2:					/* reroll */
-		do_wizutil(ch, "me", 0, SCMD_REROLL);
+		do_wizutil(ch, "me", 0, SCMD_REROLL, 0);
 		break;
 	case 3:					/* stat */
-		do_stat(ch, arg2, 0, 0);
+		do_stat(ch, arg2, 0, 0, 0);
 		break;
 	case 4:					/* goto */
-		do_goto(ch, arg2, 0, 0);
+		do_goto(ch, arg2, 0, 0, 0);
 		break;
 	case 5:					/* restore */
 		GET_HIT(ch) = GET_MAX_HIT(ch);
@@ -147,13 +147,13 @@ SPECIAL(tester_util)
 	case 10:					/* maxmana */
 	case 11:					/* maxmove */
 		sprintf(buf, "me %s %s", arg1, arg2);
-		do_set(ch, buf, 0, 0);
+		do_set(ch, buf, 0, 0, 0);
 		break;
 	case 12:
-		do_gen_tog(ch, "", 0, SCMD_NOHASSLE);
+		do_gen_tog(ch, "", 0, SCMD_NOHASSLE, 0);
 		break;
 	case 13:
-		do_gen_tog(ch, "", 0, SCMD_ROOMFLAGS);
+		do_gen_tog(ch, "", 0, SCMD_ROOMFLAGS, 0);
 		break;
 	case 14:
 		if (!*arg2)
@@ -172,7 +172,7 @@ SPECIAL(tester_util)
 		}
 		break;
 	case 16:
-		do_gen_tog(ch, "", 0, SCMD_DEBUG);
+		do_gen_tog(ch, "", 0, SCMD_DEBUG, 0);
 		break;
 	case 17:					// strength
 	case 18:					// intelligence
@@ -181,15 +181,15 @@ SPECIAL(tester_util)
 	case 21:					// dexterity
 	case 22:					// charisma
 		sprintf(buf, "me %s %s", arg1, arg2);
-		do_set(ch, buf, 0, 0);
+		do_set(ch, buf, 0, 0, 0);
 		break;
 	case 23:					// Max Stats
-		do_set(ch, "me str 25", 0, 0);
-		do_set(ch, "me int 25", 0, 0);
-		do_set(ch, "me wis 25", 0, 0);
-		do_set(ch, "me con 25", 0, 0);
-		do_set(ch, "me dex 25", 0, 0);
-		do_set(ch, "me cha 25", 0, 0);
+		do_set(ch, "me str 25", 0, 0, 0);
+		do_set(ch, "me int 25", 0, 0, 0);
+		do_set(ch, "me wis 25", 0, 0, 0);
+		do_set(ch, "me con 25", 0, 0, 0);
+		do_set(ch, "me dex 25", 0, 0, 0);
+		do_set(ch, "me cha 25", 0, 0, 0);
 		break;
 	default:
 		sprintf(buf, "$p: Invalid command '%s'.", arg1);

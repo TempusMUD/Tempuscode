@@ -39,8 +39,8 @@ SPECIAL(electrician)
 			act("$n's hair suddenly stands on end.", FALSE, mob, 0, 0, TO_ROOM);
 			break;
 		case 5:
-			do_say(mob, "Uh-oh.", 0, 0);
-			do_flee(mob, "", 0, 0);
+			do_say(mob, "Uh-oh.", 0, 0, 0);
+			do_flee(mob, "", 0, 0, 0);
 			break;
 	}
 	return 1;

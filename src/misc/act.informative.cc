@@ -1838,23 +1838,23 @@ glance_at_target(struct Creature *ch, char *arg, int cmd)
 					} else if (!number(0, 4)) {
 						sprintf(glancebuf, "Piss off, %s.",
 							GET_DISGUISED_NAME(found_char, ch));
-						do_say(found_char, glancebuf, 0, 0);
+						do_say(found_char, glancebuf, 0, 0, 0);
 					} else if (!number(0, 3)) {
 						sprintf(glancebuf, "Take a hike, %s.",
 							GET_DISGUISED_NAME(found_char, ch));
-						do_say(found_char, glancebuf, 0, 0);
+						do_say(found_char, glancebuf, 0, 0, 0);
 					} else if (!number(0, 2)) {
 						sprintf(glancebuf, "%s You lookin' at me?",
 							GET_DISGUISED_NAME(found_char, ch));
-						do_say(found_char, glancebuf, 0, SCMD_SAY_TO);
+						do_say(found_char, glancebuf, 0, SCMD_SAY_TO, 0);
 					} else if (!number(0, 1)) {
 						sprintf(glancebuf, "Hit the road, %s.",
 							GET_DISGUISED_NAME(found_char, ch));
-						do_say(found_char, glancebuf, 0, 0);
+						do_say(found_char, glancebuf, 0, 0, 0);
 					} else {
 						sprintf(glancebuf, "Get lost, %s.",
 							GET_DISGUISED_NAME(found_char, ch));
-						do_say(found_char, glancebuf, 0, 0);
+						do_say(found_char, glancebuf, 0, 0, 0);
 					}
 
 					if (MOB_FLAGGED(found_char, MOB_AGGRESSIVE) &&
@@ -1865,7 +1865,7 @@ glance_at_target(struct Creature *ch, char *arg, int cmd)
 							if (peaceful_room_ok(found_char, ch, false))
 								hit(found_char, ch, TYPE_UNDEFINED);
 						} else
-							do_stand(found_char, "", 0, 0);
+							do_stand(found_char, "", 0, 0, 0);
 					}
 				}
 			} else

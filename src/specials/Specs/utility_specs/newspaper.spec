@@ -20,7 +20,7 @@ SPECIAL(newspaper)
 
 	switch (GET_OBJ_VNUM(paper)) {
 	case 3160:
-		do_dyntext_show(ch, "", 0, SCMD_DYNTEXT_NEWS);
+		do_dyntext_show(ch, "", 0, SCMD_DYNTEXT_NEWS, 0);
 		break;
 	default:
 		send_to_char(ch,

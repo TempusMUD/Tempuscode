@@ -303,7 +303,7 @@ Quiz::getQuestion()
 }
 
 float
-Quiz::getAverage(int gen = -1)
+Quiz::getAverage(int gen)
 {
 	if (remortQuestions.size() == 0)
 		return 0;

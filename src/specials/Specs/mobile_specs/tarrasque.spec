@@ -440,7 +440,7 @@ SPECIAL(tarrasque)
 						(*it)->setPosition(POS_STANDING);
 					act("You are overcome with terror at the sight of $N!",
 						FALSE, (*it), 0, tarr, TO_CHAR);
-					do_flee((*it), "", 0, 0);
+					do_flee((*it), "", 0, 0, 0);
 				}
 			}
 		}
@@ -470,7 +470,7 @@ SPECIAL(tarrasque)
 							(*it)->setPosition(POS_STANDING);
 						act("You are overcome with terror at the sight of $N!",
 							FALSE, (*it), 0, tarr, TO_CHAR);
-						do_flee((*it), "", 0, 0);
+						do_flee((*it), "", 0, 0, 0);
 					}
 				}
 			}

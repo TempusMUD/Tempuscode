@@ -1212,7 +1212,7 @@ gen_receptionist(struct Creature *ch, struct Creature *recep,
 		return FALSE;
 
 	if (!cmd && !number(0, 5)) {
-		do_action(recep, "", find_command(action_table[number(0, 8)]), 0);
+		do_action(recep, "", find_command(action_table[number(0, 8)]), 0, 0);
 		return FALSE;
 	}
 	if (!CMD_IS("offer") && !CMD_IS("rent"))

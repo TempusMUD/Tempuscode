@@ -606,7 +606,7 @@ SPECIAL(vehicle_console)
 	if (CMD_IS("exits")) {
 		send_to_char(ch, "These are the exits from the room the car is in:\r\n");
 		ch->in_room = vehicle->in_room;
-		do_exits(ch, "", 0, 0);
+		do_exits(ch, "", 0, 0, 0);
 		ch->in_room = console->in_room;
 		return 1;
 	}

@@ -2223,7 +2223,7 @@ ACMD(do_drag)
 		send_to_char(ch, "What do you want to drag?\r\n");
 		return;
 	} else if (found_char) {
-		do_drag_char(ch, argument, 0, 0);
+		do_drag_char(ch, argument, 0, 0, 0);
 		return;
 	} else if (found_obj) {
 		drag_object(ch, found_obj, argument);

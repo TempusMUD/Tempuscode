@@ -380,7 +380,7 @@ HelpItem::LoadText()
 // Show the entry. 
 // buffer is output buffer.
 void
-HelpItem::Show(Creature * ch, char *buffer, int mode = 0)
+HelpItem::Show(Creature * ch, char *buffer, int mode)
 {
 	char bitbuf[256];
 	char groupbuf[256];

@@ -31,7 +31,7 @@ SPECIAL(slaver)
 			if (ch != vict && !IS_NPC(vict) && CAN_SEE(slaver, vict) &&
 				PRF_FLAGGED(vict, PRF_NOHASSLE) &&
 				GET_LEVEL(vict) < number(1, 50) && !IS_EVIL(vict)) {
-				do_say(slaver, "Ha!  You're coming with me!", 0, 0);
+				do_say(slaver, "Ha!  You're coming with me!", 0, 0, 0);
 
 				if (slaver->in_room == r_pit_lip) {
 					act("$n hurls you headfirst into the slave pit!",

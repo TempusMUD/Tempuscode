@@ -281,9 +281,9 @@ mob_fight_psionic(struct Creature *ch, struct Creature *precious_vict)
 		GET_MANA(vict) > 50 && !number(0, 2) && GET_MOVE(ch) > 30) {
 		if (!CAN_SEE(ch, vict))
 			// just attack the default opponent
-			do_psidrain(ch, "", 0, 0);
+			do_psidrain(ch, "", 0, 0, 0);
 		else
-			do_psidrain(ch, GET_NAME(vict), 0, 0);
+			do_psidrain(ch, GET_NAME(vict), 0, 0, 0);
 	}
 	// fear
 	else if (GET_LEVEL(ch) >= 29 &&
@@ -315,9 +315,9 @@ mob_fight_psionic(struct Creature *ch, struct Creature *precious_vict)
 		GET_MANA(ch) > mag_manacost(ch, SKILL_PSIBLAST)) {
 		if (!CAN_SEE(ch, vict))
 			// just attack the default opponent
-			do_offensive_skill(ch, "", 0, SKILL_PSIBLAST);
+			do_offensive_skill(ch, "", 0, SKILL_PSIBLAST, 0);
 		else
-			do_offensive_skill(ch, GET_NAME(vict), 0, SKILL_PSIBLAST);
+			do_offensive_skill(ch, GET_NAME(vict), 0, SKILL_PSIBLAST, 0);
 	} else
 		return 0;
 

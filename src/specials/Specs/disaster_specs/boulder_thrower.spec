@@ -60,7 +60,7 @@ SPECIAL(boulder_thrower)
 
 			sprintf(buf, "%s ", fname(obj->name));
 			strcat(buf, fname(FIGHTING(ch)->player.name));
-			do_throw(ch, buf, 0, 0);
+			do_throw(ch, buf, 0, 0, 0);
 			//      printf("throwing '%s'\n", buf);
 			return 1;
 		}

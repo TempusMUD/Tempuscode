@@ -500,8 +500,7 @@ eqdam_extract_obj(struct obj_data *obj)
 
 
 struct obj_data *
-damage_eq(struct Creature *ch, struct obj_data *obj, int eq_dam, int type =
-	-1)
+damage_eq(struct Creature *ch, struct obj_data *obj, int eq_dam, int type)
 {
 	struct Creature *vict = NULL;
 	struct obj_data *new_obj = NULL, *inobj = NULL, *next_obj = NULL;

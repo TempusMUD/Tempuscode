@@ -172,9 +172,9 @@ HelpCollection::Push(HelpItem * n)
 void
 HelpCollection::GetTopic(Creature * ch,
 	char *args,
-	int mode = 2,
-	bool show_no_app = false,
-	int thegroup = HGROUP_PLAYER, bool searchmode = false)
+	int mode,
+	bool show_no_app,
+	int thegroup, bool searchmode)
 {
 
 	HelpItem *cur = NULL;
@@ -312,8 +312,7 @@ HelpCollection::SaveItem(Creature * ch)
 // This should take an optional "mode" argument to specify groups the
 //  returned topic can be part of. e.g. (FindItems(argument,FIND_MODE_OLC))
 HelpItem *
-HelpCollection::FindItems(char *args, bool find_no_approve =
-	false, int thegroup = HGROUP_PLAYER, bool searchmode = false)
+HelpCollection::FindItems(char *args, bool find_no_approve, int thegroup, bool searchmode)
 {
 	HelpItem *cur = NULL;
 	HelpItem *list = NULL;

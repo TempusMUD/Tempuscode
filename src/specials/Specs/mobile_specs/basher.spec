@@ -27,6 +27,6 @@ SPECIAL(basher)
 	if (vict == NULL)
 		vict = FIGHTING(ch);
 
-	do_bash(ch, "", 0, 0);
+	do_bash(ch, "", 0, 0, 0);
 	return 1;
 }

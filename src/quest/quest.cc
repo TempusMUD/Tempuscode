@@ -1636,7 +1636,7 @@ do_qcontrol_switch(Creature *ch, char *argument, int com)
 		send_to_char(ch, "You are not currently active on any quest.\r\n");
 		return;
 	}
-	do_switch(ch, argument, 0, SCMD_QSWITCH);
+	do_switch(ch, argument, 0, SCMD_QSWITCH, 0);
 }
 
 
@@ -2420,7 +2420,7 @@ ACMD(do_qecho)
 }
 
 void
-qp_reload(int sig = 0)
+qp_reload(int sig)
 {
 	int x;
 	int player_i = 0;

@@ -48,10 +48,10 @@ SPECIAL(hobbes_speaker)
 	switch (number(0, 10)) {
 
 	case 0:
-		do_say(ch, "THIS IS THE TEXT HIS MOB WILL SAY.", 0, 0);
+		do_say(ch, "THIS IS THE TEXT HIS MOB WILL SAY.", 0, 0, 0);
 		return TRUE;
 	case 1:
-		do_say(ch, "THIS IS MORE TEXT HIS MOB WILL SAY.", 0, 0);
+		do_say(ch, "THIS IS MORE TEXT HIS MOB WILL SAY.", 0, 0, 0);
 		return TRUE;
 	default:
 		return FALSE;

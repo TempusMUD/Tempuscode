@@ -15,7 +15,7 @@ SPECIAL(registry)
 		return 0;
 
 	if (!CAN_SEE(reg, ch)) {
-		do_say(reg, "Who's there?  Come visible to register, infidel!", 0, 0);
+		do_say(reg, "Who's there?  Come visible to register, infidel!", 0, 0, 0);
 		return 1;
 	}
 	cost = GET_LEVEL(ch) * 100;
@@ -29,13 +29,13 @@ SPECIAL(registry)
 	}
 	if (PLR_FLAGGED(ch, PLR_KILLER)) {
 		sprintf(buf2, "We don't take MURDERERS here, %s!", GET_NAME(ch));
-		do_gen_comm(reg, buf2, 0, SCMD_HOLLER);
+		do_gen_comm(reg, buf2, 0, SCMD_HOLLER, 0);
 		return 1;
 	}
 	if (PLR_FLAGGED(ch, PLR_THIEF)) {
 		sprintf(buf2, "We don't take THIEVES in our fair city, %s!",
 			GET_NAME(ch));
-		do_gen_comm(reg, buf2, 0, SCMD_HOLLER);
+		do_gen_comm(reg, buf2, 0, SCMD_HOLLER, 0);
 		return 1;
 	}
 
@@ -111,7 +111,7 @@ SPECIAL(registry)
 		break;
 
 	default:
-		do_say(reg, "Sorry, this office is temporarily closed.", 0, 0);
+		do_say(reg, "Sorry, this office is temporarily closed.", 0, 0, 0);
 		return 1;
 		break;
 	}
@@ -128,7 +128,7 @@ SPECIAL(registry)
 	GET_HOME(ch) = home;
 	GET_GOLD(ch) -= cost;
 	sprintf(buf3, "Welcome to %s, %s.", home_towns[home], GET_NAME(ch));
-	do_say(reg, buf3, 0, 0);
+	do_say(reg, buf3, 0, 0, 0);
 	sprintf(buf2, "That will be %d coins.", cost);
 	perform_tell(reg, ch, buf2);
 

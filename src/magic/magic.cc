@@ -332,7 +332,7 @@ affect_update(void)
 							if (!found) {
 
 								if (!i->in_room->isOpenAir()) {
-									do_stand(i, "", 0, 0);
+									do_stand(i, "", 0, 0, 0);
 								}
 
 								else if (EXIT(i, DOWN)
@@ -340,7 +340,7 @@ affect_update(void)
 
 									if (IS_SET(EXIT(i, DOWN)->exit_info,
 											EX_CLOSED)) {
-										do_stand(i, "", 0, 0);
+										do_stand(i, "", 0, 0, 0);
 									}
 
 									else if (do_simple_move(i, DOWN, MOVE_NORM,
@@ -2226,7 +2226,7 @@ Fireball: like harder bones, skin, organ membranecs
 
 	if (spellnum == SPELL_FEAR && !mag_savingthrow(victim, level, SAVING_PSI)
 		&& victim->getPosition() > POS_SITTING)
-		do_flee(victim, "", 0, 0);
+		do_flee(victim, "", 0, 0, 0);
 }
 
 

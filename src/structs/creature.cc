@@ -46,7 +46,7 @@ bool Creature::isTester(){
  *  experience.
  *
 **/
-int Creature::getPenalizedExperience( int experience, Creature *victim = NULL ) 
+int Creature::getPenalizedExperience( int experience, Creature *victim) 
 {
 
 	// Mobs are easily trained
@@ -155,7 +155,7 @@ Creature::isNewbie()
 // Utility function to determine if a char should be affected by sanctuary
 // on a hit by hit level... --N
 bool
-Creature::affBySanc(Creature * attacker = NULL)
+Creature::affBySanc(Creature *attacker)
 {
 
 	Creature *ch = this;
@@ -177,7 +177,7 @@ Creature::affBySanc(Creature * attacker = NULL)
 // Pass in the attacker for conditional reduction such as PROT_GOOD and 
 // PROT_EVIL.  Or leave it blank for the characters base reduction --N
 float
-Creature::getDamReduction(Creature * attacker = NULL)
+Creature::getDamReduction(Creature *attacker)
 {
 	struct Creature *ch = this;
 	struct affected_type *af = NULL;
@@ -413,7 +413,7 @@ Creature::getLevelBonus(int skill)
  *  			 NOTE: Previously used for debugging. No longer used.
 **/
 bool
-Creature::setPosition(int new_pos, int mode = 0)
+Creature::setPosition(int new_pos, int mode)
 {
 	if (new_pos == char_specials.getPosition())
 		return false;
@@ -472,7 +472,7 @@ Creature::extract(bool destroy_objs, bool save, int con_state)
 	if (!IS_NPC(this) && !desc) {
 		for (t_desc = descriptor_list; t_desc; t_desc = t_desc->next)
 			if (t_desc->original == this)
-				do_return(t_desc->character, "", 0, SCMD_FORCED);
+				do_return(t_desc->character, "", 0, SCMD_FORCED, 0);
 	}
 	if (in_room == NULL) {
 		slog("SYSERR: NOWHERE extracting char. (handler.c, extract_char)");
@@ -584,7 +584,7 @@ Creature::extract(bool destroy_objs, bool save, int con_state)
 		Crash_delete_crashfile(this);	// Should this be here?
 	}
 	if (desc && desc->original) {
-		do_return(this, "", 0, SCMD_NOEXTRACT);
+		do_return(this, "", 0, SCMD_NOEXTRACT, 0);
 	}
 
 	char_from_room(this,false);

@@ -416,13 +416,13 @@ SPECIAL(duke_araken)
 		break;
 
 	case 'o':
-		do_gen_door(ch, "door", 0, SCMD_UNLOCK);
-		do_gen_door(ch, "door", 0, SCMD_OPEN);
+		do_gen_door(ch, "door", 0, SCMD_UNLOCK, 0);
+		do_gen_door(ch, "door", 0, SCMD_OPEN, 0);
 		break;
 
 	case 'c':
-		do_gen_door(ch, "door", 0, SCMD_CLOSE);
-		do_gen_door(ch, "door", 0, SCMD_LOCK);
+		do_gen_door(ch, "door", 0, SCMD_CLOSE, 0);
+		do_gen_door(ch, "door", 0, SCMD_LOCK, 0);
 		break;
 
 	case '.':
@@ -554,7 +554,7 @@ SPECIAL(tom)
 
 	if ((!cmd) && (king = find_npc_by_name(ch, "Duke Araken", 11))) {
 		if (!ch->master)
-			do_follow(ch, "Duke Araken", 0, 0);
+			do_follow(ch, "Duke Araken", 0, 0, 0);
 		if (FIGHTING(king))
 			do_npc_rescue(ch, king);
 	}
@@ -585,7 +585,7 @@ SPECIAL(tim)
 
 	if ((!cmd) && (king = find_npc_by_name(ch, "Duke Araken", 11))) {
 		if (!ch->master)
-			do_follow(ch, "Duke Araken", 0, 0);
+			do_follow(ch, "Duke Araken", 0, 0, 0);
 		if (FIGHTING(king))
 			do_npc_rescue(ch, king);
 	}

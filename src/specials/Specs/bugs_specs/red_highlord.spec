@@ -41,12 +41,12 @@ SPECIAL(red_highlord)
 
 	if ((blade = get_obj_in_list_all(ch, "desolation", ch->carrying))) {
 		if (GET_EQ(ch, WEAR_WIELD))
-			do_remove(ch, fname(GET_EQ(ch, WEAR_WIELD)->name), 0, 0);
-		do_wield(ch, "desolation", 0, 0);
+			do_remove(ch, fname(GET_EQ(ch, WEAR_WIELD)->name), 0, 0, 0);
+		do_wield(ch, "desolation", 0, 0, 0);
 		return 1;
 	}
 	if ((blade = get_obj_in_list_all(ch, "desolation", ch->in_room->contents))) {
-		do_get(ch, "desolation", 0, 0);
+		do_get(ch, "desolation", 0, 0, 0);
 		return 1;
 	}
 
@@ -136,7 +136,7 @@ SPECIAL(red_highlord)
 		switch (number(0, 2)) {
 		case 0:
 			do_gen_comm(ch, "Now where might that Desolation Blade be?", 0,
-				SCMD_GOSSIP);
+				SCMD_GOSSIP, 0);
 			break;
 		case 1:
 			perform_tell(ch, vict, "The blade...");

@@ -51,7 +51,7 @@ SPECIAL(gen_locker)
 			return 0;
 
 		if (IS_NPC(ch)) {
-			do_say(atten, "Sorry, I cannot store things for mobiles.", 0, 0);
+			do_say(atten, "Sorry, I cannot store things for mobiles.", 0, 0, 0);
 			return 1;
 		}
 
@@ -127,7 +127,7 @@ SPECIAL(gen_locker)
 			return 0;
 
 		if (IS_NPC(ch)) {
-			do_say(atten, "Sorry, I cannot store things for mobiles.", 0, 0);
+			do_say(atten, "Sorry, I cannot store things for mobiles.", 0, 0, 0);
 			return 1;
 		}
 
@@ -240,7 +240,7 @@ SPECIAL(gen_locker)
 	if (CMD_IS("receive")) {
 
 		if (IS_NPC(ch)) {
-			do_say(atten, "Sorry, I don't deal with mobiles.", 0, 0);
+			do_say(atten, "Sorry, I don't deal with mobiles.", 0, 0, 0);
 			return 1;
 		}
 
@@ -269,7 +269,7 @@ SPECIAL(gen_locker)
 			GET_OBJ_VAL(locker, 0) != GET_IDNUM(ch)
 			|| (!locker->contains)) {
 			do_say(atten, "Sorry, you don't seem to have a locker here.", 0,
-				0);
+				0, 0);
 			return 1;
 		}
 

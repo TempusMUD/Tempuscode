@@ -83,7 +83,7 @@ MOB_UNAPPROVED(Creature *ch)
 /* Can subject see character "obj"? */
 
 bool
-CHAR_CAN_SEE(Creature *ch, room_data *room = NULL)
+CHAR_CAN_SEE(Creature *ch, room_data *room)
 {
 	if (!room)
 		room = ch->in_room;

@@ -17,7 +17,7 @@ SPECIAL(archon)
 		CreatureList::iterator it = ch->in_room->people.begin();
 		for (; it != ch->in_room->people.end(); ++it)
 			if ((*it) != ch && IS_ARCHON((*it)) && FIGHTING((*it))) {
-				do_rescue(ch, fname((*it)->player.name), 0, 0);
+				do_rescue(ch, fname((*it)->player.name), 0, 0, 0);
 				return 1;
 			}
 

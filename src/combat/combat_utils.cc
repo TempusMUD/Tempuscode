@@ -226,7 +226,7 @@ update_pos(struct Creature *victim)
 
 void
 check_killer(struct Creature *ch, struct Creature *vict,
-	const char *debug_msg = 0)
+	const char *debug_msg)
 {
 	if (!PLR_FLAGGED(vict, PLR_KILLER | PLR_THIEF) &&
 		!PLR_FLAGGED(ch, PLR_KILLER) &&
