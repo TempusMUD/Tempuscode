@@ -854,16 +854,12 @@ make_prompt(struct descriptor_data * d)
 
 	if ( PRF2_FLAGGED( d->character, PRF2_DISPALIGN ) ) {
              
-	    if( GET_ALIGNMENT( d->character ) > 300 ) {
-		sprintf( colorbuf, "%s", CCCYN( d->character, C_SPR ) );
-            }
-
-	    else if ( GET_ALIGNMENT( d->character ) < -300 ) {
-		sprintf( colorbuf, "%s", CCRED( d->character, C_SPR ) );
-	    }
-
-	    else {
-		sprintf( colorbuf, "%s", CCWHT(d->character, C_SPR ) );
+	    if( IS_GOOD( d->character ) ) {
+            sprintf( colorbuf, "%s", CCCYN( d->character, C_SPR ) );
+        } else if ( IS_EVIL( d->character ) ) {
+            sprintf( colorbuf, "%s", CCRED( d->character, C_SPR ) );
+	    } else {
+            sprintf( colorbuf, "%s", CCWHT(d->character, C_SPR ) );
 	    } 
 
 	    sprintf( prompt, "%s%s%s%d%s%sA%s ", prompt,

@@ -134,9 +134,10 @@
 "SPAWN         spawn room    targ room     hunter?\r\n"
 
 #define OLC_SHOW_USAGE "Usage:\n" \
-"olc show nodescription                        -- displays rooms with no description\n"  \
-"olc show nosound                              -- displays rooms with no sound\n"  \
-"olc show noexitdesc ['all'|'toroom']          -- displays exits with no desc (default !toroom only)\n"
+"olc show nodesc                     -- displays rooms with no description\n"  \
+"olc show nosound                    -- displays rooms with no sound\n"  \
+"olc show noexitdesc ['all'|'toroom'] -- displays exits with no desc\n" \
+"  (default !toroom only)\n"
 
 extern struct room_data *world;
 extern struct obj_data *obj_proto;
