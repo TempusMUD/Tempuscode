@@ -824,47 +824,49 @@ peaceful_room_ok(struct Creature *ch, struct Creature *vict, bool mssg)
 		return false;
 	}
 
-	if (!is_arena_combat(ch, vict) && !IS_NPC(ch) && !IS_NPC(vict) && !PRF2_FLAGGED(ch, PRF2_PKILLER)) {
-		if (mssg)
-			send_to_char(ch,
-				"In order to attack %s or another player, you must toggle your\r\n"
-				"pkiller status with the 'pkiller' command.",
-				PERS(vict, ch));
-		return false;
-	}
+	if (!IS_NPC(ch) && !IS_NPC(vict)) {
+		if (!is_arena_combat(ch, vict) && !PRF2_FLAGGED(ch, PRF2_PKILLER)) {
+			if (mssg)
+				send_to_char(ch,
+					"In order to attack %s or another player, you must toggle your\r\n"
+					"pkiller status with the 'pkiller' command.",
+					PERS(vict, ch));
+			return false;
+		}
 
-	if (GET_QUEST(ch) && GET_QUEST(ch) != GET_QUEST(vict)) {
-		if (mssg)
-			send_to_char(ch,
-				"%s is not in your quest and may not be attacked!\r\n",
-				PERS(vict, ch));
+		if (GET_QUEST(ch) && GET_QUEST(ch) != GET_QUEST(vict)) {
+			if (mssg)
+				send_to_char(ch,
+					"%s is not in your quest and may not be attacked!\r\n",
+					PERS(vict, ch));
 
-		qlog(ch,
-			tmp_sprintf("%s has attacked non-questing PC %s",
-				GET_NAME(ch), GET_NAME(vict)),
-			QLOG_BRIEF,
-			MAX(GET_INVIS_LVL(ch), LVL_AMBASSADOR),
-			true);
+			qlog(ch,
+				tmp_sprintf("%s has attacked non-questing PC %s",
+					GET_NAME(ch), GET_NAME(vict)),
+				QLOG_BRIEF,
+				MAX(GET_INVIS_LVL(ch), LVL_AMBASSADOR),
+				true);
 
-		return false;
-	}
+			return false;
+		}
 
-	// It's not ok to hit someone in a quest if you're not in the
-	// quest, either.
-	if (GET_QUEST(vict) && GET_QUEST(vict) != GET_QUEST(ch)) {
-		if (mssg)
-			send_to_char(ch,
-				"%s is on a godly quest and may not be attacked!\r\n",
-				PERS(vict, ch));
+		// It's not ok to hit someone in a quest if you're not in the
+		// quest, either.
+		if (GET_QUEST(vict) && GET_QUEST(vict) != GET_QUEST(ch)) {
+			if (mssg)
+				send_to_char(ch,
+					"%s is on a godly quest and may not be attacked!\r\n",
+					PERS(vict, ch));
 
-		qlog(ch,
-			tmp_sprintf("%s has attacked questing PC %s",
-				GET_NAME(ch), GET_NAME(vict)),
-			QLOG_BRIEF,
-			MAX(GET_INVIS_LVL(ch), LVL_AMBASSADOR),
-			true);
+			qlog(ch,
+				tmp_sprintf("%s has attacked questing PC %s",
+					GET_NAME(ch), GET_NAME(vict)),
+				QLOG_BRIEF,
+				MAX(GET_INVIS_LVL(ch), LVL_AMBASSADOR),
+				true);
 
-		return false;
+			return false;
+		}
 	}
 
 	return true;
