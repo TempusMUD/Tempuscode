@@ -234,10 +234,10 @@ int do_fail_remort_test(Quiz *quiz, struct Creature *ch)
 	send_to_char(ch, "Your answers were only %d percent correct.\r\n"
 		         //"You must be able to answer %d percent correctly.\r\n"
 		         "You are unable to remort at this time.\r\n", quiz->getScore());
-	mudlog(LVL_ELEMENT, NRM, false,
-		   "%s has failed remort test at gen %d.", GET_NAME(ch),
-		   GET_REMORT_GEN(ch));
-	quiz->log(buf);
+	char *msg = tmp_sprintf( "%s has failed remort test at gen %d.", 
+							 GET_NAME(ch), GET_REMORT_GEN(ch));
+	mudlog(LVL_ELEMENT, NRM, false,msg);
+	quiz->log(msg);
 	quiz->logScore();
 	REMOVE_BIT(ch->in_room->room_flags, ROOM_NORECALL);
 	quiz->reset();
@@ -289,10 +289,10 @@ int do_pass_remort_test(Quiz *quiz, struct Creature *ch)
 	GET_TOT_DAM(ch) = 0;	// cyborg damage 
 
 	// Tell everyone that they remorted
-	mudlog(LVL_IMMORT, BRF, false,
-		   "%s completed gen %d remort test with score %d",
+	char *msg = tmp_sprintf( "%s completed gen %d remort test with score %d",
 			GET_NAME(ch), GET_REMORT_GEN(ch), quiz->getScore());
-	quiz->log(buf);
+	mudlog(LVL_IMMORT, BRF, false,msg);
+	quiz->log(msg);
 	quiz->logScore();
 
 	REMOVE_BIT(ch->in_room->room_flags, ROOM_NORECALL);
