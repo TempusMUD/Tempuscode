@@ -162,7 +162,7 @@ do_zcmd(struct char_data *ch, char *argument)
             send_to_char("if_flag dependancy flag must be 0, 1 or -1\r\n",ch);
             return;
 	    }
-        if(if_flag == -1 && GET_LEVEL(ch) < LVL_DEMI) {
+        if(if_flag == -1 && GET_LEVEL(ch) < LVL_LUMINARY) {
             send_to_char("You have to have a little more experience to use if_flag -1.\r\n",ch);
             return;
         }
@@ -267,7 +267,7 @@ do_zcmd(struct char_data *ch, char *argument)
 		send_to_char("if_flag dependancy flag must be 0, 1 or -1\r\n", ch);
 		return;
 	    }
-        if(if_flag == -1 && GET_LEVEL(ch) < LVL_DEMI) {
+        if(if_flag == -1 && GET_LEVEL(ch) < LVL_LUMINARY) {
             send_to_char("You have to have a little more experience to use if_flag -1.\r\n",ch);
             return;
         }
@@ -373,7 +373,7 @@ do_zcmd(struct char_data *ch, char *argument)
 		send_to_char("if_flag dependancy flag must be 0, 1 or -1\r\n", ch);
 		return;
 	    }
-        if(if_flag == -1 && GET_LEVEL(ch) < LVL_DEMI) {
+        if(if_flag == -1 && GET_LEVEL(ch) < LVL_LUMINARY) {
             send_to_char("You have to have a little more experience to use if_flag -1.\r\n",ch);
             return;
         }
@@ -476,7 +476,7 @@ do_zcmd(struct char_data *ch, char *argument)
 		send_to_char("if_flag dependancy flag must be 0, 1 or -1\r\n",ch);
 		return;
 	    }
-        if(if_flag == -1 && GET_LEVEL(ch) < LVL_DEMI) {
+        if(if_flag == -1 && GET_LEVEL(ch) < LVL_LUMINARY) {
             send_to_char("You have to have a little more experience to use if_flag -1.\r\n",ch);
             return;
         }
@@ -578,7 +578,7 @@ do_zcmd(struct char_data *ch, char *argument)
             send_to_char("if_flag dependancy flag must be 0, 1 or -1\r\n", ch);
             return;
 	    }
-        if(if_flag == -1 && GET_LEVEL(ch) < LVL_DEMI) {
+        if(if_flag == -1 && GET_LEVEL(ch) < LVL_LUMINARY) {
             send_to_char("You have to have a little more experience to use if_flag -1.\r\n",ch);
             return;
         }
@@ -696,7 +696,7 @@ do_zcmd(struct char_data *ch, char *argument)
 		send_to_char("if_flag dependancy flag must be 0, 1 or 1\r\n", ch);
 		return;
 	    }
-        if(if_flag == -1 && GET_LEVEL(ch) < LVL_DEMI) {
+        if(if_flag == -1 && GET_LEVEL(ch) < LVL_LUMINARY) {
             send_to_char("You have to have a little more experience to use if_flag -1.\r\n",ch);
             return;
         }
@@ -818,7 +818,7 @@ do_zcmd(struct char_data *ch, char *argument)
 		send_to_char("if_flag dependancy flag must be 0, 1 or -1\r\n", ch);
 		return;
 	    }
-        if(if_flag == -1 && GET_LEVEL(ch) < LVL_DEMI) {
+        if(if_flag == -1 && GET_LEVEL(ch) < LVL_LUMINARY) {
             send_to_char("You have to have a little more experience to use if_flag -1.\r\n",ch);
             return;
         }
@@ -901,7 +901,7 @@ do_zcmd(struct char_data *ch, char *argument)
 		send_to_char("if_flag dependancy flag must be 0, 1 or -1\r\n", ch);
 		return;
 	    }
-        if(if_flag == -1 && GET_LEVEL(ch) < LVL_DEMI) {
+        if(if_flag == -1 && GET_LEVEL(ch) < LVL_LUMINARY) {
             send_to_char("You have to have a little more experience to use if_flag -1.\r\n",ch);
             return;
         }
