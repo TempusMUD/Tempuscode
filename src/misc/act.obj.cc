@@ -3916,6 +3916,14 @@ ACMD(do_empty)
 		return;
 	}
 
+	if (GET_OBJ_TYPE(obj) == ITEM_DRINKCON) {
+		if (!*arg2)
+			do_pour(ch, tmp_strcat(argument, " out"), 0, 0, 0);
+		else
+			do_pour(ch, argument, 0, 0, 0);
+		return;
+	}
+
 	if (GET_OBJ_TYPE(obj) != ITEM_CONTAINER) {
 		send_to_char(ch, "You can't empty that.\r\n");
 		return;
