@@ -1018,6 +1018,7 @@ ACMD(do_cedit)
 	    if (!(room = real_room(atoi(arg3)))) {
 		sprintf(buf, "No room with number %s exists.\r\n", arg3);
 		send_to_char(buf, ch);
+		return;              
 	    }
 	    for (rm_list = clan->room_list; rm_list; rm_list = rm_list->next)
 		if (rm_list->room == room) {
@@ -1025,14 +1026,15 @@ ACMD(do_cedit)
 		    return;
 		}
 
-	    CREATE(rm_list, struct room_list_elem, 1);
-	    rm_list->room = room;
-	    rm_list->next = clan->room_list;
-	    clan->room_list = rm_list;
-	    send_to_char("Room added.\r\n", ch);
 
-	    sprintf(buf, "(cedit) %s added room %d to clan %d.", GET_NAME(ch), room->number, clan->number);
-	    slog(buf);
+		CREATE(rm_list, struct room_list_elem, 1);
+		rm_list->room = room;
+		rm_list->next = clan->room_list;
+		clan->room_list = rm_list;
+		send_to_char("Room added.\r\n", ch);
+		
+		sprintf(buf, "(cedit) %s added room %d to clan %d.", GET_NAME(ch), room->number, clan->number);
+		slog(buf);
 
 	    return;
 	} 
