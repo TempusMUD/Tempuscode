@@ -62,14 +62,10 @@ void
 cmdlog(char *str)
 {
 	static char *log;
-	static ofstream commandLog;
+	static ofstream commandLog("log/command.log", ios::app);
 	time_t ct;
 	char *tmstr;
 
-	if (!commandLog) {
-		cerr << "Opening log/command.log" << endl;
-		commandLog.open("log/command.log", ios::app);
-	}
 	ct = time(0);
 	tmstr = asctime(localtime(&ct));
 	*(tmstr + strlen(tmstr) - 1) = '\0';
