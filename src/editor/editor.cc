@@ -23,7 +23,7 @@ using namespace std;
 #include "mail.h"
 #include "editor.h"
 
-
+static char small_editbuf[MAX_INPUT_LENGTH];
 static char editbuf[MAX_STRING_LENGTH * 2];
 extern struct descriptor_data *descriptor_list;
 
@@ -547,7 +547,18 @@ CTextEditor::CTextEditor(struct descriptor_data *d,
 }
 
 void CTextEditor::SendMessage(const char *message) {
-    send_to_char(message,desc->character);
+    char *output = NULL;
+    // If the original message is too long, make a new one thats small
+    if(strlen(message) >= LARGE_BUFSIZE) { 
+        sprintf(small_editbuf,"ERR: SendMessage Truncating message. NAME(%s)",GET_NAME(desc->character));
+        slog(small_editbuf);
+        output = new char[LARGE_BUFSIZE];
+        strncpy(output,message,LARGE_BUFSIZE - 2);
+        send_to_char(output,desc->character);
+        delete output;
+    } else { // If the original message is small enough, just let it through.
+        send_to_char(message,desc->character);
+    }
 }
 
 void CTextEditor::SendStartupMessage( void ) {
@@ -564,7 +575,7 @@ void CTextEditor::SendStartupMessage( void ) {
         sprintf(buf,"%s%s%d%s---------",buf,CCCYN(ch,C_NRM),x,CCBLU(ch,C_NRM));
     }
     sprintf(buf,"%s%s7%s",buf,CCCYN(ch,C_NRM),CCNRM(ch,C_NRM));
-    SEND_TO_Q(buf,desc);
+    SendMessage(buf);
 }
 
 void CTextEditor::UpdateSize( void ) {
