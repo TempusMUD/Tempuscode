@@ -113,63 +113,58 @@ show_char_class_skills(struct char_data *ch, int con, int immort, int bits)
 	    IS_SET(bits, SPELL_BIT) ? " spells" :
 	    IS_SET(bits, TRIG_BIT) ? " triggers" :
 	    IS_SET(bits, ZEN_BIT) ? " zens" :
-	    IS_SET(bits, PROG_BIT) ? " programs" :
 	    IS_SET(bits, ALTER_BIT) ? " alterations" : " skills",
 	    immort ? "Sklnm" : "",
 	    immort ? "Mana: Max  Min  Chn" : "          ");
   
     for (i = 1, found = 0; i < LVL_AMBASSADOR; found = 0, i++) {
-		for (j = 1; j < MAX_SKILLS; j++) {
-			/* pre-prune the list */
-			if (!immort) {
-				if (!bits && j < MAX_SPELLS)
-					continue;
-				if (bits && j >= MAX_SPELLS && !IS_SET(bits, PROG_BIT))
-					break;
-			}
-			if (spell_info[j].min_level[con] == i &&
-			(immort || GET_REMORT_GEN(ch) >= spell_info[j].gen[con])) {
-				flags = spell_info[j].routines;
-				if(IS_SET(bits,PROG_BIT) && !IS_SET(flags, CYB_ACTIVATE))
-					continue;
-				if(!IS_SET(bits, PROG_BIT) && IS_SET(flags, CYB_ACTIVATE))
-					continue;
-				if (!immort)
-					REMOVE_BIT(flags, MAG_MAGIC | MAG_DIVINE | MAG_PHYSICS | 
-						   MAG_PSIONIC | CYB_ACTIVATE | MAG_WATERZAP);
-				sprintbit(flags, spell_bits, buf2);
-			  
-				if (!found)
-					sprintf(buf, "%s %-2d", buf, i);
-				else
-					strcat(buf, "   ");
-			
-				if (immort)
-					sprintf(buf, "%s - %3d. ", buf, j);
-				else
-					strcat(buf, "      ");
+	for (j = 1; j < MAX_SKILLS; j++) {
+	    /* pre-prune the list */
+	    if (!immort) {
+		if (!bits && j < MAX_SPELLS)
+		    continue;
+		if (bits && j >= MAX_SPELLS)
+		    break;
+	    }
+	    if (spell_info[j].min_level[con] == i &&
+		(immort || GET_REMORT_GEN(ch) >= spell_info[j].gen[con])) {
+		flags = spell_info[j].routines;
+		if (!immort)
+		    REMOVE_BIT(flags, MAG_MAGIC | MAG_DIVINE | MAG_PHYSICS | 
+			       MAG_PSIONIC | CYB_ACTIVATE | MAG_WATERZAP);
+		sprintbit(flags, spell_bits, buf2);
+	  
+		if (!found)
+		    sprintf(buf, "%s %-2d", buf, i);
+		else
+		    strcat(buf, "   ");
+	
+		if (immort)
+		    sprintf(buf, "%s - %3d. ", buf, j);
+		else
+		    strcat(buf, "      ");
 
-				if (spell_info[j].gen[con]) {
-					sprintf(buf, "%s%s(%d) %s%-21s%s",
-						buf, CCYEL(ch, C_NRM), spell_info[j].gen[con],
-						CCGRN(ch, C_NRM), spells[j], 
-						CCNRM(ch, C_NRM));
-			} else {
-				sprintf(buf, "%s%s%-25s%s",
-					buf, CCGRN(ch, C_NRM), spells[j], 
-					CCNRM(ch, C_NRM));
-			}
-			if (immort)
-				sprintf(buf, "%s%-3d  %-3d  %-2d", buf,
-					spell_info[j].mana_max,
-					spell_info[j].mana_min, spell_info[j].mana_change);
-		
-			sprintf(buf, "%s   %s%s%s\r\n", buf,
-				CCCYN(ch, C_NRM), buf2, CCNRM(ch, C_NRM));
-
-			found = TRUE;
-			}
+		if (spell_info[j].gen[con]) {
+		    sprintf(buf, "%s%s(%d) %s%-21s%s",
+			    buf, CCYEL(ch, C_NRM), spell_info[j].gen[con],
+			    CCGRN(ch, C_NRM), spells[j], 
+			    CCNRM(ch, C_NRM));
+		} else {
+		    sprintf(buf, "%s%s%-25s%s",
+			    buf, CCGRN(ch, C_NRM), spells[j], 
+			    CCNRM(ch, C_NRM));
 		}
+		if (immort)
+		    sprintf(buf, "%s%-3d  %-3d  %-2d", buf,
+			    spell_info[j].mana_max,
+			    spell_info[j].mana_min, spell_info[j].mana_change);
+	
+		sprintf(buf, "%s   %s%s%s\r\n", buf,
+			CCCYN(ch, C_NRM), buf2, CCNRM(ch, C_NRM));
+
+		found = TRUE;
+	    }
+	}
     }
     page_string(ch->desc, buf, 1);
 }

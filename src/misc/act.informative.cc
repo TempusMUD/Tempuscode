@@ -4448,18 +4448,14 @@ ACMD(do_skills)
 				   (char_class == CLASS_PSIONIC ? TRIG_BIT :
 				    char_class == CLASS_PHYSIC ? ALTER_BIT :
 				    char_class == CLASS_MONK ? ZEN_BIT :
-				    char_class == CLASS_CYBORG ? PROG_BIT :
 				    SPELL_BIT) : 0));
-	} else {
-		char_class = GET_CLASS(ch);
-	    show_char_class_skills(ch, char_class, 0, 
+	} else 
+	    show_char_class_skills(ch, (char_class = GET_CLASS(ch)), 0, 
 			      (subcmd ? 
 			       (char_class == CLASS_PSIONIC ? TRIG_BIT :
 				char_class == CLASS_PHYSIC ? ALTER_BIT :
-				char_class == CLASS_CYBORG ? PROG_BIT :
 				char_class == CLASS_MONK ? ZEN_BIT :
 				SPELL_BIT) : 0));
-	}
 			
 	return;
     }
