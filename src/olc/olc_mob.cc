@@ -1911,23 +1911,7 @@ mobile_experience(struct Creature *mob, FILE *outfile)
 		exp = (int)(exp * 1.5);
 		++affs;
 	}
-	if (affs < MAXAFF && AFF2_FLAGGED(mob, AFF2_HASTE)) {
-		exp = (int)(exp * 1.4);
-		++affs;
-	}
-	if (affs < MAXAFF && AFF2_FLAGGED(mob, AFF2_TRUE_SEEING)) {
-		exp = (int)(exp * 1.3);
-		++affs;
-	}
 	if (affs < MAXAFF && AFF2_FLAGGED(mob, AFF2_BLADE_BARRIER)) {
-		exp = (int)(exp * 1.3);
-		++affs;
-	}
-	if (affs < MAXAFF && AFF_FLAGGED(mob, AFF_REGEN) || IS_TROLL(mob)) {
-		exp = (int)(exp * 1.3);
-		++affs;
-	}
-	if (affs < MAXAFF && AFF_FLAGGED(mob, AFF_SANCTUARY | AFF_NOPAIN)) {
 		exp = (int)(exp * 1.3);
 		++affs;
 	}
@@ -1935,19 +1919,7 @@ mobile_experience(struct Creature *mob, FILE *outfile)
 		exp = (int)(exp * 1.3);
 		++affs;
 	}
-	if (affs < MAXAFF && AFF2_FLAGGED(mob, AFF2_FIRE_SHIELD)) {
-		exp = (int)(exp * 1.25);
-		++affs;
-	}
-	if (affs < MAXAFF && AFF_FLAGGED(mob, AFF_INVISIBLE)) {
-		exp = (int)(exp * 1.25);
-		++affs;
-	}
-	if (affs < MAXAFF && AFF2_FLAGGED(mob, AFF2_DISPLACEMENT)) {
-		exp = (int)(exp * 1.25);
-		++affs;
-	}
-	if (affs < MAXAFF && AFF_FLAGGED(mob, AFF_BLUR)) {
+	if (affs < MAXAFF && AFF2_FLAGGED(mob, AFF2_HASTE)) {
 		exp = (int)(exp * 1.2);
 		++affs;
 	}
@@ -1955,12 +1927,36 @@ mobile_experience(struct Creature *mob, FILE *outfile)
 		exp = (int)(exp * 1.2);
 		++affs;
 	}
-	if (affs < MAXAFF && AFF2_FLAGGED(mob, AFF2_TRANSPARENT)) {
+	if (affs < MAXAFF && AFF2_FLAGGED(mob, AFF2_TRUE_SEEING)) {
 		exp = (int)(exp * 1.2);
+		++affs;
+	}
+	if (affs < MAXAFF && AFF_FLAGGED(mob, AFF_REGEN) || IS_TROLL(mob)) {
+		exp = (int)(exp * 1.2);
+		++affs;
+	}
+	if (affs < MAXAFF && AFF_FLAGGED(mob, AFF_SANCTUARY | AFF_NOPAIN)) {
+		exp = (int)(exp * 1.2);
+		++affs;
+	}
+	if (affs < MAXAFF && AFF2_FLAGGED(mob, AFF2_FIRE_SHIELD)) {
+		exp = (int)(exp * 1.15);
+		++affs;
+	}
+	if (affs < MAXAFF && AFF_FLAGGED(mob, AFF_INVISIBLE)) {
+		exp = (int)(exp * 1.15);
 		++affs;
 	}
 	if (affs < MAXAFF && AFF2_FLAGGED(mob, AFF2_ENERGY_FIELD)) {
 		exp = (int)(exp * 1.15);
+		++affs;
+	}
+	if (affs < MAXAFF && AFF2_FLAGGED(mob, AFF2_TRANSPARENT)) {
+		exp = (int)(exp * 1.1);
+		++affs;
+	}
+	if (affs < MAXAFF && AFF_FLAGGED(mob, AFF_BLUR)) {
+		exp = (int)(exp * 1.1);
 		++affs;
 	}
 	if (affs < MAXAFF && AFF_FLAGGED(mob, AFF_SENSE_LIFE)) {
