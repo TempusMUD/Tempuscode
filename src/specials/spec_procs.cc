@@ -238,7 +238,7 @@ list_skills(struct Creature *ch, int mode, int type)
 				continue;
 
 			if (IS_IMMORT(ch)) {
-				acc_sprintf(buf, "%s%s%-30s %s%-17s%s%s\r\n",
+				acc_sprintf("%s%s%-30s %s%-17s%s%s\r\n",
 					CCGRN(ch, C_NRM), tmp_sprintf("%3d. ", i),
 					spell_to_str(i), CCBLD(ch, C_SPR),
 					how_good(GET_SKILL(ch, i)),
