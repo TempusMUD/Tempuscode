@@ -308,6 +308,7 @@ ACMD(do_rescue);
 ACMD(do_resign);
 ACMD(do_rest);
 ACMD(do_restore);
+ACMD(do_retell);
 ACMD(do_return);
 ACMD(do_retreat);
 ACMD(do_roll);
@@ -1033,6 +1034,7 @@ struct command_info cmd_info[] = {
 	{"raise", POS_RESTING, do_action, 0, 0, 0, 0},
 	{"ramble", POS_RESTING, do_say, 0, SCMD_RAMBLE, 0, 0},
 	{"reply", POS_SLEEPING, do_reply, 0, 0, 0, 0},
+	{"retell", POS_SLEEPING, do_retell, 0, 0, 0, 0},
 	{"redeem", POS_RESTING, do_not_here, 0, 0, 0, 0},
 	{"repair", POS_SITTING, do_repair, 0, 0, 0, 0},
 	{"respond", POS_RESTING, do_spec_comm, 0, SCMD_RESPOND, 0, 0},

@@ -1225,7 +1225,8 @@ reset_char(struct Creature *ch)
 	if (GET_MANA(ch) <= 0)
 		GET_MANA(ch) = 1;
 
-	GET_LAST_TELL(ch) = NOBODY;
+	GET_LAST_TELL_FROM(ch) = NOBODY;
+	GET_LAST_TELL_TO(ch) = NOBODY;
 }
 
 void

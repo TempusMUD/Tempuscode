@@ -851,7 +851,8 @@ struct player_special_data {
 	char *poofin;				/* Description on arrival of a god.     */
 	char *poofout;				/* Description upon a god's exit.       */
 	struct alias_data *aliases;	/* Character's aliases            */
-	long last_tell;				/* idnum of last tell from        */
+	long last_tell_from;			/* idnum of last tell from        */
+	long last_tell_to;				/* idnum of last tell to */
 	int imprint_rooms[MAX_IMPRINT_ROOMS];
 	unsigned int soilage[NUM_WEARS];
 	struct obj_data *olc_obj;	/* which obj being edited               */

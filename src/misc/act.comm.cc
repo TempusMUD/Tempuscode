@@ -329,8 +329,10 @@ perform_tell(struct Creature *ch, struct Creature *vict, char *arg)
 	if (PRF2_FLAGGED(vict, PRF2_AUTOPAGE) && !IS_MOB(ch))
 		send_to_char(vict, "\007\007");
 
-	if (!IS_NPC(ch))
-		GET_LAST_TELL(vict) = GET_IDNUM(ch);
+	if (!IS_NPC(ch)) {
+		GET_LAST_TELL_FROM(vict) = GET_IDNUM(ch);
+		GET_LAST_TELL_TO(ch) = GET_IDNUM(vict);
+	}
 }
 
 /*
@@ -390,7 +392,7 @@ ACMD(do_reply)
 	CreatureList::iterator tch = characterList.begin();
 	skip_spaces(&argument);
 
-	if (GET_LAST_TELL(ch) == NOBODY) {
+	if (GET_LAST_TELL_FROM(ch) == NOBODY) {
 		send_to_char(ch, "You have no-one to reply to!\r\n");
 		return;
 	}
@@ -405,15 +407,68 @@ ACMD(do_reply)
 	 * work if someone logs out and back in again.
 	 */
 
-	while (tch != characterList.end() && GET_IDNUM(*tch) != GET_LAST_TELL(ch))
+	while (tch != characterList.end() && GET_IDNUM(*tch) != GET_LAST_TELL_FROM(ch))
 		++tch;
 
 	if (tch == characterList.end())
 		send_to_char(ch, "They are no longer playing.\r\n");
+	else if (PRF_FLAGGED(ch, PRF_NOTELL) && GET_LEVEL(ch) < LVL_AMBASSADOR)
+		send_to_char(ch, 
+			"You can't tell other people while you have notell on.\r\n");
 	else if (!IS_NPC(*tch) && (*tch)->desc == NULL)
 		send_to_char(ch, "They are linkless at the moment.\r\n");
 	else if (PLR_FLAGGED(*tch, PLR_WRITING | PLR_MAILING | PLR_OLC))
 		send_to_char(ch, "They are writing at the moment.\r\n");
+	else if (ROOM_FLAGGED(ch->in_room, ROOM_SOUNDPROOF)
+		&& GET_LEVEL(ch) < LVL_GRGOD && GET_LEVEL(*tch) < LVL_GRGOD
+		&& ch->in_room != (*tch)->in_room)
+		send_to_char(ch, "The walls seem to absorb your words.\r\n");
+	else {
+		if (COMM_NOTOK_ZONES(ch, (*tch)) && COMM_NOTOK_ZONES((*tch), ch)) {
+			if (!(affected_by_spell(ch, SPELL_TELEPATHY) ||
+					affected_by_spell((*tch), SPELL_TELEPATHY))) {
+				act("Your telepathic voice cannot reach $M.",
+					FALSE, ch, 0, (*tch), TO_CHAR);
+				return;
+			}
+
+			WAIT_STATE(ch, 1 RL_SEC);
+		}
+
+		perform_tell(ch, (*tch), argument);
+	}
+}
+
+ACMD(do_retell)
+{
+	CreatureList::iterator tch = characterList.begin();
+	skip_spaces(&argument);
+
+	if (GET_LAST_TELL_TO(ch) == NOBODY) {
+		send_to_char(ch, "You have no-one to retell!\r\n");
+		return;
+	}
+	if (!*argument) {
+		send_to_char(ch, "What did you want to tell?\r\n");
+		return;
+	}
+
+	while (tch != characterList.end() && GET_IDNUM(*tch) != GET_LAST_TELL_TO(ch))
+		++tch;
+
+	if (tch == characterList.end())
+		send_to_char(ch, "They are no longer playing.\r\n");
+	else if (PRF_FLAGGED(ch, PRF_NOTELL) && GET_LEVEL(ch) < LVL_AMBASSADOR)
+		send_to_char(ch, 
+			"You can't tell other people while you have notell on.\r\n");
+	else if (!IS_NPC(*tch) && (*tch)->desc == NULL)
+		send_to_char(ch, "They are linkless at the moment.\r\n");
+	else if (PLR_FLAGGED(*tch, PLR_WRITING | PLR_MAILING | PLR_OLC))
+		send_to_char(ch, "They are writing at the moment.\r\n");
+	else if (ROOM_FLAGGED(ch->in_room, ROOM_SOUNDPROOF)
+		&& GET_LEVEL(ch) < LVL_GRGOD && GET_LEVEL(*tch) < LVL_GRGOD
+		&& ch->in_room != (*tch)->in_room)
+		send_to_char(ch, "The walls seem to absorb your words.\r\n");
 	else {
 		if (COMM_NOTOK_ZONES(ch, (*tch)) && COMM_NOTOK_ZONES((*tch), ch)) {
 			if (!(affected_by_spell(ch, SPELL_TELEPATHY) ||

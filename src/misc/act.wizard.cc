@@ -7394,10 +7394,11 @@ ACMD(do_severtell)
         return;
     }
 
-    if (GET_IDNUM(ch) != GET_LAST_TELL(vict))
+    if (GET_IDNUM(ch) != GET_LAST_TELL_FROM(vict) && GET_IDNUM(ch) != GET_LAST_TELL_TO(vict))
         send_to_char(ch, "You are not on that person's reply buffer, pal.\r\n");
     else {
-        GET_LAST_TELL(vict) = -1;
+        GET_LAST_TELL_FROM(vict) = -1;
+        GET_LAST_TELL_TO(vict) = -1;
         send_to_char(ch, "Reply severed.\r\n");
     }
 }
