@@ -3920,6 +3920,7 @@ show_account(Creature *ch, char *value)
     char last_buf[30];
     int idnum = 0;
     Account *account = NULL;
+	time_t last, creation;
 
     if (!*value) {
         send_to_char(ch, "A name or id would help.\r\n");
@@ -3938,27 +3939,25 @@ show_account(Creature *ch, char *value)
         return;
     }
 
-    send_to_char( ch, "Account: %s [%d] < %s >\r\n",
-                      account->get_name(), 
-                      account->get_idnum(), 
-                      account->get_email_addr() );
+    send_to_desc(ch->desc, "&y  Account: &n%s [%d]", account->get_name(), 
+		  account->get_idnum());
+	if (*account->get_email_addr())
+		send_to_desc(ch->desc, " &c<%s>&n", account->get_email_addr());
+	send_to_desc(ch->desc, "\r\n\r\n");
     
-    time_t last = account->get_login_time();
-    time_t creation = account->get_creation_time();
+    last = account->get_login_time();
+    creation = account->get_creation_time();
 
-    strftime( created_buf, 29, "%a %b %d, %Y %H:%M:%S",
+    strftime(created_buf, 29, "%a %b %d, %Y %H:%M:%S",
 		localtime(&creation));
-    strftime( last_buf, 29, "%a %b %d, %Y %H:%M:%S",
+    strftime(last_buf, 29, "%a %b %d, %Y %H:%M:%S",
 		localtime(&last));
-    send_to_char( ch, "Started: %s  Last: %s\r\n", created_buf, last_buf);
+    send_to_desc(ch->desc, "&y  Started: &n%s   &yLast login: &n%s\r\n", created_buf, last_buf);
+	send_to_desc(ch->desc, "&y  Past bank: &n%-12lld    &yFuture Bank: &n%-12lld\r\n",
+		account->get_past_bank(), account->get_future_bank());
+	send_to_desc(ch->desc, "&b ----------------------------------------------------------------------------&n\r\n");
 
-    send_to_char( ch, "Characters(%d): \r\n", account->get_char_count());
-    for( unsigned int i = 0; i < account->get_char_count(); i++ ) {
-        long id = account->get_char(i);
-        const char* name = playerIndex.getName(id);
-        if( name == NULL ) name = "<INVALID>";
-        send_to_char( ch, "%20s [%ld]\r\n", name, id );
-    }
+	show_account_chars(ch->desc, account, true);
 }
 
 void
