@@ -215,7 +215,7 @@ ACMD(do_crossface)
                 vict->setPosition(POS_RESTING);
                 act("Your crossface has knocked $N on his ass!", 
                     TRUE, ch, NULL, vict, TO_CHAR);
-                act("$n's nasty crossface just knocked $n on his ass!", 
+                act("$n's nasty crossface just knocked $N on his ass!", 
                     TRUE, ch, NULL, vict, TO_ROOM);
                 act("Your jaw cracks as $n whips his gun across your face.
                     You stagger and fall to the ground", 
