@@ -129,7 +129,6 @@ ACMD(do_dyntext_show);
 ACMD(do_berserk);
 ACMD(do_board);
 ACMD(do_bomb);
-ACMD(do_badge);
 ACMD(do_bandage);
 ACMD(do_cast);
 ACMD(do_ceasefire);
@@ -480,7 +479,6 @@ struct command_info cmd_info[] = {
 
 	{"babble", POS_RESTING, do_say, 0, SCMD_BABBLE, 0, 0},
 	{"backstab", POS_STANDING, do_backstab, 1, 0, 0, 0},
-	{"badge", POS_DEAD, do_badge, LVL_IMMORT, 0, 0, 0},
 	{"ban", POS_DEAD, do_ban, LVL_IMMORT, 0, 0, 0},
 	{"bandage", POS_STANDING, do_bandage, 0, 0, 0, 0},
 	{"balance", POS_STANDING, do_not_here, 1, 0, 0, 0},
