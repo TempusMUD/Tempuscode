@@ -73,7 +73,7 @@ void print_attributes_to_buf(struct Creature *ch, char *buff);
 void polc_input(struct descriptor_data * d, char *str);
 void show_character_detail(descriptor_data *d);
 void push_command_onto_list(Creature *ch, char *comm);
-
+void flush_q(struct txt_q *queue);
 int _parse_name(char *arg, char *name);
 int reserved_word(char *argument);
 char *diag_conditions(struct Creature *ch);
@@ -1234,6 +1234,9 @@ set_desc_state(cxn_state state,struct descriptor_data *d)
 	if (CXN_AFTERLIFE == state) {
 		d->inbuf[0] = '\0';
 		d->wait = 5 RL_SEC;
+        if (d->input.head) {
+            flush_q(&d->input);
+        }
 	}
 	if (d->creature)
 		d->creature->saveToXML();
