@@ -503,7 +503,8 @@ vendor_list_obj(Creature *ch, obj_data *obj, int cnt, int idx, int cost)
 
 	obj_desc = obj->short_description;
 	if (GET_OBJ_TYPE(obj) == ITEM_DRINKCON && GET_OBJ_VAL(obj, 1))
-		obj_desc = tmp_strcat(obj_desc, " of %s", drinks[GET_OBJ_VAL(obj, 1)]);
+		obj_desc = tmp_strcat(obj_desc, " of ",
+			liquid_to_str(GET_OBJ_VAL(obj,2)), NULL);
 	if ((GET_OBJ_TYPE(obj) == ITEM_WAND || GET_OBJ_TYPE(obj) == ITEM_STAFF) &&
 			GET_OBJ_VAL(obj, 2) < GET_OBJ_VAL(obj, 1))
 		obj_desc = tmp_strcat(obj_desc, " (partially used)");
