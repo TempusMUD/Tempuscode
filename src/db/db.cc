@@ -2057,20 +2057,35 @@ parse_object(FILE * obj_f, int nr)
     obj->action_description = fread_string(obj_f, buf2);
 
     /* *** numeric data *** */
-    if (!get_line(obj_f, line) ||
-	(retval = sscanf(line, " %d %s %s %s %s", t, f1, f2, f3, f4)) != 5) {
-        if(retval != 4) {
-            fprintf(stderr, 
-                "Format error in first nmric line (expctng 4 or 5 args, got %d), %s\n",
-                retval, buf2);
-            safe_exit(1);
-        }
+    retval = 0;
+    if (!get_line(obj_f, line) ) {
+        fprintf( stderr, "Unable to read first numeric line for object %d.\n", nr );
+        safe_exit(1);
     }
+    
+    retval = sscanf(line, " %d %s %s %s %s", t, f1, f2, f3, f4);
+
     obj->obj_flags.type_flag = t[0];
     obj->obj_flags.extra_flags = asciiflag_conv(f1);
     obj->obj_flags.extra2_flags = asciiflag_conv(f2);
-    obj->obj_flags.extra3_flags = asciiflag_conv(f3);
-    obj->obj_flags.wear_flags = asciiflag_conv(f4);
+
+    // old format numeric line
+    if ( retval == 4 ) {
+        obj->obj_flags.extra3_flags = 0;
+        obj->obj_flags.wear_flags = asciiflag_conv(f3);
+    }
+    // new format numeric line
+    else if ( retval == 5 ) {
+        obj->obj_flags.extra3_flags = asciiflag_conv(f3);
+        obj->obj_flags.wear_flags = asciiflag_conv(f4);
+    }
+    // wrong number of fields
+    else {
+        fprintf(stderr, 
+                "Format error in first nmric line (expctng 4 or 5 args, got %d), %s\n",
+                retval, buf2);
+        safe_exit(1);
+    }
 
     if (!get_line(obj_f, line) ||
 	(retval = sscanf(line, "%d %d %d %d", t, t + 1, t + 2, t + 3)) != 4) {

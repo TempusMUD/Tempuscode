@@ -232,9 +232,18 @@ save_objs (struct char_data *ch)
 	num2str(sbuf3, obj->obj_flags.extra3_flags);
 	num2str(sbuf4, obj->obj_flags.wear_flags);
     
+        //
+        // TODO: decide how to handle this
+        //
+
+	fprintf(file,"%d %s %s %s\n", obj->obj_flags.type_flag,
+		sbuf1, sbuf2, sbuf4);
+
+        /*
 	fprintf(file,"%d %s %s %s %s\n", obj->obj_flags.type_flag,
 		sbuf1, sbuf2, sbuf3, sbuf4);
-      
+        */
+
 	for (i = 0; i < 4; i++)  {
 	    fprintf(file, "%d", obj->obj_flags.value[i]);
 	    if (i < 3)
