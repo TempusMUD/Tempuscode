@@ -2096,20 +2096,15 @@ ACMD(do_drag)
 
 
     //Target is a character
-
-    if( found_char ) {
-	do_drag_char(ch, argument, 0, 0);
-	return;
-    }
-
-    else if( found_obj ) {
-	drag_object( ch, found_obj, argument );
-	return;
-    }
-
-    else {
-	send_to_char( "What do you want to drag?\r\n", ch );
-	return;
+	if( !bits ) {
+		send_to_char( "What do you want to drag?\r\n", ch );
+		return;
+	} else if( found_char ) {
+		do_drag_char(ch, argument, 0, 0);
+		return;
+    } else if( found_obj ) {
+		drag_object( ch, found_obj, argument );
+		return;
     }
 	
 }
