@@ -469,7 +469,6 @@ struct command_info cmd_info[] = {
 	{"assimilate", POS_RESTING, do_assimilate, 0, 0, 0},
 	{"ask", POS_RESTING, do_spec_comm, 0, SCMD_ASK, 0},
 	{"auction", POS_SLEEPING, do_gen_comm, 0, SCMD_AUCTION, 0},
-//    { "auction1" , POS_SLEEPING, do_auction  , 0, SCMD_AUCTION , 0 }, 
 	{"autodiagnose", POS_DEAD, do_gen_tog, 1, SCMD_AUTO_DIAGNOSE, 0},
 	{"autoexits", POS_DEAD, do_gen_tog, 1, SCMD_AUTOEXIT, 0},
 	{"autoloot", POS_DEAD, do_gen_tog, 1, SCMD_AUTOLOOT, 0},
