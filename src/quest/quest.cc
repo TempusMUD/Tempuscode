@@ -2649,8 +2649,13 @@ Quest::Quest( char_data *ch, int type, const char* name )
 	flags = QUEST_HIDE;
 	started = time(0);
 	ended = 0;
-	description = NULL;
-	updates = NULL;
+
+	description = new char[1];
+	description[0] = '\0';
+
+	updates = new char[1];
+	updates[0] = '\0';
+
 	max_players = 0;
 	awarded = 0;
 	penalized = 0;
