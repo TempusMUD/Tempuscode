@@ -280,6 +280,8 @@ boot_social_messages(void)
 	struct social_messg temp;
 	struct social_messg tmp_soc_mess_list[MAX_SOCIALS];
 
+	memset(tmp_soc_mess_list, 0, sizeof(tmp_soc_mess_list));
+
 	/* open social file */
 	if (!(fl = fopen(SOCMESS_FILE, "r"))) {
 		sprintf(buf, "Can't open socials file '%s'", SOCMESS_FILE);
@@ -412,10 +414,10 @@ show_social_messages(struct Creature *ch, char *arg)
 					action->not_found);
 				sprintf(buf, "%schar_auto    : %s\r\n", buf,
 					action->char_auto);
-				send_to_char(ch, "%sothers_auto  : %s\r\n", buf,
+				sprintf(buf, "%sothers_auto  : %s\r\n", buf,
 					action->others_auto);
 			}
-
+			send_to_char(ch, "%s", buf);
 
 			return;
 		}

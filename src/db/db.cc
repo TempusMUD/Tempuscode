@@ -198,6 +198,7 @@ void load_messages(void);
 void weather_and_time(int mode);
 void mag_assign_spells(void);
 void boot_social_messages(void);
+void free_socials(void);
 void update_obj_file(void);		/* In objsave.c */
 void sort_commands(void);
 void sort_spells(void);
@@ -239,6 +240,8 @@ ACMD(do_reboot)
 		file_to_string_alloc(AREAS_REMORT_FILE, &areas_remort);
 		file_to_string_alloc(OLC_GUIDE_FILE, &olc_guide);
 		file_to_string_alloc(QUEST_GUIDE_FILE, &quest_guide);
+		free_socials();
+		boot_social_messages();
 	} else if (!str_cmp(arg, "credits")) {
 		file_to_string_alloc(CREDITS_FILE, &credits);
 	} else if (!str_cmp(arg, "motd")) {
@@ -269,6 +272,9 @@ ACMD(do_reboot)
 		purge_trails(ch);
 	} else if (!str_cmp(arg, "timewarps")) {
 		boot_timewarp_data();
+	} else if (!str_cmp(arg, "socials")) {
+		free_socials();
+		boot_social_messages();
     } else if( !str_cmp(arg, "xml") ) {
         xml_reload(ch);
         return;
@@ -279,11 +285,11 @@ ACMD(do_reboot)
 		send_to_char(ch, "Unknown reboot option.\r\n");
         send_to_char(ch, "Options: all    *         credits     motd     imotd      info\r\n");
         send_to_char(ch, "         areas  olc_guide quest_guide handbook background paths\r\n");
-        send_to_char(ch, "         trails timewarps elevators   xml\r\n");
+        send_to_char(ch, "         trails timewarps elevators   xml      socials\r\n");
 		return;
 	}
 	send_to_char(ch, OK);
-	mudlog(GET_INVIS_LVL(ch), NRM, false,
+	mudlog(GET_INVIS_LVL(ch), NRM, true,
 		"%s has reloaded %s text file.", GET_NAME(ch), arg);
 }
 
