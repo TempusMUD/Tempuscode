@@ -434,6 +434,10 @@ Account::delete_char(Creature *ch)
 bool
 Account::authenticate(const char *pw)
 {
+	if( _password == NULL ) {
+		slog("SYSERR: Account %s[%d] has NULL password. Setting to guess.", _name, _id );
+		_password = strdup( crypt(pw, _password) );
+	}
 	return !strcmp(_password, crypt(pw, _password));
 }
 
