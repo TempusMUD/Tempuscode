@@ -2718,7 +2718,7 @@ perform_wear(struct Creature *ch, struct obj_data *obj, int where)
 		!IS_REMORT(ch)) {
 		act("You feel a strange sensation as you attempt to use $p.\r\n"
 			"The universe slowly spins around you, and the fabric of space\r\n"
-			"and time appears to warp.", FALSE, ch, 0, obj, TO_CHAR);
+			"and time appears to warp.", FALSE, ch, obj, 0, TO_CHAR);
 		return 0;
 	}
 
