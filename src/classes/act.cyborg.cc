@@ -2451,6 +2451,11 @@ ACMD(do_insert)
         if(GET_MOVE(vict) < 1)
             GET_MOVE(vict) = 1;
         WAIT_STATE(vict, 6 RL_SEC);
+        if(GET_LEVEL(ch) < LVL_GOD && !IS_OBJ_TYPE(obj, ITEM_SCRIPT)) {
+            sprintf(buf,"IMPLANT: %s inserts %s into self at %d.",
+                GET_NAME(ch),obj->short_description ,ch->in_room->number);
+            slog(buf);
+        }
     } else {
         sprintf(buf,"$p inserted into $N's %s.",wear_implantpos[pos]);
         act(buf, FALSE, ch, GET_IMPLANT(vict, pos), vict, TO_CHAR);
@@ -2465,6 +2470,12 @@ ACMD(do_insert)
         GET_HIT(vict) = 1;
         GET_MOVE(vict) = 1;
         WAIT_STATE(vict, 10 RL_SEC);
+        if(GET_LEVEL(ch) < LVL_GOD && !IS_OBJ_TYPE(obj, ITEM_SCRIPT)) {
+            sprintf(buf,"IMPLANT: %s inserts %s into %s at %d.",
+                GET_NAME(ch),obj->short_description,
+                GET_NAME(vict),ch->in_room->number);
+            slog(buf);
+        }
     }
 
 }
