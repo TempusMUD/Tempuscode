@@ -281,8 +281,11 @@ Valid_Name(char *newname)
 
 	/* change to lowercase */
 	strncpy(tempname, newname,MAX_NAME_LENGTH);
-	for (i = 0; tempname[i]; i++)
+	for (i = 0; tempname[i]; i++) {
+		if (!isalpha(tempname[i]) && tempname[i] != '\'')
+			return 0;
 		tempname[i] = tolower(tempname[i]);
+	}
 
 	/* Does the desired name contain a string in the invalid list? */
 	for (i = 0; i < num_invalid; i++)
