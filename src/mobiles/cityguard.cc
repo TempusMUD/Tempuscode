@@ -199,14 +199,13 @@ throw_char_in_jail(struct Creature *ch, struct Creature *vict)
 	while (count < 12) {
 		count++;
 		cell_room = real_room(jail_cells[number(0, 5)]);
-		if (cell_room == NULL || cell_room->people)
+		if (cell_room == NULL || !cell_room->people.empty())
 			continue;
 
-		if (cell_room->people)
-			continue;
+		break;
 	}
 
-	if (cell_room == NULL)
+	if (!cell_room)
 		return 0;
 
 	locker_room = real_room(ch->in_room->number + 1);
@@ -243,21 +242,16 @@ throw_char_in_jail(struct Creature *ch, struct Creature *vict)
 			}
 		}
 		GET_OBJ_VAL(locker, 0) = GET_IDNUM(vict);
-		act("$n removes all your gear and stores it in a strongbox.",
-			false, ch, 0, vict, TO_VICT);
-		House* house = Housing.findHouseByRoom( locker->in_room->number );
-		if( house != NULL )
-			house->save();
-		if (IS_NPC(ch))
-			ch->purge(true);
-		else
-			ch->saveToXML();
+		if (locker->contains) {
+			act("$n removes all your gear and stores it in a strongbox.",
+				false, ch, 0, vict, TO_VICT);
+			House* house = Housing.findHouseByRoom( locker->in_room->number );
+			if( house != NULL )
+				house->save();
+		} else {
+			extract_obj(locker);
+		}
 	}
-
-	if (FIGHTING(ch))
-		stop_fighting(ch);
-	if (FIGHTING(vict))
-		stop_fighting(vict);
 
 	act("$n throws $N into a cell and slams the door!", false, ch, 0, vict,
 		TO_NOTVICT);
@@ -266,12 +260,16 @@ throw_char_in_jail(struct Creature *ch, struct Creature *vict)
 
 	char_from_room(vict,false);
 	char_to_room(vict, cell_room,false);
-	if (IS_NPC(vict))
+	if (IS_PC(vict))
 		cell_room->zone->enter_count++;
 
-	look_at_room(vict, vict->in_room, 1);
 	act("$n is thrown into the cell, and the door slams shut behind $m!",
 		false, vict, 0, 0, TO_ROOM);
+	affect_from_char(vict, SPELL_SLEEP);
+	affect_from_char(vict, SPELL_MELATONIC_FLOOD);
+	affect_from_char(vict, SKILL_SLEEPER);
+	vict->setPosition(POS_RESTING);
+	act("You wake up in jail, your head pounding.", false, vict, 0, 0, TO_CHAR);
 
 	if (HUNTING(ch) && HUNTING(ch) == vict)
 		HUNTING(ch) = NULL;
@@ -282,6 +280,11 @@ throw_char_in_jail(struct Creature *ch, struct Creature *vict)
 	mudlog(GET_INVIS_LVL(vict), NRM, true,
 		"%s has been thrown into jail by %s at %d.", GET_NAME(vict),
 		GET_NAME(ch), ch->in_room->number);
+
+	if (IS_NPC(vict))
+		vict->purge(true);
+	else
+		vict->saveToXML();
 	return 1;
 }
 
@@ -339,6 +342,53 @@ drag_char_to_jail(Creature *ch, Creature *vict, room_data *jail_room)
 		from_dirs[dir]), false, ch, 0, vict, TO_NOTVICT);
 	WAIT_STATE(ch, 1 RL_SEC);
 	return TRUE;
+}
+
+void
+knock_unconscious(Creature *ch, Creature *target)
+{
+	CreatureList::iterator it;
+	struct affected_type af;
+
+	// Knock the person out
+	it = target->in_room->people.begin();
+	for (;it != target->in_room->people.end(); it++) {
+		if (FIGHTING((*it)) == target || *it == target)
+			stop_fighting(*it);
+		if (HUNTING((*it)) == target)
+			HUNTING((*it)) = NULL;
+		if (IS_NPC((*it)))
+			forget(*it, target);
+	}
+
+	if (GET_EQ(ch, WEAR_WIELD)) {
+		act("You smack $N across the head with the hilt of $p!.", false,
+			ch, GET_EQ(ch, WEAR_WIELD), target, TO_CHAR);
+		act("$n smacks you across the head with the hilt of $p! OW!.", false,
+			ch, GET_EQ(ch, WEAR_WIELD), target, TO_VICT);
+		act("$n smacks $N across the head with the hilt of $p!.", false,
+			ch, GET_EQ(ch, WEAR_WIELD), target, TO_NOTVICT);
+	} else {
+		act("You smack $N across the head, knocking $m unconscious.", false,
+			ch, 0, target, TO_CHAR);
+		act("$n smacks you across the head, knocking you unconscious!", false,
+			ch, 0, target, TO_VICT);
+		act("$n smacks $N across the head, knocking $m unconscious!", false,
+			ch, 0, target, TO_NOTVICT);
+	}
+
+	af.is_instant = 0;
+	af.duration = 20;
+	af.bitvector = AFF_SLEEP;
+	af.type = SKILL_SLEEPER;
+	af.modifier = 0;
+	af.aff_index = 0;
+	af.location = APPLY_NONE;
+	af.level = 49;
+
+	target->setPosition(POS_SLEEPING);
+	WAIT_STATE(target, 4 RL_SEC);
+	affect_join(target, &af, false, false, false, false);
 }
 
 SPECIAL(cityguard)
@@ -451,6 +501,7 @@ SPECIAL(cityguard)
 	// action == 2 : stop fight
 	// action == 3 : drag creature to jail
 	// action == 4 : attack criminal
+	// action == 4
 	// action == 5 : assist guard
 	action = 0;
 	lawful = !ZONE_FLAGGED(self->in_room->zone, ZONE_NOLAW);
@@ -584,7 +635,9 @@ SPECIAL(cityguard)
 		return true;
 	case 3:
 		// drag criminal to jail
-		if (jail_num > 0)
+		if (!affected_by_spell(target, SKILL_SLEEPER))
+			knock_unconscious(self, target);
+		else if (jail_num > 0)
 			drag_char_to_jail(self, target, real_room(jail_num));
 		return true;
 	case 4:
@@ -609,49 +662,10 @@ SPECIAL(cityguard)
 				do_say(self, "BAAAANNNZZZZZAAAAAIIIIII!!!", 0, SCMD_YELL, 0);
 		}
 
-		if (number(0, 1)) {
-			struct affected_type af;
-
-			// Knock the person out
-			it = target->in_room->people.begin();
-			for (;it != target->in_room->people.end(); it++) {
-				if (FIGHTING((*it)) == target || *it == target)
-					stop_fighting(*it);
-				if (HUNTING((*it)) == target)
-					HUNTING((*it)) = NULL;
-			}
-
-			if (GET_EQ(self, WEAR_WIELD)) {
-				act("You smack $N across the head with the hilt of $p!.", false,
-					self, GET_EQ(self, WEAR_WIELD), target, TO_CHAR);
-				act("$n smacks you across the head with the hilt of $p! OW!.", false,
-					self, GET_EQ(self, WEAR_WIELD), target, TO_VICT);
-				act("$n smacks $N across the head with the hilt of $p!.", false,
-					self, GET_EQ(self, WEAR_WIELD), target, TO_NOTVICT);
-			} else {
-				act("You smack $N across the head, knocking $m unconscious.", false,
-					self, 0, target, TO_CHAR);
-				act("$n smacks you across the head, knocking you unconscious!", false,
-					self, 0, target, TO_VICT);
-				act("$n smacks $N across the head, knocking $m unconscious!", false,
-					self, 0, target, TO_NOTVICT);
-			}
-
-			af.is_instant = 0;
-			af.duration = 20;
-			af.bitvector = AFF_SLEEP;
-			af.type = SKILL_SLEEPER;
-			af.modifier = 0;
-			af.aff_index = 0;
-			af.location = APPLY_NONE;
-			af.level = 49;
-
-			target->setPosition(POS_SLEEPING);
-			WAIT_STATE(target, 4 RL_SEC);
-			affect_join(target, &af, false, false, false, false);
-		} else {
-			// Just hit them
-		}
+		if (number(0, 1))
+			knock_unconscious(self, target);
+		else
+			hit(self, target, TYPE_UNDEFINED);
 		
 		return true;
 	default:
