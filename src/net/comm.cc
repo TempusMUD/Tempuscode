@@ -88,6 +88,7 @@ int log_cmds = 0;				/* log cmds */
 int shutdown_count = -1;		/* shutdown countdown */
 int shutdown_idnum = -1;		/* idnum of person calling shutdown */
 int shutdown_mode = SHUTDOWN_NONE;	/* what type of shutdown */
+bool suppress_output = false;
 
 
 struct last_command_data last_cmd[NUM_SAVE_CMDS];
@@ -718,6 +719,7 @@ game_loop(int mother_desc)
 		tics++;					/* tics since last checkpoint signal */
 		sql_gc_queries();
 		tmp_gc_strings();
+		suppress_output = false; // failsafe
 	}							/* while (!circle_shutdown) */
 	/*  mem_cleanup(); */
 }
@@ -869,6 +871,9 @@ write_to_output(const char *txt, struct descriptor_data *t)
 
 	/* if we're in the overflow state already, ignore this new output */
 	if (t->bufptr < 0)
+		return;
+	
+	if (suppress_output)
 		return;
 
 	if (!t->need_prompt && (!t->creature

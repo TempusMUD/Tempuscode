@@ -307,7 +307,7 @@ show_file(struct Creature *ch, char *fname, int lines)
 void
 page_string(struct descriptor_data *d, const char *str)
 {
-	if (!d || !str)
+	if (!d || !str || suppress_output)
 		return;
 
 	if (d->showstr_head)

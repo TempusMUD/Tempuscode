@@ -34,6 +34,7 @@ void prog_do_after(prog_env *env, prog_evt *evt, char *args);
 void prog_do_require(prog_env *env, prog_evt *evt, char *args);
 void prog_do_unless(prog_env *env, prog_evt *evt, char *args);
 void prog_do_do(prog_env *env, prog_evt *evt, char *args);
+void prog_do_silently(prog_env *env, prog_evt *evt, char *args);
 void prog_do_force(prog_env *env, prog_evt *evt, char *args);
 void prog_do_pause(prog_env *env, prog_evt *evt, char *args);
 void prog_do_halt(prog_env *env, prog_evt *evt, char *args);
@@ -65,6 +66,7 @@ prog_command prog_cmds[] = {
 	{ "or",			false,	prog_do_or },
 	{ "pause",		true,	prog_do_pause },
 	{ "do",			true,	prog_do_do },
+	{ "silently",	true,	prog_do_silently },
 	{ "force",		true,	prog_do_force },
 	{ "target",		true,	prog_do_target },
 	{ "nuke",		true,	prog_do_nuke },
@@ -336,6 +338,18 @@ prog_do_do(prog_env *env, prog_evt *evt, char *args)
 			args = tmp_gsub(args, "$N", fname(env->target->player.name));
 		command_interpreter((Creature *)env->owner, args);
 	}
+}
+
+void
+prog_do_silently(prog_env *env, prog_evt *evt, char *args)
+{
+	suppress_output = true;
+	if (env->owner_type == PROG_TYPE_MOBILE) {
+		if (env->target)
+			args = tmp_gsub(args, "$N", fname(env->target->player.name));
+		command_interpreter((Creature *)env->owner, args);
+	}
+	suppress_output = false;
 }
 
 void
