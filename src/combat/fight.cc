@@ -53,7 +53,7 @@ int corpse_state = 0;
 obj_data *get_random_uncovered_implant(Creature * ch, int type = -1);
 int calculate_weapon_probability(struct Creature *ch, int prob,
 	struct obj_data *weap);
-int do_combat_fire(struct Creature *ch, struct Creature *vict, int weap_pos);
+int do_combat_fire(struct Creature *ch, struct Creature *vict);
 int do_casting_weapon(Creature *ch, obj_data *weap);
 int calculate_attack_probability(struct Creature *ch);
 
@@ -2537,6 +2537,7 @@ perform_violence(void)
 		if (MIN(100, prob + 15) >= die_roll) {
 
 			bool stop = false;
+            int retval = -1;
 
 			for (i = 0; i < 4; i++) {
 				if (!FIGHTING(ch) || GET_LEVEL(ch) < (i << 3))
@@ -2548,10 +2549,40 @@ perform_violence(void)
 				}
 
 				if (prob >= number((i << 4) + (i << 3), (i << 5) + (i << 3))) {
-					if (hit(ch, FIGHTING(ch), TYPE_UNDEFINED)) {
-						stop = true;
-						break;
-					}
+                    // Special combat loop for mercs...
+                    if (IS_MERC(ch)) {
+                        // Roll the dice to see if the merc gets to shoot his gun this round
+                        if (prob > number(1, 121)) {
+                            retval = do_combat_fire(ch, FIGHTING(ch));
+                            // Either the attacker or the victim was killed
+                            if ((retval == 1) || (retval == DAM_VICT_KILLED)) {
+                                stop = true;
+                                break;
+                            }
+                            // the merc passed his test but was unable to fire for some reason.
+                            // Whack them with it instead.
+                            else if (retval == -1) {
+                                if (hit(ch, FIGHTING(ch), TYPE_UNDEFINED)) {
+                                    stop = true;
+                                    break;
+                                }
+                            }
+                        }
+                        // The merc was too slow.  Can't shoot his gun this round
+                        else {
+                            if (hit(ch, FIGHTING(ch), TYPE_UNDEFINED)) {
+                                stop = true;
+                                break;
+                            }
+                        }
+                    }
+                    // Everyone elses combat loop
+                    else {
+                        if (hit(ch, FIGHTING(ch), TYPE_UNDEFINED)) {
+                            stop = true;
+                            break;
+                        }
+                    }
 				}
 			}
 

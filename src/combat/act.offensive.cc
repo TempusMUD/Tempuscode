@@ -44,8 +44,7 @@ ACMD(do_say);
 /* extern functions */
 int find_door(struct Creature *ch, char *type, char *dir,
 	const char *cmdname);
-int do_combat_fire(struct Creature *ch, struct Creature *vict, int weap_pos,
-	int prob);
+int do_combat_fire(struct Creature *ch, struct Creature *vict);
 
 int
 check_mob_reaction(struct Creature *ch, struct Creature *vict)
@@ -3035,36 +3034,91 @@ ACMD(do_beguile)
 //This function assumes that ch is a merc.  It provides for  mercs
 //shooting wielded guns in combat instead of bludgeoning with them
 
-int
-do_combat_fire(struct Creature *ch, struct Creature *vict, int weap_pos)
+struct Creature *randomize_target(struct Creature *ch, struct Creature *vict, short prob)
 {
-	struct Creature *tmp_vict = NULL;
+    CreatureList::iterator it;
+    
+    it = ch->in_room->people.begin();
+    for (; it != ch->in_room->people.end(); ++it) {
+        if (*it != ch && ch == FIGHTING((*it)))
+            prob -= (GET_LEVEL((*it)) >> 3);
+    }
+
+    it = ch->in_room->people.begin();
+    
+    if (FIGHTING(vict) && (FIGHTING(vict) != ch)) {
+        if (number(1, 121) > prob)
+            vict = FIGHTING(vict);
+    }
+    else if (FIGHTING(vict) && (number(1, 101) > prob)) {
+        for (; it != ch->in_room->people.end(); ++it) {
+            if ((*it != ch) && vict == FIGHTING((*it))) {
+                if (!number(0, 2)) {
+                    vict = *it;
+                    break;
+                }
+            }
+        }
+    }
+    else if (number(1, 81) > prob) {
+        for (; it != ch->in_room->people.end(); ++it) {
+            if (*it != ch && vict == FIGHTING((*it))) {
+                if (!number(0, 2)) {
+                    vict = *it;
+                    break;
+                }
+            }
+        }
+    }
+
+    return vict;
+}
+
+int
+do_combat_fire(struct Creature *ch, struct Creature *vict)
+{
 	struct obj_data *bullet = NULL, *gun = NULL;
 	sh_int prob, dam, cost;
-	int i, dum_ptr = 0, dum_move = 0;
-	bool dead = false;
+	int dum_ptr = 0, dum_move = 0;
 	struct affected_type *af = NULL;
 	int my_return_flags = 0;
+    struct obj_data *weap1 = NULL, *weap2 = NULL;
 
-	if (!(gun = GET_EQ(ch, weap_pos)))
-		return 0;
-	else if (!IS_ENERGY_GUN(gun) && !IS_GUN(gun))
-		return 0;
+    weap1 = GET_EQ(ch, WEAR_WIELD);
+    weap2 = GET_EQ(ch, WEAR_WIELD_2);
+    
+    if ((weap1 && (IS_GUN(weap1) || IS_ENERGY_GUN(weap1))) &&
+        (weap2 && (IS_GUN(weap2) || IS_ENERGY_GUN(weap2)))) {
+        prob = number(1, 101);
+        if (prob % 2)
+            gun = weap1;
+        else
+            gun = weap2;
+    }
+    else if (weap1 && (IS_GUN(weap1) || IS_ENERGY_GUN(weap1))) {
+        gun = weap1;
+    }
+    else if (weap2 && (IS_GUN(weap2) || IS_ENERGY_GUN(weap2))) {
+        gun = weap2;
+    }
+    else
+        return -1;
 
 	//if our victim is NULL we simply return;
 	if (vict == NULL) {
+		slog("SYSERR: NULL vict in %s().", __FUNCTION__);
 		return 0;
 	}
 	// This should never happen 
 	if (vict == ch) {
 		mudlog(LVL_AMBASSADOR, NRM, true,
-			"ERROR: ch == vict in do_combat_fire()!");
+			"ERROR: ch == vict in %s()!", __FUNCTION__);
 		return 0;
 	}
 
 	if (ch->getPosition() < POS_FIGHTING) {
 		send_to_char(ch, "You can't fight while sitting!\r\n");
-		return 1;
+		return 0;
 	}
 	// And since ch and vict should already be fighting this should never happen either
 	if (!peaceful_room_ok(ch, vict, true))
@@ -3077,10 +3131,14 @@ do_combat_fire(struct Creature *ch, struct Creature *vict, int weap_pos)
 	if (IS_ENERGY_GUN(gun)) {
 
 		if (!gun->contains || !IS_ENERGY_CELL(gun->contains)) {
-			return 0;
+            act("$p doesn't contain an energy cell!.",
+                FALSE, ch, gun, 0, TO_CHAR);
+            act("$p makes a clicking noise in the hard of $n.",
+                TRUE, ch, gun, 0, TO_ROOM);
+			return -1;
 		}
 		if (CUR_ENERGY(gun->contains) <= 0) {
-			return 0;
+			return -1;
 		}
 
 		cost = MIN(CUR_ENERGY(gun->contains), GUN_DISCHARGE(gun));
@@ -3091,34 +3149,7 @@ do_combat_fire(struct Creature *ch, struct Creature *vict, int weap_pos)
 
 		prob += CHECK_SKILL(ch, SKILL_ENERGY_WEAPONS) >> 2;
 
-
-		CreatureList::iterator it = ch->in_room->people.begin();
-		for (; it != ch->in_room->people.end(); ++it) {
-			if (*it != ch && ch == FIGHTING((*it)))
-				prob -= (GET_LEVEL((*it)) >> 3);
-		}
-		if (FIGHTING(vict) && FIGHTING(vict) != ch && number(1, 121) > prob)
-			vict = FIGHTING(vict);
-		else if (FIGHTING(vict) && number(1, 101) > prob) {
-			CreatureList::iterator it = ch->in_room->people.begin();
-			for (; it != ch->in_room->people.end(); ++it) {
-				if (*it != ch && tmp_vict != vict && vict == FIGHTING((*it)) &&
-					!number(0, 2)) {
-					vict = *it;
-					break;
-				}
-			}
-
-		} else if (number(1, 81) > prob) {
-			CreatureList::iterator it = ch->in_room->people.begin();
-			for (; it != ch->in_room->people.end(); ++it) {
-				if (*it != ch && tmp_vict != vict && vict == FIGHTING((*it)) &&
-					!number(0, 2)) {
-					vict = *it;
-					break;
-				}
-			}
-		}
+        vict = randomize_target(ch, vict, prob);
 
         cost = MIN(CUR_ENERGY(gun->contains), GUN_DISCHARGE(gun));
 
@@ -3127,37 +3158,23 @@ do_combat_fire(struct Creature *ch, struct Creature *vict, int weap_pos)
         CUR_ENERGY(gun->contains) -= cost;
 
         cur_weap = gun;
-
-        //
-        // miss
-        //
-
-        if (number(0, 121) > prob) {
+        if (number(0, 121) > prob) { //miss
             check_killer(ch, vict);
-            my_return_flags =
-                damage(ch, vict, 0, SKILL_ENERGY_WEAPONS, number(0,
-                    NUM_WEARS - 1));
+            my_return_flags = damage(ch, vict, 0, SKILL_ENERGY_WEAPONS, 
+                    number(0, NUM_WEARS - 1));
         }
-        //
-        // hit
-        //
-
-        else {
+        else { // hit
             check_killer(ch, vict);
-            my_return_flags =
-                damage(ch, vict, dam, SKILL_ENERGY_WEAPONS, number(0,
-                    NUM_WEARS - 1));
+            my_return_flags = damage(ch, vict, dam, SKILL_ENERGY_WEAPONS, 
+                    number(0, NUM_WEARS - 1));
         }
 
         // if the attacker was somehow killed, return immediately
-        //
-
         if (IS_SET(my_return_flags, DAM_ATTACKER_KILLED)) {
             return 1;
         }
 
         if (IS_SET(my_return_flags, DAM_VICT_KILLED)) {
-            dead = true;
             return DAM_VICT_KILLED;
         }
 
@@ -3168,8 +3185,9 @@ do_combat_fire(struct Creature *ch, struct Creature *vict, int weap_pos)
                 TRUE, ch, gun, 0, TO_ROOM);
         }
 		cur_weap = NULL;
-		return 1;
+		return 0;
 	}
+
 	//
 	// The Projectile Gun block
 	//
@@ -3181,12 +3199,12 @@ do_combat_fire(struct Creature *ch, struct Creature *vict, int weap_pos)
 	}
 	if (!(bullet = gun->contains)) {
 		act("$p is not loaded.", FALSE, ch, gun, 0, TO_CHAR);
-		return 0;
+		return -1;
 	}
 
 	if (!MAX_LOAD(gun) && !(bullet = gun->contains->contains)) {
 		act("$P is not loaded.", FALSE, ch, gun, gun->contains, TO_CHAR);
-		return 0;
+		return -1;
 	}
 
 	prob = calc_skill_prob(ch, vict,
@@ -3197,89 +3215,52 @@ do_combat_fire(struct Creature *ch, struct Creature *vict, int weap_pos)
 
 	prob += CHECK_SKILL(ch, SKILL_PROJ_WEAPONS) >> 3;
 
-	CreatureList::iterator it = ch->in_room->people.begin();
-	for (; it != ch->in_room->people.end(); ++it) {
-		if ((*it) != ch && ch == FIGHTING((*it)))
-			prob -= (GET_LEVEL((*it)) >> 3);
-	}
-	if (FIGHTING(vict) && FIGHTING(vict) != ch && number(1, 121) > prob)
-		vict = FIGHTING(vict);
-	else if (FIGHTING(vict) && number(1, 101) > prob) {
-		CreatureList::iterator it = ch->in_room->people.begin();
-		for (; it != ch->in_room->people.end(); ++it) {
-			if ((*it) != ch && (*it) != vict && vict == FIGHTING((*it)) &&
-				!number(0, 2)) {
-				vict = (*it);
-				break;
-			}
-		}
-	} else if (number(1, 81) > prob) {
-		CreatureList::iterator it = ch->in_room->people.begin();
-		for (; it != ch->in_room->people.end(); ++it) {
-			if ((*it) != ch && (*it) != vict && !number(0, 2)) {
-				vict = (*it);
-				break;
-			}
-		}
-	}
+    vict = randomize_target(ch, vict, prob);
 
-		if (!bullet) {
-			return 0;
-		}
+    if (!bullet) {
+        return -1;
+    }
 
-		dam = dice(gun_damage[GUN_TYPE(gun)][0], gun_damage[GUN_TYPE(gun)][1]);
-		dam += BUL_DAM_MOD(bullet);
+    dam = dice(gun_damage[GUN_TYPE(gun)][0], gun_damage[GUN_TYPE(gun)][1]);
+    dam += BUL_DAM_MOD(bullet);
 
-		if (IS_ARROW(gun)) {
-			obj_from_obj(bullet);
-			obj_to_room(bullet, ch->in_room);
-			strcpy(buf2, bullet->name);
-			damage_eq(NULL, bullet, dam >> 2);
-		} else {
-			if (!i && !IS_FLAMETHROWER(gun))
-				sound_gunshots(ch->in_room, SKILL_PROJ_WEAPONS,
-					dam, CUR_R_O_F(gun));
+    if (IS_ARROW(gun)) {
+        obj_from_obj(bullet);
+        obj_to_room(bullet, ch->in_room);
+        strcpy(buf2, bullet->name);
+        damage_eq(NULL, bullet, dam >> 2);
+    } else {
+        if (!IS_FLAMETHROWER(gun))
+            sound_gunshots(ch->in_room, SKILL_PROJ_WEAPONS,
+                dam, CUR_R_O_F(gun));
 
-			extract_obj(bullet);
-		}
-		// we /must/ have a clip in a clipped gun at this point!
-		bullet = MAX_LOAD(gun) ? gun->contains : gun->contains->contains;
+        extract_obj(bullet);
+    }
+    // we /must/ have a clip in a clipped gun at this point!
+    bullet = MAX_LOAD(gun) ? gun->contains : gun->contains->contains;
 
-		cur_weap = gun;
+    cur_weap = gun;
 
-        //
-        // miss
-        //
+    if (number(0, 121) > prob) { //miss
+        my_return_flags = damage(ch, vict, 0, 
+                   IS_FLAMETHROWER(gun) ? TYPE_FLAMETHROWER : SKILL_PROJ_WEAPONS, 
+                   number(0, NUM_WEARS - 1));
+    }
+    else { //hit
+        my_return_flags = damage(ch, vict, dam, 
+                                 IS_FLAMETHROWER(gun) ? TYPE_FLAMETHROWER : SKILL_PROJ_WEAPONS, 
+                                 number(0, NUM_WEARS - 1));
+    }
 
-        if (number(0, 121) > prob) {
-            my_return_flags =
-                damage(ch, vict, 0,
-                IS_FLAMETHROWER(gun) ? TYPE_FLAMETHROWER :
-                SKILL_PROJ_WEAPONS, number(0, NUM_WEARS - 1));
-        }
-        //
-        // hit
-        //
+    // if the attacker was somehow killed, return immediately
 
-        else if (!dead) {
-            my_return_flags =
-                damage(ch, vict, dam,
-                IS_FLAMETHROWER(gun) ? TYPE_FLAMETHROWER :
-                SKILL_PROJ_WEAPONS, number(0, NUM_WEARS - 1));
-        }
+    if (IS_SET(my_return_flags, DAM_ATTACKER_KILLED)) {
+        return 1;
+    }
 
-		//
-		// if the attacker was somehow killed, return immediately
-		//
+    if (IS_SET(my_return_flags, DAM_VICT_KILLED)) {
+        return DAM_VICT_KILLED;
+    }
 
-		if (IS_SET(my_return_flags, DAM_ATTACKER_KILLED)) {
-			return 1;
-		}
-
-		if (IS_SET(my_return_flags, DAM_VICT_KILLED)) {
-			dead = true;
-			return DAM_VICT_KILLED;
-		}
-
-	return 1;
+	return 0;
 }
