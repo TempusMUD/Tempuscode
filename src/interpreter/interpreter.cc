@@ -1094,6 +1094,7 @@ extern const struct command_info cmd_info[] = {
     { "slay"     , POS_RESTING , do_kill     , 0, SCMD_SLAY },
     { "smack"    , POS_SLEEPING , do_action   , 0, 0 },  
     { "smell"    , POS_RESTING , do_action   , 0, 0 },
+    { "smile"    , POS_RESTING , do_action   , 0, 0 },
     { "smirk"    , POS_RESTING , do_action   , 0, 0 },
     { "smoke"    , POS_RESTING , do_smoke    , 0, 0 },
     { "smush"    , POS_RESTING , do_action   , 0, 0 },
