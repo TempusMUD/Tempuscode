@@ -1776,7 +1776,7 @@ hit( struct char_data * ch, struct char_data * victim, int type )
 			return 0;
 	} else if ( !( ( ( cur_weap = GET_EQ( ch, WEAR_WIELD_2 ) ) && 
 		  IS_OBJ_TYPE( cur_weap, ITEM_WEAPON ) &&
-		  ( CHECK_SKILL( ch, SKILL_SECOND_WEAPON ) + dual_prob ) > 
+		  ( (CHECK_SKILL( ch, SKILL_SECOND_WEAPON ) * 2 / 3) + dual_prob ) > 
 		  number( 50, 150 ) ) ||
 		( ( cur_weap = GET_EQ( ch, WEAR_WIELD ) ) && !number( 0, 1 ) ) ||
 		( ( cur_weap = GET_EQ( ch, WEAR_HANDS ) ) && 
