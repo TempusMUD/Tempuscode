@@ -616,7 +616,7 @@ obj_data::affectModify(struct tmp_obj_affect *af, bool add)
             }
 
             if (!found)
-				errlog("Unable to alter temporary object affect.  No free affect locations.");
+				errlog("No affect locations trying to alter object affect on obj vnum %d, id %ld", GET_OBJ_VNUM(this), unique_id);
         }
     }
 }
