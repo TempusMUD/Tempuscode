@@ -95,6 +95,9 @@ SPECIAL(town_crier)
 	} else if (spec_mode != SPECIAL_TICK)
 		return 0;
 	
+	if (self->getPosition() < POS_STANDING)
+		return 0;
+
 	// If we're already shouting something, shout the next line
 	if (data->msg_head) {
 		town_crier_shout(self, data);
