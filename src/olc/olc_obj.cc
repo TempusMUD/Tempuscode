@@ -991,7 +991,8 @@ perform_oset(struct Creature *ch, struct obj_data *obj_p,
 		else {
 
 			obj_p->shared->func = spec_list[i].func;
-			free(obj_p->shared->func_param);
+			if( obj_p->shared->func_param != NULL ) 
+				free(obj_p->shared->func_param);
 			obj_p->shared->func_param = NULL;
 			do_specassign_save(ch, SPEC_OBJ);
 			send_to_char(ch, "Object special set, you trickster you.\r\n");
