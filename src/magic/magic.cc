@@ -1934,6 +1934,20 @@ mag_affects(int level, struct Creature *ch, struct Creature *victim,
 		to_vict = "Time seems to slow down around you.";
 		break;
 
+	case SPELL_TEMPORAL_DILATION:
+		if (mag_savingthrow(victim, level, SAVING_PHY)) {
+			send_to_char(ch, NOEFFECT);
+			return;
+		}
+		af.duration = 1 + (level >> 2);
+		af.bitvector = AFF2_SLOW;
+		af.aff_index = 2;
+		af.location = APPLY_DEX;
+		af.modifier = -number(0, 
+                              ch->getLevelBonus(SPELL_TEMPORAL_DILATION) / 25);
+		to_vict = "Time seems to speed up around you as your movements slow to a crawl.";
+		break;
+
 	case SPELL_TAINT:
 		if (HAS_SYMBOL(victim)) {
 			send_to_char(ch, "Your rune of taint fails to form.\r\n");

@@ -2473,7 +2473,7 @@ extern const char *spell_wear_off_msg[] = {
 	"!UNUSED!", "!UNUSED!", "!UNUSED!",	/* 330 */
 	"!UNUSED!", "!UNUSED!", 
     "Time speeds back up to normal.",
-    "!UNUSED!", 
+    "Time seems to slow down as your movements return to normal.", 
     "!UNUSED!",	/* 335 */
 	"!UNUSED!",
 	"!UNUSED!",

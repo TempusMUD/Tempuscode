@@ -112,7 +112,7 @@
   complete
 
   #define SPELL_TEMPORAL_DILATION    334  // works like slow
-  incomplete
+  complete
 
   #define SPELL_GAUSS_SHIELD         335  // half damage from metal
   incomplete

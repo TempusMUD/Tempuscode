@@ -307,7 +307,8 @@ const char *spells[] = {
 	"!UNUSED!", "!UNUSED!",		/* 330 */
 	"!UNUSED!", "!UNUSED!", 
     "temporal compression",     /* 333 */
-    "!UNUSED!", "!UNUSED!",	/* 335 */
+    "temporal dilation", 
+    "!UNUSED!",	/* 335 */
 	"!UNUSED!",
 	"!UNUSED!",
 	"radioimmunity",
@@ -3372,6 +3373,10 @@ mag_assign_spells(void)
 	spello(SPELL_TEMPORAL_COMPRESSION, X, X, X, X, X, X, 29, X, X, X, X, 
            X, X, X, X, X, X, 80, 50, 1,
 		POS_FIGHTING, TAR_CHAR_ROOM, FALSE, MAG_PHYSICS | MAG_AFFECTS);
+
+	spello(SPELL_TEMPORAL_DILATION, X, X, X, X, X, X, 36, X, X, X, X, X, 
+           X, X, X, X, X, 120, 60, 6, POS_FIGHTING, TAR_UNPLEASANT | 
+           TAR_CHAR_ROOM | TAR_FIGHT_VICT, FALSE, MAG_PHYSICS | MAG_AFFECTS);
 
 	spello(SPELL_HALFLIFE, X, X, X, X, X, X, 30, X, X, X, X, X, X, X, X, X, X,
 		120, 70, 5, POS_SITTING,
