@@ -37,6 +37,7 @@ void prog_do_do(prog_env *env, prog_evt *evt, char *args);
 void prog_do_silently(prog_env *env, prog_evt *evt, char *args);
 void prog_do_force(prog_env *env, prog_evt *evt, char *args);
 void prog_do_pause(prog_env *env, prog_evt *evt, char *args);
+void prog_do_walkto(prog_env *env, prog_evt *evt, char *args);
 void prog_do_halt(prog_env *env, prog_evt *evt, char *args);
 void prog_do_target(prog_env *env, prog_evt *evt, char *args);
 void prog_do_nuke(prog_env *env, prog_evt *evt, char *args);
@@ -71,6 +72,7 @@ prog_command prog_cmds[] = {
 	{ "randomly",	false,	prog_do_randomly },
 	{ "or",			false,	prog_do_or },
 	{ "pause",		true,	prog_do_pause },
+	{ "walkto",		true,	prog_do_walkto },
 	{ "do",			true,	prog_do_do },
 	{ "silently",	true,	prog_do_silently },
 	{ "force",		true,	prog_do_force },
@@ -488,6 +490,33 @@ void
 prog_do_pause(prog_env *env, prog_evt *evt, char *args)
 {
 	env->wait = MAX(1, atoi(args));
+}
+
+void
+prog_do_walkto(prog_env *env, prog_evt *evt, char *args)
+{
+	Creature *ch;
+	room_data *room;
+	int dir, pause;
+	
+	if (env->owner_type != PROG_TYPE_MOBILE)
+		return;
+
+	ch = (Creature *)env->owner;
+	room = real_room(atoi(tmp_getword(&args)));
+
+	if (room != ch->in_room) {
+		dir = find_first_step(ch->in_room, room, STD_TRACK);
+		if (dir != -1)
+			smart_mobile_move(ch, dir);
+		
+		// we have to wait at least one second
+		pause = atoi(tmp_getword(&args));
+		env->wait = MAX(1, pause);
+
+		// we stay on the same line until we get to the destination
+		env->exec_pt--;
+	}
 }
 
 void
