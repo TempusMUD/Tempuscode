@@ -26,6 +26,7 @@
 #include "security.h"
 #include "actions.h"
 #include "tmpstr.h"
+#include "house.h"
 
 /* extern variables */
 extern struct room_data *world;
@@ -37,7 +38,6 @@ void print_search_data_to_buf(struct Creature *ch,
 	struct room_data *room, struct special_search_data *cur_search, char *buf);
 int general_search(struct Creature *ch, struct special_search_data *srch,
 	int mode);
-int House_can_enter(struct Creature *ch, room_num real_room);
 int clan_house_can_enter(struct Creature *ch, struct room_data *room);
 int room_tele_ok(Creature *ch, struct room_data *room);
 
