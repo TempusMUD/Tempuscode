@@ -3501,24 +3501,32 @@ char_to_store(struct Creature *ch, struct char_file_u *st)
 	st->points.damroll = 0;
 
 	if (GET_TITLE(ch)) {
-		strcpy(st->title, GET_TITLE(ch));
+		strncpy(st->title, GET_TITLE(ch),MAX_TITLE_LENGTH);
+		st->title[MAX_TITLE_LENGTH] = '\0'; // allocated size + 1
 	} else {
 		*st->title = '\0';
 	}
-	if (ch->player.description) {
-		strcpy(st->description, ch->player.description);
-		st->description[MAX_CHAR_DESC - 1] = '\0';
-	} else
-		*st->description = '\0';
 
-	if (POOFIN(ch))
-		strcpy(st->poofin, POOFIN(ch));
-	else
+	if (ch->player.description) {
+		strncpy(st->description, ch->player.description, MAX_CHAR_DESC);
+		st->description[MAX_CHAR_DESC] = '\0'; // allocated size +1 
+	} else {
+		*st->description = '\0';
+	}
+
+	if (POOFIN(ch)) {
+		strncpy( st->poofin, POOFIN(ch), MAX_POOF_LENGTH );
+		st->poofin[MAX_POOF_LENGTH - 1] = '\0';
+	} else {
 		*st->poofin = '\0';
-	if (POOFOUT(ch))
-		strcpy(st->poofout, POOFOUT(ch));
-	else
+	}
+
+	if (POOFOUT(ch)) {
+		strncpy(st->poofout, POOFOUT(ch), MAX_POOF_LENGTH);
+		st->poofout[MAX_POOF_LENGTH - 1] = '\0';
+	} else {
 		*st->poofout = '\0';
+	}
 
 	strncpy(st->name, GET_NAME(ch), MAX_NAME_LENGTH);
 	st->name[MAX_NAME_LENGTH] = '\0';

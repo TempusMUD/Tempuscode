@@ -167,7 +167,7 @@ ACMD(do_dismiss)
 		if ((player_i = load_char(arg, &tmp_store)) > -1) {
 			store_to_char(&tmp_store, vict);
 		} else {
-			free(vict);
+			free_char(vict);
 			send_to_char(ch, "Error loading char from file.\r\n");
 			return;
 		}
@@ -177,7 +177,7 @@ ACMD(do_dismiss)
 	if (!vict) {
 		send_to_char(ch, "Dismiss who?\r\n");
 		if (in_file)
-			free(vict);
+			free_char(vict);
 		return;
 	}
 	if (vict == ch)
