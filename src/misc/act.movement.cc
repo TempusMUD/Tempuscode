@@ -1651,7 +1651,7 @@ ACMD(do_enter)
 	// We must be entering an object
 	car = get_obj_in_list_vis(ch, arg, ch->in_room->contents);
 	if (car && GET_OBJ_TYPE(car) == ITEM_VEHICLE) {
-		if (!CAR_CLOSED(car)) {
+		if (CAR_CLOSED(car)) {
 			act("The door of $p seems to be closed now.", FALSE, ch,
 				car, 0, TO_CHAR);
 			return;
