@@ -587,6 +587,7 @@ static const int SKILL_GREAT_CLEAVE = 695;
 static const int SKILL_APPRAISE = 696;
 static const int SKILL_GAROTTE = 697;
 static const int SKILL_SHIELD_MASTERY = 698;
+static const int SKILL_UNCANNY_DODGE = 699;
 /*
  *  NON-PLAYER AND OBJECT SPELLS AND SKILLS
  *  The practice levels for the spells and skills below are _not_ recorded

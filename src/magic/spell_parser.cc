@@ -540,7 +540,7 @@ const char *spells[] = {
 	"great cleave",	/* 695 */
 	"appraise",
 	"garotte",
-	"shield mastery", "!UNUSED!", "!UNUSED!",	/* 700 */
+	"shield mastery", "uncanny dodge", "!UNUSED!",	/* 700 */
 
 	/* OBJECT SPELLS AND NPC SPELLS/SKILLS */
 
@@ -3539,6 +3539,9 @@ mag_assign_spells(void)
 		40, 20, 1, 0, 0, 0, MAG_ZEN);
 
 	remort_spello(SKILL_DISGUISE, CLASS_THIEF, 17, 1, 40, 20, 1, 0, 0, 0, 0);
+    
+	remort_spello(SKILL_UNCANNY_DODGE, CLASS_THIEF, 22, 2,
+		          0, 0, 0, 0, 0, 0, 0);
 
 	remort_spello(SKILL_DE_ENERGIZE, CLASS_CYBORG, 22, 1,
 		0, 0, 0, POS_FIGHTING, 0, TRUE, 0);
