@@ -48,11 +48,11 @@ static const struct group_command {
     char *usage;
     int level;
 } grp_cmds[] = {
-    { "adduser", "<username> <groupname>",     LVL_GRGOD },
+    { "adduser", "<username> <groupnames>",     LVL_GRGOD },
     { "create",  "",                           LVL_GRGOD },
     { "list",    "",                           LVL_IMMORT },
     { "members", "<groupname>",                LVL_IMMORT },
-    { "remuser", "<username> <groupname>",     LVL_GRGOD },
+    { "remuser", "<username> <groupnames>",     LVL_GRGOD },
     { NULL, NULL, 0 }       // list terminator
 };
 const char *help_group_names[] = {
@@ -78,6 +78,7 @@ const char *help_group_names[] = {
     "monk",
     "mercenary",
     "helpeditors",
+    "helpgods",
     "\n"
 };
 const char *help_group_bits[] = {
@@ -103,6 +104,7 @@ const char *help_group_bits[] = {
     "MONK",
     "MERC",
     "HEDT",
+    "HGOD",
     "\n"
 };
 const char *help_bit_descs[] = {
@@ -161,7 +163,7 @@ void HelpCollection::GetTopic(char_data *ch, char *args,int mode=2,bool show_no_
         return;
     }
     cur->Show( ch, gHelpbuf, mode );
-    page_string(ch->desc,gHelpbuf,0);
+    page_string(ch->desc,gHelpbuf,1);
     return;
 }
 // Show all the items
@@ -195,7 +197,7 @@ void HelpCollection::List( char_data *ch, char *args ) {
             break;
         }
     }
-    page_string(ch->desc, gHelpbuf, 0);
+    page_string(ch->desc, gHelpbuf, 1);
 }
 // Create an item. (calls Edit)
 bool HelpCollection::CreateItem( char_data *ch ) {

@@ -52,12 +52,13 @@ bool HelpGroup::AddUser(char_data *ch,char *argument) {
     char linebuf[256];
     long uid,gid;
     int i;
+    bool result = true;
 
     if(!ch || !argument || !*argument) {
         send_to_char("Add who to what group?\r\n",ch);
         return false;
     }
-    two_arguments(argument,player,group);
+    argument = two_arguments(argument,player,group);
     if(!*group) {
         strcpy(buf,"Valid groups are:\r\n");
         for(i=1;i-1 < HGROUP_MAX;i++) {
@@ -75,18 +76,26 @@ bool HelpGroup::AddUser(char_data *ch,char *argument) {
         send_to_char(buf,ch);
         return false;
     }
-    gid = get_gid_by_name(group);
-    if(gid < 0) {
-        sprintf(buf,"There is no group named '%s'.\r\n",group);
-        send_to_char(buf,ch);
-        return false;
+    while(*group) {
+        gid = get_gid_by_name(group);
+        if(gid < 0) {
+            sprintf(buf,"There is no group named '%s'.\r\n",group);
+            send_to_char(buf,ch);
+            result=false;
+        } else if(is_member(uid,gid)) {
+            sprintf(buf,"%s is already in group: '%s'\r\n",player,help_group_names[gid]);
+            send_to_char(buf,ch);
+            result=false;
+        } else if(add_user(uid,gid)) {
+            sprintf(buf,"%s added to group: '%s'\r\n",player,help_group_names[gid]);
+            send_to_char(buf,ch);
+            result=true;
+        }
+        argument = one_argument(argument,group);
     }
-    if(add_user(uid,gid)) {
-        sprintf(buf,"%s added to group: '%s'\r\n",player,help_group_names[gid]);
-        send_to_char(buf,ch);
+    if (result)
         return true;
-    }
-    send_to_char("Command failed.\r\n",ch);
+    send_to_char("Group add failed.\r\n",ch);
     return false;
 }
 bool HelpGroup::RemoveUser(char_data *ch, char *argument) {
@@ -95,12 +104,13 @@ bool HelpGroup::RemoveUser(char_data *ch, char *argument) {
     char linebuf[256];
     long uid,gid;
     int j,i;
+    bool result = true;
 
     if(!ch || !argument || !*argument) {
         send_to_char("Remove who from what group?\r\n",ch);
         return false;
     }
-    two_arguments(argument,player,group);
+    argument = two_arguments(argument,player,group);
     if(!(uid = get_id_by_name(player))) {
         sprintf(buf,"There is no player named '%s'.\r\n",player);
         send_to_char(buf,ch);
@@ -124,21 +134,24 @@ bool HelpGroup::RemoveUser(char_data *ch, char *argument) {
         send_to_char(buf,ch); 
         return false;
     }
-    gid = get_gid_by_name(group);
-    if(gid < 0) {
-        sprintf(buf,"There is no group named '%s'.\r\n",group);
-        send_to_char(buf,ch);
-        return false;
+    while(*group) {
+        gid = get_gid_by_name(group);
+        if(gid < 0) {
+            sprintf(buf,"There is no group named '%s'.\r\n",group);
+            send_to_char(buf,ch);
+            result=false;
+        } else if(!is_member(uid,gid)) {
+            send_to_char("They aren't in that group!\r\n",ch);
+            result=false;   
+        } else if(remove_user(uid,gid)) {
+            sprintf(buf,"%s removed from group: '%s'\r\n",player,help_group_names[gid]);
+            send_to_char(buf,ch);
+            result=true;
+        }
+        argument = one_argument(argument,group);
     }
-    if(!is_member(uid,gid)) {
-        send_to_char("They aren't in that group!\r\n",ch);
-        return false;   
-    }
-    if(remove_user(uid,gid)) {
-        sprintf(buf,"%s removed from group: '%s'\r\n",player,help_group_names[gid]);
-        send_to_char(buf,ch);
+    if (result)
         return true;
-    }
     send_to_char("Command failed.\r\n",ch);
     return false;
 }
@@ -147,6 +160,10 @@ bool HelpGroup::CanEdit(char_data *ch, HelpItem *n) {
         return false;
     if(GET_LEVEL(ch) >= LVL_GRGOD)
         return true;
+    if(is_member(GET_IDNUM(ch),get_gid_by_name("helpgods")))
+        return true;
+    if(!IS_SET(n->flags,HFLAG_UNAPPROVED))
+        return false;
     if(n->groups == 0 && is_member(GET_IDNUM(ch),get_gid_by_name("helpeditor")))
         return true;
     for(int i = 0;i < HGROUP_MAX; i++) {
@@ -284,8 +301,11 @@ void HelpGroup::build_group_list() {
         file >> gid >> members;
         while(members) {
             file >> uid;
-            if(!add_user(uid,gid)) {
-                sprintf(buf,"SYSERR: Unable to add user '%ld' to group: '%ld'", uid,gid);
+            if(!get_name_by_id(uid)) {
+                sprintf(buf,"HLPERR: No such player id %ld, not adding to group %ld.",uid,gid);
+                slog(buf);
+            } else if(!add_user(uid,gid)) {
+                sprintf(buf,"HLPERR: Unable to add user '%ld' to group: '%ld'", uid,gid);
                 slog(buf);
             }
             members--;
