@@ -859,7 +859,7 @@ make_corpse(struct Creature *ch, struct Creature *killer, int attacktype)
 		break;
 
 	case TYPE_WHIP:
-		sprintf(buf2, "The whelted %s of %s %s lying here.",
+		sprintf(buf2, "The welted %s of %s %s lying here.",
 			typebuf, GET_NAME(ch), isare);
 		corpse->description = str_dup(buf2);
 		strcpy(adj, "whipped");
