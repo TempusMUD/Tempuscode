@@ -269,13 +269,15 @@ int num_nasty = 0;
 int
 Valid_Name(char *newname)
 {
-	int i;
-
+	int alpha_hist[256];
+	int i, len;
 	char tempname[MAX_NAME_LENGTH];
-    if( strlen(newname) > MAX_NAME_LENGTH )
+
+	len = strlen(newname);
+    if( len > (int)MAX_NAME_LENGTH )
         return 0;
 
-	if (strlen(newname) < 3)
+	if (len < 3)
 		return 0;
 
 	/* return valid if list doesn't exist */
@@ -284,7 +286,7 @@ Valid_Name(char *newname)
 
 	/* change to lowercase */
 	strncpy(tempname, newname,MAX_NAME_LENGTH);
-	for (i = 0; tempname[i]; i++) {
+	for (i = 0; i < len; i++) {
 		if (!isalpha(tempname[i]) && tempname[i] != '\'')
 			return 0;
 		tempname[i] = tolower(tempname[i]);
@@ -294,6 +296,28 @@ Valid_Name(char *newname)
 	for (i = 0; i < num_invalid; i++)
 		if (strstr(tempname, invalid_list[i]))
 			return 0;
+
+	// Build histogram of characters used
+	for (i = 0;i < 256;i++)
+		alpha_hist[i] = 0;
+	for (i = 0; i < len; i++)
+		alpha_hist[tempname[i]] += 1;
+
+	// All names must have at least one vowel
+	if (!(alpha_hist['a'] || alpha_hist['e'] || alpha_hist['i'] ||
+			alpha_hist['o'] || alpha_hist['u'] || alpha_hist['y']))
+		return 0;
+
+	// Check that no character is used more than half the length of the string,
+	// rounded up, excluding the first character of the name
+	// Oog is ok, Ooog is ok, Oooog is not
+	len /= 2;
+	for (i = 0; i < 256; i++)
+		if (alpha_hist[i] - ((i == tempname[0]) ? 1:0) > len)
+			return 0;
+
+	if (alpha_hist['\''] > 1)
+		return 0;
 
 	return 1;
 }
