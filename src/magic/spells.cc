@@ -3660,7 +3660,7 @@ perform_call_familiar(Creature *ch, int level, int type)
 	struct affected_type af;
 	struct Creature *pet = NULL;
 	struct follow_type *cur_fol;
-	int mult;
+	int percent;
 
 	// First check to make sure that they don't already have a familiar
 	for (cur_fol = ch->followers;cur_fol;cur_fol = cur_fol->next) {
@@ -3688,17 +3688,17 @@ perform_call_familiar(Creature *ch, int level, int type)
 	SET_BIT(MOB2_FLAGS(pet), MOB2_FAMILIAR);
 
 	// Scale the pet to the caster's level
-	GET_LEVEL(pet) = (GET_LEVEL(ch) + 1) * 3 / 4;
-	mult = GET_LEVEL(pet);
+	percent = 50 + ch->getLevelBonus(true) / 2;
+	GET_LEVEL(pet) = GET_LEVEL(pet) * percent / 100;
 	GET_EXP(pet) = 0;
-	GET_MAX_HIT(pet) *= mult;
+	GET_MAX_HIT(pet) = GET_MAX_HIT(pet) * percent / 100;
 	GET_HIT(pet) = GET_MAX_HIT(pet);
-	GET_MAX_MANA(pet) *= mult;
+	GET_MAX_MANA(pet) = GET_MAX_MANA(pet) * percent / 100;
 	GET_MANA(pet) = GET_MAX_HIT(pet);
-	GET_MAX_MOVE(pet) *= mult;
+	GET_MAX_MOVE(pet) = GET_MAX_MOVE(pet) * percent / 100;
 	GET_MOVE(pet) = GET_MAX_HIT(pet);
-	GET_HITROLL(pet) *= mult;
-	GET_DAMROLL(pet) *= mult;
+	GET_HITROLL(pet) = GET_HITROLL(pet) * percent / 100;
+	GET_DAMROLL(pet) = GET_DAMROLL(pet) * percent / 100;
 
 	if (pet->master)
 		stop_follower(pet);
