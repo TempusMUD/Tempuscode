@@ -66,13 +66,13 @@ const struct qcontrol_option {
     { "maxlev",   "<vnum> <maxlev>",                            LVL_AMBASSADOR },
     { "award",    "<player> <vnum> <pts> [comments]",           LVL_AMBASSADOR },
     { "penalize", "<player> <vnum> <pts> <reason>",             LVL_LUMINARY },
-    { "load",     "<mobile vnum> <vnum>",                       LVL_POWER   },
-    { "purge",    "<vnum> <mobile name>",                       LVL_POWER   }, // 20
+    { "mload",     "<mobile vnum> <vnum>",                      LVL_SPIRIT  },
+    { "purge",    "<vnum> <mobile name>",                       LVL_SPIRIT  }, // 20
     { "save",     "",                                           LVL_GRGOD  },
     { "help",     "<topic>",                                    LVL_AMBASSADOR },
     { "switch",   "<mobile name>",                              LVL_IMMORT },
-    { "rename",   "<obj name> <new obj name>",                                        LVL_POWER},
-    { "oload",          "<item num> <vnum>",                                                        LVL_AMBASSADOR},
+    { "rename",   "<obj name> <new obj name>",                  LVL_SPIRIT },
+    { "oload",          "<item num> <vnum>",                    LVL_AMBASSADOR},
     { NULL, NULL, 0 }                // list terminator
 };
 
@@ -81,9 +81,9 @@ const char *qtypes[] = {
     "scavenger",
     "hide-and-seek",
     "roleplay",
-        "pkill",
-        "award/payment",
-        "misc",
+    "pkill",
+    "award/payment",
+    "misc",
     "\n"
 };
 
@@ -92,9 +92,9 @@ const char *qtype_abbrevs[] = {
     "scav",
     "h&s",
     "RP",
-        "pkill",
-        "A/P",
-        "misc",
+    "pkill",
+    "A/P",
+    "misc",
     "\n"
 };
 
@@ -140,20 +140,20 @@ ACMD(do_qcontrol)
         return;
     }
     for (com = 0;;com++) {
-                if (!qc_options[com].keyword) {
-                        sprintf(buf, "Unknown qcontrol option, '%s'.\r\n", arg1);
-                        send_to_char(buf, ch);
-                        return;
-                }
-                if (is_abbrev(arg1, qc_options[com].keyword))
-                        break;
-    }
-          if(qc_options[com].level > GET_LEVEL(ch)) {
-                send_to_char("You are not godly enough to do this!\r\n",ch);
-                return;
+        if (!qc_options[com].keyword) {
+            sprintf(buf, "Unknown qcontrol option, '%s'.\r\n", arg1);
+            send_to_char(buf, ch);
+            return;
         }
+        if (is_abbrev(arg1, qc_options[com].keyword))
+            break;
+    }
+    if(qc_options[com].level > GET_LEVEL(ch)) {
+        send_to_char("You are not godly enough to do this!\r\n",ch);
+        return;
+    }
     
-        switch (com) {
+    switch (com) {
     case 0:                        // show
         do_qcontrol_show(ch, argument);
         break;
@@ -209,7 +209,7 @@ ACMD(do_qcontrol)
         do_qcontrol_penalize( ch, argument, com);
         break;
     case 18:                        // Load Mobile
-        do_qcontrol_load( ch, argument, com);
+        do_qcontrol_mload( ch, argument, com);
         break;
     case 19:                        // Purge Mobile
         do_qcontrol_purge( ch, argument, com);
@@ -220,11 +220,11 @@ ACMD(do_qcontrol)
     case 22:
         do_qcontrol_switch( ch, argument, com );
         break;
-        case 23:                        // rename
+    case 23:                        // rename
         //do_qcontrol_rename( ch, argument ,com );
         send_to_char("Not Implemented\r\n",ch);
         break;
-        case 24:                        // oload
+    case 24:                        // oload
         do_qcontrol_oload( ch, argument ,com );
         break;
         
@@ -253,7 +253,7 @@ do_qcontrol_help(struct char_data *ch, char *argument)
             if (*qtypes[i] == '\n')
                 break;
             sprintf(buf, "%s %2d. %s\r\n", buf, i, qtypes[i]);
-			i++;
+            i++;
         }
         page_string(ch->desc, buf, 1);
         return;
@@ -266,7 +266,7 @@ do_qcontrol_help(struct char_data *ch, char *argument)
             if (*quest_bits[i] == '\n')
                 break;
             sprintf(buf, "%s %2d. %s\r\n", buf, i, quest_bits[i]);
-			i++;
+            i++;
         }
         page_string(ch->desc, buf, 1);
         return;
@@ -276,29 +276,29 @@ do_qcontrol_help(struct char_data *ch, char *argument)
 }
 
 void //Load mobile.
-do_qcontrol_load    (CHAR *ch, char *argument, int com) {
+do_qcontrol_mload    (CHAR *ch, char *argument, int com) {
     struct char_data *mob;
     struct quest_data *quest = NULL;
-        char arg1[MAX_INPUT_LENGTH];
+    char arg1[MAX_INPUT_LENGTH];
     int number;
 
-        argument = two_arguments(argument,buf,arg1);
+    argument = two_arguments(argument,buf,arg1);
     
-        if (!*buf || !isdigit(*buf) || !*arg1 || !isdigit(*arg1)) {
+    if (!*buf || !isdigit(*buf) || !*arg1 || !isdigit(*arg1)) {
         do_qcontrol_usage(ch, com);
         return;
     }
 
-        if ( !(quest = find_quest( ch, arg1) ) ){
-                return;
-        }
-        if ( !quest_edit_ok( ch, quest) ){
-                return;
-        }
-        if( quest->ended ){
-                send_to_char( "Pay attentionu dummy! That quest is over!\r\n", ch);
-                return;
-        }
+    if ( !(quest = find_quest( ch, arg1) ) ){
+        return;
+    }
+    if ( !quest_edit_ok( ch, quest) ){
+        return;
+    }
+    if( quest->ended ){
+        send_to_char( "Pay attentionu dummy! That quest is over!\r\n", ch);
+        return;
+    }
 
     if ((number = atoi(buf)) < 0) {
         send_to_char("A NEGATIVE number??\r\n", ch);
@@ -310,35 +310,35 @@ do_qcontrol_load    (CHAR *ch, char *argument, int com) {
     }
     mob = read_mobile(number);
     char_to_room(mob, ch->in_room);
-        act("$n makes a quaint, magical gesture with one hand.", TRUE, ch,
+    act("$n makes a quaint, magical gesture with one hand.", TRUE, ch,
         0, 0, TO_ROOM);
     act("$n has created $N!", FALSE, ch, 0, mob, TO_ROOM);
     act("You create $N.", FALSE, ch, 0, mob, TO_CHAR);
 
-    sprintf(buf, "loaded %s at %d.", GET_NAME(mob), ch->in_room->number);
-        qlog(ch,buf, QLOG_BRIEF, MAX(GET_INVIS_LEV(ch),LVL_DEMI), TRUE);
+    sprintf(buf, "mloaded %s at %d.", GET_NAME(mob), ch->in_room->number);
+    qlog(ch,buf, QLOG_BRIEF, MAX(GET_INVIS_LEV(ch),LVL_DEMI), TRUE);
 
 }
 void 
 do_qcontrol_oload_list(char_data *ch) {
-        int i=0;
-        char main_buf[MAX_STRING_LENGTH];
-        obj_data *obj;
-        strcpy(main_buf,"Valid Quest Objects:\r\n");
-        for(i = MIN_QUEST_OBJ_VNUM; i <= MAX_QUEST_OBJ_VNUM; i++) {
-                if(!(obj = read_object(i)))
-                        continue;
-                sprintf(buf,"    %s%d. %s%s %s: %d qps ",CCNRM(ch,C_NRM),
-                        i - MIN_QUEST_OBJ_VNUM, CCGRN(ch,C_NRM),obj->short_description,
-                        CCNRM(ch,C_NRM), (obj->shared->cost/100000));
-                if(IS_OBJ_STAT2(obj, ITEM2_UNAPPROVED))
-                        strcat(buf,"(!ap)\r\n");
-                else
-                        strcat(buf,"\r\n");
-                strcat(main_buf,buf);
-                extract_obj(obj);
-        }
-        send_to_char(main_buf,ch);
+    int i=0;
+    char main_buf[MAX_STRING_LENGTH];
+    obj_data *obj;
+    strcpy(main_buf,"Valid Quest Objects:\r\n");
+    for(i = MIN_QUEST_OBJ_VNUM; i <= MAX_QUEST_OBJ_VNUM; i++) {
+        if(!(obj = read_object(i)))
+            continue;
+        sprintf(buf,"    %s%d. %s%s %s: %d qps ",CCNRM(ch,C_NRM),
+                i - MIN_QUEST_OBJ_VNUM, CCGRN(ch,C_NRM),obj->short_description,
+                CCNRM(ch,C_NRM), (obj->shared->cost/100000));
+        if(IS_OBJ_STAT2(obj, ITEM2_UNAPPROVED))
+            strcat(buf,"(!ap)\r\n");
+        else
+            strcat(buf,"\r\n");
+        strcat(main_buf,buf);
+        extract_obj(obj);
+    }
+    send_to_char(main_buf,ch);
 }
 // Load Quest Object
 void
@@ -352,64 +352,64 @@ do_qcontrol_oload(CHAR *ch, char *argument, int com) {
 
 
     if (!*buf || !isdigit(*buf)) {
-                do_qcontrol_oload_list(ch);
-                do_qcontrol_usage(ch, com);
-                return;
+        do_qcontrol_oload_list(ch);
+        do_qcontrol_usage(ch, com);
+        return;
     }
 
-        if ( !(quest = find_quest( ch, arg2) ) ){
-                return;
-        }
-        if ( !quest_edit_ok( ch, quest) ){
-                return;
-        }
-        if( quest->ended ){
-                send_to_char( "Pay attentionu dummy! That quest is over!\r\n", ch);
-                return;
-        }
+    if ( !(quest = find_quest( ch, arg2) ) ){
+        return;
+    }
+    if ( !quest_edit_ok( ch, quest) ){
+        return;
+    }
+    if( quest->ended ){
+        send_to_char( "Pay attentionu dummy! That quest is over!\r\n", ch);
+        return;
+    }
 
     if ((number = atoi(buf)) < 0) {
-                send_to_char("A NEGATIVE number??\r\n", ch);
-                return;
+        send_to_char("A NEGATIVE number??\r\n", ch);
+        return;
     }
-        if(        number > MAX_QUEST_OBJ_VNUM - MIN_QUEST_OBJ_VNUM) {
-                send_to_char("Invalid item number.\r\n",ch);
-                do_qcontrol_oload_list(ch);
-                return;
-        }
-        obj = read_object(number + MIN_QUEST_OBJ_VNUM);
-        
-        if(!obj) {
-                send_to_char("Error, no object loaded\r\n",ch);
-                return;
-        }
-        if(obj->shared->cost < 0) {
-                send_to_char("This object is messed up.\r\n",ch);
+    if( number > MAX_QUEST_OBJ_VNUM - MIN_QUEST_OBJ_VNUM) {
+        send_to_char("Invalid item number.\r\n",ch);
+        do_qcontrol_oload_list(ch);
+        return;
+    }
+    obj = read_object(number + MIN_QUEST_OBJ_VNUM);
+    
+    if(!obj) {
+        send_to_char("Error, no object loaded\r\n",ch);
+        return;
+    }
+    if(obj->shared->cost < 0) {
+        send_to_char("This object is messed up.\r\n",ch);
         extract_obj(obj);
-                return;
-        }
+        return;
+    }
     if(GET_LEVEL(ch) == LVL_AMBASSADOR && obj->shared->cost > 0) {
-                send_to_char( "You can only load objects with a 0 cost.\r\n", ch);
+        send_to_char( "You can only load objects with a 0 cost.\r\n", ch);
         extract_obj(obj);
-                return;
+        return;
     }
 
     if( ( (obj->shared->cost/100000) > GET_QUEST_POINTS( ch ) ) ){
-                send_to_char( "You do not have the required quest points.\r\n", ch);
+        send_to_char( "You do not have the required quest points.\r\n", ch);
         extract_obj(obj);
-                return;
+        return;
     }
      
-        GET_QUEST_POINTS( ch ) -= (obj->shared->cost/100000);
-        obj_to_char(obj,ch);
-        save_char( ch, NULL );
-        act("$n makes a quaint, magical gesture with one hand.", TRUE, ch,
+    GET_QUEST_POINTS( ch ) -= (obj->shared->cost/100000);
+    obj_to_char(obj,ch);
+    save_char( ch, NULL );
+    act("$n makes a quaint, magical gesture with one hand.", TRUE, ch,
         0, 0, TO_ROOM);
     act("$n has created $p!", FALSE, ch, obj,0, TO_ROOM);
     act("You create $p.", FALSE, ch, obj,0, TO_CHAR);
 
     sprintf(buf, "loaded %s at %d.", obj->short_description, ch->in_room->number);
-        qlog(ch,buf, QLOG_BRIEF, MAX(GET_INVIS_LEV(ch),LVL_IMMORT), TRUE);
+    qlog(ch,buf, QLOG_BRIEF, MAX(GET_INVIS_LEV(ch),LVL_IMMORT), TRUE);
 
 }
 
@@ -418,46 +418,46 @@ do_qcontrol_purge   (CHAR *ch, char *argument, int com) {
 
     struct char_data *vict;
     struct quest_data *quest = NULL;
-        char arg1[MAX_INPUT_LENGTH];
+    char arg1[MAX_INPUT_LENGTH];
 
 
     argument = two_arguments(argument, arg1, buf);
-        printf("arg1 %s\r\nbuf %s\r\n",arg1,buf);
-        if (!*buf) {
-                send_to_char("Purge what?\r\n",ch);
-                return;
-        }
-        if ( !(quest = find_quest( ch, arg1) ) ){
-                return;
-        }
-        if ( !quest_edit_ok( ch, quest) ){
-                return;
-        }
-        if( quest->ended ){
-                send_to_char( "Pay attentionu dummy! That quest is over!\r\n", ch);
-                return;
-        }
-        
-        if ((vict = get_char_room_vis(ch, buf))) {
+    printf("arg1 %s\r\nbuf %s\r\n",arg1,buf);
+    if (!*buf) {
+        send_to_char("Purge what?\r\n",ch);
+        return;
+    }
+    if ( !(quest = find_quest( ch, arg1) ) ){
+        return;
+    }
+    if ( !quest_edit_ok( ch, quest) ){
+        return;
+    }
+    if( quest->ended ){
+        send_to_char( "Pay attentionu dummy! That quest is over!\r\n", ch);
+        return;
+    }
+    
+    if ((vict = get_char_room_vis(ch, buf))) {
         if (!IS_NPC(vict)) {
-                        send_to_char("You don't need a quest to purge them!\r\n", ch);
-                        return;
+            send_to_char("You don't need a quest to purge them!\r\n", ch);
+            return;
         }
         act("$n disintegrates $N.", FALSE, ch, 0, vict, TO_NOTVICT);
-                sprintf(buf, "has purged %s at %d.",
-                GET_NAME(vict), vict->in_room->number);
-                qlog(ch,buf, QLOG_BRIEF, MAX(GET_INVIS_LEV(ch),LVL_DEMI), TRUE);
-                if (vict->desc) {
-                        close_socket(vict->desc);
-                        vict->desc = NULL;
-                }
-                //extract_char(vict, TRUE);
-                vict->extract( FALSE );
-                send_to_char(OK, ch);
-        } else {
-                send_to_char("Purge what?\r\n",ch);
-                return;
+        sprintf(buf, "has purged %s at %d.",
+        GET_NAME(vict), vict->in_room->number);
+        qlog(ch,buf, QLOG_BRIEF, MAX(GET_INVIS_LEV(ch),LVL_DEMI), TRUE);
+        if (vict->desc) {
+            close_socket(vict->desc);
+            vict->desc = NULL;
         }
+        //extract_char(vict, TRUE);
+        vict->extract( FALSE );
+        send_to_char(OK, ch);
+    } else {
+        send_to_char("Purge what?\r\n",ch);
+        return;
+    }
 
 }
 
@@ -2641,15 +2641,20 @@ do_qcontrol_penalize( CHAR *ch, char *argument, int com)
         return;
     }
      
-    if ( (ch) && (vict)){
-                GET_QUEST_POINTS( vict ) -= penalty;
-                save_char( vict, NULL );
-                sprintf( buf, "penalized player %s %d qpoints.",GET_NAME( vict ), penalty);
-                qlog( ch, buf, QLOG_BRIEF, MAX(GET_INVIS_LEV(ch),LVL_AMBASSADOR), TRUE);
-                if ( *argument ) {
-                        sprintf( buf, "'s Penalty Comments: %s", argument);
-                        qlog( ch, buf, QLOG_COMP, MAX(GET_INVIS_LEV(ch),LVL_AMBASSADOR), TRUE);
-                }
+    if ( (ch) && (vict) ){
+        GET_QUEST_POINTS( vict ) -= penalty;
+        GET_QUEST_POINTS( ch ) += penalty;
+        save_char( vict, NULL );
+        save_char( ch, NULL );
+        sprintf( buf, "%d of your quest points have been taken by %s!\r\n",penalty,GET_NAME(ch));
+        send_to_char(buf,vict);
+        sprintf( buf, "%d quest points transferred from %s.\r\n",penalty,GET_NAME(vict));
+        send_to_char(buf,ch);
+        sprintf( buf, "penalized player %s %d qpoints.",GET_NAME( vict ), penalty);
+        qlog( ch, buf, QLOG_BRIEF, MAX(GET_INVIS_LEV(ch),LVL_AMBASSADOR), TRUE);
+        if ( *argument ) {
+                sprintf( buf, "'s Penalty Comments: %s", argument);
+                qlog( ch, buf, QLOG_COMP, MAX(GET_INVIS_LEV(ch),LVL_AMBASSADOR), TRUE);
+        }
     }    
-
 }   

@@ -114,7 +114,7 @@ void do_qcontrol_unmute  (CHAR *ch, char *argument, int com);
 void do_qcontrol_award   (CHAR *ch, char *argument, int com);
 void do_qcontrol_penalize (CHAR *ch, char *argument, int com);
 void do_qcontrol_save    (CHAR *ch, char *argument, int com);
-void do_qcontrol_load    (CHAR *ch, char *argument, int com);//Load mobile.
+void do_qcontrol_mload    (CHAR *ch, char *argument, int com);//Load mobile.
 void do_qcontrol_purge   (CHAR *ch, char *argument, int com);//Purge mobile.
 
 // utility functions
