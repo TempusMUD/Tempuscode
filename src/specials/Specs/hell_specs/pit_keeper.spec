@@ -29,10 +29,13 @@ SPECIAL( pit_keeper )
 	char_to_room( vict, ch->in_room->dir_option[ DOWN ]->to_room );
 	act( "$n is hurled in from above!", FALSE, vict, 0, 0, TO_ROOM );
 	look_at_room( vict, vict->in_room, 0 );
+        WAIT_STATE( vict, 1 RL_SEC );
 	return 1;
     }
     else {
 	act( "$n attempts to grapple with you and fails!", FALSE,  ch, 0, vict, TO_VICT );
+        WAIT_STATE( ch, 1 RL_SEC );
+        return 1;
     }
 
     return 0;
