@@ -967,8 +967,8 @@ dam_message(int dam, struct Creature *ch, struct Creature *victim,
 			"#s hurts you as $n #W $p."
         },
 		{   // 4: 7 - 14
-			"#s hurts you $N badly as $n #W $p.",
-			"#s hurts you $N badly as you #w $p.",
+			"#s hurts $N badly as $n #W $p.",
+			"#s hurts $N badly as you #w $p.",
 			"#s hurts you badly as $n #W $p."
         },
 		{   // 5: 11 - 19

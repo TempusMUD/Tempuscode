@@ -103,6 +103,8 @@ struct obj_data *damage_eq(struct Creature *ch, struct obj_data *obj, int eq_dam
 void dam_message(int dam, struct Creature *ch, struct Creature *victim,
 	int w_type, int location);
 
+bool do_gun_special(Creature *ch, obj_data *obj);
+
 void death_cry(struct Creature *ch);
 void appear(struct Creature *ch, struct Creature *vict);
 void make_corpse(struct Creature *ch, struct Creature *killer,

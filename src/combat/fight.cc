@@ -1201,6 +1201,30 @@ damage(struct Creature *ch, struct Creature *victim, int dam,
 			damage_eq(ch, weap, MAX(weap_dam, dam >> 6), attacktype);
 		return 0;
 	}
+    
+    if (attacktype == TYPE_EGUN_PARTICLE && dam) {
+        obj_data *tmp = NULL;
+        if (impl) tmp=impl;
+        if (obj) tmp=obj;
+        eq_dam = (int)(eq_dam * 1.3);
+        if (ch && do_gun_special(ch, weap)) {
+            eq_dam *= 4;
+            dam *= 2;
+            //we add in eq_dam here because it is later subtracted
+            //since the particles are penetrating the eq we don't want it to provide protection
+            dam += eq_dam;
+            if (tmp) {
+                act("Your particle stream penetrates $p and into $N!", false, ch, tmp, victim, TO_CHAR);
+                act("$n's particle stream penetrates $p and into you!", false, ch, tmp, victim, TO_VICT);
+                act("$n's particle stream penetrates $p and into $N!", false, ch, tmp, victim, TO_NOTVICT);
+            } else {
+                act("Your particle stream penetrates deep into $N!", false, ch, obj, victim, TO_CHAR);
+                act("$n's particle stream penetrates deep into you!", false, ch, obj, victim, TO_VICT);
+                act("$n's particle stream penetrates deep into $N!", false, ch, obj, victim, TO_NOTVICT);
+            }
+        }
+        
+    }
 
 	//
 	// attacker is a character
@@ -2805,9 +2829,14 @@ do_gun_special(Creature *ch, obj_data *obj) {
     }
     
     //calculation code here, future skills could and should affect this
-    
-    if (number(0, MAX(2, LVL_GRIMP + 28 - GET_LEVEL(ch) - GET_DEX(ch) -
-    (CHECK_SKILL(ch, SKILL_ENERGY_WEAPONS) >> 3)))) {
+    if (GET_OBJ_VAL(obj, 3) == EGUN_PARTICLE) {
+        int penetrate = MAX(3,35-(GET_HITROLL(ch)/10)-GET_DEX(ch));
+        if (number(0, penetrate)) {
+            return false;
+        }
+                        
+    } else if (number(0, MAX(2, LVL_GRIMP + 28 - GET_LEVEL(ch) - GET_DEX(ch) -
+                (CHECK_SKILL(ch, SKILL_ENERGY_WEAPONS) >> 3)))) {
         return false;
     }
     
