@@ -629,11 +629,6 @@ ASPELL(spell_summon)
 			"The magic quickly dissipates!\r\n");
 		act("$n fades out for a moment but quickly flickers back into view.",
 			FALSE, victim, 0, 0, TO_ROOM);
-		/* Removed per Cat's request        
-		   "You are caught up in an energy vortex and thrown to the ground!\r\n", victim);
-		   act("$n is knocked to the ground by a blinding flash of light!", 
-		   FALSE, victim, 0, 0, TO_ROOM);
-		   victim->setPosition( POS_RESTING ); */
 		send_to_char(ch, SUMMON_FAIL);
 		return;
 	}
@@ -652,7 +647,6 @@ ASPELL(spell_summon)
 		send_to_char(ch, "This magic cannot penetrate here!\r\n");
 		return;
 	}
-//    if (room_count(ch, ch->in_room) >= ch->in_room->max_occupancy) {
 	if (ch->in_room->people.size() >= (unsigned)ch->in_room->max_occupancy) {
 		send_to_char(ch, "This room is too crowded to summon anyone!\r\n");
 		return;
@@ -690,10 +684,8 @@ ASPELL(spell_summon)
 
 			send_to_char(ch, "You failed because %s has summon protection on.\r\n",
 				GET_NAME(victim));
-
-			mudlog(LVL_AMBASSADOR, BRF, true,
-				"%s failed summoning %s to %s.",
-				GET_NAME(ch), GET_NAME(victim), ch->in_room->name);
+			slog("%s failed summoning %s to %s[%d]", GET_NAME(ch),
+				GET_NAME(victim), ch->in_room->name, ch->in_room->number);
 			return;
 		}
 	}
@@ -805,9 +797,12 @@ ASPELL(spell_summon)
 	look_at_room(victim, victim->in_room, 0);
 	WAIT_STATE(ch, PULSE_VIOLENCE * 2);
 
-	if (!IS_REMORT(victim) && !IS_NPC(victim)) {
-		slog("%s summoned %s to %d.\n",
-			GET_NAME(ch), GET_NAME(victim), victim->in_room->number);
+	if (!IS_NPC(victim)) {
+		mudlog(LVL_AMBASSADOR, BRF, true,
+			"%s has%s summoned %s to %s (%d)",
+			GET_NAME(ch),
+			(!PRF_FLAGGED(victim, PRF_SUMMONABLE)) ? " forcibly":"",
+			GET_NAME(victim), ch->in_room->name, ch->in_room->number);
 	}
 }
 
