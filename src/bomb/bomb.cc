@@ -698,7 +698,7 @@ ACMD(do_defuse)
 	    bomb->aux_obj = NULL;
 	}
 
-	act("$p defuses $p.", TRUE, ch, bomb, 0, TO_ROOM);
+	act("$n defuses $p.", TRUE, ch, bomb, 0, TO_ROOM);
 	act("You remove $P from $p.", FALSE, ch, bomb, fuse, TO_CHAR);
 	gain_skill_prof(ch, SKILL_DEMOLITIONS);
       
