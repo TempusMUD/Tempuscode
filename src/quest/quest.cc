@@ -392,17 +392,14 @@ do_qcontrol_oload_list(Creature * ch)
 	obj_data *obj;
 	strcpy(main_buf, "Valid Quest Objects:\r\n");
 	for (i = MIN_QUEST_OBJ_VNUM; i <= MAX_QUEST_OBJ_VNUM; i++) {
-		if (!(obj = read_object(i)))
+		if (!(obj = real_object_proto(i)))
+			continue;
+		if (IS_OBJ_STAT2(obj, ITEM2_UNAPPROVED))
 			continue;
 		sprintf(buf, "    %s%d. %s%s %s: %d qps ", CCNRM(ch, C_NRM),
 			i - MIN_QUEST_OBJ_VNUM, CCGRN(ch, C_NRM), obj->name,
 			CCNRM(ch, C_NRM), (obj->shared->cost / 100000));
-		if (IS_OBJ_STAT2(obj, ITEM2_UNAPPROVED))
-			strcat(buf, "(!ap)\r\n");
-		else
-			strcat(buf, "\r\n");
 		strcat(main_buf, buf);
-		extract_obj(obj);
 	}
 	send_to_char(ch, main_buf);
 }
