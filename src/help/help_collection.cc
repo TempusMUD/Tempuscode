@@ -33,21 +33,21 @@ static const struct hcollect_command {
     char *usage;
     int level;
 } hc_cmds[] = {
-    { "approve", "<topic #>",              LVL_GOD },
-    { "create",  "",                       LVL_GOD },
+    { "approve", "<topic #>",              LVL_DEMI },
+    { "create",  "",                       LVL_DEMI },
     { "edit",    "<topic #>",              LVL_IMMORT },
     { "group",   "(subcommand)",           LVL_IMMORT },
-    { "info",    "",                       LVL_GOD },
+    { "info",    "",                       LVL_DEMI },
     { "list",    "[range <start>[end]]",   LVL_IMMORT },
     { "save",    "",                       LVL_IMMORT },
     { "set",     "<param><value>",         LVL_IMMORT },
     { "stat",    "[<topic #>]",            LVL_IMMORT },
     { "sync",    "",                       LVL_GRGOD  },
     { "search",  "<keyword>",              LVL_IMMORT },
-    { "unapprove","<topic #>",             LVL_GOD },
+    { "unapprove","<topic #>",             LVL_DEMI },
     { "immhelp",  "<keyword>",             LVL_IMMORT },
     { "olchelp",  "<keyword>",             LVL_IMMORT },
-    { "swap",   "<topic #> <topic #>",     LVL_GOD },
+    { "swap",   "<topic #> <topic #>",     LVL_DEMI },
     { NULL, NULL, 0 }       // list terminator
 };
 static const struct group_command {
