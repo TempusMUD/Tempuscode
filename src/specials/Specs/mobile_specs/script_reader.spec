@@ -18,7 +18,7 @@
 SPECIAL(mob_read_script)
 {
 	struct obj_data *obj = GET_IMPLANT(ch, WEAR_HOLD);
-	char *desc = NULL, *c;
+	char *desc = NULL;
 	int which = 0;
 	int found = 0;
 
@@ -60,8 +60,7 @@ SPECIAL(mob_read_script)
 			return false;
 
 		if ((desc = find_exdesc(buf, obj->ex_description, 1))) {
-			while ((c = tmp_getline(&desc)) != NULL)
-				command_interpreter(ch, c);
+			command_interpreter(ch, tmp_gsub(desc, "\n", ""));
 			LAST_SCRIPT_ACTION = which;
 			return true;
 		}
@@ -84,8 +83,7 @@ SPECIAL(mob_read_script)
 	SCRIPT_COUNTER++;
 
 	if ((desc = find_exdesc(buf, obj->ex_description, 1))) {
-		while ((c = tmp_getline(&desc)) != NULL)
-			command_interpreter(ch, c);
+		command_interpreter(ch, tmp_gsub(desc, "\n", ""));
 		return true;
 	}
 
