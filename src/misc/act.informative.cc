@@ -3122,6 +3122,7 @@ ACMD(do_who)
 			 !strncmp(GET_NAME(tch), "PLAYBOY", 7)  ? "STUDMAN" : 
 			 !strncmp(GET_NAME(tch), "Joran", 5)    ? "OVRLORD" :
 			 !strncmp(GET_NAME(tch), "Smitty", 6)   ? "FOREMAN" :
+			 !strncmp(GET_NAME(tch), "Dogma", 5)    ? "FOREMAN" :
 			 !strncmp(GET_NAME(tch), "Stryker", 7)  ? "CODEMAN" :
 			 !strncmp(GET_NAME(tch), "Forget", 6)   ? " CODER " :
 			 LEV_ABBR(tch)),  CCYEL_BLD(ch, C_NRM), CCNRM(ch, C_NRM),
