@@ -4363,6 +4363,36 @@ ACMD(do_diagnose)
 	}
 }
 
+ACMD(do_pkiller)
+{
+	if (IS_NPC(ch))
+		return;
+
+	const char *color = CCCYN(ch, C_NRM);
+	if( PRF2_FLAGGED(ch, PRF2_PKILLER) )
+		color = CCRED(ch, C_SPR);
+
+	one_argument(argument, arg);
+
+	if (!*arg) {
+		send_to_char(ch, "Your current pkiller status is: %s%s%s\r\n",
+			color, ONOFF(PRF2_FLAGGED(ch, PRF2_PKILLER)), CCNRM(ch, C_NRM));
+		return;
+	}
+
+	if( strcasecmp(arg,"on") == 0 ) {
+		SET_BIT(PRF2_FLAGS(ch), PRF2_PKILLER);
+	} else if( strcasecmp(arg,"off") == 0 ) {
+		REMOVE_BIT(PRF2_FLAGS(ch), PRF2_PKILLER);
+	} else {
+		send_to_char(ch, "Usage: pkiller { Off | On }\r\n");
+		return;
+	}
+
+	send_to_char(ch, "Your current pkiller status is: %s%s%s\r\n",
+		color, ONOFF(PRF2_FLAGGED(ch, PRF2_PKILLER)), CCNRM(ch, C_NRM));
+}
+
 
 ACMD(do_color)
 {

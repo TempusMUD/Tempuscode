@@ -269,6 +269,7 @@ ACMD(do_palette);
 ACMD(do_peace);
 ACMD(do_pinch);
 ACMD(do_pistolwhip);
+ACMD(do_pkiller);
 ACMD(do_plant);
 ACMD(do_pload);
 ACMD(do_poofset);
@@ -953,7 +954,7 @@ struct command_info cmd_info[] = {
 	{"peck", POS_RESTING, do_action, 0, 0, 0},
 	{"pelekick", POS_FIGHTING, do_offensive_skill, 0, SKILL_PELE_KICK, 0},
 	{"pie", POS_RESTING, do_action, 0, 0, 0},
-	{"pkiller", POS_DEAD, do_gen_tog, 0, SCMD_PKILLER, 0},
+	{"pkiller", POS_DEAD, do_pkiller, 0, 0, 0},
 	{"place", POS_RESTING, do_put, 0, 0, 0},
 	{"put", POS_RESTING, do_put, 0, 0, 0},
 	{"pull", POS_RESTING, do_action, 0, 0, 0},
