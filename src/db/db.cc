@@ -465,7 +465,7 @@ reset_time(void)
 	sun_tm->tm_mday -= sun_tm->tm_wday;
 	sun_tm->tm_sec = sun_tm->tm_min = sun_tm->tm_hour = 0;
 	last_sunday_time = mktime(sun_tm);
-	strftime(sun_str, 55, "%c", localtime(&last_sunday_time));
+	strftime(sun_str, 55, "%Y-%m-%d %H-%M-%S", localtime(&last_sunday_time));
 
 	slog("   Last Realtime Sunday: %s", sun_str);
 
