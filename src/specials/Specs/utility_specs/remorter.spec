@@ -23,11 +23,11 @@ SPECIAL(remorter)
     char arg1[MAX_INPUT_LENGTH];
 
     if (!cmd)
-	return 0;
+        return 0;
 
     if (!CMD_IS("say") && !CMD_IS("'") && GET_LEVEL(ch) < LVL_IMMORT) {
-	send_to_char("Use the 'say' command to take the test.\r\n", ch);
-	return 0;
+        send_to_char("Use the 'say' command to take the test.\r\n", ch);
+        return 1;
     }
 
     if (IS_NPC(ch) || (idnum && GET_IDNUM(ch) != idnum) ||
@@ -99,15 +99,21 @@ SPECIAL(remorter)
 				REMOVE_BIT( PLR2_FLAGS(ch), PLR2_SOULLESS );
 			    }
 			}
-
+            // Remove all affects
+            while (ch->affected)
+                affect_remove(ch, ch->affected);
+            // Wipe thier skills
 			for (i = 1; i <= MAX_SKILLS; i++)
-			SET_SKILL(ch, i, 0);
-		  
+                SET_SKILL(ch, i, 0);
+		    // Give em another gen
 			if (GET_REMORT_GEN(ch) < 10)
-			GET_REMORT_GEN(ch)++;
+                GET_REMORT_GEN(ch)++;
+            // Whack thier remort invis
 			GET_REMORT_INVIS(ch) = 0;
-			GET_WIMP_LEV(ch) =     0;
-            GET_TOT_DAM(ch) = 0;
+			GET_WIMP_LEV(ch) =     0;// wimpy
+            GET_TOT_DAM(ch) = 0;     // cyborg damage 
+
+            // Tell everyone that they remorted
 			sprintf(buf, "(RTEST) %s has remorted (%d) as a %s/%s.", GET_NAME(ch), 
 				GET_REMORT_GEN(ch), pc_char_class_types[(int)GET_CLASS(ch)], 
 				pc_char_class_types[(int)GET_REMORT_CLASS(ch)]);
@@ -123,30 +129,30 @@ SPECIAL(remorter)
     }
     
     if ( isname_exact( argument, "remort" ) ) {
-	if (status) {
-	    send_to_char("One thing at a time.\r\n", ch);
-	    send_to_char(remort_quiz[index]->question, ch);
-	    send_to_char("\r\n", ch);
-	    return 1;
-	} else {
-	    SET_BIT(status, MODE_REMORT);
-	    idnum = GET_IDNUM(ch);
-	}
+        if (status) {
+            send_to_char("One thing at a time.\r\n", ch);
+            send_to_char(remort_quiz[index]->question, ch);
+            send_to_char("\r\n", ch);
+            return 1;
+        } else {
+            SET_BIT(status, MODE_REMORT);
+            idnum = GET_IDNUM(ch);
+        }
     } else if ( isname_exact(argument, "immort")) {
-	if (status) {
-	    send_to_char("One thing at a time.\r\n", ch);
-	    send_to_char(remort_quiz[index]->question, ch);
-	    send_to_char("\r\n", ch);
-	    return 1;
-	} else {
-	    send_to_char("No new immortals are being accepted at this time.\r\n",ch);
-	    return 1;
-	    SET_BIT(status, MODE_IMMORT);
-	    idnum = GET_IDNUM(ch);
-	}
+        if (status) {
+            send_to_char("One thing at a time.\r\n", ch);
+            send_to_char(remort_quiz[index]->question, ch);
+            send_to_char("\r\n", ch);
+            return 1;
+        } else {
+            send_to_char("No new immortals are being accepted at this time.\r\n",ch);
+            return 1;
+            SET_BIT(status, MODE_IMMORT);
+            idnum = GET_IDNUM(ch);
+        }
     } else if (!status) {
-	send_to_char("You must say 'immort' or 'remort' to begin.\r\n", ch);
-	return 1;
+        send_to_char("You must say 'immort' or 'remort' to begin.\r\n", ch);
+        return 1;
     }
   
     value = GET_GOLD(ch);
