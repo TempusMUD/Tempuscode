@@ -1775,7 +1775,7 @@ damage(struct Creature *ch, struct Creature *victim, int dam,
 			CCCYN(ch, C_NRM), GET_NAME(victim), dam,
 			IS_NPC(victim) ? GET_MOB_WAIT(victim) :
 				victim->desc ? victim->desc->wait : 0,
-			victim->getPosition(), dam_reduction, CCNRM(victim, C_NRM));
+			victim->getPosition(), dam_reduction, CCNRM(ch, C_NRM));
 
 	if (victim && PRF2_FLAGGED(victim, PRF2_DEBUG))
 		send_to_char(victim,
