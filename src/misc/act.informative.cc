@@ -4349,7 +4349,7 @@ ACMD(do_color)
 		return;
 	}
 	if (((tp = search_block(tmp_tolower(arg), ansi_levels, false)) == -1)) {
-		send_to_char(ch, "Usage: color { none | Sparse | Normal | Complete }\r\n");
+		send_to_char(ch, "Usage: color { none | sparse | normal | complete }\r\n");
 		return;
 	}
 	ch->account->set_ansi_level(tp);
