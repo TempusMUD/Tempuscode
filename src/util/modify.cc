@@ -323,34 +323,50 @@ page_string(struct descriptor_data *d, const char *str)
 void
 show_string(struct descriptor_data *d)
 {
-	register char *read_pt;
-	int page_length;
+	register char *line_pt, *read_pt;
+	int page_length, cols, undisplayed;
 	int pt_save;
-    int char_count = 0;
 
-	if (IS_NPC(d->character))
-		page_length = 22;
-	else
+	if (!IS_NPC(d->character))
 		page_length = GET_PAGE_LENGTH(d->character);
+	else if (d->original)
+		page_length = GET_PAGE_LENGTH(d->original);
+	else
+		page_length = 22;
 
-	read_pt = d->showstr_point;
-	while (*read_pt && page_length) {
-		while (*read_pt && *read_pt != '\n' && *read_pt != '\r') {
+	if (!IS_NPC(d->character))
+		cols = GET_COLS(d->character);
+	else if (d->original)
+		cols = GET_COLS(d->original);
+	else
+		cols = 80;
+
+	undisplayed = 0;
+	line_pt = read_pt = d->showstr_point;
+	while (*read_pt && page_length > 0) {
+		while (*read_pt && *read_pt != '\r') {
+			// nearly all ansi codes end with the first alphabetical character
+			// after an escape.  we probably aren't going to use others
+			if (*read_pt == '\x1b') {
+				while (*read_pt && !isalpha(*read_pt)) {
+					undisplayed++;
+					read_pt++;
+				}
+				undisplayed++;
+			}
 			read_pt++;
-            char_count++;
-            if (char_count > 80) {
-                char_count = 0;
-                if (page_length > 0)
-                    page_length--;
-            }
-        }
+		}
+
+		if (cols != -1)
+			page_length -= (read_pt - line_pt - undisplayed) / cols;
+
 		if (*read_pt) {
-            char_count = 0;
-            if (page_length > 0)
-			    page_length--;
+			page_length--;
 			read_pt++;
 			if ('\n' == *read_pt || '\r' == *read_pt)
 				read_pt++;
+			line_pt = read_pt;
+			undisplayed = 0;
 		}
 	}
 
@@ -359,9 +375,17 @@ show_string(struct descriptor_data *d)
 
 	SEND_TO_Q(d->showstr_point, d);
 
-	if (pt_save) {
-		*read_pt = pt_save;
-		d->showstr_point = read_pt;
+	*read_pt = pt_save;
+
+	// Advance past newlines to next bit of text
+	while (*read_pt && *read_pt == '\n' && *read_pt == '\r')
+		read_pt++;
+
+	d->showstr_point = read_pt;
+
+	// If all we have left are newlines (or nothing), free the string,
+	// otherwise we tell em to use the 'more' command
+	if (*read_pt) {
 		if(d->character)
 			send_to_char(d->character,
 				"%s**** %sUse the 'more' command to continue. %s****%s\r\n",
