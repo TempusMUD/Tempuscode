@@ -1142,8 +1142,9 @@ ACMD(do_order)
 			if (((vict->master != ch) || !IS_AFFECTED(vict, AFF_CHARM) ||
 					GET_CHA(ch) < number(0, GET_INT(vict))) &&
 				(GET_LEVEL(ch) < LVL_CREATOR ||
-					GET_LEVEL(vict) >= GET_LEVEL(ch)) &&
-				(!IS_VAMPIRE(ch) || !IS_EVIL(ch) || !IS_UNDEAD(vict) ||
+					GET_LEVEL(vict) >= GET_LEVEL(ch))
+				&& !MOB2_FLAGGED(k->follower, MOB2_FAMILIAR)
+				&& (!IS_VAMPIRE(ch) || !IS_EVIL(ch) || !IS_UNDEAD(vict) ||
 					!IS_NPC(vict) ||
 					(GET_LEVEL(ch) + CHECK_SKILL(ch, SKILL_CONTROL_UNDEAD)) <
 					(number(40, 110) + GET_LEVEL(vict))))
@@ -1179,8 +1180,9 @@ ACMD(do_order)
 				order_next_k = k->next;
 				if (org_room == k->follower->in_room)
 					if ((IS_AFFECTED(k->follower, AFF_CHARM) &&
-							GET_CHA(ch) > number(0, GET_INT(k->follower))) ||
-						GET_LEVEL(ch) >= LVL_CREATOR) {
+							GET_CHA(ch) > number(0, GET_INT(k->follower)))
+							|| GET_LEVEL(ch) >= LVL_CREATOR
+							|| MOB2_FLAGGED(k->follower, MOB2_FAMILIAR)) {
 						found = TRUE;
 						if (!CHECK_WAIT(k->follower)
 							&& !GET_MOB_WAIT(k->follower)) {
