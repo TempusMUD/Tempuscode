@@ -1141,7 +1141,8 @@ ACMD(do_olc)
 				}
 			} else {
 				tmp_vnum = atoi(arg2);
-			}
+			        i = tmp_vnum;
+                        }
 			if (tmp_vnum && (tmp_mob = do_create_mob(ch, i))) {
 				GET_OLC_MOB(ch) = tmp_mob;
 				sprintf(buf,"Mobile %d succesfully created.\r\nNow editing mobile %d\r\n",
