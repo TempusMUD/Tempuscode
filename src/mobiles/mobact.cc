@@ -4816,57 +4816,30 @@ int barbarian_battle_activity(struct Creature *ch, struct Creature *precious_vic
         return 0;
     }
 
-    if (!(vict = choose_opponent(ch, precious_vict)))
-        return 0;
-
     if (random_fractional_3() && (GET_CLASS(vict) == CLASS_MAGIC_USER ||
             GET_CLASS(vict) == CLASS_CLERIC)) {
         do_offensive_skill(ch, GET_NAME(vict), 0, SKILL_BASH, 0);
         return 0;
     }
     if ((GET_LEVEL(ch) > 27) && random_fractional_5()
-        && vict->getPosition() > POS_SLEEPING) {
-        do_sleeper(ch, GET_NAME(vict), 0, 0, 0);
-        return 0;
-    } else if ((GET_LEVEL(ch) > 22) && random_fractional_10()) {
-        do_offensive_skill(ch, GET_NAME(vict), 0, SKILL_BODYSLAM, 0);
-        return 0;
-    } else if ((GET_LEVEL(ch) > 20) && random_fractional_10()) {
-        do_offensive_skill(ch, GET_NAME(vict), 0, SKILL_CLOTHESLINE, 0);
-        return 0;
-    } else if ((GET_LEVEL(ch) > 16) && random_fractional_10()) {
-        do_offensive_skill(ch, GET_NAME(vict), 0, SKILL_CHOKE, 0);
-        return 0;
-    } else if ((GET_LEVEL(ch) > 9) && random_fractional_5()) {
-        do_offensive_skill(ch, GET_NAME(vict), 0, SKILL_ELBOW, 0);
-        return 0;
-    } else if ((GET_LEVEL(ch) > 5) && random_fractional_5()) {
-        do_offensive_skill(ch, GET_NAME(vict), 0, SKILL_STOMP, 0);
-        return 0;
-    } else if ((GET_LEVEL(ch) > 2) && random_fractional_5()) {
-        do_offensive_skill(ch, GET_NAME(vict), 0, SKILL_PUNCH, 0);
+        && vict->getPosition() > POS_RESTING) {
+        do_offensive_skill(ch, GET_NAME(vict), 0, SKILL_BASH, 0);
         return 0;
     }
 
-    if (random_fractional_5()) {
-
-        if (GET_LEVEL(ch) < 5) {
-            do_offensive_skill(ch, GET_NAME(vict), 0, SKILL_PUNCH, 0);
-        } else if (GET_LEVEL(ch) < 7) {
+    if (random_fractional_4()) {
+        if( GET_LEVEL(ch) >= 30 && GET_EQ(ch, WEAR_WIELD) && IS_TWO_HAND(GET_EQ(ch, WEAR_WIELD)) ){
+            do_offensive_skill(ch, GET_NAME(vict), 0, SKILL_CLEAVE, 0);
+        } else if (GET_LEVEL(ch) >= 17) {
+            do_offensive_skill(ch, GET_NAME(vict), 0, SKILL_STRIKE, 0);
+        } else if (GET_LEVEL(ch) >= 13) {
+            do_offensive_skill(ch, GET_NAME(vict), 0, SKILL_HEADBUTT, 0);
+        } else if (GET_LEVEL(ch) >= 4 ) {
             do_offensive_skill(ch, GET_NAME(vict), 0, SKILL_STOMP, 0);
-        } else if (GET_LEVEL(ch) < 9) {
-            do_offensive_skill(ch, GET_NAME(vict), 0, SKILL_KNEE, 0);
-        } else if (GET_LEVEL(ch) < 16) {
-            do_offensive_skill(ch, GET_NAME(vict), 0, SKILL_ELBOW, 0);
-        } else if (GET_LEVEL(ch) < 19) {
-            do_offensive_skill(ch, GET_NAME(vict), 0, SKILL_CHOKE, 0);
-        } else if (GET_LEVEL(ch) < 25) {
-            do_offensive_skill(ch, GET_NAME(vict), 0, SKILL_CLOTHESLINE, 0);
-        } else if (GET_LEVEL(ch) < 30) {
-            do_offensive_skill(ch, GET_NAME(vict), 0, SKILL_BODYSLAM, 0);
+        } else{
+            do_offensive_skill(ch, GET_NAME(vict), 0, SKILL_KICK, 0 );
         }
         return 0;
     }
     return -1;
-
 }
