@@ -1786,7 +1786,8 @@ damage(struct Creature *ch, struct Creature *victim, int dam,
 				attacktype == SPELL_FLAME_STRIKE ||
 				attacktype == SPELL_METEOR_STORM ||
 				attacktype == TYPE_FLAMETHROWER ||
-				attacktype == SPELL_FIRE_ELEMENTAL)) {
+				attacktype == SPELL_FIRE_ELEMENTAL) ||
+               attacktype == TYPE_EGUN_PLASMA) {
 			if (!mag_savingthrow(victim, 50, SAVING_BREATH) &&
 				!CHAR_WITHSTANDS_FIRE(victim)) {
 				act("$n's body suddenly ignites into flame!",
