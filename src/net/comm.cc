@@ -1546,7 +1546,7 @@ send_to_char(struct Creature *ch, const char *str, ...)
 	char *msg_str;
 	va_list args;
 
-	if (!ch->desc || !str || !*str)
+	if (!ch || !ch->desc || !str || !*str)
 		return;
 
 	va_start(args, str);
