@@ -898,20 +898,13 @@ ACMD(do_gen_comm)
 		sub_channel_desc = "";
 	}
 
+	// Eliminate double dollars, and double percent signs (for sprintf)
 	argument = tmp_gsub(argument, "$$", "$");
 
 	// Construct all the emits ahead of time.
 	if (chan->is_emote) {
 		if (*sub_channel_desc)
 			sub_channel_desc = tmp_strcat(sub_channel_desc, " ");
-		plain_emit = tmp_sprintf("%%s %s\r\n", argument);
-		color_emit = tmp_sprintf("%s%%s %s%s%s%s\r\n", chan->desc_color,
-			KNRM, chan->text_color, argument, KNRM);
-		imm_plain_emit = tmp_sprintf("%s%%s %s\r\n", sub_channel_desc,
-			argument);
-		imm_color_emit = tmp_sprintf("%s%s%%s%s%s %s%s\r\n",
-			chan->desc_color, sub_channel_desc, KNRM, chan->text_color,
-			argument, KNRM);
 		if (COLOR_LEV(ch) >= C_NRM)
 			send_to_char(ch, "%s%s%s%s %s%s%s\r\n", chan->desc_color,
 				(IS_IMMORT(ch) ? sub_channel_desc:""),
@@ -922,17 +915,23 @@ ACMD(do_gen_comm)
 				(IS_IMMORT(ch) ? sub_channel_desc:""),
 				GET_NAME(ch),
 				argument);
+
+		// The emits are passed directly as the format string to
+		// send_to_char, so the argument must have its percent signs
+		// doubled
+		argument = tmp_gsub(argument, "%", "%%");
+
+		plain_emit = tmp_sprintf("%%s %s\r\n", argument);
+		color_emit = tmp_sprintf("%s%%s %s%s%s%s\r\n", chan->desc_color,
+			KNRM, chan->text_color, argument, KNRM);
+		imm_plain_emit = tmp_sprintf("%s%%s %s\r\n", sub_channel_desc,
+			argument);
+		imm_color_emit = tmp_sprintf("%s%s%%s%s%s %s%s\r\n",
+			chan->desc_color, sub_channel_desc, KNRM, chan->text_color,
+			argument, KNRM);
 	} else {
 		if (*sub_channel_desc)
 			sub_channel_desc = tmp_strcat(" ", sub_channel_desc);
-		plain_emit = tmp_sprintf("%%s %ss, '%s'\r\n", chan->name, argument);
-		color_emit = tmp_sprintf("%s%%s %ss,%s%s '%s'%s\r\n", chan->desc_color,
-			chan->name, KNRM, chan->text_color, argument, KNRM);
-		imm_plain_emit = tmp_sprintf("%%s %ss%s, '%s'\r\n", chan->name,
-			sub_channel_desc, argument);
-		imm_color_emit = tmp_sprintf("%s%%s %ss%s,%s%s '%s'%s\r\n",
-			chan->desc_color, chan->name, sub_channel_desc, KNRM,
-			chan->text_color, argument, KNRM);
 		if (COLOR_LEV(ch) >= C_NRM)
 			send_to_char(ch, "%sYou %s%s,%s%s '%s'%s\r\n", chan->desc_color,
 				chan->name,
@@ -943,6 +942,19 @@ ACMD(do_gen_comm)
 			send_to_char(ch, "You %s%s, '%s'\r\n", chan->name,
 				(IS_IMMORT(ch) ? sub_channel_desc:""),
 				argument);
+		// The emits are passed directly as the format string to
+		// send_to_char, so the argument must have its percent signs
+		// doubled
+		argument = tmp_gsub(argument, "%", "%%");
+
+		plain_emit = tmp_sprintf("%%s %ss, '%s'\r\n", chan->name, argument);
+		color_emit = tmp_sprintf("%s%%s %ss,%s%s '%s'%s\r\n", chan->desc_color,
+			chan->name, KNRM, chan->text_color, argument, KNRM);
+		imm_plain_emit = tmp_sprintf("%%s %ss%s, '%s'\r\n", chan->name,
+			sub_channel_desc, argument);
+		imm_color_emit = tmp_sprintf("%s%%s %ss%s,%s%s '%s'%s\r\n",
+			chan->desc_color, chan->name, sub_channel_desc, KNRM,
+			chan->text_color, argument, KNRM);
 	}
 
 	/* now send all the strings out */
