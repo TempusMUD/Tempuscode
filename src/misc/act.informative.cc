@@ -1,4 +1,4 @@
-/* ************************************************************************
+AR/* ************************************************************************
 *   File: act.informative.c                             Part of CircleMUD *
 *  Usage: Player-level commands of an informative nature                  *
 *                                                                         *
@@ -3139,6 +3139,7 @@ ACMD(do_who)
                          !strncmp(GET_NAME(tch), "Dogma", 5)    ? " CHIEF " :
                          !strncmp(GET_NAME(tch), "Stryker", 7)  ? "CODEMAN" :
                          !strncmp(GET_NAME(tch), "Hubris", 6)   ? "EC ARCH" :
+                         !strncmp(GET_NAME(tch), "Hubris", 6)   ? "OP ARCH" :
                          !strncmp(GET_NAME(tch), "Trouble", 7)  ? " ADMIN " :
                          !strncmp(GET_NAME(tch), "Darth", 5)    ? " ADMIN " :
                          !strncmp(GET_NAME(tch), "Nothing", 7)  ? "       " :
