@@ -214,10 +214,10 @@ move_car(struct char_data *ch, struct obj_data *car, int dir)
 	return ERR_NODRIVE;
     }
 
-    if ( ROOM_FLAGGED( dest, ROOM_HOUSE ) && !House_can_enter( ch, dest->number ) )
+    if ( ROOM_FLAGGED( dest, ROOM_HOUSE ) && ch && !House_can_enter( ch, dest->number ) )
 	return ERR_HOUSE;
     
-    if ( ROOM_FLAGGED( dest, ROOM_CLAN_HOUSE ) &&
+    if ( ROOM_FLAGGED( dest, ROOM_CLAN_HOUSE ) && ch && 
 	 !clan_house_can_enter( ch, dest ) )
 	return ERR_CLAN;
 
