@@ -153,6 +153,10 @@ vendor_invalid_buy(Creature *self, Creature *ch, ShopData *shop, obj_data *obj)
 				shop->msg_badobj), 0, SCMD_SAY_TO, NULL);
 			return true;
 		}
+	} else {
+		do_say(self, tmp_sprintf("%s %s", GET_NAME(ch),
+			shop->msg_badobj), 0, SCMD_SAY_TO, NULL);
+		return true;
 	}
 
 	if (IS_OBJ_STAT2(obj, ITEM2_BROKEN)) {
