@@ -323,7 +323,8 @@ int do_simple_move(struct char_data * ch, int dir, int mode, int need_specials_c
 	     (str_app[STRENGTH_APPLY_INDEX(ch)].todam << 1)) <= 0) {
 	    send_to_char("You break free!\r\n", ch);
 	    act("$n breaks free from the entanglement!",TRUE,ch,0,0,TO_ROOM);
-	    affect_remove(ch, af_ptr);
+        while((af_ptr = affected_by_spell(ch, SPELL_ENTANGLE))) 
+            affect_remove(ch, af_ptr);
 	}
 	return 1;
     }
