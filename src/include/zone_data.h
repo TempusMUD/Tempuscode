@@ -81,6 +81,9 @@
 #define PLANE_ELEM_NEG      75
 #define PLANE_PELEM_MAGMA   76
 #define PLANE_PELEM_OOZE    77
+#define PLANE_PELEM_ICE     78
+#define PLANE_PELEM_SMOKE   79
+#define PLANE_ELYSIUM       80
 
 #define TIME_TIMELESS       0
 #define TIME_MODRIAN        1
