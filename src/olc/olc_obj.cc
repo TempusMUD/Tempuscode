@@ -39,7 +39,7 @@ void    do_stat_object(struct char_data *ch, struct obj_data *obj);
 
 int    prototype_obj_value(struct obj_data *obj);
 int    set_maxdamage(struct obj_data *obj);
-char *find_exdesc(char *word, struct extra_descr_data *list);
+char *find_exdesc(char *word, struct extra_descr_data *list, int find_exact=0);
 
 int add_path_to_vehicle(struct obj_data *obj, char *name);
 int choose_material(struct obj_data *obj);

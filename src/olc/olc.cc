@@ -214,7 +214,7 @@ void do_clear_olc_object(struct char_data *ch);
 void do_ticl_tedit(struct char_data *ch, char *argument);
 void do_ticl_tstat(struct char_data *ch);
 
-char *find_exdesc(char *word, struct extra_descr_data *list);
+char *find_exdesc(char *word, struct extra_descr_data *list,int find_exact=0);
 extern struct attack_hit_type attack_hit_text[];
 
 const char *olc_commands[] = {

@@ -85,7 +85,7 @@ mob_read_script(struct char_data *ch)
   CUR_WAIT = WAIT_TIME;
   SCRIPT_COUNTER++;
 
-  if ((desc = find_exdesc(buf, obj->ex_description))) {
+  if ((desc = find_exdesc(buf, obj->ex_description,1))) {
     strcpy(buf, desc);
     if ((c = strrchr(buf, '\n')))
       *c = '\0';

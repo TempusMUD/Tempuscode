@@ -42,7 +42,7 @@ void  clear_char(struct char_data *ch);
 void  set_physical_attribs(struct char_data *ch);
 void  do_stat_character(struct char_data *ch, struct char_data *k);
 struct extra_descr_data *locate_exdesc(char *word, struct extra_descr_data *list);
-char *find_exdesc(char *word, struct extra_descr_data *list);
+char *find_exdesc(char *word, struct extra_descr_data *list, int find_exact=0);
 int   get_line_count(char *buffer);
 
 SPECIAL(shop_keeper);

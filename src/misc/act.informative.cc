@@ -1522,13 +1522,19 @@ look_in_obj(struct char_data * ch, char *arg)
 
 
 char *
-find_exdesc(char *word, struct extra_descr_data * list)
+find_exdesc(char *word, struct extra_descr_data * list, int find_exact=0)
 {
     struct extra_descr_data *i;
 
-    for (i = list; i; i = i->next)
-	if (isname(word, i->keyword))
-	    return (i->description);
+	if(!find_exact) {
+		for (i = list; i; i = i->next)
+			if (isname(word, i->keyword))
+				return (i->description);
+	} else {
+		for (i = list; i; i = i->next)
+			if (isname_exact(word, i->keyword))
+				return (i->description);
+	}
 
     return NULL;
 }

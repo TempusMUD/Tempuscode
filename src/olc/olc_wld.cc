@@ -37,7 +37,7 @@ int get_line_count( char *buffer );
 void    num2str( char *str, int num );
 void    do_stat_object( struct char_data *ch, struct obj_data *obj );
 
-char *find_exdesc( char *word, struct extra_descr_data *list );
+char *find_exdesc( char *word, struct extra_descr_data *list, int find_exact=0 );
 extern struct extra_descr_data *locate_exdesc( char *word, 
 					       struct extra_descr_data *list );
 
