@@ -11,10 +11,16 @@ struct descriptor_data;
 const int DEFAULT_TERM_HEIGHT = 22;
 const int DEFAULT_TERM_WIDTH = 80;
 
-void boot_accounts(void);
-
 class Account {
 	public:
+		static void boot(void);
+		static Account *create(const char *name, descriptor_data *d);
+		static Account *retrieve(const char *name);
+		static Account *retrieve(int id);
+        static bool exists(int accountID);
+		static bool remove(Account *acct);
+		static size_t cache_size(void);
+
 		Account(void);
 		~Account(void);
 
@@ -81,7 +87,20 @@ class Account {
 		void add_player(long idnum);
 		void add_trusted(long idnum);
 
+		class cmp {
+			public:
+				bool operator()(const Account *s1, const Account *s2) const
+					{ return s1->get_idnum() < s2->get_idnum(); }
+				bool operator()(const Account *s1, int id) const
+					{ return s1->get_idnum() < id; }
+				bool operator()(int id, const Account *s1) const
+					{ return id < s1->get_idnum(); }
+		};
+
 	private:
+		static int long _top_id;
+		static vector <Account *> _cache;
+
 		// Internal
 		int _id;
 		char *_name;
@@ -103,36 +122,5 @@ class Account {
 		long long _bank_past;
 		long long _bank_future;
 };
-
-class AccountIndex : public vector<Account *> 
-{
-	class cmp {
-		public:
-			bool operator()(const Account *s1, const Account *s2) const
-				{ return s1->get_idnum() < s2->get_idnum(); }
-			bool operator()(const Account *s1, int id) const
-				{ return s1->get_idnum() < id; }
-            bool operator()(int id,const Account *s1) const
-                { return id < s1->get_idnum(); }
-	};
-	public:
-		AccountIndex() : vector<Account *>(), _top_id(0) {}
-
-		// retrieves the account with the given id or NULL
-		Account *find_account(const char *name);
-		Account *find_account(int id);
-
-		Account *create_account(const char *name, descriptor_data *d);
-		bool add(Account *acct);
-		bool remove(Account *acct);
-        // returns true if the given account exists
-        bool exists( int accountID ) const;
-		void sort();
-		inline void set_max_id(long id) { _top_id = id; }
-	private:
-		long _top_id;
-};
-
-extern AccountIndex accountIndex;
 
 #endif

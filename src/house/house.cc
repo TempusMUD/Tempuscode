@@ -754,7 +754,7 @@ HouseControl::collectRent()
 		 || house->getType() == House::RENTAL ) 
 		{
 			// If the player is online, do not charge rent.
-			Account *account = accountIndex.find_account( house->getOwnerID() );
+			Account *account = Account::retrieve( house->getOwnerID() );
 			if( account == NULL  || account->is_logged_in() )
 				continue;
 		}
@@ -821,7 +821,7 @@ House::display( Creature *ch )
 				  getID(), getTypeName(), landlord );
 
 	if( getType() == PRIVATE || getType() == RENTAL || getType() == PUBLIC ) {
-		Account *account = accountIndex.find_account(ownerID);
+		Account *account = Account::retrieve(ownerID);
 		if( account != NULL ) {
 			const char* email = "";
 			if( account->get_email_addr() && *account->get_email_addr()) {
@@ -969,7 +969,7 @@ House::reconcileClanCollection( int cost )
 int
 House::reconcilePrivateCollection( int cost )
 {
-	Account *account = accountIndex.find_account(ownerID);
+	Account *account = Account::retrieve(ownerID);
 	if( account == NULL ) {
 		return false;
 	}
@@ -1127,7 +1127,7 @@ hcontrol_build_house( Creature *ch, char *arg)
 		int id = atoi(str);
 		if( id == 0 ) {
 			send_to_char(ch, "Warning, creating house with no owner.\r\n" );
-		} else if( !accountIndex.exists(id) ) {
+		} else if( !Account::exists(id) ) {
 			send_to_char(ch, "Invalid account id '%d'.\r\n", id );
 			return;
 		}
@@ -1249,7 +1249,7 @@ set_house_account_owner( Creature *ch, House *house, char *arg )
 {
 	int accountID = 0;
 	if( isdigit(*arg) ) { // to an account id
-		if( accountIndex.exists( atoi(arg) ) ) {
+		if( Account::exists( atoi(arg) ) ) {
 			accountID = atoi(arg);
 		} else {
 			send_to_char(ch, "Account %d doesn't exist.\r\n", atoi(arg));

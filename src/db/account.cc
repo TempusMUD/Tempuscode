@@ -22,11 +22,13 @@ const char *ansi_levels[] = {
 	"\n"
 };
 
-AccountIndex accountIndex;
 char *get_account_file_path(long id);
 
+long Account::_top_id = 0;
+vector <Account *> Account::_cache;
+
 void
-boot_accounts(void)
+Account::boot(void)
 {
 	long count, idx;
 	PGresult *res;
@@ -45,7 +47,7 @@ boot_accounts(void)
 	PQclear(res);
 
 	res = sql_query("select MAX(idnum) from accounts");
-	accountIndex.set_max_id(atol(PQgetvalue(res, 0, 0)));
+	_top_id = atol(PQgetvalue(res, 0, 0));
 	PQclear(res);
 
 	if (playerIndex.size())
@@ -55,6 +57,11 @@ boot_accounts(void)
 	playerIndex.sort();
 }
 
+size_t
+Account::cache_size(void)
+{
+	return _cache.size();
+}
 
 Account::Account(void)
 	: _chars(), _trusted()
@@ -91,7 +98,7 @@ Account::~Account(void)
 	if (_login_addr)
 		free(_login_addr);
 
-	accountIndex.remove(this);
+	Account::remove(this);
 }
 
 bool
@@ -139,7 +146,7 @@ Account::load(long idnum)
 		this->add_trusted(atol(PQgetvalue(res, idx, 0)));
 	PQclear(res);
 
-	accountIndex.sort();
+	std::sort(_cache.begin(),_cache.end(), Account::cmp());
 	return true;
 }
 
@@ -191,27 +198,27 @@ Account::add_trusted(long idnum)
 }
 
 Account* 
-AccountIndex::find_account( int id ) 
+Account::retrieve(int id) 
 {
-	AccountIndex::iterator it;
+	vector <Account *>::iterator it;
 	Account *acct;
 	
 	// First check to see if we already have it in memory
-	it = lower_bound( begin(), end(), id, AccountIndex::cmp() );
-	if( it != end() && (*it)->get_idnum() == id )
+	it = lower_bound( _cache.begin(), _cache.end(), id, Account::cmp() );
+	if( it != _cache.end() && (*it)->get_idnum() == id )
 		return *it;
 	
 	// Apprently, we don't, so look it up on the db
 	acct = new Account;
 	if (acct->load(id)) {
-		this->push_back(acct);
+		_cache.push_back(acct);
 		return acct;
 	}
 	return NULL;
 }
 
 bool 
-AccountIndex::exists( int accountID ) const
+Account::exists( int accountID )
 {
 	PGresult *res;
 	bool result;
@@ -224,15 +231,15 @@ AccountIndex::exists( int accountID ) const
 }
 
 Account* 
-AccountIndex::find_account(const char *name) 
+Account::retrieve(const char *name) 
 {
-	AccountIndex::iterator it;
+	vector <Account *>::iterator it;
 	Account *acct;
 	PGresult *res;
 	int acct_id;
 
 	// First check to see if we already have it in memory
-	for (it = begin();it != end();it++) {
+	for (it = _cache.begin();it != _cache.end();it++) {
 		acct = *it;
 		if (!strcasecmp(acct->get_name(), name))
 			return acct;
@@ -249,57 +256,37 @@ AccountIndex::find_account(const char *name)
 	// Now try to load it
 	acct = new Account;
 	if (acct->load(acct_id)) {
-		this->push_back(acct);
+		_cache.push_back(acct);
 		return acct;
 	}
 	return NULL;
 }
 
 Account *
-AccountIndex::create_account(const char *name, descriptor_data *d)
+Account::create(const char *name, descriptor_data *d)
 {
 	Account *result;
 
 	_top_id++;
 	result = new Account;
 	result->initialize(name, d, _top_id);
-	this->push_back(result);
-	sort();
+	_cache.push_back(result);
+	std::sort(_cache.begin(),_cache.end(), Account::cmp());
 	return result;
 }
 
 bool
-AccountIndex::add(Account *acct)
+Account::remove(Account *acct)
 {
-	if (find_account(acct->get_idnum())) {
-		slog("SYSERR: Attempt to add account with conflicting idnum %d", acct->get_idnum() );
-		return false;
-	}
+	vector <Account *>::iterator it;
 
-	if (acct->get_idnum() > _top_id)
-		_top_id = acct->get_idnum();
-	this->push_back(acct);
-	return true;
-}
-
-bool
-AccountIndex::remove(Account *acct)
-{
-	AccountIndex::iterator it;
-
-	for (it = begin();it != end();it++)
+	for (it = _cache.begin();it != _cache.end();it++)
 		if (*it == acct) {
-			erase(it);
+			_cache.erase(it);
 			return true;
 		}
 	
 	return false;
-}
-
-void
-AccountIndex::sort(void)
-{
-	std::sort(begin(),end(), AccountIndex::cmp());
 }
 
 

@@ -332,7 +332,7 @@ boot_db(void)
 		safe_exit(1);
 	}
 
-	boot_accounts();
+	Account::boot();
 	slog("Reading credits, bground, info & motds.");
 	file_to_string_alloc(CREDITS_FILE, &credits);
 	file_to_string_alloc(MOTD_FILE, &motd);

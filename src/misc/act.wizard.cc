@@ -3748,7 +3748,7 @@ do_show_stats(struct Creature *ch)
     sprintf(buf, "Current statistics of Tempus:\r\n");
     sprintf(buf, "%s  %5d players in game  %5d connected\r\n", buf, i, con);
     sprintf(buf, "%s  %5d accounts         %5d characters\r\n", buf,
-		accountIndex.size(), playerIndex.size());
+		Account::cache_size(), playerIndex.size());
     sprintf(buf, "%s  %5d mobiles          %5d prototypes (%d id'd)\r\n",
         buf, j, top_of_mobt + 1, current_mob_idnum);
     sprintf(buf, "%s  %5d objects          %5d prototypes\r\n",
@@ -3824,13 +3824,13 @@ show_account(Creature *ch, char *value)
 			idnum = playerIndex.getAccountID(value);
 		}
 
-		account = accountIndex.find_account(idnum);
+		account = Account::retrieve(idnum);
 	} else {
 		if (is_number(value)) {
 			idnum = atoi(value);
-			account = accountIndex.find_account(idnum);
+			account = Account::retrieve(idnum);
 		} else {
-			account = accountIndex.find_account(value);
+			account = Account::retrieve(value);
 		}
 	}
 
@@ -7440,9 +7440,9 @@ ACMD(do_account)
 		}
 			
 		account_id = playerIndex.getAccountID(vict_id);
-		account = accountIndex.find_account(account_id);
+		account = Account::retrieve(account_id);
 		account_id = atoi(token);
-		dst_account = accountIndex.find_account(account_id);
+		dst_account = Account::retrieve(account_id);
 		account->move_char(vict_id, dst_account);
 
 		// Update descriptor
@@ -7466,7 +7466,7 @@ ACMD(do_account)
 			return;
 		}
 		vict_id = atol(token);
-		account = accountIndex.find_account(account_id);
+		account = Account::retrieve(account_id);
 		if( account == NULL ) {
 			send_to_char(ch, "No such account: %d\r\n",account_id);
 			return;
@@ -7484,7 +7484,7 @@ ACMD(do_account)
 			return;
 		}
 
-		account = accountIndex.find_account(account_id);
+		account = Account::retrieve(account_id);
 		if( account == NULL ) {
 			send_to_char(ch, "No such account: %d\r\n",account_id);
 			return;
@@ -7760,7 +7760,7 @@ ACMD(do_delete)
 	}
 
 	acct_id = playerIndex.getAccountID(name);
-	acct = accountIndex.find_account(acct_id);
+	acct = Account::retrieve(acct_id);
 	if (!acct) {
 		slog("SYSERR: Victim found without account");
 		send_to_char(ch, "The command mysteriously failed (XYZZY)\r\n");

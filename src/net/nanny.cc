@@ -139,7 +139,7 @@ handle_input(struct descriptor_data *d)
 			break;
 		}
 		if (strcasecmp(arg, "new")) {
-			d->account = accountIndex.find_account(arg);
+			d->account = Account::retrieve(arg);
 			if (d->account) {
 				if (d->account->has_password())
 					set_desc_state(CXN_ACCOUNT_PW, d);
@@ -160,7 +160,7 @@ handle_input(struct descriptor_data *d)
 		break;
 	case CXN_ACCOUNT_PROMPT:
 		if (Valid_Name(arg)) {
-			d->account = accountIndex.find_account(arg);
+			d->account = Account::retrieve(arg);
 
 			if (!d->account) {
 				set_desc_state(CXN_ACCOUNT_VERIFY, d);
@@ -174,7 +174,7 @@ handle_input(struct descriptor_data *d)
 	case CXN_ACCOUNT_VERIFY:
 		switch (tolower(arg[0])) {
 		case 'y':
-			d->account = accountIndex.create_account(d->mode_data, d);
+			d->account = Account::create(d->mode_data, d);
 			set_desc_state(CXN_ANSI_PROMPT, d);
 			break;
 		case 'n':
