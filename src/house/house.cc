@@ -1419,6 +1419,25 @@ hcontrol_set_house(struct char_data *ch, char *arg)
 	    send_to_char( "Landlord set.\r\n", ch );
 	    return;
 	}
+	else if ( is_abbrev( arg2, "owner" ) ) {
+	    int idnum;
+
+	    if ( ! *arg ) {
+		send_to_char( "Set who as the owner?\r\n", ch );
+		return;
+	    }
+	    
+	    if ( ( idnum = get_id_by_name( arg ) ) <= 0 ) {
+		sprintf( buf, "There is no such player, '%s'\r\n", arg );
+		send_to_char( buf, ch );
+		return;
+	    }
+
+	    house_control[ pos ].owner1 = idnum;
+
+	    send_to_char( "Owner set.\r\n", ch );
+	    return;
+	}
 	    
 	House_crashsave(atrium_vnum);
 	House_save_control();
