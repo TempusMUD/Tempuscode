@@ -396,8 +396,8 @@ do_qcontrol_oload(CHAR *ch, char *argument, int com) {
 	save_char( ch, NULL );
 	act("$n makes a quaint, magical gesture with one hand.", TRUE, ch,
 	0, 0, TO_ROOM);
-    act("$n has created $M!", FALSE, ch, 0, obj, TO_ROOM);
-    act("You create $M.", FALSE, ch, 0, obj, TO_CHAR);
+    act("$n has created $N!", FALSE, ch, 0, obj, TO_ROOM);
+    act("You create $N.", FALSE, ch, 0, obj, TO_CHAR);
 
     sprintf(buf, "loaded %s at %d.", obj->short_description, ch->in_room->number);
 	qlog(ch,buf, QLOG_BRIEF, MAX(GET_INVIS_LEV(ch),LVL_DEMI), TRUE);
