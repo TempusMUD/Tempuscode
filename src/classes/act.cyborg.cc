@@ -28,7 +28,7 @@ extern struct obj_data *object_list;
 
 int check_mob_reaction(struct Creature *ch, struct Creature *vict);
 void look_at_target(struct Creature *ch, char *arg);
-char *obj_cond(struct obj_data *obj);  /** writes to buf2 **/
+const char *obj_cond(struct obj_data *obj);
 const char *obj_cond_color(struct obj_data *obj, struct Creature *ch);
 
 ACMD(do_not_here);
@@ -272,15 +272,15 @@ ACMD(do_hotwire)
 
 ACMD(do_recharge)
 {
-
-	char arg1[MAX_INPUT_LENGTH], arg2[MAX_INPUT_LENGTH],
-		arg3[MAX_INPUT_LENGTH], arg4[MAX_INPUT_LENGTH];
+	char *arg1, *arg2, *arg3, *arg4;
 	struct obj_data *target = NULL, *battery = NULL;
 	struct Creature *vict = NULL;
 	int i;
 
-	argument = two_arguments(one_argument(argument, arg1), arg2, arg3);
-	argument = one_argument(argument, arg4);
+	arg1 = tmp_getword(&argument);
+	arg2 = tmp_getword(&argument);
+	arg3 = tmp_getword(&argument);
+	arg4 = tmp_getword(&argument);
 
 	if ((!*arg1 || ch == get_char_room_vis(ch, arg1)) && IS_CYBORG(ch)) {
 		// Find the battery
@@ -831,6 +831,7 @@ ACMD(do_activate)
 	struct obj_data *obj = NULL;
 	struct room_data *targ_room = NULL;
 	bool internal = false;
+	char *arg;
 
 	skip_spaces(&argument);
 
@@ -848,26 +849,28 @@ ACMD(do_activate)
 	}
 
 	if (!mode) {		  /*** not a skill activation ***/
-		argument = two_arguments(argument, buf, buf2);
-		if (!*buf) {
+		arg = tmp_getword(&argument);
+		if (!*arg) {
 			send_to_char(ch, "Activate what?\r\n");
 			return;
 		}
-		if (!strncmp(buf, "internal", 7)) {
+		if (!strncmp(arg, "internal", 7)) {
 			internal = true;
-			if (!*buf2) {
+			arg = tmp_getword(&argument);
+			if (!*arg) {
 				send_to_char(ch, "Which implant?\r\n");
 				return;
 			}
-			if (!(obj = get_object_in_equip_all(ch, buf2, ch->implants, &i))) {
+			if (!(obj = get_object_in_equip_all(ch, arg, ch->implants, &i))) {
 				send_to_char(ch, "You are not implanted with %s '%s'.\r\n",
-					AN(buf2), buf2);
+					AN(arg), arg);
 				return;
 			}
-		} else if (!(obj = get_object_in_equip_vis(ch, buf, ch->equipment, &i))
-			&& !(obj = get_obj_in_list_vis(ch, buf, ch->carrying))
-			&& !(obj = get_obj_in_list_vis(ch, buf, ch->in_room->contents))) {
-			send_to_char(ch, "You don't seem to have %s '%s'.\r\n", AN(buf), buf);
+		} else if (!(obj = get_object_in_equip_vis(ch, arg, ch->equipment, &i))
+				&& !(obj = get_obj_in_list_vis(ch, arg, ch->carrying))
+				&& !(obj = get_obj_in_list_vis(ch, arg, ch->in_room->contents))) {
+			send_to_char(ch, "You don't seem to have %s '%s'.\r\n", AN(arg),
+				arg);
 			return;
 		}
 
@@ -881,7 +884,7 @@ ACMD(do_activate)
 					act(tmp_sprintf("You deactivate $p%s.",
 							internal ? " (internal)" : ""),
 						false, ch, obj, 0, TO_CHAR);
-					act(tmp_sprintf(buf, "$n deactivates $p%s.",
+					act(tmp_sprintf("$n deactivates $p%s.",
 							internal ? " (internal)" : ""),
 						true, ch, obj, 0, TO_ROOM);
 
@@ -914,7 +917,7 @@ ACMD(do_activate)
 					act(tmp_sprintf("You activate $p%s.",
 							internal ? " (internal)" : ""),
 						false, ch, obj, 0, TO_CHAR);
-					act(tmp_sprintf(buf, "$n activates $p%s.",
+					act(tmp_sprintf("$n activates $p%s.",
 							internal ? " (internal)" : ""),
 						true, ch, obj, 0, TO_ROOM);
 
@@ -1300,9 +1303,10 @@ ACMD(do_discharge)
 	int tolerance = 0;
 	int level = 0;
 	int wait = 0;
-	char arg1[MAX_INPUT_LENGTH], arg2[MAX_INPUT_LENGTH];
+	char *arg1, *arg2;
 
-	half_chop(argument, arg1, arg2);
+	arg1 = tmp_getword(&argument);
+	arg2 = tmp_getword(&argument);
 
 	if (!IS_CYBORG(ch) && GET_LEVEL(ch) < LVL_DEMI) {
 		send_to_char(ch, "You discharge some smelly gas.\r\n");
@@ -1451,7 +1455,7 @@ ACMD(do_discharge)
 ACMD(do_tune)
 {
 	struct obj_data *obj = NULL, *obj2 = NULL;
-	char arg1[MAX_INPUT_LENGTH], arg2[MAX_INPUT_LENGTH];
+	char *arg1, *arg2;
 	struct room_data *to_room = NULL;
 	sh_int count = 0;
 	int i;
@@ -1464,7 +1468,8 @@ ACMD(do_tune)
 		return;
 	}
 
-	argument = two_arguments(argument, arg1, arg2);
+	arg1 = tmp_getword(&argument);
+	arg2 = tmp_getword(&argument);
 
 	if (!strncmp(arg1, "internal", 8)) {
 		internal = true;
@@ -1473,7 +1478,7 @@ ACMD(do_tune)
 			send_to_char(ch, "You are not implanted with '%s'.\r\n", arg1);
 			return;
 		}
-		one_argument(argument, arg2);
+		arg2 = tmp_getword(&argument);
 
 	} else {
 
@@ -2092,79 +2097,75 @@ ACMD(do_overhaul)
 	}
 }
 
-char *
+const char *
 obj_cond(struct obj_data *obj)
 {
 
 	int num;
 
+	if (IS_OBJ_STAT2(obj, ITEM2_BROKEN))
+		return "<broken>";
+
+	if (GET_OBJ_MAX_DAM(obj) == 0)
+		return "frail";
+
 	if (GET_OBJ_DAM(obj) == -1 || GET_OBJ_MAX_DAM(obj) == -1)
 		num = 0;
-	else if (GET_OBJ_MAX_DAM(obj) == 0) {
-		strcpy(buf2, "frail");
-		return (buf2);
-	} else
+	else
 		num = ((GET_OBJ_MAX_DAM(obj) - GET_OBJ_DAM(obj)) * 100 /
 			GET_OBJ_MAX_DAM(obj));
 
 	if (num == 0)
-		strcpy(buf2, "perfect");
+		return "perfect";
 	else if (num < 10)
-		strcpy(buf2, "excellent");
+		return "excellent";
 	else if (num < 30)
-		strcpy(buf2, "good");
+		return "good";
 	else if (num < 50)
-		strcpy(buf2, "fair");
+		return "fair";
 	else if (num < 60)
-		strcpy(buf2, "worn");
+		return "worn";
 	else if (num < 70)
-		strcpy(buf2, "shabby");
+		return "shabby";
 	else if (num < 90)
-		strcpy(buf2, "bad");
-	else
-		strcpy(buf2, "terrible");
+		return "bad";
 
-	if (IS_OBJ_STAT2(obj, ITEM2_BROKEN))
-		strcat(buf2, " <broken>");
-
-	return (buf2);
+	return "terrible";
 }
 
 const char *
 obj_cond_color(struct obj_data *obj, struct Creature *ch)
 {
-	const char *desc = "";
 	int num;
+
+	if (IS_OBJ_STAT2(obj, ITEM2_BROKEN))
+		return "<broken>";
+
+	if (GET_OBJ_MAX_DAM(obj) == 0) {
+		return tmp_sprintf("%sfrail%s", CCYEL(ch, C_NRM), CCNRM(ch, C_NRM));
 
 	if (GET_OBJ_DAM(obj) == -1 || GET_OBJ_MAX_DAM(obj) == -1)
 		num = 0;
-	else if (GET_OBJ_MAX_DAM(obj) == 0) {
-		desc = tmp_sprintf("%sfrail%s", CCYEL(ch, C_NRM), CCNRM(ch, C_NRM));
-		return (buf2);
 	} else
 		num = ((GET_OBJ_MAX_DAM(obj) - GET_OBJ_DAM(obj)) * 100 /
 			GET_OBJ_MAX_DAM(obj));
 
 	if (num == 0)
-		desc = "perfect";
+		return "perfect";
 	else if (num < 10)
-		desc = "excellent";
+		return "excellent";
 	else if (num < 30)
-		desc = tmp_sprintf("%sgood%s", CCCYN(ch, C_NRM), CCNRM(ch, C_NRM));
+		return tmp_sprintf("%sgood%s", CCCYN(ch, C_NRM), CCNRM(ch, C_NRM));
 	else if (num < 50)
-		desc = tmp_sprintf("%sfair%s", CCCYN(ch, C_NRM), CCNRM(ch, C_NRM));
+		return tmp_sprintf("%sfair%s", CCCYN(ch, C_NRM), CCNRM(ch, C_NRM));
 	else if (num < 60)
-		desc = tmp_sprintf("%sworn%s", CCYEL(ch, C_NRM), CCNRM(ch, C_NRM));
+		return tmp_sprintf("%sworn%s", CCYEL(ch, C_NRM), CCNRM(ch, C_NRM));
 	else if (num < 70)
-		desc = tmp_sprintf("%sshabby%s", CCYEL(ch, C_NRM), CCNRM(ch, C_NRM));
+		return tmp_sprintf("%sshabby%s", CCYEL(ch, C_NRM), CCNRM(ch, C_NRM));
 	else if (num < 90)
-		desc = tmp_sprintf("%sbad%s", CCYEL(ch, C_NRM), CCNRM(ch, C_NRM));
-	else
-		desc = tmp_sprintf("%sterrible%s", CCRED(ch, C_NRM), CCNRM(ch, C_NRM));
-	if (IS_OBJ_STAT2(obj, ITEM2_BROKEN))
-		desc = tmp_strcat(desc, " <broken>");
+		return tmp_sprintf("%sbad%s", CCYEL(ch, C_NRM), CCNRM(ch, C_NRM));
 
-	return desc;
+	return tmp_sprintf("%sterrible%s", CCRED(ch, C_NRM), CCNRM(ch, C_NRM));
 }
 
 // n should run between 1 and 7
@@ -2191,50 +2192,51 @@ perform_analyze( Creature *ch, obj_data *obj, bool checklev=true )
 			C_NRM), material_names[GET_OBJ_MATERIAL(obj)], CCNRM(ch,
 			C_NRM));
 	// give detailed item damage info
-	acc_sprintf("Condition:            %s%-15s%s%s\r\n",
+	acc_sprintf("Structural Integrity: %s%-15s%s%s\r\n",
 		CCCYN(ch, C_NRM), obj_cond(obj), CCNRM(ch, C_NRM),
 			(ALEV(5) || !checklev) ?
-				tmp_sprintf("  [%4d/%4d]", GET_OBJ_DAM(obj), GET_OBJ_MAX_DAM(obj)):"");
+				tmp_sprintf("  [%3d%%]", GET_OBJ_DAM(obj) * 100 / GET_OBJ_MAX_DAM(obj)) :"");
 	acc_sprintf("Commerce Value:       %s%d coins%s\r\n",
 		CCCYN(ch, C_NRM), GET_OBJ_COST(obj), CCNRM(ch, C_NRM));
-	acc_sprintf("Weight:               %s%d pounds%s\r\n",
+	acc_sprintf("Total Mass:           %s%d pounds%s\r\n",
 		CCCYN(ch, C_NRM), obj->getWeight(), CCNRM(ch, C_NRM));
 
 	acc_sprintf("Intrinsic Properties: %s", CCCYN(ch, C_NRM));
     if( GET_OBJ_EXTRA(obj) == 0 && GET_OBJ_EXTRA2(obj) == 0 ) {
-        acc_strcat( "None", NULL );
+        acc_strcat( "None", CCNRM(ch, C_NRM), NULL );
     } else {
-        acc_strcat(tmp_printbits(GET_OBJ_EXTRA(obj), extra_bits), NULL);
-        acc_strcat(tmp_printbits(GET_OBJ_EXTRA2(obj), extra_bits), NULL);
+        acc_strcat(tmp_printbits(GET_OBJ_EXTRA(obj), extra_bits),
+			" ",
+			tmp_printbits(GET_OBJ_EXTRA2(obj), extra2_bits),
+			CCNRM(ch, C_NRM),
+			"\r\n",
+			NULL);
     }
-	acc_sprintf("%s\r\n", CCNRM(ch, C_NRM));
 
 	acc_sprintf("Inherent Properties:  %s", CCCYN(ch, C_NRM));
     if( GET_OBJ_EXTRA3(obj) == 0 ) {
-        acc_strcat( "None", NULL );
+        acc_strcat( "None", CCNRM(ch, C_NRM), "\r\n", NULL );
     } else {
-        acc_strcat(tmp_printbits(GET_OBJ_EXTRA3(obj), extra3_bits), NULL);
+        acc_strcat(tmp_printbits(GET_OBJ_EXTRA3(obj), extra3_bits),
+			CCNRM(ch, C_NRM), "\r\n", NULL);
     }
-    acc_sprintf("%s\r\n", CCNRM(ch, C_NRM));
 
 	// check for affections
 	bool found = false;
 	for (int i = 0; i < MAX_OBJ_AFFECT; i++) {
 		if (obj->affected[i].modifier) {
-			if (found) {
-				acc_strcat(",\r\n",
-                           "                     ", NULL);
-            } else {
-				acc_strcat("Apply:               ", CCCYN(ch, C_NRM), NULL);
-            }
+			if (found)
+				acc_strcat("\r\n                      ", NULL);
+            else
+				acc_strcat("User modifications:   ", CCCYN(ch, C_NRM), NULL);
+
             found = true;
-			acc_sprintf(" %+d to %s", obj->affected[i].modifier,
+			acc_sprintf("%+d to %s", obj->affected[i].modifier,
 				strlist_aref(obj->affected[i].location, apply_types));
 		}
 	}
-	if (found) {
+	if (found)
 		acc_strcat(CCNRM(ch, C_NRM), "\r\n", NULL);
-    }
 
 	switch (GET_OBJ_TYPE(obj)) {
 	case ITEM_ARMOR:
@@ -2267,7 +2269,7 @@ perform_analyze( Creature *ch, obj_data *obj, bool checklev=true )
 		if (GET_OBJ_VAL(obj, 3))
 			acc_strcat("Item is a corpse.\r\n", NULL);
 		else
-			acc_sprintf("%sCapacity:            %s%d pounds%s\r\n", buf,
+			acc_sprintf("Capacity:            %s%d pounds%s\r\n",
 				CCCYN(ch, C_NRM), GET_OBJ_VAL(obj, 0), CCNRM(ch, C_NRM));
 		break;
 	case ITEM_VEHICLE:
@@ -2350,41 +2352,41 @@ ACMD(do_analyze)
 	}
 
 	if (obj) {
-
-		perform_analyze(ch,obj);
+		perform_analyze(ch, obj);
 		GET_MOVE(ch) -= 10;
 		return;
 	}
-	if (vict) {
 
-		sprintf(buf, "       %s***************************************\r\n",
+	if (vict) {
+		acc_string_clear();
+
+		acc_sprintf("       %s***************************************\r\n",
 			CCGRN(ch, C_NRM));
-		sprintf(buf, "%s       %s>>>     ENTITY ANALYSIS RESULTS:    <<<\r\n",
-			buf, CCCYN(ch, C_NRM));
-		sprintf(buf,
-			"%s       %s***************************************%s\r\n", buf,
+		acc_sprintf("       %s>>>     ENTITY ANALYSIS RESULTS:    <<<\r\n",
+			CCCYN(ch, C_NRM));
+		acc_sprintf("       %s***************************************%s\r\n",
 			CCGRN(ch, C_NRM), CCNRM(ch, C_NRM));
-		sprintf(buf, "%sName:                  %s%s%s\r\n", buf, CCCYN(ch,
+		acc_sprintf("Name:                  %s%s%s\r\n", CCCYN(ch,
 				C_NRM), GET_NAME(vict), CCNRM(ch, C_NRM));
-		sprintf(buf, "%sRacial Classification: %s%s%s\r\n", buf, CCCYN(ch,
+		acc_sprintf("Racial Classification: %s%s%s\r\n", CCCYN(ch,
 				C_NRM), player_race[(int)GET_RACE(vict)], CCNRM(ch, C_NRM));
 		if (GET_CLASS(vict) < NUM_CLASSES) {
-			sprintf(buf, "%sPrimary Occupation:    %s%s%s\r\n", buf, CCCYN(ch,
+			acc_sprintf("Primary Occupation:    %s%s%s\r\n", CCCYN(ch,
 					C_NRM), pc_char_class_types[(int)GET_CLASS(vict)],
 				CCNRM(ch, C_NRM));
 		} else {
-			sprintf(buf, "%sPrimary Type:          %s%s%s\r\n", buf, CCCYN(ch,
+			acc_sprintf("Primary Type:          %s%s%s\r\n", CCCYN(ch,
 					C_NRM), pc_char_class_types[(int)GET_CLASS(vict)],
 				CCNRM(ch, C_NRM));
 		}
 		if (GET_REMORT_CLASS(vict) != CLASS_UNDEFINED)
-			sprintf(buf, "%sSecondary Occupation:  %s%s%s\r\n", buf,
+			acc_sprintf("Secondary Occupation:  %s%s%s\r\n",
 				CCCYN(ch, C_NRM),
 				pc_char_class_types[(int)GET_REMORT_CLASS(vict)], CCNRM(ch,
 					C_NRM));
 
 		GET_MOVE(ch) -= 10;
-		page_string(ch->desc, buf);
+		page_string(ch->desc, acc_get_string());
 		return;
 	}
 
@@ -2396,20 +2398,23 @@ ACMD(do_insert)
 {
 	struct obj_data *obj = NULL, *tool = NULL;
 	struct Creature *vict = NULL;
+	char *obj_str, *vict_str, *pos_str;
 	int pos, i;
 
-	skip_spaces(&argument);
+	obj_str = tmp_getword(&argument);
+	vict_str = tmp_getword(&argument);
+	pos_str = tmp_getword(&argument);
 
-	if (!*argument || !*(argument = two_arguments(argument, buf, buf2))) {
+	if (!*obj_str || !*vict_str || !*pos_str) {
 		send_to_char(ch, "Insert <object> <victim> <position>\r\n");
 		return;
 	}
 
-	if (!(obj = get_obj_in_list_vis(ch, buf, ch->carrying))) {
+	if (!(obj = get_obj_in_list_vis(ch, obj_str, ch->carrying))) {
 		send_to_char(ch, "You do not carry that implant.\r\n");
 		return;
 	}
-	if (!(vict = get_char_room_vis(ch, buf2))) {
+	if (!(vict = get_char_room_vis(ch, vict_str))) {
 		act("Insert $p in who?", FALSE, ch, obj, 0, TO_CHAR);
 		return;
 	}
@@ -2435,9 +2440,7 @@ ACMD(do_insert)
 		}
 	}
 
-	one_argument(argument, buf);
-
-	pos = search_block(buf, wear_implantpos, 0);
+	pos = search_block(pos_str, wear_implantpos, 0);
 	if (pos < 0 || ((GET_LEVEL(ch) < LVL_IMMORT &&
 		ILLEGAL_IMPLANTPOS(pos) && !IS_OBJ_TYPE(obj, ITEM_TOOL)))) {
 		send_to_char(ch, "Invalid implant position.\r\n");
@@ -2512,7 +2515,7 @@ ACMD(do_insert)
 	}
 
 	if (!(vict == ch && IS_WEAR_EXTREMITY(pos)) &&
-		GET_LEVEL(ch) < LVL_AMBASSADOR && !AFF_FLAGGED(vict, AFF_SLEEP) &&
+		!IS_IMMORT(ch) && !AFF_FLAGGED(vict, AFF_SLEEP) &&
 		!AFF3_FLAGGED(vict, AFF3_STASIS)) {
 		act("$N wakes up with a scream as you cut into $M!",
 			FALSE, ch, 0, vict, TO_CHAR);
@@ -2536,13 +2539,15 @@ ACMD(do_insert)
 		return;
 
 	if (ch == vict) {
-		sprintf(buf, "$p inserted into your %s.", wear_implantpos[pos]);
-		act(buf, FALSE, ch, GET_IMPLANT(vict, pos), vict, TO_CHAR);
-		sprintf(buf, "$n inserts $p into $s %s.", wear_implantpos[pos]);
-		act(buf, FALSE, ch, GET_IMPLANT(vict, pos), vict, TO_NOTVICT);
+		;
+		act(tmp_sprintf("$p inserted into your %s.", wear_implantpos[pos]),
+			false, ch, GET_IMPLANT(vict, pos), vict, TO_CHAR);
+		;
+		act(tmp_sprintf("$n inserts $p into $s %s.", wear_implantpos[pos]),
+			false, ch, GET_IMPLANT(vict, pos), vict, TO_NOTVICT);
 
 		// Immortals shouldn't have to deal with messiness
-		if (GET_LEVEL(ch) < LVL_IMMORT) {
+		if (!IS_IMMORT(ch)) {
 			if (vict->getPosition() > POS_SITTING)
 				ch->setPosition(POS_SITTING);
 			GET_HIT(vict) = GET_HIT(vict) / 4;
@@ -2556,16 +2561,16 @@ ACMD(do_insert)
 		slog("IMPLANT: %s inserts %s into self at %d.",
 			GET_NAME(ch), obj->name, ch->in_room->number);
 	} else {
-		sprintf(buf, "$p inserted into $N's %s.", wear_implantpos[pos]);
-		act(buf, FALSE, ch, GET_IMPLANT(vict, pos), vict, TO_CHAR);
+		;
+		act(tmp_sprintf("$p inserted into $N's %s.", wear_implantpos[pos]),
+			false, ch, GET_IMPLANT(vict, pos), vict, TO_CHAR);
+		act(tmp_sprintf("$n inserts $p into your %s.", wear_implantpos[pos]),
+			false, ch, GET_IMPLANT(vict, pos), vict, TO_VICT);
+		act(tmp_sprintf("$n inserts $p into $N's %s.", wear_implantpos[pos]),
+			false, ch, GET_IMPLANT(vict, pos), vict, TO_NOTVICT);
 
-		sprintf(buf, "$n inserts $p into your %s.", wear_implantpos[pos]);
-		act(buf, FALSE, ch, GET_IMPLANT(vict, pos), vict, TO_VICT);
-
-		sprintf(buf, "$n inserts $p into $N's %s.", wear_implantpos[pos]);
-		act(buf, FALSE, ch, GET_IMPLANT(vict, pos), vict, TO_NOTVICT);
 		// Immortals shouldn't have to deal with messiness
-		if (GET_LEVEL(ch) < LVL_IMMORT) {
+		if (!IS_IMMORT(ch)) {
 			if (vict->getPosition() > POS_RESTING)
 				vict->setPosition(POS_RESTING);
 			GET_HIT(vict) = 1;
@@ -2585,27 +2590,21 @@ ACMD(do_extract)
 
 	struct obj_data *obj = NULL, *corpse = NULL, *tool = NULL;
 	struct Creature *vict = NULL;
+	char *obj_str, *vict_str, *pos_str;
 	int pos;
 
-	skip_spaces(&argument);
+	obj_str = tmp_getword(&argument);
+	vict_str = tmp_getword(&argument);
+	pos_str = tmp_getword(&argument);
 
-	if (!*argument) {
+	if (!*obj_str || !*vict_str || !*pos_str) {
 		send_to_char(ch,
 			"Extract <object> <victim> <position>        ...or...\r\n"
 			"Extract <object> <corpse>\r\n");
 		return;
 	}
 
-	argument = two_arguments(argument, buf, buf2);
-
-	if (!*buf || !*buf2) {
-		send_to_char(ch,
-			"Extract <object> <victim> <position>        ...or...\r\n"
-			"Extract <object> <corpse>\r\n");
-		return;
-	}
-
-	if (GET_LEVEL(ch) < LVL_IMMORT) {
+	if (!IS_IMMORT(ch)) {
 		if (CHECK_SKILL(ch, SKILL_CYBO_SURGERY) < 30) {
 			send_to_char(ch,
 				"You are unskilled in the art of cybosurgery.\r\n");
@@ -2621,13 +2620,15 @@ ACMD(do_extract)
 		}
 	}
 
-	if (!(vict = get_char_room_vis(ch, buf2))) {
-		if (!(corpse = get_obj_in_list_vis(ch, buf2, ch->in_room->contents))) {
+	vict = get_char_room_vis(ch, vict_str);
+	if (!vict) {
+		corpse = get_obj_in_list_vis(ch, vict_str, ch->in_room->contents);
+		if (!corpse) {
 			send_to_char(ch, "Extract from who?\r\n");
 			return;
 		}
 
-		if (!(obj = get_obj_in_list_vis(ch, buf, corpse->contains))) {
+		if (!(obj = get_obj_in_list_vis(ch, obj_str, corpse->contains))) {
 			act("There is no such thing in $p.", FALSE, ch, corpse, 0,
 				TO_CHAR);
 			return;
@@ -2689,19 +2690,17 @@ ACMD(do_extract)
 		return;
 	}
 
-	if (!(obj = get_object_in_equip_vis(ch, buf, vict->implants, &pos))) {
+	if (!(obj = get_object_in_equip_vis(ch, obj_str, vict->implants, &pos))) {
 		send_to_char(ch, "Invalid object.  Type 'extract' for usage.\r\n");
 		return;
 	}
 
-	if (!*argument) {
+	if (!*pos_str) {
 		send_to_char(ch, "Extract the implant from what position.\r\n");
 		return;
 	}
 
-	one_argument(argument, buf);
-
-	if ((pos = search_block(buf, wear_implantpos, 0)) < 0) {
+	if ((pos = search_block(pos_str, wear_implantpos, 0)) < 0) {
 		send_to_char(ch, "Invalid implant position.\r\n");
 		return;
 	}
@@ -2748,11 +2747,12 @@ ACMD(do_extract)
 	SET_BIT(GET_OBJ_WEAR(obj), ITEM_WEAR_TAKE);
 
 	if (ch == vict) {
-		sprintf(buf, "$p extracted from your %s.", wear_implantpos[pos]);
-		act(buf, FALSE, ch, obj, vict, TO_CHAR);
-		sprintf(buf, "$n extracts $p from $s %s.", wear_implantpos[pos]);
-		act(buf, FALSE, ch, obj, vict, TO_NOTVICT);
-		if (GET_LEVEL(ch) < LVL_IMMORT) {
+		act(tmp_sprintf("$p extracted from your %s.", wear_implantpos[pos]),
+			false, ch, obj, vict, TO_CHAR);
+		act(tmp_sprintf("$n extracts $p from $s %s.", wear_implantpos[pos]),
+			false, ch, obj, vict, TO_NOTVICT);
+
+		if (!IS_IMMORT(ch)) {
 			if (vict->getPosition() > POS_SITTING)
 				vict->setPosition(POS_SITTING);
 			GET_HIT(vict) = GET_HIT(vict) / 4;
@@ -2764,15 +2764,15 @@ ACMD(do_extract)
 			WAIT_STATE(vict, 6 RL_SEC);
 		}
 	} else {
-		sprintf(buf, "$p extracted from $N's %s.", wear_implantpos[pos]);
-		act(buf, FALSE, ch, obj, vict, TO_CHAR);
+		;
+		act(tmp_sprintf("$p extracted from $N's %s.", wear_implantpos[pos]),
+			false, ch, obj, vict, TO_CHAR);
+		act(tmp_sprintf("$n extracts $p from your %s.", wear_implantpos[pos]),
+			false, ch, obj, vict, TO_VICT);
+		act(tmp_sprintf("$n extracts $p from $N's %s.", wear_implantpos[pos]),
+			false, ch, obj, vict, TO_NOTVICT);
 
-		sprintf(buf, "$n extracts $p from your %s.", wear_implantpos[pos]);
-		act(buf, FALSE, ch, obj, vict, TO_VICT);
-
-		sprintf(buf, "$n extracts $p from $N's %s.", wear_implantpos[pos]);
-		act(buf, FALSE, ch, obj, vict, TO_NOTVICT);
-		if (GET_LEVEL(ch) < LVL_IMMORT) {
+		if (!IS_IMMORT(ch)) {
 			if (vict->getPosition() > POS_RESTING)
 				vict->setPosition(POS_RESTING);
 			GET_HIT(vict) = 1;
@@ -2862,16 +2862,16 @@ CLIP_COUNT(struct obj_data *clip)
 ACMD(do_load)
 {
 	struct obj_data *obj1 = NULL, *obj2 = NULL, *bullet = NULL;
-	char arg1[MAX_INPUT_LENGTH], arg2[MAX_INPUT_LENGTH];
+	char *arg1, *arg2;
 	int i = 0;
 	int count = 0;
 	bool internal = false;
 
-	argument = two_arguments(argument, arg1, arg2);
+	arg1 = tmp_getword(&argument);
+	arg2 = tmp_getword(&argument);
 
 	if (!*arg1) {
-		sprintf(buf, "%s what?\r\n", CMD_NAME);
-		send_to_char(ch, "%s", buf);
+		send_to_char(ch, "%s what?\r\n", CMD_NAME);
 		return;
 	}
 
@@ -2888,16 +2888,16 @@ ACMD(do_load)
 		if (!strncmp(arg2, "internal", 8)) {
 
 			internal = true;
-			argument = one_argument(argument, arg1);
+			arg2 = tmp_getword(&argument);
 
-			if (!*arg1) {
+			if (!*arg2) {
 				send_to_char(ch, "Load which implant?\r\n");
 				return;
 			}
 
-			if (!(obj2 = get_object_in_equip_vis(ch, arg1, ch->implants, &i))) {
+			if (!(obj2 = get_object_in_equip_vis(ch, arg2, ch->implants, &i))) {
 				send_to_char(ch, "You are not implanted with %s '%s'.\r\n",
-					AN(arg1), arg1);
+					AN(arg2), arg2);
 				return;
 			}
 
@@ -2906,8 +2906,8 @@ ACMD(do_load)
 			&& !(obj2 = get_obj_in_list_vis(ch, arg2, ch->carrying))
 			&& !(obj2 =
 				get_obj_in_list_vis(ch, arg2, ch->in_room->contents))) {
-			sprintf(buf, "You don't have any '%s' to load $p into.", arg2);
-			act(buf, FALSE, ch, obj1, 0, TO_CHAR);
+			act(tmp_sprintf("You don't have any '%s' to load $p into.", arg2),
+				false, ch, obj1, 0, TO_CHAR);
 			return;
 		}
 		if (obj2 == obj1) {
@@ -3047,8 +3047,8 @@ ACMD(do_load)
 			&& !(obj2 = get_obj_in_list_vis(ch, arg1, ch->carrying))
 			&& !(obj2 =
 				get_obj_in_list_vis(ch, arg1, ch->in_room->contents))) {
-			sprintf(buf, "You can't find %s '%s' to unload.", AN(arg1), arg1);
-			act(buf, FALSE, ch, obj1, 0, TO_CHAR);
+			act(tmp_sprintf("You can't find %s '%s' to unload.", AN(arg1), arg1),
+				false, ch, obj1, 0, TO_CHAR);
 			return;
 		}
 
@@ -3106,10 +3106,11 @@ redundant_skillchip(struct obj_data *chip, struct obj_data *slot)
 ACMD(do_refill)
 {
 	struct obj_data *syr = NULL, *vial = NULL;
-	char arg1[MAX_INPUT_LENGTH], arg2[MAX_INPUT_LENGTH];
+	char *arg1, *arg2;
 	int i;
 
-	argument = two_arguments(argument, arg1, arg2);
+	arg1 = tmp_getword(&argument);
+	arg2 = tmp_getword(&argument);
 
 	if (!*arg1)
 		send_to_char(ch, "Refill what from what?\r\n");
@@ -3140,11 +3141,11 @@ ACMD(do_refill)
 		if (IS_POTION(vial) || IS_OBJ_STAT(vial, ITEM_MAGIC))
 			SET_BIT(GET_OBJ_EXTRA(syr), ITEM_MAGIC);
 
-		sprintf(buf, "%s %s", fname(vial->aliases), syr->aliases);
 		if (!syr->shared->proto || syr->shared->proto->aliases != syr->aliases) {
 			free(syr->aliases);
 		}
-		syr->aliases = str_dup(buf);
+		syr->aliases = str_dup(tmp_sprintf("%s %s", fname(vial->aliases), syr->aliases));
+
 		if (IS_POTION(vial)) {
 			act("$P dissolves before your eyes.", FALSE, ch, syr, vial,
 				TO_CHAR);
@@ -3165,10 +3166,12 @@ ACMD(do_transmit)
 
 	struct obj_data *obj = NULL;
 	int i;
-	char arg1[MAX_INPUT_LENGTH], arg2[MAX_INPUT_LENGTH];
+	char *arg1, *arg2;
 
 	skip_spaces(&argument);
-	argument = one_argument(argument, arg1);
+
+	arg1 = tmp_getword(&argument);
+	arg2 = tmp_getword(&argument);
 
 	if (!*arg1) {
 		send_to_char(ch, "Usage:  transmit [internal] <device> <message>\r\n");
@@ -3177,7 +3180,7 @@ ACMD(do_transmit)
 
 	if (!strncmp(arg1, "internal", 8)) {
 
-		argument = one_argument(argument, arg2);
+		arg2 = tmp_getword(&argument);
 
 		if (!*arg2) {
 			send_to_char(ch, "Transmit with which implant?\r\n");
@@ -3211,13 +3214,12 @@ ACMD(do_transmit)
 		return;
 	}
 
-	if (!obj->worn_by || (obj != GET_IMPLANT(ch, obj->worn_on))) {
-		sprintf(buf, "$n speaks into $p%s.", obj->worn_by ? " (worn)" : "");
-		act(buf, FALSE, ch, obj, 0, TO_ROOM);
-	}
+	if (!obj->worn_by || (obj != GET_IMPLANT(ch, obj->worn_on)))
+		act(tmp_sprintf("$n speaks into $p%s.", obj->worn_by ? " (worn)" : ""),
+			false, ch, obj, 0, TO_ROOM);
 
-	sprintf(buf, "$n >%s", argument);
-	send_to_comm_channel(ch, buf, COMM_CHANNEL(obj), FALSE, FALSE);
+	send_to_comm_channel(ch, tmp_sprintf("$n >%s", argument),
+		COMM_CHANNEL(obj), FALSE, FALSE);
 }
 
 
@@ -3594,5 +3596,4 @@ ACMD(do_deassimilate)
 	affect_from_char(ch, SKILL_ASSIMILATE);
 	GET_MANA(ch) -= 10;
 	send_to_char(ch, "Deassimilation complete.\r\n");
-
 }
