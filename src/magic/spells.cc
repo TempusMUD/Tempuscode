@@ -934,6 +934,7 @@ ASPELL(spell_charm)
 		af.location = 0;
 		af.bitvector = AFF_CHARM;
 		af.level = level;
+		af.aff_index = 0;
 		affect_to_char(ch, &af);
 		act("Isn't $n just such a great friend?", FALSE, victim, 0, ch,
 			TO_VICT);
@@ -999,6 +1000,7 @@ ASPELL(spell_charm)
 		af.location = 0;
 		af.bitvector = AFF_CHARM;
 		af.level = level;
+		af.aff_index = 0;
 		affect_to_char(victim, &af);
 
 		act("Isn't $n just such a nice fellow?", FALSE, ch, 0, victim,
@@ -1057,9 +1059,10 @@ ASPELL(spell_charm_animal)
 		af.location = 0;
 		af.bitvector = AFF_CHARM;
 		af.level = level;
+		af.aff_index = 0;
 		affect_to_char(victim, &af);
 
-		act("Isn't $n just such a nice fellow?", FALSE, ch, 0, victim,
+		act("Isn't $n just such a nice friend?", FALSE, ch, 0, victim,
 			TO_VICT);
 		if (IS_NPC(victim)) {
 			REMOVE_BIT(MOB_FLAGS(victim), MOB_AGGRESSIVE);
@@ -1896,6 +1899,7 @@ ASPELL(spell_conjure_elemental)
 		af.bitvector = AFF_CHARM;
 		af.level = level;
         af.owner = ch->getIdNum();
+		af.aff_index = 0;
 		affect_to_char(elemental, &af);
 
 		gain_skill_prof(ch, SPELL_CONJURE_ELEMENTAL);
@@ -2152,6 +2156,7 @@ ASPELL(spell_sword)
 	af.bitvector = AFF_CHARM;
 	af.level = level;
     af.owner = ch->getIdNum();
+	af.aff_index = 0;
 
 	affect_to_char(sword, &af);
 	SET_BIT(MOB_FLAGS(sword), MOB_PET);
@@ -2643,6 +2648,7 @@ ASPELL(spell_summon_legion)
 	af.bitvector = AFF_CHARM;
 	af.level = level;
     af.owner = ch->getIdNum();
+	af.aff_index = 0;
 	affect_to_char(devil, &af);
 
 	return;
@@ -2863,6 +2869,7 @@ ASPELL(spell_animate_dead)
 	af.bitvector = AFF_CHARM;
 	af.level = level;
     af.owner = ch->getIdNum();
+	af.aff_index = 0;
 	affect_to_char(zombie, &af);
 
 	gain_skill_prof(ch, SPELL_ANIMATE_DEAD);
@@ -3009,6 +3016,7 @@ ASPELL(spell_control_undead)
 		af.location = 0;
 		af.bitvector = AFF_CHARM;
 		af.level = level;
+		af.aff_index = 0;
 		affect_to_char(ch, &af);
 		act("Isn't $n just such a great friend?", FALSE, victim, 0, ch,
 			TO_VICT);
@@ -3077,6 +3085,7 @@ ASPELL(spell_control_undead)
 		af.bitvector = AFF_CHARM;
 		af.level = level;
         af.owner = ch->getIdNum();
+		af.aff_index = 0;
 		affect_to_char(victim, &af);
 
 		act("$n has become your unholy master.", FALSE, ch, 0, victim,
@@ -3720,6 +3729,7 @@ perform_call_familiar(Creature *ch, int level, int type)
 	af.bitvector = AFF_CHARM;
 	af.level = level;
     af.owner = ch->getIdNum();
+	af.aff_index = 0;
 	affect_to_char(pet, &af);
 
 	return true;
