@@ -2610,34 +2610,16 @@ mobile_activity(void)
 		// barbs acting barbaric
 		//
 
-		else if (cur_class == CLASS_BARB || cur_class == CLASS_HILL) {
-			if (ch->getPosition() != POS_FIGHTING && random_fractional_20()) {
-
-				if (random_fractional_50())
-					act("$n grunts and scratches $s ear.", FALSE, ch, 0, 0,
-						TO_ROOM);
-				else if (random_fractional_50())
-					act("$n drools all over $mself.", FALSE, ch, 0, 0,
-						TO_ROOM);
-				else if (random_fractional_50())
-					act("$n belches loudly.", FALSE, ch, 0, 0, TO_ROOM);
-				else if (random_fractional_50())
-					act("$n swats at an annoying gnat.", FALSE, ch, 0, 0,
-						TO_ROOM);
-				else if (random_fractional_100()) {
-					if (GET_SEX(ch) == SEX_MALE)
-						act("$n scratches $s nuts and grins.", FALSE, ch, 0, 0,
-							TO_ROOM);
-					else if (GET_SEX(ch) == SEX_FEMALE)
-						act("$n belches loudly and grins.", FALSE, ch, 0, 0,
-							TO_ROOM);
-				}
-				continue;
-			}
+		else if (cur_class == CLASS_BARB || cur_class == CLASS_HILL || GET_RACE(ch) == RACE_DEMON ) {
+            barbarian_activity(ch); 
 		}
 
-        else if(GET_RACE(ch) == RACE_CELESTIAL){
+        else if(GET_RACE(ch) == RACE_CELESTIAL || GET_RACE(ch) == RACE_ARCHON || GET_RACE(ch) == RACE_DEVIL){
             knight_activity(ch);
+        }
+
+        else if(GET_RACE(ch) == RACE_GUARDINAL){
+            ranger_activity(ch);
         }
 		//
 		// elementals heading home
@@ -3022,18 +3004,47 @@ mobile_battle_activity(struct Creature *ch, struct Creature *precious_vict)
 		return damage(ch, vict, dam, SPELL_MANTICORE_SPIKES, WEAR_RANDOM);
 	}
 
+    /* Devils: Denezens of the 9 hells */
+    /* Devils act like knights when not acting like devils */
 	if (IS_DEVIL(ch)) {
-
-		if (mob_fight_devil(ch, precious_vict))
-			return 0;
+        if( random_number_zero_low(8) < 1 ){
+            if( knight_battle_activity(ch, precious_vict) == 0 ){
+            }
+        } else if (mob_fight_devil(ch, precious_vict)){
+            return 0;
+        }
 	}
 
+    /* Celestials and archons:  Denezens of the  7 heavens */
+    /* Archons act like knights unless otherwize told */
     if(GET_RACE(ch) == RACE_CELESTIAL || GET_RACE(ch) == RACE_ARCHON){
         if(random_number_zero_low(8) < 1){
-            if(knight_battle_activity == 0){
+            if(knight_battle_activity(ch, precious_vict) == 0){
                 return 0;
             }
         } else if(mob_fight_celestial(ch, precious_vict)){
+            return 0;
+        }
+    }
+
+    /* Guardinal : Denezins of the Elysian Planes */
+    /* Guardinal's act like rangers unless otherwise told */
+    if(GET_RACE(ch) == RACE_GUARDINAL){
+        if(random_number_zero_low(8) < 1){
+            if(ranger_battle_activity(ch, precious_vict) == 0){
+                return 0;
+            }
+        } else if(mob_fight_guardinal(ch, precious_vict)){
+            return 0;
+        }
+    }
+
+    if( GET_RACE(ch) == RACE_DEMON ){
+        if( random_number_zero_low(8) < 1 ){
+            if( barbarian_battle_activity(ch, precious_vict) == 0 ){
+                return 0;
+            }
+        }else if( mob_fight_demon( ch, precious_vict )){
             return 0;
         }
     }
@@ -3424,70 +3435,9 @@ mobile_battle_activity(struct Creature *ch, struct Creature *precious_vict)
 	}
 
 	if (cur_class == CLASS_BARB || IS_GIANT(ch)) {
-		if (IS_BARB(ch) && GET_LEVEL(ch) >= 42 &&
-			GET_HIT(ch) < (GET_MAX_HIT(ch) >> 1) && GET_MANA(ch) > 30
-			&& random_fractional_4()) {
-			do_battlecry(ch, "", 0, SCMD_CRY_FROM_BEYOND, 0);
-			return 0;
-		}
-
-		if (!(vict = choose_opponent(ch, precious_vict)))
-			return 0;
-
-		if (random_fractional_3() && (GET_CLASS(vict) == CLASS_MAGIC_USER ||
-				GET_CLASS(vict) == CLASS_CLERIC)) {
-			do_offensive_skill(ch, GET_NAME(vict), 0, SKILL_BASH, 0);
-			return 0;
-		}
-		if ((GET_LEVEL(ch) > 32) && (random_fractional_5() ||
-				vict->getPosition() < POS_FIGHTING)) {
-			do_offensive_skill(ch, GET_NAME(vict), 0, SKILL_PILEDRIVE, 0);
-			return 0;
-		} else if ((GET_LEVEL(ch) > 27) && random_fractional_5()
-			&& vict->getPosition() > POS_SLEEPING) {
-			do_sleeper(ch, GET_NAME(vict), 0, 0, 0);
-			return 0;
-		} else if ((GET_LEVEL(ch) > 22) && random_fractional_10()) {
-			do_offensive_skill(ch, GET_NAME(vict), 0, SKILL_BODYSLAM, 0);
-			return 0;
-		} else if ((GET_LEVEL(ch) > 20) && random_fractional_10()) {
-			do_offensive_skill(ch, GET_NAME(vict), 0, SKILL_CLOTHESLINE, 0);
-			return 0;
-		} else if ((GET_LEVEL(ch) > 16) && random_fractional_10()) {
-			do_offensive_skill(ch, GET_NAME(vict), 0, SKILL_CHOKE, 0);
-			return 0;
-		} else if ((GET_LEVEL(ch) > 9) && random_fractional_5()) {
-			do_offensive_skill(ch, GET_NAME(vict), 0, SKILL_ELBOW, 0);
-			return 0;
-		} else if ((GET_LEVEL(ch) > 5) && random_fractional_5()) {
-			do_offensive_skill(ch, GET_NAME(vict), 0, SKILL_STOMP, 0);
-			return 0;
-		} else if ((GET_LEVEL(ch) > 2) && random_fractional_5()) {
-			do_offensive_skill(ch, GET_NAME(vict), 0, SKILL_PUNCH, 0);
-			return 0;
-		}
-
-		if (random_fractional_5()) {
-
-			if (GET_LEVEL(ch) < 5) {
-				do_offensive_skill(ch, GET_NAME(vict), 0, SKILL_PUNCH, 0);
-			} else if (GET_LEVEL(ch) < 7) {
-				do_offensive_skill(ch, GET_NAME(vict), 0, SKILL_STOMP, 0);
-			} else if (GET_LEVEL(ch) < 9) {
-				do_offensive_skill(ch, GET_NAME(vict), 0, SKILL_KNEE, 0);
-			} else if (GET_LEVEL(ch) < 16) {
-				do_offensive_skill(ch, GET_NAME(vict), 0, SKILL_ELBOW, 0);
-			} else if (GET_LEVEL(ch) < 19) {
-				do_offensive_skill(ch, GET_NAME(vict), 0, SKILL_CHOKE, 0);
-			} else if (GET_LEVEL(ch) < 25) {
-				do_offensive_skill(ch, GET_NAME(vict), 0, SKILL_CLOTHESLINE, 0);
-			} else if (GET_LEVEL(ch) < 30) {
-				do_offensive_skill(ch, GET_NAME(vict), 0, SKILL_BODYSLAM, 0);
-			} else {
-				do_offensive_skill(ch, GET_NAME(vict), 0, SKILL_PILEDRIVE, 0);
-			}
-			return 0;
-		}
+       if( barbarian_battle_activity( ch, precious_vict) == 0 ){
+           return 0;
+       }
 	}
 
 	if (cur_class == CLASS_WARRIOR) {
@@ -3921,7 +3871,7 @@ mob_fight_devil(struct Creature *ch, struct Creature *precious_vict)
 		return 0;
 	}
 
-	return 0;
+	return -1;
 }
 
 ACMD(do_breathe)
@@ -4119,8 +4069,415 @@ mob_fight_celestial(struct Creature *ch, struct Creature *precious_vict)
 		return 0;
 	}
 
-	return 0;
+	return -1;
 }
+
+/**mob_fight_Guardinal:  /
+*  This is the port and combat code for the guardinal mobs that enhabit elysium
+*/
+
+int
+mob_fight_guardinal(struct Creature *ch, struct Creature *precious_vict)
+{
+
+    const int AVORIAL_GUARDINAL = 48160;
+    const int HAWCINE_GUARDINAL = 48161;
+    const int PANTHRAL_GUARDINAL = 48162;
+    const int LEONAL_GUARDINAL = 48163;
+    
+	int prob = 0;
+	Creature *new_mob = NULL;
+	Creature *vict = NULL;
+	int num = 0;
+	int return_flags = 0;
+
+	if (IS_PET(ch)) {			// pets should only fight who they're told to
+		vict = FIGHTING(ch);
+	} else {					// find a suitable victim
+		vict = choose_opponent(ch, precious_vict);
+	}
+	// if you have noone to fight, don't fight
+	// what a waste.
+	if (vict == NULL)
+		return 0;
+
+	// prob determines guardinal's chance of drawing a bead on his victim for blasting
+	prob =
+		10 + GET_LEVEL(ch) - GET_LEVEL(vict) + (GET_AC(vict) / 10) +
+		GET_HITROLL(ch);
+
+	if (prob > (random_percentage() - 25)) {
+		WAIT_STATE(ch, 2 RL_SEC);
+		call_magic(ch, vict, NULL, SPELL_FLAME_STRIKE,
+			GET_LEVEL(ch), CAST_BREATH, &return_flags);
+		return return_flags;
+	}
+	// see if we're fighting more than 1 person, if so, blast the room
+	CreatureList::iterator it = ch->in_room->people.begin();
+	for (num = 0; it != ch->in_room->people.end(); ++it)
+		if (ch == FIGHTING((*it)))
+			num++;
+
+	if (num > 1 && GET_LEVEL(ch) > (random_number_zero_low(50) + 30)) {
+		WAIT_STATE(ch, 3 RL_SEC);
+		if (call_magic(ch, NULL, NULL, SPELL_FLAME_STRIKE,
+				GET_LEVEL(ch), CAST_BREATH, &return_flags)) {
+			return return_flags;
+		}
+	}
+	// pets shouldnt port, ever, not even once. not on a train. not on a plane
+	// not even for green eggs and spam.
+	if (IS_PET(ch)) {
+		return 0;
+	}
+	// 100 move flat rate to gate, removed when the gating actually occurs
+	if (GET_MOVE(ch) < 100) {
+		return 0;
+	}
+
+	// see how many guardinal are already in the room
+	it = ch->in_room->people.begin();
+	for (num = 0; it != ch->in_room->people.end(); ++it)
+		if (GET_RACE(*it) == RACE_GUARDINAL)
+			num++;
+
+	// less chance of gating for psionic celeestials with mana
+	if (IS_PSIONIC(ch) && GET_MANA(ch) > 100)
+		num += 3;
+
+	// gating results depend on guardinal char_class
+	switch (GET_CLASS(ch)) {
+	case CLASS_LESSER:
+		if (random_number_zero_low(8) > num) {
+			if (random_binary()){	
+				new_mob = read_mobile(AVORIAL_GUARDINAL);
+            } else if (!random_fractional_5()) { 
+                new_mob = read_mobile(HAWCINE_GUARDINAL);
+			} else {                  
+                new_mob = read_mobile(PANTHRAL_GUARDINAL);
+            }
+		}
+		break;
+	case CLASS_GREATER:
+		if (random_number_zero_low(10) > num) {
+            if(!random_fractional_3()){
+                if(random_binary()){
+                    new_mob = read_mobile(AVORIAL_GUARDINAL);
+                } else {
+                    new_mob = read_mobile(HAWCINE_GUARDINAL);
+                }
+                
+            } else if( !random_fractional_3()){
+                new_mob = read_mobile(PANTHRAL_GUARDINAL);
+            } else {
+                new_mob = read_mobile(LEONAL_GUARDINAL);
+            }
+		}
+		break;
+    case CLASS_GODLING:
+		if (random_number_zero_low(12) > num) {
+			if (random_binary())
+				new_mob = read_mobile(PANTHRAL_GUARDINAL);	
+			else
+				new_mob = read_mobile(LEONAL_GUARDINAL);
+
+		}
+		break;
+	case CLASS_DIETY:
+		if (random_number_zero_low(15) > num) {
+			if (random_binary())
+				new_mob = read_mobile(PANTHRAL_GUARDINAL);
+			else
+				new_mob = read_mobile(LEONAL_GUARDINAL);
+
+		}
+		break;
+	}
+	if (new_mob) {
+		if (IS_PET(ch))
+			SET_BIT(MOB_FLAGS(new_mob), MOB_PET);
+		WAIT_STATE(ch, 5 RL_SEC);
+		GET_MOVE(ch) -= 100;
+		char_to_room(new_mob, ch->in_room,false);
+		WAIT_STATE(new_mob, 3 RL_SEC);
+		act("$n gestures, a glowing goldent portal appears with a hum!",
+			FALSE, ch, 0, 0, TO_ROOM);
+		act("$n steps out of the portal with a flash of blue light!",
+			FALSE, new_mob, 0, 0, TO_ROOM);
+		if (FIGHTING(ch) && IS_MOB(FIGHTING(ch)))
+			return (hit(new_mob, FIGHTING(ch),
+					TYPE_UNDEFINED) & DAM_VICT_KILLED);
+		return 0;
+	}
+
+	return -1;
+}
+
+
+
+/**mob_fight_demon:  /
+*  This is the port and combat code for the demonic mobs that enhabit the abyss
+*/
+
+int
+mob_fight_demon(struct Creature *ch, struct Creature *precious_vict)
+{
+
+    //Uncoment when world updated
+   /* const int DRETCH_DEMON = 28200;
+    const int BABAU_DEMON = 28201;
+    const int VROCK_DEMON = 28202;
+    const int HEZROU_DEMON = 28203;
+    const int GLABREZU_DEMON = 28204;
+    const int ARMANITE_DEMON = 28205;
+    const int KNECHT_DEMON = 28206;
+    const int SUCCUBUS_DEMON = 28207;
+    const int GORISTRO_DEMON = 28208;
+    const int BALOR_DEMON  = 28209;
+    const int NALFESHNEE_DEMON = 28210; */
+    
+	int prob = 0;
+    //Uncomment when world updated
+	//Creature *new_mob = NULL;
+	Creature *vict = NULL;
+	int num = 0;
+	int return_flags = 0;
+
+	if (IS_PET(ch)) {			// pets should only fight who they're told to
+		vict = FIGHTING(ch);
+	} else {					// find a suitable victim
+		vict = choose_opponent(ch, precious_vict);
+	}
+	// if you have noone to fight, don't fight
+	// what a waste.
+	if (vict == NULL)
+		return 0;
+
+	// prob determines demon chance of drawing a bead on his victim for blasting
+	prob =
+		10 + GET_LEVEL(ch) - GET_LEVEL(vict) + (GET_AC(vict) / 10) +
+		GET_HITROLL(ch);
+
+	if (prob > (random_percentage() - 25)) {
+		WAIT_STATE(ch, 2 RL_SEC);
+		call_magic(ch, vict, NULL, SPELL_FLAME_STRIKE,
+			GET_LEVEL(ch), CAST_BREATH, &return_flags);
+		return return_flags;
+	}
+	// see if we're fighting more than 1 person, if so, blast the room
+	CreatureList::iterator it = ch->in_room->people.begin();
+	for (num = 0; it != ch->in_room->people.end(); ++it)
+		if (ch == FIGHTING((*it)))
+			num++;
+
+	if (num > 1 && GET_LEVEL(ch) > (random_number_zero_low(50) + 30)) {
+		WAIT_STATE(ch, 3 RL_SEC);
+		if (call_magic(ch, NULL, NULL, SPELL_HELL_FIRE,
+				GET_LEVEL(ch), CAST_BREATH, &return_flags)) {
+			return return_flags;
+		}
+	}
+	// pets shouldnt port, ever, not even once. not on a train. not on a plane
+	// not even for green eggs and spam.
+	if (IS_PET(ch)) {
+		return 0;
+	}
+	// 100 move flat rate to gate, removed when the gating actually occurs
+	if (GET_MOVE(ch) < 100) {
+		return 0;
+	}
+
+	// see how many demon are already in the room
+	it = ch->in_room->people.begin();
+	for (num = 0; it != ch->in_room->people.end(); ++it)
+		if (GET_RACE(*it) == RACE_DEMON)
+			num++;
+
+	// less chance of gating for psionic celeestials with mana
+	if (IS_PSIONIC(ch) && GET_MANA(ch) > 100)
+		num += 3;
+	// gating results depend on demon char_class
+    /*
+	switch (GET_CLASS(ch)) {
+	case CLASS_DEMON_II:
+		if (random_number_zero_low(8) > num) {
+			if (!random_fractional_3()){	
+                if( random_binary() ){
+                    new_mob = read_mobile(DRETCH_DEMON);
+                }else{
+				    new_mob = read_mobile(BABAU_DEMON);
+                }
+            } else if ( random_binary() ){
+                new_mob = read_mobile(VROCK_DEMON);
+			} else {                  
+                new_mob = read_mobile(HEZROU_DEMON);
+            }
+		}
+		break;
+	case CLASS_DEMON_III:
+		if (random_number_zero_low(10) > num) {
+			if (!random_fractional_3()){	
+                if( random_binary() ){
+                    new_mob = read_mobile(DRETCH_DEMON);
+                }else{
+				    new_mob = read_mobile(BABAU_DEMON);
+                }
+            } else if ( !random_fractional_3() ){
+                if( random_binary() ){
+                    new_mob = read_mobile(HEZROU_DEMON);
+                }else{
+                    new_mob = read_mobile(VROCK_DEMON);
+                }
+            } else if ( random_binary() ){
+                new_mob = read_mobile(GLABREZU_DEMON);
+			} else {                  
+                new_mob = read_mobile(ARMANITE_DEMON);
+            }
+		}
+		break;
+	case CLASS_DEMON_IV:
+		if (random_number_zero_low(12) > num) {
+			if (random_binary()){	
+                if( random_binary() ){
+                    new_mob = read_mobile(DRETCH_DEMON);
+                }else{
+				    new_mob = read_mobile(BABAU_DEMON);
+                }
+            } else if (random_binary()){	
+                if( random_binary() ){
+                    new_mob = read_mobile(HEZROU_DEMON);
+                }else{
+                    new_mob = read_mobile(VROCK_DEMON);
+                }
+            } else if ( random_binary()){
+                if( random_binary() ){
+                    new_mob = read_mobile(GLABREZU_DEMON);
+                }else{
+                    new_mob = read_mobile(ARMANITE_DEMON);
+                }
+            } else if ( random_fractional_3() ){
+				new_mob = read_mobile( KNECHT_DEMON );
+			} else if ( random_binary() ) {                  
+				new_mob = read_mobile( SUCCUBUS_DEMON );
+            } else {
+				new_mob = read_mobile( NALFESHNEE_DEMON );
+            }
+		}
+		break;
+	case CLASS_DEMON_V:
+		if (random_number_zero_low(14) > num) {
+			if (random_fractional_3() ){
+                if( random_binary() ){
+                    new_mob = read_mobile(DRETCH_DEMON);
+                }else{
+				    new_mob = read_mobile(BABAU_DEMON);
+                }
+            } else if (random_fractional_5() < 2){	
+                if( random_binary() ){
+                    new_mob = read_mobile(HEZROU_DEMON);
+                }else{
+                    new_mob = read_mobile(VROCK_DEMON);
+                }
+            } else if ( random_binary()){
+                if( random_binary() ){
+                    new_mob = read_mobile(GLABREZU_DEMON);
+                }else{
+                    new_mob = read_mobile(ARMANITE_DEMON);
+                }
+            } else if ( random_fractional_5() < 3 ){
+                if( random_fractional_3() ){
+                    new_mob = read_mobile(KNECHT_DEMON);
+                }else if( random_binary() ){
+                    new_mob = read_mobile(SUCCUBUS_DEMON);
+                }else{
+                    new_mob = read_mobile( NALFESHNEE_DEMON );
+                }
+			} else if ( random_binary() ){                  
+				new_mob = read_mobile( GORISTRO_DEMON );
+            } else {
+				new_mob = read_mobile( BALOR_DEMON );
+            }
+		}
+		break;
+    case CLASS_DEMON_LORD:
+		if (random_number_zero_low(16) > num) {
+            if (random_fractional_5() < 2){	
+                if( random_binary() ){
+                    new_mob = read_mobile(HEZROU_DEMON);
+                }else{
+                    new_mob = read_mobile(VROCK_DEMON);
+                }
+            } else if ( random_binary()){
+                if( random_binary() ){
+                    new_mob = read_mobile(GLABREZU_DEMON);
+                }else{
+                    new_mob = read_mobile(ARMANITE_DEMON);
+                }
+            } else if ( random_fractional_5() < 3 ){
+                if( random_fractional_3() ){
+                    new_mob = read_mobile(KNECHT_DEMON);
+                }else if( random_binary() ){
+                    new_mob = read_mobile(SUCCUBUS_DEMON);
+                }else{
+                    new_mob = read_mobile( NALFESHNEE_DEMON );
+                }
+			} else if ( random_binary() ){                  
+				new_mob = read_mobile( GORISTRO_DEMON );
+            } else {
+				new_mob = read_mobile( BALOR_DEMON );
+            }
+		}
+		break;
+	case CLASS_DEMON_PRINCE:
+		if (random_number_zero_low(15) > num) {
+            if (random_fractional_5() ){	
+                if( random_binary() ){
+                    new_mob = read_mobile(HEZROU_DEMON);
+                }else{
+                    new_mob = read_mobile(VROCK_DEMON);
+                }
+            } else if ( random_fractional_3()){
+                if( random_binary() ){
+                    new_mob = read_mobile(GLABREZU_DEMON);
+                }else{
+                    new_mob = read_mobile(ARMANITE_DEMON);
+                }
+            } else if ( random_fractional_4() ){
+                if( random_fractional_3() ){
+                    new_mob = read_mobile(KNECHT_DEMON);
+                }else if( random_binary() ){
+                    new_mob = read_mobile(SUCCUBUS_DEMON);
+                }else{
+                    new_mob = read_mobile( NALFESHNEE_DEMON );
+                }
+			} else if ( random_binary() ){                  
+				new_mob = read_mobile( GORISTRO_DEMON );
+            } else {
+				new_mob = read_mobile( BALOR_DEMON );
+            }
+		}
+		break;
+	} 
+	if (new_mob) {
+		if (IS_PET(ch))
+			SET_BIT(MOB_FLAGS(new_mob), MOB_PET);
+		WAIT_STATE(ch, 5 RL_SEC);
+		GET_MOVE(ch) -= 100;
+		char_to_room(new_mob, ch->in_room,false);
+		WAIT_STATE(new_mob, 3 RL_SEC);
+		act("$n gestures, a glowing yellow portal appears with a hum!",
+			FALSE, ch, 0, 0, TO_ROOM);
+		act("$n steps out of the portal with a clap of thunder!",
+			FALSE, new_mob, 0, 0, TO_ROOM);
+		if (FIGHTING(ch) && IS_MOB(FIGHTING(ch)))
+			return (hit(new_mob, FIGHTING(ch),
+					TYPE_UNDEFINED) & DAM_VICT_KILLED);
+		return 0;
+	}  */
+	return -1;
+}
+
+
 
 /***********************************************************************************
  *
@@ -4379,3 +4736,129 @@ int ranger_battle_activity(struct Creature *ch, struct Creature *precious_vict){
     return 1;
 }
 
+
+/***********************************************************************************
+ *
+ *                        Barbarian Activity
+ *   Continuing series of functions designed to extract activity and fight code 
+ * into many small functions as opposed to one large one.  Also allows for easeir 
+ * modifications to mob ai.
+ *******************************************************************************/
+
+void barbarian_activity(struct Creature *ch){
+    if (ch->getPosition() != POS_FIGHTING && random_fractional_20()) {
+        if (random_fractional_50())
+            act("$n grunts and scratches $s ear.", FALSE, ch, 0, 0,
+                TO_ROOM);
+        else if (random_fractional_50())
+            act("$n drools all over $mself.", FALSE, ch, 0, 0,
+                TO_ROOM);
+        else if (random_fractional_50())
+            act("$n belches loudly.", FALSE, ch, 0, 0, TO_ROOM);
+        else if (random_fractional_50())
+            act("$n swats at an annoying gnat.", FALSE, ch, 0, 0,
+                TO_ROOM);
+        else if (random_fractional_100()) {
+            if (GET_SEX(ch) == SEX_MALE)
+                act("$n scratches $s nuts and grins.", FALSE, ch, 0, 0,
+                    TO_ROOM);
+            else if (GET_SEX(ch) == SEX_FEMALE)
+                act("$n belches loudly and grins.", FALSE, ch, 0, 0,
+                    TO_ROOM);
+        }
+    } else if (IS_BARB(ch) && GET_LEVEL(ch) >= 42 &&
+        GET_HIT(ch) < (GET_MAX_HIT(ch) >> 1) && GET_MANA(ch) > 30
+        && random_fractional_4()) {
+        do_battlecry(ch, "", 0, SCMD_CRY_FROM_BEYOND, 0);
+        return;
+    } else if (IS_BARB(ch) && GET_LEVEL(ch) >= 30 &&
+        GET_MOVE(ch) < (GET_MAX_MOVE(ch) >> 2) && GET_MANA(ch) > 30
+        && random_fractional_4()) {
+        do_battlecry(ch, "", 0, SCMD_BATTLE_CRY, 0);
+        return;
+    }
+}
+
+/***********************************************************************************
+ *
+ *                        Barbarian battle  Activity
+ *   Continuing series of functions designed to extract activity and fight code 
+ * into many small functions as opposed to one large one.  Also allows for easeir 
+ * modifications to mob ai.
+ *******************************************************************************/
+
+
+
+int barbarian_battle_activity(struct Creature *ch, struct Creature *precious_vict){
+    struct Creature * vict;
+    ACCMD(do_disarm);
+    if (!(vict = choose_opponent(ch, precious_vict)))
+        return 0;
+
+    if (IS_BARB(ch) && GET_LEVEL(ch) >= 42 &&
+        GET_HIT(ch) < (GET_MAX_HIT(ch) >> 1) && GET_MANA(ch) > 30
+        && random_fractional_4()) {
+        do_battlecry(ch, "", 0, SCMD_CRY_FROM_BEYOND, 0);
+        return 0;
+    }
+
+    if (!(vict = choose_opponent(ch, precious_vict)))
+        return 0;
+
+    if (random_fractional_3() && (GET_CLASS(vict) == CLASS_MAGIC_USER ||
+            GET_CLASS(vict) == CLASS_CLERIC)) {
+        do_offensive_skill(ch, GET_NAME(vict), 0, SKILL_BASH, 0);
+        return 0;
+    }
+    if ((GET_LEVEL(ch) > 32) && (random_fractional_5() ||
+            vict->getPosition() < POS_FIGHTING)) {
+        do_offensive_skill(ch, GET_NAME(vict), 0, SKILL_PILEDRIVE, 0);
+        return 0;
+    } else if ((GET_LEVEL(ch) > 27) && random_fractional_5()
+        && vict->getPosition() > POS_SLEEPING) {
+        do_sleeper(ch, GET_NAME(vict), 0, 0, 0);
+        return 0;
+    } else if ((GET_LEVEL(ch) > 22) && random_fractional_10()) {
+        do_offensive_skill(ch, GET_NAME(vict), 0, SKILL_BODYSLAM, 0);
+        return 0;
+    } else if ((GET_LEVEL(ch) > 20) && random_fractional_10()) {
+        do_offensive_skill(ch, GET_NAME(vict), 0, SKILL_CLOTHESLINE, 0);
+        return 0;
+    } else if ((GET_LEVEL(ch) > 16) && random_fractional_10()) {
+        do_offensive_skill(ch, GET_NAME(vict), 0, SKILL_CHOKE, 0);
+        return 0;
+    } else if ((GET_LEVEL(ch) > 9) && random_fractional_5()) {
+        do_offensive_skill(ch, GET_NAME(vict), 0, SKILL_ELBOW, 0);
+        return 0;
+    } else if ((GET_LEVEL(ch) > 5) && random_fractional_5()) {
+        do_offensive_skill(ch, GET_NAME(vict), 0, SKILL_STOMP, 0);
+        return 0;
+    } else if ((GET_LEVEL(ch) > 2) && random_fractional_5()) {
+        do_offensive_skill(ch, GET_NAME(vict), 0, SKILL_PUNCH, 0);
+        return 0;
+    }
+
+    if (random_fractional_5()) {
+
+        if (GET_LEVEL(ch) < 5) {
+            do_offensive_skill(ch, GET_NAME(vict), 0, SKILL_PUNCH, 0);
+        } else if (GET_LEVEL(ch) < 7) {
+            do_offensive_skill(ch, GET_NAME(vict), 0, SKILL_STOMP, 0);
+        } else if (GET_LEVEL(ch) < 9) {
+            do_offensive_skill(ch, GET_NAME(vict), 0, SKILL_KNEE, 0);
+        } else if (GET_LEVEL(ch) < 16) {
+            do_offensive_skill(ch, GET_NAME(vict), 0, SKILL_ELBOW, 0);
+        } else if (GET_LEVEL(ch) < 19) {
+            do_offensive_skill(ch, GET_NAME(vict), 0, SKILL_CHOKE, 0);
+        } else if (GET_LEVEL(ch) < 25) {
+            do_offensive_skill(ch, GET_NAME(vict), 0, SKILL_CLOTHESLINE, 0);
+        } else if (GET_LEVEL(ch) < 30) {
+            do_offensive_skill(ch, GET_NAME(vict), 0, SKILL_BODYSLAM, 0);
+        } else {
+            do_offensive_skill(ch, GET_NAME(vict), 0, SKILL_PILEDRIVE, 0);
+        }
+        return 0;
+    }
+    return -1;
+
+}
