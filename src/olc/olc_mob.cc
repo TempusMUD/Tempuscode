@@ -1773,6 +1773,7 @@ do_clear_olc_mob(struct Creature *ch)
 	MOB_FLAGS(targ) = 0;
 	MOB2_FLAGS(targ) = 0;
 	SET_BIT(MOB_FLAGS(targ), MOB_ISNPC);
+	SET_BIT(MOB2_FLAGS(targ), MOB2_UNAPPROVED);
 	AFF_FLAGS(targ) = 0;
 	AFF2_FLAGS(targ) = 0;
 	AFF3_FLAGS(targ) = 0;
