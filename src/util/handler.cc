@@ -290,15 +290,19 @@ affect_modify(struct char_data * ch, sh_int loc, sh_int mod, long bitv,
 	break;
     case APPLY_HITROLL:
 	if(GET_HITROLL(ch) + mod > 125)
-		GET_HITROLL = MIN(125, GET_HITROLL(ch) + mod);
+		GET_HITROLL(ch) = MIN(125, GET_HITROLL(ch) + mod);
 	else if(GET_HITROLL(ch) + mod < -125)
-		GET_HITROLL = MAX(-125, GET_HITROLL(ch) + mod);
+		GET_HITROLL(ch) = MAX(-125, GET_HITROLL(ch) + mod);
+    else
+        GET_HITROLL(ch) += mod;
 	break;
     case APPLY_DAMROLL:
 	if(GET_DAMROLL(ch) + mod > 125)
-		GET_DAMROLL = MIN(125, GET_DAMROLL(ch) + mod);
+		GET_DAMROLL(ch) = MIN(125, GET_DAMROLL(ch) + mod);
 	else if(GET_DAMROLL(ch) + mod < -125)
-		GET_DAMROLL = MAX(-125, GET_DAMROLL(ch) + mod);
+		GET_DAMROLL(ch) = MAX(-125, GET_DAMROLL(ch) + mod);
+    else
+        GET_DAMROLL(ch) += mod;
 	break;
     case APPLY_SAVING_PARA:
 	GET_SAVE(ch, SAVING_PARA) += mod;
@@ -405,7 +409,7 @@ affect_modify(struct char_data * ch, sh_int loc, sh_int mod, long bitv,
 	    GET_COND(ch, DRUNK) = 0;
 	break;
     case APPLY_SPEED:
-	GET_CHAR_SPEED(ch) += mod;
+	    ch->setSpeed(ch->getSpeed() + mod);
 	break;
 
     default:

@@ -917,6 +917,20 @@ struct char_data {
     bool setPosition( int new_pos, int mode=0 );
     // Get returns current pos
     int getPosition( void );
+    inline int char_data::getSpeed( void ) {
+        // if(IS_NPC(this))
+        if(char_specials.saved.act & MOB_ISNPC)
+            return 0;
+        return player_specials->saved.speed;
+    }
+    inline void char_data::setSpeed( int speed ) {
+        // if(IS_NPC(this))
+        if(char_specials.saved.act & MOB_ISNPC)
+            return;
+        else
+            player_specials->saved.speed = speed;
+    }
+
     
     inline int getLevel( void ) { return player.level; }
 

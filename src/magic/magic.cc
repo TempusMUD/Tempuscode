@@ -157,8 +157,8 @@ mag_savingthrow(struct char_data * ch, int level, int type)
     if (ch->getPosition() < POS_FIGHTING)
 	save += ((10 - ch->getPosition()) << 2);
     
-    if ( GET_CHAR_SPEED(ch) )
-	save -= (GET_CHAR_SPEED(ch) >> 3);
+    if ( ch->getSpeed() )
+	save -= (ch->getSpeed() >> 3);
 
     if (ch->getPosition() < POS_RESTING)
 	save += 10;

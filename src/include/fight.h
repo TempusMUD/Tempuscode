@@ -6,6 +6,8 @@
 
 #ifndef __fight_h__
 #define __fight_h__
+//#define DEBUG_POSITION 1
+
 
 #define DAM_OBJECT_IDNUM(obj) (IS_BOMB(obj) ? BOMB_IDNUM(obj) : GET_OBJ_SIGIL_IDNUM(obj))
 			       

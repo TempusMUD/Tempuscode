@@ -499,7 +499,7 @@ int CHECK_SKILL(struct char_data *ch, int i);
 #define GET_HOLD_HOME(ch)	((ch)->player_specials->saved.hold_home)
 #define GET_HOLD_LOADROOM(ch)	((ch)->player_specials->saved.hold_load_room)
 #define GET_REMORT_GEN(ch)     ((ch)->player_specials->saved.remort_generation)
-#define GET_CHAR_SPEED(ch)      ((ch)->player_specials->saved.speed)
+//#define GET_CHAR_SPEED(ch)      (IS_NPC(ch) ? 0 : (ch)->player_specials->saved.speed)
 #define GET_QUEST_POINTS(ch)    ((ch)->player_specials->saved.quest_points)
 #define GET_QUEST_ALLOWANCE(ch) ((ch)->player_specials->saved.qp_allowance)
 #define GET_QLOG_LEVEL(ch)     ((ch)->player_specials->saved.qlog_level)

@@ -2069,10 +2069,13 @@ perform_violence( void )
 	    stop_fighting( ch );
 	    continue;
 	}
-
 	if ( IS_NPC( ch ) ) {
 	    if ( GET_MOB_WAIT( ch ) > 0 ) {
-			GET_MOB_WAIT( ch ) = MAX( GET_MOB_WAIT( ch) - SEG_VIOLENCE, 0 ) ;
+			GET_MOB_WAIT( ch ) = MAX( GET_MOB_WAIT(ch) - SEG_VIOLENCE, 0 ) ;
+            #ifdef DEBUG_POSITION
+            sprintf(buf,"$n's wait state lowered to %d",GET_MOB_WAIT(ch));
+            act( buf, TRUE, ch, 0, 0, TO_ROOM );
+            #endif
         } else if ( GET_MOB_WAIT( ch ) == 0 ) {
             update_pos( ch );
             /*
@@ -2084,7 +2087,7 @@ perform_violence( void )
                 }
                 GET_MOB_WAIT( ch ) += PULSE_VIOLENCE;
             }*/
-	    }
+	    } 
 	    if ( ch->getPosition() <= POS_SITTING )
             continue;
 	}
@@ -2118,8 +2121,8 @@ perform_violence( void )
 	    prob = ( int ) ( prob * 1.10 );
 	if ( IS_AFFECTED_2( ch, AFF2_HASTE ) )
 	    prob = ( int ) ( prob * 1.30 );
-	if ( GET_CHAR_SPEED( ch ) )
-	    prob += ( prob * GET_CHAR_SPEED( ch ) ) / 100;
+	if (  ch->getSpeed()  )
+	    prob += ( prob *  ch->getSpeed()  ) / 100;
 	if ( IS_AFFECTED_2( ch, AFF2_SLOW ) )
 	    prob = ( int ) ( prob * 0.70 );
 	if ( IS_AFFECTED_2( ch, AFF2_BESERK ) )
@@ -2143,7 +2146,9 @@ perform_violence( void )
 	    send_to_char( buf, ch );
 	}
 	if ( PRF2_FLAGGED( FIGHTING( ch ), PRF2_FIGHT_DEBUG ) ) {
-	    sprintf( buf, "Enemy Attack speed: %d. Enemy Die roll %d.\r\n", prob,die_roll );
+	    sprintf( buf, "Enemy: Attack speed: %d. Die roll %d. Wait State: %d.\r\n", 
+            prob,die_roll, 
+            IS_NPC(FIGHTING(ch)) ? GET_MOB_WAIT(FIGHTING(ch)) : CHECK_WAIT(FIGHTING(ch)));
 	    send_to_char( buf, FIGHTING( ch ) );
 	}
     

@@ -822,22 +822,22 @@ WAIT_STATE(struct char_data * ch, int cycle)
     int wait;
 
     if ( GET_LEVEL(ch) >= LVL_TIMEGOD )
-	return;
+        return;
 
     wait = cycle;
 
     if ( AFF2_FLAGGED(ch, AFF2_HASTE) )
-	 wait -= cycle >> 2;
+         wait -= cycle >> 2;
     if ( AFF2_FLAGGED(ch, AFF2_SLOW) )
-	 wait += cycle >> 2;
-    if ( GET_CHAR_SPEED(ch) )
-	wait -= ( cycle * GET_CHAR_SPEED(ch) ) / 100;
+         wait += cycle >> 2;
+    if ( ch->getSpeed() )
+        wait -= ( cycle * ch->getSpeed() ) / 100;
     
     if ( ch->desc ) {
-	ch->desc->wait = MAX(ch->desc->wait, wait);    
+        ch->desc->wait = MAX(ch->desc->wait, wait);    
     }
 
     else if ( IS_NPC(ch) ) {
-	GET_MOB_WAIT(ch) =   MAX(GET_MOB_WAIT(ch),  wait);
+        GET_MOB_WAIT(ch) =   MAX(GET_MOB_WAIT(ch),  wait);
     }
 }
