@@ -891,6 +891,7 @@ long GET_SKILL_COST(Creature *ch, int skill);
 #define IS_ALIEN_1(ch)          (GET_RACE(ch) == RACE_ALIEN_1)
 #define IS_FISH(ch)             (GET_RACE(ch) == RACE_FISH)
 #define IS_RAKSHASA(ch)         (GET_RACE(ch) == RACE_RAKSHASA)
+#define IS_ROWLAHR(ch)         (GET_RACE(ch) == RACE_ROWLAHR)
 #define IS_RACE(ch, race)       (GET_RACE(ch) == race)
 
 #define IS_CELESTIAL(ch)		(IS_ARCHON(ch) || IS_GUARDINAL(ch))
@@ -911,7 +912,8 @@ long GET_SKILL_COST(Creature *ch, int skill);
                                  IS_RACE(ch, RACE_KOBOLD) ||    \
                                  IS_RACE(ch, RACE_MEPHIT) ||    \
                                  IS_RACE(ch, RACE_DAEMON) ||    \
-                                 IS_RACE(ch, RACE_RAKSHASA))
+                                 IS_RACE(ch, RACE_RAKSHASA) || \
+                                 IS_RACE(ch, RACE_ROWLAHR))
 
 
 #define IS_TIAMAT(ch)           (GET_MOB_VNUM(ch) == 61119)
