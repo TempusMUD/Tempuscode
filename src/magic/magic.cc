@@ -866,6 +866,13 @@ mag_damage(int level, struct Creature *ch, struct Creature *victim,
 			dam += (dam * (GET_CHA(ch) - 10)) / 45; // 1.25 dam at full cha
 		}
 	}
+	
+	//fortissimo makes bard songs more powerful
+	affected_type *af = NULL;
+	if (af = affected_by_spell(ch, SONG_FORTISSIMO)) {
+		dam += (dam * af->level)/100; //up to 1.79 dam at gen 10/49
+	}
+	
 	//
 	// divine attacks get modified
 	//
@@ -2676,8 +2683,19 @@ Fireball: like harder bones, skin, organ membranecs
         else
             aff_array[0].modifier = ch->getIdNum();
 
-        to_vict = "A gissimer shield of music forms around you.";
+        to_vict = "A gossimer shield of music forms around you.";
         to_room = "A gossimer shield of music forms around $n";
+    break;
+
+	case SONG_FORTISSIMO:
+        aff_array[0].duration = GET_CHA(ch) + ch->getLevelBonus(SONG_FORTISSIMO) >> 3; 
+        aff_array[0].location = APPLY_CASTER;
+        if (IS_NPC(ch))
+            aff_array[0].modifier = -(ch->getIdNum());
+        else
+            aff_array[0].modifier = ch->getIdNum();
+
+        to_vict = "The air around you begins to vibrate with an increased intensity.";
     break;
 
 	default:

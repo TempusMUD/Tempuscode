@@ -830,6 +830,12 @@ calc_skill_prob(struct Creature *ch, struct Creature *vict, int skillnum,
         *dam = GET_CON(ch) * ((10 + (ch->getLevelBonus(SKILL_SCREAM)) / 4));
 		*dam += dice(17, (CHECK_SKILL(ch, SKILL_SCREAM) / 3));
 
+		//fortissimo makes scream more powerful
+		affected_type *fortissimoAff;
+		if ((fortissimoAff = affected_by_spell(ch, SONG_FORTISSIMO))) {
+			*dam += (*dam * fortissimoAff->level)/100; //up to 1.79 dam at gen 10/49
+		}
+	
 		if (mag_savingthrow(vict, GET_LEVEL(ch), SAVING_BREATH))
 			*dam >>= 1;
 
@@ -838,7 +844,6 @@ calc_skill_prob(struct Creature *ch, struct Creature *vict, int skillnum,
 		*mana = mag_manacost(ch, SKILL_SCREAM);
 		*move = 25;
 		break;
-
 
 	case SKILL_GAROTTE:
 		if (!affected_by_spell(ch, SKILL_KATA) && 

@@ -3871,6 +3871,10 @@ mag_assign_spells(void)
 	remort_spello(SKILL_LINGERING_SONG, CLASS_BARD, 20, 2,
            0, 0, 0, 0, 0, false, 0);
 
+	remort_spello(SONG_FORTISSIMO, CLASS_BARD, 14, 3,
+            150, 75, 5, POS_STANDING, TAR_CHAR_ROOM | TAR_SELF_ONLY,
+            FALSE, MAG_BARD | MAG_AFFECTS);
+
     remort_spello(SPELL_FIRE_BREATHING, 
             CLASS_MAGE, 35, 1, 
             280, 180, 10, POS_STANDING, TAR_CHAR_ROOM | TAR_SELF_ONLY,
