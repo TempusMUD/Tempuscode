@@ -265,6 +265,11 @@ general_search( struct char_data *ch, struct special_search_data *srch,int mode 
 	    add = 0;
 	    bits = EX_HIDDEN;
 	    break;
+        case 4:                 // close, lock, and hide the door
+            add = 1;
+            bits = EX_CLOSED | EX_LOCKED | EX_HIDDEN;
+            break;
+
 	default:
 	    sprintf( buf, "SYSERR: search bunk doorcmd %d in rm %d.",
 		     srch->arg[2], rm->number );

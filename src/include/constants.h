@@ -20,6 +20,7 @@ extern const char *trade_letters[];
 extern const char *temper_str[];
 extern const char *shop_bits[];
 extern const char *search_bits[];
+extern const char *searchflag_help[];
 extern const  char *wear_eqpos[];
 extern const  char *wear_implantpos[];
 extern const char *attack_type[];

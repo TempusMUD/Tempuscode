@@ -2088,8 +2088,8 @@ void show_olc_help(struct char_data *ch, char *arg)
     case 39:  /** searchflags **/
 	strcpy(buf, "SEARCH BITS:\r\n");
 	for (i = 0; i < NUM_SRCH_BITS; i++) {
-	    sprintf(buf2, "%8d         %s%s%s\r\n", 
-		    (1 << i), CCCYN(ch, C_NRM), search_bits[i], CCNRM(ch, C_NRM));
+	    sprintf(buf2, " %s%-15s%s  -  %s\r\n", 
+                    CCCYN(ch, C_NRM), search_bits[i], CCNRM(ch, C_NRM), searchflag_help[i] );
 	    strcat(buf, buf2);
 	}
 	page_string(ch->desc, buf, 1);

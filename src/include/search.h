@@ -29,7 +29,7 @@
 #define SRCH_IGNORE             (1 << 2)
 #define SRCH_CLANPASSWD         (1 << 3)
 #define SRCH_TRIG_ENTER         (1 << 4)
-#define SRCH_TRIG_FALL          (1 << 5)
+#define SRCH_TRIG_FALL          (1 << 5) // triggers when a player falls into the room (e.g. a spike pit)
 #define SRCH_NOTRIG_FLY         (1 << 6)
 #define SRCH_NOMOB              (1 << 7)
 #define SRCH_NEWBIE_ONLY        (1 << 8)

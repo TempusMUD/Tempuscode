@@ -119,6 +119,35 @@ extern const char *search_bits[] = {
   "\n"
 };
 
+extern const char *searchflag_help[] = {
+    "search can be repeated an indefinite number of times.",
+    "(RESERVED) search has been tripped.  internal use.",
+    "process tripping command after search.",
+    "this is a clan password search, do not display.",
+    "tripped when someone walks/runs/flys into a room.",
+    "tripped when falling into a room (e.g. spike pit).",
+    "will not be tripped if the player is flying.",
+    "cannot be tripped by mobs.",
+    "can only be tripped by players level 6 and below.",
+    "a damage effect will not emit its normal message.",
+    "NOEVIL",
+    "NONEU",
+    "NOGOOD",
+    "NOMAGE",
+    "NOCLER",
+    "NOTHI",
+    "NOBARB",
+    "NORANG",
+    "NOKNI",
+    "NOMONK",
+    "NOPSI",
+    "NOPHY",
+    "NOMERC",
+    "NOHOOD",
+    "abbreviated keywords will not work (prevent guessing.)",
+    "\n"
+};
+
 extern const  char *wear_eqpos[] = {
   "light",
   "finger_right",
