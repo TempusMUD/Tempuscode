@@ -39,7 +39,7 @@ void    do_stat_object( struct char_data *ch, struct obj_data *obj );
 
 char *find_exdesc( char *word, struct extra_descr_data *list, int find_exact=0 );
 extern struct extra_descr_data *locate_exdesc( char *word, 
-					       struct extra_descr_data *list );
+                                               struct extra_descr_data *list );
 
 int 
 write_wld_index( struct char_data *ch, struct zone_data *zone )
@@ -49,53 +49,50 @@ write_wld_index( struct char_data *ch, struct zone_data *zone )
     FILE *index;
 
     for ( i = 0; wld_index[i] != -1; i++ ) {
-	count++;
-	if ( wld_index[i] == zone->number ) {
-	    found = 1;
-	    break;
-	}
+        count++;
+        if ( wld_index[i] == zone->number ) {
+            found = 1;
+            break;
+        }
     }
   
     if ( found == 1 )
-	return( 1 );
+        return( 1 );
   
     CREATE( new_index, int, count+2 );
   
     for ( i = 0, j = 0;; i++ ) {
-	if ( wld_index[i] == -1 ) {
-	    if ( done == 0 ) {
-		new_index[j] = zone->number;
-		new_index[j+1] = -1;
-	    }
-	    else
-		new_index[j] = -1;
-	    break;
-	}
-	if ( wld_index[i] > zone->number && done != 1 ) {
-	    new_index[j] = zone->number;
-	    j++;
-	    new_index[j] = wld_index[i];
-	    done = 1;
-	}
-	else
-	    new_index[j] = wld_index[i];
-	j++;
+        if ( wld_index[i] == -1 ) {
+            if ( done == 0 ) {
+                new_index[j] = zone->number;
+                new_index[j+1] = -1;
+            }
+            else
+                new_index[j] = -1;
+            break;
+        }
+        if ( wld_index[i] > zone->number && done != 1 ) {
+            new_index[j] = zone->number;
+            j++;
+            new_index[j] = wld_index[i];
+            done = 1;
+        }
+        else
+            new_index[j] = wld_index[i];
+        j++;
     }
   
     free( wld_index );
-#ifdef DMALLOC
-    dmalloc_verify( 0 );
-#endif
     wld_index = new_index;
   
     sprintf( fname, "world/wld/index" );
     if ( !( index = fopen( fname, "w" ) ) ) {
-	send_to_char( "Could not open index file, world save aborted.\r\n", ch );
-	return( 0 );
+        send_to_char( "Could not open index file, world save aborted.\r\n", ch );
+        return( 0 );
     }
 
     for ( i = 0; wld_index[i] != -1; i++ )
-	fprintf( index, "%d.wld\n", wld_index[i] );
+        fprintf( index, "%d.wld\n", wld_index[i] );
 
     fprintf( index, "$\n" );
   
@@ -118,22 +115,22 @@ int check_room_cstrings( struct room_data *room )
     remove_from_cstring( room->description );
 
     for ( int i = 0; i < NUM_DIRS; i++ )  {
-	if ( room->dir_option[i] )  {
-	    remove_from_cstring( room->dir_option[i]->general_description );
-	    remove_from_cstring( room->dir_option[i]->keyword );
-	}
+        if ( room->dir_option[i] )  {
+            remove_from_cstring( room->dir_option[i]->general_description );
+            remove_from_cstring( room->dir_option[i]->keyword );
+        }
     }
 
     for ( struct extra_descr_data *desc = room->ex_description; desc; desc = desc->next ) {
-	remove_from_cstring( desc->description );
-	remove_from_cstring( desc->keyword );
+        remove_from_cstring( desc->description );
+        remove_from_cstring( desc->keyword );
     }
 
     for ( struct special_search_data *search = room->search; search; search = search->next ) {
-	remove_from_cstring( search->command_keys );
-	remove_from_cstring( search->to_room );
-	remove_from_cstring( search->to_vict );
-	remove_from_cstring( search->to_remote );
+        remove_from_cstring( search->command_keys );
+        remove_from_cstring( search->to_room );
+        remove_from_cstring( search->to_vict );
+        remove_from_cstring( search->to_remote );
     }
     
     remove_from_cstring( room->sounds );
@@ -156,27 +153,27 @@ int save_room( struct char_data *ch, struct room_data *room, FILE *file )
     struct room_affect_data *rm_aff;
 
     if ( !file ) {
-	slog( "SYSERR: null fl in save_room()." );
-	return 1;
+        slog( "SYSERR: null fl in save_room()." );
+        return 1;
     }
 
     if ( check_room_cstrings( room ) ) {
-	slog( "SYSERR: save_room() check_room_cstrings() failed." );
-	return 1;
+        slog( "SYSERR: save_room() check_room_cstrings() failed." );
+        return 1;
     }
 
     fprintf( file, "#%d\n", room->number );
 
     if ( room->name )
-	fprintf( file, "%s", room->name );
+        fprintf( file, "%s", room->name );
 
     fprintf( file, "~\n" );
 
     if ( room->description )  {
-	tmp = strlen( room->description );
-	for( i=0;i<tmp;i++ )
-	    if ( room->description[i] != '\r' && room->description[i] != '~' )
-		fputc( room->description[i], file );
+        tmp = strlen( room->description );
+        for( i=0;i<tmp;i++ )
+            if ( room->description[i] != '\r' && room->description[i] != '~' )
+                fputc( room->description[i], file );
     }      
 
     fprintf( file, "~\n" );
@@ -184,129 +181,129 @@ int save_room( struct char_data *ch, struct room_data *room, FILE *file )
     REMOVE_BIT( tmp, ROOM_HOUSE | ROOM_HOUSE_CRASH | ROOM_ATRIUM );
 
     for ( rm_aff = room->affects; rm_aff; rm_aff = rm_aff->next )
-	if ( rm_aff->type == RM_AFF_FLAGS )
-	    REMOVE_BIT( tmp, rm_aff->flags );
+        if ( rm_aff->type == RM_AFF_FLAGS )
+            REMOVE_BIT( tmp, rm_aff->flags );
 
     num2str( buf, tmp );
     fprintf( file, "%d %s %d\n", room->zone->number, 
-	     buf, room->sector_type );
+             buf, room->sector_type );
 
     for ( i = 0; i < NUM_DIRS; i++ )  {
-	if ( room->dir_option[i] )  {
-	    fprintf( file, "D%d\n", i );
-	    if ( room->dir_option[i]->general_description )  {
-		tmp = strlen( room->dir_option[i]->general_description );
-		for( j=0;j<tmp;j++ )
-		    if ( room->dir_option[i]->general_description[j] != '\r' )
-			fputc( room->dir_option[i]->general_description[j], file );
-	    }
-	    fprintf( file, "~\n" );
-	    if ( room->dir_option[i]->keyword )
-		fprintf( file, "%s", room->dir_option[i]->keyword );
-	    fprintf( file, "~\n" );
-	
-	    tmp =  room->dir_option[i]->exit_info;
-	    REMOVE_BIT( tmp, EX_CLOSED | EX_LOCKED );
-	    for ( rm_aff = room->affects; rm_aff; rm_aff = rm_aff->next )
-		if ( ( unsigned int ) rm_aff->type == i )
-		    REMOVE_BIT( tmp, rm_aff->flags );
-	 
-	    num2str( buf, tmp );
-	    strcat( buf, " " );
-	    fprintf( file, buf );
+        if ( room->dir_option[i] )  {
+            fprintf( file, "D%d\n", i );
+            if ( room->dir_option[i]->general_description )  {
+                tmp = strlen( room->dir_option[i]->general_description );
+                for( j=0;j<tmp;j++ )
+                    if ( room->dir_option[i]->general_description[j] != '\r' )
+                        fputc( room->dir_option[i]->general_description[j], file );
+            }
+            fprintf( file, "~\n" );
+            if ( room->dir_option[i]->keyword )
+                fprintf( file, "%s", room->dir_option[i]->keyword );
+            fprintf( file, "~\n" );
+        
+            tmp =  room->dir_option[i]->exit_info;
+            REMOVE_BIT( tmp, EX_CLOSED | EX_LOCKED );
+            for ( rm_aff = room->affects; rm_aff; rm_aff = rm_aff->next )
+                if ( ( unsigned int ) rm_aff->type == i )
+                    REMOVE_BIT( tmp, rm_aff->flags );
+         
+            num2str( buf, tmp );
+            strcat( buf, " " );
+            fprintf( file, buf );
 
-	    fprintf( file, "%d %d\n", room->dir_option[i]->key, 
-		     room->dir_option[i]->to_room ? room->dir_option[i]->to_room->number :
-		     ( -1 ) );
-	}
+            fprintf( file, "%d %d\n", room->dir_option[i]->key, 
+                     room->dir_option[i]->to_room ? room->dir_option[i]->to_room->number :
+                     ( -1 ) );
+        }
     }
 
     desc = room->ex_description;
     while ( desc != NULL )  {
-	if ( !desc->keyword || !desc->description )  {
-	    sprintf( buf, "OLCERROR: ExDesc with null %s, room #%d.", 
-		     !desc->keyword ? "keyword" : "desc", room->number );
-	    slog( buf );
-	    sprintf( buf, "I didn't save your bogus extra desc in room %d.\r\n", 
-		     room->number );
-	    send_to_char( buf, ch );
-	    desc = desc->next;
-	    continue;
-	}
-	fprintf( file, "E\n" );
-	fprintf( file, "%s~\n", desc->keyword );
-	tmp = strlen( desc->description );
-	for( i=0;i<tmp;i++ )
-	    if ( desc->description[i] != '\r' )
-		fputc( desc->description[i], file );
-	fprintf( file, "~\n" );
-	desc = desc->next;
+        if ( !desc->keyword || !desc->description )  {
+            sprintf( buf, "OLCERROR: ExDesc with null %s, room #%d.", 
+                     !desc->keyword ? "keyword" : "desc", room->number );
+            slog( buf );
+            sprintf( buf, "I didn't save your bogus extra desc in room %d.\r\n", 
+                     room->number );
+            send_to_char( buf, ch );
+            desc = desc->next;
+            continue;
+        }
+        fprintf( file, "E\n" );
+        fprintf( file, "%s~\n", desc->keyword );
+        tmp = strlen( desc->description );
+        for( i=0;i<tmp;i++ )
+            if ( desc->description[i] != '\r' )
+                fputc( desc->description[i], file );
+        fprintf( file, "~\n" );
+        desc = desc->next;
     }
 
     search = room->search;
     while ( search ) {
-	fprintf( file, "Z\n" );
-	fprintf( file, "%s~\n", search->command_keys );
-	fprintf( file, "%s~\n", search->keywords ? search->keywords : "" );
-	if ( search->to_vict ) {
-	    tmp = strlen( search->to_vict );
-	    for ( i = 0; i < tmp; i++ )
-		if ( search->to_vict[i] != '\r' && search->to_vict[i] != '~' )
-		    fputc( search->to_vict[i], file );
-	} 
-	fprintf( file, "~\n" );
-	if ( search->to_room ) {
-	    tmp = strlen( search->to_room );
-	    for ( i = 0; i < tmp; i++ )
-		if ( search->to_room[i] != '\r' && search->to_room[i] != '~' )
-		    fputc( search->to_room[i], file );
-	} 
-	fprintf( file, "~\n" );
-	if ( search->to_remote ) {
-	    tmp = strlen( search->to_remote );
-	    for ( i = 0; i < tmp; i++ )
-		if ( search->to_remote[i] != '\r' && search->to_remote[i] != '~' )
-		    fputc( search->to_remote[i], file );
-	} 
-	fprintf( file, "~\n" );
+        fprintf( file, "Z\n" );
+        fprintf( file, "%s~\n", search->command_keys );
+        fprintf( file, "%s~\n", search->keywords ? search->keywords : "" );
+        if ( search->to_vict ) {
+            tmp = strlen( search->to_vict );
+            for ( i = 0; i < tmp; i++ )
+                if ( search->to_vict[i] != '\r' && search->to_vict[i] != '~' )
+                    fputc( search->to_vict[i], file );
+        } 
+        fprintf( file, "~\n" );
+        if ( search->to_room ) {
+            tmp = strlen( search->to_room );
+            for ( i = 0; i < tmp; i++ )
+                if ( search->to_room[i] != '\r' && search->to_room[i] != '~' )
+                    fputc( search->to_room[i], file );
+        } 
+        fprintf( file, "~\n" );
+        if ( search->to_remote ) {
+            tmp = strlen( search->to_remote );
+            for ( i = 0; i < tmp; i++ )
+                if ( search->to_remote[i] != '\r' && search->to_remote[i] != '~' )
+                    fputc( search->to_remote[i], file );
+        } 
+        fprintf( file, "~\n" );
    
-	fprintf( file, "%d %d %d %d %d\n", search->command, 
-		 search->arg[0], search->arg[1], search->arg[2], search->flags );
+        fprintf( file, "%d %d %d %d %d\n", search->command, 
+                 search->arg[0], search->arg[1], search->arg[2], search->flags );
       
-	search = search->next;
-	continue;
+        search = search->next;
+        continue;
     }
       
     if ( room->sounds ) {
-	fprintf( file, "L\n" );
-	tmp = strlen( room->sounds );
-	for ( i = 0; i < tmp; i++ )
-	    if ( room->sounds[i] != '\r' )
-		fputc( room->sounds[i], file );
-	fprintf( file, "~\n" );
+        fprintf( file, "L\n" );
+        tmp = strlen( room->sounds );
+        for ( i = 0; i < tmp; i++ )
+            if ( room->sounds[i] != '\r' )
+                fputc( room->sounds[i], file );
+        fprintf( file, "~\n" );
     }
     if ( FLOW_SPEED( room ) ) {
-	if ( FLOW_DIR( room ) < 0 || FLOW_DIR( room ) >= NUM_DIRS ) {
-	    sprintf( buf, "OLCERROR: Bunk flow direction in room %d.\r\n", 
-		     room->number );
-	    send_to_char( buf, ch );
-	} else if ( FLOW_SPEED( room ) < 0 ) {
-	    sprintf( buf, "OLCERROR: Negative flow speed in room %d.\r\n", 
-		     room->number );
-	    send_to_char( buf, ch );
-	} else {
-	    fprintf( file, "F\n" );
-	    fprintf( file, "%d %d %d\n", FLOW_DIR( room ), FLOW_SPEED( room ),  
-		     FLOW_TYPE( room ) );
-	    if ( FLOW_TYPE( room ) < 0 || FLOW_TYPE( room ) >= NUM_FLOW_TYPES ) {
-		sprintf( buf, "Error in flow type, room #%d.\r\n", room->number );
-		send_to_char( buf, ch );
-	    }
-	}
+        if ( FLOW_DIR( room ) < 0 || FLOW_DIR( room ) >= NUM_DIRS ) {
+            sprintf( buf, "OLCERROR: Bunk flow direction in room %d.\r\n", 
+                     room->number );
+            send_to_char( buf, ch );
+        } else if ( FLOW_SPEED( room ) < 0 ) {
+            sprintf( buf, "OLCERROR: Negative flow speed in room %d.\r\n", 
+                     room->number );
+            send_to_char( buf, ch );
+        } else {
+            fprintf( file, "F\n" );
+            fprintf( file, "%d %d %d\n", FLOW_DIR( room ), FLOW_SPEED( room ),  
+                     FLOW_TYPE( room ) );
+            if ( FLOW_TYPE( room ) < 0 || FLOW_TYPE( room ) >= NUM_FLOW_TYPES ) {
+                sprintf( buf, "Error in flow type, room #%d.\r\n", room->number );
+                send_to_char( buf, ch );
+            }
+        }
     }  
 
     if ( MAX_OCCUPANTS( room ) != 256 )
-	fprintf( file, "O %d\n", MAX_OCCUPANTS( room ) );
+        fprintf( file, "O %d\n", MAX_OCCUPANTS( room ) );
 
 
     fprintf( file, "S\n" );
@@ -331,31 +328,31 @@ save_wld ( struct char_data *ch )
     sprintf( temp_fname, "%s.tmp", real_fname );
     
     if ( !( file = fopen( temp_fname, "w" ) ) )
-	return 1;
+        return 1;
 
     if ( ( write_wld_index( ch, zone ) ) != 1 ) {
-	fclose( file );
-	return( 1 );
+        fclose( file );
+        return( 1 );
     }
   
     for ( struct room_data *room = zone->world; room; room = room->next ) {
 
-	if ( save_room( ch, room, file ) ) {
-	    sprintf( buf, "Error saving room #%d.\r\n", room->number );
-	    send_to_char( buf, ch );
-	    return 1;
-	}
+        if ( save_room( ch, room, file ) ) {
+            sprintf( buf, "Error saving room #%d.\r\n", room->number );
+            send_to_char( buf, ch );
+            return 1;
+        }
     }
 
     fprintf( file, "$~\n" );
     fclose( file );
 
     if ( rename( temp_fname, real_fname ) ) {
-	sprintf( buf, "SYSERR: Error copying %s -> %s in save_wld: %s.", temp_fname, real_fname, strerror( errno ) );
-	slog( buf );
-	send_to_char( "There was an error copying the temporary .wld file during the save.\r\n"
-		      "World Save Failed.\r\n", ch );
-	return 1;
+        sprintf( buf, "SYSERR: Error copying %s -> %s in save_wld: %s.", temp_fname, real_fname, strerror( errno ) );
+        slog( buf );
+        send_to_char( "There was an error copying the temporary .wld file during the save.\r\n"
+                      "World Save Failed.\r\n", ch );
+        return 1;
     }
     
     sprintf( buf, "OLC: %s rsaved %d.", GET_NAME( ch ), zone->number );
@@ -374,37 +371,37 @@ do_create_room( struct char_data *ch, int vnum )
     int i;
 
     if ( ( rm = real_room( vnum ) ) ) {
-	send_to_char( "ERROR: Room already exists.\r\n", ch );
-	return NULL;
+        send_to_char( "ERROR: Room already exists.\r\n", ch );
+        return NULL;
     }
 
     for ( zone = zone_table; zone; zone = zone->next )
-	if ( vnum >= zone->number * 100 && vnum <= zone->top )
-	    break;
+        if ( vnum >= zone->number * 100 && vnum <= zone->top )
+            break;
 
     if ( !zone ) {
-	send_to_char( "ERROR: A zone must be defined for the room first.\r\n", ch );
-	return NULL;
+        send_to_char( "ERROR: A zone must be defined for the room first.\r\n", ch );
+        return NULL;
     }
 
     if ( !CAN_EDIT_ZONE( ch, zone ) ) {
-	send_to_char( "Try creating rooms in your own zone, luser.\r\n", ch );
-	sprintf( buf, "OLC: %s failed attempt to CREATE room %d.", 
-		 GET_NAME( ch ), vnum );
-	mudlog( buf, BRF, GET_INVIS_LEV( ch ), TRUE );
-	return NULL;
+        send_to_char( "Try creating rooms in your own zone, luser.\r\n", ch );
+        sprintf( buf, "OLC: %s failed attempt to CREATE room %d.", 
+                 GET_NAME( ch ), vnum );
+        mudlog( buf, BRF, GET_INVIS_LEV( ch ), TRUE );
+        return NULL;
     }
     
     if ( ! OLC_EDIT_OK( ch, zone, ZONE_ROOMS_APPROVED ) ) {
-	send_to_char( "World OLC is not approved for this zone.\r\n", ch );
-	return NULL;
+        send_to_char( "World OLC is not approved for this zone.\r\n", ch );
+        return NULL;
     }
 
     if ( zone->world && vnum > zone->world->number ) {
-	for ( rm = zone->world; rm; rm = rm->next ) {
-	    if ( vnum > rm->number && ( !rm->next || vnum < rm->next->number ) )
-		break;
-	}
+        for ( rm = zone->world; rm; rm = rm->next ) {
+            if ( vnum > rm->number && ( !rm->next || vnum < rm->next->number ) )
+                break;
+        }
     }
 
     CREATE( new_rm, struct room_data, 1 );
@@ -424,7 +421,7 @@ do_create_room( struct char_data *ch, int vnum )
     new_rm->find_first_step_index = 0;
 
     for ( i = 0; i < NUM_OF_DIRS; i++ )
-	new_rm->dir_option[i] = NULL;
+        new_rm->dir_option[i] = NULL;
 
     new_rm->ex_description = NULL;
     new_rm->search = NULL;
@@ -433,11 +430,11 @@ do_create_room( struct char_data *ch, int vnum )
     new_rm->flow_type = 0;
 
     if ( rm ) {
-	new_rm->next = rm->next;
-	rm->next = new_rm;
+        new_rm->next = rm->next;
+        rm->next = new_rm;
     } else {
-	new_rm->next = zone->world;
-	zone->world = new_rm;
+        new_rm->next = zone->world;
+        zone->world = new_rm;
     }
   
     top_of_world++;
@@ -459,128 +456,122 @@ do_destroy_room( struct char_data *ch, int vnum )
     struct room_list_elem *rm_list = NULL;
     int i;
     void REMOVE_ROOM_FROM_CLAN( struct room_list_elem *rm_list, 
-				struct clan_data *clan );
+                                struct clan_data *clan );
 
     if ( !( rm = real_room( vnum ) ) ) {
-	send_to_char( "ERROR: That room does not exist.\r\n", ch );
-	return 1;
+        send_to_char( "ERROR: That room does not exist.\r\n", ch );
+        return 1;
     }
 
     if ( !( zone = rm->zone ) ) {
-	send_to_char( "ERROR: ( very bad ) This room has NULL zone!!\r\n", ch );
-	return 1;
+        send_to_char( "ERROR: ( very bad ) This room has NULL zone!!\r\n", ch );
+        return 1;
     }
 
     if ( GET_IDNUM( ch ) != zone->owner_idnum && GET_LEVEL( ch ) < LVL_LUCIFER ) {
-	send_to_char( "Oh, no you dont!!!\r\n", ch );
-	sprintf( buf, "OLC: %s failed attempt to DESTROY room %d.", 
-		 GET_NAME( ch ), rm->number );
-	mudlog( buf, BRF, GET_INVIS_LEV( ch ), TRUE );
-	return 1;
+        send_to_char( "Oh, no you dont!!!\r\n", ch );
+        sprintf( buf, "OLC: %s failed attempt to DESTROY room %d.", 
+                 GET_NAME( ch ), rm->number );
+        mudlog( buf, BRF, GET_INVIS_LEV( ch ), TRUE );
+        return 1;
     }
 
     if ( rm == zone->world ) {
-	zone->world = rm->next;
-	t_rm = zone->world;
+        zone->world = rm->next;
+        t_rm = zone->world;
     } else {
-	for ( t_rm = zone->world; t_rm; t_rm = t_rm->next ) {
-	    if ( t_rm->next && t_rm->next == rm ) {
-		t_rm->next = rm->next;
-		break;
-	    }
-	    if ( !t_rm->next ) {
-		send_to_char( "!( t_rm->next ) error.\r\n", ch );
-		return 1;
-	    }
-	}
+        for ( t_rm = zone->world; t_rm; t_rm = t_rm->next ) {
+            if ( t_rm->next && t_rm->next == rm ) {
+                t_rm->next = rm->next;
+                break;
+            }
+            if ( !t_rm->next ) {
+                send_to_char( "!( t_rm->next ) error.\r\n", ch );
+                return 1;
+            }
+        }
     }
 
     for ( vict = rm->people; vict; vict = next_vict ) {
-	next_vict = vict->next_in_room;
+        next_vict = vict->next_in_room;
 
-	send_to_char( "The room in which you exist is suddenly removed from reality!\r\n", vict );
-	char_from_room( vict );
-	if ( rm->next ) {
-	    char_to_room( vict, rm->next );
-	} else if ( t_rm ) {
-	    char_to_room( vict, t_rm );
-	} else if ( zone->world ) {
-	    char_to_room( vict, zone->world );
-	} else
-	    char_to_room( vict, r_mortal_start_room );
+        send_to_char( "The room in which you exist is suddenly removed from reality!\r\n", vict );
+        char_from_room( vict );
+        if ( rm->next ) {
+            char_to_room( vict, rm->next );
+        } else if ( t_rm ) {
+            char_to_room( vict, t_rm );
+        } else if ( zone->world ) {
+            char_to_room( vict, zone->world );
+        } else
+            char_to_room( vict, r_mortal_start_room );
 
-	look_at_room( vict, vict->in_room, 0 );
-	act( "$n appears from a void in reality.", TRUE, ch, 0, 0, TO_ROOM );
+        look_at_room( vict, vict->in_room, 0 );
+        act( "$n appears from a void in reality.", TRUE, ch, 0, 0, TO_ROOM );
 
     }
       
     for ( obj = rm->contents; obj; obj = next_obj ) {
-	next_obj = obj->next_content;
-	extract_obj( obj );
+        next_obj = obj->next_content;
+        extract_obj( obj );
     }
 
     for ( clan = clan_list; clan; clan = clan->next )
-	for ( rm_list = clan->room_list; rm_list; rm_list = rm_list->next )
-	    if ( rm == rm_list->room ) {
-		REMOVE_ROOM_FROM_CLAN( rm_list, clan );
-		break;
-	    }
+        for ( rm_list = clan->room_list; rm_list; rm_list = rm_list->next )
+            if ( rm == rm_list->room ) {
+                REMOVE_ROOM_FROM_CLAN( rm_list, clan );
+                break;
+            }
 
-#ifdef DMALLOC
-    dmalloc_verify( 0 );
-#endif
     if ( rm->name )
-	free( rm->name );
+        free( rm->name );
     if ( rm->description )
-	free( rm->description );
+        free( rm->description );
     if ( rm->sounds )
-	free( rm->sounds );
+        free( rm->sounds );
 
     while ( ( desc = rm->ex_description ) ) {
-	rm->ex_description = desc->next;
-	if ( desc->keyword )
-	    free( desc->keyword );
-	if ( desc->description )
-	    free( desc->description );
-	free ( desc );
+        rm->ex_description = desc->next;
+        if ( desc->keyword )
+            free( desc->keyword );
+        if ( desc->description )
+            free( desc->description );
+        free ( desc );
     }
 
     while ( ( srch = rm->search ) ) {
-	rm->search = srch->next;
-	if ( srch->command_keys )
-	    free( srch->command_keys );
-	if ( srch->keywords )
-	    free( srch->keywords );
-	if ( srch->to_room )
-	    free( srch->to_room );
-	if ( srch->to_vict )
-	    free( srch->to_vict );
-	free ( srch );
+        rm->search = srch->next;
+        if ( srch->command_keys )
+            free( srch->command_keys );
+        if ( srch->keywords )
+            free( srch->keywords );
+        if ( srch->to_room )
+            free( srch->to_room );
+        if ( srch->to_vict )
+            free( srch->to_vict );
+        free ( srch );
     }
 
     for ( i = 0; i < NUM_DIRS; i++ ) {
-	if ( !rm->dir_option[i] )
-	    continue;
-	if ( rm->dir_option[i]->general_description )
-	    free( rm->dir_option[i]->general_description );
-	if ( rm->dir_option[i]->keyword )
-	    free( rm->dir_option[i]->keyword );
+        if ( !rm->dir_option[i] )
+            continue;
+        if ( rm->dir_option[i]->general_description )
+            free( rm->dir_option[i]->general_description );
+        if ( rm->dir_option[i]->keyword )
+            free( rm->dir_option[i]->keyword );
     }
 
     while ( rm->affects )
-	affect_from_room( rm, rm->affects );
+        affect_from_room( rm, rm->affects );
 
     for ( zone = zone_table; zone; zone = zone->next )
-	for ( t_rm = zone->world; t_rm; t_rm = t_rm->next )
-	    for ( i = 0; i < NUM_DIRS; i++ )
-		if ( t_rm->dir_option[i] && t_rm->dir_option[i]->to_room == rm )
-		    t_rm->dir_option[i]->to_room = NULL;
+        for ( t_rm = zone->world; t_rm; t_rm = t_rm->next )
+            for ( i = 0; i < NUM_DIRS; i++ )
+                if ( t_rm->dir_option[i] && t_rm->dir_option[i]->to_room == rm )
+                    t_rm->dir_option[i]->to_room = NULL;
 
     top_of_world--;
     free( rm );
-#ifdef DMALLOC
-    dmalloc_verify( 0 );
-#endif
     return 0;
 }
 
@@ -592,61 +583,55 @@ do_clear_room( struct char_data *ch )
     struct special_search_data *srch = NULL;
     struct room_affect_data *aff = NULL;
 
-#ifdef DMALLOC
-    dmalloc_verify( 0 );
-#endif
   
     if ( ch->in_room->name ) 
-	free( ch->in_room->name );
+        free( ch->in_room->name );
 
     ch->in_room->name = strdup( "A Blank Room" );
 
     if ( ch->in_room->description )
-	free( ch->in_room->description );
+        free( ch->in_room->description );
     ch->in_room->description = NULL;
       
     if ( ch->in_room->sounds )
-	free( ch->in_room->sounds );
+        free( ch->in_room->sounds );
     ch->in_room->sounds = NULL;
 
     ch->in_room->room_flags = 0;
     ch->in_room->sector_type = SECT_INSIDE;
       
     while ( ( desc = ch->in_room->ex_description ) ) {
-	ch->in_room->ex_description = desc->next;
-	if ( desc->keyword )
-	    free( desc->keyword );
-	if ( desc->description )
-	    free( desc->description );
-	free( desc );
+        ch->in_room->ex_description = desc->next;
+        if ( desc->keyword )
+            free( desc->keyword );
+        if ( desc->description )
+            free( desc->description );
+        free( desc );
     }
     ch->in_room->ex_description = NULL;
 
     while ( ( srch = ch->in_room->search ) ) {
-	ch->in_room->search = srch->next;
-	if ( srch->command_keys )
-	    free( srch->command_keys );
-	if ( srch->keywords )
-	    free( srch->keywords );
-	if ( srch->to_room )
-	    free( srch->to_room );
-	if ( srch->to_vict )
-	    free( srch->to_vict );
-	free( srch );
+        ch->in_room->search = srch->next;
+        if ( srch->command_keys )
+            free( srch->command_keys );
+        if ( srch->keywords )
+            free( srch->keywords );
+        if ( srch->to_room )
+            free( srch->to_room );
+        if ( srch->to_vict )
+            free( srch->to_vict );
+        free( srch );
     }
     ch->in_room->search = NULL;
 
     while ( ( aff = ch->in_room->affects ) ) {
-	ch->in_room->affects = aff->next;
-	if ( aff->description )
-	    free( aff->description );
-	free( aff );
+        ch->in_room->affects = aff->next;
+        if ( aff->description )
+            free( aff->description );
+        free( aff );
     }
-#ifdef DMALLOC
-    dmalloc_verify( 0 );
-#endif
     ch->in_room->affects = NULL;
-	
+        
     ch->in_room->light = 0;
     ch->in_room->flow_dir = 0;
     ch->in_room->flow_speed = 0;
@@ -662,87 +647,78 @@ olc_mimic_room( struct char_data *ch, struct room_data *rnum, char *argument )
 
     char arg1[MAX_INPUT_LENGTH];
     byte mode_sounds = 0, mode_desc = 0, mode_sector = 0, mode_flags = 0, 
-	mode_exdesc = 0, mode_all = 0, mode_title = 0;
+        mode_exdesc = 0, mode_all = 0, mode_title = 0;
     struct extra_descr_data *desc = NULL, *ndesc = NULL;
 
     argument = one_argument( argument, arg1 );   
     if ( !*arg1 )
-	mode_all = 1;
+        mode_all = 1;
     else while ( *arg1 ) {
-	if ( is_abbrev( arg1, "sounds" ) )
-	    mode_sounds = 1;
-	else if ( is_abbrev( arg1, "description" ) )
-	    mode_desc = 1;
-	else if ( is_abbrev( arg1, "sector" ) )
-	    mode_sector = 1;
-	else if ( is_abbrev( arg1, "flags" ) )
-	    mode_flags = 1;
-	else if ( is_abbrev( arg1, "exdesc" ) )
-	    mode_exdesc = 1;
-	else if ( is_abbrev( arg1, "title" ) )
-	    mode_title = 1;
-	else {
-	    sprintf( buf, "'%s' is not a valid argument.\r\n", arg1 );
-	    send_to_char( buf, ch );
-	}
-	argument = one_argument( argument, arg1 );
+        if ( is_abbrev( arg1, "sounds" ) )
+            mode_sounds = 1;
+        else if ( is_abbrev( arg1, "description" ) )
+            mode_desc = 1;
+        else if ( is_abbrev( arg1, "sector" ) )
+            mode_sector = 1;
+        else if ( is_abbrev( arg1, "flags" ) )
+            mode_flags = 1;
+        else if ( is_abbrev( arg1, "exdesc" ) )
+            mode_exdesc = 1;
+        else if ( is_abbrev( arg1, "title" ) )
+            mode_title = 1;
+        else {
+            sprintf( buf, "'%s' is not a valid argument.\r\n", arg1 );
+            send_to_char( buf, ch );
+        }
+        argument = one_argument( argument, arg1 );
     }   
-#ifdef DMALLOC
-    dmalloc_verify( 0 );
-#endif
     if ( mode_all || mode_title ) {             /* Room Title Mode */
-	if ( ch->in_room->name )
-	    free( ch->in_room->name );
-	if ( rnum->name )
-	    ch->in_room->name = strdup( rnum->name );
-	else
-	    ch->in_room->name = NULL;
+        if ( ch->in_room->name )
+            free( ch->in_room->name );
+        if ( rnum->name )
+            ch->in_room->name = strdup( rnum->name );
+        else
+            ch->in_room->name = NULL;
     }
     if ( mode_all || mode_desc ) {             /* Room Description Mode */
-	if ( ch->in_room->description )
-	    free( ch->in_room->description );
-	if ( rnum->description )
-	    ch->in_room->description = strdup( rnum->description );
-	else
-	    ch->in_room->description = NULL;
+        if ( ch->in_room->description )
+            free( ch->in_room->description );
+        if ( rnum->description )
+            ch->in_room->description = strdup( rnum->description );
+        else
+            ch->in_room->description = NULL;
     }
     if ( mode_all || mode_sounds ) {           /*  Room Sounds Mode   */
-	if ( ch->in_room->sounds )
-	    free( ch->in_room->sounds );
-	if ( rnum->sounds )
-	    ch->in_room->sounds = strdup( rnum->sounds );
-	else
-	    ch->in_room->sounds = NULL;
+        if ( ch->in_room->sounds )
+            free( ch->in_room->sounds );
+        if ( rnum->sounds )
+            ch->in_room->sounds = strdup( rnum->sounds );
+        else
+            ch->in_room->sounds = NULL;
     }
-#ifdef DMALLOC
-    dmalloc_verify( 0 );
-#endif
     if ( mode_all || mode_flags )              /*  Room Flags Mode   */
-	ch->in_room->room_flags = rnum->room_flags;
+        ch->in_room->room_flags = rnum->room_flags;
     if ( mode_all || mode_sector )             /*  Room Sector Mode  */
-	ch->in_room->sector_type = rnum->sector_type;
+        ch->in_room->sector_type = rnum->sector_type;
     if ( mode_all || mode_exdesc ) {            /*  Room Exdesc Mode  */
-	desc = ch->in_room->ex_description;
-	ch->in_room->ex_description = NULL;
-	while ( desc != NULL )  {
-	    if ( desc->keyword )
-		free( desc->keyword );
-	    if ( desc->description )
-		free( desc->description );
-	    desc = desc->next;
-	}
-	desc = rnum->ex_description;
-	while ( desc != NULL )  {
-	    CREATE( ndesc, struct extra_descr_data, 1 );
-	    ndesc->keyword = strdup( desc->keyword );
-	    ndesc->description = strdup( desc->description );
-	    ndesc->next = ch->in_room->ex_description;
-	    ch->in_room->ex_description = ndesc;
-	    desc = desc->next;
-	}
-#ifdef DMALLOC
-	dmalloc_verify( 0 );
-#endif
+        desc = ch->in_room->ex_description;
+        ch->in_room->ex_description = NULL;
+        while ( desc != NULL )  {
+            if ( desc->keyword )
+                free( desc->keyword );
+            if ( desc->description )
+                free( desc->description );
+            desc = desc->next;
+        }
+        desc = rnum->ex_description;
+        while ( desc != NULL )  {
+            CREATE( ndesc, struct extra_descr_data, 1 );
+            ndesc->keyword = strdup( desc->keyword );
+            ndesc->description = strdup( desc->description );
+            ndesc->next = ch->in_room->ex_description;
+            ch->in_room->ex_description = ndesc;
+            desc = desc->next;
+        }
     }
 
     ch->in_room->flow_dir   = rnum->flow_dir;
@@ -762,7 +738,7 @@ static const char *olc_rset_keys[] = {
     "flow", 
     "occupancy", 
     "special", 
-    "\n"				/* many more to be added */
+    "\n"                                /* many more to be added */
 };
 
 #define NUM_RSET_COMMANDS 8
@@ -777,226 +753,219 @@ do_olc_rset( struct char_data *ch, char *argument )
     int state = 0;
 
     if ( !*argument ) {
-	page_string( ch->desc, OLC_RSET_USAGE, 1 );
-	return;
+        page_string( ch->desc, OLC_RSET_USAGE, 1 );
+        return;
     }
 
     half_chop( argument, arg1, arg2 );
     skip_spaces( &argument );
     
     if ( ( rset_command = search_block( arg1, olc_rset_keys, FALSE ) )<0 ) {
-	sprintf( buf, "Invalid rset command '%s'.\r\n", arg1 );
-	send_to_char( buf, ch );
-	return;
+        sprintf( buf, "Invalid rset command '%s'.\r\n", arg1 );
+        send_to_char( buf, ch );
+        return;
     } 
-
-#ifdef DMALLOC
-    dmalloc_verify( 0 );
-#endif
 
     switch ( rset_command ) {
     case 0: /* rtitle */
-	if(!*arg2) {
-		send_to_char("You have to set it to something moron!\r\n",ch);
-		return;
-	}
-	if ( ch->in_room->name )
-	    free( ch->in_room->name );
-	ch->in_room->name = strdup( arg2 );
-	send_to_char( "Okay, room title changed.\r\n", ch );
-	break;
+        if(!*arg2) {
+                send_to_char("You have to set it to something moron!\r\n",ch);
+                return;
+        }
+        if ( ch->in_room->name )
+            free( ch->in_room->name );
+        ch->in_room->name = strdup( arg2 );
+        send_to_char( "Okay, room title changed.\r\n", ch );
+        break;
 
     case 1: /* rdescription */
-	if ( ch->in_room->description ) {
-	    act( "$n begins to edit a room description.", TRUE, ch, 0, 0, TO_ROOM );
-	} else {
-	    act( "$n begins to write a room description.", TRUE, ch, 0, 0, TO_ROOM );
-	}
-	start_text_editor(ch->desc, &ch->in_room->description,true);
+        if ( ch->in_room->description ) {
+            act( "$n begins to edit a room description.", TRUE, ch, 0, 0, TO_ROOM );
+        } else {
+            act( "$n begins to write a room description.", TRUE, ch, 0, 0, TO_ROOM );
+        }
+        start_text_editor(ch->desc, &ch->in_room->description,true);
     SET_BIT( PLR_FLAGS( ch ), PLR_OLC );
-	break;
+        break;
 
     case 2:    /* rsector */
-	if ( !*arg2 ) {
-	    send_to_char( "Set sector to what?\r\n", ch );
-	    return;
-	}
-	if ( !is_number( arg2 ) ) {
-	    if ( ( i = search_block( arg2, sector_types, 0 ) ) < 0 ) {
-		send_to_char( "No such sector type.  Type olc h rsect.\r\n", ch );
-		return;
-	    } else 
-		ch->in_room->sector_type = i;  
-	} else 
-	    ch->in_room->sector_type = atoi( arg2 );
+        if ( !*arg2 ) {
+            send_to_char( "Set sector to what?\r\n", ch );
+            return;
+        }
+        if ( !is_number( arg2 ) ) {
+            if ( ( i = search_block( arg2, sector_types, 0 ) ) < 0 ) {
+                send_to_char( "No such sector type.  Type olc h rsect.\r\n", ch );
+                return;
+            } else 
+                ch->in_room->sector_type = i;  
+        } else 
+            ch->in_room->sector_type = atoi( arg2 );
 
-	sprintf( buf, "Room sector type set to: %s.\r\n", 
-		 sector_types[( int )ch->in_room->sector_type] );
-	send_to_char( buf, ch );
-	break;
+        sprintf( buf, "Room sector type set to: %s.\r\n", 
+                 sector_types[( int )ch->in_room->sector_type] );
+        send_to_char( buf, ch );
+        break;
  
     case 3:   /* rflags */
-	tmp_flags = 0;
-	argument = one_argument( arg2, arg1 );
+        tmp_flags = 0;
+        argument = one_argument( arg2, arg1 );
 
-	if ( *arg1 == '+' )
-	    state = 1;
-	else if ( *arg1 == '-' )
-	    state = 2;
-	else {
-	    send_to_char( "Usage: olc rset flags [+/-] [FLAG, FLAG, ...]\r\n", ch );
-	    return;
-	}
+        if ( *arg1 == '+' )
+            state = 1;
+        else if ( *arg1 == '-' )
+            state = 2;
+        else {
+            send_to_char( "Usage: olc rset flags [+/-] [FLAG, FLAG, ...]\r\n", ch );
+            return;
+        }
       
-	argument = one_argument( argument, arg1 );
+        argument = one_argument( argument, arg1 );
     
-	cur_flags = ROOM_FLAGS( ch->in_room );
+        cur_flags = ROOM_FLAGS( ch->in_room );
     
-	while ( *arg1 ) {
-	    if ( ( flag = search_block( arg1, roomflag_names, FALSE ) ) == -1 ) {
-		sprintf( buf, "Invalid flag %s, skipping...\r\n", arg1 );
-		send_to_char( buf, ch );
-	    }
-	    else 
-		tmp_flags = tmp_flags|( 1 << flag );
-	
-	    argument = one_argument( argument, arg1 );
-	}
+        while ( *arg1 ) {
+            if ( ( flag = search_block( arg1, roomflag_names, FALSE ) ) == -1 ) {
+                sprintf( buf, "Invalid flag %s, skipping...\r\n", arg1 );
+                send_to_char( buf, ch );
+            }
+            else 
+                tmp_flags = tmp_flags|( 1 << flag );
+        
+            argument = one_argument( argument, arg1 );
+        }
       
-	if ( state == 1 )
-	    cur_flags = cur_flags | tmp_flags;
-	else {
-	    tmp_flags = cur_flags & tmp_flags;
-	    cur_flags = cur_flags ^ tmp_flags;
-	}
+        if ( state == 1 )
+            cur_flags = cur_flags | tmp_flags;
+        else {
+            tmp_flags = cur_flags & tmp_flags;
+            cur_flags = cur_flags ^ tmp_flags;
+        }
     
-	ROOM_FLAGS( ch->in_room ) = cur_flags;
+        ROOM_FLAGS( ch->in_room ) = cur_flags;
       
-	if ( tmp_flags == 0 && cur_flags == 0 ) {
-	    send_to_char( "Room flags set\r\n", ch );
-	}
-	else if ( tmp_flags == 0 )
-	    send_to_char( "Room flags not altered.\r\n", ch );
-	else {
-	    send_to_char( "Room flags set.\r\n", ch );
-	    if ( IS_SET( tmp_flags, ROOM_INDOORS ) && 
-		 MAX_OCCUPANTS( ch->in_room ) == 256 )
-		MAX_OCCUPANTS( ch->in_room ) = 50;
-	}
-	break;
+        if ( tmp_flags == 0 && cur_flags == 0 ) {
+            send_to_char( "Room flags set\r\n", ch );
+        }
+        else if ( tmp_flags == 0 )
+            send_to_char( "Room flags not altered.\r\n", ch );
+        else {
+            send_to_char( "Room flags set.\r\n", ch );
+            if ( IS_SET( tmp_flags, ROOM_INDOORS ) && 
+                 MAX_OCCUPANTS( ch->in_room ) == 256 )
+                MAX_OCCUPANTS( ch->in_room ) = 50;
+        }
+        break;
 
     case 4:    /*   sound   */
-	if ( *arg2 && is_abbrev( arg2, "remove" ) ) {
-	    if ( ch->in_room->sounds ) {
-		free( ch->in_room->sounds );
-		ch->in_room->sounds = NULL;
-	    }
-	    send_to_char( "Sounds removed from room.\r\n", ch );
-	    break;
-	}
+        if ( *arg2 && is_abbrev( arg2, "remove" ) ) {
+            if ( ch->in_room->sounds ) {
+                free( ch->in_room->sounds );
+                ch->in_room->sounds = NULL;
+            }
+            send_to_char( "Sounds removed from room.\r\n", ch );
+            break;
+        }
       
-	if ( ch->in_room->sounds == NULL ) {
-	    act( "$n begins to create a sound.", TRUE, ch, 0, 0, TO_ROOM );
-	} else {
-	    act( "$n begins to edit a sound.", TRUE, ch, 0, 0, TO_ROOM );
-	}
+        if ( ch->in_room->sounds == NULL ) {
+            act( "$n begins to create a sound.", TRUE, ch, 0, 0, TO_ROOM );
+        } else {
+            act( "$n begins to edit a sound.", TRUE, ch, 0, 0, TO_ROOM );
+        }
     start_text_editor(ch->desc, &ch->in_room->sounds,true);
     SET_BIT( PLR_FLAGS( ch ), PLR_OLC );
-	break;
+        break;
     case 5:      /*  flow  */
-	if ( !*arg2 ) {
-	    strcpy( buf, "Current flow state:" );
-	    if ( !FLOW_SPEED( ch->in_room ) )
-		strcat( buf, " None.\r\n" );
-	    else {
-		sprintf( buf, "Direction: %s, Speed: %d, Type: %s ( %d ).\r\n", 
-			 dirs[( int )FLOW_DIR( ch->in_room )], FLOW_SPEED( ch->in_room ), 
-			 flow_types[( int )FLOW_TYPE( ch->in_room )], 
-			 ( int )FLOW_TYPE( ch->in_room ) );
-		send_to_char( buf, ch );
-	    }
-	    send_to_char( "Usage: olc rset flow <dir> <speed> <type>\r\n", ch );
-	    return;
-	}
-	half_chop( arg2, arg1, arg2 );        /* sneaky trix */
-	strcpy( argument, arg2 );
-	half_chop( argument, arg2, arg3 );
-	if ( !*arg2 ) {
-	    if ( *arg1 && arg1 && is_abbrev( arg1, "remove" ) ) {
-		FLOW_SPEED( ch->in_room ) = 0;
-		send_to_char( "Flow removed from room.\r\n", ch );
-		return;
-	    } else
-		send_to_char( "You must specify the flow speed as the second argument.\r\n", ch );
-	} else if ( !*arg1 )
-	    send_to_char( "Usage: olc rset flow <dir> <speed> <type>\r\n", ch );
-	else if ( !is_number( arg2 ) || ( ( j = atoi( arg2 ) ) < 0 ) )
-	    send_to_char( "The second argument must be a positive number.\r\n", ch );
-	else if ( ( edir = search_block ( arg1, dirs, FALSE ) ) < 0 ) 
-	    send_to_char( "What direction to flow in??\r\n", ch );
-	else {
-	    if ( *arg3 ) {
-		if ( !is_number( arg3 ) ) {
-		    if ( ( i = search_block( arg3, flow_types, 0 ) ) < 0 ) {
-			send_to_char( "Invalid flow type... type olc h rflow.\r\n", ch );
-			return;
-		    }
-		} else
-		    i = atoi( arg3 );
+        if ( !*arg2 ) {
+            strcpy( buf, "Current flow state:" );
+            if ( !FLOW_SPEED( ch->in_room ) )
+                strcat( buf, " None.\r\n" );
+            else {
+                sprintf( buf, "Direction: %s, Speed: %d, Type: %s ( %d ).\r\n", 
+                         dirs[( int )FLOW_DIR( ch->in_room )], FLOW_SPEED( ch->in_room ), 
+                         flow_types[( int )FLOW_TYPE( ch->in_room )], 
+                         ( int )FLOW_TYPE( ch->in_room ) );
+                send_to_char( buf, ch );
+            }
+            send_to_char( "Usage: olc rset flow <dir> <speed> <type>\r\n", ch );
+            return;
+        }
+        half_chop( arg2, arg1, arg2 );        /* sneaky trix */
+        strcpy( argument, arg2 );
+        half_chop( argument, arg2, arg3 );
+        if ( !*arg2 ) {
+            if ( *arg1 && arg1 && is_abbrev( arg1, "remove" ) ) {
+                FLOW_SPEED( ch->in_room ) = 0;
+                send_to_char( "Flow removed from room.\r\n", ch );
+                return;
+            } else
+                send_to_char( "You must specify the flow speed as the second argument.\r\n", ch );
+        } else if ( !*arg1 )
+            send_to_char( "Usage: olc rset flow <dir> <speed> <type>\r\n", ch );
+        else if ( !is_number( arg2 ) || ( ( j = atoi( arg2 ) ) < 0 ) )
+            send_to_char( "The second argument must be a positive number.\r\n", ch );
+        else if ( ( edir = search_block ( arg1, dirs, FALSE ) ) < 0 ) 
+            send_to_char( "What direction to flow in??\r\n", ch );
+        else {
+            if ( *arg3 ) {
+                if ( !is_number( arg3 ) ) {
+                    if ( ( i = search_block( arg3, flow_types, 0 ) ) < 0 ) {
+                        send_to_char( "Invalid flow type... type olc h rflow.\r\n", ch );
+                        return;
+                    }
+                } else
+                    i = atoi( arg3 );
 
-		FLOW_TYPE( ch->in_room ) = i;
-		if ( FLOW_TYPE( ch->in_room ) >= NUM_FLOW_TYPES ||
-		     FLOW_TYPE( ch->in_room ) < 0 ) {
-		    send_to_char( "Illegal flow type.\r\n", ch );
-		    FLOW_TYPE( ch->in_room ) = F_TYPE_NONE;
-		    return;
-		}
-	    } else {
-		send_to_char( "Usage: olc rset flow <dir> <speed> <type>\r\n", ch );
-		return;
-	    }
+                FLOW_TYPE( ch->in_room ) = i;
+                if ( FLOW_TYPE( ch->in_room ) >= NUM_FLOW_TYPES ||
+                     FLOW_TYPE( ch->in_room ) < 0 ) {
+                    send_to_char( "Illegal flow type.\r\n", ch );
+                    FLOW_TYPE( ch->in_room ) = F_TYPE_NONE;
+                    return;
+                }
+            } else {
+                send_to_char( "Usage: olc rset flow <dir> <speed> <type>\r\n", ch );
+                return;
+            }
 
-	    FLOW_DIR( ch->in_room ) = edir;
-	    FLOW_SPEED( ch->in_room ) = j;
-	    send_to_char( "Flow state set.  HA!\r\n", ch );
-	}
-	break;
+            FLOW_DIR( ch->in_room ) = edir;
+            FLOW_SPEED( ch->in_room ) = j;
+            send_to_char( "Flow state set.  HA!\r\n", ch );
+        }
+        break;
     case 6:     /** occupancy **/
-	if ( !is_number( arg2 ) ) {
-	    send_to_char( "The argument should be a number.\r\n", ch );
-	    return;
-	}
-	if ( ( i = atoi( arg2 ) ) < 0 ) {
-	    send_to_char( "Haha hahaHOoHOhah hah.  Funny.\r\n", ch );
-	    return;
-	}
-	ch->in_room->max_occupancy = i;
-	send_to_char( "Occupancy set!  Watch yourself.\r\n", ch );
-	break;
+        if ( !is_number( arg2 ) ) {
+            send_to_char( "The argument should be a number.\r\n", ch );
+            return;
+        }
+        if ( ( i = atoi( arg2 ) ) < 0 ) {
+            send_to_char( "Haha hahaHOoHOhah hah.  Funny.\r\n", ch );
+            return;
+        }
+        ch->in_room->max_occupancy = i;
+        send_to_char( "Occupancy set!  Watch yourself.\r\n", ch );
+        break;
 
     case 7:   /** special **/
-	if ( !*arg2 || ( i = find_spec_index_arg( arg2 ) ) < 0 ) 
-	    send_to_char( "That is not a valid special.\r\n"
-			  "Type show special room to view a list.\r\n", ch );
-	else if ( !IS_SET( spec_list[i].flags, SPEC_RM ) )
-	    send_to_char( "This special is not for rooms.\r\n", ch );
-	else if ( IS_SET( spec_list[i].flags, SPEC_RES ) && !OLCGOD( ch ) && !OLCIMP( ch ) )
-	    send_to_char( "This special is reserved.\r\n", ch );
-	else {
-	    ch->in_room->func = spec_list[i].func;
-	    do_specassign_save( ch, SPEC_RM );
-	    send_to_char( "Room special set.\r\n", ch );
-	}
+        if ( !*arg2 || ( i = find_spec_index_arg( arg2 ) ) < 0 ) 
+            send_to_char( "That is not a valid special.\r\n"
+                          "Type show special room to view a list.\r\n", ch );
+        else if ( !IS_SET( spec_list[i].flags, SPEC_RM ) )
+            send_to_char( "This special is not for rooms.\r\n", ch );
+        else if ( IS_SET( spec_list[i].flags, SPEC_RES ) && !OLCGOD( ch ) && !OLCIMP( ch ) )
+            send_to_char( "This special is reserved.\r\n", ch );
+        else {
+            ch->in_room->func = spec_list[i].func;
+            do_specassign_save( ch, SPEC_RM );
+            send_to_char( "Room special set.\r\n", ch );
+        }
 
-	break;
+        break;
       
     default:
-	send_to_char( "Sorry, you have attempted to access an unimplemented command.\r\nUnfortunately, you will now be killed.\r\n", ch );
-	return;
+        send_to_char( "Sorry, you have attempted to access an unimplemented command.\r\nUnfortunately, you will now be killed.\r\n", ch );
+        return;
     }
-#ifdef DMALLOC
-    dmalloc_verify( 0 );
-#endif
 }
 
 void
@@ -1007,79 +976,79 @@ do_olc_rexdesc( struct char_data *ch, char *argument )
     char arg1[MAX_INPUT_LENGTH], arg2[MAX_INPUT_LENGTH];
 
     if ( !*argument ) {
-	send_to_char( OLC_EXDESC_USAGE, ch );
-	return;
+        send_to_char( OLC_EXDESC_USAGE, ch );
+        return;
     }
     half_chop( argument, buf, argument );
     if ( !*argument )
-	send_to_char( "Which extra description would you like to deal with?\r\n", 
-		      ch );
+        send_to_char( "Which extra description would you like to deal with?\r\n", 
+                      ch );
     else if ( !*buf )
-	send_to_char( "Valid commands are: create, remove, edit, addkey.\r\n", ch );
+        send_to_char( "Valid commands are: create, remove, edit, addkey.\r\n", ch );
     else if ( is_abbrev( buf, "remove" ) ) {
-	if ( ( desc = locate_exdesc( argument, ch->in_room->ex_description ) ) ) {
-	    REMOVE_FROM_LIST( desc, ch->in_room->ex_description, next );
-	    if ( desc->keyword )
-		free( desc->keyword );
-	    else
-		slog( "WTF?? !desc->keyword??" );
+        if ( ( desc = locate_exdesc( argument, ch->in_room->ex_description ) ) ) {
+            REMOVE_FROM_LIST( desc, ch->in_room->ex_description, next );
+            if ( desc->keyword )
+                free( desc->keyword );
+            else
+                slog( "WTF?? !desc->keyword??" );
 
-	    if ( desc->description )
-		free( desc->description );
-	    else
-		slog( "WTF?? !desc->description??" );
+            if ( desc->description )
+                free( desc->description );
+            else
+                slog( "WTF?? !desc->description??" );
 
-	    free( desc );
-	    send_to_char( "Description removed.\r\n", ch );
-	} else
-	    send_to_char( "No such extra description.\r\n", ch );
+            free( desc );
+            send_to_char( "Description removed.\r\n", ch );
+        } else
+            send_to_char( "No such extra description.\r\n", ch );
        
-	return;
+        return;
     } else if ( is_abbrev( buf, "create" ) ) {
-	if ( find_exdesc( argument, ch->in_room->ex_description ) ) {
-	    send_to_char( "An extra description already exists with that keyword.\r\n"
-			  "Use the 'olc rexdesc remove' command to remove it, or the\r\n"
-			  "'olc rexdesc edit' command to change it, punk.\r\n", ch );
-	    return;
-	}
-	CREATE( ndesc, struct extra_descr_data, 1 ); 
-	ndesc->keyword  = str_dup( argument );
-	ndesc->next = ch->in_room->ex_description;
-	ch->in_room->ex_description = ndesc;
+        if ( find_exdesc( argument, ch->in_room->ex_description ) ) {
+            send_to_char( "An extra description already exists with that keyword.\r\n"
+                          "Use the 'olc rexdesc remove' command to remove it, or the\r\n"
+                          "'olc rexdesc edit' command to change it, punk.\r\n", ch );
+            return;
+        }
+        CREATE( ndesc, struct extra_descr_data, 1 ); 
+        ndesc->keyword  = str_dup( argument );
+        ndesc->next = ch->in_room->ex_description;
+        ch->in_room->ex_description = ndesc;
 
-	start_text_editor(ch->desc,&ch->in_room->ex_description->description,true);
-	SET_BIT( PLR_FLAGS( ch ), PLR_OLC );
+        start_text_editor(ch->desc,&ch->in_room->ex_description->description,true);
+        SET_BIT( PLR_FLAGS( ch ), PLR_OLC );
 
-	act( "$n begins to write an extra description.", TRUE, ch, 0, 0, TO_ROOM );
-	return;
+        act( "$n begins to write an extra description.", TRUE, ch, 0, 0, TO_ROOM );
+        return;
     } else if ( is_abbrev( buf, "edit" ) ) {
-	if ( ( desc = locate_exdesc( argument, ch->in_room->ex_description ) ) ) {
-	    start_text_editor(ch->desc,&desc->description,true);
-	    SET_BIT( PLR_FLAGS( ch ), PLR_OLC );
-	    act( "$n begins to write an extra description.", TRUE, ch, 0, 0, TO_ROOM );
-	} else
-	    send_to_char( "No such description.  Use 'create' to make a new one.\r\n", ch );
+        if ( ( desc = locate_exdesc( argument, ch->in_room->ex_description ) ) ) {
+            start_text_editor(ch->desc,&desc->description,true);
+            SET_BIT( PLR_FLAGS( ch ), PLR_OLC );
+            act( "$n begins to write an extra description.", TRUE, ch, 0, 0, TO_ROOM );
+        } else
+            send_to_char( "No such description.  Use 'create' to make a new one.\r\n", ch );
 
-	return;
+        return;
     } else if ( is_abbrev( buf, "addkeyword" ) ) {
-	half_chop( argument, arg1, arg2 );
-	if ( ( desc = locate_exdesc( arg1, ch->in_room->ex_description ) ) ) {
-	    if ( !*arg2 ) {
-		send_to_char( "What??  How about giving me some keywords to add...\r\n", ch );
-		return;
-	    } else {
-		strcpy( buf, desc->keyword );
-		strcat( buf, " " );
-		strcat( buf, arg2 );
-		free( desc->keyword );
-		desc->keyword = str_dup( buf );
-		send_to_char( "Keywords added.\r\n", ch );
-		return;
-	    }
-	} else
-	    send_to_char( "There is no such description in this room.\r\n", ch );
+        half_chop( argument, arg1, arg2 );
+        if ( ( desc = locate_exdesc( arg1, ch->in_room->ex_description ) ) ) {
+            if ( !*arg2 ) {
+                send_to_char( "What??  How about giving me some keywords to add...\r\n", ch );
+                return;
+            } else {
+                strcpy( buf, desc->keyword );
+                strcat( buf, " " );
+                strcat( buf, arg2 );
+                free( desc->keyword );
+                desc->keyword = str_dup( buf );
+                send_to_char( "Keywords added.\r\n", ch );
+                return;
+            }
+        } else
+            send_to_char( "There is no such description in this room.\r\n", ch );
     } else
-	send_to_char( OLC_EXDESC_USAGE, ch );
+        send_to_char( OLC_EXDESC_USAGE, ch );
 
 }
 
@@ -1105,53 +1074,53 @@ ACMD( do_hedit )
     struct house_control_rec *h = 0;
 
     const char *hedit_options[] = {
-	"title", 
-	"desc", 
-	"extradesc", 
-	"sound", 
-	"save", 
-	"show", 
-	"owner", 
-	"\n"
+        "title", 
+        "desc", 
+        "extradesc", 
+        "sound", 
+        "save", 
+        "show", 
+        "owner", 
+        "\n"
     };
 
     if ( olc_lock || ( IS_SET( ch->in_room->zone->flags, ZONE_LOCKED ) ) ) {
-	if ( GET_LEVEL( ch ) >= LVL_IMPL ) {
-	    sprintf( buf, "\007\007\007\007%sWARNING.%s  Overriding olc %s lock.\r\n", 
-		     CCRED_BLD( ch, C_NRM ), CCNRM( ch, C_NRM ), olc_lock ? "global" :
-		     "discrete zone" );
-	    send_to_char( buf, ch );
-	} else {
-	    send_to_char( "OLC is currently locked.  Try again later.\r\n", ch );
-	    return;
-	}
+        if ( GET_LEVEL( ch ) >= LVL_IMPL ) {
+            sprintf( buf, "\007\007\007\007%sWARNING.%s  Overriding olc %s lock.\r\n", 
+                     CCRED_BLD( ch, C_NRM ), CCNRM( ch, C_NRM ), olc_lock ? "global" :
+                     "discrete zone" );
+            send_to_char( buf, ch );
+        } else {
+            send_to_char( "OLC is currently locked.  Try again later.\r\n", ch );
+            return;
+        }
     } 
 
     if ( !IS_SET( ROOM_FLAGS( ch->in_room ), ROOM_HOUSE ) ) {
-	send_to_char( "You have to be in your house to edit it.\r\n", ch );
-	return;
+        send_to_char( "You have to be in your house to edit it.\r\n", ch );
+        return;
     }
     if ( ! ( h = real_house( ch->in_room->number ) ) ) {
-	send_to_char( "Um.. this house seems to be screwed up.\r\n", ch );
-	return;
+        send_to_char( "Um.. this house seems to be screwed up.\r\n", ch );
+        return;
     }
     if ( ( GET_IDNUM( ch ) != h->owner1 ) && 
-	 ( GET_IDNUM( ch ) != h->owner2 ) &&
-	 GET_LEVEL( ch ) < LVL_GRGOD) {
-	send_to_char( "Only the owner can edit the house.\r\n", ch );
-	return;
+         ( GET_IDNUM( ch ) != h->owner2 ) &&
+         GET_LEVEL( ch ) < LVL_GRGOD) {
+        send_to_char( "Only the owner can edit the house.\r\n", ch );
+        return;
     }
     if ( h->mode == HOUSE_RENTAL ) {
-	send_to_char( "You cannot edit rental houses.\r\n", ch );
-	return;
+        send_to_char( "You cannot edit rental houses.\r\n", ch );
+        return;
     }
 
     argument = one_argument( argument, arg );
     skip_spaces( &argument );
   
     if ( ( command = search_block( arg, hedit_options, 0 ) ) < 0 ) {
-	send_to_char( HEDIT_USAGE, ch );
-	return;
+        send_to_char( HEDIT_USAGE, ch );
+        return;
     }
 
     switch ( command ) {
@@ -1160,48 +1129,48 @@ ACMD( do_hedit )
         send_to_char("That's a bit long. Dont you think?\r\n",ch);
         return;
     }
-	sprintf( buf, "title %s", argument );
-	do_olc_rset( ch, buf );    
-	break;
+        sprintf( buf, "title %s", argument );
+        do_olc_rset( ch, buf );    
+        break;
     case 1:   /* desc */
-	sprintf( buf, "desc %s", argument );
-	do_olc_rset( ch, buf );    
-	break;
+        sprintf( buf, "desc %s", argument );
+        do_olc_rset( ch, buf );    
+        break;
     case 3:   /* sound */
-	sprintf( buf, "sound %s", argument );
-	do_olc_rset( ch, buf );    
-	break;
+        sprintf( buf, "sound %s", argument );
+        do_olc_rset( ch, buf );    
+        break;
     case 2:   /* extra */
-	do_olc_rexdesc( ch, argument );
-	break;
+        do_olc_rexdesc( ch, argument );
+        break;
     case 4:   /* save  */
-	if( !save_wld ( ch ) )
-	    send_to_char( "World file saved.\r\n", ch );
-	else {
-	    send_to_char( "An error occured while saving.\r\n", ch );
-	    sprintf( buf, "SYSERR: Error hedit save in house room %d.", 
-		     ch->in_room->number );
-	    slog( buf );
-	}
-	WAIT_STATE( ch, 8 RL_SEC );
-	break;
+        if( !save_wld ( ch ) )
+            send_to_char( "World file saved.\r\n", ch );
+        else {
+            send_to_char( "An error occured while saving.\r\n", ch );
+            sprintf( buf, "SYSERR: Error hedit save in house room %d.", 
+                     ch->in_room->number );
+            slog( buf );
+        }
+        WAIT_STATE( ch, 8 RL_SEC );
+        break;
     case 5:   /* show */
     char tmpbuf[1024];
     tmpbuf[0] = '\0';
     buf[0]='\0';
-	argument = one_argument( argument, arg );
-	skip_spaces( &argument );
-	if ( ( *arg && is_abbrev( arg, "brief" ) ) || 
-	     ( *argument && is_abbrev( argument, "brief" ) ) ) {
-	    brief = true;
-	}
-	if ( ( *arg && !strncmp( arg, ".", 1 ) ) ||
-	     ( *argument && !strncmp( argument, ".", 1 ) ) ) {
-	    local = true;
-	}
-	if ( brief ) {
-	    strcpy( buf, "-- House Room --------------------- Items ------- Cost\r\n" );
-	    for ( j = 0; j < h->num_of_rooms; j++, num = 0, cost = 0 ) {
+        argument = one_argument( argument, arg );
+        skip_spaces( &argument );
+        if ( ( *arg && is_abbrev( arg, "brief" ) ) || 
+             ( *argument && is_abbrev( argument, "brief" ) ) ) {
+            brief = true;
+        }
+        if ( ( *arg && !strncmp( arg, ".", 1 ) ) ||
+             ( *argument && !strncmp( argument, ".", 1 ) ) ) {
+            local = true;
+        }
+        if ( brief ) {
+            strcpy( buf, "-- House Room --------------------- Items ------- Cost\r\n" );
+            for ( j = 0; j < h->num_of_rooms; j++, num = 0, cost = 0 ) {
             if ( local && h->house_rooms[j] != ch->in_room->number )
                 continue;
             if ( !( rm = real_room( h->house_rooms[j] ) ) ) {
@@ -1227,64 +1196,64 @@ ACMD( do_hedit )
              } else {
                 strcat(buf, tmpbuf);
              }
-	    }
-	    if ( !local )
-		sprintf( buf, 
-			 "%s"
-			 "- Totals -------------------------  %4d        %5d\r\n", 
-			 buf, tot_num, tot_cost );
-	    page_string( ch->desc, buf, 1 );
-	    return;
-	}
-	// not brief mode
-	if ( local ) {
-	    *buf = 0;
-	    print_room_contents_to_buf( ch, buf, ch->in_room );
-	    page_string( ch->desc, buf, 1 );
-	} else
-	    hcontrol_list_house_rooms( ch, h->house_rooms[0] );
-	break;
+            }
+            if ( !local )
+                sprintf( buf, 
+                         "%s"
+                         "- Totals -------------------------  %4d        %5d\r\n", 
+                         buf, tot_num, tot_cost );
+            page_string( ch->desc, buf, 1 );
+            return;
+        }
+        // not brief mode
+        if ( local ) {
+            *buf = 0;
+            print_room_contents_to_buf( ch, buf, ch->in_room );
+            page_string( ch->desc, buf, 1 );
+        } else
+            hcontrol_list_house_rooms( ch, h->house_rooms[0] );
+        break;
 
-	// owner
+        // owner
     case 6:
     {
-	long idnum;
-	argument = one_argument( argument, arg );
-	idnum = get_id_by_name( arg );
+        long idnum;
+        argument = one_argument( argument, arg );
+        idnum = get_id_by_name( arg );
 
-	if ( GET_IDNUM( ch ) != h->owner1 ) {
-	    send_to_char( "Sorry, only the primary owner can do this.\r\n", ch );
-	    return;
-	}
-	if ( idnum <= 0 ) {
-	    sprintf( buf, "There is no player named '%s'.\r\n", arg );
-	    send_to_char( buf, ch );
-	    return;
-	}
+        if ( GET_IDNUM( ch ) != h->owner1 ) {
+            send_to_char( "Sorry, only the primary owner can do this.\r\n", ch );
+            return;
+        }
+        if ( idnum <= 0 ) {
+            sprintf( buf, "There is no player named '%s'.\r\n", arg );
+            send_to_char( buf, ch );
+            return;
+        }
 
-	if ( GET_IDNUM( ch ) == idnum ) {
-	    send_to_char( "You cannot Co-own with yourself.\r\n", ch );
-	    return;
-	}
+        if ( GET_IDNUM( ch ) == idnum ) {
+            send_to_char( "You cannot Co-own with yourself.\r\n", ch );
+            return;
+        }
 
-	if ( h->owner2 == idnum ) {
-	    h->owner2 = 0;
-	    House_save_control(  );
-	    send_to_char( "Co-owner removed.\r\n", ch );
-	    WAIT_STATE( ch, 2 RL_SEC );
-	    return;
-	}
-	
-	h->owner2 = idnum;
-	House_save_control(  );
-	send_to_char( "Co-owner added.\r\n", ch );
-	WAIT_STATE( ch, 2 RL_SEC );
-	return;
-	break;
+        if ( h->owner2 == idnum ) {
+            h->owner2 = 0;
+            House_save_control(  );
+            send_to_char( "Co-owner removed.\r\n", ch );
+            WAIT_STATE( ch, 2 RL_SEC );
+            return;
+        }
+        
+        h->owner2 = idnum;
+        House_save_control(  );
+        send_to_char( "Co-owner added.\r\n", ch );
+        WAIT_STATE( ch, 2 RL_SEC );
+        return;
+        break;
     }
 
     default:
-	send_to_char( "Error code <69> -- fatal allocation in do_hedit.\r\n", ch );
-	break;
+        send_to_char( "Error code <69> -- fatal allocation in do_hedit.\r\n", ch );
+        break;
     }
 }
