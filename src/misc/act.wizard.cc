@@ -4640,7 +4640,7 @@ struct show_struct fields[] = {
     {"multi", LVL_IMMORT, "AdminBasic"},
     {"nohelps", LVL_IMMORT, "Help"},
     {"account", LVL_IMMORT, "AdminBasic"},
-    {"rooms", LVL_IMMORT, "OLCApproval"}, // 60
+    {"rooms", LVL_IMMORT, "OLC"}, // 60
     {"\n", 0, ""}
 };
 
