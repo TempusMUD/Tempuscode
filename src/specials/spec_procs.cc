@@ -822,7 +822,7 @@ SPECIAL(guild_guard)
 	char *buf = "$N humiliates you, and blocks your way.";
 	char *buf2 = "$N humiliates $n, and blocks $s way.";
 
-	if (spec_mode != SPECIAL_TICK)
+	if (spec_mode != SPECIAL_CMD)
 		return 0;
 	if (!IS_MOVE(cmd) || !AWAKE(guard) || !LIGHT_OK(guard) ||
 		ch == guard || GET_LEVEL(ch) >= LVL_GRGOD) {
@@ -856,7 +856,7 @@ SPECIAL(puff)
 {
 	ACMD(do_say);
 
-	if (cmd)
+	if (spec_mode != SPECIAL_TICK)
 		return (0);
 
 	switch (number(0, 60)) {

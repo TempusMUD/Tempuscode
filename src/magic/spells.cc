@@ -1309,20 +1309,16 @@ ASPELL(spell_minor_identify)
 		send_to_char(ch, "You feel a bit informed:\r\n");
 		send_to_char(ch, "Object '%s', Item type: ", obj->short_description);
 		sprinttype(GET_OBJ_TYPE(obj), item_types, buf2);
-		strcat(buf, buf2);
-		strcat(buf, "\r\n");
+		send_to_char(ch, "%s\r\n", buf2);
 
 		send_to_char(ch, "Item will give you following abilities:  ");
-		strcpy(buf, "");
 		if (obj->obj_flags.bitvector[0])
 			sprintbit(obj->obj_flags.bitvector[0], affected_bits, buf);
 		if (obj->obj_flags.bitvector[1])
 			sprintbit(obj->obj_flags.bitvector[1], affected2_bits, buf);
 		if (obj->obj_flags.bitvector[2])
 			sprintbit(obj->obj_flags.bitvector[2], affected3_bits, buf);
-		strcat(buf, "\r\n");
-		send_to_char(ch, "%s", buf);
-
+		send_to_char(ch, "%s\r\n", buf);
 
 		send_to_char(ch, "Item is: ");
 		sprintbit(GET_OBJ_EXTRA(obj), extra_bits, buf);
@@ -1338,34 +1334,33 @@ ASPELL(spell_minor_identify)
 		switch (GET_OBJ_TYPE(obj)) {
 		case ITEM_SCROLL:
 		case ITEM_POTION:
-			sprintf(buf, "This %s casts: ",
+			send_to_char(ch, "This %s casts: ",
 				item_types[(int)GET_OBJ_TYPE(obj)]);
 
 			if (GET_OBJ_VAL(obj, 1) >= 1)
-				sprintf(buf, "%s %s", buf, spell_to_str(GET_OBJ_VAL(obj, 1)));
+				send_to_char(ch, "%s\r\n", buf, spell_to_str(GET_OBJ_VAL(obj, 1)));
 			if (GET_OBJ_VAL(obj, 2) >= 1)
-				sprintf(buf, "%s %s", buf, spell_to_str(GET_OBJ_VAL(obj, 2)));
+				send_to_char(ch, "%s\r\n", buf, spell_to_str(GET_OBJ_VAL(obj, 2)));
 			if (GET_OBJ_VAL(obj, 3) >= 1)
-				sprintf(buf, "%s %s", buf, spell_to_str(GET_OBJ_VAL(obj, 3)));
-			send_to_char(ch, "%s\r\n", buf);
+				send_to_char(ch, "%s\r\n", buf, spell_to_str(GET_OBJ_VAL(obj, 3)));
 			break;
 		case ITEM_WAND:
 		case ITEM_STAFF:
-			sprintf(buf, "This %s casts: ",
+			send_to_char(ch, "This %s casts: ",
 				item_types[(int)GET_OBJ_TYPE(obj)]);
-			sprintf(buf, "%s %s\r\n", buf, spell_to_str(GET_OBJ_VAL(obj, 3)));
-			send_to_char(ch, "%sIt has %d maximum charge%s and %d remaining.\r\n",
-				buf, GET_OBJ_VAL(obj, 1), GET_OBJ_VAL(obj, 1) == 1 ? "" : "s",
+			send_to_char(ch, "%s\r\n", spell_to_str(GET_OBJ_VAL(obj, 3)));
+			send_to_char(ch, "It has %d maximum charge%s and %d remaining.\r\n",
+				GET_OBJ_VAL(obj, 1), GET_OBJ_VAL(obj, 1) == 1 ? "" : "s",
 				GET_OBJ_VAL(obj, 2));
 			break;
 		case ITEM_WEAPON:
-			sprintf(buf, "Damage Dice is '%dD%d'", GET_OBJ_VAL(obj, 1),
+			send_to_char(ch, "Damage Dice is '%dD%d'", GET_OBJ_VAL(obj, 1),
 				GET_OBJ_VAL(obj, 2));
-			send_to_char(ch, "%s for an average per-round damage of %.1f.\r\n",
-				buf, (((GET_OBJ_VAL(obj, 2) + 1) / 2.0) * GET_OBJ_VAL(obj,
+			send_to_char(ch, " for an average per-round damage of %.1f.\r\n",
+				(((GET_OBJ_VAL(obj, 2) + 1) / 2.0) * GET_OBJ_VAL(obj,
 						1)));
 			if (IS_OBJ_STAT2(obj, ITEM2_CAST_WEAPON))
-				strcat(buf, "This weapon casts an offensive spell.\r\n");
+				send_to_char(ch, "This weapon casts an offensive spell.\r\n");
 			break;
 		case ITEM_ARMOR:
 			send_to_char(ch, "AC-apply is %d\r\n", GET_OBJ_VAL(obj, 0));
@@ -1402,22 +1397,20 @@ ASPELL(spell_minor_identify)
 				GET_NAME(victim), age(victim).year, age(victim).month,
 				age(victim).day, age(victim).hours);
 		}
-		sprintf(buf, "Height %d cm, Weight %d pounds\r\n",
+		send_to_char(ch, "Height %d cm, Weight %d pounds\r\n",
 			GET_HEIGHT(victim), GET_WEIGHT(victim));
-		sprintf(buf, "%sLevel: %d, Hits: %d, Mana: %d\r\n", buf,
+		send_to_char(ch, "Level: %d, Hits: %d, Mana: %d\r\n",
 			GET_LEVEL(victim), GET_HIT(victim), GET_MANA(victim));
 		send_to_char(ch, "%sAC: %d, Hitroll: %d, Damroll: %d\r\n", buf,
 			GET_AC(victim), GET_HITROLL(victim), GET_DAMROLL(victim));
-		sprintf(buf,
-			"%sStr: %d/%d, Int: %d, Wis: %d, Dex: %d, Con: %d, Cha: %d\r\n",
-			buf, GET_STR(victim), GET_ADD(victim), GET_INT(victim),
+		send_to_char(ch,
+			"Str: %d/%d, Int: %d, Wis: %d, Dex: %d, Con: %d, Cha: %d\r\n",
+			GET_STR(victim), GET_ADD(victim), GET_INT(victim),
 			GET_WIS(victim), GET_DEX(victim), GET_CON(victim),
 			GET_CHA(victim));
 
 	}
 }
-
-
 
 ASPELL(spell_enchant_weapon)
 {

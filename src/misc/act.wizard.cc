@@ -3117,7 +3117,7 @@ ACMD(do_date)
 	*(tmstr + strlen(tmstr) - 1) = '\0';
 
 	if (subcmd == SCMD_DATE)
-		sprintf(buf, "Current machine time: %s\r\n", tmstr);
+		send_to_char(ch, "Current machine time: %s\r\n", tmstr);
 	else {
 		mytime = time(0) - boot_time;
 		d = mytime / 86400;

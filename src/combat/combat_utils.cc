@@ -1525,10 +1525,10 @@ make_corpse(struct char_data *ch, struct char_data *killer, int attacktype)
 		/* transfer character's equipment to the corpse */
 		for (i = 0; i < NUM_WEARS; i++) {
 			if (GET_EQ(ch, i))
-				obj_to_obj(unequip_char(ch, i, MODE_EQ), corpse);
+				obj_to_obj(unequip_char(ch, i, MODE_EQ, true), corpse);
 			if (GET_IMPLANT(ch, i)) {
 				REMOVE_BIT(GET_OBJ_WEAR(GET_IMPLANT(ch, i)), ITEM_WEAR_TAKE);
-				obj_to_obj(unequip_char(ch, i, MODE_IMPLANT), corpse);
+				obj_to_obj(unequip_char(ch, i, MODE_IMPLANT, true), corpse);
 			}
 		}
 
