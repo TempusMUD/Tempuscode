@@ -46,8 +46,10 @@ Creature::saveToXML() {
 		ch->points.hit, ch->points.mana, ch->points.move,
 		ch->points.max_hit, ch->points.max_mana, ch->points.max_move);
 
-    fprintf(ouf, "<MONEY GOLD=\"%d\" BANK=\"%d\" CASH=\"%d\" CREDITS=\"%d\" />\n",
-        ch->points.gold, ch->points.bank_gold, ch->points.cash, ch->points.credits );
+    fprintf(ouf, "<MONEY GOLD=\"%d\" BANK=\"%d\" CASH=\"%d\" CREDITS=\"%d\" XP=\"%d\"/>\n",
+        ch->points.gold, ch->points.bank_gold, 
+		ch->points.cash, ch->points.credits, 
+		ch->points.exp);
 
 	fprintf(ouf, "<STATS LEVEL=\"%d\" SEX=\"%s\" RACE=\"%s\" HEIGHT=\"%d\" WEIGHT=\"%d\" ALIGN=\"%d\"/>\n",
 		GET_LEVEL(ch), genders[GET_SEX(ch)], player_race[GET_RACE(ch)],
@@ -120,20 +122,20 @@ Creature::saveToXML() {
     
 	fprintf(ouf, "/>\n");
 		
-	fprintf(ouf, "<ACCOUNT FLAG1=\"%ld\" FLAG2=\"%d\" PASSWORD=\"%s\" BAD_PWS=\"%d\"",
+	fprintf(ouf, "<ACCOUNT FLAG1=\"%lx\" FLAG2=\"%x\" PASSWORD=\"%s\" BAD_PWS=\"%d\"",
 		ch->char_specials.saved.act, ch->player_specials->saved.plr2_bits,
 		ch->player.passwd, ch->player_specials->saved.bad_pws);
 	if (PLR_FLAGGED(ch, PLR_FROZEN))
 		fprintf(ouf, " FROZEN_LVL=\"%d\"", GET_FREEZE_LEV(ch));
 	fprintf(ouf, "/>\n");
 
-	fprintf(ouf, "<PREFS FLAG1=\"%ld\" FLAG2=\"%ld\"/>\n",
+	fprintf(ouf, "<PREFS FLAG1=\"%lx\" FLAG2=\"%lx\"/>\n",
 		ch->player_specials->saved.pref, ch->player_specials->saved.pref2);
 
 	fprintf(ouf, "<TERMINAL ROWS=\"%d\" COLUMNS=\"%d\"/>\n",
 		GET_PAGE_LENGTH(ch), GET_COLS(ch));
 
-	fprintf(ouf, "<AFFECTS FLAG1=\"%ld\" FLAG2=\"%ld\" FLAG3=\"%ld\"/>\n",
+	fprintf(ouf, "<AFFECTS FLAG1=\"%lx\" FLAG2=\"%lx\" FLAG3=\"%lx\"/>\n",
 		ch->char_specials.saved.affected_by,
 		ch->char_specials.saved.affected2_by,
 		ch->char_specials.saved.affected3_by);
@@ -168,10 +170,12 @@ Creature::saveToXML() {
 		fprintf(ouf, "<ALIAS TYPE=\"%d\" ALIAS=\"%s\" REPLACE=\"%s\"/>\n",
 			cur_alias->type, cur_alias->alias, cur_alias->replacement);
 	for (cur_aff = ch->affected;cur_aff; cur_aff = cur_aff->next)
-		fprintf(ouf, "<AFFECT TYPE=\"%d\" DURATION=\"%d\" MODIFIER=\"%d\" LOCATION=\"%d\" LEVEL=\"%d\" INSTANT=\"%s\" AFFBITS=\"%ld\"/>\n",
+		fprintf(ouf, "<AFFECT TYPE=\"%d\" DURATION=\"%d\" MODIFIER=\"%d\" LOCATION=\"%d\" LEVEL=\"%d\" INSTANT=\"%s\" AFFBITS=\"%lx\" INDEX=\"%d\" />\n",
 			cur_aff->type, cur_aff->duration, cur_aff->modifier,
 			cur_aff->location, cur_aff->level,
-			(cur_aff->is_instant) ? "yes":"no", cur_aff->bitvector);
+			(cur_aff->is_instant) ? "yes":"no", 
+			cur_aff->bitvector,
+			cur_aff->aff_index );
 
 	for (idx = 0;idx < MAX_SKILLS;idx++)
 		if (ch->player_specials->saved.skills[idx] > 0)
@@ -242,11 +246,33 @@ Creature::loadFromXML( long id )
 			free(race);
 
         } else if ( xmlMatches(node->name, "CLASS") ) {
-            GET_CLASS(this) = 0;
+			GET_OLC_CLASS(this) = GET_REMORT_CLASS(this) = GET_CLASS(this) = 0;
+
             char *trade = xmlGetProp(node, "NAME");
-            if( trade != NULL )
+            if( trade != NULL ) {
                 GET_CLASS(this) = search_block(trade, pc_char_class_types, FALSE);
-            free(trade);
+				free(trade);
+			}
+			
+            trade = xmlGetProp(node, "REMORT");
+            if( trade != NULL ) {
+                GET_REMORT_CLASS(this) = search_block(trade, pc_char_class_types, FALSE);
+				free(trade);
+			}
+
+			if( IS_CYBORG(this) ) {
+				char *subclass = xmlGetProp( node, "SUBCLASS" );
+				if( subclass != NULL ) {
+					GET_OLD_CLASS(this) = search_block( subclass, 
+														borg_subchar_class_names, 
+														FALSE);
+					free(subclass);
+				}
+			}
+
+			GET_REMORT_GEN(this) = xmlGetIntProp( node, "GEN" );
+			GET_TOT_DAM(this) = xmlGetIntProp( node, "TOTAL_DAM" );
+
         } else if ( xmlMatches(node->name, "TIME") ) {
             player.time.birth = xmlGetLongProp(node, "BIRTH");
             player.time.death = xmlGetLongProp(node, "DEATH");
@@ -331,7 +357,9 @@ Creature::loadFromXML( long id )
 			af.duration = xmlGetIntProp( node, "DURATION" );
 			af.modifier = xmlGetIntProp( node, "MODIFIER" );
 			af.location = xmlGetIntProp( node, "LOCATION" );
-			//af.is_instant = xmlGetIntProp( node, "INSTANT" );
+			af.level = xmlGetIntProp( node, "LEVEL" );
+			af.aff_index = xmlGetIntProp( node, "INDEX" );
+			af.next = NULL;
 			char* instant = xmlGetProp( node, "INSTANT" );
 			if( instant != NULL && strcmp( instant, "yes" ) == 0 ) {
 				af.is_instant = 1;
