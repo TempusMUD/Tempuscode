@@ -136,6 +136,10 @@ handle_input(struct descriptor_data *d)
 		command_interpreter(d->creature, arg);
 		break;
 	case CXN_ACCOUNT_LOGIN:
+		if (!*arg) {
+			set_desc_state(CXN_DISCONNECT, d);
+			break;
+		}
 		if (strcasecmp(arg, "new")) {
 			d->account = accountIndex.find_account(arg);
 			if (d->account) {
