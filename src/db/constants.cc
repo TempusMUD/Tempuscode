@@ -412,8 +412,10 @@ extern const char *home_towns[] = {
 	"Dwarven Caverns",
 	"Human Square",
 	"Drow Isle",
+	"Skullport Newbie",
 	"Astral Manse",
 	"Newbie School",
+	"Kromguard",
 	"\n"
 };
 
