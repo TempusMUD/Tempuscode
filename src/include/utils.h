@@ -507,7 +507,7 @@ char *CURRENCY(char_data *ch);
 #define GET_OLD_CLASS(ch)       ((ch)->player_specials->saved.old_char_class)
 #define GET_TOT_DAM(ch)         ((ch)->player_specials->saved.total_dam)
 #define GET_WIMP_LEV(ch)	((ch)->player_specials->saved.wimp_level)
-#define GET_WEAP_SPEC(ch, i)    ((ch)->player_specials->saved.weap_spec[i])
+#define GET_WEAP_SPEC(ch, i)    ((ch)->player_specials->saved.weap_spec[(i)])
 #define GET_DEITY(ch)	        ((ch)->player_specials->saved.deity)
 #define GET_CLAN(ch)		((ch)->player_specials->saved.clan)
 #define GET_HOLD_HOME(ch)	((ch)->player_specials->saved.hold_home)
