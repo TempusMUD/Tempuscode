@@ -1627,7 +1627,6 @@ show_account_chars(descriptor_data *d, Account *acct, bool immort, bool brief)
 			mail_str = "&Y Yes";
 		else
 			mail_str = "&n No ";
-// [ 1] Azimuth  2002/12/19    Rented  No  [ 2] Prism    2002/12/19    Rented  No
 		if (immort) {
 			send_to_desc(d,
 				"&y%5ld &n%-13s %s&n %s\r\n",
