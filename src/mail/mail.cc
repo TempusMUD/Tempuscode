@@ -373,8 +373,8 @@ postmaster_send_mail(struct char_data * ch, struct char_data *mailman,
 #endif
     *(ch->desc->str) = NULL;
     ch->desc->max_str = MAX_MAIL_SIZE;
-
-    if (total_cost > STAMP_PRICE) {  /* multiple recipients */
+    /*
+    if (total_cost > STAMP_PRICE) {  // multiple recipients
 		strcpy(buf, "  CC: ");
 		for(n_mail_to = ch->desc->mail_to; n_mail_to; n_mail_to = n_mail_to->next){
 			strcat(buf, get_name_by_id(n_mail_to->recpt_idnum));
@@ -385,6 +385,8 @@ postmaster_send_mail(struct char_data * ch, struct char_data *mailman,
 		}
 		string_add(ch->desc, buf);
     }
+    ch->desc->editor_cur_lnum = get_line_count(*ch->desc->str);
+    */
 }
 
 void 
