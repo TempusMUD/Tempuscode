@@ -1980,6 +1980,15 @@ extract_obj(struct obj_data *obj)
 	/* remove obj from any paths */
 	if (IS_VEHICLE(obj))
 		path_remove_object(obj);
+
+    if (IS_CORPSE(obj)) {
+        char *fname;
+        
+        if (CORPSE_IDNUM(obj)) {
+            fname = get_corpse_file_path(CORPSE_IDNUM(obj));
+            remove(fname);
+        }
+    }
 	free_obj(obj);
 }
 

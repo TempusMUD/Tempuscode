@@ -608,6 +608,25 @@ perform_get_from_container(struct Creature * ch,
 				"%s looted %s from %s.", GET_NAME(ch),
 				obj->name, cont->name);
 		}
+
+        // Also resave corpse file at this point
+        if (IS_CORPSE(cont) && CORPSE_IDNUM(cont) > 0 &&
+            playerIndex.exists(CORPSE_IDNUM(cont))) {
+            char *fname;
+            FILE *corpse_file;
+
+            fname = get_corpse_file_path(CORPSE_IDNUM(cont));
+            if ((corpse_file = fopen(fname, "w+")) != NULL) {
+                fprintf(corpse_file, "<corpse>");
+                cont->saveToXML(corpse_file);
+                fprintf(corpse_file, "</corpse>");
+                fclose(corpse_file);
+            }
+            else {
+                slog("ERROR: Failed to open corpse file [%s] (%s)", fname,
+                     strerror(errno));
+            }
+        }
 	}
 
 	if (display == true && counter > 0) {

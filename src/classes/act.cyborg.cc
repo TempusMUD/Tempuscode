@@ -2644,6 +2644,24 @@ ACMD(do_extract)
 		obj_to_char(obj, ch);
 		SET_BIT(GET_OBJ_WEAR(obj), ITEM_WEAR_TAKE);
 
+        // Remove the implant from the corpse file
+        if (IS_CORPSE(corpse) && CORPSE_IDNUM(corpse) > 0) {
+            char *fname;
+            FILE *corpse_file;
+
+            fname = get_corpse_file_path(CORPSE_IDNUM(corpse));
+            if ((corpse_file = fopen(fname, "w+")) != NULL) {
+                fprintf(corpse_file, "<corpse>");
+                corpse->saveToXML(corpse_file);
+                fprintf(corpse_file, "</corpse>");
+                fclose(corpse_file);
+            }
+            else {
+                slog("ERROR: Failed to open corpse file [%s] (%s)", fname,
+                strerror(errno));
+            }
+        }
+
 		act("You carefully extract $p from $P.", FALSE, ch, obj, corpse,
 			TO_CHAR);
 		if (CHECK_SKILL(ch,

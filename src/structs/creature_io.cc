@@ -330,6 +330,67 @@ Creature::loadObjects()
 	return payRent(player.time.logon, player_specials->rentcode, player_specials->rent_currency);
 }
 
+int
+Creature::loadCorpse()
+{
+
+    char *path = get_corpse_file_path( GET_IDNUM(this) );
+	int axs = access(path, W_OK);
+    obj_data *corpse_obj;
+
+	if( axs != 0 ) {
+		if( errno != ENOENT ) {
+			slog("SYSERR: Unable to open xml equipment file '%s': %s", 
+				 path, strerror(errno) );
+			return -1;
+		} else {
+			return 1; // normal no eq file
+		}
+	}
+    xmlDocPtr doc = xmlParseFile(path);
+    if (!doc) {
+        slog("SYSERR: XML parse error while loading %s", path);
+        return -1;
+    }
+
+    xmlNodePtr root = xmlDocGetRootElement(doc);
+    if (!root) {
+        xmlFreeDoc(doc);
+        slog("SYSERR: XML file %s is empty", path);
+        return 1;
+    }
+    
+    xmlNodePtr node = root->xmlChildrenNode;
+    while (!xmlMatches(node->name, "object")) {
+        node = node->next;
+        if (node == NULL) {
+            xmlFreeDoc(doc);
+            slog("SYSERR: First child in XML file (%s) not an object", path);
+            return 1;
+        }
+    }
+    
+    corpse_obj = create_obj();
+    corpse_obj->shared = null_obj_shared;
+    if (!corpse_obj->loadFromXML(NULL, this, NULL, node)) {
+        xmlFreeDoc(doc);
+        extract_obj(corpse_obj);
+        slog("SYSERR: Could not create corpse object from file %s", path);
+        return 1;
+    }
+
+    if (!IS_CORPSE(corpse_obj)) {
+        xmlFreeDoc(doc);
+        extract_obj(corpse_obj);
+        slog("SYSERR: First object in corpse file %s not a corpse", path);
+        return 1;
+    }
+    
+    xmlFreeDoc(doc);
+
+    remove(path);
+	return 0; 
+}
 
 void
 Creature::saveToXML() 

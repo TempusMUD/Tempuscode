@@ -1015,6 +1015,7 @@ struct Creature {
 	bool loadFromDB(long id);
 
 	int loadObjects();
+    int loadCorpse();
     room_data *getLoadroom(); // Retrieves the characters appropriate loadroom.
 
 	bool displayUnrentables(void);

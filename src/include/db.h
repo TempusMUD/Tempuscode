@@ -130,6 +130,12 @@ char* get_player_file_path( long id );
 **/
 char* get_equipment_file_path( long id );
 
+/** 
+ * Returns a temporarily allocated char* containing the path to the given
+ * player_id's corpse file.
+**/
+char* get_corpse_file_path( long id );
+
 /* structure for the reset commands */
 struct reset_com {
 	char command;				/* current command                      */

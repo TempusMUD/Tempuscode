@@ -138,29 +138,34 @@ obj_data::loadFromXML(obj_data *container, Creature *victim, room_data* room, xm
 
 	placed = false;
 	
-	if( vnum < 0 ) {
+    // Commenting out the code below may be a horrible idea, but I need
+    // this function to handle corpses.
+
+/*	if( vnum < 0 ) {
 		slog("obj_data->loadFromXML found vnum %d in %s's file. Junking.",
 			  vnum, victim ? GET_NAME(victim):"(null)");
 		return false;
-	}
+	} */
 
 	// NOTE: This is bad, but since the object is already allocated, we have
 	// to do it this way.  Functionality is copied from read_object(int)
-	obj_data* prototype = real_object_proto(vnum);
-	if(!prototype) {
-		slog("Object #%d being removed from %s's rent",
-			vnum, victim ? GET_NAME(victim):"(null)");
-		return false;
-	}
+    if (vnum > -1) {
+	    obj_data* prototype = real_object_proto(vnum);
+	    if(!prototype) {
+		    slog("Object #%d being removed from %s's rent",
+			    vnum, victim ? GET_NAME(victim):"(null)");
+		    return false;
+	    }
 
-	shared = prototype->shared;
-	shared->number++;
+	    shared = prototype->shared;
+	    shared->number++;
 
-	name = shared->proto->name;
-	aliases = shared->proto->aliases;
-	line_desc = shared->proto->line_desc;
-	action_desc  = shared->proto->action_desc;
-	ex_description = shared->proto->ex_description;
+	    name = shared->proto->name;
+	    aliases = shared->proto->aliases;
+	    line_desc = shared->proto->line_desc;
+	    action_desc  = shared->proto->action_desc;
+	    ex_description = shared->proto->ex_description;
+    }
 
 	for( xmlNodePtr cur = node->xmlChildrenNode; cur; cur = cur->next) {
 		if(xmlMatches(cur->name, "name")) {

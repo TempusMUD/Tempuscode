@@ -1326,6 +1326,10 @@ char_to_game(descriptor_data *d)
 				slog("Can't happen at %s:%d", __FILE__, __LINE__);
 		}
 
+        if (d->creature->player_specials->rentcode == RENT_CRASH) {
+            d->creature->loadCorpse();
+        }
+
 	} else { // otherwise null the loadroom
 		load_room = NULL;
 	}

@@ -3593,6 +3593,12 @@ get_equipment_file_path( long id )
     return tmp_sprintf( "players/equipment/%0ld/%ld.dat", (id % 10), id );
 }
 
+char*
+get_corpse_file_path( long id ) 
+{
+    return tmp_sprintf( "players/corpses/%0ld/%ld.dat", (id % 10), id );
+}
+
 bool
 sql_exec(const char *str, ...)
 {
