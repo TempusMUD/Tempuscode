@@ -385,8 +385,8 @@ SPECIAL(guardian_angel)
 void
 angel_to_char(Creature *ch) 
 {
-    static const int ANGEL_VNUM = 3038;
-    static const int DEMON_VNUM = 3039;
+    static const int ANGEL_VNUM = 70603;
+    static const int DEMON_VNUM = 70604;
     Creature *angel;
     angel_data *data;
 
