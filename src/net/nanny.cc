@@ -832,7 +832,7 @@ send_prompt(descriptor_data *d)
         if ( PRF2_FLAGGED( d->creature, PRF2_DISPTIME ) ) {
             if (d->creature->in_room->zone->time_frame == TIME_TIMELESS) {
                 sprintf(prompt, "%s%s%s%s", prompt, CCYEL_BLD(d->creature, C_CMP),
-                "!TIME", CCNRM(d->creature, C_SPR));
+                "!TIME ", CCNRM(d->creature, C_SPR));
             } else {
                 struct time_info_data local_time;
                 set_local_time(d->creature->in_room->zone, &local_time);
