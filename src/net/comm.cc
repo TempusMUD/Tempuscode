@@ -700,6 +700,7 @@ game_loop(int mother_desc)
 
 
 		tics++;					/* tics since last checkpoint signal */
+		sql_gc_queries();
 		tmp_gc_strings();
 	}							/* while (!circle_shutdown) */
 	/*  mem_cleanup(); */
