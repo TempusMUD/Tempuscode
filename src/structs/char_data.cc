@@ -89,13 +89,6 @@ int char_data::getPenalizedExperience( int experience, char_data *victim = NULL 
 		else if( getLevel() >= 40 )
 			multiplier += 0.10;
 
-		if (PRF2_FLAGGED(this, PRF2_FIGHT_DEBUG)) {
-			char buf[512];
-			sprintf(buf, "<XP> ( penalty: %d% ) ( exp: %d ) ( reduction: %d )\r\n",
-					(int)(multiplier * 100), experience, (int)(experience * multiplier) );
-			send_to_char(buf,this);
-		}
-
 		experience -= (int)(experience * multiplier);
 	}
 
