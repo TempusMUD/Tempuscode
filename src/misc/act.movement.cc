@@ -510,7 +510,7 @@ do_simple_move(struct Creature *ch, int dir, int mode,
 		} else if (mode == MOVE_RETREAT) {
 			sprintf(buf, "$n retreats %sward.", dirs[dir]);
 		} else if (mode == MOVE_CRAWL) {
-			sprintf(buf, "$n crawls slowly %sward", dirs[dir]);
+			sprintf(buf, "$n crawls slowly %sward.", dirs[dir]);
 		} else if (ch->getPosition() == POS_FLYING || ch->in_room->isOpenAir()
 			|| EXIT(ch, dir)->to_room->isOpenAir()) {
 			sprintf(buf, "$n flies %s.", to_dirs[dir]);
@@ -734,7 +734,7 @@ do_simple_move(struct Creature *ch, int dir, int mode,
 		} else if (mode == MOVE_DRAG) {
 			sprintf(buf, "$n is dragged in from %s.", from_dirs[dir]);
 		} else if (mode == MOVE_CRAWL) {
-			sprintf(buf, "$n crawls slowly in from %s", from_dirs[dir]);
+			sprintf(buf, "$n crawls slowly in from %s.", from_dirs[dir]);
 		} else if (ch->getPosition() == POS_FLYING || ch->in_room->isOpenAir()) {
 			if (!IS_AFFECTED_2(ch, AFF2_ABLAZE))
 				sprintf(buf, "$n flies in from %s.", from_dirs[dir]);
