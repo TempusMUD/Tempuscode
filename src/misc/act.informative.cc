@@ -634,7 +634,7 @@ desc_char_trailers(Creature *ch, Creature *i)
         acc_strcat("...", HSSH(i), " is protected by a swirling ",
                           "shield of energy.\r\n", NULL);
     if (affected_by_spell(i, SPELL_THORN_SKIN))
-        acc_strcat("... thorns protrude painfully from ",
+        acc_strcat("...thorns protrude painfully from ",
                           HSHR(i), " skin.\r\n", NULL);
 	return acc_get_string();
 }
