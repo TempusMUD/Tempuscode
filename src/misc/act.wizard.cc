@@ -8626,6 +8626,9 @@ verify_tempus_integrity(Creature *ch)
 	for (cit = mobilePrototypes.begin();cit != mobilePrototypes.end();cit++) {
 		vict = cit->second;
 
+		if (!vict->player.name)
+			send_to_char(ch, "Alias of creature proto #%d is NULL!\r\n",
+				MOB_IDNUM(vict));
 		check_tempus_pointer(ch, vict->player.name, 0,
 			"aliases of creature proto", MOB_IDNUM(vict));
 		check_tempus_pointer(ch, vict->player.short_descr, 0,
