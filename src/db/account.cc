@@ -28,63 +28,31 @@ char *get_account_file_path(long id);
 void
 boot_accounts(void)
 {
-	long acct_count, field_count, acct_idx, field_idx;
-	long count, idx, acct_id;
-	const char **fields;
-	Account *new_acct;
-	PGresult *acct_res, *res;
+	long count, idx;
+	PGresult *res;
 
-	slog("Reading player accounts");
-	acct_res = sql_query("select idnum, name, password, email, date_part('epoch', creation_time) as creation_time, creation_addr, date_part('epoch', login_time) as login_time, login_addr, date_part('epoch', entry_time) as entry_time, ansi_level, term_height, term_width, bank_past, bank_future from accounts");
-	acct_count = PQntuples(acct_res);
+	slog("Reading player records");
 
-	// Get field names and put them in an array
-	field_count = PQnfields(acct_res);
-	fields = new (const char *)[field_count];
-	for (field_idx = 0;field_idx < field_count;field_idx++)
-		fields[field_idx] = PQfname(acct_res, field_idx);
+	// Add the players to the player index -- accounts are added to the
+	// account index as they are requested
+	res = sql_query("select idnum, name, account from players");
+	count = PQntuples(res);
+	for (idx = 0;idx < count;idx++)
+		playerIndex.add(atol(PQgetvalue(res, idx, 0)),
+			PQgetvalue(res, idx, 1),
+			atoi(PQgetvalue(res, idx, 2)),
+			false);
+	PQclear(res);
 
-	for (acct_idx = 0;acct_idx < acct_count;acct_idx++) {
-		new_acct = new Account;
-		for (field_idx = 0;field_idx < field_count;field_idx++)
-			new_acct->set(fields[field_idx],
-				PQgetvalue(acct_res, acct_idx, field_idx));
-		accountIndex.add(new_acct);
+	res = sql_query("select MAX(idnum) from accounts");
+	accountIndex.set_max_id(atol(PQgetvalue(res, 0, 0)));
+	PQclear(res);
 
-		acct_id = atol(PQgetvalue(acct_res, acct_idx, 0));
-
-		// Now we add the players to the account and player index
-		res = sql_query("select idnum, name from players where account=%ld",
-			acct_id);
-		count = PQntuples(res);
-		for (idx = 0;idx < count;idx++)
-			new_acct->add_player(atol(PQgetvalue(res, idx, 0)),
-				PQgetvalue(res, idx, 1));
-		PQclear(res);
-
-		// Add trusted players to account
-		res = sql_query("select player from trusted where account=%ld",
-			acct_id);
-		count = PQntuples(res);
-		for (idx = 0;idx < count;idx++)
-			new_acct->trust(atol(PQgetvalue(res, idx, 0)));
-		PQclear(res);
-	}
-
-	// Clean up
-	delete [] fields;
-	PQclear(acct_res);
-
-	if (accountIndex.size())
-		slog("... %d account%s loaded", accountIndex.size(), (accountIndex.size() == 1) ? "":"s");
-	else
-		slog("WARNING: No accounts loaded");
 	if (playerIndex.size())
 		slog("... %d character%s loaded", playerIndex.size(), (playerIndex.size() == 1) ? "":"s");
 	else
 		slog("WARNING: No characters loaded");
 	playerIndex.sort();
-	accountIndex.sort();
 }
 
 
@@ -126,6 +94,55 @@ Account::~Account(void)
 	accountIndex.remove(this);
 }
 
+bool
+Account::load(long idnum)
+{
+	long acct_count, field_count, field_idx;
+	long count, idx;
+	const char **fields;
+	PGresult *res;
+
+	res = sql_query("select idnum, name, password, email, date_part('epoch', creation_time) as creation_time, creation_addr, date_part('epoch', login_time) as login_time, login_addr, date_part('epoch', entry_time) as entry_time, ansi_level, term_height, term_width, bank_past, bank_future from accounts where idnum=%ld", idnum);
+	acct_count = PQntuples(res);
+
+	if (acct_count > 1) {
+		slog("SYSERR: search for account %ld returned more than one match", idnum);
+		return false;
+	}
+
+	if (acct_count < 1)
+		return false;
+
+	// Get field names and put them in an array
+	field_count = PQnfields(res);
+	fields = new (const char *)[field_count];
+	for (field_idx = 0;field_idx < field_count;field_idx++)
+		fields[field_idx] = PQfname(res, field_idx);
+
+	for (field_idx = 0;field_idx < field_count;field_idx++)
+		this->set(fields[field_idx],
+			PQgetvalue(res, 0, field_idx));
+	PQclear(res);
+	delete [] fields;
+
+	// Now we add the players to the account and player index
+	res = sql_query("select idnum from players where account=%ld", idnum);
+	count = PQntuples(res);
+	for (idx = 0;idx < count;idx++)
+		this->add_player(atol(PQgetvalue(res, idx, 0)));
+	PQclear(res);
+
+	// Add trusted players to account
+	res = sql_query("select player from trusted where account=%ld", idnum);
+	count = PQntuples(res);
+	for (idx = 0;idx < count;idx++)
+		this->add_trusted(atol(PQgetvalue(res, idx, 0)));
+	PQclear(res);
+
+	accountIndex.sort();
+	return true;
+}
+
 void
 Account::set(const char *key, const char *val)
 {
@@ -162,25 +179,48 @@ Account::set(const char *key, const char *val)
 }
 
 void
-Account::add_player(long idnum, const char *name)
+Account::add_player(long idnum)
 {
 	_chars.push_back(idnum);
-	playerIndex.add(idnum, name, _id, false);
+}
+
+void
+Account::add_trusted(long idnum)
+{
+	_trusted.push_back(idnum);
 }
 
 Account* 
 AccountIndex::find_account( int id ) 
 {
-	AccountIndex::iterator it = lower_bound( begin(), end(), id, AccountIndex::cmp() );
+	AccountIndex::iterator it;
+	Account *acct;
+	
+	// First check to see if we already have it in memory
+	it = lower_bound( begin(), end(), id, AccountIndex::cmp() );
 	if( it != end() && (*it)->get_idnum() == id )
 		return *it;
+	
+	// Apprently, we don't, so look it up on the db
+	acct = new Account;
+	if (acct->load(id)) {
+		this->push_back(acct);
+		return acct;
+	}
 	return NULL;
 }
 
 bool 
 AccountIndex::exists( int accountID ) const
 {
-    return binary_search( begin(), end(), accountID, AccountIndex::cmp() );
+	PGresult *res;
+	bool result;
+
+	res = sql_query("select idnum from accounts where idnum=%d", accountID);
+	result = PQntuples(res) > 0;
+	PQclear(res);
+
+    return result;
 }
 
 Account* 
@@ -188,11 +228,29 @@ AccountIndex::find_account(const char *name)
 {
 	AccountIndex::iterator it;
 	Account *acct;
+	PGresult *res;
+	int acct_id;
 
+	// First check to see if we already have it in memory
 	for (it = begin();it != end();it++) {
 		acct = *it;
 		if (!strcasecmp(acct->get_name(), name))
 			return acct;
+	}
+
+	// Apprently, we don't, so look it up on the db
+	res = sql_query("select idnum from accounts where name='%s'",
+		tmp_sqlescape(name));
+	if (PQntuples(res) != 1)
+		return NULL;
+	acct_id = atoi(PQgetvalue(res, 0, 0));
+	PQclear(res);
+
+	// Now try to load it
+	acct = new Account;
+	if (acct->load(acct_id)) {
+		this->push_back(acct);
+		return acct;
 	}
 	return NULL;
 }
@@ -446,7 +504,7 @@ Account::set_password(const char *pw)
 	int idx;
 
 	for (idx = 3; idx < 12; idx++) {
-		salt[idx] = rand() & 63;
+		salt[idx] = my_rand() & 63;
 		if (salt[idx] < 10)
 			salt[idx] += '0';
 		else if (salt[idx] < 36)

@@ -24,6 +24,7 @@ class Account {
 		void logout(descriptor_data *d, bool forced);
         bool is_logged_in() const;
 		void initialize(const char *name, descriptor_data *d, int idnum);
+		bool load(long idnum);
 
 		inline const char *get_name(void) const { return _name; }
 		inline int get_idnum(void) const { return _id; }
@@ -77,7 +78,8 @@ class Account {
 		void displayTrusted(Creature *ch);
 
 		void set(const char *key, const char *val);
-		void add_player(long idnum, const char *name);
+		void add_player(long idnum);
+		void add_trusted(long idnum);
 
 	private:
 		// Internal
@@ -126,6 +128,7 @@ class AccountIndex : public vector<Account *>
         // returns true if the given account exists
         bool exists( int accountID ) const;
 		void sort();
+		inline void set_max_id(long id) { _top_id = id; }
 	private:
 		long _top_id;
 };
