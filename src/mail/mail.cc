@@ -54,6 +54,24 @@ has_mail ( long id ) {
         return 0;
     return 1;
 }
+int can_recieve_mail(long id) {
+    char fname[256];
+    long length = 0;
+    fstream mail_file;
+    if (!get_name_by_id(id))
+        return 0;
+    get_filename( get_name_by_id(id), fname, PLAYER_MAIL_FILE);
+    mail_file.open(fname, ios::in | ios::nocreate);
+
+    if (!mail_file.is_open())
+        return 1;
+    mail_file.seekg(0,ios::end);
+    length = mail_file.tellg();
+    mail_file.close();
+    if(length >= MAX_MAILFILE_SIZE)
+        return 0;
+    return 1;
+}
 
 int 
 mail_box_status( long id ) {
@@ -100,6 +118,11 @@ store_mail( long to_id, long from_id, char *txt , char *cc_list, time_t *cur_tim
         send_to_char(buf, get_char_in_world_by_idnum(from_id));
         return 0;
 	}
+    if(!can_recieve_mail(to_id)){
+        sprintf(buf,"%s doesn't seem to be able to recieve mail.\r\n",get_name_by_id( to_id ));
+        send_to_char(buf, get_char_in_world_by_idnum(from_id));
+        return 0;
+    }
 	if(strlen(txt) >= MAX_MAIL_SIZE) {
         send_to_char("Something is very wrong.\r\n", get_char_in_world_by_idnum(from_id));
         send_to_char("Mail Forget a description of exactly what you just did.\r\n", get_char_in_world_by_idnum(from_id));

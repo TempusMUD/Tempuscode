@@ -31,6 +31,9 @@
 // (Not actually used atm)
 #define MAX_MAIL_AGE 15552000 // should be 6 months.
 
+// How much mail can they have?
+#define MAX_MAILFILE_SIZE 150000
+
 // Prototypes for postmaster specs
 void postmaster_send_mail(struct char_data * ch, struct char_data *mailman,
               int cmd, char *arg);
