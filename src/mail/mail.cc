@@ -55,6 +55,32 @@ has_mail ( long id ) {
     return 1;
 }
 
+int 
+can_recieve_mail( long id ) {
+	// Chars can't get mail if they are frozen/deleted or buried.
+
+	struct char_data *victim = NULL;
+	struct char_file_u tmp_store = NULL;
+	int flag = 1;
+
+	CREATE(victim, struct char_data, 1);
+	clear_char(victim);
+
+	if (load_char(buf2, &tmp_store) < 0) 
+		flag = 0; // Failed to load char.
+
+	store_to_char(&tmp_store, victim);
+	if(PLR_FLAGGED(victim,PLR_FROZEN) 
+		|| PLR_FLAGGED(victim,PLR_DELETED)
+		|| PLR2_FLAGGED(victim,PLR2_BURIED)) {
+		flag = 0;
+		}
+
+	// Free the victim
+	free_char(victim);
+	return flag;
+}
+
 // Like it says, store the mail.  
 // Returns 0 if mail not stored.
 int
@@ -184,12 +210,6 @@ SPECIAL(postmaster)
     if (!(CMD_IS("mail") || CMD_IS("check") || CMD_IS("receive")))
     return 0;
 
-/*
-if (no_mail) {
-    send_to_char("Sorry, the mail system is having technical difficulties.\r\n", ch);
-    return 0;
-    }
-*/
     if (CMD_IS("mail")) {
     postmaster_send_mail(ch, ( struct char_data *) me, cmd, argument);
     return 1;
@@ -216,94 +236,94 @@ postmaster_send_mail(struct char_data * ch, struct char_data *mailman,
     struct clanmember_data *member = NULL;
   
     if (GET_LEVEL(ch) < MIN_MAIL_LEVEL) {
-    sprintf(buf2, "Sorry, you have to be level %d to send mail!", 
-        MIN_MAIL_LEVEL);
-    perform_tell(mailman, ch, buf2);
-    return;
+		sprintf(buf2, "Sorry, you have to be level %d to send mail!", 
+			MIN_MAIL_LEVEL);
+		perform_tell(mailman, ch, buf2);
+		return;
     }
     arg = one_argument(arg, buf);
 
     if (!*buf) {            /* you'll get no argument from me! */
-    strcpy(buf2, "You need to specify an addressee!");
-    perform_tell(mailman, ch, buf2);
-    return;
+		strcpy(buf2, "You need to specify an addressee!");
+		perform_tell(mailman, ch, buf2);
+		return;
     }
  
     ch->desc->mail_to = NULL;
 
     if (!str_cmp(buf, "clan")) {
-    if (!(clan = real_clan(GET_CLAN(ch)))) {
-        perform_tell(mailman, ch, "You are not a member of any clan!");
-        return;
-    }
-    for (member = clan->member_list; member; member = member->next) {
-        total_cost += STAMP_PRICE;
-      
-        CREATE(n_mail_to, struct mail_recipient_data, 1);
-        n_mail_to->next = ch->desc->mail_to;
-        n_mail_to->recpt_idnum = member->idnum;
-        ch->desc->mail_to = n_mail_to;
-    }
+		if (!(clan = real_clan(GET_CLAN(ch)))) {
+			perform_tell(mailman, ch, "You are not a member of any clan!");
+			return;
+		}
+		for (member = clan->member_list; member; member = member->next) {
+			total_cost += STAMP_PRICE;
+		  
+			CREATE(n_mail_to, struct mail_recipient_data, 1);
+			n_mail_to->next = ch->desc->mail_to;
+			n_mail_to->recpt_idnum = member->idnum;
+			ch->desc->mail_to = n_mail_to;
+		}
     } else {
     
-    while (*buf) {
-        if ((recipient = get_id_by_name(buf)) < 0) {
-        sprintf(buf2, "No one by the name '%s' is registered here!", buf);
-        perform_tell(mailman, ch, buf2);
-        } else {
-        if (recipient == 1) // fireball
-            total_cost += 1000000;
-        else
-            total_cost += STAMP_PRICE;
-    
-        CREATE(n_mail_to, struct mail_recipient_data, 1);
-        n_mail_to->next = ch->desc->mail_to;
-        n_mail_to->recpt_idnum = recipient;
-        ch->desc->mail_to = n_mail_to;
-        }
-        arg = one_argument(arg, buf);
-    }
+		while (*buf) {
+			if ((recipient = get_id_by_name(buf)) < 0) {
+				sprintf(buf2, "No one by the name '%s' is registered here!", buf);
+				perform_tell(mailman, ch, buf2);
+			} else if (!can_recieve_mail(recipient)) {
+				sprintf(buf2, "I don't have an address for %s!", buf);
+				perform_tell(mailman, ch, buf2);
+			} else {
+				if (recipient == 1) // fireball
+					total_cost += 1000000;
+				else
+					total_cost += STAMP_PRICE;
+			
+				CREATE(n_mail_to, struct mail_recipient_data, 1);
+				n_mail_to->next = ch->desc->mail_to;
+				n_mail_to->recpt_idnum = recipient;
+				ch->desc->mail_to = n_mail_to;
+			}
+			arg = one_argument(arg, buf);
+		}
     }
     if (!total_cost || !ch->desc->mail_to) {
-    perform_tell(mailman, ch,
-             "Sorry, you're going to have to specify some valid recipients!");
-    return;
+		perform_tell(mailman, ch,
+				 "Sorry, you're going to have to specify some valid recipients!");
+		return;
     }
                   
     // deduct cost of mailing
     if (GET_LEVEL(ch) < LVL_AMBASSADOR) {
 
-    // gold
-    if (ch->in_room->zone->time_frame != TIME_ELECTRO) {
-        if (GET_GOLD(ch) < total_cost) {
-        sprintf(buf2, "The postage will cost you %d coins.", total_cost);
-        perform_tell(mailman, ch, buf2);
-        strcpy(buf2, "...which I see you can't afford.");
-        perform_tell(mailman, ch, buf2);
-        while ((n_mail_to = ch->desc->mail_to)) {
-            ch->desc->mail_to = n_mail_to->next;
-            free (n_mail_to);
-        }
-        return;
-        }
-        GET_GOLD(ch) -= total_cost;
-    }
-    
-    // credits
-    else {
-        if (GET_CASH(ch) < total_cost) {
-        sprintf(buf2, "The postage will cost you %d credits.", total_cost);
-        perform_tell(mailman, ch, buf2);
-        strcpy(buf2, "...which I see you can't afford.");
-        perform_tell(mailman, ch, buf2);
-        while ((n_mail_to = ch->desc->mail_to)) {
-            ch->desc->mail_to = n_mail_to->next;
-            free (n_mail_to);
-        }
-        return;
-        }
-        GET_CASH(ch) -= total_cost;
-    }
+		// gold
+		if (ch->in_room->zone->time_frame != TIME_ELECTRO) {
+			if (GET_GOLD(ch) < total_cost) {
+				sprintf(buf2, "The postage will cost you %d coins.", total_cost);
+				perform_tell(mailman, ch, buf2);
+				strcpy(buf2, "...which I see you can't afford.");
+				perform_tell(mailman, ch, buf2);
+				while ((n_mail_to = ch->desc->mail_to)) {
+					ch->desc->mail_to = n_mail_to->next;
+					free (n_mail_to);
+				}
+				return;
+			}
+			GET_GOLD(ch) -= total_cost;
+		} else {	// credits
+			if (GET_CASH(ch) < total_cost) {
+				sprintf(buf2, "The postage will cost you %d credits.", total_cost);
+				perform_tell(mailman, ch, buf2);
+				strcpy(buf2, "...which I see you can't afford.");
+				perform_tell(mailman, ch, buf2);
+				while ((n_mail_to = ch->desc->mail_to)) {
+					ch->desc->mail_to = n_mail_to->next;
+					free (n_mail_to);
+				}
+				return;
+			}
+			GET_CASH(ch) -= total_cost;
+		}
     }
 
     act("$n starts to write some mail.", TRUE, ch, 0, 0, TO_ROOM);
@@ -327,15 +347,15 @@ postmaster_send_mail(struct char_data * ch, struct char_data *mailman,
     ch->desc->max_str = MAX_MAIL_SIZE;
 
     if (total_cost > STAMP_PRICE) {  /* multiple recipients */
-    strcpy(buf, "  CC: ");
-    for(n_mail_to = ch->desc->mail_to; n_mail_to; n_mail_to = n_mail_to->next){
-        strcat(buf, get_name_by_id(n_mail_to->recpt_idnum));
-        if (n_mail_to->next)
-        strcat(buf, ", ");
-        else
-        strcat(buf, "\r\n");
-    }
-    string_add(ch->desc, buf);
+		strcpy(buf, "  CC: ");
+		for(n_mail_to = ch->desc->mail_to; n_mail_to; n_mail_to = n_mail_to->next){
+			strcat(buf, get_name_by_id(n_mail_to->recpt_idnum));
+			if (n_mail_to->next)
+				strcat(buf, ", ");
+			else
+				strcat(buf, "\r\n");
+		}
+		string_add(ch->desc, buf);
     }
 }
 
