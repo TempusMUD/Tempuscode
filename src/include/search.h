@@ -65,6 +65,7 @@ struct special_search_data {
 	byte command;
 	int flags;
 	int arg[3];
+	int fail_chance;
 	struct special_search_data *next;
 };
 

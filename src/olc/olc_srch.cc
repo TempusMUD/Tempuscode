@@ -29,6 +29,7 @@ const char *olc_xset_keys[] = {
 	"value",
 	"to_remote",
 	"flags",
+	"fail_chance",
 	"\n",
 };
 #define NUM_XSET_COMMANDS 8
@@ -189,7 +190,15 @@ do_olc_xset(struct Creature *ch, char *argument)
 			send_to_char(ch, "Search flags set.\r\n");
 		}
 		break;
-
+	case 8:
+		i = atoi(argument);
+		if (i < 0 || i > 100) {
+			send_to_char(ch, "Fail chance for searches is a percentage (0 to 100)\r\n");
+			return;
+		}
+		srch_p->fail_chance = i;
+		send_to_char(ch, "This search will now have a %d%% chance of failure.\r\n", i);
+		break;
 	default:
 		send_to_char(ch, "This option currently unavailable.\r\n");
 		break;
@@ -352,6 +361,8 @@ print_search_data_to_buf(struct Creature *ch, struct room_data *room,
 		buf, cur_search->to_vict ? cur_search->to_vict : "None",
 		cur_search->to_room ? cur_search->to_room : "None",
 		cur_search->to_remote ? cur_search->to_remote : "None");
+
+	sprintf(buf, "%s Fail_chance: %d\r\n", buf, cur_search->fail_chance);
 
 	switch (cur_search->command) {
 	case SEARCH_COM_DOOR:

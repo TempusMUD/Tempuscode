@@ -146,6 +146,9 @@ general_search(struct Creature *ch, struct special_search_data *srch,
 		return 1;
 	}
 
+	if (srch->fail_chance && number(0, 100) < srch->fail_chance)
+		return 1;
+
 	switch (srch->command) {
 	case (SEARCH_COM_OBJECT):
 		if (!(obj = real_object_proto(srch->arg[0]))) {
