@@ -481,12 +481,18 @@ extern const char *spells[];
 #define SKILL_RADIONEGATION         641 // immunity to radiation
 #define SKILL_IMPLANT_W				642 // Extra attacks with implant weapons.
 #define SKILL_ADV_IMPLANT_W			643 // ""
+#define SKILL_OFFENSIVE_POS			644 // Offensive Posturing
+#define SKILL_DEFENSIVE_POS			645 // Defensive Posturing
+#define SKILL_MELEE_COMBAT_TAC		646 // Melee combat tactics
+#define SKILL_NEURAL_BRIDGING		647 // Cogenic Neural Bridging
+										// (Ambidextarity)
+// Continue around 670
 
 #define SKILL_RETREAT               648 // controlled flee
 #define SKILL_DISGUISE              649 // look like a mob
 #define SKILL_AMBUSH                650 // surprise victim
 
-  /****************** VAMPIRE SKILLS  *******************/
+/--------------  VAMPIRE SKILLS  ------------------
 #define SKILL_FLYING		    	651
 #define SKILL_SUMMON                652
 #define SKILL_FEED                  653
@@ -496,13 +502,16 @@ extern const char *spells[];
 #define SKILL_CONTROL_UNDEAD        657
 #define SKILL_TERRORIZE             658
 
-  /***************  Hood Skillz... yeah. Just two ********/
-  /***************   Ok. now they have 2.  *****/
+//-------------  Hood Skillz... yeah. Just two
 #define SKILL_HAMSTRING				666
 #define SKILL_SNATCH				667
 #define SKILL_DRAG					668
 #define SKILL_TAUNT					669
 
+// Overflow Cyborg
+#define SKILL_ARTERIAL_FLOW			676 // Arterial Flow Enhancement
+#define SKILL_OPTIMMUNAL_NODE		677 // Genetek Optimmunal Nodes
+#define SKILL_ADRENAL_MAXIMIZER		678 // Shukutei Adrenal Maximizer
 
 #define SKILL_ENERGY_CONVERSION     679 // physic's energy conversion
 
