@@ -1697,7 +1697,8 @@ SPECIAL(bank)
 			clan->bank_account += amount;
 			send_to_char(ch, "You deposit %d %s%s in the clan account.\r\n",
 				amount, CURRENCY(ch), PLURAL(amount));
-			save_clans();
+			sql_exec("update clans set bank=%lld where idnum=%d",
+				clan->bank_account, clan->number);
 			slog("CLAN: %s clandep (%s) %d.", GET_NAME(ch),
 				clan->name, amount);
 		} else {
@@ -1758,7 +1759,8 @@ SPECIAL(bank)
 				return 1;
 			}
 			clan->bank_account -= amount;
-			save_clans();
+			sql_exec("update clans set bank=%lld where idnum=%d",
+				clan->bank_account, clan->number);
 		} else {
 			if (BANK_MONEY(ch) < amount) {
 				send_to_char(ch, "You don't have that many %ss deposited!\r\n",
