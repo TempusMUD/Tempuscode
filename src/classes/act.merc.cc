@@ -227,11 +227,15 @@ ACMD(do_crossface)
 					vict->in_room);
 				wear = NULL;
 			}
-		} else
+		} else {
 			retval = damage(ch, vict, dam >> 1, SKILL_CROSSFACE, wear_num);
+		}
 
-		if (wear)
+		if ( wear && 
+			 !IS_SET(retval, DAM_VICT_KILLED) && 
+			 !IS_SET(retval, DAM_ATTACKER_KILLED) ) {
 			damage_eq(vict, wear, dam >> 4);
+		}
 
 		gain_skill_prof(ch, SKILL_CROSSFACE);
 	}
