@@ -711,7 +711,8 @@ int calc_skill_prob( struct char_data *ch, struct char_data *vict, int skillnum,
 	if (NULL_PSI(vict))
 	    prob = 0;
 
-	*dam = dice(GET_LEVEL(ch), GET_INT(ch) + GET_REMORT_GEN(ch));
+	*dam = dice(ch->getLevelBonus(SKILL_PSIBLAST)*2/3,GET_INT(ch) + 1);
+    
 	*dam += CHECK_SKILL(ch, SKILL_PSIBLAST);
 
 	if (mag_savingthrow(vict, GET_LEVEL(ch), SAVING_PSI))
