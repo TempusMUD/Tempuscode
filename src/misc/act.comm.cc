@@ -715,7 +715,7 @@ ACMD(do_gen_comm)
 	}
     
 	if (subcmd == SCMD_DREAM && 
-        (GET_POS(ch) != POS_SLEEPING) && GET_LEVEL(ch) < LVL_GOD) {
+        (GET_POS(ch) != POS_SLEEPING) && GET_LEVEL(ch) < LVL_IMMORT) {
 	    send_to_char("You attempt to dream, but realize you need to sleep first.\r\n", ch);
 	    return;
 	}
@@ -801,7 +801,7 @@ ACMD(do_gen_comm)
     
 	    if (subcmd == SCMD_DREAM && 
             (GET_POS(i->character) != POS_SLEEPING 
-                && GET_LEVEL(i->character) < LVL_GOD))
+                && GET_LEVEL(i->character) < LVL_IMMORT))
 		continue;
     
 	    if (subcmd == SCMD_NEWBIE &&

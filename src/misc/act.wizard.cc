@@ -3678,7 +3678,7 @@ show_player(CHAR *ch, char * value)
     }
 	
     if ( ! ( fl = fopen( fname, "rb" ) ) ) {
-		sprintf( buf1, "%s has no rent file!\r\n", vbuf.name );
+		sprintf( buf1, "%s has no rent file!", vbuf.name );
 		slog( buf1 );
     }
 	
