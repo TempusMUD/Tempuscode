@@ -4,7 +4,7 @@ SPECIAL(ancient_artifact)
 {
 	obj_data *obj = (obj_data *)me;
 
-	if (spec_mode != SPECIAL_FIGHT)
+	if (spec_mode != SPECIAL_COMBAT)
 		return 0;
 
 	// Same algorithm as do_casting_objon uses

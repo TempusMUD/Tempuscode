@@ -11,7 +11,7 @@ SPECIAL(archon)
 
   if (cmd)
     return 0;
-  if( spec_mode == SPECIAL_DEATH ) return 0;
+  if( spec_mode != SPECIAL_CMD && spec_mode != SPECIAL_TICK ) return 0;
   if (!FIGHTING(ch) && ch->in_room->zone->plane != PLANE_HEAVEN) {
     CharacterList::iterator it = ch->in_room->people.begin();
     for( ; it != ch->in_room->people.end(); ++it ) 

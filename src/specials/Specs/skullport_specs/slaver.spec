@@ -15,7 +15,7 @@ SPECIAL(slaver)
   struct room_data *r_pit_lip = real_room(PIT_LIP),
     *r_slave_pit = real_room(SLAVE_PIT);
 
-  if( spec_mode == SPECIAL_DEATH ) return 0;
+  if( spec_mode != SPECIAL_CMD && spec_mode != SPECIAL_TICK ) return 0;
   if (cmd || !AWAKE(slaver))
     return 0;
 

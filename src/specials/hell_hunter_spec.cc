@@ -139,7 +139,7 @@ SPECIAL(hell_hunter_brain)
 	struct char_data *mob = NULL, *vict = NULL;
 	unsigned int i, j;
 	int num_devils = 0, regulator = 0;
-	if (spec_mode == SPECIAL_DEATH)
+	if (spec_mode != SPECIAL_CMD && spec_mode != SPECIAL_TICK)
 		return 0;
 	if (!data_loaded) {
 		if (!load_hunter_data())
@@ -335,7 +335,7 @@ SPECIAL(hell_hunter_brain)
 SPECIAL(hell_hunter)
 {
 
-	if (spec_mode == SPECIAL_DEATH)
+	if (spec_mode != SPECIAL_TICK)
 		return 0;
 	struct obj_data *obj = NULL, *t_obj = NULL;
 	unsigned int i;
@@ -454,10 +454,7 @@ SPECIAL(arioch)
 	struct char_data *vict = NULL;
 	unsigned int i;
 
-	if (spec_mode == SPECIAL_DEATH)
-		return 0;
-
-	if (cmd)
+	if (spec_mode != SPECIAL_TICK)
 		return 0;
 
 	if (ch->in_room->zone->number != 162) {

@@ -334,7 +334,7 @@ SPECIAL(duke_araken)
 	static int index;
 	static bool move = false;
 
-	if (spec_mode == SPECIAL_DEATH)
+	if (spec_mode != SPECIAL_TICK)
 		return 0;
 	set_local_time(ch->in_room->zone, &local_time);
 
@@ -445,7 +445,7 @@ SPECIAL(training_master)
 
 	struct char_data *pupil1, *pupil2, *tch;
 
-	if (spec_mode == SPECIAL_DEATH)
+	if (spec_mode == SPECIAL_TICK)
 		return 0;
 
 	if (!AWAKE(ch) || (ch->getPosition() == POS_FIGHTING))
@@ -547,7 +547,7 @@ SPECIAL(tom)
 	struct char_data *tom = (struct char_data *)me;
 	struct char_data *king, *tim;
 
-	if (spec_mode == SPECIAL_DEATH)
+	if (spec_mode != SPECIAL_TICK)
 		return 0;
 	ACMD(do_follow);
 
@@ -578,7 +578,7 @@ SPECIAL(tim)
 	struct char_data *tim = (struct char_data *)me;
 	struct char_data *king, *tom;
 
-	if (spec_mode == SPECIAL_DEATH)
+	if (spec_mode != SPECIAL_TICK)
 		return 0;
 	ACMD(do_follow);
 
@@ -610,7 +610,7 @@ SPECIAL(James)
 
 	struct obj_data *i;
 
-	if (spec_mode == SPECIAL_DEATH)
+	if (spec_mode != SPECIAL_TICK)
 		return 0;
 	if (cmd || !AWAKE(ch) || (ch->getPosition() == POS_FIGHTING))
 		return (FALSE);
@@ -635,7 +635,7 @@ SPECIAL(cleaning)
 {
 	struct obj_data *i, *next;
 
-	if (spec_mode == SPECIAL_DEATH)
+	if (spec_mode != SPECIAL_TICK)
 		return 0;
 
 	if (cmd || !AWAKE(ch))
@@ -660,7 +660,7 @@ SPECIAL(cleaning)
 SPECIAL(CastleGuard)
 {
 
-	if (spec_mode == SPECIAL_DEATH)
+	if (spec_mode != SPECIAL_TICK)
 		return 0;
 	if (cmd || !AWAKE(ch) || (ch->getPosition() == POS_FIGHTING))
 		return FALSE;
@@ -670,7 +670,7 @@ SPECIAL(CastleGuard)
 
 SPECIAL(sleeping_soldier)
 {
-	if (spec_mode == SPECIAL_DEATH)
+	if (spec_mode != SPECIAL_TICK)
 		return 0;
 	if (cmd || (ch->getPosition() == POS_FIGHTING))
 		return FALSE;
@@ -701,7 +701,7 @@ SPECIAL(sleeping_soldier)
 
 SPECIAL(lounge_soldier)
 {
-	if (spec_mode == SPECIAL_DEATH)
+	if (spec_mode != SPECIAL_TICK)
 		return 0;
 	if (cmd || !AWAKE(ch) || (ch->getPosition() == POS_FIGHTING))
 		return FALSE;
@@ -756,7 +756,7 @@ SPECIAL(DicknDavid)
 {
 
 	struct char_data *guard = (struct char_data *)me;
-	if (spec_mode == SPECIAL_DEATH)
+	if (spec_mode != SPECIAL_TICK)
 		return 0;
 	if (!AWAKE(ch))
 		return (FALSE);
@@ -772,7 +772,7 @@ SPECIAL(chess_guard_no_west)
 
 	struct char_data *guard = (struct char_data *)me;
 
-	if (spec_mode == SPECIAL_DEATH)
+	if (spec_mode != SPECIAL_TICK)
 		return 0;
 	if (!AWAKE(ch))
 		return FALSE;
@@ -789,7 +789,7 @@ SPECIAL(chess_guard_no_east)
 {
 
 	struct char_data *guard = (struct char_data *)me;
-	if (spec_mode == SPECIAL_DEATH)
+	if (spec_mode != SPECIAL_TICK)
 		return 0;
 	if (!AWAKE(ch))
 		return FALSE;
@@ -805,7 +805,7 @@ SPECIAL(chess_guard_no_east)
 SPECIAL(armory_guard)
 {
 
-	if (spec_mode == SPECIAL_DEATH)
+	if (spec_mode != SPECIAL_TICK)
 		return 0;
 	struct char_data *guard = (struct char_data *)me;
 	if (!AWAKE(ch))
@@ -820,7 +820,7 @@ SPECIAL(armory_person)
 {
 
 	struct char_data *guard = (struct char_data *)me;
-	if (spec_mode == SPECIAL_DEATH)
+	if (spec_mode != SPECIAL_TICK)
 		return 0;
 	if (!cmd || IS_NPC(ch))
 		return FALSE;
@@ -842,7 +842,7 @@ SPECIAL(peter)
 
 	struct char_data *ch_guard;
 
-	if (spec_mode == SPECIAL_DEATH)
+	if (spec_mode != SPECIAL_TICK)
 		return 0;
 	if (cmd || !AWAKE(ch) || ch->getPosition() == POS_FIGHTING)
 		return (FALSE);
@@ -911,7 +911,7 @@ SPECIAL(jerry)
 
 	struct char_data *gambler1, *gambler2, *tch;
 
-	if (spec_mode == SPECIAL_DEATH)
+	if (spec_mode != SPECIAL_TICK)
 		return 0;
 	if (!AWAKE(ch) || (ch->getPosition() == POS_FIGHTING))
 		return FALSE;

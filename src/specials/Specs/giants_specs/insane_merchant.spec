@@ -8,7 +8,7 @@ SPECIAL(insane_merchant)
 {
   if (cmd)
     return 0;
-  if( spec_mode == SPECIAL_DEATH ) return 0;
+  if( spec_mode != SPECIAL_CMD && spec_mode != SPECIAL_TICK ) return 0;
   if (ch->in_room->people.size() == 0)
     return 0;
 

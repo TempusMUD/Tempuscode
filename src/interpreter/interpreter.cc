@@ -54,7 +54,7 @@ extern int log_cmds;
 
 int general_search(struct char_data *ch, struct special_search_data *srch,
 	int mode);
-int special(struct char_data *ch, int cmd, int subcmd, char *arg);
+int special(struct char_data *ch, int cmd, int subcmd, char *arg, int spec_mode);
 
 
 /* writes a string to the command log */
@@ -1027,6 +1027,7 @@ struct command_info cmd_info[] = {
 
 	{"raise", POS_RESTING, do_action, 0, 0, 0},
 	{"ramble", POS_RESTING, do_say, 0, SCMD_RAMBLE, 0},
+	{"redeem", POS_RESTING, do_not_here, 0, 0, 0},
 	{"reply", POS_SLEEPING, do_reply, 0, 0, 0},
 	{"repair", POS_SITTING, do_repair, 0, 0, 0},
 	{"respond", POS_RESTING, do_spec_comm, 0, SCMD_RESPOND, 0},
@@ -1503,7 +1504,8 @@ command_interpreter(struct char_data *ch, char *argument)
 			if (!FIGHTING(ch))
 				slog("SYSERR: Char !FIGHTING(ch) while pos fighting.");
 			break;
-	} else if (no_specials || !special(ch, cmd, cmd_info[cmd].subcmd, line)) {
+	} else if (no_specials ||
+			!special(ch, cmd, cmd_info[cmd].subcmd, line, SPECIAL_CMD)) {
 		((*cmd_info[cmd].command_pointer) (ch, line, cmd,
 				cmd_info[cmd].subcmd));
 	}
@@ -2018,7 +2020,7 @@ find_command(char *command)
 
 
 int
-special(struct char_data *ch, int cmd, int subcmd, char *arg)
+special(struct char_data *ch, int cmd, int subcmd, char *arg, int spec_mode)
 {
 	struct obj_data *i;
 	struct special_search_data *srch = NULL;
@@ -2028,7 +2030,7 @@ special(struct char_data *ch, int cmd, int subcmd, char *arg)
 
 	/* special in room? */
 	if (GET_ROOM_SPEC(ch->in_room) != NULL)
-		if (GET_ROOM_SPEC(ch->in_room) (ch, ch->in_room, cmd, arg, 0))
+		if (GET_ROOM_SPEC(ch->in_room) (ch, ch->in_room, cmd, arg, spec_mode))
 			return 1;
 
 	/* search special in room */
@@ -2057,7 +2059,8 @@ special(struct char_data *ch, int cmd, int subcmd, char *arg)
 	/* special in equipment list? */
 	for (j = 0; j < NUM_WEARS; j++) {
 		if ((i = GET_EQ(ch, j))) {
-			if (GET_OBJ_SPEC(i) && (GET_OBJ_SPEC(i) (ch, i, cmd, arg, 0)))
+			if (GET_OBJ_SPEC(i) &&
+					(GET_OBJ_SPEC(i) (ch, i, cmd, arg, spec_mode)))
 				return 1;
 			if (IS_BOMB(i) && i->contains && IS_FUSE(i->contains) &&
 				(FUSE_IS_MOTION(i->contains) || FUSE_IS_CONTACT(i->contains))
@@ -2073,7 +2076,7 @@ special(struct char_data *ch, int cmd, int subcmd, char *arg)
 
 	/* special in inventory? */
 	for (i = ch->carrying; i; i = i->next_content) {
-		if (GET_OBJ_SPEC(i) && (GET_OBJ_SPEC(i) (ch, i, cmd, arg, 0)))
+		if (GET_OBJ_SPEC(i) && (GET_OBJ_SPEC(i) (ch, i, cmd, arg, spec_mode)))
 			return 1;
 		if (IS_BOMB(i) && i->contains && IS_FUSE(i->contains) &&
 			(FUSE_IS_MOTION(i->contains) || FUSE_IS_CONTACT(i->contains)) &&
@@ -2091,7 +2094,7 @@ special(struct char_data *ch, int cmd, int subcmd, char *arg)
 	CharacterList::iterator it = theRoom->people.begin();
 	for (; it != theRoom->people.end(); ++it)
 		if (GET_MOB_SPEC((*it)) != NULL) {
-			if (GET_MOB_SPEC((*it)) (ch, (*it), cmd, arg, 0)) {
+			if (GET_MOB_SPEC((*it)) (ch, (*it), cmd, arg, spec_mode)) {
 				return 1;
 			}
 		}
@@ -2099,7 +2102,7 @@ special(struct char_data *ch, int cmd, int subcmd, char *arg)
 	/* special in object present? */
 	for (i = ch->in_room->contents; i; i = i->next_content) {
 		if (GET_OBJ_SPEC(i) != NULL)
-			if (GET_OBJ_SPEC(i) (ch, i, cmd, arg, 0))
+			if (GET_OBJ_SPEC(i) (ch, i, cmd, arg, spec_mode))
 				return 1;
 		if (IS_BOMB(i) && i->contains && IS_FUSE(i->contains) &&
 			FUSE_IS_MOTION(i->contains) && FUSE_STATE(i->contains)) {

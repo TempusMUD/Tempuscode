@@ -69,7 +69,6 @@ void roll_real_abils(struct char_data * ch);
 void print_attributes_to_buf(struct char_data *ch, char *buff);
 void polc_input(struct descriptor_data * d, char *str);
 
-int special(struct char_data * ch, int cmd, int subcmd, char *arg);
 int isbanned(char *hostname, char *blocking_hostname);
 int Valid_Name(char *newname);
 int _parse_name(char *arg, char *name);

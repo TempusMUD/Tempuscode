@@ -9,9 +9,10 @@ SPECIAL(wagon_obj)
   struct room_data *wagon_room_rnum;
   wagon_room_rnum = real_room(10);
 
-  if (!cmd)
+  if (spec_mode == SPECIAL_TICK) {
     if (!number(0, 6))
       act("One of the wagon horses whinnies and stamps its foot.", FALSE, 0, 0, 0, TO_ROOM);
+} else if (spec_mode == SPECIAL_CMD) {
 
   if (!CMD_IS("board") && !CMD_IS("enter"))
     return 0;
@@ -32,8 +33,10 @@ SPECIAL(wagon_obj)
   look_at_room(ch, ch->in_room, 1);
 
   act("$n has climbed onto the wagon.", TRUE, ch, 0, 0, TO_ROOM);
-  
   return 1;
+  }
+  
+  return 0;
 }
 
 

@@ -209,7 +209,7 @@ SPECIAL(tarrasque)
       return 1;
     }
   }
-  if( spec_mode == SPECIAL_DEATH ) return 0;
+  if( spec_mode != SPECIAL_CMD && spec_mode != SPECIAL_TICK ) return 0;
   if (cmd) {
     if (CMD_IS("status") && GET_LEVEL(ch) >= LVL_IMMORT) {
       sprintf(buf, "Tarrasque status: mode (%d), timer (%d), tframe (%d)\r\n",

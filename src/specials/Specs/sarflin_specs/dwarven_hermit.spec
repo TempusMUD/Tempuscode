@@ -8,7 +8,7 @@ SPECIAL(dwarven_hermit)
 {
    struct obj_data *od = NULL;
    struct char_data *me2 = (struct char_data *) me;
-   if( spec_mode == SPECIAL_DEATH ) return 0;
+   if( spec_mode != SPECIAL_CMD && spec_mode != SPECIAL_TICK ) return 0;
    if (CMD_IS("ask")) 
      act("$N ignores you!", TRUE, me2, 0, 0, TO_CHAR);
 

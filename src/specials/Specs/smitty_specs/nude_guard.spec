@@ -10,7 +10,7 @@ SPECIAL(nude_guard)
   int i;
   int found = 0;
   
-  if( spec_mode == SPECIAL_DEATH ) return 0;
+  if( spec_mode != SPECIAL_CMD && spec_mode != SPECIAL_TICK ) return 0;
   if (!CMD_IS("west") || GET_LEVEL(ch) >= LVL_IMMORT)
     return 0;
   

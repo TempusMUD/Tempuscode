@@ -8,7 +8,7 @@ SPECIAL(falling_tower_dt)
 {
   struct room_data *under_room;
   
-  if (spec_mode == SPECIAL_DEATH) return FALSE;
+  if (spec_mode != SPECIAL_CMD && spec_mode != SPECIAL_TICK) return FALSE;
 
   if ((under_room = real_room(5241)) == NULL)
     return 0;

@@ -47,7 +47,7 @@ extern const byte movement_loss[];
 extern struct obj_data *object_list;
 
 /* external functs */
-int special(struct char_data *ch, int cmd, int subcmd, char *arg);
+int special(struct char_data *ch, int cmd, int subcmd, char *arg, int spec_mode);
 int find_eq_pos(struct char_data *ch, struct obj_data *obj, char *arg);
 int clan_house_can_enter(struct char_data *ch, struct room_data *room);
 int general_search(struct char_data *ch, struct special_search_data *srch,
@@ -293,7 +293,7 @@ do_simple_move(struct char_data *ch, int dir, int mode,
 	 * Check for special routines (North is 1 in command list, but 0 here) Note
 	 * -- only check if following; this avoids 'double spec-proc' bug
 	 */
-	if (need_specials_check && special(ch, dir + 1, dir + 1, ""))
+	if (need_specials_check && special(ch, dir + 1, dir + 1, "", SPECIAL_CMD))
 		return 2;
 
 	/* afk?     */
@@ -1047,6 +1047,7 @@ do_simple_move(struct char_data *ch, int dir, int mode,
 		}
 		return 2;
 	}
+
 	//
 	// trig_enter searches
 	//

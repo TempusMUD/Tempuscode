@@ -2,7 +2,7 @@ SPECIAL( pit_keeper )
 {
     char_data* vict = 0;
 
-    if( spec_mode == SPECIAL_DEATH ) return 0;
+    if( spec_mode != SPECIAL_CMD && spec_mode != SPECIAL_TICK ) return 0;
     if ( cmd )
         return 0;
 

@@ -40,6 +40,7 @@
 extern struct descriptor_data *descriptor_list;
 
 /* external functions */
+int special(struct char_data *ch, int cmd, int subcmd, char *arg, int spec_mode);
 void stop_fighting(CharacterList::iterator & cit);
 void remove_follower(struct char_data *ch);
 void path_remove_object(void *object);
@@ -980,6 +981,8 @@ char_from_room(struct char_data *ch)
 	affect_from_char(ch, SPELL_ENTANGLE);	// remove entanglement (summon etc)
 
 	//REMOVE_FROM_LIST(ch, ch->in_room->people, next_in_room);
+	special(ch, 0, 0, "", SPECIAL_LEAVE);
+
 	ch->in_room->people.remove(ch);
 	ch->in_room = NULL;
 	//ch->next_in_room = NULL;
@@ -1045,7 +1048,7 @@ char_to_room(struct char_data *ch, struct room_data *room)
 		SET_BIT(AFF2_FLAGS(ch), AFF2_ABLAZE);
 	}
 
-
+	special(ch, 0, 0, "", SPECIAL_ENTER);
 }
 
 /* give an object to a char   */

@@ -14,7 +14,7 @@ SPECIAL(watchdog)
     static byte indignation = 0;
 	CharacterList::iterator it;
 
-    if( spec_mode == SPECIAL_DEATH ) return 0;
+    if( spec_mode != SPECIAL_CMD && spec_mode != SPECIAL_TICK ) return 0;
 
     if (cmd || !AWAKE(dog) || FIGHTING(dog))
             return 0;

@@ -20,7 +20,7 @@ SPECIAL(red_highlord)
 
   if (cmd || FIGHTING(ch) || HUNTING(ch) || ch->getPosition() <= POS_SLEEPING)
     return 0; 
-  if( spec_mode == SPECIAL_DEATH ) return 0;
+  if( spec_mode != SPECIAL_CMD && spec_mode != SPECIAL_TICK ) return 0;
 
   if ((r_home_room = real_room(v_home_room)) != NULL && ch->in_room != 
       r_home_room && !ROOM_FLAGGED(ch->in_room, ROOM_NORECALL)) {

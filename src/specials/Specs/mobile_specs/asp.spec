@@ -9,7 +9,7 @@ SPECIAL(asp)
   if (cmd)
     return FALSE;
 
-  if (spec_mode == SPECIAL_DEATH ) 
+  if (spec_mode != SPECIAL_CMD && spec_mode != SPECIAL_TICK ) 
     return FALSE;
   if (ch->getPosition() != POS_FIGHTING)
     return FALSE;

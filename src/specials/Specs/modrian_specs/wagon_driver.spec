@@ -11,7 +11,7 @@ SPECIAL(wagon_driver)
   struct room_data *destination = NULL;
   int wagon_obj_rnum = 10, dir, num;
   
-  if( spec_mode == SPECIAL_DEATH ) return 0;
+  if( spec_mode != SPECIAL_CMD && spec_mode != SPECIAL_TICK ) return 0;
   if (cmd || !AWAKE(ch) || ch->in_room->number != 10)
     return 0;
 

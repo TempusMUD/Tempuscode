@@ -8,7 +8,7 @@ SPECIAL(temple_healer)
 {
   struct char_data *vict;
   int found = 0;
-  if( spec_mode == SPECIAL_DEATH ) return 0;
+  if( spec_mode != SPECIAL_CMD && spec_mode != SPECIAL_TICK ) return 0;
   if (cmd)
     return FALSE;
   if (ch->getPosition() == POS_FIGHTING && FIGHTING(ch) && 

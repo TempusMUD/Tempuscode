@@ -12,7 +12,7 @@ SPECIAL(weaponsmaster)
 	int cost, i, char_class, check_only = 0;
 	int found = 0;
 
-    if (spec_mode == SPECIAL_DEATH) return FALSE;
+    if (spec_mode != SPECIAL_CMD && spec_mode != SPECIAL_TICK) return FALSE;
 
 	if (IS_NPC(ch))
 		return 0;

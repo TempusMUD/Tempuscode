@@ -6,7 +6,7 @@
 
 SPECIAL(cemetary_ghoul)
 {
-  if( spec_mode == SPECIAL_DEATH ) return 0;
+  if( spec_mode != SPECIAL_CMD && spec_mode != SPECIAL_TICK ) return 0;
   struct room_data *r_ghoul_hole = real_room(4299), *r_cemetary_room = NULL;
 
   if (cmd || FIGHTING(ch))

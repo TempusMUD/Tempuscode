@@ -1481,7 +1481,7 @@ mobile_activity(void)
 				slog(buf);
 				REMOVE_BIT(MOB_FLAGS(ch), MOB_SPEC);
 			} else {
-				if ((ch->mob_specials.shared->func) (ch, ch, 0, "", 0)) {
+				if ((ch->mob_specials.shared->func) (ch, ch, 0, "", SPECIAL_TICK)) {
 					continue;	/* go to next char */
 				}
 			}
@@ -1584,7 +1584,7 @@ mobile_activity(void)
 
 		if (MOB2_FLAGGED(ch, MOB2_SCRIPT) && GET_IMPLANT(ch, WEAR_HOLD) &&
 			OBJ_TYPE(GET_IMPLANT(ch, WEAR_HOLD), ITEM_SCRIPT)) {
-			if (mob_read_script(ch, NULL, 0, NULL, SPECIAL_NONE))
+			if (mob_read_script(ch, NULL, 0, NULL, 0))
 				continue;
 		}
 

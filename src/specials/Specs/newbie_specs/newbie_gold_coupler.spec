@@ -11,7 +11,7 @@ SPECIAL(newbie_gold_coupler)
   struct obj_data *o, *tmp_o, *money;
   int i, count = 0;
 
-  if( spec_mode == SPECIAL_DEATH ) return 0;
+  if( spec_mode != SPECIAL_CMD ) return 0;
   if ((cmd && !CMD_IS("clear")) || (!cmd && time_info.hours % 3))
     return 0;
 
@@ -59,9 +59,3 @@ SPECIAL(newbie_gold_coupler)
   }
   return 1;
 }
-
-    
-        
-      
-  
-

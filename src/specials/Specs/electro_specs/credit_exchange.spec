@@ -9,7 +9,7 @@ SPECIAL(credit_exchange)
   struct char_data *teller = (struct char_data *) me;
   int amount;
 
-  if( spec_mode == SPECIAL_DEATH ) return FALSE;
+  if( spec_mode != SPECIAL_CMD && spec_mode != SPECIAL_TICK ) return FALSE;
   if (!cmd || !CMD_IS("exchange"))
     return 0;
 

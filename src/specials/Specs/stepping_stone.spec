@@ -8,7 +8,7 @@ SPECIAL(stepping_stone)
 {
   struct obj_data *ruby = (struct obj_data *) me;
  
-   if (spec_mode == SPECIAL_DEATH) return FALSE;
+   if (spec_mode != SPECIAL_CMD && spec_mode != SPECIAL_TICK) return FALSE;
 
   if (CMD_IS("south")) {
     if (ch->getPosition() >= POS_STANDING) {
@@ -37,7 +37,7 @@ SPECIAL(portal_out)
   struct obj_data *portal = (struct obj_data *) me;
   skip_spaces(&argument); 
 
-  if (spec_mode == SPECIAL_DEATH) return FALSE;
+  if (spec_mode != SPECIAL_CMD && spec_mode != SPECIAL_TICK) return FALSE;
 
   if (!CMD_IS("enter"))
     return 0;
@@ -71,7 +71,7 @@ SPECIAL(arena_locker)
 
   ACMD(do_say);
 
-  if (spec_mode == SPECIAL_DEATH) return FALSE;
+  if (spec_mode != SPECIAL_CMD && spec_mode != SPECIAL_TICK) return FALSE;
 
   if (!(r_locker_room = real_room(40099)))
     return 0;

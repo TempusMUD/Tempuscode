@@ -280,7 +280,7 @@ SPECIAL(guild)
 	struct char_data *master = (struct char_data *)me;
 	char buf2[MAX_STRING_LENGTH];
 
-	if (spec_mode == SPECIAL_DEATH)
+	if (spec_mode != SPECIAL_CMD && spec_mode != SPECIAL_TICK)
 		return 0;
 	if ((!CMD_IS("practice") && !CMD_IS("train") && !CMD_IS("learn")) ||
 		!AWAKE(ch))
@@ -469,7 +469,7 @@ npc_steal(struct char_data *ch, struct char_data *victim)
 
 SPECIAL(snake)
 {
-	if (spec_mode == SPECIAL_DEATH)
+	if (spec_mode != SPECIAL_TICK)
 		return 0;
 	if (cmd)
 		return FALSE;
@@ -491,7 +491,7 @@ SPECIAL(snake)
 
 SPECIAL(thief)
 {
-	if (spec_mode == SPECIAL_DEATH)
+	if (spec_mode != SPECIAL_TICK)
 		return 0;
 	if (cmd)
 		return FALSE;
@@ -516,7 +516,7 @@ SPECIAL(magic_user)
 {
 	struct char_data *vict = NULL;
 
-	if (spec_mode == SPECIAL_DEATH)
+	if (spec_mode != SPECIAL_TICK)
 		return 0;
 	if (cmd || ch->getPosition() != POS_FIGHTING)
 		return FALSE;
@@ -619,7 +619,7 @@ SPECIAL(magic_user)
 SPECIAL(battle_cleric)
 {
 
-	if (spec_mode == SPECIAL_DEATH)
+	if (spec_mode != SPECIAL_TICK)
 		return 0;
 	if (cmd || ch->getPosition() != POS_FIGHTING)
 		return FALSE;
@@ -711,7 +711,7 @@ SPECIAL(battle_cleric)
 SPECIAL(barbarian)
 {
 
-	if (spec_mode == SPECIAL_DEATH)
+	if (spec_mode != SPECIAL_TICK)
 		return 0;
 	if (cmd || ch->getPosition() != POS_FIGHTING)
 		return FALSE;
@@ -825,7 +825,7 @@ SPECIAL(guild_guard)
 	char *buf = "$N humiliates you, and blocks your way.";
 	char *buf2 = "$N humiliates $n, and blocks $s way.";
 
-	if (spec_mode == SPECIAL_DEATH)
+	if (spec_mode != SPECIAL_TICK)
 		return 0;
 	if (!IS_MOVE(cmd) || !AWAKE(guard) || !LIGHT_OK(guard) ||
 		ch == guard || GET_LEVEL(ch) >= LVL_GRGOD) {
@@ -887,7 +887,7 @@ SPECIAL(fido)
 	struct obj_data *i, *temp, *next_obj;
 	struct char_data *vict;
 
-	if (spec_mode == SPECIAL_DEATH)
+	if (spec_mode != SPECIAL_TICK)
 		return 0;
 	if (cmd || !AWAKE(ch) || FIGHTING(ch))
 		return (FALSE);
@@ -966,7 +966,7 @@ SPECIAL(buzzard)
 	struct obj_data *i, *temp, *next_obj;
 	struct char_data *vict = NULL;
 
-	if (spec_mode == SPECIAL_DEATH)
+	if (spec_mode != SPECIAL_TICK)
 		return 0;
 	if (cmd || !AWAKE(ch) || FIGHTING(ch))
 		return (FALSE);
@@ -1035,7 +1035,7 @@ SPECIAL(garbage_pile)
 
 	struct obj_data *i, *temp, *next_obj;
 
-	if (spec_mode == SPECIAL_DEATH)
+	if (spec_mode != SPECIAL_TICK)
 		return 0;
 	if (cmd || !AWAKE(ch))
 		return (FALSE);
@@ -1093,7 +1093,7 @@ SPECIAL(janitor)
 	struct obj_data *i;
 	int ahole = 0;
 
-	if (spec_mode == SPECIAL_DEATH)
+	if (spec_mode != SPECIAL_TICK)
 		return 0;
 
 	if (cmd || !AWAKE(ch))
@@ -1139,7 +1139,7 @@ SPECIAL(elven_janitor)
 {
 	struct obj_data *i;
 
-	if (spec_mode == SPECIAL_DEATH)
+	if (spec_mode != SPECIAL_TICK)
 		return 0;
 
 	if (cmd || !AWAKE(ch))
@@ -1168,7 +1168,7 @@ SPECIAL(gelatinous_blob)
 {
 	struct obj_data *i;
 
-	if (spec_mode == SPECIAL_DEATH)
+	if (spec_mode != SPECIAL_TICK)
 		return 0;
 
 	if (cmd || !AWAKE(ch))
@@ -1357,7 +1357,7 @@ SPECIAL(cityguard)
 	int max_evil = 0;
 	struct room_data *r_jail_room = real_room(3100);
 
-	if (spec_mode == SPECIAL_DEATH)
+	if (spec_mode != SPECIAL_CMD && spec_mode != SPECIAL_TICK)
 		return 0;
 
 	if (CMD_IS("ask") || CMD_IS("tell")) {
@@ -1761,7 +1761,7 @@ SPECIAL(bank)
 SPECIAL(cave_bear)
 {
 
-	if (spec_mode == SPECIAL_DEATH)
+	if (spec_mode != SPECIAL_TICK)
 		return 0;
 	if (cmd || !FIGHTING(ch))
 		return FALSE;

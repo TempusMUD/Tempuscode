@@ -10,7 +10,7 @@ SPECIAL(aziz_canon)
 
   if (cmd)
     return 0;
-  if( spec_mode == SPECIAL_DEATH ) return 0;
+  if( spec_mode != SPECIAL_CMD && spec_mode != SPECIAL_TICK ) return 0;
   if (!FIGHTING(ch) && ch->getPosition() != POS_FIGHTING) {
     CharacterList::iterator it = ch->in_room->people.begin();
     for( ; it != ch->in_room->people.end(); ++it ) {

@@ -2217,7 +2217,7 @@ hit(struct char_data *ch, struct char_data *victim, int type)
 		if (weap && IS_OBJ_TYPE(weap, ITEM_WEAPON) &&
 			weap == GET_EQ(ch, weap->worn_on)) {
 			if (GET_OBJ_SPEC(weap)) {
-				GET_OBJ_SPEC(weap) (ch, weap, 0, NULL, SPECIAL_FIGHT);
+				GET_OBJ_SPEC(weap) (ch, weap, 0, NULL, SPECIAL_COMBAT);
 			} else if (IS_OBJ_STAT2(weap, ITEM2_CAST_WEAPON))
 				retval = do_casting_weapon(ch, weap);
 				if (retval)

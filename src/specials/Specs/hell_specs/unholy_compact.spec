@@ -12,7 +12,7 @@ SPECIAL(unholy_compact)
   int con_cost = 5;
   char buf[MAX_STRING_LENGTH];
   int min_gen=0;
-  if( spec_mode == SPECIAL_DEATH ) return 0;
+  if( spec_mode != SPECIAL_CMD && spec_mode != SPECIAL_TICK ) return 0;
   if (!CMD_IS("sell"))
     return 0;
   skip_spaces(&argument);

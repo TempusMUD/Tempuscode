@@ -14,7 +14,7 @@ SPECIAL(healing_ranger)
 
   if (cmd || FIGHTING(ch))
     return FALSE;
-  if( spec_mode == SPECIAL_DEATH ) return 0;
+  if( spec_mode != SPECIAL_CMD && spec_mode != SPECIAL_TICK ) return 0;
 
   switch (number(0,25)) {
     case 0:

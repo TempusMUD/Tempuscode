@@ -52,7 +52,7 @@ SPECIAL(remorter)
 	int value, level;
 	struct obj_data *obj = NULL, *next_obj = NULL;
 
-	if (spec_mode == SPECIAL_DEATH)
+	if (spec_mode != SPECIAL_CMD)
 		return FALSE;
 	if (!cmd)
 		return 0;

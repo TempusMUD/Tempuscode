@@ -10,7 +10,7 @@ SPECIAL(underwater_predator)
   struct char_data *pred = (struct char_data *) me;
   struct char_data *vict = NULL;
   struct room_data *troom = NULL;
-  if( spec_mode == SPECIAL_DEATH ) return 0;
+  if( spec_mode != SPECIAL_CMD && spec_mode != SPECIAL_TICK ) return 0;
 
   if (cmd || pred->getPosition() < POS_RESTING || 
       AFF2_FLAGGED(pred, AFF2_PETRIFIED) || !AWAKE(pred))
