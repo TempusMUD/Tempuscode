@@ -57,7 +57,7 @@ SPECIAL(electronics_school)
 	if (!CMD_IS("learn") && !CMD_IS("train") && !CMD_IS("offer"))
 		return 0;
 
-	cred_cost = GET_SKILL_COST(ch, SKILL_ELECTRONICS);
+	cred_cost = (GET_LEVEL(ch) << 6) + 2000;
 
 	if (IS_CYBORG(ch)) {
 		do_say(self, tmp_sprintf(
