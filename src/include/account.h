@@ -36,7 +36,21 @@ class Account {
 		inline int get_ansi_level(void) { return _ansi_level; }
 		inline void set_ansi_level(int level) { _ansi_level = level; }
 		inline int get_term_height(void) { return _term_height; }
+		inline void set_term_height(int height)
+		{
+			if (height < 2) height = 2;
+			if (height > 200) height = 200;
+			_term_height = height;
+		}
+
 		inline int get_term_width(void) { return _term_width; }
+		inline void set_term_width(int width)
+		{
+			if (width < 2) width = 2;
+			if (width > 200) width = 200;
+			_term_width = width;
+		}
+
         inline const char *get_email_addr(void) const { return _email; }
 		void set_email_addr(const char *addr);
 
