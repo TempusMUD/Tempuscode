@@ -213,12 +213,12 @@ float char_data::getDamReduction(char_data *attacker = NULL)
     return (dam_reduction / 100);
 }
 
-//*
-   Compute level bonus factor.
-   Currently, a gen 4 level 49 secondary should equate to level 49 mort primary.
-   
-   params: primary - Add in remort gen as a primary?
-   return: a number from 1-100 based on level and primary/secondary)
+//
+// Compute level bonus factor.
+// Currently, a gen 4 level 49 secondary should equate to level 49 mort primary.
+//   
+//   params: primary - Add in remort gen as a primary?
+//   return: a number from 1-100 based on level and primary/secondary)
 
 int char_data::getLevelBonus ( bool primary ) {
     int bonus = MIN(50,player.level + 1);
@@ -245,12 +245,12 @@ int char_data::getLevelBonus ( bool primary ) {
         }
     }
 }
-//*
-   Compute level bonus factor.
-   Should be used for a particular skill in general.
-   Returns 50 for max mort, 100 for max remort.
-   params: skill - the skill # to check bonus for.
-   return: a number from 1-100 based on level/gen/can learn skill.
+//
+// Compute level bonus factor.
+// Should be used for a particular skill in general.
+// Returns 50 for max mort, 100 for max remort.
+// params: skill - the skill # to check bonus for.
+// return: a number from 1-100 based on level/gen/can learn skill.
 
 int char_data::getLevelBonus( int skill ) {
 
@@ -305,11 +305,11 @@ int char_data::getLevelBonus( int skill ) {
 }
 
 //
- *  attempts to set character's position.
- *
- *  return success or failure
- *  @param mode: 1 == from update_pos, 2 == from perform violence (not used for anything really)
- *  @param new_position the enumerated int position to be set to.
+//  attempts to set character's position.
+//
+//  return success or failure
+//  @param mode: 1 == from update_pos, 2 == from perform violence (not used for anything really)
+//  @param new_position the enumerated int position to be set to.
 
 bool char_data::setPosition( int new_pos, int mode=0 ){
     if(new_pos == char_specials.getPosition())
@@ -332,7 +332,7 @@ bool char_data::setPosition( int new_pos, int mode=0 ){
     return true;
 }
 //
- * Returns current position (standing sitting etc.)
+// Returns current position (standing sitting etc.)
 
 int char_data::getPosition( void ) {
     return char_specials.getPosition();
@@ -404,11 +404,11 @@ void char_data::extract( char mode ) {
     }
 
 	// transfer gold to room
-	if (GET_GOLD(ch))
-		obj_to_room(create_money(GET_GOLD(ch), 0), in_room);
-	if (GET_CASH(ch))
-		obj_to_room(create_money(GET_CASH(ch), 1), in_room);
-	GET_GOLD(ch) = GET_CASH(ch) = 0;
+	if (GET_GOLD(this))
+		obj_to_room(create_money(GET_GOLD(this), 0), in_room);
+	if (GET_CASH(this))
+		obj_to_room(create_money(GET_CASH(this), 1), in_room);
+	GET_GOLD(this) = GET_CASH(this) = 0;
 
     if (FIGHTING(this))
         stop_fighting(this);
