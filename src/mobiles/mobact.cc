@@ -285,13 +285,31 @@ burn_update(void)
                                (1 + random_number_zero_low(GET_CON(ch) >> 2)));
 
 		// nanite reconstruction
-		if (affected_by_spell(ch, SKILL_NANITE_RECONSTRUCTION))
+		if (affected_by_spell(ch, SKILL_NANITE_RECONSTRUCTION)) {
+			bool obj_found = false;
+			bool repaired = false;
+
 			for (idx = 0;idx < NUM_WEARS;idx++) {
 				obj = GET_IMPLANT(ch, idx);
-				if (obj)
-					GET_OBJ_DAM(obj) = MIN(GET_OBJ_MAX_DAM(obj),
-						GET_OBJ_DAM(obj) + number(0, 1));
+				if (obj) {
+					obj_found = true;
+					if (GET_OBJ_MAX_DAM(obj) != -1
+							&& GET_OBJ_DAM(obj) != -1
+							&& GET_OBJ_DAM(obj) < GET_OBJ_MAX_DAM(obj)) {
+						repaired = true;
+						GET_OBJ_DAM(obj) = GET_OBJ_DAM(obj) + number(0, 1);
+					}
+				}
 			}
+
+			if (!obj_found || !repaired) {
+				if (!obj_found)
+					send_to_char(ch, "NOTICE: Implants not found.  Nanite reconstruction halted.\r\n");
+				else
+					send_to_char(ch, "NOTICE: Implant reconstruction complete.  Nanite reconstruction halted.\r\n");
+				affect_from_char(ch, SKILL_NANITE_RECONSTRUCTION);
+			}
+		}
 
 		// Signed the Unholy Compact - Soulless
 		if (PLR2_FLAGGED(ch, PLR2_SOULLESS) &&
