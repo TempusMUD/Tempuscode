@@ -2656,11 +2656,6 @@ randomize_object(struct obj_data *obj)
 			GET_OBJ_VAL(obj, 1) / 4,
 			1,
 			GET_OBJ_VAL(obj, 0));
-		GET_OBJ_VAL(obj, 2) = rand_value(
-			GET_OBJ_VAL(obj, 2),
-			GET_OBJ_VAL(obj, 2) / 4,
-			1,
-			-1);
 		break;
 	// Vstone and portal charges
 	case ITEM_VSTONE:
