@@ -2255,7 +2255,7 @@ extern const char *spell_wear_off_msg[] = {
 	"!iron will!",
 	"Your cell regeneration slows.",
 	"Your psionic shield dissipates.",
-	"!psychic surge!",
+	"You feel a bit more clear-headed.",
 	"!psychic conduit!",		/* 225 */
 	"!psionic shatter!",
 	"!id insinuation!",
