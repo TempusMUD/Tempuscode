@@ -414,8 +414,9 @@ group_gain(struct Creature *ch, struct Creature *victim)
 	}
 	it = ch->in_room->people.begin();
 	for (; it != ch->in_room->people.end(); ++it) {
-		if (AFF_FLAGGED((*it), AFF_GROUP) && ((*it) == leader
-			|| leader == (*it)->master)) 
+		if (AFF_FLAGGED((*it), AFF_GROUP) &&
+            ((*it) != victim) && 
+            ((*it) == leader || leader == (*it)->master)) 
 		{
 			mult = (float)GET_LEVEL((*it));
 			if( IS_PC( (*it) ) )
