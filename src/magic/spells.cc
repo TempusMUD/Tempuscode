@@ -37,7 +37,6 @@
 #include "tokenizer.h"
 
 extern struct obj_data *object_list;
-extern struct Creature *character_list;
 
 extern struct descriptor_data *descriptor_list;
 extern struct zone_data *zone_table;

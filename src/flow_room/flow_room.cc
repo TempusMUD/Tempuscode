@@ -30,7 +30,6 @@
 #include "fight.h"
 
 /* external structs */
-extern struct Creature *character_list;
 extern struct obj_data *object_list;
 extern struct zone_data *zone_table;
 void npc_steal(struct Creature *ch, struct Creature *victim);
