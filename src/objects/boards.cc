@@ -50,7 +50,7 @@ gen_board_show(Creature *ch)
 	PGresult *res;
 	int idx, count;
 
-	res = sql_query("select board, COUNT(*) from board_messages group by board order by idnum desc");
+	res = sql_query("select board, COUNT(*) from board_messages group by board order by count desc");
 	count = PQntuples(res);
 	if (count == 0) {
 		send_to_char(ch, "There are no messages on any board.\r\n");
