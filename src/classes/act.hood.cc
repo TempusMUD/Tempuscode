@@ -192,6 +192,8 @@ ACMD(do_drag)
         return;
      }
 
+ 
+
 
     if( ! peaceful_room_ok( ch, vict, true ) ) {
 	return;
@@ -269,12 +271,18 @@ ACMD(do_drag)
     }
     
     
-    prob = MAX( 0, ( GET_LEVEL( ch ) + ( CHECK_SKILL( ch, SKILL_DRAG )/2 ) - GET_STR( vict ) ) );
-    
+    prob = MAX( 0, ( GET_LEVEL( ch ) + ( CHECK_SKILL( ch, SKILL_DRAG )  ) - GET_STR( vict ) ) );
+    prob = MIN( prob, 100 );	         
+
     if( MOB_FLAGGED( vict, MOB_SENTINEL ) ) {
 	percent = 101;
     }
-    
+ 
+    if( CHECK_SKILL( ch, SKILL_DRAG ) < 30 ) {
+        percent = 101;          
+    }	
+   
+
     if( prob > percent ) {
 	sprintf( buf, "You drag $N to the %s.", to_dirs[ dir ] );
 	act( buf, FALSE, ch, 0, vict, TO_CHAR );
@@ -288,18 +296,27 @@ ACMD(do_drag)
 	
 	WAIT_STATE( ch, ( PULSE_VIOLENCE * 2 ) );
 	WAIT_STATE( vict, PULSE_VIOLENCE );
+	
+        if ( IS_NPC( vict ) && AWAKE( vict ) && check_mob_reaction( ch, vict ) ){
+         hit( vict, ch, TYPE_UNDEFINED );
+         WAIT_STATE( ch, 2 RL_SEC );
+        }
 	return;
-	
-	
     }
     
     else {
-	act( "$n grabs $N but fails to move $m", FALSE, ch, 0, vict, TO_NOTVICT );
+	act( "$n grabs $N but fails to move $m.", FALSE, ch, 0, vict, TO_NOTVICT );
 	act( "You attempt to man-handle $N but you fail!", FALSE, ch, 0, vict, TO_CHAR );
 	act( "$n attempts to drag you, but you hold your ground.", FALSE, ch, 0, vict, TO_VICT );	 
+	WAIT_STATE( ch, PULSE_VIOLENCE );
+        
+        if ( IS_NPC( vict ) && AWAKE( vict ) && check_mob_reaction( ch, vict ) ){
+         hit( vict, ch, TYPE_UNDEFINED );
+         WAIT_STATE( ch, 2 RL_SEC );
+        }
 	return;
     }
-
+   
 }
 
 ACMD(do_snatch)
