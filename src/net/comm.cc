@@ -384,7 +384,7 @@ init_socket(int port)
 
 int get_avail_descs(void)
 {
-    int max_descs = 0;
+    unsigned int max_descs = 0;
 
 /*
  * First, we'll try using getrlimit/setrlimit.  This will probably work
