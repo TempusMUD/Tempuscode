@@ -613,11 +613,19 @@ point_update(void)
 				}
 			}
 			// Blood! Blood makes the grass grow drill seargent!
-			if ((i->getPosition() == POS_INCAP
+/*			if ((i->getPosition() == POS_INCAP
 					&& damage(i, i, 1, TYPE_SUFFERING, -1))
 				|| (i->getPosition() == POS_MORTALLYW
-					&& damage(i, i, 2, TYPE_SUFFERING, -1)))
-				continue;
+					&& damage(i, i, 2, TYPE_SUFFERING, -1))) */
+
+            // No longer shall Creatures die of blood loss.
+            // We will now heal them slowly instead.
+            if (i->getPosition() == POS_INCAP)
+                GET_HIT(i) += 2;
+            else if (i->getPosition() == POS_MORTALLYW)
+                GET_HIT(i) += 1;
+                
+			continue;
 		}
 
 		if (!IS_NPC(i)) {

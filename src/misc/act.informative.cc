@@ -757,7 +757,7 @@ desc_one_char(Creature *ch, Creature *i, bool is_group)
 {
 	char *positions[] = {
 		" is lying here, dead.",
-		" is lying here, mortally wounded.",
+		" is lying here, badly wounded.",
 		" is lying here, incapacitated.",
 		" is lying here, stunned.",
 		" is sleeping here.",

@@ -1768,18 +1768,18 @@ damage(struct Creature *ch, struct Creature *victim, int dam,
 
 		// Mortally wounded
 	case POS_MORTALLYW:
-		act("$n is mortally wounded, and will die soon, if not aided.",
+		act("$n is badly wounded, but will recover very slowly.",
 			TRUE, victim, 0, 0, TO_ROOM);
 		send_to_char(victim, 
-			"You are mortally wounded, and will die soon, if not aided.\r\n");
+			"You are badly wounded, but will recover very slowly.\r\n");
 		break;
 
 		// Incapacitated
 	case POS_INCAP:
-		act("$n is incapacitated and will slowly die, if not aided.", TRUE,
+		act("$n is incapacitated but will probably recover.", TRUE,
 			victim, 0, 0, TO_ROOM);
 		send_to_char(victim, 
-			"You are incapacitated and will slowly die, if not aided.\r\n");
+			"You are incapacitated but will probably recover.\r\n");
 		break;
 
 		// Stunned
