@@ -2694,7 +2694,7 @@ Reaction::add_reaction(decision_t action, char *arg)
 	else if ((clan = clan_by_name(condition)) != NULL) {
 		new_reaction[0] |= 0x07;
 		new_reaction[1] = clan->number + 1;
-	} else if (is_abbrev(condition, "killerflag"))
+	} else if (is_abbrev(condition, "criminal"))
 		new_reaction[0] |= 0x08;
 	else if (is_abbrev(condition, "thiefflag"))
 		new_reaction[0] |= 0x09;
@@ -2778,7 +2778,9 @@ Reaction::react(Creature *ch)
 		case 7:
 			if (GET_CLAN(ch) + 1 == *(++read_pt)) match = true; break;
 		case 8:
-			if (PLR_FLAGGED(ch, PLR_KILLER)) match = true; break;
+			if (IS_PC(ch) && GET_REPUTATION(ch) > CRIMINAL_REP)
+				match = true;
+			break;
 		case 9:
 			if (PLR_FLAGGED(ch, PLR_THIEF)) match = true; break;
 		case 10:
