@@ -41,8 +41,8 @@ tarrasque_jump(struct char_data *tarr, int jump_mode)
                               outer_tunnel[i] : inner_tunnel[i]))) {
       break;
     }
-    char_from_room(tarr);
-    char_to_room(tarr, up_room);
+    char_from_room(tarr,false);
+    char_to_room(tarr, up_room,false);
 
     if ((jump_mode == T_ACTIVE && i == 4) ||
         (jump_mode == T_RETURN && i == 3))
@@ -221,8 +221,8 @@ SPECIAL(tarrasque)
       mode = T_SLEEP;
       timer = 0;
       if ((rm = real_room(LAIR_RM))) {
-        char_from_room(tarr);
-        char_to_room(tarr, rm);
+        char_from_room(tarr,false);
+        char_to_room(tarr, rm,false);
       }
       send_to_char(ch, "Tarrasque reset.\r\n");
       return 1;

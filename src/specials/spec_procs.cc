@@ -392,6 +392,8 @@ SPECIAL(dump)
 	int value = 0;
 
 	ACCMD(do_drop);
+	if( spec_mode != SPECIAL_TICK && spec_mode != SPECIAL_CMD )
+		return 0;
 
 	for (k = ch->in_room->contents; k; k = next_obj) {
 		next_obj = k->next_content;
@@ -1272,8 +1274,8 @@ throw_char_in_jail(struct char_data *ch, struct char_data *vict)
 		return 1;
 	}
 
-	char_from_room(vict);
-	char_to_room(vict, cell_rnum);
+	char_from_room(vict,false);
+	char_to_room(vict, cell_rnum,false);
 	cell_rnum->zone->enter_count++;
 
 	look_at_room(vict, vict->in_room, 1);
@@ -1326,10 +1328,10 @@ drag_char_to_jail(struct char_data *ch, struct char_data *evil,
 	sprintf(buf, "$n drags $N %s!", to_dirs[dir]);
 	act(buf, FALSE, ch, 0, evil, TO_NOTVICT);
 
-	char_from_room(ch);
-	char_to_room(ch, EXIT(evil, dir)->to_room);
-	char_from_room(evil);
-	char_to_room(evil, ch->in_room);
+	char_from_room(ch,false);
+	char_to_room(ch, EXIT(evil, dir)->to_room,false);
+	char_from_room(evil,false);
+	char_to_room(evil, ch->in_room,false);
 	look_at_room(evil, evil->in_room, 0);
 
 	sprintf(buf, "$n drags $N in from %s, punching and kicking!",
@@ -1601,7 +1603,7 @@ SPECIAL(pet_shops)
 					tmp_strcat(pet->player.description, "A small sign on a chain around the neck says 'My name is ", pet_name, "'\r\n", NULL));
 				free(tmp);
 			}
-			char_to_room(pet, ch->in_room);
+			char_to_room(pet, ch->in_room,false);
 
 			if (IS_ANIMAL(pet)) {
 				/* Be certain that pets can't get/carry/use/wield/wear items */
@@ -1610,8 +1612,8 @@ SPECIAL(pet_shops)
 			}
 		} else {				/* player characters */
 
-			char_from_room(pet);
-			char_to_room(pet, ch->in_room);
+			char_from_room(pet,false);
+			char_to_room(pet, ch->in_room,false);
 
 		}
 

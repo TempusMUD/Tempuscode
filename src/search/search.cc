@@ -182,7 +182,7 @@ general_search(struct char_data *ch, struct special_search_data *srch,
 			slog(buf);
 			return 0;
 		}
-		char_to_room(mob, targ_room);
+		char_to_room(mob, targ_room,false);
 		if (srch->to_remote)
 			act(srch->to_remote, FALSE, targ_room->people, obj, mob, TO_ROOM);
 
@@ -637,8 +637,8 @@ general_search(struct char_data *ch, struct special_search_data *srch,
 					continue;
 				if (other_rm != targ_room) {
 					act("$n suddenly disappears.", TRUE, mob, 0, 0, TO_ROOM);
-					char_from_room(mob);
-					char_to_room(mob, targ_room);
+					char_from_room(mob,false);
+					char_to_room(mob, targ_room,false);
 					act("$n suddenly appears.", TRUE, mob, 0, 0, TO_ROOM);
 				}
 				if (srch->arg[2])

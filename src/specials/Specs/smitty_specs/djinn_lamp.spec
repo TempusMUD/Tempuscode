@@ -17,7 +17,7 @@ SPECIAL(djinn_lamp)
   act("You rub $p.", FALSE, ch, lamp, 0, TO_CHAR);
   
   if ((djinn = read_mobile(5318))) {
-    char_to_room(djinn, ch->in_room);
+    char_to_room(djinn, ch->in_room,false);
     act("$n appears in a cloud of swirling greenish mist.",FALSE,djinn,0,0,TO_ROOM);
     add_follower(djinn, ch);
     SET_BIT(AFF_FLAGS(djinn), AFF_CHARM);

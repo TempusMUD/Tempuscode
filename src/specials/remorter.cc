@@ -120,8 +120,8 @@ SPECIAL(remorter)
 		} else {
 			send_to_char(ch, "Very well, coward.\r\n");
 			act("$n disappears in a mushroom cloud.", FALSE, ch, 0, 0,TO_ROOM);
-			char_from_room(ch);
-			char_to_room(ch, room);
+			char_from_room(ch,false);
+			char_to_room(ch, room,false);
 			act("$n arrives from a puff of smoke.", FALSE, ch, 0, 0, TO_ROOM);
 			act("$n has transferred you!", FALSE, (char_data *) me, 0, ch, TO_VICT);
 			look_at_room(ch, room, 0);
@@ -241,8 +241,8 @@ SPECIAL(remorter)
             send_to_char(ch, "You have been banished from the chamber!\r\n");
             act("$n is banished from the chamber!", FALSE, ch, 0, 0, TO_ROOM);
             ch->setPosition(POS_RESTING);
-            char_from_room(ch);
-            char_to_room(ch, load_room);
+            char_from_room(ch,false);
+            char_to_room(ch, load_room,false);
             act("$n appears with a bright flash of light!", FALSE, ch, 0, 0, TO_ROOM);
 
 			//ch->extract(false, false, CON_MENU);

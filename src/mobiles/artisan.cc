@@ -235,7 +235,7 @@ SPECIAL(artisan)
 	struct char_data *keeper = (char_data *)me;
 	craftshop *shop;
 
-	if (spec_mode == SPECIAL_DEATH)
+	if ( spec_mode != SPECIAL_CMD )
 		return false;
 
 	if (!ch || !keeper || !AWAKE(keeper))

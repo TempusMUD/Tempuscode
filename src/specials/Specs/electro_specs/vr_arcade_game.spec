@@ -97,8 +97,8 @@ SPECIAL(vr_arcade_game)
   GET_HOLD_HOME(ch) = GET_HOME(ch);
   GET_HOME(ch) = GET_OBJ_VAL(game, 3);
 
-  char_from_room(ch);
-  char_to_room(ch, r_startroom);
+  char_from_room(ch,false);
+  char_to_room(ch, r_startroom,false);
   
   act("$n appears at the center of the room with a flash!",
       FALSE, ch, 0, 0, TO_ROOM);

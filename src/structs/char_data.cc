@@ -596,7 +596,7 @@ void
 		do_return(this, "", 0, SCMD_NOEXTRACT);
 	}
 
-	char_from_room(this);
+	char_from_room(this,false);
 
 	// pull the char from the list
 	characterList.remove(this);

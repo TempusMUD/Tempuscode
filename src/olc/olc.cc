@@ -1023,8 +1023,8 @@ ACMD(do_olc)
 		else if (is_abbrev(argument, "world")) {
 			for (k = 0, zone = zone_table; zone; zone = zone->next) {
 				if ((room = zone->world)) {
-					char_from_room(ch);
-					char_to_room(ch, room);
+					char_from_room(ch,false);
+					char_to_room(ch, room,false);
 					save_wld(ch);
 					slog("SAVEWLD Super: Zone %d, rooms %d-%d.\n",
 						zone->number, zone->number * 100, zone->top);
@@ -1491,7 +1491,7 @@ ACMD(do_olc)
 		if (!(tmp_mob = read_mobile(j))) {
 			send_to_char(ch, "Unable to load mobile.\r\n");
 		} else {
-			char_to_room(tmp_mob, ch->in_room);
+			char_to_room(tmp_mob, ch->in_room,false);
 			act("$N appears next to you.", FALSE, ch, 0, tmp_mob, TO_CHAR);
 			act("$n creates $N in $s hands.", TRUE, ch, 0, tmp_mob, TO_ROOM);
 			slog("OLC: %s mloaded [%d] %s.", GET_NAME(ch),

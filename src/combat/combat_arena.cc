@@ -1555,8 +1555,8 @@ end_battle(combat_data * combat)
 				KNRM);
 			send_to_combat(buf, combat);
 			send_to_char(ch, "There can be only one!\r\n");
-			char_from_room(ch);
-			char_to_room(ch, real_room(combat->arena->booty_room));
+			char_from_room(ch,false);
+			char_to_room(ch, real_room(combat->arena->booty_room),false);
 			look_at_room(ch, ch->in_room, 0);
 		}
 		break;
@@ -1661,8 +1661,8 @@ trans_combatants(struct combat_data *combat)
 			trans_room = random_arena_room(combat, ch);
 
 			if (trans_room && ch) {
-				char_from_room(ch);
-				char_to_room(ch, trans_room);
+				char_from_room(ch,false);
+				char_to_room(ch, trans_room,false);
 				look_at_room(ch, ch->in_room, 0);
 			} else {
 				slog("SYSERR: Caught bad trans room or character");

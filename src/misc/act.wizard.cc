@@ -360,14 +360,14 @@ ACMD(do_at)
 
 	/* a location has been found. */
 	original_loc = ch->in_room;
-	char_from_room(ch);
-	char_to_room(ch, location);
+	char_from_room(ch,false);
+	char_to_room(ch, location,false);
 	command_interpreter(ch, command);
 
 	/* check if the char is still there */
 	if (ch->in_room == location) {
-		char_from_room(ch);
-		char_to_room(ch, original_loc);
+		char_from_room(ch,false);
+		char_to_room(ch, original_loc,false);
 	}
 }
 
@@ -418,8 +418,8 @@ ACMD(do_goto)
 		strcpy(buf, "$n disappears in a puff of smoke.");
 
 	act(buf, TRUE, ch, 0, 0, TO_ROOM);
-	char_from_room(ch);
-	char_to_room(ch, location);
+	char_from_room(ch,false);
+	char_to_room(ch, location,false);
 	if (location->isOpenAir())
 		ch->setPosition(POS_FLYING);
 
@@ -480,8 +480,8 @@ ACMD(do_trans)
 			}
 			act("$n disappears in a mushroom cloud.", FALSE, victim, 0, 0,
 				TO_ROOM);
-			char_from_room(victim);
-			char_to_room(victim, ch->in_room);
+			char_from_room(victim,false);
+			char_to_room(victim, ch->in_room,false);
 			act("$n arrives from a puff of smoke.", FALSE, victim, 0, 0,
 				TO_ROOM);
 			act("$n has transferred you!", FALSE, ch, 0, victim, TO_VICT);
@@ -503,8 +503,8 @@ ACMD(do_trans)
 					continue;
 				act("$n disappears in a mushroom cloud.", FALSE, victim, 0, 0,
 					TO_ROOM);
-				char_from_room(victim);
-				char_to_room(victim, ch->in_room);
+				char_from_room(victim,false);
+				char_to_room(victim, ch->in_room,false);
 				act("$n arrives from a puff of smoke.", FALSE, victim, 0, 0,
 					TO_ROOM);
 				act("$n has transferred you!", FALSE, ch, 0, victim, TO_VICT);
@@ -536,8 +536,8 @@ ACMD(do_teleport)
 	else if ((target = find_target_room(ch, buf2)) != NULL) {
 		send_to_char(ch, OK);
 		act("$n disappears in a puff of smoke.", FALSE, victim, 0, 0, TO_ROOM);
-		char_from_room(victim);
-		char_to_room(victim, target);
+		char_from_room(victim,false);
+		char_to_room(victim, target,false);
 		act("$n arrives from a puff of smoke.", FALSE, victim, 0, 0, TO_ROOM);
 		act("$n has teleported you!", FALSE, ch, 0, (char *)victim, TO_VICT);
 		look_at_room(victim, victim->in_room, 0);
@@ -2299,8 +2299,8 @@ ACMD(do_return)
 		} else if (GET_LEVEL(ch) <= 10) {
 			act("A whirling globe of multi-colored light appears and whisks you away!", FALSE, ch, NULL, NULL, TO_CHAR);
 			act("A whirling globe of multi-colored light appears and whisks $n away!", FALSE, ch, NULL, NULL, TO_ROOM);
-			char_from_room(ch);
-			char_to_room(ch, GET_START_ROOM(ch));
+			char_from_room(ch,false);
+			char_to_room(ch, GET_START_ROOM(ch),false);
 			look_at_room(ch, ch->in_room, 0);
 			act("A whirling globe of multi-colored light appears and deposits $n on the floor!", FALSE, ch, NULL, NULL, TO_ROOM);
 		} else
@@ -2331,8 +2331,8 @@ ACMD(do_return)
 		ch->desc = NULL;
 
 		if (cloud_found) {
-			char_from_room(orig);
-			char_to_room(orig, ch->in_room);
+			char_from_room(orig,false);
+			char_to_room(orig, ch->in_room,false);
 			act("$n materializes from a cloud of gas.",
 				FALSE, orig, 0, 0, TO_ROOM);
 			if (subcmd != SCMD_NOEXTRACT)
@@ -2364,7 +2364,7 @@ ACMD(do_mload)
 		return;
 	}
 	mob = read_mobile(number);
-	char_to_room(mob, ch->in_room);
+	char_to_room(mob, ch->in_room,false);
 
 	act("$n makes a quaint, magical gesture with one hand.", TRUE, ch,
 		0, 0, TO_ROOM);
@@ -5587,8 +5587,8 @@ ACMD(do_set)
 			send_to_char(ch, "No room exists with that number.\r\n");
 			return;
 		}
-		char_from_room(vict);
-		char_to_room(vict, room);
+		char_from_room(vict,false);
+		char_to_room(vict, room,false);
 		break;
 	case 36:
 		SET_OR_REMOVE(PRF_FLAGS(vict), PRF_ROOMFLAGS);

@@ -388,9 +388,9 @@ nanny(struct descriptor_data * d, char *arg)
 								if (GET_WAS_IN(tmp_ch)) {
 									if (tmp_ch->in_room) {
 										act("$n is jerked back to reality!", TRUE, tmp_ch, 0, 0, TO_ROOM);
-										char_from_room(tmp_ch);
+										char_from_room(tmp_ch,false);
 									}
-									char_to_room(tmp_ch, GET_WAS_IN(tmp_ch));
+									char_to_room(tmp_ch, GET_WAS_IN(tmp_ch),false);
 									GET_WAS_IN(tmp_ch) = NULL;
 								}
 								act("$n has reconnected.", TRUE, tmp_ch, 0, 0, TO_ROOM);

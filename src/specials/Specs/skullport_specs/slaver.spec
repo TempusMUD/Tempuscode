@@ -39,8 +39,8 @@ SPECIAL(slaver)
 	      FALSE,slaver,0,vict,TO_NOTVICT);
 	  stop_fighting(slaver);
 	  stop_fighting(vict);
-	  char_from_room(vict);
-	  char_to_room(vict, r_slave_pit);
+	  char_from_room(vict,false);
+	  char_to_room(vict, r_slave_pit,false);
 	  look_at_room(vict, vict->in_room, 1);
 	  act("$n is hurled into the pit from above!",
 	      FALSE,vict,0,0,TO_ROOM);
@@ -65,8 +65,8 @@ SPECIAL(slaver)
 	  FALSE,slaver,0,vict,TO_NOTVICT);
       stop_fighting(slaver);
       stop_fighting(vict);
-      char_from_room(vict);
-      char_to_room(vict, r_slave_pit);
+      char_from_room(vict,false);
+      char_to_room(vict, r_slave_pit,false);
       look_at_room(vict, vict->in_room, 1);
       act("$n is hurled into the pit from above!",
 	  FALSE,vict,0,0,TO_ROOM);

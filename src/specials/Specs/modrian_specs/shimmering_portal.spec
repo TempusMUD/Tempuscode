@@ -20,11 +20,11 @@ SPECIAL(shimmering_portal)
     send_to_char(ch, "You step into the portal...\r\n\r\n");
     act("$n steps into the shimmering portal and vanishes!", TRUE, ch, 0, 0, TO_ROOM);
     if (ch->in_room == real_room(3012)) {
-      char_from_room(ch);
-      char_to_room(ch, real_room(30012));
+      char_from_room(ch,false);
+      char_to_room(ch, real_room(30012),false);
     } else if (ch->in_room == real_room(30012)) {
-      char_from_room(ch);
-      char_to_room(ch, real_room(3012));
+      char_from_room(ch,false);
+      char_to_room(ch, real_room(3012),false);
     } else {
       send_to_char(ch, "You are ejected from the portal with a violent jerk!\r\n");
       act("$n is ejected from the portal with a violent jerk!", FALSE, ch, 0, 0, TO_ROOM);

@@ -40,7 +40,7 @@ SPECIAL(hell_regulator)
                 return 1;
             }
 
-            char_to_room(devil, ch->in_room);
+            char_to_room(devil, ch->in_room,false);
             act("$n gestures... A glowing conduit flashes into existence!", FALSE, ch, 0, vict, TO_ROOM);
             act("...$n leaps out and attacks $N!", FALSE, devil, 0, vict, TO_NOTVICT);
             act("...$n leaps out and attacks you!", FALSE, devil, 0, vict, TO_VICT);

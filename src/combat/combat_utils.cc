@@ -314,6 +314,12 @@ check_object_killer(struct obj_data *obj, struct char_data *vict)
 	if (ROOM_FLAGGED(vict->in_room, ROOM_PEACEFUL))
 		return;
 
+	if( IS_NPC(vict) ) {
+		sprintf(buf, "Checking object killer %s -> %s. (NPC)",
+			obj->short_description, GET_NAME(vict));
+		slog(buf);
+		return;
+	}
 	// Lawless... Not wrong to pk in lawless zones.
 	if (vict->in_room && ZONE_FLAGGED(vict->in_room->zone, ZONE_NOLAW)) {
 		sprintf(buf, "Checking object killer %s -> %s. (!LAW. Poor schmuck.)",
@@ -322,7 +328,7 @@ check_object_killer(struct obj_data *obj, struct char_data *vict)
 		return;
 	}
 
-	sprintf(buf, "Checking object killer %s -> %s.", obj->short_description,
+	sprintf(buf, "Checking object killer %s -> %s. ", obj->short_description,
 		GET_NAME(vict));
 	slog(buf);
 

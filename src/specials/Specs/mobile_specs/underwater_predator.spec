@@ -29,10 +29,10 @@ SPECIAL(underwater_predator)
 
         act("$n drags you under!!!", FALSE, pred, 0, vict, TO_VICT);
         act("$n drags $N under!!!", FALSE, pred, 0, vict, TO_NOTVICT);
-        char_from_room(pred);
-        char_to_room(pred, troom);
-        char_from_room(vict);
-        char_to_room(vict, troom);
+        char_from_room(pred,false);
+        char_to_room(pred, troom,false);
+        char_from_room(vict,false);
+        char_to_room(vict, troom,false);
         look_at_room(vict, vict->in_room, 0);
 
         act("$N is dragged, struggling,  in from above by $n!!",
@@ -61,9 +61,9 @@ SPECIAL(underwater_predator)
 
       act("$n cruises up out of sight with deadly intention.",
           TRUE, pred, 0, 0, TO_ROOM);
-      char_from_room(pred);
+      char_from_room(pred,false);
       
-      char_to_room(pred, troom);
+      char_to_room(pred, troom,false);
       act("$n emerges from the depths and attacks!!!",
           TRUE, pred, 0, 0, TO_ROOM);
 

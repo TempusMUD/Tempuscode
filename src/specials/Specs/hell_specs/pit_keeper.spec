@@ -26,8 +26,8 @@ SPECIAL( pit_keeper )
         WAIT_STATE( ch, 3 RL_SEC );
         stop_fighting( vict );
         stop_fighting( ch );
-        char_from_room( vict );
-        char_to_room( vict, ch->in_room->dir_option[ DOWN ]->to_room );
+        char_from_room( vict,false );
+        char_to_room( vict, ch->in_room->dir_option[ DOWN ]->to_room,false );
         act( "$n is hurled in from above!", FALSE, vict, 0, 0, TO_ROOM );
         look_at_room( vict, vict->in_room, 0 );
         WAIT_STATE( vict, 1 RL_SEC );

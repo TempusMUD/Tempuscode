@@ -62,7 +62,7 @@ SPECIAL(hell_ressurector)
         // put the vict (ressurected mob) in the room to be safe
         //
 
-        char_to_room(vict, ch->in_room);
+        char_to_room(vict, ch->in_room,false);
 
         //
         // transfer EQ from corpse to ressurected body

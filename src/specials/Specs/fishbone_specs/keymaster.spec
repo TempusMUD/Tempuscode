@@ -16,8 +16,8 @@
   if (!cmd && spinal->in_room != (r_home_pad = real_room(v_home_pad)) &&
       r_home_pad != NOWHERE && !FIGHTING(ch)) {
     act("$n unlocks a dimensional door and steps into it.", FALSE, keymaster, 0, 0, TO_ROOM);
-    char_from_room(keymaster);
-    char_to_room(keymaster, r_home_pad);
+    char_from_room(keymaster,false);
+    char_to_room(keymaster, r_home_pad,false);
     act("A dimensional door opens up in the room and out steps $n.", FALSE, spinal, 0, 0, TO_ROOM);
     return 1;
   } else if (cmd || number(0, 13)) {
@@ -45,8 +45,8 @@
   if (!key->carried_by && key->carried_by != key) {
     if (key->carried_by->in_room != NOWHERE &&
         GET_LEVEL(key->carried_by) < LVL_IMMORT) {
-      char_from_room(key);
-      char_to_room(key, key->carried_by->in_room);
+      char_from_room(key,false);
+      char_to_room(key, key->carried_by->in_room,false);
       act("A dimensional door opens up in the room and out steps $n.", FALSE, key, 0, 0, TO_ROOM);
       act("$n grins at you and grabs $p.", FALSE, keymaster, key, key->carried_by, TO_VICT);
       act("$n grins at $N and grabs $p.", FALSE, keymaster, key, key->carried_by, TO_NOTVICT);
@@ -57,8 +57,8 @@
       return 0;
     }
   } else if (key->in_room != NOWHERE) {
-    char_from_room(keymaster);
-    char_to_room(keymaster, key->in_room);
+    char_from_room(keymaster,false);
+    char_to_room(keymaster, key->in_room,false);
     act("A dimensional door opens in the room and out steps $n.", FALSE, keymaster, 0, 0, TO_ROOM);
     act("$n grins and grabs $p.", FALSE, keymaster, key, key->carried_by, TO_ROOM);
     act("$n eats $p.", FALSE, keymaster, key, 0, TO_ROOM);

@@ -351,8 +351,8 @@ ASPELL(spell_teleport)
 				"Your gut wrenches as your are slung violently through spacetime.\r\n");
 			act("$n is jerked violently back into the void!", FALSE, ch, 0, 0,
 				TO_ROOM);
-			char_from_room(ch);
-			char_to_room(ch, was_in);
+			char_from_room(ch,false);
+			char_to_room(ch, was_in, false);
 
 			act("$n reappears, clenching $s gut in pain.",
 				FALSE, ch, 0, 0, TO_ROOM);
@@ -1962,7 +1962,7 @@ ASPELL(spell_decoy)
 		FALSE, ch, 0, NULL, TO_CHAR);
 	act("$n have constructed a perfect decoy of $mself!",
 		FALSE, ch, 0, NULL, TO_ROOM);
-	char_to_room(decoy, ch->in_room);
+	char_to_room(decoy, ch->in_room,false);
 
 	SET_BIT(MOB_FLAGS(decoy), MOB_ISNPC);
 	SET_BIT(MOB_FLAGS(decoy), MOB_SENTINEL);

@@ -45,8 +45,8 @@ SPECIAL(wagon_room)
     send_to_char(ch, "You leap off the side of the wagon.\r\n\r\n");
     act("$n leaps off the side of the wagon.", TRUE, ch, 0, 0, TO_ROOM);
 
-    char_from_room(ch);
-    char_to_room(ch, i->in_room);
+    char_from_room(ch,false);
+    char_to_room(ch, i->in_room,false);
     look_at_room(ch, ch->in_room, 0);
 
     act("$n leaps off the wagon and lands near you.", TRUE, ch, 0, 0, TO_ROOM);

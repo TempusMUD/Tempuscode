@@ -19,7 +19,7 @@ SPECIAL(tiamat)
     stop_fighting(FIGHTING(ch));
     stop_fighting(ch);
     char_from_room(ch);
-    char_to_room(ch, lair);
+    char_to_room(ch, lair,false);
     act("$n appears in a prismatic blast of light!",
 	FALSE, ch, 0, 0, TO_ROOM);
     return 1;

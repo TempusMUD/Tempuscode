@@ -497,15 +497,15 @@ do_destroy_room(struct char_data *ch, int vnum)
 		vict = *it;
 		send_to_char(vict, 
 			"The room in which you exist is suddenly removed from reality!\r\n");
-		char_from_room(vict);
+		char_from_room(vict,false);
 		if (rm->next) {
-			char_to_room(vict, rm->next);
+			char_to_room(vict, rm->next,false);
 		} else if (t_rm) {
-			char_to_room(vict, t_rm);
+			char_to_room(vict, t_rm,false);
 		} else if (zone->world) {
-			char_to_room(vict, zone->world);
+			char_to_room(vict, zone->world,false);
 		} else
-			char_to_room(vict, r_mortal_start_room);
+			char_to_room(vict, r_mortal_start_room,false);
 
 		look_at_room(vict, vict->in_room, 0);
 		act("$n appears from a void in reality.", TRUE, ch, 0, 0, TO_ROOM);

@@ -373,8 +373,8 @@ bomb_damage_room(char *bomb_name, int bomb_type, int bomb_power,
 					IS_WEARING_W(vict) + CAN_CARRY_W(vict))) {
 				send_to_char(vict, 
 					"You are blown out of the room by the blast!!\r\n");
-				char_from_room(vict);
-				char_to_room(vict, room->dir_option[rev_dir[dir]]->to_room);
+				char_from_room(vict,false);
+				char_to_room(vict, room->dir_option[rev_dir[dir]]->to_room,false);
 				look_at_room(vict, vict->in_room, 0);
 
 				sprintf(buf, "$n is blown in from %s!", from_dirs[dir]);

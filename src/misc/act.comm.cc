@@ -110,15 +110,15 @@ ACMD(do_say)
 					was_in != ABS_EXIT(was_in, j)->to_room &&
 					!IS_SET(ABS_EXIT(was_in, j)->exit_info,
 						EX_ISDOOR | EX_CLOSED)) {
-					char_from_room(ch);
-					char_to_room(ch, ABS_EXIT(was_in, j)->to_room);
+					char_from_room(ch,false);
+					char_to_room(ch, ABS_EXIT(was_in, j)->to_room,false);
 					recurs_say = 1;
 					do_say(ch, arg, cmd, subcmd);
 				}
 			}
 
-			char_from_room(ch);
-			char_to_room(ch, was_in);
+			char_from_room(ch,false);
+			char_to_room(ch, was_in,false);
 
 			recurs_say = 0;
 		}

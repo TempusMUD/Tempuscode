@@ -43,8 +43,8 @@ SPECIAL( maladomini_jailer )
             WAIT_STATE( ch, 2 RL_SEC );
             stop_fighting( vict );
             stop_fighting( ch );
-            char_from_room( vict );
-            char_to_room( vict, to_room );
+            char_from_room( vict,false );
+            char_to_room( vict, to_room,false );
             act( "$n is hurled in from the east!", FALSE, vict, 0, 0, TO_ROOM );
             look_at_room( vict, to_room, 0 );
             WAIT_STATE( vict, 3 RL_SEC  );

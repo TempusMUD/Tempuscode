@@ -2983,8 +2983,8 @@ mobile_battle_activity(struct char_data *ch, struct char_data *precious_vict)
 						act(buf, FALSE, ch, 0, 0, TO_ROOM);
 
 						struct room_data *to_room = EXIT(ch, dir)->to_room;
-						char_from_room(ch);
-						char_to_room(ch, to_room);
+						char_from_room(ch,false);
+						char_to_room(ch, to_room,false);
 
 						sprintf(buf, "$n leaps in from %s!", from_dirs[dir]);
 						act(buf, FALSE, ch, 0, 0, TO_ROOM);
@@ -3128,7 +3128,7 @@ mobile_battle_activity(struct char_data *ch, struct char_data *precious_vict)
 		if (new_mob) {
 			WAIT_STATE(ch, 5 RL_SEC);
 			GET_MOVE(ch) -= 100;
-			char_to_room(new_mob, ch->in_room);
+			char_to_room(new_mob, ch->in_room,false);
 			act("$n gestures, a glowing portal appears with a whine!",
 				FALSE, ch, 0, 0, TO_ROOM);
 			act("$n steps out of the portal with a crack of lightning!",
@@ -4048,7 +4048,7 @@ mob_fight_devil(struct char_data *ch, struct char_data *precious_vict)
 			SET_BIT(MOB_FLAGS(new_mob), MOB_PET);
 		WAIT_STATE(ch, 5 RL_SEC);
 		GET_MOVE(ch) -= 100;
-		char_to_room(new_mob, ch->in_room);
+		char_to_room(new_mob, ch->in_room,false);
 		WAIT_STATE(new_mob, 3 RL_SEC);
 		act("$n gestures, a glowing portal appears with a whine!",
 			FALSE, ch, 0, 0, TO_ROOM);

@@ -124,7 +124,7 @@ ACMD(do_action)
 		} else {
 			if ((vict = read_mobile(1599))) {	/* Social Thang */
 				vict->player.short_descr = str_dup(obj->short_description);
-				char_to_room(vict, ch->in_room);
+				char_to_room(vict, ch->in_room,false);
 			} else {
 				act(action->not_found, action->hide, ch, 0, vict, TO_CHAR);
 				slog("SYSERR: Social Thang 1599 cannot be read.");

@@ -63,7 +63,7 @@ SPECIAL( clone_lab ) {
     GET_EXP( cloned_char )          = GET_EXP( ch ) >> 4;
     GET_SEX( cloned_char )          = GET_SEX( ch );
 
-    char_to_room( cloned_char, ch->in_room );
+    char_to_room( cloned_char, ch->in_room,false );
     send_to_room( "Your vision dims as a piercing light appears and probes you.\r\nA figure suddenly appears before you!\r\n", 
 		  ch->in_room );
 

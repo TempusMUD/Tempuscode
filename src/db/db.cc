@@ -2792,7 +2792,7 @@ reset_zone(struct zone_data *zone)
 						break;
 					}
 					if (mob) {
-						char_to_room(mob, room);
+						char_to_room(mob, room,false);
 						if (GET_MOB_LEADER(mob) > 0) {
 							CharacterList::iterator it =
 								mob->in_room->people.begin();

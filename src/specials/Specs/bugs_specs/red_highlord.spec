@@ -26,8 +26,8 @@ SPECIAL(red_highlord)
       r_home_room && !ROOM_FLAGGED(ch->in_room, ROOM_NORECALL)) {
     act("$n kneels and utters an obscene prayer to Takhisis.", FALSE, ch, 0, 0, TO_ROOM);
     act("$n disappears in a flash of light!", FALSE, ch, 0, 0, TO_ROOM);
-    char_from_room(ch);
-    char_to_room(ch, r_home_room);
+    char_from_room(ch,false);
+    char_to_room(ch, r_home_room,false);
     act("$n appears in a flash of light!", FALSE, ch, 0, 0, TO_ROOM);
     return 1;
   }
@@ -103,8 +103,8 @@ SPECIAL(red_highlord)
       act("$n utters some arcane words and disappears in a flash of light.", 
 	  FALSE, ch, 0, 0, TO_ROOM);
       was_in = ch->in_room;
-      char_from_room(ch);
-      char_to_room(ch, target_room);
+      char_from_room(ch,false);
+      char_to_room(ch, target_room,false);
       act("$n appears with a flash of light at the center of the room.", 
 	  FALSE, ch, 0, 0, TO_ROOM);
 
@@ -120,8 +120,8 @@ SPECIAL(red_highlord)
       obj_to_char(blade, ch);
       act("$n grabs $p and disappears as suddenly as $e came!", 
 	  FALSE, ch, blade, 0, TO_ROOM);
-      char_from_room(ch);
-      char_to_room(ch, was_in);
+      char_from_room(ch,false);
+      char_to_room(ch, was_in,false);
       act("$n reappears suddenly, with a big grin on $s face.",
 	  FALSE, ch, 0, 0, TO_ROOM);
       return 1;

@@ -52,7 +52,7 @@ SPECIAL(stable_room)
       /* free(pet->player.description); don't free the prototype! */
       pet->player.description = str_dup(buf);
     }
-    char_to_room(pet, ch->in_room);
+    char_to_room(pet, ch->in_room,false);
     add_follower(pet, ch);
 
     /* Be certain that pets can't get/carry/use/wield/wear items */
@@ -105,8 +105,8 @@ SPECIAL(stable_room)
     GET_GOLD(ch) += price;
     GET_EXP(pet) = price >> 1;
 
-    char_from_room(pet);
-    char_to_room(pet, pet_room);
+    char_from_room(pet,false);
+    char_to_room(pet, pet_room,false);
     CharacterList::iterator it = pet_room->people.begin();
     for( ; it != pet_room->people.end(); ++it ) {
         if ((*it) != pet && IS_NPC((*it)) && GET_MOB_VNUM((*it)) == GET_MOB_VNUM(pet)) {

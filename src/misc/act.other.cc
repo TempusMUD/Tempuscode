@@ -2047,9 +2047,9 @@ ACMD(do_gasify)
 		TRUE, ch, 0, 0, TO_ROOM);
 	send_to_char(ch, "You become gaseous.\r\n");
 
-	char_to_room(gas, ch->in_room);
-	char_from_room(ch);
-	char_to_room(ch, tank);
+	char_to_room(gas, ch->in_room,false);
+	char_from_room(ch,false);
+	char_to_room(ch, tank,false);
 
 	ch->desc->character = gas;
 	ch->desc->original = ch;

@@ -534,12 +534,12 @@ check_idling(struct char_data *ch)
 			send_to_char(ch, "You have been idle, and are pulled into a void.\r\n");
 			save_char(ch, NULL);
 			Crash_crashsave(ch);
-			char_from_room(ch);
-			char_to_room(ch, real_room(1));
+			char_from_room(ch,false);
+			char_to_room(ch, real_room(1),true);
 		} else if (ch->char_specials.timer > 60) {
 			if (ch->in_room != NULL)
-				char_from_room(ch);
-			char_to_room(ch, real_room(3));
+				char_from_room(ch,false);
+			char_to_room(ch, real_room(3),true);
 			if (ch->desc)
 				close_socket(ch->desc);
 			ch->desc = NULL;

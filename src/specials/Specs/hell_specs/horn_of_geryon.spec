@@ -18,7 +18,7 @@ SPECIAL(horn_of_geryon)
   
   if (GET_OBJ_VAL(horn, 0)) {
     if ((minotaur = read_mobile(16144))) {
-      char_to_room(minotaur, ch->in_room);
+      char_to_room(minotaur, ch->in_room,false);
       act("$n appears from a cold, swirling mist.",FALSE,minotaur,0,0,TO_ROOM);
       add_follower(minotaur, ch);
       SET_BIT(AFF_FLAGS(minotaur), AFF_CHARM);

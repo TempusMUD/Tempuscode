@@ -1634,15 +1634,12 @@ ACMD(do_enter)
 //if (room_count(ch, room) < MAX_OCCUPANTS(room)) {
 						if (room->people.size() <
 							(unsigned)MAX_OCCUPANTS(room)) {
-							act("$n climbs into $p.", TRUE, ch, car, 0,
-								TO_ROOM);
-							act("You climb into $p.", TRUE, ch, car, 0,
-								TO_CHAR);
+							act("$n climbs into $p.", TRUE, ch, car, 0, TO_ROOM);
+							act("You climb into $p.", TRUE, ch, car, 0, TO_CHAR);
 							char_from_room(ch);
 							char_to_room(ch, room);
 							look_at_room(ch, ch->in_room, 0);
-							act("$n has climbed into $p.", FALSE, ch, car, 0,
-								TO_ROOM);
+							act("$n has climbed into $p.", FALSE, ch, car, 0, TO_ROOM);
 							return;
 						} else
 							act("$p is already full of people.", FALSE, ch,
@@ -1679,18 +1676,17 @@ ACMD(do_enter)
 						// charmed check
 						if (AFF_FLAGGED(ch, AFF_CHARM) && ch->master &&
 							ch->master->in_room == ch->in_room) {
-							act("You fear that if you enter $p, you will be separated from $N!", FALSE, ch, car, ch->master, TO_CHAR);
+							act("You fear that if you enter $p, you will be separated from $N!", 
+								FALSE, ch, car, ch->master, TO_CHAR);
 							return;
 						}
 
-						if (car->action_description)
-							act(car->action_description, TRUE, ch, car, 0,
-								TO_ROOM);
-						else
-							act("$n steps into $p.", TRUE, ch, car, 0,
-								TO_ROOM);
-						act("You step into $p.\r\n", TRUE, ch, car, 0,
-							TO_CHAR);
+						if (car->action_description) {
+							act(car->action_description, TRUE, ch, car, 0, TO_ROOM);
+						} else {
+							act("$n steps into $p.", TRUE, ch, car, 0, TO_ROOM);
+						}
+						act("You step into $p.\r\n", TRUE, ch, car, 0, TO_CHAR);
 
 						if (!IS_NPC(ch) && ch->in_room->zone != room->zone)
 							room->zone->enter_count++;

@@ -20,8 +20,8 @@ void move_chars(room_data *from, room_data *to) {
      CharacterList::iterator it = from->people.begin();
      for( ; it != from->people.end(); ++it ) {
          ch = *it;
-         char_from_room(ch);
-         char_to_room(ch, to);
+         char_from_room(ch,false);
+         char_to_room(ch, to,false);
      }
 }
 // Connects the "dir" exit of link room to dest_room
@@ -60,12 +60,8 @@ SPECIAL(shade_zone)
     struct time_info_data local_time;
 	struct zone_data *zone = (struct zone_data *)me; 
     
-    // Don't do anything.  Why is this?  What is cmd for?
-    // F: specs are run when commands are typed within reference of them
-    // ie. when somedone is in a room that a room spec is on.
     
-    
-    if (cmd)
+	if( spec_mode != SPECIAL_TICK )
 		return 0;
 
     set_local_time(zone, &local_time);

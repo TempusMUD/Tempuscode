@@ -580,8 +580,8 @@ game_loop(int mother_desc)
 						push_command_onto_list(d->character, comm);
 					if (!d->connected && GET_WAS_IN(d->character) != NULL) {
 						if (d->character->in_room != NULL)
-							char_from_room(d->character);
-						char_to_room(d->character, GET_WAS_IN(d->character));
+							char_from_room(d->character,false);
+						char_to_room(d->character, GET_WAS_IN(d->character),false);
 						GET_WAS_IN(d->character) = NULL;
 						act("$n has returned.", TRUE, d->character, 0, 0,
 							TO_ROOM);

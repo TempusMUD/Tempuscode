@@ -1616,12 +1616,12 @@ look_in_obj(struct char_data *ch, char *arg)
 			else if (real_room(ROOM_NUMBER(obj)) != NULL) {
 				act("Inside $p you see:", FALSE, ch, obj, 0, TO_CHAR);
 				room_was_in = ch->in_room;
-				char_from_room(ch);
-				char_to_room(ch, real_room(ROOM_NUMBER(obj)));
+				char_from_room(ch,false);
+				char_to_room(ch, real_room(ROOM_NUMBER(obj)),false);
 				list_char_to_char(ch->in_room->people, ch);
 				act("$n looks in from the outside.", FALSE, ch, 0, 0, TO_ROOM);
-				char_from_room(ch);
-				char_to_room(ch, room_was_in);
+				char_from_room(ch,false);
+				char_to_room(ch, room_was_in,false);
 			}
 		} else if (GET_OBJ_TYPE(obj) == ITEM_PIPE) {
 			if (GET_OBJ_VAL(obj, 0))

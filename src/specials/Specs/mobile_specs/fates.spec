@@ -138,8 +138,8 @@ SPECIAL(fate)
 	}
 	
 	act("$n disappears into a green mist.", FALSE, fate, 0, 0, TO_ROOM);
-	char_from_room(fate);
-	char_to_room(fate, dest);
+	char_from_room(fate,false);
+	char_to_room(fate, dest,false);
 	fate->in_room->zone->idle_time = 0;
 	act("$n appears out of a green mist.", FALSE, fate, 0, 0, TO_ROOM);
 	return 1;

@@ -16,8 +16,8 @@ SPECIAL(mystical_enclave)
     return 0;
 
   act("$n vanishes into the ceiling...", TRUE, ch, 0, 0, TO_ROOM);
-  char_from_room(ch);
-  char_to_room(ch, stair_rnum);
+  char_from_room(ch,false);
+  char_to_room(ch, stair_rnum,false);
   send_to_char(ch, "You leave upwards, into the future...\r\n");
   look_at_room(ch, ch->in_room, 0);
   act("$n arrives, climbing up from the past...\r\n", TRUE, ch, 0, 0, TO_ROOM);

@@ -304,7 +304,7 @@ recieve_mail(char_data * ch)
 
 SPECIAL(postmaster)
 {
-	if( spec_mode == SPECIAL_DEATH ) 
+	if( spec_mode != SPECIAL_CMD ) 
 		return 0;
 
 	if (!ch || !ch->desc || IS_NPC(ch))

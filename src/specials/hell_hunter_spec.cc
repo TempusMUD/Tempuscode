@@ -278,7 +278,7 @@ SPECIAL(hell_hunter_brain)
 					}
 				}
 
-				char_to_room(mob, vict ? vict->in_room : obj->in_room);
+				char_to_room(mob, vict ? vict->in_room : obj->in_room,false);
 				act("$n steps suddenly out of an infernal conduit from the outer planes!", FALSE, mob, 0, 0, TO_ROOM);
 
 			}
@@ -292,7 +292,7 @@ SPECIAL(hell_hunter_brain)
 			else {
 				regulator = 1;
 				HUNTING(mob) = vict;
-				char_to_room(mob, vict->in_room);
+				char_to_room(mob, vict->in_room,false);
 				act("$n materializes suddenly from a stream of hellish energy!", FALSE, mob, 0, 0, TO_ROOM);
 			}
 		}
@@ -401,7 +401,7 @@ SPECIAL(hell_hunter)
 					return 1;
 				}
 
-				char_to_room(devil, ch->in_room);
+				char_to_room(devil, ch->in_room,false);
 				act("$n gestures... A glowing conduit flashes into existence!",
 					FALSE, ch, 0, vict, TO_ROOM);
 				act("...$n leaps out and attacks $N!", FALSE, devil, 0, vict,
@@ -492,15 +492,15 @@ SPECIAL(arioch)
 				}
 			}
 			act(ARIOCH_LEAVE_MSG, FALSE, ch, 0, 0, TO_ROOM);
-			char_from_room(ch);
-			char_to_room(ch, real_room(ARIOCH_LAIR));
+			char_from_room(ch,false);
+			char_to_room(ch, real_room(ARIOCH_LAIR),false);
 			act(ARIOCH_ARRIVE_MSG, FALSE, ch, 0, 0, TO_ROOM);
 			return 1;
 		}
 		if (GET_HIT(ch) < 800) {
 			act(ARIOCH_LEAVE_MSG, FALSE, ch, 0, 0, TO_ROOM);
-			char_from_room(ch);
-			char_to_room(ch, real_room(ARIOCH_LAIR));
+			char_from_room(ch,false);
+			char_to_room(ch, real_room(ARIOCH_LAIR),false);
 			act(ARIOCH_ARRIVE_MSG, FALSE, ch, 0, 0, TO_ROOM);
 			return 1;
 		}
@@ -522,8 +522,8 @@ SPECIAL(arioch)
 				rm = vict->in_room;
 			}
 			act(ARIOCH_LEAVE_MSG, FALSE, ch, 0, 0, TO_ROOM);
-			char_from_room(ch);
-			char_to_room(ch, rm);
+			char_from_room(ch,false);
+			char_to_room(ch, rm,false);
 			act(ARIOCH_ARRIVE_MSG, FALSE, ch, 0, 0, TO_ROOM);
 			sprintf(buf, "HELL: Arioch ported to %s@%d",
 				vict ? GET_NAME(vict) : "Nobody", rm->number);

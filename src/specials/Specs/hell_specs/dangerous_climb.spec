@@ -22,8 +22,8 @@ SPECIAL(dangerous_climb)
     if (damage(ch, ch, dam, TYPE_FALLING, -1))
       return 1;
 
-    char_from_room(ch);
-    char_to_room(ch, toroom);
+    char_from_room(ch,false);
+    char_to_room(ch, toroom,false);
     look_at_room(ch, ch->in_room, 0);
     act("$n comes crashing down the rocks from above!",
 	FALSE, ch, 0, 0, TO_ROOM);

@@ -42,6 +42,7 @@
 #include "combat.h"
 #include "events.h"
 #include "security.h"
+#include "quest.h"
 
 #include <iostream>
 #include <algorithm>
@@ -1784,8 +1785,8 @@ damage(struct char_data *ch, struct char_data *victim, int dam,
 			stop_fighting(victim);
 			stop_fighting(ch);
 		}
-		char_from_room(victim);
-		char_to_room(victim, zone_table->world);
+		char_from_room(victim,false);
+		char_to_room(victim, zone_table->world,false);
 		act("$n is carried in by divine forces.", FALSE, victim, 0, 0,
 			TO_ROOM);
 	}
@@ -1848,7 +1849,8 @@ damage(struct char_data *ch, struct char_data *victim, int dam,
 				// and tag it
 				if (arena) {
 					strcat(buf2, " [ARENA]");
-					mudlog(buf2, CMP, GET_INVIS_LEV(victim), TRUE);
+					//mudlog(buf2, CMP, GET_INVIS_LEV(victim), TRUE);
+					qlog(NULL, buf2, QLOG_COMP, GET_INVIS_LEV(victim), TRUE);
 				} else {
 					mudlog(buf2, BRF, GET_INVIS_LEV(victim), TRUE);
 				}

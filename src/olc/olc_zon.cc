@@ -1136,7 +1136,7 @@ do_zmob_cmd(struct char_data *ch, char *argument)
 	SET_BIT(zone->flags, ZONE_ZONE_MODIFIED);
 	send_to_char(ch, "Command completed ok.\r\n");
 	mob = read_mobile(int_arg1);
-	char_to_room(mob, ch->in_room);
+	char_to_room(mob, ch->in_room,false);
 
 }
 

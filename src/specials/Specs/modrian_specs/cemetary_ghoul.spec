@@ -26,8 +26,8 @@ SPECIAL(cemetary_ghoul)
 
     act("$n claws $s way into the ground and disappears!",
                  TRUE, ch, 0, 0, TO_ROOM);
-    char_from_room(ch);
-    char_to_room(ch, r_ghoul_hole);
+    char_from_room(ch,false);
+    char_to_room(ch, r_ghoul_hole,false);
     act("$n has climbed into the hole.", FALSE, ch, 0, 0, TO_ROOM);
     return 1;
 
@@ -44,8 +44,8 @@ SPECIAL(cemetary_ghoul)
       return 1;
 
     act("$n claws $s way out of the hole.", FALSE, ch, 0, 0, TO_ROOM);
-    char_from_room(ch);
-    char_to_room(ch, r_cemetary_room);
+    char_from_room(ch,false);
+    char_to_room(ch, r_cemetary_room,false);
     act("$n claws $s way out of the ground.", FALSE, ch, 0, 0, TO_ROOM);
     return 1;
   } else

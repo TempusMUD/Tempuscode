@@ -1047,7 +1047,7 @@ SPECIAL(shop_keeper)
 		char *messg);
 
 
-	if (spec_mode == SPECIAL_DEATH)
+	if (spec_mode != SPECIAL_CMD )
 		return 0;
 
 	if (!MOB2_FLAGGED(keeper, MOB2_WONT_WEAR)

@@ -8,7 +8,7 @@ SPECIAL(falling_tower_dt)
 {
   struct room_data *under_room;
   
-  if (spec_mode != SPECIAL_CMD && spec_mode != SPECIAL_TICK) return FALSE;
+  if (spec_mode != SPECIAL_CMD ) return FALSE;
 
   if ((under_room = real_room(5241)) == NULL)
     return 0;
@@ -17,8 +17,8 @@ SPECIAL(falling_tower_dt)
   if (CMD_IS("down")) {
     send_to_char(ch, "As you begin to descend the ladder, a rung breaks, sending you\r\n"
                  "plummeting downwards to the street!\r\n");
-    char_from_room(ch);
-    char_to_room(ch, under_room);
+    char_from_room(ch,false);
+    char_to_room(ch, under_room,false);
     send_to_char(ch, "You hit the ground hard!!\r\n");
     act("$n falls out of the tower above, and slams into the street hard!", FALSE, ch, 0, 0, TO_ROOM);
     look_at_room(ch, ch->in_room, 0);

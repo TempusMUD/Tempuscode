@@ -423,7 +423,7 @@ do_qcontrol_mload(CHAR * ch, char *argument, int com)
 		return;
 	}
 	mob = read_mobile(number);
-	char_to_room(mob, ch->in_room);
+	char_to_room(mob, ch->in_room,false);
 	act("$n makes a quaint, magical gesture with one hand.", TRUE, ch,
 		0, 0, TO_ROOM);
 	act("$n has created $N!", FALSE, ch, 0, mob, TO_ROOM);
@@ -583,8 +583,8 @@ do_qcontrol_trans(CHAR * ch, char *argument, int com)
 		}
 		++transCount;
 		act("$n disappears in a mushroom cloud.", FALSE, vict, 0, 0, TO_ROOM);
-		char_from_room(vict);
-		char_to_room(vict, room);
+		char_from_room(vict,false);
+		char_to_room(vict, room,false);
 		act("$n arrives from a puff of smoke.", FALSE, vict, 0, 0, TO_ROOM);
 		act("$n has transferred you!", FALSE, ch, 0, vict, TO_VICT);
 		look_at_room(vict, room, 0);

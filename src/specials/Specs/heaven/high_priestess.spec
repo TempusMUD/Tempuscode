@@ -31,17 +31,17 @@ SPECIAL(high_priestess)
     stop_fighting(hpr);
 
     if ((archon = read_mobile(43014))) {
-      char_to_room(archon, hpr->in_room);
+      char_to_room(archon, hpr->in_room,false);
       act("$n appears at the center of the room.",FALSE,archon,0,0,TO_ROOM);
     }
     if ((archon = read_mobile(43015))) {
-      char_to_room(archon, hpr->in_room);
+      char_to_room(archon, hpr->in_room,false);
       act("$n appears at the center of the room.",FALSE,archon,0,0,TO_ROOM);
       hit(archon, vict, TYPE_UNDEFINED);
     }
 
-    char_from_room(hpr);
-    char_to_room(hpr, quarters);
+    char_from_room(hpr,false);
+    char_to_room(hpr, quarters,false);
     act("$n appears at the center of the room.", TRUE, hpr, 0, 0, TO_ROOM);
     return 1;
   }
@@ -51,8 +51,8 @@ SPECIAL(high_priestess)
       GET_MANA(hpr) > (GET_MAX_MANA(hpr) * 0.75)) {
     act("$n steps onto a flaming golden chariot and disappears into the sky.",
 	FALSE, hpr, 0, 0, TO_ROOM);
-    char_from_room(hpr);
-    char_to_room(hpr, focus);
+    char_from_room(hpr,false);
+    char_to_room(hpr, focus,false);
     act("A dazzling shaft of light appears from the heavens, bathing the throne.\r\n$n slowly appears, seated at the focus.",
 	FALSE, hpr, 0, 0, TO_ROOM);
     return 1;

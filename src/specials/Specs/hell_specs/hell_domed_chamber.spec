@@ -60,7 +60,7 @@ SPECIAL( hell_domed_chamber ) {
     GET_EXP( cloned_char )          = GET_EXP( ch ) >> 4;
     GET_SEX( cloned_char )          = GET_SEX( ch );
 
-    char_to_room( cloned_char, ch->in_room );
+    char_to_room( cloned_char, ch->in_room, false );
     send_to_room( "With the sound of a great exhaling of breath, a dark figure steps into the room...\n", 
 		  ch->in_room );
 

@@ -19,8 +19,8 @@ SPECIAL(spinal)
       r_home_pad != NULL && !FIGHTING(ch)) {
     act("$n departs suddenly into the deeper ethereal.", 
 	FALSE, spinal, 0, 0, TO_ROOM);
-    char_from_room(spinal);
-    char_to_room(spinal, r_home_pad);
+    char_from_room(spinal,false);
+    char_to_room(spinal, r_home_pad,false);
     spinal->in_room->zone->idle_time = 0;
 
     act("$n steps in from another plane of existence.", 
@@ -51,8 +51,8 @@ SPECIAL(spinal)
   if (spine->carried_by && spine->carried_by != spinal) {
     if (spine->carried_by->in_room != NULL &&
         GET_LEVEL(spine->carried_by) < LVL_IMMORT) {
-      char_from_room(spinal);
-      char_to_room(spinal, spine->carried_by->in_room);
+      char_from_room(spinal,false);
+      char_to_room(spinal, spine->carried_by->in_room,false);
       spinal->in_room->zone->idle_time = 0;
 
       act("$n steps in from the ethereal plane.", 
@@ -68,8 +68,8 @@ SPECIAL(spinal)
       return 0;
     }
   } else if (spine->in_room != NULL) {
-    char_from_room(spinal);
-    char_to_room(spinal, spine->in_room);
+    char_from_room(spinal,false);
+    char_to_room(spinal, spine->in_room,false);
     spinal->in_room->zone->idle_time = 0;
 
     act("$n steps in from the ethereal plane.", FALSE, spinal, 0, 0, TO_ROOM);
