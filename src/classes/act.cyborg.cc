@@ -1975,7 +1975,7 @@ ACMD(do_overhaul)
     } else if (!AFF3_FLAGGED(vict, AFF3_STASIS)) {
         send_to_char("Error: Overhauling an active subject could lead to severe data loss.\r\n", ch);
     } else {
-        repair = GET_TOT_DAM(vict) - (max_component_dam(vict) / 3);
+        int repair = GET_TOT_DAM(vict) - (max_component_dam(vict) / 3);
         repair = MIN(repair, GET_LEVEL(ch) * 800);
         repair = MIN(repair, (CHECK_SKILL(ch, SKILL_OVERHAUL) + TOOL_MOD(tool)) * 400);
         repair = MIN(repair, (GET_MOVE(ch) + GET_MANA(ch)) * 100);
