@@ -368,7 +368,7 @@ static const int PRF_NODREAM = (1 << 30);
 
 // PRF 2 Flags
 
-static const int PRF2_FIGHT_DEBUG = (1 << 0);	/* Sees info on fight.              */
+static const int PRF2_DEBUG = (1 << 0);	/* Sees info on fight.              */
 static const int PRF2_NEWBIE_HELPER = (1 << 1);	/* sees newbie arrivals             */
 static const int PRF2_AUTO_DIAGNOSE = (1 << 2);	/* automatically see condition of enemy */
 static const int PRF2_AUTOPAGE = (1 << 3);	/* Beeps when ch receives a tell    */

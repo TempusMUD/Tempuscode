@@ -33,7 +33,7 @@ perform_monk_meditate(struct Creature *ch)
 	af.is_instant = 0;
 	af.location = APPLY_NONE;
 	MEDITATE_TIMER(ch)++;
-	if (PRF2_FLAGGED(ch, PRF2_FIGHT_DEBUG)) {
+	if (PRF2_FLAGGED(ch, PRF2_DEBUG)) {
 		send_to_char(ch, "<meditate>: Timer %d\r\n", MEDITATE_TIMER(ch));
 	}
 
@@ -44,7 +44,7 @@ perform_monk_meditate(struct Creature *ch)
 		int target = MEDITATE_TIMER(ch) + (CHECK_SKILL(ch, ZEN_OBLIVITY) >> 2) + GET_WIS(ch);
 		int test   =  (mag_manacost(ch, ZEN_OBLIVITY) + number(20, 40));
 
-		if (PRF2_FLAGGED(ch, PRF2_FIGHT_DEBUG)) 
+		if (PRF2_FLAGGED(ch, PRF2_DEBUG)) 
 			send_to_char(ch, "<meditate> OBLIV: test[%d] target[%d] \r\n", test, target );
 					
 		if( target > test ) 
@@ -69,7 +69,7 @@ perform_monk_meditate(struct Creature *ch)
 		int target = MEDITATE_TIMER(ch) + (CHECK_SKILL(ch, ZEN_AWARENESS) >> 2);
 		int test   = (mag_manacost(ch, ZEN_AWARENESS) + number(6, 40) - GET_WIS(ch));
 
-		if (PRF2_FLAGGED(ch, PRF2_FIGHT_DEBUG)) 
+		if (PRF2_FLAGGED(ch, PRF2_DEBUG)) 
 			send_to_char(ch, "<meditate> AWARE: test[%d] target[%d] \r\n", test, target );
 
 		if( target > test ) 
@@ -100,7 +100,7 @@ perform_monk_meditate(struct Creature *ch)
 		int target = MEDITATE_TIMER(ch) + (CHECK_SKILL(ch, ZEN_MOTION) >> 2);
 		int test   = (mag_manacost(ch, ZEN_MOTION) + number(10, 40) - GET_WIS(ch));
 
-		if (PRF2_FLAGGED(ch, PRF2_FIGHT_DEBUG)) 
+		if (PRF2_FLAGGED(ch, PRF2_DEBUG)) 
 			send_to_char(ch, "<meditate> MOTION: test[%d] target[%d] \r\n", test, target );
 
 		if( target > test )
@@ -127,7 +127,7 @@ perform_monk_meditate(struct Creature *ch)
 		int target = MEDITATE_TIMER(ch) + (CHECK_SKILL(ch, ZEN_TRANSLOCATION) >> 2);
 		int test   = number(20, 25);
 
-		if (PRF2_FLAGGED(ch, PRF2_FIGHT_DEBUG)) 
+		if (PRF2_FLAGGED(ch, PRF2_DEBUG)) 
 			send_to_char(ch, "<meditate> TRANSL: test[%d] target[%d] \r\n", test, target );
 
 		if( target > test )
@@ -152,7 +152,7 @@ perform_monk_meditate(struct Creature *ch)
 		int target = MEDITATE_TIMER(ch) + (CHECK_SKILL(ch, ZEN_CELERITY) >> 2);
 		int test   = number(20, 25);
 
-		if (PRF2_FLAGGED(ch, PRF2_FIGHT_DEBUG)) 
+		if (PRF2_FLAGGED(ch, PRF2_DEBUG)) 
 			send_to_char(ch, "<meditate> TRANSL: test[%d] target[%d] \r\n", test, target );
 
 		if( target > test )

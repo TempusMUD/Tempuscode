@@ -1678,7 +1678,7 @@ cast_spell(struct Creature *ch, struct Creature *tch,
 		if (number(1, attribute) < number(mana / 2, mana)) {
 			weenie = true;
 		}
-		if (PRF2_FLAGGED(ch, PRF2_FIGHT_DEBUG)) {
+		if (PRF2_FLAGGED(ch, PRF2_DEBUG)) {
 			send_to_char(ch,
 				"Taint - Attribute[%d] Weenie[%s] Mana Cost[%d] - Damage[%d]\r\n",
 				attribute, weenie ? "true" : "false", mana, dam);

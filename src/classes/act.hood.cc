@@ -499,7 +499,7 @@ ACMD(do_snatch)
 		if (CHECK_SKILL(ch, SKILL_SNATCH) > 100)
 			percent += CHECK_SKILL(ch, SKILL_SNATCH) - 100;
 		prob = number(1, 100);
-		if (PRF2_FLAGGED(ch, PRF2_FIGHT_DEBUG)) {
+		if (PRF2_FLAGGED(ch, PRF2_DEBUG)) {
 			send_to_char(ch, "Roll: %d, Chance: %d\r\n", prob, percent);
 		}
 		//failure. hand on it and failed to take away.

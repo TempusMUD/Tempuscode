@@ -1198,7 +1198,7 @@ ACMD(do_gen_tog)
 		result = PRF_TOG_CHK(ch, PRF_NOIDENTIFY);
 		break;
 	case SCMD_DEBUG:
-		result = PRF2_TOG_CHK(ch, PRF2_FIGHT_DEBUG);
+		result = PRF2_TOG_CHK(ch, PRF2_DEBUG);
 		break;
 	case SCMD_NEWBIE_HELP:
 		result = PRF2_TOG_CHK(ch, PRF2_NEWBIE_HELPER);

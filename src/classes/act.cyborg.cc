@@ -1373,7 +1373,7 @@ ACMD(do_discharge)
 		feedback *= max_component_dam(ch) / 100;
 
 		// Random debug messages.
-		if (PRF2_FLAGGED(ch, PRF2_FIGHT_DEBUG)) {
+		if (PRF2_FLAGGED(ch, PRF2_DEBUG)) {
 			send_to_char(ch, "Tolerance: %d, Amount: %d, Feedback: %d\r\n",
 				tolerance, amount, feedback);
 		}

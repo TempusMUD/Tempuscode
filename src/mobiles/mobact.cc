@@ -1044,13 +1044,13 @@ check_infiltrate(struct Creature *ch, struct Creature *vict)
 	percent += (vict->getLevelBonus(SKILL_INFILTRATE) / 2);
 
 	if (prob > percent) {
-		if (ch && PRF2_FLAGGED(ch, PRF2_FIGHT_DEBUG)) {
+		if (ch && PRF2_FLAGGED(ch, PRF2_DEBUG)) {
 			send_to_char(ch, "Infiltrate Success: Chance: [%4d] Roll: [%4d]\r\n",
 				prob, percent);
 		}
 		return 1;
 	} else {
-		if (ch && PRF2_FLAGGED(ch, PRF2_FIGHT_DEBUG)) {
+		if (ch && PRF2_FLAGGED(ch, PRF2_DEBUG)) {
 			send_to_char(ch, "Infiltrate Failure: Chance: [%4d] Roll: [%4d]\r\n",
 				prob, percent);
 		}

@@ -2096,7 +2096,7 @@ ACMD(do_drink)
 	if (GET_OBJ_VAL(temp, 1) != -1)
 		weight_change_object(temp, -weight);	/* Subtract amount */
 
-	if (PRF2_FLAGGED(ch, PRF2_FIGHT_DEBUG)) {
+	if (PRF2_FLAGGED(ch, PRF2_DEBUG)) {
 		send_to_char(ch, "(%d amount) D%d-F%d-H%d\n", amount,
 			(int)drink_aff[GET_OBJ_VAL(temp, 2)][DRUNK],
 			(int)drink_aff[GET_OBJ_VAL(temp, 2)][FULL],

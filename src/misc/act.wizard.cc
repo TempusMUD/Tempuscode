@@ -5892,7 +5892,7 @@ ACMD(do_set)
 		GET_LIFE_POINTS(vict) = RANGE(0, 100);
 		break;
 	case 56:
-		SET_OR_REMOVE(PRF2_FLAGS(vict), PRF2_FIGHT_DEBUG);
+		SET_OR_REMOVE(PRF2_FLAGS(vict), PRF2_DEBUG);
 		break;
 	case 57:
 	case 58:

@@ -1769,7 +1769,7 @@ damage(struct Creature *ch, struct Creature *victim, int dam,
 	}
 
 	/* debugging message */
-	if (ch && PRF2_FLAGGED(ch, PRF2_FIGHT_DEBUG))
+	if (ch && PRF2_FLAGGED(ch, PRF2_DEBUG))
 		send_to_char(ch,
 			"%s[DAMAGE] %s   dam:%d   wait:%d   pos:%d   reduct:%.2f%s\r\n",
 			CCCYN(ch, C_NRM), GET_NAME(victim), dam,
@@ -1777,7 +1777,7 @@ damage(struct Creature *ch, struct Creature *victim, int dam,
 				victim->desc ? victim->desc->wait : 0,
 			victim->getPosition(), dam_reduction, CCNRM(victim, C_NRM));
 
-	if (victim && PRF2_FLAGGED(victim, PRF2_FIGHT_DEBUG))
+	if (victim && PRF2_FLAGGED(victim, PRF2_DEBUG))
 		send_to_char(ch,
 			"%s[DAMAGE] %s   dam:%d   wait:%d   pos:%d   reduct:%.2f%s\r\n",
 			CCCYN(victim, C_NRM), GET_NAME(victim), dam,
@@ -2061,7 +2061,7 @@ hit(struct Creature *ch, struct Creature *victim, int type)
 
 	diceroll = number(1, 20);
 
-	if (PRF2_FLAGGED(ch, PRF2_FIGHT_DEBUG))
+	if (PRF2_FLAGGED(ch, PRF2_DEBUG))
 		send_to_char(ch, "%s[HIT] thac0:%d   roll:%d  AC:%d%s\r\n",
 			CCCYN(ch, C_NRM), calc_thaco, diceroll, victim_ac,
 			CCNRM(ch, C_NRM));
@@ -2434,7 +2434,7 @@ perform_violence(void)
 				(int)((prob * 0.15) + (prob * (GET_COND(ch, DRUNK) / 100)));
 		die_roll = number(0, 300);
 
-		if (PRF2_FLAGGED(ch, PRF2_FIGHT_DEBUG)) {
+		if (PRF2_FLAGGED(ch, PRF2_DEBUG)) {
 			send_to_char(ch,
 				"%s[COMBAT] %s   prob:%d   roll:%d   wait:%d%s\r\n",
 				CCCYN(ch, C_NRM), GET_NAME(ch), prob, die_roll,
@@ -2442,7 +2442,7 @@ perform_violence(void)
 					wait : 0),
 				CCNRM(ch, C_NRM));
 		}
-		if (PRF2_FLAGGED(FIGHTING(ch), PRF2_FIGHT_DEBUG)) {
+		if (PRF2_FLAGGED(FIGHTING(ch), PRF2_DEBUG)) {
 			send_to_char(FIGHTING(ch),
 				"%s[COMBAT] %s   prob:%d   roll:%d   wait:%d%s\r\n",
 				CCCYN(FIGHTING(ch), C_NRM), GET_NAME(ch), prob, die_roll,

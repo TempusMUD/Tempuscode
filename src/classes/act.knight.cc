@@ -158,7 +158,7 @@ malovent_holy_touch(Creature * ch, Creature * vict)
 
 	int roll = random_percentage_zero_low();
 
-	if (PRF2_FLAGGED(ch, PRF2_FIGHT_DEBUG)) {
+	if (PRF2_FLAGGED(ch, PRF2_DEBUG)) {
 		send_to_char(ch, "HolyTouch: roll[%d] chance[%d]\r\n", roll, chance );
 	}
 

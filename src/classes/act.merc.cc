@@ -148,7 +148,7 @@ ACMD(do_crossface)
 		+ (dex_mod * (GET_DEX(ch) - GET_DEX(vict)))
 		+ (str_mod * (GET_STR(ch) - GET_STR(vict)));
 	percent = number(1, 100);
-	if (PRF2_FLAGGED(ch, PRF2_FIGHT_DEBUG)) {
+	if (PRF2_FLAGGED(ch, PRF2_DEBUG)) {
 		send_to_char(ch, "Roll: %d, Chance: %d\r\n", prob, percent);
 	}
 	// You can't crossface pudding you fool!
