@@ -3835,6 +3835,10 @@ mag_assign_spells(void)
 	spello(SKILL_SCREAM, X, X, X, X, X, X, X, X, X, X, 5, X, X, X, X, X, X,
 		35, 35, 1, 0, 0, 0, MAG_DAMAGE | MAG_BARD);
 
+	spello(SONG_SONIC_DISRUPTION, X, X, X, X, X, X, X, X, X, X, 17, X, X, X, X,
+		X, X, 100, 60, 5, POS_FIGHTING, TAR_IGNORE, TRUE,
+		MAG_BARD | MAG_AREAS);
+
 
 	/* C L A S S E S      M A N A   */
 

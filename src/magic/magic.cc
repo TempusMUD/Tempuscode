@@ -563,7 +563,7 @@ mag_damage(int level, struct Creature *ch, struct Creature *victim,
 	int spellnum, int savetype)
 {
 	int is_mage = 0, is_cleric = 0, is_psychic = 0, is_physic = 0,
-		is_ranger = 0, is_knight = 0, audible = 0;
+		is_ranger = 0, is_knight = 0, audible = 0, is_bard = 0;
 	int dam = 0;
 
 	if (victim == NULL || ch == NULL)
@@ -580,7 +580,8 @@ mag_damage(int level, struct Creature *ch, struct Creature *victim,
 	is_physic = IS_PHYSIC(ch);
 	is_ranger = IS_RANGER(ch);
 	is_knight = IS_KNIGHT(ch);
-
+	is_bard = (IS_BARD(ch));
+	
 	switch (spellnum) {
 	case SPELL_HELL_FIRE_STORM:
 		spellnum = SPELL_HELL_FIRE;
@@ -840,6 +841,10 @@ mag_damage(int level, struct Creature *ch, struct Creature *victim,
 	case SPELL_FISSION_BLAST:
         dam =  dice(level, 8) + level;
 		break;
+	
+	case SONG_SONIC_DISRUPTION:
+		dam = dice((level >> 1), 8) + (3*level);
+		break;
 
 	}							/* switch(spellnum) */
 
@@ -857,7 +862,9 @@ mag_damage(int level, struct Creature *ch, struct Creature *victim,
 		// wis bonus for clerics
 		} else if (SPELL_IS_DIVINE(spellnum) && is_cleric) {
 			dam += (dam * (GET_WIS(ch) - 10)) / 45;	// 1.25 dam at full wis
-        }
+        } else if (SPELL_IS_BARD(spellnum) && is_bard) {
+			dam += (dam * (GET_CHA(ch) - 10)) / 45; // 1.25 dam at full cha
+		}
 	}
 	//
 	// divine attacks get modified
@@ -991,7 +998,7 @@ mag_affects(int level, struct Creature *ch, struct Creature *victim,
 	is_cleric = (IS_CLERIC(ch));
 	is_psychic = (IS_PSYCHIC(ch));
 	is_physic = (IS_PHYSIC(ch));
-
+	
     // This is dumb.  One day when one of us
     // has some time we should completely remove
     // af and af2 from this function and convert
@@ -2968,6 +2975,10 @@ mag_areas(byte level, struct Creature *ch, int spellnum, int savetype)
 		to_room = "The room erupts in a blinding flash of light.";
 		to_next_room = "A blinding flash of light briefly envelopes you.";
 		break;
+	case SONG_SONIC_DISRUPTION:
+		to_char = "Sonic shockwaves pulse out in time with your powerful rhythm!";
+		to_room = "$n plays a powerful rhythm creating pulsing sonic shockwaves!";
+		to_next_room = "You hear a loud rhythm being played in the next room.";
 	}
 
 	if (to_char != NULL)
