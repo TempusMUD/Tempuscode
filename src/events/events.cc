@@ -12,7 +12,7 @@ eventQueue mobileQueue;
 struct char_data;
 extern list<CIScript *> scriptList;
 
-void call_process(MobileEvent *e);
+//void call_process(MobileEvent *e);
 
 void send_to_char(const char *, struct char_data *);
 
@@ -21,10 +21,12 @@ MobileEvent::MobileEvent(char_data *ch,
                          short val1, 
                          short val2, 
                          short val3, 
-                         short val4) 
+                         short val4, 
+                         string event_type) 
 {
   this->ch = ch;
   this->target = target;
+  this->event_type = event_type;
   val[0] = val1;
   val[1] = val2;
   val[2] = val3;
@@ -61,7 +63,7 @@ void MobileEvent::setVal(int val_num, int set_to)
     this->val[val_num] = set_to;
 }
 
-void EventPhysicalAttack::process()
+/*void EventPhysicalAttack::process()
 {
     list<CIScript *>::iterator s;
     for(s = scriptList.begin(); s != scriptList.end(); s++) {
@@ -95,6 +97,17 @@ void EventSteal::process()
             (*s)->do_handler((*s)->handler_exists("EVT_STEAL"));
         }
     }
+}*/
+void MobileEvent::process()
+{
+    list<CIScript *>::iterator s;
+    for(s = scriptList.begin(); s != scriptList.end(); s++) {
+        if(GET_SCRIPT_VNUM(this->getTarget()) == (*s)->getVnum()) {
+            (*s)->setTarget(this->getTarget());
+            (*s)->setInit(this->getInit());
+            (*s)->do_handler((*s)->handler_exists(this->event_type));
+        }
+    }
 }
 
 void send_to_queue(MobileEvent *e)
@@ -105,15 +118,8 @@ void send_to_queue(MobileEvent *e)
 void process_queue(void)
 {
   while(!mobileQueue.empty()) {  
-    call_process(mobileQueue.front());
+    mobileQueue.front()->process();
     if(!mobileQueue.empty())
         mobileQueue.pop_front();
   }
 }
-
-void call_process(MobileEvent *e)
-{
-    if(e)    
-        e->process();
-}
-

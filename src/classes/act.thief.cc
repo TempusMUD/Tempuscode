@@ -252,7 +252,7 @@ ACMD(do_steal)
     if (ohoh && IS_NPC(vict) && AWAKE(vict) && check_mob_reaction(ch, vict))
         hit(vict, ch, TYPE_UNDEFINED);
     if (ohoh && IS_NPC(vict) && AWAKE(vict) && IS_SET(MOB_FLAGS(vict), MOB_ISCRIPT)) {
-        EventSteal *e = new EventSteal(ch, vict, 0, 0, 0, 0);
+        MobileEvent *e = new MobileEvent(ch, vict, 0, 0, 0, 0, "EVT_STEAL");
         send_to_queue(e);
     }
 }

@@ -1652,7 +1652,7 @@ look_at_target(struct char_data * ch, char *arg, int cmd)
             }
             act("$n looks at $N.", TRUE, ch, 0, found_char, TO_NOTVICT);
         if(IS_NPC(found_char) && IS_SET(MOB_FLAGS(found_char), MOB_ISCRIPT)) {
-          EventExamine *e = new EventExamine(ch, found_char, 0, 0, 0, 0);
+          MobileEvent *e = new MobileEvent(ch, found_char, 0, 0, 0, 0, "EVT_EXAMINE");
           send_to_queue(e);
         }
         }

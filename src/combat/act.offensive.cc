@@ -994,7 +994,7 @@ ACMD(do_hit)
         GET_MOVE(ch) = MAX(0, GET_MOVE(ch) - 5);
         hit(ch, vict, TYPE_UNDEFINED);
         if(IS_NPC(vict) && IS_SET(MOB_FLAGS(vict), MOB_ISCRIPT)) {    
-        EventPhysicalAttack *e = new EventPhysicalAttack(ch, vict, 0, 0, 0, 0);
+        MobileEvent *e = new MobileEvent(ch, vict, 0, 0, 0, 0, "EVT_PHYSICAL_ATTACK");
         send_to_queue(e);
     }    
     WAIT_STATE(ch, PULSE_VIOLENCE);

@@ -11,10 +11,10 @@ struct char_data;
 
 class MobileEvent {
   public:
-      MobileEvent(char_data *ch, char_data *target, short val1, short val2, short val3, short val4); 
+      MobileEvent(char_data *ch, char_data *target, short val1, short val2, short val3, short val4, string event_type); 
     
       // the =0 here makes this a "pure virual" function
-      virtual void process()=0;
+      /*virtual*/ void process();//=0;
       struct char_data *getInit();
       struct char_data *getTarget();
       void setInit(char_data *ch);
@@ -25,10 +25,10 @@ class MobileEvent {
       char_data *ch;
       char_data *target;
       short val[4];
-                  
+      string event_type;            
 };
 
-class EventPhysicalAttack : public MobileEvent 
+/*class EventPhysicalAttack : public MobileEvent 
 {
     public:
         EventPhysicalAttack(char_data *ch, char_data *target, 
@@ -56,7 +56,7 @@ class EventSteal : public MobileEvent
                    : MobileEvent(ch, target, val1, val2, val3, val4) {}
         
         void process();
-};
+};*/
 
 typedef list<MobileEvent *> eventQueue;
 
