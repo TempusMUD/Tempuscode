@@ -63,8 +63,8 @@ class ObjectMatcherTable {
 		char *getOptionList() {
             char *msg = tmp_sprintf("");
 			for( unsigned int i = 0; i < table.size(); i++  ) {
-				if( i > 0 ) msg = tmp_strcat( msg, ", ", NULL);
-				msg = tmp_strcat(msg, table[i]->getKey(),NULL );
+				if( i > 0 ) msg = tmp_strcat( msg, ", ");
+				msg = tmp_strcat(msg, table[i]->getKey());
 			}
             return msg;
 		}
@@ -209,10 +209,10 @@ do_show_objects( char_data *ch, char *value, char *arg ) {
 	list<obj_data*>::iterator it = objects.begin();
 	for( ; it != objects.end() && objNum <= 300; ++it ) {
         char *line = sprintobj( ch, *it, objNum++, matcherTable.isUsed("spell") );
-		msg = tmp_strcat( msg, line, NULL );
+		msg = tmp_strcat( msg, line);
 	}
 	if( objNum > 300 )
-		msg = tmp_strcat( msg, "**** List truncated to 300 objects. ****\r\n",NULL);
+		msg = tmp_strcat( msg, "**** List truncated to 300 objects. ****\r\n");
 
 	page_string(ch->desc, msg);
 }
