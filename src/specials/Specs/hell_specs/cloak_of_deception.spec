@@ -8,7 +8,7 @@ SPECIAL(cloak_of_deception)
 {
 	struct obj_data *cloak = (struct obj_data *)me;
 
-	if (!CMD_IS("hide"))
+	if (spec_mode != SPECIAL_CMD || !CMD_IS("hide"))
 		return 0;
 	if (!cloak->worn_by || cloak->worn_by != ch)
 		return 0;

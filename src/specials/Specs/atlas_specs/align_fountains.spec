@@ -9,10 +9,8 @@ SPECIAL(fountain_good)
 	struct obj_data *obj = (struct obj_data *)me;
 	// the variable (void * me) is passed to all SPECIAL funcs.  it points
 	// to an obj, room, or char, depending on what called the func
-	if (spec_mode != SPECIAL_CMD) {
+	if (spec_mode != SPECIAL_CMD)
 		return 0;
-	}
-
 
 	skip_spaces(&argument);		// make sure they want to drink from 'me'.
 
@@ -30,6 +28,9 @@ SPECIAL(fountain_evil)
 {
 
 	struct obj_data *obj = (struct obj_data *)me;
+
+	if (spec_mode != SPECIAL_CMD)
+		return false;
 
 	skip_spaces(&argument);
 	if (!CMD_IS("drink") || *argument || !isname(argument, obj->name))

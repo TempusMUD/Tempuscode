@@ -6,6 +6,9 @@
 
 SPECIAL(shimmering_portal)
 {
+	if (spec_mode != SPECIAL_CMD)
+		return false;
+
 	if (!CMD_IS("enter"))
 		return FALSE;
 

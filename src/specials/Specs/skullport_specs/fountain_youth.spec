@@ -17,7 +17,7 @@ SPECIAL(fountain_youth)
 	struct affected_type af, af1, af2, af3;
 	struct obj_data *fountain = (struct obj_data *)me;
 
-	if (!CMD_IS("drink"))
+	if (spec_mode != SPECIAL_CMD || !CMD_IS("drink"))
 		return 0;
 
 	if (ch->getPosition() == POS_SLEEPING) {

@@ -12,6 +12,9 @@ SPECIAL(questor_util)
 	struct obj_data *obj = (struct obj_data *)me;
 	int found = 0;
 
+	if (spec_mode != SPECIAL_CMD)
+		return false;
+
 	if (GET_LEVEL(ch) < LVL_IMMORT ||
 		(!CMD_IS("activate") && !CMD_IS("deactivate")))
 		return 0;

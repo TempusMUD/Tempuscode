@@ -10,6 +10,9 @@ SPECIAL(modrian_fountain_obj)
 	struct room_data *fountain_room;
 	one_argument(argument, arg);
 
+	if (spec_mode != SPECIAL_CMD)
+		return false;
+
 	if ((fountain_room = real_room(2899)) == NULL)
 		return 0;
 	if (!CMD_IS("enter"))

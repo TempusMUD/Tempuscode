@@ -9,7 +9,9 @@ SPECIAL(free_bricks)
 
 	struct obj_data *obj = NULL;
 
-	if ((!CMD_IS("get") && !CMD_IS("take")) || !AWAKE(ch))
+	if (spec_mode != SPECIAL_CMD ||
+			(!CMD_IS("get") && !CMD_IS("take")) ||
+			!AWAKE(ch))
 		return 0;
 
 	skip_spaces(&argument);

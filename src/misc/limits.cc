@@ -718,6 +718,10 @@ point_update(void)
 	for (j = object_list; j; j = next_thing) {
 		next_thing = j->next;	/* Next in object list */
 
+		// First check for a tick special
+		if (GET_OBJ_SPEC(j) && GET_OBJ_SPEC(j)(NULL, j, 0, NULL, SPECIAL_TICK))
+			continue;
+
 		/* If this is a corpse */
 		if (IS_CORPSE(j)) {
 			/* timer count down */
@@ -900,8 +904,6 @@ point_update(void)
 					extract_obj(j);
 				}
 			}
-		} else if (GET_OBJ_SPEC(j) == roaming_portal) {
-			roaming_portal(NULL, j, 0, NULL, SPECIAL_TICK);
 		} else if (IS_OBJ_STAT2(j, ITEM2_UNAPPROVED) ||
 			(IS_OBJ_TYPE(j, ITEM_KEY) && GET_OBJ_TIMER(j)) ||
 			(GET_OBJ_SPEC(j) == fate_portal) ||

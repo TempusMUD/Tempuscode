@@ -9,11 +9,13 @@ SPECIAL(portal_home)
 	struct obj_data *portal = (struct obj_data *)me;
 	struct room_data *room = NULL;
 	int flags;
+
+	if (spec_mode != SPECIAL_CMD || !CMD_IS("enter") || portal->worn_by ||
+		portal->in_obj || (portal->carried_by && portal->carried_by != ch))
+		return 0;
+
 	skip_spaces(&argument);
 
-	if (!CMD_IS("enter") || portal->worn_by || portal->in_obj ||
-		(portal->carried_by && portal->carried_by != ch))
-		return 0;
 	if (!*argument) {
 		send_to_char(ch, "Enter what?\r\n");
 		return 1;

@@ -9,6 +9,9 @@ SPECIAL(loud_speaker)
 {
 	struct obj_data *speaker = (struct obj_data *)me;
 
+	if (spec_mode != SPECIAL_CMD)
+		return false;
+
 	if (!CMD_IS("yell"))
 		return 0;
 

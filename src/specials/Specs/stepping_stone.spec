@@ -8,14 +8,14 @@ SPECIAL(stepping_stone)
 {
 	struct obj_data *ruby = (struct obj_data *)me;
 
-	if (spec_mode != SPECIAL_CMD && spec_mode != SPECIAL_TICK)
-		return FALSE;
+	if (spec_mode != SPECIAL_CMD)
+		return false;
 
 	if (CMD_IS("south")) {
 		if (ch->getPosition() >= POS_STANDING) {
 			if (GET_HOME(ch) != HOME_ARENA) {
 				act("$p flares up suddenly with a bright light!",
-					FALSE, ch, ruby, 0, TO_ROOM);
+					false, ch, ruby, 0, TO_ROOM);
 				send_to_char(ch, "You feel a strange sensation...\r\n");
 				sprintf(buf,
 					"A voice BOOMS out, 'Welcome to the Arena, %s!'\r\n",
@@ -31,7 +31,7 @@ SPECIAL(stepping_stone)
 			}
 		}
 	}
-	return 0;
+	return false;
 }
 
 SPECIAL(portal_out)
@@ -39,15 +39,15 @@ SPECIAL(portal_out)
 	struct obj_data *portal = (struct obj_data *)me;
 	skip_spaces(&argument);
 
-	if (spec_mode != SPECIAL_CMD && spec_mode != SPECIAL_TICK)
-		return FALSE;
+	if (spec_mode != SPECIAL_CMD)
+		return false;
 
 	if (!CMD_IS("enter"))
-		return 0;
+		return false;
 	if (!*argument) {
 		send_to_char(ch,
 			"Enter what?  Enter the portal to leave the arena.\r\n");
-		return 1;
+		return true;
 	}
 	if (isname(argument, portal->name)) {
 		send_to_room("A loud buzzing sound fills the room.\r\n", ch->in_room);
@@ -61,9 +61,9 @@ SPECIAL(portal_out)
 			GET_NAME(ch));
 		send_to_zone(buf, ch->in_room->zone, 0);
 		call_magic(ch, ch, 0, SPELL_WORD_OF_RECALL, LVL_GRIMP, CAST_SPELL);
-		return 1;
+		return true;
 	}
-	return 0;
+	return false;
 }
 
 
@@ -75,26 +75,26 @@ SPECIAL(arena_locker)
 
 	ACMD(do_say);
 
-	if (spec_mode != SPECIAL_CMD && spec_mode != SPECIAL_TICK)
-		return FALSE;
+	if (spec_mode != SPECIAL_CMD)
+		return false;
 
 	if (!(r_locker_room = real_room(40099)))
-		return 0;
+		return false;
 
 	if (CMD_IS("store")) {
 		do_say(ch, "I'd like to store my stuff, please.", 0, 0, 0);
 		if (IS_NPC(ch)) {
 			do_say(atten, "Sorry, I cannot store things for mobiles.", 0, 0, 0);
-			return 1;
+			return true;
 		}
 		if (!(IS_CARRYING_W(ch) + IS_WEARING_W(ch))) {
 			do_say(atten, "Looks to me like you're already stark naked.", 0,
 				0, 0);
-			return 1;
+			return true;
 		}
 		if (IS_WEARING_W(ch)) {
 			do_say(atten, "You need to remove all your gear first.", 0, 0, 0);
-			return 1;
+			return true;
 		}
 		for (locker = r_locker_room->contents; locker;
 			locker = locker->next_content) {
@@ -108,22 +108,22 @@ SPECIAL(arena_locker)
 			}
 			GET_OBJ_VAL(locker, 0) = GET_IDNUM(ch);
 			act("$n takes all your things and locks them in a locker.",
-				FALSE, atten, 0, ch, TO_VICT);
-			act("You are now stark naked!", FALSE, atten, 0, ch, TO_VICT);
+				false, atten, 0, ch, TO_VICT);
+			act("You are now stark naked!", false, atten, 0, ch, TO_VICT);
 			act("$n takes all $N's things and locks them in a locker.",
-				FALSE, atten, 0, ch, TO_NOTVICT);
-			act("$N is now stark naked!", FALSE, atten, 0, ch, TO_NOTVICT);
-			return 1;
+				false, atten, 0, ch, TO_NOTVICT);
+			act("$N is now stark naked!", false, atten, 0, ch, TO_NOTVICT);
+			return true;
 		}
 		do_say(atten, "Sorry, all the lockers are occupied at the moment.", 0,
 			0, 0);
-		return 1;
+		return true;
 	}
 	if (CMD_IS("receive")) {
 		do_say(ch, "I'd like to get my stuff back , please.", 0, 0, 0);
 		if (IS_NPC(ch)) {
 			do_say(atten, "Sorry, I don't deal with mobiles.", 0, 0, 0);
-			return 1;
+			return true;
 		}
 
 		for (locker = r_locker_room->contents; locker;
@@ -137,7 +137,7 @@ SPECIAL(arena_locker)
 				|| (!locker->contains)) {
 				do_say(atten, "Sorry, you don't seem to have a locker here.",
 					0, 0, 0);
-				return 1;
+				return true;
 			}
 			for (item = locker->contains; item; item = tmp_item) {
 				tmp_item = item->next_content;
@@ -146,17 +146,17 @@ SPECIAL(arena_locker)
 			}
 			GET_OBJ_VAL(locker, 0) = 0;
 			act("$n opens a locker and gives you all your things.",
-				FALSE, atten, 0, ch, TO_VICT);
+				false, atten, 0, ch, TO_VICT);
 			act("$n opens a locker and gives $N all $S things.",
-				FALSE, atten, 0, ch, TO_NOTVICT);
+				false, atten, 0, ch, TO_NOTVICT);
 
 			House_crashsave(r_locker_room->number);
 			save_char(ch, NULL);
 
-			return 1;
+			return true;
 		}
 		do_say(atten, "Sorry, you don't seem to have a locker here.", 0, 0, 0);
-		return 1;
+		return true;
 	}
-	return 0;
+	return false;
 }

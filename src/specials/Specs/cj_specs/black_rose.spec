@@ -9,7 +9,7 @@ SPECIAL(black_rose)
 	byte num;
 	struct obj_data *trash = (struct obj_data *)me;
 
-	if (!CMD_IS("smell"))
+	if (spec_mode != SPECIAL_CMD || !CMD_IS("smell"))
 		return 0;
 
 	skip_spaces(&argument);

@@ -536,8 +536,8 @@ SPECIAL(voting_booth)
 		voting_loaded = 1;
 	}
 
-	if (!ch->desc)
-		return 0;
+	if (spec_mode != SPECIAL_CMD || !ch->desc)
+		return false;
 
 	if (cmd != VOTING_CMD_VOTE && cmd != VOTING_CMD_LOOK &&
 		cmd != VOTING_CMD_EXAMINE && cmd != VOTING_CMD_REMOVE &&
