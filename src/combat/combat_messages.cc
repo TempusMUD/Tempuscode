@@ -216,10 +216,10 @@ death_cry( struct char_data * ch )
     }
 
     for ( helper = ch->in_room->people; helper; helper = helper->next_in_room ) {
-	if ( ch != helper && GET_POS( helper ) == POS_SLEEPING && 
+	if ( ch != helper && helper->getPosition() == POS_SLEEPING && 
 	     !PLR_FLAGGED( helper, PLR_OLC | PLR_WRITING ) && 
 	     !AFF_FLAGGED( helper, AFF_SLEEP ) ) {
-	    GET_POS( helper ) = POS_RESTING;
+	    helper->setPosition( POS_RESTING );
 	    send_to_char( "You are awakened by a loud scream.\r\n", helper );
 	}
     }
@@ -977,8 +977,7 @@ skill_message( int dam, struct char_data * ch, struct char_data * vict,
                 act( msg->god_msg.victim_msg, FALSE, ch, weap, vict, TO_VICT );
                 act( msg->god_msg.room_msg, FALSE, ch, weap, vict, TO_NOTVICT );
             } else if ( dam != 0 ) {
-                if ( GET_POS( vict ) == POS_DEAD ) {
-
+                if ( vict->getPosition() == POS_DEAD ) {
                     if ( ch ) { 
                         act( msg->die_msg.room_msg, FALSE, ch, weap, vict, TO_NOTVICT );
                         if(ch != vict) {

@@ -113,7 +113,7 @@ bool can_travel_sector(struct char_data *ch, int sector_type, bool active)
 	    return true;
 
 	if (sector_type == SECT_WATER_NOSWIM) {
-	    if (IS_AFFECTED(ch, AFF_WATERWALK) || GET_POS(ch) >= POS_FLYING ||
+	    if (IS_AFFECTED(ch, AFF_WATERWALK) || ch->getPosition() >= POS_FLYING ||
 		(IS_ELEMENTAL(ch) && GET_CLASS(ch) == CLASS_WATER))
 		return true;
 	    for (obj = ch->carrying; obj; obj = obj->next_content)
@@ -351,7 +351,7 @@ int do_simple_move(struct char_data * ch, int dir, int mode, int need_specials_c
     /* if this room or the one we're going to needs a boat, check for one */
     if (EXIT(ch, dir)->to_room->sector_type == SECT_WATER_NOSWIM &&
 	ch->in_room->sector_type != SECT_UNDERWATER) {
-	if (GET_POS(ch) == POS_FLYING) {
+	if (ch->getPosition() == POS_FLYING) {
 	    has_boat = TRUE;
 	    send_to_char("You fly over the waters.\r\n", ch);
 	} else if (IS_FISH(ch) || IS_AFFECTED(ch, AFF_WATERWALK))
@@ -370,12 +370,12 @@ int do_simple_move(struct char_data * ch, int dir, int mode, int need_specials_c
     }
     /* if this room or the one we're going to needs wings, check for one */
     if ( ch->in_room->isOpenAir() &&
-	 GET_POS(ch) != POS_FLYING) {
+	 ch->getPosition() != POS_FLYING) {
 	send_to_char("You scramble wildly for a grasp of thin air.\r\n", ch);
 	return 1;
     }
     if (EXIT(ch, dir)->to_room->isOpenAir() && !NOGRAV_ZONE(ch->in_room->zone) &&
-	GET_POS(ch) != POS_FLYING && mode != MOVE_JUMP) {
+	ch->getPosition() != POS_FLYING && mode != MOVE_JUMP) {
 	send_to_char("You need to be flying to go there.\r\n"
 		     "You can 'jump' in that direction however...\r\n", ch);
 	return 1;
@@ -424,7 +424,7 @@ int do_simple_move(struct char_data * ch, int dir, int mode, int need_specials_c
 	ch->in_room->zone->weather->sunlight == SUN_LIGHT)
 	need_movement += 2;
 
-    if (GET_POS(ch) == POS_FLYING && SECT_TYPE(ch->in_room) != SECT_INSIDE &&
+    if (ch->getPosition() == POS_FLYING && SECT_TYPE(ch->in_room) != SECT_INSIDE &&
 	SECT_TYPE(EXIT(ch,dir)->to_room) != SECT_INSIDE &&
 	!ROOM_FLAGGED(ch->in_room, ROOM_INDOORS))
 	need_movement >>= 1;
@@ -481,7 +481,7 @@ int do_simple_move(struct char_data * ch, int dir, int mode, int need_specials_c
 	    sprintf(buf, "$n flees %sward.", dirs[dir]);
 	} else if (mode == MOVE_RETREAT) {
 	    sprintf(buf, "$n retreats %sward.", dirs[dir]);
-	} else if (GET_POS(ch) == POS_FLYING || ch->in_room->isOpenAir() ||
+	} else if (ch->getPosition() == POS_FLYING || ch->in_room->isOpenAir() ||
 		   EXIT(ch,dir)->to_room->isOpenAir() ) {
 	    sprintf(buf, "$n flies %s.", to_dirs[dir]);
 	} else if (ch->in_room->sector_type == SECT_ASTRAL) {
@@ -580,7 +580,7 @@ int do_simple_move(struct char_data * ch, int dir, int mode, int need_specials_c
 		 (number(0, GET_LEVEL(tch)) + 
 		  (CHECK_SKILL(tch, SKILL_HEARING) >> 4))) && CAN_SEE(tch, ch))
 		act(buf, TRUE, ch, 0, tch, TO_VICT);
-	    else if (GET_POS(ch) < POS_FLYING && GET_LEVEL(ch) < LVL_AMBASSADOR &&
+	    else if (ch->getPosition() < POS_FLYING && GET_LEVEL(ch) < LVL_AMBASSADOR &&
 		     sneak_prob < number(0, GET_LEVEL(tch))) {
 		get_giveaway(ch, tch, str);
 		send_to_char(str, tch);
@@ -627,7 +627,7 @@ int do_simple_move(struct char_data * ch, int dir, int mode, int need_specials_c
 		  !AFF_FLAGGED(ch, AFF_WATERWALK)) ||
 		 was_in->sector_type == SECT_PITCH_SUB) ? "swim" :
 		(was_in->isOpenAir() ||
-		 GET_POS(ch) == POS_FLYING) ? "fly" :
+		 ch->getPosition() == POS_FLYING) ? "fly" :
 		MOUNTED(ch) ? "ride" : "pass",
 		IS_SET(was_in->dir_option[dir]->exit_info, EX_CLOSED) ?
 		"closed" : "open", fname(was_in->dir_option[dir]->keyword));
@@ -691,7 +691,7 @@ int do_simple_move(struct char_data * ch, int dir, int mode, int need_specials_c
 	    sprintf(buf, "$n runs in from %s.", from_dirs[dir]);
 	} else if (mode == MOVE_DRAG) {
 	    sprintf(buf, "$n is dragged in from %s.", from_dirs[dir]);
-	} else if (GET_POS(ch) == POS_FLYING ||
+	} else if (ch->getPosition() == POS_FLYING ||
 		   ch->in_room->isOpenAir() ) {
 	    if (!IS_AFFECTED_2(ch, AFF2_ABLAZE))
 		sprintf(buf, "$n flies in from %s.", from_dirs[dir]);
@@ -705,7 +705,7 @@ int do_simple_move(struct char_data * ch, int dir, int mode, int need_specials_c
 		sprintf(buf, "$n arrives from what appears to be %s.",
 			from_dirs[dir]);
 	} else if ( IS_AFFECTED_3(ch, AFF3_HAMSTRUNG) 
-				&& GET_POS(ch) == POS_STANDING ) {
+				&& ch->getPosition() == POS_STANDING ) {
 		sprintf(buf,"$n limps in from the %s, bleeding profusely.",from_dirs[dir]);
 		add_blood_to_room(ch->in_room,5);
 	} else if (IS_AFFECTED_2(ch, AFF2_ABLAZE)) {
@@ -811,7 +811,7 @@ int do_simple_move(struct char_data * ch, int dir, int mode, int need_specials_c
 			act("...$e is glowing with a bright blue light!",
 			    TRUE, ch, 0, tch, TO_VICT);
 		}
-		else if (GET_POS(tch) == POS_SLEEPING && 
+		else if (tch->getPosition() == POS_SLEEPING && 
 			 !AFF_FLAGGED(tch, AFF_SLEEP) && !number(0, 7)) {
 		    if (!number(0, 2))
 			send_to_char("A noise wakes you up.\r\n", tch);
@@ -819,9 +819,9 @@ int do_simple_move(struct char_data * ch, int dir, int mode, int need_specials_c
 			send_to_char("You are disturbed by some noise.\r\n", tch);
 		    else
 			send_to_char("You are awakened by some noise.\r\n", tch);
-		    GET_POS(tch) = POS_RESTING;
+		    tch->setPosition(POS_RESTING);
 		}
-	    } else if (GET_POS(ch) < POS_FLYING && GET_LEVEL(ch) < LVL_AMBASSADOR &&
+	    } else if (ch->getPosition() < POS_FLYING && GET_LEVEL(ch) < LVL_AMBASSADOR &&
 		       sneak_prob < number(0, GET_LEVEL(tch))) {
 		get_giveaway(ch, tch, str);
 		send_to_char(str, tch);
@@ -860,7 +860,7 @@ int do_simple_move(struct char_data * ch, int dir, int mode, int need_specials_c
     if (ch->desc)
 	look_at_room(ch, ch->in_room, 0);
 
-    if ( IS_AFFECTED_3(ch, AFF3_HAMSTRUNG) && GET_POS(ch) == POS_STANDING ) {
+    if ( IS_AFFECTED_3(ch, AFF3_HAMSTRUNG) && ch->getPosition() == POS_STANDING ) {
 	if (damage(ch,ch,dice(5,9),TYPE_BLEED,0))
 	    return 2;
     }
@@ -899,7 +899,7 @@ int do_simple_move(struct char_data * ch, int dir, int mode, int need_specials_c
 		if (apply_soil_to_char(ch, obj, SOIL_BLOOD, WEAR_RANDOM))
 		    send_to_char("You fly through the mist of blood.\r\n", ch);
 	    }
-	} else if (GET_POS(ch) < POS_FLYING && 
+	} else if (ch->getPosition() < POS_FLYING && 
 		   GET_DEX(ch) + number(0, 10) < GET_OBJ_TIMER(obj)) {
 	    if (apply_soil_to_char(ch, obj, SOIL_BLOOD, WEAR_FEET)) {
 		sprintf(buf, 
@@ -954,8 +954,8 @@ perform_move(struct char_data *ch, int dir, int mode, int need_specials_check)
 
     if (IS_AFFECTED_2(ch, AFF2_VERTIGO) && GET_LEVEL(ch) < LVL_AMBASSADOR && 
 	number(0, 60) > (GET_LEVEL(ch) + GET_DEX(ch)) && 
-	GET_POS(ch) >= POS_FIGHTING) {
-	if (GET_POS(ch) == POS_MOUNTED && MOUNTED(ch) && 
+	ch->getPosition() >= POS_FIGHTING) {
+	if (ch->getPosition() == POS_MOUNTED && MOUNTED(ch) && 
 	    CHECK_SKILL(ch, SKILL_RIDING) < number(50, 150)) {
 	    act("$n sways and falls from the back of $N!", 
 		TRUE, ch, 0, MOUNTED(ch), TO_ROOM);
@@ -963,11 +963,11 @@ perform_move(struct char_data *ch, int dir, int mode, int need_specials_check)
 		FALSE, ch, 0, MOUNTED(ch), TO_CHAR);
 	    REMOVE_BIT(AFF2_FLAGS(MOUNTED(ch)), AFF2_MOUNTED);
 	    MOUNTED(ch) = NULL;
-	    GET_POS(ch) = POS_SITTING;
-	} else if (GET_POS(ch) == POS_FLYING) {
+	    ch->setPosition(POS_SITTING);
+	} else if (ch->getPosition() == POS_FLYING) {
 	    act("You lose control and begin to fall!", FALSE, ch, 0, 0, TO_CHAR);
 	    act("$n loses control and begins to fall!", TRUE, ch, 0, 0, TO_ROOM);
-	    GET_POS(ch) = POS_SITTING;
+	    ch->setPosition(POS_SITTING);
 	} else {
 	    switch (number(0, 4)) {
 	    case 0:
@@ -991,7 +991,7 @@ perform_move(struct char_data *ch, int dir, int mode, int need_specials_check)
 		act("You lose your balance and fall over.", TRUE, ch, 0, 0, TO_CHAR);
 		act("$n loses $s balance and falls down.", TRUE, ch, 0, 0, TO_ROOM);
 	    }
-	    GET_POS(ch) = POS_SITTING;
+	    ch->setPosition(POS_SITTING);
 	}
 	return 1;
     }	
@@ -1054,7 +1054,7 @@ perform_move(struct char_data *ch, int dir, int mode, int need_specials_check)
 		!PLR_FLAGGED(k->follower, PLR_OLC | PLR_WRITING | PLR_MAILING) &&
 		(!k->follower->desc || !k->follower->desc->showstr_point ||
 		 PRF2_FLAGGED(k->follower, PRF2_LIGHT_READ)) &&
-		(GET_POS(k->follower) >= POS_STANDING)) {
+		(k->follower->getPosition() >= POS_STANDING)) {
 		act("You follow $N.\r\n", FALSE, k->follower, 0, ch, TO_CHAR);
 		perform_move(k->follower, dir, MOVE_NORM, 1);
 	    }
@@ -1604,7 +1604,7 @@ ACMD(do_stand)
 
 /* ########################################################### */
 
-    switch (GET_POS(ch)) {
+    switch (ch->getPosition()) {
     case POS_STANDING:
 	act("You are already standing.", FALSE, ch, 0, 0, TO_CHAR);
 	break;
@@ -1614,18 +1614,18 @@ ACMD(do_stand)
             act("You defy the probability waves of the gravity well and struggle to your feet.", 
                 FALSE, ch, 0, 0, TO_CHAR);
             act("$n defies the gravity well and struggles to $s feet.", TRUE, ch, 0, 0, TO_ROOM);
-            GET_POS(ch) = POS_STANDING;
+            ch->setPosition(POS_STANDING);
         } else {
             act("The gravity well drives you into the ground as you try to stand.", 
                 FALSE, ch, 0, 0, TO_CHAR);
             act("The gravity well drives $n into the ground as $e attempts to stand.", 
                 TRUE, ch, 0, 0, TO_ROOM);
-            GET_POS(ch) = POS_RESTING;
+            ch->setPosition(POS_RESTING);
         }
     } else {
         act("You stand up.", FALSE, ch, 0, 0, TO_CHAR);
         act("$n clambers to $s feet.", TRUE, ch, 0, 0, TO_ROOM);
-        GET_POS(ch) = POS_STANDING;
+        ch->setPosition(POS_STANDING);
     }
 	break;
     case POS_RESTING:
@@ -1634,18 +1634,18 @@ ACMD(do_stand)
             act("You defy the probability waves of the gravity well and struggle to your feet.", 
                 FALSE, ch, 0, 0, TO_CHAR);
             act("$n defies the gravity well and struggles to $s feet.", TRUE, ch, 0, 0, TO_ROOM);
-            GET_POS(ch) = POS_STANDING;
+            ch->setPosition(POS_STANDING);
         } else {
             act("The gravity well drives you into the ground as you try to stand.", 
                 FALSE, ch, 0, 0, TO_CHAR);
             act("The gravity well drives $n into the ground as $e attempts to stand.", 
                 TRUE, ch, 0, 0, TO_ROOM);
-            GET_POS(ch) = POS_RESTING;
+            ch->setPosition(POS_RESTING);
         }
     } else {
         act("You stop resting, and stand up.", FALSE, ch, 0, 0, TO_CHAR);
         act("$n stops resting, and clambers on $s feet.", TRUE, ch, 0, 0, TO_ROOM);
-        GET_POS(ch) = POS_STANDING;
+        ch->setPosition(POS_STANDING);
     }
 	break;
     case POS_SLEEPING:
@@ -1695,7 +1695,7 @@ ACMD(do_stand)
 		act("$n drifts downward and stands on the ground.", 
 		    TRUE, ch, 0, 0, TO_ROOM);
 	    }
-	    GET_POS(ch) = POS_STANDING;
+	    ch->setPosition(POS_STANDING);
 	}
 	break;
     default:
@@ -1703,7 +1703,7 @@ ACMD(do_stand)
 	    FALSE, ch, 0, 0, TO_CHAR);
 	act("$n stops floating around, and puts $s feet on the ground.",
 	    TRUE, ch, 0, 0, TO_ROOM);
-	GET_POS(ch) = POS_STANDING;
+	ch->setPosition(POS_STANDING);
 	break;
     }
 }
@@ -1713,7 +1713,7 @@ ACMD(do_fly)
 
     int i, can_fly = 0;
 
-    switch (GET_POS(ch)) {
+    switch (ch->getPosition()) {
     case POS_STANDING:
 	for (i = 0; i < NUM_WEARS; i++) {
 	    if (ch->equipment[i]) {
@@ -1743,7 +1743,7 @@ ACMD(do_fly)
 	else {
 	    act("Your feet lift from the ground.", FALSE, ch, 0, 0, TO_CHAR);
 	    act("$n begins to float above the ground.", TRUE, ch, 0, 0, TO_ROOM);
-	    GET_POS(ch) = POS_FLYING;  
+	    ch->setPosition(POS_FLYING);  
 	}
         break;
     
@@ -1767,7 +1767,7 @@ ACMD(do_fly)
 	    FALSE, ch, 0, 0, TO_CHAR);
 	act("$n stops floating around, and puts $s feet on the ground.",
 	    TRUE, ch, 0, 0, TO_ROOM);
-	GET_POS(ch) = POS_STANDING;
+	ch->setPosition(POS_STANDING);
 	break;
     }
 }
@@ -1775,11 +1775,11 @@ ACMD(do_fly)
 
 ACMD(do_sit)
 {
-    switch (GET_POS(ch)) {
+    switch (ch->getPosition()) {
     case POS_STANDING:
 	act("You sit down.", FALSE, ch, 0, 0, TO_CHAR);
 	act("$n sits down.", TRUE, ch, 0, 0, TO_ROOM);
-	GET_POS(ch) = POS_SITTING;
+	ch->setPosition(POS_SITTING);
 	break;
     case POS_SITTING:
 	send_to_char("You're sitting already.\r\n", ch);
@@ -1787,7 +1787,7 @@ ACMD(do_sit)
     case POS_RESTING:
 	act("You stop resting, and sit up.", FALSE, ch, 0, 0, TO_CHAR);
 	act("$n stops resting.", TRUE, ch, 0, 0, TO_ROOM);
-	GET_POS(ch) = POS_SITTING;
+	ch->setPosition(POS_SITTING);
 	break;
     case POS_SLEEPING:
 	act("You have to wake up first.", FALSE, ch, 0, 0, TO_CHAR);
@@ -1801,7 +1801,7 @@ ACMD(do_sit)
     default:
 	act("You stop floating around, and sit down.", FALSE, ch, 0, 0, TO_CHAR);
 	act("$n stops floating around, and sits down.", TRUE, ch, 0, 0, TO_ROOM);
-	GET_POS(ch) = POS_SITTING;
+	ch->setPosition(POS_SITTING);
 	break;
     }
 }
@@ -1809,16 +1809,16 @@ ACMD(do_sit)
 
 ACMD(do_rest)
 {
-    switch (GET_POS(ch)) {
+    switch (ch->getPosition()) {
     case POS_STANDING:
 	act("You sit down and lay back into a relaxed position.", FALSE, ch, 0, 0, TO_CHAR);
 	act("$n sits down and rests.", TRUE, ch, 0, 0, TO_ROOM);
-	GET_POS(ch) = POS_RESTING;
+	ch->setPosition(POS_RESTING);
 	break;
     case POS_SITTING:
 	act("You lay back and rest your tired bones.", FALSE, ch, 0, 0, TO_CHAR);
 	act("$n rests.", TRUE, ch, 0, 0, TO_ROOM);
-	GET_POS(ch) = POS_RESTING;
+	ch->setPosition(POS_RESTING);
 	break;
     case POS_RESTING:
 	act("You are already resting.", FALSE, ch, 0, 0, TO_CHAR);
@@ -1836,7 +1836,7 @@ ACMD(do_rest)
 	act("You stop floating around, and stop to rest your tired bones.",
 	    FALSE, ch, 0, 0, TO_CHAR);
 	act("$n stops floating around, and rests.", FALSE, ch, 0, 0, TO_ROOM);
-	GET_POS(ch) = POS_SITTING;
+	ch->setPosition(POS_SITTING);
 	break;
     }
 }
@@ -1852,13 +1852,13 @@ ACMD(do_sleep)
 	send_to_char("You can't seem to relax.\r\n", ch);
 	return;
     }
-    switch (GET_POS(ch)) {
+    switch (ch->getPosition()) {
     case POS_STANDING:
     case POS_SITTING:
     case POS_RESTING:
 	send_to_char("You go to sleep.\r\n", ch);
 	act("$n lies down and falls asleep.", TRUE, ch, 0, 0, TO_ROOM);
-	GET_POS(ch) = POS_SLEEPING;
+	ch->setPosition(POS_SLEEPING);
 	break;
     case POS_SLEEPING:
 	send_to_char("You are already sound asleep.\r\n", ch);
@@ -1874,7 +1874,7 @@ ACMD(do_sleep)
 	    act("Better not sleep while mounted on $N.", FALSE, ch, 0, MOUNTED(ch), TO_CHAR);
 	else {
 	    send_to_char("You totter around bowlegged... better try that again!\r\n", ch);
-	    GET_POS(ch) = POS_STANDING;
+	    ch->setPosition(POS_STANDING);
 	}
 	break;
     default:
@@ -1882,7 +1882,7 @@ ACMD(do_sleep)
 	    FALSE, ch, 0, 0, TO_CHAR);
 	act("$n stops floating around, and lie down to sleep.",
 	    TRUE, ch, 0, 0, TO_ROOM);
-	GET_POS(ch) = POS_SLEEPING;
+	ch->setPosition(POS_SLEEPING);
 	break;
     }
 }
@@ -1895,13 +1895,13 @@ ACMD(do_wake)
 
     one_argument(argument, arg);
     if (*arg) {
-	if (GET_POS(ch) == POS_SLEEPING)
+	if (ch->getPosition() == POS_SLEEPING)
 	    send_to_char("You can't wake people up if you're asleep yourself!\r\n", ch);
 	else if ((vict = get_char_room_vis(ch, arg)) == NULL) {
 	    send_to_char(NOPERSON, ch);
 	} else if (vict == ch)
 	    self = 1;
-	else if (GET_POS(vict) > POS_SLEEPING) {
+	else if (vict->getPosition() > POS_SLEEPING) {
 	    if (IS_AFFECTED_2(vict, AFF2_MEDITATE)) {
 		act("You break $M out of $S trance.", FALSE, ch, 0, vict, TO_CHAR);
 		act("$n breaks $N out of a trance.", FALSE, ch, 0, vict, TO_NOTVICT);
@@ -1917,10 +1917,10 @@ ACMD(do_wake)
 		act("$E is already awake.", FALSE, ch, 0, vict, TO_CHAR);
 	} else if (IS_AFFECTED(vict, AFF_SLEEP))
 	    act("You can't wake $M up!", FALSE, ch, 0, vict, TO_CHAR);
-	else if (GET_POS(vict) == POS_STUNNED)
+	else if (vict->getPosition() == POS_STUNNED)
 	    act("$E is stunned, and you fail to arouse $M.", 
 		FALSE, ch, 0, vict, TO_CHAR);
-	else if (GET_POS(vict) < POS_STUNNED)
+	else if (vict->getPosition() < POS_STUNNED)
 	    act("$N is dying, and you can't wake $M up!", 
 		FALSE, ch, 0, vict, TO_CHAR);
 	else if (AFF3_FLAGGED(vict, AFF3_STASIS))
@@ -1933,7 +1933,7 @@ ACMD(do_wake)
 		    FALSE, ch, 0, vict, TO_VICT | TO_SLEEP);
 	    else
 		act("You are awakened by $n.", FALSE, ch, 0, vict, TO_VICT | TO_SLEEP);
-	    GET_POS(vict) = POS_SITTING;
+	    vict->setPosition(POS_SITTING);
 	}
 	if (!self)
 	    return;
@@ -1944,7 +1944,7 @@ ACMD(do_wake)
 	     SUN_LIGHT &&
 	     PRIME_MATERIAL_ROOM(ch->in_room)) 
 	send_to_char("You are unable to rise from your sleep.\r\n", ch);
-    else if (GET_POS(ch) > POS_SLEEPING)
+    else if (ch->getPosition() > POS_SLEEPING)
 	send_to_char("You are already awake...\r\n", ch);
     else {
 	if (AFF3_FLAGGED(ch, AFF3_STASIS)) {
@@ -1954,7 +1954,7 @@ ACMD(do_wake)
 	} else 
 	    send_to_char("You awaken, and sit up.\r\n", ch);
 	act("$n awakens.", TRUE, ch, 0, 0, TO_ROOM);
-	GET_POS(ch) = POS_SITTING;
+	ch->setPosition(POS_SITTING);
     }
 }
 ACMD(do_makemount)
@@ -2011,7 +2011,7 @@ ACMD(do_mount)
 	    }
 	REMOVE_BIT(AFF2_FLAGS(vict), AFF2_MOUNTED);
     }
-    if (GET_POS(ch) < POS_STANDING) {
+    if (ch->getPosition() < POS_STANDING) {
 	act("You need to stand up first!", FALSE, ch, 0, 0, TO_CHAR);
 	return;
     }
@@ -2043,7 +2043,7 @@ ACMD(do_mount)
 	act("$N throws $n off!", FALSE, ch, 0, vict, TO_ROOM);
 	GET_MOVE(ch) = MAX(0, GET_MOVE(ch) - 5);
     } else {
-	GET_POS(ch) = POS_MOUNTED;
+	ch->setPosition(POS_MOUNTED);
 	MOUNTED(ch) = vict;
 	SET_BIT(AFF2_FLAGS(vict), AFF2_MOUNTED);
 	gain_skill_prof(ch, SKILL_RIDING);
@@ -2058,7 +2058,7 @@ ACMD(do_dismount)
     } else {
 	act("You skillfully dismount $N.", FALSE, ch, 0, MOUNTED(ch), TO_CHAR); 
 	act("$n skillfully dismounts $N.", FALSE, ch, 0, MOUNTED(ch), TO_ROOM);
-	GET_POS(ch) = POS_STANDING;
+	ch->setPosition(POS_STANDING);
 	REMOVE_BIT(AFF2_FLAGS(MOUNTED(ch)), AFF2_MOUNTED);
 	MOUNTED(ch) = NULL;
 	return;

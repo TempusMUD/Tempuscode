@@ -96,35 +96,35 @@ calculate_weapon_probability( struct char_data *ch, int prob, struct obj_data *w
 void 
 update_pos( struct char_data * victim )
 {
-    if ( GET_HIT( victim ) > 0 && GET_POS( victim ) == POS_SLEEPING )
-		GET_POS( victim ) = POS_RESTING;
-    else if ( ( GET_HIT( victim ) > 0 ) && ( GET_POS( victim ) > POS_STUNNED ) &&
-	      FIGHTING( victim ) ) {
+    if ( GET_HIT( victim ) > 0 && victim->getPosition() == POS_SLEEPING )
+		victim->setPosition( POS_RESTING );
+    else if ( ( GET_HIT( victim ) > 0 ) 
+        && ( victim->getPosition() > POS_STUNNED ) &&
+	    FIGHTING( victim ) ) {
 		if ( ( victim->desc && victim->desc->wait <= 0 ) ||
 			 ( IS_NPC( victim ) && GET_MOB_WAIT( victim ) <= 0 ) ) {
-            if ( GET_POS( victim ) < POS_FIGHTING ) {
+            if ( victim->getPosition() < POS_FIGHTING ) {
                 act( "$n scrambles to $s feet!", TRUE, victim, 0, 0, TO_ROOM );
                 GET_MOB_WAIT( victim ) += PULSE_VIOLENCE;
             }
-            GET_POS( victim ) = POS_FIGHTING;
+            victim->setPosition( POS_FIGHTING );
         } else {
 			return;
         }
     } else if ( GET_HIT( victim ) > 0 ) {
 		if ( victim->in_room->isOpenAir() )
-			GET_POS( victim ) = POS_FLYING;
+			victim->setPosition( POS_FLYING );
 		else
-			GET_POS( victim ) = POS_STANDING;
+			victim->setPosition( POS_STANDING );
     }
     else if ( GET_HIT( victim ) <= -11 )
-	GET_POS( victim ) = POS_DEAD;
+        victim->setPosition( POS_DEAD );
     else if ( GET_HIT( victim ) <= -6 )
-	GET_POS( victim ) = POS_MORTALLYW;
+        victim->setPosition( POS_MORTALLYW );
     else if ( GET_HIT( victim ) <= -3 )
-	GET_POS( victim ) = POS_INCAP;
-    else {
-		GET_POS( victim ) = POS_STUNNED;
-	}
+        victim->setPosition( POS_INCAP );
+    else
+        victim->setPosition( POS_STUNNED );
 }
 
 void
@@ -440,7 +440,7 @@ calculate_thaco( struct char_data *ch, struct char_data *victim,
     if ( SECT_TYPE( ch->in_room ) == SECT_UNDERWATER && !IS_MOB( ch ) )
 	calc_thaco += 4;
 
-    calc_thaco -= MIN( 5, MAX( 0, ( POS_FIGHTING - GET_POS( victim ) ) ) );
+    calc_thaco -= MIN( 5, MAX( 0, ( POS_FIGHTING - victim->getPosition() ) ) );
 
     calc_thaco -= char_class_race_hit_bonus( ch, victim );
 

@@ -119,9 +119,9 @@ calc_skill_prob(struct char_data *ch, struct char_data *vict, int skillnum,
 
     prob += (MAX(-200, GET_AC(vict)) / 10);
 
-    if (GET_POS(vict) < POS_FIGHTING) {
-	prob += (POS_FIGHTING - GET_POS(vict)) * 6;
-	prob -= (GET_DEX(vict) >> 1);
+    if (vict->getPosition() < POS_FIGHTING) {
+        prob += (POS_FIGHTING - vict->getPosition()) * 6;
+        prob -= (GET_DEX(vict) >> 1);
     }
 
     if (IS_DROW(ch)) {
@@ -192,7 +192,7 @@ calc_skill_prob(struct char_data *ch, struct char_data *vict, int skillnum,
 	    prob = (int) ( prob * 0.90 );
     
 	if ((MOB_FLAGGED(vict, MOB_NOBASH) ||
-	     GET_POS(vict) < POS_FIGHTING) && GET_LEVEL(ch) < LVL_AMBASSADOR)
+	     vict->getPosition() < POS_FIGHTING) && GET_LEVEL(ch) < LVL_AMBASSADOR)
 	    prob = 0;
     
 	if (IS_PUDDING(vict) || IS_SLIME(vict))
@@ -249,8 +249,8 @@ calc_skill_prob(struct char_data *ch, struct char_data *vict, int skillnum,
 	if (GET_HEIGHT(vict) > (GET_HEIGHT(ch) << 1))
 	    prob -= (100 - GET_LEVEL(ch));
     
-	if (GET_POS(vict) < POS_STANDING)
-	    prob += (10 * (POS_STANDING - GET_POS(vict)));
+	if (vict->getPosition() < POS_STANDING)
+	    prob += (10 * (POS_STANDING - vict->getPosition()));
     
 	if (IS_PUDDING(vict) || IS_SLIME(vict) || bad_sect)
 	    prob = 0;
@@ -525,7 +525,7 @@ calc_skill_prob(struct char_data *ch, struct char_data *vict, int skillnum,
 	}
 
 	if ((GET_HEIGHT(ch) < GET_HEIGHT(vict) >> 1) && 
-	    GET_POS(vict) > POS_SITTING) {
+	    vict->getPosition() > POS_SITTING) {
 	    if (AFF_FLAGGED(ch, AFF_INFLIGHT))
 		*dam >>= 2;
 	    else {
@@ -777,7 +777,7 @@ ACCMD(do_offensive_skill)
 	return;
     }
     if ((subcmd == SKILL_SWEEPKICK || subcmd == SKILL_TRIP) &&
-	GET_POS(vict) <= POS_SITTING) {
+	vict->getPosition() <= POS_SITTING) {
 	act("$N is already on the ground.",FALSE,ch,0,vict,TO_CHAR);
 	return;
     }
@@ -802,7 +802,7 @@ ACCMD(do_offensive_skill)
 		if (damage(ch, vict, 0, subcmd, loc))
 			return;
 		if (fail_pos) {
-			GET_POS(ch) = fail_pos;
+			ch->setPosition( fail_pos );
 			if ( prob < 50 ) {
 			// 0.1 sec for every point below 50, up to 7 sec
 			int tmp_wait = 50 - prob;
@@ -831,7 +831,7 @@ ACCMD(do_offensive_skill)
 
 		if (!damage(ch, vict, dam, subcmd, loc)) {
 			if (vict_pos)
-			GET_POS(vict) = vict_pos;
+			vict->setPosition( vict_pos );
 			if (vict_wait)
 			WAIT_STATE(vict, vict_wait);
 		  
@@ -1052,7 +1052,7 @@ ACMD(do_flee)
 	send_to_char("You are too enraged to flee!\r\n", ch);
 	return;
     }
-    if (GET_POS(ch) < POS_FIGHTING) {
+    if (ch->getPosition() < POS_FIGHTING) {
 	send_to_char("You can't flee until you get on your feet!\r\n", ch);
 	return;
     }
@@ -1076,7 +1076,7 @@ ACMD(do_flee)
 	    act("$n panics, and attempts to flee!", TRUE, ch, 0, 0, TO_ROOM);
 	    if ( ch->in_room->isOpenAir() || EXIT(ch, attempt)->to_room->isOpenAir() ) {
 		if (IS_AFFECTED(ch, AFF_INFLIGHT))
-		    GET_POS(ch) = POS_FLYING;
+		    ch->setPosition( POS_FLYING );
 		else 
 		    continue;
 	    }
@@ -1095,7 +1095,7 @@ ACMD(do_flee)
 		    stop_fighting(ch);
 		}
 		if ( ch->in_room->isOpenAir() )
-		    GET_POS(ch) = POS_FLYING;
+		    ch->setPosition( POS_FLYING );
 	    } 
 	    else if ( move_result == 1 ) {
 		act("$n tries to flee, but can't!", TRUE, ch, 0, 0, TO_ROOM);
@@ -1157,7 +1157,7 @@ ACMD(do_retreat)
 	if (FIGHTING(ch))
 	    stop_fighting(ch);
 	if ( ch->in_room->isOpenAir() )
-	    GET_POS(ch) = POS_FLYING;
+	    ch->setPosition( POS_FLYING );
 	GET_MOVE(ch) = (MAX(0, GET_MOVE(ch) - 10));
     } else if (ch->in_room)
 	act("$n attempts to retreat, but fails!",TRUE,ch,0,0,TO_ROOM);
@@ -1268,22 +1268,22 @@ ACMD(do_bash)
 		    GET_HIT(ch) -= prob;
 
 		    if (number(0, 20) > GET_DEX(ch)) {
-			act("$n staggers and falls down.", TRUE, ch, 0, 0, TO_ROOM);
-			act("You stagger and fall down.", TRUE, ch, 0, 0, TO_CHAR);
-			GET_POS(ch) = POS_SITTING;
+                act("$n staggers and falls down.", TRUE, ch, 0, 0, TO_ROOM);
+                act("You stagger and fall down.", TRUE, ch, 0, 0, TO_CHAR);
+                ch->setPosition( POS_SITTING );
 		    }
 
 		    if (GET_HIT(ch) < -10) {
-			if (!IS_NPC(ch)) {
-			    sprintf(buf, "%s killed self bashing door at %d.",
-				    GET_NAME(ch), ch->in_room->number);
-			    mudlog(buf, NRM, GET_INVIS_LEV(ch), TRUE);
-			}
-			raw_kill(ch, ch, SKILL_BASH);
-			return;
+                if (!IS_NPC(ch)) {
+                    sprintf(buf, "%s killed self bashing door at %d.",
+                        GET_NAME(ch), ch->in_room->number);
+                    mudlog(buf, NRM, GET_INVIS_LEV(ch), TRUE);
+                }
+                raw_kill(ch, ch, SKILL_BASH);
+                return;
 		    } else {
-			update_pos(ch);
-			gain_skill_prof(ch, SKILL_BREAK_DOOR);
+                update_pos(ch);
+                gain_skill_prof(ch, SKILL_BREAK_DOOR);
 		    }
 
 		    if (EXIT(ch, door)->to_room->dir_option[rev_dir[door]] &&
@@ -1354,12 +1354,12 @@ ACMD(do_stun)
 	return;
   
     if (!ok_damage_shopkeeper(ch, vict) && GET_LEVEL(ch) < LVL_ELEMENT) {
-	act("$N stuns you with a swift blow!", FALSE, ch, 0, vict, TO_CHAR);
-	act("$N stuns $n with a swift blow to the neck!", 
-	    FALSE, ch, 0, vict, TO_ROOM);
-	WAIT_STATE(ch, PULSE_VIOLENCE * 3);
-	GET_POS(ch) = POS_STUNNED;
-	return;
+        act("$N stuns you with a swift blow!", FALSE, ch, 0, vict, TO_CHAR);
+        act("$N stuns $n with a swift blow to the neck!", 
+            FALSE, ch, 0, vict, TO_ROOM);
+        WAIT_STATE(ch, PULSE_VIOLENCE * 3);
+        ch->setPosition( POS_STUNNED );
+        return;
     }
 
     appear(ch, vict);
@@ -1411,7 +1411,7 @@ ACMD(do_stun)
 	    HUNTING(vict) = ch;
     }
     wait = 1 + (number(0, GET_LEVEL(ch)) / 5);
-    GET_POS(vict) = POS_STUNNED;
+    vict->setPosition( POS_STUNNED );
     WAIT_STATE(vict, wait RL_SEC);
     WAIT_STATE(ch, 4 RL_SEC);
     gain_skill_prof(ch, SKILL_STUN);
@@ -1444,7 +1444,7 @@ ACMD(do_feign)
 	send_to_char("You fall over dead!\r\n", ch);
 	act("Your blood freezes as you hear $n's death cry.", FALSE, ch, 0, 0, TO_ROOM);
     }
-    GET_POS(ch) = POS_RESTING;
+    ch->setPosition( POS_RESTING );
   
     WAIT_STATE(ch, PULSE_VIOLENCE * 2);
 }
@@ -1620,7 +1620,7 @@ ACMD(do_tornado_kick)
 
     percent = ((40 - (GET_AC(vict) / 10)) >> 1) + number(1, 96); 
     prob = CHECK_SKILL(ch, SKILL_TORNADO_KICK) + ((GET_DEX(ch) + GET_STR(ch)) >> 1);
-    if (GET_POS(vict) < POS_RESTING)
+    if (vict->getPosition() < POS_RESTING)
 	prob += 30;
     prob -= GET_DEX(vict);
 
@@ -1704,7 +1704,7 @@ ACMD(do_sleeper)
 	    TRUE, ch, 0, vict, TO_CHAR);
 	return;
     }
-    if (GET_POS(vict) <= POS_SLEEPING) {
+    if (vict->getPosition() <= POS_SLEEPING) {
 	send_to_char("Yeah.  Right.\r\n", ch);
 	return;
     }
@@ -1730,7 +1730,7 @@ ACMD(do_sleeper)
 	    stop_fighting(vict); 
 	if (FIGHTING(ch))
 	    stop_fighting(ch);
-	GET_POS(vict) = POS_SLEEPING;
+	vict->setPosition( POS_SLEEPING );
 	remember(vict, ch);
 	WAIT_STATE(vict, 4 RL_SEC);
     }

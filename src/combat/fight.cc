@@ -61,7 +61,7 @@ set_fighting( struct char_data * ch, struct char_data * vict, int aggr )
     combat_list = ch;
 
     FIGHTING( ch ) = vict;
-    GET_POS( ch ) = POS_FIGHTING;
+    ch->setPosition( POS_FIGHTING );
   
     if ( aggr == TRUE && !IS_NPC( vict ) ) {
 
@@ -112,7 +112,7 @@ set_fighting( struct char_data * ch, struct char_data * vict, int aggr )
 			 GET_NAME( vict ), GET_NAME( ch ), vict->in_room->number );
 		slog( buf );
 		FIGHTING( ch ) = NULL;
-		GET_POS( ch ) = POS_STANDING;
+		ch->setPosition( POS_STANDING );
 		return;
 	    }
 	}
@@ -133,16 +133,16 @@ stop_fighting( struct char_data * ch )
     FIGHTING( ch ) = NULL;
 
     if ( ch->in_room && ch->in_room->isOpenAir() )
-	GET_POS( ch ) = POS_FLYING;
+	ch->setPosition( POS_FLYING );
     else if ( !IS_NPC( ch ) )
-	GET_POS( ch ) = POS_STANDING;
+	ch->setPosition( POS_STANDING );
     else {
 	if ( IS_AFFECTED( ch, AFF_CHARM ) && IS_UNDEAD( ch ) )
-	    GET_POS( ch ) = POS_STANDING;
+	    ch->setPosition( POS_STANDING );
 	else if ( !HUNTING( ch ) )
-	    GET_POS( ch ) = GET_DEFAULT_POS( ch );
+	    ch->setPosition( GET_DEFAULT_POS( ch ) );
 	else 
-	    GET_POS( ch ) = POS_STANDING;
+	    ch->setPosition( POS_STANDING );
     }
 
     REMOVE_BIT( AFF3_FLAGS( ch ), AFF3_FEEDING );
@@ -642,7 +642,7 @@ damage( struct char_data * ch, struct char_data * victim, int dam,
     struct affected_type *af = NULL;
 
 
-    if ( GET_POS( victim ) <= POS_DEAD ) {
+    if ( victim->getPosition() <= POS_DEAD ) {
         sprintf( buf,"SYSERR: Attempt to damage a corpse--ch=%s,vict=%s,type=%d.",
              ch ? GET_NAME( ch ) : "NULL", GET_NAME( victim ), attacktype );
         slog( buf );
@@ -739,8 +739,8 @@ damage( struct char_data * ch, struct char_data * victim, int dam,
         }
     }
 
-    if ( GET_POS( victim ) < POS_FIGHTING )
-        dam += ( dam * ( POS_FIGHTING - GET_POS( victim ) ) ) / 3;
+    if ( victim->getPosition() < POS_FIGHTING )
+        dam += ( dam * ( POS_FIGHTING - victim->getPosition() ) ) / 3;
 
     if ( ch ) {
         if ( MOB2_FLAGGED( ch, MOB2_UNAPPROVED ) && !PLR_FLAGGED( victim, PLR_TESTER ) )
@@ -1010,7 +1010,7 @@ damage( struct char_data * ch, struct char_data * victim, int dam,
                              SKILL_ENERGY_FIELD, -1 ) ) {
                         DAM_RETURN( FALSE );
                     }
-                    GET_POS(ch) = POS_SITTING;
+                    ch->setPosition( POS_SITTING );
                     WAIT_STATE(ch, 2 RL_SEC);
                     }
                 }
@@ -1401,7 +1401,7 @@ damage( struct char_data * ch, struct char_data * victim, int dam,
         }
     } else if ( ch ) {
         // it is a weapon attack
-        if ( GET_POS( victim ) == POS_DEAD || dam == 0 ) {
+        if ( victim->getPosition() == POS_DEAD || dam == 0 ) {
             if ( !skill_message( dam, ch, victim, attacktype ) )
                 dam_message( dam, ch, victim, attacktype, location );
         } else {
@@ -1435,7 +1435,7 @@ damage( struct char_data * ch, struct char_data * victim, int dam,
     }
 
     // Use send_to_char -- act(  ) doesn't send message if you are DEAD.
-    switch ( GET_POS( victim ) ) {
+    switch ( victim->getPosition() ) {
 
 	// Mortally wounded
     case POS_MORTALLYW:
@@ -1488,7 +1488,7 @@ damage( struct char_data * ch, struct char_data * victim, int dam,
 	}
 	if ( ch && IS_NPC( victim ) && ch != victim && 
 	     !KNOCKDOWN_SKILL( attacktype ) &&
-	     GET_POS( victim ) > POS_SITTING && !MOB_FLAGGED( victim, MOB_SENTINEL ) &&
+	     victim->getPosition() > POS_SITTING && !MOB_FLAGGED( victim, MOB_SENTINEL ) &&
 	     !IS_DRAGON( victim ) && !IS_UNDEAD( victim ) &&
 	     GET_CLASS( victim ) != CLASS_ARCH &&
 	     GET_CLASS( victim ) != CLASS_DEMON_PRINCE &&
@@ -1500,7 +1500,7 @@ damage( struct char_data * ch, struct char_data * victim, int dam,
 			do_flee( victim, "", 0, 0 );
 		} else {
 			sprintf(buf,"ERROR: %s was at position %d with %d hit points and tried to flee.",
-                GET_NAME(victim),GET_POS(victim),GET_HIT(victim));
+                GET_NAME(victim),victim->getPosition(),GET_HIT(victim));
 			mudlog( buf, BRF, LVL_DEMI, TRUE );
 		}
 	}
@@ -1541,13 +1541,13 @@ damage( struct char_data * ch, struct char_data * victim, int dam,
 		 GET_HIT( victim ) < GET_WIMP_LEV( victim )  && GET_HIT(victim) > 0) {
             send_to_char( "You wimp out, and attempt to flee!\r\n", victim );
             if ( KNOCKDOWN_SKILL( attacktype ) && damage )
-                GET_POS( victim ) = POS_SITTING;
+                victim->setPosition( POS_SITTING );
             do_flee( victim, "", 0, 0 );
             break;
 	    } else if ( affected_by_spell( victim, SPELL_FEAR ) && 
 		      !number( 0, ( GET_LEVEL( victim ) >> 3 ) + 1 )  && GET_HIT(victim) > 0) {
             if ( KNOCKDOWN_SKILL( attacktype ) && damage )
-                GET_POS( victim ) = POS_SITTING;
+                victim->setPosition( POS_SITTING );
             do_flee( victim, "", 0, 0 );
             break;
 	    }
@@ -1589,7 +1589,7 @@ damage( struct char_data * ch, struct char_data * victim, int dam,
 	}
 	break;
     }
-    }   /* end switch ( GET_POS( victim ) ) */
+    }   /* end switch ( victim->getPosition() ) */
     
 
     // Victim is Linkdead
@@ -1613,7 +1613,7 @@ damage( struct char_data * ch, struct char_data * victim, int dam,
     if ( ch && PRF2_FLAGGED( ch, PRF2_FIGHT_DEBUG ) ) {
         sprintf( buf, "<%s> ( dam:%4d ) ( Wait: %2d ) ( Pos: %d )\r\n", GET_NAME( victim ),
              dam, IS_NPC( victim ) ? GET_MOB_WAIT( victim ) :
-             victim->desc ? victim->desc->wait : 0, GET_POS( victim ) );
+             victim->desc ? victim->desc->wait : 0, victim->getPosition() );
         send_to_char( buf, ch );
     }
 
@@ -1623,7 +1623,7 @@ damage( struct char_data * ch, struct char_data * victim, int dam,
 
     // Victim has been slain, handle all the implications
     // Exp, Kill counter, etc...
-    if ( GET_POS( victim ) == POS_DEAD ) {
+    if ( victim->getPosition() == POS_DEAD ) {
         if ( ch ) {
             gain_kill_exp( ch, victim );
 
@@ -1672,7 +1672,7 @@ damage( struct char_data * ch, struct char_data * victim, int dam,
         }
         die( victim, NULL, attacktype, is_humil );
         DAM_RETURN( TRUE );
-    } /* if GET_POS( victim ) == POS_DEAD */
+    } /* if victim->getPosition() == POS_DEAD */
     DAM_RETURN( FALSE );
 }
 
@@ -1754,7 +1754,7 @@ hit( struct char_data * ch, struct char_data * victim, int type )
 		act( "You are knocked from your mount by $N's attack!", 
 		     FALSE, tch, 0, ch, TO_CHAR );
 		MOUNTED( tch ) = NULL;
-		GET_POS( tch ) = POS_STANDING;
+		tch->setPosition( POS_STANDING );
 	    }
     }
   
@@ -2072,19 +2072,20 @@ perform_violence( void )
 			GET_MOB_WAIT( ch ) -= SEG_VIOLENCE;
 	    } else if ( GET_MOB_WAIT( ch ) < SEG_VIOLENCE ) {
             GET_MOB_WAIT( ch ) = 0;
-            if ( GET_POS( ch ) < POS_FIGHTING && GET_POS( ch ) > POS_STUNNED ) {
-                GET_POS( ch ) = POS_FIGHTING;
+            if ( ch->getPosition() < POS_FIGHTING 
+            && ch->getPosition() > POS_STUNNED ) {
+                ch->setPosition( POS_FIGHTING );
                 act( "$n scrambles to $s feet!", TRUE, ch, 0, 0, TO_ROOM );
                 GET_MOB_WAIT( ch ) += PULSE_VIOLENCE;
             }
 	    }
-	    if ( GET_POS( ch ) <= POS_SITTING )
+	    if ( ch->getPosition() <= POS_SITTING )
             continue;
 	}
 
 	// Make sure they're fighting before they fight.
-	if (GET_POS(ch) == POS_STANDING || GET_POS(ch) == POS_FLYING) {
-		GET_POS(ch) = POS_FIGHTING;
+	if (ch->getPosition() == POS_STANDING || ch->getPosition() == POS_FLYING) {
+		ch->setPosition( POS_FIGHTING );
 		continue;
 	}
 	prob = 1 + ( GET_LEVEL( ch ) / 7 ) + ( GET_DEX( ch ) << 1 );
@@ -2099,7 +2100,7 @@ perform_violence( void )
     if( GET_EQ( ch, WEAR_HANDS) )
         prob = calculate_weapon_probability( ch, prob, GET_EQ( ch, WEAR_HANDS));
     
-	prob += ( ( POS_FIGHTING - GET_POS( FIGHTING( ch ) ) ) << 1 );
+	prob += ( ( POS_FIGHTING - (FIGHTING( ch ))->getPosition()  ) << 1 );
 
 	if ( CHECK_SKILL( ch, SKILL_DBL_ATTACK ) ) 
 	    prob += ( int ) ( ( CHECK_SKILL( ch, SKILL_DBL_ATTACK ) * 0.15 ) +
@@ -2146,7 +2147,7 @@ perform_violence( void )
 	    for ( i = 0; i < 4; i++ ) {
             if ( !FIGHTING( ch ) || GET_LEVEL( ch ) < ( i << 3 ) )
                 break;
-            if ( GET_POS( ch ) < POS_FIGHTING ) {
+            if ( ch->getPosition() < POS_FIGHTING ) {
                 if ( CHECK_WAIT( ch ) < 10 )
                 send_to_char( "You can't fight while sitting!!\r\n", ch );
                 break;
@@ -2167,7 +2168,7 @@ perform_violence( void )
 
 		if ( !FIGHTING( ch ) )
 		    continue;
-		if ( GET_POS( ch ) < POS_FIGHTING ) {
+		if ( ch->getPosition() < POS_FIGHTING ) {
 		    if ( CHECK_WAIT( ch ) < 10 )
 			send_to_char( "You can't fight while sitting!!\r\n", ch );
 		    continue;
@@ -2200,7 +2201,7 @@ perform_violence( void )
 	}
 
 	else if ( IS_NPC( ch ) && ch->in_room && 
-		  GET_POS( ch ) == POS_FIGHTING && 
+		  ch->getPosition() == POS_FIGHTING && 
 		  GET_MOB_WAIT( ch ) <= 0 &&
 		  ( MIN( 100, prob ) >= number( 0, 300 ) ) ) {
 	    if ( MOB_FLAGGED( ch, MOB_SPEC ) && ch->in_room &&

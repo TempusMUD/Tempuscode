@@ -206,6 +206,7 @@
 
 
 /* Positions */
+#define BOTTOM_POS     0
 #define POS_DEAD       0	/* dead			*/
 #define POS_MORTALLYW  1	/* mortally wounded	*/
 #define POS_INCAP      2	/* incapacitated	*/
@@ -218,6 +219,7 @@
 #define POS_FLYING     9        /* flying around        */
 #define POS_MOUNTED    10
 #define POS_SWIMMING   11
+#define TOP_POS        11
 
 
 /* Player flags: used by char_data.char_specials.act */
@@ -702,6 +704,15 @@ struct char_special_data {
     inline int setWornWeight( int new_weight ) {
 	return ( worn_weight = new_weight );
     }
+    // Set position and Get position.
+    // Set returns success or failure
+    // Get returns current pos
+    inline void setPosition( int new_pos ) {
+        position = new_pos;
+    }
+    inline int getPosition( void ) {
+        return position;
+    }
     
     inline int getCarriedWeight( void ) { return carry_weight; }
     inline int getWornWeight( void ) { return worn_weight; }
@@ -900,6 +911,11 @@ struct char_data {
     inline int modifyBreathCount( int mod_count ) {
 	return setBreathCount( getBreathCount() + mod_count );
     }
+    // Set position and Get position.
+    // Set returns success or failure
+    bool setPosition( int new_pos );
+    // Get returns current pos
+    int getPosition( void );
     
     inline int getLevel( void ) { return player.level; }
 
