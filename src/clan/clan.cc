@@ -88,11 +88,11 @@ ACMD(do_enroll)
 	if (!clan)
 		send_to_char(ch, "Hmm... You need to be in a clan yourself, first.\r\n");
 	else if (!*member_str)
-		send_to_char(ch, "Ummm... enroll who?\r\n");
+		send_to_char(ch, "You must specify the player to enroll.\r\n");
 	else if (!(vict = get_char_room_vis(ch, member_str)))
-		send_to_char(ch, "Enroll who?\r\n");
+		send_to_char(ch, "You don't see that person.\r\n");
 	else if( IS_NPC(vict) )
-		send_to_char(ch, "You can only enroll player characters. Duh.\r\n");
+		send_to_char(ch, "You can only enroll player characters.\r\n");
 	else if (vict == ch && !Security::isMember(ch, "Clan"))
 		send_to_char(ch, "Yeah, yeah, yeah... enroll yourself, huh?\r\n");
 	else if (!IS_IMMORT(ch) && !PLR_FLAGGED(ch, PLR_CLAN_LEADER))
@@ -105,14 +105,13 @@ ACMD(do_enroll)
 				send_to_char(ch, "Clan flag purged on vict.  Re-enroll.\r\n");
 				GET_CLAN(vict) = 0;
 			} else
-				send_to_char(ch, "Duhhh...\r\n");
+				send_to_char(ch, "That person is already in your clan.\r\n");
 		} else
 			send_to_char(ch, 
 				"You cannot while they are a member of another clan.\r\n");
 	} else if (PLR_FLAGGED(vict, PLR_FROZEN))
 		send_to_char(ch, 
-			"They are frozen right now.  Wait until a god has mercy.\r\n"
-			"Don't hold your breath.\r\n");
+			"They are frozen right now.  Wait until a god has mercy.\r\n");
 	else if (GET_LEVEL(vict) < LVL_CAN_CLAN)
 		send_to_char(ch, 
 			"Players must be level 10 before being inducted into the clan.\r\n");
@@ -166,7 +165,7 @@ ACMD(do_dismiss)
 		send_to_char(ch, "Try joining a clan first.\r\n");
 		return;
 	} else if (!*arg) {
-		send_to_char(ch, "Ummm... dismiss who?\r\n");
+		send_to_char(ch, "You must specify the clan member to dismiss.\r\n");
 		return;
 	}
 	/* Find the player. */
@@ -189,7 +188,7 @@ ACMD(do_dismiss)
 
 	/* Was the player found? */
 	if (!vict) {
-		send_to_char(ch, "Dismiss who?\r\n");
+		send_to_char(ch, "That person isn't in your clan.\r\n");
 		if (in_file)
 			delete vict;
 		return;
@@ -197,7 +196,7 @@ ACMD(do_dismiss)
 
 	clan = real_clan(GET_CLAN(vict));
 	if (vict == ch)
-		send_to_char(ch, "Thats real damn funny.\r\n");
+		send_to_char(ch, "Try resigning if you want to leave the clan.\r\n");
 	else if (!PLR_FLAGGED(ch, PLR_CLAN_LEADER) && !IS_IMMORT(ch))
 		send_to_char(ch, "You are not the leader of the clan!\r\n");
 	else if (GET_CLAN(vict) != GET_CLAN(ch) && !Security::isMember(ch, "Clan"))
@@ -480,7 +479,7 @@ ACMD(do_demote)
 	if (!clan)
 		send_to_char(ch, "You are not even in a clan.\r\n");
 	else if (!*argument)
-		send_to_char(ch, "Demote who?\r\n");
+		send_to_char(ch, "You must specify the person to demote.\r\n");
 	else if (!(vict = get_char_room_vis(ch, argument)))
 		send_to_char(ch, "No-one around by that name.\r\n");
 	else if (!(member1 = real_clanmember(GET_IDNUM(ch), clan)))
@@ -543,7 +542,7 @@ ACMD(do_promote)
 	if (!clan)
 		send_to_char(ch, "You are not even in a clan.\r\n");
 	else if (!*argument)
-		send_to_char(ch, "Promote who?\r\n");
+		send_to_char(ch, "You must specify the person to promote.\r\n");
 	else if (!(vict = get_char_room_vis(ch, argument)))
 		send_to_char(ch, "No-one around by that name.\r\n");
 	else if (ch == vict && clan->owner != GET_IDNUM(ch))
