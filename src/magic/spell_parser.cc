@@ -3587,7 +3587,7 @@ mag_assign_spells(void)
 	remort_spello(SKILL_GREAT_CLEAVE, CLASS_BARB, 40, 2, 0, 0, 0, 0, 0, 0, 0);
 
 	remort_spello(SPELL_LOCUST_REGENERATION, CLASS_MAGE, 34, 5,
-		150, 75, 5, POS_FIGHTING, TAR_CHAR_ROOM | TAR_FIGHT_VICT
+		125, 60, 5, POS_FIGHTING, TAR_CHAR_ROOM | TAR_FIGHT_VICT
 		| TAR_NOT_SELF, TRUE, MAG_MAGIC | MAG_AFFECTS);
 /*	--- Add this back in when we want trail-based tracking
 	remort_spello(SPELL_SPIRIT_TRACK, CLASS_RANGER, 38, 2,

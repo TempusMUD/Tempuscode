@@ -1482,21 +1482,31 @@ damage(struct Creature *ch, struct Creature *victim, int dam,
 		}
 	}
 
-	if ((af = affected_by_spell(victim, SPELL_LOCUST_REGENERATION))) {
+	if ((af = affected_by_spell(victim, SPELL_LOCUST_REGENERATION)) && dam > 0) {
 		// pc caster
 		if (ch && !IS_NPC(ch) && GET_IDNUM(ch) == af->modifier) {
 			if (victim && (GET_MANA(victim) > 0)) {
-				int manadrain = MIN((int)(dam * 0.75), GET_MANA(victim));
-				sprintf(buf, "You drain %d mana from $N!", manadrain);
-				act(buf, FALSE, ch, 0, victim, TO_CHAR);
-				GET_MOVE(ch) = MAX(0, GET_MOVE(ch) - (dam >> 2));
-				if (GET_MOVE(ch) > 0)
-					GET_MANA(ch) = MIN(GET_MAX_MANA(ch), GET_MANA(ch) + dam);
+				int manadrain = MIN((int)(dam * 0.90), GET_MANA(victim));
+				if (GET_MOVE(ch) > 0) {
+				    sprintf(buf, "You drain %d mana from $N!", manadrain);
+				    act(buf, FALSE, ch, 0, victim, TO_CHAR);
+				    GET_MOVE(ch) = MAX(0, GET_MOVE(ch) - (int)(dam * 0.10));
+					GET_MANA(ch) = MIN(GET_MAX_MANA(ch), 
+                                       GET_MANA(ch) + manadrain);
+                }
+                else {
+                    act("You don't have the stamina to drain any mana from $N!",
+                        FALSE, ch, 0, victim, TO_CHAR);
+                }
 				af->duration--;
 				if (af->duration <= 0) {
 					affect_remove(victim, af);
 				}
 			}
+            else {
+                act("$N is completely drained of mana!", FALSE, ch,
+                    0, victim, TO_CHAR);
+            }
 		}
 	}
 

@@ -2156,7 +2156,7 @@ Fireball: like harder bones, skin, organ membranecs
 		to_vict = "You feel a vampiric link formed between you and $N!";
 		break;
 	case SPELL_LOCUST_REGENERATION:
-		af.duration = 2 + (ch->getLevelBonus(SPELL_LOCUST_REGENERATION) / 30);
+		af.duration = 3 + (ch->getLevelBonus(SPELL_LOCUST_REGENERATION) / 25);
 		af.location = APPLY_CASTER;
 		af.modifier = !IS_NPC(ch) ? GET_IDNUM(ch) : -MOB_IDNUM(ch);
 		to_vict = "You shriek in terror as $N drains your energy!";
