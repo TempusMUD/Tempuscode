@@ -1313,7 +1313,7 @@ ACMD(do_discharge)
 	act("You blast $p with a stream of pure energy!!",
 	    FALSE, ch,ovict,0,TO_CHAR);
     
-	dam = amount * level + dice(GET_INT(ch), 4);
+	dam = amount * (level + dice(GET_INT(ch), 4));
 	damage_eq(ch, ovict, dam);
 	return;
     }
@@ -1339,9 +1339,8 @@ ACMD(do_discharge)
 		damage(ch, vict, dam, SKILL_DISCHARGE,-1);
 		gain_skill_prof(ch, SKILL_DISCHARGE);
     }
-	wait = amount / 10;
-	wait += 1;
-    WAIT_STATE(ch, wait);
+	wait = ( 1 + amount / 20 ) RL_SEC;
+    WAIT_STATE( ch, wait );
 }
 
 
