@@ -42,7 +42,7 @@ class Account {
 		long get_char_by_index(int idx);
 		Creature *get_creature_by_index(int idx);
 		bool invalid_char_index(int idx);
-		bool deny_char_entry(void);
+		bool deny_char_entry(Creature *ch);
 
 		inline long long get_past_bank(void) { return _bank_past; }
 		inline long long get_future_bank(void) { return _bank_future; }
@@ -84,6 +84,8 @@ class AccountIndex : public vector<Account *>
 				{ return s1->get_idnum() < s2->get_idnum(); }
 			bool operator()(const Account *s1, int id) const
 				{ return s1->get_idnum() < id; }
+            bool operator()(int id,const Account *s1) const
+                { return s1->get_idnum() < id; }
 	};
 	public:
 		AccountIndex() : vector<Account *>(), _top_id(0) {}
@@ -95,7 +97,8 @@ class AccountIndex : public vector<Account *>
 		Account *create_account(const char *name, descriptor_data *d);
 		bool add(Account *acct);
 		bool remove(Account *acct);
-
+        // returns true if the given account exists
+        bool exists( int accountID ) const;
 		void sort();
 	private:
 		long _top_id;
