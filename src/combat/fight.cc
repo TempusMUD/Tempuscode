@@ -429,7 +429,7 @@ group_gain(struct Creature *ch, struct Creature *victim)
 					(int)((float)mult * 100), (int)((float)mult_mod * 100));
 			}
 
-			perform_gain_kill_exp((*it), victim, mult);
+			perform_gain_kill_exp((*it), victim, mult+mult_mod);
 		}
 	}
 }
