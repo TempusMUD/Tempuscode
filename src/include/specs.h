@@ -243,6 +243,7 @@ SPECIAL(wiz_library);
 SPECIAL(master_communicator);
 SPECIAL(fountain_good);
 SPECIAL(fountain_evil);
+SPECIAL(life_point_potion);
 
 SPECIAL(elevator_panel);
 
