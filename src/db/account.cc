@@ -699,16 +699,18 @@ void
 Account::displayTrusted(Creature *ch)
 {
 	vector<long>::iterator it;
-	int col = 1;
+	int col = 0;
 
 	for (it = _trusted.begin();it != _trusted.end();it++) {
 		if (playerIndex.exists(*it)) {
 			send_to_char(ch, "%20s   ", playerIndex.getName(*it));
 			col += 1;
+			if (col > 2) {
+				send_to_char(ch, "\r\n");
+				col = 0;
+			}
 		}
-		if (col % 3)
-			send_to_char(ch, "\r\n");
 	}
-	if (!(col % 3))
+	if (col)
 		send_to_char(ch, "\r\n");
 }
