@@ -29,7 +29,8 @@ template <class T> class SafeList:protected list <T> {
 		/**
 		 *  Creates a fresh new iterator
 		**/
-	    iterator():list <T>::iterator() {
+	    iterator()
+				:list <T>::iterator() {
 			_saved = false;
 			_list = NULL;
 		}
@@ -37,7 +38,8 @@ template <class T> class SafeList:protected list <T> {
 		 *  Creates a fresh new iterator just like the one you have.
 		 *  it - The iterator to copy.
 		**/
-		iterator(const iterator & it) {
+		iterator(const iterator & it)
+				: list<T>::iterator() {
 			_saved = false;
 			_list = NULL;
 			*this = it;
