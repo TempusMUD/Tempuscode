@@ -1,8 +1,8 @@
 
-#define CLONED_CHAR_TIME 1800	// 1800 secs == .5 hours
-#define CLONED_CHAR_MOB_VNUM 17199
+#define CLONE_LAB_TIME 1800	// 1800 secs == .5 hours
+#define CLONE_LAB_MOB_VNUM 17199
 
-SPECIAL( hell_domed_chamber ) {
+SPECIAL( clone_lab ) {
 
     static time_t last_time = 0;
     
@@ -11,7 +11,7 @@ SPECIAL( hell_domed_chamber ) {
 
     time_t cur_time = time(0);
 
-    if (cur_time - last_time < CLONED_CHAR_TIME)
+    if (cur_time - last_time < CLONE_LAB_TIME)
 	    return 0;
 
     if (GET_LEVEL(ch) < LVL_IMMORT)

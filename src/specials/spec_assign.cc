@@ -281,6 +281,7 @@ const struct spec_func_data spec_list[] = {
 	{"shop_keeper",     shop_keeper,           SPEC_MOB },
 	{"voting_booth",     voting_booth,         SPEC_OBJ },
 	{"fountain_youth",   fountain_youth,       SPEC_OBJ },
+	{"clone_lab",      clone_lab,          SPEC_RM | SPEC_RES },
     {NULL              , NULL,                 0 } //terminator
 };
 

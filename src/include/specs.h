@@ -275,6 +275,7 @@ SPECIAL(unholy_square);
 SPECIAL(unholy_stalker);
 SPECIAL(voting_booth);
 SPECIAL(fountain_youth);
+SPECIAL(clone_lab);
 
 #define SPEC_MOB 1
 #define SPEC_OBJ 2

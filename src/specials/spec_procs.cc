@@ -1931,6 +1931,7 @@ SPECIAL(cave_bear)
 
 #include "Specs/disaster_specs/boulder_thrower.spec"
 #include "Specs/disaster_specs/windy_room.spec"
+#include "Specs/javelin_specs/clone_lab.spec"
 
 SPECIAL(weapon_lister)
 {
