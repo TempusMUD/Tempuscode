@@ -2386,7 +2386,10 @@ extern const char *spell_wear_off_msg[] = {
     "!calm!", 
     "The thorns protruding from your skin wither and fade away.", 
     "!UNUSED!",	/* 155 */
-	"!UNUSED!", "!UNUSED!", "!UNUSED!", "!UNUSED!", "!UNUSED!",	/* 160 */
+	"!UNUSED!", "!UNUSED!", 
+    "The fiery tingling in your throat has ceased.", 
+    "The cold tingling in your throat has ceased.", 
+    "!UNUSED!",	/* 160 */
 	"!UNUSED!", "!UNUSED!", "!UNUSED!", "!UNUSED!", "!UNUSED!",	/* 165 */
 	"!UNUSED!", "!UNUSED!", "!UNUSED!", "!UNUSED!", "!UNUSED!",	/* 170 */
 	"!UNUSED!", "!UNUSED!", "!UNUSED!", "!UNUSED!", "!UNUSED!",	/* 175 */
