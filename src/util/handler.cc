@@ -1747,8 +1747,12 @@ obj_to_room(struct obj_data *object, struct room_data *room, bool sorted)
 		object->next_content = NULL;
 	}
 	object->in_room = room;
-	object->carried_by = NULL;
-	if (ROOM_FLAGGED(room, ROOM_HOUSE))
+	struct obj_data *temp;
+    if (object->carried_by) {
+        REMOVE_FROM_LIST(object, object->carried_by->carrying, next_content);
+        object->carried_by = NULL;
+    }
+    if (ROOM_FLAGGED(room, ROOM_HOUSE))
 		SET_BIT(ROOM_FLAGS(room), ROOM_HOUSE_CRASH);
 
 	if (IS_VEHICLE(object) && object->contains &&
