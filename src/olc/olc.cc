@@ -1005,9 +1005,14 @@ ACMD(do_olc)
 			} else
 				do_clear_olc_object(ch);
 		} else if (is_abbrev(argument, "mobile")) {
-			do_clear_olc_mob(ch);
-		} else
+			if( GET_OLC_MOB(ch) == NULL ) {
+				send_to_char(ch, "You are not currently editing a mobile.\r\n");
+			} else {
+				do_clear_olc_mob(ch);
+			}
+		} else {
 			send_to_char(ch, "Olc clear what?!?!!\r\n");
+		}
 		break;
 
 	case 19: /*** supersave ***/
