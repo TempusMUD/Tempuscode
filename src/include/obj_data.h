@@ -369,6 +369,9 @@ struct obj_data {
 		return result;
 	}
 
+	int getEquipPos(void);
+	int getImplantPos(void);
+
 	void clear();
 	
 	bool loadFromXML( obj_data *container, 

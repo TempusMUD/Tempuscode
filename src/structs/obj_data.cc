@@ -726,4 +726,34 @@ obj_data::affectedBySpell(int spellnum)
  
     return NULL;
 }
+
+int
+obj_data::getEquipPos(void)
+{
+	int result;
+
+	if (!worn_by)
+		return -1;
+
+	for (result = 0;result < NUM_WEARS;result++)
+		if (GET_EQ(worn_by, result) == this)
+			return result;
+	
+	return -1;
+}
+
+int
+obj_data::getImplantPos(void)
+{
+	int result;
+
+	if (!worn_by)
+		return -1;
+
+	for (result = 0;result < NUM_WEARS;result++)
+		if (GET_IMPLANT(worn_by, result) == this)
+			return result;
+	
+	return -1;
+}
 #undef __obj_data_cc__
