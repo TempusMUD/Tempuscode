@@ -2616,7 +2616,7 @@ ASPELL(spell_summon_legion)
 
 	if (number(0, 50 + GET_LEVEL(devil)) >
 			ch->getLevelBonus(SPELL_SUMMON_LEGION) ||
-			can_charm_more(ch)) {
+			!can_charm_more(ch)) {
 		act("Uh, oh.  $N doesn't look happy at you!",
 			false, ch, 0, devil, TO_CHAR);
 		act("$N doesn't look too happy at $n!",
