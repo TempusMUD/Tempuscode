@@ -34,6 +34,7 @@
 #include "shop.h"
 #include "fight.h"
 #include "materials.h"
+#include "tokenizer.h"
 
 extern struct obj_data *object_list;
 extern struct char_data *character_list;
@@ -879,7 +880,7 @@ ASPELL(spell_locate_object)
     struct room_data *rm = NULL;
     char buf3[MAX_STRING_LENGTH];
     void * ptr;
-    char *terms[MAX_LOCATE_TERMS];
+    char terms[MAX_LOCATE_TERMS][MAX_STRING_LENGTH];
     char *c;
     int term_idx, term_count = 1;
     int found;
@@ -890,11 +891,10 @@ ASPELL(spell_locate_object)
     *buf = *buf2 = '\0';
 
     // Grab the search terms
-    terms[0] = c = strtok(locate_buf, " ");
-    while (term_count <= MAX_LOCATE_TERMS && c) {
-        c = strtok(NULL, " ");
-        if (c)
-            terms[term_count++] = c;
+    Tokenizer tokens(locate_buf,' ');
+    //terms[0] = c = strtok(locate_buf, " ");
+    while (term_count <= MAX_LOCATE_TERMS && tokens.next( terms[term_count] ) ){
+            term_count++;
     }
 
     //Check to see if the character can be that precise
