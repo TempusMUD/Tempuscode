@@ -2008,7 +2008,7 @@ ASPELL(spell_sword)
     af.bitvector = AFF_CHARM;
     af.level = level;
     affect_to_char(sword, &af);
-
+	SET_BIT(MOB_FLAGS(sword), MOB_PET);
     IS_CARRYING_N(sword) = CAN_CARRY_N(sword);
 
     GET_HITROLL(sword) = (GET_LEVEL(ch) >> 2) + 5;
