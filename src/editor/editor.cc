@@ -60,19 +60,21 @@ start_text_editor(struct descriptor_data *d, char **dest, bool sendmessage=true,
 
 void CTextEditor::Process( char *inStr ) {
     // 2 special chars, @ and &
+    char inbuf[MAX_INPUT_LENGTH + 1];
+    strncpy(inbuf,inStr,MAX_INPUT_LEN);
 
-    delete_doubledollar(inStr);
+    delete_doubledollar(inbuf);
 
-    if(*inStr == '&') {// Commands
-        ProcessCommand(inStr);
+    if(*inbuf == '&') {// Commands
+        ProcessCommand(inbuf);
         return;
-    } else if (*inStr == '@') {// Finish up
-        SaveText(inStr);
+    } else if (*inbuf == '@') {// Finish up
+        SaveText(inbuf);
         desc->text_editor = NULL;
         delete this;
         return;
     } else { // Dump the text in
-        Append(inStr);
+        Append(inbuf);
     }
     desc->editor_cur_lnum = theText.size() + 1;
 }

@@ -593,50 +593,46 @@ apply_soil_to_char( struct char_data *ch,struct obj_data *obj,int type,int pos )
 
 
 int
-choose_random_limb( CHAR *victim )
-{
-
+choose_random_limb( CHAR *victim ) {
     int prob;
     int i;
     static int limb_probmax = 0;
 
     if ( !limb_probmax ) {
-	for ( i = 0; i < NUM_WEARS; i++ ) {
-	    limb_probmax += limb_probs[i];
-
-	    if ( i >= 1 )
-		limb_probs[i] += limb_probs[i-1];
-	}
-
+        for ( i = 0; i < NUM_WEARS; i++ ) {
+            limb_probmax += limb_probs[i];
+            if ( i >= 1 )
+                limb_probs[i] += limb_probs[i-1];
+        }
     }
 
     prob = number( 1, limb_probmax );
 
     for ( i = 1; i < NUM_WEARS; i++ ) {
-	if ( prob > limb_probs[i-1] &&
-	     prob <= limb_probs[i] )
-	    break;
+        if ( prob > limb_probs[i-1] &&
+             prob <= limb_probs[i] )
+            break;
     }
 
     if ( i >= NUM_WEARS ) {
-	slog( "SYSERR: exceeded NUM_WEARS-1 in choose_random_limb." );
-	return WEAR_BODY;
+        slog( "SYSERR: exceeded NUM_WEARS-1 in choose_random_limb." );
+        return WEAR_BODY;
     }
 
     // shield will be the only armor check we do here, since it is a special position
     if ( i == WEAR_SHIELD ) {
-	if ( !GET_EQ( victim, WEAR_SHIELD ) ) {
-	    if ( !number( 0, 2 ) )
-		i = WEAR_ARMS;
-	    else
-		i = WEAR_BODY;
-	}
+        if ( !GET_EQ( victim, WEAR_SHIELD ) ) {
+            if ( !number( 0, 2 ) )
+            i = WEAR_ARMS;
+            else
+            i = WEAR_BODY;
+        }
     }
   
     if ( !POS_DAMAGE_OK( i ) ) {
-	sprintf( buf, "SYSERR improper pos %d leaving choose_random_limb.", i );
-	slog( buf );
-	return WEAR_BODY;
+        sprintf( buf, "SYSERR improper pos %d leaving choose_random_limb.", i );
+        slog( buf );
+        return WEAR_BODY;
     }
 
     return i;
