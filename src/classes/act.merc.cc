@@ -694,31 +694,41 @@ void
 perform_appraise(Creature *ch, obj_data *obj, int skill_lvl)
 {
 	int i;
-	int found;
 	long cost;
+	unsigned long eq_req_flags;
 
 	struct time_info_data age(struct Creature *ch);
 
 	sprinttype(GET_OBJ_TYPE(obj), item_type_descs, buf2);
 	send_to_char(ch, "%s is %s.\n", tmp_capitalize(obj->name), buf2); 
 
-	if (skill_lvl > 20) {
-		send_to_char(ch, "Item will give you following abilities:  ");
-		buf[0] = '\0';
-		if (obj->obj_flags.bitvector[0])
-			sprintbit(obj->obj_flags.bitvector[0], affected_bits, buf);
-		if (obj->obj_flags.bitvector[1])
-			sprintbit(obj->obj_flags.bitvector[1], affected2_bits, buf);
-		if (obj->obj_flags.bitvector[2])
-			sprintbit(obj->obj_flags.bitvector[2], affected3_bits, buf);
-		send_to_char(ch, "%s\r\n", buf);
-	}
-
 	if (skill_lvl > 30) {
-		send_to_char(ch, "Item is: ");
-		sprintbit(GET_OBJ_EXTRA(obj), extra_bits, buf);
-		sprintbit(GET_OBJ_EXTRA2(obj), extra2_bits, buf);
-		send_to_char(ch, "%s\r\n", buf);
+		eq_req_flags = ITEM_ANTI_GOOD | ITEM_ANTI_EVIL | ITEM_ANTI_NEUTRAL |
+			ITEM_ANTI_MAGIC_USER | ITEM_ANTI_CLERIC | ITEM_ANTI_THIEF |
+			ITEM_ANTI_WARRIOR | ITEM_NOSELL | ITEM_ANTI_BARB |
+			ITEM_ANTI_PSYCHIC | ITEM_ANTI_PHYSIC | ITEM_ANTI_CYBORG |
+			ITEM_ANTI_KNIGHT | ITEM_ANTI_RANGER | ITEM_ANTI_HOOD |
+			ITEM_ANTI_MONK | ITEM_BLURRED | ITEM_EVIL_BLESS;
+		if (GET_OBJ_EXTRA(obj) & eq_req_flags) {
+			sprintbit(GET_OBJ_EXTRA(obj) & eq_req_flags, extra_bits, buf);
+			send_to_char(ch, "Item is: %s\r\n", buf);
+		}
+
+		eq_req_flags = ITEM2_ANTI_MERC;
+		if (GET_OBJ_EXTRA2(obj) & eq_req_flags) {
+			sprintbit(GET_OBJ_EXTRA2(obj) & eq_req_flags, extra2_bits, buf);
+			send_to_char(ch, "Item is: %s\r\n", buf);
+		}
+
+		eq_req_flags = ITEM3_REQ_MAGE | ITEM3_REQ_CLERIC | ITEM3_REQ_THIEF |
+			ITEM3_REQ_WARRIOR | ITEM3_REQ_BARB | ITEM3_REQ_PSIONIC |
+			ITEM3_REQ_PHYSIC | ITEM3_REQ_CYBORG | ITEM3_REQ_KNIGHT |
+			ITEM3_REQ_RANGER | ITEM3_REQ_HOOD | ITEM3_REQ_MONK |
+			ITEM3_REQ_VAMPIRE | ITEM3_REQ_MERCENARY;
+		if (GET_OBJ_EXTRA3(obj) & eq_req_flags) {
+			sprintbit(GET_OBJ_EXTRA3(obj) & eq_req_flags, extra3_bits, buf);
+			send_to_char(ch, "Item is: %s\r\n", buf);
+		}
 	}
 
 	send_to_char(ch, "Item weighs around %d lbs, and is made of %s.\n",
@@ -763,11 +773,9 @@ perform_appraise(Creature *ch, obj_data *obj, int skill_lvl)
 		}
 		break;
 	case ITEM_WEAPON:
-		send_to_char(ch, "Damage Dice is '%dD%d'", GET_OBJ_VAL(obj, 1),
-			GET_OBJ_VAL(obj, 2));
-		send_to_char(ch, " for an average per-round damage of %.1f.\r\n",
-			(((GET_OBJ_VAL(obj, 2) + 1) / 2.0) * GET_OBJ_VAL(obj,
-					1)));
+		send_to_char(ch, "This weapon can deal up to %d points of damage.\r\n",
+			GET_OBJ_VAL(obj, 2) * GET_OBJ_VAL(obj, 1));
+			
 		if (IS_OBJ_STAT2(obj, ITEM2_CAST_WEAPON))
 			send_to_char(ch, "This weapon casts an offensive spell.\r\n");
 		break;
