@@ -1493,6 +1493,11 @@ mobile_activity(void)
 		ch = *cit;
 		found = FALSE;
  
+         if (!ch) {
+             errlog("SYSERR: Skipping null mobile in mobile_activity");
+             continue;
+         }
+
          if (!ch->in_room && !ch->player.name && !ch->player.short_descr
              && !ch->player.description) {
              errlog("SYSERR: Skipping null mobile in mobile_activity");
