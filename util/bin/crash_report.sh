@@ -15,11 +15,11 @@ function print_report() {
     echo " >>>>"
     echo
     echo " >>>>"
-    echo " >>>> TAIL of last syslog (log/syslog.6)"
+    echo " >>>> TAIL of last syslog (log/syslog.0)"
     echo " >>>>"
     echo
 
-    tail log/syslog.6
+    tail log/syslog.0
 
     echo
     echo " >>>>"
@@ -46,5 +46,5 @@ set print pretty on
 printf " >>>>\n >>>> STACK TRACE\n >>>>\n"
 bt
 printf " >>>>\n >>>> LAST CMD ISSUED\n >>>>\n"
-print last_cmd[0]
+print last_cmd
 quit
