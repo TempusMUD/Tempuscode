@@ -955,7 +955,7 @@ extern const struct command_info cmd_info[] = {
     { "pload"    , POS_RESTING , do_pload    , LVL_GRGOD, 0},
     { "point"    , POS_RESTING , do_point    , 0, 0 },
     { "poke"     , POS_RESTING , do_action   , 0, 0 },
-    { "policy"   , POS_DEAD    , do_gen_ps   , 0, SCMD_POLICIES },
+    { "policy"   , POS_DEAD    , do_hcollect_help, 0, SCMD_POLICIES },
     { "ponder"   , POS_RESTING , do_action   , 0, 0 },
     { "poofin"   , POS_DEAD    , do_poofset  , LVL_AMBASSADOR, SCMD_POOFIN },
     { "poofout"  , POS_DEAD    , do_poofset  , LVL_AMBASSADOR, SCMD_POOFOUT },
@@ -1037,7 +1037,7 @@ extern const struct command_info cmd_info[] = {
     { "rswitch"  , POS_DEAD    , do_rswitch  , LVL_GRGOD, 0 },
     { "rub"      , POS_RESTING , do_action   , 0, 0 },
     { "ruffle"   , POS_STANDING, do_action   , 0, 0 },
-    { "rules"   , POS_DEAD    , do_gen_ps   , 0, SCMD_POLICIES },
+    { "rules"   , POS_DEAD    , do_hcollect_help, 0, SCMD_POLICIES },
     { "run"     , POS_STANDING, do_action    , 0, 0 },
 
     { "say"      , POS_RESTING , do_say      , 0, SCMD_SAY },

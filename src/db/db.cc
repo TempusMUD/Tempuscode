@@ -244,7 +244,7 @@ ACMD(do_reboot)
 	file_to_string_alloc(ANSI_WIZLIST_FILE, &ansi_wizlist);
 	file_to_string_alloc(IMMLIST_FILE, &immlist);
 	file_to_string_alloc(ANSI_IMMLIST_FILE, &ansi_immlist);
-	file_to_string_alloc(POLICIES_FILE, &policies);
+//	file_to_string_alloc(POLICIES_FILE, &policies);
 	file_to_string_alloc(HANDBOOK_FILE, &handbook);
 	file_to_string_alloc(BACKGROUND_FILE, &background);
 	file_to_string_alloc(AREAS_LOW_FILE, &areas_low);
@@ -274,8 +274,8 @@ ACMD(do_reboot)
 //	file_to_string_alloc(HELP_PAGE_FILE, &help);
     } else if (!str_cmp(arg, "info"))
 	file_to_string_alloc(INFO_FILE, &info);
-    else if (!str_cmp(arg, "policy"))
-	file_to_string_alloc(POLICIES_FILE, &policies);
+//    else if (!str_cmp(arg, "policy"))
+//	file_to_string_alloc(POLICIES_FILE, &policies);
     else if (!str_cmp(arg, "handbook"))
 	file_to_string_alloc(HANDBOOK_FILE, &handbook);
     else if (!str_cmp(arg, "background"))
