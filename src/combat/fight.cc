@@ -3398,7 +3398,9 @@ damage( struct char_data * ch, struct char_data * victim, int dam,
 	     GET_CLASS( victim ) != CLASS_DEMON_PRINCE &&
 	     GET_MOB_WAIT( ch ) <= 0 && !MOB_FLAGGED( ch, MOB_SENTINEL ) &&
 	     ( 100 - ( ( GET_HIT( victim ) * 100 ) / GET_MAX_HIT( victim ) ) ) > 
-	     GET_MORALE( victim ) + number( -5, 10 + ( GET_INT( victim ) >> 2 ) ) )
+	     GET_MORALE( victim ) + number( -5, 10 + ( GET_INT( victim ) >> 2 ) ) &&
+		 GET_MAX_HIT(victim) > 0
+	   )
 	    do_flee( victim, "", 0, 0 );
 
 	if ( IS_CYBORG( victim ) && !IS_NPC( victim ) && 
