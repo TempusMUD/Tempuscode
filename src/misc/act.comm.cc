@@ -849,7 +849,7 @@ ACMD(do_gen_comm)
 		return;
 	}
 	if (PLR_FLAGGED(ch, PLR_NOSHOUT)) {
-		send_to_char(ch, chan->msg_noton);
+		send_to_char(ch, chan->msg_muted);
 		return;
 	}
 
