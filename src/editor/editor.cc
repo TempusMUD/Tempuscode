@@ -166,7 +166,8 @@ CTextEditor::SaveText(char *inStr)
 
 	length = curSize + (theText.size() * 2);
 	if (target) {
-		*target = new char[length + 3];
+		*target = (char*) malloc(sizeof(char) * length + 3);
+		//*target = new char[length + 3];
 		strcpy(*target, "");
 		for (itr = theText.begin(); itr != theText.end(); itr++) {
 			strcat(*target, itr->c_str());
@@ -178,13 +179,13 @@ CTextEditor::SaveText(char *inStr)
 		// Saving a file
 		if ((desc->editor_file != NULL)) {
 			SaveFile();
-			delete *target;
+			free(*target);
 			free(target);
 		}
 		// Sending Mail
 		else if (PLR_FLAGGED(desc->character, PLR_MAILING)) {
 			ExportMail();
-			delete *target;
+			free(*target);
 			free(target);
 		}
 		// Creating a script handler
@@ -265,7 +266,8 @@ CTextEditor::ExportMail(void)
 		// Check the length we need, just to be sure.
 		for (mail_rcpt = desc->mail_to; mail_rcpt; mail_rcpt = mail_rcpt->next)
 			cc_len++;
-		cc_list = new char[(cc_len * MAX_NAME_LENGTH) + 32];
+		cc_list = (char*) malloc( sizeof(char) * (cc_len * MAX_NAME_LENGTH + 32));
+		//cc_list = new char[(cc_len * MAX_NAME_LENGTH) + 32];
 
 		strcpy(cc_list, "  CC: ");
 		for (mail_rcpt = desc->mail_to; mail_rcpt; mail_rcpt = mail_rcpt->next) {
@@ -298,7 +300,7 @@ CTextEditor::ExportMail(void)
 		desc->mail_to = mail_rcpt;
 	}
 	if (cc_list)
-		delete[]cc_list;
+		free(cc_list);
 	if (stored_mail)
 		SendMessage("Message sent!\r\n");
 }
@@ -717,10 +719,11 @@ CTextEditor::SendMessage(const char *message)
 			"TEDERR: SendMessage Truncating message. NAME(%s) Length(%d)",
 			GET_NAME(desc->character), strlen(message));
 		slog(small_editbuf);
-		output = new char[LARGE_BUFSIZE];
+		output = (char*) malloc( sizeof(char) * LARGE_BUFSIZE );
+		//output = new char[LARGE_BUFSIZE];
 		strncpy(output, message, LARGE_BUFSIZE - 2);
 		send_to_char(desc->character, output);
-		delete output;
+		free(output);
 	} else {					// If the original message is small enough, just let it through.
 		send_to_char(desc->character, message);
 	}
@@ -1113,7 +1116,8 @@ CTextEditor::ListRecipients(void)
 	for (mail_rcpt = desc->mail_to; mail_rcpt; mail_rcpt = mail_rcpt->next)
 		cc_len++;
 
-	cc_list = new char[(cc_len * MAX_NAME_LENGTH) + 32];
+	cc_list = (char*) malloc( sizeof(char) * ((cc_len * MAX_NAME_LENGTH) + 32) );
+	//cc_list = new char[(cc_len * MAX_NAME_LENGTH) + 32];
 
 	sprintf(cc_list, "%sTo%s:%s ",
 		CCYEL(desc->character, C_NRM),
@@ -1133,7 +1137,7 @@ CTextEditor::ListRecipients(void)
 	SendMessage(cc_list);
 
 	if (cc_list) {
-		delete[]cc_list;
+		free(cc_list);
 	}
 
 }

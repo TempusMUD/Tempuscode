@@ -246,7 +246,8 @@ recieve_mail(Creature * ch)
 				break;
 			}
 			num_letters++;
-			text = new char[letter->msg_size + 1];
+			text = (char*)malloc( sizeof(char) * ( letter->msg_size + 1 ) );
+			//text = new char[letter->msg_size + 1];
 			mail_file.read(text, letter->msg_size + 1);
 			// Actually build the mail object and give it to the player.    
 			time_str = asctime(localtime(&letter->time));
@@ -257,8 +258,9 @@ recieve_mail(Creature * ch)
 				"  To: %s\r\n"
 				"From: %s\r\n", time_str, GET_NAME(ch),
 				get_name_by_id(letter->from));
-
-			obj->action_description = new char[strlen(text) + strlen(buf) + 1];
+			
+			obj->action_description =//= new char[strlen(text) + strlen(buf) + 1];
+					(char*)malloc( sizeof(char) * (strlen(text) + strlen(buf) + 1) );
 			strcpy(obj->action_description, buf);
 			strcat(obj->action_description, text);
 			obj->plrtext_len = strlen(obj->action_description) + 1;
@@ -269,7 +271,7 @@ recieve_mail(Creature * ch)
 			} else {
 				list = obj;
 			}
-			delete[]text;
+			free(text);
 		} else {
 			break;
 		}
