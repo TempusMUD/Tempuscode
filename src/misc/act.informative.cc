@@ -2248,9 +2248,8 @@ affs_to_str(struct Creature *ch, byte mode)
 
 	if ((af = affected_by_spell(ch, SPELL_LOCUST_REGENERATION))) {
 		if ((name = get_name_by_id(af->modifier)))
-			sprintf(str,
-				"%sYou are under the effects of %s's locust regeneration.\r\n",
-				str, name);
+			str = tmp_sprintf(str, "You are under the effects of ", name,
+				"'s locust regeneration.\r\n", NULL);
 		else
 			str = tmp_strcat(str,
 				"You are under the effects of locust regeneration from an unknown source.\r\n");

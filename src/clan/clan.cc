@@ -77,9 +77,7 @@ ACMD(do_enroll)
 		send_to_char(ch, "Enroll who?\r\n");
 	else if (vict == ch)
 		send_to_char(ch, "Yeah, yeah, yeah... enroll yourself, huh?\r\n");
-	else if (!PLR_FLAGGED(ch, PLR_CLAN_LEADER) && GET_LEVEL(ch) < LVL_IMMORT &&
-		(!(member = real_clanmember(GET_IDNUM(ch), clan)) ||
-			member->rank < clan->top_rank))
+	else if (GET_LEVEL(ch) < LVL_IMMORT && !PLR_FLAGGED(ch, PLR_CLAN_LEADER))
 		send_to_char(ch, "You are not the leader of the clan!\r\n");
 	else if (IS_MOB(vict) && GET_LEVEL(ch) < LVL_CREATOR)
 		send_to_char(ch, "What's the point of that?\r\n");
