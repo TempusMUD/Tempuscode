@@ -836,8 +836,11 @@ struct attack_hit_type {
 
 
 #define ASPELL(spellname) \
-void	spellname(byte level, struct Creature *ch, \
-		  struct Creature *victim, struct obj_data *obj, int *dir)
+	void spellname(__attribute__ ((unused)) byte level, \
+		__attribute__ ((unused)) struct Creature *ch, \
+		__attribute__ ((unused))  struct Creature *victim, \
+		__attribute__ ((unused)) struct obj_data *obj, \
+		__attribute__ ((unused)) int *dir)
 
 #define MANUAL_SPELL(spellname)	spellname(level, caster, cvict, ovict, dvict);
 

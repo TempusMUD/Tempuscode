@@ -19,9 +19,18 @@
 // Copyright 1998 by John Watson, all rights reserved.
 //
 #define ACMD(name)  \
-   void (name)(struct Creature *ch, char *argument, int cmd, int subcmd, int *return_flags)
+   void (name)(__attribute__ ((unused)) struct Creature *ch, \
+   	__attribute__ ((unused)) char *argument, \
+	__attribute__ ((unused)) int cmd, \
+	__attribute__ ((unused)) int subcmd, \
+	__attribute__ ((unused)) int *return_flags)
+
 #define ACCMD(name)  \
-   void (name)(struct Creature *ch, char *argument, int cmd, int subcmd, int *return_flags)
+   void (name)(__attribute__ ((unused)) struct Creature *ch, \
+   __attribute__ ((unused)) char *argument, \
+   __attribute__ ((unused)) int cmd, \
+   __attribute__ ((unused)) int subcmd, \
+   __attribute__ ((unused)) int *return_flags)
 
 void command_interpreter(struct Creature *ch, char *argument);
 int search_block(const char *arg, const char **list, bool exact);

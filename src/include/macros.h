@@ -6,7 +6,11 @@
 
 
 #define SPECIAL(name) \
-int (name)(struct Creature *ch, void *me, int cmd, char *argument, special_mode spec_mode)
+int (name)(__attribute__ ((unused)) struct Creature *ch, \
+	__attribute__ ((unused)) void *me, \
+	__attribute__ ((unused)) int cmd, \
+	__attribute__ ((unused)) char *argument, \
+	__attribute__ ((unused)) special_mode spec_mode)
 
 #define GET_SCRIPT_VNUM(mob)   (IS_MOB(mob) ? \
                               mob->mob_specials.shared->svnum : -1)
