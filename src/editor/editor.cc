@@ -186,9 +186,31 @@ void CTextEditor::SaveText( char *inStr) {
         desc->connected = CON_MENU;
     }
     // Remove the "using the editor" bits.
-    if (desc->connected == CON_PLAYING && 
-        desc->character && 
-        !IS_NPC(desc->character)) {
+    if (desc->connected == CON_PLAYING && desc->character && !IS_NPC(desc->character)) {
+        tedii_out_buf[0] = '\0';
+        // Decide what to say to the room since they're done
+        if( PLR_FLAGGED(desc->character, PLR_WRITING) ) {
+            sprintf(tedii_out_buf,
+                    "%s finishes writing.\r\n",
+                    GET_NAME(desc->character) );
+        } else if( PLR_FLAGGED(desc->character, PLR_OLC) ) {
+            sprintf(tedii_out_buf,
+                    "%s nods with satisfaction as $e saves $s work.\r\n",
+                    GET_NAME(desc->character) );
+        } else if((PLR_FLAGGED(desc->character, PLR_OLC)) && scripting) {
+            sprintf(tedii_out_buf,
+                    "%s nods with satisfaction as $e saves $s work.\r\n",
+                    GET_NAME(desc->character) );
+        } else if( PLR_FLAGGED(desc->character, PLR_MAILING) 
+                && GET_LEVEL(desc->character) >= LVL_AMBASSADOR ) {
+            sprintf(tedii_out_buf,
+                    "%s postmarks and dispatches $s mail.\r\n",
+                    GET_NAME(desc->character) );
+        }
+        // Let the room know that they're done
+        if( tedii_out_buf[0] != '\0' ) {
+            act(tedii_out_buf,TRUE,desc->character,0,0,TO_NOTVICT);
+        }
         REMOVE_BIT(PLR_FLAGS(desc->character), PLR_WRITING | PLR_OLC | PLR_MAILING);
     }
 }
@@ -439,8 +461,9 @@ bool CTextEditor::FindReplace(char *args) {
         while(pos < line->length()) {
             pos = line->find(findit,pos);
             if(pos < line->length()) {
-                if((curSize - findit.length() + replaceit.length()) +
-                  ((theText.size() + 1) * 2 ) > maxSize) {
+                if( (curSize - findit.length() + replaceit.length()) +
+                    ((theText.size() + 1) * 2 ) 
+                       > maxSize) {
                     SendMessage("Error: The buffer is full.\r\n");
                     overflow = true;
                     break;
@@ -648,19 +671,46 @@ void CTextEditor::SendStartupMessage( void ) {
     SendMessage(tedii_out_buf);
 }
 
-void CTextEditor::UpdateSize( void ) {
+static inline int text_length(list<string> &theText) {
+    int length = 0;
     list<string>::iterator s;
-    curSize = 0;
-
     for(s = theText.begin();s != theText.end();s++) {
-        curSize += s->length();
+        length += s->length();
     }
+    return length;
+}
+void CTextEditor::UpdateSize( void ) {
+    int linesRemoved = 0;
+    
+    // update the current size
+    curSize = text_length(theText);
+
+    // Buffer overflow state.
+    // This is probably happening in response to word wrap
+    while( (curSize + (theText.size() *2) + 2)  > maxSize ) {
+        theText.pop_back();
+        curSize = text_length(theText);
+        linesRemoved++;
+    }
+
     // Current line number for prompt.
     desc->editor_cur_lnum = theText.size() + 1;
+    // Warn the player if the buffer was truncated.
+    if( linesRemoved > 0 ) {
+        sprintf(tedii_out_buf,
+           "Error: Buffer limit exceeded.  %d %s removed.\r\n",
+           linesRemoved, linesRemoved == 1 ? "line" : "lines");
+        SendMessage(tedii_out_buf);
+        sprintf(tedii_out_buf,
+           "TEDINF: UpdateSize removed %d lines from buffer. Name(%s) Size(%d) Max(%d)",
+           linesRemoved,GET_NAME(desc->character),curSize,maxSize);
+        slog(tedii_out_buf);
+    }
     // Obvious buffer flow state. This should never happen, but if it does, say something.
     if(curSize > maxSize) {
-        sprintf(tedii_out_buf,"TEDERR: UpdateSize updated to > maxSize. Name(%s) Size(%d) Max(%d)\r\n",
-            GET_NAME(desc->character),curSize,maxSize);
+        sprintf(tedii_out_buf,
+           "TEDERR: UpdateSize updated to > maxSize. Name(%s) Size(%d) Max(%d)",
+           GET_NAME(desc->character),curSize,maxSize);
         slog(tedii_out_buf);
     }
 }

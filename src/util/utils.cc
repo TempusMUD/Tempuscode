@@ -506,21 +506,21 @@ die_follower(struct char_data * ch)
     struct follow_type *j, *k;
 
     if (order_next_k && order_next_k->follower && ch == order_next_k->follower)
-	order_next_k = NULL;
+    	order_next_k = NULL;
   
     if (ch->master)
-	stop_follower(ch);
+    	stop_follower(ch);
 
     for (k = ch->followers; k; k = j) {
-	j = k->next;
-	stop_follower(k->follower);
+    	j = k->next;
+    	stop_follower(k->follower);
     }
 }
 int
 player_in_room ( struct room_data *room ) {
-    struct char_data *c;
-    for(c = room->people;c;c = c->next_in_room) {
-        if(!IS_NPC(c) && GET_LEVEL(c) < LVL_AMBASSADOR)
+    CharacterList::iterator it = room->people.begin();
+    for( ; it != room->people.end(); ++it ) {
+        if(!IS_NPC((*it)) && GET_LEVEL((*it)) < LVL_AMBASSADOR)
             return 1;
     }
     return 0;
@@ -852,4 +852,59 @@ WAIT_STATE(struct char_data * ch, int cycle)
     else if ( IS_NPC(ch) ) {
         GET_MOB_WAIT(ch) =   MAX(GET_MOB_WAIT(ch),  wait);
     }
+}
+
+char *OBJN(obj_data *obj, char_data *vict) {
+    if( CAN_SEE_OBJ(vict,obj) )
+        return fname((obj)->name);
+    else
+        return "something";
+}
+char *OBJS(obj_data *obj, char_data *vict) {
+    if( CAN_SEE_OBJ((vict),(obj)) )
+        return obj->short_description;
+    else
+        return "something";
+}
+char *PERS( char_data *ch, char_data *sub ) {
+    if( CAN_SEE(sub, ch) )
+        return GET_DISGUISED_NAME(sub,ch);
+    else
+        return "someone";
+}
+char *AN( char *str ) {
+    if( PLUR(str) )
+        return "some";
+    if(strchr("aeiouAEIOU",*str))
+        return "an";
+    return "a";
+}
+char *YESNO(bool a){
+    if( a )
+        return "YES";
+    else
+        return "NO";
+}
+char *ONOFF(bool a) {
+    if( a )
+        return "ON";
+    return "OFF";
+}
+
+char *CURRENCY(char_data *ch) {
+    if( ch->in_room->zone->time_frame == TIME_ELECTRO )
+        return "credit";
+    return "coin";
+}    
+bool CAN_GO(char_data *ch, int door ) {
+    room_direction_data *exit = EXIT(ch,door);
+    return ( exit != NULL && 
+             !IS_SET(exit->exit_info, EX_CLOSED | EX_NOPASS) &&
+             exit->to_room != NULL );
+}
+bool CAN_GO(obj_data *obj, int door ) {
+    room_direction_data *exit = EXIT(obj,door);
+    return ( exit != NULL && 
+             !IS_SET(exit->exit_info, EX_CLOSED | EX_NOPASS) &&
+             exit->to_room != NULL );
 }

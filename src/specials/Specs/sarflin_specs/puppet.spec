@@ -6,7 +6,8 @@
 
 void make_corpse(struct char_data *ch, struct char_data *vict, int attacktype);
 SPECIAL(puppet)
-{
+{ 
+  if( spec_mode == SPECIAL_DEATH ) return 0;
   struct char_data *me2 = (struct char_data *) me;
   struct affected_type af;
   if (!cmd && !FIGHTING(me2)&& !number(0,3))

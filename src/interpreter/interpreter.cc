@@ -552,7 +552,7 @@ extern const struct command_info cmd_info[] = {
     { "cemote"   , POS_STUNNED,  do_clan_comm,  LVL_CAN_CLAN, SCMD_CLAN_ECHO },
     { "claninfo" , POS_SLEEPING, do_cinfo    ,  LVL_CAN_CLAN, 0 },
     { "cinfo"    , POS_SLEEPING, do_cinfo    ,  LVL_CAN_CLAN, 0 },
-    { "cedit"    , POS_DEAD,     do_cedit,      LVL_GRGOD,  0 },
+    { "cedit"    , POS_DEAD,     do_cedit,      LVL_GOD,  0 },
     { "circle"   , POS_FIGHTING, do_circle   , 0, 0 },
     { "cities"   , POS_SLEEPING, do_hcollect_help     , 0, SCMD_CITIES },
     { "clanlist" , POS_MORTALLYW, do_clanlist, LVL_CAN_CLAN, 0 },
@@ -1454,7 +1454,7 @@ command_interpreter(struct char_data * ch, char *argument)
         else if (!number(0, 2))
             send_to_char("You are petrified!  You cannot move an inch!\r\n",ch);
         else if (!number(0, 1))
-            send_to_char("WTF??!!  Your body has been turned to solid stone!",ch);
+            send_to_char("WTF?!!  Your body has been turned to solid stone!",ch);
         else
             send_to_char("You have been turned to stone, and cannot move.\r\n",ch);
     }
@@ -2012,9 +2012,8 @@ find_command(char *command)
 int 
 special(struct char_data * ch, int cmd, int subcmd,  char *arg)
 {
-    register struct obj_data *i;
-    register struct char_data *k;
-    register struct special_search_data *srch = NULL;
+    struct obj_data *i;
+    struct special_search_data *srch = NULL;
     char tmp_arg[MAX_INPUT_LENGTH];
     int j, tmp_cmd = 0;
     int found = 0, result = 0;
@@ -2080,9 +2079,10 @@ special(struct char_data * ch, int cmd, int subcmd,  char *arg)
     }
 
     /* special in mobile present? */
-    for (k = ch->in_room->people; k; k = k->next_in_room)
-        if (GET_MOB_SPEC(k) != NULL) {
-            if (GET_MOB_SPEC(k) (ch, k, cmd, arg, 0)) {
+    CharacterList::iterator it = ch->in_room->people.begin();
+    for( ; it != ch->in_room->people.end(); ++it ) 
+        if (GET_MOB_SPEC((*it)) != NULL) {
+            if (GET_MOB_SPEC((*it)) (ch, (*it), cmd, arg, 0)) {
                 return 1;
             }
         }
@@ -2159,28 +2159,6 @@ nanny(struct descriptor_data * d, char *arg)
     struct char_data *tmp_ch;
     struct descriptor_data *k, *next;
     extern struct descriptor_data *descriptor_list;
-    extern struct room_data * r_mortal_start_room;
-    extern struct room_data * r_electro_start_room;
-    extern struct room_data * r_new_thalos_start_room;
-    extern struct room_data * r_istan_start_room;
-    extern struct room_data * r_tower_modrian_start_room;
-    extern struct room_data * r_immort_start_room;
-    extern struct room_data * r_frozen_start_room;
-    extern struct room_data * r_elven_start_room;
-    extern struct room_data * r_arena_start_room;
-    extern struct room_data * r_doom_start_room;
-    extern struct room_data * r_city_start_room;
-    extern struct room_data * r_monk_start_room;
-    extern struct room_data * r_solace_start_room;
-    extern struct room_data * r_mavernal_start_room;
-    extern struct room_data * r_dwarven_caverns_start_room;
-    extern struct room_data * r_human_square_start_room;
-    extern struct room_data * r_skullport_start_room;
-    extern struct room_data * r_skullport_newbie_start_room;
-    extern struct room_data * r_drow_isle_start_room;
-    extern struct room_data * r_astral_manse_start_room;
-    extern struct room_data * r_zul_dane_start_room;
-    extern struct room_data * r_zul_dane_newbie_start_room;
     extern int max_bad_pws;
     struct room_data *load_room = NULL, *h_rm = NULL, *rm = NULL;
     struct clan_data *clan = NULL;
@@ -2477,7 +2455,10 @@ nanny(struct descriptor_data * d, char *arg)
             }
 
             /* now check for linkless and usurpable */
-            for (tmp_ch = character_list; tmp_ch; tmp_ch = tmp_ch->next)
+            CharacterList::iterator cit = characterList.begin();
+            for ( ; cit != characterList.end(); ++cit ) {
+                tmp_ch = *cit;
+            //for (tmp_ch = character_list; tmp_ch; tmp_ch = tmp_ch->next)
                 if (!IS_NPC(tmp_ch) &&
                     GET_IDNUM(d->character) == GET_IDNUM(tmp_ch) &&
                     !strcmp(GET_NAME(tmp_ch),GET_NAME(d->character))) {
@@ -2534,13 +2515,6 @@ nanny(struct descriptor_data * d, char *arg)
                                 TRUE, tmp_ch, 0, 0, TO_ROOM);
                         }
                     }
-#ifdef DMALLOC
-                    dmalloc_verify(0);
-#endif
-                    free_char(d->character);
-#ifdef DMALLOC
-                    dmalloc_verify(0);
-#endif
                     tmp_ch->desc = d;
                     d->character = tmp_ch;
                     tmp_ch->char_specials.timer = 0;
@@ -2553,6 +2527,8 @@ nanny(struct descriptor_data * d, char *arg)
                         STATE(d) = CON_PLAYING;
                     return;
                 }
+            }
+            
             if (!polc_char) {
                 if (!mini_mud) {
                     SEND_TO_Q("\033[H\033[J", d);
@@ -2853,7 +2829,7 @@ nanny(struct descriptor_data * d, char *arg)
                 GET_HOME(d->character) = HOME_MONK;
                 STATE(d) = CON_QHOME_PAST;
             } else {
-                SEND_TO_Q("\033[H\033[J", d);
+                //SEND_TO_Q("\033[H\033[J", d);
                 STATE(d) = CON_QHOME_FUTURE;
                 show_future_home_menu(d);
             }
@@ -2944,7 +2920,10 @@ nanny(struct descriptor_data * d, char *arg)
 
     case CON_QHOME_PAST:
     case CON_QHOME_FUTURE:
-
+/** Everyone gets to be in the newbie school **/
+#ifdef HOME_NEWBIE_ONLY
+    GET_HOME(d->character) = HOME_NEWBIE_SCHOOL;
+#else
         if (STATE(d) == CON_QHOME_FUTURE) {
             if ((GET_HOME(d->character) = parse_future_home(d, arg)) == -1) {
                 SEND_TO_Q("\033[H\033[J", d);    
@@ -2974,7 +2953,7 @@ nanny(struct descriptor_data * d, char *arg)
                 }
             }
         }
-
+#endif
         population_record[GET_HOME(d->character)]++;
     
         if (GET_PFILEPOS(d->character) < 0)
@@ -3109,8 +3088,9 @@ nanny(struct descriptor_data * d, char *arg)
             send_to_char(CCBLD(d->character, C_NRM), d->character);
             send_to_char(WELC_MESSG, d->character);
             send_to_char(CCNRM(d->character, C_NRM), d->character);
-            d->character->next = character_list;
-            character_list = d->character;
+            characterList.add(d->character);
+            //d->character->next = character_list;
+            //character_list = d->character;
 
             load_room = NULL;
             if (PLR_FLAGGED(d->character, PLR_FROZEN))
@@ -3135,7 +3115,9 @@ nanny(struct descriptor_data * d, char *arg)
                 } else {
                     if (d->character->in_room == NULL || 
                         (load_room = real_room(d->character->in_room->number)) == NULL) {
-                        if (GET_HOME(d->character) == HOME_ELECTRO)
+                        if( GET_HOME(d->character) == HOME_NEWBIE_SCHOOL )
+                            load_room = r_newbie_school_start_room;
+                        else if (GET_HOME(d->character) == HOME_ELECTRO) 
                             load_room = r_electro_start_room;
                         else if (GET_HOME(d->character) == HOME_NEWBIE_TOWER) {
                             if (GET_LEVEL(d->character) > 5) {

@@ -1,4 +1,4 @@
-$(OBJ)/Mapper.o : Mapper.cc $(INCLUDE)/Mapper.h\
-
+$(OBJ)/Mapper.o : Mapper.cc \
+	$(INCLUDE)/Mapper.h 
 	$(CXX) -c $(CXXFLAGS) Mapper.cc            -o $(OBJ)/Mapper.o
 OBJFILES= $(OBJ)/Mapper.o

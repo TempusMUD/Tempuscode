@@ -368,7 +368,7 @@ do_create_room( struct char_data *ch, int vnum )
 
     struct room_data *rm = NULL, *new_rm = NULL;
     struct zone_data *zone = NULL;
-    int i;
+    //int i;
 
     if ( ( rm = real_room( vnum ) ) ) {
         send_to_char( "ERROR: Room already exists.\r\n", ch );
@@ -404,11 +404,13 @@ do_create_room( struct char_data *ch, int vnum )
         }
     }
 
-    CREATE( new_rm, struct room_data, 1 );
+    //CREATE( new_rm, struct room_data, 1 );
+    new_rm = new room_data(vnum,zone);
+    new_rm->name = str_dup( "A Freshly Made Room" );
 
+    /*
     new_rm->zone = zone;
     new_rm->number = vnum;
-    new_rm->name = str_dup( "A Freshly Made Room" );
     new_rm->description = NULL;
     new_rm->sounds = NULL;
     new_rm->room_flags = 0;
@@ -428,7 +430,7 @@ do_create_room( struct char_data *ch, int vnum )
     new_rm->flow_dir = 0;
     new_rm->flow_speed = 0;
     new_rm->flow_type = 0;
-
+    */
     if ( rm ) {
         new_rm->next = rm->next;
         rm->next = new_rm;
@@ -448,7 +450,7 @@ do_destroy_room( struct char_data *ch, int vnum )
 
     struct room_data *rm = NULL, *t_rm = NULL;
     struct zone_data *zone = NULL;
-    struct char_data *vict = NULL, *next_vict = NULL;
+    struct char_data *vict = NULL;
     struct obj_data *obj = NULL, *next_obj = NULL;
     struct special_search_data *srch = NULL;
     struct extra_descr_data *desc = NULL;
@@ -491,10 +493,9 @@ do_destroy_room( struct char_data *ch, int vnum )
             }
         }
     }
-
-    for ( vict = rm->people; vict; vict = next_vict ) {
-        next_vict = vict->next_in_room;
-
+    CharacterList::iterator it = rm->people.begin();
+    for( ; it != rm->people.end(); ++it ) {
+        vict = *it;
         send_to_char( "The room in which you exist is suddenly removed from reality!\r\n", vict );
         char_from_room( vict );
         if ( rm->next ) {
@@ -571,7 +572,8 @@ do_destroy_room( struct char_data *ch, int vnum )
                     t_rm->dir_option[i]->to_room = NULL;
 
     top_of_world--;
-    free( rm );
+    //free( rm );
+    delete rm;
     return 0;
 }
 

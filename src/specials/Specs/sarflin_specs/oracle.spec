@@ -8,6 +8,7 @@ SPECIAL(oracle)
 {
    struct char_data *me2 = (struct char_data *)me;
    struct obj_data *od = NULL;
+   if( spec_mode == SPECIAL_DEATH ) return 0;
 /* 
    cmd line is Give #### coin XXXXXXX
    where #### is a number of gold

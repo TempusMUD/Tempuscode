@@ -5,6 +5,7 @@
 #include <string.h>
 
 #include "structs.h"
+#include "character_list.h"
 #include "comm.h"
 #include "utils.h"
 #include "interpreter.h"
@@ -81,7 +82,7 @@ const struct cc_options {
     { "show_arenas", "",                                                30, 0 },
     { "reimburse", "",                                                  30, 0 },
 //    { "fee",       "<number>",                                          30, 1 },
-    { NULL, NULL, 0, 0 }		// list terminator
+    { NULL, NULL, 0, 0 }                // list terminator
 };
 
 
@@ -117,16 +118,16 @@ ACMD(do_ccontrol)
     }
 
     if (!*arg1) {
-	do_ccontrol_options(ch);
-	return;
+        do_ccontrol_options(ch);
+        return;
     }
     for (com = 0;;com++) {
-		if (!cc_options[com].keyword) {
+                if (!cc_options[com].keyword) {
                     do_ccontrol_wizoptions(ch, arg2);
                     return;
-		}
-		if (is_abbrev(arg1, cc_options[com].keyword))
-			break;
+                }
+                if (is_abbrev(arg1, cc_options[com].keyword))
+                        break;
     }
    
     if((IN_ROOM(ch)->number != starting_room) && (cc_options[com].in_room) ) {
@@ -135,9 +136,9 @@ ACMD(do_ccontrol)
     }
 
     switch (com) {
-    case 0:			// create
-	do_ccontrol_create(ch, argument, com);
-	break;	       
+    case 0:                        // create
+        do_ccontrol_create(ch, argument, com);
+        break;               
     case 1:                     // show
         do_ccontrol_show(ch, argument);
         break;
@@ -182,8 +183,8 @@ ACMD(do_ccontrol)
         break;
     case 6:
     default:
-	send_to_char("Combat option not implemented.\r\n", ch);
-	break;
+        send_to_char("Combat option not implemented.\r\n", ch);
+        break;
     }
 }
 
@@ -195,11 +196,11 @@ do_ccontrol_options(CHAR *ch)
 
     strcpy(buf, "combat options:\r\n");
     while (1) {
-	if (!cc_options[i].keyword)
-	    break;
-	sprintf(buf, "%s  %s%-15s %s%s%s\r\n", 
+        if (!cc_options[i].keyword)
+            break;
+        sprintf(buf, "%s  %s%-15s %s%s%s\r\n", 
                 buf,CCCYN(ch, C_NRM), cc_options[i].keyword, CCYEL(ch, C_NRM), cc_options[i].usage, CCNRM(ch, C_NRM));
-	i++;
+        i++;
     }
 
     if(GET_LEVEL(ch) >= LVL_GOD) {
@@ -278,11 +279,11 @@ void
 do_ccontrol_usage(CHAR *ch, int com)
 {
     if (com < 0)
-	do_ccontrol_options(ch);
+        do_ccontrol_options(ch);
     else {
-	sprintf(buf, "Usage: combat %s%s %s%s%s\r\n", 
-		CCCYN(ch, C_NRM), cc_options[com].keyword, CCYEL(ch, C_NRM), (cc_options[com].usage), CCNRM(ch, C_NRM));
-	send_to_char(buf, ch);
+        sprintf(buf, "Usage: combat %s%s %s%s%s\r\n", 
+                CCCYN(ch, C_NRM), cc_options[com].keyword, CCYEL(ch, C_NRM), (cc_options[com].usage), CCNRM(ch, C_NRM));
+        send_to_char(buf, ch);
     }
 }
 
@@ -306,17 +307,17 @@ do_ccontrol_create(CHAR *ch, char *argument, int com)
     }
 
     if (!*arg1 || !*argument) {
-	do_ccontrol_usage(ch, com);
-	return;
+        do_ccontrol_usage(ch, com);
+        return;
     }
 
 
     if ((type = find_combat_type(arg1)) < 0) {
-	sprintf(buf, 
-		"Invalid combat type '%s'.\r\n"
-		"Use 'combat help types'.\r\n", arg1);
-	send_to_char(buf, ch);
-	return;
+        sprintf(buf, 
+                "Invalid combat type '%s'.\r\n"
+                "Use 'combat help types'.\r\n", arg1);
+        send_to_char(buf, ch);
+        return;
     }
    
     if(GET_GOLD(ch) < ctypes[type].fee) {
@@ -327,10 +328,10 @@ do_ccontrol_create(CHAR *ch, char *argument, int com)
    
 
     if (strlen(argument) >= MAX_COMBAT_NAME) {
-	sprintf(buf, "Battle name too long.  Max length %d characters.\r\n",
-		MAX_COMBAT_NAME-1);
-	send_to_char(buf, ch);
-	return;
+        sprintf(buf, "Battle name too long.  Max length %d characters.\r\n",
+                MAX_COMBAT_NAME-1);
+        send_to_char(buf, ch);
+        return;
     }
 
     GET_GOLD(ch) -= ctypes[type].fee;
@@ -394,23 +395,23 @@ do_ccontrol_show(CHAR *ch, char *argument)
     send_to_char("------------------------\r\n", ch);
     sprintf(buf, 
             "%s%-10s%10s%s\r\n"      
-	    "%sCreator:%s %-30s%s\r\n"
-	    "%sDescription:%s %-30s%s\r\n"
-	    "  %sType:%s            %s%s\r\n"
-	    "  %sStarted:%s         %s%s\r\n"
-	    "  %sAge:%s             %s%s\r\n"
-	    "  %sNum Players:%s     %d%s\r\n"
-	    "  %sMax Players:%s     %d%s\r\n"
+            "%sCreator:%s %-30s%s\r\n"
+            "%sDescription:%s %-30s%s\r\n"
+            "  %sType:%s            %s%s\r\n"
+            "  %sStarted:%s         %s%s\r\n"
+            "  %sAge:%s             %s%s\r\n"
+            "  %sNum Players:%s     %d%s\r\n"
+            "  %sMax Players:%s     %d%s\r\n"
             "  %sArena:%s           %s%s\r\n"
             "  %sID Number:%s       %d%s\r\n"
             "  %sSacrificed:%s      %s%s\r\n",
             KYEL,CAP(combat->name), bitbuf, KNRM,
             KCYN, KYEL, CAP(get_name_by_id(combat->creator)), KNRM, 
-	    KCYN, KYEL, combat->description ? combat->description : "None.", KNRM,
-	    KCYN, KYEL, ctypes[combat->type].combattype, KNRM,
+            KCYN, KYEL, combat->description ? combat->description : "None.", KNRM,
+            KCYN, KYEL, ctypes[combat->type].combattype, KNRM,
             KCYN, KYEL, timestr_s,KNRM, 
-	    KCYN, KYEL, timestr_a,KNRM,
-	    KCYN, KYEL, combat->num_players, KNRM,
+            KCYN, KYEL, timestr_a,KNRM,
+            KCYN, KYEL, combat->num_players, KNRM,
             KCYN, KYEL, combat->max_combatants, KNRM,
             KCYN, KYEL, arena_name ? arena_name : "No Arena", KNRM,
             KCYN, KYEL, combat->vnum, KNRM, 
@@ -1129,7 +1130,7 @@ void
 do_ccontrol_approve(struct char_data *ch)
 {
     struct combat_data *combat = NULL;
-    struct cplayer_data *cplayer;
+    struct cplayer_data *cplayer = NULL;
     int num = 0;
     int i = 0;
     num = char_in_combat_vnum(ch);
@@ -1285,26 +1286,23 @@ comlog(CHAR *ch, char *str, int file, int to_char)
 {
     time_t ct;
     char *tmstr;
-    CHAR *vict = NULL;
-    char buf[MAX_STRING_LENGTH];
+    //CHAR *vict = NULL;
+    //char buf[MAX_STRING_LENGTH];
+    CharacterList::iterator vict = characterList.begin();
+    for (; vict != characterList.end(); ++vict) {
+        if((*vict == ch) && !to_char) {
+            continue;
+        }
+        if (IN_COMBAT(*vict)) {
+            sprintf(buf,
+                "%s~*~%s COMBATLOG: %s %s %s~*~%s\r\n",
+                CCYEL_BLD((*vict), C_NRM), CCNRM_GRN((*vict), C_NRM),
+                ch ? PERS(ch, (*vict)) : "",
+                str, CCYEL_BLD((*vict), C_NRM), CCNRM((*vict), C_NRM));
+            send_to_char(buf, *vict);
 
-        for (vict = character_list; vict; vict = vict->next) {
-   
-            if((vict == ch) && !to_char) {
-                continue;
-            }
-
-            if (IN_COMBAT(vict)) {
-   
-                sprintf(buf,
-                        "%s~*~%s COMBATLOG: %s %s %s~*~%s\r\n",
-                        CCYEL_BLD(vict, C_NRM), CCNRM_GRN(vict, C_NRM),
-                        ch ? PERS(ch, vict) : "",
-                        str, CCYEL_BLD(vict, C_NRM), CCNRM(vict, C_NRM));
-                send_to_char(buf, vict);
- 
-            }
-        }    
+        }
+    }    
     if (file) {
         sprintf(buf, "%s %s\n", ch ? GET_NAME(ch) : "", str);
         ct = time(0);
@@ -1366,13 +1364,13 @@ add_idnum_to_combat(int idnum, combat_data *combat)
 
     // we need a bigger array
     if (combat->max_combatants <= combat->num_players) {
-	if (!(newplayers = (cplayer_data *) realloc(combat->players, 
-				   sizeof(cplayer_data)*(combat->num_players+1)))) {
-	    slog("SYSERR: Error allocating new player array.\r\n");
-	    return 0;
-	}
-	combat->players = newplayers;
-	combat->max_combatants++;
+        if (!(newplayers = (cplayer_data *) realloc(combat->players, 
+                                   sizeof(cplayer_data)*(combat->num_players+1)))) {
+            slog("SYSERR: Error allocating new player array.\r\n");
+            return 0;
+        }
+        combat->players = newplayers;
+        combat->max_combatants++;
     }
 
     combat->players[combat->num_players].idnum = idnum;
@@ -1390,17 +1388,17 @@ remove_idnum_from_combat(int idnum, combat_data *combat)
     int i;
 
     for (i = 0; i < combat->num_players; i++)
-	if (combat->players[i].idnum == idnum)
-	    break;
+        if (combat->players[i].idnum == idnum)
+            break;
   
     if (i >= combat->num_players) {
-	slog("SYSERR: error finding player idnum in remove_idnum_from_combat.");
-	return 0;
+        slog("SYSERR: error finding player idnum in remove_idnum_from_combat.");
+        return 0;
     }
   
     for (++i; i < combat->num_players; i++) {
-	combat->players[i-1].idnum = combat->players[i].idnum;
-	combat->players[i-1].flags = combat->players[i].flags;
+        combat->players[i-1].idnum = combat->players[i].idnum;
+        combat->players[i-1].flags = combat->players[i].flags;
     }
 
   
@@ -1415,11 +1413,11 @@ find_combat_type(char *argument)
     int i = 0;
 
     while (1) {
-	if (*ctypes[i].combattype == '\n')
-	    break;
-	if (is_abbrev(argument, ctypes[i].combattype))
-	    return i;
-	i++;
+        if (*ctypes[i].combattype == '\n')
+            break;
+        if (is_abbrev(argument, ctypes[i].combattype))
+            return i;
+        i++;
     }
     return (-1);
 }
@@ -1434,26 +1432,26 @@ list_combat_players(CHAR *ch, combat_data *combat, char *outbuf)
     strcpy(buf, "  -Online Players-------\r\n");
     for (i = num_online = num_offline = 0; i < combat->num_players; i++) {
 
-	sprintf(name, "%s%s%s -- %s(%s)%s", KCYN,CAP(get_name_by_id(combat->players[i].idnum)),KNRM, KYEL, ((combat->players[i].approved) ? "approved" : "unapproved"), KNRM);
-	if (!*name) {
-	    strcat(buf, "BOGUS player idnum!\r\n");
-	    slog("SYSERR: bogus player idnum in list_combat_players.");
-	    break;
-	}
-	strcpy(name, CAP(name));
+        sprintf(name, "%s%s%s -- %s(%s)%s", KCYN,CAP(get_name_by_id(combat->players[i].idnum)),KNRM, KYEL, ((combat->players[i].approved) ? "approved" : "unapproved"), KNRM);
+        if (!*name) {
+            strcat(buf, "BOGUS player idnum!\r\n");
+            slog("SYSERR: bogus player idnum in list_combat_players.");
+            break;
+        }
+        strcpy(name, CAP(name));
 
-	// player is in world and visible
-	if ((vict = get_char_in_world_by_idnum(combat->players[i].idnum)) &&
-	    CAN_SEE(ch, vict)) {
+        // player is in world and visible
+        if ((vict = get_char_in_world_by_idnum(combat->players[i].idnum)) &&
+            CAN_SEE(ch, vict)) {
       
-		sprintf(buf, "%s  %2d. %-15s\r\n", buf, ++num_online, name);
+                sprintf(buf, "%s  %2d. %-15s\r\n", buf, ++num_online, name);
      
-	} 
+        } 
     }
     if (outbuf)
-	strcpy(outbuf, buf);
+        strcpy(outbuf, buf);
     else
-	page_string(ch->desc, buf, 1);
+        page_string(ch->desc, buf, 1);
 
 }
 

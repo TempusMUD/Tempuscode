@@ -18,14 +18,15 @@ SPECIAL(hell_regulator)
         if ( !ZONE_IS_HELL(ch->in_room->zone) ) {
             act("$n vanishes into the mouth of an interplanar conduit.",
                 FALSE, ch, 0, 0, TO_ROOM);
-            extract_char(ch, 1);
+            ch->extract( TRUE );
             return 1;
         }
         return 0;
     }
     
-    for ( vict = ch->in_room->people; vict; vict = vict->next_in_room ) {
-
+    CharacterList::iterator it = ch->in_room->people.begin();
+    for( ; it != ch->in_room->people.end(); ++it ) {
+        vict = *it;
         if ( vict == ch )
             continue;
 

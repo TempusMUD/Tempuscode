@@ -108,21 +108,21 @@ int update_iaffects(char_data *ch);
 
 void burn_update(void) {
 
-    register struct char_data *ch;
-    register struct char_data *next_ch;
+    struct char_data *ch;
     struct obj_data *obj = NULL;
     struct room_data *fall_to = NULL;
     struct special_search_data *srch = NULL;
     int dam = 0;
     int found = 0;
     struct affected_type *af;
-
-    for (ch = character_list; ch; ch = next_ch) {
-
-        next_ch = ch->next;
+    CharacterList::iterator cit = characterList.begin();
+    for( ; cit != characterList.end(); ++cit ) {
+        ch = *cit;
 
         if (ch->in_room == NULL || ch->getPosition() == POS_DEAD) {
-            slog("SYSERR: Updating a corpse in burn_update.\r\n");
+            sprintf(buf,"SYSERR: Updating a corpse in burn_update.(%s)\n",
+                GET_NAME(ch) == NULL ? "NULL" : GET_NAME(ch));
+            slog(buf);
             continue;
         }
 
@@ -273,7 +273,7 @@ void burn_update(void) {
                     REMOVE_BIT(AFF3_FLAGS(ch), AFF3_SELF_DESTRUCT);
                     mudlog(buf, NRM, GET_INVIS_LEV(ch), TRUE);
                 } else {
-                    engage_self_destruct( ch, next_ch );
+                    engage_self_destruct( ch );
                     continue;
                 }
             }
@@ -543,14 +543,7 @@ void burn_update(void) {
         /* Hunter Mobs */
         if (HUNTING(ch) && !AFF_FLAGGED(ch, AFF_BLIND) &&
             ch->getPosition() > POS_SITTING && !GET_MOB_WAIT(ch)) {
-
-            struct char_data *tmp_next_ch = 
-                ( HUNTING(ch) == next_ch ) ? ( next_ch ? next_ch->next : 0 ) : next_ch;
-            int retval = hunt_victim(ch);
-            
-            if ( IS_SET( retval, DAM_VICT_KILLED ) )
-                next_ch = tmp_next_ch;
-
+            hunt_victim(ch);
             continue;
         }
     }
@@ -1366,7 +1359,7 @@ const int mug_eq[] =
 #define MUG_MAX 17
 void mobile_activity(void) {
 
-    register struct char_data *ch, *next_ch, *vict;
+    struct char_data *ch, *vict = NULL;
     struct obj_data *obj, *best_obj, *i;
     struct affected_type *af_ptr = NULL;
     struct char_data *tmp_vict = NULL;
@@ -1377,8 +1370,9 @@ void mobile_activity(void) {
 
     extern int no_specials;
 
-    for (ch = character_list, count++; ch; ch = next_ch) {
-        next_ch = ch->next;
+    CharacterList::iterator cit = characterList.begin();
+    for( ++count; cit != characterList.end(); ++cit ) {
+        ch = *cit;
         found = FALSE;
 
         if (!ch->in_room ||
@@ -1519,7 +1513,7 @@ void mobile_activity(void) {
             !ROOM_FLAGGED(ch->in_room, ROOM_PEACEFUL)) {
     
             int return_flags = 0;
-            if ( perform_barb_beserk( ch, 0, next_ch, &return_flags ) )
+            if ( perform_barb_beserk( ch, 0, &return_flags ) )
                 continue;
         }
     
@@ -1601,7 +1595,9 @@ void mobile_activity(void) {
       
         /* Mobiles looking at chars */
         if ( random_fractional_20() ) {
-            for (vict = ch->in_room->people;vict;vict = vict->next_in_room) {
+            CharacterList::iterator it = ch->in_room->people.begin();
+            for( ; it != ch->in_room->people.end(); ++it ) {
+                vict = *it;
                 if (vict == ch)
                     continue;
                 if (CAN_SEE(ch, vict) && random_fractional_50() ) {
@@ -1647,9 +1643,11 @@ void mobile_activity(void) {
                 if (!ROOM_FLAGGED(ch->in_room, ROOM_PEACEFUL) &&
                     random_fractional_4() &&
                     room_count(ch, ch->in_room) < random_number_zero_low( GET_LEVEL(ch) >> 3 ) + 1 ) {
-
-                    for (vict = ch->in_room->people, tmp_vict = NULL, max = 0; vict; 
-                         vict = vict->next_in_room) {
+                    tmp_vict = NULL;
+                    max = 0;
+                    CharacterList::iterator it = ch->in_room->people.begin();
+                    for( ; it != ch->in_room->people.end(); ++it ) {
+                        vict = *it;
                         if (check_infiltrate(vict, ch))
                             continue;
                         if (IS_NPC(vict) && CAN_SEE(ch, vict) &&
@@ -1715,18 +1713,23 @@ void mobile_activity(void) {
             //
             
             else if (!FIGHTING(ch) && !HUNTING(ch)) {
-
-                for (vict = ch->in_room->people; vict; vict = vict->next_in_room)
+                CharacterList::iterator it = ch->in_room->people.begin();
+                for( ; it != ch->in_room->people.end(); ++it ) {
+                    vict = *it;
                     if (!IS_NPC(vict) && CAN_SEE(ch, vict) && 
                         GET_IDNUM(vict) == ch->mob_specials.mug->idnum)
                         break;
-
+                }
                 if (!vict) {
-                    for (vict = character_list; vict; vict = vict->next)
+                
+                    CharacterList::iterator cit = characterList.begin();
+                    for( ; cit != characterList.end(); ++cit ) {
+                    //for (vict = character_list; vict; vict = vict->next)
+                        vict = *cit;
                         if (!IS_NPC(vict) && CAN_SEE(ch, vict) && 
                             GET_IDNUM(vict) == ch->mob_specials.mug->idnum)
                             break;
-
+                    }
                     if (!vict || 
                         find_first_step(ch->in_room, vict->in_room, FALSE) < 0) {
                         do_say(ch, "Curses, foiled again!", 0, 0);
@@ -1798,12 +1801,13 @@ void mobile_activity(void) {
                         // save a pointer past vict if vict _happens_ to be next_ch ( ch->next )
                         //
                         
-                        struct char_data *tmp_next_ch = 
-                            ( vict == next_ch ) ? ( next_ch ? next_ch->next : 0 ) : next_ch;
-                        int retval = best_attack(ch, vict);
-                        if ( IS_SET( retval, DAM_VICT_KILLED ) ) {
-                            next_ch = tmp_next_ch;
-                        }
+                        //struct char_data *tmp_next_ch = 
+                        //    ( vict == next_ch ) ? ( next_ch ? next_ch->next : 0 ) : next_ch;
+                        //int retval = 
+                        best_attack(ch, vict);
+                        //if ( IS_SET( retval, DAM_VICT_KILLED ) ) {
+                        //    next_ch = tmp_next_ch;
+                        //}
                         continue;
                     }
                 } /*    if (!ROOM_FLAGGED(ch->in_room, ROOM_PEACEFUL)) {*/
@@ -1994,11 +1998,13 @@ void mobile_activity(void) {
             found = FALSE;
             int fvict_retval = 0;
             int vict_retval = 0;
-            struct char_data *tmp_next_ch = 0;
+            //struct char_data *tmp_next_ch = 0;
             
             if (IS_AFFECTED(ch, AFF_CHARM))
                 continue;
-            for (vict=ch->in_room->people;vict&&!found; vict = vict->next_in_room) {
+            CharacterList::iterator it = ch->in_room->people.begin();
+            for( ; it != ch->in_room->people.end() && !found; ++it ) {
+                vict = *it;
                 if (ch != vict && FIGHTING(vict) && ch != FIGHTING(vict) &&
                     CAN_SEE(ch, vict)) {
                     
@@ -2031,9 +2037,6 @@ void mobile_activity(void) {
                         // store a pointer past next_ch if next_ch _happens_ to be vict
                         //
 
-                        if ( vict == next_ch )
-                            tmp_next_ch = ( next_ch ? next_ch->next : 0 );
-
                         vict_retval = helper_assist( ch, vict, FIGHTING( vict ) );
                         found = 1;
                         break;
@@ -2049,8 +2052,6 @@ void mobile_activity(void) {
                         // store a pointer past next_ch if next_ch _happens_ to be fvict
                         //
 
-                        if ( FIGHTING( vict ) == next_ch )
-                            tmp_next_ch = ( next_ch ? next_ch->next : 0 );
 
                         fvict_retval = helper_assist( ch, FIGHTING( vict ), vict );
                         found = 1;
@@ -2062,9 +2063,6 @@ void mobile_activity(void) {
                 // continue
             }
 
-            if ( IS_SET( vict_retval, DAM_VICT_KILLED ) || IS_SET( fvict_retval, DAM_VICT_KILLED ) )
-                next_ch = tmp_next_ch;
-
             if ( found )
                 continue;
         }
@@ -2074,7 +2072,9 @@ void mobile_activity(void) {
         if (IS_RACIALLY_AGGRO(ch) && 
             !ROOM_FLAGGED(ch->in_room, ROOM_PEACEFUL) && random_fractional_4()) { 
             found = FALSE;
-            for (vict=ch->in_room->people;vict; vict = vict->next_in_room) {
+            CharacterList::iterator it = ch->in_room->people.begin();
+            for( ; it != ch->in_room->people.end() && !found; ++it ) {
+                vict = *it;
                 if ((IS_NPC(vict) && !MOB2_FLAGGED(ch, MOB2_ATK_MOBS))
                     || !CAN_SEE(ch, vict) || PRF_FLAGGED(vict, PRF_NOHASSLE) ||
                     IS_AFFECTED_2(vict, AFF2_PETRIFIED))
@@ -2093,13 +2093,8 @@ void mobile_activity(void) {
                 else if (RACIAL_ATTACK(ch, vict) &&
                          (!IS_NPC(vict) || MOB2_FLAGGED(ch, MOB2_ATK_MOBS))) {
 
-                    struct char_data *tmp_next_ch = 
-                        ( vict == next_ch ) ? ( next_ch ? next_ch->next : 0 ) : next_ch;
-
-                    int retval = best_attack(ch, vict);
-
-                    if ( IS_SET( retval, DAM_VICT_KILLED ) )
-                        next_ch = tmp_next_ch;
+                    //int retval = 
+                    best_attack(ch, vict);
 
                     found = TRUE;
                     break;
@@ -2116,9 +2111,12 @@ void mobile_activity(void) {
              MOB_FLAGGED(ch, MOB_AGGR_TO_ALIGN)) &&
             !ROOM_FLAGGED(ch->in_room, ROOM_PEACEFUL)) {
             found = FALSE;
-            for (vict = ch->in_room->people; vict && !found; 
-                 vict = vict->next_in_room) {
-                if (vict == ch || (vict->next_in_room && random_fractional_4() ) ||
+            CharacterList::iterator it = ch->in_room->people.begin();
+            CharacterList::iterator nit = ch->in_room->people.begin();
+            for( ; it != ch->in_room->people.end() && !found; ++it ) {
+                ++nit;
+                vict = *it;
+                if (vict == ch || (nit != ch->in_room->people.end() && random_fractional_4() ) ||
                     (!IS_NPC(vict) && !vict->desc)) {
                     continue;
                 }
@@ -2148,13 +2146,7 @@ void mobile_activity(void) {
                         (IS_NEUTRAL(vict) && !MOB_FLAGGED(ch, MOB_AGGR_NEUTRAL)))
                         continue;
                
-                struct char_data *tmp_next_ch = 
-                    ( vict == next_ch ) ? ( next_ch ? next_ch->next : 0 ) : next_ch;
-                
-                int retval = best_attack(ch, vict);
-                
-                if ( IS_SET( retval, DAM_VICT_KILLED ) )
-                    next_ch = tmp_next_ch;
+                best_attack(ch, vict);
                 
                 found = 1;
                 break;
@@ -2173,21 +2165,22 @@ void mobile_activity(void) {
                 found = 0;
 
                 for (dir = 0; dir < NUM_DIRS && !found; dir++) {
-                    if (CAN_GO(ch, dir) && !ROOM_FLAGGED(EXIT(ch, dir)->to_room,
-                                                         ROOM_DEATH | ROOM_NOMOB |
-                                                         ROOM_PEACEFUL) &&
+                    if (CAN_GO(ch, dir) && 
+                       !ROOM_FLAGGED( EXIT(ch, dir)->to_room, 
+                                      ROOM_DEATH | ROOM_NOMOB | ROOM_PEACEFUL) &&
                         EXIT(ch, dir)->to_room != ch->in_room &&
                         CHAR_LIKES_ROOM(ch, EXIT(ch, dir)->to_room) &&
-                        EXIT(ch, dir)->to_room->people &&
-                        CAN_SEE(ch, EXIT(ch, dir)->to_room->people) &&
+                        EXIT(ch, dir)->to_room->people.size() > 0 &&
+                        CAN_SEE(ch, *(EXIT(ch, dir)->to_room)->people.begin()) &&
                         room_count(ch, EXIT(ch, dir)->to_room) <
-                        EXIT(ch, dir)->to_room->max_occupancy)
+                            EXIT(ch, dir)->to_room->max_occupancy)
                         break;
                 }
     
                 if (dir < NUM_DIRS) {
-                    for (vict = EXIT(ch, dir)->to_room->people; vict; 
-                         vict = vict->next_in_room) {
+                    CharacterList::iterator it = EXIT(ch, dir)->to_room->people.begin();
+                    for( ; it != EXIT(ch, dir)->to_room->people.end() && !found; ++it ) {
+                        vict = *it;
                         if (CAN_SEE(ch, vict) && !PRF_FLAGGED(vict, PRF_NOHASSLE) &&
                             (!AFF_FLAGGED(vict, AFF_SNEAK) || 
                              AFF_FLAGGED(vict, AFF_GLOWLIGHT) ||
@@ -2208,13 +2201,7 @@ void mobile_activity(void) {
                         if (IS_PSIONIC(ch) && GET_LEVEL(ch) > 23 &&
                             GET_MOVE(ch) > 100 && GET_MANA(vict) > 100) {
                             int retval = 0;
-                            struct char_data *tmp_next_ch = 
-                                ( vict == next_ch ) ? ( next_ch ? next_ch->next : 0 ) : next_ch;
-                            
                             do_psidrain(ch, fname(vict->player.name), 0, 0, &retval );
-                            if ( IS_SET( retval, DAM_VICT_KILLED ) ) {
-                                next_ch = tmp_next_ch;
-                            }
                         }
                         else
                             perform_move(ch, dir, MOVE_NORM, 1);
@@ -2231,7 +2218,9 @@ void mobile_activity(void) {
         if (MOB_FLAGGED(ch, MOB_MEMORY) && MEMORY(ch) && 
             !AFF_FLAGGED(ch, AFF_CHARM)) {
             found = FALSE;
-            for (vict=ch->in_room->people;vict&&!found;vict = vict->next_in_room) {
+            CharacterList::iterator it = ch->in_room->people.begin();
+            for( ; it != ch->in_room->people.end() && !found; ++it ) {
+                vict = *it;
                 if (check_infiltrate(vict, ch))
                     continue;
 
@@ -2272,14 +2261,8 @@ void mobile_activity(void) {
                                 act("'Hey!  You're the punk I've been looking for!!!', exclaims $n.",  
                                     FALSE, ch, 0, 0, TO_ROOM);
                         }
-                        struct char_data *tmp_next_ch = 
-                            ( vict == next_ch ) ? ( next_ch ? next_ch->next : 0 ) : next_ch;
+                        best_attack(ch, vict);
 
-                        int retval = best_attack(ch, vict);
-
-                        if ( IS_SET( retval, DAM_VICT_KILLED ) ) {
-                            next_ch = tmp_next_ch;
-                        }
                     } 
                     
                     else if (ch->getPosition() != POS_FIGHTING) {
@@ -2633,7 +2616,8 @@ void mobile_activity(void) {
                     found = 1;
                     act("$n dissolves, and returns to $s home plane!", 
                         TRUE, ch, 0, 0, TO_ROOM);
-                    extract_char(ch, FALSE);
+                    //extract_char(ch, FALSE);
+                    ch->extract( FALSE );
                 }
                 break;
             case CLASS_FIRE:
@@ -2647,7 +2631,8 @@ void mobile_activity(void) {
                     found = 1;
                     act("$n dissipates, and returns to $s home plane!", 
                         TRUE, ch, 0, 0, TO_ROOM);
-                    extract_char(ch, FALSE);
+                    //extract_char(ch, FALSE);
+                    ch->extract( FALSE );
                 }
                 break;
             case CLASS_WATER:
@@ -2659,7 +2644,8 @@ void mobile_activity(void) {
                     found = 1;
                     act("$n dissipates, and returns to $s home plane!", 
                         TRUE, ch, 0, 0, TO_ROOM);
-                    extract_char(ch, FALSE);
+                    //extract_char(ch, FALSE);
+                    ch->extract( FALSE );
                 }
                 break;
             case CLASS_AIR:
@@ -2667,14 +2653,16 @@ void mobile_activity(void) {
                     found = 1;
                     act("$n dissipates, and returns to $s home plane!", 
                         TRUE, ch, 0, 0, TO_ROOM);
-                    extract_char(ch, FALSE);
+                    //extract_char(ch, FALSE);
+                    ch->extract( FALSE );
                 }
                 break;
             default:
                 if (k) {
                     found = 1;
                     act("$n disappears.",TRUE,ch,0,0,TO_ROOM);
-                    extract_char(ch, FALSE);
+                    //extract_char(ch, FALSE);
+                    ch->extract( FALSE );
                 }
             } 
 
@@ -2743,8 +2731,9 @@ struct char_data * choose_opponent( struct char_data *ch,
     struct char_data *best_vict = NULL;
 
     // first look for someone who is fighting us
-    for ( vict = ch->in_room->people; vict; vict = vict->next_in_room ) {
-        
+    CharacterList::iterator it = ch->in_room->people.begin();
+    for( ; it != ch->in_room->people.end(); ++it ) {
+        vict = *it;
         // ignore bystanders
         if ( ch != FIGHTING(vict) )
             continue;
@@ -2793,8 +2782,7 @@ struct char_data * choose_opponent( struct char_data *ch,
 int mobile_battle_activity( struct char_data *ch,
                             struct char_data *precious_vict ) {
 
-    register struct char_data *vict = NULL, *new_mob = NULL,
-        *count_char = NULL, *next_vict = NULL;
+    register struct char_data *vict = NULL, *new_mob = NULL;
     int num = 0, prob = 0, dam = 0;
     struct obj_data *weap = GET_EQ(ch, WEAR_WIELD), *gun = NULL;
     int return_flags = 0;
@@ -2992,9 +2980,9 @@ int mobile_battle_activity( struct char_data *ch,
 
         if ( ! ( vict = choose_opponent( ch, precious_vict ) ) )
             return 0;
-
-        for (count_char = ch->in_room->people;count_char;count_char = count_char->next_in_room)
-            if (IS_SLAAD(count_char))
+        CharacterList::iterator it = ch->in_room->people.begin();
+        for( ; it != ch->in_room->people.end(); ++it )
+            if (IS_SLAAD((*it)))
                 num++;
 
         switch (GET_CLASS(ch)) {
@@ -3067,10 +3055,11 @@ int mobile_battle_activity( struct char_data *ch,
         if ( random_fractional_5() ) {
             act("$n begins to secrete a disgustingly malodorous oil!", 
                 FALSE, ch, 0, 0, TO_ROOM);
-            for (vict = ch->in_room->people; vict;vict=vict->next_in_room)
-                if (!IS_TROG(vict) && 
-                    !IS_UNDEAD(vict) && !IS_ELEMENTAL(vict) && !IS_DRAGON(vict))
-                    call_magic(ch, vict, 0, SPELL_TROG_STENCH,GET_LEVEL(ch),CAST_POTION);
+            CharacterList::iterator it = ch->in_room->people.begin();
+            for( ; it != ch->in_room->people.end(); ++it )
+                if (!IS_TROG((*it)) && 
+                    !IS_UNDEAD(vict) && !IS_ELEMENTAL((*it)) && !IS_DRAGON((*it)))
+                    call_magic(ch, (*it), 0, SPELL_TROG_STENCH,GET_LEVEL(ch),CAST_POTION);
             return 0;
         }
     }
@@ -3086,9 +3075,9 @@ int mobile_battle_activity( struct char_data *ch,
     if (IS_DRAGON(ch)) {
         if ( random_number_zero_low( GET_LEVEL(ch)) > 40) {
             act("You feel a wave of sheer terror wash over you as $n approaches!", FALSE, ch, 0, 0, TO_ROOM);
-            for (vict = ch->in_room->people;vict && vict != ch; 
-                 vict = next_vict) {
-                next_vict = vict->next_in_room;
+            CharacterList::iterator it = ch->in_room->people.begin();
+            for( ; it != ch->in_room->people.end(); ++it ) {
+                vict = *it;
                 if (FIGHTING(vict) && FIGHTING(vict) == ch && 
                     !mag_savingthrow(vict, GET_LEVEL(ch), SAVING_SPELL) &&
                     !IS_AFFECTED(vict, AFF_CONFIDENCE)) 
@@ -3777,22 +3766,6 @@ forget(struct char_data * ch, struct char_data * victim)
 }
 
 
-/* erase ch's memory */
-void 
-clearMemory(struct char_data * ch)
-{
-    memory_rec *curr, *next;
-
-    curr = MEMORY(ch);
-
-    while (curr) {
-        next = curr->next;
-        free(curr);
-        curr = next;
-    }
-
-    MEMORY(ch) = NULL;
-}
 
 int
 char_in_memory(struct char_data *victim, struct char_data *rememberer)
@@ -3820,8 +3793,6 @@ int mob_fight_devil( struct char_data * ch,
     CHAR *new_mob = NULL;
     CHAR *vict = NULL;
     int num = 0;
-    CHAR *count_char = NULL;
-    CHAR *next_vict = NULL;
     int return_flags = 0;
 
 
@@ -3850,8 +3821,9 @@ int mob_fight_devil( struct char_data * ch,
     }
     
     // see if we're fighting more than 1 person, if so, blast the room
-    for (vict = ch->in_room->people, num = 0;vict;vict=vict->next_in_room)
-        if (ch == FIGHTING(vict))
+    CharacterList::iterator it = ch->in_room->people.begin();
+    for( num = 0; it != ch->in_room->people.end(); ++it )
+        if (ch == FIGHTING((*it)))
             num++;
     
     if (num > 1 && GET_LEVEL(ch) > ( random_number_zero_low( 50 ) + 30 ) ) {
@@ -3879,9 +3851,9 @@ int mob_fight_devil( struct char_data * ch,
 
 
     // see how many devils are already in the room
-    for (count_char = ch->in_room->people, num = 0;count_char;
-         count_char = count_char->next_in_room)
-        if (IS_DEVIL(count_char))
+    it = ch->in_room->people.begin();
+    for( num = 0; it != ch->in_room->people.end(); ++it )
+        if (IS_DEVIL((*it)))
             num++;
 
     // less chance of gating for psionic devils with mana
@@ -3937,15 +3909,16 @@ int mob_fight_devil( struct char_data * ch,
         if ( random_number_zero_low( GET_LEVEL(ch)) > 30) {
             act("You feel a wave of sheer terror wash over you as $n approaches!",
                 FALSE, ch, 0, 0, TO_ROOM);
-            for (vict = ch->in_room->people;vict && vict != ch; 
-                 vict = next_vict) {
-                next_vict = vict->next_in_room;
+            CharacterList::iterator it = ch->in_room->people.begin();
+            for( ; it != ch->in_room->people.end() && *it != ch; ++it ) {
+                vict = *it;
                 if (FIGHTING(vict) && FIGHTING(vict) == ch && 
                     GET_LEVEL(vict) < LVL_AMBASSADOR &&
                     !mag_savingthrow(vict, GET_LEVEL(ch) << 2, SAVING_SPELL) &&
                     !IS_AFFECTED(vict, AFF_CONFIDENCE)) 
                     do_flee(vict, "", 0, 0);
             }
+            
         } else if ( random_number_zero_low( 12) > num) {
             if ( random_binary() )
                 new_mob = read_mobile(16118); // Pit Fiend 

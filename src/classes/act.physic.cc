@@ -497,9 +497,9 @@ ASPELL(spell_quantum_rift)
         if( GET_OBJ_VNUM(o) == QUANTUM_RIFT_VNUM 
         && GET_OBJ_VAL(o,2) == GET_IDNUM(ch)) {
             act("$p collapses in on itself.",
-                TRUE, o->in_room->people, o, 0, TO_CHAR);
+                TRUE, *(o->in_room->people.begin()), o, 0, TO_CHAR);
             act("$p collapses in on itself.",
-                TRUE, o->in_room->people, o, 0, TO_ROOM);
+                TRUE, *(o->in_room->people.begin()), o, 0, TO_ROOM);
             extract_obj(o);
         }
     }
@@ -1014,7 +1014,6 @@ do_emp_pulse_char( char_data *ch, char_data *vict ) {
 // deactivats all cyborg programs
 // blocked by emp shield
 ASPELL(spell_emp_pulse) {
-    char_data *vict;
 
     if( ch->in_room == NULL)
         return;
@@ -1023,21 +1022,23 @@ ASPELL(spell_emp_pulse) {
         return;
     }
     // Make sure non-pkillers dont get killer flags.
-    for(vict = ch->in_room->people; vict ; vict=vict->next_in_room) {
-        if(vict != ch) {
-            if(! peaceful_room_ok(ch,vict,true) )
+    CharacterList::iterator it = ch->in_room->people.begin();
+    for (; it != ch->in_room->people.end(); ++it) {
+        if((*it) != ch) {
+            if(! peaceful_room_ok(ch,(*it),true) )
                 return;
         }
     }
 
     send_to_room( "An electromagnetic pulse jolts the room!\r\n", ch->in_room );
-    for(vict = ch->in_room->people;vict;vict = vict->next_in_room) {
-        if(vict != ch && GET_LEVEL(vict) < LVL_IMMORT) {
-            if (IS_PC(vict)) {
-                check_toughguy(ch, vict, 1);
-                check_killer(ch, vict);
+    it = ch->in_room->people.begin();
+    for (; it != ch->in_room->people.end(); ++it) {
+        if((*it) != ch && GET_LEVEL((*it)) < LVL_IMMORT) {
+            if (IS_PC((*it))) {
+                check_toughguy(ch, (*it), 1);
+                check_killer(ch, (*it));
             }
-            do_emp_pulse_char(ch, vict);
+            do_emp_pulse_char(ch, (*it));
         }
     }
     if(ch->in_room->contents) {
@@ -1063,7 +1064,7 @@ ASPELL(spell_area_stasis)
     for(o = ch->in_room->contents;o;o = o->next) {
         if(GET_OBJ_VNUM(o) == QUANTUM_RIFT_VNUM) {
             act("$p collapses in on itself.",
-                TRUE, o->in_room->people, o, 0, TO_NOTVICT);
+                TRUE, (*o->in_room->people.begin()), o, 0, TO_NOTVICT);
             extract_obj(o);
         }
     }

@@ -6,6 +6,7 @@
 
 SPECIAL(medusa)
 {
+  if( spec_mode == SPECIAL_DEATH ) return 0;
   if (cmd || ch->getPosition() != POS_FIGHTING)
     return FALSE;
 

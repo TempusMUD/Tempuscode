@@ -37,7 +37,7 @@ void gain_skill_prof(struct char_data *ch, int skl);
 #define GOOD		1
 #define NEUTRAL		2
 #define EVIL		3
-
+#define NUM_NEWBIE_EQ 10
 #define MORT_LEARNED(ch) \
                    (prac_params[0][(int)MIN(NUM_CLASSES-1, \
 					    GET_CLASS(ch))])

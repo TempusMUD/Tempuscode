@@ -21,20 +21,6 @@ class MapToken {
         }
         room_data *getSource() {return source;}
         room_data *getTarget() {return target;}
-        /*
-        void setTarget(room_data *t){target = t;}
-        void setSource(room_data *s){source = s;}
-        MapToken &operator=(const MapToken &token);
-
-        int getDirection() {return direction;}
-        void setDirection(int d) {direction = d;}
-
-        void setRow(int r) {row = r;}
-        int getRow() {return row;}
-
-        void setColumn(int c) {column = c;}
-        int getColumn() {return column;}
-        */
         MapToken *next;
         int direction;
         int row;

@@ -38,19 +38,19 @@ tarrasque_jump(struct char_data *tarr, int jump_mode)
 
   for (i = 1; i <= (jump_mode == T_ACTIVE ? 4 : 3); i++) {
     if (!(up_room = real_room(jump_mode == T_ACTIVE ?
-			      outer_tunnel[i] : inner_tunnel[i]))) {
+                              outer_tunnel[i] : inner_tunnel[i]))) {
       break;
     }
     char_from_room(tarr);
     char_to_room(tarr, up_room);
 
     if ((jump_mode == T_ACTIVE && i == 4) ||
-	(jump_mode == T_RETURN && i == 3))
+        (jump_mode == T_RETURN && i == 3))
       act("$n comes flying up from the chasm and lands with an earthshaking footfall!",
-	  FALSE, tarr, 0, 0, TO_ROOM);
+          FALSE, tarr, 0, 0, TO_ROOM);
     else
       act("$n comes flying past from below, and disappears above you!",
-	  FALSE, tarr, 0, 0, TO_ROOM);
+          FALSE, tarr, 0, 0, TO_ROOM);
   }
 }
 int
@@ -62,42 +62,46 @@ tarrasque_fight(struct char_data *tarr)
     slog("SYSERR: FIGHTING(tarr) == NULL in tarrasque_fight!!");
     return 0;
   }
-
-  for (vict = tarr->in_room->people; vict; vict = vict->next_in_room)
-    if (vict != tarr && vict != FIGHTING(tarr) &&
-	tarr == FIGHTING(vict) &&
-	CAN_SEE(tarr, vict) && !PRF_FLAGGED(vict, PRF_NOHASSLE))
+  CharacterList::iterator it = tarr->in_room->people.begin();
+  for( ; it != tarr->in_room->people.end(); ++it ) 
+    if ((*it) != tarr && (*it) != FIGHTING(tarr) &&
+        tarr == FIGHTING((*it)) &&
+        CAN_SEE(tarr, (*it)) && !PRF_FLAGGED((*it), PRF_NOHASSLE)){
+        vict = (*it);
       break;
+    }
   
   if (vict) {
-    for (vict2 = tarr->in_room->people; vict2; vict2 = vict2->next_in_room)
-      if (vict2 != tarr && vict2 != FIGHTING(tarr) && vict != vict2 &&
-	  tarr == FIGHTING(vict2) &&
-	  CAN_SEE(tarr, vict2) && !PRF_FLAGGED(vict2, PRF_NOHASSLE))
-	break;
+  it = tarr->in_room->people.begin();
+  for( ; it != tarr->in_room->people.end(); ++it ) 
+    if ((*it) != tarr && (*it) != FIGHTING(tarr) &&
+        tarr == FIGHTING((*it)) &&
+        CAN_SEE(tarr, (*it)) && !PRF_FLAGGED((*it), PRF_NOHASSLE)){
+        vict2 = (*it);
+      break;
+    }
   }
-  
   if (!number(0, 2)) { /* charge */
     act("$n charges forward!!", FALSE, tarr, 0, 0, TO_ROOM);
     WAIT_STATE(tarr, 2 RL_SEC);
 
     if (damage(tarr, FIGHTING(tarr), 
-	       (GET_DEX(FIGHTING(tarr)) < number(5, 28)) ? 
-	       (dice(30, 20) + 300) : 0,
-	       TYPE_GORE_HORNS, WEAR_BODY))
+               (GET_DEX(FIGHTING(tarr)) < number(5, 28)) ? 
+               (dice(30, 20) + 300) : 0,
+               TYPE_GORE_HORNS, WEAR_BODY))
       return 1;
     
     if (vict && GET_DEX(vict) < number(5, 25) &&
-	damage(tarr, vict, 
-	       (GET_DEX(vict) < number(5, 28)) ? 
-	       (dice(20, 40) + 300) : 0,
-	       TYPE_TRAMPLING, WEAR_BODY))
+        damage(tarr, vict, 
+               (GET_DEX(vict) < number(5, 28)) ? 
+               (dice(20, 40) + 300) : 0,
+               TYPE_TRAMPLING, WEAR_BODY))
       return 1;
     if (vict2  && GET_DEX(vict2) < number(5, 25) &&
-	damage(tarr, vict2, 
-	       (GET_DEX(vict2) < number(5, 28)) ? 
-	       (dice(20, 40) + 300) : 0,
-	       TYPE_TRAMPLING, WEAR_BODY))
+        damage(tarr, vict2, 
+               (GET_DEX(vict2) < number(5, 28)) ? 
+               (dice(20, 40) + 300) : 0,
+               TYPE_TRAMPLING, WEAR_BODY))
       return 1;
 
   }
@@ -109,39 +113,39 @@ tarrasque_fight(struct char_data *tarr)
     act("$n lashes out with $s tail!!", FALSE, tarr, 0, 0, TO_ROOM);
     WAIT_STATE(tarr, 3 RL_SEC);
     if (!damage(tarr, FIGHTING(tarr), 
-		GET_DEX(FIGHTING(tarr)) < number(5, 28) ?  
-		(dice(20, 20) + 100) : 0,
-		TYPE_TAIL_LASH, WEAR_LEGS) &&
-	FIGHTING(tarr) &&
-	(FIGHTING(tarr))->getPosition() == POS_FIGHTING && 
-	GET_DEX(FIGHTING(tarr)) < number(10, 18) &&
-	!PRF_FLAGGED(FIGHTING(tarr), PRF_NOHASSLE))
+                GET_DEX(FIGHTING(tarr)) < number(5, 28) ?  
+                (dice(20, 20) + 100) : 0,
+                TYPE_TAIL_LASH, WEAR_LEGS) &&
+        FIGHTING(tarr) &&
+        (FIGHTING(tarr))->getPosition() == POS_FIGHTING && 
+        GET_DEX(FIGHTING(tarr)) < number(10, 18) &&
+        !PRF_FLAGGED(FIGHTING(tarr), PRF_NOHASSLE))
       (FIGHTING(tarr))->setPosition( POS_RESTING );
     else
       return 1;
     
     if (vict) {
       if (!damage(tarr, vict, 
-		  GET_DEX(vict) < number(5, 28) ?	
-		  (dice(20, 20) + 100) : 0,
-		  TYPE_TAIL_LASH, WEAR_LEGS) && 
-	  vict->getPosition() == POS_FIGHTING && GET_DEX(vict) < number(10, 18) &&
-	  !PRF_FLAGGED(vict, PRF_NOHASSLE))
-	vict->setPosition( POS_RESTING);
+                  GET_DEX(vict) < number(5, 28) ?        
+                  (dice(20, 20) + 100) : 0,
+                  TYPE_TAIL_LASH, WEAR_LEGS) && 
+          vict->getPosition() == POS_FIGHTING && GET_DEX(vict) < number(10, 18) &&
+          !PRF_FLAGGED(vict, PRF_NOHASSLE))
+        vict->setPosition( POS_RESTING);
       else
-	return 1;
+        return 1;
     }
     
     if (vict2) {
       if (!damage(tarr, vict2, 
-		  GET_DEX(vict2) < number(5, 28) ?  
-		  (dice(20, 20) + 100) : 0,
-		  TYPE_TAIL_LASH, WEAR_LEGS) && 
-	  vict2->getPosition() == POS_FIGHTING && GET_DEX(vict2) < number(10, 18) &&
-	  !PRF_FLAGGED(vict2, PRF_NOHASSLE))
-	vict2->setPosition( POS_RESTING );
+                  GET_DEX(vict2) < number(5, 28) ?  
+                  (dice(20, 20) + 100) : 0,
+                  TYPE_TAIL_LASH, WEAR_LEGS) && 
+          vict2->getPosition() == POS_FIGHTING && GET_DEX(vict2) < number(10, 18) &&
+          !PRF_FLAGGED(vict2, PRF_NOHASSLE))
+        vict2->setPosition( POS_RESTING );
       else
-	return 1;
+        return 1;
     }
   }
 
@@ -151,38 +155,38 @@ tarrasque_fight(struct char_data *tarr)
   /* biting attacks */
   if (vict) {
     if (GET_DEX(vict) < number(5, 23) &&
-	!mag_savingthrow(vict, 50, SAVING_ROD)) {
+        !mag_savingthrow(vict, 50, SAVING_ROD)) {
       /* swallow */
       //      send_to_char("swallow.\r\n", vict);
     } else
       if (damage(tarr, vict, 
-		 GET_DEX(vict) < number(5, 28) ?  
-		 (dice(40, 20) + 200) : 0,
-		 TYPE_BITE, WEAR_BODY))
-	return 1;
+                 GET_DEX(vict) < number(5, 28) ?  
+                 (dice(40, 20) + 200) : 0,
+                 TYPE_BITE, WEAR_BODY))
+        return 1;
   }
   else if (vict2) {
     if (GET_DEX(vict2) < number(5, 23) &&
-	!mag_savingthrow(vict2, 50, SAVING_ROD)) {
+        !mag_savingthrow(vict2, 50, SAVING_ROD)) {
       /* swallow */
       //      send_to_char("swallow.\r\n", vict2);
     } else
       if (damage(tarr, vict2, 
-		 GET_DEX(vict2) < number(5, 28) ?	
-		 (dice(40, 20) + 200) : 0,
-		 TYPE_BITE, WEAR_BODY))
-	return 1;
+                 GET_DEX(vict2) < number(5, 28) ?        
+                 (dice(40, 20) + 200) : 0,
+                 TYPE_BITE, WEAR_BODY))
+        return 1;
   }
   else {
     if (GET_DEX(FIGHTING(tarr)) < number(5, 23) &&
-	!mag_savingthrow(FIGHTING(tarr), 50, SAVING_ROD)) {
+        !mag_savingthrow(FIGHTING(tarr), 50, SAVING_ROD)) {
       /* swallow */
       //      send_to_char("swallow.\r\n", FIGHTING(tarr));
     } else
       damage(tarr, FIGHTING(tarr), 
-	     GET_DEX(FIGHTING(tarr)) < number(5, 28) ? 
-	     (dice(40, 20) + 200) : 0,
-	     TYPE_BITE, WEAR_BODY);
+             GET_DEX(FIGHTING(tarr)) < number(5, 28) ? 
+             (dice(40, 20) + 200) : 0,
+             TYPE_BITE, WEAR_BODY);
   }
   return 1;
 }
@@ -193,7 +197,6 @@ SPECIAL(tarrasque)
   static int mode = 0, tframe = TIME_MODRIAN, checked = FALSE;
   static unsigned int timer = 0;
   struct char_data *tarr = (struct char_data *) me;
-  struct char_data *vict = NULL, *next_vict = NULL;
   struct room_data *rm = NULL;
 
   if (!checked) {
@@ -210,7 +213,7 @@ SPECIAL(tarrasque)
   if (cmd) {
     if (CMD_IS("status") && GET_LEVEL(ch) >= LVL_IMMORT) {
       sprintf(buf, "Tarrasque status: mode (%d), timer (%d), tframe (%d)\r\n",
-	      mode, timer, tframe);
+              mode, timer, tframe);
       send_to_char(buf, ch);
       return 1;
     }
@@ -218,8 +221,8 @@ SPECIAL(tarrasque)
       mode = T_SLEEP;
       timer = 0;
       if ((rm = real_room(LAIR_RM))) {
-	char_from_room(tarr);
-	char_to_room(tarr, rm);
+        char_from_room(tarr);
+        char_to_room(tarr, rm);
       }
       send_to_char("Tarrasque reset.\r\n", ch);
       return 1;
@@ -241,18 +244,18 @@ SPECIAL(tarrasque)
       tarr->setPosition( POS_STANDING );
 
       /*      if (tframe == TIME_MODRIAN) {
-	      tframe = TIME_ELECTRO;
-	      if (!add_path_to_mob(tarr, "tarr_exit_ec")) {
-	      slog("SYSERR: error assigning tarr_exit_ec path to tarrasque.");
-	      mode = T_ERROR;
-	      return 1;
-	      }
-	      } else { */
+              tframe = TIME_ELECTRO;
+              if (!add_path_to_mob(tarr, "tarr_exit_ec")) {
+              slog("SYSERR: error assigning tarr_exit_ec path to tarrasque.");
+              mode = T_ERROR;
+              return 1;
+              }
+              } else { */
       tframe = TIME_MODRIAN;
       if (!add_path_to_mob(tarr, "tarr_exit_mod")) {
-	slog("SYSERR: error assigning tarr_exit_mod path to tarrasque.");
-	mode = T_ERROR;
-	return 1;
+        slog("SYSERR: error assigning tarr_exit_mod path to tarrasque.");
+        mode = T_ERROR;
+        return 1;
       }
 
       mode = T_ACTIVE;
@@ -270,9 +273,9 @@ SPECIAL(tarrasque)
       timer = 0;
       
       if (!add_path_to_mob(tarr, "tarr_return_mod")) {
-	slog("SYSERR: error assigning tarr_return_mod path to tarrasque.");
-	mode = T_ERROR;
-	return 1;
+        slog("SYSERR: error assigning tarr_return_mod path to tarrasque.");
+        mode = T_ERROR;
+        return 1;
       }
       return 1;
     }
@@ -282,20 +285,22 @@ SPECIAL(tarrasque)
       return 1;
     }
 
-    if (tarr->next_in_room || tarr->in_room->people == tarr) {
-      for (vict = tarr->in_room->people; vict; vict = next_vict)
-	if (!IS_NPC(vict) && GET_LEVEL(vict) < 10) {
-	  if (vict->getPosition() < POS_STANDING)
-	    vict->setPosition( POS_STANDING );
-	  act("You are overcome with terror at the sight of $N!",
-	      FALSE, vict, 0, tarr, TO_CHAR);
-	  do_flee(vict, "", 0, 0);
-	}
+    if ( tarr->in_room->people.size() >= 1) {
+        CharacterList::iterator it = tarr->in_room->people.begin();
+        for( ; it != tarr->in_room->people.end(); ++it ) {
+        if (!IS_NPC((*it)) && GET_LEVEL((*it)) < 10) {
+          if ((*it)->getPosition() < POS_STANDING)
+            (*it)->setPosition( POS_STANDING );
+          act("You are overcome with terror at the sight of $N!",
+              FALSE, (*it), 0, tarr, TO_CHAR);
+          do_flee((*it), "", 0, 0);
+        }
+      }
     }
       
     break;
     
-  case T_RETURN:
+  case T_RETURN:{
 
     if (tarr->in_room->number == LAIR_RM) {
       mode = T_SLEEP;
@@ -309,18 +314,21 @@ SPECIAL(tarrasque)
       tarrasque_jump(tarr, T_RETURN);
       return 1;
     }
-    if (tarr->next_in_room || tarr->in_room->people == tarr) {
-      for (vict = tarr->in_room->people; vict; vict = next_vict)
-	if (!IS_NPC(vict) && GET_LEVEL(vict) < 10) {
-	  if (vict->getPosition() < POS_STANDING)
-	    vict->setPosition( POS_STANDING );
-	  act("You are overcome with terror at the sight of $N!",
-	      FALSE, vict, 0, tarr, TO_CHAR);
-	  do_flee(vict, "", 0, 0);
-	}
+    if ( tarr->in_room->people.size() >= 1) {
+        CharacterList::iterator it = tarr->in_room->people.begin();
+        for( ; it != tarr->in_room->people.end(); ++it ) {
+        if (!IS_NPC((*it)) && GET_LEVEL((*it)) < 10) {
+          if ((*it)->getPosition() < POS_STANDING)
+            (*it)->setPosition( POS_STANDING );
+          act("You are overcome with terror at the sight of $N!",
+              FALSE, (*it), 0, tarr, TO_CHAR);
+          do_flee((*it), "", 0, 0);
+        }
+    }
     }
 
     break;
+  }
   default:
     break;
   }

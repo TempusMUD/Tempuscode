@@ -20,6 +20,7 @@
 
 #include "structs.h"
 #include "utils.h"
+#include "character_list.h"
 #include "comm.h"
 #include "interpreter.h"
 #include "handler.h"
@@ -70,29 +71,6 @@ extern int shutdown_mode;
 extern int current_mob_idnum;
 extern struct last_command_data last_cmd[NUM_SAVE_CMDS];
 
-//these structs used in do_return()
-extern struct room_data * r_immort_start_room;
-extern struct room_data * r_frozen_start_room;
-extern struct room_data * r_mortal_start_room;
-extern struct room_data * r_electro_start_room;
-extern struct room_data * r_new_thalos_start_room;
-extern struct room_data * r_elven_start_room;
-extern struct room_data * r_istan_start_room;
-extern struct room_data * r_arena_start_room;
-extern struct room_data * r_city_start_room;
-extern struct room_data * r_doom_start_room;
-extern struct room_data * r_monk_start_room;
-extern struct room_data * r_tower_modrian_start_room;
-extern struct room_data * r_solace_start_room;
-extern struct room_data * r_mavernal_start_room;
-extern struct room_data * r_dwarven_caverns_start_room;
-extern struct room_data * r_human_square_start_room;
-extern struct room_data * r_skullport_start_room;
-extern struct room_data * r_skullport_newbie_start_room;
-extern struct room_data * r_drow_isle_start_room;
-extern struct room_data * r_astral_manse_start_room;
-extern struct room_data * r_zul_dane_start_room;
-extern struct room_data * r_zul_dane_newbie_start_room;
 
 char *how_good(int percent);
 extern char *prac_types[];
@@ -129,6 +107,7 @@ SPECIAL(shop_keeper);
 
 static const char *logtypes[] = {
     "off", "brief", "normal", "complete", "\n"};
+
 
 void
 show_char_class_skills(struct char_data *ch, int con, int immort, int bits)
@@ -238,7 +217,6 @@ list_residents_to_char(struct char_data *ch, int town)
 
 ACMD(do_echo)
 {
-    struct char_data *vict = NULL;
 
     skip_spaces(&argument);
 
@@ -259,11 +237,12 @@ ACMD(do_echo)
             act(buf, FALSE, ch, 0, 0, TO_ROOM);
         }
         else {
-            for (vict = ch->in_room->people; vict; vict = vict->next_in_room) {
-                        if (GET_LEVEL(vict) > GET_LEVEL(ch))
-                                act(buf2, FALSE, ch, 0, vict, TO_VICT);
-                        else
-                                act(buf, FALSE, ch, 0, vict, TO_VICT);
+            CharacterList::iterator it = ch->in_room->people.begin();
+            for(; it != ch->in_room->people.end(); ++it ) {
+                if (GET_LEVEL((*it)) > GET_LEVEL(ch))
+                    act(buf2, FALSE, ch, 0, (*it), TO_VICT);
+                else
+                    act(buf, FALSE, ch, 0, (*it), TO_VICT);
             }
         }
     }
@@ -414,7 +393,7 @@ ACMD(do_distance)
 ACMD(do_goto)
 {
     struct room_data *location = NULL, *was_in = NULL;
-    struct char_data *vict = NULL, *next_vict = NULL;
+    struct char_data *vict = NULL;
     char buf[MAX_STRING_LENGTH];
 
     if PLR_FLAGGED(ch, PLR_AFK)
@@ -453,8 +432,9 @@ ACMD(do_goto)
     look_at_room(ch, ch->in_room, 0);
 
     if (subcmd != -1) {
-        for (vict = was_in->people; vict; vict = next_vict) {
-            next_vict = vict->next_in_room;
+        CharacterList::iterator it = was_in->people.begin();
+        for(; it != was_in->people.end(); ++it ) {
+            vict = *it;
             if (vict->master && vict->master == ch &&
                 GET_LEVEL(vict) >= LVL_AMBASSADOR && !PLR_FLAGGED(vict, PLR_OLC | 
                                                                   PLR_WRITING |
@@ -637,7 +617,11 @@ void do_stat_memory(struct char_data * ch)
     sprintf(buf, "%s  world structs: %9d  (%d)\r\n",buf,sum,i);
 
     sum = top_of_mobt*(sizeof(struct char_data));
-    for (mob = mob_proto; mob; mob = mob->next) {
+    
+    CharacterList::iterator mit = mobilePrototypes.begin();
+    for( ; mit != mobilePrototypes.end(); ++mit ) {
+    //for (mob = mob_proto; mob; mob = mob->next) {
+        mob = *mit;
         CHARADD (sum, mob->player.name);
         CHARADD (sum, mob->player.short_descr);
         CHARADD (sum, mob->player.long_descr);
@@ -681,10 +665,12 @@ void do_stat_memory(struct char_data * ch)
     sprintf(buf, "%s     mob protos: %9d  (%d)\r\n",buf,sum,i);
 
     sum = 0; i = 0;
-    chars = character_list;
-    while (chars) {
+    CharacterList::iterator cit = characterList.begin();
+    for( ; cit != characterList.end(); ++cit ) {
+        chars = *cit;
+    //while (chars) {
         if (!IS_NPC(chars)) {
-            chars = chars->next;
+            //chars = chars->next;
             continue;
         }
         i++;
@@ -703,16 +689,19 @@ void do_stat_memory(struct char_data * ch)
             sum += sizeof(struct follow_type);
             fol = fol->next;
         }
-        chars = chars->next;
+        //chars = chars->next;
     }
     total += sum;
     sprintf(buf, "%s        mobiles: %9d  (%d)\r\n",buf,sum,i);
 
     sum = 0; i = 0;
-    chars = character_list;
-    while (chars) {
+    //chars = character_list;
+    //while (chars) {
+    cit = characterList.begin();
+    for( ; cit != characterList.end(); ++cit ) {
+        chars = *cit;
         if (IS_NPC(chars)) {
-            chars = chars->next;
+            //chars = chars->next;
             continue;
         }
         i++;
@@ -756,7 +745,7 @@ void do_stat_memory(struct char_data * ch)
             sum += sizeof(struct follow_type);
             fol = fol->next;
         }
-        chars = chars->next;
+        //chars = chars->next;
     }
     total += sum;
     sprintf(buf, "%s        players: %9d  (%d)\r\n",buf,sum,i);
@@ -772,7 +761,6 @@ void
 do_stat_zone(struct char_data *ch, struct zone_data *zone)
 {
     struct obj_data *obj;
-    struct char_data *mob;
     struct descriptor_data *plr;
     struct room_data *rm = NULL;
     struct special_search_data *srch = NULL;
@@ -792,22 +780,22 @@ do_stat_zone(struct char_data *ch, struct zone_data *zone)
             time_frames[zone->time_frame], planes[zone->plane]);
   
     strcat(out_buf, buf);
-
-    for (mob = character_list; mob; mob = mob->next)
-        if (IS_NPC(mob) && mob->in_room && mob->in_room->zone == zone) {
+    CharacterList::iterator mit = characterList.begin();
+    for( ; mit != characterList.end(); ++mit )
+        if (IS_NPC((*mit)) && (*mit)->in_room && (*mit)->in_room->zone == zone) {
             numm++;
-            av_lev += GET_LEVEL(mob);
+            av_lev += GET_LEVEL((*mit));
         }
 
     if (numm)
         av_lev /= numm;
-
-    for (mob = mob_proto; mob; mob = mob->next)
-        if (GET_MOB_VNUM(mob) >= zone->number * 100 &&
-            GET_MOB_VNUM(mob) <= zone->top &&
-            IS_NPC(mob)) {
+    mit = mobilePrototypes.begin();
+    for( ; mit != mobilePrototypes.end(); ++mit )
+        if (GET_MOB_VNUM((*mit)) >= zone->number * 100 &&
+            GET_MOB_VNUM((*mit)) <= zone->top &&
+            IS_NPC((*mit))) {
             numm_proto++;
-            av_lev_proto += GET_LEVEL(mob);
+            av_lev_proto += GET_LEVEL((*mit));
         }
 
     if (numm_proto)
@@ -1003,14 +991,19 @@ do_stat_room(struct char_data * ch,char *roomstr)
     }
         
     sprintf(buf, "Chars present:%s", CCYEL(ch, C_NRM));
-    for (found = 0, k = rm->people; k; k = k->next_in_room) {
+    
+    CharacterList::iterator it = rm->people.begin();
+    CharacterList::iterator nit = it;
+    for(found = 0; it != rm->people.end(); ++it ) {
+        ++nit;
+        k = *it;
         if (!CAN_SEE(ch, k))
             continue;
         sprintf(buf2, "%s %s(%s)", found++ ? "," : "", GET_NAME(k),
                 (!IS_NPC(k) ? "PC" : (!IS_MOB(k) ? "NPC" : "MOB")));
         strcat(buf, buf2);
         if (strlen(buf) >= 62) {
-            if (k->next_in_room)
+            if (nit != rm->people.end())
                 strcat(out_buf, strcat(buf, ",\r\n"));
             else
                 strcat(out_buf, strcat(buf, "\r\n"));
@@ -2280,6 +2273,7 @@ ACMD(do_rswitch)
                             GET_HOME(ch) == HOME_DROW_ISLE ? r_drow_isle_start_room :\
                             GET_HOME(ch) == HOME_ASTRAL_MANSE ? r_astral_manse_start_room :\
                             GET_HOME(ch) == HOME_ZUL_DANE ? r_zul_dane_start_room :\
+                            GET_HOME(ch) == HOME_NEWBIE_SCHOOL ? r_newbie_school_start_room :\
                             r_mortal_start_room)
 ACMD(do_return)
 {
@@ -2333,12 +2327,13 @@ ACMD(do_return)
             act("$n materializes from a cloud of gas.", 
                 FALSE, orig, 0, 0, TO_ROOM);
             if (subcmd != SCMD_NOEXTRACT)
-                extract_char(ch, 0);
+                ch->extract( FALSE );
+                //extract_char(ch, 0);
         }
     } else 
         send_to_char("There is no need to return.\r\n", ch);
 }
-#undef GET_START_ROOM(ch)
+#undef GET_START_ROOM
 
 ACMD(do_mload)
 {
@@ -2510,7 +2505,7 @@ ACMD(do_rstat)
 /* clean a room of all mobiles and objects */
 ACMD(do_purge)
 {
-    struct char_data *vict, *next_v;
+    struct char_data *vict;
     struct obj_data *obj, *next_o;
     struct room_trail_data *trail;
     int i = 0;
@@ -2549,7 +2544,8 @@ ACMD(do_purge)
                     vict->desc = NULL;
                 }
             }
-            extract_char(vict, TRUE);
+            //extract_char(vict, TRUE);
+            vict->extract( 1 );
         } else if ((obj = get_obj_in_list_vis(ch, buf, ch->in_room->contents))) {
             act("$n destroys $p.", FALSE, ch, obj, 0, TO_ROOM);
             sprintf(buf, "(GC) %s purged %s at %d.", GET_NAME(ch),
@@ -2567,11 +2563,12 @@ ACMD(do_purge)
         act("$n gestures... You are surrounded by scorching flames!",
             FALSE, ch, 0, 0, TO_ROOM);
         send_to_room("The world seems a little cleaner.\r\n", ch->in_room);
-
-        for (vict = ch->in_room->people; vict; vict = next_v) {
-            next_v = vict->next_in_room;
-            if (IS_NPC(vict))
-                extract_char(vict, FALSE);
+               
+        CharacterList::iterator it = ch->in_room->people.begin();
+        for( ; it != ch->in_room->people.end(); ++it ) {
+            if (IS_NPC((*it))) {
+                (*it)->extract( FALSE );
+            }
         }
 
         for (obj = ch->in_room->contents; obj; obj = next_o) {
@@ -2667,7 +2664,10 @@ ACMD(do_restore)
     if (!*buf)
         send_to_char("Whom do you wish to restore?\r\n", ch);
     else if (!str_cmp(buf, "all")) {
-        for (vict = character_list; vict; vict = vict->next) {
+        CharacterList::iterator cit = characterList.begin();
+        for( ; cit != characterList.end(); ++cit ) {
+        //for (vict = character_list; vict; vict = vict->next) {
+            vict = *cit;
             if (IS_NPC(vict))
                 continue;
             GET_HIT(vict) = GET_MAX_HIT(vict);
@@ -2724,8 +2724,7 @@ ACMD(do_restore)
 void 
 perform_immort_vis(struct char_data *ch)
 {
-    struct char_data *tch;
-        int old_level = 0;
+    int old_level = 0;
 
     if (GET_INVIS_LEV(ch) == 0 && !IS_AFFECTED(ch, AFF_HIDE | AFF_INVISIBLE)) {
         send_to_char("You are already fully visible.\r\n", ch);
@@ -2736,22 +2735,21 @@ perform_immort_vis(struct char_data *ch)
     GET_REMORT_INVIS(ch) = 0;
     //appear(ch);
     send_to_char("You are now fully visible.\r\n", ch);
-
-    for (tch = ch->in_room->people; tch; tch = tch->next_in_room) {
-                if (tch == ch)
-                        continue;
-                if (GET_LEVEL(tch) < old_level)
-                        act("You suddenly realize that $n is standing beside you.", FALSE, ch, 0,
-                                tch, TO_VICT);
-        }
+    CharacterList::iterator it = ch->in_room->people.begin();
+    for( ; it != ch->in_room->people.end(); ++it ) {
+      if ((*it) == ch)
+         continue;
+      if (GET_LEVEL((*it)) < old_level)
+         act("You suddenly realize that $n is standing beside you.", FALSE, ch, 0,
+            (*it), TO_VICT);
+   }
 }
 
 
 void 
 perform_immort_invis(struct char_data *ch, int level)
 {
-    struct char_data *tch;
-        int old_level = 0;
+    int old_level = 0;
 
     if (IS_NPC(ch))
         return;
@@ -2759,16 +2757,16 @@ perform_immort_invis(struct char_data *ch, int level)
         old_level = GET_INVIS_LEV(ch);
         if (old_level > level)
                 GET_INVIS_LEV(ch) = level;
-
-    for (tch = ch->in_room->people; tch; tch = tch->next_in_room) {
-                if (tch == ch)
+    CharacterList::iterator it = ch->in_room->people.begin();
+    for( ; it != ch->in_room->people.end(); ++it ) {
+                if ((*it) == ch)
                         continue;
-                if (GET_LEVEL(tch) >= old_level && GET_LEVEL(tch) < level)
+                if (GET_LEVEL((*it)) >= old_level && GET_LEVEL((*it)) < level)
                         act("You blink and suddenly realize that $n is gone.", FALSE, ch, 0,
-                        tch, TO_VICT);
-                if (GET_LEVEL(tch) < old_level && GET_LEVEL(tch) >= level)
+                        (*it), TO_VICT);
+                if (GET_LEVEL((*it)) < old_level && GET_LEVEL((*it)) >= level)
                         act("you suddenly realize that $n is standing beside you.", false, ch, 0,
-                        tch, TO_VICT);
+                        (*it), TO_VICT);
     }
         if(old_level <= level)
                 GET_INVIS_LEV(ch) = level;
@@ -2786,7 +2784,6 @@ perform_remort_vis(struct char_data *ch)
 {
 
     int level = GET_REMORT_INVIS(ch);
-    CHAR *tch = NULL;
 
     if (!GET_REMORT_INVIS(ch) && !IS_AFFECTED(ch, AFF_HIDE | AFF_INVISIBLE)) {
         send_to_char("You are already fully visible.\r\n", ch);
@@ -2794,14 +2791,14 @@ perform_remort_vis(struct char_data *ch)
     }
    
     GET_REMORT_INVIS(ch) = 0;
-  
-    for (tch = ch->in_room->people; tch; tch = tch->next_in_room) {
-        if (tch == ch || !CAN_SEE(tch, ch))
+    CharacterList::iterator it = ch->in_room->people.begin();
+    for( ; it != ch->in_room->people.end(); ++it ) {
+        if ((*it) == ch || !CAN_SEE((*it), ch))
             continue;
-        else if (GET_REMORT_GEN(tch) < GET_REMORT_GEN(ch) &&
-                 GET_LEVEL(tch) < level)
+        else if (GET_REMORT_GEN((*it)) < GET_REMORT_GEN(ch) &&
+                 GET_LEVEL((*it)) < level)
             act("$n suddenly appears from the thin air beside you.", FALSE, ch, 0,
-                tch, TO_VICT);
+                (*it), TO_VICT);
     }
   
     send_to_char("You are now fully remort visible.\r\n", ch);
@@ -2811,8 +2808,6 @@ perform_remort_vis(struct char_data *ch)
 void 
 perform_remort_invis(struct char_data *ch, int level)
 {
-    struct char_data *tch;
-
     if (IS_NPC(ch))
         return;
 
@@ -2822,17 +2817,18 @@ perform_remort_invis(struct char_data *ch, int level)
         return;
     }
 
-    for (tch = ch->in_room->people; tch; tch = tch->next_in_room) {
-        if (tch == ch || !CAN_SEE(tch, ch))
+    CharacterList::iterator it = ch->in_room->people.begin();
+    for( ; it != ch->in_room->people.end(); ++it ) {
+        if ((*it) == ch || !CAN_SEE((*it), ch))
             continue;
-        if (!IS_REMORT(tch) && ((int)GET_REMORT_INVIS(ch) <= GET_LEVEL(tch)) && 
-            (GET_LEVEL(tch) < level))        
+        if (!IS_REMORT((*it)) && ((int)GET_REMORT_INVIS(ch) <= GET_LEVEL((*it))) && 
+            (GET_LEVEL((*it)) < level))        
             act("$n suddenly vanishes from your reality.", FALSE, ch, 0,
-                tch, TO_VICT);
-        else if (!IS_REMORT(ch) && (GET_LEVEL(tch) < (int)GET_REMORT_INVIS(ch)) &&
-                 (GET_LEVEL(tch) >= level))
+                (*it), TO_VICT);
+        else if (!IS_REMORT(ch) && (GET_LEVEL((*it)) < (int)GET_REMORT_INVIS(ch)) &&
+                 (GET_LEVEL((*it)) >= level))
             act("$n suddenly appears from the thin air beside you.", FALSE, ch, 0,
-                tch, TO_VICT);
+                (*it), TO_VICT);
     }
 
     GET_REMORT_INVIS(ch) = level;
@@ -3161,7 +3157,7 @@ ACMD(do_last)
 ACMD(do_force)
 {
     struct descriptor_data *i, *next_desc;
-    struct char_data *vict, *next_force;
+    struct char_data *vict;
     char to_force[MAX_INPUT_LENGTH + 2];
 
     half_chop(argument, arg, to_force);
@@ -3191,14 +3187,13 @@ ACMD(do_force)
         sprintf(buf, "(GC) %s forced room %d to %s", 
                 GET_NAME(ch), ch->in_room->number, to_force);
         mudlog(buf, NRM, GET_LEVEL(ch), TRUE);
-
-        for (vict = ch->in_room->people; vict; vict = next_force) {
-            next_force = vict->next_in_room;
-            if (GET_LEVEL(vict) >= GET_LEVEL(ch) ||
-                (!IS_NPC(vict) && GET_LEVEL(ch) < LVL_GRGOD))
+        CharacterList::iterator it = ch->in_room->people.begin();
+        for( ; it != ch->in_room->people.end(); ++it ) {
+            if (GET_LEVEL((*it)) >= GET_LEVEL(ch) ||
+                (!IS_NPC((*it)) && GET_LEVEL(ch) < LVL_GRGOD))
                 continue;
-            act(buf1, TRUE, ch, NULL, vict, TO_VICT);
-            command_interpreter(vict, to_force);
+            act(buf1, TRUE, ch, NULL, (*it), TO_VICT);
+            command_interpreter((*it), to_force);
         }
     } else if (GET_LEVEL(ch) >= LVL_GRGOD) { /* force all */
         send_to_char(OK, ch);
@@ -3656,8 +3651,10 @@ do_show_stats(struct char_data *ch)
     struct special_search_data *srch;
     struct zone_data *zone;
     extern int buf_switches, buf_largecount, buf_overflows;
-
-    for (vict = character_list; vict; vict = vict->next) {
+    CharacterList::iterator cit = characterList.begin();
+    for( ; cit != characterList.end(); ++cit ) {
+    //for (vict = character_list; vict; vict = vict->next) {
+        vict = *cit;
         if (IS_NPC(vict))
             j++;
         else if (CAN_SEE(ch, vict)) {
@@ -3962,8 +3959,10 @@ show_mobkills(CHAR *ch, char *value, char *arg)
 
     sprintf(buf, "Mobiles with mobkills ratio >= %f:\r\n", thresh);
     strcat(buf,  " ---- -Vnum-- -Name------------------------- -Kills- -Loaded- -Ratio-\r\n");
-
-    for (mob = mob_proto; mob; mob = mob->next) {
+    CharacterList::iterator cit = mobilePrototypes.begin();
+    for( ; cit != mobilePrototypes.end(); ++cit ) {
+    //for (mob = mob_proto; mob; mob = mob->next) {
+        mob = *cit;
         if (!mob->mob_specials.shared->loaded)
             continue;
         ratio = (float) ((float) mob->mob_specials.shared->kills / 
@@ -4025,8 +4024,11 @@ show_mlevels(CHAR *ch, char *value, char *arg)
     // scan the existing mobs
     if (!strcmp(value, "real")) {
         strcat(buf, "real mobiles:\r\n");
-        for (mob = character_list; mob; mob = mob->next) {
-            if (IS_NPC(mob) && GET_LEVEL(mob) < 50 &&
+        CharacterList::iterator cit = mobilePrototypes.begin();
+        for( ; cit != mobilePrototypes.end(); ++cit ) {
+        //for (mob = character_list; mob; mob = mob->next) {
+           mob = *cit;
+           if (IS_NPC(mob) && GET_LEVEL(mob) < 50 &&
                 ((remort && IS_REMORT(mob)) ||
                  (!remort && !IS_REMORT(mob)))) {
                 if (expand)
@@ -4038,7 +4040,10 @@ show_mlevels(CHAR *ch, char *value, char *arg)
     }
     else if (!strcmp(value, "proto")) {
         strcat(buf, "mobile protos:\r\n");
-        for (mob = mob_proto; mob; mob = mob->next) {
+        CharacterList::iterator cit = mobilePrototypes.begin();
+        for( ; cit != mobilePrototypes.end(); ++cit ) {
+        //for (mob = mob_proto; mob; mob = mob->next) {
+           mob = *cit;
             if (GET_LEVEL(mob) < 50 &&
                 ((remort && IS_REMORT(mob)) ||
                  (!remort && !IS_REMORT(mob)))) {
@@ -4190,7 +4195,9 @@ ACMD(do_show)
     struct elevator_data *e_head = NULL;
     struct elevator_elem *e_elem = NULL;
     struct char_data *mob = NULL;
-
+    CharacterList::iterator cit;
+    CharacterList::iterator mit;
+    
     void show_shops(struct char_data * ch, char *value);
 
     skip_spaces(&argument);
@@ -4663,7 +4670,10 @@ ACMD(do_show)
             return;
         }
         strcpy(buf, "Mobs with exp in given range:\r\n");
-        for (mob = mob_proto, i = 0; mob; mob = mob->next) {
+        mit = mobilePrototypes.begin();
+        for ( ; mit != mobilePrototypes.end(); ++mit ) {
+        //for (mob = mob_proto, i = 0; mob; mob = mob->next) {
+            mob = *mit;
             percent = GET_EXP(mob) * 100;
             if ((j = mobile_experience(mob)))
                 percent /= j;
@@ -4729,7 +4739,9 @@ ACMD(do_show)
 
         strcpy(buf, "Fighting characters:\r\n");
 
-        for (vict = combat_list, i = 0; vict; vict = vict->next_fighting) {
+        cit = combatList.begin();
+        for ( ; cit != combatList.end(); ++cit ) {
+            vict = *cit;
 
             if (!CAN_SEE(ch, vict))
                 continue;
@@ -4751,7 +4763,9 @@ ACMD(do_show)
     
         strcpy(buf, "Characters with Quad Damage:\r\n");
 
-        for (vict = character_list, i = 0; vict; vict = vict->next) {
+        cit = characterList.begin();
+        for ( ; cit != characterList.end(); ++cit ) {
+            vict = *cit;
 
             if (!CAN_SEE(ch, vict) || !affected_by_spell(vict, SPELL_QUAD_DAMAGE))
                 continue;
@@ -4774,9 +4788,9 @@ ACMD(do_show)
     case 45:  /* hunting */
 
         strcpy(buf, "Characters hunting:\r\n");
-
-        for (vict = character_list, i = 0; vict; vict = vict->next) {
-
+        cit = characterList.begin();
+        for ( ; cit != characterList.end(); ++cit ) {
+            vict = *cit;
             if (!HUNTING(vict) || !HUNTING(vict)->in_room || !CAN_SEE(ch, vict))
                 continue;
 
@@ -5594,7 +5608,7 @@ ACMD(do_set)
         if (!(vict2 = get_char_vis(ch, val_arg))) {
             send_to_char("No such target character around.\r\n", ch);
         } else {
-            FIGHTING(vict) = vict2;
+            vict->setFighting(vict2);
             sprintf(buf, "%s is now fighting %s.\r\n", GET_NAME(vict), GET_NAME(vict2));
             send_to_char(buf, ch); 
         }
@@ -5981,9 +5995,7 @@ ACMD(do_xlist)
         }
     page_string( ch->desc, outbuf, 1 );
 }
-ACMD(do_mlist)
-{
-    struct char_data *mob = NULL;
+ACMD(do_mlist) {
     char out_list[MAX_STRING_LENGTH];
 
     int first, last, found = 0;
@@ -6011,17 +6023,17 @@ ACMD(do_mlist)
     }
 
     strcpy(out_list, "");
-    for (mob = mob_proto; mob && (mob->mob_specials.shared->vnum <= last); 
-         mob = mob->next) {
-        if (mob->mob_specials.shared->vnum >= first) {
+    CharacterList::iterator mit = mobilePrototypes.begin();
+    for ( ; mit != mobilePrototypes.end() && ((*mit)->mob_specials.shared->vnum <= last); ++mit ) {
+        if ((*mit)->mob_specials.shared->vnum >= first) {
             sprintf(buf, "%5d. %s[%s%5d%s]%s %-40s%s  [%2d] <%3d> %s\r\n", ++found,
                     CCGRN(ch, C_NRM), CCNRM(ch, C_NRM), 
-                    mob->mob_specials.shared->vnum,
+                    (*mit)->mob_specials.shared->vnum,
                     CCGRN(ch, C_NRM), CCYEL(ch, C_NRM),
-                    mob->player.short_descr, CCNRM(ch, C_NRM), 
-                    mob->player.level, 
-                    MOB_SHARED(mob)->number,
-                    MOB2_FLAGGED(mob, MOB2_UNAPPROVED) ?
+                    (*mit)->player.short_descr, CCNRM(ch, C_NRM), 
+                    (*mit)->player.level, 
+                    MOB_SHARED((*mit))->number,
+                    MOB2_FLAGGED((*mit), MOB2_UNAPPROVED) ?
                     "(!ap)" : "" );
             if ((strlen(out_list) + strlen(buf)) < MAX_STRING_LENGTH - 20)
                 strcat(out_list, buf);
@@ -6098,7 +6110,7 @@ ACMD(do_olist)
 ACMD(do_rename)
 {
     struct obj_data *obj;
-    struct char_data *vict;
+    struct char_data *vict = NULL;
     char new_desc[MAX_INPUT_LENGTH], logbuf[MAX_STRING_LENGTH];
   
     half_chop(argument, arg, new_desc);
@@ -6118,10 +6130,11 @@ ACMD(do_rename)
     }
 
     if (!(obj = get_obj_in_list_all(ch, arg, ch->carrying))) {
-        if (!(vict = get_char_room_vis(ch, arg))) {
+        vict = get_char_room_vis(ch, arg);
+        if(! vict ) {
             if (!(obj = get_obj_in_list_vis(ch, arg, ch->in_room->contents))) {
-            send_to_char("No such object or mobile around.\r\n", ch);
-            return;
+                send_to_char("No such object or mobile around.\r\n", ch);
+                return;
             }
         } else if (!IS_NPC(vict)) {
             send_to_char("You can do this only with NPC's.\r\n", ch);
@@ -6152,7 +6165,7 @@ ACMD(do_rename)
 ACMD(do_addname)
 {
     struct obj_data *obj;
-    struct char_data *vict;
+    struct char_data *vict = NULL;
     char new_name[MAX_INPUT_LENGTH];
   
     two_arguments(argument, arg, new_name);
@@ -6172,7 +6185,8 @@ ACMD(do_addname)
     }
 
     if (!(obj = get_obj_in_list_all(ch, arg, ch->carrying))) {
-        if (!(vict = get_char_room_vis(ch, arg))) {
+        vict = get_char_room_vis(ch, arg);
+        if (!(vict)) {
             if (!(obj = get_obj_in_list_vis(ch, arg, ch->in_room->contents))) {
                 send_to_char("No such object or mobile around.\r\n", ch);
                 return;
@@ -6322,7 +6336,7 @@ ACMD(do_menu)
 ACMD(do_mudwipe)
 {
     struct obj_data *obj, *obj_tmp;
-    struct char_data *mob, *mob_tmp;
+    struct char_data *mob;
     struct zone_data *zone = NULL;
     struct room_data *room = NULL;
     int mode, i;
@@ -6355,7 +6369,10 @@ ACMD(do_mudwipe)
         send_to_char("Done.  trails retired\r\n", ch);
     }
     if (mode == 3) {
-        for (mob = character_list; mob; mob = mob->next) {
+    CharacterList::iterator cit = characterList.begin();
+    for( ; cit != characterList.end(); ++cit ) {
+        mob = *cit;
+        //for (mob = character_list; mob; mob = mob->next) {
             if (!IS_NPC(mob))
                 continue;
             for (obj = mob->carrying; obj; obj = obj_tmp) {
@@ -6369,10 +6386,12 @@ ACMD(do_mudwipe)
         send_to_char("DONE.  Mobiles cleared of objects.\r\n", ch);
     }
     if (mode == 3 || mode == 2 || mode == 0) {
-        for (mob = character_list; mob; mob = mob_tmp) {
-            mob_tmp = mob->next;
-            if (IS_NPC(mob))
-                extract_char(mob, FALSE);
+        CharacterList::iterator mit = characterList.begin();
+        for( ; mit != characterList.end(); ++mit ) {
+            if (IS_NPC(*mit)) {
+                //extract_char(*mit, FALSE);
+                (*mit)->extract( FALSE );
+            }
         }
         send_to_char("DONE.  Mud cleaned of all mobiles.\r\n", ch);
     }
@@ -6392,7 +6411,6 @@ ACMD(do_mudwipe)
       
 ACMD(do_zonepurge)
 {
-    struct char_data *mob = NULL, *next_mob = NULL;
     struct obj_data *obj = NULL, *next_obj = NULL;
     struct zone_data *zone = NULL;
     int j, mob_count = 0, obj_count = 0;
@@ -6420,13 +6438,16 @@ ACMD(do_zonepurge)
                 continue;
             if (ROOM_FLAGGED(rm, ROOM_GODROOM) || ROOM_FLAGGED(rm, ROOM_HOUSE))
                 continue;
-            for (mob = rm->people; mob; mob = next_mob) {
-                next_mob = mob->next_in_room;
-                if (IS_MOB(mob)) {
-                    extract_char(mob, FALSE);
+                
+                
+            CharacterList::iterator it = rm->people.begin();
+            for( ; it != rm->people.end(); ++it ) {
+                if (IS_MOB((*it))) {
+                    (*it)->extract( FALSE );
                     mob_count++;
-                } else
-                    send_to_char("You feel a rush of heat wash over you!\r\n", mob);
+                } else {
+                    send_to_char("You feel a rush of heat wash over you!\r\n", *it);
+                }
             }
       
             for (obj = rm->contents; obj; obj = next_obj) {
@@ -6458,8 +6479,10 @@ ACMD(do_searchfor)
     struct char_data *mob = NULL;
     struct obj_data *obj = NULL;
     byte mob_found = FALSE, obj_found = FALSE;
-
-    for (mob = character_list;mob;mob = mob->next) {
+    CharacterList::iterator cit = characterList.begin();
+    for( ; cit != characterList.end(); ++cit ) {
+    //for (mob = character_list;mob;mob = mob->next) {
+        mob = *cit;
         if (!mob->in_room) {
             mob_found = TRUE;
             sprintf(buf, "Char out of room: %s,  Master is: %s.\r\n",
@@ -6541,7 +6564,7 @@ do_show_mobiles(struct char_data *ch, char *value, char *arg)
     int i, j, k, l, command;
     struct char_data *mob = NULL;
     char arg1[MAX_INPUT_LENGTH], arg2[MAX_INPUT_LENGTH];
-
+    CharacterList::iterator mit;
     if (!*value || (command = search_block(value, show_mob_keys, 0)) < 0) {
         send_to_char("Show mobiles:  utility to search the mobile prototype list.\r\n"
                      "Usage: show mob <option> <argument>\r\n"
@@ -6562,9 +6585,9 @@ do_show_mobiles(struct char_data *ch, char *value, char *arg)
         k = atoi(arg);
 
         sprintf(buf, "Mobs with hitroll greater than %d:r\n", k);
-        for (mob = mob_proto, i = 0; 
-             (mob && strlen(buf) < (MAX_STRING_LENGTH - 128));
-             mob = mob->next) {
+        mit = mobilePrototypes.begin();
+        for( i = 0; (mit != mobilePrototypes.end() && strlen(buf) < (MAX_STRING_LENGTH - 128)); ++mit ) {
+            mob = *mit;
             if (GET_HITROLL(mob) >= k)
                 sprintf(buf, 
                         "%s %3d. [%5d] %-30s (%2d) %2d\r\n",
@@ -6587,9 +6610,10 @@ do_show_mobiles(struct char_data *ch, char *value, char *arg)
             j = 0;
 
         sprintf(buf, "Mobs with gold greater than %d:r\n", k);
-        for (mob = mob_proto, i = 0; 
-             (mob && strlen(buf) < (MAX_STRING_LENGTH - 128));
-             mob = mob->next) {
+        mit = mobilePrototypes.begin();
+        for( i = 0; (mit != mobilePrototypes.end() && strlen(buf) < (MAX_STRING_LENGTH - 128)); ++mit ) {
+            mob = *mit;
+
             if (MOB_UNAPPROVED(mob))
                 continue;
             if (GET_GOLD(mob) >= k && 
@@ -6621,7 +6645,9 @@ do_show_mobiles(struct char_data *ch, char *value, char *arg)
                 (i == 1) ? action_bits_desc[j] : action2_bits_desc[j],
                 CCNRM(ch, C_NRM));
     
-        for (mob = mob_proto, k = 0; mob; mob = mob->next) {
+        mit = mobilePrototypes.begin();
+        for( k = 0; mit != mobilePrototypes.end(); ++mit ) {
+            mob = *mit;
 
             if ((i == 1 && MOB_FLAGGED(mob, (1 << j))) ||
                 (i == 2 && MOB2_FLAGGED(mob, (1 << j)))) {
@@ -6669,8 +6695,9 @@ do_show_mobiles(struct char_data *ch, char *value, char *arg)
         sprintf(buf, "Mobs with extreme %s >= (level * %d):\r\n", i ? "cash" : "gold", l);
     
     
-        for (mob = mob_proto, k = 0; mob; mob = mob->next) {
-
+        mit = mobilePrototypes.begin();
+        for( k = 0; mit != mobilePrototypes.end(); ++mit ) {
+            mob = *mit;
             if (shop_keeper == mob->mob_specials.shared->func ||
                 MOB_UNAPPROVED(mob))
                 continue;
@@ -6711,7 +6738,9 @@ do_show_mobiles(struct char_data *ch, char *value, char *arg)
         sprintf(buf, "Mobiles with special %s%s%s:\r\n", CCYEL(ch, C_NRM),
                 spec_list[i].tag, CCNRM(ch, C_NRM));
 
-        for (mob = mob_proto, j = 0; mob; mob = mob->next)
+        mit = mobilePrototypes.begin();
+        for( j = 0; mit != mobilePrototypes.end(); ++mit ) {
+            mob = *mit;
             if (spec_list[i].func == GET_MOB_SPEC(mob)) {
                 sprintf(buf2, "%3d. %s[%s%5d%s]%s %s%s\r\n", ++j,
                         CCGRN(ch, C_NRM), CCNRM(ch, C_NRM), GET_MOB_VNUM(mob),
@@ -6723,7 +6752,7 @@ do_show_mobiles(struct char_data *ch, char *value, char *arg)
                 }
                 strcat(buf, buf2);
             }
-
+        }
         page_string(ch->desc, buf, 1);
         return;
 
@@ -7262,12 +7291,13 @@ ACMD(do_xlag)
 
 ACMD(do_peace)
 {
-    struct char_data *vict = NULL;
     bool found = 0;
-
-    for (vict = ch->in_room->people; vict; vict = vict->next_in_room) {
-        if (FIGHTING(vict)) {
-            stop_fighting(vict);
+    
+    
+    CharacterList::iterator it = ch->in_room->people.begin();
+    for( ; it != ch->in_room->people.end(); ++it ) {
+        if (FIGHTING((*it))) {
+            stop_fighting(*it);
             found = 1;
         }
     }

@@ -66,17 +66,17 @@ extern struct room_data *world;
  * following spells" vs. "You know of the following skills"
  */
 
-#define SPL	0
-#define SKL	1
+#define SPL        0
+#define SKL        1
 #define TRG     2
 #define ALT     3
 #define PRG     4
 #define ZEN     5
 
-/* #define LEARNED_LEVEL	0  % known which is considered "learned" */
-/* #define MAX_PER_PRAC		1  max percent gain in skill per practice */
-/* #define MIN_PER_PRAC		2  min percent gain in skill per practice */
-/* #define PRAC_TYPE		3  should it say 'spell' or 'skill'?	*/
+/* #define LEARNED_LEVEL        0  % known which is considered "learned" */
+/* #define MAX_PER_PRAC                1  max percent gain in skill per practice */
+/* #define MIN_PER_PRAC                2  min percent gain in skill per practice */
+/* #define PRAC_TYPE                3  should it say 'spell' or 'skill'?        */
 
 extern const int prac_params[4][NUM_CLASSES] = {
 /* MG  CL  TH  WR  BR  PS  PH  CY  KN  RN  HD  MN  VP  MR  S1  S2  S3*/
@@ -94,30 +94,30 @@ extern const int prac_params[4][NUM_CLASSES] = {
  * first line shows that from room 3017, only MAGIC_USERS are allowed
  * to go south.
  *
- *	#define ALL		0
- *	#define GOOD		1
- *	#define NEUTRAL		2
- *	#define EVIL		3
+ *        #define ALL                0
+ *        #define GOOD                1
+ *        #define NEUTRAL                2
+ *        #define EVIL                3
  */
 
 extern const int guild_info[][4] = {
 
     /* Modrian */
-    {CLASS_MAGIC_USER,   	ALL,	3023,	SCMD_UP},
-    {CLASS_CLERIC,	GOOD,	3007,	SCMD_EAST},
-    {CLASS_THIEF,		ALL,	3033,	SCMD_EAST},
-    {CLASS_BARB,          ALL,	3040,   SCMD_UP},
-    {CLASS_KNIGHT,        GOOD,	3071,   SCMD_NORTH},
-    {CLASS_RANGER,        ALL,	3079,   SCMD_WEST},
-    {CLASS_THIEF,         ALL,	2949,   SCMD_UP},
-    {CLASS_THIEF,         EVIL,	2945,   SCMD_WEST},
-    {CLASS_KNIGHT,        EVIL,	3098,   SCMD_SOUTH},
+    {CLASS_MAGIC_USER,           ALL,        3023,        SCMD_UP},
+    {CLASS_CLERIC,        GOOD,        3007,        SCMD_EAST},
+    {CLASS_THIEF,                ALL,        3033,        SCMD_EAST},
+    {CLASS_BARB,          ALL,        3040,   SCMD_UP},
+    {CLASS_KNIGHT,        GOOD,        3071,   SCMD_NORTH},
+    {CLASS_RANGER,        ALL,        3079,   SCMD_WEST},
+    {CLASS_THIEF,         ALL,        2949,   SCMD_UP},
+    {CLASS_THIEF,         EVIL,        2945,   SCMD_WEST},
+    {CLASS_KNIGHT,        EVIL,        3098,   SCMD_SOUTH},
     {CLASS_CLERIC,        EVIL,   2897,   SCMD_WEST},
 
     /* Electro Centralis */
-    {CLASS_MONK,		ALL,   30156,   SCMD_WEST},
-    {CLASS_PHYSIC,	ALL,   30009,   SCMD_WEST},
-    {CLASS_HOOD,		ALL,   33099,	SCMD_UP},
+    {CLASS_MONK,                ALL,   30156,   SCMD_WEST},
+    {CLASS_PHYSIC,        ALL,   30009,   SCMD_WEST},
+    {CLASS_HOOD,                ALL,   33099,        SCMD_UP},
     {CLASS_PSIONIC,       ALL,   30081,   SCMD_UP},
     {CLASS_MERCENARY,     ALL,   30235,   SCMD_EAST},
 
@@ -134,21 +134,21 @@ extern const int guild_info[][4] = {
     /* tower of guiharia */
     {CLASS_CLERIC,        GOOD,   11133,   SCMD_SOUTH},
     /* Brass Dragon */
-    {-999 /* all */ ,	ALL,    5065,	SCMD_WEST},
+    {-999 /* all */ ,        ALL,    5065,        SCMD_WEST},
 
     /* New Thalos */
-    {CLASS_MAGIC_USER,	ALL,    5525,	SCMD_NORTH},
-    {CLASS_THIEF,         ALL,  	5532, 	SCMD_SOUTH},
-    {CLASS_BARB, 		ALL,  	5526, 	SCMD_SOUTH},
-    {CLASS_CLERIC,        GOOD,  	5512, 	SCMD_SOUTH},
+    {CLASS_MAGIC_USER,        ALL,    5525,        SCMD_NORTH},
+    {CLASS_THIEF,         ALL,          5532,         SCMD_SOUTH},
+    {CLASS_BARB,                 ALL,          5526,         SCMD_SOUTH},
+    {CLASS_CLERIC,        GOOD,          5512,         SCMD_SOUTH},
     {CLASS_KNIGHT,        GOOD,   5610,   SCMD_EAST},
     {CLASS_CLERIC,        EVIL,   5613,   SCMD_WEST},
     {CLASS_KNIGHT,        EVIL,   5616,   SCMD_WEST},
 
     /* Istan */
-    {CLASS_BARB, 		ALL,  	20405, 	SCMD_EAST},
-    {CLASS_THIEF,     	ALL,  	20447, 	SCMD_EAST},
-    {CLASS_RANGER,     	ALL,  	20457, 	SCMD_SOUTH},
+    {CLASS_BARB,                 ALL,          20405,         SCMD_EAST},
+    {CLASS_THIEF,             ALL,          20447,         SCMD_EAST},
+    {CLASS_RANGER,             ALL,          20457,         SCMD_SOUTH},
   
     /* High Tower of Magic */
     {CLASS_MAGIC_USER,    ALL,    2568,   SCMD_UP},
@@ -212,36 +212,36 @@ gain_skill_prof(struct char_data *ch, int skl)
 {
     int learned;
     if (skl == SKILL_READ_SCROLLS || skl == SKILL_USE_WANDS)
-	learned = 10;
+        learned = 10;
     else
-	learned = LEARNED(ch);
+        learned = LEARNED(ch);
   
     if (IS_NPC(ch))
-	return;
+        return;
     if (GET_SKILL(ch, skl) >= (learned - 10)) 
-	if ((GET_SKILL(ch, skl)-GET_LEVEL(ch)) <= 60 &&!number(0, GET_LEVEL(ch))) 
-	    GET_SKILL(ch, skl) += 1;
+        if ((GET_SKILL(ch, skl)-GET_LEVEL(ch)) <= 60 &&!number(0, GET_LEVEL(ch))) 
+            GET_SKILL(ch, skl) += 1;
 }
 
 
 /* Names first */
 extern const char *char_class_abbrevs[] = {
-    "Mage",			/* 0 */
+    "Mage",                        /* 0 */
     "Cler",
     "Thie",
     "Warr",
     "Barb",
-    "Psio",			/* 5 */
+    "Psio",                        /* 5 */
     "Phyz",
     "Borg",
     "Knig",
     "Rang",
-    "Hood",			/* 10 */
+    "Hood",                        /* 10 */
     "Monk",
     "Vamp", 
     "Merc", 
     "Spa1", 
-    "Spa2",		/* 15 */		
+    "Spa2",                /* 15 */                
     "Spa3", 
     "ERR", "ERR", "ERR", "ERR", "ERR", "ERR", "ERR", "ERR", "ERR",/*25*/
     "ERR", "ERR", "ERR", "ERR", "ERR", "ERR", "ERR", "ERR", "ERR", "ERR",/*35*/
@@ -279,7 +279,7 @@ extern const char *char_class_abbrevs[] = {
     "Whte", 
     "Blck", 
     "Blue", 
-    "Red", 							/* 95 */
+    "Red",                                                         /* 95 */
     "Slvr", 
     "Shad", 
     "Deep", 
@@ -289,17 +289,17 @@ extern const char *char_class_abbrevs[] = {
     "Lssr",
     "Grtr",
     "Duke",
-    "Arch",							/*105*/
-    "ILL","ILL","ILL","ILL","ILL",	                        /*110*/
+    "Arch",                                                        /*105*/
+    "ILL","ILL","ILL","ILL","ILL",                                /*110*/
     "Hill", "Ston", "Frst", "Fire", "Clod",                    /*115*/
-    "Strm",	      
+    "Strm",              
     "ILL", "ILL", "ILL",
-    "Red",							/* 120 */
+    "Red",                                                        /* 120 */
     "Blue",
     "Gren",
     "Grey",
     "Deth",
-    "Lord",	/* 125 */
+    "Lord",        /* 125 */
     "ILL", "ILL", "ILL", "ILL",
     "Tp I",
     "T II",
@@ -329,23 +329,23 @@ extern const char *pc_char_class_types[] = {
     "Thief",
     "Warrior",
     "Barbarian",
-    "Psionic",				/* 5 */
+    "Psionic",                                /* 5 */
     "Physic",
     "Cyborg",
     "Knight",
     "Ranger",
-    "Hoodlum",				/* 10 */
+    "Hoodlum",                                /* 10 */
     "Monk",
     "Vampire",
     "Mercenary", 
     "Spare1", 
     "Spare2",              /* 15 */
     "Spare3",
-    "ILL","ILL","ILL","ILL","ILL","ILL","ILL","ILL","ILL",	/* 25 */
-    "ILL","ILL","ILL","ILL","ILL","ILL","ILL","ILL","ILL","ILL",	/* 35 */
-    "ILL","ILL","ILL","ILL","ILL","ILL","ILL","ILL","ILL","ILL",	/* 45 */
+    "ILL","ILL","ILL","ILL","ILL","ILL","ILL","ILL","ILL",        /* 25 */
+    "ILL","ILL","ILL","ILL","ILL","ILL","ILL","ILL","ILL","ILL",        /* 35 */
+    "ILL","ILL","ILL","ILL","ILL","ILL","ILL","ILL","ILL","ILL",        /* 45 */
     "ILL","ILL","ILL","ILL",
-    "Mobile",							/* 50 */
+    "Mobile",                                                        /* 50 */
     "Bird",
     "Predator",
     "Snake",
@@ -354,17 +354,17 @@ extern const char *pc_char_class_types[] = {
     "Medium",
     "Large",
     "Scientist",
-    "ILL", "Skeleton",				/* 60 */
-    "Ghoul", "Shadow", "Wight", "Wraith", "Mummy",		/* 65 */
-    "Spectre", "Vampire", "Ghost", "Lich", "Zombie",	        /* 70 */  
-    "ILL","ILL","ILL","ILL","ILL","ILL","ILL","ILL","ILL","ILL",	/* 80 */
-    "Earth", "Fire", "Water", "Air", "Lighting",			/* 85 */
-    "ILL","ILL","ILL","ILL","ILL",				/* 90 */
+    "ILL", "Skeleton",                                /* 60 */
+    "Ghoul", "Shadow", "Wight", "Wraith", "Mummy",                /* 65 */
+    "Spectre", "Vampire", "Ghost", "Lich", "Zombie",                /* 70 */  
+    "ILL","ILL","ILL","ILL","ILL","ILL","ILL","ILL","ILL","ILL",        /* 80 */
+    "Earth", "Fire", "Water", "Air", "Lighting",                        /* 85 */
+    "ILL","ILL","ILL","ILL","ILL",                                /* 90 */
     "Green",
     "White", 
     "Black", 
     "Blue", 
-    "Red", 							/* 95 */
+    "Red",                                                         /* 95 */
     "Silver", 
     "Shadow_D", 
     "Deep", 
@@ -373,19 +373,19 @@ extern const char *pc_char_class_types[] = {
     "Lesser",
     "Greater",
     "Duke",
-    "Arch",							/*105*/
-    "ILL","ILL","ILL","ILL","ILL",	                        /*110*/
+    "Arch",                                                        /*105*/
+    "ILL","ILL","ILL","ILL","ILL",                                /*110*/
     "Hill", "Stone", "Frost", "Fire", "Cloud",                    /*115*/
-    "Storm",	      
+    "Storm",              
     "ILL", "ILL", "ILL",
-    "Red",				/* Slaad */	/* 120 */
+    "Red",                                /* Slaad */        /* 120 */
     "Blue",
     "Green",
     "Grey",
     "Death",
-    "Lord",							/* 125 */
+    "Lord",                                                        /* 125 */
     "ILL", "ILL", "ILL", "ILL",
-    "Type I",				/* Demons */      /* 130 */
+    "Type I",                                /* Demons */      /* 130 */
     "Type II",
     "Type III",
     "Type IV",
@@ -448,9 +448,9 @@ parse_time_frame(char *arg)
     skip_spaces(&arg);
 
     if (is_abbrev(arg, "past") || is_abbrev(arg, "modrian"))
-	return HOME_MODRIAN;
+        return HOME_MODRIAN;
     if (is_abbrev(arg, "future") || is_abbrev(arg, "electro"))
-	return HOME_ELECTRO;
+        return HOME_ELECTRO;
   
     return HOME_UNDEFINED;
 };
@@ -466,19 +466,19 @@ parse_char_class_past(char *arg)
 
     skip_spaces(&arg);
     if (is_abbrev(arg, "magic user") || is_abbrev(arg, "mage"))
-	return CLASS_MAGIC_USER;
+        return CLASS_MAGIC_USER;
     else if (is_abbrev(arg, "cleric"))
-	return CLASS_CLERIC;
+        return CLASS_CLERIC;
     else if (is_abbrev(arg, "barbarian"))
-	return CLASS_BARB;
+        return CLASS_BARB;
     else if (is_abbrev(arg, "thief"))
-	return CLASS_THIEF;
+        return CLASS_THIEF;
     else if (is_abbrev(arg, "knight"))
-	return CLASS_KNIGHT;
+        return CLASS_KNIGHT;
     else if (is_abbrev(arg, "ranger"))
-	return CLASS_RANGER;
+        return CLASS_RANGER;
     else if (is_abbrev(arg, "monk"))
-	return CLASS_MONK;
+        return CLASS_MONK;
 
     return CLASS_UNDEFINED;
 }
@@ -489,17 +489,17 @@ parse_char_class_future(char *arg)
 
     skip_spaces(&arg);
     if (is_abbrev(arg, "cyborg") || is_abbrev(arg, "borg"))
-	return CLASS_CYBORG;
+        return CLASS_CYBORG;
     else if (is_abbrev(arg, "hoodlum"))
-	return CLASS_HOOD;
+        return CLASS_HOOD;
     else if (is_abbrev(arg, "psionic") || is_abbrev(arg, "psychic"))
-	return CLASS_PSIONIC;
+        return CLASS_PSIONIC;
     else if (is_abbrev(arg, "physic") || is_abbrev(arg, "physicist"))
-	return CLASS_PHYSIC;
+        return CLASS_PHYSIC;
     else if (is_abbrev(arg, "monk"))
-	return CLASS_MONK;
+        return CLASS_MONK;
     else if (is_abbrev(arg, "mercenary"))
-	return CLASS_MERCENARY;
+        return CLASS_MERCENARY;
 
     return CLASS_UNDEFINED;
 }
@@ -511,21 +511,21 @@ extern const char *player_race[] = {
     "Dwarf",
     "Half Orc",
     "Klingon",
-    "Halfling",							/* 5 */
+    "Halfling",                                                        /* 5 */
     "Tabaxi",
     "Drow",
     "ILL","ILL", 
-    "Mobile",							/* 10 */
+    "Mobile",                                                        /* 10 */
     "Undead",
     "Humanoid",
     "Animal",
     "Dragon",
-    "Giant",							/* 15 */
+    "Giant",                                                        /* 15 */
     "Orc",
     "Goblin",
     "Halfling",
     "Minotaur",
-    "Troll",							/* 20 */
+    "Troll",                                                        /* 20 */
     "Golem",
     "Elemental",
     "Ogre",
@@ -590,8 +590,8 @@ parse_race(char *arg)
     int j;
 
     for (j = 0; j < NUM_RACES; j++)
-	if (is_abbrev(arg,  player_race[j]))
-	    return j;
+        if (is_abbrev(arg,  player_race[j]))
+            return j;
 
     return (-1);
 }
@@ -602,8 +602,8 @@ parse_char_class(char *arg)
     int j;
 
     for (j = 0; j < TOP_CLASS; j++)
-	if (is_abbrev(arg,  pc_char_class_types[j]))
-	    return j;
+        if (is_abbrev(arg,  pc_char_class_types[j]))
+            return j;
 
     return (-1);
 }
@@ -623,47 +623,47 @@ find_char_class_bitvector(char arg)
 
     switch (arg) {
     case 'm':
-	return (1 << 0);
-	break;
+        return (1 << 0);
+        break;
     case 'c':
-	return (1 << 1);
-	break;
+        return (1 << 1);
+        break;
     case 't':
-	return (1 << 2);
-	break;
+        return (1 << 2);
+        break;
     case 'w':
-	return (1 << 3);
-	break;
+        return (1 << 3);
+        break;
     case 'b':
-	return (1 << 4);
-	break;
+        return (1 << 4);
+        break;
     case 's':
-	return (1 << 5);
-	break;
+        return (1 << 5);
+        break;
     case 'p':
-	return (1 << 6);
-	break;
+        return (1 << 6);
+        break;
     case 'y':
-	return (1 << 7);
-	break;
+        return (1 << 7);
+        break;
     case 'k':
-	return (1 << 8);
-	break;
+        return (1 << 8);
+        break;
     case 'r':
-	return (1 << 9);
-	break;
+        return (1 << 9);
+        break;
     case 'h':
-	return (1 << 10);
-	break;
+        return (1 << 10);
+        break;
     case 'n' :
-	return (1 << 11);
-	break;
+        return (1 << 11);
+        break;
     case 'e' :
-	return (1 << 13);
-	break;
+        return (1 << 13);
+        break;
     default:
-	return 0;
-	break;
+        return 0;
+        break;
     }
 }
 
@@ -681,260 +681,260 @@ roll_real_abils(struct char_data * ch)
     ubyte rolls[4];
 
     for (i = 0; i < 6; i++)
-	table[i] = 0;
+        table[i] = 0;
 
     for (i = 0; i < 6; i++) {
 
-	for (j = 0; j < 4; j++)
-	    rolls[j] = number(1, 6);
+        for (j = 0; j < 4; j++)
+            rolls[j] = number(1, 6);
 
-	temp = rolls[0] + rolls[1] + rolls[2] + rolls[3] -
-	    MIN(rolls[0], MIN(rolls[1], MIN(rolls[2], rolls[3])));
+        temp = rolls[0] + rolls[1] + rolls[2] + rolls[3] -
+            MIN(rolls[0], MIN(rolls[1], MIN(rolls[2], rolls[3])));
 
-	for (k = 0; k < 6; k++)
-	    if (table[k] < temp) {
-		temp ^= table[k];
-		table[k] ^= temp;
-		temp ^= table[k];
-	    }
+        for (k = 0; k < 6; k++)
+            if (table[k] < temp) {
+                temp ^= table[k];
+                table[k] ^= temp;
+                temp ^= table[k];
+            }
     }
 
     ch->real_abils.str_add = 0;
 
     switch (GET_CLASS(ch)) {
     case CLASS_MAGIC_USER:
-	ch->real_abils.intel = table[0];
-	ch->real_abils.wis = table[1];
-	ch->real_abils.dex = table[2];
-	ch->real_abils.cha = table[3];
-	ch->real_abils.con = table[4];
-	ch->real_abils.str = table[5];
-	break;
+        ch->real_abils.intel = table[0];
+        ch->real_abils.wis = table[1];
+        ch->real_abils.dex = table[2];
+        ch->real_abils.cha = table[3];
+        ch->real_abils.con = table[4];
+        ch->real_abils.str = table[5];
+        break;
     case CLASS_CLERIC:
-	ch->real_abils.wis = table[0];
-	ch->real_abils.intel = table[1];
-	ch->real_abils.str = table[2];
-	ch->real_abils.dex = table[3];
-	ch->real_abils.con = table[4];
-	ch->real_abils.cha = table[5];
-	break;
+        ch->real_abils.wis = table[0];
+        ch->real_abils.intel = table[1];
+        ch->real_abils.str = table[2];
+        ch->real_abils.dex = table[3];
+        ch->real_abils.con = table[4];
+        ch->real_abils.cha = table[5];
+        break;
     case CLASS_THIEF:
-	ch->real_abils.dex = table[0];
-	ch->real_abils.str = table[1];
-	ch->real_abils.con = table[2];
-	ch->real_abils.intel = table[3];
-	ch->real_abils.wis = table[4];
-	ch->real_abils.cha = table[5];
-	break;
+        ch->real_abils.dex = table[0];
+        ch->real_abils.str = table[1];
+        ch->real_abils.con = table[2];
+        ch->real_abils.intel = table[3];
+        ch->real_abils.wis = table[4];
+        ch->real_abils.cha = table[5];
+        break;
     case CLASS_WARRIOR:
-	ch->real_abils.str = table[0];
-	ch->real_abils.dex = table[1];
-	ch->real_abils.con = table[2];
-	ch->real_abils.wis = table[3];
-	ch->real_abils.intel = table[4];
-	ch->real_abils.cha = table[5];
-	if (ch->real_abils.str == 18)
-	    ch->real_abils.str_add = number(0, 100);
-	break;
+        ch->real_abils.str = table[0];
+        ch->real_abils.dex = table[1];
+        ch->real_abils.con = table[2];
+        ch->real_abils.wis = table[3];
+        ch->real_abils.intel = table[4];
+        ch->real_abils.cha = table[5];
+        if (ch->real_abils.str == 18)
+            ch->real_abils.str_add = number(0, 100);
+        break;
     case CLASS_BARB:   
-	ch->real_abils.str = table[0];
-	ch->real_abils.con = table[1];
-	ch->real_abils.dex = table[2];
-	ch->real_abils.wis = table[3];
-	ch->real_abils.intel = table[4];
-	ch->real_abils.cha = table[5];
-	if (ch->real_abils.str == 18)
-	    ch->real_abils.str_add = number(0, 100);
-	break;
+        ch->real_abils.str = table[0];
+        ch->real_abils.con = table[1];
+        ch->real_abils.dex = table[2];
+        ch->real_abils.wis = table[3];
+        ch->real_abils.intel = table[4];
+        ch->real_abils.cha = table[5];
+        if (ch->real_abils.str == 18)
+            ch->real_abils.str_add = number(0, 100);
+        break;
 
     case CLASS_PSIONIC:
-	ch->real_abils.intel = table[0];
-	ch->real_abils.wis = table[1];
-	ch->real_abils.dex = table[2];
-	ch->real_abils.str = table[3];
-	ch->real_abils.con = table[4];
-	ch->real_abils.cha = table[5];
-	break;
+        ch->real_abils.intel = table[0];
+        ch->real_abils.wis = table[1];
+        ch->real_abils.dex = table[2];
+        ch->real_abils.str = table[3];
+        ch->real_abils.con = table[4];
+        ch->real_abils.cha = table[5];
+        break;
     case CLASS_PHYSIC:
-	ch->real_abils.intel = table[0];
-	ch->real_abils.wis = table[1];
-	ch->real_abils.dex = table[2];
-	ch->real_abils.str = table[3];
-	ch->real_abils.con = table[4];
-	ch->real_abils.cha = table[5];
-	break;
+        ch->real_abils.intel = table[0];
+        ch->real_abils.wis = table[1];
+        ch->real_abils.dex = table[2];
+        ch->real_abils.str = table[3];
+        ch->real_abils.con = table[4];
+        ch->real_abils.cha = table[5];
+        break;
     case CLASS_CYBORG:
-	switch (GET_OLD_CLASS(ch)) {
-	case BORG_MENTANT:
-	    ch->real_abils.intel = table[0];
-	    ch->real_abils.str = table[1];
-	    ch->real_abils.dex = table[2];
-	    ch->real_abils.con = table[3];
-	    ch->real_abils.wis = table[4];
-	    ch->real_abils.cha = table[5];
-	    break;
-	case BORG_SPEED:
-	    ch->real_abils.dex   = table[0];
-	    ch->real_abils.con   = table[1];
-	    ch->real_abils.str   = table[2];
-	    ch->real_abils.intel = table[3];
-	    ch->real_abils.wis   = table[4];
-	    ch->real_abils.cha   = table[5];
-	    break;
-	default:
-	    ch->real_abils.str   = table[0];
-	    ch->real_abils.con   = table[1];
-	    ch->real_abils.dex   = table[2];
-	    ch->real_abils.intel = table[3];
-	    ch->real_abils.wis   = table[4];
-	    ch->real_abils.cha   = table[5];
-	    break;
-	}
-	break;
+        switch (GET_OLD_CLASS(ch)) {
+        case BORG_MENTANT:
+            ch->real_abils.intel = table[0];
+            ch->real_abils.str = table[1];
+            ch->real_abils.dex = table[2];
+            ch->real_abils.con = table[3];
+            ch->real_abils.wis = table[4];
+            ch->real_abils.cha = table[5];
+            break;
+        case BORG_SPEED:
+            ch->real_abils.dex   = table[0];
+            ch->real_abils.con   = table[1];
+            ch->real_abils.str   = table[2];
+            ch->real_abils.intel = table[3];
+            ch->real_abils.wis   = table[4];
+            ch->real_abils.cha   = table[5];
+            break;
+        default:
+            ch->real_abils.str   = table[0];
+            ch->real_abils.con   = table[1];
+            ch->real_abils.dex   = table[2];
+            ch->real_abils.intel = table[3];
+            ch->real_abils.wis   = table[4];
+            ch->real_abils.cha   = table[5];
+            break;
+        }
+        break;
     case CLASS_KNIGHT:
-	ch->real_abils.str = table[0];
-	ch->real_abils.con = table[1];
-	ch->real_abils.wis = table[2];
-	ch->real_abils.dex = table[3];
-	ch->real_abils.intel = table[4];
-	ch->real_abils.cha = table[5];
-	if (ch->real_abils.str == 18)
-	    ch->real_abils.str_add = number(0, 100);
-	break;
+        ch->real_abils.str = table[0];
+        ch->real_abils.con = table[1];
+        ch->real_abils.wis = table[2];
+        ch->real_abils.dex = table[3];
+        ch->real_abils.intel = table[4];
+        ch->real_abils.cha = table[5];
+        if (ch->real_abils.str == 18)
+            ch->real_abils.str_add = number(0, 100);
+        break;
     case CLASS_RANGER:
-	ch->real_abils.dex = table[0];
-	ch->real_abils.wis = table[1];
-	ch->real_abils.con = table[2];
-	ch->real_abils.str = table[3];
-	ch->real_abils.intel = table[4];
-	ch->real_abils.cha = table[5];
-	if (ch->real_abils.str == 18)
-	    ch->real_abils.str_add = number(0, 100);
-	break;
+        ch->real_abils.dex = table[0];
+        ch->real_abils.wis = table[1];
+        ch->real_abils.con = table[2];
+        ch->real_abils.str = table[3];
+        ch->real_abils.intel = table[4];
+        ch->real_abils.cha = table[5];
+        if (ch->real_abils.str == 18)
+            ch->real_abils.str_add = number(0, 100);
+        break;
     case CLASS_HOOD:  
-	ch->real_abils.con = table[0];
-	ch->real_abils.str = table[1];
-	ch->real_abils.dex = table[2];
-	ch->real_abils.intel = table[3];
-	ch->real_abils.wis = table[4];
-	ch->real_abils.cha = table[5];
-	break;
+        ch->real_abils.con = table[0];
+        ch->real_abils.str = table[1];
+        ch->real_abils.dex = table[2];
+        ch->real_abils.intel = table[3];
+        ch->real_abils.wis = table[4];
+        ch->real_abils.cha = table[5];
+        break;
     case CLASS_MONK:
-	ch->real_abils.dex =   table[0];
-	ch->real_abils.con =   table[1];
-	ch->real_abils.str =   table[2];
-	ch->real_abils.wis =   table[3];
-	ch->real_abils.intel = table[4];
-	ch->real_abils.cha =   table[5];
-	break;
+        ch->real_abils.dex =   table[0];
+        ch->real_abils.con =   table[1];
+        ch->real_abils.str =   table[2];
+        ch->real_abils.wis =   table[3];
+        ch->real_abils.intel = table[4];
+        ch->real_abils.cha =   table[5];
+        break;
     case CLASS_VAMPIRE:
-	ch->real_abils.dex =   table[0];
-	ch->real_abils.con =   table[1];
-	ch->real_abils.str =   table[2];
-	ch->real_abils.intel = table[3];
-	ch->real_abils.wis =   table[4];
-	ch->real_abils.cha =   table[5];
-	break;
+        ch->real_abils.dex =   table[0];
+        ch->real_abils.con =   table[1];
+        ch->real_abils.str =   table[2];
+        ch->real_abils.intel = table[3];
+        ch->real_abils.wis =   table[4];
+        ch->real_abils.cha =   table[5];
+        break;
     case CLASS_MERCENARY:
-	ch->real_abils.str =   table[0];
-	ch->real_abils.con =   table[1];
-	ch->real_abils.dex =   table[2];
-	ch->real_abils.intel = table[3];
-	ch->real_abils.wis =   table[4];
-	ch->real_abils.cha =   table[5];
-	if (ch->real_abils.str == 18)
-	    ch->real_abils.str_add = number(0, 100);
-	break;
+        ch->real_abils.str =   table[0];
+        ch->real_abils.con =   table[1];
+        ch->real_abils.dex =   table[2];
+        ch->real_abils.intel = table[3];
+        ch->real_abils.wis =   table[4];
+        ch->real_abils.cha =   table[5];
+        if (ch->real_abils.str == 18)
+            ch->real_abils.str_add = number(0, 100);
+        break;
     default:
-	ch->real_abils.dex =   table[0];
-	ch->real_abils.con =   table[1];
-	ch->real_abils.str =   table[2];
-	ch->real_abils.wis =   table[3];
-	ch->real_abils.intel = table[4];
-	ch->real_abils.cha =   table[5];
-	break;
+        ch->real_abils.dex =   table[0];
+        ch->real_abils.con =   table[1];
+        ch->real_abils.str =   table[2];
+        ch->real_abils.wis =   table[3];
+        ch->real_abils.intel = table[4];
+        ch->real_abils.cha =   table[5];
+        break;
     }
     switch (GET_RACE(ch)) {
     case RACE_ELF:
     case RACE_DROW:
-	ch->real_abils.intel += 1;
-	ch->real_abils.dex += 1;
-	ch->real_abils.con -= 1;
-	break;
+        ch->real_abils.intel += 1;
+        ch->real_abils.dex += 1;
+        ch->real_abils.con -= 1;
+        break;
     case RACE_DWARF:
-	ch->real_abils.con += 1;
-	if (ch->real_abils.str == 18)
-	    ch->real_abils.str_add = MIN(100, ch->real_abils.str_add + 10);
-	else ch->real_abils.str += 1;
-	ch->real_abils.cha -= 1;
-	break;
+        ch->real_abils.con += 1;
+        if (ch->real_abils.str == 18)
+            ch->real_abils.str_add = MIN(100, ch->real_abils.str_add + 10);
+        else ch->real_abils.str += 1;
+        ch->real_abils.cha -= 1;
+        break;
     case RACE_HALF_ORC:
-	if (ch->real_abils.str == 18)
-	    ch->real_abils.str_add = MIN(100, ch->real_abils.str_add + 10);
-	else ch->real_abils.str += 1;
+        if (ch->real_abils.str == 18)
+            ch->real_abils.str_add = MIN(100, ch->real_abils.str_add + 10);
+        else ch->real_abils.str += 1;
 
-	if (ch->real_abils.str == 18)
-	    ch->real_abils.str_add = MIN(100, ch->real_abils.str_add + 10);
-	else if (ch->real_abils.str < 18)
-	    ch->real_abils.str += 1;
+        if (ch->real_abils.str == 18)
+            ch->real_abils.str_add = MIN(100, ch->real_abils.str_add + 10);
+        else if (ch->real_abils.str < 18)
+            ch->real_abils.str += 1;
 
-	ch->real_abils.con += 1;
-	ch->real_abils.cha -= 3;
-	break;
+        ch->real_abils.con += 1;
+        ch->real_abils.cha -= 3;
+        break;
     case RACE_TABAXI:
-	ch->real_abils.dex  = MIN(20, ch->real_abils.dex + 3);
-	ch->real_abils.intel -= 1;
-	ch->real_abils.wis -= 3;
-	ch->real_abils.con += 1;
-	ch->real_abils.cha -= 2;
-	break;
+        ch->real_abils.dex  = MIN(20, ch->real_abils.dex + 3);
+        ch->real_abils.intel -= 1;
+        ch->real_abils.wis -= 3;
+        ch->real_abils.con += 1;
+        ch->real_abils.cha -= 2;
+        break;
     case RACE_MINOTAUR:
-	ch->real_abils.intel -= 2;
-	ch->real_abils.wis -= 3;
-	ch->real_abils.con += 2;
-	ch->real_abils.cha -= 2;
-	ch->real_abils.str += 3;
-	if (ch->real_abils.str > 18) {
-	    ch->real_abils.str_add += (ch->real_abils.str - 18) * 10;
-	    if (ch->real_abils.str_add > 100) {
-		ch->real_abils.str = MIN(20, 18+((ch->real_abils.str_add - 100) / 10));
-		ch->real_abils.str_add = 0;
-	    } else
-		ch->real_abils.str = 18;
-	}
-	break;
+        ch->real_abils.intel -= 2;
+        ch->real_abils.wis -= 3;
+        ch->real_abils.con += 2;
+        ch->real_abils.cha -= 2;
+        ch->real_abils.str += 3;
+        if (ch->real_abils.str > 18) {
+            ch->real_abils.str_add += (ch->real_abils.str - 18) * 10;
+            if (ch->real_abils.str_add > 100) {
+                ch->real_abils.str = MIN(20, 18+((ch->real_abils.str_add - 100) / 10));
+                ch->real_abils.str_add = 0;
+            } else
+                ch->real_abils.str = 18;
+        }
+        break;
 
     case RACE_HUMAN:
        switch (GET_CLASS(ch)) {
        case CLASS_MAGIC_USER:
           ch->real_abils.intel +=1;
-	       ch->real_abils.dex +=1;
+               ch->real_abils.dex +=1;
           break;
        case CLASS_CLERIC:
           ch->real_abils.intel +=1;
-	       ch->real_abils.wis +=1;
+               ch->real_abils.wis +=1;
           break;
        case CLASS_BARB:
           if (ch->real_abils.str == 18)
-		       ch->real_abils.str_add = MIN(100, ch->real_abils.str_add + 10);
-	       else 
+                       ch->real_abils.str_add = MIN(100, ch->real_abils.str_add + 10);
+               else 
              ch->real_abils.str += 1;
-	       ch->real_abils.con +=1;
+               ch->real_abils.con +=1;
           break;
        case CLASS_RANGER:
           ch->real_abils.intel +=1;
-	       ch->real_abils.dex +=1;
+               ch->real_abils.dex +=1;
           break;
        case CLASS_THIEF:
           ch->real_abils.intel +=1;
-	       ch->real_abils.dex +=1;
+               ch->real_abils.dex +=1;
           break;
        case CLASS_KNIGHT:
           if (ch->real_abils.str == 18)
              ch->real_abils.str_add = MIN(100, ch->real_abils.str_add + 10);
-	       else 
+               else 
              ch->real_abils.str += 1;
-	       ch->real_abils.wis +=1;
+               ch->real_abils.wis +=1;
           break;
        case CLASS_PSIONIC:
           ch->real_abils.intel +=1;
@@ -953,16 +953,16 @@ roll_real_abils(struct char_data * ch)
           case BORG_SPEED:
              ch->real_abils.dex +=1;
              ch->real_abils.intel +=1;
-	    	    break;
+                        break;
           case BORG_POWER:
              if (ch->real_abils.str == 18)
                 ch->real_abils.str_add = MIN(100, ch->real_abils.str_add + 10);
-	          else 
+                  else 
                 ch->real_abils.str +=1;
              break;
-	       default:
-	   	    break;
-	       }
+               default:
+                       break;
+               }
           break;
        case CLASS_HOOD:
           ch->real_abils.dex +=1;
@@ -975,7 +975,7 @@ roll_real_abils(struct char_data * ch)
        case CLASS_MERCENARY:   
           if (ch->real_abils.str == 18)
              ch->real_abils.str_add = MIN(100, ch->real_abils.str_add + 10);
-	       else 
+               else 
              ch->real_abils.str += 1;
           ch->real_abils.dex +=1;
           break;
@@ -988,25 +988,25 @@ roll_real_abils(struct char_data * ch)
     ch->aff_abils = ch->real_abils;
 }
 
-extern const int newbie_equipment[NUM_CLASSES][8] = 
+const int newbie_equipment[NUM_CLASSES][NUM_NEWBIE_EQ] = 
 {
-    {3140, 3141, 3142, 3149, 3151, -1, -1, -1},           /* mage */
-    {3143, 3144, 3149, -1, -1, -1, -1, -1},               /* cleric */
-    {3145, 3146, 3147, 3157, -1, -1, -1, -1},             /* thief  */
-    {-1, -1, -1, -1, -1, -1, -1, -1},                     /* warrior */
-    {3148, 3150, 3152, -1, -1, -1, -1, -1},               /* barbarian */
-    {30113, 30120, 30121, 30122, -1, -1, -1, -1},         /* psionic */
-    {30123, -1, -1, -1, -1, -1, -1, -1},                  /* physic */
-    {30111, 30112, 30113, 30114, 30126,-1, -1, -1},       /* cyborg */
-    {3152, 3153, 3154, 3159, -1, -1, -1, -1},             /* knight */
-    {3155, 3156, 3158, -1, -1, -1, -1, -1},               /* ranger */
-    {30113, 30115, 30116, 30124, 30125, -1, -1, -1},      /* hood */
-    {30117, 30118, 30119, -1, -1, -1, -1, -1},            /* monk */
-    {-1, -1, -1, -1, -1, -1, -1, -1},                     /* vampire */
-    {30127, 30128, 30129, 30130, 30131, -1, -1, -1},      /* mercenary */
-    {-1, -1, -1, -1, -1, -1, -1, -1},                     /* padding */
-    {-1, -1, -1, -1, -1, -1, -1, -1},                     /* padding */
-    {-1, -1, -1, -1, -1, -1, -1, -1}                      /* padding */
+    {  214,  241,  237,  201,  202,  204,  206,  208,  200,  207},     /* mage */
+    {  209,  205,  234,  201,  202,  204,  206,  208,  200,  207},     /* cleric */
+    {  217,  244,  237,  201,  202,  204,  206,  208,  200,  207},     /* thief  */
+    {   -1,   -1,   -1,   -1,   -1,   -1,   -1,   -1,   -1,   -1},     /* warrior */
+    {  212,  239,  235,  201,  202,  204,  206,  208,  200,  207},     /* barbarian */
+    {  215,  225,  247,  232,  222,  233,  230,  231,  203,  229},     /* psionic */
+    {  219,  224,  246,  232,  222,  233,  230,  231,  203,  229},     /* physic */
+    {  218,  223,  245,  232,  222,  233,  230,  231,  203,  229},     /* cyborg */
+    {  213,  240,  236,  201,  202,  204,  206,  208,  200,  207},     /* knight */
+    {  216,  243,  237,  201,  202,  204,  206,  208,  200,  207},     /* ranger */
+    {  220,  226,  248,  232,  222,  233,  230,  231,  203,  229},     /* hood */
+    {  210,  242,  238,  201,  202,  206,  208,  200,  207,   -1},     /* monk */
+    {   -1,   -1,   -1,   -1,   -1,   -1,   -1,   -1,   -1,   -1},     /* vampire */
+    {  221,  228,  250,  232,  233,  230,  231,  203,  229,  222},     /* mercenary */
+    {   -1,   -1,   -1,   -1,   -1,   -1,   -1,   -1,   -1,   -1},     /* padding */
+    {   -1,   -1,   -1,   -1,   -1,   -1,   -1,   -1,   -1,   -1},     /* padding */
+    {   -1,   -1,   -1,   -1,   -1,   -1,   -1,   -1,   -1,   -1}      /* padding */
 };
 
 void 
@@ -1017,35 +1017,35 @@ newbie_equip(struct char_data *ch)
     struct obj_data *obj = NULL;
 
     if (GET_CLASS(ch) < NUM_CLASSES) {
-	for (i = 0; i < 8; i++) {
-	    if ((vnum = newbie_equipment[(int)GET_CLASS(ch)][i]) >= 0)
-		if ((obj = read_object(vnum)))
-		    obj_to_char(obj, ch);
-	}
+        for (i = 0; i < NUM_NEWBIE_EQ; i++) {
+            if ((vnum = newbie_equipment[(int)GET_CLASS(ch)][i]) >= 0)
+                if ((obj = read_object(vnum)))
+                    obj_to_char(obj, ch);
+        }
     }
  
     switch (GET_CLASS(ch)) {               /** special objects **/
     case CLASS_CLERIC:
-	if (IS_GOOD(ch))
-	    obj = read_object(1280);
-	else 
-	    obj = read_object(1260);
+        if (IS_GOOD(ch))
+            obj = read_object(1280);
+        else 
+            obj = read_object(1260);
 
-	if (obj)
-	    obj_to_char(obj, ch);
-	break;
+        if (obj)
+            obj_to_char(obj, ch);
+        break;
     case CLASS_KNIGHT:
-	if (IS_GOOD(ch))
-	    obj = read_object(1287);
-	else
-	    obj = read_object(1270);
-	if (obj)
-	    obj_to_char(obj, ch);
-	break;
+        if (IS_GOOD(ch))
+            obj = read_object(1287);
+        else
+            obj = read_object(1270);
+        if (obj)
+            obj_to_char(obj, ch);
+        break;
     }
 
     if (!IS_RACE_INFRA(ch) && (obj = read_object(3030))) /* torch */
-	obj_to_char(obj, ch);
+        obj_to_char(obj, ch);
 
 }
 
@@ -1061,27 +1061,27 @@ do_start(struct char_data * ch, int mode)
     // remove implant affects
     for (i = 0; i < NUM_WEARS; i++) {
 
-	if (ch->implants[i] && !invalid_char_class(ch, ch->implants[i]) &&
-	    (!IS_DEVICE(ch->implants[i]) || ENGINE_STATE(ch->implants[i]))) {
+        if (ch->implants[i] && !invalid_char_class(ch, ch->implants[i]) &&
+            (!IS_DEVICE(ch->implants[i]) || ENGINE_STATE(ch->implants[i]))) {
       
-	    for (j = 0; j < MAX_OBJ_AFFECT; j++)
-		affect_modify(ch, ch->implants[i]->affected[j].location,
-			      ch->implants[i]->affected[j].modifier, 0, 0, FALSE);
-	    affect_modify(ch,0,0,ch->implants[i]->obj_flags.bitvector[0], 1, FALSE);
-	    affect_modify(ch,0,0,ch->implants[i]->obj_flags.bitvector[1], 2, FALSE);
-	    affect_modify(ch,0,0,ch->implants[i]->obj_flags.bitvector[2], 3, FALSE);
+            for (j = 0; j < MAX_OBJ_AFFECT; j++)
+                affect_modify(ch, ch->implants[i]->affected[j].location,
+                              ch->implants[i]->affected[j].modifier, 0, 0, FALSE);
+            affect_modify(ch,0,0,ch->implants[i]->obj_flags.bitvector[0], 1, FALSE);
+            affect_modify(ch,0,0,ch->implants[i]->obj_flags.bitvector[1], 2, FALSE);
+            affect_modify(ch,0,0,ch->implants[i]->obj_flags.bitvector[2], 3, FALSE);
       
-	    if (IS_INTERFACE(ch->implants[i]) && 
-		INTERFACE_TYPE(ch->implants[i]) == INTERFACE_CHIPS &&
-		ch->implants[i]->contains) {
-		check_interface(ch, ch->implants[i], FALSE);
-	
-	    }
-	}
+            if (IS_INTERFACE(ch->implants[i]) && 
+                INTERFACE_TYPE(ch->implants[i]) == INTERFACE_CHIPS &&
+                ch->implants[i]->contains) {
+                check_interface(ch, ch->implants[i], FALSE);
+        
+            }
+        }
     }
 
     if (GET_EXP(ch) == 0 && !IS_REMORT(ch) && !IS_VAMPIRE(ch))
-	new_player = TRUE;
+        new_player = TRUE;
     
     GET_LEVEL(ch) = 1;
     GET_EXP(ch) = 1;
@@ -1089,87 +1089,90 @@ do_start(struct char_data * ch, int mode)
     set_title(ch, NULL);
 
     if (mode)
-	roll_real_abils(ch);
+        roll_real_abils(ch);
 
     for (i = 1; i <= MAX_SKILLS; i++)
-	SET_SKILL(ch, i, 0);
+        SET_SKILL(ch, i, 0);
 
     GET_PRACTICES(ch) = 2;
 
     if (IS_VAMPIRE(ch))
-	GET_LIFE_POINTS(ch) = 1;
+        GET_LIFE_POINTS(ch) = 1;
     else
-	GET_LIFE_POINTS(ch) = 3*(GET_WIS(ch) + GET_CON(ch))/40;
+        GET_LIFE_POINTS(ch) = 3*(GET_WIS(ch) + GET_CON(ch))/40;
 
     ch->points.max_hit = 20;
     ch->points.max_mana = 100;
     ch->points.max_move = 82;
 
     if (IS_TABAXI(ch)) {
-	SET_SKILL(ch, SKILL_CLAW, LEARNED(ch));
-	SET_SKILL(ch, SKILL_BITE, LEARNED(ch));
+        SET_SKILL(ch, SKILL_CLAW, LEARNED(ch));
+        SET_SKILL(ch, SKILL_BITE, LEARNED(ch));
     }
     if (IS_ELF(ch)) {
-	SET_SKILL(ch, SKILL_ARCHERY, LEARNED(ch));
+        SET_SKILL(ch, SKILL_ARCHERY, LEARNED(ch));
     }
 
     switch (GET_CLASS(ch)) {
     case CLASS_MAGIC_USER:
-	SET_SKILL(ch, SKILL_PUNCH, 10);
-	break;
+        SET_SKILL(ch, SKILL_PUNCH, 10);
+        break;
     case CLASS_CLERIC:
-	SET_SKILL(ch, SKILL_PUNCH, 10);
-	break;
+        SET_SKILL(ch, SKILL_PUNCH, 10);
+        break;
     case CLASS_THIEF:
-	SET_SKILL(ch, SKILL_PUNCH, 15);
-	SET_SKILL(ch, SKILL_SNEAK, 10);
-	SET_SKILL(ch, SKILL_HIDE, 5);
-	SET_SKILL(ch, SKILL_STEAL, 15);
-	break;
+        SET_SKILL(ch, SKILL_PUNCH, 15);
+        SET_SKILL(ch, SKILL_SNEAK, 10);
+        SET_SKILL(ch, SKILL_HIDE, 5);
+        SET_SKILL(ch, SKILL_STEAL, 15);
+        break;
     case CLASS_WARRIOR:
-	SET_SKILL(ch, SKILL_PUNCH, 20);
-	break;
+        SET_SKILL(ch, SKILL_PUNCH, 20);
+        break;
     case CLASS_BARB:
-	SET_SKILL(ch, SKILL_PUNCH, 15);
-	break;
+        SET_SKILL(ch, SKILL_PUNCH, 15);
+        break;
     case CLASS_PSIONIC:
-	SET_SKILL(ch, SKILL_PUNCH, 10);
-	break;
+        SET_SKILL(ch, SKILL_PUNCH, 10);
+        break;
     case CLASS_PHYSIC:
-	SET_SKILL(ch, SKILL_PUNCH, 10);
-	break;
+        SET_SKILL(ch, SKILL_PUNCH, 10);
+        break;
     case CLASS_CYBORG:
-	SET_SKILL(ch, SKILL_PUNCH, 10);
-	break;
+        SET_SKILL(ch, SKILL_PUNCH, 10);
+        break;
     case CLASS_KNIGHT:
-	SET_SKILL(ch, SKILL_PUNCH, 20);
-	break;
+        SET_SKILL(ch, SKILL_PUNCH, 20);
+        break;
     case CLASS_RANGER:
-	SET_SKILL(ch, SKILL_PUNCH, 15);
-	GET_MAX_MOVE(ch) += dice(4, 9);
-	break;
+        SET_SKILL(ch, SKILL_PUNCH, 15);
+        GET_MAX_MOVE(ch) += dice(4, 9);
+        break;
     case CLASS_HOOD:
-	SET_SKILL(ch, SKILL_PUNCH, 15);
-	break;
+        SET_SKILL(ch, SKILL_PUNCH, 15);
+        break;
     case CLASS_MONK:
-	SET_SKILL(ch, SKILL_PUNCH, 20);
-	break;
+        SET_SKILL(ch, SKILL_PUNCH, 20);
+        break;
     case CLASS_VAMPIRE:
-	SET_SKILL(ch, SKILL_FEED, 20);
-	break;
+        SET_SKILL(ch, SKILL_FEED, 20);
+        break;
     case CLASS_MERCENARY:
-	SET_SKILL(ch, SKILL_PUNCH, 20);
+        SET_SKILL(ch, SKILL_PUNCH, 20);
 
-	break;
+        break;
 
     }
 
     if (new_player) {
-	newbie_equip(ch);
-	if (PAST_CLASS(GET_CLASS(ch)))
-	    GET_GOLD(ch) = 80 + number(20, 100) + GET_INT(ch) + GET_WIS(ch);
-	if (FUTURE_CLASS(GET_CLASS(ch)))
-	    GET_CASH(ch) = 80 + number(20, 100) + GET_INT(ch) + GET_WIS(ch);
+        newbie_equip(ch);
+        if (PAST_CLASS(GET_CLASS(ch))) {
+            ch->points.bank_gold = 8192 + number(256, 2048) + GET_INT(ch) + GET_WIS(ch);
+            ch->points.gold = 8192 + number(256, 2048) + GET_INT(ch) + GET_WIS(ch);
+        } else if (FUTURE_CLASS(GET_CLASS(ch))) {
+            ch->points.credits = 8192 + number(256, 2048) + GET_INT(ch) + GET_WIS(ch);
+            ch->points.cash = 8192 + number(256, 2048) + GET_INT(ch) + GET_WIS(ch);
+        }
     }
 
     advance_level(ch, 0);
@@ -1185,30 +1188,30 @@ do_start(struct char_data * ch, int mode)
     GET_COND(ch, DRUNK) = 0;
 
     if (GET_REMORT_CLASS(ch) < 0) {
-	ch->player.time.played = 0;
-	ch->player.time.logon = time(0);
+        ch->player.time.played = 0;
+        ch->player.time.logon = time(0);
     }
 
     // re-add implant affects
     for (i = 0; i < NUM_WEARS; i++) {
     
-	if (ch->implants[i] && !invalid_char_class(ch, ch->implants[i]) &&
-	    (!IS_DEVICE(ch->implants[i]) || ENGINE_STATE(ch->implants[i]))) {
+        if (ch->implants[i] && !invalid_char_class(ch, ch->implants[i]) &&
+            (!IS_DEVICE(ch->implants[i]) || ENGINE_STATE(ch->implants[i]))) {
       
-	    for (j = 0; j < MAX_OBJ_AFFECT; j++)
-		affect_modify(ch, ch->implants[i]->affected[j].location,
-			      ch->implants[i]->affected[j].modifier, 0, 0, FALSE);
-	    affect_modify(ch,0,0,ch->implants[i]->obj_flags.bitvector[0], 1, TRUE);
-	    affect_modify(ch,0,0,ch->implants[i]->obj_flags.bitvector[1], 2, TRUE);
-	    affect_modify(ch,0,0,ch->implants[i]->obj_flags.bitvector[2], 3, TRUE);
+            for (j = 0; j < MAX_OBJ_AFFECT; j++)
+                affect_modify(ch, ch->implants[i]->affected[j].location,
+                              ch->implants[i]->affected[j].modifier, 0, 0, FALSE);
+            affect_modify(ch,0,0,ch->implants[i]->obj_flags.bitvector[0], 1, TRUE);
+            affect_modify(ch,0,0,ch->implants[i]->obj_flags.bitvector[1], 2, TRUE);
+            affect_modify(ch,0,0,ch->implants[i]->obj_flags.bitvector[2], 3, TRUE);
       
-	    if (IS_INTERFACE(ch->implants[i]) && 
-		INTERFACE_TYPE(ch->implants[i]) == INTERFACE_CHIPS &&
-		ch->implants[i]->contains) {
-		check_interface(ch, ch->implants[i], FALSE);
-	
-	    }
-	}
+            if (IS_INTERFACE(ch->implants[i]) && 
+                INTERFACE_TYPE(ch->implants[i]) == INTERFACE_CHIPS &&
+                ch->implants[i]->contains) {
+                check_interface(ch, ch->implants[i], FALSE);
+        
+            }
+        }
     }
   
 }
@@ -1224,12 +1227,12 @@ prac_gain(struct char_data *ch, int mode)
     min = (double)((double)GET_WIS(ch) / 8);
     max = (double)((double)GET_WIS(ch) / 5) + 0.5;
     if (mode) {
-	gain = (MIN(6, float_number(min, max)));
-	return (gain);
+        gain = (MIN(6, float_number(min, max)));
+        return (gain);
     }
   
     else
-	return ((max+min) / 2);
+        return ((max+min) / 2);
 }
 
 
@@ -1248,153 +1251,153 @@ advance_level(struct char_data * ch, byte keep_internal)
 
     for (i = 0; i < 2; i++) {
 
-	if (i == 0)
-	    char_class = MIN(GET_CLASS(ch), NUM_CLASSES-1);
-	else
-	    char_class = MIN(GET_REMORT_CLASS(ch), NUM_CLASSES-1);
-	if (char_class < 0)
-	    continue;
+        if (i == 0)
+            char_class = MIN(GET_CLASS(ch), NUM_CLASSES-1);
+        else
+            char_class = MIN(GET_REMORT_CLASS(ch), NUM_CLASSES-1);
+        if (char_class < 0)
+            continue;
 
-	switch (char_class) {
-	case CLASS_MAGIC_USER:
-	    add_hp[i]   /= 5;
-	    add_hp[i]   += number(3, 8);
-	    add_mana[i] += number(1, 11) + (GET_LEVEL(ch) / 3);
-	    add_move[i] += number(1, 3);
-	    break;
-	case CLASS_CLERIC:
-	    add_hp[i]   /= 2;
-	    add_hp[i]   += number(5, 11);
-	    add_mana[i] += number(1, 10) + (GET_LEVEL(ch) / 5);
-	    add_move[i] += number(1, 4);
-	    break;
-	case CLASS_THIEF:
-	    add_hp[i]   /= 3;
-	    add_hp[i]   += number(4, 10);
-	    add_mana[i] = (int) ( add_mana[i] * 0.3 );
-	    add_move[i] += number(2, 6);
-	    break;
-	case CLASS_MERCENARY:
-	    add_hp[i]   += number(6, 14);
-	    add_mana[i] = (int) ( add_mana[i] * 0.5 );
-	    add_mana[i] += number(1, 5) + GET_LEVEL(ch) / 10;
-	    add_move[i] += number(3, 9);
-	    break;
-	case CLASS_WARRIOR:
-	    add_hp[i]   += number(10, 15);
-	    add_mana[i] = (int) ( add_mana[i] * 0.4 );
-	    add_mana[i] += number(1, 5);
-	    add_move[i] += number(5, 10);
-	    break;
-	case CLASS_BARB:
-	    add_hp[i]   += number (13, 18);
-	    add_mana[i] = (int) ( add_mana[i] * 0.3 );
-	    add_mana[i] += number(0, 3);
-	    add_move[i] += number (5, 10);
-	    break;
-	case CLASS_KNIGHT:
-	    add_hp[i]   += number (7, 13);
-	    add_mana[i] = (int) ( add_mana[i] * 0.7 );
-	    add_mana[i] += number(1, 4) + (GET_LEVEL(ch) / 15);
-	    add_move[i] += number (3, 8);
-	    break;
-	case CLASS_RANGER:
-	    add_hp[i]   += number (5, 13);
-	    add_mana[i] = (int) ( add_mana[i] * 0.6 );
-	    add_mana[i] += number(1, 6) + (GET_LEVEL(ch) / 8);
-	    add_move[i] += number (6, 14);
-	    break;
-	case CLASS_PSIONIC:
-	    add_hp[i]   /= 3;
-	    add_hp[i]   += number   (3, 8);
-	    add_mana[i] = (int) ( add_mana[i] * 0.6 );
-	    add_mana[i] += number(1, 7) + (GET_LEVEL(ch) / 5);
-	    add_move[i] += number (2, 6);
-	    break;
-	case CLASS_PHYSIC:
-	    add_hp[i]   /= 4;
-	    add_hp[i]   += number (4, 9);
-	    add_mana[i] = (int) ( add_mana[i] * 0.6 );
-	    add_mana[i] += number(1, 6) + (GET_LEVEL(ch) / 3);
-	    add_move[i] += number (2, 10);
-	    break;
-	case CLASS_CYBORG:
-	    add_hp[i]   /= 2;
-	    add_hp[i]   += number (6, 14);
-	    add_mana[i] = (int) ( add_mana[i] * 0.3 );
-	    add_mana[i] += number(1, 2) + (GET_LEVEL(ch) / 15);
-	    add_move[i] += number (5, 8);
-	    break;
-	case CLASS_HOOD: 
-	    add_hp[i]   /= 3;
-	    add_hp[i]   += number (6, 15);
-	    add_mana[i] = (int) ( add_mana[i] * 0.3 );
-	    add_move[i] += number (5, 10);
-	    break;
-	case CLASS_MONK:
-	    add_hp[i]   /= 3;
-	    add_hp[i]   += number (6, 12);
-	    add_mana[i] = (int) ( add_mana[i] * 0.3 );
-	    add_mana[i] += number(1, 2) + (GET_LEVEL(ch) / 22);
-	    add_move[i] += number (6, 9);
-	    break;
-	default:
-	    add_hp[i]   /= 2;
-	    add_hp[i]   += number (5, 16);
-	    add_mana[i] = (int) ( add_mana[i] * 0.5 );
-	    add_mana[i] += number(1, 13) + (GET_LEVEL(ch) / 4);
-	    add_move[i] += number (7, 15);
-	    break;
-	}
+        switch (char_class) {
+        case CLASS_MAGIC_USER:
+            add_hp[i]   /= 5;
+            add_hp[i]   += number(3, 8);
+            add_mana[i] += number(1, 11) + (GET_LEVEL(ch) / 3);
+            add_move[i] += number(1, 3);
+            break;
+        case CLASS_CLERIC:
+            add_hp[i]   /= 2;
+            add_hp[i]   += number(5, 11);
+            add_mana[i] += number(1, 10) + (GET_LEVEL(ch) / 5);
+            add_move[i] += number(1, 4);
+            break;
+        case CLASS_THIEF:
+            add_hp[i]   /= 3;
+            add_hp[i]   += number(4, 10);
+            add_mana[i] = (int) ( add_mana[i] * 0.3 );
+            add_move[i] += number(2, 6);
+            break;
+        case CLASS_MERCENARY:
+            add_hp[i]   += number(6, 14);
+            add_mana[i] = (int) ( add_mana[i] * 0.5 );
+            add_mana[i] += number(1, 5) + GET_LEVEL(ch) / 10;
+            add_move[i] += number(3, 9);
+            break;
+        case CLASS_WARRIOR:
+            add_hp[i]   += number(10, 15);
+            add_mana[i] = (int) ( add_mana[i] * 0.4 );
+            add_mana[i] += number(1, 5);
+            add_move[i] += number(5, 10);
+            break;
+        case CLASS_BARB:
+            add_hp[i]   += number (13, 18);
+            add_mana[i] = (int) ( add_mana[i] * 0.3 );
+            add_mana[i] += number(0, 3);
+            add_move[i] += number (5, 10);
+            break;
+        case CLASS_KNIGHT:
+            add_hp[i]   += number (7, 13);
+            add_mana[i] = (int) ( add_mana[i] * 0.7 );
+            add_mana[i] += number(1, 4) + (GET_LEVEL(ch) / 15);
+            add_move[i] += number (3, 8);
+            break;
+        case CLASS_RANGER:
+            add_hp[i]   += number (5, 13);
+            add_mana[i] = (int) ( add_mana[i] * 0.6 );
+            add_mana[i] += number(1, 6) + (GET_LEVEL(ch) / 8);
+            add_move[i] += number (6, 14);
+            break;
+        case CLASS_PSIONIC:
+            add_hp[i]   /= 3;
+            add_hp[i]   += number   (3, 8);
+            add_mana[i] = (int) ( add_mana[i] * 0.6 );
+            add_mana[i] += number(1, 7) + (GET_LEVEL(ch) / 5);
+            add_move[i] += number (2, 6);
+            break;
+        case CLASS_PHYSIC:
+            add_hp[i]   /= 4;
+            add_hp[i]   += number (4, 9);
+            add_mana[i] = (int) ( add_mana[i] * 0.6 );
+            add_mana[i] += number(1, 6) + (GET_LEVEL(ch) / 3);
+            add_move[i] += number (2, 10);
+            break;
+        case CLASS_CYBORG:
+            add_hp[i]   /= 2;
+            add_hp[i]   += number (6, 14);
+            add_mana[i] = (int) ( add_mana[i] * 0.3 );
+            add_mana[i] += number(1, 2) + (GET_LEVEL(ch) / 15);
+            add_move[i] += number (5, 8);
+            break;
+        case CLASS_HOOD: 
+            add_hp[i]   /= 3;
+            add_hp[i]   += number (6, 15);
+            add_mana[i] = (int) ( add_mana[i] * 0.3 );
+            add_move[i] += number (5, 10);
+            break;
+        case CLASS_MONK:
+            add_hp[i]   /= 3;
+            add_hp[i]   += number (6, 12);
+            add_mana[i] = (int) ( add_mana[i] * 0.3 );
+            add_mana[i] += number(1, 2) + (GET_LEVEL(ch) / 22);
+            add_move[i] += number (6, 9);
+            break;
+        default:
+            add_hp[i]   /= 2;
+            add_hp[i]   += number (5, 16);
+            add_mana[i] = (int) ( add_mana[i] * 0.5 );
+            add_mana[i] += number(1, 13) + (GET_LEVEL(ch) / 4);
+            add_move[i] += number (7, 15);
+            break;
+        }
     }
 
     if (IS_RACE(ch, RACE_HALF_ORC) || IS_RACE(ch, RACE_ORC)) {
-	add_move[0] <<= 1;
-	add_move[1] <<= 1;
+        add_move[0] <<= 1;
+        add_move[1] <<= 1;
     }  
     ch->points.max_hit += MAX(1, add_hp[0]);
     ch->points.max_move += MAX(1, add_move[0]);
 
     if (GET_LEVEL(ch) > 1)
-	ch->points.max_mana += add_mana[0];
+        ch->points.max_mana += add_mana[0];
   
     GET_PRACTICES(ch) += (int)prac_gain(ch, 1);
   
     GET_LIFE_POINTS(ch) += (GET_LEVEL(ch) * 
-			    (GET_WIS(ch)+GET_CON(ch))) / 300;
+                            (GET_WIS(ch)+GET_CON(ch))) / 300;
   
     if (IS_REMORT(ch) && GET_REMORT_GEN(ch)) {
 
-	if (add_hp[0] < 0 || add_hp[1] < 0) {
-	    sprintf(buf, "SYSERR: remort level (%s) add_hp: [0]=%d,[1]=%d",
-		    GET_NAME(ch), add_hp[0], add_hp[1]);
-	    slog(buf);
-	}
+        if (add_hp[0] < 0 || add_hp[1] < 0) {
+            sprintf(buf, "SYSERR: remort level (%s) add_hp: [0]=%d,[1]=%d",
+                    GET_NAME(ch), add_hp[0], add_hp[1]);
+            slog(buf);
+        }
     
-	ch->points.max_hit +=  add_hp[1]   >> 2;
-	ch->points.max_mana += add_mana[1] >> 1;
-	ch->points.max_move += add_move[1] >> 2;
+        ch->points.max_hit +=  add_hp[1]   >> 2;
+        ch->points.max_mana += add_mana[1] >> 1;
+        ch->points.max_move += add_move[1] >> 2;
     
     }
 
     if (GET_LEVEL(ch) >= LVL_AMBASSADOR) {
-	for (i = 0; i < 3; i++)
-	    GET_COND(ch, i) = (char) -1;
-	SET_BIT(PRF_FLAGS(ch), PRF_HOLYLIGHT);
-	SET_BIT(PRF_FLAGS(ch), PRF_NOHASSLE);
+        for (i = 0; i < 3; i++)
+            GET_COND(ch, i) = (char) -1;
+        SET_BIT(PRF_FLAGS(ch), PRF_HOLYLIGHT);
+        SET_BIT(PRF_FLAGS(ch), PRF_NOHASSLE);
     }
     if (GET_LEVEL(ch) == 10) 
-	SET_BIT(PRF2_FLAGS(ch), PRF2_NEWBIE_HELPER);
+        SET_BIT(PRF2_FLAGS(ch), PRF2_NEWBIE_HELPER);
 
     // special section for improving read_scrolls and use_wands
     if (CHECK_SKILL(ch, SKILL_READ_SCROLLS) > 10)
-	GET_SKILL(ch, SKILL_READ_SCROLLS) =
-	    MIN(100, CHECK_SKILL(ch, SKILL_READ_SCROLLS) + 
-		MIN(10, number(1, GET_INT(ch) >> 1)));
+        GET_SKILL(ch, SKILL_READ_SCROLLS) =
+            MIN(100, CHECK_SKILL(ch, SKILL_READ_SCROLLS) + 
+                MIN(10, number(1, GET_INT(ch) >> 1)));
     if (CHECK_SKILL(ch, SKILL_USE_WANDS) > 10)
-	GET_SKILL(ch, SKILL_USE_WANDS) =
-	    MIN(100, CHECK_SKILL(ch, SKILL_USE_WANDS) + 
-		MIN(10, number(1, GET_INT(ch) >> 1)));
+        GET_SKILL(ch, SKILL_USE_WANDS) =
+            MIN(100, CHECK_SKILL(ch, SKILL_USE_WANDS) + 
+                MIN(10, number(1, GET_INT(ch) >> 1)));
   
     save_char(ch, NULL);
 
@@ -1402,9 +1405,9 @@ advance_level(struct char_data * ch, byte keep_internal)
         GET_NAME(ch), GET_LEVEL(ch), ch->in_room->number,
         PLR_FLAGGED(ch, PLR_TESTER) ? "<TESTER>" : "");
     if (keep_internal)
-	slog(buf);
+        slog(buf);
     else
-	mudlog(buf, BRF, GET_INVIS_LEV(ch), TRUE);
+        mudlog(buf, BRF, GET_INVIS_LEV(ch), TRUE);
 }
 
 
@@ -1418,18 +1421,18 @@ invalid_char_class(struct char_data *ch, struct obj_data *obj) {
     int invalid = 0;
     int foundreq = 0;
     if ((IS_OBJ_STAT(obj, ITEM_ANTI_MAGIC_USER) && IS_MAGIC_USER(ch)) ||
-	(IS_OBJ_STAT(obj, ITEM_ANTI_CLERIC)     && IS_CLERIC(ch)) ||
-	(IS_OBJ_STAT(obj, ITEM_ANTI_WARRIOR)    && IS_WARRIOR(ch)) ||
-	(IS_OBJ_STAT(obj, ITEM_ANTI_THIEF)      && IS_THIEF(ch)) ||
-	(IS_OBJ_STAT(obj, ITEM_ANTI_BARB)       && IS_BARB(ch)) ||
-	(IS_OBJ_STAT(obj, ITEM_ANTI_PSYCHIC)    && IS_PSYCHIC(ch)) ||
-	(IS_OBJ_STAT(obj, ITEM_ANTI_PHYSIC)     && IS_PHYSIC(ch)) ||
-	(IS_OBJ_STAT(obj, ITEM_ANTI_CYBORG)     && IS_CYBORG(ch)) ||
-	(IS_OBJ_STAT(obj, ITEM_ANTI_KNIGHT)     && IS_KNIGHT(ch)) ||
-	(IS_OBJ_STAT(obj, ITEM_ANTI_RANGER)     && IS_RANGER(ch)) ||
-	(IS_OBJ_STAT(obj, ITEM_ANTI_HOOD)       && IS_HOOD(ch)) ||
-	(IS_OBJ_STAT2(obj, ITEM2_ANTI_MERC)       && IS_MERC(ch)) ||
-	(IS_OBJ_STAT(obj, ITEM_ANTI_MONK)       && IS_MONK(ch)) ||
+        (IS_OBJ_STAT(obj, ITEM_ANTI_CLERIC)     && IS_CLERIC(ch)) ||
+        (IS_OBJ_STAT(obj, ITEM_ANTI_WARRIOR)    && IS_WARRIOR(ch)) ||
+        (IS_OBJ_STAT(obj, ITEM_ANTI_THIEF)      && IS_THIEF(ch)) ||
+        (IS_OBJ_STAT(obj, ITEM_ANTI_BARB)       && IS_BARB(ch)) ||
+        (IS_OBJ_STAT(obj, ITEM_ANTI_PSYCHIC)    && IS_PSYCHIC(ch)) ||
+        (IS_OBJ_STAT(obj, ITEM_ANTI_PHYSIC)     && IS_PHYSIC(ch)) ||
+        (IS_OBJ_STAT(obj, ITEM_ANTI_CYBORG)     && IS_CYBORG(ch)) ||
+        (IS_OBJ_STAT(obj, ITEM_ANTI_KNIGHT)     && IS_KNIGHT(ch)) ||
+        (IS_OBJ_STAT(obj, ITEM_ANTI_RANGER)     && IS_RANGER(ch)) ||
+        (IS_OBJ_STAT(obj, ITEM_ANTI_HOOD)       && IS_HOOD(ch)) ||
+        (IS_OBJ_STAT2(obj, ITEM2_ANTI_MERC)       && IS_MERC(ch)) ||
+        (IS_OBJ_STAT(obj, ITEM_ANTI_MONK)       && IS_MONK(ch)) ||
     (!OBJ_APPROVED(obj) && !PLR_FLAGGED(ch, PLR_TESTER) && GET_LEVEL(ch) < LVL_IMMORT))
         invalid = 1;
     if(!invalid) {
@@ -1527,19 +1530,19 @@ char_class_race_hit_bonus(struct char_data *ch, struct char_data *vict)
 {
     int bonus = 0;
     bonus += (IS_DWARF(ch) && (IS_OGRE(vict) || IS_TROLL(vict) || 
-			       IS_GIANT(vict) || 
-			       (GET_HEIGHT(vict) > 2*GET_HEIGHT(ch))));
+                               IS_GIANT(vict) || 
+                               (GET_HEIGHT(vict) > 2*GET_HEIGHT(ch))));
     bonus -= (IS_DWARF(ch) && (SECT_TYPE(ch->in_room) == SECT_WATER_SWIM ||
-			       SECT_TYPE(ch->in_room) == SECT_WATER_NOSWIM ||
-			       ch->in_room->isOpenAir() ||
-			       SECT_TYPE(ch->in_room) == SECT_UNDERWATER));
+                               SECT_TYPE(ch->in_room) == SECT_WATER_NOSWIM ||
+                               ch->in_room->isOpenAir() ||
+                               SECT_TYPE(ch->in_room) == SECT_UNDERWATER));
     bonus += (IS_THIEF(ch) && IS_DARK(ch->in_room));
     bonus += (IS_RANGER(ch) && (SECT_TYPE(ch->in_room) == SECT_FOREST ||
-				(SECT_TYPE(ch->in_room) != SECT_CITY && 
-				 SECT_TYPE(ch->in_room) != SECT_INSIDE &&
-				 OUTSIDE(ch))));
+                                (SECT_TYPE(ch->in_room) != SECT_CITY && 
+                                 SECT_TYPE(ch->in_room) != SECT_INSIDE &&
+                                 OUTSIDE(ch))));
     bonus += (IS_TABAXI(ch) && SECT_TYPE(ch->in_room) == SECT_FOREST &&
-	      OUTSIDE(ch));
+              OUTSIDE(ch));
     return (bonus);
 }
 
@@ -2374,9 +2377,9 @@ extern const struct title_type titles[NUM_CLASSES][LVL_GRIMP + 1] = {
      {"the Shoplifter", "the Shoplifter"},
      {"the Kleptomaniac", "the Kleptomaniac"},
      {"the Gutter Punk", "the Gutter Punk"},
-     {"the Gutter Punk", "the Gutter Punk"},	// 10
+     {"the Gutter Punk", "the Gutter Punk"},        // 10
      {"the Street Punk", "the Street Punk"},
-     {"the Street Punk", "the Street Punk"},	
+     {"the Street Punk", "the Street Punk"},        
      {"the Pothead", "the Pothead"},
      {"the Bong Maker", "the Bong Maker"},
      {"the Crackhead", "the Crackhead"},
@@ -2384,7 +2387,7 @@ extern const struct title_type titles[NUM_CLASSES][LVL_GRIMP + 1] = {
      {"the Rehabilitated Junkie", "the Rehabilitated Junkie"},
      {"the Pimp Daddy", "the Pimp Momma"},
      {"the Pimp Daddy", "the Pimp Momma"},
-     {"the Drug Pusher", "the Drug Pusher"},	// 20
+     {"the Drug Pusher", "the Drug Pusher"},        // 20
      {"the Drug Pusher", "the Drug Pusher"},
      {"the Crack Dealer", "the Crack Dealer"},
      {"the Heroin Dealer", "the Heroin Dealer"},
@@ -2394,7 +2397,7 @@ extern const struct title_type titles[NUM_CLASSES][LVL_GRIMP + 1] = {
      {"the Repeat Offender", "the Repeat Offender"},
      {"the Arsonist", "the Arsonist"},
      {"the Gang Initiate", "the Gang Initiate"},
-     {"the Gangsta", "the Gangsta"},		//30
+     {"the Gangsta", "the Gangsta"},                //30
      {"the Gangsta", "the Gangsta"},
      {"the Gangsta", "the Gangsta"},
      {"the Gang Leader", "the Gang Leader"},
@@ -2403,8 +2406,8 @@ extern const struct title_type titles[NUM_CLASSES][LVL_GRIMP + 1] = {
      {"the Gang Leader", "the Gang Leader"},
      {"the Crime Boss", "the Crime Boss"},
      {"the Crime Boss", "the Crime Boss"},
-     {"the Crime Boss", "the Crime Boss"},	
-     {"the Crime Boss", "the Crime Boss"},			//40
+     {"the Crime Boss", "the Crime Boss"},        
+     {"the Crime Boss", "the Crime Boss"},                        //40
      {"the Criminal Avatar", "the Criminal Avatar"},
      {"the Criminal Avatar", "the Criminal Avatar"},
      {"the Criminal Avatar", "the Criminal Avatar"},
@@ -2414,7 +2417,7 @@ extern const struct title_type titles[NUM_CLASSES][LVL_GRIMP + 1] = {
      {"the Lord of the Underworld", "the Lord of the Underworld"}, 
      {"the Lord of the Underworld", "the Lord of the Underworld"},
      {"the Lord of the Underworld", "the Lord of the Underworld"},
-     {"the Ambassador", "the Ambassador"},		// 50
+     {"the Ambassador", "the Ambassador"},                // 50
      {"the Immortal Hood", "the Immortal Hood"},
      {"the Builder", "the Builder"},
      {"the Luminary", "the Luminary"},
@@ -2546,13 +2549,13 @@ extern const struct title_type titles[NUM_CLASSES][LVL_GRIMP + 1] = {
      {"the Mortal Avatar", "the Mortal Avatar"},
      {"the Mortal Avatar", "the Mortal Avatar"},
      {"the Mortal Avatar", "the Mortal Avatar"},
-     {"the Mortal Avatar", "the Mortal Avatar"},	
-     {"the Mortal Avatar", "the Mortal Avatar"},	
-     {"the Mortal Avatar", "the Mortal Avatar"},	
+     {"the Mortal Avatar", "the Mortal Avatar"},        
+     {"the Mortal Avatar", "the Mortal Avatar"},        
+     {"the Mortal Avatar", "the Mortal Avatar"},        
      {"the Mortal Avatar", "the Mortal Avatar"},
      {"the Mortal Avatar", "the Mortal Avatar"},
      {"the Mortal Avatar", "the Mortal Avatar"},
-     {"the Mortal Avatar", "the Mortal Avatar"},	
+     {"the Mortal Avatar", "the Mortal Avatar"},        
      {"the Mortal Avatar", "the Mortal Avatar"},
      {"the Mortal Avatar", "the Mortal Avatar"},
      {"the Mortal Avatar", "the Mortal Avatar"},

@@ -18,14 +18,13 @@
 SPECIAL(mob_read_script)
 {
     struct obj_data *obj = GET_IMPLANT( ch, WEAR_HOLD );
-    struct char_data *vict = NULL;
     char *desc = NULL, *c, buf[EXDSCR_LENGTH];
     int which = 0;
     int found = 0;
-    if( spec_mode == SPECIAL_DEATH ) return 0;
     if ( !SCRIPT_FLAGGED( MODE_ALONE ) ) {
-        for ( vict = ch->in_room->people; vict; vict = vict->next_in_room ) {
-            if ( vict->desc && CAN_SEE( ch, vict ) ) {
+        CharacterList::iterator it = ch->in_room->people.begin();
+        for( ; it != ch->in_room->people.end(); ++it ) {
+            if ( (*it)->desc && CAN_SEE( ch, (*it) ) ) {
                 found = 1;
                 break;
             }

@@ -43,7 +43,9 @@
 /* extern variables */
 extern struct room_data *world;
 extern struct descriptor_data *descriptor_list;
-extern struct char_data *character_list;
+//extern struct char_data *character_list;
+extern CharacterList characterList;
+
 extern struct obj_data *object_list;
 extern const struct title_type titles[NUM_CLASSES][LVL_GRIMP + 1];
 //extern const struct command_info cmd_info[];
@@ -874,13 +876,13 @@ list_one_char(struct char_data * i, struct char_data * ch, byte is_group)
         else
             strcat(buf, positions[(int) MAX(0, MIN(i->getPosition(), POS_SWIMMING))]);
     } else {
-        if (FIGHTING(i)) {
+        if (i->isFighting()) {
             strcat(buf, " is here, fighting ");
-            if (FIGHTING(i) == ch)
+            if (i->getFighting() == ch)
                 strcat(buf, "YOU!");
             else {
-                if (i->in_room == FIGHTING(i)->in_room)
-                    strcat(buf, PERS(FIGHTING(i), ch));
+                if (i->in_room == i->getFighting()->in_room)
+                    strcat(buf, PERS(i->getFighting(), ch));
                 else
                     strcat(buf, "someone who has already left");
                 strcat(buf, "!");
@@ -928,8 +930,11 @@ list_char_to_char(struct char_data * list, struct char_data * ch)
 {
     struct char_data *i;
     byte is_group = FALSE;
-
-    for (i = list; i; i = i->next_in_room) {
+    if( list == NULL )
+        return;
+    CharacterList::iterator it = list->in_room->people.begin();
+    for (; it != list->in_room->people.end(); ++it ) {
+        i = *it;
         is_group = 0;
         if (ch != i && 
             INVIS_OK(ch, i) &&
@@ -1009,20 +1014,20 @@ list_scanned_chars(struct char_data * list, struct char_data * ch,
         "far off to the"
     };
 
-    struct char_data *i;
     int count = 0;
     *buf = '\0';
-
+    if( list == NULL )
+        return;
     /* this loop is a quick, easy way to help make a grammatical sentence
        (i.e., "You see x, x, y, and z." with commas, "and", etc.) */
-  
-    for (i = list; i; i = i->next_in_room) {
-
+    CharacterList::iterator it = list->in_room->people.begin();
+    for (; it != list->in_room->people.end(); ++it ) {
+        
         /* put any other conditions for scanning someone in this if statement -
            i.e., if (CAN_SEE(ch, i) && condition2 && condition3) or whatever */
     
-        if (CAN_SEE(ch, i) && ch != i &&
-            (!AFF_FLAGGED(i, AFF_SNEAK | AFF_HIDE) || 
+        if (CAN_SEE(ch, (*it)) && ch != (*it) &&
+            (!AFF_FLAGGED((*it), AFF_SNEAK | AFF_HIDE) || 
              PRF_FLAGGED(ch, PRF_HOLYLIGHT)))
             count++;
     }
@@ -1030,22 +1035,22 @@ list_scanned_chars(struct char_data * list, struct char_data * ch,
     if (!count)
         return;
   
-    for (i = list; i; i = i->next_in_room) {
-    
+    it = list->in_room->people.begin();
+    for (; it != list->in_room->people.end(); ++it ) {
         /* make sure to add changes to the if statement above to this one also, using
            or's to join them.. i.e., 
            if (!CAN_SEE(ch, i) || !condition2 || !condition3) */
     
-        if (!CAN_SEE(ch, i) || ch == i || 
-            ((AFF_FLAGGED(i, AFF_SNEAK | AFF_HIDE)) &&
+        if (!CAN_SEE(ch, (*it)) || ch == (*it) || 
+            ((AFF_FLAGGED((*it), AFF_SNEAK | AFF_HIDE)) &&
              !PRF_FLAGGED(ch, PRF_HOLYLIGHT)))
             continue; 
         if (!*buf)
             sprintf(buf, "You see %s%s%s",
-                    CCYEL(ch, C_NRM), GET_DISGUISED_NAME(ch, i), CCNRM(ch, C_NRM));
+                    CCYEL(ch, C_NRM), GET_DISGUISED_NAME(ch, (*it)), CCNRM(ch, C_NRM));
         else 
             sprintf(buf, "%s%s%s%s", 
-                    buf, CCYEL(ch, C_NRM), GET_DISGUISED_NAME(ch, i), 
+                    buf, CCYEL(ch, C_NRM), GET_DISGUISED_NAME(ch, (*it)), 
                     CCNRM(ch, C_NRM));
         if (--count > 1)
             strcat(buf, ", ");
@@ -1755,7 +1760,7 @@ glance_at_target(struct char_data * ch, char *arg, int cmd)
                 act("$n glances sidelong at you.", TRUE, ch, 0, found_char, TO_VICT);
                 act("$n glances sidelong at $N.", TRUE, ch, 0, found_char, TO_NOTVICT);
         
-                if (IS_NPC(found_char) && !FIGHTING(found_char) && AWAKE(found_char)&&
+                if (IS_NPC(found_char) && !(found_char->isFighting()) && AWAKE(found_char)&&
                     (!found_char->master || found_char->master != ch)) {
                     if (IS_ANIMAL(found_char) || IS_BUGBEAR(found_char) ||
                         GET_INT(found_char) < number(3, 5)) {
@@ -1821,11 +1826,12 @@ ACMD(do_listen)
         send_to_char(ch->in_room->sounds, ch);
         return;
     }
-
-    for (fighting_vict = ch->in_room->people; fighting_vict;
-         fighting_vict = fighting_vict->next_in_room)
-        if (FIGHTING(fighting_vict))
+    CharacterList::iterator it = ch->in_room->people.begin();
+    for(; it != ch->in_room->people.end(); ++it ) {
+        fighting_vict = *it;
+        if ((fighting_vict->isFighting()))
             break;
+    }
   
     if (!fighting_vict) {
         for (i = 0; i < NUM_WEARS; i++)
@@ -1905,9 +1911,12 @@ ACMD(do_listen)
                     ch->in_room->dir_option[i]->to_room &&
                     ch->in_room->dir_option[i]->to_room != ch->in_room &&
                     !IS_SET(ch->in_room->dir_option[i]->exit_info, EX_CLOSED)) {
-                    for (fighting_vict = ch->in_room->dir_option[i]->to_room->people;
-                         fighting_vict; fighting_vict = fighting_vict->next_in_room) {
-                        if (FIGHTING(fighting_vict))
+                    
+                    CharacterList::iterator end = ch->in_room->dir_option[i]->to_room->people.end();
+                    CharacterList::iterator it = ch->in_room->dir_option[i]->to_room->people.begin();
+                    for(; it != end; ++it ) {
+                        fighting_vict = *it;
+                        if ((fighting_vict->isFighting()))
                             break;
                     }
                     if (fighting_vict && !number(0, 1)) {
@@ -2515,8 +2524,8 @@ ACMD(do_score)
         break;
     case POS_FIGHTING:
         strcat(buf, CCYEL(ch, C_NRM));
-        if (FIGHTING(ch))
-            sprintf(buf, "%sYou are fighting %s.\r\n", buf, PERS(FIGHTING(ch), ch));
+        if ((ch->isFighting()))
+            sprintf(buf, "%sYou are fighting %s.\r\n", buf, PERS(ch->getFighting(), ch));
         else
             strcat(buf, "You are fighting thin air.\r\n");
         strcat(buf, CCNRM(ch, C_NRM));
@@ -3136,7 +3145,6 @@ ACMD(do_who)
                          !strncmp(GET_NAME(tch), "Ska", 3)      ? "  LADY " : 
                          !strncmp(GET_NAME(tch), "Shiva", 5)    ? " DEATH " : 
                          !strncmp(GET_NAME(tch), "Smitty", 6)   ? "FOREMAN" :
-                         !strncmp(GET_NAME(tch), "Dogma", 5)    ? " CHIEF " :
                          !strncmp(GET_NAME(tch), "Stryker", 7)  ? "CODEMAN" :
                          !strncmp(GET_NAME(tch), "Hubris", 6)   ? "EC ARCH" :
                          !strncmp(GET_NAME(tch), "Tigger", 6)   ? "OP ARCH" :
@@ -3583,12 +3591,12 @@ ACMD(do_gen_ps)
 void 
 perform_mortal_where(struct char_data * ch, char *arg)
 {
-    register struct char_data *i;
+    register struct char_data *i = NULL;
     register struct descriptor_data *d;
 
     if (!*arg) {
         send_to_char("Players in your Zone\r\n--------------------\r\n", ch);
-        for (d = descriptor_list; d; d = d->next)
+        for (d = descriptor_list; d; d = d->next) {
             if (!d->connected) {
                 i = (d->original ? d->original : d->character);
                 if (i && CAN_SEE(ch, i) && (i->in_room != NULL) &&
@@ -3597,14 +3605,18 @@ perform_mortal_where(struct char_data * ch, char *arg)
                     send_to_char(buf, ch);
                 }
             }
-    } else {                        /* print only FIRST char, not all. */
-        for (i = character_list; i; i = i->next)
+        }
+    } else {   /* print only FIRST char, not all. */
+        CharacterList::iterator cit = characterList.begin();
+        for( ; cit != characterList.end(); ++cit ) {
+            i = *cit;
             if (i->in_room->zone == ch->in_room->zone && CAN_SEE(ch, i) &&
                 (i->in_room != NULL) && isname(arg, i->player.name)) {
                 sprintf(buf, "%-25s - %s\r\n", GET_NAME(i), i->in_room->name);
                 send_to_char(buf, ch);
                 return;
             }
+        }
         send_to_char("No-one around by that name.\r\n", ch);
     }
 }
@@ -3663,7 +3675,7 @@ print_object_location(int num, struct obj_data * obj,
 void 
 perform_immort_where(struct char_data * ch, char *arg)
 {
-    register struct char_data *i;
+    register struct char_data *i = NULL;
     register struct obj_data *k;
     struct descriptor_data *d;
     int num = 0, found = 0;
@@ -3672,7 +3684,7 @@ perform_immort_where(struct char_data * ch, char *arg)
 
     if (!*arg) {
         strcpy(main_buf, "Players\r\n-------\r\n");
-        for (d = descriptor_list; d; d = d->next)
+        for (d = descriptor_list; d; d = d->next) {
             if (!d->connected) {
                 i = (d->original ? d->original : d->character);
                 if (i && CAN_SEE(ch, i) && (i->in_room != NULL)) {
@@ -3695,10 +3707,13 @@ perform_immort_where(struct char_data * ch, char *arg)
                     strcat(main_buf, buf);
                 }
             }
+        }
         page_string(ch->desc, main_buf, 1);
     } else {
         two_arguments(arg, arg1, arg2);
-        for (i = character_list; i; i = i->next)
+        CharacterList::iterator cit = characterList.begin();
+        for( ; cit != characterList.end(); ++cit ) {
+            i = *cit;
             if (CAN_SEE(ch, i) && i->in_room && isname(arg1, i->player.name) &&
                 (++num) &&
                 (!*arg2 || isname(arg2, i->player.name)) &&
@@ -3712,11 +3727,13 @@ perform_immort_where(struct char_data * ch, char *arg)
                         i->in_room->name, CCNRM(ch, C_NRM));
                 send_to_char(buf, ch);
             }
-        for (num = 0, k = object_list; k; k = k->next)
+        }
+        for (num = 0, k = object_list; k; k = k->next) {
             if (CAN_SEE_OBJ(ch, k) && isname(arg1, k->name) && ++num && (!*arg2 || isname(arg2, k->name))) {
                 found = 1;
                 print_object_location(num, k, ch, TRUE);
             }
+        }
         if (!found)
             send_to_char("Couldn't find any such thing.\r\n", ch);
     }
@@ -4133,8 +4150,8 @@ ACMD(do_diagnose)
         } else
             diag_char_to_char(vict, ch);
     } else {
-        if (FIGHTING(ch))
-            diag_char_to_char(FIGHTING(ch), ch);
+        if (ch->isFighting())
+            diag_char_to_char(ch->getFighting(), ch);
         else
             send_to_char("Diagnose who?\r\n", ch);
     }

@@ -34,56 +34,51 @@ ACMD(do_pistolwhip)
     one_argument(argument, arg);
 
     if (!(vict = get_char_room_vis(ch, arg))) {
-    if (FIGHTING(ch)) {
-        vict = FIGHTING(ch);
-    } else if ((ovict = get_obj_in_list_vis(ch, arg, ch->in_room->contents))) {
-        act("You pistolwhip $p!", FALSE, ch, ovict, 0, TO_CHAR);
-        return;
-    } else {
-        send_to_char("Pistolwhip who?\r\n", ch);
-        return;
-    }
+        if (ch->isFighting()) {
+            vict = ch->getFighting();
+        } else if ((ovict = get_obj_in_list_vis(ch, arg, ch->in_room->contents))) {
+            act("You pistolwhip $p!", FALSE, ch, ovict, 0, TO_CHAR);
+            return;
+        } else {
+            send_to_char("Pistolwhip who?\r\n", ch);
+            return;
+        }
     }
     if (!(((weap = GET_EQ(ch, WEAR_WIELD)) && PISTOL(weap)) ||
-      ((weap = GET_EQ(ch, WEAR_WIELD_2)) && PISTOL(weap)) ||
-      ((weap = GET_EQ(ch, WEAR_HANDS)) && PISTOL(weap)))) {
-    send_to_char("You need to be using a pistol.\r\n", ch);
-    return;
-    }
-    if (vict == ch) {
-    if (AFF_FLAGGED(ch, AFF_CHARM) && ch->master) {
-        act("You fear that your death will grieve $N.",
-        FALSE, ch, 0, ch->master, TO_CHAR);
+    ((weap = GET_EQ(ch, WEAR_WIELD_2)) && PISTOL(weap)) ||
+    ((weap = GET_EQ(ch, WEAR_HANDS)) && PISTOL(weap)))) {
+        send_to_char("You need to be using a pistol.\r\n", ch);
         return;
     }
-    act("You ruthlessly beat yourself to death with $p!", 
-        FALSE, ch, weap, 0, TO_CHAR);
-    act("$n beats $mself to death with $p!", TRUE, ch, weap, 0, TO_ROOM);
-    sprintf(buf, "%s killed self with an pistolwhip at %d.",
-        GET_NAME(ch), ch->in_room->number);
-    mudlog(buf, NRM, GET_INVIS_LEV(ch), TRUE);
-    gain_exp(ch, -(GET_LEVEL(ch) * 1000));
-    raw_kill(ch, ch, SKILL_PISTOLWHIP);
-    return;
+    if (vict == ch) {
+        if (AFF_FLAGGED(ch, AFF_CHARM) && ch->master) {
+            act("You fear that your death will grieve $N.",
+            FALSE, ch, 0, ch->master, TO_CHAR);
+            return;
+        }
+        act("You slam $p into your head!", 
+            FALSE, ch, weap, 0, TO_CHAR);
+        act("$n beats $mself senseless with $p!", TRUE, ch, weap, 0, TO_ROOM);
+        return;
     }
     if (!peaceful_room_ok(ch, vict, true))
-    return;
+        return;
 
     percent = ((10 - (GET_AC(vict) / 10)) << 1) + number(1, 101);
     prob = CHECK_SKILL(ch, SKILL_PISTOLWHIP);
 
     if (IS_PUDDING(vict) || IS_SLIME(vict))
-    prob = 0;
+        prob = 0;
 
     cur_weap = weap;
     if (percent > prob) {
-    damage(ch, vict, 0, SKILL_IMPALE, WEAR_BODY);
+        damage(ch, vict, 0, SKILL_IMPALE, WEAR_BODY);
     } else {
-    dam = dice(GET_LEVEL(ch), str_app[STRENGTH_APPLY_INDEX(ch)].todam) +
-        dice(4, weap->getWeight() );
-    dam /= 4;
-    damage(ch, vict, dam, SKILL_PISTOLWHIP, WEAR_HEAD);
-    gain_skill_prof(ch, SKILL_PISTOLWHIP);
+        dam = dice(GET_LEVEL(ch), str_app[STRENGTH_APPLY_INDEX(ch)].todam) +
+            dice(4, weap->getWeight() );
+        dam /= 4;
+        damage(ch, vict, dam, SKILL_PISTOLWHIP, WEAR_HEAD);
+        gain_skill_prof(ch, SKILL_PISTOLWHIP);
     }
     WAIT_STATE(ch, PULSE_VIOLENCE * 3);
 }
@@ -103,8 +98,8 @@ ACMD(do_crossface)
     one_argument(argument, arg);
 
     if (!(vict = get_char_room_vis(ch, arg))) {
-        if (FIGHTING(ch)) {
-            vict = FIGHTING(ch);
+        if (ch->getFighting()) {
+            vict = ch->getFighting();
         } 
         else if ((ovict = get_obj_in_list_vis(ch, arg, ch->in_room->contents))) {
             act("You fiercely crossface $p!", FALSE, ch, ovict, 0, TO_CHAR);
@@ -127,15 +122,9 @@ ACMD(do_crossface)
                 FALSE, ch, 0, ch->master, TO_CHAR);
             return;
         }
-    
-        act("You ruthlessly beat yourself to death with $p!", 
+        act("You slam $p into your head!", 
             FALSE, ch, weap, 0, TO_CHAR);
-        act("$n beats $mself to death with $p!", TRUE, ch, weap, 0, TO_ROOM);
-        sprintf(buf, "%s killed self with a crossface at %d.",
-                GET_NAME(ch), ch->in_room->number);
-        mudlog(buf, NRM, GET_INVIS_LEV(ch), TRUE);
-        gain_exp(ch, -(GET_LEVEL(ch) * 1000));
-        raw_kill(ch, ch, SKILL_CROSSFACE);
+        act("$n beats $mself senseless with $p!", TRUE, ch, weap, 0, TO_ROOM);
         return;
     }
     
@@ -190,7 +179,7 @@ ACMD(do_crossface)
             if (prev_pos != POS_STUNNED && !IS_SET(retval, DAM_VICT_KILLED) &&
                 !IS_SET(retval, DAM_ATTACKER_KILLED)) {
                 if (!IS_NPC(vict) || (IS_NPC(vict) && 
-                    !MOB2_FLAGGED(vict, MOB2_NOSTUN)) && FIGHTING(ch)) {
+                    !MOB2_FLAGGED(vict, MOB2_NOSTUN)) && ch->getFighting()) {
                     stop_fighting(ch);
                     stop_fighting(vict);
                     vict->setPosition(POS_STUNNED);
@@ -211,7 +200,7 @@ ACMD(do_crossface)
             retval = damage(ch, vict, dam, SKILL_CROSSFACE, wear_num);
             if ((prev_pos != POS_RESTING  && prev_pos != POS_STUNNED) 
                 && !IS_SET(retval, DAM_VICT_KILLED) && 
-                !IS_SET(retval, DAM_ATTACKER_KILLED) && FIGHTING(ch)) {
+                !IS_SET(retval, DAM_ATTACKER_KILLED) && ch->getFighting()) {
                 vict->setPosition(POS_RESTING);
                 act("Your crossface has knocked $N on his ass!", 
                     TRUE, ch, NULL, vict, TO_CHAR);
@@ -226,7 +215,7 @@ ACMD(do_crossface)
         else if (diff >= 20) {
             retval = damage(ch, vict, dam >> 1, SKILL_CROSSFACE, wear_num);
             if (wear && !IS_SET(retval, DAM_VICT_KILLED) && 
-            !IS_SET(retval, DAM_ATTACKER_KILLED) && FIGHTING(ch)) {
+            !IS_SET(retval, DAM_ATTACKER_KILLED) && ch->getFighting()) {
                 act("Your crossface has knocked $N's $p from his head!", 
                     TRUE, ch, wear, vict, TO_CHAR);
                 act("$n's nasty crossface just knocked $p from $N's head!", 
@@ -375,8 +364,8 @@ ACMD(do_snipe)
   }
   // if vict is fighting someone you have a 50% chance of hitting the person
   // vict is fighting
-  if(FIGHTING(vict) && (number(0, 1))) {
-    vict = FIGHTING(vict);
+  if((vict->isFighting()) && (number(0, 1))) {
+    vict = (vict->getFighting());
   }
   // Has vict been sniped once and is vict a sentinel mob?
   if((MOB_FLAGGED(vict, MOB_SENTINEL)) && IS_SNIPED(vict)) {
@@ -574,8 +563,8 @@ ACMD(do_wrench)
     one_argument( argument, arg );
 
     if ( ! ( vict = get_char_room_vis( ch, arg ) ) ) {
-        if ( FIGHTING( ch ) ) {
-            vict = FIGHTING( ch );
+        if ( ch->isFighting() ) {
+            vict = ( ch->getFighting() );
         } else if ( ( ovict = get_obj_in_list_vis( ch, arg, ch->in_room->contents ) ) ) {
             act( "You fiercly wrench $p!", FALSE, ch, ovict, 0, TO_CHAR );
             return;
@@ -621,7 +610,7 @@ ACMD(do_wrench)
          dam += dam/2;
      }
      
-     if ( ! FIGHTING( ch ) && ! FIGHTING( vict ) ) {
+     if ( ! ( ch->isFighting() ) && ! ( vict->isFighting() ) ) {
          dam += dam/3;
      }
 

@@ -399,7 +399,7 @@ int get_avail_descs(void)
         struct rlimit limit;
 
         getrlimit(RLIMIT_NOFILE, &limit);
-        max_descs = MIN(MAX_PLAYERS + NUM_RESERVED_DESCS, limit.rlim_max);
+        max_descs = MIN((unsigned)MAX_PLAYERS + NUM_RESERVED_DESCS, limit.rlim_max);
         limit.rlim_cur = max_descs;
         setrlimit(RLIMIT_NOFILE, &limit);
     }
@@ -1781,11 +1781,12 @@ send_to_room(char *messg, struct room_data *room)
 
     if (!room || !messg)
         return;
-
-    for (i = room->people; i; i = i->next_in_room)
+   CharacterList::iterator it = room->people.begin();
+   for( ; it != room->people.end(); ++it ) {
+        i = *it;
         if (i->desc && !PLR_FLAGGED(i, PLR_OLC | PLR_WRITING | PLR_MAILING))
             SEND_TO_Q(messg, i->desc);
-
+    }
     /** check for vehicles in the room **/
     sprintf(buf, "(outside) %s", messg);
     for (o = room->contents; o; o = o->next_content) {
@@ -1796,9 +1797,12 @@ send_to_room(char *messg, struct room_data *room)
                     ROOM_NUMBER(obj) == ROOM_NUMBER(o) &&
                     GET_OBJ_VNUM(o) == V_CAR_VNUM(obj) &&
                     obj->in_room) {
-                    for (i = obj->in_room->people; i; i = i->next_in_room)
+                    it = obj->in_room->people.begin();
+                   for( ; it != obj->in_room->people.end(); ++it ) {
+                        i = *it;
                         if (i->desc && !PLR_FLAGGED(i, PLR_OLC|PLR_WRITING|PLR_MAILING))
                             SEND_TO_Q(buf, i->desc);
+                    }
                 }
             }
         }
@@ -1817,10 +1821,12 @@ send_to_room(char *messg, struct room_data *room)
         if (ABS_EXIT(room,j) && ABS_EXIT(room, j)->to_room &&
             room != ABS_EXIT(room, j)->to_room &&
             !IS_SET(ABS_EXIT(room,j)->exit_info, EX_ISDOOR | EX_CLOSED)) {
-
-            for (i = ABS_EXIT(room,j)->to_room->people; i; i = i->next_in_room)
+            it = ABS_EXIT(room,j)->to_room->people.begin();
+            for( ; it != ABS_EXIT(room,j)->to_room->people.end(); ++it ) {
+                  i = *it;
                 if (i->desc && !PLR_FLAGGED(i, PLR_OLC))
                     SEND_TO_Q(buf, i->desc);
+            }
         }
 }
 
@@ -2003,17 +2009,16 @@ act(const char *str, int hide_invisible, struct char_data * ch,
         room = obj->in_room;
     } else {
         slog("SYSERR: no valid target to act()!");
+        raise(SIGINT);
         return;
     }
-
-    to = room->people;
-
-    for (; to; to = to->next_in_room)
-        if (SENDOK(to) && 
-            !(hide_invisible && ch && !CAN_SEE(to, ch)) &&
-            (to != ch) && (type == TO_ROOM || (to != vict_obj)))
-            perform_act(str, ch, obj, vict_obj, to, 0);
-
+   CharacterList::iterator it = room->people.begin();
+   for( ; it != room->people.end(); ++it ) {
+        if (SENDOK((*it)) && 
+            !(hide_invisible && ch && !CAN_SEE((*it), ch)) &&
+            ((*it) != ch) && (type == TO_ROOM || ((*it) != vict_obj)))
+            perform_act(str, ch, obj, vict_obj, (*it), 0);
+    }
 
     /** check for vehicles in the room **/
     for (o = room->contents; o; o = o->next_content) {
@@ -2024,11 +2029,13 @@ act(const char *str, int hide_invisible, struct char_data * ch,
                     ROOM_NUMBER(o2) == ROOM_NUMBER(o) &&
                     GET_OBJ_VNUM(o) == V_CAR_VNUM(o2) &&
                     o2->in_room) {
-                    for (to = o2->in_room->people; to; to = to->next_in_room) {
-                        if (SENDOK(to) && 
-                            !(hide_invisible && ch && !CAN_SEE(to, ch)) &&
-                            (to != ch) && (type == TO_ROOM || (to != vict_obj))) {
-                            perform_act(str, ch, obj, vict_obj, to, 1);
+                    
+                    it = o2->in_room->people.begin();
+                    for( ; it != o2->in_room->people.end(); ++it ) {
+                        if (SENDOK((*it)) && 
+                            !(hide_invisible && ch && !CAN_SEE((*it), ch)) &&
+                            ((*it) != ch) && (type == TO_ROOM || ((*it) != vict_obj))) {
+                            perform_act(str, ch, obj, vict_obj, (*it), 1);
                         }
                     }
                     break;
@@ -2049,12 +2056,15 @@ act(const char *str, int hide_invisible, struct char_data * ch,
         if (ABS_EXIT(room,j) && ABS_EXIT(room, j)->to_room &&
             room != ABS_EXIT(room, j)->to_room &&
             !IS_SET(ABS_EXIT(room,j)->exit_info, EX_ISDOOR | EX_CLOSED)) {
-
-            for (to = ABS_EXIT(room, j)->to_room->people; to; to = to->next_in_room)
-                if (SENDOK(to) && 
-                    !(hide_invisible && ch && !CAN_SEE(to, ch)) &&
-                    (to != ch) && (type == TO_ROOM || (to != vict_obj)))
-                    perform_act(str, ch, obj, vict_obj, to, 2);
+            
+            
+            it = ABS_EXIT(room, j)->to_room->people.begin();
+            for( ; it != ABS_EXIT(room, j)->to_room->people.end(); ++it ) {
+                if (SENDOK((*it)) && 
+                    !(hide_invisible && ch && !CAN_SEE((*it), ch)) &&
+                    ((*it) != ch) && (type == TO_ROOM || ((*it) != vict_obj)))
+                    perform_act(str, ch, obj, vict_obj, (*it), 2);
+            }
         }
     }
 }

@@ -7,7 +7,7 @@
 SPECIAL(phantasmic_sword)
 {
   struct affected_type af;
-  struct char_data *mast = NULL, *vict;
+  struct char_data *mast = NULL;
 
   if (cmd) 
     return 0;
@@ -39,22 +39,24 @@ SPECIAL(phantasmic_sword)
         return 0;
       if (!number(0, 4)) {
         act("$n departs for the ethereal plane!", TRUE, ch, 0, 0, TO_ROOM);
-        extract_char(ch, FALSE);
+        ch->extract( FALSE );
         return 1;
       } else
       return 0;
     }
 
     if (AWAKE(ch)) {
-      for (vict = ch->in_room->people;vict;vict = vict->next_in_room) {
-        if (vict != ch && IS_NPC(vict) && 
-	    GET_MOB_VNUM(ch) == GET_MOB_VNUM(vict) &&
-            !(number(0, GET_LEVEL(mast) + 
-             (GET_CHA(mast) >> (mast->in_room != ch->in_room))))) {
-          hit(ch, vict, TYPE_UNDEFINED);
-          return 1;
+        CharacterList::iterator it = ch->in_room->people.begin();
+        for( ; it != ch->in_room->people.end(); ++it ) {
+            if (*it != ch && IS_NPC((*it)) && 
+    	    GET_MOB_VNUM(ch) == GET_MOB_VNUM((*it)) &&
+                !(number(0, GET_LEVEL(mast) + 
+                 (GET_CHA(mast) >> (mast->in_room != ch->in_room))))) {
+                  hit(ch, (*it), TYPE_UNDEFINED);
+                  return 1;
+            }
         }
-      }
+      
     }
     if (mast->in_room != ch->in_room) 
       return 0;

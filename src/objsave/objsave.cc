@@ -68,8 +68,8 @@ struct obj_data *Obj_from_store( FILE * fl, bool allow_inroom ) {
     }
     
     if ( object.item_number < 0 ) {
-        sprintf( buf, "Obj_from_store found object vnum %d in file.  short_desc=%s.", 
-                 object.item_number, object.short_desc );
+        sprintf( buf, "Obj_from_store found object vnum %d in file.  short_desc=%s. name=%s", 
+                 object.item_number, object.short_desc, object.name );
         slog( buf );
         return NULL;
     }
@@ -1308,7 +1308,9 @@ gen_receptionist( struct char_data * ch, struct char_data * recep,
         act( "$n helps $N into $S private chamber.", 
              FALSE, recep, 0, ch, TO_NOTVICT );
         save_room = ch->in_room;
-        extract_char( ch, FALSE );
+        //extract_char(ch, FALSE);
+        ch->extract( FALSE );
+
         save_char( ch, save_room );
     } else {
         Crash_offer_rent( ch, recep, TRUE, mode );

@@ -18,7 +18,7 @@
 #define ACMD(name)  \
    void (name)(struct char_data *ch, char *argument, int cmd, int subcmd, int *return_flags = 0 )
 #define ACCMD(name)  \
-   void (name)(struct char_data *ch, const char *argument, int cmd, int subcmd, int *return_flags = 0 )
+   void (name)(struct char_data *ch, char *argument, int cmd, int subcmd, int *return_flags = 0 )
 
 void	command_interpreter(struct char_data *ch, char *argument);
 int	search_block(char *arg, const char **list, bool exact);
@@ -35,6 +35,7 @@ int	is_abbrev(const char *arg1, const char *arg2);
 int	is_number( const char *str );
 int	find_command(char *command);
 void	skip_spaces(char **string);
+void	skip_spaces(const char **string);
 char	*delete_doubledollar(char *string);
 
 // from search.c

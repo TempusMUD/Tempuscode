@@ -4,7 +4,7 @@ using namespace std;
 #include <signal.h>
 
 bool CAN_EDIT_ZONE(CHAR *ch, struct zone_data *zone);
-
+//FOO
 ACMD(do_map) {
     int rows;
     int columns;
@@ -42,12 +42,6 @@ ACMD(do_map) {
 MapToken::MapToken( int d, int r, int c, room_data *s, room_data *t ) {
     direction = d; row = r; column = c; source = s; target = t;
     targetID = t->number;
-    /*
-    if( source == NULL || target == NULL ) {
-        fprintf(stderr,"Error creating token.\r\n");
-        raise(666);
-    }
-    */
     next = NULL;
 }
 Mapper::Mapper(char_data *ch,int rows, int columns) {
@@ -78,7 +72,6 @@ void Mapper::display(int bRows,int bCols) {
     for ( row = 0;row < bRows;row++) {
         for (col = 0;col < bCols;col++) {
             if(!(validRow(row) && validColumn(col))) {
-                //fprintf(stderr,"Mapper::display - Invalid row/col [%d,%d]\r\n",row,col);
                 continue;
             }
             pixel = mapDisplay + (row * columns + col);

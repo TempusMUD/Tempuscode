@@ -57,7 +57,8 @@ struct bfs_queue_struct {
 };
 
 static struct bfs_queue_struct *queue_head = 0, *queue_tail = 0;
-static unsigned char find_first_step_index = 0;
+// Can't be static since it's used in map.
+unsigned char find_first_step_index = 0;
 
 /* Utility macros */
 #define MARK(room) ( room->find_first_step_index = find_first_step_index )
@@ -482,12 +483,10 @@ int smart_mobile_move(struct char_data *ch, int dir) {
 int hunt_victim( struct char_data * ch ) {
 
     char buf2[MAX_STRING_LENGTH];
-    extern struct char_data *character_list;
     void perform_tell(struct char_data *ch, struct char_data *vict, char *buf);
     struct affected_type *af_ptr = NULL;
     int dir;
     byte found;
-    struct char_data *tmp;
 
     if (!ch || !HUNTING(ch))
 	return 0;
@@ -498,10 +497,11 @@ int hunt_victim( struct char_data * ch ) {
     }
 
     /* make sure the char still exists */
-    for (found = 0, tmp = character_list; tmp && !found; tmp = tmp->next)
-        if (HUNTING(ch) == tmp)
+    CharacterList::iterator cit = characterList.begin();
+    for(found = 0 ; cit != characterList.end() && !found; ++cit ) {
+        if (HUNTING(ch) == (*cit))
             found = 1;
-
+    }
     if (!found) {
         if (!FIGHTING(ch)) {
             do_say(ch, "Damn!  My prey is gone!!", 0, 0);

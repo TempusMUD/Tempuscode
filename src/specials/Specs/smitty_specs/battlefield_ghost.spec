@@ -15,6 +15,7 @@ SPECIAL(battlefield_ghost)
 	20898
   };
   
+  if( spec_mode == SPECIAL_DEATH ) return 0;
   if (r_ghost_hole == NULL) 
     return 0;
 

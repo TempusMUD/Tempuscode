@@ -68,7 +68,6 @@ struct char_data *get_char_in_world_by_idnum(int nr);
 
 void	char_from_room(struct char_data *ch);
 void	char_to_room(struct char_data *ch, struct room_data *room);
-void	extract_char(struct char_data *ch, byte mode);
 
 /* find if character can see */
 struct char_data *get_char_room_vis(struct char_data *ch, char *name);

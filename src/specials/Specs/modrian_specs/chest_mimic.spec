@@ -9,6 +9,7 @@ SPECIAL(chest_mimic)
   struct char_data *mimic = (struct char_data *) me;
   skip_spaces(&argument);
   
+  if( spec_mode == SPECIAL_DEATH ) return 0;
   if (!(CMD_IS("open") || CMD_IS("pick") || CMD_IS("unlock") ||
         CMD_IS("look") || CMD_IS("examine"))) 
     return 0;

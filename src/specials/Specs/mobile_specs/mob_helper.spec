@@ -8,10 +8,13 @@ SPECIAL(mob_helper)
 {
   struct char_data *vict = NULL;
 
+  if( spec_mode == SPECIAL_DEATH ) return 0;
   if (cmd || FIGHTING(ch))
     return 0;
   if( spec_mode == SPECIAL_DEATH ) return 0;  
-  for (vict=ch->in_room->people;vict != NULL;vict=vict->next_in_room) {
+  CharacterList::iterator it = ch->in_room->people.begin();
+  for( ; it != ch->in_room->people.end(); ++it ) {
+    vict = *it;
     if (FIGHTING(vict) && IS_MOB(vict) && IS_MOB(FIGHTING(vict)))
       if (((IS_GOOD(ch) && IS_GOOD(vict)) || (IS_EVIL(ch) && IS_EVIL(vict)))
                    && !number(0, 2)) {

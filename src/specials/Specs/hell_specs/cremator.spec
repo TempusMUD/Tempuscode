@@ -1,5 +1,6 @@
 SPECIAL( cremator )
 {
+    if( spec_mode == SPECIAL_DEATH ) return 0;
     if ( cmd || !FIGHTING( ch ) )
 	return 0;
 

@@ -9,7 +9,7 @@ SPECIAL(insane_merchant)
   if (cmd)
     return 0;
   if( spec_mode == SPECIAL_DEATH ) return 0;
-  if (ch->in_room->people == ch && !ch->next_in_room)
+  if (ch->in_room->people.size() == 0)
     return 0;
 
   switch (number(0, 50)) {

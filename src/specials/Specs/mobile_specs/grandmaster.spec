@@ -6,6 +6,7 @@
 
 SPECIAL(grandmaster)
 {
+  if( spec_mode == SPECIAL_DEATH ) return 0;
   if (cmd || !AWAKE(ch)) {
     return 0;
   }

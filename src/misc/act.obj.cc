@@ -2155,7 +2155,10 @@ ACMD(do_eat)
     struct affected_type af;
     int amount;
     bool extract_ok = TRUE;
+    int my_return_flags = 0;
 
+    if( return_flags == NULL )
+        return_flags = &my_return_flags;
     one_argument(argument, arg);
 
     if (!*arg) {
@@ -2200,25 +2203,40 @@ ACMD(do_eat)
   
     if ( IS_OBJ_TYPE( food, ITEM_FOOD ) ) {
         if ( IS_OBJ_STAT( food, ITEM_EVIL_BLESS ) ) {
-            if ( ! call_magic( ch, ch, 0, SPELL_ESSENCE_OF_EVIL, GET_OBJ_VAL( food, 1 ), CAST_SPELL ) ) {
+            if ( ! call_magic( ch, ch, 0, SPELL_ESSENCE_OF_EVIL, GET_OBJ_VAL( food, 1 ), CAST_SPELL ), return_flags ) {
                 if ( extract_ok )
                     extract_obj( food );
                 return;
+            } else {
+                if( *return_flags && extract_ok ) {
+                    extract_obj( food );
+                    return;
+                }
             }
         }
         else if (IS_OBJ_STAT(food, ITEM_BLESS)) {
-            if (!call_magic(ch, ch, 0, SPELL_ESSENCE_OF_GOOD, GET_OBJ_VAL(food, 1), CAST_SPELL)) {
+            if (!call_magic(ch, ch, 0, SPELL_ESSENCE_OF_GOOD, GET_OBJ_VAL(food, 1), CAST_SPELL), return_flags ) {
                 if (extract_ok)
                     extract_obj(food);
                 return;
+            } else {
+                if( *return_flags && extract_ok ) {
+                    extract_obj( food );
+                    return;
+                }
             }
         }
         if ( ( GET_OBJ_VAL( food, 1 ) != 0 ) && ( GET_OBJ_VAL( food, 2 ) != 0 ) &&
              ( GET_OBJ_TYPE( food ) == ITEM_FOOD ) && subcmd == SCMD_EAT ) {
-            if ( !mag_objectmagic( ch, food, buf ) ) {
+            if ( !mag_objectmagic( ch, food, buf ), return_flags ) {
                 if ( extract_ok )
                     extract_obj( food );
                 return;
+            } else {
+                if( *return_flags && extract_ok ) {
+                    extract_obj( food );
+                    return;
+                }
             }
         }
     }

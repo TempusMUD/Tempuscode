@@ -156,6 +156,18 @@ show_char_class_menu_future(struct descriptor_data *d)
 void 
 show_past_home_menu(struct descriptor_data *d)
 {
+
+#ifdef HOME_NEWBIE_ONLY
+    /*
+    SEND_TO_Q("\033[H\033[J", d);
+    SEND_TO_Q(CCYEL(d->character, C_NRM), d);
+    SEND_TO_Q("                           Welcome to TempusMUD!\r\n",d);
+    SEND_TO_Q("            Since you are a new character, you will be starting\r\n",d);
+    SEND_TO_Q("                       in our Newbie Academy. Have fun!  \r\n\r\n",d);
+    SEND_TO_Q("                             *** PRESS RETURN: ***", d);
+    SEND_TO_Q(CCNRM(d->character, C_NRM), d);
+    */
+#else 
     sprintf(buf, "\r\n\r\n%sWhat city would you like to make your starting hometown?%s\r\n\r\n", CCCYN(d->character, C_NRM), CCNRM(d->character, C_NRM));
     sprintf(buf, "%s    %sNew Thalos%s       -- Desert City.             Population [%d]\r\n", buf, CCGRN(d->character, C_NRM), CCCYN(d->character, C_NRM),
 	    population_record[HOME_NEW_THALOS]);
@@ -182,6 +194,7 @@ show_past_home_menu(struct descriptor_data *d)
 	    CCNRM(d->character, C_NRM));
 
     SEND_TO_Q(buf, d);
+#endif
 }
 
 //
@@ -290,6 +303,7 @@ parse_past_home(struct descriptor_data *d, char *arg)
 void 
 show_future_home_menu(struct descriptor_data *d)
 {
+#ifndef HOME_NEWBIE_ONLY
     sprintf(buf, "\r\n\r\n%sWhat city would you like to make your starting hometown?%s\r\n\r\n", CCCYN(d->character, C_NRM), CCNRM(d->character, C_NRM));
     sprintf(buf, "%s    %sElectro Centralis%s       -- Central Metropolis.        Population [%d]\r\n", buf, CCGRN(d->character, C_NRM), CCCYN(d->character, C_NRM),
 	    population_record[HOME_ELECTRO]);
@@ -301,6 +315,7 @@ show_future_home_menu(struct descriptor_data *d)
     sprintf(buf, "%s\r\n%sYour choice:%s ", buf, CCCYN(d->character, C_NRM),
 	    CCNRM(d->character, C_NRM));
     SEND_TO_Q(buf, d);
+#endif
 }
 
 //
@@ -374,10 +389,9 @@ show_time_menu(struct descriptor_data *d)
 {
     sprintf(buf, "%sFrom what time period do you hail?%s\r\n\r\n", 
 	    CCCYN(d->character, C_NRM), CCNRM(d->character, C_NRM));
-    sprintf(buf, "%s         %sPast%s     - the era of Modrian        %s[%sNew players start here%s]%s\r\n", 
+    sprintf(buf, "%s         %sPast%s     - the era of Modrian%s\r\n", 
 	    buf, CCGRN(d->character, C_NRM), CCCYN(d->character, C_NRM),
-	    CCRED_BLD(d->character, C_NRM), CCYEL_BLD(d->character, C_NRM),
-	    CCRED_BLD(d->character, C_NRM), CCNRM(d->character, C_NRM));
+	     CCNRM(d->character, C_NRM));
     sprintf(buf, "%s         %sFuture%s   - era of Electro Centralis%s  (under construction)\r\n\r\n"
 	    "%sYour choice:%s ",
 	    buf, CCGRN(d->character, C_NRM), CCCYN(d->character, C_NRM), 

@@ -57,11 +57,12 @@ SPECIAL(roaming_portal)
         if(dest != portal->in_room && dest->sector_type != SECT_INSIDE) // Not indoors.
             if (!number(0, --num_dests))
                 break;
-
-    // Only immortals see this.
-    act("$p disappears suddenly.",FALSE, 0, portal, 0, TO_ROOM);
-	obj_from_room(portal);
-	obj_to_room(portal, dest);
-    act("$p appears suddenly.",FALSE, 0, portal, 0, TO_ROOM);
+    if( dest != NULL ) {
+        // Only immortals see this.
+        act("$p disappears suddenly.",FALSE, 0, portal, 0, TO_ROOM);
+    	obj_from_room(portal);
+    	obj_to_room(portal, dest);
+        act("$p appears suddenly.",FALSE, 0, portal, 0, TO_ROOM);
+    }
 	return 1;
 }

@@ -44,7 +44,6 @@ extern char weapon_verbs[];
 extern int *max_ac_applys;
 extern struct apply_mod_defaults *apmd;
 
-void clearMemory(struct char_data * ch);
 void act(const char *str, int i, struct char_data * c, struct obj_data * o,
      void *vict_obj, int j);
 
@@ -295,7 +294,10 @@ affect_update(void)
     int METABOLISM = 0;
     ACMD(do_stand);
 
-    for (i = character_list; i; i = i->next) {
+    CharacterList::iterator cit = characterList.begin();
+    for ( ; cit != characterList.end(); ++cit ) {
+    i = *cit;
+    //for (i = character_list; i; i = i->next) {
 
     hamstring_found = kata_found = beserk_found = assimilate_found = 0;
 
@@ -2230,18 +2232,13 @@ mag_groups(int level, struct char_data * ch, int spellnum, int savetype)
 void 
 mag_masses(byte level, struct char_data * ch, int spellnum, int savetype)
 {
-    struct char_data *tch, *tch_next;
     int found = 0;
-
-    for (tch = ch->in_room->people; tch; tch = tch_next) {
-    tch_next = tch->next_in_room;
-    if (tch == ch || ch != FIGHTING(tch))
-        continue;
-
-    switch (spellnum) {
-    }
-    found = TRUE;
-    mag_damage(level, ch, tch, spellnum, 1);
+    CharacterList::iterator it = ch->in_room->people.begin();
+    for( ; it != ch->in_room->people.end(); ++it ) {
+        if ((*it) == ch || ch != FIGHTING((*it)))
+            continue;
+        found = TRUE;
+        mag_damage(level, ch, (*it), spellnum, 1);
     }
     if (!found)
     send_to_char("This spell is only useful if someone is fighting you.\r\n",ch);
@@ -2260,12 +2257,11 @@ mag_masses(byte level, struct char_data * ch, int spellnum, int savetype)
 int
 mag_areas(byte level, struct char_data * ch, int spellnum, int savetype)
 {
-    struct char_data *tch, *next_tch;
+    //struct char_data *tch, *next_tch;
     char *to_char = NULL;
     char *to_room = NULL;
     char *to_next_room = NULL;
-    struct room_data *was_in = NULL, *adjoin_room = NULL;
-    int door;
+    room_data *was_in,*adjoin_room;
     byte count;
     int return_value = 0;
 
@@ -2273,13 +2269,14 @@ mag_areas(byte level, struct char_data * ch, int spellnum, int savetype)
     return 0;
 
     if (spellnum == SPELL_MASS_HYSTERIA) {
-    for (tch = ch->in_room->people, count = 0; tch; tch = tch->next_in_room)
-        if (tch != ch && CAN_SEE(ch, tch))
-        count++;
-    if (!count) {
-        send_to_char("You need some people present to make that effective.\r\n", ch);
-        return 0;
-    }
+        CharacterList::iterator it = ch->in_room->people.begin();
+        for( count = 0; it != ch->in_room->people.end(); ++it )
+            if ((*it) != ch && CAN_SEE(ch, (*it)))
+                count++;
+        if (!count) {
+            send_to_char("You need some people present to make that effective.\r\n", ch);
+            return 0;
+        }
     }
     /*
      * to add spells to this fn, just add the message here plus an entry
@@ -2306,7 +2303,7 @@ mag_areas(byte level, struct char_data * ch, int spellnum, int savetype)
         to_next_room = "A blinding flash of light briefly envelopes you.";
         break;
   
- }
+    }
 
     if (to_char != NULL)
     act(to_char, FALSE, ch, 0, 0, TO_CHAR);
@@ -2328,48 +2325,44 @@ mag_areas(byte level, struct char_data * ch, int spellnum, int savetype)
 
     // check for players if caster is not a pkiller
     if ( !IS_NPC( ch ) && !PRF2_FLAGGED( ch, PRF2_PKILLER ) ) {
-    for ( tch = ch->in_room->people; tch; tch = next_tch ) {
-        next_tch = tch->next_in_room;
-        if ( ch == tch)
-        continue;
-        if ( !IS_NPC( tch ) ) {
-        act( "You cannot do this, because this action might cause harm to $N,\r\n"
-             "and you have not chosen to be a Pkiller.\r\n"
-             "You can toggle this with the command 'pkiller'.", FALSE, ch, 0, tch, TO_CHAR );
-        return 0;
+        CharacterList::iterator it = ch->in_room->people.begin();
+        for( ; it != ch->in_room->people.end(); ++it ) {
+            if ( ch == *it)
+                continue;
+            if ( !IS_NPC( (*it) ) ) {
+            act( "You cannot do this, because this action might cause harm to $N,\r\n"
+                 "and you have not chosen to be a Pkiller.\r\n"
+                 "You can toggle this with the command 'pkiller'.", FALSE, ch, 0, (*it) , TO_CHAR );
+            return 0;
+            }
         }
     }
-    }
-
-    for ( tch = ch->in_room->people; tch; tch = next_tch ) {
-        next_tch = tch->next_in_room;
-
+    CharacterList::iterator it = ch->in_room->people.begin();
+    for( ; it != ch->in_room->people.end(); ++it ) {
         // skips:
         //          caster
         //          nohassle-flagged players (imms)
         //          charmed mobs
         //          flying chars if spell is earthquake
 
-        if (tch == ch)
+        if ((*it) == ch)
             continue;
-        if (!IS_NPC(tch) && PRF_FLAGGED( tch, PRF_NOHASSLE ) )
+        if (!IS_NPC((*it)) && PRF_FLAGGED( (*it), PRF_NOHASSLE ) )
             continue;
-        if (!IS_NPC(ch) && IS_NPC(tch) && IS_AFFECTED(tch, AFF_CHARM))
+        if (!IS_NPC(ch) && IS_NPC((*it)) && IS_AFFECTED((*it), AFF_CHARM))
             continue; 
-        if (spellnum == SPELL_EARTHQUAKE && tch->getPosition() == POS_FLYING)
+        if (spellnum == SPELL_EARTHQUAKE && (*it)->getPosition() == POS_FLYING)
             continue;
 
         if (spellnum == SPELL_MASS_HYSTERIA) {
-            call_magic(ch, tch, 0, SPELL_FEAR, level, CAST_PSIONIC);
+            call_magic(ch, (*it), 0, SPELL_FEAR, level, CAST_PSIONIC);
             continue;
         }
            
-        if (spellnum == SPELL_FISSION_BLAST) {
-           if( !( mag_savingthrow( tch, level, SAVING_PHY ) ) ){ 
-              add_rad_sickness( tch, level );
-           }
+        if( !( mag_savingthrow( (*it), level, SAVING_PHY ) ) ){ 
+            add_rad_sickness( (*it), level );
         }
-        int retval = mag_damage(level, ch, tch, spellnum, 1); 
+        int retval = mag_damage(level, ch, (*it), spellnum, 1); 
         return_value |= retval;
         if(retval == 0) {
             if (spellnum == SPELL_EARTHQUAKE && number(10, 20) > GET_DEX(ch)) {
@@ -2379,30 +2372,29 @@ mag_areas(byte level, struct char_data * ch, int spellnum, int savetype)
         }
     }
     if (to_next_room) {
-    was_in = ch->in_room;
-    for (door = 0; door < NUM_OF_DIRS; door++) {
-        if (CAN_GO(ch, door) && ch->in_room != EXIT(ch, door)->to_room) {
-        ch->in_room = was_in->dir_option[door]->to_room;
-        act(to_next_room, FALSE, ch, 0, 0, TO_ROOM);
-        adjoin_room = ch->in_room;
-        ch->in_room = was_in;
-        for (tch = adjoin_room->people; tch; tch = next_tch) {
-      
-            next_tch = tch->next_in_room;
-
-            if (!IS_NPC(tch) && GET_LEVEL(tch) >= LVL_AMBASSADOR)
-            continue;
-            if (!IS_NPC(ch) && IS_NPC(tch) && IS_AFFECTED(tch, AFF_CHARM))
-            continue; 
-            if (spellnum == SPELL_EARTHQUAKE && tch->getPosition() == POS_FLYING)
-            continue;
-            if (spellnum == SPELL_EARTHQUAKE && tch->getPosition() == POS_STANDING &&
-            number(10, 20) > GET_DEX(tch)) {
-            send_to_char("You stumble and fall to the ground!\r\n", tch);
-            tch->setPosition( POS_SITTING );
+        was_in = ch->in_room;
+        for (int door = 0; door < NUM_OF_DIRS; door++) {
+            if (CAN_GO(ch, door) && ch->in_room != EXIT(ch, door)->to_room) {
+                ch->in_room = was_in->dir_option[door]->to_room;
+                act(to_next_room, FALSE, ch, 0, 0, TO_ROOM);
+                adjoin_room = ch->in_room;
+                ch->in_room = was_in;
+                
+                CharacterList::iterator it = adjoin_room->people.begin();
+                for( ; it != adjoin_room->people.end(); ++it ) {
+                    if (!IS_NPC((*it)) && GET_LEVEL((*it)) >= LVL_AMBASSADOR)
+                    continue;
+                    if (!IS_NPC(ch) && IS_NPC((*it)) && IS_AFFECTED((*it), AFF_CHARM))
+                    continue; 
+                    if (spellnum == SPELL_EARTHQUAKE && (*it)->getPosition() == POS_FLYING)
+                    continue;
+                    if (spellnum == SPELL_EARTHQUAKE && (*it)->getPosition() == POS_STANDING &&
+                    number(10, 20) > GET_DEX((*it))) {
+                        send_to_char("You stumble and fall to the ground!\r\n", (*it));
+                        (*it)->setPosition( POS_SITTING );
+                    }
+                }
             }
-        }
-        }
     }
     }
     return return_value;

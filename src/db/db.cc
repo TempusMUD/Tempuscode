@@ -50,35 +50,35 @@
 *  declarations of most of the 'global' variables                         *
 ************************************************************************ */
 
-int top_of_world = 0;        	/* ref to top element of world	 */
+int top_of_world = 0;                /* ref to top element of world         */
 
-struct char_data *character_list = NULL;        /* global linked list of
-        					 * chars	 */
-struct char_data *mob_proto;        /* prototypes for mobs		 */
-int top_of_mobt = 0;        	/* top of mobile index table	 */
+//struct char_data *character_list = NULL;        /* global linked list of
+//                                                 * chars         */
+
+int top_of_mobt = 0;                /* top of mobile index table         */
 int current_mob_idnum = 0;
 
 struct remort_question_data *remort_quiz[MAX_REMORT_QUESTIONS];
 int top_of_remort_quiz = -1;
 
-struct obj_data *object_list = NULL;        /* global linked list of objs	 */
-struct obj_data *obj_proto;        /* prototypes for objs		 */
+struct obj_data *object_list = NULL;        /* global linked list of objs         */
+struct obj_data *obj_proto;        /* prototypes for objs                 */
 struct obj_shared_data *null_obj_shared;
 struct mob_shared_data *null_mob_shared;
-int top_of_objt = 0;        	/* top of object index table	 */
+int top_of_objt = 0;                /* top of object index table         */
 
-struct zone_data *zone_table;        /* zone table			 */
-int top_of_zone_table = 0;        /* top element of zone tab	 */
+struct zone_data *zone_table;        /* zone table                         */
+int top_of_zone_table = 0;        /* top element of zone tab         */
 struct message_list fight_messages[MAX_MESSAGES];    /* fighting messages  */
 struct player_index_element *player_table = NULL;     /* index to plr file */
 extern HelpCollection *Help;
 extern list<CIScript *> scriptList;
 
-FILE *player_fl = NULL;        	/* file desc of player file	 */
+FILE *player_fl = NULL;                /* file desc of player file         */
 
-int top_of_p_table = 0;        	/* ref to top of table		 */
-int top_of_p_file = 0;        	/* ref of size of p file	 */
-long top_idnum = 0;        	/* highest idnum in use		 */
+int top_of_p_table = 0;                /* ref to top of table                 */
+int top_of_p_file = 0;                /* ref of size of p file         */
+long top_idnum = 0;                /* highest idnum in use                 */
 int no_plrtext = 0;             /* player text disabled?         */
 
 int no_mail = 0;        	/* mail disabled?		 */
@@ -93,10 +93,10 @@ int quest_status = 0;
 int lunar_stage = 0;
 int lunar_phase = MOON_NEW;
 
-struct room_data *r_mortal_start_room;        /* rnum of mortal start room	 */
+struct room_data *r_mortal_start_room;        /* rnum of mortal start room   */
 struct room_data *r_electro_start_room; /* Electro Centralis start room  */
-struct room_data *r_immort_start_room;        /* rnum of immort start room	 */
-struct room_data *r_frozen_start_room;        /* rnum of frozen start room	 */
+struct room_data *r_immort_start_room;        /* rnum of immort start room   */
+struct room_data *r_frozen_start_room;        /* rnum of frozen start room   */
 struct room_data *r_new_thalos_start_room;
 struct room_data *r_elven_start_room;
 struct room_data *r_istan_start_room;
@@ -115,6 +115,8 @@ struct room_data *r_drow_isle_start_room;
 struct room_data *r_astral_manse_start_room;
 struct room_data *r_zul_dane_start_room;
 struct room_data *r_zul_dane_newbie_start_room;
+struct room_data *r_newbie_school_start_room;
+
 
 struct zone_data *default_quad_zone = NULL;
 
@@ -125,39 +127,39 @@ int  *wld_index = NULL;         /* world index                   */
 int  *ticl_index = NULL;        /* ticl index                    */
 int  *iscr_index = NULL;        /* iscript index                 */
 
-char *credits = NULL;        	/* game credits			 */
-char *news = NULL;        	/* mud news			 */
-char *motd = NULL;        	/* message of the day - mortals */
-char *ansi_motd = NULL;        	/* message of the day - mortals */
-char *imotd = NULL;        	/* message of the day - immorts */
+char *credits = NULL;                /* game credits                         */
+char *news = NULL;                /* mud news                         */
+char *motd = NULL;                /* message of the day - mortals */
+char *ansi_motd = NULL;                /* message of the day - mortals */
+char *imotd = NULL;                /* message of the day - immorts */
 char *ansi_imotd = NULL;        /* message of the day - immorts */
-//char *help = NULL;        	/* help screen			 */
-char *info = NULL;        	/* info page			 */
-char *wizlist = NULL;        	/* list of higher gods		 */
-char *ansi_wizlist = NULL;        /* list of higher gods		 */
-char *immlist = NULL;        	/* list of peon gods		 */
-char *ansi_immlist = NULL;           /* list of peon gods		 */
-char *background = NULL;        /* background story		 */
-char *handbook = NULL;        	/* handbook for new immortals	 */
-char *policies = NULL;        	/* policies page		 */
-char *areas_low = NULL;        	/* areas information		 */
-char *areas_mid = NULL;        	/* areas information		 */
-char *areas_high = NULL;        /* areas information		 */
-char *areas_remort = NULL;        /* areas information		 */
-char *bugs = NULL;        	/* bugs file			 */
-char *ideas = NULL;        	/* ideas file			 */
-char *typos = NULL;        	/* typos file			 */
+//char *help = NULL;                /* help screen                         */
+char *info = NULL;                /* info page                         */
+char *wizlist = NULL;                /* list of higher gods                 */
+char *ansi_wizlist = NULL;        /* list of higher gods                 */
+char *immlist = NULL;                /* list of peon gods                 */
+char *ansi_immlist = NULL;           /* list of peon gods                 */
+char *background = NULL;        /* background story                 */
+char *handbook = NULL;                /* handbook for new immortals         */
+char *policies = NULL;                /* policies page                 */
+char *areas_low = NULL;                /* areas information                 */
+char *areas_mid = NULL;                /* areas information                 */
+char *areas_high = NULL;        /* areas information                 */
+char *areas_remort = NULL;        /* areas information                 */
+char *bugs = NULL;                /* bugs file                         */
+char *ideas = NULL;                /* ideas file                         */
+char *typos = NULL;                /* typos file                         */
 char *olc_guide = NULL;         /* creation tips                 */
 char *quest_guide = NULL;        /* quest guidelines             */
 
-//FILE *help_fl = NULL;        	/* file for help text		 */
-//struct help_index_element *help_index = 0;        /* the help table	 */
-//int top_of_helpt;        	/* top of help index table	 */
+//FILE *help_fl = NULL;                /* file for help text                 */
+//struct help_index_element *help_index = 0;        /* the help table         */
+//int top_of_helpt;                /* top of help index table         */
 
 struct time_info_data time_info;/* the infomation about the time    */
 /*struct weather_data weather_info;        the infomation about the weather */
-struct player_special_data dummy_mob;        /* dummy spec area for mobs	 */
-struct reset_q_type reset_q;        /* queue of zones to be reset	 */
+struct player_special_data dummy_mob;        /* dummy spec area for mobs         */
+struct reset_q_type reset_q;        /* queue of zones to be reset         */
 
 /* local functions */
 void setup_dir(FILE * fl, struct room_data *room, int dir);
@@ -318,7 +320,7 @@ ACMD(do_reboot)
             dmalloc_verify(0);
 #endif
             for (i = 0; i < top_of_helpt; i++)
-        	free(help_index[i].keyword);
+                free(help_index[i].keyword);
             free(help_index);
 #ifdef DMALLOC
             dmalloc_verify(0);
@@ -485,7 +487,7 @@ boot_db(void)
     if (!no_initial_zreset) {
         for (zone = zone_table; zone; zone = zone->next) {
             sprintf(buf2, "Resetting %s (rms %d-%d).",
-        	    zone->name, zone->number*100, zone->top);
+                    zone->name, zone->number*100, zone->top);
             slog(buf2);
             reset_zone(zone);
         }
@@ -593,8 +595,8 @@ build_player_index(void)
             slog("No playerfile.  Creating a new one.");
             touch(PLAYER_FILE);
             if (!(player_fl = fopen(PLAYER_FILE, "r+b"))) {
-        	perror("fatal error opening new playerfile");
-        	safe_exit(1);
+                perror("fatal error opening new playerfile");
+                safe_exit(1);
             }
         }
     }
@@ -620,11 +622,11 @@ build_player_index(void)
 
     for (; !feof(player_fl);) {
         fread(&dummy, sizeof(struct char_file_u), 1, player_fl);
-        if (!feof(player_fl)) {	/* new record */
+        if (!feof(player_fl)) {        /* new record */
             nr++;
             CREATE(player_table[nr].name, char, strlen(dummy.name) + 1);
             for (i = 0;
-        	 (*(player_table[nr].name + i) = LOWER(*(dummy.name + i))); i++);
+                 (*(player_table[nr].name + i) = LOWER(*(dummy.name + i))); i++);
             player_table[nr].id = dummy.char_specials_saved.idnum;
             top_idnum = MAX(top_idnum, dummy.char_specials_saved.idnum);
             population_record[dummy.hometown]++;
@@ -711,9 +713,9 @@ index_boot(int mode)
 
     if (!(index = fopen(buf2, "r"))) {
         if (!(index = fopen(buf2, "a+"))) {
-        	sprintf(buf1, "Error opening index file '%s'", buf2);
-        	perror(buf1);
-        	safe_exit(1);
+                sprintf(buf1, "Error opening index file '%s'", buf2);
+                perror(buf1);
+                safe_exit(1);
         }
     }
 
@@ -727,9 +729,9 @@ index_boot(int mode)
         } 
     else {
             if (mode == DB_BOOT_ZON)
-        	rec_count++;
+                rec_count++;
             else
-        	rec_count += count_hash_records(db_file);
+                rec_count += count_hash_records(db_file);
         }
 
         fclose(db_file);
@@ -794,24 +796,24 @@ index_boot(int mode)
   
         for (i = 0; i < index_count; i++) {
             if (mode == DB_BOOT_OBJ) {
-        	fscanf(index, "%d.obj\n", &number);
-        	obj_index[i] = number;
+                fscanf(index, "%d.obj\n", &number);
+                obj_index[i] = number;
             }
             else if (mode == DB_BOOT_MOB) {
-        	fscanf(index, "%d.mob\n", &number);
-        	mob_index[i] = number;
+                fscanf(index, "%d.mob\n", &number);
+                mob_index[i] = number;
             }
             else if (mode == DB_BOOT_SHP) {
-        	fscanf(index, "%d.shp\n", &number);
-        	shp_index[i] = number;
+                fscanf(index, "%d.shp\n", &number);
+                shp_index[i] = number;
             }
             else if (mode == DB_BOOT_WLD) {
-        	fscanf(index, "%d.wld\n", &number);
-        	wld_index[i] = number;
+                fscanf(index, "%d.wld\n", &number);
+                wld_index[i] = number;
             }
             else if (mode == DB_BOOT_TICL) {
-        	fscanf(index, "%d.ticl\n", &number);
-        	ticl_index[i] = number;
+                fscanf(index, "%d.ticl\n", &number);
+                ticl_index[i] = number;
             }
         else if (mode == DB_BOOT_ISCR) {
             fscanf(index, "%d.iscr\n", &number);
@@ -895,8 +897,8 @@ discrete_load(FILE * fl, int mode)
          */
         if (mode != DB_BOOT_OBJ || nr < 0)
             if (!get_line(fl, line)) {
-        	fprintf(stderr, "Format error after %s #%d\n", modes[mode], nr);
-        	safe_exit(1);
+                fprintf(stderr, "Format error after %s #%d\n", modes[mode], nr);
+                safe_exit(1);
             }
         if (*line == '$')
             return;
@@ -904,29 +906,29 @@ discrete_load(FILE * fl, int mode)
         if (*line == '#') {
             last = nr;
             if (sscanf(line, "#%d", &nr) != 1) {
-        	fprintf(stderr, "Format error after %s #%d\n", modes[mode], last);
-        	safe_exit(1);
+                fprintf(stderr, "Format error after %s #%d\n", modes[mode], last);
+                safe_exit(1);
             }
             if (nr >= 99999)
-        	return;
+                return;
             else
-        	switch (mode) {
-        	case DB_BOOT_WLD:
-        	    parse_room(fl, nr);
-        	    break;
-        	case DB_BOOT_MOB:
-        	    parse_mobile(fl, nr);
-        	    break;
-        	case DB_BOOT_OBJ:
-        	    strcpy(line, parse_object(fl, nr));
-        	    break;
-        	case DB_BOOT_TICL:
-        	    load_ticl(fl, nr);
-        	}
+                switch (mode) {
+                case DB_BOOT_WLD:
+                    parse_room(fl, nr);
+                    break;
+                case DB_BOOT_MOB:
+                    parse_mobile(fl, nr);
+                    break;
+                case DB_BOOT_OBJ:
+                    strcpy(line, parse_object(fl, nr));
+                    break;
+                case DB_BOOT_TICL:
+                    load_ticl(fl, nr);
+                }
         } 
     else {
             fprintf(stderr, "Format error in %s file near %s #%d\n",
-        	    modes[mode], modes[mode], nr);
+                    modes[mode], modes[mode], nr);
             fprintf(stderr, "Offending line: '%s'\n", line);
             safe_exit(1);
         }
@@ -963,7 +965,7 @@ void
 parse_room(FILE * fl, int vnum_nr)
 {
     static int room_nr = 0;
-    int t[10], i;
+    int t[10];
     char line[256], flags[128];
     struct extra_descr_data *new_descr = NULL, *t_exdesc = NULL;
     struct special_search_data *new_search = NULL, *t_srch = NULL;
@@ -981,10 +983,8 @@ parse_room(FILE * fl, int vnum_nr)
         }
     }
 
-    CREATE(room, struct room_data, 1);
-  
-    room->zone = zone;
-    room->number = vnum_nr;
+    //CREATE(room, struct room_data, 1);
+    room = new room_data(vnum_nr, zone);
     room->name = fread_string(fl, buf2);
     room->description = fread_string(fl, buf2);
     room->sounds = NULL;
@@ -996,22 +996,16 @@ parse_room(FILE * fl, int vnum_nr)
 
     room->room_flags = asciiflag_conv(flags);
     room->sector_type = t[2];
+    /* Defaults set in constructor
+    room->zone = zone;
+    room->number = vnum_nr;
     room->func = NULL;
     room->ticl_ptr = NULL;
     room->contents = NULL;
     room->people = NULL;
-    room->light = 0;               /* Zero light sources     */
-    room->max_occupancy = 256;  /* Default value set here */
+    room->light = 0;            // Zero light sources
+    room->max_occupancy = 256;  //Default value set here
     room->find_first_step_index = 0;
-
-    /* t[0] is the zone number; ignored with the zone-file system */
-    zone = real_zone(t[0]);
-  
-    if (zone == NULL) {
-        fprintf(stderr, "Room %d outside of any zone.\n", vnum_nr);
-        safe_exit(1);
-    }
-  
     for (i = 0; i < NUM_OF_DIRS; i++)
         room->dir_option[i] = NULL;
 
@@ -1020,6 +1014,16 @@ parse_room(FILE * fl, int vnum_nr)
     room->flow_dir = 0;
     room->flow_speed = 0;
     room->flow_type = 0;
+    */
+    
+    // t[0] is the zone number; ignored with the zone-file system
+    zone = real_zone(t[0]);
+  
+    if (zone == NULL) {
+        fprintf(stderr, "Room %d outside of any zone.\n", vnum_nr);
+        safe_exit(1);
+    }
+  
 
     sprintf(buf, "Format error in room #%d (expecting D/E/S)", vnum_nr);
 
@@ -1044,20 +1048,20 @@ parse_room(FILE * fl, int vnum_nr)
 
             new_descr->next = NULL;
             if (!room->ex_description)
-        	room->ex_description = new_descr;
+                room->ex_description = new_descr;
             else {
-        	for (t_exdesc=room->ex_description;t_exdesc;t_exdesc=t_exdesc->next) {
-        	    if (!(t_exdesc->next)) {
-        		t_exdesc->next = new_descr;
-        		break;
-        	    }
-        	}
+                for (t_exdesc=room->ex_description;t_exdesc;t_exdesc=t_exdesc->next) {
+                    if (!(t_exdesc->next)) {
+                        t_exdesc->next = new_descr;
+                        break;
+                    }
+                }
 
-        	if (!t_exdesc) {
-        	    fprintf(stderr, "Error building exdesc list in room %d.",
-        		    vnum_nr);
-        	    safe_exit(1);
-        	}
+                if (!t_exdesc) {
+                    fprintf(stderr, "Error building exdesc list in room %d.",
+                            vnum_nr);
+                    safe_exit(1);
+                }
             }
             break;
         case 'L':
@@ -1065,29 +1069,29 @@ parse_room(FILE * fl, int vnum_nr)
             break;
         case 'F':
             if (!get_line(fl, line) || sscanf(line, "%d %d %d", t, t+1, t+2) != 3) {
-        	fprintf(stderr, "Flow field incorrect in room #%d.\n", vnum_nr);
-        	safe_exit(1);
+                fprintf(stderr, "Flow field incorrect in room #%d.\n", vnum_nr);
+                safe_exit(1);
             }
             if (FLOW_SPEED(room)) {
-        	sprintf(buf, "SYSERR: Multiple flow states assigned to room #%d.\n", 
-        		vnum_nr);
-        	slog(buf);
+                sprintf(buf, "SYSERR: Multiple flow states assigned to room #%d.\n", 
+                        vnum_nr);
+                slog(buf);
             }
             if (t[0] < 0 || t[0] >= NUM_DIRS) {
-        	fprintf(stderr, "Direction '%d' in room #%d flow field BUNK!\n",
-        		t[0], vnum_nr);
-        	safe_exit(1);
+                fprintf(stderr, "Direction '%d' in room #%d flow field BUNK!\n",
+                        t[0], vnum_nr);
+                safe_exit(1);
             }
             if (t[1] < 0) {
-        	fprintf(stderr, "Negative speed in room #%d flow field!\n",
-        		vnum_nr);
-        	safe_exit(1);
+                fprintf(stderr, "Negative speed in room #%d flow field!\n",
+                        vnum_nr);
+                safe_exit(1);
             }
             if (t[2] < 0 || t[2] >= NUM_FLOW_TYPES) {
-        	sprintf(buf, "SYSERR: Illegal flow type in room #%d.", vnum_nr);
-        	FLOW_TYPE(room) = F_TYPE_NONE;
+                sprintf(buf, "SYSERR: Illegal flow type in room #%d.", vnum_nr);
+                FLOW_TYPE(room) = F_TYPE_NONE;
             } else
-        	FLOW_TYPE(room) = t[2];
+                FLOW_TYPE(room) = t[2];
             FLOW_DIR(room) = t[0];
             FLOW_SPEED(room) = t[1];
             break;
@@ -1100,14 +1104,14 @@ parse_room(FILE * fl, int vnum_nr)
             new_search->to_remote =    fread_string(fl, buf2);
      
             if (!get_line(fl, line)) {
-        	fprintf(stderr, "Search error in room #%d.", vnum_nr);
-        	safe_exit(1);
+                fprintf(stderr, "Search error in room #%d.", vnum_nr);
+                safe_exit(1);
             }
 
             if ((sscanf(line, "%d %d %d %d %d", 
-        		t+5, t+ 1, t + 2, t + 3, t + 4) != 5)) {
-        	fprintf(stderr,"Search Field format error in room #%d\n",vnum_nr);
-        	safe_exit(1);
+                        t+5, t+ 1, t + 2, t + 3, t + 4) != 5)) {
+                fprintf(stderr,"Search Field format error in room #%d\n",vnum_nr);
+                safe_exit(1);
             }
 
             new_search->command = t[5];
@@ -1121,35 +1125,35 @@ parse_room(FILE * fl, int vnum_nr)
             new_search->next = NULL;
       
             if (!(room->search))
-        	room->search = new_search;
+                room->search = new_search;
             else {
-        	for (t_srch = room->search; t_srch; t_srch = t_srch->next)
-        	    if (!(t_srch->next)) {
-        		t_srch->next = new_search;
-        		break;
-        	    }
+                for (t_srch = room->search; t_srch; t_srch = t_srch->next)
+                    if (!(t_srch->next)) {
+                        t_srch->next = new_search;
+                        break;
+                    }
         
-        	if (!t_srch) {
-        	    fprintf(stderr, "Error building main search list in room %d.",
-        		    vnum_nr);
-        	    safe_exit(1);
-        	}
+                if (!t_srch) {
+                    fprintf(stderr, "Error building main search list in room %d.",
+                            vnum_nr);
+                    safe_exit(1);
+                }
             }
             break;
 
-        case 'S':			/* end of room */
+        case 'S':                        /* end of room */
             top_of_world = room_nr++;
       
             room->next = NULL;
       
             if (zone->world) {
-        	for (tmp_room = zone->world; tmp_room; tmp_room = tmp_room->next)
-        	    if (!tmp_room->next) {
-        		tmp_room->next = room;
-        		break;
-        	    }
+                for (tmp_room = zone->world; tmp_room; tmp_room = tmp_room->next)
+                    if (!tmp_room->next) {
+                        tmp_room->next = room;
+                        break;
+                    }
             } else
-        	zone->world = room;
+                zone->world = room;
       
             return;
             break;
@@ -1235,6 +1239,7 @@ check_start_rooms(void)
     extern room_num astral_manse_start_room;
     extern room_num zul_dane_start_room;
     extern room_num zul_dane_newbie_start_room;
+    extern room_num newbie_school_start_room;
 
     if ((r_mortal_start_room = real_room(mortal_start_room)) == NULL) {
         slog("SYSERR:  Mortal start room does not exist.  Change in config.c.");
@@ -1350,6 +1355,12 @@ check_start_rooms(void)
         // set it to the normal zul dane room ...
         r_zul_dane_newbie_start_room = r_zul_dane_start_room;
     }
+    if ((r_newbie_school_start_room = real_room(newbie_school_start_room)) == NULL) {
+        if (!mini_mud)
+            slog("SYSERR:  Warning: Zul Dane newbie start room does not exist.");
+        // set it to the normal zul dane room ...
+        r_newbie_school_start_room = r_mortal_start_room;
+    }
 
 
 }
@@ -1365,46 +1376,46 @@ renum_world(void)
     for (zone = zone_table; zone; zone = zone->next)
         for (room = zone->world; room; room = room->next)
             for (door = 0; door < NUM_OF_DIRS; door++)
-        	if (room->dir_option[door])
-        	    if ((room_num)room->dir_option[door]->to_room != NOWHERE) {
-        		vnum = (room_num)room->dir_option[door]->to_room;
-        		room->dir_option[door]->to_room = NULL;
-        		for (found=0, room1 = zone->world; room1 && found != 1; 
-        		     room1 = room1->next)
-        		    if (room1->number == vnum) {
-        			room->dir_option[door]->to_room = (struct room_data *)room1;
-        			found = 1;
-        		    }
-        		if (found == 0) {
-        		    zone1 = real_zone(vnum/100);
-        		    if (zone1 == NULL) {
-        			for (zone1 = zone_table; zone1; zone1 = zone1->next)
-        			    for (found = 0, room1 = zone1->world; room1 && found != 1; 
-        				 room1 = room1->next)
-        				if (room1->number == vnum) {
-        				    room->dir_option[door]->to_room=(struct room_data *)room1;
-        				    found = 1;
-        				}
-        		    }
-        		    else
-        			for (found = 0, room1 = zone1->world; room1 && found != 1; 
-        			     room1 = room1->next)
-        			    if (room1->number == vnum) {
-        				room->dir_option[door]->to_room =(struct room_data *)room1;
-        				found = 1;
-        			    }
-        		    if (found == 0) {
-        			for (zone1 = zone_table; zone1; zone1 = zone1->next)
-        			    for (found = 0, room1 = zone1->world; room1 && found != 1; 
-        				 room1 = room1->next)
-        				if (room1->number == vnum) {
-        				    room->dir_option[door]->to_room=(struct room_data *)room1;
-        				    found = 1;
-        				}
-        		    }
-        		}
-        	    } else
-        		room->dir_option[door]->to_room = NULL;
+                if (room->dir_option[door])
+                    if ((room_num)room->dir_option[door]->to_room != NOWHERE) {
+                        vnum = (room_num)room->dir_option[door]->to_room;
+                        room->dir_option[door]->to_room = NULL;
+                        for (found=0, room1 = zone->world; room1 && found != 1; 
+                             room1 = room1->next)
+                            if (room1->number == vnum) {
+                                room->dir_option[door]->to_room = (struct room_data *)room1;
+                                found = 1;
+                            }
+                        if (found == 0) {
+                            zone1 = real_zone(vnum/100);
+                            if (zone1 == NULL) {
+                                for (zone1 = zone_table; zone1; zone1 = zone1->next)
+                                    for (found = 0, room1 = zone1->world; room1 && found != 1; 
+                                         room1 = room1->next)
+                                        if (room1->number == vnum) {
+                                            room->dir_option[door]->to_room=(struct room_data *)room1;
+                                            found = 1;
+                                        }
+                            }
+                            else
+                                for (found = 0, room1 = zone1->world; room1 && found != 1; 
+                                     room1 = room1->next)
+                                    if (room1->number == vnum) {
+                                        room->dir_option[door]->to_room =(struct room_data *)room1;
+                                        found = 1;
+                                    }
+                            if (found == 0) {
+                                for (zone1 = zone_table; zone1; zone1 = zone1->next)
+                                    for (found = 0, room1 = zone1->world; room1 && found != 1; 
+                                         room1 = room1->next)
+                                        if (room1->number == vnum) {
+                                            room->dir_option[door]->to_room=(struct room_data *)room1;
+                                            found = 1;
+                                        }
+                            }
+                        }
+                    } else
+                        room->dir_option[door]->to_room = NULL;
             
 }
 
@@ -1444,54 +1455,54 @@ renum_zone_table(void)
             a = b = 0;
             switch (zonecmd->command) {
             case 'M':
-        	a = zonecmd->arg1;
-        	room = real_room(zonecmd->arg3);
-        	if (room != NULL)
-        	    b = zonecmd->arg3 = room->number;
-        	else
-        	    b = NOWHERE;
-        	break;
+                a = zonecmd->arg1;
+                room = real_room(zonecmd->arg3);
+                if (room != NULL)
+                    b = zonecmd->arg3 = room->number;
+                else
+                    b = NOWHERE;
+                break;
             case 'O':
-        	a = zonecmd->arg1;
-        	room = real_room(zonecmd->arg3);
-        	if (room != NULL)
-        	    b = room->number;
-        	else 
-        	    b = NOWHERE;
-        	break;
+                a = zonecmd->arg1;
+                room = real_room(zonecmd->arg3);
+                if (room != NULL)
+                    b = room->number;
+                else 
+                    b = NOWHERE;
+                break;
             case 'G':
-        	a = zonecmd->arg1;
-        	break;
+                a = zonecmd->arg1;
+                break;
             case 'I':
-        	a = zonecmd->arg1;
-        	break;
+                a = zonecmd->arg1;
+                break;
             case 'E':
-        	a = zonecmd->arg1;
-        	break;
+                a = zonecmd->arg1;
+                break;
             case 'P':
-        	a = zonecmd->arg1;
-        	b = zonecmd->arg3;
-        	break;
+                a = zonecmd->arg1;
+                b = zonecmd->arg3;
+                break;
             case 'D':
-        	room = real_room(zonecmd->arg1);
-        	if (room != NULL)
-        	    a = zonecmd->arg1 = room->number;
-        	else
-        	    a = NOWHERE;
-        	break;
+                room = real_room(zonecmd->arg1);
+                if (room != NULL)
+                    a = zonecmd->arg1 = room->number;
+                else
+                    a = NOWHERE;
+                break;
             case 'R': /* rem obj from room */
-        	a = zonecmd->arg1;
-        	room = real_room(zonecmd->arg2);
-        	if (room != NULL)
-        	    b = zonecmd->arg2 = room->number;
-        	else
-        	    b = NOWHERE;
-        	break;
+                a = zonecmd->arg1;
+                room = real_room(zonecmd->arg2);
+                if (room != NULL)
+                    b = zonecmd->arg2 = room->number;
+                else
+                    b = NOWHERE;
+                break;
             }
             if (a < 0 || b < 0) {
-        	if (!mini_mud && !scheck)
-        	    log_zone_error(zone, zonecmd, "Invalid vnum, cmd disabled");
-        	zonecmd->command = '*';
+                if (!mini_mud && !scheck)
+                    log_zone_error(zone, zonecmd, "Invalid vnum, cmd disabled");
+                zonecmd->command = '*';
             }
         }
 }
@@ -1672,7 +1683,7 @@ parse_simple_mob(FILE *mob_f, struct char_data *mobile, int nr)
     if (sscanf(line, " %d %d %d %dd%d+%d %dd%d+%d ",
                t, t + 1, t + 2, t + 3, t + 4, t + 5, t + 6, t + 7, t + 8) != 9) {
         fprintf(stderr, "Format error in mob #%d, first line after S flag\n"
-        	"...expecting line of form '# # # #d#+# #d#+#'\n", nr);
+                "...expecting line of form '# # # #d#+# #d#+#'\n", nr);
         safe_exit(1);
     }
     GET_LEVEL(mobile) = t[0];
@@ -1864,7 +1875,7 @@ interpret_espec(char *keyword, char *value, struct char_data *mobile, int nr)
     }
     if (!matched) {
         fprintf(stderr, "Warning: unrecognized espec keyword %s in mob #%d\n",
-        	keyword, nr);
+                keyword, nr);
     }    
 }
 
@@ -1895,9 +1906,9 @@ parse_enhanced_mob(FILE *mob_f, struct char_data *mobile, int nr)
     parse_simple_mob(mob_f, mobile, nr);
 
     while (get_line(mob_f, line)) {
-        if (!strcmp(line, "E"))	/* end of the ehanced section */
+        if (!strcmp(line, "E"))        /* end of the ehanced section */
             return;
-        else if (*line == '#') {	/* we've hit the next mob, maybe? */
+        else if (*line == '#') {        /* we've hit the next mob, maybe? */
             fprintf(stderr, "Unterminated E section in mob #%d\n", nr);
             safe_exit(1);
         } else
@@ -1959,8 +1970,8 @@ load_ticl(FILE * ticl_f, int nr)
     if (zone->ticl_list) {
         for (tmp_ticl = zone->ticl_list; tmp_ticl; tmp_ticl = tmp_ticl->next)
             if (!tmp_ticl->next) {
-        	tmp_ticl->next = ticl;
-        	break;
+                tmp_ticl->next = ticl;
+                break;
             }
     } 
     else
@@ -2060,18 +2071,8 @@ parse_mobile(FILE * mob_f, int nr)
         mobile->equipment[j] = NULL;
 
     mobile->desc = NULL;
-    mobile->next = NULL;
   
-    if (mob_proto) {
-        for (tmp_mob = mob_proto; tmp_mob; tmp_mob = tmp_mob->next)
-            if (!tmp_mob->next) {
-        	tmp_mob->next = mobile;
-        	break;
-            }
-    } 
-    else
-        mob_proto = mobile;  
-  
+    mobilePrototypes.add(mobile);
     top_of_mobt = i++;
 }
 
@@ -2213,8 +2214,8 @@ parse_object(FILE * obj_f, int nr)
             break;
         case 'A':
             if (j >= MAX_OBJ_AFFECT) {
-        	fprintf(stderr, "Too many A fields (%d max), %s\n", MAX_OBJ_AFFECT, buf2);
-        	safe_exit(1);
+                fprintf(stderr, "Too many A fields (%d max), %s\n", MAX_OBJ_AFFECT, buf2);
+                safe_exit(1);
             }
             get_line(obj_f, line);
             sscanf(line, " %d %d ", t, t + 1);
@@ -2226,7 +2227,7 @@ parse_object(FILE * obj_f, int nr)
             get_line(obj_f, line);
             sscanf(line, " %d %s ", t , f1);
             if (t[0] < 1 || t[0] > 3)
-        	break;
+                break;
             obj->obj_flags.bitvector[t[0] -1] = asciiflag_conv(f1);
             break;
         case '$':
@@ -2236,13 +2237,13 @@ parse_object(FILE * obj_f, int nr)
             obj->next = NULL;
       
             if (obj_proto) {
-        	for (tmp_obj = obj_proto; tmp_obj; tmp_obj = tmp_obj->next)
-        	    if (!tmp_obj->next) {
-        		tmp_obj->next = obj;
-        		break;
-        	    }
+                for (tmp_obj = obj_proto; tmp_obj; tmp_obj = tmp_obj->next)
+                    if (!tmp_obj->next) {
+                        tmp_obj->next = obj;
+                        break;
+                    }
             } else
-        	obj_proto = obj;
+                obj_proto = obj;
       
             return line;
             break;
@@ -2273,7 +2274,7 @@ load_zones(FILE * fl, char *zonename)
     strcpy(zname, zonename);
 
     while (get_line(fl, buf))
-        num_of_cmds++;		/* this should be correct within 3 or so */
+        num_of_cmds++;                /* this should be correct within 3 or so */
     rewind(fl);
 
     if (num_of_cmds == 0) {
@@ -2357,23 +2358,23 @@ load_zones(FILE * fl, char *zonename)
         error = 0;
         if (strchr("MOEPDIVW", new_zonecmd->command) == NULL) { 
             if (sscanf(ptr, " %d %d %d %d ", &tmp, &tmp2,
-        	       &new_zonecmd->arg1, 
-        	       &new_zonecmd->arg2) != 4)
-        	error = 1;
+                       &new_zonecmd->arg1, 
+                       &new_zonecmd->arg2) != 4)
+                error = 1;
         } else {
             if (new_zonecmd->command == 'D') {
-        	if (sscanf(ptr, " %d %d %d %d %s ", &tmp, &tmp2,
-        		   &new_zonecmd->arg1,
-        		   &new_zonecmd->arg2, flags) != 5)
-        	    error = 1;
-        	if (error != 1)
-        	    new_zonecmd->arg3 = asciiflag_conv(flags);
+                if (sscanf(ptr, " %d %d %d %d %s ", &tmp, &tmp2,
+                           &new_zonecmd->arg1,
+                           &new_zonecmd->arg2, flags) != 5)
+                    error = 1;
+                if (error != 1)
+                    new_zonecmd->arg3 = asciiflag_conv(flags);
         
             } else {
-        	if (sscanf(ptr, " %d %d %d %d %d ", &tmp, &tmp2,
-        		   &new_zonecmd->arg1, 
-        		   &new_zonecmd->arg2, &new_zonecmd->arg3) != 5)
-        	    error = 1;
+                if (sscanf(ptr, " %d %d %d %d %d ", &tmp, &tmp2,
+                           &new_zonecmd->arg1, 
+                           &new_zonecmd->arg2, &new_zonecmd->arg3) != 5)
+                    error = 1;
             }
         }
         /*
@@ -2407,10 +2408,10 @@ load_zones(FILE * fl, char *zonename)
 
         if (new_zone->cmd) {
             for (zonecmd = new_zone->cmd; zonecmd; zonecmd = zonecmd->next)
-        	if (!zonecmd->next) {
-        	    zonecmd->next = new_zonecmd;
-        	    break;
-        	}
+                if (!zonecmd->next) {
+                    zonecmd->next = new_zonecmd;
+                    break;
+                }
         }
         else
             new_zone->cmd = new_zonecmd;
@@ -2425,8 +2426,8 @@ load_zones(FILE * fl, char *zonename)
     if (zone_table) {
         for (zone = zone_table; zone; zone = zone->next)
             if (!zone->next) {
-        	zone->next = new_zone;
-        	break;
+                zone->next = new_zone;
+                break;
             }
     } else
         zone_table = new_zone;
@@ -2439,7 +2440,7 @@ load_zones(FILE * fl, char *zonename)
 
 
 /*************************************************************************
-*  procedures for resetting, both play-time and boot-time         	 *
+*  procedures for resetting, both play-time and boot-time                  *
 *********************************************************************** */
 
 
@@ -2451,16 +2452,20 @@ vnum_mobile(char *searchname, struct char_data * ch)
     int found = 0;
 
     strcpy(buf, "");
-    for (mobile = mob_proto; mobile; mobile = mobile->next) {
+
+    CharacterList::iterator mit = mobilePrototypes.begin();
+    for ( ; mit != mobilePrototypes.end(); ++mit ) {
+    //for (mobile = mob_proto; mobile; mobile = mobile->next) {
+        mobile = *mit;
         if (isname(searchname, mobile->player.name)) {
             sprintf(buf, "%s%3d. %s[%s%5d%s]%s %s%s\r\n", buf, ++found,
-        	    CCGRN(ch, C_NRM), CCNRM(ch, C_NRM), 
-        	    mobile->mob_specials.shared->vnum, 
-        	    CCGRN(ch, C_NRM), CCYEL(ch, C_NRM),
-        	    mobile->player.short_descr, CCNRM(ch, C_NRM));
+                    CCGRN(ch, C_NRM), CCNRM(ch, C_NRM), 
+                    mobile->mob_specials.shared->vnum, 
+                    CCGRN(ch, C_NRM), CCYEL(ch, C_NRM),
+                    mobile->player.short_descr, CCNRM(ch, C_NRM));
             if (strlen(buf) + 128 > MAX_STRING_LENGTH) {
-        	strcat(buf, "**OVERFLOW**\r\n");
-        	break;                   
+                    strcat(buf, "**OVERFLOW**\r\n");
+                    break;                   
             }
         }
     }
@@ -2481,12 +2486,12 @@ vnum_object(char *searchname, struct char_data * ch)
     for (obj = obj_proto; obj; obj = obj->next) {
         if (isname(searchname, obj->name)) {
             sprintf(buf, "%s%3d. %s[%s%5d%s]%s %s%s\r\n", buf, ++found,
-        	    CCGRN(ch, C_NRM), CCNRM(ch, C_NRM), obj->shared->vnum,
-        	    CCGRN(ch, C_NRM), CCGRN(ch, C_NRM),
-        	    obj->short_description, CCNRM(ch, C_NRM));
+                    CCGRN(ch, C_NRM), CCNRM(ch, C_NRM), obj->shared->vnum,
+                    CCGRN(ch, C_NRM), CCGRN(ch, C_NRM),
+                    obj->short_description, CCNRM(ch, C_NRM));
             if (strlen(buf) + 128 > MAX_STRING_LENGTH) {
-        	strcat(buf, "**OVERFLOW**\r\n");
-        	break;                   
+                strcat(buf, "**OVERFLOW**\r\n");
+                break;                   
             }
         }
     }
@@ -2506,21 +2511,21 @@ read_mobile(int vnum)
 
     /*  CREATE(mob, struct char_data, 1);
         clear_char(mob); */
-  
-    for (tmp_mob = mob_proto; 
-         tmp_mob;
-         tmp_mob = tmp_mob->next) {
+    CharacterList::iterator mit = mobilePrototypes.begin();
+    for ( ; mit != mobilePrototypes.end(); ++mit ) {
+        tmp_mob = *mit;
+    //for (tmp_mob = mob_proto; tmp_mob; tmp_mob = tmp_mob->next) {
         if (tmp_mob->mob_specials.shared->vnum >= vnum) {
             if (tmp_mob->mob_specials.shared->vnum == vnum) {
-        	CREATE(mob, struct char_data, 1);
-        	*mob = *tmp_mob;
-        	tmp_mob->mob_specials.shared->number++;
-        	tmp_mob->mob_specials.shared->loaded++;
-        	found = 1;
-        	break;
+                    CREATE(mob, struct char_data, 1);
+                    *mob = *tmp_mob;
+                    tmp_mob->mob_specials.shared->number++;
+                    tmp_mob->mob_specials.shared->loaded++;
+                    found = 1;
+                    break;
             } else {
-        	sprintf(buf, "Mobile (V) %d does not exist in database.", vnum);
-        	return (NULL);
+                    sprintf(buf, "Mobile (V) %d does not exist in database.", vnum);
+                    return (NULL);
             }
         }
     }
@@ -2530,9 +2535,9 @@ read_mobile(int vnum)
         return (NULL);
     }
 
-    mob->next = character_list;
-    character_list = mob;
-
+    //mob->next = character_list;
+    //character_list = mob;
+    characterList.add(mob);
     if (!mob->points.max_hit) {
         mob->points.max_hit = dice(mob->points.hit, mob->points.mana) +
             mob->points.move;
@@ -2586,15 +2591,15 @@ read_object(int vnum)
          tmp_obj; tmp_obj = tmp_obj->next) {
         if (tmp_obj->shared->vnum >= vnum) {
             if (tmp_obj->shared->vnum == vnum) {
-        	CREATE(obj, struct obj_data, 1);
-        	/*      clear_object(obj); */
-        	*obj = *tmp_obj;
-        	tmp_obj->shared->number++;
-        	found = 1;
-        	break;
+                CREATE(obj, struct obj_data, 1);
+                /*      clear_object(obj); */
+                *obj = *tmp_obj;
+                tmp_obj->shared->number++;
+                found = 1;
+                break;
             } else {
-        	sprintf(buf, "Object (V) %d does not exist in database.", vnum);
-        	return NULL;
+                sprintf(buf, "Object (V) %d does not exist in database.", vnum);
+                return NULL;
             }
         }
     }
@@ -2647,30 +2652,30 @@ zone_update(void)
         for (zone = zone_table; zone; zone = zone->next) {
 
             if (!zone->num_players && !ZONE_FLAGGED(zone, ZONE_NOIDLE))
-        	zone->idle_time++;
+                zone->idle_time++;
       
             if (zone->age < zone->lifespan &&
-        	zone->reset_mode)
-        	(zone->age)++;
+                zone->reset_mode)
+                (zone->age)++;
 
             if (zone->age >= zone->lifespan &&
-        	zone->age > zone->idle_time && /* <-- new mod here */
-        	zone->age < ZO_DEAD && zone->reset_mode) {
-        	/* enqueue zone */
+                zone->age > zone->idle_time && /* <-- new mod here */
+                zone->age < ZO_DEAD && zone->reset_mode) {
+                /* enqueue zone */
 
-        	CREATE(update_u, struct reset_q_element, 1);
+                CREATE(update_u, struct reset_q_element, 1);
 
-        	update_u->zone_to_reset = zone;
-        	update_u->next = 0;
+                update_u->zone_to_reset = zone;
+                update_u->next = 0;
 
-        	if (!reset_q.head)
-        	    reset_q.head = reset_q.tail = update_u;
-        	else {
-        	    reset_q.tail->next = update_u;
-        	    reset_q.tail = update_u;
-        	}
+                if (!reset_q.head)
+                    reset_q.head = reset_q.tail = update_u;
+                else {
+                    reset_q.tail->next = update_u;
+                    reset_q.tail = update_u;
+                }
 
-        	zone->age = ZO_DEAD;
+                zone->age = ZO_DEAD;
             }
         }
     }        /* end - one minute has passed */
@@ -2681,22 +2686,22 @@ zone_update(void)
     for (update_u = reset_q.head; update_u; update_u = update_u->next)
         if (update_u->zone_to_reset->reset_mode == 2 ||
             !update_u->zone_to_reset->num_players) {
-            /*	is_empty(update_u->zone_to_reset)) { */
+            /*        is_empty(update_u->zone_to_reset)) { */
             reset_zone(update_u->zone_to_reset);
             sprintf(buf, "Auto zone reset: %s",
-        	    update_u->zone_to_reset->name);
+                    update_u->zone_to_reset->name);
             mudlog(buf, CMP, LVL_GOD, FALSE);
             /* dequeue */
             if (update_u == reset_q.head)
-        	reset_q.head = reset_q.head->next;
+                reset_q.head = reset_q.head->next;
             else {
-        	for (temp = reset_q.head; temp->next != update_u;
-        	     temp = temp->next);
+                for (temp = reset_q.head; temp->next != update_u;
+                     temp = temp->next);
 
-        	if (!update_u->next)
-        	    reset_q.tail = temp;
+                if (!update_u->next)
+                    reset_q.tail = temp;
 
-        	temp->next = update_u->next;
+                temp->next = update_u->next;
             }
 #ifdef DMALLOC
             dmalloc_verify(0);
@@ -2731,7 +2736,7 @@ void
 reset_zone(struct zone_data *zone)
 {
     int cmd_no, last_cmd = 0, prob_override = 0;
-    struct char_data *mob = NULL, *tmob = NULL, *ldr = NULL;
+    struct char_data *mob = NULL, *tmob = NULL;
     struct obj_data *obj = NULL, *obj_to = NULL, *tobj = NULL;
     struct reset_com *zonecmd;
     struct room_data *room;
@@ -2742,41 +2747,45 @@ reset_zone(struct zone_data *zone)
         struct char_data *vkeeper = NULL;
 
         SPECIAL(shop_keeper);
-        extern struct char_data *character_list;
+        //extern struct char_data *character_list;
         extern struct shop_data *shop_index;
-        // Find all the shops in this zone and reset them.
-        for(keeper = character_list;keeper; keeper = keeper->next) {
-        	// Wrong zone
-        	if(keeper->in_room->zone != zone)
-        		continue;
-        	// No special
-        	if(!MOB_FLAGGED(keeper,MOB_SPEC))
-        		continue;
-        	// Wrong special
-        	if(GET_MOB_SPEC(keeper) != shop_keeper)
-        		continue;
-        	// Run through the shop list and find the right one
-        	for (shop = shop_index; shop; shop = shop->next) {
-        		// Do they have revenue set on the shop?
-        		if(SHOP_REVENUE(shop) <= 0 )
-        			continue;
-        		// Make sure its the right shop keeper.
-        		if (GET_MOB_VNUM(keeper) != shop->keeper)
-        			continue;
-        		// Make sure the shop is in this zone;
-        		if (shop->vnum < (zone->number * 100) || shop->vnum > zone->top)
-        			continue;
-        		// Assume at this point that we've found the proper keeper
-        		// and shop pair.
 
-        		// if the vnum's gold is less than his current gold
-        		// add the revenue up to the vnum's gold.
-        		vkeeper = real_mobile_proto(shop->keeper);
-        		if(GET_MONEY(keeper,shop) < GET_MONEY(vkeeper,shop))
-        			GET_MONEY(keeper,shop) = 
-        				MIN(GET_MONEY(vkeeper,shop), GET_MONEY(keeper,shop) + SHOP_REVENUE(shop));
-        		break;// should break out of shop for loop.
-        	}
+        // Find all the shops in this zone and reset them.
+        CharacterList::iterator cit = characterList.begin();
+        for( ; cit != characterList.end(); ++cit ) {
+        //for(keeper = character_list;keeper; keeper = keeper->next) {
+            keeper = *cit;
+                // Wrong zone
+                if(keeper->in_room->zone != zone)
+                        continue;
+                // No special
+                if(!MOB_FLAGGED(keeper,MOB_SPEC))
+                        continue;
+                // Wrong special
+                if(GET_MOB_SPEC(keeper) != shop_keeper)
+                        continue;
+                // Run through the shop list and find the right one
+                for (shop = shop_index; shop; shop = shop->next) {
+                        // Do they have revenue set on the shop?
+                        if(SHOP_REVENUE(shop) <= 0 )
+                                continue;
+                        // Make sure its the right shop keeper.
+                        if (GET_MOB_VNUM(keeper) != shop->keeper)
+                                continue;
+                        // Make sure the shop is in this zone;
+                        if (shop->vnum < (zone->number * 100) || shop->vnum > zone->top)
+                                continue;
+                        // Assume at this point that we've found the proper keeper
+                        // and shop pair.
+
+                        // if the vnum's gold is less than his current gold
+                        // add the revenue up to the vnum's gold.
+                        vkeeper = real_mobile_proto(shop->keeper);
+                        if(GET_MONEY(keeper,shop) < GET_MONEY(vkeeper,shop))
+                                GET_MONEY(keeper,shop) = 
+                                        MIN(GET_MONEY(vkeeper,shop), GET_MONEY(keeper,shop) + SHOP_REVENUE(shop));
+                        break;// should break out of shop for loop.
+                }
         }
 
 
@@ -2806,42 +2815,45 @@ reset_zone(struct zone_data *zone)
     }
 
         switch (zonecmd->command) {
-        case '*':			/* ignore command */
+        case '*':                        /* ignore command */
             last_cmd = -1;
             break;
-        case 'M': /* read a mobile */
+        case 'M': { /* read a mobile */
             tmob = real_mobile_proto(zonecmd->arg1);
             if (tmob != NULL && tmob->mob_specials.shared->number < zonecmd->arg2) {
-            room = real_room(zonecmd->arg3);
-            if (room) 
-                mob = read_mobile(zonecmd->arg1);
-            else {
-                last_cmd = 0;
-                break;
-            }
-            if (mob) {
-                char_to_room(mob, room);
-                if (GET_MOB_LEADER(mob) > 0) {
-                for (ldr = mob->in_room->people; ldr; ldr = ldr->next_in_room)
-                    if (ldr != mob && IS_NPC(ldr) && 
-                    GET_MOB_VNUM(ldr) == GET_MOB_LEADER(mob)) {
-                    if (!circle_follow(mob, ldr)) {
-                        add_follower(mob, ldr);
-                        break;
-                    }
-                    }
+                room = real_room(zonecmd->arg3);
+                if (room) {
+                    mob = read_mobile(zonecmd->arg1);
+                } else {
+                    last_cmd = 0;
+                    break;
                 }
-                last_cmd = 1;
-            } else
+                if (mob) {
+                    char_to_room(mob, room);
+                    if (GET_MOB_LEADER(mob) > 0) {
+                        CharacterList::iterator it = mob->in_room->people.begin();
+                        for ( ; it != mob->in_room->people.end(); ++it ) {
+                            if ((*it) != mob && IS_NPC((*it)) && GET_MOB_VNUM((*it)) == GET_MOB_LEADER(mob)) {
+                                if (!circle_follow(mob, (*it))) {
+                                    add_follower(mob, (*it));
+                                    break;
+                                }
+                            }
+                        }
+                    }
+                    last_cmd = 1;
+                } else {
+                    last_cmd = 0;
+                }
+            } else {
                 last_cmd = 0;
-            } else
-            last_cmd = 0;
+            }
             break;
-
-        case 'O':			/* read an object */
+        }
+        case 'O':                        /* read an object */
             tobj = real_object_proto(zonecmd->arg1);
             if (tobj != NULL && 
-        	tobj->shared->number - tobj->shared->house_count < zonecmd->arg2) {
+                tobj->shared->number - tobj->shared->house_count < zonecmd->arg2) {
             if (zonecmd->arg3 >= 0) {
                 room = real_room(zonecmd->arg3);
                 if (room && !ROOM_FLAGGED(room, ROOM_HOUSE)) {
@@ -2865,7 +2877,7 @@ reset_zone(struct zone_data *zone)
             last_cmd = 0;
             break;
 
-        case 'P':			/* object to object */
+        case 'P':                        /* object to object */
             tobj = real_object_proto(zonecmd->arg1);
             if (tobj != NULL && 
             tobj->shared->number - tobj->shared->house_count < zonecmd->arg2) {
@@ -2899,7 +2911,7 @@ reset_zone(struct zone_data *zone)
             last_cmd = 1;
             break;
 
-        case 'G':			/* obj_to_char */
+        case 'G':                        /* obj_to_char */
             if (!mob) {
             if (last_cmd == 1)
                 ZONE_ERROR("attempt to give obj to non-existant mob");
@@ -2907,138 +2919,138 @@ reset_zone(struct zone_data *zone)
             }
             tobj = real_object_proto(zonecmd->arg1);
             if (tobj != NULL && 
-        	tobj->shared->number - tobj->shared->house_count < zonecmd->arg2) {
-        	obj = read_object(zonecmd->arg1);
-        	if (ZONE_FLAGGED(zone, ZONE_ZCMDS_APPROVED)) {
-        	    SET_BIT(GET_OBJ_EXTRA2(obj), ITEM2_UNAPPROVED);
-        	    GET_OBJ_TIMER(obj) = 60;
-        	}
-        	obj_to_char(obj, mob);
-        	last_cmd = 1;
+                tobj->shared->number - tobj->shared->house_count < zonecmd->arg2) {
+                obj = read_object(zonecmd->arg1);
+                if (ZONE_FLAGGED(zone, ZONE_ZCMDS_APPROVED)) {
+                    SET_BIT(GET_OBJ_EXTRA2(obj), ITEM2_UNAPPROVED);
+                    GET_OBJ_TIMER(obj) = 60;
+                }
+                obj_to_char(obj, mob);
+                last_cmd = 1;
             } else
-        	last_cmd = 0;
+                last_cmd = 0;
             break;
 
-        case 'E':			/* object to equipment list */
+        case 'E':                        /* object to equipment list */
             if (!mob) {
-        	if (last_cmd)
-        	    ZONE_ERROR("trying to equip non-existant mob");
-        	break;
+                if (last_cmd)
+                    ZONE_ERROR("trying to equip non-existant mob");
+                break;
             }
             last_cmd = 0;
             tobj = real_object_proto(zonecmd->arg1);
             if (tobj != NULL && 
-        	tobj->shared->number - tobj->shared->house_count < zonecmd->arg2) {
-        	if (zonecmd->arg3 < 0 || 
-        	    zonecmd->arg3 >= NUM_WEARS) {
-        	    ZONE_ERROR("invalid equipment pos number");
-        	} else if(!CAN_WEAR(tobj, 
-        			    wear_bitvectors[zonecmd->arg3])) {
-        	    ZONE_ERROR("invalid eq pos for obj");
-        	} else if (GET_EQ(mob, zonecmd->arg3)) {
-        	    ZONE_ERROR("char already equipped in position");
-        	} else {
-        	    obj = read_object(zonecmd->arg1);
-        	    if (ZONE_FLAGGED(zone, ZONE_ZCMDS_APPROVED)) {
-        		SET_BIT(GET_OBJ_EXTRA2(obj), ITEM2_UNAPPROVED);
-        		GET_OBJ_TIMER(obj) = 60;
-        	    }
-        	    if (equip_char(mob, obj, zonecmd->arg3, MODE_EQ)) {
-        		mob = NULL;
-        		last_cmd = 0;
-        	    } else
-        		last_cmd = 1;
-        	}
+                tobj->shared->number - tobj->shared->house_count < zonecmd->arg2) {
+                if (zonecmd->arg3 < 0 || 
+                    zonecmd->arg3 >= NUM_WEARS) {
+                    ZONE_ERROR("invalid equipment pos number");
+                } else if(!CAN_WEAR(tobj, 
+                                    wear_bitvectors[zonecmd->arg3])) {
+                    ZONE_ERROR("invalid eq pos for obj");
+                } else if (GET_EQ(mob, zonecmd->arg3)) {
+                    ZONE_ERROR("char already equipped in position");
+                } else {
+                    obj = read_object(zonecmd->arg1);
+                    if (ZONE_FLAGGED(zone, ZONE_ZCMDS_APPROVED)) {
+                        SET_BIT(GET_OBJ_EXTRA2(obj), ITEM2_UNAPPROVED);
+                        GET_OBJ_TIMER(obj) = 60;
+                    }
+                    if (equip_char(mob, obj, zonecmd->arg3, MODE_EQ)) {
+                        mob = NULL;
+                        last_cmd = 0;
+                    } else
+                        last_cmd = 1;
+                }
             } else
-        	last_cmd = 0;
+                last_cmd = 0;
             break;
-        case 'I':			/* object to equipment list */
+        case 'I':                        /* object to equipment list */
             if (!mob) {
-        	if (last_cmd)
-        	    ZONE_ERROR("trying to implant non-existant mob");
-        	break;
+                if (last_cmd)
+                    ZONE_ERROR("trying to implant non-existant mob");
+                break;
             }
             last_cmd = 0;
             tobj = real_object_proto(zonecmd->arg1);
             if (tobj != NULL && 
-        	tobj->shared->number - tobj->shared->number < zonecmd->arg2) {
-        	if (zonecmd->arg3 < 0 || 
-        	    zonecmd->arg3 >= NUM_WEARS) {
-        	    ZONE_ERROR("invalid implant pos number");
-        	} else if(!CAN_WEAR(tobj, 
-        			    wear_bitvectors[zonecmd->arg3])) {
-        	    ZONE_ERROR("invalid implant pos for obj");
-        	} else if (GET_IMPLANT(mob, zonecmd->arg3)) {
-        	    ZONE_ERROR("char already implanted in position");
-        	} else {
-        	    obj = read_object(zonecmd->arg1);
-        	    if (ZONE_FLAGGED(zone, ZONE_ZCMDS_APPROVED)) {
-        		SET_BIT(GET_OBJ_EXTRA2(obj), ITEM2_UNAPPROVED);
-        		GET_OBJ_TIMER(obj) = 60;
-        	    }
-        	    if (equip_char(mob, obj, zonecmd->arg3, MODE_IMPLANT)) {
-        		mob = NULL;
-        		last_cmd = 0;
-        	    } else
-        		last_cmd = 1;
-        	}
+                tobj->shared->number - tobj->shared->number < zonecmd->arg2) {
+                if (zonecmd->arg3 < 0 || 
+                    zonecmd->arg3 >= NUM_WEARS) {
+                    ZONE_ERROR("invalid implant pos number");
+                } else if(!CAN_WEAR(tobj, 
+                                    wear_bitvectors[zonecmd->arg3])) {
+                    ZONE_ERROR("invalid implant pos for obj");
+                } else if (GET_IMPLANT(mob, zonecmd->arg3)) {
+                    ZONE_ERROR("char already implanted in position");
+                } else {
+                    obj = read_object(zonecmd->arg1);
+                    if (ZONE_FLAGGED(zone, ZONE_ZCMDS_APPROVED)) {
+                        SET_BIT(GET_OBJ_EXTRA2(obj), ITEM2_UNAPPROVED);
+                        GET_OBJ_TIMER(obj) = 60;
+                    }
+                    if (equip_char(mob, obj, zonecmd->arg3, MODE_IMPLANT)) {
+                        mob = NULL;
+                        last_cmd = 0;
+                    } else
+                        last_cmd = 1;
+                }
             } else
-        	last_cmd = 0;
+                last_cmd = 0;
             break;
         case 'W':
             if (!mob) {
-        	if (last_cmd)
-        	    ZONE_ERROR("trying to assign path to non-existant mob");
-        	last_cmd = 0;
-        	break;
+                if (last_cmd)
+                    ZONE_ERROR("trying to assign path to non-existant mob");
+                last_cmd = 0;
+                break;
             }
             last_cmd = 0;
             if (!(p_head = real_path_by_num(zonecmd->arg1))) {
-        	ZONE_ERROR("invalid path vnum");
-        	break;
+                ZONE_ERROR("invalid path vnum");
+                break;
             }
             if (!add_path_to_mob(mob, p_head->name)) {
-        	ZONE_ERROR("unable to attach path to mob");
+                ZONE_ERROR("unable to attach path to mob");
             } else
-        	last_cmd = 1;
+                last_cmd = 1;
             break;
       
         case 'R': /* rem obj from room */
             room = real_room(zonecmd->arg2);
             if (room && 
-        	(obj = get_obj_in_list_num(zonecmd->arg1, room->contents)) &&
-        	!ROOM_FLAGGED(room, ROOM_HOUSE)) {
-        	obj_from_room(obj);
-        	extract_obj(obj);
-        	last_cmd = 1;
-        	prob_override = 1;
+                (obj = get_obj_in_list_num(zonecmd->arg1, room->contents)) &&
+                !ROOM_FLAGGED(room, ROOM_HOUSE)) {
+                obj_from_room(obj);
+                extract_obj(obj);
+                last_cmd = 1;
+                prob_override = 1;
             } else
-        	last_cmd = 0;
+                last_cmd = 0;
 
             break;
 
-        case 'D':			/* set state of door */
+        case 'D':                        /* set state of door */
             room = real_room(zonecmd->arg1);
             if (!room || zonecmd->arg2 < 0 || zonecmd->arg2 >= NUM_OF_DIRS ||
-        	(room->dir_option[zonecmd->arg2] == NULL)) {
-        	ZONE_ERROR("door does not exist");
+                (room->dir_option[zonecmd->arg2] == NULL)) {
+                ZONE_ERROR("door does not exist");
             } else {
-        	if (IS_SET(zonecmd->arg3, DOOR_OPEN)) {
-        	    REMOVE_BIT(room->dir_option[zonecmd->arg2]->exit_info, EX_LOCKED);
-        	    REMOVE_BIT(room->dir_option[zonecmd->arg2]->exit_info, EX_CLOSED);
-        	}
-        	if (IS_SET(zonecmd->arg3, DOOR_CLOSED)) { 
-        	    SET_BIT(room->dir_option[zonecmd->arg2]->exit_info, EX_CLOSED);
-        	    REMOVE_BIT(room->dir_option[zonecmd->arg2]->exit_info, EX_LOCKED);
-        	}
-        	if (IS_SET(zonecmd->arg3, DOOR_LOCKED)) {
-        	    SET_BIT(room->dir_option[zonecmd->arg2]->exit_info, EX_LOCKED);
-        	    SET_BIT(room->dir_option[zonecmd->arg2]->exit_info, EX_CLOSED);
-        	}
-        	if (IS_SET(zonecmd->arg3, DOOR_HIDDEN)) {
-        	    SET_BIT(room->dir_option[zonecmd->arg2]->exit_info, EX_HIDDEN);
-        	}
-        	last_cmd = 1;
+                if (IS_SET(zonecmd->arg3, DOOR_OPEN)) {
+                    REMOVE_BIT(room->dir_option[zonecmd->arg2]->exit_info, EX_LOCKED);
+                    REMOVE_BIT(room->dir_option[zonecmd->arg2]->exit_info, EX_CLOSED);
+                }
+                if (IS_SET(zonecmd->arg3, DOOR_CLOSED)) { 
+                    SET_BIT(room->dir_option[zonecmd->arg2]->exit_info, EX_CLOSED);
+                    REMOVE_BIT(room->dir_option[zonecmd->arg2]->exit_info, EX_LOCKED);
+                }
+                if (IS_SET(zonecmd->arg3, DOOR_LOCKED)) {
+                    SET_BIT(room->dir_option[zonecmd->arg2]->exit_info, EX_LOCKED);
+                    SET_BIT(room->dir_option[zonecmd->arg2]->exit_info, EX_CLOSED);
+                }
+                if (IS_SET(zonecmd->arg3, DOOR_HIDDEN)) {
+                    SET_BIT(room->dir_option[zonecmd->arg2]->exit_info, EX_HIDDEN);
+                }
+                last_cmd = 1;
             }
             break;
 
@@ -3074,7 +3086,7 @@ reset_zone(struct zone_data *zone)
 */
 
 /*************************************************************************
-*  stuff related to the save/load player system        			 *
+*  stuff related to the save/load player system                                 *
 *********************************************************************** */
 
 long 
@@ -3348,7 +3360,7 @@ store_to_char(struct char_file_u * st, struct char_data * ch)
     }
 
     read_alias(ch);
-}        			/* store_to_char */
+}                                /* store_to_char */
 
 
 
@@ -3384,7 +3396,7 @@ char_to_store(struct char_data * ch, struct char_file_u * st)
             st->affected[i].next = NULL;
             af = af->next;
         } else {
-            st->affected[i].type = 0;	          /* Zero signifies not used */
+            st->affected[i].type = 0;                  /* Zero signifies not used */
             st->affected[i].duration = 0;
             st->affected[i].modifier = 0;
             st->affected[i].location = 0;
@@ -3467,15 +3479,15 @@ char_to_store(struct char_data * ch, struct char_file_u * st)
     for (i = 0, dead = 0; i < NUM_WEARS; i++) {
         if (char_eq[i]) {
             if (dead && room)
-        	obj_to_room(char_eq[i], room);
+                obj_to_room(char_eq[i], room);
             else
-        	dead = equip_char(ch, char_eq[i], i, MODE_EQ);
+                dead = equip_char(ch, char_eq[i], i, MODE_EQ);
         }
         if (char_implants[i]) {
             if (dead && room)
-        	obj_to_room(char_eq[i], room);
+                obj_to_room(char_eq[i], room);
             else
-        	dead = equip_char(ch, char_implants[i], i, MODE_IMPLANT);
+                dead = equip_char(ch, char_implants[i], i, MODE_IMPLANT);
         }
     }
     if (dead)
@@ -3485,7 +3497,7 @@ char_to_store(struct char_data * ch, struct char_file_u * st)
     GET_MANA(ch) = MIN(GET_MAX_MANA(ch), mana);
     GET_MOVE(ch) = MIN(GET_MAX_MOVE(ch), move);
 
-}        			/* Char to store */
+}                                /* Char to store */
 
 /* create a new entry in the in-memory index table for the player file */
 int 
@@ -3501,7 +3513,7 @@ create_entry(char *name)
 
     if (!(player_table = (struct player_index_element *)
           realloc(player_table, sizeof(struct player_index_element) *
-        	  (++top_of_p_table + 1)))) {
+                  (++top_of_p_table + 1)))) {
         perror("create entry");
         safe_exit(1);
     }
@@ -3517,7 +3529,7 @@ create_entry(char *name)
 
 
 /************************************************************************
-*  funcs of a (more or less) general utility nature        		*
+*  funcs of a (more or less) general utility nature                        *
 ********************************************************************** */
 
 
@@ -3534,7 +3546,7 @@ fread_string(FILE * fl, char *error)
     do {
         if ( ! fgets( tmp, 512, fl ) ) {
             sprintf( buf, "SYSERR: fread_string: format error at or near %s\n",
-        	     error );
+                     error );
             slog( buf );
             safe_exit( 1 );
         }
@@ -3627,8 +3639,8 @@ void free_char(struct char_data * ch) {
     // first make sure the char is no longer in the world
     //
 
-    if ( ch->in_room != 0 || ch->carrying != 0 || ch->next_in_room != 0 ||
-         ch->next_fighting != 0 || ch->followers != 0 || ch->master != 0  ) {
+    if ( ch->in_room != NULL || ch->carrying != NULL || 
+         ch->getFighting() != NULL || ch->followers != NULL || ch->master != NULL  ) {
         slog( "SYSERR: free_char() attempted to free a char who is still connected to the world." );
         raise( SIGSEGV );
     }
@@ -3757,16 +3769,16 @@ free_obj(struct obj_data * obj)
         if (obj->ex_description)
             for (this_desc = obj->ex_description; this_desc; this_desc = next_one) {
 #ifdef DMALLOC
-        	dmalloc_verify(0);
+                dmalloc_verify(0);
 #endif
-        	next_one = this_desc->next;
-        	if (this_desc->keyword)
-        	    free(this_desc->keyword);
-        	if (this_desc->description)
-        	    free(this_desc->description);
-        	free(this_desc);
+                next_one = this_desc->next;
+                if (this_desc->keyword)
+                    free(this_desc->keyword);
+                if (this_desc->description)
+                    free(this_desc->description);
+                free(this_desc);
 #ifdef DMALLOC
-        	dmalloc_verify(0);
+                dmalloc_verify(0);
 #endif
             }
     } else {
@@ -3789,16 +3801,16 @@ free_obj(struct obj_data * obj)
             obj->ex_description != obj->shared->proto->ex_description) {
             for (this_desc = obj->ex_description; this_desc; this_desc = next_one) {
 #ifdef DMALLOC
-        	dmalloc_verify(0);
+                dmalloc_verify(0);
 #endif
-        	next_one = this_desc->next;
-        	if (this_desc->keyword)
-        	    free(this_desc->keyword);
-        	if (this_desc->description)
-        	    free(this_desc->description);
-        	free(this_desc);
+                next_one = this_desc->next;
+                if (this_desc->keyword)
+                    free(this_desc->keyword);
+                if (this_desc->description)
+                    free(this_desc->description);
+                free(this_desc);
 #ifdef DMALLOC
-        	dmalloc_verify(0);
+                dmalloc_verify(0);
 #endif
             }
         }
@@ -3869,9 +3881,9 @@ file_to_string(char *name, char *buf)
 
         if (!feof(fl)) {
             if (strlen(buf) + strlen(tmp) + 1 > MAX_STRING_LENGTH) {
-        	slog("SYSERR: fl->strng: string too big (db.c, file_to_string)");
-        	*buf = '\0';
-        	return (-1);
+                slog("SYSERR: fl->strng: string too big (db.c, file_to_string)");
+                *buf = '\0';
+                return (-1);
             }
             strcat(buf, tmp);
         }
@@ -3898,10 +3910,7 @@ reset_char(struct char_data * ch)
     ch->master = NULL;
     /* ch->in_room = NOWHERE; Used for start in room */
     ch->carrying = NULL;
-    ch->next = NULL;
-    ch->next_fighting = NULL;
-    ch->next_in_room = NULL;
-    FIGHTING(ch) = NULL;
+    ch->setFighting(NULL);
     ch->char_specials.position = POS_STANDING;
     if (ch->mob_specials.shared)
         ch->mob_specials.shared->default_pos = POS_STANDING;
@@ -3938,7 +3947,7 @@ clear_char(struct char_data * ch)
     ch->setPosition( POS_STANDING );
     GET_REMORT_CLASS(ch) = -1;
 
-    GET_AC(ch) = 100;        	/* Basic Armor */
+    GET_AC(ch) = 100;                /* Basic Armor */
     if (ch->points.max_mana < 100)
         ch->points.max_mana = 100;
 }
@@ -4107,8 +4116,8 @@ real_room(int vnum)
             vnum <= zone->top) {
             for (room = zone->world; room; room = room->next) {
         
-        	if (room->number == vnum)
-        	    return (room);
+                if (room->number == vnum)
+                    return (room);
             }
             return NULL;
         }
@@ -4126,9 +4135,9 @@ real_zone(int number)
     for (zone = zone_table; zone; zone = zone->next) {
         if (zone->number >= number) {
             if (zone->number == number)
-        	return(zone);
+                return(zone);
             else
-        	return NULL;
+                return NULL;
         }
     }
     return(NULL);
@@ -4139,14 +4148,16 @@ real_mobile_proto(int vnum)
 {
     struct char_data *mobile = NULL;
   
-    for (mobile = mob_proto; mobile; mobile = mobile->next)
+    CharacterList::iterator mit = mobilePrototypes.begin();
+    for( ; mit != mobilePrototypes.end(); ++mit ) {
+        mobile = *mit;
         if (mobile->mob_specials.shared->vnum >= vnum) {
             if (mobile->mob_specials.shared->vnum == vnum)
-        	return (mobile);
+                    return (mobile);
             else
-        	return NULL;
+                    return NULL;
         }
-  
+    }
     return (NULL);
 }
 
@@ -4174,9 +4185,9 @@ real_object_proto(int vnum)
          object = object->next)
         if (object->shared->vnum >= vnum) {
             if (object->shared->vnum == vnum)
-        	return(object);
+                return(object);
             else
-        	return NULL;
+                return NULL;
         }
     return (NULL);
 }
@@ -4191,7 +4202,7 @@ boot_remort_quiz()
 
     if (!(file = fopen(REMORT_QUIZ_FILE, "r"))) {
         sprintf(buf, "SYSERR: Unable to open remort quiz file '%s'.",
-        	REMORT_QUIZ_FILE);
+                REMORT_QUIZ_FILE);
         mudlog(buf, NRM, LVL_GOD, TRUE);
         return;
     }
@@ -4202,9 +4213,9 @@ boot_remort_quiz()
             dmalloc_verify(0);
 #endif
             if (remort_quiz[i]->question)
-        	free(remort_quiz[i]->question);
+                free(remort_quiz[i]->question);
             if (remort_quiz[i]->answer)
-        	free(remort_quiz[i]->answer);
+                free(remort_quiz[i]->answer);
             free(remort_quiz[i]);
             remort_quiz[i] = NULL;
 #ifdef DMALLOC
@@ -4222,7 +4233,7 @@ boot_remort_quiz()
 
         if (!get_line(file, buf)) {
             sprintf(buf, "SYSERR: Format error in remort quiz file: %s.",
-        	    newq->question);
+                    newq->question);
             slog(buf);
 #ifdef DMALLOC
             dmalloc_verify(0);
@@ -4239,7 +4250,7 @@ boot_remort_quiz()
 
         if (!get_line(file, buf) || sscanf(buf, "%d", &level) != 1) {
             sprintf(buf, "SYSERR: Format error in remort quiz file: %s.",
-        	    newq->question);
+                    newq->question);
             slog(buf);
 #ifdef DMALLOC
             dmalloc_verify(0);
@@ -4282,15 +4293,15 @@ void update_alias_dirs(void)
         }
         while((dirp=readdir(dir))) {
             if ( (strlen(dirp->d_name) > 3) && 
-        	 !strcmp(dirp->d_name + strlen(dirp->d_name) - 3, ".al")) {
-        	strncpy(name, dirp->d_name, strlen(dirp->d_name)-3);
-        	name[strlen(dirp->d_name)-3] = 0;
-        	if (get_id_by_name(name) < 0) {
-        	    sprintf(name2,"%s/%s", buf, dirp->d_name);
-        	    unlink(name2);
-        	    sprintf(buf2, "    Deleting %s's alias file.", name);
-        	    slog(buf2);
-        	}
+                 !strcmp(dirp->d_name + strlen(dirp->d_name) - 3, ".al")) {
+                strncpy(name, dirp->d_name, strlen(dirp->d_name)-3);
+                name[strlen(dirp->d_name)-3] = 0;
+                if (get_id_by_name(name) < 0) {
+                    sprintf(name2,"%s/%s", buf, dirp->d_name);
+                    unlink(name2);
+                    sprintf(buf2, "    Deleting %s's alias file.", name);
+                    slog(buf2);
+                }
             }
         }
         closedir(dir);
@@ -4308,11 +4319,11 @@ purge_trails(struct char_data *ch)
     for (zn = zone_table; zn; zn = zn->next) {
         for (rm = zn->world; rm; rm = rm->next) {
             while ((trl = rm->trail)) {
-        	rm->trail = trl->next;
-        	i++;
-        	if (trl->name)
-        	    free(trl->name);
-        	free(trl);
+                rm->trail = trl->next;
+                i++;
+                if (trl->name)
+                    free(trl->name);
+                free(trl);
             }
         }
     }

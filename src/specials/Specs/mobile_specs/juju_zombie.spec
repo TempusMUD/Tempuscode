@@ -7,6 +7,7 @@
 SPECIAL(juju_zombie)
 {
   int prob;
+  if( spec_mode == SPECIAL_DEATH ) return 0;
 
   if (!FIGHTING(ch))
     return 0;

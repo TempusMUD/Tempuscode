@@ -7,7 +7,7 @@
 SPECIAL(guard_north)
 {
   struct char_data *guard = (struct char_data *) me;
-
+  if( spec_mode == SPECIAL_DEATH ) return 0;
   if (cmd != NORTH + 1 && !CMD_IS("unlock") && !CMD_IS("pick")) 
     return FALSE;
 

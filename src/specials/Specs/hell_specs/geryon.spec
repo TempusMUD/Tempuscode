@@ -20,11 +20,15 @@ SPECIAL(geryon)
     return 1;
   } else if (number(0, 2))
     return 0;
-
-  for (vict=ch->in_room->people;vict && vict!=ch;vict=vict->next_in_room)
-    if (ch == FIGHTING(vict) && !number(0, 4) && 
-                                     !affected_by_spell(vict, SPELL_POISON))
-      break;
+  CharacterList::iterator it = ch->in_room->people.begin();
+  for( ; it != ch->in_room->people.end() && *it != ch; ++it ) {
+    if (ch == FIGHTING((*it)) && 
+    !number(0, 4) && 
+    !affected_by_spell((*it), SPELL_POISON)) {
+        vict = *it;
+        break;
+    }
+  }
 
   if (!vict || !number(0, 3) || vict == ch)
     vict = FIGHTING(ch);

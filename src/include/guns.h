@@ -87,5 +87,5 @@ extern const int gun_damage[][2];
 
 #endif
 
-#endif __guns_h__
+#endif 
 

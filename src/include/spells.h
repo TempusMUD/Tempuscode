@@ -808,7 +808,7 @@ int call_magic(struct char_data *caster, struct char_data *cvict,
 	       struct obj_data *ovict, int spellnum, int level, int casttype, int *return_flags = 0 );
 
 int mag_objectmagic(struct char_data *ch, struct obj_data *obj,
-		    char *argument);
+		    char *argument,int *return_flags=NULL);
 
 void mag_objects(int level, struct char_data *ch, struct obj_data *obj,
 		 int spellnum);

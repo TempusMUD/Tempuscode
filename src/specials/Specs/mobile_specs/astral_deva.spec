@@ -6,7 +6,7 @@
 
 SPECIAL(astral_deva)
 {
-
+  if( spec_mode == SPECIAL_DEATH ) return 0;
   if (!FIGHTING(ch) || cmd)
     return 0;
 

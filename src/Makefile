@@ -1,6 +1,6 @@
 CXX=g++
 INCLUDE=include
-CCFLAGS=-g -Wall -pg -Wcast-qual 
+CCFLAGS=-g -Wall -Wcast-qual -traditional
 CXXFLAGS=$(CCFLAGS) -I$(INCLUDE)
 
 SUBDIRS= \
@@ -9,7 +9,7 @@ SUBDIRS= \
 	matrix misc mobiles net objsave olc paths quest search shop \
 	smokes social specials util vehicle weather structs map
 
-MAKEFLAGS=-s -k 4
+MAKEFLAGS=-s -k 4 
 OBJ=ObjFiles
 LIBS=-lcrypt
 EXE=../bin/circle

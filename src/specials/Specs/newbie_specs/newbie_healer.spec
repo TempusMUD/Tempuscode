@@ -7,35 +7,38 @@
 SPECIAL(newbie_healer)
 {
   ACCMD(do_drop);
-  struct char_data *i, *next_i = NULL;
+  struct char_data *i;
   struct obj_data *p;
 
+  if( spec_mode == SPECIAL_DEATH ) return 0;
   if (cmd)
     return 0;
-
-  for (i= ch->in_room->people; i; i = next_i) {
-    next_i = i->next_in_room;
+    
+  CharacterList::iterator it = ch->in_room->people.begin();
+  for( ; it != ch->in_room->people.end(); ++it ) {
+    i = *it;
     if (i == ch)
-      continue;
+        continue;
     if (IS_NPC(i)) {
-      act("$n banishes $N!", FALSE, ch, 0, i, TO_ROOM);
-      extract_char(i, 0);
-      continue;
+        act("$n banishes $N!", FALSE, ch, 0, i, TO_ROOM);
+        //extract_char(i, 0);
+        i->extract( FALSE );
+        continue;
     }
     if (!IS_NPC(i) && GET_LEVEL(i) < 5 && !number(0, GET_LEVEL(i))) {
-      if (GET_HIT(i) < GET_MAX_HIT(i))
-        cast_spell(ch, i, 0, SPELL_CURE_CRITIC);
-      else if (IS_AFFECTED(i, AFF_POISON))
-        cast_spell(ch, i, 0, SPELL_REMOVE_POISON);
-      else if (!affected_by_spell(i, SPELL_BLESS))
-        cast_spell(ch, i, 0, SPELL_BLESS);
-      else if (!affected_by_spell(i, SPELL_ARMOR))
-        cast_spell(ch, i, 0, SPELL_ARMOR);
-      else if (!affected_by_spell(i, SPELL_DETECT_MAGIC))
-        cast_spell(ch, i, 0, SPELL_DETECT_MAGIC);
-      else
-        return 0;
-      return 1;
+        if (GET_HIT(i) < GET_MAX_HIT(i))
+            cast_spell(ch, i, 0, SPELL_CURE_CRITIC);
+        else if (IS_AFFECTED(i, AFF_POISON))
+            cast_spell(ch, i, 0, SPELL_REMOVE_POISON);
+        else if (!affected_by_spell(i, SPELL_BLESS))
+            cast_spell(ch, i, 0, SPELL_BLESS);
+        else if (!affected_by_spell(i, SPELL_ARMOR))
+            cast_spell(ch, i, 0, SPELL_ARMOR);
+        else if (!affected_by_spell(i, SPELL_DETECT_MAGIC))
+            cast_spell(ch, i, 0, SPELL_DETECT_MAGIC);
+        else
+            return 0;
+        return 1;
     }
   }
   for (p = ch->carrying; p; p= p->next_content) {

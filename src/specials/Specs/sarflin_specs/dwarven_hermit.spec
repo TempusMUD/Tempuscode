@@ -9,10 +9,7 @@ SPECIAL(dwarven_hermit)
 {
    struct obj_data *od = NULL;
    struct char_data *me2 = (struct char_data *) me;
-   struct char_data *count;
-   int number = 0;
-
-
+   if( spec_mode == SPECIAL_DEATH ) return 0;
    if (CMD_IS("ask")) 
      act("$N ignores you!", TRUE, me2, 0, 0, TO_CHAR);
 
@@ -22,11 +19,8 @@ SPECIAL(dwarven_hermit)
    if (!(od = GET_EQ(me2,WEAR_HOLD)))
       return (0);
 
-   count = me2->in_room->people;
-
-   for (count = me2->in_room->people;count;count = count->next_in_room)
-      number ++;
-   if (number == 1) {
+   
+   if (me2->in_room->people.size() == 1) {
       GET_OBJ_VAL(od,0) = 0;
       return (0);
    }
@@ -34,8 +28,8 @@ SPECIAL(dwarven_hermit)
    case -1: GET_OBJ_VAL(od,1)++;
      if (GET_OBJ_VAL(od,1)>12)
        {
-	 GET_OBJ_VAL(od,0)=0;
-	 GET_OBJ_VAL(od,1)=0;
+         GET_OBJ_VAL(od,0)=0;
+         GET_OBJ_VAL(od,1)=0;
        }                    
      break; 
    case  0: do_say(me2,"Back in the old days when clan Brightaxe was",0,0);

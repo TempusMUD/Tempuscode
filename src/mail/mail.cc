@@ -134,6 +134,19 @@ store_mail( long to_id, long from_id, char *txt , char *cc_list, time_t *cur_tim
         return 0;
 	}
     if(cc_list) {
+        if( strlen(txt) + strlen(cc_list) >= MAX_MAIL_SIZE ) {
+            int index = MAX_MAIL_SIZE - strlen(cc_list) - 1 - 2 - 1;// array, \r\n\0
+            if( index >= 0 && index < MAX_MAIL_SIZE ) {
+                txt[index] = '\0';
+                strcpy(buf,txt);
+                strcpy(txt,buf);
+                sprintf(buf,
+                   "SYSERR: Mail size + CC list larger than max_mail size. From: %ld To: %ld Length: %d/%d.",
+                   from_id,to_id,strlen(txt),strlen(cc_list));
+                mudlog(buf,CMP,LVL_GRGOD, TRUE);
+
+            }
+        }
         strcpy(buf,cc_list);
 		strcat(buf,"\r\n");
         strcat(buf,txt);
@@ -427,7 +440,7 @@ postmaster_send_mail(struct char_data * ch, struct char_data *mailman,
     *(tmp_char) = NULL;
     
     SET_BIT(PLR_FLAGS(ch), PLR_MAILING | PLR_WRITING);
-    start_text_editor(ch->desc,tmp_char,true,MAX_MAIL_SIZE); 
+    start_text_editor(ch->desc,tmp_char,true,MAX_MAIL_SIZE - 1); 
 }
 
 void 

@@ -6,6 +6,7 @@
 
 SPECIAL(bearded_devil)
 {
+  if( spec_mode == SPECIAL_DEATH ) return 0;
   if (cmd || !FIGHTING(ch) || !AWAKE(ch) || GET_MOB_WAIT(ch) > 0)
     return 0;
 

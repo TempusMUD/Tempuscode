@@ -116,7 +116,7 @@ const struct spec_func_data spec_list[] = {
     {"guard_north",     guard_north ,          SPEC_MOB},
     {"safiir",          safiir,                SPEC_MOB},
     {"spinal",          spinal,                SPEC_MOB | SPEC_RES},
-    {"fate",          	fate,	               SPEC_MOB | SPEC_RES},
+    {"fate",                  fate,                       SPEC_MOB | SPEC_RES},
     {"red_highlord",    red_highlord,          SPEC_MOB | SPEC_RES},
     {"tiamat",          tiamat,                SPEC_MOB | SPEC_RES},
     {"beer_tree",       beer_tree,             SPEC_MOB | SPEC_RES},
@@ -219,10 +219,10 @@ const struct spec_func_data spec_list[] = {
     {"horn_of_geryon",  horn_of_geryon,        SPEC_OBJ | SPEC_RES},
     {"unholy_compact",  unholy_compact,        SPEC_MOB | SPEC_RES},
     {"telescope",       telescope,             SPEC_OBJ},
-	{"fate_cauldron",	fate_cauldron,		   SPEC_OBJ | SPEC_RES},
-	{"fate_portal",		fate_portal,		   SPEC_OBJ | SPEC_RES},
-	{"quantum_rift",    quantum_rift,		   SPEC_OBJ | SPEC_RES},
-	{"roaming_portal",  roaming_portal,		   SPEC_OBJ | SPEC_RES},
+        {"fate_cauldron",        fate_cauldron,                   SPEC_OBJ | SPEC_RES},
+        {"fate_portal",                fate_portal,                   SPEC_OBJ | SPEC_RES},
+        {"quantum_rift",    quantum_rift,                   SPEC_OBJ | SPEC_RES},
+        {"roaming_portal",  roaming_portal,                   SPEC_OBJ | SPEC_RES},
     {"tester_util",     tester_util,           SPEC_OBJ | SPEC_RES},
     {"typo_util",       typo_util,             SPEC_OBJ | SPEC_RES},
     {"questor_util",    questor_util ,         SPEC_OBJ | SPEC_RES},
@@ -293,8 +293,8 @@ find_spec_index_ptr(SPECIAL(*func))
     int i;
 
     for (i = 0; spec_list[i].tag != NULL && i < 300; i++)
-	if (func == spec_list[i].func)
-	    return (i);
+        if (func == spec_list[i].func)
+            return (i);
 
     return (-1);
 }
@@ -309,9 +309,9 @@ find_spec_index_arg(char *arg)
     int i;
 
     for (i = 0; spec_list[i].tag != NULL && i < 300; i++) {
-	if (!strncmp(spec_list[i].tag, arg, strlen(arg))) {
-	    return (i);
-	} 
+        if (!strncmp(spec_list[i].tag, arg, strlen(arg))) {
+            return (i);
+        } 
     } 
 
 
@@ -336,68 +336,71 @@ do_specassign_save(struct char_data *ch, int mode)
     struct shop_data *shop = NULL;
 
     if (!mode || IS_SET(mode, SPEC_MOB)) {
-	if (!(file = fopen(SPEC_FILE_MOB, "w"))) {
-	    slog("SYSERR: Error opening mob spec file for write.");
-	    return 1;
-	}
-	for (mob = mob_proto; mob; mob = mob->next) {
-	    if (mob->mob_specials.shared->func) {
-		if (mob->mob_specials.shared->func == shop_keeper) {
-		    for (shop = shop_index; shop; shop = shop->next)
-			if (SHOP_KEEPER(shop) == GET_MOB_VNUM(mob)) {
-			    if (SHOP_FUNC(shop)) {
-				if ((index = find_spec_index_ptr(SHOP_FUNC(shop))) < 0)
-				    break;
-				fprintf(file, "%-5d %-30s    %s\n",
-					GET_MOB_VNUM(mob),spec_list[index].tag,GET_NAME(mob));
-			    }
-			}
-		} else {
-		    if ((index=find_spec_index_ptr(mob->mob_specials.shared->func)) < 0)
-			continue;
-		    fprintf(file, "%-5d %-30s    %s\n",
-			    GET_MOB_VNUM(mob), spec_list[index].tag, GET_NAME(mob));
-		}
-	    }
-	}
-	fclose(file);
+        if (!(file = fopen(SPEC_FILE_MOB, "w"))) {
+            slog("SYSERR: Error opening mob spec file for write.");
+            return 1;
+        }
+    CharacterList::iterator mit = mobilePrototypes.begin();
+    for ( ; mit != mobilePrototypes.end(); ++mit ) {
+            mob = *mit;
+        //for (mob = mob_proto; mob; mob = mob->next) {
+            if (mob->mob_specials.shared->func) {
+                if (mob->mob_specials.shared->func == shop_keeper) {
+                    for (shop = shop_index; shop; shop = shop->next)
+                        if (SHOP_KEEPER(shop) == GET_MOB_VNUM(mob)) {
+                            if (SHOP_FUNC(shop)) {
+                                if ((index = find_spec_index_ptr(SHOP_FUNC(shop))) < 0)
+                                    break;
+                                fprintf(file, "%-5d %-30s    %s\n",
+                                        GET_MOB_VNUM(mob),spec_list[index].tag,GET_NAME(mob));
+                            }
+                        }
+                } else {
+                    if ((index=find_spec_index_ptr(mob->mob_specials.shared->func)) < 0)
+                        continue;
+                    fprintf(file, "%-5d %-30s    %s\n",
+                            GET_MOB_VNUM(mob), spec_list[index].tag, GET_NAME(mob));
+                }
+            }
+        }
+        fclose(file);
     }
 
     if (!mode || IS_SET(mode, SPEC_OBJ)) {
-	if (!(file = fopen(SPEC_FILE_OBJ, "w"))) {
-	    slog("SYSERR: Error opening obj spec file for write.");
-	    return 1;
-	}
-	for (obj = obj_proto; obj; obj = obj->next) {
-	    if (obj->shared->func) {
-		if ((index = find_spec_index_ptr(obj->shared->func)) < 0)
-		    continue;
-		fprintf(file, "%-5d %-30s    %s\n",
-			GET_OBJ_VNUM(obj),spec_list[index].tag,obj->short_description);
-	    }
-	}
-	fclose(file);
+        if (!(file = fopen(SPEC_FILE_OBJ, "w"))) {
+            slog("SYSERR: Error opening obj spec file for write.");
+            return 1;
+        }
+        for (obj = obj_proto; obj; obj = obj->next) {
+            if (obj->shared->func) {
+                if ((index = find_spec_index_ptr(obj->shared->func)) < 0)
+                    continue;
+                fprintf(file, "%-5d %-30s    %s\n",
+                        GET_OBJ_VNUM(obj),spec_list[index].tag,obj->short_description);
+            }
+        }
+        fclose(file);
     }
 
     if (!mode || IS_SET(mode, SPEC_RM)) {
-	if (!(file = fopen(SPEC_FILE_RM, "w"))) {
-	    slog("SYSERR: Error opening room spec file for write.");
-	    return 1;
-	}
-	for (zone = zone_table; zone; zone = zone->next)
-	    for (room = zone->world; room; room = room->next) {
-		if (room->func) {
-		    if ((index = find_spec_index_ptr(room->func)) < 0)
-			continue;
-		    fprintf(file, "%-5d %-30s    %s\n",
-			    room->number, spec_list[index].tag, room->name);
-		}
-	    }
-	fclose(file);
+        if (!(file = fopen(SPEC_FILE_RM, "w"))) {
+            slog("SYSERR: Error opening room spec file for write.");
+            return 1;
+        }
+        for (zone = zone_table; zone; zone = zone->next)
+            for (room = zone->world; room; room = room->next) {
+                if (room->func) {
+                    if ((index = find_spec_index_ptr(room->func)) < 0)
+                        continue;
+                    fprintf(file, "%-5d %-30s    %s\n",
+                            room->number, spec_list[index].tag, room->name);
+                }
+            }
+        fclose(file);
     }
     if (!mode) {
-	sprintf(buf, "%s saved all spec assign files.", GET_NAME(ch));
-	slog(buf);
+        sprintf(buf, "%s saved all spec assign files.", GET_NAME(ch));
+        slog(buf);
     }
     return 0;
 }
@@ -415,46 +418,46 @@ do_show_specials(struct char_data *ch, char *arg)
     int i;
 
     if (!*arg)
-	mode_all = 1;
+        mode_all = 1;
     else {
-	arg = one_argument(arg, arg1);
-	while (*arg1) {
-	    if (is_abbrev(arg1, "mobiles"))
-		mode_mob = 1;
-	    else if (is_abbrev(arg1, "objects"))
-		mode_obj = 1;
-	    else if (is_abbrev(arg1, "rooms"))
-		mode_room = 1;
-	    else if (is_abbrev(arg1, "all"))
-		mode_all = 1;
-	    else {
-		sprintf(buf, "Unknown show special option: '%s'\r\n", arg1);
-		send_to_char(buf, ch);
-	    }
-	    arg = one_argument(arg, arg1);
-	}
+        arg = one_argument(arg, arg1);
+        while (*arg1) {
+            if (is_abbrev(arg1, "mobiles"))
+                mode_mob = 1;
+            else if (is_abbrev(arg1, "objects"))
+                mode_obj = 1;
+            else if (is_abbrev(arg1, "rooms"))
+                mode_room = 1;
+            else if (is_abbrev(arg1, "all"))
+                mode_all = 1;
+            else {
+                sprintf(buf, "Unknown show special option: '%s'\r\n", arg1);
+                send_to_char(buf, ch);
+            }
+            arg = one_argument(arg, arg1);
+        }
     }
   
     strcpy(outbuf, "SPECIAL PROCEDURES::                FLAGS::\r\n");
     for (i = 0; spec_list[i].tag  && i < 300; i++) {
-	if (!mode_all &&
-	    (!mode_mob  || !IS_SET(spec_list[i].flags, SPEC_MOB)) &&
-	    (!mode_obj  || !IS_SET(spec_list[i].flags, SPEC_OBJ)) &&
-	    (!mode_room || !IS_SET(spec_list[i].flags, SPEC_RM)))
-	    continue;
-	if (spec_list[i].flags)
-	    sprintbit(spec_list[i].flags, spec_flags, buf2);
-	else 
-	    strcpy(buf2, "NONE");
+        if (!mode_all &&
+            (!mode_mob  || !IS_SET(spec_list[i].flags, SPEC_MOB)) &&
+            (!mode_obj  || !IS_SET(spec_list[i].flags, SPEC_OBJ)) &&
+            (!mode_room || !IS_SET(spec_list[i].flags, SPEC_RM)))
+            continue;
+        if (spec_list[i].flags)
+            sprintbit(spec_list[i].flags, spec_flags, buf2);
+        else 
+            strcpy(buf2, "NONE");
     
-	sprintf(buf, "  %s%-30s%s   (%s%s%s)\r\n",
-		CCYEL(ch, C_NRM), spec_list[i].tag, CCNRM(ch, C_NRM),
-		CCCYN(ch, C_NRM), buf2, CCNRM(ch, C_NRM));
-	if (strlen(buf) + strlen(outbuf) > MAX_STRING_LENGTH - 128) {
-	    strcat(outbuf, "**OVERFLOW**\r\n");
-	    break;
-	} else
-	    strcat(outbuf, buf);
+        sprintf(buf, "  %s%-30s%s   (%s%s%s)\r\n",
+                CCYEL(ch, C_NRM), spec_list[i].tag, CCNRM(ch, C_NRM),
+                CCCYN(ch, C_NRM), buf2, CCNRM(ch, C_NRM));
+        if (strlen(buf) + strlen(outbuf) > MAX_STRING_LENGTH - 128) {
+            strcat(outbuf, "**OVERFLOW**\r\n");
+            break;
+        } else
+            strcat(outbuf, buf);
     }
     page_string(ch->desc, outbuf, 1);
 }
@@ -467,33 +470,33 @@ ACMD(do_special)
 {
 
     const char *special_cmds[] = {
-	"show",
-	"save",
-	"\n"
+        "show",
+        "save",
+        "\n"
     };
     int spec_cmd;
 
     skip_spaces(&argument);
     argument = one_argument(argument, buf);
     if ((spec_cmd = search_block(buf, special_cmds, 0)) < 0) {
-	send_to_char("Invalid special command: show or save.\r\n", ch);
-	return;
+        send_to_char("Invalid special command: show or save.\r\n", ch);
+        return;
     }
 
     switch (spec_cmd) {
     case 0:   /** show **/
-	do_show_specials(ch, argument);
-	break;
+        do_show_specials(ch, argument);
+        break;
 
     case 1:
-	if (do_specassign_save(ch, 0))
-	    send_to_char("There was an error saving the file.\r\n", ch);
-	else
-	    send_to_char("Special assignments saved.\r\n", ch);
-	break;
+        if (do_specassign_save(ch, 0))
+            send_to_char("There was an error saving the file.\r\n", ch);
+        else
+            send_to_char("Special assignments saved.\r\n", ch);
+        break;
     default:
-	slog("SYSERR: Invalid command reached in do_special.");
-	break;
+        slog("SYSERR: Invalid command reached in do_special.");
+        break;
     }
     return;
 }
@@ -512,34 +515,34 @@ void assign_mobiles(void)
 
 
     if (!(file = fopen(SPEC_FILE_MOB, "r"))) {
-	slog("Fatal error opening mob spec file.");
-	safe_exit(1);
+        slog("Fatal error opening mob spec file.");
+        safe_exit(1);
     }
 
     while (!feof(file) && !ferror(file)) {
-	if (!get_line(file, buf))
-	    break;
-	if (sscanf(buf, "%d %s", &vnum, ptr_name) != 2) {
-	    slog("Format error in mob spec file.");
-	    safe_exit(1);
-	}
+        if (!get_line(file, buf))
+            break;
+        if (sscanf(buf, "%d %s", &vnum, ptr_name) != 2) {
+            slog("Format error in mob spec file.");
+            safe_exit(1);
+        }
 
-	if (!(mob = real_mobile_proto(vnum))) {
-	    if (!mini_mud) {
-		sprintf(buf, "Error in mob spec file: mobile <%d> not exist.", 
-			vnum);
-		slog(buf);
-	    }
-	} else if ((index = find_spec_index_arg(ptr_name)) < 0) {
-	    sprintf(buf, "Error in mob spec file: ptr <%s> not exist.", 
-		    ptr_name);
-	    slog(buf);
-	} else if (!IS_SET(spec_list[index].flags, SPEC_MOB)) {
-	    sprintf(buf, "Attempt to assign ptr <%s> to a mobile.", 
-		    ptr_name);
-	    slog(buf);
-	} else
-	    mob->mob_specials.shared->func = spec_list[index].func;
+        if (!(mob = real_mobile_proto(vnum))) {
+            if (!mini_mud) {
+                sprintf(buf, "Error in mob spec file: mobile <%d> not exist.", 
+                        vnum);
+                slog(buf);
+            }
+        } else if ((index = find_spec_index_arg(ptr_name)) < 0) {
+            sprintf(buf, "Error in mob spec file: ptr <%s> not exist.", 
+                    ptr_name);
+            slog(buf);
+        } else if (!IS_SET(spec_list[index].flags, SPEC_MOB)) {
+            sprintf(buf, "Attempt to assign ptr <%s> to a mobile.", 
+                    ptr_name);
+            slog(buf);
+        } else
+            mob->mob_specials.shared->func = spec_list[index].func;
     }
     fclose(file);
 }
@@ -558,34 +561,34 @@ void assign_objects(void)
 
 
     if (!(file = fopen(SPEC_FILE_OBJ, "r"))) {
-	slog("Fatal error opening obj spec file.");
-	safe_exit(1);
+        slog("Fatal error opening obj spec file.");
+        safe_exit(1);
     }
 
     while (!feof(file) && !ferror(file)) {
-	if (!get_line(file, buf))
-	    break;
-	if (sscanf(buf, "%d %s", &vnum, ptr_name) != 2) {
-	    slog("Format error in obj spec file.");
-	    safe_exit(1);
-	}
+        if (!get_line(file, buf))
+            break;
+        if (sscanf(buf, "%d %s", &vnum, ptr_name) != 2) {
+            slog("Format error in obj spec file.");
+            safe_exit(1);
+        }
 
-	if (!(obj = real_object_proto(vnum))) {
-	    if (!mini_mud) {
-		sprintf(buf, "Error in obj spec file: object <%d> not exist.", 
-			vnum);
-		slog(buf);
-	    }
-	} else if ((index = find_spec_index_arg(ptr_name)) < 0) {
-	    sprintf(buf, "Error in obj spec file: ptr <%s> not exist.", 
-		    ptr_name);
-	    slog(buf);
-	} else if (!IS_SET(spec_list[index].flags, SPEC_OBJ)) {
-	    sprintf(buf, "Attempt to assign ptr <%s> to a object.", 
-		    ptr_name);
-	    slog(buf);
-	} else
-	    obj->shared->func = spec_list[index].func;
+        if (!(obj = real_object_proto(vnum))) {
+            if (!mini_mud) {
+                sprintf(buf, "Error in obj spec file: object <%d> not exist.", 
+                        vnum);
+                slog(buf);
+            }
+        } else if ((index = find_spec_index_arg(ptr_name)) < 0) {
+            sprintf(buf, "Error in obj spec file: ptr <%s> not exist.", 
+                    ptr_name);
+            slog(buf);
+        } else if (!IS_SET(spec_list[index].flags, SPEC_OBJ)) {
+            sprintf(buf, "Attempt to assign ptr <%s> to a object.", 
+                    ptr_name);
+            slog(buf);
+        } else
+            obj->shared->func = spec_list[index].func;
     }
     fclose(file);
   
@@ -605,34 +608,34 @@ void assign_rooms(void)
     struct room_data *rm = NULL;
 
     if (!(file = fopen(SPEC_FILE_RM, "r"))) {
-	slog("Fatal error opening room spec file.");
-	safe_exit(1);
+        slog("Fatal error opening room spec file.");
+        safe_exit(1);
     }
 
     while (!feof(file) && !ferror(file)) {
-	if (!get_line(file, buf))
-	    break;
-	if (sscanf(buf, "%d %s", &vnum, ptr_name) != 2) {
-	    slog("Format error in room spec file.");
-	    safe_exit(1);
-	}
+        if (!get_line(file, buf))
+            break;
+        if (sscanf(buf, "%d %s", &vnum, ptr_name) != 2) {
+            slog("Format error in room spec file.");
+            safe_exit(1);
+        }
 
-	if (!(rm = real_room(vnum))) {
-	    if (!mini_mud) {
-		sprintf(buf, "Error in room spec file: room <%d> not exist.", 
-			vnum);
-		slog(buf);
-	    }
-	} else if ((index = find_spec_index_arg(ptr_name)) < 0) {
-	    sprintf(buf, "Error in room spec file: ptr <%s> not exist.", 
-		    ptr_name);
-	    slog(buf);
-	} else if (!IS_SET(spec_list[index].flags, SPEC_RM)) {
-	    sprintf(buf, "Attempt to assign ptr <%s> to a room.", 
-		    ptr_name);
-	    slog(buf);
-	} else
-	    rm->func = spec_list[index].func;
+        if (!(rm = real_room(vnum))) {
+            if (!mini_mud) {
+                sprintf(buf, "Error in room spec file: room <%d> not exist.", 
+                        vnum);
+                slog(buf);
+            }
+        } else if ((index = find_spec_index_arg(ptr_name)) < 0) {
+            sprintf(buf, "Error in room spec file: ptr <%s> not exist.", 
+                    ptr_name);
+            slog(buf);
+        } else if (!IS_SET(spec_list[index].flags, SPEC_RM)) {
+            sprintf(buf, "Attempt to assign ptr <%s> to a room.", 
+                    ptr_name);
+            slog(buf);
+        } else
+            rm->func = spec_list[index].func;
     }
     fclose(file);
 }

@@ -8,6 +8,7 @@ SPECIAL(duke_nukem)
 {
 
   struct char_data *duke = (struct char_data *) me, *vict = NULL;
+  if( spec_mode == SPECIAL_DEATH ) return 0;
 
   if (cmd || !AWAKE(duke))
     return 0;
@@ -15,23 +16,23 @@ SPECIAL(duke_nukem)
 
   if (FIGHTING(duke)) {
     if (GET_HIT(duke) > (GET_MAX_HIT(duke) >> 2) &&
-	GET_HIT(FIGHTING(duke)) < (GET_MAX_HIT(FIGHTING(duke)) >> 1)) {
+        GET_HIT(FIGHTING(duke)) < (GET_MAX_HIT(FIGHTING(duke)) >> 1)) {
       if (!number(0, 10))
-	do_say(duke, "You're an inspiration for birth control.", 0, 0);
+        do_say(duke, "You're an inspiration for birth control.", 0, 0);
       else if (!number(0, 10))
-	do_say(duke, "What are you, some bottom feeding, scum sucking algae eater?", 0, 0);
+        do_say(duke, "What are you, some bottom feeding, scum sucking algae eater?", 0, 0);
       else if (!number(0, 10))
-	do_say(duke, "It hurts to be you.", 0, 0);
+        do_say(duke, "It hurts to be you.", 0, 0);
       else if (!number(0, 10))
-	do_say(duke, "Eat shit and die.", 0, 0);
+        do_say(duke, "Eat shit and die.", 0, 0);
       else if (!number(0, 10))
-	do_say(duke, "Blow it out your ass.", 0, 0);
+        do_say(duke, "Blow it out your ass.", 0, 0);
       else if (IS_MALE(FIGHTING(duke)) && !number(0, 10))
-	do_say(duke, "Die, you son of a bitch.", 0, 0);
+        do_say(duke, "Die, you son of a bitch.", 0, 0);
       else if (IS_FEMALE(FIGHTING(duke)) && !number(0, 10))
-	do_say(duke, "Shake it baby.", 0, 0);
+        do_say(duke, "Shake it baby.", 0, 0);
       else if (GET_HIT(FIGHTING(duke)) < 50)
-	do_say(duke, "Game Over.", 0, 0);
+        do_say(duke, "Game Over.", 0, 0);
     }
     return 0;
   }
@@ -47,17 +48,19 @@ SPECIAL(duke_nukem)
   }
   
   if (!number(0, 5)) {
-    for (vict = duke->in_room->people; vict; vict = vict->next_in_room) {
+    CharacterList::iterator it = duke->in_room->people.begin();
+    for( ; it != duke->in_room->people.end(); ++it ) {
+        vict = *it;
       if (vict == duke || !CAN_SEE(duke, vict))
-	continue;
+            continue;
       if (GET_LEVEL(vict) > 40 && !FIGHTING(vict) && 
-	  !PRF_FLAGGED(vict, PRF_NOHASSLE)) {
-	best_attack(duke, vict);
-	return 1;
+          !PRF_FLAGGED(vict, PRF_NOHASSLE)) {
+        best_attack(duke, vict);
+        return 1;
       } else if (!number(0, 10)) {
-	sprintf(buf2, ">%s Damn.  You're ugly.", fname(vict->player.name));
-	do_say(duke, buf2, 0, SCMD_SAY_TO);
-	return 1;
+        sprintf(buf2, ">%s Damn.  You're ugly.", fname(vict->player.name));
+        do_say(duke, buf2, 0, SCMD_SAY_TO);
+        return 1;
       }
     }
   }
@@ -71,7 +74,7 @@ SPECIAL(duke_nukem)
     break;
   case 2:
     do_gen_comm(duke, "Your face, your ass.  What's the difference?", 
-		0, SCMD_SPEW);
+                0, SCMD_SPEW);
     break;
   case 3:
   case 4:
@@ -85,7 +88,7 @@ SPECIAL(duke_nukem)
     break;
   case 7:
     do_gen_comm(duke, "Hmm.  Don't have time to play with myself.",
-		0, SCMD_SPEW);
+                0, SCMD_SPEW);
     break;
   case 8:
     do_gen_comm(duke, "Suck it down.", 0, SCMD_SPEW);
@@ -95,7 +98,7 @@ SPECIAL(duke_nukem)
     break;
   case 10:
     do_gen_comm(duke, "It's time to kick ass and chew bubble gum.\r\n"
-		"And I'm all out of gum.", 0, SCMD_SHOUT);
+                "And I'm all out of gum.", 0, SCMD_SHOUT);
     break;
   case 11:
     do_gen_comm(duke, "This really pisses me off.", 0, SCMD_SPEW);

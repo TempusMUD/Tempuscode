@@ -49,5 +49,5 @@ struct weather_data {
   byte humid;           /* humidity */
 };
 
-#endif __weather_h__
+#endif 
 

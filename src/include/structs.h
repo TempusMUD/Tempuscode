@@ -18,11 +18,6 @@
 #ifndef __structs_h__
 #define __structs_h__
 
-/*#define DMALLOC 1 */
-
-#ifdef DMALLOC
-#include "dmalloc.h"
-#endif
 
 /* preamble *************************************************************/
 
@@ -50,6 +45,7 @@ typedef int obj_num;
 #include "defs.h"
 #include "constants.h"
 #include "obj_data.h"
+#include "character_list.h"
 #include "char_data.h"
 #include "desc_data.h"
 #include "room_data.h"
@@ -58,10 +54,4 @@ typedef int obj_num;
 #include "zone_data.h"
 #include "ban.h"
 
-#endif __structs_h__
-
-
-
-
-
-
+#endif 

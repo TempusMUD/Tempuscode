@@ -35,11 +35,13 @@ SPECIAL(fate_cauldron)
 	} else {
 		fateid = FATE_VNUM_HIGH;
 	}
-	
-	for(fate = character_list;
-		fate && GET_MOB_VNUM(fate) != fateid;
-		fate = fate->next);
-
+    CharacterList::iterator cit = characterList.begin();
+    for( ; cit != characterList.end(); ++cit ) {
+        if(GET_MOB_VNUM((*cit)) == fateid) {
+            fate = *cit;
+            break;
+        }
+    }
 	act("You gaze deep into $p.", FALSE, ch, pot, 0, TO_CHAR);
 
 	// Couldn't find her

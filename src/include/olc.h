@@ -89,19 +89,23 @@ int OLC_EDIT_OK( CHAR *ch, struct zone_data *zone, int bits );
       }                                                               \
     }
 
-#define UPDATE_MOBLIST_NAMES(mob_p, tmp_mob, _item)                         \
-     for (tmp_mob = character_list; tmp_mob; tmp_mob = tmp_mob->next)\
-       if (IS_NPC(tmp_mob) && (tmp_mob->mob_specials.shared->vnum ==\
-           mob_p->mob_specials.shared->vnum) &&                    \
-	   !MOB2_FLAGGED(tmp_mob, MOB2_RENAMED))                     \
-         (tmp_mob)_item = (mob_p)_item;
+#define UPDATE_MOBLIST_NAMES(mob_p, tmp_mob, _item)                              \
+    CharacterList::iterator cit = characterList.begin();                         \
+    for( ; cit != characterList.end(); ++cit ) {                                 \
+        tmp_mob = *cit;                                                          \
+      if (IS_NPC(tmp_mob) && (tmp_mob->mob_specials.shared->vnum ==              \
+      mob_p->mob_specials.shared->vnum) && !MOB2_FLAGGED(tmp_mob, MOB2_RENAMED)) \
+        (tmp_mob)_item = (mob_p)_item;                                           \
+    }
 
-#define UPDATE_MOBLIST(mob_p, tmp_mob, _item)                         \
-     for (tmp_mob = character_list; tmp_mob; tmp_mob = tmp_mob->next) \
-       if (IS_NPC(tmp_mob) && (tmp_mob->mob_specials.shared->vnum ==                   \
-           mob_p->mob_specials.shared->vnum))                       \
-         (tmp_mob)_item = (mob_p)_item;
-
+#define UPDATE_MOBLIST(mob_p, tmp_mob, _item)                            \
+    CharacterList::iterator cit = characterList.begin();                 \
+    for( ; cit != characterList.end(); ++cit ) {                         \
+        tmp_mob = *cit;                                                  \
+       if (IS_NPC(tmp_mob) && (tmp_mob->mob_specials.shared->vnum ==     \
+           mob_p->mob_specials.shared->vnum))                            \
+         (tmp_mob)_item = (mob_p)_item;                                  \
+    }
 
 #define OLC_RSET_USAGE "Usage:\r\n"                                  \
                   "olc rset title <title>\r\n"                       \

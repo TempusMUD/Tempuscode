@@ -41,8 +41,8 @@ extern struct descriptor_data *descriptor_list;
 /* external functions */
 void free_char(struct char_data * ch);
 void stop_fighting(struct char_data * ch);
+void stop_fighting( CharacterList::iterator &cit );
 void remove_follower(struct char_data * ch);
-void clearMemory(struct char_data * ch);
 void path_remove_object(void *object);
 void free_paths();
 void free_text_files();
@@ -56,10 +56,10 @@ int same_obj(struct obj_data *o1, struct obj_data *o2);
 extern struct clan_data *clan_list;
 
 char *
-fname(const char *namelist)
+fname(char *namelist)
 {
     static char holder[30];
-    register char *point;
+    char *point;
 
     if (!namelist) {
         slog("SYSERR: Null namelist passed to fname().");
@@ -72,6 +72,24 @@ fname(const char *namelist)
   
     return (holder);
 }
+char *
+fname(const char *namelist)
+{
+    static char holder[30];
+    char *point;
+
+    if (!namelist) {
+        slog("SYSERR: Null namelist passed to fname().");
+        return "";
+    }
+    for (point = holder; isalnum(*namelist); namelist++, point++)
+        *point = *namelist;
+  
+    *point = '\0';
+  
+    return (holder);
+}
+
 
 
 int 
@@ -677,9 +695,9 @@ int
 affect_remove(struct char_data * ch, struct affected_type * af)
 {
     struct affected_type *temp;
-    int type;
-    int level;
-    int duration;
+    int type = -1;
+    int level = 0;
+    int duration = 0;
     short is_instant = 0;
 
     if((is_instant = af->is_instant)) {
@@ -916,7 +934,6 @@ update_trail(struct char_data *ch, struct room_data *room, int dir, int mode)
 void 
 char_from_room(struct char_data * ch)
 {
-    struct char_data *temp;
 
     if (ch == NULL || ch->in_room == NULL) {
         slog("SYSERR: NULL or NOWHERE in handler.c, char_from_room");
@@ -948,9 +965,10 @@ char_from_room(struct char_data * ch)
 
     affect_from_char(ch, SPELL_ENTANGLE); // remove entanglement (summon etc)
 
-    REMOVE_FROM_LIST(ch, ch->in_room->people, next_in_room);
+    //REMOVE_FROM_LIST(ch, ch->in_room->people, next_in_room);
+    ch->in_room->people.remove(ch);
     ch->in_room = NULL;
-    ch->next_in_room = NULL;
+    //ch->next_in_room = NULL;
     if (GET_OLC_SRCH(ch))
         GET_OLC_SRCH(ch) = NULL;
 
@@ -965,11 +983,11 @@ char_to_room(struct char_data * ch, struct room_data *room)
 
     if (!ch || room == NULL) {
         slog("SYSERR: Illegal value(s) passed to char_to_room");
+        raise(SIGSEGV);
         return;
     }
 
-    ch->next_in_room = room->people;
-    room->people = ch;
+    room->people.add(ch);
     ch->in_room = room;
   
     if (GET_EQ(ch, WEAR_LIGHT))
@@ -1426,7 +1444,6 @@ get_obj_num(int nr)
 struct char_data *
 get_char_room(char *name, struct room_data *room)
 {
-    struct char_data *i;
     int j = 0, number;
     char tmpname[MAX_INPUT_LENGTH];
     char *tmp = tmpname;
@@ -1434,12 +1451,13 @@ get_char_room(char *name, struct room_data *room)
     strcpy(tmp, name);
     if (!(number = get_number(&tmp)))
         return NULL;
-
-    for (i = room->people; i && (j <= number); i = i->next_in_room)
-        if (isname(tmp, i->player.name))
+        
+    CharacterList::iterator it = room->people.begin();
+    for( ; it != room->people.end() && (j <= number); ++it ) {
+        if (isname(tmp, (*it)->player.name))
             if (++j == number)
-                return i;
-
+                return (*it);
+    }
     return NULL;
 }
 
@@ -1447,13 +1465,13 @@ get_char_room(char *name, struct room_data *room)
 
 /* search all over the world for a char num, and return a pointer if found */
 struct char_data *
-get_char_num(int nr)
-{
-    struct char_data *i;
+get_char_num(int nr) {
 
-    for (i = character_list; i; i = i->next)
-        if (GET_MOB_VNUM(i) == nr)
-            return i;
+    CharacterList::iterator cit = characterList.begin();
+    for( ; cit != characterList.end(); ++cit ) {
+        if (GET_MOB_VNUM((*cit)) == nr)
+            return (*cit);
+    }
 
     return NULL;
 }
@@ -1462,8 +1480,9 @@ struct char_data *
 get_char_in_world_by_idnum(int nr)
 {
     struct char_data *ch;
-  
-    for (ch = character_list; ch; ch = ch->next) {
+    CharacterList::iterator cit = characterList.begin();
+    for( ; cit != characterList.end(); ++cit ) {
+        ch = *cit;
         if (nr > 0 && !IS_NPC(ch) && GET_IDNUM(ch) == nr)
             return ch;
         if (nr < 0 && 
@@ -1768,13 +1787,7 @@ extract_obj(struct obj_data * obj)
     /* remove obj from any paths */
     if (IS_VEHICLE(obj))
         path_remove_object(obj);
-#ifdef DMALLOC
-    dmalloc_verify(0);
-#endif
     free_obj(obj);
-#ifdef DMALLOC
-    dmalloc_verify(0);
-#endif
 }
 
 
@@ -1823,163 +1836,6 @@ update_char_objects(struct char_data * ch)
 
 
 
-/* Extract a ch completely from the world, and leave his stuff behind */
-/* mode = 0 -> menu, 1 -> afterlife, 2 -> remort reroll */
-void 
-extract_char(struct char_data * ch, byte mode)
-{
-    struct char_data *k, *temp;
-    struct descriptor_data *t_desc;
-    struct obj_data *obj;
-    int i, freed = 0;
-
-    extern struct char_data *combat_list;
-
-    ACMD(do_return);
-
-    void die_follower(struct char_data * ch);
-
-    if (!IS_NPC(ch) && !ch->desc) {
-        for (t_desc = descriptor_list; t_desc; t_desc = t_desc->next)
-            if (t_desc->original == ch)
-                do_return(t_desc->character, "", 0, SCMD_FORCED);
-    }
-    if (ch->in_room == NULL) {
-        slog("SYSERR: NOWHERE extracting char. (handler.c, extract_char)");
-        sprintf(buf, "...extract char = %s", GET_NAME(ch));
-        slog(buf);
-        exit(1);
-    }
-
-    if (ch->followers || ch->master)
-        die_follower(ch);
-
-    /* remove hunters */
-    for (k = character_list; k; k = k->next)
-        if (ch == HUNTING(k))
-            HUNTING(k) = NULL;
-
-    // Make sure they aren't editing a help topic.
-    if(GET_OLC_HELP(ch)) {
-        GET_OLC_HELP(ch)->editor = NULL;
-        GET_OLC_HELP(ch) = NULL;
-    }
-    /* Forget snooping, if applicable */
-    if (ch->desc) {
-        if (ch->desc->snooping) {
-            ch->desc->snooping->snoop_by = NULL;
-            ch->desc->snooping = NULL;
-        }
-        if (ch->desc->snoop_by) {
-            SEND_TO_Q("Your victim is no longer among us.\r\n",
-                      ch->desc->snoop_by);
-            ch->desc->snoop_by->snooping = NULL;
-            ch->desc->snoop_by = NULL;
-        }
-    }
-    /* transfer objects to room, if any */
-    while (ch->carrying) {
-        obj = ch->carrying;
-        obj_from_char(obj);
-        obj_to_room(obj, ch->in_room);
-    }
-
-    /* transfer equipment to room, if any */
-    for (i = 0; i < NUM_WEARS; i++) {
-        if (GET_EQ(ch, i))
-            obj_to_room(unequip_char(ch, i, MODE_EQ), ch->in_room);
-        if (GET_IMPLANT(ch, i))
-            extract_obj(GET_IMPLANT(ch, i));
-    }
-
-    if (FIGHTING(ch))
-        stop_fighting(ch);
-
-    /* stop all fighting */
-    for (k = combat_list; k; k = temp) {
-        temp = k->next_fighting;
-        if (ch == FIGHTING(k))
-            stop_fighting(k);
-    }
-
-    /* temporary bug fix */
-    for (k = character_list; k; k = temp) {
-        temp = k->next;
-        if (ch == FIGHTING(k)) {
-            stop_fighting(k);
-            sprintf(buf, "SYSERR: %s still fighting %s at %d!!!",
-                GET_NAME(k), GET_NAME(ch), k->in_room->number);
-            slog(buf);
-            if (k->desc)
-            send_to_char("HOLY SHIT!!\r\n"
-                     "A grievous error has just occured with the character\r\n"
-                     "you just killed.  Please make a note of the last few\r\n"
-                     "things that happened in the battle with your victim\r\n"
-                     "and mail Fireball immediately!!  Thanks.\r\n", k);
-        
-        }
-    }
-
-    if (MOUNTED(ch)) {
-        REMOVE_BIT(AFF2_FLAGS(MOUNTED(ch)), AFF2_MOUNTED);
-        MOUNTED(ch) = NULL;
-    }
-
-    if (AFF2_FLAGGED(ch, AFF2_MOUNTED)) {
-        for (k = character_list; k; k = k->next)
-            if (ch == MOUNTED(k)) {
-            MOUNTED(k) = NULL;
-            if (k->getPosition() == POS_MOUNTED) {
-                if (k->in_room->sector_type == SECT_FLYING)
-                    k->setPosition( POS_FLYING );
-                else 
-                    k->setPosition( POS_STANDING );
-            }
-            }
-    }
-
-    if (ch->desc && ch->desc->original) {
-        do_return(ch, "", 0,  SCMD_NOEXTRACT);
-    }
-
-    char_from_room(ch);
-
-    /* pull the char from the list */
-    REMOVE_FROM_LIST(ch, character_list, next);
-
-    /* remove any paths */
-    path_remove_object(ch);
-
-    if (!IS_NPC(ch)) {
-        save_char(ch, NULL);
-        Crash_delete_crashfile(ch);
-    } else {
-        if (GET_MOB_VNUM(ch) > -1)                /* if mobile */
-            ch->mob_specials.shared->number--;
-        clearMemory(ch);                /* Only NPC's can have memory */
-        free_char(ch);
-        freed = 1;
-        return;
-    }
-
-    if (ch->desc) {
-        if (mode) {
-            STATE(ch->desc) = CON_AFTERLIFE;
-            SEND_TO_Q("\r\n\r\nPress RETURN to continue into the afterlife.\r\n", 
-                      ch->desc);
-            ch->desc->wait = 0;
-        } else {
-            SEND_TO_Q("\r\n\r\n\r\n", ch->desc);
-            show_menu(ch->desc);
-            STATE(ch->desc) = CON_MENU;
-        }
-    } else {  /* if a player gets purged from within the game */
-        if (!freed)
-            free_char(ch);
-    }
-}
-
-
 
 /* ***********************************************************************
    Here follows high-level versions of some earlier routines, ie functions
@@ -2007,8 +1863,9 @@ get_player_vis(struct char_data * ch, char *name, int inroom)
         tmpname[--len] = '\0';
     }
 
-    for (i = character_list; i; i = i->next) {
-
+    CharacterList::iterator cit = characterList.begin();
+    for( ; cit != characterList.end(); ++cit ) {
+        i = *cit;
         if ((!IS_NPC(i) || i->desc) && 
             (!inroom || i->in_room == ch->in_room) &&
             CAN_SEE(ch, i) &&
@@ -2041,7 +1898,9 @@ get_char_room_vis(struct char_data * ch, char *name)
     if (!(number = get_number(&tmp)))
         return get_player_vis(ch, tmp, 1);
 
-    for (i = ch->in_room->people; i && j <= number; i = i->next_in_room) {
+    CharacterList::iterator it = ch->in_room->people.begin();
+    for( ; it != ch->in_room->people.end() && j <= number; ++it ) {
+        i = *it;
         if ((af = affected_by_spell(i, SKILL_DISGUISE)))
             mob = real_mobile_proto(af->modifier);
 
@@ -2085,11 +1944,13 @@ get_char_vis(struct char_data * ch, char *name)
     if (!(number = get_number(&tmp)))
         return get_player_vis(ch, tmp, 0);
 
-    for (i = character_list; i && (j <= number); i = i->next)
+    CharacterList::iterator cit = characterList.begin();
+    for( ; cit != characterList.end() && (j <= number); ++cit ) {
+        i = *cit;
         if (isname(tmp, i->player.name) && CAN_SEE(ch, i))
             if (++j == number)
                 return i;
-
+    }
     return NULL;
 }
 

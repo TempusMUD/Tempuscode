@@ -21,6 +21,7 @@
 #include <signal.h>
 
 #include "structs.h"
+#include "character_list.h"
 #include "utils.h"
 #include "comm.h"
 #include "handler.h"
@@ -64,11 +65,11 @@ set_fighting( struct char_data * ch, struct char_data * vict, int aggr )
         slog( "SYSERR: FIGHTING( ch ) != NULL in set_fighting(  )." );
         return;
     }
+    combatList.add(ch);
+    //ch->next_fighting = combat_list;
+    //combat_list = ch;
 
-    ch->next_fighting = combat_list;
-    combat_list = ch;
-
-    FIGHTING( ch ) = vict;
+    ch->setFighting(vict);
     update_pos(ch);
 //    ch->setPosition( POS_FIGHTING );
   
@@ -122,7 +123,7 @@ set_fighting( struct char_data * ch, struct char_data * vict, int aggr )
                 sprintf( buf, "%s protected against %s ( set_fighting ) at %d\n",
                          GET_NAME( vict ), GET_NAME( ch ), vict->in_room->number );
                 slog( buf );
-                FIGHTING( ch ) = NULL;
+                ch->setFighting(NULL);
                 ch->setPosition( POS_STANDING );
                 return;
             }
@@ -130,18 +131,14 @@ set_fighting( struct char_data * ch, struct char_data * vict, int aggr )
     }
 }
 
-/* remove a char from the list of fighting chars */
-void 
-stop_fighting( struct char_data * ch )
-{
-    struct char_data *temp;
 
-    if ( ch == next_combat_list )
-        next_combat_list = ch->next_fighting;
-
-    REMOVE_FROM_LIST( ch, combat_list, next_fighting );
-    ch->next_fighting = NULL;
-    FIGHTING( ch ) = NULL;
+/* 
+   corrects position and removes combat related bits.
+   Call ONLY from stop_fighting
+*/
+void
+remove_fighting_affects( struct char_data *ch ) {
+    ch->setFighting(NULL);
 
     if ( ch->in_room && ch->in_room->isOpenAir() ) {
         ch->setPosition( POS_FLYING );
@@ -161,6 +158,20 @@ stop_fighting( struct char_data * ch )
 
     REMOVE_BIT( AFF3_FLAGS( ch ), AFF3_FEEDING );
     update_pos( ch );
+
+}
+/* remove a char from the list of fighting chars */
+void 
+stop_fighting( CharacterList::iterator &cit ) {
+    struct char_data *ch = *cit;
+    combatList.remove(cit);
+    remove_fighting_affects(ch);
+}
+/* remove a char from the list of fighting chars */
+void 
+stop_fighting( struct char_data * ch ) {
+    combatList.remove(ch);
+    remove_fighting_affects(ch);    
 }
 
           
@@ -175,8 +186,9 @@ change_alignment( struct char_data * ch, struct char_data * victim )
 
 
 void 
-raw_kill( struct char_data * ch, struct char_data *killer, int attacktype )
-{
+raw_kill( struct char_data * ch, struct char_data *killer, int attacktype ) {
+
+
 
     if ( FIGHTING( ch ) )
         stop_fighting( ch );
@@ -207,29 +219,27 @@ raw_kill( struct char_data * ch, struct char_data *killer, int attacktype )
                 qi++;
         }
     }
-    extract_char( ch, 1 );
+    //extract_char( ch, 1 );
+    ch->extract( TRUE );
 }
 
 
 
 void 
-die( struct char_data *ch, struct char_data *killer,
-     int attacktype, int is_humil )
-{
+die( struct char_data *ch, struct char_data *killer, int attacktype, int is_humil ) {
   
-    /*
-      if ( IS_NPC( ch ) &&
-      GET_MOB_SPEC( ch ) ) {
-      if ( GET_MOB_SPEC( ch ) ( killer, ch, 0, NULL, SPECIAL_DEATH ) ) {
-      return;
-      }
-      }
-    */
+    if ( IS_NPC( ch ) && GET_MOB_SPEC( ch ) ) {
+        if ( GET_MOB_SPEC( ch ) ( killer, ch, 0, NULL, SPECIAL_DEATH ) ) {
+            fprintf( stderr, "Mobile spec for %s run instead of normal die code.\n",GET_NAME(ch));
+            return;
+        }
+    }
     if ( !ROOM_FLAGGED( ch->in_room, ROOM_ARENA ) && killer &&
          !PLR_FLAGGED( killer, PLR_KILLER ) )
         gain_exp( ch, -( GET_EXP( ch ) >> 3 ) );
   
     if ( PLR_FLAGGED( ch, PLR_KILLER ) && GET_LEVEL( ch ) < LVL_AMBASSADOR ) {
+    
         GET_EXP( ch ) = MAX( 0, MIN( GET_EXP( ch ) - ( GET_LEVEL( ch ) * GET_LEVEL( ch ) ),
                                      exp_scale[GET_LEVEL( ch ) - 2] ) );
 
@@ -282,7 +292,7 @@ die( struct char_data *ch, struct char_data *killer,
     
     REMOVE_BIT( AFF2_FLAGS( ch ), AFF2_ABLAZE );
     REMOVE_BIT( AFF3_FLAGS( ch ), AFF3_SELF_DESTRUCT );
-    raw_kill( ch, killer, attacktype );
+    raw_kill( ch, killer, attacktype ); // die
 }
 
 void perform_gain_kill_exp( struct char_data *ch, struct char_data *victim, float multiplier );
@@ -290,7 +300,7 @@ void perform_gain_kill_exp( struct char_data *ch, struct char_data *victim, floa
 void
 group_gain( struct char_data *ch, struct char_data *victim )
 {
-    struct char_data *member, *leader;
+    struct char_data  *leader;
     int total_levs = 0;
     int total_pc_mems = 0;
     float mult = 0;
@@ -298,18 +308,18 @@ group_gain( struct char_data *ch, struct char_data *victim )
 
     if ( ! ( leader = ch->master ) )
         leader = ch;
-
-    for ( member = ch->in_room->people; member; member = member->next_in_room ) {
-        if ( AFF_FLAGGED( member, AFF_GROUP ) && ( member == leader || leader == member->master ) ) {
-            total_levs += GET_LEVEL( member ) + ( IS_NPC( member ) ? 0 : GET_REMORT_GEN( member ) << 3 );
-            if ( !IS_NPC( member ) )
+    CharacterList::iterator it = ch->in_room->people.begin();
+    for( ; it != ch->in_room->people.end(); ++it ) {
+        if ( AFF_FLAGGED( (*it), AFF_GROUP ) && ( (*it) == leader || leader == (*it)->master ) ) {
+            total_levs += GET_LEVEL( (*it) ) + ( IS_NPC( (*it) ) ? 0 : GET_REMORT_GEN( (*it) ) << 3 );
+            if ( !IS_NPC( (*it) ) )
                 total_pc_mems++;
         }
     }
-
-    for ( member = ch->in_room->people; member; member = member->next_in_room ) {
-        if ( AFF_FLAGGED( member, AFF_GROUP ) && ( member == leader || leader == member->master ) ) {
-            mult = ( float ) GET_LEVEL( member ) + ( IS_NPC( member ) ? 0 : GET_REMORT_GEN( member ) << 3 );
+    it = ch->in_room->people.begin();
+    for( ; it != ch->in_room->people.end(); ++it ) {
+        if ( AFF_FLAGGED( (*it), AFF_GROUP ) && ( (*it) == leader || leader == (*it)->master ) ) {
+            mult = ( float ) GET_LEVEL( (*it) ) + ( IS_NPC( (*it) ) ? 0 : GET_REMORT_GEN( (*it) ) << 3 );
             mult /= ( float ) total_levs;
             
             if ( total_pc_mems ) {
@@ -318,10 +328,10 @@ group_gain( struct char_data *ch, struct char_data *victim )
                 sprintf( buf, "Your group gain is %d%% + bonus %d%%.\n",
                          ( int ) ( ( float ) mult * 100 ),
                          ( int ) ( ( float ) mult_mod * 100 ) );
-                send_to_char( buf, member );
+                send_to_char( buf, (*it) );
             }
 
-            perform_gain_kill_exp( member, victim, mult );
+            perform_gain_kill_exp( (*it), victim, mult );
         }
     }
 }
@@ -377,9 +387,12 @@ perform_gain_kill_exp( struct char_data *ch, struct char_data *victim, float mul
     if ( !IS_NPC( ch ) && IS_REMORT( ch ) )
         exp -= ( exp * GET_REMORT_GEN( ch ) ) / ( GET_REMORT_GEN( ch ) + 2 );
   
-    if ( IS_GOOD( ch ) && ( IS_CLERIC( ch ) || IS_KNIGHT( ch ) ) && IS_GOOD( victim ) ) {    // good clerics & knights penalized
+    if ( IS_GOOD( ch ) && 
+     ( IS_CLERIC( ch ) || IS_KNIGHT( ch ) ) && 
+     IS_GOOD( victim ) ) {    // good clerics & knights penalized
         exp = -exp;
-        act( "You feel a sharp pang of remorse for $N's death.", FALSE, ch, 0, victim, TO_CHAR );
+        act( "You feel a sharp pang of remorse for $N's death.", 
+             FALSE, ch, 0, victim, TO_CHAR );
     }
   
     if ( GET_LEVEL( victim ) >= LVL_AMBASSADOR ||
@@ -694,9 +707,7 @@ int
 damage( struct char_data * ch, struct char_data * victim, int dam,
         int attacktype, int location )
 {
-    int hard_damcap, is_humil = 0, eq_dam = 0, weap_dam = 0, i,
-        impl_dam = 0, mana_loss;
-    struct char_data *tmp_ch = NULL, *next_ch = NULL;
+    int hard_damcap, is_humil = 0, eq_dam = 0, weap_dam = 0, i, impl_dam = 0, mana_loss;
     struct obj_data *obj = NULL, *weap = cur_weap, *impl = NULL;
     struct room_affect_data rm_aff;
     struct affected_type *af = NULL;
@@ -865,12 +876,12 @@ damage( struct char_data * ch, struct char_data * victim, int dam,
         location = WEAR_HEAD;
 
     if ( attacktype == TYPE_ACID_BURN && location == -1 ) {
-                for ( i = 0; i < NUM_WEARS; i++ ) {
-                        if ( GET_EQ( ch, i ) )
+        for ( i = 0; i < NUM_WEARS; i++ ) {
+            if ( GET_EQ( ch, i ) )
                 damage_eq( ch, GET_EQ( ch, i ), ( dam >> 1 ), attacktype );
-                        if ( GET_IMPLANT( ch, i ) )
+            if ( GET_IMPLANT( ch, i ) )
                 damage_eq( ch, GET_IMPLANT( ch, i ), ( dam >> 1 ), attacktype );
-                }
+        }
     }
 
     /** check for armor **/
@@ -1520,14 +1531,14 @@ damage( struct char_data * ch, struct char_data * victim, int dam,
                                        attacktype == TYPE_STAB   ||
                                        attacktype == TYPE_CHOP   || 
                                        attacktype == SPELL_BLADE_BARRIER ) ) {
-            for ( tmp_ch = victim->in_room->people; tmp_ch; tmp_ch = next_ch ) {
-                next_ch = tmp_ch->next_in_room;
-                if ( tmp_ch == victim || number( 0, 8 ) )
+            CharacterList::iterator it = victim->in_room->people.begin();
+            for( ; it != victim->in_room->people.end(); ++it ) {
+                if ( *it == victim || number( 0, 8 ) )
                     continue;
                 bool is_char = false;
-                if ( tmp_ch == ch )
+                if ( *it == ch )
                     is_char = true;
-                int retval = damage( victim, tmp_ch, dice( 4, GET_LEVEL( victim ) ),TYPE_ALIEN_BLOOD,-1 );
+                int retval = damage( victim, *it, dice( 4, GET_LEVEL( victim ) ),TYPE_ALIEN_BLOOD,-1 );
 
                 if ( is_char && IS_SET( retval, DAM_VICT_KILLED ) ) {
                     DAM_RETURN( DAM_ATTACKER_KILLED ); 
@@ -1804,7 +1815,6 @@ damage( struct char_data * ch, struct char_data * victim, int dam,
 
             if ( HUNTING( ch ) && HUNTING( ch ) == victim )
                 HUNTING( ch ) = NULL; 
-
             die( victim, ch, attacktype, is_humil );
             DAM_RETURN( DAM_VICT_KILLED );
 
@@ -1812,7 +1822,7 @@ damage( struct char_data * ch, struct char_data * victim, int dam,
 
         if ( !IS_NPC( victim ) ) {
             sprintf( buf, "%s killed by NULL-char ( type %d ( %s ) ) at %d.", 
-                     GET_NAME( victim ), attacktype,
+                     GET_NAME( victim ),  attacktype,
                      ( attacktype > 0 && attacktype < TOP_NPC_SPELL ) ?
                      spells[attacktype]  :
                      ( attacktype >= TYPE_HIT && attacktype <= TOP_ATTACKTYPE ) ?
@@ -1840,7 +1850,6 @@ damage( struct char_data * ch, struct char_data * victim, int dam,
 
 int hit( struct char_data * ch, struct char_data * victim, int type ) {
 
-    struct char_data *tch;
     int w_type = 0, victim_ac, calc_thaco, dam, tmp_dam, diceroll, skill = 0;
     int i, metal_wt, dual_prob = 0;
     byte limb;
@@ -1910,13 +1919,15 @@ int hit( struct char_data * ch, struct char_data * victim, int type ) {
     } 
     if ( IS_AFFECTED_2( victim, AFF2_MOUNTED ) ) {
         REMOVE_BIT( AFF2_FLAGS( victim ), AFF2_MOUNTED );
-        for ( tch = ch->in_room->people;tch;tch = tch->next_in_room )
-            if ( MOUNTED( tch ) && MOUNTED( tch ) == victim ) {
+        CharacterList::iterator it = ch->in_room->people.begin();
+        for( ; it != ch->in_room->people.end(); ++it ) {
+            if ( MOUNTED( (*it) ) && MOUNTED( (*it) ) == victim ) {
                 act( "You are knocked from your mount by $N's attack!", 
-                     FALSE, tch, 0, ch, TO_CHAR );
-                MOUNTED( tch ) = NULL;
-                tch->setPosition( POS_STANDING );
+                     FALSE, (*it), 0, ch, TO_CHAR );
+                MOUNTED( (*it) ) = NULL;
+                (*it)->setPosition( POS_STANDING );
             }
+        }
     }
   
     for ( i = 0, metal_wt = 0; i < NUM_WEARS; i++ )
@@ -2132,7 +2143,8 @@ int hit( struct char_data * ch, struct char_data * victim, int type ) {
 
         if ( weap && IS_OBJ_TYPE( weap, ITEM_WEAPON ) &&
              IS_OBJ_STAT2( weap, ITEM2_CAST_WEAPON ) &&
-             weap == GET_EQ( ch, weap->worn_on ) &&  victim != ch->next &&
+             weap == GET_EQ( ch, weap->worn_on ) &&  
+             //This line no longer needed  =>  victim != ch->next &&
              GET_OBJ_VAL( weap, 0 ) > 0 &&
              GET_OBJ_VAL( weap, 0 ) < MAX_SPELLS &&
              ( ( ( !SPELL_IS_MAGIC( GET_OBJ_VAL( weap, 0 ) ) &&
@@ -2225,16 +2237,11 @@ void perform_violence( void ) {
     struct obj_data *weap = NULL;
     int prob, i, die_roll;
 
-    for ( ch = combat_list; ch; ch = next_combat_list ) {
-        next_combat_list = ch->next_fighting;
-        
+    CharacterList::iterator cit = combatList.begin();
+    for( ; cit != combatList.end(); ++cit ) {
+        ch = *cit;
         if ( !ch->in_room || !FIGHTING( ch ) )
             continue;
-        
-        struct char_data * tmp_next_combat_list =
-            ( FIGHTING( ch ) == next_combat_list ) ? 
-            ( next_combat_list ? next_combat_list->next : next_combat_list ) : 0;
-
         if ( ch == FIGHTING( ch ) )  {       // intentional crash here.
             slog( "SYSERR: ch == FIGHTING( ch ) in perform_violence." );
             raise( SIGSEGV );
@@ -2389,11 +2396,11 @@ void perform_violence( void ) {
 
                     if(  number( 0 ,100 ) < implant_prob ) {
                         int retval = hit( ch, FIGHTING(ch), SKILL_ADV_IMPLANT_W );
-
+                        /*  No longer needed because of CombatList
                         if ( IS_SET( retval, DAM_VICT_KILLED ) ) {
                             next_combat_list = tmp_next_combat_list;
                         }
-                        
+                        */
                         if ( retval )
                             continue;
                     }
@@ -2415,10 +2422,10 @@ void perform_violence( void ) {
 
                     if(  number( 0 ,100 ) < implant_prob ) {
                         int retval = hit( ch, FIGHTING(ch), SKILL_IMPLANT_W );
-
+                        /*
                         if ( IS_SET( retval, DAM_VICT_KILLED ) ) {
                             next_combat_list = tmp_next_combat_list;
-                        }
+                        }*/
                         
                         if ( retval )
                             continue;
@@ -2444,11 +2451,12 @@ void perform_violence( void ) {
             //
             
             if ( FIGHTING( ch ) == next_combat_list ) {
-                int retval = hit( ch, FIGHTING( ch ), TYPE_UNDEFINED );
-                
+                //int retval = 
+                hit( ch, FIGHTING( ch ), TYPE_UNDEFINED );
+                /*
                 if ( IS_SET( retval, DAM_VICT_KILLED ) )
                     next_combat_list = tmp_next_combat_list;
-
+                */
                 continue;
             }
             

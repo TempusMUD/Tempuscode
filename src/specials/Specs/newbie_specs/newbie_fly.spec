@@ -6,15 +6,14 @@
 
 SPECIAL(newbie_fly)
 {
-  struct char_data *vict;
-
+  if( spec_mode == SPECIAL_DEATH ) return 0;
   if (cmd || FIGHTING(ch))
     return 0;
-
-  for (vict = ch->in_room->people;vict;vict = vict->next_in_room) {
-    if (IS_AFFECTED(vict, AFF_INFLIGHT) || !CAN_SEE(ch, vict))
+  CharacterList::iterator it = ch->in_room->people.begin();
+  for( ; it != ch->in_room->people.end(); ++it ) {
+    if (IS_AFFECTED((*it), AFF_INFLIGHT) || !CAN_SEE(ch, (*it)))
       continue;
-    cast_spell(ch, vict, 0, SPELL_FLY);
+    cast_spell(ch, (*it), 0, SPELL_FLY);
     return 1;
   }
   return 0;

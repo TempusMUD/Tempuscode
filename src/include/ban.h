@@ -17,4 +17,4 @@ struct ban_list_element {
 };
 
 
-#endif __ban_h__
+#endif

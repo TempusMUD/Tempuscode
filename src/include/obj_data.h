@@ -11,10 +11,6 @@
 
 /*#define DMALLOC 1 */
 
-#ifdef DMALLOC
-#include "dmalloc.h"
-#endif
-
 /* preamble *************************************************************/
 
 #include <stdio.h>
@@ -398,4 +394,4 @@ struct obj_shared_data {
 };
 
 
-#endif __obj_data_h__
+#endif 

@@ -6,16 +6,20 @@
 
 SPECIAL(cheeky_monkey)
 {
- struct char_data *vict;
+ struct char_data *vict = NULL;
  
  if (cmd || !AWAKE(ch) || FIGHTING(ch) || number(0, 3))
    return FALSE;
 
- for (vict = ch->in_room->people; vict; vict = vict->next_in_room)
-   if (vict != ch && CAN_SEE(ch, vict) && 
-       (!number(0,5) || !vict->next_in_room))
-     break;
-
+    CharacterList::iterator it = ch->in_room->people.begin();
+    CharacterList::iterator nit = ch->in_room->people.begin();
+    for( ; it != ch->in_room->people.end(); ++it ) {
+        ++nit;
+       vict = *it;
+       if (vict != ch && CAN_SEE(ch, vict) && 
+           (!number(0,5) || nit == ch->in_room->people.end()))
+         break;
+    }
  if (!vict || vict == ch)
    return 0;
  

@@ -69,17 +69,4 @@ struct special_search_data {
   struct special_search_data *next;
 };
 
-#endif __search_h__
-
-
-
-
-
-
-
-
-
-
-
-
-
+#endif 

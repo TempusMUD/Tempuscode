@@ -104,11 +104,11 @@ ACMD(do_action)
     }
     action = &soc_mess_list[act_nr];
 
-    if (action->char_found)
+    if (action->char_found) {
         one_argument(argument, buf);
-    else
+    } else {
         *buf = '\0';
-
+    }
     if (!*buf) {
         send_to_char(action->char_no_arg, ch);
         send_to_char("\r\n", ch);
@@ -147,7 +147,7 @@ ACMD(do_action)
         }
     }
     if (obj && IS_MOB(vict))
-        extract_char(vict, FALSE);
+        vict->extract( FALSE );
 }
 
 ACMD(do_point)
@@ -406,9 +406,6 @@ void free_socials(void)
     int i;
 
     for (i = 0; i <= list_top; i++) {
-#ifdef DMALLOC
-        dmalloc_verify(0);
-#endif
         if (soc_mess_list[i].char_no_arg)
             free(soc_mess_list[i].char_no_arg);
         if (soc_mess_list[i].others_no_arg)
@@ -425,15 +422,6 @@ void free_socials(void)
             free(soc_mess_list[i].char_auto);
         if (soc_mess_list[i].others_auto)
             free(soc_mess_list[i].others_auto);
-#ifdef DMALLOC
-        dmalloc_verify(0);
-#endif
     }
-#ifdef DMALLOC
-    dmalloc_verify(0);
-#endif
     free(soc_mess_list);
-#ifdef DMALLOC
-    dmalloc_verify(0);
-#endif
 }

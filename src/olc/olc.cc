@@ -436,15 +436,9 @@ ACMD(do_olc)
 	    CREATE(EXIT(ch,edir), struct room_direction_data, 1);
 	    EXIT(ch, edir)->to_room = NULL;
 	} else if (is_abbrev(buf, "remove")) {
-#ifdef DMALLOC
-	    dmalloc_verify(0);
-#endif
 	    free(EXIT(ch, edir)->general_description);
 	    free(EXIT(ch, edir)->keyword);
 	    free(EXIT(ch, edir));
-#ifdef DMALLOC
-	    dmalloc_verify(0);
-#endif
 	    EXIT(ch, edir) = NULL;
 	    send_to_char("Exit removed.\r\n", ch);
 	    return;
@@ -456,9 +450,6 @@ ACMD(do_olc)
 	    if (!*argument && is_abbrev(argument, "remove")) {
 		if (EXIT(ch,edir)->general_description) { 
 		    free(EXIT(ch,edir)->general_description);
-#ifdef DMALLOC
-		    dmalloc_verify(0);
-#endif
 		    EXIT(ch,edir)->general_description = NULL;
 		}
 		send_to_char("Exit desc removed.\r\n", ch);
@@ -477,16 +468,10 @@ ACMD(do_olc)
 	else if (is_abbrev(buf,"keywords"))  {
 	    if (EXIT(ch,edir)->keyword)  {
 		free(EXIT(ch,edir)->keyword);
-#ifdef DMALLOC
-		dmalloc_verify(0);
-#endif
 		EXIT(ch,edir)->keyword = NULL;
 	    }
 	    if (argument && *argument) {
 		EXIT(ch,edir)->keyword = str_dup(argument);
-#ifdef DMALLOC
-		dmalloc_verify(0);
-#endif
 		send_to_char("Keywords set.\r\n", ch);
 	    } else 
 		send_to_char("What keywords?!\r\n", ch);
@@ -773,9 +758,6 @@ ACMD(do_olc)
 		    slog("WTF?? !desc->description??");
 
 		free(desc);
-#ifdef DMALLOC
-		dmalloc_verify(0);
-#endif
 		send_to_char("Description removed.\r\n", ch);
 		UPDATE_OBJLIST(obj_p, tmp_obj, ->ex_description);
 	    } else
@@ -791,9 +773,6 @@ ACMD(do_olc)
 	    }
 	    CREATE(ndesc, struct extra_descr_data, 1); 
 	    ndesc->keyword  = str_dup(argument);
-#ifdef DMALLOC
-	    dmalloc_verify(0);
-#endif
 	    ndesc->next = obj_p->ex_description;
 	    obj_p->ex_description = ndesc;
 
@@ -833,9 +812,6 @@ ACMD(do_olc)
 		    strcat(buf, " ");
 		    strcat(buf, arg2);
 		    free(desc->keyword);
-#ifdef DMALLOC
-		    dmalloc_verify(0);
-#endif
 		    desc->keyword = str_dup(buf);
 		    UPDATE_OBJLIST(obj_p, tmp_obj, ->ex_description);
 		    send_to_char("Keywords added.\r\n", ch);
@@ -908,9 +884,6 @@ ACMD(do_olc)
 	    send_to_char("Real funny.\r\n",ch);
 	    break;
 	}
-#ifdef DMALLOC
-	dmalloc_verify(0);
-#endif
 	if (obj_p->name)
 	    free(obj_p->name);
 	if (tmp_obj->name)
@@ -938,9 +911,6 @@ ACMD(do_olc)
 	    obj_p->action_description =   str_dup(tmp_obj->action_description);
 	else 
 	    obj_p->action_description =   NULL;
-#ifdef DMALLOC
-	dmalloc_verify(0);
-#endif
 	obj_p->obj_flags.type_flag =    tmp_obj->obj_flags.type_flag;
 	obj_p->obj_flags.extra_flags =  tmp_obj->obj_flags.extra_flags;
 	obj_p->obj_flags.extra2_flags = tmp_obj->obj_flags.extra2_flags;
@@ -978,9 +948,6 @@ ACMD(do_olc)
 		free(desc->description);
 	    desc = desc->next;
 	}
-#ifdef DMALLOC
-	dmalloc_verify(0);
-#endif
 	desc = tmp_obj->ex_description;
 	while (desc) {
 	    CREATE(ndesc, struct extra_descr_data, 1);
@@ -990,9 +957,6 @@ ACMD(do_olc)
 	    obj_p->ex_description = ndesc;
 	    desc = desc->next;
 	}
-#ifdef DMALLOC
-	dmalloc_verify(0);
-#endif
 	UPDATE_OBJLIST_FULL(obj_p, obj);
 	
 	send_to_char("Okay, done mimicing.\r\n",ch);
@@ -1015,7 +979,7 @@ ACMD(do_olc)
           do_clear_olc_mob(ch);
         }
         else
-	    send_to_char("Olc clear what???!!\r\n", ch);
+	    send_to_char("Olc clear what?!?!!\r\n", ch);
 	break;
 
     case 19:  /*** supersave ***/

@@ -292,7 +292,7 @@ void
 check_object_killer( struct obj_data * obj, struct char_data * vict )
 {
     CHAR cbuf;
-    struct char_data *killer;
+    struct char_data *killer = NULL;
     int player_i=0;
     struct char_file_u tmp_store;
     int obj_id;
@@ -325,11 +325,13 @@ check_object_killer( struct obj_data * obj, struct char_data * vict )
             
     if ( !obj_id )
         return;
-
-    for ( killer = character_list; killer; killer = killer->next )
-        if ( !IS_NPC( killer ) && GET_IDNUM( killer ) == obj_id )
+    CharacterList::iterator cit = characterList.begin();
+    for (; cit != characterList.end(); ++cit) {
+        if ( !IS_NPC( *cit ) && GET_IDNUM( *cit ) == obj_id ) {
+            killer = *cit;
             break;
-
+        }
+    }
     // see if the sonuvabitch is still connected
     if ( !killer ) {
 
@@ -1362,18 +1364,20 @@ make_corpse( struct char_data *ch,struct char_data *killer,int attacktype )
         heart->description = str_dup( buf2 );
 
         GET_OBJ_WEAR( heart ) = ITEM_WEAR_TAKE + ITEM_WEAR_HOLD;
-        GET_OBJ_EXTRA( heart ) = ITEM_NODONATE;
+        GET_OBJ_EXTRA( heart ) = ITEM_NODONATE | ITEM_NOSELL;
         GET_OBJ_EXTRA2( heart ) = ITEM2_BODY_PART;
         GET_OBJ_VAL( heart, 0 ) = 10;
         if ( IS_DEVIL( ch ) || IS_DEMON( ch ) || IS_LICH( ch ) ) {
+
             if ( GET_CLASS( ch ) == CLASS_GREATER || GET_CLASS( ch ) == CLASS_ARCH ||
-                 GET_CLASS( ch ) == CLASS_DUKE || GET_CLASS( ch ) == CLASS_DEMON_PRINCE ||
-                 GET_CLASS( ch ) == CLASS_DEMON_LORD || GET_CLASS( ch ) == CLASS_LESSER ||
-                 GET_LEVEL( ch ) > 30 ) {
+            GET_CLASS( ch ) == CLASS_DUKE || GET_CLASS( ch ) == CLASS_DEMON_PRINCE ||
+            GET_CLASS( ch ) == CLASS_DEMON_LORD || GET_CLASS( ch ) == CLASS_LESSER ||
+            GET_LEVEL( ch ) > 30 ) {
                 GET_OBJ_VAL( heart, 1 ) = GET_LEVEL( ch );        
-                if ( GET_CLASS( ch ) == CLASS_LESSER )
-                    GET_OBJ_VAL( heart, 1 )  >>= 1;        
                 GET_OBJ_VAL( heart, 2 ) = SPELL_ESSENCE_OF_EVIL;
+                if ( GET_CLASS( ch ) == CLASS_LESSER ) {
+                    GET_OBJ_VAL( heart, 1 )  >>= 1;     
+                }
             } else {
                 GET_OBJ_VAL( heart, 1 ) = 0;        
                 GET_OBJ_VAL( heart, 2 ) = 0;        
@@ -1382,6 +1386,7 @@ make_corpse( struct char_data *ch,struct char_data *killer,int attacktype )
             GET_OBJ_VAL( heart, 1 ) = 0;        
             GET_OBJ_VAL( heart, 2 ) = 0;        
         }
+
         heart->setWeight( 0 );
         heart->worn_on = -1;
 

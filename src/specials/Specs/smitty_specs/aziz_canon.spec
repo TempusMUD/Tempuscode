@@ -6,12 +6,15 @@
 
 SPECIAL(aziz_canon)
 {
-  struct char_data *vict;
+  struct char_data *vict = NULL;
 
   if (cmd)
     return 0;
+  if( spec_mode == SPECIAL_DEATH ) return 0;
   if (!FIGHTING(ch) && ch->getPosition() != POS_FIGHTING) {
-    for (vict = ch->in_room->people;vict;vict = vict->next_in_room) {
+    CharacterList::iterator it = ch->in_room->people.begin();
+    for( ; it != ch->in_room->people.end(); ++it ) {
+        vict = *it;
       if (!number(0, 2))
         break;
     }
@@ -21,7 +24,7 @@ SPECIAL(aziz_canon)
     switch (number(0, 30)) {
     case 1:
       act("$n looks at you and winks.'.",FALSE,ch,0,vict,TO_VICT);
-      act("$n looks at $N and winks.'.",FALSE,ch,0,vict,TO_NOTVICT);	
+      act("$n looks at $N and winks.'.",FALSE,ch,0,vict,TO_NOTVICT);        
       break;
     case 2:
       act("$n struts around you like a horny rooster.",TRUE,ch,0,vict,TO_VICT);

@@ -11,7 +11,7 @@ SPECIAL(safiir)
   struct obj_data *wand;
   char buf3[MAX_STRING_LENGTH];
   int cost;
-
+  if( spec_mode == SPECIAL_DEATH ) return 0;
   if (!CMD_IS("recharge") && !CMD_IS("offer"))
     return 0;
 

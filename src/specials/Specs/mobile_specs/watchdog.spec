@@ -15,9 +15,12 @@ SPECIAL(watchdog)
   
   if (!count || !vict || dog->in_room != vict->in_room ) {
 
-    for (vict = ch->in_room->people;vict;vict = vict->next_in_room) {
-      if (vict != dog && CAN_SEE(dog, vict) && GET_LEVEL(vict) < LVL_IMMORT)
-	break;
+    CharacterList::iterator it = ch->in_room->people.begin();
+    for( ; it != ch->in_room->people.end(); ++it ) {
+      if (*it != dog && CAN_SEE(dog, (*it)) && GET_LEVEL((*it)) < LVL_IMMORT) {
+        vict = *it;
+    	break;
+      }
     }
     
     if (!vict || vict == dog)

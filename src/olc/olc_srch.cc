@@ -258,10 +258,7 @@ do_create_search(struct char_data *ch, char *arg)
 }
 
 int 
-do_destroy_search(struct char_data *ch, char *arg)
-{
-
-    struct char_data *vict = NULL;
+do_destroy_search(struct char_data *ch, char *arg) {
     struct special_search_data *srch = NULL, *temp = NULL;
     char triggers[MAX_INPUT_LENGTH], keywords[MAX_INPUT_LENGTH];
 
@@ -288,15 +285,12 @@ do_destroy_search(struct char_data *ch, char *arg)
         send_to_char("World olc is not approved for this zone.\r\n", ch);
         return 0;
     }
-
-    for (vict = character_list; vict; vict = vict->next)
-        if (GET_OLC_SRCH(vict) == srch)
-            GET_OLC_SRCH(vict) = NULL;
-
+   CharacterList::iterator cit = characterList.begin();
+   for( ; cit != characterList.end(); ++cit ) {
+        if (GET_OLC_SRCH((*cit)) == srch)
+            GET_OLC_SRCH((*cit)) = NULL;
+    }
     REMOVE_FROM_LIST(srch, ch->in_room->search, next);
-#ifdef DMALLOC
-    dmalloc_verify(0);
-#endif
     if (srch->command_keys)
         free(srch->command_keys);
     if (srch->keywords)
@@ -306,9 +300,6 @@ do_destroy_search(struct char_data *ch, char *arg)
     if (srch->to_room)
         free(srch->to_room);
     free(srch);
-#ifdef DMALLOC
-    dmalloc_verify(0);
-#endif
     send_to_char("Search destroyed.\r\n", ch);
     return 1;
 }

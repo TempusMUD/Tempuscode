@@ -683,8 +683,6 @@ say_spell(struct char_data * ch, int spellnum, struct char_data * tch,
           struct obj_data * tobj)
 {
     char lbuf[256], xbuf[256];
-  
-    struct char_data *i;
     int j, ofs = 0;
 
     *buf = '\0';
@@ -762,15 +760,12 @@ say_spell(struct char_data * ch, int spellnum, struct char_data * tch,
         sprintf(buf2, lbuf, buf);
     }
 
-
-    for (i = ch->in_room->people; i; i = i->next_in_room) {
-        if (i == ch || i == tch || !i->desc || !AWAKE(i) || 
-            PLR_FLAGGED(i, PLR_WRITING | PLR_OLC))
+    CharacterList::iterator it = ch->in_room->people.begin();
+    for( ; it != ch->in_room->people.end(); ++it ) {
+        if (*it == ch || *it == tch || !(*it)->desc || !AWAKE((*it)) || 
+            PLR_FLAGGED((*it), PLR_WRITING | PLR_OLC))
             continue;
-        /*if (GET_CLASS(ch) == GET_CLASS(i))
-          perform_act(buf1, ch, tobj, tch, i);
-          else*/
-        perform_act(buf2, ch, tobj, tch, i, 0);
+        perform_act(buf2, ch, tobj, tch, (*it), 0);
     }
   
     if (tch != NULL && tch != ch && tch->in_room == ch->in_room) {
@@ -1142,12 +1137,14 @@ call_magic( struct char_data * caster, struct char_data * cvict,
 
 int
 mag_objectmagic(struct char_data * ch, struct obj_data * obj,
-                char *argument)
+                char *argument, int *return_flags = NULL)
 {
     int i, k, level;
-    struct char_data *tch = NULL, *next_tch;
+    struct char_data *tch = NULL;
     struct obj_data *tobj = NULL;
     int my_return_flags = 0;
+    if( return_flags == NULL )
+        return_flags = &my_return_flags;
 
     one_argument(argument, arg);
 
@@ -1182,16 +1179,17 @@ mag_objectmagic(struct char_data * ch, struct obj_data * obj,
 
             level = (GET_OBJ_VAL(obj, 0) * CHECK_SKILL(ch, SKILL_USE_WANDS)) / 100;
             level = MIN(level, LVL_AMBASSADOR);
-
-            for (tch = ch->in_room->people; tch; tch = next_tch) {
-                next_tch = tch->next_in_room;
-                if (ch == tch)
+            
+            
+            CharacterList::iterator it = ch->in_room->people.begin();
+            for( ; it != ch->in_room->people.end(); ++it ) {
+                if ( ch == *it )
                     continue;
                 if (level)
-                    call_magic(ch, tch, NULL, GET_OBJ_VAL(obj, 3),
+                    call_magic(ch, (*it), NULL, GET_OBJ_VAL(obj, 3),
                                level, CAST_STAFF);
                 else
-                    call_magic(ch, tch, NULL, GET_OBJ_VAL(obj, 3),
+                    call_magic(ch, (*it), NULL, GET_OBJ_VAL(obj, 3),
                                DEFAULT_STAFF_LVL, CAST_STAFF);
             }
         }
@@ -1286,10 +1284,12 @@ mag_objectmagic(struct char_data * ch, struct obj_data * obj,
         for (i = 1; i < 4; i++) {
             call_magic(ch, tch, tobj, GET_OBJ_VAL(obj, i), 
                  level, CAST_SCROLL, &my_return_flags);
-        if ( IS_SET( my_return_flags, DAM_ATTACKER_KILLED ) ||
-             IS_SET( my_return_flags, DAM_VICT_KILLED ) )
-            break;
-    }
+            if ( IS_SET( my_return_flags, DAM_ATTACKER_KILLED ) ||
+                 IS_SET( my_return_flags, DAM_VICT_KILLED ) ) {
+                *return_flags = my_return_flags;
+                break;
+            }
+        }
         extract_obj(obj);
         break;
     case ITEM_FOOD:
@@ -1312,13 +1312,15 @@ mag_objectmagic(struct char_data * ch, struct obj_data * obj,
     
         if (!ROOM_FLAGGED(ch->in_room, ROOM_NOMAGIC)) {
             for (i = 1; i < 4; i++) {
-            if (!ch->in_room)
-                break;
-            call_magic(ch, ch, NULL, GET_OBJ_VAL(obj, i), 
-                     GET_OBJ_VAL(obj, 0), CAST_POTION,&my_return_flags);
-            if ( IS_SET( my_return_flags, DAM_ATTACKER_KILLED ) ||
-                 IS_SET( my_return_flags, DAM_VICT_KILLED ) )
-                break;
+                if (!ch->in_room)
+                    break;
+                call_magic(ch, ch, NULL, GET_OBJ_VAL(obj, i), 
+                         GET_OBJ_VAL(obj, 0), CAST_POTION,&my_return_flags);
+                if ( IS_SET( my_return_flags, DAM_ATTACKER_KILLED ) ||
+                     IS_SET( my_return_flags, DAM_VICT_KILLED ) ) {
+                    *return_flags = my_return_flags;
+                    break;
+                }
             }
         }
         extract_obj(obj);
@@ -1355,11 +1357,12 @@ mag_objectmagic(struct char_data * ch, struct obj_data * obj,
                              GET_OBJ_VAL(obj, 0), 
                              IS_OBJ_STAT(obj, ITEM_MAGIC) ? CAST_SPELL :
                              CAST_INTERNAL,&my_return_flags);
-        if ( IS_SET( my_return_flags, DAM_ATTACKER_KILLED ) ||
-             IS_SET( my_return_flags, DAM_VICT_KILLED ) )
-            break;
+            if ( IS_SET( my_return_flags, DAM_ATTACKER_KILLED ) ||
+                 IS_SET( my_return_flags, DAM_VICT_KILLED ) ) {
+                *return_flags = my_return_flags;
+                break;
+            }
         }
-
         extract_obj(obj);
         break;
     
@@ -1376,9 +1379,11 @@ mag_objectmagic(struct char_data * ch, struct obj_data * obj,
         for (i = 1; i < 4; i++) {
             call_magic(ch, ch, NULL, GET_OBJ_VAL(obj, i),
                              GET_OBJ_VAL(obj, 0), CAST_INTERNAL,&my_return_flags);
-        if ( IS_SET( my_return_flags, DAM_ATTACKER_KILLED ) ||
-             IS_SET( my_return_flags, DAM_VICT_KILLED ) )
-            break;
+            if ( IS_SET( my_return_flags, DAM_ATTACKER_KILLED ) ||
+                 IS_SET( my_return_flags, DAM_VICT_KILLED ) ) {
+                *return_flags = my_return_flags;
+                break;
+            }
         }
         extract_obj(obj);
         break;
@@ -1933,31 +1938,35 @@ ACMD(do_cast)
             PLR_FLAGGED(ch, PLR_TOUGHGUY) &&
             (prob + number(0, 111)) > CHECK_SKILL(ch, spellnum)) {
                 /* misdirect */
-
-                for (vict = ch->in_room->people; vict; vict = vict->next_in_room) {
-                    if (vict != ch && vict != tch && 
-                    GET_LEVEL(vict) < LVL_AMBASSADOR && 
-                    (IS_NPC(vict) || (PLR_FLAGGED(ch, PLR_TOUGHGUY) &&
-                              PLR_FLAGGED(vict, PLR_TOUGHGUY) &&
-                              GET_LEVEL(ch) < GET_LEVEL(vict) &&
-                              (!IS_REMORT(vict) || IS_REMORT(ch) ||
+                
+                
+                CharacterList::iterator it = ch->in_room->people.begin();
+                CharacterList::iterator nit = ch->in_room->people.begin();
+                for( ; it != ch->in_room->people.end(); ++it ) {
+                    ++nit;
+                    if ((*it) != ch && (*it) != tch && 
+                    GET_LEVEL((*it)) < LVL_AMBASSADOR && 
+                    (IS_NPC((*it)) || (PLR_FLAGGED(ch, PLR_TOUGHGUY) &&
+                              PLR_FLAGGED((*it), PLR_TOUGHGUY) &&
+                              GET_LEVEL(ch) < GET_LEVEL((*it)) &&
+                              (!IS_REMORT((*it)) || IS_REMORT(ch) ||
                                PLR_FLAGGED(ch, PLR_REMORT_TOUGHGUY)) &&
                               (!IS_REMORT(ch) || IS_REMORT(vict) ||
-                               PLR_FLAGGED(vict, PLR_REMORT_TOUGHGUY)))) &&
-                    (!number(0, 4) || !vict->next_in_room)) {
-                    if ((IS_MAGE(ch) || IS_RANGER(ch) || IS_VAMPIRE(ch)) && metal && 
-                        SPELL_IS_MAGIC(spellnum) && metal_wt > number(5, 80))
-                        act("$p has misdirected your spell toward $N!!",
-                        FALSE, ch, metal, vict, TO_CHAR);
-                    else
-                        act("Your spell has been misdirected toward $N!!",
-                        FALSE, ch, 0, vict, TO_CHAR);
-                    cast_spell(ch, vict, tobj, spellnum);
-                    if (mana > 0)
-                        GET_MANA(ch) = MAX(0, MIN(GET_MAX_MANA(ch), GET_MANA(ch) - 
-                                      (mana >> 1)));
-                    WAIT_STATE(ch, 2 RL_SEC);
-                    return;
+                               PLR_FLAGGED((*it), PLR_REMORT_TOUGHGUY)))) &&
+                    (!number(0, 4) || nit != ch->in_room->people.end())) {
+                        if ((IS_MAGE(ch) || IS_RANGER(ch) || IS_VAMPIRE(ch)) && metal && 
+                            SPELL_IS_MAGIC(spellnum) && metal_wt > number(5, 80))
+                            act("$p has misdirected your spell toward $N!!",
+                            FALSE, ch, metal, (*it), TO_CHAR);
+                        else
+                            act("Your spell has been misdirected toward $N!!",
+                            FALSE, ch, 0, (*it), TO_CHAR);
+                        cast_spell(ch, (*it), tobj, spellnum);
+                        if (mana > 0)
+                            GET_MANA(ch) = MAX(0, MIN(GET_MAX_MANA(ch), GET_MANA(ch) - 
+                                          (mana >> 1)));
+                        WAIT_STATE(ch, 2 RL_SEC);
+                        return;
                     }
                 }
             } 

@@ -13,7 +13,7 @@ struct obj_data *damage_eq(struct char_data *ch,
 			   struct obj_data *obj, int eq_dam, int type=-1);
 struct obj_data *detonate_bomb(struct obj_data *bomb);
 int redundant_skillchip(struct obj_data *chip, struct obj_data *slot);
-void engage_self_destruct( struct char_data *ch, struct char_data *precious_vict );
+void engage_self_destruct( struct char_data *ch );
 
 #define NUM_COMPS               9  /* Number of borg components */
 

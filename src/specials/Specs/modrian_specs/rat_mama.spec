@@ -15,23 +15,24 @@ SPECIAL(rat_mama)
          2943,
          -1
   };
-
+  if( spec_mode == SPECIAL_DEATH ) return 0;
   if (cmd || FIGHTING(ch) || ch->getPosition() == POS_FIGHTING)
     return (0);
 
-
+  CharacterList::iterator it;
   for (i = 0; i != -1; i++) 
   {
-    for (rat = (real_room(rat_rooms[i]))->people; rat; rat = rat->next_in_room)
-    {
-      if (!number(0, 1) == 0 && IS_NPC(rat) && isname("rat", rat->player.name)) {
-        act("$n climbs into a hole in the wall.", FALSE, rat, 0, 0, TO_ROOM);
-        char_from_room(rat);
-        extract_char(rat, FALSE);
+    it = (real_room(rat_rooms[i]))->people.begin();
+    for( ; it != (real_room(rat_rooms[i]))->people.end(); ++it ) {
+      if (!number(0, 1) == 0 && IS_NPC((*it)) && isname("rat", (*it)->player.name)) {
+        act("$n climbs into a hole in the wall.", FALSE, (*it), 0, 0, TO_ROOM);
+        char_from_room((*it));
+        //extract_char(rat, FALSE);
+        (*it)->extract( FALSE );
         return TRUE;
       } 
     }
-    if ((real_room(rat_rooms[i]))->people != NULL && !number(0, 1)) {
+    if (*((real_room(rat_rooms[i]))->people.begin()) != NULL && !number(0, 1)) {
       rat = read_mobile(number(4206, 4208));
       char_to_room(rat, real_room(rat_rooms[i]));
       act("$n climbs out of a hole in the wall.", FALSE, rat, 0, 0, TO_ROOM);

@@ -62,4 +62,4 @@ extern const char *fuse_types[];
 
 #endif
 
-#endif // #ifndef __bomb_h__
+#endif 

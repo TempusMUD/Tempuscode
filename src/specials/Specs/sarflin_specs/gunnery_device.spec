@@ -43,9 +43,10 @@ SPECIAL(gunnery_device)
          send_to_room("From above in the tower you hear the Thwack of a catapult fireing.\n\r",dest);
          vict = NULL;
          hit = 0;
-         for (vict = dest->people;vict;vict = vict->next_in_room)
+         CharacterList::iterator it = dest->people.begin();
+         for( ; it != dest->people.end(); ++it ) 
          {
-            if (vict == NULL) break;
+            vict = *it;
             if (!number (0,5))
             {
                damage(ch,vict,10,TYPE_CATAPULT, -1);
@@ -63,9 +64,10 @@ SPECIAL(gunnery_device)
          send_to_room("From above in the tower you hear the TWANG of a balista fireing.\n\r",dest);
          vict = NULL;
          hit = 0;
-         for (vict = dest->people;vict;vict = vict->next_in_room)              
+         CharacterList::iterator it = dest->people.begin();
+         for( ; it != dest->people.end(); ++it ) 
          {
-            if (vict == NULL) break;
+            vict = *it;
             if (!number (0,5))
             {
                 damage(ch,vict,15,TYPE_BALISTA, -1);
@@ -84,21 +86,21 @@ SPECIAL(gunnery_device)
             send_to_room("The the crews begin refilling the pots.\n\r",ch->in_room);
             send_to_room("From above in the tower you hear the creak of a pot tiping\n\r",dest);
             vict = NULL;
-            for (vict = dest->people;vict;vict = vict->next_in_room)              
-            {
-               if (vict == NULL) break;
-               damage(ch,vict,15,TYPE_BOILING_OIL, -1);
-            }
+             CharacterList::iterator it = dest->people.begin();
+             for( ; it != dest->people.end(); ++it ) 
+             {
+                damage(ch,*it,15,TYPE_BOILING_OIL, -1);
+             }
          } else {
             send_to_room("With a groaning CREAK the pots of scalding sand are dumped.\n\r",ch->in_room);
             send_to_room("The the crews begin refilling the pots.\n\r",ch->in_room);
             send_to_room("From above in the tower you hear the creak of a pot tiping\n\r",dest);
             vict = NULL;
-            for (vict = dest->people;vict;vict = vict->next_in_room)              
-            {
-               if (vict == NULL) break;
+             CharacterList::iterator it = dest->people.begin();
+             for( ; it != dest->people.end(); ++it ) 
+             {
                damage(ch,vict,15,TYPE_BOILING_OIL, -1);
-            }
+             }
          }
          break;
       }

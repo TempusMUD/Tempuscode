@@ -70,7 +70,7 @@ void death_cry( struct char_data * ch );
 void appear( struct char_data * ch, struct char_data *vict );
 void make_corpse( struct char_data *ch,struct char_data *killer,int attacktype);
 void check_object_killer( struct obj_data * obj, struct char_data * vict );
-void raw_kill(struct char_data * ch, struct char_data *killer, int attacktype);
+void raw_kill(struct char_data * ch, struct char_data *killer, int attacktype);// prototype
 int peaceful_room_ok(struct char_data *ch, struct char_data *vict, bool mssg);
 void check_toughguy(struct char_data * ch, struct char_data * vict, int mode);
 void check_killer(struct char_data * ch, struct char_data * vict, const char *debug_msg=0);

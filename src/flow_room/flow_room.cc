@@ -57,7 +57,7 @@ const char *flow_types[] = {
     "Sinking_Swamp",
     "Unseen_Force",
     "Elemental_Wind",
-    "Quicksand",	
+    "Quicksand",        
     "\n"
 };
 
@@ -160,7 +160,7 @@ void
 flow_room(int pulse)
 {
 
-    struct char_data *vict = NULL, *next_vict = NULL;
+    struct char_data *vict = NULL;
     struct obj_data *obj = NULL, *next_obj = NULL;
     register struct zone_data *zone = NULL;
     register struct room_data *rnum = NULL, *was_in = NULL;
@@ -171,135 +171,137 @@ flow_room(int pulse)
 
     for (zone = zone_table; zone; zone = zone->next) {
 
-	if (ZONE_FLAGGED(zone, ZONE_FROZEN) || 
-	    zone->idle_time >= ZONE_IDLE_TIME)
-	    continue;
-		     
-	for (rnum = zone->world; rnum; rnum = rnum->next) {
+        if (ZONE_FLAGGED(zone, ZONE_FROZEN) || 
+            zone->idle_time >= ZONE_IDLE_TIME)
+            continue;
+                     
+        for (rnum = zone->world; rnum; rnum = rnum->next) {
 
-	    if (!(pulse % (5 RL_SEC)))
-		for (aff = rnum->affects; aff; aff = next_aff) {
-		    next_aff = aff->next;
-		    if (aff->duration > 0)
-			aff->duration--;
-		    if (aff->duration <= 0) {
-			if (aff->duration < 0) {
-			    sprintf(buf, "SYSERR:  Room aff type %d has %d duration at %d.", aff->type, aff->duration, rnum->number);
-			    slog(buf);
-			}
-			affect_from_room(rnum, aff);
-		    }
-		}
-	    if (!FLOW_SPEED(rnum) || pulse % (PULSE_FLOWS * FLOW_SPEED(rnum)) ||
-		(!ABS_EXIT(rnum, (dir = (int)FLOW_DIR(rnum))) ||
-		 ABS_EXIT(rnum, dir)->to_room == NULL ||
-		 (IS_SET(ABS_EXIT(rnum, dir)->exit_info, EX_CLOSED))))
-		continue;
+            if (!(pulse % (5 RL_SEC)))
+                for (aff = rnum->affects; aff; aff = next_aff) {
+                    next_aff = aff->next;
+                    if (aff->duration > 0)
+                        aff->duration--;
+                    if (aff->duration <= 0) {
+                        if (aff->duration < 0) {
+                            sprintf(buf, "SYSERR:  Room aff type %d has %d duration at %d.", aff->type, aff->duration, rnum->number);
+                            slog(buf);
+                        }
+                        affect_from_room(rnum, aff);
+                    }
+                }
+            if (!FLOW_SPEED(rnum) || pulse % (PULSE_FLOWS * FLOW_SPEED(rnum)) ||
+                (!ABS_EXIT(rnum, (dir = (int)FLOW_DIR(rnum))) ||
+                 ABS_EXIT(rnum, dir)->to_room == NULL ||
+                 (IS_SET(ABS_EXIT(rnum, dir)->exit_info, EX_CLOSED))))
+                continue;
 
-	    if (FLOW_TYPE(rnum) < 0 || FLOW_TYPE(rnum) >= NUM_FLOW_TYPES)
-		FLOW_TYPE(rnum) = F_TYPE_NONE;
+            if (FLOW_TYPE(rnum) < 0 || FLOW_TYPE(rnum) >= NUM_FLOW_TYPES)
+                FLOW_TYPE(rnum) = F_TYPE_NONE;
 
-	    /* nix flows */
-	    if (FLOW_TYPE(rnum) != F_TYPE_CONVEYOR &&
-		FLOW_TYPE(rnum) != F_TYPE_ROTATING_DISC &&
-		FLOW_TYPE(rnum) != F_TYPE_ESCALATOR) {
-		while ((trail = rnum->trail)) {
-		    rnum->trail = trail->next;
-		    if (trail->name)
-			free(trail->name);
-		    free(trail);
-		}
-	    }
+            /* nix flows */
+            if (FLOW_TYPE(rnum) != F_TYPE_CONVEYOR &&
+                FLOW_TYPE(rnum) != F_TYPE_ROTATING_DISC &&
+                FLOW_TYPE(rnum) != F_TYPE_ESCALATOR) {
+                while ((trail = rnum->trail)) {
+                    rnum->trail = trail->next;
+                    if (trail->name)
+                        free(trail->name);
+                    free(trail);
+                }
+            }
 
-	    if ((vict = rnum->people)) {
-		for (; vict; vict = next_vict) {
-		    next_vict = vict->next_in_room;
-	  
-		    if (CHAR_CUR_PULSE(vict) == pulse ||
+            if ((vict = rnum->people)) {
+                CharacterList::iterator it = rnum->people.begin();
+                for( ; it != rnum->people.end(); ++it ) {
+                    vict = *it;
+          
+                    if (CHAR_CUR_PULSE(vict) == pulse ||
 
-			(IS_MOB(vict) && 
-			 (MOB2_FLAGGED(vict, MOB2_NO_FLOW) ||
-			  IS_SET(ABS_EXIT(rnum, dir)->exit_info, EX_NOMOB) ||
-			  IS_SET(ROOM_FLAGS(ABS_EXIT(rnum, dir)->to_room), ROOM_NOMOB))) ||
-			PLR_FLAGGED(vict, PLR_HALT) || (!IS_NPC(vict) && !vict->desc) ||
+                        (IS_MOB(vict) && 
+                         (MOB2_FLAGGED(vict, MOB2_NO_FLOW) ||
+                          IS_SET(ABS_EXIT(rnum, dir)->exit_info, EX_NOMOB) ||
+                          IS_SET(ROOM_FLAGS(ABS_EXIT(rnum, dir)->to_room), ROOM_NOMOB))) ||
+                        PLR_FLAGGED(vict, PLR_HALT) || (!IS_NPC(vict) && !vict->desc) ||
 
-			(ROOM_FLAGGED(ABS_EXIT(rnum, dir)->to_room, ROOM_GODROOM) &&
-			 GET_LEVEL(vict) < LVL_GRGOD) ||
+                        (ROOM_FLAGGED(ABS_EXIT(rnum, dir)->to_room, ROOM_GODROOM) &&
+                         GET_LEVEL(vict) < LVL_GRGOD) ||
 
-			(vict->getPosition() == POS_FLYING &&
-			 (FLOW_TYPE(rnum) == F_TYPE_RIVER_SURFACE ||
-			  FLOW_TYPE(rnum) == F_TYPE_LAVA_FLOW ||
-			  FLOW_TYPE(rnum) == F_TYPE_RIVER_FIRE || 
-			  FLOW_TYPE(rnum) == F_TYPE_FALLING || 
-			  FLOW_TYPE(rnum) == F_TYPE_SINKING_SWAMP || 
-			  IS_DRAGON(vict))) ||
-			
-			(AFF_FLAGGED(vict, AFF_WATERWALK) && 
-			 FLOW_TYPE(rnum) == F_TYPE_SINKING_SWAMP))
-			continue;
+                        (vict->getPosition() == POS_FLYING &&
+                         (FLOW_TYPE(rnum) == F_TYPE_RIVER_SURFACE ||
+                          FLOW_TYPE(rnum) == F_TYPE_LAVA_FLOW ||
+                          FLOW_TYPE(rnum) == F_TYPE_RIVER_FIRE || 
+                          FLOW_TYPE(rnum) == F_TYPE_FALLING || 
+                          FLOW_TYPE(rnum) == F_TYPE_SINKING_SWAMP || 
+                          IS_DRAGON(vict))) ||
+                        
+                        (AFF_FLAGGED(vict, AFF_WATERWALK) && 
+                         FLOW_TYPE(rnum) == F_TYPE_SINKING_SWAMP))
+                        continue;
             if(!House_can_enter(vict,rnum->number))
             continue;
-	  
-		    CHAR_CUR_PULSE(vict) = pulse;
-		    sprintf(buf, char_flow_msg[(int)FLOW_TYPE(rnum)][MSG_TORM_1], 
-			    to_dirs[dir]);
-		    act(buf, TRUE, vict, 0, 0, TO_ROOM);
-		    sprintf(buf, char_flow_msg[(int)FLOW_TYPE(rnum)][MSG_TOCHAR], 
-			    to_dirs[dir]);
-		    act(buf, FALSE, vict, 0, 0, TO_CHAR);
-	  
-		    char_from_room(vict);
-		    char_to_room(vict, ABS_EXIT(rnum, dir)->to_room);
-		    look_at_room(vict, vict->in_room, 0);
-		    sprintf(buf, char_flow_msg[(int)FLOW_TYPE(rnum)][MSG_TORM_2], 
-			    from_dirs[dir]);
-		    act(buf, TRUE, vict, 0, 0, TO_ROOM);
-	  
-		    if (ROOM_FLAGGED(vict->in_room, ROOM_DEATH) && GET_LEVEL(vict) < LVL_AMBASSADOR) {
+          
+                    CHAR_CUR_PULSE(vict) = pulse;
+                    sprintf(buf, char_flow_msg[(int)FLOW_TYPE(rnum)][MSG_TORM_1], 
+                            to_dirs[dir]);
+                    act(buf, TRUE, vict, 0, 0, TO_ROOM);
+                    sprintf(buf, char_flow_msg[(int)FLOW_TYPE(rnum)][MSG_TOCHAR], 
+                            to_dirs[dir]);
+                    act(buf, FALSE, vict, 0, 0, TO_CHAR);
+          
+                    char_from_room(vict);
+                    char_to_room(vict, ABS_EXIT(rnum, dir)->to_room);
+                    look_at_room(vict, vict->in_room, 0);
+                    sprintf(buf, char_flow_msg[(int)FLOW_TYPE(rnum)][MSG_TORM_2], 
+                            from_dirs[dir]);
+                    act(buf, TRUE, vict, 0, 0, TO_ROOM);
+          
+                    if (ROOM_FLAGGED(vict->in_room, ROOM_DEATH) && GET_LEVEL(vict) < LVL_AMBASSADOR) {
 
-			was_in = vict->in_room;
-			log_death_trap(vict);
-			death_cry(vict);
-			extract_char(vict, 1);
+                        was_in = vict->in_room;
+                        log_death_trap(vict);
+                        death_cry(vict);
+                        //extract_char(vict, 1);
+                        vict->extract( TRUE );
 
-			if (was_in->number == 34004) {
-			    for (obj = was_in->contents; obj; obj = next_obj) {
-				next_obj = obj->next_content;
-				damage_eq(NULL, obj, dice(10, 100));
-			    }
-			}
-		    } else {	    
-			for (srch = vict->in_room->search; srch; srch = srch->next) {
-			    if (SRCH_FLAGGED(srch, SRCH_TRIG_ENTER) &&
-				SRCH_OK(vict, srch))
-				if (general_search(vict, srch, 0) == 2)
-				    break;
-			}
-		    }
-		}
-	    }
-	    if ((obj = rnum->contents)) {
-		for ( ; obj ; obj = next_obj) {
-		    next_obj = obj->next_content;
-	
-		    if (OBJ_CUR_PULSE(obj) == pulse ||
-			(!CAN_WEAR(obj, ITEM_WEAR_TAKE) &&
-			 GET_OBJ_VNUM(obj) != BLOOD_VNUM) ||
-			(obj->getWeight() > number(5, FLOW_SPEED(rnum) * 10) &&
-			 !number(0, FLOW_SPEED(rnum))))
-			continue;
-	
-		    OBJ_CUR_PULSE(obj) = pulse;
-	
-		    sprintf(buf, obj_flow_msg[(int)FLOW_TYPE(rnum)][MSG_TORM_1], to_dirs[dir]);
-		    act(buf, TRUE, 0, obj, 0, TO_ROOM);
-		    obj_from_room(obj);
-		    obj_to_room(obj, ABS_EXIT(rnum, dir)->to_room);
-		    sprintf(buf, obj_flow_msg[(int)FLOW_TYPE(rnum)][MSG_TORM_2], from_dirs[dir]);
-		    act(buf, TRUE, 0, obj, 0, TO_ROOM);
-		}
-	    }
-	}
+                        if (was_in->number == 34004) {
+                            for (obj = was_in->contents; obj; obj = next_obj) {
+                                next_obj = obj->next_content;
+                                damage_eq(NULL, obj, dice(10, 100));
+                            }
+                        }
+                    } else {            
+                        for (srch = vict->in_room->search; srch; srch = srch->next) {
+                            if (SRCH_FLAGGED(srch, SRCH_TRIG_ENTER) &&
+                                SRCH_OK(vict, srch))
+                                if (general_search(vict, srch, 0) == 2)
+                                    break;
+                        }
+                    }
+                }
+            }
+            if ((obj = rnum->contents)) {
+                for ( ; obj ; obj = next_obj) {
+                    next_obj = obj->next_content;
+        
+                    if (OBJ_CUR_PULSE(obj) == pulse ||
+                        (!CAN_WEAR(obj, ITEM_WEAR_TAKE) &&
+                         GET_OBJ_VNUM(obj) != BLOOD_VNUM) ||
+                        (obj->getWeight() > number(5, FLOW_SPEED(rnum) * 10) &&
+                         !number(0, FLOW_SPEED(rnum))))
+                        continue;
+        
+                    OBJ_CUR_PULSE(obj) = pulse;
+        
+                    sprintf(buf, obj_flow_msg[(int)FLOW_TYPE(rnum)][MSG_TORM_1], to_dirs[dir]);
+                    act(buf, TRUE, 0, obj, 0, TO_ROOM);
+                    obj_from_room(obj);
+                    obj_to_room(obj, ABS_EXIT(rnum, dir)->to_room);
+                    sprintf(buf, obj_flow_msg[(int)FLOW_TYPE(rnum)][MSG_TORM_2], from_dirs[dir]);
+                    act(buf, TRUE, 0, obj, 0, TO_ROOM);
+                }
+            }
+        }
     }
 }
 
@@ -320,119 +322,119 @@ dynamic_object_pulse()
     tenpulse =  !(counter % (10 RL_SEC));
 
     for (obj = object_list; obj; obj = next_obj) {
-	next_obj = obj->next;
+        next_obj = obj->next;
 
-	if (fallpulse &&
-	    obj->in_room && obj->in_room->isOpenAir() &&
-	    (CAN_WEAR(obj, ITEM_WEAR_TAKE) || GET_OBJ_VNUM(obj) == BLOOD_VNUM) &&
-	    obj->in_room->dir_option[DOWN] &&
-	    (fall_to = obj->in_room->dir_option[DOWN]->to_room) &&
-	    fall_to != obj->in_room &&
-	    !IS_SET(obj->in_room->dir_option[DOWN]->exit_info, EX_CLOSED)) {
-	    if (obj->in_room->people)
-		act("$p falls downward through the air!",TRUE,0,obj,0,TO_ROOM);
-	    obj_from_room(obj);
-	    obj_to_room(obj, fall_to);
-	    if (obj->in_room->people)
-		act("$p falls in from above.",FALSE,0,obj,0,TO_ROOM);
-	    continue;
-	}
+        if (fallpulse &&
+            obj->in_room && obj->in_room->isOpenAir() &&
+            (CAN_WEAR(obj, ITEM_WEAR_TAKE) || GET_OBJ_VNUM(obj) == BLOOD_VNUM) &&
+            obj->in_room->dir_option[DOWN] &&
+            (fall_to = obj->in_room->dir_option[DOWN]->to_room) &&
+            fall_to != obj->in_room &&
+            !IS_SET(obj->in_room->dir_option[DOWN]->exit_info, EX_CLOSED)) {
+            if (obj->in_room->people)
+                act("$p falls downward through the air!",TRUE,0,obj,0,TO_ROOM);
+            obj_from_room(obj);
+            obj_to_room(obj, fall_to);
+            if (obj->in_room->people)
+                act("$p falls in from above.",FALSE,0,obj,0,TO_ROOM);
+            continue;
+        }
 
-	if (IS_FUSE(obj) && obj->in_obj && IS_BOMB(obj->in_obj) && 
-	    FUSE_STATE(obj) && 
-	    (FUSE_IS_BURN(obj) || FUSE_IS_ELECTRONIC(obj))) {
-	    FUSE_TIMER(obj)--;
-	    if (!FUSE_TIMER(obj)) {
-		next_obj = (detonate_bomb(obj->in_obj));
-	    }
-	} else if (tenpulse) {
-	    if (IS_CIGARETTE(obj) && SMOKE_LIT(obj)) {
-		CUR_DRAGS(obj)--;
-		if (CUR_DRAGS(obj) <= 0) {
-		    if (obj->worn_by || obj->carried_by)
-			act("$p burns itself out.", 
-			    TRUE,obj->worn_by?obj->worn_by:obj->carried_by,obj,0,TO_CHAR);
-		    else if (obj->in_room && obj->in_room->people)
-			act("$p burns itself out.", TRUE, 0, obj, 0, TO_ROOM);
-		    extract_obj(obj);
-		    continue;
-		}
-		if (obj->in_room &&
-		    OUTSIDE(obj) && obj->in_room->zone->weather->sky >= SKY_RAINING)
-		    SMOKE_LIT(obj) = 0;
-	    }
-	    if (IS_COMMUNICATOR(obj) && ENGINE_STATE(obj) &&
-		(CUR_ENERGY(obj) >= 0)) {
-		CUR_ENERGY(obj)--;
+        if (IS_FUSE(obj) && obj->in_obj && IS_BOMB(obj->in_obj) && 
+            FUSE_STATE(obj) && 
+            (FUSE_IS_BURN(obj) || FUSE_IS_ELECTRONIC(obj))) {
+            FUSE_TIMER(obj)--;
+            if (!FUSE_TIMER(obj)) {
+                next_obj = (detonate_bomb(obj->in_obj));
+            }
+        } else if (tenpulse) {
+            if (IS_CIGARETTE(obj) && SMOKE_LIT(obj)) {
+                CUR_DRAGS(obj)--;
+                if (CUR_DRAGS(obj) <= 0) {
+                    if (obj->worn_by || obj->carried_by)
+                        act("$p burns itself out.", 
+                            TRUE,obj->worn_by?obj->worn_by:obj->carried_by,obj,0,TO_CHAR);
+                    else if (obj->in_room && obj->in_room->people)
+                        act("$p burns itself out.", TRUE, 0, obj, 0, TO_ROOM);
+                    extract_obj(obj);
+                    continue;
+                }
+                if (obj->in_room &&
+                    OUTSIDE(obj) && obj->in_room->zone->weather->sky >= SKY_RAINING)
+                    SMOKE_LIT(obj) = 0;
+            }
+            if (IS_COMMUNICATOR(obj) && ENGINE_STATE(obj) &&
+                (CUR_ENERGY(obj) >= 0)) {
+                CUR_ENERGY(obj)--;
 
-		if (CUR_ENERGY(obj) <= 0) {
-		    CUR_ENERGY(obj) = 0;
-		    ENGINE_STATE(obj) = 0;
+                if (CUR_ENERGY(obj) <= 0) {
+                    CUR_ENERGY(obj) = 0;
+                    ENGINE_STATE(obj) = 0;
 
-		    if ((vict = obj->carried_by) || (vict = obj->worn_by)) {
-			sprintf(buf,"$n has left channel [%d].",COMM_CHANNEL(obj));
-			send_to_comm_channel(vict, buf, COMM_CHANNEL(obj), TRUE, TRUE);
-			act("$p auto switching off: depleted of energy.",
-			    FALSE, vict, obj, 0, TO_CHAR | TO_SLEEP);	  
-		    }
-		}
-		continue;
-	    }
+                    if ((vict = obj->carried_by) || (vict = obj->worn_by)) {
+                        sprintf(buf,"$n has left channel [%d].",COMM_CHANNEL(obj));
+                        send_to_comm_channel(vict, buf, COMM_CHANNEL(obj), TRUE, TRUE);
+                        act("$p auto switching off: depleted of energy.",
+                            FALSE, vict, obj, 0, TO_CHAR | TO_SLEEP);          
+                    }
+                }
+                continue;
+            }
 
-	    if (IS_DEVICE(obj) && ENGINE_STATE(obj) && USE_RATE(obj) > 0) {
-		CUR_ENERGY(obj) -= USE_RATE(obj);
-		if (CUR_ENERGY(obj) <= 0) {
-		    CUR_ENERGY(obj) = 0;
-		    ENGINE_STATE(obj) = 0;
-		    if ((vict = obj->carried_by) || (vict = obj->worn_by)) {
-			act("$p auto switching off: depleted of energy.",
-			    FALSE, vict, obj, 0, TO_CHAR | TO_SLEEP);
-			if (obj->worn_by) {
-	      
-			    for (j = 0; j < MAX_OBJ_AFFECT; j++)
-				affect_modify(obj->worn_by, obj->affected[j].location,
-					      obj->affected[j].modifier, 0, 0, FALSE);
-			    affect_modify(obj->worn_by, 0, 0, 
-					  obj->obj_flags.bitvector[0], 1, FALSE);
-			    affect_modify(obj->worn_by, 0, 0, 
-					  obj->obj_flags.bitvector[1], 2, FALSE);
-			    affect_modify(obj->worn_by, 0, 0, 
-					  obj->obj_flags.bitvector[2], 3, FALSE);
-			    affect_total(obj->worn_by);
-			}
-		    }
-		}
-	    }
+            if (IS_DEVICE(obj) && ENGINE_STATE(obj) && USE_RATE(obj) > 0) {
+                CUR_ENERGY(obj) -= USE_RATE(obj);
+                if (CUR_ENERGY(obj) <= 0) {
+                    CUR_ENERGY(obj) = 0;
+                    ENGINE_STATE(obj) = 0;
+                    if ((vict = obj->carried_by) || (vict = obj->worn_by)) {
+                        act("$p auto switching off: depleted of energy.",
+                            FALSE, vict, obj, 0, TO_CHAR | TO_SLEEP);
+                        if (obj->worn_by) {
+              
+                            for (j = 0; j < MAX_OBJ_AFFECT; j++)
+                                affect_modify(obj->worn_by, obj->affected[j].location,
+                                              obj->affected[j].modifier, 0, 0, FALSE);
+                            affect_modify(obj->worn_by, 0, 0, 
+                                          obj->obj_flags.bitvector[0], 1, FALSE);
+                            affect_modify(obj->worn_by, 0, 0, 
+                                          obj->obj_flags.bitvector[1], 2, FALSE);
+                            affect_modify(obj->worn_by, 0, 0, 
+                                          obj->obj_flags.bitvector[2], 3, FALSE);
+                            affect_total(obj->worn_by);
+                        }
+                    }
+                }
+            }
       
-	    // radioactive objects worn/carried                           (RADIOACTIVE)
-	    if (OBJ_IS_RAD(obj) && ((vict = obj->carried_by) || (vict = obj->worn_by)) &&
-		!ROOM_FLAGGED(vict->in_room, ROOM_PEACEFUL) &&
-		!CHAR_WITHSTANDS_RAD(vict)) {
-	
-		if ( affected_by_spell(vict, SKILL_RADIONEGATION) ) {
-		    
-		    GET_HIT(vict) = MAX(0, GET_HIT(vict) - dice(1, 7));
-		    
-		    if ( GET_MOVE(vict) > 10 ) {
-			GET_MOVE(vict) = MAX(10, GET_MOVE(vict) - dice(2, 7));
-		    }
-		    
-		    else {
-			add_rad_sickness(vict, 10);
-		    }
-		}
-	
-		else {
-		    
-		    GET_HIT(vict)  = MAX(0, GET_HIT(vict) - dice(2, 7));
-		    
-		    if (GET_MOVE(vict) > 5)
-			GET_MOVE(vict) = MAX(5, GET_MOVE(vict) - dice(2, 7));
-		    
-		    add_rad_sickness(vict, 20);
-		}
-	    }
-	}
+            // radioactive objects worn/carried                           (RADIOACTIVE)
+            if (OBJ_IS_RAD(obj) && ((vict = obj->carried_by) || (vict = obj->worn_by)) &&
+                !ROOM_FLAGGED(vict->in_room, ROOM_PEACEFUL) &&
+                !CHAR_WITHSTANDS_RAD(vict)) {
+        
+                if ( affected_by_spell(vict, SKILL_RADIONEGATION) ) {
+                    
+                    GET_HIT(vict) = MAX(0, GET_HIT(vict) - dice(1, 7));
+                    
+                    if ( GET_MOVE(vict) > 10 ) {
+                        GET_MOVE(vict) = MAX(10, GET_MOVE(vict) - dice(2, 7));
+                    }
+                    
+                    else {
+                        add_rad_sickness(vict, 10);
+                    }
+                }
+        
+                else {
+                    
+                    GET_HIT(vict)  = MAX(0, GET_HIT(vict) - dice(2, 7));
+                    
+                    if (GET_MOVE(vict) > 5)
+                        GET_MOVE(vict) = MAX(5, GET_MOVE(vict) - dice(2, 7));
+                    
+                    add_rad_sickness(vict, 20);
+                }
+            }
+        }
     }
 }
 
@@ -444,30 +446,30 @@ affect_to_room(struct room_data *room, struct room_affect_data *aff)
     int i;
 
     if (aff->type < NUM_DIRS) {
-	if (room->dir_option[(int) aff->type]) {
-	    for (i = 0; i < 32; i++)
-		if (IS_SET(aff->flags, (1 << i)) && 
-		    IS_SET(room->dir_option[(int) aff->type]->exit_info,(1 << i)))
-		    REMOVE_BIT(aff->flags, (1 << i));
-	} else
-	    return;
+        if (room->dir_option[(int) aff->type]) {
+            for (i = 0; i < 32; i++)
+                if (IS_SET(aff->flags, (1 << i)) && 
+                    IS_SET(room->dir_option[(int) aff->type]->exit_info,(1 << i)))
+                    REMOVE_BIT(aff->flags, (1 << i));
+        } else
+            return;
     
-	if (aff->flags)
-	    SET_BIT(room->dir_option[(int) aff->type]->exit_info, aff->flags);
-	else
-	    return;
+        if (aff->flags)
+            SET_BIT(room->dir_option[(int) aff->type]->exit_info, aff->flags);
+        else
+            return;
     } else if (aff->type == RM_AFF_FLAGS) {
-	for (i = 0; i < 32; i++)
-	    if (IS_SET(aff->flags, (1 << i)) && IS_SET(room->room_flags,(1 << i)))
-		REMOVE_BIT(aff->flags, (1 << i));
+        for (i = 0; i < 32; i++)
+            if (IS_SET(aff->flags, (1 << i)) && IS_SET(room->room_flags,(1 << i)))
+                REMOVE_BIT(aff->flags, (1 << i));
 
-	if (aff->flags)
-	    SET_BIT(room->room_flags, aff->flags);
-	else 
-	    return;
+        if (aff->flags)
+            SET_BIT(room->room_flags, aff->flags);
+        else 
+            return;
     } else {
-	slog("SYSERR: Invalid aff->type passed to affect_to_room.");
-	return;
+        slog("SYSERR: Invalid aff->type passed to affect_to_room.");
+        return;
     }
 
     CREATE(tmp_aff, struct room_affect_data, 1);
@@ -489,37 +491,31 @@ affect_from_room(struct room_data *room, struct room_affect_data *aff)
     struct room_affect_data *tmp_aff;
 
     for (tmp_aff = room->affects; tmp_aff; tmp_aff = tmp_aff->next) {
-	if (tmp_aff == aff) 
-	    room->affects = tmp_aff->next;
-	else if (tmp_aff->next == aff)
-	    tmp_aff->next = aff->next;
-	else
-	    continue;
+        if (tmp_aff == aff) 
+            room->affects = tmp_aff->next;
+        else if (tmp_aff->next == aff)
+            tmp_aff->next = aff->next;
+        else
+            continue;
 
-	break;
+        break;
     }
 
     if (!tmp_aff)
-	slog("SYSERR: aff not found in room->affects in affect_from_room.");
+        slog("SYSERR: aff not found in room->affects in affect_from_room.");
 
     if (aff->type == RM_AFF_FLAGS)
-	REMOVE_BIT(room->room_flags, aff->flags);
+        REMOVE_BIT(room->room_flags, aff->flags);
     else if (aff->type < NUM_DIRS && room->dir_option[(int) aff->type])
-	REMOVE_BIT(room->dir_option[(int) aff->type]->exit_info, aff->flags);
+        REMOVE_BIT(room->dir_option[(int) aff->type]->exit_info, aff->flags);
     else {
-	slog("SYSERR: Invalid aff->type passed to affect_from_room.");
-	return;
+        slog("SYSERR: Invalid aff->type passed to affect_from_room.");
+        return;
     }
-#ifdef DMALLOC
-    dmalloc_verify(0);
-#endif
     if (aff->description)
-	free(aff->description);
+        free(aff->description);
   
     free(aff);
-#ifdef DMALLOC
-    dmalloc_verify(0);
-#endif
 }
 
 #undef __flow_room_c__

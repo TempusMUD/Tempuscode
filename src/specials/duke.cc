@@ -97,13 +97,12 @@ int member_of_royal_guard(struct char_data * chChar)
 struct char_data *find_npc_by_name(struct char_data * chAtChar, char *pszName,
 				   int iLen)
 {
-    struct char_data *ch;
-
-    for (ch = chAtChar->in_room->people; ch; ch = ch->next_in_room)
-	if (IS_NPC(ch))
-	    if (!strncmp(pszName, ch->player.short_descr, iLen))
-		return (ch);
-
+    CharacterList::iterator it = chAtChar->in_room->people.begin();
+    for( ; it != chAtChar->in_room->people.end(); ++it ) {
+    	if (IS_NPC((*it)))
+    	    if (!strncmp(pszName, (*it)->player.short_descr, iLen))
+        		return ((*it));
+    }
     return NULL;
 }
 
@@ -114,12 +113,11 @@ struct char_data *find_npc_by_name(struct char_data * chAtChar, char *pszName,
 struct char_data *find_guard(struct char_data * chAtChar)
 {
 
-    struct char_data *ch;
-
-    for (ch = chAtChar->in_room->people; ch; ch = ch->next_in_room)
-	if (!FIGHTING(ch) && member_of_royal_guard(ch))
-	    return ch;
-
+    CharacterList::iterator it = chAtChar->in_room->people.begin();
+    for( ; it != chAtChar->in_room->people.end(); ++it ) {
+    	if (!FIGHTING((*it)) && member_of_royal_guard((*it)))
+    	    return (*it);
+    }
     return NULL;
 }
 
@@ -131,29 +129,28 @@ struct char_data *find_guard(struct char_data * chAtChar)
 struct char_data *get_victim(struct char_data * chAtChar)
 {
 
-    struct char_data *ch;
     int iNum_bad_guys = 0, iVictim;
-
-    for (ch = chAtChar->in_room->people; ch; ch = ch->next_in_room)
-	if (FIGHTING(ch) &&
-	    member_of_staff(FIGHTING(ch)))
-	    iNum_bad_guys++;
-
+    CharacterList::iterator it = chAtChar->in_room->people.begin();
+    for( ; it != chAtChar->in_room->people.end(); ++it ) {
+    	if (FIGHTING((*it)) &&
+    	    member_of_staff(FIGHTING((*it))))
+    	    iNum_bad_guys++;
+    }
     if (!iNum_bad_guys)
-	return NULL;
+    	return NULL;
 
     iVictim = number(0, iNum_bad_guys);   /* How nice, we give them a chance */
     if (!iVictim)
-	return NULL;
+    	return NULL;
 
     iNum_bad_guys = 0;
-
-    for (ch = chAtChar->in_room->people; ch; ch = ch->next_in_room)
-	if (FIGHTING(ch) &&
-	    member_of_staff(FIGHTING(ch)) &&
-	    ++iNum_bad_guys == iVictim)
-	    return ch;
-
+    it = chAtChar->in_room->people.begin();
+    for( ; it != chAtChar->in_room->people.end(); ++it ) {
+    	if (FIGHTING((*it)) &&
+    	    member_of_staff(FIGHTING((*it))) &&
+    	    ++iNum_bad_guys == iVictim)
+    	    return (*it);
+    }
     return NULL;
 }
 
@@ -185,27 +182,28 @@ int banzaii(struct char_data * ch)
 int do_npc_rescue(struct char_data * ch_hero, struct char_data * ch_victim)
 {
 
-    struct char_data *ch_bad_guy;
-
-    for (ch_bad_guy = ch_hero->in_room->people;
-	 ch_bad_guy && (FIGHTING(ch_bad_guy) != ch_victim);
-	 ch_bad_guy = ch_bad_guy->next_in_room);
+    struct char_data *ch_bad_guy = NULL;
+    CharacterList::iterator it = ch_hero->in_room->people.begin();
+    for( ; it != ch_hero->in_room->people.end(); ++it ) {
+        if( FIGHTING((*it)) == ch_victim )
+            ch_bad_guy = *it;
+    }
     if (ch_bad_guy) {
-	if (ch_bad_guy == ch_hero)
-	    return FALSE;             /* NO WAY I'll rescue the one I'm fighting! */
-	act("You bravely rescue $N.\r\n", FALSE, ch_hero, 0, ch_victim, TO_CHAR);
-	act("You are rescued by $N, your loyal friend!\r\n",
-	    FALSE, ch_victim, 0, ch_hero, TO_CHAR);
-	act("$n heroically rescues $N.", FALSE, ch_hero, 0, ch_victim, TO_NOTVICT);
+    	if (ch_bad_guy == ch_hero)
+    	    return FALSE;             /* NO WAY I'll rescue the one I'm fighting! */
+    	act("You bravely rescue $N.\r\n", FALSE, ch_hero, 0, ch_victim, TO_CHAR);
+    	act("You are rescued by $N, your loyal friend!\r\n",
+    	    FALSE, ch_victim, 0, ch_hero, TO_CHAR);
+    	act("$n heroically rescues $N.", FALSE, ch_hero, 0, ch_victim, TO_NOTVICT);
 
-	if (FIGHTING(ch_bad_guy))
-	    stop_fighting(ch_bad_guy);
-	if (FIGHTING(ch_hero))
-	    stop_fighting(ch_hero);
+    	if (FIGHTING(ch_bad_guy))
+    	    stop_fighting(ch_bad_guy);
+    	if (FIGHTING(ch_hero))
+    	    stop_fighting(ch_hero);
 
-	set_fighting(ch_hero, ch_bad_guy, TRUE);
-	set_fighting(ch_bad_guy, ch_hero, TRUE);
-	return TRUE;
+    	set_fighting(ch_hero, ch_bad_guy, TRUE);
+    	set_fighting(ch_bad_guy, ch_hero, TRUE);
+    	return TRUE;
     }
     return FALSE;
 }

@@ -8,7 +8,6 @@
 #ifndef __char_data_h__
 #define __char_data_h__
 
-
 /* char and mob-related defines *****************************************/
 
 
@@ -169,6 +168,10 @@
 #define NUM_RACES        52
 
 /* Hometown defines                            */
+
+#define HOME_NEWBIE_ONLY 1 // Only allow the newbie school as a home
+                           // to start the game in
+
 #define HOME_UNDEFINED   -1
 #define HOME_MODRIAN      0        
 #define HOME_NEW_THALOS   1
@@ -189,7 +192,8 @@
 #define HOME_DROW_ISLE       18
 #define HOME_ASTRAL_MANSE    19
 #define HOME_SKULLPORT_NEWBIE 20
-#define NUM_HOMETOWNS        21
+#define HOME_NEWBIE_SCHOOL   21
+#define NUM_HOMETOWNS        22
 
 /* Deity Defines                */
 #define DEITY_NONE        0
@@ -893,94 +897,89 @@ struct follow_type {
 /* ================== Structure for player/non-player ===================== */
 struct char_data {
 
-    // carried weight
-    inline int getCarriedWeight( void ) { return char_specials.getCarriedWeight(); }
-    inline int setCarriedWeight( int new_weight ) {
-        return char_specials.setCarriedWeight( new_weight );
-    }
-    int modifyCarriedWeight( int mod_weight );
+    public: // *******   METHODS ******
+        // carried weight
+        int getCarriedWeight( void ) { return char_specials.getCarriedWeight(); }
+        int setCarriedWeight( int new_weight ) {
+            return char_specials.setCarriedWeight( new_weight );
+        }
+        int modifyCarriedWeight( int mod_weight );
 
-    // worn weight
-    inline int getWornWeight( void ) { return char_specials.getWornWeight(); }
-    inline int setWornWeight( int new_weight ) { 
-        return char_specials.setWornWeight( new_weight );
-    }
-    int modifyWornWeight( int mod_weight );
+        // worn weight
+        int getWornWeight( void ) { return char_specials.getWornWeight(); }
+        int setWornWeight( int new_weight ) { 
+            return char_specials.setWornWeight( new_weight );
+        }
+        int modifyWornWeight( int mod_weight );
 
-    // char weight
-    inline short getWeight( void ) { return player.getWeight(); }
-    inline short setWeight( short new_weight ) {
-        return player.setWeight( new_weight );
-    }
-    inline int getLevel( void ) { return player.level; }
-    inline short modifyWeight( short mod_weight ) { return player.modifyWeight( mod_weight ); }
+        // char weight
+        short getWeight( void ) { return player.getWeight(); }
+        short setWeight( short new_weight ) {
+            return player.setWeight( new_weight );
+        }
+        int getLevel( void ) { return player.level; }
+        short modifyWeight( short mod_weight ) { return player.modifyWeight( mod_weight ); }
 
-    // breath count
-    inline int getBreathCount( void ) { return char_specials.breath_count; }
-    inline int getBreathThreshold( void ) { return ( getLevel() >> 5 ) + 2; }
-    inline int setBreathCount( int new_count ) {
-        return ( char_specials.breath_count = new_count );
-    }
-    inline int modifyBreathCount( int mod_count ) {
-        return setBreathCount( getBreathCount() + mod_count );
-    }
-    // Set position and Get position.
-    // Set returns success or failure
-    bool setPosition( int new_pos, int mode=0 );
-    // Get returns current pos
-    int getPosition( void );
-    inline int char_data::getSpeed( void ) {
-        // if(IS_NPC(this))
-        if(char_specials.saved.act & MOB_ISNPC)
-            return 0;
-        return player_specials->saved.speed;
-    }
-    inline bool char_data::isNewbie() {
-        if(char_specials.saved.act & MOB_ISNPC)
-            return false;
-        if((player_specials->saved.remort_generation) > 0)
-            return false;
-        if(player.level > 40)
-            return false;
-        return true;
-    }
-    inline void char_data::setSpeed( int speed ) {
-        // if(IS_NPC(this))
-        if(char_specials.saved.act & MOB_ISNPC)
-            return;
-        else
-            player_specials->saved.speed = speed;
-    }
+        // breath count
+        int getBreathCount( void ) { return char_specials.breath_count; }
+        int getBreathThreshold( void ) { return ( getLevel() >> 5 ) + 2; }
+        int setBreathCount( int new_count ) {
+            return ( char_specials.breath_count = new_count );
+        }
+        int modifyBreathCount( int mod_count ) {
+            return setBreathCount( getBreathCount() + mod_count );
+        }
+        // Set current position. returns success or failure
+        bool setPosition( int new_pos, int mode=0 );
+        // Get returns current pos (standing sitting etc.)
+        int getPosition( void );
+        // retrieve the char's speed attribute ( or 0 for mobiles )
+        int getSpeed( void );
+        // Assign the char's speed attribute. ( does nothing for mobs )
+        void setSpeed( int speed );
+        bool isNewbie();
+        int getLevelBonus( int skill );
+        int getLevelBonus ( bool primary );
+        // Various combat utility functions
+        bool affBySanc( char_data *attacker = NULL );
+        float getDamReduction( char_data *attacker = NULL );
+        bool isFighting();
+        char_data *getFighting();
+        void setFighting(char_data *ch);
+        /** 
+         * Extract a ch completely from the world, and leave his stuff behind 
+         * mode = 0 -> menu, 1 -> afterlife, 2 -> remort reroll 
+        **/
+        void extract( char mode );
+        void clearMemory();
 
-    int char_data::getLevelBonus( int skill );
-    int char_data::getLevelBonus (bool primary );
-    bool char_data::affBySanc(char_data *attacker = NULL);
-    float char_data::getDamReduction(char_data *attacker = NULL);
+    public: // ******  Data ****
+        int pfilepos;             /* playerfile pos          */
+        struct room_data *in_room;            /* Location (real room number)      */
 
-    int pfilepos;             /* playerfile pos          */
-    struct room_data *in_room;            /* Location (real room number)      */
+        struct char_player_data player;       /* Normal data                   */
+        struct char_ability_data real_abils;     /* Abilities without modifiers   */
+        struct char_ability_data aff_abils;     /* Abils with spells/stones/etc  */
+        struct char_point_data points;        /* Points                        */
+        struct char_special_data char_specials;    /* PC/NPC specials      */
+        struct player_special_data *player_specials; /* PC specials          */
+        struct mob_special_data mob_specials;    /* NPC specials          */
+      
+        struct affected_type *affected;       /* affected by what spells       */
+        struct obj_data *equipment[NUM_WEARS];/* Equipment array               */
+        struct obj_data *implants[NUM_WEARS];
 
-    struct char_player_data player;       /* Normal data                   */
-    struct char_ability_data real_abils;     /* Abilities without modifiers   */
-    struct char_ability_data aff_abils;     /* Abils with spells/stones/etc  */
-    struct char_point_data points;        /* Points                        */
-    struct char_special_data char_specials;    /* PC/NPC specials      */
-    struct player_special_data *player_specials; /* PC specials          */
-    struct mob_special_data mob_specials;    /* NPC specials          */
-  
-    struct affected_type *affected;       /* affected by what spells       */
-    struct obj_data *equipment[NUM_WEARS];/* Equipment array               */
-    struct obj_data *implants[NUM_WEARS];
+        struct obj_data *carrying;            /* Head of list                  */
+        struct descriptor_data *desc;         /* NULL for mobiles              */
 
-    struct obj_data *carrying;            /* Head of list                  */
-    struct descriptor_data *desc;         /* NULL for mobiles              */
+        //struct char_data *next_in_room;     /* For room->people - list         */
+        //struct char_data *prev_in_room;     /* For room->people - list         */
+      
+        struct follow_type *followers;        /* List of chars followers       */
+        struct char_data *master;             /* Who is char following?        */
+        
+    private:
 
-    struct char_data *next_in_room;     /* For room->people - list         */
-    struct char_data *next;             /* For either monster or ppl-list  */
-    struct char_data *next_fighting;    /* For fighting list               */
-  
-    struct follow_type *followers;        /* List of chars followers       */
-    struct char_data *master;             /* Who is char following?        */
 };
 typedef struct char_data CHAR;
 
@@ -1068,4 +1067,4 @@ struct title_type {
 
 
 
-#endif __char_data_h__
+#endif 

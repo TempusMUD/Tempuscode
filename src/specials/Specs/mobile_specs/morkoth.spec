@@ -11,6 +11,7 @@ SPECIAL(morkoth)
 
   CHAR *morkoth = (CHAR *) me;
 
+  if( spec_mode == SPECIAL_DEATH ) return 0;
   if (!cmd || morkoth->in_room->number != GET_MOB_LAIR(morkoth))
     return 0;
 

@@ -8,7 +8,7 @@ SPECIAL(stable_room)
 {
   char buf[MAX_STRING_LENGTH], pet_name[256];
   struct room_data *pet_room;
-  struct char_data *pet = NULL, *pet2 = NULL;
+  struct char_data *pet = NULL;
   int price;
 
   if (!(pet_room = ch->in_room->next)) {
@@ -18,8 +18,9 @@ SPECIAL(stable_room)
 
   if (CMD_IS("list")) {
     send_to_char("Available mounts are:\r\n", ch);
-    for (pet = pet_room->people; pet; pet = pet->next_in_room) {
-      sprintf(buf, "%8d - %s\r\n", 3 * GET_EXP(pet), GET_NAME(pet));
+    CharacterList::iterator it = pet_room->people.begin();
+    for( ; it != pet_room->people.end(); ++it ) {
+      sprintf(buf, "%8d - %s\r\n", 3 * GET_EXP((*it)), GET_NAME((*it)));
       send_to_char(buf, ch);
     }
     return (TRUE);
@@ -48,7 +49,7 @@ SPECIAL(stable_room)
       pet->player.name = str_dup(buf);
 
       sprintf(buf, "%sA small sign on a chain around the neck says 'My name is %s'\r\n",
-	      pet->player.description, pet_name);
+              pet->player.description, pet_name);
       /* free(pet->player.description); don't free the prototype! */
       pet->player.description = str_dup(buf);
     }
@@ -90,12 +91,12 @@ SPECIAL(stable_room)
     sprintf(buf, "I will pay you %d gold coins for $N.", price);
     act(buf, FALSE,ch,0,pet,TO_CHAR);
     if (CMD_IS("value"))
-      return 1;
+        return 1;
 
     if (MOUNTED(ch) && MOUNTED(ch) == pet) {
-      MOUNTED(ch) = NULL;
-      REMOVE_BIT(AFF2_FLAGS(pet), AFF2_MOUNTED);
-      ch->setPosition( POS_STANDING );
+        MOUNTED(ch) = NULL;
+        REMOVE_BIT(AFF2_FLAGS(pet), AFF2_MOUNTED);
+        ch->setPosition( POS_STANDING );
     }
     stop_follower(pet);
 
@@ -107,12 +108,13 @@ SPECIAL(stable_room)
 
     char_from_room(pet);
     char_to_room(pet, pet_room);
-    for (pet2 = pet_room->people; pet2; pet2 = pet2->next_in_room) {
-      if (pet2 != pet && IS_NPC(pet2) && GET_MOB_VNUM(pet2) ==
-	  GET_MOB_VNUM(pet)) {
-	extract_char(pet2, 0);
-	return 1;
-      }
+    CharacterList::iterator it = pet_room->people.begin();
+    for( ; it != pet_room->people.end(); ++it ) {
+        if ((*it) != pet && IS_NPC((*it)) && GET_MOB_VNUM((*it)) == GET_MOB_VNUM(pet)) {
+            //extract_char(pet2, 0);
+            (*it)->extract( FALSE );
+            return 1;
+        }
     }
       
     return 1;

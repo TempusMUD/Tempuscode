@@ -535,7 +535,8 @@ check_idling(struct char_data * ch)
 	    Crash_idlesave(ch);
 	    sprintf(buf, "%s force-rented and extracted (idle).", GET_NAME(ch));
 	    mudlog(buf, CMP, LVL_GOD, TRUE);
-	    extract_char(ch, FALSE);
+	    //extract_char(ch, FALSE);
+	    ch->extract( FALSE );
 	    return TRUE;
 	}
     return FALSE;
@@ -549,7 +550,7 @@ point_update(void)
 {
     void update_char_objects(struct char_data * ch);	/* handler.c */
     void extract_obj(struct obj_data * obj);	/* handler.c */
-    register struct char_data *i, *next_char;
+    register struct char_data *i;
     register struct obj_data *j, *next_thing, *jj, *next_thing2;
     struct room_data *rm;
     struct zone_data *zone;
@@ -568,8 +569,11 @@ point_update(void)
     }
     
     /* characters */
-    for (i = character_list; i; i = next_char) {
-        next_char = i->next;
+    CharacterList::iterator cit = characterList.begin();
+    for( ; cit != characterList.end(); ++cit ) {
+    //for (i = character_list; i; i = next_char) {
+        //next_char = i->next;
+        i = *cit;
     
         if (i->getPosition() >= POS_STUNNED) {
             GET_HIT(i) = MIN(GET_HIT(i) + hit_gain(i), GET_MAX_HIT(i));

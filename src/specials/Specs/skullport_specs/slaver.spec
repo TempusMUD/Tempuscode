@@ -19,7 +19,7 @@ SPECIAL(slaver)
   struct room_data *r_pit_lip = real_room(PIT_LIP),
     *r_slave_pit = real_room(SLAVE_PIT);
 
-  
+  if( spec_mode == SPECIAL_DEATH ) return 0;
   if (cmd || !AWAKE(slaver))
     return 0;
 
@@ -28,7 +28,9 @@ SPECIAL(slaver)
   
   if (!FIGHTING(slaver) && !ROOM_FLAGGED(slaver->in_room, ROOM_PEACEFUL)) {
     
-    for (vict = slaver->in_room->people; vict; vict = vict->next_in_room) {
+   CharacterList::iterator it = slaver->in_room->people.begin();
+   for( ; it != slaver->in_room->people.end(); ++it ) {
+      vict = *it;
       if (ch != vict && !IS_NPC(vict) && CAN_SEE(slaver, vict) &&
 	  PRF_FLAGGED(vict, PRF_NOHASSLE) && 
 	  GET_LEVEL(vict) < number(1, 50) && !IS_EVIL(vict)) {

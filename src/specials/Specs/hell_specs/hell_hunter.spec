@@ -58,10 +58,18 @@ Hunter_data hunters[10][4] = {
     {{H_HORNED,  -1, 100},  // level 6 - malbolge
      {H_HORNED,  -1,  60},
      {H_SPINED,  -1,  70},
-     {H_SPINED,  -1,  70}}
+     {H_SPINED,  -1,  70}},
+    {{H_HORNED,  -1, 100},  // level 6 - malbolge
+     {H_HORNED,  -1,  60},
+     {H_BONE  ,  -1,  70},
+     {H_BEARDED, -1,  70}}
 };
 
 Hunt_data items[] = {
+    {17054, 7},   // a blackened bone skullcap
+    {17053, 7},   // a blackened bone hook
+    {17050, 7},   // the Breastplate of Armageddon
+    {16127, 7},   // a Gruesome Blade
     {16118, 6},   // whip of pain
     {16119, 6},   // bracelet of pain
     {16146, 6},   // spiked shin guards
@@ -69,6 +77,7 @@ Hunt_data items[] = {
     {16147, 5},   // enchanted loincloth
     {16150, 5},   // claws of geryon
     {16149, 5},   // mode of degreelessness
+    {16502, 5},   // amulet of the magistrate
     {16140, 4},   // huge military fork
     {16116, 3},   // sword of wounding
     {16110, 3},   // shield of armageddon
@@ -245,6 +254,7 @@ SPECIAL(hell_hunter_brain)
 SPECIAL(hell_hunter)
 {
 
+    if( spec_mode == SPECIAL_DEATH ) return 0;
     struct obj_data *obj = NULL, *t_obj = NULL;
     int i;
     struct char_data *vict = NULL, *devil = NULL;
@@ -284,7 +294,7 @@ SPECIAL(hell_hunter)
     if (!FIGHTING(ch) && !HUNTING(ch) && !AFF_FLAGGED(ch, AFF_CHARM)) {
         act("$n vanishes into the mouth of an interplanar conduit.",
             FALSE, ch, 0, 0, TO_ROOM);
-        extract_char(ch, 1);
+        ch->extract( TRUE );
         return 1;
     }
 
@@ -293,12 +303,13 @@ SPECIAL(hell_hunter)
         if ( GET_MANA(ch) < 100 ) {
             act("$n vanishes into the mouth of an interplanar conduit.",
                 FALSE, ch, 0, 0, TO_ROOM);
-            extract_char(ch, 1);
+            ch->extract( TRUE );
             return 1;
         }
 
-        for ( vict = ch->in_room->people; vict; vict = vict->next_in_room ) {
-
+        CharacterList::iterator it = ch->in_room->people.begin();
+        for( ; it != ch->in_room->people.end(); ++it ) {
+            vict = *it;
             if ( vict == ch )
                 continue;
 

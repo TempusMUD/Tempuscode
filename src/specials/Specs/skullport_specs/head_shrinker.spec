@@ -14,6 +14,7 @@ SPECIAL(head_shrinker)
 	char arg[MAX_INPUT_LENGTH];
 
 
+    if( spec_mode == SPECIAL_DEATH ) return 0;
 	if (CMD_IS("list")) {
 		send_to_char("Type 'buy talisman <corpse>' to have a talisman made from it's head.\r\n"
 					 "Better empty the corpse out first if you want the contents.\r\n",ch);

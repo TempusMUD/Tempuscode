@@ -49,7 +49,6 @@ extern int *max_ac_applys;
 extern char *last_command;
 extern struct apply_mod_defaults *apmd;
 
-void clearMemory(struct char_data * ch);
 void act(const char *str, int i, struct char_data * c, struct obj_data * o,
          void *vict_obj, int j);
 
@@ -99,28 +98,6 @@ ASPELL(spell_create_water)
 
 ASPELL(spell_recall)
 {
-    extern struct room_data * r_immort_start_room;
-    extern struct room_data * r_frozen_start_room;
-    extern struct room_data * r_mortal_start_room;
-    extern struct room_data * r_electro_start_room;
-    extern struct room_data * r_new_thalos_start_room;
-    extern struct room_data * r_elven_start_room;
-    extern struct room_data * r_istan_start_room;
-    extern struct room_data * r_arena_start_room;
-    extern struct room_data * r_city_start_room;
-    extern struct room_data * r_doom_start_room;
-    extern struct room_data * r_monk_start_room;
-    extern struct room_data * r_tower_modrian_start_room;
-    extern struct room_data * r_solace_start_room;
-    extern struct room_data * r_mavernal_start_room;
-    extern struct room_data * r_dwarven_caverns_start_room;
-    extern struct room_data * r_human_square_start_room;
-    extern struct room_data * r_skullport_start_room;
-    extern struct room_data * r_skullport_newbie_start_room;
-    extern struct room_data * r_drow_isle_start_room;
-    extern struct room_data * r_astral_manse_start_room;
-    extern struct room_data * r_zul_dane_start_room;
-    extern struct room_data * r_zul_dane_newbie_start_room;
 
     struct room_data *load_room = NULL, *targ_room = NULL;
         //Vstone No Affect Code
@@ -696,7 +673,6 @@ ASPELL(spell_astral_spell)
 ASPELL(spell_summon)
 {
     struct room_data *targ_room = NULL;
-    struct char_data *tmp_ch= NULL;
     int prob = 0;
 
     if (ch == NULL || victim == NULL)
@@ -858,10 +834,10 @@ ASPELL(spell_summon)
       
         }
     }
-
-    for (tmp_ch = victim->in_room->people; tmp_ch; tmp_ch = tmp_ch->next_in_room)
-        if (AFF3_FLAGGED(tmp_ch, AFF3_SHROUD_OBSCUREMENT))
-            prob += (tmp_ch == victim?GET_LEVEL(tmp_ch):(GET_LEVEL(tmp_ch) >> 1));
+    CharacterList::iterator it = victim->in_room->people.begin();
+    for( ; it != victim->in_room->people.end(); ++it )
+        if (AFF3_FLAGGED((*it), AFF3_SHROUD_OBSCUREMENT))
+            prob += ((*it) == victim?GET_LEVEL((*it)):(GET_LEVEL((*it)) >> 1));
 
     if (GET_PLANE(victim->in_room) != GET_PLANE(ch->in_room))
         prob += GET_LEVEL(victim) >> 1;
@@ -1893,7 +1869,6 @@ ASPELL(spell_clairvoyance)
 {
 
     int prob = 0;
-    struct char_data *tmp_ch = NULL;
     if (GET_LEVEL(victim) >= LVL_AMBASSADOR && 
         GET_LEVEL(ch) < GET_LEVEL(victim)) {
         send_to_char("That is impossible.\r\n", ch);
@@ -1907,11 +1882,11 @@ ASPELL(spell_clairvoyance)
             FALSE, ch, 0, victim, TO_CHAR);
         return;
     }
-  
-    for (tmp_ch = victim->in_room->people; tmp_ch; tmp_ch = tmp_ch->next_in_room)
-        if (AFF3_FLAGGED(tmp_ch, AFF3_SHROUD_OBSCUREMENT))
-            prob += (tmp_ch == victim? (GET_LEVEL(tmp_ch) << 1):
-                     (GET_LEVEL(tmp_ch)));
+    CharacterList::iterator it = victim->in_room->people.begin();
+    for( ; it != victim->in_room->people.end(); ++it )
+        if (AFF3_FLAGGED((*it), AFF3_SHROUD_OBSCUREMENT))
+            prob += ((*it) == (*it)? (GET_LEVEL((*it)) << 1):
+                     (GET_LEVEL((*it))));
   
     if (GET_PLANE(victim->in_room) != GET_PLANE(ch->in_room))
         prob += GET_LEVEL(victim) >> 1;
@@ -2461,8 +2436,11 @@ ASPELL(spell_id_insinuation)
     total = room_count(victim, victim->in_room);
 
     total = MAX(1, total >> 2);
-
-    for (ulv = victim->in_room->people; ulv; ulv = ulv->next_in_room) {
+    CharacterList::iterator nit = victim->in_room->people.begin();
+    CharacterList::iterator it = victim->in_room->people.begin();
+    for( ; it != victim->in_room->people.end(); ++it ) {
+        ++nit;
+        ulv = *it;
         if (ulv == victim || ulv == ch)
             continue;
         if ( PRF_FLAGGED( ulv, PRF_NOHASSLE ) )
@@ -2488,7 +2466,7 @@ ASPELL(spell_id_insinuation)
                     continue;
             }                
         }
-        if (!number(0, total) || !ulv->next_in_room)
+        if (!number(0, total) || nit == victim->in_room->people.end())
             break;
     }
 
@@ -2526,8 +2504,9 @@ ASPELL(spell_shadow_breath)
         rm_aff.flags = ROOM_DARK;
         affect_to_room(victim->in_room, &rm_aff);
     }
-
-    for (vch = victim->in_room->people; vch; vch = vch->next_in_room) {
+    CharacterList::iterator it = victim->in_room->people.begin();
+    for( ; it != victim->in_room->people.end(); ++it ) {
+        vch = *it;
         if (PRF_FLAGGED(vch, PRF_NOHASSLE))
             continue;
 
@@ -2728,20 +2707,23 @@ ASPELL(spell_animate_dead)
 
     if ( IS_UNDEAD(orig_char) ) {
         act("You cannot re-animate $p.", FALSE, ch, obj, 0, TO_CHAR);
-        extract_char( orig_char, 0 );
+        //extract_char( orig_char, 0 );
+        orig_char->extract( FALSE );
         return;
     }
         
     if ( GET_LEVEL(orig_char) >= LVL_AMBASSADOR && GET_LEVEL(orig_char) > GET_LEVEL(ch) ) {
         send_to_char("You find yourself unable to perform this necromantic deed.\r\n", ch);
-        extract_char( orig_char, 0 );
+        //extract_char( orig_char, 0 );
+        orig_char->extract( FALSE );
         return;
     }
 
     if ( ! ( zombie = read_mobile(ZOMBIE_VNUM) ) ) {
         send_to_char("The dark powers are not with you, tonight.\r\n", ch);
         slog("SYSERR: unable to load ZOMBIE_VNUM in spell_animate_dead.");
-        extract_char( orig_char, 0 );
+        //extract_char( orig_char, 0 );
+        orig_char->extract( FALSE );
         return;
     }
 
@@ -2840,7 +2822,8 @@ ASPELL(spell_animate_dead)
 
     extract_obj(obj);
 
-    extract_char(orig_char, 0);
+    //extract_char( orig_char, 0 );
+    orig_char->extract( FALSE );
 
     char_to_room(zombie, ch->in_room);
     act("$n rises slowly to a standing position.", FALSE, zombie, 0, 0, TO_ROOM);
@@ -3081,7 +3064,6 @@ ASPELL(spell_control_undead)
 ASPELL(spell_sun_ray)
 {
     struct char_data *vict = NULL;
-    struct char_data *next_vict = NULL;
     int dam = 0;
 
     send_to_room("A brilliant ray of sunlight bathes the area!\r\n", ch->in_room);
@@ -3092,32 +3074,31 @@ ASPELL(spell_sun_ray)
     
     // check for players if caster is not a pkiller
     if ( !IS_NPC( ch ) && !PRF2_FLAGGED( ch, PRF2_PKILLER ) ) {
-        for ( vict = ch->in_room->people; vict; vict = next_vict ) {
-            next_vict = vict->next_in_room;
-            if ( ch == vict )
-            continue;
-            if ( !IS_NPC( vict )  && IS_UNDEAD( vict) ) {
-            act( "You cannot do this, because this action might cause harm to $N,\r\n"
-                 "and you have not chosen to be a Pkiller.\r\n"
-                 "You can toggle this with the command 'pkiller'.", FALSE, ch, 0, vict, TO_CHAR );
-            return;
+        CharacterList::iterator it = ch->in_room->people.begin();
+        for( ; it != ch->in_room->people.end(); ++it ) {
+            if ( ch == *it )
+                continue;
+            if ( !IS_NPC( (*it) )  && IS_UNDEAD( (*it)) ) {
+                act( "You cannot do this, because this action might cause harm to $N,\r\n"
+                     "and you have not chosen to be a Pkiller.\r\n"
+                     "You can toggle this with the command 'pkiller'.", FALSE, ch, 0, vict, TO_CHAR );
+                return;
             }
         }
     }
-
-    for ( vict = ch->in_room->people; vict; vict = next_vict ) {
-        next_vict = vict->next_in_room;
-        if ( ch == vict )
+    CharacterList::iterator it = ch->in_room->people.begin();
+    for( ; it != ch->in_room->people.end(); ++it ) {
+        if ( ch == (*it) )
             continue;
-        if ( PRF_FLAGGED(vict, PRF_NOHASSLE) )
+        if ( PRF_FLAGGED((*it), PRF_NOHASSLE) )
             continue;
-        if (IS_UNDEAD(vict)) {
+        if (IS_UNDEAD((*it))) {
             dam = dice(GET_LEVEL(ch) + GET_REMORT_GEN(ch), 40)
                   + ((GET_LEVEL(ch) + GET_REMORT_GEN(ch)) * 5);
-            if(IS_EVIL(vict)) {
+            if(IS_EVIL((*it))) {
                 dam += GET_ALIGNMENT(ch);
             }
-            if( !damage(ch, vict, dam, TYPE_ABLAZE, -1) ) {
+            if( !damage(ch, (*it), dam, TYPE_ABLAZE, -1) ) {
                 if ( !IS_AFFECTED(vict, AFF_BLIND) && 
                      !MOB_FLAGGED(vict, MOB_NOBLIND) ) {
 
@@ -3134,17 +3115,17 @@ ASPELL(spell_sun_ray)
                     af2.bitvector = AFF_BLIND;
                     affect_join(vict, &af, FALSE, FALSE, FALSE, FALSE);
                     if (af2.bitvector || af2.location)
-                        affect_join(vict, &af2, FALSE, FALSE, FALSE, FALSE);
+                        affect_join((*it), &af2, FALSE, FALSE, FALSE, FALSE);
 
                     act( "$n cries out in pain, clutching $s eyes!", 
-                        FALSE, vict, NULL, ch, TO_ROOM);
+                        FALSE, (*it), NULL, ch, TO_ROOM);
                     act( "You begin to scream as the flames of light sear out your eyes!",
-                        FALSE, ch, NULL, vict, TO_VICT);
+                        FALSE, ch, NULL, (*it), TO_VICT);
                 } else {
                     act( "$n screams in agony!",
-                        FALSE, vict, NULL, ch, TO_ROOM);
+                        FALSE, (*it), NULL, ch, TO_ROOM);
                     act( "You cry out in pain as the flames of light consume your body!",
-                        FALSE, ch, NULL, vict, TO_VICT);
+                        FALSE, ch, NULL, (*it), TO_VICT);
                 }
             }
         }
@@ -3156,7 +3137,6 @@ ASPELL(spell_inferno)
 {
     struct room_affect_data rm_aff;
     struct char_data *vict = NULL;
-    struct char_data *next_vict = NULL;
 
     send_to_room("A raging firestorm fills the room with a hellish inferno!\r\n", ch->in_room);
 
@@ -3166,11 +3146,11 @@ ASPELL(spell_inferno)
     
     // check for players if caster is not a pkiller
     if ( !IS_NPC( ch ) && !PRF2_FLAGGED( ch, PRF2_PKILLER ) ) {
-        for ( vict = ch->in_room->people; vict; vict = next_vict ) {
-            next_vict = vict->next_in_room;
-            if ( ch == vict )
+        CharacterList::iterator it = ch->in_room->people.begin();
+        for( ; it != ch->in_room->people.end(); ++it ) {
+            if ( ch == *it )
                 continue;
-            if ( !IS_NPC( vict ) ) {
+            if ( !IS_NPC( (*it) ) ) {
                 act( "You cannot do this, because this action might cause harm to $N,\r\n"
                      "and you have not chosen to be a Pkiller.\r\n"
                      "You can toggle this with the command 'pkiller'.", FALSE, ch, 0, vict, TO_CHAR );
@@ -3188,18 +3168,15 @@ ASPELL(spell_inferno)
         affect_to_room(ch->in_room, &rm_aff);
 
     }
-
-    for ( vict = ch->in_room->people; vict; vict = next_vict ) {
-        
-        next_vict = vict->next_in_room;
-
-        if ( ch == vict )
+    CharacterList::iterator it = ch->in_room->people.begin();
+    for( ; it != ch->in_room->people.end(); ++it ) {
+        if ( ch == *it )
             continue;
 
-        if ( PRF_FLAGGED(vict, PRF_NOHASSLE) )
+        if ( PRF_FLAGGED((*it), PRF_NOHASSLE) )
             continue;
 
-        damage(ch, vict, dice(level, 6) + (level << 2), TYPE_ABLAZE, -1);
+        damage(ch, (*it), dice(level, 6) + (level << 2), TYPE_ABLAZE, -1);
         
     }
         
@@ -3227,7 +3204,8 @@ ASPELL(spell_banishment)
 
        act("$n is banished to $s home plane!", FALSE, victim, 0, 0, TO_ROOM);
 
-       extract_char(victim, 0);
+       victim->extract( FALSE );
+       //extract_char(victim, 0);
        
        gain_skill_prof(ch, SPELL_BANISHMENT);
 

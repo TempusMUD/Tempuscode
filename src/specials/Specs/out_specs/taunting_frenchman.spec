@@ -8,14 +8,16 @@ SPECIAL(taunting_frenchman)
 {
   struct char_data *vict = NULL;
   
+   if( spec_mode == SPECIAL_DEATH ) return 0;
    if (cmd || !AWAKE(ch) || FIGHTING(ch) || number(0, 10))
      return (FALSE);
-
-   for (vict = ch->in_room->people; vict; vict = vict->next_in_room)
+   CharacterList::iterator it = ch->in_room->people.begin();
+   for( ; it != ch->in_room->people.end(); ++it ) {
+      vict = *it;
      if (vict != ch && CAN_SEE(ch, vict) && 
 	 GET_MOB_VNUM(ch) != GET_MOB_VNUM(vict) && !number(0, 3))
        break;
-   
+   }
    if (!vict || vict == ch)
      return 0;
    

@@ -62,7 +62,7 @@ SPECIAL(labyrinth_clock)
 
     /* check ch is holding key */
     if (!ch->equipment[WEAR_HOLD] || 
-	(GET_OBJ_VNUM(ch->equipment[WEAR_HOLD]) != 66001)) {
+        (GET_OBJ_VNUM(ch->equipment[WEAR_HOLD]) != 66001)) {
       send_to_char("You aren't holding the correct key.\r\n", ch);
       return 1;
     }
@@ -126,9 +126,9 @@ SPECIAL(cuckoo)
     if (bird->in_room->number == 66104) {
 
       if ((r_clock_room = real_room(66236)) == NULL) {
-	slog("SYSERR: Clock room nonexistant.  Removing spec.");
-	bird->mob_specials.shared->func = NULL;
-	return 0;
+        slog("SYSERR: Clock room nonexistant.  Removing spec.");
+        bird->mob_specials.shared->func = NULL;
+        return 0;
       }
       
       char_from_room(bird);
@@ -206,7 +206,7 @@ SPECIAL(rabbit_hole)
   if (ch->player.height >= 11) {
     send_to_char("You are way too big to fit in there!\r\n", ch);
     act("$n makes a spectacle of $mself, trying to squeeze into $p.",
-	TRUE, ch, hole, 0, TO_ROOM);
+        TRUE, ch, hole, 0, TO_ROOM);
     return 1;
   } 
   
@@ -253,17 +253,17 @@ SPECIAL(gollum)
       /* take ch to room 66162 */
 
       if ((to_room = real_room(66162)) == NULL) {
-	slog("SYSERR: Gollum room nonexistant. Removing spec.");
-	gollum->mob_specials.shared->func = NULL;
-	return 0;
+        slog("SYSERR: Gollum room nonexistant. Removing spec.");
+        gollum->mob_specials.shared->func = NULL;
+        return 0;
       }
 
       act("$N starts hopping around and cursing at $n.\r\n"
-	  "$N stares at $n and gestures with his arms.\r\n",
-	  TRUE, ch, 0, gollum, TO_ROOM);
+          "$N stares at $n and gestures with his arms.\r\n",
+          TRUE, ch, 0, gollum, TO_ROOM);
       act("$N starts hopping around and cursing at you.\r\n"
-	  "$N stares at you and gestures with his arms.\r\n",
-	  TRUE, ch, 0, gollum, TO_CHAR);
+          "$N stares at you and gestures with his arms.\r\n",
+          TRUE, ch, 0, gollum, TO_CHAR);
       act("$n disappears.", TRUE, ch, 0, 0, TO_ROOM);
       char_from_room(ch);
       char_to_room(ch, to_room);
@@ -277,23 +277,23 @@ SPECIAL(gollum)
   if (number(0,5) == 0) {
 
     do_say(gollum,
-	   "How about I let you go if you can answer my riddle?'.\r\n"
-	   "'This thing all things devours: Birds, beasts, trees, flowers;'.\r\n"
-	   "'Gnaws iron, bites steel; Grinds hard stone to meal;'.\r\n"
-	   "'Slays king, ruins town, And beats high mountain down.",
-	   0, 0);
+           "How about I let you go if you can answer my riddle?'.\r\n"
+           "'This thing all things devours: Birds, beasts, trees, flowers;'.\r\n"
+           "'Gnaws iron, bites steel; Grinds hard stone to meal;'.\r\n"
+           "'Slays king, ruins town, And beats high mountain down.",
+           0, 0);
 
     return 1;
   }
   else if (number(0,2) == 0) {
 
     do_say(gollum,
-	   "Bless us and splash us, my precioussss!'.\r\n"
-	   "'Look what issssss caught in our trap, gollum!",
-	   0, 0);
+           "Bless us and splash us, my precioussss!'.\r\n"
+           "'Look what issssss caught in our trap, gollum!",
+           0, 0);
     act(
-	"$n thinks for a while and asks you, 'Do you like riddles?'.\r\n",
-	FALSE, ch, 0, 0, TO_ROOM);
+        "$n thinks for a while and asks you, 'Do you like riddles?'.\r\n",
+        FALSE, ch, 0, 0, TO_ROOM);
 
     return 1;
   }
@@ -305,10 +305,11 @@ SPECIAL(pendulum_timer_mob)
 {
   /* mob vnum is 66010 */
   /* procedure to make penddulum swing in room 66136 */
+  if( spec_mode == SPECIAL_DEATH ) return 0;
 
   struct char_data *pendulum_timer_mob = (struct char_data *) me;
   struct obj_data *test_obj = NULL;
-  struct char_data *vict = NULL, *next_vict = NULL;
+  struct char_data *vict = NULL;
   struct room_data *in_room = real_room(66136), 
     *to_room = NULL, *from_room = NULL;
   static int pendulum_time = 0;
@@ -323,98 +324,102 @@ SPECIAL(pendulum_timer_mob)
     pendulum_time = 0;
 
     for (test_obj = in_room->contents; test_obj;
-	 test_obj = test_obj->next_content) {
+         test_obj = test_obj->next_content) {
 
       if (GET_OBJ_VNUM(test_obj) == 66007) {
 
-	if ((to_room = real_room(66126)) == NULL) {
-	  slog("SYSERR: pendulum room nonexistant. Removing spec.");
-	  pendulum_timer_mob->mob_specials.shared->func = NULL;
-	  return 0;
-	}
-	if ((from_room = real_room(66146)) == NULL) {
-	  slog("SYSERR: pendulum room nonexistant. Removing spec.");
-	  pendulum_timer_mob->mob_specials.shared->func = NULL;
-	  return 0;
-	}
-	    
-	obj_from_room(test_obj);
-	obj_to_room(test_obj, to_room);
-	send_to_room(
-		     "The pendulum swings north, clearing the floor only by a foot or two.\r\n",
-		     in_room);
+        if ((to_room = real_room(66126)) == NULL) {
+          slog("SYSERR: pendulum room nonexistant. Removing spec.");
+          pendulum_timer_mob->mob_specials.shared->func = NULL;
+          return 0;
+        }
+        if ((from_room = real_room(66146)) == NULL) {
+          slog("SYSERR: pendulum room nonexistant. Removing spec.");
+          pendulum_timer_mob->mob_specials.shared->func = NULL;
+          return 0;
+        }
+            
+        obj_from_room(test_obj);
+        obj_to_room(test_obj, to_room);
+        send_to_room(
+                     "The pendulum swings north, clearing the floor only by a foot or two.\r\n",
+                     in_room);
 
-	for (vict = in_room->people; vict; vict = next_vict) {
-	  next_vict = vict->next_in_room;
-	  if (vict->getPosition() > POS_SITTING) {
-	    send_to_char("You are carried north by the pendulum.\r\n",
-			 vict);
-	    act("$n is pushed from the room by the pendulum.",
-		TRUE, vict, 0, 0, TO_ROOM);
-	    char_from_room(vict);
-	    char_to_room(vict, to_room);
-	    look_at_room(vict, vict->in_room, 0);
-	    act("$n is pushed into the room by the pendulum.",
-		TRUE, vict, 0, 0, TO_ROOM);
-	  }
-	}
+        room_data *theRoom = ch->in_room;
+        CharacterList::iterator it = theRoom->people.begin();
+        for( ; it != theRoom->people.end(); ++it ) {
+            vict = *it;
+          if (vict->getPosition() > POS_SITTING) {
+            send_to_char("You are carried north by the pendulum.\r\n",
+                         vict);
+            act("$n is pushed from the room by the pendulum.",
+                TRUE, vict, 0, 0, TO_ROOM);
+            char_from_room(vict);
+            char_to_room(vict, to_room);
+            look_at_room(vict, vict->in_room, 0);
+            act("$n is pushed into the room by the pendulum.",
+                TRUE, vict, 0, 0, TO_ROOM);
+          }
+        }
 
-	for (test_obj = from_room->contents; test_obj;
-	     test_obj = test_obj->next_content) {
-	  if (GET_OBJ_VNUM(test_obj) == 66011) {
-	    obj_from_room(test_obj);
-	    obj_to_room(test_obj, in_room);
-	    break;
-	  }
-	}
+        for (test_obj = from_room->contents; test_obj;
+             test_obj = test_obj->next_content) {
+          if (GET_OBJ_VNUM(test_obj) == 66011) {
+            obj_from_room(test_obj);
+            obj_to_room(test_obj, in_room);
+            break;
+          }
+        }
 
-	break;
+        break;
       }
 
       if (GET_OBJ_VNUM(test_obj) == 66011) {
 
-	if ((to_room = real_room(66146)) == NULL) {
-	  slog("SYSERR: pendulum room nonexistant. Removing spec.");
-	  pendulum_timer_mob->mob_specials.shared->func = NULL;
-	  return 0;
-	}
-	if ((from_room = real_room(66126)) == NULL) {
-	  slog("SYSERR: pendulum room nonexistant. Removing spec.");
-	  pendulum_timer_mob->mob_specials.shared->func = NULL;
-	  return 0;
-	}
+        if ((to_room = real_room(66146)) == NULL) {
+          slog("SYSERR: pendulum room nonexistant. Removing spec.");
+          pendulum_timer_mob->mob_specials.shared->func = NULL;
+          return 0;
+        }
+        if ((from_room = real_room(66126)) == NULL) {
+          slog("SYSERR: pendulum room nonexistant. Removing spec.");
+          pendulum_timer_mob->mob_specials.shared->func = NULL;
+          return 0;
+        }
 
-	obj_from_room(test_obj);
-	obj_to_room(test_obj, to_room);
-	send_to_room(
-		     "The pendulum swings south, clearing the floor only by a foot or two.\r\n",
-		     in_room);
+        obj_from_room(test_obj);
+        obj_to_room(test_obj, to_room);
+        send_to_room(
+                     "The pendulum swings south, clearing the floor only by a foot or two.\r\n",
+                     in_room);
 
-	for (vict = in_room->people; vict; vict = next_vict) {
-	  next_vict = vict->next_in_room;
-	  if (vict->getPosition() > POS_SITTING) {
-	    send_to_char("You are carried south by the pendulum.\r\n",
-			 vict);
-	    act("$n is pushed from the room by the pendulum.",
-		TRUE, vict, 0, 0, TO_ROOM);
-	    char_from_room(vict);
-	    char_to_room(vict, to_room);
-	    look_at_room(vict, vict->in_room, 0);
-	    act("$n is pushed into the room by the pendulum.",
-		TRUE, vict, 0, 0, TO_ROOM);
-	  }
-	}
+        room_data *theRoom = ch->in_room;
+        CharacterList::iterator it = theRoom->people.begin();
+        for( ; it != theRoom->people.end(); ++it ) {
+            vict = *it;
+          if (vict->getPosition() > POS_SITTING) {
+            send_to_char("You are carried south by the pendulum.\r\n",
+                         vict);
+            act("$n is pushed from the room by the pendulum.",
+                TRUE, vict, 0, 0, TO_ROOM);
+            char_from_room(vict);
+            char_to_room(vict, to_room);
+            look_at_room(vict, vict->in_room, 0);
+            act("$n is pushed into the room by the pendulum.",
+                TRUE, vict, 0, 0, TO_ROOM);
+          }
+        }
 
-	for (test_obj = from_room->contents; test_obj;
-	     test_obj = test_obj->next_content) {
-	  if (GET_OBJ_VNUM(test_obj) == 66007) {
-	    obj_from_room(test_obj);
-	    obj_to_room(test_obj, in_room);
-	    break;
-	  }
-	}
+        for (test_obj = from_room->contents; test_obj;
+             test_obj = test_obj->next_content) {
+          if (GET_OBJ_VNUM(test_obj) == 66007) {
+            obj_from_room(test_obj);
+            obj_to_room(test_obj, in_room);
+            break;
+          }
+        }
 
-	break;
+        break;
       }
     }
   }
@@ -431,24 +436,24 @@ SPECIAL(pendulum_room)
 
   if (CMD_IS("south")) {
     for (test_obj = ch->in_room->contents; test_obj;
-	 test_obj = test_obj->next_content) {
+         test_obj = test_obj->next_content) {
       if (GET_OBJ_VNUM(test_obj) == 66007) {
-	act("$n tries to go south but can't get past the pendulum.\r\n",
-	    TRUE, ch, 0, 0, TO_ROOM);
-	send_to_char("The pendulum blocks the way!\r\n", ch);
-	return 1;
+        act("$n tries to go south but can't get past the pendulum.\r\n",
+            TRUE, ch, 0, 0, TO_ROOM);
+        send_to_char("The pendulum blocks the way!\r\n", ch);
+        return 1;
       }
     }
   }
 
   if (CMD_IS("north")) {
     for (test_obj = ch->in_room->contents; test_obj;
-	 test_obj = test_obj->next_content) {
+         test_obj = test_obj->next_content) {
       if (GET_OBJ_VNUM(test_obj) == 66011) {
-	act("$n tries to go north but can't get past the pendulum.\r\n",
-	    TRUE, ch, 0, 0, TO_ROOM);
-	send_to_char("The pendulum blocks the way!\r\n", ch);
-	return 1;
+        act("$n tries to go north but can't get past the pendulum.\r\n",
+            TRUE, ch, 0, 0, TO_ROOM);
+        send_to_char("The pendulum blocks the way!\r\n", ch);
+        return 1;
       }
     }
   }
@@ -463,6 +468,7 @@ SPECIAL(parrot)
   struct char_data *parrot = (struct char_data *) me;
   struct char_data *master = parrot->master;
 
+if( spec_mode == SPECIAL_DEATH ) return 0;
   if (!master || !cmd) return (0);
   if (!CMD_IS("stun") && !CMD_IS("backstab") && !CMD_IS("steal"))
     return (0);
@@ -509,12 +515,12 @@ SPECIAL(astrolabe)
 
   if (CMD_IS("adjust")) {
     act("$n fiddles with some controls on $p.", 
-	TRUE, ch, astrolabe, 0, TO_ROOM);
+        TRUE, ch, astrolabe, 0, TO_ROOM);
     send_to_char("You fiddle with some controls on your astrolabe.\r\n", ch);
     ROOM_NUMBER(astrolabe) = ch->in_room->number;
     sprintf(buf, "$p is good for %d more use%s.", 
-	    MAX(1, NUM_USES(astrolabe)),
-	    NUM_USES(astrolabe) > 1 ? "s" : "");
+            MAX(1, NUM_USES(astrolabe)),
+            NUM_USES(astrolabe) > 1 ? "s" : "");
     act(buf, FALSE, ch, astrolabe, 0, TO_CHAR);
   }
   else if (CMD_IS("use")) {
@@ -529,11 +535,11 @@ SPECIAL(astrolabe)
     }
 
     if (to_room->zone->plane != ch->in_room->zone->plane ||
-	(to_room->zone != ch->in_room->zone && 
-	 (ZONE_FLAGGED(to_room->zone, ZONE_ISOLATED) ||
-	  ZONE_FLAGGED(ch->in_room->zone, ZONE_ISOLATED))) ||
-	ROOM_FLAGGED(to_room, ROOM_NOTEL | ROOM_NORECALL | ROOM_NOMAGIC) ||
-	ROOM_FLAGGED(ch->in_room, ROOM_NORECALL | ROOM_NOMAGIC)) {
+        (to_room->zone != ch->in_room->zone && 
+         (ZONE_FLAGGED(to_room->zone, ZONE_ISOLATED) ||
+          ZONE_FLAGGED(ch->in_room->zone, ZONE_ISOLATED))) ||
+        ROOM_FLAGGED(to_room, ROOM_NOTEL | ROOM_NORECALL | ROOM_NOMAGIC) ||
+        ROOM_FLAGGED(ch->in_room, ROOM_NORECALL | ROOM_NOMAGIC)) {
       send_to_char("You are unable to see your destination from here.\r\n",ch);
       return 1;
     }

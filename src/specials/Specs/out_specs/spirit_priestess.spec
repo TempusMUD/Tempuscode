@@ -10,6 +10,7 @@ SPECIAL( spirit_priestess )
     struct obj_data *am = NULL, *staff = NULL;
     char arg1[MAX_INPUT_LENGTH], arg2[MAX_INPUT_LENGTH];
 
+    if( spec_mode == SPECIAL_DEATH ) return 0;
     if ( !CMD_IS( "give" ) && !CMD_IS( "plant" ) )
 	return 0;
 

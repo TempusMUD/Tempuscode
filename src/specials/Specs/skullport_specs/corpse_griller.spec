@@ -10,6 +10,7 @@ SPECIAL(corpse_griller)
   struct obj_data *corpse = NULL, *steak = NULL;
   char arg[MAX_INPUT_LENGTH];
   
+  if( spec_mode == SPECIAL_DEATH ) return 0;
   if (!cmd || !CMD_IS("buy"))
     return 0;
 

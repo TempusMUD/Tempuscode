@@ -87,7 +87,11 @@ void	point_update(void);
 void	update_pos(struct char_data *victim);
 char *GET_DISGUISED_NAME(struct char_data *ch, struct char_data *tch);
 int CHECK_SKILL(struct char_data *ch, int i);
+char *OBJS(obj_data *obj, char_data *vict);
+char *OBJN(obj_data *obj, char_data *vict);
+char *PERS( char_data *ch, char_data *sub );
 
+void WAIT_STATE(struct char_data *ch, int cycle);
 /* various constants *****************************************************/
 
 
@@ -125,8 +129,6 @@ int CHECK_SKILL(struct char_data *ch, int i);
 /* string utils **********************************************************/
 
 
-#define YESNO(a) ((a) ? "YES" : "NO")
-#define ONOFF(a) ((a) ? "ON" : "OFF")
 
 #define LOWER(c)   (((c)>='A'  && (c) <= 'Z') ? ((c)+('a'-'A')) : (c))
 #define UPPER(c)   (((c)>='a'  && (c) <= 'z') ? ((c)+('A'-'a')) : (c) )
@@ -135,8 +137,11 @@ int CHECK_SKILL(struct char_data *ch, int i);
 #define IF_STR(st) ((st) ? (st) : "\0")
 #define CAP(st)  (*(st) = UPPER(*(st)), st)
 
-#define AN(str) ( PLUR( str ) ? "some" : \
-                     (strchr("aeiouAEIOU", *str) ? "an" : "a"))
+char *YESNO(bool a);
+char *ONOFF(bool a);
+char *AN( char *str );
+
+//#define AN(str) ( PLUR( str ) ? "some" : (strchr("aeiouAEIOU", *str) ? "an" : "a"))
 
 
 /* memory utils **********************************************************/
@@ -457,8 +462,7 @@ int CHECK_SKILL(struct char_data *ch, int i);
 			GET_ECONET(ch) : GET_BANK_GOLD(ch))
 #define CASH_MONEY(ch) (ch->in_room->zone->time_frame == TIME_ELECTRO ? \
 		    GET_CASH(ch) : GET_GOLD(ch))
-#define CURRENCY(ch)   (ch->in_room->zone->time_frame == TIME_ELECTRO ? \
-			"credit" : "coin")
+char *CURRENCY(char_data *ch);
 
 #define GET_HITROLL(ch)	  ((ch)->points.hitroll)
 #define GET_DAMROLL(ch)   ((ch)->points.damroll)
@@ -469,7 +473,6 @@ int CHECK_SKILL(struct char_data *ch, int i);
    ((GET_HITROLL(ch) <= 50) ?  \
     (5 + (((GET_HITROLL(ch) - 5)) / 3)) : 20))
 
-//#define GET_POS(ch)	  ((ch)->char_specials.position)
 #define GET_IDNUM(ch)	  ((ch)->char_specials.saved.idnum)
 #define IS_CARRYING_W(ch) ((ch)->char_specials.carry_weight)
 #define IS_CARRYING_N(ch) ((ch)->char_specials.carry_items)
@@ -481,7 +484,7 @@ int CHECK_SKILL(struct char_data *ch, int i);
 #define CHAR_CUR_PULSE(ch)  (ch->char_specials.cur_flow_pulse)
 #define GET_FALL_COUNT(ch)     ((ch)->char_specials.fall_count)
 
-#define FIGHTING(ch)	  ((ch)->char_specials.fighting)
+#define FIGHTING(ch)	  (ch->getFighting())
 #define HUNTING(ch)	  ((ch)->char_specials.hunting)
 #define MOUNTED(ch)	  ((ch)->char_specials.mounted)
 #define DRIVING(ch)       ((ch)->char_specials.driving)
@@ -510,7 +513,6 @@ int CHECK_SKILL(struct char_data *ch, int i);
 #define GET_HOLD_HOME(ch)	((ch)->player_specials->saved.hold_home)
 #define GET_HOLD_LOADROOM(ch)	((ch)->player_specials->saved.hold_load_room)
 #define GET_REMORT_GEN(ch)     ((ch)->player_specials->saved.remort_generation)
-//#define GET_CHAR_SPEED(ch)      (IS_NPC(ch) ? 0 : (ch)->player_specials->saved.speed)
 #define GET_QUEST_POINTS(ch)    ((ch)->player_specials->saved.quest_points)
 #define GET_QUEST_ALLOWANCE(ch) ((ch)->player_specials->saved.qp_allowance)
 #define GET_QLOG_LEVEL(ch)     ((ch)->player_specials->saved.qlog_level)
@@ -600,7 +602,6 @@ int CHECK_SKILL(struct char_data *ch, int i);
      
 /* descriptor-based utils ************************************************/
 
-void WAIT_STATE(struct char_data *ch, int cycle);
 
 #define CHECK_WAIT(ch)	(((ch)->desc) ? ((ch)->desc->wait > 1) : 0)
 #define STATE(d)	((d)->connected)
@@ -622,7 +623,6 @@ void WAIT_STATE(struct char_data *ch, int cycle);
 #define GET_OBJ_EXTRA3(obj)	((obj)->obj_flags.extra3_flags)
 #define GET_OBJ_WEAR(obj)	((obj)->obj_flags.wear_flags)
 #define GET_OBJ_VAL(obj, val)	((obj)->obj_flags.value[(val)])
-//#define GET_OBJ_WEIGHT(obj)	((obj)->obj_flags.weight)
 #define GET_OBJ_TIMER(obj)	((obj)->obj_flags.timer)
 #define GET_OBJ_MATERIAL(obj)	((obj)->obj_flags.material)
 #define GET_OBJ_MAX_DAM(obj)	((obj)->obj_flags.max_dam)
@@ -752,19 +752,6 @@ void WAIT_STATE(struct char_data *ch, int cycle);
 
 #define ROOM_OK(sub)    (!sub->in_room ||                   \
 			 !ROOM_FLAGGED(sub->in_room, ROOM_SMOKE_FILLED))
-/*  Moved to the bottom of this file and rewritten as a function to save my headaches. - jr
-#define INVIS_OK(sub, obj) \
-     (PRF_FLAGGED(sub, PRF_HOLYLIGHT) || \
-      (((!IS_AFFECTED(obj,AFF_INVISIBLE) && !IS_AFFECTED_2(obj,AFF2_TRANSPARENT)) ||\
-	IS_AFFECTED(sub, AFF_DETECT_INVIS) || \
-	IS_AFFECTED_2(sub, AFF2_TRUE_SEEING)) && \
-       (!IS_UNDEAD(sub) || !IS_AFFECTED_2(obj, AFF2_INVIS_TO_UNDEAD) || AFF2_FLAGGED(sub, AFF2_TRUE_SEEING)) && \
-       (!IS_ANIMAL(sub) || !IS_AFFECTED_2(obj, AFF2_INVIS_TO_ANIMALS) || \
-	AFF_FLAGGED(sub, AFF_DETECT_INVIS) || AFF2_FLAGGED(sub, AFF2_TRUE_SEEING)) && \
-       (IS_NPC(sub) || IS_NPC(obj) || \
-	GET_LEVEL(sub) >= GET_REMORT_INVIS(obj) ||      \
-	GET_REMORT_GEN(sub) >= GET_REMORT_GEN(obj) || IS_NPC(sub))))
-*/
 inline bool INVIS_OK(char_data *sub, char_data *obj);
 #define MORT_CAN_SEE(sub, obj) (LIGHT_OK(sub) && ROOM_OK(sub) && \
 				INVIS_OK(sub, obj) &&     \
@@ -820,34 +807,15 @@ inline bool INVIS_OK(char_data *sub, char_data *obj);
 			   AFF2_FLAGGED(ch, AFF2_TRUE_SEEING) ||\
 			   (GET_INT(ch)+GET_WIS(ch)) > (level+GET_CHA(vict)))
 
-#define PERS(ch, sub)   (CAN_SEE(sub, ch) ? GET_DISGUISED_NAME(sub, ch) : "someone")
-
-#define OBJS(obj, vict) (CAN_SEE_OBJ((vict), (obj)) ? \
-	(obj)->short_description  : "something")
-
-#define OBJN(obj, vict) (CAN_SEE_OBJ((vict), (obj)) ? \
-	fname((obj)->name) : "something")
-
-
 #define EXIT(ch, door)  ((ch)->in_room->dir_option[(door)])
 #define _2ND_EXIT(ch, door) (EXIT((ch), (door))->to_room->dir_option[door])
 #define _3RD_EXIT(ch, door) (_2ND_EXIT((ch),(door))->to_room->dir_option[door])
 
 #define ABS_EXIT(room, door)  ((room)->dir_option[door])
 
-#define CAN_GO(ch, door) (EXIT(ch,door) && \
-			  EXIT(ch,door)->to_room && \
-			  !IS_SET(EXIT(ch, door)->exit_info, \
-				  EX_CLOSED | EX_NOPASS))
+bool CAN_GO(char_data *ch, int door );
+bool CAN_GO(obj_data *obj, int door );
 
-/*
-#define MOB_CAN_GO(ch, door) (EXIT(ch,door) && \
-			  EXIT(ch,door)->to_room && \
-			  (!IS_SET(EXIT(ch, door)->exit_info,             \
-				   EX_CLOSED | EX_NOPASS | EX_HIDDEN) ||  \
-			   GET_LEVEL(ch) >= LVL_IMMORT ||                 \
-			   NON_CORPOREAL_UNDEAD(ch)))
-*/
 
 #define CLASS_ABBR(ch) (char_class_abbrevs[(int)GET_CLASS(ch)])
 #define LEV_ABBR(ch) (IS_NPC(ch) ? "--" : level_abbrevs[(int)GET_LEVEL(ch)-50])

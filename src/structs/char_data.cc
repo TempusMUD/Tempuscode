@@ -1,11 +1,29 @@
 #define __char_data_cc__
 
-#include "structs.h"
 #include <signal.h>
+#include "structs.h"
+#include "comm.h"
+#include "character_list.h"
+#include "interpreter.h"
 #include "utils.h"
 #include "spells.h"
 #include "handler.h"
 #include "db.h"
+#include "help.h"
+#include "paths.h"
+#include "login.h"
+
+extern struct descriptor_data *descriptor_list;
+
+bool char_data::isFighting(){
+    return (char_specials.fighting != NULL);
+}
+char_data *char_data::getFighting() {
+    return (char_specials.fighting);
+}
+void char_data::setFighting(char_data *ch) {
+    char_specials.fighting = ch;
+}
 
 int char_data::modifyCarriedWeight( int mod_weight ) {
     return ( setCarriedWeight( getCarriedWeight() + mod_weight ) );
@@ -16,6 +34,30 @@ int char_data::modifyWornWeight( int mod_weight ) {
 short char_player_data::modifyWeight( short mod_weight ) {
     return setWeight( getWeight() + mod_weight );
 }
+int char_data::getSpeed( void ) {
+    // if(IS_NPC(this))
+    if(char_specials.saved.act & MOB_ISNPC)
+        return 0;
+    return player_specials->saved.speed;
+}
+void char_data::setSpeed( int speed ) {
+    // if(IS_NPC(this))
+    if(char_specials.saved.act & MOB_ISNPC)
+        return;
+    speed = MAX(speed, -100);
+    speed = MIN(speed, 100);
+    player_specials->saved.speed = speed;
+}
+bool char_data::isNewbie() {
+    if(char_specials.saved.act & MOB_ISNPC)
+        return false;
+    if((player_specials->saved.remort_generation) > 0)
+        return false;
+    if(player.level > 40)
+        return false;
+    return true;
+}
+
 // Utility function to determine if a char should be affected by sanctuary
 // on a hit by hit level... --N
 bool char_data::affBySanc(char_data *attacker = NULL) {
@@ -40,7 +82,7 @@ bool char_data::affBySanc(char_data *attacker = NULL) {
 // PROT_EVIL.  Or leave it blank for the characters base reduction --N
 float char_data::getDamReduction(char_data *attacker = NULL)
 {
-    struct char_data *ch = this, *tmp_ch = NULL;
+    struct char_data *ch = this;
     struct affected_type *af = NULL;
     float dam_reduction = 0;
     
@@ -112,14 +154,16 @@ float char_data::getDamReduction(char_data *attacker = NULL)
                                    + (GET_ALIGNMENT(ch) / 100);
         } 
         else {
-            for (tmp_ch = ch->in_room->people; tmp_ch; tmp_ch = tmp_ch->next_in_room) {
-                if (IS_NPC(tmp_ch) && af->modifier == (short int)-MOB_IDNUM(tmp_ch)) {
-                    dam_reduction += (tmp_ch->getLevelBonus(SPELL_SHIELD_OF_RIGHTEOUSNESS) / 20)
+            
+            CharacterList::iterator it = ch->in_room->people.begin();
+            for( ; it != ch->in_room->people.end(); ++it ) {
+                if (IS_NPC((*it)) && af->modifier == (short int)-MOB_IDNUM((*it))) {
+                    dam_reduction += ((*it)->getLevelBonus(SPELL_SHIELD_OF_RIGHTEOUSNESS) / 20)
                                            + (GET_ALIGNMENT(ch) / 100);
                     break;
                 } 
-                else if (!IS_NPC(tmp_ch) && af->modifier == GET_IDNUM(tmp_ch )) {     
-                    dam_reduction += (tmp_ch->getLevelBonus(SPELL_SHIELD_OF_RIGHTEOUSNESS) / 20)
+                else if (!IS_NPC((*it)) && af->modifier == GET_IDNUM((*it) )) {     
+                    dam_reduction += ((*it)->getLevelBonus(SPELL_SHIELD_OF_RIGHTEOUSNESS) / 20)
                                            + (GET_ALIGNMENT(ch) / 100); 
                     break;
                 }
@@ -281,10 +325,162 @@ bool char_data::setPosition( int new_pos, int mode=0 ){
     return true;
 }
 /*
- * Returns current position
+ * Returns current position (standing sitting etc.)
  */
 int char_data::getPosition( void ) {
     return char_specials.getPosition();
+}
+/* Extract a ch completely from the world, and leave his stuff behind */
+/* mode = 0 -> menu, 1 -> afterlife, 2 -> remort reroll */
+void char_data::extract( char mode ) {
+    void stop_fighting( struct char_data * ch );
+    struct char_data *k;
+    struct descriptor_data *t_desc;
+    struct obj_data *obj;
+    int i, freed = 0;
+    ACMD(do_return);
+
+    void die_follower(struct char_data * ch);
+
+    if (!IS_NPC(this) && !desc) {
+        for (t_desc = descriptor_list; t_desc; t_desc = t_desc->next)
+            if (t_desc->original == this)
+                do_return(t_desc->character, "", 0, SCMD_FORCED);
+    }
+    if (in_room == NULL) {
+        slog("SYSERR: NOWHERE extracting char. (handler.c, extract_char)");
+        sprintf(buf, "...extract char = %s", GET_NAME(this));
+        slog(buf);
+        exit(1);
+    }
+
+    if (followers || master)
+        die_follower(this);
+
+    /* remove hunters */
+    CharacterList::iterator cit = characterList.begin();
+    for( ; cit != characterList.end(); ++cit ) {
+        if (this == HUNTING((*cit)))
+            HUNTING((*cit)) = NULL;
+    }
+    // Make sure they aren't editing a help topic.
+    if(GET_OLC_HELP(this)) {
+        GET_OLC_HELP(this)->editor = NULL;
+        GET_OLC_HELP(this) = NULL;
+    }
+    /* Forget snooping, if applicable */
+    if (desc) {
+        if (desc->snooping) {
+            desc->snooping->snoop_by = NULL;
+            desc->snooping = NULL;
+        }
+        if (desc->snoop_by) {
+            SEND_TO_Q("Your victim is no longer among us.\r\n",
+                      desc->snoop_by);
+            desc->snoop_by->snooping = NULL;
+            desc->snoop_by = NULL;
+        }
+    }
+    /* transfer objects to room, if any */
+    while (carrying) {
+        obj = carrying;
+        obj_from_char(obj);
+        obj_to_room(obj, in_room);
+    }
+
+    /* transfer equipment to room, if any */
+    for (i = 0; i < NUM_WEARS; i++) {
+        if (GET_EQ(this, i))
+            obj_to_room(unequip_char(this, i, MODE_EQ), in_room);
+        if (GET_IMPLANT(this, i))
+            extract_obj(GET_IMPLANT(this, i));
+    }
+
+    if (FIGHTING(this))
+        stop_fighting(this);
+
+    /* stop all fighting */
+    CharacterList::iterator coit = combatList.begin();
+    for( ; coit != combatList.end(); ++coit ) {
+        if (this == FIGHTING((*coit)))
+            stop_fighting(*coit);
+    }
+
+    if (MOUNTED(this)) {
+        REMOVE_BIT(AFF2_FLAGS(MOUNTED(this)), AFF2_MOUNTED);
+        MOUNTED(this) = NULL;
+    }
+
+    if (AFF2_FLAGGED(this, AFF2_MOUNTED)) {
+        CharacterList::iterator cit = characterList.begin();
+        for( ; cit != characterList.end(); ++cit ) {
+            k = *cit;
+            if (this == MOUNTED(k)) {
+                MOUNTED(k) = NULL;
+                if (k->getPosition() == POS_MOUNTED) {
+                    if (k->in_room->sector_type == SECT_FLYING)
+                        k->setPosition( POS_FLYING );
+                    else 
+                        k->setPosition( POS_STANDING );
+                }
+            }
+        }
+    }
+
+    if (desc && desc->original) {
+        do_return(this, "", 0,  SCMD_NOEXTRACT);
+    }
+
+    char_from_room(this);
+
+    /* pull the char from the list */
+    //REMOVE_FROM_LIST(ch, character_list, next);
+    characterList.remove(this);
+    combatList.remove(this);
+    /* remove any paths */
+    path_remove_object(this);
+
+    if (!IS_NPC(this)) {
+        save_char(this, NULL);
+        Crash_delete_crashfile(this);
+    } else {
+        if (GET_MOB_VNUM(this) > -1)                /* if mobile */
+            mob_specials.shared->number--;
+        clearMemory();                /* Only NPC's can have memory */
+        free_char(this);
+        freed = 1;
+        return;
+    }
+
+    if (desc) { // PC's have descriptors. Take care of them
+        if (mode) { // Afterlife or Remort-Reroll
+            STATE(desc) = CON_AFTERLIFE;
+            SEND_TO_Q("\r\n\r\nPress RETURN to continue into the afterlife.\r\n", 
+                      desc);
+            desc->wait = 0;
+        } else { // Menu 
+            SEND_TO_Q("\r\n\r\n\r\n", desc);
+            show_menu(desc);
+            STATE(desc) = CON_MENU;
+        }
+    } else {  /* if a player gets purged from within the game */
+        if (!freed)
+            free_char(this);
+    }
+}
+/* erase ch's memory */
+void char_data::clearMemory() {
+    memory_rec *curr, *next;
+
+    curr = MEMORY(this);
+
+    while (curr) {
+        next = curr->next;
+        free(curr);
+        curr = next;
+    }
+
+    MEMORY(this) = NULL;
 }
 
 #undef __char_data_cc__

@@ -490,7 +490,6 @@ ACMD(do_recharge)
 void perform_cyborg_activate(CHAR *ch, int mode, int subcmd)
 {
     struct affected_type af[3];
-    CHAR *vict = NULL, *nvict = NULL;
     char *to_room[2], *to_char[2];
     int opposite_mode = 0;
 
@@ -755,11 +754,10 @@ void perform_cyborg_activate(CHAR *ch, int mode, int subcmd)
                 (SECT_TYPE(ch->in_room) == SECT_UNDERWATER ||
                  SECT_TYPE(ch->in_room) == SECT_WATER_SWIM ||
                  SECT_TYPE(ch->in_room) == SECT_WATER_NOSWIM)) {
-                for (vict=ch->in_room->people;vict;vict=nvict) {
-                    nvict = vict->next_in_room;
-                    if (vict == ch)
-                        continue;
-                    damage(ch, vict, dice(4, GET_LEVEL(ch)), SKILL_ENERGY_FIELD,-1);
+                CharacterList::iterator it = ch->in_room->people.begin();
+                for( ; it != ch->in_room->people.end(); ++it ) {
+                    if (*it != ch)
+                        damage(ch, *it, dice(4, GET_LEVEL(ch)), SKILL_ENERGY_FIELD,-1);
                 }
                 send_to_char("ERROR: Dangerous short!!  Energy fields shutting down.\r\n", ch);
                 affect_from_char(ch, mode);
@@ -1114,7 +1112,7 @@ ACMD(do_cyborg_reboot)
 
     act("$n begins a reboot sequence and shuts down.", FALSE, ch, 0, 0, TO_ROOM);
 
-    if (FIGHTING(ch))
+    if (ch->isFighting())
         stop_fighting(ch);
 
     ch->setPosition( POS_SLEEPING );
@@ -1194,7 +1192,7 @@ ACMD(do_self_destruct)
             SET_BIT(AFF3_FLAGS(ch), AFF3_SELF_DESTRUCT);
             MEDITATE_TIMER(ch) = countdown;
             if (!countdown)
-                engage_self_destruct( ch, 0 );
+                engage_self_destruct( ch );
         }
     }
 }
@@ -1202,19 +1200,18 @@ ACMD(do_self_destruct)
 ACMD(do_bioscan)
 {
   
-    struct char_data *vict = NULL;
     int count = 0;
 
     if (!IS_CYBORG(ch)) {
         send_to_char("You are not equipped with bio-scanners.\r\n", ch);
         return;
     }
-
-    for (vict = ch->in_room->people; vict; vict = vict->next_in_room) {
-        if ((((CAN_SEE(ch, vict) || GET_INVIS_LEV(vict) < GET_LEVEL(ch)) &&
+    CharacterList::iterator it = ch->in_room->people.begin();
+    for( ; it != ch->in_room->people.end(); ++it ) {
+        if ((((CAN_SEE(ch, (*it)) || GET_INVIS_LEV((*it)) < GET_LEVEL(ch)) &&
               (CHECK_SKILL(ch, SKILL_BIOSCAN) > number(30, 100) ||
-               affected_by_spell(ch, SKILL_HYPERSCAN))) || ch == vict) &&
-            LIFE_FORM(vict))
+               affected_by_spell(ch, SKILL_HYPERSCAN))) || ch == (*it)) &&
+            LIFE_FORM((*it)))
             count++;
     }
   
@@ -1267,8 +1264,8 @@ ACMD(do_discharge)
 
     if (!(vict = get_char_room_vis(ch, arg2)) && 
         !(ovict = get_obj_in_list_vis(ch, arg2, ch->in_room->contents))) {
-        if (FIGHTING(ch)) {
-            vict = FIGHTING(ch);
+        if (ch->isFighting()) {
+            vict = ch->getFighting();
         } else {
             send_to_char("Discharge into who?\r\n", ch);
             return;
@@ -1840,7 +1837,7 @@ ACMD(do_repair)
             else if (!IS_CYBORG(vict))
                 act("You cannot repair $M.  You can only repair other borgs.",
                     FALSE, ch, 0, vict, TO_CHAR);
-            else if (FIGHTING(ch))
+            else if (ch->isFighting())
                 send_to_char("You cannot perform repairs on fighting patients.\r\n",
                              ch);
             else if (GET_HIT(vict) == GET_MAX_HIT(vict))
@@ -3193,8 +3190,8 @@ ACMD(do_de_energize)
     skip_spaces(&argument);
 
     if ( ! ( vict = get_char_room_vis( ch, argument ) ) ) {
-	if ( FIGHTING( ch ) ) {
-	    vict = FIGHTING( ch );
+	if ( ch->isFighting() ) {
+	    vict = ch->getFighting();
 	} else {
 	    send_to_char( "De-energize who??\r\n", ch );
 	    return;

@@ -1,4 +1,4 @@
-/* ************************************************************************
+ /* ************************************************************************
 *   File: act.offensive.c                               Part of CircleMUD *
 *  Usage: player-level commands of an offensive nature                    *
 *                                                                         *
@@ -244,7 +244,10 @@ int calc_skill_prob( struct char_data *ch, struct char_data *vict, int skillnum,
         *vict_wait = 1 RL_SEC;
         *loc = WEAR_EYES;
 
-        if (!IS_NPC(vict) || !MOB_FLAGGED(vict, MOB_NOBLIND)) {
+        if (IS_NPC(vict) && MOB_FLAGGED(vict, MOB_NOBLIND)) {
+            *dam = 0;
+            prob = 0;
+        } else {
             af->type = SKILL_GOUGE;
             af->duration = 1 + (GET_LEVEL(ch) > 40);
             af->modifier = -10;
@@ -848,8 +851,8 @@ ACCMD(do_offensive_skill)
 
     if ((prob = 
          calc_skill_prob(ch, vict, subcmd, 
-                         &wait, &vict_wait, &move, &mana,
-                         &dam, &fail_pos, &vict_pos, &loc, &af, &my_return_flags )) < 0) {
+                 &wait, &vict_wait, &move, &mana,
+                 &dam, &fail_pos, &vict_pos, &loc, &af, &my_return_flags )) < 0) {
         cur_weap = NULL;
         ACMD_set_return_flags( my_return_flags );
         return;
@@ -924,7 +927,7 @@ ACCMD(do_offensive_skill)
 
 ACMD(do_assist)
 {
-    struct char_data *helpee, *opponent;
+    struct char_data *helpee;
 
     if (FIGHTING(ch)) {
         send_to_char("You're already fighting!  How can you assist someone else?\r\n", ch);
@@ -940,23 +943,23 @@ ACMD(do_assist)
     } else if (helpee == ch) {
         send_to_char("You can't help yourself any more than this!\r\n", ch);
     } else {
-        for (opponent = ch->in_room->people;
-             opponent && (FIGHTING(opponent) != helpee);
-             opponent = opponent->next_in_room);
+        CharacterList::iterator opponent = ch->in_room->people.begin();
+        for (;opponent != ch->in_room->people.end() && (FIGHTING((*opponent)) != helpee);
+             ++opponent);
 
-        if (!opponent) {
+        if (opponent == ch->in_room->people.end()) {
             act("But nobody is fighting $M!", FALSE, ch, 0, helpee, TO_CHAR);
-        } else if (!CAN_SEE(ch, opponent)) {
+        } else if (!CAN_SEE(ch, (*opponent))) {
             act("You can't see who is fighting $M!", FALSE, ch, 0, helpee, TO_CHAR);
-        } else if ( !IS_NPC( ch ) && !IS_NPC( opponent ) && !PRF2_FLAGGED( ch, PRF2_PKILLER ) ) {
+        } else if ( !IS_NPC( ch ) && !IS_NPC( (*opponent) ) && !PRF2_FLAGGED( ch, PRF2_PKILLER ) ) {
             act( "That rescue would entail attacking $N, but you are flagged NO PK.", 
-            FALSE, ch, 0, opponent, TO_CHAR );
+            FALSE, ch, 0, (*opponent), TO_CHAR );
             return;
         } else {
             send_to_char("You join the fight!\r\n", ch);
             act("$N assists you!", 0, helpee, 0, ch, TO_CHAR);
             act("$n assists $N.", FALSE, ch, 0, helpee, TO_NOTVICT);
-            hit(ch, opponent, TYPE_UNDEFINED);
+            hit(ch, (*opponent), TYPE_UNDEFINED);
             WAIT_STATE(ch, 1 RL_SEC);
         }
     }
@@ -1029,7 +1032,7 @@ ACMD(do_kill)
                     GET_NAME(ch), GET_NAME(vict), ch->in_room->name);
             mudlog(buf, NRM, MAX(GET_INVIS_LEV(ch), GET_INVIS_LEV(vict)), TRUE);
 
-            raw_kill(vict, ch, TYPE_SLASH);
+            raw_kill(vict, ch, TYPE_SLASH);// Wiz-slay
         }
     }
 }
@@ -1221,7 +1224,6 @@ ACMD(do_flee)
 ACMD(do_retreat)
 {
     int dir;
-    struct char_data *vict = NULL, *next_vict = NULL;
     bool fighting = 0, found = 0;
 
     skip_spaces(&argument);
@@ -1247,24 +1249,23 @@ ACMD(do_retreat)
             return;
         }
     }
-      
-    for (vict = ch->in_room->people; vict; vict = next_vict) {
-        next_vict = vict->next_in_room;
-        if (vict != ch && ch == FIGHTING(vict) &&
-            CAN_SEE(vict, ch) &&
-            ((IS_NPC(vict) && GET_MOB_WAIT(vict) < 10) ||
-             (vict->desc && vict->desc->wait < 10)) &&
-            number(0, FLEE_SPEED(ch)) < number(0, FLEE_SPEED(vict))) {
+    CharacterList::iterator it = ch->in_room->people.begin();
+    for( ; it != ch->in_room->people.end(); ++it ) {
+        if ((*it) != ch && ch == FIGHTING((*it)) &&
+            CAN_SEE((*it), ch) &&
+            ((IS_NPC((*it)) && GET_MOB_WAIT((*it)) < 10) ||
+             ((*it)->desc && (*it)->desc->wait < 10)) &&
+            number(0, FLEE_SPEED(ch)) < number(0, FLEE_SPEED((*it)))) {
             found = 1;
-            int retval = hit( vict, ch, TYPE_UNDEFINED );
+            int retval = hit( (*it), ch, TYPE_UNDEFINED );
         
             if ( retval & DAM_VICT_KILLED ) {
                 ACMD_set_return_flags( DAM_ATTACKER_KILLED );
                 return;
             }
 
-            if (ch == FIGHTING(vict))
-                stop_fighting(vict);
+            if (ch == FIGHTING((*it)))
+                stop_fighting((*it));
         }
     }
 
@@ -1290,7 +1291,7 @@ ACMD(do_retreat)
         return;
     }
 }
-#undef FLEE_SPEED(ch)
+#undef FLEE_SPEED
 
 ACMD(do_bash)
 {
@@ -1367,7 +1368,7 @@ ACMD(do_bash)
                                     GET_NAME(ch), ch->in_room->number);
                             mudlog(buf, NRM, GET_INVIS_LEV(ch), TRUE);
                         }
-                        raw_kill(ch, ch, SKILL_BASH);
+                        raw_kill(ch, ch, SKILL_BASH); // Bashing a door to death
                         return;
                     } else {
                         sprintf(buf, 
@@ -1396,22 +1397,22 @@ ACMD(do_bash)
                     GET_HIT(ch) -= prob;
 
                     if (number(0, 20) > GET_DEX(ch)) {
-                act("$n staggers and falls down.", TRUE, ch, 0, 0, TO_ROOM);
-                act("You stagger and fall down.", TRUE, ch, 0, 0, TO_CHAR);
-                ch->setPosition( POS_SITTING );
+                        act("$n staggers and falls down.", TRUE, ch, 0, 0, TO_ROOM);
+                        act("You stagger and fall down.", TRUE, ch, 0, 0, TO_CHAR);
+                        ch->setPosition( POS_SITTING );
                     }
 
                     if (GET_HIT(ch) < -10) {
-                if (!IS_NPC(ch)) {
-                    sprintf(buf, "%s killed self bashing door at %d.",
-                        GET_NAME(ch), ch->in_room->number);
-                    mudlog(buf, NRM, GET_INVIS_LEV(ch), TRUE);
-                }
-                raw_kill(ch, ch, SKILL_BASH);
-                return;
+                        if (!IS_NPC(ch)) {
+                            sprintf(buf, "%s killed self bashing door at %d.",
+                                GET_NAME(ch), ch->in_room->number);
+                            mudlog(buf, NRM, GET_INVIS_LEV(ch), TRUE);
+                        }
+                        raw_kill(ch, ch, SKILL_BASH);// Bash Door to death
+                        return;
                     } else {
-                update_pos(ch);
-                gain_skill_prof(ch, SKILL_BREAK_DOOR);
+                        update_pos(ch);
+                        gain_skill_prof(ch, SKILL_BREAK_DOOR);
                     }
 
                     if (EXIT(ch, door)->to_room->dir_option[rev_dir[door]] &&
@@ -1436,7 +1437,7 @@ ACMD(do_bash)
         }
     }
 
-    do_offensive_skill(ch, (const char*)fname(vict->player.name), 0, SKILL_BASH);
+    do_offensive_skill(ch, fname(vict->player.name), 0, SKILL_BASH);
 
 }
 
@@ -1579,7 +1580,7 @@ ACMD(do_feign)
 
 ACMD(do_tag)
 {
-    struct char_data *vict = NULL, *tmp_ch;
+    struct char_data *vict = NULL, *tmp_ch = NULL;
     int  percent, prob;
 
     one_argument(argument, arg);
@@ -1600,8 +1601,11 @@ ACMD(do_tag)
         send_to_char("They snatch their hand back, refusing the tag!\r\n", ch);
         return;
     }
-    for (tmp_ch = ch->in_room->people; tmp_ch &&
-             (FIGHTING(tmp_ch) != ch); tmp_ch = tmp_ch->next_in_room);
+    
+    CharacterList::iterator it = ch->in_room->people.begin();
+    for( ; it != ch->in_room->people.end() && (*it)->getFighting() != ch; ++it )
+        tmp_ch = *it;
+
     if (!tmp_ch) {
         act("But nobody is fighting you!", FALSE, ch, 0, vict, TO_CHAR);
         return;
@@ -1666,9 +1670,14 @@ ACMD(do_rescue)
         send_to_char("How can you rescue someone you are trying to kill?\r\n", ch);
         return;
     }
-    for (tmp_ch = ch->in_room->people; tmp_ch &&
-             (FIGHTING(tmp_ch) != vict); tmp_ch = tmp_ch->next_in_room);
-
+    tmp_ch = NULL;
+    CharacterList::iterator it = ch->in_room->people.begin();
+    for( ; it != ch->in_room->people.end(); ++it ) {
+        if(FIGHTING((*it)) == vict){
+            tmp_ch = *it;
+            break;
+        }
+    }
     if (!tmp_ch) {
         act("But nobody is fighting $M!", FALSE, ch, 0, vict, TO_CHAR);
         return;
@@ -1960,7 +1969,7 @@ ACMD(do_turn)
             slog(buf);
             gain_skill_prof(ch, SKILL_TURN);
 
-            raw_kill(vict, ch, SKILL_TURN);
+            raw_kill(vict, ch, SKILL_TURN); // Destroying a victime with turn
         } else if ((GET_LEVEL(ch) - GET_LEVEL(vict)) > 10) {
             act("$n calls upon the power of $s deity and forces $N to flee!",
                 FALSE, ch, 0, vict, TO_ROOM);
@@ -2112,29 +2121,30 @@ ACMD(do_shoot)
         }
 
         prob += CHECK_SKILL(ch, SKILL_ENERGY_WEAPONS) >> 2;
-
-        for (tmp_vict = ch->in_room->people; tmp_vict; 
-             tmp_vict = tmp_vict->next_in_room)
-            if (tmp_vict != ch && ch == FIGHTING(tmp_vict))
-                prob -= (GET_LEVEL(tmp_vict) >> 3);
+        CharacterList::iterator it = ch->in_room->people.begin();
+        for( ; it != ch->in_room->people.end(); ++it )
+            if (*it != ch && ch == FIGHTING((*it)))
+                prob -= (GET_LEVEL(*it) >> 3);
     
         if (FIGHTING(vict) && FIGHTING(vict) != ch && number(1, 121) > prob)
             vict = FIGHTING(vict);
         else if (FIGHTING(vict) && number(1, 101) > prob) {
-            for (tmp_vict = ch->in_room->people; tmp_vict; 
-                 tmp_vict = tmp_vict->next_in_room)
-                if (tmp_vict != ch  && tmp_vict != vict && vict == FIGHTING(tmp_vict) &&
+            it = ch->in_room->people.begin();
+            for( ; it != ch->in_room->people.end(); ++it ) {
+                if ((*it) != ch  && (*it) != vict && vict == FIGHTING((*it)) &&
                     !number(0, 2)) {
-                    vict = tmp_vict;
+                    vict = (*it);
                     break;
                 }
+            }
         } else if (number(1, 81) > prob) {
-            for (tmp_vict = ch->in_room->people; tmp_vict; 
-                 tmp_vict = tmp_vict->next_in_room)
-                if (tmp_vict != ch  && tmp_vict != vict && !number(0, 2)) {
-                    vict = tmp_vict;
+            CharacterList::iterator it = ch->in_room->people.begin();
+            for( ; it != ch->in_room->people.end(); ++it ) {
+                if ((*it) != ch  && (*it) != vict && !number(0, 2)) {
+                    vict = (*it);
                     break;
                 }
+            }
         }
 
         if (CUR_R_O_F(gun) <= 0)
@@ -2284,11 +2294,12 @@ ACMD(do_shoot)
             prob += number(GET_LEVEL(ch) >> 2, GET_LEVEL(ch) >> 1) + ( GET_REMORT_GEN( ch ) << 2 );
     } else
         prob += CHECK_SKILL(ch, SKILL_PROJ_WEAPONS) >> 3;
-
-    for (tmp_vict = ch->in_room->people; tmp_vict; 
-         tmp_vict = tmp_vict->next_in_room)
-        if (tmp_vict != ch && ch == FIGHTING(tmp_vict))
-            prob -= (GET_LEVEL(tmp_vict) >> 3);
+        
+    CharacterList::iterator it = ch->in_room->people.begin();
+    for( ; it != ch->in_room->people.end(); ++it ) {
+        if ((*it) != ch && ch == FIGHTING((*it)))
+            prob -= (GET_LEVEL((*it)) >> 3);
+    }
 
     if (FIGHTING(ch)) {
         if (ch == FIGHTING(FIGHTING(ch)))
@@ -2300,20 +2311,23 @@ ACMD(do_shoot)
     if (FIGHTING(vict) && FIGHTING(vict) != ch && number(1, 121) > prob)
         vict = FIGHTING(vict);
     else if (FIGHTING(vict) && number(1, 101) > prob) {
-        for (tmp_vict = ch->in_room->people; tmp_vict; 
-             tmp_vict = tmp_vict->next_in_room)
-            if (tmp_vict != ch  && tmp_vict != vict && vict == FIGHTING(tmp_vict) &&
+        CharacterList::iterator it = ch->in_room->people.begin();
+        for( ; it != ch->in_room->people.end(); ++it ) {
+            if (*it != ch  && tmp_vict != vict && vict == FIGHTING((*it)) &&
                 !number(0, 2)) {
-                vict = tmp_vict;
+                vict = *it;
                 break;
             }
+        }
     } else if (number(1, 81) > prob) {
-        for (tmp_vict = ch->in_room->people; tmp_vict; 
-             tmp_vict = tmp_vict->next_in_room)
-            if (tmp_vict != ch  && tmp_vict != vict && !number(0, 2)) {
-                vict = tmp_vict;
+        CharacterList::iterator it = ch->in_room->people.begin();
+        for( ; it != ch->in_room->people.end(); ++it ) {
+            if (*it != ch  && tmp_vict != vict && vict == FIGHTING((*it)) &&
+                !number(0, 2)) {
+                vict = *it;
                 break;
             }
+        }
     }
     
     if (CUR_R_O_F(gun) <= 0)
@@ -2452,11 +2466,13 @@ ACMD(do_shoot)
 ACMD(do_ceasefire)
 {
     struct char_data *f = NULL;
-
-    for (f = ch->in_room->people; f; f = f->next_in_room)
-        if (ch == FIGHTING(f))
+    CharacterList::iterator it = ch->in_room->people.begin();
+    for( ; it != ch->in_room->people.end(); ++it ) {
+        if (ch == FIGHTING((*it))) {
+            f = *it;
             break;
-
+        }
+    }
     if (!FIGHTING(ch))
         send_to_char("You aren't fighting anyone.\r\n", ch);
     else if ((FIGHTING(ch) == FIGHTING(FIGHTING(ch))))
@@ -2468,7 +2484,7 @@ ACMD(do_ceasefire)
         WAIT_STATE(ch, 2 RL_SEC);
         if (f) {
             act("You start defending yourself against $N.",FALSE,ch,0,f,TO_CHAR);
-            FIGHTING(ch) = f;
+            ch->setFighting(f);
         } else
             stop_fighting(ch);
     }
@@ -2588,14 +2604,20 @@ ACMD(do_impale)
                 FALSE, ch, 0, ch->master, TO_CHAR);
             return;
         }
-        act("You impale yourself with $p!", FALSE, ch, weap, 0, TO_CHAR);
-        act("$n suddenly impales $mself with $p!", TRUE, ch, weap, 0, TO_ROOM);
-        sprintf(buf, "%s killed self with an impale at %d.",
-                GET_NAME(ch), ch->in_room->number);
-        mudlog(buf, NRM, GET_INVIS_LEV(ch), TRUE);
-        gain_exp(ch, -(GET_LEVEL(ch) * 1000));
-        raw_kill(ch, ch, SKILL_IMPALE);
-        return;
+        if(! strcmp( arg, "self") ) {
+            act("You impale yourself with $p!", FALSE, ch, weap, 0, TO_CHAR);
+            act("$n suddenly impales $mself with $p!", TRUE, ch, weap, 0, TO_ROOM);
+            sprintf(buf, "%s killed self with an impale at %d.",
+                    GET_NAME(ch), ch->in_room->number);
+            mudlog(buf, NRM, GET_INVIS_LEV(ch), TRUE);
+            gain_exp(ch, -(GET_LEVEL(ch) * 1000));
+            raw_kill(ch, ch, SKILL_IMPALE); // Impaling yourself
+            return;
+        } else {
+            act("Are you sure $p is supposed to go there?", FALSE, ch, weap, 0, TO_CHAR);
+            return;
+        }
+        
     }
     if (!peaceful_room_ok(ch, vict, true))
         return;
@@ -2936,29 +2958,34 @@ int do_combat_fire(struct char_data *ch, struct char_data *vict, int weap_pos)
                                &dum_ptr, &dum_ptr, &dum_ptr, af, &my_return_flags );
 
         prob += CHECK_SKILL(ch, SKILL_ENERGY_WEAPONS) >> 2;
-
-        for (tmp_vict = ch->in_room->people; tmp_vict;
-             tmp_vict = tmp_vict->next_in_room)
-            if (tmp_vict != ch && ch == FIGHTING(tmp_vict))
-                prob -= (GET_LEVEL(tmp_vict) >> 3);
-
+        
+        
+        CharacterList::iterator it = ch->in_room->people.begin();
+        for( ; it != ch->in_room->people.end(); ++it ) {
+            if (*it != ch && ch == FIGHTING((*it)))
+                prob -= (GET_LEVEL((*it)) >> 3);
+        }
         if (FIGHTING(vict) && FIGHTING(vict) != ch && number(1, 121) > prob)
             vict = FIGHTING(vict);
         else if (FIGHTING(vict) && number(1, 101) > prob) {
-            for (tmp_vict = ch->in_room->people; tmp_vict;
-                 tmp_vict = tmp_vict->next_in_room)
-                if (tmp_vict != ch  && tmp_vict != vict && vict == FIGHTING(tmp_vict) &&
+            CharacterList::iterator it = ch->in_room->people.begin();
+            for( ; it != ch->in_room->people.end(); ++it ) {
+                if (*it != ch  && tmp_vict != vict && vict == FIGHTING((*it)) &&
                     !number(0, 2)) {
-                    vict = tmp_vict;
+                    vict = *it;
                     break;
                 }
+            }
+
         } else if (number(1, 81) > prob) {
-            for (tmp_vict = ch->in_room->people; tmp_vict;
-                 tmp_vict = tmp_vict->next_in_room)
-                if (tmp_vict != ch  && tmp_vict != vict && !number(0, 2)) {
-                    vict = tmp_vict;
+           CharacterList::iterator it = ch->in_room->people.begin();
+            for( ; it != ch->in_room->people.end(); ++it ) {
+                if (*it != ch  && tmp_vict != vict && vict == FIGHTING((*it)) &&
+                !number(0, 2)) {
+                    vict = *it;
                     break;
                 }
+            }
         }
 
         if (CUR_R_O_F(gun) <= 0)
@@ -3071,29 +3098,31 @@ int do_combat_fire(struct char_data *ch, struct char_data *vict, int weap_pos)
 
 
     prob += CHECK_SKILL(ch, SKILL_PROJ_WEAPONS) >> 3;
-
-    for (tmp_vict = ch->in_room->people; tmp_vict;
-         tmp_vict = tmp_vict->next_in_room)
-        if (tmp_vict != ch && ch == FIGHTING(tmp_vict))
-            prob -= (GET_LEVEL(tmp_vict) >> 3);
-
+    
+    CharacterList::iterator it = ch->in_room->people.begin();
+    for( ; it != ch->in_room->people.end(); ++it ) {
+        if ((*it) != ch && ch == FIGHTING((*it)))
+            prob -= (GET_LEVEL((*it)) >> 3);
+    }
     if (FIGHTING(vict) && FIGHTING(vict) != ch && number(1, 121) > prob)
         vict = FIGHTING(vict);
     else if (FIGHTING(vict) && number(1, 101) > prob) {
-        for (tmp_vict = ch->in_room->people; tmp_vict;
-             tmp_vict = tmp_vict->next_in_room)
-            if (tmp_vict != ch  && tmp_vict != vict && vict == FIGHTING(tmp_vict) &&
+        CharacterList::iterator it = ch->in_room->people.begin();
+        for( ; it != ch->in_room->people.end(); ++it ) {
+            if ((*it) != ch  && (*it) != vict && vict == FIGHTING((*it)) &&
                 !number(0, 2)) {
-                vict = tmp_vict;
+                vict = (*it);
                 break;
             }
+        }
     } else if (number(1, 81) > prob) {
-        for (tmp_vict = ch->in_room->people; tmp_vict;
-             tmp_vict = tmp_vict->next_in_room)
-            if (tmp_vict != ch  && tmp_vict != vict && !number(0, 2)) {
-                vict = tmp_vict;
+        CharacterList::iterator it = ch->in_room->people.begin();
+        for( ; it != ch->in_room->people.end(); ++it ) {
+            if ((*it) != ch  && (*it) != vict && !number(0, 2)) {
+                vict = (*it);
                 break;
             }
+        }
     }
 
     if (CUR_R_O_F(gun) <= 0)

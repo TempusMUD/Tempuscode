@@ -186,14 +186,13 @@ bool can_travel_sector(struct char_data *ch, int sector_type, bool active)
 int 
 room_count(struct char_data *ch, struct room_data *room)
 {
-    struct char_data *vict = NULL;
     int i = 0;
-
-    for (vict = room->people; vict; vict = vict->next_in_room) {
-        if (IS_NPC(vict) || GET_INVIS_LEV(vict) <= GET_LEVEL(ch)) {
-            if (GET_HEIGHT(vict) > 1000)
+    CharacterList::iterator it = ch->in_room->people.begin();
+    for (; it != ch->in_room->people.end(); ++it ) {
+        if (IS_NPC((*it)) || GET_INVIS_LEV((*it)) <= GET_LEVEL(ch)) {
+            if (GET_HEIGHT((*it)) > 1000)
                 i += 3;
-            else if (GET_HEIGHT(vict) > 500)
+            else if (GET_HEIGHT((*it)) > 500)
                 i+= 2;
             else
                 i += 1;
@@ -571,22 +570,23 @@ int do_simple_move(struct char_data * ch, int dir, int mode, int need_specials_c
             } else
                 sprintf(buf, "$n leaves %s.", to_dirs[dir]);
         }
-
-        for (tch = ch->in_room->people; tch; tch = tch->next_in_room) {
-            if (tch == ch || !AWAKE(tch))
+        CharacterList::iterator it = ch->in_room->people.begin();
+        for (; it != ch->in_room->people.end(); ++it ) {
+            tch = *it;
+            if ((*it) == ch || !AWAKE((*it)))
                 continue;
-            if ((!AFF_FLAGGED(ch, AFF_SNEAK) || GET_LEVEL(tch) > LVL_TIMEGOD ||
-                 (IS_VAMPIRE(ch) && IS_VAMPIRE(tch) && 
-                  GET_LEVEL(tch) >= GET_LEVEL(ch)) ||
-                 AFF2_FLAGGED(tch, AFF2_TRUE_SEEING) ||
+            if ((!AFF_FLAGGED(ch, AFF_SNEAK) || GET_LEVEL((*it)) > LVL_TIMEGOD ||
+                 (IS_VAMPIRE(ch) && IS_VAMPIRE((*it)) && 
+                  GET_LEVEL((*it)) >= GET_LEVEL(ch)) ||
+                 AFF2_FLAGGED((*it), AFF2_TRUE_SEEING) ||
                  sneak_prob <
-                 (number(0, GET_LEVEL(tch)) + 
-                  (CHECK_SKILL(tch, SKILL_HEARING) >> 4))) && CAN_SEE(tch, ch))
-                act(buf, TRUE, ch, 0, tch, TO_VICT);
+                 (number(0, GET_LEVEL((*it))) + 
+                  (CHECK_SKILL((*it), SKILL_HEARING) >> 4))) && CAN_SEE((*it), ch))
+                act(buf, TRUE, ch, 0, (*it), TO_VICT);
             else if (ch->getPosition() < POS_FLYING && GET_LEVEL(ch) < LVL_AMBASSADOR &&
                      sneak_prob < number(0, GET_LEVEL(tch))) {
-                get_giveaway(ch, tch, str);
-                send_to_char(str, tch);
+                get_giveaway(ch, (*it), str);
+                send_to_char(str, (*it));
             } else if (affected_by_spell(ch, SKILL_SNEAK) && !number(0, 3))
                 gain_skill_prof(ch, SKILL_SNEAK);
         }
@@ -602,15 +602,16 @@ int do_simple_move(struct char_data * ch, int dir, int mode, int need_specials_c
                     ROOM_NUMBER(c_obj) == ROOM_NUMBER(car) &&
                     GET_OBJ_VNUM(car) == V_CAR_VNUM(c_obj) &&
                     c_obj->in_room) {
-                    for (tch = c_obj->in_room->people; tch; tch = tch->next_in_room) {
+                    CharacterList::iterator it = c_obj->in_room->people.begin();
+                    for (; it != c_obj->in_room->people.end(); ++it ) {
                         if ((!AFF_FLAGGED(ch, AFF_SNEAK) || 
-                             GET_LEVEL(tch) > LVL_TIMEGOD ||
-                             (IS_VAMPIRE(ch) && IS_VAMPIRE(tch) && 
-                              GET_LEVEL(tch) >= GET_LEVEL(ch)) ||
-                             AFF2_FLAGGED(tch, AFF2_TRUE_SEEING) ||
-                             (sneak_prob < number(0, GET_LEVEL(tch)))) && 
-                            CAN_SEE(tch, ch) && AWAKE(tch)) {
-                            act(buf2, TRUE, ch, 0, tch, TO_VICT);
+                             GET_LEVEL((*it)) > LVL_TIMEGOD ||
+                             (IS_VAMPIRE(ch) && IS_VAMPIRE((*it)) && 
+                              GET_LEVEL((*it)) >= GET_LEVEL(ch)) ||
+                             AFF2_FLAGGED((*it), AFF2_TRUE_SEEING) ||
+                             (sneak_prob < number(0, GET_LEVEL((*it))))) && 
+                            CAN_SEE((*it), ch) && AWAKE((*it))) {
+                            act(buf2, TRUE, ch, 0, (*it), TO_VICT);
                         }
                     }
                     break;
@@ -785,8 +786,9 @@ int do_simple_move(struct char_data * ch, int dir, int mode, int need_specials_c
             } else
                 sprintf(buf, "$n has arrived from %s.", from_dirs[dir]);
         }
-
-        for (tch = ch->in_room->people; tch; tch = tch->next_in_room) {
+        CharacterList::iterator it = ch->in_room->people.begin();
+        for (; it != ch->in_room->people.end(); ++it ) {
+            tch = *it;
             if (tch == ch)
                 continue;
 
@@ -843,14 +845,15 @@ int do_simple_move(struct char_data * ch, int dir, int mode, int need_specials_c
                         ROOM_NUMBER(c_obj) == ROOM_NUMBER(car) &&
                         GET_OBJ_VNUM(car) == V_CAR_VNUM(c_obj) &&
                         c_obj->in_room) {
-                        for (tch = c_obj->in_room->people; tch; tch = tch->next_in_room) {
+                        CharacterList::iterator it = c_obj->in_room->people.begin();
+                        for (; it != c_obj->in_room->people.end(); ++it ) {
                             if ((!AFF_FLAGGED(ch, AFF_SNEAK) || 
-                                 GET_LEVEL(tch) > LVL_TIMEGOD ||
-                                 AFF2_FLAGGED(tch, AFF2_TRUE_SEEING) ||
+                                 GET_LEVEL((*it)) > LVL_TIMEGOD ||
+                                 AFF2_FLAGGED((*it), AFF2_TRUE_SEEING) ||
                                  (sneak_prob <
-                                  number(0, GET_LEVEL(tch)))) &&
-                                CAN_SEE(tch, ch) && AWAKE(tch)) {
-                                act(buf2, TRUE, ch, 0, tch, TO_VICT);
+                                  number(0, GET_LEVEL((*it))))) &&
+                                CAN_SEE((*it), ch) && AWAKE((*it))) {
+                                act(buf2, TRUE, ch, 0, (*it), TO_VICT);
                             }
                         }
                         break;
@@ -1039,7 +1042,8 @@ int do_simple_move(struct char_data * ch, int dir, int mode, int need_specials_c
         was_in = ch->in_room;
         log_death_trap(ch);
         death_cry(ch);
-        extract_char(ch, 1);
+        //extract_char(ch, 1);
+        ch->extract( 1 );
         if (was_in->number == 34004) {
             for (obj = was_in->contents; obj; obj = next_obj) {
                 next_obj = obj->next_content;
@@ -1330,12 +1334,30 @@ const int flags_door[] =
 
 
 #define EXITN(room, door)                (room->dir_option[door])
+/*
 #define OPEN_DOOR(room, obj, door)        ((obj) ?\
                                          (TOGGLE_BIT(GET_OBJ_VAL(obj, 1), CONT_CLOSED)) :\
                                          (TOGGLE_BIT(EXITN(room, door)->exit_info, EX_CLOSED)))
+*/
+void OPEN_DOOR(room_data *room, obj_data* obj, int direction ) {
+    if( obj != NULL ) {
+        TOGGLE_BIT(GET_OBJ_VAL(obj, 1), CONT_CLOSED);
+    } else {
+        TOGGLE_BIT(EXITN(room, direction)->exit_info, EX_CLOSED);
+    }
+} 
+/*                                       
 #define LOCK_DOOR(room, obj, door)        ((obj) ?\
                                          (TOGGLE_BIT(GET_OBJ_VAL(obj, 1), CONT_LOCKED)) :\
                                          (TOGGLE_BIT(EXITN(room, door)->exit_info, EX_LOCKED)))
+*/
+void LOCK_DOOR(room_data *room, obj_data* obj, int direction ) {
+    if( obj != NULL ) {
+        TOGGLE_BIT(GET_OBJ_VAL(obj, 1), CONT_LOCKED);
+    } else {
+        TOGGLE_BIT(EXITN(room, direction)->exit_info, EX_LOCKED);
+    }
+}                                         
 
 void 
 do_doorcmd(struct char_data *ch, struct obj_data *obj, int door, int scmd)
@@ -2120,7 +2142,7 @@ ACMD(do_makemount)
     
 ACMD(do_mount)
 {
-    struct char_data *vict, *tch;
+    struct char_data *vict;
     one_argument(argument, buf);
 
     if (*buf) {
@@ -2145,13 +2167,15 @@ ACMD(do_mount)
         return;
     }
     if (IS_AFFECTED_2(vict, AFF2_MOUNTED)) {
-        for (tch = ch->in_room->people;tch;tch=tch->next_in_room)
-            if (MOUNTED(tch) == vict) {
-                sprintf(buf, "But %s is already mounted on %s!\r\n", PERS(tch, ch),
+        CharacterList::iterator it = ch->in_room->people.begin();
+        for (; it != ch->in_room->people.end(); ++it ) {
+            if (MOUNTED((*it)) == vict) {
+                sprintf(buf, "But %s is already mounted on %s!\r\n", PERS((*it), ch),
                         PERS(vict, ch));
                 send_to_char(buf, ch);
                 return;
             }
+        }
         REMOVE_BIT(AFF2_FLAGS(vict), AFF2_MOUNTED);
     }
     if (ch->getPosition() < POS_STANDING) {
@@ -2410,7 +2434,8 @@ ACMD(do_follow)
     
         send_to_char("You go too far, rematerializing inside solid matter!!\r\n"
                      "Better luck next time...\r\n", ch);
-        extract_char(ch, 1);
+        //extract_char(ch, 1);
+        ch->extract( 1 );
         return;
     }
     else {
@@ -2429,7 +2454,8 @@ ACMD(do_follow)
             GET_LEVEL(ch) < LVL_AMBASSADOR) {
             log_death_trap(ch);
             death_cry(ch);
-            extract_char(ch, 1);
+            //extract_char(ch, 1);
+            ch->extract( 1 );
             if (rm->number == 34004) {
                 for (obj = rm->contents; obj; obj = next_obj) {
                     next_obj = obj->next_content;

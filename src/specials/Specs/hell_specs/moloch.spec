@@ -7,8 +7,8 @@
 SPECIAL(moloch)
 {
 
-  struct char_data *moloch = (struct char_data *) me, *vict = NULL;
-  struct room_data *targ_room = NULL;
+  struct char_data *moloch = (struct char_data *) me;
+  room_data *targ_room = NULL;
   int throne_rooms[4] = {16645, 16692, 16692, 16623}, index;
 
 
@@ -25,9 +25,9 @@ SPECIAL(moloch)
       return 1;
     } else if (!number(0, 8) && GET_DEX(FIGHTING(moloch)) < number(10, 25)) { 
       act("$n picks you up in his jaws and flails you around!!",
-	  FALSE, moloch, 0, FIGHTING(moloch), TO_VICT);
+          FALSE, moloch, 0, FIGHTING(moloch), TO_VICT);
       act("$n picks $N up in his jaws and flails $M around!!",
-	  FALSE, moloch, 0, FIGHTING(moloch), TO_NOTVICT);
+          FALSE, moloch, 0, FIGHTING(moloch), TO_NOTVICT);
       damage(moloch, FIGHTING(moloch), dice(30, 29), TYPE_RIP, WEAR_BODY);
       WAIT_STATE(moloch, 7 RL_SEC);
       return 1;
@@ -50,15 +50,14 @@ SPECIAL(moloch)
   char_from_room(moloch);
   char_to_room(moloch, targ_room);
   act("$n slowly appears from another place.",TRUE, moloch, 0, 0, TO_ROOM);
-
-  for (vict = moloch->in_room->people, index = 0; vict; 
-       vict = vict->next_in_room) {
-    if (vict != moloch) {
-      if (!IS_DEVIL(vict))
-	index = 1;
-      else {
-	index = 0;
-	break;
+  CharacterList::iterator it = moloch->in_room->people.begin();
+  for( index = 0; it != moloch->in_room->people.end(); ++it ) {
+    if (*it != moloch) {
+      if (!IS_DEVIL((*it))) {
+        index = 1;
+      } else {
+        index = 0;
+        break;
       }
     }
   }
