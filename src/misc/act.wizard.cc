@@ -5227,7 +5227,7 @@ ACMD(do_set)
         {"invis", LVL_IMMORT, PC, NUMBER, "WizardFull"},
         {"nohassle", LVL_IMMORT, PC, BINARY, "WizardFull"},    /* 25 */
         {"frozen", LVL_IMMORT, PC, BINARY, "AdminFull"},
-        {"practices", LVL_IMMORT, PC, NUMBER, "WizardFull"},
+        {"nowho", LVL_IMMORT, PC, BINARY, "WizardFull"},
         {"lessons", LVL_IMMORT, PC, NUMBER, "WizardFull"},
         {"drunk", LVL_IMMORT, BOTH, MISC, "WizardFull"},
         {"hunger", LVL_IMMORT, BOTH, MISC, "WizardFull"},    /* 30 */
@@ -5569,9 +5569,9 @@ ACMD(do_set)
         SET_OR_REMOVE(PLR_FLAGS(vict), PLR_FROZEN);
         break;
     case 27:
+		SET_OR_REMOVE(PRF2_FLAGS(vict), PRF2_NOWHO); break;
     case 28:
-		send_to_char(ch, "No more pracs.\r\n");
-        break;
+		send_to_char(ch, "No more pracs.\r\n"); break;
     case 29:
     case 30:
     case 31:
