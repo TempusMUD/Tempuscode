@@ -208,25 +208,20 @@ obj_data::loadFromXML(obj_data *container, Creature *victim, room_data* room, xm
 
 	// NOTE: This is bad, but since the object is already allocated, we have
 	// to do it this way.  Functionality is copied from read_object(int)
-	obj_data* prototype = real_object_proto( vnum );
-	if(prototype) {
-		shared = prototype->shared;
-		shared->number++;
-	} else {
-		shared = null_obj_shared;
+	obj_data* prototype = real_object_proto(vnum);
+	if(!prototype) {
+		slog("Object #%d being removed from %s's rent",
+			vnum, GET_NAME(victim));
+		return false;
 	}
 
-	if (shared->proto) {
-		short_description = shared->proto->short_description;
-		name = shared->proto->name;
-		description = shared->proto->description;
-		action_description  = shared->proto->action_description;
-	} else {
-		short_description = "something unique";
-		name = "something unique";
-		description = "";
-		action_description  = "";
-	}
+	shared = prototype->shared;
+	shared->number++;
+
+	short_description = shared->proto->short_description;
+	name = shared->proto->name;
+	description = shared->proto->description;
+	action_description  = shared->proto->action_description;
 
 	for( xmlNodePtr cur = node->xmlChildrenNode; cur; cur = cur->next) {
 		if( xmlMatches( cur->name, "name" ) ) {
@@ -323,14 +318,7 @@ obj_data::loadFromXML(obj_data *container, Creature *victim, room_data* room, xm
 			}
 		} 
 	}
-	if (shared == null_obj_shared) {
-		if (name)
-			slog("Object #%d (%s) being removed from %s's rent",
-				vnum, name, GET_NAME(victim));
-		else
-			slog("Object #%d being removed from %s's rent",
-				vnum, GET_NAME(victim));
-	}
+
 	if (!OBJ_APPROVED(this)) {
 		slog("Unapproved object %d being junked from %s's rent.", 
 			 vnum, GET_NAME(victim) );
