@@ -96,6 +96,7 @@ struct timeval null_time;		/* zero-valued time structure */
 
 /* functions in this file */
 int get_from_q(struct txt_q *queue, char *dest, int *aliased, int length = MAX_INPUT_LENGTH );
+void flush_q(struct txt_q *queue);
 void init_game(int port);
 void signal_setup(void);
 void game_loop(int mother_desc);
@@ -809,19 +810,29 @@ get_from_q(struct txt_q *queue, char *dest, int *aliased, int length )
 	return 1;
 }
 
+void
+flush_q(struct txt_q *queue)
+{
+	struct txt_block *cur_blk, *next_blk;
+
+	for (cur_blk = queue->head;cur_blk;cur_blk = next_blk) {
+		next_blk = cur_blk->next;
+		free(cur_blk->text);
+		free(cur_blk);
+	}
+	queue->head = NULL;
+}
 
 
 /* Empty the queues before closing connection */
 void
 flush_queues(struct descriptor_data *d)
 {
-	int dummy;
-
 	if (d->large_outbuf) {
 		d->large_outbuf->next = bufpool;
 		bufpool = d->large_outbuf;
 	}
-	while (get_from_q(&d->input, buf2, &dummy));
+	flush_q(&d->input);
 }
 
 
@@ -1185,8 +1196,22 @@ process_input(struct descriptor_data *t)
 			}
 		}
 
-		if (!failed_subst)
-			write_to_q(tmp, &t->input, 0);
+		if (!failed_subst) {
+			if (IS_PLAYING(t) && !strncmp("revo", tmp, 4)) {
+				// We want all commands in the queue to be dumped immediately
+				// This has to be here so we can bypass the normal order of
+				// commands
+				t->need_prompt = true;
+				if (t->input.head) {
+					flush_q(&t->input);
+					send_to_desc(t, "You reconsider your rash plans.\r\n");
+					WAIT_STATE(t->creature, 1 RL_SEC);
+				} else {
+					send_to_desc(t, "You don't have any commands to revoke!\r\n");
+				}
+			} else
+				write_to_q(tmp, &t->input, 0);
+		}
 
 		/* find the end of this line */
 		while (ISNEWL(*nl_pos))
