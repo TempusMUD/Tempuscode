@@ -95,7 +95,7 @@ extern int autosave_time;		/* see config.c */
 struct timeval null_time;		/* zero-valued time structure */
 
 /* functions in this file */
-int get_from_q(struct txt_q *queue, char *dest, int *aliased);
+int get_from_q(struct txt_q *queue, char *dest, int *aliased, int length = MAX_INPUT_LENGTH );
 void init_game(int port);
 void signal_setup(void);
 void game_loop(int mother_desc);
@@ -448,7 +448,7 @@ game_loop(int mother_desc)
 {
 	fd_set input_set, output_set, exc_set;
 	struct timeval last_time, now, timespent, timeout, opt_time;
-	char comm[MAX_INPUT_LENGTH];
+	char comm[MAX_INPUT_LENGTH*10];
 	struct descriptor_data *d, *next_d;
 	int pulse = 0, mins_since_crashsave = 0, maxdesc, aliased;
 
@@ -827,7 +827,7 @@ write_to_q(char *txt, struct txt_q *queue, int aliased)
 
 
 int
-get_from_q(struct txt_q *queue, char *dest, int *aliased)
+get_from_q(struct txt_q *queue, char *dest, int *aliased, int length )
 {
 	struct txt_block *tmp;
 
@@ -836,17 +836,11 @@ get_from_q(struct txt_q *queue, char *dest, int *aliased)
 		return 0;
 
 	tmp = queue->head;
-	strcpy(dest, queue->head->text);
+	strncpy(dest, queue->head->text,length);
 	*aliased = queue->head->aliased;
 	queue->head = queue->head->next;
-	/*#ifdef DMALLOC
-	   dmalloc_verify(0);
-	   #endif */
 	free(tmp->text);
 	free(tmp);
-	/*#ifdef DMALLOC
-	   dmalloc_verify(0);
-	   #endif */
 	return 1;
 }
 
