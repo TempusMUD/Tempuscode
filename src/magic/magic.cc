@@ -2702,7 +2702,7 @@ mag_points(int level, struct char_data *ch, struct char_data *victim,
 		break;
 
 	case SPELL_CELL_REGEN:
-		hit = dice(4, 6 + (CHECK_SKILL(ch, SPELL_WOUND_CLOSURE) >> 4)) +
+		hit = dice(4, 6 + (CHECK_SKILL(ch, SPELL_CELL_REGEN) >> 4)) +
 			number(level >> 1, level << 1);
 		hit += GET_REMORT_GEN(ch) << 3;
 		hit += ((CHECK_SKILL(ch, SPELL_CELL_REGEN) - LEARNED(ch)) * hit) / 100;
