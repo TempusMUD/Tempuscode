@@ -178,7 +178,7 @@ recieve_mail(char_data *ch) {
         text = NULL;
         if(letter->msg_size && !mail_file.eof() && (obj = read_object(MAIL_OBJ_VNUM))) { 
 			if(letter->msg_size > MAX_MAIL_SIZE) {
-				sprintf(buf,"Invalid mail size in mail file.(%s) Removing.\r\n", fname);
+				sprintf(buf,"Invalid mail size in mail file.(%s) Removing.", fname);
 				mudlog(buf,CMP,LVL_GRGOD,TRUE);
 				break;
 			}
