@@ -254,9 +254,7 @@ bool House::hasRoom( room_num room )
 bool 
 House::isOwner( Creature *ch )
 {
-	//TODO: fix this
-	//return ownerID == playerIndex.getAccountID( GET_IDNUM(ch) );
-	return false;
+	return ownerID == playerIndex.getAccountID( GET_IDNUM(ch) );
 }
 
 
@@ -339,9 +337,8 @@ HouseControl::canEnter( Creature *ch, room_num room_vnum )
 		case House::PUBLIC:
 			return true;
 		case House::PRIVATE:
-			// TODO: fix this
-			//if( ch->getAccountID() == house->getOwnerID() )
-			//	return true;
+			if( ch->getAccountID() == house->getOwnerID() )
+				return true;
 			return house->isGuest( ch );
 		case House::RENTAL:
 		case House::INVALID:
@@ -564,8 +561,10 @@ House::loadRoom( xmlNodePtr roomNode )
 void
 HouseControl::save()
 {
-	slog("HOUSE: Saving %d houses.", getHouseCount() );
+    if( getHouseCount() == 0 )
+        return;
 
+	slog("HOUSE: Saving %d houses.", getHouseCount() );
 	for( unsigned int i = 0; i < getHouseCount(); i++) {
 		House *house = getHouse(i);
 		if(! house->save() )
@@ -590,14 +589,14 @@ HouseControl::load()
 			dir = opendir(dirname);
 			if (!dir) {
 				slog("SYSERR: Couldn't open or create directory %s", dirname);
-				exit(-1);
+				safe_exit(-1);
 			}
 		}
 		while ((file = readdir(dir)) != NULL) {
-			// Check for correct filename (*.xml)
+			// Check for correct filename (*.dat)
 			if (!rindex(file->d_name, '.'))
 				continue;
-			if (strcmp(rindex(file->d_name, '.'), ".xml"))
+			if (strcmp(rindex(file->d_name, '.'), ".dat"))
 				continue;
 			
 			char *filename = tmp_sprintf("%s/%s", dirname, file->d_name);
@@ -630,9 +629,9 @@ HouseControl::collectRent()
 		if( house->getType() == House::PUBLIC )
 			continue;
 		// If the player is online, do not charge rent.
-		Account *account = NULL;//accountIndex.find_account( house->getOwnerID() );
-		//TODO: uncomment this
-		if( account == NULL )//|| account->get_cxn() != NULL )
+		Account *account = accountIndex.find_account( house->getOwnerID() );
+        //TODO: uncomment this
+		if( account == NULL )// || account->get_cxn() != NULL )
 			continue;
 
 		int cost = (int) ( ( house->calcRentCost() / 24.0 ) / 60 );
@@ -675,7 +674,7 @@ House::display( Creature *ch )
 }
 
 char*
-print_room_contents(Creature *ch, room_data *real_house_room, bool showContents = false )
+print_room_contents(Creature *ch, room_data *real_house_room, bool showContents )
 {
 	int count;
 	char* buf = NULL;
@@ -802,7 +801,7 @@ hcontrol_build_house( Creature *ch, char *arg)
 		return;
 	}
 	//TODO: uncomment this
-	int accountID = 0;//playerIndex.getAccountID( owner );
+	int accountID = playerIndex.getAccountID( owner );
 	if( Housing.createHouse( accountID, virt_atrium, virt_top_room ) ) {
 		send_to_char(ch, "House built.  Mazel tov!\r\n");
 		House *house = Housing.getHouse( Housing.getHouseCount() - 1 );
@@ -923,8 +922,7 @@ hcontrol_set_house( Creature *ch, char *arg)
 		}
 
 		if( isdigit(*arg) ) { // to an account id
-			//TODO: uncomment this
-			if( true ){ //accountIndex.account_exists( atoi(arg) ) ) {
+			if( accountIndex.exists( atoi(arg) ) ) {
 				house->setOwnerID( atoi(arg) );
 			} else {
 				send_to_char(ch, "Account %d doesn't exist.\r\n", atoi(arg));
@@ -932,8 +930,7 @@ hcontrol_set_house( Creature *ch, char *arg)
 			}
 		} else { // to a player name
 			if( playerIndex.exists(arg) ) {
-				//TODO: fix this
-				//house->setOwnerID( playerIndex.getAccountID(arg) );
+				house->setOwnerID( playerIndex.getAccountID(arg) );
 			} else {
 				send_to_char(ch, "There is no such player, '%s'\r\n", arg);
 				return;
@@ -1343,7 +1340,8 @@ HouseControl::displayHouses( list<House*> houses, Creature *ch )
 {
     string output;
     send_to_char(ch,"ID   Size Owner  Landlord  Type Rooms\r\n");
-    send_to_char(ch,"---- ---- ------ --------- ---- -----------------------------------------------\r\n");
+    send_to_char(ch,"---- ---- ------ --------- ---- -----"
+                    "------------------------------------------\r\n");
     list<House*>::iterator cur = houses.begin();
     
 
