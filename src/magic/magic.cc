@@ -3011,10 +3011,12 @@ mag_areas(byte level, struct Creature *ch, int spellnum, int savetype)
 		to_char = "Sonic shockwaves pulse out in time with your powerful rhythm!";
 		to_room = "$n plays a powerful rhythm creating pulsing sonic shockwaves!";
 		to_next_room = "You hear a loud rhythm being played nearby.";
+        break;
 	case SONG_DIRGE:
-		to_char = "You begin to play a mournful dirge.";
-		to_room = "$n plays a dirge of great mourning and lament.";
+		to_char = "Your dirge tugs at the souls of the undead, beckoning them back to the grave.";
+		to_room = "$n's dirge tugs at the souls of the undead, beckoning them back to the grave.";
 		to_next_room = "Chilling music can be heard in the distance.";
+        break;
 	}
 
 	if (to_char != NULL)
@@ -3091,7 +3093,7 @@ mag_areas(byte level, struct Creature *ch, int spellnum, int savetype)
 		if (spellnum == SONG_SONIC_DISRUPTION) { //drop things
 			obj_data *obj=NULL;
 			if ((random_number_zero_low(3 + (level >> 2)) + 3) > GET_DEX(*it) && 
-				(obj = (*it)->carrying)) { //assignment to obj done here
+				!is_arena_combat(ch, *it) && (obj = (*it)->carrying)) { //assignment to obj
 				while (obj) {
 					if (can_see_object(*it, obj) && !IS_OBJ_STAT(obj, ITEM_NODROP))
 						break;
