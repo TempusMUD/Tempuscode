@@ -840,6 +840,38 @@ Creature::clear(void)
 	}
 }
 
+void
+Creature::restore(void)
+{
+	int i;
+
+	GET_HIT(this) = GET_MAX_HIT(this);
+	GET_MANA(this) = GET_MAX_MANA(this);
+	GET_MOVE(this) = GET_MAX_MOVE(this);
+
+	if (GET_COND(this, FULL) >= 0)
+		GET_COND(this, FULL) = 24;
+	if (GET_COND(this, THIRST) >= 0)
+		GET_COND(this, THIRST) = 24;
+
+	if ((GET_LEVEL(this) >= LVL_GRGOD)
+			&& (GET_LEVEL(this) >= LVL_AMBASSADOR)) {
+		for (i = 1; i <= MAX_SKILLS; i++)
+			SET_SKILL(this, i, 100);
+
+		if (GET_LEVEL(this) >= LVL_IMMORT) {
+			real_abils.intel = 25;
+			real_abils.wis = 25;
+			real_abils.dex = 25;
+			real_abils.str = 25;
+			real_abils.con = 25;
+			real_abils.cha = 25;
+		}
+		aff_abils = real_abils;
+	}
+	update_pos(this);
+}
+
 bool
 Creature::rent(void)
 {

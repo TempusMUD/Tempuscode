@@ -1010,6 +1010,7 @@ struct Creature {
 	Creature *getFighting() { return (char_specials.fighting); }
 	void setFighting(Creature * ch);
 	void clearMemory();
+	void restore();
     bool loadFromXML( long id );
     bool loadFromXML( const char *path );
     void saveToXML();
