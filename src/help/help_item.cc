@@ -233,15 +233,6 @@ bool HelpItem::Edit( char_data *ch ) {
     return true;
 }
 
-// Returns the next HelpItem
-HelpItem *HelpItem::Next( void ){
-    return next;
-} 
-
-void HelpItem::SetNext( HelpItem *n ) {
-    next = n;
-}
-
 // Saves the current HelpItem. Does NOT alter the index.
 // You have to save that too.
 // (SaveAll does everything)

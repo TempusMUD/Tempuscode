@@ -47,8 +47,18 @@ class HelpItem {
     HelpItem();
     ~HelpItem();
     
-    HelpItem *Next( void ); // Returns the next HelpItem
-    void SetNext( HelpItem *n); // Returns the next HelpItem
+    inline HelpItem *Next( void ) {// Returns the next HelpItem
+        return next;
+    }
+    inline void SetNext( HelpItem *n) {// Returns the next HelpItem
+        next = n;
+    }
+    inline HelpItem* NextShow ( void ) {// Next in show list
+        return next_show;
+    }
+    inline void SetNextShow( HelpItem *n) {// Set next show
+        next_show = n;
+    }
     // Returns the next HelpItem in the list to be shown
     bool Edit( char_data *ch ); // Begin editing an item
     bool Clear();// Clear the item out.
@@ -111,9 +121,8 @@ class HelpCollection {
     // Member Funcs
     HelpCollection();
     ~HelpCollection();
-        // Calls FindItems then Show
-    //void GetTopic(char_data *ch, char *args, int mode=2,bool show_no_app=false,int thegroup=HGROUP_PLAYER);
-    void GetTopic(char_data *ch, char *args,int mode=2,bool show_no_app=false, int thegroup=HGROUP_PLAYER);
+    // Calls FindItems then Show
+    void GetTopic(char_data *ch, char *args,int mode=2,bool show_no_app=false, int thegroup=HGROUP_PLAYER,bool searchmode=false);
 
     void List( char_data *ch, char *args ); // Show all the items
     // Create an item. (calls EditItem && SaveIndex)
@@ -141,7 +150,7 @@ class HelpCollection {
 
     private:
     // Returns a show list of items it found
-    HelpItem *FindItems( char *args, bool find_no_approve=false,int thegroup=HGROUP_PLAYER); 
+    HelpItem *FindItems( char *args, bool find_no_approve=false,int thegroup=HGROUP_PLAYER,bool searchmode=false); 
     int top_id;
     bool need_save;
 };

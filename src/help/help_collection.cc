@@ -21,7 +21,7 @@ const char *Help_Directory = "text/help_data/";
 // The global HelpCollection object.
 // Allocated in comm.cc
 HelpCollection *Help = NULL;
-// Since one_word isnt int he header file...
+// Since one_word isnt in the header file...
 static char gHelpbuf[MAX_STRING_LENGTH];
 static char linebuf[MAX_STRING_LENGTH];
 static fstream help_file;
@@ -160,20 +160,44 @@ int HelpCollection::GetTop( void ) {
 // Calls FindItems 
 // Mode is how to show the item.
 // Type: 0==normal help, 1==immhelp, 2==olchelp
-void HelpCollection::GetTopic(char_data *ch, char *args,int mode=2,bool show_no_app=false, int thegroup=HGROUP_PLAYER) {
+void HelpCollection::GetTopic(char_data *ch, 
+                              char *args,
+                              int mode=2,
+                              bool show_no_app=false, 
+                              int thegroup=HGROUP_PLAYER,
+                              bool searchmode=false) {
 
     HelpItem *cur = NULL;
+    HelpItem *prev = NULL;
     gHelpbuf[0] = '\0';
+    linebuf[0] = '\0';
+    int space_left = sizeof(gHelpbuf) - 480;
     if(!args || !*args) {
         send_to_char("You must enter search criteria.\r\n",ch);
         return;
     }
-    cur = FindItems( args, show_no_app, thegroup);
+    cur = FindItems( args, show_no_app, thegroup, searchmode);
     if(!cur) {
         send_to_char("No items were found matching your search criteria.\r\n",ch);
         return;
     }
-    cur->Show( ch, gHelpbuf, mode );
+    // Normal plain old help. One item at a time.
+    if(searchmode == false) {
+        cur->Show(ch, gHelpbuf, mode);
+    } else {  // Searching for multiple items.
+        space_left -= strlen(gHelpbuf);
+        for(;cur;cur = cur->NextShow(),prev->SetNextShow(NULL)) {
+            prev = cur;
+            cur->Show(ch,linebuf,1);
+            strcat(gHelpbuf,linebuf);
+            space_left -= strlen(linebuf);
+            if(space_left <= 0) {
+                sprintf(linebuf,"Maximum buffer size reached at item # %d.",cur->idnum);
+                strcat(gHelpbuf,linebuf);
+                break;
+            }
+        }
+    }
     page_string(ch->desc,gHelpbuf,1);
     return;
 }
@@ -260,8 +284,9 @@ bool HelpCollection::SaveItem( char_data *ch ) {
 // Find an Item in the index 
 // This should take an optional "mode" argument to specify groups the
 //  returned topic can be part of. e.g. (FindItems(argument,FIND_MODE_OLC))
-HelpItem *HelpCollection::FindItems( char *args, bool find_no_approve=false, int thegroup=HGROUP_PLAYER) {
+HelpItem *HelpCollection::FindItems( char *args, bool find_no_approve=false, int thegroup=HGROUP_PLAYER,bool searchmode=false) {
     HelpItem *cur = NULL;
+    HelpItem *list = NULL;
     char stack[256];
     char *b;// beginning of stack
     char bit[256];// the current bit of the stack we're lookin through
@@ -279,11 +304,17 @@ HelpItem *HelpCollection::FindItems( char *args, bool find_no_approve=false, int
         while(*b) {
             b = one_word(b,bit);
             if(!strncmp(bit,args,length)) {
-                return cur;
+                if(searchmode) {
+                    cur->SetNextShow(list);
+                    list = cur;
+                    break;
+                } else {
+                    return cur;
+                }
             }
         }
     }
-    return cur;
+    return list;
 }
 // Save everything.
 bool HelpCollection::SaveAll( char_data *ch ) {
@@ -739,7 +770,8 @@ ACMD(do_help_collection_command) {
             send_to_char("Okay.\r\n",ch);
             break;
         case 10: // Search (mode==3 is "stat" rather than "show") show_no_app "true"
-            Help->GetTopic(ch,argument,3,true,-1);
+                 // searchmode=true is find all items matching.
+            Help->GetTopic(ch,argument,3,true,-1,true);
             break;
         case 11: // UnApprove
             Help->UnApproveItem( ch, argument );
