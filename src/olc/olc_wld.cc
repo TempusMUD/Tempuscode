@@ -792,6 +792,10 @@ do_olc_rset( struct char_data *ch, char *argument )
 
     switch ( rset_command ) {
     case 0: /* rtitle */
+	if(!*arg2) {
+		send_to_char("You have to set it to something moron!\r\n",ch);
+		return;
+	}
 	if ( ch->in_room->name )
 	    free( ch->in_room->name );
 	ch->in_room->name = strdup( arg2 );
