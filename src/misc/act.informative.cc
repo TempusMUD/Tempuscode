@@ -3218,8 +3218,7 @@ ACMD(do_who)
                 sprintf(buf2, "%s%s%s[%s%s%s%s%s]%s ", buf2, 
                         CCGRN(ch, C_SPR), CCYEL_BLD(ch, C_NRM), "  ",
                         CCNRM_GRN(ch, C_NRM), badge, CCYEL_BLD(ch, C_NRM), "  ", CCNRM(ch, C_NRM));
-            }
-            else {
+            } else {
                 sprintf(buf2, "%s%s%s[%s%s%s]%s ", buf2,
                     CCGRN(ch, C_SPR), CCYEL_BLD(ch, C_NRM), CCNRM_GRN(ch, C_NRM),
                     badge, CCYEL_BLD(ch, C_NRM), CCNRM(ch, C_NRM));
@@ -3236,7 +3235,7 @@ ACMD(do_who)
 					CCGRN(ch, C_NRM), CCCYN(ch, C_NRM),
 					c_buf, char_class_abbrevs[(int)effective_char_class],
 					CCNRM(ch, C_NRM), CCGRN(ch, C_NRM), CCNRM(ch, C_NRM));
-            else if(who_gen) {
+            else if (who_gen)
                 sprintf(buf2, "%s%s[%s%2d%s(%s%02d%s)%s%s%s%s%s%s]%s ", buf2,
                         CCGRN(ch, C_NRM), 
                         (PRF2_FLAGGED(tch, PRF2_ANONYMOUS) &&
@@ -3248,8 +3247,7 @@ ACMD(do_who)
                           PRF_FLAGGED(ch, PRF_HOLYLIGHT)) ? "-" : " ",
                          c_buf, char_class_abbrevs[(int)effective_char_class],
                          CCNRM(ch, C_NRM), CCGRN(ch, C_NRM), CCNRM(ch, C_NRM));
-            }
-			else
+            else
 				sprintf(buf2, "%s%s[%s%2d%s%s%s%s%s]%s ", buf2,
 					CCGRN(ch, C_NRM),
 					(PRF2_FLAGGED(tch, PRF2_ANONYMOUS) &&
@@ -3285,7 +3283,7 @@ ACMD(do_who)
 						CCCYN(ch, C_NRM), real_clan(GET_CLAN(tch))->name,
 						CCNRM(ch, C_NRM));
 			}
-			if (GET_INVIS_LVL(tch) && !IS_MORT(ch))
+			if (GET_INVIS_LVL(tch) && IS_IMMORT(ch))
 				sprintf(buf2, "%s %s(%si%d%s)%s",
 					buf2, CCBLU(ch, C_NRM), CCMAG(ch, C_NRM),
 					GET_INVIS_LVL(tch), CCBLU(ch, C_NRM), CCNRM(ch, C_NRM));
