@@ -17,7 +17,7 @@ Event::Queue(Event *new_evt)
 {
 	Event *cur_evt;
 
-	if (!_scheduled_evts || _scheduled_evts->less_than(new_evt)) {
+	if (!_scheduled_evts || new_evt->less_than(_scheduled_evts)) {
 		new_evt->_next = _scheduled_evts;
 		_scheduled_evts = new_evt;
 		return;
@@ -27,7 +27,7 @@ Event::Queue(Event *new_evt)
 	while (cur_evt->_next && cur_evt->less_than(new_evt))
 		cur_evt = cur_evt->_next;
 	
-	new_evt = cur_evt->_next;
+	new_evt->_next = cur_evt->_next;
 	cur_evt->_next = new_evt;
 }
 
@@ -39,16 +39,15 @@ Event::ProcessScheduled(void)
 	if (!_scheduled_evts)
 		return;
 
-	cur_evt = _scheduled_evts;
-	while (cur_evt && (!cur_evt->is_enabled() || cur_evt->is_ready())) {
-		next_evt = cur_evt->_next;
-		if (cur_evt->is_enabled() && cur_evt->is_ready())
-			cur_evt->trigger();
-		delete cur_evt;
-		_scheduled_evts = cur_evt = next_evt;
+	while (_scheduled_evts && _scheduled_evts->is_ready()) {
+		next_evt = _scheduled_evts->_next;
+		if (_scheduled_evts->is_enabled())
+			_scheduled_evts->trigger();
+		delete _scheduled_evts;
+		_scheduled_evts = next_evt;
 	}
 
-	for (;cur_evt;cur_evt = cur_evt->_next)
+	for (cur_evt = _scheduled_evts;cur_evt;cur_evt = cur_evt->_next)
 		cur_evt->pulse();
 }
 
@@ -56,6 +55,8 @@ void
 DeathEvent::trigger(void)
 {
 	Event *cur_evt;
+
+	slog("Extract: %s", GET_NAME(_doomed));
 
 	// Disable all the events
 	for (cur_evt = _scheduled_evts;cur_evt;cur_evt = cur_evt->_next)
