@@ -197,6 +197,8 @@ extern const struct gun_hit_type gun_hit_text[] = {
     {"energize", "energizes", "photon burst"},
     {"trigger", "triggers", "sonic shock wave"},
     {"fire", "fires", "particle stream"},
+    {"activate", "activates", "gamma ray"},
+    {"discharge", "discharges", "lightning bolt"},
     {"shoot", "shoots", "unknown force"} //leave this as the top type if adding new types
 };
 

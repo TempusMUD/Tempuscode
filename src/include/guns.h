@@ -66,16 +66,15 @@ void show_gun_status(struct Creature *ch, struct obj_data *gun);
 #define GUN_FLAMETHROWER 30
 #define NUM_GUN_TYPES   31
 
-#define EGUN_NONE        0
-#define EGUN_LIGHTNING   1
-#define EGUN_PLASMA      2
-#define EGUN_ION         3
-#define EGUN_LASER       4
-#define EGUN_DISRUPTION  5
-#define EGUN_PHASER      6
-#define EGUN_MICROWAVE   7
-#define EGUN_GAMMA       8
-#define NUM_EGUN_TYPES   9
+static const int EGUN_LASER = 0;
+static const int EGUN_PLASA = 1;
+static const int EGUN_ION = 2;
+static const int EGUN_PHOTON = 3;
+static const int EGUN_SONIC = 4;
+static const int EGUN_PARTICLE = 5;
+static const int EGUN_GAMMA = 6;
+static const int EGUN_LIGHTNING = 7;
+static const int EGUN_TOP = 8;
 
 #define IS_ARROW(gun)  (GUN_TYPE(gun) == GUN_BOW || GUN_TYPE(gun) == GUN_XBOW)
 #define IS_FLAMETHROWER(gun)  (GUN_TYPE(gun) == GUN_FLAMETHROWER)

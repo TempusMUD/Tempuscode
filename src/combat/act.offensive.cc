@@ -2259,7 +2259,8 @@ ACMD(do_shoot)
 	}
 
 	if (ch->numCombatants() && ch->findRandomCombat()->findCombat(ch) 
-        && !number(0, 3) && (!IS_MERC(ch)) && (GET_LEVEL(ch) < LVL_GRGOD)) {
+        && !number(0, 3) && (!ch->getLevelBonus(SKILL_ENERGY_WEAPONS > 60)) 
+        && (GET_LEVEL(ch) < LVL_GRGOD)) {
 		send_to_char(ch, "You are in too close to get off a shot!\r\n");
 		return;
 	}
@@ -2375,6 +2376,8 @@ ACMD(do_shoot)
         cost = MIN(CUR_ENERGY(gun->contains), GUN_DISCHARGE(gun));
         
         dam = dice(GET_OBJ_VAL(gun,1), GET_OBJ_VAL(gun,2));
+        dam += dam*ch->getLevelBonus(SKILL_SHOOT)/100; //damage bonus for taking the time to aim and shoot
+        dam += GET_HITROLL(ch);
         
         CUR_ENERGY(gun->contains) -= cost;
         
@@ -2408,21 +2411,20 @@ ACMD(do_shoot)
             ACMD_set_return_flags(my_return_flags);
             return;
         }
-        
-        if (IS_SET(my_return_flags, DAM_VICT_KILLED)) {
-            ACMD_set_return_flags(my_return_flags);
-            dead = true;
-        }
-        
+                
         if (!CUR_ENERGY(gun->contains)) {
             act("$p has been depleted of fuel.  You must replace the energy cell before firing again.",
             FALSE, ch, gun, 0, TO_CHAR);
         }
     
     cur_weap = NULL;
-    WAIT_STATE(ch, (((i << 1) + 6) >> 1) RL_SEC);
-    return;
+    WAIT_STATE(ch, 4 RL_SEC);
+    //don't do the extra stuff because we're only shooting one blast at a time 
+    //ROF doesn't exist anymore
+    return; 
 	}
+    
+    
 	//
 	// The Projectile Gun block
 	//

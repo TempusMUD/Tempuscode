@@ -75,6 +75,8 @@ extern const char *egun_types[] = {
     "photon",
     "sonic",
     "particle",
+    "gamma",
+    "lightning",
     "unknown"
 };
 

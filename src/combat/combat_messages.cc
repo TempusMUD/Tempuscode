@@ -1172,8 +1172,8 @@ dam_message(int dam, struct Creature *ch, struct Creature *victim,
                              attack_hit_text[w_type].plural, NULL);
     else if (weap && IS_ENERGY_GUN(weap) && w_type == (TYPE_ENERGY_GUN - TYPE_HIT)) {
 		int guntype = GET_OBJ_VAL(weap,3);
-        if (guntype > TOP_ENERGY_GUN_TYPE)
-            guntype = TOP_ENERGY_GUN_TYPE;
+        if (guntype > EGUN_TOP)
+            guntype = EGUN_TOP;
         if (!number(0,2))
             buf = replace_string(dam_energyguns[msgnum].to_room,
 			gun_hit_text[guntype].singular, gun_hit_text[guntype].plural,
@@ -1213,8 +1213,8 @@ dam_message(int dam, struct Creature *ch, struct Creature *victim,
                                  attack_hit_text[w_type].plural, NULL);
         else if (weap && IS_ENERGY_GUN(weap) && w_type == (TYPE_ENERGY_GUN - TYPE_HIT)) {
             int guntype = GET_OBJ_VAL(weap,3);
-            if (guntype > TOP_ENERGY_GUN_TYPE)
-                guntype = TOP_ENERGY_GUN_TYPE;
+            if (guntype > EGUN_TOP)
+                guntype = EGUN_TOP;
             if (!number(0,2))
                 buf = replace_string(dam_energyguns[msgnum].to_char,
 			    gun_hit_text[guntype].singular, gun_hit_text[guntype].plural,
@@ -1260,8 +1260,8 @@ dam_message(int dam, struct Creature *ch, struct Creature *victim,
                                  attack_hit_text[w_type].plural, NULL);
         else if (weap && IS_ENERGY_GUN(weap) && w_type == (TYPE_ENERGY_GUN - TYPE_HIT)) {
             int guntype = GET_OBJ_VAL(weap,3);
-            if (guntype > TOP_ENERGY_GUN_TYPE)
-                guntype = TOP_ENERGY_GUN_TYPE;
+            if (guntype > EGUN_TOP)
+                guntype = EGUN_TOP;
             if (!number(0,2))
                 buf = replace_string(dam_energyguns[msgnum].to_char,
 			    gun_hit_text[guntype].singular, gun_hit_text[guntype].plural,

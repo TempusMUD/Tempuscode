@@ -1444,7 +1444,7 @@ do_stat_object(struct Creature *ch, struct obj_data *j)
             "Drain Rate: %d, Todam: %dd%d (av %d), Damage Type: %s (%d)",
             GET_OBJ_VAL(j, 0), GET_OBJ_VAL(j, 1), GET_OBJ_VAL(j, 2), 
             (GET_OBJ_VAL(j, 1) * (GET_OBJ_VAL(j,2) + 1)) / 2, 
-            (GET_OBJ_VAL(j, 3) >= 0 && GET_OBJ_VAL(j,3) < TOP_ENERGY_GUN_TYPE) ? 
+            (GET_OBJ_VAL(j, 3) >= 0 && GET_OBJ_VAL(j,3) < EGUN_TOP) ? 
             egun_types[(int)GET_OBJ_VAL(j,3)] : "unknown", 
             GET_OBJ_VAL(j, 3));
             break;
@@ -7977,7 +7977,7 @@ stat_obj_to_file(struct obj_data *j, ofstream & out)
             "Drain Rate: %d, Todam: %dd%d (av %d), Damage Type: %s (%d)",
             GET_OBJ_VAL(j, 0), GET_OBJ_VAL(j, 1), GET_OBJ_VAL(j, 2), 
             (GET_OBJ_VAL(j, 1) * (GET_OBJ_VAL(j,2) + 1)) / 2, 
-            (GET_OBJ_VAL(j, 3) >= 0 && GET_OBJ_VAL(j,3) < TOP_ENERGY_GUN_TYPE) ? 
+            (GET_OBJ_VAL(j, 3) >= 0 && GET_OBJ_VAL(j,3) < EGUN_TOP) ? 
             egun_types[(int)GET_OBJ_VAL(j,3)] : "unknown", 
             GET_OBJ_VAL(j, 3));
             break;

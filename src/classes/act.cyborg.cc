@@ -2300,7 +2300,7 @@ perform_analyze( Creature *ch, obj_data *obj, bool checklev=true )
 			CCCYN(ch, C_NRM), GET_OBJ_VAL(obj, 1), GET_OBJ_VAL(obj, 2),
 			CCNRM(ch, C_NRM), CCCYN(ch, C_NRM), GET_OBJ_VAL(obj, 0),
 			CCNRM(ch, C_NRM), CCCYN(ch, C_NRM), 
-            GET_OBJ_VAL(obj, 3) >= TOP_ENERGY_GUN_TYPE ? "unknown" : 
+            GET_OBJ_VAL(obj, 3) >= EGUN_TOP ? "unknown" : 
             egun_types[GET_OBJ_VAL(obj, 3)], CCNRM(ch, C_NRM));
 		break;
 	case ITEM_BATTERY:
