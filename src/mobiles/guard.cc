@@ -131,7 +131,7 @@ SPECIAL(guard)
 			&& !self->isFighting()
 			&& IS_PC(ch)
 			&& !PRF_FLAGGED(ch, PRF_NOHASSLE))
-		set_fighting(ch, self, true);
+		set_fighting(self, ch, true);
 
 	WAIT_STATE(ch, 1 RL_SEC);
 	return true;
