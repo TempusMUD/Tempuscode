@@ -282,13 +282,14 @@ obj_affect_update(void)
     Creature *ch;
     extern struct obj_data *object_list;
     struct obj_data *obj;
-    struct tmp_obj_affect *af;
-	int pos, pos_mode;
+    struct tmp_obj_affect *af, *next_af;
+	int pos = -1, pos_mode;
     int last = 0;
 	bool aff_removed = false;
 
     for (obj = object_list; obj != NULL; obj = obj->next) {
-		for (af = obj->tmp_affects; af != NULL; af = af->next) {
+		for (af = obj->tmp_affects; af != NULL; af = next_af) {
+			next_af = af->next;
 			af->duration--;
 			if (af->duration)
 				continue;
