@@ -2770,11 +2770,17 @@ ACCMD(do_wield)
                 GET_EQ(ch, WEAR_WIELD_2) || 
                 IS_OBJ_STAT2(GET_EQ(ch, WEAR_WIELD), ITEM2_TWO_HANDED))
                 send_to_char("You don't have a hand free to wield it with.\r\n", ch);
-            else if (
+            // Guns and Mercs have to be handled a bit differently, but I hate they
+            // way I've done this.  However, I can't think of a better way ATM...
+            // feel free to clean this up if you like
+            else if (IS_MERC(ch) && IS_ANY_GUN(GET_EQ(ch, WEAR_WIELD)) && IS_ANY_GUN(obj))
+              perform_wear(ch, obj, WEAR_WIELD_2);
+
+            else if ( 
                      GET_EQ(ch, WEAR_WIELD)->getWeight() <= 6 ?
                      ( obj->getWeight() > GET_EQ( ch, WEAR_WIELD )->getWeight() ) :
-                     ( obj->getWeight() > ( GET_EQ(ch, WEAR_WIELD)->getWeight() >> 1 ) )
-                     )
+                     ( obj->getWeight() > ( GET_EQ(ch, WEAR_WIELD)->getWeight() >> 1 )) 
+                    ) 
                 send_to_char("Your secondary weapon must weigh less than half of your primary weapon,\r\nif your primary weighs more than 6 lbs.\r\n", ch);
             else
                 perform_wear(ch, obj, WEAR_WIELD_2);
