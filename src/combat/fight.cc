@@ -935,6 +935,88 @@ damage( struct char_data * ch, struct char_data * victim, int dam,
             }
         }
     }
+    if ( dam_object && dam )
+        check_object_killer( dam_object, victim );
+
+    if ( ch ) {
+        if ( ! cur_weap && ch != victim && dam &&
+             ( attacktype < MAX_SKILLS || attacktype >= TYPE_HIT ) &&
+             ( attacktype > MAX_SPELLS || IS_SET( spell_info[attacktype].routines, MAG_TOUCH ) ) && 
+             ! SPELL_IS_PSIONIC( attacktype ) ) {
+            
+            if ( IS_AFFECTED_3( victim, AFF3_PRISMATIC_SPHERE ) &&
+             attacktype < MAX_SKILLS && 
+             ( CHECK_SKILL( ch, attacktype )+GET_LEVEL( ch ) )
+             <  ( GET_INT( victim ) + number( 70, 130 + GET_LEVEL( victim ) ) ) ) {
+                act( "You are deflected by $N's prismatic sphere!",
+                     FALSE, ch, 0, victim, TO_CHAR );
+                act( "$n is deflected by $N's prismatic sphere!",
+                     FALSE, ch, 0, victim, TO_NOTVICT );
+                act( "$n is deflected by your prismatic sphere!",
+                     FALSE, ch, 0, victim, TO_VICT );
+                damage( victim,ch,dice( 30, 3 )+( dam >> 2 ), SPELL_PRISMATIC_SPHERE, -1 );
+                gain_skill_prof( victim, SPELL_PRISMATIC_SPHERE );
+                DAM_RETURN( TRUE );
+            }
+
+            // electrostatic field
+            if ( ( af = affected_by_spell( victim, SPELL_ELECTROSTATIC_FIELD ) ) ) {
+                if ( ! CHAR_WITHSTANDS_ELECTRIC( ch ) 
+                    && ! mag_savingthrow( ch, af->level, SAVING_ROD ) ) {
+                    // reduces duration if it hits
+                    if ( af->duration > 1 ) {
+                        af->duration--;
+                    }
+                    if ( damage( victim, ch, dice( 3, af->level ), SPELL_ELECTROSTATIC_FIELD, -1 ) ) {
+                        gain_skill_prof( victim, SPELL_ELECTROSTATIC_FIELD );
+                        DAM_RETURN( FALSE );
+                    }
+                }
+            }
+
+            if ( attacktype < MAX_SKILLS && attacktype != SKILL_BEHEAD && 
+             attacktype != SKILL_SECOND_WEAPON && attacktype != SKILL_IMPALE ) {
+                if ( IS_AFFECTED_3( victim, AFF3_PRISMATIC_SPHERE ) &&
+                     !mag_savingthrow( ch, GET_LEVEL( victim ), SAVING_ROD ) ) {
+                    if ( damage( victim, ch, dice( 30, 3 ) + ( IS_MAGE( victim ) ? ( dam >> 2 ) : 0 ),
+                         SPELL_PRISMATIC_SPHERE,-1 ) ) {
+                        DAM_RETURN( TRUE );
+                    }
+                    WAIT_STATE( ch, PULSE_VIOLENCE );
+                } else if ( IS_AFFECTED_2( victim, AFF2_BLADE_BARRIER ) ) {
+                    if ( damage( victim,ch,GET_LEVEL( victim ) +( dam >> 4 ),
+                         SPELL_BLADE_BARRIER,-1 ) ) {
+                    DAM_RETURN( TRUE );
+                    }
+                } else if ( IS_AFFECTED_2( victim, AFF2_FIRE_SHIELD ) && 
+                        attacktype != SKILL_BACKSTAB &&
+                        !mag_savingthrow( ch, GET_LEVEL( victim ), SAVING_BREATH ) &&  
+                        !IS_AFFECTED_2( ch, AFF2_ABLAZE ) &&  
+                        !CHAR_WITHSTANDS_FIRE( ch ) ) {
+                    if ( damage( victim, ch, dice( 8, 8 ) + 
+                         ( IS_MAGE( victim ) ? ( dam >> 3 ) : 0 ),
+                         SPELL_FIRE_SHIELD,-1 ) ) {
+                    DAM_RETURN( FALSE );
+                    }
+                    SET_BIT( AFF2_FLAGS( ch ), AFF2_ABLAZE );
+                } else if ( IS_AFFECTED_2( victim, AFF2_ENERGY_FIELD ) ) {
+                    af = affected_by_spell( victim, SKILL_ENERGY_FIELD );
+                    if ( !mag_savingthrow( ch, 
+                               af ? af->level : GET_LEVEL( victim ), 
+                               SAVING_ROD ) &&  
+                     !CHAR_WITHSTANDS_ELECTRIC( ch ) ) {
+                    if ( damage( victim, ch, 
+                             af ? dice( 3, MAX( 10, af->level ) ) : dice( 3, 8 ),
+                             SKILL_ENERGY_FIELD, -1 ) ) {
+                        DAM_RETURN( FALSE );
+                    }
+                    GET_POS(ch) = POS_SITTING;
+                    WAIT_STATE(ch, 2 RL_SEC);
+                    }
+                }
+            }
+        }
+    }
     if ( affected_by_spell( victim, SPELL_MANA_SHIELD ) &&  ( !  ( attacktype == TYPE_BLEED ) && 
 	 ! ( attacktype == SPELL_POISON ) ) ) { 
         mana_loss = ( dam * GET_MSHIELD_PCT( victim ) ) / 100;
@@ -1173,88 +1255,6 @@ damage( struct char_data * ch, struct char_data * victim, int dam,
     }
 
 
-    if ( dam_object && dam )
-        check_object_killer( dam_object, victim );
-
-    if ( ch ) {
-        if ( ! cur_weap && ch != victim && dam &&
-             ( attacktype < MAX_SKILLS || attacktype >= TYPE_HIT ) &&
-             ( attacktype > MAX_SPELLS || IS_SET( spell_info[attacktype].routines, MAG_TOUCH ) ) && 
-             ! SPELL_IS_PSIONIC( attacktype ) ) {
-            
-            if ( IS_AFFECTED_3( victim, AFF3_PRISMATIC_SPHERE ) &&
-             attacktype < MAX_SKILLS && 
-             ( CHECK_SKILL( ch, attacktype )+GET_LEVEL( ch ) )
-             <  ( GET_INT( victim ) + number( 70, 130 + GET_LEVEL( victim ) ) ) ) {
-                act( "You are deflected by $N's prismatic sphere!",
-                     FALSE, ch, 0, victim, TO_CHAR );
-                act( "$n is deflected by $N's prismatic sphere!",
-                     FALSE, ch, 0, victim, TO_NOTVICT );
-                act( "$n is deflected by your prismatic sphere!",
-                     FALSE, ch, 0, victim, TO_VICT );
-                damage( victim,ch,dice( 30, 3 )+( dam >> 2 ), SPELL_PRISMATIC_SPHERE, -1 );
-                gain_skill_prof( victim, SPELL_PRISMATIC_SPHERE );
-                DAM_RETURN( TRUE );
-            }
-
-            // electrostatic field
-            if ( ( af = affected_by_spell( victim, SPELL_ELECTROSTATIC_FIELD ) ) ) {
-                if ( ! CHAR_WITHSTANDS_ELECTRIC( ch ) 
-                    && ! mag_savingthrow( ch, af->level, SAVING_ROD ) ) {
-                    // reduces duration if it hits
-                    if ( af->duration > 1 ) {
-                        af->duration--;
-                    }
-                    if ( damage( victim, ch, dice( 3, af->level ), SPELL_ELECTROSTATIC_FIELD, -1 ) ) {
-                        gain_skill_prof( victim, SPELL_ELECTROSTATIC_FIELD );
-                        DAM_RETURN( FALSE );
-                    }
-                }
-            }
-
-            if ( attacktype < MAX_SKILLS && attacktype != SKILL_BEHEAD && 
-             attacktype != SKILL_SECOND_WEAPON && attacktype != SKILL_IMPALE ) {
-                if ( IS_AFFECTED_3( victim, AFF3_PRISMATIC_SPHERE ) &&
-                     !mag_savingthrow( ch, GET_LEVEL( victim ), SAVING_ROD ) ) {
-                    if ( damage( victim, ch, dice( 30, 3 ) + ( IS_MAGE( victim ) ? ( dam >> 2 ) : 0 ),
-                         SPELL_PRISMATIC_SPHERE,-1 ) ) {
-                        DAM_RETURN( TRUE );
-                    }
-                    WAIT_STATE( ch, PULSE_VIOLENCE );
-                } else if ( IS_AFFECTED_2( victim, AFF2_BLADE_BARRIER ) ) {
-                    if ( damage( victim,ch,GET_LEVEL( victim ) +( dam >> 4 ),
-                         SPELL_BLADE_BARRIER,-1 ) ) {
-                    DAM_RETURN( TRUE );
-                    }
-                } else if ( IS_AFFECTED_2( victim, AFF2_FIRE_SHIELD ) && 
-                        attacktype != SKILL_BACKSTAB &&
-                        !mag_savingthrow( ch, GET_LEVEL( victim ), SAVING_BREATH ) &&  
-                        !IS_AFFECTED_2( ch, AFF2_ABLAZE ) &&  
-                        !CHAR_WITHSTANDS_FIRE( ch ) ) {
-                    if ( damage( victim, ch, dice( 8, 8 ) + 
-                         ( IS_MAGE( victim ) ? ( dam >> 3 ) : 0 ),
-                         SPELL_FIRE_SHIELD,-1 ) ) {
-                    DAM_RETURN( FALSE );
-                    }
-                    SET_BIT( AFF2_FLAGS( ch ), AFF2_ABLAZE );
-                } else if ( IS_AFFECTED_2( victim, AFF2_ENERGY_FIELD ) ) {
-                    af = affected_by_spell( victim, SKILL_ENERGY_FIELD );
-                    if ( !mag_savingthrow( ch, 
-                               af ? af->level : GET_LEVEL( victim ), 
-                               SAVING_ROD ) &&  
-                     !CHAR_WITHSTANDS_ELECTRIC( ch ) ) {
-                    if ( damage( victim, ch, 
-                             af ? dice( 3, MAX( 10, af->level ) ) : dice( 3, 8 ),
-                             SKILL_ENERGY_FIELD, -1 ) ) {
-                        DAM_RETURN( FALSE );
-                    }
-                    GET_POS(ch) = POS_SITTING;
-                    WAIT_STATE(ch, 2 RL_SEC);
-                    }
-                }
-            }
-        }
-    }
 
     // rangers' critical hit
     if ( ch && IS_RANGER( ch ) && dam > 10 &&
