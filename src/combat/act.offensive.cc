@@ -269,6 +269,7 @@ int calc_skill_prob( struct char_data *ch, struct char_data *vict, int skillnum,
 		FALSE,ch,0,vict,TO_VICT);
 	    act("$n tries to pick $N up and piledrive $M!",
 		FALSE,ch,0,vict,TO_NOTVICT);
+        prob = 0;
 	    if (check_mob_reaction(ch, vict)) {
                 int retval = hit( vict, ch, TYPE_UNDEFINED );
                 *return_flags = SWAP_DAM_RETVAL( retval );
@@ -295,13 +296,14 @@ int calc_skill_prob( struct char_data *ch, struct char_data *vict, int skillnum,
 	    CAN_CARRY_W(ch)*1.5) {
 	    act("$N is too heavy for you to lift!", FALSE, ch, 0, vict, TO_CHAR);
 	    act("$n tries to pick you up and bodyslam you!",
-		FALSE,ch,0,vict,TO_VICT);
+            FALSE,ch,0,vict,TO_VICT);
 	    act("$n tries to pick $N up and bodyslam $M!",
-		FALSE,ch,0,vict,TO_NOTVICT);
+            FALSE,ch,0,vict,TO_NOTVICT);
+        prob = 0;
 	    if (check_mob_reaction(ch, vict)) {
 		int retval = hit(vict, ch, TYPE_UNDEFINED);
-                *return_flags = SWAP_DAM_RETVAL( retval );
-            }
+            *return_flags = SWAP_DAM_RETVAL( retval );
+        }
 	    return -1;
 	}
 
@@ -496,6 +498,7 @@ int calc_skill_prob( struct char_data *ch, struct char_data *vict, int skillnum,
 		    FALSE, ch, neck, vict, TO_NOTVICT);
 		act("You attempt to choke $N, but $p has $M covered!", 
 		    FALSE, ch, neck, vict, TO_CHAR);
+        prob = 0;
 		return -1;
 	    }
 	}
@@ -544,6 +547,7 @@ int calc_skill_prob( struct char_data *ch, struct char_data *vict, int skillnum,
 	    else {
 		act("$N is over twice your height!  You can't reach $S head!", 
 		    FALSE, ch, 0, vict, TO_CHAR);
+        prob = 0;
 		return -1;
 	    }
 	}
@@ -564,6 +568,7 @@ int calc_skill_prob( struct char_data *ch, struct char_data *vict, int skillnum,
 		check_killer(ch, vict);
 		damage_eq(ch, neck, *dam);
 		WAIT_STATE(ch, 2 RL_SEC);
+        prob = 0;
 		return -1;
 	    }
 	    if (((neck = GET_IMPLANT(vict, WEAR_NECK_1)) && 
