@@ -2021,7 +2021,7 @@ damage(struct Creature *ch, struct Creature *victim, int dam,
                             // mages casting spells and shooters should be able to attack
                             // without initiating melee ( on their part at least )
                             if (attacktype != SKILL_ENERGY_WEAPONS &&
-                                attacktype >= TYPE_EGUN_LASER && attacktype <= TYPE_EGUN_TOP &&
+                                !(attacktype >= TYPE_EGUN_LASER && attacktype <= TYPE_EGUN_TOP) &&
                                 attacktype != SKILL_PROJ_WEAPONS &&
                                 ch->in_room == victim->in_room &&
                                 (!IS_MAGE(ch) || attacktype > MAX_SPELLS ||
