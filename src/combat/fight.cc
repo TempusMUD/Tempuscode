@@ -1291,8 +1291,15 @@ death_cry( struct char_data * ch )
 			     ( !ROOM_FLAGGED( ch->in_room, ROOM_ICE_COLD ) ||
 			       CHAR_WITHSTANDS_COLD( helper ) ) &&
 			     ( !IS_DARK( ch->in_room ) || CAN_SEE_IN_DARK( helper ) ) ) {
-			    if ( do_simple_move( helper, rev_dir[door], MOVE_RUSH, 1 ) ) {
+
+			    int move_result = do_simple_move( helper, rev_dir[door], MOVE_RUSH, 1 );
+
+			    if ( move_result == 0 ) {
 				found = number( 0, 1 );
+				break;
+			    }
+			    else if ( move_result == 2 ) {
+				found = 1;
 				break;
 			    }
 			}

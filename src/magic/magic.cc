@@ -276,7 +276,7 @@ affect_update(void)
 
 	if (affected_by_spell(i, SPELL_METABOLISM))
 	    METABOLISM = 1;
-	for (af = i->affected; af; af = next) {
+	for (af = i->affected; af && !found; af = next) {
 	    next = af->next;
 	    if (af->type == SPELL_SHIELD_OF_RIGHTEOUSNESS && !IS_GOOD(i))
 		af->duration = 0;     // take it off the nogood sonuvabitch
@@ -306,16 +306,28 @@ affect_update(void)
 			    else if (IS_PHYSIC(i) && GET_LEVEL(i) > 31 && GET_MANA(i) > 50)
 				found = cast_spell(i, i, 0, SPELL_TIDAL_SPACEWARP);
 			    if (!found) {
-				if ( !i->in_room->isOpenAir() )
+
+				if ( !i->in_room->isOpenAir() ) {
 				    do_stand(i, "", 0, 0);
+				}
+				
 				else if (EXIT(i, DOWN) && EXIT(i, DOWN)->to_room != NULL) {
-				    if (IS_SET(EXIT(i, DOWN)->exit_info, EX_CLOSED))
+
+				    if (IS_SET(EXIT(i, DOWN)->exit_info, EX_CLOSED)) {
 					do_stand(i, "", 0, 0);
-				    else
-					do_simple_move(i, DOWN, MOVE_NORM, 1);
-				} else
+				    }
+
+				    else if ( do_simple_move(i, DOWN, MOVE_NORM, 1) == 2 ) {
+					found = 1;
+					break;
+				    }
+
+				} else {
 				    act("$n grins cryptically...", FALSE, i, 0, 0, TO_ROOM);
+				}
 			    }
+
+			    found = 0;
 			}
 		    }
 		}  
@@ -358,7 +370,7 @@ affect_update(void)
 		send_to_char("You are no longer beserk.\r\n", i);
 	    if (kata_found)
 		send_to_char("Your kata has worn off.\r\n", i);
-		if (hamstring_found)
+	    if (hamstring_found)
 		send_to_char("The wound in your leg seems to have closed.\r\n",i);
 	    
 	}

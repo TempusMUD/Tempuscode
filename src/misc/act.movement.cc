@@ -95,14 +95,6 @@ void add_blood_to_room(struct room_data *rm, int amount);
 					DOOR_FLAGGED(ch, door, EX_SPECIAL))
 	
 
-/* do_simple_move assumes
- *	1. That there is no master and no followers.
- *	2. That the direction exists.
- *
- *   Returns :
- *   1 : If succes.
- *   0 : If fail
- */
 bool can_travel_sector(struct char_data *ch, int sector_type, bool active)
 {
     struct obj_data *obj;
@@ -265,9 +257,18 @@ get_giveaway(struct char_data *ch, struct char_data *tch, char *str)
     }
 }
 
-int 
-do_simple_move(struct char_data * ch, int dir, int mode, int need_specials_check)
-{
+/* do_simple_move assumes
+ *	1. That there is no master and no followers.
+ *	2. That the direction exists.
+ *
+ *   Returns :
+ *   0 : If succes.
+ *   1 : If fail
+ *   2 : If critical failure / possible death
+ */
+
+int do_simple_move(struct char_data * ch, int dir, int mode, int need_specials_check) {
+
     int need_movement, i, has_boat = 0, wait_state = 0, sneak_prob = 0;
     struct room_data *was_in;
     struct obj_data *obj = NULL, *next_obj = NULL, *car = NULL, *c_obj = NULL;
@@ -282,13 +283,14 @@ do_simple_move(struct char_data * ch, int dir, int mode, int need_specials_check
      * -- only check if following; this avoids 'double spec-proc' bug
      */
     if (need_specials_check && special(ch, dir + 1, dir + 1, ""))
-	return 1;
+	return 2;
 
     /* afk?     */
     if (PLR_FLAGGED(ch, PLR_AFK)) {
 	send_to_char("You are no longer afk.\r\n", ch);
 	REMOVE_BIT(PLR_FLAGS(ch), PLR_AFK);
     }
+
     /* charmed? */
     if (IS_AFFECTED(ch, AFF_CHARM) && ch->master && 
 	ch->in_room == ch->master->in_room) {
@@ -297,19 +299,13 @@ do_simple_move(struct char_data * ch, int dir, int mode, int need_specials_check
 	    act("$n makes a hollow moaning sound.", FALSE, ch, 0, 0, TO_ROOM);
 	else
 	    act("$n looks like $e wants to go somewhere.", FALSE, ch, 0, 0, TO_ROOM);
-	return 0;
+	return 1;
     }
-    /* Is the room a clan room, and can we enter? */
-    /*  if (IS_SET(ROOM_FLAGS(EXIT(ch, dir)->to_room), ROOM_CLAN_HOUSE) &&
-	!clan_house_can_enter(ch, EXIT(ch, dir)->to_room)) {
-	send_to_char("You cannot enter there -- members only.\r\n", ch);
-	return 0;
-	}*/
 
     if ((af_ptr = affected_by_spell(ch, SPELL_ENTANGLE))) {
 	if (!GET_MOVE(ch)) {
 	    send_to_char("You are too exhausted to break free from the entangling vegetation.\r\n", ch);
-	    return 0;
+	    return 1;
 	}
 	if (ch->in_room->sector_type == SECT_CITY) {
 	    send_to_char("You struggle against the entangling vegetation!\r\n", ch);
@@ -327,25 +323,25 @@ do_simple_move(struct char_data * ch, int dir, int mode, int need_specials_check
 	    act("$n breaks free from the entanglement!",TRUE,ch,0,0,TO_ROOM);
 	    affect_remove(ch, af_ptr);
 	}
-	return 0;
+	return 1;
     }
   
     if (IS_SET(ROOM_FLAGS(EXIT(ch, dir)->to_room), ROOM_HOUSE) &&
 	!House_can_enter(ch, EXIT(ch, dir)->to_room->number)) {
 	send_to_char("That's private property -- no trespassing!\r\n", ch);
-	return 0;
+	return 1;
     }
 
     if (IS_SET(ROOM_FLAGS(EXIT(ch, dir)->to_room), ROOM_GODROOM) &&
 	(GET_LEVEL(ch) < LVL_GRGOD)) {
 	send_to_char("You cannot set foot in that Ultracosmic place.\r\n", ch);
-	return 0;
+	return 1;
     }
 
     if (GET_LEVEL(ch) >= LVL_AMBASSADOR && GET_LEVEL(ch) < LVL_SPIRIT &&
 	ROOM_FLAGGED(EXIT(ch, dir)->to_room, ROOM_DEATH)) {
 	send_to_char("You are repelled by an invisible order-shield.\r\n", ch);
-	return 0;
+	return 1;
     }
 
     /* if this room or the one we're going to needs a boat, check for one */
@@ -365,20 +361,20 @@ do_simple_move(struct char_data * ch, int dir, int mode, int need_specials_check
 	}
 	if (!has_boat) {
 	    send_to_char("You need a boat to go there.\r\n", ch);
-	    return 0;
+	    return 1;
 	}
     }
     /* if this room or the one we're going to needs wings, check for one */
     if ( ch->in_room->isOpenAir() &&
 	 GET_POS(ch) != POS_FLYING) {
 	send_to_char("You scramble wildly for a grasp of thin air.\r\n", ch);
-	return 0;
+	return 1;
     }
     if (EXIT(ch, dir)->to_room->isOpenAir() && !NOGRAV_ZONE(ch->in_room->zone) &&
 	GET_POS(ch) != POS_FLYING && mode != MOVE_JUMP) {
 	send_to_char("You need to be flying to go there.\r\n"
 		     "You can 'jump' in that direction however...\r\n", ch);
-	return 0;
+	return 1;
     }
 
     /* check room count */
@@ -387,7 +383,7 @@ do_simple_move(struct char_data * ch, int dir, int mode, int need_specials_check
 	(mount &&
 	 (i >= MAX_OCCUPANTS(EXIT(ch, dir)->to_room) - 2))) {
 	send_to_char("It is too crowded there to enter.\r\n", ch);
-	return 0;
+	return 1;
     }
   
     /*  if we are mounted and the exit is a doorway, dont let it happen. */
@@ -395,7 +391,7 @@ do_simple_move(struct char_data * ch, int dir, int mode, int need_specials_check
 	IS_SET(EXIT(ch, dir)->exit_info, EX_ISDOOR) &&
 	IS_SET(ROOM_FLAGS(EXIT(ch, dir)->to_room), ROOM_INDOORS)) {
 	act("You cannot ride $N through there.", FALSE, ch, 0, mount, TO_CHAR);
-	return 0;
+	return 1;
     }
 
     need_movement = (movement_loss[ch->in_room->sector_type] +
@@ -435,11 +431,11 @@ do_simple_move(struct char_data * ch, int dir, int mode, int need_specials_check
 	else
 	    send_to_char("You are too exhausted.\r\n", ch);
 
-	return 0;
+	return 1;
     }
     if (mount && GET_MOVE(mount) < need_movement) {
 	send_to_char("Your mount is too exhausted to continue.\r\n", ch);
-	return 0;
+	return 1;
     }
 
     sneak_prob = CHECK_SKILL(ch, SKILL_SNEAK) + GET_LEVEL(ch) +
@@ -859,10 +855,12 @@ do_simple_move(struct char_data * ch, int dir, int mode, int need_specials_check
   
     if (ch->desc)
 	look_at_room(ch, ch->in_room, 0);
-	if ( IS_AFFECTED_3(ch, AFF3_HAMSTRUNG) && GET_POS(ch) == POS_STANDING ) {
-		if(damage(ch,ch,dice(5,9),TYPE_BLEED,0))
-			return 0;
-	}
+
+    if ( IS_AFFECTED_3(ch, AFF3_HAMSTRUNG) && GET_POS(ch) == POS_STANDING ) {
+	if (damage(ch,ch,dice(5,9),TYPE_BLEED,0))
+	    return 2;
+    }
+
     if (ch->in_room->sector_type == SECT_UNDERWATER) {
 	if (was_in->sector_type != SECT_UNDERWATER &&
 	    was_in->sector_type != SECT_WATER_NOSWIM) {
@@ -921,18 +919,23 @@ do_simple_move(struct char_data * ch, int dir, int mode, int need_specials_check
 		damage_eq(NULL, obj, dice(10, 100));
 	    }
 	}
-	return 0;
+	return 2;
     }
 
     for (srch = ch->in_room->search, found = 0; srch; srch = srch->next) {
-	if (SRCH_FLAGGED(srch, SRCH_TRIG_ENTER) &&
-	    SRCH_OK(ch, srch))
+	if (SRCH_FLAGGED(srch, SRCH_TRIG_ENTER) && SRCH_OK(ch, srch)) {
 	    found = general_search(ch, srch, found);
+	    
+	    if ( found == 2 )
+		return 2;
+	}
+	
     }
 
-    if (found != 2 && IS_NPC(ch))
+    if ( IS_NPC(ch) )
 	ch->mob_specials.last_direction = dir;
-    return 1;
+
+    return 0;
 }
 
 
@@ -1038,7 +1041,7 @@ perform_move(struct char_data *ch, int dir, int mode, int need_specials_check)
 	    return (do_simple_move(ch, dir, mode, need_specials_check));
 
 	was_in = ch->in_room;
-	if (!do_simple_move(ch, dir, mode, need_specials_check))
+	if ( do_simple_move(ch, dir, mode, need_specials_check) != 0 )
 	    return 0;
 
 	for (k = ch->followers; k; k = next) {

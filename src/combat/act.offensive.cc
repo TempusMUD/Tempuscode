@@ -1077,7 +1077,10 @@ ACMD(do_flee)
 		else 
 		    continue;
 	    }
-	    if (do_simple_move(ch, attempt, MOVE_FLEE, TRUE)) {
+	    
+	    int move_result = do_simple_move( ch, attempt, MOVE_FLEE, TRUE );
+
+	    if ( move_result == 0 ) {
 		send_to_char("You flee head over heels.\r\n", ch);
 		if (loss && fighting) {
 		    gain_exp(ch, -loss);
@@ -1090,7 +1093,8 @@ ACMD(do_flee)
 		}
 		if ( ch->in_room->isOpenAir() )
 		    GET_POS(ch) = POS_FLYING;
-	    } else {
+	    } 
+	    else if ( move_result == 1 ) {
 		act("$n tries to flee, but can't!", TRUE, ch, 0, 0, TO_ROOM);
 	    }
 	    return;
