@@ -454,8 +454,19 @@ ACMD(do_extinguish)
 				FALSE, ch, 0, 0, TO_ROOM);
 			REMOVE_BIT(AFF2_FLAGS(ch), AFF2_ABLAZE);
 		}
-	} else if ((ovict = get_obj_in_list_all(ch, arg1, ch->carrying)) ||
-		(ovict = get_obj_in_list_vis(ch, arg1, ch->in_room->contents))) {
+	return;
+	}
+	
+	if (GET_EQ(ch, WEAR_HOLD) &&
+			isname(arg1, GET_EQ(ch, WEAR_HOLD)->name))
+		ovict = GET_EQ(ch, WEAR_HOLD);
+
+	if (!ovict)
+		ovict = get_obj_in_list_vis(ch, arg1, ch->carrying);
+	if (!ovict)
+		ovict = get_obj_in_list_vis(ch, arg1, ch->in_room->contents);
+
+	if (ovict) {
 		if (!OBJ_TYPE(ovict, ITEM_PIPE) &&
 			!OBJ_TYPE(ovict, ITEM_CIGARETTE) && !OBJ_TYPE(ovict, ITEM_BOMB))
 			send_to_char(ch, "You can't extinguish that.\r\n");
@@ -474,7 +485,10 @@ ACMD(do_extinguish)
 			else
 				GET_OBJ_VAL(ovict, 3) = 0;
 		}
-	} else if ((vict = get_char_room_vis(ch, arg1))) {
+		return;
+	}
+
+	if ((vict = get_char_room_vis(ch, arg1))) {
 		if (!IS_AFFECTED_2(vict, AFF2_ABLAZE))
 			act("$N's not even on fire!", FALSE, ch, 0, vict, TO_CHAR);
 		else if (number(40,
