@@ -3361,18 +3361,11 @@ ASPELL(spell_dispel_magic)
         return;
     }
 
-/*    if (IS_MAGE(ch) && 
-        (IS_OBJ_STAT(obj, ITEM_BLESS) || IS_OBJ_STAT(obj, ITEM_DAMNED))) {
-        send_to_char(ch, "Nothing seems to happen.\r\n");
+    if (IS_OBJ_STAT(obj, ITEM_BLESS) || IS_OBJ_STAT(obj, ITEM_DAMNED)) {
+        act("$p hums for a moment this absorbs your magic!", FALSE,
+            ch, obj, 0, TO_CHAR);
         return;
     }
-
-    if (IS_OBJ_STAT(obj, ITEM_BLESS)) {
-        call_magic(ch, ch, 0, SPELL_ESSENCE_OF_GOOD, GET_LEVEL(ch), CAST_SPELL, &my_return_flags);
-    }
-    if (IS_OBJ_STAT(obj, ITEM_DAMNED)) {
-        call_magic(ch, ch, 0, SPELL_ESSENCE_OF_EVIL, GET_LEVEL(ch), CAST_SPELL, &my_return_flags);
-    } */
 
     // removes up to ten affects
     aff_to_remove = 10 - ch->getLevelBonus(IS_MAGE(ch)/* || IS_CLERIC(ch)*/) / 10;
