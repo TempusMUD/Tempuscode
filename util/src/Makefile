@@ -1,4 +1,4 @@
-UTILS=hcontrol-view showplay economic_stats demographic_stats
+UTILS=hcontrol-view showplay economic_stats demographic_stats scan_rent
 INCLUDE=-I../../src/include
 CXX=g++ -Wall -O3 $(INCLUDE)
 
@@ -16,3 +16,5 @@ economic_stats: economic_stats.cc
 demographic_stats: demographic_stats.cc
 	$(CXX) demographic_stats.cc -o $@
 
+scan_rent: scan_rent.cc
+	$(CXX) scan_rent.cc -o $@
