@@ -15,8 +15,7 @@
 #define LAST_SCRIPT_ACTION       ( GET_OBJ_MAX_DAM( obj ) )
 #define SCRIPT_FLAGGED( flag )  ( IS_SET( MESSAGE_MODE, flag ) )
 
-int
-mob_read_script( struct char_data *ch )
+SPECIAL(mob_read_script)
 {
     struct obj_data *obj = GET_IMPLANT( ch, WEAR_HOLD );
     struct char_data *vict = NULL;

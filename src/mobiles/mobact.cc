@@ -92,8 +92,7 @@ SPECIAL(thief);
 SPECIAL(cityguard);
 SPECIAL(hell_hunter);
 
-int
-mob_read_script(struct char_data *ch);
+SPECIAL(mob_read_script);
 
 #define MOB_AGGR_TO_ALIGN (MOB_AGGR_EVIL | MOB_AGGR_NEUTRAL | MOB_AGGR_GOOD)
 #define IS_RACIALLY_AGGRO(ch) \
@@ -1558,7 +1557,7 @@ void mobile_activity(void) {
 
         if (MOB2_FLAGGED(ch, MOB2_SCRIPT) && GET_IMPLANT(ch, WEAR_HOLD) && 
             OBJ_TYPE(GET_IMPLANT(ch, WEAR_HOLD), ITEM_SCRIPT)) {
-            if (mob_read_script(ch))
+            if (mob_read_script(ch,NULL, 0, NULL, SPECIAL_NONE))
                 continue;
         }
 
