@@ -787,25 +787,26 @@ get_from_room(struct char_data * ch, char *arg)
 
 	    sigil_trip = 0;
         if (IS_OBJ_TYPE(obj, ITEM_MONEY)) {
-		sprintf(money_desc,"%s",obj->short_description);
+			sprintf(money_desc,"%s",obj->short_description);
+			money_found = 1;
 		}
 
 	    if (!perform_get_from_room(ch, obj, FALSE)) {
-		counter = 1;
-		obj = next_obj;
-		continue;
+			counter = 1;
+			obj = next_obj;
+			continue;
 	    } else
-		found = TRUE;
+			found = TRUE;
 
 	    if (found &&
 		GET_OBJ_SIGIL_IDNUM(obj) &&
 		GET_OBJ_SIGIL_IDNUM(obj) != GET_IDNUM(ch)) {
-		sigil_trip = 1;
-		end = 1;
+			sigil_trip = 1;
+			end = 1;
 	    }
 
 	    if (next_obj && next_obj->short_description == obj->short_description)
-		counter++;
+			counter++;
 	    else {
 		if (counter == 1) {
 			if(money_found == 0) {
