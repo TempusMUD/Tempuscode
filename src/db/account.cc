@@ -414,6 +414,10 @@ Account::delete_char(Creature *ch)
 			acct->distrust(GET_IDNUM(ch));
 	}
 
+	// Disassociate author from board messages
+	sql_exec("update board_messages set author=null where author=%ld",
+		GET_IDNUM(ch));
+
 	// Remove character from account
 	it = lower_bound(_chars.begin(), _chars.end(), GET_IDNUM(ch));
 	if (it != _chars.end())
