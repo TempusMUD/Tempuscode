@@ -32,8 +32,8 @@ SPECIAL(guard)
 	struct Creature *self = (struct Creature *)me;
 	int cmd_idx, lineno;
 	Reaction reaction;
-	char *to_vict = "You are blocked by $n";
-	char *to_room = "$n is blocked by $N";
+	char *to_vict = "You are blocked by $n.";
+	char *to_room = "$N is blocked by $n.";
 	char *str, *line, *param_key;
 	bool attack = false;
 
@@ -80,13 +80,13 @@ SPECIAL(guard)
 		}
 	}
 
-	if (ALLOW == reaction.react(ch))
+	if (IS_IMMORT(ch) || ALLOW == reaction.react(ch))
 		return false;
 
 	// Set to deny if undecided
 	act(to_vict, FALSE, self, 0, ch, TO_VICT);
 	act(to_room, FALSE, self, 0, ch, TO_NOTVICT);
 	if (attack && !PRF_FLAGGED(ch, PRF_NOHASSLE))
-		hit(self, ch, TYPE_UNDEFINED);
+		set_fighting(ch, self, true);
 	return true;
 }
