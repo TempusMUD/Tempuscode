@@ -932,7 +932,7 @@ send_menu(descriptor_data *d)
 	case CXN_NAME_PROMPT:
 		send_to_desc(d, "\e[H\e[J");
 		send_to_desc(d, "\r\n&c                                 CHARACTER CREATION\r\n*******************************************************************************&n\r\n");
-		send_to_desc(d, "\r\n    Now that you have created your account, you probably want to create a character to play on the mud.  This character will be your persona on the mud, allowing you to interact with other people and things.  You may press return at any time to cancel the creation of your character.\r\n\r\n\r\n");
+		send_to_desc(d, "\r\n\r\n    Now that you have created your account, you probably want to create a\r\ncharacter to play on the mud.  This character will be your persona on the\r\nmud, allowing you to interact with other people and things.  You may press\r\nreturn at any time to cancel the creation of your character.\r\n\r\n");
 		break;
 	case CXN_SEX_PROMPT:
 		send_to_desc(d, "\e[H\e[J");
