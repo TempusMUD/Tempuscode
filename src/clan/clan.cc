@@ -29,6 +29,7 @@
 #include "clan.h"
 #include "char_class.h"
 #include "tmpstr.h"
+#include "accstr.h"
 #include "player_table.h"
 
 /* extern variables */
@@ -285,7 +286,7 @@ ACMD(do_clanlist)
 	bool complete = 0;
 	int visible = 1;
 	int found = 0;
-	char *name, *line, *msg = "";
+	char *name;
 
 	if (!clan) {
 		send_to_char(ch, "You are not a member of any clan.\r\n");
@@ -313,7 +314,8 @@ ACMD(do_clanlist)
 		argument = one_argument(argument, arg);
 	}
 
-	msg = tmp_strcat("Members of clan ", clan->name, " :\r\n", NULL);
+	acc_string_clear();
+	acc_strcat("Members of clan ", clan->name, " :\r\n", NULL);
 	for (member = clan->member_list; member; member = member->next, found = 0) {
 		for (d = descriptor_list; d && !found; d = d->next) {
 			if (IS_PLAYING(d)) {
@@ -327,7 +329,7 @@ ACMD(do_clanlist)
 						ranknames[(int)member->rank] : "the member",
 						" (online)", NULL);
 					if (d->original)
-						line = tmp_sprintf(
+						acc_sprintf(
 							"%s[%s%2d %s%s]%s %s%-40s%s - %s%s%s %s(in %s)%s\r\n",
 							CCGRN(ch, C_NRM),
 							CCNRM(ch, C_NRM),
@@ -354,7 +356,7 @@ ACMD(do_clanlist)
 							GET_NAME(d->creature),
 							CCNRM(ch, C_CMP));
 					else if (GET_LEVEL(i) >= LVL_AMBASSADOR)
-						line = tmp_sprintf("%s[%s%s%s]%s %-40s%s - %s%s%s\r\n",
+						acc_sprintf("%s[%s%s%s]%s %-40s%s - %s%s%s\r\n",
 							CCYEL_BLD(ch, C_NRM),
 							CCNRM_GRN(ch, C_SPR),
 							level_abbrevs[(int)(GET_LEVEL(i) - LVL_AMBASSADOR)],
@@ -370,7 +372,7 @@ ACMD(do_clanlist)
 								: i->in_room->zone->name,
 							CCNRM(ch, C_NRM));
 					else
-						line = tmp_sprintf("%s[%s%2d %s%s]%s %s%-40s%s - %s%s%s\r\n",
+						acc_sprintf("%s[%s%2d %s%s]%s %s%-40s%s - %s%s%s\r\n",
 							CCGRN(ch, C_NRM),
 							CCNRM(ch, C_NRM),
 							GET_LEVEL(i),
@@ -391,7 +393,6 @@ ACMD(do_clanlist)
 							CCNRM(ch, C_NRM));
 
 					++found;
-					msg = tmp_strcat(msg, line,NULL);
 				}
 			}
 		}
@@ -407,25 +408,23 @@ ACMD(do_clanlist)
 					clan->ranknames[(int)member->rank] : "the member", NULL);
 
 				if (GET_LEVEL(i) >= LVL_AMBASSADOR)
-					line = tmp_sprintf("%s[%s%s%s]%s %-40s%s\r\n",
+					acc_sprintf("%s[%s%s%s]%s %-40s%s\r\n",
 						CCYEL_BLD(ch, C_NRM), CCNRM_GRN(ch, C_SPR),
 						level_abbrevs[(int)(GET_LEVEL(i) - LVL_AMBASSADOR)],
 						CCYEL_BLD(ch, C_NRM), CCNRM_GRN(ch, C_SPR),
 						name, CCNRM(ch, C_SPR));
 				else
-					line = tmp_sprintf("%s[%s%2d %s%s]%s %s%-40s%s\r\n",
+					acc_sprintf("%s[%s%2d %s%s]%s %s%-40s%s\r\n",
 						CCGRN(ch, C_NRM), CCNRM(ch, C_NRM), GET_LEVEL(i),
 						char_class_abbrevs[(int)GET_CLASS(i)], CCGRN(ch,
 							C_NRM), CCNRM(ch, C_NRM), (PLR_FLAGGED(i,
 								PLR_CLAN_LEADER) ? CCCYN(ch, C_NRM) : ""),
 						name, CCNRM(ch, C_NRM));
-
-				msg = tmp_strcat(msg, line,NULL);
 			}
 			delete i;
 		}
 	}
-	page_string(ch->desc, msg);
+	page_string(ch->desc, acc_get_string());
 }
 
 ACMD(do_cinfo)
@@ -436,40 +435,39 @@ ACMD(do_cinfo)
 	struct room_list_elem *rm_list = NULL;
 	int found = 0;
 	int i;
-	char *msg = "";
 
 	if (!clan)
 		send_to_char(ch, "You are not a member of any clan.\r\n");
 	else {
+		acc_string_clear();
 		for (i = 0, member = clan->member_list; member; member = member->next)
 			i++;
-		msg = tmp_sprintf("Information on clan %s%s%s:\r\n\r\n"
+		acc_sprintf("Information on clan %s%s%s:\r\n\r\n"
 			"Clan badge: '%s%s%s', Clan headcount: %d, "
 			"Clan bank account: %d\r\nClan ranks:\r\n",
 			CCCYN(ch, C_NRM), clan->name, CCNRM(ch, C_NRM),
 			CCCYN(ch, C_NRM), clan->badge, CCNRM(ch, C_NRM),
 			i, clan->bank_account);
 		for (i = clan->top_rank; i >= 0; i--) {
-			msg = tmp_sprintf("%s (%2d)  %s%s%s\r\n", msg, i, CCYEL(ch, C_NRM),
+			acc_sprintf(" (%2d)  %s%s%s\r\n", i, CCYEL(ch, C_NRM),
 				clan->ranknames[i] ? clan->ranknames[i] : "the Member",
 				CCNRM(ch, C_NRM));
 		}
 
-		msg = tmp_strcat(msg, "Clan rooms:\r\n",NULL);
+		acc_strcat("Clan rooms:\r\n",NULL);
 		for (rm_list = clan->room_list; rm_list; rm_list = rm_list->next) {
 			if (rm_list->room
 				&& ROOM_FLAGGED(rm_list->room, ROOM_CLAN_HOUSE)) {
-				msg = tmp_strcat(msg,
-					CCCYN(ch, C_NRM),
+				acc_strcat(CCCYN(ch, C_NRM),
 					rm_list->room->name,
 					CCNRM(ch, C_NRM), "\r\n", NULL);
 				++found;
 			}
 		}
 		if (!found)
-			msg = tmp_strcat(msg, "None.\r\n",NULL);
+			acc_strcat("None.\r\n",NULL);
 
-		page_string(ch->desc, msg);
+		page_string(ch->desc, acc_get_string());
 	}
 }
 
@@ -1616,64 +1614,63 @@ do_show_clan(struct Creature *ch, struct clan_data *clan)
 	struct clanmember_data *member = NULL;
 	struct room_list_elem *rm_list = NULL;
 	int i, num_rooms = 0, num_members = 0;
-	char *msg;
 
+	acc_string_clear();
 	if (clan) {
-		msg = tmp_sprintf(
+		acc_sprintf(
 			"CLAN %d - Name: %s%s%s, Badge: %s%s%s, Top Rank: %d, Bank: %d\r\n",
 			clan->number, CCCYN(ch, C_NRM), clan->name, CCNRM(ch, C_NRM),
 			CCCYN(ch, C_NRM), clan->badge, CCNRM(ch, C_NRM), clan->top_rank,
 			clan->bank_account);
 
 		if (GET_LEVEL(ch) > LVL_AMBASSADOR)
-			msg = tmp_sprintf("%sOwner: %ld (%s), Flags: %d\r\n",
-				msg, clan->owner, playerIndex.getName(clan->owner), clan->flags);
+			acc_sprintf("Owner: %ld (%s), Flags: %d\r\n",
+				clan->owner, playerIndex.getName(clan->owner), clan->flags);
 
 		for (i = clan->top_rank; i >= 0; i--) {
-			msg = tmp_sprintf("%sRank %2d: %s%s%s\r\n", msg, i,
+			acc_sprintf("Rank %2d: %s%s%s\r\n", i,
 				CCYEL(ch, C_NRM),
 				clan->ranknames[i] ? clan->ranknames[i] : !(i) ? "recruit" :
 				"member", CCNRM(ch, C_NRM));
 		}
 		
-		msg = tmp_strcat(msg, "ROOMS:\r\n",NULL);
+		acc_strcat("ROOMS:\r\n",NULL);
 
 		for (rm_list = clan->room_list, num_rooms = 0;
 			rm_list; rm_list = rm_list->next) {
 			num_rooms++;
-			msg = tmp_sprintf("%s%3d) %5d.  %s%s%s\r\n", msg, num_rooms,
+			acc_sprintf("%3d) %5d.  %s%s%s\r\n", num_rooms,
 				rm_list->room->number,
 				CCCYN(ch, C_NRM), rm_list->room->name, CCNRM(ch, C_NRM));
 		}
 		if (!num_rooms)
-			msg = tmp_strcat(msg, "None.\r\n",NULL);
+			acc_strcat("None.\r\n",NULL);
 
-		msg = tmp_strcat(msg, "MEMBERS:\r\n",NULL);
+		acc_strcat("MEMBERS:\r\n",NULL);
 
 			for (member = clan->member_list, num_members = 0;
 				member; member = member->next) {
 				num_members++;
-				msg = tmp_sprintf("%s%3d) %5d -  %s%20s%s  Rank: %d\r\n", msg,
+				acc_sprintf("%3d) %5d -  %s%20s%s  Rank: %d\r\n",
 					num_members, (int)member->idnum,
 					CCYEL(ch, C_NRM), playerIndex.getName(member->idnum),
 					CCNRM(ch, C_NRM), member->rank);
 			}
-			msg = tmp_strcat(msg, "None.\r\n",NULL);
+			acc_strcat("None.\r\n",NULL);
 
 	} else {
-		msg = tmp_strdup("CLANS:\r\n");
+		acc_strcat("CLANS:\r\n", NULL);
 		for (clan = clan_list; clan; clan = clan->next) {
 			for (member = clan->member_list, num_members = 0; member;
 				num_members++, member = member->next);
 
-			msg = tmp_sprintf("%s %3d - %s%20s%s  %s%20s%s  (%3d members)\r\n",
-				msg,
+			acc_sprintf(" %3d - %s%20s%s  %s%20s%s  (%3d members)\r\n",
 				clan->number,
 				CCCYN(ch, C_NRM), clan->name, CCNRM(ch, C_NRM),
 				CCCYN(ch, C_NRM), clan->badge, CCNRM(ch, C_NRM), num_members);
 		}
 	}
-	page_string(ch->desc, msg);
+	page_string(ch->desc, acc_get_string());
 }
 
 int
