@@ -674,7 +674,7 @@ do_simple_move(struct Creature *ch, int dir, int mode,
 			"boiling pitch");
 	}
 
-	if(! char_from_room(ch) ) {
+	if(!char_from_room(ch) ) {
 		return 2;
 	}
 	update_trail(ch, was_in, dir, TRAIL_EXIT);
@@ -683,7 +683,7 @@ do_simple_move(struct Creature *ch, int dir, int mode,
 		send_to_char(ch, "You beat a hasty retreat %s.\r\n", to_dirs[dir]);
 	}
 
-	if(! char_to_room(ch, was_in->dir_option[dir]->to_room) ) {
+	if(!char_to_room(ch, was_in->dir_option[dir]->to_room) ) {
 		return 2;
 	}
 	update_trail(ch, ch->in_room, rev_dir[dir], TRAIL_ENTER);
@@ -1164,7 +1164,8 @@ perform_move(struct Creature *ch, int dir, int mode, int need_specials_check)
 			break;
 		}
 	} else if (IS_SET(EXIT(ch, dir)->exit_info, EX_CLOSED) &&
-		!NON_CORPOREAL_UNDEAD(ch) && GET_LEVEL(ch) < LVL_GOD) {
+			!NON_CORPOREAL_UNDEAD(ch) &&
+			(GET_LEVEL(ch) < LVL_AMBASSADOR || PLR_FLAGGED(ch, PLR_MORTALIZED))) {
 		if (EXIT(ch, dir)->keyword) {
 			send_to_char(ch, "The %s seem%s to be closed.\r\n",
 				fname(EXIT(ch, dir)->keyword),

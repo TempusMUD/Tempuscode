@@ -303,7 +303,7 @@ House_load(int atrium)
 		tmpo = Obj_from_store(fl, true);
 
 		if (!tmpo || !(rnum = tmpo->in_room))
-			return 0;
+			continue;
 
 		if (IS_OBJ_STAT(tmpo, ITEM_NORENT) ||
 			(OBJ_TYPE(tmpo, ITEM_KEY) && !GET_OBJ_VAL(tmpo, 1))) {

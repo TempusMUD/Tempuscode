@@ -2159,7 +2159,7 @@ extern const char *spell_wear_off_msg[] = {
 	"Your image is no longer displaced.",
 	"!peer!",
 	"!meteor storm!",
-	"You no longer feel safe from devils",
+	"You no longer feel safe from devils.",
 	"You feel better.",			/* 110 */
 	"!Ice Storm!",
 	"!Astral Spell!",

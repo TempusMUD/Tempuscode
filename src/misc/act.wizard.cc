@@ -3870,7 +3870,7 @@ show_player(Creature *ch, char *value)
 		vbuf.player_specials_saved.remort_generation);
 	sprintf(buf, "%s  Rent: %s%s\r\n", buf, rent_type, CCNRM(ch, C_NRM));
 	sprintf(buf,
-		"%sAu: %-8d  Bal: %-8d  Exp: %-8d  Align: %-5d  Lessons: %-3d\r\n",
+		"%sAu: %-8d  Bal: %-8d  Exp: %-8d  Align: %-5d  Pracs: %-3d\r\n",
 		buf, vbuf.points.gold, vbuf.points.bank_gold, vbuf.points.exp,
 		vbuf.char_specials_saved.alignment,
 		vbuf.player_specials_saved.spells_to_learn);
