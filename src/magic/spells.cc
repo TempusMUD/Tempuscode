@@ -2159,7 +2159,7 @@ ASPELL(spell_sword)
 		TO_CHAR);
 	act("$n has conjured $N from the ethereal plane!", FALSE, ch, 0, sword,
 		TO_ROOM);
-	char_to_room(sword, ch->in_room);
+	char_to_room(sword, ch->in_room, false);
 
 	if (sword->master)
 		stop_follower(sword);
@@ -2629,7 +2629,7 @@ ASPELL(spell_summon_legion)
 
 
 
-	char_to_room(devil, ch->in_room);
+	char_to_room(devil, ch->in_room, false);
 	act("A glowing interplanar rift opens with a crack of thunder!\r\n"
 		"$n steps from the mouth of the conduit, which closes with a roar!",
 		FALSE, devil, 0, 0, TO_ROOM);
@@ -2745,7 +2745,7 @@ ASPELL(spell_animate_dead)
 	// char has to be in a room to be sent through extract_char
 	//
 
-	char_to_room(orig_char, ch->in_room);
+	char_to_room(orig_char, ch->in_room, false);
 
 	if (IS_UNDEAD(orig_char)) {
 		act("You cannot re-animate $p.", FALSE, ch, obj, 0, TO_CHAR);
@@ -2867,7 +2867,7 @@ ASPELL(spell_animate_dead)
 
 	orig_char->extract(true, false, CON_MENU);
 
-	char_to_room(zombie, ch->in_room);
+	char_to_room(zombie, ch->in_room, false);
 	act("$n rises slowly to a standing position.", FALSE, zombie, 0, 0,
 		TO_ROOM);
 
@@ -2975,7 +2975,7 @@ ASPELL(spell_unholy_stalker)
 	// Make sure noone gets xp fer these buggers.
 	SET_BIT(MOB_FLAGS(stalker), MOB_PET);
 
-	char_to_room(stalker, ch->in_room);
+	char_to_room(stalker, ch->in_room, false);
 
 	act("The air becomes cold as $n materializes from the negative planes.",
 		FALSE, stalker, 0, 0, TO_ROOM);

@@ -2589,7 +2589,7 @@ mag_summons(int level, struct char_data *ch, struct obj_data *obj,
 	}
 	for (i = 0; i < num; i++) {
 		mob = read_mobile(mob_num);
-		char_to_room(mob, ch->in_room);
+		char_to_room(mob, ch->in_room,false);
 		IS_CARRYING_W(mob) = 0;
 		IS_CARRYING_N(mob) = 0;
 		SET_BIT(AFF_FLAGS(mob), AFF_CHARM);
