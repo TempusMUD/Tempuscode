@@ -1548,8 +1548,12 @@ assign_the_shopkeepers(void)
         if (SHOP_KEEPER(shop) < 0)
             continue;
         mob = real_mobile_proto(SHOP_KEEPER(shop));
-        if (mob->mob_specials.shared->func)
+
+        if ( mob->mob_specials.shared->func != NULL
+        && mob->mob_specials.shared->func != shop_keeper )
+        {
             SHOP_FUNC(shop) = mob->mob_specials.shared->func;
+        }
         mob->mob_specials.shared->func = shop_keeper;
     }
 }
