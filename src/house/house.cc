@@ -1122,7 +1122,7 @@ hcontrol_build_house( Creature *ch, char *arg)
 		send_to_char(ch, HCONTROL_FORMAT);
 		return;
 	}
-	if( isdigit(*str) ) {
+	if( is_number(str) ) {
 		int id = atoi(str);
 		if( id == 0 ) {
 			send_to_char(ch, "Warning, creating house with no owner.\r\n" );
@@ -1145,7 +1145,7 @@ hcontrol_build_house( Creature *ch, char *arg)
 		send_to_char(ch, "You have to give a beginning room for the range.\r\n" );
 		send_to_char(ch, HCONTROL_FORMAT);
 		return;
-	} else if( !isdigit(*str) ) {
+	} else if( !is_number(str) ) {
         send_to_char(ch, "The beginning room must be a number: %s\r\n", str );
 		return;
 	}
@@ -1167,7 +1167,7 @@ hcontrol_build_house( Creature *ch, char *arg)
 		send_to_char(ch, "You have to give an ending room for the range.\r\n" );
 		send_to_char(ch, HCONTROL_FORMAT);
 		return;
-	} else if( !isdigit(*str) ) {
+	} else if( !is_number(str) ) {
         send_to_char(ch, "The ending room must be a number: %s\r\n", str );
 		return;
 	}
