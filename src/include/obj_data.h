@@ -303,6 +303,15 @@ struct obj_data {
     int modifyWeight( int mod_weight );
     int setWeight( int new_weight );
     inline int getWeight( void ) { return obj_flags.getWeight(); }
+    inline int getContainedWeight( void ) {
+		obj_data *cur_obj;
+		int result = 0;
+
+		if ( !contains ) return 0;
+		for ( cur_obj = contains;cur_obj;cur_obj = cur_obj->next_content )
+			result += cur_obj->getWeight();
+		return result;
+	}
     struct room_data *in_room;	/* In what room -1 when conta/carr    */
     int cur_flow_pulse;          /* Keep track of flowing pulse        */
 

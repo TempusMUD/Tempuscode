@@ -306,7 +306,7 @@ perform_put(struct char_data * ch, struct obj_data * obj,
         }
     } else {
       
-        if ( cont->getWeight() + obj->getWeight() > GET_OBJ_VAL(cont, 0))
+        if ( cont->getContainedWeight() + obj->getWeight() > GET_OBJ_VAL(cont, 0))
             act("$p won't fit in $P.", FALSE, ch, obj, cont, TO_CHAR);
         else if (IS_OBJ_STAT(obj, ITEM_NODROP) && GET_LEVEL(ch) < LVL_TIMEGOD) 
             act("$p must be cursed!  You can't seem to let go of it...", FALSE, ch, obj, 0, TO_CHAR);
