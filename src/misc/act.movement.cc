@@ -1058,7 +1058,7 @@ int do_simple_move(struct char_data * ch, int dir, int mode, int need_specials_c
             if (STATE(ch->desc) != CON_AFTERLIFE)
                 found = general_search(ch, srch, found);
             else
-                return DAM_VICT_KILLED;
+                return 22;
         }
     }
 
