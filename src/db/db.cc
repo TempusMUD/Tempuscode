@@ -3245,6 +3245,12 @@ save_char(struct Creature *ch, struct room_data *load_room)
 
 	path = tmp_sprintf("plrxml/%d.char", GET_PFILEPOS(ch));
 	ouf = fopen(path, "w");
+
+	if( ouf == NULL ) {
+		fprintf(stderr, "Unable to open XML player file for save.[%s](%s)\n",
+				path,strerror(errno) );
+		return;
+	}
 	fprintf(ouf, "<CREATURE NAME=\"%s\" IDNUM=\"%ld\">\n",
 		GET_NAME(ch), ch->char_specials.saved.idnum);
 
