@@ -97,7 +97,7 @@ const char *char_flow_msg[NUM_FLOW_TYPES + 1][3] = {
 	{"The rotating disc takes $n %sward.",	// Rotating Disc 
 			"The rotating disc brings $n in from %s.",
 		"The rotating disc takes you %sward."},
-	{"$n moves %p along the escalator.",	// Escalator   
+	{"$n moves %s along the escalator.",	// Escalator   
 			"$n comes into view from %s riding the escalator.",
 		"You ride the escalator %s."},
 	{"$n is dragged %s into the swamp.",	// Sinking Swamp

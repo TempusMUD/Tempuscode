@@ -3260,17 +3260,23 @@ save_char(struct Creature *ch, struct room_data *load_room)
 		GET_HEIGHT(ch), GET_WEIGHT(ch), GET_ALIGNMENT(ch));
 	
 	fprintf(ouf, "<CLASS NAME=\"%s\"", pc_char_class_types[GET_CLASS(ch)]);
-	if (IS_CYBORG(ch) && ch->player_specials->saved.broken_component) {
-		fprintf(ouf, " BROKEN=\"%d\"",
-			ch->player_specials->saved.broken_component);
-	}else if (IS_MAGE(ch) && GET_SKILL(ch, SPELL_MANA_SHIELD) > 0) {
+	if (GET_REMORT_GEN(ch))
+		fprintf(ouf, " REMORT=\"%s\" GEN=\"%d\"",
+			pc_char_class_types[GET_REMORT_CLASS(ch)], GET_REMORT_GEN(ch));
+	if (IS_CYBORG(ch)) {
+		if (GET_OLD_CLASS(ch) != -1)
+			fprintf(ouf, " SUBCLASS=\"%s\"",
+				borg_subchar_class_names[GET_OLD_CLASS(ch)]);
+		if (GET_TOT_DAM(ch))
+			fprintf(ouf, " TOTAL_DAM=\"%d\"", GET_TOT_DAM(ch));
+		if (GET_BROKE(ch))
+			fprintf(ouf, " BROKEN=\"%d\"", GET_BROKE(ch));
+	} else if (GET_CLASS(ch) == CLASS_MAGE &&
+			GET_SKILL(ch, SPELL_MANA_SHIELD) > 0) {
 		fprintf(ouf, " MANASH_LOW=\"%ld\" MANASH_PCT=\"%ld\"",	
 			ch->player_specials->saved.mana_shield_low,
 			ch->player_specials->saved.mana_shield_pct);
 	}
-	if (GET_REMORT_GEN(ch))
-		fprintf(ouf, " REMORT=\"%s\" GEN=\"%d\"",
-			pc_char_class_types[GET_REMORT_CLASS(ch)], GET_REMORT_GEN(ch));
 	fprintf(ouf, "/>\n");
 
 
@@ -3282,9 +3288,13 @@ save_char(struct Creature *ch, struct room_data *load_room)
 	fprintf(ouf, "<LASTLOGIN TIME=\"%ld\" HOST=\"%s\"/>\n",
 		(long int)ch->player.time.logon, ch->desc->host);
 
-	fprintf(ouf, "<ATTR STR=\"%d\" INT=\"%d\" WIS=\"%d\" DEX=\"%d\" CON=\"%d\" CHA=\"%d\"/>\n",
-		ch->real_abils.str, ch->real_abils.intel, ch->real_abils.wis,
-		ch->real_abils.dex, ch->real_abils.con, ch->real_abils.cha);
+	fprintf(ouf, "<CARNAGE PKILLS=\"%d\" MKILLS=\"%d\" DEATHS=\"%d\"/>\n",
+		GET_PKILLS(ch), GET_MOBKILLS(ch), GET_PC_DEATHS(ch));
+
+	fprintf(ouf, "<ATTR STR=\"%d\" INT=\"%d\" WIS=\"%d\" DEX=\"%d\" CON=\"%d\" CHA=\"%d\" SPEED=\"%d\"/>\n",
+		GET_STR(ch), GET_INT(ch), GET_WIS(ch), GET_DEX(ch), GET_CON(ch),
+		GET_CHA(ch), ch->getSpeed());
+
 	fprintf(ouf, "<SAVE PARA=\"%d\" ROD=\"%d\" PETRI=\"%d\" BREATH=\"%d\" SPELL=\"%d\" CHEM=\"%d\" PSI=\"%d\" PHY=\"%d\"/>\n",
 		GET_SAVE(ch, SAVING_PARA), GET_SAVE(ch, SAVING_ROD),
 		GET_SAVE(ch, SAVING_PETRI), GET_SAVE(ch, SAVING_BREATH),
@@ -3295,19 +3305,38 @@ save_char(struct Creature *ch, struct room_data *load_room)
 		ch->player_specials->saved.conditions[1],
 		ch->player_specials->saved.conditions[2]);
 
-	fprintf(ouf, "<PLAYER INVIS=\"%d\" WIMPY=\"%d\" PRACS=\"%d\" QP=\"%d\" LP=\"%d\"/>\n",
-		ch->player_specials->saved.invis_level,
-		ch->player_specials->saved.wimp_level,
-		ch->player_specials->saved.spells_to_learn,
-		ch->player_specials->saved.quest_points,
-		ch->player_specials->saved.life_points);
-		
-	fprintf(ouf, "<ACCOUNT FLAG1=\"%ld\" FLAG2=\"%ld\" PASSWORD=\"%s\" BAD_PWS=\"%d\"/>\n",
-		ch->char_specials.saved.act, ch->char_specials.saved.act2,
-		ch->player.passwd, ch->player_specials->saved.bad_pws);
+	fprintf(ouf, "<PLAYER INVIS=\"%d\" WIMPY=\"%d\" PRACS=\"%d\" LP=\"%d\" CLAN=\"%d\"/>\n",
+		(GET_INVIS_LEV(ch) ? GET_INVIS_LEV(ch):GET_REMORT_INVIS(ch)),
+		GET_WIMP_LEV(ch), GET_PRACTICES(ch), GET_LIFE_POINTS(ch),
+		GET_CLAN(ch));
 
-	fprintf(ouf, "<PREFS FLAG1=\"%ld\" FLAG2=\"%ld\"/>\n",
-		ch->player_specials->saved.pref, ch->player_specials->saved.pref2);
+	fprintf(ouf, "<HOME TOWN=\"%d\" LOADROOM=\"%d\" HELD_TOWN=\"%d\" HELD_LOADROOM=\"%d\"/>\n",
+		GET_HOME(ch), GET_LOADROOM(ch), GET_HOLD_HOME(ch),
+		GET_HOLD_LOADROOM(ch));
+
+	fprintf(ouf, "<QUEST");
+	if (GET_QUEST(ch))
+		fprintf(ouf, " JOINED=\"%d\"", GET_QUEST(ch));
+	if (GET_LEVEL(ch) < LVL_IMMORT)
+		fprintf(ouf, " POINTS=\"%d\"", GET_QUEST_POINTS(ch));
+	else
+		fprintf(ouf, " ALLOWANCE=\"%d\"", GET_QUEST_ALLOWANCE(ch));
+	fprintf(ouf, "/>\n");
+		
+	fprintf(ouf, "<ACCOUNT FLAG1=\"%ld\" FLAG2=\"%d\" PASSWORD=\"%s\" BAD_PWS=\"%d\"",
+		ch->char_specials.saved.act, ch->player_specials->saved.plr2_bits,
+		ch->player.passwd, ch->player_specials->saved.bad_pws);
+	if (PLR_FLAGGED(ch, PLR_FROZEN))
+		fprintf(ouf, " FROZEN_LVL=\"%d\"", GET_FREEZE_LEV(ch));
+	fprintf(ouf, "/>\n");
+
+	fprintf(ouf, "<PREFS FLAG1=\"%ld\" FLAG2=\"%ld\" LOADROOM=\"%d\" PAGE_LEN=\"%d\"/>\n",
+		ch->player_specials->saved.pref, ch->player_specials->saved.pref2,
+		ch->player_specials->saved.load_room,
+		ch->player_specials->saved.page_length);
+
+	fprintf(ouf, "<TERMINAL PAGE_LENGTH=\"%d\" COLUMNS=\"%d\"/>\n",
+		GET_PAGE_LENGTH(ch), GET_COLS(ch));
 
 	fprintf(ouf, "<AFFECTS FLAG1=\"%ld\" FLAG2=\"%ld\" FLAG3=\"%ld\"/>\n",
 		ch->char_specials.saved.affected_by,
