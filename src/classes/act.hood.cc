@@ -19,14 +19,13 @@
 #include "guns.h"
 #include "bomb.h"
 #include "utils.h"
+#include "house.h"
 
 
 SPECIAL(shop_keeper);
-int check_mob_reaction(struct Creature *ch, struct Creature *vict);
-int apply_soil_to_char(struct Creature *ch, struct obj_data *obj, int type,
-	int pos);
-int House_can_enter(struct Creature *ch, room_num real_room);
-int clan_house_can_enter(struct Creature *ch, struct room_data *room);
+int check_mob_reaction(Creature *ch, Creature *vict);
+int apply_soil_to_char(Creature *ch, obj_data *obj, int type, int pos);
+int clan_house_can_enter(Creature *ch, struct room_data *room);
 
 ACMD(do_taunt)
 {
