@@ -36,6 +36,7 @@
 #include "boards.h"
 #include "login.h"
 #include "screen.h"
+#include "accstr.h"
 
 /* External Variables */
 
@@ -292,16 +293,15 @@ show_file(struct Creature *ch, char *fname, int lines)
 		size = (int)file.tellg() + 1;
 		logbuf = new char[MAX_RAW_INPUT_LENGTH + 1];
 		file.seekg(0, ios::beg);
-		strcpy(buf, "");
+		acc_string_clear();
 		while (!file.eof()) {
 			file.getline(logbuf, MAX_RAW_INPUT_LENGTH, '\n');
-			strcat(buf, logbuf);
-			strcat(buf, "\r\n");
+			acc_strcat(logbuf, "\r\n", NULL);
 		}
-		delete[]logbuf;
+		delete [] logbuf;
 	}
 	file.close();
-	page_string(ch->desc, buf);
+	page_string(ch->desc, acc_get_string());
 }
 
 void
