@@ -953,10 +953,10 @@ SPECIAL(vendor)
 		CREATE(shop, ShopData, 1);
 		err = vendor_parse_param(self, config, shop, &err_line);
 		self->mob_specials.func_data = shop;
-
-		if (shop->func && shop->func(ch, me, cmd, argument, spec_mode))
-			return 1;
 	}
+
+	if (shop->func && shop->func(ch, me, cmd, argument, spec_mode))
+		return 1;
 
 	if (spec_mode == SPECIAL_RESET) {
 		vendor_revenue(self, shop);
