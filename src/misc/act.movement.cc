@@ -284,13 +284,27 @@ check_sneak(Creature *ch, Creature *vict, bool departing, bool msgs)
 	int sneak_prob, sneak_roll;
 	int idx;
 
-	if (!IS_AFFECTED(ch, AFF_SNEAK))
-		return SNEAK_FAILED;
+	// No one sees an invisible immortal movements
+	if (!CAN_SEE(vict, ch) && IS_IMMORT(ch))
+		return SNEAK_OK;
 
-	if (IS_IMMORT(vict))
-		return SNEAK_FAILED;
-
+	// Sonic imagery sees all other movements, though
 	if (AFF3_FLAGGED(vict, AFF3_SONIC_IMAGERY))
+		return SNEAK_FAILED;
+
+	// If they're not sneaking, they are always seen.  If they're invisible,
+	// they're always heard.
+	if (!IS_AFFECTED(ch, AFF_SNEAK)) {
+		if (!CAN_SEE(vict, ch) && msgs) {
+			get_giveaway(ch, vict);
+			return SNEAK_HEARD;
+		}
+			
+		return SNEAK_FAILED;
+	}
+
+	// No one can fool an immortal (except an invisible immortal)
+	if (IS_IMMORT(vict))
 		return SNEAK_FAILED;
 
 	sneak_prob = ch->getLevelBonus(SKILL_SNEAK) +
