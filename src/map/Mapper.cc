@@ -3,27 +3,6 @@ using namespace std;
 #include "Mapper.h"
 #include <signal.h>
 
-
-bool
-is_real_room(int vnum, room_data *r)
-{
-    struct room_data *room;
-    struct zone_data *zone;
-    int num = (vnum / 10);
-
-    for (zone = zone_table; zone; zone = zone->next) {
-        if (num >= zone->number &&
-            vnum <= zone->top) {
-            for (room = zone->world; room; room = room->next) {
-        
-            if (room->number == vnum)
-                return (room == r);
-            }
-            return false;
-        }
-    }
-    return false;
-}
 bool CAN_EDIT_ZONE(CHAR *ch, struct zone_data *zone);
 
 ACMD(do_map) {
