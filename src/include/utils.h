@@ -1228,8 +1228,16 @@ dice(int number, int size)
 	return sum;
 }
 
-
-
+inline bool
+isnumber(const char *str)
+{
+	while (*str)
+		if (!isdigit(*str))
+			return false;
+		else
+			str++;
+	return true;
+}
 
 
 #endif

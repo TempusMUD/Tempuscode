@@ -459,7 +459,7 @@ Board_display_msg(int board_type, struct char_data *ch, struct obj_data *obj,
 		return 0;
 	if (isname(number, "board bulletin"))	/* so "read board" works */
 		return (Board_show_board(board_type, ch, obj, arg));
-	if (!isdigit(*number) || (!(msg = atoi(number))))
+	if (!isnumber(number) || (!(msg = atoi(number))))
 		return 0;
 
 	if (!obj->in_room) {

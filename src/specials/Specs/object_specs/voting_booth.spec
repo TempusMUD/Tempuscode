@@ -548,7 +548,7 @@ SPECIAL(voting_booth) {
 			voting_booth_vote(ch, obj, argument);
 		else if (VOTING_CMD_READ == cmd) {
 			skip_spaces(&argument);
-			if (!isdigit(*argument))
+			if (!isnumber(argument))
 				return 0;
 			voting_booth_read(ch, obj, argument);
 		} else if (VOTING_CMD_LOOK == cmd || VOTING_CMD_EXAMINE == cmd) {
@@ -558,7 +558,7 @@ SPECIAL(voting_booth) {
 			voting_booth_list(ch, obj);
 		} else if (VOTING_CMD_REMOVE == cmd && GET_LEVEL(ch) >= LVL_AMBASSADOR) {
 			skip_spaces(&argument);
-			if (!isdigit(*argument))
+			if (!isnumber(argument))
 				return 0;
 			voting_booth_remove(ch, obj, argument);
 		} else if (VOTING_CMD_WRITE == cmd && GET_LEVEL(ch) >= LVL_AMBASSADOR)
