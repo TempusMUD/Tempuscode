@@ -83,6 +83,7 @@ int no_plrtext = 0;             /* player text disabled?         */
 
 int no_mail = 0;        	/* mail disabled?		 */
 int mini_mud = 0;        	/* mini-mud mode?		 */
+int mud_moved = 0;
 int no_rent_check = 0;        	/* skip rent check on boot?	 */
 time_t boot_time = 0;        	/* time of mud boot		 */
 int restrict = 0;        	/* level of game restriction	 */
