@@ -4293,6 +4293,10 @@ mob_fight_demon(struct Creature *ch, struct Creature *precious_vict)
 	if (IS_PET(ch)) {
 		return 0;
 	}
+	// Mobs with specials set shouldn't port either
+	if (GET_MOB_SPEC(ch)) {
+		return 0;
+	}
 	// 100 move flat rate to gate, removed when the gating actually occurs
 	if (GET_MOVE(ch) < 100) {
 		return 0;
