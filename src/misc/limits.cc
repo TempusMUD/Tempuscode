@@ -551,7 +551,7 @@ point_update(void)
     register struct char_data *i, *next_char;
     register struct obj_data *j, *next_thing, *jj, *next_thing2;
     struct room_data *rm;
-    int full = 0, thirst = 0, drunk = 0, z;
+    int full = 0, thirst = 0, drunk = 0, z, out_of_zone;
 
     /* characters */
     for (i = character_list; i; i = next_char) {
@@ -863,19 +863,29 @@ point_update(void)
         roaming_portal(NULL,j,0,NULL,0);
     } else if (IS_OBJ_STAT2(j, ITEM2_UNAPPROVED) ||
 		 (IS_OBJ_TYPE(j, ITEM_KEY) && GET_OBJ_TIMER(j)) ||
-		 (GET_OBJ_SPEC(j) == fate_portal) ) { // keys, unapp && fate portals
-	    if (IS_OBJ_TYPE(j, ITEM_KEY)) { // skip keys still in zone
-		z = zone_number(GET_OBJ_VNUM(j));
-		if (((rm = where_obj(j)) && rm->zone->number == z) ||
-		    !obj_owner(j)) {
-		    continue;
-		}
-	    }
+		 (GET_OBJ_SPEC(j) == fate_portal) ||
+               (IS_OBJ_STAT3(j, ITEM3_STAY_ZONE))) { // keys, unapp, zone only objects && fate portals
+        
+        if (IS_OBJ_TYPE(j, ITEM_KEY)) { // skip keys still in zone
+            z = zone_number(GET_OBJ_VNUM(j));
+            if (((rm = where_obj(j)) && rm->zone->number == z) ||
+                !obj_owner(j)) {
+                continue;
+            }
+        }
+        
+        if(IS_OBJ_STAT3(j, ITEM3_STAY_ZONE) ) {
+            z = zone_number(GET_OBJ_VNUM(j));
+            if((rm = where_obj(j)) && rm->zone->number != z ) {
+                out_of_zone = 1;
+            }
+        }
+
 	    /* timer count down */
 	    if (GET_OBJ_TIMER(j) > 0)
 		GET_OBJ_TIMER(j)--;
 
-	    if (!GET_OBJ_TIMER(j)) {
+	    if (!GET_OBJ_TIMER(j) || out_of_zone) {
 
 		if (j->carried_by)
 		    act("$p slowly fades out of existance.", 
@@ -909,4 +919,18 @@ point_update(void)
 	}
     }
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 

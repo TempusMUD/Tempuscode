@@ -1593,6 +1593,7 @@ extern const char *extra3_bits[] = {
     "SPR2",
     "SPR3",
     "HARD",
+    "STAY",
     "\n"
 };
 extern const char *extra3_names[] = {
@@ -1614,6 +1615,7 @@ extern const char *extra3_names[] = {
     "spare2",
     "spare3",
     "hardened",
+    "stayzone",
     "\n"
 };
 /* APPLY_x */
