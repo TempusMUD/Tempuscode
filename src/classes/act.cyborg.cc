@@ -2201,28 +2201,40 @@ perform_analyze( Creature *ch, obj_data *obj, bool checklev=true )
 		CCCYN(ch, C_NRM), obj->getWeight(), CCNRM(ch, C_NRM));
 
 	acc_sprintf("Intrinsic Properties: %s", CCCYN(ch, C_NRM));
-	acc_strcat(tmp_printbits(GET_OBJ_EXTRA(obj), extra_bits), NULL);
-	acc_strcat(tmp_printbits(GET_OBJ_EXTRA2(obj), extra_bits), NULL);
+    if( GET_OBJ_EXTRA(obj) == 0 && GET_OBJ_EXTRA2(obj) == 0 ) {
+        acc_strcat( "None", NULL );
+    } else {
+        acc_strcat(tmp_printbits(GET_OBJ_EXTRA(obj), extra_bits), NULL);
+        acc_strcat(tmp_printbits(GET_OBJ_EXTRA2(obj), extra_bits), NULL);
+    }
 	acc_sprintf("%s\r\n", CCNRM(ch, C_NRM));
 
 	acc_sprintf("Inherent Properties:  %s", CCCYN(ch, C_NRM));
-	acc_strcat(tmp_printbits(GET_OBJ_EXTRA3(obj), extra3_bits), NULL);
-	acc_sprintf("%s\r\n", CCNRM(ch, C_NRM));
+    if( GET_OBJ_EXTRA3(obj) == 0 ) {
+        acc_strcat( "None", NULL );
+    } else {
+        acc_strcat(tmp_printbits(GET_OBJ_EXTRA3(obj), extra3_bits), NULL);
+    }
+    acc_sprintf("%s\r\n", CCNRM(ch, C_NRM));
 
 	// check for affections
-	int found = 0;
+	bool found = false;
 	for (int i = 0; i < MAX_OBJ_AFFECT; i++) {
 		if (obj->affected[i].modifier) {
-			if (found)
-				acc_strcat(",");
-			else
+			if (found) {
+				acc_strcat(",\r\n",
+                           "                     ", NULL);
+            } else {
 				acc_strcat("Apply:               ", CCCYN(ch, C_NRM), NULL);
+            }
+            found = true;
 			acc_sprintf(" %+d to %s", obj->affected[i].modifier,
 				strlist_aref(obj->affected[i].location, apply_types));
 		}
 	}
-	if (found)
+	if (found) {
 		acc_strcat(CCNRM(ch, C_NRM), "\r\n", NULL);
+    }
 
 	switch (GET_OBJ_TYPE(obj)) {
 	case ITEM_ARMOR:
