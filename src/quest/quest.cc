@@ -3040,9 +3040,10 @@ Quest::save(std::ostream &out)
 				  << "\" OWNER_LEVEL=\"" << owner_level << "\" FLAGS=\"" << flags 
 				  << "\" >" << endl;
 
-	out << indent << "  <Description>" 
-				  << xmlEncodeTmp(description)
-				  << "</Description>" << endl;
+	if (description)
+		out << indent << "  <Description>" 
+					  << xmlEncodeTmp(description)
+					  << "</Description>" << endl;
 	
 	out << indent << "  <Update>" << xmlEncodeTmp(updates) << "</Update>" << endl;
 
