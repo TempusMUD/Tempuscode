@@ -24,6 +24,7 @@
 #include "vehicle.h"
 #include "fight.h"
 #include "security.h"
+#include "actions.h"
 
 /* extern variables */
 extern struct room_data *world;
@@ -44,6 +45,7 @@ search_trans_character(char_data * ch,
 	special_search_data * srch,
 	room_data * targ_room, obj_data * obj, char_data * mob)
 {
+	room_data *was_in;
 
 	if (!House_can_enter(ch, targ_room->number) ||
 		!clan_house_can_enter(ch, targ_room) ||
@@ -51,10 +53,25 @@ search_trans_character(char_data * ch,
 			!Security::isMember(ch, "WizardFull")))
 		return 0;
 
+	was_in = ch->in_room;
 	char_from_room(ch);
 	char_to_room(ch, targ_room);
 	ch->in_room->zone->enter_count++;
 	look_at_room(ch, ch->in_room, 0);
+
+	if (ch->followers) {
+		struct follow_type *k, *next;
+
+		for (k = ch->followers; k; k = next) {
+			next = k->next;
+			if (was_in == k->follower->in_room &&
+					GET_LEVEL(k->follower) >= LVL_AMBASSADOR &&
+					!PLR_FLAGGED(k->follower, PLR_OLC | PLR_WRITING | PLR_MAILING) &&
+					CAN_SEE(k->follower, ch))
+				perform_goto(k->follower, ch->in_room, true);
+		}
+	}
+					
 
 	if (GET_LEVEL(ch) < LVL_ETERNAL && !SRCH_FLAGGED(srch, SRCH_REPEATABLE))
 		SET_BIT(srch->flags, SRCH_TRIPPED);
@@ -275,13 +292,26 @@ general_search(struct char_data *ch, struct special_search_data *srch,
 			char_to_room(ch, targ_room);
 			ch->in_room->zone->enter_count++;
 			look_at_room(ch, ch->in_room, 0);
-
+					
 			if (srch->to_remote)
 				act(srch->to_remote, FALSE, ch, obj, mob, TO_ROOM);
 
 			if (GET_LEVEL(ch) < LVL_ETERNAL
 				&& !SRCH_FLAGGED(srch, SRCH_REPEATABLE))
 				SET_BIT(srch->flags, SRCH_TRIPPED);
+
+			if (ch->followers) {
+				struct follow_type *k, *next;
+
+				for (k = ch->followers; k; k = next) {
+					next = k->next;
+					if (rm == k->follower->in_room &&
+							GET_LEVEL(k->follower) >= LVL_AMBASSADOR &&
+							!PLR_FLAGGED(k->follower, PLR_OLC | PLR_WRITING | PLR_MAILING) &&
+							CAN_SEE(k->follower, ch))
+						perform_goto(k->follower, targ_room, true);
+				}
+			}
 
 			if (IS_SET(ROOM_FLAGS(ch->in_room), ROOM_DEATH)) {
 				if (GET_LEVEL(ch) < LVL_AMBASSADOR) {

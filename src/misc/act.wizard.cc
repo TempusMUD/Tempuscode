@@ -413,7 +413,6 @@ perform_goto(char_data *ch, room_data *room, bool allow_follow)
 {
 	room_data *was_in = NULL;
 	char *msg;
-	struct follow_type *k, *next;
 
 	if (!House_can_enter(ch, room->number) ||
 		!clan_house_can_enter(ch, room) ||
@@ -445,6 +444,8 @@ perform_goto(char_data *ch, room_data *room, bool allow_follow)
 	look_at_room(ch, ch->in_room, 0);
 
 	if (allow_follow && ch->followers) {
+		struct follow_type *k, *next;
+
 		for (k = ch->followers; k; k = next) {
 			next = k->next;
 			if (was_in == k->follower->in_room &&
@@ -481,6 +482,7 @@ ACMD(do_goto)
 ACMD(do_trans)
 {
 	struct descriptor_data *i;
+	struct room_data *was_in;
 	struct char_data *victim;
 
 	one_argument(argument, buf);
@@ -504,12 +506,27 @@ ACMD(do_trans)
 			}
 			act("$n disappears in a mushroom cloud.", FALSE, victim, 0, 0,
 				TO_ROOM);
+			was_in = victim->in_room;
+
 			char_from_room(victim,false);
 			char_to_room(victim, ch->in_room,false);
 			act("$n arrives from a puff of smoke.", FALSE, victim, 0, 0,
 				TO_ROOM);
 			act("$n has transferred you!", FALSE, ch, 0, victim, TO_VICT);
 			look_at_room(victim, victim->in_room, 0);
+
+			if (victim->followers) {
+				struct follow_type *k, *next;
+
+				for (k = victim->followers; k; k = next) {
+					next = k->next;
+					if (was_in == k->follower->in_room &&
+							GET_LEVEL(k->follower) >= LVL_AMBASSADOR &&
+							!PLR_FLAGGED(k->follower, PLR_OLC | PLR_WRITING | PLR_MAILING) &&
+							CAN_SEE(k->follower, victim))
+						perform_goto(k->follower, ch->in_room, true);
+				}
+			}
 
 			slog("(GC) %s has transferred %s to %s.", GET_NAME(ch),
 				GET_NAME(victim), ch->in_room->name);
@@ -527,12 +544,17 @@ ACMD(do_trans)
 					continue;
 				act("$n disappears in a mushroom cloud.", FALSE, victim, 0, 0,
 					TO_ROOM);
+
+				was_in = victim->in_room;
+
 				char_from_room(victim,false);
 				char_to_room(victim, ch->in_room,false);
+
 				act("$n arrives from a puff of smoke.", FALSE, victim, 0, 0,
 					TO_ROOM);
 				act("$n has transferred you!", FALSE, ch, 0, victim, TO_VICT);
 				look_at_room(victim, victim->in_room, 0);
+
 			}
 		send_to_char(ch, OK);
 	}
