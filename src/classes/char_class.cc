@@ -317,7 +317,9 @@ extern const char *char_class_abbrevs[] = {
     "Astl",                                /* Devas */   /* 150 */
     "Mond",
     "Movn",
-
+    "ILL",  "ILL",  "ILL",  "ILL",  "ILL",  "ILL",  "ILL",  "ILL",  "ILL", "ILL", // 162
+    "ILL",  "ILL",  "ILL",  "ILL",  "ILL",  "ILL",  "ILL",  "ILL",  "ILL", "ILL", // 172
+    "ILL",  "ILL",  "ILL",  "ILL",  "ILL",  "ILL",  "ILL",  "ILL",  "ILL", "ILL", // 182
     "\n"
 };
 
@@ -412,7 +414,7 @@ extern const char *pc_char_class_types[] = {
     "Pisco",
     "Ultro",
     "Yagno",
-    "Pyro",
+    "Pyro", // 177
     "\n"
 };
 
