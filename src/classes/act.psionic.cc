@@ -45,6 +45,11 @@ ACMD(do_psidrain) {
         return;
     }
 
+    if (!*argument && !(vict = ch)) {
+        send_to_char("Ha ha... Funny!\r\n", ch);
+        return;
+    }
+
     if (ROOM_FLAGGED(ch->in_room, ROOM_NOPSIONICS) && GET_LEVEL(ch) < LVL_GOD) {
         send_to_char("Psychic powers are useless here!\r\n", ch);
         return;
