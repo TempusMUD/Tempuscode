@@ -75,7 +75,7 @@ CANNOT_DAMAGE(Creature *ch, Creature *vict, obj_data *weap, int attacktype) {
 		if (IS_WEAPON(attacktype) && weap && IS_OBJ_TYPE(weap, ITEM_WEAPON) &&
 				!IS_OBJ_STAT(weap, ITEM_MAGIC))
 			return true;
-		if (!weap && !(affected_by_spell(ch, SKILL_KATA) &&	
+		if (!weap && ch && !(affected_by_spell(ch, SKILL_KATA) &&	
 				ch->getLevelBonus(SKILL_KATA) >= 50))
 			return true;
 	}
