@@ -1272,8 +1272,10 @@ char_to_game(descriptor_data *d)
 		// Figure out the room the player is gonna start in
         load_room = NULL;
         if ((GET_LEVEL(d->creature) < LVL_AMBASSADOR) && 
-            (quest = quest_by_vnum(GET_QUEST(d->creature))))
-            load_room = real_room(quest->loadroom);
+            (quest = quest_by_vnum(GET_QUEST(d->creature)))) {
+            if (quest->loadroom > -1)
+                load_room = real_room(quest->loadroom);
+        }
 		if (!load_room && GET_LOADROOM(d->creature))
 			load_room = real_room(GET_LOADROOM(d->creature));
 		if (!load_room && GET_HOMEROOM(d->creature))

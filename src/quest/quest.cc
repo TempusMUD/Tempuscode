@@ -406,7 +406,7 @@ do_qcontrol_loadroom(Creature *ch, char *argument, int com)
 
 	argument = two_arguments(argument, buf, arg1);
 
-	if (!*buf || !isdigit(*buf) || !*arg1 || !isdigit(*arg1)) {
+	if (!*buf || !isdigit(*buf)) {
 		do_qcontrol_usage(ch, com);
 		return;
 	}
@@ -414,6 +414,14 @@ do_qcontrol_loadroom(Creature *ch, char *argument, int com)
 	if (!(quest = find_quest(ch, buf))) {
 		return;
 	}
+    if (!*arg1) {
+        send_to_char(ch, "Current quest loadroom is (%d)\r\n", quest->loadroom);
+        return;
+    }
+    if (!isdigit(*arg1)) {
+        do_qcontrol_usage(ch, com);
+        return;
+    }
 	if (!quest->canEdit(ch)) {
 		return;
 	}
@@ -2754,6 +2762,7 @@ Quest::Quest( Creature *ch, int type, const char* name )
 	maxlevel = 49;
 	mingen = 0;
 	maxgen = 10;
+    loadroom = -1;
 }
 
 Quest::~Quest() 
@@ -2798,7 +2807,7 @@ Quest::Quest( xmlNodePtr n, xmlDocPtr doc )
 	penalized = xmlGetIntProp(n, "PENALIZED");
 	owner_level = xmlGetIntProp(n, "OWNER_LEVEL");
 	flags = xmlGetIntProp(n, "FLAGS");
-
+    loadroom = xmlGetIntProp(n, "LOADROOM");
 	char *typest = xmlGetProp(n, "TYPE");
 	type = search_block(typest, qtype_abbrevs, true);
 	free(typest);
@@ -2862,6 +2871,7 @@ Quest& Quest::operator=( const Quest &q )
 	maxlevel = q.maxlevel;
 	maxgen = q.maxgen;
 	mingen = q.mingen;
+    loadroom = q.loadroom;
 	return *this;
 }
 
@@ -3062,7 +3072,7 @@ Quest::save(std::ostream &out)
 				  << " PENALIZED=\"" << penalized 
 				  << "\" TYPE=\"" << xmlEncodeTmp(tmp_strdup(qtype_abbrevs[type])) 
 				  << "\" OWNER_LEVEL=\"" << owner_level << "\" FLAGS=\"" << flags 
-				  << "\" >" << endl;
+				  << "\" \"LOADROOM=\"" << loadroom << "\">" << endl;
 
 	if (description)
 		out << indent << "  <Description>" 
