@@ -3447,7 +3447,8 @@ nanny(struct descriptor_data * d, char *arg)
 		    SEND_TO_Q("Unknown program.\r\n", d);
 		    return;
 		}
-		if (!ABLE_TO_LEARN(d->character, skill_num)) {
+		if (!ABLE_TO_LEARN(d->character, skill_num) && 
+		(SPELL_LEVEL(skill_num, CLASS_CYBORG) > 0)) {
 		    SEND_TO_Q("That program is unavailable.\r\n", d);
 		    return;
 		}
