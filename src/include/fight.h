@@ -127,6 +127,7 @@ void die(struct Creature *ch, struct Creature *killer, int attacktype,
 	int is_humil);
 int calculate_thaco(struct Creature *ch, struct Creature *victim,
 	struct obj_data *obj);
+bool perform_offensive_skill(Creature *ch, Creature *vict, int skill, int *return_flags);
 
 #ifdef __combat_code__
 #ifdef __combat_utils__
@@ -217,7 +218,6 @@ int choose_random_limb(Creature *victim);
 #endif
 #ifdef __fight_c__
 /* Structures */
-ACCMD(do_offensive_skill);
 struct Creature *combat_list = NULL;	/* head of list of fighting chars */
 struct Creature *next_combat_list = NULL;
 struct obj_data *cur_weap = NULL;
