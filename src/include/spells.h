@@ -274,6 +274,7 @@ static const int SPELL_CALM = 153;
 static const int SPELL_THORN_SKIN = 154;
 static const int SPELL_ENVENOM = 155;
 static const int SPELL_ELEMENTAL_BRAND = 156;
+static const int SPELL_THORN_SKIN_CASTING = 157;
 
   /************************** Psionic Triggers ***************/
 static const int SPELL_POWER = 201;	/* Strength                */

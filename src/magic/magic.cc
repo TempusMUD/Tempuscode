@@ -1028,17 +1028,11 @@ mag_affects(int level, struct Creature *ch, struct Creature *victim,
 		to_vict = "Your skin tightens up and hardens.";
 		break;
 
-    case SPELL_THORN_SKIN: {
+    case SPELL_THORN_SKIN:
         af.location = APPLY_AC;
         af.duration = dice(3, (level >> 2) + 1);
         af.modifier = -(ch->getLevelBonus(SPELL_THORN_SKIN) / 10 + 5);
-//        af.level = ch->getLevelBonus(SPELL_THORN_SKIN);
-        to_vict = "You howl in pain as thorns pierce your skin!";
-        to_room = "$n howls in pain as thorns pierce his skin.";
-        int dam = (150 - ch->getLevelBonus(SPELL_THORN_SKIN) / 2);
-		damage(ch, ch, dam, TYPE_UNDEFINED, WEAR_RANDOM);
         break;
-    }
 	case SPELL_STONESKIN:
 		if (affected_by_spell(victim, SPELL_BARKSKIN)) {
 			affect_from_char(victim, SPELL_BARKSKIN);
@@ -2357,6 +2351,13 @@ Fireball: like harder bones, skin, organ membranecs
 	if (spellnum == SPELL_FEAR && !mag_savingthrow(victim, level, SAVING_PSI)
 		&& victim->getPosition() > POS_SITTING)
 		do_flee(victim, "", 0, 0, 0);
+
+	// This looks redundant, but serves as a reminder that the damage()
+	// function might kill the character
+	if (spellnum == SPELL_THORN_SKIN)
+		if (damage(ch, ch, (150 - ch->getLevelBonus(SPELL_THORN_SKIN) / 2),
+				SPELL_THORN_SKIN_CASTING, WEAR_RANDOM))
+			return;
 }
 
 
