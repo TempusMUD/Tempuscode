@@ -40,6 +40,10 @@ void prog_do_halt(prog_env *env, prog_evt *evt, char *args);
 void prog_do_target(prog_env *env, prog_evt *evt, char *args);
 void prog_do_nuke(prog_env *env, prog_evt *evt, char *args);
 void prog_do_trans(prog_env *env, prog_evt *evt, char *args);
+void prog_do_randomly(prog_env *env, prog_evt *evt, char *args);
+void prog_do_or(prog_env *env, prog_evt *evt, char *args);
+
+char *prog_get_statement(char **prog, int linenum);
 
 struct prog_command {
 	const char *str;
@@ -48,17 +52,19 @@ struct prog_command {
 };
 
 prog_command prog_cmds[] = {
-	{ "before",	false,	prog_do_before },
-	{ "handle",	false,	prog_do_handle },
-	{ "after",	false,	prog_do_after },
-	{ "require",false,	prog_do_require },
-	{ "unless",	false,	prog_do_unless },
-	{ "pause",	true,	prog_do_pause },
-	{ "do",		true,	prog_do_do },
-	{ "force",	true,	prog_do_force },
-	{ "target",	true,	prog_do_target },
-	{ "nuke",	true,	prog_do_nuke },
-	{ "trans",	true,	prog_do_trans },
+	{ "before",		false,	prog_do_before },
+	{ "handle",		false,	prog_do_handle },
+	{ "after",		false,	prog_do_after },
+	{ "require",	false,	prog_do_require },
+	{ "unless",		false,	prog_do_unless },
+	{ "randomly",	false,	prog_do_randomly },
+	{ "or",			false,	prog_do_or },
+	{ "pause",		true,	prog_do_pause },
+	{ "do",			true,	prog_do_do },
+	{ "force",		true,	prog_do_force },
+	{ "target",		true,	prog_do_target },
+	{ "nuke",		true,	prog_do_nuke },
+	{ "trans",		true,	prog_do_trans },
 	{ NULL,		false,	prog_do_halt }
 };
 
@@ -231,6 +237,47 @@ prog_do_unless(prog_env *env, prog_evt *evt, char *args)
 {
 	if (prog_eval_condition(env, evt, args))
 		prog_next_handler(env);
+}
+
+void
+prog_do_randomly(prog_env *env, prog_evt *evt, char *args)
+{
+	char *exec, *line, *cmd;
+	int cur_line, last_line, num_paths;
+
+	// We save the execution point and find the next handler.
+	cur_line = env->exec_pt;
+	prog_next_handler(env);
+	last_line = env->exec_pt;
+	env->exec_pt = cur_line;
+
+	// now we run through, setting randomly which code path to take
+	exec = prog_get_text(env);
+	line = prog_get_statement(&exec, env->exec_pt);
+	num_paths = 0;
+	while (line) {
+		cur_line++;
+		if (last_line > 0 && cur_line >= last_line)
+			break;
+		if (*line == '*') {
+			cmd = tmp_getword(&line) + 1;
+			if (!strcasecmp(cmd, "or")) {
+				num_paths += 1;
+				if (!number(0, num_paths))
+					env->exec_pt = cur_line;
+			}
+		}
+		line = prog_get_statement(&exec, 0);
+	}
+
+	// At this point, exec_pt should be on a randomly selected code path
+	// within the current handler
+}
+
+void
+prog_do_or(prog_env *env, prog_evt *evt, char *args)
+{
+	prog_next_handler(env);
 }
 
 void
