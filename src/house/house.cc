@@ -298,6 +298,7 @@ House_load(int atrium)
 
 	if (!fl)
 		return 0;
+	slog("House: Loading objects for atrium %d", atrium);
 
 	while (!feof(fl)) {
 		tmpo = Obj_from_store(fl, true);
