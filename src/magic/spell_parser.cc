@@ -256,7 +256,9 @@ const char *spells[] = {
 	"endurance",
 	"amnesia",					/* 235 */
 	"nullpsi",
-	"!UNUSED!", "!UNUSED!", "!UNUSED!", "!UNUSED!",	/* 240 */
+	"!UNUSED!",
+	"distraction",
+	"!UNUSED!", "!UNUSED!",	/* 240 */
 	"!UNUSED!", "!UNUSED!", "!UNUSED!", "!UNUSED!", "!UNUSED!",	/* 245 */
 	"!UNUSED!", "!UNUSED!", "!UNUSED!", "!UNUSED!", "!UNUSED!",	/* 250 */
 	"!UNUSED!", "!UNUSED!", "!UNUSED!", "!UNUSED!", "!UNUSED!",	/* 255 */
@@ -1279,6 +1281,9 @@ call_magic(struct Creature *caster, struct Creature *cvict,
 			break;
 		case SPELL_DISPEL_MAGIC:
 			MANUAL_SPELL(spell_dispel_magic);
+			break;
+		case SPELL_DISTRACTION:
+			MANUAL_SPELL(spell_distraction);
 			break;
 		}
 
@@ -3289,6 +3294,10 @@ mag_assign_spells(void)
 	spello(SPELL_TELEPATHY, X, X, X, X, X, 41, X, X, X, X, X, X, X, X, X, X, X,
 		95, 62, 4, POS_FIGHTING, TAR_CHAR_ROOM | TAR_SELF_ONLY, false,
 		MAG_PSIONIC | MAG_AFFECTS);
+
+	spello(SPELL_DISTRACTION, X, X, X, X, X, 2, X, X, X, X, X, X, X, X, X, X, X,
+		40, 10, 4, POS_STANDING, TAR_CHAR_ROOM, false,
+		MAG_PSIONIC | MAG_MANUAL);
 
 	spello(SKILL_PSIBLAST, X, X, X, X, X, 5, X, X, X, X, X, X, X, X, X, X, X,
 		50, 50, 1, 0, 0, 0, MAG_DAMAGE | MAG_PSIONIC);

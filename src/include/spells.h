@@ -307,6 +307,7 @@ static const int SPELL_CLUMSINESS = 233;
 static const int SPELL_ENDURANCE = 234;
 static const int SPELL_AMNESIA = 235;	// psi remorts
 static const int SPELL_NULLPSI = 236;	// remove psi affects
+static const int SPELL_DISTRACTION = 238;
   /**************************  Mercenary Devices ******************/
 static const int SPELL_DECOY = 237;
   /*************************** Physic Alterations *****************/
@@ -806,6 +807,7 @@ ASPELL(spell_quantum_rift);
 ASPELL(spell_decoy);
 ASPELL(spell_death_knell);
 ASPELL(spell_dispel_magic);
+ASPELL(spell_distraction);
 
 /* basic magic calling functions */
 

@@ -3409,3 +3409,30 @@ ASPELL(spell_dispel_magic)
 				ch, obj, 0, TO_CHAR);
 		}
 }
+
+ASPELL(spell_distraction)
+{
+	memory_rec *curr, *next_curr;
+
+	if (!IS_NPC(victim)) {
+		send_to_char(ch, "This trigger cannot be used against other players.\r\n");
+		return;
+	}
+
+	if (!MEMORY(victim)) {
+		send_to_char(ch, "Nothing happens.\r\n");
+		return;
+	}
+
+	for (curr = MEMORY(victim);curr;curr = next_curr) {
+		next_curr = curr->next;
+		free(curr);
+	}
+	MEMORY(victim) = NULL;
+
+	gain_skill_prof(ch, SPELL_DISTRACTION);
+
+	act("$N suddenly looks very distracted.", false, ch, 0, victim, TO_CHAR);
+	act("You suddenly feel like you're missing something...", false, ch, 0, victim, TO_VICT);
+	act("$N suddenly looks very distracted.", false, ch, 0, victim, TO_NOTVICT);
+}
