@@ -516,7 +516,7 @@ SPECIAL(voting_booth) {
 			if (!isdigit(*argument))
 				return 0;
 			voting_booth_remove(ch, obj, argument);
-		} else if (VOTING_CMD_WRITE == cmd)
+		} else if (VOTING_CMD_WRITE == cmd && GET_LEVEL(ch) >= LVL_AMBASSADOR)
 			voting_booth_write(ch, obj, argument);
 		else
 			return 0;
