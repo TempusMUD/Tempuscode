@@ -323,12 +323,11 @@ set_char_xedit(struct char_data *ch, char *argument)
 			(!*arg2 || !srch->keywords
 				|| isname_exact(arg2, srch->keywords))) {
 			GET_OLC_SRCH(ch) = srch;
-			sprintf(buf,
+			send_to_char(ch,
 				"You are now editing a search that triggers on:\r\n"
 				"%s (%s)\r\n", GET_OLC_SRCH(ch)->command_keys,
 				GET_OLC_SRCH(ch)->keywords ?
 				GET_OLC_SRCH(ch)->keywords : "NULL");
-			send_to_char(ch, "%s", buf);
 			return 1;
 		}
 	send_to_char(ch, "No such search in room.\r\n");

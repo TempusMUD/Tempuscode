@@ -1479,10 +1479,9 @@ save_mobs(struct char_data *ch)
 			if (!reply->keyword || !reply->description) {
 				slog("OLCERROR: Response with no kywrd or desc, mob #%d.\n",
 					mob->mob_specials.shared->vnum);
-				sprintf(buf,
+				send_to_char(ch,
 					"I didn't save your bogus response for mob %d.\r\n",
 					mob->mob_specials.shared->vnum);
-				send_to_char(ch, "%s", buf);
 				reply = reply->next;
 				continue;
 			}

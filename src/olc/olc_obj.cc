@@ -266,10 +266,9 @@ save_objs(struct char_data *ch)
 			if (!desc->keyword || !desc->description) {
 				slog("OLCERROR: Extra Desc with no kywrd or desc, obj #%d.\n",
 					obj->shared->vnum);
-				sprintf(buf,
+				send_to_char(ch,
 					"I didn't save your bogus extra desc in obj %d.\r\n",
 					obj->shared->vnum);
-				send_to_char(ch, "%s", buf);
 				desc = desc->next;
 				continue;
 			}
@@ -1022,10 +1021,11 @@ perform_oset(struct char_data *ch, struct obj_data *obj_p,
 			return;
 		}
 		if (add_path_to_vehicle(obj_p, arg2)) {
-			sprintf(buf, "%s now follows the path titled: %s.\r\n",
+			send_to_char(ch, "%s now follows the path titled: %s.\r\n",
 				obj_p->short_description, arg2);
-		} else
+		} else {
 			send_to_char(ch, "Could not assign that path to vehicle.\r\n");
+		}
 		break;
 
 	case 20: /** soilage **/
@@ -1058,10 +1058,8 @@ perform_oset(struct char_data *ch, struct obj_data *obj_p,
 		else if (is_abbrev(arg1, "level"))
 			GET_OBJ_SIGIL_LEVEL(obj_p) = atoi(argument);
 		else {
-			sprintf(buf,
-				"Unknown argument '%s'.  You must set sigil idnum or level.\r\n",
-				arg2);
-			send_to_char(ch, "%s", buf);
+			send_to_char(ch,
+				"Unknown argument '%s'.  You must set sigil idnum or level.\r\n", arg2);
 			return;
 		}
 

@@ -351,11 +351,10 @@ ACMD(do_olc)
 
 	if (olc_lock || (IS_SET(ch->in_room->zone->flags, ZONE_LOCKED))) {
 		if (GET_LEVEL(ch) >= LVL_IMPL) {
-			sprintf(buf,
+			send_to_char(ch,
 				"\007\007\007\007%sWARNING.%s  Overriding olc %s lock.\r\n",
 				CCRED_BLD(ch, C_NRM), CCNRM(ch, C_NRM),
 				olc_lock ? "global" : "discrete zone");
-			send_to_char(ch, "%s", buf);
 		} else {
 			send_to_char(ch, "OLC is currently locked.  Try again later.\r\n");
 			return;
@@ -1130,10 +1129,9 @@ ACMD(do_olc)
 				}
 				if (tmp_vnum && (tmp_obj = do_create_obj(ch, tmp_vnum))) {
 					GET_OLC_OBJ(ch) = tmp_obj;
-					sprintf(buf,
+					send_to_char(ch,
 						"Object %d succesfully created.\r\nNow editing object %d\r\n",
 						tmp_obj->shared->vnum, tmp_obj->shared->vnum);
-					send_to_char(ch, "%s", buf);
 				} else if (!tmp_vnum && *arg2) {
 					send_to_char(ch, "No allocatable objects found in zone.\r\n");
 				}
@@ -1154,10 +1152,9 @@ ACMD(do_olc)
 				}
 				if (tmp_vnum && (tmp_mob = do_create_mob(ch, i))) {
 					GET_OLC_MOB(ch) = tmp_mob;
-					sprintf(buf,
+					send_to_char(ch,
 						"Mobile %d succesfully created.\r\nNow editing mobile %d\r\n",
 						tmp_vnum, tmp_vnum);
-					send_to_char(ch, "%s", buf);
 				} else if (!tmp_vnum && *arg2) {
 					send_to_char(ch, "No allocatable mobiles found in zone.\r\n");
 				}
@@ -1422,11 +1419,10 @@ ACMD(do_olc)
 				send_to_char(ch, 
 					"Usage: olc xedit <command trigger> <keyword>\r\n");
 			else {
-				sprintf(buf,
-					"You are currently editing a search that triggers on:\r\n"
+				send_to_char(ch, 
+				    "You are currently editing a search that triggers on:\r\n"
 					"%s (%s)\r\n", GET_OLC_SRCH(ch)->command_keys,
 					GET_OLC_SRCH(ch)->keywords);
-				send_to_char(ch, "%s", buf);
 			}
 			return;
 		}
@@ -1928,14 +1924,7 @@ show_olc_help(struct char_data *ch, char *arg)
 					i, CCCYN(ch, C_NRM), spell_to_str(i), CCNRM(ch, C_NRM));
 				strcat(buf, buf2);
 			}
-		}						/*
-								   for (i = MAX_SKILLS+1; i < TOP_NPC_SPELL; i++) {
-								   if (str_cmp(spell_to_str(i), "!UNUSED!")) {
-								   sprintf(buf2, "%2d         %s%s%s\r\n", 
-								   i, CCCYN(ch, C_NRM), spell_to_str(i), CCNRM(ch, C_NRM));
-								   strcat(buf, buf2);
-								   }
-								   } */
+		}
 		page_string(ch->desc, buf, 1);
 		break;
 
