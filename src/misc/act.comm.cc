@@ -136,9 +136,21 @@ ACMD(do_say)
 		argument = one_argument(argument, name);
 		skip_spaces(&argument);
 
-		if (!*name)
+		o = NULL;
+		if (!*name) {
 			send_to_char(ch, "Say what to who?\r\n");
-		else if (!(vict = get_char_room_vis(ch, name))) {
+			return;
+		}
+
+		if (!(vict = get_char_room_vis(ch, name))) {
+			if (!o)
+				o = get_object_in_equip_vis(ch, name, ch->equipment, &j);
+			if (!o)
+				o = get_obj_in_list_vis(ch, name, ch->carrying);
+			if (!o)
+				o = get_obj_in_list_vis(ch, name, ch->in_room->contents);
+		}
+		if (!vict && !o) {
 			if (!recurs_say)
 				send_to_char(ch, "No-one by that name here.\r\n");
 		} else {
@@ -150,7 +162,9 @@ ACMD(do_say)
 					continue;
 				strcpy(buf, PERS(ch, (*it)));
 				strcpy(buf2, CAP(buf));
-				if ((*it) == vict)
+				if (o)
+					strcpy(buf3, o->short_description);
+				else if ((*it) == vict)
 					strcpy(buf3, "you");
 				else if (vict == ch) {
 					strcpy(buf3, HMHR(ch));
@@ -163,9 +177,15 @@ ACMD(do_say)
 					CCCYN((*it), C_NRM), argument, CCNRM((*it), C_NRM));
 			}
 			if (!recurs_say) {
+				if (o)
+					strcpy(buf3, o->short_description);
+				else if (vict == ch)
+					strcpy(buf3, "yourself");
+				else
+					strcpy(buf3, PERS(vict, ch));
 				send_to_char(ch, "%s%sYou say to %s,%s %s'%s'%s\r\n", CCBLD(ch,
-						C_NRM), CCBLU(ch, C_NRM), GET_DISGUISED_NAME(ch,
-						vict), CCNRM(ch, C_NRM), CCCYN(ch, C_NRM),
+						C_NRM), CCBLU(ch, C_NRM), buf3,
+						CCNRM(ch, C_NRM), CCCYN(ch, C_NRM),
 					argument, CCNRM(ch, C_NRM));
 			}
 		}
