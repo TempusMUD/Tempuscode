@@ -2649,12 +2649,16 @@ randomize_object(struct obj_data *obj)
 		break;
 	// Vstone and portal charges
 	case ITEM_VSTONE:
-	case ITEM_PORTAL:
 		GET_OBJ_VAL(obj, 2) = rand_value(
 			GET_OBJ_VAL(obj, 2),
 			GET_OBJ_VAL(obj, 2) / 4,
-			1,
-			-1);
+			1, -1);
+        break;
+	case ITEM_PORTAL:
+		GET_OBJ_VAL(obj, 3) = rand_value(
+			GET_OBJ_VAL(obj, 3),
+			GET_OBJ_VAL(obj, 3) / 4,
+			1, -1);
 		break;
 	}
 }
