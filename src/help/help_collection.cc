@@ -1,4 +1,5 @@
-#include <fstream.h>
+#include <fstream>
+using namespace std;
 #include <stdio.h>
 #include <string.h>
 #include <time.h>
@@ -135,6 +136,7 @@ HelpCollection::~HelpCollection() {
 void HelpCollection::Push(HelpItem *n) {
     if(bottom) {
         bottom->SetNext(n);
+		bottom = n;
     } else {
         bottom = n;
         items = n;
@@ -310,8 +312,9 @@ bool HelpCollection::LoadIndex() {
     int num_items = 0;
     s = fname;
     sprintf(fname,"%s/%s",Help_Directory,"index");
-
-    index_file.open(fname,ios::in | ios::nocreate);
+	fprintf(stderr,"About to\r\n");
+    index_file.open(fname,ios::in);
+	fprintf(stderr,"Just did\r\n");
     if(!index_file){
         slog("SYSERR: Cannot open help index.");
         return false;

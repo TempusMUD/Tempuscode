@@ -1,6 +1,6 @@
 #include <vector>
+#include <fstream>
 using namespace std;
-#include <fstream.h>
 #include <stdio.h>
 #include <string.h>
 #include <time.h>
