@@ -2552,7 +2552,7 @@ perform_violence(void)
                     // Special combat loop for mercs...
                     if (IS_MERC(ch)) {
                         // Roll the dice to see if the merc gets to shoot his gun this round
-                        if (prob > number(1, 121)) {
+                        if (prob > number(1, 101)) {
                             retval = do_combat_fire(ch, FIGHTING(ch));
                             // Either the attacker or the victim was killed
                             if ((retval == 1) || (retval == DAM_VICT_KILLED)) {
