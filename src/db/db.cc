@@ -2705,116 +2705,122 @@ reset_zone(struct zone_data *zone)
     // 0 == "Do regardless of previous"
     // 1 == "Do if previous succeded"
     // 2 == "Do if previous failed"
-	if (zonecmd->if_flag == 1 && !last_cmd)
+    // last_cmd
+    // 1 == "Last command succeded"
+    // 0 == "Last command had an error"
+    //-1 == "Last command's percentage failed"
+
+	if (zonecmd->if_flag == 1 && last_cmd != 1)
 	    continue;
-    else if (zonecmd->if_flag == 2 && last_cmd)
+    else if (zonecmd->if_flag == -1 && last_cmd != -1)
         continue;
 
 	if (!prob_override && number(1, 100) > zonecmd->prob) {
-	    last_cmd = 0;
+	    last_cmd = -1;
 	    continue;
-	} else
+	} else {
 	    prob_override = 0;
+    }
 
 	switch (zonecmd->command) {
 	case '*':			/* ignore command */
-	    last_cmd = 0;
+	    last_cmd = -1;
 	    break;
 	case 'M': /* read a mobile */
 	    tmob = real_mobile_proto(zonecmd->arg1);
 	    if (tmob != NULL && tmob->mob_specials.shared->number < zonecmd->arg2) {
-		room = real_room(zonecmd->arg3);
-		if (room) 
-		    mob = read_mobile(zonecmd->arg1);
-		else {
-		    last_cmd = 0;
-		    break;
-		}
-		if (mob) {
-		    char_to_room(mob, room);
-		    if (GET_MOB_LEADER(mob) > 0) {
-			for (ldr = mob->in_room->people; ldr; ldr = ldr->next_in_room)
-			    if (ldr != mob && IS_NPC(ldr) && 
-				GET_MOB_VNUM(ldr) == GET_MOB_LEADER(mob)) {
-				if (!circle_follow(mob, ldr)) {
-				    add_follower(mob, ldr);
-				    break;
-				}
-			    }
-		    }
-		    last_cmd = 1;
-		} else
-		    last_cmd = 0;
+            room = real_room(zonecmd->arg3);
+            if (room) 
+                mob = read_mobile(zonecmd->arg1);
+            else {
+                last_cmd = 0;
+                break;
+            }
+            if (mob) {
+                char_to_room(mob, room);
+                if (GET_MOB_LEADER(mob) > 0) {
+                for (ldr = mob->in_room->people; ldr; ldr = ldr->next_in_room)
+                    if (ldr != mob && IS_NPC(ldr) && 
+                    GET_MOB_VNUM(ldr) == GET_MOB_LEADER(mob)) {
+                    if (!circle_follow(mob, ldr)) {
+                        add_follower(mob, ldr);
+                        break;
+                    }
+                    }
+                }
+                last_cmd = 1;
+            } else
+                last_cmd = 0;
 	    } else
-		last_cmd = 0;
+            last_cmd = 0;
 	    break;
 
 	case 'O':			/* read an object */
 	    tobj = real_object_proto(zonecmd->arg1);
 	    if (tobj != NULL && 
 		tobj->shared->number - tobj->shared->house_count < zonecmd->arg2) {
-		if (zonecmd->arg3 >= 0) {
-		    room = real_room(zonecmd->arg3);
-		    if (room && !ROOM_FLAGGED(room, ROOM_HOUSE)) {
-			obj = read_object(zonecmd->arg1);
-			if (ZONE_FLAGGED(zone, ZONE_ZCMDS_APPROVED)) {
-			    SET_BIT(GET_OBJ_EXTRA2(obj), ITEM2_UNAPPROVED);
-			    GET_OBJ_TIMER(obj) = 60;
-			}
-		    } else {
-			last_cmd = 0;
-			break;
-		    }
-		    if (obj) {
-			obj_to_room(obj, room);
-			last_cmd = 1;
-		    } else 
-			last_cmd = 0;
-		} else 
-		    last_cmd = 0;
+            if (zonecmd->arg3 >= 0) {
+                room = real_room(zonecmd->arg3);
+                if (room && !ROOM_FLAGGED(room, ROOM_HOUSE)) {
+                obj = read_object(zonecmd->arg1);
+                if (ZONE_FLAGGED(zone, ZONE_ZCMDS_APPROVED)) {
+                    SET_BIT(GET_OBJ_EXTRA2(obj), ITEM2_UNAPPROVED);
+                    GET_OBJ_TIMER(obj) = 60;
+                }
+                } else {
+                last_cmd = 0;
+                break;
+                }
+                if (obj) {
+                obj_to_room(obj, room);
+                last_cmd = 1;
+                } else 
+                last_cmd = 0;
+            } else 
+                last_cmd = 0;
 	    } else
-		last_cmd = 0;
+            last_cmd = 0;
 	    break;
 
 	case 'P':			/* object to object */
 	    tobj = real_object_proto(zonecmd->arg1);
 	    if (tobj != NULL && 
-		tobj->shared->number - tobj->shared->house_count < zonecmd->arg2) {
-		obj = read_object(zonecmd->arg1);
-		if (!(obj_to = get_obj_num(zonecmd->arg3))) {
-		    ZONE_ERROR("target obj not found");
-		    if (ZONE_FLAGGED(zone, ZONE_ZCMDS_APPROVED)) {
-			SET_BIT(GET_OBJ_EXTRA2(obj), ITEM2_UNAPPROVED);
-			GET_OBJ_TIMER(obj) = 60;
-		    }
-		    extract_obj(obj);
-		    break;
-		}
-		obj_to_obj(obj, obj_to);
-		last_cmd = 1;
+            tobj->shared->number - tobj->shared->house_count < zonecmd->arg2) {
+            obj = read_object(zonecmd->arg1);
+            if (!(obj_to = get_obj_num(zonecmd->arg3))) {
+                ZONE_ERROR("target obj not found");
+                if (ZONE_FLAGGED(zone, ZONE_ZCMDS_APPROVED)) {
+                SET_BIT(GET_OBJ_EXTRA2(obj), ITEM2_UNAPPROVED);
+                GET_OBJ_TIMER(obj) = 60;
+                }
+                extract_obj(obj);
+                break;
+            }
+            obj_to_obj(obj, obj_to);
+            last_cmd = 1;
 	    } else
-		last_cmd = 0;
+            last_cmd = 0;
 	    break;
 
 	case 'V': /* add path to vehicle */
 	    last_cmd = 0;
 	    if (!(tobj = get_obj_num(zonecmd->arg3))) {
-		ZONE_ERROR("target obj not found");
-		break;
+            ZONE_ERROR("target obj not found");
+            break;
 	    }
 	    if (!(p_head = real_path_by_num(zonecmd->arg1))) {
-		ZONE_ERROR("path not found");
-		break;
+            ZONE_ERROR("path not found");
+            break;
 	    }
 	    if (add_path_to_vehicle(tobj, p_head->name))
-		last_cmd = 1;
+            last_cmd = 1;
 	    break;
 
 	case 'G':			/* obj_to_char */
 	    if (!mob) {
-		if (last_cmd)
-		    ZONE_ERROR("attempt to give obj to non-existant mob");
-		break;
+            if (last_cmd == 1)
+                ZONE_ERROR("attempt to give obj to non-existant mob");
+            break;
 	    }
 	    tobj = real_object_proto(zonecmd->arg1);
 	    if (tobj != NULL && 

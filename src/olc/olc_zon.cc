@@ -157,8 +157,8 @@ do_zcmd(struct char_data *ch, char *argument)
     
 	if (is_number(arg1) && is_number(arg2)) {
 	    if_flag = atoi(arg1);
-	    if (if_flag != 0 && if_flag != 1 && if_flag != 2 ) {
-            send_to_char("if_flag dependancy flag must be 0, 1  or 2\r\n",ch);
+	    if (if_flag != 0 && if_flag != 1 && if_flag != -1 ) {
+            send_to_char("if_flag dependancy flag must be 0, 1 or -1\r\n",ch);
             return;
 	    }
 	    int_arg1 = atoi(arg2);
@@ -258,8 +258,8 @@ do_zcmd(struct char_data *ch, char *argument)
       
 	if (is_number(arg1) && is_number(arg2)) {
 	    if_flag = atoi(arg1);
-	    if (if_flag != 0 && if_flag != 1 && if_flag != 2 ) {
-		send_to_char("if_flag dependancy flag must be either 0 or 1\r\n", ch);
+	    if (if_flag != 0 && if_flag != 1 && if_flag != -1 ) {
+		send_to_char("if_flag dependancy flag must be 0, 1 or -1\r\n", ch);
 		return;
 	    }
 	    int_arg1 = atoi(arg2);
@@ -360,8 +360,8 @@ do_zcmd(struct char_data *ch, char *argument)
 	
 	if (is_number(arg1) && is_number(arg2)) {
 	    if_flag = atoi(arg1);
-	    if (if_flag != 0 && if_flag != 1 && if_flag != 2 ) {
-		send_to_char("if_flag dependancy flag must be 0, 1 or 2\r\n", ch);
+	    if (if_flag != 0 && if_flag != 1 && if_flag != -1 ) {
+		send_to_char("if_flag dependancy flag must be 0, 1 or -1\r\n", ch);
 		return;
 	    }
 	    int_arg1 = atoi(arg2);
@@ -459,8 +459,8 @@ do_zcmd(struct char_data *ch, char *argument)
 	
 	if (is_number(arg1) && is_number(arg2)) {
 	    if_flag = atoi(arg1);
-	    if (if_flag != 0 && if_flag != 1 && if_flag != 2 ) {
-		send_to_char("if_flag dependancy flag must be either 0 or 1\r\n",ch);
+	    if (if_flag != 0 && if_flag != 1 && if_flag != -1 ) {
+		send_to_char("if_flag dependancy flag must be 0, 1 or -1\r\n",ch);
 		return;
 	    }
 	    int_arg1 = atoi(arg2);
@@ -557,8 +557,8 @@ do_zcmd(struct char_data *ch, char *argument)
 	
 	if (is_number(arg1) && is_number(arg2)) {
 	    if_flag = atoi(arg1);
-	    if (if_flag != 0 && if_flag != 1 && if_flag != 2 ) {
-            send_to_char("if_flag dependancy flag must be 0, 1 or 2\r\n", ch);
+	    if (if_flag != 0 && if_flag != 1 && if_flag != -1 ) {
+            send_to_char("if_flag dependancy flag must be 0, 1 or -1\r\n", ch);
             return;
 	    }
 	    int_arg1 = atoi(arg2);
@@ -671,8 +671,8 @@ do_zcmd(struct char_data *ch, char *argument)
 	
 	if (is_number(arg1) && is_number(arg2)) {
 	    if_flag = atoi(arg1);
-	    if (if_flag != 0 && if_flag != 1 && if_flag != 2 ) {
-		send_to_char("if_flag dependancy flag must be either 0 or 1\r\n", ch);
+	    if (if_flag != 0 && if_flag != 1 && if_flag != -1 ) {
+		send_to_char("if_flag dependancy flag must be 0, 1 or 1\r\n", ch);
 		return;
 	    }
 	    int_arg1 = atoi(arg2);
@@ -789,8 +789,8 @@ do_zcmd(struct char_data *ch, char *argument)
 	
 	if (is_number(arg1) && is_number(arg2)) {
 	    if_flag = atoi(arg1);
-	    if (if_flag != 0 && if_flag != 1 && if_flag != 2 ) {
-		send_to_char("if_flag dependancy flag must be 0, 1 or 2\r\n", ch);
+	    if (if_flag != 0 && if_flag != 1 && if_flag != -1 ) {
+		send_to_char("if_flag dependancy flag must be 0, 1 or -1\r\n", ch);
 		return;
 	    }
 	    int_arg1 = atoi(arg2);
@@ -868,8 +868,8 @@ do_zcmd(struct char_data *ch, char *argument)
 	
 	if (is_number(arg1) && is_number(arg2)) {
 	    if_flag = atoi(arg1);
-	    if (if_flag != 0 && if_flag != 1 && if_flag != 2 ) {
-		send_to_char("if_flag dependancy flag must be either 0 or 1\r\n", ch);
+	    if (if_flag != 0 && if_flag != 1 && if_flag != -1 ) {
+		send_to_char("if_flag dependancy flag must be 0, 1 or -1\r\n", ch);
 		return;
 	    }
 	    int_arg1 = atoi(arg2);
@@ -2688,7 +2688,7 @@ do_zone_cmdlist(struct char_data *ch, struct zone_data *zone, char *arg)
 				break;
 			tmp_mob = real_mobile_proto(zcmd->arg1);
 			tmp_rom = real_room(zcmd->arg3);
-			sprintf(buf, "%3d. %sMobile%s: %d [%3d] %5d to   %5d, max %3d: (%s%s%s)\r\n",
+			sprintf(buf, "%3d. %sMobile%s: % d [%3d] %5d to   %5d, max %3d: (%s%s%s)\r\n",
 				zcmd->line, CCYEL(ch, C_NRM), CCNRM(ch, C_NRM),
 				zcmd->if_flag, zcmd->prob, zcmd->arg1,
 				zcmd->arg3, 
@@ -2703,7 +2703,7 @@ do_zone_cmdlist(struct char_data *ch, struct zone_data *zone, char *arg)
 				break;
 			tmp_obj = real_object_proto(zcmd->arg1);
 			tmp_rom = real_room(zcmd->arg3);
-			sprintf(buf, "%3d. %sObject%s: %d [%3d] %5d to   %5d, max %3d: (%s%s%s)\r\n",
+			sprintf(buf, "%3d. %sObject%s: % d [%3d] %5d to   %5d, max %3d: (%s%s%s)\r\n",
 				zcmd->line, CCGRN(ch, C_NRM), CCNRM(ch, C_NRM), 
 				zcmd->if_flag, zcmd->prob, zcmd->arg1,
 				tmp_rom ? tmp_rom->number : (-1), zcmd->arg2,
@@ -2714,7 +2714,7 @@ do_zone_cmdlist(struct char_data *ch, struct zone_data *zone, char *arg)
 			if (!mode_all && !mode_put)
 				break;
 			tmp_obj = real_object_proto(zcmd->arg1);
-			sprintf(buf, "%3d.    %sPut%s: %d [%3d] %5d to   %5d, max %3d: (%s%s%s)\r\n",
+			sprintf(buf, "%3d.    %sPut%s: % d [%3d] %5d to   %5d, max %3d: (%s%s%s)\r\n",
 				zcmd->line, CCBLU_BLD(ch, C_NRM), CCNRM(ch, C_NRM),
 				zcmd->if_flag,  zcmd->prob, zcmd->arg1,
 				zcmd->arg3, zcmd->arg2, CCGRN(ch, C_NRM),
@@ -2726,7 +2726,7 @@ do_zone_cmdlist(struct char_data *ch, struct zone_data *zone, char *arg)
 			if (!mode_all && !mode_path)
 				break;
 			p_head = real_path_by_num(zcmd->arg1);
-			sprintf(buf, "%3d.  %sPath%s : %d [%3d] %5d   to obj %5d     : (%s%s%s)\r\n",
+			sprintf(buf, "%3d.  %sPath%s : % d [%3d] %5d   to obj %5d     : (%s%s%s)\r\n",
 				zcmd->line, CCYEL_REV(ch, C_NRM), CCNRM(ch, C_NRM),
 				zcmd->if_flag,  zcmd->prob, zcmd->arg1,
 				zcmd->arg3,  CCCYN(ch, C_NRM), p_head->name,
@@ -2736,7 +2736,7 @@ do_zone_cmdlist(struct char_data *ch, struct zone_data *zone, char *arg)
 			if (!mode_all && !mode_path)
 				break;
 			p_head = real_path_by_num(zcmd->arg1);
-			sprintf(buf, "%3d.   %sPath%s: %d [%3d] %5d to mob %5d   : (%s%s%s)\r\n",
+			sprintf(buf, "%3d.   %sPath%s: % d [%3d] %5d to mob %5d   : (%s%s%s)\r\n",
 				zcmd->line, CCYEL_REV(ch, C_NRM), CCNRM(ch, C_NRM),
 				zcmd->if_flag,  zcmd->prob, zcmd->arg1,
 				zcmd->arg3,  CCCYN(ch, C_NRM), p_head->name, CCNRM(ch, C_NRM));
@@ -2745,7 +2745,7 @@ do_zone_cmdlist(struct char_data *ch, struct zone_data *zone, char *arg)
 			if (!mode_all && !mode_give)
 				break;
 			tmp_obj = real_object_proto(zcmd->arg1);
-			sprintf(buf, "%3d.   %sGive%s: %d [%3d] %5d to   %5d, max %3d: (%s%s%s)\r\n",
+			sprintf(buf, "%3d.   %sGive%s: % d [%3d] %5d to   %5d, max %3d: (%s%s%s)\r\n",
 				zcmd->line, CCBLU_BLD(ch, C_NRM), CCNRM(ch, C_NRM),
 				zcmd->if_flag,  zcmd->prob, zcmd->arg1,
 				zcmd->arg3, zcmd->arg2, CCGRN(ch, C_NRM),
@@ -2757,7 +2757,7 @@ do_zone_cmdlist(struct char_data *ch, struct zone_data *zone, char *arg)
 			if (!mode_all && !mode_eq)
 				break;
 			tmp_obj = real_object_proto(zcmd->arg1);
-			sprintf(buf, "%3d.  %sEquip%s: %d [%3d] %5d to   %5d, max %3d: (%s%s%s)\r\n",
+			sprintf(buf, "%3d.  %sEquip%s: % d [%3d] %5d to   %5d, max %3d: (%s%s%s)\r\n",
 				zcmd->line, CCMAG(ch, C_NRM), CCNRM(ch, C_NRM),
 				zcmd->if_flag,  zcmd->prob, zcmd->arg1,
 				zcmd->arg3, zcmd->arg2, CCGRN(ch, C_NRM), 
@@ -2768,7 +2768,7 @@ do_zone_cmdlist(struct char_data *ch, struct zone_data *zone, char *arg)
 			if (!mode_all && !mode_implant)
 				break;
 			tmp_obj = real_object_proto(zcmd->arg1);
-			sprintf(buf, "%3d.%sImplant%s: %d [%3d] %5d to      %2d, max %3d: (%s%s%s)\r\n",
+			sprintf(buf, "%3d.%sImplant%s: % d [%3d] %5d to      %2d, max %3d: (%s%s%s)\r\n",
 				zcmd->line, CCMAG(ch, C_NRM), CCNRM(ch, C_NRM),
 				zcmd->if_flag, zcmd->prob, zcmd->arg1,
 				zcmd->arg3, zcmd->arg2, CCGRN(ch, C_NRM), 
@@ -2779,7 +2779,7 @@ do_zone_cmdlist(struct char_data *ch, struct zone_data *zone, char *arg)
 			if (!mode_all && !mode_rem)
 				break;
 			tmp_obj = real_object_proto(zcmd->arg1);
-			sprintf(buf, "%3d. %sRem Obj%s %d [%3d] %5d from %5d,          (%s%s%s)\r\n",
+			sprintf(buf, "%3d. %sRem Obj%s % d [%3d] %5d from %5d,          (%s%s%s)\r\n",
 				zcmd->line, CCRED(ch, C_NRM), CCNRM(ch, C_NRM), 
 				zcmd->if_flag,  zcmd->prob, zcmd->arg1,
 				zcmd->arg2, CCGRN(ch, C_NRM), (tmp_obj && 
@@ -2791,7 +2791,7 @@ do_zone_cmdlist(struct char_data *ch, struct zone_data *zone, char *arg)
 				break;
 			sprintbit(zcmd->arg3, door_flags, door_flg); 
 			tmp_rom = real_room(zcmd->arg1);
-			sprintf(buf, "%3d. %sDoor%s  : %d [%3d] %5d dir  %5s,          (%s)\r\n",
+			sprintf(buf, "%3d. %sDoor%s  : % d [%3d] %5d dir  %5s,          (%s)\r\n",
 				zcmd->line, CCCYN(ch, C_NRM), CCNRM(ch, C_NRM), 
 				zcmd->if_flag,  zcmd->prob, tmp_rom ? tmp_rom->number : (-1),
 				dirs[zcmd->arg2], door_flg);
@@ -2799,7 +2799,7 @@ do_zone_cmdlist(struct char_data *ch, struct zone_data *zone, char *arg)
 		default:
 			if (!mode_all && !mode_error)
 				break;
-			sprintf(buf, "%3d. %c     : %d [%3d] %5d    %5d    %5d\r\n",
+			sprintf(buf, "%3d. %c     : % d [%3d] %5d    %5d    %5d\r\n",
 				zcmd->line, zcmd->command, zcmd->if_flag, zcmd->prob,
 				zcmd->arg1,zcmd->arg2, zcmd->arg3);
 			break;
