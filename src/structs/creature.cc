@@ -290,14 +290,20 @@ Creature::getDamReduction(Creature *attacker)
 	//******************************************************************
 	if ((af = affected_by_spell(ch, SPELL_SHIELD_OF_RIGHTEOUSNESS)) &&
 		IS_GOOD(ch) && !IS_NPC(ch)) {
-        while (af->location != APPLY_CASTER) {
-            af = af->next;
-        }
-		if (af->modifier == GET_IDNUM(ch)) {
+
+		// Find the caster apply for the shield of righteousness spell
+        while (af)
+			if (af->type == SPELL_SHIELD_OF_RIGHTEOUSNESS
+					&& af->modifier == APPLY_CASTER)
+				break;
+			else
+				af = af->next;
+
+		if (af && af->modifier == GET_IDNUM(ch)) {
 			dam_reduction +=
 				(ch->getLevelBonus(SPELL_SHIELD_OF_RIGHTEOUSNESS) / 20)
 				+ (GET_ALIGNMENT(ch) / 100);
-		} else if (ch->in_room != NULL) {
+		} else if (ch->in_room) {
 
 			CreatureList::iterator it = ch->in_room->people.begin();
 			for (; it != ch->in_room->people.end(); ++it) {
@@ -306,13 +312,13 @@ Creature::getDamReduction(Creature *attacker)
 					dam_reduction +=
 						((*it)->getLevelBonus(SPELL_SHIELD_OF_RIGHTEOUSNESS) /
 						20)
-						+ (GET_ALIGNMENT(ch) / 100);
+						+ (GET_ALIGNMENT(*it) / 100);
 					break;
 				} else if (!IS_NPC((*it)) && af->modifier == GET_IDNUM((*it))) {
 					dam_reduction +=
 						((*it)->getLevelBonus(SPELL_SHIELD_OF_RIGHTEOUSNESS) /
 						20)
-						+ (GET_ALIGNMENT(ch) / 100);
+						+ (GET_ALIGNMENT(*it) / 100);
 					break;
 				}
 			}
