@@ -896,6 +896,7 @@ mag_affects(int level, struct char_data * ch, struct char_data * victim,
 	af2.modifier = -2;
 	accum_duration = TRUE;
 	to_vict = "Your skin hardens to a rock-like shell.";
+	to_room = "$n's skin turns a pale, rough grey.";
 	break;
     case SPELL_BLESS:
 	af.location = APPLY_HITROLL;
