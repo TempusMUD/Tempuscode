@@ -747,21 +747,6 @@ SPECIAL(lounge_soldier)
 	return (banzaii(ch));
 }
 
-
-SPECIAL(armory_guard)
-{
-
-	if (spec_mode != SPECIAL_TICK)
-		return 0;
-	struct Creature *guard = (struct Creature *)me;
-	if (!AWAKE(ch))
-		return FALSE;
-	if (!cmd && ch->getPosition() != POS_FIGHTING)
-		banzaii(ch);
-
-	return (block_way(ch, guard, cmd, arg, 15357, 1));
-}
-
 SPECIAL(armory_person)
 {
 
