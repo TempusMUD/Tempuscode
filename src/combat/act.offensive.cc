@@ -840,14 +840,121 @@ calc_skill_prob(struct Creature *ch, struct Creature *vict, int skillnum,
 	return (prob);
 }
 
+bool
+perform_offensive_skill(Creature *ch, Creature *vict, int skill, int *return_flags)
+{
+	struct affected_type af;
+	int prob = -1, wait = 0, vict_wait = 0, dam = 0, vict_pos = 0, fail_pos =
+		0, loc = -1, move = 0, mana = 0;
+	int my_return_flags;
+
+	ACMD_set_return_flags(0);
+
+	if (!peaceful_room_ok(ch, vict, true))
+		return false;
+
+	if (SPELL_IS_PSIONIC(skill) && ROOM_FLAGGED(ch->in_room, ROOM_NOPSIONICS)
+		&& GET_LEVEL(ch) < LVL_GOD) {
+		send_to_char(ch, "Psychic powers are useless here!\r\n");
+		return false;
+	}
+	if ((skill == SKILL_SWEEPKICK || skill == SKILL_TRIP) &&
+		vict->getPosition() <= POS_SITTING) {
+		act("$N is already on the ground.", FALSE, ch, 0, vict, TO_CHAR);
+		return false;
+	}
+
+	af.type = 0;
+
+	//
+	// calc_skill_prob returns -1 if you cannot perform that skill,
+	// or if somethine exceptional happened and we need to return
+	//
+
+	if ((prob =
+			calc_skill_prob(ch, vict, skill,
+				&wait, &vict_wait, &move, &mana,
+				&dam, &fail_pos, &vict_pos, &loc, &af,
+				&my_return_flags)) < 0) {
+		cur_weap = NULL;
+		ACMD_set_return_flags(my_return_flags);
+		return false;
+	}
+
+	if (IS_MONK(ch) && !IS_NEUTRAL(ch) && GET_LEVEL(ch) < LVL_GOD) {
+		prob -= (prob * (ABS(GET_ALIGNMENT(ch)))) / 1000;
+		dam -= (dam * (ABS(GET_ALIGNMENT(ch)))) / 2000;
+	}
+	//
+	// skill failure
+	//
+
+	if (prob < number(1, 120)) {
+		if (damage(ch, vict, 0, skill, loc))
+			return false;
+		if (fail_pos) {
+			ch->setPosition(fail_pos);
+			if (prob < 50) {
+				// 0.1 sec for every point below 50, up to 7 sec
+				int tmp_wait = 50 - prob;
+				tmp_wait = MAX(tmp_wait, 70);
+				wait += tmp_wait;
+				slog("%s failed %s miserably, tacking on %d x0.1 sec",
+					GET_NAME(ch), spell_to_str(skill), tmp_wait);
+			}
+		}
+
+		if (move)
+			GET_MOVE(ch) -= (move >> 1);
+		if (mana)
+			GET_MANA(ch) -= (mana >> 1);
+
+		WAIT_STATE(ch, (wait >> 1));
+
+		return false;
+	}
+	//
+	// skill success
+	//
+	if (move)
+		GET_MOVE(ch) -= move;
+	if (mana)
+		GET_MANA(ch) -= mana;
+
+	gain_skill_prof(ch, skill);
+	WAIT_STATE(ch, wait);
+
+	// On success, we always do at least one point of damage
+	if (dam < 1)
+		dam = 1;
+	my_return_flags = damage(ch, vict, dam, skill, loc);
+
+	//
+	// set waits, position, and affects on victim if they are still alive
+	//
+
+	if ((!IS_SET(my_return_flags, DAM_ATTACK_FAILED))
+		&& (!IS_SET(my_return_flags, DAM_VICT_KILLED))) {
+		if (vict_pos)
+			vict->setPosition(vict_pos);
+		if (vict_wait)
+			WAIT_STATE(vict, vict_wait);
+
+		if (af.type && !affected_by_spell(vict, af.type))
+			affect_to_char(vict, &af);
+
+		return true;
+	}
+
+	return false;
+}
+
+
 ACCMD(do_offensive_skill)
 {
 	struct Creature *vict = NULL;
 	struct obj_data *ovict = NULL;
 	struct affected_type af;
-	int prob = -1, wait = 0, vict_wait = 0, dam = 0, vict_pos = 0, fail_pos =
-		0, loc = -1, move = 0, mana = 0;
-	int my_return_flags;
 
 	ACMD_set_return_flags(0);
 
@@ -874,101 +981,8 @@ ACCMD(do_offensive_skill)
 		send_to_char(ch, "Aren't we funny today...\r\n");
 		return;
 	}
-	if (!peaceful_room_ok(ch, vict, true))
-		return;
 
-	if (SPELL_IS_PSIONIC(subcmd) && ROOM_FLAGGED(ch->in_room, ROOM_NOPSIONICS)
-		&& GET_LEVEL(ch) < LVL_GOD) {
-		send_to_char(ch, "Psychic powers are useless here!\r\n");
-		return;
-	}
-	if ((subcmd == SKILL_SWEEPKICK || subcmd == SKILL_TRIP) &&
-		vict->getPosition() <= POS_SITTING) {
-		act("$N is already on the ground.", FALSE, ch, 0, vict, TO_CHAR);
-		return;
-	}
-
-	af.type = 0;
-
-	//
-	// calc_skill_prob returns -1 if you cannot perform that skill,
-	// or if somethine exceptional happened and we need to return
-	//
-
-	if ((prob =
-			calc_skill_prob(ch, vict, subcmd,
-				&wait, &vict_wait, &move, &mana,
-				&dam, &fail_pos, &vict_pos, &loc, &af,
-				&my_return_flags)) < 0) {
-		cur_weap = NULL;
-		ACMD_set_return_flags(my_return_flags);
-		return;
-	}
-
-	if (IS_MONK(ch) && !IS_NEUTRAL(ch) && GET_LEVEL(ch) < LVL_GOD) {
-		prob -= (prob * (ABS(GET_ALIGNMENT(ch)))) / 1000;
-		dam -= (dam * (ABS(GET_ALIGNMENT(ch)))) / 2000;
-	}
-	//
-	// skill failure
-	//
-
-	if (prob < number(1, 120)) {
-		if (damage(ch, vict, 0, subcmd, loc))
-			return;
-		if (fail_pos) {
-			ch->setPosition(fail_pos);
-			if (prob < 50) {
-				// 0.1 sec for every point below 50, up to 7 sec
-				int tmp_wait = 50 - prob;
-				tmp_wait = MAX(tmp_wait, 70);
-				wait += tmp_wait;
-				slog("%s failed %s miserably, tacking on %d x0.1 sec",
-					GET_NAME(ch), spell_to_str(subcmd), tmp_wait);
-			}
-		}
-
-		if (move)
-			GET_MOVE(ch) -= (move >> 1);
-		if (mana)
-			GET_MANA(ch) -= (mana >> 1);
-
-		WAIT_STATE(ch, (wait >> 1));
-
-	}
-	//
-	// skill success
-	//
-
-	else {
-		if (move)
-			GET_MOVE(ch) -= move;
-		if (mana)
-			GET_MANA(ch) -= mana;
-
-		gain_skill_prof(ch, subcmd);
-		WAIT_STATE(ch, wait);
-
-		// On success, we always do at least one point of damage
-		if (dam < 1)
-			dam = 1;
-		my_return_flags = damage(ch, vict, dam, subcmd, loc);
-
-		//
-		// set waits, position, and affects on victim if they are still alive
-		//
-
-		if ((!IS_SET(my_return_flags, DAM_ATTACK_FAILED))
-			&& (!IS_SET(my_return_flags, DAM_VICT_KILLED))) {
-			if (vict_pos)
-				vict->setPosition(vict_pos);
-			if (vict_wait)
-				WAIT_STATE(vict, vict_wait);
-
-			if (af.type && !affected_by_spell(vict, af.type))
-				affect_to_char(vict, &af);
-		}
-	}
+	perform_offensive_skill(ch, vict, subcmd, return_flags);
 }
 
 
