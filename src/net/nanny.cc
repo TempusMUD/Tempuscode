@@ -814,6 +814,7 @@ send_menu(descriptor_data *d)
 	case CXN_MENU:
 		// If we have a creature, save and offload
 		if (d->creature) {
+			d->creature->player.time.logon = time(0);
 			d->creature->saveToXML();
 			delete d->creature;
 			d->creature = NULL;
@@ -1086,6 +1087,7 @@ char_to_game(descriptor_data *d)
 		d->creature->in_room = NULL;
 	}
 
+	d->creature->player.time.logon = time(0);
 	d->creature->saveToXML();
 	send_to_char(d->creature, "%s%s%s%s",
 		CCRED(d->creature, C_NRM), CCBLD(d->creature, C_NRM), WELC_MESSG,

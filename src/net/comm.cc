@@ -1326,6 +1326,7 @@ close_socket(struct descriptor_data *d)
 		d->snoop_by->snooping = NULL;
 	}
 	if (d->creature && IS_PLAYING(d)) {
+		d->creature->player.time.logon = time(0);
 		d->creature->saveToXML();
 		act("$n has lost $s link.", TRUE, d->creature, 0, 0, TO_ROOM);
 		mudlog(MAX(LVL_AMBASSADOR, GET_INVIS_LVL(d->creature)), NRM, true,
