@@ -207,7 +207,7 @@ void boot_the_shops(FILE * shop_f, char *filename, int rec_count);
 void add_alias(struct Creature *ch, struct alias_data *a);
 void boot_clans(void);
 void add_follower(struct Creature *ch, struct Creature *leader);
-
+void xml_reload( Creature *ch );
 extern int no_specials;
 extern int scheck;
 
@@ -227,9 +227,7 @@ ACMD(do_reboot)
 		file_to_string_alloc(ANSI_MOTD_FILE, &ansi_motd);
 		file_to_string_alloc(IMOTD_FILE, &imotd);
 		file_to_string_alloc(ANSI_IMOTD_FILE, &ansi_imotd);
-//        file_to_string_alloc(HELP_PAGE_FILE, &help);
 		file_to_string_alloc(INFO_FILE, &info);
-//        file_to_string_alloc(POLICIES_FILE, &policies);
 		file_to_string_alloc(HANDBOOK_FILE, &handbook);
 		file_to_string_alloc(BACKGROUND_FILE, &background);
 		file_to_string_alloc(AREAS_LOW_FILE, &areas_low);
@@ -246,50 +244,39 @@ ACMD(do_reboot)
 	} else if (!str_cmp(arg, "imotd")) {
 		file_to_string_alloc(IMOTD_FILE, &imotd);
 		file_to_string_alloc(ANSI_IMOTD_FILE, &ansi_imotd);
-	} else if (!str_cmp(arg, "info"))
+	} else if (!str_cmp(arg, "info")){
 		file_to_string_alloc(INFO_FILE, &info);
-	else if (!str_cmp(arg, "handbook"))
+	} else if (!str_cmp(arg, "handbook")) {
 		file_to_string_alloc(HANDBOOK_FILE, &handbook);
-	else if (!str_cmp(arg, "background"))
+	} else if (!str_cmp(arg, "background")){
 		file_to_string_alloc(BACKGROUND_FILE, &background);
-	else if (!str_cmp(arg, "areas")) {
+	} else if (!str_cmp(arg, "areas")) {
 		file_to_string_alloc(AREAS_LOW_FILE, &areas_low);
 		file_to_string_alloc(AREAS_MID_FILE, &areas_mid);
 		file_to_string_alloc(AREAS_HIGH_FILE, &areas_high);
 		file_to_string_alloc(AREAS_REMORT_FILE, &areas_remort);
 		file_to_string_alloc(TYPO_FILE, &typos);
-	} else if (!str_cmp(arg, "olc_guide"))
+	} else if (!str_cmp(arg, "olc_guide")) {
 		file_to_string_alloc(OLC_GUIDE_FILE, &olc_guide);
-	else if (!str_cmp(arg, "quest_guide"))
+	} else if (!str_cmp(arg, "quest_guide")) {
 		file_to_string_alloc(QUEST_GUIDE_FILE, &quest_guide);
-	else if (!str_cmp(arg, "paths"))
+	} else if (!str_cmp(arg, "paths")) {
 		Load_paths();
-	else if (!str_cmp(arg, "trails"))
+	} else if (!str_cmp(arg, "trails")) {
 		purge_trails(ch);
-	else if (!str_cmp(arg, "timewarps"))
+	} else if (!str_cmp(arg, "timewarps")) {
 		boot_timewarp_data();
-	else if (!str_cmp(arg, "elevators")) {
+    } else if( !str_cmp(arg, "xml") ) {
+        xml_reload(ch);
+        return;
+	} else if (!str_cmp(arg, "elevators")) {
 		if (!load_elevators())
 			send_to_char(ch, "There was an error.\r\n");
-/*  } else if (!str_cmp(arg, "xhelp")) {
-        if (help_fl)
-            fclose(help_fl);
-        if (!(help_fl = fopen(HELP_KWRD_FILE, "r")))
-            return;
-        else {
-#ifdef DMALLOC
-            dmalloc_verify(0);
-#endif
-            for (i = 0; i < top_of_helpt; i++)
-                free(help_index[i].keyword);
-            free(help_index);
-#ifdef DMALLOC
-            dmalloc_verify(0);
-#endif
-            help_index = build_help_index(help_fl, &top_of_helpt);
-        }*/
 	} else {
 		send_to_char(ch, "Unknown reboot option.\r\n");
+        send_to_char(ch, "Options: all    *         credits     motd     imotd      info\r\n");
+        send_to_char(ch, "         areas  olc_guide quest_guide handbook background paths\r\n");
+        send_to_char(ch, "         trails timewarps elevators   xml\r\n");
 		return;
 	}
 	send_to_char(ch, OK);

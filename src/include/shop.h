@@ -20,17 +20,32 @@ struct shop_buy_data {
 
 class CraftItem;
 
-struct Craftshop {
-	static Craftshop *find(Creature *keeper);
-	Craftshop(xmlNodePtr node);
-
-	void parse_item(xmlNodePtr node);
-	void list(Creature *keeper, Creature *ch);
-	void buy(Creature *keeper, Creature *ch, char *args);
-	int room;
-	int keeper_vnum;
-	vector<CraftItem *> items;
+class Craftshop {
+	public:
+		Craftshop(xmlNodePtr node);
+        ~Craftshop();
+		static Craftshop *find(Creature *keeper);
+        //Loads the Craftshop described by the given xml node.
+		void load(xmlNodePtr node);
+        // sends a simple status message to the given Creature.
+        void sendStatus( Creature *ch );
+        //Loads the Craftitem described by the given xml node.
+		void parse_item(xmlNodePtr node);
+        // Lists the items for sale.
+		void list(Creature *keeper, Creature *ch);
+        // Attempts to purchase an item from keeper for ch.
+		void buy(Creature *keeper, Creature *ch, char *args);
+        int getID() { return id; }
+    public:
+        
+		int room;
+		int keeper_vnum;
+		vector<CraftItem *> items;
+    private:
+        int id;
 };
+/** Loads and/or creates the Craftshop described by the given node. **/
+void load_craft_shop(xmlNodePtr node);
 
 
 

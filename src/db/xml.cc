@@ -5,6 +5,8 @@
 #include "xml_utils.h"
 #include "db.h"
 #include "shop.h"
+#include "tmpstr.h"
+#include "comm.h"
 
 void load_xml_object(xmlNodePtr node);
 void load_xml_mobile(xmlNodePtr node);
@@ -57,7 +59,7 @@ xml_boot(void)
 		while (node) {
 			// Parse different nodes here.
 			if (xmlMatches(node->name, "craftshop"))
-				new Craftshop(node);
+				load_craft_shop(node);
 			else if (xmlMatches(node->name, "object"))
 				load_xml_object(node);
 			else if (xmlMatches(node->name, "mobile"))
@@ -82,6 +84,83 @@ xml_boot(void)
 		slog("%d xml file%s loaded", file_count, (file_count == 1) ? "":"s");
 	else
 		slog("No xml files loaded");
+}
+
+
+
+void
+xml_reload( Creature *ch = NULL )
+{
+	DIR *dir;
+	dirent *file;
+	xmlDocPtr doc;
+	xmlNodePtr node;
+	char path[256];
+	int file_count = 0;
+
+    if( ch != NULL ) {
+        mudlog( GET_INVIS_LEV(ch), NRM, false,
+                "%s Reloading XML data files.", 
+                GET_NAME(ch) );
+    } else {
+        slog("Reloading XML data files.");
+    }
+
+	dir = opendir(XML_PREFIX);
+	if (!dir) {
+		slog("SYSERR: XML directory does not exist");
+		return;
+	}
+
+	while ((file = readdir(dir)) != NULL) {
+        bool found = false;
+
+		if (!rindex(file->d_name, '.'))
+			continue;
+		if (strcmp(rindex(file->d_name, '.'), ".xml"))
+			continue;
+
+		snprintf(path, 255, "%s/%s", XML_PREFIX, file->d_name);
+		doc = xmlParseFile(path);
+		if (!doc) {
+			slog("SYSERR: XML parse error while loading %s", path);
+			continue;
+		}
+
+		node = xmlDocGetRootElement(doc);
+		if (!node) {
+			xmlFreeDoc(doc);
+			slog("SYSERR: XML file %s is empty", path);
+			continue;
+		}
+
+		while (node) {
+			// Parse different nodes here.
+			if (xmlMatches(node->name, "craftshop")) {
+				load_craft_shop(node);
+                found = true;
+            }
+			node = node->next;
+		}
+
+		xmlFreeDoc(doc);
+        if( found )
+            file_count++;
+	}
+	closedir(dir);
+
+    char *msg;
+	if (file_count)
+		msg = tmp_sprintf("%d xml file%s reloaded", file_count, (file_count == 1) ? "":"s");
+	else
+		msg = tmp_sprintf("No xml files reloaded");
+
+    slog(msg);
+
+    if( ch != NULL ) {
+        msg = tmp_strcat(msg,"\r\n");
+        send_to_char( ch, msg );
+    }
 }
 
 

@@ -11,8 +11,13 @@
 #include "screen.h"
 #include "handler.h"
 #include "shop.h"
+#include "security.h"
 
 SPECIAL(artisan);
+
+static int cmd_slap, cmd_smirk, cmd_cry;
+vector<Craftshop *> shop_list;
+
 
 struct CraftComponent {
 	int item;
@@ -24,6 +29,11 @@ struct CraftComponent {
 
 class CraftItem {
 	public:
+        CraftItem() : required() {
+            vnum = 0;
+            cost = 999999999;
+            fail_pct = 100;
+        }
 		char *next_requirement(Creature *keeper);
 		obj_data *create(Creature *keeper, Creature *recipient);
 
@@ -33,9 +43,37 @@ class CraftItem {
 		vector<CraftComponent *> required;
 };
 
-static int cmd_slap, cmd_smirk, cmd_cry;
-vector<Craftshop *> shop_list;
 
+/**
+ * Loads the Craftshop described by the given xml node.
+ * If the sho has already been created, it is reinitialized.
+**/
+void 
+load_craft_shop(xmlNodePtr node) 
+{
+    Craftshop *shop = NULL;
+    int id = xmlGetIntProp(node,"id");
+
+	vector<Craftshop *>::iterator it;
+
+	for (it = shop_list.begin(); it != shop_list.end(); ++it) {
+        if( (*it)->getID() == id ) {
+            shop = (*it);
+            break;
+        }
+    }
+    if( shop != NULL ) {
+        shop->load(node);
+    } else {
+        shop = new Craftshop(node);
+    }
+	shop_list.push_back(shop);
+}
+
+/**
+ * loads the CraftItem described by the given xml node.
+ * Does not reinit the item. Always creates a new item.
+**/
 void
 Craftshop::parse_item(xmlNodePtr node)
 {
@@ -43,7 +81,7 @@ Craftshop::parse_item(xmlNodePtr node)
 	CraftItem *new_item;
 	CraftComponent *compon;
 	
-	new_item = new CraftItem;
+	new_item = new CraftItem();
 	new_item->vnum = xmlGetIntProp(node, "vnum");
 	new_item->cost = xmlGetIntProp(node, "cost");
 	new_item->fail_pct = xmlGetIntProp(node, "failure", 0);
@@ -61,17 +99,39 @@ Craftshop::parse_item(xmlNodePtr node)
 				(const char *)sub_node->name);
 		}
 	}
-	items.insert(items.end(), new_item);
+	items.push_back(new_item);
 	return;
 }
 
-Craftshop::Craftshop(xmlNodePtr node)
+/**
+ * creates and initializes a new Craftshop. Wee.
+**/
+Craftshop::Craftshop(xmlNodePtr node) 
+: items()
 {
-	xmlNodePtr sub_node;
-	xmlChar *prop;
+    id = xmlGetIntProp(node, "id");
+    load( node );
+}
 
-	room = xmlGetIntProp(node, "room");
-	keeper_vnum = xmlGetIntProp(node, "keeper");
+/**
+ * Loads this Craftshop's data from the given xml node.
+**/
+void 
+Craftshop::load( xmlNodePtr node ) 
+{
+    xmlNodePtr sub_node;
+	xmlChar *prop;
+    room = xmlGetIntProp(node, "room");
+    keeper_vnum = xmlGetIntProp(node, "keeper");
+
+    
+    // Remove all the currently stored items.
+    vector<CraftItem*>::iterator item;
+    for (item = items.begin();item != items.end();item++) {
+        delete (*item);
+	}
+    items.clear();
+    // Load the described items and thier info.
 	for (sub_node = node->xmlChildrenNode; sub_node; sub_node = sub_node->next) {
 		prop = NULL;
 		if (xmlMatches(sub_node->name, "item")) {
@@ -81,9 +141,8 @@ Craftshop::Craftshop(xmlNodePtr node)
 				(const char *)sub_node->name);
 		}
 	}
-
-	shop_list.insert(shop_list.end(), this);
 }
+
 
 Craftshop *
 Craftshop::find(Creature *keeper)
@@ -91,8 +150,8 @@ Craftshop::find(Creature *keeper)
 	vector<Craftshop *>::iterator shop;
 
 	for (shop = shop_list.begin(); shop != shop_list.end(); shop++)
-		if (keeper->mob_specials.shared->vnum == shop[0]->keeper_vnum &&
-				keeper->in_room->number == shop[0]->room)
+		if (keeper->mob_specials.shared->vnum == (*shop)->keeper_vnum &&
+				keeper->in_room->number == (*shop)->room)
 			return *shop;
 
 	return NULL;
@@ -106,7 +165,7 @@ CraftItem::next_requirement(Creature *keeper)
 
 	for (compon = required.begin();compon != required.end();compon++ ) {
 		// Item components are all we support right now
-		if (compon[0]->item) {
+		if ((*compon)->item) {
 			obj = get_obj_in_list_num(compon[0]->item, keeper->carrying);
 			if (!obj) {
 				obj = real_object_proto(compon[0]->item);
@@ -128,7 +187,7 @@ CraftItem::create(Creature *keeper, Creature *recipient)
 
 	for (compon = required.begin();compon != required.end();compon++ ) {
 		// Item components are all we support right now
-		if (compon[0]->item) {
+		if ((*compon)->item) {
 			obj = get_obj_in_list_num(compon[0]->item, keeper->carrying);
 			if (!obj) {
 				slog("SYSERR: craft_remove_prereqs called without all prereqs");
@@ -174,6 +233,19 @@ list_commission_item(Creature *ch, Creature *keeper, int idx, CraftItem *item, c
 		
 }
 
+// sends a simple status message to the given Creature.
+void 
+Craftshop::sendStatus( Creature *ch ) {
+    char *name = "<not loaded>";
+    Creature *keeper = real_mobile_proto(keeper_vnum);
+    if( keeper != NULL )
+        name = GET_NAME(keeper);
+    send_to_char(ch, "[%6d] %15s [%6d] ( %d items )\r\n", 
+                    id, name, keeper_vnum, items.size() );
+}
+ 
+
+// Lists the items for sale.
 void
 Craftshop::list(Creature *keeper, Creature *ch)
 {
@@ -200,6 +272,7 @@ Craftshop::list(Creature *keeper, Creature *ch)
 	page_string(ch->desc, msg);
 }
 
+// Attempts to purchase an item from keeper for ch.
 void
 Craftshop::buy(Creature *keeper, Creature *ch, char *arguments)
 {
@@ -220,7 +293,7 @@ Craftshop::buy(Creature *keeper, Creature *ch, char *arguments)
 			item = items[num];
 	} else {
 		for (item_itr= items.begin();item_itr!= items.end();item_itr++) {
-			if (isname(arg, real_object_proto(item_itr[0]->vnum)->name)) {
+			if (isname(arg, real_object_proto((*item_itr)->vnum)->name)) {
 				item = *item_itr;
 				break;
 			}
@@ -303,11 +376,11 @@ assign_artisans(void)
 	Creature *mob;
 
 	for (shop = shop_list.begin(); shop != shop_list.end(); shop++) {
-		mob = real_mobile_proto(shop[0]->keeper_vnum);
+		mob = real_mobile_proto((*shop)->keeper_vnum);
 		if (mob)
 			mob->mob_specials.shared->func = artisan;
 		else
-			slog("SYSERR: Artisan mob %d not found!", shop[0]->keeper_vnum);
+			slog("SYSERR: Artisan mob %d not found!", (*shop)->keeper_vnum);
 	}
 
 	cmd_slap = find_command("slap");
@@ -334,7 +407,7 @@ SPECIAL(artisan)
 		return true;
 	}
 
-	if (!CMD_IS("list") && !CMD_IS("buy") && !CMD_IS("sell"))
+	if (!CMD_IS("list") && !CMD_IS("buy") && !CMD_IS("sell") && !CMD_IS("status"))
 		return false;
 
 	shop = Craftshop::find(keeper);
@@ -355,15 +428,21 @@ SPECIAL(artisan)
 	}
 */
 
-	if (CMD_IS("list"))
+	if (CMD_IS("list")) {
 		shop->list(keeper, ch);
-	else if (CMD_IS("buy"))
+	} else if (CMD_IS("buy")) {
 		shop->buy(keeper, ch, argument);
-	else if (CMD_IS("sell")) {
-		msg = tmp_sprintf("%s I don't sell things, I make them.", GET_NAME(ch));
+	} else if (CMD_IS("sell")) {
+		msg = tmp_sprintf("%s I don't buy things, I make them.", GET_NAME(ch));
 		do_say(keeper, msg, 0, SCMD_SAY_TO, NULL);
-	} else
+    } else if( CMD_IS("status") && Security::isMember(ch,"Coder") ) {
+        vector<Craftshop *>::iterator shop;
+        for (shop = shop_list.begin(); shop != shop_list.end(); shop++) {
+            (*shop)->sendStatus(ch);
+        }
+	} else {
 		return false;
+    }
 	
 	return true;
 }
