@@ -1345,30 +1345,24 @@ void
 close_socket(struct descriptor_data *d)
 {
 	struct descriptor_data *temp;
+	vector<descriptor_data *>::iterator vi;
 
 	close(d->descriptor);
 	flush_queues(d);
 
-	/* Forget snooping */
+	// Forget those this descriptor is snooping
 	if (d->snooping) {
-        vector<descriptor_data *>::iterator vi = d->snooping->snoop_by.begin();
-        for (; vi != d->snooping->snoop_by.end(); ++vi) {
-            if ((*vi) == d) {
-                d->snooping->snoop_by.erase(vi);
-                break;
-            }
-        }
+	  vi = find(d->snooping->snoop_by.begin(), d->snooping->snoop_by.end(), d);
+	  if (vi != d->snooping->snoop_by.end())
+		d->snooping->snoop_by.erase(vi);
     }
-//	d->snooping->snoop_by = NULL;
 
+	// Forget those snooping on this descriptor
     for (unsigned x = 0; x < d->snoop_by.size(); x++) {
         SEND_TO_Q("Your victim is no longer among us.\r\n", d->snoop_by[x]);
 		d->snoop_by[x]->snooping = NULL;
     }
-//	if (d->snoop_by) {
-//		SEND_TO_Q("Your victim is no longer among us.\r\n", d->snoop_by);
-//		d->snoop_by->snooping = NULL;
-//	}
+
 	if (d->original) {
 		d->creature->desc = NULL;
 		d->creature = d->original;
@@ -1377,12 +1371,15 @@ close_socket(struct descriptor_data *d)
 	}
 
 	if (d->creature && IS_PLAYING(d)) {
-		d->creature->saveToXML();
+	  // Lost link in-game
 		d->creature->player.time.logon = time(0);
-		act("$n has lost $s link.", TRUE, d->creature, 0, 0, TO_ROOM);
-		mlog(Security::ADMINBASIC, MAX(LVL_AMBASSADOR, GET_INVIS_LVL(d->creature)), NRM, true,
-			"Closing link to: %s [%s] ", GET_NAME(d->creature),
+		d->creature->saveToXML();
+		act("$n has lost $s link.", true, d->creature, 0, 0, TO_ROOM);
+		mlog(Security::ADMINBASIC,
+			 MAX(LVL_AMBASSADOR, GET_INVIS_LVL(d->creature)),
+			 NRM, false, "Closing link to: %s [%s] ", GET_NAME(d->creature),
 			d->host);
+		d->account->logout(d, true);
 		d->creature->desc = NULL;
 		GET_OLC_OBJ(d->creature) = NULL;
 	} else if (d->account) {
@@ -1391,9 +1388,10 @@ close_socket(struct descriptor_data *d)
 			delete d->creature;
 			d->creature = NULL;
 		}
-		mlog(Security::ADMINBASIC, LVL_AMBASSADOR, NRM, true,
+		mlog(Security::ADMINBASIC, LVL_AMBASSADOR, NRM, false,
                 "%s[%d] logging off from %s", 
                 d->account->get_name(), d->account->get_idnum(), d->host);
+		d->account->logout(d, false);
 	} else {
 		slog("Losing descriptor without account");
     }
@@ -1408,20 +1406,6 @@ close_socket(struct descriptor_data *d)
 		delete d->text_editor;
 
 	free(d);
-	/*
-	 * kill off all sockets input_mode to the same player as the one who is
-	 * trying to quit.  Helps to maintain sanity as well as prevent duping.
-	 */
-	/*
-	   if (target_idnum >= 0) {
-	   for (temp = descriptor_list; temp; temp = next_d) {
-	   next_d = temp->next;
-	   if (temp->creature && (GET_IDNUM(temp->creature) == target_idnum)
-	   && (temp->input_mode != CXN_PLAYING))
-	   close_socket(temp);
-	   }
-	   }
-	 */
 }
 
 
