@@ -93,38 +93,6 @@ rent_deadline(struct Creature *ch, struct Creature *recep, long cost)
 	}
 }
 
-int
-report_unrentables(struct Creature *ch, struct Creature *recep,
-	struct obj_data *obj)
-{
-	int has_norents = 0;
-
-	if (obj) {
-		if (obj->isUnrentable()) {
-			has_norents = 1;
-			if ((GET_OBJ_TYPE(obj) == ITEM_CIGARETTE ||
-					GET_OBJ_TYPE(obj) == ITEM_PIPE)
-				&& GET_OBJ_VAL(obj, 3))
-				sprintf(buf2, "No smoking in the rooms... %s is still lit!",
-					OBJS(obj, ch));
-			else if (IS_BOMB(obj) && obj->contains && IS_FUSE(obj->contains) &&
-				FUSE_STATE(obj->contains))
-				sprintf(buf2, "You cannot store an active bomb ( %s ) here!!",
-					obj->name);
-			else
-				sprintf(buf2, "You cannot store %s.", OBJS(obj, ch));
-
-			if (recep)
-				perform_tell(recep, ch, buf2);
-			else
-				send_to_char(ch, strcat(buf2, "\r\n"));
-		}
-		has_norents += report_unrentables(ch, recep, obj->contains);
-		has_norents += report_unrentables(ch, recep, obj->next_content);
-	}
-	return (has_norents);
-}
-
 void
 append_obj_rent(char *str, const char *currency_str, int count, obj_data *obj)
 {
