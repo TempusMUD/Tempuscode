@@ -2368,12 +2368,16 @@ acc_append_affects(struct Creature *ch, byte mode)
 		acc_strcat("You are as one with the zen of translocation.\r\n", NULL);
 	if (affected_by_spell(ch, ZEN_CELERITY))
 		acc_strcat("You are under the effects of the zen of celerity.\r\n", NULL);
-	if (IS_AFFECTED_3(ch, AFF3_MANA_TAP))
+	if (IS_AFFECTED_3(ch, AFF3_MANA_TAP) && !IS_AFFECTED_3(ch, AFF3_MANA_LEAK))
 		acc_strcat(str,
 			"You have a direct tap to the spiritual energies of the universe.\r\n", NULL);
-	if (IS_AFFECTED_3(ch, AFF3_ENERGY_TAP))
+    if (IS_AFFECTED_3(ch, AFF3_MANA_LEAK) && !IS_AFFECTED_3(ch, AFF3_MANA_TAP))
+        acc_strcat(str, "You are slowly being drained of your spiritual energy.\r\n", NULL);
+	if (IS_AFFECTED_3(ch, AFF3_ENERGY_TAP) && !IS_AFFECTED_3(ch, AFF3_ENERGY_LEAK))
 		acc_strcat(str,
 			"Your body is absorbing physical energy from the universe.\r\n", NULL);
+    if (IS_AFFECTED_3(ch, AFF3_ENERGY_LEAK) && !IS_AFFECTED_3(ch, AFF3_ENERGY_TAP))
+        acc_strcat(str, "Your body is slowly being drained of physical energy.\r\n", NULL);
 	if (IS_AFFECTED_3(ch, AFF3_SONIC_IMAGERY))
 		acc_strcat("You are perceiving sonic images.\r\n", NULL);
 	if (IS_AFFECTED_3(ch, AFF3_PROT_HEAT))
