@@ -858,7 +858,8 @@ affect_join(struct Creature *ch, struct affected_type *af,
 
 	for (hjp = ch->affected; hjp; hjp = hjp->next) {
 
-		if ((hjp->type == af->type) && (hjp->location == af->location)) {
+		if ((hjp->type == af->type) && (hjp->location == af->location) &&
+            (hjp->aff_index == af->aff_index)) {
 			if (add_dur)
 				af->duration = MIN(666, af->duration + hjp->duration);
 			if (avg_dur)
