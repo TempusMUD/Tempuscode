@@ -3711,7 +3711,7 @@ mag_assign_spells(void)
     remort_spello(SPELL_THORN_SKIN, CLASS_RANGER, 38, 6, 110, 80, 1, 
                   POS_STANDING, TAR_CHAR_ROOM | TAR_SELF_ONLY, false,
                   MAG_MAGIC | MAG_AFFECTS);
-	remort_spello(SPELL_SPIRIT_TRACK, CLASS_RANGER, 38, 2,
+	remort_spello(SPELL_SPIRIT_TRACK, CLASS_RANGER, 38, 1,
 		120, 60, 10, POS_FIGHTING, TAR_CHAR_ROOM | TAR_SELF_ONLY,
 		false, MAG_MAGIC | MAG_AFFECTS);
 
