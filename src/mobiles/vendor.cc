@@ -77,7 +77,7 @@ static bool
 vendor_invalid_buy(Creature *self, Creature *ch, ShopData *shop, obj_data *obj)
 {
 	if (GET_OBJ_COST(obj) < 1 || IS_OBJ_STAT(obj, ITEM_NOSELL) ||
-			!OBJ_APPROVED(obj)) {
+			!OBJ_APPROVED(obj)|| obj->shared->owner_id != 0 ) {
 		do_say(self, tmp_sprintf("%s I don't buy that sort of thing.", GET_NAME(ch)),
 			0, SCMD_SAY_TO, NULL);
 		return true;
