@@ -1753,6 +1753,7 @@ SPECIAL(cave_bear)
 /* HELL */
 #include "Specs/hell_specs/cloak_of_deception.spec"
 #include "Specs/hell_specs/horn_of_geryon.spec"
+#include "Specs/hell_specs/unholy_compact.spec"
 #include "Specs/hell_specs/stygian_lightning_rm.spec"
 #include "Specs/hell_specs/tiamat.spec"
 #include "Specs/hell_specs/hell_hound.spec"

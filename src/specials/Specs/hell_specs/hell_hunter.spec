@@ -139,6 +139,10 @@ SPECIAL(hell_hunter_brain)
 		     vict->in_room->zone->number == 430)) {
 	    continue;
 	}
+	if ( vict && !PLR2_FLAGGED(vict, PLR2_SOULLESS) ) {
+		send_to_char("You feel the eyes of hell look down upon you.\r\n",ch);
+		continue;
+	}
 
 	if (obj->in_room && 
 	    (ROOM_FLAGGED(obj->in_room, SAFE_ROOM_BITS) ||

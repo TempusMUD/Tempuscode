@@ -89,6 +89,11 @@ SPECIAL(remorter)
 			GET_COND(ch, DRUNK) = 0;
 			GET_COND(ch, FULL) = 0;
 			GET_COND(ch, THIRST) = 0;
+			// If they are no longer a cleric or knight, remove unholy compact.
+			if ( !IS_CLERIC(ch) && !IS_KNIGHT(ch) ) {
+				send_to_char("You seem to have lost your soul.\r\n I'll give you a new one.\r\n",ch);
+				REMOVE_BIT( PLR2_FLAGS(ch), PLR2_SOULLESS );
+			}
 		  
 			for (i = 1; i <= MAX_SKILLS; i++)
 			SET_SKILL(ch, i, 0);
