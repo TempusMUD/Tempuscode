@@ -543,7 +543,10 @@ hunt_victim(struct char_data * ch)
 	    }
 	}
     }
-    dir = find_first_step(ch->in_room, HUNTING(ch)->in_room, 0);
+    if(!IS_AFFECTED(HUNTING(ch),AFF_NOTRACK))
+        dir = find_first_step(ch->in_room, HUNTING(ch)->in_room, 0);
+    else
+        dir = -1;
     if (dir < 0) {
 	act("$n says, 'Damn! Lost $M!'", FALSE, ch, 0, HUNTING(ch), TO_ROOM);
 	HUNTING(ch) = 0;
