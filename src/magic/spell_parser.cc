@@ -535,7 +535,7 @@ const char *spells[] = {
 	"great cleave",	/* 695 */
 	"appraise",
 	"garotte",
-	"!UNUSED!", "!UNUSED!", "!UNUSED!",	/* 700 */
+	"shield mastery", "!UNUSED!", "!UNUSED!",	/* 700 */
 
 	/* OBJECT SPELLS AND NPC SPELLS/SKILLS */
 
@@ -3693,6 +3693,9 @@ mag_assign_spells(void)
 	/*  Ma Cl Th Wa Br Sy Ph Cy Kn  Rn Hd Bt Vm */
 	spello(SKILL_PILEDRIVE, X, X, X, X, X, X, X, X, X, X, X, X, X, X, X, X,
 		X, 0, 0, 0, 0, 0, 0, 0);
+
+	spello(SKILL_SHIELD_MASTERY, X, X, X, X, X, X, X, X, 22, X, X, X, X, X, X, X, X,
+		0, 0, 0, 0, 0, 0, 0);
 
 	spello(SKILL_SLEEPER, X, X, X, 1, 25, X, X, X, X, X, X, X, X, X, X, X, X,
 		0, 0, 0, 0, 0, 0, 0);

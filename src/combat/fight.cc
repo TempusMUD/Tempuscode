@@ -765,6 +765,7 @@ damage(struct Creature *ch, struct Creature *victim, int dam,
 	struct obj_data *obj = NULL, *weap = cur_weap, *impl = NULL;
 	struct room_affect_data rm_aff;
 	struct affected_type *af = NULL;
+	bool deflected = false;
 
 
 	if (victim->getPosition() <= POS_DEAD) {
@@ -910,6 +911,19 @@ damage(struct Creature *ch, struct Creature *victim, int dam,
 			if (GET_IMPLANT(ch, i))
 				damage_eq(ch, GET_IMPLANT(ch, i), (dam >> 1), attacktype);
 		}
+	}
+
+	if (IS_WEAPON(attacktype)
+			&& GET_EQ(victim, WEAR_SHIELD)
+			&& CHECK_SKILL(victim, SKILL_SHIELD_MASTERY) > number(0, 400)) {
+		act("$N deflects your attack with $S shield!", true,
+			ch, GET_EQ(victim, WEAR_SHIELD), victim, TO_CHAR);
+		act("You deflect $n's attack with $p!", true,
+			ch, GET_EQ(victim, WEAR_SHIELD), victim, TO_VICT);
+		act("$N deflects $n's attack with $s shield!", true,
+			ch, GET_EQ(victim, WEAR_SHIELD), victim, TO_NOTVICT);
+		location = WEAR_SHIELD;
+		deflected = true;
 	}
 
 	/** check for armor **/
@@ -1065,6 +1079,20 @@ damage(struct Creature *ch, struct Creature *victim, int dam,
 	}
 	if (dam_object && dam)
 		check_object_killer(dam_object, victim);
+
+	if (deflected) {
+		// We have to do all the object damage for shields here, after
+		// it's calculated
+		if (obj && eq_dam)
+			damage_eq(ch, obj, eq_dam, attacktype);
+		if (impl && impl_dam)
+			damage_eq(ch, impl, impl_dam, attacktype);
+
+		if (weap && (attacktype != SKILL_PROJ_WEAPONS) &&
+			attacktype != SKILL_ENERGY_WEAPONS)
+			damage_eq(ch, weap, MAX(weap_dam, dam >> 6), attacktype);
+		return 0;
+	}
 
 	//
 	// attacker is a character
