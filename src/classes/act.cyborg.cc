@@ -228,7 +228,7 @@ perform_recharge(struct Creature *ch, struct obj_data *battery,
 			act("$n recharges $p from $P.", TRUE, ch, engine, battery,
 				TO_ROOM);
 		else
-			act("$n recharges $p from $s internal supply",
+			act("$n recharges $p from $s internal supply.",
 				TRUE, ch, engine, vict, TO_ROOM);
 	}
 	if (battery && GET_OBJ_TYPE(battery) == ITEM_BATTERY)
