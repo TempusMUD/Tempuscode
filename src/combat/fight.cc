@@ -941,7 +941,7 @@ damage(struct Creature *ch, struct Creature *victim, int dam,
 			ch, GET_EQ(victim, WEAR_SHIELD), victim, TO_CHAR);
 		act("You deflect $n's attack with $p!", true,
 			ch, GET_EQ(victim, WEAR_SHIELD), victim, TO_VICT);
-		act("$N deflects $n's attack with $s shield!", true,
+		act("$N deflects $n's attack with $S shield!", true,
 			ch, GET_EQ(victim, WEAR_SHIELD), victim, TO_NOTVICT);
 		location = WEAR_SHIELD;
 		deflected = true;
