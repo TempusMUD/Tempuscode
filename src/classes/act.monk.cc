@@ -187,7 +187,7 @@ ACMD(do_whirlwind)
 
 
     prob = CHECK_SKILL(ch, SKILL_WHIRLWIND) + ((GET_DEX(ch) + GET_STR(ch)) >> 1);
-    if (GET_POS(vict) < POS_RESTING)
+    if (vict->getPosition() < POS_RESTING)
 	prob += 30;
     prob -= GET_DEX(vict);
 
@@ -196,7 +196,7 @@ ACMD(do_whirlwind)
 	if (GET_LEVEL(ch) + GET_DEX(ch) < number(0, 77)) {
 	    send_to_char("You fall on your ass!", ch);
 	    act("$n falls smack on $s ass!", TRUE, ch, 0, 0, TO_ROOM);
-	    GET_POS(ch) = POS_SITTING;
+	    ch->setPosition( POS_SITTING );
 	}
 	GET_MOVE(ch) -=10;
     }  else {
@@ -320,7 +320,7 @@ ACMD(do_combo)
 
     prob = CHECK_SKILL(ch, SKILL_COMBO) + ((GET_DEX(ch) + GET_STR(ch)) >> 1);
 
-    if (GET_POS(vict) < POS_STANDING)
+    if (vict->getPosition() < POS_STANDING)
 	prob += 30;
     else
 	prob -= GET_DEX(vict);
@@ -500,7 +500,7 @@ ACMD(do_pinch)
 	    act("$N stuns $n with a swift blow to the neck!", 
 		FALSE, ch, 0, vict, TO_ROOM);
 	    WAIT_STATE(ch, PULSE_VIOLENCE * 3);
-	    GET_POS(ch) = POS_STUNNED;
+	    ch->setPosition( POS_STUNNED );
 	    return;
 	}
 	if (FIGHTING(ch) || FIGHTING(vict) || MOB2_FLAGGED(vict, MOB2_NOSTUN) ||
@@ -510,7 +510,7 @@ ACMD(do_pinch)
 	    send_to_char(NOEFFECT, vict);
 	    return;
 	}
-	GET_POS(vict) = POS_STUNNED;
+	vict->setPosition( POS_STUNNED );
 	WAIT_STATE(vict, PULSE_VIOLENCE * 3);
 	to_vict = "You feel completely stunned!";
 	to_room = "$n gets a stunned look on $s face and falls over.";
@@ -529,9 +529,9 @@ ACMD(do_pinch)
 	to_room = "$n suddenly becomes confused and stumbles around.";
 	break;
     case SKILL_PINCH_ZETA:
-	if (GET_POS(vict) == POS_STUNNED || GET_POS(vict) == POS_SLEEPING) {
+	if (vict->getPosition() == POS_STUNNED || vict->getPosition() == POS_SLEEPING) {
 	    REMOVE_BIT(AFF_FLAGS(vict), AFF_SLEEP);
-	    GET_POS(vict) = POS_RESTING;
+	    vict->setPosition( POS_RESTING );
 	    to_vict = "You feel a strange sensation as $N wakes you.";
 	    to_room = "$n is revived.";
 	} else {
@@ -580,7 +580,7 @@ ACMD(do_pinch)
     if (GET_LEVEL(ch) < LVL_AMBASSADOR)
 	WAIT_STATE(ch, PULSE_VIOLENCE*2);
 
-    if (IS_NPC(vict) && !FIGHTING(vict) && GET_POS(vict) >= POS_FIGHTING)
+    if (IS_NPC(vict) && !FIGHTING(vict) && vict->getPosition() >= POS_FIGHTING)
 	hit(vict, ch, TYPE_UNDEFINED);
 }
 
@@ -595,7 +595,7 @@ ACMD(do_meditate)
 	MEDITATE_TIMER(ch) = 0;
     } else if (FIGHTING(ch))
 	send_to_char("You cannot meditate while in battle.\r\n", ch);
-    else if (GET_POS(ch) != POS_SITTING || !AWAKE(ch))
+    else if (ch->getPosition() != POS_SITTING || !AWAKE(ch))
 	send_to_char("You are not in the proper position to meditate.\r\n", ch);
     else if (IS_AFFECTED(ch, AFF_POISON))
 	send_to_char("You cannot meditate while you are poisoned!\r\n", ch);

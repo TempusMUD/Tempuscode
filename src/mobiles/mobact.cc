@@ -127,14 +127,14 @@ void burn_update(void) {
         continue;
 
     // char is flying but unable to continue
-    if (GET_POS(ch) == POS_FLYING && !AFF_FLAGGED(ch, AFF_INFLIGHT) &&
+    if (ch->getPosition() == POS_FLYING && !AFF_FLAGGED(ch, AFF_INFLIGHT) &&
         GET_LEVEL(ch) < LVL_AMBASSADOR && 
         (CHECK_SKILL(ch, SKILL_FLYING) < 30)
         ) {
         send_to_char("You can no longer fly!\r\n", ch);
-        GET_POS(ch) = POS_STANDING;
+        ch->setPosition(POS_STANDING);
     }
-    if(IS_AFFECTED_3(ch,AFF3_GRAVITY_WELL) && GET_POS(ch) == POS_FLYING &&
+    if(IS_AFFECTED_3(ch,AFF3_GRAVITY_WELL) && ch->getPosition() == POS_FLYING &&
          (  !ch->in_room->dir_option[DOWN] 
             || !ch->in_room->isOpenAir() ||
             IS_SET(ch->in_room->dir_option[DOWN]->exit_info, EX_CLOSED)
@@ -143,14 +143,14 @@ void burn_update(void) {
         send_to_char("You are slammed to the ground by the inexhorable force of gravity!\r\n",ch);
         act("$n is slammed to the ground by the inexhorable force of gravity!\r\n",
             TRUE, ch,0,0,TO_ROOM);
-        GET_POS(ch) = POS_RESTING;
+        ch->setPosition(POS_RESTING);
         if(damage(NULL, ch, dice(6,5), TYPE_FALLING, WEAR_RANDOM)) 
             continue;
     }
 
     // character is in open air
     if ( ch->in_room->dir_option[DOWN] &&
-         GET_POS(ch) < POS_FLYING &&
+         ch->getPosition() < POS_FLYING &&
          !IS_SET(ch->in_room->dir_option[DOWN]->exit_info, EX_CLOSED) &&
          (!FIGHTING(ch) || !AFF_FLAGGED(ch, AFF_INFLIGHT)) &&
          ch->in_room->isOpenAir() &&
@@ -159,7 +159,7 @@ void burn_update(void) {
          fall_to != ch->in_room) {
         if (AFF_FLAGGED(ch, AFF_INFLIGHT) && AWAKE(ch) && !IS_AFFECTED_3(ch,AFF3_GRAVITY_WELL)) {
         send_to_char("You realize you are about to fall and resume your flight!\r\n", ch);
-        GET_POS(ch) = POS_FLYING;
+        ch->setPosition(POS_FLYING);
         } else {
 
         act("$n falls downward through the air!", TRUE, ch, 0, 0, TO_ROOM);
@@ -210,7 +210,7 @@ void burn_update(void) {
             if (ROOM_FLAGGED(ch->in_room, ROOM_PEACEFUL))
             dam = 0;
       
-            GET_POS(ch) = POS_RESTING;
+            ch->setPosition(POS_RESTING);
             if (dam && damage(NULL, ch, dam, TYPE_FALLING, WEAR_RANDOM))
             continue;
             GET_FALL_COUNT(ch) = 0;
@@ -232,17 +232,17 @@ void burn_update(void) {
 
     // Signed the Unholy Compact - Soulless
     if ( PLR2_FLAGGED(ch,PLR2_SOULLESS) && 
-        GET_POS(ch) == POS_SLEEPING &&
+        ch->getPosition() == POS_SLEEPING &&
         !random_fractional_5() ) {
         send_to_char("The torturous cries of hell wake you from your dreams.\r\n",ch);
         act("$n bolts upright, screaming in agony!", TRUE, ch, 0, 0, TO_ROOM);
-        GET_POS(ch) = POS_SITTING;
+        ch->setPosition(POS_SITTING);
     }
     // affected by sleep spell
-    if (AFF_FLAGGED(ch, AFF_SLEEP) && GET_POS(ch) > POS_SLEEPING && GET_LEVEL(ch) < LVL_AMBASSADOR) {
+    if (AFF_FLAGGED(ch, AFF_SLEEP) && ch->getPosition() > POS_SLEEPING && GET_LEVEL(ch) < LVL_AMBASSADOR) {
         send_to_char("You suddenly fall into a deep sleep.\r\n", ch);
         act("$n suddenly falls asleep where $e stands.", TRUE, ch, 0, 0, TO_ROOM);
-        GET_POS(ch) = POS_SLEEPING;
+        ch->setPosition(POS_SLEEPING);
     }
 
     // self destruct
@@ -295,7 +295,7 @@ void burn_update(void) {
 
     // motor spasm
     if ((af = affected_by_spell(ch, SPELL_MOTOR_SPASM)) && !MOB_FLAGGED(ch, MOB_NOBASH) &&
-        GET_POS(ch) < POS_FLYING && GET_LEVEL(ch) < LVL_AMBASSADOR) {
+        ch->getPosition() < POS_FLYING && GET_LEVEL(ch) < LVL_AMBASSADOR) {
         if ( ( random_number_zero_low( 3 + (af->level >> 2)) + 3 )  > GET_DEX(ch) && 
          (obj = ch->carrying)) {
         while (obj) {
@@ -311,12 +311,12 @@ void burn_update(void) {
         }
         }
         if (!obj && random_number_zero_low( 12 + (af->level >> 2) ) > GET_DEX(ch) && 
-        GET_POS(ch) > POS_SITTING) {
+        ch->getPosition() > POS_SITTING) {
         send_to_char("Your muscles are seized in an uncontrollable spasm!\r\n"
                  "You fall to the ground in agony!\r\n", ch);
         act("$n begins spasming uncontrollably and falls to the ground.",
             TRUE, ch, 0, 0, TO_ROOM);
-        GET_POS(ch) = POS_RESTING;
+        ch->setPosition(POS_RESTING);
         }
         WAIT_STATE(ch, 4);
     }
@@ -364,7 +364,7 @@ void burn_update(void) {
                    ROOM_FLAGGED(ch->in_room, ROOM_FLAME_FILLED) ? dice (8, 7) : 
                    dice(5, 5), TYPE_ABLAZE, -1))
                 continue;
-            if (IS_MOB(ch) && GET_POS(ch) >= POS_RESTING &&
+            if (IS_MOB(ch) && ch->getPosition() >= POS_RESTING &&
                 !GET_MOB_WAIT(ch) && !CHAR_WITHSTANDS_FIRE(ch)) 
                 do_extinguish(ch, "", 0, 0);
         }      
@@ -392,7 +392,7 @@ void burn_update(void) {
       
     } 
     // holywater ocean
-    else if (ROOM_FLAGGED(ch->in_room, ROOM_HOLYOCEAN) && IS_EVIL(ch) &&  GET_POS(ch) < POS_FLYING) {
+    else if (ROOM_FLAGGED(ch->in_room, ROOM_HOLYOCEAN) && IS_EVIL(ch) &&  ch->getPosition() < POS_FLYING) {
         if (damage(ch, ch, dice(4, 5), TYPE_HOLYOCEAN, WEAR_RANDOM))
         continue;
         if (IS_MOB(ch) && !FIGHTING(ch)) {
@@ -463,21 +463,21 @@ void burn_update(void) {
         continue;
         
         if (AFF_FLAGGED(ch, AFF_INFLIGHT) && 
-        GET_POS(ch) < POS_FLYING &&
+        ch->getPosition() < POS_FLYING &&
         SECT_TYPE(ch->in_room) == SECT_WATER_NOSWIM)
         do_fly(ch, "", 0, 0);
     }
 
     // sleeping gas
     if (ROOM_FLAGGED(ch->in_room, ROOM_SLEEP_GAS) && 
-        GET_POS(ch) > POS_SLEEPING && !PRF_FLAGGED(ch, PRF_NOHASSLE)) {
+        ch->getPosition() > POS_SLEEPING && !PRF_FLAGGED(ch, PRF_NOHASSLE)) {
         send_to_char("You feel very sleepy...\r\n", ch);
         if (!AFF_FLAGGED(ch, AFF_ADRENALINE)) {
         if (!mag_savingthrow(ch, 50, SAVING_CHEM)) {
             send_to_char("You suddenly feel very sleepy and collapse where you stood.\r\n", ch);
             act("$n suddenly falls asleep and collapses!",
             TRUE, ch, 0, 0, TO_ROOM);
-            GET_POS(ch) = POS_SLEEPING;
+            ch->setPosition(POS_SLEEPING);
             WAIT_STATE(ch, 4 RL_SEC);
             continue;
         } else
@@ -520,7 +520,7 @@ void burn_update(void) {
     
     /* Hunter Mobs */
     if (HUNTING(ch) && !AFF_FLAGGED(ch, AFF_BLIND) &&
-        GET_POS(ch) > POS_SITTING && !GET_MOB_WAIT(ch))
+        ch->getPosition() > POS_SITTING && !GET_MOB_WAIT(ch))
         hunt_victim(ch);
     
     }
@@ -735,9 +735,9 @@ best_attack(struct char_data *ch, struct char_data *vict)
     struct obj_data *gun = GET_EQ(ch, WEAR_WIELD);
     int found = 0;
     int cur_class = 0;
-    if (GET_POS(ch) < POS_STANDING) {
+    if (ch->getPosition() < POS_STANDING) {
     act("$n jumps to $s feet!", TRUE, ch, 0, 0, TO_ROOM);
-    GET_POS(ch) = POS_STANDING;
+    ch->setPosition(POS_STANDING);
     }
     if(GET_REMORT_CLASS(ch) != CLASS_UNDEFINED && !random_fractional_3())
         cur_class = GET_REMORT_CLASS(ch);
@@ -769,7 +769,7 @@ best_attack(struct char_data *ch, struct char_data *vict)
     }
     
     if (cur_class == CLASS_THIEF) {
-    if (GET_LEVEL(ch) >= 35 && GET_POS(vict) > POS_STUNNED) 
+    if (GET_LEVEL(ch) >= 35 && vict->getPosition() > POS_STUNNED) 
         do_stun(ch, fname(vict->player.name), 0, 0);
       
     else if (((gun = GET_EQ(ch, WEAR_WIELD)) && STAB_WEAPON(gun)) ||
@@ -801,7 +801,7 @@ best_attack(struct char_data *ch, struct char_data *vict)
         GET_MANA(ch) > mag_manacost(ch, SPELL_PSIONIC_SHATTER)) {
         cast_spell(ch, vict, NULL, SPELL_PSIONIC_SHATTER);
         found = TRUE;
-    } else if (GET_POS(vict) > POS_SLEEPING) {
+    } else if (vict->getPosition() > POS_SLEEPING) {
         found = TRUE;
         if (GET_LEVEL(ch) >= 40 &&
         GET_MANA(ch) > mag_manacost(ch, SPELL_PSYCHIC_SURGE))
@@ -832,7 +832,7 @@ best_attack(struct char_data *ch, struct char_data *vict)
 
     if (cur_class == CLASS_MAGE  && GET_MANA(ch) > 100 && 
     !ROOM_FLAGGED(ch->in_room, ROOM_NOMAGIC)) {
-    if (GET_LEVEL(ch) >= 37 && GET_POS(vict) > POS_SLEEPING)
+    if (GET_LEVEL(ch) >= 37 && vict->getPosition() > POS_SLEEPING)
         cast_spell(ch, vict, NULL, SPELL_WORD_STUN);
     else if (GET_LEVEL(ch) < 5)
         cast_spell(ch, vict, NULL, SPELL_MAGIC_MISSILE);
@@ -857,13 +857,13 @@ best_attack(struct char_data *ch, struct char_data *vict)
     }
    
     if (cur_class == CLASS_BARB || cur_class == CLASS_WARRIOR) {
-    if (GET_LEVEL(ch) >= 25 && GET_POS(vict) > POS_SLEEPING) 
+    if (GET_LEVEL(ch) >= 25 && vict->getPosition() > POS_SLEEPING) 
         do_sleeper(ch, fname(vict->player.name), 0, 0);
     else if (GET_LEVEL(ch) >= 35 && 
          ((GET_WEIGHT(vict) +
            ((IS_CARRYING_W(vict)+IS_WEARING_W(vict)) >> 1)) < 
           CAN_CARRY_W(ch)*1.4) &&
-         (GET_POS(vict) < POS_FIGHTING || random_fractional_4() ) )
+         (vict->getPosition() < POS_FIGHTING || random_fractional_4() ) )
         do_offensive_skill(ch, fname(vict->player.name), 0, SKILL_PILEDRIVE);
     else {
         hit(ch, vict, TYPE_UNDEFINED);
@@ -871,13 +871,13 @@ best_attack(struct char_data *ch, struct char_data *vict)
     return;
     } 
     if (cur_class == CLASS_MONK) {
-    if (GET_LEVEL(ch) >= 39 && GET_POS(vict) > POS_STUNNED) {
+    if (GET_LEVEL(ch) >= 39 && vict->getPosition() > POS_STUNNED) {
         sprintf(buf,"%s omega",fname(vict->player.name));
         do_pinch(ch,buf,0,0);
         return;
     }
     // Screw them up.
-    if (GET_POS(vict) <= POS_STUNNED) {
+    if (vict->getPosition() <= POS_STUNNED) {
         if(!affected_by_spell(vict,SKILL_PINCH_GAMMA) && (GET_LEVEL(ch) > 35)) {
         sprintf(buf,"%s gamma",fname(vict->player.name));
         do_pinch(ch,buf,0,0);
@@ -1108,14 +1108,14 @@ void mobile_activity(void) {
     // nothing below this conditional affects FIGHTING characters
     //
     
-    if (FIGHTING(ch) || GET_POS(ch) == POS_FIGHTING)
+    if (FIGHTING(ch) || ch->getPosition() == POS_FIGHTING)
         continue;
 
     //
     // meditate
     // 
 
-    if (IS_NEUTRAL(ch) && GET_POS(ch) == POS_SITTING && IS_AFFECTED_2(ch, AFF2_MEDITATE)) {
+    if (IS_NEUTRAL(ch) && ch->getPosition() == POS_SITTING && IS_AFFECTED_2(ch, AFF2_MEDITATE)) {
 
         perform_monk_meditate(ch);
     }
@@ -1128,21 +1128,21 @@ void mobile_activity(void) {
         !AFF_FLAGGED(ch, AFF_SLEEP) &&
         GET_MOB_WAIT(ch) < 30 &&
         !AFF_FLAGGED(ch, AFF_SLEEP) &&
-        GET_POS(ch) >= POS_SLEEPING &&
+        ch->getPosition() >= POS_SLEEPING &&
         (GET_DEFAULT_POS(ch) <= POS_STANDING ||
-         GET_POS(ch) < POS_STANDING) &&
-        (GET_POS(ch) < GET_DEFAULT_POS(ch)) && random_fractional_3() ) {
-        if (GET_POS(ch) == POS_SLEEPING)
+         ch->getPosition() < POS_STANDING) &&
+        (ch->getPosition() < GET_DEFAULT_POS(ch)) && random_fractional_3() ) {
+        if (ch->getPosition() == POS_SLEEPING)
         act("$n wakes up.", TRUE, ch, 0, 0, TO_ROOM);
       
         switch (GET_DEFAULT_POS(ch)) {
         case POS_SITTING:
         act("$n sits up.", TRUE, ch, 0, 0, TO_ROOM);
-        GET_POS(ch) = POS_SITTING;
+        ch->setPosition(POS_SITTING);
         break;
         default:
         act("$n stands up.", TRUE, ch, 0, 0, TO_ROOM);
-        GET_POS(ch) = POS_STANDING;
+        ch->setPosition(POS_STANDING);
         break;
         }
         continue;
@@ -1728,7 +1728,7 @@ void mobile_activity(void) {
         CHECK_STATUS;
 
         /** scan surrounding rooms **/
-        if (!found && !HUNTING(ch) && GET_POS(ch) > POS_FIGHTING &&
+        if (!found && !HUNTING(ch) && ch->getPosition() > POS_FIGHTING &&
         !MOB_FLAGGED(ch, MOB_SENTINEL) && 
         (GET_LEVEL(ch) + GET_MORALE(ch) > ( random_number_zero_low( 120 ) + 50 ) ||
          GET_MOB_VNUM(ch) == 24800)) { /* tarrasque 24800 */
@@ -1821,7 +1821,7 @@ void mobile_activity(void) {
                 act("'Hey!  You're the punk I've been looking for!!!', exclaims $n.",    FALSE, ch, 0, 0, TO_ROOM);
             }
             best_attack(ch, vict);
-            } else if (GET_POS(ch) != POS_FIGHTING) {
+            } else if (ch->getPosition() != POS_FIGHTING) {
             switch ( random_number_zero_low( 20 ) ) {
             case 0:
                 if ((!IS_ANIMAL(ch) && !IS_DEVIL(ch) && !IS_DEMON(ch) && 
@@ -1879,7 +1879,7 @@ void mobile_activity(void) {
     }
 
     /* Mob Movement */
-    if ( !MOB_FLAGGED(ch, MOB_SENTINEL) && GET_POS(ch) >= POS_STANDING ) {
+    if ( !MOB_FLAGGED(ch, MOB_SENTINEL) && ch->getPosition() >= POS_STANDING ) {
         
         // tarrasque moves more.  maybe a flag is order?
         int door = random_number_zero_low( GET_MOB_VNUM(ch) == 24800 ? NUM_OF_DIRS-1 :20  );;
@@ -2062,7 +2062,7 @@ void mobile_activity(void) {
     }
 
     if (GET_CLASS(ch) == CLASS_BARB || GET_CLASS(ch) == CLASS_HILL) {
-        if ( GET_POS(ch) != POS_FIGHTING && random_fractional_20() ) {
+        if ( ch->getPosition() != POS_FIGHTING && random_fractional_20() ) {
         
         if ( random_fractional_50() )
             act("$n grunts and scratches $s ear.", FALSE, ch, 0, 0, TO_ROOM);
@@ -2153,29 +2153,29 @@ void mobile_activity(void) {
     if (GET_RACE(ch) == RACE_ANIMAL && random_fractional_3() ) {
         if (GET_CLASS(ch) == CLASS_BIRD && IS_AFFECTED(ch, AFF_INFLIGHT) &&
         !ch->in_room->isOpenAir() ) {
-        if (GET_POS(ch) == POS_FLYING && random_fractional_5() ) {
+        if (ch->getPosition() == POS_FLYING && random_fractional_5() ) {
             act("$n flutters to the ground.", TRUE, ch, 0, 0, TO_ROOM);
-            GET_POS(ch) = POS_STANDING;
-        } else if (GET_POS(ch) == POS_STANDING) {
+            ch->setPosition(POS_STANDING);
+        } else if (ch->getPosition() == POS_STANDING) {
             act("$n flaps $s wings and takes flight.", TRUE, ch, 0, 0, TO_ROOM);
-            GET_POS(ch) = POS_FLYING;
+            ch->setPosition(POS_FLYING);
         }
         continue;
         }
     } 
     if (IS_AFFECTED(ch, AFF_INFLIGHT) && random_fractional_10() ) {
         if ( !ch->in_room->isOpenAir() ) {
-        if (GET_POS(ch) == POS_FLYING && random_fractional_10() ) {
-            GET_POS(ch) = POS_STANDING;
+        if (ch->getPosition() == POS_FLYING && random_fractional_10() ) {
+            ch->setPosition(POS_STANDING);
             if (!can_travel_sector(ch, ch->in_room->sector_type, 1)) {
-            GET_POS(ch) = POS_FLYING;
+            ch->setPosition(POS_FLYING);
             continue;
             } else if (FLOW_TYPE(ch->in_room) != F_TYPE_SINKING_SWAMP)
             act("$n settles to the ground.", TRUE, ch, 0, 0, TO_ROOM);
 
-        } else if (GET_POS(ch) == POS_STANDING && random_fractional_4() ) {
+        } else if (ch->getPosition() == POS_STANDING && random_fractional_4() ) {
             act("$n begins to hover in midair.", TRUE, ch, 0, 0, TO_ROOM);
-            GET_POS(ch) = POS_FLYING;
+            ch->setPosition(POS_FLYING);
         }
         continue;
         }
@@ -2806,11 +2806,11 @@ mobile_battle_activity(struct char_data *ch)
         return;
         }
         if ((GET_LEVEL(ch) > 32) && ( random_fractional_5() ||
-                      GET_POS(vict) < POS_FIGHTING)) {
+                      vict->getPosition() < POS_FIGHTING)) {
         do_offensive_skill(ch, GET_NAME(vict), 0, SKILL_PILEDRIVE);
         return;
         } else if ((GET_LEVEL(ch) > 27) && random_fractional_5()
-               && GET_POS(vict) > POS_SLEEPING) {
+               && vict->getPosition() > POS_SLEEPING) {
         do_sleeper(ch, GET_NAME(vict), 0, 0);
         return;
         } else if ((GET_LEVEL(ch) > 22) && random_fractional_10() ) {
@@ -2866,12 +2866,12 @@ mobile_battle_activity(struct char_data *ch)
         vict = FIGHTING(ch);
 
         if (CAN_SEE(ch, vict) && 
-        (IS_MAGE(vict) || IS_CLERIC(vict)) && GET_POS(vict) > POS_SITTING) {
+        (IS_MAGE(vict) || IS_CLERIC(vict)) && vict->getPosition() > POS_SITTING) {
         do_offensive_skill(ch, GET_NAME(vict), 0, SKILL_BASH);
         return;
         }
 
-        if ((GET_LEVEL(ch) > 37) && GET_POS(vict) > POS_SLEEPING &&  
+        if ((GET_LEVEL(ch) > 37) && vict->getPosition() > POS_SLEEPING &&  
         random_fractional_5() ) {
 
         do_sleeper(ch, GET_NAME(vict), 0, 0);
@@ -2923,7 +2923,7 @@ mobile_battle_activity(struct char_data *ch)
         /* if I didn't pick any of those, then just slam the guy I'm fighting */
         if (vict == NULL)
         vict = FIGHTING(ch);
-        if (GET_LEVEL(ch) > 18 && GET_POS(vict) >= POS_FIGHTING &&  random_fractional_4() ) {
+        if (GET_LEVEL(ch) > 18 && vict->getPosition() >= POS_FIGHTING &&  random_fractional_4() ) {
         do_offensive_skill(ch, GET_NAME(vict), 0, SKILL_TRIP);
         return;
         } else if ((GET_LEVEL(ch) >= 20) &&
@@ -3050,7 +3050,7 @@ mobile_battle_activity(struct char_data *ch)
         vict = FIGHTING(ch);
 
         if (CAN_SEE(ch, vict) && 
-        (IS_MAGE(vict) || IS_CLERIC(vict)) && GET_POS(vict) > POS_SITTING) {
+        (IS_MAGE(vict) || IS_CLERIC(vict)) && vict->getPosition() > POS_SITTING) {
         do_offensive_skill(ch, GET_NAME(vict), 0, SKILL_BASH);
         return;
         }
@@ -3142,7 +3142,7 @@ mobile_battle_activity(struct char_data *ch)
         return;
         }
         if ((GET_LEVEL(ch) >= 49) && ( random_fractional_5() ||
-                       GET_POS(vict) < POS_FIGHTING)) {
+                       vict->getPosition() < POS_FIGHTING)) {
         do_offensive_skill(ch, GET_NAME(vict), 0, SKILL_DEATH_TOUCH);
         return;
         } else if ((GET_LEVEL(ch) > 33) && random_fractional_5() ) {

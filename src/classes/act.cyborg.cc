@@ -615,11 +615,11 @@ void perform_cyborg_activate(CHAR *ch, int mode, int subcmd)
         break;
     case SKILL_STASIS:
         if (subcmd) {           /************ activate ****************/
-        if (GET_POS(ch) >= POS_FLYING)
+        if (ch->getPosition() >= POS_FLYING)
             send_to_char("I don't think so.\r\n", ch);
         else {
             TOGGLE_BIT(AFF3_FLAGS(ch), AFF3_STASIS);
-            GET_POS(ch) = POS_SLEEPING;
+            ch->setPosition( POS_SLEEPING );
             WAIT_STATE(ch, PULSE_VIOLENCE*5);
             send_to_char("Entering static state.  Halting system processes.\r\n", ch);
             act("$n lies down and enters a static state.",FALSE,ch,0,0,TO_ROOM);
@@ -1044,7 +1044,7 @@ ACMD(do_cyborg_reboot)
     if (FIGHTING(ch))
     stop_fighting(ch);
 
-    GET_POS(ch) = POS_SLEEPING;
+    ch->setPosition( POS_SLEEPING );
 
     if (CHECK_SKILL(ch, SKILL_FASTBOOT) > 110) {
     WAIT_STATE(ch, PULSE_VIOLENCE*2);
@@ -1105,7 +1105,7 @@ OLD_engage_self_destruct(struct char_data *ch)
         continue;
 
         damage(ch, vict, dice(level, ddice) + rhit, SKILL_SELF_DESTRUCT,-1);
-        GET_POS(vict) = POS_SITTING;
+        vict->setPosition( POS_SITTING );
     }
     }
     for (dir = 0; dir < 8; dir++) {
@@ -1149,7 +1149,7 @@ OLD_engage_self_destruct(struct char_data *ch)
             send_to_char("You are blown to your knees by the explosive shock!\r\n", vict);
             if (FIGHTING(vict))
                 stop_fighting(vict);
-            GET_POS(vict) = POS_SITTING;
+            vict->setPosition( POS_SITTING );
             }
         }
         }
@@ -1988,7 +1988,7 @@ ACMD(do_overhaul)
     else if (GET_TOT_DAM(vict) < (max_component_dam(vict) / 3))
     act("You cannot make any significant improvements to $S systems.",
         FALSE, ch, 0, vict, TO_CHAR);
-    else if (GET_POS(vict) > POS_SITTING)
+    else if (vict->getPosition() > POS_SITTING)
     send_to_char("Your subject must be sitting, at least.\r\n", ch);
     else if (CHECK_SKILL(ch, SKILL_OVERHAUL) < 10)
     send_to_char("You have no idea how to perform an overhaul.\r\n", ch);
@@ -2430,7 +2430,7 @@ ACMD(do_insert)
             FALSE, ch, 0, vict, TO_NOTVICT);
         act("$N wakes up with a scream as $n cuts into you!", 
             FALSE, ch, 0, vict, TO_VICT | TO_SLEEP);
-        GET_POS(vict) = POS_RESTING;
+        vict->setPosition( POS_RESTING );
         //    damage(ch, vict, dice(5, 10), TYPE_SURGERY, pos);
         return;
     }
@@ -2451,8 +2451,8 @@ ACMD(do_insert)
         act(buf, FALSE, ch, GET_IMPLANT(vict, pos), vict, TO_CHAR);
         sprintf(buf,"$n inserts $p into $s %s.",wear_implantpos[pos]);
         act(buf, FALSE, ch, GET_IMPLANT(vict, pos), vict, TO_NOTVICT);
-        if(GET_POS(vict) > POS_SITTING)
-            GET_POS(ch) = POS_SITTING;
+        if(vict->getPosition() > POS_SITTING)
+            ch->setPosition( POS_SITTING );
         GET_HIT(vict) = GET_HIT(vict) / 4;
         GET_MOVE(vict) = GET_MOVE(vict) / 4;
         if(GET_HIT(vict) < 1)
@@ -2469,8 +2469,8 @@ ACMD(do_insert)
 
         sprintf(buf,"$n inserts $p into $N's %s.",wear_implantpos[pos]);
         act(buf, FALSE, ch, GET_IMPLANT(vict, pos), vict, TO_NOTVICT);
-        if(GET_POS(vict) > POS_RESTING)
-            GET_POS(vict) = POS_RESTING;
+        if(vict->getPosition() > POS_RESTING)
+            vict->setPosition( POS_RESTING );
         GET_HIT(vict) = 1;
         GET_MOVE(vict) = 1;
         WAIT_STATE(vict, 10 RL_SEC);
@@ -2605,7 +2605,7 @@ ACMD(do_extract)
             FALSE, ch, 0, vict, TO_NOTVICT);
         act("$N wakes up with a scream as $n cuts into you!", 
             FALSE, ch, 0, vict, TO_VICT | TO_SLEEP);
-        GET_POS(vict) = POS_RESTING;
+        vict->setPosition( POS_RESTING );
         //    damage(ch, vict, dice(5, 10), TYPE_SURGERY, pos);
         return;
     }
@@ -2630,8 +2630,8 @@ ACMD(do_extract)
         act(buf, FALSE, ch, obj, vict, TO_CHAR);
         sprintf(buf,"$n extracts $p from $s %s.",wear_implantpos[pos]);
         act(buf, FALSE, ch, obj, vict, TO_NOTVICT);
-        if(GET_POS(vict) > POS_SITTING)
-            GET_POS(vict) = POS_SITTING;
+        if(vict->getPosition() > POS_SITTING)
+            vict->setPosition( POS_SITTING );
         GET_HIT(vict) = GET_HIT(vict) / 4;
         GET_MOVE(vict) = GET_MOVE(vict) / 4;
         if(GET_HIT(vict) < 1)
@@ -2648,8 +2648,8 @@ ACMD(do_extract)
 
         sprintf(buf,"$n extracts $p from $N's %s.",wear_implantpos[pos]);
         act(buf, FALSE, ch, obj, vict, TO_NOTVICT);
-        if(GET_POS(vict) > POS_RESTING)
-            GET_POS(vict) = POS_RESTING;
+        if(vict->getPosition() > POS_RESTING)
+            vict->setPosition( POS_RESTING );
         GET_HIT(vict) = 1;
         GET_MOVE(vict) = 1;
         WAIT_STATE(vict, 10 RL_SEC);

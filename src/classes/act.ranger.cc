@@ -59,7 +59,7 @@ ACMD(do_bandage)
 	if (GET_HIT(vict) == GET_MAX_HIT(vict)) {
 	    send_to_char("What makes you think they're bleeding?\r\n", ch);
 	    return;
-	} else if (FIGHTING(vict) || GET_POS(vict) == POS_FIGHTING) {
+	} else if (FIGHTING(vict) || vict->getPosition() == POS_FIGHTING) {
 	    send_to_char("Bandage someone who is in battle?  How's that?\r\n", ch);
 	    return;
 	}
@@ -116,7 +116,7 @@ ACMD(do_firstaid)
 	if (GET_HIT(vict) == GET_MAX_HIT(vict)) {
 	    send_to_char("What makes you think they're bleeding?\r\n", ch);
 	    return;
-	} else if (FIGHTING(vict) || GET_POS(vict) == POS_FIGHTING) {
+	} else if (FIGHTING(vict) || vict->getPosition() == POS_FIGHTING) {
 	    send_to_char("They are fighting right now.\r\n", ch);
 	    return;
 	}    
@@ -166,7 +166,7 @@ ACMD(do_medic)
     else if (!(vict = get_char_room_vis(ch, vict_name))) {
 	send_to_char("Who do you wish to help out?\r\n", ch);
 	return;
-    } else if (FIGHTING(vict) || GET_POS(vict) == POS_FIGHTING) {
+    } else if (FIGHTING(vict) || vict->getPosition() == POS_FIGHTING) {
 	send_to_char("They are fighting right now.\r\n", ch);
 	return;
     } else {

@@ -91,7 +91,7 @@ ACMD(do_steal)
     if (CHECK_SKILL(ch, SKILL_STEAL) < 50)
 	percent >>= 1;
 
-    if (GET_POS(vict) < POS_SLEEPING)
+    if (vict->getPosition() < POS_SLEEPING)
 	percent = -15;		/* ALWAYS SUCCESS */
 
     if (AFF3_FLAGGED(vict, AFF3_ATTRACTION_FIELD))
@@ -119,7 +119,7 @@ ACMD(do_steal)
 	    } else {		           	         /* It is equipment */
 		percent += obj->getWeight();	         /* Make heavy harder */
 
-		if (GET_POS(vict) > POS_SLEEPING) {
+		if (vict->getPosition() > POS_SLEEPING) {
 		    send_to_char("Steal the equipment now?  Impossible!\r\n", ch);
 		    return;
 		} else {
@@ -145,13 +145,13 @@ ACMD(do_steal)
 			    slog(buf);
 			}
 		    } else {
-			if (GET_POS(vict) == POS_SLEEPING) {
+			if (vict->getPosition() == POS_SLEEPING) {
 			    act("You wake $N up trying to steal it!", 
 				FALSE, ch, 0, vict, TO_CHAR);
 			    send_to_char("You are awakened as someone tries to steal your equipment!\r\n", vict);
-			    GET_POS(vict) = POS_RESTING;
+			    vict->setPosition( POS_RESTING );
 			    ohoh = true;
-			} else if (GET_POS(vict) == POS_SITTING && 
+			} else if (vict->getPosition() == POS_SITTING && 
 				   IS_AFFECTED_2(vict, AFF2_MEDITATE)) {
 	      
 			    act("You disturb $M in your clumsy attempt.", 

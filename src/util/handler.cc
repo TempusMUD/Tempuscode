@@ -835,7 +835,7 @@ update_trail(struct char_data *ch, struct room_data *room, int dir, int mode)
     } else if (dir >= 0 || trail->to_dir < 0)
 	trail->to_dir = dir;
   
-    if (GET_POS(ch) < POS_FLYING)
+    if (ch->getPosition() < POS_FLYING)
 	trail->track = 10;
     else
 	trail->track = 0;
@@ -1888,18 +1888,18 @@ extract_char(struct char_data * ch, byte mode)
     if (AFF2_FLAGGED(ch, AFF2_MOUNTED)) {
 	for (k = character_list; k; k = k->next)
 	    if (ch == MOUNTED(k)) {
-		MOUNTED(k) = NULL;
-		if (GET_POS(k) == POS_MOUNTED) {
-		    if (k->in_room->sector_type == SECT_FLYING)
-			GET_POS(k) = POS_FLYING;
-		    else 
-			GET_POS(k) = POS_STANDING;
-		}
+            MOUNTED(k) = NULL;
+            if (k->getPosition() == POS_MOUNTED) {
+                if (k->in_room->sector_type == SECT_FLYING)
+                    k->setPosition( POS_FLYING );
+                else 
+                    k->setPosition( POS_STANDING );
+            }
 	    }
     }
 
     if (ch->desc && ch->desc->original) {
-	do_return(ch, "", 0,  SCMD_NOEXTRACT);
+        do_return(ch, "", 0,  SCMD_NOEXTRACT);
     }
 
     char_from_room(ch);

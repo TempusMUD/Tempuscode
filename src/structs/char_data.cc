@@ -31,7 +31,7 @@ bool char_data::setPosition( int new_pos ){
         return false;
     /*
     if ( (new_pos == POS_STANDING || new_pos == POS_FIGHTING ) 
-    && getPosition() < POS_FIGHTING
+    && char_specialis.getPosition() < POS_FIGHTING
     && ( desc && desc->wait > 0 ) ||
       ( IS_NPC( this ) && GET_MOB_WAIT( this ) > 0 ) ) {
         raise(SIGINT);

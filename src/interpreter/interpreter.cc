@@ -1329,7 +1329,7 @@ command_interpreter(struct char_data * ch, char *argument)
     REMOVE_BIT(AFF_FLAGS(ch), AFF_HIDE);
     REMOVE_BIT(AFF2_FLAGS(ch), AFF2_MEDITATE);
     REMOVE_BIT(AFF2_FLAGS(ch), AFF2_EVADE);
-    if (GET_POS(ch) > POS_SLEEPING)
+    if (ch->getPosition() > POS_SLEEPING)
     REMOVE_BIT(AFF3_FLAGS(ch), AFF3_STASIS);
 
     if (MOUNTED(ch) && ch->in_room != MOUNTED(ch)->in_room) {
@@ -1434,9 +1434,9 @@ command_interpreter(struct char_data * ch, char *argument)
     send_to_char("Sorry, that command hasn't been implemented yet.\r\n", ch);
     else if (IS_NPC(ch) && cmd_info[cmd].minimum_level >= LVL_IMMORT)
     send_to_char("You can't use immortal commands while switched.\r\n", ch);
-    else if (GET_POS(ch) < cmd_info[cmd].minimum_position && 
+    else if (ch->getPosition() < cmd_info[cmd].minimum_position && 
          GET_LEVEL(ch) < LVL_AMBASSADOR)
-    switch (GET_POS(ch)) {
+    switch (ch->getPosition()) {
     case POS_DEAD:
         send_to_char("Lie still; you are DEAD!!! :-(\r\n", ch);
         break;

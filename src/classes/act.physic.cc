@@ -241,7 +241,7 @@ ACMD(do_lecture)
 	if(CHECK_SKILL(ch,SKILL_LECTURE) < 30) {
 		act("$n explains the finer points of gravity, by tossing $mself to the ground!",FALSE,ch,0,0,TO_ROOM);
 		act("Your flying leap seems to have convinced $N.",FALSE,ch,0,vict,TO_CHAR);
-		GET_POS(ch) = POS_RESTING;
+		ch->setPosition( POS_RESTING );
 		return;
 	}
 
@@ -293,7 +293,7 @@ ACMD(do_lecture)
     else if (percent < prob) {
 	act("$n immediately dozes off to sleep.", TRUE, vict, 0, 0, TO_ROOM);
 	send_to_char("You start to feel very sleepy...\r\n", vict);
-	GET_POS(vict) = POS_SLEEPING;
+	vict->setPosition( POS_SLEEPING );
 	wait = 2 RL_SEC + ((prob - percent) >> 1);
 	WAIT_STATE(vict, wait);
 	gain_skill_prof(ch, SKILL_LECTURE);

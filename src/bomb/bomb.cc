@@ -171,62 +171,62 @@ bomb_damage_room(char *bomb_name, int bomb_type, int bomb_power,
     char dname[128];
 
     if (ROOM_FLAGGED(room, ROOM_PEACEFUL) || power <= bomb_power * 0.25)
-	dam = 0;
+        dam = 0;
     else
-	dam = dice(power, MAX(10, (power >> 1)));
+        dam = dice(power, MAX(10, (power >> 1)));
 
     if (dir == BFS_ALREADY_THERE) {
-	switch(bomb_type) {
-	case BOMB_CONCUSSION:
-	    sprintf(buf, "A shockwave blasts you as %s explodes!!", bomb_name);
-	    damage_type = TYPE_CRUSH;
-	    dam >>= 1;
-	    break;
-	case BOMB_INCENDIARY:
-	    sprintf(buf, 
-		    "A roar fills the room as a blast of flame explodes from %s!!", 
-		    bomb_name);
-	    damage_type = TYPE_ABLAZE;
-	    break;
-	case SKILL_SELF_DESTRUCT:
-	    dam <<= 3;
-	    // fall through
-	case BOMB_FRAGMENTATION:
-	    sprintf(buf,
-		    "%s explodes into thousands of deadly fragments!!", bomb_name);
-	    damage_type = TYPE_RIP;
-	    break;
-	case BOMB_DISRUPTION:
-	    sprintf(buf,
-		    "A disruption wave explodes from %s!!", bomb_name);
-	    damage_type = SPELL_DISRUPTION;
-	    break;
-	case BOMB_NUCLEAR:
-	    sprintf(buf,
-		    "You are engulfed by a blinding light as %s explodes!!", 
-		    bomb_name);
-	    damage_type = SPELL_FISSION_BLAST;
-	    break;
-	case BOMB_FLASH:
-	    sprintf(buf,
-		    "A blinding flash fills the room as %s explodes!!", bomb_name);
-	    damage_type = 0;
-	    dam = MIN(1, dam);
-	    break;
-	case BOMB_SMOKE:
-	    sprintf(buf, "Clouds of smoke begin to billow from %s!!", bomb_name);
-	    dam = 0;
-	    damage_type = 0;
-	    break;
-	default:
-	    sprintf(buf, "%s explodes!!", bomb_name);
-	    damage_type = TYPE_CRUSH;
-	    break;
-	}
-	if (room->people) {
-	    act(buf, FALSE, room->people, 0, 0, TO_CHAR | TO_SLEEP);
-	    act(buf, FALSE, room->people, 0, 0, TO_ROOM | TO_SLEEP);
-	}
+        switch(bomb_type) {
+        case BOMB_CONCUSSION:
+            sprintf(buf, "A shockwave blasts you as %s explodes!!", bomb_name);
+            damage_type = TYPE_CRUSH;
+            dam >>= 1;
+            break;
+        case BOMB_INCENDIARY:
+            sprintf(buf, 
+                "A roar fills the room as a blast of flame explodes from %s!!", 
+                bomb_name);
+            damage_type = TYPE_ABLAZE;
+            break;
+        case SKILL_SELF_DESTRUCT:
+            dam <<= 3;
+            // fall through
+        case BOMB_FRAGMENTATION:
+            sprintf(buf,
+                "%s explodes into thousands of deadly fragments!!", bomb_name);
+            damage_type = TYPE_RIP;
+            break;
+        case BOMB_DISRUPTION:
+            sprintf(buf,
+                "A disruption wave explodes from %s!!", bomb_name);
+            damage_type = SPELL_DISRUPTION;
+            break;
+        case BOMB_NUCLEAR:
+            sprintf(buf,
+                "You are engulfed by a blinding light as %s explodes!!", 
+                bomb_name);
+            damage_type = SPELL_FISSION_BLAST;
+            break;
+        case BOMB_FLASH:
+            sprintf(buf,
+                "A blinding flash fills the room as %s explodes!!", bomb_name);
+            damage_type = 0;
+            dam = MIN(1, dam);
+            break;
+        case BOMB_SMOKE:
+            sprintf(buf, "Clouds of smoke begin to billow from %s!!", bomb_name);
+            dam = 0;
+            damage_type = 0;
+            break;
+        default:
+            sprintf(buf, "%s explodes!!", bomb_name);
+            damage_type = TYPE_CRUSH;
+            break;
+        }
+        if (room->people) {
+            act(buf, FALSE, room->people, 0, 0, TO_CHAR | TO_SLEEP);
+            act(buf, FALSE, room->people, 0, 0, TO_ROOM | TO_SLEEP);
+        }
     } else {
 
 	if (dir >=0 && room->dir_option[dir] && 
@@ -236,25 +236,25 @@ bomb_damage_room(char *bomb_name, int bomb_type, int bomb_power,
 			 6 : 1 + 
 			 IS_SET(room->dir_option[dir]->exit_info, EX_PICKPROOF) ?
 			 10 : 1)) {
-		if (room->dir_option[dir]->keyword)
-		    strcpy(dname, room->dir_option[dir]->keyword);
-		else
-		    strcpy(dname, "door");
+            if (room->dir_option[dir]->keyword)
+                strcpy(dname, room->dir_option[dir]->keyword);
+            else
+                strcpy(dname, "door");
 
-		if (room->dir_option[dir]->to_room &&
-		    room->dir_option[dir]->to_room->dir_option[rev_dir[dir]] &&
-		    room->dir_option[dir]->to_room->dir_option[rev_dir[dir]]->to_room 
-		    == room &&
-		    IS_SET(room->dir_option[dir]->to_room->dir_option[rev_dir[dir]]
-			   ->exit_info, EX_CLOSED))
-		    REMOVE_BIT(room->dir_option[dir]->to_room->
-			       dir_option[rev_dir[dir]]->exit_info, EX_CLOSED);
-		REMOVE_BIT(room->dir_option[dir]->exit_info, EX_CLOSED);
-		if (room->people) {
-		    sprintf(buf, "The %s %s blown open from the other side!\r\n",
-			    dname, ISARE(dname));
-		    send_to_room(buf, room);
-		}
+            if (room->dir_option[dir]->to_room &&
+                room->dir_option[dir]->to_room->dir_option[rev_dir[dir]] &&
+                room->dir_option[dir]->to_room->dir_option[rev_dir[dir]]->to_room 
+                == room &&
+                IS_SET(room->dir_option[dir]->to_room->dir_option[rev_dir[dir]]
+                   ->exit_info, EX_CLOSED))
+                REMOVE_BIT(room->dir_option[dir]->to_room->
+                       dir_option[rev_dir[dir]]->exit_info, EX_CLOSED);
+            REMOVE_BIT(room->dir_option[dir]->exit_info, EX_CLOSED);
+            if (room->people) {
+                sprintf(buf, "The %s %s blown open from the other side!\r\n",
+                    dname, ISARE(dname));
+                send_to_room(buf, room);
+            }
 	    }
 	}
 
@@ -323,66 +323,65 @@ bomb_damage_room(char *bomb_name, int bomb_type, int bomb_power,
 	return;
 
     for (vict = room->people; vict; vict = next_vict) {
-	next_vict = vict->next_in_room;
-  
-	if (damage(NULL, vict, dam, damage_type, WEAR_RANDOM))
-	    continue;
+        next_vict = vict->next_in_room;
       
-	if (bomb_type == BOMB_INCENDIARY && 
-	    !CHAR_WITHSTANDS_FIRE(vict) &&
-	    !AFF2_FLAGGED(vict, AFF2_ABLAZE))
-	    SET_BIT(AFF2_FLAGS(vict), AFF2_ABLAZE);
+        if (damage(NULL, vict, dam, damage_type, WEAR_RANDOM))
+            continue;
+          
+        if (bomb_type == BOMB_INCENDIARY && 
+            !CHAR_WITHSTANDS_FIRE(vict) &&
+            !AFF2_FLAGGED(vict, AFF2_ABLAZE))
+            SET_BIT(AFF2_FLAGS(vict), AFF2_ABLAZE);
 
-	if (bomb_type == BOMB_FLASH && AWAKE(vict) && 
-	    GET_LEVEL(vict) < LVL_AMBASSADOR && 
-	    !mag_savingthrow(vict, 40, SAVING_PETRI) && 
-	    !AFF_FLAGGED(vict, AFF_BLIND) &&
-	    !MOB_FLAGGED(vict, MOB_NOBLIND)) {
-	    af.type = SPELL_BLINDNESS;
-	    af.bitvector = AFF_BLIND;
-	    af.duration = MAX(1, (power >> 1));
-	    af.location = 0;
-	    af.modifier = 0;
-	    af.aff_index = 1;
-	    af.level = 30;
-	    affect_to_char(vict, &af);
-	}
+        if (bomb_type == BOMB_FLASH && AWAKE(vict) && 
+            GET_LEVEL(vict) < LVL_AMBASSADOR && 
+            !mag_savingthrow(vict, 40, SAVING_PETRI) && 
+            !AFF_FLAGGED(vict, AFF_BLIND) &&
+            !MOB_FLAGGED(vict, MOB_NOBLIND)) {
+            af.type = SPELL_BLINDNESS;
+            af.bitvector = AFF_BLIND;
+            af.duration = MAX(1, (power >> 1));
+            af.location = 0;
+            af.modifier = 0;
+            af.aff_index = 1;
+            af.level = 30;
+            affect_to_char(vict, &af);
+        }
 
-	if (GET_STR(vict) < number(3, power)) {
-	    send_to_char("You are blown to the ground by the explosive blast!\r\n", vict);
-	    GET_POS(vict) = POS_SITTING;
-	} 
-    
-	else if (GET_POS(vict) > POS_STUNNED && 
-		 (bomb_type == BOMB_CONCUSSION || power > number(2, 12)) &&
-		 number(5, 5 + power) > GET_CON(vict)) {
-      
-	    if (!ROOM_FLAGGED(room, ROOM_PEACEFUL) &&
-		(dir >= 0 || (dir = number(0, NUM_DIRS-1)) >= 0) && 
-		room->dir_option[rev_dir[dir]] &&
-		room->dir_option[rev_dir[dir]]->to_room &&
-		!IS_SET(room->dir_option[rev_dir[dir]]->exit_info, EX_CLOSED) &&
-		(power << 5) > number(0, GET_WEIGHT(vict) + IS_CARRYING_W(vict) +
-				      IS_WEARING_W(vict) + CAN_CARRY_W(vict))) {
-		send_to_char("You are blown out of the room by the blast!!\r\n", 
-			     vict);
-		char_from_room(vict);
-		char_to_room(vict, room->dir_option[rev_dir[dir]]->to_room);
-		look_at_room(vict, vict->in_room, 0);
-	  
-		sprintf(buf, "$n is blown in from %s!", from_dirs[dir]);
-		act(buf, FALSE, vict, 0, 0, TO_ROOM);
-	    } else if (GET_POS(vict) > POS_SITTING && (power << 5) >
-		       GET_WEIGHT(vict) + CAN_CARRY_W(vict)) {
-		send_to_char("You are blown to the ground by the blast!!\r\n", vict);
-		GET_POS(vict) = POS_RESTING;
-	    }
-	
-	    if (!ROOM_FLAGGED(room, ROOM_PEACEFUL) && 
-		!mag_savingthrow(vict, 40, SAVING_ROD) &&
-		GET_LEVEL(vict) < LVL_AMBASSADOR)
-		GET_POS(vict) = POS_STUNNED;
-	}
+        if (GET_STR(vict) < number(3, power)) {
+            send_to_char("You are blown to the ground by the explosive blast!\r\n", vict);
+            vict->setPosition( POS_SITTING );
+        } 
+        
+        else if (vict->getPosition() > POS_STUNNED && 
+             (bomb_type == BOMB_CONCUSSION || power > number(2, 12)) &&
+             number(5, 5 + power) > GET_CON(vict)) {
+          
+            if (!ROOM_FLAGGED(room, ROOM_PEACEFUL) &&
+            (dir >= 0 || (dir = number(0, NUM_DIRS-1)) >= 0) && 
+            room->dir_option[rev_dir[dir]] &&
+            room->dir_option[rev_dir[dir]]->to_room &&
+            !IS_SET(room->dir_option[rev_dir[dir]]->exit_info, EX_CLOSED) &&
+            (power << 5) > number(0, GET_WEIGHT(vict) + IS_CARRYING_W(vict) +
+                          IS_WEARING_W(vict) + CAN_CARRY_W(vict))) {
+                send_to_char("You are blown out of the room by the blast!!\r\n", vict);
+                char_from_room(vict);
+                char_to_room(vict, room->dir_option[rev_dir[dir]]->to_room);
+                look_at_room(vict, vict->in_room, 0);
+              
+                sprintf(buf, "$n is blown in from %s!", from_dirs[dir]);
+                act(buf, FALSE, vict, 0, 0, TO_ROOM);
+            } else if (vict->getPosition() > POS_SITTING && (power << 5) >
+                   GET_WEIGHT(vict) + CAN_CARRY_W(vict)) {
+                send_to_char("You are blown to the ground by the blast!!\r\n", vict);
+                vict->setPosition( POS_RESTING );
+            }
+        
+            if (!ROOM_FLAGGED(room, ROOM_PEACEFUL) && 
+            !mag_savingthrow(vict, 40, SAVING_ROD) &&
+            GET_LEVEL(vict) < LVL_AMBASSADOR)
+                vict->setPosition( POS_STUNNED );
+        }
     }
 
     // room affects here

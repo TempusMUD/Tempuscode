@@ -112,7 +112,7 @@ mana_gain(struct char_data * ch)
 	gain -= (gain * GET_ALIGNMENT(ch)) / 10000;
   
     /* Position calculations    */
-    switch (GET_POS(ch)) {
+    switch (ch->getPosition()) {
     case POS_SLEEPING:
 	gain <<= 1;
 	break;
@@ -194,7 +194,7 @@ hit_gain(struct char_data * ch)
     }
 
     /* Position calculations    */
-    switch (GET_POS(ch)) {
+    switch (ch->getPosition()) {
     case POS_SLEEPING:
 	if (IS_AFFECTED(ch, AFF_REJUV))
 	    gain += (gain >> 0);    /*  gain + gain  */
@@ -265,7 +265,7 @@ move_gain(struct char_data * ch)
     gain += (GET_CON(ch) >>2);
 
     /* Position calculations    */
-    switch (GET_POS(ch)) {
+    switch (ch->getPosition()) {
     case POS_SLEEPING:
 	if (IS_AFFECTED(ch, AFF_REJUV))
 	    gain += (gain >> 0);    /* divide by 1 */
@@ -552,7 +552,7 @@ point_update(void)
     for (i = character_list; i; i = next_char) {
 	next_char = i->next;
     
-	if (GET_POS(i) >= POS_STUNNED) {
+	if (i->getPosition() >= POS_STUNNED) {
 	    GET_HIT(i) = MIN(GET_HIT(i) + hit_gain(i), GET_MAX_HIT(i));
 	    GET_MANA(i) = MIN(GET_MANA(i) + mana_gain(i), GET_MAX_MANA(i));
 	    GET_MOVE(i) = MIN(GET_MOVE(i) + move_gain(i), GET_MAX_MOVE(i));
@@ -562,7 +562,7 @@ point_update(void)
 		       (affected_by_spell(i, SPELL_METABOLISM) ? dice (4, 3) : 0),  
 		       SPELL_POISON, -1))
 		continue;
-	    if (GET_POS(i) <= POS_STUNNED)
+	    if (i->getPosition() <= POS_STUNNED)
 		update_pos(i);
 
 	    if (IS_SICK(i)&&affected_by_spell(i, SPELL_SICKNESS)&&!number(0, 4)) {
@@ -599,8 +599,8 @@ point_update(void)
 		    break;
 		}
 	    }
-	} else if ((GET_POS(i)==POS_INCAP && damage(i, i, 1, TYPE_SUFFERING, -1)) ||
-		   (GET_POS(i)==POS_MORTALLYW && damage(i,i,2,TYPE_SUFFERING, -1)))
+	} else if ((i->getPosition() == POS_INCAP && damage(i, i, 1, TYPE_SUFFERING, -1)) ||
+		   (i->getPosition() == POS_MORTALLYW && damage(i,i,2,TYPE_SUFFERING, -1)))
 	    continue;
 
 	if (!IS_NPC(i)) {

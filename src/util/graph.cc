@@ -449,7 +449,7 @@ int smart_mobile_move(struct char_data *ch, int dir) {
 		do_gen_door(ch, doorbuf, 0, SCMD_OPEN);
 
 	} else if (EXIT(ch, dir)->to_room->isOpenAir() &&
-		   GET_POS(ch) != POS_FLYING) {
+		   ch->getPosition() != POS_FLYING) {
 	    if (can_travel_sector(ch, SECT_TYPE(EXIT(ch, dir)->to_room), 0))
 		do_fly(ch, "", 0, 0);
 	    else if (IS_MAGE(ch) && GET_LEVEL(ch) >= 33)
@@ -463,7 +463,7 @@ int smart_mobile_move(struct char_data *ch, int dir) {
 		return 0;
 	    }
 	} else if (SECT_TYPE(EXIT(ch, dir)->to_room) == SECT_WATER_NOSWIM && 
-		   GET_POS(ch) != POS_FLYING  && 
+		   ch->getPosition() != POS_FLYING  && 
 		   can_travel_sector(ch, SECT_TYPE(EXIT(ch, dir)->to_room), 0)) {
 	    if (IS_AFFECTED(ch, AFF_INFLIGHT))
 		do_fly(ch, "", 0, 0);
@@ -562,7 +562,7 @@ hunt_victim(struct char_data * ch)
 	     CAN_DETECT_DISGUISE(ch, HUNTING(ch), af_ptr->duration))) {
 	    if (peaceful_room_ok(ch, HUNTING(ch), false) &&
 		!PLR_FLAGGED(HUNTING(ch), PLR_OLC | PLR_WRITING)) {
-		if (GET_POS(ch) >= POS_STANDING && !FIGHTING(ch)) {
+		if (ch->getPosition() >= POS_STANDING && !FIGHTING(ch)) {
 		    if (IS_ANIMAL(ch)) {
 			act("$n snarls and attacks $N!!!",
 			    FALSE, ch, 0, HUNTING(ch), TO_NOTVICT);

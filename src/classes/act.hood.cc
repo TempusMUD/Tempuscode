@@ -81,7 +81,7 @@ ACMD(do_hamstring)
     if (!peaceful_room_ok(ch, vict, true))
         return;
 
-    if (GET_POS(vict) == POS_SITTING) {
+    if (vict->getPosition() == POS_SITTING) {
         send_to_char("How can you cut it when they're sitting on it!\r\n",ch);
         return;
     }
@@ -136,14 +136,14 @@ ACMD(do_hamstring)
             af.modifier = 0 - ( level/2 + dice( 7, 7 ) + dice( gen ,5 ) ) \
                               * ( CHECK_SKILL( ch ,SKILL_HAMSTRING ) )/1000;
             affect_to_char(vict, &af);
-            GET_POS(vict) = POS_RESTING;
+            vict->setPosition( POS_RESTING );
             if(!damage(ch, vict, dam, SKILL_HAMSTRING, WEAR_LEGS)) {
-                GET_POS(vict) = POS_RESTING;
+                vict->setPosition( POS_RESTING );
                 WAIT_STATE(vict, 4 RL_SEC);
             }
         } else {
             if(!damage(ch, vict, dam/2, SKILL_HAMSTRING, WEAR_LEGS)) {
-                GET_POS(vict) = POS_SITTING;
+                vict->setPosition( POS_SITTING );
                 WAIT_STATE(vict, 3 RL_SEC);
             }
         }
@@ -393,15 +393,15 @@ ACMD(do_snatch)
     // Roll the dice...
     percent = number( 1, 100);
 
-    if (GET_POS(vict) < POS_SLEEPING)
+    if (vict->getPosition() < POS_SLEEPING)
         percent = -150;        // ALWAYS SUCCESS
 
     if (FIGHTING(ch)) 
         percent +=30;
 
-    if (GET_POS(vict) < POS_FIGHTING)
+    if (vict->getPosition() < POS_FIGHTING)
         percent -= 30;
-    if (GET_POS(vict) <= POS_SLEEPING)
+    if (vict->getPosition() <= POS_SLEEPING)
         percent = -150;        // ALWAYS SUCCESS
 
 
@@ -440,8 +440,8 @@ ACMD(do_snatch)
             FALSE, ch, 0, vict, TO_CHAR);
 
         // Monks are cool. They stand up when someone tries to snatch from em.
-        if (GET_POS(vict) == POS_SITTING && IS_AFFECTED_2(vict, AFF2_MEDITATE)) {
-            GET_POS(vict) = POS_STANDING;
+        if (vict->getPosition() == POS_SITTING && IS_AFFECTED_2(vict, AFF2_MEDITATE)) {
+            vict->setPosition( POS_STANDING );
             act("You jump to your feet, glaring at $s!", FALSE, ch, 0, vict, TO_VICT);
             act("$N jumps to $S feet, glaring at You!", FALSE, ch, 0, vict, TO_CHAR);
             act("$N jumps to $S feet, glaring at $n!", FALSE, ch, 0, vict, TO_NOTVICT);
@@ -510,8 +510,8 @@ ACMD(do_snatch)
         } else {        
 
             // If he ends up with the shit, advertize.
-            if (GET_POS(vict) == POS_SLEEPING) {         // He's sleepin, wake his ass up.
-                GET_POS(vict) = POS_RESTING;
+            if (vict->getPosition() == POS_SLEEPING) {         // He's sleepin, wake his ass up.
+                vict->setPosition( POS_RESTING );
                 if(eq_pos == WEAR_BELT) {
                     act("$n wakes you up snatching something off your belt!", 
                         FALSE, ch, obj, vict, TO_VICT);
@@ -527,9 +527,9 @@ ACMD(do_snatch)
                     act("$n wakes $N up snatching $p out of $S hand!", 
                         FALSE, ch, obj, vict, TO_NOTVICT);
                 }
-            } else if (GET_POS(vict) == POS_SITTING &&
+            } else if (vict->getPosition() == POS_SITTING &&
                    IS_AFFECTED_2(vict, AFF2_MEDITATE)) {
-                GET_POS(vict) = POS_STANDING;
+                vict->setPosition( POS_STANDING );
                 if(eq_pos == WEAR_BELT) {
                     act("$n breaks your trance snatching $p off your belt!", 
                         FALSE, ch, obj, vict, TO_VICT);
