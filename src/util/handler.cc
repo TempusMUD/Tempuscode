@@ -2356,7 +2356,7 @@ create_money(int amount, int mode)
 			obj->name = str_dup("credit money note one-credit");
 			obj->short_description = str_dup("a one-credit note");
 			obj->description =
-				str_dup("A single one-credit none has been dropped here.");
+				str_dup("A single one-credit note has been dropped here.");
 			new_descr->keyword = str_dup("credit money note one-credit");
 		} else {
 			obj->name = str_dup("credits money cash");
