@@ -4015,16 +4015,17 @@ show_player(Creature *ch, char *value)
         sprintf(remort_desc, "/%s",
             char_class_abbrevs[(int)GET_REMORT_CLASS(vict)]);
     }
-    sprintf(buf, "Player: [%ld] %-12s Act[%ld] (%s) [%2d %s %s%s]  Gen: %d", GET_IDNUM(vict), GET_NAME(vict),
-        playerIndex.getAccountID(GET_IDNUM(vict)),
-		genders[(int)GET_SEX(vict)], GET_LEVEL(vict), 
-        player_race[(int)GET_RACE(vict)], char_class_abbrevs[GET_CLASS(vict)], 
-        remort_desc, GET_REMORT_GEN(vict));
+    sprintf(buf, "Player: [%ld] %-12s Act[%ld] (%s) [%2d %s %s%s]  Gen: %d", 
+            GET_IDNUM(vict), GET_NAME(vict),
+            playerIndex.getAccountID(GET_IDNUM(vict)),
+            genders[(int)GET_SEX(vict)], GET_LEVEL(vict), 
+            player_race[(int)GET_RACE(vict)], char_class_abbrevs[GET_CLASS(vict)], 
+            remort_desc, GET_REMORT_GEN(vict));
     sprintf(buf, "%s  Rent: Unknown%s\r\n", buf, CCNRM(ch, C_NRM));
     sprintf(buf,
-        "%sAu: %-8d  Bal: %-8lld  Exp: %-8d  Align: %-5d\r\n",
-        buf, GET_GOLD(vict), GET_PAST_BANK(vict), GET_EXP(vict),
-		GET_ALIGNMENT(vict));
+            "%sAu: %-8d  Cr: %-8lld  Past: %-8d  Fut: %-8lld\r\n",
+            buf, GET_GOLD(vict), GET_CASH(vict), 
+                 GET_PAST_BANK(vict), GET_FUTURE_BANK(vict) );
     // Trim and fit the date to show year but not seconds.
     strcpy(birth, ctime(&vict->player.time.birth));
     strcpy(birth + 16, birth + 19);
