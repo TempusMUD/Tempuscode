@@ -371,7 +371,7 @@ affect_update(void)
 	    if (kata_found)
 		send_to_char("Your kata has worn off.\r\n", i);
 	    if (hamstring_found)
-		send_to_char("The wound in your leg seems to have closed.\r\n",i);
+		send_to_char("The wound in your leg has closed.\r\n",i);
 	    
 	}
     }

@@ -1770,6 +1770,7 @@ SPECIAL(cave_bear)
 #include "Specs/hell_specs/regulator.spec"
 #include "Specs/hell_specs/ressurector.spec"
 #include "Specs/hell_specs/killzone_room.spec"
+#include "Specs/hell_specs/hell_domed_chamber.spec"
 #include "Specs/hell_specs/malagard_lightning_room.spec"
 #include "Specs/hell_specs/pit_keeper.spec"
 #include "Specs/hell_specs/cremator.spec"

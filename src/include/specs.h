@@ -142,6 +142,7 @@ SPECIAL(arioch);
 SPECIAL(maladomini_jailer);
 SPECIAL(hell_regulator);
 SPECIAL(hell_ressurector);
+SPECIAL( hell_domed_chamber );
 SPECIAL(killzone_room);
 SPECIAL(malagard_lightning_room);
 SPECIAL(pit_keeper);

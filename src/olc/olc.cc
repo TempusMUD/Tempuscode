@@ -90,10 +90,7 @@
 "olc xedit <search trigger> <search keyword>\r\n" \
 "olc xset <arg> <val>\r\n"  \
 "olc xstat\r\n" \
-"olc tedit [number | 'exit']\r\n" \
-"olc tstat\r\n" \
-"olc tset\r\n" \
-"olc tsave\r\n"
+"olc show\r\n"
 
 
 #define OLC_ZSET_USAGE "Usage:\r\n"                                  \
@@ -135,6 +132,10 @@
 "SPELL           level       room vnum     spellnum\r\n"  \
 "DAMAGE        dam dice      room vnum     damtype\r\n" \
 "SPAWN         spawn room    targ room     hunter?\r\n"
+
+#define OLC_SHOW_USAGE "Usage:\n" \
+"olc show nosound                              -- displays rooms with no sound\n"  \
+"olc show noexitdesc ['all'|'toroom']          -- displays exits with no desc (default !toroom only)\n"
 
 extern struct room_data *world;
 extern struct obj_data *obj_proto;
@@ -275,6 +276,7 @@ const char *olc_commands[] = {
     "tset",
     "tsave",
     "mload", 
+    "show",
      "\n"				/* many more to be added */
 };
 
@@ -1431,7 +1433,7 @@ ACMD(do_olc)
       send_to_char("An error occured while saving.\r\n",ch);
       break;  */
     case 56:
-		if ( ! *argument ) {
+	if ( ! *argument ) {
             if ( ! mob_p ) {
                 send_to_char( "Which mobile?\r\n", ch );
                 return;
@@ -1440,43 +1442,119 @@ ACMD(do_olc)
                 j = GET_MOB_VNUM( tmp_mob );
             } 
         } else {
-			skip_spaces( &argument );
-			if ( ! is_number( argument ) ) {
-				send_to_char( "The argument must be a vnum.\r\n", ch );
-				return;
-			}
-			j = atoi( argument );
+	    skip_spaces( &argument );
+	    if ( ! is_number( argument ) ) {
+		send_to_char( "The argument must be a vnum.\r\n", ch );
+		return;
+	    }
+	    j = atoi( argument );
 				
-			if ( ! ( tmp_mob = real_mobile_proto( j ) ) ) {
-				send_to_char( "No such mobile exists.\r\n", ch );
-				return;
-			}   
+	    if ( ! ( tmp_mob = real_mobile_proto( j ) ) ) {
+		send_to_char( "No such mobile exists.\r\n", ch );
+		return;
+	    }   
 			
-			if ( j < ( GET_ZONE( ch->in_room ) * 100 ) || j > ch->in_room->zone->top ) {
-				send_to_char( "You cannot olc mload mobiles from other zones.\r\n",ch );
-				return;
-			}
+	    if ( j < ( GET_ZONE( ch->in_room ) * 100 ) || j > ch->in_room->zone->top ) {
+		send_to_char( "You cannot olc mload mobiles from other zones.\r\n",ch );
+		return;
+	    }
+	}
+
+
+	if ( ! OLCIMP( ch ) && ! MOB2_FLAGGED( tmp_mob, MOB2_UNAPPROVED ) ) {
+	    send_to_char( "You cannot olc mload approved mobiles.\r\n", ch );
+	    return;
+	}
+
+	if ( ! ( tmp_mob = read_mobile( j ) ) ){
+	    send_to_char( "Unable to load mobile.\r\n", ch );
+	} else {
+	    char_to_room( tmp_mob, ch->in_room );
+	    act( "$N appears next to you.", FALSE, ch, 0, tmp_mob, TO_CHAR );
+	    act( "$n creates $N in $s hands.",TRUE, ch, 0, tmp_mob, TO_ROOM );
+	    sprintf( buf, "OLC: %s mloaded [%d] %s.", GET_NAME( ch ), GET_MOB_VNUM( tmp_mob ), GET_NAME( tmp_mob ) );
+	    slog( buf );
+	}
+
+	break;
+
+	//
+	// olc show
+	//
+
+    case 57:
+	if ( !*argument ) {
+	    send_to_char( OLC_SHOW_USAGE, ch );
+	    return;
+	}
+
+	argument = one_argument( argument, arg1 );
+
+	skip_spaces( &argument );
+
+	// search for rooms with no sound
+	if ( is_abbrev( arg1, "nosound" ) ) {
+	    sprintf( buf, "Rooms with no sound in zone %d:\n", ch->in_room->zone->number );
+	    for ( struct room_data *room = ch->in_room->zone->world; room; room = room->next ) {
+		if ( !room->sounds ) {
+		    sprintf( buf, "%s[ %6d ] %s\n", buf, room->number, room->name );
+		}
+	    }
+	    
+	    page_string( ch->desc, buf, 1 );
+	    return;
+	}
+
+	if ( is_abbrev( arg1, "noexitdesc" ) ) {
+
+	    //
+	    // modes
+	    // mode 1 = ONLY exits with no toroom 
+	    // mode 2 = ONLY exits with a toroom
+	    // mode 3 = ALL exits
+	    //
+
+	    int mode = 1;
+
+	    if ( !strcmp( argument, "toroom" ) )
+		mode = 2;
+	    else if ( !strcmp( argument, "all" ) )
+		mode = 3;
+
+	    sprintf( buf, "Exits with no description in zone %d:\n", ch->in_room->zone->number );
+	    for ( struct room_data *room = ch->in_room->zone->world; room; room = room->next ) {
+		sprintf( buf2, " [ %6d ] %-55s : [ ", room->number, room->name );
+		bool found = false;
+
+		for ( int i = 0; i < FUTURE; ++i ) {
+		    struct room_direction_data *exit = room->dir_option[ i ];
+		    
+		    if ( ( mode == 3 && ( !exit || !exit->general_description ) ) ||
+			 ( mode == 1 && ( !exit || ( !exit->to_room && !exit->general_description ) ) ) ||
+			 ( mode == 2 && exit && exit->to_room && !exit->general_description ) ) {
+
+			found = true;
+			if ( exit && exit->to_room )
+			    sprintf( buf2, "%s%s%c%s ", buf2, CCGRN( ch, C_NRM ), dirs[i][0], CCNRM( ch, C_NRM ) );
+			else
+			    sprintf( buf2, "%s%s%c%s ", buf2, CCYEL( ch, C_NRM ), dirs[i][0], CCNRM( ch, C_NRM ) );
+		    }
+		    else strcat( buf2, "  " );
 		}
 
-
-		if ( ! OLCIMP( ch ) && ! MOB2_FLAGGED( tmp_mob, MOB2_UNAPPROVED ) ) {
-			send_to_char( "You cannot olc mload approved mobiles.\r\n", ch );
-			return;
+		if ( found ) {
+		    strcat( buf2,  "]\n" );
+		    strcat( buf, buf2 );
 		}
+	    }
+	    
+	    page_string( ch->desc, buf, 1 );
+	    return;
+	}
 
-		if ( ! ( tmp_mob = read_mobile( j ) ) ){
-			send_to_char( "Unable to load mobile.\r\n", ch );
-		} else {
-			char_to_room( tmp_mob, ch->in_room );
-			act( "$N appears next to you.", FALSE, ch, 0, tmp_mob, TO_CHAR );
-			act( "$n creates $N in $s hands.",TRUE, ch, 0, tmp_mob, TO_ROOM );
-			sprintf( buf, "OLC: %s mloaded [%d] %s.", GET_NAME( ch ), GET_MOB_VNUM( tmp_mob ), GET_NAME( tmp_mob ) );
-			slog( buf );
-		}
-
-		break;
-
-
+	sprintf( buf, "Unknown option: %s\n", arg1 );
+	send_to_char( buf, ch );
+	break;
 
     default:
 	send_to_char("This action is not supported yet.\r\n",ch);
