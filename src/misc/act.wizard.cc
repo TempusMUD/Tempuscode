@@ -4249,7 +4249,7 @@ struct show_struct fields[] = {
     { "wizcommands",    LVL_IMMORT, "" },
     { "timewarps",      LVL_IMMORT, "" },        // 55
     { "zonecommands",         LVL_IMMORT , "" },
-//        { "multi",          LVL_ETERNAL },
+    { "multi",          LVL_GRGOD, "AdminBasic" },
     { "\n", 0, "" }
 };
 
@@ -5149,8 +5149,8 @@ ACMD(do_show)
     strcat(buf,arg);
     do_zone_cmdlist(ch,ch->in_room->zone,buf);
         break;
-        case 57:
-                show_multi(ch, value); break;
+	case 57:
+			show_multi(ch, value); break;
     default:
         send_to_char("Sorry, I don't understand that.\r\n", ch);
         break;
