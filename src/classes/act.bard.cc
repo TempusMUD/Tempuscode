@@ -436,6 +436,23 @@ char *pad_song(char *lyrics)
     return tmp_gsub(lyrics, "\n", sub);
 };
 
+bool bard_can_charm_more(Creature *ch)
+{
+    follow_type *cur;
+    int count = 0;
+
+    if (!ch->followers)
+        return true;
+
+    for (cur = ch->followers;cur;cur = cur->next)
+        if (IS_AFFECTED(cur->follower, AFF_CHARM))
+            count++;
+
+    return ((GET_CHA(ch) >> 2 - count) > 0);
+
+
+}
+
 bool check_instrument(Creature *ch, int songnum)
 {
     struct obj_data *objs[4];
@@ -468,7 +485,7 @@ char *get_instrument_type(int songnum)
 ASPELL(song_instant_audience)
 {
     // 1205 - 1209
-    int limit = 1 + (ch->getLevelBonus(SONG_INSTANT_AUDIENCE) / 33);
+    int limit = MAX(1, (ch->getLevelBonus(SONG_INSTANT_AUDIENCE) / 33));
     struct affected_type af;
 
     extern void add_follower(struct Creature *ch, struct Creature *leader);
@@ -481,7 +498,7 @@ ASPELL(song_instant_audience)
     for (int i = 0; i <= limit; i++) {
         Creature *member = NULL;
 
-        if (!can_charm_more(ch))
+        if (!bard_can_charm_more(ch))
             break;
 
         int vnum = number(1205, 1209);
@@ -493,12 +510,13 @@ ASPELL(song_instant_audience)
             return;
         }
 
-        float mult = (float)((ch->getLevelBonus(SONG_INSTANT_AUDIENCE) * 2)) / 100;
+        float mult = MAX(0.5 , 
+                         (float)((ch->getLevelBonus(SONG_INSTANT_AUDIENCE)) * 1.5) / 100);
         
         // tweak them out
-        GET_HITROLL(member) = MIN((int)(GET_HITROLL(member) * (mult * 1.5)), 60);
-        GET_DAMROLL(member) = MIN((int)(GET_DAMROLL(member) * (mult * 2)), 75);
-        GET_MAX_HIT(member) = MIN((int)(GET_MAX_HIT(member) * (mult * 2)), 30000);
+        GET_HITROLL(member) = MIN((int)(GET_HITROLL(member) * mult), 60);
+        GET_DAMROLL(member) = MIN((int)(GET_DAMROLL(member) * mult), 75);
+        GET_MAX_HIT(member) = MIN((int)(GET_MAX_HIT(member) * mult), 30000);
         GET_HIT(member) = GET_MAX_HIT(member);
 
         char_to_room(member, ch->in_room);
