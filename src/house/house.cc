@@ -105,6 +105,48 @@ recurs_obj_contents( obj_data *obj, obj_data *top_o)
 	return (1 + recurs_obj_contents(obj->contains, top_o));
 }
 
+const char* 
+House::getTypeName() {
+	switch( getType() ) {
+		case PRIVATE:
+			return "Private";
+		case PUBLIC:
+			return "Public";
+		case RENTAL:
+			return "Rental";
+		default:
+			return "Invalid";
+	}
+}
+
+const char* 
+House::getTypeShortName()
+{
+	switch( getType() ) {
+		case PRIVATE:
+			return "PRIV";
+		case PUBLIC:
+			return "PUB";
+		case RENTAL:
+			return "RENT";
+		default:
+			return "ERR";
+	}
+}
+
+House::Type 
+House::getTypeFromName( const char* name ) {
+	if( name == NULL )
+		return INVALID;
+	if( strcmp(name, "Private" ) == 0 )
+		return PRIVATE;
+	if( strcmp(name, "Public" ) == 0 )
+		return PUBLIC;
+	if( strcmp(name, "Rental") == 0 )
+		return RENTAL;
+	return INVALID;
+}
+
 House::House( int idnum, int owner, room_num first ) 
 	: id(idnum), rooms(), created( time(0) ), 
 	  type( PRIVATE ), ownerID(owner), guests(), 
@@ -130,15 +172,13 @@ House&
 House::operator=( const House &h )
 {
 	id = h.id;
-	rooms.erase(rooms.begin(), rooms.end());
-	std::copy( h.rooms.begin(), h.rooms.end(), back_inserter(rooms) );
+	rooms = h.rooms;
 
 	created = h.created;
 	type = h.type;
 	ownerID = h.ownerID;
 
-	guests.erase(guests.begin(), guests.end());
-	std::copy( h.guests.begin(), h.guests.end(), back_inserter(guests) );
+	guests = h.guests;
 
 	landlord = h.landlord;
 	rentalRate = h.rentalRate;
@@ -223,34 +263,34 @@ House::isOwner( Creature *ch )
 unsigned int
 HouseControl::getHouseCount()
 {
-	return vector<House>::size();
+	return vector<House*>::size();
 }
 
 House*
 HouseControl::getHouse( int index )
 {
-	return &(*this)[index];
+	return (*this)[index];
 }
 
 bool
 HouseControl::createHouse( int owner, room_num firstRoom, room_num lastRoom ) 
 {
 	int id = topId +1;
-	House house( id, owner, firstRoom );
+	House *house = new House( id, owner, firstRoom );
 	room_data *room = real_room(firstRoom);
 	if( room == NULL )
 		return false;
 	SET_BIT(ROOM_FLAGS((room)), ROOM_HOUSE);
 	for( int i = firstRoom + 1; i <= lastRoom; i++ ) {
-		room_data *room = real_room(firstRoom);
+		room_data *room = real_room(i);
 		if( room != NULL ) {
-			house.addRoom(room->number);
+			house->addRoom(room->number);
 			SET_BIT(ROOM_FLAGS((room)), ROOM_HOUSE);
 		}
 	}
 	++topId;
 	push_back(house);
-	house.save();
+	house->save();
 	return true;
 }
 
@@ -282,11 +322,11 @@ HouseControl::canEnter( Creature *ch, room_num room_vnum )
 	if( house == NULL )
 		return true;
 
-	if( GET_LEVEL(ch) >= LVL_GOD 
-		|| Security::isMember(ch, "House")
+	if(    Security::isMember(ch, "House")
 		|| Security::isMember(ch, "AdminBasic")
-		|| Security::isMember(ch, "WizardFull") )
+		|| Security::isMember(ch, "WizardFull") ) {
 		return true;
+	}
 
 	if (IS_NPC(ch)) {
 		// so charmies can walk around in the master's house
@@ -330,7 +370,7 @@ HouseControl::canEdit( Creature *c, House *house )
 bool
 HouseControl::destroyHouse( House *house ) 
 {
-	iterator it = std::find( begin(), end(), *house );
+	iterator it = std::find( begin(), end(), house );
 	if( it == end() ) {
 		slog("SYSERR: House %d not in HouseControl list.", house->getID() );
 		return false;
@@ -346,6 +386,8 @@ HouseControl::destroyHouse( House *house )
 	}
 	unlink( get_house_file_path( house->getID() ) );
 	erase( it );
+	delete house;
+
 	return true;
 }
 
@@ -395,7 +437,7 @@ House::save()
 	}
 	fprintf( ouf, "<housefile>\n");
 	fprintf( ouf, "<house id=\"%d\" type=\"%s\" owner=\"%d\" created=\"%ld\"",
-				  getID(), getTypeName( getType() ), getOwnerID(), getCreated() );
+				  getID(), getTypeName(), getOwnerID(), getCreated() );
 	fprintf( ouf, " landlord=\"%ld\" rate=\"%d\" >\n",
 			      getLandlord(), getRentalRate() );
 	for( unsigned int i = 0; i < getRoomCount(); i++ ) {
@@ -559,10 +601,10 @@ HouseControl::load()
 				continue;
 			
 			char *filename = tmp_sprintf("%s/%s", dirname, file->d_name);
-			House house;
-			if( house.load( filename ) ) {
+			House *house = new House();
+			if( house->load( filename ) ) {
 				push_back(house);
-				slog("HOUSE: Loaded house %d", house.getID() );
+				slog("HOUSE: Loaded house %d", house->getID() );
 			} else {
 				slog("SYSERR: Failed to load house file: %s ", filename );
 			}
@@ -570,7 +612,7 @@ HouseControl::load()
 		}
 		closedir(dir);
 	}
-	std::sort( begin(), end() );
+	std::sort( begin(), end(), HouseComparator() );
 	topId = 1;
 	if( getHouseCount() > 0 ) {
 		topId = getHouse( getHouseCount() -1 )->getID();
@@ -594,7 +636,9 @@ HouseControl::collectRent()
 			continue;
 
 		int cost = (int) ( ( house->calcRentCost() / 24.0 ) / 60 );
+		//TODO: modify based on MAX_ITEMS
 		slog("HOUSE: Collecting %d rent on house %d.", cost, house->getID() );
+		//TODO: charge rent to account and reposess items.
 	}
 }
 
@@ -631,7 +675,7 @@ House::display( Creature *ch )
 }
 
 char*
-print_room_contents(Creature *ch, room_data *real_house_room)
+print_room_contents(Creature *ch, room_data *real_house_room, bool showContents = false )
 {
 	int count;
 	char* buf = NULL;
@@ -646,7 +690,8 @@ print_room_contents(Creature *ch, room_data *real_house_room)
 
 	buf = tmp_sprintf("Room%s: %s%s%s\r\n", buf2, CCCYN(ch, C_NRM), 
 						real_house_room->name, CCNRM(ch, C_NRM));
-
+	if(! showContents )
+		return buf;
 	for (obj = real_house_room->contents; obj; obj = obj->next_content) {
 		count = recurs_obj_contents(obj, NULL) - 1;
 		buf2 = "\r\n";
@@ -672,7 +717,7 @@ print_room_contents(Creature *ch, room_data *real_house_room)
 	return buf;
 }
 void
-House::listRooms(Creature *ch)
+House::listRooms(Creature *ch, bool showContents )
 {
 	char *buf = "";
 	for( unsigned int i = 0; i < getRoomCount(); ++i ) {
@@ -849,9 +894,9 @@ hcontrol_set_house( Creature *ch, char *arg)
 			return;
 		}
 		send_to_char(ch, "House %d type set to %s.\r\n", 
-				house->getID(), House::getTypeName( house->getType() ) );
+				house->getID(), house->getTypeName() );
 		slog("HOUSE: Type of house %d set to %s by %s.", 
-				house->getID(), House::getTypeName(house->getType()), GET_NAME(ch) );
+				house->getID(), house->getTypeName(), GET_NAME(ch) );
 
 	} else if (is_abbrev(arg2, "landlord")) {
 
@@ -1265,7 +1310,7 @@ ACMD(do_house)
 		return;
 	}
 
-	if( house->getGuestCount() == MAX_GUESTS ) {
+	if( house->getGuestCount() == House::MAX_GUESTS ) {
 		send_to_char(ch, 
 			"Sorry, you have the maximum number of guests already.\r\n");
 		return;
@@ -1297,8 +1342,8 @@ void
 HouseControl::displayHouses( list<House*> houses, Creature *ch )
 {
     string output;
-    send_to_char(ch,"ID   Size Owner  Landlord      Rooms\r\n");
-    send_to_char(ch,"---- ---- ------ ------------- -----------------------------------------------\r\n");
+    send_to_char(ch,"ID   Size Owner  Landlord  Type Rooms\r\n");
+    send_to_char(ch,"---- ---- ------ --------- ---- -----------------------------------------------\r\n");
     list<House*>::iterator cur = houses.begin();
     
 
@@ -1321,11 +1366,12 @@ HouseControl::displayHouses( list<House*> houses, Creature *ch )
 		const char* landlord = "none";
 		if( playerIndex.exists(house->getLandlord()) )
 			landlord = playerIndex.getName(house->getLandlord());
-        send_to_char( ch, "%4d %4d %6d %-13s %-40s\r\n",
+        send_to_char( ch, "%4d %4d %6d %-9s %4s %-45s\r\n",
                       house->getID(),
 					  house->getRoomCount(),
                       house->getOwnerID(), 
 					  landlord,
+					  house->getTypeShortName(),
 					  roomlist );
     }
 }
