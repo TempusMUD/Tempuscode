@@ -1898,6 +1898,7 @@ parse_object(FILE * obj_f, int nr)
 	obj->shared->house_count = 0;
 	obj->shared->func = NULL;
 	obj->shared->proto = obj;
+	obj->shared->owner_id = 0;
 
 	obj->in_room = NULL;
 
@@ -2028,6 +2029,9 @@ parse_object(FILE * obj_f, int nr)
 			obj->affected[j].location = t[0];
 			obj->affected[j].modifier = t[1];
 			j++;
+			break;
+		case 'O':
+			sscanf(line+1, " %ld ", &(obj->shared->owner_id) );
 			break;
 		case 'V':
 			get_line(obj_f, line);
