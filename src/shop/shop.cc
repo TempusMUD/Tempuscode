@@ -1373,7 +1373,7 @@ read_type_list(FILE * shop_f, struct shop_buy_data * list,
 void 
 boot_the_shops(FILE * shop_f, char *filename, int rec_count)
 {
-    char *buf, buf2[150];
+    char *buf, buf2[150], output_buf[MAX_STRING_LENGTH];
     int temp, count, new_format = 0;
     struct char_data *shop_dude = NULL;
     struct shop_data *new_shop = NULL, *tmp_shop = NULL;
@@ -1418,15 +1418,17 @@ boot_the_shops(FILE * shop_f, char *filename, int rec_count)
             // check the printf-formatted buy/sell messages
             //
             if ( !shop_check_message_format( new_shop->message_buy ) ) {
-                sprintf( buf, "SYSERR: error in shop %d buy message: '%s'.", 
+                sprintf( output_buf, "SYSERR: error in shop %d buy message: '%s'.", 
                          SHOP_NUM( new_shop ), new_shop->message_buy );
+                slog( output_buf );
                 free( new_shop->message_buy );
                 new_shop->message_buy = strdup( SHOP_DEFAULT_MESSAGE_BUY );
             }
 
             if ( !shop_check_message_format( new_shop->message_sell ) ) {
-                sprintf( buf, "SYSERR: error in shop %d sell message: '%s'.", 
+                sprintf( output_buf, "SYSERR: error in shop %d sell message: '%s'.", 
                          SHOP_NUM( new_shop ), new_shop->message_sell );
+                slog( output_buf );
                 free( new_shop->message_sell );
                 new_shop->message_sell = strdup( SHOP_DEFAULT_MESSAGE_SELL );
             }
