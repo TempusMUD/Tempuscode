@@ -1890,13 +1890,13 @@ get_char_room_vis(struct char_data * ch, char *name)
     char *tmp = tmpname;
     struct affected_type *af = NULL;
 
-    if (!str_cmp(name, "self") || !str_cmp(name, "me"))
-        return ch;
-
     /* 0.<name> means PC with name */
     strcpy(tmp, name);
     if (!(number = get_number(&tmp)))
         return get_player_vis(ch, tmp, 1);
+
+    if (!str_cmp(name, "self"))
+        return ch;
 
     CharacterList::iterator it = ch->in_room->people.begin();
     for( ; it != ch->in_room->people.end() && j <= number; ++it ) {
@@ -1911,6 +1911,10 @@ get_char_room_vis(struct char_data * ch, char *name)
                 if (++j == number)
                     return i;
     }
+
+	if (!str_cmp(name, "me"))
+		return ch;
+
     return NULL;
 }
 
