@@ -492,7 +492,7 @@ extern const char *spells[];
 #define SKILL_DISGUISE              649 // look like a mob
 #define SKILL_AMBUSH                650 // surprise victim
 
-/--------------  VAMPIRE SKILLS  ------------------
+//--------------  VAMPIRE SKILLS  ------------------
 #define SKILL_FLYING		    	651
 #define SKILL_SUMMON                652
 #define SKILL_FEED                  653
