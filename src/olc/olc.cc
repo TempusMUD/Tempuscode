@@ -1389,61 +1389,50 @@ ACMD(do_olc)
       send_to_char("An error occured while saving.\r\n",ch);
       break;  */
     case 56:
-	if ( ! *argument ) {
-
+		if ( ! *argument ) {
             if ( ! mob_p ) {
                 send_to_char( "Which mobile?\r\n", ch );
                 return;
-            } 
-
-	    else {
-                j = GET_MOB_VNUM( tmp_mob );
+            } else {
                 tmp_mob = mob_p;
+                j = GET_MOB_VNUM( tmp_mob );
             } 
-
-        } 
-
-	else {
-	    skip_spaces( &argument );
-            
-	    if ( ! is_number( argument ) ) {
-                send_to_char( "The argument must be a vnum.\r\n", ch );
-                return;
-            }
-            
-	    j = atoi( argument );
-            
-	    if ( ! ( tmp_mob = real_mobile_proto( j ) ) ) {
-                send_to_char( "No such mobile exists.\r\n", ch );
-                return;
-            }   
-	    
-	    if ( j < ( GET_ZONE( ch->in_room ) * 100 ) || j > ch->in_room->zone->top ) {
-		send_to_char( "You cannot olc mload mobiles from other zones.\r\n",ch );
-		return;
-	    }
-
-	}
+        } else {
+			skip_spaces( &argument );
+			if ( ! is_number( argument ) ) {
+				send_to_char( "The argument must be a vnum.\r\n", ch );
+				return;
+			}
+			j = atoi( argument );
+				
+			if ( ! ( tmp_mob = real_mobile_proto( j ) ) ) {
+				send_to_char( "No such mobile exists.\r\n", ch );
+				return;
+			}   
+			
+			if ( j < ( GET_ZONE( ch->in_room ) * 100 ) || j > ch->in_room->zone->top ) {
+				send_to_char( "You cannot olc mload mobiles from other zones.\r\n",ch );
+				return;
+			}
+		}
 
 
-	if ( ! OLCIMP( ch ) && ! MOB2_FLAGGED( tmp_mob, MOB2_UNAPPROVED ) ) {
-	    send_to_char( "You cannot olc mload approved mobiles.\r\n", ch );
-	    return;
-	}
+		if ( ! OLCIMP( ch ) && ! MOB2_FLAGGED( tmp_mob, MOB2_UNAPPROVED ) ) {
+			send_to_char( "You cannot olc mload approved mobiles.\r\n", ch );
+			return;
+		}
 
-	if ( ! ( tmp_mob = read_mobile( j ) ) ){
-	    send_to_char( "Unable to load mobile.\r\n", ch );
-	}
+		if ( ! ( tmp_mob = read_mobile( j ) ) ){
+			send_to_char( "Unable to load mobile.\r\n", ch );
+		} else {
+			char_to_room( tmp_mob, ch->in_room );
+			act( "$N appears next to you.", FALSE, ch, 0, tmp_mob, TO_CHAR );
+			act( "$n creates $N in $s hands.",TRUE, ch, 0, tmp_mob, TO_ROOM );
+			sprintf( buf, "OLC: %s mloaded [%d] %s.", GET_NAME( ch ), GET_MOB_VNUM( tmp_mob ), GET_NAME( tmp_mob ) );
+			slog( buf );
+		}
 
-	else {
-	    char_to_room( tmp_mob, ch->in_room );
-	    act( "$N appears next to you.", FALSE, ch, 0, tmp_mob, TO_CHAR );
-	    act( "$n creates $N in $s hands.",TRUE, ch, 0, tmp_mob, TO_ROOM );
-	    sprintf( buf, "OLC: %s mloaded [%d] %s.", GET_NAME( ch ), GET_MOB_VNUM( tmp_mob ), GET_NAME( tmp_mob ) );
-	    slog( buf );
-	}
-
-	break;
+		break;
 
 
 
