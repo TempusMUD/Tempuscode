@@ -24,7 +24,7 @@ depend:
 	$(MAKE) $(SUBDIRS) TARGET=$@
 
 $(SUBDIRS) : FORCE
-	@cd $@; $(MAKE) $(TARGET) INCLUDE=../$(INCLUDE) OBJ=../$(OBJ)
+	@cd $@; $(MAKE) $(TARGET) INCLUDE=../$(INCLUDE) OBJ=../$(OBJ) CCFLAGS="$(CCFLAGS)"
 
 
 $(EXE): $(OBJ)/*.o
