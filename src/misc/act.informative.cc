@@ -850,10 +850,6 @@ list_one_char(struct Creature *i, struct Creature *ch, byte is_group)
 	} else if (PLR_FLAGGED(i, PLR_OLC)) {
 		sprintf(buf2, " %s(creating)%s", CCGRN(ch, C_NRM), CCNRM(ch, C_NRM));
 		strcat(buf, buf2);
-	} else if (i->desc && i->desc->showstr_point &&
-		!PRF2_FLAGGED(i, PRF2_LIGHT_READ)) {
-		sprintf(buf2, " %s(reading)%s", CCGRN(ch, C_NRM), CCNRM(ch, C_NRM));
-		strcat(buf, buf2);
 	}
 	if (PLR_FLAGGED(i, PLR_AFK)) {
 		sprintf(buf2, " %s(afk)%s", CCGRN(ch, C_NRM), CCNRM(ch, C_NRM));
@@ -3351,10 +3347,6 @@ ACMD(do_who)
 					buf2, CCGRN(ch, C_NRM), CCNRM(ch, C_NRM));
 			} else if (PLR_FLAGGED(tch, PLR_OLC)) {
 				sprintf(buf2, "%s %s(creating)%s",
-					buf2, CCGRN(ch, C_NRM), CCNRM(ch, C_NRM));
-			} else if (tch->desc && tch->desc->showstr_point &&
-				!PRF2_FLAGGED(tch, PRF2_LIGHT_READ)) {
-				sprintf(buf2, "%s %s(reading)%s",
 					buf2, CCGRN(ch, C_NRM), CCNRM(ch, C_NRM));
 			}
 			if (!who_i) {

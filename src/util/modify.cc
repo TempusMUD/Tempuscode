@@ -354,7 +354,7 @@ show_string(struct descriptor_data *d)
 		d->showstr_point = read_pt;
 		if(d->character)
 			send_to_char(d->character,
-				"%s**** %sUse the 'more' command to view more. %s****%s\r\n",
+				"%s**** %sUse the 'more' command to continue. %s****%s\r\n",
 				CCRED(d->character, C_NRM), CCNRM(d->character, C_NRM),
 				CCRED(d->character, C_NRM), CCNRM(d->character, C_NRM));
 		else
