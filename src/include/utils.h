@@ -631,11 +631,13 @@ STRENGTH_APPLY_INDEX(Creature *ch)
 {
 	if (GET_STR(ch) < 0 || GET_STR(ch) > 25)
 		return 11;
-	if (GET_STR(ch) != 18)
+	if (GET_STR(ch) != 18 || GET_ADD(ch) == 0)
 		return GET_STR(ch);
 	if (GET_ADD(ch) == 99)
 		return 35;
-	return GET_STR(ch) + GET_ADD(ch) / 10 + 1;
+	if (GET_ADD(ch) == 100)
+		return 36;
+	return GET_ADD(ch) / 10 + 25;
 }
 
 #define CAN_CARRY_W(ch) (MAX(10, RAW_CARRY_W(ch)))
