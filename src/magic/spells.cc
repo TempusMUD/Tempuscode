@@ -1179,34 +1179,34 @@ ASPELL(spell_identify)
 		case ITEM_POTION:
 		case ITEM_PILL:
 		case ITEM_SYRINGE:
-			sprintf(buf, "This %s casts: ",
+			send_to_char(ch, "This %s casts: ",
 				item_types[(int)GET_OBJ_TYPE(obj)]);
 
 			if (GET_OBJ_VAL(obj, 1) >= 1)
-				sprintf(buf, "%s %s", buf, spell_to_str(GET_OBJ_VAL(obj, 1)));
+				send_to_char(ch, " %s", spell_to_str(GET_OBJ_VAL(obj, 1)));
 			if (GET_OBJ_VAL(obj, 2) >= 1)
-				sprintf(buf, "%s %s", buf, spell_to_str(GET_OBJ_VAL(obj, 2)));
+				send_to_char(ch, " %s", spell_to_str(GET_OBJ_VAL(obj, 2)));
 			if (GET_OBJ_VAL(obj, 3) >= 1)
-				sprintf(buf, "%s %s", buf, spell_to_str(GET_OBJ_VAL(obj, 3)));
-			send_to_char(ch, "%s\r\n", buf);
+				send_to_char(ch, " %s", spell_to_str(GET_OBJ_VAL(obj, 3)));
+			send_to_char(ch, "\r\n");
 			break;
 		case ITEM_WAND:
 		case ITEM_STAFF:
-			sprintf(buf, "This %s casts: ",
+			send_to_char(ch, "This %s casts: ",
 				item_types[(int)GET_OBJ_TYPE(obj)]);
-			sprintf(buf, "%s %s at level %d\r\n", buf, spell_to_str(GET_OBJ_VAL(obj, 3)), GET_OBJ_VAL(obj, 0));
-			send_to_char(ch, "%sIt has %d maximum charge%s and %d remaining.\r\n",
-				buf, GET_OBJ_VAL(obj, 1), GET_OBJ_VAL(obj, 1) == 1 ? "" : "s",
+			send_to_char(ch, "%s at level %d\r\n", spell_to_str(GET_OBJ_VAL(obj, 3)), GET_OBJ_VAL(obj, 0));
+			send_to_char(ch, "It has %d maximum charge%s and %d remaining.\r\n",
+				GET_OBJ_VAL(obj, 1), GET_OBJ_VAL(obj, 1) == 1 ? "" : "s",
 				GET_OBJ_VAL(obj, 2));
 			break;
 		case ITEM_WEAPON:
-			sprintf(buf, "Damage Dice is '%dD%d'", GET_OBJ_VAL(obj, 1),
+			send_to_char(ch, "Damage Dice is '%dD%d'", GET_OBJ_VAL(obj, 1),
 				GET_OBJ_VAL(obj, 2));
-			sprintf(buf, "%s for an average per-round damage of %.1f.\r\n",
-				buf, (((GET_OBJ_VAL(obj, 2) + 1) / 2.0) * GET_OBJ_VAL(obj,
+			send_to_char(ch, " for an average per-round damage of %.1f.\r\n",
+				(((GET_OBJ_VAL(obj, 2) + 1) / 2.0) * GET_OBJ_VAL(obj,
 						1)));
 			if (IS_OBJ_STAT2(obj, ITEM2_CAST_WEAPON))
-				send_to_char(ch, "%sThis weapon casts: %s\r\n", buf,
+				send_to_char(ch, "This weapon casts: %s\r\n",
 					spell_to_str(GET_OBJ_VAL(obj, 0)));
 			break;
 		case ITEM_ARMOR:
@@ -1276,22 +1276,22 @@ ASPELL(spell_identify)
 				GET_NAME(victim), GET_AGE(victim), age(victim).month,
 				age(victim).day, age(victim).hours);
 		}
-		sprintf(buf, "Race: %s, Class: %s, Alignment: %d.\r\n",
+		send_to_char(ch, "Race: %s, Class: %s, Alignment: %d.\r\n",
 			player_race[(int)MIN(NUM_RACES, GET_RACE(victim))],
 			pc_char_class_types[(int)MIN(TOP_CLASS, GET_CLASS(victim))],
 			GET_ALIGNMENT(victim));
-		sprintf(buf, "%sHeight %d cm, Weight %d pounds\r\n", buf,
+		send_to_char(ch, "Height %d cm, Weight %d pounds\r\n",
 			GET_HEIGHT(victim), GET_WEIGHT(victim));
-		sprintf(buf, "%sLevel: %d, Hits: %d, Mana: %d\r\n", buf,
+		send_to_char(ch, "Level: %d, Hits: %d, Mana: %d\r\n",
 			GET_LEVEL(victim), GET_HIT(victim), GET_MANA(victim));
-		send_to_char(ch, "%sAC: %d, Thac0: %d, Hitroll: %d (%d), Damroll: %d\r\n",
-			buf, GET_AC(victim), (int)MIN(THACO(GET_CLASS(victim),
+		send_to_char(ch, "AC: %d, Thac0: %d, Hitroll: %d (%d), Damroll: %d\r\n",
+			GET_AC(victim), (int)MIN(THACO(GET_CLASS(victim),
 					GET_LEVEL(victim)), THACO(GET_REMORT_CLASS(victim),
 					GET_LEVEL(victim))), GET_HITROLL(victim),
 			GET_REAL_HITROLL(victim), GET_DAMROLL(victim));
-		sprintf(buf,
-			"%sStr: %d/%d, Int: %d, Wis: %d, Dex: %d, Con: %d, Cha: %d\r\n",
-			buf, GET_STR(victim), GET_ADD(victim), GET_INT(victim),
+		send_to_char(ch,
+			"Str: %d/%d, Int: %d, Wis: %d, Dex: %d, Con: %d, Cha: %d\r\n",
+			GET_STR(victim), GET_ADD(victim), GET_INT(victim),
 			GET_WIS(victim), GET_DEX(victim), GET_CON(victim),
 			GET_CHA(victim));
 

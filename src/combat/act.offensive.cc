@@ -757,10 +757,8 @@ calc_skill_prob(struct char_data *ch, struct char_data *vict, int skillnum,
 		break;
 
 	default:
-		sprintf(buf,
-			"SYSERR: Illegal skillnum <%d> passed to calc_skill_prob().",
+		slog("SYSERR: Illegal skillnum <%d> passed to calc_skill_prob().",
 			skillnum);
-		slog(buf);
 		send_to_char(ch, "There was an error.\r\n");
 		return -1;
 	}
@@ -1418,11 +1416,11 @@ ACMD(do_bash)
 						update_pos(ch);
 					}
 				} else {
-					send_to_char(ch, "$n bashes the %s open with a powerful blow!",
+					sprintf(buf, "$n bashes the %s open with a powerful blow!",
 						EXIT(ch, door)->keyword ?
 						fname(EXIT(ch, door)->keyword) : "door");
 					act(buf, FALSE, ch, 0, 0, TO_ROOM);
-					sprintf(buf,
+					send_to_char(ch,
 						"The %s gives way under your powerful bash!\r\n",
 						EXIT(ch, door)->keyword ? fname(EXIT(ch,
 								door)->keyword) : "door");

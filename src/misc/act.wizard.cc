@@ -809,7 +809,7 @@ do_stat_zone(struct char_data *ch, struct zone_data *zone)
 	send_to_char(ch, "Co-Owner: %s  ", (get_name_by_id(zone->co_owner_idnum) ?
 			get_name_by_id(zone->co_owner_idnum) : "None"));
 
-	send_to_char(ch, "%sHours: [%3d]  Years: [%3d]  Idle:[%3d]\r\n", out_buf,
+	send_to_char(ch, "Hours: [%3d]  Years: [%3d]  Idle:[%3d]\r\n",
 		zone->hour_mod, zone->year_mod, zone->idle_time);
 
 	send_to_char(ch,

@@ -263,10 +263,12 @@ ACMD(do_gsay)
 void
 perform_tell(struct char_data *ch, struct char_data *vict, char *arg)
 {
+	char tell_buf[4098];
+
 	if (PRF_FLAGGED(ch, PRF_NOREPEAT))
 		send_to_char(ch, OK);
 	else {
-		sprintf(buf2, "%sYou tell $N,%s '%s'",
+		sprintf(tell_buf, "%sYou tell $N,%s '%s'",
 			CCRED(ch, C_NRM), CCNRM(ch, C_NRM), arg);
 		act(buf2, FALSE, ch, 0, vict, TO_CHAR | TO_SLEEP);
 	}
@@ -274,16 +276,16 @@ perform_tell(struct char_data *ch, struct char_data *vict, char *arg)
 	delete_doubledollar(arg);
 
 	if (!IS_NPC(vict)) {
-		strcpy(buf2, PERS(ch, vict));
-		buf2[0] = toupper(buf2[0]);
+		strcpy(tell_buf, PERS(ch, vict));
+		tell_buf[0] = toupper(tell_buf[0]);
 		send_to_char(vict, "%s%s tells you,%s '%s'\r\n",
 			CCRED(vict, C_NRM),
-			buf2,
+			tell_buf,
 			CCNRM(vict, C_NRM),
 			arg);
 	} else {
-		sprintf(buf2, "$n tells you, '%s'", arg);
-		act(buf2, FALSE, ch, 0, vict, TO_VICT | TO_SLEEP);
+		sprintf(tell_buf, "$n tells you, '%s'", arg);
+		act(tell_buf, FALSE, ch, 0, vict, TO_VICT | TO_SLEEP);
 	}
 	if (PRF2_FLAGGED(vict, PRF2_AUTOPAGE) && !IS_MOB(ch))
 		send_to_char(vict, "\007\007");
@@ -970,11 +972,11 @@ ACMD(do_clan_comm)
 		else {
 			if (subcmd == SCMD_CLAN_SAY) {
 				delete_doubledollar(buf);
-				sprintf(buf, "%sYou clan-say, %s'%s'\r\n", CCCYN(ch, C_NRM),
+				send_to_char(ch, "%sYou clan-say, %s'%s'\r\n", CCCYN(ch, C_NRM),
 					CCNRM(ch, C_NRM), argument);
 			} else
-				send_to_char(ch, "%s%s %s%s\r\n", CCCYN(ch, C_NRM), GET_NAME(ch),
-					CCNRM(ch, C_NRM), argument);
+				send_to_char(ch, "%s%s %s%s\r\n", CCCYN(ch, C_NRM),
+					GET_NAME(ch), CCNRM(ch, C_NRM), argument);
 		}
 
 		if (subcmd == SCMD_CLAN_SAY) {
