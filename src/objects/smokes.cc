@@ -335,7 +335,13 @@ ACMD(do_convert)
 		GET_OBJ_TYPE(obj) = ITEM_PIPE;
 		REMOVE_BIT(obj->obj_flags.wear_flags, -1);
 		SET_BIT(obj->obj_flags.wear_flags, ITEM_WEAR_HOLD | ITEM_WEAR_TAKE);
-		REMOVE_BIT((obj)->obj_flags.extra2_flags, ITEM2_IMPLANT);
+		REMOVE_BIT(obj->obj_flags.extra_flags, -1);
+		REMOVE_BIT(obj->obj_flags.extra2_flags, -1);
+		REMOVE_BIT(obj->obj_flags.extra3_flags, -1);
+
+		obj->obj_flags.bitvector[0] = 0;
+		obj->obj_flags.bitvector[1] = 0;
+		obj->obj_flags.bitvector[2] = 0;
 
 		GET_OBJ_VAL(obj, 1) = ((GET_INT(ch) +
 				(CHECK_SKILL(ch, SKILL_PIPEMAKING) >> 3) +
