@@ -1045,7 +1045,11 @@ ACMD(do_cyborg_reboot)
 
     GET_POS(ch) = POS_SLEEPING;
 
-    if (CHECK_SKILL(ch, SKILL_FASTBOOT) > 90) {
+    if (CHECK_SKILL(ch, SKILL_FASTBOOT) > 110) {
+    WAIT_STATE(ch, PULSE_VIOLENCE*2);
+    } else if (CHECK_SKILL(ch, SKILL_FASTBOOT) > 100) {
+    WAIT_STATE(ch, PULSE_VIOLENCE*3);
+    } else if (CHECK_SKILL(ch, SKILL_FASTBOOT) > 90) {
     WAIT_STATE(ch, PULSE_VIOLENCE*4);
     } else if (CHECK_SKILL(ch, SKILL_FASTBOOT) > 80) {
     WAIT_STATE(ch, PULSE_VIOLENCE*5);
