@@ -63,6 +63,7 @@ SPECIAL(remorter)
 		char_class_choice = parse_char_class(argument);
 		if (	char_class_choice == CLASS_UNDEFINED
 			|| 	char_class_choice >= CLASS_SPARE1 
+			|| 	char_class_choice == CLASS_WARRIOR
 			||  char_class_choice == CLASS_VAMPIRE ) {
 			send_to_char("You must choose one of the following:\r\n", ch);
 			show_char_class_menu(ch->desc);  
