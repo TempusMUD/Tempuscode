@@ -318,7 +318,6 @@ struct bard_song songs[] = {
     static const int SONG_RHYTHM_OF_ALARM = 380; // room affect, notifies the bard of person entering room
     static const int SONG_SHATTER = 382; // target; damage persons/objects, penetrate WALL O SOUND
     static const int SONG_PURPLE_HAZE = 385; // area, pauses fighting for short time
-    static const int SONG_WOUNDING_WHISPERS = 386; // self, like blade barrier
     static const int SONG_DIRGE = 387; // area, high damage, undead only
     static const int SONG_GHOST_INSTRUMENT = 389; // causes instrument to replay next some played
     static const int SONG_LICHS_LYRICS = 390; // area, only affects living creatures
@@ -328,35 +327,37 @@ struct bard_song songs[] = {
 
 // complete
 /*
-    static const int SONG_DRIFTERS_DITTY = 365; // self/group increases move
+    static const int SONG_INSTANT_AUDIENCE = 346; // conjures an audience, like summon elem
+    static const int SONG_LAMENT_OF_LONGING = 349; // creates a portal to another character
     static const int SONG_ARIA_OF_ARMAMENT = 351; // Similar to armor, group spell
     static const int SONG_VERSE_OF_VULNERABILITY = 353; // lowers AC of target
-    static const int SONG_MELODY_OF_METTLE = 357; // caster and group get con and maxhit
+    static const int SONG_EXPOSURE_OVERTURE = 354; // Area affect, causes targets to vis
     static const int SONG_REGALERS_RHAPSODY = 356; // caster and groupies get satiated
+    static const int SONG_MELODY_OF_METTLE = 357; // caster and group get con and maxhit
+    static const int SONG_LUSTRATION_MELISMA = 358; // caster and group cleansed of blindness, poison, sickness
     static const int SONG_DEFENSE_DITTY = 359; // save spell, psi, psy based on gen
     static const int SONG_ALRONS_ARIA = 360; // singer/group confidence
-    static const int SONG_LUSTRATION_MELISMA = 358; // caster and group cleansed of blindness, poison, sickness
-    static const int SONG_EXPOSURE_OVERTURE = 354; // Area affect, causes targets to vis
     static const int SONG_VERSE_OF_VALOR = 362; // self/group increase hitroll
-    static const int SONG_WHITE_NOISE = 370; // single target, confusion
-    static const int SONG_HOME_SWEET_HOME = 383; // recall
-    static const int SONG_CHANT_OF_LIGHT = 368; // group, light and prot_cold
-    static const int SKILL_TUMBLING = 674; // like uncanny dodge
-    static const int SONG_IRRESISTABLE_DANCE = 379; // Target, -hitroll
-    static const int SONG_INSIDIOUS_RHYTHM = 392; // target, - int
-    static const int SONG_EAGLES_OVERTURE = 388; // self, group, target, increases cha
-    static const int SONG_WEIGHT_OF_THE_WORLD = 384; // self/group/target, like telekinesis
-    static const int SONG_GUIHARIAS_GLORY = 373; // self/group, + damroll
-    static const int SONG_RHAPSODY_OF_REMEDY = 381; // self/target, heal
-    static const int SONG_UNLADEN_SWALLOW_SONG = 378; // group flight
-    static const int SONG_CLARIFYING_HARMONIES = 377; // identify
-    static const int SKILL_SCREAM = 672; // damage like psiblast, chance to stun
-    static const int SONG_POWER_OVERTURE = 372; // self only, increase strength and hitroll
-    static const int SONG_RHYTHM_OF_RAGE = 371; // self only, berserk, counter = hymn of peace
-    static const int SONG_LAMENT_OF_LONGING = 349; // creates a portal to another character
+    static const int SONG_DRIFTERS_DITTY = 365; // self/group increases move
     static const int SONG_UNRAVELLING_DIAPASON = 366; //dispel magic
+    static const int SONG_CHANT_OF_LIGHT = 368; // group, light and prot_cold
+    static const int SONG_WHITE_NOISE = 370; // single target, confusion
+    static const int SONG_RHYTHM_OF_RAGE = 371; // self only, berserk, counter = hymn of peace
+    static const int SONG_POWER_OVERTURE = 372; // self only, increase strength and hitroll
+    static const int SONG_GUIHARIAS_GLORY = 373; // self/group, + damroll
+    static const int SONG_CLARIFYING_HARMONIES = 377; // identify
+    static const int SONG_UNLADEN_SWALLOW_SONG = 378; // group flight
+    static const int SONG_IRRESISTABLE_DANCE = 379; // Target, -hitroll
+    static const int SONG_RHAPSODY_OF_REMEDY = 381; // self/target, heal
+    static const int SONG_HOME_SWEET_HOME = 383; // recall
+    static const int SONG_WEIGHT_OF_THE_WORLD = 384; // self/group/target, like telekinesis
+    static const int SONG_WOUNDING_WHISPERS = 386; // self, like blade barrier
+    static const int SONG_EAGLES_OVERTURE = 388; // self, group, target, increases cha
+    static const int SONG_INSIDIOUS_RHYTHM = 392; // target, - int
+
+    static const int SKILL_SCREAM = 672; // damage like psiblast, chance to stun
+    static const int SKILL_TUMBLING = 674; // like uncanny dodge
     static const int SKILL_LINGERING_SONG = 676; // increases duration of song affects
-    static const int SONG_INSTANT_AUDIENCE = 346; // conjures an audience, like summon elem
 */
 void
 sing_song(struct Creature *ch, Creature *vict, struct obj_data *ovict, int songnum)
@@ -437,16 +438,21 @@ char *pad_song(char *lyrics)
 
 bool check_instrument(Creature *ch, int songnum)
 {
-    struct obj_data *obj1 = GET_EQ(ch, WEAR_HOLD);
-    struct obj_data *obj2 = GET_EQ(ch, WEAR_WIELD);
-    struct obj_data *obj3 = GET_EQ(ch, WEAR_WIELD_2);
+    struct obj_data *objs[4];
     short req_type = songs[songnum - TOP_BARD_SONG - 1].type;
     bool found = false;
+    int x = 0;
+    
+    objs[0] = GET_EQ(ch, WEAR_HOLD);
+    objs[1] = GET_EQ(ch, WEAR_WIELD);
+    objs[2] = GET_EQ(ch, WEAR_WIELD_2);
+    objs[3] = NULL;
 
-    if ((obj1 && (GET_OBJ_VAL(obj1, 0) == req_type)) ||
-        (obj2 && (GET_OBJ_VAL(obj2, 0) == req_type)) ||
-        (obj3 && (GET_OBJ_VAL(obj3, 0) == req_type))) {
-        found = true;
+    while (objs[x] != NULL) {
+        if (GET_OBJ_TYPE(objs[x]) == ITEM_INSTRUMENT &&
+            GET_OBJ_VAL(objs[x], 0) == req_type)
+            found = true;
+        x++;
     }
 
     return found;
