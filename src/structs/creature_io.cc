@@ -200,14 +200,43 @@ Creature::payRent(time_t last_time, int code, int currency)
 	return false;
 }
 
+bool
+reportUnrentables(Creature *ch, obj_data *obj_list, const char *pos)
+{
+	bool same_obj(struct obj_data *obj1, struct obj_data *obj2);
+
+ 	obj_data *cur_obj, *last_obj;
+	bool result = false;
+
+	last_obj = NULL;
+	cur_obj = obj_list;
+	while (cur_obj) {
+		if (!last_obj || !same_obj(last_obj, cur_obj)) {
+			if (cur_obj->isUnrentable()) {
+				act(tmp_sprintf("You cannot rent while %s $p!", pos),
+					true, ch, cur_obj, 0, TO_CHAR);
+				result = true;
+			}
+		}
+		last_obj = cur_obj;
+
+		pos = "carrying";
+		if (cur_obj->contains)
+			cur_obj = cur_obj->contains;	// descend into obj
+		else if (!cur_obj->next_content && cur_obj->in_obj)
+			cur_obj = cur_obj->in_obj->next_content; // ascend out of obj
+		else
+			cur_obj = cur_obj->next_content; // go to next obj
+	}
+
+	return result;
+}
 
 // Displays all unrentable items and returns true if any are found
 bool
 Creature::displayUnrentables(void)
 {
-	bool same_obj(struct obj_data *obj1, struct obj_data *obj2);
-
- 	obj_data *cur_obj, *last_obj;
+	obj_data *cur_obj;
 	int pos;
 	bool result = false;
 
@@ -216,38 +245,14 @@ Creature::displayUnrentables(void)
 
 	for (pos = 0;pos < NUM_WEARS;pos++) {
 		cur_obj = GET_EQ(this, pos);
-		if (cur_obj && cur_obj->isUnrentable()) {
-			act("You cannot rent while wearing $p!",
-				true, this, cur_obj, 0, TO_CHAR);
-			result = true;
-		}
+		if (cur_obj)
+			result = result || reportUnrentables(this, cur_obj, "wearing");
 		cur_obj = GET_IMPLANT(this, pos);
-		if (cur_obj && cur_obj->isUnrentable()) {
-			act("You cannot rent while implanted with $p!",
-				true, this, cur_obj, 0, TO_CHAR);
-			result = true;
-		}
+		if (cur_obj)
+			result = result || reportUnrentables(this, cur_obj, "implanted with");
 	}
 
-	last_obj = NULL;
-	cur_obj = carrying;
-	while (cur_obj) {
-		if (!last_obj || !same_obj(last_obj, cur_obj)) {
-			if (cur_obj->isUnrentable()) {
-				act("You cannot rent while carrying $p!",
-					true, this, cur_obj, 0, TO_CHAR);
-				result = true;
-			}
-		}
-		last_obj = cur_obj;
-
-		if (cur_obj->contains)
-			cur_obj = cur_obj->contains;	// descend into obj
-		else if (!cur_obj->next_content && cur_obj->in_obj)
-			cur_obj = cur_obj->in_obj->next_content; // ascend out of obj
-		else
-			cur_obj = cur_obj->next_content; // go to next obj
-	}
+	result = result || reportUnrentables(this, carrying, "carrying");
 
 	return result;
 }
