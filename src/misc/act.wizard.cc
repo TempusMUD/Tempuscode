@@ -6227,7 +6227,7 @@ ACMD(do_rlist)
 		}
 
 	if (!found)
-		send_to_char(ch, "No rooms where found in those parameters.\r\n");
+		send_to_char(ch, "No rooms were found in those parameters.\r\n");
 	else
 		page_string(ch->desc, out_list);
 }
@@ -6371,7 +6371,7 @@ ACMD(do_mlist)
 	}
 
 	if (!found)
-		send_to_char(ch, "No mobiles where found in those parameters.\r\n");
+		send_to_char(ch, "No mobiles were found in those parameters.\r\n");
 	else
 		page_string(ch->desc, out_list);
 }
@@ -6427,7 +6427,7 @@ ACMD(do_olist)
 	}
 
 	if (!found)
-		send_to_char(ch, "No objects where found in those parameters.\r\n");
+		send_to_char(ch, "No objects were found in those parameters.\r\n");
 	else
 		page_string(ch->desc, out_list);
 }
