@@ -877,6 +877,8 @@ Creature::clear(void)
 
     CreatureList::iterator it = combatList.begin();
     for (; it != combatList.end(); ++it) {
+        if (!*it)
+            continue;
         (*it)->removeCombat(this);
         if ((*it)->numCombatants() == 0)
             combatList.remove((*it));
@@ -1410,6 +1412,9 @@ Creature::initiatedCombat(Creature *ch)
 int
 Creature::numCombatants()
 {
+    if (!this)
+        return 0;
+
     return getCombatList()->size();
 }
 
