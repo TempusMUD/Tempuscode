@@ -1146,6 +1146,9 @@ perform_drop(struct char_data * ch, struct obj_data * obj,
     int value;
     string sbuf;
     
+    if (!obj)
+        return 0;
+    
     if (IS_OBJ_STAT(obj, ITEM_NODROP)) {
         if (GET_LEVEL(ch) < LVL_TIMEGOD) {
             sprintf(buf, "You can't %s $p, it must be CURSED!", sname);
@@ -1155,9 +1158,9 @@ perform_drop(struct char_data * ch, struct obj_data * obj,
             act("You peel $p off your hand...", FALSE, ch, obj, 0, TO_CHAR);
     }
 
-    if ((mode == SCMD_DONATE || mode == SCMD_JUNK) && GET_LEVEL(ch) < LVL_SPIRIT) {
-        if (strcmp(obj->short_description, PROTO_SDESC(obj->shared->vnum)) || 
-            (IS_CONTAINER(obj) && !junkable(obj))) {
+    if ((mode == SCMD_DONATE || mode == SCMD_JUNK) && 
+        GET_LEVEL(ch) < LVL_SPIRIT) {
+        if (!junkable(obj)) {
            if (IS_CONTAINER(obj)) {
                string containerName(obj->name);
                sbuf = AN(obj->name) + string(" ") + containerName + 
