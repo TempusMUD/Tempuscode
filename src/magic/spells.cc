@@ -2840,14 +2840,14 @@ ASPELL(spell_unholy_stalker)
 		return;
 	}
 
-	if (!(stalker = read_mobile(UNHOLY_STALKER_VNUM))) {
-		send_to_char(ch, "The dark powers are not with you, tonight.\r\n");
-		slog("SYSERR: unable to load STALKER_VNUM in spell_unholy_stalker.");
+	if (IS_PC(victim)) {
+		send_to_char(ch, "The dark powers cannot reach them.\r\n");
 		return;
 	}
 
-	if (IS_PC(victim)) {
-		send_to_char(ch, "The dark powers cannot reach them.\r\n");
+	if (!(stalker = read_mobile(UNHOLY_STALKER_VNUM))) {
+		send_to_char(ch, "The dark powers are not with you, tonight.\r\n");
+		slog("SYSERR: unable to load STALKER_VNUM in spell_unholy_stalker.");
 		return;
 	}
 
