@@ -302,19 +302,19 @@ find_target_room(struct char_data * ch, char *rawroomstr)
             return NULL;
         }
     } else if ((target_mob = get_char_vis(ch, roomstr))) {
-                if(GET_LEVEL(ch) < LVL_SPIRIT && GET_MOB_SPEC( target_mob ) == fate) {
-                        sprintf(buf,"%s's magic repulses you.\r\n",GET_NAME(target_mob));
-                        send_to_char(buf,ch);
-                        return NULL;
-                }        
-                location = target_mob->in_room;
+        if(GET_LEVEL(ch) < LVL_SPIRIT && GET_MOB_SPEC( target_mob ) == fate) {
+                sprintf(buf,"%s's magic repulses you.\r\n",GET_NAME(target_mob));
+                send_to_char(buf,ch);
+                return NULL;
+        }        
+        location = target_mob->in_room;
     } else if ((target_obj = get_obj_vis(ch, roomstr))) {
-                if (target_obj->in_room != NULL) {
-                        location = target_obj->in_room;
-                } else {
-                        send_to_char("That object is not available.\r\n", ch);
-                        return NULL;
-                }
+        if (target_obj->in_room != NULL) {
+                location = target_obj->in_room;
+        } else {
+                send_to_char("That object is not available.\r\n", ch);
+                return NULL;
+        }
     } else {
         send_to_char("No such creature or object around.\r\n", ch);
         return NULL;
@@ -1926,10 +1926,6 @@ ACMD(do_stat)
                 send_to_char("No such mobile around.\r\n", ch);
         }
     } else if (is_abbrev(buf1, "player")) {
-        if (GET_LEVEL(ch) < LVL_DEMI) {
-            send_to_char("You can only see the stats of mobs, objs, and rooms.\r\n", ch);
-            return;
-        }
         if (!*buf2) {
             send_to_char("Stats on which player?\r\n", ch);
         } else {
@@ -1939,7 +1935,9 @@ ACMD(do_stat)
                 send_to_char("No such player around.\r\n", ch);
         }
     } else if (is_abbrev(buf1, "file")) {
-        if (GET_LEVEL(ch) < LVL_TIMEGOD) {
+        if (GET_LEVEL(ch) < LVL_TIMEGOD && !Security::isMember(ch,"AdminFull" )
+        && !Security::isMember(ch,"WizardFull" )) 
+        {
             send_to_char("You cannot peer into the playerfile.\r\n", ch);
             return;
         }
@@ -2274,7 +2272,6 @@ ACMD(do_rswitch)
                             GET_HOME(ch) == HOME_SKULLPORT ? r_skullport_start_room :\
                             GET_HOME(ch) == HOME_DROW_ISLE ? r_drow_isle_start_room :\
                             GET_HOME(ch) == HOME_ASTRAL_MANSE ? r_astral_manse_start_room :\
-                            GET_HOME(ch) == HOME_ZUL_DANE ? r_zul_dane_start_room :\
                             GET_HOME(ch) == HOME_NEWBIE_SCHOOL ? r_newbie_school_start_room :\
                             r_mortal_start_room)
 ACMD(do_return)
@@ -2705,7 +2702,7 @@ ACMD(do_restore)
             for (i = 1; i <= MAX_SKILLS; i++)
                 SET_SKILL(vict, i, 100);
 
-            if (GET_LEVEL(vict) >= LVL_GRGOD) {
+            if (GET_LEVEL(vict) >= LVL_IMMORT) {
                 vict->real_abils.intel = 25;
                 vict->real_abils.wis = 25;
                 vict->real_abils.dex = 25;
@@ -2921,7 +2918,7 @@ ACMD(do_zecho)
     struct descriptor_data *pt;
     struct zone_data *here;
     // charmed mobs and players < LVL_GOD cant use this
-    if((!IS_NPC(ch) && GET_LEVEL(ch) < LVL_GOD) 
+    if((!IS_NPC(ch) && !Security::isMember(ch,"WizardBasic" ))
         || (IS_NPC(ch) && IS_AFFECTED(ch,AFF_CHARM))) {
         send_to_char("You probably shouldn't be using this.\r\n",ch);
     }
@@ -3176,7 +3173,7 @@ ACMD(do_force)
             send_to_char(NOPERSON, ch);
         } else if (GET_LEVEL(ch) <= GET_LEVEL(vict))
             send_to_char("No, no, no!\r\n", ch);
-        else if (!IS_NPC(vict) && GET_LEVEL(ch) < LVL_GRGOD)
+        else if (!IS_NPC(vict) && !Security::isMember(ch,"WizardFull" ))
             send_to_char("You cannot force players to do things.\r\n", ch);
         else {
             send_to_char(OK, ch);
@@ -3240,7 +3237,7 @@ ACMD(do_wiznet)
     }
 
     if (subcmd == SCMD_WIZNET)
-        level = LVL_DEMI;
+        level = LVL_IMMORT;
 
     switch (*argument) {
     case '*':
@@ -3266,6 +3263,7 @@ ACMD(do_wiznet)
                 ((subcmd == SCMD_IMMCHAT && 
                   !PRF2_FLAGGED(d->character, PRF2_NOIMMCHAT)) ||
                  (subcmd == SCMD_WIZNET && 
+                  Security::isMember(d->character,"WizardBasic" ) &&
                   !PRF_FLAGGED(d->character, PRF_NOWIZ))) &&
                 (CAN_SEE(ch, d->character) || GET_LEVEL(ch) == LVL_GRIMP)) {
                 if (!any) {
@@ -3294,6 +3292,7 @@ ACMD(do_wiznet)
                 ((subcmd == SCMD_IMMCHAT && 
                   PRF2_FLAGGED(d->character, PRF2_NOIMMCHAT)) ||
                  (subcmd == SCMD_WIZNET && 
+                  Security::isMember(d->character,"WizardBasic" ) &&
                   PRF_FLAGGED(d->character, PRF_NOWIZ))) &&
                 CAN_SEE(ch, d->character)) {
                 if (!any) {
@@ -3323,7 +3322,7 @@ ACMD(do_wiznet)
         return;
     }
     if ((subcmd == SCMD_IMMCHAT && level > LVL_AMBASSADOR) ||
-        (subcmd == SCMD_WIZNET && level > LVL_DEMI)) {
+        (subcmd == SCMD_WIZNET && level > LVL_IMMORT)) {
         sprintf(buf1, "%s%s: <%d> %s%s\r\n", GET_NAME(ch), 
                 subcmd == SCMD_IMMCHAT ? " imms" : "", level, 
                 emote ? "<--- " : "", argument);
@@ -3341,16 +3340,17 @@ ACMD(do_wiznet)
 
     for (d = descriptor_list; d; d = d->next) {
         if ((STATE(d) == CON_PLAYING) && (GET_LEVEL(d->character) >= level) &&
+            (subcmd != SCMD_WIZNET || Security::isMember(d->character,"WizardBasic" ) ) &&
             (subcmd != SCMD_WIZNET  || !PRF_FLAGGED(d->character, PRF_NOWIZ)) &&
             (subcmd != SCMD_IMMCHAT||!PRF2_FLAGGED(d->character,PRF2_NOIMMCHAT)) &&
             (!PLR_FLAGGED(d->character, PLR_WRITING | PLR_MAILING | PLR_OLC))
             && (d != ch->desc || !(PRF_FLAGGED(d->character, PRF_NOREPEAT)))) {
 
-            if (subcmd == SCMD_IMMCHAT)
+            if (subcmd == SCMD_IMMCHAT) {
                 send_to_char(CCYEL(d->character, C_SPR ), d->character);
-            else
+            } else {
                 send_to_char(CCCYN(d->character, C_SPR ), d->character);
-
+            }
             if (CAN_SEE(d->character, ch))
                 send_to_char(buf1, d->character);
             else
@@ -3869,9 +3869,9 @@ show_player(CHAR *ch, char * value)
 
 void
 show_multi(CHAR *ch, char *arg) {
-	struct char_file_u *whole_file,*cur_pl;
+        struct char_file_u *whole_file,*cur_pl;
     struct char_file_u chdata;
-	int pl_idx,dot_pos;
+        int pl_idx,dot_pos;
 
     if (!*arg) {
         send_to_char("For whom do you wish to search?\r\n", ch);
@@ -3891,30 +3891,30 @@ show_multi(CHAR *ch, char *arg) {
             char_class_abbrevs[(int) chdata.char_class], chdata.name, 
             GET_LEVEL(ch) > LVL_ETERNAL ? chdata.host : "Unknown",
             ctime(&chdata.last_logon));
-	
-	dot_pos = ( strrchr( chdata.host,'.' ) - chdata.host ) - 1;
+        
+        dot_pos = ( strrchr( chdata.host,'.' ) - chdata.host ) - 1;
 
-	// Now we load in the whole player file, looking for matches
-	pl_idx = top_of_p_table + 1;
-	CREATE(whole_file, struct char_file_u, pl_idx);
-	fseek(player_fl, 0, SEEK_SET);
-	if ( (int)fread(whole_file, sizeof(struct char_file_u), pl_idx, player_fl) != pl_idx ) {
-		send_to_char("Didn't read the right number of records.\r\n", ch);
-		return;
-	}
-	for (cur_pl = whole_file;pl_idx;cur_pl++, pl_idx--) {
-		if ( cur_pl->char_specials_saved.idnum == GET_IDNUM(ch) || cur_pl->char_specials_saved.idnum == chdata.char_specials_saved.idnum )
-			continue;
-		if ( !strncmp(cur_pl->host, chdata.host, dot_pos) &&
-			 cur_pl->level <= GET_LEVEL(ch) )
-			sprintf(buf, "%s[%5ld] [%2d %s] %-12s : %-18s : %-20s", buf,
-					cur_pl->char_specials_saved.idnum, (int) cur_pl->level,
-					char_class_abbrevs[(int) cur_pl->char_class], cur_pl->name, 
-					GET_LEVEL(ch) > LVL_ETERNAL ? cur_pl->host : "Unknown",
-					ctime(&cur_pl->last_logon));
-	}
-	free(whole_file);
-	page_string(ch->desc, buf, 1);
+        // Now we load in the whole player file, looking for matches
+        pl_idx = top_of_p_table + 1;
+        CREATE(whole_file, struct char_file_u, pl_idx);
+        fseek(player_fl, 0, SEEK_SET);
+        if ( (int)fread(whole_file, sizeof(struct char_file_u), pl_idx, player_fl) != pl_idx ) {
+                send_to_char("Didn't read the right number of records.\r\n", ch);
+                return;
+        }
+        for (cur_pl = whole_file;pl_idx;cur_pl++, pl_idx--) {
+                if ( cur_pl->char_specials_saved.idnum == GET_IDNUM(ch) || cur_pl->char_specials_saved.idnum == chdata.char_specials_saved.idnum )
+                        continue;
+                if ( !strncmp(cur_pl->host, chdata.host, dot_pos) &&
+                         cur_pl->level <= GET_LEVEL(ch) )
+                        sprintf(buf, "%s[%5ld] [%2d %s] %-12s : %-18s : %-20s", buf,
+                                        cur_pl->char_specials_saved.idnum, (int) cur_pl->level,
+                                        char_class_abbrevs[(int) cur_pl->char_class], cur_pl->name, 
+                                        GET_LEVEL(ch) > LVL_ETERNAL ? cur_pl->host : "Unknown",
+                                        ctime(&cur_pl->last_logon));
+        }
+        free(whole_file);
+        page_string(ch->desc, buf, 1);
 }
 
 void
@@ -4165,71 +4165,67 @@ show_mlevels(CHAR *ch, char *value, char *arg)
 #define SFC_MOB 2
 #define SFC_ROOM 3
 
-struct show_struct {
-    char *cmd;
-    char level;
-} fields[] = {
-    { "nothing",        0  },                                /* 0 */
-    { "zones",                LVL_AMBASSADOR },                        /* 1 */
-    { "player",                LVL_DEMI },
-    { "rent",                LVL_POWER },
-    { "stats",                LVL_AMBASSADOR },
-    { "errors",                LVL_GRIMP },                        /* 5 */
-    { "death",                LVL_ELEMENT },
-    { "godrooms",        LVL_CREATOR },
-    { "shops",                LVL_IMMORT },
-    { "bugs",           LVL_DEMI },
-    { "typos",          LVL_ETERNAL },                        /* 10 */
-    { "ideas",          LVL_IMMORT },
-    { "skills",         LVL_ELEMENT },
-    { "spells",                LVL_ELEMENT },
-    { "residents",      LVL_AMBASSADOR },                        /* 14 */
-    { "aliases",        LVL_DEMI },
-    { "memory use",     LVL_GOD },
-    { "social",         LVL_DEMI },                  /* 17 */
-    { "quest",          LVL_IMMORT },
-    { "questguide",     LVL_IMMORT },                   /* 19 */
-    { "zoneusage",      LVL_IMMORT },                   /* 20 */
-    { "population",     LVL_AMBASSADOR },
-    { "topzones",       LVL_AMBASSADOR },
-    { "nomaterial",     LVL_IMMORT },
-    { "objects",        LVL_IMMORT },
-    { "broken",         LVL_IMMORT },                   /* 25 */
-    { "quiz",           LVL_GOD },               
-    { "clans",          LVL_AMBASSADOR },                  
-    { "specials",       LVL_IMMORT },
-    { "implants",       LVL_IMMORT },
-    { "paths",          LVL_IMMORT },            /* 30 */
-    { "pathobjs",       LVL_IMMORT },
-    { "searches",       LVL_FORCE },
-    { "str_app",        LVL_IMMORT },
-    { "timezones",      LVL_IMMORT },
-    { "class",          LVL_IMMORT },       /* 35 */
-    { "unapproved",     LVL_IMMORT },
-    { "elevators",      LVL_IMMORT },
-    { "free_create",    LVL_IMMORT },
-    { "exp_percent",    LVL_GOD },
-    { "demand_items",   LVL_GOD },          /* 40 */
-    { "descriptor",     LVL_CREATOR },
-    { "fighting",       LVL_POWER },   
-    { "quad",           LVL_IMMORT },
-    { "mobiles",        LVL_IMMORT },
-    { "hunting",        LVL_POWER },        /* 45 */ 
-    { "last_cmd",       LVL_LUCIFER },
-    { "duperooms",      LVL_CREATOR }, 
-    { "specialization", LVL_IMMORT },
-    { "p_index",        LVL_IMMORT }, 
-    { "zexits",         LVL_IMMORT },        // 50
-    { "mlevels",        LVL_IMMORT },
-    { "plevels",        LVL_IMMORT }, 
-    { "mobkills",       LVL_GOD },      
-    { "wizcommands",    LVL_IMMORT },
-    { "timewarps",      LVL_IMMORT },        // 55
-    { "zonecommands",         LVL_IMMORT },
-//	{ "multi",          LVL_ETERNAL },
-    { "\n", 0 }
+struct show_struct fields[] = {
+    { "nothing",        0  , "" },                                // 0 
+    { "zones",         LVL_AMBASSADOR , "" },                        // 1 
+    { "player",        LVL_IMMORT, "AdminBasic" },
+    { "rent",          LVL_IMMORT, "AdminFull" },
+    { "stats",         LVL_AMBASSADOR , "" },
+    { "errors",        LVL_GRIMP , "Coder" },                        // 5
+    { "death",         LVL_IMMORT, "WizardBasic" },
+    { "godrooms",      LVL_CREATOR , "WizardFull" },
+    { "shops",         LVL_IMMORT , "" },
+    { "bugs",           LVL_IMMORT, "WizardBasic" },
+    { "typos",          LVL_IMMORT, "" },                        // 10 
+    { "ideas",          LVL_IMMORT , "" },
+    { "skills",         LVL_IMMORT, "AdminBasic" },
+    { "spells",         LVL_GRIMP, "" },
+    { "residents",      LVL_AMBASSADOR , "" },                        // 14
+    { "aliases",        LVL_IMMORT, "AdminBasic" },
+    { "memory use",     LVL_IMMORT, "Coder" },
+    { "social",         LVL_DEMI , "" },                  // 17 
+    { "quest",          LVL_IMMORT , "" },
+    { "questguide",     LVL_IMMORT , "" },                   // 19 
+    { "zoneusage",      LVL_IMMORT , "" },                   // 20
+    { "population",     LVL_AMBASSADOR , "" },
+    { "topzones",       LVL_AMBASSADOR , "" },
+    { "nomaterial",     LVL_IMMORT , "" },
+    { "objects",        LVL_IMMORT , "" },
+    { "broken",         LVL_IMMORT , "" },                   // 25
+    { "quiz",           LVL_GRIMP, "" },               
+    { "clans",          LVL_AMBASSADOR , "" },                  
+    { "specials",       LVL_IMMORT, "" },
+    { "implants",       LVL_IMMORT, "" },
+    { "paths",          LVL_IMMORT, "" },            // 30
+    { "pathobjs",       LVL_IMMORT, "" },
+    { "searches",       LVL_IMMORT, "OLCApproval" },
+    { "str_app",        LVL_IMMORT, "" },
+    { "timezones",      LVL_IMMORT, "" },
+    { "class",          LVL_IMMORT, "" },       // 35 
+    { "unapproved",     LVL_IMMORT, "" },
+    { "elevators",      LVL_IMMORT, "" },
+    { "free_create",    LVL_IMMORT, "" },
+    { "exp_percent",    LVL_IMMORT, "OLCApproval" },
+    { "demand_items",   LVL_IMMORT, "OLCApproval" },          // 40 
+    { "descriptor",     LVL_CREATOR , "" },
+    { "fighting",       LVL_IMMORT, "WizardBasic" },   
+    { "quad",           LVL_IMMORT, "" },
+    { "mobiles",        LVL_IMMORT, "" },
+    { "hunting",        LVL_IMMORT, "WizardBasic" },        // 45 
+    { "last_cmd",       LVL_LUCIFER , "" },
+    { "duperooms",      LVL_IMMORT, "OLCWorldWrite" }, 
+    { "specialization", LVL_IMMORT, "" },
+    { "p_index",        LVL_IMMORT, "" }, 
+    { "zexits",         LVL_IMMORT, "" },        // 50
+    { "mlevels",        LVL_IMMORT, "" },
+    { "plevels",        LVL_IMMORT, "" }, 
+    { "mobkills",       LVL_IMMORT, "WizardBasic" },      
+    { "wizcommands",    LVL_IMMORT, "" },
+    { "timewarps",      LVL_IMMORT, "" },        // 55
+    { "zonecommands",         LVL_IMMORT , "" },
+//        { "multi",          LVL_ETERNAL },
+    { "\n", 0, "" }
 };
-
 
 ACMD(do_show)
 {
@@ -4254,12 +4250,20 @@ ACMD(do_show)
     void show_shops(struct char_data * ch, char *value);
 
     skip_spaces(&argument);
-
     if (!*argument) {
+        vector<string> cmdlist;
         strcpy(buf, "Show options:\r\n");
-        for (j = 0, i = 1; fields[i].level; i++)
-            if (fields[i].level <= GET_LEVEL(ch))
-                sprintf(buf, "%s%-15s%s", buf, fields[i].cmd, (!(++j % 5) ? "\r\n" : ""));
+        for (j = 0, i = 1; fields[i].level; i++) {
+            if( Security::canAccess( ch, fields[i] ) ) {
+                cmdlist.push_back( fields[i].cmd );
+                //sprintf(buf, "%s%-15s%s", buf, fields[i].cmd, (!(++j % 5) ? "\r\n" : ""));
+            }
+        }
+        sort( cmdlist.begin(), cmdlist.end() );
+        for (j = 0, i = 1; i < (int)(cmdlist.size()); i++) {
+            sprintf(buf, "%s%-15s%s", buf, cmdlist[i].c_str(), (!(++j % 5) ? "\r\n" : ""));
+        }
+
         strcat(buf, "\r\n");
         send_to_char(buf, ch);
         return;
@@ -4271,13 +4275,15 @@ ACMD(do_show)
         if (!strncmp(field, fields[l].cmd, strlen(field)))
             break;
 
-    if (GET_LEVEL(ch) < fields[l].level) {
-        send_to_char("You are not godly enough for that!\r\n", ch);
+    if(! Security::canAccess( ch, fields[l] ) ) {
+        send_to_char("You do not have that power.\r\n", ch);
         return;
     }
+
     if (!strcmp(value, "."))
         self = 1;
     buf[0] = '\0';
+
     switch (l) {
     case 1:                        /* zone */
         /* tightened up by JE 4/6/93 */
@@ -5077,8 +5083,8 @@ ACMD(do_show)
     strcat(buf,arg);
     do_zone_cmdlist(ch,ch->in_room->zone,buf);
         break;
-	case 57:
-		show_multi(ch, value); break;
+        case 57:
+                show_multi(ch, value); break;
     default:
         send_to_char("Sorry, I don't understand that.\r\n", ch);
         break;
@@ -5115,113 +5121,108 @@ ACMD(do_set)
     int parse_char_class(char *arg);
     int parse_race(char *arg);
 
-    struct set_struct {
-        char *cmd;
-        char level;
-        char pcnpc;
-        char type;
-    }          fields[] = {
-        { "brief",                LVL_GRGOD,         PC,         BINARY },  /* 0 */
-        { "invstart",         LVL_GRGOD,         PC,         BINARY },  /* 1 */
-        { "title",                LVL_GRGOD,         PC,         MISC },
-        { "nosummon",         LVL_CREATOR,         PC,         BINARY },
-        { "maxhit",                LVL_CREATOR,    BOTH,         NUMBER },
-        { "maxmana",         LVL_CREATOR,    BOTH,         NUMBER },  /* 5 */
-        { "maxmove",         LVL_CREATOR,         BOTH,         NUMBER },
-        { "hit",                 LVL_GRGOD,         BOTH,         NUMBER },
-        { "mana",                LVL_GRGOD,         BOTH,         NUMBER },
-        { "move",                LVL_GRGOD,         BOTH,         NUMBER },
-        { "align",                LVL_GRGOD,         BOTH,         NUMBER },  /* 10 */
-        { "str",                LVL_CREATOR,         BOTH,         NUMBER },
-        { "stradd",                LVL_CREATOR,         BOTH,         NUMBER },
-        { "int",                 LVL_CREATOR,         BOTH,         NUMBER },
-        { "wis",                 LVL_CREATOR,         BOTH,         NUMBER },
-        { "dex",                 LVL_CREATOR,         BOTH,         NUMBER },  /* 15 */
-        { "con",                 LVL_CREATOR,         BOTH,         NUMBER },
-        { "sex",                 LVL_GRGOD,         BOTH,         MISC },
-        { "ac",                 LVL_CREATOR,         BOTH,         NUMBER },
-        { "gold",                LVL_CREATOR,         BOTH,         NUMBER },
-        { "bank",                LVL_CREATOR,         PC,         NUMBER },  /* 20 */
-        { "exp",                 LVL_CREATOR,         BOTH,         NUMBER },
-        { "hitroll",             LVL_GRGOD,         BOTH,         NUMBER },
-        { "damroll",             LVL_GRGOD,         BOTH,         NUMBER },
-        { "invis",               LVL_GRGOD,         PC,         NUMBER },
-        { "nohassle",            LVL_GRGOD,         PC,         BINARY },  /* 25 */
-        { "frozen",              LVL_TIMEGOD,         PC,         BINARY },
-        { "practices",           LVL_GRGOD,         PC,         NUMBER },
-        { "lessons",             LVL_GRGOD,         PC,         NUMBER },
-        { "drunk",               LVL_CREATOR,         BOTH,         MISC },
-        { "hunger",              LVL_CREATOR,         BOTH,         MISC },    /* 30 */
-        { "thirst",              LVL_CREATOR,         BOTH,         MISC },
-        { "killer",              LVL_GRGOD,         PC,         BINARY },
-        { "thief",               LVL_GRGOD,         PC,         BINARY },
-        { "level",               LVL_CREATOR,         BOTH,         NUMBER },
-        { "room",                LVL_CREATOR,         BOTH,         NUMBER },  /* 35 */
-        { "roomflag",            LVL_CREATOR,         PC,         BINARY },
-        { "siteok",              LVL_GRGOD,         PC,         BINARY },
-        { "deleted",             LVL_CREATOR,         PC,         BINARY },
-        { "class",               LVL_GRGOD,         BOTH,         MISC },
-        { "nowizlist",           LVL_CREATOR,         PC,         BINARY },  /* 40 */
-        { "quest",               LVL_GRGOD,         PC,         BINARY },
-        { "loadroom",            LVL_GRGOD,         PC,         MISC },
-        { "color",               LVL_GRGOD,         PC,         BINARY },
-        { "idnum",               LVL_GRIMP,           PC,         NUMBER },
-        { "passwd",              LVL_LUCIFER,           PC,         MISC },    /* 45 */
-        { "nodelete",            LVL_GRGOD,           PC,         BINARY },
-        { "cha",                 LVL_CREATOR,           BOTH,         NUMBER },
-        { "hometown",            LVL_GRGOD,        PC,     NUMBER },
-        { "race",                LVL_GRGOD,        BOTH,     MISC },
-        { "height",              LVL_CREATOR,      BOTH,   NUMBER },   /* 50 */
-        { "weight",              LVL_GRGOD,        BOTH,   NUMBER },
-        { "nosnoop",             LVL_ENTITY,       PC,    BINARY },
-        { "clan",                LVL_GRGOD,        PC,    MISC },
-        { "leader",              LVL_GRGOD,        PC,    BINARY },
-        { "life",                LVL_CREATOR,      PC,    NUMBER },  /* 55 */
-        { "debug",               LVL_GOD,          PC,    BINARY },
-        { "page",                LVL_GRGOD,        PC,    NUMBER },
-        { "screen",              LVL_GRGOD,        PC,    NUMBER },
-        { "remort_class",        LVL_GRGOD,           BOTH,         MISC },    
-        { "hunting",             LVL_CREATOR,      NPC,    MISC },    /* 60 */
-        { "fighting",            LVL_CREATOR,      BOTH,   MISC },
-        { "mobkills",            LVL_CREATOR,         PC,   NUMBER },
-        { "pkills",              LVL_CREATOR,         PC,   NUMBER },
-        { "newbiehelper",    LVL_ETERNAL,      PC,    BINARY },
-        { "holylight",       LVL_CREATOR,      PC,         BINARY },  /* 65 */
-        { "notitle",         LVL_GRGOD,        PC,    BINARY },
-        { "remortinvis",     LVL_IMMORT,       PC,   NUMBER },
-        { "toughguy",        LVL_GRGOD,        PC,   BINARY },
-        { "nointwiz",        LVL_ELEMENT,      PC,   BINARY },
-        { "halted",          LVL_IMMORT,       PC,   BINARY },   /* 70 */
-        { "syslog",          LVL_CREATOR,      PC,   MISC },
-        { "broken",          LVL_CREATOR,      PC,   NUMBER },
-        { "totaldamage",     LVL_CREATOR,      PC,   NUMBER },
-        { "oldchar_class",   LVL_CREATOR,      PC,   MISC },
-        { "olcgod",          LVL_CREATOR,      PC,   BINARY },   /* 75 */
-        { "tester",          LVL_CREATOR,      PC,   BINARY },
-        { "mortalized",      LVL_IMPL,         PC,   BINARY },
-        { "noaffects",       LVL_CREATOR,      PC,   BINARY },
-        { "questor",         LVL_ELEMENT,      PC,   BINARY },
-        { "age_adjust",      LVL_CREATOR,      PC,   NUMBER },   /* 80 */
-        { "cash",            LVL_CREATOR,      BOTH,   NUMBER },
-        { "generation",      LVL_CREATOR,      PC,   NUMBER },
-        { "path",            LVL_LUCIFER,      NPC,  MISC },
-        { "lightread",       LVL_GRGOD,        PC,  BINARY },
-        { "remort_tough",    LVL_GRGOD,        PC,   BINARY },  /* 85 */
-        { "council",         LVL_GRGOD,        PC,   BINARY }, 
-        { "nopost",          LVL_GRGOD,        PC,   BINARY },
-        { "logging",         LVL_LOGALL,       PC,   BINARY },
-        { "noshout",         LVL_IMMORT,       PC,   BINARY },
-        { "nopk",            LVL_CREATOR,      PC,   BINARY },   /* 90 */
-        { "soilage",         LVL_GOD,          PC,   MISC },
-        { "econet",          LVL_CREATOR,      BOTH, NUMBER },
-        { "specialization",  LVL_GRGOD,        PC,   MISC },
-        { "qpoints",         LVL_GRGOD,        PC,   NUMBER },
-        { "qpallow",         LVL_GRGOD,        PC,   NUMBER},   /*  95 */
-        { "soulless",        LVL_GRGOD,        BOTH, BINARY }, 
-        { "buried",          LVL_GRGOD,        PC,   BINARY },
-        { "speed",           LVL_GRGOD,        PC,   NUMBER },
-        { "occupation",      LVL_ENTITY,       PC,   NUMBER },
-        { "\n", 0, BOTH, MISC }
+    struct set_struct fields[] = {
+        { "brief",           LVL_IMMORT,    PC,   BINARY, "WizardFull" },  /* 0 */
+        { "invstart",        LVL_IMMORT,    PC,   BINARY, "WizardFull" },  /* 1 */
+        { "title",           LVL_IMMORT,    PC,   MISC,   "AdminBasic" },
+        { "nosummon",        LVL_IMMORT,  PC,   BINARY, "WizardFull" },
+        { "maxhit",          LVL_IMMORT,  BOTH, NUMBER, "WizardFull" },
+        { "maxmana",         LVL_IMMORT,  BOTH, NUMBER, "WizardFull" },  /* 5 */
+        { "maxmove",         LVL_IMMORT,  BOTH, NUMBER, "WizardFull" },
+        { "hit",             LVL_IMMORT,    BOTH, NUMBER, "WizardFull" },
+        { "mana",            LVL_IMMORT,    BOTH, NUMBER, "WizardFull" },
+        { "move",            LVL_IMMORT,    BOTH, NUMBER, "WizardFull" },
+        { "align",           LVL_IMMORT,    BOTH, NUMBER, "WizardFull" },  /* 10 */
+        { "str",             LVL_IMMORT,  BOTH, NUMBER, "WizardFull" },
+        { "stradd",          LVL_IMMORT,  BOTH, NUMBER, "WizardFull" },
+        { "int",             LVL_IMMORT,  BOTH, NUMBER, "WizardFull" },
+        { "wis",             LVL_IMMORT,  BOTH, NUMBER, "WizardFull" },
+        { "dex",             LVL_IMMORT,  BOTH, NUMBER, "WizardFull" },  /* 15 */
+        { "con",             LVL_IMMORT,  BOTH, NUMBER, "WizardFull" },
+        { "sex",             LVL_IMMORT,    BOTH, MISC,   "WizardFull" },
+        { "ac",              LVL_IMMORT,  BOTH, NUMBER, "Coder" },
+        { "gold",            LVL_IMMORT,  BOTH, NUMBER, "AdminFull" },
+        { "bank",            LVL_IMMORT,  PC,   NUMBER, "AdminFull" },  /* 20 */
+        { "exp",             LVL_IMMORT,  BOTH, NUMBER, "Coder" },
+        { "hitroll",         LVL_IMMORT,    BOTH, NUMBER, "Coder" },
+        { "damroll",         LVL_IMMORT,    BOTH, NUMBER, "Coder" },
+        { "invis",           LVL_IMMORT,    PC,   NUMBER, "WizardFull" },
+        { "nohassle",        LVL_IMMORT,    PC,   BINARY, "WizardFull" },  /* 25 */
+        { "frozen",          LVL_IMMORT,  PC,   BINARY, "AdminFull" },
+        { "practices",       LVL_IMMORT,    PC,   NUMBER, "WizardFull" },
+        { "lessons",         LVL_IMMORT,    PC,   NUMBER, "WizardFull" },
+        { "drunk",           LVL_IMMORT,  BOTH, MISC,   "WizardFull" },
+        { "hunger",          LVL_IMMORT,  BOTH, MISC,   "WizardFull" },    /* 30 */
+        { "thirst",          LVL_IMMORT,  BOTH, MISC,   "WizardFull" },
+        { "killer",          LVL_IMMORT,    PC,   BINARY, "AdminFull" },
+        { "thief",           LVL_IMMORT,    PC,   BINARY, "AdminFull" },
+        { "level",           LVL_IMMORT,  BOTH, NUMBER, "WizardFull" },
+        { "room",            LVL_IMMORT,  BOTH, NUMBER, "Coder" },  /* 35 */
+        { "roomflag",        LVL_IMMORT,  PC,   BINARY, "Coder" },
+        { "siteok",          LVL_IMMORT,    PC,   BINARY, "AdminFull" },
+        { "deleted",         LVL_IMMORT,  PC,   BINARY, "AdminFull" },
+        { "class",           LVL_IMMORT,    BOTH, MISC,   "WizardFull" },
+        { "nowizlist",       LVL_IMMORT,  PC,   BINARY, "WizardAdmin" },  /* 40 */
+        { "quest",           LVL_IMMORT,    PC,   BINARY, "Coder" },
+        { "loadroom",        LVL_IMMORT,    PC,   MISC,   "Coder" },
+        { "color",           LVL_IMMORT,    PC,   BINARY, "Coder" },
+        { "idnum",           LVL_GRIMP,    PC,   NUMBER, "Coder" },
+        { "passwd",          LVL_LUCIFER,  PC,   MISC,   "Coder" },    /* 45 */
+        { "nodelete",        LVL_IMMORT,    PC,   BINARY, "WizardFull" },
+        { "cha",             LVL_IMMORT,  BOTH, NUMBER, "WizardFull" },
+        { "hometown",        LVL_IMMORT,    PC,   NUMBER, "WizardFull" },
+        { "race",            LVL_IMMORT,    BOTH, MISC,   "WizardFull" },
+        { "height",          LVL_IMMORT,  BOTH, NUMBER, "WizardFull" },   /* 50 */
+        { "weight",          LVL_IMMORT,    BOTH, NUMBER, "WizardFull" },
+        { "nosnoop",         LVL_ENTITY,   PC,   BINARY, "WizardAdmin" },
+        { "clan",            LVL_IMMORT,    PC,   MISC,   "WizardFull" },
+        { "leader",          LVL_IMMORT,    PC,   BINARY, "WizardFull" },
+        { "life",            LVL_IMMORT,  PC,   NUMBER, "AdminFull" },  /* 55 */
+        { "debug",           LVL_IMMORT,      PC,   BINARY, "WizardBasic" },
+        { "page",            LVL_IMMORT,    PC,   NUMBER, "WizardFull" },
+        { "screen",          LVL_IMMORT,    PC,   NUMBER, "Coder" },
+        { "remort_class",    LVL_IMMORT,    BOTH, MISC,   "WizardFull" },    
+        { "hunting",         LVL_IMMORT,  NPC,  MISC,   "Coder" },    /* 60 */
+        { "fighting",        LVL_IMMORT,  BOTH, MISC,   "Coder" },
+        { "mobkills",        LVL_IMMORT,  PC,   NUMBER, "Coder" },
+        { "pkills",          LVL_IMMORT,  PC,   NUMBER, "AdminFull" },
+        { "newbiehelper",    LVL_ETERNAL,  PC,   BINARY, "Coder" },
+        { "holylight",       LVL_IMMORT,  PC,   BINARY, "Coder" },  /* 65 */
+        { "notitle",         LVL_IMMORT,    PC,   BINARY, "AdminFull" },
+        { "remortinvis",     LVL_IMMORT,   PC,   NUMBER, "AdminBasic" },
+        { "toughguy",        LVL_IMMORT,    PC,   BINARY, "AdminFull" },
+        { "nointwiz",        LVL_ELEMENT,  PC,   BINARY, "WizardFull" },
+        { "halted",          LVL_IMMORT,   PC,   BINARY, "WizardFull" },   /* 70 */
+        { "syslog",          LVL_IMMORT,  PC,   MISC,   "Coder" },
+        { "broken",          LVL_IMMORT,  PC,   NUMBER, "WizardFull" },
+        { "totaldamage",     LVL_IMMORT,  PC,   NUMBER, "Coder" },
+        { "oldchar_class",   LVL_IMMORT,  PC,   MISC,   "WizardFull" },
+        { "olcgod",          LVL_IMMORT,  PC,   BINARY, "OLCAdmin" },   /* 75 */
+        { "tester",          LVL_IMMORT,  PC,   BINARY, "OlcWorldWrite" },
+        { "mortalized",      LVL_IMPL,     PC,   BINARY, "Coder" },
+        { "noaffects",       LVL_IMMORT,  PC,   BINARY, "Coder" },
+        { "questor",         LVL_ELEMENT,  PC,   BINARY, "Coder" },
+        { "age_adjust",      LVL_IMMORT,  PC,   NUMBER, "Coder" },   /* 80 */
+        { "cash",            LVL_IMMORT,  BOTH, NUMBER, "AdminFull" },
+        { "generation",      LVL_IMMORT,  PC,   NUMBER, "WizardFull" },
+        { "path",            LVL_LUCIFER,  NPC,  MISC,   "Coder" },
+        { "lightread",       LVL_IMMORT,    PC,   BINARY, "Coder" },
+        { "remort_tough",    LVL_IMMORT,    PC,   BINARY, "AdminFull" },  /* 85 */
+        { "council",         LVL_IMMORT,    PC,   BINARY, "WizardFull" }, 
+        { "nopost",          LVL_IMMORT,    PC,   BINARY, "AdminBasic" },
+        { "logging",         LVL_CREATOR,   PC,   BINARY, "WizardAdmin" },
+        { "noshout",         LVL_IMMORT,   PC,   BINARY, "WizardFull" },
+        { "nopk",            LVL_IMMORT,  PC,   BINARY, "AdminFull" },   /* 90 */
+        { "soilage",         LVL_IMMORT,      PC,   MISC,   "WizardBasic" },
+        { "econet",          LVL_IMMORT,  BOTH, NUMBER, "AdminFull" },
+        { "specialization",  LVL_IMMORT,    PC,   MISC,   "AdminFull" },
+        { "qpoints",         LVL_IMMORT,    PC,   NUMBER, "QuestAdmin" },
+        { "qpallow",         LVL_IMMORT,    PC,   NUMBER, "QuestAdmin" },   /*  95 */
+        { "soulless",        LVL_IMMORT,    BOTH, BINARY, "WizardFull" }, 
+        { "buried",          LVL_IMMORT,    PC,   BINARY, "AdminFull" },
+        { "speed",           LVL_IMMORT,    PC,   NUMBER, "Coder" },
+        { "occupation",      LVL_ENTITY,   PC,   NUMBER, "CoderAdmin" },
+        { "\n", 0, BOTH, MISC, "" }
     };
 
     half_chop(argument, name, buf);
@@ -5240,11 +5241,18 @@ ACMD(do_set)
 
     if (!*name || !*field) {
         strcpy(buf,"Usage: set <victim> <field> <value>\r\n");
+        vector<string> cmdlist;
         for (i = 0, l = 1; fields[i].level != 0; i++) {
-            if (fields[i].level > GET_LEVEL(ch))
+            if (! Security::canAccess( ch, fields[i] ) )
                 continue;
-            sprintf(buf, "%s%12s%s", buf, fields[i].cmd, ((l++)%5) ? " " : "\n" );
+            cmdlist.push_back();
         }
+        sort(cmdlist.begin(),cmdlist.end());
+
+        for (i = 0, l = 1; i < (int)(cmdlist.size()); i++) {
+            sprintf(buf, "%s%12s%s", buf, cmdlist[i].c_str(), ((l++)%5) ? " " : "\n" );
+        }
+
         if ((l-1) % 5)
             strcat(buf, "\r\n");
         send_to_char(buf, ch);
@@ -5268,25 +5276,13 @@ ACMD(do_set)
         if ((player_i = load_char(name, &tmp_store)) > -1) {
             store_to_char(&tmp_store, cbuf);
             if (GET_LEVEL(cbuf) >= GET_LEVEL(ch) && GET_IDNUM(ch) != 1) {
-#ifdef DMALLOC
-                dmalloc_verify(0);
-#endif
                 free_char(cbuf);
-#ifdef DMALLOC
-                dmalloc_verify(0);
-#endif
                 send_to_char("Sorry, you can't do that.\r\n", ch);
                 return;
             }
             vict = cbuf;
         } else {
-#ifdef DMALLOC
-            dmalloc_verify(0);
-#endif
             free(cbuf);
-#ifdef DMALLOC
-            dmalloc_verify(0);
-#endif
             send_to_char("There is no such player.\r\n", ch);
             return;
         }
@@ -6281,23 +6277,11 @@ ACMD(do_addname)
     if (obj) {
         sprintf(buf, "%s ", new_name);
         strcat(buf, obj->name);
-#ifdef DMALLOC
-        dmalloc_verify(0);
-#endif
         obj->name = str_dup(buf);
-#ifdef DMALLOC
-        dmalloc_verify(0);
-#endif
     } else if (vict) {
         sprintf(buf, "%s ", new_name);
         strcat(buf, vict->player.name);
-#ifdef DMALLOC
-        dmalloc_verify(0);
-#endif
         vict->player.name = str_dup(buf);
-#ifdef DMALLOC
-        dmalloc_verify(0);
-#endif
     }
     send_to_char("Okay, you do it.\r\n", ch);
     return;

@@ -15,8 +15,7 @@ using namespace std;
 
 // Interpreter command structure
 extern struct command_info cmd_info[];
-
-/**
+/*
  * A namespace for isolating the access security functionality of
  * the interpreter.
  *
@@ -93,6 +92,8 @@ namespace Security {
             const char *getName() { return _name; }
             /* retrieves the name of the group that can admin this group. */
             const char *getAdminGroup() { return _adminGroup; }
+            /* sets the name of the group that can admin this group. */
+            void setAdminGroup(const char *group);
             
             /* assignment operator. Used by copy constructor and sorting. */
             Group &operator=( const Group &g );
@@ -162,6 +163,16 @@ namespace Security {
      * one of the required groups (if any)
     **/
     bool canAccess( char_data *ch, const command_info *command );
+    /**
+     * Returns true if the character is the proper level AND is in
+     * one of the required groups (if any)
+    **/
+    bool canAccess( char_data *ch, const show_struct &command );
+    /**
+     * Returns true if the character is the proper level AND is in
+     * one of the required groups (if any)
+    **/
+    bool canAccess( char_data *ch, const set_struct &command );
     /* Check membership in a particular group by name.**/
     bool isMember( char_data *ch, const char* group_name );
     /* can this character add/remove characters from this group. **/

@@ -27,6 +27,7 @@
 #include "handler.h"
 #include "db.h"
 #include "interpreter.h"
+#include "security.h"
 #include "utils.h"
 #include "house.h"
 #include "screen.h"
@@ -1450,30 +1451,35 @@ ACMD(do_hcontrol)
 
     half_chop(argument, arg1, arg2);
 
-    if ( is_abbrev(arg1, "save") && GET_LEVEL(ch) >= LVL_GOD ) {
+    if ( is_abbrev(arg1, "save") && 
+    (GET_LEVEL(ch) >= LVL_GOD || Security::isMember(ch,"House" ) ) ) 
+    {
         House_save_control();
         House_save_all(0);
         send_to_char("Saved.\r\n", ch);
-    }
-    else if ( is_abbrev(arg1, "recount") && GET_LEVEL(ch) >= LVL_GOD ) {
+    } else if ( is_abbrev(arg1, "recount") && 
+    (GET_LEVEL(ch) >= LVL_GOD || Security::isMember(ch,"House" ) ) ) 
+    {
         House_countobjs();
         send_to_char("Objs recounted.\r\n", ch);
     }
-    else if ( is_abbrev(arg1, "build") && GET_LEVEL(ch) >= LVL_GOD )
+    else if ( is_abbrev(arg1, "build") && Security::isMember(ch,"House" ) )
         hcontrol_build_house(ch, arg2);
-    else if ( is_abbrev(arg1, "destroy") && GET_LEVEL(ch) >= LVL_GOD )
+    else if ( is_abbrev(arg1, "destroy") && Security::isMember(ch,"House" ) )
         hcontrol_destroy_house(ch, arg2);
-    else if ( is_abbrev(arg1, "pay") && GET_LEVEL(ch) >= LVL_GOD )
+    else if ( is_abbrev(arg1, "pay") && Security::isMember(ch,"House" ) )
         hcontrol_pay_house(ch, arg2);
-    else if ( is_abbrev(arg1, "add") && GET_LEVEL(ch) >= LVL_GOD )
+    else if ( is_abbrev(arg1, "add") && Security::isMember(ch,"House" ) )
         hcontrol_add_to_house(ch, arg2); 
-    else if ( is_abbrev(arg1, "delete") && GET_LEVEL(ch) >= LVL_GOD )
+    else if ( is_abbrev(arg1, "delete") && Security::isMember(ch,"House" ) )
         hcontrol_delete_from_house(ch, arg2); 
-    else if ( is_abbrev(arg1, "set") && GET_LEVEL(ch) >= LVL_GOD )
+    else if ( is_abbrev(arg1, "set") && Security::isMember(ch,"House" ) )
         hcontrol_set_house(ch, arg2);
-    else if ( is_abbrev( arg1, "where" ) && GET_LEVEL( ch ) >= LVL_GOD )
+    else if ( is_abbrev( arg1, "where" ) && Security::isMember(ch,"House" ) )
         hcontrol_where_house( ch, arg2 );
-    else if ( is_abbrev(arg1, "show") && GET_LEVEL(ch) >= LVL_DEMI) {  
+    else if ( is_abbrev(arg1, "show") && 
+    ( Security::isMember(ch,"House" )  || GET_LEVEL(ch) >= LVL_DEMI) )
+    {  
         if ( !*arg2 || *arg2 == '+' || *arg2 == '-' || ! strncasecmp( arg2, "all", 3 ) )
             hcontrol_list_houses(ch, arg2);
         else {
@@ -1516,7 +1522,8 @@ ACMD(do_house)
         send_to_char("Um.. this house seems to be screwed up.\r\n", ch);
     else if ( ( GET_IDNUM(ch) != house_control[i].owner1 ) && 
               ( GET_IDNUM(ch) != house_control[i].owner2 ) &&
-              GET_LEVEL(ch) < LVL_CREATOR ) 
+              GET_LEVEL(ch) < LVL_CREATOR 
+              && !Security::isMember(ch,"House" ) )
         send_to_char("Only the owner can set guests.\r\n", ch);
     else if (!*arg) {
         send_to_char("Guests of your house:\r\n", ch);
@@ -1613,7 +1620,11 @@ House_can_enter(struct char_data * ch, room_num room_vnum)
 {
     int i, j;
 
-    if (GET_LEVEL(ch) >= LVL_GOD || (i = find_house(room_vnum)) < 0)
+    if (GET_LEVEL(ch) >= LVL_GOD 
+        || Security::isMember(ch, "House") 
+        || Security::isMember(ch, "AdminBasic")
+        || Security::isMember(ch, "WizardFull")
+        || (i = find_house(room_vnum)) < 0)
         return 1;
 
     if (IS_NPC(ch)) {

@@ -1,3 +1,5 @@
+#ifndef TEMPUSMUD_INTERPRETER_H
+#define TEMPUSMUD_INTERPRETER_H
 /* ************************************************************************
 *   File: interpreter.h                                 Part of CircleMUD *
 *  Usage: header file: public procs, macro defs, subcommand defines       *
@@ -93,6 +95,19 @@ struct alias_data {
 #define ALIAS_SEP_CHAR	';'
 #define ALIAS_VAR_CHAR	'$'
 #define ALIAS_GLOB_CHAR	'*'
+
+struct show_struct {
+    char *cmd;
+    char level;
+    char *group;
+};
+struct set_struct {
+    char *cmd;
+    char level;
+    char pcnpc;
+    char type;
+    char *group;
+};
 
 /*
  * SUBCOMMANDS
@@ -380,3 +395,4 @@ struct alias_data {
 #define SCMD_DYNTEXT_FAIT_2 4
 #define SCMD_DYNTEXT_FAIT_3 5
 
+#endif //TEMPUSMUD_INTERPRETER_H

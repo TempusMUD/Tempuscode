@@ -57,6 +57,28 @@ namespace Security {
         _description = strdup(desc);
     }
 
+    // These membership checks should be binary searches.
+    bool Group::member( long player ) { 
+        return ( find(members.begin(), members.end(), player) != members.end() ); 
+    }
+    bool Group::member(  char_data *ch ) { 
+        return member(GET_IDNUM(ch)); 
+    }
+    bool Group::member( const command_info *command ) { 
+        return ( find(commands.begin(), commands.end(), command) != commands.end() ); 
+    }
+    bool Group::givesAccess(  char_data *ch, const command_info *command ) {
+        return ( member(ch) && member(command) );
+    }
+
+    /* sets the name of the group that can admin this group. */
+    void Group::setAdminGroup(const char *group) {
+        if( _adminGroup != NULL )
+            delete _adminGroup;
+        _adminGroup = strdup(group);
+    }
+
+    /* sprintf's a one line desc of this group into out */
     void Group::toString( char *out, char_data *ch ) {
         const char *nrm = CCNRM(ch,C_NRM);
         const char *cyn = CCCYN(ch,C_NRM);
@@ -77,13 +99,13 @@ namespace Security {
         const char *grn = CCGRN(ch,C_NRM);
 
         sprintf( buf,
-                "Name: %s%s %s [%s%4d%s][%s%4d%s]%s",
+                "Name: %s%s%s [%s%4d%s][%s%4d%s]%s",
                 grn, _name, cyn,
                 nrm, commands.size(), cyn,
                 nrm, members.size(), cyn,
                 nrm);
         sprintf( buf,
-                "%sAdmin Group: %s%s%s\r\n",
+                "%s  Admin Group: %s%s%s\r\n",
                 buf,
                 grn,
                 _adminGroup ? _adminGroup : "None",
@@ -97,7 +119,7 @@ namespace Security {
         sendMemberList( ch );
     }
 
-    
+    /* Adds a command to this group. Fails if already added. */
     bool Group::addCommand( command_info *command ) {
         if( member( command ) )
             return false;
@@ -108,6 +130,7 @@ namespace Security {
         return true;
     }
 
+    /* Removes a command from this group. Fails if not a member. */
     bool Group::removeCommand( command_info *command ) {
         vector<command_info *>::iterator it;
         it = find(commands.begin(), commands.end(), command);
@@ -126,6 +149,7 @@ namespace Security {
         return true;
     }
 
+    /* Removes a member from this group by player name. Fails if not a member. */
     bool Group::removeMember( const char *name ) {
         long id = get_id_by_name(name);
         if( id < 0 ) 
@@ -133,6 +157,7 @@ namespace Security {
         return removeMember(id);
     }
 
+    /* Removes a member from this group by player id. Fails if not a member. */
     bool Group::removeMember( long player ) {
         vector<long>::iterator it;
         it = find( members.begin(), members.end(), player );
@@ -146,6 +171,7 @@ namespace Security {
         return true;
     }
 
+    /* Adds a member to this group by name. Fails if already added. */
     bool Group::addMember( const char *name ) {
         long id = get_id_by_name(name);
         if( id < 0 ) 
@@ -154,6 +180,7 @@ namespace Security {
         return addMember(id);
     }
 
+    /* Adds a member to this group by player id. Fails if already added. */
     bool Group::addMember( long player ) {
         if( member(player) )
             return true;
@@ -165,20 +192,7 @@ namespace Security {
         return true;
     }
 
-    // These membership checks should be binary searches.
-    bool Group::member( long player ) { 
-        return ( find(members.begin(), members.end(), player) != members.end() ); 
-    }
-    bool Group::member(  char_data *ch ) { 
-        return member(GET_IDNUM(ch)); 
-    }
-    bool Group::member( const command_info *command ) { 
-        return ( find(commands.begin(), commands.end(), command) != commands.end() ); 
-    }
-    bool Group::givesAccess(  char_data *ch, const command_info *command ) {
-        return ( member(ch) && member(command) );
-    }
-
+    /* Sends a list of this group's members to the given character. */
     bool Group::sendMemberList( char_data *ch ) {
         int pos = 1;
         vector<long>::iterator it = members.begin();
@@ -206,6 +220,7 @@ namespace Security {
         return true;
     }
 
+    /* Sends a list of this group's members to the given character. */
     bool Group::sendCommandList( char_data *ch ) {
         int pos = 1;
         vector<command_info*>::iterator it = commands.begin();
@@ -233,11 +248,33 @@ namespace Security {
     }
     
     /*
+     * Makes a copy of name
+     */
+    Group::Group( const char *name ) : commands(), members() {
+        _name = strdup(name);
+
+        _description = new char[40];
+        strcpy(_description, "No Description");
+        _adminGroup = NULL;
+    }
+
+    /*
+     * Makes a complete copy of the Group
+     */
+    Group::Group( const Group &g ) {
+        _name = NULL;
+        _description = NULL;
+        _adminGroup = NULL;
+        (*this) = g;
+    }
+
+    /*
      * does not make a copy of name or desc.
      */
     Group::Group( char *name, char *description ) : commands(), members() {
         _name = name;
         _description = description;
+        _adminGroup = NULL;
     }
 
     /*
@@ -273,26 +310,6 @@ namespace Security {
         }
     }
     
-    /*
-     * Makes a copy of name
-     */
-    Group::Group( const char *name ) : commands(), members() {
-        _name = new char[strlen(name) + 1];
-        strcpy(_name, name);
-
-        _description = new char[40];
-        strcpy(_description, "No Description");
-    }
-
-    /*
-     * Makes a complete copy of the Group
-     */
-    Group::Group( const Group &g ) {
-        _name = NULL;
-        _description = NULL;
-        _adminGroup = NULL;
-        (*this) = g;
-    }
     
     /*
      * Assignment operator
@@ -356,8 +373,18 @@ namespace Security {
         while( commands.begin() != commands.end() ) {
             removeCommand( *( commands.begin() ) );
         }
-        if( _description != NULL ) delete _description;
-        if( _name != NULL ) delete _name;
-        if( _adminGroup != NULL ) delete _adminGroup;
+        members.erase( members.begin(), members.end() );
+
+        if( _description != NULL ) 
+            delete _description;
+        _description = NULL;
+
+        if( _name != NULL ) 
+            delete _name;
+        _name = NULL;
+
+        if( _adminGroup != NULL ) 
+            delete _adminGroup;
+        _adminGroup = NULL;
     }
 }

@@ -1179,7 +1179,7 @@ void do_mob_mset(struct char_data *ch, char *argument)
                 mob_p->mob_specials.shared->vnum <= zone->top)
                 break;
 
-    if ( ! OLCIMP( ch ) && ! ZONE_FLAGGED( zone, ZONE_FULLCONTROL ) )
+    if ( ! ZONE_FLAGGED( zone, ZONE_FULLCONTROL ) )
         SET_BIT(MOB2_FLAGS(mob_p), MOB2_UNAPPROVED);
 
 }
