@@ -2376,8 +2376,7 @@ damage_eq( struct char_data *ch, struct obj_data *obj, int eq_dam )
 
     if ( GET_OBJ_DAM( obj ) < 0 || GET_OBJ_MAX_DAM( obj ) < 0 ||
 	 ( ch && GET_LEVEL( ch ) < LVL_IMMORT && !CAN_WEAR( obj, ITEM_WEAR_TAKE ) ) ||
-     ( ch && ch->in_room && ROOM_FLAGGED(ch->in_room, ROOM_ARENA) )
-        )
+     ( ch && ch->in_room && ROOM_FLAGGED(ch->in_room, ROOM_ARENA) ) || ( GET_OBJ_TYPE( obj ) == ITEM_KEY ) )
 	return NULL;
 
     /** damage has destroyed object */
