@@ -1924,7 +1924,7 @@ extract_char(struct char_data * ch, byte mode)
 	    ch->desc->wait = 0;
 	} else {
 	    SEND_TO_Q("\r\n\r\n\r\n", ch->desc);
-	    show_menu(ch->desc);
+	    show_menu(ch->desc, MODE_SHOW_MENU);
 	    STATE(ch->desc) = CON_MENU;
 	}
     } else {  /* if a player gets purged from within the game */

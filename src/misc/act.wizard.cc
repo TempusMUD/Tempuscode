@@ -3583,8 +3583,14 @@ void
 show_player(CHAR *ch, char * value)
 {
     struct char_file_u vbuf;
+    struct rent_info rent;
+    FILE   *fl;
+
     char birth[80];
-	char remort_desc[80];
+    char remort_desc[80];
+    char fname[ MAX_INPUT_LENGTH ];
+    bool cryo = false;
+    
     if (!*value) {
 	send_to_char("A name would help.\r\n", ch);
 	return;
@@ -3598,6 +3604,36 @@ show_player(CHAR *ch, char * value)
 	send_to_char("There is no such player.\r\n", ch);
 	return;
     }
+
+    // Load up the players rent info and check whether or not he is cryo'd
+
+    if ( ! get_filename( vbuf.name, fname, CRASH_FILE ) ) { 
+	slog( "Failed get_filename() in show_player().\r\n" );
+    }
+	
+    if ( ! ( fl = fopen( fname, "rb" ) ) ) {
+	sprintf( buf1, "%s has no rent file!\r\n", vbuf.name );
+	slog( buf1 );
+    }
+	
+	
+    if( fl != NULL ) {
+	if ( ! feof( fl ) ) {
+	    fread( &rent, sizeof( struct rent_info ), 1, fl );
+	}
+	    
+	if ( &rent != NULL ) {	
+	
+            if ( rent.rentcode == RENT_CRYO ) {
+		    cryo = true;
+            }
+        }
+	    
+	    fclose( fl );
+    }
+    
+
+
 	if (vbuf.player_specials_saved.remort_generation <= 0) {
 	strcpy(remort_desc,"");
 	} else {
@@ -3616,6 +3652,11 @@ show_player(CHAR *ch, char * value)
 	    "%sStarted: %-20.16s  Last: %-20.16s  Played: %3dh %2dm\r\n",
 	    buf, birth, vbuf.level > GET_LEVEL(ch) ? "Unknown" : ctime(&vbuf.last_logon), (int) (vbuf.played / 3600),
 	    (int) (vbuf.played / 60 % 60));
+    
+    if ( cryo == true ) {
+	sprintf( buf, "%s%sCryo rented%s\r\n", buf, CCCYN( ch, C_NRM ), CCNRM( ch, C_NRM ) );
+    } 
+
     send_to_char(buf, ch);
 }
 
@@ -6030,7 +6071,7 @@ ACMD(do_menu)
     if ((vict = get_char_vis(ch, argument))) {
 	if (vict->desc) {
 	    SEND_TO_Q("\033[H\033[J", vict->desc);
-	    show_menu(vict->desc);
+	    show_menu(vict->desc, MODE_SHOW_MENU);
 	    send_to_char("Okay.  Menu sent.\r\n", ch);
 	} else
 	    send_to_char("There is no link from this character to a player.\r\n", ch);

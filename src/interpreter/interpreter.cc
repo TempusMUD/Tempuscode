@@ -2522,7 +2522,7 @@ nanny(struct descriptor_data * d, char *arg)
 	    echo_on(d);
 	    SEND_TO_Q("\033[H\033[J", d);
 	    SEND_TO_Q("\r\nPassword changed.\r\n", d);
-	    show_menu(d);
+	    show_menu(d, MODE_SHOW_MENU);
 	    STATE(d) = CON_MENU;
 	}
 
@@ -2915,7 +2915,7 @@ nanny(struct descriptor_data * d, char *arg)
 
     case CON_RMOTD:		/* read CR after printing motd	 */
 	if (!mini_mud)	SEND_TO_Q("\033[H\033[J", d);
-	show_menu(d);
+	show_menu(d, MODE_RENT_MENU);
 	STATE(d) = CON_MENU;
 	break;
 
@@ -3262,7 +3262,7 @@ nanny(struct descriptor_data * d, char *arg)
 	    if (!mini_mud)
 		SEND_TO_Q("\033[H\033[J", d);
 	    SEND_TO_Q("\r\nThat's not a menu choice!\r\n", d);
-	    show_menu(d);
+	    show_menu(d, MODE_SHOW_MENU);
 	    break;
 	}
 
@@ -3273,7 +3273,7 @@ nanny(struct descriptor_data * d, char *arg)
 	    echo_on(d);
 	    SEND_TO_Q("\033[H\033[J", d);
 	    SEND_TO_Q("\r\nIncorrect password.  ---  Password unchanged\r\n", d);
-	    show_menu(d);
+	    show_menu(d, MODE_SHOW_MENU);
 	    STATE(d) = CON_MENU;
 	    return;
 	} else {
@@ -3288,7 +3288,7 @@ nanny(struct descriptor_data * d, char *arg)
 	if (strncmp(CRYPT(arg, GET_PASSWD(d->character)), GET_PASSWD(d->character), MAX_PWD_LENGTH)) {
 	    SEND_TO_Q("\033[H\033[J", d);
 	    SEND_TO_Q("\r\nIncorrect password. -- Deletion aborted.\r\n", d);
-	    show_menu(d);
+	    show_menu(d, MODE_SHOW_MENU);
 	    STATE(d) = CON_MENU;
 	} else {
 	    SEND_TO_Q(CCRED(d->character, C_SPR), d);
@@ -3343,14 +3343,14 @@ nanny(struct descriptor_data * d, char *arg)
 	} else {
 	    SEND_TO_Q("\033[H\033[J", d);      
 	    SEND_TO_Q("\r\nCharacter not deleted.\r\n", d);
-	    show_menu(d);
+	    show_menu(d, MODE_SHOW_MENU);
 	    STATE(d) = CON_MENU;
 	}
 	break;
 
     case CON_AFTERLIFE:
 	SEND_TO_Q("\033[H\033[J", d);
-	show_menu(d);
+	show_menu(d, MODE_SHOW_MENU);
 	STATE(d) = CON_MENU;
 	break;
 

@@ -1,3 +1,4 @@
+
 /* ************************************************************************
 *   File: mobact.c                                      Part of CircleMUD *
 *  Usage: Functions for generating intelligent (?) behavior in mobiles    *
@@ -1952,7 +1953,7 @@ void mobile_activity(void) {
 		} else if ( GET_LEVEL(ch) > 45 && !IS_AFFECTED_2(ch, AFF2_DISPLACEMENT) &&
 			GET_MANA(ch) > mag_manacost(ch, SPELL_DISPLACEMENT) ) {
 			cast_spell(ch, ch, 0, SPELL_DISPLACEMENT);
-		} else if ( GET_LEVEL(ch) > 16 && !affected_by_spell(ch, SPELL_FIRE_SHIELD) &&
+		} else if ( GET_LEVEL(ch) > 16 && !IS_AFFECTED_2(ch, AFF2_FIRE_SHIELD) &&
 			GET_MANA(ch) > mag_manacost(ch, SPELL_FIRE_SHIELD) ) {
 			cast_spell(ch, ch, 0, SPELL_FIRE_SHIELD);
 		} else if ( GET_LEVEL(ch) > 48 && !IS_AFFECTED_3(ch, AFF3_PRISMATIC_SPHERE) &&
