@@ -54,6 +54,7 @@ using namespace std;
 #include "account.h"
 #include "specs.h"
 #include "language.h"
+#include "prog.h"
 
 /**************************************************************************
 *  declarations of most of the 'global' variables                         *
@@ -2956,6 +2957,8 @@ reset_zone(struct zone_data *zone)
 						} else {
 							last_cmd = 1;
 						}
+						if (GET_MOB_PROG(mob))
+							trigger_prog_load(mob);
 					} else {
 						last_cmd = 0;
 					}

@@ -188,7 +188,10 @@ prog_trigger_handler(prog_env *env, prog_evt *evt, int phase, char *args)
 		matched = (evt->kind == PROG_EVT_ENTER);
 	} else if (!strcmp("leave", arg)) {
 		matched = (evt->kind == PROG_EVT_LEAVE);
+	} else if (!strcmp("load", arg)) {
+		matched = (evt->kind == PROG_EVT_LOAD);
 	}
+
 
 	if (!matched)
 		prog_next_handler(env, false);
@@ -968,6 +971,7 @@ trigger_prog_fight(Creature *ch, Creature *self)
 	evt.args = strdup("");
 
 	env = prog_start(PROG_TYPE_MOBILE, self, ch, GET_MOB_PROG(self), &evt);
+	prog_execute(env);
 }
 
 void
@@ -987,11 +991,13 @@ trigger_prog_give(Creature *ch, Creature *self)
 	evt.args = strdup("");
 
 	env = prog_start(PROG_TYPE_MOBILE, self, ch, GET_MOB_PROG(self), &evt);
+	prog_execute(env);
 }
 
 void
 trigger_prog_idle(Creature *owner)
 {
+	prog_env *env;
 	prog_evt evt;
 
 	// Do we have a mobile program?
@@ -1011,7 +1017,34 @@ trigger_prog_idle(Creature *owner)
 	evt.args = NULL;
 
 	// We start an idle mobprog here
-	prog_start(PROG_TYPE_MOBILE, owner, NULL, GET_MOB_PROG(owner), &evt);
+	env = prog_start(PROG_TYPE_MOBILE, owner, NULL, GET_MOB_PROG(owner), &evt);
+	prog_execute(env);
+}
+
+void
+trigger_prog_load(Creature *owner)
+{
+	prog_env *env;
+	prog_evt evt;
+
+	// Do we have a mobile program?
+	if (!GET_MOB_PROG(owner))
+		return;
+	
+	// Are we already running a prog?
+	if (find_prog_by_owner(owner))
+		return;
+	
+	evt.phase = PROG_EVT_AFTER;
+	evt.kind = PROG_EVT_LOAD;
+	evt.cmd = -1;
+	evt.subject = owner;
+	evt.object = NULL;
+	evt.object_type = PROG_TYPE_NONE;
+	evt.args = NULL;
+
+	env = prog_start(PROG_TYPE_MOBILE, owner, NULL, GET_MOB_PROG(owner), &evt);
+	prog_execute(env);
 }
 
 void

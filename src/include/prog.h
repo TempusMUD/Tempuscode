@@ -24,7 +24,8 @@ enum prog_evt_kind {
 	PROG_EVT_FIGHT,
 	PROG_EVT_GIVE,
 	PROG_EVT_ENTER,
-	PROG_EVT_LEAVE
+	PROG_EVT_LEAVE,
+	PROG_EVT_LOAD
 };
 
 struct prog_evt {
@@ -66,6 +67,7 @@ bool trigger_prog_cmd(Creature *self, Creature *ch, int cmd, char *argument);
 bool trigger_prog_move(Creature *ch, Creature *self, special_mode mode);
 void trigger_progs_after(Creature *ch, int cmd, char *argument);
 void trigger_prog_idle(Creature *self);
+void trigger_prog_load(Creature *self);
 void trigger_prog_fight(Creature *ch, Creature *self);
 void trigger_prog_give(Creature *ch, Creature *self);
 prog_env *prog_start(int owner_type, void *owner, Creature *target, char *prog, prog_evt *evt);
