@@ -776,16 +776,14 @@ dam_message(int dam, struct Creature *ch, struct Creature *victim,
 
 	/* damage message to onlookers */
 	if (weap && ((IS_ENERGY_GUN(weap)
-				&& w_type == (TYPE_ENERGY_GUN - TYPE_HIT)) || (IS_GUN(weap)
-				&& w_type == (TYPE_BLAST - TYPE_HIT))))
-		buf =
-			replace_string(dam_guns[msgnum].to_room,
+			&& w_type == (TYPE_ENERGY_GUN - TYPE_HIT)) || (IS_GUN(weap)
+			&& w_type == (TYPE_BLAST - TYPE_HIT))))
+		buf = replace_string(dam_guns[msgnum].to_room,
 			attack_hit_text[w_type].singular, attack_hit_text[w_type].plural,
 			NULL);
-	else if (location >= 0 && !number(0, 2) && (!weap
-			|| weap->worn_on == WEAR_WIELD))
-		buf =
-			replace_string(dam_weapons_location[msgnum].to_room,
+	else if (location >= 0 && POS_DAMAGE_OK(location) && !number(0, 2) &&
+			(!weap || weap->worn_on == WEAR_WIELD))
+		buf = replace_string(dam_weapons_location[msgnum].to_room,
 			attack_hit_text[w_type].singular, attack_hit_text[w_type].plural,
 			wear_keywords[wear_translator[location]]);
 	else if (weap && (number(0, 2) || weap->worn_on != WEAR_WIELD))
@@ -806,7 +804,7 @@ dam_message(int dam, struct Creature *ch, struct Creature *victim,
 				replace_string(dam_guns[msgnum].to_char,
 				attack_hit_text[w_type].singular,
 				attack_hit_text[w_type].plural, NULL);
-		else if (location >= 0 && !number(0, 2)) {
+		else if (location >= 0 && POS_DAMAGE_OK(location) && !number(0, 2)) {
 			buf = replace_string(dam_weapons_location[msgnum].to_char,
 				attack_hit_text[w_type].singular,
 				attack_hit_text[w_type].plural,
@@ -832,7 +830,7 @@ dam_message(int dam, struct Creature *ch, struct Creature *victim,
 				replace_string(dam_guns[msgnum].to_victim,
 				attack_hit_text[w_type].singular,
 				attack_hit_text[w_type].plural, NULL);
-		else if (location >= 0 && !number(0, 2)) {
+		else if (location >= 0 && POS_DAMAGE_OK(location) && !number(0, 2)) {
 			buf = replace_string(dam_weapons_location[msgnum].to_victim,
 				attack_hit_text[w_type].singular,
 				attack_hit_text[w_type].plural,
