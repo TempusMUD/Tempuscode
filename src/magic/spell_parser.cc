@@ -897,18 +897,18 @@ call_magic(struct Creature *caster, struct Creature *cvict,
         if (IS_SET(ovict->obj_flags.extra3_flags, ITEM3_NOMAG)) {
             if  (SPELL_IS_MAGIC(spellnum) || SPELL_IS_DIVINE(spellnum)) {
                 act("$p hums and shakes for a moment "
-                    "then rejects your spell!\r\n", TRUE, caster, ovict, 0, TO_CHAR);
+                    "then rejects your spell!", TRUE, caster, ovict, 0, TO_CHAR);
                 act("$p hums and shakes for a moment "
-                    "then rejects $n's spell!\r\n", TRUE, caster, ovict, 0, TO_ROOM); 
+                    "then rejects $n's spell!", TRUE, caster, ovict, 0, TO_ROOM); 
                 return 0;
             }
         }
         if (IS_SET(ovict->obj_flags.extra3_flags, ITEM3_NOSCI)) {
             if (SPELL_IS_PHYSICS(spellnum)) {
                 act("$p hums and shakes for a moment "
-                    "then rejects your alteration!\r\n", TRUE, caster, ovict, 0, TO_CHAR);
+                    "then rejects your alteration!", TRUE, caster, ovict, 0, TO_CHAR);
                 act("$p hums and shakes for a moment "
-                    "then rejects $n's alteration!\r\n", TRUE, caster, ovict, 0, TO_ROOM); 
+                    "then rejects $n's alteration!", TRUE, caster, ovict, 0, TO_ROOM); 
                 return 0;
             }
         }
