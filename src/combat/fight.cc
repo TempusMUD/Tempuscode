@@ -783,6 +783,7 @@ damage(struct Creature *ch, struct Creature *victim, int dam,
 	struct room_affect_data rm_aff;
 	struct affected_type *af = NULL;
 	bool deflected = false;
+    bool mshield_hit = false;
 
 
 	if (victim->getPosition() <= POS_DEAD) {
@@ -1261,7 +1262,20 @@ damage(struct Creature *ch, struct Creature *victim, int dam,
 		}
 	}
 #define BAD_ATTACK_TYPE(attacktype) (attacktype == TYPE_BLEED || \
-                                         attacktype == SPELL_POISON)
+                                     attacktype == SPELL_POISON || \
+                                     attacktype == TYPE_ABLAZE || \
+                                     attacktype == TYPE_ACID_BURN || \
+                                     attacktype == TYPE_TAINT_BURN || \
+                                     attacktype == TYPE_PRESSURE || \
+                                     attacktype == TYPE_SUFFOCATING || \
+                                     attacktype == TYPE_ANGUISH || \
+                                     attacktype == TYPE_OVERLOAD || \
+                                     attacktype == TYPE_SUFFERING || \
+                                     attacktype == SPEL_STIGMATA || \
+                                     attacktype == TYPE_DROWNING || \
+                                     attacktype == SPELL_SICKNESS || \
+                                     attacktype == TYPE_RAD_SICKNESS || \
+                                     attacktype == SKILL_HOLY_TOUCH)
 
 	/********* OHH SHIT!  Begin new damage reduction code --N **********/
 	float dam_reduction = 0;
@@ -1278,6 +1292,14 @@ damage(struct Creature *ch, struct Creature *victim, int dam,
 			affect_from_char(victim, SPELL_MANA_SHIELD);
 		}
 
+        if (mana_loss && (GET_MSHIELD_PCT(victim) == 100)) {
+            mshield_hit = true;
+            if (attacktype < TYPE_HIT)
+                skill_message(mana_loss, ch, victim, attacktype);
+            else
+                dam_message(mana_loss, ch, victim, attacktype, 
+                            -(GET_IDNUM(victim)));
+        }
 		dam = MAX(0, dam - mana_loss);
 	}
 
@@ -1529,7 +1551,7 @@ damage(struct Creature *ch, struct Creature *victim, int dam,
 	 */
 
 	if (!IS_WEAPON(attacktype)) {
-		if (ch)
+		if (ch && !mshield_hit)
 			skill_message(dam, ch, victim, attacktype);
 
 		// some "non-weapon" attacks involve a weapon, e.g. backstab
@@ -1575,9 +1597,9 @@ damage(struct Creature *ch, struct Creature *victim, int dam,
 	} else if (ch) {
 		// it is a weapon attack
 		if (victim->getPosition() == POS_DEAD || dam == 0) {
-			if (!skill_message(dam, ch, victim, attacktype))
+			if (!mshield_hit && !skill_message(dam, ch, victim, attacktype))
 				dam_message(dam, ch, victim, attacktype, location);
-		} else {
+		} else if (!mshield_hit){
 			dam_message(dam, ch, victim, attacktype, location);
 		}
 

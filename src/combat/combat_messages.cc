@@ -423,305 +423,424 @@ dam_message(int dam, struct Creature *ch, struct Creature *victim,
 
 		/* use #w for singular ( i.e. "slash" ) and #W for plural ( i.e. "slashes" ) */
 
-		{
-			"$n tries to #w $N, but misses.",	/* 0: 0     */
-		"You try to #w $N, but miss.",
-				"$n tries to #w you, but misses."}, {
-			"$n tickles $N as $e #W $M.",	/* 1: 1..4  */
-		"You tickle $N as you #w $M.", "$n tickles you as $e #W you."}, {
-			"$n barely #W $N.",	/* 2: 3..6  */
-		"You barely #w $N.", "$n barely #W you."}, {
-			"$n #W $N.",		/* 3: 5..10 */
-		"You #w $N.", "$n #W you."}, {
-			"$n #W $N hard.",	/* 4: 7..14  */
-		"You #w $N hard.", "$n #W you hard."}, {
-			"$n #W $N very hard.",	/* 5: 11..19  */
-		"You #w $N very hard.", "$n #W you very hard."}, {
-			"$n #W $N extremely hard.",	/* 6: 15..23  */
-		"You #w $N extremely hard.", "$n #W you extremely hard."}, {
-			"$n massacres $N to small fragments with $s #w.",	/* 7: 19..27 */
-		"You massacre $N to small fragments with your #w.",
-				"$n massacres you to small fragments with $s #w."}, {
-			"$n devastates $N with $s incredible #w!!",	/* 8: 23..32 */
-		"You devastate $N with your incredible #w!!",
-				"$n devastates you with $s incredible #w!!"}, {
-			"$n OBLITERATES $N with $s deadly #w!!",	/* 9: 32..37   */
-		"You OBLITERATE $N with your deadly #w!!",
-				"$n OBLITERATES you with $s deadly #w!!"}, {
-			"$n utterly DEMOLISHES $N with $s unbelievable #w!!",	/* 10: 37..45 */
-		"You utterly DEMOLISH $N with your unbelievable #w!!",
-				"$n utterly DEMOLISHES you with $s unbelievable #w!!"}, {
-			"$n PULVERIZES $N with $s vicious #w!!",	/* 11: 46..69 */
-		"You PULVERIZE $N with your vicious #w!!",
-				"$n PULVERIZES you with $s vicious #w!!"}, {
-			"$n *DECIMATES* $N with $s horrible #w!!",	/* 12: 70..99 */
-		"You *DECIMATE* $N with your horrible #w!!",
-				"$n *DECIMATES* you with $s horrible #w!!"}, {
-			"$n *LIQUIFIES* $N with $s incredibly vicious #w!!",	/* 13: 100-139 */
-		"You **LIQUIFY** $N with your incredibly vicious #w!!",
-				"$n *LIQUIFIES* you with $s incredibly vicious #w!!"}, {
-			"$n **VAPORIZES** $N with $s terrible #w!!",	/* 14: 14-189 */
-		"You **VAPORIZE** $N with your terrible #w!!",
-				"$n **VAPORIZES** you with $s terrible #w!!"}, {
-			"$n **ANNIHILATES** $N with $s ultra powerful #w!!",	/* 15: >189 */
-		"You **ANNIHILATE** $N with your ultra powerful #w!!",
-				"$n **ANNIHILATES** you with $s ultra powerful #w!!"}
-
+		{   // 0: 0
+			"$n tries to #w $N, but misses.",
+		    "You try to #w $N, but miss.",
+			"$n tries to #w you, but misses."
+        }, 
+        {   // 1: 1 - 4
+			"$n tickles $N as $e #W $M.",
+		    "You tickle $N as you #w $M.", 
+            "$n tickles you as $e #W you."
+        }, 
+        {   // 2: 3 - 6
+			"$n barely #W $N.",
+		    "You barely #w $N.", 
+            "$n barely #W you."
+        }, 
+        {   // 3: 5 - 10
+			"$n #W $N.",
+		    "You #w $N.", 
+            "$n #W you."
+        }, 
+        {   // 4: 7 - 14
+			"$n #W $N hard.",
+		    "You #w $N hard.", 
+            "$n #W you hard."
+        }, 
+        {   // 5: 11 - 19
+			"$n #W $N very hard.",
+		    "You #w $N very hard.", 
+            "$n #W you very hard."
+        }, 
+        {   // 6: 15 - 23
+			"$n #W $N extremely hard.",
+		    "You #w $N extremely hard.", 
+            "$n #W you extremely hard."
+        }, 
+        {   // 7: 19 - 27
+			"$n massacres $N to small fragments with $s #w.",
+		    "You massacre $N to small fragments with your #w.",
+			"$n massacres you to small fragments with $s #w."
+        }, 
+        {   // 8: 23 - 32
+			"$n devastates $N with $s incredible #w!!",	
+		    "You devastate $N with your incredible #w!!",
+			"$n devastates you with $s incredible #w!!"
+        }, 
+        {   // 9: 32 - 37
+			"$n OBLITERATES $N with $s deadly #w!!",
+		    "You OBLITERATE $N with your deadly #w!!",
+			"$n OBLITERATES you with $s deadly #w!!"
+        }, 
+        {   // 10: 37 - 45
+			"$n utterly DEMOLISHES $N with $s unbelievable #w!!",
+		    "You utterly DEMOLISH $N with your unbelievable #w!!",
+			"$n utterly DEMOLISHES you with $s unbelievable #w!!"
+        }, 
+        {   // 11: 46 - 69
+			"$n PULVERIZES $N with $s vicious #w!!",
+		    "You PULVERIZE $N with your vicious #w!!",
+			"$n PULVERIZES you with $s vicious #w!!"
+        }, 
+        {   // 12: 70 - 99
+			"$n *DECIMATES* $N with $s horrible #w!!",
+		    "You *DECIMATE* $N with your horrible #w!!",
+			"$n *DECIMATES* you with $s horrible #w!!"
+        }, 
+        {   // 13: 100 - 139
+			"$n *LIQUIFIES* $N with $s incredibly vicious #w!!",
+		    "You **LIQUIFY** $N with your incredibly vicious #w!!",
+			"$n *LIQUIFIES* you with $s incredibly vicious #w!!"
+        }, 
+        {   // 14: 140 - 189
+			"$n **VAPORIZES** $N with $s terrible #w!!",
+		    "You **VAPORIZE** $N with your terrible #w!!",
+			"$n **VAPORIZES** you with $s terrible #w!!"
+        }, 
+        {   // 15: >189
+			"$n **ANNIHILATES** $N with $s ultra powerful #w!!",
+		    "You **ANNIHILATE** $N with your ultra powerful #w!!",
+			"$n **ANNIHILATES** you with $s ultra powerful #w!!"
+        }
 	};
+    
+    static struct dam_weapon_type dam_mana_shield[] = {
+		{   // 0: 0
+			"$n tries to #w $N, but misses.",
+		    "You try to #w $N, but miss.",
+			"$n tries to #w you, but misses."
+        }, 
+        {   // 1: 1 - 4
+			"$n tickles $N's mana shield as $e #W $M.",
+		    "You tickle $N's mana shield as you #w $M.", 
+            "$n tickles your mana shield as $e #W you."
+        }, 
+        {   // 2: 3 - 6
+			"$n barely #W $N's mana shield.",
+		    "You barely #w $N's mana shield.", 
+            "$n barely #W your mana shield."
+        }, 
+        {   // 3: 5 - 10
+			"$n #W $N's mana shield.",
+		    "You #w $N's mana shield.", 
+            "$n #W your mana shield."
+        }, 
+        {   // 4: 7 - 14
+			"$n #W $N's mana shield hard.",
+		    "You #w $N's mana shield hard.", 
+            "$n #W your mana shield hard."
+        }, 
+        {   // 5: 11 - 19
+			"$n #W $N's mana shield very hard.",
+		    "You #w $N's mana shield very hard.", 
+            "$n #W your mana shield very hard."
+        }, 
+        {   // 6: 15 - 23
+			"$n #W $N's mana shield extremely hard.",
+		    "You #w $N's mana shield extremely hard.", 
+            "$n #W your mana shield extremely hard."
+        }, 
+        {   // 7: 19 - 27
+			"$n massacres $N's mana shield to small fragments with $s #w.",
+		    "You massacre $N's mana shield to small fragments with your #w.",
+			"$n massacres your mana shield to small fragments with $s #w."
+        }, 
+        {   // 8: 23 - 32
+			"$n devastates $N's mana shield with $s incredible #w!!",	
+		    "You devastate $N's mana shield with your incredible #w!!",
+			"$n devastates your mana shield with $s incredible #w!!"
+        }, 
+        {   // 9: 32 - 37
+			"$n OBLITERATES $N's mana shield with $s deadly #w!!",
+		    "You OBLITERATE $N's mana shield with your deadly #w!!",
+			"$n OBLITERATES your mana shield with $s deadly #w!!"
+        }, 
+        {   // 10: 37 - 45
+			"$n utterly DEMOLISHES $N's mana shield with $s unbelievable #w!!",
+		    "You utterly DEMOLISH $N's mana shield with your unbelievable #w!!",
+			"$n utterly DEMOLISHES your mana shield with $s unbelievable #w!!"
+        }, 
+        {   // 11: 46 - 69
+			"$n PULVERIZES $N's mana shield with $s vicious #w!!",
+		    "You PULVERIZE $N's mana shield with your vicious #w!!",
+			"$n PULVERIZES your mana shield with $s vicious #w!!"
+        }, 
+        {   // 12: 70 - 99
+			"$n *DECIMATES* $N's mana shield with $s horrible #w!!",
+		    "You *DECIMATE* $N's mana shield with your horrible #w!!",
+			"$n *DECIMATES* your mana shield with $s horrible #w!!"
+        }, 
+        {   // 13: 100 - 139
+			"$n *LIQUIFIES* $N's mana shield with $s incredibly vicious #w!!",
+		    "You **LIQUIFY** $N's mana shield with your incredibly vicious #w!!",
+			"$n *LIQUIFIES* your mana shield with $s incredibly vicious #w!!"
+        }, 
+        {   // 14: 140 - 189
+			"$n **VAPORIZES** $N's mana shield with $s terrible #w!!",
+		    "You **VAPORIZE** $N's mana shield with your terrible #w!!",
+			"$n **VAPORIZES** your mana shield with $s terrible #w!!"
+        }, 
+        {   // 15: >189
+			"$n **ANNIHILATES** $N's mana shield with $s ultra powerful #w!!",
+		    "You **ANNIHILATE** $N's mana shield with your ultra powerful #w!!",
+			"$n **ANNIHILATES** your mana shield with $s ultra powerful #w!!"
+        }
+    };
 
 	/* second set of possible mssgs, chosen ramdomly. */
 	static struct dam_weapon_type dam_weapons_2[] = {
 
-		{
-				"$n tries to #w $N with $p, but misses.",	/* 0: 0     */
-				"You try to #w $N with $p, but miss.",
-			"$n tries to #w you with $p, but misses."},
-
-		{
-				"$n tickles $N as $e #W $M with $p.",	/* 1: 1..4  */
-				"You tickle $N as you #w $M with $p.",
-			"$n tickles you as $e #W you with $p."},
-
-		{
-				"$n barely #W $N with $p.",	/* 2: 3..6  */
-				"You barely #w $N with $p.",
-			"$n barely #W you with $p."},
-
-		{
-				"$n #W $N with $p.",	/* 3: 5..10 */
-				"You #w $N with $p.",
-			"$n #W you with $p."},
-
-		{
-				"$n #W $N hard with $p.",	/* 4: 7..14  */
-				"You #w $N hard with $p.",
-			"$n #W you hard with $p."},
-
-		{
-				"$n #W $N very hard with $p.",	/* 5: 11..19  */
-				"You #w $N very hard with $p.",
-			"$n #W you very hard with $p."},
-
-		{
-				"$n #W $N extremely hard with $p.",	/* 6: 15..23  */
-				"You #w $N extremely hard with $p.",
-			"$n #W you extremely hard with $p."},
-
-		{
-				"$n massacres $N to small fragments with $p.",	/* 7: 19..27 */
-				"You massacre $N to small fragments with $p.",
-			"$n massacres you to small fragments with $p."},
-
-		{
-				"$n devastates $N with $s incredible #w!!",	/* 8: 23..32 */
-				"You devastate $N with a #w from $p!!",
-			"$n devastates you with $s incredible #w!!"},
-
-		{
-				"$n OBLITERATES $N with $p!!",	/* 9: 32..37   */
-				"You OBLITERATE $N with $p!!",
-			"$n OBLITERATES you with $p!!"},
-
-		{
-				"$n deals a DEMOLISHING #w to $N with $p!!",	/* 10: 37..45 */
-				"You deal a DEMOLISHING #w to $N with $p!!",
-			"$n deals a DEMOLISHING #w to you with $p!!"},
-
-		{
-				"$n PULVERIZES $N with $p!!",	/* 11: 46..79 */
-				"You PULVERIZE $N with $p!!",
-			"$n PULVERIZES you with $p!!"},
-
-		{
-				"$n *DECIMATES* $N with $p!!",	/* 12: 70..99 */
-				"You *DECIMATE* $N with $p!!",
-			"$n *DECIMATES* you with $p!!"},
-
-		{
-				"$n *LIQUIFIES* $N with a #w from $p!!",	/* 13: 100-139 */
-				"You **LIQUIFY** $N with a #w from $p!!",
-			"$n *LIQUIFIES* you with a #w from $p"},
-
-		{
-				"$n **VAPORIZES** $N with $p!!",	/* 14: 14-189 */
-				"You **VAPORIZE** $N with a #w from $p!!",
-			"$n **VAPORIZES** you with a #w from $p!!"},
-
-		{
-				"$n **ANNIHILATES** $N with $p!!",	/* 15: >189 */
-				"You **ANNIHILATE** $N with your #w from $p!!",
-			"$n **ANNIHILATES** you with $s #w from $p!!"}
-
+		{   // 0: 0
+			"$n tries to #w $N with $p, but misses.",
+			"You try to #w $N with $p, but miss.",
+			"$n tries to #w you with $p, but misses."
+        },
+		{   // 1: 1 - 4
+			"$n tickles $N as $e #W $M with $p.",
+			"You tickle $N as you #w $M with $p.",
+			"$n tickles you as $e #W you with $p."
+        },
+		{   // 2: 3 - 6
+			"$n barely #W $N with $p.",
+			"You barely #w $N with $p.",
+			"$n barely #W you with $p."
+        },
+		{   // 3: 5 - 10
+			"$n #W $N with $p.",
+			"You #w $N with $p.",
+			"$n #W you with $p."
+        },
+		{   // 4: 7 - 14
+			"$n #W $N hard with $p.",
+			"You #w $N hard with $p.",
+			"$n #W you hard with $p."
+        },
+		{   // 5: 11 - 19
+			"$n #W $N very hard with $p.",
+			"You #w $N very hard with $p.",
+			"$n #W you very hard with $p."
+        },
+		{   // 6: 15 - 23
+			"$n #W $N extremely hard with $p.",
+			"You #w $N extremely hard with $p.",
+			"$n #W you extremely hard with $p."
+        },
+		{   // 7: 19 - 27
+			"$n massacres $N to small fragments with $p.",
+			"You massacre $N to small fragments with $p.",
+			"$n massacres you to small fragments with $p."
+        },
+		{   // 8: 23 - 32
+			"$n devastates $N with $s incredible #w!!",
+			"You devastate $N with a #w from $p!!",
+			"$n devastates you with $s incredible #w!!"
+        },
+		{   // 9: 32 - 37
+			"$n OBLITERATES $N with $p!!",
+			"You OBLITERATE $N with $p!!",
+			"$n OBLITERATES you with $p!!"
+        },
+		{   // 10: 37 - 45
+			"$n deals a DEMOLISHING #w to $N with $p!!",
+			"You deal a DEMOLISHING #w to $N with $p!!",
+			"$n deals a DEMOLISHING #w to you with $p!!"
+        },
+		{   // 11: 46 - 79
+			"$n PULVERIZES $N with $p!!",
+			"You PULVERIZE $N with $p!!",
+			"$n PULVERIZES you with $p!!"
+        },
+		{   // 12: 70 - 99
+			"$n *DECIMATES* $N with $p!!",
+			"You *DECIMATE* $N with $p!!",
+			"$n *DECIMATES* you with $p!!"
+        },
+		{   // 13: 100 - 139
+			"$n *LIQUIFIES* $N with a #w from $p!!",	
+			"You **LIQUIFY** $N with a #w from $p!!",
+			"$n *LIQUIFIES* you with a #w from $p"
+        },
+		{   // 14: 140 - 189
+			"$n **VAPORIZES** $N with $p!!",
+			"You **VAPORIZE** $N with a #w from $p!!",
+			"$n **VAPORIZES** you with a #w from $p!!"
+        },
+		{   // 15: >189
+			"$n **ANNIHILATES** $N with $p!!",
+			"You **ANNIHILATE** $N with your #w from $p!!",
+			"$n **ANNIHILATES** you with $s #w from $p!!"
+        }
 	};
 
 	/* messages for body part specifics */
 	static struct dam_weapon_type dam_weapons_location[] = {
 
-		{
-				"$n tries to #w $N's #p, but misses.",	/* 0: 0     */
-				"You try to #w $N's #p, but miss.",
-			"$n tries to #w your #p, but misses."},
-
-		{
-				"$n tickles $N's #p as $e #W $M.",	/* 1: 1..4  */
-				"You tickle $N's #p as you #w $M.",
-			"$n tickles you as $e #W your #p."},
-
-		{
-				"$n barely #W $N's #p.",	/* 2: 3..6  */
-				"You barely #w $N's #p.",
-			"$n barely #W your #p."},
-
-		{
-				"$n #W $N's #p.",	/* 3: 5..10 */
-				"You #w $N's #p.",
-			"$n #W your #p."},
-
-		{
-				"$n #W $N's #p hard.",	/* 4: 7..14  */
-				"You #w $N's #p hard.",
-			"$n #W your #p hard."},
-
-		{
-				"$n #W $N's #p very hard.",	/* 5: 11..19  */
-				"You #w $N's #p very hard.",
-			"$n #W your #p very hard."},
-
-		{
-				"$n #W $N's #p extremely hard.",	/* 6: 15..23  */
-				"You #w $N's #p extremely hard.",
-			"$n #W your #p extremely hard."},
-
-		{
-				"$n massacres $N's #p to fragments with $s #w.",	/* 7: 19..27 */
-				"You massacre $N's #p to small fragments with your #w.",
-			"$n massacres your #p to small fragments with $s #w."},
-
-		{
-				"$n devastates $N's #p with $s incredible #w!!",	/* 8: 23..32 */
-				"You devastate $N's #p with your incredible #w!!",
-			"$n devastates your #p with $s incredible #w!!"},
-
-		{
-				"$n OBLITERATES $N's #p with $s #w!!",	/* 9: 32..37   */
-				"You OBLITERATE $N's #p with your #w!!",
-			"$n OBLITERATES your #p with $s #w!!"},
-
-		{
-				"$n deals a DEMOLISHING #w to $N's #p!!",	/* 10: 37..45 */
-				"You deal a DEMOLISHING #w to $N's #p!!",
-			"$n deals a DEMOLISHING #w to your #p!!"},
-
-		{
-				"$n PULVERIZES $N's #p with $s vicious #w!!",	/* 11: 46..69 */
-				"You PULVERIZE $N's #p with your vicious #w!!",
-			"$n PULVERIZES your #p with $s vicious #w!!"},
-
-		{
-				"$n *DECIMATES* $N's #p with $s horrible #w!!",	/* 12: 70..99 */
-				"You *DECIMATE* $N's #p with your horrible #w!!",
-			"$n *DECIMATES* your #p with $s horrible #w!!"},
-
-		{
-				"$n *LIQUIFIES* $N's #p with $s vicious #w!!",	/* 13: 100-139 */
-				"You **LIQUIFY** $N's #p with your vicious #w!!",
-			"$n *LIQUIFIES* your #p with $s vicious #w!!"},
-
-		{
-				"$n **VAPORIZES** $N's #p with $s terrible #w!!",	/* 14: 14-189 */
-				"You **VAPORIZE** $N's #p with your terrible #w!!",
-			"$n **VAPORIZES** your #p with $s terrible #w!!"},
-
-		{
-				"$n **ANNIHILATES** $N's #p with $s ultra #w!!",	/* 15: >189 */
-				"You **ANNIHILATE** $N's #p with your ultra #w!!",
-			"$n **ANNIHILATES** your #p with $s ultra #w!!"}
-
-
+		{   // 0: 0
+			"$n tries to #w $N's #p, but misses.",
+			"You try to #w $N's #p, but miss.",
+			"$n tries to #w your #p, but misses."
+        },
+		{   // 1: 1 - 4
+			"$n tickles $N's #p as $e #W $M.",
+			"You tickle $N's #p as you #w $M.",
+			"$n tickles you as $e #W your #p."
+        },
+		{   // 2: 3 - 6
+			"$n barely #W $N's #p.",
+			"You barely #w $N's #p.",
+			"$n barely #W your #p."
+        },
+		{   // 3: 5 - 10
+			"$n #W $N's #p.",
+			"You #w $N's #p.",
+			"$n #W your #p."
+        },
+		{   // 4: 7 - 14
+			"$n #W $N's #p hard.",
+			"You #w $N's #p hard.",
+			"$n #W your #p hard."
+        },
+		{   // 5: 11 - 19
+			"$n #W $N's #p very hard.",
+			"You #w $N's #p very hard.",
+			"$n #W your #p very hard."
+        },
+		{   // 6: 15 - 23
+			"$n #W $N's #p extremely hard.",
+			"You #w $N's #p extremely hard.",
+			"$n #W your #p extremely hard."
+        },
+		{   // 7: 19 - 27
+			"$n massacres $N's #p to fragments with $s #w.",
+			"You massacre $N's #p to small fragments with your #w.",
+			"$n massacres your #p to small fragments with $s #w."
+        },
+		{   // 8: 23 - 32
+			"$n devastates $N's #p with $s incredible #w!!",
+			"You devastate $N's #p with your incredible #w!!",
+			"$n devastates your #p with $s incredible #w!!"
+        },
+		{   // 9: 32 - 37
+			"$n OBLITERATES $N's #p with $s #w!!",	
+			"You OBLITERATE $N's #p with your #w!!",
+			"$n OBLITERATES your #p with $s #w!!"
+        },
+		{   // 10: 37 - 45
+			"$n deals a DEMOLISHING #w to $N's #p!!",
+			"You deal a DEMOLISHING #w to $N's #p!!",
+			"$n deals a DEMOLISHING #w to your #p!!"
+        },
+		{   // 11: 46 - 69
+			"$n PULVERIZES $N's #p with $s vicious #w!!",
+			"You PULVERIZE $N's #p with your vicious #w!!",
+			"$n PULVERIZES your #p with $s vicious #w!!"
+        },
+		{   // 12: 70 - 99
+			"$n *DECIMATES* $N's #p with $s horrible #w!!",
+			"You *DECIMATE* $N's #p with your horrible #w!!",
+			"$n *DECIMATES* your #p with $s horrible #w!!"
+        },
+		{   // 13: 100 - 139
+			"$n *LIQUIFIES* $N's #p with $s vicious #w!!",
+			"You **LIQUIFY** $N's #p with your vicious #w!!",
+			"$n *LIQUIFIES* your #p with $s vicious #w!!"
+        },
+		{   // 14: 140 - 189
+			"$n **VAPORIZES** $N's #p with $s terrible #w!!",
+			"You **VAPORIZE** $N's #p with your terrible #w!!",
+			"$n **VAPORIZES** your #p with $s terrible #w!!"
+        },
+		{   // 15: >189
+			"$n **ANNIHILATES** $N's #p with $s ultra #w!!",
+			"You **ANNIHILATE** $N's #p with your ultra #w!!",
+			"$n **ANNIHILATES** your #p with $s ultra #w!!"
+        }
 	};
 
 	/* fourth set of possible mssgs, IF RAYGUN. */
 	static struct dam_weapon_type dam_guns[] = {
 
-		{
-				"$n tries to #w $N with $p, but misses.",	/* 0: 0     */
-				"You try to #w $N with $p, but miss.",
-			"$n tries to #w you with $p, but misses."},
-
-		{
-				"$n grazes $N with a #w from $p.",	/* 1: 1..4  */
-				"You graze $N as you #w at $M with $p.",
-			"$n grazes you as $e #W you with $p."},
-
-		{
-				"$n barely #W $N with $p.",	/* 2: 3..6  */
-				"You barely #w $N with $p.",
-			"$n barely #W you with $p."},
-
-		{
-				"$n #W $N with $p.",	/* 3: 5..10 */
-				"You #w $N with $p.",
-			"$n #W you with $p."},
-
-		{
-				"$n #W $N hard with $p.",	/* 4: 7..14  */
-				"You #w $N hard with $p.",
-			"$n #W you hard with $p."},
-
-		{
-				"$n #W $N very hard with $p.",	/* 5: 11..19  */
-				"You #w $N very hard with $p.",
-			"$n #W you very hard with $p."},
-
-		{
-				"$n #W the hell out of $N with $p.",	/* 6: 15..23  */
-				"You #w the hell out of $N with $p.",
-			"$n #W the hell out of you with $p."},
-
-		{
-				"$n #W $N to small fragments with $p.",	/* 7: 19..27 */
-				"You #w $N to small fragments with $p.",
-			"$n #W you to small fragments with $p."},
-
-		{
-				"$n devastates $N with a #w from $p!!",	/* 8: 23..32 */
-				"You devastate $N with a #W from $p!!",
-			"$n devastates you with $s #w from $p!!"},
-
-		{
-				"$n OBLITERATES $N with a #w from $p!!",	/* 9: 32..37   */
-				"You OBLITERATE $N with a #w from $p!!",
-			"$n OBLITERATES you with a #w from $p!!"},
-
-		{
-				"$n DEMOLISHES $N with a dead on #w!!",	/* 10: 37..45 */
-				"You DEMOLISH $N with a dead on blast from $p!!",
-			"$n DEMOLISHES you with a dead on #w from $p!!"},
-
-		{
-				"$n PULVERIZES $N with a #w from $p!!",	/* 11: 46..79 */
-				"You PULVERIZE $N with a #w from $p!!",
-			"$n PULVERIZES you with a #w from $p!!"},
-
-		{
-				"$n *DECIMATES* $N with a #w from $p!!",	/* 12: 70..99 */
-				"You *DECIMATE* $N with a #w from $p!!",
-			"$n *DECIMATES* you with a #w from $p!!"},
-
-		{
-				"$n *LIQUIFIES* $N with a #w from $p!!",	/* 13: 100-139 */
-				"You **LIQUIFY** $N with a #w from $p!!",
-			"$n *LIQUIFIES* you with a #w from $p"},
-
-		{
-				"$n **VAPORIZES** $N with $p!!",	/* 14: 14-189 */
-				"You **VAPORIZE** $N with a #w from $p!!",
-			"$n **VAPORIZES** you with a #w from $p!!"},
-
-		{
-				"$n **ANNIHILATES** $N with $p!!",	/* 15: >189 */
-				"You **ANNIHILATE** $N with your #w from $p!!",
-			"$n **ANNIHILATES** you with $s #w from $p!!"}
+		{   // 0: 0
+			"$n tries to #w $N with $p, but misses.",
+			"You try to #w $N with $p, but miss.",
+			"$n tries to #w you with $p, but misses."
+        },
+		{   // 1: 1 - 4
+			"$n grazes $N with a #w from $p.",
+			"You graze $N as you #w at $M with $p.",
+			"$n grazes you as $e #W you with $p."
+        },
+		{   // 2: 3 - 6
+			"$n barely #W $N with $p.",	
+			"You barely #w $N with $p.",
+			"$n barely #W you with $p."
+        },
+		{   // 3: 5 - 10
+			"$n #W $N with $p.",	
+			"You #w $N with $p.",
+			"$n #W you with $p."
+        },
+		{   // 4: 7 - 14
+			"$n #W $N hard with $p.",
+			"You #w $N hard with $p.",
+			"$n #W you hard with $p."
+        },
+		{   // 5: 11 - 19
+			"$n #W $N very hard with $p.",
+			"You #w $N very hard with $p.",
+			"$n #W you very hard with $p."
+        },
+		{   // 6: 15 - 23
+			"$n #W the hell out of $N with $p.",
+			"You #w the hell out of $N with $p.",
+			"$n #W the hell out of you with $p."
+        },
+		{   // 7: 19 - 27
+			"$n #W $N to small fragments with $p.",
+			"You #w $N to small fragments with $p.",
+			"$n #W you to small fragments with $p."
+        },
+		{   // 8: 23 - 32
+			"$n devastates $N with a #w from $p!!",
+			"You devastate $N with a #W from $p!!",
+			"$n devastates you with $s #w from $p!!"
+        },
+		{   // 9: 32 - 37
+			"$n OBLITERATES $N with a #w from $p!!",
+			"You OBLITERATE $N with a #w from $p!!",
+			"$n OBLITERATES you with a #w from $p!!"
+        },
+		{   // 10: 37 - 45
+			"$n DEMOLISHES $N with a dead on #w!!",
+			"You DEMOLISH $N with a dead on blast from $p!!",
+			"$n DEMOLISHES you with a dead on #w from $p!!"
+        },
+		{   // 11: 46 - 79
+			"$n PULVERIZES $N with a #w from $p!!",
+			"You PULVERIZE $N with a #w from $p!!",
+			"$n PULVERIZES you with a #w from $p!!"
+        },
+		{   // 12: 80 - 99
+			"$n *DECIMATES* $N with a #w from $p!!",
+			"You *DECIMATE* $N with a #w from $p!!",
+			"$n *DECIMATES* you with a #w from $p!!"
+        },
+		{   // 13: 100 - 139
+			"$n *LIQUIFIES* $N with a #w from $p!!",
+			"You **LIQUIFY** $N with a #w from $p!!",
+			"$n *LIQUIFIES* you with a #w from $p"
+        },
+		{   // 14: 140 - 189
+			"$n **VAPORIZES** $N with $p!!",
+			"You **VAPORIZE** $N with a #w from $p!!",
+			"$n **VAPORIZES** you with a #w from $p!!"
+        },
+		{   // 15: >189
+			"$n **ANNIHILATES** $N with $p!!",
+			"You **ANNIHILATE** $N with your #w from $p!!",
+			"$n **ANNIHILATES** you with $s #w from $p!!"
+        }
 
 	};
 
@@ -770,10 +889,17 @@ dam_message(int dam, struct Creature *ch, struct Creature *victim,
 	else
 		msgnum = 15;			/* annihilate */
 
+    if ((w_type < TYPE_HIT) || (w_type > TOP_ATTACKTYPE))
+        w_type = TYPE_HIT;
+
 	w_type -= TYPE_HIT;
 
 	/* damage message to onlookers */
-	if (weap && ((IS_ENERGY_GUN(weap)
+    if (location < 0) // Mana shield hit
+        buf = replace_string(dam_mana_shield[msgnum].to_room,
+                             attack_hit_text[w_type].singular,
+                             attack_hit_text[w_type].plural, NULL);
+    else if (weap && ((IS_ENERGY_GUN(weap)
 			&& w_type == (TYPE_ENERGY_GUN - TYPE_HIT)) || (IS_GUN(weap)
 			&& w_type == (TYPE_BLAST - TYPE_HIT))))
 		buf = replace_string(dam_guns[msgnum].to_room,
@@ -795,11 +921,14 @@ dam_message(int dam, struct Creature *ch, struct Creature *victim,
 	act(buf, FALSE, ch, weap, victim, TO_NOTVICT);
 	/* damage message to damager */
 	if ((msgnum || !PRF_FLAGGED(ch, PRF_GAGMISS)) && ch->desc) {
-		if (weap && ((IS_ENERGY_GUN(weap)
+        if (location < 0) // Mana shield hit
+            buf = replace_string(dam_mana_shield[msgnum].to_char,
+                                 attack_hit_text[w_type].singular,
+                                 attack_hit_text[w_type].plural, NULL);
+        else if (weap && ((IS_ENERGY_GUN(weap)
 					&& w_type == (TYPE_ENERGY_GUN - TYPE_HIT)) || (IS_GUN(weap)
 					&& w_type == (TYPE_BLAST - TYPE_HIT))))
-			buf =
-				replace_string(dam_guns[msgnum].to_char,
+			buf = replace_string(dam_guns[msgnum].to_char,
 				attack_hit_text[w_type].singular,
 				attack_hit_text[w_type].plural, NULL);
 		else if (location >= 0 && POS_DAMAGE_OK(location) && !number(0, 2)) {
@@ -815,13 +944,20 @@ dam_message(int dam, struct Creature *ch, struct Creature *victim,
 			buf = replace_string(dam_weapons[msgnum].to_char,
 				attack_hit_text[w_type].singular,
 				attack_hit_text[w_type].plural, NULL);
-		send_to_char(ch, CCYEL(ch, C_NRM));
+        if (location < 0)
+            send_to_char(ch, CCMAG(ch, C_NRM));
+        else
+		    send_to_char(ch, CCYEL(ch, C_NRM));
 		act(buf, FALSE, ch, weap, victim, TO_CHAR | TO_SLEEP);
 		send_to_char(ch, CCNRM(ch, C_NRM));
 	}
 	/* damage message to damagee */
 	if ((msgnum || !PRF_FLAGGED(victim, PRF_GAGMISS)) && victim->desc) {
-		if (weap && ((IS_ENERGY_GUN(weap)
+        if (location < 0) // Mana shield hit
+            buf = replace_string(dam_mana_shield[msgnum].to_victim,
+                                 attack_hit_text[w_type].singular,
+                                 attack_hit_text[w_type].plural, NULL);
+        else if (weap && ((IS_ENERGY_GUN(weap)
 					&& w_type == (TYPE_ENERGY_GUN - TYPE_HIT)) || (IS_GUN(weap)
 					&& w_type == (TYPE_BLAST - TYPE_HIT))))
 			buf =
@@ -841,7 +977,10 @@ dam_message(int dam, struct Creature *ch, struct Creature *victim,
 			buf = replace_string(dam_weapons[msgnum].to_victim,
 				attack_hit_text[w_type].singular,
 				attack_hit_text[w_type].plural, NULL);
-		send_to_char(victim, CCRED(victim, C_NRM));
+        if (location < 0)
+            send_to_char(victim, CCCYN(victim, C_NRM));
+        else
+		    send_to_char(victim, CCRED(victim, C_NRM));
 		act(buf, FALSE, ch, weap, victim, TO_VICT | TO_SLEEP);
 		send_to_char(victim, CCNRM(victim, C_NRM));
 	}
