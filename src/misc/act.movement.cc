@@ -888,8 +888,8 @@ int do_simple_move(struct char_data * ch, int dir, int mode, int need_specials_c
     // Mud application
     //
 
-    if (ch->in_room->sector_type == SECT_SWAMP) {
-	
+    if (ch->in_room->sector_type == SECT_SWAMP) {	
+
 	if (was_in->sector_type != SECT_SWAMP && ( ch->getPosition() ) != ( POS_FLYING ) ) {
 	    send_to_char("Your feet sink slightly into the swampy ground.\r\n", ch);
 	    apply_soil_to_char(ch, GET_EQ(ch, WEAR_FEET), SOIL_MUD, WEAR_FEET);
@@ -922,6 +922,42 @@ int do_simple_move(struct char_data * ch, int dir, int mode, int need_specials_c
 	    
    
     }
+
+    if ((ch->in_room->sector_type == SECT_CORNFIELD && ch->in_room->zone->weather->sky == SKY_RAINING ) ||
+	(ch->in_room->sector_type == SECT_JUNGLE && ch->in_room->zone->weather->sky == SKY_RAINING ) ||
+	(ch->in_room->sector_type == SECT_FIELD && ch->in_room->zone->weather->sky == SKY_RAINING) ||
+	(ch->in_room->sector_type == SECT_CORNFIELD && ch->in_room->zone->weather->sky == SKY_LIGHTNING ) ||
+	(ch->in_room->sector_type == SECT_JUNGLE && ch->in_room->zone->weather->sky == SKY_LIGHTNING ) ||
+	(ch->in_room->sector_type == SECT_FIELD && ch->in_room->zone->weather->sky == SKY_LIGHTNING) ) {
+	
+	if ( ch->getPosition() != POS_FLYING ) {
+	    obj = GET_EQ(ch, WEAR_FEET);
+	    if (obj) {
+		if( !OBJ_SOILED( GET_EQ(ch, WEAR_FEET), SOIL_MUD ) ) {
+		    apply_soil_to_char(ch, GET_EQ(ch, WEAR_FEET), SOIL_MUD, WEAR_FEET);
+		}
+	    }
+	    
+	    obj = GET_EQ(ch, WEAR_LEGS);
+	    if (obj) {
+		
+		if ( !OBJ_SOILED( GET_EQ(ch, WEAR_LEGS), SOIL_MUD ) ) {
+		    apply_soil_to_char(ch, GET_EQ(ch, WEAR_LEGS), SOIL_MUD, WEAR_LEGS);
+		}
+	    }
+	    
+	    if (!CHAR_SOILED(ch, WEAR_FEET, SOIL_MUD) ) {
+		apply_soil_to_char(ch, NULL, SOIL_MUD, WEAR_FEET );
+	    }
+	    
+	    if ( !CHAR_SOILED(ch, WEAR_LEGS, SOIL_MUD) ) {
+		apply_soil_to_char(ch, NULL, SOIL_MUD, WEAR_LEGS );
+	    }
+	}
+	
+	
+    }
+
 
     //
     // Light -> Darkness Emit
