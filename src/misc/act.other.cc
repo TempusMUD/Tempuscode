@@ -715,11 +715,13 @@ ACMD(do_use)
 	    return;
 	}
 	one_argument(buf,arg1);
-	fprintf(stderr,"bug = %s, arg1 = %s\r\n",buf,arg1);
 	if((vict = get_char_room(arg1,ch->in_room)) &&
-		(affected_by_spell(vict, SPELL_STONESKIN) ||
-		(affected_by_spell(vict, SPELL_DERMAL_HARDENING) && random_binary()) &&
-		(affected_by_spell(vict, SPELL_BARKSKIN) && random_binary()))){
+		(
+          affected_by_spell(vict, SPELL_STONESKIN) ||
+		  (affected_by_spell(vict, SPELL_DERMAL_HARDENING) && random_binary()) ||
+		  (affected_by_spell(vict, SPELL_BARKSKIN) && random_binary())
+        )
+       ){
 		 act("$p breaks.", TRUE, ch, mag_item, vict, TO_CHAR);
 		 act("$n breaks $p on your arm!", TRUE, ch,mag_item, vict, TO_VICT);
 		 act("$n breaks $p on $N's arm!", TRUE, ch,mag_item, vict, TO_NOTVICT);
