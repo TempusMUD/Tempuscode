@@ -49,19 +49,13 @@ do_gen_improve(struct char_data *ch, int cmd, int mode, char *argument)
   
   switch(mode){
   	case MODE_STR:
-		if (IS_REMORT(ch) || IS_MINOTAUR(ch) || IS_NPC(ch) || 
-			IS_HALF_ORC(ch) ||
-			GET_LEVEL(ch) >= LVL_AMBASSADOR) 
-			max_stat = MIN(GET_REMORT_GEN(ch) + 18 +
-					  ((IS_NPC(ch) || 
-						GET_LEVEL(ch) >= LVL_AMBASSADOR) ? 8 : 0) +
-					  (IS_MINOTAUR(ch) ? 2 : 0) +
-					  (IS_DWARF(ch) ? 1 : 0) +
-					  (IS_HALF_ORC(ch) ? 2 : 0) +
-					  (IS_ORC(ch) ? 1 : 0),
-					  25);
-		else
-			max_stat = 18;
+        max_stat = MIN(GET_REMORT_GEN(ch) + 18 +
+                  ((IS_NPC(ch) || GET_LEVEL(ch) >= LVL_AMBASSADOR) ? 8 : 0) +
+                  (IS_MINOTAUR(ch) ? 2 : 0) +
+                  (IS_DWARF(ch) ? 1 : 0) +
+                  (IS_HALF_ORC(ch) ? 2 : 0) +
+                  (IS_ORC(ch) ? 1 : 0),
+                  25);
 		break;
 	case MODE_DEX:
 		max_stat = (IS_NPC(ch) ? 25 : 

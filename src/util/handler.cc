@@ -609,7 +609,7 @@ affect_total(struct char_data * ch)
         i += 10; */
     if (i > 28) {
         if (IS_REMORT(ch) || IS_MINOTAUR(ch) || IS_NPC(ch) || 
-            IS_HALF_ORC(ch) ||
+            IS_HALF_ORC(ch) || IS_DWARF(ch) || IS_ORC(ch) ||
             GET_LEVEL(ch) >= LVL_AMBASSADOR) {
             i -= 10;
             GET_STR(ch) = MIN(i, 
