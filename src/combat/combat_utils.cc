@@ -878,12 +878,19 @@ make_corpse( struct char_data *ch,struct char_data *killer,int attacktype )
 
   
  
-	case SKILL_BITE:
-	case TYPE_BITE:
-	sprintf( buf2, "The chewed up looking %s of %s %s lying here.", 
+    case SKILL_BITE:
+    case TYPE_BITE:
+	sprintf( buf2, "The chewed up looking %s of %s %s lying here.",
 		 typebuf,GET_NAME( ch ), isare );
 	corpse->description = str_dup( buf2 );
 	strcpy( adj, "chewed up" );
+	break;
+
+    case SKILL_SNIPE:
+	sprintf( buf2, "The sniped %s of %s %s lying here.",
+		 typebuf,GET_NAME( ch ), isare );
+	corpse->description = str_dup( buf2 );
+	strcpy( adj, "sniped" );
 	break;
 
     case TYPE_BLUDGEON:
