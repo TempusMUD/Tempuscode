@@ -22,7 +22,8 @@ const char *Help_Directory = "text/help_data/";
 // Allocated in comm.cc
 HelpCollection *Help = NULL;
 // Since one_word isnt int he header file...
-char gHelpbuf[MAX_HELP_TEXT_LENGTH];
+static char gHelpbuf[MAX_STRING_LENGTH * 2];
+static char linebuf[MAX_STRING_LENGTH];
 char *one_word(char *argument, char *first_arg);
 static const struct hcollect_command {
     char *keyword;
@@ -166,26 +167,33 @@ void HelpCollection::GetTopic(char_data *ch, char *args,int mode=2,bool show_no_
 // Show all the items
 void HelpCollection::List( char_data *ch, char *args ) {
     HelpItem *cur;
-    char sbuf[MAX_HELP_TEXT_LENGTH];
     int start = 0,end = top_id;
+    int space_left = sizeof(gHelpbuf) - 480;
     skip_spaces(&args);
-    args = one_argument(args,sbuf);
-    if(sbuf[0] && !strncmp("range",sbuf,strlen(sbuf))) {
-        args = one_argument(args,sbuf);
-        if(isdigit(sbuf[0]))
-            start = atoi(sbuf);
-        args = one_argument(args,sbuf);
-        if(isdigit(sbuf[0]))
-            end = atoi(sbuf);
+    args = one_argument(args,linebuf);
+    if(linebuf[0] && !strncmp("range",linebuf,strlen(linebuf))) {
+        args = one_argument(args,linebuf);
+        if(isdigit(linebuf[0]))
+            start = atoi(linebuf);
+        args = one_argument(args,linebuf);
+        if(isdigit(linebuf[0]))
+            end = atoi(linebuf);
     }
     sprintf(gHelpbuf,"Help Topics (%d,%d):\r\n",start,end);
+    space_left -= strlen(gHelpbuf);
     for(cur = items;cur;cur = cur->Next()) {
         if(cur->idnum > end)
             break;
         if(cur->idnum < start)
             continue;
-        cur->Show(ch,sbuf,1);
-        strcat(gHelpbuf,sbuf);
+        cur->Show(ch,linebuf,1);
+        strcat(gHelpbuf,linebuf);
+        space_left -= strlen(linebuf);
+        if(space_left <= 0) {
+            sprintf(linebuf,"Maximum buffer size reached at item # %d. \r\nUse \"range\" param for higher numbered items.\r\n",cur->idnum);
+            strcat(gHelpbuf,linebuf);
+            break;
+        }
     }
     page_string(ch->desc, gHelpbuf, 0);
 }
@@ -489,21 +497,20 @@ void do_group_usage(CHAR *ch, int com) {
 // Group command parser. 
 // Yeah yeah. Prolly doesn't need it but here it is.
 static void do_group_command(char_data *ch, char *argument) {
-    char arg1[MAX_INPUT_LENGTH];
     int com;
-    argument = one_argument(argument, arg1);
+    argument = one_argument(argument, linebuf);
     skip_spaces(&argument);
-    if (!*arg1) {
+    if (!*linebuf) {
         do_group_cmds(ch);
         return;
     }
     for (com = 0;;com++) {
         if (!grp_cmds[com].keyword) {
-            sprintf(buf, "Unknown group command, '%s'.\r\n", arg1);
+            sprintf(buf, "Unknown group command, '%s'.\r\n", linebuf);
             send_to_char(buf, ch);
             return;
         }
-        if (is_abbrev(arg1, grp_cmds[com].keyword))
+        if (is_abbrev(linebuf, grp_cmds[com].keyword))
             break;
     }
     if(grp_cmds[com].level > GET_LEVEL(ch)) {
@@ -533,23 +540,22 @@ static void do_group_command(char_data *ch, char *argument) {
 }
 // Main command parser for hcollect.
 ACMD(do_help_collection_command) {
-    char arg1[MAX_INPUT_LENGTH];
     int com;
     int id;
     HelpItem *cur;
-    argument = one_argument(argument, arg1);
+    argument = one_argument(argument, linebuf);
     skip_spaces(&argument);
-    if (!*arg1) {
+    if (!*linebuf) {
         do_hcollect_cmds(ch);
         return;
     }
     for (com = 0;;com++) {
         if (!hc_cmds[com].keyword) {
-            sprintf(buf, "Unknown hcollect command, '%s'.\r\n", arg1);
+            sprintf(buf, "Unknown hcollect command, '%s'.\r\n", linebuf);
             send_to_char(buf, ch);
             return;
         }
-        if (is_abbrev(arg1, hc_cmds[com].keyword))
+        if (is_abbrev(linebuf, hc_cmds[com].keyword))
             break;
     }
     if(hc_cmds[com].level > GET_LEVEL(ch)) {
@@ -564,11 +570,11 @@ ACMD(do_help_collection_command) {
             Help->CreateItem(ch);
             break;
         case 2: // Edit
-            argument = one_argument(argument,arg1);
-            if(isdigit(*arg1)) {
-                id = atoi(arg1);
+            argument = one_argument(argument,linebuf);
+            if(isdigit(*linebuf)) {
+                id = atoi(linebuf);
                 Help->EditItem(ch,id);
-            } else if(!strncmp("exit",arg1,strlen(arg1))) {
+            } else if(!strncmp("exit",linebuf,strlen(linebuf))) {
                 if(!GET_OLC_HELP(ch)) {
                     send_to_char("You're not editing a help topic.\r\n",ch);
                 } else {
@@ -596,18 +602,17 @@ ACMD(do_help_collection_command) {
             Help->Set( ch, argument );
             break;
         case 8: // Stat
-            char outbuf[MAX_HELP_TEXT_LENGTH];
-            argument = one_argument(argument,arg1);
-            if(*arg1 && isdigit(arg1[0])) {
-                id = atoi(arg1);
+            argument = one_argument(argument,linebuf);
+            if(*linebuf && isdigit(linebuf[0])) {
+                id = atoi(linebuf);
                 if(id < 0 || id > Help->GetTop()) {
                     send_to_char("There is no such item #.\r\n",ch);
                     break;
                 }
                 for(cur = Help->items; cur && cur->idnum != id; cur = cur->Next());
                 if(cur) {
-                    cur->Show(ch,outbuf,3);
-                    send_to_char(outbuf,ch);
+                    cur->Show(ch,linebuf,3);
+                    send_to_char(linebuf,ch);
                     break;
                 } else {
                     sprintf(buf,"There is no item: %d.\r\n",id);
@@ -616,8 +621,8 @@ ACMD(do_help_collection_command) {
                 }
             }
             if(GET_OLC_HELP(ch)) {
-                GET_OLC_HELP(ch)->Show(ch,outbuf,3);
-                send_to_char(outbuf,ch);
+                GET_OLC_HELP(ch)->Show(ch,linebuf,3);
+                send_to_char(linebuf,ch);
             } else {
                 send_to_char("Stat what item?\r\n",ch);
             }
