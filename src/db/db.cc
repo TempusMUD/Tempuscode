@@ -185,6 +185,7 @@ void reset_zone_weather(void);
 void set_local_time(struct zone_data *zone, struct time_info_data *local_time);
 void update_alias_dirs(void);
 void purge_trails(struct Creature *ch);
+void build_old_player_index();
 
 /* external functions */
 extern struct descriptor_data *descriptor_list;
@@ -346,7 +347,8 @@ boot_db(void)
 	reset_time();
 
 	boot_accounts();
-
+    if(! mini_mud )
+        build_old_player_index();
 	slog("Reading credits, bground, info & motds.");
 	file_to_string_alloc(CREDITS_FILE, &credits);
 	file_to_string_alloc(MOTD_FILE, &motd);
@@ -524,16 +526,16 @@ reset_zone_weather(void)
  * the playerIndex.
 **/
 void
-build_player_table(void) 
+build_old_player_index(void) 
 {
 	DIR* dir;
 	dirent *file;
 	char *dirname;
 	char inbuf[131072];
-
+    slog("Building old character index...");
 	for( int i = 0; i <= 9; i++ ) {
 		// If we don't have
-		dirname = tmp_sprintf("players/%d", i);
+		dirname = tmp_sprintf("oldplayers/%d", i);
 		dir = opendir(dirname);
 		if (!dir) {
 			mkdir(dirname, 0644);
@@ -566,11 +568,12 @@ build_player_table(void)
 			idnum = tmp_getquoted(&idnum);
 
 			long id = atol( idnum );
-			playerIndex.add( id, name, false );
+			oldPlayerIndex.add( id, name, false );
 		}
 		closedir(dir);
 	}
-	playerIndex.sort();
+	oldPlayerIndex.sort();
+    slog("...%d old characters found.", oldPlayerIndex.size() );
 }
 
 /* function to count how many hash-mark delimited records exist in a file */
