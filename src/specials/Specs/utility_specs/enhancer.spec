@@ -4,6 +4,8 @@
 // Copyright 1998 by John Watson, all rights reserved.
 //
 
+#include "guns.h"
+
 #define ENHANCE_BUY 1
 #define ENHANCE_OFF 2
 
@@ -51,8 +53,8 @@ SPECIAL(enhancer)
 		return 1;
 	}
 
-	if (!IS_OBJ_TYPE(obj, ITEM_WEAPON)) {
-		perform_tell(keeper, ch, "I can only enhance weapons.");
+	if (!(IS_OBJ_TYPE(obj, ITEM_WEAPON) || IS_OBJ_TYPE(obj, ITEM_ENERGY_GUN))) {
+		perform_tell(keeper, ch, "I can only enhance weapons and energy guns.");
 		return 1;
 	}
 
@@ -103,6 +105,9 @@ SPECIAL(enhancer)
 		else
 			GET_OBJ_VAL(obj, 1) += 1;
 	}
+    if (IS_ENERGY_GUN(obj)) { //energy guns have their usage cost increased randomly
+        GET_OBJ_VAL(obj, 0) += number(0,GET_OBJ_VAL(obj, 0)); 
+    }
 	WAIT_STATE(ch, 5 RL_SEC);
 	ch->saveToXML();
 
