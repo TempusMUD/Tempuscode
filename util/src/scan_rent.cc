@@ -54,7 +54,7 @@ void scan_file( char *filename ) {
 		continue;
 	}
 
-	cout << " FILE: " << setw( 14 ) << filename << "  ITEM #: " << o.item_number << endl;
+	cout << " FILE: " << setw( 22 ) << filename << "  ITEM #: " << o.item_number << endl;
     }
 
     fclose( fl );
@@ -86,26 +86,25 @@ int main( int argc, char **argv ) {
 	    continue;
 	}
 
-	if ( !strcmp( argv[i++], "-vnum" ) ) {
-	    if ( i >= argc ) {
+	if ( !strcmp( argv[i], "-vnum" ) ) {
+	    if ( ++i >= argc ) {
 		cerr << "Error: " << argv[i-1] << " requires an argument." << endl;
 		return 1;
 	    }
 	    vnum = atoi( argv[i] );
 	    continue;
 	}
-	
-	else if ( !strcmp( argv[i++], "-name" ) ) {
-	    if ( i >= argc ) {
+	else if ( !strcmp( argv[i], "-name" ) ) {
+	    if ( ++i >= argc ) {
 		cerr << "Error: " << argv[i-1] << " requires an argument." << endl;
 		return 1;
 	    }
 	    name = argv[i];
 	    continue;
 	}
-	    
-	else if ( !strcmp( argv[i++], "-alias" ) ) {
-	    if ( i >= argc ) {
+
+	else if ( !strcmp( argv[i], "-alias" ) ) {
+	    if ( ++i >= argc ) {
 		cerr << "Error: " << argv[i-1] << " requires an argument." << endl;
 		return 1;
 	    }
@@ -113,8 +112,8 @@ int main( int argc, char **argv ) {
 	    continue;
 	}
 
-	else if ( !strcmp( argv[i++], "-affect" ) ) {
-	    if ( i >= argc ) {
+	else if ( !strcmp( argv[i], "-affect" ) ) {
+	    if ( ++i >= argc ) {
 		cerr << "Error: " << argv[i-1] << " requires two arguments." << endl;
 		return 1;
 	    }
@@ -126,6 +125,8 @@ int main( int argc, char **argv ) {
 	    affect_mod = atoi( argv[i] );
 	    continue;
 	}
+
+	cout << "fell out with " << argv[i] << endl;
     }
     return 0;
 }
