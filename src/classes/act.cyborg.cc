@@ -1384,7 +1384,7 @@ ACMD(do_discharge)
         damage(ch, vict, dam, SKILL_DISCHARGE,-1);
         gain_skill_prof(ch, SKILL_DISCHARGE);
     }
-    wait = ( 1 + amount / 20 ) RL_SEC;
+    wait = ( 1 + amount / 7 ) RL_SEC;
     WAIT_STATE( ch, wait );
 }
 
