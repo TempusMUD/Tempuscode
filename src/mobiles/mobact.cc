@@ -243,11 +243,13 @@ burn_update(void)
 			}
 		}
 		// regen
-		if (AFF_FLAGGED(ch, AFF_REGEN) || IS_TROLL(ch) || IS_VAMPIRE(ch))
+		if (AFF_FLAGGED(ch, AFF_REGEN) || IS_TROLL(ch) || IS_VAMPIRE(ch)) {
 			GET_HIT(ch) =
 				MIN(GET_MAX_HIT(ch),
 				GET_HIT(ch) + 1 +
 				(random_percentage_zero_low() * GET_CON(ch) / 125));
+			ch->checkPosition();
+		}
 
 		// mana tap
 		if (AFF3_FLAGGED(ch, AFF3_MANA_TAP))
