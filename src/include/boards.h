@@ -15,7 +15,7 @@
 // Copyright 1998 by John Watson, all rights reserved.
 //
 
-#define NUM_OF_BOARDS	        42	/* change if needed! */
+#define NUM_OF_BOARDS	        44	/* change if needed! */
 #define MAX_BOARD_MESSAGES 	60      /* arbitrary -- change if needed */
 #define MAX_MESSAGE_LENGTH	16384	/* arbitrary -- change if needed */
 

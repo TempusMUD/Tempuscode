@@ -1157,7 +1157,7 @@ ASPELL(spell_identify)
 	send_to_char(buf, ch);
 
 	sprintf(buf, "Weight: %d, Value: %d, Rent: %d\r\n",
-		GET_OBJ_WEIGHT(obj), GET_OBJ_COST(obj), GET_OBJ_RENT(obj));
+		obj->getWeight(), GET_OBJ_COST(obj), GET_OBJ_RENT(obj));
 	send_to_char(buf, ch);
 	sprintf(buf, "Item material is %s.\r\n", 
 		material_names[GET_OBJ_MATERIAL(obj)]);
@@ -1318,7 +1318,7 @@ ASPELL(spell_minor_identify)
 	send_to_char("\r\n", ch);
 
 	sprintf(buf, "Weight: %d, Value: %d, Rent: %d\r\n",
-		GET_OBJ_WEIGHT(obj), GET_OBJ_COST(obj), GET_OBJ_RENT(obj));
+		obj->getWeight(), GET_OBJ_COST(obj), GET_OBJ_RENT(obj));
 	send_to_char(buf, ch);
 
 	sprintf(buf, "Item material is %s.\r\n", 
@@ -2079,7 +2079,7 @@ ASPELL(spell_gust_of_wind)
 	    return;
 	}
 	if (GET_LEVEL(ch) + number(10, GET_DEX(ch) + 40) +
-	    CHECK_SKILL(ch, SPELL_GUST_OF_WIND) > GET_OBJ_WEIGHT(obj) &&
+	    CHECK_SKILL(ch, SPELL_GUST_OF_WIND) > obj->getWeight() &&
 	    CAN_WEAR(obj, ITEM_WEAR_TAKE)) {
 	    attempt = number(1, NUM_OF_DIRS - 1);
 	    while (!CAN_GO(ch, attempt) && count < 40) {

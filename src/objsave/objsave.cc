@@ -21,6 +21,7 @@
 #include <ctype.h>
 #include <errno.h>
 #include <stdlib.h>
+#include <iostream>
 
 #include "structs.h"
 #include "comm.h"
@@ -105,7 +106,7 @@ Obj_from_store( FILE * fl )
     obj->obj_flags.bitvector[1] = object.bitvector[1];
     obj->obj_flags.bitvector[2] = object.bitvector[2];
 
-    GET_OBJ_WEIGHT ( obj )    = object.weight;
+    obj->setWeight( object.weight );
     GET_OBJ_TIMER  ( obj )    = object.timer;
     obj->worn_on              = object.worn_on_position;
     obj->obj_flags.wear_flags = object.wear_flags;
@@ -190,7 +191,7 @@ Obj_to_store( struct obj_data * obj, FILE * fl )
     object.bitvector[2] = obj->obj_flags.bitvector[2];
     object.extra_flags  = GET_OBJ_EXTRA( obj );
     object.extra2_flags = GET_OBJ_EXTRA2( obj );
-    object.weight       = GET_OBJ_WEIGHT( obj );
+    object.weight       = obj->getWeight();
     object.timer        = GET_OBJ_TIMER( obj );
     object.worn_on_position = obj->worn_on;
 
@@ -672,7 +673,7 @@ Crash_restore_weight( struct obj_data * obj )
 	Crash_restore_weight( obj->contains );
 	Crash_restore_weight( obj->next_content );
 	if ( obj->in_obj )
-	    GET_OBJ_WEIGHT( obj->in_obj ) += GET_OBJ_WEIGHT( obj );
+	    obj->in_obj->modifyWeight( obj->getWeight() );
     }
 }
 
@@ -733,6 +734,26 @@ Crash_calculate_rent( struct obj_data * obj, int *cost )
     }
 }
 
+void
+Crash_save_implants( struct char_data *ch )
+{
+
+    FILE *fp = 0;
+
+    if ( !get_filename( GET_NAME( ch ), buf, IMPLANT_FILE ) )
+	return;
+    if ( !( fp = fopen( buf, "w" ) ) )
+	return;
+    for ( int j = 0; j < NUM_WEARS; j++ )
+	if ( GET_IMPLANT( ch, j ) ) {
+	    if ( !Crash_save( GET_IMPLANT( ch, j ), fp ) ) {
+		fclose( fp );
+		return;
+	    }
+	}
+    fclose( fp );
+  
+}
 
 void 
 Crash_crashsave( struct char_data * ch )
@@ -772,19 +793,8 @@ Crash_crashsave( struct char_data * ch )
 	}
     fclose( fp );
 
-    if ( !get_filename( GET_NAME( ch ), buf, IMPLANT_FILE ) )
-	return;
-    if ( !( fp = fopen( buf, "wb" ) ) )
-	return;
-    for ( j = 0; j < NUM_WEARS; j++ )
-	if ( GET_IMPLANT( ch, j ) ) {
-	    if ( !Crash_save( GET_IMPLANT( ch, j ), fp ) ) {
-		fclose( fp );
-		return;
-	    }
-	}
-    fclose( fp );
-  
+    Crash_save_implants( ch );
+
     REMOVE_BIT( PLR_FLAGS( ch ), PLR_CRASH );
 }
 
@@ -832,19 +842,7 @@ Crash_rentsave( struct char_data * ch, int cost, int rentcode )
   
     fclose( fp );
 
-    if ( !get_filename( GET_NAME( ch ), buf, IMPLANT_FILE ) )
-	return;
-    if ( !( fp = fopen( buf, "wb" ) ) )
-	return;
-    for ( j = 0; j < NUM_WEARS; j++ )
-	if ( GET_IMPLANT( ch, j ) ) {
-	    if ( !Crash_save( GET_IMPLANT( ch, j ), fp ) ) {
-		fclose( fp );
-		return;
-	    }
-	}
-    fclose( fp );
-
+    Crash_save_implants( ch );
 }
 
 void 
@@ -904,19 +902,7 @@ Crash_cursesave( struct char_data * ch )
     fclose( fp );
 
     // save implants
-    if ( !get_filename( GET_NAME( ch ), buf, IMPLANT_FILE ) )
-	return;
-    if ( !( fp = fopen( buf, "wb" ) ) )
-	return;
-    for ( j = 0; j < NUM_WEARS; j++ )
-	if ( GET_IMPLANT( ch, j ) ) {
-	    if ( !Crash_save( GET_IMPLANT( ch, j ), fp ) ) {
-		fclose( fp );
-		return;
-	    }
-	}
-    fclose( fp );
-  
+    Crash_save_implants( ch );
     REMOVE_BIT( PLR_FLAGS( ch ), PLR_CRASH );
   
 }
@@ -974,18 +960,7 @@ Crash_cryosave( struct char_data * ch, int cost )
 
     Crash_extract_objs( ch->carrying );
 
-    if ( !get_filename( GET_NAME( ch ), buf, IMPLANT_FILE ) )
-	return;
-    if ( !( fp = fopen( buf, "wb" ) ) )
-	return;
-    for ( j = 0; j < NUM_WEARS; j++ )
-	if ( GET_IMPLANT( ch, j ) ) {
-	    if ( !Crash_save( GET_IMPLANT( ch, j ), fp ) ) {
-		fclose( fp );
-		return;
-	    }
-	}
-    fclose( fp );
+    Crash_save_implants( ch );
 
     SET_BIT( PLR_FLAGS( ch ), PLR_CRYO );
 }

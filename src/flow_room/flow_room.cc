@@ -274,7 +274,7 @@ flow_room(int pulse)
 		    if (OBJ_CUR_PULSE(obj) == pulse ||
 			(!CAN_WEAR(obj, ITEM_WEAR_TAKE) &&
 			 GET_OBJ_VNUM(obj) != BLOOD_VNUM) ||
-			(GET_OBJ_WEIGHT(obj) > number(5, FLOW_SPEED(rnum) * 10) &&
+			(obj->getWeight() > number(5, FLOW_SPEED(rnum) * 10) &&
 			 !number(0, FLOW_SPEED(rnum))))
 			continue;
 	

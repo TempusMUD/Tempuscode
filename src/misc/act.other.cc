@@ -126,7 +126,7 @@ ACMD(do_quit)
 			 "inn is.  If you are SURE you want to QUIT, type 'quit yes'.\r\n", ch); 
 	    return;
 
-	} else if (IS_CARRYING_W(ch) || IS_WEARING_W(ch)) {
+	} else if (IS_CARRYING_N(ch) || IS_WEARING_W(ch)) {
 	    if (AFF_FLAGGED(ch, AFF_CHARM) && ch->master) {
 		act("You fear that your death will grieve $N.",
 		    FALSE, ch, 0, ch->master, TO_CHAR);
@@ -162,6 +162,7 @@ ACMD(do_quit)
 		mudlog(buf, NRM, MAX(LVL_AMBASSADOR, GET_INVIS_LEV(ch)), TRUE);
 	    }
 	} else {
+	    Crash_cursesave( ch );
 	    send_to_char("\r\nYou flicker out of reality...\r\n", ch);
 	    act("$n flickers out of reality.", TRUE, ch, 0, 0, TO_ROOM);
 	    sprintf(buf, "%s has left the game naked.", GET_NAME(ch));
@@ -1558,7 +1559,7 @@ ACMD(do_throw)
 		    calc_thaco = calculate_thaco(ch, target_vict, NULL) + 10;
 		    calc_thaco -= (CHECK_SKILL(ch, SKILL_THROWING)/10);
 		    if (!IS_OBJ_STAT2(obj, ITEM2_THROWN_WEAPON))
-			calc_thaco += 2*GET_OBJ_WEIGHT(obj);
+			calc_thaco += 2*obj->getWeight();
           
 		    victim_ac = GET_AC(target_vict) / 10;
 		    victim_ac = MAX(-10, victim_ac);	/* -10 is lowest */
@@ -1734,8 +1735,8 @@ ACMD(do_weigh)
 	TRUE, ch, obj, 0, TO_ROOM);
 
     sprintf(buf, "It seems to weight about %d pounds.\r\n", 
-	    (GET_OBJ_WEIGHT(obj) + number(-(GET_OBJ_WEIGHT(obj)/GET_INT(ch)), 
-					  GET_OBJ_WEIGHT(obj) / GET_INT(ch))));
+	    (obj->getWeight() + number(-( obj->getWeight() /GET_INT(ch)), 
+					  obj->getWeight() / GET_INT(ch))));
     send_to_char(buf, ch);
 }
 

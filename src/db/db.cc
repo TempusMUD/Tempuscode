@@ -39,6 +39,7 @@
 #include "paths.h"
 #include "quest.h"
 #include "char_class.h"
+#include "olc.h"
 
 /**************************************************************************
 *  declarations of most of the 'global' variables                         *
@@ -2094,7 +2095,7 @@ parse_object(FILE * obj_f, int nr)
 	fprintf(stderr, "Format error in fourth numeric line (expecting 3 args, got %d), %s\n", retval, buf2);
 	safe_exit(1);
     }
-    obj->obj_flags.weight = t[0];
+    obj->setWeight( t[0] );
     obj->shared->cost = t[1];
     obj->shared->cost_per_day = t[2];
 
@@ -2102,8 +2103,8 @@ parse_object(FILE * obj_f, int nr)
     /* check to make sure that weight of containers exceeds curr. quantity */
     if (obj->obj_flags.type_flag == ITEM_DRINKCON ||
 	obj->obj_flags.type_flag == ITEM_FOUNTAIN) {
-	if (obj->obj_flags.weight < obj->obj_flags.value[1])
-	    obj->obj_flags.weight = obj->obj_flags.value[1] + 5;
+	if (obj->getWeight() < obj->obj_flags.value[1])
+	    obj->setWeight( obj->obj_flags.value[1] + 5 );
     }
 
     /* *** extra descriptions and affect fields *** */

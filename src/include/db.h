@@ -147,55 +147,6 @@ struct reset_com {
    */
 };
 
-
-
-/* zone definition structure. for the 'zone-table'   */
-struct zone_data {
-  char	*name;		    /* name of this zone                  */
-  int	lifespan;           /* how long between resets (minutes)  */
-  int	age;                /* current age of this zone (minutes) */
-  int	top;                /* upper limit for rooms in this zone */
-  
-  int  reset_mode;          /* conditions for reset (see below)   */
-  int  number;		    /* vnum number of this zone	  */
-  int  time_frame;	    /* time-frame of zone		  */
-  int  plane;
-  int  owner_idnum;         /* Idnum of creator of zone           */
-  int  enter_count;         /* tally of # of playrs to enter zone */
-  int  flags;               /* Prevents writing to this zone      */
-  int  hour_mod;            /* */
-  int  year_mod; 
-  int  lattitude;           /* geographic */
-  unsigned char num_players; /* number of players in zone */
-  unsigned short int idle_time; /* num tics idle */
-
-  struct room_data *world; /* Pointer to first room in world      */
-  struct reset_com *cmd;   /* command table for reset	          */
-  struct weather_data *weather; /* zone weather                   */
-  struct ticl_data *ticl_list; /* Pointer to linked list of TICLs */
-  struct zone_data *next;  /* Pointer to next zone in list        */
-  
-  /*
-   *  Reset mode:                              *
-   *  0: Don't reset, and don't update age.    *
-   *  1: Reset if no PC's are located in zone. *
-   *  2: Just reset.                           *
-   */
-};
-
-
-/* for queueing zones for update   */
-struct reset_q_element {
-   struct zone_data *zone_to_reset;            /* ref to zone_data */
-   struct reset_q_element *next;
-};
-
-/* structure for the update queue     */
-struct reset_q_type {
-   struct reset_q_element *head;
-   struct reset_q_element *tail;
-};
-
 struct player_index_element {
    char	*name;
    long id;
@@ -205,23 +156,6 @@ struct help_index_element {
    char	*keyword;
    long	pos;
 };
-
-/* don't change these */
-#define BAN_NOT 	0
-#define BAN_NEW 	1
-#define BAN_SELECT	2
-#define BAN_ALL		3
-
-#define BANNED_SITE_LENGTH    50
-struct ban_list_element {
-   char	site[BANNED_SITE_LENGTH+1];
-   int	type;
-   time_t date;
-   char	name[MAX_NAME_LENGTH+1];
-   struct ban_list_element *next;
-};
-
-
 
 #define MAX_REMORT_QUESTIONS   300
 

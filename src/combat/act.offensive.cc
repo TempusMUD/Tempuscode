@@ -67,24 +67,30 @@ check_mob_reaction(struct char_data *ch, struct char_data *vict)
 } 
   
 
-#define RAW_EQ_DAM(ch, pos, var) \
-if (ch->equipment[pos]) {                                \
-							     if (IS_OBJ_TYPE(ch->equipment[pos], ITEM_ARMOR))       \
-															var += (GET_OBJ_WEIGHT(ch->equipment[pos]) +        \
-																GET_OBJ_VAL(ch->equipment[pos], 0)) >> 2;   \
-																						else if (IS_OBJ_TYPE(ch->equipment[pos], ITEM_WEAPON)) \
-																													   var += dice(GET_OBJ_VAL(ch->equipment[pos], 1),     \
-																														       GET_OBJ_VAL(ch->equipment[pos], 2));    \
-																																				   } else if (ch->implants[pos]) {               \
-																																										     if (IS_OBJ_TYPE(ch->implants[pos], ITEM_ARMOR))       \
-																																																	       var += (GET_OBJ_WEIGHT(ch->implants[pos]) +        \
-																																																		       GET_OBJ_VAL(ch->implants[pos], 0)) >> 2;   \
-																																																								      else if (IS_OBJ_TYPE(ch->implants[pos], ITEM_WEAPON)) \
-																																																																var += dice(GET_OBJ_VAL(ch->implants[pos], 1),     \
-																																																																	    GET_OBJ_VAL(ch->implants[pos], 2));    \
-																																																																						       }
+// #define RAW_EQ_DAM(ch, pos, var) \
 
-#define ADD_EQ_DAM(ch, pos)     RAW_EQ_DAM(ch, pos, *dam)
+inline int RAW_EQ_DAM( struct char_data *ch, int pos, int *var ) {
+    
+    if (ch->equipment[pos]) {                                
+	if (IS_OBJ_TYPE(ch->equipment[pos], ITEM_ARMOR))       
+	    *var += (ch->equipment[ pos ]->getWeight() +        
+		     GET_OBJ_VAL(ch->equipment[pos], 0)) >> 2;   
+	else if (IS_OBJ_TYPE(ch->equipment[pos], ITEM_WEAPON)) 
+	    *var += dice(GET_OBJ_VAL(ch->equipment[pos], 1),     
+			 GET_OBJ_VAL(ch->equipment[pos], 2));    
+    } else if (ch->implants[pos]) {               
+	if (IS_OBJ_TYPE(ch->implants[pos], ITEM_ARMOR))       
+	    *var += (ch->implants[pos]->getWeight() +        
+		     GET_OBJ_VAL(ch->implants[pos], 0)) >> 2;   
+	else if (IS_OBJ_TYPE(ch->implants[pos], ITEM_WEAPON)) 
+	    *var += dice(GET_OBJ_VAL(ch->implants[pos], 1),     
+			 GET_OBJ_VAL(ch->implants[pos], 2)); 
+    }
+
+    return (*var);
+}
+    
+#define ADD_EQ_DAM(ch, pos)     RAW_EQ_DAM(ch, pos, dam)
 
 #define SLASHING(weap) (GET_OBJ_VAL(weap, 3) == (TYPE_SLASH-TYPE_HIT))
 
@@ -157,7 +163,7 @@ calc_skill_prob(struct char_data *ch, struct char_data *vict, int skillnum,
 	    if ((ovict = GET_EQ(ch, i)) && GET_OBJ_TYPE(ovict) == ITEM_ARMOR &&
 		(IS_METAL_TYPE(ovict) || IS_STONE_TYPE(ovict) || 
 		 IS_WOOD_TYPE(ovict)))
-		eq_wt += GET_OBJ_WEIGHT(ovict);
+		eq_wt += ovict->getWeight();
     }
 
     if (ch->in_room->sector_type == SECT_UNDERWATER ||
@@ -178,9 +184,9 @@ calc_skill_prob(struct char_data *ch, struct char_data *vict, int skillnum,
 	prob -= (GET_WEIGHT(vict) - GET_WEIGHT(ch)) >> 4;
 
 	if (ch->equipment[WEAR_WIELD])
-	    prob += (GET_OBJ_WEIGHT(ch->equipment[WEAR_WIELD]));
+	    prob += ch->equipment[WEAR_WIELD]->getWeight();
 	if (ch->equipment[WEAR_SHIELD])
-	    prob += (GET_OBJ_WEIGHT(ch->equipment[WEAR_SHIELD]));
+	    prob += ch->equipment[WEAR_SHIELD]->getWeight();
 
 
 	if (bad_sect)
@@ -1618,7 +1624,7 @@ ACMD(do_tornado_kick)
 	dam *= CHECK_SKILL(ch, SKILL_TORNADO_KICK);
     dam /= LEARNED(ch);
 
-    RAW_EQ_DAM(ch, WEAR_FEET, dam);
+    RAW_EQ_DAM(ch, WEAR_FEET, &dam);
 
     if (NON_CORPOREAL_UNDEAD(vict))
 	dam = 0;
@@ -2244,7 +2250,7 @@ ACMD(do_disarm)
     percent = ((GET_LEVEL(vict)) + number(1, 101));       /* 101% is a complete
 							   * failure */
     prob = MAX(0, GET_LEVEL(ch) + 
-	       CHECK_SKILL(ch, SKILL_DISARM) - GET_OBJ_WEIGHT(weap));
+	       CHECK_SKILL(ch, SKILL_DISARM) - weap->getWeight());
   
     prob += GET_DEX(ch) - GET_DEX(vict);
     if (IS_OBJ_STAT2(weap, ITEM2_TWO_HANDED))
@@ -2277,7 +2283,7 @@ ACMD(do_disarm)
 		do_get(vict, OBJN(weap, vict), 0, 0);
 	}
 
-	GET_EXP(ch) += MIN(100, GET_OBJ_WEIGHT(weap));
+	GET_EXP(ch) += MIN(100, weap->getWeight());
 	WAIT_STATE(ch, PULSE_VIOLENCE);
   
 	return;
@@ -2343,7 +2349,7 @@ ACMD(do_impale)
 
     cur_weap = weap;
     dam = (dice(GET_OBJ_VAL(weap, 1), GET_OBJ_VAL(weap, 2)) << 1) + 
-	(GET_OBJ_WEIGHT(weap) << 2) + 
+	(weap->getWeight() << 2) + 
 	(str_app[STRENGTH_APPLY_INDEX(ch)].todam << 2) +
 	GET_DAMROLL(ch);
     if (!IS_NPC(ch))

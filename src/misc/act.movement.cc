@@ -410,7 +410,7 @@ do_simple_move(struct char_data * ch, int dir, int mode, int need_specials_check
 
     for (i = 0; i < NUM_WEARS; i++)
 	if (ch->equipment[i] && IS_METAL_TYPE(ch->equipment[i]))
-	    sneak_prob -= GET_OBJ_WEIGHT(ch->equipment[i]);
+	    sneak_prob -= ch->equipment[i]->getWeight();
   
     if (IS_VAMPIRE(ch))
 	sneak_prob = 999;

@@ -51,7 +51,7 @@ struct obj_data *roll_joint(struct obj_data *tobac, struct obj_data *paper)
     obj->ex_description = new_descr;
 
     GET_OBJ_TYPE(obj) = ITEM_CIGARETTE;
-    GET_OBJ_VAL(obj, 0) = 3 + (GET_OBJ_WEIGHT(tobac) * 3);
+    GET_OBJ_VAL(obj, 0) = 3 + (tobac->getWeight() * 3);
     GET_OBJ_VAL(obj, 1) = GET_OBJ_VAL(tobac, 2);
     GET_OBJ_VAL(obj, 2) = SMOKE_TYPE(tobac);
     GET_OBJ_WEAR(obj) = ITEM_WEAR_TAKE + ITEM_WEAR_HOLD;
@@ -90,7 +90,7 @@ ACMD(do_roll)
 	sprintf(buf, "You can't roll %s in %s!\r\n", tobac->short_description, 
 		paper->short_description);
 	send_to_char(buf, ch);
-    } else if (GET_OBJ_WEIGHT(tobac) > (GET_OBJ_WEIGHT(paper) + 3)) {
+    } else if ( tobac->getWeight() > (paper->getWeight() + 3)) {
 	act("$p is too big to fit in $P.",FALSE,ch,tobac,paper,TO_CHAR);
     } else {
 	sprintf(buf, "You roll up %s in %s.\r\n", tobac->short_description, 

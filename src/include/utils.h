@@ -589,7 +589,7 @@ void WAIT_STATE(struct char_data *ch, int cycle);
 #define GET_OBJ_EXTRA2(obj)	((obj)->obj_flags.extra2_flags)
 #define GET_OBJ_WEAR(obj)	((obj)->obj_flags.wear_flags)
 #define GET_OBJ_VAL(obj, val)	((obj)->obj_flags.value[(val)])
-#define GET_OBJ_WEIGHT(obj)	((obj)->obj_flags.weight)
+//#define GET_OBJ_WEIGHT(obj)	((obj)->obj_flags.weight)
 #define GET_OBJ_TIMER(obj)	((obj)->obj_flags.timer)
 #define GET_OBJ_MATERIAL(obj)	((obj)->obj_flags.material)
 #define GET_OBJ_MAX_DAM(obj)	((obj)->obj_flags.max_dam)
@@ -764,7 +764,7 @@ void WAIT_STATE(struct char_data *ch, int cycle);
    (MORT_CAN_SEE_OBJ(sub, obj) || PRF_FLAGGED((sub), PRF_HOLYLIGHT))
 
 #define CAN_CARRY_OBJ(ch,obj)  \
-   (((IS_CARRYING_W(ch) + GET_OBJ_WEIGHT(obj)) <= CAN_CARRY_W(ch)) &&   \
+   (((IS_CARRYING_W(ch) + obj->getWeight()) <= CAN_CARRY_W(ch)) &&   \
     ((IS_CARRYING_N(ch) + 1) <= CAN_CARRY_N(ch)))
 
 #define CAN_GET_OBJ(ch, obj)   \

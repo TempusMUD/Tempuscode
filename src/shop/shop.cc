@@ -329,6 +329,9 @@ same_obj(struct obj_data * obj1, struct obj_data * obj2)
 	    (obj1->affected[index].modifier != obj2->affected[index].modifier))
 	    return (FALSE);
 
+    if ( obj1->getWeight() != obj2->getWeight() )
+	return FALSE;
+    
     return (TRUE);
 }
 
@@ -540,7 +543,7 @@ shopping_buy(char *arg, struct char_data * ch,
 	send_to_char(buf, ch);
 	return;
     }
-    if ((IS_CARRYING_W(ch) + GET_OBJ_WEIGHT(obj)) > CAN_CARRY_W(ch)) {
+    if ((IS_CARRYING_W(ch) + obj->getWeight()) > CAN_CARRY_W(ch)) {
 	if (!number(0, 2))
 	    sprintf(buf, "%s: You can't carry that much weight.\n\r",
 		    fname(obj->name));
@@ -556,7 +559,7 @@ shopping_buy(char *arg, struct char_data * ch,
     while ((obj) && ((GET_MONEY(ch, shop) >= buy_price(obj, shop)) || 
 		     IS_GOD(ch))
 	   && (IS_CARRYING_N(ch) < CAN_CARRY_N(ch)) && (bought < buynum)
-	   && (IS_CARRYING_W(ch) + GET_OBJ_WEIGHT(obj) <= CAN_CARRY_W(ch))) {
+	   && (IS_CARRYING_W(ch) + obj->getWeight() <= CAN_CARRY_W(ch))) {
 	bought++;
 	/* Test if producing shop ! */
 	if (shop_producing(obj, shop))
@@ -588,7 +591,7 @@ shopping_buy(char *arg, struct char_data * ch,
 	    sprintf(buf, "You can only afford %d.",  bought);
 	else if (IS_CARRYING_N(ch) >= CAN_CARRY_N(ch))
 	    sprintf(buf, "You can only hold %d.", bought);
-	else if (IS_CARRYING_W(ch) + GET_OBJ_WEIGHT(obj) > CAN_CARRY_W(ch))
+	else if (IS_CARRYING_W(ch) + obj->getWeight() > CAN_CARRY_W(ch))
 	    sprintf(buf, "You can only carry %d.",  bought);
 	else
 	    sprintf(buf, "Something screwy only gave you %d.", bought);

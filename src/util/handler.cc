@@ -1021,7 +1021,7 @@ obj_to_char(struct obj_data * object, struct char_data * ch)
     }
     object->carried_by = ch;
     object->in_room = NULL;
-    IS_CARRYING_W(ch) += GET_OBJ_WEIGHT(object);
+    IS_CARRYING_W(ch) += object->getWeight();
     IS_CARRYING_N(ch)++;
 
     if (IS_OBJ_TYPE(object, ITEM_KEY) && !GET_OBJ_VAL(object, 1) &&
@@ -1062,7 +1062,7 @@ obj_from_char(struct obj_data * object)
     if (!IS_NPC(object->carried_by))
 	SET_BIT(PLR_FLAGS(object->carried_by), PLR_CRASH);
 
-    IS_CARRYING_W(object->carried_by) -= GET_OBJ_WEIGHT(object);
+    IS_CARRYING_W(object->carried_by) -= object->getWeight();
     IS_CARRYING_N(object->carried_by)--;
     if (object->aux_obj) {
 	if (GET_OBJ_TYPE(object) == ITEM_SCUBA_MASK ||
@@ -1208,7 +1208,7 @@ equip_char(struct char_data *ch, struct obj_data *obj, int pos, int internal)
 	if (GET_OBJ_TYPE(obj) == ITEM_ARMOR)
 	    GET_AC(ch) -= apply_ac(ch, pos);
     
-	IS_WEARING_W(ch) += GET_OBJ_WEIGHT(obj);
+	IS_WEARING_W(ch) += obj->getWeight();
     
 	if (ch->in_room != NULL) {
 	    if (pos == WEAR_LIGHT && GET_OBJ_TYPE(obj) == ITEM_LIGHT)
@@ -1218,7 +1218,7 @@ equip_char(struct char_data *ch, struct obj_data *obj, int pos, int internal)
     } else {          /** implant **/
 
 	GET_IMPLANT(ch, pos) = obj;
-	GET_WEIGHT(ch) += GET_OBJ_WEIGHT(obj);
+	GET_WEIGHT(ch) += obj->getWeight();
  
     }
 
@@ -1278,7 +1278,7 @@ unequip_char(struct char_data * ch, int pos, int internal)
 	if (GET_OBJ_TYPE(obj) == ITEM_ARMOR)
 	    GET_AC(ch) += apply_ac(ch, pos);
     
-	IS_WEARING_W(ch) -= GET_OBJ_WEIGHT(obj);
+	IS_WEARING_W(ch) -= obj->getWeight();
     
 	if (ch->in_room != NULL) {
 	    if (pos == WEAR_LIGHT && GET_OBJ_TYPE(obj) == ITEM_LIGHT)
@@ -1292,7 +1292,7 @@ unequip_char(struct char_data * ch, int pos, int internal)
 	obj = GET_IMPLANT(ch, pos);
 	GET_IMPLANT(ch, pos) = NULL;
 
-	GET_WEIGHT(ch) -= GET_OBJ_WEIGHT(obj);
+	GET_WEIGHT(ch) -= obj->getWeight();
     }
 
 #ifdef TRACK_OBJS
@@ -1560,18 +1560,19 @@ obj_to_obj(struct obj_data * obj, struct obj_data * obj_to)
     obj->in_obj = obj_to;
 
     for (tmp_obj = obj->in_obj; tmp_obj->in_obj; tmp_obj = tmp_obj->in_obj) {
-	GET_OBJ_WEIGHT(tmp_obj) += GET_OBJ_WEIGHT(obj);
+	tmp_obj->modifyWeight( obj->getWeight() );
 	if (tmp_obj->worn_by && tmp_obj == 
 	    GET_IMPLANT(tmp_obj->worn_by, tmp_obj->worn_on))
-	    GET_WEIGHT(tmp_obj->worn_by) += GET_OBJ_WEIGHT(obj);
+	    GET_WEIGHT(tmp_obj->worn_by) += obj->getWeight();
     }
 
     /* top level object.  Subtract weight from inventory if necessary. */
-    GET_OBJ_WEIGHT(tmp_obj) += GET_OBJ_WEIGHT(obj);
+    tmp_obj->modifyWeight( obj->getWeight() );
+
     if (tmp_obj->carried_by)
-	IS_CARRYING_W(tmp_obj->carried_by) += GET_OBJ_WEIGHT(obj);
+	IS_CARRYING_W(tmp_obj->carried_by) += obj->getWeight();
     else if (tmp_obj->worn_by)
-	IS_WEARING_W(tmp_obj->worn_by) += GET_OBJ_WEIGHT(obj);
+	IS_WEARING_W(tmp_obj->worn_by) += obj->getWeight();
     else if (tmp_obj->in_room && ROOM_FLAGGED(tmp_obj->in_room, ROOM_HOUSE)) 
 	SET_BIT(ROOM_FLAGS(tmp_obj->in_room), ROOM_HOUSE_CRASH);
 
@@ -1645,17 +1646,18 @@ obj_from_obj(struct obj_data * obj)
 
     /* Subtract weight from containers container */
     for (temp = obj->in_obj; temp->in_obj; temp = temp->in_obj)
-	GET_OBJ_WEIGHT(temp) -= GET_OBJ_WEIGHT(obj);
-
+	temp->modifyWeight( - obj->getWeight() );
+    
     /* Subtract weight from char that carries the object */
-    GET_OBJ_WEIGHT(temp) -= GET_OBJ_WEIGHT(obj);
+    temp->modifyWeight( - obj->getWeight() );
+
     if (temp->carried_by)
-	IS_CARRYING_W(temp->carried_by) -= GET_OBJ_WEIGHT(obj);
+	IS_CARRYING_W(temp->carried_by) -= obj->getWeight();
     else if (temp->worn_by) {
 	if (temp == GET_IMPLANT(temp->worn_by, temp->worn_on))
-	    GET_WEIGHT(temp->worn_by) -= GET_OBJ_WEIGHT(obj);
+	    GET_WEIGHT(temp->worn_by) -= obj->getWeight();
 	else
-	    IS_WEARING_W(temp->worn_by) -= GET_OBJ_WEIGHT(obj);
+	    IS_WEARING_W(temp->worn_by) -= obj->getWeight();
     } else if (temp->in_room && ROOM_FLAGGED(temp->in_room, ROOM_HOUSE)) 
 	SET_BIT(ROOM_FLAGS(temp->in_room), ROOM_HOUSE_CRASH);
 

@@ -452,7 +452,7 @@ npc_steal(struct char_data * ch, struct char_data * victim)
 	for (obj = victim->carrying; obj; obj = obj->next_content)
 	    if (CAN_SEE_OBJ(ch, obj) && !IS_OBJ_STAT(obj, ITEM_NODROP) &&
 		GET_OBJ_COST(obj) > number(10, GET_LEVEL(ch) * 10) &&
-		GET_OBJ_WEIGHT(obj) < GET_LEVEL(ch) * 5)
+		obj->getWeight() < GET_LEVEL(ch) * 5)
 		break;
 
 	if (obj) {
@@ -1014,7 +1014,7 @@ SPECIAL(garbage_pile)
 	    }
 	    extract_obj(i);
 	    return (TRUE);
-	} else if (CAN_WEAR(i, ITEM_WEAR_TAKE) && GET_OBJ_WEIGHT(i) < 5) {
+	} else if (CAN_WEAR(i, ITEM_WEAR_TAKE) && i->getWeight() < 5) {
 	    act("$n assimilates $p.", FALSE, ch, i, 0, TO_ROOM);
 	    if (GET_OBJ_VNUM(i) == 3365)
 		extract_obj(i);
@@ -1052,7 +1052,7 @@ SPECIAL(janitor)
     for (i = ch->in_room->contents; i; i = i->next_content) {
 	if (GET_OBJ_VNUM(i) == QUAD_VNUM ||
 	    !CAN_WEAR(i, ITEM_WEAR_TAKE) || !CAN_SEE_OBJ(ch, i) ||
-	    (GET_OBJ_WEIGHT(i) + IS_CARRYING_W(ch)) > CAN_CARRY_W(ch) ||
+	    (i->getWeight() + IS_CARRYING_W(ch)) > CAN_CARRY_W(ch) ||
 	    (GET_OBJ_TYPE(i) != ITEM_DRINKCON && GET_OBJ_COST(i) >= 150))
 	    continue;
 
@@ -1909,7 +1909,7 @@ SPECIAL(weapon_lister)
 
 	sprintf(buf, "%s (%2d) %3d lb ", buf, 
 		(GET_OBJ_VAL(obj, 1) * (GET_OBJ_VAL(obj, 2) + 1) / 2) + dam,
-		GET_OBJ_WEIGHT(obj));
+		obj->getWeight() );
 
 	if (((GET_OBJ_VAL(obj, 1) * (GET_OBJ_VAL(obj, 2) + 1) / 2) + dam > 0 &&
 	     GET_OBJ_VAL(obj, 1) * (GET_OBJ_VAL(obj, 2) + 1) / 2) + dam < 60)

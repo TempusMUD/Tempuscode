@@ -86,7 +86,7 @@ SPECIAL(reinforcer)
   SET_BIT(GET_OBJ_EXTRA2(obj), ITEM2_REINFORCED);
   GET_OBJ_MAX_DAM(obj) += (GET_OBJ_MAX_DAM(obj) >> 2);
   GET_OBJ_DAM(obj) += (GET_OBJ_DAM(obj) >> 2);
-  GET_OBJ_WEIGHT(obj)++;
+  obj->modifyWeight( 1 );
   WAIT_STATE(ch, 5 RL_SEC);
   save_char(ch, NULL);
 

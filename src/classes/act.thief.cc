@@ -113,7 +113,7 @@ ACMD(do_steal)
 		act("$E hasn't got that item.", FALSE, ch, 0, vict, TO_CHAR);
 		return;
 	    } else {		           	         /* It is equipment */
-		percent += GET_OBJ_WEIGHT(obj);	         /* Make heavy harder */
+		percent += obj->getWeight();	         /* Make heavy harder */
 
 		if (GET_POS(vict) > POS_SLEEPING) {
 		    send_to_char("Steal the equipment now?  Impossible!\r\n", ch);
@@ -170,7 +170,7 @@ ACMD(do_steal)
 	    }
 	} else {		                 	/* obj found in inventory */
 
-	    percent += GET_OBJ_WEIGHT(obj);	/* Make heavy harder */
+	    percent += obj->getWeight();	/* Make heavy harder */
 	    if (IS_OBJ_STAT(obj, ITEM_NODROP))
 		percent +=  30;
 	    if (IS_OBJ_STAT2(obj, ITEM2_CURSED_PERM))
@@ -187,7 +187,7 @@ ACMD(do_steal)
 		    TRUE, ch, 0, vict, TO_NOTVICT);
 	    } else {			/* Steal the item */
 		if ((IS_CARRYING_N(ch) + 1 < CAN_CARRY_N(ch))) {
-		    if ((IS_CARRYING_W(ch) + GET_OBJ_WEIGHT(obj)) < CAN_CARRY_W(ch)) {
+		    if ((IS_CARRYING_W(ch) + obj->getWeight()) < CAN_CARRY_W(ch)) {
 			obj_from_char(obj);
 			obj_to_char(obj, ch);
 			send_to_char("Got it!\r\n", ch);

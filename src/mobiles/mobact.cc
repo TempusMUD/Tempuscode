@@ -1325,7 +1325,7 @@ mobile_activity(void)
 			(!GET_EQ(ch, WEAR_WIELD) ||
 			 !IS_OBJ_STAT2(GET_EQ(ch, WEAR_WIELD), ITEM2_NOREMOVE))) {
 			if (GET_EQ(ch, WEAR_WIELD) &&
-			    (GET_OBJ_WEIGHT(obj) <=
+			    (obj->getWeight() <=
 			     str_app[STRENGTH_APPLY_INDEX(ch)].wield_w) &&
 			    GET_OBJ_COST(obj) > GET_OBJ_COST(GET_EQ(ch, WEAR_WIELD))) {
 			    strcpy(buf, fname(obj->name));

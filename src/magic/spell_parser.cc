@@ -1688,7 +1688,7 @@ ACMD(do_cast)
 	prob += number(35, 55) - GET_INT(ch);
 
     if (GET_LEVEL(ch) < LVL_AMBASSADOR && GET_EQ(ch, WEAR_SHIELD))
-	prob += (GET_OBJ_WEIGHT(GET_EQ(ch, WEAR_SHIELD)));
+	prob += GET_EQ(ch, WEAR_SHIELD)->getWeight();
   
     prob += ((IS_CARRYING_W(ch) + IS_WEARING_W(ch)) << 3) / CAN_CARRY_W(ch);
 
@@ -1698,17 +1698,17 @@ ACMD(do_cast)
 	    if (i != WEAR_WIELD &&
 		GET_OBJ_TYPE(ch->equipment[i]) == ITEM_ARMOR &&
 		IS_METAL_TYPE(ch->equipment[i])) {
-		metal_wt += GET_OBJ_WEIGHT(ch->equipment[i]);
+		metal_wt += ch->equipment[i]->getWeight();
 		if (!metal || !number(0, 8) || 
-		    (GET_OBJ_WEIGHT(ch->equipment[i]) > GET_OBJ_WEIGHT(metal) &&
+		    (ch->equipment[i]->getWeight() > metal->getWeight() &&
 		     !number(0, 1)))
 		    metal = ch->equipment[i];
 	    }
 	    if (ch->implants[i]) {  
 		if (IS_METAL_TYPE(ch->equipment[i])) {
-		    metal_wt += GET_OBJ_WEIGHT(ch->equipment[i]);
+		    metal_wt += ch->equipment[i]->getWeight();
 		    if (!metal || !number(0, 8) || 
-			(GET_OBJ_WEIGHT(ch->implants[i]) > GET_OBJ_WEIGHT(metal) &&
+			( ch->implants[i]->getWeight() > metal->getWeight() &&
 			 !number(0, 1)))
 			metal = ch->implants[i];
 		}
@@ -1886,7 +1886,7 @@ ACMD(do_trigger)
 	prob -= number(35, 55) + GET_INT(ch);
 
     if (GET_LEVEL(ch) < LVL_AMBASSADOR && GET_EQ(ch, WEAR_SHIELD))
-	prob -= (GET_OBJ_WEIGHT(GET_EQ(ch, WEAR_SHIELD)));
+	prob -= GET_EQ(ch, WEAR_SHIELD)->getWeight();
   
     prob -= ((IS_CARRYING_W(ch) + IS_WEARING_W(ch)) << 3) / CAN_CARRY_W(ch);
 

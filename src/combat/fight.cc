@@ -834,7 +834,7 @@ make_corpse( struct char_data *ch,struct char_data *killer,int attacktype )
 	    GET_OBJ_VAL( spine, 0 ) = 0;
 	    GET_OBJ_VAL( spine, 2 ) = 6;
 	    GET_OBJ_VAL( spine, 3 ) = 5;
-	    GET_OBJ_WEIGHT( spine ) = 5;
+	    spine->setWeight(5);
 	    GET_OBJ_MATERIAL( spine ) = MAT_BONE;
 	    spine->worn_on = -1;
 	    obj_to_room( spine, ch->in_room );
@@ -874,7 +874,7 @@ make_corpse( struct char_data *ch,struct char_data *killer,int attacktype )
 	GET_OBJ_VAL( head, 0 ) = 5;  /* Head full of blood */	
 	GET_OBJ_VAL( head, 1 ) = 5;	
 	GET_OBJ_VAL( head, 2 ) = 13;	
-	GET_OBJ_WEIGHT( head ) = 10;
+	head->setWeight( 10 );
 	head->worn_on = -1;
 	if ( IS_NPC( ch ) )
 	    GET_OBJ_TIMER( head ) = max_npc_corpse_time;
@@ -965,8 +965,9 @@ make_corpse( struct char_data *ch,struct char_data *killer,int attacktype )
 	    GET_OBJ_VAL( heart, 1 ) = 0;	
 	    GET_OBJ_VAL( heart, 2 ) = 0;	
 	}
-	GET_OBJ_WEIGHT( heart ) = 0;
+	heart->setWeight( 0 );
 	heart->worn_on = -1;
+
 	if ( IS_NPC( ch ) )
 	    GET_OBJ_TIMER( heart ) = max_npc_corpse_time;
 	else {
@@ -1029,7 +1030,7 @@ make_corpse( struct char_data *ch,struct char_data *killer,int attacktype )
 	SET_BIT( GET_OBJ_EXTRA( corpse ), ITEM2_UNAPPROVED );
     GET_OBJ_VAL( corpse, 0 ) = 0;	/* You can't store stuff in a corpse */
     GET_OBJ_VAL( corpse, 3 ) = 1;	/* corpse identifier */
-    GET_OBJ_WEIGHT( corpse ) = GET_WEIGHT( ch ) + IS_CARRYING_W( ch );
+    corpse->setWeight( GET_WEIGHT( ch ) + IS_CARRYING_W( ch ) );
     corpse->contains = NULL;
 
     if ( IS_NPC( ch ) ) {
@@ -2294,7 +2295,7 @@ damage_eq( struct char_data *ch, struct obj_data *obj, int eq_dam )
 	new_obj = create_obj(  );
 	new_obj->shared = null_obj_shared;
 	GET_OBJ_MATERIAL( new_obj ) = GET_OBJ_MATERIAL( obj );
-	GET_OBJ_WEIGHT( new_obj ) = GET_OBJ_WEIGHT( obj );
+	new_obj->setWeight( obj->getWeight() );
 	GET_OBJ_TYPE( new_obj ) = ITEM_TRASH;
 	GET_OBJ_WEAR( new_obj ) = ITEM_WEAR_TAKE;
 	GET_OBJ_EXTRA( new_obj ) = ITEM_NODONATE + ITEM_NOSELL;
@@ -2713,6 +2714,8 @@ damage( struct char_data * ch, struct char_data * victim, int dam,
 		    impl_dam = ( int ) ( impl_dam * 0.7 );
 	    }
       
+	    struct obj_data *the_obj = impl ? impl : obj;
+
 	    /* here are the object oriented damage specifics */
 	    if ( ( attacktype == TYPE_SLASH || attacktype == TYPE_PIERCE ||
 		   attacktype == TYPE_CLAW  || attacktype == TYPE_STAB ||
@@ -3569,16 +3572,17 @@ hit( struct char_data * ch, struct char_data * victim, int type )
 	     GET_OBJ_TYPE( ch->equipment[i] ) == ITEM_ARMOR &&
 	     ( IS_METAL_TYPE( ch->equipment[i] ) ||
 	       IS_STONE_TYPE( ch->equipment[i] ) ) )
-	    metal_wt += GET_OBJ_WEIGHT( ch->equipment[i] );
+	    metal_wt += ch->equipment[i]->getWeight();
 
 
     if ( ( type != SKILL_BACKSTAB && type != SKILL_CIRCLE &&
 	   type != SKILL_BEHEAD ) || !cur_weap ) {
     
 	if ( GET_EQ( ch, WEAR_WIELD_2 ) && GET_EQ( ch, WEAR_WIELD ) ) {
-	    dual_prob = ( GET_OBJ_WEIGHT( GET_EQ( ch, WEAR_WIELD ) ) - 
-			  GET_OBJ_WEIGHT( GET_EQ( ch, WEAR_WIELD_2 ) ) ) * 2;
+	    dual_prob = ( GET_EQ( ch, WEAR_WIELD )->getWeight() - 
+			  GET_EQ( ch, WEAR_WIELD_2 )->getWeight() ) * 2;
 	}
+
 	if ( !( ( ( cur_weap = GET_EQ( ch, WEAR_WIELD_2 ) ) && 
 		  IS_OBJ_TYPE( cur_weap, ITEM_WEAPON ) &&
 		  ( CHECK_SKILL( ch, SKILL_SECOND_WEAPON ) + dual_prob ) > 
@@ -3681,7 +3685,7 @@ hit( struct char_data * ch, struct char_data * victim, int type )
 	} else if ( IS_OBJ_TYPE( cur_weap, ITEM_ARMOR ) ) {
 	    dam += ( GET_OBJ_VAL( cur_weap, 0 ) / 3 );
 	} else
-	    dam += dice( 1, 4 ) + number( 0, GET_OBJ_WEIGHT( cur_weap ) );
+	    dam += dice( 1, 4 ) + number( 0, cur_weap->getWeight() );
     } else if ( IS_NPC( ch ) ) {
 	tmp_dam += dice( ch->mob_specials.shared->damnodice, 
 			 ch->mob_specials.shared->damsizedice );
@@ -3894,8 +3898,8 @@ perform_violence( void )
 		    break;
 		}
 	    }
-	    weap_weight += GET_OBJ_WEIGHT( GET_EQ( ch, WEAR_WIELD_2 ) );
-	    weap_weight = MAX( ( GET_OBJ_WEIGHT( GET_EQ( ch, WEAR_WIELD_2 ) ) >> 2 ), 
+	    weap_weight += GET_EQ( ch, WEAR_WIELD_2 )->getWeight();
+	    weap_weight = MAX( ( GET_EQ( ch, WEAR_WIELD_2 )->getWeight() >> 2 ), 
 			       weap_weight );
       
 	    prob -=  ( prob * weap_weight ) / 
@@ -3923,9 +3927,8 @@ perform_violence( void )
 		    break;
 		}
 	    }
-	    weap_weight += GET_OBJ_WEIGHT( GET_EQ( ch, WEAR_WIELD ) );
-	    weap_weight = MAX( ( GET_OBJ_WEIGHT( GET_EQ( ch, WEAR_WIELD ) ) >> 1 ), 
-			       weap_weight );
+	    weap_weight += GET_EQ( ch, WEAR_WIELD )->getWeight();
+	    weap_weight = MAX( (GET_EQ( ch, WEAR_WIELD )->getWeight() >> 1 ), weap_weight );
       
 	    prob -=  ( prob * weap_weight ) / 
 		( str_app[STRENGTH_APPLY_INDEX( ch )].wield_w << 1 );
@@ -4049,7 +4052,7 @@ calculate_thaco( struct char_data *ch, struct char_data *victim,
 		}
 	} 
 	  
-	wpn_wgt = GET_OBJ_WEIGHT( weap );
+	wpn_wgt = weap->getWeight();
 	if ( wpn_wgt > str_app[STRENGTH_APPLY_INDEX( ch )].wield_w )
 	    calc_thaco += 2;
 	if ( IS_MAGE( ch ) && 

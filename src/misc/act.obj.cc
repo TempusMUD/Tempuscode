@@ -18,6 +18,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <iostream>
 
 #include "structs.h"
 #include "utils.h"
@@ -136,7 +137,7 @@ perform_put(struct char_data * ch, struct obj_data * obj,
 	}
     } else {
       
-	if (GET_OBJ_WEIGHT(cont) + GET_OBJ_WEIGHT(obj) > GET_OBJ_VAL(cont, 0))
+	if ( cont->getWeight() + obj->getWeight() > GET_OBJ_VAL(cont, 0))
 	    act("$p won't fit in $P.", FALSE, ch, obj, cont, TO_CHAR);
 	else if (IS_OBJ_STAT(obj, ITEM_NODROP) && GET_LEVEL(ch) < LVL_TIMEGOD) 
 	    act("$p must be cursed!  You can't seem to let go of it...", FALSE, ch, obj, 0, TO_CHAR);
@@ -265,7 +266,7 @@ can_take_obj(struct char_data * ch, struct obj_data * obj)
     if (IS_CARRYING_N(ch) >= CAN_CARRY_N(ch)) {
 	act("$p: you can't carry that many items.", FALSE, ch, obj, 0, TO_CHAR);
 	return 0;
-    } else if ((IS_CARRYING_W(ch) + GET_OBJ_WEIGHT(obj)) > CAN_CARRY_W(ch)) {
+    } else if ((IS_CARRYING_W(ch) + obj->getWeight()) > CAN_CARRY_W(ch)) {
 	act("$p: you can't carry that much weight.", FALSE, ch, obj, 0, TO_CHAR);
 	return 0;
     } else if (!(CAN_WEAR(obj, ITEM_WEAR_TAKE)) && GET_LEVEL(ch) < LVL_GOD) {
@@ -714,7 +715,6 @@ get_from_room(struct char_data * ch, char *arg)
 
 	if (!*arg) {
 	    send_to_char("Get all of what?\r\n", ch);
-	    send_to_char(buf, ch);
 	    return;
 	}
 
@@ -819,16 +819,18 @@ ACMD(do_get)
 	send_to_char("Your arms are already full!\r\n", ch);
 	return;
     }
+
     if (!*arg1) {
 	send_to_char("Get what?\r\n", ch);
 	return;
     }
+
     if (!*arg2) {
 	get_from_room(ch, arg1);
 	if (AFF_FLAGGED(ch, AFF_GROUP) && PRF2_FLAGGED(ch, PRF2_AUTOSPLIT)) {
 	    if (total_coins) {
 		sprintf(buf2, "%d", total_coins);
-		do_split(ch, buf, 0, 0);
+		do_split(ch, buf2, 0, 0);
 	    }
 	    if (total_credits) {
 		sprintf(buf2, "%d credits", total_credits);
@@ -837,6 +839,7 @@ ACMD(do_get)
 	}
 	return;
     }
+
     cont_dotmode = find_all_dots(arg2);
     if (cont_dotmode == FIND_INDIV) {
 	mode = generic_find(arg2, 
@@ -1292,7 +1295,7 @@ perform_give(struct char_data * ch, struct char_data * vict,
 	act("$N seems to have $S hands full.", FALSE, ch, 0, vict, TO_CHAR);
 	return;
     }
-    if (GET_OBJ_WEIGHT(obj) + IS_CARRYING_W(vict) > CAN_CARRY_W(vict)) {
+    if ( obj->getWeight() + IS_CARRYING_W(vict) > CAN_CARRY_W(vict)) {
 	act("$E can't carry that much weight.", FALSE, ch, 0, vict, TO_CHAR);
 	return;
     }
@@ -1390,7 +1393,7 @@ perform_plant(struct char_data * ch, struct char_data * vict,
 	act("$N seems to have $S hands full.", FALSE, ch, 0, vict, TO_CHAR);
 	return;
     }
-    if (GET_OBJ_WEIGHT(obj) + IS_CARRYING_W(vict) > CAN_CARRY_W(vict)) {
+    if ( obj->getWeight() + IS_CARRYING_W(vict) > CAN_CARRY_W(vict)) {
 	act("$E can't carry that much weight.", FALSE, ch, 0, vict, TO_CHAR);
 	return;
     }
@@ -1720,16 +1723,22 @@ weight_change_object(struct obj_data * obj, int weight)
     struct char_data *tmp_ch;
 
     if (obj->in_room != NULL) {
-	GET_OBJ_WEIGHT(obj) += weight;
-    } else if ((tmp_ch = obj->carried_by)) {
+	obj->modifyWeight( weight );
+    } 
+
+    else if ((tmp_ch = obj->carried_by)) {
 	obj_from_char(obj);
-	GET_OBJ_WEIGHT(obj) += weight;
+	obj->modifyWeight( weight );
 	obj_to_char(obj, tmp_ch);
-    } else if ((tmp_obj = obj->in_obj)) {
+    }
+
+    else if ((tmp_obj = obj->in_obj)) {
 	obj_from_obj(obj);
-	GET_OBJ_WEIGHT(obj) += weight;
+	obj->modifyWeight( weight );
 	obj_to_obj(obj, tmp_obj);
-    } else {
+    } 
+
+    else {
 	slog("SYSERR: Unknown attempt to subtract weight from an object.");
     }
 }
@@ -1865,7 +1874,7 @@ ACMD(do_drink)
 	amount = MIN(amount, GET_OBJ_VAL(temp, 1));
 
     /* You can't subtract more than the object weighs */
-    weight = MIN(amount, GET_OBJ_WEIGHT(temp));
+    weight = MIN(amount, temp->getWeight() );
 
     if (GET_OBJ_VAL(temp, 1) != -1)
 	weight_change_object(temp, -weight);	/* Subtract amount */
@@ -2606,7 +2615,7 @@ ACMD(do_wield)
     } else {
 	if (!CAN_WEAR(obj, ITEM_WEAR_WIELD))
 	    send_to_char("You can't wield that.\r\n", ch);
-	else if (GET_OBJ_WEIGHT(obj) > str_app[STRENGTH_APPLY_INDEX(ch)].wield_w)
+	else if ( obj->getWeight() > str_app[STRENGTH_APPLY_INDEX(ch)].wield_w)
 	    send_to_char("It's too damn heavy.\r\n", ch);
 	else if (IS_CLERIC(ch) && !IS_EVIL(ch) &&
 		 (GET_OBJ_TYPE(obj) == ITEM_WEAPON)  &&
@@ -2633,11 +2642,11 @@ ACMD(do_wield)
 		GET_EQ(ch, WEAR_WIELD_2) || 
 		IS_OBJ_STAT2(GET_EQ(ch, WEAR_WIELD), ITEM2_TWO_HANDED))
 		send_to_char("You don't have a hand free to wield it with.\r\n", ch);
-	    else if (GET_OBJ_WEIGHT(GET_EQ(ch, WEAR_WIELD)) <= 6 ?
-		     (GET_OBJ_WEIGHT(obj) > 
-		      GET_OBJ_WEIGHT(GET_EQ(ch, WEAR_WIELD))) :
-		     (GET_OBJ_WEIGHT(obj) > 
-		      (GET_OBJ_WEIGHT(GET_EQ(ch, WEAR_WIELD)) >> 1)))
+	    else if (
+		GET_EQ(ch, WEAR_WIELD)->getWeight() <= 6 ?
+		( obj->getWeight() > GET_EQ( ch, WEAR_WIELD )->getWeight() ) :
+		( obj->getWeight() > ( GET_EQ(ch, WEAR_WIELD)->getWeight() >> 1 ) )
+		)
 		send_to_char("Your secondary weapon must weigh less than half of your primary weapon,\r\nif your primary weighs more than 6 lbs.\r\n", ch);
 	    else
 		perform_wear(ch, obj, WEAR_WIELD_2);
@@ -2800,7 +2809,7 @@ prototype_obj_value(struct obj_data *obj)
     case ITEM_CONTAINER:
 	value += GET_OBJ_VAL(obj, 0);
 	value <<= 2;
-	value += ((30 - GET_OBJ_WEIGHT(obj)) >> 2);
+	value += ((30 - obj->getWeight()) >> 2);
 	if (IS_SET(GET_OBJ_VAL(obj, 1), CONT_CLOSEABLE))
 	    value += 100;
 	if (GET_OBJ_VAL(obj, 2)) {
@@ -2860,16 +2869,16 @@ prototype_obj_value(struct obj_data *obj)
 	if (CAN_WEAR(obj, ITEM_WEAR_BODY)) {
 	    value *= 3;
 	    prev_value = value;
-	    value += ((50 - GET_OBJ_WEIGHT(obj)) << 3);
+	    value += ((50 - obj->getWeight()) << 3);
 	    value = (prev_value + value) >> 1;
 	} else if (CAN_WEAR(obj,ITEM_WEAR_HEAD) || CAN_WEAR(obj,ITEM_WEAR_LEGS)) {
 	    value *= 2;
 	    prev_value = value;
-	    value += ((25 - GET_OBJ_WEIGHT(obj)) << 3);
+	    value += ((25 - obj->getWeight()) << 3);
 	    value = (prev_value + value) >> 1;
 	} else {
 	    prev_value = value;
-	    value += ((25 - GET_OBJ_WEIGHT(obj)) << 3);
+	    value += ((25 - obj->getWeight()) << 3);
 	    value = (prev_value + value) >> 1;
 	}
 	if (IS_IMPLANT(obj))
@@ -2996,7 +3005,7 @@ set_maxdamage(struct obj_data *obj)
   
     int dam = 0;
 
-    dam = (GET_OBJ_WEIGHT(obj) >> 1);
+    dam = (obj->getWeight() >> 1);
 
     if (IS_LEATHER_TYPE(obj))
 	dam *= 3;

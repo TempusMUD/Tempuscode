@@ -562,7 +562,7 @@ mag_damage(int level, struct char_data * ch, struct char_data * victim,
 	dam = dice(9, 8) + (level >> 1);
 	break;
     case SPELL_OXIDIZE:
-	dam = dice(4, 6) + (level >> 1);
+	dam = dice(4, 6) + (level << 1);
 	break;
 
 
@@ -1580,9 +1580,9 @@ mag_affects(int level, struct char_data * ch, struct char_data * victim,
     case SPELL_GAMMA_RAY:
 	af.duration = ( level >> 2 );
 	af.location = APPLY_HIT;
-	af.modifier = - ( level >> 1 );
+	af.modifier = - ( level );
 	af2.location = APPLY_MOVE;
-	af2.modifier = - ( level >> 2 );
+	af2.modifier = - ( level >> 1 );
 	af2.duration = af.duration;
 	accum_affect = TRUE;
 	to_room = "$n appears slightly irradiated.";
@@ -1733,8 +1733,14 @@ mag_affects(int level, struct char_data * ch, struct char_data * victim,
 	af.duration = 1 + ( level >> 1 );
 	af.location = APPLY_CHAR_WEIGHT;
 	af.modifier = level + GET_INT( ch );
+
+	if ( victim == ch )
+	    accum_affect = TRUE;
+
 	to_vict = "You feel denser.";
+	
 	break;
+
     case SPELL_REFRACTION:
 	af.duration = 1 + ( level >> 1 );
 	af.location = APPLY_AC;
@@ -2751,7 +2757,7 @@ mag_alter_objs(int level, struct char_data * ch, struct obj_data * obj,
 
 
     case SPELL_DENSIFY:
-	GET_OBJ_WEIGHT( obj ) = MIN( 30000, GET_OBJ_WEIGHT( obj ) + level + GET_INT( ch ) );
+	obj->modifyWeight( level + GET_INT( ch ) );
 	to_char = "$p becomes denser.";
 	break;
 

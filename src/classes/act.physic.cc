@@ -711,7 +711,7 @@ int recurs_econvert_points( struct obj_data *obj, bool top ) {
     if ( !obj )
 	return 0;
 
-    int num_points = GET_OBJ_WEIGHT( obj );
+    int num_points = obj->getWeight();
     
     switch ( GET_OBJ_TYPE( obj ) ) {
 	// double points for money
@@ -760,8 +760,7 @@ ACMD( do_econvert ) {
 	return;
     }
 
-    if (!(obj = get_object_in_equip_vis(ch, arg1, ch->equipment, &i)) &&
-	!(obj = get_obj_in_list_vis(ch, arg1, ch->carrying)) ) {
+    if ( ! ( obj = get_obj_in_list_vis(ch, arg1, ch->carrying ) ) ) {
 	sprintf(buf2, "You don't seem to have %s '%s' to convert.\r\n", AN(arg1), arg1);
 	send_to_char(buf2, ch);
 	return;

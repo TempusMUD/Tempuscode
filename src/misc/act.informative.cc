@@ -2103,7 +2103,7 @@ print_affs_to_string(struct char_data *ch, char *str, byte mode)
 	strcat(str, "Your image is blurred and shifting.\r\n");
     if (IS_AFFECTED_2(ch, AFF2_DISPLACEMENT)) {
 	if ( affected_by_spell( ch, SPELL_REFRACTION ) )
-	    strcat( str, "Your body is irregularly refractive." );
+	    strcat( str, "Your body is irregularly refractive.\r\n" );
 	else
 	    strcat(str, "Your image is displaced.\r\n");
     }

@@ -234,7 +234,7 @@ save_objs (struct char_data *ch)
 	fprintf(file, "%d %d %d\n", obj->obj_flags.material, 
 		obj->obj_flags.max_dam, obj->obj_flags.damage);
 
-	fprintf(file, "%d %d %d\n", obj->obj_flags.weight,
+	fprintf(file, "%d %d %d\n", obj->getWeight(),
 		obj->shared->cost, 
 		obj->shared->cost_per_day);
     
@@ -376,7 +376,7 @@ do_create_obj(struct char_data *ch, int vnum)
     new_obj->obj_flags.wear_flags   = 0;
     new_obj->obj_flags.extra_flags  = 0;
     new_obj->obj_flags.extra2_flags = 0;
-    new_obj->obj_flags.weight       = 0;
+    new_obj->setWeight( 0 );
     new_obj->shared->cost         = 0;
     new_obj->shared->cost_per_day = 0;
     new_obj->obj_flags.timer        = 0;
@@ -868,7 +868,7 @@ perform_oset(struct char_data *ch, struct obj_data *obj_p,
 		send_to_char("Object weight out of range.\r\n", ch);
 		return;
 	    } else {
-		obj_p->obj_flags.weight = i;
+		obj_p->setWeight( i );
 		sprintf(buf, "Object %d weight set to %d.\r\n",
 			obj_p->shared->vnum, i);
 		send_to_char(buf, ch);
@@ -1162,7 +1162,7 @@ do_clear_olc_object(struct char_data *ch)
     obj_p->obj_flags.material =     0;
     obj_p->obj_flags.max_dam =      0;
     obj_p->obj_flags.damage =       0;
-    obj_p->obj_flags.weight =       0;
+    obj_p->setWeight( 0 );
     obj_p->shared->cost =          0;
     obj_p->shared->cost_per_day =  0;
 

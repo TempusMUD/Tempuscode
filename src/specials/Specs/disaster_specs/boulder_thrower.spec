@@ -45,7 +45,7 @@ SPECIAL(boulder_thrower)
       obj = NULL;
       for (tmp_obj = obj = ch->carrying; obj; obj = obj->next_content) {
 	if (THROW_OK(obj) && 
-	    (GET_OBJ_WEIGHT(obj) > GET_OBJ_WEIGHT(tmp_obj) || 
+	    ( obj->getWeight() > tmp_obj->getWeight() || 
 	     !THROW_OK(tmp_obj))) {
 	  tmp_obj = obj;
 	}
@@ -78,7 +78,7 @@ SPECIAL(boulder_thrower)
   // look for something in the room to pick up
   for (obj = ch->in_room->contents; obj; obj = obj->next_content) {
     if (THROW_OK(obj) &&
-	GET_OBJ_WEIGHT(obj) < (CAN_CARRY_W(ch)   - 
+	obj->getWeight() < (CAN_CARRY_W(ch)   - 
 			       IS_CARRYING_W(ch) - 
 			       IS_WEARING_W(ch))) {
       act("$n picks up $p.", TRUE,ch,obj,0,TO_ROOM);

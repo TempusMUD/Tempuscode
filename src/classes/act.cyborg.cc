@@ -1997,7 +1997,7 @@ ACMD(do_analyze)
 	sprintf(buf, "%sCommerce Value:       %s%d coins%s\r\n", buf, 
 		CCCYN(ch, C_NRM), GET_OBJ_COST(obj), CCNRM(ch, C_NRM));
 	sprintf(buf, "%sWeight:               %s%d pounds%s\r\n", buf, 
-		CCCYN(ch, C_NRM), GET_OBJ_WEIGHT(obj), CCNRM(ch, C_NRM));
+		CCCYN(ch, C_NRM), obj->getWeight(), CCNRM(ch, C_NRM));
 
 	sprintf(buf, "%sIntrinsic Properties: %s", buf, CCCYN(ch, C_NRM));
 	sprintbit(GET_OBJ_EXTRA(obj), extra_bits, buf2);
@@ -2767,9 +2767,9 @@ ACMD(do_refill)
 	    act("$P dissolves before your eyes.", FALSE, ch, syr, vial, TO_CHAR);
 	    extract_obj(vial);
 	} else {
-	    GET_OBJ_WEIGHT(vial) -= 1;
+	    vial->modifyWeight( -1 );
 
-	    if (GET_OBJ_WEIGHT(vial) <= 0) {
+	    if ( vial->getWeight() <= 0) {
 		act("$P has been exhausted.", FALSE, ch, syr, vial, TO_CHAR);
 		extract_obj(vial);
 	    }
@@ -2992,7 +2992,7 @@ ACMD(do_assimilate)
 	return;
     }
 
-    manacost = MIN(10, GET_OBJ_WEIGHT(obj));
+    manacost = MIN(10, obj->getWeight() );
 
     if (GET_MANA(ch) < manacost) {
 	send_to_char("You lack the mana required to assimilate this.\r\n", ch);

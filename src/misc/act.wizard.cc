@@ -1120,7 +1120,7 @@ do_stat_object(struct char_data * ch, struct obj_data * j)
     send_to_char(buf, ch);
 
     sprintf(buf, "Weight: %d, Cost: %d (%d), Rent: %d, Timer: %d\r\n",
-	    GET_OBJ_WEIGHT(j), GET_OBJ_COST(j),
+	    j->getWeight(), GET_OBJ_COST(j),
 	    prototype_obj_value(j),
 	    GET_OBJ_RENT(j), GET_OBJ_TIMER(j));
     send_to_char(buf, ch);

@@ -180,7 +180,7 @@ ACMD(do_whirlwind)
 	if ((ovict = GET_EQ(ch, i)) && GET_OBJ_TYPE(ovict) == ITEM_ARMOR &&
 	    (IS_METAL_TYPE(ovict) || IS_STONE_TYPE(ovict) || 
 	     IS_WOOD_TYPE(ovict)))
-	    percent += GET_OBJ_WEIGHT(ovict);
+	    percent += ovict->getWeight();
 
     if (GET_EQ(ch, WEAR_WIELD))
 	percent += (LEARNED(ch) - weapon_prof(ch, GET_EQ(ch, WEAR_WIELD))) / 2;
@@ -312,7 +312,7 @@ ACMD(do_combo)
 	if ((ovict = GET_EQ(ch, i)) && GET_OBJ_TYPE(ovict) == ITEM_ARMOR &&
 	    (IS_METAL_TYPE(ovict) || IS_STONE_TYPE(ovict) || 
 	     IS_WOOD_TYPE(ovict)))
-	    percent += GET_OBJ_WEIGHT(ovict);
+	    percent += ovict->getWeight();
 
     if (GET_EQ(ch, WEAR_WIELD))
 	percent += (LEARNED(ch) - weapon_prof(ch, GET_EQ(ch, WEAR_WIELD))) / 2;
@@ -433,7 +433,7 @@ ACMD(do_pinch)
 	if ((ovict = GET_EQ(ch, i)) && GET_OBJ_TYPE(ovict) == ITEM_ARMOR &&
 	    (IS_METAL_TYPE(ovict) || IS_STONE_TYPE(ovict) || 
 	     IS_WOOD_TYPE(ovict)))
-	    percent += GET_OBJ_WEIGHT(ovict);
+	    percent += ovict->getWeight();
 
     if (IS_PUDDING(vict) || IS_SLIME(vict))
 	prob = 0;
@@ -679,11 +679,11 @@ ACMD(do_evade)
     prob = CHECK_SKILL(ch, SKILL_EVASION);
 
     if ((obj = GET_EQ(ch, WEAR_BODY)) && GET_OBJ_TYPE(obj) == ITEM_ARMOR) {
-	prob -= GET_OBJ_WEIGHT(obj)/2;
+	prob -= obj->getWeight() / 2;
 	prob -= GET_OBJ_VAL(obj, 0)*3;
     }
     if ((obj = GET_EQ(ch, WEAR_LEGS)) && GET_OBJ_TYPE(obj) == ITEM_ARMOR) {
-	prob -= GET_OBJ_WEIGHT(obj);
+	prob -= obj->getWeight();
 	prob -= GET_OBJ_VAL(obj, 0)*2;
     }
     if (IS_WEARING_W(ch) > (CAN_CARRY_W(ch)*0.6))

@@ -938,7 +938,7 @@ ACMD(do_olc)
 	obj_p->obj_flags.material =     tmp_obj->obj_flags.material;
 	obj_p->obj_flags.max_dam =      tmp_obj->obj_flags.max_dam;
 	obj_p->obj_flags.damage =       tmp_obj->obj_flags.damage;
-	obj_p->obj_flags.weight =       tmp_obj->obj_flags.weight;
+	obj_p->setWeight( tmp_obj->getWeight() );
 	obj_p->shared->cost =           tmp_obj->shared->cost;
 	obj_p->shared->cost_per_day = tmp_obj->shared->cost_per_day;
 
