@@ -108,7 +108,7 @@ Account::load(long idnum)
 	const char **fields;
 	PGresult *res;
 
-	res = sql_query("select idnum, name, password, email, date_part('epoch', creation_time) as creation_time, creation_addr, date_part('epoch', login_time) as login_time, login_addr, date_part('epoch', entry_time) as entry_time, ansi_level, compact_level, term_height, term_width, reputation, quest_points, bank_past, bank_future from accounts where idnum=%ld", idnum);
+	res = sql_query("select idnum, name, password, email, date_part('epoch', creation_time) as creation_time, creation_addr, date_part('epoch', login_time) as login_time, login_addr, date_part('epoch', entry_time) as entry_time, ansi_level, compact_level, term_height, term_width, reputation, quest_points, quest_banned, bank_past, bank_future from accounts where idnum=%ld", idnum);
 	acct_count = PQntuples(res);
 
 	if (acct_count > 1) {
@@ -192,6 +192,8 @@ Account::set(const char *key, const char *val)
 		_reputation = atoi(val);
 	else if (!strcmp(key, "quest_points"))
 		_quest_points = atoi(val);
+	else if (!strcmp(key, "quest_banned"))
+		_quest_banned = !strcasecmp(val, "T");
 	else if (!strcmp(key, "bank_past"))
 		_bank_past = atoll(val);
 	else if (!strcmp(key, "bank_future"))
@@ -871,6 +873,14 @@ Account::set_quest_points(int qp)
 	_quest_points = qp;
 	sql_exec("update accounts set quest_points=%d where idnum=%d",
 		_quest_points, _id);
+}
+
+void
+Account::set_quest_banned(bool banned)
+{
+	_quest_banned = banned;
+	sql_exec("update accounts set quest_banned=%s where idnum=%d",
+		_quest_banned ? "T":"NIL", _id);
 }
 
 int Account::hasCharLevel(int level)

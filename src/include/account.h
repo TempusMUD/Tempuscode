@@ -70,6 +70,8 @@ class Account {
 
 		inline int get_quest_points(void) { return _quest_points; }
 		void set_quest_points(int amt);
+		inline int is_quest_banned(void) { return _quest_banned; }
+		void set_quest_banned(bool bannination);
 
 		inline long long get_past_bank(void) { return _bank_past; }
 		inline long long get_future_bank(void) { return _bank_future; }
@@ -138,6 +140,7 @@ class Account {
 		vector<long> _trusted;
 		int _reputation;
 		int _quest_points;
+		bool _quest_banned;
 		long long _bank_past;
 		long long _bank_future;
 };
