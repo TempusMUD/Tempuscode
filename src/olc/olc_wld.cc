@@ -1097,8 +1097,7 @@ do_olc_rexdesc(struct Creature *ch, char *argument, bool is_hedit)
 "hedit extradesc <create|edit|addkey> <keywords>\r\n"\
 "hedit sound\r\n"         \
 "hedit save\r\n"          \
-"hedit show  [brief] [.] ( lists rooms and contents )\r\n" \
-"hedit owner <name>\r\n"
+"hedit show  [brief] [.] ( lists rooms and contents )\r\n"
 
 ACMD(do_hedit)
 {
