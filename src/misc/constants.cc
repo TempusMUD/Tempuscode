@@ -148,6 +148,7 @@ extern const char *searchflag_help[] = {
     "NOHOOD",
     "abbreviated keywords will not work (prevent guessing.)",
     "spell and damage do not affect mobs in the room.",
+    "NOPLAYER",	
     "\n"
 };
 
