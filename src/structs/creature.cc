@@ -16,6 +16,7 @@
 #include "clan.h"
 #include "security.h"
 #include "fight.h"
+#include "player_table.h"
 
 void extract_norents(struct obj_data *obj);
 extern struct descriptor_data *descriptor_list;
@@ -1117,6 +1118,39 @@ Creature::remort(void)
 	saveToXML();
 	extract(CXN_REMORT_AFTERLIFE);
 	return true;
+}
+
+bool
+Creature::trusts(long idnum)
+{
+	if (IS_NPC(this))
+		return false;
+	
+	return account->isTrusted(idnum);
+}
+
+bool
+Creature::distrusts(long idnum)
+{
+	return !trusts(idnum);
+}
+
+bool
+Creature::trusts(Creature *ch)
+{
+	if (IS_NPC(this))
+		return false;
+	
+	if (IS_AFFECTED(this, AFF_CHARM) && master == ch)
+		return true;
+
+	return trusts(GET_IDNUM(ch));
+}
+
+bool
+Creature::distrusts(Creature *ch)
+{
+	return !trusts(ch);
 }
 
 #undef __Creature_cc__

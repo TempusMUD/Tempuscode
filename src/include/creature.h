@@ -1049,6 +1049,11 @@ struct Creature {
     bool cryoSave(int cost);
     // Returns this creature's account id.
     long getAccountID() const;
+
+	bool trusts(long idnum);
+	bool trusts(Creature *ch);
+	bool distrusts(long idnum);
+	bool distrusts(Creature *ch);
   private:
     bool saveObjects(void);
     /** Extracts all unrentable objects carried or worn by this creature **/
