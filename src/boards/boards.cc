@@ -119,6 +119,8 @@ struct board_info_type board_info[NUM_OF_BOARDS] = {
     {{74007,-1,-1, -1,-1,-1,-1,-1,-1,-1},            LVL_CAN_CLAN,LVL_CAN_CLAN,LVL_AMBASSADOR, "etc/board.family_clan"},
     {{72212,-1,-1, -1,-1,-1,-1,-1,-1,-1},            LVL_CAN_CLAN,LVL_CAN_CLAN,LVL_AMBASSADOR, "etc/board.brethren_clan"},
     {{75010,-1,-1, -1,-1,-1,-1,-1,-1,-1},            LVL_CAN_CLAN,LVL_CAN_CLAN,LVL_AMBASSADOR, "etc/board.blade_clan"},
+    {{72411,-1,-1, -1,-1,-1,-1,-1,-1,-1},            LVL_CAN_CLAN,LVL_CAN_CLAN,LVL_AMBASSADOR, "etc/board.arcane"},
+    {{73902,-1,-1, -1,-1,-1,-1,-1,-1,-1},            LVL_CAN_CLAN,LVL_CAN_CLAN,LVL_AMBASSADOR, "etc/board.genocide"},
 
     {{42503,-1,-1,-1,-1,-1,-1,-1,-1,-1},             0, 0, LVL_IMMORT, "etc/board.astral_mase"},
     {{1292,-1,-1,-1,-1,-1,-1,-1,-1,-1},              0, LVL_CAN_POST, LVL_GRGOD, "etc/board.real_estate"},

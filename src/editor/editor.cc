@@ -25,6 +25,7 @@ using namespace std;
 
 static char small_editbuf[MAX_INPUT_LENGTH];
 static char editbuf[MAX_STRING_LENGTH * 2];
+static char tedii_out_buf[MAX_STRING_LENGTH];
 extern struct descriptor_data *descriptor_list;
 
 
@@ -94,11 +95,11 @@ void CTextEditor::List( unsigned int startline=1 ) {
     }
     
     for(i = startline;itr != theText.end();i++, itr++,num_lines++) {
-        sprintf(buf, "%-2d%s%s]%s ",i ,
+        sprintf(tedii_out_buf, "%-2d%s%s]%s ",i ,
             CCBLD(desc->character,C_CMP),
             CCBLU(desc->character,C_NRM),
             CCNRM(desc->character,C_NRM));
-        strcat(editbuf,buf);
+        strcat(editbuf,tedii_out_buf);
         strcat(editbuf,itr->c_str());
         strcat(editbuf,"\r\n");
         // Overflowing the LARGE_BUF desc buffer.
@@ -232,13 +233,13 @@ void CTextEditor::SaveFile( void ) {
 
     sprintf(filename,"%s", desc->editor_file);
     if ((file_to_write = open(filename,O_RDWR, 0666)) == -1) {
-        sprintf(buf, "Could not open file %s, buffer not saved!\r\n", filename);
-        mudlog(buf, NRM, LVL_AMBASSADOR, TRUE);
+        sprintf(tedii_out_buf, "Could not open file %s, buffer not saved!\r\n", filename);
+        mudlog(tedii_out_buf, NRM, LVL_AMBASSADOR, TRUE);
     } else {
         sprintf(filename,"%s.bak",desc->editor_file);
         if ((backup_file = open(filename, O_RDWR|O_CREAT|O_TRUNC, 0666)) == -1) {
-            sprintf(buf, "Could not open file %s, buffer not saved!\r\n", filename);
-            mudlog(buf, NRM, LVL_AMBASSADOR, TRUE);
+            sprintf(tedii_out_buf, "Could not open file %s, buffer not saved!\r\n", filename);
+            mudlog(tedii_out_buf, NRM, LVL_AMBASSADOR, TRUE);
             close(file_to_write);
         } else {
             while ((nread = read(file_to_write, filebuf, sizeof(filebuf))) > 0) {
@@ -430,7 +431,7 @@ bool CTextEditor::FindReplace(char *args) {
         }
     }
     if(replaced > 0 && !overflow) {
-        sprintf(buf,"%d occurances of [%s] replaced with [%s].\r\n",
+        sprintf(tedii_out_buf,"%d occurances of [%s] replaced with [%s].\r\n",
             replaced,findit.c_str(),replaceit.c_str());
         SendMessage(buf);
     } else if (!overflow) {
@@ -486,8 +487,8 @@ bool CTextEditor::Remove(unsigned int line) {
     for(i = 1,s = theText.begin();i < line ;s++,i++);
 
     theText.erase(s);
-    sprintf(buf,"Line %d deleted.\r\n",line);
-    SendMessage(buf);
+    sprintf(tedii_out_buf,"Line %d deleted.\r\n",line);
+    SendMessage(tedii_out_buf);
 
     Wrap();
     UpdateSize();
@@ -576,17 +577,17 @@ void CTextEditor::SendStartupMessage( void ) {
     struct char_data *ch;
     ch = desc->character;
 
-    sprintf(buf,"%s%s    *",CCBLD(ch,C_CMP),CCCYN(ch,C_NRM));
-    sprintf(buf,"%s%s TEDII ",buf,CCYEL(ch,C_NRM));
-    sprintf(buf,"%s%s] ",buf,CCBLU(ch,C_NRM));
-    sprintf(buf,"%s%sTerminate with @ on a new line. &H for help",buf,CCNRM(ch,C_NRM));
-    sprintf(buf,"%s%s%s                 *\r\n",buf,CCBLD(ch,C_CMP),CCCYN(ch,C_NRM));
-    sprintf(buf,"%s    %s",buf,CCBLD(ch,C_CMP));
+    sprintf(tedii_out_buf,"%s%s    *",CCBLD(ch,C_CMP),CCCYN(ch,C_NRM));
+    sprintf(tedii_out_buf,"%s%s TEDII ",tedii_out_buf,CCYEL(ch,C_NRM));
+    sprintf(tedii_out_buf,"%s%s] ",tedii_out_buf,CCBLU(ch,C_NRM));
+    sprintf(tedii_out_buf,"%s%sTerminate with @ on a new line. &H for help",tedii_out_buf,CCNRM(ch,C_NRM));
+    sprintf(tedii_out_buf,"%s%s%s                 *\r\n",tedii_out_buf,CCBLD(ch,C_CMP),CCCYN(ch,C_NRM));
+    sprintf(tedii_out_buf,"%s    %s",tedii_out_buf,CCBLD(ch,C_CMP));
     for (int x=0;x < 7;x++) {
-        sprintf(buf,"%s%s%d%s---------",buf,CCCYN(ch,C_NRM),x,CCBLU(ch,C_NRM));
+        sprintf(tedii_out_buf,"%s%s%d%s---------",tedii_out_buf,CCCYN(ch,C_NRM),x,CCBLU(ch,C_NRM));
     }
-    sprintf(buf,"%s%s7%s",buf,CCCYN(ch,C_NRM),CCNRM(ch,C_NRM));
-    SendMessage(buf);
+    sprintf(tedii_out_buf,"%s%s7%s",tedii_out_buf,CCCYN(ch,C_NRM),CCNRM(ch,C_NRM));
+    SendMessage(tedii_out_buf);
 }
 
 void CTextEditor::UpdateSize( void ) {
@@ -600,110 +601,110 @@ void CTextEditor::UpdateSize( void ) {
     desc->editor_cur_lnum = theText.size() + 1;
     // Obvious buffer flow state. This should never happen, but if it does, say something.
     if(curSize > maxSize) {
-        sprintf(buf,"TEDERR: UpdateSize updated to > maxSize. Name(%s) Size(%d) Max(%d)\r\n",
+        sprintf(tedii_out_buf,"TEDERR: UpdateSize updated to > maxSize. Name(%s) Size(%d) Max(%d)\r\n",
             GET_NAME(desc->character),curSize,maxSize);
-        slog(buf);
+        slog(tedii_out_buf);
     }
 }
 void CTextEditor::ProcessHelp(char *inStr) {
     struct char_data *ch = desc->character;
     char command[MAX_INPUT_LENGTH];
     if(!*inStr) {
-        sprintf(buf,"%s%s     *",CCBLD(ch,C_CMP),CCCYN(ch,C_NRM));
-        sprintf(buf,"%s%s-----------------------",buf,CCBLU(ch,C_NRM));
-        sprintf(buf,"%s%s H E L P ",buf,CCYEL(ch,C_NRM));
-        sprintf(buf,"%s%s-----------------------",buf,CCBLU(ch,C_NRM));
-        sprintf(buf,"%s%s* \r\n%s",buf,CCCYN(ch,C_NRM),CCNRM(ch,C_NRM));
-        sprintf(buf,"%s%s%s            ",buf,CCBLD(ch,C_CMP),CCYEL(ch,C_NRM));
-        sprintf(buf,"%sF%s - %sFind & Replace   ",buf,CCYEL(ch,C_NRM),CCNRM(ch,C_NRM));
-        sprintf(buf,"%s    %s%s",buf,CCBLD(ch,C_CMP),CCYEL(ch,C_NRM));
-        sprintf(buf,"%sH%s - %sHelp         \r\n",buf,CCYEL(ch,C_NRM),CCNRM(ch,C_NRM));
-        sprintf(buf,"%s%s%s            ",buf,CCBLD(ch,C_CMP),CCYEL(ch,C_NRM));
-        sprintf(buf,"%sS%s - %sSave and Exit    ",buf,CCYEL(ch,C_NRM),CCNRM(ch,C_NRM));
-        sprintf(buf,"%s    %s%s",buf,CCBLD(ch,C_CMP),CCYEL(ch,C_NRM));
-        sprintf(buf,"%sQ%s - %sQuit (Cancel)\r\n",buf,CCYEL(ch,C_NRM),CCNRM(ch,C_NRM));
-        sprintf(buf,"%s%s%s            ",buf,CCBLD(ch,C_CMP),CCYEL(ch,C_NRM));
-        sprintf(buf,"%sL%s - %sReplace Line     ",buf,CCYEL(ch,C_NRM),CCNRM(ch,C_NRM));
-        sprintf(buf,"%s    %s%s",buf,CCBLD(ch,C_CMP),CCYEL(ch,C_NRM));
-        sprintf(buf,"%sD%s - %sDelete Line  \r\n",buf,CCYEL(ch,C_NRM),CCNRM(ch,C_NRM));
-        sprintf(buf,"%s%s%s            ",buf,CCBLD(ch,C_CMP),CCYEL(ch,C_NRM));
-        sprintf(buf,"%sI%s - %sInsert Line      ",buf,CCYEL(ch,C_NRM),CCNRM(ch,C_NRM));
-        sprintf(buf,"%s    %s%s",buf,CCBLD(ch,C_CMP),CCYEL(ch,C_NRM));
-        sprintf(buf,"%sR%s - %sRefresh Screen\r\n",buf,CCYEL(ch,C_NRM),CCNRM(ch,C_NRM));
-        sprintf(buf,"%s%s%s            ",buf,CCBLD(ch,C_CMP),CCYEL(ch,C_NRM));
-        sprintf(buf,"%sC%s - %sClear Buffer     ",buf,CCYEL(ch,C_NRM),CCNRM(ch,C_NRM));
+        sprintf(tedii_out_buf,"%s%s     *",CCBLD(ch,C_CMP),CCCYN(ch,C_NRM));
+        sprintf(tedii_out_buf,"%s%s-----------------------",tedii_out_buf,CCBLU(ch,C_NRM));
+        sprintf(tedii_out_buf,"%s%s H E L P ",tedii_out_buf,CCYEL(ch,C_NRM));
+        sprintf(tedii_out_buf,"%s%s-----------------------",tedii_out_buf,CCBLU(ch,C_NRM));
+        sprintf(tedii_out_buf,"%s%s* \r\n%s",tedii_out_buf,CCCYN(ch,C_NRM),CCNRM(ch,C_NRM));
+        sprintf(tedii_out_buf,"%s%s%s            ",tedii_out_buf,CCBLD(ch,C_CMP),CCYEL(ch,C_NRM));
+        sprintf(tedii_out_buf,"%sF%s - %sFind & Replace   ",tedii_out_buf,CCYEL(ch,C_NRM),CCNRM(ch,C_NRM));
+        sprintf(tedii_out_buf,"%s    %s%s",tedii_out_buf,CCBLD(ch,C_CMP),CCYEL(ch,C_NRM));
+        sprintf(tedii_out_buf,"%sH%s - %sHelp         \r\n",tedii_out_buf,CCYEL(ch,C_NRM),CCNRM(ch,C_NRM));
+        sprintf(tedii_out_buf,"%s%s%s            ",tedii_out_buf,CCBLD(ch,C_CMP),CCYEL(ch,C_NRM));
+        sprintf(tedii_out_buf,"%sS%s - %sSave and Exit    ",tedii_out_buf,CCYEL(ch,C_NRM),CCNRM(ch,C_NRM));
+        sprintf(tedii_out_buf,"%s    %s%s",tedii_out_buf,CCBLD(ch,C_CMP),CCYEL(ch,C_NRM));
+        sprintf(tedii_out_buf,"%sQ%s - %sQuit (Cancel)\r\n",tedii_out_buf,CCYEL(ch,C_NRM),CCNRM(ch,C_NRM));
+        sprintf(tedii_out_buf,"%s%s%s            ",tedii_out_buf,CCBLD(ch,C_CMP),CCYEL(ch,C_NRM));
+        sprintf(tedii_out_buf,"%sL%s - %sReplace Line     ",tedii_out_buf,CCYEL(ch,C_NRM),CCNRM(ch,C_NRM));
+        sprintf(tedii_out_buf,"%s    %s%s",tedii_out_buf,CCBLD(ch,C_CMP),CCYEL(ch,C_NRM));
+        sprintf(tedii_out_buf,"%sD%s - %sDelete Line  \r\n",tedii_out_buf,CCYEL(ch,C_NRM),CCNRM(ch,C_NRM));
+        sprintf(tedii_out_buf,"%s%s%s            ",tedii_out_buf,CCBLD(ch,C_CMP),CCYEL(ch,C_NRM));
+        sprintf(tedii_out_buf,"%sI%s - %sInsert Line      ",tedii_out_buf,CCYEL(ch,C_NRM),CCNRM(ch,C_NRM));
+        sprintf(tedii_out_buf,"%s    %s%s",tedii_out_buf,CCBLD(ch,C_CMP),CCYEL(ch,C_NRM));
+        sprintf(tedii_out_buf,"%sR%s - %sRefresh Screen\r\n",tedii_out_buf,CCYEL(ch,C_NRM),CCNRM(ch,C_NRM));
+        sprintf(tedii_out_buf,"%s%s%s            ",tedii_out_buf,CCBLD(ch,C_CMP),CCYEL(ch,C_NRM));
+        sprintf(tedii_out_buf,"%sC%s - %sClear Buffer     ",tedii_out_buf,CCYEL(ch,C_NRM),CCNRM(ch,C_NRM));
     if(!PLR_FLAGGED(ch, PLR_MAILING)) { // Can't undo if yer mailin.
-        sprintf(buf,"%s    %s%s",buf,CCBLD(ch,C_CMP),CCYEL(ch,C_NRM));
-        sprintf(buf,"%sU%s - %sUndo Changes  \r\n",buf,CCYEL(ch,C_NRM),CCNRM(ch,C_NRM));
+        sprintf(tedii_out_buf,"%s    %s%s",tedii_out_buf,CCBLD(ch,C_CMP),CCYEL(ch,C_NRM));
+        sprintf(tedii_out_buf,"%sU%s - %sUndo Changes  \r\n",tedii_out_buf,CCYEL(ch,C_NRM),CCNRM(ch,C_NRM));
     } else {
-        sprintf(buf,"%s    %s%s",buf,CCBLD(ch,C_CMP),CCYEL(ch,C_NRM));
-        sprintf(buf,"%sA%s - %sAdd Recipient \r\n",buf,CCYEL(ch,C_NRM),CCNRM(ch,C_NRM));
-        sprintf(buf,"%s%s%s            ",buf,CCBLD(ch,C_CMP),CCYEL(ch,C_NRM));
-        sprintf(buf,"%sT%s - %sList Recipients",buf,CCYEL(ch,C_NRM),CCNRM(ch,C_NRM));
-        sprintf(buf,"%s      %s%s",buf,CCBLD(ch,C_CMP),CCYEL(ch,C_NRM));
-        sprintf(buf,"%sE%s - %sRemove Recipient\r\n",buf,CCYEL(ch,C_NRM),CCNRM(ch,C_NRM));
+        sprintf(tedii_out_buf,"%s    %s%s",tedii_out_buf,CCBLD(ch,C_CMP),CCYEL(ch,C_NRM));
+        sprintf(tedii_out_buf,"%sA%s - %sAdd Recipient \r\n",tedii_out_buf,CCYEL(ch,C_NRM),CCNRM(ch,C_NRM));
+        sprintf(tedii_out_buf,"%s%s%s            ",tedii_out_buf,CCBLD(ch,C_CMP),CCYEL(ch,C_NRM));
+        sprintf(tedii_out_buf,"%sT%s - %sList Recipients",tedii_out_buf,CCYEL(ch,C_NRM),CCNRM(ch,C_NRM));
+        sprintf(tedii_out_buf,"%s      %s%s",tedii_out_buf,CCBLD(ch,C_CMP),CCYEL(ch,C_NRM));
+        sprintf(tedii_out_buf,"%sE%s - %sRemove Recipient\r\n",tedii_out_buf,CCYEL(ch,C_NRM),CCNRM(ch,C_NRM));
     }
-        sprintf(buf,"%s%s%s     *",buf,CCBLD(ch,C_CMP),CCCYN(ch,C_NRM));
+        sprintf(tedii_out_buf,"%s%s%s     *",tedii_out_buf,CCBLD(ch,C_CMP),CCCYN(ch,C_NRM));
      
  
-    sprintf(buf,"%s%s-------------------------------------------------------",buf,CCBLU(ch,C_NRM));
-        sprintf(buf,"%s%s*%s\r\n",buf,CCCYN(ch,C_NRM),CCNRM(ch,C_NRM));
-        SendMessage(buf);
+    sprintf(tedii_out_buf,"%s%s-------------------------------------------------------",tedii_out_buf,CCBLU(ch,C_NRM));
+        sprintf(tedii_out_buf,"%s%s*%s\r\n",tedii_out_buf,CCCYN(ch,C_NRM),CCNRM(ch,C_NRM));
+        SendMessage(tedii_out_buf);
     } else {
         inStr++;
         inStr = one_argument(inStr,command);
         *command = tolower(*command);
         switch(*command) {
             case 'f':
-                sprintf(buf,"%sFind & Replace: '&f' \r\n",buf);
-                sprintf(buf,"%s&f [red] [yellow]\r\n",buf);
-                sprintf(buf,"%sReplaces all occurances of \"red\" with \"yellow\".\r\n",buf);
-                sprintf(buf,"%se.g. 'That is a red dog.' would become 'That is a yellow dog.'\r\n",buf);
-                sprintf(buf,"%sAlso, 'Fred is here.' would become 'Fyellow is here.'\r\n",buf);
-                sprintf(buf,"%sWhen replacing words, remember to include the spaces     to either side\r\n",buf);
-                sprintf(buf,"%sin the replacement to keep from replacing partial words my mistake.\r\n",buf);
-                sprintf(buf,"%s(i.e. use '[ red ] [ yellow ]' instead of '[red] [yellow]'.\r\n",buf);
+                sprintf(tedii_out_buf,"%sFind & Replace: '&f' \r\n",tedii_out_buf);
+                sprintf(tedii_out_buf,"%s&f [red] [yellow]\r\n",tedii_out_buf);
+                sprintf(tedii_out_buf,"%sReplaces all occurances of \"red\" with \"yellow\".\r\n",tedii_out_buf);
+                sprintf(tedii_out_buf,"%se.g. 'That is a red dog.' would become 'That is a yellow dog.'\r\n",tedii_out_buf);
+                sprintf(tedii_out_buf,"%sAlso, 'Fred is here.' would become 'Fyellow is here.'\r\n",tedii_out_buf);
+                sprintf(tedii_out_buf,"%sWhen replacing words, remember to include the spaces     to either side\r\n",tedii_out_buf);
+                sprintf(tedii_out_buf,"%sin the replacement to keep from replacing partial words my mistake.\r\n",tedii_out_buf);
+                sprintf(tedii_out_buf,"%s(i.e. use '[ red ] [ yellow ]' instead of '[red] [yellow]'.\r\n",tedii_out_buf);
                 break;
             case 'r':
-                sprintf(buf,"%sRefresh Screen: &r\r\n",buf);
-                sprintf(buf,"%sPrints out the entire text buffer.\r\n",buf);
-                sprintf(buf,"%s(The message/post/description)\r\n",buf);
-                sprintf(buf,"%sA single period '.' without an '&' can be used as well.\r\n",buf);
+                sprintf(tedii_out_buf,"%sRefresh Screen: &r\r\n",tedii_out_buf);
+                sprintf(tedii_out_buf,"%sPrints out the entire text tedii_out_buffer.\r\n",tedii_out_buf);
+                sprintf(tedii_out_buf,"%s(The message/post/description)\r\n",tedii_out_buf);
+                sprintf(tedii_out_buf,"%sA single period '.' without an '&' can be used as well.\r\n",tedii_out_buf);
                 break;
             case 'l':
-                sprintf(buf,"%sReplace Line: &l\r\n",buf);
-                sprintf(buf,"%s&l <line #> <replacement text>\r\n",buf);
-                sprintf(buf,"%sReplaces line <line #> with <replacement text>.",buf);
-                sprintf(buf,"%sSpaces are saved in the replacement text to save indentation.\r\n",buf);
+                sprintf(tedii_out_buf,"%sReplace Line: &l\r\n",tedii_out_buf);
+                sprintf(tedii_out_buf,"%s&l <line #> <replacement text>\r\n",tedii_out_buf);
+                sprintf(tedii_out_buf,"%sReplaces line <line #> with <replacement text>.",tedii_out_buf);
+                sprintf(tedii_out_buf,"%sSpaces are saved in the replacement text to save indentation.\r\n",tedii_out_buf);
                 break;
             case 'd':
-                sprintf(buf,"%sDelete Line: &d\r\n",buf);
-                sprintf(buf,"%s&d <line #>\r\n",buf);
-                sprintf(buf,"%sDeletes line <line #>\r\n",buf);
+                sprintf(tedii_out_buf,"%sDelete Line: &d\r\n",tedii_out_buf);
+                sprintf(tedii_out_buf,"%s&d <line #>\r\n",tedii_out_buf);
+                sprintf(tedii_out_buf,"%sDeletes line <line #>\r\n",tedii_out_buf);
                 break;
             case 'i':
-                sprintf(buf,"%sInsert Line: &i\r\n",buf);
-                sprintf(buf,"%s&i <line #> <insert text>\r\n",buf);
-                sprintf(buf,"%sInserts <insert text> before line <line #>.\r\n",buf);
-                sprintf(buf,"%sSpaces are saved in the replacement text to save indentation\r\n",buf);
-                sprintf(buf,"%sA note to TinTin users:\r\n",buf);
-                sprintf(buf,"%s    Tintin removes all spaces before a command.\r\n",buf);
-                sprintf(buf,"%s    Use '&i <current line #> <spaces> <text>' to indent a line.\r\n",buf);
+                sprintf(tedii_out_buf,"%sInsert Line: &i\r\n",tedii_out_buf);
+                sprintf(tedii_out_buf,"%s&i <line #> <insert text>\r\n",tedii_out_buf);
+                sprintf(tedii_out_buf,"%sInserts <insert text> before line <line #>.\r\n",tedii_out_buf);
+                sprintf(tedii_out_buf,"%sSpaces are saved in the replacement text to save indentation\r\n",tedii_out_buf);
+                sprintf(tedii_out_buf,"%sA note to TinTin users:\r\n",tedii_out_buf);
+                sprintf(tedii_out_buf,"%s    Tintin removes all spaces before a command.\r\n",tedii_out_buf);
+                sprintf(tedii_out_buf,"%s    Use '&i <current line #> <spaces> <text>' to indent a line.\r\n",tedii_out_buf);
                 break;
             case 'u':
-                sprintf(buf,"%sUndo Changes: &u\r\n",buf);
-                sprintf(buf,"%s&u yes\r\n",buf);
-                sprintf(buf,"%sUndoes all changes since last save.\r\n",buf);
-                sprintf(buf,"%s(Changes do not save until you exit the editor)\r\n",buf);
+                sprintf(tedii_out_buf,"%sUndo Changes: &u\r\n",tedii_out_buf);
+                sprintf(tedii_out_buf,"%s&u yes\r\n",tedii_out_buf);
+                sprintf(tedii_out_buf,"%sUndoes all changes since last save.\r\n",tedii_out_buf);
+                sprintf(tedii_out_buf,"%s(Changes do not save until you exit the editor)\r\n",tedii_out_buf);
                 break;
             case 'c':
-                sprintf(buf,"%sClear Buffer: &c\r\n",buf);
-                sprintf(buf,"%sDeletes ALL text in the current buffer.\r\n",buf);
+                sprintf(tedii_out_buf,"%sClear Buffer: &c\r\n",tedii_out_buf);
+                sprintf(tedii_out_buf,"%sDeletes ALL text in the current tedii_out_buffer.\r\n",tedii_out_buf);
                 break;
             default:
-                sprintf(buf,"Sorry. There is no help on that.\r\n");
+                sprintf(tedii_out_buf,"Sorry. There is no help on that.\r\n");
         }
-        SendMessage(buf);
+        SendMessage(tedii_out_buf);
     }
 }
 bool CTextEditor::ProcessCommand(char *inStr) {
@@ -869,7 +870,6 @@ void CTextEditor::AddRecipient(char* name) {
     long new_id_num = 0;
     struct mail_recipient_data *cur = NULL;
     struct mail_recipient_data *new_rcpt = NULL;
-    char buf[MAX_INPUT_LENGTH];
 
     new_id_num = get_id_by_name(name);
     if ( ( new_id_num ) < 0 ) {
@@ -885,16 +885,16 @@ void CTextEditor::AddRecipient(char* name) {
     
     // First case, originally just one cur
     if(desc->mail_to->recpt_idnum == new_id_num) {
-        sprintf(buf, "%s is already on the recipient list.\r\n", 
+        sprintf(tedii_out_buf, "%s is already on the recipient list.\r\n", 
 			CAP(get_name_by_id(new_id_num)));
         SendMessage(buf);
         free(new_rcpt);
         return;
     } else if(desc->mail_to->next == NULL) {
         desc->mail_to->next = new_rcpt;
-        sprintf(buf, "%s added to recipient list.\r\n", 
+        sprintf(tedii_out_buf, "%s added to recipient list.\r\n", 
 			CAP(get_name_by_id(new_id_num)));
-        SendMessage(buf);
+        SendMessage(tedii_out_buf);
         ListRecipients();
         return;
     }
@@ -903,7 +903,7 @@ void CTextEditor::AddRecipient(char* name) {
         if (cur->next) {
             cur = cur->next;
             if(cur->recpt_idnum == new_id_num) {
-                sprintf(buf, "%s is already on the recipient list.\r\n", 
+                sprintf(tedii_out_buf, "%s is already on the recipient list.\r\n", 
 					CAP(get_name_by_id(new_id_num)));
                 SendMessage(buf);
                 free(new_rcpt);
@@ -911,9 +911,9 @@ void CTextEditor::AddRecipient(char* name) {
             }
         } else {
             cur->next = new_rcpt;
-            sprintf(buf, "%s added to recipient list.\r\n", 
+            sprintf(tedii_out_buf, "%s added to recipient list.\r\n", 
 				CAP(get_name_by_id(new_id_num)));
-            SendMessage(buf);
+            SendMessage(tedii_out_buf);
             ListRecipients();
             return;
         }
