@@ -234,9 +234,13 @@ ACMD(do_say)
 					strcpy(buf3, "yourself");
 				else
 					strcpy(buf3, PERS(vict, ch));
-				send_to_char(ch, "%s%sYou%s say to %s,%s %s'%s'%s\r\n",
+                language_str = tmp_sprintf(" in %s", 
+                                           (language_idx == LANGUAGE_COMMON) ?
+                                           "common" : 
+                                           language_names[language_idx]);
+				send_to_char(ch, "%s%sYou%s say to %s%s,%s %s'%s'%s\r\n",
 					CCBLD(ch, C_NRM), CCBLU(ch, C_NRM), cur_mood, buf3,
-						CCNRM(ch, C_NRM), CCCYN(ch, C_NRM),
+						language_str, CCNRM(ch, C_NRM), CCCYN(ch, C_NRM),
 					argument, CCNRM(ch, C_NRM));
 			}
 		}
@@ -281,7 +285,10 @@ ACMD(do_say)
 		send_to_char(*it, "%s", buf);
 	}
 	if (!recurs_say) {
-		send_to_char(ch, "%s%sYou %s%s,%s %s'%s'%s\r\n", CCBLD(ch, C_NRM),
+        language_str = tmp_sprintf(" in %s", 
+                                   (language_idx == LANGUAGE_COMMON) ?
+                                   "common" : language_names[language_idx]);
+		send_to_char(ch, "%s%sYou %s%s%s,%s %s'%s'%s\r\n", CCBLD(ch, C_NRM),
 			CCBLU(ch, C_SPR),
 			(subcmd == SCMD_UTTER ? "utter" :
 				subcmd == SCMD_EXPOSTULATE ? "expostulate" :
@@ -291,7 +298,7 @@ ACMD(do_say)
 				subcmd == SCMD_INTONE ? "intone" :
 				subcmd == SCMD_YELL ? "yell" :
 				subcmd == SCMD_BABBLE ? "babble" : "say"),
-			cur_mood, CCNRM(ch, C_SPR), CCCYN(ch, C_NRM),
+			cur_mood, language_str, CCNRM(ch, C_SPR), CCCYN(ch, C_NRM),
 			argument, CCNRM(ch, C_NRM));
 	}
 }
@@ -570,8 +577,11 @@ ACMD(do_spec_comm)
 		sprintf(buf, "%s$n$a %s you%s,%s '%s'", CCYEL(vict, C_NRM), action_plur,
 			language_str, CCNRM(vict, C_NRM), buf4);
 		act(buf, FALSE, ch, 0, vict, TO_VICT);
-		sprintf(buf, "%sYou$a %s %s,%s '%s'", CCYEL(ch, C_NRM), action_sing,
-			GET_DISGUISED_NAME(ch, vict), CCNRM(ch, C_NRM), buf2);
+        language_str = tmp_sprintf(" in %s", 
+                                   (language_idx == LANGUAGE_COMMON) ?
+                                   "common" : language_names[language_idx]);
+		sprintf(buf, "%sYou$a %s %s%s,%s '%s'", CCYEL(ch, C_NRM), action_sing,
+			GET_DISGUISED_NAME(ch, vict), language_str, CCNRM(ch, C_NRM), buf2);
 		act(buf, FALSE, ch, 0, 0, TO_CHAR);
 		act(action_others, FALSE, ch, 0, vict, TO_NOTVICT);
 
@@ -1061,19 +1071,28 @@ ACMD(do_gen_comm)
 			chan->desc_color, sub_channel_desc, KNRM, chan->text_color,
 			argument, KNRM);
 	} else {
+		int language_idx = GET_LANGUAGE(ch);
+        const char *language_str = tmp_sprintf(" in %s", 
+                                   (language_idx == LANGUAGE_COMMON) ?
+                                   "common" : language_names[language_idx]);
+        
+        if (!strcmp(chan->name, "newbie"))
+            language_str = "";
 		mood_str = GET_MOOD(ch) ? GET_MOOD(ch):"";
 		if (COLOR_LEV(ch) >= C_NRM)
-			send_to_char(ch, "%s%sYou%s %s,%s%s '%s'%s\r\n", chan->desc_color,
+			send_to_char(ch, "%s%sYou%s %s%s,%s%s '%s'%s\r\n", chan->desc_color,
 				(IS_IMMORT(ch) ? sub_channel_desc:""),
 				mood_str,
 				chan->name,
+                language_str,
 				KNRM,
 				chan->text_color, argument, KNRM);
 		else
-			send_to_char(ch, "%sYou%s %s, '%s'\r\n",
+			send_to_char(ch, "%sYou%s %s%s, '%s'\r\n",
 				(IS_IMMORT(ch) ? sub_channel_desc:""),
 				mood_str,
 				chan->name,
+                language_str,
 				argument);
 		// The emits are passed directly as the format string to
 		// send_to_char, so the argument must have its percent signs
@@ -1124,9 +1143,11 @@ ACMD(do_gen_comm)
                                        language_names[language_idx]);
         }
 
-        if ((!can_speak_language(i->creature, GET_LANGUAGE(ch)))
+        if (!strcmp(chan->name, "newbie"))
+            language_str = "";
+        if ((!can_speak_language(i->creature, GET_LANGUAGE(ch))) 
 				&& strcmp(chan->name, "newbie"))
-            buf4 = translated;
+                buf4 = translated;
 		else if (!PRF_FLAGGED(i->creature, PRF_NASTY))
             buf4 = filtered_msg;
 
