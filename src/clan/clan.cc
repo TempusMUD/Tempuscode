@@ -120,7 +120,7 @@ ACMD(do_enroll)
 		msg = tmp_sprintf("%s has been inducted into clan %s by %s!",
 			GET_NAME(vict), clan->name, GET_NAME(ch));
 		mudlog(msg, NRM, MAX(LVL_IMMORT, GET_INVIS_LEV(ch)), 1);
-		msg = tmp_strcat(msg, "\r\n", NULL);
+		msg = tmp_strcat(msg, "\r\n");
 		send_to_clan(msg, GET_CLAN(ch));
 		GET_CLAN(vict) = clan->number;
 		CREATE(member, struct clanmember_data, 1);
@@ -206,7 +206,7 @@ ACMD(do_dismiss)
 		msg = tmp_sprintf("%s has been dismissed from clan %s by %s!",
 			GET_NAME(vict), clan->name, GET_NAME(ch));
 		mudlog(msg, NRM, MAX(LVL_IMMORT, GET_INVIS_LEV(ch)), 1);
-		msg = tmp_strcat(msg, "\r\n", NULL);
+		msg = tmp_strcat(msg, "\r\n");
 		send_to_clan(msg, GET_CLAN(ch));
 		if ((member = real_clanmember(GET_IDNUM(vict), clan))) {
 			REMOVE_MEMBER_FROM_CLAN(member, clan);
@@ -240,7 +240,7 @@ ACMD(do_resign)
 		msg = tmp_sprintf("%s has resigned from clan %s.", GET_NAME(ch),
 			clan->name);
 		mudlog(msg, NRM, MAX(LVL_IMMORT, GET_INVIS_LEV(ch)), 1);
-		msg = tmp_strcat(msg, "\r\n", NULL);
+		msg = tmp_strcat(msg, "\r\n");
 		send_to_clan(msg, GET_CLAN(ch));
 		GET_CLAN(ch) = 0;
 		REMOVE_BIT(PLR_FLAGS(ch), PLR_CLAN_LEADER);
@@ -359,7 +359,7 @@ ACMD(do_clanlist)
 							zone->name, CCNRM(ch, C_NRM));
 
 					++found;
-					msg = tmp_strcat(msg, line, NULL);
+					msg = tmp_strcat(msg, line);
 				}
 			}
 		}
@@ -391,7 +391,7 @@ ACMD(do_clanlist)
 						name, CCNRM(ch, C_NRM));
 
 				free_char(i);
-				msg = tmp_strcat(msg, line, NULL);
+				msg = tmp_strcat(msg, line);
 			}
 		}
 	}
@@ -422,7 +422,7 @@ ACMD(do_cinfo)
 				CCNRM(ch, C_NRM));
 		}
 
-		msg = tmp_strcat(msg, "Clan rooms:\r\n", NULL);
+		msg = tmp_strcat(msg, "Clan rooms:\r\n");
 		for (rm_list = clan->room_list; rm_list; rm_list = rm_list->next) {
 			if (rm_list->room
 				&& ROOM_FLAGGED(rm_list->room, ROOM_CLAN_HOUSE)) {
@@ -434,7 +434,7 @@ ACMD(do_cinfo)
 			}
 		}
 		if (!found)
-			msg = tmp_strcat(msg, "None.\r\n", NULL);
+			msg = tmp_strcat(msg, "None.\r\n");
 
 		page_string(ch->desc, msg);
 	}
@@ -466,7 +466,7 @@ ACMD(do_demote)
 				GET_NAME(ch), clan->ranknames[(int)member1->rank],
 				member1->rank);
 			slog("%s", msg);
-			msg = tmp_strcat(msg, "\r\n", NULL);
+			msg = tmp_strcat(msg, "\r\n");
 			send_to_clan(msg, clan->number);
 			sort_clanmembers(clan);
 			save_clans();
@@ -496,7 +496,7 @@ ACMD(do_demote)
 			GET_NAME(ch), GET_NAME(vict),
 			clan->ranknames[(int)member2->rank], member2->rank);
 		slog("%s", msg);
-		msg = tmp_strcat(msg, "\r\n", NULL);
+		msg = tmp_strcat(msg, "\r\n");
 		send_to_clan(msg, clan->number);
 		sort_clanmembers(clan);
 		save_clans();
@@ -544,7 +544,7 @@ ACMD(do_promote)
 				clan->ranknames[(int)member2->rank] ?
 				clan->ranknames[(int)member2->rank] : "member", member2->rank);
 			slog("%s", msg);
-			msg = tmp_strcat(msg, "\r\n", NULL);
+			msg = tmp_strcat(msg, "\r\n");
 			send_to_clan(msg, clan->number);
 			sort_clanmembers(clan);
 			save_clans();
@@ -561,7 +561,7 @@ ACMD(do_promote)
 				msg = tmp_sprintf("%s has promoted %s to clan leader status.",
 					GET_NAME(ch), GET_NAME(vict));
 				slog("%s", msg);
-				msg = tmp_strcat(msg, "\r\n", NULL);
+				msg = tmp_strcat(msg, "\r\n");
 				send_to_clan(msg, clan->number);
 				save_char(vict, NULL);
 			}
@@ -577,7 +577,7 @@ ACMD(do_promote)
 					clan->ranknames[(int)member2->rank] : "member",
 					member2->rank);
 				slog("%s", msg);
-				msg = tmp_strcat(msg, "\r\n", NULL);
+				msg = tmp_strcat(msg, "\r\n");
 				send_to_clan(msg, clan->number);
 				sort_clanmembers(clan);
 				save_clans();
@@ -1459,7 +1459,7 @@ do_show_clan(struct char_data *ch, struct clan_data *clan)
 				"member", CCNRM(ch, C_NRM));
 		}
 		
-		msg = tmp_strcat(msg, "ROOMS:\r\n", NULL);
+		msg = tmp_strcat(msg, "ROOMS:\r\n");
 
 		for (rm_list = clan->room_list, num_rooms = 0;
 			rm_list; rm_list = rm_list->next) {
@@ -1469,9 +1469,9 @@ do_show_clan(struct char_data *ch, struct clan_data *clan)
 				CCCYN(ch, C_NRM), rm_list->room->name, CCNRM(ch, C_NRM));
 		}
 		if (!num_rooms)
-			msg = tmp_strcat(msg, "None.\r\n", NULL);
+			msg = tmp_strcat(msg, "None.\r\n");
 
-		msg = tmp_strcat(msg, "MEMBERS:\r\n", NULL);
+		msg = tmp_strcat(msg, "MEMBERS:\r\n");
 
 			for (member = clan->member_list, num_members = 0;
 				member; member = member->next) {
@@ -1481,7 +1481,7 @@ do_show_clan(struct char_data *ch, struct clan_data *clan)
 					CCYEL(ch, C_NRM), get_name_by_id(member->idnum),
 					CCNRM(ch, C_NRM), member->rank);
 			}
-			msg = tmp_strcat(msg, "None.\r\n", NULL);
+			msg = tmp_strcat(msg, "None.\r\n");
 
 	} else {
 		msg = tmp_strdup("CLANS:\r\n");
