@@ -2670,7 +2670,7 @@ ACMD(do_ceasefire)
     else {
         act("You stop attacking your opponents.", FALSE, ch, 
             0, NULL, TO_CHAR);
-		act("$n stops attacking $m opponents.", FALSE, ch, 0, 
+		act("$n stops attacking $s opponents.", FALSE, ch, 0, 
             NULL, TO_NOTVICT);
         it = ch->in_room->people.begin();
         for (; it != ch->in_room->people.end(); ++ it) {
