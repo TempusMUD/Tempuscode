@@ -3137,7 +3137,7 @@ ACMD(do_who)
 			continue;
 		if (who_pkills && !GET_PKILLS(tch))
 			continue;
-		if (questwho && GET_QUEST(tch) != GET_QUEST(ch))
+		if (questwho)
 			continue;
 		if (who_room && (tch->in_room != ch->in_room))
 			continue;
@@ -3302,7 +3302,7 @@ ACMD(do_who)
 					sprintf(buf2, "%s %s(notell)%s",
 						buf2, CCBLU(ch, C_NRM), CCNRM(ch, C_NRM));
 				}
-				if (GET_QUEST(tch) && GET_QUEST(tch) == GET_QUEST(ch)) {
+				if (GET_QUEST(tch)) {
 					sprintf(buf2, "%s %s(quest)%s",
 						buf2, CCYEL_BLD(ch, C_NRM), CCNRM(ch, C_NRM));
 				}
