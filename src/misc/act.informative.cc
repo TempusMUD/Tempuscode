@@ -404,7 +404,7 @@ list_obj_to_char_GLANCE(struct obj_data *list, struct Creature *ch,
 {
 	struct obj_data *i = NULL, *o = NULL;
 	bool found = false;
-	int count = 0;
+	int count;
 
 	for (i = list; i; i = o) {
 		if (!can_see_object(ch, i) ||
@@ -423,14 +423,13 @@ list_obj_to_char_GLANCE(struct obj_data *list, struct Creature *ch,
 			continue;
 		}
 
+		count = 1;
 		if (IS_CORPSE(i) ||
-			(i->shared->proto &&
-				i->name != i->shared->proto->name) ||
-			IS_OBJ_STAT2(i, ITEM2_BROKEN))
+				(i->shared->proto && i->name != i->shared->proto->name) ||
+				IS_OBJ_STAT2(i, ITEM2_BROKEN))
 			o = i->next_content;
-
 		else {
-			for (o = i; o; o = o->next_content) {
+			for (o = i->next_content; o; o = o->next_content) {
 				if (same_obj(o, i) &&
 					(!IS_BOMB(o) || !IS_BOMB(i)
 						|| same_obj(o->contains, i->contains))) {
@@ -442,7 +441,6 @@ list_obj_to_char_GLANCE(struct obj_data *list, struct Creature *ch,
 		}
 
 		show_obj_to_char(i, ch, mode, count);
-		count = 0;
 		found = true;
 	}
 	if (!found && show)
