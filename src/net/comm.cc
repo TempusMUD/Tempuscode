@@ -51,6 +51,7 @@
 #include "accstr.h"
 #include "player_table.h"
 #include "events.h"
+#include "prog.h"
 
 /* externs */
 extern HelpCollection *Help;
@@ -579,6 +580,8 @@ game_loop(int mother_desc)
 			dynamic_object_pulse();
 		else if (!((pulse + 2) % PULSE_FLOWS))
 			path_activity();
+		else if (!((pulse + 3) % PULSE_FLOWS))
+			prog_update();
 
 		if (!(pulse % (SECS_PER_MUD_HOUR * PASSES_PER_SEC))) {
 			weather_and_time(1);

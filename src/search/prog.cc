@@ -21,19 +21,34 @@
 #include "tmpstr.h"
 #include "house.h"
 #include "events.h"
+#include "prog.h"
+
+struct prog_engine *prog_list = NULL;
+
+struct prog_engine *
+find_prog_by_owner(void *owner)
+{
+	struct prog_engine *cur_prog;
+
+	for (cur_prog = prog_list;cur_prog;cur_prog = cur_prog->next)
+		if (cur_prog->owner == owner)
+			return cur_prog;
+
+	return NULL;
+}
 
 // Returns the next line number after the appropriate command handler
 int
-prog_find_cmd_handler(char *prog, const char *directive, int cmd, char *arg)
+prog_find_cmd_handler(char *prog, const char *directive, int cmd)
 {
 	char *line, *str;
 	int linenum;
 
-	linenum = 1;
-	arg = tmp_getword(&arg);
-	for (line = tmp_getline(&prog);
+	for (line = tmp_getline(&prog), linenum = 1;
 			line;
-			linenum++, line = tmp_getline(&prog)) {
+			line = tmp_getline(&prog), linenum++) {
+		if (*line != '*')
+			continue;
 		str = tmp_getword(&line);
 		if (strcmp(directive, str))
 			continue;
@@ -42,8 +57,6 @@ prog_find_cmd_handler(char *prog, const char *directive, int cmd, char *arg)
 			continue;
 		str = tmp_getword(&line);
 		if (strcmp(cmd_info[cmd].command, str))
-			continue;
-		if (*line && !isname(arg, line))
 			continue;
 
 		return linenum;
@@ -57,10 +70,11 @@ prog_find_idle_handler(char *prog)
 	char *line, *str;
 	int linenum;
 
-	linenum = 1;
-	for (line = tmp_getline(&prog);
+	for (line = tmp_getline(&prog), linenum = 1;
 			line;
-			linenum++, line = tmp_getline(&prog)) {
+			line = tmp_getline(&prog), linenum++) {
+		if (*line != '*')
+			continue;
 		str = tmp_getword(&line);
 		if (strcmp("*handle", str))
 			continue;
@@ -74,96 +88,188 @@ prog_find_idle_handler(char *prog)
 }
 
 void
-execute_prog(Creature *ch)
+prog_do_command(struct prog_engine *prog, char *exec)
 {
-	char *prog, *line, *str;
-	int linenum;
+	char *str;
 
-	// blocking indefinitely
-	if (ch->mob_specials.prog_wait == -1)
-		return;
+	str = tmp_getword(&exec) + 1;
+	if (!strcmp("before", str)
+			|| !strcmp("handle", str)
+			|| !strcmp("after", str)) {
+		// The beginning of another handler terminates this one
+		prog->linenum = 0;
+	} else if (!strcmp("echo", str)) {
+		room_data *room = NULL;
 
-	// waiting for a period of time
-	if (ch->mob_specials.prog_wait > 0) {
-		ch->mob_specials.prog_wait -= 1;
-		return;
-	}
-
-	prog = GET_MOB_PROG(ch);
-	line = tmp_getline(&prog);
-	linenum = 0;
-	while (line && linenum < ch->mob_specials.prog_exec) {
-		linenum++;
-		line = tmp_getline(&prog);
-	}
-
-	while (line) {
-		if (*line == '*') {
-			str = tmp_getword(&line);
-			if (!strcmp("*before", str)
-					|| !strcmp("*handle", str)
-					|| !strcmp("*after", str))
-				break;
-			else if (!strcmp("*echo", str))
-				send_to_room(line, ch->in_room);
-			else if (!strcmp("*pause", str)) {
-				ch->mob_specials.prog_exec++;
-				ch->mob_specials.prog_wait = atoi(line);
-				if (ch->mob_specials.prog_wait > 0) {
-					ch->mob_specials.prog_wait -= 1;
-					return;
-				}
-				ch->mob_specials.prog_wait = 0;
-			} else if (!strcmp("*wait", str)) {
-				ch->mob_specials.prog_wait = -1;
-				ch->mob_specials.prog_exec++;
-				return;
-			}
-		} else {
-			if (ch->mob_specials.prog_target)
-				line = tmp_gsub(line, "$N", fname(ch->mob_specials.prog_target->player.name));
-			command_interpreter(ch, line);
+		switch (prog->owner_type) {
+		case PROG_TYPE_MOBILE:
+			room = ((Creature *)prog->owner)->in_room; break;
+		case PROG_TYPE_OBJECT:
+			room = ((obj_data *)prog->owner)->in_room; break;
+		case PROG_TYPE_ROOM:
+			room = ((room_data *)prog->owner); break;
 		}
+		if (room)
+			send_to_room(exec, room);
+	} else if (!strcmp("pause", str)) {
+		prog->wait = atoi(exec);
+	} else if (!strcmp("wait", str)) {
+		prog->wait = -1;
+	}
+}
 
-		ch->mob_specials.prog_exec++;
-		line = tmp_getline(&prog);
+char *
+advance_lines(char *str, int lines)
+{
+	while (*str && lines) {
+		while (*str && *str != '\r' && *str != '\n')
+			str++;
+		if (*str == '\r')
+			str++;
+		if (*str == '\n')
+			str++;
+		lines--;
 	}
 
-	ch->mob_specials.prog_exec = 0;
-	ch->mob_specials.prog_target = NULL;
+	return str;
 }
 
 void
-start_subprog(Creature *self, Creature *targ, int line)
+prog_execute(struct prog_engine *prog)
 {
-	self->mob_specials.prog_wait = 0;
-	self->mob_specials.prog_exec = line;
-	self->mob_specials.prog_target = targ;
-	execute_prog(self);
+	char *exec, *line;
+
+	// blocking indefinitely
+	if (prog->wait < 0)
+		return;
+
+	// waiting until the right moment
+	if (prog->wait > 0) {
+		prog->wait -= 1;
+		return;
+	}
+
+	// we've waited long enough!
+	prog->wait = prog->speed;
+
+	exec = advance_lines(prog->prog, prog->linenum);
+	line = tmp_getline(&exec);
+	while (line) {
+		if (*line == '*') {
+			prog_do_command(prog, line);
+		} else if (prog->owner_type == PROG_TYPE_MOBILE) {
+			if (prog->target)
+				line = tmp_gsub(line, "$N", fname(prog->target->player.name));
+			command_interpreter((Creature *)prog->owner, line);
+		} else {
+			// error
+		}
+
+		// prog exit
+		if (!prog->linenum)
+			return;
+
+		// increment line number of currently executing prog
+		prog->linenum++;
+
+		if (prog->wait > 0) {
+			prog->wait -= 1;
+			return;
+		}
+
+		line = tmp_getline(&exec);
+	}
+
+	prog->linenum = 0;
+}
+
+void
+prog_start(int owner_type, void *owner, Creature *target, char *prog, int linenum)
+{
+	struct prog_engine *new_prog, *cur_prog;
+
+	// Find any progs run by the same owner
+	cur_prog = find_prog_by_owner(owner);
+	if (cur_prog) {
+		// The same object was running a prog, so we just re-initialize
+		// its state
+		new_prog = cur_prog;
+	} else {
+		// The same object wasn't already running a prog, so we have to
+		// make a new one
+		CREATE(new_prog, struct prog_engine, 1);
+		new_prog->next = prog_list;
+		prog_list = new_prog;
+	}
+
+	new_prog->owner_type = owner_type;
+	new_prog->owner = owner;
+	new_prog->prog = prog;
+	new_prog->linenum = linenum;
+	new_prog->wait = 0;
+	new_prog->speed = 1;
+	new_prog->cmd_var = 0;
+	new_prog->target = target;
+
+	prog_execute(new_prog);
+}
+
+void
+prog_free(struct prog_engine *prog)
+{
+	struct prog_engine *prev_prog;
+
+	if (prog_list == prog) {
+		prog_list = prog->next;
+	} else {
+		prev_prog = prog_list;
+		while (prev_prog && prev_prog->next != prog)
+			prev_prog = prev_prog->next;
+		if (!prev_prog) {
+			// error
+		}
+		prev_prog->next = prog->next;
+	}
+
+	free(prog);
+}
+
+void
+destroy_attached_progs(void *owner)
+{
+	struct prog_engine *cur_prog, *next_prog;
+
+	for (cur_prog = prog_list;cur_prog;cur_prog = next_prog) {
+		next_prog = cur_prog->next;
+		if (cur_prog->owner == owner)
+			prog_free(cur_prog);
+		else if (cur_prog->target == owner)
+			prog_free(cur_prog);
+	}
 }
 
 bool
-trigger_prog_cmd(Creature *ch, Creature *self, int cmd, char *argument)
+trigger_prog_cmd(Creature *owner, Creature *ch, int cmd, char *argument)
 {
-	int line;
+	int linenum;
 
-	if (!GET_MOB_PROG(self) || ch == self)
+	if (!GET_MOB_PROG(owner) || ch == owner)
 		return false;
 	
-	line = prog_find_cmd_handler(GET_MOB_PROG(self), "*before", cmd, argument);
-	if (line > 0)
-		start_subprog(self, ch, line);
+	linenum = prog_find_cmd_handler(GET_MOB_PROG(owner), "*before", cmd);
+	if (linenum > 0)
+		prog_start(PROG_TYPE_MOBILE, owner, ch, GET_MOB_PROG(owner), linenum);
 	
-	line = prog_find_cmd_handler(GET_MOB_PROG(self), "*handle", cmd, argument);
-	if (line > 0) {
-		start_subprog(self, ch, line);
+	linenum = prog_find_cmd_handler(GET_MOB_PROG(owner), "*handle", cmd);
+	if (linenum > 0) {
+		prog_start(PROG_TYPE_MOBILE, owner, ch, GET_MOB_PROG(owner), linenum);
 		return true;
 	}
 
-	line = prog_find_cmd_handler(GET_MOB_PROG(self), "*after", cmd, argument);
-	if (line > 0) {
+	linenum = prog_find_cmd_handler(GET_MOB_PROG(owner), "*after", cmd);
+	if (linenum > 0) {
 		cmd_info[cmd].command_pointer(ch, argument, cmd, cmd_info[cmd].subcmd, 0);
-		start_subprog(self, ch, line);
+		prog_start(PROG_TYPE_MOBILE, owner, ch, GET_MOB_PROG(owner), linenum);
 		return true;
 	}
 	
@@ -171,24 +277,39 @@ trigger_prog_cmd(Creature *ch, Creature *self, int cmd, char *argument)
 }
 
 void
-trigger_prog_idle(Creature *self)
+trigger_prog_idle(Creature *owner)
 {
-	int line;
+	int linenum;
 
 	// Do we have a mobile program?
-	if (!GET_MOB_PROG(self))
+	if (!GET_MOB_PROG(owner))
 		return;
 	
-	// Do we have a mobile program already running?
-	if (self->mob_specials.prog_exec)
+	// Are we already running a prog?
+	if (find_prog_by_owner(owner))
 		return;
 	
 	// We start an idle mobprog here
-	line = prog_find_idle_handler(GET_MOB_PROG(self));
-	if (!line)
+	linenum = prog_find_idle_handler(GET_MOB_PROG(owner));
+	if (!linenum)
 		return;
-	self->mob_specials.prog_exec = line;
-	self->mob_specials.prog_wait = 0;
-	self->mob_specials.prog_target = NULL;
-	execute_prog(self);
+	prog_start(PROG_TYPE_MOBILE, owner, NULL, GET_MOB_PROG(owner), linenum);
+}
+
+void
+prog_update(void)
+{
+	struct prog_engine *cur_prog, *next_prog;
+
+	if (!prog_list)
+		return;
+	
+	for (cur_prog = prog_list;cur_prog;cur_prog = cur_prog->next)
+		prog_execute(cur_prog);
+	
+	for (cur_prog = prog_list;cur_prog;cur_prog = next_prog) {
+		next_prog = cur_prog->next;
+		if (!cur_prog->linenum)
+			prog_free(cur_prog);
+	}
 }

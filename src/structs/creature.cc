@@ -17,6 +17,7 @@
 #include "security.h"
 #include "fight.h"
 #include "player_table.h"
+#include "prog.h"
 
 void extract_norents(struct obj_data *obj);
 extern struct descriptor_data *descriptor_list;
@@ -542,10 +543,6 @@ Creature::extract(cxn_state con_state)
 			stop_defending(*cit);
 		if (this == HUNTING((*cit)))
 			HUNTING((*cit)) = NULL;
-		if (this == (*cit)->mob_specials.prog_target) {
-			(*cit)->mob_specials.prog_target = NULL;
-			(*cit)->mob_specials.prog_exec = 0;
-		}
 		if (this == MOUNTED((*cit))) {
 			MOUNTED((*cit)) = NULL;
 			if ((*cit)->getPosition() == POS_MOUNTED) {
@@ -556,6 +553,8 @@ Creature::extract(cxn_state con_state)
 			}
 		}
 	}
+
+	destroy_attached_progs(this);
 
 	if (MOUNTED(this)) {
 		REMOVE_BIT(AFF2_FLAGS(MOUNTED(this)), AFF2_MOUNTED);

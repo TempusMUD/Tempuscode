@@ -902,9 +902,6 @@ struct mob_special_data {
 	int wait_state;				/* Wait state for bashed mobs           */
 	byte last_direction;		/* The last direction the monster went     */
 	unsigned int mob_idnum;		/* mobile's unique idnum */
-	int prog_exec;		// current line the prog is executing
-	int prog_wait;		// number of updates to pause execution for
-	Creature *prog_target;
 };
 
 

@@ -40,6 +40,7 @@
 #include "creature.h"
 #include "screen.h"
 #include "tmpstr.h"
+#include "prog.h"
 
 /* external structs */
 void npc_steal(struct Creature *ch, struct Creature *victim);
@@ -619,13 +620,8 @@ burn_update(void)
 			continue;
 		}
 
-		if (GET_MOB_PROG(ch)) {
-			if (ch->mob_specials.prog_exec)
-				execute_prog(ch);
-			else if (!FIGHTING(ch))
-				trigger_prog_idle(ch);
-		}
-
+		if (GET_MOB_PROG(ch) && !FIGHTING(ch))
+			trigger_prog_idle(ch);
 	}
 }
 

@@ -38,6 +38,7 @@ using namespace std;
 #include "matrix.h"
 #include "bomb.h"
 #include "security.h"
+#include "prog.h"
 
 const char *fill_words[] = {
 	"in",
@@ -2226,7 +2227,7 @@ special(struct Creature *ch, int cmd, int subcmd, char *arg, special_mode spec_m
 			}
 		}
 		if (GET_MOB_PROG((*it)) != NULL)
-			if (trigger_prog_cmd(ch, *it, cmd, arg))
+			if (trigger_prog_cmd(*it, ch, cmd, arg))
 				return true;
 	}
 

@@ -72,8 +72,4 @@ struct special_search_data {
 	struct special_search_data *next;
 };
 
-bool trigger_prog_cmd(Creature *ch, Creature *self, int cmd, char *argument);
-void trigger_prog_idle(Creature *ch);
-void execute_prog(Creature *ch);
-
 #endif
