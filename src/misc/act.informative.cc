@@ -3611,7 +3611,7 @@ perform_mortal_where(struct char_data * ch, char *arg)
 
 void 
 print_object_location(int num, struct obj_data * obj, 
-                      struct char_data * ch, int recur)
+                      struct char_data * ch, int recur, char *to_buf)
 {
     if ((obj->carried_by && GET_INVIS_LEV(obj->carried_by) > GET_LEVEL(ch)) ||
         (obj->in_obj && obj->in_obj->carried_by && 
@@ -3624,38 +3624,42 @@ print_object_location(int num, struct obj_data * obj,
     if (num > 0)
         sprintf(buf, "%sO%s%3d. %s%-25s%s - ", CCGRN_BLD(ch, C_NRM), CCNRM(ch, C_NRM), 
                 num, CCGRN(ch, C_NRM), obj->short_description, CCNRM(ch, C_NRM));
-    else
+	else
         sprintf(buf, "%33s", " - ");
   
+	strncat(to_buf, buf, MAX_STRING_LENGTH - 1);
+
     if (obj->in_room != NULL) {
-        sprintf(buf + strlen(buf), "%s[%s%5d%s] %s%s%s\r\n", 
+        sprintf(buf, "%s[%s%5d%s] %s%s%s\r\n",
                 CCGRN(ch, C_NRM), CCNRM(ch, C_NRM), 
                 obj->in_room->number, CCGRN(ch, C_NRM), CCCYN(ch, C_NRM), 
                 obj->in_room->name, CCNRM(ch, C_NRM));
-        send_to_char(buf, ch);
     } else if (obj->carried_by) {
-        sprintf(buf + strlen(buf), "carried by %s%s%s [%s%5d%s]%s\r\n", 
+        sprintf(buf, "carried by %s%s%s [%s%5d%s]%s\r\n",
                 CCYEL(ch, C_NRM), PERS(obj->carried_by, ch), 
                 CCGRN(ch, C_NRM), CCNRM(ch, C_NRM), obj->carried_by->in_room->number, 
                 CCGRN(ch, C_NRM), CCNRM(ch, C_NRM));
-        send_to_char(buf, ch);
     } else if (obj->worn_by) {
-        sprintf(buf + strlen(buf), "worn by %s%s%s [%s%5d%s]%s\r\n", 
+        sprintf(buf, "worn by %s%s%s [%s%5d%s]%s\r\n",
                 CCYEL(ch, C_NRM), PERS(obj->worn_by, ch), 
                 CCGRN(ch, C_NRM), CCNRM(ch, C_NRM), obj->worn_by->in_room->number, 
                 CCGRN(ch, C_NRM), CCNRM(ch, C_NRM));
-        send_to_char(buf, ch);
     } else if (obj->in_obj) {
-        sprintf(buf + strlen(buf), "inside %s%s%s%s\r\n", 
+        sprintf(buf, "inside %s%s%s%s\r\n",
                 CCGRN(ch, C_NRM), obj->in_obj->short_description, 
                 CCNRM(ch, C_NRM), (recur ? ", which is" : " "));
-        send_to_char(buf, ch);
+		strncat(to_buf, buf, MAX_STRING_LENGTH - 1);
+
         if (recur)
-            print_object_location(0, obj->in_obj, ch, recur);
+            print_object_location(0, obj->in_obj, ch, recur, to_buf);
+		return;
     } else {
-        sprintf(buf + strlen(buf), "%sin an unknown location%s\r\n", CCRED(ch, C_NRM), CCNRM(ch, C_NRM));
-        send_to_char(buf, ch);
+        sprintf(buf, "%sin an unknown location%s\r\n",
+			CCRED(ch, C_NRM), CCNRM(ch, C_NRM));
     }
+
+	strncat(to_buf, buf, MAX_STRING_LENGTH - 1);
+	to_buf[MAX_STRING_LENGTH - 1] = '\0';
 }
 
 
@@ -3698,6 +3702,7 @@ perform_immort_where(struct char_data * ch, char *arg)
         }
         page_string(ch->desc, main_buf, 1);
     } else {
+		main_buf[0] = '\0';
         two_arguments(arg, arg1, arg2);
         CharacterList::iterator cit = characterList.begin();
         for(; cit != characterList.end(); ++cit) {
@@ -3713,17 +3718,19 @@ perform_immort_where(struct char_data * ch, char *arg)
                         CCGRN(ch, C_NRM), CCNRM(ch, C_NRM), i->in_room->number, 
                         CCGRN(ch, C_NRM), CCNRM(ch, C_NRM), CCCYN(ch, C_NRM), 
                         i->in_room->name, CCNRM(ch, C_NRM));
-                send_to_char(buf, ch);
+				strcat(main_buf, buf);
             }
         }
         for (num = 0, k = object_list; k; k = k->next) {
             if (CAN_SEE_OBJ(ch, k) && isname(arg1, k->name) && ++num && (!*arg2 || isname(arg2, k->name))) {
                 found = 1;
-                print_object_location(num, k, ch, TRUE);
+                print_object_location(num, k, ch, TRUE, main_buf);
             }
         }
         if (!found)
             send_to_char("Couldn't find any such thing.\r\n", ch);
+		else
+			page_string(ch->desc, main_buf, 1);
     }
 }
 
