@@ -207,6 +207,7 @@ struct set_struct {
 #define SCMD_WORLDWRITE 44
 #define SCMD_DEATHLOG   45
 #define SCMD_NOGUILDSAY 46
+#define SCMD_NOPETITION 47
 
 /* do_wizutil */
 #define SCMD_REROLL	0
@@ -228,19 +229,20 @@ struct set_struct {
 #define SCMD_RESPOND    2
 
 /* do_gen_com */
-#define SCMD_HOLLER	0
-#define SCMD_SHOUT	1
-#define SCMD_GOSSIP	2
+#define SCMD_HOLLER		0
+#define SCMD_SHOUT		1
+#define SCMD_GOSSIP		2
 #define SCMD_AUCTION	3
-#define SCMD_GRATZ	4
+#define SCMD_GRATZ		4
 #define SCMD_MUSIC      5
-#define SCMD_SPEW	6
+#define SCMD_SPEW		6
 #define SCMD_DREAM      7
 #define SCMD_PROJECT    8
 #define SCMD_NEWBIE     9
 #define SCMD_CLANSAY	10
 #define SCMD_GUILDSAY	11
 #define SCMD_CLANEMOTE	12
+#define SCMD_PETITION	13
 
 /* do_shutdown */
 #define SCMD_SHUTDOW	0

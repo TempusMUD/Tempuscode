@@ -685,23 +685,27 @@ static const channel_info_t channels[] = {
 	{ "project", 1, PRF_NOPROJECT, CURSE_BAD, INTERPLANAR, NOT_EMOTE,
 		KNRM_BLD, KCYN,
 		"You are not open to projections yourself...",
-		"You cannot project.  The gods have muted you." },
+		"You cannot project.  The immortals have muted you." },
 	{ "newbie", -2, PRF2_NEWBIE_HELPER, CURSE_BAD, PLANAR, NOT_EMOTE,
 		KYEL, KNRM,
 		"You aren't on the illustrious newbie channel.",
-		"The gods have muted you for bad behavior!" },
+		"The immortals have muted you for bad behavior!" },
 	{ "clan-say", 1, PRF_NOCLANSAY, CURSE_OK, PLANAR, NOT_EMOTE,
 		KCYN, KNRM,
 		"You aren't listening to the words of your clan.",
-		"The gods have muted you.  You may not clan say." },
+		"The immortals have muted you.  You may not clan say." },
 	{ "guild-say", 2, PRF2_NOGUILDSAY, CURSE_BAD, PLANAR, NOT_EMOTE,
 		KMAG, KYEL,
 		"You aren't listening to the rumors of your guild.",
-		"You may not guild-say, for the gods have muted you." },
+		"You may not guild-say, for the immortals have muted you." },
 	{ "clan-emote", 1, PRF_NOCLANSAY, CURSE_OK, PLANAR, IS_EMOTE,
 		KCYN, KNRM,
 		"You aren't listening to the words of your clan.",
-		"The gods have muted you.  You may not clan emote." },
+		"The immortals have muted you.  You may not clan emote." },
+	{ "petition", 1, PRF_NOPETITION, CURSE_OK, INTERPLANAR, NOT_EMOTE,
+		KMAG, KMAG,
+		"You aren't listening to petitions at this time.",
+		"The immortals have turned a deaf ear to your petitions." },
 };
 
 ACMD(do_gen_comm)
@@ -1052,6 +1056,9 @@ ACMD(do_gen_comm)
 			if (subcmd == SCMD_SHOUT &&
 				((ch->in_room->zone != i->creature->in_room->zone) ||
 					i->creature->getPosition() < POS_RESTING))
+				continue;
+
+			if (subcmd == SCMD_PETITION)
 				continue;
 
 			if ((ROOM_FLAGGED(ch->in_room, ROOM_SOUNDPROOF) ||

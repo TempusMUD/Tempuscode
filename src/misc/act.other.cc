@@ -1091,6 +1091,8 @@ ACMD(do_gen_tog)
 			"All deaths will now be logged.\r\n"},
 		{"You can now hear the rumors within your guild.\r\n",
 			"You are now deaf to the rumors of your guild members.\r\n"},
+		{"You can now hear the petitions of mortals.\r\n",
+			"You are now deaf to the petitions of mortals.\r\n"},
 		{"\n", "\n"}
 	};
 
@@ -1293,6 +1295,9 @@ ACMD(do_gen_tog)
 		break;
 	case SCMD_NOGUILDSAY:
 		result = PRF2_TOG_CHK(ch, PRF2_NOGUILDSAY);
+		break;
+	case SCMD_NOPETITION:
+		result = PRF_TOG_CHK(ch, PRF_NOPETITION);
 		break;
 	default:
 		slog("SYSERR: Unknown subcmd in do_gen_toggle");
