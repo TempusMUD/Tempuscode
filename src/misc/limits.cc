@@ -712,6 +712,22 @@ point_update(void)
 			drunk += 1;
 
 		gain_condition(i, DRUNK, -drunk);
+
+        /* player frozen */
+        if (USE_XML_FILES) {
+            if (PLR_FLAGGED(i, PLR_FROZEN) && i->player_specials->thaw_time > -1) {
+                time_t now;
+
+                now = time(NULL);
+
+                if (now > i->player_specials->thaw_time) {
+                    REMOVE_BIT(PLR_FLAGS(i), PLR_FROZEN);
+                    i->player_specials->thaw_time = 0;
+                    mudlog(MAX(LVL_POWER, GET_INVIS_LVL(i)), BRF, true,
+                           "(GC) %s un-frozen by timeout.", GET_NAME(i));
+                }
+            }
+        }
 	}
 
 	/* objects */

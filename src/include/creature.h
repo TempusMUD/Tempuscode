@@ -871,6 +871,8 @@ struct player_special_data {
 	class CHandler *olc_handler;	/* which iscript handler being edited   */
 	struct room_data *was_in_room;	/* location for linkdead people         */
 	class HelpItem *olc_help_item;
+    int thaw_time;
+    int freezer_id;
 };
 
 struct mob_shared_data {
@@ -1053,7 +1055,6 @@ struct Creature {
 
 	struct follow_type *followers;	/* List of chars followers       */
 	struct Creature *master;	/* Who is char following?        */
-    int thaw_time;
 };
 
 /* ====================================================================== */

@@ -592,8 +592,8 @@ Creature::saveToXML()
 		ch->char_specials.saved.act, ch->player_specials->saved.plr2_bits,
 		ch->player.passwd, ch->player_specials->saved.bad_pws);
 	if (PLR_FLAGGED(ch, PLR_FROZEN)) {
-        fprintf(ouf, "<frozen level=\"%d\" thaw_time=\"%d\"/>\n", GET_FREEZE_LEV(ch), 
-                ch->thaw_time);
+        fprintf(ouf, "<frozen thaw_time=\"%d\" freezer_id=\"%d\"/>\n", 
+                ch->player_specials->thaw_time, ch->player_specials->freezer_id);
     }
 //		fprintf(ouf, " frozen_lvl=\"%d\"", GET_FREEZE_LEV(ch));
 //	fprintf(ouf, "/>\n");
@@ -792,8 +792,8 @@ Creature::loadFromXML( long id )
 			GET_PASSWD(this)[MAX_PWD_LENGTH] = '\0';
 			player_specials->saved.bad_pws = xmlGetIntProp( node, "bad_pws" );
         } else if (xmlMatches(node->name, "frozen")) {
-            GET_FREEZE_LEV(this) = xmlGetIntProp(node, "level");
-            this->thaw_time = xmlGetIntProp(node, "thaw_time");
+            this->player_specials->thaw_time = xmlGetIntProp(node, "thaw_time");
+            this->player_specials->freezer_id = xmlGetIntProp(node, "freezer_id");
         } else if ( xmlMatches(node->name, "prefs") ) {
 			char* flag = xmlGetProp( node, "flag1" );
 			player_specials->saved.pref = hex2dec(flag);

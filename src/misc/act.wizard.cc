@@ -7821,7 +7821,8 @@ int do_freeze_char(char *argument, Creature *vict, Creature *ch)
     
     SET_BIT(PLR_FLAGS(vict), PLR_FROZEN);
     GET_FREEZE_LEV(vict) = GET_LEVEL(ch);
-    vict->thaw_time = thaw_time;
+    vict->player_specials->thaw_time = thaw_time;
+    vict->player_specials->freezer_id = GET_IDNUM(ch);
      
     send_to_char(vict, "A bitter wind suddenly rises and drains every erg "
                        "of heat from your body!\r\nYou feel frozen!\r\n");

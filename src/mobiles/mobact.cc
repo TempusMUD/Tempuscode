@@ -579,20 +579,6 @@ burn_update(void)
 				hunt_victim(ch);
 			continue;
 		}
-
-        /* player frozen */
-        if (PLR_FLAGGED(ch, PLR_FROZEN)) {
-            time_t now;
-
-            now = time(NULL);
-
-            if (now > ch->thaw_time) {
-                REMOVE_BIT(PLR_FLAGS(ch), PLR_FROZEN);
-                ch->thaw_time = 0;
-                mudlog(MAX(LVL_POWER, GET_INVIS_LVL(ch)), BRF, true,
-                       "(GC) %s un-frozen by timeout.", GET_NAME(ch));
-            }
-        }
 	}
 }
 
