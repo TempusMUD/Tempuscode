@@ -1126,12 +1126,6 @@ Creature::trusts(long idnum)
 	if (IS_NPC(this))
 		return false;
 	
-	if (GET_CLAN(this)) {
-		clan_data *clan = real_clan(GET_CLAN(this));
-		if (clan && real_clanmember(idnum, clan))
-			return true;
-	}
-
 	return account->isTrusted(idnum);
 }
 
