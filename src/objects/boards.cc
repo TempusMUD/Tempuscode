@@ -50,7 +50,7 @@ gen_board_show(Creature *ch)
 	PGresult *res;
 	int idx, count;
 
-	res = sql_query("select board, COUNT(*) from board_messages group by board order by board desc");
+	res = sql_query("select board, COUNT(*) from board_messages group by board order by idnum desc");
 	count = PQntuples(res);
 	if (count == 0) {
 		send_to_char(ch, "There are no messages on any board.\r\n");
@@ -152,7 +152,7 @@ gen_board_remove(board_data *board, Creature *ch, char *argument)
 		return;
 	}
 	// First we find the idnum of the thing we want to destroy
-	res = sql_query("select idnum, author from board_messages where board='%s' order by post_time limit 1 offset %d",
+	res = sql_query("select idnum, author from board_messages where board='%s' order by idnum limit 1 offset %d",
 		tmp_sqlescape(board->name), idx);
 	
 	if (PQntuples(res) != 1) {
@@ -207,7 +207,7 @@ gen_board_read(board_data *board, Creature *ch, char *argument)
 		send_to_char(ch, "That is not a valid message.\r\n");
 		return;
 	}
-	res = sql_query("select extract(epoch from post_time), name, subject, body from board_messages where board='%s' order by post_time limit 1 offset %d",
+	res = sql_query("select extract(epoch from post_time), name, subject, body from board_messages where board='%s' order by idnum limit 1 offset %d",
 		tmp_sqlescape(board->name), idx);
 	if (PQntuples(res) == 0) {
 		send_to_char(ch, "That message does not exist on this board.\r\n");
@@ -238,7 +238,7 @@ gen_board_list(board_data *board, Creature *ch)
 	int idx, count;
 	time_t post_time;
 
-	res = sql_query("select extract(epoch from post_time), name, subject from board_messages where board='%s' order by post_time desc", tmp_sqlescape(board->name));
+	res = sql_query("select extract(epoch from post_time), name, subject from board_messages where board='%s' order by idnum desc", tmp_sqlescape(board->name));
 	count = PQntuples(res);
 	if (count == 0) {
 		send_to_char(ch, "This board is empty.\r\n");
