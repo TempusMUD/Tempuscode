@@ -1824,7 +1824,6 @@ interpret_espec(char *keyword, char *value, struct Creature *mobile, int nr)
 	}
 	CASE("Econet") {
 		RANGE(0, 1000000);
-		mobile->points.credits = num_arg;
 	}
 	CASE("Morale") {
 		RANGE(0, 120);
@@ -3282,41 +3281,6 @@ file_to_string(char *name, char *buf)
 
 
 
-
-/* clear some of the the working variables of a char */
-void
-reset_char(struct Creature *ch)
-{
-	int i;
-
-	for (i = 0; i < NUM_WEARS; i++) {
-		ch->equipment[i] = NULL;
-		ch->implants[i] = NULL;
-	}
-
-	ch->followers = NULL;
-	ch->master = NULL;
-	/* ch->in_room = NOWHERE; Used for start in room */
-	ch->carrying = NULL;
-	ch->setFighting(NULL);
-	ch->char_specials.position = POS_STANDING;
-	if (ch->mob_specials.shared)
-		ch->mob_specials.shared->default_pos = POS_STANDING;
-	ch->char_specials.carry_weight = 0;
-	ch->char_specials.carry_items = 0;
-	ch->player_specials->olc_obj = NULL;
-	ch->player_specials->olc_mob = NULL;
-	ch->player_specials->olc_ticl = NULL;
-
-	if (GET_HIT(ch) <= 0)
-		GET_HIT(ch) = 1;
-	if (GET_MOVE(ch) <= 0)
-		GET_MOVE(ch) = 1;
-	if (GET_MANA(ch) <= 0)
-		GET_MANA(ch) = 1;
-
-	GET_LAST_TELL(ch) = NOBODY;
-}
 
 /* returns the real number of the room with given vnum number */
 struct room_data *
