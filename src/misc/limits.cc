@@ -31,25 +31,15 @@
 #include "clan.h"
 #include "specs.h"
 #include "fight.h"
-
-#define READ_TITLE(ch) (GET_CLASS(ch) == CLASS_KNIGHT && IS_EVIL(ch) ?   \
-			evil_knight_titles[(int)GET_LEVEL(ch)] :         \
-			(GET_SEX(ch) == SEX_MALE ?                       \
-			 titles[(int) MIN(GET_CLASS(ch), NUM_CLASSES-1)] \
-			 [(int)GET_LEVEL(ch)].title_m :                  \
-			 titles[(int)MIN(GET_CLASS(ch), NUM_CLASSES-1)]  \
-			 [(int)GET_LEVEL(ch)].title_f))
-
+#include "screen.h"
 
 extern struct obj_data *object_list;
-extern struct title_type titles[NUM_CLASSES][LVL_GRIMP + 1];
 extern struct room_data *world;
 extern struct zone_data *zone_table;
 extern int max_exp_gain;
 extern int max_exp_loss;
 extern int exp_scale[];
 extern int race_lifespan[];
-extern char *evil_knight_titles[];
 
 /* When age < 15 return the value p0 */
 /* When age in 15..29 calculate the line between p1 & p2 */
@@ -367,14 +357,17 @@ gain_exp(struct Creature *ch, int gain)
 			GET_EXP(ch) >= exp_scale[GET_LEVEL(ch) + 1]) {
 			GET_LEVEL(ch) += 1;
 			num_levels++;
-			advance_level(ch, 0);
+			advance_level(ch, false);
 			is_altered = TRUE;
 		}
 
 		if (is_altered) {
-			if (num_levels == 1)
+			if (num_levels == 1) {
 				send_to_char(ch, "You rise a level!\r\n");
-			else {
+				if (GET_LEVEL(ch) == LVL_CAN_RETURN + 1)
+					send_to_char(ch, "%sYou are now too powerful to use the 'return' command to recall.%s\r\n",
+						CCCYN(ch, NRM), CCNRM(ch, NRM));
+			} else {
 				send_to_char(ch, "You rise %d levels!\r\n", num_levels);
 			}
 			ch->saveToXML();

@@ -2396,7 +2396,7 @@ ACMD(do_return)
     if (!IS_NPC(ch) && !IS_REMORT(ch) && (GET_LEVEL(ch) < LVL_IMMORT)) {
         if (FIGHTING(ch)) {
             send_to_char(ch, "No way!  You're fighting for your life!\r\n");
-        } else if (GET_LEVEL(ch) <= 10) {
+        } else if (GET_LEVEL(ch) <= LVL_CAN_RETURN) {
             act("A whirling globe of multi-colored light appears and whisks you away!", FALSE, ch, NULL, NULL, TO_CHAR);
             act("A whirling globe of multi-colored light appears and whisks $n away!", FALSE, ch, NULL, NULL, TO_ROOM);
             char_from_room(ch,false);
