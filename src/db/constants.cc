@@ -1492,7 +1492,7 @@ extern const char *item_value_types[][4] = {
 	{"Room/KeyNum", "Doorstate", "Flags", "Special"},	/* vehicle */
 	{"Max energ", "Cur Energ", "Enginstat", "Rate     "},	/* engine     */
 	{"Max charg", "Cur charg", "Rate", "Cost/unit"},	/* battery    */
-	{"Max ROF", "Cur ROF", "discharge", "gun type"},	/* raygun     */
+	{"Drain Rate", "Dam dice1", "Dam dice2", "gun type"},	/* raygun     */
 	{"Targ room", "Doorstate", "UNDEFINED", "UNDEFINED"},	/* window     */
 	{"Targ room", "Doorstate", "Keynum?", "Charges"},	/* portal     */
 	{"Type", "Max Drags", "UNDEFINED", "UNDEFINED"},	/*tobacco     */
@@ -1511,7 +1511,7 @@ extern const char *item_value_types[][4] = {
 	{"Type", "State", "Timer", "UNDEFINED"},	/* fuse */
 	{"UNDEFINED", "UNDEFINED", "UNDEFINED", "UNDEFINED"},	/* podium */
 	{"Level", "Spell1", "Spell2", "Spell3"},	/* Pill  */
-	{"Max charg", "Cur charg", "UNDEF", "UNDEF"},	/* energy cell */
+	{"Max charg", "Cur charg", "Recharge rate", "UNDEF"},	/* energy cell */
 	{"Room", "Doorflags", "Car Vnum", "UNDEFINED"},	/* v window    */
 	{"Room", "Unused", "Car Vnum", "UNDEFINED"},	/* v door    */
 	{"Room", "Unused", "Car Vnum", "Driver Idnum"},	/* v console */
@@ -2152,34 +2152,34 @@ extern const struct dex_skill_type dex_app_skill[26] = {
 
 
 /* [dex] apply (all) */
-/* reaction, miss_att, defensive */
+/* reaction, miss_att, defensive, tohit, todam */
 extern const struct dex_app_type dex_app[26] = {
-	{-7, -7, 6},
-	{-6, -6, 5},
-	{-4, -4, 5},
-	{-3, -3, 4},
-	{-2, -2, 3},
-	{-1, -1, 2},
-	{0, 0, 1},
-	{0, 0, 0},
-	{0, 0, 0},
-	{0, 0, 0},
-	{0, 0, 0},					/* 10 */
-	{0, 0, 0},
-	{0, 0, 0},
-	{0, 0, 0},
-	{0, 0, 0},
-	{1, 0, -1},
-	{1, 1, -2},
-	{2, 2, -3},
-	{2, 2, -4},					/* 18 */
-	{3, 3, -5},
-	{3, 3, -5},
-	{4, 4, -6},
-	{4, 4, -6},
-	{5, 5, -7},
-	{6, 6, -7},
-	{7, 7, -8}					/* 25 */
+	{-7, -7, 6, -5, -4},
+	{-6, -6, 5, -5, -4},
+	{-4, -4, 5, -3, -2},
+	{-3, -3, 4, -3, -1},
+	{-2, -2, 3, -2, -1},
+	{-1, -1, 2, -1, 0},
+	{0, 0, 1, -1, 0},
+	{0, 0, 0, 0, 1},
+	{0, 0, 0, 0, 1},
+	{0, 0, 0, 0, 3},
+	{0, 0, 0, 0, 3},					/* 10 */
+	{0, 0, 0, 0, 4},
+	{0, 0, 0, 1, 5},
+	{0, 0, 0, 1, 6},
+	{0, 0, 0, 1, 7},
+	{1, 0, -1, 1, 8},
+	{1, 1, -2, 2, 9},
+	{2, 2, -3, 2, 10},
+	{2, 2, -4, 3, 13},					/* 18 */
+	{3, 3, -5, 3, 14},
+	{3, 3, -5, 4, 15},
+	{4, 4, -6, 4, 16},
+	{4, 4, -6, 5, 17},
+	{5, 5, -7, 6, 18},
+	{6, 6, -7, 7, 19},
+	{7, 7, -8, 8, 20}					/* 25 */
 };
 
 

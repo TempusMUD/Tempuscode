@@ -1042,7 +1042,6 @@ helper_assist(struct Creature *ch, struct Creature *vict,
 
 		if (IS_ENERGY_GUN(weap) && CHECK_SKILL(ch, SKILL_SHOOT) > 40 &&
 			EGUN_CUR_ENERGY(weap) > 10) {
-			CUR_R_O_F(weap) = MAX_R_O_F(weap);
 			do_shoot(ch, tmp_sprintf("%s %s", fname(weap->aliases),
 					fname(vict->player.name)),
 				0, 0, &my_return_flags);
@@ -1303,8 +1302,7 @@ best_attack(struct Creature *ch, struct Creature *vict)
 				((IS_GUN(gun) && GUN_LOADED(gun)) ||
 					(IS_ENERGY_GUN(gun) && EGUN_CUR_ENERGY(gun))))) {
 
-			CUR_R_O_F(gun) = MAX_R_O_F(gun);
-
+			
 			sprintf(buf, "%s ", fname(gun->aliases));
 			strcat(buf, fname(vict->player.name));
 			do_shoot(ch, buf, 0, 0, &return_flags);
@@ -3044,8 +3042,7 @@ mobile_battle_activity(struct Creature *ch, struct Creature *precious_vict)
 				((IS_GUN(gun) && GUN_LOADED(gun)) ||
 					(IS_ENERGY_GUN(gun) && EGUN_CUR_ENERGY(gun))))) {
 
-			CUR_R_O_F(gun) = MAX_R_O_F(gun);
-
+			
             if (ch->numCombatants())
 			    do_shoot(ch, tmp_sprintf("%s %s",
 				         fname(gun->aliases), ch->findRandomCombat()->player.name),

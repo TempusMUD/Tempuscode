@@ -33,8 +33,9 @@ SPECIAL(weaponsmaster)
 	}
 	for (pos = 0; pos < NUM_WEARS && !weap; pos++) {
 		weap = GET_EQ(ch, pos);
-		if (weap && GET_OBJ_TYPE(weap) == ITEM_WEAPON &&
-			isname(argument, weap->aliases))
+		if (weap && 
+            (GET_OBJ_TYPE(weap) == ITEM_WEAPON || GET_OBJ_TYPE(weap) == ITEM_ENERGY_GUN)
+            && isname(argument, weap->aliases))
 			break;
 
 		weap = GET_IMPLANT(ch, pos);

@@ -1160,6 +1160,8 @@ do_stat_object(struct Creature *ch, struct obj_data *j)
     int i, found;
     struct extra_descr_data *desc;
     extern struct attack_hit_type attack_hit_text[];
+    extern const char *egun_types[];
+    
     struct room_data *rm = NULL;
 
     if (IS_OBJ_TYPE(j, ITEM_NOTE) && isname("letter", j->aliases)) {
@@ -1437,6 +1439,15 @@ do_stat_object(struct Creature *ch, struct obj_data *j)
             "Max_Energy: %d, Cur_Energy: %d, Run_State: %s, Consume_rate: %d",
             GET_OBJ_VAL(j, 0), GET_OBJ_VAL(j, 1), buf2, GET_OBJ_VAL(j, 3));
         break;
+    case ITEM_ENERGY_GUN:
+        sprintf(buf,
+            "Drain Rate: %d, Todam: %dd%d (av %d), Damage Type: %s (%d)",
+            GET_OBJ_VAL(j, 0), GET_OBJ_VAL(j, 1), GET_OBJ_VAL(j, 2), 
+            (GET_OBJ_VAL(j, 1) * (GET_OBJ_VAL(j,2) + 1)) / 2, 
+            (GET_OBJ_VAL(j, 3) >= 0 && GET_OBJ_VAL(j,3) < TOP_ENERGY_GUN_TYPE) ? 
+            egun_types[(int)GET_OBJ_VAL(j,3)] : "unknown", 
+            GET_OBJ_VAL(j, 3));
+            break;
     case ITEM_BOMB:
         sprintf(buf, "Values: %s:[%s(%d)] %s:[%d] %s:[%d] %s:[%d]",
             item_value_types[(int)GET_OBJ_TYPE(j)][0],
@@ -7771,7 +7782,8 @@ stat_obj_to_file(struct obj_data *j, ofstream & out)
     int i, found;
     struct extra_descr_data *desc;
     extern struct attack_hit_type attack_hit_text[];
-
+    extern const char *egun_types[];
+    
     sprintf(buf, "Name: %s', Aliases: %s\r\n",
         ((j->name) ? j->name : "<None>"), j->aliases);
     out << buf;
@@ -7960,6 +7972,15 @@ stat_obj_to_file(struct obj_data *j, ofstream & out)
             "Max_Energy: %d, Cur_Energy: %d, Run_State: %s, Consume_rate: %d",
             GET_OBJ_VAL(j, 0), GET_OBJ_VAL(j, 1), buf2, GET_OBJ_VAL(j, 3));
         break;
+    case ITEM_ENERGY_GUN:
+        sprintf(buf,
+            "Drain Rate: %d, Todam: %dd%d (av %d), Damage Type: %s (%d)",
+            GET_OBJ_VAL(j, 0), GET_OBJ_VAL(j, 1), GET_OBJ_VAL(j, 2), 
+            (GET_OBJ_VAL(j, 1) * (GET_OBJ_VAL(j,2) + 1)) / 2, 
+            (GET_OBJ_VAL(j, 3) >= 0 && GET_OBJ_VAL(j,3) < TOP_ENERGY_GUN_TYPE) ? 
+            egun_types[(int)GET_OBJ_VAL(j,3)] : "unknown", 
+            GET_OBJ_VAL(j, 3));
+            break;
     case ITEM_BOMB:
         sprintf(buf, "Values: %s:[%s(%d)] %s:[%d] %s:[%d] %s:[%d]",
             item_value_types[(int)GET_OBJ_TYPE(j)][0],

@@ -188,6 +188,18 @@ extern const struct attack_hit_type attack_hit_text[] = {
 	{"chop", "chops"},
 	{"shoot", "shoots"},
 };
+
+/* Energy weapon attack texts */
+extern const struct gun_hit_type gun_hit_text[] = {
+    {"fire", "fires", "laser beam"},
+    {"ignite", "ignites", "plasma eruption"},
+    {"discharge", "discharges", "ionic pulse"},
+    {"energize", "energizes", "photon burst"},
+    {"trigger", "triggers", "sonic shock wave"},
+    {"fire", "fires", "particle stream"},
+    {"shoot", "shoots", "unknown force"} //leave this as the top type if adding new types
+};
+
 #endif							// __combat_messages__
 /* External structures */
 extern struct spell_info_type spell_info[TOP_SPELL_DEFINE + 1];

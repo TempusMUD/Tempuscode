@@ -3762,7 +3762,7 @@ mag_alter_objs(int level, struct Creature *ch, struct obj_data *obj,
         oaf[0].type = SPELL_ITEM_ATTRACTION_FIELD;
         oaf[0].duration = 20 + ch->getLevelBonus(SPELL_ATTRACTION_FIELD) / 2;
 
-        if (GET_OBJ_TYPE(obj) == ITEM_WEAPON) {
+        if (GET_OBJ_TYPE(obj) == ITEM_WEAPON || GET_OBJ_TYPE(obj) == ITEM_ENERGY_GUN) {
 			int levelBonus = ch->getLevelBonus(SPELL_ATTRACTION_FIELD);
 			int hitroll = dice( 3, 2 );
 

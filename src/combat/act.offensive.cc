@@ -153,7 +153,7 @@ calc_skill_prob(struct Creature *ch, struct Creature *vict, int skillnum,
 	if (IS_AFFECTED_2(vict, AFF2_EVADE))
 		prob -= (GET_LEVEL(vict) >> 2) + 5;
 
-	if (IS_MONK(ch)) {
+	if (IS_BARB(ch)) {
 		if (GET_EQ(ch, WEAR_WIELD))
 			prob +=
 				(LEARNED(ch) - weapon_prof(ch, GET_EQ(ch, WEAR_WIELD))) >> 2;
@@ -2350,14 +2350,14 @@ ACMD(do_shoot)
 		for (; it != ch->in_room->people.end(); ++it)
 			if (*it != ch && (*it)->findCombat(ch))
 				prob -= (GET_LEVEL(*it) >> 3);
-
+        
 		if (vict->numCombatants() && !vict->findCombat(ch) && number(1, 121) > prob)
 			vict = vict->findRandomCombat();
 		else if (vict->numCombatants() && number(1, 101) > prob) {
 			it = ch->in_room->people.begin();
 			for (; it != ch->in_room->people.end(); ++it) {
 				if ((*it) != ch && (*it) != vict && (*it)->findCombat(vict) &&
-					!number(0, 2)) {
+                !number(0, 2)) {
 					vict = (*it);
 					break;
 				}
@@ -2371,91 +2371,57 @@ ACMD(do_shoot)
 				}
 			}
 		}
-
-		if (CUR_R_O_F(gun) <= 0)
-			CUR_R_O_F(gun) = 1;
-
-		for (i = 0, dead = false; i < CUR_R_O_F(gun); i++) {
-
-			prob -= (i * 4);
-			cost = MIN(CUR_ENERGY(gun->contains), GUN_DISCHARGE(gun));
-
-			dam = dice(GUN_DISCHARGE(gun), (cost >> 1));
-
-			CUR_ENERGY(gun->contains) -= cost;
-
-			cur_weap = gun;
-
-			if (dead == false) {
-
-				//
-				// miss
-				//
-
-				if (number(0, 121) > prob) {
-					check_killer(ch, vict);
-					my_return_flags =
-						damage(ch, vict, 0, SKILL_ENERGY_WEAPONS, number(0,
-							NUM_WEARS - 1));
-				}
-				//
-				// hit
-				//
-
-				else {
-					check_killer(ch, vict);
-					my_return_flags =
-						damage(ch, vict, dam, SKILL_ENERGY_WEAPONS, number(0,
-							NUM_WEARS - 1));
-				}
-			}
-			//
-			// vict is dead, blast the corpse
-			//
-
-			else {
-				if (ch->in_room->contents && IS_CORPSE(ch->in_room->contents)
-					&& CORPSE_KILLER(ch->in_room->contents) ==
-					(IS_NPC(ch) ? -GET_MOB_VNUM(ch) : GET_IDNUM(ch))) {
-					act("You blast $p with $P!!", FALSE, ch,
-						ch->in_room->contents, gun, TO_CHAR);
-					act("$n blasts $p with $P!!", FALSE, ch,
-						ch->in_room->contents, gun, TO_ROOM);
-					if (damage_eq(ch, ch->in_room->contents, dam))
-						break;
-				} else {
-					act("You fire off a round from $P.",
-						FALSE, ch, ch->in_room->contents, gun, TO_ROOM);
-					act("$n fires off a round from $P.",
-						FALSE, ch, ch->in_room->contents, gun, TO_ROOM);
-				}
-			}
-
-			//
-			// if the attacker was somehow killed, return immediately
-			//
-
-			if (IS_SET(my_return_flags, DAM_ATTACKER_KILLED)) {
-				ACMD_set_return_flags(my_return_flags);
-				return;
-			}
-
-			if (IS_SET(my_return_flags, DAM_VICT_KILLED)) {
-				ACMD_set_return_flags(my_return_flags);
-				dead = true;
-			}
-
-			if (!CUR_ENERGY(gun->contains)) {
-				act("$p has been depleted of fuel.  Auto switching off.",
-					FALSE, ch, gun, 0, TO_CHAR);
-				act("$p makes a clicking noise in the hard of $n.",
-					TRUE, ch, gun, 0, TO_ROOM);
-				break;
-			}
-		}
-		cur_weap = NULL;
-		WAIT_STATE(ch, (((i << 1) + 6) >> 1) RL_SEC);
-		return;
+        
+        cost = MIN(CUR_ENERGY(gun->contains), GUN_DISCHARGE(gun));
+        
+        dam = dice(GET_OBJ_VAL(gun,1), GET_OBJ_VAL(gun,2));
+        
+        CUR_ENERGY(gun->contains) -= cost;
+        
+        cur_weap = gun;
+        
+        //
+        // miss
+        //
+        
+        if (number(0, 121) > prob) {
+            check_killer(ch, vict);
+            my_return_flags =
+            damage(ch, vict, 0, SKILL_ENERGY_WEAPONS, number(0,
+            NUM_WEARS - 1));
+        }
+        //
+        // hit
+        //
+        
+        else {
+            check_killer(ch, vict);
+            my_return_flags =
+            damage(ch, vict, dam, SKILL_ENERGY_WEAPONS, number(0,
+            NUM_WEARS - 1));
+        }
+        //
+        // if the attacker was somehow killed, return immediately
+        //
+        
+        if (IS_SET(my_return_flags, DAM_ATTACKER_KILLED)) {
+            ACMD_set_return_flags(my_return_flags);
+            return;
+        }
+        
+        if (IS_SET(my_return_flags, DAM_VICT_KILLED)) {
+            ACMD_set_return_flags(my_return_flags);
+            dead = true;
+        }
+        
+        if (!CUR_ENERGY(gun->contains)) {
+            act("$p has been depleted of fuel.  You must replace the energy cell before firing again.",
+            FALSE, ch, gun, 0, TO_CHAR);
+        }
+    
+    cur_weap = NULL;
+    WAIT_STATE(ch, (((i << 1) + 6) >> 1) RL_SEC);
+    return;
 	}
 	//
 	// The Projectile Gun block
@@ -3284,28 +3250,27 @@ do_combat_fire(struct Creature *ch, struct Creature *vict)
 		if (!gun->contains || !IS_ENERGY_CELL(gun->contains)) {
             act("$p doesn't contain an energy cell!.",
                 FALSE, ch, gun, 0, TO_CHAR);
-            act("$p makes a clicking noise in the hard of $n.",
-                TRUE, ch, gun, 0, TO_ROOM);
-			return -1;
+            return -1;
 		}
 		if (CUR_ENERGY(gun->contains) <= 0) {
 			return -1;
 		}
-
-		cost = MIN(CUR_ENERGY(gun->contains), GUN_DISCHARGE(gun));
 
 		prob = calc_skill_prob(ch, vict, SKILL_SHOOT,
 			&dum_ptr, &dum_ptr, &dum_move, &dum_move, &dum_ptr,
 			&dum_ptr, &dum_ptr, &dum_ptr, af, &my_return_flags);
 
 		prob += CHECK_SKILL(ch, SKILL_ENERGY_WEAPONS) >> 2;
-
+        prob += dex_app[GET_DEX(ch)].tohit;
+        
         vict = randomize_target(ch, vict, prob);
 
         cost = MIN(CUR_ENERGY(gun->contains), GUN_DISCHARGE(gun));
 
-        dam = dice(GUN_DISCHARGE(gun), (cost >> 1));
-
+        dam = dice(GET_OBJ_VAL(gun, 1), GET_OBJ_VAL(gun,2));
+        dam += GET_HITROLL(ch);
+        dam += dex_app[GET_DEX(ch)].todam;
+        
         CUR_ENERGY(gun->contains) -= cost;
 
         cur_weap = gun;
@@ -3330,10 +3295,8 @@ do_combat_fire(struct Creature *ch, struct Creature *vict)
         }
 
         if (!CUR_ENERGY(gun->contains)) {
-            act("$p has been depleted of fuel.  Auto switching off.",
+            act("$p has been depleted of fuel.  Replace cell before further use.",
                 FALSE, ch, gun, 0, TO_CHAR);
-            act("$p makes a clicking noise in the hard of $n.",
-                TRUE, ch, gun, 0, TO_ROOM);
         }
 		cur_weap = NULL;
 		return 0;

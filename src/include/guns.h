@@ -23,7 +23,7 @@ void show_gun_status(struct Creature *ch, struct obj_data *gun);
 
 #define MAX_R_O_F(obj)       (GET_OBJ_VAL(obj, 0))
 #define CUR_R_O_F(obj)       (GET_OBJ_VAL(obj, 1))
-#define GUN_DISCHARGE(obj)   (GET_OBJ_VAL(obj, 2))
+#define GUN_DISCHARGE(obj)   (GET_OBJ_VAL(obj, 0))
 
 	 /** gun utils **/
 

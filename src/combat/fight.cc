@@ -2170,7 +2170,7 @@ get_next_weap(struct Creature *ch)
 
 	// Check dual wield
 	cur_weap = GET_EQ(ch, WEAR_WIELD_2);
-	if (cur_weap && IS_OBJ_TYPE(cur_weap, ITEM_WEAPON)) {
+	if (cur_weap && (IS_OBJ_TYPE(cur_weap, ITEM_WEAPON) || IS_ENERGY_GUN(cur_weap))) {
 		if (affected_by_spell(ch, SKILL_NEURAL_BRIDGING)) {
 			if ((CHECK_SKILL(ch, SKILL_NEURAL_BRIDGING) * 2 / 3) + dual_prob > number(50, 150)) {
 				gain_skill_prof(ch, SKILL_NEURAL_BRIDGING);
@@ -2191,24 +2191,26 @@ get_next_weap(struct Creature *ch)
 
 	// Check equipment on hands
 	cur_weap = GET_EQ(ch, WEAR_HANDS);
-	if (cur_weap && IS_OBJ_TYPE(cur_weap, ITEM_WEAPON) && !number(0, 5))
+	if (cur_weap && (IS_OBJ_TYPE(cur_weap, ITEM_WEAPON) || IS_ENERGY_GUN(cur_weap))
+        && !number(0, 5))
 		return cur_weap;
 
 	// Check for implanted weapons in hands
 	cur_weap = GET_IMPLANT(ch, WEAR_HANDS);
 	if (cur_weap && !GET_EQ(ch, WEAR_HANDS) &&
-			IS_OBJ_TYPE(cur_weap, ITEM_WEAPON) && !number(0, 2))
+			(IS_OBJ_TYPE(cur_weap, ITEM_WEAPON) || IS_ENERGY_GUN(cur_weap)) && !number(0, 2))
 		return cur_weap;
 
 	// Check for weapon on feet
 	cur_weap = GET_EQ(ch, WEAR_FEET);
-	if (cur_weap && IS_OBJ_TYPE(cur_weap, ITEM_WEAPON) &&
+	if (cur_weap && (IS_OBJ_TYPE(cur_weap, ITEM_WEAPON) || IS_ENERGY_GUN(cur_weap)) &&
 			CHECK_SKILL(ch, SKILL_KICK) > number(10, 170))
 		return cur_weap;
 
 	// Check equipment on head
 	cur_weap = GET_EQ(ch, WEAR_HEAD);
-	if (cur_weap && IS_OBJ_TYPE(cur_weap, ITEM_WEAPON) && !number(0, 2))
+	if (cur_weap && (IS_OBJ_TYPE(cur_weap, ITEM_WEAPON) || IS_ENERGY_GUN(cur_weap)) 
+        && !number(0, 2))
 		return cur_weap;
 	
 
@@ -2335,9 +2337,18 @@ hit(struct Creature *ch, struct Creature *victim, int type)
 		else
 			cur_weap = get_next_weap(ch);
 		if (cur_weap) {
-			if (IS_ENERGY_GUN(cur_weap) || IS_GUN(cur_weap)) {
+			if ((IS_ENERGY_GUN(cur_weap) &&  (!cur_weap->contains ||  
+                (cur_weap->contains && CUR_ENERGY(cur_weap->contains) <= 0)))
+                || IS_GUN(cur_weap)) {
 				w_type = TYPE_BLUDGEON;
-			} else if (IS_OBJ_TYPE(cur_weap, ITEM_WEAPON))
+            } else if (IS_ENERGY_GUN(cur_weap) && cur_weap->contains) {
+                w_type = SKILL_ENERGY_WEAPONS;
+                int cost = MIN(CUR_ENERGY(cur_weap->contains), GUN_DISCHARGE(cur_weap));
+                CUR_ENERGY(cur_weap->contains) -= cost;
+                if (CUR_ENERGY(cur_weap->contains) <= 0) {
+                    act("$p has been depleted of fuel.  Replace cell before further use.", FALSE, ch, cur_weap, 0, TO_CHAR);
+                }
+            } else if (IS_OBJ_TYPE(cur_weap, ITEM_WEAPON))
 				w_type = GET_OBJ_VAL(cur_weap, 3) + TYPE_HIT;
 			else
 				cur_weap = NULL;
@@ -2405,8 +2416,17 @@ hit(struct Creature *ch, struct Creature *victim, int type)
 		limb = WEAR_NECK_1;
 
 	/* okay, we know the guy has been hit.  now calculate damage. */
-	dam = str_app[STRENGTH_APPLY_INDEX(ch)].todam;
-	dam += GET_DAMROLL(ch);
+	if (cur_weap && w_type == SKILL_ENERGY_WEAPONS) {
+        dam = dex_app[GET_DEX(ch)].todam;
+        dam += GET_HITROLL(ch);
+	} else {
+        dam = str_app[STRENGTH_APPLY_INDEX(ch)].todam;
+        dam += GET_DAMROLL(ch);
+        if (cur_weap && IS_ENERGY_GUN(cur_weap)) { //bludgeoning with our gun
+            dam /= 10;
+        }
+	}
+    
 	tmp_dam = dam;
 
 	if (cur_weap) {
@@ -2426,7 +2446,7 @@ hit(struct Creature *ch, struct Creature *victim, int type)
 						break;
 					}
 			}
-			if (IS_TWO_HAND(cur_weap) && IS_BARB(ch) && 
+			if (IS_TWO_HAND(cur_weap) && IS_BARB(ch) && !IS_ENERGY_GUN(cur_weap) && 
                 cur_weap->worn_on == WEAR_WIELD) 
             {
 				int dam_add;
@@ -2499,7 +2519,7 @@ hit(struct Creature *ch, struct Creature *victim, int type)
 
 	} else {
         int ablaze_level = 0;
-		if (cur_weap && IS_OBJ_TYPE(cur_weap, ITEM_WEAPON) ) {
+		if (cur_weap && IS_OBJ_TYPE(cur_weap, ITEM_WEAPON) && !IS_ENERGY_GUN(cur_weap) ) {
 			if( GET_OBJ_VAL(cur_weap, 3) >= 0 &&
                 GET_OBJ_VAL(cur_weap, 3) < TOP_ATTACKTYPE - TYPE_HIT &&
                 IS_BARB(ch)) {
@@ -2515,6 +2535,10 @@ hit(struct Creature *ch, struct Creature *victim, int type)
                 }
             }
 		}
+        if (w_type == SKILL_ENERGY_WEAPONS && GET_SKILL(ch, SKILL_ENERGY_WEAPONS) > 60) {
+            gain_skill_prof(ch, SKILL_ENERGY_WEAPONS);
+        }
+        
 		retval = damage(ch, victim, dam, w_type, limb);
 
 		if (retval) {
@@ -2754,7 +2778,7 @@ perform_violence(void)
 		if (MIN(100, prob + 15) >= die_roll) {
 
 			bool stop = false;
-            int retval = -1;
+            //int retval = -1;
 
 			for (i = 0; i < 4; i++) {
 				if (!ch->numCombatants() || GET_LEVEL(ch) < (i << 3))
@@ -2767,7 +2791,7 @@ perform_violence(void)
 
 				if (prob >= number((i << 4) + (i << 3), (i << 5) + (i << 3))) {
                     // Special combat loop for mercs...
-                    if (IS_MERC(ch)) {
+                    /*if (IS_MERC(ch)) {
                         // Roll the dice to see if the merc gets to shoot his gun this round
                         if (prob > number(1, 101)) {
                             retval = do_combat_fire(ch, ch->findRandomCombat());
@@ -2794,12 +2818,12 @@ perform_violence(void)
                         }
                     }
                     // Everyone elses combat loop
-                    else {
+                    else {*/
                         if (hit(ch, ch->findRandomCombat(), TYPE_UNDEFINED)) {
                             stop = true;
                             break;
                         }
-                    }
+                    //}
 				}
 			}
 

@@ -1387,6 +1387,8 @@ struct dex_app_type {
 	sh_int reaction;
 	sh_int miss_att;
 	sh_int defensive;
+    sh_int tohit;
+    sh_int todam;
 };
 
 

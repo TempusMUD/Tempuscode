@@ -54,6 +54,7 @@ extern const char *gun_types[] = {
 	"\n"
 };
 
+/*
 extern const char *egun_types[] = {
 	"none",
 	"lightning",
@@ -65,6 +66,16 @@ extern const char *egun_types[] = {
 	"microwave",
 	"gamma",
 	"\n"
+};*/
+
+extern const char *egun_types[] = {
+    "laser",
+    "plasma",
+    "ion",
+    "photon",
+    "sonic",
+    "particle",
+    "unknown"
 };
 
 extern const int gun_damage[][2] = {
@@ -122,13 +133,9 @@ show_gun_status(struct Creature *ch, struct obj_data *gun)
 			strcpy(buf, "");
 
 		sprintf(buf,
-			"%sIt is set to discharge at rate:    %s[%2d]%s units/shot.\r\n",
-			buf, QGRN, GUN_DISCHARGE(gun), QNRM);
-		if (MAX_R_O_F(gun) > 1)
-			sprintf(buf,
-				"%sThe Rate of Fire is set to:        %s[%d/%d]%s.\r\n", buf,
-				QGRN, CUR_R_O_F(gun), MAX_R_O_F(gun), QNRM);
-
+			"%sGun Classification:    %s[%s]%s\r\n",
+			buf, QGRN, egun_types[GET_OBJ_VAL(gun,3)], QNRM);
+		
 		send_to_char(ch, "%s", buf);
 	}
 
@@ -232,18 +239,22 @@ ACMD(do_gunset)
 		send_to_char(ch, "A NEGATIVE value?  Consider the implications...\r\n");
 		return;
 	}
-
+    
 	if (mode == GUNSET_RATE) {
-		if (number > MAX_R_O_F(gun)) {
+		if (IS_ENERGY_GUN(gun)) {
+            send_to_char(ch, "You may not set the rate of fire for energy weapons.\r\n");
+            return;
+        }
+        if (number > MAX_R_O_F(gun)) {
 			send_to_char(ch, "The maximum rate of fire of %s is %d.\r\n",
-				gun->name, MAX_R_O_F(gun));
+            gun->name, MAX_R_O_F(gun));
 		} else if (!number) {
 			send_to_char(ch, "A zero rate of fire doesn't make much sense.\r\n");
 		} else {
 			act("$n adjusts the configuration of $p.", TRUE, ch, gun, 0,
-				TO_ROOM);
+            TO_ROOM);
 			CUR_R_O_F(gun) = number;
-
+            
 			send_to_char(ch, "The rate of fire of %s set to %d/%d.\r\n",
 				gun->name, CUR_R_O_F(gun), MAX_R_O_F(gun));
 		}

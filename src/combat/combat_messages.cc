@@ -38,7 +38,7 @@
 #include <iostream>
 extern int corpse_state;
 char *replace_string(char *str, char *weapon_singular, char *weapon_plural,
-	const char *location);
+	const char *location, char* substance=NULL);
 
 
 void
@@ -847,7 +847,265 @@ dam_message(int dam, struct Creature *ch, struct Creature *victim,
         }
 
 	};
+    
+    /* fifth set of possible mssgs, IF ENERGY_WEAPON. */
+	static struct dam_weapon_type dam_energyguns[] = {
 
+		{   // 0: 0
+			"$n misses $N with #s.",
+			"You miss $N with #s.",
+			"$n misses you with #s."
+        },
+		{   // 1: 1 - 4
+			"$n grazes $N with #s.",
+			"You graze $N with #s.",
+			"$n grazes you with #s."
+        },
+		{   // 2: 3 - 6
+			"$n barely marks $N with $p.",	
+			"You barely mark $N with #s.",
+			"$n barely marks you with #s."
+        },
+		{   // 3: 5 - 10
+			"$n hurts $N with #s.",	
+			"You hurt $N with #s.",
+			"$n hurts you with #s."
+        },
+		{   // 4: 7 - 14
+			"$n hurts $N badly with #s.",
+			"You hurt $N badly with #s.",
+			"$n hurts you badly with #s."
+        },
+		{   // 5: 11 - 19
+			"$n hurts $N very badly with #s.",
+			"You hurt $N very badly with #s.",
+			"$n hurts you very badly with #s."
+        },
+		{  // 6: 15 - 23
+            "$n ravages $N with #s!!",
+			"You ravage $N with #s!",
+			"$n ravages you with #s!"
+        },
+		{   // 7: 19 - 27
+			"$n massacre $N with #s!",
+			"You massacre $N with #s!",
+			"$n massacres you with #s!"
+        },
+		{   // 8: 23 - 32
+			"$n devastates $N with #s!",
+			"You devastate $N with #s!",
+			"$n devastates you with #s!"
+        },
+		{   // 9: 32 - 37
+			"$n OBLITERATES $N with #s!!",
+			"You OBLITERATE $N with #s!!",
+			"$n OBLITERATES you with #s!!"
+        },
+		{   // 10: 37 - 45
+			"$n DEMOLISHES $N with #s!!",
+			"You DEMOLISH $N with #s!!",
+			"$n DEMOLISHES you with #s!!"
+        },
+		{   // 11: 46 - 79
+			"$n PULVERIZES $N with #s!!",
+			"You PULVERIZE $N with #s!!",
+			"$n PULVERIZES you with #s!!"
+        },
+		{   // 12: 80 - 99
+			"$n *DECIMATES* $N with #s!!",
+			"You *DECIMATE* $N with #s!!",
+			"$n *DECIMATES* you with #s!!"
+        },
+		{   // 13: 100 - 139
+			"$n *LIQUIFIES** $N with #s!!",
+			"You *LIQUIFY* $N with #s!!",
+			"$n *LIQUIFIES* you with #s!!"
+        },
+		{   // 14: 140 - 189
+			"$n **VAPORIZES** $N with #s!!",
+			"You **VAPORIZE** $N with #s!!",
+			"$n **VAPORIZES** you with #s!!"
+        },
+		{   // 15: >189
+			"$n **ANNIHILATES** $N with #s!!",
+			"You **ANNIHILATE** $N with #s!!",
+			"$n **ANNIHILATES** you with #s!!"
+        }
+
+	};
+    
+    /* 6th set of possible mssgs, IF ENERGY_WEAPON version 2. */
+	static struct dam_weapon_type dam_energyguns2[] = {
+
+		{   // 0: 0
+			"#s misses $N as $n #W $p.",
+			"#s misses $N as you #w $p.",
+			"#s misses you as $n #W $p."
+        },
+		{   // 1: 1 - 4
+			"#s grazes $N as $n #W $p.",
+			"#s grazes $N as you #w $p.",
+			"#s grazes you as $n #W $p."
+        },
+		{   // 2: 3 - 6
+			"#s barely marks $N as $n #W $p.",
+			"#s barely marks $N as you #w $p.",
+			"#s barely marks you as $n #W $p."
+        },
+		{   // 3: 5 - 10
+			"#s hurts $N as $n #W $p.",
+			"#s hurts $N as you #w $p.",
+			"#s hurts you as $n #W $p."
+        },
+		{   // 4: 7 - 14
+			"#s hurts you $N badly as $n #W $p.",
+			"#s hurts you $N badly as you #w $p.",
+			"#s hurts you badly as $n #W $p."
+        },
+		{   // 5: 11 - 19
+			"#s hurts $N very badly as $n #W $p.",
+			"#s hurts $N very badly as you #w $p.",
+			"#s hurts you very badly as $n #W $p."
+        },
+		{  // 6: 15 - 23
+            "#s ravages $N as $n #W $p.",
+			"#s ravages $N as you #w $p.",
+			"#s ravages you as $n #W $p."
+        },
+		{   // 7: 19 - 27
+			"#s massacres $N as $n #W $p.",
+			"#s massacres $N as you #w $p.",
+			"#s massacres you as $n #W $p."
+        },
+		{   // 8: 23 - 32
+			"#s devastates $N as $n #W $p!",
+			"#s devastates $N as you #w $p!",
+			"#s devastates you as $n #W $p!"
+        },
+		{   // 9: 32 - 37
+			"#s OBLITERATES $N as $n #W $p!",
+			"#s OBLITERATES $N as you #w $p!",
+			"#s OBLITERATES you as $n #W $p!"
+        },
+		{   // 10: 37 - 45
+			"#s DEMOLISHES $N as $n #W $p!",
+			"#s DEMOLISHES $N as you #w $p!",
+			"#s DEMOLISHES you as $n #W $p!"
+        },
+		{   // 11: 46 - 79
+			"#s PULVERIZES $N as $n #W $p!",
+			"#s PULVERIZES $N as you #w $p!",
+			"#s PULVERIZES you as $n #W $p!"
+        },
+		{   // 12: 80 - 99
+			"#s *DECIMATES* $N as $n #W $p!",
+			"#s *DECIMATES* $N as you #w $p!",
+			"#s *DECIMATES* you as $n #W $p!"
+        },
+		{   // 13: 100 - 139
+			"#s *LIQUIFIES* $N as $n #W $p!!",
+			"#s *LIQUIFIES* $N as you #w $p!!",
+			"#s *LIQUIFIES* you as $n #W $p!!"
+        },
+		{   // 14: 140 - 189
+			"#s **VAPORIZES** $N as $n #W $p!!",
+			"#s **VAPORIZES** $N as you #w $p!!",
+			"#s **VAPORIZES** you as $n #W $p!!"
+        },
+		{   // 15: >189
+			"#s **ANNIHILATES** $N as $n #W $p!!",
+			"#s **ANNIHILATES** $N as you #w $p!!",
+			"#s **ANNIHILATES** you as $n #W $p!!"
+        }
+
+	};
+
+    /* 7th set of possible mssgs, IF ENERGY_WEAPON version 3. */
+	static struct dam_weapon_type dam_energyguns3[] = {
+
+		{   // 0: 0
+			"$n misses $N with $p #S.",
+			"You miss $N with $p #S.",
+			"$n misses you with $p #S."
+        },
+		{   // 1: 1 - 4
+			"$n grazes $N with $p #S.",
+			"You graze $N with $p #S.",
+			"$n grazes you with $p #S."
+        },
+		{   // 2: 3 - 6
+			"$n barely marks $N with $p #S.",
+			"You barely mark $N with $p #S.",
+			"$n barely marks you with $p #S."
+        },
+		{   // 3: 5 - 10
+			"$n hurts $N with $p #S.",
+			"You hurt $N with $p #S.",
+			"$n hurts you with $p #S."
+        },
+		{   // 4: 7 - 14
+			"$n hurts $N badly with $p #S.",
+			"You hurt $N badly with $p #S.",
+			"$n hurts you badly with $p #S."
+        },
+		{   // 5: 11 - 19
+			"$n hurts $N very badly with $p #S.",
+			"You hurt $N very badly with $p #S.",
+			"$n hurts you very badly with $p #S."
+        },
+		{  // 6: 15 - 23
+            "$n ravages $N with $p #S.",
+			"You ravage $N with $p #S.",
+			"$n ravages you with $p #S."
+        },
+		{   // 7: 19 - 27
+			"$n massacres $N with $p #S.",
+			"You massacre $N with $p #S.",
+			"$n massacres you with $p #S."
+        },
+		{   // 8: 23 - 32
+			"$n devastates $N with $p #S!",
+			"You devastate $N with $p #S!",
+			"$n devastates you with $p #S!"
+        },
+		{   // 9: 32 - 37
+			"$n OBLITERATES $N with $p #S!",
+			"You OBLITERATE $N with $p #S!",
+			"$n OBLITERATES you with $p #S!"
+        },
+		{   // 10: 37 - 45
+			"$n DEMOLISHES $N with $p #S!",
+			"You DEMOLISH $N with $p #S!",
+			"$n DEMOLISHES you with $p #S!"
+        },
+		{   // 11: 46 - 79
+			"$n PULVERIZES $N with $p #S!",
+			"You PULVERIZE $N with $p #S!",
+			"$n PULVERIZES you with $p #S!"
+        },
+		{   // 12: 80 - 99
+			"$n **DECIMATES** $N with $p #S!",
+			"You **DECIMATE** $N with $p #S!",
+			"$n **DECIMATES** you with $p #S!"
+        },
+		{   // 13: 100 - 139
+			"$n **LIQUIFIES** $N with $p #S!!",
+			"You **LIQUIFY** $N with $p #S!!",
+			"$n **LIQUIFIES** you with $p #S!!"
+        },
+		{   // 14: 140 - 189
+			"$n **VAPORIZES** $N with $p #S!!",
+			"You **VAPORIZE** $N with $p #S!!",
+			"$n **VAPORIZES** you with $p #S!!"
+        },
+		{   // 15: >189
+			"$n **ANNIHILATES** $N with $p #S!!",
+			"You **ANNIHILATE** $N with $p #S!!",
+			"$n **ANNIHILATES** you with $p #S!!"
+        }
+
+	};
+    
 	if (search_nomessage)
 		return;
 
@@ -903,10 +1161,25 @@ dam_message(int dam, struct Creature *ch, struct Creature *victim,
         buf = replace_string(dam_mana_shield[msgnum].to_room,
                              attack_hit_text[w_type].singular,
                              attack_hit_text[w_type].plural, NULL);
-    else if (weap && ((IS_ENERGY_GUN(weap)
-			&& w_type == (TYPE_ENERGY_GUN - TYPE_HIT)) || (IS_GUN(weap)
-			&& w_type == (TYPE_BLAST - TYPE_HIT))))
-		buf = replace_string(dam_guns[msgnum].to_room,
+    else if (weap && IS_ENERGY_GUN(weap) && w_type == (TYPE_ENERGY_GUN - TYPE_HIT)) {
+		int guntype = GET_OBJ_VAL(weap,3);
+        if (guntype > TOP_ENERGY_GUN_TYPE)
+            guntype = TOP_ENERGY_GUN_TYPE;
+        if (!number(0,2))
+            buf = replace_string(dam_energyguns[msgnum].to_room,
+			gun_hit_text[guntype].singular, gun_hit_text[guntype].plural,
+			NULL, gun_hit_text[guntype].substance);
+        else if (!number(0, 1))
+            buf = replace_string(dam_energyguns2[msgnum].to_room,
+			gun_hit_text[guntype].singular, gun_hit_text[guntype].plural,
+			NULL, gun_hit_text[guntype].substance);
+        else
+            buf = replace_string(dam_energyguns3[msgnum].to_room,
+			gun_hit_text[guntype].singular, gun_hit_text[guntype].plural,
+			NULL, gun_hit_text[guntype].substance);
+    }
+    else if (weap && IS_GUN(weap) && w_type == (TYPE_BLAST - TYPE_HIT))
+        buf = replace_string(dam_guns[msgnum].to_room,
 			attack_hit_text[w_type].singular, attack_hit_text[w_type].plural,
 			NULL);
 	else if (location >= 0 && POS_DAMAGE_OK(location) && !number(0, 2) &&
@@ -929,13 +1202,28 @@ dam_message(int dam, struct Creature *ch, struct Creature *victim,
             buf = replace_string(dam_mana_shield[msgnum].to_char,
                                  attack_hit_text[w_type].singular,
                                  attack_hit_text[w_type].plural, NULL);
-        else if (weap && ((IS_ENERGY_GUN(weap)
-					&& w_type == (TYPE_ENERGY_GUN - TYPE_HIT)) || (IS_GUN(weap)
-					&& w_type == (TYPE_BLAST - TYPE_HIT))))
-			buf = replace_string(dam_guns[msgnum].to_char,
-				attack_hit_text[w_type].singular,
-				attack_hit_text[w_type].plural, NULL);
-		else if (location >= 0 && POS_DAMAGE_OK(location) && !number(0, 2)) {
+        else if (weap && IS_ENERGY_GUN(weap) && w_type == (TYPE_ENERGY_GUN - TYPE_HIT)) {
+            int guntype = GET_OBJ_VAL(weap,3);
+            if (guntype > TOP_ENERGY_GUN_TYPE)
+                guntype = TOP_ENERGY_GUN_TYPE;
+            if (!number(0,2))
+                buf = replace_string(dam_energyguns[msgnum].to_char,
+			    gun_hit_text[guntype].singular, gun_hit_text[guntype].plural,
+		    	NULL, gun_hit_text[guntype].substance);
+            else if (!number(0,1))
+                buf = replace_string(dam_energyguns2[msgnum].to_char,
+			    gun_hit_text[guntype].singular, gun_hit_text[guntype].plural,
+		    	NULL, gun_hit_text[guntype].substance);
+            else
+                buf = replace_string(dam_energyguns3[msgnum].to_char,
+			    gun_hit_text[guntype].singular, gun_hit_text[guntype].plural,
+		    	NULL, gun_hit_text[guntype].substance);
+        }
+        else if (weap && IS_GUN(weap) && w_type == (TYPE_BLAST - TYPE_HIT))
+            buf = replace_string(dam_guns[msgnum].to_char,
+                attack_hit_text[w_type].singular, attack_hit_text[w_type].plural,
+                NULL);
+        else if (location >= 0 && POS_DAMAGE_OK(location) && !number(0, 2)) {
 			buf = replace_string(dam_weapons_location[msgnum].to_char,
 				attack_hit_text[w_type].singular,
 				attack_hit_text[w_type].plural,
@@ -961,14 +1249,28 @@ dam_message(int dam, struct Creature *ch, struct Creature *victim,
             buf = replace_string(dam_mana_shield[msgnum].to_victim,
                                  attack_hit_text[w_type].singular,
                                  attack_hit_text[w_type].plural, NULL);
-        else if (weap && ((IS_ENERGY_GUN(weap)
-					&& w_type == (TYPE_ENERGY_GUN - TYPE_HIT)) || (IS_GUN(weap)
-					&& w_type == (TYPE_BLAST - TYPE_HIT))))
-			buf =
-				replace_string(dam_guns[msgnum].to_victim,
-				attack_hit_text[w_type].singular,
-				attack_hit_text[w_type].plural, NULL);
-		else if (location >= 0 && POS_DAMAGE_OK(location) && !number(0, 2)) {
+        else if (weap && IS_ENERGY_GUN(weap) && w_type == (TYPE_ENERGY_GUN - TYPE_HIT)) {
+            int guntype = GET_OBJ_VAL(weap,3);
+            if (guntype > TOP_ENERGY_GUN_TYPE)
+                guntype = TOP_ENERGY_GUN_TYPE;
+            if (!number(0,2))
+                buf = replace_string(dam_energyguns[msgnum].to_char,
+			    gun_hit_text[guntype].singular, gun_hit_text[guntype].plural,
+		    	NULL, gun_hit_text[guntype].substance);
+            else if (!number(0,1))
+                buf = replace_string(dam_energyguns2[msgnum].to_char,
+			    gun_hit_text[guntype].singular, gun_hit_text[guntype].plural,
+		    	NULL, gun_hit_text[guntype].substance);
+            else
+                buf = replace_string(dam_energyguns3[msgnum].to_char,
+			    gun_hit_text[guntype].singular, gun_hit_text[guntype].plural,
+		    	NULL, gun_hit_text[guntype].substance);
+        }
+        else if (weap && IS_GUN(weap) && w_type == (TYPE_BLAST - TYPE_HIT))
+            buf = replace_string(dam_guns[msgnum].to_char,
+                attack_hit_text[w_type].singular, attack_hit_text[w_type].plural,
+                NULL);
+        else if (location >= 0 && POS_DAMAGE_OK(location) && !number(0, 2)) {
 			buf = replace_string(dam_weapons_location[msgnum].to_victim,
 				attack_hit_text[w_type].singular,
 				attack_hit_text[w_type].plural,

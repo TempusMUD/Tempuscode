@@ -767,6 +767,8 @@ static const int TYPE_BLEED = 897;	// Open wound
 static const int TYPE_OVERLOAD = 898;	// cyborg overloading systems.
 static const int TYPE_SUFFERING = 899;
 
+static const int TOP_ENERGY_GUN_TYPE = 6; //number of currently defined energy gun types
+
 static const int SAVING_PARA = 0;
 static const int SAVING_ROD = 1;
 static const int SAVING_PETRI = 2;
@@ -833,6 +835,12 @@ static const int SPELL_TYPE_SCROLL = 4;
 struct attack_hit_type {
 	char *singular;
 	char *plural;
+};
+
+struct gun_hit_type {
+    char *singular;
+    char *plural;
+    char *substance;
 };
 
 

@@ -98,7 +98,7 @@ calculate_weapon_probability(struct Creature *ch, int prob,
 		prob -=
 			(prob * weap_weight) /
 			(str_app[STRENGTH_APPLY_INDEX(ch)].wield_w << 1);
-		if (IS_MONK(ch)) {
+		if (IS_BARB(ch)) {
 			prob += (LEARNED(ch) - weapon_prof(ch, weap)) >> 3;
 		}
 	}
@@ -436,11 +436,14 @@ check_object_killer(struct obj_data *obj, struct Creature *vict)
 
 char *
 replace_string(char *str, char *weapon_singular, char *weapon_plural,
-	const char *location)
+	const char *location, char *substance)
 {
 	static char buf[256];
 	char *cp;
-
+    char *prefixed_substance = NULL;
+    if (substance) {
+        prefixed_substance = tmp_strcat(AN(substance), " ", substance, NULL);
+    }
 	cp = buf;
 
 	for (; *str; str++) {
@@ -453,9 +456,17 @@ replace_string(char *str, char *weapon_singular, char *weapon_plural,
 				for (; *weapon_singular; *(cp++) = *(weapon_singular++));
 				break;
 			case 'p':
-				if (*location)
+				if (location)
 					for (; *location; *(cp++) = *(location++));
 				break;
+            case 'S':
+                if (substance)
+                    for (; *substance; *(cp++) = *(substance++));
+                break;
+            case 's':
+                if (prefixed_substance)
+                    for (; *prefixed_substance; *(cp++) = *(prefixed_substance++));
+                break;
 			default:
 				*(cp++) = '#';
 				break;
@@ -466,7 +477,7 @@ replace_string(char *str, char *weapon_singular, char *weapon_plural,
 		*cp = 0;
 	}							/* For */
 
-	return (buf);
+	return (CAP(buf));
 }
 
 /* Calculate the raw armor including magic armor.  Lower AC is better. */
@@ -479,8 +490,11 @@ calculate_thaco(struct Creature *ch, struct Creature *victim,
 	calc_thaco = (int)MIN(THACO(GET_CLASS(ch), GET_LEVEL(ch)),
 		THACO(GET_REMORT_CLASS(ch), GET_LEVEL(ch)));
 
-	calc_thaco -= str_app[STRENGTH_APPLY_INDEX(ch)].tohit;
-
+    if (weap && IS_ENERGY_GUN(weap))
+        calc_thaco -= dex_app[GET_DEX(ch)].tohit;
+    else
+        calc_thaco -= str_app[STRENGTH_APPLY_INDEX(ch)].tohit;
+    
 	if (GET_HITROLL(ch) <= 5)
 		calc_thaco -= GET_HITROLL(ch);
 	else if (GET_HITROLL(ch) <= 50)
@@ -533,9 +547,15 @@ calculate_thaco(struct Creature *ch, struct Creature *victim,
 		else if (IS_THIEF(ch) && (wpn_wgt > 12 + (GET_STR(ch) >> 2)))
 			calc_thaco += (wpn_wgt >> 3);
 
-		if (IS_MONK(ch))
+		if (IS_BARB(ch))
 			calc_thaco += (LEARNED(ch) - weapon_prof(ch, weap)) / 8;
 
+        if (IS_ENERGY_GUN(weap))
+            calc_thaco += (LEARNED(ch) - GET_SKILL(ch, SKILL_ENERGY_WEAPONS)) / 8;
+        
+        if (IS_ENERGY_GUN(weap) && GET_SKILL(ch, SKILL_SHOOT) < 80)
+            calc_thaco += (100-GET_SKILL(ch, SKILL_SHOOT))/20;
+        
 		if (GET_EQ(ch, WEAR_WIELD_2)) {
 			// They don't know how to second wield and
 			// they dont have neural bridging

@@ -1788,7 +1788,9 @@ ACMD(do_status)
 		break;
 
 	case ITEM_GUN:
-	case ITEM_ENERGY_GUN:
+        show_gun_status(ch, obj);
+		break;
+    case ITEM_ENERGY_GUN:
 		show_gun_status(ch, obj);
 		break;
 
@@ -2174,7 +2176,8 @@ obj_cond_color(struct obj_data *obj, struct Creature *ch)
 void
 perform_analyze( Creature *ch, obj_data *obj, bool checklev=true )
 {
-	acc_string_clear();
+	extern const char *egun_types[];
+    acc_string_clear();
 
 	acc_sprintf("       %s***************************************\r\n",
 		CCGRN(ch, C_NRM));
@@ -2289,6 +2292,16 @@ perform_analyze( Creature *ch, obj_data *obj, bool checklev=true )
 				ENG_ELECTRIC) ? "Elect" : IS_SET(ENGINE_STATE(obj),
 				ENG_MAGIC) ? "Magic" : "Fucked", CCNRM(ch, C_NRM),
 			CCCYN(ch, C_NRM), USE_RATE(obj), CCNRM(ch, C_NRM));
+		break;
+	case ITEM_ENERGY_GUN:
+       	acc_sprintf("Damage Dice:          %s%dd%d%s\r\n"
+                    "Drain Rate:           %s%d units/shot%s\r\n"
+                    "Weapon Type:          %s%s%s\r\n",
+			CCCYN(ch, C_NRM), GET_OBJ_VAL(obj, 1), GET_OBJ_VAL(obj, 2),
+			CCNRM(ch, C_NRM), CCCYN(ch, C_NRM), GET_OBJ_VAL(obj, 0),
+			CCNRM(ch, C_NRM), CCCYN(ch, C_NRM), 
+            GET_OBJ_VAL(obj, 3) >= TOP_ENERGY_GUN_TYPE ? "unknown" : 
+            egun_types[GET_OBJ_VAL(obj, 3)], CCNRM(ch, C_NRM));
 		break;
 	case ITEM_BATTERY:
 		acc_sprintf(
