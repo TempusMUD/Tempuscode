@@ -126,20 +126,31 @@ class SafeList : protected list<T> {
             SafeList<T> *_list;
             bool _saved; // iterator has been "saved" from pointing
                         // at an invalid node
-    };
+    }; // End SafeList::iterator
     public:
-        SafeList() : list<T>(), _iterators() { 
+        SafeList(bool prepend = false) : list<T>(), _iterators() { 
             _end = list<T>::end();
             _end._list = this;
+            _prepend = prepend;
         }
-        inline iterator begin() { return iterator(this); }
-        inline iterator& end() { return _end; }
-        inline void add(T c) { push_back(c); }
-        inline bool empty() {
-            return size() == 0;
-        }
+        // Upgrades from list<T>
         list<T>::size; 
         list<T>::insert;
+        // list<T>'s begin and end dont work quite right
+        inline iterator begin() { return iterator(this); }
+        inline iterator& end() { return _end; }
+        /**
+         * Adds a node to the SafeList either by prepending or appending.
+        **/
+        inline void add(T c) { 
+            if(_prepend) push_front(c);
+            else push_back(c);
+        }
+        /**
+         *  Overridden to avoid an odd bug in list<T>::empty()
+        **/
+        inline bool empty() { return (size() == 0); }
+
         void remove(T c) { 
             iterator it = find(begin(), end(), c); 
             if( it != _end ) { 
@@ -157,6 +168,10 @@ class SafeList : protected list<T> {
         }
         void addIterator(iterator *it) { _iterators.push_front(it); }   
         void removeIterator(iterator *it) { _iterators.remove(it); }
+    protected:
+        // If true, push_front to add a node.
+        // If false, push_back to add a node
+        bool _prepend;
     private:
         // "saves" all iterators pointing at ths given position <it>
         // temps - the number of temp iterators used before calling removeUpdate

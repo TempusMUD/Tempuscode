@@ -6,16 +6,9 @@
 
 class CharacterList : public SafeList<char_data*> {
     public:
-        CharacterList()
-            : SafeList<char_data*>() { }
+        CharacterList(bool prepend = false)
+            : SafeList<char_data*>(prepend) { }
         ~CharacterList() {}
-        SafeList<char_data*>::remove;
-        SafeList<char_data*>::add;
-        SafeList<char_data*>::begin;
-        SafeList<char_data*>::end;
-        SafeList<char_data*>::empty;
-        SafeList<char_data*>::size; 
-        SafeList<char_data*>::insert; 
         inline operator bool(){
             return size() > 0;
         }
@@ -27,6 +20,7 @@ class CharacterList : public SafeList<char_data*> {
         }
     protected:
     private:
+        // Prevent a list from ever being converted to an int
         inline operator int(){
             raise(SIGSEGV);
             return -1;

@@ -6,9 +6,9 @@
 **/
 
 /** The list of mobile prototypes or "virtual mobiles" **/
-CharacterList mobilePrototypes; 
+CharacterList mobilePrototypes(false); 
 /** The list of in-game characters. (i.e. players & mobs) **/
-CharacterList characterList;
+CharacterList characterList(false);
 /** The list of characters currently involved in combat **/
-CharacterList combatList;
+CharacterList combatList(false);
 
