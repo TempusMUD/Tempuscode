@@ -1091,11 +1091,12 @@ do_stat_room(struct Creature *ch, char *roomstr)
 
 	for (i = 0; i < NUM_OF_DIRS; i++) {
 		if (rm->dir_option[i]) {
-			if (rm->dir_option[i]->to_room == NULL)
+			if (rm->dir_option[i]->to_room == NULL) {
 				sprintf(buf1, " %sNONE%s", CCCYN(ch, C_NRM), CCNRM(ch, C_NRM));
-			else
+			} else {
 				sprintf(buf1, "%s%5d%s", CCCYN(ch, C_NRM),
 					rm->dir_option[i]->to_room->number, CCNRM(ch, C_NRM));
+			}
 			sprintbit(rm->dir_option[i]->exit_info, exit_bits, buf2);
 			sprintf(buf,
 				"Exit %s%-5s%s:  To: [%s], Key: [%5d], Keywrd: %s, Type: %s\r\n",
@@ -1103,10 +1104,11 @@ do_stat_room(struct Creature *ch, char *roomstr)
 				rm->dir_option[i]->key, rm->dir_option[i]->keyword ?
 				rm->dir_option[i]->keyword : "None", buf2);
 			strcat(out_buf, buf);
-			if (rm->dir_option[i]->general_description)
+			if (rm->dir_option[i]->general_description) {
 				strcpy(buf, rm->dir_option[i]->general_description);
-			else
+			} else {
 				strcpy(buf, "  No exit description.\r\n");
+			}
 			strcat(out_buf, buf);
 		}
 	}
