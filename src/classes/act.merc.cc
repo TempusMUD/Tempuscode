@@ -374,7 +374,8 @@ ACMD(do_snipe)
 		vict = (vict->getFighting());
 	}
 	// Has vict been sniped once and is vict a sentinel mob?
-	if ((MOB_FLAGGED(vict, MOB_SENTINEL)) && IS_SNIPED(vict)) {
+	if ((MOB_FLAGGED(vict, MOB_SENTINEL)) &&
+			affected_by_spell(ch, SKILL_SNIPE)) {
 		act("$N has taken cover!\r\n", TRUE, ch, NULL, vict, TO_CHAR);
 		return;
 	}
@@ -415,7 +416,7 @@ ACMD(do_snipe)
 	// then the victim is aware of a sniper and is assumed
 	// to be taking the necessary precautions, and therefore is
 	// much harder to hit
-	if (IS_SNIPED(vict)) {
+	if (affected_by_spell(vict, SKILL_SNIPE)) {
 		percent += 50;
 	}
 	// just some level checks.  The victims level matters more
@@ -492,18 +493,14 @@ ACMD(do_snipe)
 		apply_soil_to_char(ch, GET_EQ(vict, damage_loc), SOIL_BLOOD,
 			damage_loc);
 		if (!affected_by_spell(vict, SKILL_SNIPE)) {
+			memset(&af, 0, sizeof(af));
 			af.type = SKILL_SNIPE;
-			af.is_instant = 0;
-			af.bitvector = AFF3_SNIPED;
-			af.aff_index = 3;
 			af.level = GET_LEVEL(ch);
 			af.duration = 3;
-			af.location = damage_loc;
-			af.modifier = 0;
 			affect_to_char(vict, &af);
-			WAIT_STATE(vict, 2 RL_SEC);
-		} else
-			WAIT_STATE(vict, 2 RL_SEC);
+		}
+
+		WAIT_STATE(vict, 2 RL_SEC);
 		// double damage for a head shot...1 in 27 chance
 		if (damage_loc == WEAR_HEAD) {
 			dam = dam << 1;
