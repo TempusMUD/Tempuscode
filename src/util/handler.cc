@@ -1274,6 +1274,11 @@ obj_from_char(struct obj_data *object)
 		return;
 	}
 
+    if (!object->carried_by) {
+        errlog("SYSERR: object->carried_by == NULL in obj_from_char");
+        return;
+    }
+
 #ifdef TRACK_OBJS
 	object->obj_flags.tracker.lost_time = time(0);
 	sprintf(buf, "carried by %s", GET_NAME(object->carried_by));
