@@ -24,7 +24,6 @@ using namespace std;
 #include "editor.h"
 
 
-//void string_add(struct descriptor_data *d, char *str);
 static char editbuf[MAX_STRING_LENGTH * 2];
 extern struct descriptor_data *descriptor_list;
 
@@ -59,15 +58,6 @@ start_text_editor(struct descriptor_data *d, char **dest, bool sendmessage=true,
         
     d->text_editor = new CTextEditor(d, dest, max, sendmessage);
 }
-/*
-string_add(d, buffer);
-        if (d->character && 
-            (log_cmds || PLR_FLAGGED(d->character, PLR_LOG))) {
-            
-            slog(buf);
-        }
-*/
-
 
 void CTextEditor::Process( char *inStr ) {
     // 2 special chars, @ and &
