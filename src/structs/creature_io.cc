@@ -595,7 +595,7 @@ Creature::saveToXML()
 			fprintf(ouf, "<poofout>%s</poofout>\n", xmlEncodeTmp(POOFOUT(ch)));
 	}
 	if (ch->player.description && *ch->player.description) {
-		fprintf(ouf, "<description>%s</description>\n",  xmlEncodeTmp(tmp_gsub(ch->player.description, "\r\n", "\n")));
+		fprintf(ouf, "<description>%s</description>\n",  xmlEncodeTmp(tmp_gsub(tmp_gsub(ch->player.description, "\r\n", "\n"), "\r", "")));
 	}
 	for (cur_alias = ch->player_specials->aliases; cur_alias; cur_alias = cur_alias->next)
 		fprintf(ouf, "<alias type=\"%d\" alias=\"%s\" replace=\"%s\"/>\n", cur_alias->type, 
