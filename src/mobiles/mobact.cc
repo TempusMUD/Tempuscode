@@ -1542,6 +1542,7 @@ void mobile_activity(void) {
                     }
                     if(o) {
                         extract_obj(o);
+                        o = NULL;
                     }
                 } 
             }
