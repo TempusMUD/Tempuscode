@@ -541,7 +541,7 @@ vendor_list(Creature *ch, char *arg, Creature *self, ShopData *shop)
 {
 	obj_data *cur_obj, *last_obj;
 	int idx, cnt;
-	char *msg, *name;
+	char *msg;
 
 	if (!self->carrying) {
 		do_say(self,
