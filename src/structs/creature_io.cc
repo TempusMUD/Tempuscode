@@ -507,7 +507,7 @@ Creature::saveToXML()
 
 	if (GET_LEVEL(ch) >= LVL_IMMORT) {
 		fprintf(ouf, "<immort badge=\"%s\" qlog=\"%d\" invis=\"%d\"/>\n",
-			BADGE(ch), GET_QLOG_LEVEL(ch),
+			xmlEncodeTmp(BADGE(ch)), GET_QLOG_LEVEL(ch),
 			GET_INVIS_LVL(ch));
 		if (POOFIN(ch) && *POOFIN(ch))
 			fprintf(ouf, "<poofin>%s</poofin>\n", xmlEncodeTmp(POOFIN(ch)));
@@ -824,8 +824,6 @@ Creature::loadFromXML( const char *path )
 			txt = xmlGetProp(node, "badge");
 			strncpy(BADGE(this), txt, 7);
 			BADGE(this)[7] = '\0';
-			if (is_number(player_specials->saved.badge))
-				strcpy(BADGE(this), "SETME");
 			free(txt);
 
 			GET_QLOG_LEVEL(this) = xmlGetIntProp(node, "qlog");
