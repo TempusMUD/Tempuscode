@@ -369,7 +369,7 @@ errlog(const char *fmt, ...)
 		"SYSERR: %s", tmp_vsprintf(fmt, args));
 	va_end(args);
 
-	mlog(Security::NOONE, LVL_AMBASSADOR, NRM, false,
+	mlog(Security::NOONE, LVL_AMBASSADOR, NRM, true,
 		"TRACE: %s", backtrace_str);
 }
 
