@@ -246,7 +246,8 @@ int CHECK_SKILL(struct char_data *ch, int i);
      || pos == WEAR_LEGS     || pos == WEAR_FEET     || pos == WEAR_BELT \
      || pos == WEAR_EAR_L    || pos == WEAR_EAR_R    || pos == WEAR_ARMS \
      || pos == WEAR_HANDS    || pos == WEAR_HOLD     || pos == WEAR_WIELD \
-     || pos == WEAR_SHIELD   || pos == WEAR_WRIST_L  || pos == WEAR_WRIST_R)
+     || pos == WEAR_SHIELD   || pos == WEAR_WRIST_L  || pos == WEAR_WRIST_R \
+	 || pos == WEAR_WAIST	 || pos == WEAR_CROTCH)
 
 #define ILLEGAL_IMPLANTPOS(pos) \
      (pos == WEAR_LIGHT || pos == WEAR_SHIELD || pos == WEAR_ABOUT || \
