@@ -3449,7 +3449,7 @@ nanny(struct descriptor_data * d, char *arg)
 		    SEND_TO_Q("That program is unavailable.\r\n", d);
 		    return;
 		}
-		if (GET_SKILL(d->character, skill_num) >= LEARNED(d->character)) {
+		if (ABLE_TO_LEARN(d->character, skill_num)) {
 		    SEND_TO_Q("That program already fully installed.\r\n", d);
 		    return;
 		}
