@@ -647,8 +647,23 @@ damage( struct char_data * ch, struct char_data * victim, int dam,
         sprintf( buf,"SYSERR: Attempt to damage a corpse--ch=%s,vict=%s,type=%d.",
              ch ? GET_NAME( ch ) : "NULL", GET_NAME( victim ), attacktype );
         slog( buf );
-        DAM_RETURN( FALSE );
+        DAM_RETURN( TRUE );
     }
+
+    if ( victim->in_room == NULL ) {
+        sprintf( buf,"SYSERR: Attempt to damage a char with null in_room ch=%s,vict=%s,type=%d.",
+                 ch ? GET_NAME( ch ) : "NULL", GET_NAME( victim ), attacktype );
+        slog( buf );
+        DAM_RETURN( TRUE );        
+    }
+
+    if ( GET_HIT( victim) <= -10 ) {
+        sprintf( buf,"SYSERR: Attempt to damage a char with hps %d ch=%s,vict=%s,type=%d.",
+                 GET_HIT( victim) , ch ? GET_NAME( ch ) : "NULL", GET_NAME( victim ), attacktype );
+        slog( buf );
+        DAM_RETURN( TRUE );        
+    }
+    
     if ( ch && ( PLR_FLAGGED( victim, PLR_MAILING )  || 
 		 PLR_FLAGGED( victim, PLR_WRITING )  || 
 		 PLR_FLAGGED( victim, PLR_OLC ) ) &&
