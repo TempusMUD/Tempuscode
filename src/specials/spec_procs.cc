@@ -1327,17 +1327,20 @@ SPECIAL(bank)
 
 	if (!CMD_IS("balance")) {
 		// Do checks for deposit, withdraw, and transfer
-		if (!is_number(arg) && str_cmp(arg, "all")) {
-			send_to_char(ch, "You must specify an amount!\r\n");
-			return 1;
-		}
-		amount = atoi(arg);
-		if (amount < 0) {
-			send_to_char(ch, "Ha ha.  Very funny.\r\n");
-			return 1;
-		} else if (amount == 0) {
-			send_to_char(ch, "You should specify more than zero!\r\n");
-			return 1;
+		if (str_cmp(arg, "all")) {
+			if (!is_number(arg)) {
+				send_to_char(ch, "You must specify an amount!\r\n");
+				return 1;
+			}
+
+			amount = atoi(arg);
+			if (amount < 0) {
+				send_to_char(ch, "Ha ha.  Very funny.\r\n");
+				return 1;
+			} else if (amount == 0) {
+				send_to_char(ch, "You should specify more than zero!\r\n");
+				return 1;
+			}
 		}
 	}
 			
