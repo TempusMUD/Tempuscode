@@ -64,6 +64,7 @@ acc_vsprintf(const char *fmt, va_list args)
 
 	if (acc_str_space - acc_str_len < wanted) {
 		acc_string_adjust(acc_str_space + wanted);
+		result = acc_str_data + acc_str_len;
 		wanted = vsnprintf(result, acc_str_space - acc_str_len, fmt, args);
 	}
 
