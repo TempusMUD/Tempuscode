@@ -7,7 +7,10 @@ $(OBJ)/creature_list.o : creature_list.cc \
 $(OBJ)/obj_data.o : obj_data.cc \
 	$(INCLUDE)/structs.h $(INCLUDE)/utils.h 
 	$(CXX) -c $(CXXFLAGS) obj_data.cc          -o $(OBJ)/obj_data.o
+$(OBJ)/player_table.o : player_table.cc \
+	$(INCLUDE)/player_table.h 
+	$(CXX) -c $(CXXFLAGS) player_table.cc      -o $(OBJ)/player_table.o
 $(OBJ)/room_data.o : room_data.cc \
 	$(INCLUDE)/structs.h $(INCLUDE)/room_data.h 
 	$(CXX) -c $(CXXFLAGS) room_data.cc         -o $(OBJ)/room_data.o
-OBJFILES= $(OBJ)/creature.o $(OBJ)/creature_list.o $(OBJ)/obj_data.o $(OBJ)/room_data.o
+OBJFILES= $(OBJ)/creature.o $(OBJ)/creature_list.o $(OBJ)/obj_data.o $(OBJ)/player_table.o $(OBJ)/room_data.o
