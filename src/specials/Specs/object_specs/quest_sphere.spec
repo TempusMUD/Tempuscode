@@ -123,8 +123,8 @@ SPECIAL(quest_sphere)
 				act("$p dissolves into fine sand in $n's hands.",
 					true, self->carried_by, self, 0, TO_ROOM);
 			} else if (self->in_room && self->in_room->people.size()) {
-				send_to_room(tmp_sprintf("%s dissolves into fine sand and is blown away...",
-					self->name), self->in_room);
+				send_to_room(tmp_capitalize(tmp_sprintf("%s dissolves into fine sand and is blown away...\r\n",
+					self->name)), self->in_room);
 			} else {
 				// in_obj is the only case left.  it just silently
 				// disappears in this case
