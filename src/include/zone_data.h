@@ -99,6 +99,7 @@ struct zone_data {
 	int lifespan;				/* how long between resets (minutes)  */
 	int age;					/* current age of this zone (minutes) */
 	int top;					/* upper limit for rooms in this zone */
+	int respawn_pt;
 
 	int reset_mode;				/* conditions for reset (see below)   */
 	int number;					/* vnum number of this zone   */
