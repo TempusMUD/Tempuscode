@@ -32,6 +32,18 @@ spell_to_str(int spell)
 	return spells[spell];
 }
 
+inline int
+str_to_spell(const char *spell)
+{
+	if( spell == NULL || *spell == '\0' )
+		return -1;
+	for( int i = 0; i < max_spell_num; i++ ) {
+		if( strcmp(spell, spells[i]) == 0 )
+			return i;
+	}
+	return -1;
+}
+
 static const int DEFAULT_STAFF_LVL = 12;
 static const int DEFAULT_WAND_LVL = 12;
 
