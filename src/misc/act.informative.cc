@@ -3132,14 +3132,14 @@ ACMD(do_who)
 					 !strncmp(GET_NAME(tch), "Hubris", 6)   ? "EC ARCH" :
 					 !strncmp(GET_NAME(tch), "Tigger", 6)   ? "OP ARCH" :
 					 !strncmp(GET_NAME(tch), "Trouble", 7)  ? " ADMIN " :
-					 !strncmp(GET_NAME(tch), "Darth", 5)    ? " ADMIN " :
+					 !strncmp(GET_NAME(tch), "Darth", 5)    ? "P ARCH " :
 					 !strncmp(GET_NAME(tch), "Nothing", 7)  ? "THECODE" :
 					 !strncmp(GET_NAME(tch), "Ashe", 4)     ? " C0DER " :
 					 !strncmp(GET_NAME(tch), "Reptile", 7)  ? "BUILDER" :
 					 !strncmp(GET_NAME(tch), "Fortune", 7)  ? "BUILDER" :
 					 !strncmp(GET_NAME(tch), "Storm"  , 5)  ? "BUILDER" :
 					 !strncmp(GET_NAME(tch), "Raza"   , 4)  ? "BUILDER" :
-					 !strncmp(GET_NAME(tch), "Taurean", 7)  ? "BUILDER" :
+					 !strncmp(GET_NAME(tch), "Cedric" , 6)  ? "ARBITER" :
 					 !strncmp(GET_NAME(tch), "Javelin", 7)  ? "BUILDER" :
 					 !strncmp(GET_NAME(tch), "Wolfe"  , 5)  ? "BUILDER" :
 					 !strncmp(GET_NAME(tch), "Renaissance",11)  ? "BUILDER" :
