@@ -810,7 +810,6 @@ ACMD(do_help_collection_command) {
             }
             SwapItems(A,Ap,B,Bp);
             send_to_char("Okay.\r\n",ch);
-            sprintf(buf,"Bottom pointer set to item %d.\r\n",Help->bottom->idnum);
             send_to_char(buf,ch);
             break;
         }// case 14
