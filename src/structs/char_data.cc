@@ -40,15 +40,15 @@ int char_data::getSpeed( void ) {
     // if(IS_NPC(this))
     if(char_specials.saved.act & MOB_ISNPC)
         return 0;
-    return player_specials->saved.speed;
+    return (int)player_specials->saved.speed;
 }
 void char_data::setSpeed( int speed ) {
     // if(IS_NPC(this))
     if(char_specials.saved.act & MOB_ISNPC)
         return;
-    speed = MAX(speed, -100);
+    speed = MAX(speed, 0);
     speed = MIN(speed, 100);
-    player_specials->saved.speed = speed;
+    player_specials->saved.speed = (char)(speed);
 }
 bool char_data::isNewbie() {
     if(char_specials.saved.act & MOB_ISNPC)
