@@ -435,7 +435,7 @@ eqdam_extract_obj( struct obj_data *obj )
 
 
 struct obj_data * 
-damage_eq( struct char_data *ch, struct obj_data *obj, int eq_dam )
+damage_eq( struct char_data *ch, struct obj_data *obj, int eq_dam, int type = -1 )
 {
     struct char_data *vict = NULL;
     struct obj_data *new_obj = NULL, *inobj = NULL, *next_obj = NULL;
@@ -464,12 +464,30 @@ damage_eq( struct char_data *ch, struct obj_data *obj, int eq_dam )
 	for ( inobj = obj->contains; inobj; inobj = next_obj ) {
 	    next_obj = inobj->next_content;
 
-	    damage_eq( NULL, inobj, ( eq_dam >> 1 ) );
+	    damage_eq( NULL, inobj, ( eq_dam >> 1 ), type);
 	}
 #ifdef DMALLOC
 	dmalloc_verify( 0 );
 #endif      
-	if ( IS_METAL_TYPE( obj ) ) {
+    if (  type == SPELL_OXIDIZE && IS_FERROUS(obj)) {
+	    strcpy( buf2, "$p dissolves into a pile of rust!!" );
+	    strcpy( buf, "a pile of rust");
+	    new_obj->name = str_dup( buf );
+	    sprintf( buf, "a pile of rust");
+	    new_obj->short_description = str_dup( buf );
+	    strcat( CAP( buf ), " is lying here." );
+	    new_obj->description = str_dup( buf );
+        GET_OBJ_MATERIAL( new_obj ) = MAT_RUST;
+    } else if ( type == SPELL_OXIDIZE && IS_BURNABLE_TYPE(obj)) {
+	    strcpy( buf2, "$p is incinerated!!" );
+	    strcpy( buf, "a pile of ash");
+	    new_obj->name = str_dup( buf );
+	    sprintf( buf, "a pile of ash");
+	    new_obj->short_description = str_dup( buf );
+	    strcat( CAP( buf ), " is lying here." );
+	    new_obj->description = str_dup( buf );
+        GET_OBJ_MATERIAL( new_obj ) = MAT_ASH;
+    } else if ( IS_METAL_TYPE( obj ) ) {
 	    strcpy( buf2, "$p is reduced to a mangled pile of scrap!!" );
 
 	    sprintf( buf, "%s heap mangled %s", 
@@ -760,9 +778,9 @@ damage( struct char_data * ch, struct char_data * victim, int dam,
     if ( attacktype == TYPE_ACID_BURN && location == -1 ) {
 		for ( i = 0; i < NUM_WEARS; i++ ) {
 			if ( GET_EQ( ch, i ) )
-                damage_eq( ch, GET_EQ( ch, i ), ( dam >> 1 ) );
+                damage_eq( ch, GET_EQ( ch, i ), ( dam >> 1 ), attacktype );
 			if ( GET_IMPLANT( ch, i ) )
-                damage_eq( ch, GET_IMPLANT( ch, i ), ( dam >> 1 ) );
+                damage_eq( ch, GET_IMPLANT( ch, i ), ( dam >> 1 ), attacktype );
 		}
     }
 
@@ -885,10 +903,20 @@ damage( struct char_data * ch, struct char_data * victim, int dam,
             }
             else if ( attacktype == SPELL_PSYCHIC_CRUSH )
                 eq_dam <<= 7;
+            // OXIDIZE Damaging equipment
             else if ( attacktype == SPELL_OXIDIZE ) {
-                if ( ( obj && IS_METAL_TYPE( obj ) ) ||
-                     ( impl && IS_METAL_TYPE( impl ) ) ) {
+                if ( ( obj && IS_FERROUS( obj ) )) {
+                    apply_soil_to_char(victim, GET_EQ(victim,location), SOIL_RUST, location);
                     eq_dam <<= 5;
+                } else if ( impl && IS_FERROUS( impl ) ) {
+                    apply_soil_to_char(victim, GET_IMPLANT(victim,location), SOIL_RUST, location);
+                    eq_dam <<= 5;
+                } else if( (obj && IS_BURNABLE_TYPE(obj))) {
+                    apply_soil_to_char(victim, GET_EQ(victim,location), SOIL_CHAR, location);
+                    eq_dam <<= 10;
+                } else if ( impl && IS_BURNABLE_TYPE(impl)) {
+                    apply_soil_to_char(victim, GET_IMPLANT(victim,location), SOIL_CHAR, location);
+                    eq_dam <<= 10;
                 }
             }
             if ( weap ) {
@@ -1328,13 +1356,13 @@ damage( struct char_data * ch, struct char_data * victim, int dam,
         
         // some "non-weapon" attacks involve a weapon, e.g. backstab
         if ( weap )
-            damage_eq( ch, weap, MAX( weap_dam, dam >> 6 ) );
+            damage_eq( ch, weap, MAX( weap_dam, dam >> 6 ), attacktype );
             
         if ( obj )
-            damage_eq( ch, obj, eq_dam );
+            damage_eq( ch, obj, eq_dam, attacktype );
 
         if ( impl && impl_dam )
-            damage_eq( ch, impl, impl_dam );
+            damage_eq( ch, impl, impl_dam, attacktype );
 
         // ignite the victim if applicable
         if ( !IS_AFFECTED_2( victim, AFF2_ABLAZE ) && 
@@ -1376,13 +1404,13 @@ damage( struct char_data * ch, struct char_data * victim, int dam,
         }
 
         if ( obj && eq_dam )
-            damage_eq( ch, obj, eq_dam );
+            damage_eq( ch, obj, eq_dam, attacktype );
         if ( impl && impl_dam )
-            damage_eq( ch, impl, impl_dam );
+            damage_eq( ch, impl, impl_dam, attacktype );
 
         if ( weap && ( attacktype != SKILL_PROJ_WEAPONS ) && 
         attacktype != SKILL_ENERGY_WEAPONS )
-            damage_eq( ch, weap, MAX( weap_dam, dam >> 6 ) );
+            damage_eq( ch, weap, MAX( weap_dam, dam >> 6 ), attacktype  );
 
         if ( IS_ALIEN_1( victim ) && ( attacktype == TYPE_SLASH  || 
                            attacktype == TYPE_RIP    ||

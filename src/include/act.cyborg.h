@@ -10,7 +10,7 @@
 int max_component_dam(struct char_data *ch);
 int room_count(struct char_data *ch, struct room_data *room);
 struct obj_data *damage_eq(struct char_data *ch, 
-			   struct obj_data *obj, int eq_dam);
+			   struct obj_data *obj, int eq_dam, int type=-1);
 struct obj_data *detonate_bomb(struct obj_data *bomb);
 int redundant_skillchip(struct obj_data *chip, struct obj_data *slot);
 void engage_self_destruct(struct char_data *ch);

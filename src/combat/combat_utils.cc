@@ -482,27 +482,28 @@ apply_soil_to_char( struct char_data *ch,struct obj_data *obj,int type,int pos )
     int count = 0;
 
     if ( pos == WEAR_RANDOM ) {
-	while ( count < 100 &&
-		( ( !GET_EQ( ch, pos ) && ( ILLEGAL_SOILPOS( pos ) ||
-					    CHAR_SOILED( ch, pos, type ) ) ) ||
-		  ( GET_EQ( ch, pos ) && OBJ_SOILED( GET_EQ( ch, pos ), type ) ) ) ) {
-	    pos = number( 0, NUM_WEARS-2 );
-	    count++;
-	}
+        while ( count < 100 &&
+            ( ( !GET_EQ( ch, pos ) && ( ILLEGAL_SOILPOS( pos ) ||
+                            CHAR_SOILED( ch, pos, type ) ) ) ||
+              ( GET_EQ( ch, pos ) 
+                && OBJ_SOILED( GET_EQ( ch, pos ), type ) ) ) ) {
+            pos = number( 0, NUM_WEARS-2 );
+            count++;
+        }
     }
     if ( count >= 100 ) /* didnt find pos.  rare, but possible */
-	return 0;
+        return 0;
 	   
-    if ( GET_EQ( ch, pos ) && GET_EQ( ch, pos ) != obj ) {
-	if ( OBJ_SOILED( GET_EQ( ch, pos ), type ) )
-	    return 0;
+    if ( GET_EQ( ch, pos ) && GET_EQ( ch, pos ) == obj ) {
+        if ( OBJ_SOILED( GET_EQ( ch, pos ), type ) )
+            return 0;
 
-	SET_BIT( OBJ_SOILAGE( GET_EQ( ch, pos ) ), type );
+        SET_BIT( OBJ_SOILAGE( GET_EQ( ch, pos ) ), type );
     }
-    else if ( ILLEGAL_SOILPOS( pos ) || CHAR_SOILED( ch, pos, type ) )
-	return 0;
-    else {
-	SET_BIT( CHAR_SOILAGE( ch, pos ), type );
+    else if ( ILLEGAL_SOILPOS( pos ) || CHAR_SOILED( ch, pos, type ) ) {
+        return 0;
+    } else {
+        SET_BIT( CHAR_SOILAGE( ch, pos ), type );
     }
 
     if ( type == SOIL_BLOOD && obj && GET_OBJ_VNUM( obj ) == BLOOD_VNUM )

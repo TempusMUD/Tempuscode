@@ -572,21 +572,25 @@ mag_damage(int level, struct char_data * ch, struct char_data * victim,
 	break;
     case SPELL_ACIDITY:
 	if (is_physic)
-	    dam = dice(3, 2) + (level >> 2);
+	    dam = dice(3, 4) + (level >> 2);
 	else
-	    dam = dice(2, 2) + 2;
+	    dam = dice(2, 4) + 2;
 	break;
     case SPELL_GAMMA_RAY:
-	if (is_physic)
-	    dam = dice(12, 6) + (level >> 2);
+	if (GET_CLASS(ch) == CLASS_PHYSIC)
+	    dam = dice(12, level >> 1);
 	else
-	    dam = dice(12, 4) + 10;
+	    dam = dice(12, level >> 2);
 	break;
     case SPELL_MICROWAVE:
 	dam = dice(9, 8) + (level >> 1);
 	break;
     case SPELL_OXIDIZE:
-	dam = dice(7, 8) + (level);
+	//dam = dice(7, 8) + (level);
+    // I wanted it to be similar to spiritual hammer, so its just like it.
+    // But, to be original its gonna have to rust shit and burn shit.
+    // Hrm...
+	dam = dice(level, 4) + (level << 1);
 	break;
     case SPELL_GRAVITY_WELL:
         dam = dice(level/2,5);
@@ -746,50 +750,59 @@ mag_damage(int level, struct char_data * ch, struct char_data * victim,
     //
 
     if (savetype == SAVING_SPELL && SPELL_IS_DIVINE(spellnum) ) {
+        if ( IS_GOOD(ch) ) {
+            dam >>= 1;
+        } else if ( IS_EVIL(ch) ) {
+            dam += dam * abs(GET_ALIGNMENT(ch)) / 4000;
 
-	if ( IS_GOOD(ch) ) {
-	    dam >>= 1;
-	}
-
-	else if ( IS_EVIL(ch) ) {
-	    dam += dam * abs(GET_ALIGNMENT(ch)) / 4000;
-
-	    if ( IS_GOOD(victim) ) {
-		dam += dam * abs(GET_ALIGNMENT(victim)) / 2000;
-	    }
-	}
+            if ( IS_GOOD(victim) ) {
+            dam += dam * abs(GET_ALIGNMENT(victim)) / 2000;
+            }
+        }
     }
 
     if (mag_savingthrow(victim, level, savetype))
-	dam >>= 1;
+        dam >>= 1;
 
     if (audible)
-	sound_gunshots(ch->in_room, spellnum, dam, 1);
-    // Yeah yeah, its a hack. so sue me.
-    if(spellnum == SPELL_GRAVITY_WELL) {
+        sound_gunshots(ch->in_room, spellnum, dam, 1);
+
+    // Do spell damage of type spellnum
+    // unless its gravity well which does pressure damage.
+    if(spellnum != SPELL_GRAVITY_WELL) {
+        if (damage(ch, victim, dam, spellnum, WEAR_RANDOM))
+            return 1;
+    } else {
         if (damage(ch, victim, dam, TYPE_PRESSURE, WEAR_RANDOM))
             return 1;
-    } else if (damage(ch, victim, dam, spellnum, WEAR_RANDOM)) {
-        return 1;
+        WAIT_STATE(victim,2 RL_SEC);
+        if( !IS_AFFECTED_3(victim, AFF3_GRAVITY_WELL) &&
+            (GET_POS(victim) > POS_STANDING || number(1,level/2) > GET_STR(victim))) {
+            GET_POS(victim) = POS_RESTING;
+            act( "The gravity around you suddenly increases, slamming you to the ground!", 
+                FALSE, victim, 0, ch, TO_CHAR);
+            act( "The gravity around $n suddenly increases, slamming $S to the ground!", 
+                TRUE, victim, 0, ch, TO_ROOM);
+        }
     }
-    else if (spellnum == SPELL_PSYCHIC_SURGE && 
-	     !mag_savingthrow(victim, level, SAVING_PSI) &&
-	     (!IS_NPC(victim) || !MOB2_FLAGGED(victim, MOB2_NOSTUN)) &&
-	     GET_POS(victim) > POS_STUNNED) {
-	GET_POS(victim) = POS_STUNNED;
-	WAIT_STATE(victim, 5 RL_SEC);
-	if (victim == FIGHTING(ch))
-	    stop_fighting(ch);
-    
+    if (spellnum == SPELL_PSYCHIC_SURGE && 
+	!mag_savingthrow(victim, level, SAVING_PSI) &&
+	(!IS_NPC(victim) || !MOB2_FLAGGED(victim, MOB2_NOSTUN)) &&
+	GET_POS(victim) > POS_STUNNED) {
+        GET_POS(victim) = POS_STUNNED;
+        WAIT_STATE(victim, 5 RL_SEC);
+        if (victim == FIGHTING(ch))
+            stop_fighting(ch);
+        
     } else if (spellnum == SPELL_EGO_WHIP && GET_POS(victim) > POS_SITTING) {
-	if (number(5, 25) > GET_DEX(victim)) {
-	    act("You are knocked to the ground by the psychic attack!",
-		FALSE, victim, 0, 0,TO_CHAR);
-	    act("$n is knocked to the ground by the psychic attack!",
-		FALSE, victim, 0, 0,TO_ROOM);
-	    GET_POS(victim) = POS_SITTING;
-	    WAIT_STATE(victim, 2 RL_SEC);
-	}
+        if (number(5, 25) > GET_DEX(victim)) {
+            act("You are knocked to the ground by the psychic attack!",
+            FALSE, victim, 0, 0,TO_CHAR);
+            act("$n is knocked to the ground by the psychic attack!",
+            FALSE, victim, 0, 0,TO_ROOM);
+            GET_POS(victim) = POS_SITTING;
+            WAIT_STATE(victim, 2 RL_SEC);
+        }
     }
     return 0;
 }
@@ -1661,6 +1674,8 @@ mag_affects(int level, struct char_data * ch, struct char_data * victim,
 	af.duration = ( level >> 2 );
 	af.location = APPLY_HIT;
 	af.modifier = - ( level );
+    if(GET_CLASS(ch) == CLASS_PHYSIC)
+        af.modifier *= (GET_REMORT_GEN(ch) / 5);
 	af2.location = APPLY_MOVE;
 	af2.modifier = - ( level >> 1 );
 	af2.duration = af.duration;
@@ -1679,15 +1694,8 @@ mag_affects(int level, struct char_data * ch, struct char_data * victim,
     } else {
         af.modifier = - ( level/8 );
     }
+    to_vict = "The gravity gravity well seems to take hold on your body.";
     
-    if(GET_POS(victim) > POS_STANDING) {
-        GET_POS(victim) = POS_RESTING;
-        to_vict = "Gravity increases around you, slamming you to the ground!";
-        to_room = "Gravity seems to increase around $n, slamming $S to the ground!";
-    } else {
-        to_vict = "The gravity around you increases, crushing your body.";
-    }
-    WAIT_STATE(victim,2 RL_SEC);
 	accum_affect = FALSE;
     break;
 	

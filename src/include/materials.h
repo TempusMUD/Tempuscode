@@ -33,7 +33,14 @@
                                 IS_MAT(obj, MAT_MITHRIL)    || \
                                 IS_MAT(obj, MAT_ADAMANTIUM) || \
                                 IS_MAT(obj, MAT_METAL) || \
-				IS_MAT(obj, MAT_TIN))
+                                IS_MAT(obj, MAT_TIN))
+
+#define IS_BURNABLE_TYPE(obj) (IS_PAPER_TYPE(obj) || \
+                               IS_CLOTH_TYPE(obj) || \
+                               IS_FLESH_TYPE(obj) || \
+                               IS_LEATHER_TYPE(obj) || \
+                               IS_VEGETABLE_TYPE(obj) || \
+                               IS_WOOD_TYPE(obj))
 
 #define RUSTPILE 15284
 
@@ -52,6 +59,9 @@
 #define SOIL_SLIME  (1 << 12)
 #define SOIL_STICKY (1 << 13)
 #define SOIL_VOMIT  (1 << 14)
+#define SOIL_RUST   (1 << 15)
+#define SOIL_CHAR   (1 << 16)
+#define TOP_SOIL    17
 
 #define MAT_NONE          0
 #define MAT_WATER         1
@@ -230,7 +240,8 @@
 #define MAT_SPECTROLITE      238
 #define MAT_CHAROLITE        239
 #define MAT_BASALT           240
-#define TOP_MATERIAL         241
+#define MAT_ASH              241
+#define TOP_MATERIAL         242
  
 
 

@@ -4405,11 +4405,11 @@ ACMD(do_soilage)
 		    OBJS(GET_EQ(ch, pos), ch), CCNRM(ch, C_NRM), 
 		    ISARE(OBJS(GET_EQ(ch, pos), ch)));
       
-	    for (k = 0, j = 0; j < 16; j++)
+	    for (k = 0, j = 0; j < TOP_SOIL; j++)
 		if (OBJ_SOILED(GET_EQ(ch, pos), (1 << j)))
 		    k++;
 	
-	    for (j = 0; j < 16; j++) {
+	    for (j = 0; j < TOP_SOIL; j++) {
 		if (OBJ_SOILED(GET_EQ(ch, pos), (1 << j))) {
 		    found++;
 		    if (found > 1) {
@@ -4431,11 +4431,11 @@ ACMD(do_soilage)
 	    sprintf(buf2, "Your %s %s ", wear_description[pos], 
 		    pos == WEAR_FEET ? "are" : ISARE(wear_description[pos]));
       
-	    for (k = 0, j = 0; j < 16; j++)
+	    for (k = 0, j = 0; j < TOP_SOIL; j++)
 		if (CHAR_SOILED(ch, pos, (1 << j)))
 		    k++;
 
-	    for (j = 0; j < 16; j++) {
+	    for (j = 0; j < TOP_SOIL; j++) {
 		if (CHAR_SOILED(ch, pos, (1 << j))) {
 		    found++;
 		    if (found > 1) {

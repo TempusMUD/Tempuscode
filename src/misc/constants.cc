@@ -2736,6 +2736,7 @@ extern const char *material_names[] = {
   "spectrolite",
   "charolite",
   "basalt",
+  "ash",
   "\n"
 };
 
@@ -2779,6 +2780,8 @@ soilage_bits[] = {
   "slimy",
   "sticky",
   "covered with vomit",
+  "rusty",
+  "charred",
   "\n"
 };
 
