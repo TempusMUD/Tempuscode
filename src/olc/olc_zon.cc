@@ -1881,6 +1881,7 @@ do_zdoor_cmd(struct Creature *ch, char *argument)
 }
 
 #define ZSET_COMMAND_USAGE  "Usage: olc zset [zone] command <cmd num> [if|max|prob] <value>\r\n"
+extern const char *zone_flag_names[];
 void
 do_zset_command(struct Creature *ch, char *argument)
 {
@@ -2040,7 +2041,7 @@ do_zset_command(struct Creature *ch, char *argument)
 		cur_zone_flags = zone->flags;
 
 		while (*arg1) {
-			if ((tmp_flag = search_block(arg1, zone_flags, FALSE)) == -1 ||
+			if ((tmp_flag = search_block(arg1, zone_flag_names, FALSE)) == -1 ||
 				(tmp_flag >= NUM_ZONE_FLAGS && !OLCIMP(ch)) ||
 				(tmp_flag == ZONE_FULLCONTROL && !OLCIMP(ch))) {
 				send_to_char(ch, "Invalid flag %s, skipping...\r\n", arg1);

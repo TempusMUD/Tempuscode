@@ -1268,7 +1268,7 @@ ACCMD(do_drop)
 
 	extern int guild_donation_info[][4];
 	int i;
-	struct obj_data *obj, *next_obj;
+	struct obj_data *obj, *next_obj = NULL;
 	struct room_data *RDR = NULL;
 	byte oldmode;
 	byte mode = SCMD_DROP;
@@ -1752,7 +1752,7 @@ perform_plant_credits(struct Creature *ch, struct Creature *vict, int amount)
 ACMD(do_give)
 {
 	struct Creature *vict;
-	struct obj_data *obj, *next_obj;
+	struct obj_data *obj, *next_obj = NULL;
 	int dotmode, amount = 0, counter = 0, found;
 	char *arg1, *arg2, *arg3;
 	char *to_char, *to_vict, *to_room;

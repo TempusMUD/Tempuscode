@@ -17,6 +17,7 @@
 
 #ifndef __spells_h__
 #define __spells_h__
+#include "tmpstr.h"
 
 extern int max_spell_num;
 extern const char *spells[];
@@ -24,11 +25,8 @@ extern const char *spells[];
 inline const char *
 spell_to_str(int spell)
 {
-	static char ill_result[20];
-
 	if (spell < 0 || spell > max_spell_num) {
-		sprintf(ill_result, "!ILLEGAL(%d)!", spell);
-		return ill_result;
+		return tmp_sprintf("!ILLEGAL(%d)!", spell);
 	}
 
 	return spells[spell];

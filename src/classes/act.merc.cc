@@ -260,7 +260,8 @@ ACMD(do_snipe)
 	struct obj_data *gun = NULL;
 	struct affected_type af;
 	obj_data *bullet, *armor;
-	int retval, prob, percent, damage_loc, dam = 0;
+	int retval = 0;
+	int prob, percent, damage_loc, dam = 0;
 	int snipe_dir = -1;
 	char *arg1, *arg2, *msg;
 

@@ -26,48 +26,48 @@ template <class T> class SafeList:protected list <T> {
 		// at an invalid node
 		friend class SafeList <T>;
 	  public:
-			/**
-             *  Creates a fresh new iterator
-            **/
-	  iterator():list <T>::iterator() {
+		/**
+		 *  Creates a fresh new iterator
+		**/
+	    iterator():list <T>::iterator() {
 			_saved = false;
 			_list = NULL;
 		}
-			/**
-             *  Creates a fresh new iterator just like the one you have.
-             *  it - The iterator to copy.
-            **/
+		/**
+		 *  Creates a fresh new iterator just like the one you have.
+		 *  it - The iterator to copy.
+		**/
 		iterator(const iterator & it) {
 			_saved = false;
 			_list = NULL;
 			*this = it;
 		}
-			/**
-             *  Creates a fresh new iterator pointing to the beginning of
-             *  this list.
-             *  l - The list to register this iterator with.
-            **/
-	  iterator(SafeList <T> *l):list <T>::iterator() {
+		/**
+		 *  Creates a fresh new iterator pointing to the beginning of
+		 *  this list.
+		 *  l - The list to register this iterator with.
+		**/
+	    iterator(SafeList <T> *l):list <T>::iterator() {
 			_saved = false;
 			list <T>::iterator::operator = (((list <T> *)l)->begin());
 			_list = l;
 			if (_list != NULL)
 				_list->addIterator(this);
 		}
-			/**
-             *  Destroys the iterator, unregistering it from it's list if needed.
-            **/
+		/**
+		 *  Destroys the iterator, unregistering it from it's list if needed.
+		**/
 		~iterator() {
 			if (_list != NULL)
 				_list->removeIterator(this);
 			_list = NULL;
 		}
-			/** 
-             *  Postincrements this iterator.
-             *  If iterator was previously "saved" then it is set unsaved rather
-             *    than incremented again.
-             *  Segfaults if no list to iterate through
-            **/
+		/** 
+		 *  Postincrements this iterator.
+		 *  If iterator was previously "saved" then it is set unsaved rather
+		 *    than incremented again.
+		 *  Segfaults if no list to iterate through
+		**/
 		iterator operator++ (int) {	// post
 			if (_saved) {
 				_saved = false;
@@ -77,13 +77,13 @@ template <class T> class SafeList:protected list <T> {
 			++(*this);
 			return it;
 		}
-			/** 
-             *  Preincrements this iterator.
-             *  If iterator was previously "saved" then it is set unsaved rather
-             *    than incremented again.
-             *  Segfaults if no list to iterate through
-            **/
-		inline iterator & operator++ () {	// preincrement
+		/** 
+		 *  Preincrements this iterator.
+		 *  If iterator was previously "saved" then it is set unsaved rather
+		 *    than incremented again.
+		 *  Segfaults if no list to iterate through
+		**/
+		iterator & operator++ () {	// preincrement
 			// this iterator has been saved and shouldn't move yet.
 			if (_saved) {
 				_saved = false;
@@ -93,18 +93,20 @@ template <class T> class SafeList:protected list <T> {
 			list <T>::iterator::operator++ ();
 			return *this;
 		}
-			/** InEquality **/
-		inline bool operator != (const iterator & it) {
+		/** InEquality **/
+		bool operator != (const iterator & it) {
 			return (list <T>::iterator::operator != (it));	// different node
 		}
-			/** Equality **/
-		inline bool operator == (const iterator & it)const {
+		/** Equality **/
+		bool operator == (const iterator & it)const {
 			return (list <T>::iterator::operator == (it));	// same node
 		}
-			/** Derefencing **/ inline T operator *() const {
+		/** Derefencing **/ 
+		T operator *() const {
 			return list <T>::iterator::operator * ();
 		}
-			/**  Assignment **/ iterator & operator = (const iterator & it) {
+		/**  Assignment **/ 
+		iterator & operator = (const iterator & it) {
 			// superclass assignment
 			list <T>::iterator::operator = (it);
 			// If pointing to a list, unregister
@@ -141,25 +143,25 @@ template <class T> class SafeList:protected list <T> {
 	list <T>::size;
 	list <T>::insert;
 	// list<T>'s begin and end dont work quite right
-	inline iterator begin() {
+	iterator begin() {
 		return iterator(this);
 	}
-	inline iterator & end() {
+	iterator & end() {
 		return _end;
 	}
-		/**
-         * Adds a node to the SafeList either by prepending or appending.
-        **/
+	/**
+     * Adds a node to the SafeList either by prepending or appending.
+    **/
 	void add(T c) {
 		if (_prepend)
 			push_front(c);
 		else
 			push_back(c);
 	}
-		/**
-         *  Overridden to avoid an odd bug in list<T>::empty()
-        **/
-	inline bool empty() {
+	/**
+	 *  Overridden to avoid an odd bug in list<T>::empty()
+	**/
+	bool empty() {
 		return (size() == 0);
 	}
 

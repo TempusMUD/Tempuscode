@@ -3272,7 +3272,8 @@ ACMD(do_wiznet)
 	char emote = FALSE;
 	char any = FALSE;
 	int level = LVL_AMBASSADOR;
-	char *subcmd_str, *subcmd_desc;
+	char *subcmd_str = NULL;
+	char *subcmd_desc = NULL;
 
 	skip_spaces(&argument);
 	delete_doubledollar(argument);

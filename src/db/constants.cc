@@ -251,6 +251,39 @@ extern const char *reset_mode[] = {
 };
 
 /* Zone flags */
+extern const char *zone_flag_names[] = {
+	"autosave",
+	"resetsave",
+	"notifyowner",
+	"locked",
+	"nomagic",
+	"nolaw",						/* 5 */
+	"noweather",
+	"nocrime",
+	"frozen",
+	"isolated",
+	"sndprf",
+	"noidle",
+	"fullcontrol",
+	"paused",
+	"evilambience",
+	"goodambience",
+	"16",
+	"17",
+	"18",
+	"search_appr",
+	"mobs_appr",				/* 20 */
+	"objs_appr",
+	"rooms_appr",
+	"zcmds_appr",
+	"shops_appr",
+	"mobs_mod",					/* 25 */
+	"objs_mod",
+	"rms_mod",
+	"zon_mod",
+	"\n"
+};
+/* Zone flags */
 extern const char *zone_flags[] = {
 	"AUTOSAVE",
 	"RESETSAVE",
