@@ -1202,6 +1202,13 @@ perform_drop_credits(struct Creature *ch, int amount,
 bool
 is_undisposable(Creature *ch, const char *cmdstr, struct obj_data *obj, bool display)
 {
+	if (GET_OBJ_TYPE(obj) == ITEM_CONTAINER && !IS_CORPSE(obj) &&
+			obj->contains) {
+		if (display)
+			send_to_char(ch, "You can't %s a container with items in it!\r\n", cmdstr);
+		return true;
+	}
+
 	if (GET_LEVEL(ch) > LVL_SPIRIT)
 		return false;
 
@@ -1209,12 +1216,6 @@ is_undisposable(Creature *ch, const char *cmdstr, struct obj_data *obj, bool dis
 			strcmp(obj->short_description, PROTO_SDESC(obj->shared->vnum))) {
 		if (display)
 			send_to_char(ch, "You can't %s a renamed object!\r\n", cmdstr);
-		return true;
-	}
-
-	if (GET_OBJ_TYPE(obj) == ITEM_CONTAINER && obj->contains) {
-		if (display)
-			send_to_char(ch, "You can't %s a container with items in it!\r\n", cmdstr);
 		return true;
 	}
 
