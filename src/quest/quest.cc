@@ -28,6 +28,7 @@
 
 // external funcs here
 int find_name(char *name);
+ACMD(do_switch);
 // external vars here
 extern struct char_data *character_list;
 extern struct player_index_element *player_table; // index to plr file
@@ -36,6 +37,8 @@ extern struct descriptor_data *descriptor_list;
 
 // internal funcs here
 void do_qcontrol_help(struct char_data *ch, char *argument);
+void do_qcontrol_switch( struct char_data *ch, char* argument, int com );
+
 // internal vars here
 
 const struct qcontrol_option {
@@ -65,6 +68,7 @@ const struct qcontrol_option {
     { "purge",    "<mobile name>",                              LVL_POWER   }, // 20
     { "save",     "",                                           LVL_GRGOD  },
     { "help",     "<topic>",                                    LVL_IMMORT },
+    { "switch",   "<mobile name>",                              LVL_IMMORT },
     { NULL, NULL, 0 }		// list terminator
 };
 
@@ -191,18 +195,22 @@ ACMD(do_qcontrol)
     case 16:                    // award
 	do_qcontrol_award( ch, argument, com);
 	break;
-	case 17:			// penalize
+    case 17:			// penalize
 	do_qcontrol_penalize( ch, argument, com);
 	break;
-	case 18:			// Load Mobile
+    case 18:			// Load Mobile
 	do_qcontrol_load( ch, argument, com);
 	break;
-	case 19:			// Purge Mobile
+    case 19:			// Purge Mobile
 	do_qcontrol_purge( ch, argument, com);
 	break;
     case 21:			// help
 	do_qcontrol_help(ch, argument);
 	break;
+    case 22:
+	do_qcontrol_switch( ch, argument, com );
+	break;
+	
     default:
 	send_to_char("Sorry, this qcontrol option is not implemented.\r\n", ch);
 	break;
@@ -251,7 +259,17 @@ do_qcontrol_help(struct char_data *ch, char *argument)
 void //Load mobile.
 do_qcontrol_load    (CHAR *ch, char *argument, int com) {
     struct char_data *mob;
+    struct quest_data *quest = NULL;
+    struct qplayer_data *qp = NULL;
+    
+
     int number;
+
+    if ( ! ( quest = quest_by_vnum( GET_QUEST( ch ) ) ) ||
+                ! ( qp = idnum_in_quest( GET_IDNUM( ch ), quest ) ) ) {
+                send_to_char( "You are not currently active on any quest.\r\n", ch );
+                return;
+        }
 
     one_argument(argument, buf);
 
@@ -283,6 +301,10 @@ void //Purge mobile.
 do_qcontrol_purge   (CHAR *ch, char *argument, int com) {
 
     struct char_data *vict;
+    struct quest_data *quest = NULL;
+    struct qplayer_data *qp = NULL;
+		
+
 
     one_argument(argument, buf);
 
@@ -291,6 +313,14 @@ do_qcontrol_purge   (CHAR *ch, char *argument, int com) {
 		return;
 	}
 	
+        if ( ! ( quest = quest_by_vnum( GET_QUEST( ch ) ) ) ||
+                ! ( qp = idnum_in_quest( GET_IDNUM( ch ), quest ) ) ) {
+                send_to_char( "You are not currently active on any quest.\r\n", ch );
+                return;
+        }
+
+
+
 	if ((vict = get_char_room_vis(ch, argument))) {
         if (!IS_NPC(vict)) {
 			send_to_char("You don't need a quest to purge them!\r\n", ch);
@@ -1204,6 +1234,27 @@ do_qcontrol_unmute(CHAR *ch, char *argument, int com)
     send_to_char(buf, ch);
 
 }
+
+void 
+do_qcontrol_switch( CHAR *ch, char* argument, int com )
+{
+    struct quest_data *quest = NULL;
+    struct qplayer_data *qp = NULL;
+    
+
+    if ( ( ! ( quest = quest_by_vnum( GET_QUEST( ch ) ) ) ||
+	   ! ( qp = idnum_in_quest( GET_IDNUM( ch ), quest ) ) ) && ( GET_LEVEL( ch ) < LVL_ELEMENT ) ) {
+	send_to_char( "You are not currently active on any quest.\r\n", ch );
+	return;
+    }
+
+    do_switch( ch, argument, 0, SCMD_QSWITCH );
+
+
+
+}
+
+
 
 /*************************************************************************
  * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *

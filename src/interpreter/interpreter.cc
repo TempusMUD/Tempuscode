@@ -164,6 +164,7 @@ ACMD(do_echo);
 ACMD(do_econvert);
 ACMD(do_elude);
 ACMD(do_empower);
+ACMD(do_empty);
 ACMD(do_encumbrance);
 ACMD(do_enter);
 ACMD(do_enroll);
@@ -628,6 +629,7 @@ extern const struct command_info cmd_info[] = {
     { ":"        , POS_SLEEPING, do_echo      , 1, SCMD_EMOTE },
     { "embrace"  , POS_STANDING, do_action   , 0, 0 },
     { "empower"  , POS_STANDING, do_empower  , 0, 0 },
+    { "empty"    , POS_STANDING, do_empty    , 0, 0 },
     { "enter"    , POS_STANDING, do_enter    , 0, 0 },
     { "encumbrance", POS_SLEEPING, do_encumbrance, 0, 0 },
     { "enroll"   , POS_RESTING,  do_enroll   , 0, 0 },
@@ -975,7 +977,6 @@ extern const struct command_info cmd_info[] = {
     { "qpreload" , POS_DEAD    , do_qpreload , LVL_GRGOD, 0 },
     //  { "qsay"     , POS_SLEEPING , do_qcomm   , 0, SCMD_QSAY },
     { "qsay"     , POS_SLEEPING , do_qsay   , 0, 0 },
-    { "qswitch"  , POS_DEAD    , do_switch   , LVL_IMMORT, SCMD_QSWITCH },
 
     { "raise"    , POS_RESTING,  do_action   , 0, 0 },
     { "ramble"   , POS_RESTING , do_say   , 0, SCMD_RAMBLE },

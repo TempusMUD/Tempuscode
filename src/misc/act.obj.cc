@@ -43,6 +43,7 @@ int total_coins = 0;
 int total_credits = 0;
 extern struct obj_data *dam_object;
 
+int  empty_to_obj( struct obj_data *obj, struct obj_data *container, struct char_data *ch );
 void gain_skill_prof(struct char_data *ch, int skillnum);
 ACMD(do_stand);
 ACMD(do_throw);
@@ -3601,3 +3602,157 @@ ACMD(do_sacrifice)
     }
     extract_obj(obj);
 }
+
+ACMD(do_empty)
+{
+    struct obj_data *obj = NULL;        // the object that will be emptied 
+    struct obj_data *next_obj = NULL;
+    struct obj_data *o = NULL;
+    struct obj_data *container = NULL;
+    struct char_data *dummy = NULL;
+    int bits;
+    int bits2;
+    char arg1[MAX_INPUT_LENGTH];
+    char arg2[MAX_INPUT_LENGTH];
+
+    two_arguments(argument, arg1, arg2 );
+
+    if ( ! *arg1 ) {
+	send_to_char( "What do you want to empty?\r\n", ch );
+	return;
+    }
+
+
+
+    if ( ! ( bits = generic_find( arg1, FIND_OBJ_INV, ch, &dummy, &obj ) ) ) {
+	sprintf( buf, "You can't find any %s to empty\r\n.", arg1 );
+	send_to_char( buf, ch );
+	return;
+    }
+
+	    
+
+
+    if ( GET_OBJ_TYPE( obj ) != ITEM_CONTAINER ) {
+	send_to_char( "You can't empty that.\r\n", ch );
+	return;
+    }
+
+    if ( *arg2 && obj ) {
+
+	if ( ! ( bits2 = generic_find( arg2, FIND_OBJ_INV | FIND_OBJ_ROOM, ch, &dummy, &container ) ) ) {
+	    sprintf( buf, "Empty %s into what?\r\n", obj->short_description );
+	    send_to_char( buf, ch );
+	    return;
+	}
+
+	else {
+	    empty_to_obj( obj, container, ch );
+	    return;
+	}
+    }
+
+
+    if( obj->contains ) {
+	for ( next_obj = obj->contains; next_obj; next_obj = o ){   
+    
+	   if ( next_obj->in_obj && next_obj ) {
+	
+	       if( ! ( IS_OBJ_STAT( next_obj, ITEM_NODROP ) ) ) {
+		   o = next_obj->next_content; 
+		   obj_from_obj( next_obj );
+		   obj_to_room( next_obj, ch->in_room );
+	       }
+	  
+	   }
+	
+	}
+
+	act( "$n empties the contents of $p.", FALSE, ch, obj, 0, TO_ROOM );
+	act( "You carefully empty the contents of $p.", FALSE, ch, obj, 0, TO_CHAR );
+
+   
+    }
+
+    else {
+	sprintf( buf, "%s is already empty idiot!\r\n", obj->short_description );
+	send_to_char( buf, ch );
+	return;
+    }
+}
+
+
+
+int 
+empty_to_obj( struct obj_data *obj, struct obj_data *container, struct char_data *ch )
+{
+
+    //
+    // To clarify, obj is the object that contains the equipment originally and container is
+    // the object that the eq is being transferred into.
+    //
+
+    struct obj_data *o = NULL;
+    struct obj_data *next_obj = NULL;
+
+
+
+    if ( ! ( obj ) || ! ( container ) || ! ( ch ) ) {
+	sprintf( buf, "Null value passed into empty_to_obj.\r\n" );
+	slog( buf );
+	return 0;
+    }
+ 
+    if ( obj == container ) {
+	send_to_char( "Why would you want to empty something into itself?\r\n", ch );
+	return 0;
+    }
+
+     if ( GET_OBJ_TYPE( container ) != ITEM_CONTAINER ) {
+	send_to_char( "You can't put anything in that.\r\n", ch );
+	return 0;
+    }
+
+    if( obj->contains ) {
+	
+	for ( next_obj = obj->contains; next_obj; next_obj = o ) {   
+    
+	   if ( next_obj->in_obj && next_obj ) {
+	
+	       if( ! ( IS_OBJ_STAT( next_obj, ITEM_NODROP ) ) ) {
+		   
+		       o = next_obj->next_content; 
+		
+		       if ( container->getWeight() + next_obj->getWeight()   > GET_OBJ_VAL( container, 0 ) ) {
+			   act( "You fill $p up to the brim.", FALSE, ch, container, 0, TO_CHAR );
+			   sprintf( buf, "$n carefully empties the contents of $p into %s.", container->short_description );
+			   act( buf, FALSE, ch, obj, 0, TO_ROOM );
+			   return 0;
+		       }
+		       
+		       obj_from_obj( next_obj );
+		       obj_to_obj( next_obj, container );
+		       
+	       }
+	       
+	   }
+	   
+	}
+
+	sprintf( buf, "$n carefully empties the contents of $p into %s.", container->short_description );
+	act( buf, FALSE, ch, obj, 0, TO_ROOM );
+	sprintf(buf, "You carefully empty the contents of $p into %s.", container->short_description );
+	act( buf, FALSE, ch, obj, 0, TO_CHAR );
+       
+
+    }
+    
+    return 1;
+}
+
+
+
+
+
+
+

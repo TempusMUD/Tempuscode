@@ -95,6 +95,7 @@ float prac_gain(struct char_data *ch, int mode);
 int skill_gain(struct char_data *ch, int mode);
 void qp_reload( int sig = 0 );
 
+
 ACMD(do_equipment);
 SPECIAL(shop_keeper);
 
@@ -2126,9 +2127,7 @@ ACMD(do_switch)
 	send_to_char("You're already switched.\r\n", ch);
     else if (!*arg)
 	send_to_char("Switch with who?\r\n", ch);
-//  else if (subcmd == SCMD_QSWITCH && !PLR_FLAGGED(ch, PLR_QUESTOR) &&
-//	   GET_LEVEL(ch) < LVL_IMPL)
-//    send_to_char("You cannot qswitch without the QUESTOR flag.\r\n", ch);
+
     else if (!(victim = get_char_vis(ch, arg)))
 	send_to_char("No such character.\r\n", ch);
     else if (ch == victim)
