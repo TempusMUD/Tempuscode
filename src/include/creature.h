@@ -18,6 +18,7 @@
 #include "desc_data.h"
 #include "interpreter.h"
 
+
 /* char and mob-related defines *****************************************/
 
 /* Rent codes */
