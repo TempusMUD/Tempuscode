@@ -27,9 +27,17 @@ void scan_file( char *filename ) {
 	return;
     }
     
-    struct rent_info rent_header;
+    int fnlen = strlen( filename );
+    
+    bool skip_header = false;
 
-    fread( &rent_header, sizeof( struct rent_info ), 1, fl );
+    if ( fnlen > 7 && ! strcmp( filename + fnlen - 7, "implant" ) ) {
+        skip_header = true;
+    }
+    if ( ! skip_header )
+        fseek( fl, sizeof( struct rent_info ), SEEK_SET );
+    
+    //        fread( &rent_header, sizeof( struct rent_info ), 1, fl );
 
     struct obj_file_elem o;
 
