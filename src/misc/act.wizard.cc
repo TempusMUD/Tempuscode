@@ -8164,7 +8164,8 @@ ACMD(do_delete)
 	Creature *vict;
 	Account *acct;
 	int vict_id, acct_id;
-	bool in_world;
+	bool from_file;
+	char *tmp_name;
 
 	name = tmp_getword(&argument);
 	if (!Security::isMember(ch, "AdminFull") &&
@@ -8195,8 +8196,8 @@ ACMD(do_delete)
 
 	vict_id = playerIndex.getID(name);
 	vict = get_char_in_world_by_idnum(vict_id);
-	in_world = (vict != NULL);
-	if (!in_world) {
+	from_file = !vict;
+	if (from_file) {
 		vict = new Creature(true);
 		if (!vict->loadFromXML(vict_id)) {
 			delete vict;
@@ -8205,18 +8206,22 @@ ACMD(do_delete)
 		}
 	}
 
+	tmp_name = tmp_strdup(GET_NAME(vict));
+
 	acct->delete_char(vict);
 
 	send_to_char(ch, "Character '%s' has been deleted from account %s.\r\n",
-		GET_NAME(vict), acct->get_name());
+		tmp_name, acct->get_name());
+	mudlog(LVL_IMMORT, NRM, true,
+		"%s has deleted %s[%d] from account %s[%d]",
+		GET_NAME(ch),
+		tmp_name,
+		vict_id,
+		acct->get_name(),
+		acct->get_idnum());
 
-	if (in_world) {
-		send_to_char(vict, "A cold wind blows through your soul, and you disappear!\r\n");
-		vict->purge(true);
-		return;
-	} else {
+	if (from_file)
 		delete vict;
-	}
 }
 
 bool

@@ -372,17 +372,10 @@ Account::delete_char(Creature *ch)
 {
 	vector<long>::iterator it;
 	clan_data *clan;
-	Creature *real_ch;
 	int idx, count;
 	PGresult *res;
 	Account *acct;
 
-	// Remove character from game
-	real_ch = get_char_in_world_by_idnum(GET_IDNUM(ch));
-	if (real_ch) {
-		send_to_char(real_ch, "This character has been deleted!  Goodbye!\r\n");
-		real_ch->purge(false);
-	}
 	// Remove character from clan
 	clan = real_clan(GET_CLAN(ch));
 	if (clan) {
@@ -423,6 +416,12 @@ Account::delete_char(Creature *ch)
 	if (it != _chars.end())
 		_chars.erase(it);
 	sql_exec("delete from players where idnum=%ld", GET_IDNUM(ch));
+
+	// Remove character from game
+	if (ch->in_room) {
+		send_to_char(ch, "A cold wind blows through your soul, and you disappear!\r\n");
+		ch->purge(false);
+	}
 }
 
 bool
