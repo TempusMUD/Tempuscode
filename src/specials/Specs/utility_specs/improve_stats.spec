@@ -23,13 +23,13 @@ char *improve_modes[7] = {
 		       mode == MODE_DEX ? ch->real_abils.dex :   \
 		       mode == MODE_CON ? ch->real_abils.con :   \
 		       ch->real_abils.cha)
-		       
 int 
 do_gen_improve(struct char_data *ch, int cmd, int mode, char *argument)
 {
 
   int gold, life_cost;
   int old_stat = REAL_STAT;
+  int max_stat;
 
   if ((!CMD_IS("improve") && !CMD_IS("train")) || IS_NPC(ch))
     return FALSE;
@@ -46,7 +46,80 @@ do_gen_improve(struct char_data *ch, int cmd, int mode, char *argument)
   life_cost = MAX(6, (REAL_STAT << 1) - (GET_WIS(ch)));
 
   skip_spaces(&argument);
+  
+  switch(mode){
+  	case MODE_STR:
+		if (IS_REMORT(ch) || IS_MINOTAUR(ch) || IS_NPC(ch) || 
+			IS_HALF_ORC(ch) ||
+			GET_LEVEL(ch) >= LVL_AMBASSADOR) 
+			max_stat = MIN(GET_REMORT_GEN(ch) + 18 +
+					  ((IS_NPC(ch) || 
+						GET_LEVEL(ch) >= LVL_AMBASSADOR) ? 8 : 0) +
+					  (IS_MINOTAUR(ch) ? 2 : 0) +
+					  (IS_DWARF(ch) ? 1 : 0) +
+					  (IS_HALF_ORC(ch) ? 2 : 0) +
+					  (IS_ORC(ch) ? 1 : 0),
+					  25);
+		else
+			max_stat = 18;
+		break;
+	case MODE_DEX:
+		max_stat = (IS_NPC(ch) ? 25 : 
+				   MIN(25, 
+				   18 + (IS_REMORT(ch) ? GET_REMORT_GEN(ch) : 0) +
+				   (IS_TABAXI(ch) ? 2 : 0) +
+				   ((IS_ELF(ch) || IS_DROW(ch)) ? 1 : 0)));
+		break;
+	case MODE_INT:
+		max_stat = (IS_NPC(ch) ? 25 : 
+				 MIN(25, 
+					 18 + (IS_REMORT(ch) ? GET_REMORT_GEN(ch) : 0) +
+					 ((IS_ELF(ch) || IS_DROW(ch)) ? 1 : 0) + 
+					 (IS_MINOTAUR(ch) ? -2 : 0) +
+					 (IS_TABAXI(ch) ? -1 : 0) +
+					 (IS_ORC(ch) ? -1 : 0) +
+					 (IS_HALF_ORC(ch) ? -1 : 0)));
+		break;
+	case MODE_CON:
+		max_stat =  (IS_NPC(ch) ? 25 : 
+				MIN(25, 
+					18 + (IS_REMORT(ch) ? GET_REMORT_GEN(ch) : 0) +
+					((IS_MINOTAUR(ch) || IS_DWARF(ch)) ? 1 : 0) +
+					(IS_TABAXI(ch) ? 1 : 0) +
+					(IS_HALF_ORC(ch) ? 1 : 0) +
+					(IS_ORC(ch) ? 2 : 0) +
+					((IS_ELF(ch) || IS_DROW(ch)) ? -1 : 0)));
+		break;
+	case MODE_CHA:
+		max_stat = (IS_NPC(ch) ? 25 : 
+				   MIN(25, 
+				   18 + (IS_REMORT(ch) ? GET_REMORT_GEN(ch) : 0) +
+				   (IS_HALF_ORC(ch) ? -3 : 0) +
+				   (IS_ORC(ch) ? -3 : 0) +
+				   (IS_DWARF(ch) ? -1 : 0) +
+				   (IS_TABAXI(ch) ? -2 : 0)));
+		break;
+	case MODE_WIS:
+		max_stat   = (IS_NPC(ch) ? 25 : 
+				 MIN(25, (18 + GET_REMORT_GEN(ch)) +
+					 (IS_MINOTAUR(ch) ? -2 : 0) + (IS_HALF_ORC(ch) ? -2 : 0) +
+					 (IS_TABAXI(ch) ? -2 : 0)));
+		break;
+	default:
+		return FALSE;
+	}
 
+	if(!*argument) {
+		if(REAL_STAT >= max_stat && // Thier stat is maxed
+			// And make sure they cant up thier stradd
+			(!(mode == MODE_STR && REAL_STAT == 18 
+				&& ch->real_abils.str_add < 100))) {
+			sprintf(buf, "%sYour %s cannot be improved further.%s\r\n",
+			  CCCYN(ch, C_NRM), improve_modes[mode], CCNRM(ch, C_NRM));
+			send_to_char(buf, ch);
+			return TRUE;
+		}
+/*
   if (!*argument) {
     if ((mode != MODE_STR &&
 	 REAL_STAT >= MIN(18 + GET_REMORT_GEN(ch), 22)) ||
@@ -59,7 +132,7 @@ do_gen_improve(struct char_data *ch, int cmd, int mode, char *argument)
       send_to_char(buf, ch);
       return TRUE;
     }
-
+*/
     sprintf(buf, 
 	    "It will cost you %d coins and %d life points to improve your %s.\r\n", gold, life_cost, improve_modes[mode]);
     send_to_char(buf, ch);
@@ -82,16 +155,15 @@ do_gen_improve(struct char_data *ch, int cmd, int mode, char *argument)
     return TRUE;
   }
 
-    if ( (mode == MODE_STR && 
-             (  (GET_REMORT_GEN(ch)==0 && REAL_STAT == 18 && ch->real_abils.str_add >= 100)
-             || ( IS_REMORT(ch) && REAL_STAT >= MIN(18 + GET_REMORT_GEN(ch), 25)) 
-             )
-         ) || (mode != MODE_STR && REAL_STAT >= MIN(18 + GET_REMORT_GEN(ch), 22)) ) {
-    sprintf(buf, "%sYour %s cannot be improved further.%s\r\n",
-	    CCCYN(ch, C_NRM), improve_modes[mode], CCNRM(ch, C_NRM));
-    send_to_char(buf, ch);
-    return TRUE;
-  }
+	if(REAL_STAT >= max_stat && // Thier stat is maxed
+		// And make sure they cant up thier stradd
+		(!(mode == MODE_STR && REAL_STAT == 18 
+			&& ch->real_abils.str_add < 100))) {
+		sprintf(buf, "%sYour %s cannot be improved further.%s\r\n",
+		  CCCYN(ch, C_NRM), improve_modes[mode], CCNRM(ch, C_NRM));
+		send_to_char(buf, ch);
+		return TRUE;
+	}
 
   if (GET_GOLD(ch) < gold) {
     sprintf(buf, "You cannot afford it.  The cost is %d coins.\r\n", gold);
