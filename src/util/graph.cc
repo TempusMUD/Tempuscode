@@ -360,11 +360,12 @@ ACMD(do_psilocate)
     act("$n begins concentrating deeply, on a distant psyche.",
 	TRUE, ch, 0, 0, TO_ROOM);
 
-    if (AFF3_FLAGGED(vict, AFF3_SHROUD_OBSCUREMENT)) {
-        act("$N is surrounded by a shroud of obscurement.",
-            FALSE, ch, 0, vict, TO_CHAR);
+    if ((AFF3_FLAGGED(vict, AFF3_SHROUD_OBSCUREMENT) &&
+		((GET_LEVEL(vict) * 3) >> 2 > number(10, CHECK_SKILL(ch, SKILL_PSILOCATE)))) ||
+		AFF3_FLAGGED(vict, AFF3_PSISHIELD)) {
+        act("You cannot sense $S psi.", FALSE, ch, 0, vict, TO_CHAR);
         return;
-    }
+	}
 
     if ((dist = find_distance(ch->in_room, vict->in_room)) + 
 	(AFF3_FLAGGED(vict, AFF3_PSISHIELD) ?( GET_LEVEL(vict) >> 1) : 0) > 
