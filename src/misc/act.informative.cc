@@ -136,18 +136,17 @@ void
 show_obj_to_char(struct obj_data *object, struct Creature *ch,
 	int mode, int count)
 {
-	char *msg;
 	bool found = false;
 
-	msg = "";
+	acc_string_clear();
 	if (mode == SHOW_OBJ_ROOM) {
 		if (object->line_desc)
-			msg = tmp_strdup(object->line_desc);
+			acc_strcat(object->line_desc, NULL);
 		else if (IS_IMMORT(ch))
-			msg = tmp_sprintf("%s exists here.\r\n", object->name);
+			acc_sprintf("%s exists here.\r\n", object->name);
 	} else if (mode == 1 || mode == 2 || mode == 3 || mode == 4) {
 		if (object->name)
-			msg = tmp_strdup(object->name);
+			acc_strcat(object->name, NULL);
 	} else if (mode == 5) {
 		if (GET_OBJ_TYPE(object) == ITEM_NOTE) {
 			if (object->action_desc) {
@@ -157,96 +156,96 @@ show_obj_to_char(struct obj_data *object, struct Creature *ch,
 			}
 			return;
 		} else if (GET_OBJ_TYPE(object) == ITEM_DRINKCON)
-			msg = tmp_strdup("It looks like a drink container.");
+			acc_strcat("It looks like a drink container.", NULL);
 		else if (GET_OBJ_TYPE(object) == ITEM_FOUNTAIN)
-			msg = tmp_strdup("It looks like a source of drink.");
+			acc_strcat("It looks like a source of drink.", NULL);
 		else if (GET_OBJ_TYPE(object) == ITEM_FOOD)
-			msg = tmp_strdup("It looks edible.");
+			acc_strcat("It looks edible.", NULL);
 		else if (GET_OBJ_TYPE(object) == ITEM_HOLY_SYMB)
-			msg = tmp_strdup("It looks like the symbol of some deity.");
+			acc_strcat("It looks like the symbol of some deity.", NULL);
 		else if (GET_OBJ_TYPE(object) == ITEM_CIGARETTE ||
 			GET_OBJ_TYPE(object) == ITEM_PIPE) {
 			if (GET_OBJ_VAL(object, 3))
-				msg = tmp_strdup("It appears to be lit and smoking.");
+				acc_strcat("It appears to be lit and smoking.", NULL);
 			else
-				msg = tmp_strdup("It appears to be unlit.");
+				acc_strcat("It appears to be unlit.", NULL);
 		} else if (GET_OBJ_TYPE(object) == ITEM_CONTAINER) {
 			if (GET_OBJ_VAL(object, 3)) {
-				msg = tmp_strdup("It looks like a corpse.\r\n");
+				acc_strcat("It looks like a corpse.\r\n", NULL);
 			} else {
-				msg = tmp_strdup("It looks like a container.\r\n");
+				acc_strcat("It looks like a container.\r\n", NULL);
 				if (CAR_CLOSED(object) && CAR_OPENABLE(object))	/*macro maps to containers too */
-					msg = tmp_strcat(msg, "It appears to be closed.\r\n", NULL);
+					acc_strcat("It appears to be closed.\r\n", NULL);
 				else if (CAR_OPENABLE(object)) {
-					msg = tmp_strcat("It appears to be open.\r\n", NULL);
+					acc_strcat("It appears to be open.\r\n", NULL);
 					if (object->contains)
-						msg = tmp_strdup(
-							"There appears to be something inside.\r\n");
+						acc_strcat(
+							"There appears to be something inside.\r\n", NULL);
 					else
-						msg = tmp_strdup("It appears to be empty.\r\n");
+						acc_strcat("It appears to be empty.\r\n", NULL);
 				}
 			}
 		} else if (GET_OBJ_TYPE(object) == ITEM_SYRINGE) {
 			if (GET_OBJ_VAL(object, 0)) {
-				msg = tmp_strdup("It is full.");
+				acc_strcat("It is full.", NULL);
 			} else {
-				msg = tmp_strdup("It's empty.");
+				acc_strcat("It's empty.", NULL);
 			}
 		} else if (GET_OBJ_MATERIAL(object) > MAT_NONE &&
 			GET_OBJ_MATERIAL(object) < TOP_MATERIAL) {
-			msg = tmp_sprintf("It appears to be composed of %s.",
+			acc_sprintf("It appears to be composed of %s.",
 				material_names[GET_OBJ_MATERIAL(object)]);
 		} else {
-			msg = tmp_strdup("You see nothing special.");
+			acc_strcat("You see nothing special.", NULL);
 		}
 	}
 	if (mode != 3) {
 		found = false;
 
 		if (IS_OBJ_STAT2(object, ITEM2_BROKEN)) {
-			msg = tmp_sprintf("%s %s<broken>", msg, CCNRM(ch, C_NRM));
+			acc_sprintf(" %s<broken>", CCNRM(ch, C_NRM));
 			found = true;
 		}
 		if (object->in_obj && IS_CORPSE(object->in_obj) && IS_IMPLANT(object)
 			&& !CAN_WEAR(object, ITEM_WEAR_TAKE)) {
-			msg = tmp_strcat(msg, " (implanted)", NULL);
+			acc_strcat(" (implanted)", NULL);
 			found = true;
 		}
 
 		if (ch == object->carried_by || ch == object->worn_by) {
 			if (OBJ_REINFORCED(object))
-				msg = tmp_sprintf("%s %s[%sreinforced%s]%s", msg,
+				acc_sprintf(" %s[%sreinforced%s]%s",
 					CCYEL(ch, C_NRM), CCNRM(ch, C_NRM), CCYEL(ch, C_NRM),
 					CCNRM(ch, C_NRM));
 			if (OBJ_ENHANCED(object))
-				msg = tmp_sprintf("%s %s|enhanced|%s", msg,
+				acc_sprintf(" %s|enhanced|%s",
 					CCMAG(ch, C_NRM), CCNRM(ch, C_NRM));
 		}
 
 		if (IS_OBJ_TYPE(object, ITEM_DEVICE) && ENGINE_STATE(object))
-			msg = tmp_strcat(msg, " (active)", NULL);
+			acc_strcat(" (active)", NULL);
 
 		if (((GET_OBJ_TYPE(object) == ITEM_CIGARETTE ||
 					GET_OBJ_TYPE(object) == ITEM_PIPE) &&
 				GET_OBJ_VAL(object, 3)) ||
 			(IS_BOMB(object) && object->contains && IS_FUSE(object->contains)
 				&& FUSE_STATE(object->contains))) {
-			msg = tmp_sprintf("%s %s(lit)%s", msg,
+			acc_sprintf(" %s(lit)%s",
 				CCRED_BLD(ch, C_NRM), CCNRM(ch, C_NRM));
 			found = true;
 		}
 		if (IS_OBJ_STAT(object, ITEM_INVISIBLE)) {
-			msg = tmp_sprintf("%s %s(invisible)%s", msg,
+			acc_sprintf(" %s(invisible)%s",
 				CCCYN(ch, C_NRM), CCNRM(ch, C_NRM));
 			found = true;
 		}
 		if (IS_OBJ_STAT(object, ITEM_TRANSPARENT)) {
-			msg = tmp_sprintf("%s %s(transparent)%s", msg,
+			acc_sprintf(" %s(transparent)%s",
 				CCCYN(ch, C_NRM), CCNRM(ch, C_NRM));
 			found = true;
 		}
 		if (IS_OBJ_STAT2(object, ITEM2_HIDDEN)) {
-			msg = tmp_sprintf("%s %s(hidden)%s", msg,
+			acc_sprintf(" %s(hidden)%s",
 				CCRED(ch, C_NRM), CCNRM(ch, C_NRM));
 			found = true;
 		}
@@ -254,11 +253,11 @@ show_obj_to_char(struct obj_data *object, struct Creature *ch,
 		if (IS_AFFECTED(ch, AFF_DETECT_ALIGN) ||
 			(IS_CLERIC(ch) && IS_AFFECTED_2(ch, AFF2_TRUE_SEEING))) {
 			if (IS_OBJ_STAT(object, ITEM_BLESS)) {
-				msg = tmp_sprintf("%s %s(holy aura)%s", msg,
+				acc_sprintf(" %s(holy aura)%s",
 					CCBLU_BLD(ch, C_SPR), CCNRM(ch, C_SPR));
 				found = true;
 			} else if (IS_OBJ_STAT(object, ITEM_DAMNED)) {
-				msg = tmp_sprintf("%s %s(unholy aura)%s", msg,
+				acc_sprintf(" %s(unholy aura)%s",
 					CCRED_BLD(ch, C_SPR), CCNRM(ch, C_SPR));
 				found = true;
 			}
@@ -266,7 +265,7 @@ show_obj_to_char(struct obj_data *object, struct Creature *ch,
 		if ((IS_AFFECTED(ch, AFF_DETECT_MAGIC)
 				|| IS_AFFECTED_2(ch, AFF2_TRUE_SEEING))
 			&& IS_OBJ_STAT(object, ITEM_MAGIC)) {
-			msg = tmp_sprintf("%s %s(yellow aura)%s", msg,
+			acc_sprintf(" %s(yellow aura)%s",
 				CCYEL_BLD(ch, C_SPR), CCNRM(ch, C_SPR));
 			found = true;
 		}
@@ -275,84 +274,84 @@ show_obj_to_char(struct obj_data *object, struct Creature *ch,
 				|| IS_AFFECTED_2(ch, AFF2_TRUE_SEEING)
 				|| PRF_FLAGGED(ch, PRF_HOLYLIGHT))
 			&& GET_OBJ_SIGIL_IDNUM(object)) {
-			msg = tmp_sprintf("%s %s(%ssigil%s)%s", msg,
+			acc_sprintf(" %s(%ssigil%s)%s",
 				CCYEL(ch, C_NRM), CCMAG(ch, C_NRM), CCYEL(ch, C_NRM),
 				CCNRM(ch, C_NRM));
 		}
 
 		if (IS_OBJ_STAT(object, ITEM_GLOW)) {
-			msg = tmp_sprintf("%s %s(glowing)%s", msg,
+			acc_sprintf(" %s(glowing)%s",
 				CCGRN(ch, C_NRM), CCNRM(ch, C_NRM));
 			found = true;
 		}
 		if (IS_OBJ_STAT(object, ITEM_HUM)) {
-			msg = tmp_sprintf("%s %s(humming)%s", msg,
+			acc_sprintf(" %s(humming)%s",
 				CCRED(ch, C_NRM), CCNRM(ch, C_NRM));
 			found = true;
 		}
 		if (IS_OBJ_STAT2(object, ITEM2_ABLAZE)) {
-			msg = tmp_sprintf("%s %s*burning*%s", msg,
+			acc_sprintf(" %s*burning*%s",
 				CCRED_BLD(ch, C_NRM), CCNRM(ch, C_NRM));
 			found = true;
 		}
 		if (IS_OBJ_STAT3(object, ITEM3_HUNTED)) {
-			msg = tmp_sprintf("%s %s(hunted)%s", msg,
+			acc_sprintf(" %s(hunted)%s",
 				CCRED(ch, C_NRM), CCNRM(ch, C_NRM));
 			found = true;
 		}
 		if (OBJ_SOILED(object, SOIL_BLOOD)) {
-			msg = tmp_sprintf("%s %s(bloody)%s", msg,
+			acc_sprintf(" %s(bloody)%s",
 				CCRED(ch, C_NRM), CCNRM(ch, C_NRM));
 			found = true;
 		}
 		if (OBJ_SOILED(object, SOIL_WATER)) {
-			msg = tmp_sprintf("%s %s(wet)%s", msg,
+			acc_sprintf(" %s(wet)%s",
 				CCCYN(ch, C_NRM), CCNRM(ch, C_NRM));
 			found = true;
 		}
 		if (OBJ_SOILED(object, SOIL_MUD)) {
-			msg = tmp_sprintf("%s %s(muddy)%s", msg,
+			acc_sprintf(" %s(muddy)%s",
 				CCYEL(ch, C_NRM), CCNRM(ch, C_NRM));
 			found = true;
 		}
 		if (OBJ_SOILED(object, SOIL_ACID)) {
-			msg = tmp_sprintf("%s %s(acid covered)%s", msg,
+			acc_sprintf(" %s(acid covered)%s",
 				CCGRN(ch, C_NRM), CCNRM(ch, C_NRM));
 			found = true;
 		}
 		if ( object->shared->owner_id != 0 ) {
-			msg = tmp_sprintf("%s %s(protected)%s", msg,
+			acc_sprintf(" %s(protected)%s",
 				CCYEL_BLD(ch, C_SPR), CCNRM(ch, C_SPR));
 			found = true;
 		}
         if( object->tmp_affects != NULL ) {
             if( object->affectedBySpell(SPELL_ITEM_REPULSION_FIELD) != NULL ) {
-                msg = tmp_sprintf("%s %s(repulsive)%s", msg,
+                acc_sprintf(" %s(repulsive)%s",
                                   CCCYN(ch, C_SPR), CCNRM(ch, C_SPR));
             } else if( object->affectedBySpell(SPELL_ITEM_ATTRACTION_FIELD) != NULL ) {
-                msg = tmp_sprintf("%s %s(attractive)%s", msg,
+                acc_sprintf(" %s(attractive)%s",
                                   CCCYN(ch, C_SPR), CCNRM(ch, C_SPR));
             }
             if( object->affectedBySpell(SPELL_ENVENOM) != NULL ) {
-                msg = tmp_sprintf("%s %s(venom)%s", msg,
+                acc_sprintf(" %s(venom)%s",
                                   CCGRN(ch, C_SPR), CCNRM(ch, C_SPR));
             }
             if( object->affectedBySpell(SPELL_ELEMENTAL_BRAND) != NULL ) {
-                msg = tmp_sprintf("%s %s(branded)%s", msg,
+                acc_sprintf(" %s(branded)%s",
                                   CCRED(ch, C_SPR), CCNRM(ch, C_SPR));
             }
         }
 		if (mode == 0)
-			msg = tmp_strcat(msg, CCGRN(ch, C_NRM), NULL);
+			acc_strcat(CCGRN(ch, C_NRM), NULL);
 	}
 
 	if (!((mode == 0) && !object->line_desc)) {
 		if (count > 1)
-			msg = tmp_sprintf("%s [%d]", msg, count);
-		msg = tmp_strcat(msg, "\r\n", NULL);
+			acc_sprintf(" [%d]", count);
+		acc_strcat("\r\n", NULL);
 	}
 
-	page_string(ch->desc, msg);
+	page_string(ch->desc, acc_get_string());
 
 	if (GET_OBJ_TYPE(object) == ITEM_VEHICLE && mode == 6) {
 		if (CAR_OPENABLE(object)) {
@@ -4818,9 +4817,9 @@ ACMD(do_areas)
 {
     zone_data *zone;
     bool found_one = false;
-    char *msg;
 
-    msg = tmp_sprintf("%s%s                    --- Areas appropriate for your level ---%s\r\n",
+	acc_string_clear();
+    acc_sprintf("%s%s                    --- Areas appropriate for your level ---%s\r\n",
         CCYEL(ch, C_NRM), CCBLD(ch, C_CMP), CCNRM(ch, C_NRM));
     
     for (zone = zone_table;zone;zone = zone->next) {
@@ -4831,14 +4830,14 @@ ACMD(do_areas)
                     && zone->max_lvl >= GET_LEVEL(ch)
                     && zone->min_gen <= GET_REMORT_GEN(ch)
                     && zone->max_gen >= GET_REMORT_GEN(ch))) {
-            msg = tmp_strcat(msg, (found_one) ? "\r\n":"", CCMAG(ch, C_NRM), zone->name,
+            acc_strcat((found_one) ? "\r\n":"", CCMAG(ch, C_NRM), zone->name,
                 CCNRM(ch, C_NRM), "\r\n", zone->public_desc, NULL);
             found_one = true;
         }
     }
 
     if (found_one)
-        page_string(ch->desc, msg);
+        page_string(ch->desc, acc_get_string());
     else {
         send_to_char(ch, "Bug the immortals about adding zones appropriate for your level!\r\n");
 		mudlog(GET_INVIS_LVL(ch), NRM, true,
