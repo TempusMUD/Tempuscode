@@ -134,6 +134,7 @@
 "SPAWN         spawn room    targ room     hunter?\r\n"
 
 #define OLC_SHOW_USAGE "Usage:\n" \
+"olc show nodescription                        -- displays rooms with no description\n"  \
 "olc show nosound                              -- displays rooms with no sound\n"  \
 "olc show noexitdesc ['all'|'toroom']          -- displays exits with no desc (default !toroom only)\n"
 
@@ -1471,9 +1472,20 @@ ACMD(do_olc)
 	if ( is_abbrev( arg1, "nosound" ) ) {
 	    sprintf( buf, "Rooms with no sound in zone %d:\n", ch->in_room->zone->number );
 	    for ( struct room_data *room = ch->in_room->zone->world; room; room = room->next ) {
-		if ( !room->sounds ) {
-		    sprintf( buf, "%s[ %6d ] %s\n", buf, room->number, room->name );
-		}
+            if ( !room->sounds ) {
+                sprintf( buf, "%s[ %6d ] %s\n", buf, room->number, room->name );
+            }
+	    }
+	    
+	    page_string( ch->desc, buf, 1 );
+	    return;
+	}
+	if ( is_abbrev( arg1, "nodesc" ) ) {
+	    sprintf( buf, "Rooms with no description in zone %d:\n", ch->in_room->zone->number );
+	    for ( struct room_data *room = ch->in_room->zone->world; room; room = room->next ) {
+            if ( !room->description ) {
+                sprintf( buf, "%s[ %6d ] %s\n", buf, room->number, room->name );
+            }
 	    }
 	    
 	    page_string( ch->desc, buf, 1 );
