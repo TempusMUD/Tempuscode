@@ -190,7 +190,7 @@ tmp_getword(char **src)
 	else
 		cur_buf = tmp_list_head;
 
-	result = tmp_list_head->data + tmp_list_head->used;
+	result = cur_buf->data + cur_buf->used;
 	read_pt = *src;
 	write_pt = result;
 
@@ -200,5 +200,25 @@ tmp_getword(char **src)
 
 	cur_buf->used += len;
 	*src = read_pt;
+	return result;
+}
+
+char *
+tmp_pad(int c, size_t len)
+{
+	struct tmp_str_pool *cur_buf;
+	char *result;
+
+	if (len + 1 > tmp_list_head->space - tmp_list_head->used)
+		cur_buf = tmp_alloc_pool(len + 1);
+	else
+		cur_buf = tmp_list_head;
+
+	result = cur_buf->data + cur_buf->used;
+	cur_buf->used += len + 1;
+	if (len)
+		memset(result, c, len);
+	result[len] = '\0';
+
 	return result;
 }

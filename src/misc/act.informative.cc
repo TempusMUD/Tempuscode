@@ -4584,38 +4584,38 @@ ACMD(do_soilage)
 
 ACMD(do_skills)
 {
+	int parse_player_class(char *arg, int timeframe);
 	int parse_char_class(char *arg);
 	void show_char_class_skills(struct char_data *ch, int con, int immort,
 		int bits);
 	void list_skills(struct char_data *ch, int mode, int type);
-	char arg[MAX_INPUT_LENGTH];
 	int char_class = 0;
+	char *arg;
 
-	argument = one_argument(argument, arg);
+	arg = tmp_getword(&argument);
 
-	if (*arg && is_abbrev(arg, "list")) {
-		if (*argument) {
-			skip_spaces(&argument);
-			if ((char_class = parse_char_class(argument)) < 0) {
-				send_to_char(ch, "No such char_class, '%s'.\r\n", argument);
-			} else {
-				show_char_class_skills(ch, char_class, 0,
-					(subcmd ?
-						(char_class == CLASS_PSIONIC ? TRIG_BIT :
-							char_class == CLASS_PHYSIC ? ALTER_BIT :
-							char_class == CLASS_MONK ? ZEN_BIT :
-							SPELL_BIT) : 0));
+	if (*arg && is_abbrev(arg , "list")) {
+		arg = tmp_getword(&argument);
+		if (*arg) {
+			if (GET_LEVEL(ch) < LVL_IMMORT)
+				char_class = parse_player_class(arg, TIME_TIMELESS);
+			else
+				char_class = parse_char_class(arg);
+			if (char_class < 0) {
+				send_to_char(ch, "'%s' isn't a character class!\r\n", arg);
+				return;
 			}
-		} else {
-			show_char_class_skills(ch, (char_class = GET_CLASS(ch)), 0,
-				(subcmd ?
-					(char_class == CLASS_PSIONIC ? TRIG_BIT :
-						char_class == CLASS_PHYSIC ? ALTER_BIT :
-						char_class == CLASS_MONK ? ZEN_BIT : SPELL_BIT) : 0));
-		}
+		} else
+			char_class = GET_CLASS(ch);
 
+		show_char_class_skills(ch, char_class, 0,
+			(subcmd ? (char_class == CLASS_PSIONIC ? TRIG_BIT :
+					char_class == CLASS_PHYSIC ? ALTER_BIT :
+					char_class == CLASS_MONK ? ZEN_BIT : SPELL_BIT) : 0));
+		
 		return;
 	}
+
 	list_skills(ch, 0, subcmd == SCMD_SKILLS_ONLY ? 2 : 1);
 }
 

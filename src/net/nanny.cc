@@ -103,9 +103,7 @@ nanny(struct descriptor_data * d, char *arg)
     int polc_char = 0;
 
     int load_char(char *name, struct char_file_u * char_element);
-    int parse_char_class_future(char *arg);
-    int parse_char_class_past(char *arg);
-    int parse_char_class(char *arg);
+	int parse_player_class(char *arg, int timeframe);
     int parse_time_frame(char *arg);
 
     skip_spaces(&arg);
@@ -631,7 +629,7 @@ nanny(struct descriptor_data * d, char *arg)
 			break;
 
 		case CON_QCLASS_PAST:
-			GET_CLASS(d->character) = parse_char_class_past(arg);
+			GET_CLASS(d->character) = parse_player_class(arg, TIME_PAST);
 			if (GET_CLASS(d->character) == CLASS_UNDEFINED) {
 				SEND_TO_Q(CCRED(d->character, C_NRM), d);
 				SEND_TO_Q("\r\nThat's not a character class.\r\n", d);
@@ -652,7 +650,7 @@ nanny(struct descriptor_data * d, char *arg)
 				set_desc_state( CON_QALIGN,d );
 			break;
 		case CON_QCLASS_FUTURE:
-			GET_CLASS(d->character) = parse_char_class_future(arg);
+			GET_CLASS(d->character) = parse_player_class(arg, TIME_FUTURE);
 			if (GET_CLASS(d->character) == CLASS_UNDEFINED) {
 				SEND_TO_Q(CCRED(d->character, C_NRM), d);
 				SEND_TO_Q("\r\nThat's not a character class.\r\n", d);
@@ -671,7 +669,7 @@ nanny(struct descriptor_data * d, char *arg)
 				set_desc_state( CON_QALIGN,d );
 			break;
 		case CON_QCLASS_REMORT:
-			GET_REMORT_CLASS(d->character) = parse_char_class(arg);
+			GET_REMORT_CLASS(d->character) = parse_player_class(arg, TIME_TIMELESS);
 			if (GET_REMORT_CLASS(d->character) == CLASS_UNDEFINED) {
 				SEND_TO_Q(CCRED(d->character, C_NRM), d);
 				SEND_TO_Q("\r\nThat's not a character class.\r\n", d);

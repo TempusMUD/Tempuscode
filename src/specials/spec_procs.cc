@@ -223,7 +223,7 @@ list_skills(struct char_data *ch, int mode, int type)
 				SPELL_LEVEL(i, 0) <= LVL_GRIMP) {
 				if (!mode && !CHECK_SKILL(ch, i))	// !mode => list only learned
 					continue;
-				sprintf(buf, "%s%s%-22s %s%-17s%s %s(%3d mana)%s\r\n",
+				sprintf(buf, "%s%s%-30s %s%-17s%s %s(%3d mana)%s\r\n",
 					CCGRN(ch, C_NRM),
 					GET_LEVEL(ch) >= LVL_AMBASSADOR ? buf4 : "", spell_to_str(i),
 					CCBLD(ch, C_SPR), how_good(CHECK_SKILL(ch, i)),
@@ -265,7 +265,7 @@ list_skills(struct char_data *ch, int mode, int type)
 			if (!mode && !CHECK_SKILL(ch, i))	// !mode => list only learned
 				continue;
 
-			sprintf(buf, "%s%s%-22s %s%-17s%s%s\r\n",
+			sprintf(buf, "%s%s%-30s %s%-17s%s%s\r\n",
 				CCGRN(ch, C_NRM), GET_LEVEL(ch) >= LVL_AMBASSADOR ? buf4 : "",
 				spell_to_str(i), CCBLD(ch, C_SPR), how_good(GET_SKILL(ch, i)),
 				GET_LEVEL(ch) > LVL_ETERNAL ? buf3 : "", CCNRM(ch, C_SPR));

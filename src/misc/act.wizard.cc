@@ -119,65 +119,84 @@ static const char *logtypes[] = {
 void
 show_char_class_skills(struct char_data *ch, int con, int immort, int bits)
 {
-	int flags, i, j, found;
+	int lvl, skl;
+	bool found;
+	char *msg;
 
-	sprintf(buf, "The %s class can learn the following%s:\r\n"
-		"Level %s   Skill           %s  Flags\r\n",
+	msg = tmp_strcat("The ",
 		pc_char_class_types[con],
-		IS_SET(bits, SPELL_BIT) ? " spells" :
-		IS_SET(bits, TRIG_BIT) ? " triggers" :
-		IS_SET(bits, ZEN_BIT) ? " zens" :
-		IS_SET(bits, ALTER_BIT) ? " alterations" : " skills",
-		immort ? "Sklnm" : "", immort ? "Mana: Max  Min  Chn" : "          ");
+		" class can learn the following ",
+		IS_SET(bits, SPELL_BIT) ? "spells" :
+			IS_SET(bits, TRIG_BIT) ? "triggers" :
+			IS_SET(bits, ZEN_BIT) ? "zens" :
+			IS_SET(bits, ALTER_BIT) ? "alterations" : "skills",
+		":\r\n", NULL);
 
-	for (i = 1, found = 0; i < LVL_AMBASSADOR; found = 0, i++) {
-		for (j = 1; j < MAX_SKILLS; j++) {
+	if (GET_LEVEL(ch) < LVL_IMMORT)
+		msg = tmp_strcat(msg, "Lvl    Skill\r\n");
+	else
+		msg = tmp_strcat(msg,	
+			"Lvl  Number   Skill           Mana: Max  Min  Chn  Flags\r\n");
+
+	for (lvl = 1; lvl < LVL_AMBASSADOR; lvl++) {
+		found = false;
+		for (skl = 1; skl < MAX_SKILLS; skl++) {
 			/* pre-prune the list */
-			if (!immort) {
-				if (!bits && j < MAX_SPELLS)
+			if (GET_LEVEL(ch) < LVL_IMMORT) {
+				if (!bits && skl < MAX_SPELLS)
 					continue;
-				if (bits && j >= MAX_SPELLS)
+				if (bits && skl >= MAX_SPELLS)
 					break;
 			}
-			if (spell_info[j].min_level[con] == i &&
-				(immort || GET_REMORT_GEN(ch) >= spell_info[j].gen[con])) {
-				flags = spell_info[j].routines;
-				if (!immort)
-					REMOVE_BIT(flags, MAG_MAGIC | MAG_DIVINE | MAG_PHYSICS |
-						MAG_PSIONIC | CYB_ACTIVATE | MAG_WATERZAP);
-				sprintbit(flags, spell_bits, buf2);
+			if (spell_info[skl].min_level[con] == lvl &&
+				(immort || GET_REMORT_GEN(ch) >= spell_info[skl].gen[con])) {
 
 				if (!found)
-					sprintf(buf, "%s %-2d", buf, i);
+					msg = tmp_sprintf("%s %-2d", msg, lvl);
 				else
-					strcat(buf, "   ");
+					msg = tmp_strcat(msg, "   ");
 
-				if (immort)
-					sprintf(buf, "%s - %3d. ", buf, j);
+				if (GET_LEVEL(ch) < LVL_IMMORT)
+					msg = tmp_strcat(msg, "    ");
 				else
-					strcat(buf, "      ");
+					msg = tmp_sprintf("%s - %3d. ", msg, skl);
 
-				if (spell_info[j].gen[con]) {
-					sprintf(buf, "%s%s(%d) %s%-21s%s",
-						buf, CCYEL(ch, C_NRM), spell_info[j].gen[con],
-						CCGRN(ch, C_NRM), spell_to_str(j), CCNRM(ch, C_NRM));
+				if (spell_info[skl].gen[con]) {
+					// This is wasteful, but it looks a lot better to have
+					// the gen after the spell.  The trick is that we want it
+					// to be yellow, but printf doesn't recognize the existence
+					// of escape codes for purposes of padding.
+					char *tmp;
+					int len;
+
+					tmp = tmp_sprintf("%s (gen %d)", spell_to_str(skl),
+						spell_info[skl].gen[con]);
+					len = strlen(tmp);
+					if (len > 33)
+						len = 33;
+					msg = tmp_sprintf("%s%s%s %s(gen %d)%s%s", msg,
+						CCGRN(ch, C_NRM), spell_to_str(skl), CCYEL(ch, C_NRM),
+						spell_info[skl].gen[con], CCNRM(ch, C_NRM),
+						tmp_pad(' ', 33 - len));
 				} else {
-					sprintf(buf, "%s%s%-25s%s",
-						buf, CCGRN(ch, C_NRM), spell_to_str(j), CCNRM(ch, C_NRM));
+					msg = tmp_sprintf("%s%s%-33s%s", msg,
+						CCGRN(ch, C_NRM), spell_to_str(skl), CCNRM(ch, C_NRM));
 				}
-				if (immort)
-					sprintf(buf, "%s%-3d  %-3d  %-2d", buf,
-						spell_info[j].mana_max,
-						spell_info[j].mana_min, spell_info[j].mana_change);
 
-				sprintf(buf, "%s   %s%s%s\r\n", buf,
-					CCCYN(ch, C_NRM), buf2, CCNRM(ch, C_NRM));
-
-				found = TRUE;
+				if (GET_LEVEL(ch) >= LVL_IMMORT) {
+					sprintbit(spell_info[skl].routines, spell_bits, buf2);
+					msg = tmp_sprintf("%s%3d  %3d  %2d   %s%s%s", msg,
+						spell_info[skl].mana_max,
+						spell_info[skl].mana_min, spell_info[skl].mana_change,
+						CCCYN(ch, C_NRM), buf2, CCNRM(ch, C_NRM));
+				}
+				
+				msg = tmp_strcat(msg, "\r\n");
+				found = true;
 			}
 		}
 	}
-	page_string(ch->desc, buf);
+	page_string(ch->desc, msg);
 }
 
 void

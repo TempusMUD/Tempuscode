@@ -2,7 +2,6 @@
 #define __REMORTER_H_
 
 
-int parse_char_class(char *arg);
 void do_start(struct char_data *ch, int mode);
 
 // Argument storage for the remorter

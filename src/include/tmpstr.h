@@ -10,6 +10,9 @@ char *tmp_vsprintf(const char *fmt, va_list args);
 // sprintf into a temp str
 char *tmp_sprintf(const char *fmt, ...);
 
+// returns a temp str of length n filled with c
+char *tmp_pad(int c, size_t n);
+
 // get the next word, copied into a temp pool
 char *tmp_getword(char **src);
 

@@ -475,49 +475,45 @@ parse_time_frame(char *arg)
  */
 
 int
-parse_char_class_past(char *arg)
+parse_player_class(char *arg, int timeframe)
 {
-
 	skip_spaces(&arg);
-	if (is_abbrev(arg, "magic user") || is_abbrev(arg, "mage"))
-		return CLASS_MAGIC_USER;
-	else if (is_abbrev(arg, "cleric"))
-		return CLASS_CLERIC;
-	else if (is_abbrev(arg, "barbarian"))
-		return CLASS_BARB;
-	else if (is_abbrev(arg, "thief"))
-		return CLASS_THIEF;
-	else if (is_abbrev(arg, "knight"))
-		return CLASS_KNIGHT;
-	else if (is_abbrev(arg, "ranger"))
-		return CLASS_RANGER;
-	else if (is_abbrev(arg, "monk"))
-		return CLASS_MONK;
+	if (timeframe == TIME_TIMELESS || timeframe == TIME_PAST) {
+		if (is_abbrev(arg, "magic user") || is_abbrev(arg, "mage"))
+			return CLASS_MAGIC_USER;
+		else if (is_abbrev(arg, "cleric"))
+			return CLASS_CLERIC;
+		else if (is_abbrev(arg, "barbarian"))
+			return CLASS_BARB;
+		else if (is_abbrev(arg, "thief"))
+			return CLASS_THIEF;
+		else if (is_abbrev(arg, "knight"))
+			return CLASS_KNIGHT;
+		else if (is_abbrev(arg, "ranger"))
+			return CLASS_RANGER;
+		else if (is_abbrev(arg, "monk"))
+			return CLASS_MONK;
+		else if (timeframe == TIME_PAST)
+			return CLASS_UNDEFINED;
+	}
+
+	if (timeframe == TIME_TIMELESS || timeframe == TIME_FUTURE) {
+		if (is_abbrev(arg, "cyborg") || is_abbrev(arg, "borg"))
+			return CLASS_CYBORG;
+		else if (is_abbrev(arg, "hoodlum"))
+			return CLASS_HOOD;
+		else if (is_abbrev(arg, "psionic") || is_abbrev(arg, "psychic"))
+			return CLASS_PSIONIC;
+		else if (is_abbrev(arg, "physic") || is_abbrev(arg, "physicist"))
+			return CLASS_PHYSIC;
+		else if (is_abbrev(arg, "monk"))
+			return CLASS_MONK;
+		else if (is_abbrev(arg, "mercenary"))
+			return CLASS_MERCENARY;
+	}
 
 	return CLASS_UNDEFINED;
 }
-
-int
-parse_char_class_future(char *arg)
-{
-
-	skip_spaces(&arg);
-	if (is_abbrev(arg, "cyborg") || is_abbrev(arg, "borg"))
-		return CLASS_CYBORG;
-	else if (is_abbrev(arg, "hoodlum"))
-		return CLASS_HOOD;
-	else if (is_abbrev(arg, "psionic") || is_abbrev(arg, "psychic"))
-		return CLASS_PSIONIC;
-	else if (is_abbrev(arg, "physic") || is_abbrev(arg, "physicist"))
-		return CLASS_PHYSIC;
-	else if (is_abbrev(arg, "monk"))
-		return CLASS_MONK;
-	else if (is_abbrev(arg, "mercenary"))
-		return CLASS_MERCENARY;
-
-	return CLASS_UNDEFINED;
-}
-
 
 extern const char *player_race[] = {
 	"Human",
