@@ -15,6 +15,7 @@
 // Copyright 1998 by John Watson, all rights reserved.
 //
 
+#define NUM_OF_BOARD_VNUMS		10	/* change if needed! */
 #define NUM_OF_BOARDS	        47	/* change if needed! */
 #define MAX_BOARD_MESSAGES 	60      /* arbitrary -- change if needed */
 #define MAX_MESSAGE_LENGTH	16384	/* arbitrary -- change if needed */
@@ -34,7 +35,7 @@ struct board_msginfo {
 };
 
 struct board_info_type {
-   int	vnum[4];	/* possible vnums of this board */
+   int	vnum[NUM_OF_BOARD_VNUMS];	/* possible vnums of this board */
    int	read_lvl;	/* min level to read messages on this board */
    int	write_lvl;	/* min level to write messages on this board */
    int	remove_lvl;	/* min level to remove messages from this board */
