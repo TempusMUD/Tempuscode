@@ -252,6 +252,7 @@ ACMD(do_hotwire)
     return;
 }
 
+
 ACMD(do_recharge)
 {
 
@@ -264,21 +265,33 @@ ACMD(do_recharge)
     argument = one_argument(argument, arg4);
 
     if ((!*arg1 || ch == get_char_room_vis(ch, arg1)) && IS_CYBORG(ch)) {
-        if (!(battery = GET_EQ(ch, WEAR_HOLD)) || !IS_BATTERY(battery)) {
-            send_to_char("You need to be holding a battery to do that.\r\n", ch);
+        // Find the battery
+        if(!(strcmp("internal",arg2))) {
+             battery = get_object_in_equip_vis(ch,arg3,ch->implants, &i);
+        }
+        if ( battery == NULL && !(battery = get_obj_in_list_vis(ch, arg2, ch->carrying)) &&
+             !(battery = get_object_in_equip_vis(ch, arg2, ch->equipment, &i)) &&
+             !(battery = get_obj_in_list_vis(ch, arg2, ch->in_room->contents)) ) {
+            send_to_char("You need a battery to do that.\r\n", ch);
             return;
         }
-
+        if (!IS_BATTERY(battery)) {
+            act("$p is not a battery.", FALSE, ch, battery, 0, TO_CHAR);
+            return;
+        }
         if (CUR_ENERGY(battery) <= 0) {
             act("$p is depleted of energy.", FALSE, ch, battery, 0, TO_CHAR);
             return;
         }
-
+        if (IS_IMPLANT(battery) && *arg4 && 
+            battery != get_object_in_equip_vis(ch, arg4, ch->implants, &i)) {
+            act ("ERROR: $p not installed properly.", FALSE,ch,battery,0,TO_CHAR);
+            return;
+        }
         if (GET_MOVE(ch) == GET_MAX_MOVE(ch)) {
             send_to_char("You are already operating at maximum energy.\r\n", ch);
             return;
         }
-
         perform_recharge(ch, battery, ch, NULL, 0);
         return;
     }
