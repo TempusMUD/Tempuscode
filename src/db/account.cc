@@ -129,11 +129,8 @@ Account::load(long idnum)
 			PQgetvalue(res, 0, field_idx));
 	delete [] fields;
 
-	// Now we add the players to the account and player index
-	res = sql_query("select idnum from players where account=%ld order by idnum", idnum);
-	count = PQntuples(res);
-	for (idx = 0;idx < count;idx++)
-		this->add_player(atol(PQgetvalue(res, idx, 0)));
+	// Now we add the players to the account
+	this->load_players();
 
 	// Add trusted players to account
 	res = sql_query("select player from trusted where account=%ld", idnum);
@@ -203,9 +200,16 @@ Account::set(const char *key, const char *val)
 }
 
 void
-Account::add_player(long idnum)
+Account::load_players(void)
 {
-	_chars.push_back(idnum);
+	long count, idx;
+	PGresult *res;
+
+	_chars.clear();
+	res = sql_query("select idnum from players where account=%d order by idnum", _id);
+	count = PQntuples(res);
+	for (idx = 0;idx < count;idx++)
+		_chars.push_back(atol(PQgetvalue(res, idx, 0)));
 }
 
 void
@@ -644,9 +648,13 @@ Account::exhume_char( Creature *exhumer, long id )
 	// load char from file
 	Creature* victim = new Creature(true);
 	if( victim->loadFromXML(id) ) {
-		_chars.push_back( id );
+		sql_exec("insert into players (idnum, account, name) values (%ld, %d, '%s')",
+			GET_IDNUM(victim), _id, GET_NAME(victim));
+		this->load_players();
 		send_to_char(exhumer, "%s exhumed.\r\n", 
 					tmp_capitalize( GET_NAME(victim) ) );
+		slog("%s[%ld] exhumed into account %s[%d]", GET_NAME(victim),
+			GET_IDNUM(victim), _name, _id);
 	} else {
 		send_to_char(exhumer, "Unable to load character %ld.\r\n", id );
 	}

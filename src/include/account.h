@@ -96,10 +96,6 @@ class Account {
 		inline bool trustsNobody(void) { return _trusted.empty(); }
 		void displayTrusted(Creature *ch);
 
-		void set(const char *key, const char *val);
-		void add_player(long idnum);
-		void add_trusted(long idnum);
-
 		class cmp {
 			public:
 				bool operator()(const Account *s1, const Account *s2) const
@@ -113,6 +109,10 @@ class Account {
 	private:
 		static int long _top_id;
 		static vector <Account *> _cache;
+
+		void load_players(void);
+		void set(const char *key, const char *val);
+		void add_trusted(long idnum);
 
 		// Internal
 		int _id;
