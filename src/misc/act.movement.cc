@@ -1674,8 +1674,7 @@ ACMD(do_enter)
                         act("$p repulses you.", FALSE, ch, car, 0, TO_CHAR);
                         act("$n is repulsed by $p as he tries to enter it.",
                             TRUE, ch, car, 0, TO_ROOM);
-                    } //else if (room_count(ch, room) < MAX_OCCUPANTS(room)) {
-                      else if (room->people.size() < (unsigned)MAX_OCCUPANTS(room)) {
+                    } else if (room->people.size() < (unsigned)MAX_OCCUPANTS(room)) {
                         // charmed check
                         if (AFF_FLAGGED(ch, AFF_CHARM) && ch->master &&
                             ch->master->in_room == ch->in_room) {
@@ -1700,6 +1699,25 @@ ACMD(do_enter)
                             act("$n has entered the mansion.", FALSE, ch, car, 0, TO_ROOM);
                         else
                             act("$n steps out of $p.", FALSE, ch, car, 0, TO_ROOM);
+						if ( GET_OBJ_VAL(car, 3) == 1 )
+							{
+							act("$p disintegrates as you step through.",
+								FALSE,ch,car,0,TO_CHAR );
+			
+							if (car->in_room)
+								{
+								act("$p disintegrates as $n steps through.",
+									FALSE,ch,car,0,TO_ROOM);
+								obj_from_room(car);
+								}
+							else
+								obj_from_char(car);
+
+							extract_obj(car);
+							}
+						else if ( GET_OBJ_VAL(car, 3) > 0 )
+							GET_OBJ_VAL(car,3) -= 1;
+
                         WAIT_STATE(ch, 2 RL_SEC);
                         return;
                     } else

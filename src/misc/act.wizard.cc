@@ -2292,6 +2292,7 @@ ACMD(do_return)
                 FALSE, ch, NULL, NULL, TO_ROOM);
             char_from_room(ch);
             char_to_room(ch, GET_START_ROOM(ch));
+			look_at_room(ch, ch->in_room, 0);
             act("A whirling globe of multi-colored light appears and deposits $n on the floor!",
                 FALSE, ch, NULL, NULL, TO_ROOM);
         }

@@ -643,7 +643,8 @@ nanny(struct descriptor_data * d, char *arg)
 							 IS_MONK(d->character) || IS_RANGER(d->character))) ||
 						   (IS_HALF_ORC(d->character) &&
 							(IS_MAGE(d->character) || IS_CLERIC(d->character) ||
-							 IS_MONK(d->character) || IS_KNIGHT(d->character))) ||
+							 IS_MONK(d->character) || IS_KNIGHT(d->character) ||
+							 IS_RANGER(d->character))) ||
 						   (IS_ELF(d->character) && IS_BARB(d->character)) ||
 						   (IS_DROW(d->character) && (IS_BARB(d->character) ||
 													  IS_MONK(d->character))) ||

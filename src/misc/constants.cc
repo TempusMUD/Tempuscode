@@ -1319,7 +1319,7 @@ extern const char *item_value_types[][4] = {
   {"Max charg","Cur charg","Rate",     "Cost/unit"},  /* battery    */
   {"Max ROF",  "Cur ROF",  "discharge","gun type"},  /* raygun     */
   {"Targ room","Doorstate","UNDEFINED","UNDEFINED"},  /* window     */
-  {"Targ room","Doorstate","UNDEFINED","type"},       /* portal     */
+  {"Targ room","Doorstate","Keynum?","Charges"},       /* portal     */
   {"Type",     "Max Drags","UNDEFINED","UNDEFINED"},  /*tobacco     */
   {"Drags lft","UNDEFINED","Tobac typ","Lit?"},       /* joint      */
   {"UNDEFINED","UNDEFINED","UNDEFINED","UNDEFINED"},  /* metal      */
