@@ -638,8 +638,8 @@ desc_char_trailers(Creature *ch, Creature *i)
 		desc = tmp_strcat(desc, "...", HSHR(i),
 			" body is completely transparent.\r\n", NULL);
 
-	if (affected_by_spell(ch, SKILL_KATA) &&
-			ch->getLevelBonus(SKILL_KATA) >= 50)
+	if (affected_by_spell(i, SKILL_KATA) &&
+			i->getLevelBonus(SKILL_KATA) >= 50)
 		desc = tmp_strcat(desc, "...", HSHR(i),
 			" hands are glowing eerily.\r\n", NULL);
 
