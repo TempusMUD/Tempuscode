@@ -9,6 +9,7 @@
 #include "screen.h"
 #include "weather.h"
 #include "utils.h"
+#include "vendor.h"
 
 const int MAX_ITEMS = 10;
 
@@ -16,34 +17,6 @@ const int MAX_ITEMS = 10;
 int same_obj(obj_data *, obj_data *);
 // From act.comm.cc
 void perform_tell(struct Creature *ch, struct Creature *vict, char *arg);
-
-struct ShopTime {
-	int start, end;
-};
-
-struct ShopData {
-	ShopData(void) : item_list(), item_types() {};
-
-	long room;				// Room of self
-	vector<int> item_list;	// list of produced items
-	vector<int> item_types;	// list of types of items self deals in
-	vector<ShopTime> closed_hours;
-	char *msg_denied;		// Message sent to those of wrong race, creed, etc
-	char *msg_badobj;		// Attempt to sell invalid obj to self
-	char *msg_selfbroke;	// Shop ran out of money
-	char *msg_buyerbroke;	// Buyer doesn't have any money
-	char *msg_buy;			// Keeper successfully bought something
-	char *msg_sell;			// Keeper successfully sold something
-	char *cmd_temper;		// Command to run after buyerbroke
-	char *msg_closed;		// Shop is closed at the time
-	int markup;				// Price increase when player buying
-	int markdown;			// Price decrease when player is selling
-	int currency;			// 0 == gold, 1 == cash, 2 == quest points
-	long revenue;			// Amount added to money every reset
-	bool steal_ok;
-	bool attack_ok;
-	Reaction reaction;
-};
 
 static bool
 vendor_is_produced(obj_data *obj, ShopData *shop)
@@ -666,49 +639,45 @@ vendor_revenue(Creature *self, ShopData *shop)
 	return;
 }
 
-SPECIAL(vendor)
+char *
+vendor_parse_param(Creature *self, char *param, ShopData *shop, int *err_line)
 {
-	Creature *self = (Creature *)me;
-	char *config, *line, *param_key, *err = NULL;
-	ShopData shop;
+	char *line, *param_key;
+	char *err = NULL;
 	int val, lineno = 0;
 
-	config = GET_MOB_PARAM(self);
-	if (!config)
-		return 0;
-
 	// Initialize default values
-	shop.room = -1;
-	shop.msg_denied = "I'm not doing business with YOU!";
-	shop.msg_badobj = "I don't buy that sort of thing.";
-	shop.msg_selfbroke = "Sorry, but I don't have the cash.";
-	shop.msg_buyerbroke = "You don't have enough money to buy this!";
-	shop.msg_buy = "Here you go.";
-	shop.msg_sell = "There you go.";
-	shop.msg_closed = "Come back later!";
-	shop.cmd_temper = NULL;
-	shop.markdown = 70;
-	shop.markup = 120;
-	shop.currency = false;
-	shop.revenue = 0;
-	shop.steal_ok = false;
-	shop.attack_ok = false;
+	shop->room = -1;
+	shop->msg_denied = "I'm not doing business with YOU!";
+	shop->msg_badobj = "I don't buy that sort of thing.";
+	shop->msg_selfbroke = "Sorry, but I don't have the cash.";
+	shop->msg_buyerbroke = "You don't have enough money to buy this!";
+	shop->msg_buy = "Here you go.";
+	shop->msg_sell = "There you go.";
+	shop->msg_closed = "Come back later!";
+	shop->cmd_temper = NULL;
+	shop->markdown = 70;
+	shop->markup = 120;
+	shop->currency = false;
+	shop->revenue = 0;
+	shop->steal_ok = false;
+	shop->attack_ok = false;
 
-	while ((line = tmp_getline(&config)) != NULL) {
+	while ((line = tmp_getline(&param)) != NULL) {
 		lineno++;
-		if (shop.reaction.add_reaction(line))
+		if (shop->reaction.add_reaction(line))
 			continue;
 
 		param_key = tmp_getword(&line);
 		if (!strcmp(param_key, "room")) {
-			shop.room = atol(line);
+			shop->room = atol(line);
 		} else if (!strcmp(param_key, "produce")) {
 			val = atoi(line);
 			if (val <= 0 || !real_object_proto(val)) {
 				err = "non-existant produced item";
 				break;
 			}
-			shop.item_list.push_back(atoi(line));
+			shop->item_list.push_back(atoi(line));
 		} else if (!strcmp(param_key, "accept")) {
 			if (strcmp(line, "all")) {
 				val = search_block(line, item_types, 0);
@@ -718,7 +687,7 @@ SPECIAL(vendor)
 				}
 			} else
 				val = 0;
-			shop.item_types.push_back( 1 << 8 | val);
+			shop->item_types.push_back( 1 << 8 | val);
 		} else if (!strcmp(param_key, "refuse")) {
 			if (strcmp(line, "all")) {
 				val = search_block(line, item_types, 0);
@@ -728,21 +697,21 @@ SPECIAL(vendor)
 				}
 			} else
 				val = 0;
-			shop.item_types.push_back( 0 << 8 | val);
+			shop->item_types.push_back( 0 << 8 | val);
 		} else if (!strcmp(param_key, "denied-msg")) {
-			shop.msg_denied = line;
+			shop->msg_denied = line;
 		} else if (!strcmp(param_key, "keeper-broke-msg")) {
-			shop.msg_selfbroke= line;
+			shop->msg_selfbroke= line;
 		} else if (!strcmp(param_key, "buyer-broke-msg")) {
-			shop.msg_buyerbroke = line;
+			shop->msg_buyerbroke = line;
 		} else if (!strcmp(param_key, "buy-msg")) {
-			shop.msg_buy = line;
+			shop->msg_buy = line;
 		} else if (!strcmp(param_key, "sell-msg")) {
-			shop.msg_sell = line;
+			shop->msg_sell = line;
 		} else if (!strcmp(param_key, "closed-msg")) {
-			shop.msg_closed = line;
+			shop->msg_closed = line;
 		} else if (!strcmp(param_key, "temper-cmd")) {
-			shop.cmd_temper = line;
+			shop->cmd_temper = line;
 		} else if (!strcmp(param_key, "closed-hours")) {
 			ShopTime time;
 
@@ -753,47 +722,66 @@ SPECIAL(vendor)
 			else if (time.end < 0 || time.end > 24)
 				err = "an out of bounds opening hour";
 			else
-				shop.closed_hours.push_back(time);
+				shop->closed_hours.push_back(time);
 		} else if (!strcmp(param_key, "markup")) {
-			shop.markup= atoi(line);
-			if (shop.markup <= 0 ||  shop.markup > 1000) {
+			shop->markup= atoi(line);
+			if (shop->markup <= 0 ||  shop->markup > 1000) {
 				err = "an invalid markup";
 				break;
 			}
 		} else if (!strcmp(param_key, "markdown")) {
-			shop.markdown= atoi(line);
-			if (shop.markdown <= 0 ||  shop.markdown > 1000) {
+			shop->markdown= atoi(line);
+			if (shop->markdown <= 0 ||  shop->markdown > 1000) {
 				err = "an invalid markdown";
 				break;
 			}
 		} else if (!strcmp(param_key, "revenue")) {
-			shop.revenue= atoi(line);
-			if (shop.revenue < 0) {
+			shop->revenue= atoi(line);
+			if (shop->revenue < 0) {
 				err = "a negative revenue";
 				break;
 			}
 		} else if (!strcmp(param_key, "currency")) {
 			if (is_abbrev(line, "past") || is_abbrev(line, "gold"))
-				shop.currency = 0;
+				shop->currency = 0;
 			else if (is_abbrev(line, "future") || is_abbrev(line, "cash"))
-				shop.currency = 1;
+				shop->currency = 1;
 			else if (is_abbrev(line, "qp") || is_abbrev(line, "quest"))
-				shop.currency = 2;
+				shop->currency = 2;
 			else {
 				err = "invalid currency";
 				break;
 			}
 		} else if (!strcmp(param_key, "steal-ok")) {
-			shop.steal_ok = (is_abbrev(line, "yes") || is_abbrev(line, "on") ||
+			shop->steal_ok = (is_abbrev(line, "yes") || is_abbrev(line, "on") ||
 				is_abbrev(line, "1") || is_abbrev(line, "true"));
 		} else if (!strcmp(param_key, "attack-ok")) {
-			shop.attack_ok = (is_abbrev(line, "yes") || is_abbrev(line, "on") ||
+			shop->attack_ok = (is_abbrev(line, "yes") || is_abbrev(line, "on") ||
 				is_abbrev(line, "1") || is_abbrev(line, "true"));
 		} else {
 			err = "invalid directive";
 			break;
 		}
 	}
+
+	if (err_line)
+		*err_line = (err) ? lineno:-1;
+
+	return err;
+}
+
+SPECIAL(vendor)
+{
+	Creature *self = (Creature *)me;
+	char *config, *err;
+	int err_line;
+	ShopData shop;
+
+	config = GET_MOB_PARAM(self);
+	if (!config)
+		return 0;
+
+	err = vendor_parse_param(self, config, &shop, &err_line);
 
 	if (spec_mode == SPECIAL_RESET) {
 		vendor_revenue(self, &shop);
@@ -806,17 +794,16 @@ SPECIAL(vendor)
 	if (!(CMD_IS("buy") || CMD_IS("sell") || CMD_IS("list") || CMD_IS("value") || CMD_IS("offer") || CMD_IS("steal")))
 		return 0;
 
-
 	if (err) {
 		// Specparam error
 		if (IS_PC(ch)) {
 			if (IS_IMMORT(ch))
 				perform_tell(self, ch, tmp_sprintf(
-					"I have %s in line %d of my specparam", err, lineno));
+					"I have %s in line %d of my specparam", err, err_line));
 			else {
 				mudlog(LVL_IMMORT, NRM, true,
 					"ERR: Mobile %d has %s in line %d of specparam",
-					GET_MOB_VNUM(self), err, lineno);
+					GET_MOB_VNUM(self), err, err_line);
 				do_say(self, tmp_sprintf(
 					"%s Sorry.  I'm broken, but a god has already been notified.",
 					GET_NAME(ch)), 0, SCMD_SAY_TO, NULL);

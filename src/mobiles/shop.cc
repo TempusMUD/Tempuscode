@@ -33,6 +33,7 @@
 #include "shop.h"
 #include "screen.h"
 #include "fight.h"
+#include "vendor.h"
 
 /* External variables */
 extern struct Creature *mob_proto;
@@ -1298,7 +1299,18 @@ ok_damage_shopkeeper(struct Creature *ch, struct Creature *victim)
 	struct shop_data *shop = NULL;
 
 	if (ch && GET_LEVEL(ch) > LVL_CREATOR)
-		return TRUE;
+		return true;
+	
+	if (IS_NPC(victim) && victim->mob_specials.shared->func == vendor) {
+		ShopData shop;
+
+		if (!GET_MOB_PARAM(victim))
+			return false;
+
+		vendor_parse_param(victim, GET_MOB_PARAM(victim), &shop, NULL);
+
+		return shop.attack_ok;
+	}
 
 	if (IS_NPC(victim) && victim->mob_specials.shared->func == shop_keeper)
 		for (shop = shop_index; shop; shop = shop->next)
