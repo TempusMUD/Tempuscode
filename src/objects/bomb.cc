@@ -750,14 +750,7 @@ sound_gunshots(struct room_data *room, int type, int power, int num)
 				dir = rev_dir[dir];
 
 			if (dir < 0 || dir >= NUM_DIRS) {
-				switch (type) {
-				case SKILL_PROJ_WEAPONS:
-					sprintf(buf, "You hear %s.\r\n",
-						num > 1 ? "some gunshots" : "a gunshot");
-					break;
-				default:
-					break;
-				}
+				free(rad_elem);
 				continue;
 			}
 
