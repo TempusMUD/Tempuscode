@@ -2279,7 +2279,7 @@ ACMD(do_insert)
 	if(ch == vict) {
 		sprintf(buf,"$p inserted into your %s.",wear_implantpos[pos]);
 		act(buf, FALSE, ch, GET_IMPLANT(vict, pos), vict, TO_CHAR);
-		sprintf(buf,"$n inserts $p into $s %s.",wear_description[pos]);
+		sprintf(buf,"$n inserts $p into $s %s.",wear_implantpos[pos]);
 		act(buf, FALSE, ch, GET_IMPLANT(vict, pos), vict, TO_NOTVICT);
 		if(GET_POS(vict) > POS_SITTING)
 			GET_POS(ch) = POS_SITTING;
@@ -2294,10 +2294,10 @@ ACMD(do_insert)
 		sprintf(buf,"$p inserted into $N's %s.",wear_implantpos[pos]);
 		act(buf, FALSE, ch, GET_IMPLANT(vict, pos), vict, TO_CHAR);
 
-		sprintf(buf,"$n inserts $p into your %s.",wear_description[pos]);
+		sprintf(buf,"$n inserts $p into your %s.",wear_implantpos[pos]);
 		act(buf, FALSE, ch, GET_IMPLANT(vict, pos), vict, TO_VICT);
 
-		sprintf(buf,"$n inserts $p into $n's %s.",wear_description[pos]);
+		sprintf(buf,"$n inserts $p into $n's %s.",wear_implantpos[pos]);
 		act(buf, FALSE, ch, GET_IMPLANT(vict, pos), vict, TO_NOTVICT);
 		if(GET_POS(vict) > POS_RESTING)
 			GET_POS(vict) = POS_RESTING;
@@ -2458,7 +2458,7 @@ ACMD(do_extract)
 	if(ch == vict) {
 		sprintf(buf,"$p extracted from your %s.",wear_implantpos[pos]);
 		act(buf, FALSE, ch, obj, vict, TO_CHAR);
-		sprintf(buf,"$n extracts $p from $s %s.",wear_description[pos]);
+		sprintf(buf,"$n extracts $p from $s %s.",wear_implantpos[pos]);
 		act(buf, FALSE, ch, obj, vict, TO_NOTVICT);
 		if(GET_POS(vict) > POS_SITTING)
 			GET_POS(vict) = POS_SITTING;
@@ -2473,10 +2473,10 @@ ACMD(do_extract)
 		sprintf(buf,"$p extracted from $N's %s.",wear_implantpos[pos]);
 		act(buf, FALSE, ch, obj, vict, TO_CHAR);
 
-		sprintf(buf,"$n extracts $p from your %s.",wear_description[pos]);
+		sprintf(buf,"$n extracts $p from your %s.",wear_implantpos[pos]);
 		act(buf, FALSE, ch, obj, vict, TO_VICT);
 
-		sprintf(buf,"$n extracts $p from $n's %s.",wear_description[pos]);
+		sprintf(buf,"$n extracts $p from $n's %s.",wear_implantpos[pos]);
 		act(buf, FALSE, ch, obj, vict, TO_NOTVICT);
 		if(GET_POS(vict) > POS_RESTING)
 			GET_POS(vict) = POS_RESTING;
