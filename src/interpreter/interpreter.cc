@@ -780,7 +780,7 @@ extern const struct command_info cmd_info[] = {
     { "jump"     , POS_STANDING, do_move     , 0, SCMD_JUMP },
     { "junk"     , POS_RESTING , do_drop     , 0, SCMD_JUNK },
 
-    { "kill"     , POS_STANDING, do_kill     , 0, 0 },
+    { "kill"     , POS_FIGHTING, do_kill     , 0, 0 },
     { "kia"      , POS_FIGHTING, do_battlecry, 1, SCMD_KIA },
     { "kata"     , POS_STANDING, do_kata     , 0, 0 },
     { "kiss"     , POS_RESTING , do_action   , 0, 0 },
