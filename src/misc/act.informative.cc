@@ -3893,10 +3893,9 @@ ACMD(do_where)
 {
 	skip_spaces(&argument);
 
-	if (GET_LEVEL(ch) >= LVL_AMBASSADOR ||
+	if (Security::isMember(ch, "Questor,AdminBasic,WizardBasic") ||
 		(IS_MOB(ch) && ch->desc && ch->desc->original &&
-			GET_LEVEL(ch->desc->original) >= LVL_AMBASSADOR)
-		|| ch->isTester())
+			Security::isMember(ch->desc->original, "Questor,AdminBasic,WizardBasic")))
 		perform_immort_where(ch, argument);
 	else {
 
