@@ -315,7 +315,7 @@ ACMD(do_tell)
     else if (PRF_FLAGGED(ch, PRF_NOTELL) && GET_LEVEL(ch) < LVL_AMBASSADOR)
 	send_to_char("You can't tell other people while you have notell on.\r\n", ch);
     else if (ROOM_FLAGGED(ch->in_room, ROOM_SOUNDPROOF) && 
-	     GET_LEVEL(ch) < LVL_IMPL &&
+	     GET_LEVEL(ch) < LVL_GRGOD &&
 	     ch->in_room != vict->in_room)
 	send_to_char("The walls seem to absorb your words.\r\n", ch);
     else if (!IS_NPC(vict) && !vict->desc)	/* linkless */
@@ -327,7 +327,7 @@ ACMD(do_tell)
 	      PLR_FLAGGED(vict, PLR_OLC) || 
 	      (ROOM_FLAGGED(vict->in_room, ROOM_SOUNDPROOF) &&
 	       ch->in_room != vict->in_room)) &&
-	     !(GET_LEVEL(ch) > LVL_GRGOD && GET_LEVEL(ch) > GET_LEVEL(vict)))
+	     !(GET_LEVEL(ch) >= LVL_GRGOD && GET_LEVEL(ch) > GET_LEVEL(vict)))
 	act("$E can't hear you.", FALSE, ch, 0, vict, TO_CHAR | TO_SLEEP);
     else if (COMM_NOTOK_ZONES(ch, vict))
 	act("Your telepathic voice cannot reach $M.",
