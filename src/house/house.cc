@@ -39,7 +39,7 @@ extern struct descriptor_data *descriptor_list;
 extern struct obj_data *obj_proto;	/* prototypes for objs		 */
 extern int no_plrtext;
 
-struct obj_data *Obj_from_store(FILE * fl);
+struct obj_data *Obj_from_store(FILE * fl, bool allow_inroom);
 int Obj_to_store(struct obj_data * obj, FILE * fl);
 
 struct house_control_rec house_control[MAX_HOUSES];
@@ -283,7 +283,7 @@ House_load(int atrium)
 
     while (!feof(fl)) {
 
-	tmpo = Obj_from_store(fl);
+	tmpo = Obj_from_store( fl, true );
 
 	if (!tmpo || !(rnum = tmpo->in_room)) 
 	    return 0;
@@ -499,39 +499,6 @@ House_delete_file(int atrium)
 void 
 House_listrent(struct char_data * ch, int vnum)
 {
-/*
-  FILE *fl;
-  char fname[MAX_STRING_LENGTH];
-  char buf[MAX_STRING_LENGTH];
-  struct obj_file_elem object;
-  struct obj_data *obj;
-
-
-  if (!House_get_filename(vnum, fname))
-  return;
-  if (!(fl = fopen(fname, "rb"))) {
-  sprintf(buf, "No objects on file for house #%d.\r\n", vnum);
-  send_to_char(buf, ch);
-  return;
-  }
-  *buf = '\0';
-  while (!feof(fl)) {
-  fread(&object, sizeof(struct obj_file_elem), 1, fl);
-  if (ferror(fl)) {
-  fclose(fl);
-  return;
-  }
-  if (!feof(fl) && (obj = Obj_from_store(object)) != NULL) {
-  sprintf(buf, "%s [%5d] (%5dau) %s\r\n", buf,
-  GET_OBJ_VNUM(obj), GET_OBJ_RENT(obj),
-  obj->short_description);
-  free_obj(obj);
-  }
-  }
-
-  send_to_char(buf, ch);
-  fclose(fl);
-*/
 }
 
 

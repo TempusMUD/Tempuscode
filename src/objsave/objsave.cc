@@ -53,40 +53,48 @@ SPECIAL( cryogenicist );
 void perform_tell( struct char_data *ch, struct char_data *vict, char *buf );
 int write_plrtext ( struct obj_data *obj, FILE *fl );
 
-struct obj_data *
-Obj_from_store( FILE * fl )
-{
+struct obj_data *Obj_from_store( FILE * fl, bool allow_inroom ) {
+        
     struct obj_data *obj, *tmpo;
     struct obj_file_elem object;
     int j, tmpsize;
     
-    if ( ( tmpsize = fread( &object,sizeof( struct obj_file_elem ), 1, fl ) ) != 1 )
-	return NULL;
+    if ( ( tmpsize = fread( &object,sizeof( struct obj_file_elem ), 1, fl ) ) != 1 ) {
+        if ( ferror( fl ) ) {
+            sprintf( buf, "Error reading object in Obj_from_store: %s.", strerror( errno ) );
+            slog( buf );
+        }
+        return NULL;
+    }
     
-    if ( object.item_number < 0 )
-	return NULL;
+    if ( object.item_number < 0 ) {
+        sprintf( buf, "Obj_from_store found object vnum %d in file.", object.item_number );
+        slog( buf );
+        return NULL;
+    }
     
     obj = read_object( object.item_number );
     
     if ( !obj ) {
-	sprintf( buf, "Object %d no longer in database.", object.item_number );
-	slog( buf );
-	return NULL;
+        sprintf( buf, "Object %d no longer in database.", object.item_number );
+        slog( buf );
+        return NULL;
     }
 
     if ( !OBJ_APPROVED( obj ) ) {
-	sprintf( buf, "Obj %s being junked from rent.", obj->short_description );
-	slog( buf );
-	return NULL;
+        sprintf( buf, "Obj %s being junked from rent.", obj->short_description );
+        extract_obj( obj );
+        slog( buf );
+        return NULL;
     }
 
     if ( object.short_desc[0] != 0 ) {
-	obj->short_description = str_dup( object.short_desc );
-	sprintf( buf, "%s has been left here.", obj->short_description );
-	obj->description = str_dup( CAP( buf ) );
+        obj->short_description = str_dup( object.short_desc );
+        sprintf( buf, "%s has been left here.", obj->short_description );
+        obj->description = str_dup( CAP( buf ) );
     }
     if ( object.name[0] != 0 ) {
-	obj->name = str_dup( object.name );
+        obj->name = str_dup( object.name );
     }
 
 
@@ -109,43 +117,58 @@ Obj_from_store( FILE * fl )
 
     obj->setWeight( object.weight );
     GET_OBJ_TIMER  ( obj )    = object.timer;
+
     obj->worn_on              = object.worn_on_position;
+
     obj->obj_flags.wear_flags = object.wear_flags;
     obj->obj_flags.max_dam    = object.max_dam;
     obj->obj_flags.damage     = object.damage;
     obj->obj_flags.material   = object.material;
-    obj->in_room              = real_room( object.in_room_vnum );
 
+    if ( allow_inroom == false ) {
+        if ( object.in_room_vnum >= 0 ) {
+            sprintf( buf, "Obj_from_store loading object %s found non-negative inroom %d!  JUNKING.", 
+                     obj->short_description, object.in_room_vnum );
+            slog( buf );
+            extract_obj( obj );
+            return NULL;
+        }
+        obj->in_room     = NULL;
+    } else {
+        obj->in_room     = real_room( object.in_room_vnum );
+    }
+    
     // read player text
     obj->plrtext_len          = object.plrtext_len;
 
     if ( obj->plrtext_len ) {
-	CREATE( obj->action_description, char, object.plrtext_len );
+        CREATE( obj->action_description, char, object.plrtext_len );
     
-	if ( ! fread( obj->action_description,object.plrtext_len,1,fl ) )  {
-	    obj->plrtext_len = 0;
-	    sprintf( buf, "Error reading Obj %s's plrtext.", obj->short_description );
-	    slog( buf );
-	    return NULL;
-	}
+        if ( ! fread( obj->action_description,object.plrtext_len,1,fl ) )  {
+            obj->plrtext_len = 0;
+            sprintf( buf, "Error reading Obj %s's plrtext.", obj->short_description );
+            slog( buf );
+            return NULL;
+        }
     }
 
-
     for ( j = 0; j < 3; j++ )
-	obj->obj_flags.bitvector[j] = object.bitvector[j];
+        obj->obj_flags.bitvector[j] = object.bitvector[j];
   
     for ( j = 0; j < MAX_OBJ_AFFECT; j++ )
-	obj->affected[j] = object.affected[j];
+        obj->affected[j] = object.affected[j];
     
+    obj->contains = NULL;
+
     for ( j = 0; j < object.contains; j++ )  {
-	if ( ( tmpo = Obj_from_store( fl ) ) == NULL )  {
-	    perror( "SYSERR: Error in obj file: contain field: " );
-	}
-	else  {
-	    tmpo->in_obj = obj;
-	    tmpo->next_content = obj->contains;
-	    obj->contains = tmpo;
-	}
+        if ( ( tmpo = Obj_from_store( fl, false ) ) == NULL )  {
+            perror( "SYSERR: Error in obj file: contain field: " );
+        }
+        else  {
+            tmpo->in_obj = obj;
+            tmpo->next_content = obj->contains;
+            obj->contains = tmpo;
+        }
     }
 
     return obj;
@@ -476,7 +499,7 @@ Crash_load( struct char_data * ch )
     if ( get_filename( GET_NAME( ch ), fname, IMPLANT_FILE ) ) {
 	if ( ( fl = fopen( fname, "r+b" ) ) ) {
 	    while ( !feof( fl ) || !cont ) {
-		tmpo = Obj_from_store( fl );
+		tmpo = Obj_from_store( fl, false );
 		if ( tmpo && tmpo->worn_on >= 0 ) {
 		    tmpi = tmpo->worn_on;
 		    tmpo->worn_on = -1;
@@ -582,7 +605,7 @@ Crash_load( struct char_data * ch )
 
     // load objects from file
     while ( !feof( fl ) ) {
-	tmpo = Obj_from_store( fl );
+	tmpo = Obj_from_store( fl, false );
 
 	if ( tmpo ) {
 
@@ -607,6 +630,7 @@ Crash_load( struct char_data * ch )
 		    sprintf( buf, "remobj( no gold ):%s, cost:%d, value:%d", 
 			     tmpo->short_description,
 			     cost, recurs_obj_cost( tmpo, true, NULL ) );
+
 		    slog( buf );
 		    cost -= ( recurs_obj_cost( tmpo, true, NULL ) );
 		    extract_obj( tmpo );
