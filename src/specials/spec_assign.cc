@@ -202,6 +202,7 @@ const struct spec_func_data spec_list[] = {
     /** objects **/
     {"gen_board",       gen_board,             SPEC_OBJ},
     {"wagon_obj",       wagon_obj ,            SPEC_OBJ | SPEC_RES},
+    {"loud_speaker",    loud_speaker,          SPEC_OBJ | SPEC_RES},
     {"fountain_heal",   fountain_heal,         SPEC_OBJ},
     {"library",         library,               SPEC_OBJ},
     {"arena_object",    arena_object,          SPEC_OBJ | SPEC_RES},
