@@ -86,7 +86,7 @@ SPECIAL(guard)
 	// Set to deny if undecided
 	act(to_vict, FALSE, self, 0, ch, TO_VICT);
 	act(to_room, FALSE, self, 0, ch, TO_NOTVICT);
-	if (attack && !PRF_FLAGGED(ch, PRF_NOHASSLE))
+	if (attack && IS_PC(ch) && !PRF_FLAGGED(ch, PRF_NOHASSLE))
 		set_fighting(ch, self, true);
 	return true;
 }
