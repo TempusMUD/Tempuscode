@@ -2861,6 +2861,78 @@ ASPELL(spell_control_undead)
 	}
     }
 }
+ASPELL(spell_sun_ray)
+{
+    struct char_data *vict = NULL;
+    struct char_data *next_vict = NULL;
+    int dam = 0;
+
+    send_to_room("A brilliant ray of sunlight bathes the area!\r\n", ch->in_room);
+
+    if ( ROOM_FLAGGED(ch->in_room, ROOM_PEACEFUL) ) {
+        return;
+    }
+    
+    // check for players if caster is not a pkiller
+    if ( !IS_NPC( ch ) && !PRF2_FLAGGED( ch, PRF2_PKILLER ) ) {
+        for ( vict = ch->in_room->people; vict; vict = next_vict ) {
+            next_vict = vict->next_in_room;
+            if ( ch == vict )
+            continue;
+            if ( !IS_NPC( vict ) ) {
+            act( "You cannot do this, because this action might cause harm to $N,\r\n"
+                 "and you have not chosen to be a Pkiller.\r\n"
+                 "You can toggle this with the command 'pkiller'.", FALSE, ch, 0, vict, TO_CHAR );
+            return;
+            }
+        }
+    }
+
+    for ( vict = ch->in_room->people; vict; vict = next_vict ) {
+        next_vict = vict->next_in_room;
+        if ( ch == vict )
+            continue;
+        if ( PRF_FLAGGED(vict, PRF_NOHASSLE) )
+            continue;
+        if (IS_UNDEAD(vict)) {
+            dam = dice(GET_LEVEL(ch) + GET_REMORT_GEN(ch), 40)
+                  + ((GET_LEVEL(ch) + GET_REMORT_GEN(ch)) * 5);
+            if(IS_EVIL(vict)) {
+                dam += GET_ALIGNMENT(ch);
+            }
+            if( !damage(ch, vict, dam, TYPE_ABLAZE, -1) ) {
+                if ( !IS_AFFECTED(vict, AFF_BLIND) && 
+                     !MOB_FLAGGED(vict, MOB_NOBLIND) ) {
+
+                    struct affected_type af, af2;
+                    af.type = af2.type = SPELL_BLINDNESS;
+                    af.location = APPLY_HITROLL;
+                    af.modifier = -4;
+                    af.duration = 2;
+                    af.bitvector = AFF_BLIND;
+                    af2.location = APPLY_AC;
+                    af2.modifier = 40;
+                    af2.duration = 2;
+                    af2.bitvector = AFF_BLIND;
+                    affect_join(vict, &af, FALSE, FALSE, FALSE, FALSE);
+                    if (af2.bitvector || af2.location)
+                        affect_join(vict, &af2, FALSE, FALSE, FALSE, FALSE);
+
+                    act( "$n cries out in pain, clutching $s eyes!", 
+                        FALSE, vict, NULL, ch, TO_ROOM);
+                    act( "You begin to scream as the flames of light sear out your eyes!",
+                        FALSE, ch, NULL, vict, TO_VICT);
+                } else {
+                    act( "$N screams in agony!",
+                        FALSE, vict, NULL, ch, TO_ROOM);
+                    act( "You cry out in pain as the flames of light consume your body!",
+                        FALSE, ch, NULL, vict, TO_VICT);
+                }
+            }
+        }
+    }   
+	
+}
 
 ASPELL(spell_inferno)
 {

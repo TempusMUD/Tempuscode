@@ -1851,6 +1851,10 @@ mag_affects(int level, struct char_data * ch, struct char_data * victim,
 	    send_to_char("You cannot stigmatize good characters.\r\n", ch);
 	    return;
 	}
+    if ( IS_SOULLESS(victim)) {
+        send_to_char("Your stigmata fails.\r\n",ch);
+        return;
+    }
 	af.duration = level >> 2;
 	to_room = "A bloody stigmatic mark appears on $n's forehead.";
 	to_vict = "A bloody stigmatic mark appears on your forehead.";

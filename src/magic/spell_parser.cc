@@ -201,7 +201,8 @@ const char *spells[] =
     "banishment",
     "control undead",
     "stoneskin",	/* 145 */
-    "!UNUSED!", "!UNUSED!", "!UNUSED!", "!UNUSED!", "!UNUSED!",	/* 150 */
+    "sun ray", 
+    "!UNUSED!", "!UNUSED!", "!UNUSED!", "!UNUSED!",	/* 150 */
     "!UNUSED!", "!UNUSED!", "!UNUSED!", "!UNUSED!", "!UNUSED!",	/* 155 */
     "!UNUSED!", "!UNUSED!", "!UNUSED!", "!UNUSED!", "!UNUSED!",	/* 160 */
     "!UNUSED!", "!UNUSED!", "!UNUSED!", "!UNUSED!", "!UNUSED!",	/* 165 */
@@ -1063,7 +1064,8 @@ call_magic(struct char_data * caster, struct char_data * cvict,
 	case SPELL_CONTROL_UNDEAD:  MANUAL_SPELL(spell_control_undead);  break;
 	case SPELL_INFERNO:         MANUAL_SPELL(spell_inferno); break;
 	case SPELL_BANISHMENT:      MANUAL_SPELL(spell_banishment); break;
-        case SPELL_AREA_STASIS:     MANUAL_SPELL(spell_area_stasis); break;     
+    case SPELL_AREA_STASIS:     MANUAL_SPELL(spell_area_stasis); break;     
+    case SPELL_SUN_RAY:         MANUAL_SPELL(spell_sun_ray); break;
 	}
   
     knock_door = NULL;
@@ -2978,6 +2980,11 @@ mag_assign_spells(void)
 		  CLASS_CLERIC, 32, 2,
 		  50, 20, 1, POS_STANDING, TAR_CHAR_ROOM|TAR_SELF_ONLY, FALSE, 
 		  MAG_DIVINE | MAG_AFFECTS | MAG_GROUPS | MAG_GOOD);
+
+    remort_spello(SPELL_SUN_RAY,
+		  CLASS_CLERIC, 20, 3,
+		  100, 40, 3, POS_FIGHTING, TAR_IGNORE, TRUE, 
+		  MAG_DIVINE | MAG_MANUAL | MAG_GOOD);
 
     remort_spello(SPELL_BLACKMANTLE,
 		  CLASS_CLERIC, 42, 1,
