@@ -1447,9 +1447,6 @@ unequip_char(struct Creature *ch, int pos, int internal, bool disable_checks)
 	strncpy(obj->obj_flags.tracker.string, buf, TRACKER_STR_LEN - 1);
 #endif
 
-	obj->worn_by = NULL;
-	obj->worn_on = -1;
-
 	if (obj_gives_affects(obj, ch, internal)) {
 		for (j = 0; j < MAX_OBJ_AFFECT; j++)
 			affect_modify(ch, obj->affected[j].location,
@@ -1463,6 +1460,10 @@ unequip_char(struct Creature *ch, int pos, int internal, bool disable_checks)
 			check_interface(ch, obj, FALSE);
 
 	}
+
+	obj->worn_by = NULL;
+	obj->worn_on = -1;
+
 	affect_total(ch);
 
 	if (!disable_checks && !internal) {
