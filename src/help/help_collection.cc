@@ -22,7 +22,7 @@ const char *Help_Directory = "text/help_data/";
 // Allocated in comm.cc
 HelpCollection *Help = NULL;
 // Since one_word isnt int he header file...
-static char gHelpbuf[MAX_STRING_LENGTH * 2];
+static char gHelpbuf[MAX_STRING_LENGTH];
 static char linebuf[MAX_STRING_LENGTH];
 char *one_word(char *argument, char *first_arg);
 static const struct hcollect_command {

@@ -313,13 +313,15 @@ void HelpItem::Show( char_data *ch, char *buffer,int mode=0 ){
         case 1: // 1 == One Line Stat
             sprintbit(flags, help_bit_descs, bitbuf);
             sprintbit(groups, help_group_bits, groupbuf);
-            sprintf(buffer,"%s%3d. %s%-20s %sGroups: %s%-20s %sFlags:%s %s "
-                    "\r\n        %sKeywords: [ %s%s%s ]\r\n",
+            sprintf(buffer,"%s%3d. %s%-25s %sGroups: %s%-20s %sFlags:%s %s "
+                    //"\r\n        %sKeywords: [ %s%s%s ]\r\n",
+                    "\r\n",
                     CCCYN(ch,C_NRM),idnum, CCYEL(ch,C_NRM),
                     name, CCCYN(ch,C_NRM),CCNRM(ch,C_NRM),
                     groupbuf, CCCYN(ch,C_NRM),
-                    CCNRM(ch,C_NRM),bitbuf, CCCYN(ch,C_NRM),
-                    CCNRM(ch,C_NRM),keys,CCCYN(ch,C_NRM));
+                    CCNRM(ch,C_NRM),bitbuf 
+                    //,CCCYN(ch,C_NRM), CCNRM(ch,C_NRM),keys,CCCYN(ch,C_NRM)
+                    );
             break;
         case 2: // 2 == Entire Entry  
             if(!text)
