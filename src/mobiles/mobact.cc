@@ -3947,7 +3947,7 @@ int mob_fight_devil( struct char_data * ch,
 }
 ACMD(do_breathe) { // Breath Weapon Attack
     struct char_data *vict = NULL;
-    if(!IS_NPC(ch) || !IS_DRAGON(ch) ) {
+    if(!IS_NPC(ch) ) {
         act("You breathe heavily.", FALSE, ch, 0, 0, TO_CHAR);
         act("$N seems to be out of breath.", FALSE, ch, 0, 0, TO_ROOM);
         return;
