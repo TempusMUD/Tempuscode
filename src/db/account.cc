@@ -246,7 +246,7 @@ Account::retrieve(const char *name)
 	}
 
 	// Apprently, we don't, so look it up on the db
-	res = sql_query("select idnum from accounts where name='%s'",
+	res = sql_query("select idnum from accounts where name ilike '%s'",
 		tmp_sqlescape(name));
 	if (PQntuples(res) != 1)
 		return NULL;
