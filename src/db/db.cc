@@ -466,9 +466,6 @@ boot_db(void)
 
 	}
 
-	slog("Booting combat system.");
-	boot_combat();
-
 	boot_time = time(0);
 
 	slog("Boot db -- DONE.");
@@ -3241,6 +3238,8 @@ save_char(struct Creature *ch, struct room_data *load_room)
 	// Save vital statistics
 	FILE *ouf;
 	char *path;
+	struct alias_data *cur_alias;
+	struct affected_type *cur_aff;
 	int idx;
 
 	path = tmp_sprintf("plrxml/%d.char", GET_PFILEPOS(ch));
@@ -3282,8 +3281,10 @@ save_char(struct Creature *ch, struct room_data *load_room)
 		ch->player_specials->saved.conditions[1],
 		ch->player_specials->saved.conditions[2]);
 
-	fprintf(ouf, "<PREFS FLAG1=\"%ld\" FLAG2=\"%ld\"/>\n",
+	fprintf(ouf, "<PFLAGS FLAG1=\"%ld\" FLAG2=\"%ld\"/>\n",
 		ch->char_specials.saved.act, ch->char_specials.saved.act2);
+	fprintf(ouf, "<PREFS FLAG1=\"%ld\" FLAG2=\"%ld\"/>\n",
+		ch->player_specials->saved.pref, ch->player_specials->saved.pref2);
 
 	fprintf(ouf, "<AFFECTS FLAG1=\"%ld\" FLAG2=\"%ld\" FLAG3=\"%ld\"/>\n",
 		ch->char_specials.saved.affected_by,
@@ -3305,6 +3306,14 @@ save_char(struct Creature *ch, struct room_data *load_room)
 		fprintf(ouf, "<POOFOUT>%s</POOFOUT>\n", POOFOUT(ch));
 	if (ch->player.description && *ch->player.description)
 		fprintf(ouf, "<DESCRIPTION>%s</DESCRIPTION>\n", ch->player.description);
+	for (cur_alias = ch->player_specials->aliases; cur_alias; cur_alias = cur_alias->next)
+		fprintf(ouf, "<ALIAS TYPE=\"%d\" ALIAS=\"%s\" REPLACE=\"%s\"/>\n",
+			cur_alias->type, cur_alias->alias, cur_alias->replacement);
+	for (cur_aff = ch->affected;cur_aff; cur_aff = cur_aff->next)
+		fprintf(ouf, "<AFFECT TYPE=\"%d\" DURATION=\"%d\" MODIFIER=\"%d\" LOCATION=\"%d\" LEVEL=\"%d\" INSTANT=\"%s\" AFFBITS=\"%ld\"/>\n",
+			cur_aff->type, cur_aff->duration, cur_aff->modifier,
+			cur_aff->location, cur_aff->level,
+			(cur_aff->is_instant) ? "yes":"no", cur_aff->bitvector);
 	fprintf(ouf, "</CREATURE>\n");
 	fclose(ouf);
 }

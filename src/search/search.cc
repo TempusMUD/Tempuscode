@@ -25,6 +25,7 @@
 #include "fight.h"
 #include "security.h"
 #include "actions.h"
+#include "tmpstr.h"
 
 /* extern variables */
 extern struct room_data *world;
@@ -822,8 +823,7 @@ triggers_search(struct Creature *ch, int cmd, char *arg,
 	struct special_search_data *srch)
 {
 
-	char arg1[MAX_STRING_LENGTH];
-	char *buf = NULL;
+	char *cur_arg, *next_arg;
 
 	skip_spaces(&arg);
 
@@ -845,13 +845,13 @@ triggers_search(struct Creature *ch, int cmd, char *arg,
 
 	if (!srch->command_keys)
 		return 1;
-	buf = str_dup(srch->command_keys);
-	buf = one_argument(buf, arg1);
+	next_arg = srch->command_keys;
+	cur_arg= tmp_getword(&next_arg);
 
-	while (*arg1) {
-		if (CMD_IS(arg1))
+	while (*cur_arg) {
+		if (CMD_IS(cur_arg))
 			return 1;
-		buf = one_argument(buf, arg1);
+		cur_arg = tmp_getword(&next_arg);
 	}
 
 	return 0;

@@ -214,10 +214,6 @@ raw_kill(struct Creature *ch, struct Creature *killer, int attacktype)
 
 	death_cry(ch);
 
-	if (IN_COMBAT(ch)) {
-		combat_loop(ch, killer);
-	}
-
 	make_corpse(ch, killer, attacktype);
 
 	while (ch->affected)
