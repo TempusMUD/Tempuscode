@@ -1301,6 +1301,14 @@ ACMD(do_gen_tog)
 		break;
 
 	case SCMD_PKILLER:
+		if (AFF_FLAGGED(ch, AFF_CHARM) && ch->master) {
+			send_to_char(ch, "Nothing happens.\r\n");
+			return;
+		}
+		if (ch->isFighting()) {
+			send_to_char(ch, "You can't change your mind about playerkiller while you're fighting!\r\n");
+			return;
+		}
 		result = PRF2_TOG_CHK(ch, PRF2_PKILLER);
 		break;
 
