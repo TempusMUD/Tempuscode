@@ -117,9 +117,12 @@ handle_input(struct descriptor_data *d, char *arg)
 	case CXN_ACCOUNT_LOGIN:
 		if (strcasecmp(arg, "new")) {
 			d->account = accountIndex.find_account(arg);
-			if (d->account)
-				set_desc_state(CXN_ACCOUNT_PW, d);
-			else
+			if (d->account) {
+				if (d->account->has_password())
+					set_desc_state(CXN_ACCOUNT_PW, d);
+				else
+					set_desc_state(CXN_PW_PROMPT, d);
+			} else
 				send_to_desc(d, "That account does not exist.\r\n");
 		} else
 			set_desc_state(CXN_ACCOUNT_PROMPT, d);
@@ -642,7 +645,7 @@ handle_input(struct descriptor_data *d, char *arg)
 			set_desc_state(CXN_PW_PROMPT, d);
 		} else {
 			d->account->save_to_xml();
-			send_to_desc(d, "\r\nPassword changed!\r\n\r\n");
+			send_to_desc(d, "\r\n\r\nPassword changed!\r\n\r\n");
 			set_desc_state(CXN_WAIT_MENU, d);
 		}
 		break;
@@ -769,7 +772,7 @@ send_prompt(descriptor_data *d)
 	case CXN_NEWPW_VERIFY:
 		// this awkward wording due to lame "assword:" search in tintin instead
 		// of actually implementing one facet of telnet protocol
-		send_to_desc(d, "        Enter it again to verify your password: "); break;
+		send_to_desc(d, "\r\n\r\n        Enter it again to verify your password: "); break;
 	case CXN_ACCOUNT_PROMPT:
 		send_to_desc(d, "\r\n\r\nWhat would you like the name of your account to be? ");
 		break;
