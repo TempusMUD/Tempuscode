@@ -984,7 +984,9 @@ call_magic(struct char_data * caster, struct char_data * cvict,
 	    same_vict = true;
 	if (mag_damage(level, caster, cvict, spellnum, savetype)) {
 	    if (casttype == CAST_SPELL && !same_vict) {
-		WAIT_STATE(caster, 2 RL_SEC);
+			WAIT_STATE(caster, 2 RL_SEC);
+		if(spellnum == SPELL_SYMBOL_OF_PAIN)
+			WAIT_STATE(caster, 1 RL_SEC);
 		mana = mag_manacost(caster, spellnum);
 		if (mana > 0)
 		    GET_MANA(caster) = 
