@@ -352,7 +352,7 @@ boot_db(void)
 	slog("Resetting the game time:");
 	reset_time();
 
-	if( mini_mud ) {
+	if( USE_XML_FILES ) {
 		slog("Building player table.");
 		build_player_table();
 		slog("...%d records added.", playerIndex.size());
