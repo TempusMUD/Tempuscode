@@ -1,3 +1,8 @@
+if [ "x$#" != "x1" ]; then
+	echo 'Usage: mass_replace.sh s/<find>/<replace>/[gi]'
+	exit
+fi
+
 sources=`find . -iname "*.cc"`
 headers=`find . -iname "*.h"`
 specials=`find . -iname "*.spec"`
