@@ -1557,7 +1557,7 @@ do_stat_character(struct char_data * ch, struct char_data * k)
 	    CCCYN(ch, C_NRM), GET_CON(k), CCNRM(ch, C_NRM),
 	    CCCYN(ch, C_NRM), GET_CHA(k), CCNRM(ch, C_NRM));
     strcat(outbuf, buf);    
-	if(k->in_room) { // Real Mob/Char
+	if(k->in_room || !IS_NPC(k)) { // Real Mob/Char
 		sprintf(buf, "Hit p.:[%s%d/%d+%d%s]  Mana p.:[%s%d/%d+%d%s]  Move p.:[%s%d/%d+%d%s]\r\n",
 			CCGRN(ch, C_NRM), GET_HIT(k), GET_MAX_HIT(k), hit_gain(k), CCNRM(ch, C_NRM),
 			CCGRN(ch, C_NRM), GET_MANA(k), GET_MAX_MANA(k), mana_gain(k), CCNRM(ch, C_NRM),
