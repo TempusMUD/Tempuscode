@@ -867,7 +867,7 @@ ACMD(do_activate)
 						internal ? " (internal)" : "");
 					act(buf, TRUE, ch, obj, 0, TO_ROOM);
 					ENGINE_STATE(obj) = 0;
-					if (obj->worn_by && (!IS_IMPLANT(obj) || internal)) {
+					if (obj_gives_affects(obj, ch, internal)) {
 						for (i = 0; i < MAX_OBJ_AFFECT; i++)
 							affect_modify(obj->worn_by,
 								obj->affected[i].location,
@@ -900,7 +900,7 @@ ACMD(do_activate)
 							TO_CHAR);
 					CUR_ENERGY(obj) -= USE_RATE(obj);
 					ENGINE_STATE(obj) = 1;
-					if (obj->worn_by && (!IS_IMPLANT(obj) || internal)) {
+					if (obj_gives_affects(obj, ch, internal)) {
 						for (i = 0; i < MAX_OBJ_AFFECT; i++)
 							affect_modify(obj->worn_by,
 								obj->affected[i].location,
