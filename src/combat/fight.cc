@@ -3551,7 +3551,7 @@ damage( struct char_data * ch, struct char_data * victim, int dam,
 	// someone else.  ( not damaging self or being damaged by a null char, e.g. bomb )
     
 	if ( victim != ch ) {
-	    
+	    update_pos(victim);
 	    // see if the victim needs to run screaming in terror!
 	    if ( !IS_NPC( victim ) &&
 		 GET_HIT( victim ) < GET_WIMP_LEV( victim ) ) {
