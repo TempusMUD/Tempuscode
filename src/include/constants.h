@@ -9,6 +9,41 @@
 #ifndef __constants_h__
 #define __constants_h__
 
+#define NOWHERE    -1			/* nil reference for room-database        */
+#define NOTHING           -1	/* nil reference for objects                */
+#define NOBODY           -1		/* nil reference for mobiles                */
+
+#define SPECIAL_NONE   0
+#define SPECIAL_DEATH  1
+
+/* other miscellaneous defines *******************************************/
+
+#define OPT_USEC        100000	/* 10 passes per second */
+#define PASSES_PER_SEC  (1000000 / OPT_USEC)
+#define RL_SEC          * PASSES_PER_SEC
+
+#define PULSE_ZONE      (10 RL_SEC)
+#define PULSE_MOBILE    (4 RL_SEC)
+#define PULSE_VIOLENCE  (2 RL_SEC)
+#define SEG_VIOLENCE    (7)
+#define SEG_QUEUE       (7)
+#define FIRE_TICK       (3 RL_SEC)
+#define PULSE_FLOWS     (1 RL_SEC)
+
+const size_t SMALL_BUFSIZE =     		1024;
+const size_t LARGE_BUFSIZE =     		65536;
+const size_t GARBAGE_SPACE =     		64;
+const size_t MAX_STRING_LENGTH = 65536;
+const size_t MAX_INPUT_LENGTH =  	256;	// Max length per *line* of input
+const size_t MAX_RAW_INPUT_LENGTH =	512;	// Max size of *raw* input
+const size_t EXDSCR_LENGTH =     	240;	// char_file_u *DO*NOT*CHANGE*
+const int MAX_MESSAGES =      		150;
+const int MAX_CHAR_DESC =     		1023;	// char_file_u
+const int MAX_TONGUE =        		3;		// char_file_u *DO*NOT*CHANGE*
+const int MAX_SKILLS =        		700;	// char_file_u *DO*NOT*CHANGE*
+const int MAX_AFFECT =        		96;		// char_file_u *DO*NOT*CHANGE*
+const int MAX_OBJ_AFFECT =    		6;		// obj_file_elem *DO*NOT*CHANGE*
+
 #ifndef __constants_cc__
 
 extern const struct str_app_type str_app[];

@@ -152,7 +152,8 @@ int
 save_objs(struct char_data *ch)
 {
 	int o_vnum;
-	unsigned int i, tmp;
+	size_t i, tmp;
+	int aff_idx;
 	room_num low = 0;
 	room_num high = 0;
 	char fname[64];
@@ -286,12 +287,12 @@ save_objs(struct char_data *ch)
 			desc = desc->next;
 		}
 
-		for (i = 0; i < MAX_OBJ_AFFECT; i++) {
-			if (obj->affected[i].location == APPLY_NONE)
+		for (aff_idx = 0; aff_idx < MAX_OBJ_AFFECT; aff_idx++) {
+			if (obj->affected[aff_idx].location == APPLY_NONE)
 				continue;
 			fprintf(file, "A\n");
-			fprintf(file, "%d %d\n", obj->affected[i].location,
-				obj->affected[i].modifier);
+			fprintf(file, "%d %d\n", obj->affected[aff_idx].location,
+				obj->affected[aff_idx].modifier);
 		}
 
 

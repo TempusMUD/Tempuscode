@@ -1942,7 +1942,7 @@ void
 parse_mobile(FILE * mob_f, int nr)
 {
 	struct extra_descr_data *new_descr = NULL;
-	short done = 0;
+	bool done = false;
 	static int i = 0;
 	int j, t[10];
 	char line[256], *tmpptr, letter;
@@ -2019,7 +2019,7 @@ parse_mobile(FILE * mob_f, int nr)
 		case '$':
 		case '#':				/* we hit a # so there is no end of replys */
 			fseek(mob_f, 0 - (strlen(line) + 1), SEEK_CUR);
-			done = 1;
+			done = true;
 			break;
 		}
 	} while (!done);
@@ -3495,7 +3495,8 @@ fread_string(FILE * fl, char *error)
 {
 	char buf[MAX_STRING_LENGTH], tmp[512], *rslt;
 	register char *point;
-	int done = 0, length = 0, templength = 0;
+	unsigned int length = 0, templength = 0;
+	bool done = false;
 
 	*buf = '\0';
 
@@ -3509,7 +3510,7 @@ fread_string(FILE * fl, char *error)
 		/* If there is a '~', end the string; else put an "\r\n" over the '\n'. */
 		if ((point = strchr(tmp, '~')) != NULL) {
 			*point = '\0';
-			done = 1;
+			done = true;
 		} else {
 			point = tmp + strlen(tmp) - 1;
 			*(point++) = '\r';
@@ -3545,7 +3546,8 @@ pread_string(FILE * fl, char *str, char *error)
 {
 	char buf[MAX_STRING_LENGTH], tmp[512];
 	register char *point;
-	int done = 0, length = 0, templength = 0;
+	unsigned int length = 0, templength = 0;
+	bool done = false;
 
 	*str = '\0';
 
@@ -3560,7 +3562,7 @@ pread_string(FILE * fl, char *str, char *error)
 		/* If there is a '~', end the string; else put an "\r\n" over the '\n'. */
 		if ((point = strchr(tmp, '~')) != NULL) {
 			*point = '\0';
-			done = 1;
+			done = true;
 		}
 
 		templength = strlen(tmp);

@@ -8,6 +8,9 @@
 #ifndef __char_data_h__
 #define __char_data_h__
 
+#include "constants.h"
+#include "macros.h"
+
 /* char and mob-related defines *****************************************/
 
 
@@ -604,6 +607,12 @@ static const int LVL_CAN_BAN = LVL_GOD;
 static const int LVL_VIOLENCE = LVL_POWER;
 static const int LVL_LOGALL = LVL_CREATOR;
 
+
+const size_t MAX_POOF_LENGTH =   	256;	// char_file_u *DO*NOT*CHANGE*
+const size_t MAX_NAME_LENGTH =   	20;		// char_file_u *DO*NOT*CHANGE*
+const size_t MAX_PWD_LENGTH =    	10;		// char_file_u *DO*NOT*CHANGE*
+const size_t MAX_TITLE_LENGTH =  	60;		// char_file_u *DO*NOT*CHANGE*
+const size_t HOST_LENGTH =       	63;		// char_file_u *DO*NOT*CHANGE*
 
 /* char-related structures ************************************************/
 

@@ -1,11 +1,30 @@
 //
-// File: act.cyborg.h                     -- Part of TempusMUD
+// File: act.barb.h                     -- Part of TempusMUD
 //
 // Copyright 1998 by John Watson, all rights reserved.
 //
 
-#ifndef __act_cyborg_h__
-#define __act_cyborg_h__
+#ifndef _ACTIONS_
+#define _ACTIONS_
+
+#include "interpreter.h"
+#include "spells.h"
+
+ACMD(do_gen_comm);
+ACMD(do_drag_char);
+ACMD(do_action);
+ASPELL(spell_nuclear_wasteland);
+ASPELL(spell_spacetime_imprint);
+ASPELL(spell_spacetime_recall);
+ASPELL(spell_time_warp);
+ASPELL(spell_area_stasis);
+
+#define TIMEWARP_FILE "etc/timewarps"
+
+int perform_barb_beserk(struct char_data *ch,
+	struct char_data **who_was_attacked,
+	//struct char_data *precious_ch,
+	int *return_flags);
 
 int max_component_dam(struct char_data *ch);
 int room_count(struct char_data *ch, struct room_data *room);
@@ -69,13 +88,26 @@ void engage_self_destruct(struct char_data *ch);
 	(!ZONE_FLAGGED(ch->in_room->zone, ZONE_ISOLATED) &&    \
 	 !ZONE_FLAGGED(vict->in_room->zone, ZONE_ISOLATED)))))
 
-#ifndef __act_cyborg_c__
-
 extern const char *microchip_types[];
 extern const char *interface_types[];
 extern const char *borg_subchar_class_names[];
 extern const char *component_names[][3];
 
-#endif
+
+void perform_monk_meditate(struct char_data *ch);
+
+void add_rad_sickness(CHAR * ch, int level);
+int boot_timewarp_data(void);
+void show_timewarps(CHAR * ch);
+
+typedef struct timewarp_data {
+	int from;
+	int to;
+} timewarp_data;
+
+//extern timewarp_data *timewarp_list;
+//extern int num_timewarp_data;
+
+int mob_fight_psionic(struct char_data *ch, struct char_data *precious_vict);
 
 #endif

@@ -36,6 +36,7 @@
 #include "guns.h"
 #include "specs.h"
 #include "security.h"
+#include "house.h"
 
 #include <iostream>
 

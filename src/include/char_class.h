@@ -26,12 +26,7 @@ extern const char race_restr[NUM_PC_RACES][NUM_CLASSES + 1];
 int invalid_char_class(struct char_data *ch, struct obj_data *obj);
 void gain_skill_prof(struct char_data *ch, int skl);
 
-#include "act.physic.h"
-#include "act.monk.h"
-#include "act.barb.h"
-#include "act.merc.h"
-#include "act.psionic.h"
-#include "act.cyborg.h"
+#include "actions.h"
 #include "mobact.h"
 
 #define ALL		0

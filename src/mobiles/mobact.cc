@@ -36,7 +36,7 @@
 #include "bomb.h"
 #include "mobact.h"
 #include "fight.h"
-#include "act.cyborg.h"
+#include "actions.h"
 #include "char_data.h"
 
 /* external structs */

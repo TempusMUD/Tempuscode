@@ -24,6 +24,8 @@
 #include <sys/stat.h>
 #include <sys/types.h>
 #include <pthread.h>
+#include "defs.h"
+#include "constants.h"
 
 /* object-related defines ********************************************/
 
@@ -405,7 +407,7 @@ struct obj_shared_data {
 	int house_count;
 	struct obj_data *proto;		/* pointer to prototype */
 	struct ticl_data *ticl_ptr;	/* Pointer to TICL procedure */
-	 SPECIAL(*func);
+	SPECIAL(*func);
 };
 
 

@@ -11,6 +11,6 @@ $(OBJ)/random.o : random.cc \
 
 	$(CXX) -c $(CXXFLAGS) random.cc            -o $(OBJ)/random.o
 $(OBJ)/utils.o : utils.cc \
-	$(INCLUDE)/structs.h $(INCLUDE)/utils.h $(INCLUDE)/comm.h $(INCLUDE)/screen.h $(INCLUDE)/spells.h $(INCLUDE)/handler.h $(INCLUDE)/interpreter.h $(INCLUDE)/security.h $(INCLUDE)/db.h 
+	$(INCLUDE)/structs.h $(INCLUDE)/utils.h $(INCLUDE)/comm.h $(INCLUDE)/screen.h $(INCLUDE)/spells.h $(INCLUDE)/handler.h $(INCLUDE)/interpreter.h $(INCLUDE)/security.h $(INCLUDE)/db.h $(INCLUDE)/char_class.h 
 	$(CXX) -c $(CXXFLAGS) utils.cc             -o $(OBJ)/utils.o
 OBJFILES= $(OBJ)/graph.o $(OBJ)/handler.o $(OBJ)/modify.o $(OBJ)/random.o $(OBJ)/utils.o

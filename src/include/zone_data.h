@@ -41,7 +41,7 @@
 #define ZONE_ROOMS_MODIFIED     (1 << 27)
 #define ZONE_ZONE_MODIFIED      (1 << 28)
 #define ZONE_TICL_APPROVED      (1 << 29)
-#define ZONE_TICL_MODIFIED      <1 << 30)
+#define ZONE_TICL_MODIFIED      (1 << 30)
 #define TOT_ZONE_FLAGS          29
 
 
@@ -69,6 +69,7 @@
 #define PLANE_COSTAL        41
 #define PLANE_HEAVEN        43
 #define PLANE_DOOM          50
+#define PLANE_SHADOW		51
 #define PLANE_ELEM_WATER    70
 #define PLANE_ELEM_FIRE     71
 #define PLANE_ELEM_AIR      72

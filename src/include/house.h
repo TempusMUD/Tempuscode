@@ -13,6 +13,14 @@
 ***************************************************************************/
 #define HOUSE_VERSION "0.02 ALPHA"
 
+/* Rent codes */
+#define RENT_UNDEF      0
+#define RENT_CRASH      1
+#define RENT_RENTED     2
+#define RENT_CRYO       3
+#define RENT_FORCED     4
+#define RENT_TIMEDOUT   5
+
 #define MAX_HOUSES          400
 #define MAX_HOUSE_TITLE     79
 #define MAX_ROOMS_PER_HOUSE	100
@@ -79,3 +87,5 @@ int find_house(room_num vnum);
 
 struct house_control_rec *real_house(room_num vnum);
 void House_save_control(void);
+void Crash_rentsave(struct char_data *ch, int cost, int rentcode);
+int Crash_rentcost(struct char_data *ch, int display, int factor);

@@ -19,6 +19,10 @@
 #ifndef __db_h__
 #define __db_h__
 
+#include <stdio.h>
+#include "defs.h"
+#include "char_data.h"
+
 #ifndef _NEWDYNCONTROL_			// used by a util
 
 /* arbitrary constants used by index_boot() (must be unique) */
@@ -134,7 +138,7 @@ struct reset_com {
 	int arg2;					/* Arguments to the command             */
 	int arg3;					/*                                      */
 	int line;					/* line number this command appears on  */
-	byte prob;
+	int prob;
 	struct reset_com *next;
 
 	/* 

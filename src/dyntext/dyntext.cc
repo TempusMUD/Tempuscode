@@ -49,7 +49,7 @@ boot_dynamic_text(void)
 	FILE *fl;
 	char filename[1024];
 	char c;
-	int i, j;
+	unsigned int i, j;
 
 	if (!(dir = opendir(DYN_TEXT_CONTROL_DIR))) {
 		slog("SYSERR: Cannot open dynamic text control dir.");
@@ -228,7 +228,7 @@ reload_dyntext_buffer(dynamic_text_file * dyntext)
 	FILE *fl;
 	char filename[1024];
 	char c;
-	int i, j;
+	unsigned int i, j;
 
 	sprintf(filename, "text/%s", dyntext->filename);
 

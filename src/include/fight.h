@@ -164,12 +164,9 @@ extern struct combat_data *battles;
 /* External procedures */
 char *fread_action(FILE * fl, int nr);
 ACMD(do_flee);
-void House_crashsave(room_num vnum);
 int char_class_race_hit_bonus(struct char_data *ch, struct char_data *vict);
 int apply_soil_to_char(struct char_data *ch, struct obj_data *obj, int type,
 	int pos);
-void Crash_rentsave(struct char_data *ch, int cost, int rentcode);
-int Crash_rentcost(struct char_data *ch, int display, int factor);
 
 int choose_random_limb(CHAR * victim);
 

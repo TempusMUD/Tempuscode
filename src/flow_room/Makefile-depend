@@ -1,4 +1,4 @@
 $(OBJ)/flow_room.o : flow_room.cc \
-	$(INCLUDE)/structs.h $(INCLUDE)/utils.h $(INCLUDE)/comm.h $(INCLUDE)/handler.h $(INCLUDE)/db.h $(INCLUDE)/flow_room.h $(INCLUDE)/vehicle.h $(INCLUDE)/smokes.h $(INCLUDE)/spells.h $(INCLUDE)/char_class.h $(INCLUDE)/bomb.h $(INCLUDE)/house.h 
+	$(INCLUDE)/structs.h $(INCLUDE)/utils.h $(INCLUDE)/comm.h $(INCLUDE)/handler.h $(INCLUDE)/db.h $(INCLUDE)/flow_room.h $(INCLUDE)/vehicle.h $(INCLUDE)/smokes.h $(INCLUDE)/spells.h $(INCLUDE)/char_class.h $(INCLUDE)/bomb.h $(INCLUDE)/house.h $(INCLUDE)/fight.h 
 	$(CXX) -c $(CXXFLAGS) flow_room.cc         -o $(OBJ)/flow_room.o
 OBJFILES= $(OBJ)/flow_room.o

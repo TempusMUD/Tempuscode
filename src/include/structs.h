@@ -33,16 +33,8 @@
 #include <sys/types.h>
 #include <pthread.h>
 
-typedef signed char sbyte;
-typedef unsigned char ubyte;
-typedef signed short int sh_int;
-typedef unsigned short int ush_int;
-typedef char byte;
-
-typedef int room_num;
-typedef int obj_num;
-
 #include "defs.h"
+#include "macros.h"
 #include "constants.h"
 #include "obj_data.h"
 #include "character_list.h"
@@ -53,5 +45,60 @@ typedef int obj_num;
 #include "weather.h"
 #include "zone_data.h"
 #include "ban.h"
+
+/***********************************************************************
+ * Structures                                                          *
+ **********************************************************************/
+
+typedef struct Link {
+	int type;
+	int flags;
+	void *object;
+	struct Link *prev;
+	struct Link *next;
+} Link;
+
+/* Extra description: used in objects, mobiles, and rooms */
+struct extra_descr_data {
+	char *keyword;				/* Keyword in look/examine          */
+	char *description;			/* What to see                      */
+	struct extra_descr_data *next;	/* Next in list                      */
+};
+
+
+/* This structure is purely intended to be an easy way to transfer */
+/* and return information about time (real or mudwise).            */
+struct time_info_data {
+	char hours, day, month;
+	short year;
+};
+
+
+/* ====================================================================== */
+
+/* other miscellaneous structures ***************************************/
+
+
+struct msg_type {
+	char *attacker_msg;			/* message to attacker */
+	char *victim_msg;			/* message to victim   */
+	char *room_msg;				/* message to room     */
+};
+
+
+struct message_type {
+	struct msg_type die_msg;	/* messages when death                        */
+	struct msg_type miss_msg;	/* messages when miss                        */
+	struct msg_type hit_msg;	/* messages when hit                        */
+	struct msg_type god_msg;	/* messages when hit on god                */
+	struct message_type *next;	/* to next messages of this kind.        */
+};
+
+
+struct message_list {
+	int a_type;					/* Attack type                                */
+	int number_of_attacks;		/* How many attack messages to chose from. */
+	struct message_type *msg;	/* List of messages.                        */
+};
 
 #endif
