@@ -591,7 +591,7 @@ do_qcontrol_purge(Creature *ch, char *argument, int com)
 			close_socket(vict->desc);
 			vict->desc = NULL;
 		}
-		vict->extract(false, false, CXN_MENU);
+		vict->purge(false);
 		send_to_char(ch, OK);
 	} else {
 		send_to_char(ch, "Purge what?\r\n");

@@ -30,8 +30,8 @@ void Crash_calculate_rent(struct obj_data *obj, int *cost);
 bool
 Creature::crashSave()
 {
-    rent.rentcode = RENT_CRASH;
-	rent.currency = in_room->zone->time_frame;
+    player_specials->rentcode = RENT_CRASH;
+	player_specials->rent_currency = in_room->zone->time_frame;
 
     if(!saveObjects() ) {
         return false;
@@ -39,34 +39,6 @@ Creature::crashSave()
 
     REMOVE_BIT(PLR_FLAGS(this), PLR_CRASH);
     saveToXML(); // This should probably be here.
-    return true;
-}
-
-bool
-Creature::rentSave(int cost, int rentcode)//= RENT_RENTED
-{
-    rent.net_cost_per_diem = cost;
-	rent.rentcode = rentcode;
-	rent.currency = in_room->zone->time_frame;
-
-    extractUnrentables();
-
-    if(! saveObjects() ) {
-        return false;
-    }
-    
-    // THIS SHOULD NOT BE HERE. 
-    // Extract should be called properly instead.
-    // Left here temporarily to get the xml code working first. --jr 6-30-02
-//     for (int j = 0; j < NUM_WEARS; j++) {
-// 		if( GET_EQ(this, j) )
-//             extract_object_list(GET_EQ(this, j));
-//         if( GET_IMPLANT(this, j) )
-//             extract_object_list(GET_IMPLANT(this, j));
-//     }
-
-//     extract_object_list(carrying);
-
     return true;
 }
 
@@ -188,7 +160,7 @@ Creature::payRent(time_t last_time, int code, int currency)
 				(currency == TIME_ELECTRO) ? "creds":"gold",
 				GET_NAME(this));
 			send_to_char(this,
-				"%s has been sold to cover the cost of your rent.\r\n",
+				"%s has been sold to cover the cost of your player_specials->\r\n",
 				tmp_capitalize(doomed_obj->short_description));
 
 			// Credit player with value of object
@@ -317,83 +289,6 @@ Creature::calcDailyRent(void)
 }
 
 bool
-Creature::idleSave()
-{
-	// INCREASE x3
-	return rentSave((calcDailyRent() * 3), RENT_FORCED);
-}
-
-// Drops all !cursed eq to the floor, breaking implants, then calls rentSave(0)
-// Used for 'quit yes'
-bool
-Creature::curseSave()
-{
-    for (int j = 0; j < NUM_WEARS; j++) {
-		if (GET_EQ(this, j)) {
-			if (IS_OBJ_STAT(GET_EQ(this, j), ITEM_NODROP) ||
-				IS_OBJ_STAT2(GET_EQ(this, j), ITEM2_NOREMOVE)) {
-
-				// the item is cursed, but its contents cannot be (normally)
-				while (GET_EQ(this, j)->contains)
-					extract_object_list(GET_EQ(this, j)->contains);
-			} else {
-                obj_data* obj = unequip_char(this, j, MODE_EQ);
-                obj_to_room(obj, in_room);
-            }
-		}
-		if (GET_IMPLANT(this, j)) {
-			// Break implants and put them on the floor
-			obj_data *obj = unequip_char(this, j, MODE_IMPLANT);
-			GET_OBJ_DAM(obj) = GET_OBJ_MAX_DAM(obj) >> 3 - 1;
-			SET_BIT(GET_OBJ_EXTRA2(obj), ITEM2_BROKEN);
-			obj_to_room(obj, in_room);
-		}
-
-	}
-    obj_data* obj;
-    obj_data* next_obj;
-	for( obj = carrying; obj; obj = next_obj ) {
-		next_obj = obj->next_content;
-		if (IS_OBJ_STAT(obj, ITEM_NODROP)) {
-			// the item is cursed, but its contents cannot be (normally)
-			while (obj->contains)
-				extract_object_list(obj->contains);
-		} else {
-            obj_from_char( obj );
-            obj_to_room( obj, in_room );
-        }
-	}
-
-
-    if(!rentSave(calcDailyRent()))
-        return false;
-    
-    REMOVE_BIT(PLR_FLAGS(this), PLR_CRASH);
-    return true;
-}
-
-bool
-Creature::cryoSave(int cost)
-{
-    
-    if (in_room->zone->time_frame == TIME_ELECTRO)
-		GET_CASH(this) = MAX(0, GET_CASH(this) - cost);
-	else
-		GET_GOLD(this) = MAX(0, GET_GOLD(this) - cost);
-
-    rent.rentcode = RENT_CRYO;
-	rent.net_cost_per_diem = 0;
-	rent.currency = in_room->zone->time_frame;
-    extractUnrentables();
-
-    if(! saveObjects() )
-        return false;
-
-	SET_BIT(PLR_FLAGS(this), PLR_CRYO);
-    return true;
-}
-
-bool
 Creature::saveObjects(void) 
 {
 	FILE *ouf;
@@ -476,7 +371,7 @@ Creature::loadObjects()
 
     xmlFreeDoc(doc);
 
-	if (payRent(player.time.logon, rent.rentcode, rent.currency))
+	if (payRent(player.time.logon, player_specials->rentcode, player_specials->rent_currency))
 		return 2;
 	return 0;
 }
@@ -567,20 +462,19 @@ Creature::saveToXML()
 		GET_LIFE_POINTS(ch), GET_CLAN(ch));
 
 	if (ch->desc)
-		ch->rent.desc_mode = ch->desc->input_mode;
-	if (ch->rent.rentcode == RENT_CREATING ||
-			ch->rent.rentcode == RENT_REMORTING) {
+		ch->player_specials->desc_mode = ch->desc->input_mode;
+	if (ch->player_specials->rentcode == RENT_CREATING ||
+			ch->player_specials->rentcode == RENT_REMORTING) {
 		fprintf(ouf, "<rent code=\"%d\" perdiem=\"%d\" "
 			"currency=\"%d\" state=\"%s\"/>\n",
-			ch->rent.rentcode, ch->rent.net_cost_per_diem, ch->rent.currency,
-			desc_modes[(int)ch->rent.desc_mode]);
+			ch->player_specials->rentcode, ch->player_specials->rent_per_day, ch->player_specials->rent_currency,
+			desc_modes[(int)ch->player_specials->desc_mode]);
 	} else {
 		fprintf(ouf, "<rent code=\"%d\" perdiem=\"%d\" currency=\"%d\"/>\n",
-			ch->rent.rentcode, ch->rent.net_cost_per_diem, ch->rent.currency);
+			ch->player_specials->rentcode, ch->player_specials->rent_per_day, ch->player_specials->rent_currency);
 	}
-	fprintf(ouf, "<home town=\"%d\" loadroom=\"%d\" held_town=\"%d\" held_loadroom=\"%d\"/>\n",
-		GET_HOME(ch), GET_LOADROOM(ch), GET_HOLD_HOME(ch),
-		GET_HOLD_LOADROOM(ch));
+	fprintf(ouf, "<home town=\"%d\" homeroom=\"%d\" loadroom=\"%d\"/>\n",
+		GET_HOME(ch), GET_HOMEROOM(ch), GET_LOADROOM(ch));
 
 	if (GET_LEVEL(ch) < LVL_IMMORT && !GET_QUEST(ch) && !GET_QUEST_POINTS(ch)) {
 		fprintf(ouf, "<quest");
@@ -775,9 +669,8 @@ Creature::loadFromXML( const char *path )
 			GET_CLAN(this) = xmlGetIntProp(node, "clan");
         } else if ( xmlMatches(node->name, "home") ) {
 			GET_HOME(this) = xmlGetIntProp(node, "town");
-			GET_HOLD_HOME(this) = xmlGetIntProp(node, "held_town");
+			GET_HOMEROOM(this) = xmlGetIntProp(node, "homeroom");
 			GET_LOADROOM(this) = xmlGetIntProp(node, "loadroom");
-			GET_HOLD_LOADROOM(this) = xmlGetIntProp(node, "held_loadroom");
         } else if ( xmlMatches(node->name, "quest") ) {
 			GET_QUEST(this) = xmlGetIntProp(node, "current");
 			GET_QUEST_POINTS(this) = xmlGetIntProp(node, "points");
@@ -894,12 +787,12 @@ Creature::loadFromXML( const char *path )
         } else if (xmlMatches(node->name, "rent")) {
 			char *txt;
 
-			rent.rentcode = xmlGetIntProp(node, "code");
-			rent.net_cost_per_diem = xmlGetIntProp(node, "perdiem");
-			rent.currency = xmlGetIntProp(node, "currency");
+			player_specials->rentcode = xmlGetIntProp(node, "code");
+			player_specials->rent_per_day = xmlGetIntProp(node, "perdiem");
+			player_specials->rent_currency = xmlGetIntProp(node, "currency");
 			txt = (char *)xmlGetProp(node, "state");
 			if (txt)
-                rent.desc_mode = (cxn_state)search_block(txt, desc_modes, FALSE);
+                player_specials->desc_mode = (cxn_state)search_block(txt, desc_modes, FALSE);
 		}
     }
 

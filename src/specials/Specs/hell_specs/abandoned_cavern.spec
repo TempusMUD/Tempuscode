@@ -68,9 +68,7 @@ SPECIAL(abandoned_cavern)
 					}
 					obj_to_room(rubble, cavern);
 				}
-				vict->saveToXML();
-				Crash_crashsave(vict);
-				vict->extract(false, true, CXN_AFTERLIFE);
+				vict->die();
 			}
 		}
 

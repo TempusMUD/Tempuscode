@@ -56,9 +56,6 @@ int find_door(struct Creature *ch, char *type, char *dir,
 void enable_vt100(struct Creature *ch);
 void disable_vt100(struct Creature *ch);
 void weather_change(void);
-void Crash_rentsave(struct Creature *ch, int cost, int rentcode);
-int Crash_rentcost(struct Creature *ch, int display, int factor);
-void Crash_cursesave(struct Creature *ch);
 int drag_object(Creature *ch, struct obj_data *obj, char *argument);
 void ice_room(struct room_data *room, int amount);
 ACMD(do_drag_char);
@@ -79,10 +76,9 @@ ACMD(do_show_more)
 ACMD(do_quit)
 {
 	extern int free_rent;
-	bool save = true, destroy = false;
 	struct descriptor_data *d, *next_d;
-	struct room_data *save_room = NULL;
 	int cost = 0;
+
 	skip_spaces(&argument);
 
 	if (IS_NPC(ch) || !ch->desc) {
@@ -137,9 +133,7 @@ ACMD(do_quit)
 					"%s has left the game%s", GET_NAME(ch),
 					ch->isTester() ? " (tester)" : " naked");
 			}
-			Crash_rentsave(ch, 0, RENT_RENTED);
-			destroy = true;
-			save = false;
+			ch->rent();
 		} else if ((ch->carrying || IS_WEARING_W(ch)) &&
 			!ROOM_FLAGGED(ch->in_room, ROOM_HOUSE) &&
 			strncasecmp(argument, "yes", 3)) {
@@ -158,7 +152,7 @@ ACMD(do_quit)
 				return;
 			}
 			if (ROOM_FLAGGED(ch->in_room, ROOM_HOUSE)) {
-				cost = Crash_rentcost(ch, TRUE, 1);
+				cost = ch->calcDailyRent();
 
 				if (cost < 0) {
 					send_to_char(ch, "Unable to rent.\r\n");
@@ -173,35 +167,24 @@ ACMD(do_quit)
 				send_to_char(ch, "You smoothly slip out of existence.\r\n");
 				act("$n smoothly slips out of existence and is gone.",
 					TRUE, ch, 0, 0, TO_ROOM);
-				ch->saveToXML();
-				Crash_rentsave(ch, cost, RENT_RENTED);
-				destroy = true;
-				save = false;
+				ch->rent();
 			} else {
 				send_to_char(ch,
 					"\r\nVery well %s.  You drop all your things and vanish!\r\n",
 					GET_NAME(ch));
-				Crash_cursesave(ch);	// saves !remove items
+				ch->quit();
 				act("$n disappears, leaving all $s equipment behind!",
 					TRUE, ch, 0, 0, TO_ROOM);
 				mudlog(MAX(LVL_AMBASSADOR, GET_INVIS_LVL(ch)), NRM, true,
 					"%s (%d) has quit the game, EQ drop at %d",
 					GET_NAME(ch), GET_LEVEL(ch), ch->in_room->number);
-				save = destroy = false;
 			}
 		} else {
-			Crash_cursesave(ch);
 			send_to_char(ch, "\r\nYou flicker out of reality...\r\n");
 			act("$n flickers out of reality.", TRUE, ch, 0, 0, TO_ROOM);
 			mudlog(MAX(LVL_AMBASSADOR, GET_INVIS_LVL(ch)), NRM, true,
 				"%s has left the game naked", GET_NAME(ch));
-			save = destroy = false;
-		}
-
-		save_room = ch->in_room;
-		ch->extract(destroy, save, CXN_MENU);
-		if (GET_ZONE(save_room) == 109 || ROOM_FLAGGED(save_room, ROOM_HOUSE)) {
-			ch->saveToXML();
+			ch->quit();
 		}
 	}
 }
@@ -215,7 +198,7 @@ ACMD(do_save)
 		send_to_char(ch, "Saving %s.\r\n", GET_NAME(ch));
 	}
 	ch->saveToXML();
-	Crash_crashsave(ch);
+	ch->crashSave();
 	if (ROOM_FLAGGED(ch->in_room, ROOM_HOUSE)) {
 		House* house = Housing.findHouseByRoom( ch->in_room->number );
 		if( house != NULL )
@@ -1998,8 +1981,7 @@ ACMD(do_loadroom)
 
 	if (!*argument) {
 
-		if (PLR_FLAGGED(ch, PLR_LOADROOM) &&
-			(room = real_room(GET_LOADROOM(ch)))) {
+		if (GET_HOMEROOM(ch) != -1 && (room = real_room(GET_HOMEROOM(ch)))) {
 			send_to_char(ch, "Your loadroom is currently set to: %s%s%s\r\n"
 				"Type 'loadroom off' to remove it or 'loadroom set' to set it.\r\n",
 				CCCYN(ch, C_NRM), room->name, CCNRM(ch, C_NRM));
@@ -2011,8 +1993,7 @@ ACMD(do_loadroom)
 
 	if (is_abbrev(argument, "off")) {
 
-		REMOVE_BIT(PLR_FLAGS(ch), PLR_LOADROOM);
-		GET_LOADROOM(ch) = -1;
+		GET_HOMEROOM(ch) = -1;
 		send_to_char(ch, "Loadroom disabled.\r\n");
 
 	} else if (is_abbrev(argument, "set")) {
@@ -2021,8 +2002,7 @@ ACMD(do_loadroom)
 				GET_LEVEL(ch) >= LVL_AMBASSADOR) &&
 			House_can_enter(ch, ch->in_room->number) &&
 			clan_house_can_enter(ch, ch->in_room)) {
-			GET_LOADROOM(ch) = ch->in_room->number;
-			SET_BIT(PLR_FLAGS(ch), PLR_LOADROOM);
+			GET_HOMEROOM(ch) = ch->in_room->number;
 			send_to_char(ch, "Okay, you will now load in this room.\r\n");
 		} else
 			send_to_char(ch, "You cannot load here.\r\n");

@@ -307,7 +307,8 @@ Account::create_char(const char *name)
 		ch->points.max_move = 444;
 
 		GET_HOME(ch) = HOME_MODRIAN;
-		ch->player_specials->saved.load_room = 1204;
+		ch->player_specials->saved.load_room = -1;
+		ch->player_specials->saved.home_room = 1204;
 	} else {
 		ch->points.max_hit = 100;
 		ch->points.max_mana = 100;
@@ -315,8 +316,9 @@ Account::create_char(const char *name)
 
 		GET_HOME(ch) = HOME_NEWBIE_SCHOOL;
 		ch->player_specials->saved.load_room = -1;
+		ch->player_specials->saved.home_room = -1;
 	}
-    ch->rent.rentcode = RENT_CREATING;
+    ch->player_specials->rentcode = RENT_CREATING;
 
 	set_title(ch, NULL);
 

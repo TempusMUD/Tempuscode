@@ -273,6 +273,7 @@ SPECIAL(ancient_artifact);
 SPECIAL(finger_of_death);
 SPECIAL(vendor);
 SPECIAL(quest_sphere);
+SPECIAL(ring_sustenance);
 
 #define SPEC_MOB 1
 #define SPEC_OBJ 2

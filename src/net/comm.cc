@@ -141,6 +141,7 @@ void qp_reload(int sig = 0);
 void process_queue(void);		// In events.cc
 void set_desc_state(int state, struct descriptor_data *d);
 void save_quests(); // quests.cc - saves quest data
+void save_all_players();
 
 /* *********************************************************************
 *  main game loop and related stuff                                    *
@@ -651,7 +652,7 @@ game_loop(int mother_desc)
 			if (!(pulse % (60 * PASSES_PER_SEC))) {	/* 1 minute */
 				if (++mins_since_crashsave >= autosave_time) {
 					mins_since_crashsave = 0;
-					Crash_save_all();
+					save_all_players();
 				}
 				Housing.collectRent();
 				Housing.save();
@@ -687,7 +688,7 @@ game_loop(int mother_desc)
 					shutdown_count / 60, shutdown_count == 60 ? "" : "s");
 				send_to_all(buf);
 			} else if (shutdown_count <= 0) {
-				Crash_save_all();
+				save_all_players();
 				Housing.collectRent();
 				Housing.save();
 				xmlCleanupParser();

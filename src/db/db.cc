@@ -194,7 +194,6 @@ void weather_and_time(int mode);
 void mag_assign_spells(void);
 void boot_social_messages(void);
 void free_socials(void);
-void update_obj_file(void);		/* In objsave.c */
 void sort_commands(void);
 void sort_spells(void);
 void sort_skills(void);
@@ -425,9 +424,6 @@ boot_db(void)
 	boot_timewarp_data();
 
 	if (!no_rent_check) {
-		slog("Deleting timed-out crash and rent files:");
-		update_obj_file();
-		slog("Done.");
 		slog("Deleting unwanted alias files:");
 		update_alias_dirs();
 		slog("Done.");

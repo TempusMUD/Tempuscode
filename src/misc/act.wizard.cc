@@ -108,7 +108,7 @@ int skill_gain(struct Creature *ch, int mode);
 void list_obj_to_char(struct obj_data *list, struct Creature *ch, int mode,
     bool show);
 void save_quests(); // quests.cc - saves quest data
-
+void save_all_players();
 int do_freeze_char(char *argument, Creature *vict, Creature *ch);
 
 ACMD(do_equipment);
@@ -1593,10 +1593,9 @@ do_stat_character(struct Creature *ch, struct Creature *k)
         strcat(outbuf, buf);
 
         sprintf(buf,
-            "Hometown:[%s%s%s (%d)], Loadroom: [%d/%d] %s, Clan: %s%s%s\r\n",
+            "Hometown:[%s%s%s (%d)], Loadroom: [%d], Clan: %s%s%s\r\n",
             CCCYN(ch, C_NRM), home_town_abbrevs[(int)GET_HOME(k)], CCNRM(ch,
-                C_NRM), GET_HOLD_HOME(k), k->player_specials->saved.load_room,
-            GET_HOLD_LOADROOM(k), ONOFF(PLR_FLAGGED(k, PLR_LOADROOM)),
+                C_NRM), GET_HOMEROOM(k), k->player_specials->saved.home_room,
             CCCYN(ch, C_NRM),
             real_clan(GET_CLAN(k)) ? real_clan(GET_CLAN(k))->name : "NONE",
             CCNRM(ch, C_NRM));
@@ -2088,7 +2087,7 @@ ACMD(do_shutdown)
             return;
         }
         slog("(GC) Shutdown by %s.", GET_NAME(ch));
-        Crash_save_all();
+		save_all_players();
 		Housing.collectRent();
 		Housing.save();
         save_quests();
@@ -2117,7 +2116,7 @@ ACMD(do_shutdown)
         if (!count) {
             touch("../.fastboot");
             slog("(GC) Reboot by %s.", GET_NAME(ch));
-            Crash_save_all();
+            save_all_players();
 			Housing.collectRent();
 			Housing.save();
             autosave_zones(ZONE_RESETSAVE);
@@ -2143,7 +2142,7 @@ ACMD(do_shutdown)
         }
     } else if (!str_cmp(arg, "die")) {
         slog("(GC) Shutdown by %s.", GET_NAME(ch));
-        Crash_save_all();
+		save_all_players();
 		Housing.collectRent();
 		Housing.save();
         autosave_zones(ZONE_RESETSAVE);
@@ -2160,7 +2159,7 @@ ACMD(do_shutdown)
         circle_shutdown = 1;
     } else if (!str_cmp(arg, "pause")) {
         slog("(GC) Shutdown by %s.", GET_NAME(ch));
-        Crash_save_all();
+		save_all_players();
 		Housing.collectRent();
 		Housing.save();
         autosave_zones(ZONE_RESETSAVE);
@@ -2396,7 +2395,7 @@ ACMD(do_return)
             act("$n materializes from a cloud of gas.",
                 FALSE, orig, 0, 0, TO_ROOM);
             if (subcmd != SCMD_NOEXTRACT)
-                ch->extract(true, false, CXN_MENU);
+                ch->purge(true);
         }
     } else
         send_to_char(ch, "There is no need to return.\r\n");
@@ -2735,7 +2734,7 @@ ACMD(do_purge)
                     "(GC) %s has purged %s at %d.",
                     GET_NAME(ch), GET_NAME(vict), vict->in_room->number);
             }
-            vict->extract(false, true, CXN_DISCONNECT);
+            vict->purge(false);
         } else if ((obj = get_obj_in_list_vis(ch, buf, ch->in_room->contents))) {
             act("$n destroys $p.", FALSE, ch, obj, 0, TO_ROOM);
             slog("(GC) %s purged %s at %d.", GET_NAME(ch),
@@ -2756,7 +2755,7 @@ ACMD(do_purge)
         CreatureList::iterator it = ch->in_room->people.begin();
         for (; it != ch->in_room->people.end(); ++it) {
             if (IS_NPC((*it))) {
-                (*it)->extract(true, false, CXN_MENU);
+                (*it)->purge(true);
             }
         }
 
@@ -5702,19 +5701,12 @@ ACMD(do_set)
         SET_OR_REMOVE(PRF_FLAGS(vict), PRF_QUEST);
         break;
     case 42:
-        if (!str_cmp(argument, "on"))
-            SET_BIT(PLR_FLAGS(vict), PLR_LOADROOM);
-        else if (!str_cmp(argument, "off"))
-            REMOVE_BIT(PLR_FLAGS(vict), PLR_LOADROOM);
-        else {
-            if (real_room(i = atoi(argument)) != NULL) {
-                GET_LOADROOM(vict) = i;
-                SET_BIT(PLR_FLAGS(vict), PLR_LOADROOM);
-                sprintf(buf, "%s will enter at %d.", GET_NAME(vict),
-                    GET_LOADROOM(vict));
-            } else
-                sprintf(buf, "That room does not exist!");
-        }
+		if (real_room(i = atoi(argument)) != NULL) {
+			GET_HOMEROOM(vict) = i;
+			sprintf(buf, "%s will enter at %d.", GET_NAME(vict),
+				GET_HOMEROOM(vict));
+		} else
+			sprintf(buf, "That room does not exist!");
         break;
     case 43:
         SET_OR_REMOVE(PRF_FLAGS(vict), (PRF_COLOR_1 | PRF_COLOR_2));
@@ -6612,7 +6604,7 @@ ACMD(do_mudwipe)
         CreatureList::iterator mit = characterList.begin();
         for (; mit != characterList.end(); ++mit) {
             if (IS_NPC(*mit)) {
-                (*mit)->extract(true, false, CXN_MENU);
+                (*mit)->purge(true);
             }
         }
         send_to_char(ch, "DONE.  Mud cleaned of all mobiles.\r\n");
@@ -6665,7 +6657,7 @@ ACMD(do_zonepurge)
             CreatureList::iterator it = rm->people.begin();
             for (; it != rm->people.end(); ++it) {
                 if (IS_MOB((*it))) {
-                    (*it)->extract(true, false, CXN_MENU);
+                    (*it)->purge(true);
                     mob_count++;
                 } else {
                     send_to_char(*it, "You feel a rush of heat wash over you!\r\n");

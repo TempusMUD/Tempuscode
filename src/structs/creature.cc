@@ -460,25 +460,23 @@ Creature::setPosition(int new_pos, int mode)
 void
 Creature::extractUnrentables()
 {
-    for (int j = 0; j < NUM_WEARS; j++)
+    for (int j = 0; j < NUM_WEARS; j++) {
 		if (GET_EQ(this, j))
 			Crash_extract_norents(GET_EQ(this, j));
+		if (GET_IMPLANT(this, j))
+			Crash_extract_norents(GET_EQ(this, j));
+	}
 
 	Crash_extract_norents(carrying);
 }
 
 
 /**
- * Extract a ch completely from the world, and leave his stuff behind
- * 
- * @param destroy_objs if false, will dump all objects into room.  
- * 					   if true,  will destroy all the objects.
- * @param save if true and IS_PC(this), will save the character after 
- * 			   removing everything
+ * Extract a ch completely from the world, and destroy his stuff
  * @param con_state the connection state to change the descriptor to, if one exists
 **/
 void
-Creature::extract(bool destroy_objs, bool save, cxn_state con_state)
+Creature::extract(cxn_state con_state)
 {
 	ACMD(do_return);
 	void stop_fighting(struct Creature *ch);
@@ -546,45 +544,18 @@ Creature::extract(bool destroy_objs, bool save, cxn_state con_state)
 			desc->snoop_by = NULL;
 		}
 	}
-	if (destroy_objs) {
-		// destroy all that equipment
-		for (idx = 0; idx < NUM_WEARS; idx++) {
-			if (GET_EQ(this, idx))
-				extract_obj(unequip_char(this, idx, MODE_EQ, true));
-			if (GET_IMPLANT(this, idx))
-				extract_obj(unequip_char(this, idx, MODE_IMPLANT, true));
-		}
-		// transfer inventory to room, if any
-		while (carrying) {
-			obj = carrying;
-			obj_from_char(obj);
-			extract_obj(obj);
-		}
-		// gold and cash aren't actually objects, so we just let them
-		// dissipate in a mist of deallocated bits
-	} else {
-		// transfer equipment to room, if any
-		for (idx = 0; idx < NUM_WEARS; idx++) {
-			if (GET_EQ(this, idx))
-				obj_to_room(unequip_char(this, idx, MODE_EQ, true), in_room);
-			if (GET_IMPLANT(this, idx))
-				obj_to_room(unequip_char(this, idx, MODE_IMPLANT, true), in_room);
-		}
-
-		// transfer inventory to room, if any
-		while (carrying) {
-			obj = carrying;
-			obj_from_char(obj);
-			obj_to_room(obj, in_room);
-		}
-/*
-		// transfer gold to room
-		if (GET_GOLD(this) > 0)
-			obj_to_room(create_money(GET_GOLD(this), 0), in_room);
-		if (GET_CASH(this) > 0)
-			obj_to_room(create_money(GET_CASH(this), 1), in_room);
-		GET_GOLD(this) = GET_CASH(this) = 0;
-*/
+	// destroy all that equipment
+	for (idx = 0; idx < NUM_WEARS; idx++) {
+		if (GET_EQ(this, idx))
+			extract_obj(unequip_char(this, idx, MODE_EQ, true));
+		if (GET_IMPLANT(this, idx))
+			extract_obj(unequip_char(this, idx, MODE_IMPLANT, true));
+	}
+	// transfer inventory to room, if any
+	while (carrying) {
+		obj = carrying;
+		obj_from_char(obj);
+		extract_obj(obj);
 	}
 
 	if (FIGHTING(this))
@@ -597,13 +568,8 @@ Creature::extract(bool destroy_objs, bool save, cxn_state con_state)
 	}
 
 
-	if (IS_PC(this) && save) {
-		this->player.time.logon = time(0);
-		this->crashSave();
-	}
-	if (desc && desc->original) {
+	if (desc && desc->original)
 		do_return(this, "", 0, SCMD_NOEXTRACT, 0);
-	}
 
 	char_from_room(this,false);
 
@@ -652,13 +618,21 @@ room_data *Creature::getLoadroom() {
 
 	if (PLR_FLAGGED(this, PLR_FROZEN)) {
 		load_room = r_frozen_start_room;
-	} else if (PLR_FLAGGED(this, PLR_LOADROOM)) {
+	} else if (GET_LOADROOM(this) != -1) {
 		if ((load_room = real_room(GET_LOADROOM(this))) &&
 			(!House_can_enter(this, load_room->number) ||
 			!clan_house_can_enter(this, load_room))) 
 		{
 			load_room = NULL;
 		}
+	} else if (GET_HOMEROOM(this) != -1) {
+		if ((load_room = real_room(GET_HOMEROOM(this))) &&
+			(!House_can_enter(this, load_room->number) ||
+			!clan_house_can_enter(this, load_room))) 
+		{
+			load_room = NULL;
+		}
+		
 	}
 
 	if( load_room != NULL )
@@ -839,8 +813,210 @@ Creature::clear(void)
 
 	player_specials = new player_special_data;
 	memset((char *)player_specials, 0, sizeof(player_special_data));
+	player_specials->desc_mode = CXN_UNKNOWN;
+	GET_LOADROOM(this) = GET_HOMEROOM(this) = -1;
 
 	set_title(this, "");
+}
+
+bool
+Creature::rent(void)
+{
+	player_specials->rentcode = RENT_RENTED;
+	player_specials->rent_per_day =
+		(GET_LEVEL(this) < LVL_IMMORT) ? calcDailyRent():0;
+	player_specials->desc_mode = CXN_UNKNOWN;
+	player_specials->rent_currency = in_room->zone->time_frame;
+	GET_LOADROOM(this) = in_room->number;
+	player.time.logon = time(0);
+	saveObjects();
+	saveToXML();
+	if (GET_LEVEL(this) < 50)
+		mudlog(MAX(LVL_AMBASSADOR, GET_INVIS_LVL(this)), NRM, true,
+			"%s has rented (%d/day, %lld %s)", GET_NAME(this),
+			player_specials->rent_per_day, CASH_MONEY(this) + BANK_MONEY(this),
+			(player_specials->rent_currency == TIME_ELECTRO) ? "gold":"creds");
+	extract(CXN_MENU);
+
+	return true;
+}
+
+bool
+Creature::cryo(void)
+{
+	player_specials->rentcode = RENT_CRYO;
+	player_specials->rent_per_day = 0;
+	player_specials->desc_mode = CXN_UNKNOWN;
+	player_specials->rent_currency = in_room->zone->time_frame;
+	GET_LOADROOM(this) = in_room->number;
+	player.time.logon = time(0);
+	saveObjects();
+	saveToXML();
+	
+	mudlog(MAX(LVL_AMBASSADOR, GET_INVIS_LVL(this)), NRM, true,
+		"%s has cryo-rented", GET_NAME(this));
+	extract(CXN_MENU);
+	return true;
+}
+
+bool
+Creature::quit(void)
+{
+	obj_data *obj, *next_obj, *next_contained_obj;
+	int pos;
+
+	if (IS_NPC(this))
+		return false;
+
+	for (pos = 0;pos < NUM_WEARS;pos++) {
+		// Drop all non-cursed equipment worn
+		if (GET_EQ(this, pos)) {
+			obj = GET_EQ(this, pos);
+			if (IS_OBJ_STAT(obj, ITEM_NODROP) ||
+					IS_OBJ_STAT2(obj, ITEM2_NOREMOVE)) {
+				for (obj = obj->contains;obj;obj = next_contained_obj) {
+					next_contained_obj = obj->next_content;
+					obj_from_obj(obj);
+					obj_to_room(obj, in_room);
+				}
+			} else {
+				obj = unequip_char(this, pos, MODE_EQ);
+				obj_to_room(obj, in_room);
+			}
+		}
+
+		// Drop all implanted items, breaking them
+		if (GET_IMPLANT(this, pos)) {
+			obj = GET_IMPLANT(this, pos);
+			GET_OBJ_DAM(obj) = GET_OBJ_MAX_DAM(obj) >> 3 - 1;
+			SET_BIT(GET_OBJ_EXTRA2(obj), ITEM2_BROKEN);
+			obj_to_room(obj, in_room);
+		}
+	}
+
+	// Drop all uncursed inventory items
+	for (obj = carrying;obj;obj = next_obj) {
+		next_obj = obj->next_content;
+		if (IS_OBJ_STAT(obj, ITEM_NODROP) ||
+				IS_OBJ_STAT2(obj, ITEM2_NOREMOVE)) {
+			for (obj = obj->contains;obj;obj = next_contained_obj) {
+				next_contained_obj = obj->next_content;
+				obj_from_obj(obj);
+				obj_to_room(obj, in_room);
+			}
+		} else {
+			obj_from_char(obj);
+			obj_to_room(obj, in_room);
+		}
+	}
+
+	player_specials->rentcode = RENT_QUIT;
+	player_specials->rent_per_day = calcDailyRent() * 3;
+	player_specials->desc_mode = CXN_UNKNOWN;
+	player_specials->rent_currency = in_room->zone->time_frame;
+	GET_LOADROOM(this) = in_room->number;
+	player.time.logon = time(0);
+	saveObjects();
+	saveToXML();
+	extract(CXN_MENU);
+
+	return true;
+}
+
+bool
+Creature::idle(void)
+{
+	if (IS_NPC(this))
+		return false;
+	player_specials->rentcode = RENT_FORCED;
+	player_specials->rent_per_day = calcDailyRent() * 3;
+	player_specials->desc_mode = CXN_UNKNOWN;
+	player_specials->rent_currency = in_room->zone->time_frame;
+	GET_LOADROOM(this) = in_room->number;
+	player.time.logon = time(0);
+	saveObjects();
+	saveToXML();
+
+	mudlog(LVL_GOD, CMP, true, "%s force-rented and extracted (idle).",
+		GET_NAME(this));
+
+	extract(CXN_MENU);
+	return true;
+}
+
+bool
+Creature::die(void)
+{
+	if (!IS_NPC(this)) {
+		player_specials->rentcode = RENT_QUIT;
+		player_specials->rent_per_day = 0;
+		player_specials->desc_mode = CXN_AFTERLIFE;
+		player_specials->rent_currency = 0;
+		GET_LOADROOM(this) = -1;
+		player.time.logon = time(0);
+		saveObjects();
+		saveToXML();
+	}
+	extract(CXN_AFTERLIFE);
+	return true;
+}
+
+bool
+Creature::purge(bool destroy_obj)
+{
+	obj_data *obj, *next_obj;
+
+	if (!destroy_obj) {
+		int pos;
+
+		for (pos = 0;pos < NUM_WEARS;pos++) {
+			if (GET_EQ(this, pos)) {
+				obj = unequip_char(this, pos, MODE_EQ);
+				obj_to_room(obj, in_room);
+			}
+			if (GET_IMPLANT(this, pos)) {
+				obj = unequip_char(this, pos, MODE_IMPLANT);
+				obj_to_room(obj, in_room);
+			}
+		}
+
+		for (obj = carrying;obj;obj = next_obj) {
+			next_obj = obj->next_content;
+			obj_from_char(obj);
+			obj_to_room(obj, in_room);
+		}
+	}
+
+	if (!IS_NPC(this)) {
+		player_specials->rentcode = RENT_QUIT;
+		player_specials->rent_per_day = 0;
+		player_specials->desc_mode = CXN_UNKNOWN;
+		player_specials->rent_currency = 0;
+		GET_LOADROOM(this) = -1;
+		player.time.logon = time(0);
+		saveObjects();
+		saveToXML();
+	}
+
+	extract(CXN_DISCONNECT);
+	return true;
+}
+
+bool
+Creature::remort(void)
+{
+	if (IS_NPC(this))
+		return false;
+	player_specials->rentcode = RENT_QUIT;
+	player_specials->rent_per_day = 0;
+	player_specials->desc_mode = CXN_UNKNOWN;
+	player_specials->rent_currency = 0;
+	GET_LOADROOM(this) = -1;
+	player.time.logon = time(0);
+	saveObjects();
+	saveToXML();
+	extract(CXN_REMORT_AFTERLIFE);
+	return true;
 }
 
 #undef __Creature_cc__

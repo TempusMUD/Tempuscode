@@ -41,7 +41,6 @@
 #include <iostream>
 
 extern int corpse_state;
-void Crash_rentsave(struct Creature *ch, int cost, int rentcode);
 /* The Fight related routines */
 obj_data *get_random_uncovered_implant(Creature * ch, int type = -1);
 int calculate_weapon_probability(struct Creature *ch, int prob,
@@ -317,7 +316,7 @@ check_thief(struct Creature *ch, struct Creature *vict,
 	}
 
 	// If we get to this point, ch gets a killer
-	SET_BIT(PLR_FLAGS(ch), PLR_KILLER);
+	SET_BIT(PLR_FLAGS(ch), PLR_THIEF);
 	mudlog(LVL_AMBASSADOR, BRF, true,
 		"PC THIEF set on %s for stealing from %s at %d. %s",
 		GET_NAME(ch), GET_NAME(vict), vict->in_room->number,
@@ -742,7 +741,6 @@ make_corpse(struct Creature *ch, struct Creature *killer, int attacktype)
 		*spine = NULL, *o = NULL, *next_o = NULL, *leg = NULL;
 	struct obj_data *money = NULL;
 	int i;
-	int rentcost = 0;
 	char typebuf[256];
 	char adj[256];
 	char namestr[256];
@@ -1563,7 +1561,6 @@ make_corpse(struct Creature *ch, struct Creature *killer, int attacktype)
 
 		if (!IS_NPC(ch) && ch->in_room->zone->number != 400 &&
 			ch->in_room->zone->number != 320)
-			Crash_delete_file(GET_NAME(ch), IMPLANT_FILE);
 
 		for (o = corpse->contains; o; o = next_o) {
 			next_o = o->next_content;
@@ -1573,15 +1570,9 @@ make_corpse(struct Creature *ch, struct Creature *killer, int attacktype)
 		// Save the char to prevent duping of eq.
 		if (!IS_NPC(ch)) {
 			ch->saveToXML();
-			Crash_crashsave(ch);
-			Crash_delete_crashfile(ch);
 		}
-	} else {					// arena kills do not drop EQ
-		rentcost = Crash_rentcost(ch, FALSE, 1);
-		if (rentcost < 0)
-			rentcost = -rentcost;
-
-		Crash_rentsave(ch, rentcost, RENT_RENTED);
+	} else if (!IS_NPC(ch)) {					// arena kills do not drop EQ
+		ch->rent();
 	}
 
 	// leave no corpse behind

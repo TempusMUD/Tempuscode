@@ -2722,11 +2722,9 @@ ASPELL(spell_animate_dead)
 	// char has to be in a room to be sent through extract_char
 	//
 
-	char_to_room(orig_char, ch->in_room, false);
-
 	if (IS_UNDEAD(orig_char)) {
 		act("You cannot re-animate $p.", FALSE, ch, obj, 0, TO_CHAR);
-		orig_char->extract(true, false, CXN_MENU);
+		delete orig_char;
 		return;
 	}
 
@@ -2734,17 +2732,19 @@ ASPELL(spell_animate_dead)
 		&& GET_LEVEL(orig_char) > GET_LEVEL(ch)) {
 		send_to_char(ch, 
 			"You find yourself unable to perform this necromantic deed.\r\n");
-		//extract_char( orig_char, 0 );
-		orig_char->extract(true, false, CXN_MENU);
+		delete orig_char;
 		return;
 	}
 
 	if (!(zombie = read_mobile(ZOMBIE_VNUM))) {
 		send_to_char(ch, "The dark powers are not with you, tonight.\r\n");
 		slog("SYSERR: unable to load ZOMBIE_VNUM in spell_animate_dead.");
-		orig_char->extract(true, false, CXN_MENU);
+		delete orig_char;
 		return;
 	}
+
+//	char_to_room(orig_char, ch->in_room, false);
+
 	//
 	// strings
 	//
@@ -2842,7 +2842,7 @@ ASPELL(spell_animate_dead)
 
 	extract_obj(obj);
 
-	orig_char->extract(true, false, CXN_MENU);
+	delete orig_char;
 
 	char_to_room(zombie, ch->in_room, false);
 	act("$n rises slowly to a standing position.", FALSE, zombie, 0, 0,
@@ -3233,7 +3233,7 @@ ASPELL(spell_banishment)
 
 		act("$n is banished to $s home plane!", FALSE, victim, 0, 0, TO_ROOM);
 
-		victim->extract(true, false, CXN_MENU);
+		victim->die();
 
 		gain_skill_prof(ch, SPELL_BANISHMENT);
 

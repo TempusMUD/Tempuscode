@@ -55,7 +55,6 @@ int general_search(struct Creature *ch, struct special_search_data *srch,
 void update_trail(struct Creature *ch, struct room_data *rm, int dir, int j);
 int apply_soil_to_char(struct Creature *ch, struct obj_data *obj, int type,
 	int pos);
-void Crash_save_implants(struct Creature *ch, bool extract = true);
 
 #define DOOR_IS_OPENABLE(ch, obj, door)        \
 ((obj) ? \
@@ -1102,12 +1101,8 @@ do_simple_move(struct Creature *ch, int dir, int mode,
 		was_in = ch->in_room;
 		log_death_trap(ch);
 		death_cry(ch);
-		// Save the char and its implants but not its eq
-		ch->saveToXML();
-		Crash_save_implants(ch);
-        Crash_delete_crashfile(ch);
 		// extract it, leaving it's eq and such in the dt.
-		ch->extract(false, false, CXN_AFTERLIFE);
+		ch->die();
 		if (was_in->number == 34004) {
 			for (obj = was_in->contents; obj; obj = next_obj) {
 				next_obj = obj->next_content;
@@ -2615,7 +2610,7 @@ ACMD(do_translocate)
 		send_to_char(ch, 
 			"You go too far, rematerializing inside solid matter!!\r\n"
 			"Better luck next time...\r\n");
-		ch->extract(false, true, CXN_AFTERLIFE);
+		ch->die();
 		return;
 	} else {
 		if( !char_from_room(ch) || !char_to_room(ch, rm) )
@@ -2633,7 +2628,7 @@ ACMD(do_translocate)
 			GET_LEVEL(ch) < LVL_AMBASSADOR) {
 			log_death_trap(ch);
 			death_cry(ch);
-			ch->extract(false, true, CXN_AFTERLIFE);
+			ch->die();
 			if (rm->number == 34004) {
 				for (obj = rm->contents; obj; obj = next_obj) {
 					next_obj = obj->next_content;

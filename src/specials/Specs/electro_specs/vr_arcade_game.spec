@@ -96,7 +96,7 @@ SPECIAL(vr_arcade_game)
 	act("$n steps into $p's interface and disappears in a flash!", FALSE, ch,
 		game, 0, TO_ROOM);
 
-	GET_HOLD_HOME(ch) = GET_HOME(ch);
+	GET_HOMEROOM(ch) = GET_HOME(ch);
 	GET_HOME(ch) = GET_OBJ_VAL(game, 3);
 
 	char_from_room(ch, false);

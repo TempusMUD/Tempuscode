@@ -80,6 +80,7 @@ int perform_alias(struct descriptor_data *d, char *orig);
 int get_from_q(struct txt_q *queue, char *dest, int *aliased, int length = MAX_INPUT_LENGTH );
 int parse_player_class(char *arg, int timeframe);
 int parse_time_frame(char *arg);
+void save_all_players(void);
 
 
 // internal functions
@@ -193,6 +194,7 @@ handle_input(struct descriptor_data *d, char *arg)
 		d->account->save_to_xml();
 		switch (tolower(arg[0])) {
 		case 'l':
+		case '0':
 			send_to_desc(d, "Goodbye.  Return soon!\r\n");
 			d->account->logout(d, false);
 			break;
@@ -314,9 +316,8 @@ handle_input(struct descriptor_data *d, char *arg)
 			}
 
 			// If they were in the middle of something important
-			if (d->creature->rent.rentcode == RENT_CREATING ||
-					d->creature->rent.rentcode == RENT_REMORTING) {
-				set_desc_state(d->creature->rent.desc_mode, d);
+			if (d->creature->player_specials->desc_mode != CXN_UNKNOWN) {
+				set_desc_state(d->creature->player_specials->desc_mode, d);
 				return;
 			}
 
@@ -353,7 +354,7 @@ handle_input(struct descriptor_data *d, char *arg)
 			if (!d->creature) {
 				d->creature = d->account->create_char(arg);
 				d->creature->desc = d;
-				d->creature->rent.rentcode = RENT_CREATING;
+				d->creature->player_specials->rentcode = RENT_CREATING;
 			} else {
 				// reset name in account, playerIndex, creature, ugh...
 			}
@@ -540,7 +541,7 @@ handle_input(struct descriptor_data *d, char *arg)
 				"%s[%d] has created new character %s[%ld]",
 					d->account->get_name(), d->account->get_idnum(),
                     GET_NAME(d->creature), GET_IDNUM(d->creature) );
-			d->creature->rent.rentcode = RENT_NEW_CHAR;
+			d->creature->player_specials->rentcode = RENT_NEW_CHAR;
 			d->creature->saveToXML();
 		} else
 			SEND_TO_Q("\r\nYou must type 'reroll' or 'keep'.\r\n\r\n", d);
@@ -1050,16 +1051,18 @@ send_menu(descriptor_data *d)
 				status_str = "&GBURIED!";
 			else if ((real_ch = get_char_in_world_by_idnum(GET_IDNUM(tmp_ch))) != NULL) {
 				if (real_ch->desc)
-					status_str = "&g  playing";
+					status_str = "&g  Playing";
 				else
-					status_str = "&c linkless";
-			} else switch (tmp_ch->rent.rentcode) {
+					status_str = "&c Linkless";
+			} else if (tmp_ch->player_specials->desc_mode == CXN_AFTERLIFE) {
+				status_str =     "&R     Died";
+			} else switch (tmp_ch->player_specials->rentcode) {
 				case RENT_CREATING:
                     status_str = "&Y Creating"; break;
                 case RENT_NEW_CHAR:
                     status_str = "&Y      New"; break;
                 case RENT_UNDEF:
-                    status_str = "&r    undef"; break;
+                    status_str = "&r    UNDEF"; break;
                 case RENT_CRYO:
                     status_str = "&c   Cryoed"; break;
                 case RENT_CRASH:
@@ -1068,8 +1071,8 @@ send_menu(descriptor_data *d)
                     status_str = "&m   Rented"; break;
                 case RENT_FORCED:
                     status_str = "&yForcerent"; break;
-                case RENT_TIMEDOUT:
-                    status_str = "&yForcerent"; break;
+                case RENT_QUIT:
+                    status_str = "&g     Quit"; break;
 				case RENT_REMORTING:
                     status_str = "&YRemorting"; break;
                 default:
@@ -1079,7 +1082,7 @@ send_menu(descriptor_data *d)
 				mail_str = "&Y Yes";
 			else
 				mail_str = "&n No ";
-			if (tmp_ch->rent.rentcode == RENT_CREATING) {
+			if (tmp_ch->player_specials->rentcode == RENT_CREATING) {
 				send_to_desc(d,
 					"&b[&y%2d&b] &n%-13s   &y-   -  -         -         -         Never  Creating&n  --\r\n",
 					idx, GET_NAME(tmp_ch));
@@ -1331,29 +1334,32 @@ char_to_game(descriptor_data *d)
 	// if we're not a new char, check loadroom and rent
 	if (GET_LEVEL(d->creature)) {
 		// Figure out the room the player is gonna start in
-		room = real_room(GET_LOADROOM(d->creature));
+		if (GET_LOADROOM(d->creature) != -1)
+			room = real_room(GET_LOADROOM(d->creature));
+		if (!room && GET_HOMEROOM(d->creature) != -1)
+			room = real_room(GET_HOMEROOM(d->creature));
+		if (!room)
+			room = d->creature->getLoadroom();
+
 		if (room && !House_can_enter(d->creature, room->number)) {
 			mudlog(LVL_DEMI, NRM, true,
-				"%s unable to load in house room %d, loadroom unset",
-				GET_NAME(d->creature),GET_LOADROOM(d->creature));
+				"%s unable to load in house room %d",
+				GET_NAME(d->creature),room->number);
 			room = NULL;
-			GET_LOADROOM(d->creature) = -1;
 		}
 
 		if (room && !clan_house_can_enter(d->creature, room)) {
 			mudlog(LVL_DEMI, NRM, true,
 				"%s unable to load in clanhouse room %d; loadroom unset",
-				GET_NAME(d->creature),GET_LOADROOM(d->creature));
+				GET_NAME(d->creature),room->number);
 			room = NULL;
-			GET_LOADROOM(d->creature) = -1;
 		}
 
 		if (room)
 			d->creature->in_room = room;
 
-		if(GET_LOADROOM(d->creature) == -1 &&
-			   GET_HOLD_LOADROOM(d->creature) == -1)
-			REMOVE_BIT(PLR_FLAGS(d->creature), PLR_LOADROOM);
+		// Loadroom is only good for one go
+		GET_LOADROOM(d->creature) = -1;
 
 		if (PLR_FLAGGED(d->creature, PLR_INVSTART))
 			GET_INVIS_LVL(d->creature) = (GET_LEVEL(d->creature) > LVL_LUCIFER ?
@@ -1398,14 +1404,6 @@ char_to_game(descriptor_data *d)
 
 	char_to_room(d->creature, load_room);
 	load_room->zone->enter_count++;
-
-	if (!(PLR_FLAGGED(d->creature, PLR_LOADROOM)) &&
-			GET_HOLD_LOADROOM(d->creature) > 0 &&
-			real_room(GET_HOLD_LOADROOM(d->creature))) {
-		GET_LOADROOM(d->creature) = GET_HOLD_LOADROOM(d->creature);
-		SET_BIT(PLR_FLAGS(d->creature), PLR_LOADROOM);
-		GET_HOLD_LOADROOM(d->creature) = NOWHERE;
-	}
 	show_mud_date_to_char(d->creature);
 	SEND_TO_Q("\r\n", d);
 

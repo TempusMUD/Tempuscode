@@ -21,7 +21,7 @@ static const int RENT_CRASH     = 1;
 static const int RENT_RENTED    = 2;
 static const int RENT_CRYO      = 3;
 static const int RENT_FORCED    = 4;
-static const int RENT_TIMEDOUT  = 5;
+static const int RENT_QUIT		= 5;
 static const int RENT_NEW_CHAR  = 6;
 static const int RENT_CREATING  = 7;
 static const int RENT_REMORTING = 8;
@@ -799,6 +799,7 @@ struct player_special_data_saved {
 	byte freeze_level;			/* Level of god who froze char, if any    */
 	sh_int invis_level;			/* level of invisibility        */
 	room_num load_room;			/* Which room to place char in        */
+	room_num home_room;
 	long pref;					/* preference flags for PC's.        */
 	long pref2;					/* 2nd pref flag                        */
 	ubyte bad_pws;				/* number of bad password attemps    */
@@ -808,7 +809,6 @@ struct player_special_data_saved {
 	   'sparen' to something meaningful, but don't change the order.  */
 
 	ubyte clan;
-	ubyte hold_home;
 	ubyte spare22;
 	ubyte broken_component;
 	ubyte quest_points;
@@ -866,6 +866,10 @@ struct player_special_data {
 	class HelpItem *olc_help_item;
     int thaw_time;
     int freezer_id;
+	int rentcode;
+	int rent_per_day;
+	cxn_state desc_mode;
+	int rent_currency;
 };
 
 struct mob_shared_data {
@@ -925,15 +929,6 @@ struct affected_type {
 struct follow_type {
 	struct Creature *follower;
 	struct follow_type *next;
-};
-
-struct rent_info {
-    rent_info() : rentcode(0), net_cost_per_diem(0), 
-                  desc_mode(CXN_UNKNOWN), currency(0) {}
-	int rentcode;
-	int net_cost_per_diem;
-	cxn_state desc_mode;
-	int currency;
 };
 
 
@@ -1017,7 +1012,6 @@ struct Creature {
 	bool isFighting();
 	Creature *getFighting() { return (char_specials.fighting); }
 	void setFighting(Creature * ch);
-	void extract(bool destroy_objs, bool save, cxn_state con_state);
 	void clearMemory();
     bool loadFromXML( long id );
     bool loadFromXML( const char *path );
@@ -1033,6 +1027,22 @@ struct Creature {
     // Saves the given characters equipment to a file. Intended for use while 
     // the character is still in the game. 
     bool crashSave();
+	// player has chosen to rent at a receptionist
+	bool rent(void);
+	// player has chosen to cryo at the cryogenicist
+	bool cryo(void);
+	// player has chosen to quit out of the game (losing eq)
+	bool quit(void);
+	// player has chosen to idle out (rent x3)
+	bool idle(void);
+	// player has chosen to die horribly
+	bool die(void);
+	// player has chosen to remort
+	bool remort(void);
+	// creature has chosen to be purged
+	bool purge(bool destroy_obj);
+
+	// Deprecated saving routines here for reference
     bool rentSave(int cost, int rentcode=RENT_RENTED);
     bool idleSave();
     // Drops all !cursed eq to the floor, breaking implants, then calls rentSave(0)
@@ -1044,6 +1054,9 @@ struct Creature {
     bool saveObjects(void);
     /** Extracts all unrentable objects carried or worn by this creature **/
     void extractUnrentables();
+	// Extracts the creature from the game.  If creature is a player, sets
+	// its descriptor's input mode to the given state
+	void extract(cxn_state con_state);
     
   public:						// ******  Data ****
 	int pfilepos;				/* playerfile pos          */
@@ -1067,7 +1080,6 @@ struct Creature {
 
 	struct follow_type *followers;	/* List of chars followers       */
 	struct Creature *master;	/* Who is char following?        */
-	rent_info rent;
 	char host[HOST_LENGTH + 1];	/* host of last logon */
 };
 

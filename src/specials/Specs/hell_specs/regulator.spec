@@ -19,7 +19,7 @@ SPECIAL(hell_regulator)
 		if (!ZONE_IS_HELL(ch->in_room->zone)) {
 			act("$n vanishes into the mouth of an interplanar conduit.",
 				FALSE, ch, 0, 0, TO_ROOM);
-			ch->extract(true, false, CXN_MENU);
+			ch->purge(true);
 			return 1;
 		}
 		return 0;

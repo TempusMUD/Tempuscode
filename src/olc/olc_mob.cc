@@ -1596,7 +1596,7 @@ do_destroy_mobile(struct Creature *ch, int vnum)
 	CreatureList::iterator cit = characterList.begin();
 	for (; cit != characterList.end(); ++cit) {
 		if (GET_MOB_VNUM((*cit)) == GET_MOB_VNUM(mob))
-			(*cit)->extract(false, false, CXN_MENU);
+			(*cit)->purge(false);
 	}
 	mobilePrototypes.remove(mob);
 
@@ -1851,7 +1851,7 @@ olc_mimic_mob(struct Creature *ch,
 		CreatureList::iterator cit = characterList.begin();
 		for (; cit != characterList.end(); ++cit) {
 			if (IS_NPC((*cit)) && GET_MOB_VNUM((*cit)) == GET_MOB_VNUM(targ))
-				(*cit)->extract(false, false, CXN_MENU);
+				(*cit)->purge(false);
 		}
 	}
 

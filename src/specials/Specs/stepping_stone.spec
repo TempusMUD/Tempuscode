@@ -7,13 +7,14 @@
 SPECIAL(stepping_stone)
 {
 	struct obj_data *ruby = (struct obj_data *)me;
+	extern room_num arena_start_room;
 
 	if (spec_mode != SPECIAL_CMD)
 		return false;
 
 	if (CMD_IS("south")) {
 		if (ch->getPosition() >= POS_STANDING) {
-			if (GET_HOME(ch) != HOME_ARENA) {
+			if (GET_LOADROOM(ch) != arena_start_room) {
 				act("$p flares up suddenly with a bright light!",
 					false, ch, ruby, 0, TO_ROOM);
 				send_to_char(ch, "You feel a strange sensation...\r\n");
@@ -21,13 +22,7 @@ SPECIAL(stepping_stone)
 					"A voice BOOMS out, 'Welcome to the Arena, %s!'\r\n",
 					GET_NAME(ch));
 				send_to_zone(buf, ch->in_room->zone, 0);
-				GET_HOLD_HOME(ch) = GET_HOME(ch);
-				if (PLR_FLAGGED(ch, PLR_LOADROOM))
-					GET_HOLD_LOADROOM(ch) = GET_LOADROOM(ch);
-				else
-					GET_HOLD_LOADROOM(ch) = -1;
-				GET_HOME(ch) = HOME_ARENA;
-				GET_LOADROOM(ch) = -1;
+				GET_LOADROOM(ch) = arena_start_room;
 			}
 		}
 	}
@@ -52,12 +47,7 @@ SPECIAL(portal_out)
 	skip_spaces(&argument);
 	if (isname(argument, portal->name)) {
 		send_to_room("A loud buzzing sound fills the room.\r\n", ch->in_room);
-		if (GET_HOME(ch) == HOME_ARENA)
-			GET_HOME(ch) = GET_HOLD_HOME(ch);
-		if (real_room(GET_LOADROOM(ch) = GET_HOLD_LOADROOM(ch)) &&
-			GET_HOLD_LOADROOM(ch))
-			SET_BIT(PLR_FLAGS(ch), PLR_LOADROOM);
-		GET_HOLD_LOADROOM(ch) = -1;
+		GET_LOADROOM(ch) = -1;
 		sprintf(buf, "A voice BOOMS out, '%s has left the arena.'\r\n",
 			GET_NAME(ch));
 		send_to_zone(buf, ch->in_room->zone, 0);

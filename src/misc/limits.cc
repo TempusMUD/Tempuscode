@@ -531,7 +531,6 @@ check_idling(struct Creature *ch)
 			act("$n disappears into the void.", TRUE, ch, 0, 0, TO_ROOM);
 			send_to_char(ch, "You have been idle, and are pulled into a void.\r\n");
 			ch->saveToXML();
-			Crash_crashsave(ch);
 			char_from_room(ch,false);
 			char_to_room(ch, real_room(1),true);
 		} else if (ch->char_specials.timer > 60) {
@@ -541,11 +540,7 @@ check_idling(struct Creature *ch)
 			if (ch->desc)
 				close_socket(ch->desc);
 			ch->desc = NULL;
-			Crash_idlesave(ch);
-			mudlog(LVL_GOD, CMP, true,
-				"%s force-rented and extracted (idle).",
-				GET_NAME(ch));
-			ch->extract(true, false, CXN_MENU);
+			ch->idle();
 			return TRUE;
 		}
 	}
@@ -553,6 +548,18 @@ check_idling(struct Creature *ch)
 }
 
 
+void
+save_all_players(void)
+{
+	Creature *i;
+
+	CreatureList::iterator cit = characterList.begin();
+	for (; cit != characterList.end(); ++cit) {
+		i = *cit;
+		if (!IS_NPC(i))
+			i->crashSave();
+	}
+}
 
 /* Update PCs, NPCs, objects, and shadow zones */
 void

@@ -1239,7 +1239,7 @@ throw_char_in_jail(struct Creature *ch, struct Creature *vict)
 		ch, 0, vict, TO_VICT);
 
 	if (IS_NPC(vict)) {
-		vict->extract(false, false, CXN_MENU);
+		vict->purge(true);
 		return 1;
 	}
 

@@ -256,8 +256,6 @@ int do_fail_remort_test(Quiz *quiz, struct Creature *ch)
     char_to_room(ch, load_room,false);
     act("$n appears with a bright flash of light!", FALSE, ch, 0, 0, TO_ROOM);
 
-    //ch->extract(false, false, CXN_MENU);
-	//ch->extract(true, true, CXN_MENU);
 	return 1;
 }
 
@@ -302,10 +300,7 @@ int do_pass_remort_test(Quiz *quiz, struct Creature *ch)
 	quiz->reset();
 
 	// Save the char and its implants but not its eq
-	ch->saveToXML();
-	Crash_crashsave(ch);
-	Crash_save_implants(ch);
-	ch->extract(true, false, CXN_CLASS_REMORT);
+	ch->remort();
 
 	return 1;
 }

@@ -125,20 +125,4 @@ int generic_find(char *arg, int bitvector, struct Creature *ch,
 
 /* prototypes from crash save system */
 
-int Crash_get_filename(char *orig_name, char *filename);
-int Crash_delete_file(char *name, int mode);
-int Crash_delete_crashfile(struct Creature *ch);
-int Crash_clean_file(char *name);
-void Crash_listrent(struct Creature *ch, char *name);
-int Crash_load(struct Creature *ch);
-void Crash_crashsave(struct Creature *ch);
-void Crash_save_implants(struct Creature *ch, bool is_true);
-void Crash_idlesave(struct Creature *ch);
-void Crash_save_all(void);
-/*
-#define TED_MESSAGE " Write the text.  Terminate with @ on a new line.\r\n"\
-      " Enter a * on a new line to enter TED\r\n"  \
-	" [+--------+---------+---------+--------"  \
-	"-+---------+---------+---------+------+]\r\n"
-*/
 #endif

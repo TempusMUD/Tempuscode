@@ -29,7 +29,7 @@ SPECIAL(rat_mama)
 				act("$n climbs into a hole in the wall.", FALSE, (*it), 0, 0,
 					TO_ROOM);
 				char_from_room((*it));
-				(*it)->extract(true, false, CXN_MENU);
+				(*it)->purge(true);
 				return TRUE;
 			}
 		}

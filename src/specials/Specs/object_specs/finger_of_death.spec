@@ -45,7 +45,7 @@ SPECIAL(finger_of_death)
 		mudlog( 0, BRF, true, "(f0d) %s has purged %s with %s at %d",
 				GET_NAME(ch), GET_NAME(target), 
 				finger->short_description, target->in_room->number);
-        target->extract(false, true, CXN_DISCONNECT);
+        target->purge(true);
         GET_OBJ_VAL(finger,0) -= 1;
     }
 	return 1;

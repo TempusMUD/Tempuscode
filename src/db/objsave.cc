@@ -206,35 +206,6 @@ Crash_delete_file(char *name, int mode)
 	return (1);
 }
 
-/**
- * Deletes ch player's .objs file if the rentcode is RENT_CRASH
- */
-int
-Crash_delete_crashfile(struct Creature *ch)
-{
-	char fname[MAX_INPUT_LENGTH];
-	struct rent_info rent;
-	FILE *fl;
-
-	if (!get_filename(GET_NAME(ch), fname, CRASH_FILE))
-		return 0;
-	if (!(fl = fopen(fname, "rb"))) {
-		if (errno != ENOENT) {	/* if it fails, NOT because of no file */
-			sprintf(buf1, "SYSERR: checking for crash file %s ( 3 )", fname);
-			perror(buf1);
-		}
-		return 0;
-	}
-	if (!feof(fl))
-		fread(&rent, sizeof(struct rent_info), 1, fl);
-	fclose(fl);
-
-	if (rent.rentcode == RENT_CRASH)
-		Crash_delete_file(GET_NAME(ch), CRASH_FILE);
-
-	return 1;
-}
-
 
 /**
  * Deletes .objs files for all known players if they are
@@ -248,20 +219,6 @@ update_obj_file(void)
 {
 }
 
-
-
-/**
- * Writes the given rent_info into the given FILE
- */
-int
-write_rentinfo(FILE * fl, struct rent_info *rent)
-{
-	if (fwrite(rent, sizeof(struct rent_info), 1, fl) < 1) {
-		perror("Writing rent code.");
-		return 0;
-	}
-	return 1;
-}
 
 
 
@@ -375,52 +332,6 @@ Crash_save_implants(struct Creature *ch, bool extract = true)
 	fclose(fp);
 }
 
-/** 
- * Saves the given character and it's equipment to a file. 
- * Does not extract any eq or implants. 
- **/
-void
-Crash_crashsave(struct Creature *ch)
-{
-	ch->crashSave();
-}
-
-
-/** 
- * Extracts unrentables.
- * Saves and extracts all eq & implants
- * sets cost per day to cost
- * Sets rent code.
-**/
-void
-Crash_rentsave(struct Creature *ch, int cost, int rentcode)
-{
-
-	ch->rentSave(cost,rentcode);
-}
-
-void
-Crash_idlesave(struct Creature *ch)
-{
-	ch->idleSave();
-}
-
-/**
- *  Saves the char into it's rent file, extracting all cursed eq in the
- *  process.
-**/
-void
-Crash_cursesave(struct Creature *ch)
-{
-	ch->curseSave();
-}
-
-
-void
-Crash_cryosave(struct Creature *ch, int cost)
-{
-	ch->cryoSave(cost);
-}
 
 
 /* ************************************************************************
@@ -606,7 +517,6 @@ gen_receptionist(struct Creature *ch, struct Creature *recep,
 {
 	int cost = 0;
 	extern int free_rent;
-	struct room_data *save_room;
 	char *action_table[] = { "smile", "dance", "sigh", "blush", "burp",
 		"cough", "fart", "twiddle", "yawn"
 	};
@@ -668,24 +578,21 @@ gen_receptionist(struct Creature *ch, struct Creature *recep,
 		if (cost && (mode == RENT_FACTOR))
 			Crash_rent_deadline(ch, recep, cost);
 
+		act("$n helps $N into $S private chamber.",
+			FALSE, recep, 0, ch, TO_NOTVICT);
+
 		if (mode == RENT_FACTOR) {
 			act("$n stores your belongings and helps you into your private chamber.", FALSE, recep, 0, ch, TO_VICT);
-			Crash_rentsave(ch, cost, RENT_RENTED);
 			sprintf(buf, "%s has rented ( %d/day, %lld tot. )", GET_NAME(ch),
 				cost, GET_GOLD(ch) + GET_PAST_BANK(ch));
+			ch->rent();
 		} else {				/* cryo */
 			act("$n stores your belongings and helps you into your private chamber.\r\n" "A white mist appears in the room, chilling you to the bone...\r\n" "You begin to lose consciousness...", FALSE, recep, 0, ch, TO_VICT);
-			Crash_cryosave(ch, cost);
 			sprintf(buf, "%s has cryo-rented.", GET_NAME(ch));
-			SET_BIT(PLR_FLAGS(ch), PLR_CRYO);
+			ch->cryo();
 		}
 
 		mudlog(MAX(LVL_AMBASSADOR, GET_INVIS_LVL(ch)), NRM, true, "%s", buf);
-		act("$n helps $N into $S private chamber.",
-			FALSE, recep, 0, ch, TO_NOTVICT);
-		save_room = ch->in_room;
-		ch->saveToXML();
-		ch->extract(true, false, CXN_MENU);
 	} else {
 		Crash_offer_rent(ch, recep, TRUE, mode);
 		act("$N gives $n an offer.", FALSE, ch, 0, recep, TO_ROOM);
@@ -709,20 +616,4 @@ SPECIAL(cryogenicist)
 		return 0;
 	return (gen_receptionist(ch, (struct Creature *)me, cmd, argument,
 			CRYO_FACTOR));
-}
-
-
-void
-Crash_save_all(void)
-{
-	struct descriptor_data *d;
-	for (d = descriptor_list; d; d = d->next) {
-		if ((IS_PLAYING(d)) && !IS_NPC(d->creature)) {
-			if (PLR_FLAGGED(d->creature, PLR_CRASH)) {
-				Crash_crashsave(d->creature);
-				d->creature->saveToXML();
-				REMOVE_BIT(PLR_FLAGS(d->creature), PLR_CRASH);
-			}
-		}
-	}
 }
