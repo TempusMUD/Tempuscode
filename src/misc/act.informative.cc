@@ -3126,10 +3126,10 @@ ACMD(do_who)
 				!IS_IMMORT(ch) && PRF2_FLAGGED(tch, PRF2_ANONYMOUS))
 			continue;
 
-		if (low != -1 && GET_LEVEL(tch) < MIN(low, 0))
+		if (low != -1 && GET_LEVEL(tch) < MAX(low, 0))
 			continue;
 
-		if (high != -1 && GET_LEVEL(tch) > MAX(high, LVL_GRIMP))
+		if (high != -1 && GET_LEVEL(tch) > MIN(high, LVL_GRIMP))
 			continue;
 
 		if (ch != tch && PRF2_FLAGGED(tch, PRF2_NOWHO) &&
