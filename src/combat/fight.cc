@@ -2070,13 +2070,12 @@ perform_violence( void )
 
 	if ( IS_NPC( ch ) ) {
 	    if ( GET_MOB_WAIT( ch ) > 0 ) {
-			GET_MOB_WAIT( ch ) -= SEG_VIOLENCE;
-	    } else if ( GET_MOB_WAIT( ch ) < SEG_VIOLENCE ) {
-            GET_MOB_WAIT( ch ) = 0;
+			GET_MOB_WAIT( ch ) = MAX( GET_MOB_WAIT( ch) - SEG_VIOLENCE, 0 ) ;
+        } else if ( GET_MOB_WAIT( ch ) == 0 ) {
             if ( ch->getPosition() < POS_FIGHTING 
             && ch->getPosition() > POS_STUNNED ) {
                 if(!IS_AFFECTED_3(ch,AFF3_GRAVITY_WELL) || number(1,20) < GET_STR(ch)) {
-                    ch->setPosition( POS_FIGHTING );
+                    ch->setPosition( POS_FIGHTING, 2 );
                     act( "$n scrambles to $s feet!", TRUE, ch, 0, 0, TO_ROOM );
                 }
                 GET_MOB_WAIT( ch ) += PULSE_VIOLENCE;

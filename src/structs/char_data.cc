@@ -21,15 +21,26 @@ short char_player_data::modifyWeight( short mod_weight ) {
 // Get returns current pos
 // Modes... hrm....
 /*
-1. adjust for damage.
-2. 
+1. from update_pos
+2. from perform violence
 */
 bool char_data::setPosition( int new_pos, int mode=0 ){
     if(new_pos == char_specials.getPosition())
         return false;
     if(new_pos < BOTTOM_POS || new_pos > TOP_POS)
         return false;
-    /*
+        /*
+    // If they're standing up in update_pos, printf the name and the wait.
+    if(mode == 1) {
+            fprintf(stderr,"Update_POS: %s going to pos %d, from pos %d with wait %d\r\n",
+                GET_NAME(this),new_pos, getPosition(),CHECK_WAIT(this));
+    } else if(mode == 2) {
+            fprintf(stderr,"Perform_Violence: %s going to pos %d, from pos %d with wait %d\r\n",
+                GET_NAME(this),new_pos, getPosition(),CHECK_WAIT(this));
+    } else {
+    fprintf(stderr,"Default : %s going to pos %d, from pos %d with wait %d\r\n",
+        GET_NAME(this),new_pos, getPosition(),CHECK_WAIT(this));
+    }
     // If they're goin from sitting or resting to standing or fighting
     // while they have a wait state....
     if (new_pos == POS_STANDING || new_pos == POS_FIGHTING ) 

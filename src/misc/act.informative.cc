@@ -3188,7 +3188,7 @@ ACMD(do_who)
 		    strcpy(c_buf, CCMAG(ch, C_NRM));
 		    break;
 		case CLASS_PHYSIC:
-		    strcpy(c_buf, CCBLU_BLD(ch, C_NRM));
+		    strcpy(c_buf, CCNRM_BLD(ch, C_NRM));
 		    break;
 		case CLASS_HOOD:
 		    strcpy(c_buf, CCRED(ch, C_NRM));

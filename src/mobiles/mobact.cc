@@ -298,25 +298,25 @@ void burn_update(void) {
         ch->getPosition() < POS_FLYING && GET_LEVEL(ch) < LVL_AMBASSADOR) {
         if ( ( random_number_zero_low( 3 + (af->level >> 2)) + 3 )  > GET_DEX(ch) && 
          (obj = ch->carrying)) {
-        while (obj) {
-            if (CAN_SEE_OBJ(ch, obj) && !IS_OBJ_STAT(obj, ITEM_NODROP))
-            break;
-            obj = obj->next_content;
-        }
-        if (obj) {
-            send_to_char("Your muscles are seized in an uncontrollable spasm!\r\n", ch);
-            act("$n begins spasming uncontrollably.",
-            TRUE, ch, 0, 0, TO_ROOM);
-            do_drop(ch, fname(obj->name), 0, SCMD_DROP);
-        }
+            while (obj) {
+                if (CAN_SEE_OBJ(ch, obj) && !IS_OBJ_STAT(obj, ITEM_NODROP))
+                    break;
+                obj = obj->next_content;
+            }
+            if (obj) {
+                send_to_char("Your muscles are seized in an uncontrollable spasm!\r\n", ch);
+                act("$n begins spasming uncontrollably.",
+                TRUE, ch, 0, 0, TO_ROOM);
+                do_drop(ch, fname(obj->name), 0, SCMD_DROP);
+            }
         }
         if (!obj && random_number_zero_low( 12 + (af->level >> 2) ) > GET_DEX(ch) && 
         ch->getPosition() > POS_SITTING) {
-        send_to_char("Your muscles are seized in an uncontrollable spasm!\r\n"
-                 "You fall to the ground in agony!\r\n", ch);
-        act("$n begins spasming uncontrollably and falls to the ground.",
-            TRUE, ch, 0, 0, TO_ROOM);
-        ch->setPosition(POS_RESTING);
+            send_to_char("Your muscles are seized in an uncontrollable spasm!\r\n"
+                     "You fall to the ground in agony!\r\n", ch);
+            act("$n begins spasming uncontrollably and falls to the ground.",
+                TRUE, ch, 0, 0, TO_ROOM);
+            ch->setPosition(POS_RESTING);
         }
         WAIT_STATE(ch, 4);
     }
