@@ -6243,16 +6243,23 @@ ACMD(do_set)
             stop_snooping(vict->desc->snoop_by->creature);
         }
         break;
-    case 53:
+    case 53: {
+        struct clan_data *clan = real_clan(GET_CLAN(ch));
+
         if (is_number(argument) && !atoi(argument)) {
+            if (clan && (clan->owner == GET_IDNUM(ch)))
+                clan->owner = 0;
             GET_CLAN(vict) = 0;
             send_to_char(ch, "Clan set to none.\r\n");
         } else if (!clan_by_name(argument)) {
             send_to_char(ch, "There is no such clan.\r\n");
             return;
         } else
+            if (clan && (clan->owner == GET_IDNUM(ch)))
+                clan->owner = 0;
             GET_CLAN(vict) = clan_by_name(argument)->number;
         break;
+    }
     case 54:
         SET_OR_REMOVE(PLR_FLAGS(vict), PLR_CLAN_LEADER);
         break;

@@ -386,8 +386,13 @@ Account::delete_char(Creature *ch)
 	clan = real_clan(GET_CLAN(ch));
 	if (clan) {
 		struct clanmember_data *member, *temp;
-		
+
 		member = real_clanmember(GET_IDNUM(ch), clan);
+        if (clan->owner == GET_IDNUM(ch)) {
+            clan->owner = 0;
+            sql_exec("update clans set owner=null where idnum=%d",
+                     clan->number);
+        }
 		if (member) {
 			REMOVE_FROM_LIST(member, clan->member_list, next);
 			sql_exec("delete from clan_members where player=%ld",
