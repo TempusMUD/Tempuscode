@@ -19,11 +19,12 @@ SPECIAL(fountain_restore)
 		return 0;
 
 	skip_spaces(&argument);
+	char *arg = tmp_getword( &argument );
 
-	if (!*argument)
+	if (!*arg)
 		return 0;
 
-	if (!isname(argument, fountain->aliases))
+	if (!isname(arg, fountain->aliases))
 		return 0;
 	
 	if( GET_OBJ_VAL(fountain,1) == 0 ) {
@@ -31,7 +32,7 @@ SPECIAL(fountain_restore)
 		return 1;
 	}
 
-	do_drink(ch, argument, 0, SCMD_DRINK, 0);
+	do_drink(ch, arg, 0, SCMD_DRINK, 0);
 	if (GET_HIT(ch) < GET_MAX_HIT(ch)) {
 		send_to_char(ch, "It tastes amazingly refreshing!\r\n");
 		GET_HIT(ch) = GET_MAX_HIT(ch);
