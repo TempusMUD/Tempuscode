@@ -1989,6 +1989,9 @@ ACMD(do_stand)
 	case POS_FIGHTING:
 		act("You are already standing.", FALSE, ch, 0, 0, TO_CHAR);
 		break;
+	case POS_MOUNTED:
+		act("You should dismount first.", false, ch, 0, 0, TO_CHAR);
+		break;
 	case POS_FLYING:
 		if (IS_RACE(ch, RACE_GASEOUS)) {
 			send_to_char(ch, "You don't have legs.\r\n");
@@ -2153,7 +2156,7 @@ ACMD(do_sit)
 			TO_CHAR);
 		break;
 	case POS_MOUNTED:
-		act("You are already sitting on $N.", false, ch, 0, MOUNTED(ch), TO_CHAR);
+		act("You are already seated on $N.", false, ch, 0, MOUNTED(ch), TO_CHAR);
 		break;
 	default:
 		act("You stop floating around, and sit down.", FALSE, ch, 0, 0,
