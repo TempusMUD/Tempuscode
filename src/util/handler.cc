@@ -689,7 +689,7 @@ affect_remove(struct char_data * ch, struct affected_type * af)
 
     if (!ch->affected) {
         slog("SYSERR: !ch->affected in affect_remove()");
-        return;
+        return 0;
     }
 
     if (af->type == SPELL_QUAD_DAMAGE && ch->in_room &&
@@ -708,12 +708,11 @@ affect_remove(struct char_data * ch, struct affected_type * af)
     if(is_instant && duration == 0 &&  ch->in_room) {
         switch(type) {
             case SKILL_HOLY_TOUCH:
-                if(affected_by_spell(ch,SKILL_HOLY_TOUCH))
-                    fprintf(stderr,"holytouch not removed\r\n");
                 return holytouch_after_effect(ch,level);
                 break;
         }
     }
+    return 0;
 }
 
 

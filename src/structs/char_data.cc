@@ -19,22 +19,16 @@ short char_player_data::modifyWeight( short mod_weight ) {
 
 /**
    Compute level bonus factor.
-   Do NOT pass true for "use_remort" if gen == 0
-   Do NOT pass a gen < 0
-
    Currently, a gen 4 level 49 secondary should equate to level 49 mort primary.
    
-   params: use_remort - Add in remort gen to factor?
-            primary - Add in remort gen as a primary?
-   return: a number from 1-100 based on level and params.
-           (!use_remort for a level 49 returns 100)
-           (use_remort + primary for level 49 gen 10 returns 100)
+   params: primary - Add in remort gen as a primary?
+   return: a number from 1-100 based on level and primary/secondary)
 */
-int char_data::getLevelBonus ( bool use_remort, bool primary ) {
+int char_data::getLevelBonus ( bool primary ) {
     int bonus = MIN(50,player.level + 1);
 
-    if(! use_remort ) {// Without remort calc, simply use the mort calc in its' place.
-        return 2 * bonus;
+    if(player_specials->saved.remort_generation == 0) {
+        return bonus;
     } else {
         if(primary) { // Primary. Give full remort bonus per gen.
             return bonus + (MIN(player_specials->saved.remort_generation,10)) * 5;
@@ -56,6 +50,7 @@ int char_data::getLevelBonus( int skill ) {
     short gen = player_specials->saved.remort_generation; // Player generation
     short pLevel = spell_info[skill].min_level[pclass]; // Level primary class gets "skill"
     short sLevel;
+    bool primary;
     short spell_gen = spell_info[skill].gen[pclass]; // gen primary class gets "skill"
     // Note: If a class doesn't get a skill, the SPELL_LEVEL for that skill is 50.
     //       To compensate for this, level 50+ get the full bonus of 100.
@@ -66,28 +61,27 @@ int char_data::getLevelBonus( int skill ) {
     if(skill > TOP_SPELL_DEFINE || skill < 0) return 1; 
 
     // Level secondary class gets "skill"
-    if(sclass > 0) sLevel = spell_info[skill].min_level[sclass]; 
-    else sLevel = 50; // If the secondary class is UNDEFINED (-1) 
+    if(sclass > 0) // mod'd by NUM_CLASSES to avoid overflow
+        sLevel = spell_info[skill].min_level[sclass]; 
+    else 
+        sLevel = 50; // If the secondary class is UNDEFINED (-1) 
                       // set sLevel to 50 to avoid array underflow
 
-    // If you dont get it, you dont get jack
-    // (The following is an optimized ABLE_TO_LEARN)
-    if(!(gen >= spell_gen && player.level >= sLevel ) || \
-    (sclass >= 0 && player.level >= sLevel && spell_info[skill].gen[sclass] == 0)) {
-    //if(!ABLE_TO_LEARN(skill,this)) 
-        return (getLevelBonus(false,false))/4;
-    }
+    // is is primary or secondary
+    // if neither, *SPLAT*
+    if(pLevel < 50) // primary < 50
+        primary = true;
+    else if( sLevel < 50) // secondary < 50
+        primary = false;
+    else                 // Dont get the skill at all
+        return (getLevelBonus(false))/2;
 
-    if(player_specials->saved.remort_generation == 0)  { // Mortal. Normal bonus.
-        return getLevelBonus(false,false);
-    } else { // Remort, check primary vs secondary
-        // Primary Skill.
-        if( pLevel < sLevel) {
-            return getLevelBonus(true,true);
-        } else { // Secondary Skill
-            return getLevelBonus(true,false);
-        }
-    }
+    // if its a primary skill and you're too low a gen
+    // or its a remort skill of your secondary class
+    if(primary && gen < spell_gen || spell_info[skill].gen[sclass] > 0)
+        return (getLevelBonus(false))/2;
+
+    return getLevelBonus(primary);
     return 1; // This should never happen, but just in case.
 }
 

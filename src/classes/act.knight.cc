@@ -92,12 +92,8 @@ holytouch_after_effect(char_data *vict,int level ) {
 
 
 
-    if(damage( vict, vict, dam, TYPE_MALOVENT_HOLYTOUCH,WEAR_EYES)) {
-        fprintf(stderr,"Vict killed himself gouging\r\n");
+    if(damage( vict, vict, dam, TYPE_MALOVENT_HOLYTOUCH,WEAR_EYES)) 
         return 1;
-    } else {
-        fprintf(stderr,"Vict survived gouging\r\n");
-    }
     if (!IS_NPC(vict) || !MOB_FLAGGED(vict, MOB_NOBLIND)) {
         af.type = TYPE_MALOVENT_HOLYTOUCH;
         af.duration = level/10;

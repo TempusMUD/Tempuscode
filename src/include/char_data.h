@@ -937,7 +937,7 @@ struct char_data {
     }
 
     int char_data::getLevelBonus( int skill );
-    int char_data::getLevelBonus ( bool use_remort, bool primary );
+    int char_data::getLevelBonus (bool primary );
 
     int pfilepos;             /* playerfile pos          */
     struct room_data *in_room;            /* Location (real room number)      */

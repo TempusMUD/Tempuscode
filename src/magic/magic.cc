@@ -280,6 +280,7 @@ update_iaffects(char_data *ch) {
             af = ch->affected;
         }
     }
+    return 0;
 }
 
 /* affect_update: called from comm.c (causes spells to wear off) */
