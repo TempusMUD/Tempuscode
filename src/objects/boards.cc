@@ -54,6 +54,7 @@ gen_board_show(Creature *ch)
 	count = PQntuples(res);
 	if (count == 0) {
 		send_to_char(ch, "There are no messages on any board.\r\n");
+		PQclear(res);
 		return;
 	}
 
@@ -354,6 +355,10 @@ SPECIAL(gen_board)
 	if ((CMD_IS("read") || CMD_IS("look") || CMD_IS("examine"))
 			&& !isnumber(argument)
 			&& !isname(argument, self->aliases))
+		return 0;
+
+	// We only handle remove command if it's referring to a message
+	if (CMD_IS("remove") && !isnumber(argument))
 		return 0;
 	
 	// If they can't see the board, they can't use it at all
