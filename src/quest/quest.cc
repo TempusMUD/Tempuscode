@@ -114,6 +114,7 @@ const char *quest_bits[] = {
 	"NOLEAVE",
 	"HIDE",
 	"WHOWHERE",
+	"ARENA",
 	"\n"
 };
 
@@ -125,6 +126,7 @@ const char *quest_bit_descs[] = {
 	"Players may not leave this quest.",
 	"Players cannot see this quest until this flag is removed.",
 	"\'quest who\' will show the locations of other questers.",
+	"Players will only die arena deaths.",
 	"\n"	
 };
 

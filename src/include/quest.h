@@ -21,6 +21,7 @@ using namespace std;
 #define QUEST_NOLEAVE   (1 << 4)	// no-one here gets out alive
 #define QUEST_HIDE      (1 << 5)	// make quest invisible to mortals
 #define QUEST_WHOWHERE  (1 << 6)	// quest who shows where players are
+#define QUEST_ARENA     (1 << 7)	// questors only have arena deaths
 
 #define QP_IGNORE       (1 << 0)	// ignore quest comm
 #define QP_MUTE         (1 << 1)	// cannot send to quest
