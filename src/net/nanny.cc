@@ -107,6 +107,8 @@ handle_input(struct descriptor_data *d)
 	// we need a prompt here
 	d->need_prompt = true;
 	d->wait = 1;
+	d->idle = 0;
+	d->creature->char_specials.timer = 0;
 
 	if (d->text_editor) {
 		d->text_editor->Process(arg);
