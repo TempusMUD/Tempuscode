@@ -295,7 +295,7 @@ SPECIAL(remorter)
 			// Save the char and its implants but not its eq
 			save_char(ch, NULL);
 			Crash_save_implants(ch);
-			ch->extract(false, false, CON_QCLASS_REMORT);
+			ch->extract(true, false, CON_QCLASS_REMORT);
 
 			return 1;
 		}
