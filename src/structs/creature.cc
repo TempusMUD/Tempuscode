@@ -18,7 +18,7 @@
 #include "fight.h"
 
 int set_desc_state(int state, struct descriptor_data *d);
-
+void Crash_extract_norents(struct obj_data *obj);
 extern struct descriptor_data *descriptor_list;
 
 bool
@@ -446,6 +446,20 @@ Creature::getPosition(void)
 {
 	return char_specials.getPosition();
 }
+
+/**
+ * Extracts all unrentable objects worn on or carried by this creature.
+**/
+void
+Creature::extractUnrentables()
+{
+    for (int j = 0; j < NUM_WEARS; j++)
+		if (GET_EQ(this, j))
+			Crash_extract_norents(GET_EQ(this, j));
+
+	Crash_extract_norents(carrying);
+}
+
 
 /**
  * Extract a ch completely from the world, and leave his stuff behind

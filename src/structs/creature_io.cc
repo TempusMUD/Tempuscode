@@ -15,16 +15,150 @@
 #include "comm.h"
 #include "creature.h"
 #include "char_class.h"
+#include "handler.h"
+
 
 
 void obj_to_room(struct obj_data *object, struct room_data *room);
 void add_alias(struct Creature *ch, struct alias_data *a);
 void affect_to_char(struct Creature *ch, struct affected_type *af);
+void extract_object_list(obj_data * head);
+void Crash_calculate_rent(struct obj_data *obj, int *cost);
 
-void
-Creature::saveObjects() 
+// Saves the given characters equipment to a file. Intended for use while 
+// the character is still in the game. 
+bool
+Creature::crashSave()
 {
-	// Save vital statistics
+    rent_info rent;
+    rent.rentcode = RENT_CRASH;
+	rent.time = time(0);
+	rent.currency = in_room->zone->time_frame;
+
+    if(! saveObjects(rent) ) {
+        return false;
+    }
+
+    REMOVE_BIT(PLR_FLAGS(this), PLR_CRASH);
+    //saveToXML(); // This should probably be here.
+    return true;
+}
+
+bool
+Creature::rentSave(int cost, int rentcode)//= RENT_RENTED
+{
+    rent_info rent;
+
+    rent.net_cost_per_diem = cost;
+	rent.rentcode = rentcode;
+	rent.time = time(0);
+	rent.gold = GET_GOLD(this);
+	rent.account = GET_BANK_GOLD(this);
+	rent.currency = in_room->zone->time_frame;
+
+    extractUnrentables();
+
+    if(! saveObjects(rent) ) {
+        return false;
+    }
+    
+    // THIS SHOULD NOT BE HERE. 
+    // Extract should be called properly instead.
+    // Left here temporarily to get the xml code working first. --jr 6-30-02
+    for (int j = 0; j < NUM_WEARS; j++) {
+		if( GET_EQ(this, j) )
+            extract_object_list(GET_EQ(this, j));
+        if( GET_IMPLANT(this, j) )
+            extract_object_list(GET_IMPLANT(this, j));
+    }
+
+    extract_object_list(carrying);
+
+    return true;
+}
+
+bool
+Creature::idleSave()
+{
+    int cost = 0;
+	if (GET_LEVEL(this) < LVL_AMBASSADOR) {
+		Crash_calculate_rent(carrying, &cost);
+	}
+	// INCREASE
+	return rentSave( (cost * 3), RENT_FORCED );
+}
+
+// Drops all !cursed eq to the floor, breaking implants, then calls rentSave(0)
+// Used for 'quit yes'
+bool
+Creature::curseSave()
+{
+    for (int j = 0; j < NUM_WEARS; j++) {
+		if (GET_EQ(this, j)) {
+			if (IS_OBJ_STAT(GET_EQ(this, j), ITEM_NODROP) ||
+				IS_OBJ_STAT2(GET_EQ(this, j), ITEM2_NOREMOVE)) {
+
+				// the item is cursed, but its contents cannot be (normally)
+				while (GET_EQ(this, j)->contains)
+					extract_object_list(GET_EQ(this, j)->contains);
+			}
+		}
+		if (GET_IMPLANT(this, j)) {
+			// Break implants and put them on the floor
+			obj_data *obj = unequip_char(this, j, MODE_IMPLANT);
+			GET_OBJ_DAM(obj) = GET_OBJ_MAX_DAM(obj) >> 3 - 1;
+			SET_BIT(GET_OBJ_EXTRA2(obj), ITEM2_BROKEN);
+			obj_to_room(obj, in_room);
+		}
+
+	}
+    obj_data* obj;
+    obj_data* next_obj;
+	for( obj = carrying; obj; obj = next_obj ) {
+		next_obj = obj->next_content;
+		if (IS_OBJ_STAT(obj, ITEM_NODROP)) {
+			// the item is cursed, but its contents cannot be (normally)
+			while (obj->contains)
+				extract_object_list(obj->contains);
+		}
+	}
+
+
+    if(! rentSave( 0 ) )
+        return false;
+    
+    REMOVE_BIT(PLR_FLAGS(this), PLR_CRASH);
+    return true;
+}
+
+bool
+Creature::cryoSave(int cost)
+{
+    
+    if (in_room->zone->time_frame == TIME_ELECTRO)
+		GET_CASH(this) = MAX(0, GET_CASH(this) - cost);
+	else
+		GET_GOLD(this) = MAX(0, GET_GOLD(this) - cost);
+
+    rent_info rent;
+    rent.rentcode = RENT_CRYO;
+	rent.time = time(0);
+	rent.gold = GET_GOLD(this);
+	rent.account = GET_BANK_GOLD(this);
+	rent.net_cost_per_diem = 0;
+	rent.currency = in_room->zone->time_frame;
+    extractUnrentables();
+
+    if(! saveObjects(rent) )
+        return false;
+
+	SET_BIT(PLR_FLAGS(this), PLR_CRYO);
+    return true;
+}
+
+bool
+Creature::saveObjects( const rent_info &rent ) 
+{
 	FILE *ouf;
 	char *path;
 	int idx;
@@ -35,9 +169,9 @@ Creature::saveObjects()
 	if(!ouf) {
 		fprintf(stderr, "Unable to open XML equipment file for save.[%s] (%s)\n",
 			path, strerror(errno) );
-		return;
+		return false;
 	}
-
+    rent.saveToXML( ouf );
 	fprintf( ouf, "<objects>\n" );
 	// Save the inventory
 	for( obj_data *obj = carrying; obj != NULL; obj = obj->next_content ) {
@@ -52,6 +186,7 @@ Creature::saveObjects()
 	}
 	fprintf( ouf, "</objects>\n" );
 	fclose(ouf);
+    return true;
 }
 
 bool
@@ -485,8 +620,14 @@ Creature::loadFromXML( long id )
 			POOFOUT(this) = (char*)xmlNodeGetContent( node );
         } else if ( xmlMatches(node->name, "immort") ) {
 			player_specials->saved.occupation = xmlGetIntProp(node,"badge");
+        } else if ( xmlMatches(node->name, "lastlogin") ) {
+            player.time.logon = xmlGetIntProp(node, "time");
+            if( desc != NULL ) {
+                char *host = xmlGetProp(node,"host");
+                strcpy( desc->host, host );
+                free(host);
+            }
         }
-
     }
 
     xmlFreeDoc(doc);

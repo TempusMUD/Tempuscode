@@ -513,7 +513,6 @@ gain_condition(struct Creature *ch, int condition, int value)
 int
 check_idling(struct Creature *ch)
 {
-	void Crash_rentsave(struct Creature *ch, int cost);
 	void set_desc_state(int state, struct descriptor_data *d);
 
 	if (++(ch->char_specials.timer) > 1 && ch->desc)

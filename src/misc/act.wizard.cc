@@ -7570,8 +7570,8 @@ ACMD(do_coderutil)
 		build_player_table();
 		send_to_char(ch, "Reloaded.\r\n");
 	} else if( strcmp( token, "osave" )  == 0 ) {
-		ch->saveObjects();
-		send_to_char(ch, "Saved.\r\n");
+		//ch->saveObjects();
+		send_to_char(ch, "Removed.\r\n");
 	} else if( strcmp( token, "oload" )  == 0 ) {
 		ch->loadObjects();
 		send_to_char(ch, "Loaded.\r\n");

@@ -103,6 +103,8 @@ get_worn_type( obj_data *obj )
 	} 
 	return "unknown";
 }
+
+
 void
 obj_data::saveToXML(FILE *ouf)
 {
@@ -111,39 +113,42 @@ obj_data::saveToXML(FILE *ouf)
 			indent.c_str(), shared->vnum );
 	indent += "\t";
 
-	if( shared->proto != NULL ) 
-	{
-		obj_data *proto = shared->proto;
-		if( short_description != NULL &&
-		( proto->short_description == NULL ||
-		  strcmp( short_description, proto->short_description ) ) ) 
-		{
-			fprintf( ouf, "%s<short_desc>%s</short_desc>\n",
-					indent.c_str(), xmlEncodeTmp(short_description) );
-		}
+    obj_data *proto = shared->proto;
 
-		if( name != NULL &&
-		( shared->proto->name == NULL || strcmp( name, proto->name ) ) ) {
-			fprintf( ouf, "%s<name>%s</name>\n",
-					indent.c_str(), xmlEncodeTmp(name) );
-		}
 
-		if( description != NULL &&
-		( proto->description == NULL ||
-		  strcmp( description, proto->description ) ) ) 
-		{
-			fprintf( ouf, "%s<long_desc>%s</long_desc>\n",
-					 indent.c_str(),  xmlEncodeTmp(description) );
-		}
+    char *s = short_description;
+    if( s != NULL && 
+        ( proto == NULL || 
+          proto->short_description == NULL || 
+          strcmp(s, proto->short_description) ) )
+    {
+        fprintf( ouf, "%s<short_desc>%s</short_desc>\n",
+                 indent.c_str(), xmlEncodeTmp(s) );
+    }
 
-		if( action_description != NULL &&
-		( proto->action_description == NULL ||
-		  strcmp( action_description, proto->action_description ) ) ) 
-		{
-			fprintf( ouf, "%s<action_desc>%s</action_desc>\n",
-					  indent.c_str(), xmlEncodeTmp(action_description));
-		}
-	}
+    s = name;
+    if( s != NULL && 
+        ( proto == NULL ||   proto->name == NULL ||  strcmp(s, proto->name) ) )
+    {
+        fprintf( ouf, "%s<name>%s</name>\n",  indent.c_str(), xmlEncodeTmp(s) );
+    }
+
+    s = description;
+    if( s != NULL && 
+        ( proto == NULL ||   proto->description == NULL ||  strcmp(s, proto->description) ) )
+    {
+        fprintf( ouf, "%s<long_desc>%s</long_desc>\n", indent.c_str(),  xmlEncodeTmp(s) );
+    }
+
+
+    s = action_description;
+    if( s != NULL && 
+        ( proto == NULL || proto->action_description == NULL || 
+          strcmp(s, proto->action_description) ) )
+    {
+        fprintf( ouf, "%s<action_desc>%s</action_desc>\n", indent.c_str(), xmlEncodeTmp(s));
+    }
+
 
 	fprintf( ouf, "%s<points type=\"%d\" soilage=\"%d\" weight=\"%d\" material=\"%d\" timer=\"%d\"/>\n",
 			  indent.c_str(), obj_flags.type_flag, soilage, 
@@ -174,8 +179,8 @@ obj_data::saveToXML(FILE *ouf)
 		obj->saveToXML(ouf);
 	}
 	indent.erase(indent.size() - 1);
-	// Intentionally done last since reading this property causes the eq to be
-	// worn.
+	// Intentionally done last since reading this property in loadFromXML 
+    // causes the eq to be worn on the character.
 	fprintf( ouf, "%s<worn possible=\"%x\" pos=\"%d\" type=\"%s\"/>\n", 
 			 indent.c_str(), obj_flags.wear_flags, worn_on, get_worn_type(this) );
 

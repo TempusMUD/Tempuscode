@@ -41,7 +41,7 @@
 #include <iostream>
 
 extern int corpse_state;
-
+void Crash_rentsave(struct Creature *ch, int cost, int rentcode);
 /* The Fight related routines */
 obj_data *get_random_uncovered_implant(Creature * ch, int type = -1);
 int calculate_weapon_probability(struct Creature *ch, int prob,

@@ -3249,6 +3249,10 @@ read_alias(struct Creature *ch)
 void
 save_char(struct Creature *ch, struct room_data *load_room)
 {
+    if( USE_XML_FILES ) {
+        ch->saveToXML();
+        return;
+    }
 	struct char_file_u st;
 	if (IS_NPC(ch) || !ch->desc || GET_PFILEPOS(ch) < 0)
 		return;
@@ -3283,7 +3287,7 @@ save_char(struct Creature *ch, struct room_data *load_room)
 
 	fseek(player_fl, GET_PFILEPOS(ch) * sizeof(struct char_file_u), SEEK_SET);
 	fwrite(&st, sizeof(struct char_file_u), 1, player_fl);
-    ch->saveToXML();
+    
 }
 
 
@@ -4084,7 +4088,16 @@ init_char(struct Creature *ch)
 	SET_BIT(PRF_FLAGS(ch), PRF_COMPACT | PRF_DISPHP | PRF_DISPMANA | PRF_DISPMOVE | PRF_AUTOEXIT | PRF_NOSPEW);
 	SET_BIT(PRF2_FLAGS(ch), PRF2_AUTO_DIAGNOSE | PRF2_AUTOPROMPT | PRF2_DISPALIGN | PRF2_NEWBIE_HELPER);
 
-	player_table[GET_PFILEPOS(ch)].id = GET_IDNUM(ch) = ++top_idnum;
+	
+    if( USE_XML_FILES ) {
+        playerIndex.add( playerIndex.getTopIDNum()+1, GET_NAME(ch) );
+    } else {
+        if (GET_PFILEPOS(ch) < 0) {
+            GET_PFILEPOS(ch) = create_entry(GET_NAME(ch));
+        }
+        player_table[GET_PFILEPOS(ch)].id = GET_IDNUM(ch) = ++top_idnum;
+    }
+
 
 	for (i = 1; i <= MAX_SKILLS; i++) {
 		if (GET_LEVEL(ch) < LVL_GRIMP) {

@@ -37,6 +37,7 @@
 #include "bomb.h"
 #include "security.h"
 #include "quest.h"
+#include "player_table.h"
 
 extern char *motd;
 extern char *ansi_motd;
@@ -168,36 +169,34 @@ nanny(struct descriptor_data * d, char *arg)
 				SEND_TO_Q( "\r\nReserved name, please try another.\r\n", d);
 				return;
 			}
+            
+            if( USE_XML_FILES ) {
+                if(! playerIndex.exists(tmp_name) ) {
+                    SEND_TO_Q("\r\nThat character does not exist.  Please try another.\r\n", d);
+                    return;
+                } else if( mini_mud ) {
+                    slog("Successfully loaded %s from XML player file.", tmp_name );
+                }
+                if(! playerIndex.loadPlayer( tmp_name, d->character ) ) {
+                    slog("Error loading character: '%s'", tmp_name );
+                    SEND_TO_Q( "\r\nUnable to load character. please try another.\r\n", d);
+                    return;
+                }
+                d->old_login_time = d->character->player.time.logon;
+            } else {
+                player_i = load_char(tmp_name, &tmp_store);
+                if (player_i == -1 || tmp_store.char_specials_saved.act & PLR_DELETED) {
+                    SEND_TO_Q("\r\nThat character does not exist.  Please try another.\r\n", d);
+                    return;
+                }
+                store_to_char(&tmp_store, d->character);
+                GET_PFILEPOS(d->character) = player_i;
+                // set this up for the dyntext check
+                d->old_login_time = tmp_store.last_logon;
+            }
 
-			player_i = load_char(tmp_name, &tmp_store);
-			if (player_i == -1 || tmp_store.char_specials_saved.act & PLR_DELETED) {
-				SEND_TO_Q("\r\nThat character does not exist.  Please try another.\r\n", d);
-				return;
-			}
 
-			store_to_char(&tmp_store, d->character);
-			// set this up for the dyntext check
-			d->old_login_time = tmp_store.last_logon;
-
-			GET_PFILEPOS(d->character) = player_i;
-
-			/* Obsolete------------------------------------
-			if (PLR_FLAGGED(d->character, PLR_DELETED)) 
-				free_char(d->character);
-				CREATE(d->character, struct Creature, 1);
-				clear_char(d->character);
-				CREATE(d->character->player_specials, struct player_special_data, 1);
-				d->character->desc = d;
-				CREATE(d->character->player.name, char, strlen(tmp_name) + 1);
-				strcpy(d->character->player.name, CAP(tmp_name));
-				GET_PFILEPOS(d->character) = player_i;
-				GET_WAS_IN(d->character) = NULL;
-				Crash_delete_file(GET_NAME(d->character), CRASH_FILE);
-				Crash_delete_file(GET_NAME(d->character), IMPLANT_FILE);
-
-				set_desc_state( CON_NAME_CNFRM,d );
-			----------------------------------------------*/
-				// undo it just in case they are set
+			// undo it just in case they are set
 			REMOVE_BIT(PLR_FLAGS(d->character),
 					   PLR_WRITING | PLR_MAILING | PLR_OLC |
 					   PLR_QUESTOR);
@@ -784,8 +783,6 @@ nanny(struct descriptor_data * d, char *arg)
 				GET_HOME(d->character) = HOME_NEWBIE_SCHOOL;
 				population_record[HOME_NEWBIE_SCHOOL]++;
 
-				if (GET_PFILEPOS(d->character) < 0)
-					GET_PFILEPOS(d->character) = create_entry(GET_NAME(d->character));
 				init_char(d->character);
 				save_char(d->character, NULL);
 				set_desc_state( CON_EXDESC,d );

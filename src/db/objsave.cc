@@ -728,6 +728,10 @@ Crash_save_implants(struct Creature *ch, bool extract = true)
 void
 Crash_crashsave(struct Creature *ch)
 {
+    if( USE_XML_FILES ) {
+        ch->crashSave();
+        return;
+    }
 	char buf[MAX_INPUT_LENGTH];
 	struct rent_info rent;
 	int j;
@@ -778,6 +782,12 @@ Crash_crashsave(struct Creature *ch)
 void
 Crash_rentsave(struct Creature *ch, int cost, int rentcode)
 {
+
+    if( USE_XML_FILES ) {
+        ch->rentSave(cost,rentcode);
+        return;
+    }
+
 	char buf[MAX_INPUT_LENGTH];
 	struct rent_info rent;
 	int j;
@@ -818,12 +828,16 @@ Crash_rentsave(struct Creature *ch, int cost, int rentcode)
 
 	fclose(fp);
 
-	Crash_save_implants(ch);
+	Crash_save_implants(ch, true);
 }
 
 void
 Crash_idlesave(struct Creature *ch)
 {
+    if( USE_XML_FILES ) {
+        ch->idleSave();
+        return;
+    }
 	int cost = 0;
 	Crash_calculate_rent(ch->carrying, &cost);
 	if (GET_LEVEL(ch) >= LVL_AMBASSADOR) {
@@ -840,6 +854,10 @@ Crash_idlesave(struct Creature *ch)
 void
 Crash_cursesave(struct Creature *ch)
 {
+    if( USE_XML_FILES ) {
+        ch->curseSave();
+        return;
+    }
 	char buf[MAX_INPUT_LENGTH];
 	struct rent_info rent;
 	int j;
@@ -916,6 +934,11 @@ Crash_cursesave(struct Creature *ch)
 void
 Crash_cryosave(struct Creature *ch, int cost)
 {
+
+    if( USE_XML_FILES ) {
+        ch->cryoSave(cost);
+        return;
+    }
 	char buf[MAX_INPUT_LENGTH];
 	struct rent_info rent;
 	int j;

@@ -13,6 +13,14 @@
 
 /* char and mob-related defines *****************************************/
 
+/* Rent codes */
+static const int RENT_UNDEF     = 0;
+static const int RENT_CRASH     = 1;
+static const int RENT_RENTED    = 2;
+static const int RENT_CRYO      = 3;
+static const int RENT_FORCED    = 4;
+static const int RENT_TIMEDOUT  = 5;
+
 
 /* PC char_classes */
 static const int CLASS_HELP = -2;
@@ -998,11 +1006,25 @@ struct Creature {
 	void setFighting(Creature * ch);
 	void extract(bool destroy_objs, bool save, int con_state);
 	void clearMemory();
+    
     bool loadFromXML( long id );
     void saveToXML();
-	void saveObjects();
+
 	bool loadObjects();
     room_data *getLoadroom(); // Retrieves the characters appropriate loadroom.
+
+    // Saves the given characters equipment to a file. Intended for use while 
+    // the character is still in the game. 
+    bool crashSave();
+    bool rentSave(int cost, int rentcode=RENT_RENTED);
+    bool idleSave();
+    // Drops all !cursed eq to the floor, breaking implants, then calls rentSave(0)
+    bool curseSave();
+    bool cryoSave(int cost);
+  private:
+    bool saveObjects( const struct rent_info &rent );
+    /** Extracts all unrentable objects carried or worn by this creature **/
+    void extractUnrentables();
   public:						// ******  Data ****
 	int pfilepos;				/* playerfile pos          */
 	struct room_data *in_room;	/* Location (real room number)      */
