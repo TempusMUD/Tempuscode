@@ -1007,7 +1007,7 @@ ACMD(do_kill)
 {
     struct char_data *vict;
 
-    if ((GET_LEVEL(ch) < LVL_IMPL) || subcmd != SCMD_SLAY || IS_NPC(ch)) {
+    if ((GET_LEVEL(ch) < LVL_CREATOR) || subcmd != SCMD_SLAY || IS_NPC(ch)) {
         do_hit(ch, argument, cmd, subcmd);
         return;
     }
