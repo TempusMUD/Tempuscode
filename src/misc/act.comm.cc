@@ -967,7 +967,7 @@ ACMD(do_gen_comm)
 			continue;
 
 		// Must be in same clan or an admin to hear clansay
-		if (subcmd == SCMD_CLANSAY &&
+		if ((subcmd == SCMD_CLANSAY || subcmd == SCMD_CLANEMOTE) &&
 				GET_CLAN(i->creature) != eff_clan &&
 				!Security::isMember(i->creature, "AdminBasic"))
 			continue;
