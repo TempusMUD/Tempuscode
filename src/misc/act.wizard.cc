@@ -819,7 +819,7 @@ do_stat_zone(struct Creature *ch, struct zone_data *zone)
 	struct room_data *rm = NULL;
 	struct special_search_data *srch = NULL;
 	int numm = 0, numo = 0, nump = 0, numr = 0, nums = 0, av_lev = 0,
-		numm_proto = 0, numo_proto = 0, av_lev_proto = 0;
+		numm_proto = 0, numo_proto = 0, av_lev_proto = 0, numur = 0;
 
 	send_to_char(ch, "Zone name: %s%s%s   #%s%d%s\r\n",
 		CCCYN(ch, C_NRM), zone->name, CCNRM(ch, C_NRM),
@@ -892,15 +892,19 @@ do_stat_zone(struct Creature *ch, struct zone_data *zone)
 			plr->character->in_room->zone == zone)
 			nump++;
 
-	for (rm = zone->world, numr = 0, nums = 0; rm; numr++, rm = rm->next)
+	for (rm = zone->world, numr = 0, nums = 0; rm; numr++, rm = rm->next) {
+		if (!rm->description)
+			numur++;
 		for (srch = rm->search; srch; nums++, srch = srch->next);
+	}
 
 	send_to_char(ch, "Zone Stats :-\r\n"
 		"  mobs in zone : %-3d, %-3d protos;   objs in zone  : %-3d, %-3d protos;\r\n"
-		"  players in zone: (%3d) %3d   rooms in zone: %-3d   search in zone: %d\r\n"
-		"  usage count: %d,  Avg. Level [%s%d%s]real, [%s%d%s] proto\r\n\r\n",
+		"  players in zone: (%3d) %3d   rooms in zone: %-3d   undescripted rooms: %-3d\r\n"
+		"  search in zone: %d\r\n  usage count: %d\r\n"
+		"  Avg. Level [%s%d%s]real, [%s%d%s] proto\r\n\r\n",
 		numm, numm_proto, numo, numo_proto,
-		zone->num_players, nump, numr, nums, zone->enter_count,
+		zone->num_players, nump, numr, numur, nums, zone->enter_count,
 		CCGRN(ch, C_NRM), av_lev,
 		CCNRM(ch, C_NRM), CCGRN(ch, C_NRM), av_lev_proto, CCNRM(ch, C_NRM));
 }

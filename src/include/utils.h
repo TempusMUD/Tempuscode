@@ -753,8 +753,6 @@ char *CURRENCY(Creature * ch);
 #define IT_THEY(buf)           (PLUR(buf) ? "they" : "it")
 #define IT_THEM(buf)           (PLUR(buf) ? "them" : "it")
 
-/* Various macros building up to CAN_SEE */
-
 #define GET_SKILL(ch, i)        ((ch)->player_specials->saved.skills[i])
 #define KNOCKDOWN_SKILL(i) \
           (i == SPELL_EARTHQUAKE  || i == SPELL_PSYCHIC_SURGE || \
@@ -765,128 +763,8 @@ char *CURRENCY(Creature * ch);
            i == SKILL_HIP_TOSS    || i == SKILL_SHOULDER_THROW)
 
 /*#define SKILL_NIGHT_VISION          605   (in spells.h) */
-#define NIGHT_VIS(ch)         (CHECK_SKILL(ch, 605) >= 70)
 
-#define IS_RACE_INFRA(ch) \
-                ((GET_RACE(ch) == RACE_ELF) ||     \
-                (GET_RACE(ch) == RACE_DROW) ||    \
-                (GET_RACE(ch) == RACE_DWARF) ||    \
-                (GET_RACE(ch) == RACE_HALF_ORC) || \
-                (GET_RACE(ch) == RACE_TABAXI) ||   \
-                (GET_RACE(ch) == RACE_UNDEAD) ||   \
-                (GET_RACE(ch) == RACE_DRAGON) ||   \
-                (GET_RACE(ch) == RACE_ORC) ||      \
-                (GET_RACE(ch) == RACE_OGRE) ||      \
-                (GET_RACE(ch) == RACE_GOBLIN) ||   \
-                (GET_RACE(ch) == RACE_TROLL) ||    \
-                 IS_BUGBEAR(ch) ||           \
-                (GET_CLASS(ch) == CLASS_VAMPIRE && IS_EVIL(ch)))
-
-#define CAN_SEE_IN_DARK(ch) \
-     (AFF_FLAGGED(ch, AFF_INFRAVISION) || PRF_FLAGGED(ch, PRF_HOLYLIGHT) || \
-      AFF_FLAGGED(ch, AFF_RETINA) || \
-      IS_RACE_INFRA(ch) || NIGHT_VIS(ch))
-
-
-#define LIGHT_OK(sub)        ((!IS_AFFECTED(sub, AFF_BLIND) && \
-                          (IS_LIGHT((sub)->in_room) ||  \
-                           CAN_SEE_IN_DARK(sub))) || \
-                         AFF3_FLAGGED(sub, AFF3_SONIC_IMAGERY))
-
-#define LIGHT_OK_ROOM(sub, room) ((!IS_AFFECTED(sub, AFF_BLIND) && \
-                                 (IS_LIGHT(room) ||  \
-                                 CAN_SEE_IN_DARK(sub))) || \
-                                 AFF3_FLAGGED(sub, AFF3_SONIC_IMAGERY))
-
-#define ROOM_OK(sub)    (!sub->in_room ||                   \
-                         !ROOM_FLAGGED(sub->in_room, ROOM_SMOKE_FILLED) || \
-						 AFF3_FLAGGED(sub, AFF3_SONIC_IMAGERY))
-
-inline bool INVIS_OK(Creature * sub, Creature * obj);
-#define MORT_CAN_SEE(sub, obj) (LIGHT_OK(sub) && ROOM_OK(sub) && \
-                                INVIS_OK(sub, obj) &&     \
-                                (!obj->isTester()  || \
-                                 sub->isTester() || \
-                                 IS_NPC(sub)))
-
-#define IMM_CAN_SEE(sub, obj) \
-     (MORT_CAN_SEE(sub, obj) || PRF_FLAGGED(sub, PRF_HOLYLIGHT))
-
-#define SELF(sub, obj)  ((sub) == (obj))
-
-/* Can subject see character "obj"? */
-
-#define CAN_SEE(sub, obj) (SELF(sub, obj) || \
-                           ((GET_LEVEL(sub) >= GET_INVIS_LEV(obj)) && \
-                            IMM_CAN_SEE(sub, obj)))
-
-/* End of CAN_SEE */
-
-#define MOB_UNAPPROVED(ch)       (MOB2_FLAGGED(ch, MOB2_UNAPPROVED))
-
-static inline bool APPROVED_OK_OBJ( Creature *sub, obj_data *obj )  {
-	if(OBJ_APPROVED(obj) )
-		return true;
-	if( sub->getLevel() >= LVL_IMMORT || sub->isTester() )
-		return true;
-	if( MOB_UNAPPROVED(sub) )
-		return true;
-	return false;
-}
-
-#define INVIS_OK_OBJ(sub, obj) \
-     ((((!IS_OBJ_STAT((obj), ITEM_INVISIBLE) ||   \
-         IS_AFFECTED((sub), AFF_DETECT_INVIS)) && \
-        (!IS_OBJ_STAT((obj), ITEM_TRANSPARENT) || \
-         IS_AFFECTED((sub), AFF_DETECT_INVIS))) ||\
-       (PRF_FLAGGED(sub, PRF_HOLYLIGHT) || \
-        IS_AFFECTED_2(sub, AFF2_TRUE_SEEING))) && \
-      APPROVED_OK_OBJ(sub, obj))
-
-
-#define MORT_CAN_SEE_OBJ(sub, obj) (LIGHT_OK(sub) && INVIS_OK_OBJ(sub, obj))
-
-
-#define CAN_SEE_OBJ(sub, obj) \
-   (MORT_CAN_SEE_OBJ(sub, obj) || PRF_FLAGGED((sub), PRF_HOLYLIGHT))
-
-#define CAN_CARRY_OBJ(ch,obj)  \
-   (((IS_CARRYING_W(ch) + obj->getWeight()) <= CAN_CARRY_W(ch)) &&   \
-    ((IS_CARRYING_N(ch) + 1) <= CAN_CARRY_N(ch)))
-
-#define CAN_GET_OBJ(ch, obj)   \
-   ((CAN_WEAR((obj), ITEM_WEAR_TAKE) && CAN_CARRY_OBJ((ch),(obj)) && \
-    CAN_SEE_OBJ((ch),(obj))) || GET_LEVEL(ch) > LVL_CREATOR)
-
-#define CAN_DETECT_DISGUISE(ch, vict, level) \
-                          (PRF_FLAGGED(ch, PRF_HOLYLIGHT) || \
-                           AFF2_FLAGGED(ch, AFF2_TRUE_SEEING) ||\
-                           (GET_INT(ch)+GET_WIS(ch)) > (level+GET_CHA(vict)))
-
-static inline room_direction_data*& EXIT( obj_data *ch, int dir ) {
-	return ch->in_room->dir_option[dir];
-}
-static inline room_direction_data*& EXIT( Creature *ch, int dir ) {
-	return ch->in_room->dir_option[dir];
-}
-static inline room_direction_data*& _2ND_EXIT( Creature *ch, int dir ) {
-	return EXIT(ch,dir)->to_room->dir_option[dir];
-}
-static inline room_direction_data*& _3RD_EXIT( Creature *ch, int dir ) {
-	return _2ND_EXIT(ch,dir)->to_room->dir_option[dir];
-}
-static inline room_direction_data*& ABS_EXIT( room_data *room, int dir ) {
-	return room->dir_option[dir];
-}
-//#define EXIT(ch, door)  ((ch)->in_room->dir_option[(door)])
-//#define _2ND_EXIT(ch, door) (EXIT((ch), (door))->to_room->dir_option[door])
-//#define _3RD_EXIT(ch, door) (_2ND_EXIT((ch),(door))->to_room->dir_option[door])
-
-//#define ABS_EXIT(room, door)  ((room)->dir_option[door])
-
-bool CAN_GO(Creature * ch, int door);
-bool CAN_GO(obj_data * obj, int door);
-
+/* Various macros building up to CAN_SEE */
 
 #define CLASS_ABBR(ch) (char_class_abbrevs[(int)GET_CLASS(ch)])
 #define LEV_ABBR(ch) (IS_NPC(ch) ? "--" : level_abbrevs[(int)GET_LEVEL(ch)-50])
@@ -1009,44 +887,216 @@ bool CAN_GO(obj_data * obj, int door);
 #define OUTSIDE(ch) (!ROOM_FLAGGED((ch)->in_room, ROOM_INDOORS) && \
                                         (ch)->in_room->sector_type != SECT_INSIDE )
 
+#define NIGHT_VIS(ch)         (CHECK_SKILL(ch, 605) >= 70)
+
+#define IS_RACE_INFRA(ch) \
+                ((GET_RACE(ch) == RACE_ELF) ||     \
+                (GET_RACE(ch) == RACE_DROW) ||    \
+                (GET_RACE(ch) == RACE_DWARF) ||    \
+                (GET_RACE(ch) == RACE_HALF_ORC) || \
+                (GET_RACE(ch) == RACE_TABAXI) ||   \
+                (GET_RACE(ch) == RACE_UNDEAD) ||   \
+                (GET_RACE(ch) == RACE_DRAGON) ||   \
+                (GET_RACE(ch) == RACE_ORC) ||      \
+                (GET_RACE(ch) == RACE_OGRE) ||      \
+                (GET_RACE(ch) == RACE_GOBLIN) ||   \
+                (GET_RACE(ch) == RACE_TROLL) ||    \
+                (GET_RACE(ch) == RACE_BUGBEAR)  ||   \
+                (GET_CLASS(ch) == CLASS_VAMPIRE && IS_EVIL(ch)))
+
+#define CAN_SEE_IN_DARK(ch) \
+      (AFF_FLAGGED(ch, AFF_INFRAVISION) || PRF_FLAGGED(ch, PRF_HOLYLIGHT) || \
+       AFF_FLAGGED(ch, AFF_RETINA) || \
+       IS_RACE_INFRA(ch) || NIGHT_VIS(ch))
+
+
+
+#define LIGHT_OK(sub)        ((!IS_AFFECTED(sub, AFF_BLIND) && \
+                          (IS_LIGHT((sub)->in_room) ||  \
+                           CAN_SEE_IN_DARK(sub))) || \
+                         AFF3_FLAGGED(sub, AFF3_SONIC_IMAGERY))
+
+#define LIGHT_OK_ROOM(sub, room) ((!IS_AFFECTED(sub, AFF_BLIND) && \
+                                 (IS_LIGHT(room) ||  \
+                                 CAN_SEE_IN_DARK(sub))) || \
+                                 AFF3_FLAGGED(sub, AFF3_SONIC_IMAGERY))
+
+#define ROOM_OK(sub)    (!sub->in_room ||                   \
+                         !ROOM_FLAGGED(sub->in_room, ROOM_SMOKE_FILLED) || \
+						 AFF3_FLAGGED(sub, AFF3_SONIC_IMAGERY))
+
+inline bool INVIS_OK(Creature * sub, Creature * obj);
+#define MORT_CAN_SEE(sub, obj) (LIGHT_OK(sub) && ROOM_OK(sub) && \
+                                INVIS_OK(sub, obj) &&     \
+								(GET_LEVEL(sub) > LVL_IMMORT  || \
+								!MOB_UNAPPROVED(obj)) && \
+                                (!obj->isTester()  || \
+                                 sub->isTester() || \
+                                 IS_NPC(sub)))
+
+/* End of CAN_SEE */
+
+#define MOB_UNAPPROVED(ch)       (MOB2_FLAGGED(ch, MOB2_UNAPPROVED))
+
+/* Can subject see character "obj"? */
 
 inline bool
-INVIS_OK(Creature * sub, Creature * obj)
+CHAR_CAN_SEE(Creature *ch, room_data *room = NULL)
 {
+	if (!room)
+		room = ch->in_room;
+
+	if (IS_AFFECTED(ch, AFF_BLIND) ||
+			ROOM_FLAGGED(room, ROOM_SMOKE_FILLED)) {
+		if (!AFF3_FLAGGED(ch, AFF3_SONIC_IMAGERY))
+			return false;
+	}
+	if (IS_DARK(room)) {
+		if (!AFF_FLAGGED(ch, AFF_INFRAVISION) &&
+				!AFF_FLAGGED(ch, AFF_RETINA) &&
+				!IS_RACE_INFRA(ch) &&
+				!AFF3_FLAGGED(ch, AFF3_SONIC_IMAGERY) &&
+				CHECK_SKILL(ch, 605) < 70)
+			return false;
+	}
+	return true;
+}
+
+inline bool
+INVIS_OK(Creature *sub, Creature *obj)
+{
+	// Can't see invis'd immortals
+	if (GET_LEVEL(sub) < GET_INVIS_LEV(obj))
+		return false;
+
 	// Holy is the light that shines on the chosen
 	if (PRF_FLAGGED(sub, PRF_HOLYLIGHT))
 		return true;
 
-	// Invis/Transparent
-	if (IS_AFFECTED(obj, AFF_INVISIBLE)
-		|| IS_AFFECTED_2(obj, AFF2_TRANSPARENT)) {
-		if (!IS_AFFECTED(sub, AFF_DETECT_INVIS)
-			&& !IS_AFFECTED_2(sub, AFF2_TRUE_SEEING))
-			return false;
-	}
-	// Invis to Undead
-	if (IS_UNDEAD(sub) && IS_AFFECTED_2(obj, AFF2_INVIS_TO_UNDEAD)) {
-		if (!AFF2_FLAGGED(sub, AFF2_TRUE_SEEING)) {
-			return false;
-		}
-	}
-	// Invis to animals
-	if (IS_ANIMAL(sub) && IS_AFFECTED_2(obj, AFF2_INVIS_TO_ANIMALS)) {
-		if (!AFF_FLAGGED(sub, AFF_DETECT_INVIS)
-			&& !AFF2_FLAGGED(sub, AFF2_TRUE_SEEING))
-			return false;
-	}
-	// Remort invis. 
-	// (mobs don't have it and aren't affected by it.)
-	if (IS_NPC(sub) || IS_NPC(obj))
-		return true;
-	if (GET_LEVEL(sub) >= GET_REMORT_INVIS(obj)
-		|| GET_REMORT_GEN(sub) >= GET_REMORT_GEN(obj))
+	// Remort invis.  (mobs don't have it and aren't affected by it.)
+	if (!IS_NPC(sub) && !IS_NPC(obj) &&
+			GET_LEVEL(sub) < GET_REMORT_INVIS(obj) &&
+			GET_REMORT_GEN(sub) < GET_REMORT_GEN(obj))
+		return false;
+
+	if (IS_AFFECTED_2(sub, AFF2_TRUE_SEEING) ||
+			AFF_FLAGGED(sub, AFF_DETECT_INVIS))
 		return true;
 
-	// If none of this counts for you, you just suck.
+	// Invis/Transparent
+	if (IS_AFFECTED(obj, AFF_INVISIBLE)
+			|| IS_AFFECTED_2(obj, AFF2_TRANSPARENT))
+		return false;
+
+	// Invis to Undead
+	if (IS_UNDEAD(sub) && IS_AFFECTED_2(obj, AFF2_INVIS_TO_UNDEAD))
+		return false;
+
+	// Invis to animals
+	if (IS_ANIMAL(sub) && IS_AFFECTED_2(obj, AFF2_INVIS_TO_ANIMALS));
+		return false;
+
+	return true;
+}
+
+inline bool
+CAN_SEE(Creature *sub, Creature *obj)
+{
+	// Can always see self
+	if (sub == obj)
+		return true;
+
+	// Nothing gets at all gets through immort invis
+	if (GET_LEVEL(sub) < GET_INVIS_LEV(obj))
+		return false;
+
+	// Mortals can't see unapproved mobs
+	if (GET_LEVEL(sub) < LVL_IMMORT && MOB_UNAPPROVED(obj))
+		return false;
+
+	// Non-tester mortals can't see testers
+	if (GET_LEVEL(sub) < LVL_IMMORT && !sub->isTester() && obj->isTester())
+		return false;
+
+	// Holy light sees over all in-game affects
+	if (PRF_FLAGGED(sub, PRF_HOLYLIGHT))
+		return true;
+
+	// Blindness independant of object
+	if (CHAR_CAN_SEE(sub))
+		return false;
+
+	// Object-dependant blindness/invisibility
+	if (INVIS_OK(sub, obj))
+		return false;
+
+	return true;
+}
+
+static inline bool APPROVED_OK_OBJ( Creature *sub, obj_data *obj )  {
+	if(OBJ_APPROVED(obj) )
+		return true;
+	if( sub->getLevel() >= LVL_IMMORT || sub->isTester() )
+		return true;
+	if( MOB_UNAPPROVED(sub) )
+		return true;
 	return false;
 }
+
+#define INVIS_OK_OBJ(sub, obj) \
+     ((((!IS_OBJ_STAT((obj), ITEM_INVISIBLE) ||   \
+         IS_AFFECTED((sub), AFF_DETECT_INVIS)) && \
+        (!IS_OBJ_STAT((obj), ITEM_TRANSPARENT) || \
+         IS_AFFECTED((sub), AFF_DETECT_INVIS))) ||\
+       (PRF_FLAGGED(sub, PRF_HOLYLIGHT) || \
+        IS_AFFECTED_2(sub, AFF2_TRUE_SEEING))) && \
+      APPROVED_OK_OBJ(sub, obj))
+
+
+#define MORT_CAN_SEE_OBJ(sub, obj) (LIGHT_OK(sub) && INVIS_OK_OBJ(sub, obj))
+
+
+#define CAN_SEE_OBJ(sub, obj) \
+   (MORT_CAN_SEE_OBJ(sub, obj) || PRF_FLAGGED((sub), PRF_HOLYLIGHT))
+
+#define CAN_CARRY_OBJ(ch,obj)  \
+   (((IS_CARRYING_W(ch) + obj->getWeight()) <= CAN_CARRY_W(ch)) &&   \
+    ((IS_CARRYING_N(ch) + 1) <= CAN_CARRY_N(ch)))
+
+#define CAN_GET_OBJ(ch, obj)   \
+   ((CAN_WEAR((obj), ITEM_WEAR_TAKE) && CAN_CARRY_OBJ((ch),(obj)) && \
+    CAN_SEE_OBJ((ch),(obj))) || GET_LEVEL(ch) > LVL_CREATOR)
+
+#define CAN_DETECT_DISGUISE(ch, vict, level) \
+                          (PRF_FLAGGED(ch, PRF_HOLYLIGHT) || \
+                           AFF2_FLAGGED(ch, AFF2_TRUE_SEEING) ||\
+                           (GET_INT(ch)+GET_WIS(ch)) > (level+GET_CHA(vict)))
+
+static inline room_direction_data*& EXIT( obj_data *ch, int dir ) {
+	return ch->in_room->dir_option[dir];
+}
+static inline room_direction_data*& EXIT( Creature *ch, int dir ) {
+	return ch->in_room->dir_option[dir];
+}
+static inline room_direction_data*& _2ND_EXIT( Creature *ch, int dir ) {
+	return EXIT(ch,dir)->to_room->dir_option[dir];
+}
+static inline room_direction_data*& _3RD_EXIT( Creature *ch, int dir ) {
+	return _2ND_EXIT(ch,dir)->to_room->dir_option[dir];
+}
+static inline room_direction_data*& ABS_EXIT( room_data *room, int dir ) {
+	return room->dir_option[dir];
+}
+//#define EXIT(ch, door)  ((ch)->in_room->dir_option[(door)])
+//#define _2ND_EXIT(ch, door) (EXIT((ch), (door))->to_room->dir_option[door])
+//#define _3RD_EXIT(ch, door) (_2ND_EXIT((ch),(door))->to_room->dir_option[door])
+
+//#define ABS_EXIT(room, door)  ((room)->dir_option[door])
+
+bool CAN_GO(Creature * ch, int door);
+bool CAN_GO(obj_data * obj, int door);
+
+
 
 /* OS compatibility ******************************************************/
 

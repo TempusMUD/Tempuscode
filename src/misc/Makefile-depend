@@ -8,7 +8,7 @@ $(OBJ)/act.movement.o : act.movement.cc \
 	$(INCLUDE)/structs.h $(INCLUDE)/utils.h $(INCLUDE)/comm.h $(INCLUDE)/interpreter.h $(INCLUDE)/handler.h $(INCLUDE)/db.h $(INCLUDE)/spells.h $(INCLUDE)/house.h $(INCLUDE)/vehicle.h $(INCLUDE)/materials.h $(INCLUDE)/fight.h $(INCLUDE)/security.h $(INCLUDE)/char_class.h 
 	$(CXX) -c $(CXXFLAGS) act.movement.cc      -o $(OBJ)/act.movement.o
 $(OBJ)/act.obj.o : act.obj.cc \
-	$(INCLUDE)/structs.h $(INCLUDE)/utils.h $(INCLUDE)/comm.h $(INCLUDE)/interpreter.h $(INCLUDE)/handler.h $(INCLUDE)/db.h $(INCLUDE)/spells.h $(INCLUDE)/char_class.h $(INCLUDE)/vehicle.h $(INCLUDE)/materials.h $(INCLUDE)/smokes.h $(INCLUDE)/bomb.h $(INCLUDE)/guns.h $(INCLUDE)/fight.h $(INCLUDE)/security.h 
+	$(INCLUDE)/structs.h $(INCLUDE)/utils.h $(INCLUDE)/comm.h $(INCLUDE)/interpreter.h $(INCLUDE)/handler.h $(INCLUDE)/db.h $(INCLUDE)/spells.h $(INCLUDE)/char_class.h $(INCLUDE)/vehicle.h $(INCLUDE)/materials.h $(INCLUDE)/smokes.h $(INCLUDE)/bomb.h $(INCLUDE)/guns.h $(INCLUDE)/fight.h $(INCLUDE)/security.h $(INCLUDE)/tmpstr.h 
 	$(CXX) -c $(CXXFLAGS) act.obj.cc           -o $(OBJ)/act.obj.o
 $(OBJ)/act.other.o : act.other.cc \
 	$(INCLUDE)/structs.h $(INCLUDE)/utils.h $(INCLUDE)/comm.h $(INCLUDE)/interpreter.h $(INCLUDE)/handler.h $(INCLUDE)/db.h $(INCLUDE)/spells.h $(INCLUDE)/screen.h $(INCLUDE)/house.h $(INCLUDE)/vehicle.h $(INCLUDE)/materials.h $(INCLUDE)/smokes.h $(INCLUDE)/clan.h $(INCLUDE)/constants.h $(INCLUDE)/fight.h $(INCLUDE)/char_class.h $(INCLUDE)/security.h 
