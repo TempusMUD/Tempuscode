@@ -45,6 +45,7 @@ int total_credits = 0;
 extern struct obj_data *dam_object;
 
 int  empty_to_obj( struct obj_data *obj, struct obj_data *container, struct char_data *ch );
+bool junkable(struct obj_data *obj);
 void gain_skill_prof(struct char_data *ch, int skillnum);
 ACMD(do_stand);
 ACMD(do_throw);
@@ -1120,13 +1121,37 @@ perform_drop_credits(struct char_data * ch, int amount,
 
 #define VANISH(mode) ((mode == SCMD_DONATE || mode == SCMD_JUNK) ? \
 		      "  It vanishes in a puff of smoke!" : "")
+#define PROTO_SDESC(vnum) (real_object_proto(vnum)->short_description)
+#define IS_CONTAINER(obj) (GET_OBJ_TYPE(obj) == ITEM_CONTAINER)
+
+bool junkable(struct obj_data *obj)
+{
+    if (IS_CONTAINER(obj))
+    {
+        if (strcmp(obj->short_description, PROTO_SDESC(obj->shared->vnum)))
+            return false;
+        
+        for(obj = obj->contains; obj; obj = obj->next_content) {
+            if (!junkable(obj))
+                return false;
+        }
+  
+        return true;
+    }
+
+    if (strcmp(obj->short_description, PROTO_SDESC(obj->shared->vnum)))
+        return false;
+    else
+        return true;
+}
 
 int 
 perform_drop(struct char_data * ch, struct obj_data * obj,
              byte mode, char *sname, struct room_data *RDR, int display)
 {
     int value;
-  
+    string sbuf;
+    
     if (IS_OBJ_STAT(obj, ITEM_NODROP)) {
         if (GET_LEVEL(ch) < LVL_TIMEGOD) {
             sprintf(buf, "You can't %s $p, it must be CURSED!", sname);
@@ -1135,12 +1160,33 @@ perform_drop(struct char_data * ch, struct obj_data * obj,
         } else 
             act("You peel $p off your hand...", FALSE, ch, obj, 0, TO_CHAR);
     }
+
+    if ((mode == SCMD_DONATE || mode == SCMD_JUNK) && GET_LEVEL(ch) < LVL_SPIRIT) {
+        if (strcmp(obj->short_description, PROTO_SDESC(obj->shared->vnum)) || 
+            (IS_CONTAINER(obj) && !junkable(obj))) {
+           if (IS_CONTAINER(obj)) {
+               string containerName(obj->name);
+               sbuf = AN(obj->name) + string(" ") + containerName + 
+                      " contains, or is, a renamed object.\r\n";
+           }
+           else 
+               sbuf = "You can't " + (mode == SCMD_JUNK ? string("junk") : 
+                                                          string("donate")) +
+                     " a renamed object.\r\n"; 
+           
+           if (display == TRUE)  
+               send_to_char(sbuf.c_str(), ch);
+           return 0;
+        }
+    }
+   
     if (display == TRUE) {
         sprintf(buf, "You %s $p.%s", sname, VANISH(mode));
         act(buf, FALSE, ch, obj, 0, TO_CHAR);
         sprintf(buf, "$n %ss $p.%s", sname, VANISH(mode));
         act(buf, TRUE, ch, obj, 0, TO_ROOM);
     }
+    
     obj_from_char(obj);
   
     if ((mode == SCMD_DONATE) && (IS_OBJ_STAT(obj, ITEM_NODONATE) ||
@@ -1163,7 +1209,7 @@ perform_drop(struct char_data * ch, struct obj_data * obj,
             act("$p falls from the sky and lands by your feet.", 
                 FALSE, 0, obj, 0, TO_ROOM);
         }
-        return 0;
+        return 1;
         break;
     case SCMD_DONATE:
         obj_to_room(obj, RDR);
@@ -1171,7 +1217,7 @@ perform_drop(struct char_data * ch, struct obj_data * obj,
         if (!IS_OBJ_TYPE(obj, ITEM_OTHER) && !IS_OBJ_TYPE(obj, ITEM_TREASURE) &&
             !IS_OBJ_TYPE(obj, ITEM_METAL))
             SET_BIT(GET_OBJ_EXTRA(obj), ITEM_NOSELL);
-        return 0;
+        return 1;
         break;
     case SCMD_JUNK:
         value = MAX(1, MIN(200, GET_OBJ_COST(obj) >> 4));
@@ -1311,11 +1357,14 @@ ACCMD(do_drop)
                     mode = SCMD_JUNK;
                 if (IS_BOMB(obj) && obj->contains && IS_FUSE(obj->contains))
                     mode = SCMD_DROP;
-
-                perform_drop(ch, obj, mode, sname, RDR, FALSE);
+                
+                int found = 0;
+                found = perform_drop(ch, obj, mode, sname, RDR, FALSE);
                 mode = oldmode;
-                if (next_obj && next_obj->short_description == obj->short_description)
+                if (next_obj && (next_obj->short_description == obj->short_description) && found) {
                     counter++;
+                    found = 0;
+                }
                 else {
                     if (counter == 1) {
                         sprintf(buf, "You %s $p.%s", sname, VANISH(mode));
@@ -1357,12 +1406,19 @@ ACCMD(do_drop)
                 if (IS_BOMB(obj) && obj->contains && IS_FUSE(obj->contains) && FUSE_STATE(obj->contains))
                     mode = SCMD_DROP;
 
-                if (next_obj && 
-                    next_obj->short_description == obj->short_description) {
+                if (next_obj && next_obj->short_description == obj->short_description) {
                     counter++;
                     amount += perform_drop(ch, obj, mode, sname, RDR, FALSE);
                 } else {
-                    if (counter == 1) {
+                    if ((mode == SCMD_DONATE || mode == SCMD_JUNK) && !junkable(obj)) {
+                        sprintf(buf, "$p is or contains a renamed object.");
+                        counter --;
+                        if (counter > 1) {
+                            sprintf(buf, "You %s $p.%s (x%d)", sname, VANISH(mode), counter);
+                            sprintf(buf2, "$n %ss $p.%s (x%d)", sname, VANISH(mode), counter);
+                        }
+                    }
+                    else if (counter == 1) {
                         sprintf(buf, "You %s $p.%s", sname, VANISH(mode));
                         sprintf(buf2, "$n %ss $p.%s", sname, VANISH(mode));
                     }
@@ -3661,7 +3717,8 @@ ACMD(do_sacrifice)
 {
     struct obj_data *obj;
     int exp;
-
+    string sbuf;
+    
     skip_spaces(&argument);
 
     if (!*argument) {
@@ -3677,6 +3734,22 @@ ACMD(do_sacrifice)
         send_to_char("You can't sacrifice that.\r\n", ch);
         return;
     }
+      if (GET_LEVEL(ch) < LVL_SPIRIT) {
+          if (strcmp(obj->short_description, PROTO_SDESC(obj->shared->vnum)) ||
+              (IS_CONTAINER(obj) && !junkable(obj))) {
+              if (IS_CONTAINER(obj)) {
+                  string containerName(obj->name);
+                  sbuf = AN(obj->name) + string(" ") + containerName +
+                         " contains, or is, a renamed object.\r\n";
+              }
+              else
+                  sbuf = "You can't sacrifice a renamed object.\r\n";
+              
+              send_to_char(sbuf.c_str(), ch);
+              return;
+          }
+      }
+      
     act("$n sacrifices $p.", FALSE, ch, obj, 0, TO_ROOM);
     act("You sacrifice $p.", FALSE, ch, obj, 0, TO_CHAR);
     if (IS_CORPSE(obj))
