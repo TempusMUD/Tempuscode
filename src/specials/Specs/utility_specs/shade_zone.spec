@@ -89,7 +89,7 @@ SPECIAL(shade_zone)
     
         if ((link_room = real_room(19686)) && real_room(19687)) {
             if (link_room->dir_option[0] != NULL) {
-                for (ch = link_room->dir_option[1]->to_room->people; ch;) {
+                for (ch = link_room->dir_option[0]->to_room->people; ch;) {
                     tempch = ch->next_in_room;
                     char_from_room(ch);
                     char_to_room(ch, real_room(19687));
