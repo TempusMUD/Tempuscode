@@ -317,14 +317,13 @@ count_pkill(Creature *killer, Creature *victim)
 
 		// Basic level/gen adjustment
         if (perp != victim) {
-		    GET_REPUTATION(perp) +=
-			    (GET_LEVEL(victim) + GET_REMORT_GEN(victim)) /
-			    3;
+			perp->gain_reputation(GET_LEVEL(victim)
+				+ GET_REMORT_GEN(victim) / 3);
 
             // Additional adjustment for killing a lower gen
             if (GET_REMORT_GEN(perp) > GET_REMORT_GEN(victim))
-                GET_REPUTATION(perp) += (GET_REMORT_GEN(perp) -
-                    GET_REMORT_GEN(victim));
+				perp->gain_reputation(GET_REMORT_GEN(perp) -
+					GET_REMORT_GEN(victim));
         }
 	}
 }
@@ -348,16 +347,6 @@ check_killer(struct Creature *ch, struct Creature *vict,
 	GET_SEVERITY(perp) += (GET_LEVEL(perp) + GET_REMORT_GEN(perp) * 50) - 
 						  (GET_LEVEL(vict) + GET_REMORT_GEN(vict) * 50);
 
-	// You don't get a killer for attacking someone with a higher
-	// reputation than you, but you do get a reputation...
-	if (GET_REPUTATION_RANK(perp) < GET_REPUTATION_RANK(vict)) {
-		mudlog(LVL_AMBASSADOR, BRF, true,
-			"%s's reputation adjusted for attack on %s at %d. %s",
-			GET_NAME(perp), GET_NAME(vict), vict->in_room->number,
-			PRF2_FLAGGED(perp, PRF2_PKILLER) ? "PK(ON)" : "PK(OFF)");
-		GET_REPUTATION(perp) = GET_REPUTATION(vict);
-		return;
-	}
     if( GET_LEVEL(perp) > 50 ) {
         return;
     }
@@ -392,17 +381,6 @@ check_thief(struct Creature *ch, struct Creature *vict,
 
 	if (PLR_FLAGGED(ch, PLR_KILLER | PLR_THIEF))
 		return;
-
-	// You don't get a killer for attacking someone with a higher
-	// reputation than you, but you do get a reputation...
-	if (GET_REPUTATION_RANK(ch) < GET_REPUTATION_RANK(vict)) {
-		mudlog(LVL_AMBASSADOR, BRF, true,
-			"%s's reputation adjusted for attempting to steal from %s at %d. %s",
-			GET_NAME(ch), GET_NAME(vict), vict->in_room->number,
-			PRF2_FLAGGED(ch, PRF2_PKILLER) ? "PK(ON)" : "PK(OFF)");
-		GET_REPUTATION(ch) = GET_REPUTATION(vict);
-		return;
-	}
 
 	// If we get to this point, ch gets a killer
 	SET_BIT(PLR_FLAGS(ch), PLR_THIEF);

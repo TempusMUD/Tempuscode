@@ -1165,4 +1165,35 @@ Creature::distrusts(Creature *ch)
 	return !trusts(ch);
 }
 
+int
+Creature::get_reputation(void)
+{
+	if (IS_NPC(this))
+		return 0;
+	if (account)
+		return player_specials->saved.reputation
+			+ (account->get_reputation() * 5 / 100);
+	return player_specials->saved.reputation;
+}
+
+void
+Creature::gain_reputation(int amt)
+{
+	if (IS_NPC(this))
+		return;
+
+	if (account) {
+		account->gain_reputation(amt);
+		player_specials->saved.reputation += amt;
+	} else {
+		player_specials->saved.reputation += amt;
+	}
+}
+
+void
+Creature::set_reputation(int amt)
+{
+	player_specials->saved.reputation = MIN(1000, MAX(0, amt));
+}
+
 #undef __Creature_cc__

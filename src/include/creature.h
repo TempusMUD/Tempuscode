@@ -1063,6 +1063,10 @@ struct Creature {
 	bool trusts(Creature *ch);
 	bool distrusts(long idnum);
 	bool distrusts(Creature *ch);
+
+	void gain_reputation(int amt);
+	void set_reputation(int amt);
+	int get_reputation(void);
   private:
     bool saveObjects(void);
     /** Extracts all unrentable objects carried or worn by this creature **/

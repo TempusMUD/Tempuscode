@@ -771,7 +771,7 @@ Creature::loadFromXML( const char *path )
             GET_ARENAKILLS(this) = xmlGetIntProp(node, "akills");
             GET_MOBKILLS(this) = xmlGetIntProp(node, "mkills");
             GET_PC_DEATHS(this) = xmlGetIntProp(node, "deaths");
-			GET_REPUTATION(this) = xmlGetIntProp(node, "reputation");
+			this->set_reputation(xmlGetIntProp(node, "reputation"));
 			GET_SEVERITY(this) = xmlGetIntProp(node, "severity");
         } else if ( xmlMatches(node->name, "attr") ) {
             aff_abils.str = real_abils.str = xmlGetIntProp(node, "str");
@@ -1025,7 +1025,7 @@ Creature::set(const char *key, const char *val)
 	else if (!strcmp(key, "deaths"))
 		GET_PC_DEATHS(this) = atol(val);
 	else if (!strcmp(key, "reputation"))
-		GET_REPUTATION(this) = atoi(val);
+		this->set_reputation(atoi(val));
 	else if (!strcmp(key, "str"))
 		aff_abils.str = real_abils.str = atoi(val);
 	else if (!strcmp(key, "int"))
