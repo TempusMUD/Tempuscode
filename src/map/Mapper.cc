@@ -2,7 +2,7 @@
 #include <fstream>
 #include <string>
 using namespace std;
-#include "Mapper.h"
+//#include "Mapper.h"
 #include <signal.h>
 
 //static fstream debug;
@@ -12,13 +12,17 @@ const static int mapBits [] = { 1, 2, 4, 8, 16, 32, 64, 128, 256, 512 };
 #define MAPPED(mappedRoom, mappedDirection) (mappedRoom->find_first_step_index & mapBits[mappedDirection])
 #define MAP(mappedRoom, mappedDirection) (mappedRoom->find_first_step_index |= mapBits[mappedDirection])
 ACMD(do_map) {
+    send_to_char("Map removed until further notice.\r\n",ch);
+    /*
     int rows = GET_PAGE_LENGTH(ch);
     int columns = 80;
     char mapBuf[rows * columns];
     Mapper theMap(ch,rows,columns);
     theMap.build();
     theMap.display(mapBuf,rows,columns);
+    */
 }
+/*
 MapToken::MapToken() {
         direction = -1;
         row = 0;
@@ -28,15 +32,21 @@ MapToken::MapToken() {
         targetID = -1;
         //fprintf(stderr,"BLANK MapToken\r\n");
 }
+*/
+/*
 void MapToken::set(int d, int r, int c, room_data *s, room_data *t ) {
     direction = d; row = r; column = c; source = s; target = t;
     targetID = target->number;
     //printf(stderr,"SET MapToken d=%d r=%d c=%d id=%ld s=%s t=%s\r\n",
     //        d,r,c,targetID, (s ? "X" : "NULL"),( t ? "X" : "NULL") );
 }
+*/
+/*
 MapToken::MapToken( const MapToken & token ) {
     *this = token;
 }
+*/
+/*
 MapToken &MapToken::operator=(const MapToken &token) {
     this->direction = token.direction;
     this->row = token.row;
@@ -51,11 +61,16 @@ MapToken &MapToken::operator=(const MapToken &token) {
     }
     return *this;
 }
+*/
+/*
 Mapper::Mapper(char_data *ch,int rows, int columns) : mapDisplay(rows * columns), mapQueue() {
     this->rows = rows;
     this->columns = columns;
     this->ch = ch;
 }
+*/
+
+/*
 void Mapper::display(char *buf,int bRows,int bCols) {
     string line;
     char *r,pen;
@@ -143,41 +158,21 @@ void Mapper::display(char *buf,int bRows,int bCols) {
                     line += CCNRM(ch,C_NRM);
                     break;
                 case 2:        // Down
-                    /*strcpy(w,ansiGreen);
-                    w += strlen( w );
-                    *w++ = pen;
-                    strcpy(w,ansiNorm);
-                    w += strlen( w );*/
                     line += CCGRN(ch,C_NRM);
                     line += pen;
                     line += CCNRM(ch,C_NRM);
                     break;
                 case 3:        // Up and Down
-                    /*strcpy(w,ansiYellow);
-                    w += strlen( w );
-                    *w++ = pen;
-                    strcpy(w,ansiNorm);
-                    w += strlen( w );*/
                     line += CCYEL(ch,C_NRM);
                     line += pen;
                     line += CCNRM(ch,C_NRM);
                     break;
                 case 4:        // Zone border
-                    /*strcpy(w,ansiRed);
-                    w += strlen( w );
-                    *w++ = pen;
-                    strcpy(w,ansiNorm);
-                    w += strlen( w );*/
                     line += CCRED(ch,C_NRM);
                     line += pen;
                     line += CCNRM(ch,C_NRM);
                     break;
                 case 5:        // Current position or invalid zone
-                    /*strcpy(w,ansiMagneta);
-                    w += strlen( w );
-                    *w++ = pen;
-                    strcpy(w,ansiNorm);
-                    w += strlen( w );*/
                     line += CCMAG(ch,C_NRM);
                     line += pen;
                     line += CCNRM(ch,C_NRM);
@@ -198,9 +193,9 @@ void Mapper::display(char *buf,int bRows,int bCols) {
         //*w = '\0';
         line = "";
     }
-}
+}*/
     
-    
+/*
 bool Mapper::drawRoom( room_data *s,room_data *t,long row, long col) {
     //struct zone_data *currentZone = ch->in_room->zone;
     bool drawn;     // did we draw?
@@ -322,11 +317,11 @@ void Mapper::drawLink    (
     // Here starts the wierd links. (round rooms and the like)
     // Round rooms put off till sometime next centry.
 
-  /*    **    One way exits with no return to any room    **
-    *
-    * Note : This does not apply to a room that has a
-    *            return link to a different room
-    */
+   //    **    One way exits with no return to any room    **
+   //
+   // Note : This does not apply to a room that has a
+   //            return link to a different room
+   //
     else if( tExit == -1 && t->dir_option[sExit] && t->dir_option[sExit]->to_room == NULL ) {
         // north-> link
         if( sExit == North ) {
@@ -354,25 +349,22 @@ void Mapper::drawLink    (
             }
         }
     }
-    /*
+    
     // top left corner of a round room
-    else if (sExit == exitN && tExit == exitW && InBounds(buf,row + 1, col))
-        { }
+    //else if (sExit == exitN && tExit == exitW && InBounds(buf,row + 1, col)) { }
     // top right corner of a round room
-    else if (sExit == exitN && tExit == exitE && InBounds(buf,row + 1, col + 2))
-        { }
+    //else if (sExit == exitN && tExit == exitE && InBounds(buf,row + 1, col + 2)) { }
     // bottom left corner of a round room
-    else if (sExit == exitS && tExit == exitW && InBounds(buf,row, col))
-        { }
+    //else if (sExit == exitS && tExit == exitW && InBounds(buf,row, col)) { }
     // bottom right corner of a round room
-    else if (sExit == exitS && tExit == exitE && InBounds(buf,row, col + 2))
-        { }
-    */
+    //else if (sExit == exitS && tExit == exitE && InBounds(buf,row, col + 2)) { }
+    
     // What other special cases are there? loop rooms?
 
     return;
 }
-
+*/
+/*
 bool Mapper::build() {
     int i;
     long row,col;
@@ -381,7 +373,7 @@ bool Mapper::build() {
     MapToken current;
     
 
-    /* Make sure we are really going to map. */
+    // Make sure we are really going to map.
 
     curRoom = ch->in_room;
     // Is there at least one mappable exit?
@@ -394,7 +386,7 @@ bool Mapper::build() {
         return false;
     }
 
-    /* Actually start maping */
+    // Actually start maping
 
     // Set up local environ
     row = rows/2;//kRTerm / 2;
@@ -460,6 +452,7 @@ bool Mapper::build() {
     mapDisplay[ (row)* columns + (col)].exits = 5;
     return true;
 }
+*/
 
 /*
  Algorithm by D. Lowe - 2001
