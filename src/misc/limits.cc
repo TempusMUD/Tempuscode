@@ -812,8 +812,12 @@ point_update(void)
 	} else if( GET_OBJ_VNUM(j) == QUANTUM_RIFT_VNUM) {
 	    GET_OBJ_TIMER(j)--;
 	    if (GET_OBJ_TIMER(j) <= 0) {
-		    act("$p collapses in on itself.",
-			TRUE, j->in_room->people, j, 0, TO_NOTVICT);
+            if(j->action_description) {
+                act(j->action_description,
+                    TRUE, j->in_room->people, j, 0, TO_CHAR);
+                act(j->action_description,
+                    TRUE, j->in_room->people, j, 0, TO_ROOM);
+            }
             extract_obj(j);
         }
     } else if (IS_OBJ_STAT2(j, ITEM2_UNAPPROVED) ||

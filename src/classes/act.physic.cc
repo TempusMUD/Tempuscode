@@ -472,6 +472,7 @@ ASPELL(spell_quantum_rift)
     int rnum;
     struct room_data *room = NULL;
 	obj_data *rift = NULL;
+	obj_data *o = NULL;
     rnum = pop_imprint(ch);
 
     //  show_imprint_rooms(ch);
@@ -492,24 +493,37 @@ ASPELL(spell_quantum_rift)
 		send_to_char("You are unable to open the rift into that place.\r\n", ch);
 		return;
     }
+    for (o = object_list; o; o = o->next) {
+        if( GET_OBJ_VNUM(o) == QUANTUM_RIFT_VNUM 
+        && GET_OBJ_VAL(o,2) == GET_IDNUM(ch)) {
+            if(o->action_description) {
+                act(o->action_description,
+                    TRUE, o->in_room->people, o, 0, TO_CHAR);
+                act(o->action_description,
+                    TRUE, o->in_room->people, o, 0, TO_ROOM);
+            }
+            extract_obj(o);
+        }
+    }
     // Quantum Rift
 	if ( ( rift = read_object( QUANTUM_RIFT_VNUM ) ) ) {
 		GET_OBJ_TIMER( rift ) = (int)(GET_REMORT_GEN(ch)/2);
+        if(!IS_NPC(ch))
+            GET_OBJ_VAL(rift,2) = GET_IDNUM(ch);
 		obj_to_room( rift, ch->in_room );
 		// Set the target room number.
 		// Note: Add in some random change of going to the wrong place.
 		GET_OBJ_VAL(rift,0) = rnum;
 
-		act("$n shreads the fabric of space and time creating $p!", 
+		act("$n shreds the fabric of space and time creating $p!", 
 			TRUE, ch, rift,0, TO_ROOM);
-		act("You shread the fabric of space and time creating $p!", 
+		act("You shred the fabric of space and time creating $p!", 
 			TRUE, ch, rift,0, TO_CHAR);
 	} else {
 		send_to_char("The rift has failed to form.  Something is terribly wrong.\r\n",ch);
 		return;
 	}
-
-  
+    WAIT_STATE(ch,2 RL_SEC);
 } 
  
 ASPELL(spell_spacetime_recall)
