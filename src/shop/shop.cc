@@ -827,6 +827,11 @@ shopping_sell(char *arg, struct char_data * ch,
         perform_tell(keeper, ch, buf);
         return;
     }
+    if(IS_CORPSE(obj)) {
+        strcpy(buf, "Take your corpse and get the hell out of my store!");
+        perform_tell(keeper, ch, buf);
+        return;
+    }
 
     int obj_selling_price = 0;
 
