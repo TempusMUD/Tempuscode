@@ -28,7 +28,7 @@ SPECIAL(spirit_priestess)
 	if (!*arg2 || !*arg1)
 		return 0;
 
-	if (!isname(arg1, am->name) || !isname(arg2, pri->player.name))
+	if (!isname(arg1, am->aliases) || !isname(arg2, pri->player.name))
 		return 0;
 
 	if (!(staff = read_object(34306)))

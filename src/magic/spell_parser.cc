@@ -1319,8 +1319,8 @@ mag_objectmagic(struct Creature *ch, struct obj_data *obj,
 	case ITEM_STAFF:
 		act("You tap $p three times on the ground.", FALSE, ch, obj, 0,
 			TO_CHAR);
-		if (obj->action_description)
-			act(obj->action_description, FALSE, ch, obj, 0, TO_ROOM);
+		if (obj->action_desc)
+			act(obj->action_desc, FALSE, ch, obj, 0, TO_ROOM);
 		else
 			act("$n taps $p three times on the ground.", FALSE, ch, obj, 0,
 				TO_ROOM);
@@ -1369,8 +1369,8 @@ mag_objectmagic(struct Creature *ch, struct obj_data *obj,
 				act("$n points $p at $mself.", FALSE, ch, obj, 0, TO_ROOM);
 			} else {
 				act("You point $p at $N.", FALSE, ch, obj, tch, TO_CHAR);
-				if (obj->action_description != NULL)
-					act(obj->action_description, FALSE, ch, obj, tch, TO_ROOM);
+				if (obj->action_desc != NULL)
+					act(obj->action_desc, FALSE, ch, obj, tch, TO_ROOM);
 				else {
 					act("$n points $p at $N.", TRUE, ch, obj, tch, TO_NOTVICT);
 					act("$n points $p at you.", TRUE, ch, obj, tch, TO_VICT);
@@ -1378,8 +1378,8 @@ mag_objectmagic(struct Creature *ch, struct obj_data *obj,
 			}
 		} else if (tobj != NULL) {
 			act("You point $p at $P.", FALSE, ch, obj, tobj, TO_CHAR);
-			if (obj->action_description != NULL)
-				act(obj->action_description, FALSE, ch, obj, tobj, TO_ROOM);
+			if (obj->action_desc != NULL)
+				act(obj->action_desc, FALSE, ch, obj, tobj, TO_ROOM);
 			else
 				act("$n points $p at $P.", TRUE, ch, obj, tobj, TO_ROOM);
 		} else {
@@ -1424,8 +1424,8 @@ mag_objectmagic(struct Creature *ch, struct obj_data *obj,
 			tch = ch;
 
 		act("You recite $p which dissolves.", TRUE, ch, obj, 0, TO_CHAR);
-		if (obj->action_description)
-			act(obj->action_description, FALSE, ch, obj, NULL, TO_ROOM);
+		if (obj->action_desc)
+			act(obj->action_desc, FALSE, ch, obj, NULL, TO_ROOM);
 		else if (tch && tch != ch) {
 			act("$n recites $p in your direction.", FALSE, ch, obj, tch,
 				TO_VICT);
@@ -1478,8 +1478,8 @@ mag_objectmagic(struct Creature *ch, struct obj_data *obj,
 	case ITEM_POTION:
 		tch = ch;
 		act("You quaff $p.", FALSE, ch, obj, NULL, TO_CHAR);
-		if (obj->action_description)
-			act(obj->action_description, FALSE, ch, obj, NULL, TO_ROOM);
+		if (obj->action_desc)
+			act(obj->action_desc, FALSE, ch, obj, NULL, TO_ROOM);
 		else
 			act("$n quaffs $p.", TRUE, ch, obj, NULL, TO_ROOM);
 
@@ -1523,8 +1523,8 @@ mag_objectmagic(struct Creature *ch, struct obj_data *obj,
 			return 1;
 		}
 
-		if (obj->action_description != NULL)
-			act(obj->action_description, FALSE, ch, obj, tch, TO_VICT);
+		if (obj->action_desc != NULL)
+			act(obj->action_desc, FALSE, ch, obj, tch, TO_VICT);
 
 		WAIT_STATE(ch, PULSE_VIOLENCE);
 
@@ -1545,8 +1545,8 @@ mag_objectmagic(struct Creature *ch, struct obj_data *obj,
 	case ITEM_PILL:
 		tch = ch;
 		act("You swallow $p.", FALSE, ch, obj, NULL, TO_CHAR);
-		if (obj->action_description)
-			act(obj->action_description, FALSE, ch, obj, NULL, TO_ROOM);
+		if (obj->action_desc)
+			act(obj->action_desc, FALSE, ch, obj, NULL, TO_ROOM);
 		else
 			act("$n swallows $p.", TRUE, ch, obj, NULL, TO_ROOM);
 
@@ -1742,7 +1742,7 @@ cast_spell(struct Creature *ch, struct Creature *tch,
 		(!tch || GET_LEVEL(tch) < LVL_AMBASSADOR) && (ch != tch)) {
 		slog("ImmCast: %s called %s on %s.", GET_NAME(ch),
 			spell_to_str(spellnum), tch ? GET_NAME(tch) : tobj ?
-			tobj->short_description : knock_door ?
+			tobj->name : knock_door ?
 			(knock_door->keyword ? fname(knock_door->keyword) :
 				"door") : "NULL");
 	}
@@ -1875,7 +1875,7 @@ find_spell_targets(struct Creature *ch, char *argument,
 
 		if (!*target && IS_SET(SINFO.targets, TAR_OBJ_EQUIP)) {
 			for (i = 0; !*target && i < NUM_WEARS; i++)
-				if (GET_EQ(ch, i) && !str_cmp(t, GET_EQ(ch, i)->name)) {
+				if (GET_EQ(ch, i) && !str_cmp(t, GET_EQ(ch, i)->aliases)) {
 					*tobj = GET_EQ(ch, i);
 					*target = TRUE;
 				}

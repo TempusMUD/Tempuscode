@@ -110,7 +110,7 @@ report_unrentables(struct Creature *ch, struct Creature *recep,
 			else if (IS_BOMB(obj) && obj->contains && IS_FUSE(obj->contains) &&
 				FUSE_STATE(obj->contains))
 				sprintf(buf2, "You cannot store an active bomb ( %s ) here!!",
-					obj->short_description);
+					obj->name);
 			else
 				sprintf(buf2, "You cannot store %s.", OBJS(obj, ch));
 
@@ -132,12 +132,12 @@ append_obj_rent(char *str, const char *currency_str, int count, obj_data *obj)
 		sprintf(str + strlen(str), "%10d %s for %s\r\n",
 			GET_OBJ_RENT(obj),
 			currency_str,
-			obj->short_description);
+			obj->name);
 	else
 		sprintf(str + strlen(str), "%10d %s for %s (x%d)\r\n",
 			GET_OBJ_RENT(obj) * count,
 			currency_str,
-			obj->short_description,
+			obj->name,
 			count);
 }
 

@@ -20,7 +20,7 @@ SPECIAL(loud_speaker)
 		return 0;
 
 	argument = one_argument(argument, buf);
-	if (!isname(buf, speaker->name))
+	if (!isname(buf, speaker->aliases))
 		return 0;
 
 	if (!*argument) {
@@ -28,7 +28,7 @@ SPECIAL(loud_speaker)
 	}
 	act("$n yells into $p.", TRUE, ch, speaker, 0, TO_ROOM);
 	act("You yell into $p.", TRUE, ch, speaker, 0, TO_CHAR);
-	sprintf(buf, "%s BOOMS '%s'", speaker->short_description, argument);
+	sprintf(buf, "%s BOOMS '%s'", speaker->name, argument);
 	do_gecho(ch, buf, 0, 0, 0);
 	return 1;
 }

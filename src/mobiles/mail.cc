@@ -178,9 +178,9 @@ store_mail(long to_id, long from_id, char *txt, list<string> cc_list,
 
 	msg = tmp_strcat(msg, "\r\n\r\n", txt, NULL);
     
-    obj->action_description = strdup(msg);
+    obj->action_desc = strdup(msg);
     
-    obj->plrtext_len = strlen(obj->action_description) + 1;
+    obj->plrtext_len = strlen(obj->action_desc) + 1;
     mailBag.push_back(obj);
     
     if ((ofile = fopen(mail_file_path, "w")) == NULL) {

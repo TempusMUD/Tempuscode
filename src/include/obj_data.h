@@ -354,10 +354,10 @@ struct obj_data {
 	struct obj_flag_data obj_flags;	/* Object information               */
 	struct obj_affected_type affected[MAX_OBJ_AFFECT];	/* affects */
 
-	char *name;					/* Title of object :get etc.        */
-	char *description;			/* When in room                     */
-	char *short_description;	/* when worn/carry/in cont.         */
-	char *action_description;	/* What to write when used          */
+	char *name;	/* when worn/carry/in cont.         */
+	char *aliases;					/* Title of object :get etc.        */
+	char *line_desc;			/* When in room                     */
+	char *action_desc;	/* What to write when used          */
 	unsigned int plrtext_len;	/* If contains savable plrtext      */
 	struct extra_descr_data *ex_description;	/* extra descriptions     */
 	struct Creature *carried_by;	/* Carried by :NULL in room/conta   */

@@ -143,20 +143,20 @@ show_obj_to_char(struct obj_data *object, struct Creature *ch,
 
 	msg = "";
 	if (mode == SHOW_OBJ_ROOM) {
-		if (object->description)
-			msg = tmp_strdup(object->description);
+		if (object->line_desc)
+			msg = tmp_strdup(object->line_desc);
 		else if (IS_IMMORT(ch))
-			msg = tmp_sprintf("%s exists here.\r\n", object->short_description);
+			msg = tmp_sprintf("%s exists here.\r\n", object->name);
 	} else if (mode == 1 || mode == 2 || mode == 3 || mode == 4) {
-		if (object->short_description)
-			msg = tmp_strdup(object->short_description);
+		if (object->name)
+			msg = tmp_strdup(object->name);
 	} else if (mode == 5) {
 		if (GET_OBJ_TYPE(object) == ITEM_NOTE) {
-			if (object->action_description) {
+			if (object->action_desc) {
 				char *msg;
 
 				msg = tmp_strcat("There is something written upon it:\r\n\r\n",
-					object->action_description, NULL);
+					object->action_desc, NULL);
 				page_string(ch->desc, msg);
 			} else {
 				act("It's blank.", FALSE, ch, 0, 0, TO_CHAR);
@@ -331,7 +331,7 @@ show_obj_to_char(struct obj_data *object, struct Creature *ch,
 			msg = tmp_strcat(msg, CCGRN(ch, C_NRM), NULL);
 	}
 
-	if (!((mode == 0) && !object->description)) {
+	if (!((mode == 0) && !object->line_desc)) {
 		if (count > 1)
 			msg = tmp_sprintf("%s [%d]", msg, count);
 		msg = tmp_strcat(msg, "\r\n", NULL);
@@ -378,7 +378,7 @@ list_obj_to_char(struct obj_data *list, struct Creature *ch, int mode,
 		}
 
 		if ((i->shared->proto &&
-				i->short_description != i->shared->proto->short_description) ||
+				i->name != i->shared->proto->name) ||
 			IS_OBJ_STAT2(i, ITEM2_BROKEN))
 			o = i->next_content;
 		else {
@@ -430,7 +430,7 @@ list_obj_to_char_GLANCE(struct obj_data *list, struct Creature *ch,
 
 		if (IS_CORPSE(i) ||
 			(i->shared->proto &&
-				i->short_description != i->shared->proto->short_description) ||
+				i->name != i->shared->proto->name) ||
 			IS_OBJ_STAT2(i, ITEM2_BROKEN))
 			o = i->next_content;
 
@@ -1609,7 +1609,7 @@ look_in_obj(struct Creature *ch, char *arg)
 				!GET_OBJ_VAL(obj, 3) && GET_LEVEL(ch) < LVL_GOD)
 				send_to_char(ch, "It is closed.\r\n");
 			else {
-				send_to_char(ch, obj->short_description);
+				send_to_char(ch, obj->name);
 				switch (bits) {
 				case FIND_OBJ_INV:
 					send_to_char(ch, " (carried): \r\n");
@@ -1659,8 +1659,6 @@ look_in_obj(struct Creature *ch, char *arg)
 		}
 	}
 }
-
-
 
 char *
 find_exdesc(char *word, struct extra_descr_data *list, int find_exact = 0)
@@ -1740,7 +1738,7 @@ look_at_target(struct Creature *ch, char *arg, int cmd)
 	for (j = 0; j < NUM_WEARS && !found; j++)
 		if (GET_EQ(ch, j) && can_see_object(ch, GET_EQ(ch, j)) &&
 			(GET_OBJ_VAL(GET_EQ(ch, j), 3) != -999 ||
-				isname(arg, GET_EQ(ch, j)->name)))
+				isname(arg, GET_EQ(ch, j)->aliases)))
 			if ((desc =
 					find_exdesc(arg, GET_EQ(ch, j)->ex_description)) != NULL) {
 				page_string(ch->desc, desc);
@@ -1751,7 +1749,7 @@ look_at_target(struct Creature *ch, char *arg, int cmd)
 	/* Does the argument match an extra desc in the char's inventory? */
 	for (obj = ch->carrying; obj && !found; obj = obj->next_content) {
 		if (can_see_object(ch, obj) &&
-			(GET_OBJ_VAL(obj, 3) != -999 || isname(arg, obj->name)))
+			(GET_OBJ_VAL(obj, 3) != -999 || isname(arg, obj->aliases)))
 			if ((desc = find_exdesc(arg, obj->ex_description)) != NULL) {
 				page_string(ch->desc, desc);
 				found = bits = 1;
@@ -1763,7 +1761,7 @@ look_at_target(struct Creature *ch, char *arg, int cmd)
 	/* Does the argument match an extra desc of an object in the room? */
 	for (obj = ch->in_room->contents; obj && !found; obj = obj->next_content)
 		if (can_see_object(ch, obj) &&
-			(GET_OBJ_VAL(obj, 3) != -999 || isname(arg, obj->name)))
+			(GET_OBJ_VAL(obj, 3) != -999 || isname(arg, obj->aliases)))
 			if ((desc = find_exdesc(arg, obj->ex_description)) != NULL) {
 				page_string(ch->desc, desc);
 				found = bits = 1;
@@ -2749,7 +2747,7 @@ ACMD(do_equipment)
 					continue;
 				found = 1;
 				sprintf(outbuf, "%s-%s- is in %s condition.\r\n", outbuf,
-					obj->short_description, obj_cond_color(obj, ch));
+					obj->name, obj_cond_color(obj, ch));
 			}
 			if (found)
 				page_string(ch->desc, outbuf);
@@ -2798,7 +2796,7 @@ ACMD(do_equipment)
 					continue;
 				found = 1;
 				sprintf(outbuf, "%s-%s- is in %s condition.\r\n",
-					outbuf, obj->short_description, obj_cond_color(obj,
+					outbuf, obj->name, obj_cond_color(obj,
 						ch));
 			}
 			if (found)
@@ -2831,7 +2829,7 @@ ACMD(do_equipment)
 					send_to_char(ch, "%s[%12s]%s - %25s%s\r\n", CCCYN(ch, C_NRM),
 						wear_implantpos[(int)eq_pos_order[i]], CCNRM(ch,
 							C_NRM), GET_IMPLANT(ch,
-							(int)eq_pos_order[i])->short_description, buf2);
+							(int)eq_pos_order[i])->name, buf2);
 				} else {
 					send_to_char(ch, "%s[%12s]%s - (UNKNOWN)\r\n", CCCYN(ch,
 							C_NRM), wear_implantpos[(int)eq_pos_order[i]],
@@ -3650,7 +3648,7 @@ print_object_location(int num, struct obj_data *obj,
 
 	if (num > 0)
 		sprintf(buf, "%sO%s%3d. %s%-25s%s - ", CCGRN_BLD(ch, C_NRM), CCNRM(ch,
-				C_NRM), num, CCGRN(ch, C_NRM), obj->short_description,
+				C_NRM), num, CCGRN(ch, C_NRM), obj->name,
 			CCNRM(ch, C_NRM));
 	else
 		sprintf(buf, "%33s", " - ");
@@ -3675,7 +3673,7 @@ print_object_location(int num, struct obj_data *obj,
 			CCGRN(ch, C_NRM), CCNRM(ch, C_NRM));
 	} else if (obj->in_obj) {
 		sprintf(buf, "inside %s%s%s%s\r\n",
-			CCGRN(ch, C_NRM), obj->in_obj->short_description,
+			CCGRN(ch, C_NRM), obj->in_obj->name,
 			CCNRM(ch, C_NRM), (recur ? ", which is" : " "));
 		strncat(to_buf, buf, MAX_STRING_LENGTH - 1);
 
@@ -3706,11 +3704,11 @@ bool isWhereMatch( const list<char *> &req, const list<char *> &exc, obj_data *t
     list<char *>::const_iterator reqit, excit;
     
     for(reqit = req.begin(); reqit != req.end(); reqit++) {
-        if(!isname(*reqit, thing->name)) 
+        if(!isname(*reqit, thing->aliases)) 
             return false;
     }
     for(excit = exc.begin(); excit != exc.end(); excit++) {
-        if(isname(*excit, thing->name)) 
+        if(isname(*excit, thing->aliases)) 
             return false;
     }
     return true;
@@ -4791,7 +4789,7 @@ ACMD(do_specializations)
 			break;
 
 		send_to_char(ch, " %2d. %-30s [%d]\r\n", i + 1,
-			obj->short_description, GET_WEAP_SPEC(ch, i).level);
+			obj->name, GET_WEAP_SPEC(ch, i).level);
 	}
 }
 

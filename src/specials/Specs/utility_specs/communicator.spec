@@ -30,7 +30,7 @@ SPECIAL(master_communicator)
 		return 1;
 	}
 
-	if (!isname(arg1, comm->name))
+	if (!isname(arg1, comm->aliases))
 		return 0;
 
 	*buf = 0;

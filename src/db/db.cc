@@ -2037,20 +2037,20 @@ parse_object(FILE * obj_f, int nr)
 	sprintf(buf2, "object #%d", nr);
 
 	/* *** string data *** */
-	if ((obj->name = fread_string(obj_f, buf2)) == NULL) {
+	if ((obj->aliases = fread_string(obj_f, buf2)) == NULL) {
 		fprintf(stderr, "Null obj name or format error at or near %s\n", buf2);
 		safe_exit(1);
 	}
-	tmpptr = obj->short_description = fread_string(obj_f, buf2);
+	tmpptr = obj->name = fread_string(obj_f, buf2);
 	if (*tmpptr)
 		if (!str_cmp(fname(tmpptr), "a") || !str_cmp(fname(tmpptr), "an") ||
 			!str_cmp(fname(tmpptr), "the"))
 			*tmpptr = tolower(*tmpptr);
 
-	tmpptr = obj->description = fread_string(obj_f, buf2);
+	tmpptr = obj->line_desc = fread_string(obj_f, buf2);
 	if (tmpptr && *tmpptr)
 		*tmpptr = toupper(*tmpptr);
-	obj->action_description = fread_string(obj_f, buf2);
+	obj->action_desc = fread_string(obj_f, buf2);
 
 	/* *** numeric data *** */
 	retval = 0;
@@ -2411,11 +2411,11 @@ vnum_object(char *searchname, struct Creature *ch)
 
 	strcpy(buf, "");
 	for (obj = obj_proto; obj; obj = obj->next) {
-		if (namelist_match(searchname, obj->name)) {
+		if (namelist_match(searchname, obj->aliases)) {
 			sprintf(buf, "%s%3d. %s[%s%5d%s]%s %s%s\r\n", buf, ++found,
 				CCGRN(ch, C_NRM), CCNRM(ch, C_NRM), obj->shared->vnum,
 				CCGRN(ch, C_NRM), CCGRN(ch, C_NRM),
-				obj->short_description, CCNRM(ch, C_NRM));
+				obj->name, CCNRM(ch, C_NRM));
 			if (strlen(buf) + 128 > MAX_STRING_LENGTH) {
 				strcat(buf, "**OVERFLOW**\r\n");
 				break;
@@ -3107,21 +3107,21 @@ free_obj(struct obj_data *obj)
 	struct extra_descr_data *this_desc, *next_one;
 
 	if (!obj->shared || GET_OBJ_VNUM(obj) == -1 || !obj->shared->proto) {
+		if (obj->aliases) {
+			free(obj->aliases);
+			obj->aliases = NULL;
+		}
+		if (obj->line_desc) {
+			free(obj->line_desc);
+			obj->line_desc = NULL;
+		}
 		if (obj->name) {
 			free(obj->name);
 			obj->name = NULL;
 		}
-		if (obj->description) {
-			free(obj->description);
-			obj->description = NULL;
-		}
-		if (obj->short_description) {
-			free(obj->short_description);
-			obj->short_description = NULL;
-		}
-		if (obj->action_description) {
-			free(obj->action_description);
-			obj->action_description = NULL;
+		if (obj->action_desc) {
+			free(obj->action_desc);
+			obj->action_desc = NULL;
 		}
 		if (obj->ex_description) {
 			for (this_desc = obj->ex_description; this_desc;
@@ -3136,25 +3136,25 @@ free_obj(struct obj_data *obj)
 			obj->ex_description = NULL;
 		}
 	} else {
-		if (obj->name && obj->name != obj->shared->proto->name) {
+		if (obj->aliases && obj->aliases != obj->shared->proto->aliases) {
+			free(obj->aliases);
+			obj->aliases = NULL;
+		}
+		if (obj->line_desc &&
+			obj->line_desc != obj->shared->proto->line_desc) {
+			free(obj->line_desc);
+			obj->line_desc = NULL;
+		}
+		if (obj->name &&
+			obj->name != obj->shared->proto->name) {
 			free(obj->name);
 			obj->name = NULL;
 		}
-		if (obj->description &&
-			obj->description != obj->shared->proto->description) {
-			free(obj->description);
-			obj->description = NULL;
-		}
-		if (obj->short_description &&
-			obj->short_description != obj->shared->proto->short_description) {
-			free(obj->short_description);
-			obj->short_description = NULL;
-		}
-		if (obj->action_description &&
-			obj->action_description !=
-			obj->shared->proto->action_description) {
-			free(obj->action_description);
-			obj->action_description = NULL;
+		if (obj->action_desc &&
+			obj->action_desc !=
+			obj->shared->proto->action_desc) {
+			free(obj->action_desc);
+			obj->action_desc = NULL;
 		}
 		if (obj->ex_description &&
 			obj->ex_description != obj->shared->proto->ex_description) {

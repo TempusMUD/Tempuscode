@@ -352,7 +352,7 @@ burn_update(void)
 						"Your muscles are seized in an uncontrollable spasm!\r\n");
 					act("$n begins spasming uncontrollably.", TRUE, ch, 0, 0,
 						TO_ROOM);
-					do_drop(ch, fname(obj->name), 0, SCMD_DROP, 0);
+					do_drop(ch, fname(obj->aliases), 0, SCMD_DROP, 0);
 				}
 			}
 			if (!obj
@@ -837,7 +837,7 @@ helper_assist(struct Creature *ch, struct Creature *vict,
 		if (IS_ENERGY_GUN(weap) && CHECK_SKILL(ch, SKILL_SHOOT) > 40 &&
 			EGUN_CUR_ENERGY(weap) > 10) {
 			CUR_R_O_F(weap) = MAX_R_O_F(weap);
-			do_shoot(ch, tmp_sprintf("%s %s", fname(weap->name),
+			do_shoot(ch, tmp_sprintf("%s %s", fname(weap->aliases),
 					fname(vict->player.name)),
 				0, 0, &my_return_flags);
 			return my_return_flags;
@@ -846,7 +846,7 @@ helper_assist(struct Creature *ch, struct Creature *vict,
 		if (IS_GUN(weap) && CHECK_SKILL(ch, SKILL_SHOOT) > 40 &&
 			GUN_LOADED(weap)) {
 			CUR_R_O_F(weap) = MAX_R_O_F(weap);
-			sprintf(buf, "%s ", fname(weap->name));
+			sprintf(buf, "%s ", fname(weap->aliases));
 			strcat(buf, fname(vict->player.name));
 			do_shoot(ch, buf, 0, 0, &my_return_flags);
 			return my_return_flags;
@@ -869,8 +869,8 @@ mob_load_unit_gun(struct Creature *ch, struct obj_data *clip,
 	struct obj_data *gun, bool internal)
 {
 	char loadbuf[1024];
-	sprintf(loadbuf, "%s %s", fname(clip->name), internal ? "internal " : "");
-	strcat(loadbuf, fname(gun->name));
+	sprintf(loadbuf, "%s %s", fname(clip->aliases), internal ? "internal " : "");
+	strcat(loadbuf, fname(gun->aliases));
 	do_load(ch, loadbuf, 0, SCMD_LOAD, 0);
 	if (GET_MOB_VNUM(ch) == 1516 && IS_CLIP(clip) && random_binary())
 		do_say(ch, "Let's Rock.", 0, 0, 0);
@@ -907,7 +907,7 @@ mob_reload_gun(struct Creature *ch, struct obj_data *gun)
 		if (!MAX_LOAD(gun)) {	/** a gun that uses a clip **/
 			if (gun->contains) {
 				sprintf(buf, "%s%s", internal ? "internal " : "",
-					fname(gun->name));
+					fname(gun->aliases));
 				do_load(ch, buf, 0, SCMD_UNLOAD, 0);
 			}
 
@@ -939,8 +939,8 @@ mob_reload_gun(struct Creature *ch, struct obj_data *gun)
 					|| !IS_OBJ_TYPE(cont, ITEM_CONTAINER) || CAR_CLOSED(cont))
 					continue;
 				if ((bul = find_bullet(ch, GUN_TYPE(gun), cont->contains))) {
-					sprintf(buf, "%s ", fname(bul->name));
-					strcat(buf, fname(cont->name));
+					sprintf(buf, "%s ", fname(bul->aliases));
+					strcat(buf, fname(cont->aliases));
 					do_get(ch, buf, 0, 0, 0);
 					mob_load_unit_gun(ch, bul, clip, FALSE);
 					count++;
@@ -954,8 +954,8 @@ mob_reload_gun(struct Creature *ch, struct obj_data *gun)
 					&& !CAR_CLOSED(cont)
 					&& (bul =
 						find_bullet(ch, GUN_TYPE(gun), cont->contains))) {
-					sprintf(buf, "%s ", fname(bul->name));
-					strcat(buf, fname(cont->name));
+					sprintf(buf, "%s ", fname(bul->aliases));
+					strcat(buf, fname(cont->aliases));
 					do_get(ch, buf, 0, 0, 0);
 					mob_load_unit_gun(ch, bul, clip, FALSE);
 					count++;
@@ -984,8 +984,8 @@ mob_reload_gun(struct Creature *ch, struct obj_data *gun)
 				CAR_CLOSED(cont))
 				continue;
 			if ((bul = find_bullet(ch, GUN_TYPE(gun), cont->contains))) {
-				sprintf(buf, "%s ", fname(bul->name));
-				strcat(buf, fname(cont->name));
+				sprintf(buf, "%s ", fname(bul->aliases));
+				strcat(buf, fname(cont->aliases));
 				do_get(ch, buf, 0, 0, 0);
 				mob_load_unit_gun(ch, bul, gun, internal);
 			}
@@ -994,8 +994,8 @@ mob_reload_gun(struct Creature *ch, struct obj_data *gun)
 			if ((cont = GET_EQ(ch, i)) && IS_OBJ_TYPE(cont, ITEM_CONTAINER) &&
 				!CAR_CLOSED(cont) &&
 				(bul = find_bullet(ch, GUN_TYPE(gun), cont->contains))) {
-				sprintf(buf, "%s ", fname(bul->name));
-				strcat(buf, fname(cont->name));
+				sprintf(buf, "%s ", fname(bul->aliases));
+				strcat(buf, fname(cont->aliases));
 				do_get(ch, buf, 0, 0, 0);
 				mob_load_unit_gun(ch, bul, gun, internal);
 				return;
@@ -1102,7 +1102,7 @@ best_attack(struct Creature *ch, struct Creature *vict)
 
 			CUR_R_O_F(gun) = MAX_R_O_F(gun);
 
-			sprintf(buf, "%s ", fname(gun->name));
+			sprintf(buf, "%s ", fname(gun->aliases));
 			strcat(buf, fname(vict->player.name));
 			do_shoot(ch, buf, 0, 0, &return_flags);
 			return return_flags;
@@ -1715,8 +1715,8 @@ mobile_activity(void)
 							can_see_object(ch, obj) &&
 							!invalid_char_class(ch, obj) &&
 							obj->shared->proto &&
-							obj->short_description ==
-							obj->shared->proto->short_description) {
+							obj->name ==
+							obj->shared->proto->name) {
 							/* &&
 							   (!(i = GET_EQ(vict, mug_eq[k])) ||
 							   GET_OBJ_COST(obj) > (GET_OBJ_COST(i) << 1))) { */
@@ -1724,7 +1724,7 @@ mobile_activity(void)
 								"%s I see you are using %s."
 								"  I believe I could appreciate it much more than you."
 								"  Give it to me now.",
-								GET_NAME(vict), obj->short_description);
+								GET_NAME(vict), obj->name);
 							do_say(ch, buf, 0, SCMD_SAY_TO, 0);
 							CREATE(new_mug, struct mob_mugger_data, 1);
 							new_mug->idnum = GET_IDNUM(vict);
@@ -1787,8 +1787,8 @@ mobile_activity(void)
 				for (i = ch->in_room->contents; i; i = i->next_content) {
 					if (GET_OBJ_VNUM(i) == GET_OBJ_VNUM(obj)
 						&& can_see_object(ch, i) && i->shared->proto
-						&& i->shared->proto->short_description ==
-						obj->shared->proto->short_description) {
+						&& i->shared->proto->name ==
+						obj->shared->proto->name) {
 						act("$n snickers and picks up $p.", FALSE, ch, i, 0,
 							TO_ROOM);
 						obj_from_room(i);
@@ -1808,7 +1808,7 @@ mobile_activity(void)
 							sprintf(buf,
 								"%s I'm warning you."
 								"  Give %s to me now, or face the consequences!",
-								GET_NAME(vict), obj->short_description);
+								GET_NAME(vict), obj->name);
 							do_say(ch, buf, 0, SCMD_SAY_TO, 0);
 						}
 						sprintf(buf, "You have %d seconds to comply.",
@@ -1820,7 +1820,7 @@ mobile_activity(void)
 					} else if (ch->mob_specials.mug->timer == 4) {
 						sprintf(buf,
 							"%s You have 4 seconds to give %s to me, OR ELSE!",
-							GET_NAME(vict), obj->short_description);
+							GET_NAME(vict), obj->name);
 						do_say(ch, buf, 0, SCMD_SAY_TO, 0);
 						ch->mob_specials.mug->timer = 5;
 						continue;
@@ -1828,7 +1828,7 @@ mobile_activity(void)
 
 						sprintf(buf,
 							"%s Okay, you asked for it.  Now I'm taking %s!!",
-							GET_NAME(vict), obj->short_description);
+							GET_NAME(vict), obj->name);
 						do_say(ch, buf, 0, SCMD_SAY_TO, 0);
 						ch->mob_specials.mug->timer = 4;
 
@@ -1866,7 +1866,7 @@ mobile_activity(void)
 						max = GET_OBJ_COST(obj);
 					}
 				if (best_obj != NULL) {
-					strcpy(buf, fname(best_obj->name));
+					strcpy(buf, fname(best_obj->aliases));
 					do_get(ch, buf, 0, 0, 0);
 				}
 			}
@@ -1951,16 +1951,16 @@ mobile_activity(void)
 						int renamed = 0;
 						if (original)
 							renamed =
-								strcmp(obj->short_description,
-								original->short_description);
-						if (renamed || isname_exact("imm", obj->name)) {
+								strcmp(obj->name,
+								original->name);
+						if (renamed || isname_exact("imm", obj->aliases)) {
 							mudlog(LVL_IMMORT, CMP, true,
 								"%s [%d] junked by %s at %s [%d]. ( %s %s )",
-								obj->short_description, GET_OBJ_VNUM(obj),
+								obj->name, GET_OBJ_VNUM(obj),
 								GET_NAME(ch), ch->in_room->name,
 								ch->in_room->number, renamed ? "R3nAm3" : "",
 								isname_exact("imm",
-									obj->name) ? "|mM3nChAnT" : "");
+									obj->aliases) ? "|mM3nChAnT" : "");
 						}
 						act("$n junks $p.", TRUE, ch, obj, 0, TO_ROOM);
 						extract_obj(obj);
@@ -1979,7 +1979,7 @@ mobile_activity(void)
 								str_app[STRENGTH_APPLY_INDEX(ch)].wield_w)
 							&& GET_OBJ_COST(obj) > GET_OBJ_COST(GET_EQ(ch,
 									WEAR_WIELD))) {
-							strcpy(buf, fname(obj->name));
+							strcpy(buf, fname(obj->aliases));
 							do_remove(ch, buf, 0, 0, 0);
 						}
 						if (!GET_EQ(ch, WEAR_WIELD)) {
@@ -2922,7 +2922,7 @@ mobile_battle_activity(struct Creature *ch, struct Creature *precious_vict)
 			CUR_R_O_F(gun) = MAX_R_O_F(gun);
 
 			do_shoot(ch, tmp_sprintf("%s %s",
-				fname(gun->name), FIGHTING(ch)->player.name),
+				fname(gun->aliases), FIGHTING(ch)->player.name),
 				0, 0, &return_flags);
 			return return_flags;
 		}

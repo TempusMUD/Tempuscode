@@ -51,7 +51,7 @@ SPECIAL(unspecializer)
 			!GET_WEAP_SPEC(ch, i).level ||
 			!(o_proto = real_object_proto(GET_WEAP_SPEC(ch, i).vnum)))
 			continue;
-		if (isname(word, o_proto->name))
+		if (isname(word, o_proto->aliases))
 			break;
 	}
 
@@ -67,7 +67,7 @@ SPECIAL(unspecializer)
 		tmp_sprintf
 		("The service of complete neural erasure of the weapon specialization of\r\n"
 		"'%s' will cost you %d pracs and %d credits....\r\n",
-		o_proto->short_description, prac_cost, cash_cost);
+		o_proto->name, prac_cost, cash_cost);
 	perform_tell(self, ch, msg);
 
 	if (GET_PRACTICES(ch) < prac_cost) {

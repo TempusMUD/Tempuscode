@@ -16,7 +16,7 @@ SPECIAL(fate_portal)
 	if (!CMD_IS("enter") || !can_see_object(ch, portal) || !AWAKE(ch))
 		return 0;
 	one_argument(argument, arg1);
-	if (!isname(arg1, portal->name))
+	if (!isname(arg1, portal->aliases))
 		return 0;
 
 	// Is he ready to remort? Or level 49 at least?

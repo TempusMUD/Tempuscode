@@ -22,7 +22,7 @@ SPECIAL(javelin_of_lightning)
 
 	if (!*arg1)
 		send_to_char(ch, "Throw what where?\r\n");
-	else if (!isname(arg1, jav->name))
+	else if (!isname(arg1, jav->aliases))
 		return 0;
 	else if (jav != GET_EQ(ch, WEAR_WIELD))
 		send_to_char(ch, "You need to wield it first.\r\n");

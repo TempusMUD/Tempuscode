@@ -24,7 +24,7 @@ SPECIAL(fountain_heal)
 	if (!*argument)
 		return 0;
 
-	if (!isname(argument, fountain->name))
+	if (!isname(argument, fountain->aliases))
 		return 0;
 
 	do_drink(ch, argument, 0, SCMD_DRINK, 0);

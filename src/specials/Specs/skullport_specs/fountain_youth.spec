@@ -27,7 +27,7 @@ SPECIAL(fountain_youth)
 
 	/* check here for argument */
 	skip_spaces(&argument);
-	if (!isname(argument, fountain->name))
+	if (!isname(argument, fountain->aliases))
 		return 0;
 
 	if (affected_by_spell(ch, SPELL_YOUTH)) {

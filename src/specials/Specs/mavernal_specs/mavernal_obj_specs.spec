@@ -25,7 +25,7 @@ SPECIAL(chastity_belt)
 
 	one_argument(argument, arg);
 
-	if (ch != belt->carried_by || !*arg || !isname(arg, belt->name))
+	if (ch != belt->carried_by || !*arg || !isname(arg, belt->aliases))
 		return 0;
 
 	if (CMD_IS("wear")) {

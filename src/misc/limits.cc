@@ -819,10 +819,10 @@ point_update(void)
 				extract_obj(j);
 			}
 		} else if (GET_OBJ_VNUM(j) < 0 &&
-			((IS_OBJ_TYPE(j, ITEM_DRINKCON) && isname("head", j->name)) ||
-				((IS_OBJ_TYPE(j, ITEM_WEAPON) && isname("leg", j->name)) &&
+			((IS_OBJ_TYPE(j, ITEM_DRINKCON) && isname("head", j->aliases)) ||
+				((IS_OBJ_TYPE(j, ITEM_WEAPON) && isname("leg", j->aliases)) &&
 					(j->worn_on != WEAR_WIELD && j->worn_on != WEAR_WIELD_2))
-				|| (IS_OBJ_TYPE(j, ITEM_FOOD) && isname("heart", j->name)))) {
+				|| (IS_OBJ_TYPE(j, ITEM_FOOD) && isname("heart", j->aliases)))) {
 			// body parts
 			if (GET_OBJ_TIMER(j) > 0)
 				GET_OBJ_TIMER(j)--;
@@ -871,7 +871,7 @@ point_update(void)
 		} else if (GET_OBJ_VNUM(j) == QUANTUM_RIFT_VNUM) {
 			GET_OBJ_TIMER(j)--;
 			if (GET_OBJ_TIMER(j) <= 0) {
-				if (j->action_description && j->in_room) {
+				if (j->action_desc && j->in_room) {
 					act("$p collapses in on itself.",
 						TRUE, j->in_room->people, j, 0, TO_CHAR);
 					act("$p collapses in on itself.",
@@ -894,7 +894,7 @@ point_update(void)
 				}
 
 				if (GET_OBJ_TIMER(j) <= 0) {
-					if (j->action_description) {
+					if (j->action_desc) {
 						act("$p melts and is gone.",
 							TRUE, j->in_room->people, j, 0, TO_CHAR);
 						act("$p melts and is gone.",

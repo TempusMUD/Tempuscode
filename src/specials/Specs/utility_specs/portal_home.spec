@@ -23,7 +23,7 @@ SPECIAL(portal_home)
 	if (!(room = portal->in_room))
 		room = portal->carried_by->in_room;
 
-	if (isname(argument, portal->name)) {
+	if (isname(argument, portal->aliases)) {
 		flags = room->room_flags;
 		REMOVE_BIT(room->room_flags, ROOM_NOMAGIC);
 		act("$n steps into $p.", FALSE, ch, portal, 0, TO_ROOM);

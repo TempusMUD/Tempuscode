@@ -79,7 +79,7 @@ implanter_implant(Creature * me, Creature * ch, char *args)
 	}
 	if (!IS_IMPLANT(implant)) {
 		msg = tmp_sprintf("%s cannot be implanted.  Get a clue.",
-			implant->short_description);
+			implant->name);
 		perform_tell(me, ch, msg);
 		return;
 	}
@@ -105,7 +105,7 @@ implanter_implant(Creature * me, Creature * ch, char *args)
 
 	if (!CAN_WEAR(implant, wear_bitvectors[pos])) {
 		msg = tmp_sprintf("%s cannot be implanted there.",
-			implant->short_description);
+			implant->name);
 		perform_tell(me, ch, msg);
 		implanter_show_pos(me, ch, implant);
 		return;
@@ -121,7 +121,7 @@ implanter_implant(Creature * me, Creature * ch, char *args)
 
 	if (IS_OBJ_STAT2(implant, ITEM2_BROKEN)) {
 		msg = tmp_sprintf("%s is broken -- are you some kind of moron?",
-			implant->short_description);
+			implant->name);
 		perform_tell(me, ch, msg);
 		return;
 	}
@@ -129,7 +129,7 @@ implanter_implant(Creature * me, Creature * ch, char *args)
 	if (GET_IMPLANT(ch, pos)) {
 		msg =
 			tmp_sprintf("You are already implanted with %s in that position.",
-			GET_IMPLANT(ch, pos)->short_description);
+			GET_IMPLANT(ch, pos)->name);
 		perform_tell(me, ch, msg);
 		return;
 	}
@@ -155,7 +155,7 @@ implanter_implant(Creature * me, Creature * ch, char *args)
 				msg =
 					tmp_sprintf
 					("You'll have to get %s removed if you want that put in.",
-					GET_IMPLANT(ch, i)->short_description);
+					GET_IMPLANT(ch, i)->name);
 				perform_tell(me, ch, msg);
 				return;
 			}
@@ -223,23 +223,23 @@ implanter_extract(Creature * me, Creature * ch, char *args)
 	}
 
 	if (obj && !IS_CORPSE(obj) && !OBJ_TYPE(obj, ITEM_DRINKCON) &&
-		!IS_BODY_PART(obj) && !isname("head", obj->name)) {
+		!IS_BODY_PART(obj) && !isname("head", obj->aliases)) {
 		msg = tmp_sprintf("I cannot extract anything from %s.",
-			obj->short_description);
+			obj->name);
 		perform_tell(me, ch, msg);
 		return;
 	}
 
 	if (!*obj_str) {
 		msg = tmp_sprintf("Extract what implant from %s?", obj ?
-			obj->short_description : "your body");
+			obj->name : "your body");
 		perform_tell(me, ch, msg);
 		return;
 	}
 
 	if (obj && !(implant = get_obj_in_list_vis(ch, obj_str, obj->contains))) {
 		msg = tmp_sprintf("There is no '%s' in %s.", obj_str,
-			obj->short_description);
+			obj->name);
 		perform_tell(me, ch, msg);
 		return;
 	}
@@ -261,9 +261,9 @@ implanter_extract(Creature * me, Creature * ch, char *args)
 			perform_tell(me, ch, msg);
 			return;
 		}
-		if (!isname(obj_str, implant->name)) {
+		if (!isname(obj_str, implant->aliases)) {
 			msg = tmp_sprintf("%s is implanted at %s... not '%s'.",
-				implant->short_description, wear_implantpos[pos], pos_str);
+				implant->name, wear_implantpos[pos], pos_str);
 			perform_tell(me, ch, msg);
 			return;
 		}
@@ -341,9 +341,9 @@ implanter_repair(Creature * me, Creature * ch, char *args)
 		perform_tell(me, ch, msg);
 		return;
 	}
-	if (!isname(obj_str, implant->name)) {
+	if (!isname(obj_str, implant->aliases)) {
 		msg = tmp_sprintf("%s is implanted at %s... not '%s'.",
-			implant->short_description, wear_implantpos[pos], pos_str);
+			implant->name, wear_implantpos[pos], pos_str);
 		perform_tell(me, ch, msg);
 		return;
 	}
@@ -362,7 +362,7 @@ implanter_repair(Creature * me, Creature * ch, char *args)
 	if (GET_OBJ_MAX_DAM(implant) == 0 ||
 		GET_OBJ_MAX_DAM(implant) <= (GET_OBJ_MAX_DAM(proto_implant) >> 4)) {
 		msg = tmp_sprintf("Sorry, %s is damaged beyond repair.",
-			implant->short_description);
+			implant->name);
 		perform_tell(me, ch, msg);
 		return;
 	}

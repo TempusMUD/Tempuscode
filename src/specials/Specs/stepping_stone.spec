@@ -45,7 +45,7 @@ SPECIAL(portal_out)
 	}
 
 	skip_spaces(&argument);
-	if (isname(argument, portal->name)) {
+	if (isname(argument, portal->aliases)) {
 		send_to_room("A loud buzzing sound fills the room.\r\n", ch->in_room);
 		GET_LOADROOM(ch) = 0;
 		sprintf(buf, "A voice BOOMS out, '%s has left the arena.'\r\n",

@@ -377,7 +377,7 @@ blood_spray(struct Creature *ch, struct Creature *victim,
 			if (pos) {
 				if (GET_EQ(nvict, pos))
 					sprintf(buf, "$N's blood splatters all over %s!",
-						GET_EQ(nvict, pos)->short_description);
+						GET_EQ(nvict, pos)->name);
 				else
 					sprintf(buf, "$N's blood splatters all over your %s!",
 						wear_description[pos]);

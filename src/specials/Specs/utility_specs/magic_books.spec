@@ -29,7 +29,7 @@ SPECIAL(improve_stat_book)
 
 	one_argument(argument, arg1);
 
-	if (!*arg1 || !isname(arg1, obj->name))
+	if (!*arg1 || !isname(arg1, obj->aliases))
 		return 0;
 
 	if (obj->in_room) {
@@ -87,7 +87,7 @@ SPECIAL(improve_prac_book)
 
 	one_argument(argument, arg1);
 
-	if (!*arg1 || !isname(arg1, obj->name))
+	if (!*arg1 || !isname(arg1, obj->aliases))
 		return 0;
 
 	if (obj->in_room) {

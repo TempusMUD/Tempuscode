@@ -467,8 +467,8 @@ House::notifyReposession( Creature *ch )
 		msg = tmp_strcat( msg, getRepoNote(i).c_str() );
 	}
 	msg = tmp_strcat( msg, "\r\n\r\nSincerely,\r\n    The Management\r\n");
-	note->action_description = strdup(msg);
-	note->plrtext_len = strlen(note->action_description) + 1;
+	note->action_desc = strdup(msg);
+	note->plrtext_len = strlen(note->action_desc) + 1;
 	obj_to_char( note, ch);
 	send_to_char(ch, "The TempusMUD Landlord gives you a letter detailing your bill.\r\n");
 	clearRepoNotes();
@@ -836,7 +836,7 @@ print_room_contents(Creature *ch, room_data *real_house_room, bool showContents 
 			buf2 = tmp_sprintf("     (contains %d)\r\n", count);
 		} 
 		buf = tmp_sprintf("%s   %s%-35s%s  %10d Au%s", buf, CCGRN(ch, C_NRM),
-						obj->short_description, CCNRM(ch, C_NRM),
+						obj->name, CCNRM(ch, C_NRM),
 						recurs_obj_cost(obj, false, NULL), buf2);
 		if (obj->contains) {
 			for (cont = obj->contains; cont; cont = cont->next_content) {
@@ -846,7 +846,7 @@ print_room_contents(Creature *ch, room_data *real_house_room, bool showContents 
 					buf2 = tmp_sprintf("     (contains %d)\r\n", count);
 				}
 				buf = tmp_sprintf("%s     %s%-33s%s  %10d Au%s", buf, CCGRN(ch, C_NRM),
-									cont->short_description, CCNRM(ch, C_NRM),
+									cont->name, CCNRM(ch, C_NRM),
 									recurs_obj_cost(cont, false, obj), buf2);
 			}
 		}
@@ -985,13 +985,13 @@ House::collectRent( int cost )
 			*(tm_str + strlen(tm_str) - 1) = '\0';
 			
 			char *s = tmp_sprintf("%s : %s sold for %d.\r\n",
-				tm_str, tmp_capitalize(doomed_obj->short_description),
+				tm_str, tmp_capitalize(doomed_obj->name),
 				GET_OBJ_COST(doomed_obj));
 			repoNotes.push_back(s);
 
 			slog("HOUSE: [%d] Repossesing [%d]%s for %d to cover rent.",
 				getID(), GET_OBJ_VNUM(doomed_obj), 
-				tmp_capitalize(doomed_obj->short_description),
+				tmp_capitalize(doomed_obj->name),
 				GET_OBJ_COST(doomed_obj));
 
 			

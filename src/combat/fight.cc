@@ -567,59 +567,59 @@ damage_eq(struct Creature *ch, struct obj_data *obj, int eq_dam, int type)
 		}
 		if (type == SPELL_OXIDIZE && IS_FERROUS(obj)) {
 			strcpy(buf2, "$p dissolves into a pile of rust!!");
-			strcpy(buf, "a pile of rust");
-			new_obj->name = str_dup(buf);
+			strcpy(buf, "pile rust");
+			new_obj->aliases = str_dup(buf);
 			sprintf(buf, "a pile of rust");
-			new_obj->short_description = str_dup(buf);
+			new_obj->name = str_dup(buf);
 			strcat(CAP(buf), " is lying here.");
-			new_obj->description = str_dup(buf);
+			new_obj->line_desc = str_dup(buf);
 			GET_OBJ_MATERIAL(new_obj) = MAT_RUST;
 		} else if (type == SPELL_OXIDIZE && IS_BURNABLE_TYPE(obj)) {
 			strcpy(buf2, "$p is incinerated!!");
-			strcpy(buf, "a pile of ash");
-			new_obj->name = str_dup(buf);
+			strcpy(buf, "pile ash");
+			new_obj->aliases = str_dup(buf);
 			sprintf(buf, "a pile of ash");
-			new_obj->short_description = str_dup(buf);
+			new_obj->name = str_dup(buf);
 			strcat(CAP(buf), " is lying here.");
-			new_obj->description = str_dup(buf);
+			new_obj->line_desc = str_dup(buf);
 			GET_OBJ_MATERIAL(new_obj) = MAT_ASH;
 		} else if (IS_METAL_TYPE(obj)) {
 			strcpy(buf2, "$p is reduced to a mangled pile of scrap!!");
 
 			sprintf(buf, "%s heap mangled %s",
-				material_names[GET_OBJ_MATERIAL(obj)], obj->name);
-			new_obj->name = str_dup(buf);
+				material_names[GET_OBJ_MATERIAL(obj)], obj->aliases);
+			new_obj->aliases = str_dup(buf);
 			sprintf(buf, "a mangled heap of %s",
 				material_names[GET_OBJ_MATERIAL(obj)]);
-			new_obj->short_description = str_dup(buf);
+			new_obj->name = str_dup(buf);
 			strcat(CAP(buf), " is lying here.");
-			new_obj->description = str_dup(buf);
+			new_obj->line_desc = str_dup(buf);
 
 		} else if (IS_STONE_TYPE(obj) || IS_GLASS_TYPE(obj)) {
 			strcpy(buf2, "$p shatters into a thousand fragments!!");
 
 			sprintf(buf, "%s shattered fragments %s",
-				material_names[GET_OBJ_MATERIAL(obj)], obj->name);
-			new_obj->name = str_dup(buf);
+				material_names[GET_OBJ_MATERIAL(obj)], obj->aliases);
+			new_obj->aliases = str_dup(buf);
 			sprintf(buf, "shattered fragments of %s",
 				material_names[GET_OBJ_MATERIAL(obj)]);
-			new_obj->short_description = str_dup(buf);
+			new_obj->name = str_dup(buf);
 			strcat(CAP(buf), " are lying here.");
-			new_obj->description = str_dup(buf);
+			new_obj->line_desc = str_dup(buf);
 
 		} else {
 			strcpy(buf2, "$p has been destroyed!");
 
 			sprintf(buf, "%s mutilated heap %s%s",
 				material_names[GET_OBJ_MATERIAL(obj)],
-				GET_OBJ_MATERIAL(obj) ? "" : " material ", obj->name);
-			new_obj->name = str_dup(buf);
+				GET_OBJ_MATERIAL(obj) ? "" : " material ", obj->aliases);
+			new_obj->aliases = str_dup(buf);
 			sprintf(buf, "a mutilated heap of %s%s",
 				material_names[GET_OBJ_MATERIAL(obj)],
 				!GET_OBJ_MATERIAL(obj) ? " material" : "");
-			new_obj->short_description = str_dup(buf);
+			new_obj->name = str_dup(buf);
 			strcat(CAP(buf), " is lying here.");
-			new_obj->description = str_dup(buf);
+			new_obj->line_desc = str_dup(buf);
 			if (IS_CORPSE(obj)) {
 				GET_OBJ_TYPE(new_obj) = ITEM_CONTAINER;
 				GET_OBJ_VAL(new_obj, 0) = GET_OBJ_VAL(obj, 0);
@@ -631,7 +631,7 @@ damage_eq(struct Creature *ch, struct obj_data *obj, int eq_dam, int type)
 				   if ( GET_OBJ_VAL( obj, 3 ) && CORPSE_IDNUM( obj ) > 0 &&
 				   CORPSE_IDNUM( obj ) <= top_of_p_table ){
 				   sprintf(buf, "%s destroyed by %s.", 
-				   obj->short_description, GET_NAME( ch ));
+				   obj->name, GET_NAME( ch ));
 				   mudlog(buf, CMP, LVL_DEMI, TRUE);
 				   }
 				 */
@@ -2344,8 +2344,8 @@ do_casting_weapon(Creature *ch, obj_data *weap)
 	if (number(0, MAX(2, LVL_GRIMP + 28 - GET_LEVEL(ch) - GET_INT(ch) -
 			(CHECK_SKILL(ch, GET_OBJ_VAL(weap, 0)) >> 3))))
 		return 0;
-	if (weap->action_description)
-		strcpy(buf, weap->action_description);
+	if (weap->action_desc)
+		strcpy(buf, weap->action_desc);
 	else
 		sprintf(buf, "$p begins to hum and shake%s!",
 			weap->worn_on == WEAR_WIELD ||

@@ -21,7 +21,7 @@ SPECIAL(labyrinth_clock)
 		return (0);
 
 	skip_spaces(&argument);
-	if (!isname(argument, clock->name))
+	if (!isname(argument, clock->aliases))
 		return 0;
 
 	if (CMD_IS("enter")) {
@@ -170,11 +170,11 @@ SPECIAL(drink_me_bottle)
 
 	/* check here for argument, and contents of bottle */
 	skip_spaces(&argument);
-	if (!isname(argument, bottle->name) || !GET_OBJ_VAL(bottle, 1))
+	if (!isname(argument, bottle->aliases) || !GET_OBJ_VAL(bottle, 1))
 		return 0;
 
 	send_to_char(ch, "You drink %s from %s.  Mmmm, tasty.\r\n",
-		fname(bottle->name), bottle->short_description);
+		fname(bottle->aliases), bottle->name);
 	act("$n drinks from $p.", TRUE, ch, bottle, 0, TO_ROOM);
 
 	/* increment the bottle contents */
@@ -212,7 +212,7 @@ SPECIAL(rabbit_hole)
 
 	skip_spaces(&argument);
 
-	if (!CMD_IS("enter") || !isname(argument, hole->name))
+	if (!CMD_IS("enter") || !isname(argument, hole->aliases))
 		return (0);
 
 	if (ch->player.height >= 11) {
@@ -551,7 +551,7 @@ SPECIAL(astrolabe)
 		return (0);
 
 	skip_spaces(&argument);
-	if (!isname(argument, astrolabe->name))
+	if (!isname(argument, astrolabe->aliases))
 		return 0;
 
 	if (CMD_IS("adjust")) {

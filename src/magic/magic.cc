@@ -3087,14 +3087,14 @@ mag_alter_objs(int level, struct Creature *ch, struct obj_data *obj,
                 obj->affected[j].location = APPLY_HITROLL;
                 obj->affected[j].modifier = MAX(obj->affected[j].modifier, hitroll);
             }
-            if (GET_LEVEL(ch) >= LVL_AMBASSADOR && !isname("imm", obj->name)) {
+            if (GET_LEVEL(ch) >= LVL_AMBASSADOR && !isname("imm", obj->aliases)) {
                 sprintf(buf, " imm %sattract", GET_NAME(ch));
-                strcpy(buf2, obj->name);
+                strcpy(buf2, obj->aliases);
                 strcat(buf2, buf);
-                obj->name = str_dup(buf2);
+                obj->aliases = str_dup(buf2);
                 mudlog(GET_LEVEL(ch), CMP, true,
                     "ENCHANT: %s attraction fielded by %s.",
-                    obj->short_description, GET_NAME(ch));
+                    obj->name, GET_NAME(ch));
             }
         } else {
             for (i = 0, j = -1; i < MAX_OBJ_AFFECT; i++) {
@@ -3154,14 +3154,14 @@ mag_alter_objs(int level, struct Creature *ch, struct obj_data *obj,
             MIN(obj->obj_flags.damage + increase, obj->obj_flags.max_dam);
         SET_BIT(obj->obj_flags.extra3_flags, ITEM3_LATTICE_HARDENED);
         to_char = "$p's molecular lattice strengthens.";
-        if (GET_LEVEL(ch) >= LVL_AMBASSADOR && !isname("imm", obj->name)) {
+        if (GET_LEVEL(ch) >= LVL_AMBASSADOR && !isname("imm", obj->aliases)) {
             sprintf(buf, " imm %shardening", GET_NAME(ch));
-            strcpy(buf2, obj->name);
+            strcpy(buf2, obj->aliases);
             strcat(buf2, buf);
-            obj->name = str_dup(buf2);
+            obj->aliases = str_dup(buf2);
             mudlog(GET_LEVEL(ch), CMP, true,
                 "ENCHANT: %s lattice hardened by %s.",
-                obj->short_description, GET_NAME(ch));
+                obj->name, GET_NAME(ch));
         }
         break;
 
@@ -3279,11 +3279,11 @@ mag_objects(int level, struct Creature *ch, struct obj_data *obj,
 			return;
 		if (GET_LEVEL(ch) >= LVL_AMBASSADOR) {
 			sprintf(buf, " imm %senchant blessed", GET_NAME(ch));
-			strcpy(buf2, obj->name);
+			strcpy(buf2, obj->aliases);
 			strcat(buf2, buf);
-			obj->name = str_dup(buf2);
+			obj->aliases = str_dup(buf2);
 			mudlog(GET_INVIS_LVL(ch), CMP, true,
-				"ENCHANT: Bless. %s by %s.", obj->short_description,
+				"ENCHANT: Bless. %s by %s.", obj->name,
 				GET_NAME(ch));
 		}
 		break;

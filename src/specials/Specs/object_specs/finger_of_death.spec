@@ -18,17 +18,17 @@ SPECIAL(finger_of_death)
 	if(!tokens.next(token))
 		return 0;
 	
-	if (!isname(token, finger->name))
+	if (!isname(token, finger->aliases))
 		return 0;
 
 	if (!tokens.next(token)) {
         send_to_char(ch, "%s has %d charges remaining.\r\n", 
-                     finger->short_description, GET_OBJ_VAL(finger,0) );
+                     finger->name, GET_OBJ_VAL(finger,0) );
         send_to_char(ch, "Usage: 'activate %s <mobile name>'\r\n",
-                     finger->short_description);
+                     finger->name);
 		return 1;
 	} else if( GET_OBJ_VAL(finger,0) <= 0 ) {
-        send_to_char(ch,"%s is powerless.\r\n", finger->short_description);
+        send_to_char(ch,"%s is powerless.\r\n", finger->name);
         return 1;
     }
 
@@ -44,7 +44,7 @@ SPECIAL(finger_of_death)
         act("You give $N the finger, destroying it utterly.", TRUE, ch, finger, target, TO_CHAR);
 		mudlog( 0, BRF, true, "(f0d) %s has purged %s with %s at %d",
 				GET_NAME(ch), GET_NAME(target), 
-				finger->short_description, target->in_room->number);
+				finger->name, target->in_room->number);
         target->purge(true);
         GET_OBJ_VAL(finger,0) -= 1;
     }

@@ -86,12 +86,12 @@ bool OLCIMP(Creature * ch);
     for (obj = object_list; obj; obj = obj->next) {                   \
       if (obj->shared->vnum == obj_p->shared->vnum) {           \
 	if (!IS_OBJ_STAT2(obj, ITEM2_RENAMED)) {                      \
-	  obj->name = obj_p->name;                                    \
-	  obj->short_description = obj_p->short_description;          \
+	  obj->aliases = obj_p->aliases;                                    \
+	  obj->name = obj_p->name;          \
 	}                                                             \
-	obj->description = obj_p->description;                        \
+	obj->line_desc = obj_p->line_desc ;                        \
 	obj->ex_description = obj_p->ex_description;                  \
-        obj->action_description = obj_p->action_description;          \
+        obj->action_desc = obj_p->action_desc;          \
       }                                                               \
     }
 

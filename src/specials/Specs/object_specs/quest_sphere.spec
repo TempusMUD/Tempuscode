@@ -124,7 +124,7 @@ SPECIAL(quest_sphere)
 					true, self->carried_by, self, 0, TO_ROOM);
 			} else if (self->in_room && self->in_room->people.size()) {
 				send_to_room(tmp_sprintf("%s dissolves into fine sand and is blown away...",
-					self->short_description), self->in_room);
+					self->name), self->in_room);
 			} else {
 				// in_obj is the only case left.  it just silently
 				// disappears in this case
@@ -142,7 +142,7 @@ SPECIAL(quest_sphere)
 
 	// Check to make sure they want to use the sphere
 	targ_str = tmp_getword(&argument);
-	if (!isname(targ_str, self->name))
+	if (!isname(targ_str, self->aliases))
 		return false;
 
 	targ_str = tmp_getword(&argument);
@@ -183,7 +183,7 @@ SPECIAL(quest_sphere)
 
 	if (need_targ && !targ_obj) {
 		send_to_char(ch, "You have to use %s on something!\r\n",
-			self->short_description);
+			self->name);
 		return true;
 	}
 
@@ -233,16 +233,16 @@ SPECIAL(quest_sphere)
 	act("$p disappears from $n's hands in a puff of smoke!",
 		0, ch, self, 0, TO_ROOM);
 	if (targ_obj) {
-		targ_str = tmp_sprintf("%s qsphere-%d %s", targ_obj->name,
+		targ_str = tmp_sprintf("%s qsphere-%d %s", targ_obj->aliases,
 			GET_OBJ_COST(self), GET_NAME(ch));
-		free(targ_obj->name);
-		targ_obj->name = str_dup(targ_str);
+		free(targ_obj->aliases);
+		targ_obj->aliases = str_dup(targ_str);
 		mudlog(GET_LEVEL(ch), CMP, true,
-			"%s has used %s on %s", GET_NAME(ch), self->short_description,
-			targ_obj->short_description);
+			"%s has used %s on %s", GET_NAME(ch), self->name,
+			targ_obj->name);
 	} else
 		mudlog(GET_LEVEL(ch), CMP, true,
-			"%s has used %s", GET_NAME(ch), self->short_description);
+			"%s has used %s", GET_NAME(ch), self->name);
 	extract_obj(self);
 
 	return true;

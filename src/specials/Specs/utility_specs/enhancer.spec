@@ -60,7 +60,7 @@ SPECIAL(enhancer)
 
 	sprintf(buf2, "It will cost you %d %s to have %s enhanced.",
 		cost, ch->in_room->zone->time_frame == TIME_ELECTRO ? "credits" :
-		"coins", obj->short_description);
+		"coins", obj->name);
 	perform_tell(keeper, ch, buf2);
 
 	if (cmd_type == ENHANCE_OFF) {

@@ -1210,9 +1210,9 @@ obj_to_char(struct obj_data *object, struct Creature *ch)
 	if (ch->carrying && ch->carrying->shared->vnum ==
 		object->shared->vnum &&
 		((object->shared->proto &&
-				object->short_description == ch->carrying->short_description)
-			|| !str_cmp(object->short_description,
-				ch->carrying->short_description))
+				object->name == ch->carrying->name)
+			|| !str_cmp(object->name,
+				ch->carrying->name))
 		&& GET_OBJ_EXTRA(ch->carrying) == GET_OBJ_EXTRA(object)
 		&& GET_OBJ_EXTRA2(ch->carrying) == GET_OBJ_EXTRA2(object)) {
 		object->next_content = ch->carrying;
@@ -1224,10 +1224,10 @@ obj_to_char(struct obj_data *object, struct Creature *ch)
 		if (o->next_content->shared->vnum ==
 			object->shared->vnum &&
 			((object->shared->proto &&
-					object->short_description ==
-					o->next_content->short_description)
-				|| !str_cmp(object->short_description,
-					o->next_content->short_description))
+					object->name ==
+					o->next_content->name)
+				|| !str_cmp(object->name,
+					o->next_content->name))
 			&& GET_OBJ_EXTRA(o->next_content) == GET_OBJ_EXTRA(object)
 			&& GET_OBJ_EXTRA2(o->next_content) == GET_OBJ_EXTRA2(object)) {
 			object->next_content = o->next_content;
@@ -1377,7 +1377,7 @@ equip_char(struct Creature *ch, struct obj_data *obj, int pos, int internal)
 
 	if ((!internal && GET_EQ(ch, pos)) || (internal && GET_IMPLANT(ch, pos))) {
 		slog("SYSERR: Char is already equipped: %s, %s %s",
-			GET_NAME(ch), obj->short_description, internal ? "(impl)" : "");
+			GET_NAME(ch), obj->name, internal ? "(impl)" : "");
 		obj_to_room(obj, zone_table->world);
 		return 0;
 	}
@@ -1840,7 +1840,7 @@ obj_from_obj(struct obj_data *obj)
 #ifdef TRACK_OBJS
 	obj->obj_flags.tracker.lost_time = time(0);
 	sprintf(obj->obj_flags.tracker.string, "in obj %s",
-		obj->in_obj->short_description);
+		obj->in_obj->name);
 #endif
 
 	obj_from = obj->in_obj;
@@ -1925,7 +1925,7 @@ extract_obj(struct obj_data *obj)
 	if (obj->worn_by != NULL)
 		if (unequip_char(obj->worn_by, obj->worn_on,
 				(obj == GET_EQ(obj->worn_by, obj->worn_on) ?
-					MODE_EQ : MODE_IMPLANT), true) != obj)
+					MODE_EQ : MODE_IMPLANT), false) != obj)
 			slog("SYSERR: Inconsistent worn_by and worn_on pointers!!");
 	if (obj->in_room != NULL)
 		obj_from_room(obj);
@@ -2171,7 +2171,7 @@ get_obj_in_list_vis(struct Creature *ch, char *name, struct obj_data *list)
 		return NULL;
 
 	for (i = list; i && (j <= number); i = i->next_content)
-		if (isname(tmp, i->name))
+		if (isname(tmp, i->aliases))
 			if (can_see_object(ch, i))
 				if (++j == number)
 					return i;
@@ -2192,7 +2192,7 @@ get_obj_in_list_all(struct Creature *ch, char *name, struct obj_data *list)
 		return NULL;
 
 	for (i = list; i && (j <= number); i = i->next_content)
-		if (isname(tmp, i->name))
+		if (isname(tmp, i->aliases))
 			if (can_see_object(ch, i))
 				if (++j == number)
 					return i;
@@ -2225,7 +2225,7 @@ get_obj_vis(struct Creature *ch, char *name)
 
 	/* ok.. no luck yet. scan the entire obj list   */
 	for (i = object_list; i && (j <= number); i = i->next)
-		if (isname(tmp, i->name))
+		if (isname(tmp, i->aliases))
 			if (can_see_object(ch, i))
 				if (++j == number)
 					return i;
@@ -2237,7 +2237,7 @@ get_obj_vis(struct Creature *ch, char *name)
 struct obj_data *
 get_object_in_equip_pos(struct Creature *ch, char *arg, int pos)
 {
-	if (GET_EQ(ch, pos) && isname(arg, GET_EQ(ch, pos)->name) &&
+	if (GET_EQ(ch, pos) && isname(arg, GET_EQ(ch, pos)->aliases) &&
 		can_see_object(ch, GET_EQ(ch, pos)))
 		return (GET_EQ(ch, pos));
 	else
@@ -2260,7 +2260,7 @@ get_object_in_equip_vis(struct Creature *ch,
 	for ((*j) = 0; (*j) < NUM_WEARS && x <= number; (*j)++)
 		if (equipment[(*j)])
 			if (can_see_object(ch, equipment[(*j)]))
-				if (isname(tmp, equipment[(*j)]->name))
+				if (isname(tmp, equipment[(*j)]->aliases))
 					if (++x == number)
 						return (equipment[(*j)]);
 
@@ -2283,7 +2283,7 @@ get_object_in_equip_all(struct Creature *ch,
 	for ((*j) = 0; (*j) < NUM_WEARS && x <= number; (*j)++)
 		if (equipment[(*j)])
 			if (can_see_object(ch, equipment[(*j)]))
-				if (isname(tmp, equipment[(*j)]->name))
+				if (isname(tmp, equipment[(*j)]->aliases))
 					if (++x == number)
 						return (equipment[(*j)]);
 	return NULL;
@@ -2381,32 +2381,32 @@ create_money(int amount, int mode)
 
 	if (mode == 0) {
 		if (amount == 1) {
-			obj->name = str_dup("coin gold");
+			obj->aliases = str_dup("coin gold");
 			new_descr->keyword = str_dup("coin gold");
-			obj->short_description = str_dup("a gold coin");
-			obj->description =
+			obj->name = str_dup("a gold coin");
+			obj->line_desc =
 				str_dup("One miserable gold coin is lying here.");
 		} else {
-			obj->name = str_dup("coins gold");
+			obj->aliases = str_dup("coins gold");
 			new_descr->keyword = str_dup("coins gold");
-			obj->short_description = str_dup(money_desc(amount, mode));
-			obj->description = str_dup(tmp_capitalize(tmp_sprintf(
-				"%s is lying here.", obj->short_description)));
+			obj->name = str_dup(money_desc(amount, mode));
+			obj->line_desc = str_dup(tmp_capitalize(tmp_sprintf(
+				"%s is lying here.", obj->name)));
 		}
 		GET_OBJ_MATERIAL(obj) = MAT_GOLD;
 	} else {					// credits
 		if (amount == 1) {
-			obj->name = str_dup("credit money note one-credit");
-			obj->short_description = str_dup("a one-credit note");
-			obj->description =
+			obj->aliases = str_dup("credit money note one-credit");
+			obj->name = str_dup("a one-credit note");
+			obj->line_desc =
 				str_dup("A single one-credit note has been dropped here.");
 			new_descr->keyword = str_dup("credit money note one-credit");
 		} else {
-			obj->name = str_dup("credits money cash");
+			obj->aliases = str_dup("credits money cash");
 			new_descr->keyword = str_dup("credits money cash");
-			obj->short_description = str_dup(money_desc(amount, mode));
-			obj->description = str_dup(tmp_capitalize(tmp_sprintf(
-				"%s is lying here.", obj->short_description)));
+			obj->name = str_dup(money_desc(amount, mode));
+			obj->line_desc = str_dup(tmp_capitalize(tmp_sprintf(
+				"%s is lying here.", obj->name)));
 		}
 		GET_OBJ_MATERIAL(obj) = MAT_PAPER;
 	}
@@ -2515,7 +2515,7 @@ generic_find(char *arg, int bitvector, struct Creature *ch,
 	}
 	if (IS_SET(bitvector, FIND_OBJ_EQUIP)) {
 		for (found = FALSE, i = 0; i < NUM_WEARS && !found; i++)
-			if (GET_EQ(ch, i) && isname(name, GET_EQ(ch, i)->name)) {
+			if (GET_EQ(ch, i) && isname(name, GET_EQ(ch, i)->aliases)) {
 				*tar_obj = GET_EQ(ch, i);
 				found = TRUE;
 			}
@@ -2525,7 +2525,7 @@ generic_find(char *arg, int bitvector, struct Creature *ch,
 	}
 	if (IS_SET(bitvector, FIND_OBJ_EQUIP_CONT)) {
 		for (found = FALSE, i = 0; i < NUM_WEARS && !found; i++)
-			if (GET_EQ(ch, i) && isname(name, GET_EQ(ch, i)->name) &&
+			if (GET_EQ(ch, i) && isname(name, GET_EQ(ch, i)->aliases) &&
 				(GET_OBJ_TYPE(GET_EQ(ch, i)) == ITEM_CONTAINER) &&
 				(i != WEAR_BACK)) {
 				*tar_obj = GET_EQ(ch, i);

@@ -34,7 +34,7 @@ SPECIAL(spinal)
 	for (spine = object_list; spine; spine = spine->next) {
 		if (!IS_OBJ_STAT2(spine, ITEM2_BODY_PART) ||
 			!CAN_WEAR(spine, ITEM_WEAR_WIELD) ||
-			!isname("spine", spine->name) ||
+			!isname("spine", spine->aliases) ||
 			spine->worn_by || (!spine->carried_by && spine->in_room == NULL)) {
 			if (spine->next) {
 				continue;

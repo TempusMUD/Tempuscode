@@ -395,7 +395,7 @@ do_qcontrol_oload_list(Creature * ch)
 		if (!(obj = read_object(i)))
 			continue;
 		sprintf(buf, "    %s%d. %s%s %s: %d qps ", CCNRM(ch, C_NRM),
-			i - MIN_QUEST_OBJ_VNUM, CCGRN(ch, C_NRM), obj->short_description,
+			i - MIN_QUEST_OBJ_VNUM, CCGRN(ch, C_NRM), obj->name,
 			CCNRM(ch, C_NRM), (obj->shared->cost / 100000));
 		if (IS_OBJ_STAT2(obj, ITEM2_UNAPPROVED))
 			strcat(buf, "(!ap)\r\n");
@@ -476,7 +476,7 @@ do_qcontrol_oload(Creature *ch, char *argument, int com)
 	act("$n has created $p!", FALSE, ch, obj, 0, TO_ROOM);
 	act("You create $p.", FALSE, ch, obj, 0, TO_CHAR);
 
-	sprintf(buf, "loaded %s at %d.", obj->short_description,
+	sprintf(buf, "loaded %s at %d.", obj->name,
 		ch->in_room->number);
 	qlog(ch, buf, QLOG_BRIEF, MAX(GET_INVIS_LVL(ch), LVL_IMMORT), TRUE);
 

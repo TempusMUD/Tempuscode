@@ -52,7 +52,7 @@ SPECIAL(repairer)
 
 	if (GET_OBJ_DAM(obj) <= -1 || GET_OBJ_MAX_DAM(obj) <= -1) {
 		sprintf(tellbuf, "There is no point... %s is unbreakable.",
-			obj->short_description);
+			obj->name);
 		perform_tell(repairer, ch, tellbuf);
 		return 1;
 	}
@@ -60,7 +60,7 @@ SPECIAL(repairer)
 	if (GET_OBJ_MAX_DAM(obj) == 0 ||
 		GET_OBJ_MAX_DAM(obj) <= (GET_OBJ_MAX_DAM(proto_obj) >> 4)) {
 		sprintf(tellbuf, "Sorry, %s is damaged beyond repair.",
-			obj->short_description);
+			obj->name);
 		perform_tell(repairer, ch, tellbuf);
 		return 1;
 	}
@@ -82,7 +82,7 @@ SPECIAL(repairer)
 
 	if (CMD_IS("value")) {
 		sprintf(tellbuf, "It will cost you %d %s to repair %s.", cost,
-			currency ? "credits" : "coins", obj->short_description);
+			currency ? "credits" : "coins", obj->name);
 		perform_tell(repairer, ch, tellbuf);
 		return 1;
 	}

@@ -17,7 +17,7 @@ SPECIAL(black_rose)
 	if (!*argument)
 		return 0;
 
-	if (!isname(argument, trash->name))
+	if (!isname(argument, trash->aliases))
 		return 0;
 
 	send_to_char(ch,

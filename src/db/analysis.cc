@@ -143,7 +143,7 @@ sprintobj( Creature *ch, obj_data *obj, ObjectMatcherTable &table, int num )
 	const char *info = table.getAddedInfo( ch, obj );
 	return tmp_sprintf("%3d. %s[%s%5d%s] %35s%s %s%s\r\n", num,
 					   CCGRN(ch, C_NRM), CCNRM(ch, C_NRM), GET_OBJ_VNUM(obj),
-					   CCGRN(ch, C_NRM), obj->short_description, CCNRM(ch, C_NRM),
+					   CCGRN(ch, C_NRM), obj->name, CCNRM(ch, C_NRM),
 					   info, !OBJ_APPROVED(obj) ? "(!appr)" : "");
 }
 

@@ -553,7 +553,7 @@ SPECIAL(voting_booth)
 		voting_booth_read(ch, obj, argument);
 	} else if (VOTING_CMD_LOOK == cmd || VOTING_CMD_EXAMINE == cmd) {
 		skip_spaces(&argument);
-		if (!isname(argument, obj->name) && !isname(argument, "voting booth"))
+		if (!isname(argument, obj->aliases) && !isname(argument, "voting booth"))
 			return 0;
 		voting_booth_list(ch, obj);
 	} else if (VOTING_CMD_REMOVE == cmd && GET_LEVEL(ch) >= LVL_AMBASSADOR) {

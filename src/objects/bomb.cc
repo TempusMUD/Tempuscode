@@ -489,7 +489,7 @@ detonate_bomb(struct obj_data *bomb)
 				(cont ? "$P" : "your inventory")));
 		act(buf, FALSE, ch, bomb, cont, TO_CHAR);
 		sprintf(buf, "$p goes off $n's %s!!!",
-			cont ? fname(cont->name) : "hands");
+			cont ? fname(cont->aliases) : "hands");
 		act(buf, FALSE, ch, bomb, cont, TO_ROOM);
 		room = ch->in_room;
 		if (room && ROOM_FLAGGED(room, ROOM_PEACEFUL))
@@ -520,7 +520,7 @@ detonate_bomb(struct obj_data *bomb)
 	for (rad_elem = bomb_rooms; rad_elem; rad_elem = next_elem) {
 		next_elem = rad_elem->next;
 
-		bomb_damage_room(bomb->short_description, BOMB_TYPE(bomb),
+		bomb_damage_room(bomb->name, BOMB_TYPE(bomb),
 			BOMB_POWER(bomb), rad_elem->room, find_first_step(rad_elem->room,
 				room, GOD_TRACK), rad_elem->power);
 		free(rad_elem);

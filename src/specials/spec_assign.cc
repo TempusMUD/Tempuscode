@@ -382,7 +382,7 @@ do_specassign_save(struct Creature *ch, int mode)
 					continue;
 				fprintf(file, "%-6d %-20s ## %s\n",
 					GET_OBJ_VNUM(obj), spec_list[index].tag,
-					obj->short_description);
+					obj->name);
 			}
 		}
 		fclose(file);

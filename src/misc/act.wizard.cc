@@ -1058,7 +1058,7 @@ do_stat_room(struct Creature *ch, char *roomstr)
         for (found = 0, j = rm->contents; j; j = j->next_content) {
             if (!can_see_object(ch, j))
                 continue;
-            sprintf(buf2, "%s %s", found++ ? "," : "", j->short_description);
+            sprintf(buf2, "%s %s", found++ ? "," : "", j->name);
             strcat(buf, buf2);
             if (strlen(buf) >= 62) {
                 if (j->next_content)
@@ -1121,7 +1121,7 @@ do_stat_object(struct Creature *ch, struct obj_data *j)
     extern struct attack_hit_type attack_hit_text[];
     struct room_data *rm = NULL;
 
-    if (IS_OBJ_TYPE(j, ITEM_NOTE) && isname("letter", j->name)) {
+    if (IS_OBJ_TYPE(j, ITEM_NOTE) && isname("letter", j->aliases)) {
         if (j->carried_by && GET_LEVEL(j->carried_by) > GET_LEVEL(ch)) {
             act("$n just tried to stat your mail.",
                 FALSE, ch, 0, j->carried_by, TO_VICT);
@@ -1135,8 +1135,8 @@ do_stat_object(struct Creature *ch, struct obj_data *j)
     }
 
     send_to_char(ch, "Name: '%s%s%s', Aliases: %s\r\n", CCGRN(ch, C_NRM),
-        ((j->short_description) ? j->short_description : "<None>"),
-        CCNRM(ch, C_NRM), j->name);
+        ((j->name) ? j->name : "<None>"),
+        CCNRM(ch, C_NRM), j->aliases);
     sprinttype(GET_OBJ_TYPE(j), item_types, buf1);
 
     strcpy(buf2, j->shared->func ?
@@ -1149,10 +1149,10 @@ do_stat_object(struct Creature *ch, struct obj_data *j)
         j->shared->house_count, buf1, buf2);
     send_to_char(ch, "%s", buf);
     send_to_char(ch, "L-Des: %s%s%s\r\n", CCGRN(ch, C_NRM),
-        ((j->description) ? j->description : "None"), CCNRM(ch, C_NRM));
+        ((j->line_desc) ? j->line_desc : "None"), CCNRM(ch, C_NRM));
 
-    if (j->action_description) {
-        send_to_char(ch, "Action desc: %s\r\n", j->action_description);
+    if (j->action_desc) {
+        send_to_char(ch, "Action desc: %s\r\n", j->action_desc);
     }
 
     if (j->ex_description) {
@@ -1166,7 +1166,7 @@ do_stat_object(struct Creature *ch, struct obj_data *j)
         send_to_char(ch, strcat(buf, "\r\n"));
     }
 
-    if (!j->description) {
+    if (!j->line_desc) {
         send_to_char(ch, "**This object currently has no description**\r\n");
     }
 
@@ -1229,7 +1229,7 @@ do_stat_object(struct Creature *ch, struct obj_data *j)
         strcat(buf, CCNRM(ch, C_NRM));
         strcat(buf, ", In obj: ");
         sprintf(buf, "%s%s%s%s", buf, CCGRN(ch, C_NRM),
-            j->in_obj ? j->in_obj->short_description : "N", CCNRM(ch, C_NRM));
+            j->in_obj ? j->in_obj->name : "N", CCNRM(ch, C_NRM));
         strcat(buf, ", Carry: ");
         sprintf(buf, "%s%s%s%s", buf, CCYEL(ch, C_NRM),
             j->carried_by ? GET_NAME(j->carried_by) : "N", CCNRM(ch, C_NRM));
@@ -1240,7 +1240,7 @@ do_stat_object(struct Creature *ch, struct obj_data *j)
                 "" : " (impl)"), CCNRM(ch, C_NRM));
         strcat(buf, ", Aux: ");
         sprintf(buf, "%s%s%s%s", buf, CCGRN(ch, C_NRM),
-            j->aux_obj ? j->aux_obj->short_description : "N", CCNRM(ch,
+            j->aux_obj ? j->aux_obj->name : "N", CCNRM(ch,
                 C_NRM));
         strcat(buf, "\r\n");
         send_to_char(ch, "%s", buf);
@@ -2483,14 +2483,14 @@ ACMD(do_oload)
         act("$n has created $p!", FALSE, ch, obj, 0, TO_ROOM);
         act("You create $p.", FALSE, ch, obj, 0, TO_CHAR);
         slog("(GC) %s loaded %s at %d.", GET_NAME(ch),
-            obj->short_description, ch->in_room->number);
+            obj->name, ch->in_room->number);
     }
     else {
-        act(tmp_sprintf("%s has created %s! (x%d)", GET_NAME(ch), obj->short_description, 
+        act(tmp_sprintf("%s has created %s! (x%d)", GET_NAME(ch), obj->name, 
             quantity), FALSE, ch, obj, 0, TO_ROOM);
-        act(tmp_sprintf("You create %s. (x%d)", obj->short_description, quantity), FALSE,
+        act(tmp_sprintf("You create %s. (x%d)", obj->name, quantity), FALSE,
             ch, obj, 0, TO_CHAR);
-        slog("(GC) %s loaded %s at %d. (x%d)", GET_NAME(ch), obj->short_description, 
+        slog("(GC) %s loaded %s at %d. (x%d)", GET_NAME(ch), obj->name, 
             ch->in_room->number, quantity);
     }
 }
@@ -2590,10 +2590,10 @@ ACMD(do_pload)
         }
         
         else {
-            act(tmp_sprintf("You load %s onto %s. (x%d)", obj->short_description, 
+            act(tmp_sprintf("You load %s onto %s. (x%d)", obj->name, 
                     GET_NAME(vict), quantity), FALSE, ch, obj, vict, TO_CHAR);
             act(tmp_sprintf("%s causes %s to appear in your hands. (x%d)", 
-                    GET_NAME(ch), obj->short_description, quantity), FALSE, ch, obj, 
+                    GET_NAME(ch), obj->name, quantity), FALSE, ch, obj, 
                     vict, TO_VICT);
         }
         
@@ -2611,17 +2611,17 @@ ACMD(do_pload)
             act("You create $p.", FALSE, ch, obj, 0, TO_CHAR);
         } 
         else {
-            act(tmp_sprintf("You create %s. (x%d)", obj->short_description, 
+            act(tmp_sprintf("You create %s. (x%d)", obj->name, 
                 quantity), FALSE, ch, obj, 0, TO_CHAR);
         }
     }
     if(quantity == 1) {
-        slog("(GC) %s ploaded %s on %s.", GET_NAME(ch), obj->short_description,
+        slog("(GC) %s ploaded %s on %s.", GET_NAME(ch), obj->name,
             vict ? GET_NAME(vict) : GET_NAME(ch));
     }
     else {
         slog("(GC) %s ploaded %s on %s. (x%d)", GET_NAME(ch), 
-            obj->short_description, vict ? GET_NAME(vict) : GET_NAME(ch), 
+            obj->name, vict ? GET_NAME(vict) : GET_NAME(ch), 
             quantity);
     }
 }
@@ -2730,7 +2730,7 @@ ACMD(do_purge)
         } else if ((obj = get_obj_in_list_vis(ch, buf, ch->in_room->contents))) {
             act("$n destroys $p.", FALSE, ch, obj, 0, TO_ROOM);
             slog("(GC) %s purged %s at %d.", GET_NAME(ch),
-                obj->short_description, ch->in_room->number);
+                obj->name, ch->in_room->number);
             extract_obj(obj);
 
         } else {
@@ -4660,7 +4660,7 @@ ACMD(do_show)
                 }
                 sprintf(buf, "%s%3d. [%5d] %s%-36s%s  (%s)\r\n", buf, i,
                     GET_OBJ_VNUM(obj), CCGRN(ch, C_NRM),
-                    obj->short_description, CCNRM(ch, C_NRM), obj->name);
+                    obj->name, CCNRM(ch, C_NRM), obj->aliases);
                 i++;
             }
         }
@@ -4688,7 +4688,7 @@ ACMD(do_show)
 
                 sprintf(buf2, "%3d. [%5d] %s%-34s%s [%3d percent] %s\r\n",
                     i, GET_OBJ_VNUM(obj), CCGRN(ch, C_NRM),
-                    obj->short_description,
+                    obj->name,
                     CCNRM(ch, C_NRM),
                     j, IS_OBJ_STAT2(obj, ITEM2_BROKEN) ? "<broken>" : "");
                 if ((strlen(buf) + strlen(buf2) + 128) > MAX_STRING_LENGTH) {
@@ -4723,7 +4723,7 @@ ACMD(do_show)
                     GET_IMPLANT(obj->worn_by, obj->worn_on) &&
                     GET_IMPLANT(obj->worn_by, obj->worn_on) == obj) {
                     sprintf(buf, "%3d. %30s - implanted in %s%s%s (%s)\r\n",
-                        i++, obj->short_description,
+                        i++, obj->name,
                         !IS_NPC(obj->worn_by) ? CCYEL(ch, C_NRM) : "",
                         GET_NAME(obj->worn_by),
                         !IS_NPC(obj->worn_by) ? CCNRM(ch, C_NRM) : "",
@@ -4946,7 +4946,7 @@ ACMD(do_show)
                     "%s%4d. %s[%s%5d%s] %40s%s Tot:[%4d], House:[%4d]\r\n",
                     buf, ++i, CCGRN(ch, C_NRM), CCNRM(ch, C_NRM),
                     GET_OBJ_VNUM(obj), CCGRN(ch, C_NRM),
-                    obj->short_description, CCNRM(ch, C_NRM),
+                    obj->name, CCNRM(ch, C_NRM),
                     obj->shared->number, obj->shared->house_count);
             }
         }
@@ -5092,7 +5092,7 @@ ACMD(do_show)
                 obj = real_object_proto(GET_WEAP_SPEC(vict, i).vnum);
             sprintf(buf, "%s [%5d] %-30s [%2d]\r\n", buf,
                 GET_WEAP_SPEC(vict, i).vnum,
-                obj ? obj->short_description : "--- ---",
+                obj ? obj->name : "--- ---",
                 GET_WEAP_SPEC(vict, i).level);
         }
         page_string(ch->desc, buf);
@@ -6321,9 +6321,9 @@ ACMD(do_olist)
             sprintf(buf, "%5d. %s[%s%5d%s]%s %-36s%s %s %s\r\n", ++found,
                 CCGRN(ch, C_NRM), CCNRM(ch, C_NRM), obj->shared->vnum,
                 CCGRN(ch, C_NRM), CCGRN(ch, C_NRM),
-                obj->short_description, CCNRM(ch, C_NRM),
-                !P_OBJ_APPROVED(obj) ? "(!aprvd)" : "", (!(obj->description)
-                    || !(*(obj->description))) ? "(nodesc)" : "");
+                obj->name, CCNRM(ch, C_NRM),
+                !P_OBJ_APPROVED(obj) ? "(!aprvd)" : "", (!(obj->line_desc)
+                    || !(*(obj->line_desc))) ? "(nodesc)" : "");
             if ((strlen(out_list) + strlen(buf)) < MAX_STRING_LENGTH - 20)
                 strcat(out_list, buf);
             else if (strlen(out_list) < (MAX_STRING_LENGTH - 20)) {
@@ -6377,11 +6377,11 @@ ACMD(do_rename)
 
     if (obj) {
         sprintf(logbuf, "%s has renamed %s '%s'.", GET_NAME(ch),
-            obj->short_description, new_desc);
-        obj->short_description = str_dup(new_desc);
+            obj->name, new_desc);
+        obj->name = str_dup(new_desc);
         sprintf(buf, "%s has been left here.", new_desc);
         strcpy(buf, CAP(buf));
-        obj->description = str_dup(buf);
+        obj->line_desc = str_dup(buf);
     } else if (vict) {
         sprintf(logbuf, "%s has renamed %s '%s'.", GET_NAME(ch),
             GET_NAME(vict), new_desc);
@@ -6444,12 +6444,12 @@ ACMD(do_addname)
         
         if (obj) {
             
-            if(strstr(obj->name, new_name) != NULL) {
+            if(strstr(obj->aliases, new_name) != NULL) {
                 send_to_char(ch, "Name: \'%s\' is already an alias.\r\n", new_name);
                 continue;
             }
-            snprintf(buf, EXDSCR_LENGTH, "%s %s", obj->name, new_name);
-            obj->name = str_dup(buf);
+            snprintf(buf, EXDSCR_LENGTH, "%s %s", obj->aliases, new_name);
+            obj->aliases = str_dup(buf);
         } else if (vict) {
             if(strstr(vict->player.name, new_name) != NULL) {
                 send_to_char(ch, "Name: \'%s\' is already an alias.\r\n", new_name);
@@ -6525,7 +6525,7 @@ ACMD(do_addpos)
     bit = (1 << bit);
 
     TOGGLE_BIT(obj->obj_flags.wear_flags, bit);
-    send_to_char(ch, "Bit %s for %s now %s.\r\n", new_pos, obj->short_description,
+    send_to_char(ch, "Bit %s for %s now %s.\r\n", new_pos, obj->name,
         IS_SET(obj->obj_flags.wear_flags, bit) ? "ON" : "OFF");
     return;
 }
@@ -6550,7 +6550,7 @@ ACMD(do_nolocate)
     TOGGLE_BIT(obj->obj_flags.extra2_flags, ITEM2_NOLOCATE);
     send_to_char(ch, "NoLocate is now %s for %s.\r\n",
         IS_SET(obj->obj_flags.extra2_flags, ITEM2_NOLOCATE) ? "ON" : "OFF",
-        obj->short_description);
+        obj->name);
     return;
 }
 
@@ -6717,11 +6717,11 @@ ACMD(do_searchfor)
             obj_found = TRUE;
 
 #ifdef TRACK_OBJS
-            sprintf(buf, "Object: %s [%s] %s", obj->short_description,
+            sprintf(buf, "Object: %s [%s] %s", obj->name,
                 obj->obj_flags.tracker.string,
                 ctime(&obj->obj_flags.tracker.lost_time));
 #else
-            send_to_char(ch, "Object: %s\r\n", obj->short_description);
+            send_to_char(ch, "Object: %s\r\n", obj->name);
 #endif
         }
     }
@@ -7092,7 +7092,7 @@ stat_obj_to_file(struct obj_data *j, ofstream & out)
     extern struct attack_hit_type attack_hit_text[];
 
     sprintf(buf, "Name: %s', Aliases: %s\r\n",
-        ((j->short_description) ? j->short_description : "<None>"), j->name);
+        ((j->name) ? j->name : "<None>"), j->aliases);
     out << buf;
     sprinttype(GET_OBJ_TYPE(j), item_types, buf1);
 
@@ -7105,11 +7105,11 @@ stat_obj_to_file(struct obj_data *j, ofstream & out)
         j->shared->number, j->shared->house_count, buf1, buf2);
     out << buf;
     sprintf(buf, "L-Des: %s\r\n",
-        ((j->description) ? j->description : "None"));
+        ((j->line_desc) ? j->line_desc : "None"));
     out << buf;
 
-    if (j->action_description) {
-        sprintf(buf, "Action desc: %s\r\n", j->action_description);
+    if (j->action_desc) {
+        sprintf(buf, "Action desc: %s\r\n", j->action_desc);
         out << buf;
     }
 
@@ -7123,7 +7123,7 @@ stat_obj_to_file(struct obj_data *j, ofstream & out)
         out << buf << "\r\n";
     }
 
-    if (!j->description) {
+    if (!j->line_desc) {
         out << "**This object currently has no description**\r\n";
     }
 

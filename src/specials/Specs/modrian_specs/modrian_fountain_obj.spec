@@ -18,7 +18,7 @@ SPECIAL(modrian_fountain_obj)
 	if (!CMD_IS("enter"))
 		return 0;
 
-	if (isname(arg, fount->name)) {
+	if (isname(arg, fount->aliases)) {
 		act("$n leaps into $p.", FALSE, ch, fount, 0, TO_ROOM);
 		act("You leaps into $p.", FALSE, ch, fount, 0, TO_CHAR);
 		char_from_room(ch, false);

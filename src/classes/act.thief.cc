@@ -105,7 +105,7 @@ ACMD(do_steal)
 
 			for (eq_pos = 0; eq_pos < NUM_WEARS; eq_pos++)
 				if (GET_EQ(vict, eq_pos) &&
-					(isname(obj_name, GET_EQ(vict, eq_pos)->name)) &&
+					(isname(obj_name, GET_EQ(vict, eq_pos)->aliases)) &&
 					can_see_object(ch, GET_EQ(vict, eq_pos))) {
 					obj = GET_EQ(vict, eq_pos);
 					break;
@@ -140,7 +140,7 @@ ACMD(do_steal)
 						gain_skill_prof(ch, SKILL_STEAL);
 						if (GET_LEVEL(ch) >= LVL_AMBASSADOR || !IS_NPC(vict)) {
 							slog("%s stole %s from %s.",
-								GET_NAME(ch), obj->short_description,
+								GET_NAME(ch), obj->name,
 								GET_NAME(vict));
 						}
 					} else {
@@ -202,7 +202,7 @@ ACMD(do_steal)
 						gain_skill_prof(ch, SKILL_STEAL);
 						if (GET_LEVEL(ch) >= LVL_AMBASSADOR || !IS_NPC(vict)) {
 							slog("%s stole %s from %s.",
-								GET_NAME(ch), obj->short_description,
+								GET_NAME(ch), obj->name,
 								GET_NAME(vict));
 						}
 					} else

@@ -2478,8 +2478,8 @@ save_zone(struct Creature *ch, struct zone_data *zone)
 				break;
 			case 'O':
 				if ((obj = real_object_proto(zcmd->arg1))) {
-					if (obj && obj->short_description)
-						strcpy(comment, obj->short_description);
+					if (obj && obj->name)
+						strcpy(comment, obj->name);
 					else
 						strcpy(comment, " ");
 				} else
@@ -2488,8 +2488,8 @@ save_zone(struct Creature *ch, struct zone_data *zone)
 			case 'E':
 			case 'I':
 				if ((obj = real_object_proto(zcmd->arg1))) {
-					if (obj && obj->short_description)
-						strcpy(comment, obj->short_description);
+					if (obj && obj->name)
+						strcpy(comment, obj->name);
 					else
 						strcpy(comment, " ");
 				} else
@@ -2497,8 +2497,8 @@ save_zone(struct Creature *ch, struct zone_data *zone)
 				break;
 			case 'P':
 				if ((obj = real_object_proto(zcmd->arg1))) {
-					if (obj && obj->short_description)
-						strcpy(comment, obj->short_description);
+					if (obj && obj->name)
+						strcpy(comment, obj->name);
 					else
 						strcpy(comment, " ");
 				} else
@@ -2520,8 +2520,8 @@ save_zone(struct Creature *ch, struct zone_data *zone)
 				break;
 			case 'G':
 				if ((obj = real_object_proto(zcmd->arg1))) {
-					if (obj->short_description)
-						strcpy(comment, obj->short_description);
+					if (obj->name)
+						strcpy(comment, obj->name);
 					else
 						strcpy(comment, " ");
 				} else
@@ -2757,8 +2757,8 @@ do_zone_cmdlist(struct Creature *ch, struct zone_data *zone, char *arg)
 				zcmd->line, CCGRN(ch, C_NRM), CCNRM(ch, C_NRM), zcmd->if_flag,
 				zcmd->prob, zcmd->arg1, tmp_rom ? tmp_rom->number : (-1),
 				zcmd->arg2, CCGRN(ch, C_NRM), (tmp_obj
-					&& tmp_obj->short_description) ? tmp_obj->
-				short_description : "null-desc", CCNRM(ch, C_NRM));
+					&& tmp_obj->name) ? tmp_obj->
+				name : "null-desc", CCNRM(ch, C_NRM));
 			break;
 		case 'P':
 			if (!mode_all && !mode_put)
@@ -2769,8 +2769,8 @@ do_zone_cmdlist(struct Creature *ch, struct zone_data *zone, char *arg)
 				zcmd->line, CCBLU_BLD(ch, C_NRM), CCNRM(ch, C_NRM),
 				zcmd->if_flag, zcmd->prob, zcmd->arg1, zcmd->arg3, zcmd->arg2,
 				CCGRN(ch, C_NRM), (tmp_obj
-					&& tmp_obj->short_description) ? tmp_obj->
-				short_description : "null-desc", CCNRM(ch, C_NRM));
+					&& tmp_obj->name) ? tmp_obj->
+				name : "null-desc", CCNRM(ch, C_NRM));
 			break;
 		case 'V':
 			if (!mode_all && !mode_path)
@@ -2801,8 +2801,8 @@ do_zone_cmdlist(struct Creature *ch, struct zone_data *zone, char *arg)
 				zcmd->line, CCBLU_BLD(ch, C_NRM), CCNRM(ch, C_NRM),
 				zcmd->if_flag, zcmd->prob, zcmd->arg1, zcmd->arg3, zcmd->arg2,
 				CCGRN(ch, C_NRM), (tmp_obj
-					&& tmp_obj->short_description) ? tmp_obj->
-				short_description : "null-desc", CCNRM(ch, C_NRM));
+					&& tmp_obj->name) ? tmp_obj->
+				name : "null-desc", CCNRM(ch, C_NRM));
 			break;
 		case 'E':
 			if (!mode_all && !mode_eq)
@@ -2813,8 +2813,8 @@ do_zone_cmdlist(struct Creature *ch, struct zone_data *zone, char *arg)
 				zcmd->line, CCMAG(ch, C_NRM), CCNRM(ch, C_NRM), zcmd->if_flag,
 				zcmd->prob, zcmd->arg1, zcmd->arg3, zcmd->arg2, CCGRN(ch,
 					C_NRM), (tmp_obj
-					&& tmp_obj->short_description) ? tmp_obj->
-				short_description : "null-desc", CCNRM(ch, C_NRM));
+					&& tmp_obj->name) ? tmp_obj->
+				name : "null-desc", CCNRM(ch, C_NRM));
 			break;
 		case 'I':
 			if (!mode_all && !mode_implant)
@@ -2825,8 +2825,8 @@ do_zone_cmdlist(struct Creature *ch, struct zone_data *zone, char *arg)
 				zcmd->line, CCMAG(ch, C_NRM), CCNRM(ch, C_NRM), zcmd->if_flag,
 				zcmd->prob, zcmd->arg1, zcmd->arg3, zcmd->arg2, CCGRN(ch,
 					C_NRM), (tmp_obj
-					&& tmp_obj->short_description) ? tmp_obj->
-				short_description : "null-desc", CCNRM(ch, C_NRM));
+					&& tmp_obj->name) ? tmp_obj->
+				name : "null-desc", CCNRM(ch, C_NRM));
 			break;
 		case 'R':
 			if (!mode_all && !mode_rem)
@@ -2836,8 +2836,8 @@ do_zone_cmdlist(struct Creature *ch, struct zone_data *zone, char *arg)
 				"%3d. %sRem Obj%s % d [%3d] %5d from %5d,          (%s%s%s)\r\n",
 				zcmd->line, CCRED(ch, C_NRM), CCNRM(ch, C_NRM), zcmd->if_flag,
 				zcmd->prob, zcmd->arg1, zcmd->arg2, CCGRN(ch, C_NRM), (tmp_obj
-					&& tmp_obj->short_description) ? tmp_obj->
-				short_description : "null-desc", CCNRM(ch, C_NRM));
+					&& tmp_obj->name) ? tmp_obj->
+				name : "null-desc", CCNRM(ch, C_NRM));
 			break;
 		case 'D':
 			if (!mode_all && !mode_door)

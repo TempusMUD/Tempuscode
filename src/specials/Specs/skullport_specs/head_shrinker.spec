@@ -52,7 +52,7 @@ SPECIAL(head_shrinker)
 		send_to_char(ch, "That's a cooked corpse, crazy man.\r\n");
 		return 1;
 	}
-	if (!strncmp(corpse->short_description, "the headless", 12)) {
+	if (!strncmp(corpse->name, "the headless", 12)) {
 		return 1;
 	}
 	if (GET_GOLD(ch) < 150) {
@@ -70,9 +70,9 @@ SPECIAL(head_shrinker)
 
 	GET_GOLD(ch) -= 150;
 
-	if (!strncmp(corpse->short_description, "the severed head of", 19)) {
-		sprintf(buf, "the shrunken head of%s", corpse->short_description + 19);
-	} else if ((s = strstr(corpse->short_description, "corpse of"))) {
+	if (!strncmp(corpse->name, "the severed head of", 19)) {
+		sprintf(buf, "the shrunken head of%s", corpse->name + 19);
+	} else if ((s = strstr(corpse->name, "corpse of"))) {
 		s += 9;
 		if (!*s) {
 			return 1;
@@ -80,16 +80,16 @@ SPECIAL(head_shrinker)
 		skip_spaces(&s);
 		sprintf(buf, "the shrunken head of %s", s);
 	} else {
-		sprintf(buf, "the shrunken head of %s", corpse->short_description);
+		sprintf(buf, "the shrunken head of %s", corpse->name);
 	}
 
-	head->short_description = str_dup(buf);
-
-	sprintf(buf, "talisman head shrunken %s", corpse->name);
 	head->name = str_dup(buf);
 
-	sprintf(buf, "%s is here.", head->short_description);
-	head->description = str_dup(buf);
+	sprintf(buf, "talisman head shrunken %s", corpse->aliases);
+	head->aliases = str_dup(buf);
+
+	sprintf(buf, "%s is here.", head->name);
+	head->line_desc = str_dup(buf);
 
 	obj_to_char(head, ch);
 	extract_obj(corpse);

@@ -15,7 +15,7 @@ SPECIAL(quantum_rift)
 	if (!CMD_IS("enter") || !can_see_object(ch, rift) || !AWAKE(ch))
 		return 0;
 	one_argument(argument, arg1);
-	if (!isname(arg1, rift->name))
+	if (!isname(arg1, rift->aliases))
 		return 0;
 
 	// Everytime someone enters, lower the timer by one.

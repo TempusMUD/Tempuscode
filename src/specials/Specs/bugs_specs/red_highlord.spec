@@ -41,7 +41,7 @@ SPECIAL(red_highlord)
 
 	if ((blade = get_obj_in_list_all(ch, "desolation", ch->carrying))) {
 		if (GET_EQ(ch, WEAR_WIELD))
-			do_remove(ch, fname(GET_EQ(ch, WEAR_WIELD)->name), 0, 0, 0);
+			do_remove(ch, fname(GET_EQ(ch, WEAR_WIELD)->aliases), 0, 0, 0);
 		do_wield(ch, "desolation", 0, 0, 0);
 		return 1;
 	}
@@ -52,7 +52,7 @@ SPECIAL(red_highlord)
 
 	for (blade = object_list; blade; blade = blade->next) {
 		if (GET_OBJ_VNUM(blade) != sword_vnum ||
-			blade->shared->proto->short_description != blade->short_description
+			blade->shared->proto->name != blade->name
 			|| IS_OBJ_STAT2(blade, ITEM2_RENAMED)
 			|| IS_OBJ_STAT2(blade, ITEM2_PROTECTED_HUNT))
 			continue;

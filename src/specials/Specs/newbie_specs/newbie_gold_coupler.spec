@@ -37,7 +37,7 @@ SPECIAL(newbie_gold_coupler)
 						"%s gathers up many scattered coins of gold.\r\n"
 						"%s drops %s and disappears suddenly!\r\n",
 						GET_NAME(coup), GET_NAME(coup), GET_NAME(coup),
-						money->short_description);
+						money->aliases);
 					send_to_room(buf, (real_room(i)));
 				}
 				if (coup->in_room->people) {

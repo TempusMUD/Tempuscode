@@ -1531,7 +1531,7 @@ do_doorcmd(struct Creature *ch, struct obj_data *obj, int door, int scmd)
 	if (obj && IS_VEHICLE(obj)) {
 		if ((other_room = real_room(ROOM_NUMBER(obj))) && other_room->people) {
 			sprintf(buf2, "The door of the %s is %sed from the outside.\r\n",
-				fname(obj->name), cmd_door[scmd]);
+				fname(obj->aliases), cmd_door[scmd]);
 			send_to_room(buf2, other_room);
 		}
 		return;
@@ -1835,8 +1835,8 @@ ACMD(do_enter)
 		return;
 	}
 
-	if (car->action_description) {
-		act(car->action_description, TRUE, ch, car, 0, TO_ROOM);
+	if (car->action_desc) {
+		act(car->action_desc, TRUE, ch, car, 0, TO_ROOM);
 	} else {
 		act("$n steps into $p.", TRUE, ch, car, 0, TO_ROOM);
 	}
@@ -2694,7 +2694,7 @@ drag_object(Creature *ch, struct obj_data *obj, char *argument)
 
 	if ((obj->getWeight()) > max_drag || (GET_MOVE(ch) < 50)) {
 		send_to_char(ch, "You don't have the strength to drag %s.\r\n",
-			obj->short_description);
+			obj->name);
 		WAIT_STATE(ch, 1 RL_SEC);
 		return 0;
 	}
@@ -2752,7 +2752,7 @@ drag_object(Creature *ch, struct obj_data *obj, char *argument)
 
 	if ((obj->getWeight()) > max_drag) {
 		send_to_char(ch, "You don't have the strength to drag %s.",
-			obj->short_description);
+			obj->name);
 		WAIT_STATE(ch, 1 RL_SEC);
 		return 0;
 	}

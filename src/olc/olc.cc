@@ -688,7 +688,7 @@ ACMD(do_olc)
 				send_to_char(ch, "You are not currently editing an object.\r\n");
 			else {
 				send_to_char(ch, "Current olc object: [%5d] %s\r\n",
-					obj_p->shared->vnum, obj_p->short_description);
+					obj_p->shared->vnum, obj_p->name);
 			}
 			return;
 		}
@@ -740,7 +740,7 @@ ACMD(do_olc)
 				GET_OLC_OBJ(ch) = tmp_obj;
 				send_to_char(ch, "Now editing object [%d] %s%s%s\r\n",
 					tmp_obj->shared->vnum,
-					CCGRN(ch, C_NRM), tmp_obj->short_description,
+					CCGRN(ch, C_NRM), tmp_obj->name,
 					CCNRM(ch, C_NRM));
 			}
 		}
@@ -916,7 +916,7 @@ ACMD(do_olc)
 			act("$p appears in your hands.", FALSE, ch, tmp_obj, 0, TO_CHAR);
 			act("$n creates $p in $s hands.", TRUE, ch, tmp_obj, 0, TO_ROOM);
 			slog("OLC: %s oloaded [%d] %s.", GET_NAME(ch),
-				GET_OBJ_VNUM(tmp_obj), tmp_obj->short_description);
+				GET_OBJ_VNUM(tmp_obj), tmp_obj->name);
 		}
 		break;
 	case 17:	 /********** omimic ************/
@@ -939,6 +939,13 @@ ACMD(do_olc)
 			send_to_char(ch, "Real funny.\r\n");
 			break;
 		}
+		if (obj_p->aliases)
+			free(obj_p->aliases);
+		if (tmp_obj->aliases)
+			obj_p->aliases = str_dup(tmp_obj->aliases);
+		else
+			obj_p->aliases = NULL;
+
 		if (obj_p->name)
 			free(obj_p->name);
 		if (tmp_obj->name)
@@ -946,26 +953,19 @@ ACMD(do_olc)
 		else
 			obj_p->name = NULL;
 
-		if (obj_p->short_description)
-			free(obj_p->short_description);
-		if (tmp_obj->short_description)
-			obj_p->short_description = str_dup(tmp_obj->short_description);
+		if (obj_p->line_desc)
+			free(obj_p->line_desc);
+		if (tmp_obj->line_desc)
+			obj_p->line_desc = str_dup(tmp_obj->line_desc);
 		else
-			obj_p->short_description = NULL;
+			obj_p->line_desc = NULL;
 
-		if (obj_p->description)
-			free(obj_p->description);
-		if (tmp_obj->description)
-			obj_p->description = str_dup(tmp_obj->description);
+		if (obj_p->action_desc)
+			free(obj_p->action_desc);
+		if (tmp_obj->action_desc)
+			obj_p->action_desc = str_dup(tmp_obj->action_desc);
 		else
-			obj_p->description = NULL;
-
-		if (obj_p->action_description)
-			free(obj_p->action_description);
-		if (tmp_obj->action_description)
-			obj_p->action_description = str_dup(tmp_obj->action_description);
-		else
-			obj_p->action_description = NULL;
+			obj_p->action_desc = NULL;
 		obj_p->obj_flags.type_flag = tmp_obj->obj_flags.type_flag;
 		obj_p->obj_flags.extra_flags = tmp_obj->obj_flags.extra_flags;
 		obj_p->obj_flags.extra2_flags = tmp_obj->obj_flags.extra2_flags;
@@ -2443,7 +2443,7 @@ ACMD(do_unapprove)
 		SET_BIT(obj->obj_flags.extra2_flags, ITEM2_UNAPPROVED);
 		send_to_char(ch, "Object unapproved.\r\n");
 		slog("%s unapproved object [%d] %s.", GET_NAME(ch),
-			obj->shared->vnum, obj->short_description);
+			obj->shared->vnum, obj->name);
 
 		GET_OLC_OBJ(ch) = obj;
 		save_objs(ch, zone);
@@ -2581,7 +2581,7 @@ ACMD(do_approve)
 		REMOVE_BIT(obj->obj_flags.extra2_flags, ITEM2_UNAPPROVED);
 		send_to_char(ch, "Object approved for full inclusion in the game.\r\n");
 		slog("%s approved object [%d] %s.", GET_NAME(ch),
-			obj->shared->vnum, obj->short_description);
+			obj->shared->vnum, obj->name);
 
 		GET_OLC_OBJ(ch) = obj;
 		save_objs(ch, zone);

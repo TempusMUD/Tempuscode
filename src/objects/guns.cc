@@ -113,8 +113,8 @@ show_gun_status(struct Creature *ch, struct obj_data *gun)
 			sprintf(buf,
 				"%s is loaded with %s.\r\n"
 				"The potential energy of %s is:  %s[%3d/%3d]%s units.\r\n",
-				gun->short_description, gun->contains->short_description,
-				gun->contains->short_description,
+				gun->name, gun->contains->name,
+				gun->contains->name,
 				QGRN, CUR_ENERGY(gun->contains), MAX_ENERGY(gun->contains),
 				QNRM);
 			CAP(buf);
@@ -195,8 +195,8 @@ ACMD(do_gunset)
 			return;
 		}
 
-	} else if ((!(gun = GET_EQ(ch, WEAR_WIELD)) || !isname(arg1, gun->name)) &&
-		(!(gun = GET_EQ(ch, WEAR_WIELD_2)) || !isname(arg1, gun->name))) {
+	} else if ((!(gun = GET_EQ(ch, WEAR_WIELD)) || !isname(arg1, gun->aliases)) &&
+		(!(gun = GET_EQ(ch, WEAR_WIELD_2)) || !isname(arg1, gun->aliases))) {
 		send_to_char(ch, "You are not wielding %s '%s'.\r\n", AN(arg1), arg1);
 		return;
 	}
@@ -236,7 +236,7 @@ ACMD(do_gunset)
 	if (mode == GUNSET_RATE) {
 		if (number > MAX_R_O_F(gun)) {
 			send_to_char(ch, "The maximum rate of fire of %s is %d.\r\n",
-				gun->short_description, MAX_R_O_F(gun));
+				gun->name, MAX_R_O_F(gun));
 		} else if (!number) {
 			send_to_char(ch, "A zero rate of fire doesnt make much sense.\r\n");
 		} else {
@@ -245,7 +245,7 @@ ACMD(do_gunset)
 			CUR_R_O_F(gun) = number;
 
 			send_to_char(ch, "The rate of fire of %s set to %d/%d.\r\n",
-				gun->short_description, CUR_R_O_F(gun), MAX_R_O_F(gun));
+				gun->name, CUR_R_O_F(gun), MAX_R_O_F(gun));
 		}
 		return;
 	}

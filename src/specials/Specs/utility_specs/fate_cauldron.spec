@@ -16,7 +16,7 @@ SPECIAL(fate_cauldron)
 	if (!CMD_IS("look") || !can_see_object(ch, pot) || !AWAKE(ch))
 		return 0;
 	one_argument(argument, arg1);
-	if (!isname(arg1, pot->name))
+	if (!isname(arg1, pot->aliases))
 		return 0;
 
 	act("$n gazes deeply into $p.", FALSE, ch, pot, 0, TO_ROOM);

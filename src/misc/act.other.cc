@@ -657,7 +657,7 @@ ACMD(do_use)
 	}
 	mag_item = GET_EQ(ch, WEAR_HOLD);
 
-	if (!mag_item || !isname(arg, mag_item->name)) {
+	if (!mag_item || !isname(arg, mag_item->aliases)) {
 		switch (subcmd) {
 		case SCMD_RECITE:
 		case SCMD_QUAFF:
@@ -1348,7 +1348,7 @@ ACMD(do_compare)
 	else {
 		send_to_char(ch, "%s appears to be a bit more valuable.\r\n",
 			GET_OBJ_COST(item1) > GET_OBJ_COST(item2) ?
-			item1->short_description : item2->short_description);
+			item1->name : item2->name);
 	}
 	if (GET_OBJ_MAX_DAM(item1) && GET_OBJ_MAX_DAM(item2)) {
 		if (GET_OBJ_DAM(item1) * 100 / GET_OBJ_MAX_DAM(item1) >
@@ -1378,7 +1378,7 @@ ACMD(do_compare)
 			break;
 		send_to_char(ch, "%s seems to carry a greater aura of power.\r\n",	
 			GET_OBJ_VAL(item1, 0) >= GET_OBJ_VAL(item2, 0) ?
-			item1->short_description : item2->short_description);
+			item1->name : item2->name);
 		break;
 	case ITEM_WEAPON:
 		avg1 =
@@ -1391,7 +1391,7 @@ ACMD(do_compare)
 		else {
 			send_to_char(ch, "%s appears to be a more formidable weapon.\r\n",
 				avg1 >=
-				avg2 ? item1->short_description : item2->short_description);
+				avg2 ? item1->name : item2->name);
 		}
 		break;
 	case ITEM_ARMOR:
@@ -1402,7 +1402,7 @@ ACMD(do_compare)
 		else {
 			send_to_char(ch, "%s appears to have more protective quality.\r\n",
 				avg1 >=
-				avg2 ? item1->short_description : item2->short_description);
+				avg2 ? item1->name : item2->name);
 		}
 		break;
 	case ITEM_CONTAINER:
@@ -1415,7 +1415,7 @@ ACMD(do_compare)
 		else {
 			send_to_char(ch, "%s looks like it will hold more.\r\n",
 				avg1 >=
-				avg2 ? item1->short_description : item2->short_description);
+				avg2 ? item1->name : item2->name);
 		}
 		break;
 	case ITEM_FOOD:
@@ -1426,7 +1426,7 @@ ACMD(do_compare)
 		else {
 			send_to_char(ch, "%s looks more filling that the other.\r\n",
 				avg1 >=
-				avg2 ? item1->short_description : item2->short_description);
+				avg2 ? item1->name : item2->name);
 		}
 		break;
 	case ITEM_HOLY_SYMB:
@@ -1443,7 +1443,7 @@ ACMD(do_compare)
 		else {
 			send_to_char(ch, "%s looks like it has a higher minimum level.\r\n",
 				avg1 >=
-				avg2 ? item1->short_description : item2->short_description);
+				avg2 ? item1->name : item2->name);
 		}
 		avg1 = GET_OBJ_VAL(item1, 3);
 		avg2 = GET_OBJ_VAL(item2, 3);
@@ -1452,7 +1452,7 @@ ACMD(do_compare)
 		else {
 			send_to_char(ch, "%s seems to support greater power.\r\n",
 				avg1 >=
-				avg2 ? item1->short_description : item2->short_description);
+				avg2 ? item1->name : item2->name);
 		}
 		break;
 	case ITEM_BATTERY:
@@ -1464,7 +1464,7 @@ ACMD(do_compare)
 		else {
 			send_to_char(ch, "%s looks like it will hold more energy.\r\n",
 				avg1 >=
-				avg2 ? item1->short_description : item2->short_description);
+				avg2 ? item1->name : item2->name);
 		}
 		break;
 	case ITEM_ENERGY_GUN:
@@ -1476,7 +1476,7 @@ ACMD(do_compare)
 		else {
 			send_to_char(ch, "%s looks like it will hold more energy.\r\n",
 				avg1 >=
-				avg2 ? item1->short_description : item2->short_description);
+				avg2 ? item1->name : item2->name);
 		}
 		avg1 = GET_OBJ_VAL(item1, 2);
 		avg2 = GET_OBJ_VAL(item2, 2);
@@ -1486,7 +1486,7 @@ ACMD(do_compare)
 		else {
 			send_to_char(ch, "%s can release energy at a greater rate.\r\n",
 				avg1 >=
-				avg2 ? item1->short_description : item2->short_description);
+				avg2 ? item1->name : item2->name);
 		}
 		break;
 	default:
@@ -1636,7 +1636,7 @@ ACMD(do_throw)
 				act(buf, FALSE, 0, obj, target_vict, TO_NOTVICT);
 			} else if (target_obj) {
 				sprintf(buf, "$p flies in from %s and slams into %s!",
-					from_dirs[(int)(dir - 1)], target_obj->short_description);
+					from_dirs[(int)(dir - 1)], target_obj->name);
 				act(buf, FALSE, 0, obj, target_vict, TO_ROOM);
 			} else {
 				sprintf(buf, "$p flies in from %s and lands by your feet.",
@@ -1727,10 +1727,10 @@ ACMD(do_throw)
 				obj_to_char(unequip_char(ch, obj->worn_on, MODE_EQ), ch);
 			}
 			sprintf(buf, "$n hurls $p up against %s with brute force!",
-				target_obj->short_description);
+				target_obj->name);
 			act(buf, FALSE, ch, obj, 0, TO_ROOM);
 			sprintf(buf, "You hurl $p up against %s with brute force!",
-				target_obj->short_description);
+				target_obj->name);
 			act(buf, FALSE, ch, obj, 0, TO_CHAR);
 		}
 		obj_from_char(obj);

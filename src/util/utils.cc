@@ -805,7 +805,7 @@ char *
 OBJN(obj_data * obj, Creature * vict)
 {
 	if (can_see_object(vict, obj))
-		return fname((obj)->name);
+		return fname((obj)->aliases);
 	else
 		return "something";
 }
@@ -814,7 +814,7 @@ char *
 OBJS(obj_data * obj, Creature * vict)
 {
 	if (can_see_object((vict), (obj)))
-		return obj->short_description;
+		return obj->name;
 	else
 		return "something";
 }

@@ -30,7 +30,7 @@ SPECIAL(telescope)
 	if (!*arg1 || !*arg2)
 		return 0;
 
-	if (!isname(arg1, scope->name))
+	if (!isname(arg1, scope->aliases))
 		return 0;
 
 	if ((desc = find_exdesc(arg2, scope->ex_description)) != NULL) {

@@ -455,7 +455,7 @@ npc_steal(struct Creature *ch, struct Creature *victim)
 				break;
 
 		if (obj) {
-			sprintf(buf, "%s %s", fname(obj->name), victim->player.name);
+			sprintf(buf, "%s %s", fname(obj->aliases), victim->player.name);
 			do_steal(ch, buf, 0, 0, 0);
 			return;
 		}
@@ -1080,7 +1080,7 @@ SPECIAL(janitor)
 		} else if (!number(0, 5))
 			do_say(ch, "Why don't you guys junk this crap?", 0, 0, 0);
 
-		do_get(ch, fname(i->name), 0, 0, 0);
+		do_get(ch, fname(i->aliases), 0, 0, 0);
 
 		if (ahole && IS_MALE(ch)) {
 			CreatureList::iterator it = ch->in_room->people.begin();
@@ -1121,7 +1121,7 @@ SPECIAL(elven_janitor)
 			continue;
 
 		act("$n grumbles as $e picks up $p.", FALSE, ch, i, 0, TO_ROOM);
-		do_get(ch, fname(i->name), 0, 0, 0);
+		do_get(ch, fname(i->aliases), 0, 0, 0);
 		return TRUE;
 	}
 
@@ -2054,7 +2054,7 @@ SPECIAL(weapon_lister)
 				dam += obj->affected[i].modifier;
 
 		sprintf(buf, "[%5d] %-30s %2dd%-2d", GET_OBJ_VNUM(obj),
-			obj->short_description, GET_OBJ_VAL(obj, 1), GET_OBJ_VAL(obj, 2));
+			obj->name, GET_OBJ_VAL(obj, 1), GET_OBJ_VAL(obj, 2));
 
 		if (dam > 0)
 			sprintf(buf, "%s+%-2d", buf, dam);

@@ -165,7 +165,7 @@ SPECIAL(hell_hunter_brain)
 				if (!(obj = real_object_proto(targets[i].o_vnum)))
 					continue;
 				send_to_char(ch, "%3d. [%5d] %30s %3d/%3d\r\n",
-					i, targets[i].o_vnum, obj->short_description,
+					i, targets[i].o_vnum, obj->name,
 					obj->shared->number, obj->shared->house_count);
 			}
             //TODO: Add blind spots to status
@@ -300,14 +300,14 @@ SPECIAL(hell_hunter_brain)
 			"HELL: %d Devils%s sent after obj %s (%s@%d)",
 			num_devils,
 			regulator ? " (+reg)" : "",
-			obj->short_description,
+			obj->name,
 			vict ? GET_NAME(vict) : "Nobody",
 			obj->in_room ? obj->in_room->number :
 			(vict && vict->in_room) ? vict->in_room->number : -1);
 		sprintf(buf, "%d Devils%s sent after obj %s (%s@%d)",
 			num_devils,
 			regulator ? " (+reg)" : "",
-			obj->short_description, vict ? "$N" : "Nobody",
+			obj->name, vict ? "$N" : "Nobody",
 			obj->in_room ? obj->in_room->number :
 			(vict && vict->in_room) ? vict->in_room->number : -1);
 		act(buf, FALSE, ch, 0, vict, TO_ROOM);
@@ -348,7 +348,7 @@ SPECIAL(hell_hunter)
 							TO_ROOM);
 						mudlog(0, CMP, true,
 							"HELL: %s looted %s at %d.", GET_NAME(ch),
-							t_obj->short_description, ch->in_room->number);
+							t_obj->name, ch->in_room->number);
 						extract_obj(t_obj);
 						return 1;
 					}
@@ -361,7 +361,7 @@ SPECIAL(hell_hunter)
 				act("$n takes $p.", FALSE, ch, obj, t_obj, TO_ROOM);
 				mudlog(0, CMP, true,
 					"HELL: %s retrieved %s at %d.", GET_NAME(ch),
-					obj->short_description, ch->in_room->number);
+					obj->name, ch->in_room->number);
 				extract_obj(obj);
 				return 1;
 			}
@@ -465,7 +465,7 @@ SPECIAL(arioch)
 									obj, TO_ROOM);
 								mudlog(0, CMP, true,
 									"HELL: %s looted %s at %d.",
-									GET_NAME(ch), blade->short_description,
+									GET_NAME(ch), blade->name,
 									ch->in_room->number);
 								if (!GET_EQ(ch, WEAR_WIELD)) {
 									obj_from_obj(blade);
@@ -481,7 +481,7 @@ SPECIAL(arioch)
 					act("$n takes $p.", FALSE, ch, obj, obj, TO_ROOM);
 					mudlog(0, CMP, true,
 						"HELL: %s retrieved %s at %d.", GET_NAME(ch),
-						obj->short_description, ch->in_room->number);
+						obj->name, ch->in_room->number);
 					if (!GET_EQ(ch, WEAR_WIELD)) {
 						obj_from_room(obj);
 						obj_to_char(obj, ch);

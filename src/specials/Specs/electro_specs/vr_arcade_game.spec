@@ -34,7 +34,7 @@ SPECIAL(vr_arcade_game)
 
 	skip_spaces(&argument);
 
-	if (!isname(argument, game->name))
+	if (!isname(argument, game->aliases))
 		return 0;
 
 	if (r_lckr_rm == NULL) {
@@ -88,7 +88,7 @@ SPECIAL(vr_arcade_game)
 	ch->saveToXML();
 
 	send_to_char(ch, "You insert %d coins in %s.\r\n", GET_OBJ_VAL(game, 1),
-		game->short_description);
+		game->name);
 
 	send_to_char(ch,
 		"You step into the interface... You are blinded by a bright"

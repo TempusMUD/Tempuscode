@@ -175,8 +175,8 @@ perform_recharge(struct Creature *ch, struct obj_data *battery,
 		"Energy Level(TARGET):  %s%5d Units%s\r\n"
 		"Energy Level(SOURCE):  %s%5d Units%s\r\n",
 		QGRN, QNRM,
-		QCYN, battery ? battery->short_description : "self", QNRM,
-		QCYN, vict ? GET_NAME(vict) : engine->short_description, QNRM,
+		QCYN, battery ? battery->name : "self", QNRM,
+		QCYN, vict ? GET_NAME(vict) : engine->name, QNRM,
 		QCYN, amount, QNRM,
 		QCYN, vict ? GET_MOVE(vict) : CUR_ENERGY(engine), QNRM,
 		QCYN, battery ? CUR_ENERGY(battery) : GET_MOVE(ch), QNRM);
@@ -244,7 +244,7 @@ perform_recharge(struct Creature *ch, struct obj_data *battery,
 		(GET_OBJ_TYPE(battery) == ITEM_BATTERY
 			|| GET_OBJ_TYPE(battery) == ITEM_DEVICE)) {
 		send_to_char(ch, "%sERROR: %s damaged during transfer!\r\n", QRED,
-			battery->short_description);
+			battery->name);
 		damage_eq(ch, battery, amount);
 	}
 }
@@ -898,8 +898,8 @@ ACMD(do_activate)
 					sprintf(buf, "$n activates $p%s.",
 						internal ? " (internal)" : "");
 					act(buf, TRUE, ch, obj, 0, TO_ROOM);
-					if (obj->action_description && ch == obj->worn_by)
-						act(obj->action_description, FALSE, ch, obj, 0,
+					if (obj->action_desc && ch == obj->worn_by)
+						act(obj->action_desc, FALSE, ch, obj, 0,
 							TO_CHAR);
 					CUR_ENERGY(obj) -= USE_RATE(obj);
 					ENGINE_STATE(obj) = 1;
@@ -1343,7 +1343,7 @@ ACMD(do_discharge)
 		send_to_char(ch, "Discharge into who?\r\n");
 		mudlog(LVL_GRGOD, NRM, true, "%s neg-discharge %d %s at %d",
 			GET_NAME(ch), amount,
-			vict ? GET_NAME(vict) : ovict->short_description,
+			vict ? GET_NAME(vict) : ovict->name,
 			ch->in_room->number);
 		return;
 	}
@@ -1567,7 +1567,7 @@ ACMD(do_tune)
 
 			COMM_CHANNEL(obj) = i;
 			send_to_char(ch, "%s comm-channel set to [%d].\n",
-				obj->short_description, COMM_CHANNEL(obj));
+				obj->name, COMM_CHANNEL(obj));
 			sprintf(buf, "$n has joined channel [%d].", COMM_CHANNEL(obj));
 			send_to_comm_channel(ch, buf, COMM_CHANNEL(obj), TRUE, TRUE);
 		}
@@ -1723,7 +1723,7 @@ ACMD(do_status)
 
 	case ITEM_SCUBA_TANK:
 		sprintf(buf, "$p %s currently holding %d percent of capacity.",
-			ISARE(obj->short_description), GET_OBJ_VAL(obj, 0) < 0 ?
+			ISARE(obj->name), GET_OBJ_VAL(obj, 0) < 0 ?
 			100 : GET_OBJ_VAL(obj, 0) == 0 ? 0 : (GET_OBJ_VAL(obj, 1)
 				/ GET_OBJ_VAL(obj, 0)
 				* 100));
@@ -1784,16 +1784,16 @@ ACMD(do_status)
 		for (bul = obj->contains, i = 0; bul; i++, bul = bul->next_content);
 
 		send_to_char(ch, "%s contains %d/%d cartridge%s.\r\n",
-			obj->short_description, i, MAX_LOAD(obj), i == 1 ? "" : "s");
+			obj->name, i, MAX_LOAD(obj), i == 1 ? "" : "s");
 		break;
 
 	case ITEM_INTERFACE:
 
 		if (INTERFACE_TYPE(obj) == INTERFACE_CHIPS) {
 			send_to_char(ch, "%s [%d slots] is loaded with:\r\n",
-				obj->short_description, INTERFACE_MAX(obj));
+				obj->name, INTERFACE_MAX(obj));
 			for (bul = obj->contains, i = 0; bul; i++, bul = bul->next_content)
-				send_to_char(ch, "%2d. %s\r\n", i, bul->short_description);
+				send_to_char(ch, "%2d. %s\r\n", i, bul->name);
 			break;
 		}
 		break;
@@ -1809,7 +1809,7 @@ ACMD(do_status)
 			"%s is active and tuned to channel [%d].\r\n"
 			"Energy level is : [%3d/%3d].\r\n"
 			"Visible entities monitoring this channel:\r\n",
-			obj->short_description, COMM_CHANNEL(obj),
+			obj->name, COMM_CHANNEL(obj),
 			CUR_ENERGY(obj), MAX_ENERGY(obj));
 		for (bul = object_list; bul; bul = bul->next) {
 			if (IS_COMMUNICATOR(bul) && ENGINE_STATE(bul) &&
@@ -1833,7 +1833,7 @@ ACMD(do_status)
 		break;
 	}
 
-	sprintf(buf, "%s is in %s condition.\r\n", obj->short_description,
+	sprintf(buf, "%s is in %s condition.\r\n", obj->name,
 		obj_cond_color(obj, ch));
 	send_to_char(ch, "%s", buf);
 
@@ -2214,7 +2214,7 @@ ACMD(do_analyze)
 			"%s       %s***************************************%s\r\n", buf,
 			CCGRN(ch, C_NRM), CCNRM(ch, C_NRM));
 		sprintf(buf, "%sDescription:          %s%s%s\r\n", buf, CCCYN(ch,
-				C_NRM), obj->short_description, CCNRM(ch, C_NRM));
+				C_NRM), obj->name, CCNRM(ch, C_NRM));
 		sprintf(buf, "%sItem Classification:  %s%s%s\r\n", buf, CCCYN(ch,
 				C_NRM), item_types[(int)GET_OBJ_TYPE(obj)], CCNRM(ch, C_NRM));
 		sprintf(buf, "%sMaterial Composition: %s%s%s\r\n", buf, CCCYN(ch,
@@ -2298,7 +2298,7 @@ ACMD(do_analyze)
 		case ITEM_VEHICLE:
 			if (obj->contains && GET_OBJ_TYPE(obj->contains) == ITEM_ENGINE)
 				sprintf(buf, "%sVehicle is equipped with:     %s%s%s\r\n", buf,
-					CCCYN(ch, C_NRM), obj->contains->short_description,
+					CCCYN(ch, C_NRM), obj->contains->name,
 					CCNRM(ch, C_NRM));
 			else
 				strcat(buf, "Vehicle is not equipped with an engine.\r\n");
@@ -2325,7 +2325,7 @@ ACMD(do_analyze)
 		case ITEM_BOMB:
 			if (CHECK_SKILL(ch, SKILL_DEMOLITIONS) > 50 && obj->contains)
 				sprintf(buf, "%sFuse: %s.  Fuse State: %sactive.\r\n", buf,
-					obj->contains->short_description,
+					obj->contains->name,
 					FUSE_STATE(obj->contains) ? "" : "in");
 			break;
 		case ITEM_MICROCHIP:
@@ -2550,7 +2550,7 @@ ACMD(do_insert)
 			WAIT_STATE(vict, 6 RL_SEC);
 		}
 		slog("IMPLANT: %s inserts %s into self at %d.",
-			GET_NAME(ch), obj->short_description, ch->in_room->number);
+			GET_NAME(ch), obj->name, ch->in_room->number);
 	} else {
 		sprintf(buf, "$p inserted into $N's %s.", wear_implantpos[pos]);
 		act(buf, FALSE, ch, GET_IMPLANT(vict, pos), vict, TO_CHAR);
@@ -2570,7 +2570,7 @@ ACMD(do_insert)
 		}
 
 		slog("IMPLANT: %s inserts %s into %s at %d.",
-			GET_NAME(ch), obj->short_description,
+			GET_NAME(ch), obj->name,
 			GET_NAME(vict), ch->in_room->number);
 	}
 }
@@ -2634,7 +2634,7 @@ ACMD(do_extract)
 				act("$p is not implanted.", FALSE, ch, obj, 0, TO_CHAR);
 				return;
 			}
-		} else if (!IS_BODY_PART(corpse) || !isname("head", corpse->name) ||
+		} else if (!IS_BODY_PART(corpse) || !isname("head", corpse->aliases) ||
 			!OBJ_TYPE(corpse, ITEM_DRINKCON)) {
 			send_to_char(ch, "You cannot extract from that.\r\n");
 			return;
@@ -2819,7 +2819,7 @@ ACMD(do_cyberscan)
 					number(50, 120)) || PRF_FLAGGED(ch, PRF_HOLYLIGHT))) {
 
 			send_to_char(ch, "[%12s] - %s -\r\n", wear_implantpos[i],
-				obj->short_description);
+				obj->name);
 			++found;
 		}
 	}
@@ -3001,8 +3001,8 @@ ACMD(do_load)
 		}
 		obj_from_char(obj1);
 		obj_to_obj(obj1, obj2);
-		if (IS_CHIP(obj1) && ch == obj2->worn_by && obj1->action_description)
-			act(obj1->action_description, FALSE, ch, 0, 0, TO_CHAR);
+		if (IS_CHIP(obj1) && ch == obj2->worn_by && obj1->action_desc)
+			act(obj1->action_desc, FALSE, ch, 0, 0, TO_CHAR);
 		i = 10 - MIN(8,
 			((CHECK_SKILL(ch, SKILL_SPEED_LOADING) + GET_DEX(ch)) >> 4));
 		WAIT_STATE(ch, i);
@@ -3123,11 +3123,11 @@ ACMD(do_refill)
 		if (IS_POTION(vial) || IS_OBJ_STAT(vial, ITEM_MAGIC))
 			SET_BIT(GET_OBJ_EXTRA(syr), ITEM_MAGIC);
 
-		sprintf(buf, "%s %s", fname(vial->name), syr->name);
-		if (!syr->shared->proto || syr->shared->proto->name != syr->name) {
-			free(syr->name);
+		sprintf(buf, "%s %s", fname(vial->aliases), syr->aliases);
+		if (!syr->shared->proto || syr->shared->proto->aliases != syr->aliases) {
+			free(syr->aliases);
 		}
-		syr->name = str_dup(buf);
+		syr->aliases = str_dup(buf);
 		if (IS_POTION(vial)) {
 			act("$P dissolves before your eyes.", FALSE, ch, syr, vial,
 				TO_CHAR);

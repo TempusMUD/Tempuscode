@@ -23,7 +23,7 @@ SPECIAL(fountain_restore)
 	if (!*argument)
 		return 0;
 
-	if (!isname(argument, fountain->name))
+	if (!isname(argument, fountain->aliases))
 		return 0;
 	
 	if( GET_OBJ_VAL(fountain,1) == 0 ) {

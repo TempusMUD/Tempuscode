@@ -57,7 +57,7 @@ SPECIAL(boulder_thrower)
 		// object found, throw it
 		if (obj) {
 
-			sprintf(buf, "%s ", fname(obj->name));
+			sprintf(buf, "%s ", fname(obj->aliases));
 			strcat(buf, fname(FIGHTING(ch)->player.name));
 			do_throw(ch, buf, 0, 0, 0);
 			//      printf("throwing '%s'\n", buf);

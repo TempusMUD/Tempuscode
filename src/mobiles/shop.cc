@@ -268,7 +268,7 @@ evaluate_expression(struct obj_data *obj, char *expr)
 						break;
 					}
 				if (*extra_bits[index] == '\n')
-					push(&vals, isname(name, obj->name));
+					push(&vals, isname(name, obj->aliases));
 			} else {
 				if (temp != OPER_OPEN_PAREN)
 					while (top(&ops) > temp)
@@ -339,19 +339,19 @@ same_obj(struct obj_data *obj1, struct obj_data *obj2)
 		return FALSE;
 
 	if ((obj1->shared->proto &&
-			(obj1->short_description != obj1->shared->proto->short_description
-				|| obj1->description != obj1->shared->proto->description))
+			(obj1->name != obj1->shared->proto->name
+				|| obj1->line_desc != obj1->shared->proto->line_desc))
 		|| (obj2->shared->proto
-			&& (obj2->short_description !=
-				obj2->shared->proto->short_description
-				|| obj2->description != obj2->shared->proto->description)))
+			&& (obj2->name !=
+				obj2->shared->proto->name
+				|| obj2->line_desc != obj2->shared->proto->line_desc)))
 		return FALSE;
 
-	if ((obj1->short_description != obj2->short_description ||
-			obj1->description != obj2->description) &&
-		(str_cmp(obj1->short_description, obj2->short_description) ||
-			!obj1->description || !obj2->description ||
-			str_cmp(obj1->description, obj2->description)))
+	if ((obj1->name != obj2->name ||
+			obj1->line_desc != obj2->line_desc) &&
+		(str_cmp(obj1->name, obj2->name) ||
+			!obj1->line_desc || !obj2->line_desc ||
+			str_cmp(obj1->line_desc, obj2->line_desc)))
 		return (FALSE);
 
 	if (GET_OBJ_COST(obj1) != GET_OBJ_COST(obj2) ||
@@ -428,7 +428,7 @@ times_message(struct obj_data *obj, char *name, int num)
 	char *ptr;
 
 	if (obj)
-		strcpy(buf, obj->short_description);
+		strcpy(buf, obj->name);
 	else {
 		if ((ptr = strchr(name, '.')) == NULL)
 			ptr = name;
@@ -457,7 +457,7 @@ get_slide_obj_vis(struct Creature *ch, char *name, struct obj_data *list)
 		return (0);
 
 	for (i = list, j = 1; i && (j <= number); i = i->next_content)
-		if (isname(tmp, i->name))
+		if (isname(tmp, i->aliases))
 			if (can_see_object(ch, i) && !same_obj(last_match, i)) {
 				if (j == number)
 					return (i);
@@ -604,19 +604,19 @@ shopping_buy(char *arg, struct Creature *ch,
 	}
 	if ((IS_CARRYING_N(ch) + 1 > CAN_CARRY_N(ch))) {
 		send_to_char(ch, "%s: You can't carry any more items.\r\n",
-			fname(obj->name));
+			fname(obj->aliases));
 		return;
 	}
 	if ((IS_CARRYING_W(ch) + obj->getWeight()) > CAN_CARRY_W(ch)) {
 		if (!number(0, 2))
 			sprintf(buf, "%s: You can't carry that much weight.\r\n",
-				fname(obj->name));
+				fname(obj->aliases));
 		else if (!number(0, 1))
 			sprintf(buf, "%s: You can't carry any more weight.\r\n",
-				fname(obj->name));
+				fname(obj->aliases));
 		else
 			send_to_char(ch, "%s: You can carry no more weight.\r\n",
-				fname(obj->name));
+				fname(obj->aliases));
 		return;
 	}
 	while ((obj) && ((GET_MONEY(ch, shop) >= price) ||
@@ -965,7 +965,7 @@ list_object(obj_data *obj, Creature *ch, int cnt,
 		buf2);
 
 	/* Compile object name and information */
-	strcpy(buf3, obj->short_description);
+	strcpy(buf3, obj->name);
 	if ((GET_OBJ_TYPE(obj) == ITEM_DRINKCON) && (GET_OBJ_VAL(obj, 1)))
 		sprintf(END_OF(buf3), " of %s", drinks[GET_OBJ_VAL(obj, 2)]);
 
@@ -1037,7 +1037,7 @@ shopping_list(char *arg, struct Creature *ch,
 					cnt++;
 				else {
 					index++;
-					if (!(*name) || isname(name, last_obj->name))
+					if (!(*name) || isname(name, last_obj->aliases))
 						strcat(buf, list_object(last_obj, ch, cnt, index, shop, keeper));
 					cnt = 1;
 					last_obj = obj;
@@ -1049,7 +1049,7 @@ shopping_list(char *arg, struct Creature *ch,
 			strcpy(buf, "Presently, none of those are for sale.\r\n");
 		else
 			strcpy(buf, "Currently, there is nothing for sale.\r\n");
-	else if (!(*name) || isname(name, last_obj->name))
+	else if (!(*name) || isname(name, last_obj->aliases))
 		strcat(buf, list_object(last_obj, ch, cnt, index, shop, keeper));
 
 	page_string(ch->desc, buf);
@@ -1738,7 +1738,7 @@ list_detailed_shop(struct Creature *ch, struct shop_data *shop)
 		if (index)
 			strcat(buf, ", ");
 		sprintf(buf1, "%s%s%s (#%d)", CCGRN(ch, C_NRM),
-			obj->short_description, CCNRM(ch, C_NRM), obj->shared->vnum);
+			obj->name, CCNRM(ch, C_NRM), obj->shared->vnum);
 		handle_detailed_list(buf, buf1, ch);
 	}
 	if (!index)

@@ -97,7 +97,7 @@ SPECIAL(unholy_square)
 	if (CMD_IS("pour") && state == STATE_UNHOLY && ch->in_room->number == 3013) {
 
 		if (!*arg1 || !(obj = GET_EQ(ch, WEAR_HOLD))
-			|| GET_OBJ_VNUM(obj) != VIAL_VNUM || !isname(arg1, obj->name)
+			|| GET_OBJ_VNUM(obj) != VIAL_VNUM || !isname(arg1, obj->aliases)
 			|| !*arg2)
 			return 0;
 
@@ -105,7 +105,7 @@ SPECIAL(unholy_square)
 			if (GET_OBJ_VNUM(fount) == FOUNT_UNHOLY)
 				break;
 
-		if (!fount || !isname(arg2, fount->name))
+		if (!fount || !isname(arg2, fount->aliases))
 			return 0;
 
 		act("$n pours the contents of $p into $P...", FALSE, ch, obj, fount,

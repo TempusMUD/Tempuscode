@@ -444,7 +444,7 @@ ACMD(do_snipe)
 			false, ch, 0, 0, TO_ROOM);
 		send_to_room(tmp_sprintf(
 			"%s screams in from %s and harmlessly falls to the ground.",
-				bullet->short_description, from_dirs[snipe_dir]), nvz_room);
+				bullet->name, from_dirs[snipe_dir]), nvz_room);
 		obj_from_obj(bullet);
 		obj_to_room(bullet, nvz_room);
 		return;

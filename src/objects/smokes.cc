@@ -38,15 +38,15 @@ roll_joint(struct obj_data *tobac, struct obj_data *paper)
 	obj->shared = null_obj_shared;
 	CREATE(new_descr, struct extra_descr_data, 1);
 
-	sprintf(buf, "cig cigarette joint %s", fname(tobac->name));
+	sprintf(buf, "cig cigarette joint %s", fname(tobac->aliases));
+	obj->aliases = str_dup(buf);
+	sprintf(buf, "a %s cigarette", fname(tobac->aliases));
 	obj->name = str_dup(buf);
-	sprintf(buf, "a %s cigarette", fname(tobac->name));
-	obj->short_description = str_dup(buf);
 	sprintf(buf, "%s has been dropped here.", buf);
-	obj->description = str_dup(buf);
+	obj->line_desc = str_dup(buf);
 	new_descr->keyword = str_dup("cig cigarette joint");
 	sprintf(buf, "It looks like a %s cigarette, waiting to be smoked.",
-		fname(tobac->name));
+		fname(tobac->aliases));
 	new_descr->description = str_dup(buf);
 	new_descr->next = NULL;
 	obj->ex_description = new_descr;
@@ -89,13 +89,13 @@ ACMD(do_roll)
 	else if (!(paper = get_obj_in_list_vis(ch, arg2, ch->carrying))) {
 		send_to_char(ch, "You don't seem to have %s %s.\r\n", AN(arg2), arg2);
 	} else if (GET_OBJ_TYPE(paper) != ITEM_NOTE) {
-		send_to_char(ch, "You can't roll %s in %s!\r\n", tobac->short_description,
-			paper->short_description);
+		send_to_char(ch, "You can't roll %s in %s!\r\n", tobac->name,
+			paper->name);
 	} else if (tobac->getWeight() > (paper->getWeight() + 3)) {
 		act("$p is too big to fit in $P.", FALSE, ch, tobac, paper, TO_CHAR);
 	} else {
-		send_to_char(ch, "You roll up %s in %s.\r\n", tobac->short_description,
-			paper->short_description);
+		send_to_char(ch, "You roll up %s in %s.\r\n", tobac->name,
+			paper->name);
 		act("$n rolls a cigarette with $p.", TRUE, ch, tobac, 0, TO_ROOM);
 		joint = roll_joint(tobac, paper);
 		if (!joint) {
@@ -367,11 +367,11 @@ ACMD(do_convert)
 
 		gain_skill_prof(ch, SKILL_PIPEMAKING);
 
-		sprintf(buf, "a pipe made from %s", obj->short_description);
-		obj->short_description = str_dup(buf);
-		strcpy(buf, "pipe ");
-		strcat(buf, obj->name);
+		sprintf(buf, "a pipe made from %s", obj->name);
 		obj->name = str_dup(buf);
+		strcpy(buf, "pipe ");
+		strcat(buf, obj->aliases);
+		obj->aliases = str_dup(buf);
 
 	}
 }
@@ -386,7 +386,7 @@ ACMD(do_light)
 	one_argument(argument, arg1);
 
 	if (GET_EQ(ch, WEAR_HOLD) &&
-			isname(arg1, GET_EQ(ch, WEAR_HOLD)->name))
+			isname(arg1, GET_EQ(ch, WEAR_HOLD)->aliases))
 		obj = GET_EQ(ch, WEAR_HOLD);
 
 	if (!obj)
@@ -395,7 +395,7 @@ ACMD(do_light)
 	if (!obj)
 		send_to_char(ch, "Light what?\r\n");
 	else if (GET_OBJ_TYPE(obj) == ITEM_LIGHT)
-		do_grab(ch, fname(obj->name), 0, 0, 0);
+		do_grab(ch, fname(obj->aliases), 0, 0, 0);
 	else if (GET_OBJ_TYPE(obj) == ITEM_TOBACCO)
 		send_to_char(ch, "You need to roll it up first.\r\n");
 	else if (GET_OBJ_TYPE(obj) != ITEM_CIGARETTE &&
@@ -458,7 +458,7 @@ ACMD(do_extinguish)
 	}
 	
 	if (GET_EQ(ch, WEAR_HOLD) &&
-			isname(arg1, GET_EQ(ch, WEAR_HOLD)->name))
+			isname(arg1, GET_EQ(ch, WEAR_HOLD)->aliases))
 		ovict = GET_EQ(ch, WEAR_HOLD);
 
 	if (!ovict)

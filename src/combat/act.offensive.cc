@@ -2101,8 +2101,8 @@ ACMD(do_shoot)
 			return;
 		}
 
-	} else if ((!(gun = GET_EQ(ch, WEAR_WIELD)) || !isname(arg, gun->name)) &&
-		(!(gun = GET_EQ(ch, WEAR_WIELD_2)) || !isname(arg, gun->name))) {
+	} else if ((!(gun = GET_EQ(ch, WEAR_WIELD)) || !isname(arg, gun->aliases)) &&
+		(!(gun = GET_EQ(ch, WEAR_WIELD_2)) || !isname(arg, gun->aliases))) {
 		send_to_char(ch, "You are not wielding %s '%s'.\r\n", AN(arg), arg);
 		return;
 	}
@@ -2185,7 +2185,7 @@ ACMD(do_shoot)
 			dam = dice(GUN_DISCHARGE(gun), (cost >> 1));
 
 			CUR_ENERGY(gun->contains) -= cost;
-			sprintf(buf, "$n blasts %s with $p!", target->short_description);
+			sprintf(buf, "$n blasts %s with $p!", target->name);
 			act(buf, FALSE, ch, gun, 0, TO_ROOM);
 			act("You blast $p!", FALSE, ch, target, 0, TO_CHAR);
 
@@ -2341,7 +2341,7 @@ ACMD(do_shoot)
 
 		if (IS_ARROW(gun)) {
 			sprintf(buf, "$n fires %s from $p into $P!",
-				bullet->short_description);
+				bullet->name);
 			act(buf, FALSE, ch, gun, target, TO_ROOM);
 			act("You fire $P into $p!", FALSE, ch, target, bullet, TO_CHAR);
 			obj_from_obj(bullet);
@@ -2350,7 +2350,7 @@ ACMD(do_shoot)
 			damage_eq(ch, target, dam);
 			return;
 		} else {
-			sprintf(buf, "$n blasts %s with $p!", target->short_description);
+			sprintf(buf, "$n blasts %s with $p!", target->name);
 			act(buf, FALSE, ch, gun, 0, TO_ROOM);
 			act("You blast $p!", FALSE, ch, target, 0, TO_CHAR);
 			extract_obj(bullet);
@@ -2436,7 +2436,7 @@ ACMD(do_shoot)
 		if (IS_ARROW(gun)) {
 			obj_from_obj(bullet);
 			obj_to_room(bullet, ch->in_room);
-			strcpy(buf2, bullet->short_description);
+			strcpy(buf2, bullet->name);
 			damage_eq(NULL, bullet, dam >> 2);
 		} else {
 			if (!i && !IS_FLAMETHROWER(gun))
@@ -3237,7 +3237,7 @@ do_combat_fire(struct Creature *ch, struct Creature *vict, int weap_pos)
 		if (IS_ARROW(gun)) {
 			obj_from_obj(bullet);
 			obj_to_room(bullet, ch->in_room);
-			strcpy(buf2, bullet->short_description);
+			strcpy(buf2, bullet->name);
 			damage_eq(NULL, bullet, dam >> 2);
 		} else {
 			if (!i && !IS_FLAMETHROWER(gun))

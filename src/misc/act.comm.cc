@@ -164,7 +164,7 @@ ACMD(do_say)
 				strcpy(buf, PERS(ch, (*it)));
 				strcpy(buf2, CAP(buf));
 				if (o)
-					strcpy(buf3, o->short_description);
+					strcpy(buf3, o->name);
 				else if ((*it) == vict)
 					strcpy(buf3, "you");
 				else if (vict == ch) {
@@ -179,7 +179,7 @@ ACMD(do_say)
 			}
 			if (!recurs_say) {
 				if (o)
-					strcpy(buf3, o->short_description);
+					strcpy(buf3, o->name);
 				else if (vict == ch)
 					strcpy(buf3, "yourself");
 				else
@@ -541,12 +541,12 @@ ACMD(do_write)
 		act("$p is no good for writing with.", FALSE, ch, pen, 0, TO_CHAR);
 	} else if (GET_OBJ_TYPE(paper) != ITEM_NOTE) {
 		act("You can't write on $p.", FALSE, ch, paper, 0, TO_CHAR);
-	} else if (paper->action_description) {
+	} else if (paper->action_desc) {
 		send_to_char(ch, "There's something written on it already.\r\n");
 	} else {
-		if (paper->action_description == NULL)
-			CREATE(paper->action_description, char, MAX_NOTE_LENGTH);
-		start_text_editor(ch->desc, &paper->action_description, true,
+		if (paper->action_desc == NULL)
+			CREATE(paper->action_desc, char, MAX_NOTE_LENGTH);
+		start_text_editor(ch->desc, &paper->action_desc, true,
 			MAX_NOTE_LENGTH);
 		SET_BIT(PLR_FLAGS(ch), PLR_WRITING);
 		act("$n begins to jot down a note..", TRUE, ch, 0, 0, TO_ROOM);

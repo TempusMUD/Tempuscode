@@ -12,7 +12,7 @@ SPECIAL(labyrinth_portal)
 		return 0;
 
 	skip_spaces(&argument);
-	if (!isname(argument, portal->name))
+	if (!isname(argument, portal->aliases))
 		return 0;
 
 	room = real_room(GET_OBJ_VAL(portal, 0));

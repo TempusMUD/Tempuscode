@@ -1413,9 +1413,8 @@ char_to_game(descriptor_data *d)
 	
 	// Check for house reposessions
 	House *house = Housing.findHouseByOwner( d->creature->getAccountID() );
-	if( house != NULL && house->getRepoNoteCount() > 0 ) {
+	if( house != NULL && house->getRepoNoteCount() > 0 )
 		house->notifyReposession( d->creature );
-	}
 
 	if( GET_CLAN(d->creature) != 0 ) {
 		clan_data *clan = clan_by_owner( GET_IDNUM(d->creature) );

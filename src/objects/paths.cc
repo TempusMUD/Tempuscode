@@ -96,7 +96,7 @@ show_pathobjs(struct Creature *ch)
 		else if (p_obj->type == PVEHICLE && p_obj->object)
 			sprintf(buf, "%s%3d. OBJ <%5d> %25s - %12s (%2d) %s\r\n", buf,
 				count, ((struct obj_data *)p_obj->object)->shared->vnum,
-				((struct obj_data *)p_obj->object)->short_description,
+				((struct obj_data *)p_obj->object)->name,
 				p_obj->phead->name, p_obj->pos,
 				IS_SET(p_obj->flags, POBJECT_STALLED) ? "stalled" : "");
 		else

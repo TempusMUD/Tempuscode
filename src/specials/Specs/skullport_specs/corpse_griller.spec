@@ -60,14 +60,14 @@ SPECIAL(corpse_griller)
 	if (!(steak = read_object(PROTOSTEAK)))
 		return 0;
 
-	sprintf(buf, "a steak made from %s", corpse->short_description);
-	steak->short_description = str_dup(buf);
-
-	sprintf(buf, "steak meat %s", corpse->name);
+	sprintf(buf, "a steak made from %s", corpse->name);
 	steak->name = str_dup(buf);
 
-	sprintf(buf, "%s is here.", steak->short_description);
-	steak->description = str_dup(buf);
+	sprintf(buf, "steak meat %s", corpse->aliases);
+	steak->aliases = str_dup(buf);
+
+	sprintf(buf, "%s is here.", steak->name);
+	steak->line_desc = str_dup(buf);
 
 	obj_to_char(steak, ch);
 	extract_obj(corpse);

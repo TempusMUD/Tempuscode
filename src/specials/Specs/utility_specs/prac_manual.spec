@@ -10,7 +10,7 @@ SPECIAL(prac_manual)
 	if (!CMD_IS("read") || manual->carried_by != ch)
 		return 0;
 	skip_spaces(&argument);
-	if (!isname(manual->name, argument))
+	if (!isname(manual->aliases, argument))
 		return 0;
 
 	/* Format : <char_class number> <min level> <max level> <...> */

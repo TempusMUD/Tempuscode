@@ -189,30 +189,30 @@ save_objs(struct Creature *ch, struct zone_data *zone)
 			break;
 
 		fprintf(file, "#%d\n", obj->shared->vnum);
+		if (obj->aliases)
+			fprintf(file, "%s", obj->aliases);
+
+		fprintf(file, "~\n");
+
 		if (obj->name)
 			fprintf(file, "%s", obj->name);
 
 		fprintf(file, "~\n");
 
-		if (obj->short_description)
-			fprintf(file, "%s", obj->short_description);
-
-		fprintf(file, "~\n");
-
-		if (obj->description) {
-			tmp = strlen(obj->description);
+		if (obj->line_desc) {
+			tmp = strlen(obj->line_desc);
 			for (i = 0; i < tmp; i++)
-				if (obj->description[i] != '\r')
-					fputc(obj->description[i], file);
+				if (obj->line_desc[i] != '\r')
+					fputc(obj->line_desc[i], file);
 		}
 
 		fprintf(file, "~\n");
 
-		if (obj->action_description) {
-			tmp = strlen(obj->action_description);
+		if (obj->action_desc) {
+			tmp = strlen(obj->action_desc);
 			for (i = 0; i < tmp; i++)
-				if (obj->action_description[i] != '\r')
-					fputc(obj->action_description[i], file);
+				if (obj->action_desc[i] != '\r')
+					fputc(obj->action_desc[i], file);
 		}
 		fprintf(file, "~\n");
 
@@ -400,10 +400,10 @@ do_create_obj(struct Creature *ch, int vnum)
 		new_obj->affected[i].modifier = 0;
 	}
 
-	new_obj->name = str_dup("fresh blank object");
-	new_obj->description = str_dup("A fresh blank object is here.");
-	new_obj->short_description = str_dup("a fresh blank object");
-	new_obj->action_description = NULL;
+	new_obj->aliases = str_dup("fresh blank object");
+	new_obj->line_desc = str_dup("A fresh blank object is here.");
+	new_obj->name = str_dup("a fresh blank object");
+	new_obj->action_desc = NULL;
 	new_obj->ex_description = NULL;
 
 	new_obj->in_room = NULL;
@@ -472,14 +472,14 @@ do_destroy_object(struct Creature *ch, int vnum)
 	dmalloc_verify(0);
 #endif
 
+	if (obj->aliases)
+		free(obj->aliases);
+	if (obj->line_desc)
+		free(obj->line_desc);
 	if (obj->name)
 		free(obj->name);
-	if (obj->description)
-		free(obj->description);
-	if (obj->short_description)
-		free(obj->short_description);
-	if (obj->action_description)
-		free(obj->action_description);
+	if (obj->action_desc)
+		free(obj->action_desc);
 
 
 	while ((desc = obj->ex_description)) {
@@ -561,39 +561,39 @@ perform_oset(struct Creature *ch, struct obj_data *obj_p,
 
 	switch (oset_command) {
 	case 0:				/******** aliases *************/
-		if ((subcmd == OLC_OSET || !proto || proto->name != obj_p->name) &&
-			obj_p->name)
-			free(obj_p->name);
+		if ((subcmd == OLC_OSET || !proto || proto->aliases != obj_p->aliases) &&
+			obj_p->aliases)
+			free(obj_p->aliases);
 
-		obj_p->name = strdup(arg2);
+		obj_p->aliases = strdup(arg2);
 		if (subcmd == OLC_OSET)
-			UPDATE_OBJLIST_NAMES(obj_p, tmp_obj,->name);
+			UPDATE_OBJLIST_NAMES(obj_p, tmp_obj,->aliases);
 		send_to_char(ch, "Aliases set.\r\n");
 		break;
 	case 1:				/******** name ****************/
 		if ((subcmd == OLC_OSET || !proto ||
-				proto->short_description != obj_p->short_description) &&
-			obj_p->short_description)
-			free(obj_p->short_description);
+				proto->name != obj_p->name) &&
+			obj_p->name)
+			free(obj_p->name);
 
-		obj_p->short_description = str_dup(arg2);
+		obj_p->name = str_dup(arg2);
 		if (subcmd == OLC_OSET)
-			UPDATE_OBJLIST_NAMES(obj_p, tmp_obj,->short_description);
+			UPDATE_OBJLIST_NAMES(obj_p, tmp_obj,->name);
 		send_to_char(ch, "Object name set.\r\n");
 		break;
 	case 2:					// ldesc
 		if ((subcmd == OLC_OSET || !proto ||
-				proto->description != obj_p->description) &&
-			obj_p->description) {
-			free(obj_p->description);
+				proto->line_desc != obj_p->line_desc) &&
+			obj_p->line_desc) {
+			free(obj_p->line_desc);
 		}
 		if (arg2[0] == '~') {
-			obj_p->description = NULL;
+			obj_p->line_desc = NULL;
 		} else {
-			obj_p->description = str_dup(arg2);
+			obj_p->line_desc = str_dup(arg2);
 		}
 		if (subcmd == OLC_OSET) {
-			UPDATE_OBJLIST(obj_p, tmp_obj,->description);
+			UPDATE_OBJLIST(obj_p, tmp_obj,->line_desc);
 		}
 		send_to_char(ch, "Object L-desc set.\r\n");
 		break;
@@ -603,10 +603,10 @@ perform_oset(struct Creature *ch, struct obj_data *obj_p,
 			obj_p->ex_description = exdesc_list_dup(proto->ex_description);
 		}
 
-		desc = locate_exdesc(fname(obj_p->name), obj_p->ex_description);
+		desc = locate_exdesc(fname(obj_p->aliases), obj_p->ex_description);
 		if (!desc) {
 			CREATE(ndesc, struct extra_descr_data, 1);
-			ndesc->keyword = str_dup(obj_p->name);
+			ndesc->keyword = str_dup(obj_p->aliases);
 			ndesc->next = obj_p->ex_description;
 			obj_p->ex_description = ndesc;
 			desc = obj_p->ex_description;
@@ -971,16 +971,16 @@ perform_oset(struct Creature *ch, struct obj_data *obj_p,
 
 	case 17:  /***** action_desc *****/
 		if ((subcmd == OLC_OSET || !proto ||
-				proto->action_description != obj_p->action_description) &&
-			obj_p->action_description)
-			free(obj_p->action_description);
+				proto->action_desc != obj_p->action_desc) &&
+			obj_p->action_desc)
+			free(obj_p->action_desc);
 		delete_doubledollar(arg2);
 		if (arg2[0] == '~')
-			obj_p->action_description = NULL;
+			obj_p->action_desc = NULL;
 		else
-			obj_p->action_description = str_dup(arg2);
+			obj_p->action_desc = str_dup(arg2);
 
-		UPDATE_OBJLIST(obj_p, tmp_obj,->action_description);
+		UPDATE_OBJLIST(obj_p, tmp_obj,->action_desc);
 		send_to_char(ch, "Object action desc set.\r\n");
 		break;
 
@@ -1012,7 +1012,7 @@ perform_oset(struct Creature *ch, struct obj_data *obj_p,
 		}
 		if (add_path_to_vehicle(obj_p, arg2)) {
 			send_to_char(ch, "%s now follows the path titled: %s.\r\n",
-				obj_p->short_description, arg2);
+				obj_p->name, arg2);
 		} else {
 			send_to_char(ch, "Could not assign that path to vehicle.\r\n");
 		}
@@ -1194,18 +1194,18 @@ do_clear_olc_object(struct Creature *ch)
 #ifdef DMALLOC
 	dmalloc_verify(0);
 #endif
+	if (obj_p->aliases)
+		free(obj_p->aliases);
+	obj_p->aliases = str_dup("blank object");
 	if (obj_p->name)
 		free(obj_p->name);
-	obj_p->name = str_dup("blank object");
-	if (obj_p->short_description)
-		free(obj_p->short_description);
-	obj_p->short_description = str_dup("a blank object");
-	if (obj_p->description)
-		free(obj_p->description);
-	obj_p->description = str_dup("A blank object has been dropped here.");
-	if (obj_p->action_description)
-		free(obj_p->action_description);
-	obj_p->action_description = NULL;
+	obj_p->name = str_dup("a blank object");
+	if (obj_p->line_desc)
+		free(obj_p->line_desc);
+	obj_p->line_desc = str_dup("A blank object has been dropped here.");
+	if (obj_p->action_desc)
+		free(obj_p->action_desc);
+	obj_p->action_desc = NULL;
 #ifdef DMALLOC
 	dmalloc_verify(0);
 #endif

@@ -33,12 +33,12 @@ SPECIAL(weaponsmaster)
 	for (pos = 0; pos < NUM_WEARS && !weap; pos++) {
 		weap = GET_EQ(ch, pos);
 		if (weap && GET_OBJ_TYPE(weap) == ITEM_WEAPON &&
-			isname(argument, weap->name))
+			isname(argument, weap->aliases))
 			break;
 
 		weap = GET_IMPLANT(ch, pos);
 		if (weap && GET_OBJ_TYPE(weap) == ITEM_WEAPON &&
-			isname(argument, weap->name))
+			isname(argument, weap->aliases))
 			break;
 
 		weap = NULL;
@@ -92,7 +92,7 @@ SPECIAL(weaponsmaster)
 
 	send_to_char(ch,
 		"It will cost you %d practice%s to train your specialization with %s to level %d.\r\n%s",
-		cost, cost == 1 ? "" : "s", weap->short_description,
+		cost, cost == 1 ? "" : "s", weap->name,
 		weap_spec.level + 1,
 		cost > GET_PRACTICES(ch) ? "Which you don't have.\r\n" : "");
 

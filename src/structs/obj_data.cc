@@ -27,10 +27,10 @@ obj_data::save(FILE * fl)
 	object.name[0] = 0;
 
 	if (shared->proto) {
+		if (aliases != shared->proto->aliases)
+			strncpy(object.name, aliases, EXDSCR_LENGTH - 1);
 		if (name != shared->proto->name)
-			strncpy(object.name, name, EXDSCR_LENGTH - 1);
-		if (short_description != shared->proto->short_description)
-			strncpy(object.short_desc, short_description, EXDSCR_LENGTH - 1);
+			strncpy(object.short_desc, name, EXDSCR_LENGTH - 1);
 	}
 
 	object.in_room_vnum = in_room ? in_room->number : -1;
@@ -75,7 +75,7 @@ obj_data::save(FILE * fl)
 		perror("Error writing object in obj_data::save()");
 		return 0;
 	}
-	if (object.plrtext_len && !fwrite(action_description, plrtext_len, 1, fl)) {
+	if (object.plrtext_len && !fwrite(action_desc, plrtext_len, 1, fl)) {
 		perror("Error writing player text in obj file.");
 		return 0;
 	}
@@ -120,28 +120,28 @@ obj_data::saveToXML(FILE *ouf)
     obj_data *proto = shared->proto;
 
 
-    char *s = short_description;
+    char *s = name;
     if( s != NULL && 
         ( proto == NULL || 
-          proto->short_description == NULL || 
-          strcmp(s, proto->short_description) ) )
+          proto->name == NULL || 
+          strcmp(s, proto->name) ) )
     {
         fprintf( ouf, "%s<short_desc>%s</short_desc>\n",
                  indent.c_str(), xmlEncodeTmp(s) );
     }
 
-    s = name;
+    s = aliases;
     if( s != NULL && 
-        ( proto == NULL ||   proto->name == NULL ||  strcmp(s, proto->name) ) )
+        ( proto == NULL ||   proto->aliases == NULL ||  strcmp(s, proto->aliases) ) )
     {
-        fprintf( ouf, "%s<name>%s</name>\n",  indent.c_str(), xmlEncodeTmp(s) );
+        fprintf( ouf, "%s<aliases>%s</aliases>\n",  indent.c_str(), xmlEncodeTmp(s) );
     }
 
-    s = description;
+    s = line_desc;
     if( s != NULL && 
-        ( proto == NULL ||   proto->description == NULL ||  strcmp(s, proto->description) ) )
+        ( proto == NULL ||  proto->line_desc == NULL ||  strcmp(s, proto->line_desc ) ) )
     {
-        fprintf( ouf, "%s<long_desc>%s</long_desc>\n", indent.c_str(),  xmlEncodeTmp(s) );
+        fprintf( ouf, "%s<line_desc>%s</line_desc>\n", indent.c_str(),  xmlEncodeTmp(s) );
     }
 
 	if (!proto || ex_description != proto->ex_description) {
@@ -151,10 +151,10 @@ obj_data::saveToXML(FILE *ouf)
 			fprintf(ouf, "%s<extra_desc keywords=\"%s\">%s</extra_desc>\n", indent.c_str(),  xmlEncodeTmp(desc->keyword), xmlEncodeTmp(desc->description) );
 	}
 
-    s = action_description;
+    s = action_desc;
     if( s != NULL && 
-        ( proto == NULL || proto->action_description == NULL || 
-          strcmp(s, proto->action_description) ) )
+        ( proto == NULL || proto->action_desc == NULL || 
+          strcmp(s, proto->action_desc) ) )
     {
         fprintf( ouf, "%s<action_desc>%s</action_desc>\n", indent.c_str(), xmlEncodeTmp(s));
     }
@@ -227,22 +227,22 @@ obj_data::loadFromXML(obj_data *container, Creature *victim, room_data* room, xm
 	shared = prototype->shared;
 	shared->number++;
 
-	short_description = shared->proto->short_description;
 	name = shared->proto->name;
-	description = shared->proto->description;
-	action_description  = shared->proto->action_description;
+	aliases = shared->proto->aliases;
+	line_desc = shared->proto->line_desc;
+	action_desc  = shared->proto->action_desc;
 	ex_description = shared->proto->ex_description;
 
 	for( xmlNodePtr cur = node->xmlChildrenNode; cur; cur = cur->next) {
-		if( xmlMatches( cur->name, "name" ) ) {
-			name = (char*)xmlNodeGetContent( cur );
-		} else if( xmlMatches( cur->name, "short_desc" ) ) {
+		if( xmlMatches( cur->name, "name" ) || xmlMatches(cur->name, "aliases")) {
+			aliases = (char*)xmlNodeGetContent( cur );
+		} else if(xmlMatches(cur->name, "short_desc")) {
 			str = (char *)xmlNodeGetContent(cur);
-			short_description = strdup(tmp_gsub(str, "\n", "\r\n"));
+			name = strdup(tmp_gsub(str, "\n", "\r\n"));
 			free(str);
-		} else if( xmlMatches( cur->name, "long_desc" ) ) {
+		} else if (xmlMatches(cur->name, "long_desc") || xmlMatches(cur->name, "line_desc")) {
 			str = (char *)xmlNodeGetContent(cur);
-			description = strdup(tmp_gsub(str, "\n", "\r\n"));
+			line_desc = strdup(tmp_gsub(str, "\n", "\r\n"));
 			free(str);
 		} else if (xmlMatches(cur->name, "extra_desc")) {
 			struct extra_descr_data *desc;
@@ -264,7 +264,7 @@ obj_data::loadFromXML(obj_data *container, Creature *victim, room_data* room, xm
 
 		} else if( xmlMatches( cur->name, "action_desc" ) ) {
 			str = (char *)xmlNodeGetContent(cur);
-			action_description = strdup(tmp_gsub(str, "\n", "\r\n"));
+			action_desc = strdup(tmp_gsub(str, "\n", "\r\n"));
 			free(str);
 		} else if( xmlMatches( cur->name, "points" ) ) {
 			 obj_flags.type_flag = xmlGetIntProp( cur, "type");
@@ -421,7 +421,7 @@ void
 obj_data::display_rent(Creature *ch, const char *currency_str)
 {
 	send_to_char(ch, "%10d %s for %s\r\n", GET_OBJ_RENT(this), currency_str,
-		short_description);
+		name);
 }
 
 

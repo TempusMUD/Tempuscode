@@ -190,7 +190,7 @@ vendor_resolve_name(Creature *self, char *obj_str)
 	obj_data *cur_obj;
 
 	for (cur_obj = self->carrying;cur_obj;cur_obj = cur_obj->next_content)
-		if (namelist_match(obj_str, cur_obj->name))
+		if (namelist_match(obj_str, cur_obj->aliases))
 			return cur_obj;
 
 	return NULL;
@@ -504,7 +504,7 @@ vendor_list_obj(Creature *ch, obj_data *obj, int cnt, int idx, int cost)
 {
 	char *obj_desc;
 
-	obj_desc = obj->short_description;
+	obj_desc = obj->name;
 	if (GET_OBJ_TYPE(obj) == ITEM_DRINKCON && GET_OBJ_VAL(obj, 1))
 		obj_desc = tmp_strcat(obj_desc, " of ",
 			liquid_to_str(GET_OBJ_VAL(obj,2)), NULL);
@@ -584,7 +584,7 @@ vendor_list(Creature *ch, char *arg, Creature *self, ShopData *shop)
 			} else {
 				if (vendor_is_produced(last_obj, shop))
 					cnt = -1;
-				if (!*arg || namelist_match(arg, last_obj->name)) 
+				if (!*arg || namelist_match(arg, last_obj->aliases)) 
 					msg = tmp_strcat(msg, vendor_list_obj(ch, last_obj, cnt, idx,
 						vendor_get_value(last_obj, shop->markup)));
 				cnt = 1;
@@ -596,7 +596,7 @@ vendor_list(Creature *ch, char *arg, Creature *self, ShopData *shop)
 	if (last_obj) {
 		if (vendor_is_produced(last_obj, shop))
 			cnt = -1;
-		if (!*arg || namelist_match(arg, last_obj->name)) 
+		if (!*arg || namelist_match(arg, last_obj->aliases)) 
 			msg = tmp_strcat(msg, vendor_list_obj(ch, last_obj, cnt, idx,
 				vendor_get_value(last_obj, shop->markup)));
 	}

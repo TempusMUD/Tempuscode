@@ -88,7 +88,7 @@ rpl_give_obj(struct Creature *ch, struct Creature *vict, char *desc)
 	if (new_obj != NULL) {
 		obj_to_char(new_obj, ch);
 		sprintf(buf, "%s%s gives you a:%s.\r\n", CCRED(ch, C_NRM),
-			GET_NAME(vict), new_obj->name);
+			GET_NAME(vict), new_obj->aliases);
 		act(buf, FALSE, ch, 0, 0, TO_CHAR);
 	}
 

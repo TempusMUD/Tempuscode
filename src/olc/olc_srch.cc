@@ -370,7 +370,7 @@ print_search_data_to_buf(struct Creature *ch, struct room_data *room,
 		sprintf(buf, "%s OBJECT Vnum : %d (%s%s%s), to room: %d, Max: %d.\r\n",
 			buf, cur_search->arg[0],
 			CCGRN(ch, C_NRM),
-			obj ? obj->short_description : "NULL", CCNRM(ch, C_NRM),
+			obj ? obj->name : "NULL", CCNRM(ch, C_NRM),
 			cur_search->arg[1], cur_search->arg[2]);
 		break;
 	case SEARCH_COM_REMOVE:
@@ -378,7 +378,7 @@ print_search_data_to_buf(struct Creature *ch, struct room_data *room,
 		sprintf(buf,
 			"%s REMOVE  Obj Vnum : %d (%s%s%s), Room # : %d, Val 2: %d.\r\n",
 			buf, cur_search->arg[0], CCGRN(ch, C_NRM),
-			obj ? obj->short_description : "NULL", CCNRM(ch, C_NRM),
+			obj ? obj->name : "NULL", CCNRM(ch, C_NRM),
 			cur_search->arg[1], cur_search->arg[2]);
 		break;
 	case SEARCH_COM_EQUIP:
@@ -386,7 +386,7 @@ print_search_data_to_buf(struct Creature *ch, struct room_data *room,
 		sprintf(buf,
 			"%s EQUIP  ----- : %d, Obj Vnum : %d (%s%s%s), Pos : %d.\r\n", buf,
 			cur_search->arg[0], cur_search->arg[1], CCGRN(ch, C_NRM),
-			obj ? obj->short_description : "NULL", CCNRM(ch, C_NRM),
+			obj ? obj->name : "NULL", CCNRM(ch, C_NRM),
 			cur_search->arg[2]);
 		break;
 	case SEARCH_COM_GIVE:
@@ -394,7 +394,7 @@ print_search_data_to_buf(struct Creature *ch, struct room_data *room,
 		sprintf(buf,
 			"%s GIVE  ----- : %d, Obj Vnum : %d (%s%s%s), Max : %d.\r\n", buf,
 			cur_search->arg[0], cur_search->arg[1], CCGRN(ch, C_NRM),
-			obj ? obj->short_description : "NULL", CCNRM(ch, C_NRM),
+			obj ? obj->name : "NULL", CCNRM(ch, C_NRM),
 			cur_search->arg[2]);
 		break;
 	case SEARCH_COM_NONE:

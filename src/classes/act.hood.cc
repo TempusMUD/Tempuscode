@@ -577,7 +577,7 @@ ACMD(do_snatch)
 			// Keep tabs on snatching stuff. :P
 			if (GET_LEVEL(ch) >= LVL_AMBASSADOR || !IS_NPC(vict))
 				slog("%s stole %s from %s.",
-					GET_NAME(ch), obj->short_description, GET_NAME(vict));
+					GET_NAME(ch), obj->name, GET_NAME(vict));
 			obj_to_char(unequip_char(vict, eq_pos, MODE_EQ), ch);
 
 			// weapon is the 1st of 2 wielded

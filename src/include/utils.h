@@ -784,8 +784,8 @@ STRENGTH_APPLY_INDEX(Creature *ch)
 #define HSSH(ch) (GET_SEX(ch) ? (GET_SEX(ch)==SEX_MALE ? "he" :"she") : "it")
 #define HMHR(ch) (GET_SEX(ch) ? (GET_SEX(ch)==SEX_MALE ? "him":"her") : "it")
 
-#define ANA(obj) (strchr("aeiouyAEIOUY", *(obj)->name) ? "An" : "A")
-#define SANA(obj) (strchr("aeiouyAEIOUY", *(obj)->name) ? "an" : "a")
+#define ANA(obj) (strchr("aeiouyAEIOUY", *(obj)->aliases) ? "An" : "A")
+#define SANA(obj) (strchr("aeiouyAEIOUY", *(obj)->aliases) ? "an" : "a")
 
 // add special plural words that don't end in S to the SPECIAL_PLUR macro
 #define SPECIAL_PLUR( buf )    ( !strcasecmp( buf, "teeth" ) || \

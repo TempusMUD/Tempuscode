@@ -14,7 +14,7 @@ SPECIAL(fountain_good)
 
 	skip_spaces(&argument);		// make sure they want to drink from 'me'.
 
-	if (!CMD_IS("drink") || *argument || !isname(argument, obj->name))
+	if (!CMD_IS("drink") || *argument || !isname(argument, obj->aliases))
 		return 0;
 
 	act("$n drinks from $p.", TRUE, ch, obj, 0, TO_ROOM);
@@ -33,7 +33,7 @@ SPECIAL(fountain_evil)
 		return false;
 
 	skip_spaces(&argument);
-	if (!CMD_IS("drink") || *argument || !isname(argument, obj->name))
+	if (!CMD_IS("drink") || *argument || !isname(argument, obj->aliases))
 		return 0;
 
 	if (GET_ALIGNMENT(ch) <= -1000) {

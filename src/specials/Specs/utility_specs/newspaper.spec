@@ -14,7 +14,7 @@ SPECIAL(newspaper)
 	if (!CMD_IS("look") && !CMD_IS("examine") && !CMD_IS("read"))
 		return 0;
 	skip_spaces(&argument);
-	if (!isname(argument, paper->name)) {
+	if (!isname(argument, paper->aliases)) {
 		return 0;
 	}
 

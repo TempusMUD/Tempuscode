@@ -14,12 +14,12 @@ SPECIAL(vein)
 		return false;
 
 	pick = GET_EQ(ch, WEAR_HOLD);
-	if (pick && !isname("pick", pick->name))
+	if (pick && !isname("pick", pick->aliases))
 		pick = NULL;
 
 	if (!pick) {
 		pick = GET_EQ(ch, WEAR_WIELD);
-		if (pick && !isname("pick", pick->name))
+		if (pick && !isname("pick", pick->aliases))
 			pick = NULL;
 	}
 

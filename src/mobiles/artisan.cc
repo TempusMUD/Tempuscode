@@ -169,7 +169,7 @@ CraftItem::next_requirement(Creature *keeper)
 			obj = get_obj_in_list_num(compon[0]->item, keeper->carrying);
 			if (!obj) {
 				obj = real_object_proto(compon[0]->item);
-				return tmp_strdup(obj->short_description);
+				return tmp_strdup(obj->name);
 			}
 		} else {
 			slog("SYSERR: Unimplemented requirement in artisan");
@@ -228,7 +228,7 @@ list_commission_item(Creature *ch, Creature *keeper, int idx, CraftItem *item, c
 	return tmp_sprintf("%s%s  %s %-43s %11ld\r\n", msg,
 		item_prefix,
 		needed,
-		CAP(tmp_strdup(obj->short_description)),
+		CAP(tmp_strdup(obj->name)),
 		item->cost);
 		
 }
@@ -293,7 +293,7 @@ Craftshop::buy(Creature *keeper, Creature *ch, char *arguments)
 			item = items[num];
 	} else {
 		for (item_itr= items.begin();item_itr!= items.end();item_itr++) {
-			if (isname(arg, real_object_proto((*item_itr)->vnum)->name)) {
+			if (isname(arg, real_object_proto((*item_itr)->vnum)->aliases)) {
 				item = *item_itr;
 				break;
 			}
@@ -344,7 +344,7 @@ Craftshop::buy(Creature *keeper, Creature *ch, char *arguments)
 		return;
 	}
 
-	send_to_char(ch, "You buy %s for %ld gold.\r\n", obj->short_description, item->cost);
+	send_to_char(ch, "You buy %s for %ld gold.\r\n", obj->name, item->cost);
 	switch (number(0, 20)) {
 		case 0:
 			msg = tmp_strcat(GET_NAME(ch), " Glad to do business with you");

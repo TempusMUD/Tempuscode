@@ -97,7 +97,7 @@ display_status(struct Creature *ch, struct obj_data *car,
 		act(buf, FALSE, ch, 0, 0, TO_ROOM);
 	}
 	send_to_char(ch, "\r\n%s<<<<<<<<%sSYSTEM STATUS UPDATE (%s)%s>>>>>>>>>%s\r\n",
-		QRED, QNRM, car->short_description, QRED, QNRM);
+		QRED, QNRM, car->name, QRED, QNRM);
 	sprintf(buf,
 		"%s*******************************************************%s\r\n",
 		QBLU, QNRM);
@@ -258,9 +258,9 @@ move_car(struct Creature *ch, struct obj_data *car, int dir)
 
 	act(abuf, FALSE, 0, car, 0, TO_ROOM | ACT_HIDECAR);
 
-	if (car->action_description && CAN_GO(car, dir) &&
+	if (car->action_desc && CAN_GO(car, dir) &&
 		(other_rm = EXIT(car, dir)->to_room) && other_rm->people) {
-		strcpy(buf, car->action_description);
+		strcpy(buf, car->action_desc);
 		sprintf(buf, "%s %s.", buf, from_dirs[dir]);
 		act(buf, FALSE, other_rm->people, car, 0, TO_ROOM);
 		act(buf, FALSE, other_rm->people, car, 0, TO_CHAR);
@@ -432,8 +432,8 @@ SPECIAL(vehicle_door)
 
 	skip_spaces(&argument);
 
-	if (*argument && !isname(argument, vehicle->name) &&
-		!isname(argument, v_door->name))
+	if (*argument && !isname(argument, vehicle->aliases) &&
+		!isname(argument, v_door->aliases))
 		return 0;
 
 	if (CMD_IS("exit") || CMD_IS("leave")) {
@@ -616,7 +616,7 @@ SPECIAL(vehicle_console)
 	if (CMD_IS("status")) {
 		if (!engine)
 			return 0;
-		if (*argument && !isname(argument, console->name))
+		if (*argument && !isname(argument, console->aliases))
 			return 0;
 
 		display_status(ch, vehicle, driver, engine);
@@ -773,8 +773,8 @@ SPECIAL(vehicle_console)
 		return 1;
 	}
 
-	if (*argument && !isname(argument, vehicle->name) &&
-		!isname(argument, console->name))
+	if (*argument && !isname(argument, vehicle->aliases) &&
+		!isname(argument, console->aliases))
 		return 0;
 
 	if (CMD_IS("crank") || CMD_IS("activate")) {

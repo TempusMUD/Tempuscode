@@ -10,8 +10,8 @@ SPECIAL(life_point_potion)
 	if (!CMD_IS("quaff") || potion->carried_by != ch)
 		return 0;
 	skip_spaces(&argument);
-	if (!isname(argument, potion->name)) {
-		sprintf(buf, "Argument (%s), Name (%s)\r\n", argument, potion->name);
+	if (!isname(argument, potion->aliases)) {
+		sprintf(buf, "Argument (%s), Name (%s)\r\n", argument, potion->aliases);
 		return 0;
 	}
 	//Format : <number of life points> 

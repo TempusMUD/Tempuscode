@@ -191,7 +191,7 @@ load_xml_object(xmlNodePtr node)
 	obj->setWeight(xmlGetIntProp(node, "weight"));
 	obj->in_room = 0;
 
-	obj->short_description = xmlGetProp(node, "name");
+	obj->name = xmlGetProp(node, "name");
 
 /*
 	for (cur_node = node->xmlChildrenNode; cur_node; cur_node = cur_node->next) {
@@ -200,7 +200,7 @@ load_xml_object(xmlNodePtr node)
 		else if (!xmlStrcmp(cur_node->name, (const xmlChar *)"linedesc"))
 			obj->description = xmlNodeListGetString(doc, cur_node, 1);
 		else if (!xmlStrcmp(cur_node->name, (const xmlChar *)"action"))
-			obj->action_description = xmlNodeListGetString(doc, cur_node, 1);
+			obj->action_desc = xmlNodeListGetString(doc, cur_node, 1);
 		else if (!xmlStrcmp(cur_node->name, (const xmlChar *)"extradesc")) {
 			CREATE(new_desc, struct extra_descr_data, 1);
 			new_desc->keyword = xmlGetProp(cur_node, "keyword");

@@ -856,7 +856,7 @@ ASPELL(spell_locate_object)
 	for (i = object_list; i && (j > 0 || k > 0); i = i->next) {
 		found = 1;
 		for (term_idx = 0; term_idx < term_count && found; term_idx++)
-			if (!isname(terms[term_idx], i->name))
+			if (!isname(terms[term_idx], i->aliases))
 				found = 0;
 
 		if (!found)
@@ -865,7 +865,7 @@ ASPELL(spell_locate_object)
 		if (!can_see_object(ch, i))
 			continue;
 
-		if (isname("imm", i->name) || IS_OBJ_TYPE(i, ITEM_SCRIPT)
+		if (isname("imm", i->aliases) || IS_OBJ_TYPE(i, ITEM_SCRIPT)
 			|| !OBJ_APPROVED(i)) {
 			continue;
 		}
@@ -875,7 +875,7 @@ ASPELL(spell_locate_object)
 		if (!rm) {
 			mudlog(LVL_CREATOR, BRF, true,
 				"SYSERR: %s is nowhere? Moving to The Void.",
-				i->short_description);
+				i->name);
 			rm = real_room(0);
 			SET_BIT(GET_OBJ_EXTRA2(i), ITEM2_BROKEN);
 			SET_BIT(GET_OBJ_EXTRA3(i), ITEM3_HUNTED);
@@ -908,24 +908,24 @@ ASPELL(spell_locate_object)
 
 		if (IS_OBJ_STAT2(i, ITEM2_NOLOCATE))
 			sprintf(buf3, "The location of %s in indeterminable.\r\n",
-				i->short_description);
+				i->name);
 		else if (IS_OBJ_STAT2(i, ITEM2_HIDDEN))
-			sprintf(buf3, "%s is hidden somewhere.\r\n", i->short_description);
+			sprintf(buf3, "%s is hidden somewhere.\r\n", i->name);
 		else if (i->carried_by)
 			sprintf(buf3, "%s is being carried by %s.\r\n",
-				i->short_description, PERS(i->carried_by, ch));
+				i->name, PERS(i->carried_by, ch));
 		else if (i->in_room != NULL && !ROOM_FLAGGED(i->in_room, ROOM_HOUSE)) {
-			sprintf(buf3, "%s is in %s.\r\n", i->short_description,
+			sprintf(buf3, "%s is in %s.\r\n", i->name,
 				i->in_room->name);
 		} else if (i->in_obj)
-			sprintf(buf3, "%s is in %s.\r\n", i->short_description,
-				i->in_obj->short_description);
+			sprintf(buf3, "%s is in %s.\r\n", i->name,
+				i->in_obj->name);
 		else if (i->worn_by)
 			sprintf(buf3, "%s is being worn by %s.\r\n",
-				i->short_description, PERS(i->worn_by, ch));
+				i->name, PERS(i->worn_by, ch));
 		else
 			sprintf(buf3, "%s's location is uncertain.\r\n",
-				i->short_description);
+				i->name);
 
 		// this ptr crap is to quiet a compiler warning!
 		ptr = (void *)CAP(buf3);
@@ -1135,7 +1135,7 @@ ASPELL(spell_identify)
 
 	if (obj) {
 		send_to_char(ch, "You feel informed:\r\n");
-		send_to_char(ch, "Object '%s', Item type: ", obj->short_description);
+		send_to_char(ch, "Object '%s', Item type: ", obj->name);
 		buf[0] = '\0';
 		sprinttype(GET_OBJ_TYPE(obj), item_types, buf);
 
@@ -1303,7 +1303,7 @@ ASPELL(spell_minor_identify)
 
 	if (obj) {
 		send_to_char(ch, "You feel a bit informed:\r\n");
-		send_to_char(ch, "Object '%s', Item type: ", obj->short_description);
+		send_to_char(ch, "Object '%s', Item type: ", obj->name);
 		sprinttype(GET_OBJ_TYPE(obj), item_types, buf2);
 		send_to_char(ch, "%s\r\n", buf2);
 
@@ -1466,13 +1466,13 @@ ASPELL(spell_enchant_weapon)
 
 		gain_skill_prof(ch, SPELL_ENCHANT_WEAPON);
 
-		if (GET_LEVEL(ch) >= LVL_AMBASSADOR && !isname("imm", obj->name)) {
+		if (GET_LEVEL(ch) >= LVL_AMBASSADOR && !isname("imm", obj->aliases)) {
 			sprintf(buf, " imm %senchant", GET_NAME(ch));
-			strcpy(buf2, obj->name);
+			strcpy(buf2, obj->aliases);
 			strcat(buf2, buf);
-			obj->name = str_dup(buf2);
+			obj->aliases = str_dup(buf2);
 			mudlog(GET_LEVEL(ch), CMP, true,
-				"ENCHANT: %s by %s.", obj->short_description,
+				"ENCHANT: %s by %s.", obj->name,
 				GET_NAME(ch));
 		}
 	}
@@ -1576,13 +1576,13 @@ ASPELL(spell_enchant_armor)
 
 		gain_skill_prof(ch, SPELL_ENCHANT_ARMOR);
 
-		if (GET_LEVEL(ch) >= LVL_AMBASSADOR && !isname("imm", obj->name)) {
+		if (GET_LEVEL(ch) >= LVL_AMBASSADOR && !isname("imm", obj->aliases)) {
 			sprintf(buf, " imm %senchant", GET_NAME(ch));
-			strcpy(buf2, obj->name);
+			strcpy(buf2, obj->aliases);
 			strcat(buf2, buf);
-			obj->name = str_dup(buf2);
+			obj->aliases = str_dup(buf2);
 			mudlog(GET_LEVEL(ch), CMP, true,
-				"ENCHANT: %s by %s.", obj->short_description,
+				"ENCHANT: %s by %s.", obj->name,
 				GET_NAME(ch));
 		}
 	} else
@@ -1689,13 +1689,13 @@ ASPELL(spell_greater_enchant)
 
 	gain_skill_prof(ch, SPELL_GREATER_ENCHANT);
 
-	if (GET_LEVEL(ch) >= LVL_AMBASSADOR && !isname("imm", obj->name)) {
+	if (GET_LEVEL(ch) >= LVL_AMBASSADOR && !isname("imm", obj->aliases)) {
 		sprintf(buf, " imm %senchant", GET_NAME(ch));
-		strcpy(buf2, obj->name);
+		strcpy(buf2, obj->aliases);
 		strcat(buf2, buf);
-		obj->name = str_dup(buf2);
+		obj->aliases = str_dup(buf2);
 		mudlog(GET_LEVEL(ch), CMP, true,
-			"ENCHANT: %s by %s.", obj->short_description,
+			"ENCHANT: %s by %s.", obj->name,
 			GET_NAME(ch));
 	}
 }
@@ -2266,7 +2266,7 @@ ASPELL(spell_gust_of_wind)
 
 		if (!obj->in_room) {
 			slog("SYSERR: %s tried to gust %s at %d.",
-				GET_NAME(ch), obj->short_description, ch->in_room->number);
+				GET_NAME(ch), obj->name, ch->in_room->number);
 			act("$p doesnt budge.", FALSE, ch, obj, 0, TO_CHAR);
 			return;
 		}
@@ -2761,10 +2761,10 @@ ASPELL(spell_animate_dead)
 	//
 	// strings
 	//
-	sprintf(buf2, "%s zombie animated", obj->name);
+	sprintf(buf2, "%s zombie animated", obj->aliases);
 	zombie->player.name = str_dup(buf2);
-	zombie->player.short_descr = str_dup(obj->short_description);
-	strcpy(buf, obj->short_description);
+	zombie->player.short_descr = str_dup(obj->name);
+	strcpy(buf, obj->name);
 	strcat(buf, " is standing here.");
 	CAP(buf);
 	zombie->player.long_descr = str_dup(buf);

@@ -289,7 +289,7 @@ perform_put(struct Creature *ch, struct obj_data *obj,
 	if (GET_OBJ_TYPE(cont) == ITEM_PIPE) {
 		if (GET_OBJ_TYPE(obj) != ITEM_TOBACCO) {
 			slog("SYSERR: obj %d '%s' attempted to pack.",
-				GET_OBJ_VNUM(obj), obj->short_description);
+				GET_OBJ_VNUM(obj), obj->name);
 			send_to_char(ch, "Sorry, there is an error here.\r\n");
 		} else if (CUR_DRAGS(cont) && SMOKE_TYPE(cont) != SMOKE_TYPE(obj))
 			act("You need to clear out $p before packing it with $P.",
@@ -434,7 +434,7 @@ ACMD(do_put)
 						continue;
 					if (!can_see_object(ch, obj))
 						continue;
-					if (!(obj_dotmode == FIND_ALL || isname(arg1, obj->name)))
+					if (!(obj_dotmode == FIND_ALL || isname(arg1, obj->aliases)))
 						continue;
 					if (IS_BOMB(obj) &&
 							obj->contains &&
@@ -448,8 +448,8 @@ ACMD(do_put)
 						continue;
 
 					if (save_obj != NULL
-						&& str_cmp(save_obj->short_description,
-							obj->short_description) != 0) {
+						&& str_cmp(save_obj->name,
+							obj->name) != 0) {
 						if (counter == 1)
 							sprintf(cntbuf, "You put $p in $P.");
 						else
@@ -606,7 +606,7 @@ perform_get_from_container(struct Creature * ch,
 			CORPSE_IDNUM(cont) != GET_IDNUM(ch)) {
 			mudlog(LVL_DEMI, CMP, true,
 				"%s looted %s from %s.", GET_NAME(ch),
-				obj->short_description, cont->short_description);
+				obj->name, cont->name);
 		}
 	}
 
@@ -722,11 +722,11 @@ get_from_container(struct Creature *ch, struct obj_data *cont, char *arg)
 			// match_name is set if this is a find alldot get
 			//
 
-			if (match_name && !isname(match_name, obj->name))
+			if (match_name && !isname(match_name, obj->aliases))
 				continue;
 
 			if (!next_obj ||
-				next_obj->short_description != obj->short_description ||
+				next_obj->name != obj->name ||
 				!can_see_object(ch, next_obj)
 				|| !can_take_obj(ch, next_obj, check_weight, false)) {
 				display = true;
@@ -899,11 +899,11 @@ get_from_room(struct Creature *ch, char *arg)
 			// match_name is set if this is a find alldot get
 			//
 
-			if (match_name && !isname(match_name, obj->name))
+			if (match_name && !isname(match_name, obj->aliases))
 				continue;
 
 			if (!next_obj ||
-				next_obj->short_description != obj->short_description ||
+				next_obj->name != obj->name ||
 				!can_see_object(ch, next_obj)
 				|| !can_take_obj(ch, next_obj, true, false)) {
 				display = true;
@@ -1044,7 +1044,7 @@ ACCMD(do_get)
 
 		if (can_see_object(ch, cont) &&
 			(!match_container_name
-				|| isname(match_container_name, cont->name))) {
+				|| isname(match_container_name, cont->aliases))) {
 
 			if (!IS_OBJ_TYPE(cont, ITEM_CONTAINER)) {
 				act("$p is not a container.", FALSE, ch, cont, 0, TO_CHAR);
@@ -1070,7 +1070,7 @@ ACCMD(do_get)
 
 		if (can_see_object(ch, cont) &&
 			(!match_container_name
-				|| isname(match_container_name, cont->name))) {
+				|| isname(match_container_name, cont->aliases))) {
 
 			if (!IS_OBJ_TYPE(cont, ITEM_CONTAINER)) {
 				act("$p is not a container.", FALSE, ch, cont, 0, TO_CHAR);
@@ -1197,7 +1197,7 @@ perform_drop_credits(struct Creature *ch, int amount,
 
 #define VANISH(mode) ((mode == SCMD_DONATE || mode == SCMD_JUNK) ? \
 		      "  It vanishes in a puff of smoke!" : "")
-#define PROTO_SDESC(vnum) (real_object_proto(vnum)->short_description)
+#define PROTO_SDESC(vnum) (real_object_proto(vnum)->name)
 
 bool
 is_undisposable(Creature *ch, const char *cmdstr, struct obj_data *obj, bool display)
@@ -1213,7 +1213,7 @@ is_undisposable(Creature *ch, const char *cmdstr, struct obj_data *obj, bool dis
 		return false;
 
 	if (obj->shared && obj->shared->vnum >= 0 &&
-			strcmp(obj->short_description, PROTO_SDESC(obj->shared->vnum))) {
+			strcmp(obj->name, PROTO_SDESC(obj->shared->vnum))) {
 		if (display)
 			send_to_char(ch, "You can't %s a renamed object!\r\n", cmdstr);
 		return true;
@@ -1465,7 +1465,7 @@ ACCMD(do_drop)
 		if (IS_BOMB(obj) && obj->contains && IS_FUSE(obj->contains))
 			mode = SCMD_DROP;
 
-		short_desc = tmp_strdup(obj->short_description);
+		short_desc = tmp_strdup(obj->name);
 		found = perform_drop(ch, obj, mode, sname, RDR, FALSE);
 		mode = oldmode;
 
@@ -1475,7 +1475,7 @@ ACCMD(do_drop)
 		amount += found;
 
 		if (!next_obj
-			|| strcmp(next_obj->short_description, short_desc)) {
+			|| strcmp(next_obj->name, short_desc)) {
 			if (counter > 0) {
 				if (counter == 1) {
 					to_char = tmp_sprintf("You %s %s.%s", sname,
@@ -1567,25 +1567,25 @@ perform_give(struct Creature *ch, struct Creature *vict,
 	}
 	if (IS_OBJ_TYPE(obj, ITEM_MONEY) && GET_OBJ_VAL(obj, 0) > MONEY_LOG_LIMIT)
 		slog("MONEY: %s has given obj #%d (%s) worth %d %s to %s in room #%d (%s)",
-			GET_NAME(ch), GET_OBJ_VNUM(obj), obj->short_description,
+			GET_NAME(ch), GET_OBJ_VNUM(obj), obj->name,
 			GET_OBJ_VAL(obj, 0), GET_OBJ_VAL(obj, 1) ? "credits":"gold",
 			GET_NAME(vict), vict->in_room->number, vict->in_room->name);
 
 	if (IS_NPC(vict) && AWAKE(vict) && !AFF_FLAGGED(vict, AFF_CHARM) &&
 		can_see_object(vict, obj)) {
 		if (IS_BOMB(obj)) {
-			if ((isname("bomb", obj->name) || isname("grenade", obj->name) ||
-					isname("explosives", obj->name)
-					|| isname("explosive", obj->name))
+			if ((isname("bomb", obj->aliases) || isname("grenade", obj->aliases) ||
+					isname("explosives", obj->aliases)
+					|| isname("explosive", obj->aliases))
 				&& (CHECK_SKILL(vict, SKILL_DEMOLITIONS) < number(10, 50)
 					|| (obj->contains && IS_FUSE(obj->contains)
 						&& FUSE_STATE(obj->contains)))) {
 				if (!FIGHTING(vict)
 					&& CHECK_SKILL(vict, SKILL_DEMOLITIONS) > number(40, 60))
 					if (FUSE_IS_BURN(obj->contains))
-						do_extinguish(vict, fname(obj->name), 0, 0, 0);
+						do_extinguish(vict, fname(obj->aliases), 0, 0, 0);
 					else
-						do_activate(vict, fname(obj->name), 0, 1, 0);
+						do_activate(vict, fname(obj->aliases), 0, 1, 0);
 				else {
 					if (vict->getPosition() < POS_FIGHTING)
 						do_stand(vict, 0, 0, 0, 0);
@@ -1594,23 +1594,23 @@ perform_give(struct Creature *ch, struct Creature *vict,
 							ch->in_room->dir_option[i]->to_room && i != UP &&
 							!IS_SET(ch->in_room->dir_option[i]->exit_info,
 								EX_CLOSED)) {
-							sprintf(buf, "%s %s", fname(obj->name), dirs[i]);
+							sprintf(buf, "%s %s", fname(obj->aliases), dirs[i]);
 							do_throw(vict, buf, 0, 0, 0);
 							return 1;
 						}
 					}
 					if (can_see_creature(vict, ch)) {
-						sprintf(buf, "%s %s", fname(obj->name),
+						sprintf(buf, "%s %s", fname(obj->aliases),
 							fname(ch->player.name));
 						do_give(vict, buf, 0, 0, 0);
 					} else
-						do_throw(vict, fname(obj->name), 0, 0, 0);
+						do_throw(vict, fname(obj->aliases), 0, 0, 0);
 				}
 			}
 			return 1;
 		}
 		if ((IS_CARRYING_W(vict) + IS_WEARING_W(vict)) > (CAN_CARRY_W(vict) >> 1))	// i don't want that heavy shit
-			do_drop(vict, fname(obj->name), 0, 0, 0);
+			do_drop(vict, fname(obj->aliases), 0, 0, 0);
 	}
 	return 1;
 }
@@ -1825,7 +1825,7 @@ ACMD(do_give)
 			counter++;
 
 		if (!next_obj
-			|| next_obj->short_description != obj->short_description) {
+			|| next_obj->name != obj->name) {
 			if (counter > 0) {
 				if (counter == 1) {
 					to_char = tmp_sprintf("You give $p to $N.");
@@ -1900,7 +1900,7 @@ ACMD(do_plant)
 				for (obj = ch->carrying; obj; obj = next_obj) {
 					next_obj = obj->next_content;
 					if (can_see_object(ch, obj) &&
-						((dotmode == FIND_ALL || isname(arg, obj->name))))
+						((dotmode == FIND_ALL || isname(arg, obj->aliases))))
 						perform_plant(ch, vict, obj);
 				}
 		}
@@ -1946,28 +1946,28 @@ name_from_drinkcon(struct obj_data *obj)
 	char *new_name;
 	struct obj_data *tmp_obj = NULL;
 
-	for (i = 0; (*((obj->name) + i) != ' ') && (*((obj->name) + i) != '\0');
+	for (i = 0; (*((obj->aliases) + i) != ' ') && (*((obj->aliases) + i) != '\0');
 		i++);
 
-	if (*((obj->name) + i) == ' ') {
+	if (*((obj->aliases) + i) == ' ') {
 #ifdef DMALLOC
 		dmalloc_verify(0);
 #endif
-		new_name = str_dup((obj->name) + i + 1);
+		new_name = str_dup((obj->aliases) + i + 1);
 #ifdef DMALLOC
 		dmalloc_verify(0);
 #endif
 		tmp_obj = real_object_proto(GET_OBJ_VNUM(obj));
-		if (GET_OBJ_VNUM(obj) < 0 || obj->name != tmp_obj->name) {
+		if (GET_OBJ_VNUM(obj) < 0 || obj->aliases != tmp_obj->aliases) {
 #ifdef DMALLOC
 			dmalloc_verify(0);
 #endif
-			free(obj->name);
+			free(obj->aliases);
 #ifdef DMALLOC
 			dmalloc_verify(0);
 #endif
 		}
-		obj->name = new_name;
+		obj->aliases = new_name;
 	}
 }
 
@@ -1977,19 +1977,19 @@ name_to_drinkcon(struct obj_data *obj, int type)
 	char *new_name;
 	struct obj_data *tmp_obj = NULL;
 
-	CREATE(new_name, char, strlen(obj->name) + strlen(drinknames[type]) + 2);
-	sprintf(new_name, "%s %s", drinknames[type], obj->name);
+	CREATE(new_name, char, strlen(obj->aliases) + strlen(drinknames[type]) + 2);
+	sprintf(new_name, "%s %s", drinknames[type], obj->aliases);
 	tmp_obj = real_object_proto(GET_OBJ_VNUM(obj));
-	if (GET_OBJ_VNUM(obj) < 0 || obj->name != tmp_obj->name) {
+	if (GET_OBJ_VNUM(obj) < 0 || obj->aliases != tmp_obj->aliases) {
 #ifdef DMALLOC
 		dmalloc_verify(0);
 #endif
-		free(obj->name);
+		free(obj->aliases);
 #ifdef DMALLOC
 		dmalloc_verify(0);
 #endif
 	}
-	obj->name = new_name;
+	obj->aliases = new_name;
 }
 
 
@@ -2049,8 +2049,8 @@ ACMD(do_drink)
 			act(buf, TRUE, ch, temp, 0, TO_ROOM);
 		}
 
-		if (temp->action_description && *temp->action_description)
-			send_to_char(ch, "%s\r\n", temp->action_description);
+		if (temp->action_desc && *temp->action_desc)
+			send_to_char(ch, "%s\r\n", temp->action_desc);
 		else
 			send_to_char(ch, "You drink the %s.\r\n", drinks[GET_OBJ_VAL(temp, 2)]);
 
@@ -2724,8 +2724,8 @@ perform_wear(struct Creature *ch, struct obj_data *obj, int where)
 	wear_message(ch, obj, where);
 	if ((IS_OBJ_TYPE(obj, ITEM_WORN) ||
 			IS_OBJ_TYPE(obj, ITEM_ARMOR) ||
-			IS_OBJ_TYPE(obj, ITEM_WEAPON)) && obj->action_description) {
-		act(obj->action_description, FALSE, ch, obj, 0, TO_CHAR);
+			IS_OBJ_TYPE(obj, ITEM_WEAPON)) && obj->action_desc) {
+		act(obj->action_desc, FALSE, ch, obj, 0, TO_CHAR);
 	}
 	obj_from_char(obj);
 	if (equip_char(ch, obj, where, MODE_EQ))
@@ -3079,7 +3079,7 @@ ACMD(do_remove)
 			found = 0;
 			for (i = 0; i < NUM_WEARS; i++)
 				if (GET_EQ(ch, i) && can_see_object(ch, GET_EQ(ch, i)) &&
-					isname(arg, GET_EQ(ch, i)->name)) {
+					isname(arg, GET_EQ(ch, i)->aliases)) {
 					perform_remove(ch, i);
 					found = 1;
 				}
@@ -3419,10 +3419,10 @@ choose_material(struct obj_data *obj)
 	char name[128], aliases[512], *ptr;
 
 	for (i = 0; i < TOP_MATERIAL; i++)
-		if (isname(material_names[i], obj->name))
+		if (isname(material_names[i], obj->aliases))
 			return (i);
 
-	strcpy(aliases, obj->short_description);
+	strcpy(aliases, obj->name);
 	ptr = aliases;
 
 	ptr = one_argument(ptr, name);
@@ -3438,8 +3438,8 @@ choose_material(struct obj_data *obj)
 		ptr = one_argument(ptr, name);
 	}
 
-	if (obj->description) {
-		strcpy(aliases, obj->description);
+	if (obj->line_desc) {
+		strcpy(aliases, obj->line_desc);
 		ptr = aliases;
 
 		ptr = one_argument(ptr, name);
@@ -3464,122 +3464,122 @@ choose_material(struct obj_data *obj)
 		}
 	}
 
-	if (isname("bottle", obj->name) || isname("glasses", obj->name) ||
-		isname("jar", obj->name) || isname("mirror", obj->name))
+	if (isname("bottle", obj->aliases) || isname("glasses", obj->aliases) ||
+		isname("jar", obj->aliases) || isname("mirror", obj->aliases))
 		return (MAT_GLASS);
 
-	if (isname("meat", obj->name) || isname("beef", obj->name)) {
-		if (isname("raw", obj->name))
+	if (isname("meat", obj->aliases) || isname("beef", obj->aliases)) {
+		if (isname("raw", obj->aliases))
 			return (MAT_MEAT_RAW);
 		else
 			return (MAT_MEAT_COOKED);
 	}
 
-	if (isname("burger", obj->name) || isname("hamburger", obj->name) ||
-		isname("cheeseburger", obj->name))
+	if (isname("burger", obj->aliases) || isname("hamburger", obj->aliases) ||
+		isname("cheeseburger", obj->aliases))
 		return (MAT_MEAT_COOKED);
 
-	if (isname("oaken", obj->name) || isname("oak", obj->name))
+	if (isname("oaken", obj->aliases) || isname("oak", obj->aliases))
 		return (MAT_OAK);
 
-	if (isname("tree", obj->name) || isname("branch", obj->name) ||
-		isname("board", obj->name) || isname("wooden", obj->name) ||
-		isname("barrel", obj->name) || isname("log", obj->name) ||
-		isname("logs", obj->name) || isname("stick", obj->name) ||
-		isname("pencil", obj->name))
+	if (isname("tree", obj->aliases) || isname("branch", obj->aliases) ||
+		isname("board", obj->aliases) || isname("wooden", obj->aliases) ||
+		isname("barrel", obj->aliases) || isname("log", obj->aliases) ||
+		isname("logs", obj->aliases) || isname("stick", obj->aliases) ||
+		isname("pencil", obj->aliases))
 		return (MAT_WOOD);
 
-	if (isname("jean", obj->name) || isname("jeans", obj->name))
+	if (isname("jean", obj->aliases) || isname("jeans", obj->aliases))
 		return (MAT_DENIM);
 
-	if (isname("hide", obj->name) || isname("pelt", obj->name) ||
-		isname("skins", obj->name) || isname("viscera", obj->name))
+	if (isname("hide", obj->aliases) || isname("pelt", obj->aliases) ||
+		isname("skins", obj->aliases) || isname("viscera", obj->aliases))
 		return (MAT_SKIN);
 
-	if (isname("golden", obj->name) || isname("coin", obj->name) ||
-		isname("coins", obj->name))
+	if (isname("golden", obj->aliases) || isname("coin", obj->aliases) ||
+		isname("coins", obj->aliases))
 		return (MAT_GOLD);
 
-	if (isname("silvery", obj->name))
+	if (isname("silvery", obj->aliases))
 		return (MAT_SILVER);
 
-	if (isname("computer", obj->name))
+	if (isname("computer", obj->aliases))
 		return (MAT_PLASTIC);
 
-	if (isname("candle", obj->name))
+	if (isname("candle", obj->aliases))
 		return (MAT_WAX);
 
-	if (isname("corpse", obj->name) || isname("body", obj->name) ||
-		isname("bodies", obj->name) || isname("corpses", obj->name) ||
-		isname("carcass", obj->name) || isname("cadaver", obj->name))
+	if (isname("corpse", obj->aliases) || isname("body", obj->aliases) ||
+		isname("bodies", obj->aliases) || isname("corpses", obj->aliases) ||
+		isname("carcass", obj->aliases) || isname("cadaver", obj->aliases))
 		return (MAT_FLESH);
 
-	if (isname("can", obj->name) || isname("bucket", obj->name))
+	if (isname("can", obj->aliases) || isname("bucket", obj->aliases))
 		return (MAT_ALUMINUM);
 
-	if (isname("claw", obj->name) || isname("claws", obj->name) ||
-		isname("bones", obj->name) || isname("spine", obj->name) ||
-		isname("skull", obj->name) || isname("tusk", obj->name) ||
-		isname("tusks", obj->name) || isname("talons", obj->name) ||
-		isname("talon", obj->name) || isname("teeth", obj->name) ||
-		isname("tooth", obj->name))
+	if (isname("claw", obj->aliases) || isname("claws", obj->aliases) ||
+		isname("bones", obj->aliases) || isname("spine", obj->aliases) ||
+		isname("skull", obj->aliases) || isname("tusk", obj->aliases) ||
+		isname("tusks", obj->aliases) || isname("talons", obj->aliases) ||
+		isname("talon", obj->aliases) || isname("teeth", obj->aliases) ||
+		isname("tooth", obj->aliases))
 		return (MAT_BONE);
 
-	if (isname("jewel", obj->name) || isname("gem", obj->name))
+	if (isname("jewel", obj->aliases) || isname("gem", obj->aliases))
 		return (MAT_STONE);
 
-	if (isname("khaki", obj->name) || isname("fabric", obj->name))
+	if (isname("khaki", obj->aliases) || isname("fabric", obj->aliases))
 		return (MAT_CLOTH);
 
-	if (isname("rock", obj->name) || isname("boulder", obj->name))
+	if (isname("rock", obj->aliases) || isname("boulder", obj->aliases))
 		return (MAT_STONE);
 
-	if (isname("brick", obj->name))
+	if (isname("brick", obj->aliases))
 		return (MAT_CONCRETE);
 
-	if (isname("adamantite", obj->name))
+	if (isname("adamantite", obj->aliases))
 		return (MAT_ADAMANTIUM);
 
-	if (isname("rusty", obj->name) || isname("rusted", obj->name))
+	if (isname("rusty", obj->aliases) || isname("rusted", obj->aliases))
 		return (MAT_IRON);
 
-	if (isname("wicker", obj->name))
+	if (isname("wicker", obj->aliases))
 		return (MAT_RATTAN);
 
-	if (isname("rope", obj->name))
+	if (isname("rope", obj->aliases))
 		return (MAT_HEMP);
 
-	if (isname("mug", obj->name))
+	if (isname("mug", obj->aliases))
 		return (MAT_PORCELAIN);
 
-	if (isname("tire", obj->name) || isname("tires", obj->name))
+	if (isname("tire", obj->aliases) || isname("tires", obj->aliases))
 		return (MAT_RUBBER);
 
-	if (isname("rug", obj->name))
+	if (isname("rug", obj->aliases))
 		return (MAT_CARPET);
 
-	if (GET_OBJ_TYPE(obj) == ITEM_FOOD && (isname("loaf", obj->name) ||
-			isname("pastry", obj->name) ||
-			isname("muffin", obj->name) ||
-			isname("cracker", obj->name) ||
-			isname("bisquit", obj->name) || isname("cake", obj->name)))
+	if (GET_OBJ_TYPE(obj) == ITEM_FOOD && (isname("loaf", obj->aliases) ||
+			isname("pastry", obj->aliases) ||
+			isname("muffin", obj->aliases) ||
+			isname("cracker", obj->aliases) ||
+			isname("bisquit", obj->aliases) || isname("cake", obj->aliases)))
 		return (MAT_BREAD);
 
-	if (GET_OBJ_TYPE(obj) == ITEM_FOOD && (isname("fish", obj->name) ||
-			isname("trout", obj->name) ||
-			isname("steak", obj->name) ||
-			isname("roast", obj->name) ||
-			isname("fried", obj->name) ||
-			isname("smoked", obj->name) ||
-			isname("jerky", obj->name) ||
-			isname("sausage", obj->name) || isname("fillet", obj->name)))
+	if (GET_OBJ_TYPE(obj) == ITEM_FOOD && (isname("fish", obj->aliases) ||
+			isname("trout", obj->aliases) ||
+			isname("steak", obj->aliases) ||
+			isname("roast", obj->aliases) ||
+			isname("fried", obj->aliases) ||
+			isname("smoked", obj->aliases) ||
+			isname("jerky", obj->aliases) ||
+			isname("sausage", obj->aliases) || isname("fillet", obj->aliases)))
 		return (MAT_MEAT_COOKED);
 
 	if (IS_ENGINE(obj) || IS_VEHICLE(obj))
 		return (MAT_STEEL);
 
 	if (GET_OBJ_TYPE(obj) == ITEM_SCROLL || GET_OBJ_TYPE(obj) == ITEM_NOTE ||
-		GET_OBJ_TYPE(obj) == ITEM_CIGARETTE || isname("papers", obj->name))
+		GET_OBJ_TYPE(obj) == ITEM_CIGARETTE || isname("papers", obj->aliases))
 		return (MAT_PAPER);
 
 	if (GET_OBJ_TYPE(obj) == ITEM_KEY)
@@ -3601,7 +3601,7 @@ choose_material(struct obj_data *obj)
 		return (MAT_WOOD);
 
 	if (GET_OBJ_TYPE(obj) == ITEM_SYRINGE) {
-		if (isname("disposable", obj->name))
+		if (isname("disposable", obj->aliases))
 			return (MAT_PLASTIC);
 		else
 			return (MAT_GLASS);
@@ -3611,43 +3611,43 @@ choose_material(struct obj_data *obj)
 		return (MAT_CLOTH);
 
 	if (GET_OBJ_TYPE(obj) == ITEM_ARMOR) {
-		if (isname("plate", obj->name) || isname("chain", obj->name) ||
-			isname("plates", obj->name) || isname("plated", obj->name) ||
-			isname("helmet", obj->name) || isname("breastplate", obj->name) ||
-			isname("shield", obj->name) || isname("mail", obj->name) ||
-			((isname("scale", obj->name) || isname("scales", obj->name)) &&
-				obj->short_description &&
-				!isname("dragon", obj->short_description) &&
-				!isname("dragons", obj->short_description) &&
-				!isname("dragon's", obj->short_description) &&
-				!isname("tiamat", obj->short_description)))
+		if (isname("plate", obj->aliases) || isname("chain", obj->aliases) ||
+			isname("plates", obj->aliases) || isname("plated", obj->aliases) ||
+			isname("helmet", obj->aliases) || isname("breastplate", obj->aliases) ||
+			isname("shield", obj->aliases) || isname("mail", obj->aliases) ||
+			((isname("scale", obj->aliases) || isname("scales", obj->aliases)) &&
+				obj->name &&
+				!isname("dragon", obj->name) &&
+				!isname("dragons", obj->name) &&
+				!isname("dragon's", obj->name) &&
+				!isname("tiamat", obj->name)))
 			return (MAT_STEEL);
-		if (isname("boots", obj->name))
+		if (isname("boots", obj->aliases))
 			return (MAT_LEATHER);
 	}
 
 	if (GET_OBJ_TYPE(obj) == ITEM_WEAPON) {
-		if (isname("blade", obj->name) || isname("sword", obj->name) ||
-			isname("dagger", obj->name) || isname("knife", obj->name) ||
-			isname("axe", obj->name) || isname("longsword", obj->name) ||
-			isname("scimitar", obj->name) || isname("halberd", obj->name) ||
-			isname("sabre", obj->name) || isname("cutlass", obj->name) ||
-			isname("rapier", obj->name) || isname("pike", obj->name) ||
-			isname("spear", obj->name))
+		if (isname("blade", obj->aliases) || isname("sword", obj->aliases) ||
+			isname("dagger", obj->aliases) || isname("knife", obj->aliases) ||
+			isname("axe", obj->aliases) || isname("longsword", obj->aliases) ||
+			isname("scimitar", obj->aliases) || isname("halberd", obj->aliases) ||
+			isname("sabre", obj->aliases) || isname("cutlass", obj->aliases) ||
+			isname("rapier", obj->aliases) || isname("pike", obj->aliases) ||
+			isname("spear", obj->aliases))
 			return (MAT_STEEL);
-		if (isname("club", obj->name))
+		if (isname("club", obj->aliases))
 			return (MAT_WOOD);
-		if (isname("whip", obj->name))
+		if (isname("whip", obj->aliases))
 			return (MAT_LEATHER);
 	}
 
-	if (isname("chain", obj->name) || isname("chains", obj->name))
+	if (isname("chain", obj->aliases) || isname("chains", obj->aliases))
 		return (MAT_METAL);
 
-	if (isname("cloak", obj->name))
+	if (isname("cloak", obj->aliases))
 		return (MAT_CLOTH);
 
-	if (isname("torch", obj->name))
+	if (isname("torch", obj->aliases))
 		return (MAT_WOOD);
 
 	return (MAT_NONE);
@@ -3925,7 +3925,7 @@ ACMD(do_empty)
 				generic_find(arg2,
 					FIND_OBJ_EQUIP | FIND_OBJ_INV | FIND_OBJ_ROOM, ch, &dummy,
 					&container))) {
-			send_to_char(ch, "Empty %s into what?\r\n", obj->short_description);
+			send_to_char(ch, "Empty %s into what?\r\n", obj->name);
 			return;
 		} else {
 			empty_to_obj(obj, container, ch);
@@ -3954,7 +3954,7 @@ ACMD(do_empty)
 		act("You carefully empty the contents of $p.", FALSE, ch, obj, 0,
 			TO_CHAR);
 	} else {
-		send_to_char(ch, "%s is already empty idiot!\r\n", obj->short_description);
+		send_to_char(ch, "%s is already empty idiot!\r\n", obj->name);
 	}
 }
 
@@ -4016,10 +4016,10 @@ empty_to_obj(struct obj_data *obj, struct obj_data *container,
 		}
 		if (objs_moved) {
 			sprintf(buf, "$n carefully empties the contents of $p into %s.",
-				container->short_description);
+				container->name);
 			act(buf, FALSE, ch, obj, 0, TO_ROOM);
 			sprintf(buf, "You carefully empty the contents of $p into %s.",
-				container->short_description);
+				container->name);
 			act(buf, FALSE, ch, obj, 0, TO_CHAR);
 		} else {
 			act("There's nothing in it!", FALSE, ch, obj, 0, TO_CHAR);
