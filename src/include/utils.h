@@ -53,6 +53,7 @@ int get_line(FILE * fl, char *buf);
 int get_filename(char *orig_name, char *filename, int mode);
 int get_line_count(char *buffer);
 int remove_from_cstring(char *str, char c = '~', char c_to = '.');
+void perform_skillset(Creature *ch, Creature *vict, char *skill_str, int value);
 
 enum track_mode
 {

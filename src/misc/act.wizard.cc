@@ -50,6 +50,7 @@ using namespace std;
 #include "tokenizer.h"
 #include "tmpstr.h"
 #include "interpreter.h"
+#include "utils.h"
 
 
 /*   external vars  */
@@ -5188,9 +5189,8 @@ ACMD(do_set)
 	struct Creature *vict = NULL, *vict2 = NULL;
 	struct Creature *cbuf = NULL;
 	struct char_file_u tmp_store;
-	char field[MAX_INPUT_LENGTH], name[MAX_INPUT_LENGTH],
-		val_arg[MAX_INPUT_LENGTH];
-	char arg1[MAX_INPUT_LENGTH], arg2[MAX_INPUT_LENGTH];
+	char *field, *name;
+	char *arg1, *arg2;
 	int on = 0, off = 0, value = 0;
 	char is_file = 0, is_mob = 0, is_player = 0;
 	int player_i = 0;
@@ -5298,22 +5298,22 @@ ACMD(do_set)
 		{"buried", LVL_IMMORT, PC, BINARY, "AdminFull"},
 		{"speed", LVL_IMMORT, PC, NUMBER, "Coder"},
 		{"occupation", LVL_ENTITY, PC, NUMBER, "CoderAdmin"},
+		{"skill", LVL_ENTITY, PC, MISC, "WizardFull"},
 		{"\n", 0, BOTH, MISC, ""}
 	};
 
-	half_chop(argument, name, buf);
+	name = tmp_getword(&argument);
 	if (!strcmp(name, "file")) {
 		is_file = 1;
-		half_chop(buf, name, buf);
+		name = tmp_getword(&argument);
 	} else if (!str_cmp(name, "player")) {
 		is_player = 1;
-		half_chop(buf, name, buf);
+		name = tmp_getword(&argument);
 	} else if (!str_cmp(name, "mob")) {
 		is_mob = 1;
-		half_chop(buf, name, buf);
+		name = tmp_getword(&argument);
 	}
-	half_chop(buf, field, buf);
-	strcpy(val_arg, buf);
+	field = tmp_getword(&argument);
 
 	if (!*name || !*field) {
 		send_to_char(ch, "Usage: set <victim> <field> <value>\r\n");
@@ -5396,16 +5396,16 @@ ACMD(do_set)
 	}
 
 	if (fields[l].type == BINARY) {
-		if (!strcmp(val_arg, "on") || !strcmp(val_arg, "yes"))
+		if (!strcmp(argument, "on") || !strcmp(argument, "yes"))
 			on = 1;
-		else if (!strcmp(val_arg, "off") || !strcmp(val_arg, "no"))
+		else if (!strcmp(argument, "off") || !strcmp(argument, "no"))
 			off = 1;
 		if (!(on || off)) {
 			send_to_char(ch, "Value must be on or off.\r\n");
 			return;
 		}
 	} else if (fields[l].type == NUMBER) {
-		value = atoi(val_arg);
+		value = atoi(argument);
 	}
 
 	strcpy(buf, "Okay.");		/* can't use OK macro here 'cause of \r\n */
@@ -5419,7 +5419,7 @@ ACMD(do_set)
 		SET_OR_REMOVE(PLR_FLAGS(vict), PLR_INVSTART);
 		break;
 	case 2:
-		set_title(vict, val_arg);
+		set_title(vict, argument);
 		sprintf(buf, "%s's title is now: %s", GET_NAME(vict), GET_TITLE(vict));
 		slog("%s has changed %s's title to : '%s'.", GET_NAME(ch),
 			GET_NAME(vict), GET_TITLE(vict));
@@ -5507,11 +5507,11 @@ ACMD(do_set)
 		affect_total(vict);
 		break;
 	case 17:
-		if (!str_cmp(val_arg, "male"))
+		if (!str_cmp(argument, "male"))
 			vict->player.sex = SEX_MALE;
-		else if (!str_cmp(val_arg, "female"))
+		else if (!str_cmp(argument, "female"))
 			vict->player.sex = SEX_FEMALE;
-		else if (!str_cmp(val_arg, "neutral"))
+		else if (!str_cmp(argument, "neutral"))
 			vict->player.sex = SEX_NEUTRAL;
 		else {
 			send_to_char(ch, "Must be 'male', 'female', or 'neutral'.\r\n");
@@ -5573,11 +5573,11 @@ ACMD(do_set)
 	case 29:
 	case 30:
 	case 31:
-		if (!str_cmp(val_arg, "off")) {
+		if (!str_cmp(argument, "off")) {
 			GET_COND(vict, (l - 29)) = (char)-1;
 			sprintf(buf, "%s's %s now off.", GET_NAME(vict), fields[l].cmd);
-		} else if (is_number(val_arg)) {
-			value = atoi(val_arg);
+		} else if (is_number(argument)) {
+			value = atoi(argument);
 			RANGE(0, 24);
 			GET_COND(vict, (l - 29)) = (char)value;
 			sprintf(buf, "%s's %s set to %d.", GET_NAME(vict), fields[l].cmd,
@@ -5633,8 +5633,8 @@ ACMD(do_set)
 		SET_OR_REMOVE(PLR_FLAGS(vict), PLR_DELETED);
 		break;
 	case 39:
-		if ((i = parse_char_class(val_arg)) == CLASS_UNDEFINED) {
-			send_to_char(ch, val_arg);
+		if ((i = parse_char_class(argument)) == CLASS_UNDEFINED) {
+			send_to_char(ch, argument);
 			send_to_char(ch, "\r\n");
 			send_to_char(ch, "That is not a char_class.\r\n");
 			return;
@@ -5648,12 +5648,12 @@ ACMD(do_set)
 		SET_OR_REMOVE(PRF_FLAGS(vict), PRF_QUEST);
 		break;
 	case 42:
-		if (!str_cmp(val_arg, "on"))
+		if (!str_cmp(argument, "on"))
 			SET_BIT(PLR_FLAGS(vict), PLR_LOADROOM);
-		else if (!str_cmp(val_arg, "off"))
+		else if (!str_cmp(argument, "off"))
 			REMOVE_BIT(PLR_FLAGS(vict), PLR_LOADROOM);
 		else {
-			if (real_room(i = atoi(val_arg)) != NULL) {
+			if (real_room(i = atoi(argument)) != NULL) {
 				GET_LOADROOM(vict) = i;
 				SET_BIT(PLR_FLAGS(vict), PLR_LOADROOM);
 				sprintf(buf, "%s will enter at %d.", GET_NAME(vict),
@@ -5683,9 +5683,9 @@ ACMD(do_set)
 			send_to_char(ch, "You cannot change that.\r\n");
 			return;
 		}
-		strncpy(tmp_store.pwd, CRYPT(val_arg, tmp_store.name), MAX_PWD_LENGTH);
+		strncpy(tmp_store.pwd, CRYPT(argument, tmp_store.name), MAX_PWD_LENGTH);
 		tmp_store.pwd[MAX_PWD_LENGTH] = '\0';
-		sprintf(buf, "Password changed to '%s'.", val_arg);
+		sprintf(buf, "Password changed to '%s'.", argument);
 		break;
 	case 46:
 		SET_OR_REMOVE(PLR_FLAGS(vict), PLR_NODELETE);
@@ -5708,7 +5708,7 @@ ACMD(do_set)
 			home_towns[(int)GET_HOME(vict)]);
 		break;
 	case 49:
-		if ((i = parse_race(val_arg)) == RACE_UNDEFINED) {
+		if ((i = parse_race(argument)) == RACE_UNDEFINED) {
 			send_to_char(ch, "That is not a race.\r\n");
 			return;
 		}
@@ -5736,14 +5736,14 @@ ACMD(do_set)
 		}
 		break;
 	case 53:
-		if (is_number(val_arg) && !atoi(val_arg)) {
+		if (is_number(argument) && !atoi(argument)) {
 			GET_CLAN(vict) = 0;
 			send_to_char(ch, "Clan set to none.\r\n");
-		} else if (!clan_by_name(val_arg)) {
+		} else if (!clan_by_name(argument)) {
 			send_to_char(ch, "There is no such clan.\r\n");
 			return;
 		} else
-			GET_CLAN(vict) = clan_by_name(val_arg)->number;
+			GET_CLAN(vict) = clan_by_name(argument)->number;
 		break;
 	case 54:
 		SET_OR_REMOVE(PLR_FLAGS(vict), PLR_CLAN_LEADER);
@@ -5759,13 +5759,13 @@ ACMD(do_set)
 		GET_PAGE_LENGTH(vict) = RANGE(1, 200);
 		break;
 	case 59:
-		if ((i = parse_char_class(val_arg)) == CLASS_UNDEFINED) {
+		if ((i = parse_char_class(argument)) == CLASS_UNDEFINED) {
 			send_to_char(ch, "That is not a char_class.\r\n");
 		}
 		GET_REMORT_CLASS(vict) = i;
 		break;
 	case 60:
-		if (!(vict2 = get_char_vis(ch, val_arg))) {
+		if (!(vict2 = get_char_vis(ch, argument))) {
 			send_to_char(ch, "No such target character around.\r\n");
 		} else {
 			HUNTING(vict) = vict2;
@@ -5774,7 +5774,7 @@ ACMD(do_set)
 		}
 		return;
 	case 61:
-		if (!(vict2 = get_char_vis(ch, val_arg))) {
+		if (!(vict2 = get_char_vis(ch, argument))) {
 			send_to_char(ch, "No such target character around.\r\n");
 		} else {
 			vict->setFighting(vict2);
@@ -5810,7 +5810,7 @@ ACMD(do_set)
 		SET_OR_REMOVE(PLR_FLAGS(vict), PLR_HALT);
 		break;
 	case 71:
-		if (((tp = search_block(val_arg, logtypes, FALSE)) == -1)) {
+		if (((tp = search_block(argument, logtypes, FALSE)) == -1)) {
 			send_to_char(ch, 
 				"Usage: syslog { Off | Brief | Normal | Complete }\r\n");
 			return;
@@ -5830,12 +5830,12 @@ ACMD(do_set)
 		break;
 	case 74:
 		if (IS_VAMPIRE(vict)) {
-			if ((i = parse_char_class(val_arg)) == CLASS_UNDEFINED) {
+			if ((i = parse_char_class(argument)) == CLASS_UNDEFINED) {
 				send_to_char(ch, "That is not a char_class.\r\n");
 				return;
 			}
 		} else
-			i = atoi(val_arg);
+			i = atoi(argument);
 		GET_OLD_CLASS(vict) = i;
 		break;
 	case 75:
@@ -5863,9 +5863,9 @@ ACMD(do_set)
 		GET_REMORT_GEN(vict) = RANGE(0, 1000);
 		break;
 	case 83:
-		if (add_path_to_mob(vict, val_arg)) {
+		if (add_path_to_mob(vict, argument)) {
 			sprintf(buf, "%s now follows the path titled: %s.",
-				GET_NAME(vict), val_arg);
+				GET_NAME(vict), argument);
 		} else
 			sprintf(buf, "Could not assign that path to mobile.");
 		break;
@@ -5895,7 +5895,8 @@ ACMD(do_set)
 		SET_OR_REMOVE(PLR_FLAGS(vict), PLR_NOPK);
 		break;
 	case 91:
-		two_arguments(val_arg, arg1, arg2);
+		arg1 = tmp_getword(&argument);
+		arg2 = tmp_getword(&argument);
 		if (!*arg1 || !*arg2) {
 			send_to_char(ch, "Usage: set <vict> soilage <pos> <value>\r\n");
 			return;
@@ -5910,7 +5911,7 @@ ACMD(do_set)
 		GET_ECONET(vict) = RANGE(0, 1000000000);
 		break;
 	case 93:					// specialization
-		two_arguments(val_arg, arg1, arg2);
+		two_arguments(argument, arg1, arg2);
 		if (!*arg1 || !*arg2) {
 			send_to_char(ch, "Usage: set <vict> spec <vnum> <level>\r\n");
 			return;
@@ -5968,6 +5969,11 @@ ACMD(do_set)
 		}
 		break;
 
+	case 100:
+		name = tmp_getquoted(&argument);
+		arg1 = tmp_getword(&argument);
+		perform_skillset(ch, vict, name, atoi(arg1));
+		break;
 	default:
 		sprintf(buf, "Can't set that!");
 		break;

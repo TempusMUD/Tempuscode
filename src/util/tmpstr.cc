@@ -217,6 +217,52 @@ tmp_getword(char **src)
 }
 
 char *
+tmp_getquoted(char **src)
+{
+	struct tmp_str_pool *cur_buf;
+	char *result, *read_pt, *write_pt;
+	size_t len = 0;
+	int delim;
+
+	skip_spaces(src);
+
+	delim = **src;
+
+	// No quote mark at the beginning
+	if (delim != '\'' && delim != '"')
+		return tmp_getword(src);
+
+	read_pt = *src + 1;
+	*src = read_pt;
+
+	while (*read_pt && delim != *read_pt)
+		read_pt++;
+
+	// No terminating quote, so we act just like tmp_getword
+	if (delim != *read_pt)
+		return tmp_getword(src);
+
+	len = (read_pt - *src) + 1;
+
+	if (len > tmp_list_tail->space - tmp_list_tail->used)
+		cur_buf = tmp_alloc_pool(len);
+	else
+		cur_buf = tmp_list_tail;
+
+	result = cur_buf->data + cur_buf->used;
+	read_pt = *src;
+	write_pt = result;
+
+	while (*read_pt && delim != *read_pt)
+		*write_pt++ = tolower(*read_pt++);
+	*write_pt = '\0';
+
+	cur_buf->used += len;
+	*src = read_pt + 1;
+	return result;
+}
+
+char *
 tmp_pad(int c, size_t len)
 {
 	struct tmp_str_pool *cur_buf;

@@ -78,81 +78,25 @@ int length[] = {
 /* **********************************************************************
 *  Modification of character skills                                     *
 ********************************************************************** */
-
-ACMD(do_skillset)
+void
+perform_skillset(Creature *ch, Creature *vict, char *skill_str, int value)
 {
-	struct Creature *vict;
-	char name[MAX_INPUT_LENGTH], buf[100], help[MAX_STRING_LENGTH];
-	int skill, value, i, qend;
+	int skill;
 
-	argument = one_argument(argument, name);
-
-	if (!*name) {				/* no arguments. print an informative text */
-		send_to_char(ch, "Syntax: skillset <name> '<skill>' <value>\r\n");
-		strcpy(help, "Skill being one of the following:\r\n");
-		for (i = 0; *spell_to_str(i) != '\n'; i++) {
-			if (*spell_to_str(i) == '!')
-				continue;
-			sprintf(help + strlen(help), "%18s", spell_to_str(i));
-			if (i % 4 == 3) {
-				strcat(help, "\r\n");
-				send_to_char(ch, help);
-				*help = '\0';
-			}
-		}
-		if (*help)
-			send_to_char(ch, help);
-		send_to_char(ch, "\r\n");
-		return;
-	}
-	if (!(vict = get_char_vis(ch, name))) {
-		send_to_char(ch, NOPERSON);
-		return;
-	}
-	skip_spaces(&argument);
-
-	/* If there is no chars in argument */
-	if (!*argument) {
-		send_to_char(ch, "Skill name expected.\r\n");
-		return;
-	}
-	if (*argument != '\'') {
-		send_to_char(ch, "Skill must be enclosed in: ''\r\n");
-		return;
-	}
-	/* Locate the last quote && lowercase the magic words (if any) */
-
-	for (qend = 1; *(argument + qend) && (*(argument + qend) != '\''); qend++)
-		*(argument + qend) = tolower(*(argument + qend));
-
-	if (*(argument + qend) != '\'') {
-		send_to_char(ch, "Skill must be enclosed in: ''\r\n");
-		return;
-	}
-	strcpy(help, (argument + 1));
-	help[qend - 1] = '\0';
-	if ((skill = find_skill_num(help)) <= 0) {
+	if ((skill = find_skill_num(skill_str)) <= 0) {
 		send_to_char(ch, "Unrecognized skill.\r\n");
 		return;
 	}
-	argument += qend + 1;		/* skip to next parameter */
-	argument = one_argument(argument, buf);
-
-	if (!*buf) {
-		send_to_char(ch, "Learned value expected.\r\n");
-		return;
-	}
-	value = atoi(buf);
 	if (value < 0) {
-		send_to_char(ch, "Minimum value for learned is 0.\r\n");
+		send_to_char(ch, "Minimum value for a skill is 0.\r\n");
 		return;
 	}
 	if (value > 120) {
-		send_to_char(ch, "Max value for learned is 120.\r\n");
+		send_to_char(ch, "Max value for a skill is is 120.\r\n");
 		return;
 	}
 	if (IS_NPC(vict)) {
-		send_to_char(ch, "You can't set NPC skills.\r\n");
+		send_to_char(ch, "You can't set skills on an NPC.\r\n");
 		return;
 	}
 	mudlog(0, BRF, true,
@@ -163,8 +107,30 @@ ACMD(do_skillset)
 
 	send_to_char(ch, "You change %s's %s to %d.\r\n", GET_NAME(vict),
 		spell_to_str(skill), value);
+
 }
 
+ACMD(do_skillset)
+{
+	Creature *vict;
+	char *vict_name, *skill, *val_str;
+
+	vict_name = tmp_getword(&argument);
+	skill = tmp_getquoted(&argument);
+	val_str = tmp_getword(&argument);
+	if (!vict_name || !skill || !val_str) {
+		send_to_char(ch, "skillset <name> '<skill>' <value>\n");
+		return;
+	}
+
+	vict = get_char_vis(ch, vict_name);
+	if (!vict) {
+		send_to_char(ch, NOPERSON);
+		return;
+	}
+	
+	perform_skillset(ch, vict, skill, atoi(val_str));
+}
 
 /* db stuff *********************************************** */
 
