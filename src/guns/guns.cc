@@ -177,9 +177,8 @@ ACMD(do_gunset)
     argument = one_argument(argument, arg1);
 
     if (!*arg1) {
-	send_to_char("Usage: gunset [internal] <gun> <discharge|rate> <value>\r\n",
-		     ch);
-	return;
+        send_to_char("Usage: gunset [internal] <gun> <rate> <value>\r\n", ch);
+        return;
     }
 
     if (!strncmp(arg1, "internal", 8)) {
@@ -198,42 +197,42 @@ ACMD(do_gunset)
 	}
 
     } else if ((!(gun = GET_EQ(ch, WEAR_WIELD)) || !isname(arg1, gun->name)) &&
-	       (!(gun = GET_EQ(ch, WEAR_WIELD_2)) || !isname(arg1, gun->name))) {
-	sprintf(buf, "You are not wielding %s '%s'.\r\n", AN(arg1), arg1);
-	send_to_char(buf, ch);
-	return;
+    (!(gun = GET_EQ(ch, WEAR_WIELD_2)) || !isname(arg1, gun->name))) {
+        sprintf(buf, "You are not wielding %s '%s'.\r\n", AN(arg1), arg1);
+        send_to_char(buf, ch);
+        return;
     }
 
     if (!IS_ENERGY_GUN(gun) && !IS_GUN(gun)) {
-	act("$p is not a gun.", FALSE, ch, gun, 0, TO_CHAR);
-	return;
+        act("$p is not a gun.", FALSE, ch, gun, 0, TO_CHAR);
+        return;
     }
 
     argument = two_arguments(argument, arg1, arg2);
 
     if (!*arg1) {
-	show_gun_status(ch, gun);
-	return;
+        show_gun_status(ch, gun);
+        return;
     }
 
     if (is_abbrev(arg1, "rate") || is_abbrev(arg1, "rof"))
-	mode = GUNSET_RATE;
+        mode = GUNSET_RATE;
     else {
-	send_to_char("usage: gunset <rate> <value>\r\n", ch);
-	return;
+        send_to_char("usage: gunset <rate> <value>\r\n", ch);
+        return;
     }
 
     if (!*arg2) {
-	send_to_char("Set the rate of fire to what?\r\n", ch);
-	return;
+        send_to_char("Set the rate of fire to what?\r\n", ch);
+        return;
     }
     if (!is_number(arg2)) {
-	send_to_char("The value must be numeric.\r\n", ch);
-	return;
+        send_to_char("The value must be numeric.\r\n", ch);
+        return;
     }
     if ((number = atoi(arg2)) < 0) {
-	send_to_char("A NEGATIVE value?  Consider the implications...\r\n", ch);
-	return;
+        send_to_char("A NEGATIVE value?  Consider the implications...\r\n", ch);
+        return;
     }
   
     if (mode == GUNSET_RATE) {
@@ -253,7 +252,7 @@ ACMD(do_gunset)
 	}
 	return;
     }      
-    send_to_char("Gunset discharge error.\r\n", ch);
+    //send_to_char("Gunset discharge error.\r\n", ch);
     return;
 }
 
