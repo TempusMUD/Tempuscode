@@ -659,11 +659,11 @@ ACMD(do_kata)
 	af.level = GET_LEVEL(ch) + GET_REMORT_GEN(ch);
 
 	af.location = APPLY_HITROLL;
-	af.modifier = 1 + (GET_LEVEL(ch) / 6);
+	af.modifier = 1 + (GET_LEVEL(ch) / 6) + (GET_REMORT_GEN(ch) * 2)/4;
 	affect_to_char(ch, &af);
 
 	af.location = APPLY_DAMROLL;
-	af.modifier = 1 + (GET_LEVEL(ch) / 12);
+	af.modifier = 1 + (GET_LEVEL(ch) / 12) + (GET_REMORT_GEN(ch) * 2)/4;
 	affect_to_char(ch, &af);
     }
 }
