@@ -216,8 +216,11 @@ ACMD(do_save)
 	}
 	save_char(ch, NULL);
 	Crash_crashsave(ch);
-	if (ROOM_FLAGGED(ch->in_room, ROOM_HOUSE))
-		House_crashsave(ch->in_room->number);
+	if (ROOM_FLAGGED(ch->in_room, ROOM_HOUSE)) {
+		House* house = Housing.findHouseByRoom( ch->in_room->number );
+		if( house != NULL )
+			house->save();
+	}
 }
 
 

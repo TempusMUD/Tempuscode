@@ -358,7 +358,7 @@ find_target_room(struct Creature *ch, char *rawroomstr)
             return NULL;
         }
         if (ROOM_FLAGGED(location, ROOM_HOUSE) &&
-            !House_can_enter(ch, location->number)) {
+            !Housing.canEnter(ch, location->number)) {
             send_to_char(ch, "That's private property -- no trespassing!\r\n");
             return NULL;
         }
@@ -424,7 +424,7 @@ perform_goto(Creature *ch, room_data *room, bool allow_follow)
     room_data *was_in = NULL;
     char *msg;
 
-    if (!House_can_enter(ch, room->number) ||
+    if (!Housing.canEnter(ch, room->number) ||
         !clan_house_can_enter(ch, room) ||
         (GET_LEVEL(ch) < LVL_SPIRIT && ROOM_FLAGGED(room, ROOM_DEATH))) {
         send_to_char(ch, "You cannot enter there.\r\n");
@@ -2101,7 +2101,8 @@ ACMD(do_shutdown)
         }
         slog("(GC) Shutdown by %s.", GET_NAME(ch));
         Crash_save_all();
-        House_save_all(TRUE);
+		Housing.collectRent();
+		Housing.save();
         save_quests();
         autosave_zones(ZONE_RESETSAVE);
         send_to_all("\r\n"
@@ -2129,7 +2130,8 @@ ACMD(do_shutdown)
             touch("../.fastboot");
             slog("(GC) Reboot by %s.", GET_NAME(ch));
             Crash_save_all();
-            House_save_all(TRUE);
+			Housing.collectRent();
+			Housing.save();
             autosave_zones(ZONE_RESETSAVE);
             save_quests();
             send_to_all("\r\n"
@@ -2154,7 +2156,8 @@ ACMD(do_shutdown)
     } else if (!str_cmp(arg, "die")) {
         slog("(GC) Shutdown by %s.", GET_NAME(ch));
         Crash_save_all();
-        House_save_all(TRUE);
+		Housing.collectRent();
+		Housing.save();
         autosave_zones(ZONE_RESETSAVE);
         save_quests();
         send_to_all
@@ -2170,7 +2173,8 @@ ACMD(do_shutdown)
     } else if (!str_cmp(arg, "pause")) {
         slog("(GC) Shutdown by %s.", GET_NAME(ch));
         Crash_save_all();
-        House_save_all(TRUE);
+		Housing.collectRent();
+		Housing.save();
         autosave_zones(ZONE_RESETSAVE);
         save_quests();
         send_to_all
@@ -4513,14 +4517,14 @@ ACMD(do_show)
                 }
             } else if (strcasecmp("owner", value) == 0 && tokens.next(value)) {    // Show by name
                 for (zone = zone_table; zone; zone = zone->next) {
-                    char *ownerName = get_name_by_id(zone->owner_idnum);
+                    const char *ownerName = get_name_by_id(zone->owner_idnum);
                     if (ownerName && strcasecmp(value, ownerName) == 0) {
                         print_zone_to_buf(ch, buf, zone);
                     }
                 }
             } else if (strcasecmp("co-owner", value) == 0 && tokens.next(value)) {    // Show by name
                 for (zone = zone_table; zone; zone = zone->next) {
-                    char *ownerName = get_name_by_id(zone->co_owner_idnum);
+                    const char *ownerName = get_name_by_id(zone->co_owner_idnum);
                     if (ownerName && strcasecmp(value, ownerName) == 0) {
                         print_zone_to_buf(ch, buf, zone);
                     }
