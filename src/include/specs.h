@@ -272,6 +272,7 @@ SPECIAL(clone_lab);
 SPECIAL(ancient_artifact);
 SPECIAL(finger_of_death);
 SPECIAL(vendor);
+SPECIAL(quest_sphere);
 
 #define SPEC_MOB 1
 #define SPEC_OBJ 2
