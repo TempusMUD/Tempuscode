@@ -1192,6 +1192,9 @@ look_at_room(struct char_data * ch, struct room_data *room, int ignore_brief)
     struct room_affect_data *aff = NULL;
     struct obj_data *o = NULL;
 
+    int ice_shown = 0;    // 1 if ice has already been shown to room...same for blood
+    int blood_shown = 0; 
+
     if (room == NULL)
 	room = ch->in_room;
 
@@ -1241,45 +1244,51 @@ look_at_room(struct char_data * ch, struct room_data *room, int ignore_brief)
 	if (ch->in_room == room) {
 	    for (o = room->contents; o; o = o->next_content) {
 		if (GET_OBJ_VNUM(o) == BLOOD_VNUM) {
-		    sprintf(buf,
-			    "%s%s.%s\r\n",
-			    CCRED(ch, C_NRM),
-			    GET_OBJ_TIMER(o) < 10 ?
-			    "Some blood is splattered around here" :
-			    GET_OBJ_TIMER(o) < 20 ?
-			    "Some small pools of blood are here" :
-			    GET_OBJ_TIMER(o) < 30 ?
-			    "Some large pools of blood are here" :
-			    GET_OBJ_TIMER(o) < 40 ?
-			    "Blood is pooled and splattered all over everything here":
-			    "Dark red blood covers everything in sight here",
-			    CCNRM(ch, C_NRM));
-		    send_to_char(buf, ch);
+		    if(!blood_shown) {
+			sprintf(buf,
+				"%s%s.%s\r\n",
+				CCRED(ch, C_NRM),
+				GET_OBJ_TIMER(o) < 10 ?
+				"Some blood is splattered around here" :
+				GET_OBJ_TIMER(o) < 20 ?
+				"Some small pools of blood are here" :
+				GET_OBJ_TIMER(o) < 30 ?
+				"Some large pools of blood are here" :
+				GET_OBJ_TIMER(o) < 40 ?
+				"Blood is pooled and splattered all over everything here":
+				"Dark red blood covers everything in sight here",
+				CCNRM(ch, C_NRM));
+			blood_shown = 1;
+			send_to_char(buf, ch);
+		    }
 		}
 	
 		if (GET_OBJ_VNUM(o) == ICE_VNUM) {
-		    sprintf(buf,
-			    "%s%s.%s\r\n",
-			    CCCYN(ch, C_NRM),
-			    GET_OBJ_TIMER(o) < 10 ?
-			    "A few patches of ice are scattered around here" :
-			    GET_OBJ_TIMER(o) < 20 ?
-                            "A thin coating of ice covers everything here" :
-                            GET_OBJ_TIMER(o) < 30 ?
-			    "A thick coating of ice covers everything here" : 
-			    "Everything is covered with a thick coating of ice",
-			    CCNRM(ch, C_NRM));
-		    send_to_char(buf, ch);
-		    break;
-		}
-		
+		    if(!ice_shown) {
+			sprintf(buf,
+				"%s%s.%s\r\n",
+				CCCYN(ch, C_NRM),
+				GET_OBJ_TIMER(o) < 10 ?
+				"A few patches of ice are scattered around here" :
+				GET_OBJ_TIMER(o) < 20 ?
+				"A thin coating of ice covers everything here" :
+				GET_OBJ_TIMER(o) < 30 ?
+				"A thick coating of ice covers everything here" : 
+				"Everything is covered with a thick coating of ice",
+				CCNRM(ch, C_NRM));
+			ice_shown = 1;
+			send_to_char(buf, ch);
+			break;
+		    }
+		} 
 	    }
-	}		 
-	send_to_char(CCGRN(ch, C_NRM), ch);
-	list_obj_to_char(room->contents, ch, 0, FALSE);
-	send_to_char(CCYEL(ch, C_NRM), ch);
-	list_char_to_char(room->people, ch);
-	send_to_char(CCNRM(ch, C_NRM), ch);
+			 
+	    send_to_char(CCGRN(ch, C_NRM), ch);
+	    list_obj_to_char(room->contents, ch, 0, FALSE);
+	    send_to_char(CCYEL(ch, C_NRM), ch);
+	    list_char_to_char(room->people, ch);
+	    send_to_char(CCNRM(ch, C_NRM), ch);
+	}
     }
 }
 
