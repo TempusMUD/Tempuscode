@@ -861,6 +861,17 @@ desc_one_char(Creature *ch, Creature *i, bool is_group)
 				CCBLU(ch, C_NRM), CCBLD(ch, C_CMP), CCNRM(ch, C_NRM));
 	}
 
+	if (PRF_FLAGGED(ch, PRF_HOLYLIGHT)) {
+		if (IS_EVIL(i))
+			align = tmp_sprintf(" %s%s(%da)%s", CCRED(ch, C_NRM),
+				CCBLD(ch, C_CMP), GET_ALIGNMENT(i), CCNRM(ch, C_NRM));
+		else if (IS_GOOD(i))
+			align = tmp_sprintf(" %s%s(%da)%s", CCBLU(ch, C_NRM),
+				CCBLD(ch, C_CMP), GET_ALIGNMENT(i), CCNRM(ch, C_NRM));
+		else
+			align = tmp_sprintf(" %s%s(%da)%s", CCNRM(ch, C_NRM),
+				CCBLD(ch, C_CMP), GET_ALIGNMENT(i), CCNRM(ch, C_NRM));
+	}
 	// If they can see it, they probably need to know it's unapproved
 	if (MOB_UNAPPROVED(i))
 		appr = tmp_sprintf(" %s(!appr)%s", CCRED(ch, C_NRM),
