@@ -2070,7 +2070,6 @@ damage(struct Creature *ch, struct Creature *victim, int dam,
 
 					// If it's not arena, give em a pkill and adjust reputation
 					if (!arena) {
-						GET_PKILLS(ch) += 1;
 						count_pkill(ch, victim);
 					} else {
 						// Else adjust arena kills
