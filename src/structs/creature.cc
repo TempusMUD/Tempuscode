@@ -121,6 +121,11 @@ int Creature::getPenalizedExperience( int experience, Creature *victim)
 void
 Creature::setFighting(Creature * ch)
 {
+	if (ch == this) {
+		slog("SYSERR: Attempt to make %s fight itself!", GET_NAME(this));
+		raise(SIGSEGV);
+		return;
+	}
 	char_specials.fighting = ch;
 }
 
