@@ -2297,12 +2297,12 @@ do_zset_command(struct Creature *ch, char *argument)
 		break;
 	case 15:	// minimum target level
 		if (!is_number(argument)) {
-			send_to_char(ch, "You must supply a numerical argument from 1 to 49.\r\n");
+			send_to_char(ch, "You must supply a numerical argument from 0 to 49.\r\n");
 			return;
 		}
 		num = atoi(argument);
-		if (num < 1 || num > 49) {
-			send_to_char(ch, "You must supply a numerical argument from 1 to 49.\r\n");
+		if (num < 0 || num > 49) {
+			send_to_char(ch, "You must supply a numerical argument from 0 to 49.\r\n");
 			return;
 		}
 		zone->min_lvl = atoi(argument);
