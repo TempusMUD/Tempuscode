@@ -1252,6 +1252,9 @@ send_menu(descriptor_data *d)
 				(d->account->get_ansi_level() >= C_NRM) ? KCYN:"",
 				(d->account->get_ansi_level() >= C_NRM) ? KNRM:"",
 				background));
+		// If there's no showstr_point, they finished already
+		if (!d->showstr_point)
+			set_desc_state(CXN_WAIT_MENU, d);
 	default:
 		break;
 	}
