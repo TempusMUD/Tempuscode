@@ -3802,7 +3802,7 @@ mag_assign_spells(void)
 		0, 0, 0, 0, 0, 0, 0);
 
 	spello(SKILL_SLEEPER, X, X, X, 1, 25, X, X, X, X, X, X, X, X, X, X, X, X,
-		0, 0, 0, 0, 0, 0, 0);
+		0, 0, 0, 0, 0, 0, MAG_BIOLOGIC);
 
 	spello(SKILL_ELBOW, X, X, X, 1, 8, X, X, 9, X, X, X, X, X, X, X, X, X,
 		0, 0, 0, 0, 0, 0, 0);
