@@ -1024,10 +1024,16 @@ do_simple_move(struct Creature *ch, int dir, int mode,
 	if (ch->desc)
 		look_at_room(ch, ch->in_room, 0);
 
-	if (IS_AFFECTED_3(ch, AFF3_HAMSTRUNG) && ch->getPosition() == POS_STANDING) {
-		if (damage(ch, ch, dice(5, 9), TYPE_BLEED, 0))
-			return 2;
-	}
+	Creature *damager = NULL;
+    struct affected_type *af = affected_by_spell(ch, SKILL_HAMSTRING);
+    if (af && ch->getPosition() == POS_STANDING) {
+        damager = get_char_in_world_by_idnum(af->owner);
+        if (!damager)
+            damager = ch;
+        if (!(mode == MOVE_FLEE) || random_fractional_3())
+            if (damage(damager, ch, dice(5, 9), TYPE_BLEED, 0))
+                return 2;
+    }
 
 	if (ch->in_room->sector_type == SECT_UNDERWATER) {
 		if (was_in->sector_type != SECT_UNDERWATER &&
