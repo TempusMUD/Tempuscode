@@ -3063,7 +3063,6 @@ ASPELL(spell_control_undead)
 }
 ASPELL(spell_sun_ray)
 {
-    struct char_data *vict = NULL;
     int dam = 0;
 
     send_to_room("A brilliant ray of sunlight bathes the area!\r\n", ch->in_room);
@@ -3081,7 +3080,7 @@ ASPELL(spell_sun_ray)
             if ( !IS_NPC( (*it) )  && IS_UNDEAD( (*it)) ) {
                 act( "You cannot do this, because this action might cause harm to $N,\r\n"
                      "and you have not chosen to be a Pkiller.\r\n"
-                     "You can toggle this with the command 'pkiller'.", FALSE, ch, 0, vict, TO_CHAR );
+                     "You can toggle this with the command 'pkiller'.", FALSE, ch, 0, *it, TO_CHAR );
                 return;
             }
         }
@@ -3099,8 +3098,8 @@ ASPELL(spell_sun_ray)
                 dam += GET_ALIGNMENT(ch);
             }
             if( !damage(ch, (*it), dam, TYPE_ABLAZE, -1) ) {
-                if ( !IS_AFFECTED(vict, AFF_BLIND) && 
-                     !MOB_FLAGGED(vict, MOB_NOBLIND) ) {
+                if ( !IS_AFFECTED(*it, AFF_BLIND) && 
+                     !MOB_FLAGGED(*it, MOB_NOBLIND) ) {
 
                     struct affected_type af, af2;
                     af.is_instant = af2.is_instant = 0;
@@ -3113,7 +3112,7 @@ ASPELL(spell_sun_ray)
                     af2.modifier = 40;
                     af2.duration = 2;
                     af2.bitvector = AFF_BLIND;
-                    affect_join(vict, &af, FALSE, FALSE, FALSE, FALSE);
+                    affect_join(*it, &af, FALSE, FALSE, FALSE, FALSE);
                     if (af2.bitvector || af2.location)
                         affect_join((*it), &af2, FALSE, FALSE, FALSE, FALSE);
 
