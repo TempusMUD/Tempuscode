@@ -3023,7 +3023,7 @@ ACMD(do_weather)
 string
 whoString(Creature *ch, Creature *target) {
 	ostringstream out;
-	out << CCGRN(ch, C_NRM) << '[';
+	out << CCYEL(ch, C_NRM) << '[' << CCGRN(ch, C_NRM);
 	int len = strlen(BADGE(target));
 	
 	//show badge
@@ -3058,11 +3058,15 @@ whoString(Creature *ch, Creature *target) {
 		out << ' ' << get_char_class_color(ch, target, GET_CLASS(target));
 		out << char_class_abbrevs[(int)GET_CLASS(target)];
 	}
-	out << CCNRM(ch, C_NRM) << CCGRN(ch, C_NRM) << ']';
+	out << CCNRM(ch, C_NRM) << CCYEL(ch, C_NRM) << ']';
 	
 	
 	//name
-	out << CCNRM(ch, C_NRM) << ' ' << GET_NAME(target);
+	if (can_see_creature(ch, target)) {
+        out << CCNRM(ch, C_NRM) << ' ' << GET_NAME(target);
+    } else {
+        out << CCNRM(ch, C_NRM) << ' ' << "Someone";
+    }
 	
 	//title
 	out << GET_TITLE(target);
@@ -3104,7 +3108,7 @@ whoFlagsString(Creature *ch, Creature *target) {
 	}
 	
 	//trans
-	if (IS_AFFECTED(target, AFF2_TRANSPARENT)) {
+	if (IS_AFFECTED_2(target, AFF2_TRANSPARENT)) {
 		out << CCCYN(ch, C_NRM) << " (transp)" << CCNRM(ch, C_NRM);
 	}
 	
@@ -3173,8 +3177,8 @@ ACMD(do_who)
 	
 	struct descriptor_data *d;
 	ostringstream out, imms, testers, players;
-	int immCount=0, testerCount=0, playerCount=0, playerTotal=0;
-	char *imm_s="s", *tester_s="s";
+	int immCount=0, testerCount=0, playerCount=0, playerTotal=0, immTotal=0;
+	char *tester_s="s";
 	bool zone=false, plane=false, time=false, kills=false, noflags=false;
 	bool classes=false, clan=false;
 	bool mage=false, thief=false, ranger=false, knight=false, cleric=false, barbarian=false;
@@ -3246,7 +3250,7 @@ ACMD(do_who)
 	if (args.find("clan") != string::npos) {
 		clan = true;
 		unsigned int start = args.find(' ', args.find("clan"));
-		unsigned int end = args.find(' ', start);
+		unsigned int end = args.find(' ', start+1);
         if (start == string::npos || start == end) {
             realClan = NULL;
         } else {
@@ -3274,7 +3278,9 @@ ACMD(do_who)
 		//update the total number of players first
 		if (GET_LEVEL(curr) < LVL_AMBASSADOR && !curr->isTester()) {
 			playerTotal++;
-		}
+		} else if (GET_LEVEL(curr) >= LVL_AMBASSADOR) {
+            immTotal++;
+        }
 		
 		/////////////////BEGIN CONDITION CHECKING//////////////////////
 		//zone
@@ -3290,7 +3296,7 @@ ACMD(do_who)
 			continue;
 		}
 		//kills
-		if (kills && GET_PKILLS(ch) == 0) {
+		if (kills && GET_PKILLS(curr) == 0) {
 			continue;
 		}
 		//classes
@@ -3404,12 +3410,12 @@ ACMD(do_who)
 	}
 	
 	//determine plurality of nouns
-	if (immCount == 1)
-		imm_s="";
+	//if (immCount == 1)
+	//	imm_s="";
 	if (testerCount == 1)
 		tester_s="";
 	
-	out << immCount << " immortal" << imm_s;
+	out << immCount << " of " << immTotal << " immortals";
 	if (GET_LEVEL(ch) >= LVL_AMBASSADOR || ch->isTester()) {
 		out << ", " << testerCount << " tester" << tester_s << ",";
 	}
