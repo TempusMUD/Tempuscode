@@ -97,10 +97,10 @@ void
 update_pos( struct char_data * victim )
 {
     if ( GET_HIT( victim ) > 0 && victim->getPosition() == POS_SLEEPING )
-		victim->setPosition( POS_RESTING );
+		victim->setPosition( POS_RESTING,1 );
     else if ( ( GET_HIT( victim ) > 0 ) 
-        && ( victim->getPosition() > POS_STUNNED ) &&
-        victim->getPosition() < POS_FIGHTING &&
+        && ( victim->getPosition() > POS_STUNNED ) 
+        && victim->getPosition() < POS_FIGHTING &&
 	    FIGHTING( victim ) ) {
 		if ( ( victim->desc && victim->desc->wait <= 0 ) ||
 			 ( IS_NPC( victim ) && GET_MOB_WAIT( victim ) <= 0 ) ) {
@@ -108,11 +108,11 @@ update_pos( struct char_data * victim )
                 if(!IS_AFFECTED_3(victim,AFF3_GRAVITY_WELL) ||
                     number(1,20) < GET_STR(victim)) {
                     act( "$n scrambles to $s feet!", TRUE, victim, 0, 0, TO_ROOM );
-                    victim->setPosition( POS_FIGHTING );
+                    victim->setPosition( POS_FIGHTING, 1 );
                 }
                 WAIT_STATE( victim, PULSE_VIOLENCE );
             } else {
-                victim->setPosition( POS_FIGHTING );
+                victim->setPosition( POS_FIGHTING, 1 );
             }
         } else {
 			return;
@@ -121,29 +121,27 @@ update_pos( struct char_data * victim )
             if ( victim->in_room->isOpenAir() 
             && !IS_AFFECTED_3(victim, AFF3_GRAVITY_WELL)
             && victim->getPosition() != POS_FLYING)
-                victim->setPosition( POS_FLYING );
+                victim->setPosition( POS_FLYING, 1 );
             else if(!IS_AFFECTED_3(victim,AFF3_GRAVITY_WELL) 
-            && victim->getPosition() > POS_STUNNED
             && victim->getPosition() < POS_FIGHTING ) {
-                victim->setPosition( POS_STANDING );
+                victim->setPosition( POS_STANDING, 1 );
                 act( "$n scrambles to $s feet!", TRUE, victim, 0, 0, TO_ROOM );
                 WAIT_STATE( victim, PULSE_VIOLENCE );
             } else if ( number(1,20) < GET_STR(victim)
-            && victim->getPosition() > POS_STUNNED
             && victim->getPosition() < POS_FIGHTING ) {
-                victim->setPosition( POS_STANDING );
+                victim->setPosition( POS_STANDING, 1 );
                 act( "$n scrambles to $s feet!", TRUE, victim, 0, 0, TO_ROOM );
                 WAIT_STATE( victim, PULSE_VIOLENCE );
             }
     }
     else if ( GET_HIT( victim ) <= -11 )
-        victim->setPosition( POS_DEAD );
+        victim->setPosition( POS_DEAD, 1 );
     else if ( GET_HIT( victim ) <= -6 )
-        victim->setPosition( POS_MORTALLYW );
+        victim->setPosition( POS_MORTALLYW, 1);
     else if ( GET_HIT( victim ) <= -3 )
-        victim->setPosition( POS_INCAP );
+        victim->setPosition( POS_INCAP, 1 );
     else
-        victim->setPosition( POS_STUNNED );
+        victim->setPosition( POS_STUNNED,1 );
 }
 
 void
