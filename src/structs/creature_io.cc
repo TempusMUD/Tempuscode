@@ -520,7 +520,7 @@ Creature::saveToXML()
 	}
 	fprintf(ouf, "<carnage pkills=\"%d\" akills=\"%d\" mkills=\"%d\" deaths=\"%d\" reputation=\"%d\"",
 		GET_PKILLS(ch), GET_ARENAKILLS(ch), GET_MOBKILLS(ch), GET_PC_DEATHS(ch),
-		GET_REPUTATION(ch));
+		ch->player_specials->saved.reputation);
 	if (PLR_FLAGGED(ch, PLR_KILLER | PLR_THIEF))
 		fprintf(ouf, " severity=\"%d\"", GET_SEVERITY(ch));
 	fprintf(ouf, "/>\n");
