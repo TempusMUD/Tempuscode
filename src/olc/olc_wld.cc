@@ -1243,9 +1243,9 @@ ACMD(do_hedit)
 		}
 		// not brief mode
 		if (local) {
-			page_string(ch->desc, print_room_contents(ch,ch->in_room));
+			page_string(ch->desc, print_room_contents(ch,ch->in_room, true));
 		} else {
-			house->listRooms(ch);
+			house->listRooms(ch,true);
         }
 		break;
     }
