@@ -383,11 +383,13 @@ void
 Creature::saveToXML() 
 {
 	// Save vital statistics
+	obj_data *saved_eq[NUM_WEARS];
+	obj_data *saved_impl[NUM_WEARS];
 	FILE *ouf;
 	char *path;
 	struct alias_data *cur_alias;
 	struct affected_type *cur_aff;
-	int idx;
+	int idx, pos;
     Creature *ch = this;
 
 	if (GET_IDNUM(ch) == 0) {
@@ -403,6 +405,24 @@ Creature::saveToXML()
 			path, strerror(errno) );
 		return;
 	}
+
+	// Before we save everything, every piece of eq, and every affect must
+	// be removed and stored - otherwise all the stats get screwed up when
+	// we restore the eq and affects
+	for (pos = 0;pos < NUM_WEARS;pos++) {
+		if (GET_EQ(this, pos))
+			saved_eq[pos] = unequip_char(this, pos, MODE_EQ);
+		else
+			saved_eq[pos] = NULL;
+		if (GET_IMPLANT(this, pos))
+			saved_impl[pos] = unequip_char(this, pos, MODE_IMPLANT);
+		else
+			saved_impl[pos] = NULL;
+	}
+	// Remove all spell affects without deleting them
+	for (cur_aff = affected;cur_aff;cur_aff = cur_aff->next)
+		affect_modify(this, cur_aff->location, cur_aff->modifier,
+			cur_aff->bitvector, cur_aff->aff_index, false);
 
 	fprintf(ouf, "<creature name=\"%s\" idnum=\"%ld\">\n",
 		GET_NAME(ch), ch->char_specials.saved.idnum);
@@ -547,7 +567,20 @@ Creature::saveToXML()
 
 	fprintf(ouf, "</creature>\n");
 	fclose(ouf);
+
+
+	// Now we get to put all that eq back on and reinstate the spell affects
+	for (pos = 0;pos < NUM_WEARS;pos++) {
+		if (saved_eq[pos])
+			equip_char(this, saved_eq[pos], pos, MODE_EQ);
+		if (saved_impl[pos])
+			equip_char(this, saved_impl[pos], pos, MODE_IMPLANT);
+	}
+	for (cur_aff = affected;cur_aff;cur_aff = cur_aff->next)
+		affect_modify(this, cur_aff->location, cur_aff->modifier,
+			cur_aff->bitvector, cur_aff->aff_index, true);
 }
+
 bool 
 Creature::loadFromXML( long id )
 {
