@@ -1172,7 +1172,7 @@ extern const struct command_info cmd_info[] = {
     { "toggle"   , POS_DEAD    , do_toggle   , 0, 0 },
     { "toke"     , POS_RESTING , do_smoke    , 0, 0 },
     { "tornado"  , POS_FIGHTING, do_tornado_kick, 0, 0 },
-    { "toss_mail", POS_DEAD       , do_toss_mail, LVL_GRIMP, 0 },
+    //{ "toss_mail", POS_DEAD       , do_toss_mail, LVL_GRIMP, 0 },
     { "track"    , POS_STANDING, do_track    , 0, 0 },
     { "train"    , POS_STANDING, do_practice , 1, 0 },
     { "transfer" , POS_SLEEPING, do_trans    , LVL_DEMI, 0 },
