@@ -375,39 +375,6 @@ struct obj_data {
 };
 /* ======================================================================= */
 
-
-/* ====================== File Element for Objects ======================= */
-/*                 BEWARE: Changing it will ruin rent files		   */
-struct obj_file_elem {
-	obj_num item_number;
-
-	char short_desc[EXDSCR_LENGTH];
-	char name[EXDSCR_LENGTH];
-	int value[4];
-	int extra_flags;
-	int extra2_flags;
-	int bitvector[3];
-	int weight;
-	int timer;
-	int contains;				/* # of items this item contains */
-	int in_room_vnum;
-	int wear_flags;				/* positions which this can be worn on */
-	int damage;
-	int max_dam;
-	int material;
-	unsigned int plrtext_len;
-	byte worn_on_position;
-	byte type;
-	byte sparebyte1;
-	byte sigil_level;
-	int soilage;
-	int sigil_idnum;
-	int extra3_flags;
-	int spareint4;
-	struct obj_affected_type affected[MAX_OBJ_AFFECT];
-};
-
-
 /* shared data structs */
 struct obj_shared_data {
 	int vnum;
