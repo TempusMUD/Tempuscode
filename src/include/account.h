@@ -34,6 +34,7 @@ class Account {
         bool is_logged_in() const;
 		void initialize(const char *name, descriptor_data *d, int idnum);
 		bool load(long idnum);
+		bool reload(void);
 
 		inline const char *get_name(void) const { return _name; }
 		inline int get_idnum(void) const { return _id; }

@@ -147,6 +147,20 @@ Account::load(long idnum)
 	return true;
 }
 
+bool
+Account::reload(void)
+{
+	vector<Account *>::iterator it;
+
+	_trusted.clear();
+	_chars.clear();
+	it = lower_bound(_cache.begin(), _cache.end(), _id, Account::cmp());
+	if (it != _cache.end() && (*it)->get_idnum() == _id)
+		_cache.erase(it);
+
+	return this->load(_id);
+}
+
 void
 Account::set(const char *key, const char *val)
 {
