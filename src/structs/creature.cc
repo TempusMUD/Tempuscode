@@ -1663,6 +1663,8 @@ Creature::checkReputations(Creature *vict)
         else if (GET_REPUTATION(vict) <= 0)
             vict_msg = true;
     }
+    else
+        return false;
     
     if (GET_REPUTATION(this) <= 0)
         ch_msg = true;
