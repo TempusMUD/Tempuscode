@@ -3526,10 +3526,10 @@ mag_assign_spells(void)
 		MAG_PHYSICS | MAG_AFFECTS);
 
 	/* ALL REMORT SKILLS HERE */
-    remort_spello(SPELL_FROST_BREATHING, 
-            CLASS_MAGE, 35, 1, 
-            280, 180, 10, POS_STANDING, TAR_CHAR_ROOM | TAR_SELF_ONLY,
-            FALSE, MAG_MAGIC | MAG_AFFECTS);
+//    remort_spello(SPELL_FROST_BREATHING, 
+//            CLASS_MAGE, 35, 1, 
+//            280, 180, 10, POS_STANDING, TAR_CHAR_ROOM | TAR_SELF_ONLY,
+//            FALSE, MAG_MAGIC | MAG_AFFECTS);
 
     remort_spello(SPELL_FIRE_BREATHING, 
             CLASS_MAGE, 35, 1, 
