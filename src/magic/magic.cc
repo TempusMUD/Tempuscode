@@ -1849,7 +1849,7 @@ mag_affects(int level, struct char_data * ch, struct char_data * victim,
             af.duration = dice(ch->getLevelBonus(SPELL_TAINT),3);
             af.level = ch->getLevelBonus(SPELL_TAINT);
             to_vict = "The mark of the tainted begins to burn brightly on your forehead!";
-            to_room = "The mark of the tainted begins to burn brightly on $N's forehead!";
+            to_room = "The mark of the tainted begins to burn brightly on $n's forehead!";
         }
     break;
     case SPELL_SYMBOL_OF_PAIN:
