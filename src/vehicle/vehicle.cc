@@ -568,9 +568,10 @@ SPECIAL(vehicle_console)
     for (vehicle = object_list; vehicle; vehicle = vehicle->next) {
 	if (GET_OBJ_VNUM(vehicle) == V_CAR_VNUM(console) && vehicle->in_room)
 	    break;
-	if (!vehicle->next)
-	    return 0;
     }
+
+    if ( ! vehicle )
+        return 0;
 
     cur_car = vehicle;
 
@@ -585,10 +586,10 @@ SPECIAL(vehicle_console)
         for (driver = console->in_room->people; driver; 
              driver = driver->next_in_room) {
             if ((V_CONSOLE_IDNUM(console) > 0 &&
-             GET_IDNUM(driver) == V_CONSOLE_IDNUM(console)) ||
-            (V_CONSOLE_IDNUM(console) < 0 &&
-             GET_MOB_VNUM(driver) == -V_CONSOLE_IDNUM(console)))
-            break;
+                 GET_IDNUM(driver) == V_CONSOLE_IDNUM(console)) ||
+                (V_CONSOLE_IDNUM(console) < 0 &&
+                 GET_MOB_VNUM(driver) == -V_CONSOLE_IDNUM(console)))
+                break;
             if (!driver->next) {
                 driver = NULL;
                 break;

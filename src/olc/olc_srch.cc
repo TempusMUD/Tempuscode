@@ -271,22 +271,19 @@ do_destroy_search(struct char_data *ch, char *arg)
         send_to_char("USAGE: destroy search <trigger word> [keyword]\r\n", ch);
         return 0;
     }
-    if(ch->in_room->search == NULL) {
-        send_to_char("There would have to be a search to destroy first, dUfAz!\r\n", ch);
-        return 0;
-    }
 
     for (srch = ch->in_room->search; srch; srch = srch->next) {
-        if (isname(triggers, srch->command_keys) &&
-            ( !keywords || (!srch->keywords || isname(keywords, srch->keywords))) ) {
-            break;
-        }
-        if (!srch->next) {
-            send_to_char("There is no such search here.\r\n", ch);
-            return 0;
-        }
+	if (isname(triggers, srch->command_keys) &&
+	    ( !keywords || (!srch->keywords || isname(keywords, srch->keywords))) ) {
+	    break;
+	}
     }
-  
+
+    if ( !srch ) {
+        send_to_char("There is no such search here.\r\n", ch);
+        return 0;
+    }
+    
     if ( ! OLC_EDIT_OK( ch, ch->in_room->zone, ZONE_ROOMS_APPROVED ) ) {
         send_to_char("World olc is not approved for this zone.\r\n", ch);
         return 0;
