@@ -983,10 +983,10 @@ extern const struct command_info cmd_info[] = {
     { "purge"    , POS_DEAD    , do_purge    , LVL_TIMEGOD, 0 },
 
     { "quaff"    , POS_RESTING , do_use      , 0, SCMD_QUAFF },
-    { "qcontrol" , POS_DEAD    , do_qcontrol , LVL_IMMORT, 0 },
+    { "qcontrol" , POS_DEAD    , do_qcontrol , LVL_AMBASSADOR, 0 },
     //  { "qecho"    , POS_DEAD    , do_qcomm    , LVL_IMMORT, SCMD_QECHO },
-    { "qecho"    , POS_DEAD    , do_qecho    , LVL_IMMORT, 0 },
-    { "qlog"     , POS_DEAD    , do_qlog     , LVL_IMMORT, 0 },
+    { "qecho"    , POS_DEAD    , do_qecho    , LVL_AMBASSADOR, 0 },
+    { "qlog"     , POS_DEAD    , do_qlog     , LVL_AMBASSADOR, 0 },
     //  { "quest"    , POS_DEAD    , do_gen_tog  , 0, SCMD_QUEST },
     { "quest"    , POS_DEAD    , do_quest    , 0, 0 },
     { "quake"    , POS_RESTING , do_action   , 0, 0 },

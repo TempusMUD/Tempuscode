@@ -48,31 +48,31 @@ const struct qcontrol_option {
     char *usage;
     int level;
 } qc_options[] = {
-    { "show",     "[vnum]",                                     LVL_IMMORT },
-    { "create",   "<type> <name>",                              LVL_IMMORT },
-    { "end",      "<vnum>",                                     LVL_IMMORT },
-    { "add",      "<name> <vnum>",                              LVL_IMMORT },
-    { "kick",     "<player> <vnum>",                                   LVL_IMMORT }, // 5
-    { "flags",    "<vnum> <+/-> <flags>",                       LVL_IMMORT },
-    { "comment",  "<vnum> <comments>",                          LVL_IMMORT },
-    { "desc",     "<vnum>",                                     LVL_IMMORT },
-    { "update",   "<vnum>",                                     LVL_IMMORT },
-    { "ban",      "<player> <vnum>",                            LVL_IMMORT }, // 10
-    { "unban",    "<player> <vnum>",                            LVL_IMMORT },
-    { "mute",     "<player> <vnum>",                            LVL_IMMORT },
-    { "unmute",   "<player> <vnum>",                            LVL_IMMORT },
-    { "level",    "<vnum> <access level>",                      LVL_IMMORT },
-    { "minlev",   "<vnum> <minlev>",                            LVL_IMMORT }, // 15
-    { "maxlev",   "<vnum> <maxlev>",                            LVL_IMMORT },
-    { "award",    "<player> <vnum> <pts> [comments]",           LVL_IMMORT },
+    { "show",     "[vnum]",                                     LVL_AMBASSADOR },
+    { "create",   "<type> <name>",                              LVL_AMBASSADOR },
+    { "end",      "<vnum>",                                     LVL_AMBASSADOR },
+    { "add",      "<name> <vnum>",                              LVL_AMBASSADOR },
+    { "kick",     "<player> <vnum>",                            LVL_AMBASSADOR }, // 5
+    { "flags",    "<vnum> <+/-> <flags>",                       LVL_AMBASSADOR },
+    { "comment",  "<vnum> <comments>",                          LVL_AMBASSADOR },
+    { "desc",     "<vnum>",                                     LVL_AMBASSADOR },
+    { "update",   "<vnum>",                                     LVL_AMBASSADOR },
+    { "ban",      "<player> <vnum>",                            LVL_AMBASSADOR }, // 10
+    { "unban",    "<player> <vnum>",                            LVL_AMBASSADOR },
+    { "mute",     "<player> <vnum>",                            LVL_AMBASSADOR },
+    { "unmute",   "<player> <vnum>",                            LVL_AMBASSADOR },
+    { "level",    "<vnum> <access level>",                      LVL_AMBASSADOR },
+    { "minlev",   "<vnum> <minlev>",                            LVL_AMBASSADOR }, // 15
+    { "maxlev",   "<vnum> <maxlev>",                            LVL_AMBASSADOR },
+    { "award",    "<player> <vnum> <pts> [comments]",           LVL_AMBASSADOR },
     { "penalize", "<player> <vnum> <pts> <reason>",             LVL_LUMINARY },
     { "load",     "<mobile vnum> <vnum>",                       LVL_POWER   },
     { "purge",    "<vnum> <mobile name>",                       LVL_POWER   }, // 20
     { "save",     "",                                           LVL_GRGOD  },
-    { "help",     "<topic>",                                    LVL_IMMORT },
+    { "help",     "<topic>",                                    LVL_AMBASSADOR },
     { "switch",   "<mobile name>",                              LVL_IMMORT },
     { "rename",   "<obj name> <new obj name>",					LVL_POWER},
-    { "oload",	  "<item num> <vnum>",							LVL_LUMINARY},
+    { "oload",	  "<item num> <vnum>",							LVL_AMBASSADOR},
     { NULL, NULL, 0 }		// list terminator
 };
 
@@ -383,11 +383,18 @@ do_qcontrol_oload(CHAR *ch, char *argument, int com) {
 	}
 	if(obj->shared->cost < 0) {
 		send_to_char("This object is messed up.\r\n",ch);
+        extract_obj(obj);
 		return;
 	}
+    if(GET_LEVEL(ch) == LVL_AMBASSADOR && obj->shared->cost > 0) {
+		send_to_char( "You can only load objects with a 0 cost.\r\n", ch);
+        extract_obj(obj);
+		return;
+    }
 
     if( ( (obj->shared->cost/100000) > GET_QUEST_POINTS( ch ) ) ){
 		send_to_char( "You do not have the required quest points.\r\n", ch);
+        extract_obj(obj);
 		return;
     }
      
@@ -400,7 +407,7 @@ do_qcontrol_oload(CHAR *ch, char *argument, int com) {
     act("You create $p.", FALSE, ch, obj,0, TO_CHAR);
 
     sprintf(buf, "loaded %s at %d.", obj->short_description, ch->in_room->number);
-	qlog(ch,buf, QLOG_BRIEF, MAX(GET_INVIS_LEV(ch),LVL_DEMI), TRUE);
+	qlog(ch,buf, QLOG_BRIEF, MAX(GET_INVIS_LEV(ch),LVL_IMMORT), TRUE);
 
 }
 
@@ -741,7 +748,7 @@ do_qcontrol_add(CHAR *ch, char *argument, int com)
     send_to_char(buf, vict);
 
     sprintf(buf, "%s is now part of the quest.", GET_NAME(vict));
-    send_to_quest(NULL, buf, quest, MAX(GET_INVIS_LEV(vict),LVL_IMMORT), QCOMM_ECHO);
+    send_to_quest(NULL, buf, quest, MAX(GET_INVIS_LEV(vict),LVL_AMBASSADOR), QCOMM_ECHO);
     
     if( GET_LEVEL(vict) < LVL_AMBASSADOR && !PRF_FLAGGED(vict, PRF_QUEST)) {
         SET_BIT(PRF_FLAGS(vict), PRF_QUEST);
@@ -821,21 +828,21 @@ do_qcontrol_kick(CHAR *ch, char *argument, int com)
     send_to_char(buf, ch);
     if(vict) {
         sprintf(buf, "kicked %s from quest '%s'.", arg1, quest->name);
-        qlog(ch, buf, QLOG_BRIEF, MAX(GET_INVIS_LEV(vict),LVL_IMMORT), TRUE);
+        qlog(ch, buf, QLOG_BRIEF, MAX(GET_INVIS_LEV(vict),LVL_AMBASSADOR), TRUE);
 
         sprintf(buf, "%s kicked you from quest %d.\r\n", 
             GET_NAME(ch), quest->vnum);
         send_to_char(buf, vict);
 
         sprintf(buf, "%s has been kicked from the quest.", arg1);
-        send_to_quest(NULL, buf, quest, MAX(GET_INVIS_LEV(vict),LVL_IMMORT), 
+        send_to_quest(NULL, buf, quest, MAX(GET_INVIS_LEV(vict),LVL_AMBASSADOR), 
             QCOMM_ECHO);
     } else {
         sprintf(buf, "kicked %s from quest '%s'.", arg1, quest->name);
-        qlog(ch, buf, QLOG_BRIEF, LVL_IMMORT, TRUE);
+        qlog(ch, buf, QLOG_BRIEF, LVL_AMBASSADOR, TRUE);
 
         sprintf(buf, "%s has been kicked from the quest.", arg1);
-        send_to_quest(NULL, buf, quest, LVL_IMMORT, QCOMM_ECHO);
+        send_to_quest(NULL, buf, quest, LVL_AMBASSADOR, QCOMM_ECHO);
     }
 
 
@@ -914,7 +921,7 @@ do_qcontrol_flags(CHAR *ch, char *argument, int com)
 
 	sprintf(buf, "%s [%s] flags for quest '%s'.", 
 		state == 1 ? "added" : "removed", buf2, quest->name);
-	qlog(ch, buf, QLOG_COMP, LVL_IMMORT, TRUE);
+	qlog(ch, buf, QLOG_COMP, LVL_AMBASSADOR, TRUE);
     }
 }  
  
@@ -938,7 +945,7 @@ do_qcontrol_comment(CHAR *ch, char *argument, int com)
 	return;
 
     sprintf(buf, "comment on quest '%s': %s", quest->name, argument);
-    qlog(ch, buf, QLOG_NORM, LVL_IMMORT, TRUE);
+    qlog(ch, buf, QLOG_NORM, LVL_AMBASSADOR, TRUE);
 
 }
   
@@ -1007,7 +1014,7 @@ do_qcontrol_update(CHAR *ch, char *argument, int com)
     SET_BIT(PLR_FLAGS(ch), PLR_WRITING);
   
     act("$n begins to edit a quest update.\r\n",TRUE,ch,0,0,TO_ROOM);
-    qlog(ch, buf, QLOG_COMP, LVL_IMMORT, TRUE);
+    qlog(ch, buf, QLOG_COMP, LVL_AMBASSADOR, TRUE);
 }  
   
 void
@@ -1205,7 +1212,7 @@ do_qcontrol_level(CHAR *ch, char *argument, int com)
   
     sprintf(buf, "set quest '%s' access level to %d", 
 	    quest->name, quest->owner_level);
-    qlog(ch, buf, QLOG_NORM, LVL_IMMORT, TRUE);
+    qlog(ch, buf, QLOG_NORM, LVL_AMBASSADOR, TRUE);
   
 }
 void
@@ -1230,7 +1237,7 @@ do_qcontrol_minlev(CHAR *ch, char *argument, int com)
   
     sprintf(buf, "set quest '%s' minimum level to gen %-2d level %2d", 
 	    quest->name, quest->minlev/50, quest->minlev%50);
-    qlog(ch, buf, QLOG_NORM, LVL_IMMORT, TRUE);
+    qlog(ch, buf, QLOG_NORM, LVL_AMBASSADOR, TRUE);
   
 }
 void
@@ -1255,7 +1262,7 @@ do_qcontrol_maxlev(CHAR *ch, char *argument, int com)
   
     sprintf(buf, "set quest '%s' maximum level to gen %-2d level %2d", 
 	    quest->name, quest->maxlev/50, quest->maxlev%50);
-    qlog(ch, buf, QLOG_NORM, LVL_IMMORT, TRUE);
+    qlog(ch, buf, QLOG_NORM, LVL_AMBASSADOR, TRUE);
   
 }
 
@@ -1554,7 +1561,7 @@ create_quest(CHAR *ch, int type, char *name)
     quest->next          = NULL;
 
     sprintf(buf, "created quest type %s, '%s'", qtypes[type], name);
-    qlog(ch, buf, QLOG_BRIEF, LVL_IMMORT, TRUE);
+    qlog(ch, buf, QLOG_BRIEF, LVL_AMBASSADOR, TRUE);
 
 
     return quest;
@@ -2324,7 +2331,7 @@ send_to_quest(CHAR *ch, char *str, quest_data *quest, int level, int mode)
     char buf[MAX_STRING_LENGTH];
 
     for (i = 0; i < quest->num_players; i++) {
-        if (QP_FLAGGED((quest->players+i), QP_IGNORE) && (level < LVL_IMMORT))
+        if (QP_FLAGGED((quest->players+i), QP_IGNORE) && (level < LVL_AMBASSADOR))
             continue;
     
         if ((vict = get_char_in_world_by_idnum(quest->players[i].idnum))) {
@@ -2440,7 +2447,7 @@ qp_reload( int sig = 0 )
 	    if ( (player_i = load_char( player_table[x].name, &tmp_store) ) > -1) {
 		
 		// its an immort with an allowance, set 'em up
-		if ( tmp_store.level >= LVL_IMMORT && tmp_store.player_specials_saved.qp_allowance > 0 ) {
+		if ( tmp_store.level >= LVL_AMBASSADOR && tmp_store.player_specials_saved.qp_allowance > 0 ) {
 		    sprintf( buf, "QP_RELOAD: Reset %s to %d QPs from %d. ( file )",
 			     tmp_store.name,
 			     tmp_store.player_specials_saved.qp_allowance,
@@ -2463,7 +2470,7 @@ qp_reload( int sig = 0 )
     //
   
     for( immortal = character_list; immortal; immortal = immortal->next) {
-	if(GET_LEVEL( immortal ) >= LVL_IMMORT && (! IS_NPC( immortal ) && GET_QUEST_ALLOWANCE( immortal ) > 0 ) ) {
+	if(GET_LEVEL( immortal ) >= LVL_AMBASSADOR && (! IS_NPC( immortal ) && GET_QUEST_ALLOWANCE( immortal ) > 0 ) ) {
 	    sprintf( buf, "QP_RELOAD: Reset %s to %d QPs from %d. ( online )",
 		     GET_NAME( immortal ),
 		     GET_QUEST_ALLOWANCE( immortal ),
@@ -2558,10 +2565,10 @@ do_qcontrol_award( CHAR *ch, char *argument, int com)
 	save_char( ch, NULL );
 	save_char( vict, NULL );
 	sprintf( buf, "awarded player %s %d qpoints.",GET_NAME( vict ), award);
-	qlog( ch, buf, QLOG_BRIEF, MAX(GET_INVIS_LEV(ch),LVL_IMMORT), TRUE);
+	qlog( ch, buf, QLOG_BRIEF, MAX(GET_INVIS_LEV(ch),LVL_AMBASSADOR), TRUE);
 	if ( *argument ) {
 	    sprintf( buf, "'s Award Comments: %s", argument);
-	    qlog( ch, buf, QLOG_COMP, MAX(GET_INVIS_LEV(ch),LVL_IMMORT), TRUE);
+	    qlog( ch, buf, QLOG_COMP, MAX(GET_INVIS_LEV(ch),LVL_AMBASSADOR), TRUE);
 	}
     }    
 
@@ -2630,10 +2637,10 @@ do_qcontrol_penalize( CHAR *ch, char *argument, int com)
 		GET_QUEST_POINTS( vict ) -= penalty;
 		save_char( vict, NULL );
 		sprintf( buf, "penalized player %s %d qpoints.",GET_NAME( vict ), penalty);
-		qlog( ch, buf, QLOG_BRIEF, MAX(GET_INVIS_LEV(ch),LVL_IMMORT), TRUE);
+		qlog( ch, buf, QLOG_BRIEF, MAX(GET_INVIS_LEV(ch),LVL_AMBASSADOR), TRUE);
 		if ( *argument ) {
 			sprintf( buf, "'s Penalty Comments: %s", argument);
-			qlog( ch, buf, QLOG_COMP, MAX(GET_INVIS_LEV(ch),LVL_IMMORT), TRUE);
+			qlog( ch, buf, QLOG_COMP, MAX(GET_INVIS_LEV(ch),LVL_AMBASSADOR), TRUE);
 		}
     }    
 
