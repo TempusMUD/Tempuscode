@@ -77,53 +77,53 @@ format:	vnum, read lvl, write lvl, remove lvl, filename, 0 at end
 Be sure to also change NUM_OF_BOARDS in board.h
 */
 struct board_info_type board_info[NUM_OF_BOARDS] = {
-    {{3099, 22920, 22613, 72333},  0, LVL_CAN_POST, LVL_GOD, "etc/board.mort"},
-    {{3098, -1, -1, -1},           LVL_AMBASSADOR, LVL_AMBASSADOR, LVL_GRGOD, "etc/board.immort"},
-    {{3097, -1, -1, -1},           0, LVL_FREEZE, LVL_CREATOR, "etc/board.freeze"},
-    {{3096, 22921, 22614, 72334},  0, LVL_CAN_POST, LVL_DEMI, "etc/board.social"},
-    {{3094, -1, -1, -1},           0, LVL_CAN_POST, LVL_ELEMENT, "etc/board.obscene"},
-    {{3095, 53322, -1, -1},        0, 0, LVL_ELEMENT, "etc/board.newbie"},
-    {{3192, -1, -1, -1},           0, 0, LVL_ETERNAL, "etc/board.guild_cleric"},
-    {{3193, 22893, -1, -1},        0, 0, LVL_ETERNAL, "etc/board.guild_pain"},
-    {{3194, -1, -1, -1},           0, 0, LVL_ETERNAL, "etc/board.guild_justice"},
-    {{3195, 22894, -1, -1},        0, 0, LVL_ETERNAL, "etc/board.guild_ares"},
-    {{3196, 22895, -1, -1},        0, 0, LVL_ETERNAL, "etc/board.guild_thief"},
-    {{3197, 22618, 22614, -1},     0, 0, LVL_ETERNAL, "etc/board.guild_mage"},
-    {{3198, 22892, -1, -1},        0, 0, LVL_ETERNAL, "etc/board.guild_barb"},
-    {{3199, 72220, -1, -1},           0, 0, LVL_ETERNAL, "etc/board.guild_ranger"},
-    {{1294, 22919, -1, -1},        0, LVL_CAN_POST, LVL_DEMI,  "etc/board.clan_public"},
-    {{1293, -1, -1, -1},           0, LVL_CAN_POST, LVL_ETERNAL,  "etc/board.quest"},
-    {{30091, -1, -1, -1},          0, 0, LVL_ETERNAL, "etc/board.guild_hoodlum"}, 
-    {{30092, -1, -1, -1},          0, 0, LVL_ETERNAL, "etc/board.guild_monk"}, 
-    {{30093, -1, -1, -1},          0, 0, LVL_ETERNAL, "etc/board.guild_psychic"}, 
-    {{30094, -1, -1, -1},          0, 0, LVL_ETERNAL, "etc/board.guild_physic"},
-    {{30095, -1, -1, -1},          0, 0, LVL_ETERNAL, "etc/board.guild_cyborg"},
-    {{30088, -1, -1, -1},          0, 0, LVL_ETERNAL, "etc/board.guild_merc"}, 
-    {{1296, -1, -1, -1},           LVL_IMMORT, LVL_IMMORT, LVL_GOD,     "etc/board.world_general"},
-    {{1295, 22651, -1, -1},        0, LVL_CAN_POST, LVL_GOD,     "etc/board.ideas"},
-    {{1298, -1, -1, -1},           0, LVL_AMBASSADOR, LVL_ETERNAL, "etc/board.to_do_list"}, 
-    {{72309,-1,-1, -1},            LVL_CAN_CLAN,LVL_CAN_CLAN,LVL_AMBASSADOR,"etc/board.dagger_clan"},
-    {{72401,-1,-1, -1},            LVL_CAN_CLAN, LVL_CAN_CLAN,LVL_AMBASSADOR, "etc/board.fa_clan"},
-    {{1299, -1, -1, -1},           LVL_AMBASSADOR, LVL_DEMI, LVL_TIMEGOD, "etc/board.imp"},
-    {{63047, -1, -1, -1},          0, 0, LVL_GOD, "etc/board.council"}, 
-    {{30089, -1, -1, -1},          0, LVL_CAN_POST, LVL_DEMI, "etc/board.char_classified"},
-    {{1250, -1, -1, -1},           LVL_IMMORT, LVL_IMMORT, LVL_LUCIFER, "etc/board.rulings"},
-    {{72801,-1,-1, -1},            LVL_CAN_CLAN, LVL_CAN_CLAN,LVL_AMBASSADOR, "etc/board.toreador_clan"},
-    {{72099,-1,-1, -1},            LVL_CAN_CLAN, LVL_CAN_CLAN,LVL_AMBASSADOR, "etc/board.jerrytown_clan"},
-    {{72517,-1,-1, -1},            LVL_CAN_CLAN, LVL_CAN_CLAN,LVL_AMBASSADOR, "etc/board.deathleague_clan"},
-    {{73010,-1,-1, -1},            LVL_CAN_CLAN, LVL_CAN_CLAN,LVL_AMBASSADOR, "etc/board.quiet_storm_clan"},
-    {{73400,-1,-1, -1},            LVL_CAN_CLAN, LVL_CAN_CLAN,LVL_AMBASSADOR, "etc/board.regime_clan"},
-    {{73603,-1,-1, -1},            LVL_CAN_CLAN,LVL_CAN_CLAN,LVL_AMBASSADOR, "etc/board.coven_clan"},
-    {{72601,-1,-1, -1},            LVL_CAN_CLAN,LVL_CAN_CLAN,LVL_AMBASSADOR, "etc/board.venom_clan"},
-    {{74102,-1,-1, -1},            LVL_CAN_CLAN,LVL_CAN_CLAN,LVL_AMBASSADOR, "etc/board.blacksun_clan"},
-    {{74007,-1,-1, -1},            LVL_CAN_CLAN,LVL_CAN_CLAN,LVL_AMBASSADOR, "etc/board.family_clan"},
-    {{72212,-1,-1, -1},            LVL_CAN_CLAN,LVL_CAN_CLAN,LVL_AMBASSADOR, "etc/board.brethren_clan"},
-    {{75010,-1,-1, -1},            LVL_CAN_CLAN,LVL_CAN_CLAN,LVL_AMBASSADOR, "etc/board.blade_clan"},
+    {{3099, 22920, 22613, 72333,-1,-1,-1,-1,-1,-1},  0, LVL_CAN_POST, LVL_GOD, "etc/board.mort"},
+    {{3098, -1, -1, -1, -1, -1, -1, -1, -1, -1},LVL_AMBASSADOR, LVL_AMBASSADOR, LVL_GRGOD, "etc/board.immort"},
+    {{3097, -1, -1, -1,-1,-1,-1,-1,-1,-1},           0, LVL_FREEZE, LVL_CREATOR, "etc/board.freeze"},
+    {{3096, 22921, 22614, 72334,-1,-1,-1,-1,-1,-1},  0, LVL_CAN_POST, LVL_DEMI, "etc/board.social"},
+    {{3094, -1, -1, -1,-1,-1,-1,-1,-1,-1},           0, LVL_CAN_POST, LVL_ELEMENT, "etc/board.obscene"},
+    {{3095, 53322, -1, -1,-1,-1,-1,-1,-1,-1},        0, 0, LVL_ELEMENT, "etc/board.newbie"},
+    {{3192, -1, -1, -1,-1,-1,-1,-1,-1,-1},           0, 0, LVL_ETERNAL, "etc/board.guild_cleric"},
+    {{3193, 22893, -1, -1,-1,-1,-1,-1,-1,-1},        0, 0, LVL_ETERNAL, "etc/board.guild_pain"},
+    {{3194, -1, -1, -1,-1,-1,-1,-1,-1,-1},           0, 0, LVL_ETERNAL, "etc/board.guild_justice"},
+    {{3195, 22894, -1, -1,-1,-1,-1,-1,-1,-1},        0, 0, LVL_ETERNAL, "etc/board.guild_ares"},
+    {{3196, 22895, -1, -1,-1,-1,-1,-1,-1,-1},        0, 0, LVL_ETERNAL, "etc/board.guild_thief"},
+    {{3197, 22618, 22614, -1,-1,-1,-1,-1,-1,-1},     0, 0, LVL_ETERNAL, "etc/board.guild_mage"},
+    {{3198, 22892, -1, -1,-1,-1,-1,-1,-1,-1},        0, 0, LVL_ETERNAL, "etc/board.guild_barb"},
+    {{3199, 72220, -1, -1,-1,-1,-1,-1,-1,-1},           0, 0, LVL_ETERNAL, "etc/board.guild_ranger"},
+    {{1294, 22919, -1, -1,-1,-1,-1,-1,-1,-1},        0, LVL_CAN_POST, LVL_DEMI,  "etc/board.clan_public"},
+    {{1293, -1, -1, -1,-1,-1,-1,-1,-1,-1},           0, LVL_CAN_POST, LVL_ETERNAL,  "etc/board.quest"},
+    {{30091, -1, -1, -1,-1,-1,-1,-1,-1,-1},          0, 0, LVL_ETERNAL, "etc/board.guild_hoodlum"}, 
+    {{30092, -1, -1, -1,-1,-1,-1,-1,-1,-1},          0, 0, LVL_ETERNAL, "etc/board.guild_monk"}, 
+    {{30093, -1, -1, -1,-1,-1,-1,-1,-1,-1},          0, 0, LVL_ETERNAL, "etc/board.guild_psychic"}, 
+    {{30094, -1, -1, -1,-1,-1,-1,-1,-1,-1},          0, 0, LVL_ETERNAL, "etc/board.guild_physic"},
+    {{30095, -1, -1, -1,-1,-1,-1,-1,-1,-1},          0, 0, LVL_ETERNAL, "etc/board.guild_cyborg"},
+    {{30088, -1, -1, -1,-1,-1,-1,-1,-1,-1},          0, 0, LVL_ETERNAL, "etc/board.guild_merc"}, 
+    {{1296, -1, -1, -1,-1,-1,-1,-1,-1,-1},           LVL_IMMORT, LVL_IMMORT, LVL_GOD,     "etc/board.world_general"},
+    {{1295, 22651, -1, -1,-1,-1,-1,-1,-1,-1},        0, LVL_CAN_POST, LVL_GOD,     "etc/board.ideas"},
+    {{1298, -1, -1, -1,-1,-1,-1,-1,-1,-1},           0, LVL_AMBASSADOR, LVL_ETERNAL, "etc/board.to_do_list"}, 
+    {{72309,-1,-1, -1,-1,-1,-1,-1,-1,-1},            LVL_CAN_CLAN,LVL_CAN_CLAN,LVL_AMBASSADOR,"etc/board.dagger_clan"},
+    {{72401,-1,-1, -1,-1,-1,-1,-1,-1,-1},            LVL_CAN_CLAN, LVL_CAN_CLAN,LVL_AMBASSADOR, "etc/board.fa_clan"},
+    {{1299, -1, -1, -1,-1,-1,-1,-1,-1,-1},           LVL_AMBASSADOR, LVL_DEMI, LVL_TIMEGOD, "etc/board.imp"},
+    {{63047, -1, -1, -1,-1,-1,-1,-1,-1,-1},          0, 0, LVL_GOD, "etc/board.council"}, 
+    {{30089, -1, -1, -1,-1,-1,-1,-1,-1,-1},          0, LVL_CAN_POST, LVL_DEMI, "etc/board.char_classified"},
+    {{1250, -1, -1, -1,-1,-1,-1,-1,-1,-1},           LVL_IMMORT, LVL_IMMORT, LVL_LUCIFER, "etc/board.rulings"},
+    {{72801,-1,-1, -1,-1,-1,-1,-1,-1,-1},            LVL_CAN_CLAN, LVL_CAN_CLAN,LVL_AMBASSADOR, "etc/board.toreador_clan"},
+    {{72099,-1,-1, -1,-1,-1,-1,-1,-1,-1},            LVL_CAN_CLAN, LVL_CAN_CLAN,LVL_AMBASSADOR, "etc/board.jerrytown_clan"},
+    {{72517,-1,-1, -1,-1,-1,-1,-1,-1,-1},            LVL_CAN_CLAN, LVL_CAN_CLAN,LVL_AMBASSADOR, "etc/board.deathleague_clan"},
+    {{73010,-1,-1, -1,-1,-1,-1,-1,-1,-1},            LVL_CAN_CLAN, LVL_CAN_CLAN,LVL_AMBASSADOR, "etc/board.quiet_storm_clan"},
+    {{73400,-1,-1, -1,-1,-1,-1,-1,-1,-1},            LVL_CAN_CLAN, LVL_CAN_CLAN,LVL_AMBASSADOR, "etc/board.regime_clan"},
+    {{73603,-1,-1, -1,-1,-1,-1,-1,-1,-1},            LVL_CAN_CLAN,LVL_CAN_CLAN,LVL_AMBASSADOR, "etc/board.coven_clan"},
+    {{72601,-1,-1, -1,-1,-1,-1,-1,-1,-1},            LVL_CAN_CLAN,LVL_CAN_CLAN,LVL_AMBASSADOR, "etc/board.venom_clan"},
+    {{74102,-1,-1, -1,-1,-1,-1,-1,-1,-1},            LVL_CAN_CLAN,LVL_CAN_CLAN,LVL_AMBASSADOR, "etc/board.blacksun_clan"},
+    {{74007,-1,-1, -1,-1,-1,-1,-1,-1,-1},            LVL_CAN_CLAN,LVL_CAN_CLAN,LVL_AMBASSADOR, "etc/board.family_clan"},
+    {{72212,-1,-1, -1,-1,-1,-1,-1,-1,-1},            LVL_CAN_CLAN,LVL_CAN_CLAN,LVL_AMBASSADOR, "etc/board.brethren_clan"},
+    {{75010,-1,-1, -1,-1,-1,-1,-1,-1,-1},            LVL_CAN_CLAN,LVL_CAN_CLAN,LVL_AMBASSADOR, "etc/board.blade_clan"},
 
-    {{42503,-1,-1,-1},             0, 0, LVL_IMMORT, "etc/board.astral_mase"},
-    {{1292,-1,-1,-1},              0, LVL_CAN_POST, LVL_GRGOD, "etc/board.real_estate"},
-    {{1291,-1,-1,-1},              0, LVL_CAN_POST, LVL_IMMORT, "etc/board.story"},
-    {{1200,-1,-1,-1},              LVL_GOD, LVL_GOD, LVL_GOD, "etc/board.admin"}
+    {{42503,-1,-1,-1,-1,-1,-1,-1,-1,-1},             0, 0, LVL_IMMORT, "etc/board.astral_mase"},
+    {{1292,-1,-1,-1,-1,-1,-1,-1,-1,-1},              0, LVL_CAN_POST, LVL_GRGOD, "etc/board.real_estate"},
+    {{1291,-1,-1,-1,-1,-1,-1,-1,-1,-1},              0, LVL_CAN_POST, LVL_IMMORT, "etc/board.story"},
+    {{1200,-1,-1,-1,-1,-1,-1,-1,-1,-1},              LVL_GOD, LVL_GOD, LVL_GOD, "etc/board.admin"}
 };
 
 
@@ -155,11 +155,11 @@ find_board(struct obj_data *obj)
     int i, j;
 
     for (i = 0; i < NUM_OF_BOARDS; i++) {
-	for (j = 0; j < 4; j++) {
-	    if (BOARD_VNUM(i, j) != -1 && BOARD_VNUM(i, j) == GET_OBJ_VNUM(obj)) {
-		return i;
-	    }
-	}
+		for (j = 0; j < NUM_OF_BOARD_VNUMS; j++) {
+			if (BOARD_VNUM(i, j) != -1 && BOARD_VNUM(i, j) == GET_OBJ_VNUM(obj)) {
+				return i;
+			}
+		}
     }
   
     return -1;
