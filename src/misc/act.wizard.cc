@@ -4092,7 +4092,7 @@ struct show_struct {
     { "zexits",         LVL_IMMORT },        // 50
     { "mlevels",        LVL_IMMORT },
     { "plevels",        LVL_IMMORT }, 
-    { "mobkills",       LVL_GRGOD },      
+    { "mobkills",       LVL_GOD },      
     { "wizcommands",    LVL_IMMORT },
     { "timewarps",      LVL_IMMORT },        // 55
     { "zonecommands", 	LVL_IMMORT },
