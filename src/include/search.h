@@ -53,7 +53,7 @@
 #define SRCH_NOPLAYER           (1 << 26)
 
 
-#define NUM_SRCH_BITS           26
+#define NUM_SRCH_BITS           27
 
 struct special_search_data {
   char *command_keys;             /* which command activates          */
