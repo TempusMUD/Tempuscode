@@ -1520,8 +1520,8 @@ SPECIAL(pet_shops)
 
     if (CMD_IS("list")) {
         send_to_char("Available pets are:\r\n", ch);
-        CharacterList::iterator it = ch->in_room->people.begin();
-        for( ; it != ch->in_room->people.end(); ++it ) {
+        CharacterList::iterator it = pet_room->people.begin();
+        for( ; it != pet_room->people.end(); ++it ) {
             cost = (IS_NPC((*it)) ? GET_EXP((*it)) * 3 : (GET_EXP(ch) >> 2));
             sprintf(buf, "%8d - %s\r\n", cost, GET_NAME((*it)));
             send_to_char(buf, ch);
@@ -1722,6 +1722,8 @@ SPECIAL(bank)
 
 SPECIAL(cave_bear)
 {
+
+    if( spec_mode == SPECIAL_DEATH ) return 0;
     if (cmd || !FIGHTING(ch))
         return FALSE;
 

@@ -506,10 +506,11 @@ ACMD(do_report)
 	send_to_char("But you are not a member of any group!\r\n", ch);
 	return;
     }
-    sprintf(buf, "%s reports: %d/%dH, %d/%dM, %d/%dV\r\n",
+    sprintf(buf, "%s reports: %d/%dH, %d/%dM, %d/%dV, %dA\r\n",
 	    GET_NAME(ch), GET_HIT(ch), GET_MAX_HIT(ch),
 	    GET_MANA(ch), GET_MAX_MANA(ch),
-	    GET_MOVE(ch), GET_MAX_MOVE(ch));
+	    GET_MOVE(ch), GET_MAX_MOVE(ch),
+	    GET_ALIGNMENT(ch));
 
     CAP(buf);
 
