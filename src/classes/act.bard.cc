@@ -130,7 +130,7 @@ struct bard_song songs[] = {
     },
     { "Hymn of Peace", // 363
       "a cool and peaceful hymn",
-      false,
+      true,
       ITEM_WIND
     },
     { "Song of Silence", // 364
