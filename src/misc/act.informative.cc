@@ -2230,6 +2230,8 @@ affs_to_str(struct Creature *ch, byte mode)
 		else
 			str = tmp_strcat(str, "You feel sick and your hair is falling out.\r\n");
 	}
+	if (IS_AFFECTED_2(ch, AFF2_PROT_RAD))
+		str = tmp_strcat(str, "You are immune to the effects of radiation.\r\n");
 	if (IS_AFFECTED_3(ch, AFF3_TAINTED))
 		str = tmp_strcat(str, "The very essence of your being has been tainted.\r\n");
 
@@ -2375,10 +2377,16 @@ affs_to_str(struct Creature *ch, byte mode)
 		str = tmp_strcat(str, "You are perceiving sonic images.\r\n");
 	if (IS_AFFECTED_3(ch, AFF3_PROT_HEAT))
 		str = tmp_strcat(str, "You are protected from heat.\r\n");
+	if (affected_by_spell(ch, SPELL_RIGHTEOUS_PENETRATION))
+		str = tmp_strcat(str, "You feel overwhelmingly righteous!\r\n");
 	if (affected_by_spell(ch, SPELL_PRAY))
 		str = tmp_strcat(str, "You feel extremely righteous.\r\n");
 	else if (affected_by_spell(ch, SPELL_BLESS))
 		str = tmp_strcat(str, "You feel righteous.\r\n");
+	if (affected_by_spell(ch, SPELL_DEATH_KNELL))
+		str = tmp_strcat(str, "You feel giddy from the absorption of a life.\r\n");
+	if (affected_by_spell(ch, SPELL_MALEFIC_VIOLATION))
+		str = tmp_strcat(str, "You feel overwhelmingly wicked!\r\n");
 	if (affected_by_spell(ch, SPELL_MANA_SHIELD))
 		str = tmp_strcat(str, "You are protected by a mana shield.\r\n");
 	if (affected_by_spell(ch, SPELL_SHIELD_OF_RIGHTEOUSNESS))
@@ -2453,6 +2461,8 @@ affs_to_str(struct Creature *ch, byte mode)
 	if (IS_AFFECTED_3(ch, AFF3_SHROUD_OBSCUREMENT))
 		str = tmp_strcat(str,
 			"You are surrounded by an magical obscurement shroud.\r\n");
+	if (affected_by_spell(ch, SPELL_DETECT_SCRYING))
+		str = tmp_strcat(str, "You are senstivite to attempts to magical scrying.\r\n");
 	if (IS_SICK(ch))
 		str = tmp_strcat(str, "You are afflicted with a terrible sickness!\r\n");
 	if (IS_AFFECTED_3(ch, AFF3_GRAVITY_WELL))
@@ -2463,6 +2473,8 @@ affs_to_str(struct Creature *ch, byte mode)
 			"%s%sThe gash on your leg is %sBLEEDING%s%s all over!!%s\r\n", str,
 			CCRED(ch, C_SPR), CCBLD(ch, C_SPR), CCNRM(ch, C_SPR), CCRED(ch,
 				C_SPR), CCNRM(ch, C_SPR));
+	if (affected_by_spell(ch, SKILL_ELUSION))
+		str = tmp_strcat(str, "You are attempting to hide your tracks.\r\n");
 
 	return str;
 }
