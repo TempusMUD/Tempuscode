@@ -21,7 +21,8 @@
 #define SEARCH_COM_SPELL     8
 #define SEARCH_COM_DAMAGE    9
 #define SEARCH_COM_SPAWN     10
-#define NUM_SEARCH_COM       11
+#define SEARCH_COM_LOADROOM  11
+#define NUM_SEARCH_COM       12
 
      /** room search flags **/
 #define SRCH_REPEATABLE         (1 << 0)
@@ -68,3 +69,16 @@ struct special_search_data {
 };
 
 #endif __search_h__
+
+
+
+
+
+
+
+
+
+
+
+
+
