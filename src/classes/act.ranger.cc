@@ -95,6 +95,14 @@ ACMD(do_firstaid)
 	char vict_name[MAX_INPUT_LENGTH];
 	one_argument(argument, vict_name);
 
+    mod = (GET_LEVEL(ch)/2 + CHECK_SKILL(ch, SKILL_FIRSTAID) + GET_REMORT_GEN(ch)*3);
+    if (GET_CLASS(ch) == CLASS_MERCENARY ||
+        GET_CLASS(ch) == CLASS_RANGER ||
+        GET_CLASS(ch) == CLASS_MONK) {
+        mod /= 2;
+    } else {
+        mod /= 4;
+    }
 
 	if (CHECK_SKILL(ch, SKILL_FIRSTAID) < (IS_NPC(ch) ? 50 : 30)) {
 		send_to_char(ch, "You have no clue about first aid.\r\n");
@@ -105,7 +113,6 @@ ACMD(do_firstaid)
 			send_to_char(ch, "What makes you think you're bleeding?\r\n");
 			return;
 		}
-		mod = (GET_LEVEL(ch) + CHECK_SKILL(ch, SKILL_FIRSTAID)) >> 2;
 		cost = MAX(0, mod - (GET_LEVEL(ch) / 100) * mod);
 		if (GET_MOVE(ch) > cost) {
 			GET_HIT(ch) = MIN(GET_MAX_HIT(ch), GET_HIT(ch) + mod);
@@ -128,7 +135,6 @@ ACMD(do_firstaid)
 			return;
 		}
 
-		mod = (GET_LEVEL(ch) + CHECK_SKILL(ch, SKILL_FIRSTAID)) >> 2;
 		cost = MAX(0, mod - (GET_LEVEL(ch) / 100) * mod);
 		if (GET_MOVE(ch) > cost) {
 			GET_HIT(vict) = MIN(GET_MAX_HIT(vict), GET_HIT(vict) + mod);
@@ -148,7 +154,8 @@ ACMD(do_firstaid)
 ACMD(do_medic)
 {
 	struct Creature *vict;
-	int mod;
+	int mod = (GET_LEVEL(ch)/2 + CHECK_SKILL(ch, SKILL_MEDIC) + GET_REMORT_GEN(ch)*3);
+
 	char vict_name[MAX_INPUT_LENGTH];
 	one_argument(argument, vict_name);
 
@@ -162,11 +169,9 @@ ACMD(do_medic)
 			send_to_char(ch, "What makes you think you're bleeding?\r\n");
 			return;
 		}
-		mod =
-			(GET_LEVEL(ch) + CHECK_SKILL(ch,
-				SKILL_MEDIC) + GET_REMORT_GEN(ch));
 		if (GET_MOVE(ch) > mod) {
-			GET_HIT(ch) = MIN(GET_MAX_HIT(ch), GET_HIT(ch) + mod);
+			if (GET_CLASS(ch) == CLASS_RANGER) mod *= 2; //2x multiplier for prime rangers
+            GET_HIT(ch) = MIN(GET_MAX_HIT(ch), GET_HIT(ch) + mod);
 			GET_MOVE(ch) = MAX(GET_MOVE(ch) - mod, 0);
 			send_to_char(ch, "You apply some TLC to your wounds.\r\n");
 			act("$n fixes up $s wounds.", TRUE, ch, 0, 0, TO_ROOM);
@@ -183,8 +188,8 @@ ACMD(do_medic)
 	} else if (GET_HIT(vict) == GET_MAX_HIT(vict)) {
 	  act("What makes you think $e's bleeding?", true, ch, 0, vict, TO_CHAR);
 	} else {
-		mod = (GET_LEVEL(ch) + CHECK_SKILL(ch, SKILL_MEDIC));
 		if (GET_MOVE(ch) > mod) {
+            if (GET_CLASS(ch) == CLASS_RANGER) mod *= 2; //2x multiplier for prime rangers
 			GET_HIT(vict) = MIN(GET_MAX_HIT(vict), GET_HIT(vict) + mod);
 			GET_MOVE(ch) = MAX(GET_MOVE(ch) - mod, 0);
 			act("$N gives you some TLC.  You feel better!", TRUE, vict, 0, ch,
