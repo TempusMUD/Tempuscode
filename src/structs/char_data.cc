@@ -95,8 +95,8 @@ float char_data::getDamReduction(char_data *attacker = NULL)
             dam_reduction += GET_ALIGNMENT(ch) / 100;
     }
   
-    /**************************** Sanctuary *****************************/
-    /********************************************************************/
+    //*************************** Sanctuary ****************************
+    //******************************************************************
     if (ch->affBySanc(attacker)) {
         if (IS_VAMPIRE(ch))
             dam_reduction += 0;
@@ -109,8 +109,8 @@ float char_data::getDamReduction(char_data *attacker = NULL)
             dam_reduction += 15;
     }
 
-   /****************************** Oblivity *****************************/
-   /*********************************************************************/
+   //***************************** Oblivity ****************************
+   //*******************************************************************
     // damage reduction ranges up to about 35%
     if (IS_AFFECTED_2(ch, AFF2_OBLIVITY)) {
         if (IS_NEUTRAL(ch) && CHECK_SKILL(ch, ZEN_OBLIVITY) > 60) {
@@ -121,14 +121,14 @@ float char_data::getDamReduction(char_data *attacker = NULL)
         }
     } 
     
-    /***************************** No Pain ******************************/
-    /********************************************************************/
+    //**************************** No Pain *****************************
+    //******************************************************************
     if (IS_AFFECTED(ch, AFF_NOPAIN)) {
         dam_reduction += 25;         
     } 
     
-    /***************************** Berserk ******************************/
-    /********************************************************************/
+    //**************************** Berserk *****************************
+    //******************************************************************
     if (IS_AFFECTED_2(ch, AFF2_BESERK)) {
         if (IS_BARB(ch))
             dam_reduction += (ch->getLevelBonus(SKILL_BESERK)) / 6;
@@ -136,19 +136,19 @@ float char_data::getDamReduction(char_data *attacker = NULL)
             dam_reduction += 7;
     } 
     
-    /*************************** Damage Control *************************/
-    /********************************************************************/
+    //************************** Damage Control ************************
+    //******************************************************************
     if (AFF3_FLAGGED(ch, AFF3_DAMAGE_CONTROL)) {
         dam_reduction += (ch->getLevelBonus(SKILL_DAMAGE_CONTROL)) / 5;
     }
     
-    /***************************** ALCOHOLICS!!! ************************/
-    /********************************************************************/
+    //**************************** ALCOHOLICS!!! ***********************
+    //******************************************************************
     if (GET_COND(ch, DRUNK) > 5)
         dam_reduction += GET_COND(ch, DRUNK);
     
-    /*********************** Shield of Righteousness ********************/
-    /********************************************************************/
+    //********************** Shield of Righteousness *******************
+    //******************************************************************
     if ((af = affected_by_spell(ch, SPELL_SHIELD_OF_RIGHTEOUSNESS)) && 
         IS_GOOD(ch) && !IS_NPC(ch)) {
         if (af->modifier == GET_IDNUM(ch)) {
@@ -172,13 +172,13 @@ float char_data::getDamReduction(char_data *attacker = NULL)
         }
     }
 
-    /************************ Lattice Hardening **************************/
-    /*********************************************************************/
+    //*********************** Lattice Hardening *************************
+    //*******************************************************************
     if (affected_by_spell(ch, SPELL_LATTICE_HARDENING))
         dam_reduction += (ch->getLevelBonus(SPELL_LATTICE_HARDENING)) / 6;
         
-    /*************** Stoneskin Barkskin Dermal Hardening *****************/
-    /*********************************************************************/
+    //************** Stoneskin Barkskin Dermal Hardening ****************
+    //*******************************************************************
     if (affected_by_spell(ch, SPELL_STONESKIN)) 
         dam_reduction += (ch->getLevelBonus(SPELL_STONESKIN)) / 4;
     
@@ -188,14 +188,14 @@ float char_data::getDamReduction(char_data *attacker = NULL)
     else if (affected_by_spell(ch, SPELL_DERMAL_HARDENING))
         dam_reduction += (ch->getLevelBonus(SPELL_DERMAL_HARDENING)) / 6; 
         
-    /*************************** Petrification ***************************/
-    /*********************************************************************/
+    //************************** Petrification **************************
+    //*******************************************************************
     if (IS_AFFECTED_2(ch, AFF2_PETRIFIED))
         dam_reduction += 75;
 
             
     if (attacker) {    
-        //******************* Various forms of protection ****************/
+        ///****************** Various forms of protection ***************
         if (IS_EVIL(attacker) && IS_AFFECTED(ch, AFF_PROTECT_EVIL)) 
             dam_reduction += 8;
         if (IS_GOOD(attacker) && IS_AFFECTED(ch, AFF_PROTECT_GOOD))
@@ -213,13 +213,13 @@ float char_data::getDamReduction(char_data *attacker = NULL)
     return (dam_reduction / 100);
 }
 
-/**
+//*
    Compute level bonus factor.
    Currently, a gen 4 level 49 secondary should equate to level 49 mort primary.
    
    params: primary - Add in remort gen as a primary?
    return: a number from 1-100 based on level and primary/secondary)
-*/
+
 int char_data::getLevelBonus ( bool primary ) {
     int bonus = MIN(50,player.level + 1);
     short gen;
@@ -245,13 +245,13 @@ int char_data::getLevelBonus ( bool primary ) {
         }
     }
 }
-/**
+//*
    Compute level bonus factor.
    Should be used for a particular skill in general.
    Returns 50 for max mort, 100 for max remort.
    params: skill - the skill # to check bonus for.
    return: a number from 1-100 based on level/gen/can learn skill.
-*/
+
 int char_data::getLevelBonus( int skill ) {
 
     // Immorts get full bonus. 
@@ -304,13 +304,13 @@ int char_data::getLevelBonus( int skill ) {
     return getLevelBonus(primary);
 }
 
-/*
+//
  *  attempts to set character's position.
  *
  *  return success or failure
  *  @param mode: 1 == from update_pos, 2 == from perform violence (not used for anything really)
  *  @param new_position the enumerated int position to be set to.
- */
+
 bool char_data::setPosition( int new_pos, int mode=0 ){
     if(new_pos == char_specials.getPosition())
         return false;
@@ -331,14 +331,14 @@ bool char_data::setPosition( int new_pos, int mode=0 ){
     }
     return true;
 }
-/*
+//
  * Returns current position (standing sitting etc.)
- */
+
 int char_data::getPosition( void ) {
     return char_specials.getPosition();
 }
-/* Extract a ch completely from the world, and leave his stuff behind */
-/* mode = 0 -> menu, 1 -> afterlife, 2 -> remort reroll */
+// Extract a ch completely from the world, and leave his stuff behind
+// mode = 0 -> menu, 1 -> afterlife, 2 -> remort reroll
 void char_data::extract( char mode ) {
     void stop_fighting( struct char_data * ch );
     struct char_data *k;
@@ -364,7 +364,7 @@ void char_data::extract( char mode ) {
     if (followers || master)
         die_follower(this);
 
-    /* remove hunters */
+    // remove hunters
     CharacterList::iterator cit = characterList.begin();
     for( ; cit != characterList.end(); ++cit ) {
         if (this == HUNTING((*cit)))
@@ -375,7 +375,7 @@ void char_data::extract( char mode ) {
         GET_OLC_HELP(this)->editor = NULL;
         GET_OLC_HELP(this) = NULL;
     }
-    /* Forget snooping, if applicable */
+    // Forget snooping, if applicable
     if (desc) {
         if (desc->snooping) {
             desc->snooping->snoop_by = NULL;
@@ -388,25 +388,32 @@ void char_data::extract( char mode ) {
             desc->snoop_by = NULL;
         }
     }
-    /* transfer objects to room, if any */
+    // transfer objects to room, if any
     while (carrying) {
         obj = carrying;
         obj_from_char(obj);
         obj_to_room(obj, in_room);
     }
 
-    /* transfer equipment to room, if any */
+    // transfer equipment to room, if any
     for (i = 0; i < NUM_WEARS; i++) {
         if (GET_EQ(this, i))
             obj_to_room(unequip_char(this, i, MODE_EQ), in_room);
         if (GET_IMPLANT(this, i))
-            extract_obj(GET_IMPLANT(this, i));
+            obj_to_room(unequip_char(this, i, MODE_IMPLANT), in_room);
     }
+
+	// transfer gold to room
+	if (GET_GOLD(ch))
+		obj_to_room(create_money(GET_GOLD(ch), 0), in_room);
+	if (GET_CASH(ch))
+		obj_to_room(create_money(GET_CASH(ch), 1), in_room);
+	GET_GOLD(ch) = GET_CASH(ch) = 0;
 
     if (FIGHTING(this))
         stop_fighting(this);
 
-    /* stop all fighting */
+    // stop all fighting
     CharacterList::iterator coit = combatList.begin();
     for( ; coit != combatList.end(); ++coit ) {
         if (this == FIGHTING((*coit)))
@@ -440,20 +447,20 @@ void char_data::extract( char mode ) {
 
     char_from_room(this);
 
-    /* pull the char from the list */
+    // pull the char from the list
     //REMOVE_FROM_LIST(ch, character_list, next);
     characterList.remove(this);
     combatList.remove(this);
-    /* remove any paths */
+    // remove any paths
     path_remove_object(this);
 
     if (!IS_NPC(this)) {
         save_char(this, NULL);
         Crash_delete_crashfile(this);
     } else {
-        if (GET_MOB_VNUM(this) > -1)                /* if mobile */
+        if (GET_MOB_VNUM(this) > -1)                // if mobile
             mob_specials.shared->number--;
-        clearMemory();                /* Only NPC's can have memory */
+        clearMemory();                // Only NPC's can have memory
         free_char(this);
         freed = 1;
         return;
@@ -466,12 +473,12 @@ void char_data::extract( char mode ) {
         } else { // Menu 
 			set_desc_state( CON_MENU,desc );
         }
-    } else {  /* if a player gets purged from within the game */
+    } else {  // if a player gets purged from within the game
         if (!freed)
             free_char(this);
     }
 }
-/* erase ch's memory */
+// erase ch's memory
 void char_data::clearMemory() {
     memory_rec *curr, *next;
 
