@@ -252,22 +252,28 @@ mudlog(sbyte level, log_type type, bool file, const char *fmt, ...)
 	struct descriptor_data *i;
 	va_list args;
 	char *msg, tp;
+	char timebuf[25];
 	time_t ct;
+	struct tm *ctm;
 
 	va_start(args, fmt);
 	msg = tmp_vsprintf(fmt, args);
 	va_end(args);
 
+	ct = time(NULL);
+	ctm = localtime(&ct);
+	strftime(timebuf, 24, "%b %d %T - ", ctm);
+
 	if (file) {
 		char *tm_str;
 
-		ct = time(0);
-		tm_str = asctime(localtime(&ct));
+		tm_str = asctime(ctm);
 		fprintf(stderr, "%-19.19s :: %s\n", tm_str, msg);
 	}
 
 	if (level < 0)
 		return;
+
 
 	for (i = descriptor_list; i; i = i->next)
 		if (!i->connected && !PLR_FLAGGED(i->character, PLR_WRITING) &&
@@ -276,8 +282,9 @@ mudlog(sbyte level, log_type type, bool file, const char *fmt, ...)
 				(PRF_FLAGGED(i->character, PRF_LOG2) ? 2 : 0));
 
 			if ((GET_LEVEL(i->character) >= level) && (tp >= type)) {
-				send_to_char(i->character, "%s[ %s ]%s\r\n",
+				send_to_char(i->character, "%s[ %s%s ]%s\r\n",
 					CCGRN(i->character, C_NRM),
+					(tp >= CMP) ? timebuf:"",
 					msg,
 					CCNRM(i->character, C_NRM));
 			}
