@@ -1679,15 +1679,20 @@ ACMD(do_fly)
 	    can_fly = TRUE;
 	if (!can_fly && IS_VAMPIRE(ch)) {
 	    if (CHECK_SKILL(ch, SKILL_FLYING) < 
-		(number(10, 30) + (IS_CARRYING_W(ch) + IS_WEARING_W(ch)) / 10))
-		send_to_char("You are unable to fly.\r\n", ch);
-	    else if ((120 - CHECK_SKILL(ch, SKILL_FLYING)) > GET_MOVE(ch)) 
-		send_to_char("You are too exhausted to fly.\r\n", ch);
+		(number(10, 30) + (IS_CARRYING_W(ch) + IS_WEARING_W(ch)) / 10)) {
+			send_to_char("You are unable to fly.\r\n", ch);
+			return;
+		}
+	    else if ((120 - CHECK_SKILL(ch, SKILL_FLYING)) > GET_MOVE(ch)) {
+			send_to_char("You are too exhausted to fly.\r\n", ch);
+			return;
+		}
 	    else {
-		can_fly = TRUE;
-		GET_MOVE(ch) -= (120 - CHECK_SKILL(ch, SKILL_FLYING));
+			can_fly = TRUE;
+			GET_MOVE(ch) -= (120 - CHECK_SKILL(ch, SKILL_FLYING));
 	    }
-	} else if ((!can_fly) && (GET_LEVEL(ch) < LVL_AMBASSADOR))
+	} 
+	if ((!can_fly) && (GET_LEVEL(ch) < LVL_AMBASSADOR))
 	    send_to_char("You are not currently able to fly.\r\n", ch);
 	else {
 	    act("Your feet lift from the ground.", FALSE, ch, 0, 0, TO_CHAR);
