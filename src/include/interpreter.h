@@ -229,6 +229,7 @@ struct set_struct {
 #define SCMD_NEWBIE     9
 #define SCMD_CLANSAY	10
 #define SCMD_GUILDSAY	11
+#define SCMD_CLANEMOTE	12
 
 /* do_shutdown */
 #define SCMD_SHUTDOW	0
