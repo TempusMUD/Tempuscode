@@ -34,6 +34,12 @@ SPECIAL(fate)
 	int num_rooms = 0, the_room = 0;
 	int which_fate;
   
+
+	// Don't want the zone goin to sleep and trapping her.
+	if (fate->in_room) {
+		fate->in_room->zone->idle_time = 0;
+	}
+
   	if (cmd)
 		return 0;
 	if (FIGHTING(fate))
@@ -41,43 +47,37 @@ SPECIAL(fate)
 	if(!fate->in_room)
 		return 0;
 
-	// Who is she?
-	if(GET_MOB_VNUM(fate) == FATE_VNUM_LOW) {
-		strcpy(dyn_name,"fatelow");
-		which_fate = 0;
-	} else if(GET_MOB_VNUM(fate) == FATE_VNUM_MID) {
-		strcpy(dyn_name,"fatemid");
-		which_fate = 1;
-	} else if(GET_MOB_VNUM(fate) == FATE_VNUM_HIGH) {
-		strcpy(dyn_name,"fatehigh");
-		which_fate = 2;
-	} else {
-		return 0;
-	}
-
 	// If there is a player in the room, don't do anything.
 	if(player_in_room(fate->in_room))
 		return 0;
 
-	// Don't want the zone goin to sleep and trapping her.
-	if (fate->in_room) {
-		fate->in_room->zone->idle_time = 0;
+	// Who is she?
+	switch(GET_MOB_VNUM(fate)){
+		case FATE_VNUM_LOW:
+			strcpy(dyn_name,"fatelow");
+			which_fate = 0;
+			break;
+		case FATE_VNUM_MID:
+			strcpy(dyn_name,"fatemid");
+			which_fate = 1;
+			break;
+		case FATE_VNUM_HIGH:
+			strcpy(dyn_name,"fatehigh");
+			which_fate = 2;
+			break;
+		default:
+			return 0;
 	}
-	
+
 	// Is it time to leave?
 	if(timers[which_fate] > 0) { // Not time to leave yet.
 		timers[which_fate] -= 10; // Specials are called every 10 seconds.
 		return 1;
-	} else {				// Time to leave
-		#ifdef FATE_TEST
-		timers[which_fate] = 20; // 25 mins to 2.5 hours.
-		#endif
-		#ifndef FATE_TEST
-		timers[which_fate] = 60 * dice(30,6); // 25 mins to 2.5 hours.
-		#endif
 	}
-
 	// It's time to leave.
+
+	// Start the timer for the next jump.
+	timers[which_fate] = 60 * dice(30,6); // 25 mins to 2.5 hours.
 
 	// find the dyntext of the rooms we need.
 	for (dyntext = dyntext_list; dyntext; dyntext = dyntext->next) {
@@ -85,19 +85,22 @@ SPECIAL(fate)
 			break;
 	}
 	if(!dyntext) {
-		sprintf(buf,"SYSERR: Fate %d unable to access dyntext doc.\r\n", GET_MOB_VNUM(fate));
+		sprintf(buf,"SYSERR: Fate unable to access dyntext doc.(%s)\r\n", dyn_name);
 		slog(buf);
 		return 1;
 	}
-	// Grab the rooms out of the buffer
-	if(dyntext->buffer) {
-		roomlist_buf_top = new char[strlen(dyntext->buffer) + 1];
-		roomlist_buf = roomlist_buf_top;
-		strcpy(roomlist_buf,dyntext->buffer);
-	} else {
+	// If the file is null, return
+	if(!dyntext->buffer) {
 		do_say(fate,"Hmm... Where should I go to next?",0,0);
 		return 1;
 	}
+
+	// Grab the rooms out of the buffer
+	roomlist_buf_top = new char[strlen(dyntext->buffer) + 1];
+	roomlist_buf = roomlist_buf_top;
+	strcpy(roomlist_buf,dyntext->buffer);
+	
+	// Copy over the buf, ignoring all non numbers
 	while(*roomlist_buf) {
 		if(!isdigit(*roomlist_buf))
 			*roomlist_buf = ' ';
