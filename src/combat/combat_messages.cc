@@ -453,15 +453,15 @@ dam_message(int dam, struct Creature *ch, struct Creature *victim,
 			"$n utterly DEMOLISHES $N with $s unbelievable #w!!",	/* 10: 37..45 */
 		"You utterly DEMOLISH $N with your unbelievable #w!!",
 				"$n utterly DEMOLISHES you with $s unbelievable #w!!"}, {
-			"$n PULVERIZES $N with $s viscious #w!!",	/* 11: 46..69 */
-		"You PULVERIZE $N with your viscious #w!!",
-				"$n PULVERIZES you with $s viscious #w!!"}, {
+			"$n PULVERIZES $N with $s vicious #w!!",	/* 11: 46..69 */
+		"You PULVERIZE $N with your vicious #w!!",
+				"$n PULVERIZES you with $s vicious #w!!"}, {
 			"$n *DECIMATES* $N with $s horrible #w!!",	/* 12: 70..99 */
 		"You *DECIMATE* $N with your horrible #w!!",
 				"$n *DECIMATES* you with $s horrible #w!!"}, {
-			"$n *LIQUIFIES* $N with $s incredibly viscious #w!!",	/* 13: 100-139 */
-		"You **LIQUIFY** $N with your incredibly viscious #w!!",
-				"$n *LIQUIFIES* you with $s incredibly viscious #w!!"}, {
+			"$n *LIQUIFIES* $N with $s incredibly vicious #w!!",	/* 13: 100-139 */
+		"You **LIQUIFY** $N with your incredibly vicious #w!!",
+				"$n *LIQUIFIES* you with $s incredibly vicious #w!!"}, {
 			"$n **VAPORIZES** $N with $s terrible #w!!",	/* 14: 14-189 */
 		"You **VAPORIZE** $N with your terrible #w!!",
 				"$n **VAPORIZES** you with $s terrible #w!!"}, {
@@ -615,9 +615,9 @@ dam_message(int dam, struct Creature *ch, struct Creature *victim,
 			"$n deals a DEMOLISHING #w to your #p!!"},
 
 		{
-				"$n PULVERIZES $N's #p with $s viscious #w!!",	/* 11: 46..69 */
-				"You PULVERIZE $N's #p with your viscious #w!!",
-			"$n PULVERIZES your #p with $s viscious #w!!"},
+				"$n PULVERIZES $N's #p with $s vicious #w!!",	/* 11: 46..69 */
+				"You PULVERIZE $N's #p with your vicious #w!!",
+			"$n PULVERIZES your #p with $s vicious #w!!"},
 
 		{
 				"$n *DECIMATES* $N's #p with $s horrible #w!!",	/* 12: 70..99 */
@@ -625,9 +625,9 @@ dam_message(int dam, struct Creature *ch, struct Creature *victim,
 			"$n *DECIMATES* your #p with $s horrible #w!!"},
 
 		{
-				"$n *LIQUIFIES* $N's #p with $s viscious #w!!",	/* 13: 100-139 */
-				"You **LIQUIFY** $N's #p with your viscious #w!!",
-			"$n *LIQUIFIES* your #p with $s viscious #w!!"},
+				"$n *LIQUIFIES* $N's #p with $s vicious #w!!",	/* 13: 100-139 */
+				"You **LIQUIFY** $N's #p with your vicious #w!!",
+			"$n *LIQUIFIES* your #p with $s vicious #w!!"},
 
 		{
 				"$n **VAPORIZES** $N's #p with $s terrible #w!!",	/* 14: 14-189 */

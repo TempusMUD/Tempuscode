@@ -541,7 +541,7 @@ show_race_help(struct descriptor_data *d, int race, int timeframe)
 			("   Half-Orcs are the result of a cross breeding of an orc and human,\r\n"
 			"the father usually being the orc.  The other races usually hate\r\n"
 			"half-orcs, but tolerate them.  Half-orcs are especially strong\r\n"
-			"and viscious, but have no magical abilities.  They are able to see\r\n"
+			"and vicious, but have no magical abilities.  They are able to see\r\n"
 			"in the dark, and are able to take a lot of abuse.\r\n"
 			"Half-Orcs cannot be Clerics, Mages, Knights, Monks, or Rangers.\r\n",
 			d);
