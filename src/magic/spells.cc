@@ -3419,7 +3419,7 @@ ASPELL(spell_distraction)
 		return;
 	}
 
-	if (!MEMORY(victim)) {
+	if (!MEMORY(victim) && !HUNTING(victim)) {
 		send_to_char(ch, "Nothing happens.\r\n");
 		return;
 	}
@@ -3429,6 +3429,7 @@ ASPELL(spell_distraction)
 		free(curr);
 	}
 	MEMORY(victim) = NULL;
+	HUNTING(victim) = NULL;
 
 	gain_skill_prof(ch, SPELL_DISTRACTION);
 
