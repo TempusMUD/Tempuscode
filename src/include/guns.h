@@ -31,6 +31,7 @@ void show_gun_status(struct char_data *ch, struct obj_data *gun);
 #define MAX_LOAD(gun)            (GET_OBJ_VAL(gun, 2))
 #define BUL_DAM_MOD(gun)         (GET_OBJ_VAL(gun, 2))
 #define IS_GUN(gun)              (GET_OBJ_TYPE(gun) == ITEM_GUN)
+#define IS_ANY_GUN(gun)          (IS_GUN(gun) || IS_ENERGY_GUN(gun))
 #define IS_BULLET(gun)           (GET_OBJ_TYPE(gun) == ITEM_BULLET)
 #define IS_CLIP(gun)             (GET_OBJ_TYPE(gun) == ITEM_CLIP)
 
