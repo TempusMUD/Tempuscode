@@ -554,6 +554,7 @@ int CHECK_SKILL(struct char_data *ch, int i);
 #define IS_EVIL(ch)    (GET_ALIGNMENT(ch) <= -350)
 #define IS_NEUTRAL(ch) (!IS_GOOD(ch) && !IS_EVIL(ch))
 #define IS_SICK(ch)    (IS_AFFECTED_3(ch, AFF3_SICKNESS))
+#define IS_HAMSTRUNG(ch)    (IS_AFFECTED_3(ch, AFF3_HAMSTRUNG))
 #define HAS_POISON_1(ch) (IS_AFFECTED(ch, AFF_POISON))
 #define HAS_POISON_2(ch) (IS_AFFECTED_3(ch, AFF3_POISON_2))
 #define HAS_POISON_3(ch) (IS_AFFECTED_3(ch, AFF3_POISON_3))

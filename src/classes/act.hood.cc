@@ -19,6 +19,10 @@
 #include "guns.h"
 #include "bomb.h"
 
+ 
+int apply_soil_to_char(struct char_data *ch,struct obj_data *obj,int type,int pos);
+void add_blood_to_room(struct room_data *rm, int amount);
+
 
 ACMD(do_hamstring)
 {
@@ -73,30 +77,51 @@ ACMD(do_hamstring)
 	if (!peaceful_room_ok(ch, vict, true))
 		return;
 
-	percent = (GET_LEVEL(vict) + GET_DEX(vict) 
-				+ number(1,GET_DEX(vict)));
-	prob = (GET_LEVEL(ch) + GET_DEX(ch) + GET_REMORT_GEN(ch))
-			* CHECK_SKILL(ch, SKILL_HAMSTRING)/100;
+	prob = CHECK_SKILL(ch,SKILL_HAMSTRING) + GET_REMORT_GEN(ch);
+	percent = number (0,101);
+	if(affected_by_spell(vict,ZEN_AWARENESS)) {
+		percent += 20;
+	}
+	if ( AFF2_FLAGGED(vict, AFF2_HASTE) && !AFF2_FLAGGED(ch, AFF2_HASTE) ) {
+		percent += 20;
+	}
 
-	if (IS_PUDDING(vict) || IS_SLIME(vict))
-	prob = 0;
+	if ( GET_DEX(ch) > GET_DEX(vict) ) {
+		prob += 3 * (GET_DEX(ch) - GET_DEX(vict));
+	} else {
+		percent += 3 * (GET_DEX(vict) - GET_DEX(ch));
+	}
+
+	if ( GET_LEVEL(ch) > GET_LEVEL(vict) ) {
+		prob += GET_LEVEL(ch) - GET_LEVEL(vict);
+	} else {
+		percent += GET_LEVEL(vict) - GET_LEVEL(ch);
+	}
+	
+	if (   IS_PUDDING(vict)|| IS_SLIME(vict)
+		|| NON_CORPOREAL_UNDEAD(vict) || IS_ELEMENTAL(vict))
+		prob = 0;
+	if ( CHECK_SKILL(ch, SKILL_HAMSTRING) < 30 ) {
+		prob = 0;
+	}
 
 	cur_weap = weap;
 	if (percent > prob) {
 		damage(ch, vict, 0, SKILL_HAMSTRING, WEAR_LEGS);
 	} else {
-		dam = dice(GET_LEVEL(ch), 17 + GET_REMORT_GEN(ch)/2);
-		damage(ch, vict, dam, SKILL_HAMSTRING, WEAR_HEAD);
-		gain_skill_prof(ch, SKILL_HAMSTRING);
-		if(!affected_by_spell(vict, SKILL_HAMSTRING)) {
+		int level = 0, gen = 0;
+		level = GET_LEVEL(ch);
+		gen = GET_REMORT_GEN(ch);
+		dam = dice(level, 20 + gen/2);
+		if(!affected_by_spell(vict,SKILL_HAMSTRING)) {
 			af.type = SKILL_HAMSTRING;
-			af.bitvector = 0;
-			af.level = GET_LEVEL(ch) + GET_REMORT_GEN(ch);
-			af.duration = GET_LEVEL(ch) / 10;
+			af.bitvector = AFF3_HAMSTRUNG;
+			af.aff_index = 3;
+			af.level = level + gen;
+			af.duration = level + gen  / 10;
 			af.location = APPLY_DEX;
-			af.modifier = 
-			- ( GET_LEVEL(ch)/2 + dice(7,7) + dice(GET_REMORT_GEN(ch),5))
-				/ 10  * CHECK_SKILL(ch,SKILL_HAMSTRING)/100;
+			af.modifier = - 1 * (( level/2 + dice(7,7) + dice(gen,5)) / 10) 
+							  * (CHECK_SKILL(ch,SKILL_HAMSTRING)/100);
 			affect_to_char(vict, &af);
 			WAIT_STATE(vict, 6 RL_SEC);
 			GET_POS(vict) = POS_RESTING;
@@ -104,6 +129,11 @@ ACMD(do_hamstring)
 			WAIT_STATE(vict, 3 RL_SEC);
 			GET_POS(vict) = POS_SITTING;
 		}
+		add_blood_to_room(vict->in_room,1);
+		apply_soil_to_char(ch, GET_EQ(vict,WEAR_LEGS), SOIL_BLOOD, WEAR_LEGS);
+		apply_soil_to_char(ch, GET_EQ(vict,WEAR_FEET), SOIL_BLOOD, WEAR_FEET);
+		damage(ch, vict, dam, SKILL_HAMSTRING, WEAR_LEGS);
+		gain_skill_prof(ch, SKILL_HAMSTRING);
 	}
 	WAIT_STATE(ch, 2 RL_SEC);
 }

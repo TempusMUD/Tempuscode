@@ -1019,6 +1019,7 @@ extern const char *affected3_bits[]=
   "PSY CRUSH",
   "2xDAM",
   "ACID",
+  "HAMSTRING",
   "\n"
 };  
 
@@ -1044,6 +1045,7 @@ extern const char *affected3_bits_desc[] = {
   "psychic_crush",
   "double_damage",
   "acidity",
+  "hamstring",
   "\n"
 };
 
@@ -2241,7 +2243,8 @@ extern const char *spell_wear_off_msg[] = {
   "!UNUSED!","!UNUSED!","!UNUSED!","!UNUSED!","!UNUSED!",   /* 655 */
   "!UNUSED!","!UNUSED!","!UNUSED!","!UNUSED!","!UNUSED!",   /* 660 */
   "!UNUSED!","!UNUSED!","!UNUSED!","!UNUSED!","!UNUSED!",   /* 665 */
-  "!UNUSED!","!UNUSED!","!UNUSED!","!UNUSED!","!UNUSED!",   /* 670 */
+  "The wound in your leg seems to have closed.",
+  			 "!UNUSED!","!UNUSED!","!UNUSED!","!UNUSED!",   /* 670 */
   "!UNUSED!","!UNUSED!","!UNUSED!","!UNUSED!","!UNUSED!",   /* 675 */
   "!UNUSED!","!UNUSED!","!UNUSED!","!UNUSED!","!UNUSED!",   /* 680 */
   "!UNUSED!","!UNUSED!","!UNUSED!","!UNUSED!","!UNUSED!",   /* 685 */

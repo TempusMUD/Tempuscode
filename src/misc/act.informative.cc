@@ -2250,6 +2250,15 @@ print_affs_to_string(struct char_data *ch, char *str, byte mode)
 	       "You are surrounded by an magical obscurement shroud.\r\n");
     if (IS_SICK(ch))
 	strcat(str, "You are afflicted with a terrible sickness!\r\n");
+	if (IS_AFFECTED_3(ch, AFF3_HAMSTRUNG)){
+		char tempstr[128];
+		tempstr[0] = '\0';
+        sprintf( tempstr, "%sThe gash on your leg is %sBLEEDING%s%s all over!!%s\r\n",
+             CCRED( ch, C_SPR ), CCBLD( ch, C_SPR ), CCNRM( ch, C_SPR ),
+             CCRED( ch, C_SPR ), CCNRM( ch, C_SPR ) );
+
+		strcat(str,tempstr);
+	}
 }
 
 ACMD(do_affects)

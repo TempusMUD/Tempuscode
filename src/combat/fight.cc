@@ -610,12 +610,12 @@ make_corpse( struct char_data *ch,struct char_data *killer,int attacktype )
         if ( GET_EQ( ch, WEAR_FEET) )
         obj_to_room( unequip_char( ch, WEAR_FEET, MODE_EQ ), ch->in_room );
         
-        /** transfer implants to leg **/
-        if ( GET_IMPLANT( ch, WEAR_LEGS) ) {
+        /** transfer implants to leg or corpse randomly**/
+        if ( GET_IMPLANT( ch, WEAR_LEGS) && number(0,1)) {
         obj_to_obj( unequip_char( ch, WEAR_LEGS, MODE_IMPLANT ), leg );
         REMOVE_BIT( GET_OBJ_WEAR( leg ), ITEM_WEAR_TAKE );
         }
-        if ( GET_IMPLANT( ch, WEAR_FEET) ) {
+        if ( GET_IMPLANT( ch, WEAR_FEET) && number(0,1)) {
         obj_to_obj( unequip_char( ch, WEAR_FACE, MODE_IMPLANT ), leg );
         REMOVE_BIT( GET_OBJ_WEAR( leg ), ITEM_WEAR_TAKE );
         }
@@ -2668,12 +2668,12 @@ damage( struct char_data * ch, struct char_data * victim, int dam,
 	location = WEAR_HEAD;
 
     if ( attacktype == TYPE_ACID_BURN && location == -1 ) {
-	for ( i = 0; i < NUM_WEARS; i++ ) {
-	    if ( GET_EQ( ch, i ) )
-		damage_eq( ch, GET_EQ( ch, i ), ( dam >> 1 ) );
-	    if ( GET_IMPLANT( ch, i ) )
-		damage_eq( ch, GET_IMPLANT( ch, i ), ( dam >> 1 ) );
-	}
+		for ( i = 0; i < NUM_WEARS; i++ ) {
+			if ( GET_EQ( ch, i ) )
+			damage_eq( ch, GET_EQ( ch, i ), ( dam >> 1 ) );
+			if ( GET_IMPLANT( ch, i ) )
+			damage_eq( ch, GET_IMPLANT( ch, i ), ( dam >> 1 ) );
+		}
     }
 
     /** check for armor **/
@@ -3031,6 +3031,10 @@ damage( struct char_data * ch, struct char_data * victim, int dam,
     case TYPE_FREEZING:
 	if ( CHAR_WITHSTANDS_COLD( victim ) )
 	    dam >>= 1; 
+	break;
+	case TYPE_BLEED:
+		if( !CHAR_HAS_BLOOD(victim) )
+			dam = 0;
 	break;
     case SPELL_STEAM_BREATH:
     case TYPE_BOILING_PITCH:

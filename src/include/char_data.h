@@ -434,7 +434,8 @@
 #define AFF3_PSYCHIC_CRUSH      (1 << 18)
 #define AFF3_DOUBLE_DAMAGE      (1 << 19)
 #define AFF3_ACIDITY            (1 << 20)
-#define NUM_AFF3_FLAGS          21
+#define AFF3_HAMSTRUNG		    (1 << 21)    /* Bleeding badly from the leg */
+#define NUM_AFF3_FLAGS          22
 
 #define ARRAY_AFF_1        1
 #define ARRAY_AFF_2        2

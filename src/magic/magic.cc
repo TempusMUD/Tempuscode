@@ -265,7 +265,8 @@ affect_update(void)
     static struct affected_type *af, *next;
     static struct char_data *i;
     int found = 0;
-    char assimilate_found = 0, beserk_found = 0, kata_found = 0;
+    char assimilate_found = 0, beserk_found = 0, \
+		kata_found = 0,hamstring_found = 0;
     int METABOLISM = 0;
     ACMD(do_stand);
 
@@ -338,9 +339,11 @@ affect_update(void)
 		    beserk_found++;
 		else if (af->type == SKILL_KATA)
 		    kata_found++;
-		else if (af->type == SKILL_ASSIMILATE) {
+		else if (af->type == SKILL_ASSIMILATE) 
 		    assimilate_found++;
-		}
+		else if (af->type == SKILL_HAMSTRING)
+			hamstring_found++;
+		
 		// pull the affect off
 		affect_remove(i, af);
 	    }
@@ -355,6 +358,8 @@ affect_update(void)
 		send_to_char("You are no longer beserk.\r\n", i);
 	    if (kata_found)
 		send_to_char("Your kata has worn off.\r\n", i);
+		if (hamstring_found)
+		send_to_char("The wound in your leg seems to have closed.\r\n",i);
 	    
 	}
     }
@@ -1533,13 +1538,22 @@ mag_affects(int level, struct char_data * ch, struct char_data * victim,
 	break;
 
     case SPELL_CELL_REGEN:
-	if (level + GET_CON(victim) > number(34, 70))
-	    af.bitvector = AFF_REGEN;
-    
-	af.location = APPLY_CON;
-	af.modifier = 1;
-	af.duration = dice(1, 1 + (level >> 3));
-	to_vict = "Your cell regeneration rate increases.";
+	{
+		if (level + GET_CON(victim) > number(34, 70))
+			af.bitvector = AFF_REGEN;
+		
+		af.location = APPLY_CON;
+		af.modifier = 1;
+		af.duration = dice(1, 1 + (level >> 3));
+		to_vict = "Your cell regeneration rate increases.";
+		
+		if (affected_by_spell(victim, SKILL_HAMSTRING)) {
+			affect_from_char(victim, SKILL_HAMSTRING);
+			act("The wound on your leg closes!", FALSE, victim, 0, ch, TO_CHAR);
+			act("The gaping wound on $n's leg closes.", TRUE, victim, 0, ch, TO_ROOM);
+		}
+	
+	}
 	break;
 
     case SPELL_PSISHIELD:
@@ -2449,6 +2463,9 @@ mag_unaffects(int level, struct char_data * ch, struct char_data * victim,
 	spell2 = SKILL_GOUGE;
 	to_vict2 = "Your vision returns!";
 	to_room2 = "There's a momentary gleam in $n's eyes.";
+	spell3 = SKILL_HAMSTRING;
+	to_vict3 = "The wound on your leg closes!";
+	to_room3 = "The gaping wound on $n's leg closes.";
 	if (spellnum == SPELL_GREATER_HEAL) {
 	    spell = SPELL_POISON;
 	    to_vict = "A warm feeling runs through your body!";

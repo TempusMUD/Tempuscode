@@ -30,6 +30,7 @@
 #include "house.h"
 #include "vehicle.h"
 #include "materials.h"
+#include "fight.h"
 
 /* external vars  */
 extern struct char_data *character_list;
@@ -53,6 +54,7 @@ int general_search(struct char_data *ch, struct special_search_data *srch,int mo
 void update_trail(struct char_data *ch, struct room_data *rm, int dir, int j);
 int apply_soil_to_char(struct char_data *ch,struct obj_data *obj,int type,int pos);
 int mag_manacost(struct char_data * ch, int spellnum);
+void add_blood_to_room(struct room_data *rm, int amount);
 
 #define DOOR_IS_OPENABLE(ch, obj, door)	\
 ((obj) ? \
@@ -700,6 +702,10 @@ do_simple_move(struct char_data * ch, int dir, int mode, int need_specials_check
 	    else
 		sprintf(buf, "$n arrives from what appears to be %s.",
 			from_dirs[dir]);
+	} else if ( GET_POS(ch) == POS_STANDING 
+				&& IS_AFFECTED_3(ch, AFF3_HAMSTRUNG)) {
+		sprintf(buf,"$n limps in from the %s, bleeding profusely.",from_dirs[dir]);
+		add_blood_to_room(ch->in_room,1);
 	} else if (IS_AFFECTED_2(ch, AFF2_ABLAZE)) {
 	    sprintf(buf,"$n staggers in from %s, covered in flames.",from_dirs[dir]);
 	} else if (GET_COND(ch, DRUNK) > 8) {
@@ -851,7 +857,10 @@ do_simple_move(struct char_data * ch, int dir, int mode, int need_specials_check
   
     if (ch->desc)
 	look_at_room(ch, ch->in_room, 0);
-
+	if (GET_POS(ch) == POS_STANDING && IS_AFFECTED_3(ch, AFF3_HAMSTRUNG)) {
+		damage(0,ch,dice(2,8),TYPE_BLEED,0);
+		send_to_char("The gash in your leg opens up, bleeding everywhere!\r\n",ch);
+	}
     if (ch->in_room->sector_type == SECT_UNDERWATER) {
 	if (was_in->sector_type != SECT_UNDERWATER &&
 	    was_in->sector_type != SECT_WATER_NOSWIM) {

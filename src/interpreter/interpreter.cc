@@ -718,7 +718,7 @@ extern const struct command_info cmd_info[] = {
     { "hide"     , POS_RESTING , do_hide     , 1, 0 },
     { "hit"      , POS_FIGHTING, do_hit      , 0, SCMD_HIT },
     { "hiptoss"  , POS_FIGHTING, do_offensive_skill , 0, SKILL_HIP_TOSS },
-    { "hamstring", POS_FIGHTING, do_hamstring, 0, SKILL_HAMSTRING },
+    { "hamstring", POS_STANDING, do_hamstring, 0, SKILL_HAMSTRING },
     { "hmmm"     , POS_RESTING , do_action   , 0, 0 },
     { "hold"     , POS_RESTING , do_grab     , 1, 0 },
     { "holler"   , POS_RESTING , do_gen_comm , 1, SCMD_HOLLER },

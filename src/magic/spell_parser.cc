@@ -3052,8 +3052,8 @@ mag_assign_spells(void)
  * 0's.
  */
 
-         /* Ma Cl  Th Wa  Br Syk Ph Cyb Kni Rn Hd Mnk vm mr 1 2 3*/
-    spello(SKILL_HAMSTRING, X, X, X, X, X, X, X, X, X,  X, X, X, X,X,X,X,X,
+                        /* Ma Cl Th Wa Br Ps Ph Cyb Kni Rn Hd Mnk vm mr 1 2 3*/
+    spello(SKILL_HAMSTRING, X, X, X, X, X, X, X, X, X,  X, 32, X, X,X,X,X,X,
 	   0, 0, 0, 0, 0, 0, 0);
     spello(SKILL_ARCHERY, X, X, 14, 5, 24, X, X,  X,  X,  9, X, X, X, 10,X,X, X,
 	   0, 0, 0, 0, 0, 0, 0);
@@ -3102,8 +3102,8 @@ mag_assign_spells(void)
     spello(SKILL_FEIGN, X, X, 25, X,  X, X, X,  X, X, X, X, X, X,X,X,X,X,
 	   0, 0, 0, 0, 0, 0, 0);
 
-    /* Ma  Cl  Th  Wa Bar Syk Ph Cyb Kni Ran Hood Bnt */
-    spello(SKILL_CONCEAL, X, X, 15, X,  X, X, X,  X, X, X, X, X, X,1, X,X,X,
+                      /* Ma Cl  Th  Wa Bar Syk Ph Cyb Kni Ran Hood Bnt */
+    spello(SKILL_CONCEAL, X, X, 15, X,  X, X,  X,  X, X,  X,  16, X, X,1, X,X,X,
 	   0, 0, 0, 0, 0, 0, 0);
 
     spello(SKILL_PLANT, X, X, 20, X,  X, X, X,  X, X, X, X, X, X,40, X,X,X,
@@ -3193,8 +3193,8 @@ mag_assign_spells(void)
     spello(SKILL_BITE, X, X, X, X, X, X, X, X, X, 5, X, X, X,X,X,X,X,
 	   0, 0, 0, 0, 0, 0, 0);
  
-    /* Ma Cl Th Wa Ba Sy Ph Cy Kn  Rn  Hd Mn  V Mr*/
-    spello(SKILL_DBL_ATTACK, X, X, 45,30,37, X, X, X,25, 30, X, 24, X,27, X,X,X,
+                         /* Ma Cl Th Wa Ba Sy Ph Cy Kn  Rn  Hd Mn  V Mr*/
+    spello(SKILL_DBL_ATTACK, X, X,45,30,37, X, X, X,25, 30, 42, 24, X,27, X,X,X,
 	   0, 0, 0, 0, 0, 0, 0);
  
     spello(SKILL_NIGHT_VISION, X, X, X,  X,  X, X,  X, X, X, 2, X, X, X,X,X,X,X,
@@ -3308,11 +3308,11 @@ mag_assign_spells(void)
 
     spello(SKILL_TRIPLE_ATTACK, X, X, X, 40, 48, X, X, X, 45, 43,X,41,X,46,X,X,X,
 	   0, 0, 0, 0, 0, 0, 0);
-    /* Ma Cl Th Wa Ba Sy Ph C Kn Rn Hd Mk Vm Mr 1 2 3 */
     spello(SKILL_SWIMMING, 1, 1, 1, 1, 1, 2, 1, X, 1, 1, 1, 7, X,2, X,X,X,
 	   0, 0, 0, 0, 0, 0, 0);
 
-    spello(SKILL_THROWING, X, X, 7, 5, 15, X, X, X, X, 9, X, X, X,5,X,X,X,
+                       /* Ma Cl Th Wa Ba Sy Ph  C Kn Rn Hd Mk Vm Mr 1 2 3 */
+    spello(SKILL_THROWING, X, X, 7,5, 15, X, X, X, X, 9, 3, X, X,5,X,X,X,
 	   0, 0, 0, 0, 0, 0, 0);
 
     spello(SKILL_RIDING, 1, 1, 1, 1, 1, X, X, X, 1, 1, X, X, X,X,X,X,X,
