@@ -373,6 +373,24 @@ perform_group(struct Creature *ch, struct Creature *vict)
 	return 1;
 }
 
+const char *
+desc_exp_tnl(Creature *ch)
+{
+	long tnl;
+	
+	if (GET_LEVEL(ch) > 49 || IS_NPC(ch))
+		return "";
+
+	tnl = exp_scale[GET_LEVEL(ch) + 1] - GET_EXP(ch);
+	if (tnl < 0)
+		return "can remort";
+	if (tnl > 1000000)
+		return tmp_sprintf("%ldmil tnl", tnl / 1000000);
+	if (tnl > 1000)
+		return tmp_sprintf("%ldk tnl", tnl / 1000);
+	
+	return tmp_sprintf("%ld tnl", tnl);
+}
 
 void
 print_group(struct Creature *ch)
@@ -389,10 +407,15 @@ print_group(struct Creature *ch)
 
 		if (IS_AFFECTED(k, AFF_GROUP)) {
 			sprintf(buf,
-				"     %s[%s%4dH %4dM %4dV %4dA%s]%s %s[%s%2d %s%s]%s $N %s(%sHead of group%s)%s",
-				CCGRN(ch, C_NRM), CCNRM(ch, C_NRM), GET_HIT(k), GET_MANA(k),
-				GET_MOVE(k), GET_ALIGNMENT(k), CCGRN(ch, C_NRM), CCNRM(ch, C_NRM), CCRED(ch,
-					C_NRM), CCNRM(ch, C_NRM), GET_LEVEL(k), CLASS_ABBR(k),
+				"     %s[%s%4dH %4dM %4dV %4dA%s]%s %s[%s%10s%s]%s %s[%s%2d %s%s]%s $N %s(%sHead of group%s)%s",
+				CCGRN(ch, C_NRM), CCNRM(ch, C_NRM),
+				GET_HIT(k), GET_MANA(k), GET_MOVE(k), GET_ALIGNMENT(k),
+				CCGRN(ch, C_NRM), CCNRM(ch, C_NRM),
+				CCGRN(ch, C_NRM), CCNRM(ch, C_NRM),
+				desc_exp_tnl(k),
+				CCGRN(ch, C_NRM), CCNRM(ch, C_NRM),
+				CCRED(ch, C_NRM), CCNRM(ch, C_NRM),
+				GET_LEVEL(k), CLASS_ABBR(k),
 				CCRED(ch, C_NRM), CCNRM(ch, C_NRM), CCBLU(ch, C_NRM), CCCYN(ch,
 					C_NRM), CCBLU(ch, C_NRM), CCNRM(ch, C_NRM));
 			act(buf, FALSE, ch, 0, k, TO_CHAR | TO_SLEEP);
@@ -402,10 +425,13 @@ print_group(struct Creature *ch)
 			if (!IS_AFFECTED(f->follower, AFF_GROUP))
 				continue;
 
-			sprintf(buf, "     %s[%s%4dH %4dM %4dV %4dA%s]%s %s[%s%2d %s%s]%s $N",
+			sprintf(buf, "     %s[%s%4dH %4dM %4dV %4dA%s]%s %s[%s%10s%s]%s %s[%s%2d %s%s]%s $N",
 				CCGRN(ch, C_NRM), CCNRM(ch, C_NRM),
 				GET_HIT(f->follower), GET_MANA(f->follower),
 				GET_MOVE(f->follower), GET_ALIGNMENT(f->follower),
+				CCGRN(ch, C_NRM), CCNRM(ch, C_NRM),
+				CCGRN(ch, C_NRM), CCNRM(ch, C_NRM),
+				desc_exp_tnl(f->follower),
 				CCGRN(ch, C_NRM), CCNRM(ch, C_NRM),
 				CCRED(ch, C_NRM), CCNRM(ch, C_NRM), GET_LEVEL(f->follower),
 				CLASS_ABBR(f->follower), CCRED(ch, C_NRM), CCNRM(ch, C_NRM));
