@@ -618,6 +618,8 @@ ACMD(do_use)
 {
     struct obj_data *mag_item;
     int equipped = 1;
+	char arg1[256];
+	char_data *vict = NULL;
 
     half_chop(argument, arg, buf);
     if (!*arg) {
@@ -711,6 +713,19 @@ ACMD(do_use)
 	if (GET_OBJ_TYPE(mag_item) != ITEM_SYRINGE) {
 	    send_to_char("You can only inject with syringes.\r\n", ch);
 	    return;
+	}
+	one_argument(buf,arg1);
+	fprintf(stderr,"bug = %s, arg1 = %s\r\n",buf,arg1);
+	if((vict = get_char_room(arg1,ch->in_room)) &&
+		(affected_by_spell(vict, SPELL_STONESKIN) ||
+		(affected_by_spell(vict, SPELL_DERMAL_HARDENING) && random_binary()) &&
+		(affected_by_spell(vict, SPELL_BARKSKIN) && random_binary()))){
+		 act("$p breaks.", TRUE, ch, mag_item, vict, TO_CHAR);
+		 act("$n breaks $p on your arm!", TRUE, ch,mag_item, vict, TO_VICT);
+		 act("$n breaks $p on $N's arm!", TRUE, ch,mag_item, vict, TO_NOTVICT);
+		 unequip_char(ch,mag_item->worn_on, MODE_EQ);
+		 mag_item->obj_flags.damage = 0;
+		 return;
 	}
 	break;
     default:
