@@ -2523,7 +2523,7 @@ damage_eq( struct char_data *ch, struct obj_data *obj, int eq_dam )
 }
 
 //
-// damage(  ) returns TRUE on a kill, FALSE otherwise
+// damage( ) returns TRUE on a kill, FALSE otherwise
 // damage(  ) MUST return with DAM_RETURN(  ) macro !!!
 //
 
@@ -3929,7 +3929,7 @@ hit( struct char_data * ch, struct char_data * victim, int type )
     }
     if ( !IS_NPC( ch ) && GET_MOVE( ch ) > 20 ) {
 	GET_MOVE( ch )--;
-	if ( IS_DROW( ch ) & OUTSIDE( ch ) && PRIME_MATERIAL_ROOM( ch->in_room ) &&
+	if ( IS_DROW( ch ) && OUTSIDE( ch ) && PRIME_MATERIAL_ROOM( ch->in_room ) &&
 	     ch->in_room->zone->weather->sunlight == SUN_LIGHT )
 	    GET_MOVE( ch )--;
 	if ( IS_CYBORG( ch ) && GET_BROKE( ch ) )
@@ -3949,6 +3949,9 @@ perform_violence( void )
 
     for ( ch = combat_list; ch; ch = next_combat_list ) {
 	next_combat_list = ch->next_fighting;
+
+	if ( !ch->in_room || !FIGHTING( ch ) )
+	    continue;
 
 	if ( ch == FIGHTING( ch ) )  {       // intentional crash here.
 	    slog( "SYSERR: ch == FIGHTING( ch ) in perform_violence." );
@@ -4078,63 +4081,75 @@ perform_violence( void )
 	}
     
 	if ( MIN( 100, prob+15 ) >= die_roll ) {
-	    for ( i = 0; i < 4; i++ ) {
-			if ( !FIGHTING( ch ) || GET_LEVEL( ch ) < ( i << 3 ) )
-				break;
-			if ( GET_POS( ch ) < POS_FIGHTING ) {
-				if ( CHECK_WAIT( ch ) < 10 )
-				send_to_char( "You can't fight while sitting!!\r\n", ch );
-				break;
-			}
-			if ( prob >= number( ( i << 4 ) + ( i << 3 ), ( i << 5 ) + ( i << 3 ) ) )
-				hit( ch, FIGHTING( ch ), TYPE_UNDEFINED );
-		}
-		if ( IS_CYBORG( ch ) ) {
-			int implant_prob;
+	    bool stop = false;
 
-			if ( !FIGHTING( ch ) || GET_LEVEL( ch ) < ( i << 3 ) )
-				return;
-			if ( GET_POS( ch ) < POS_FIGHTING ) {
-				if ( CHECK_WAIT( ch ) < 10 )
-				send_to_char( "You can't fight while sitting!!\r\n", ch );
-				return;
-			}
-			if ( number(1,100) < CHECK_SKILL(ch, SKILL_ADV_IMPLANT_W ) ) {
-				implant_prob = 25;
-				if (CHECK_SKILL(ch, SKILL_ADV_IMPLANT_W) > 100) {
-					implant_prob += GET_REMORT_GEN(ch) + (CHECK_SKILL(ch, SKILL_ADV_IMPLANT_W) - 100)/2;
-				}
-				if(  number( 0 ,100 ) < implant_prob ) {
-					if ( PRF2_FLAGGED( ch, PRF2_FIGHT_DEBUG ) ) 
-					send_to_char("Attempting advanced implant weapon attack.\r\n",ch);
-					hit( ch, FIGHTING(ch), SKILL_ADV_IMPLANT_W);
-				}
-			}
-			if ( number(1,100) < CHECK_SKILL(ch, SKILL_IMPLANT_W ) ) {
-				implant_prob = 25;
-				if (CHECK_SKILL(ch, SKILL_IMPLANT_W) > 100) {
-					implant_prob += GET_REMORT_GEN(ch) + (CHECK_SKILL(ch, SKILL_IMPLANT_W) - 100)/2;
-				}
-				if(  number( 0 ,100 ) < implant_prob ) {
-					if ( PRF2_FLAGGED( ch, PRF2_FIGHT_DEBUG ) ) 
-					send_to_char("Attempting implant weapon attack.\r\n",ch);
-					hit( ch, FIGHTING(ch), SKILL_IMPLANT_W);
-				} 
-			}
+	    for ( i = 0; i < 4; i++ ) {
+		if ( !FIGHTING( ch ) || GET_LEVEL( ch ) < ( i << 3 ) )
+		    break;
+		if ( GET_POS( ch ) < POS_FIGHTING ) {
+		    if ( CHECK_WAIT( ch ) < 10 )
+			send_to_char( "You can't fight while sitting!!\r\n", ch );
+		    break;
 		}
-	return;
+		if ( prob >= number( ( i << 4 ) + ( i << 3 ), ( i << 5 ) + ( i << 3 ) ) ) {
+		    if ( hit( ch, FIGHTING( ch ), TYPE_UNDEFINED ) ) {
+			stop = true;
+			break;
+		    }
+		}
+	    }
+
+	    if ( stop )
+		continue;
+
+	    if ( IS_CYBORG( ch ) ) {
+		int implant_prob;
+
+		if ( !FIGHTING( ch ) || GET_LEVEL( ch ) < ( i << 3 ) )
+		    continue;
+		if ( GET_POS( ch ) < POS_FIGHTING ) {
+		    if ( CHECK_WAIT( ch ) < 10 )
+			send_to_char( "You can't fight while sitting!!\r\n", ch );
+		    continue;
+		}
+		if ( number(1,100) < CHECK_SKILL(ch, SKILL_ADV_IMPLANT_W ) ) {
+		    implant_prob = 25;
+		    if (CHECK_SKILL(ch, SKILL_ADV_IMPLANT_W) > 100) {
+			implant_prob += GET_REMORT_GEN(ch) + (CHECK_SKILL(ch, SKILL_ADV_IMPLANT_W) - 100)/2;
+		    }
+		    if(  number( 0 ,100 ) < implant_prob ) {
+			if ( PRF2_FLAGGED( ch, PRF2_FIGHT_DEBUG ) ) 
+			    send_to_char("Attempting advanced implant weapon attack.\r\n",ch);
+			if ( hit( ch, FIGHTING(ch), SKILL_ADV_IMPLANT_W) )
+			    continue;
+		    }
+		}
+		if ( number(1,100) < CHECK_SKILL(ch, SKILL_IMPLANT_W ) ) {
+		    implant_prob = 25;
+		    if (CHECK_SKILL(ch, SKILL_IMPLANT_W) > 100) {
+			implant_prob += GET_REMORT_GEN(ch) + (CHECK_SKILL(ch, SKILL_IMPLANT_W) - 100)/2;
+		    }
+		    if(  number( 0 ,100 ) < implant_prob ) {
+			if ( PRF2_FLAGGED( ch, PRF2_FIGHT_DEBUG ) ) 
+			    send_to_char("Attempting implant weapon attack.\r\n",ch);
+			if ( hit( ch, FIGHTING(ch), SKILL_IMPLANT_W) )
+			    continue;
+		    } 
+		}
+	    }
 	}
-	if ( IS_NPC( ch ) && ch->in_room && 
-	     GET_POS( ch ) == POS_FIGHTING && 
-	     GET_MOB_WAIT( ch ) <= 0 &&
-	     ( MIN( 100, prob ) >= number( 0, 300 ) ) ) {
-			if ( MOB_FLAGGED( ch, MOB_SPEC ) && ch->in_room &&
-			 ch->mob_specials.shared->func && !number( 0, 2 ) &&
-			 ( ch->mob_specials.shared->func ) ( ch, ch, 0, "", 0 ) )
-			return;
-			if ( ch->in_room && GET_MOB_WAIT( ch ) <= 0 && FIGHTING( ch ) )
-			mobile_battle_activity( ch ); 
-		}
+
+	else if ( IS_NPC( ch ) && ch->in_room && 
+		  GET_POS( ch ) == POS_FIGHTING && 
+		  GET_MOB_WAIT( ch ) <= 0 &&
+		  ( MIN( 100, prob ) >= number( 0, 300 ) ) ) {
+	    if ( MOB_FLAGGED( ch, MOB_SPEC ) && ch->in_room &&
+		 ch->mob_specials.shared->func && !number( 0, 2 ) &&
+		 ( ch->mob_specials.shared->func ) ( ch, ch, 0, "", 0 ) )
+		continue;
+	    if ( ch->in_room && GET_MOB_WAIT( ch ) <= 0 && FIGHTING( ch ) )
+		mobile_battle_activity( ch ); 
+	}
     }
 }
 
