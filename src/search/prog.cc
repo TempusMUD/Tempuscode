@@ -830,6 +830,8 @@ prog_free(struct prog_env *prog)
 		prev_prog->next = prog->next;
 	}
 
+	if (prog->evt.args)
+		free(prog->evt.args);
 	free(prog);
 }
 
@@ -881,10 +883,12 @@ trigger_prog_cmd(Creature *owner, Creature *ch, int cmd, char *argument)
 	prog_execute(env);
 	
 	evt.phase = PROG_EVT_HANDLE;
+	evt.args = strdup(argument);
 	handler_env = prog_start(PROG_TYPE_MOBILE, owner, ch, GET_MOB_PROG(owner), &evt);
 	prog_execute(handler_env);
 
 	evt.phase = PROG_EVT_AFTER;
+	evt.args = strdup(argument);
 	env = prog_start(PROG_TYPE_MOBILE, owner, ch, GET_MOB_PROG(owner), &evt);
 	// note that we don't start executing yet...
 
