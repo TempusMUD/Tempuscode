@@ -147,69 +147,7 @@ ASPELL(spell_recall)
 		return;
 	}
 
-	if (PLR_FLAGGED(victim, PLR_FROZEN))
-		load_room = r_frozen_start_room;
-	else if (PLR_FLAGGED(victim, PLR_LOADROOM)) {
-		if ((load_room = real_room(GET_LOADROOM(victim))) &&
-			(!House_can_enter(victim, load_room->number) ||
-				!clan_house_can_enter(victim, load_room)))
-			load_room = NULL;
-	}
-	if (load_room == NULL) {
-		if (GET_LEVEL(victim) >= LVL_AMBASSADOR) {
-			load_room = r_immort_start_room;
-		} else {
-			if (GET_HOME(victim) == HOME_NEWBIE_TOWER) {
-				if (GET_LEVEL(victim) > 5) {
-					population_record[HOME_NEWBIE_TOWER]--;
-					GET_HOME(victim) = HOME_MODRIAN;
-					population_record[HOME_MODRIAN]++;
-					load_room = r_mortal_start_room;
-				} else
-					load_room = r_tower_modrian_start_room;
-			} else if (GET_HOME(victim) == HOME_ELECTRO)
-				load_room = r_electro_start_room;
-			else if (GET_HOME(victim) == HOME_NEW_THALOS)
-				load_room = r_new_thalos_start_room;
-			else if (GET_HOME(victim) == HOME_ELVEN_VILLAGE)
-				load_room = r_elven_start_room;
-			else if (GET_HOME(victim) == HOME_ISTAN)
-				load_room = r_istan_start_room;
-			else if (GET_HOME(victim) == HOME_ARENA)
-				load_room = r_arena_start_room;
-			else if (GET_HOME(victim) == HOME_CITY)
-				load_room = r_city_start_room;
-			else if (GET_HOME(victim) == HOME_DOOM)
-				load_room = r_doom_start_room;
-			else if (GET_HOME(victim) == HOME_MONK)
-				load_room = r_monk_start_room;
-			else if (GET_HOME(victim) == HOME_SKULLPORT_NEWBIE)
-				load_room = r_skullport_newbie_start_room;
-			else if (GET_HOME(victim) == HOME_SOLACE_COVE)
-				load_room = r_solace_start_room;
-			else if (GET_HOME(victim) == HOME_MAVERNAL)
-				load_room = r_mavernal_start_room;
-			else if (GET_HOME(victim) == HOME_DWARVEN_CAVERNS)
-				load_room = r_dwarven_caverns_start_room;
-			else if (GET_HOME(victim) == HOME_HUMAN_SQUARE)
-				load_room = r_human_square_start_room;
-			else if (GET_HOME(victim) == HOME_SKULLPORT)
-				load_room = r_skullport_start_room;
-			else if (GET_HOME(victim) == HOME_DROW_ISLE)
-				load_room = r_drow_isle_start_room;
-			else if (GET_HOME(victim) == HOME_ASTRAL_MANSE)
-				load_room = r_astral_manse_start_room;
-			// zul dane
-			else if (GET_HOME(victim) == HOME_ZUL_DANE) {
-				// newbie start room for zul dane
-				if (GET_LEVEL(victim) > 5)
-					load_room = r_zul_dane_newbie_start_room;
-				else
-					load_room = r_zul_dane_start_room;
-			} else
-				load_room = r_mortal_start_room;
-		}
-	}
+    load_room = victim->getLoadroom();
 
 	if (!load_room || !victim->in_room) {
 		slog("SYSERR: NULL load_room or victim->in_room in spell_recall.");

@@ -969,7 +969,7 @@ struct char_data {
 	void setFighting(char_data * ch);
 	void extract(bool destroy_objs, bool save, int con_state);
 	void clearMemory();
-
+    room_data *getLoadroom(); // Retrieves the characters appropriate loadroom.
   public:						// ******  Data ****
 	int pfilepos;				/* playerfile pos          */
 	struct room_data *in_room;	/* Location (real room number)      */
