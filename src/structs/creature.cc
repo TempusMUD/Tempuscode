@@ -364,16 +364,15 @@ Creature::getLevelBonus(bool primary)
 {
 	int bonus = MIN(50, player.level + 1);
 	short gen;
+	short gen = char_specials.saved.remort_generation;
 
-	if (IS_NPC(this)) {
+	if( gen == 0 && IS_NPC(this) ) {
 		if ((player.remort_char_class % NUM_CLASSES) == 0) {
 			gen = 0;
 		} else {
 			gen = (aff_abils.intel + aff_abils.str + aff_abils.wis) / 3;
 			gen = MAX(0, gen - 18);
 		}
-	} else {
-		gen = char_specials.saved.remort_generation;	// Player generation
 	}
 
 	if (gen == 0) {
