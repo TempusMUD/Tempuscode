@@ -687,7 +687,7 @@ ACMD(do_gen_comm)
 	struct clan_data *clan;
 	char *plain_emit, *color_emit;
 	char *imm_plain_emit, *imm_color_emit;
-	const char *str, *sub_channel_desc;
+	const char *str, *sub_channel_desc, *mood_str;
 	int eff_is_neutral, eff_is_good, eff_is_evil, eff_class, eff_clan;
 
 	chan = &channels[subcmd];
@@ -931,15 +931,18 @@ ACMD(do_gen_comm)
 			chan->desc_color, sub_channel_desc, KNRM, chan->text_color,
 			argument, KNRM);
 	} else {
+		mood_str = GET_MOOD(ch) ? GET_MOOD(ch):"";
 		if (COLOR_LEV(ch) >= C_NRM)
-			send_to_char(ch, "%s%sYou %s,%s%s '%s'%s\r\n", chan->desc_color,
+			send_to_char(ch, "%s%sYou%s %s,%s%s '%s'%s\r\n", chan->desc_color,
 				(IS_IMMORT(ch) ? sub_channel_desc:""),
+				mood_str,
 				chan->name,
 				KNRM,
 				chan->text_color, argument, KNRM);
 		else
-			send_to_char(ch, "%sYou %s, '%s'\r\n",
+			send_to_char(ch, "%sYou%s %s, '%s'\r\n",
 				(IS_IMMORT(ch) ? sub_channel_desc:""),
+				mood_str,
 				chan->name,
 				argument);
 		// The emits are passed directly as the format string to
@@ -947,15 +950,19 @@ ACMD(do_gen_comm)
 		// doubled
 		argument = tmp_gsub(argument, "%", "%%");
 
-		plain_emit = tmp_sprintf("%%s %ss, '%s'\r\n", chan->name, argument);
-		color_emit = tmp_sprintf("%s%%s %ss,%s%s '%s'%s\r\n", chan->desc_color,
+		plain_emit = tmp_sprintf("%%s%s %ss, '%s'\r\n", chan->name,
+			mood_str, argument);
+		color_emit = tmp_sprintf("%s%%s%s %ss,%s%s '%s'%s\r\n",
+			chan->desc_color,
+			mood_str,
 			chan->name, KNRM, chan->text_color, argument, KNRM);
-		imm_plain_emit = tmp_sprintf("%s%%s %ss, '%s'\r\n",
+		imm_plain_emit = tmp_sprintf("%s%%s%s %ss, '%s'\r\n",
 			sub_channel_desc,
+			mood_str,
 			chan->name,
 			argument);
-		imm_color_emit = tmp_sprintf("%s%s%%s %ss,%s%s '%s'%s\r\n",
-			chan->desc_color, sub_channel_desc, chan->name, KNRM,
+		imm_color_emit = tmp_sprintf("%s%s%%s%s %ss,%s%s '%s'%s\r\n",
+			chan->desc_color, sub_channel_desc, mood_str, chan->name, KNRM,
 			chan->text_color, argument, KNRM);
 	}
 
