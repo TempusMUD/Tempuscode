@@ -913,7 +913,7 @@ struct char_data {
     }
     // Set position and Get position.
     // Set returns success or failure
-    bool setPosition( int new_pos );
+    bool setPosition( int new_pos, int mode=0 );
     // Get returns current pos
     int getPosition( void );
     

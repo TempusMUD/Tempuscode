@@ -105,9 +105,11 @@ update_pos( struct char_data * victim )
 			 ( IS_NPC( victim ) && GET_MOB_WAIT( victim ) <= 0 ) ) {
             if ( victim->getPosition() < POS_FIGHTING ) {
                 act( "$n scrambles to $s feet!", TRUE, victim, 0, 0, TO_ROOM );
+                victim->setPosition( POS_FIGHTING );
                 GET_MOB_WAIT( victim ) += PULSE_VIOLENCE;
+            } else {
+                victim->setPosition( POS_FIGHTING );
             }
-            victim->setPosition( POS_FIGHTING );
         } else {
 			return;
         }

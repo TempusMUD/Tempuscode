@@ -61,7 +61,8 @@ set_fighting( struct char_data * ch, struct char_data * vict, int aggr )
     combat_list = ch;
 
     FIGHTING( ch ) = vict;
-    ch->setPosition( POS_FIGHTING );
+    update_pos(ch);
+//    ch->setPosition( POS_FIGHTING );
   
     if ( aggr == TRUE && !IS_NPC( vict ) ) {
 
