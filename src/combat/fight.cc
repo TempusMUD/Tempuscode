@@ -869,6 +869,7 @@ damage(struct Creature *ch, struct Creature *victim, int dam,
     if (ch
 			&& IS_WEAPON(attacktype)
         	&& !SPELL_IS_PSIONIC(attacktype)
+            && !SPELL_IS_BARD(attacktype)
 			&& CHECK_SKILL(victim, SKILL_UNCANNY_DODGE) > 20
 			&& victim->getLevelBonus(SKILL_UNCANNY_DODGE) > number(0, 350)
 			&& victim->getPosition() >= POS_FIGHTING) {
@@ -885,6 +886,7 @@ damage(struct Creature *ch, struct Creature *victim, int dam,
     if (ch
 			&& IS_WEAPON(attacktype)
         	&& !SPELL_IS_PSIONIC(attacktype)
+            && !SPELL_IS_BARD(attacktype)
 			&& CHECK_SKILL(victim, SKILL_TUMBLING) > 20
 			&& victim->getLevelBonus(SKILL_TUMBLING) > number(0, 425)
 			&& victim->getPosition() >= POS_FIGHTING) {
@@ -1108,7 +1110,7 @@ damage(struct Creature *ch, struct Creature *victim, int dam,
 			(attacktype < MAX_SKILLS || attacktype >= TYPE_HIT) &&
 			(attacktype > MAX_SPELLS
 				|| IS_SET(spell_info[attacktype].routines, MAG_TOUCH))
-			&& !SPELL_IS_PSIONIC(attacktype)) {
+			&& !SPELL_IS_PSIONIC(attacktype) && !SPELL_IS_BARD(attacktype)) {
 
 			//
 			// vict has prismatic sphere
