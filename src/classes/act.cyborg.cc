@@ -133,10 +133,10 @@ perform_recharge(struct char_data *ch, struct obj_data *battery,
 	    }
 	}
     } else {
-	if (!amount)
-	    amount = MIN(GET_LEVEL(ch) + (GET_REMORT_GEN(ch) << 3), GET_MOVE(ch));
-	else
-	    amount = MIN(amount, GET_MOVE(ch));
+		if (!amount)
+			amount = MIN(GET_LEVEL(ch) + (GET_REMORT_GEN(ch) << 3), GET_MOVE(ch));
+		else
+			amount = MIN(amount, GET_MOVE(ch));
     }
 
     if (!engine && !vict) {
@@ -145,26 +145,26 @@ perform_recharge(struct char_data *ch, struct obj_data *battery,
     }
 
     if (vict) {
-	if (GET_MOVE(vict) + amount > GET_MAX_MOVE(vict))
-	    amount = GET_MAX_MOVE(vict) - GET_MOVE(vict);
-    
-	GET_MOVE(vict) = MIN(GET_MAX_MOVE(vict), GET_MOVE(vict) + amount);
+		if (GET_MOVE(vict) + amount > GET_MAX_MOVE(vict))
+			amount = GET_MAX_MOVE(vict) - GET_MOVE(vict);
+		
+		GET_MOVE(vict) = MIN(GET_MAX_MOVE(vict), GET_MOVE(vict) + amount);
 
-	if (battery)
-	    CUR_ENERGY(battery) = MAX(0, CUR_ENERGY(battery) -amount);
-	else
-	    GET_MOVE(ch) -= amount;
+		if (battery)
+			CUR_ENERGY(battery) = MAX(0, CUR_ENERGY(battery) -amount);
+		else
+			GET_MOVE(ch) -= amount;
 
     } else {  /** recharging an engine **/
 
-	if ((CUR_ENERGY(engine) + amount) > MAX_ENERGY(engine))
-	    amount = MAX_ENERGY(engine) - CUR_ENERGY(engine);
-	CUR_ENERGY(engine) = MIN(MAX_ENERGY(engine), CUR_ENERGY(engine) + amount);
+		if ((CUR_ENERGY(engine) + amount) > MAX_ENERGY(engine))
+			amount = MAX_ENERGY(engine) - CUR_ENERGY(engine);
+		CUR_ENERGY(engine) = MIN(MAX_ENERGY(engine), CUR_ENERGY(engine) + amount);
 
-	if (battery)
-	    CUR_ENERGY(battery) = MAX(0, CUR_ENERGY(battery) -amount);
-	else
-	    GET_MOVE(ch) -= amount;
+		if (battery)
+			CUR_ENERGY(battery) = MAX(0, CUR_ENERGY(battery) -amount);
+		else
+			GET_MOVE(ch) -= amount;
     }
     
     sprintf(buf, 
@@ -181,11 +181,11 @@ perform_recharge(struct char_data *ch, struct obj_data *battery,
 	    QCYN, vict ? GET_MOVE(vict) : CUR_ENERGY(engine), QNRM,
 	    QCYN, battery ? CUR_ENERGY(battery) : GET_MOVE(ch), QNRM);
     if (battery) {
-	if (GET_OBJ_TYPE(battery) == ITEM_BATTERY && COST_UNIT(battery)) {
-	    sprintf(buf, "%sYour cost: %d credits.\r\n", 
-		    buf, amount * COST_UNIT(battery));
-	    GET_CASH(ch) -= amount * COST_UNIT(battery);
-	}
+		if (GET_OBJ_TYPE(battery) == ITEM_BATTERY && COST_UNIT(battery)) {
+			sprintf(buf, "%sYour cost: %d credits.\r\n", 
+				buf, amount * COST_UNIT(battery));
+			GET_CASH(ch) -= amount * COST_UNIT(battery);
+		}
     }
     if ((battery && CUR_ENERGY(battery) <= 0) ||
 	(!battery && GET_MOVE(ch) <= 0))
@@ -205,31 +205,31 @@ perform_recharge(struct char_data *ch, struct obj_data *battery,
     WAIT_STATE(ch,wait);
 
     if (vict && vict != ch) {
-	if (battery) {
-	    act("$n recharges you with $p.", 
-		FALSE, ch, battery, vict, TO_VICT | TO_SLEEP);
-	    act("$n recharges $N with $p.", 
-		FALSE, ch, battery, vict, TO_NOTVICT);
-	} else {
-	    act("$n recharges you from $s internal power.", 
-		FALSE, ch, battery, vict, TO_VICT | TO_SLEEP);
-	    act("$n recharges $N from $s internal power.", 
-		FALSE, ch, battery, vict, TO_NOTVICT);
-	}      
+		if (battery) {
+			act("$n recharges you with $p.", 
+			FALSE, ch, battery, vict, TO_VICT | TO_SLEEP);
+			act("$n recharges $N with $p.", 
+			FALSE, ch, battery, vict, TO_NOTVICT);
+		} else {
+			act("$n recharges you from $s internal power.", 
+			FALSE, ch, battery, vict, TO_VICT | TO_SLEEP);
+			act("$n recharges $N from $s internal power.", 
+			FALSE, ch, battery, vict, TO_NOTVICT);
+		}      
     } else if (ch == vict) {
-	if (battery)
-	    act("$n recharges $mself from $p.",
-		FALSE, ch, battery, vict, TO_ROOM);      
-	else
-	    send_to_room("BING!  Something wierd just happened.\r\n", ch->in_room);
+		if (battery)
+			act("$n recharges $mself from $p.",
+			FALSE, ch, battery, vict, TO_ROOM);      
+		else
+			send_to_room("BING!  Something wierd just happened.\r\n", ch->in_room);
     } else if (engine) {
-	if (battery)
-	    act("$n recharges $p from $P.", TRUE, ch, engine, battery, TO_ROOM);
-	else
-	    act("$n recharges $p from $s internal supply", 
-		TRUE, ch, engine, vict, TO_ROOM);
+		if (battery)
+			act("$n recharges $p from $P.", TRUE, ch, engine, battery, TO_ROOM);
+		else
+			act("$n recharges $p from $s internal supply", 
+			TRUE, ch, engine, vict, TO_ROOM);
     }
-	if (GET_OBJ_TYPE(battery) == ITEM_BATTERY)
+	if (battery && GET_OBJ_TYPE(battery) == ITEM_BATTERY)
 		amount -= RECH_RATE(battery);
 	if (amount < 0) {amount = 0;}
 	amount -= amount * CHECK_SKILL(ch,SKILL_OVERDRAIN) / 125;
