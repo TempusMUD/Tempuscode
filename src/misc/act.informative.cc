@@ -2207,6 +2207,7 @@ acc_append_affects(struct Creature *ch, byte mode)
 	struct Creature *mob = NULL;
 	const char *name = NULL;
 	char *str = "";
+
     if (affected_by_spell(ch, SPELL_FIRE_BREATHING)) {
 		acc_strcat("You are empowered with breath of FIRE!\r\n", NULL);
     } else if (affected_by_spell(ch, SPELL_FROST_BREATHING)) {
@@ -2509,6 +2510,8 @@ acc_append_affects(struct Creature *ch, byte mode)
 		acc_strcat("You are feeling a strong bond with animals.\r\n", NULL);
     if (affected_by_spell(ch, SPELL_THORN_SKIN))
         acc_strcat("There are thorns protruding from your skin.\r\n", NULL);
+	if (affected_by_spell(ch, SKILL_NANITE_RECONSTRUCTION))
+		acc_strcat("Your implants are undergoing nanite reconstruction\r\n", NULL);
 }
 
 ACMD(do_affects)
