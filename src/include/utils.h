@@ -726,6 +726,7 @@ STRENGTH_APPLY_INDEX(Creature *ch)
 
 #define GET_OBJ_SPEC(obj) ((obj) ? (obj)->shared->func : NULL)
 #define GET_OBJ_PARAM(obj) ((obj) ? (obj)->shared->func_param : NULL)
+#define GET_OBJ_DATA(obj) ((obj) ? (obj)->func_data : NULL)
 
 #define OBJ_SOILAGE(obj)        (obj->soilage)
 #define OBJ_SOILED(obj, soil)    (IS_SET(OBJ_SOILAGE(obj), soil))
