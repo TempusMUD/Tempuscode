@@ -91,14 +91,16 @@ show_char_class_menu(struct descriptor_data *d, int timeframe = 0)
 		if (GET_CLASS(ch) != CLASS_BARB && race_restr[i][CLASS_BARB + 1])
 			sprintf(buf, "%s                %sBarbarian%s --  Uncivilized Warrior\r\n",
 				buf, CCGRN(d->character, C_NRM), CCCYN(d->character, C_NRM));
-		if (GET_CLASS(ch) != CLASS_KNIGHT && race_restr[i][CLASS_KNIGHT + 1])
+		if (GET_CLASS(ch) != CLASS_KNIGHT && GET_CLASS(ch) != CLASS_MONK &&
+				race_restr[i][CLASS_KNIGHT + 1])
 			sprintf(buf,
 				"%s                %sKnight%s    --  Defender of the Faith\r\n", buf,
 				CCGRN(d->character, C_NRM), CCCYN(d->character, C_NRM));
 		if (GET_CLASS(ch) != CLASS_RANGER && race_restr[i][CLASS_RANGER + 1])
 			sprintf(buf, "%s                %sRanger%s    --  Roamer of Worlds\r\n",
 				buf, CCGRN(d->character, C_NRM), CCCYN(d->character, C_NRM));
-		if (GET_CLASS(ch) != CLASS_CLERIC && race_restr[i][CLASS_CLERIC + 1])
+		if (GET_CLASS(ch) != CLASS_CLERIC && GET_CLASS(ch) != CLASS_MONK &&
+				race_restr[i][CLASS_CLERIC + 1])
 			sprintf(buf, "%s                %sCleric%s    --  Servant of Diety\r\n",
 				buf, CCGRN(d->character, C_NRM), CCCYN(d->character, C_NRM));
 		if (GET_CLASS(ch) != CLASS_THIEF && race_restr[i][CLASS_THIEF + 1])
@@ -129,7 +131,8 @@ show_char_class_menu(struct descriptor_data *d, int timeframe = 0)
 	}
 
 	// Monks are both future and past
-	if (GET_CLASS(ch) != CLASS_MONK && race_restr[i][CLASS_MONK + 1])
+	if (GET_CLASS(ch) != CLASS_MONK && GET_CLASS(ch) != CLASS_KNIGHT && 
+		GET_CLASS(ch) != CLASS_CLERIC && race_restr[i][CLASS_MONK + 1])
 		sprintf(buf,
 			"%s                %sMonk%s      --  Philosophical Warrior\r\n", buf,
 			CCGRN(ch, C_NRM), CCCYN(ch, C_NRM));

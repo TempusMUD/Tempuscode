@@ -284,7 +284,7 @@ char *AN(char *str);
 
 #define ILLEGAL_IMPLANTPOS(pos) \
      (pos == WEAR_LIGHT || pos == WEAR_SHIELD || pos == WEAR_ABOUT || \
-      pos == WEAR_WIELD || pos == WEAR_BELT ||    \
+      pos == WEAR_WIELD || pos == WEAR_BELT || pos == WEAR_HOLD ||   \
       pos == WEAR_WIELD_2 || pos == WEAR_RANDOM)
 
 #define GET_ROWS(ch)    ((ch)->player_specials->saved.page_length)

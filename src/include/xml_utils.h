@@ -26,12 +26,12 @@ xmlGetLongProp(xmlNodePtr n, const char *name)
  * Parses an integer from a named property in the given node
  **/
 static inline int
-xmlGetIntProp(xmlNodePtr n, const char *name)
+xmlGetIntProp(xmlNodePtr n, const char *name, int defValue = 0)
 {
 	int prop = 0;
 	xmlChar *c = xmlGetProp(n, (const xmlChar *)name);
 	if (c == NULL)
-		return 0;
+		return defValue;
 	prop = atoi((const char *)c);
 	free(c);
 	return prop;

@@ -88,7 +88,7 @@ implanter_implant(char_data *me, char_data *ch, char *args)
 
 	if ((pos = search_block(buf2, wear_implantpos, 0)) < 0 ||
 		(ILLEGAL_IMPLANTPOS(pos) && !IS_OBJ_TYPE(implant, ITEM_TOOL))) {
-		sprintf(buf, "'%s' isn't a invalid position.", buf2);
+		sprintf(buf, "'%s' isn't a valid position.", buf2);
 		perform_tell(me, ch, buf);
 		implanter_show_pos(me, ch, implant);
 		return;

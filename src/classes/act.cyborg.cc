@@ -2414,6 +2414,7 @@ ACMD(do_insert)
 				"You must be holding a cyber surgery tool to do this.\r\n");
 			return;
 		}
+
 		if (!IS_CYBORG(vict)) {
 			send_to_char(ch,
 				"Your subject is not prepared for such enhancement.\r\n");
@@ -2423,8 +2424,9 @@ ACMD(do_insert)
 
 	one_argument(argument, buf);
 
-	if ((pos = search_block(buf, wear_implantpos, 0)) < 0 ||
-		(ILLEGAL_IMPLANTPOS(pos) && !IS_OBJ_TYPE(obj, ITEM_TOOL))) {
+	pos = search_block(buf, wear_implantpos, 0);
+	if (pos < 0 || ((GET_LEVEL(ch) < LVL_IMMORT &&
+		ILLEGAL_IMPLANTPOS(pos) && !IS_OBJ_TYPE(obj, ITEM_TOOL)))) {
 		send_to_char(ch, "Invalid implant position.\r\n");
 		return;
 	}

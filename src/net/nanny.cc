@@ -685,6 +685,16 @@ nanny(struct descriptor_data * d, char *arg)
 				SEND_TO_Q(CCGRN(d->character, C_NRM), d);
 				SEND_TO_Q("\r\nYou can't remort to your primary class!\r\n", d);
 				
+			} else if ((GET_CLASS(d->character) == CLASS_MONK &&
+					(GET_REMORT_CLASS(d->character) == CLASS_KNIGHT ||
+					GET_REMORT_CLASS(d->character) == CLASS_CLERIC)) ||
+					((GET_CLASS(d->character) == CLASS_CLERIC ||
+					GET_CLASS(d->character) == CLASS_KNIGHT) &&
+					GET_REMORT_CLASS(d->character) == CLASS_MONK)) {
+				// No being a monk and a knight or cleric
+				SEND_TO_Q(CCGRN(d->character, C_NRM), d);
+				SEND_TO_Q("\r\nYour religious beliefs are in conflict with that class!\r\n", d);
+				
 			} else {
 				if (GET_CLASS(d->character) == CLASS_VAMPIRE)
 					GET_CLASS(d->character) = GET_OLD_CLASS(d->character);

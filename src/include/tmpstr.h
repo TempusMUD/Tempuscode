@@ -16,6 +16,11 @@ inline char *tmp_strdup(char *src)
 	return tmp_strcat(src, NULL);
 }
 
+inline char *tmp_strcat(char *src_a, char *src_b)
+{
+	return tmp_strcat(src_a, src_b, NULL);
+}
+
 extern unsigned long tmp_max_used;
 extern unsigned long tmp_overruns;
 
