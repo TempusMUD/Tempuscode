@@ -335,6 +335,7 @@ Creature::loadObjects()
 
     char *path = get_equipment_file_path( GET_IDNUM(this) );
 	int axs = access(path, W_OK);
+	obj_data *obj;
 
 	if( axs != 0 ) {
 		if( errno != ENOENT ) {
@@ -360,10 +361,8 @@ Creature::loadObjects()
 
 	for ( xmlNodePtr node = root->xmlChildrenNode; node; node = node->next ) {
         if ( xmlMatches(node->name, "object") ) {
-			obj_data *obj;
-			CREATE(obj, obj_data, 1);
-			obj->clear();
-			CREATE(obj->shared, obj_shared_data, 1);
+
+			obj = create_obj();
 			if(!obj->loadFromXML(NULL,this,NULL,node) ) {
 				extract_obj(obj);
 			}
@@ -617,6 +616,21 @@ Creature::loadFromXML( const char *path )
     player.name = xmlGetProp(root, "name");
     char_specials.saved.idnum = xmlGetIntProp(root, "idnum");
     
+
+	player.short_descr = NULL;
+	player.long_descr = NULL;
+
+	if (points.max_mana < 100)
+		points.max_mana = 100;
+
+	char_specials.carry_weight = 0;
+	char_specials.carry_items = 0;
+	char_specials.worn_weight = 0;
+	points.armor = 100;
+	points.hitroll = 0;
+	points.damroll = 0;
+	setSpeed(0);
+
     // Read in the subnodes
 	for ( xmlNodePtr node = root->xmlChildrenNode; node; node = node->next ) {
         if ( xmlMatches(node->name, "points") ) {
@@ -836,20 +850,6 @@ Creature::loadFromXML( const char *path )
     }
 
     xmlFreeDoc(doc);
-
-	player.short_descr = NULL;
-	player.long_descr = NULL;
-
-	if (points.max_mana < 100)
-		points.max_mana = 100;
-
-	char_specials.carry_weight = 0;
-	char_specials.carry_items = 0;
-	char_specials.worn_weight = 0;
-	points.armor = 100;
-	points.hitroll = 0;
-	points.damroll = 0;
-	setSpeed(0);
 
 	// reset all imprint rooms
 	for( int i = 0; i < MAX_IMPRINT_ROOMS; i++ )
