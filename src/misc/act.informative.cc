@@ -97,6 +97,7 @@ long find_char_class_bitvector(char arg);
 void gain_skill_prof(struct char_data *ch, int skillnum);
 int isbanned(char *hostname, char *blocking_hostname);
 char *obj_cond(struct obj_data *obj);  /** writes to buf2 **/
+char *obj_cond_color(struct obj_data *obj, struct char_data *ch);  /**writes to buf2 **/
 int same_obj(struct obj_data * obj1, struct obj_data * obj2);
 
 ACMD(do_stand);
@@ -1954,7 +1955,7 @@ ACMD(do_examine)
 	    act("$p looks like it has been enhanced.",
 		FALSE,ch,tmp_object,0,TO_CHAR);
     
-	obj_cond(tmp_object);
+	obj_cond_color(tmp_object, ch);
 	sprintf(buf, "$p seems to be in %s condition.", buf2);
 	act(buf, FALSE, ch, tmp_object, 0, TO_CHAR);
 
@@ -2521,7 +2522,7 @@ ACMD(do_equipment)
 		if (!(obj = GET_EQ(ch, i)))
 		    continue;
 		sprintf(outbuf, "%s-%s- is in %s condition.\r\n", outbuf,
-			obj->short_description, obj_cond(obj));
+			obj->short_description, obj_cond_color(obj, ch));
 	    }
 	    page_string(ch->desc, outbuf, 1);
 	    return;
@@ -2602,7 +2603,7 @@ ACMD(do_equipment)
 			send_to_char(buf, ch);
 		    }
 		    sprintf(buf, "%s is in %s condition.\r\n", obj->short_description,
-			    obj_cond(obj));
+			    obj_cond_color(obj, ch));
 		    send_to_char(buf, ch);
 		}
 		return;

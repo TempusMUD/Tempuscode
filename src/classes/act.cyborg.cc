@@ -31,6 +31,7 @@ void gain_skill_prof(struct char_data *ch, int skillnum);
 void appear(struct char_data *ch, struct char_data *vict);
 void look_at_target(struct char_data *ch, char *arg);
 char *obj_cond(struct obj_data *obj);  /** writes to buf2 **/
+char *obj_cond_color(struct obj_data *obj, struct char_data *ch); 
 
 ACMD(do_not_here);
 ACMD(do_examine);
@@ -1777,8 +1778,8 @@ ACMD(do_status)
     default:
     break;
     }
-    sprintf(buf, "%s is in %s condition.\r\n",
-        obj->short_description, obj_cond(obj));
+	
+    sprintf(buf, "%s is in %s condition.\r\n", obj->short_description, obj_cond_color( obj, ch ) );
     send_to_char(CAP(buf), ch);
   
 }
@@ -2075,6 +2076,43 @@ obj_cond(struct obj_data *obj)
     else 
     strcpy(buf2, "terrible");
      
+    if (IS_OBJ_STAT2(obj, ITEM2_BROKEN))
+    strcat(buf2, " <broken>");
+
+    return(buf2);
+}
+
+char *
+obj_cond_color(struct obj_data *obj, struct char_data *ch)
+{
+
+    int num;
+  
+    if (GET_OBJ_DAM(obj) == -1 || GET_OBJ_MAX_DAM(obj) == -1)
+    num = 0;
+    else if (GET_OBJ_MAX_DAM(obj) == 0) {
+    sprintf(buf2, "%sfrail%s", CCYEL(ch, C_NRM), CCNRM(ch, C_NRM) );
+    return (buf2);
+    } else
+    num = ((GET_OBJ_MAX_DAM(obj) - GET_OBJ_DAM(obj)) * 100 / 
+           GET_OBJ_MAX_DAM(obj));
+
+    if (num == 0)
+    strcpy(buf2, "perfect");
+    else if (num < 10)
+    strcpy(buf2, "excellent");
+    else if (num < 30)
+    sprintf(buf2, "%sgood%s", CCCYN(ch, C_NRM), CCNRM(ch, C_NRM) );
+    else if (num < 50)
+    sprintf(buf2, "%sfair%s", CCCYN(ch, C_NRM), CCNRM(ch, C_NRM) );
+    else if (num < 60)
+    sprintf(buf2, "%sworn%s", CCYEL(ch, C_NRM), CCNRM(ch, C_NRM) );
+    else if (num < 70)
+    sprintf(buf2, "%sshabby%s", CCYEL(ch, C_NRM), CCNRM(ch, C_NRM) );
+    else if (num < 90) 
+    sprintf(buf2, "%sbad%s", CCYEL(ch, C_NRM), CCNRM(ch, C_NRM) );
+    else 
+    sprintf(buf2, "%sterrible%s", CCRED(ch, C_NRM), CCNRM(ch, C_NRM) );
     if (IS_OBJ_STAT2(obj, ITEM2_BROKEN))
     strcat(buf2, " <broken>");
 
