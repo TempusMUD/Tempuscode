@@ -139,7 +139,7 @@ obj_data::loadFromXML(obj_data *container, Creature *victim, room_data* room, xm
 	
 	if( vnum < 0 ) {
 		slog("obj_data->loadFromXML found vnum %d in %s's file. Junking.",
-			  vnum, GET_NAME(victim) );
+			  vnum, GET_NAME(victim) ? GET_NAME(victim):"(null)");
 		return false;
 	}
 
@@ -148,7 +148,7 @@ obj_data::loadFromXML(obj_data *container, Creature *victim, room_data* room, xm
 	obj_data* prototype = real_object_proto(vnum);
 	if(!prototype) {
 		slog("Object #%d being removed from %s's rent",
-			vnum, GET_NAME(victim));
+			vnum, GET_NAME(victim) ? GET_NAME(victim):"(null)");
 		return false;
 	}
 
