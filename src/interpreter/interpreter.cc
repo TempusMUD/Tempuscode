@@ -777,7 +777,6 @@ struct command_info cmd_info[] = {
 	{"guildsay", POS_RESTING, do_gen_comm, 0, SCMD_GUILDSAY, 0, 0},
 	{"guilddonate", POS_RESTING, do_drop, 0, SCMD_GUILD_DONATE, 0, 0},
 	{"gunset", POS_RESTING, do_gunset, 0, 0, 0, 0},
-    {"halo", POS_RESTING, do_action, 0, 0, 0, 0},
 
 	//    { "help"     , POS_DEAD    , do_help     , 0, 0 , 0 , 0},
 	{"help", POS_DEAD, do_hcollect_help, 0, 0, 0, 0},
@@ -787,6 +786,7 @@ struct command_info cmd_info[] = {
 	{"hack", POS_STANDING, do_gen_door, 1, SCMD_HACK, 0, 0},
 	{"halt", POS_DEAD, do_gen_tog, LVL_AMBASSADOR, SCMD_HALT, 0, 0},
 	{"handbook", POS_DEAD, do_hcollect_help, LVL_AMBASSADOR, SCMD_HANDBOOK, 0, 0},
+    {"halo", POS_RESTING, do_action, 0, 0, 0, 0},
 	{"handshake", POS_RESTING, do_action, 0, 0, 0, 0},
 	{"hangover", POS_RESTING, do_action, 0, 0, 0, 0},
 	{"happy", POS_RESTING, do_action, 0, 0, 0, 0},
