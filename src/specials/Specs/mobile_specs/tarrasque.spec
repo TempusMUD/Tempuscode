@@ -333,7 +333,7 @@ tarrasque_follow(Creature *tarr)
 SPECIAL(tarrasque)
 {
 
-	static int mode = 0, checked = FALSE;
+	static int mode = T_ACTIVE, checked = FALSE;
 	struct Creature *tarr = (struct Creature *)me;
 	struct room_data *rm = NULL;
 
