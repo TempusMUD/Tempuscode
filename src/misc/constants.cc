@@ -116,6 +116,7 @@ extern const char *search_bits[] = {
   "NOMERC",
   "NOHOOD",
   "NOABBREV",
+  "NOAFFMOB",
   "\n"
 };
 
@@ -145,6 +146,7 @@ extern const char *searchflag_help[] = {
     "NOMERC",
     "NOHOOD",
     "abbreviated keywords will not work (prevent guessing.)",
+    "spell and damage do not affect mobs in the room.",
     "\n"
 };
 

@@ -49,9 +49,10 @@
 #define SRCH_NOMERC             (1 << 22)
 #define SRCH_NOHOOD             (1 << 23)
 #define SRCH_NOABBREV           (1 << 24)
+#define SRCH_NOAFFMOB           (1 << 25)
 
 
-#define NUM_SRCH_BITS           25
+#define NUM_SRCH_BITS           26
 
 struct special_search_data {
   char *command_keys;             /* which command activates          */

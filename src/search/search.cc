@@ -380,6 +380,8 @@ general_search( struct char_data *ch, struct special_search_data *srch,int mode 
 	    for ( mob = targ_room->people; mob; mob = next_mob ) {
             next_mob = mob->next_in_room;
 
+            if ( SRCH_FLAGGED( srch, SRCH_NOAFFMOB ) && IS_NPC(mob))
+                continue;
             if ( affected_by_spell( ch, srch->arg[2] ) )
                 continue;
 
@@ -466,6 +468,9 @@ general_search( struct char_data *ch, struct special_search_data *srch,int mode 
 	    for ( mob = targ_room->people; mob; mob = next_mob ) {
 		next_mob = mob->next_in_room;
 	
+        if ( SRCH_FLAGGED( srch, SRCH_NOAFFMOB ) && IS_NPC(mob))
+            continue;
+
 		if ( mob == ch )
 		    killed = damage( NULL, mob, 
 				     dice( srch->arg[0], srch->arg[0] ), srch->arg[2],
