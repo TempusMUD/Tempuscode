@@ -3561,7 +3561,7 @@ Creature *
 load_familiar(Creature *ch, int sect_type, int type)
 {
 	Creature *result;
-	const char *to_char, *to_room;
+	const char *to_char = NULL, *to_room = NULL;
 
 	switch (sect_type) {
 	case SECT_CITY:
