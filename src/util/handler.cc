@@ -1801,7 +1801,7 @@ extract_obj(struct obj_data *obj)
 	if (obj->worn_by != NULL)
 		if (unequip_char(obj->worn_by, obj->worn_on,
 				(obj == GET_EQ(obj->worn_by, obj->worn_on) ?
-					MODE_EQ : MODE_IMPLANT)) != obj)
+					MODE_EQ : MODE_IMPLANT), true) != obj)
 			slog("SYSERR: Inconsistent worn_by and worn_on pointers!!");
 	if (obj->in_room != NULL)
 		obj_from_room(obj);
