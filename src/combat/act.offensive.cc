@@ -212,11 +212,19 @@ calc_skill_prob(struct char_data *ch, struct char_data *vict, int skillnum,
     
 	*dam = dice(3, (GET_LEVEL(ch) >> 3));
 	ADD_EQ_DAM(ch, WEAR_HEAD);
+    if(IS_BARB(ch))
+        *dam = *dam << 1;
 
 	*vict_wait = 1 RL_SEC;
 	*wait = 4 RL_SEC;
 	*loc = WEAR_HEAD;
-
+    // Barb headbutt should be nastier
+    if(IS_BARB(ch) && 0) {
+        int margin;
+        margin = (GET_STR(ch)/2) - number(1,20);
+        if(number(1,20) > (GET_DEX(vict) - margin))
+            *vict_pos = POS_SITTING;
+    }
 	break;
 
     case SKILL_GOUGE:
@@ -269,6 +277,8 @@ calc_skill_prob(struct char_data *ch, struct char_data *vict, int skillnum,
     
 	*move = 20;
 	*dam = dice(10 + GET_LEVEL(ch), GET_STR(ch));
+    if(!IS_BARB(ch) && GET_LEVEL(ch) < LVL_IMMORT)
+        *dam = *dam >> 2;
 	ADD_EQ_DAM(ch, WEAR_CROTCH);
 	if (!MOB_FLAGGED(vict, MOB_NOBASH))
 	    *vict_pos = POS_SITTING;
